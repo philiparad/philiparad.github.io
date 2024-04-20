@@ -208,6 +208,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const App = () => {
   const styles = (0,_createStyles__WEBPACK_IMPORTED_MODULE_2__.createStyles)();
+  localStorage.setItem('error', false);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("style", null, styles), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataLoader__WEBPACK_IMPORTED_MODULE_1__["default"], null));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (App);
@@ -244,6 +245,33 @@ const DataDisplay = _ref => {
   }))))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DataDisplay);
+
+/***/ }),
+
+/***/ "./src/DataError.js":
+/*!**************************!*\
+  !*** ./src/DataError.js ***!
+  \**************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+
+const DataError = () => {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "dataError"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("img", {
+    className: "dataErrorIcon",
+    src: './img/error.png',
+    alt: "Error"
+  }));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DataError);
 
 /***/ }),
 
@@ -285,9 +313,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _DataIdle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DataIdle */ "./src/DataIdle.js");
 /* harmony import */ var _DataLoading__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DataLoading */ "./src/DataLoading.js");
-/* harmony import */ var _DataDisplay__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DataDisplay */ "./src/DataDisplay.js");
-/* harmony import */ var fsm_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! fsm-react */ "./node_modules/fsm-react/FSM.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var _DataError__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DataError */ "./src/DataError.js");
+/* harmony import */ var _DataDisplay__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DataDisplay */ "./src/DataDisplay.js");
+/* harmony import */ var _ToggleAPI__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ToggleAPI */ "./src/ToggleAPI.js");
+/* harmony import */ var fsm_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! fsm-react */ "./node_modules/fsm-react/FSM.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+
+
 
 
 
@@ -323,12 +355,13 @@ const DataLoader = () => {
       [transitions.RESET]: states.IDLE
     }
   };
-  const [currentState, transition] = (0,fsm_react__WEBPACK_IMPORTED_MODULE_4__.useFSM)(initialState, states, transitions, transitionMap);
+  const [currentState, transition] = (0,fsm_react__WEBPACK_IMPORTED_MODULE_6__.useFSM)(initialState, states, transitions, transitionMap);
   const [data, setData] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     if (currentState === states.LOADING) {
       setTimeout(() => {
-        fetch('https://restcountries.com/v3.1/region/europe').then(response => response.json()).then(data => {
+        const api = localStorage.getItem('error') === 'true' ? 'https://restcountriesxx.com/v3.1/region/europe' : 'https://restcountries.com/v3.1/region/europe';
+        fetch(api).then(response => response.json()).then(data => {
           if (data) {
             transition(transitions.SUCCESS);
             setData(data);
@@ -342,21 +375,22 @@ const DataLoader = () => {
       }, 4000);
     }
   }, [currentState, transition]);
-  const randomCountries = data ? (0,_utils__WEBPACK_IMPORTED_MODULE_5__.getRandomCountries)(data, 10) : [];
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
-    className: "currentState"
-  }, "Current State: ", currentState), currentState === states.IDLE && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataIdle__WEBPACK_IMPORTED_MODULE_1__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+  const randomCountries = data ? (0,_utils__WEBPACK_IMPORTED_MODULE_7__.getRandomCountries)(data, 10) : [];
+  const currentClass = currentState === states.ERROR ? "currentStateError" : "currentState";
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_ToggleAPI__WEBPACK_IMPORTED_MODULE_5__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", {
+    className: currentClass
+  }, "** Current State: ", currentState, " **"), currentState === states.IDLE && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataIdle__WEBPACK_IMPORTED_MODULE_1__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
     className: "fetchButton",
     onClick: () => transition(transitions.FETCH)
-  }, "Fetch Data")), currentState === states.LOADING && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataLoading__WEBPACK_IMPORTED_MODULE_2__["default"], null), currentState === states.SUCCESS && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataDisplay__WEBPACK_IMPORTED_MODULE_3__["default"], {
+  }, "Fetch Data")), currentState === states.LOADING && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataLoading__WEBPACK_IMPORTED_MODULE_2__["default"], null), currentState === states.SUCCESS && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataDisplay__WEBPACK_IMPORTED_MODULE_4__["default"], {
     data: randomCountries
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
     className: "resetButton",
     onClick: () => transition(transitions.RESET)
-  }, "Reset")), currentState === states.ERROR && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+  }, "Reset")), currentState === states.ERROR && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_DataError__WEBPACK_IMPORTED_MODULE_3__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
     className: "tryAgainButton",
     onClick: () => transition(transitions.RESET)
-  }, "Try Again"));
+  }, "Try Again")));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (DataLoader);
 
@@ -387,6 +421,35 @@ const DataLoading = () => {
 
 /***/ }),
 
+/***/ "./src/ToggleAPI.js":
+/*!**************************!*\
+  !*** ./src/ToggleAPI.js ***!
+  \**************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+
+const ToggleAPI = () => {
+  const [isChecked, setIsChecked] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(localStorage.getItem('error') === 'true');
+  const handleClick = () => {
+    localStorage.setItem('error', !isChecked);
+    setIsChecked(!isChecked);
+  };
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+    className: "toggleAPI",
+    onClick: handleClick
+  }, "API with error: ", isChecked.toString());
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ToggleAPI);
+
+/***/ }),
+
 /***/ "./src/createStyles.js":
 /*!*****************************!*\
   !*** ./src/createStyles.js ***!
@@ -398,7 +461,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   createStyles: () => (/* binding */ createStyles)
 /* harmony export */ });
-const createStyles = () => "\n  .currentState {\n    font-weight: bold;\n    color: #1890ff;\n    margin-bottom: 10px;\n    margin-left: 5px;\n  }\n\n  .fetchButton, .resetButton, .tryAgainButton {\n    background-color: #1890ff;\n    color: #fff;\n    border: none;\n    padding: 10px 20px;\n    border-radius: 5px;\n    cursor: pointer;\n    margin-right: 10px;\n    margin-top: 10px;\n    margin-left: 5px;\n  }\n\n  .tryAgainButton {\n    background-color: #ff4d4f;\n  }\n\n  .countryTable {\n    width: 500px;\n    border-collapse: collapse;\n    margin-left: 5px;\n  }\n\n  .countryTable th, .countryTable td {\n    border: 1px solid #ddd;\n    padding: 8px;\n    text-align: left;\n  }\n\n  .countryTable th {\n    background-color: #f2f2f2;\n  }\n\n  .countryTable img {\n    vertical-align: middle;\n  }\n\n  .dataLoading, .dataIdle {\n    width: 500px;\n    height: 509px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    background-color: #f0f0f0; /* Grey background color */\n  }\n\n  .spinner {\n    border: 8px solid #f3f3f3;\n    border-top: 8px solid #3498db;\n    border-radius: 50%;\n    width: 64px;\n    height: 64px;\n    animation: spin 1s linear infinite;\n  }\n\n\n  @keyframes spin {\n    0% { transform: rotate(0deg); }\n    100% { transform: rotate(360deg); }\n  }\n";
+const createStyles = () => "\n  .currentState {\n    font-weight: bold;\n    color: #1890ff;\n    font-family: arial;\n    margin-bottom: 10px;\n    margin-left: 5px;\n  }\n\n  .currentStateError {\n    font-weight: bold;\n    color: #ff4d4f;\n    font-family: arial;\n    margin-bottom: 10px;\n    margin-left: 5px;\n  }\n\n  .fetchButton, .resetButton, .tryAgainButton {\n    background-color: #1890ff;\n    color: #fff;\n    border: none;\n    padding: 10px 20px;\n    border-radius: 5px;\n    cursor: pointer;\n    margin-right: 10px;\n    margin-top: 10px;\n    margin-left: 5px;\n  }\n\n  .tryAgainButton {\n    background-color: #ff4d4f;\n  }\n\n  .countryTable {\n    width: 500px;\n    border-collapse: collapse;\n    margin-left: 5px;\n  }\n\n  .countryTable th, .countryTable td {\n    border: 1px solid #ddd;\n    padding: 8px;\n    text-align: left;\n  }\n\n  .countryTable th {\n    background-color: #f2f2f2;\n  }\n\n  .countryTable img {\n    vertical-align: middle;\n  }\n\n  .dataLoading, .dataIdle, .dataError {\n    width: 500px;\n    height: 509px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    background-color: #fff;\n    border-radius: 10px;\n    border: 4px solid;\n  }\n\n  .dataLoading, .dataIdle {\n\t  border-color: #1890ff;\n  }\n\n  .dataError {\n\tborder-color: #ff4d4f;\n  }\n\n  .dataErrorIcon {\n\t  width: 70px;\n  }\n\n  .spinner {\n    border: 8px solid #f3f3f3;\n    border-top: 8px solid #3498db;\n    border-radius: 50%;\n    width: 64px;\n    height: 64px;\n    animation: spin 1s linear infinite;\n  }\n\n  .toggleAPI {\n    background-color: #fff;\n    color: #1890ff;\n    font-weight: bold;\n    border: 3px solid;\n    padding: 10px 20px;\n    border-radius: 5px;\n    cursor: pointer;\n    margin-right: 10px;\n    margin-top: 10px;\n    margin-left: 5px;\n  }\n\n  @keyframes spin {\n    0% { transform: rotate(0deg); }\n    100% { transform: rotate(360deg); }\n  }\n";
 
 /***/ }),
 
@@ -37031,7 +37094,7 @@ module.exports.formatError = function (err) {
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("8c00150439138cffa44e")
+/******/ 		__webpack_require__.h = () => ("d34cffcbcae0a83058ec")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
