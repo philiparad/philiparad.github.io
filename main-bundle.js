@@ -195,7 +195,19 @@ const DataLoader = () => {
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     if (currentState === states.LOADING) {
       setTimeout(() => {
-        const api = localStorage.getItem('error') === 'true' ? 'https://restcountriesxx.com/v3.1/region/europe' : 'https://restcountries.com/v3.1/region/europe';
+        // Define the base API URL for fetching countries data
+        let api = 'https://restcountries.com/v3.1/region/europe';
+
+        // Check if 'error' flag is set in localStorage and update API accordingly
+        if (localStorage.getItem('error') === 'true') {
+          api = 'https://restcountriesxx.com/v3.1/region/europe';
+        }
+
+        // Check if 'mock' parameter is present in the URL and update API accordingly
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.has('mock')) {
+          api = 'http://localhost:9000/countries_mock';
+        }
         fetch(api).then(response => response.json()).then(data => {
           if (data) {
             transition(transitions.SUCCESS);
