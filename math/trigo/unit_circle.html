@@ -382,10 +382,10 @@
 
 
               <!-- fixed angle labels -->
-              <text x="550" y="250" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">0°</text>
-              <text x="350" y="50" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">90°</text>
-              <text x="150" y="250" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">180°</text>
-              <text x="350" y="450" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">270°</text>
+              <text id="axisAngle0" x="550" y="250" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">0°</text>
+              <text id="axisAngle90" x="350" y="50" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">90°</text>
+              <text id="axisAngle180" x="150" y="250" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">180°</text>
+              <text id="axisAngle270" x="350" y="450" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">270°</text>
 
               <!-- tangent guide -->
               <line id="tangentGuide" x1="530" y1="50" x2="530" y2="450" stroke="#d1d5db" stroke-width="2" stroke-dasharray="4 6"></line>
@@ -459,6 +459,10 @@
         tick0: document.getElementById('tick0'),
         tick180: document.getElementById('tick180'),
         tick360: document.getElementById('tick360'),
+        axisAngle0: document.getElementById('axisAngle0'),
+        axisAngle90: document.getElementById('axisAngle90'),
+        axisAngle180: document.getElementById('axisAngle180'),
+        axisAngle270: document.getElementById('axisAngle270'),
         commonAngles: document.getElementById('commonAngles'),
         radiusLine: document.getElementById('radiusLine'),
         cosLine: document.getElementById('cosLine'),
@@ -580,6 +584,20 @@
           elements.tick0.textContent = '0°';
           elements.tick180.textContent = '180°';
           elements.tick360.textContent = '360°';
+        }
+      }
+
+      function updateAxisAngleLabels(){
+        if (state.useRadians){
+          elements.axisAngle0.innerHTML = '0';
+          elements.axisAngle90.innerHTML = 'π/2';
+          elements.axisAngle180.innerHTML = 'π';
+          elements.axisAngle270.innerHTML = '3π/2';
+        } else {
+          elements.axisAngle0.textContent = '0°';
+          elements.axisAngle90.textContent = '90°';
+          elements.axisAngle180.textContent = '180°';
+          elements.axisAngle270.textContent = '270°';
         }
       }
 
@@ -795,7 +813,11 @@
                 callbacks: {
                   title(items){
                     if (!items.length) return '';
-                    return `θ = ${items[0].parsed.x}°`;
+                    const degrees = items[0].parsed.x;
+                    if (state.useRadians){
+                      return `θ = ${radiansToPI(degrees * Math.PI / 180)}`;
+                    }
+                    return `θ = ${degrees}°`;
                   }
                 }
               },
@@ -916,6 +938,7 @@
         elements.angleSlider.value = String(state.angle);
 
         updateTicks();
+        updateAxisAngleLabels();
         renderButtons();
 
         elements.radiusLine.setAttribute('x2', pointX);
