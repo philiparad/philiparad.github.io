@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Unit Circle</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg1:#eff6ff;
+      --bg2:#f5f3ff;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --blue:#3b82f6;
+      --red:#ef4444;
+      --green:#22c55e;
+      --orange:#f97316;
+      --purple:#8b5cf6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      min-height:100vh;
+    }
+    .app{
+      max-width:1400px;
+      margin:0 auto;
+      padding:24px;
+    }
+    h1{
+      text-align:center;
+      margin:0 0 24px;
+      font-size:2rem;
+    }
+    .layout{
+      display:flex;
+      gap:32px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .left{
+      width:340px;
+      flex:0 0 340px;
+      display:flex;
+      flex-direction:column;
+      gap:24px;
+    }
+    .right{
+      flex:1 1 720px;
+      display:flex;
+      flex-direction:column;
+      gap:24px;
+      min-width:720px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:24px;
+    }
+    h2,h3{
+      margin:0 0 16px;
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin:12px 0;
+    }
+    .mono{
+      font-family:Consolas, Monaco, monospace;
+      font-size:1.1rem;
+      font-weight:700;
+    }
+    .red{color:var(--red)}
+    .green{color:var(--green)}
+    .orange{color:var(--orange)}
+    .purple{color:var(--purple)}
+    .btn{
+      border:none;
+      background:#f3f4f6;
+      color:#374151;
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      transition:.15s ease;
+      font-weight:600;
+    }
+    .btn:hover{filter:brightness(.97)}
+    .btn.primary{background:#dbeafe;color:#1d4ed8}
+    .btn.primary:hover{background:#bfdbfe}
+    .btn.active{
+      background:#f3f4f6;
+      color:#1d4ed8;
+      border:2px solid var(--blue);
+      box-shadow:0 0 0 2px rgba(59,130,246,0.15);
+    }
+    .angles{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+    }
+    .range-wrap{margin-top:8px}
+    input[type="range"]{
+      width:100%;
+      cursor:pointer;
+    }
+    .ticks{
+      display:flex;
+      justify-content:space-between;
+      font-size:.8rem;
+      color:var(--muted);
+      margin-top:6px;
+    }
+    .svg-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:14px;
+      position:relative;
+    }
+    svg{
+      display:block;
+      background:white;
+      user-select:none;
+      touch-action:none;
+    }
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin:8px 0;
+      font-size:.95rem;
+    }
+    .swatch{
+      width:24px;
+      height:4px;
+      border-radius:99px;
+      flex:0 0 auto;
+    }
+    .footer{
+      margin-top:24px;
+      text-align:center;
+      max-width:900px;
+      margin-left:auto;
+      margin-right:auto;
+      color:#4b5563;
+      line-height:1.6;
+    }
+    .math{
+      font-size:1rem;
+    }
+    @media (max-width: 1180px){
+      .right{min-width:0}
+      .left{width:100%; flex-basis:100%}
+      .layout{flex-direction:column}
+    }
+  
+.mj-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mj-inline .MathJax {
+  display: inline !important;
+}
+
+
+.legend-row{
+  display:flex;
+  flex-wrap:nowrap;
+  gap:24px;
+  align-items:center;
+  justify-content:flex-start;
+  overflow-x:auto;
+}
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0;
+  font-size:.95rem;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+.legend-item .MathJax{
+  display:inline !important;
+}
+
+
+.quadrant-box{
+  margin-top:16px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fafafa;
+}
+.quadrant-title{
+  font-weight:700;
+  margin-bottom:10px;
+}
+.quadrant-name{
+  color:var(--blue);
+  font-weight:800;
+}
+.sign-grid{
+  display:grid;
+  grid-template-columns:repeat(3, auto);
+  gap:8px 14px;
+  align-items:center;
+  font-size:.95rem;
+}
+.sign-plus{color:#16a34a;font-weight:700}
+.sign-minus{color:#dc2626;font-weight:700}
+.sign-note{
+  color:var(--muted);
+  font-size:.9rem;
+  margin-top:10px;
+}
+
+
+.chart-card .chart-wrap{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:white;
+  padding:12px;
+}
+#trigChart{
+  width:100%;
+  height:460px;
+  display:block;
+}
+.chart-note{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:.92rem;
+  line-height:1.5;
+}
+
+
+.graph-legend{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-top:12px;
+}
+.graph-legend .item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
+
+
+.angle-mathjax{
+  position:absolute;
+  left:360px;
+  top:228px;
+  color:#8b5cf6;
+  font-size:13px;
+  font-weight:600;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  z-index:5;
+  white-space:nowrap;
+}
+.angle-mathjax .MathJax{
+  font-size:1em !important;
+}
+
+</style>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+</head>
+<body>
+  <div class="app">
+    <h1>Interactive Unit Circle</h1>
+
+    <div class="layout">
+      <div class="left">
+        <section class="card">
+          <h2>Current Values</h2>
+          <div class="row">
+            <span><span class="mj-inline">Angle (\(\theta\)):</span></span>
+            <span id="angleDisplay" class="mono purple"></span>
+          </div>
+          <div class="row">
+            <button id="toggleUnits" class="btn primary"></button>
+          </div>
+          <div class="row">
+            <span>\(\cos(\theta)\):</span>
+            <span id="cosDisplay" class="mono red"></span>
+          </div>
+          <div class="row">
+            <span>\(\sin(\theta)\):</span>
+            <span id="sinDisplay" class="mono green"></span>
+          </div>
+          <div class="row">
+            <span>\(\tan(\theta)\):</span>
+            <span id="tanDisplay" class="mono orange"></span>
+          </div>
+          <div class="row">
+            <span>Point:</span>
+            <span id="pointDisplay" class="mono"></span>
+          </div>
+          <div class="quadrant-box">
+            <div>Current quadrant: <span id="quadrantName" class="quadrant-name">Quadrant I</span></div>
+            <div class="sign-grid" style="margin-top:10px;">
+              <span>\(\cos(\theta)\)</span><span>=</span><span id="cosSign" class="sign-plus">positive</span>
+              <span>\(\sin(\theta)\)</span><span>=</span><span id="sinSign" class="sign-plus">positive</span>
+              <span>\(\tan(\theta)\)</span><span>=</span><span id="tanSign" class="sign-plus">positive</span>
+            </div>
+            <div id="quadrantRule" class="sign-note">In Quadrant I, all three values are positive.</div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Angle Control</h3>
+          <div class="range-wrap">
+            <input id="angleSlider" type="range" min="0" max="360" value="0" />
+            <div class="ticks">
+              <span id="tick0">0°</span>
+              <span id="tick180">180°</span>
+              <span id="tick360">360°</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Common Angles</h3>
+          <div id="commonAngles" class="angles"></div>
+        </section>
+      </div>
+
+      <div class="right">
+        <section class="card">
+          <div class="svg-wrap">
+            <svg id="unitCircleSvg" width="700" height="500" viewBox="0 0 700 500" aria-label="Interactive unit circle">
+              <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f0f0f0" stroke-width="1"></path>
+                </pattern>
+              </defs>
+
+              <rect width="700" height="500" fill="url(#grid)"></rect>
+
+              <!-- axes -->
+              <line x1="50" y1="250" x2="650" y2="250" stroke="#666" stroke-width="2"></line>
+              <line x1="350" y1="50" x2="350" y2="450" stroke="#666" stroke-width="2"></line>
+
+              <!-- axis labels -->
+              <text x="638" y="242" fill="#666" font-size="14">x</text>
+              <text x="360" y="62" fill="#666" font-size="14">y</text>
+
+              <!-- circle -->
+              <circle cx="350" cy="250" r="180" fill="none" stroke="#333" stroke-width="3"></circle>
+
+              <!-- quadrant learning overlays -->
+              <path id="quad1Sector" d="M 350 250 L 530 250 A 180 180 0 0 0 350 70 Z" fill="#dbeafe" opacity="0.18"></path>
+              <path id="quad2Sector" d="M 350 250 L 350 70 A 180 180 0 0 0 170 250 Z" fill="#dcfce7" opacity="0.18"></path>
+              <path id="quad3Sector" d="M 350 250 L 170 250 A 180 180 0 0 0 350 430 Z" fill="#fee2e2" opacity="0.18"></path>
+              <path id="quad4Sector" d="M 350 250 L 350 430 A 180 180 0 0 0 530 250 Z" fill="#ffedd5" opacity="0.18"></path>
+
+              <text x="440" y="150" text-anchor="middle" fill="#1d4ed8" font-size="22" font-weight="800">Q1</text>
+              <text x="260" y="150" text-anchor="middle" fill="#15803d" font-size="22" font-weight="800">Q2</text>
+              <text x="260" y="350" text-anchor="middle" fill="#b91c1c" font-size="22" font-weight="800">Q3</text>
+              <text x="440" y="350" text-anchor="middle" fill="#c2410c" font-size="22" font-weight="800">Q4</text>
+
+
+              <!-- fixed angle labels -->
+              <text x="550" y="250" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">0°</text>
+              <text x="350" y="50" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">90°</text>
+              <text x="150" y="250" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">180°</text>
+              <text x="350" y="450" text-anchor="middle" dominant-baseline="middle" fill="#4b5563" font-size="13" font-weight="600">270°</text>
+
+              <!-- tangent guide -->
+              <line id="tangentGuide" x1="530" y1="50" x2="530" y2="450" stroke="#d1d5db" stroke-width="2" stroke-dasharray="4 6"></line>
+
+              <!-- dynamic graphics -->
+              <path id="angleArc" d="" fill="none" stroke="#8b5cf6" stroke-width="2"></path>
+              <line id="radiusLine" x1="350" y1="250" x2="530" y2="250" stroke="#3b82f6" stroke-width="3"></line>
+              <line id="cosLine" x1="350" y1="250" x2="530" y2="250" stroke="#ef4444" stroke-width="3" stroke-dasharray="5 5"></line>
+              <line id="sinLine" x1="530" y1="250" x2="530" y2="250" stroke="#22c55e" stroke-width="3" stroke-dasharray="5 5"></line>
+
+              <line id="tanSegment" x1="530" y1="250" x2="530" y2="250" stroke="#f97316" stroke-width="4" visibility="hidden"></line>
+              <line id="tanConnector" x1="530" y1="250" x2="530" y2="250" stroke="#f97316" stroke-width="2" stroke-dasharray="3 6" visibility="hidden"></line>
+              <circle id="tanPoint" cx="530" cy="250" r="5" fill="#f97316" stroke="white" stroke-width="2" visibility="hidden"></circle>
+              <text id="tanLabel" x="545" y="250" fill="#f97316" font-size="13" font-weight="700" visibility="hidden"></text>
+
+              <circle id="point" cx="530" cy="250" r="8" fill="#3b82f6" stroke="white" stroke-width="2" style="cursor:grab;"></circle>
+                            <text id="coordText" x="515" y="235" fill="#111827" font-size="14" font-weight="600"></text>
+            </svg>
+            <div id="angleMathJax" class="angle-mathjax" aria-hidden="true"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Legend</h3>
+          <div class="legend-row">
+            <div class="legend-item"><span class="swatch" style="background:#ef4444"></span><span>\(\cos(\theta)\) – horizontal component</span></div>
+            <div class="legend-item"><span class="swatch" style="background:#22c55e"></span><span>\(\sin(\theta)\) – vertical component</span></div>
+            <div class="legend-item"><span class="swatch" style="background:#3b82f6"></span><span>Radius – always length \(1\)</span></div>
+            <div class="legend-item"><span class="swatch" style="background:#f97316"></span><span>\(\tan(\theta)\) – vertical value on the line \(x=1\)</span></div>
+          </div>
+        </section>
+
+        <section class="card chart-card">
+          <h3 class="graph-title">Synchronized Trigonometric Graphs</h3>
+          <div class="chart-wrap">
+            <canvas id="trigChart"></canvas>
+          </div>
+          <div class="graph-legend">
+            <div class="item"><span class="swatch" style="background:#22c55e"></span><span>\(\sin(\theta)\)</span></div>
+            <div class="item"><span class="swatch" style="background:#ef4444"></span><span>\(\cos(\theta)\)</span></div>
+            <div class="item"><span class="swatch" style="background:#f97316"></span><span>\(\tan(\theta)\)</span></div>
+            <div class="item"><span class="swatch" style="background:#3b82f6"></span><span>shared angle position</span></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const state = {
+        angle: 0,
+        useRadians: false,
+        dragging: false
+      };
+
+      const centerX = 350;
+      const centerY = 250;
+      const radius = 180;
+      const EPS = 1e-6;
+      const svg = document.getElementById('unitCircleSvg');
+
+      const elements = {
+        angleDisplay: document.getElementById('angleDisplay'),
+        cosDisplay: document.getElementById('cosDisplay'),
+        sinDisplay: document.getElementById('sinDisplay'),
+        tanDisplay: document.getElementById('tanDisplay'),
+        pointDisplay: document.getElementById('pointDisplay'),
+        toggleUnits: document.getElementById('toggleUnits'),
+        angleSlider: document.getElementById('angleSlider'),
+        tick0: document.getElementById('tick0'),
+        tick180: document.getElementById('tick180'),
+        tick360: document.getElementById('tick360'),
+        commonAngles: document.getElementById('commonAngles'),
+        radiusLine: document.getElementById('radiusLine'),
+        cosLine: document.getElementById('cosLine'),
+        sinLine: document.getElementById('sinLine'),
+        tanSegment: document.getElementById('tanSegment'),
+        tanConnector: document.getElementById('tanConnector'),
+        tanPoint: document.getElementById('tanPoint'),
+        tanLabel: document.getElementById('tanLabel'),
+        point: document.getElementById('point'),
+        angleArc: document.getElementById('angleArc'),
+        angleMathJax: document.getElementById('angleMathJax'),
+        coordText: document.getElementById('coordText'),
+        quadrantName: document.getElementById('quadrantName'),
+        cosSign: document.getElementById('cosSign'),
+        sinSign: document.getElementById('sinSign'),
+        tanSign: document.getElementById('tanSign'),
+        quadrantRule: document.getElementById('quadrantRule'),
+        quad1Sector: document.getElementById('quad1Sector'),
+        quad2Sector: document.getElementById('quad2Sector'),
+        quad3Sector: document.getElementById('quad3Sector'),
+        quad4Sector: document.getElementById('quad4Sector'),
+        trigChart: document.getElementById('trigChart')
+      };
+
+      const commonAngles = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330];
+
+      function gcd(a,b){
+        a = Math.abs(a); b = Math.abs(b);
+        while (b){ const t = b; b = a % b; a = t; }
+        return a || 1;
+      }
+
+      function radiansToPI(rad){
+        const ratio = rad / Math.PI;
+        const fractions = [
+          { value: 0, display: '0' },
+          { value: 1/6, display: '\\(\\pi/6\\)' },
+          { value: 1/4, display: '\\(\\pi/4\\)' },
+          { value: 1/3, display: '\\(\\pi/3\\)' },
+          { value: 1/2, display: '\\(\\pi/2\\)' },
+          { value: 2/3, display: '\\(2\\pi/3\\)' },
+          { value: 3/4, display: '\\(3\\pi/4\\)' },
+          { value: 5/6, display: '\\(5\\pi/6\\)' },
+          { value: 1, display: '\\(\\pi\\)' },
+          { value: 7/6, display: '\\(7\\pi/6\\)' },
+          { value: 5/4, display: '\\(5\\pi/4\\)' },
+          { value: 4/3, display: '\\(4\\pi/3\\)' },
+          { value: 3/2, display: '\\(3\\pi/2\\)' },
+          { value: 5/3, display: '\\(5\\pi/3\\)' },
+          { value: 7/4, display: '\\(7\\pi/4\\)' },
+          { value: 11/6, display: '\\(11\\pi/6\\)' },
+          { value: 2, display: '\\(2\\pi\\)' }
+        ];
+
+        for (const frac of fractions){
+          if (Math.abs(ratio - frac.value) < 0.001) return frac.display;
+        }
+
+        const numerator = Math.round(ratio * 12);
+        const denominator = 12;
+        const g = gcd(numerator, denominator);
+        const n = numerator / g;
+        const d = denominator / g;
+
+        if (Math.abs(ratio) < 0.0001) return '0';
+        if (d === 1) return n === 1 ? '\\(\\pi\\)' : `\\(${n}\\pi\\)`;
+        if (n === 1) return `\\(\\pi/${d}\\)`;
+        return `\\(${n}\\pi/${d}\\)`;
+      }
+
+      function formatAngle(){
+        if (state.useRadians) {
+          return radiansToPI(state.angle * Math.PI / 180);
+        }
+        return `${state.angle}°`;
+      }
+
+      function formatCoord(v){
+        const z = Math.abs(v) < 1e-10 ? 0 : v;
+        return z.toFixed(3);
+      }
+
+      function setTextOrHTML(el, value){
+        el.innerHTML = value;
+      }
+
+      function makeArcPath(angleDeg){
+        const angleRad = angleDeg * Math.PI / 180;
+        const arcR = 40;
+        const startX = centerX + arcR;
+        const startY = centerY;
+        const endX = centerX + arcR * Math.cos(angleRad);
+        const endY = centerY - arcR * Math.sin(angleRad);
+        const largeArcFlag = angleDeg > 180 ? 1 : 0;
+        return `M ${startX} ${startY} A ${arcR} ${arcR} 0 ${largeArcFlag} 0 ${endX} ${endY}`;
+      }
+
+      function renderButtons(){
+        elements.commonAngles.innerHTML = '';
+        commonAngles.forEach(deg => {
+          const btn = document.createElement('button');
+          btn.className = 'btn' + (state.angle === deg ? ' active' : '');
+          btn.innerHTML = state.useRadians ? radiansToPI(deg * Math.PI / 180) : `${deg}°`;
+          btn.addEventListener('click', () => {
+            state.angle = deg;
+            initTrigChart();
+      update();
+          });
+          elements.commonAngles.appendChild(btn);
+        });
+        if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([elements.commonAngles]).catch(()=>{});
+      }
+
+      function updateTicks(){
+        if (state.useRadians){
+          elements.tick0.innerHTML = '0';
+          elements.tick180.innerHTML = '\\(\\pi\\)';
+          elements.tick360.innerHTML = '\\(2\\pi\\)';
+        } else {
+          elements.tick0.textContent = '0°';
+          elements.tick180.textContent = '180°';
+          elements.tick360.textContent = '360°';
+        }
+      }
+
+
+      function getQuadrant(angle){
+        angle = ((angle % 360) + 360) % 360;
+        if (angle > 0 && angle < 90) return 1;
+        if (angle > 90 && angle < 180) return 2;
+        if (angle > 180 && angle < 270) return 3;
+        if (angle > 270 && angle < 360) return 4;
+        return 0;
+      }
+
+      function setSignLabel(el, sign){
+        if (sign === 0){
+          el.textContent = 'zero';
+          el.className = '';
+          return;
+        }
+        if (sign > 0){
+          el.textContent = 'positive';
+          el.className = 'sign-plus';
+        } else {
+          el.textContent = 'negative';
+          el.className = 'sign-minus';
+        }
+      }
+
+      function updateQuadrantLearning(angle, cosValue, sinValue, tanValue){
+        const q = getQuadrant(angle);
+        const sectors = [elements.quad1Sector, elements.quad2Sector, elements.quad3Sector, elements.quad4Sector];
+        sectors.forEach((el, idx) => {
+          el.setAttribute('opacity', q === idx + 1 ? '0.42' : '0.12');
+        });
+
+        setSignLabel(elements.cosSign, Math.abs(cosValue) < EPS ? 0 : (cosValue > 0 ? 1 : -1));
+        setSignLabel(elements.sinSign, Math.abs(sinValue) < EPS ? 0 : (sinValue > 0 ? 1 : -1));
+
+        let tanSign = 0;
+        if (tanValue !== undefined && Number.isFinite(tanValue) && Math.abs(tanValue) >= EPS){
+          tanSign = tanValue > 0 ? 1 : -1;
+        }
+        setSignLabel(elements.tanSign, tanSign);
+
+        if (q === 1){
+          elements.quadrantName.textContent = 'Quadrant I';
+          elements.quadrantRule.textContent = 'In Quadrant I, cos(θ), sin(θ), and tan(θ) are all positive.';
+        } else if (q === 2){
+          elements.quadrantName.textContent = 'Quadrant II';
+          elements.quadrantRule.textContent = 'In Quadrant II, cos(θ) is negative, sin(θ) is positive, and tan(θ) is negative.';
+        } else if (q === 3){
+          elements.quadrantName.textContent = 'Quadrant III';
+          elements.quadrantRule.textContent = 'In Quadrant III, cos(θ) and sin(θ) are negative, so tan(θ) is positive.';
+        } else if (q === 4){
+          elements.quadrantName.textContent = 'Quadrant IV';
+          elements.quadrantRule.textContent = 'In Quadrant IV, cos(θ) is positive, sin(θ) is negative, and tan(θ) is negative.';
+        } else {
+          elements.quadrantName.textContent = 'Axis angle';
+          elements.quadrantRule.textContent = 'The angle lies on an axis, so one of the values may be zero and tan(θ) may be undefined.';
+        }
+      }
+
+
+      
+      function gcd(a,b){
+        while(b){ let t=b; b=a%b; a=t; }
+        return a;
+      }
+
+      let trigChart = null;
+
+      const chartSyncPlugin = {
+        id: 'chartSyncPlugin',
+        afterDatasetsDraw(chart){
+          const angle = chart.options.plugins.chartSyncPlugin.angle ?? 0;
+          const xScale = chart.scales.x;
+          const yScale = chart.scales.y;
+          if (!xScale || !yScale) return;
+
+          const x = xScale.getPixelForValue(angle);
+          const ctx = chart.ctx;
+          ctx.save();
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 6]);
+          ctx.beginPath();
+          ctx.moveTo(x, yScale.top);
+          ctx.lineTo(x, yScale.bottom);
+          ctx.stroke();
+
+          [90, 270].forEach(v => {
+            const ax = xScale.getPixelForValue(v);
+            ctx.strokeStyle = '#fb923c';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(ax, yScale.top);
+            ctx.lineTo(ax, yScale.bottom);
+            ctx.stroke();
+          });
+          ctx.restore();
+        }
+      };
+
+      function buildChartSeries(){
+        const sinData = [];
+        const cosData = [];
+        const tanData = [];
+        for (let deg = 0; deg <= 360; deg += 1){
+          const rad = deg * Math.PI / 180;
+          const s = Math.sin(rad);
+          const c = Math.cos(rad);
+          let t = null;
+          if (Math.abs(c) >= EPS){
+            t = Math.tan(rad);
+            if (!Number.isFinite(t) || Math.abs(t) > 2.2){
+              t = null;
+            }
+          }
+          sinData.push({x: deg, y: s});
+          cosData.push({x: deg, y: c});
+          tanData.push({x: deg, y: t});
+        }
+        return { sinData, cosData, tanData };
+      }
+
+      function initTrigChart(){
+        if (!window.Chart || !elements.trigChart || trigChart) return;
+
+        const { sinData, cosData, tanData } = buildChartSeries();
+        const angleRad = state.angle * Math.PI / 180;
+        const sinValue = Math.sin(angleRad);
+        const cosValue = Math.cos(angleRad);
+        const tanValue = Math.abs(cosValue) < EPS ? null : Math.tan(angleRad);
+        const tanPoint = (tanValue !== null && Number.isFinite(tanValue) && Math.abs(tanValue) <= 2.2)
+          ? [{x: state.angle, y: tanValue}]
+          : [];
+
+        trigChart = new Chart(elements.trigChart.getContext('2d'), {
+          type: 'line',
+          data: {
+            datasets: [
+              {
+                label: 'sin(θ)',
+                data: sinData,
+                parsing: false,
+                borderColor: '#22c55e',
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0
+              },
+              {
+                label: 'cos(θ)',
+                data: cosData,
+                parsing: false,
+                borderColor: '#ef4444',
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0
+              },
+              {
+                label: 'tan(θ)',
+                data: tanData,
+                parsing: false,
+                borderColor: '#f97316',
+                borderWidth: 3,
+                pointRadius: 0,
+                spanGaps: false,
+                tension: 0
+              },
+              {
+                label: 'sin point',
+                data: [{x: state.angle, y: sinValue}],
+                parsing: false,
+                type: 'scatter',
+                showLine: false,
+                pointRadius: 5,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#16a34a',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
+              },
+              {
+                label: 'cos point',
+                data: [{x: state.angle, y: cosValue}],
+                parsing: false,
+                type: 'scatter',
+                showLine: false,
+                pointRadius: 5,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#dc2626',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
+              },
+              {
+                label: 'tan point',
+                data: tanPoint,
+                parsing: false,
+                type: 'scatter',
+                showLine: false,
+                pointRadius: 5,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#ea580c',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            normalized: true,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                callbacks: {
+                  title(items){
+                    if (!items.length) return '';
+                    return `θ = ${items[0].parsed.x}°`;
+                  }
+                }
+              },
+              chartSyncPlugin: {
+                angle: state.angle
+              }
+            },
+            interaction: {
+              mode: 'nearest',
+              intersect: false
+            },
+            scales: {
+  x: {
+    type: 'linear',
+    min: 0,
+    max: 360,
+    grid: {
+      color: (ctx) => {
+        if (ctx.tick.value === 0) return '#000'; // y-axis
+        return '#e5e7eb';
+      },
+      lineWidth: (ctx) => {
+        if (ctx.tick.value === 0) return 3; // thicker y-axis
+        return 1;
+      }
+    },
+                ticks: {
+                  stepSize: 45,
+                  callback(value){
+                    if (state.useRadians){
+                      const num = value;
+                      const denom = 180;
+                      const g = gcd(num, denom);
+                      const n = num / g;
+                      const d = denom / g;
+                      if (n === 0) return '0';
+                      if (n === d) return 'π';
+                      if (n === 1) return `π/${d}`;
+                      return `${n}π/${d}`;
+                    }
+                    return value + '°';
+                  }
+                },
+                title: {
+                  display: true,
+                  text: state.useRadians ? 'Angle (radians)' : 'Angle (degrees)'
+                }
+              },
+  y: {
+    min: -2.2,
+    max: 2.2,
+    grid: {
+      color: (ctx) => {
+        if (ctx.tick.value === 0) return '#000'; // x-axis
+        return '#e5e7eb';
+      },
+      lineWidth: (ctx) => {
+        if (ctx.tick.value === 0) return 3; // thicker x-axis
+        return 1;
+      }
+    },
+                ticks: {
+                  stepSize: 1
+                },
+                title: {
+                  display: true,
+                  text: 'Value'
+                }
+              }
+            }
+          },
+          plugins: [chartSyncPlugin]
+        });
+      }
+
+      function updateTrigChart(angle, sinValue, cosValue, tanValue){
+        if (!window.Chart || !elements.trigChart) return;
+        if (!trigChart){
+          initTrigChart();
+          if (!trigChart) return;
+        }
+
+        trigChart.data.datasets[3].data = [{x: angle, y: sinValue}];
+        trigChart.data.datasets[4].data = [{x: angle, y: cosValue}];
+
+        if (tanValue !== undefined && Number.isFinite(tanValue) && Math.abs(tanValue) <= 2.2){
+          trigChart.data.datasets[5].data = [{x: angle, y: tanValue}];
+        } else {
+          trigChart.data.datasets[5].data = [];
+        }
+
+        trigChart.options.plugins.chartSyncPlugin.angle = angle;
+        trigChart.options.scales.x.title.text = state.useRadians ? 'Angle (radians)' : 'Angle (degrees)';
+
+        trigChart.update('none');
+      }
+
+
+      function update(){
+        const angleRad = state.angle * Math.PI / 180;
+        const cosValue = Math.cos(angleRad);
+        const sinValue = Math.sin(angleRad);
+        const tanValue = Math.abs(cosValue) < EPS ? undefined : sinValue / cosValue;
+        updateQuadrantLearning(state.angle, cosValue, sinValue, tanValue);
+        updateTrigChart(state.angle, sinValue, cosValue, tanValue);
+
+        const pointX = centerX + radius * cosValue;
+        const pointY = centerY - radius * sinValue;
+        const tangentLineX = centerX + radius;
+        const tanPointY = tanValue !== undefined ? centerY - radius * tanValue : null;
+
+        setTextOrHTML(elements.angleDisplay, formatAngle());
+        elements.cosDisplay.textContent = cosValue.toFixed(4);
+        elements.sinDisplay.textContent = sinValue.toFixed(4);
+        elements.tanDisplay.textContent = tanValue === undefined ? 'undefined' : tanValue.toFixed(4);
+        elements.pointDisplay.textContent = `(${formatCoord(cosValue)}, ${formatCoord(sinValue)})`;
+        elements.toggleUnits.textContent = state.useRadians ? 'Switch to Degrees' : 'Switch to Radians';
+        elements.angleSlider.value = String(state.angle);
+
+        updateTicks();
+        renderButtons();
+
+        elements.radiusLine.setAttribute('x2', pointX);
+        elements.radiusLine.setAttribute('y2', pointY);
+
+        elements.cosLine.setAttribute('x1', centerX);
+        elements.cosLine.setAttribute('y1', pointY);
+        elements.cosLine.setAttribute('x2', pointX);
+        elements.cosLine.setAttribute('y2', pointY);
+
+        elements.sinLine.setAttribute('x1', pointX);
+        elements.sinLine.setAttribute('y1', centerY);
+        elements.sinLine.setAttribute('x2', pointX);
+        elements.sinLine.setAttribute('y2', pointY);
+
+        elements.point.setAttribute('cx', pointX);
+        elements.point.setAttribute('cy', pointY);
+
+        elements.angleArc.setAttribute('d', makeArcPath(state.angle));
+
+        const angleLabelRadius = 52;
+        const halfAngleRad = (state.angle / 2) * Math.PI / 180;
+        const angleLabelX = centerX + angleLabelRadius * Math.cos(halfAngleRad);
+        const angleLabelY = centerY - angleLabelRadius * Math.sin(halfAngleRad);
+        elements.angleMathJax.style.left = angleLabelX + 'px';
+        elements.angleMathJax.style.top = angleLabelY + 'px';
+        elements.angleMathJax.innerHTML = state.useRadians
+          ? formatAngle()
+          : `\\(${state.angle}^\\circ\\)`;
+
+        const coordX = (state.angle >= 90 && state.angle <= 270) ? pointX + 15 : pointX - 15;
+        const anchor = (state.angle >= 90 && state.angle <= 270) ? 'start' : 'end';
+        elements.coordText.setAttribute('x', coordX);
+        elements.coordText.setAttribute('y', pointY - 10);
+        elements.coordText.setAttribute('text-anchor', anchor);
+        elements.coordText.innerHTML =
+          `<tspan fill="#ef4444">${formatCoord(cosValue)}</tspan>, <tspan fill="#22c55e">${formatCoord(sinValue)}</tspan>`;
+
+        if (tanValue !== undefined && tanPointY !== null && Number.isFinite(tanPointY) && tanPointY > -10000 && tanPointY < 10000){
+          elements.tanSegment.setAttribute('visibility', 'visible');
+          elements.tanConnector.setAttribute('visibility', 'visible');
+          elements.tanPoint.setAttribute('visibility', 'visible');
+          elements.tanLabel.setAttribute('visibility', 'visible');
+
+          elements.tanSegment.setAttribute('x1', tangentLineX);
+          elements.tanSegment.setAttribute('y1', centerY);
+          elements.tanSegment.setAttribute('x2', tangentLineX);
+          elements.tanSegment.setAttribute('y2', tanPointY);
+
+          elements.tanConnector.setAttribute('x1', pointX);
+          elements.tanConnector.setAttribute('y1', pointY);
+          elements.tanConnector.setAttribute('x2', tangentLineX);
+          elements.tanConnector.setAttribute('y2', tanPointY);
+
+          elements.tanPoint.setAttribute('cx', tangentLineX);
+          elements.tanPoint.setAttribute('cy', tanPointY);
+
+          elements.tanLabel.setAttribute('x', tangentLineX + 15);
+          elements.tanLabel.setAttribute('y', Math.max(60, Math.min(tanPointY, 440)));
+          elements.tanLabel.textContent = tanValue.toFixed(4);
+        } else {
+          elements.tanSegment.setAttribute('visibility', 'hidden');
+          elements.tanConnector.setAttribute('visibility', 'hidden');
+          elements.tanPoint.setAttribute('visibility', 'hidden');
+          elements.tanLabel.setAttribute('visibility', 'hidden');
+        }
+
+        if (window.MathJax && MathJax.typesetPromise){
+          MathJax.typesetPromise([
+            elements.angleMathJax,
+            elements.commonAngles,
+            document.querySelector('.legend-row'),
+            document.querySelector('.graph-legend'),
+            document.querySelector('.footer'),
+            document.querySelector('.left')
+          ].filter(Boolean)).catch(()=>{});
+        }
+      }
+
+      function updateAngleFromClient(clientX, clientY){
+        const rect = svg.getBoundingClientRect();
+        const mouseX = clientX - rect.left;
+        const mouseY = clientY - rect.top;
+
+        const dx = mouseX - centerX;
+        const dy = centerY - mouseY;
+
+        let deg = Math.atan2(dy, dx) * 180 / Math.PI;
+        if (deg < 0) deg += 360;
+        state.angle = Math.round(deg);
+        update();
+      }
+
+      svg.addEventListener('mousedown', (e) => {
+        state.dragging = true;
+        elements.point.style.cursor = 'grabbing';
+        updateAngleFromClient(e.clientX, e.clientY);
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!state.dragging) return;
+        updateAngleFromClient(e.clientX, e.clientY);
+      });
+
+      window.addEventListener('mouseup', () => {
+        state.dragging = false;
+        elements.point.style.cursor = 'grab';
+      });
+
+      svg.addEventListener('touchstart', (e) => {
+        state.dragging = true;
+        const t = e.touches[0];
+        if (t) updateAngleFromClient(t.clientX, t.clientY);
+        e.preventDefault();
+      }, { passive:false });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!state.dragging) return;
+        const t = e.touches[0];
+        if (t) updateAngleFromClient(t.clientX, t.clientY);
+        e.preventDefault();
+      }, { passive:false });
+
+      window.addEventListener('touchend', () => {
+        state.dragging = false;
+      });
+
+      elements.angleSlider.addEventListener('input', (e) => {
+        state.angle = parseInt(e.target.value, 10) || 0;
+        update();
+      });
+
+      elements.toggleUnits.addEventListener('click', () => {
+        state.useRadians = !state.useRadians;
+        update();
+      });
+
+      update();
+    })();
+  </script>
+</body>
+</html>
