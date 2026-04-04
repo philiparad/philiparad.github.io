@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Postorder Traversal Stack Frame Diagram + Mermaid Tree + Code Tabs</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --call:#ef4444;
+      --return:#22c55e;
+      --active:#f59e0b;
+      --visit:#60a5fa;
+      --null:#f8fafc;
+      --tree-node:#dbeafe;
+      --tree-stroke:#334155;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#020617,#0f172a);
+      color:var(--text);
+    }
+    .wrap{max-width:1500px;margin:0 auto;padding:20px}
+    h1{margin:0 0 10px;font-size:2rem}
+    .lead{color:var(--muted);line-height:1.7;margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+    .panel{
+      background:rgba(17,24,39,.96);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 12px 30px rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+    button{
+      border:none;border-radius:12px;padding:10px 14px;font:inherit;cursor:pointer;
+      background:#2563eb;color:#fff;
+    }
+    button.secondary{background:#334155}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .badge{
+      background:#1e293b;border:1px solid rgba(255,255,255,.08);
+      color:#cbd5e1;padding:8px 12px;border-radius:999px
+    }
+    svg.stack-svg{width:100%;height:auto;display:block;background:#f4f4f5;border-radius:14px}
+    .side{display:grid;gap:18px}
+    h2{margin:0 0 10px;font-size:1.1rem}
+    .mono{
+      font-family:Consolas, monospace;
+      background:#020617;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:12px;
+      line-height:1.6;
+      white-space:pre-wrap;
+      color:#dbeafe;
+    }
+    .explain{line-height:1.8;color:#e2e8f0;min-height:84px;display:none;}
+    .list{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{
+      min-width:46px;text-align:center;padding:8px 11px;border-radius:12px;
+      background:#1e293b;border:1px solid rgba(255,255,255,.08);font-weight:700
+    }
+    .pill.active{background:#7c2d12}
+    .pill.visit{background:#1d4ed8}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .legend-item{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:.95rem}
+    .dot{width:14px;height:14px;border-radius:50%}
+    .small{font-size:.95rem;color:var(--muted);line-height:1.65}
+    .tree-wrap{
+      background:#f4f4f5;
+      border-radius:14px;
+      padding:12px;
+      min-height:300px;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-content: center;
+    }
+    .tree-wrap svg{
+      display:block;
+      width:100%;
+      height:auto;
+      max-width:100%;
+    }
+    .tree-code{
+      margin-top:12px;
+      max-height:200px;
+      overflow:auto;
+      display: none;
+    }
+    .mermaid{
+      background:transparent;
+      zoom: 1.5;
+    }
+    .code-tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .tab-btn{
+      background:#334155;
+      color:#e5e7eb;
+      border:none;
+      border-radius:12px;
+      padding:10px 16px;
+      cursor:pointer;
+      font:inherit;
+      font-weight:700;
+    }
+    .tab-btn.active{
+      background:#2563eb;
+      color:#ffffff;
+    }
+    .code-panel{
+      min-height:160px;
+    }
+
+    .tree-default .nodeLabel,
+    .tree-stack .nodeLabel,
+    .tree-visit .nodeLabel,
+    .tree-active .nodeLabel{
+      color:#111827 !important;
+      fill:#111827 !important;
+      font-weight:700 !important;
+    }
+
+    .tree-default ellipse,
+    .tree-default circle,
+    .tree-default rect,
+    .tree-default polygon,
+    .tree-default path{
+      fill:var(--tree-node) !important;
+      stroke:var(--tree-stroke) !important;
+      stroke-width:2px !important;
+    }
+
+    .tree-stack ellipse,
+    .tree-stack circle,
+    .tree-stack rect,
+    .tree-stack polygon,
+    .tree-stack path{
+      fill:#ffffff !important;
+      stroke:#64748b !important;
+      stroke-width:4px !important;
+    }
+
+    .tree-visit ellipse,
+    .tree-visit circle,
+    .tree-visit rect,
+    .tree-visit polygon,
+    .tree-visit path{
+      fill:#dbeafe !important;
+      stroke:#2563eb !important;
+      stroke-width:4px !important;
+    }
+
+    .tree-active ellipse,
+    .tree-active circle,
+    .tree-active rect,
+    .tree-active polygon,
+    .tree-active path{
+      fill:#ffedd5 !important;
+      stroke:var(--active) !important;
+      stroke-width:5px !important;
+    }
+
+    .tree-edge path{
+      stroke:#334155 !important;
+      stroke-width:2.4px !important;
+    }
+
+    @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Postorder Recursive Stack Frame Diagram + Binary Tree</h1>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="toolbar">
+          <button id="prevBtn" class="secondary">Previous</button>
+          <button id="nextBtn">Next</button>
+          <button id="playBtn" class="secondary">Play</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+          <span class="badge">Step: <span id="stepLabel">1</span> / <span id="stepTotal">1</span></span>
+        </div>
+        <svg class="stack-svg" id="diagramSvg" viewBox="0 0 1200 760" aria-label="recursive stack frame diagram"></svg>
+        <div class="legend">
+          <div class="legend-item"><span class="dot" style="background:#f59e0b"></span>Current frame</div>
+          <div class="legend-item"><span class="dot" style="background:#60a5fa"></span>Visit action</div>
+          <div class="legend-item"><span class="dot" style="background:#ef4444"></span>Call arrow</div>
+          <div class="legend-item"><span class="dot" style="background:#22c55e"></span>Return arrow</div>
+          <div class="legend-item"><span class="dot" style="background:#f8fafc;border:1px solid #111827"></span>Shared null frame</div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="panel">
+          <h2>Binary Tree (example)</h2>
+          <div class="tree-wrap">
+            <div id="treeMermaid" class="mermaid">
+flowchart TD
+    n1((1)) --> n2((2))
+    n1 --> n3((3))
+    n2 --> n4((4))
+    n2 --> n5((5))
+            </div>
+          </div>
+          <div id="treeCodeBox" class="mono tree-code"></div>
+        </div>
+
+        <div class="panel">
+          <div class="code-tabs">
+            <button id="tabCSharp" class="tab-btn active" type="button">C#</button>
+            <button id="tabJava" class="tab-btn" type="button">Java</button>
+          </div>
+          <div id="codePanelCSharp" class="mono code-panel"></div>
+          <div id="codePanelJava" class="mono code-panel" style="display:none"></div>
+        </div>
+
+        <div style="display:none;" class="panel">
+          <div id="eventBox" class="explain"></div>
+        </div>
+        <div class="panel">
+          <div style="display:none;" id="stackBox" class="list"></div>
+        </div>
+        <div class="panel">
+          <h2>Printed Output</h2>
+          <div id="outputBox" class="mono"></div>
+        </div>
+        <div style="display:none;" class="panel">
+          <h2>Recursive Sequence</h2>
+          <div id="sequenceBox" class="mono"></div>
+        </div>
+        <div style="display:none;" class="panel">
+          <div id="stepsBox" class="mono"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    const steps = [
+      { current: 1, action: "go-left", output: [] },
+      { current: 2, action: "go-left", output: [] },
+      { current: 4, action: "visit", output: [4] },
+      { current: 2, action: "go-right", output: [4] },
+      { current: 5, action: "visit", output: [4, 5] },
+      { current: 2, action: "visit", output: [4, 5, 2] },
+      { current: 1, action: "go-right", output: [4, 5, 2] },
+      { current: 3, action: "visit", output: [4, 5, 2, 3] },
+      { current: 1, action: "visit", output: [4, 5, 2, 3, 1] }
+    ];
+
+    const tree = {
+      value: 1,
+      left: {
+        value: 2,
+        left: { value: 4, left: null, right: null },
+        right: { value: 5, left: null, right: null }
+      },
+      right: { value: 3, left: null, right: null }
+    };
+
+    const treeMermaidCode = `flowchart TD
+    n1((1)) --> n2((2))
+    n1 --> n3((3))
+    n2 --> n4((4))
+    n2 --> n5((5))`;
+
+    const csharpCode = `public static void PostOrder<T>(BinNode<T> node)
+{
+    if (node == null) return;
+
+    PostOrder(node.GetLeft());
+    PostOrder(node.GetRight());
+    Console.Write(node.GetValue() + " ");
+}`;
+
+    const javaCode = `public static <T> void postOrder(BinNode<T> node)
+{
+    if (node == null) return;
+
+    postOrder(node.getLeft());
+    postOrder(node.getRight());
+    System.out.print(node.getValue() + " ");
+}`;
+
+    function buildNodeMap(node, map = new Map()) {
+      if (!node) return map;
+      map.set(node.value, node);
+      buildNodeMap(node.left, map);
+      buildNodeMap(node.right, map);
+      return map;
+    }
+
+    function findParent(root, targetValue, parent = null) {
+      if (!root) return null;
+      if (root.value === targetValue) return parent;
+      return findParent(root.left, targetValue, root) || findParent(root.right, targetValue, root);
+    }
+
+    function validateSteps(tree, steps) {
+      const validActions = new Set(["go-left", "go-right", "visit"]);
+      const nodeMap = buildNodeMap(tree);
+
+      steps.forEach((step, index) => {
+        if (!nodeMap.has(step.current)) {
+          throw new Error(`Invalid step at index ${index}: node ${step.current} does not exist in the tree.`);
+        }
+        if (!validActions.has(step.action)) {
+          throw new Error(`Invalid step at index ${index}: action "${step.action}" is not supported.`);
+        }
+        if (!Array.isArray(step.output)) {
+          throw new Error(`Invalid step at index ${index}: output must be an array.`);
+        }
+      });
+    }
+
+    function stepsToRecursiveSequence(tree, steps) {
+      const nodeMap = buildNodeMap(tree);
+      const sequence = [];
+      const stack = [];
+
+      function pathTo(value) {
+        const path = [];
+        let cur = nodeMap.get(value);
+        while (cur) {
+          path.push(cur.value);
+          cur = findParent(tree, cur.value);
+        }
+        return path.reverse();
+      }
+
+      function syncStackTo(targetValue) {
+        const path = pathTo(targetValue);
+        let i = 0;
+        while (i < stack.length && i < path.length && stack[i] === path[i]) i++;
+
+        for (let j = stack.length - 1; j >= i; j--) {
+          sequence.push({ type: "return", node: stack[j], stack: stack.slice(0, j + 1) });
+        }
+        stack.length = i;
+
+        for (let j = i; j < path.length; j++) {
+          stack.push(path[j]);
+          sequence.push({ type: "enter", node: path[j], stack: [...stack] });
+        }
+      }
+
+      function nullKeyFor(parentNode, side) {
+        return `${parentNode}-${side}-null`;
+      }
+
+      function addNullRoundTrip(parentNode, side, output) {
+        const nullKey = nullKeyFor(parentNode, side);
+        sequence.push({
+          type: "call-null",
+          from: parentNode,
+          side,
+          nullKey,
+          stack: [...stack, nullKey],
+          output: [...output]
+        });
+        sequence.push({
+          type: "return-null",
+          from: nullKey,
+          to: parentNode,
+          side,
+          nullKey,
+          stack: [...stack],
+          output: [...output]
+        });
+      }
+
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        const node = nodeMap.get(step.current);
+        syncStackTo(step.current);
+
+        if (step.action === "go-left") {
+          if (node.left) {
+            sequence.push({
+              type: "go-left",
+              from: step.current,
+              to: node.left.value,
+              stack: [...stack],
+              output: [...step.output]
+            });
+          } else {
+            addNullRoundTrip(step.current, "left", step.output);
+          }
+        } else if (step.action === "go-right") {
+          if (node.right) {
+            sequence.push({
+              type: "go-right",
+              from: step.current,
+              to: node.right.value,
+              stack: [...stack],
+              output: [...step.output]
+            });
+          } else {
+            addNullRoundTrip(step.current, "right", step.output);
+          }
+        } else if (step.action === "visit") {
+          if (!node.left) {
+            addNullRoundTrip(step.current, "left", step.output);
+          }
+
+          sequence.push({
+            type: "visit",
+            node: step.current,
+            stack: [...stack],
+            output: [...step.output]
+          });
+
+          const nextStep = steps[i + 1];
+
+          if (node.right && nextStep && nextStep.current === node.right.value) {
+            sequence.push({
+              type: "go-right",
+              from: step.current,
+              to: node.right.value,
+              stack: [...stack],
+              output: [...step.output]
+            });
+          } else if (!node.right) {
+            addNullRoundTrip(step.current, "right", step.output);
+          }
+        }
+      }
+
+      while (stack.length > 0) {
+        sequence.push({
+          type: "return",
+          node: stack[stack.length - 1],
+          stack: [...stack]
+        });
+        stack.pop();
+      }
+
+      return sequence;
+    }
+
+    function propagateOutput(sequence) {
+      let lastOutput = [];
+      for (const ev of sequence) {
+        if (Array.isArray(ev.output)) {
+          lastOutput = [...ev.output];
+        } else {
+          ev.output = [...lastOutput];
+        }
+      }
+      return sequence;
+    }
+
+    validateSteps(tree, steps);
+    const sequence = propagateOutput(stepsToRecursiveSequence(tree, steps));
+
+    const svg = document.getElementById("diagramSvg");
+    const stepLabel = document.getElementById("stepLabel");
+    const stepTotal = document.getElementById("stepTotal");
+    const eventBox = document.getElementById("eventBox");
+    const stackBox = document.getElementById("stackBox");
+    const outputBox = document.getElementById("outputBox");
+    const sequenceBox = document.getElementById("sequenceBox");
+    const stepsBox = document.getElementById("stepsBox");
+    const treeCodeBox = document.getElementById("treeCodeBox");
+    const codePanelCSharp = document.getElementById("codePanelCSharp");
+    const codePanelJava = document.getElementById("codePanelJava");
+    const tabCSharp = document.getElementById("tabCSharp");
+    const tabJava = document.getElementById("tabJava");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const playBtn = document.getElementById("playBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let currentIndex = 0;
+    let timer = null;
+    let arrowHistory = [];
+    let mermaidReady = false;
+
+    const framePos = {
+      1: {x:520, y:60},
+      2: {x:280, y:230},
+      3: {x:760, y:230},
+      4: {x:140, y:430},
+      5: {x:420, y:430},
+      "4-left-null": {x:20, y:600},
+      "4-right-null": {x:200, y:600},
+      "5-left-null": {x:340, y:600},
+      "5-right-null": {x:520, y:600},
+      "3-left-null": {x:680, y:600},
+      "3-right-null": {x:860, y:600}
+    };
+
+    const FRAME_W = 160;
+    const FRAME_H = 90;
+    const NULL_R = 34;
+    const RETURN_OFFSET = 14;
+
+    function createSvg(tag, attrs = {}) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+      return el;
+    }
+
+    function defs() {
+      const d = createSvg("defs");
+
+      const callMarker = createSvg("marker", {
+        id:"arrowCall",
+        markerWidth:"8.8", markerHeight:"8.8", refX:"8.8", refY:"4.4",
+        orient:"auto",
+        markerUnits:"userSpaceOnUse"
+      });
+      callMarker.appendChild(createSvg("path",{d:"M0,0 L8.8,4.4 L0,8.8 Z", fill:"#ef4444"}));
+
+      const retMarker = createSvg("marker", {
+        id:"arrowReturn",
+        markerWidth:"8.8", markerHeight:"8.8", refX:"8.8", refY:"4.4",
+        orient:"auto",
+        markerUnits:"userSpaceOnUse"
+      });
+      retMarker.appendChild(createSvg("path",{d:"M0,0 L8.8,4.4 L0,8.8 Z", fill:"#22c55e"}));
+
+      d.appendChild(callMarker);
+      d.appendChild(retMarker);
+      return d;
+    }
+
+    function frameRect(x, y, label, active=false, visit=false, isNull=false) {
+      const g = createSvg("g");
+
+      if (isNull) {
+        const circle = createSvg("circle", {
+          cx: x + NULL_R,
+          cy: y + NULL_R,
+          r: NULL_R,
+          fill: "#f8fafc",
+          stroke: active ? "#f59e0b" : "#cbd5e1",
+          "stroke-width": active ? "4" : "2"
+        });
+
+        const text = createSvg("text", {
+          x: x + NULL_R,
+          y: y + NULL_R + 7,
+          "text-anchor": "middle",
+          "font-size": "16",
+          "font-family": "Consolas, monospace",
+          fill: "#111827",
+          "font-weight": "700"
+        });
+        text.textContent = "p(null)";
+        g.append(circle, text);
+        return g;
+      }
+
+      const rect = createSvg("rect", {
+        x, y, width:FRAME_W, height:FRAME_H,
+        rx:10, ry:10,
+        fill: visit ? "#dbeafe" : "#ffffff",
+        stroke: active ? "#f59e0b" : "#cbd5e1",
+        "stroke-width": active ? "4" : "2"
+      });
+      const text1 = createSvg("text", {
+        x:x+FRAME_W/2, y:y+36, "text-anchor":"middle", "font-size":"24",
+        "font-family":"Consolas, monospace", fill:"#111827", "font-weight":"700"
+      });
+      text1.textContent = `p(${label.value ?? label})`;
+      const text2 = createSvg("text", {
+        x:x+FRAME_W/2, y:y+58, "text-anchor":"middle", "font-size":"14",
+        "font-family":"Arial", fill:"#334155", "font-weight":"700"
+      });
+      text2.textContent = "printed:";
+
+      const text3 = createSvg("text", {
+        x:x+FRAME_W/2, y:y+78, "text-anchor":"middle", "font-size":"14",
+        "font-family":"Consolas, monospace", fill:"#0f172a"
+      });
+      text3.textContent = label.printedText || "∅";
+
+      g.append(rect, text1, text2, text3);
+      return g;
+    }
+
+    function getFrameCenter(key) {
+      const pos = framePos[key];
+      if (!pos) {
+        throw new Error(`Missing frame position for key: ${key}`);
+      }
+      if (String(key).includes("-null")) {
+        return { x: pos.x + NULL_R, y: pos.y + NULL_R };
+      }
+      return { x: pos.x + FRAME_W / 2, y: pos.y + FRAME_H / 2 };
+    }
+
+
+    function lineCircleIntersection(cx, cy, tx, ty, circleCx, circleCy, r) {
+      const dx = tx - cx;
+      const dy = ty - cy;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      return {
+        x: circleCx + (dx / len) * r,
+        y: circleCy + (dy / len) * r
+      };
+    }
+
+    function lineRectIntersection(cx, cy, tx, ty, rectX, rectY, rectW, rectH) {
+      const dx = tx - cx;
+      const dy = ty - cy;
+      const candidates = [];
+
+      if (dx !== 0) {
+        let t = (rectX - cx) / dx;
+        let y = cy + t * dy;
+        if (t > 0 && y >= rectY && y <= rectY + rectH) candidates.push({ t, x: rectX, y });
+
+        t = (rectX + rectW - cx) / dx;
+        y = cy + t * dy;
+        if (t > 0 && y >= rectY && y <= rectY + rectH) candidates.push({ t, x: rectX + rectW, y });
+      }
+
+      if (dy !== 0) {
+        let t = (rectY - cy) / dy;
+        let x = cx + t * dx;
+        if (t > 0 && x >= rectX && x <= rectX + rectW) candidates.push({ t, x, y: rectY });
+
+        t = (rectY + rectH - cy) / dy;
+        x = cx + t * dx;
+        if (t > 0 && x >= rectX && x <= rectX + rectW) candidates.push({ t, x, y: rectY + rectH });
+      }
+
+      candidates.sort((a,b) => a.t - b.t);
+      return candidates[0] || { x: cx, y: cy };
+    }
+
+    function getDockPoints(fromKey, toKey) {
+      const fromPos = framePos[fromKey];
+      const toPos = framePos[toKey];
+      const fromCenter = getFrameCenter(fromKey);
+      const toCenter = getFrameCenter(toKey);
+      const fromIsNull = String(fromKey).includes("-null");
+      const toIsNull = String(toKey).includes("-null");
+
+      const start = fromIsNull
+        ? lineCircleIntersection(fromCenter.x, fromCenter.y, toCenter.x, toCenter.y, fromCenter.x, fromCenter.y, NULL_R)
+        : lineRectIntersection(
+            fromCenter.x, fromCenter.y,
+            toCenter.x, toCenter.y,
+            fromPos.x, fromPos.y, FRAME_W, FRAME_H
+          );
+
+      const end = toIsNull
+        ? lineCircleIntersection(toCenter.x, toCenter.y, fromCenter.x, fromCenter.y, toCenter.x, toCenter.y, NULL_R)
+        : lineRectIntersection(
+            toCenter.x, toCenter.y,
+            fromCenter.x, fromCenter.y,
+            toPos.x, toPos.y, FRAME_W, FRAME_H
+          );
+
+      return { start, end };
+    }
+
+    function arrow(fromKey, toKey, color, kind, dashed=false, offset=0) {
+      const g = createSvg("g");
+      const { start, end } = getDockPoints(fromKey, toKey);
+
+      const rawDx = end.x - start.x;
+      const rawDy = end.y - start.y;
+      const len = Math.sqrt(rawDx * rawDx + rawDy * rawDy) || 1;
+
+      const nx = -rawDy / len;
+      const ny = rawDx / len;
+      const shiftX = nx * offset;
+      const shiftY = ny * offset;
+
+      const sx = start.x + shiftX;
+      const sy = start.y + shiftY;
+
+      const trim = 8;
+      const ex = end.x + shiftX - (rawDx / len) * trim;
+      const ey = end.y + shiftY - (rawDy / len) * trim;
+
+      const dx = ex - sx;
+      const dy = ey - sy;
+
+      const c1x = sx + dx * 0.35;
+      const c1y = sy;
+      const c2x = sx + dx * 0.65;
+      const c2y = ey;
+
+      const path = createSvg("path", {
+        d: `M ${sx} ${sy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${ex} ${ey}`,
+        fill:"none",
+        stroke:color,
+        "stroke-width":"4",
+        "marker-end": kind === "call" ? "url(#arrowCall)" : "url(#arrowReturn)",
+        "stroke-dasharray": dashed ? "10 7" : ""
+      });
+
+      g.appendChild(path);
+      return g;
+    }
+
+    function activeEventSummary(ev) {
+      if (ev.type === "enter") return `Enter recursive call p(${ev.node}).`;
+      if (ev.type === "go-left") return `From p(${ev.from}), call the left child p(${ev.to}).`;
+      if (ev.type === "go-right") return `From p(${ev.from}), call the right child p(${ev.to}).`;
+      if (ev.type === "call-null") return `From p(${ev.from}), call p(null) on the ${ev.side} side.`;
+      if (ev.type === "return-null") return `p(null) returns immediately to p(${ev.to}) because the parameter is null.`;
+      if (ev.type === "visit") return `Visit node ${ev.node}. Current output: [${ev.output.join(", ")}].`;
+      if (ev.type === "return") return `Return from p(${ev.node}) to its caller.`;
+      return "";
+    }
+
+    function renderStack(ev) {
+      stackBox.innerHTML = "";
+      const stack = ev.stack || [];
+      if (!stack.length) {
+        stackBox.innerHTML = '<div class="small">No active calls.</div>';
+        return;
+      }
+      stack.forEach((v, i) => {
+        const div = document.createElement("div");
+        div.className = "pill" + (i === stack.length - 1 ? " active" : "");
+        div.textContent = v === null || String(v).includes("-null") ? "null" : v;
+        stackBox.appendChild(div);
+      });
+    }
+
+    function renderOutput(ev) {
+      const output = ev.output || [];
+      outputBox.textContent = output.length ? output.join(" ") : "∅";
+    }
+
+    function renderSequenceText(index) {
+      sequenceBox.textContent = sequence.map((ev, i) => {
+        const p = i === index ? ">> " : "   ";
+        switch (ev.type) {
+          case "enter": return `${p}Enter p(${ev.node})`;
+          case "go-left": return `${p}p(${ev.from}) -> p(${ev.to}) [left]`;
+          case "go-right": return `${p}p(${ev.from}) -> p(${ev.to}) [right]`;
+          case "call-null": return `${p}p(${ev.from}) -> p(null) [${ev.side}]`;
+          case "return-null": return `${p}p(null) returns to p(${ev.to})`;
+          case "visit": return `${p}visit ${ev.node}  output=[${ev.output.join(", ")}]`;
+          case "return": return `${p}return from p(${ev.node})`;
+          default: return p + JSON.stringify(ev);
+        }
+      }).join("\n");
+    }
+
+    function drawBaseFrames(ev) {
+      svg.innerHTML = "";
+      svg.appendChild(defs());
+
+      const activeNode =
+        ev.type === "enter" || ev.type === "visit" || ev.type === "return" ? ev.node :
+        ev.type === "go-left" || ev.type === "go-right" || ev.type === "call-null" ? ev.from :
+        ev.type === "return-null" ? ev.to : null;
+
+      const printedText = (ev.output && ev.output.length) ? ev.output.join(" ") : "∅";
+
+      [1,2,4,5,3].forEach(n => {
+        const pos = framePos[n];
+        const isVisit = ev.type === "visit" && ev.node === n;
+        const isActive = activeNode === n;
+        svg.appendChild(frameRect(pos.x, pos.y, { value: n, printedText }, isActive, isVisit, false));
+      });
+
+      ["4-left-null", "4-right-null", "5-left-null", "5-right-null", "3-left-null", "3-right-null"].forEach(nullKey => {
+        const np = framePos[nullKey];
+        const activeNull = (ev.type === "call-null" || ev.type === "return-null") && ev.nullKey === nullKey;
+        svg.appendChild(frameRect(np.x, np.y, nullKey, activeNull, false, true));
+      });
+    }
+
+    function drawArrowForEvent(ev) {
+      if (ev.type === "go-left" || ev.type === "go-right") {
+        svg.appendChild(
+          arrow(ev.from, ev.to, "#ef4444", "call", false, 0)
+        );
+      } else if (ev.type === "call-null") {
+        svg.appendChild(
+          arrow(ev.from, ev.nullKey, "#ef4444", "call", true, 0)
+        );
+      } else if (ev.type === "return-null") {
+        svg.appendChild(
+          arrow(ev.nullKey, ev.to, "#22c55e", "return", true, RETURN_OFFSET)
+        );
+      } else if (ev.type === "return") {
+        const parent = findParent(tree, ev.node);
+        if (parent) {
+          svg.appendChild(
+            arrow(ev.node, parent.value, "#22c55e", "return", false, RETURN_OFFSET)
+          );
+        }
+      }
+    }
+
+    function getSyncState(ev) {
+      const activeNode =
+        ev.type === "enter" || ev.type === "visit" || ev.type === "return" ? ev.node :
+        ev.type === "go-left" || ev.type === "go-right" || ev.type === "call-null" ? ev.from :
+        ev.type === "return-null" ? ev.to : null;
+
+      const visitNode = ev.type === "visit" ? ev.node : null;
+      const stackNodes = (ev.stack || []).filter(v => v !== null && !String(v).includes("-null"));
+
+      return { activeNode, visitNode, stackNodes };
+    }
+
+    function classForNode(nodeValue, sync) {
+      if (sync.visitNode === nodeValue) return "tree-visit";
+      if (sync.activeNode === nodeValue) return "tree-active";
+      if (sync.stackNodes.includes(nodeValue)) return "tree-stack";
+      return "tree-default";
+    }
+
+    function syncMermaidTree(ev) {
+      if (!mermaidReady) return;
+      const root = document.querySelector("#treeMermaid svg");
+      if (!root) return;
+
+      root.querySelectorAll(".node").forEach(node => {
+        node.classList.remove("tree-default", "tree-stack", "tree-visit", "tree-active");
+      });
+
+      root.querySelectorAll(".edgePath").forEach(edge => {
+        edge.classList.add("tree-edge");
+      });
+
+      const sync = getSyncState(ev);
+
+      root.querySelectorAll(".node").forEach(node => {
+        const label = node.querySelector(".nodeLabel");
+        if (!label) return;
+        const value = Number(label.textContent.trim());
+        if (Number.isNaN(value)) return;
+        node.classList.add(classForNode(value, sync));
+      });
+    }
+
+    async function renderMermaidTree() {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        securityLevel: "loose",
+        flowchart: { useMaxWidth: true, htmlLabels: true }
+      });
+
+      treeCodeBox.textContent = treeMermaidCode;
+
+      try {
+        const { svg } = await mermaid.render("mermaid-tree-svg", treeMermaidCode);
+        const treeHost = document.getElementById("treeMermaid");
+        treeHost.innerHTML = svg;
+        mermaidReady = true;
+      } catch (err) {
+        const treeHost = document.getElementById("treeMermaid");
+        treeHost.innerHTML = '<div class="small">Mermaid rendering failed in this browser context.</div>';
+        mermaidReady = false;
+        console.error(err);
+      }
+    }
+
+    function showCodeTab(language) {
+      const isCSharp = language === "csharp";
+      codePanelCSharp.style.display = isCSharp ? "block" : "none";
+      codePanelJava.style.display = isCSharp ? "none" : "block";
+      tabCSharp.classList.toggle("active", isCSharp);
+      tabJava.classList.toggle("active", !isCSharp);
+    }
+
+    function initCodePanels() {
+      codePanelCSharp.textContent = csharpCode;
+      codePanelJava.textContent = javaCode;
+
+      tabCSharp.addEventListener("click", () => showCodeTab("csharp"));
+      tabJava.addEventListener("click", () => showCodeTab("java"));
+    }
+
+    function updateDiagram() {
+      const ev = sequence[currentIndex];
+      drawBaseFrames(ev);
+
+      arrowHistory = sequence.slice(0, currentIndex + 1).filter(e =>
+        e.type === "go-left" || e.type === "go-right" || e.type === "call-null" || e.type === "return-null" || e.type === "return"
+      );
+
+      const returnArrows = arrowHistory.filter(e =>
+        e.type === "return" || e.type === "return-null"
+      );
+
+      const callArrows = arrowHistory.filter(e =>
+        e.type === "go-left" || e.type === "go-right" || e.type === "call-null"
+      );
+
+      returnArrows.forEach(e => drawArrowForEvent(e));
+      callArrows.forEach(e => drawArrowForEvent(e));
+
+      eventBox.textContent = activeEventSummary(ev);
+      renderStack(ev);
+      renderOutput(ev);
+      renderSequenceText(currentIndex);
+      syncMermaidTree(ev);
+
+      stepLabel.textContent = currentIndex + 1;
+      stepTotal.textContent = sequence.length;
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === sequence.length - 1;
+    }
+
+    function stopPlay() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      playBtn.textContent = "Play";
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateDiagram();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < sequence.length - 1) {
+        currentIndex++;
+        updateDiagram();
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      currentIndex = 0;
+      arrowHistory = [];
+      stopPlay();
+      updateDiagram();
+    });
+
+    playBtn.addEventListener("click", () => {
+      if (timer) {
+        stopPlay();
+        return;
+      }
+      playBtn.textContent = "Stop";
+      timer = setInterval(() => {
+        if (currentIndex >= sequence.length - 1) {
+          stopPlay();
+          return;
+        }
+        currentIndex++;
+        updateDiagram();
+      }, 1300);
+    });
+
+    stepsBox.textContent = "const steps = " + JSON.stringify(steps, null, 2) + ";";
+    initCodePanels();
+
+    await renderMermaidTree();
+    updateDiagram();
+  </script>
+</body>
+</html>
