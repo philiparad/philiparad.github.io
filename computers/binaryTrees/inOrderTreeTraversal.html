@@ -308,6 +308,23 @@ flowchart TD
       return findParent(root.left, targetValue, root) || findParent(root.right, targetValue, root);
     }
 
+    function validateSteps(tree, steps) {
+      const validActions = new Set(["go-left", "go-right", "visit"]);
+      const nodeMap = buildNodeMap(tree);
+
+      steps.forEach((step, index) => {
+        if (!nodeMap.has(step.current)) {
+          throw new Error(`Invalid step at index ${index}: node ${step.current} does not exist in the tree.`);
+        }
+        if (!validActions.has(step.action)) {
+          throw new Error(`Invalid step at index ${index}: action "${step.action}" is not supported.`);
+        }
+        if (!Array.isArray(step.output)) {
+          throw new Error(`Invalid step at index ${index}: output must be an array.`);
+        }
+      });
+    }
+
     function stepsToRecursiveSequence(tree, steps) {
       const nodeMap = buildNodeMap(tree);
       const sequence = [];
@@ -445,6 +462,7 @@ flowchart TD
       return sequence;
     }
 
+    validateSteps(tree, steps);
     const sequence = propagateOutput(stepsToRecursiveSequence(tree, steps));
 
     const svg = document.getElementById("diagramSvg");
@@ -576,6 +594,9 @@ flowchart TD
 
     function getFrameCenter(key) {
       const pos = framePos[key];
+      if (!pos) {
+        throw new Error(`Missing frame position for key: ${key}`);
+      }
       if (String(key).includes("-null")) {
         return { x: pos.x + NULL_R, y: pos.y + NULL_R };
       }
