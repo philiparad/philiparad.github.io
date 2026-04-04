@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Perfect Binary Tree Builder</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f4f6fb;
+            color: #1f2933;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 24px auto;
+            padding: 24px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 1.7rem;
+            text-align: center;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .controls label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        select, button {
+            padding: 6px 12px;
+            font-size: 0.95rem;
+            border-radius: 999px;
+            border: 1px solid #d0d7e2;
+            background: #fff;
+            cursor: pointer;
+        }
+        button.primary {
+            background: #2563eb;
+            color: #fff;
+            border-color: #1d4ed8;
+        }
+        button.secondary {
+            background: #e5edff;
+            color: #1d3a8a;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+        #status {
+            min-height: 1.3em;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        .panel-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .panel-box h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            color: #111827;
+        }
+        .code-display {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .code-highlight {
+            background: #fbbf24;
+            color: #1e293b;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .stack-frame {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        .stack-frame.active {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .stack-frame-header {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        .stack-frame-details {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .metric-item {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-top: 4px;
+        }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .speed-control input[type="range"] {
+            flex: 1;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .export-buttons button {
+            flex: 1;
+            min-width: 100px;
+        }
+        .node-info-panel {
+            position: absolute;
+            background: #ffffff;
+            border: 2px solid #2563eb;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+            z-index: 1000;
+            min-width: 200px;
+        }
+        .node-info-panel h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+        .node-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            color: #4b5563;
+        }
+        .node-info-label {
+            font-weight: 600;
+        }
+        .complexity-formula {
+            background: #eff6ff;
+            border-left: 3px solid #2563eb;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+        .complexity-formula strong {
+            color: #1e40af;
+        }
+        .canvas-container {
+            position: relative;
+        }
+        #treeCanvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 12px;
+            background: radial-gradient(circle at top, #e0ebff, #f9fafb 52%);
+            border: 1px solid #dde3f0;
+        }
+        .hint {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-align: center;
+        }
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                margin: 8px;
+                padding: 16px;
+            }
+            #treeCanvas {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Perfect Binary Tree — Step‑By‑Step Recursive Builder</h1>
+
+    <div class="controls">
+        <label>
+            Levels:
+            <select id="levelsSelect">
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </label>
+        <button id="resetBtn" class="secondary">Reset</button>
+        <button id="stepBtn" class="primary">Next Call</button>
+        <button id="autoPlayBtn" class="secondary">Auto-Play</button>
+        <span id="status"></span>
+    </div>
+
+    <div class="main-grid">
+        <div class="left-panel">
+            <div class="canvas-container">
+                <canvas id="treeCanvas" width="800" height="480"></canvas>
+                <div id="nodeInfo" class="node-info-panel" style="display: none;"></div>
+            </div>
+            
+            <div class="panel-box">
+                <h3>Speed Control</h3>
+                <div class="speed-control">
+                    <span style="font-size: 0.85rem;">Slow</span>
+                    <input type="range" id="speedSlider" min="500" max="2500" value="1000" step="100">
+                    <span style="font-size: 0.85rem;">Fast</span>
+                    <span id="speedDisplay" style="font-size: 0.85rem; margin-left: 8px; font-weight: 600;">1.0s</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="panel-box">
+                <h3>Recursive Function</h3>
+                <div class="code-display" id="codeDisplay"></div>
+            </div>
+
+            <div class="panel-box">
+                <h3>Call Stack</h3>
+                <div id="callStack" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+
+            <div class="panel-box">
+                <h3>Complexity Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-label">Total Nodes</div>
+                        <div class="metric-value" id="metricNodes">0</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Tree Height</div>
+                        <div class="metric-value" id="metricHeight">0</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Max Stack Depth</div>
+                        <div class="metric-value" id="metricStack">0</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Calls Made</div>
+                        <div class="metric-value" id="metricCalls">0</div>
+                    </div>
+                </div>
+                <div class="complexity-formula">
+                    <strong>Time Complexity:</strong> O(2<sup>n</sup>)<br>
+                    <strong>Space Complexity:</strong> O(n) — recursive stack depth<br>
+                    <strong>Formula:</strong> Total nodes = 2<sup>n</sup> - 1
+                </div>
+            </div>
+
+            <div class="panel-box">
+                <h3>Export Options</h3>
+                <div class="export-buttons">
+                    <button onclick="exportCode('python')" class="secondary">Python</button>
+                    <button onclick="exportCode('java')" class="secondary">Java</button>
+                    <button onclick="exportCode('cpp')" class="secondary">C++</button>
+                    <button onclick="exportJSON()" class="secondary">JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="hint">
+        Each recursive call follows: create node → build left subtree → build right subtree. 
+        <strong>Keyboard shortcuts:</strong> Space (step), R (reset), P (play/pause) | <strong>Hover over nodes</strong> for detailed information.
+    </p>
+</div>
+
+<script>
+    // ---------- Data structures ----------
+    class TreeNode {
+        constructor(levelValue, depth, parent = null, side = null) {
+            this.levelValue = levelValue;
+            this.depth = depth;
+            this.parent = parent;
+            this.side = side;
+            this.left = null;
+            this.right = null;
+            this.x = 0;
+            this.y = 0;
+            this.orderIndex = -1;
+            this.stackDepth = 0;
+            this.id = Math.random().toString(36).substr(2, 9);
+        }
+    }
+
+    const canvas = document.getElementById('treeCanvas');
+    const ctx = canvas.getContext('2d');
+    const levelsSelect = document.getElementById('levelsSelect');
+    const stepBtn = document.getElementById('stepBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const autoPlayBtn = document.getElementById('autoPlayBtn');
+    const statusSpan = document.getElementById('status');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedDisplay = document.getElementById('speedDisplay');
+
+    let root = null;
+    let preorderList = [];
+    let currentIndex = -1;
+    let autoPlayInterval = null;
+    let maxStackDepth = 0;
+    let hoveredNode = null;
+
+    // ---------- Build full perfect tree structure ----------
+    function buildPerfectTreeLevels(levels) {
+        preorderList = [];
+        maxStackDepth = 0;
+        if (levels <= 0) {
+            root = null;
+            return;
+        }
+
+        let counter = 0;
+
+        function build(levelValue, depth, parent, side, stackDepth = 1) {
+            maxStackDepth = Math.max(maxStackDepth, stackDepth);
+            const node = new TreeNode(levelValue, depth, parent, side);
+            node.orderIndex = counter++;
+            node.stackDepth = stackDepth;
+            preorderList.push(node);
+
+            if (levelValue <= 1) {
+                return node;
+            }
+
+            node.left = build(levelValue - 1, depth + 1, node, 'left', stackDepth + 1);
+            node.right = build(levelValue - 1, depth + 1, node, 'right', stackDepth + 1);
+            return node;
+        }
+
+        root = build(levels, 0, null, null);
+        layoutTree(root, 0, 40, canvas.width - 40);
+    }
+
+    // ---------- Compute layout (x,y positions) ----------
+    function layoutTree(node, depth, xMin, xMax) {
+        if (!node) return;
+        const mid = (xMin + xMax) / 2;
+        node.x = mid;
+        node.y = 80 + depth * 90;
+
+        if (node.left) {
+            layoutTree(node.left, depth + 1, xMin, mid);
+        }
+        if (node.right) {
+            layoutTree(node.right, depth + 1, mid, xMax);
+        }
+    }
+
+    // ---------- Drawing ----------
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawTree() {
+        clearCanvas();
+        if (!root) return;
+        drawEdges(root);
+        drawNodes(root);
+    }
+
+    function drawEdges(node) {
+        if (!node) return;
+        const visible = node.orderIndex <= currentIndex;
+        if (visible && node.left && node.left.orderIndex <= currentIndex) {
+            drawEdge(node, node.left);
+        }
+        if (visible && node.right && node.right.orderIndex <= currentIndex) {
+            drawEdge(node, node.right);
+        }
+        if (node.left) drawEdges(node.left);
+        if (node.right) drawEdges(node.right);
+    }
+
+    function drawEdge(parent, child) {
+        ctx.beginPath();
+        ctx.moveTo(parent.x, parent.y + 18);
+        ctx.lineTo(child.x, child.y - 18);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#9ca3af';
+        ctx.stroke();
+    }
+
+    function drawNodes(node) {
+        if (!node) return;
+        const isVisible = node.orderIndex <= currentIndex;
+        const isCurrent = node.orderIndex === currentIndex;
+        const isHovered = hoveredNode && hoveredNode.id === node.id;
+
+        if (isVisible) {
+            const radius = 20;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = isCurrent ? '#fde68a' : isHovered ? '#dbeafe' : '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = isCurrent ? 2.5 : isHovered ? 2 : 1.5;
+            ctx.strokeStyle = isCurrent ? '#d97706' : isHovered ? '#3b82f6' : '#2563eb';
+            ctx.stroke();
+
+            const label = 'buildPerfectBinaryTree(' + node.levelValue + ')';
+            ctx.font = '11px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI"';
+            ctx.fillStyle = '#111827';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(label, node.x, node.y - radius - 4);
+
+            if (node.side) {
+                ctx.font = '10px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI"';
+                ctx.fillStyle = '#6b7280';
+                const sideText = node.side;
+                ctx.fillText(sideText, node.x, node.y + radius + 11);
+            }
+        }
+
+        if (node.left) drawNodes(node.left);
+        if (node.right) drawNodes(node.right);
+    }
+
+    // ---------- Interaction ----------
+    function resetTree() {
+        stopAutoPlay();
+        const levels = parseInt(levelsSelect.value, 10);
+        buildPerfectTreeLevels(levels);
+        currentIndex = -1;
+        updateStatus();
+        updateMetrics();
+        updateCodeDisplay();
+        updateCallStack();
+        drawTree();
+        stepBtn.disabled = false;
+    }
+
+    function stepForward() {
+        if (!preorderList.length) return;
+        if (currentIndex >= preorderList.length - 1) {
+            stepBtn.disabled = true;
+            stopAutoPlay();
+            return;
+        }
+        currentIndex++;
+        if (currentIndex >= preorderList.length - 1) {
+            stepBtn.disabled = true;
+            stopAutoPlay();
+        }
+        updateStatus();
+        updateMetrics();
+        updateCodeDisplay();
+        updateCallStack();
+        drawTree();
+    }
+
+    function toggleAutoPlay() {
+        if (autoPlayInterval) {
+            stopAutoPlay();
+        } else {
+            startAutoPlay();
+        }
+    }
+
+    function startAutoPlay() {
+        if (currentIndex >= preorderList.length - 1) {
+            resetTree();
+        }
+        const speed = parseInt(speedSlider.value, 10);
+        autoPlayInterval = setInterval(() => {
+            stepForward();
+        }, speed);
+        autoPlayBtn.textContent = 'Pause';
+        stepBtn.disabled = true;
+    }
+
+    function stopAutoPlay() {
+        if (autoPlayInterval) {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
+            autoPlayBtn.textContent = 'Auto-Play';
+            stepBtn.disabled = currentIndex >= preorderList.length - 1;
+        }
+    }
+
+    function updateMetrics() {
+        const levels = parseInt(levelsSelect.value, 10);
+        const totalNodes = Math.pow(2, levels) - 1;
+        const height = levels - 1;
+        const callsMade = currentIndex + 1;
+        
+        document.getElementById('metricNodes').textContent = totalNodes;
+        document.getElementById('metricHeight').textContent = height;
+        document.getElementById('metricStack').textContent = maxStackDepth;
+        document.getElementById('metricCalls').textContent = callsMade + '/' + totalNodes;
+    }
+
+    function updateCodeDisplay() {
+        const codeEl = document.getElementById('codeDisplay');
+        if (currentIndex < 0) {
+            codeEl.innerHTML = `function buildPerfectBinaryTree(levels) {
+    if (levels <= 0) return null;
+    
+    const node = new Node();
+    node.left = buildPerfectBinaryTree(levels - 1);
+    node.right = buildPerfectBinaryTree(levels - 1);
+    return node;
+}`;
+            return;
+        }
+
+        const node = preorderList[currentIndex];
+        let highlightLine = 3;
+
+        if (currentIndex > 0) {
+            const prevNode = preorderList[currentIndex - 1];
+            if (prevNode.parent === node.parent && prevNode.side === 'left' && node.side === 'right') {
+                highlightLine = 5;
+            } else if (node.parent && node.side === 'left') {
+                highlightLine = 4;
+            }
+        }
+
+        const lines = [
+            'function buildPerfectBinaryTree(levels) {',
+            '    if (levels <= 0) return null;',
+            '    ',
+            '    const node = new Node();',
+            '    node.left = buildPerfectBinaryTree(levels - 1);',
+            '    node.right = buildPerfectBinaryTree(levels - 1);',
+            '    return node;',
+            '}'
+        ];
+
+        const html = lines.map((line, i) => {
+            if (i === highlightLine) {
+                return '<span class="code-highlight">' + line + '</span>';
+            }
+            return line;
+        }).join('\n');
+
+        codeEl.innerHTML = html;
+    }
+
+    function updateCallStack() {
+        const stackEl = document.getElementById('callStack');
+        if (currentIndex < 0) {
+            stackEl.innerHTML = '<div style="color: #9ca3af; font-size: 0.85rem;">No active calls</div>';
+            return;
+        }
+
+        const node = preorderList[currentIndex];
+        const stack = [];
+        let curr = node;
+        while (curr) {
+            stack.unshift(curr);
+            curr = curr.parent;
+        }
+
+        const html = stack.map((n, i) => {
+            const isActive = i === stack.length - 1;
+            const frameClass = isActive ? 'stack-frame active' : 'stack-frame';
+            return `<div class="${frameClass}">
+                <div class="stack-frame-header">buildPerfectBinaryTree(${n.levelValue})</div>
+                <div class="stack-frame-details">Depth: ${n.depth} | Stack: ${n.stackDepth}</div>
+            </div>`;
+        }).join('');
+
+        stackEl.innerHTML = html || '<div style="color: #9ca3af;">Empty</div>';
+    }
+
+    function updateStatus() {
+        if (!preorderList.length) {
+            statusSpan.textContent = '';
+            return;
+        }
+        if (currentIndex < 0) {
+            statusSpan.textContent = 'Click "Next Call" to begin recursion.';
+            return;
+        }
+        const node = preorderList[currentIndex];
+        const total = preorderList.length;
+        const step = currentIndex + 1;
+        const where = node.parent ? (node.side + ' child') : 'root';
+        statusSpan.textContent = `Step ${step}/${total}: buildPerfectBinaryTree(${node.levelValue}) as ${where}`;
+    }
+
+    // Export functions
+    function exportCode(lang) {
+        const levels = parseInt(levelsSelect.value, 10);
+        let code = '';
+        
+        if (lang === 'python') {
+            code = `class Node:
+    def __init__(self):
+        self.left = None
+        self.right = None
+
+def build_perfect_binary_tree(levels):
+    """Build a perfect binary tree with the given number of levels"""
+    if levels <= 0:
+        return None
+    
+    node = Node()
+    node.left = build_perfect_binary_tree(levels - 1)
+    node.right = build_perfect_binary_tree(levels - 1)
+    return node
+
+# Example: Build tree with ${levels} levels
+root = build_perfect_binary_tree(${levels})`;
+        } else if (lang === 'java') {
+            code = `class Node {
+    Node left;
+    Node right;
+    
+    public Node() {
+        this.left = null;
+        this.right = null;
+    }
+}
+
+public class BinaryTree {
+    /**
+     * Build a perfect binary tree with the given number of levels
+     */
+    public static Node buildPerfectBinaryTree(int levels) {
+        if (levels <= 0) {
+            return null;
+        }
+        
+        Node node = new Node();
+        node.left = buildPerfectBinaryTree(levels - 1);
+        node.right = buildPerfectBinaryTree(levels - 1);
+        return node;
+    }
+    
+    public static void main(String[] args) {
+        // Example: Build tree with ${levels} levels
+        Node root = buildPerfectBinaryTree(${levels});
+    }
+}`;
+        } else if (lang === 'cpp') {
+            code = `#include <memory>
+
+struct Node {
+    std::unique_ptr<Node> left;
+    std::unique_ptr<Node> right;
+};
+
+/**
+ * Build a perfect binary tree with the given number of levels
+ */
+std::unique_ptr<Node> buildPerfectBinaryTree(int levels) {
+    if (levels <= 0) {
+        return nullptr;
+    }
+    
+    auto node = std::make_unique<Node>();
+    node->left = buildPerfectBinaryTree(levels - 1);
+    node->right = buildPerfectBinaryTree(levels - 1);
+    return node;
+}
+
+int main() {
+    // Example: Build tree with ${levels} levels
+    auto root = buildPerfectBinaryTree(${levels});
+    return 0;
+}`;
+        }
+        
+        downloadFile(code, `perfect_binary_tree.${lang === 'cpp' ? 'cpp' : lang === 'java' ? 'java' : 'py'}`);
+    }
+
+    function exportJSON() {
+        if (!root) {
+            alert('No tree to export. Please build a tree first.');
+            return;
+        }
+        
+        function serializeNode(node) {
+            if (!node) return null;
+            return {
+                levelValue: node.levelValue,
+                depth: node.depth,
+                left: serializeNode(node.left),
+                right: serializeNode(node.right)
+            };
+        }
+        
+        const json = JSON.stringify(serializeNode(root), null, 2);
+        downloadFile(json, 'perfect_binary_tree.json');
+    }
+
+    function downloadFile(content, filename) {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function updateSpeedDisplay() {
+        const speed = parseInt(speedSlider.value, 10);
+        speedDisplay.textContent = (speed / 1000).toFixed(1) + 's';
+        if (autoPlayInterval) {
+            stopAutoPlay();
+            startAutoPlay();
+        }
+    }
+
+    // Mouse interaction for node hover
+    function getNodeAtPosition(x, y, node) {
+        if (!node || node.orderIndex > currentIndex) return null;
+        
+        const radius = 20;
+        const dist = Math.sqrt(Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2));
+        
+        if (dist <= radius) {
+            return node;
+        }
+        
+        const leftResult = node.left ? getNodeAtPosition(x, y, node.left) : null;
+        if (leftResult) return leftResult;
+        
+        const rightResult = node.right ? getNodeAtPosition(x, y, node.right) : null;
+        if (rightResult) return rightResult;
+        
+        return null;
+    }
+
+    function handleCanvasMouseMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const node = root ? getNodeAtPosition(x, y, root) : null;
+        
+        if (node !== hoveredNode) {
+            hoveredNode = node;
+            drawTree();
+            updateNodeInfo(e.clientX, e.clientY);
+        }
+    }
+
+    function handleCanvasMouseLeave() {
+        if (hoveredNode) {
+            hoveredNode = null;
+            drawTree();
+            hideNodeInfo();
+        }
+    }
+
+    function updateNodeInfo(clientX, clientY) {
+        const infoPanel = document.getElementById('nodeInfo');
+        
+        if (!hoveredNode) {
+            hideNodeInfo();
+            return;
+        }
+        
+        const node = hoveredNode;
+        const subtreeNodes = countSubtreeNodes(node);
+        const subtreeHeight = getSubtreeHeight(node);
+        
+        infoPanel.innerHTML = `
+            <h4>Node Information</h4>
+            <div class="node-info-row">
+                <span class="node-info-label">Parameter:</span>
+                <span>${node.levelValue}</span>
+            </div>
+            <div class="node-info-row">
+                <span class="node-info-label">Tree Depth:</span>
+                <span>${node.depth}</span>
+            </div>
+            <div class="node-info-row">
+                <span class="node-info-label">Stack Depth:</span>
+                <span>${node.stackDepth}</span>
+            </div>
+            <div class="node-info-row">
+                <span class="node-info-label">Creation Order:</span>
+                <span>${node.orderIndex + 1}</span>
+            </div>
+            <div class="node-info-row">
+                <span class="node-info-label">Subtree Nodes:</span>
+                <span>${subtreeNodes}</span>
+            </div>
+            <div class="node-info-row">
+                <span class="node-info-label">Subtree Height:</span>
+                <span>${subtreeHeight}</span>
+            </div>
+            <div class="node-info-row">
+                <span class="node-info-label">Position:</span>
+                <span>${node.parent ? node.side : 'root'}</span>
+            </div>
+        `;
+        
+        infoPanel.style.display = 'block';
+        infoPanel.style.left = (clientX + 15) + 'px';
+        infoPanel.style.top = (clientY + 15) + 'px';
+    }
+
+    function hideNodeInfo() {
+        document.getElementById('nodeInfo').style.display = 'none';
+    }
+
+    function countSubtreeNodes(node) {
+        if (!node) return 0;
+        return 1 + countSubtreeNodes(node.left) + countSubtreeNodes(node.right);
+    }
+
+    function getSubtreeHeight(node) {
+        if (!node) return -1;
+        return 1 + Math.max(getSubtreeHeight(node.left), getSubtreeHeight(node.right));
+    }
+
+    // Keyboard shortcuts
+    function handleKeyPress(e) {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            stepForward();
+        } else if (e.code === 'KeyR') {
+            e.preventDefault();
+            resetTree();
+        } else if (e.code === 'KeyP') {
+            e.preventDefault();
+            toggleAutoPlay();
+        }
+    }
+
+    // Events
+    levelsSelect.addEventListener('change', resetTree);
+    resetBtn.addEventListener('click', resetTree);
+    stepBtn.addEventListener('click', stepForward);
+    autoPlayBtn.addEventListener('click', toggleAutoPlay);
+    speedSlider.addEventListener('input', updateSpeedDisplay);
+    canvas.addEventListener('mousemove', handleCanvasMouseMove);
+    canvas.addEventListener('mouseleave', handleCanvasMouseLeave);
+    document.addEventListener('keydown', handleKeyPress);
+
+    // Initial
+    resetTree();
+</script>
+</body>
+</html>

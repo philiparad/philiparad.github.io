@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Perfect Binary Tree – PrintTree Visualization</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        header {
+            background: linear-gradient(90deg, #3b82f6, #6366f1);
+            color: white;
+            padding: 16px 24px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        header p {
+            margin: 4px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px 24px 24px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .controls label {
+            font-size: 0.95rem;
+        }
+
+        .controls select {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #cbd5f5;
+            background: white;
+        }
+
+        .controls button {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .controls button.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .controls button.secondary {
+            background: white;
+            color: #111827;
+            border: 1px solid #d1d5db;
+        }
+
+        .controls button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+            padding: 12px 16px;
+        }
+
+        .panel h2 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .panel h2 span.icon {
+            font-size: 1.1rem;
+        }
+
+        .tree-panel {
+            height: 480px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            background: #eef2ff;
+            border-radius: 8px;
+        }
+
+        .tree-edge {
+            stroke: #9ca3af;
+            stroke-width: 1.5;
+        }
+
+        .tree-node {
+            cursor: default;
+        }
+
+        .tree-node circle {
+            fill: white;
+            stroke: #4b5563;
+            stroke-width: 1.5;
+        }
+
+        .tree-node text {
+            font-size: 0.85rem;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #111827;
+        }
+
+        .tree-node.node-highlight circle {
+            stroke: #f97316;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.6));
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sub-panel-title {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        pre.console {
+            background: #111827;
+            color: #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre;
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Perfect Binary Tree – PrintTree Visualization</h1>
+    <p>Each PrintTree step adds a line to the console and highlights the corresponding node in the tree.</p>
+</header>
+
+<div class="container">
+    <div class="controls">
+        <label>
+            Levels:
+            <select id="levelsSelect">
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </label>
+        <button id="buildBtn" class="primary">Build Tree</button>
+        <button id="nextPrintBtn" class="secondary">Next PrintTree Step</button>
+        <button id="resetPrintBtn" class="secondary">Reset PrintTree</button>
+        <span id="status" style="font-size:0.85rem;color:#4b5563;"></span>
+    </div>
+
+    <div class="layout">
+        <div class="panel tree-panel">
+            <h2><span class="icon">🌳</span> Tree View</h2>
+            <svg id="treeSvg"></svg>
+        </div>
+
+        <div class="panel info-panel">
+            <div>
+                <div class="sub-panel-title">Console Output (PrintTree)</div>
+                <pre id="consoleOutput" class="console"></pre>
+                <div class="hint">
+                    PrintTree logic (simplified C#):
+                    <br />PrintTree(root, "", true) →
+                    each call prints one line and then recurses to right and left children.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Node structure for JS tree
+    class JsNode {
+        constructor(id, value, level) {
+            this.id = id;
+            this.value = value;
+            this.level = level;
+            this.left = null;
+            this.right = null;
+            this.x = 0;
+            this.y = 0;
+        }
+    }
+
+    const svg = document.getElementById('treeSvg');
+    const levelsSelect = document.getElementById('levelsSelect');
+    const buildBtn = document.getElementById('buildBtn');
+    const nextPrintBtn = document.getElementById('nextPrintBtn');
+    const resetPrintBtn = document.getElementById('resetPrintBtn');
+    const consoleOutput = document.getElementById('consoleOutput');
+    const statusSpan = document.getElementById('status');
+
+    let root = null;
+    let nodeIdCounter = 0;
+
+    // For PrintTree simulation: each step is { line: string, nodeId: number }
+    let printSteps = [];
+    let printIndex = -1;
+
+    function randomValue() {
+        // Simulates random.Next(1, 10) → 1..9
+        return Math.floor(Math.random() * 9) + 1;
+    }
+
+    function buildPerfectTreeLevels(levels) {
+        nodeIdCounter = 0;
+
+        function build(level) {
+            if (level <= 0) return null;
+            const node = new JsNode(nodeIdCounter++, randomValue(), level);
+            node.left = build(level - 1);
+            node.right = build(level - 1);
+            return node;
+        }
+
+        root = build(levels);
+        assignPositions(root, 0, 0, 1000, levels);
+        drawTree();
+        buildPrintSteps();
+        resetPrintState();
+        updateStatus();
+    }
+
+    function assignPositions(node, depth, minX, maxX, totalLevels) {
+        if (!node) return;
+        const x = (minX + maxX) / 2;
+        const verticalPadding = 40;
+        const usableHeight = 400;
+        const y = verticalPadding + (usableHeight / Math.max(totalLevels - 1, 1)) * depth;
+
+        node.x = x;
+        node.y = y;
+
+        if (node.left) {
+            assignPositions(node.left, depth + 1, minX, x, totalLevels);
+        }
+        if (node.right) {
+            assignPositions(node.right, depth + 1, x, maxX, totalLevels);
+        }
+    }
+
+    function clearSvg() {
+        while (svg.firstChild) {
+            svg.removeChild(svg.firstChild);
+        }
+    }
+
+    function drawTree() {
+        clearSvg();
+        if (!root) return;
+
+        // Draw edges first
+        function drawEdges(node) {
+            if (!node) return;
+            if (node.left) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", node.x);
+                line.setAttribute("y1", node.y);
+                line.setAttribute("x2", node.left.x);
+                line.setAttribute("y2", node.left.y);
+                line.setAttribute("class", "tree-edge");
+                svg.appendChild(line);
+                drawEdges(node.left);
+            }
+            if (node.right) {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", node.x);
+                line.setAttribute("y1", node.y);
+                line.setAttribute("x2", node.right.x);
+                line.setAttribute("y2", node.right.y);
+                line.setAttribute("class", "tree-edge");
+                svg.appendChild(line);
+                drawEdges(node.right);
+            }
+        }
+
+        function drawNodes(node) {
+            if (!node) return;
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.setAttribute("class", "tree-node");
+            g.setAttribute("id", "node-" + node.id);
+
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", node.x);
+            circle.setAttribute("cy", node.y);
+            circle.setAttribute("r", 18);
+
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", node.x);
+            text.setAttribute("y", node.y + 1);
+            text.textContent = node.value;
+
+            g.appendChild(circle);
+            g.appendChild(text);
+            svg.appendChild(g);
+
+            drawNodes(node.left);
+            drawNodes(node.right);
+        }
+
+        drawEdges(root);
+        drawNodes(root);
+    }
+
+    // Build the PrintTree steps sequence (mimics the C# PrintTree recursion)
+    function buildPrintSteps() {
+        printSteps = [];
+        printIndex = -1;
+        if (!root) return;
+
+        function traverse(node, indent, isLast) {
+            if (!node) return;
+
+            const prefix = isLast ? "└── " : "├── ";
+            const line = indent + prefix + node.value;
+            printSteps.push({ line, nodeId: node.id });
+
+            const left = node.left;
+            const right = node.right;
+            const newIndent = indent + (isLast ? "    " : "│   ");
+
+            if (left || right) {
+                if (right) {
+                    // right child first, isLast = (no left child)
+                    traverse(right, newIndent, left === null);
+                }
+                if (left) {
+                    // left child is always considered "last" here
+                    traverse(left, newIndent, true);
+                }
+            }
+        }
+
+        traverse(root, "", true);
+    }
+
+    function updateConsole() {
+        if (!printSteps.length || printIndex < 0) {
+            consoleOutput.textContent = "";
+            return;
+        }
+
+        const linesToShow = printSteps.slice(0, printIndex + 1).map(step => step.line);
+        consoleOutput.textContent = linesToShow.join("\n");
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    function clearNodeHighlights() {
+        const allNodes = svg.querySelectorAll(".tree-node");
+        allNodes.forEach(nodeEl => nodeEl.classList.remove("node-highlight"));
+    }
+
+    function highlightCurrentPrintNode() {
+        clearNodeHighlights();
+        if (!printSteps.length || printIndex < 0 || printIndex >= printSteps.length) return;
+
+        const step = printSteps[printIndex];
+        const nodeEl = document.getElementById("node-" + step.nodeId);
+        if (nodeEl) {
+            nodeEl.classList.add("node-highlight");
+        }
+    }
+
+    function stepPrintTree() {
+        if (!printSteps.length) return;
+        if (printIndex >= printSteps.length - 1) {
+            updateStatus();
+            return;
+        }
+
+        printIndex++;
+        updateConsole();
+        highlightCurrentPrintNode();
+        updateStatus();
+    }
+
+    function resetPrintState() {
+        printIndex = -1;
+        updateConsole();
+        clearNodeHighlights();
+        updateStatus();
+    }
+
+    function updateStatus() {
+        if (!printSteps.length) {
+            statusSpan.textContent = "";
+            return;
+        }
+        const total = printSteps.length;
+        const current = printIndex < 0 ? 0 : printIndex + 1;
+        statusSpan.textContent = `PrintTree step ${current} / ${total}`;
+    }
+
+    // Event listeners
+    buildBtn.addEventListener('click', () => {
+        const levels = parseInt(levelsSelect.value, 10);
+        buildPerfectTreeLevels(levels);
+    });
+
+    nextPrintBtn.addEventListener('click', () => {
+        stepPrintTree();
+    });
+
+    resetPrintBtn.addEventListener('click', () => {
+        resetPrintState();
+    });
+
+    // Initial tree on load
+    window.addEventListener('DOMContentLoaded', () => {
+        const defaultLevels = parseInt(levelsSelect.value, 10);
+        buildPerfectTreeLevels(defaultLevels);
+    });
+</script>
+</body>
+</html>
