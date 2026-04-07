@@ -87,7 +87,7 @@
         <div class="row"><label>2) f(x+k) (הזזה אופקית)</label><span id="hShiftVal" class="pill"></span></div>
         <input id="hShift" type="range" min="-6" max="6" step="0.1" value="0">
 
-        <div class="row"><label>3) f(x)- (שיקוף סביב ציר x)</label><input id="reflectY" type="checkbox"></div>
+        <div class="row"><label>3) -f(x) (שיקוף סביב ציר x)</label><input id="reflectY" type="checkbox"></div>
         <div class="row"><label>4) f(-x) (שיקוף סביב ציר y)</label><input id="reflectX" type="checkbox"></div>
         <div class="row"><label>5) |f(x)| (ערך מוחלט)</label><input id="absY" type="checkbox"></div>
 
@@ -178,6 +178,15 @@ function transformY(x, state, f){
   return y;
 }
 
+function mapSourceXToTransformedX(sourceX, state){
+  const safeHScale = state.hScale || 0.0001;
+  let mappedX = sourceX;
+  if (state.reflectX) mappedX = -mappedX;
+  mappedX /= safeHScale;
+  mappedX -= state.hShift;
+  return mappedX;
+}
+
 function formatNum(v){ return (Math.abs(v) < 1e-9 ? 0 : v).toFixed(2); }
 
 function buildExpression(s){
@@ -209,14 +218,14 @@ function renderSteps(s){
 function updatePointStory(state, f){
   const x0 = state.trackX;
   const y0 = f(x0);
-  const x1 = x0 - state.hShift;
+  const x1 = state.reflectX ? -x0 : x0;
   const x2 = x1 / (state.hScale || 0.0001);
-  const x3 = state.reflectX ? -x2 : x2;
+  const x3 = x2 - state.hShift;
   let y = y0;
   const chain = [`(${formatNum(x0)}, ${formatNum(y0)})`];
-  chain.push(`x+${formatNum(state.hShift)} ⇒ (${formatNum(x1)}, ${formatNum(y)})`);
+  if (state.reflectX) chain.push(`f(-x) ⇒ (${formatNum(x1)}, ${formatNum(y)})`);
   chain.push(`f(kx), k=${formatNum(state.hScale)} ⇒ (${formatNum(x2)}, ${formatNum(y)})`);
-  if (state.reflectX) chain.push(`f(-x) ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
+  chain.push(`x+${formatNum(state.hShift)} ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
   if (state.absY) y = Math.abs(y), chain.push(`|f| ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
   if (state.reflectY) y = -y, chain.push(`-f ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
   y = y * state.vScale;
@@ -241,13 +250,14 @@ function plotMain(){
 
   const x0 = s.trackX;
   const yOrig = f(x0);
-  const yNew = transformY(x0 - s.hShift, s, f);
+  const transformedX0 = mapSourceXToTransformedX(x0, s);
+  const yNew = transformY(transformedX0, s, f);
 
   Plotly.react('mainPlot', [
     {x: xs, y: baseY, mode:'lines', name:'f(x)', line:{color:'#60a5fa', width:3}},
     {x: xs, y: transY, mode:'lines', name:'g(x)', line:{color:'#22c55e', width:3}},
     {x:[x0], y:[yOrig], mode:'markers', name:'נקודת מקור', marker:{size:10,color:'#f59e0b'}},
-    {x:[x0 - s.hShift], y:[yNew], mode:'markers', name:'נקודה לאחר שינוי', marker:{size:10,color:'#f43f5e'}}
+    {x:[transformedX0], y:[yNew], mode:'markers', name:'נקודה לאחר שינוי', marker:{size:10,color:'#f43f5e'}}
   ], {
     paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'#0b1220',
     font:{color:'#e5e7eb'}, legend:{orientation:'h'},
