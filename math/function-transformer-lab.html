@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Function Transformer Lab</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']] } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel2: #1f2937;
+      --accent: #22d3ee;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+    }
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(180deg,#020617,var(--bg)); color: var(--text); }
+    .container { max-width: 1500px; margin: 0 auto; padding: 16px; }
+    h1, h2, h3 { margin: 0 0 10px; }
+    .layout { display: grid; grid-template-columns: 2fr 1.1fr; gap: 16px; }
+    .card { background: rgba(17,24,39,.92); border: 1px solid #334155; border-radius: 14px; padding: 14px; }
+    .controls { display: grid; gap: 10px; }
+    .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+    label { color: #cbd5e1; font-size: 0.95rem; }
+    input[type="range"] { width: 100%; }
+    .small { color: var(--muted); font-size: .9rem; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .tab { border: 0; background: #334155; color: var(--text); border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+    .tab.active { background: #0284c7; }
+    .mode { display: none; margin-top: 10px; }
+    .mode.active { display: block; }
+    .pill { background: #0b1220; padding: 5px 9px; border-radius: 999px; border:1px solid #334155; }
+    .btn { border: 0; background: #0369a1; color: white; border-radius: 10px; padding: 8px 10px; cursor: pointer; }
+    .btn.secondary { background: #374151; }
+    .status { margin-top: 8px; padding: 8px; border-radius: 8px; }
+    .ok { background: rgba(34,197,94,.2); border: 1px solid rgba(34,197,94,.4); }
+    .bad { background: rgba(245,158,11,.2); border: 1px solid rgba(245,158,11,.5); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    code { background: #020617; border-radius: 6px; padding: 2px 6px; }
+    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Function Transformer Lab</h1>
+    <p class="small">מעבדה אינטראקטיבית ל־7 טרנספורמציות: הזזה, שיקוף, ערך מוחלט, מתיחה/כיווץ אנכי ואופקי, ומעקב אחרי נקודה.</p>
+
+    <div class="layout">
+      <section class="card">
+        <div id="mainPlot" style="height:520px"></div>
+        <div class="split">
+          <div class="card" style="margin-top:8px;">
+            <h3>מעקב אחרי נקודה</h3>
+            <div class="row"><label>בחר נקודה על הגרף המקורי: x₀</label><span id="x0Val" class="pill"></span></div>
+            <input id="trackX" type="range" min="-8" max="8" step="0.1" value="1">
+            <div id="pointStory" class="small" style="line-height:1.7"></div>
+          </div>
+          <div class="card" style="margin-top:8px;">
+            <h3>ביטוי נוכחי</h3>
+            <div id="equation" style="font-size:1.1rem; min-height: 60px;"></div>
+            <div class="small">הסדר באפליקציה: תחילה פעולות על x, אחר כך פעולות על y.</div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card controls">
+        <h3>ספריית פונקציות</h3>
+        <select id="baseFn">
+          <option value="x*x">f(x)=x²</option>
+          <option value="Math.sqrt(Math.max(0,x))">f(x)=√x</option>
+          <option value="Math.abs(x)">f(x)=|x|</option>
+          <option value="Math.sin(x)">f(x)=sin(x)</option>
+          <option value="custom">מותאם אישית</option>
+        </select>
+        <input id="customExpr" placeholder="לדוגמה: Math.cos(x)+x/3" style="display:none" />
+
+        <h3>7 טרנספורמציות</h3>
+        <div class="row"><label>1) f(x)+k (הזזה אנכית)</label><span id="vShiftVal" class="pill"></span></div>
+        <input id="vShift" type="range" min="-6" max="6" step="0.1" value="0">
+
+        <div class="row"><label>2) f(x+k) (הזזה אופקית)</label><span id="hShiftVal" class="pill"></span></div>
+        <input id="hShift" type="range" min="-6" max="6" step="0.1" value="0">
+
+        <div class="row"><label>3) -f(x) (שיקוף סביב ציר x)</label><input id="reflectY" type="checkbox"></div>
+        <div class="row"><label>4) f(-x) (שיקוף סביב ציר y)</label><input id="reflectX" type="checkbox"></div>
+        <div class="row"><label>5) |f(x)| (ערך מוחלט)</label><input id="absY" type="checkbox"></div>
+
+        <div class="row"><label>6) k·f(x) (מתיחה אנכית)</label><span id="vScaleVal" class="pill"></span></div>
+        <input id="vScale" type="range" min="-4" max="4" step="0.1" value="1">
+
+        <div class="row"><label>7) f(kx) (מתיחה אופקית)</label><span id="hScaleVal" class="pill"></span></div>
+        <input id="hScale" type="range" min="-4" max="4" step="0.1" value="1">
+
+        <div class="tabs">
+          <button class="tab active" data-mode="guided">למידה מודרכת</button>
+          <button class="tab" data-mode="builder">בניית טרנספורמציה</button>
+          <button class="tab" data-mode="compare">השוואות</button>
+          <button class="tab" data-mode="free">חקירה חופשית</button>
+        </div>
+
+        <div id="guided" class="mode active">
+          <p class="small">🎯 משימה: התאם את הגרף שלך לגרף היעד.</p>
+          <button id="newChallenge" class="btn">אתגר חדש</button>
+          <button id="checkChallenge" class="btn secondary">בדיקה</button>
+          <div id="challengeText" class="small" style="margin-top:8px"></div>
+          <div id="challengeStatus" class="status bad">טרם נבדק.</div>
+        </div>
+
+        <div id="builder" class="mode">
+          <h3>פירוק לשלבים</h3>
+          <div id="steps" class="small"></div>
+        </div>
+
+        <div id="compare" class="mode">
+          <h3>השוואת טרנספורמציות</h3>
+          <select id="compareType">
+            <option value="shift">f(x+k) לעומת f(x)+k</option>
+            <option value="scale">f(kx) לעומת kf(x)</option>
+          </select>
+          <div id="comparePlot" style="height:260px"></div>
+        </div>
+
+        <div id="free" class="mode">
+          <h3>שמירה וטעינה</h3>
+          <button id="savePreset" class="btn">שמור מצב נוכחי</button>
+          <select id="presetList"></select>
+          <button id="loadPreset" class="btn secondary">טען</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+const E = id => document.getElementById(id);
+const controls = ['vShift','hShift','vScale','hScale','reflectY','reflectX','absY','baseFn','customExpr','trackX'];
+const labels = { vShift:'vShiftVal', hShift:'hShiftVal', vScale:'vScaleVal', hScale:'hScaleVal' };
+let challenge = null;
+
+function readState(){
+  return {
+    vShift: +E('vShift').value,
+    hShift: +E('hShift').value,
+    vScale: +E('vScale').value || 0.0001,
+    hScale: +E('hScale').value || 0.0001,
+    reflectY: E('reflectY').checked,
+    reflectX: E('reflectX').checked,
+    absY: E('absY').checked,
+    baseFn: E('baseFn').value,
+    customExpr: E('customExpr').value.trim(),
+    trackX: +E('trackX').value,
+  };
+}
+
+function getBaseFunction(state){
+  let expr = state.baseFn === 'custom' ? (state.customExpr || 'x') : state.baseFn;
+  try {
+    return new Function('x', `return ${expr};`);
+  } catch {
+    return x => x;
+  }
+}
+
+function transformY(x, state, f){
+  let innerX = x + state.hShift;
+  innerX *= state.hScale;
+  if (state.reflectX) innerX = -innerX;
+  let y = f(innerX);
+  if (!Number.isFinite(y)) return NaN;
+  if (state.absY) y = Math.abs(y);
+  if (state.reflectY) y = -y;
+  y = state.vScale * y + state.vShift;
+  return y;
+}
+
+function formatNum(v){ return (Math.abs(v) < 1e-9 ? 0 : v).toFixed(2); }
+
+function buildExpression(s){
+  let inside = 'x';
+  if (s.hShift !== 0) inside = `(x ${s.hShift >= 0 ? '+' : '-'} ${Math.abs(s.hShift).toFixed(1)})`;
+  if (s.hScale !== 1) inside = `${s.hScale.toFixed(1)}·${inside}`;
+  if (s.reflectX) inside = `-(${inside})`;
+  let expr = `f(${inside})`;
+  if (s.absY) expr = `|${expr}|`;
+  if (s.reflectY) expr = `-${expr}`;
+  if (s.vScale !== 1) expr = `${s.vScale.toFixed(1)}·(${expr})`;
+  if (s.vShift !== 0) expr = `${expr} ${s.vShift >= 0 ? '+' : '-'} ${Math.abs(s.vShift).toFixed(1)}`;
+  return `\( g(x) = ${expr} \)`;
+}
+
+function renderSteps(s){
+  const arr = [];
+  arr.push(`1) התחלה: \(g(x)=f(x)\)`);
+  if (s.hShift) arr.push(`2) הזזה אופקית: \(f(x+${formatNum(s.hShift)})\)`);
+  if (s.hScale !== 1) arr.push(`3) שינוי אופקי: \(f(${formatNum(s.hScale)}x)\)`);
+  if (s.reflectX) arr.push('4) שיקוף סביב ציר y: \(f(-x)\)');
+  if (s.absY) arr.push('5) ערך מוחלט: \(|f(x)|\)');
+  if (s.reflectY) arr.push('6) שיקוף סביב ציר x: \(-f(x)\)');
+  if (s.vScale !== 1) arr.push(`7) מתיחה אנכית: \(${formatNum(s.vScale)}f(x)\)`);
+  if (s.vShift) arr.push(`8) הזזה אנכית: \(f(x)+${formatNum(s.vShift)}\)`);
+  E('steps').innerHTML = arr.join('<br>');
+}
+
+function updatePointStory(state, f){
+  const x0 = state.trackX;
+  const y0 = f(x0);
+  const x1 = x0 - state.hShift;
+  const x2 = x1 / (state.hScale || 0.0001);
+  const x3 = state.reflectX ? -x2 : x2;
+  let y = y0;
+  const chain = [`(${formatNum(x0)}, ${formatNum(y0)})`];
+  chain.push(`x+${formatNum(state.hShift)} ⇒ (${formatNum(x1)}, ${formatNum(y)})`);
+  chain.push(`f(kx), k=${formatNum(state.hScale)} ⇒ (${formatNum(x2)}, ${formatNum(y)})`);
+  if (state.reflectX) chain.push(`f(-x) ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
+  if (state.absY) y = Math.abs(y), chain.push(`|f| ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
+  if (state.reflectY) y = -y, chain.push(`-f ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
+  y = y * state.vScale;
+  chain.push(`k·f, k=${formatNum(state.vScale)} ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
+  y = y + state.vShift;
+  chain.push(`+${formatNum(state.vShift)} ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
+  E('x0Val').textContent = formatNum(x0);
+  E('pointStory').textContent = chain.join('  →  ');
+}
+
+function plotMain(){
+  const s = readState();
+  const f = getBaseFunction(s);
+  Object.keys(labels).forEach(k => E(labels[k]).textContent = formatNum(s[k]));
+  E('equation').innerHTML = buildExpression(s);
+  renderSteps(s);
+  updatePointStory(s, f);
+
+  const xs = Array.from({length: 401}, (_,i) => -10 + i*0.05);
+  const baseY = xs.map(x => { const y = f(x); return Number.isFinite(y) ? y : null; });
+  const transY = xs.map(x => { const y = transformY(x, s, f); return Number.isFinite(y) ? y : null; });
+
+  const x0 = s.trackX;
+  const yOrig = f(x0);
+  const yNew = transformY(x0 - s.hShift, s, f);
+
+  Plotly.react('mainPlot', [
+    {x: xs, y: baseY, mode:'lines', name:'f(x)', line:{color:'#60a5fa', width:3}},
+    {x: xs, y: transY, mode:'lines', name:'g(x)', line:{color:'#22c55e', width:3}},
+    {x:[x0], y:[yOrig], mode:'markers', name:'נקודת מקור', marker:{size:10,color:'#f59e0b'}},
+    {x:[x0 - s.hShift], y:[yNew], mode:'markers', name:'נקודה לאחר שינוי', marker:{size:10,color:'#f43f5e'}}
+  ], {
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'#0b1220',
+    font:{color:'#e5e7eb'}, legend:{orientation:'h'},
+    margin:{l:40,r:12,t:10,b:40},
+    xaxis:{range:[-10,10], zeroline:true, gridcolor:'#334155'},
+    yaxis:{range:[-10,10], zeroline:true, gridcolor:'#334155'}
+  }, {responsive:true});
+
+  plotCompare();
+  if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
+}
+
+function newChallenge(){
+  const templates = [
+    {hShift:2,vShift:0,reflectX:false,reflectY:true,absY:false,vScale:1,hScale:1,hint:'יש כאן שיקוף סביב ציר x + תזוזה בציר x'},
+    {hShift:-1.5,vShift:2,reflectX:false,reflectY:false,absY:false,vScale:2,hScale:1,hint:'בדוק מתיחה אנכית והזזה מעלה'},
+    {hShift:0,vShift:0,reflectX:true,reflectY:false,absY:true,vScale:1,hScale:-1,hint:'בדוק שיקוף בציר y וערך מוחלט'}
+  ];
+  challenge = templates[Math.floor(Math.random()*templates.length)];
+  E('challengeText').textContent = `יעד נוצר. רמז: ${challenge.hint}`;
+  E('challengeStatus').className = 'status bad';
+  E('challengeStatus').textContent = 'התאם את ההגדרות ואז לחץ בדיקה.';
+}
+
+function checkChallenge(){
+  if (!challenge) return;
+  const s = readState();
+  const keys = ['hShift','vShift','vScale','hScale','reflectX','reflectY','absY'];
+  const score = keys.reduce((acc,k)=>{
+    if (typeof s[k] === 'boolean') return acc + (s[k]===challenge[k] ? 1 : 0);
+    return acc + (Math.abs(s[k]-challenge[k]) < 0.25 ? 1 : 0);
+  },0);
+  if (score >= 6){
+    E('challengeStatus').className = 'status ok';
+    E('challengeStatus').textContent = '✅ מצוין! התאמה כמעט מלאה. הסבר: זיהית נכון את סוגי הטרנספורמציה.';
+  } else {
+    E('challengeStatus').className = 'status bad';
+    E('challengeStatus').textContent = `❌ עדיין לא. ציון התאמה: ${score}/7. רמז: התמקד בשינוי בציר x קודם.`;
+  }
+}
+
+function plotCompare(){
+  const s = readState();
+  const f = getBaseFunction(s);
+  const xs = Array.from({length: 321}, (_,i) => -8 + i*0.05);
+  const k = s.vShift || 2;
+  const kk = s.vScale || 2;
+  const type = E('compareType').value;
+  let yA, yB, nameA, nameB;
+  if (type === 'shift') {
+    yA = xs.map(x => f(x + k));
+    yB = xs.map(x => f(x) + k);
+    nameA = `f(x+${formatNum(k)})`;
+    nameB = `f(x)+${formatNum(k)}`;
+  } else {
+    yA = xs.map(x => f(kk * x));
+    yB = xs.map(x => kk * f(x));
+    nameA = `f(${formatNum(kk)}x)`;
+    nameB = `${formatNum(kk)}f(x)`;
+  }
+  Plotly.react('comparePlot', [
+    {x:xs,y:yA,mode:'lines',name:nameA,line:{color:'#a78bfa'}},
+    {x:xs,y:yB,mode:'lines',name:nameB,line:{color:'#fb7185'}}
+  ], {
+    paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'#0b1220',font:{color:'#e5e7eb'},
+    margin:{l:40,r:12,t:8,b:35},xaxis:{gridcolor:'#334155'},yaxis:{gridcolor:'#334155'}
+  }, {responsive:true});
+}
+
+function initPresets(){
+  const raw = localStorage.getItem('math_transform_presets');
+  const presets = raw ? JSON.parse(raw) : [];
+  const list = E('presetList');
+  list.innerHTML = presets.map((_,i)=>`<option value="${i}">Preset ${i+1}</option>`).join('');
+}
+
+E('savePreset').onclick = () => {
+  const raw = localStorage.getItem('math_transform_presets');
+  const presets = raw ? JSON.parse(raw) : [];
+  presets.push(readState());
+  localStorage.setItem('math_transform_presets', JSON.stringify(presets));
+  initPresets();
+};
+
+E('loadPreset').onclick = () => {
+  const raw = localStorage.getItem('math_transform_presets');
+  const presets = raw ? JSON.parse(raw) : [];
+  const p = presets[+E('presetList').value];
+  if (!p) return;
+  ['vShift','hShift','vScale','hScale','trackX'].forEach(k => E(k).value = p[k]);
+  ['reflectY','reflectX','absY'].forEach(k => E(k).checked = p[k]);
+  E('baseFn').value = p.baseFn;
+  E('customExpr').value = p.customExpr || '';
+  E('customExpr').style.display = p.baseFn === 'custom' ? 'block' : 'none';
+  plotMain();
+};
+
+E('baseFn').onchange = () => {
+  E('customExpr').style.display = E('baseFn').value === 'custom' ? 'block' : 'none';
+  plotMain();
+};
+controls.forEach(id => E(id).addEventListener('input', plotMain));
+E('newChallenge').onclick = newChallenge;
+E('checkChallenge').onclick = checkChallenge;
+E('compareType').onchange = plotCompare;
+
+document.querySelectorAll('.tab').forEach(btn => btn.onclick = () => {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.mode').forEach(m => m.classList.remove('active'));
+  E(btn.dataset.mode).classList.add('active');
+});
+
+initPresets();
+newChallenge();
+plotMain();
+</script>
+</body>
+</html>
