@@ -3,377 +3,1206 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Function Transformer Lab</title>
+  <title>טרנספורמציות של פונקציות</title>
+
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script>
-    window.MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']] } };
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
   <style>
-    :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --panel2: #1f2937;
-      --accent: #22d3ee;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --ok: #22c55e;
-      --warn: #f59e0b;
+    :root{
+      --bg:#0b1020;
+      --panel:#121933;
+      --panel2:#1a2344;
+      --text:#eef2ff;
+      --muted:#b9c4ea;
+      --accent:#6ea8fe;
+      --accent2:#8ef0c9;
+      --warn:#ffd166;
+      --danger:#ff7b7b;
+      --grid:#2b3768;
+      --border:#31406f;
+      --shadow:0 10px 30px rgba(0,0,0,.28);
+      --radius:20px;
     }
-    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(180deg,#020617,var(--bg)); color: var(--text); }
-    .container { max-width: 1500px; margin: 0 auto; padding: 16px; }
-    h1, h2, h3 { margin: 0 0 10px; }
-    .layout { display: grid; grid-template-columns: 2fr 1.1fr; gap: 16px; }
-    .card { background: rgba(17,24,39,.92); border: 1px solid #334155; border-radius: 14px; padding: 14px; }
-    .controls { display: grid; gap: 10px; }
-    .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
-    label { color: #cbd5e1; font-size: 0.95rem; }
-    input[type="range"] { width: 100%; }
-    .small { color: var(--muted); font-size: .9rem; }
-    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .tab { border: 0; background: #334155; color: var(--text); border-radius: 999px; padding: 7px 12px; cursor: pointer; }
-    .tab.active { background: #0284c7; }
-    .mode { display: none; margin-top: 10px; }
-    .mode.active { display: block; }
-    .pill { background: #0b1220; padding: 5px 9px; border-radius: 999px; border:1px solid #334155; }
-    .btn { border: 0; background: #0369a1; color: white; border-radius: 10px; padding: 8px 10px; cursor: pointer; }
-    .btn.secondary { background: #374151; }
-    .status { margin-top: 8px; padding: 8px; border-radius: 8px; }
-    .ok { background: rgba(34,197,94,.2); border: 1px solid rgba(34,197,94,.4); }
-    .bad { background: rgba(245,158,11,.2); border: 1px solid rgba(245,158,11,.5); }
-    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    code { background: #020617; border-radius: 6px; padding: 2px 6px; }
-    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, #203060 0, transparent 28%),
+        radial-gradient(circle at top left, #17314a 0, transparent 22%),
+        linear-gradient(180deg, #09101f, #0c1327 45%, #0b1020 100%);
+      color:var(--text);
+    }
+
+    .app{
+      min-height:100vh;
+      padding:18px;
+      display:grid;
+      grid-template-rows:auto auto 1fr auto;
+      gap:16px;
+    }
+
+    .hero, .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .hero{
+      padding:20px 24px;
+      display:grid;
+      grid-template-columns:1.3fr .9fr;
+      gap:16px;
+      align-items:center;
+    }
+
+    .hero h1{
+      margin:0 0 10px 0;
+      font-size:2rem;
+    }
+
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .formula-box{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .formula-title{
+      color:var(--accent2);
+      font-weight:700;
+      margin-bottom:10px;
+    }
+
+    .top-row{
+      display:grid;
+      grid-template-columns:1.4fr .9fr;
+      gap:16px;
+      align-items:stretch;
+    }
+
+    .panel{
+      padding:16px;
+    }
+
+    .panel h2{
+      margin:0 0 12px 0;
+      font-size:1.18rem;
+    }
+
+    #plot{
+      width:100%;
+      height:520px;
+      border-radius:16px;
+      overflow:hidden;
+    }
+
+    .controls{
+      display:grid;
+      gap:12px;
+    }
+
+    .control-group{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px 14px;
+    }
+
+    .control-group h3{
+      margin:0 0 10px 0;
+      font-size:1rem;
+      color:var(--accent2);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin:8px 0;
+    }
+
+    label{
+      font-weight:700;
+    }
+
+    select, button, input[type="range"], input[type="number"]{
+      font:inherit;
+    }
+
+    select, input[type="number"]{
+      background:#0d1530;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      min-width:160px;
+    }
+
+    .btn{
+      background:#152041;
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 14px;
+      cursor:pointer;
+      transition:.2s ease;
+      font-weight:700;
+    }
+
+    .btn:hover{transform:translateY(-1px); border-color:var(--accent)}
+    .btn.active{outline:2px solid var(--accent2); background:#183259}
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:#101936;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .slider-wrap{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      align-items:center;
+      margin:8px 0;
+    }
+
+    input[type="range"]{
+      width:100%;
+      accent-color:#7ec8ff;
+    }
+
+    .value{
+      min-width:72px;
+      text-align:center;
+      background:#0e1733;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 10px;
+      font-weight:700;
+      direction:ltr;
+    }
+
+    .examples{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:10px;
+    }
+
+    .examples .btn{
+      width:100%;
+      text-align:center;
+    }
+
+    .func-options{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .func-btn{
+      min-height:58px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      direction:ltr;
+      font-size:1.02rem;
+    }
+
+    .func-btn mjx-container{
+      font-size: 115% !important;
+    }
+
+    .selected-func{
+      margin-top:12px;
+    }
+
+    .bottom-row{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:16px;
+    }
+
+    .info-card{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+      height:100%;
+    }
+
+    .info-card h3{
+      margin:0 0 10px 0;
+      color:var(--warn);
+    }
+
+    .explain{
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .math-line{
+      background:#0f1631;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      margin:8px 0;
+      overflow:auto;
+      direction:ltr;
+      text-align:left;
+    }
+
+    #transformationBreakdown{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      line-height:1.8;
+    }
+
+    .status-good{color:var(--accent2); font-weight:700}
+    .status-bad{color:var(--danger); font-weight:700}
+
+    .footer-note{
+      text-align:center;
+      color:var(--muted);
+      font-size:.95rem;
+      padding:4px 0 10px;
+    }
+
+    @media (max-width: 1200px){
+      .top-row, .bottom-row, .hero{grid-template-columns:1fr}
+      .examples{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media (max-width: 700px){
+      .examples{grid-template-columns:1fr}
+      #plot{height:420px}
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🧪 Function Transformer Lab</h1>
-    <p class="small">מעבדה אינטראקטיבית ל־7 טרנספורמציות: הזזה, שיקוף, ערך מוחלט, מתיחה/כיווץ אנכי ואופקי, ומעקב אחרי נקודה.</p>
+  <div class="app">
+    <section class="hero">
+      <div>
+        <h1>מעבדת טרנספורמציות של פונקציות</h1>
+        <p>
+          אפליקציה של 7 טרנספורמציות מרכזיות:
+          הזזה אנכית, הזזה אופקית, שיקוף אנכי, שיקוף אופקי, ערך מוחלט,
+          מתיחה/כיווץ אנכי, ומתיחה/כיווץ אופקי.
+        </p>
+      </div>
+      <div class="formula-box">
+        <div class="math-line">\( f(x)+k \), \( f(x+k) \), \( -f(x) \), \( f(-x) \), \( |f(x)| \), \( kf(x) \), \( f(kx) \)</div>
+      </div>
+    </section>
 
-    <div class="layout">
-      <section class="card">
-        <div id="mainPlot" style="height:520px"></div>
-        <div class="split">
-          <div class="card" style="margin-top:8px;">
+    <section class="top-row">
+      <div class="panel">
+        <h2>גרף דינאמי</h2>
+        <div id="plot"></div>
+      </div>
+
+      <div class="panel">
+        <div class="controls">
+          <div class="control-group">
+            <div class="row">
+            </div>
+            <div class="func-options" id="funcOptions">
+              <button type="button" class="btn func-btn active" data-func="quadratic">\(f(x)=x^2\)</button>
+              <button type="button" class="btn func-btn" data-func="abs">\(f(x)=|x|\)</button>
+              <button type="button" class="btn func-btn" data-func="sqrt">\(f(x)=\sqrt{x}\)</button>
+              <button type="button" class="btn func-btn" data-func="sin">\(f(x)=\sin(x)\)</button>
+              <button type="button" class="btn func-btn" data-func="cubic">\(f(x)=x^3\)</button>
+              <button style="font-size: 12px;" type="button" class="btn func-btn" data-func="poly3">\(f(x)=(x+3)(x-2)(x-1)\)</button>
+            </div>
+            <div style="display: none;" id="selectedFunctionDisplay" class="math-line selected-func">\(f(x)=x^2\)</div>
+            <input type="hidden" id="baseFunc" value="quadratic">
+          </div>
+
+          <div class="control-group">
+            <label>הזזה אנכית: \( f(x)+k \)</label>
+            <div class="slider-wrap">
+              <input type="range" id="verticalShift" min="-8" max="8" step="0.5" value="0">
+              <div class="value" id="verticalShiftVal">0</div>
+            </div>
+
+            <label>הזזה אופקית: \( f(x+k) \)</label>
+            <div class="slider-wrap">
+              <input type="range" id="horizontalShift" min="-8" max="8" step="0.5" value="0">
+              <div class="value" id="horizontalShiftVal">0</div>
+            </div>
+
+            <label>מתיחה/כיווץ אנכי: \( kf(x) \)</label>
+            <div class="slider-wrap">
+              <input type="range" id="verticalScale" min="-3" max="3" step="0.1" value="1">
+              <div class="value" id="verticalScaleVal">1</div>
+            </div>
+
+            <label>מתיחה/כיווץ אופקי: \( f(kx) \)</label>
+            <div class="slider-wrap">
+              <input type="range" id="horizontalScale" min="-3" max="3" step="0.1" value="1">
+              <div class="value" id="horizontalScaleVal">1</div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="row">
+              <button class="btn toggle-btn" id="negYBtn">שיקוף אנכי: \( -f(x) \)</button>
+              <button class="btn toggle-btn" id="negXBtn">שיקוף אופקי: \( f(-x) \)</button>
+              <button class="btn toggle-btn" id="absBtn">ערך מוחלט: \( |f(x)| \)</button>
+            </div>
+            <div class="row">
+              <button class="btn" id="resetBtn">איפוס מלא</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bottom-row">
+
+          <div class="control-group">
             <h3>מעקב אחרי נקודה</h3>
-            <div class="row"><label>בחר נקודה על הגרף המקורי: x₀</label><span id="x0Val" class="pill"></span></div>
-            <input id="trackX" type="range" min="-8" max="8" step="0.1" value="1">
-            <div id="pointStory" class="small" style="line-height:1.7"></div>
+            <div class="row">
+              <label for="pointX">בחר \(x\):</label>
+              <input type="number" id="pointX" step="0.5" value="1" />
+            </div>
+            <div id="pointInfo" class="explain"></div>
           </div>
-          <div class="card" style="margin-top:8px;">
-            <h3>ביטוי נוכחי</h3>
-            <div id="equation" style="font-size:1.1rem; min-height: 60px;"></div>
-            <div class="small">הסדר באפליקציה: תחילה פעולות על x, אחר כך פעולות על y.</div>
+
+      <div class="panel">
+        <div class="info-card">
+          <h3>הביטוי הנוכחי</h3>
+          <div id="currentFormula" class="math-line">\(g(x)=f(x)\)</div>
+          <div id="comparisonFormula" class="math-line">\(g(x)=f(x)\)</div>
+          <div id="transformationBreakdown" class="explain" style="margin-top:10px;"></div>
+          <div id="summaryText" class="explain"></div>
+        </div>
+      </div>
+
+      <div style="display:none;" class="panel">
+        <div class="info-card">
+          <div id="autoExplanation" class="explain"></div>
+        </div>
+      </div>
+
+      <div style="display:none;" class="panel">
+        <div class="info-card">
+          <h3>מצב אתגר</h3>
+          <div id="challengeBox" class="explain"></div>
+          <div class="row">
+            <button class="btn" id="newChallengeBtn">אתגר חדש</button>
+            <button class="btn" id="checkChallengeBtn">בדוק התאמה</button>
           </div>
+          <div id="challengeResult" class="explain"></div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <aside class="card controls">
-        <h3>ספריית פונקציות</h3>
-        <select id="baseFn">
-          <option value="x*x">f(x)=x²</option>
-          <option value="Math.sqrt(Math.max(0,x))">f(x)=√x</option>
-          <option value="Math.abs(x)">|f(x)=|x</option>
-          <option value="Math.sin(x)">f(x)=sin(x)</option>
-          <option value="custom">מותאם אישית</option>
-        </select>
-        <input id="customExpr" placeholder="לדוגמה: Math.cos(x)+x/3" style="display:none" />
-
-        <h3>7 טרנספורמציות</h3>
-        <div class="row"><label>1) f(x)+k (הזזה אנכית)</label><span id="vShiftVal" class="pill"></span></div>
-        <input id="vShift" type="range" min="-6" max="6" step="0.1" value="0">
-
-        <div class="row"><label>2) f(x+k) (הזזה אופקית)</label><span id="hShiftVal" class="pill"></span></div>
-        <input id="hShift" type="range" min="-6" max="6" step="0.1" value="0">
-
-        <div class="row"><label>3) -f(x) (שיקוף סביב ציר x)</label><input id="reflectY" type="checkbox"></div>
-        <div class="row"><label>4) f(-x) (שיקוף סביב ציר y)</label><input id="reflectX" type="checkbox"></div>
-        <div class="row"><label>5) |f(x)| (ערך מוחלט)</label><input id="absY" type="checkbox"></div>
-
-        <div class="row"><label>6) k·f(x) (מתיחה אנכית)</label><span id="vScaleVal" class="pill"></span></div>
-        <input id="vScale" type="range" min="-4" max="4" step="0.1" value="1">
-
-        <div class="row"><label>7) f(kx) (מתיחה אופקית)</label><span id="hScaleVal" class="pill"></span></div>
-        <input id="hScale" type="range" min="-4" max="4" step="0.1" value="1">
-
-        <div class="tabs">
-          <button class="tab active" data-mode="guided">למידה מודרכת</button>
-          <button class="tab" data-mode="builder">בניית טרנספורמציה</button>
-          <button class="tab" data-mode="compare">השוואות</button>
-          <button class="tab" data-mode="free">חקירה חופשית</button>
-        </div>
-
-        <div id="guided" class="mode active">
-          <p class="small">🎯 משימה: התאם את הגרף שלך לגרף היעד.</p>
-          <button id="newChallenge" class="btn">אתגר חדש</button>
-          <button id="checkChallenge" class="btn secondary">בדיקה</button>
-          <div id="challengeText" class="small" style="margin-top:8px"></div>
-          <div id="challengeStatus" class="status bad">טרם נבדק.</div>
-        </div>
-
-        <div id="builder" class="mode">
-          <h3>פירוק לשלבים</h3>
-          <div id="steps" class="small"></div>
-        </div>
-
-        <div id="compare" class="mode">
-          <h3>השוואת טרנספורמציות</h3>
-          <select id="compareType">
-            <option value="shift">f(x+k) לעומת f(x)+k</option>
-            <option value="scale">f(kx) לעומת kf(x)</option>
-          </select>
-          <div id="comparePlot" style="height:260px"></div>
-        </div>
-
-        <div id="free" class="mode">
-          <h3>שמירה וטעינה</h3>
-          <button id="savePreset" class="btn">שמור מצב נוכחי</button>
-          <select id="presetList"></select>
-          <button id="loadPreset" class="btn secondary">טען</button>
-        </div>
-      </aside>
-    </div>
   </div>
 
-<script>
-const E = id => document.getElementById(id);
-const controls = ['vShift','hShift','vScale','hScale','reflectY','reflectX','absY','baseFn','customExpr','trackX'];
-const labels = { vShift:'vShiftVal', hShift:'hShiftVal', vScale:'vScaleVal', hScale:'hScaleVal' };
-let challenge = null;
+  <script>
+    const els = {
+      baseFunc: document.getElementById('baseFunc'),
+      funcOptions: document.getElementById('funcOptions'),
+      selectedFunctionDisplay: document.getElementById('selectedFunctionDisplay'),
+      verticalShift: document.getElementById('verticalShift'),
+      horizontalShift: document.getElementById('horizontalShift'),
+      verticalScale: document.getElementById('verticalScale'),
+      horizontalScale: document.getElementById('horizontalScale'),
+      verticalShiftVal: document.getElementById('verticalShiftVal'),
+      horizontalShiftVal: document.getElementById('horizontalShiftVal'),
+      verticalScaleVal: document.getElementById('verticalScaleVal'),
+      horizontalScaleVal: document.getElementById('horizontalScaleVal'),
+      negYBtn: document.getElementById('negYBtn'),
+      negXBtn: document.getElementById('negXBtn'),
+      absBtn: document.getElementById('absBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      pointX: document.getElementById('pointX'),
+      pointInfo: document.getElementById('pointInfo'),
+      currentFormula: document.getElementById('currentFormula'),
+      comparisonFormula: document.getElementById('comparisonFormula'),
+      transformationBreakdown: document.getElementById('transformationBreakdown'),
+      summaryText: document.getElementById('summaryText'),
+      autoExplanation: document.getElementById('autoExplanation'),
+      challengeBox: document.getElementById('challengeBox'),
+      challengeResult: document.getElementById('challengeResult'),
+      newChallengeBtn: document.getElementById('newChallengeBtn'),
+      checkChallengeBtn: document.getElementById('checkChallengeBtn'),
+    };
 
-function readState(){
-  return {
-    vShift: +E('vShift').value,
-    hShift: +E('hShift').value,
-    vScale: +E('vScale').value || 0.0001,
-    hScale: +E('hScale').value || 0.0001,
-    reflectY: E('reflectY').checked,
-    reflectX: E('reflectX').checked,
-    absY: E('absY').checked,
-    baseFn: E('baseFn').value,
-    customExpr: E('customExpr').value.trim(),
-    trackX: +E('trackX').value,
-  };
-}
+    const functionMathMap = {
+      quadratic: '\(f(x)=x^2\)',
+      abs: '\(f(x)=|x|\)',
+      sqrt: '\(f(x)=\sqrt{x}\)',
+      sin: '\(f(x)=\sin(x)\)',
+      cubic: '\(f(x)=x^3\)',
+      poly3: '\(f(x)=(x+3)(x-2)(x-1)\)'
+    };
 
-function getBaseFunction(state){
-  let expr = state.baseFn === 'custom' ? (state.customExpr || 'x') : state.baseFn;
-  try {
-    return new Function('x', `return ${expr};`);
-  } catch {
-    return x => x;
-  }
-}
+    const state = {
+      reflectY: false,
+      reflectX: false,
+      absY: false,
+      challenge: null
+    };
 
-function transformY(x, state, f){
-  let innerX = x + state.hShift;
-  innerX *= state.hScale;
-  if (state.reflectX) innerX = -innerX;
-  let y = f(innerX);
-  if (!Number.isFinite(y)) return NaN;
-  if (state.absY) y = Math.abs(y);
-  if (state.reflectY) y = -y;
-  y = state.vScale * y + state.vShift;
-  return y;
-}
+    function setBaseFunction(kind){
+      els.baseFunc.value = kind;
+      document.querySelectorAll('.func-btn').forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.func === kind);
+      });
+      els.selectedFunctionDisplay.innerHTML = functionMathMap[kind] || functionMathMap.quadratic;
+      if(window.MathJax && window.MathJax.typesetPromise){
+        MathJax.typesetPromise([els.selectedFunctionDisplay, els.funcOptions]);
+      }
+    }
 
-function mapSourceXToTransformedX(sourceX, state){
-  const safeHScale = state.hScale || 0.0001;
-  let mappedX = sourceX;
-  if (state.reflectX) mappedX = -mappedX;
-  mappedX /= safeHScale;
-  mappedX -= state.hShift;
-  return mappedX;
-}
+    function safeValue(v, fallback=1){
+      return Math.abs(v) < 0.0001 ? fallback : v;
+    }
 
-function formatNum(v){ return (Math.abs(v) < 1e-9 ? 0 : v).toFixed(2); }
+    function baseFunctionFactory(kind){
+      switch(kind){
+        case 'quadratic':
+          return {
+            label:'x^2',
+            latex:'x^2',
+            fn:(x)=>x*x,
+            domain:(x)=>true
+          };
+        case 'abs':
+          return {
+            label:'|x|',
+            latex:'|x|',
+            fn:(x)=>Math.abs(x),
+            domain:(x)=>true
+          };
+        case 'sqrt':
+          return {
+            label:'\\sqrt{x}',
+            latex:'\\sqrt{x}',
+            fn:(x)=>Math.sqrt(x),
+            domain:(x)=>x>=0
+          };
+        case 'sin':
+          return {
+            label:'\\sin(x)',
+            latex:'\\sin(x)',
+            fn:(x)=>Math.sin(x),
+            domain:(x)=>true
+          };
+        case 'cubic':
+          return {
+            label:'x^3',
+            latex:'x^3',
+            fn:(x)=>x*x*x,
+            domain:(x)=>true
+          };
+        case 'poly3':
+          return {
+            label:'(x+3)(x-2)(x-1)',
+            latex:'(x+3)(x-2)(x-1)',
+            fn:(x)=>(x+3)*(x-2)*(x-1),
+            domain:(x)=>true
+          };
+        default:
+          return {
+            label:'x^2',
+            latex:'x^2',
+            fn:(x)=>x*x,
+            domain:(x)=>true
+          };
+      }
+    }
 
-function buildExpression(s){
-  let inside = 'x';
-  if (s.hShift !== 0) inside = `(x ${s.hShift >= 0 ? '+' : '-'} ${Math.abs(s.hShift).toFixed(1)})`;
-  if (s.hScale !== 1) inside = `${s.hScale.toFixed(1)}·${inside}`;
-  if (s.reflectX) inside = `-(${inside})`;
-  let expr = `f(${inside})`;
-  if (s.absY) expr = `|${expr}|`;
-  if (s.reflectY) expr = `-${expr}`;
-  if (s.vScale !== 1) expr = `${s.vScale.toFixed(1)}·(${expr})`;
-  if (s.vShift !== 0) expr = `${expr} ${s.vShift >= 0 ? '+' : '-'} ${Math.abs(s.vShift).toFixed(1)}`;
-  return `\( g(x) = ${expr} \)`;
-}
+    function getParams(){
+      return {
+        base: els.baseFunc.value,
+        vShift: Number(els.verticalShift.value),
+        hShift: Number(els.horizontalShift.value),
+        vScale: Number(els.verticalScale.value),
+        hScale: Number(els.horizontalScale.value)
+      };
+    }
 
-function renderSteps(s){
-  const arr = [];
-  arr.push(`1) התחלה: \(g(x)=f(x)\)`);
-  if (s.hShift) arr.push(`2) הזזה אופקית: \(f(x+${formatNum(s.hShift)})\)`);
-  if (s.hScale !== 1) arr.push(`3) שינוי אופקי: \(f(${formatNum(s.hScale)}x)\)`);
-  if (s.reflectX) arr.push('4) שיקוף סביב ציר y: \(f(-x)\)');
-  if (s.absY) arr.push('5) ערך מוחלט: \(|f(x)|\)');
-  if (s.reflectY) arr.push('6) שיקוף סביב ציר x: \(-f(x)\)');
-  if (s.vScale !== 1) arr.push(`7) מתיחה אנכית: \(${formatNum(s.vScale)}f(x)\)`);
-  if (s.vShift) arr.push(`8) הזזה אנכית: \(f(x)+${formatNum(s.vShift)}\)`);
-  E('steps').innerHTML = arr.join('<br>');
-}
+    function computeTransformedPoint(x){
+      const p = getParams();
+      const base = baseFunctionFactory(p.base);
 
-function updatePointStory(state, f){
-  const x0 = state.trackX;
-  const y0 = f(x0);
-  const x1 = state.reflectX ? -x0 : x0;
-  const x2 = x1 / (state.hScale || 0.0001);
-  const x3 = x2 - state.hShift;
-  let y = y0;
-  const chain = [`(${formatNum(x0)}, ${formatNum(y0)})`];
-  if (state.reflectX) chain.push(`f(-x) ⇒ (${formatNum(x1)}, ${formatNum(y)})`);
-  chain.push(`f(kx), k=${formatNum(state.hScale)} ⇒ (${formatNum(x2)}, ${formatNum(y)})`);
-  chain.push(`x+${formatNum(state.hShift)} ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
-  if (state.absY) y = Math.abs(y), chain.push(`|f| ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
-  if (state.reflectY) y = -y, chain.push(`-f ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
-  y = y * state.vScale;
-  chain.push(`k·f, k=${formatNum(state.vScale)} ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
-  y = y + state.vShift;
-  chain.push(`+${formatNum(state.vShift)} ⇒ (${formatNum(x3)}, ${formatNum(y)})`);
-  E('x0Val').textContent = formatNum(x0);
-  E('pointStory').textContent = chain.join('  →  ');
-}
+      let xForInside = x;
+      if(state.reflectX) xForInside = -xForInside;
+      xForInside = safeValue(p.hScale) * xForInside + p.hShift;
 
-function plotMain(){
-  const s = readState();
-  const f = getBaseFunction(s);
-  Object.keys(labels).forEach(k => E(labels[k]).textContent = formatNum(s[k]));
-  E('equation').innerHTML = buildExpression(s);
-  renderSteps(s);
-  updatePointStory(s, f);
+      if(!base.domain(xForInside)) return null;
 
-  const xs = Array.from({length: 401}, (_,i) => -10 + i*0.05);
-  const baseY = xs.map(x => { const y = f(x); return Number.isFinite(y) ? y : null; });
-  const transY = xs.map(x => { const y = transformY(x, s, f); return Number.isFinite(y) ? y : null; });
+      let y = base.fn(xForInside);
 
-  const x0 = s.trackX;
-  const yOrig = f(x0);
-  const transformedX0 = mapSourceXToTransformedX(x0, s);
-  const yNew = transformY(transformedX0, s, f);
+      if(state.reflectY) y = -y;
+      y = p.vScale * y;
+      y = y + p.vShift;
+      if(state.absY) y = Math.abs(y);
 
-  Plotly.react('mainPlot', [
-    {x: xs, y: baseY, mode:'lines', name:'f(x)', line:{color:'#60a5fa', width:3}},
-    {x: xs, y: transY, mode:'lines', name:'g(x)', line:{color:'#22c55e', width:3}},
-    {x:[x0], y:[yOrig], mode:'markers', name:'נקודת מקור', marker:{size:10,color:'#f59e0b'}},
-    {x:[transformedX0], y:[yNew], mode:'markers', name:'נקודה לאחר שינוי', marker:{size:10,color:'#f43f5e'}}
-  ], {
-    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'#0b1220',
-    font:{color:'#e5e7eb'}, legend:{orientation:'h'},
-    margin:{l:40,r:12,t:10,b:40},
-    xaxis:{range:[-10,10], zeroline:true, gridcolor:'#334155'},
-    yaxis:{range:[-10,10], zeroline:true, gridcolor:'#334155'}
-  }, {responsive:true});
+      return { x, y, insideX: xForInside };
+    }
 
-  plotCompare();
-  if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
-}
+    function computeOriginalPoint(x){
+      const p = getParams();
+      const base = baseFunctionFactory(p.base);
+      if(!base.domain(x)) return null;
+      return { x, y: base.fn(x) };
+    }
 
-function newChallenge(){
-  const templates = [
-    {hShift:2,vShift:0,reflectX:false,reflectY:true,absY:false,vScale:1,hScale:1,hint:'יש כאן שיקוף סביב ציר x + תזוזה בציר x'},
-    {hShift:-1.5,vShift:2,reflectX:false,reflectY:false,absY:false,vScale:2,hScale:1,hint:'בדוק מתיחה אנכית והזזה מעלה'},
-    {hShift:0,vShift:0,reflectX:true,reflectY:false,absY:true,vScale:1,hScale:-1,hint:'בדוק שיקוף בציר y וערך מוחלט'}
-  ];
-  challenge = templates[Math.floor(Math.random()*templates.length)];
-  E('challengeText').textContent = `יעד נוצר. רמז: ${challenge.hint}`;
-  E('challengeStatus').className = 'status bad';
-  E('challengeStatus').textContent = 'התאם את ההגדרות ואז לחץ בדיקה.';
-}
+    function isAtomicLatex(expr){
+      const trimmed = String(expr).trim();
+      if(trimmed === 'x') return true;
+      if(/^-?\d+(\.\d+)?$/.test(trimmed)) return true;
+      if(/^[a-zA-Z]$/.test(trimmed)) return true;
+      if(/^\([^()]+\)$/.test(trimmed)) return true;
+      if(/^\([^()]+\)\^\d+$/.test(trimmed)) return true;
+      if(/^\\[a-zA-Z]+\{[^{}]+\}$/.test(trimmed)) return true;
+      if(/^\\[a-zA-Z]+\([^()]+\)$/.test(trimmed)) return true;
+      if(/^\|[^|]+\|$/.test(trimmed)) return true;
+      if(/^f\([^()]+\)$/.test(trimmed)) return true;
+      return false;
+    }
 
-function checkChallenge(){
-  if (!challenge) return;
-  const s = readState();
-  const keys = ['hShift','vShift','vScale','hScale','reflectX','reflectY','absY'];
-  const score = keys.reduce((acc,k)=>{
-    if (typeof s[k] === 'boolean') return acc + (s[k]===challenge[k] ? 1 : 0);
-    return acc + (Math.abs(s[k]-challenge[k]) < 0.25 ? 1 : 0);
-  },0);
-  if (score >= 6){
-    E('challengeStatus').className = 'status ok';
-    E('challengeStatus').textContent = '✅ מצוין! התאמה כמעט מלאה. הסבר: זיהית נכון את סוגי הטרנספורמציה.';
-  } else {
-    E('challengeStatus').className = 'status bad';
-    E('challengeStatus').textContent = `❌ עדיין לא. ציון התאמה: ${score}/7. רמז: התמקד בשינוי בציר x קודם.`;
-  }
-}
+    function hasBalancedOuterParens(expr){
+      const s = String(expr).trim();
+      if(!(s.startsWith('(') && s.endsWith(')'))) return false;
+      let depth = 0;
+      for(let i=0;i<s.length;i++){
+        const ch = s[i];
+        if(ch === '(') depth++;
+        else if(ch === ')') depth--;
+        if(depth === 0 && i < s.length - 1) return false;
+      }
+      return depth === 0;
+    }
 
-function plotCompare(){
-  const s = readState();
-  const f = getBaseFunction(s);
-  const xs = Array.from({length: 321}, (_,i) => -8 + i*0.05);
-  const k = s.vShift || 2;
-  const kk = s.vScale || 2;
-  const type = E('compareType').value;
-  let yA, yB, nameA, nameB;
-  if (type === 'shift') {
-    yA = xs.map(x => f(x + k));
-    yB = xs.map(x => f(x) + k);
-    nameA = `f(x+${formatNum(k)})`;
-    nameB = `f(x)+${formatNum(k)}`;
-  } else {
-    yA = xs.map(x => f(kk * x));
-    yB = xs.map(x => kk * f(x));
-    nameA = `f(${formatNum(kk)}x)`;
-    nameB = `${formatNum(kk)}f(x)`;
-  }
-  Plotly.react('comparePlot', [
-    {x:xs,y:yA,mode:'lines',name:nameA,line:{color:'#a78bfa'}},
-    {x:xs,y:yB,mode:'lines',name:nameB,line:{color:'#fb7185'}}
-  ], {
-    paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'#0b1220',font:{color:'#e5e7eb'},
-    margin:{l:40,r:12,t:8,b:35},xaxis:{gridcolor:'#334155'},yaxis:{gridcolor:'#334155'}
-  }, {responsive:true});
-}
+    function stripOuterParens(expr){
+      let s = String(expr).trim();
+      while(hasBalancedOuterParens(s)){
+        s = s.slice(1, -1).trim();
+      }
+      return s;
+    }
 
-function initPresets(){
-  const raw = localStorage.getItem('math_transform_presets');
-  const presets = raw ? JSON.parse(raw) : [];
-  const list = E('presetList');
-  list.innerHTML = presets.map((_,i)=>`<option value="${i}">Preset ${i+1}</option>`).join('');
-}
+    function wrapIfNeeded(expr){
+      const clean = stripOuterParens(expr);
+      return isAtomicLatex(clean) ? clean : `(${clean})`;
+    }
 
-E('savePreset').onclick = () => {
-  const raw = localStorage.getItem('math_transform_presets');
-  const presets = raw ? JSON.parse(raw) : [];
-  presets.push(readState());
-  localStorage.setItem('math_transform_presets', JSON.stringify(presets));
-  initPresets();
-};
+    function isFunctionCallLatex(expr){
+      const clean = stripOuterParens(expr);
+      return /^f\([^()]+\)$/.test(clean) || /^\\[a-zA-Z]+\([^()]+\)$/.test(clean);
+    }
 
-E('loadPreset').onclick = () => {
-  const raw = localStorage.getItem('math_transform_presets');
-  const presets = raw ? JSON.parse(raw) : [];
-  const p = presets[+E('presetList').value];
-  if (!p) return;
-  ['vShift','hShift','vScale','hScale','trackX'].forEach(k => E(k).value = p[k]);
-  ['reflectY','reflectX','absY'].forEach(k => E(k).checked = p[k]);
-  E('baseFn').value = p.baseFn;
-  E('customExpr').value = p.customExpr || '';
-  E('customExpr').style.display = p.baseFn === 'custom' ? 'block' : 'none';
-  plotMain();
-};
+    function needsDotBetweenCoefficientAndExpr(expr){
+      const clean = stripOuterParens(expr);
+      if(/^\d/.test(clean)) return true;
+      if(/^-\d/.test(clean)) return true;
+      if(isFunctionCallLatex(clean)) return true;
+      return false;
+    }
 
-E('baseFn').onchange = () => {
-  E('customExpr').style.display = E('baseFn').value === 'custom' ? 'block' : 'none';
-  plotMain();
-};
-controls.forEach(id => E(id).addEventListener('input', plotMain));
-E('newChallenge').onclick = newChallenge;
-E('checkChallenge').onclick = checkChallenge;
-E('compareType').onchange = plotCompare;
+    function multiplyByCoefficient(coef, expr){
+      const n = Number(coef);
+      const clean = stripOuterParens(expr);
+      if(Math.abs(n - 1) < 0.0001) return clean;
+      if(Math.abs(n + 1) < 0.0001) return `-${wrapIfNeeded(clean)}`;
+      const mag = fmt(Math.abs(n));
+      const factor = isFunctionCallLatex(clean) ? clean : wrapIfNeeded(clean);
+      const connector = needsDotBetweenCoefficientAndExpr(factor) ? '' : '';
+      return n < 0 ? `-${mag}${connector}${factor}` : `${mag}${connector}${factor}`;
+    }
 
-document.querySelectorAll('.tab').forEach(btn => btn.onclick = () => {
-  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.mode').forEach(m => m.classList.remove('active'));
-  E(btn.dataset.mode).classList.add('active');
-});
+    function addSignedTerm(expr, shift){
+      const clean = stripOuterParens(expr);
+      const n = Number(shift);
+      if(Math.abs(n) < 0.0001) return clean;
+      return n > 0 ? `${clean}+${fmt(n)}` : `${clean}${fmt(n)}`;
+    }
 
-initPresets();
-newChallenge();
-plotMain();
-</script>
+    function reflectInput(expr){
+      const clean = stripOuterParens(expr);
+      if(clean === 'x') return '-x';
+      if(/^\([^()]+\)$/.test(clean)) return `-${clean}`;
+      return `-${wrapIfNeeded(clean)}`;
+    }
+
+    function wrapForPower(expr){
+      const clean = stripOuterParens(expr);
+      return isAtomicLatex(clean) ? clean : `(${clean})`;
+    }
+
+    function applyBaseToInside(baseKind, inside){
+      const cleanInside = stripOuterParens(inside);
+      const powerInside = wrapForPower(cleanInside);
+
+      switch(baseKind){
+        case 'quadratic':
+          return `${powerInside}^2`;
+        case 'abs':
+          return `|${cleanInside}|`;
+        case 'sqrt':
+          return `\\sqrt{${cleanInside}}`;
+        case 'sin':
+          return `\\sin(${cleanInside})`;
+        case 'cubic':
+          return `${powerInside}^3`;
+        case 'poly3':
+          return `(${cleanInside}+3)(${cleanInside}-2)(${cleanInside}-1)`;
+        default:
+          return `${powerInside}^2`;
+      }
+    }
+
+    function buildFormulaLatex(){
+      const p = getParams();
+
+      let inside = 'x';
+      if(state.reflectX) inside = reflectInput(inside);
+
+      const hk = safeValue(p.hScale);
+      if(Math.abs(hk - 1) > 0.0001){
+        inside = multiplyByCoefficient(hk, inside);
+      }
+
+      inside = addSignedTerm(inside, p.hShift);
+
+      let expr = applyBaseToInside(p.base, inside);
+
+      if(state.reflectY){
+        expr = multiplyByCoefficient(-1, expr);
+      }
+
+      if(Math.abs(p.vScale - 1) > 0.0001){
+        expr = multiplyByCoefficient(p.vScale, expr);
+      }
+
+      expr = addSignedTerm(expr, p.vShift);
+
+      if(state.absY){
+        expr = `|${stripOuterParens(expr)}|`;
+      }
+
+      return `\\(g(x)=${expr}\\)`;
+    }
+
+    function buildComparisonLatex(){
+      const p = getParams();
+
+      let inside = 'x';
+      if(state.reflectX) inside = reflectInput(inside);
+
+      const hk = safeValue(p.hScale);
+      if(Math.abs(hk - 1) > 0.0001){
+        inside = multiplyByCoefficient(hk, inside);
+      }
+
+      inside = addSignedTerm(inside, p.hShift);
+
+      let expr = `f(${stripOuterParens(inside)})`;
+
+      if(state.reflectY){
+        expr = multiplyByCoefficient(-1, expr);
+      }
+
+      if(Math.abs(p.vScale - 1) > 0.0001){
+        expr = multiplyByCoefficient(p.vScale, expr);
+      }
+
+      expr = addSignedTerm(expr, p.vShift);
+
+      if(state.absY){
+        expr = `|${stripOuterParens(expr)}|`;
+      }
+
+      return `\\(g(x)=${expr}\\)`;
+    }
+
+function fmt(n){
+      return Number(n).toFixed(1).replace(/\.0$/,'');
+    }
+
+    function updateValueDisplays(){
+      els.verticalShiftVal.textContent = fmt(els.verticalShift.value);
+      els.horizontalShiftVal.textContent = fmt(els.horizontalShift.value);
+      els.verticalScaleVal.textContent = fmt(els.verticalScale.value);
+      els.horizontalScaleVal.textContent = fmt(els.horizontalScale.value);
+    }
+
+    function xRange(){
+      const arr=[];
+      for(let x=-10; x<=10.0001; x+=0.08) arr.push(Number(x.toFixed(4)));
+      return arr;
+    }
+
+    function sampleTraceData(){
+      const xs = xRange();
+
+      const originalX = [];
+      const originalY = [];
+      const transformedX = [];
+      const transformedY = [];
+
+      for(const x of xs){
+        const op = computeOriginalPoint(x);
+        if(op){
+          originalX.push(op.x);
+          originalY.push(op.y);
+        }
+
+        const tp = computeTransformedPoint(x);
+        if(tp && Number.isFinite(tp.y)){
+          transformedX.push(tp.x);
+          transformedY.push(tp.y);
+        }
+      }
+
+      return { originalX, originalY, transformedX, transformedY };
+    }
+
+    function updatePlot(){
+      updateValueDisplays();
+      const dataSet = sampleTraceData();
+      const pX = Number(els.pointX.value);
+      const op = computeOriginalPoint(pX);
+      const tp = computeTransformedPoint(pX);
+
+      const traces = [
+        {
+          x: dataSet.originalX,
+          y: dataSet.originalY,
+          mode:'lines',
+          name:'f(x)',
+          line:{width:3}
+        },
+        {
+          x: dataSet.transformedX,
+          y: dataSet.transformedY,
+          mode:'lines',
+          name:'g(x)',
+          line:{width:4}
+        }
+      ];
+
+      if(op){
+        traces.push({
+          x:[op.x],
+          y:[op.y],
+          mode:'markers+text',
+          name:'נקודה מקורית',
+          text:[`f(${fmt(op.x)})=${fmt(op.y)}`],
+          textposition:'top center',
+          marker:{size:11, symbol:'circle'}
+        });
+      }
+
+      if(tp){
+        traces.push({
+          x:[tp.x],
+          y:[tp.y],
+          mode:'markers+text',
+          name:'נקודה לאחר טרנספורמציה',
+          text:[`g(${fmt(tp.x)})=${fmt(tp.y)}`],
+          textposition:'bottom center',
+          marker:{size:12, symbol:'diamond'}
+        });
+
+        traces.push({
+          x:[tp.x, tp.x],
+          y:[0, tp.y],
+          mode:'lines',
+          name:'עזר אנכי',
+          line:{width:1, dash:'dot'},
+          showlegend:false
+        });
+      }
+
+      const layout = {
+        paper_bgcolor:'rgba(0,0,0,0)',
+        plot_bgcolor:'#0d1430',
+        font:{color:'#eef2ff', family:'Arial'},
+        margin:{l:50, r:20, t:20, b:50},
+        xaxis:{
+          title:'x',
+          zeroline:true,
+          zerolinewidth:2,
+          gridcolor:'#27345d',
+          linecolor:'#41548f',
+          mirror:true,
+          range:[-10,10]
+        },
+        yaxis:{
+          title:'y',
+          zeroline:true,
+          zerolinewidth:2,
+          gridcolor:'#27345d',
+          linecolor:'#41548f',
+          mirror:true,
+          range:[-12,12],
+          scaleanchor:null
+        },
+        legend:{
+          orientation:'h',
+          yanchor:'bottom',
+          y:1.02,
+          x:0
+        }
+      };
+
+      Plotly.newPlot('plot', traces, layout, {responsive:true, displaylogo:false});
+      updateTexts();
+    }
+
+
+    function describeHorizontalShift(hShift){
+      if(Math.abs(hShift) < 0.0001) return '';
+      if(hShift > 0){
+        return `הזזה אופקית שמאלה ב־${fmt(hShift)} יחידות`;
+      }
+      return `הזזה אופקית ימינה ב־${fmt(Math.abs(hShift))} יחידות`;
+    }
+
+    function describeVerticalShift(vShift){
+      if(Math.abs(vShift) < 0.0001) return '';
+      if(vShift > 0){
+        return `הזזה אנכית למעלה ב־${fmt(vShift)} יחידות`;
+      }
+      return `הזזה אנכית למטה ב־${fmt(Math.abs(vShift))} יחידות`;
+    }
+
+
+    function buildComparisonLatex_legacy(){
+      const p = getParams();
+
+      let inside = 'x';
+
+      if(state.reflectX) inside = `-(${inside})`;
+
+      const hk = safeValue(p.hScale);
+      if(Math.abs(hk - 1) > 0.0001){
+        inside = `${fmt(hk)}\\cdot(${inside})`;
+      }
+
+      if(Math.abs(p.hShift) > 0.0001){
+        if(p.hShift > 0) inside = `${inside}+${fmt(p.hShift)}`;
+        else inside = `${inside}${fmt(p.hShift)}`;
+      }
+
+      let expr = `f(${inside})`;
+
+      if(state.reflectY){
+        expr = `-(${expr})`;
+      }
+
+      if(Math.abs(p.vScale - 1) > 0.0001){
+        expr = `${fmt(p.vScale)}\\cdot(${expr})`;
+      }
+
+      if(Math.abs(p.vShift) > 0.0001){
+        if(p.vShift > 0) expr = `${expr}+${fmt(p.vShift)}`;
+        else expr = `${expr}${fmt(p.vShift)}`;
+      }
+
+      if(state.absY){
+        expr = `|${expr}|`;
+      }
+
+      return `\\(g(x)=${expr}\\)`;
+    }
+
+    function buildTransformationBreakdown(){
+      const p = getParams();
+      const parts = [];
+      const details = [];
+
+      if(Math.abs(p.hShift) > 0.0001){
+        const sign = p.hShift > 0 ? '-' : '+';
+        parts.push(`<div><strong>בתוך הפונקציה:</strong> \\(x \\rightarrow x ${sign} ${fmt(Math.abs(p.hShift))}\\)</div>`);
+        details.push(`<div>${describeHorizontalShift(p.hShift)}</div>`);
+      }
+
+      if(Math.abs(p.vShift) > 0.0001){
+        const sign = p.vShift > 0 ? '+' : '-';
+        parts.push(`<div><strong>מחוץ לפונקציה:</strong> \\(y \\rightarrow y ${sign} ${fmt(Math.abs(p.vShift))}\\)</div>`);
+        details.push(`<div>${describeVerticalShift(p.vShift)}</div>`);
+      }
+
+      if(Math.abs(p.hScale - 1) > 0.0001){
+        parts.push(`<div><strong>שינוי אופקי:</strong> \\(f(${fmt(p.hScale)}x)\\)</div>`);
+        if(Math.abs(p.hScale) > 1){
+          details.push(`<div>כיווץ אופקי</div>`);
+        } else if(Math.abs(p.hScale) > 0){
+          details.push(`<div>מתיחה אופקית</div>`);
+        }
+        if(p.hScale < 0){
+          details.push(`<div>כולל שיקוף ביחס לציר \\(y\\)</div>`);
+        }
+      }
+
+      if(Math.abs(p.vScale - 1) > 0.0001){
+        parts.push(`<div><strong>שינוי אנכי:</strong> \\(${fmt(p.vScale)}\f(x)\\)</div>`);
+        if(Math.abs(p.vScale) > 1){
+          details.push(`<div>מתיחה אנכית</div>`);
+        } else if(Math.abs(p.vScale) > 0){
+          details.push(`<div>כיווץ אנכי</div>`);
+        }
+        if(p.vScale < 0){
+          details.push(`<div>כולל שיקוף ביחס לציר \\(x\\)</div>`);
+        }
+      }
+
+      if(state.reflectX){
+        parts.push(`<div><strong>שיקוף אופקי:</strong> \\(f(-x)\\)</div>`);
+        details.push(`<div>שיקוף ביחס לציר \\(y\\)</div>`);
+      }
+
+      if(state.reflectY){
+        parts.push(`<div><strong>שיקוף אנכי:</strong> \\(-f(x)\\)</div>`);
+        details.push(`<div>שיקוף ביחס לציר \\(x\\)</div>`);
+      }
+
+      if(state.absY){
+        parts.push(`<div><strong>ערך מוחלט:</strong> \\(|g(x)|\\)</div>`);
+        details.push(`<div>כל החלקים שמתחת לציר \\(x\\) מתקפלים כלפי מעלה</div>`);
+      }
+
+      if(parts.length === 0){
+        return `<div>כרגע אין טרנספורמציה: \\(g(x)=f(x)\\)</div>`;
+      }
+
+      return `
+        <div style="display:grid; gap:8px;">
+          <div><strong>סוג הטרנספורמציה על \\(f(x)\\):</strong></div>
+          ${details.join('')}
+          <div style="margin-top:6px;"><strong>פירוק אלגברי:</strong></div>
+          ${parts.join('')}
+        </div>
+      `;
+    }
+
+    function updateTexts(){
+      const p = getParams();
+      els.currentFormula.innerHTML = buildFormulaLatex();
+      els.comparisonFormula.innerHTML = buildComparisonLatex();
+      els.transformationBreakdown.innerHTML = buildTransformationBreakdown();
+
+      const actions = [];
+      if(Math.abs(p.vShift)>0.0001) actions.push(`הזזה אנכית ב־${fmt(p.vShift)}`);
+      if(Math.abs(p.hShift)>0.0001) actions.push(`הזזה אופקית לפי \(f(x+k)\) עם \(k=${fmt(p.hShift)}\)`);
+      if(state.reflectY) actions.push(`שיקוף ביחס לציר \(x\)`);
+      if(state.reflectX) actions.push(`שיקוף ביחס לציר \(y\)`);
+      if(state.absY) actions.push(`הפיכת כל ערכי \(y\) לשליליים? לא. כאן הערך המוחלט הופך ערכי \(y\) שליליים לחיוביים`);
+      if(Math.abs(p.vScale-1)>0.0001) actions.push(`שינוי אנכי במקדם \(k=${fmt(p.vScale)}\)`);
+      if(Math.abs(p.hScale-1)>0.0001) actions.push(`שינוי אופקי בביטוי \(f(kx)\) עם \(k=${fmt(p.hScale)}\)`);
+
+      els.summaryText.innerHTML = actions.length
+        ? `בוצעו כרגע: ${actions.join(' , ')}.`
+        : `כרגע הגרף המתקבל זהה לגרף המקורי.`;
+
+      const pedagogic = [];
+      if(Math.abs(p.hShift) > 0.0001){
+        pedagogic.push(`שימו לב: בביטוי \(f(x+k)\), כאשר \(k>0\), הגרף זז שמאלה; וכאשר \(k<0\), הגרף זז ימינה.`);
+      }
+      if(Math.abs(p.vShift) > 0.0001){
+        pedagogic.push(`בביטוי \(f(x)+k\), כל ערכי \(y\) גדלים או קטנים באותו גודל, ולכן כל הגרף זז למעלה או למטה.`);
+      }
+      if(Math.abs(p.vScale-1) > 0.0001){
+        pedagogic.push(`בביטוי \(kf(x)\), משנים את ערכי \(y\): אם \(|k|>1\) יש מתיחה אנכית, ואם \(0<|k|<1\) יש כיווץ אנכי. אם \(k<0\) מתקבל גם שיקוף.`);
+      }
+      if(Math.abs(p.hScale-1) > 0.0001){
+        pedagogic.push(`בביטוי \(f(kx)\), השינוי הוא בציר \(x\): אם \(|k|>1\) יש כיווץ אופקי, ואם \(0<|k|<1\) יש מתיחה אופקית. אם \(k<0\) מתקבל גם שיקוף אופקי.`);
+      }
+      if(state.absY){
+        pedagogic.push(`בביטוי \(|f(x)|\), כל חלק של הגרף שהיה מתחת לציר \(x\) מתקפל כלפי מעלה.`);
+      }
+      if(state.reflectY){
+        pedagogic.push(`בביטוי \(-f(x)\), כל ערך \(y\) מחליף סימן, ולכן מתקבל שיקוף ביחס לציר \(x\).`);
+      }
+      if(state.reflectX){
+        pedagogic.push(`בביטוי \(f(-x)\), כל ערך \(x\) מחליף סימן, ולכן מתקבל שיקוף ביחס לציר \(y\).`);
+      }
+      if(pedagogic.length === 0){
+        pedagogic.push(`התחל מהפונקציה הבסיסית ובדוק כל פעם שינוי אחד. כך אפשר להבין מה השפעת כל טרנספורמציה בנפרד לפני שמשלבים כמה יחד.`);
+      }
+      els.autoExplanation.innerHTML = pedagogic.map(s=>`<p>${s}</p>`).join('');
+
+      const px = Number(els.pointX.value);
+      const op = computeOriginalPoint(px);
+      const tp = computeTransformedPoint(px);
+      if(!op){
+        els.pointInfo.innerHTML = `הנקודה המקורית אינה בתחום ההגדרה של הפונקציה הבסיסית עבור \(x=${fmt(px)}\).`;
+      } else if(!tp){
+        els.pointInfo.innerHTML = `לאחר הפעלת הטרנספורמציות, הביטוי הפנימי יוצא מתחום ההגדרה עבור \(x=${fmt(px)}\).`;
+      } else {
+        els.pointInfo.innerHTML = `
+          נקודת הבסיס: <span class="pill">\( (${fmt(op.x)}, ${fmt(op.y)}) \)</span><br>
+          נקודת היעד: <span class="pill">\( (${fmt(tp.x)}, ${fmt(tp.y)}) \)</span><br>
+         `;
+      }
+
+      if(window.MathJax && window.MathJax.typesetPromise){
+        MathJax.typesetPromise();
+      }
+    }
+
+    function toggleBtn(btn, val){
+      btn.classList.toggle('active', val);
+    }
+
+    function resetAll(){
+      setBaseFunction('quadratic');
+      els.verticalShift.value = 0;
+      els.horizontalShift.value = 0;
+      els.verticalScale.value = 1;
+      els.horizontalScale.value = 1;
+      els.pointX.value = 1;
+      state.reflectY = false;
+      state.reflectX = false;
+      state.absY = false;
+      toggleBtn(els.negYBtn, false);
+      toggleBtn(els.negXBtn, false);
+      toggleBtn(els.absBtn, false);
+      updatePlot();
+    }
+
+    function applyExample(type){
+      resetAll();
+      if(type === 'vertical'){
+        setBaseFunction('quadratic');
+        els.verticalShift.value = 3;
+      } else if(type === 'horizontal'){
+        setBaseFunction('quadratic');
+        els.horizontalShift.value = -2;
+      } else if(type === 'reflect'){
+        setBaseFunction('sin');
+        state.reflectY = true;
+        state.reflectX = true;
+        toggleBtn(els.negYBtn, true);
+        toggleBtn(els.negXBtn, true);
+      } else if(type === 'stretch'){
+        setBaseFunction('abs');
+        els.verticalScale.value = 2;
+        els.horizontalScale.value = 0.5;
+      }
+      updatePlot();
+    }
+
+    function randomChoice(arr){
+      return arr[Math.floor(Math.random()*arr.length)];
+    }
+
+    function createChallenge(){
+      const templates = [
+        {
+          text:'הזז את הגרף למעלה ב־3 יחידות',
+          check:()=> Math.abs(Number(els.verticalShift.value)-3) < 0.001
+        },
+        {
+          text:'בצע שיקוף ביחס לציר \(x\)',
+          check:()=> state.reflectY
+        },
+        {
+          text:'בצע שיקוף ביחס לציר \(y\)',
+          check:()=> state.reflectX
+        },
+        {
+          text:'בצע כיווץ אופקי באמצעות \(f(kx)\) עם \(k=2\)',
+          check:()=> Math.abs(Number(els.horizontalScale.value)-2) < 0.001
+        },
+        {
+          text:'בצע מתיחה אנכית באמצעות \(kf(x)\) עם \(k=2\)',
+          check:()=> Math.abs(Number(els.verticalScale.value)-2) < 0.001
+        },
+        {
+          text:'העבר כל חלק שלילי למעלה באמצעות ערך מוחלט',
+          check:()=> state.absY
+        }
+      ];
+      state.challenge = randomChoice(templates);
+      els.challengeBox.innerHTML = `משימה: <strong>${state.challenge.text}</strong>`;
+      els.challengeResult.innerHTML = '';
+      if(window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise();
+    }
+
+    document.querySelectorAll('.func-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        setBaseFunction(btn.dataset.func);
+        updatePlot();
+      });
+    });
+
+    [els.verticalShift, els.horizontalShift, els.verticalScale, els.horizontalScale, els.pointX].forEach(el=>{
+      el.addEventListener('input', updatePlot);
+    });
+
+    els.negYBtn.addEventListener('click', ()=>{
+      state.reflectY = !state.reflectY;
+      toggleBtn(els.negYBtn, state.reflectY);
+      updatePlot();
+    });
+
+    els.negXBtn.addEventListener('click', ()=>{
+      state.reflectX = !state.reflectX;
+      toggleBtn(els.negXBtn, state.reflectX);
+      updatePlot();
+    });
+
+    els.absBtn.addEventListener('click', ()=>{
+      state.absY = !state.absY;
+      toggleBtn(els.absBtn, state.absY);
+      updatePlot();
+    });
+
+    els.resetBtn.addEventListener('click', resetAll);
+
+    document.querySelectorAll('.example-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=> applyExample(btn.dataset.example));
+    });
+
+    els.newChallengeBtn.addEventListener('click', createChallenge);
+    els.checkChallengeBtn.addEventListener('click', ()=>{
+      if(!state.challenge){
+        els.challengeResult.innerHTML = '<span class="status-bad">עדיין לא נבחר אתגר.</span>';
+        return;
+      }
+      const ok = state.challenge.check();
+      els.challengeResult.innerHTML = ok
+        ? '<span class="status-good">מצוין. ההגדרה שבחרת תואמת לאתגר.</span>'
+        : '<span class="status-bad">עדיין לא. נסה לשנות את הכפתורים או את הסליידרים.</span>';
+      if(window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise();
+    });
+
+    setBaseFunction('quadratic');
+    createChallenge();
+    resetAll();
+  </script>
 </body>
 </html>
