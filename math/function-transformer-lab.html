@@ -8,7 +8,10 @@
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script>
     window.MathJax = {
-      tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      tex: {
+        inlineMath: [['\\(','\\)'], ['$', '$']],
+        displayMath: [['\\[','\\]']]
+      },
       svg: { fontCache: 'global' }
     };
   </script>
@@ -51,14 +54,13 @@
     }
 
     .hero, .panel{
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      padding:16px;
+      width:100%;
+      min-width:0;
     }
 
     .hero{
-      padding:20px 24px;
+      padding:10px 12px;
       display:grid;
       grid-template-columns:1.3fr .9fr;
       gap:16px;
@@ -100,14 +102,11 @@
       padding:16px;
     }
 
-    .panel h2{
-      margin:0 0 12px 0;
-      font-size:1.18rem;
-    }
-
     #plot{
-      width:100%;
-      height:520px;
+      width:100% !important;
+      height:100% !important;
+      min-height:520px;
+      display:block;
       border-radius:16px;
       overflow:hidden;
     }
@@ -168,17 +167,6 @@
 
     .btn:hover{transform:translateY(-1px); border-color:var(--accent)}
     .btn.active{outline:2px solid var(--accent2); background:#183259}
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border:1px solid var(--border);
-      border-radius:999px;
-      background:#101936;
-      color:var(--muted);
-      font-size:.95rem;
-    }
 
     .slider-wrap{
       display:grid;
@@ -204,17 +192,6 @@
       direction:ltr;
     }
 
-    .examples{
-      display:grid;
-      grid-template-columns:repeat(4, 1fr);
-      gap:10px;
-    }
-
-    .examples .btn{
-      width:100%;
-      text-align:center;
-    }
-
     .func-options{
       display:grid;
       grid-template-columns:repeat(3, minmax(0,1fr));
@@ -236,13 +213,9 @@
       font-size: 115% !important;
     }
 
-    .selected-func{
-      margin-top:12px;
-    }
-
     .bottom-row{
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      grid-template-columns:1fr 1fr;
       gap:16px;
     }
 
@@ -275,16 +248,21 @@
       text-align:left;
     }
 
-    #transformationBreakdown{
-      background:rgba(255,255,255,.03);
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
       border:1px solid var(--border);
-      border-radius:12px;
-      padding:12px;
-      line-height:1.8;
+      border-radius:999px;
+      background:#101936;
+      color:var(--muted);
+      font-size:.95rem;
+      margin:3px;
     }
 
-    .status-good{color:var(--accent2); font-weight:700}
-    .status-bad{color:var(--danger); font-weight:700}
+    #transformationBreakdown{
+    }
 
     .footer-note{
       text-align:center;
@@ -295,13 +273,30 @@
 
     @media (max-width: 1200px){
       .top-row, .bottom-row, .hero{grid-template-columns:1fr}
-      .examples{grid-template-columns:repeat(2,1fr)}
     }
 
     @media (max-width: 700px){
-      .examples{grid-template-columns:1fr}
-      #plot{height:420px}
+      #plot{
+      width:100% !important;
+      height:100% !important;
+      min-height:520px;
+      display:block;
+      border-radius:16px;
+      overflow:hidden;
     }
+      .func-options{grid-template-columns:repeat(2, minmax(0,1fr));}
+    }
+  
+    .top-row > .panel{
+      min-width:0;
+    }
+
+    .js-plotly-plot,
+    .plot-container,
+    .svg-container{
+      width:100% !important;
+    }
+
   </style>
 </head>
 <body>
@@ -309,15 +304,8 @@
     <section class="hero">
       <div>
         <h1>מעבדת טרנספורמציות של פונקציות</h1>
-        <p>
-          אפליקציה של 7 טרנספורמציות מרכזיות:
-          הזזה אנכית, הזזה אופקית, שיקוף אנכי, שיקוף אופקי, ערך מוחלט,
-          מתיחה/כיווץ אנכי, ומתיחה/כיווץ אופקי.
-        </p>
       </div>
-      <div class="formula-box">
-        <div class="math-line">\( f(x)+k \), \( f(x+k) \), \( -f(x) \), \( f(-x) \), \( |f(x)| \), \( kf(x) \), \( f(kx) \)</div>
-      </div>
+        <div class="math-line">\( f(x)+k \), \( f(x+k) \), \( -f(x) \), \( f(-x) \), \( |f(x)| \), \( kf(x) \), \( f(kx) \), \( [f(x)]^n \)</div>
     </section>
 
     <section class="top-row">
@@ -328,8 +316,6 @@
       <div class="panel">
         <div class="controls">
           <div class="control-group">
-            <div class="row">
-            </div>
             <div class="func-options" id="funcOptions">
               <button type="button" class="btn func-btn active" data-func="quadratic">\(f(x)=x^2\)</button>
               <button type="button" class="btn func-btn" data-func="abs">\(f(x)=|x|\)</button>
@@ -338,7 +324,6 @@
               <button type="button" class="btn func-btn" data-func="cubic">\(f(x)=x^3\)</button>
               <button style="font-size: 12px;" type="button" class="btn func-btn" data-func="poly3">\(f(x)=(x+3)(x-2)(x-1)\)</button>
             </div>
-            <div style="display: none;" id="selectedFunctionDisplay" class="math-line selected-func">\(f(x)=x^2\)</div>
             <input type="hidden" id="baseFunc" value="quadratic">
           </div>
 
@@ -366,6 +351,12 @@
               <input type="range" id="horizontalScale" min="-3" max="3" step="0.1" value="1">
               <div class="value" id="horizontalScaleVal">1</div>
             </div>
+
+            <label>חזקה טבעית: \( [f(x)]^n \)</label>
+            <div class="slider-wrap">
+              <input type="range" id="powerN" min="1" max="6" step="1" value="1">
+              <div class="value" id="powerNVal">1</div>
+            </div>
           </div>
 
           <div class="control-group">
@@ -373,8 +364,6 @@
               <button class="btn toggle-btn" id="negYBtn">שיקוף אנכי: \( -f(x) \)</button>
               <button class="btn toggle-btn" id="negXBtn">שיקוף אופקי: \( f(-x) \)</button>
               <button class="btn toggle-btn" id="absBtn">ערך מוחלט: \( |f(x)| \)</button>
-            </div>
-            <div class="row">
               <button class="btn" id="resetBtn">איפוס מלא</button>
             </div>
           </div>
@@ -383,60 +372,42 @@
     </section>
 
     <section class="bottom-row">
-
-          <div class="control-group">
-            <h3>מעקב אחרי נקודה</h3>
-            <div class="row">
-              <label for="pointX">בחר \(x\):</label>
-              <input type="number" id="pointX" step="0.5" value="1" />
-            </div>
-            <div id="pointInfo" class="explain"></div>
-          </div>
-
       <div class="panel">
         <div class="info-card">
           <h3>הביטוי הנוכחי</h3>
-          <div id="currentFormula" class="math-line">\(g(x)=f(x)\)</div>
+          <div id="currentFormula" class="math-line">\(g(x)=x^2\)</div>
           <div id="comparisonFormula" class="math-line">\(g(x)=f(x)\)</div>
-          <div id="transformationBreakdown" class="explain" style="margin-top:10px;"></div>
+          <div id="transformationBreakdown" class="explain"></div>
           <div id="summaryText" class="explain"></div>
         </div>
       </div>
 
-      <div style="display:none;" class="panel">
+      <div class="panel">
         <div class="info-card">
-          <div id="autoExplanation" class="explain"></div>
-        </div>
-      </div>
-
-      <div style="display:none;" class="panel">
-        <div class="info-card">
-          <h3>מצב אתגר</h3>
-          <div id="challengeBox" class="explain"></div>
+          <h3>מעקב אחרי נקודה</h3>
           <div class="row">
-            <button class="btn" id="newChallengeBtn">אתגר חדש</button>
-            <button class="btn" id="checkChallengeBtn">בדוק התאמה</button>
+            <label for="pointX">בחר \(x\):</label>
+            <input type="number" id="pointX" step="0.5" value="1" />
           </div>
-          <div id="challengeResult" class="explain"></div>
+          <div id="pointInfo" class="explain"></div>
         </div>
       </div>
     </section>
-
   </div>
 
   <script>
     const els = {
       baseFunc: document.getElementById('baseFunc'),
-      funcOptions: document.getElementById('funcOptions'),
-      selectedFunctionDisplay: document.getElementById('selectedFunctionDisplay'),
       verticalShift: document.getElementById('verticalShift'),
       horizontalShift: document.getElementById('horizontalShift'),
       verticalScale: document.getElementById('verticalScale'),
       horizontalScale: document.getElementById('horizontalScale'),
+      powerN: document.getElementById('powerN'),
       verticalShiftVal: document.getElementById('verticalShiftVal'),
       horizontalShiftVal: document.getElementById('horizontalShiftVal'),
       verticalScaleVal: document.getElementById('verticalScaleVal'),
       horizontalScaleVal: document.getElementById('horizontalScaleVal'),
+      powerNVal: document.getElementById('powerNVal'),
       negYBtn: document.getElementById('negYBtn'),
       negXBtn: document.getElementById('negXBtn'),
       absBtn: document.getElementById('absBtn'),
@@ -447,96 +418,216 @@
       comparisonFormula: document.getElementById('comparisonFormula'),
       transformationBreakdown: document.getElementById('transformationBreakdown'),
       summaryText: document.getElementById('summaryText'),
-      autoExplanation: document.getElementById('autoExplanation'),
-      challengeBox: document.getElementById('challengeBox'),
-      challengeResult: document.getElementById('challengeResult'),
-      newChallengeBtn: document.getElementById('newChallengeBtn'),
-      checkChallengeBtn: document.getElementById('checkChallengeBtn'),
+      funcOptions: document.getElementById('funcOptions')
     };
 
     const functionMathMap = {
-      quadratic: '\(f(x)=x^2\)',
-      abs: '\(f(x)=|x|\)',
-      sqrt: '\(f(x)=\sqrt{x}\)',
-      sin: '\(f(x)=\sin(x)\)',
-      cubic: '\(f(x)=x^3\)',
-      poly3: '\(f(x)=(x+3)(x-2)(x-1)\)'
+      quadratic: '\\(f(x)=x^2\\)',
+      abs: '\\(f(x)=|x|\\)',
+      sqrt: '\\(f(x)=\\sqrt{x}\\)',
+      sin: '\\(f(x)=\\sin(x)\\)',
+      cubic: '\\(f(x)=x^3\\)',
+      poly3: '\\(f(x)=(x+3)(x-2)(x-1)\\)'
+    };
+
+    const baseDefs = {
+      quadratic: {
+        latex: 'x^2',
+        fn: x => x * x,
+        domain: x => true
+      },
+      abs: {
+        latex: '|x|',
+        fn: x => Math.abs(x),
+        domain: x => true
+      },
+      sqrt: {
+        latex: '\\sqrt{x}',
+        fn: x => Math.sqrt(x),
+        domain: x => x >= 0
+      },
+      sin: {
+        latex: '\\sin(x)',
+        fn: x => Math.sin(x),
+        domain: x => true
+      },
+      cubic: {
+        latex: 'x^3',
+        fn: x => x * x * x,
+        domain: x => true
+      },
+      poly3: {
+        latex: '(x+3)(x-2)(x-1)',
+        fn: x => (x + 3) * (x - 2) * (x - 1),
+        domain: x => true
+      }
     };
 
     const state = {
       reflectY: false,
       reflectX: false,
       absY: false,
-      challenge: null
+      sequenceCounter: 0,
+      orderMap: {}
     };
 
-    function setBaseFunction(kind){
-      els.baseFunc.value = kind;
-      document.querySelectorAll('.func-btn').forEach(btn=>{
-        btn.classList.toggle('active', btn.dataset.func === kind);
-      });
-      els.selectedFunctionDisplay.innerHTML = functionMathMap[kind] || functionMathMap.quadratic;
-      if(window.MathJax && window.MathJax.typesetPromise){
-        MathJax.typesetPromise([els.selectedFunctionDisplay, els.funcOptions]);
+    function fmt(n){
+      return Number(n).toFixed(1).replace(/\.0$/,'');
+    }
+
+    function setLatex(el, latex){
+      el.innerHTML = `\\(${latex}\\)`;
+    }
+
+
+    function wrap(expr){
+      return `(${expr})`;
+    }
+
+    function isWrappedByOuterParens(expr){
+      if(!expr || expr[0] !== '(' || expr[expr.length - 1] !== ')') return false;
+      let depth = 0;
+      for(let i = 0; i < expr.length; i++){
+        const ch = expr[i];
+        if(ch === '(') depth++;
+        else if(ch === ')'){
+          depth--;
+          if(depth === 0 && i < expr.length - 1) return false;
+        }
       }
+      return depth === 0;
     }
 
-    function safeValue(v, fallback=1){
-      return Math.abs(v) < 0.0001 ? fallback : v;
+    function hasTopLevelAddSub(expr){
+      let depth = 0;
+      for(let i = 0; i < expr.length; i++){
+        const ch = expr[i];
+        if(ch === '(') depth++;
+        else if(ch === ')') depth--;
+        else if(depth === 0 && i > 0 && (ch === '+' || ch === '-')) return true;
+      }
+      return false;
     }
 
-    function baseFunctionFactory(kind){
+    function parenIfNeededForOuterAddSub(expr){
+      if(!expr) return expr;
+      return hasTopLevelAddSub(expr) && !isWrappedByOuterParens(expr) ? wrap(expr) : expr;
+    }
+
+    function parenIfNeededForPower(expr){
+      if(!expr) return expr;
+      if(isWrappedByOuterParens(expr)) return expr;
+      if(/^[a-zA-Z0-9\\]+$/.test(expr)) return expr;
+      if(/^\|.*\|$/.test(expr)) return expr;
+      return wrap(expr);
+    }
+
+    function signed(n){
+      const v = Number(n);
+      if (Math.abs(v) < 0.0001) return '';
+      return v >= 0 ? `+${fmt(v)}` : `${fmt(v)}`;
+    }
+
+    function addSignedToExpr(expr, amount){
+      const delta = signed(amount);
+      if(!delta) return expr;
+      return `${parenIfNeededForOuterAddSub(expr)}${delta}`;
+    }
+
+    function argNeedsParens(expr){
+      if(!expr) return false;
+      return hasTopLevelAddSub(expr) && !isWrappedByOuterParens(expr);
+    }
+
+    function wrapArgIfNeeded(expr){
+      return argNeedsParens(expr) ? wrap(expr) : expr;
+    }
+
+    function addToArg(expr, amount){
+      const delta = signed(amount);
+      if(!delta) return expr;
+      return `${wrapArgIfNeeded(expr)}${delta}`;
+    }
+
+    function scaleArg(expr, factor){
+      const k = fmt(factor);
+      if(k === '1') return expr;
+      if(k === '-1') return negateArg(expr);
+      return `${k}${wrapArgIfNeeded(expr)}`;
+    }
+
+    function negateArg(expr){
+      if(expr === 'x') return '-x';
+      if(isWrappedByOuterParens(expr)) return `-${expr}`;
+      return hasTopLevelAddSub(expr) ? `-(${expr})` : `-${expr}`;
+    }
+
+    function renderBase(kind, arg){
+      const a = String(arg).trim();
       switch(kind){
         case 'quadratic':
-          return {
-            label:'x^2',
-            latex:'x^2',
-            fn:(x)=>x*x,
-            domain:(x)=>true
-          };
+          return `${parenIfNeededForPower(a)}^2`;
         case 'abs':
-          return {
-            label:'|x|',
-            latex:'|x|',
-            fn:(x)=>Math.abs(x),
-            domain:(x)=>true
-          };
+          return `|${a}|`;
         case 'sqrt':
-          return {
-            label:'\\sqrt{x}',
-            latex:'\\sqrt{x}',
-            fn:(x)=>Math.sqrt(x),
-            domain:(x)=>x>=0
-          };
+          return `\\sqrt{${a}}`;
         case 'sin':
-          return {
-            label:'\\sin(x)',
-            latex:'\\sin(x)',
-            fn:(x)=>Math.sin(x),
-            domain:(x)=>true
-          };
+          return `\\sin(${a})`;
         case 'cubic':
-          return {
-            label:'x^3',
-            latex:'x^3',
-            fn:(x)=>x*x*x,
-            domain:(x)=>true
-          };
-        case 'poly3':
-          return {
-            label:'(x+3)(x-2)(x-1)',
-            latex:'(x+3)(x-2)(x-1)',
-            fn:(x)=>(x+3)*(x-2)*(x-1),
-            domain:(x)=>true
-          };
+          return `${parenIfNeededForPower(a)}^3`;
+        case 'poly3': {
+          const aa = wrapArgIfNeeded(a);
+          return `(${aa}+3)(${aa}-2)(${aa}-1)`;
+        }
         default:
-          return {
-            label:'x^2',
-            latex:'x^2',
-            fn:(x)=>x*x,
-            domain:(x)=>true
-          };
+          return a;
       }
+    }
+
+    function scaleOuterExpr(expr, factor){
+      const k = fmt(factor);
+      if(k === '1') return expr;
+      if(k === '-1') return `-${parenIfNeededForOuterAddSub(expr)}`;
+      const wrapped = hasTopLevelAddSub(expr) && !isWrappedByOuterParens(expr) ? wrap(expr) : expr;
+      return `${k}${wrapped}`;
+    }
+
+    function reflectOuterExpr(expr){
+      return `-${parenIfNeededForOuterAddSub(expr)}`;
+    }
+
+    function powerOuterExpr(expr, n){
+      return `${parenIfNeededForPower(expr)}^{${n}}`;
+    }
+
+    function activeStateById(id){
+      const p = getParams();
+      switch(id){
+        case 'verticalShift': return Math.abs(p.vShift) > 0.0001;
+        case 'horizontalShift': return Math.abs(p.hShift) > 0.0001;
+        case 'verticalScale': return Math.abs(p.vScale - 1) > 0.0001;
+        case 'horizontalScale': return Math.abs(p.hScale - 1) > 0.0001;
+        case 'powerN': return p.powerN > 1;
+        case 'reflectY': return state.reflectY;
+        case 'reflectX': return state.reflectX;
+        case 'absY': return state.absY;
+        default: return false;
+      }
+    }
+
+    function touchOperation(id){
+      if(activeStateById(id)){
+        state.sequenceCounter += 1;
+        state.orderMap[id] = state.sequenceCounter;
+      } else {
+        delete state.orderMap[id];
+      }
+    }
+
+    function getActiveOpsInOrder(){
+      const ids = Object.keys(state.orderMap).filter(id => activeStateById(id));
+      ids.sort((a,b) => state.orderMap[a] - state.orderMap[b]);
+      return ids;
     }
 
     function getParams(){
@@ -545,208 +636,9 @@
         vShift: Number(els.verticalShift.value),
         hShift: Number(els.horizontalShift.value),
         vScale: Number(els.verticalScale.value),
-        hScale: Number(els.horizontalScale.value)
+        hScale: Number(els.horizontalScale.value),
+        powerN: Number(els.powerN.value)
       };
-    }
-
-    function computeTransformedPoint(x){
-      const p = getParams();
-      const base = baseFunctionFactory(p.base);
-
-      let xForInside = x;
-      if(state.reflectX) xForInside = -xForInside;
-      xForInside = safeValue(p.hScale) * xForInside + p.hShift;
-
-      if(!base.domain(xForInside)) return null;
-
-      let y = base.fn(xForInside);
-
-      if(state.reflectY) y = -y;
-      y = p.vScale * y;
-      y = y + p.vShift;
-      if(state.absY) y = Math.abs(y);
-
-      return { x, y, insideX: xForInside };
-    }
-
-    function computeOriginalPoint(x){
-      const p = getParams();
-      const base = baseFunctionFactory(p.base);
-      if(!base.domain(x)) return null;
-      return { x, y: base.fn(x) };
-    }
-
-    function isAtomicLatex(expr){
-      const trimmed = String(expr).trim();
-      if(trimmed === 'x') return true;
-      if(/^-?\d+(\.\d+)?$/.test(trimmed)) return true;
-      if(/^[a-zA-Z]$/.test(trimmed)) return true;
-      if(/^\([^()]+\)$/.test(trimmed)) return true;
-      if(/^\([^()]+\)\^\d+$/.test(trimmed)) return true;
-      if(/^\\[a-zA-Z]+\{[^{}]+\}$/.test(trimmed)) return true;
-      if(/^\\[a-zA-Z]+\([^()]+\)$/.test(trimmed)) return true;
-      if(/^\|[^|]+\|$/.test(trimmed)) return true;
-      if(/^f\([^()]+\)$/.test(trimmed)) return true;
-      return false;
-    }
-
-    function hasBalancedOuterParens(expr){
-      const s = String(expr).trim();
-      if(!(s.startsWith('(') && s.endsWith(')'))) return false;
-      let depth = 0;
-      for(let i=0;i<s.length;i++){
-        const ch = s[i];
-        if(ch === '(') depth++;
-        else if(ch === ')') depth--;
-        if(depth === 0 && i < s.length - 1) return false;
-      }
-      return depth === 0;
-    }
-
-    function stripOuterParens(expr){
-      let s = String(expr).trim();
-      while(hasBalancedOuterParens(s)){
-        s = s.slice(1, -1).trim();
-      }
-      return s;
-    }
-
-    function wrapIfNeeded(expr){
-      const clean = stripOuterParens(expr);
-      return isAtomicLatex(clean) ? clean : `(${clean})`;
-    }
-
-    function isFunctionCallLatex(expr){
-      const clean = stripOuterParens(expr);
-      return /^f\([^()]+\)$/.test(clean) || /^\\[a-zA-Z]+\([^()]+\)$/.test(clean);
-    }
-
-    function needsDotBetweenCoefficientAndExpr(expr){
-      const clean = stripOuterParens(expr);
-      if(/^\d/.test(clean)) return true;
-      if(/^-\d/.test(clean)) return true;
-      if(isFunctionCallLatex(clean)) return true;
-      return false;
-    }
-
-    function multiplyByCoefficient(coef, expr){
-      const n = Number(coef);
-      const clean = stripOuterParens(expr);
-      if(Math.abs(n - 1) < 0.0001) return clean;
-      if(Math.abs(n + 1) < 0.0001) return `-${wrapIfNeeded(clean)}`;
-      const mag = fmt(Math.abs(n));
-      const factor = isFunctionCallLatex(clean) ? clean : wrapIfNeeded(clean);
-      const connector = needsDotBetweenCoefficientAndExpr(factor) ? '' : '';
-      return n < 0 ? `-${mag}${connector}${factor}` : `${mag}${connector}${factor}`;
-    }
-
-    function addSignedTerm(expr, shift){
-      const clean = stripOuterParens(expr);
-      const n = Number(shift);
-      if(Math.abs(n) < 0.0001) return clean;
-      return n > 0 ? `${clean}+${fmt(n)}` : `${clean}${fmt(n)}`;
-    }
-
-    function reflectInput(expr){
-      const clean = stripOuterParens(expr);
-      if(clean === 'x') return '-x';
-      if(/^\([^()]+\)$/.test(clean)) return `-${clean}`;
-      return `-${wrapIfNeeded(clean)}`;
-    }
-
-    function wrapForPower(expr){
-      const clean = stripOuterParens(expr);
-      return isAtomicLatex(clean) ? clean : `(${clean})`;
-    }
-
-    function applyBaseToInside(baseKind, inside){
-      const cleanInside = stripOuterParens(inside);
-      const powerInside = wrapForPower(cleanInside);
-
-      switch(baseKind){
-        case 'quadratic':
-          return `${powerInside}^2`;
-        case 'abs':
-          return `|${cleanInside}|`;
-        case 'sqrt':
-          return `\\sqrt{${cleanInside}}`;
-        case 'sin':
-          return `\\sin(${cleanInside})`;
-        case 'cubic':
-          return `${powerInside}^3`;
-        case 'poly3':
-          return `(${cleanInside}+3)(${cleanInside}-2)(${cleanInside}-1)`;
-        default:
-          return `${powerInside}^2`;
-      }
-    }
-
-    function buildFormulaLatex(){
-      const p = getParams();
-
-      let inside = 'x';
-      if(state.reflectX) inside = reflectInput(inside);
-
-      const hk = safeValue(p.hScale);
-      if(Math.abs(hk - 1) > 0.0001){
-        inside = multiplyByCoefficient(hk, inside);
-      }
-
-      inside = addSignedTerm(inside, p.hShift);
-
-      let expr = applyBaseToInside(p.base, inside);
-
-      if(state.reflectY){
-        expr = multiplyByCoefficient(-1, expr);
-      }
-
-      if(Math.abs(p.vScale - 1) > 0.0001){
-        expr = multiplyByCoefficient(p.vScale, expr);
-      }
-
-      expr = addSignedTerm(expr, p.vShift);
-
-      if(state.absY){
-        expr = `|${stripOuterParens(expr)}|`;
-      }
-
-      return `\\(g(x)=${expr}\\)`;
-    }
-
-    function buildComparisonLatex(){
-      const p = getParams();
-
-      let inside = 'x';
-      if(state.reflectX) inside = reflectInput(inside);
-
-      const hk = safeValue(p.hScale);
-      if(Math.abs(hk - 1) > 0.0001){
-        inside = multiplyByCoefficient(hk, inside);
-      }
-
-      inside = addSignedTerm(inside, p.hShift);
-
-      let expr = `f(${stripOuterParens(inside)})`;
-
-      if(state.reflectY){
-        expr = multiplyByCoefficient(-1, expr);
-      }
-
-      if(Math.abs(p.vScale - 1) > 0.0001){
-        expr = multiplyByCoefficient(p.vScale, expr);
-      }
-
-      expr = addSignedTerm(expr, p.vShift);
-
-      if(state.absY){
-        expr = `|${stripOuterParens(expr)}|`;
-      }
-
-      return `\\(g(x)=${expr}\\)`;
-    }
-
-function fmt(n){
-      return Number(n).toFixed(1).replace(/\.0$/,'');
     }
 
     function updateValueDisplays(){
@@ -754,97 +646,250 @@ function fmt(n){
       els.horizontalShiftVal.textContent = fmt(els.horizontalShift.value);
       els.verticalScaleVal.textContent = fmt(els.verticalScale.value);
       els.horizontalScaleVal.textContent = fmt(els.horizontalScale.value);
+      els.powerNVal.textContent = String(els.powerN.value);
     }
 
-    function xRange(){
-      const arr=[];
-      for(let x=-10; x<=10.0001; x+=0.08) arr.push(Number(x.toFixed(4)));
-      return arr;
+    function setBaseFunction(kind){
+      els.baseFunc.value = kind;
+      document.querySelectorAll('.func-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.func === kind);
+      });
+      updateAll();
     }
 
-    function sampleTraceData(){
-      const xs = xRange();
+    function exprFromBase(kind){
+      return renderBase(kind, 'x');
+    }
 
-      const originalX = [];
-      const originalY = [];
-      const transformedX = [];
-      const transformedY = [];
+    function evalBase(kind, x){
+      const base = baseDefs[kind];
+      if(!base.domain(x)) return null;
+      const y = base.fn(x);
+      return Number.isFinite(y) ? y : null;
+    }
 
-      for(const x of xs){
-        const op = computeOriginalPoint(x);
-        if(op){
-          originalX.push(op.x);
-          originalY.push(op.y);
+
+    function buildPipeline(){
+      const p = getParams();
+      const ops = getActiveOpsInOrder();
+
+      let evalFn = (x) => evalBase(p.base, x);
+      let argExpr = 'x';
+      let explicitOuter = '__BASE__';
+      let comparisonOuter = 'f(__ARG__)';
+      const steps = [];
+
+      for(const op of ops){
+        if(op === 'verticalShift'){
+          const k = p.vShift;
+          const prev = evalFn;
+          evalFn = (x) => {
+            const y = prev(x);
+            return y === null ? null : y + k;
+          };
+          explicitOuter = addSignedToExpr(explicitOuter, k);
+          comparisonOuter = addSignedToExpr(comparisonOuter, k);
+          steps.push(`הזזה אנכית ב־${fmt(k)} יחידות`);
         }
 
-        const tp = computeTransformedPoint(x);
-        if(tp && Number.isFinite(tp.y)){
-          transformedX.push(tp.x);
-          transformedY.push(tp.y);
+        if(op === 'horizontalShift'){
+          const k = p.hShift;
+          const prev = evalFn;
+          evalFn = (x) => prev(x + k);
+          argExpr = addToArg(argExpr, k);
+          steps.push(k > 0 ? `הזזה אופקית שמאלה ב־${fmt(k)} יחידות` : `הזזה אופקית ימינה ב־${fmt(Math.abs(k))} יחידות`);
+        }
+
+        if(op === 'verticalScale'){
+          const k = p.vScale;
+          const prev = evalFn;
+          evalFn = (x) => {
+            const y = prev(x);
+            return y === null ? null : k * y;
+          };
+          explicitOuter = scaleOuterExpr(explicitOuter, k);
+          comparisonOuter = scaleOuterExpr(comparisonOuter, k);
+          steps.push(`שינוי אנכי במקדם ${fmt(k)}`);
+        }
+
+        if(op === 'horizontalScale'){
+          const k = p.hScale;
+          const prev = evalFn;
+          evalFn = (x) => prev(k * x);
+          argExpr = scaleArg(argExpr, k);
+          steps.push(`שינוי אופקי במקדם ${fmt(k)}`);
+        }
+
+        if(op === 'reflectY'){
+          const prev = evalFn;
+          evalFn = (x) => {
+            const y = prev(x);
+            return y === null ? null : -y;
+          };
+          explicitOuter = reflectOuterExpr(explicitOuter);
+          comparisonOuter = reflectOuterExpr(comparisonOuter);
+          steps.push('שיקוף ביחס לציר x');
+        }
+
+        if(op === 'reflectX'){
+          const prev = evalFn;
+          evalFn = (x) => prev(-x);
+          argExpr = negateArg(argExpr);
+          steps.push('שיקוף ביחס לציר y');
+        }
+
+        if(op === 'absY'){
+          const prev = evalFn;
+          evalFn = (x) => {
+            const y = prev(x);
+            return y === null ? null : Math.abs(y);
+          };
+          explicitOuter = `|${explicitOuter}|`;
+          comparisonOuter = `|${comparisonOuter}|`;
+          steps.push('הפעלת ערך מוחלט');
+        }
+
+        if(op === 'powerN'){
+          const n = p.powerN;
+          const prev = evalFn;
+          evalFn = (x) => {
+            const y = prev(x);
+            return y === null ? null : Math.pow(y, n);
+          };
+          explicitOuter = powerOuterExpr(explicitOuter, n);
+          comparisonOuter = powerOuterExpr(comparisonOuter, n);
+          steps.push(`העלאה בחזקה ${n}`);
         }
       }
 
-      return { originalX, originalY, transformedX, transformedY };
+      const baseRendered = renderBase(p.base, argExpr);
+      const explicitExpr = explicitOuter.replace('__BASE__', baseRendered);
+      const comparisonExpr = comparisonOuter.replace('__ARG__', argExpr);
+      return { evalFn, explicitExpr, comparisonExpr, steps, ops };
+    }
+    function computeOriginalPoint(x){
+      const y = evalBase(getParams().base, x);
+      return y === null ? null : {x, y};
+    }
+
+    function computeNewPoint(x){
+      const pipe = buildPipeline();
+      const y = pipe.evalFn(x);
+      return y === null ? null : {x, y};
+    }
+
+    function makeXs(){
+      const xs = [];
+      for(let x = -10; x <= 10.0001; x += 0.05){
+        xs.push(Number(x.toFixed(4)));
+      }
+      return xs;
+    }
+
+    function buildSeries(fn){
+      const xs = makeXs();
+      const outX = [];
+      const outY = [];
+      for(const x of xs){
+        const y = fn(x);
+        if(y !== null && Number.isFinite(y)){
+          outX.push(x);
+          outY.push(y);
+        }
+      }
+      return {x: outX, y: outY};
+    }
+
+    function updateTexts(){
+      const pipe = buildPipeline();
+      setLatex(els.currentFormula, `g(x)=${pipe.explicitExpr}`);
+      setLatex(els.comparisonFormula, `g(x)=${pipe.comparisonExpr}`);
+
+      if(pipe.steps.length === 0){
+        els.transformationBreakdown.innerHTML = 'כרגע אין טרנספורמציה פעילה.';
+        els.summaryText.innerHTML = 'כרגע הגרף החדש זהה לגרף הבסיסי.';
+      } else {
+        els.transformationBreakdown.innerHTML =
+          '<strong>סדר הפעלה:</strong><br>' +
+          pipe.steps.map((s, i) => `${i+1}. ${s}`).join('<br>');
+        els.summaryText.innerHTML =
+          ``;
+      }
+
+      const px = Number(els.pointX.value);
+      const op = computeOriginalPoint(px);
+      const np = computeNewPoint(px);
+
+      if(!op){
+        els.pointInfo.innerHTML = `הנקודה המקורית אינה בתחום ההגדרה עבור \\(x=${fmt(px)}\\).`;
+      } else if(!np){
+        els.pointInfo.innerHTML = `אחרי הפעלת הטרנספורמציות, \\(x=${fmt(px)}\\) אינו נותן ערך מוגדר.`;
+      } else {
+        els.pointInfo.innerHTML = `
+          <span class="pill">\\(f(${fmt(px)})=${fmt(op.y)}\\)</span>
+          <span class="pill">\\(g(${fmt(px)})=${fmt(np.y)}\\)</span>
+        `;
+      }
+
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise();
+      }
     }
 
     function updatePlot(){
       updateValueDisplays();
-      const dataSet = sampleTraceData();
-      const pX = Number(els.pointX.value);
-      const op = computeOriginalPoint(pX);
-      const tp = computeTransformedPoint(pX);
+
+      const p = getParams();
+      const original = buildSeries(x => evalBase(p.base, x));
+      const pipe = buildPipeline();
+      const transformed = buildSeries(x => pipe.evalFn(x));
+      const px = Number(els.pointX.value);
+      const op = computeOriginalPoint(px);
+      const np = computeNewPoint(px);
 
       const traces = [
         {
-          x: dataSet.originalX,
-          y: dataSet.originalY,
-          mode:'lines',
-          name:'f(x)',
-          line:{width:3}
+          x: original.x,
+          y: original.y,
+          mode: 'lines',
+          name: 'f(x)',
+          line: { width: 3 }
         },
         {
-          x: dataSet.transformedX,
-          y: dataSet.transformedY,
-          mode:'lines',
-          name:'g(x)',
-          line:{width:4}
+          x: transformed.x,
+          y: transformed.y,
+          mode: 'lines',
+          name: 'g(x)',
+          line: { width: 4 }
         }
       ];
 
       if(op){
         traces.push({
-          x:[op.x],
-          y:[op.y],
-          mode:'markers+text',
-          name:'נקודה מקורית',
-          text:[`f(${fmt(op.x)})=${fmt(op.y)}`],
-          textposition:'top center',
-          marker:{size:11, symbol:'circle'}
+          x: [op.x],
+          y: [op.y],
+          mode: 'markers+text',
+          name: 'נקודה מקורית',
+          text: [`f(${fmt(op.x)})=${fmt(op.y)}`],
+          textposition: 'top center',
+          marker: { size: 11, symbol: 'circle' }
         });
       }
 
-      if(tp){
+      if(np){
         traces.push({
-          x:[tp.x],
-          y:[tp.y],
-          mode:'markers+text',
-          name:'נקודה לאחר טרנספורמציה',
-          text:[`g(${fmt(tp.x)})=${fmt(tp.y)}`],
-          textposition:'bottom center',
-          marker:{size:12, symbol:'diamond'}
-        });
-
-        traces.push({
-          x:[tp.x, tp.x],
-          y:[0, tp.y],
-          mode:'lines',
-          name:'עזר אנכי',
-          line:{width:1, dash:'dot'},
-          showlegend:false
+          x: [np.x],
+          y: [np.y],
+          mode: 'markers+text',
+          name: 'נקודה חדשה',
+          text: [`g(${fmt(np.x)})=${fmt(np.y)}`],
+          textposition: 'bottom center',
+          marker: { size: 12, symbol: 'diamond' }
         });
       }
 
       const layout = {
+        autosize:true,
         paper_bgcolor:'rgba(0,0,0,0)',
         plot_bgcolor:'#0d1430',
         font:{color:'#eef2ff', family:'Arial'},
@@ -865,8 +910,7 @@ function fmt(n){
           gridcolor:'#27345d',
           linecolor:'#41548f',
           mirror:true,
-          range:[-12,12],
-          scaleanchor:null
+          range:[-12,12]
         },
         legend:{
           orientation:'h',
@@ -876,331 +920,106 @@ function fmt(n){
         }
       };
 
-      Plotly.newPlot('plot', traces, layout, {responsive:true, displaylogo:false});
+      Plotly.newPlot('plot', traces, layout, {
+        responsive:true,
+        displaylogo:false
+      }).then(() => {
+        Plotly.Plots.resize(document.getElementById('plot'));
+      });
       updateTexts();
     }
 
-
-    function describeHorizontalShift(hShift){
-      if(Math.abs(hShift) < 0.0001) return '';
-      if(hShift > 0){
-        return `הזזה אופקית שמאלה ב־${fmt(hShift)} יחידות`;
-      }
-      return `הזזה אופקית ימינה ב־${fmt(Math.abs(hShift))} יחידות`;
+    function updateAll(){
+      updatePlot();
     }
 
-    function describeVerticalShift(vShift){
-      if(Math.abs(vShift) < 0.0001) return '';
-      if(vShift > 0){
-        return `הזזה אנכית למעלה ב־${fmt(vShift)} יחידות`;
+    window.addEventListener('resize', () => {
+      const plotEl = document.getElementById('plot');
+      if(plotEl){
+        Plotly.Plots.resize(plotEl);
       }
-      return `הזזה אנכית למטה ב־${fmt(Math.abs(vShift))} יחידות`;
-    }
+    });
 
-
-    function buildComparisonLatex_legacy(){
-      const p = getParams();
-
-      let inside = 'x';
-
-      if(state.reflectX) inside = `-(${inside})`;
-
-      const hk = safeValue(p.hScale);
-      if(Math.abs(hk - 1) > 0.0001){
-        inside = `${fmt(hk)}\\cdot(${inside})`;
-      }
-
-      if(Math.abs(p.hShift) > 0.0001){
-        if(p.hShift > 0) inside = `${inside}+${fmt(p.hShift)}`;
-        else inside = `${inside}${fmt(p.hShift)}`;
-      }
-
-      let expr = `f(${inside})`;
-
-      if(state.reflectY){
-        expr = `-(${expr})`;
-      }
-
-      if(Math.abs(p.vScale - 1) > 0.0001){
-        expr = `${fmt(p.vScale)}\\cdot(${expr})`;
-      }
-
-      if(Math.abs(p.vShift) > 0.0001){
-        if(p.vShift > 0) expr = `${expr}+${fmt(p.vShift)}`;
-        else expr = `${expr}${fmt(p.vShift)}`;
-      }
-
-      if(state.absY){
-        expr = `|${expr}|`;
-      }
-
-      return `\\(g(x)=${expr}\\)`;
-    }
-
-    function buildTransformationBreakdown(){
-      const p = getParams();
-      const parts = [];
-      const details = [];
-
-      if(Math.abs(p.hShift) > 0.0001){
-        const sign = p.hShift > 0 ? '-' : '+';
-        parts.push(`<div><strong>בתוך הפונקציה:</strong> \\(x \\rightarrow x ${sign} ${fmt(Math.abs(p.hShift))}\\)</div>`);
-        details.push(`<div>${describeHorizontalShift(p.hShift)}</div>`);
-      }
-
-      if(Math.abs(p.vShift) > 0.0001){
-        const sign = p.vShift > 0 ? '+' : '-';
-        parts.push(`<div><strong>מחוץ לפונקציה:</strong> \\(y \\rightarrow y ${sign} ${fmt(Math.abs(p.vShift))}\\)</div>`);
-        details.push(`<div>${describeVerticalShift(p.vShift)}</div>`);
-      }
-
-      if(Math.abs(p.hScale - 1) > 0.0001){
-        parts.push(`<div><strong>שינוי אופקי:</strong> \\(f(${fmt(p.hScale)}x)\\)</div>`);
-        if(Math.abs(p.hScale) > 1){
-          details.push(`<div>כיווץ אופקי</div>`);
-        } else if(Math.abs(p.hScale) > 0){
-          details.push(`<div>מתיחה אופקית</div>`);
-        }
-        if(p.hScale < 0){
-          details.push(`<div>כולל שיקוף ביחס לציר \\(y\\)</div>`);
-        }
-      }
-
-      if(Math.abs(p.vScale - 1) > 0.0001){
-        parts.push(`<div><strong>שינוי אנכי:</strong> \\(${fmt(p.vScale)}\f(x)\\)</div>`);
-        if(Math.abs(p.vScale) > 1){
-          details.push(`<div>מתיחה אנכית</div>`);
-        } else if(Math.abs(p.vScale) > 0){
-          details.push(`<div>כיווץ אנכי</div>`);
-        }
-        if(p.vScale < 0){
-          details.push(`<div>כולל שיקוף ביחס לציר \\(x\\)</div>`);
-        }
-      }
-
-      if(state.reflectX){
-        parts.push(`<div><strong>שיקוף אופקי:</strong> \\(f(-x)\\)</div>`);
-        details.push(`<div>שיקוף ביחס לציר \\(y\\)</div>`);
-      }
-
-      if(state.reflectY){
-        parts.push(`<div><strong>שיקוף אנכי:</strong> \\(-f(x)\\)</div>`);
-        details.push(`<div>שיקוף ביחס לציר \\(x\\)</div>`);
-      }
-
-      if(state.absY){
-        parts.push(`<div><strong>ערך מוחלט:</strong> \\(|g(x)|\\)</div>`);
-        details.push(`<div>כל החלקים שמתחת לציר \\(x\\) מתקפלים כלפי מעלה</div>`);
-      }
-
-      if(parts.length === 0){
-        return `<div>כרגע אין טרנספורמציה: \\(g(x)=f(x)\\)</div>`;
-      }
-
-      return `
-        <div style="display:grid; gap:8px;">
-          <div><strong>סוג הטרנספורמציה על \\(f(x)\\):</strong></div>
-          ${details.join('')}
-          <div style="margin-top:6px;"><strong>פירוק אלגברי:</strong></div>
-          ${parts.join('')}
-        </div>
-      `;
-    }
-
-    function updateTexts(){
-      const p = getParams();
-      els.currentFormula.innerHTML = buildFormulaLatex();
-      els.comparisonFormula.innerHTML = buildComparisonLatex();
-      els.transformationBreakdown.innerHTML = buildTransformationBreakdown();
-
-      const actions = [];
-      if(Math.abs(p.vShift)>0.0001) actions.push(`הזזה אנכית ב־${fmt(p.vShift)}`);
-      if(Math.abs(p.hShift)>0.0001) actions.push(`הזזה אופקית לפי \(f(x+k)\) עם \(k=${fmt(p.hShift)}\)`);
-      if(state.reflectY) actions.push(`שיקוף ביחס לציר \(x\)`);
-      if(state.reflectX) actions.push(`שיקוף ביחס לציר \(y\)`);
-      if(state.absY) actions.push(`הפיכת כל ערכי \(y\) לשליליים? לא. כאן הערך המוחלט הופך ערכי \(y\) שליליים לחיוביים`);
-      if(Math.abs(p.vScale-1)>0.0001) actions.push(`שינוי אנכי במקדם \(k=${fmt(p.vScale)}\)`);
-      if(Math.abs(p.hScale-1)>0.0001) actions.push(`שינוי אופקי בביטוי \(f(kx)\) עם \(k=${fmt(p.hScale)}\)`);
-
-      els.summaryText.innerHTML = actions.length
-        ? `בוצעו כרגע: ${actions.join(' , ')}.`
-        : `כרגע הגרף המתקבל זהה לגרף המקורי.`;
-
-      const pedagogic = [];
-      if(Math.abs(p.hShift) > 0.0001){
-        pedagogic.push(`שימו לב: בביטוי \(f(x+k)\), כאשר \(k>0\), הגרף זז שמאלה; וכאשר \(k<0\), הגרף זז ימינה.`);
-      }
-      if(Math.abs(p.vShift) > 0.0001){
-        pedagogic.push(`בביטוי \(f(x)+k\), כל ערכי \(y\) גדלים או קטנים באותו גודל, ולכן כל הגרף זז למעלה או למטה.`);
-      }
-      if(Math.abs(p.vScale-1) > 0.0001){
-        pedagogic.push(`בביטוי \(kf(x)\), משנים את ערכי \(y\): אם \(|k|>1\) יש מתיחה אנכית, ואם \(0<|k|<1\) יש כיווץ אנכי. אם \(k<0\) מתקבל גם שיקוף.`);
-      }
-      if(Math.abs(p.hScale-1) > 0.0001){
-        pedagogic.push(`בביטוי \(f(kx)\), השינוי הוא בציר \(x\): אם \(|k|>1\) יש כיווץ אופקי, ואם \(0<|k|<1\) יש מתיחה אופקית. אם \(k<0\) מתקבל גם שיקוף אופקי.`);
-      }
-      if(state.absY){
-        pedagogic.push(`בביטוי \(|f(x)|\), כל חלק של הגרף שהיה מתחת לציר \(x\) מתקפל כלפי מעלה.`);
-      }
-      if(state.reflectY){
-        pedagogic.push(`בביטוי \(-f(x)\), כל ערך \(y\) מחליף סימן, ולכן מתקבל שיקוף ביחס לציר \(x\).`);
-      }
-      if(state.reflectX){
-        pedagogic.push(`בביטוי \(f(-x)\), כל ערך \(x\) מחליף סימן, ולכן מתקבל שיקוף ביחס לציר \(y\).`);
-      }
-      if(pedagogic.length === 0){
-        pedagogic.push(`התחל מהפונקציה הבסיסית ובדוק כל פעם שינוי אחד. כך אפשר להבין מה השפעת כל טרנספורמציה בנפרד לפני שמשלבים כמה יחד.`);
-      }
-      els.autoExplanation.innerHTML = pedagogic.map(s=>`<p>${s}</p>`).join('');
-
-      const px = Number(els.pointX.value);
-      const op = computeOriginalPoint(px);
-      const tp = computeTransformedPoint(px);
-      if(!op){
-        els.pointInfo.innerHTML = `הנקודה המקורית אינה בתחום ההגדרה של הפונקציה הבסיסית עבור \(x=${fmt(px)}\).`;
-      } else if(!tp){
-        els.pointInfo.innerHTML = `לאחר הפעלת הטרנספורמציות, הביטוי הפנימי יוצא מתחום ההגדרה עבור \(x=${fmt(px)}\).`;
-      } else {
-        els.pointInfo.innerHTML = `
-          נקודת הבסיס: <span class="pill">\( (${fmt(op.x)}, ${fmt(op.y)}) \)</span><br>
-          נקודת היעד: <span class="pill">\( (${fmt(tp.x)}, ${fmt(tp.y)}) \)</span><br>
-         `;
-      }
-
-      if(window.MathJax && window.MathJax.typesetPromise){
-        MathJax.typesetPromise();
-      }
-    }
-
-    function toggleBtn(btn, val){
-      btn.classList.toggle('active', val);
+    function setToggleVisuals(){
+      els.negYBtn.classList.toggle('active', state.reflectY);
+      els.negXBtn.classList.toggle('active', state.reflectX);
+      els.absBtn.classList.toggle('active', state.absY);
     }
 
     function resetAll(){
-      setBaseFunction('quadratic');
+      els.baseFunc.value = 'quadratic';
+      document.querySelectorAll('.func-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.func === 'quadratic');
+      });
       els.verticalShift.value = 0;
       els.horizontalShift.value = 0;
       els.verticalScale.value = 1;
       els.horizontalScale.value = 1;
+      els.powerN.value = 1;
       els.pointX.value = 1;
       state.reflectY = false;
       state.reflectX = false;
       state.absY = false;
-      toggleBtn(els.negYBtn, false);
-      toggleBtn(els.negXBtn, false);
-      toggleBtn(els.absBtn, false);
-      updatePlot();
+      state.sequenceCounter = 0;
+      state.orderMap = {};
+      setToggleVisuals();
+      updateAll();
     }
 
-    function applyExample(type){
-      resetAll();
-      if(type === 'vertical'){
-        setBaseFunction('quadratic');
-        els.verticalShift.value = 3;
-      } else if(type === 'horizontal'){
-        setBaseFunction('quadratic');
-        els.horizontalShift.value = -2;
-      } else if(type === 'reflect'){
-        setBaseFunction('sin');
-        state.reflectY = true;
-        state.reflectX = true;
-        toggleBtn(els.negYBtn, true);
-        toggleBtn(els.negXBtn, true);
-      } else if(type === 'stretch'){
-        setBaseFunction('abs');
-        els.verticalScale.value = 2;
-        els.horizontalScale.value = 0.5;
-      }
-      updatePlot();
-    }
-
-    function randomChoice(arr){
-      return arr[Math.floor(Math.random()*arr.length)];
-    }
-
-    function createChallenge(){
-      const templates = [
-        {
-          text:'הזז את הגרף למעלה ב־3 יחידות',
-          check:()=> Math.abs(Number(els.verticalShift.value)-3) < 0.001
-        },
-        {
-          text:'בצע שיקוף ביחס לציר \(x\)',
-          check:()=> state.reflectY
-        },
-        {
-          text:'בצע שיקוף ביחס לציר \(y\)',
-          check:()=> state.reflectX
-        },
-        {
-          text:'בצע כיווץ אופקי באמצעות \(f(kx)\) עם \(k=2\)',
-          check:()=> Math.abs(Number(els.horizontalScale.value)-2) < 0.001
-        },
-        {
-          text:'בצע מתיחה אנכית באמצעות \(kf(x)\) עם \(k=2\)',
-          check:()=> Math.abs(Number(els.verticalScale.value)-2) < 0.001
-        },
-        {
-          text:'העבר כל חלק שלילי למעלה באמצעות ערך מוחלט',
-          check:()=> state.absY
-        }
-      ];
-      state.challenge = randomChoice(templates);
-      els.challengeBox.innerHTML = `משימה: <strong>${state.challenge.text}</strong>`;
-      els.challengeResult.innerHTML = '';
-      if(window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise();
-    }
-
-    document.querySelectorAll('.func-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        setBaseFunction(btn.dataset.func);
-        updatePlot();
-      });
+    document.querySelectorAll('.func-btn').forEach(btn => {
+      btn.addEventListener('click', () => setBaseFunction(btn.dataset.func));
     });
 
-    [els.verticalShift, els.horizontalShift, els.verticalScale, els.horizontalScale, els.pointX].forEach(el=>{
-      el.addEventListener('input', updatePlot);
+    els.verticalShift.addEventListener('input', () => {
+      touchOperation('verticalShift');
+      updateAll();
     });
 
-    els.negYBtn.addEventListener('click', ()=>{
+    els.horizontalShift.addEventListener('input', () => {
+      touchOperation('horizontalShift');
+      updateAll();
+    });
+
+    els.verticalScale.addEventListener('input', () => {
+      touchOperation('verticalScale');
+      updateAll();
+    });
+
+    els.horizontalScale.addEventListener('input', () => {
+      touchOperation('horizontalScale');
+      updateAll();
+    });
+
+    els.powerN.addEventListener('input', () => {
+      touchOperation('powerN');
+      updateAll();
+    });
+
+    els.pointX.addEventListener('input', updateAll);
+
+    els.negYBtn.addEventListener('click', () => {
       state.reflectY = !state.reflectY;
-      toggleBtn(els.negYBtn, state.reflectY);
-      updatePlot();
+      touchOperation('reflectY');
+      setToggleVisuals();
+      updateAll();
     });
 
-    els.negXBtn.addEventListener('click', ()=>{
+    els.negXBtn.addEventListener('click', () => {
       state.reflectX = !state.reflectX;
-      toggleBtn(els.negXBtn, state.reflectX);
-      updatePlot();
+      touchOperation('reflectX');
+      setToggleVisuals();
+      updateAll();
     });
 
-    els.absBtn.addEventListener('click', ()=>{
+    els.absBtn.addEventListener('click', () => {
       state.absY = !state.absY;
-      toggleBtn(els.absBtn, state.absY);
-      updatePlot();
+      touchOperation('absY');
+      setToggleVisuals();
+      updateAll();
     });
 
     els.resetBtn.addEventListener('click', resetAll);
 
-    document.querySelectorAll('.example-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=> applyExample(btn.dataset.example));
-    });
-
-    els.newChallengeBtn.addEventListener('click', createChallenge);
-    els.checkChallengeBtn.addEventListener('click', ()=>{
-      if(!state.challenge){
-        els.challengeResult.innerHTML = '<span class="status-bad">עדיין לא נבחר אתגר.</span>';
-        return;
-      }
-      const ok = state.challenge.check();
-      els.challengeResult.innerHTML = ok
-        ? '<span class="status-good">מצוין. ההגדרה שבחרת תואמת לאתגר.</span>'
-        : '<span class="status-bad">עדיין לא. נסה לשנות את הכפתורים או את הסליידרים.</span>';
-      if(window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise();
-    });
-
-    setBaseFunction('quadratic');
-    createChallenge();
     resetAll();
   </script>
 </body>
