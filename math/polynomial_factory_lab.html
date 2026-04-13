@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מעבדת פולינומים – גרף, אפסים ופירוק לגורמים</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(','\\)'], ['$', '$']],
+        displayMath: [['\\[','\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg2:#0f1733;
+      --panel:#121933;
+      --panel2:#182242;
+      --line:#2b396b;
+      --text:#eef4ff;
+      --muted:#b9c6e3;
+      --accent:#7cc5ff;
+      --accent2:#a790ff;
+      --green:#4ade80;
+      --yellow:#fbbf24;
+      --shadow:0 14px 40px rgba(0,0,0,.35);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(124,197,255,.16), transparent 28%),
+        radial-gradient(circle at top left, rgba(167,144,255,.12), transparent 24%),
+        linear-gradient(180deg,#09101e,#101736 36%,#0a1022);
+    }
+    .wrap{
+      width:min(1460px,96vw);
+      margin:0 auto;
+      padding:22px 0 40px;
+    }
+    .hero,.card{
+      background:linear-gradient(180deg,rgba(24,34,66,.96),rgba(14,21,41,.96));
+      border:1px solid rgba(124,197,255,.15);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .hero{
+      padding:24px;
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    h1,h2,h3{margin:0 0 12px}
+    h1{font-size:2rem}
+    h2{font-size:1.45rem}
+    h3{font-size:1.05rem}
+    p{margin:.35rem 0; line-height:1.7; color:var(--muted)}
+    .summary{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+    .mini,.box,.step{
+      background:rgba(255,255,255,.035);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:14px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:390px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+    .card{padding:18px}
+    .controls{position:sticky; top:12px}
+    label{
+      display:block;
+      margin:12px 0 7px;
+      font-weight:700;
+      color:var(--text);
+    }
+    select,input[type="range"],input[type="number"],button{width:100%}
+    select,input[type="number"]{
+      background:#0d1530;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:1rem;
+    }
+    input[type="range"]{accent-color:#8bcfff}
+    .row2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .btns{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+    button{
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:1rem;
+      font-weight:700;
+      cursor:pointer;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#08101f;
+    }
+    button.alt{
+      background:#22315f;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .main{display:grid; gap:18px}
+    .formula{
+      background:#0c1430;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:14px 16px;
+      margin-top:14px;
+    }
+    .plot-area{
+      width:100%;
+    }
+    #plotMain,#plotRoots,#plotPractice{
+      width:100%;
+      height:560px;
+    }
+    .insight{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+    .steps{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+    .badge{
+      display:inline-block;
+      background:#1e2e59;
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:.88rem;
+      margin-bottom:8px;
+      color:#dce9ff;
+    }
+    .practice-grid{
+      display:grid;
+      grid-template-columns:.95fr 1.05fr;
+      gap:18px;
+      align-items:start;
+    }
+    .question{
+      background:#0d1532;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:16px;
+    }
+    .answers{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+    .answers button{
+      text-align:right;
+      background:#1a2750;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .answers button.correct{outline:2px solid var(--green)}
+    .answers button.wrong{outline:2px solid #fb7185}
+    .feedback{
+      margin-top:12px;
+      min-height:72px;
+      border-radius:14px;
+      padding:12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .legend{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:.94rem;
+    }
+    .dot{
+      display:inline-block;
+      width:11px;
+      height:11px;
+      border-radius:50%;
+      margin-left:6px;
+      vertical-align:middle;
+    }
+    .small{font-size:.94rem;color:var(--muted)}
+    .ltr{direction:ltr; unicode-bidi:isolate; text-align:left}
+    .footer-note{
+      margin-top:16px;
+      text-align:center;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+    @media (max-width:1100px){
+      .hero,.grid,.practice-grid{grid-template-columns:1fr}
+      .summary,.insight,.steps{grid-template-columns:1fr}
+      .controls{position:static}
+      #plotMain,#plotRoots,#plotPractice{height:440px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <h1>מעבדת פולינומים אינטראקטיבית</h1>
+        <p>
+          כאן אפשר ללמוד בצורה חזותית איך מזהים את צורת הגרף של פולינום,
+          איך מאתרים את האפסים שלו, ואיך כותבים פירוק לגורמים כאשר הוא ידוע או כאשר אפשר להסיק אותו.
+        </p>
+        <p>
+          בדוגמה הראשית הוחלפה הדוגמה הראשונה ל־\(f(x)=x^4-5x^2+4\),
+          כדי לקבל אפסים ברורים וצורת גרף עשירה יותר ללמידה.
+        </p>
+      </div>
+      <div class="summary">
+        <div class="mini">
+          <h3>כלל 1</h3>
+          <p>המעלה קובעת אם הקצוות פונים לאותו כיוון או לכיוונים הפוכים.</p>
+        </div>
+        <div class="mini">
+          <h3>כלל 2</h3>
+          <p>סימן המקדם המוביל קובע את כיוון צד ימין של הגרף.</p>
+        </div>
+        <div class="mini">
+          <h3>כלל 3</h3>
+          <p>אפסים ממשיים הם נקודות חיתוך או נגיעה עם ציר \(x\).</p>
+        </div>
+        <div class="mini">
+          <h3>כלל 4</h3>
+          <p>פירוק לגורמים עוזר לראות את האפסים ואת המבנה של הפולינום.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <aside class="card controls">
+        <h2>בקרת הדגמה</h2>
+
+        <label for="family">בחר סוג גרף</label>
+        <select id="family">
+          <option value="evenPositive">זוגית + מקדם מוביל חיובי</option>
+          <option value="evenNegative">זוגית + מקדם מוביל שלילי</option>
+          <option value="oddPositive">אי־זוגית + מקדם מוביל חיובי</option>
+          <option value="oddNegative">אי־זוגית + מקדם מוביל שלילי</option>
+          <option value="roots">שורשים וריבוי שורש</option>
+        </select>
+
+        <label for="example">בחר דוגמה</label>
+        <select id="example"></select>
+
+        <label for="zoom">טווח תצוגה על ציר \(x\): <span id="zoomVal">5</span></label>
+        <input id="zoom" type="range" min="3" max="12" step="1" value="5" />
+
+        <div id="rootControls" style="display:none">
+          <label>ריבוי השורשים בדוגמה הדינמית</label>
+          <div class="row2">
+            <div>
+              <label for="m1" class="small">ריבוי ב־\(x=1\)</label>
+              <input id="m1" type="number" min="1" max="4" value="1" />
+            </div>
+            <div>
+              <label for="m2" class="small">ריבוי ב־\(x=2\)</label>
+              <input id="m2" type="number" min="1" max="4" value="1" />
+            </div>
+          </div>
+          <div class="row2">
+            <div>
+              <label for="m3" class="small">ריבוי ב־\(x=3\)</label>
+              <input id="m3" type="number" min="1" max="4" value="1" />
+            </div>
+            <div>
+              <label for="scaleA" class="small">מקדם \(a\)</label>
+              <input id="scaleA" type="number" step="0.5" value="1" />
+            </div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button id="randomBtn">דוגמה אקראית</button>
+          <button id="resetBtn" class="alt">איפוס</button>
+        </div>
+
+        <div class="formula">
+          <h3>הפולינום הנוכחי</h3>
+          <div id="polyText" class="ltr"></div>
+        </div>
+
+        <div class="formula">
+          <h3>פירוק לגורמים</h3>
+          <div id="factorText" class="ltr">אין פירוק זמין כרגע.</div>
+        </div>
+
+        <div class="formula">
+          <h3>אפסי הפונקציה</h3>
+          <div id="rootsText" class="ltr">לא זוהו אפסים בתחום התצוגה.</div>
+        </div>
+
+        <div class="formula">
+          <h3>פירוק לרעיון המרכזי</h3>
+          <div id="leadText"></div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="card">
+          <h2>גרף מרכזי</h2>
+          <div class="plot-area">
+            <div id="plotMain"></div>
+          </div>
+          <div class="legend">
+            <span><span class="dot" style="background:#7cc5ff"></span>גרף הפולינום</span>
+            <span><span class="dot" style="background:#4ade80"></span>אפסים</span>
+            <span><span class="dot" style="background:#fbbf24"></span>האיבר המוביל</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="insight">
+            <div class="box">
+              <h3>מעלה</h3>
+              <div id="degInfo"></div>
+            </div>
+            <div class="box">
+              <h3>מקדם מוביל</h3>
+              <div id="leadCoeffInfo"></div>
+            </div>
+            <div class="box">
+              <h3>מבנה הגרף</h3>
+              <div id="shapeInfo"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>איך מנתחים פולינום צעד אחרי צעד</h2>
+          <div class="steps">
+            <div class="step">
+              <div class="badge">שלב 1</div>
+              <p>מוצאים את האיבר בעל המעלה הגבוהה ביותר.</p>
+            </div>
+            <div class="step">
+              <div class="badge">שלב 2</div>
+              <p>בודקים אם המעלה זוגית או אי־זוגית.</p>
+            </div>
+            <div class="step">
+              <div class="badge">שלב 3</div>
+              <p>בודקים את סימן המקדם המוביל.</p>
+            </div>
+            <div class="step">
+              <div class="badge">שלב 4</div>
+              <p>מזהים אפסים: חיתוך, נגיעה, ופירוק לגורמים אם אפשר.</p>
+            </div>
+          </div>
+        </section>
+
+        <section style="display:none;" class="card">
+          <h2>דוגמת שורשים וריבוי שורש</h2>
+          <p>
+            בדוגמה זו אפשר לשלוט ישירות בריבוי של כל שורש ולראות איך הגרף משנה התנהגות:
+            ריבוי אי־זוגי יוצר חיתוך של ציר \(x\), וריבוי זוגי יוצר נגיעה.
+          </p>
+          <div id="plotRoots"></div>
+        </section>
+
+        <section class="card">
+          <h2>תרגול אינטראקטיבי</h2>
+          <div class="practice-grid">
+            <div class="question">
+              <h3>בחר את התיאור הנכון לגרף</h3>
+              <div id="practicePrompt"></div>
+              <div class="answers" id="answers"></div>
+              <div class="feedback" id="feedback">בחר תשובה כדי לבדוק את עצמך.</div>
+              <div style="margin-top:12px">
+                <button id="newQuestionBtn" class="alt">שאלה חדשה</button>
+              </div>
+            </div>
+            <div>
+              <div id="plotPractice"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="footer-note">
+          קובץ זה נבנה מחדש בצורה נקייה, עם זיהוי אוטומטי של אפסים ועם תצוגת פירוק לגורמים ללא שגיאות JavaScript.
+        </div>
+      </main>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const examples = {
+    evenPositive: [
+      {name:'y = x^4 - 5x^2 + 4', poly:'x^4 - 5x^2 + 4', fn:x=>x**4 - 5*x**2 + 4, deg:4, lead:1, leadTerm:'x^4', factor:'(x^2-1)(x^2-4)', roots:[-2,-1,1,2]},
+      {name:'y = 4x^6 - 5x^3 + 1', poly:'4x^6 - 5x^3 + 1', fn:x=>4*x**6 - 5*x**3 + 1, deg:6, lead:4, leadTerm:'4x^6', factor:'(4x^3-1)(x^3-1)', roots:[Math.pow(0.25,1/3),1]},
+      {name:'y = x^4 - 4x^2', poly:'x^4 - 4x^2', fn:x=>x**4 - 4*x**2, deg:4, lead:1, leadTerm:'x^4', factor:'x^2(x-2)(x+2)', roots:[-2,0,2]},
+      {name:'y = 0.5x^8 - x^2 + 2', poly:'0.5x^8 - x^2 + 2', fn:x=>0.5*x**8 - x**2 + 2, deg:8, lead:0.5, leadTerm:'0.5x^8'}
+    ],
+    evenNegative: [
+      {name:'y = -x^4 + 3x^2 + 1', poly:'-x^4 + 3x^2 + 1', fn:x=>-(x**4) + 3*x**2 + 1, deg:4, lead:-1, leadTerm:'-x^4'},
+      {name:'y = -2x^6 + x^2 - 3', poly:'-2x^6 + x^2 - 3', fn:x=>-2*x**6 + x**2 - 3, deg:6, lead:-2, leadTerm:'-2x^6'},
+      {name:'y = -x^4 - 4x^2', poly:'-x^4 - 4x^2', fn:x=>-(x**4) - 4*x**2, deg:4, lead:-1, leadTerm:'-x^4', factor:'-x^2(x^2+4)', roots:[0]},
+      {name:'y = -0.5x^8 + 8.5x^4 - 8', poly:'-0.5x^8 + 8.5x^4 - 8', fn:x=>-0.5*x**8 + 8.5*x**4 - 8, deg:8, lead:-0.5, leadTerm:'-0.5x^8', factor:'-0.5(x^4-1)(x^4-16)', roots:[-2,-1,1,2]}
+    ],
+    oddPositive: [
+      {name:'y = x^3', poly:'x^3', fn:x=>x**3, deg:3, lead:1, leadTerm:'x^3', factor:'x·x^2', roots:[0]},
+      {name:'y = x^3 - 6x^2 + 11x - 6', poly:'x^3 - 6x^2 + 11x - 6', fn:x=>x**3 - 6*x**2 + 11*x - 6, deg:3, lead:1, leadTerm:'x^3', factor:'(x-1)(x-2)(x-3)', roots:[1,2,3]},
+      {name:'y = 2x^5 - x', poly:'2x^5 - x', fn:x=>2*x**5 - x, deg:5, lead:2, leadTerm:'2x^5', factor:'x(2x^4-1)', roots:[0,-Math.pow(0.5,0.25),Math.pow(0.5,0.25)]},
+      {name:'y = x^5 - 5x^3 + 4x', poly:'x^5 - 5x^3 + 4x', fn:x=>x**5 - 5*x**3 + 4*x, deg:5, lead:1, leadTerm:'x^5', factor:'x(x-1)(x+1)(x-2)(x+2)', roots:[-2,-1,0,1,2]}
+    ],
+    oddNegative: [
+      {name:'y = -x^3', poly:'-x^3', fn:x=>-(x**3), deg:3, lead:-1, leadTerm:'-x^3', factor:'-x·x^2', roots:[0]},
+      {name:'y = -2x^3 + 4x + 3', poly:'-2x^3 + 4x + 3', fn:x=>-2*x**3 + 4*x + 3, deg:3, lead:-2, leadTerm:'-2x^3'},
+      {name:'y = -x^5 + 3x', poly:'-x^5 + 3x', fn:x=>-(x**5) + 3*x, deg:5, lead:-1, leadTerm:'-x^5', factor:'-x(x^4-3)', roots:[0,-Math.pow(3,0.25),Math.pow(3,0.25)]},
+      {name:'y = -0.5x^7 + x^3 - 2', poly:'-0.5x^7 + x^3 - 2', fn:x=>-0.5*x**7 + x**3 - 2, deg:7, lead:-0.5, leadTerm:'-0.5x^7'}
+    ]
+  };
+
+  const familyEl = document.getElementById('family');
+  const exampleEl = document.getElementById('example');
+  const zoomEl = document.getElementById('zoom');
+  const zoomValEl = document.getElementById('zoomVal');
+  const rootControlsEl = document.getElementById('rootControls');
+
+  const m1El = document.getElementById('m1');
+  const m2El = document.getElementById('m2');
+  const m3El = document.getElementById('m3');
+  const scaleAEl = document.getElementById('scaleA');
+
+  const polyTextEl = document.getElementById('polyText');
+  const factorTextEl = document.getElementById('factorText');
+  const rootsTextEl = document.getElementById('rootsText');
+  const leadTextEl = document.getElementById('leadText');
+  const degInfoEl = document.getElementById('degInfo');
+  const leadCoeffInfoEl = document.getElementById('leadCoeffInfo');
+  const shapeInfoEl = document.getElementById('shapeInfo');
+
+  const practicePromptEl = document.getElementById('practicePrompt');
+  const answersEl = document.getElementById('answers');
+  const feedbackEl = document.getElementById('feedback');
+
+  let currentQuestion = null;
+
+  function linspace(a,b,n){
+    const arr = [];
+    const step = (b-a)/(n-1);
+    for(let i=0;i<n;i++) arr.push(a + i*step);
+    return arr;
+  }
+
+  function uniqueRounded(values, digits=4){
+    const seen = new Set();
+    const out = [];
+    values.forEach(v=>{
+      const rounded = Number(v.toFixed(digits));
+      const key = rounded.toFixed(digits);
+      if(!seen.has(key)){
+        seen.add(key);
+        out.push(rounded);
+      }
+    });
+    return out.sort((a,b)=>a-b);
+  }
+
+  function safeRange(values){
+    const filtered = values.filter(v => Number.isFinite(v) && Math.abs(v) < 1e6);
+    if(!filtered.length) return [-10,10];
+    let min = Math.min(...filtered);
+    let max = Math.max(...filtered);
+    if(min === max){ min -= 1; max += 1; }
+    const pad = (max-min)*0.12;
+    return [min-pad, max+pad];
+  }
+
+  function approxLead(x, lead, deg){
+    return lead * (x ** deg);
+  }
+
+  function sign(v, eps=1e-10){
+    if(v > eps) return 1;
+    if(v < -eps) return -1;
+    return 0;
+  }
+
+  function detectRoots(fn, xmin, xmax, explicitRoots){
+    if(Array.isArray(explicitRoots) && explicitRoots.length){
+      return uniqueRounded(explicitRoots, 4);
+    }
+
+    const xs = linspace(xmin, xmax, 2200);
+    const ys = xs.map(fn);
+    const roots = [];
+    const eps = 1e-4;
+
+    for(let i=0;i<xs.length-1;i++){
+      const x1 = xs[i], x2 = xs[i+1];
+      const y1 = ys[i], y2 = ys[i+1];
+
+      if(!Number.isFinite(y1) || !Number.isFinite(y2)) continue;
+
+      if(Math.abs(y1) < eps) roots.push(x1);
+
+      const s1 = sign(y1, eps);
+      const s2 = sign(y2, eps);
+
+      if(s1 !== 0 && s2 !== 0 && s1 !== s2){
+        let a = x1, b = x2, fa = y1, fb = y2;
+        for(let k=0;k<40;k++){
+          const m = (a+b)/2;
+          const fm = fn(m);
+          if(!Number.isFinite(fm)) break;
+          if(Math.abs(fm) < 1e-10){ a = b = m; break; }
+          if(sign(fa, eps) === sign(fm, eps)){ a = m; fa = fm; }
+          else { b = m; fb = fm; }
+        }
+        roots.push((a+b)/2);
+      }
+    }
+
+    for(let i=1;i<xs.length-1;i++){
+      const y0 = ys[i-1], y1 = ys[i], y2 = ys[i+1];
+      if(!Number.isFinite(y0) || !Number.isFinite(y1) || !Number.isFinite(y2)) continue;
+      const localMinOrMax = (y1 <= y0 && y1 <= y2) || (y1 >= y0 && y1 >= y2);
+      if(localMinOrMax && Math.abs(y1) < 0.03){
+        roots.push(xs[i]);
+      }
+    }
+
+    return uniqueRounded(roots.filter(r => r >= xmin && r <= xmax), 4);
+  }
+
+
+  function parsePolynomial(polyStr){
+    const s = (polyStr || '').replace(/\s+/g,'').replace(/\*/g,'');
+    if(!s) return null;
+    const normalized = /^[+-]/.test(s) ? s : '+' + s;
+    const terms = normalized.match(/[+-][^+-]+/g);
+    if(!terms) return null;
+    const coeffs = {};
+    for(const term of terms){
+      let sign = term[0] === '-' ? -1 : 1;
+      let body = term.slice(1);
+      if(!body) continue;
+      let coeff = 0, power = 0;
+
+      if(body.includes('x')){
+        const parts = body.split('x');
+        const left = parts[0];
+        coeff = left === '' ? 1 : Number(left);
+        if(!Number.isFinite(coeff)) return null;
+        coeff *= sign;
+
+        if(body.includes('^')){
+          const p = Number(body.split('^')[1]);
+          if(!Number.isFinite(p)) return null;
+          power = p;
+        }else{
+          power = 1;
+        }
+      }else{
+        coeff = sign * Number(body);
+        if(!Number.isFinite(coeff)) return null;
+        power = 0;
+      }
+      coeffs[power] = (coeffs[power] || 0) + coeff;
+    }
+    return coeffs;
+  }
+
+  function sortedPowers(coeffs){
+    return Object.keys(coeffs)
+      .map(Number)
+      .filter(p => Math.abs(coeffs[p]) > 1e-10)
+      .sort((a,b)=>b-a);
+  }
+
+  function monomialToText(coeff, power){
+    if(Math.abs(coeff) < 1e-10) return '';
+    const abs = Math.abs(Number(coeff.toFixed(10)));
+    if(power === 0) return trimNum(abs);
+    const coeffText = abs === 1 ? '' : trimNum(abs);
+    if(power === 1) return `${coeffText}x`;
+    return `${coeffText}x^${power}`;
+  }
+
+  function coeffsToText(coeffs){
+    const powers = sortedPowers(coeffs);
+    if(!powers.length) return '0';
+    let out = '';
+    powers.forEach((p, idx)=>{
+      const c = coeffs[p];
+      const signText = c < 0 ? '-' : '+';
+      const mono = monomialToText(c, p);
+      if(idx === 0){
+        out += (c < 0 ? '-' : '') + mono;
+      }else{
+        out += ` ${signText} ${mono}`;
+      }
+    });
+    return out;
+  }
+
+  function gcdPowerOfX(coeffs){
+    const powers = Object.keys(coeffs)
+      .map(Number)
+      .filter(p => Math.abs(coeffs[p]) > 1e-10);
+    if(!powers.length) return 0;
+    return Math.min(...powers);
+  }
+
+  function divideByXPower(coeffs, k){
+    const out = {};
+    Object.keys(coeffs).forEach(key=>{
+      const p = Number(key), c = coeffs[p];
+      if(Math.abs(c) > 1e-10) out[p-k] = c;
+    });
+    return out;
+  }
+
+  function factorQuadratic(a,b,c){
+    const disc = b*b - 4*a*c;
+    if(Math.abs(disc) < 1e-10){
+      const r = -b/(2*a);
+      const linear = Math.abs(r) < 1e-10 ? 'x' : (r > 0 ? `(x-${trimNum(r)})` : `(x+${trimNum(Math.abs(r))})`);
+      return {
+        text: `${trimNum(a)}${linear}^2`.replace(/^1(?=\()/,'').replace(/^1x/,'x').replace(/^-1(?=\()/,'-'),
+        realRoots: [r,r],
+        note: 'לפרבולה יש שורש ממשי כפול.'
+      };
+    }
+    if(disc > 0){
+      const s = Math.sqrt(disc);
+      const r1 = (-b + s)/(2*a);
+      const r2 = (-b - s)/(2*a);
+      const parts = [r1,r2].sort((u,v)=>u-v).map(r => Math.abs(r) < 1e-10 ? 'x' : (r > 0 ? `(x-${trimNum(r)})` : `(x+${trimNum(Math.abs(r))})`));
+      const prefix = a === 1 ? '' : (a === -1 ? '-' : trimNum(a));
+      return {
+        text: `${prefix}${parts.join('')}`,
+        realRoots: [r1,r2],
+        note: 'לפרבולה יש שני שורשים ממשיים.'
+      };
+    }
+    return {
+      text: coeffsToText({2:a,1:b,0:c}),
+      realRoots: [],
+      note: 'לדלתא ערך שלילי, לכן אין פירוק לינארי מעל הממשיים.'
+    };
+  }
+
+  function factorEvenPolynomial(coeffs){
+    const powers = sortedPowers(coeffs);
+    if(!powers.length || powers.some(p => p % 2 !== 0)) return null;
+    const tCoeffs = {};
+    powers.forEach(p => tCoeffs[p/2] = coeffs[p]);
+    const tPowers = sortedPowers(tCoeffs);
+    if(tPowers.length === 3 && tPowers[0] === 2 && tPowers[1] === 1 && tPowers[2] === 0){
+      const a = tCoeffs[2], b = tCoeffs[1], c = tCoeffs[0];
+      const disc = b*b - 4*a*c;
+      if(disc < -1e-10){
+        return {
+          text: coeffsToText(coeffs),
+          note: 'זהו טרינום ב־x^2, אבל אין לו פתרונות ממשיים עבור x^2.'
+        };
+      }
+      const s = Math.sqrt(Math.max(0,disc));
+      const t1 = (-b + s)/(2*a);
+      const t2 = (-b - s)/(2*a);
+      const factors = [];
+      const realRoots = [];
+
+      [t1, t2].forEach(t=>{
+        if(t > 1e-10){
+          const r = Math.sqrt(t);
+          factors.push(`(x-${trimNum(r)})(x+${trimNum(r)})`);
+          realRoots.push(-r, r);
+        }else if(Math.abs(t) <= 1e-10){
+          factors.push('x^2');
+          realRoots.push(0,0);
+        }else{
+          factors.push(`(x^2+${trimNum(Math.abs(t))})`);
+        }
+      });
+
+      const prefix = a === 1 ? '' : (a === -1 ? '-' : trimNum(a));
+      return {
+        text: `${prefix}${factors.join('')}`,
+        realRoots,
+        note: factors.some(f=>f.includes('x^2+')) 
+          ? 'חלק מן הפירוק הוא מעל הממשיים בלבד, וחלק נשאר בצורה ריבועית ללא שורשים ממשיים.'
+          : 'הטרינום ב־x^2 התפרק לגורמים.'
+      };
+    }
+    return null;
+  }
+
+  function factorPolynomialSmart(polyStr, explicitFactor, explicitRoots, lead){
+    if(explicitFactor){
+      return { text: explicitFactor, note: '' };
+    }
+
+    const coeffs = parsePolynomial(polyStr);
+    if(!coeffs) return { text: '', note: 'לא בוצע פירוק סמלי אוטומטי.' };
+
+    const xPow = gcdPowerOfX(coeffs);
+    let reduced = coeffs;
+    let front = '';
+    let notes = [];
+
+    if(xPow > 0){
+      reduced = divideByXPower(coeffs, xPow);
+      front += xPow === 1 ? 'x' : `x^${xPow}`;
+      notes.push(`הוצאנו גורם משותף ${xPow === 1 ? 'x' : `x^${xPow}`}.`);
+    }
+
+    const reducedPowers = sortedPowers(reduced);
+    let inside = coeffsToText(reduced);
+
+    if(reducedPowers.length === 3 && reducedPowers[0] === 2 && reducedPowers[1] === 1 && reducedPowers[2] === 0){
+      const q = factorQuadratic(reduced[2], reduced[1], reduced[0]);
+      inside = q.text;
+      if(q.note) notes.push(q.note);
+    }else{
+      const evenFact = factorEvenPolynomial(reduced);
+      if(evenFact){
+        inside = evenFact.text;
+        if(evenFact.note) notes.push(evenFact.note);
+      }else if(Array.isArray(explicitRoots) && explicitRoots.length){
+        const realOnly = explicitRoots.filter(r => Number.isFinite(r));
+        if(realOnly.length){
+          inside = factorFromRoots(realOnly, xPow > 0 ? 1 : lead || 1);
+        }
+      }
+    }
+
+    let text = '';
+    if(front){
+      const needsParens = /[ +\-]/.test(inside.trim()) || inside.includes('x^2+') || inside.includes('x^2-');
+      text = `${front}${needsParens ? `(${inside})` : inside}`;
+    }else{
+      text = inside;
+    }
+
+    text = text
+      .replace(/^1(?=\()/,'')
+      .replace(/^1x/,'x')
+      .replace(/^\+/, '');
+
+    return { text, note: notes.join(' ') };
+  }
+
+  function factorFromRoots(roots, lead){
+    if(!roots || !roots.length) return '';
+    const parts = roots.map(r=>{
+      if(Math.abs(r) < 1e-10) return 'x';
+      return r > 0 ? `(x-${trimNum(r)})` : `(x+${trimNum(Math.abs(r))})`;
+    });
+    const leadStr = (lead === 1) ? '' : (lead === -1 ? '-' : trimNum(lead));
+    return `${leadStr}${parts.join('')}`;
+  }
+
+  function trimNum(n){
+    const rounded = Number(n.toFixed(4));
+    return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+  }
+
+  function shapeText(deg, lead){
+    const parity = deg % 2 === 0 ? 'זוגית' : 'אי־זוגית';
+    const signText = lead > 0 ? 'חיובי' : 'שלילי';
+    let ends = '';
+    if(deg % 2 === 0){
+      ends = lead > 0 ? 'שני הקצוות עולים.' : 'שני הקצוות יורדים.';
+    }else{
+      ends = lead > 0 ? 'שמאל יורד וימין עולה.' : 'שמאל עולה וימין יורד.';
+    }
+    return `מעלה ${parity}, מקדם מוביל ${signText}. ${ends}`;
+  }
+
+  function buildRootsFamilyExample(){
+    const m1 = Math.max(1, Math.min(4, Number(m1El.value || 1)));
+    const m2 = Math.max(1, Math.min(4, Number(m2El.value || 1)));
+    const m3 = Math.max(1, Math.min(4, Number(m3El.value || 1)));
+    const a = Number(scaleAEl.value || 1);
+    return {
+      name:'f(x)=a(x-1)^m¹(x-2)^m²(x-3)^m³',
+      poly:`${trimNum(a)}(x-1)^${m1}(x-2)^${m2}(x-3)^${m3}`,
+      fn:x => a * ((x-1)**m1) * ((x-2)**m2) * ((x-3)**m3),
+      deg:m1+m2+m3,
+      lead:a,
+      leadTerm:`${a===1?'':a===-1?'-':trimNum(a)}x^${m1+m2+m3}`,
+      factor:`${trimNum(a)}(x-1)^${m1}(x-2)^${m2}(x-3)^${m3}`,
+      roots:[1,2,3],
+      multiplicities:[m1,m2,m3]
+    };
+  }
+
+  function getCurrentExample(){
+    const family = familyEl.value;
+    if(family === 'roots') return buildRootsFamilyExample();
+    const idx = Number(exampleEl.value || 0);
+    return examples[family][idx];
+  }
+
+  function fillExamples(){
+    const family = familyEl.value;
+    exampleEl.innerHTML = '';
+    if(family === 'roots'){
+      rootControlsEl.style.display = 'block';
+      const opt = document.createElement('option');
+      opt.value = '0';
+      opt.textContent = 'f(x)=a(x-1)^m¹(x-2)^m²(x-3)^m³';
+      exampleEl.appendChild(opt);
+      return;
+    }
+    rootControlsEl.style.display = 'none';
+    examples[family].forEach((ex, i)=>{
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = ex.name;
+      exampleEl.appendChild(opt);
+    });
+  }
+
+  function renderMain(){
+    const ex = getCurrentExample();
+    const z = Number(zoomEl.value);
+    zoomValEl.textContent = z;
+
+    const xs = linspace(-z, z, 1000);
+    const ys = xs.map(ex.fn);
+    const yLead = xs.map(x => approxLead(x, ex.lead, ex.deg));
+    const roots = detectRoots(ex.fn, -z, z, ex.roots);
+    const yRange = safeRange(ys.concat(yLead));
+    const rootLabels = roots.map(r => `x=${trimNum(r)}`);
+
+    polyTextEl.innerHTML = `\\(f(x) = ${ex.poly}\\)`;
+
+    const factorExpr = ex.factor || factorFromRoots(roots, ex.lead);
+    factorTextEl.innerHTML = factorExpr
+      ? `\\(f(x) = ${factorExpr}\\)`
+      : 'לא זוהה פירוק שימושי בתחום הדוגמה';
+
+    rootsTextEl.innerHTML = roots.length
+      ? roots.map(r => `\\(x=${trimNum(r)}\\)`).join(' , ')
+      : 'לא זוהו אפסים בתחום התצוגה';
+
+    leadTextEl.innerHTML = `כאשר \\(|x|\\) גדול, האיבר הדומיננטי הוא \\(${ex.leadTerm}\\), ולכן בקצוות הגרף מתנהג כמו \\(y=${ex.leadTerm}\\).`;
+
+    degInfoEl.innerHTML = `המעלה היא <b>${ex.deg}</b><br>${ex.deg % 2 === 0 ? 'מעלה זוגית' : 'מעלה אי־זוגית'}`;
+    leadCoeffInfoEl.innerHTML = `המקדם המוביל הוא <b>${trimNum(ex.lead)}</b><br>${ex.lead > 0 ? 'סימן חיובי' : 'סימן שלילי'}`;
+    shapeInfoEl.innerHTML = shapeText(ex.deg, ex.lead);
+
+    const traces = [
+      {
+        x: xs,
+        y: ys,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'הפולינום',
+        line: { width: 4, color: '#39aafc' }
+      },
+      {
+        x: xs,
+        y: yLead,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'האיבר המוביל',
+        line: { width: 2.5, dash: 'dot', color: '#fbbf24' }
+      }
+    ];
+
+    if(roots.length){
+      traces.splice(1, 0, {
+        x: roots,
+        y: roots.map(()=>0),
+        type: 'scatter',
+        mode: 'markers+text',
+        name: 'אפסים',
+        text: rootLabels,
+        textposition: 'top center',
+        marker: { size: 12, color: '#4ade80', line:{width:1,color:'#d9ffe8'} }
+      });
+    }
+
+    Plotly.newPlot('plotMain', traces, {
+      paper_bgcolor:'rgba(0,0,0,0)',
+      plot_bgcolor:'#091334',
+      font:{color:'#eef4ff', family:'Arial'},
+      margin:{l:55,r:20,t:20,b:50},
+      xaxis:{
+        title:'x',
+        range:[-z,z],
+        gridcolor:'rgba(255,255,255,.08)',
+        zeroline:true,
+        zerolinecolor:'rgba(255,255,255,.28)',
+        linecolor:'rgba(255,255,255,.16)',
+        mirror:true
+      },
+      yaxis:{
+        title:'y',
+        range:yRange,
+        gridcolor:'rgba(255,255,255,.08)',
+        zeroline:true,
+        zerolinecolor:'rgba(255,255,255,.28)',
+        linecolor:'rgba(255,255,255,.16)',
+        mirror:true
+      },
+      legend:{orientation:'h', x:0, y:1.12}
+    }, {displayModeBar:false, responsive:true});
+
+    renderRootsPanel();
+    if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+  }
+
+  function renderRootsPanel(){
+    const ex = buildRootsFamilyExample();
+    const xs = linspace(-1, 4.5, 1000);
+    const ys = xs.map(ex.fn);
+    const yRange = safeRange(ys);
+    const texts = ex.roots.map((r, i) => `x=${r}, ריבוי ${ex.multiplicities[i]}${ex.multiplicities[i] % 2 === 0 ? ', נוגע' : ', חותך'}`);
+
+    Plotly.newPlot('plotRoots', [
+      {
+        x: xs, y: ys,
+        type:'scatter',
+        mode:'lines',
+        line:{width:4, color:'#39aafc'},
+        name:'f(x)'
+      },
+      {
+        x: ex.roots,
+        y: [0,0,0],
+        type:'scatter',
+        mode:'markers+text',
+        text: texts,
+        textposition:'top center',
+        marker:{size:12, color:'#4ade80'},
+        name:'אפסים'
+      }
+    ], {
+      paper_bgcolor:'rgba(0,0,0,0)',
+      plot_bgcolor:'#091334',
+      font:{color:'#eef4ff', family:'Arial'},
+      margin:{l:55,r:20,t:20,b:50},
+      xaxis:{
+        title:'x',
+        range:[-1,4.5],
+        gridcolor:'rgba(255,255,255,.08)',
+        zeroline:true
+      },
+      yaxis:{
+        title:'y',
+        range:yRange,
+        gridcolor:'rgba(255,255,255,.08)',
+        zeroline:true
+      },
+      legend:{orientation:'h', x:0, y:1.08}
+    }, {displayModeBar:false, responsive:true});
+  }
+
+  function randomOf(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+  }
+
+  function buildQuestion(){
+    const familyKeys = ['evenPositive','evenNegative','oddPositive','oddNegative'];
+    const fam = randomOf(familyKeys);
+    const ex = randomOf(examples[fam]);
+
+    currentQuestion = {
+      fam,
+      ex,
+      options: [
+        'מעלה זוגית ומקדם מוביל חיובי',
+        'מעלה זוגית ומקדם מוביל שלילי',
+        'מעלה אי־זוגית ומקדם מוביל חיובי',
+        'מעלה אי־זוגית ומקדם מוביל שלילי'
+      ],
+      correct: {
+        evenPositive:0,
+        evenNegative:1,
+        oddPositive:2,
+        oddNegative:3
+      }[fam]
+    };
+
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    practicePromptEl.innerHTML = `<p>לפונקציה הבאה:</p><div class="ltr">\\(${currentQuestion.ex.poly}\\)</div><p>איזה תיאור מתאים לה?</p>`;
+    answersEl.innerHTML = '';
+    feedbackEl.textContent = 'בחר תשובה כדי לבדוק את עצמך.';
+
+    currentQuestion.options.forEach((op, i)=>{
+      const btn = document.createElement('button');
+      btn.textContent = op;
+      btn.onclick = () => checkAnswer(i, btn);
+      answersEl.appendChild(btn);
+    });
+
+    const xs = linspace(-4.5, 4.5, 900);
+    const ys = xs.map(currentQuestion.ex.fn);
+    const yRange = safeRange(ys);
+
+    Plotly.newPlot('plotPractice', [{
+      x: xs,
+      y: ys,
+      type:'scatter',
+      mode:'lines',
+      line:{width:4, color:'#39aafc'}
+    }], {
+      paper_bgcolor:'rgba(0,0,0,0)',
+      plot_bgcolor:'#091334',
+      font:{color:'#eef4ff', family:'Arial'},
+      margin:{l:50,r:20,t:20,b:45},
+      xaxis:{title:'x', gridcolor:'rgba(255,255,255,.08)', zeroline:true},
+      yaxis:{title:'y', gridcolor:'rgba(255,255,255,.08)', zeroline:true, range:yRange}
+    }, {displayModeBar:false, responsive:true});
+
+    if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+  }
+
+  function checkAnswer(index, clickedBtn){
+    const btns = [...answersEl.querySelectorAll('button')];
+    btns.forEach(b => b.disabled = true);
+    btns[currentQuestion.correct].classList.add('correct');
+    if(index !== currentQuestion.correct) clickedBtn.classList.add('wrong');
+
+    const ex = currentQuestion.ex;
+    const parity = ex.deg % 2 === 0 ? 'זוגית' : 'אי־זוגית';
+    const signText = ex.lead > 0 ? 'חיובי' : 'שלילי';
+
+    feedbackEl.innerHTML =
+      index === currentQuestion.correct
+      ? `נכון. האיבר המוביל הוא \\(${ex.leadTerm}\\), לכן המעלה היא <b>${parity}</b> והמקדם המוביל <b>${signText}</b>.`
+      : `לא נכון. האיבר המוביל הוא \\(${ex.leadTerm}\\), לכן המעלה היא <b>${parity}</b> והמקדם המוביל <b>${signText}</b>. התשובה הנכונה היא: <b>${currentQuestion.options[currentQuestion.correct]}</b>.`;
+
+    if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+  }
+
+  document.getElementById('randomBtn').addEventListener('click', ()=>{
+    const families = ['evenPositive','evenNegative','oddPositive','oddNegative','roots'];
+    familyEl.value = randomOf(families);
+    fillExamples();
+    if(familyEl.value !== 'roots'){
+      exampleEl.value = String(Math.floor(Math.random() * exampleEl.options.length));
+    } else {
+      m1El.value = String(1 + Math.floor(Math.random()*4));
+      m2El.value = String(1 + Math.floor(Math.random()*4));
+      m3El.value = String(1 + Math.floor(Math.random()*4));
+      scaleAEl.value = String(randomOf([-2,-1,1,2]));
+    }
+    renderMain();
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    familyEl.value = 'evenPositive';
+    zoomEl.value = '5';
+    m1El.value = '1';
+    m2El.value = '1';
+    m3El.value = '1';
+    scaleAEl.value = '1';
+    fillExamples();
+    exampleEl.value = '0';
+    renderMain();
+  });
+
+  document.getElementById('newQuestionBtn').addEventListener('click', buildQuestion);
+
+  familyEl.addEventListener('change', ()=>{ fillExamples(); renderMain(); });
+  exampleEl.addEventListener('change', renderMain);
+  zoomEl.addEventListener('input', renderMain);
+  [m1El, m2El, m3El, scaleAEl].forEach(el => el.addEventListener('input', renderMain));
+
+  fillExamples();
+  exampleEl.value = '0';
+  renderMain();
+  buildQuestion();
+})();
+</script>
+</body>
+</html>
