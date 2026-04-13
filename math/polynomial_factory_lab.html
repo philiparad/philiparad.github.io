@@ -792,7 +792,7 @@
 
   function shapeText(deg, lead){
     const parity = deg % 2 === 0 ? 'זוגית' : 'אי־זוגית';
-    const signText = lead > 0 ? 'חיובי' : 'שלילי';
+    const signText = lead > 0 ? 'חיובי' : (lead < 0 ? 'שלילי' : 'אפס');
     let ends = '';
     if(deg % 2 === 0){
       ends = lead > 0 ? 'שני הקצוות עולים.' : 'שני הקצוות יורדים.';
@@ -802,11 +802,22 @@
     return `מעלה ${parity}, מקדם מוביל ${signText}. ${ends}`;
   }
 
+  function normalizeMultiplicity(raw){
+    const n = Number(raw);
+    if(!Number.isFinite(n)) return 1;
+    return Math.max(1, Math.min(4, Math.round(n)));
+  }
+
   function buildRootsFamilyExample(){
-    const m1 = Math.max(1, Math.min(4, Number(m1El.value || 1)));
-    const m2 = Math.max(1, Math.min(4, Number(m2El.value || 1)));
-    const m3 = Math.max(1, Math.min(4, Number(m3El.value || 1)));
-    const a = Number(scaleAEl.value || 1);
+    const m1 = normalizeMultiplicity(m1El.value || 1);
+    const m2 = normalizeMultiplicity(m2El.value || 1);
+    const m3 = normalizeMultiplicity(m3El.value || 1);
+    let a = Number(scaleAEl.value || 1);
+    if(!Number.isFinite(a) || Math.abs(a) < 1e-10) a = 1;
+    m1El.value = String(m1);
+    m2El.value = String(m2);
+    m3El.value = String(m3);
+    scaleAEl.value = String(trimNum(a));
     return {
       name:'f(x)=a(x-1)^m¹(x-2)^m²(x-3)^m³',
       poly:`${trimNum(a)}(x-1)^${m1}(x-2)^${m2}(x-3)^${m3}`,
@@ -873,7 +884,7 @@
     leadTextEl.innerHTML = `כאשר \\(|x|\\) גדול, האיבר הדומיננטי הוא \\(${ex.leadTerm}\\), ולכן בקצוות הגרף מתנהג כמו \\(y=${ex.leadTerm}\\).`;
 
     degInfoEl.innerHTML = `המעלה היא <b>${ex.deg}</b><br>${ex.deg % 2 === 0 ? 'מעלה זוגית' : 'מעלה אי־זוגית'}`;
-    leadCoeffInfoEl.innerHTML = `המקדם המוביל הוא <b>${trimNum(ex.lead)}</b><br>${ex.lead > 0 ? 'סימן חיובי' : 'סימן שלילי'}`;
+    leadCoeffInfoEl.innerHTML = `המקדם המוביל הוא <b>${trimNum(ex.lead)}</b><br>${ex.lead > 0 ? 'סימן חיובי' : (ex.lead < 0 ? 'סימן שלילי' : 'מקדם אפס')}`;
     shapeInfoEl.innerHTML = shapeText(ex.deg, ex.lead);
 
     const traces = [
