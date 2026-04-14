@@ -332,6 +332,94 @@
       font-size:1.02em !important;
     }
 
+    
+    .summary-tabs{
+      display:grid;
+      gap:12px;
+    }
+    .tab-buttons{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .tab-btn{
+      width:auto;
+      padding:10px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.1);
+      background:#18264e;
+      color:var(--text);
+      font-weight:700;
+    }
+    .tab-btn.active{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#08101f;
+      border-color:transparent;
+    }
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+    .summary-table-wrap{
+      background:rgba(255,255,255,.035);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:12px;
+      overflow:auto;
+    }
+    .summary-compare{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      min-width:720px;
+    }
+    .summary-compare th,
+    .summary-compare td{
+      border:1px solid rgba(124,197,255,.22);
+      padding:12px 10px;
+      vertical-align:middle;
+      text-align:center;
+    }
+    .summary-compare th{
+      background:rgba(124,197,255,.08);
+      color:var(--text);
+      font-size:1rem;
+    }
+    .summary-compare td:first-child,
+    .summary-compare th:first-child{
+      width:128px;
+      font-weight:700;
+      background:rgba(167,144,255,.08);
+    }
+    .end-cell{
+      font-weight:700;
+      color:#e7f1ff;
+      line-height:1.7;
+    }
+    .scenario-note{
+      margin-top:10px;
+      color:var(--muted);
+      line-height:1.7;
+    }
+    .compare-cell{
+      display:grid;
+      gap:10px;
+      align-items:center;
+      justify-items:center;
+    }
+    .compare-example{
+      font-size:.95rem;
+      color:#dfe9ff;
+      font-weight:700;
+    }
+    .mini-graph{
+      width:100%;
+      height:150px;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:#091334;
+    }
+
+
     @media (max-width:1100px){
       .hero,.grid,.practice-grid{grid-template-columns:1fr}
       .summary,.insight,.steps{grid-template-columns:1fr}
@@ -354,22 +442,93 @@
           כדי לקבל אפסים ברורים וצורת גרף עשירה יותר ללמידה.
         </p>
       </div>
-      <div class="summary">
-        <div class="mini">
-          <h3>כלל 1</h3>
-          <p>המעלה קובעת אם הקצוות פונים לאותו כיוון או לכיוונים הפוכים.</p>
+      <div class="summary-tabs">
+        <div class="tab-buttons" id="summaryTabButtons">
+          <button type="button" class="tab-btn active" data-tab="summaryRules">כללי יסוד</button>
+          <button type="button" class="tab-btn" data-tab="summaryCompare">טבלת סיכום</button>
         </div>
-        <div class="mini">
-          <h3>כלל 2</h3>
-          <p>סימן המקדם המוביל קובע את כיוון צד ימין של הגרף.</p>
+
+        <div class="tab-panel active" id="summaryRules">
+          <div class="summary">
+            <div class="mini">
+              <h3>כלל 1</h3>
+              <p>המעלה קובעת אם הקצוות פונים לאותו כיוון או לכיוונים הפוכים.</p>
+            </div>
+            <div class="mini">
+              <h3>כלל 2</h3>
+              <p>סימן המקדם המוביל קובע את כיוון צד ימין של הגרף.</p>
+            </div>
+            <div class="mini">
+              <h3>כלל 3</h3>
+              <p>אפסים ממשיים הם נקודות חיתוך או נגיעה עם ציר \(x\).</p>
+            </div>
+            <div class="mini">
+              <h3>כלל 4</h3>
+              <p>פירוק לגורמים עוזר לראות את האפסים ואת המבנה של הפולינום.</p>
+            </div>
+          </div>
         </div>
-        <div class="mini">
-          <h3>כלל 3</h3>
-          <p>אפסים ממשיים הם נקודות חיתוך או נגיעה עם ציר \(x\).</p>
-        </div>
-        <div class="mini">
-          <h3>כלל 4</h3>
-          <p>פירוק לגורמים עוזר לראות את האפסים ואת המבנה של הפולינום.</p>
+
+        <div class="tab-panel" id="summaryCompare">
+          <div class="summary-table-wrap">
+            <table class="summary-compare">
+              <thead>
+                <tr>
+                  <th>סוג חזקה</th>
+                  <th>מקדם חיובי</th>
+                  <th>מקדם שלילי</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>זוגית</td>
+                  <td class="end-cell">
+                    <div class="compare-cell">
+                      <div>
+                        שמאל: \(+\infty\)
+                         ימין: \(+\infty\)
+                      </div>
+                      <div class="compare-example">דוגמה: \(y=x^4\)</div>
+                      <div id="miniEvenPositive" class="mini-graph"></div>
+                    </div>
+                  </td>
+                  <td class="end-cell">
+                    <div class="compare-cell">
+                      <div>
+                        שמאל: \(-\infty\)
+                         ימין: \(-\infty\)
+                      </div>
+                      <div class="compare-example">דוגמה: \(y=-x^4\)</div>
+                      <div id="miniEvenNegative" class="mini-graph"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>אי־זוגית</td>
+                  <td class="end-cell">
+                    <div class="compare-cell">
+                      <div>
+                        שמאל: \(-\infty\)
+                         ימין: \(+\infty\)
+                      </div>
+                      <div class="compare-example">דוגמה: \(y=x^3\)</div>
+                      <div id="miniOddPositive" class="mini-graph"></div>
+                    </div>
+                  </td>
+                  <td class="end-cell">
+                    <div class="compare-cell">
+                      <div>
+                        שמאל: \(+\infty\)
+                         ימין: \(-\infty\)
+                      </div>
+                      <div class="compare-example">דוגמה: \(y=-x^3\)</div>
+                      <div id="miniOddNegative" class="mini-graph"></div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -1277,6 +1436,8 @@
     fillExamples();
     if(familyEl.value !== 'roots'){
       exampleEl.value = String(Math.floor(Math.random() * exampleEl.options.length));
+      syncExampleLabel();
+      rebuildExampleDropdown();
     } else {
       m1El.value = String(1 + Math.floor(Math.random()*4));
       m2El.value = String(1 + Math.floor(Math.random()*4));
@@ -1295,6 +1456,8 @@
     scaleAEl.value = '1';
     fillExamples();
     exampleEl.value = '0';
+    syncExampleLabel();
+    rebuildExampleDropdown();
     renderMain();
   });
 
@@ -1313,10 +1476,84 @@
   zoomEl.addEventListener('input', renderMain);
   [m1El, m2El, m3El, scaleAEl].forEach(el => el.addEventListener('input', renderMain));
 
+
+  let summaryGraphsDrawn = false;
+
+  function renderSummaryMiniGraphs(){
+    const configs = [
+      {id:'miniEvenPositive', fn:x=>x**4},
+      {id:'miniEvenNegative', fn:x=>-(x**4)},
+      {id:'miniOddPositive', fn:x=>x**3},
+      {id:'miniOddNegative', fn:x=>-(x**3)}
+    ];
+
+    const xs = linspace(-2.4, 2.4, 240);
+
+    configs.forEach(cfg=>{
+      const el = document.getElementById(cfg.id);
+      if(!el || el.offsetParent === null) return;
+      const ys = xs.map(cfg.fn);
+      Plotly.newPlot(cfg.id, [{
+        x: xs,
+        y: ys,
+        type:'scatter',
+        mode:'lines',
+        line:{width:3, color:'#7cc5ff'},
+        hoverinfo:'skip'
+      }], {
+        paper_bgcolor:'rgba(0,0,0,0)',
+        plot_bgcolor:'#091334',
+        margin:{l:10,r:10,t:10,b:10},
+        xaxis:{
+          visible:false,
+          range:[-2.4,2.4],
+          zeroline:true,
+          zerolinecolor:'rgba(255,255,255,.22)'
+        },
+        yaxis:{
+          visible:false,
+          zeroline:true,
+          zerolinecolor:'rgba(255,255,255,.22)'
+        }
+      }, {displayModeBar:false, staticPlot:true, responsive:true});
+    });
+
+    summaryGraphsDrawn = true;
+  }
+
+  function ensureSummaryMiniGraphs(){
+    const summaryPanel = document.getElementById('summaryCompare');
+    if(summaryPanel && summaryPanel.classList.contains('active')){
+      renderSummaryMiniGraphs();
+    }
+  }
+
+  document.querySelectorAll('#summaryTabButtons .tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const target = btn.dataset.tab;
+      document.querySelectorAll('#summaryTabButtons .tab-btn').forEach(b=>b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.summary-tabs .tab-panel').forEach(panel=>{
+        panel.classList.toggle('active', panel.id === target);
+      });
+      if(target === 'summaryCompare'){
+        setTimeout(ensureSummaryMiniGraphs, 40);
+      }
+      if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+    });
+  });
+
   fillExamples();
   exampleEl.value = '0';
+  syncExampleLabel();
+  rebuildExampleDropdown();
   renderMain();
   buildQuestion();
+
+  window.addEventListener('resize', ()=>{
+    if(summaryGraphsDrawn && document.getElementById('summaryCompare').classList.contains('active')){
+      renderSummaryMiniGraphs();
+    }
+  });
 })();
 </script>
 </body>
