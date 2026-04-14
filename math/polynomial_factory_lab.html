@@ -217,6 +217,121 @@
       color:var(--muted);
       font-size:.95rem;
     }
+
+    .native-select-hidden{
+      position:absolute !important;
+      width:1px !important;
+      height:1px !important;
+      padding:0 !important;
+      margin:-1px !important;
+      overflow:hidden !important;
+      clip:rect(0,0,0,0) !important;
+      white-space:nowrap !important;
+      border:0 !important;
+      opacity:0 !important;
+      pointer-events:none !important;
+    }
+    .mj-dropdown{
+      position:relative;
+      width:100%;
+    }
+    .mj-dropdown-trigger{
+      width:100%;
+      min-height:58px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      text-align:right;
+      background:linear-gradient(180deg,#0d1530,#101a3c);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:12px 16px;
+      font-size:1rem;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .mj-dropdown-trigger:hover{
+      border-color:rgba(124,197,255,.45);
+      background:linear-gradient(180deg,#101a3a,#122048);
+    }
+    .mj-dropdown.open .mj-dropdown-trigger{
+      border-color:rgba(124,197,255,.6);
+      box-shadow:0 0 0 3px rgba(124,197,255,.12), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .mj-dropdown-label{
+      flex:1;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      display:block;
+      min-width:0;
+      font-size:1.02rem;
+    }
+    .mj-dropdown-label .MathJax{
+      font-size:1.05em !important;
+    }
+    .mj-dropdown-arrow{
+      flex:0 0 auto;
+      font-size:1.4rem;
+      line-height:1;
+      color:#d7e6ff;
+      transition:transform .18s ease;
+    }
+    .mj-dropdown.open .mj-dropdown-arrow{
+      transform:rotate(180deg);
+    }
+    .mj-dropdown-menu{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      left:0;
+      z-index:30;
+      display:none;
+      padding:8px;
+      border-radius:18px;
+      background:linear-gradient(180deg,rgba(18,25,51,.98),rgba(11,17,36,.98));
+      border:1px solid rgba(124,197,255,.18);
+      box-shadow:0 18px 38px rgba(0,0,0,.42);
+      max-height:320px;
+      overflow:auto;
+      backdrop-filter:blur(10px);
+    }
+    .mj-dropdown.open .mj-dropdown-menu{
+      display:block;
+    }
+    .mj-option{
+      width:100%;
+      border:none;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      text-align:right;
+      direction:ltr;
+      unicode-bidi:isolate;
+      padding:12px 14px;
+      margin:0;
+      border-radius:14px;
+      background:transparent;
+      color:var(--text);
+      cursor:pointer;
+      transition:background .16s ease, transform .16s ease;
+      font-size:1rem;
+    }
+    .mj-option:hover,
+    .mj-option:focus-visible{
+      background:rgba(124,197,255,.12);
+      outline:none;
+      transform:translateY(-1px);
+    }
+    .mj-option.active{
+      background:linear-gradient(135deg,rgba(124,197,255,.18),rgba(167,144,255,.18));
+      border:1px solid rgba(124,197,255,.24);
+    }
+    .mj-option .MathJax{
+      font-size:1.02em !important;
+    }
+
     @media (max-width:1100px){
       .hero,.grid,.practice-grid{grid-template-columns:1fr}
       .summary,.insight,.steps{grid-template-columns:1fr}
@@ -273,7 +388,14 @@
         </select>
 
         <label for="example">בחר דוגמה</label>
-        <select id="example"></select>
+        <select id="example" class="native-select-hidden" aria-hidden="true" tabindex="-1"></select>
+        <div class="mj-dropdown" id="exampleDropdown">
+          <button type="button" class="mj-dropdown-trigger" id="exampleTrigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="mj-dropdown-label" id="exampleLabel">\(f(x)=x^{4}-5x^{2}+4\)</span>
+            <span class="mj-dropdown-arrow">⌄</span>
+          </button>
+          <div class="mj-dropdown-menu" id="exampleMenu" role="listbox" aria-label="בחר דוגמה"></div>
+        </div>
 
         <label for="zoom">טווח תצוגה על ציר \(x\): <span id="zoomVal">5</span></label>
         <input id="zoom" type="range" min="3" max="12" step="1" value="5" />
@@ -318,7 +440,7 @@
         </div>
 
         <div class="formula">
-          <h3>אפסי הפונקציה</h3>
+          <h3>נקודות האפס של הפונקציה</h3>
           <div id="rootsText" class="ltr">לא זוהו אפסים בתחום התצוגה.</div>
         </div>
 
@@ -407,9 +529,6 @@
           </div>
         </section>
 
-        <div class="footer-note">
-          קובץ זה נבנה מחדש בצורה נקייה, עם זיהוי אוטומטי של אפסים ועם תצוגת פירוק לגורמים ללא שגיאות JavaScript.
-        </div>
       </main>
     </div>
   </div>
@@ -424,27 +543,31 @@
       {name:'y = 0.5x^8 - x^2 + 2', poly:'0.5x^8 - x^2 + 2', fn:x=>0.5*x**8 - x**2 + 2, deg:8, lead:0.5, leadTerm:'0.5x^8'}
     ],
     evenNegative: [
-      {name:'y = -x^4 + 3x^2 + 1', poly:'-x^4 + 3x^2 + 1', fn:x=>-(x**4) + 3*x**2 + 1, deg:4, lead:-1, leadTerm:'-x^4'},
+      {name:'y = -x^4 + 4x^2 + 1', poly:'-x^4 + 4x^2 + 1', fn:x=>-(x**4) + 4*x**2 + 1, deg:4, lead:-1, leadTerm:'-x^4', factor:'-x^2(x-2)(x+2) + 1'},
       {name:'y = -2x^6 + x^2 - 3', poly:'-2x^6 + x^2 - 3', fn:x=>-2*x**6 + x**2 - 3, deg:6, lead:-2, leadTerm:'-2x^6'},
       {name:'y = -x^4 - 4x^2', poly:'-x^4 - 4x^2', fn:x=>-(x**4) - 4*x**2, deg:4, lead:-1, leadTerm:'-x^4', factor:'-x^2(x^2+4)', roots:[0]},
       {name:'y = -0.5x^8 + 8.5x^4 - 8', poly:'-0.5x^8 + 8.5x^4 - 8', fn:x=>-0.5*x**8 + 8.5*x**4 - 8, deg:8, lead:-0.5, leadTerm:'-0.5x^8', factor:'-0.5(x^4-1)(x^4-16)', roots:[-2,-1,1,2]}
     ],
     oddPositive: [
-      {name:'y = x^3', poly:'x^3', fn:x=>x**3, deg:3, lead:1, leadTerm:'x^3', factor:'x·x^2', roots:[0]},
+      {name:'y = x^3', poly:'x^3', fn:x=>x**3, deg:3, lead:1, leadTerm:'x^3', factor:'(x-0)(x-0)(x-0)', roots:[0]},
       {name:'y = x^3 - 6x^2 + 11x - 6', poly:'x^3 - 6x^2 + 11x - 6', fn:x=>x**3 - 6*x**2 + 11*x - 6, deg:3, lead:1, leadTerm:'x^3', factor:'(x-1)(x-2)(x-3)', roots:[1,2,3]},
       {name:'y = 2x^5 - x', poly:'2x^5 - x', fn:x=>2*x**5 - x, deg:5, lead:2, leadTerm:'2x^5', factor:'x(2x^4-1)', roots:[0,-Math.pow(0.5,0.25),Math.pow(0.5,0.25)]},
       {name:'y = x^5 - 5x^3 + 4x', poly:'x^5 - 5x^3 + 4x', fn:x=>x**5 - 5*x**3 + 4*x, deg:5, lead:1, leadTerm:'x^5', factor:'x(x-1)(x+1)(x-2)(x+2)', roots:[-2,-1,0,1,2]}
     ],
     oddNegative: [
-      {name:'y = -x^3', poly:'-x^3', fn:x=>-(x**3), deg:3, lead:-1, leadTerm:'-x^3', factor:'-x·x^2', roots:[0]},
-      {name:'y = -2x^3 + 4x + 3', poly:'-2x^3 + 4x + 3', fn:x=>-2*x**3 + 4*x + 3, deg:3, lead:-2, leadTerm:'-2x^3'},
+      {name:'y = -x^3', poly:'-x^3', fn:x=>-(x**3), deg:3, lead:-1, leadTerm:'-x^3', factor:'-(x-0)(x-0)(x-0)', roots:[0]},
+      {name:'y = -2x^3 + 4x + 3', poly:'-2x^3 + 4x + 3', fn:x=>-2*x**3 + 4*x + 3, deg:3, lead:-2, leadTerm:'-2x^3', factor:'-2x(x^2-2) + 3'},
       {name:'y = -x^5 + 3x', poly:'-x^5 + 3x', fn:x=>-(x**5) + 3*x, deg:5, lead:-1, leadTerm:'-x^5', factor:'-x(x^4-3)', roots:[0,-Math.pow(3,0.25),Math.pow(3,0.25)]},
-      {name:'y = -0.5x^7 + x^3 - 2', poly:'-0.5x^7 + x^3 - 2', fn:x=>-0.5*x**7 + x**3 - 2, deg:7, lead:-0.5, leadTerm:'-0.5x^7'}
+      {name:'y = -0.5x^7 + x^3 - 2', poly:'-0.5x^7 + x^3 - 2', fn:x=>-0.5*x**7 + x**3 - 2, deg:7, lead:-0.5, leadTerm:'-0.5x^7', factor:'-0.5x^3(x^4-2) - 2'}
     ]
   };
 
   const familyEl = document.getElementById('family');
   const exampleEl = document.getElementById('example');
+  const exampleDropdownEl = document.getElementById('exampleDropdown');
+  const exampleTriggerEl = document.getElementById('exampleTrigger');
+  const exampleMenuEl = document.getElementById('exampleMenu');
+  const exampleLabelEl = document.getElementById('exampleLabel');
   const zoomEl = document.getElementById('zoom');
   const zoomValEl = document.getElementById('zoomVal');
   const rootControlsEl = document.getElementById('rootControls');
@@ -790,6 +913,61 @@
     return Number.isInteger(rounded) ? String(rounded) : String(rounded);
   }
 
+  function latexifyPolynomialLabel(raw){
+    let expr = String(raw || '').trim();
+    expr = expr.replace(/^y\s*=/, 'f(x)=');
+    expr = expr.replace(/\*/g, '');
+    expr = expr.replace(/(\d+(?:\.\d+)?)x/g, '$1x');
+    expr = expr.replace(/x\^([0-9]+)/g, 'x^{$1}');
+    expr = expr.replace(/\)\^([0-9]+)/g, ')^{$1}');
+    expr = expr.replace(/([=+\-])/g, ' $1 ');
+    expr = expr.replace(/\s+/g, ' ').trim();
+    return expr;
+  }
+
+  function syncExampleLabel(){
+    const selected = exampleEl.options[exampleEl.selectedIndex];
+    if(!selected) return;
+    const latex = selected.dataset.latex || latexifyPolynomialLabel(selected.textContent || '');
+    exampleLabelEl.innerHTML = `\\(${latex}\\)`;
+  }
+
+  function closeExampleDropdown(){
+    exampleDropdownEl.classList.remove('open');
+    exampleTriggerEl.setAttribute('aria-expanded', 'false');
+  }
+
+  function openExampleDropdown(){
+    exampleDropdownEl.classList.add('open');
+    exampleTriggerEl.setAttribute('aria-expanded', 'true');
+  }
+
+  function rebuildExampleDropdown(){
+    exampleMenuEl.innerHTML = '';
+    [...exampleEl.options].forEach((opt, i)=>{
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mj-option' + (i === exampleEl.selectedIndex ? ' active' : '');
+      btn.setAttribute('role', 'option');
+      btn.setAttribute('aria-selected', i === exampleEl.selectedIndex ? 'true' : 'false');
+      btn.dataset.value = opt.value;
+      btn.innerHTML = `\\(${opt.dataset.latex || latexifyPolynomialLabel(opt.textContent || '')}\\)`;
+      btn.addEventListener('click', ()=>{
+        exampleEl.value = opt.value;
+        syncExampleLabel();
+        rebuildExampleDropdown();
+        closeExampleDropdown();
+        renderMain();
+      });
+      exampleMenuEl.appendChild(btn);
+    });
+    syncExampleLabel();
+    if(window.MathJax && MathJax.typesetPromise){
+      MathJax.typesetPromise([exampleLabelEl, exampleMenuEl]).catch(()=>{});
+    }
+  }
+
+
   function shapeText(deg, lead){
     const parity = deg % 2 === 0 ? 'זוגית' : 'אי־זוגית';
     const signText = lead > 0 ? 'חיובי' : (lead < 0 ? 'שלילי' : 'אפס');
@@ -845,8 +1023,11 @@
       rootControlsEl.style.display = 'block';
       const opt = document.createElement('option');
       opt.value = '0';
-      opt.textContent = 'f(x)=a(x-1)^m¹(x-2)^m²(x-3)^m³';
+      opt.textContent = 'f(x)=a(x-1)^m^1(x-2)^m^2(x-3)^m^3';
+      opt.dataset.latex = 'f(x)=a(x-1)^{m_{1}}(x-2)^{m_{2}}(x-3)^{m_{3}}';
       exampleEl.appendChild(opt);
+      exampleEl.value = '0';
+      rebuildExampleDropdown();
       return;
     }
     rootControlsEl.style.display = 'none';
@@ -854,8 +1035,11 @@
       const opt = document.createElement('option');
       opt.value = String(i);
       opt.textContent = ex.name;
+      opt.dataset.latex = latexifyPolynomialLabel(ex.name);
       exampleEl.appendChild(opt);
     });
+    exampleEl.value = '0';
+    rebuildExampleDropdown();
   }
 
   function renderMain(){
@@ -1106,7 +1290,14 @@
   document.getElementById('newQuestionBtn').addEventListener('click', buildQuestion);
 
   familyEl.addEventListener('change', ()=>{ fillExamples(); renderMain(); });
-  exampleEl.addEventListener('change', renderMain);
+  exampleEl.addEventListener('change', ()=>{ syncExampleLabel(); rebuildExampleDropdown(); renderMain(); });
+  exampleTriggerEl.addEventListener('click', ()=>{
+    if(exampleDropdownEl.classList.contains('open')) closeExampleDropdown();
+    else openExampleDropdown();
+  });
+  document.addEventListener('click', (ev)=>{
+    if(!exampleDropdownEl.contains(ev.target)) closeExampleDropdown();
+  });
   zoomEl.addEventListener('input', renderMain);
   [m1El, m2El, m3El, scaleAEl].forEach(el => el.addEventListener('input', renderMain));
 
