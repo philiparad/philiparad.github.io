@@ -962,6 +962,17 @@
       exampleMenuEl.appendChild(btn);
     });
     syncExampleLabel();
+
+    const arrow = exampleDropdownEl.querySelector('.mj-dropdown-arrow');
+    if (exampleEl.options.length <= 1) {
+      arrow.style.display = 'none';
+      exampleTriggerEl.style.cursor = 'default';
+      closeExampleDropdown();
+    } else {
+      arrow.style.display = 'inline-block';
+      exampleTriggerEl.style.cursor = 'pointer';
+    }
+
     if(window.MathJax && MathJax.typesetPromise){
       MathJax.typesetPromise([exampleLabelEl, exampleMenuEl]).catch(()=>{});
     }
@@ -1051,7 +1062,7 @@
     const ys = xs.map(ex.fn);
     const yLead = xs.map(x => approxLead(x, ex.lead, ex.deg));
     const roots = detectRoots(ex.fn, -z, z, ex.roots);
-    const yRange = safeRange(ys.concat(yLead));
+    const yRange = [-10, 10];
     const rootLabels = roots.map(r => `x=${trimNum(r)}`);
 
     polyTextEl.innerHTML = `\\(f(x) = ${ex.poly}\\)`;
@@ -1292,6 +1303,7 @@
   familyEl.addEventListener('change', ()=>{ fillExamples(); renderMain(); });
   exampleEl.addEventListener('change', ()=>{ syncExampleLabel(); rebuildExampleDropdown(); renderMain(); });
   exampleTriggerEl.addEventListener('click', ()=>{
+    if (exampleEl.options.length <= 1) return;
     if(exampleDropdownEl.classList.contains('open')) closeExampleDropdown();
     else openExampleDropdown();
   });
