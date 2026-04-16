@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrackIt - לימוד הצבת משתנים</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg2:#111831;
+      --card:#182341;
+      --card2:#1d2b4f;
+      --text:#eef4ff;
+      --muted:#b8c5e6;
+      --accent:#69a7ff;
+      --accent2:#5ce1c6;
+      --warn:#ffd166;
+      --danger:#ff6b6b;
+      --good:#7ee081;
+      --border:rgba(255,255,255,.12);
+      --shadow:0 14px 40px rgba(0,0,0,.28);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:
+      radial-gradient(circle at top right, rgba(105,167,255,.18), transparent 30%),
+      radial-gradient(circle at bottom left, rgba(92,225,198,.12), transparent 25%),
+      linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--text); font-family:Arial,Helvetica,sans-serif}
+    body{padding:18px}
+    .app{max-width:1500px;margin:0 auto;display:grid;gap:16px}
+    .hero,.panel{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:var(--radius)}
+    .hero{padding:20px 24px;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .hero h1{margin:0;font-size:clamp(1.8rem,3vw,3rem);color:#8ab7ff}
+    .hero p{margin:.45rem 0 0;color:var(--muted);font-size:1.05rem}
+    .hero .pillRow{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{padding:10px 14px;border-radius:999px;background:rgba(105,167,255,.12);border:1px solid rgba(105,167,255,.24);color:#dbe8ff;font-size:.95rem}
+    .grid{
+      display:grid;
+      grid-template-columns: 360px 1fr 380px;
+      gap:16px;
+      align-items:start;
+    }
+    .panel{padding:16px}
+    .panel h2{margin:0 0 12px;font-size:1.2rem;color:#cfe0ff}
+    .sub{color:var(--muted);font-size:.95rem}
+    .controls{display:grid;gap:12px}
+    .exampleInputDisplay{
+      margin-top:10px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      color:#dfe9ff;
+      line-height:1.7;
+    }
+    .exampleInputDisplay .label{
+      color:#9fc2ff;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+    .exampleInputDisplay .value{
+      font-size:1rem;
+      font-weight:600;
+      min-height:auto;
+      line-height:1.6;
+      margin-top:0;
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label{font-weight:700;color:#dfe9ff}
+    input[type="text"], select{
+      width:100%; background:rgba(255,255,255,.06); color:var(--text);
+      border:1px solid var(--border); border-radius:14px; padding:12px 14px; font-size:1rem;
+    }
+    select{
+      background-color:#1b2950;
+      color:#eef4ff;
+      appearance:auto;
+      -webkit-appearance:menulist;
+      -moz-appearance:menulist;
+      color-scheme:dark;
+    }
+    select option{
+      background:#1b2950;
+      color:#eef4ff;
+    }
+    select option:checked,
+    select option:hover,
+    select option:focus{
+      background:#2b66c3;
+      color:#ffffff;
+    }
+    button{
+      background:linear-gradient(180deg,#6aa9ff,#4f8ef0);
+      color:white;border:none;border-radius:14px;padding:11px 15px;cursor:pointer;font-weight:700;
+      box-shadow:0 8px 18px rgba(79,142,240,.24);
+    }
+    button.secondary{background:linear-gradient(180deg,#27365f,#223052)}
+    button.ghost{background:transparent;border:1px solid var(--border);box-shadow:none}
+    button.good{background:linear-gradient(180deg,#35c98f,#22a36f)}
+    button.warn{background:linear-gradient(180deg,#ffc857,#e9a92d); color:#232323}
+.mainCenter{display:grid;gap:16px}
+    .memoryPanel{display:grid;gap:14px}
+    .memTop{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:14px
+    }
+    .box{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--border); border-radius:20px; min-height:140px; position:relative;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;
+    }
+    .box h3{margin:0;color:#bcd4ff;font-size:1.05rem}
+    .value{
+      margin-top:10px;
+      font-size:3rem;
+      font-weight:800;
+      line-height:1;
+      min-height:3.2rem;
+    }
+    .empty{opacity:.28}
+    .badge{
+      position:absolute; top:10px; left:10px; font-size:.8rem; padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:#d6e4ff;
+    }
+    .box.updated{outline:3px solid rgba(126,224,129,.45)}
+    .box.changed{animation:pulse .8s ease}
+    @keyframes pulse{
+      0%{transform:scale(1)}
+      35%{transform:scale(1.03)}
+      100%{transform:scale(1)}
+    }
+    .transferWrap{
+      background:rgba(255,255,255,.03);border:1px dashed var(--border);border-radius:18px;
+      padding:12px; min-height:140px; position:relative;
+    }
+    .transferTitle{color:#cfe0ff;font-weight:700;margin-bottom:8px}
+    svg{width:100%;height:140px;display:block}
+    .moveLabel{
+      font-size:22px;font-weight:800;fill:#fff;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.35));
+    }
+    .flowNote{
+      margin-top:6px;padding:12px;border-radius:16px;
+      background:rgba(105,167,255,.08);border:1px solid rgba(105,167,255,.22); color:#e8f0ff;
+      line-height:1.6;
+    }
+    .codeToolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .codeSplit{display:none;grid-template-columns:1fr 1fr;gap:12px}
+    .codePaneTitle{direction:ltr;color:#cfe0ff;font-weight:700;margin:0 0 8px}
+    .codeWrap{
+      direction:ltr;
+      background:#0a0f1d;border:1px solid var(--border);border-radius:18px;padding:12px;overflow:auto;
+      font-family:Consolas,Monaco,monospace; font-size:16px; line-height:1.65;
+    }
+    .codeWrap.splitPane{min-height:420px}
+    .codeLine{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:2px 8px;border-radius:10px}
+    .codeLine.active{background:rgba(105,167,255,.16)}
+    .num{color:#6f84b4;text-align:right;user-select:none}
+    .kw{color:#7cc8ff}
+    .var{color:#ffd166}
+    .cm{color:#6fb67f}
+    .st{color:#ffadad}
+    .logicPanel .big{
+      font-size:1.1rem;line-height:1.8;background:rgba(92,225,198,.08);
+      border:1px solid rgba(92,225,198,.24);padding:14px;border-radius:18px
+    }
+    .conditionCard{
+      margin-top:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--border)
+    }
+    .traceTable{overflow:auto}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:center}
+    th{color:#d7e5ff;background:rgba(255,255,255,.04);position:sticky;top:0}
+    tr.current{background:rgba(105,167,255,.10)}
+    .quiz{
+      display:grid;gap:10px;margin-top:10px
+    }
+    .option{
+      padding:12px 14px;border-radius:14px;border:1px solid var(--border);cursor:pointer;background:rgba(255,255,255,.03)
+    }
+    .option.correct{border-color:rgba(126,224,129,.55);background:rgba(126,224,129,.12)}
+    .option.wrong{border-color:rgba(255,107,107,.55);background:rgba(255,107,107,.12)}
+    .feedback{
+      padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);line-height:1.6
+    }
+    .footerNote{color:var(--muted);text-align:center;padding:6px 0 0}
+    .mermaidLike{
+      margin-top:12px;border:1px solid var(--border);border-radius:18px;padding:14px;background:rgba(255,255,255,.03)
+    }
+    .flow{
+      display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap
+    }
+    .node{
+      padding:12px 18px;border-radius:16px;background:linear-gradient(180deg,#223458,#1a2745);border:1px solid var(--border);min-width:165px;text-align:center
+    }
+    .arrow{font-size:2rem;color:#7cb0ff}
+    @media (max-width:1200px){
+      .grid{grid-template-columns:1fr}
+      .memTop{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div>
+        <h1>TrackIt – לימוד הצבת משתנים בלולאה</h1>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="panel controls">
+        <div>
+          <div class="sub">בחר דוגמה, או הזן רצף זמנים משלך. האפליקציה תציג בכל צעד מה קורה ל־<bdi dir="ltr">first</bdi>, <bdi dir="ltr">second</bdi>, ו־<bdi dir="ltr">time</bdi>.</div>
+        </div>
+
+        <div>
+          <label for="example">בחר דוגמה</label>
+          <select id="example">
+            <option value="simple">דוגמה 1 – החלפה כפולה</option>
+            <option value="many">דוגמה 2 – הרבה שינויים</option>
+            <option value="steady">דוגמה 3 – כמעט ללא שינוי</option>
+            <option value="custom">קלט מותאם אישית</option>
+          </select>
+          <div id="exampleInputDisplay" class="exampleInputDisplay"></div>
+        </div>
+
+        <div>
+          <div id="customSection">
+<label for="customInput">קלט מותאם אישית</label>
+          <input id="customInput" type="text" value="10,25,5,15" />
+          <div class="sub">הכנס מספרים מופרדים בפסיקים. לדוגמה: 10,25,5,15</div>
+</div>
+        </div>
+<div class="row">
+          <button id="prevBtn" class="secondary">⟵ צעד קודם</button>
+          <button id="nextBtn">צעד הבא ⟶</button>
+          <button id="playBtn" class="good">▶ הפעלה אוטומטית</button>
+          <button id="resetBtn" class="warn">איפוס</button>
+        </div>
+
+        <div class="row">
+          <button id="guidedBtn" class="ghost">מצב למידה מודרכת</button>
+          <button id="practiceBtn" class="ghost">מצב תרגול</button>
+        </div>
+
+        <div class="conditionCard">
+          <strong>רעיון מרכזי:</strong><br>
+          כאשר מגיע זמן חדש:
+          <br>• אם הוא קטן מן המקום הראשון, יש לבצע <b>הזזה</b>:
+          <br><bdi dir="ltr">second = first</bdi> ואז <bdi dir="ltr">first = time</bdi>
+          <br>• אחרת, אם הוא קטן מן המקום השני, מעדכנים רק את <bdi dir="ltr">second</bdi>.
+        </div>
+
+        <div class="mermaidLike">
+          <div class="sub" style="margin-bottom:10px">תרשים לוגי</div>
+          <div class="flow">
+            <div class="node">קליטת זמן חדש</div>
+            <div class="arrow">⟶</div>
+            <div class="node">בדיקה:<br><bdi dir="ltr">time &lt; first</bdi> ?</div>
+            <div class="arrow">⟶</div>
+            <div class="node">כן: הזזת ערך<br><bdi dir="ltr">second = first</bdi><br><bdi dir="ltr">first = time</bdi></div>
+            <div class="arrow">⟶</div>
+            <div class="node">אחרת בדיקה:<br><bdi dir="ltr">time &lt; second</bdi></div>
+            <div class="arrow">⟶</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mainCenter">
+        <section class="panel memoryPanel">
+          <div>
+            <h2>תרשים דינאמי של המשתנים</h2>
+            <div class="sub">הקופסאות מדמות את הזיכרון בזמן אמת. בכל צעד תראה אילו ערכים מתעדכנים ולאן הם "נעים".</div>
+          </div>
+          <div class="memTop">
+            <div class="box" id="firstBox">
+              <div class="badge">מקום ראשון</div>
+              <h3><bdi dir="ltr">first</bdi></h3>
+              <div class="value" id="firstVal">∞</div>
+            </div>
+            <div class="box" id="secondBox">
+              <div class="badge">מקום שני</div>
+              <h3><bdi dir="ltr">second</bdi></h3>
+              <div class="value" id="secondVal">∞</div>
+            </div>
+            <div class="box" id="timeBox">
+              <div class="badge">הקלט הנוכחי</div>
+              <h3><bdi dir="ltr">time</bdi></h3>
+              <div class="value" id="timeVal">—</div>
+            </div>
+          </div>
+
+          <div class="transferWrap">
+            <div class="transferTitle">אנימציית זרימת ערכים</div>
+            <svg viewBox="0 0 900 180" aria-label="transfer animation">
+              <defs>
+                <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#7cb0ff"></path>
+                </marker>
+              </defs>
+
+              <rect x="40" y="58" width="180" height="74" rx="18" fill="#20345d" stroke="rgba(255,255,255,.15)"/>
+              <rect x="360" y="58" width="180" height="74" rx="18" fill="#20345d" stroke="rgba(255,255,255,.15)"/>
+              <rect x="680" y="58" width="180" height="74" rx="18" fill="#20345d" stroke="rgba(255,255,255,.15)"/>
+
+              <text x="130" y="85" text-anchor="middle" fill="#bcd4ff" font-size="20">first</text>
+              <text x="450" y="85" text-anchor="middle" fill="#bcd4ff" font-size="20">second</text>
+              <text x="770" y="85" text-anchor="middle" fill="#bcd4ff" font-size="20">time</text>
+
+              <text x="130" y="116" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="800" id="svgFirst">∞</text>
+              <text x="450" y="116" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="800" id="svgSecond">∞</text>
+              <text x="770" y="116" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="800" id="svgTime">—</text>
+
+              <path id="pathTimeToFirst" d="M680,95 C610,25 280,25 220,95" stroke="#7cb0ff" stroke-width="5" fill="none" marker-end="url(#arrowHead)" opacity="0"/>
+              <path id="pathFirstToSecond" d="M220,95 C270,150 320,150 360,95" stroke="#5ce1c6" stroke-width="5" fill="none" marker-end="url(#arrowHead)" opacity="0"/>
+              <path id="pathTimeToSecond" d="M680,100 C620,145 575,145 540,100" stroke="#ffd166" stroke-width="5" fill="none" marker-end="url(#arrowHead)" opacity="0"/>
+
+              <text id="moveText1" class="moveLabel" x="0" y="0" opacity="0"> </text>
+              <text id="moveText2" class="moveLabel" x="0" y="0" opacity="0"> </text>
+            </svg>
+            <div class="flowNote" id="flowNote">לחץ על "צעד הבא" כדי להתחיל סימולציה.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="codeToolbar">
+            <button id="tabCsharp" class="secondary">C#</button>
+            <button id="tabJava" class="ghost">Java</button>
+            <button id="tabSplit" class="ghost">השוואה מפוצלת</button>
+          </div>
+          <div class="codeWrap" id="codeWrap"></div>
+          <div class="codeSplit" id="codeSplit">
+            <div>
+              <div class="codePaneTitle">C#</div>
+              <div class="codeWrap splitPane" id="codeWrapCsharp"></div>
+            </div>
+            <div>
+              <div class="codePaneTitle">Java</div>
+              <div class="codeWrap splitPane" id="codeWrapJava"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel logicPanel">
+        <div class="big" id="logicText">
+          בתחילת התהליך, המשתנים <bdi dir="ltr">first</bdi> ו־<bdi dir="ltr">second</bdi> מאותחלים לערכים גדולים מאוד, כדי שכל זמן אמיתי ראשון יוכל לעדכן אותם.
+        </div>
+
+        <div class="conditionCard">
+          <strong>מצב נוכחי:</strong>
+          <div id="statusText" class="sub" style="margin-top:8px">טרם התחילה הסימולציה.</div>
+        </div>
+
+        <div class="conditionCard" id="quizSection" style="display:none">
+          <strong>שאלת הבנה</strong>
+          <div id="quizQuestion" style="margin-top:10px"></div>
+          <div class="quiz" id="quizOptions"></div>
+          <div id="quizFeedback" class="feedback" style="display:none"></div>
+        </div>
+
+        <div class="conditionCard">
+          <strong>טבלת עקיבה</strong>
+          <div class="traceTable">
+            <table>
+              <thead>
+                <tr>
+                  <th>צעד</th>
+                  <th><bdi dir="ltr">time</bdi></th>
+                  <th><bdi dir="ltr">first</bdi></th>
+                  <th><bdi dir="ltr">second</bdi></th>
+                  <th>מה קרה?</th>
+                </tr>
+              </thead>
+              <tbody id="traceBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+
+<script>
+const examples = {
+  simple: [10,25,5,15],
+  many: [30,28,26,10,24,9,12,8],
+  steady: [10,20,30,40,50]
+};
+
+const codeTabs = {
+  csharp: [
+    'double first = double.MaxValue;',
+    'double second = double.MaxValue;',
+    '',
+    'for (int i = 0; i < times.Length; i++)',
+    '{',
+    '    double time = times[i];',
+    '',
+    '    if (time < first)',
+    '    {',
+    '        second = first;',
+    '        first = time;',
+    '    }',
+    '    else if (time < second)',
+    '    {',
+    '        second = time;',
+    '    }',
+    '}'
+  ],
+  java: [
+    'double first = Double.MAX_VALUE;',
+    'double second = Double.MAX_VALUE;',
+    '',
+    'for (int i = 0; i < times.length; i++)',
+    '{',
+    '    double time = times[i];',
+    '',
+    '    if (time < first)',
+    '    {',
+    '        second = first;',
+    '        first = time;',
+    '    }',
+    '    else if (time < second)',
+    '    {',
+    '        second = time;',
+    '    }',
+    '}'
+  ]
+};
+
+let currentTab = 'csharp';
+let codeViewMode = 'single';
+
+const explanationBase = {
+  init: 'שני המשתנים הראשיים מאותחלים לערך גדול מאוד, כך שההשוואה הראשונה תפעל באופן בטוח.',
+  read: 'בכל איטרציה נקלט ערך חדש אל המשתנה time.',
+  first: 'הזמן החדש קטן מן המקום הראשון, לכן יש להזיז את המקום הראשון הקודם אל המקום השני ורק אחר כך לעדכן את המקום הראשון.',
+  second: 'הזמן החדש לא טוב יותר מן המקום הראשון, אבל הוא כן טוב יותר מן המקום השני. לכן מעדכנים רק את second.',
+  none: 'הזמן החדש לא טוב יותר לא מהמקום הראשון ולא מן המקום השני, לכן אין שינוי.'
+};
+
+let state = {
+  data: [],
+  steps: [],
+  current: -1,
+  autoplay: null,
+  guided: false,
+  practice: false
+};
+
+function el(id){ return document.getElementById(id); }
+
+function fmt(v){
+  return Number.isFinite(v) ? String(v) : '∞';
+}
+
+function parseCustomInput(){
+  const raw = el('customInput').value.trim();
+  const nums = raw.split(',').map(s => Number(s.trim())).filter(v => !Number.isNaN(v));
+  return nums.length ? nums : [10,25,5,15];
+}
+
+function updateExampleDisplay(key){
+  const display = el('exampleInputDisplay');
+  if (!display) return;
+
+  const builtInMap = {
+    simple: '10, 25, 5, 15',
+    many: '30, 28, 26, 10, 24, 9, 12, 8',
+    steady: '10, 20, 30, 40, 50'
+  };
+
+  let valueText = '';
+  if (key === 'custom') {
+    valueText = el('customInput').value.trim() || '—';
+  } else {
+    valueText = builtInMap[key] || '—';
+  }
+
+  display.innerHTML = `
+    <div class="label">הקלט של הדוגמה שנבחרה:</div>
+    <div class="value"><bdi dir="ltr">${valueText}</bdi></div>
+  `;
+}
+
+function buildSteps(data){
+  const steps = [];
+  let first = Infinity;
+  let second = Infinity;
+
+  steps.push({
+    type:'init',
+    index:-1,
+    time:null,
+    first,
+    second,
+    action:'אתחול',
+    code:0,
+    note:explanationBase.init,
+    status:'המערכת אתחלה את first ו־second לערך גדול מאוד.'
+  });
+
+  steps.push({
+    type:'init2',
+    index:-1,
+    time:null,
+    first,
+    second,
+    action:'אתחול',
+    code:1,
+    note:explanationBase.init,
+    status:'גם first וגם second מוכנים לקליטת הערכים מן הלולאה.'
+  });
+
+  data.forEach((time, i) => {
+    steps.push({
+      type:'read',
+      index:i,
+      time,
+      first,
+      second,
+      action:'קליטת ערך',
+      code:5,
+      note:explanationBase.read,
+      status:`באיטרציה ${i+1} נקלט הערך ${time} אל המשתנה time.`
+    });
+
+    if (time < first){
+      steps.push({
+        type:'shift',
+        index:i,
+        time,
+        prevFirst:first,
+        first,
+        second,
+        action:'בדיקה 1',
+        code:7,
+        note:'התנאי time < first מתקיים.',
+        status:`${time} קטן מ־${fmt(first)}, לכן ניכנס לבלוק הראשון.`
+      });
+
+      second = first;
+      steps.push({
+        type:'secondFromFirst',
+        index:i,
+        time,
+        prevFirst:first,
+        first,
+        second,
+        action:'הזזה ל־second',
+        code:9,
+        note:'קודם שומרים את המקום הראשון הקודם בתוך second, כדי לא לאבד אותו.',
+        status:'הערך הקודם של first עבר אל second.'
+      });
+
+      first = time;
+      steps.push({
+        type:'firstFromTime',
+        index:i,
+        time,
+        first,
+        second,
+        action:'עדכון first',
+        code:10,
+        note:explanationBase.first,
+        status:`כעת first מתעדכן ל־${time}.`
+      });
+    } else if (time < second){
+      steps.push({
+        type:'checkSecond',
+        index:i,
+        time,
+        first,
+        second,
+        action:'בדיקה 2',
+        code:12,
+        note:'התנאי הראשון לא מתקיים, אך התנאי time < second כן מתקיים.',
+        status:`${time} אינו קטן מ־${fmt(first)}, אבל הוא קטן מ־${fmt(second)}.`
+      });
+
+      second = time;
+      steps.push({
+        type:'secondFromTime',
+        index:i,
+        time,
+        first,
+        second,
+        action:'עדכון second',
+        code:14,
+        note:explanationBase.second,
+        status:`second מתעדכן ל־${time}.`
+      });
+    } else {
+      steps.push({
+        type:'none',
+        index:i,
+        time,
+        first,
+        second,
+        action:'ללא שינוי',
+        code:12,
+        note:explanationBase.none,
+        status:`${time} לא שיפר את שני המקומות הראשונים, לכן אין שינוי.`
+      });
+    }
+  });
+
+  steps.push({
+    type:'done',
+    index:data.length,
+    time:null,
+    first,
+    second,
+    action:'סיום',
+    code:-1,
+    note:`הסימולציה הסתיימה. המקום הראשון הוא ${fmt(first)} והמקום השני הוא ${fmt(second)}.`,
+    status:'הגענו לסוף הלולאה.'
+  });
+
+  return steps;
+}
+
+
+function escapeHtml(text){
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function colorizeCode(line){
+  const keywords = new Set(['double','for','int','if','else']);
+  const highlightedVars = new Set([
+    'first','second','time','i','times',
+    'Length','length','MaxValue','MAX_VALUE','Double'
+  ]);
+
+  let result = '';
+  let idx = 0;
+
+  while (idx < line.length){
+    const ch = line[idx];
+
+    if (ch === '"'){
+      let j = idx + 1;
+      while (j < line.length && line[j] !== '"') j++;
+      if (j < line.length) j++;
+      const strToken = line.slice(idx, j);
+      result += `<span class="st">${escapeHtml(strToken)}</span>`;
+      idx = j;
+      continue;
+    }
+
+    if (/[A-Za-z_]/.test(ch)){
+      let j = idx + 1;
+      while (j < line.length && /[A-Za-z0-9_]/.test(line[j])) j++;
+      const token = line.slice(idx, j);
+
+      if (keywords.has(token)){
+        result += `<span class="kw">${escapeHtml(token)}</span>`;
+      } else if (highlightedVars.has(token)){
+        result += `<span class="var">${escapeHtml(token)}</span>`;
+      } else {
+        result += escapeHtml(token);
+      }
+
+      idx = j;
+      continue;
+    }
+
+    result += escapeHtml(ch);
+    idx++;
+  }
+
+  return result;
+}
+
+
+function buildCodeHtml(lines, activeIndex){
+  return lines.map((line,i) => {
+    const safe = colorizeCode(line);
+    return `<div class="codeLine ${i===activeIndex ? 'active':''}"><div class="num">${i+1}</div><div>${safe || '&nbsp;'}</div></div>`;
+  }).join('');
+}
+
+function renderCode(activeIndex){
+  const split = codeViewMode === 'split';
+  el('codeWrap').style.display = split ? 'none' : 'block';
+  el('codeSplit').style.display = split ? 'grid' : 'none';
+
+  if (split){
+    el('codeWrapCsharp').innerHTML = buildCodeHtml(codeTabs.csharp, activeIndex);
+    el('codeWrapJava').innerHTML = buildCodeHtml(codeTabs.java, activeIndex);
+  } else {
+    el('codeWrap').innerHTML = buildCodeHtml(codeTabs[currentTab], activeIndex);
+  }
+}
+
+function updateCodeButtons(){
+  const map = { tabCsharp:'ghost', tabJava:'ghost', tabSplit:'ghost' };
+  if (codeViewMode === 'split') map.tabSplit = 'secondary';
+  else map[currentTab === 'csharp' ? 'tabCsharp' : 'tabJava'] = 'secondary';
+
+  Object.entries(map).forEach(([id, cls]) => {
+    const node = el(id);
+    if (!node) return;
+    node.classList.remove('secondary','ghost');
+    node.classList.add(cls);
+  });
+}
+
+function setCodeView(mode, tab){
+  codeViewMode = mode;
+  if (tab) currentTab = tab;
+  updateCodeButtons();
+updateExampleDisplay(el('example').value);
+  renderCode(currentStep()?.code ?? 0);
+}
+
+function clearHighlights(){
+  ['firstBox','secondBox','timeBox'].forEach(id => {
+    el(id).classList.remove('updated','changed');
+  });
+  ['pathTimeToFirst','pathFirstToSecond','pathTimeToSecond','moveText1','moveText2'].forEach(id => {
+    const node = el(id);
+    if (node.tagName.toLowerCase() === 'text') {
+      node.setAttribute('opacity','0');
+      node.textContent = '';
+    } else {
+      node.setAttribute('opacity','0');
+    }
+  });
+}
+
+function animateMovement(step){
+  clearHighlights();
+  if (!step) return;
+  const firstBox = el('firstBox');
+  const secondBox = el('secondBox');
+  const timeBox = el('timeBox');
+
+  if (step.type === 'read'){
+    timeBox.classList.add('updated','changed');
+  }
+  if (step.type === 'shift'){
+    timeBox.classList.add('updated','changed');
+  }
+  if (step.type === 'secondFromFirst'){
+    firstBox.classList.add('updated','changed');
+    secondBox.classList.add('updated','changed');
+    el('pathFirstToSecond').setAttribute('opacity','1');
+    const t = el('moveText1');
+    t.textContent = fmt(step.prevFirst);
+    t.setAttribute('opacity','1');
+    t.setAttribute('x','260');
+    t.setAttribute('y','150');
+  }
+  if (step.type === 'firstFromTime'){
+    timeBox.classList.add('updated','changed');
+    firstBox.classList.add('updated','changed');
+    el('pathTimeToFirst').setAttribute('opacity','1');
+    const t = el('moveText1');
+    t.textContent = fmt(step.time);
+    t.setAttribute('opacity','1');
+    t.setAttribute('x','455');
+    t.setAttribute('y','36');
+  }
+  if (step.type === 'secondFromTime'){
+    timeBox.classList.add('updated','changed');
+    secondBox.classList.add('updated','changed');
+    el('pathTimeToSecond').setAttribute('opacity','1');
+    const t = el('moveText1');
+    t.textContent = fmt(step.time);
+    t.setAttribute('opacity','1');
+    t.setAttribute('x','610');
+    t.setAttribute('y','148');
+  }
+  if (step.type === 'none'){
+    timeBox.classList.add('changed');
+  }
+}
+
+function renderTrace(currentIndex){
+  const rows = [];
+  for(let i=0;i<=currentIndex;i++){
+    const s = state.steps[i];
+    if (!s || ['init','init2'].includes(s.type)) continue;
+    rows.push(`
+      <tr class="${i===currentIndex ? 'current':''}">
+        <td>${rows.length+1}</td>
+        <td>${s.time===null ? '—' : fmt(s.time)}</td>
+        <td>${fmt(s.first)}</td>
+        <td>${fmt(s.second)}</td>
+        <td>${s.action}</td>
+      </tr>
+    `);
+  }
+  el('traceBody').innerHTML = rows.join('');
+}
+
+function currentStep(){
+  return state.steps[state.current] || null;
+}
+
+function renderStep(){
+  const step = currentStep();
+  if (!step) return;
+
+  el('firstVal').textContent = fmt(step.first);
+  el('secondVal').textContent = fmt(step.second);
+  el('timeVal').textContent = step.time===null ? '—' : fmt(step.time);
+
+  el('svgFirst').textContent = fmt(step.first);
+  el('svgSecond').textContent = fmt(step.second);
+  el('svgTime').textContent = step.time===null ? '—' : fmt(step.time);
+
+  el('logicText').innerHTML = step.note;
+  el('statusText').innerHTML = step.status;
+  el('flowNote').innerHTML = step.note;
+
+  renderCode(step.code);
+  animateMovement(step);
+  renderTrace(state.current);
+  maybeShowQuiz(step);
+}
+
+function nextStep(){
+  if (state.current < state.steps.length - 1){
+    state.current++;
+    renderStep();
+  } else {
+    stopAuto();
+  }
+}
+
+function prevStep(){
+  if (state.current > 0){
+    state.current--;
+    renderStep();
+  }
+}
+
+function stopAuto(){
+  if (state.autoplay){
+    clearInterval(state.autoplay);
+    state.autoplay = null;
+    el('playBtn').textContent = '▶ הפעלה אוטומטית';
+  }
+}
+
+function toggleAuto(){
+  if (state.autoplay){
+    stopAuto();
+  } else {
+    state.autoplay = setInterval(() => {
+      if (state.current >= state.steps.length - 1) {
+        stopAuto();
+      } else {
+        nextStep();
+      }
+    }, 1500);
+    el('playBtn').textContent = '⏸ עצירה';
+  }
+}
+
+function loadExample(key){
+  stopAuto();
+  let data;
+  if (key === 'custom'){
+    data = parseCustomInput();
+  } else {
+    data = [...examples[key]];
+  }
+  state.data = data;
+  state.steps = buildSteps(data);
+  state.current = 0;
+  el('example').value = key;
+  el('quizSection').style.display = 'none';
+  updateExampleDisplay(key);
+  renderStep();
+}
+
+function maybeShowQuiz(step){
+  if (!(state.guided || state.practice)) {
+    el('quizSection').style.display = 'none';
+    return;
+  }
+
+  const targetTypes = ['read','shift','checkSecond','none'];
+  if (!targetTypes.includes(step.type)) {
+    el('quizSection').style.display = 'none';
+    return;
+  }
+
+  let q = '';
+  let options = [];
+  let correct = 0;
+  let feedback = '';
+
+  if (step.type === 'read') {
+    q = `נקלט הערך ${step.time}. מה הכי סביר שיקרה כעת?`;
+    options = ['תתבצע בדיקה מול first', 'הלולאה תסתיים מיד', 'second תמיד יתאפס'];
+    correct = 0;
+    feedback = 'לאחר קליטת ערך חדש, האלגוריתם בודק תחילה האם הערך קטן מן המקום הראשון.';
+  } else if (step.type === 'shift') {
+    q = `הערך ${step.time} קטן מן המקום הראשון. מה חייב לקרות לפני ש־first יתעדכן?`;
+    options = ['מעדכנים first ואז second', 'שומרים את הערך הישן של first בתוך second', 'אין צורך לעדכן second'];
+    correct = 1;
+    feedback = 'חייבים קודם לשמור את המקום הראשון הישן בתוך second, כדי לא לאבד אותו.';
+  } else if (step.type === 'checkSecond') {
+    q = `הערך ${step.time} לא קטן מן המקום הראשון, אבל כן קטן מן המקום השני. מה יתעדכן?`;
+    options = ['רק second', 'רק first', 'שניהם יחד'];
+    correct = 0;
+    feedback = 'במקרה כזה האלגוריתם מעדכן רק את second.';
+  } else {
+    q = `הערך ${step.time} לא שיפר אף מקום. מה תהיה התוצאה?`;
+    options = ['first ו־second יתחלפו', 'לא יהיה שינוי', 'first יהפוך לאינסוף'];
+    correct = 1;
+    feedback = 'כאשר הערך החדש לא טוב יותר מהשניים המובילים, לא מתבצע שום עדכון.';
+  }
+
+  const section = el('quizSection');
+  section.style.display = 'block';
+  el('quizQuestion').textContent = q;
+  el('quizFeedback').style.display = 'none';
+  el('quizFeedback').textContent = '';
+  el('quizOptions').innerHTML = options.map((opt, idx) =>
+    `<div class="option" data-idx="${idx}">${opt}</div>`
+  ).join('');
+
+  [...el('quizOptions').querySelectorAll('.option')].forEach(node => {
+    node.onclick = () => {
+      const idx = Number(node.dataset.idx);
+      [...el('quizOptions').querySelectorAll('.option')].forEach(n => n.style.pointerEvents = 'none');
+      if (idx === correct) node.classList.add('correct');
+      else {
+        node.classList.add('wrong');
+        el('quizOptions').querySelector(`[data-idx="${correct}"]`).classList.add('correct');
+      }
+      el('quizFeedback').style.display = 'block';
+      el('quizFeedback').innerHTML = (idx === correct ? 'נכון. ' : 'לא נכון. ') + feedback;
+    };
+  });
+}
+
+el('nextBtn').onclick = nextStep;
+el('prevBtn').onclick = prevStep;
+el('playBtn').onclick = toggleAuto;
+el('resetBtn').onclick = () => loadExample(el('example').value);
+
+el('example').onchange = (e) => {
+  const value = e.target.value;
+
+  const customInput = el('customInput');
+  const customSection = el('customSection');
+
+  if (value === 'custom') {
+    customInput.disabled = false;
+    customSection.style.display = 'block';
+    customInput.style.opacity = '1';
+  } else {
+    customInput.disabled = true;
+    customSection.style.display = 'none';
+    customInput.style.opacity = '0.5';
+  }
+
+  loadExample(value);
+};
+
+el('customInput').addEventListener('input', () => {
+  if (el('example').value === 'custom') {
+    updateExampleDisplay('custom');
+  }
+});
+el('guidedBtn').onclick = () => {
+  state.guided = !state.guided;
+  if (state.guided) state.practice = false;
+  el('guidedBtn').textContent = state.guided ? 'מצב למידה מודרכת פעיל' : 'מצב למידה מודרכת';
+  el('practiceBtn').textContent = 'מצב תרגול';
+  renderStep();
+};
+
+el('practiceBtn').onclick = () => {
+  state.practice = !state.practice;
+  if (state.practice) state.guided = false;
+  el('practiceBtn').textContent = state.practice ? 'מצב תרגול פעיל' : 'מצב תרגול';
+  el('guidedBtn').textContent = 'מצב למידה מודרכת';
+  renderStep();
+};
+
+el('tabCsharp').onclick = () => setCodeView('single','csharp');
+el('tabJava').onclick = () => setCodeView('single','java');
+el('tabSplit').onclick = () => setCodeView('split');
+
+loadExample('simple');
+
+// Initial state
+el('customInput').disabled = true;
+if (el('customSection')) el('customSection').style.display = 'none';
+el('customInput').style.opacity = '0.5';
+updateCodeButtons();
+</script>
+
+</body>
+</html>
