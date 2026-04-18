@@ -7,16 +7,16 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(circle at top,#121212,#000 68%);color:#e5e7eb;font-family:Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:24px 0}
-  .app{max-width:420px;width:100%;margin:0 auto;padding:0 10px}
-  .calculator{background:linear-gradient(160deg,#2a2a2a 0%,#1a1a1a 48%,#0d0d0d 100%);border-radius:16px 16px 28px 28px;padding:14px 12px 18px;box-shadow:0 0 0 1px #626262,0 16px 50px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08)}
+  body{margin:0;background:radial-gradient(circle at top,#152238,#090c14 65%);color:#e5e7eb;font-family:Arial,sans-serif}
+  .app{max-width:1380px;margin:0 auto;padding:0px;display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;zoom:1.5;}
+  .calculator{background:linear-gradient(160deg,#2f2f2f 0%,#1d1d1d 45%,#101010 100%);border-radius:16px 16px 24px 24px;padding:14px 12px 18px;box-shadow:0 0 0 1px #5f5f5f,0 12px 42px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.08);position:sticky;top:18px}
   .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;padding:0 2px}
   .brand{color:#d5d5d5;font-size:18px;font-weight:bold;letter-spacing:1px}
   .model{color:#c7c7c7;font-size:9px}
   .model-name{color:#a8a8a8;font-size:7px;font-style:italic}
   .edition{color:#a8a8a8;font-size:7px;text-align:right}
   .solar{background:linear-gradient(135deg,#1c0f00 0%,#462400 48%,#1a0c00 100%);width:72px;height:22px;border-radius:3px;border:1px solid #555}
-  .display-shell{background:#89a777;border-radius:6px;padding:6px;margin-bottom:8px;border:2px solid #6e8f5d;box-shadow:inset 0 2px 8px rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.3)}
+  .display-shell{background:#8cad79;border-radius:6px;padding:6px;margin-bottom:8px;border:2px solid #6e8f5d;box-shadow:inset 0 2px 8px rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.3)}
   .display{background:#8cad79;min-height:95px;padding:4px 6px 2px;position:relative;border-radius:2px;font-family:'Share Tech Mono',monospace;color:#163707;overflow:hidden}
   .display-indicators{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;font-size:7px;margin-bottom:2px}
   .indicator{opacity:.28}.indicator.active{opacity:1}
@@ -67,7 +67,7 @@
   .menu-list div:last-child{border-bottom:none}
   .status-pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#10223b;border:1px solid #29466e;font-size:12px;margin-right:6px;margin-bottom:6px}
   .warning{background:#2b1605;border-color:#8f5b1a}
-  @media(max-width:980px){.two-col,.three-col{grid-template-columns:1fr}}
+  @media(max-width:980px){.app{grid-template-columns:1fr}.calculator{position:relative;top:auto}.two-col,.three-col{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -636,55 +636,32 @@ function startCalcPrompt(){ startPrompt('CALC X','calc'); showWorkflow('CALC eva
 function startSolvePrompt(){ startPrompt('SOLVE target value','solve'); showWorkflow('SOLVE searches X so that the current expression matches the entered target.'); }
 function startDerivativePrompt(){ startPrompt('d/dx at X','derivative_at'); showWorkflow('Enter the X value for a numerical derivative.'); }
 function startIntegralPrompt(){ startPrompt('Upper bound','integral_to',{}); showWorkflow('Enter upper bound, then lower bound for a numerical integral.'); }
-function transformExpression(raw){
-  let s=String(raw||'').trim();
-  if(!s) return '0';
-  s=s.replace(/\(\-\)/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/\^/g,'**');
-  s=s.replace(/\bAns\b/g,'(ANS)');
-  s=replaceAllVariables(s);
-  s=s.replace(/π/g,'PI');
-  s=s.replace(/(?<![A-Za-z_])e(?![A-Za-z_(])/g,'E_CONST');
-  s=s.replace(/\bnPr\b/g,' pr ').replace(/\bnCr\b/g,' cr ');
-  s=s.replace(/\b(sin|cos|tan)\^-1\(/g,'a$1(');
-  s=s.replace(/\bln\(/g,'log(');
-  s=s.replace(/\blog\(/g,'log10(');
-  s=s.replace(/\bexp\(/g,'exp(');
-  s=s.replace(/\bhsin\(/g,'sinh(').replace(/\bhcos\(/g,'cosh(').replace(/\bhtan\(/g,'tanh(');
-  s=s.replace(/(\d+(?:\.\d+)?)E([+\-]?\d+)/g,'($1*10**$2)');
-  s=s.replace(/(\d|\)|PI|E_CONST|ANS|[A-FMXY])\s*(?=\()/g,'$1*');
-  s=s.replace(/(\d|\)|PI|E_CONST|ANS|[A-FMXY])\s*(?=(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|cbrt|log|log10|exp)\()/g,'$1*');
-  return s;
-}
 function evaluate(str){
-  let s=transformExpression(str);
-  const scope={
-    ANS:ans,
-    PI:Math.PI,
-    E_CONST:Math.E,
-    A:vars.A,B:vars.B,C:vars.C,D:vars.D,E:vars.E,F:vars.F,M:vars.M,X:vars.X,Y:vars.Y,
-    sin:(x)=>Math.sin(radians(Number(x))),
-    cos:(x)=>Math.cos(radians(Number(x))),
-    tan:(x)=>Math.tan(radians(Number(x))),
-    asin:(x)=>fromRadians(Math.asin(Number(x))),
-    acos:(x)=>fromRadians(Math.acos(Number(x))),
-    atan:(x)=>fromRadians(Math.atan(Number(x))),
-    sinh:(x)=>Math.sinh(Number(x)),
-    cosh:(x)=>Math.cosh(Number(x)),
-    tanh:(x)=>Math.tanh(Number(x)),
-    sqrt:(x)=>Math.sqrt(Number(x)),
-    cbrt:(x)=>Math.cbrt(Number(x)),
-    log:(x)=>Math.log(Number(x)),
-    log10:(x)=>Math.log10(Number(x)),
-    exp:(x)=>Math.exp(Number(x)),
-    pr:(n,r)=>permutation(Number(n),Number(r)),
-    cr:(n,r)=>combination(Number(n),Number(r)),
-  };
-  while(/(\([^()]+\)|-?\d+(?:\.\d+)?)\s*!/.test(s)){
-    s=s.replace(/(\([^()]+\)|-?\d+(?:\.\d+)?)\s*!/g,'factorial($1)');
-    scope.factorial=(x)=>factorial(Number(x));
-  }
-  if(/[^0-9A-Za-z_+\-*/().,\s]/.test(s)) throw Error('Syntax ERROR');
-  const v=Function('scope',`with(scope){ return (${s}); }`)(scope);
+  if(!str.trim()) return 0;
+  let s=' '+str+' ';
+  s=s.replace(/Ans/g, `(${ans})`);
+  s=replaceAllVariables(s);
+  s=s.replace(/\bi\b/g,'1j');
+  s=s.replace(/π/g,'Math.PI').replace(/\be\b/g,'Math.E');
+  s=s.replace(/cbrt\(/g,'Math.cbrt(').replace(/sqrt\(/g,'Math.sqrt(');
+  s=s.replace(/ln\(/g,'Math.log(').replace(/log\(/g,'Math.log10(').replace(/exp\(/g,'Math.exp(');
+  s=s.replace(/hsin\(/g,'Math.sinh(').replace(/hcos\(/g,'Math.cosh(').replace(/htan\(/g,'Math.tanh(');
+  s=s.replace(/sin\^-1\(/g,'ASIN(').replace(/cos\^-1\(/g,'ACOS(').replace(/tan\^-1\(/g,'ATAN(');
+  s=s.replace(/sin\(/g,'SIN(').replace(/cos\(/g,'COS(').replace(/tan\(/g,'TAN(');
+  s=s.replace(/SIN\(([^()]*)\)/g,(_,a)=>`(${Math.sin(radians(Number(eval(a))))})`);
+  s=s.replace(/COS\(([^()]*)\)/g,(_,a)=>`(${Math.cos(radians(Number(eval(a))))})`);
+  s=s.replace(/TAN\(([^()]*)\)/g,(_,a)=>`(${Math.tan(radians(Number(eval(a))))})`);
+  s=s.replace(/ASIN\(([^()]*)\)/g,(_,a)=>`(${fromRadians(Math.asin(Number(eval(a))))})`);
+  s=s.replace(/ACOS\(([^()]*)\)/g,(_,a)=>`(${fromRadians(Math.acos(Number(eval(a))))})`);
+  s=s.replace(/ATAN\(([^()]*)\)/g,(_,a)=>`(${fromRadians(Math.atan(Number(eval(a))))})`);
+  s=s.replace(/\(\-\)/g,'-');
+  s=s.replace(/\bE\b/g,'*10^');
+  s=s.replace(/nPr/g,' P ').replace(/nCr/g,' C ');
+  while(/(\d+(?:\.\d+)?|\([^()]+\))\!/.test(s)) s=s.replace(/(\d+(?:\.\d+)?|\([^()]+\))\!/g,(m,a)=>String(factorial(Number(eval(a)))));
+  while(/(\d+(?:\.\d+)?|\([^()]+\))\sP\s(\d+(?:\.\d+)?|\([^()]+\))/.test(s)) s=s.replace(/(\d+(?:\.\d+)?|\([^()]+\))\sP\s(\d+(?:\.\d+)?|\([^()]+\))/g,(m,a,b)=>String(permutation(Number(eval(a)),Number(eval(b)))));
+  while(/(\d+(?:\.\d+)?|\([^()]+\))\sC\s(\d+(?:\.\d+)?|\([^()]+\))/.test(s)) s=s.replace(/(\d+(?:\.\d+)?|\([^()]+\))\sC\s(\d+(?:\.\d+)?|\([^()]+\))/g,(m,a,b)=>String(combination(Number(eval(a)),Number(eval(b)))));
+  s=s.replace(/×/g,'*').replace(/÷/g,'/').replace(/\^/g,'**');
+  const v=Function(`return (${s})`)();
   if(typeof v==='number') return v;
   return Number(v);
 }
@@ -722,8 +699,8 @@ function complexOp(op){ const a=+byId('z1re').value,b=+byId('z1im').value,c=+byI
   byId('cmplxOut').textContent=out; result=out.split('\n')[0]; updateDisplay(); }
 function runStats1(){ const arr=parseNums(byId('statData1').value); if(!arr.length) return; const n=arr.length, mean=arr.reduce((s,v)=>s+v,0)/n; const variance=arr.reduce((s,v)=>s+(v-mean)**2,0)/(n-1||1); const popVar=arr.reduce((s,v)=>s+(v-mean)**2,0)/n; const min=Math.min(...arr), max=Math.max(...arr); byId('statOut').textContent=`n = ${n}\nmean = ${formatNum(mean)}\nsx = ${formatNum(Math.sqrt(variance))}\nσx = ${formatNum(Math.sqrt(popVar))}\nmin = ${formatNum(min)}\nmax = ${formatNum(max)}`; result=formatNum(mean); updateDisplay(); }
 function runRegression(){ const pts=parsePairs(byId('statData2').value); if(!pts.length) return; const n=pts.length; let sx=0,sy=0,sxy=0,sxx=0,syy=0; pts.forEach(([x,y])=>{sx+=x;sy+=y;sxy+=x*y;sxx+=x*x;syy+=y*y;}); const b=(n*sxy-sx*sy)/(n*sxx-sx*sx); const a=(sy-b*sx)/n; const r=(n*sxy-sx*sy)/Math.sqrt((n*sxx-sx*sx)*(n*syy-sy*sy)); byId('statOut').textContent=`y = a + bx\na = ${formatNum(a)}\nb = ${formatNum(b)}\nr = ${formatNum(r)}`; result=`y=${formatNum(a)}+${formatNum(b)}x`; updateDisplay(); }
-function convertBase(){ const v=byId('baseValue').value.trim(); const from=+byId('baseFrom').value, to=+byId('baseTo').value; const num=parseInt(v,from); if(Number.isNaN(num)){ byId('baseOut').textContent='Math ERROR'; result='Math ERROR'; updateDisplay(); return; } byId('baseOut').textContent=`${v} (base ${from}) = ${num.toString(to).toUpperCase()} (base ${to})`; result=num.toString(to).toUpperCase(); updateDisplay(); }
-function logicOp(op){ const base=+byId('logicBase').value; const a=parseInt(byId('logicA').value,base), b=parseInt(byId('logicB').value,base); if(Number.isNaN(a)||Number.isNaN(b)){ byId('baseOut').textContent='Math ERROR'; result='Math ERROR'; updateDisplay(); return; } let r=0; if(op==='and') r=a&b; if(op==='or') r=a|b; if(op==='xor') r=a^b; byId('baseOut').textContent=`${op.toUpperCase()} = ${r.toString(base).toUpperCase()} (base ${base})\nDecimal = ${r}`; result=r.toString(base).toUpperCase(); updateDisplay(); }
+function convertBase(){ const v=byId('baseValue').value.trim(); const from=+byId('baseFrom').value, to=+byId('baseTo').value; const num=parseInt(v,from); byId('baseOut').textContent=`${v} (base ${from}) = ${num.toString(to).toUpperCase()} (base ${to})`; result=num.toString(to).toUpperCase(); updateDisplay(); }
+function logicOp(op){ const base=+byId('logicBase').value; const a=parseInt(byId('logicA').value,base), b=parseInt(byId('logicB').value,base); let r=0; if(op==='and') r=a&b; if(op==='or') r=a|b; if(op==='xor') r=a^b; byId('baseOut').textContent=`${op.toUpperCase()} = ${r.toString(base).toUpperCase()} (base ${base})\nDecimal = ${r}`; result=r.toString(base).toUpperCase(); updateDisplay(); }
 function solveQuadratic(){ const a=+byId('qa').value,b=+byId('qb').value,c=+byId('qc').value; const disc=b*b-4*a*c; let text=''; if(disc>=0){ const r1=(-b+Math.sqrt(disc))/(2*a), r2=(-b-Math.sqrt(disc))/(2*a); text=`x₁ = ${formatNum(r1)}\nx₂ = ${formatNum(r2)}`; result=formatNum(r1); } else { const re=-b/(2*a), im=Math.sqrt(-disc)/(2*a); text=`x₁ = ${formatNum(re)} + ${formatNum(im)}i\nx₂ = ${formatNum(re)} - ${formatNum(im)}i`; result=text.split('\n')[0]; } byId('eqnOut').textContent=text; updateDisplay(); }
 function solveCubic(){ const a=+byId('qa').value,b=+byId('qb').value,c=+byId('qc').value,d=+byId('qd').value; const roots=[]; for(let guess of [-20,-10,-5,-1,0,1,2,5,10,20]){ let x=guess; for(let i=0;i<40;i++){ const fx=((a*x+b)*x+c)*x+d; const dx=(3*a*x+2*b)*x+c; if(Math.abs(dx)<1e-9) break; x=x-fx/dx; } if(Number.isFinite(x) && Math.abs(((a*x+b)*x+c)*x+d)<1e-5 && !roots.some(r=>Math.abs(r-x)<1e-4)) roots.push(x); } byId('eqnOut').textContent=roots.length? roots.map((r,i)=>`x${i+1} = ${formatNum(r)}`).join('\n') : 'No stable real roots found numerically'; result=roots.length?formatNum(roots[0]):'Math ERROR'; updateDisplay(); }
 function solve2x2(){ const rows=byId('lin2').value.trim().split(/\n+/).map(line=>line.split(/[ ,]+/).map(Number)); const [[a,b,e],[c,d,f]]=rows; const det=a*d-b*c; const x=(e*d-b*f)/det, y=(a*f-e*c)/det; byId('eqnOut').textContent=`x = ${formatNum(x)}\ny = ${formatNum(y)}`; result=`x=${formatNum(x)}`; updateDisplay(); }
@@ -744,10 +721,6 @@ function doRec(){ if(currentMode!=='CMPLX'){ menuMessage='Rec helper is most use
 function init(){
   const cSel=byId('constSelect'); constants.forEach(([k,v])=>{ const o=document.createElement('option'); o.textContent=`${k} = ${v}`; cSel.appendChild(o); });
   const convSel=byId('convSelect'); conversions.forEach(([k,v])=>{ const o=document.createElement('option'); o.textContent=`${k} = ${v}`; convSel.appendChild(o); });
-  expr='ln(5';
-  cursor=expr.length;
-  result='Math ERROR';
-  errorState=true;
   updateModePanels(); renderMemorySummary(); updateDisplay();
 }
 
