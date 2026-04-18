@@ -646,6 +646,7 @@ function transformExpression(raw){
   s=s.replace(/(?<![A-Za-z_])e(?![A-Za-z_(])/g,'E_CONST');
   s=s.replace(/\bnPr\b/g,' pr ').replace(/\bnCr\b/g,' cr ');
   s=s.replace(/\b(sin|cos|tan)\^-1\(/g,'a$1(');
+  s=s.replace(/\bln\(/g,'log(');
   s=s.replace(/\blog\(/g,'log10(');
   s=s.replace(/\bexp\(/g,'exp(');
   s=s.replace(/\bhsin\(/g,'sinh(').replace(/\bhcos\(/g,'cosh(').replace(/\bhtan\(/g,'tanh(');
@@ -672,8 +673,7 @@ function evaluate(str){
     tanh:(x)=>Math.tanh(Number(x)),
     sqrt:(x)=>Math.sqrt(Number(x)),
     cbrt:(x)=>Math.cbrt(Number(x)),
-    ln:(x)=>Math.log(Number(x)),
-    log:(x)=>Math.log10(Number(x)),
+    log:(x)=>Math.log(Number(x)),
     log10:(x)=>Math.log10(Number(x)),
     exp:(x)=>Math.exp(Number(x)),
     pr:(n,r)=>permutation(Number(n),Number(r)),
@@ -744,10 +744,10 @@ function doRec(){ if(currentMode!=='CMPLX'){ menuMessage='Rec helper is most use
 function init(){
   const cSel=byId('constSelect'); constants.forEach(([k,v])=>{ const o=document.createElement('option'); o.textContent=`${k} = ${v}`; cSel.appendChild(o); });
   const convSel=byId('convSelect'); conversions.forEach(([k,v])=>{ const o=document.createElement('option'); o.textContent=`${k} = ${v}`; convSel.appendChild(o); });
-  expr='';
-  cursor=0;
-  result='0';
-  errorState=false;
+  expr='ln(5';
+  cursor=expr.length;
+  result='Math ERROR';
+  errorState=true;
   updateModePanels(); renderMemorySummary(); updateDisplay();
 }
 
