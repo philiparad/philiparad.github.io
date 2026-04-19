@@ -125,7 +125,7 @@
     <div class="btn-grid">
       <button class="btn btn-dark" onclick="pressBtn('CALC')"><span class="shift-label">SOLVE</span><span class="alpha-label">=</span><span class="main-label">CALC</span></button>
       <button class="btn btn-dark" onclick="pressBtn('∫')"><span class="shift-label">d/dx</span><span class="main-label" style="font-size:14px;">∫</span></button>
-      <button class="btn btn-dark" onclick="openCatalogMenu()"><span class="shift-label">TOOLS</span><span class="main-label">MENU</span></button>
+      <button class="btn btn-dark" onclick="pressMenu()"><span class="shift-label">TOOLS</span><span class="main-label">MENU</span></button>
       <button class="btn btn-dark" onclick="pressBtn('x!')"><span class="shift-label">Ran#</span><span class="main-label">x!</span></button>
       <button class="btn btn-dark" onclick="pressBtn('log□')"><span class="shift-label">10^x</span><span class="alpha-label">e</span><span class="main-label">log□</span></button>
     </div>
@@ -549,6 +549,7 @@ function pressON(){ if(shiftOn){ shiftOn=false; menuMessage='Power off simulated
 function openMenu(items,title='Menu'){ currentMenu={title,items}; menuIndex=0; menuStack.push(currentMenu); showWorkflow(title); updateDisplay(); }
 function closeMenu(msg=''){ currentMenu=null; menuStack=[]; menuMessage=msg; updateDisplay(); }
 function pressMode(){ if(shiftOn){ shiftOn=false; menuStack=[]; openMenu(setupMenu,'SETUP'); return; } menuStack=[]; openMenu(modeMenu,'MODE'); }
+function pressMenu(){ if(consumeShift()){ openCatalogMenu(); return; } openCatalogMenu(); }
 function openCatalogMenu(){ menuStack=[]; openMenu(catalogMenu,'TOOLS'); }
 function navUp(){ if(eqnResults){ eqnResults.index=(eqnResults.index-1+eqnResults.items.length)%eqnResults.items.length; result=eqnResults.items[eqnResults.index]; updateDisplay(); return; } if(currentMenu){ menuIndex=(menuIndex-1+currentMenu.items.length)%currentMenu.items.length; updateDisplay(); return; } if(history.length){ historyIdx=Math.max(0,historyIdx-1); expr=history[historyIdx]||''; cursor=expr.length; result=expr||'0'; lastWasResult=false; updateDisplay(); } }
 function navDown(){ if(eqnResults){ eqnResults.index=(eqnResults.index+1)%eqnResults.items.length; result=eqnResults.items[eqnResults.index]; updateDisplay(); return; } if(currentMenu){ menuIndex=(menuIndex+1)%currentMenu.items.length; updateDisplay(); return; } if(history.length){ historyIdx=Math.min(history.length,historyIdx+1); expr=history[historyIdx]||''; cursor=expr.length; result=expr||'0'; lastWasResult=false; updateDisplay(); } }
@@ -568,7 +569,7 @@ function pressNum(n){ if(eqnEntry){ inputEqnChar(n); return; } if(pendingPrompt)
     if(n==='8'){insertSelectedConversion(); return;}
     if(n==='9'){openMenu(setupMenu[3].children,'CLR'); return;}
     if(n==='4'){setMode('MATRIX'); return;}
-    if(n==='5'){startEqnEntry('quad'); return;}
+    if(n==='5'){setMode('VECTOR'); return;}
     if(n==='6'){setMode('BASE-N'); return;}
     if(n==='1'){setMode('STAT'); return;}
     if(n==='2'){setMode('CMPLX'); return;}
@@ -596,10 +597,10 @@ function pressBtn(name){
     case '∫': if(s){startDerivativePrompt();} else {startIntegralPrompt();} break;
     case 'x!': if(s){ result=formatNum(Math.random()); updateDisplay(); } else if(!applyFunctionToAns('','!')) insertText('!'); break;
     case 'log□': if(!applyFunctionToAns(s?'10^(':'log(',')')) insertText(s?'10^(':'log('); break;
-    case 'frac': if(!appendOperatorFromAns('/')) insertText('/'); break;
+    case 'frac': if(s){ toggleFractionDisplay(); break; } if(!appendOperatorFromAns('/')) insertText('/'); break;
     case '√': if(!applyFunctionToAns(s?'cbrt(':'sqrt(',')')) insertText(s?'cbrt(':'sqrt('); break;
     case 'x²': if(!applyFunctionToAns('',s?'^3':'^2')) insertText(s?'^3':'^2'); break;
-    case 'x^': if(!appendOperatorFromAns('^')) insertText('^'); break;
+    case 'x^': if(s){ startNthRootPrompt(); break; } if(!appendOperatorFromAns('^')) insertText('^'); break;
     case 'log': if(!applyFunctionToAns(s?'10^(':'log(',')')) insertText(s?'10^(':'log('); break;
     case '(-)': if(lastWasResult && !s){ setExprToAns('(-)Ans'); updateDisplay(); } else insertText(s?'Ans':'(-)'); break;
     case 'DMS': formatDMS(); break;
@@ -626,7 +627,7 @@ function handleAlphaInput(name){
   if(v==='DEC' || v==='HEX' || v==='BIN' || v==='OCT'){ setMode('BASE-N'); menuMessage='BASE-N mode ready'; updateDisplay(); return; }
 }
 function mapKeyToPromptChar(name){ return ({'√':'sqrt(','log':'log(','ln':'ln(','x^':'^','x²':'^2','(-)':'-','frac':'/','DMS':' ','RCL':'','ENG':'','hyp':'','S⇔D':'','M+':'','M-':''}[name] ?? name); }
-function pressDEL(){ if(eqnEntry){ eqnEntry.buffer=eqnEntry.buffer.slice(0,-1); updateDisplay(); return; } if(pendingPrompt){ pendingPrompt.buffer=pendingPrompt.buffer.slice(0,-1); updateDisplay(); return; } if(cursor>0){ expr=expr.slice(0,cursor-1)+expr.slice(cursor); cursor--; updateDisplay(); } }
+function pressDEL(){ if(consumeShift()){ menuMessage='INS is implicit in this emulator'; updateDisplay(); return; } if(eqnEntry){ eqnEntry.buffer=eqnEntry.buffer.slice(0,-1); updateDisplay(); return; } if(pendingPrompt){ pendingPrompt.buffer=pendingPrompt.buffer.slice(0,-1); updateDisplay(); return; } if(cursor>0){ expr=expr.slice(0,cursor-1)+expr.slice(cursor); cursor--; updateDisplay(); } }
 function pressAC(){ if(shiftOn){ shiftOn=false; menuMessage='Power off simulated'; expr=''; cursor=0; result='0'; pendingPrompt=null; currentMenu=null; clearEqnState(); } else { expr=''; cursor=0; result='0'; pendingPrompt=null; menuMessage=''; currentMenu=null; clearEqnState(); } lastWasResult=false; updateDisplay(); }
 function startPrompt(label,kind,meta={}){ pendingPrompt={label,kind,buffer:'',meta}; result=''; updateDisplay(); }
 function finishPrompt(){
@@ -636,11 +637,18 @@ function finishPrompt(){
   if(p.kind==='derivative_at'){ const xVal=Number(p.buffer||0); vars.X=xVal; const value=derivativeAt(expr,xVal); ans=value; result=formatNum(value); pendingPrompt=null; lastWasResult=true; updateDisplay(); return; }
   if(p.kind==='integral_to'){ p.meta.b=Number(p.buffer||0); pendingPrompt={label:'Lower bound',kind:'integral_from',buffer:'',meta:p.meta}; updateDisplay(); return; }
   if(p.kind==='integral_from'){ const a=Number(p.buffer||0); const b=p.meta.b; const value=integrateExpr(expr,a,b); ans=value; result=formatNum(value); pendingPrompt=null; lastWasResult=true; updateDisplay(); return; }
+  if(p.kind==='nth_root'){ const n=Number(p.buffer||0); try{ const baseValue=evaluate(p.meta.baseExpr||'Ans'); const realBase=(typeof baseValue==='number') ? baseValue : (baseValue && baseValue.re!==undefined && Math.abs(baseValue.im||0)<1e-12 ? Number(baseValue.re) : NaN); if(!Number.isFinite(realBase) || !Number.isFinite(n) || n===0) throw Error('Math ERROR'); const value=math.nthRoot(realBase,n); ans=typeof value==='number'?value:Number(value); result=formatNum(value); } catch(err){ result='Math ERROR'; } pendingPrompt=null; lastWasResult=true; updateDisplay(); return; }
 }
 function startCalcPrompt(){ startPrompt('CALC X','calc'); showWorkflow('CALC evaluates the current expression after assigning X.'); }
 function startSolvePrompt(){ startPrompt('SOLVE target value','solve'); showWorkflow('SOLVE searches X so that the current expression matches the entered target.'); }
 function startDerivativePrompt(){ startPrompt('d/dx at X','derivative_at'); showWorkflow('Enter the X value for a numerical derivative.'); }
 function startIntegralPrompt(){ startPrompt('Upper bound','integral_to',{}); showWorkflow('Enter upper bound, then lower bound for a numerical integral.'); }
+function startNthRootPrompt(){
+  const baseExpr = (expr && expr.trim()) ? expr : 'Ans';
+  startPrompt('n-th root degree','nth_root',{baseExpr});
+  showWorkflow('Enter the root degree n to compute the n-th root of the current expression or Ans.');
+}
+
 
 function toPlainNumber(value){
   if(value && typeof value==='object' && value.isBigNumber) value=value.toNumber();
@@ -683,11 +691,17 @@ function mathScope(){
   };
 }
 function replaceTokenFunctions(s){
-  s=s.replace(/sin\^-1\(/g,'masin(').replace(/cos\^-1\(/g,'macos(').replace(/tan\^-1\(/g,'matan(');
-  s=s.replace(/hsin\(/g,'mhsin(').replace(/hcos\(/g,'mhcos(').replace(/htan\(/g,'mhtan(');
-  s=s.replace(/sin\(/g,'msin(').replace(/cos\(/g,'mcos(').replace(/tan\(/g,'mtan(');
-  s=s.replace(/log\(/g,'log10(');
-  s=s.replace(/ln\(/g,'log(');
+  s=s.replace(/(^|[^A-Za-z])sin\^-1\(/g,'$1masin(')
+     .replace(/(^|[^A-Za-z])cos\^-1\(/g,'$1macos(')
+     .replace(/(^|[^A-Za-z])tan\^-1\(/g,'$1matan(');
+  s=s.replace(/(^|[^A-Za-z])hsin\(/g,'$1mhsin(')
+     .replace(/(^|[^A-Za-z])hcos\(/g,'$1mhcos(')
+     .replace(/(^|[^A-Za-z])htan\(/g,'$1mhtan(');
+  s=s.replace(/(^|[^A-Za-z])sin\(/g,'$1msin(')
+     .replace(/(^|[^A-Za-z])cos\(/g,'$1mcos(')
+     .replace(/(^|[^A-Za-z])tan\(/g,'$1mtan(');
+  s=s.replace(/(^|[^A-Za-z])log\(/g,'$1log10(');
+  s=s.replace(/(^|[^A-Za-z])ln\(/g,'$1log(');
   s=s.replace(/√\(/g,'sqrt(');
   return s;
 }
