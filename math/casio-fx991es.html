@@ -8,8 +8,8 @@
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
   *{box-sizing:border-box}
   body{margin:0;background:radial-gradient(circle at top,#152238,#090c14 65%);color:#e5e7eb;font-family:Arial,sans-serif}
-  .app{max-width:1380px;margin:0 auto;padding:0px;display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;zoom:1.5;}
-  .calculator{background:linear-gradient(160deg,#2f2f2f 0%,#1d1d1d 45%,#101010 100%);border-radius:16px 16px 24px 24px;padding:14px 12px 18px;box-shadow:0 0 0 1px #5f5f5f,0 12px 42px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.08);position:sticky;top:18px;zoom: .88;}
+  .app{max-width:1380px;margin:0 auto;padding:0px;display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;zoom: 1.32;}
+  .calculator{background:linear-gradient(160deg,#2f2f2f 0%,#1d1d1d 45%,#101010 100%);border-radius:16px 16px 24px 24px;padding:14px 12px 18px;box-shadow:0 0 0 1px #5f5f5f,0 12px 42px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.08);position:sticky;top:18px;}
   .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;padding:0 2px}
   .brand{color:#d5d5d5;font-size:18px;font-weight:bold;letter-spacing:1px}
   .model{color:#c7c7c7;font-size:9px}
@@ -352,6 +352,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
 <script>
 const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR'];
 const modePanels={COMP:'compPanel',CMPLX:'cmplxPanel',STAT:'statPanel','BASE-N':'basePanel',EQN:'eqnPanel',MATRIX:'matrixPanel',TABLE:'tablePanel',VECTOR:'vectorPanel'};
@@ -426,6 +427,9 @@ let eqnResults=null;
 function byId(id){return document.getElementById(id)}
 function showWorkflow(msg){byId('workflowSummary').textContent=msg;byId('menuEcho').textContent=msg;}
 function insertText(t){ if(lastWasResult && !'+-×÷^'.includes(t[0]||'')){expr='';cursor=0;lastWasResult=false;} expr=expr.slice(0,cursor)+t+expr.slice(cursor); cursor+=t.length; updateDisplay(); }
+function setExprToAns(text='Ans', resetResultView=false){ expr=text; cursor=expr.length; lastWasResult=false; if(resetResultView) result=''; }
+function applyFunctionToAns(prefix,suffix=''){ if(lastWasResult){ setExprToAns(`${prefix}Ans${suffix}`); updateDisplay(); return true; } return false; }
+function appendOperatorFromAns(op){ if(lastWasResult){ setExprToAns(`Ans${op}`); updateDisplay(); return true; } return false; }
 function replaceAllVariables(s){ return s.replace(/\b([A-FMXY])\b/g,(m,k)=>String(vars[k]??0)); }
 function radians(x){ if(angleMode==='DEG') return x*Math.PI/180; if(angleMode==='GRA') return x*Math.PI/200; return x; }
 function fromRadians(x){ if(angleMode==='DEG') return x*180/Math.PI; if(angleMode==='GRA') return x*200/Math.PI; return x; }
@@ -575,12 +579,13 @@ function pressNum(n){ if(eqnEntry){ inputEqnChar(n); return; } if(pendingPrompt)
   insertText(n);
 }
 function pressExpBtn(){ if(eqnEntry){ inputEqnChar('E'); return; } if(consumeShift()){ insertText('π'); return; } if(consumeAlpha()){ insertText('e'); return; } insertText('E'); }
-function pressAns(){ if(consumeShift()){ cycleAngleMode(); return; } insertText('Ans'); }
+function pressAns(){ if(consumeShift()){ cycleAngleMode(); return; } if(lastWasResult){ setExprToAns('Ans'); updateDisplay(); return; } insertText('Ans'); }
 function cycleAngleMode(){ angleMode = angleMode==='DEG'?'RAD':angleMode==='RAD'?'GRA':'DEG'; menuMessage='Angle: '+angleMode; updateDisplay(); }
 function pressOp(op){ if(eqnEntry){ if(op==='-') inputEqnChar('-'); return; } if(shiftOn){ shiftOn=false; if(op==='×'){ insertText(' nPr '); return; } if(op==='÷'){ insertText(' nCr '); return; } if(op==='+'){ doPol(); return; } if(op==='-'){ doRec(); return; } }
+  if(appendOperatorFromAns(op)) return;
   insertText(op);
 }
-function pressTrig(name){ const s=consumeShift(); if(consumeAlpha()){ const varsByName={sin:'D',cos:'E',tan:'F'}; insertText(varsByName[name]); return; } const prefix=hyperbolic?'h':''; if(s) insertText(name+'^-1('); else insertText(prefix+name+'('); hyperbolic=false; }
+function pressTrig(name){ const s=consumeShift(); if(consumeAlpha()){ const varsByName={sin:'D',cos:'E',tan:'F'}; insertText(varsByName[name]); return; } const prefix=hyperbolic?'h':''; if(lastWasResult){ setExprToAns(s ? `${name}^-1(Ans)` : `${prefix}${name}(Ans)`); hyperbolic=false; updateDisplay(); return; } if(s) insertText(name+'^-1('); else insertText(prefix+name+'('); hyperbolic=false; }
 function pressBtn(name){
   if(name==='RCL'){ if(consumeShift()){ storePending=true; recallPending=false; menuMessage='Choose variable A-F,M,X,Y'; updateDisplay(); return; } recallPending=true; storePending=false; menuMessage='Recall variable A-F,M,X,Y'; updateDisplay(); return; }
   if(consumeAlpha()){ handleAlphaInput(name); return; }
@@ -589,19 +594,19 @@ function pressBtn(name){
   switch(name){
     case 'CALC': if(s){startSolvePrompt();} else {startCalcPrompt();} break;
     case '∫': if(s){startDerivativePrompt();} else {startIntegralPrompt();} break;
-    case 'x!': if(s){ result=formatNum(Math.random()); updateDisplay(); } else insertText('!'); break;
-    case 'log□': if(s){ insertText('10^('); } else insertText('log('); break;
-    case 'frac': insertText('/'); break;
-    case '√': insertText(s?'cbrt(':'sqrt('); break;
-    case 'x²': insertText(s?'^3':'^2'); break;
-    case 'x^': insertText('^'); break;
-    case 'log': insertText(s?'10^(':'log('); break;
-    case '(-)': insertText(s?'Ans':'(-)'); break;
+    case 'x!': if(s){ result=formatNum(Math.random()); updateDisplay(); } else if(!applyFunctionToAns('','!')) insertText('!'); break;
+    case 'log□': if(!applyFunctionToAns(s?'10^(':'log(',')')) insertText(s?'10^(':'log('); break;
+    case 'frac': if(!appendOperatorFromAns('/')) insertText('/'); break;
+    case '√': if(!applyFunctionToAns(s?'cbrt(':'sqrt(',')')) insertText(s?'cbrt(':'sqrt('); break;
+    case 'x²': if(!applyFunctionToAns('',s?'^3':'^2')) insertText(s?'^3':'^2'); break;
+    case 'x^': if(!appendOperatorFromAns('^')) insertText('^'); break;
+    case 'log': if(!applyFunctionToAns(s?'10^(':'log(',')')) insertText(s?'10^(':'log('); break;
+    case '(-)': if(lastWasResult && !s){ setExprToAns('(-)Ans'); updateDisplay(); } else insertText(s?'Ans':'(-)'); break;
     case 'DMS': formatDMS(); break;
     case 'hyp': if(s){ absoluteResult(); } else { hyperbolic=!hyperbolic; menuMessage=hyperbolic?'Hyperbolic ready':'Hyperbolic off'; updateDisplay(); } break;
     case 'ENG': if(consumeAlpha()){ insertText('%'); } else applyENG(); break;
-    case 'ln': insertText(s?'exp(':'ln('); break;
-    case 'x⁻¹': insertText('^(-1)'); break;
+    case 'ln': if(!applyFunctionToAns(s?'exp(':'ln(',')')) insertText(s?'exp(':'ln('); break;
+    case 'x⁻¹': if(!applyFunctionToAns('','^(-1)')) insertText('^(-1)'); break;
     case 'S⇔D': toggleFractionDisplay(); break;
     case 'M-': memoryM -= Number(evalSilent(expr || result || 0)); menuMessage='M updated'; renderMemorySummary(); updateDisplay(); break;
     case 'M+': memoryM += Number(evalSilent(expr || result || 0)); vars.M=memoryM; menuMessage='M updated'; renderMemorySummary(); updateDisplay(); break;
@@ -626,44 +631,118 @@ function pressAC(){ if(shiftOn){ shiftOn=false; menuMessage='Power off simulated
 function startPrompt(label,kind,meta={}){ pendingPrompt={label,kind,buffer:'',meta}; result=''; updateDisplay(); }
 function finishPrompt(){
   const p=pendingPrompt; if(!p) return;
-  if(p.kind==='calc'){ const xVal=Number(p.buffer||0); vars.X=xVal; result=formatNum(evalSilent(expr||'0')); pendingPrompt=null; lastWasResult=true; renderMemorySummary(); updateDisplay(); return; }
-  if(p.kind==='solve'){ const target=Number(p.buffer||0); const sol=numericSolve(expr,target); if(sol==null){ result='Math ERROR'; } else { vars.X=sol; result='X='+formatNum(sol); } pendingPrompt=null; lastWasResult=true; renderMemorySummary(); updateDisplay(); return; }
-  if(p.kind==='derivative_at'){ const xVal=Number(p.buffer||0); vars.X=xVal; result=formatNum(derivativeAt(expr,xVal)); pendingPrompt=null; lastWasResult=true; updateDisplay(); return; }
+  if(p.kind==='calc'){ const xVal=Number(p.buffer||0); vars.X=xVal; const value=evalSilent(expr||'0'); if(typeof value==='number' && Number.isFinite(value)) ans=value; result=formatNum(value); pendingPrompt=null; lastWasResult=true; renderMemorySummary(); updateDisplay(); return; }
+  if(p.kind==='solve'){ const target=Number(p.buffer||0); const sol=numericSolve(expr,target); if(sol==null){ result='Math ERROR'; } else { vars.X=sol; ans=sol; result='X='+formatNum(sol); } pendingPrompt=null; lastWasResult=true; renderMemorySummary(); updateDisplay(); return; }
+  if(p.kind==='derivative_at'){ const xVal=Number(p.buffer||0); vars.X=xVal; const value=derivativeAt(expr,xVal); ans=value; result=formatNum(value); pendingPrompt=null; lastWasResult=true; updateDisplay(); return; }
   if(p.kind==='integral_to'){ p.meta.b=Number(p.buffer||0); pendingPrompt={label:'Lower bound',kind:'integral_from',buffer:'',meta:p.meta}; updateDisplay(); return; }
-  if(p.kind==='integral_from'){ const a=Number(p.buffer||0); const b=p.meta.b; result=formatNum(integrateExpr(expr,a,b)); pendingPrompt=null; lastWasResult=true; updateDisplay(); return; }
+  if(p.kind==='integral_from'){ const a=Number(p.buffer||0); const b=p.meta.b; const value=integrateExpr(expr,a,b); ans=value; result=formatNum(value); pendingPrompt=null; lastWasResult=true; updateDisplay(); return; }
 }
 function startCalcPrompt(){ startPrompt('CALC X','calc'); showWorkflow('CALC evaluates the current expression after assigning X.'); }
 function startSolvePrompt(){ startPrompt('SOLVE target value','solve'); showWorkflow('SOLVE searches X so that the current expression matches the entered target.'); }
 function startDerivativePrompt(){ startPrompt('d/dx at X','derivative_at'); showWorkflow('Enter the X value for a numerical derivative.'); }
 function startIntegralPrompt(){ startPrompt('Upper bound','integral_to',{}); showWorkflow('Enter upper bound, then lower bound for a numerical integral.'); }
-function evaluate(str){
-  if(!str.trim()) return 0;
-  let s=' '+str+' ';
-  s=s.replace(/Ans/g, `(${ans})`);
-  s=replaceAllVariables(s);
-  s=s.replace(/\bi\b/g,'1j');
-  s=s.replace(/π/g,'Math.PI').replace(/\be\b/g,'Math.E');
-  s=s.replace(/cbrt\(/g,'Math.cbrt(').replace(/sqrt\(/g,'Math.sqrt(');
-  s=s.replace(/ln\(/g,'Math.log(').replace(/log\(/g,'Math.log10(').replace(/exp\(/g,'Math.exp(');
-  s=s.replace(/hsin\(/g,'Math.sinh(').replace(/hcos\(/g,'Math.cosh(').replace(/htan\(/g,'Math.tanh(');
-  s=s.replace(/sin\^-1\(/g,'ASIN(').replace(/cos\^-1\(/g,'ACOS(').replace(/tan\^-1\(/g,'ATAN(');
-  s=s.replace(/sin\(/g,'SIN(').replace(/cos\(/g,'COS(').replace(/tan\(/g,'TAN(');
-  s=s.replace(/SIN\(([^()]*)\)/g,(_,a)=>`(${Math.sin(radians(Number(eval(a))))})`);
-  s=s.replace(/COS\(([^()]*)\)/g,(_,a)=>`(${Math.cos(radians(Number(eval(a))))})`);
-  s=s.replace(/TAN\(([^()]*)\)/g,(_,a)=>`(${Math.tan(radians(Number(eval(a))))})`);
-  s=s.replace(/ASIN\(([^()]*)\)/g,(_,a)=>`(${fromRadians(Math.asin(Number(eval(a))))})`);
-  s=s.replace(/ACOS\(([^()]*)\)/g,(_,a)=>`(${fromRadians(Math.acos(Number(eval(a))))})`);
-  s=s.replace(/ATAN\(([^()]*)\)/g,(_,a)=>`(${fromRadians(Math.atan(Number(eval(a))))})`);
+
+function toPlainNumber(value){
+  if(value && typeof value==='object' && value.isBigNumber) value=value.toNumber();
+  if(value && typeof value==='object' && value.re!==undefined && value.im!==undefined){
+    if(Math.abs(value.im||0)<1e-12) return Number(value.re);
+    return value;
+  }
+  return value;
+}
+function convertAngleInput(x){
+  const v=toPlainNumber(x);
+  if(typeof v==='number') return radians(v);
+  return v;
+}
+function convertAngleOutput(x){
+  const v=toPlainNumber(x);
+  if(typeof v==='number') return fromRadians(v);
+  return v;
+}
+function mathScope(){
+  return {
+    ans,
+    A: vars.A, B: vars.B, C: vars.C, D: vars.D, E: vars.E, F: vars.F, M: vars.M, X: vars.X, Y: vars.Y,
+    pi: math.pi,
+    e: math.e,
+    i: math.complex(0,1),
+    msin: x => math.sin(convertAngleInput(x)),
+    mcos: x => math.cos(convertAngleInput(x)),
+    mtan: x => math.tan(convertAngleInput(x)),
+    masin: x => convertAngleOutput(math.asin(x)),
+    macos: x => convertAngleOutput(math.acos(x)),
+    matan: x => convertAngleOutput(math.atan(x)),
+    mhsin: x => math.sinh(convertAngleInput(x)),
+    mhcos: x => math.cosh(convertAngleInput(x)),
+    mhtan: x => math.tanh(convertAngleInput(x)),
+    nPr: (n,r) => permutation(Number(n),Number(r)),
+    nCr: (n,r) => combination(Number(n),Number(r)),
+    cbrt: x => math.nthRoot(x,3),
+    log10: x => math.log10 ? math.log10(x) : math.log(x,10)
+  };
+}
+function replaceTokenFunctions(s){
+  s=s.replace(/sin\^-1\(/g,'masin(').replace(/cos\^-1\(/g,'macos(').replace(/tan\^-1\(/g,'matan(');
+  s=s.replace(/hsin\(/g,'mhsin(').replace(/hcos\(/g,'mhcos(').replace(/htan\(/g,'mhtan(');
+  s=s.replace(/sin\(/g,'msin(').replace(/cos\(/g,'mcos(').replace(/tan\(/g,'mtan(');
+  s=s.replace(/log\(/g,'log10(');
+  s=s.replace(/ln\(/g,'log(');
+  s=s.replace(/√\(/g,'sqrt(');
+  return s;
+}
+function replaceFactorials(s){
+  let prev;
+  do{
+    prev=s;
+    s=s.replace(/([A-Za-z0-9_.)\]]+)\!/g,'factorial($1)');
+    s=s.replace(/\(([^()]+)\)\!/g,'factorial(($1))');
+  } while(s!==prev);
+  return s;
+}
+function replaceCombinatorics(s){
+  let prev;
+  do{
+    prev=s;
+    s=s.replace(/(\([^()]+\)|[A-Za-z0-9_.]+)\s*nPr\s*(\([^()]+\)|[A-Za-z0-9_.+-]+)/g,'nPr($1,$2)');
+    s=s.replace(/(\([^()]+\)|[A-Za-z0-9_.]+)\s*nCr\s*(\([^()]+\)|[A-Za-z0-9_.+-]+)/g,'nCr($1,$2)');
+  } while(s!==prev);
+  return s;
+}
+function normalizeExpression(str){
+  let s=String(str||'').trim();
+  if(!s) return '0';
+  s=s.replace(/Ans/g,'ans');
+  s=s.replace(/π/g,'pi');
   s=s.replace(/\(\-\)/g,'-');
-  s=s.replace(/\bE\b/g,'*10^');
-  s=s.replace(/nPr/g,' P ').replace(/nCr/g,' C ');
-  while(/(\d+(?:\.\d+)?|\([^()]+\))\!/.test(s)) s=s.replace(/(\d+(?:\.\d+)?|\([^()]+\))\!/g,(m,a)=>String(factorial(Number(eval(a)))));
-  while(/(\d+(?:\.\d+)?|\([^()]+\))\sP\s(\d+(?:\.\d+)?|\([^()]+\))/.test(s)) s=s.replace(/(\d+(?:\.\d+)?|\([^()]+\))\sP\s(\d+(?:\.\d+)?|\([^()]+\))/g,(m,a,b)=>String(permutation(Number(eval(a)),Number(eval(b)))));
-  while(/(\d+(?:\.\d+)?|\([^()]+\))\sC\s(\d+(?:\.\d+)?|\([^()]+\))/.test(s)) s=s.replace(/(\d+(?:\.\d+)?|\([^()]+\))\sC\s(\d+(?:\.\d+)?|\([^()]+\))/g,(m,a,b)=>String(combination(Number(eval(a)),Number(eval(b)))));
-  s=s.replace(/×/g,'*').replace(/÷/g,'/').replace(/\^/g,'**');
-  const v=Function(`return (${s})`)();
-  if(typeof v==='number') return v;
-  return Number(v);
+  s=s.replace(/×/g,'*').replace(/÷/g,'/');
+  s=s.replace(/\b([0-9]+(?:\.[0-9]+)?|\([^()]+\))E([+-]?[0-9]+(?:\.[0-9]+)?)/g,'$1e$2');
+  s=s.replace(/\bnPr\b/g,' nPr ').replace(/\bnCr\b/g,' nCr ');
+  s=replaceTokenFunctions(s);
+  s=replaceFactorials(s);
+  s=replaceCombinatorics(s);
+  return s;
+}
+function evaluate(str){
+  const exprText=normalizeExpression(str);
+  const value=math.evaluate(exprText, mathScope());
+  const plain=toPlainNumber(value);
+  if(typeof plain==='number') return plain;
+  if(plain && plain.re!==undefined && plain.im!==undefined) return plain;
+  if(Array.isArray(plain)) return plain;
+  return plain;
+}
+function formatValue(value){
+  const v=toPlainNumber(value);
+  if(typeof v==='number') return formatNum(v);
+  if(v && v.re!==undefined && v.im!==undefined){
+    const re=Number(v.re||0), im=Number(v.im||0);
+    if(Math.abs(im)<1e-12) return formatNum(re);
+    const sign=im>=0?'+':'-';
+    return `${formatNum(re)} ${sign} ${formatNum(Math.abs(im))}i`;
+  }
+  if(Array.isArray(v)) return JSON.stringify(v);
+  return String(v);
 }
 function evalSilent(s){ try{return evaluate(String(s));}catch(e){return NaN;} }
 function pressEquals(){
@@ -671,17 +750,17 @@ function pressEquals(){
   if(eqnResults){ navDown(); return; }
   if(currentMenu){ navOK(); return; }
   if(pendingPrompt){ finishPrompt(); return; }
-  try{ const v=evaluate(expr||'0'); ans=Number(v); result=formatNum(ans); history.push(expr); historyIdx=history.length; lastWasResult=true; errorState=false; menuMessage=''; }
+  try{ const v=evaluate(expr||'0'); ans=typeof v==='number' ? Number(v) : (v&&v.re!==undefined&&Math.abs(v.im||0)<1e-12 ? Number(v.re) : ans); result=formatValue(v); history.push(expr); historyIdx=history.length; lastWasResult=true; errorState=false; menuMessage=''; }
   catch(e){ result='Math ERROR'; errorState=true; menuMessage=''; }
   renderMemorySummary(); updateDisplay();
 }
-function derivativeAt(ex,x){ const h=1e-5; vars.X=x+h; const f1=evaluate(ex); vars.X=x-h; const f2=evaluate(ex); vars.X=x; return (f1-f2)/(2*h); }
-function integrateExpr(ex,a,b,n=400){ if(a===b) return 0; const h=(b-a)/n; let sum=0; for(let i=0;i<=n;i++){ const x=a+i*h; vars.X=x; const fx=evaluate(ex); sum += (i===0||i===n?1:(i%2?4:2))*fx; } return sum*h/3; }
-function numericSolve(ex,target){ let x=vars.X||1; for(let i=0;i<40;i++){ vars.X=x; const fx=evaluate(ex)-target; const d=derivativeAt(ex,x)||1e-6; const nx=x-fx/d; if(Math.abs(nx-x)<1e-10) return nx; x=nx; } return x; }
-function absoluteResult(){ const v=Number(evalSilent(expr||result||0)); result=formatNum(Math.abs(v)); lastWasResult=true; updateDisplay(); }
-function applyENG(){ const v=Number(evalSilent(expr||result||0)); if(!isFinite(v)) return; const exp=v===0?0:Math.floor(Math.log10(Math.abs(v))/3)*3; result=`${formatNum(v/10**exp)}×10^${exp}`; lastWasResult=true; updateDisplay(); }
-function toggleFractionDisplay(){ const v=Number(evalSilent(expr||result||0)); if(!isFinite(v)) return; const frac=toFraction(v,1e-10); result = frac? `${frac[0]}/${frac[1]}` : formatNum(v); lastWasResult=true; updateDisplay(); }
-function toFraction(x,tol){ if(!isFinite(x)) return null; let h1=1,h2=0,k1=0,k2=1,b=x; do{ let a=Math.floor(b); let h=a*h1+h2,k=a*k1+k2; if(Math.abs(x-h/k)<tol) return [h,k]; h2=h1;h1=h;k2=k1;k1=k;b=1/(b-a); }while(Math.abs(x-h1/k1)>tol && isFinite(b)); return [Math.round(x),1]; }
+function derivativeAt(ex,x){ const h=1e-5; vars.X=x+h; const f1=Number(evaluate(ex)); vars.X=x-h; const f2=Number(evaluate(ex)); vars.X=x; return (f1-f2)/(2*h); }
+function integrateExpr(ex,a,b,n=400){ if(a===b) return 0; const h=(b-a)/n; let sum=0; for(let i=0;i<=n;i++){ const x=a+i*h; vars.X=x; const fx=Number(evaluate(ex)); sum += (i===0||i===n?1:(i%2?4:2))*fx; } return sum*h/3; }
+function numericSolve(ex,target){ let x=vars.X||1; for(let i=0;i<40;i++){ vars.X=x; const fx=Number(evaluate(ex))-target; const d=derivativeAt(ex,x)||1e-6; const nx=x-fx/d; if(Math.abs(nx-x)<1e-10) return nx; x=nx; } return x; }
+function absoluteResult(){ const v=Number(evalSilent(expr||result||0)); result=formatNum(math.abs(v)); lastWasResult=true; updateDisplay(); }
+function applyENG(){ const v=Number(evalSilent(expr||result||0)); if(!isFinite(v)) return; const exp=v===0?0:Math.floor(math.log10(Math.abs(v))/3)*3; result=`${formatNum(v/10**exp)}×10^${exp}`; lastWasResult=true; updateDisplay(); }
+function toggleFractionDisplay(){ const v=Number(evalSilent(expr||result||0)); if(!isFinite(v)) return; const frac=math.fraction(v); result = Number(frac.d)===1 ? formatNum(Number(frac.s)*Number(frac.n)) : `${Number(frac.s)*Number(frac.n)}/${frac.d}`; lastWasResult=true; updateDisplay(); }
+function toFraction(x,tol){ if(!isFinite(x)) return null; const frac=math.fraction(x); return [Number(frac.s)*Number(frac.n), Number(frac.d)]; }
 function formatDMS(){ const v=Number(evalSilent(expr||result||0)); if(!isFinite(v)) return; const sign=v<0?-1:1; const a=Math.abs(v); const d=Math.floor(a); const mFloat=(a-d)*60; const m=Math.floor(mFloat); const s=(mFloat-m)*60; result=`${sign*d}° ${m}' ${formatNum(s)}\"`; lastWasResult=true; updateDisplay(); }
 function insertSelectedConstant(){ const [name,val]=constants[byId('constSelect').selectedIndex||0]; insertText(String(val)); menuMessage=`Inserted constant ${name}`; updateDisplay(); }
 function insertSelectedConversion(){ const [name,val]=conversions[byId('convSelect').selectedIndex||0]; insertText(String(val)); menuMessage=`Inserted conversion ${name}`; updateDisplay(); }
@@ -689,32 +768,32 @@ function renderMemorySummary(){ const el=byId('memorySummary'); el.innerHTML='';
 function updateModePanels(){ Object.values(modePanels).forEach(id=>byId(id).classList.add('hidden')); byId(modePanels[currentMode]).classList.remove('hidden'); const chips=byId('modeChips'); chips.innerHTML=MODES.map(m=>`<span class="mode-chip ${m===currentMode?'active':''}">${m}</span>`).join(''); showWorkflow(`Current mode: ${currentMode}. The right-side tool panel follows the selected mode.`); }
 function parseNums(str){ return String(str).split(/[ ,\n\t]+/).map(s=>s.trim()).filter(Boolean).map(Number).filter(v=>!Number.isNaN(v)); }
 function parsePairs(txt){ return txt.trim().split(/\n+/).map(line=>line.split(/[ ,\t]+/).map(Number)).filter(a=>a.length>=2 && a.every(v=>!Number.isNaN(v))); }
-function complexOp(op){ const a=+byId('z1re').value,b=+byId('z1im').value,c=+byId('z2re').value,d=+byId('z2im').value; let out='';
-  if(op==='add') out=`${formatNum(a+c)} + ${formatNum(b+d)}i`;
-  if(op==='sub') out=`${formatNum(a-c)} + ${formatNum(b-d)}i`;
-  if(op==='mul') out=`${formatNum(a*c-b*d)} + ${formatNum(a*d+b*c)}i`;
-  if(op==='div'){ const den=c*c+d*d; out=`${formatNum((a*c+b*d)/den)} + ${formatNum((b*c-a*d)/den)}i`; }
-  if(op==='polar1'){ const r=Math.hypot(a,b), th=fromRadians(Math.atan2(b,a)); out=`r = ${formatNum(r)}\nθ = ${formatNum(th)} ${angleMode}`; }
-  if(op==='rect1'){ const x=a*Math.cos(radians(b)), y=a*Math.sin(radians(b)); out=`x = ${formatNum(x)}\ny = ${formatNum(y)}`; }
+function complexOp(op){ const z1=math.complex(+byId('z1re').value,+byId('z1im').value), z2=math.complex(+byId('z2re').value,+byId('z2im').value); let out='';
+  if(op==='add') out=formatValue(math.add(z1,z2));
+  if(op==='sub') out=formatValue(math.subtract(z1,z2));
+  if(op==='mul') out=formatValue(math.multiply(z1,z2));
+  if(op==='div') out=formatValue(math.divide(z1,z2));
+  if(op==='polar1'){ const r=math.abs(z1), th=fromRadians(math.arg(z1)); out=`r = ${formatNum(r)}\nθ = ${formatNum(th)} ${angleMode}`; }
+  if(op==='rect1'){ const r=+byId('z1re').value, th=+byId('z1im').value; const x=r*Math.cos(radians(th)), y=r*Math.sin(radians(th)); out=`x = ${formatNum(x)}\ny = ${formatNum(y)}`; }
   byId('cmplxOut').textContent=out; result=out.split('\n')[0]; updateDisplay(); }
-function runStats1(){ const arr=parseNums(byId('statData1').value); if(!arr.length) return; const n=arr.length, mean=arr.reduce((s,v)=>s+v,0)/n; const variance=arr.reduce((s,v)=>s+(v-mean)**2,0)/(n-1||1); const popVar=arr.reduce((s,v)=>s+(v-mean)**2,0)/n; const min=Math.min(...arr), max=Math.max(...arr); byId('statOut').textContent=`n = ${n}\nmean = ${formatNum(mean)}\nsx = ${formatNum(Math.sqrt(variance))}\nσx = ${formatNum(Math.sqrt(popVar))}\nmin = ${formatNum(min)}\nmax = ${formatNum(max)}`; result=formatNum(mean); updateDisplay(); }
+function runStats1(){ const arr=parseNums(byId('statData1').value); if(!arr.length) return; const n=arr.length, mean=math.mean(arr), sx=arr.length>1?math.std(arr,'unbiased'):0, pop=math.std(arr,'uncorrected'), min=math.min(arr), max=math.max(arr); byId('statOut').textContent=`n = ${n}\nmean = ${formatNum(mean)}\nsx = ${formatNum(sx)}\nσx = ${formatNum(pop)}\nmin = ${formatNum(min)}\nmax = ${formatNum(max)}`; result=formatNum(mean); updateDisplay(); }
 function runRegression(){ const pts=parsePairs(byId('statData2').value); if(!pts.length) return; const n=pts.length; let sx=0,sy=0,sxy=0,sxx=0,syy=0; pts.forEach(([x,y])=>{sx+=x;sy+=y;sxy+=x*y;sxx+=x*x;syy+=y*y;}); const b=(n*sxy-sx*sy)/(n*sxx-sx*sx); const a=(sy-b*sx)/n; const r=(n*sxy-sx*sy)/Math.sqrt((n*sxx-sx*sx)*(n*syy-sy*sy)); byId('statOut').textContent=`y = a + bx\na = ${formatNum(a)}\nb = ${formatNum(b)}\nr = ${formatNum(r)}`; result=`y=${formatNum(a)}+${formatNum(b)}x`; updateDisplay(); }
 function convertBase(){ const v=byId('baseValue').value.trim(); const from=+byId('baseFrom').value, to=+byId('baseTo').value; const num=parseInt(v,from); byId('baseOut').textContent=`${v} (base ${from}) = ${num.toString(to).toUpperCase()} (base ${to})`; result=num.toString(to).toUpperCase(); updateDisplay(); }
 function logicOp(op){ const base=+byId('logicBase').value; const a=parseInt(byId('logicA').value,base), b=parseInt(byId('logicB').value,base); let r=0; if(op==='and') r=a&b; if(op==='or') r=a|b; if(op==='xor') r=a^b; byId('baseOut').textContent=`${op.toUpperCase()} = ${r.toString(base).toUpperCase()} (base ${base})\nDecimal = ${r}`; result=r.toString(base).toUpperCase(); updateDisplay(); }
 function solveQuadratic(){ const a=+byId('qa').value,b=+byId('qb').value,c=+byId('qc').value; const disc=b*b-4*a*c; let text=''; if(disc>=0){ const r1=(-b+Math.sqrt(disc))/(2*a), r2=(-b-Math.sqrt(disc))/(2*a); text=`x₁ = ${formatNum(r1)}\nx₂ = ${formatNum(r2)}`; result=formatNum(r1); } else { const re=-b/(2*a), im=Math.sqrt(-disc)/(2*a); text=`x₁ = ${formatNum(re)} + ${formatNum(im)}i\nx₂ = ${formatNum(re)} - ${formatNum(im)}i`; result=text.split('\n')[0]; } byId('eqnOut').textContent=text; updateDisplay(); }
 function solveCubic(){ const a=+byId('qa').value,b=+byId('qb').value,c=+byId('qc').value,d=+byId('qd').value; const roots=[]; for(let guess of [-20,-10,-5,-1,0,1,2,5,10,20]){ let x=guess; for(let i=0;i<40;i++){ const fx=((a*x+b)*x+c)*x+d; const dx=(3*a*x+2*b)*x+c; if(Math.abs(dx)<1e-9) break; x=x-fx/dx; } if(Number.isFinite(x) && Math.abs(((a*x+b)*x+c)*x+d)<1e-5 && !roots.some(r=>Math.abs(r-x)<1e-4)) roots.push(x); } byId('eqnOut').textContent=roots.length? roots.map((r,i)=>`x${i+1} = ${formatNum(r)}`).join('\n') : 'No stable real roots found numerically'; result=roots.length?formatNum(roots[0]):'Math ERROR'; updateDisplay(); }
 function solve2x2(){ const rows=byId('lin2').value.trim().split(/\n+/).map(line=>line.split(/[ ,]+/).map(Number)); const [[a,b,e],[c,d,f]]=rows; const det=a*d-b*c; const x=(e*d-b*f)/det, y=(a*f-e*c)/det; byId('eqnOut').textContent=`x = ${formatNum(x)}\ny = ${formatNum(y)}`; result=`x=${formatNum(x)}`; updateDisplay(); }
-function solve3x3(){ const m=byId('lin3').value.trim().split(/\n+/).map(line=>line.split(/[ ,]+/).map(Number)); const A=m.map(r=>r.slice(0,3)); const B=m.map(r=>r[3]); const inv=invertMatrix(A); if(!inv){ byId('eqnOut').textContent='Singular matrix'; result='Math ERROR'; updateDisplay(); return; } const sol=mulMatVec(inv,B); byId('eqnOut').textContent=`x = ${formatNum(sol[0])}\ny = ${formatNum(sol[1])}\nz = ${formatNum(sol[2])}`; result=`x=${formatNum(sol[0])}`; updateDisplay(); }
+function solve3x3(){ const m=byId('lin3').value.trim().split(/\n+/).map(line=>line.split(/[ ,]+/).map(Number)); const A=m.map(r=>r.slice(0,3)); const B=m.map(r=>r[3]); try{ const sol=math.multiply(math.inv(A),B); byId('eqnOut').textContent=`x = ${formatNum(sol[0])}\ny = ${formatNum(sol[1])}\nz = ${formatNum(sol[2])}`; result=`x=${formatNum(sol[0])}`; } catch(e){ byId('eqnOut').textContent='Singular matrix'; result='Math ERROR'; } updateDisplay(); }
 function parseMatrix(txt){ return txt.trim().split(/\n+/).map(line=>line.split(/[ ,\t]+/).map(Number)); }
 function matrixToText(m){ return Array.isArray(m[0])? m.map(row=>row.map(formatNum).join('\t')).join('\n') : formatNum(m); }
-function matrixOp(op){ const A=parseMatrix(byId('matA').value), B=parseMatrix(byId('matB').value); let out; if(op==='add') out=A.map((r,i)=>r.map((v,j)=>v+B[i][j])); if(op==='sub') out=A.map((r,i)=>r.map((v,j)=>v-B[i][j])); if(op==='mul') out=mulMatrices(A,B); if(op==='det') out=determinant(A); if(op==='transpose') out=transpose(A); if(op==='inverse') out=invertMatrix(A) || 'Singular matrix'; byId('matrixOut').textContent=typeof out==='string'? out : matrixToText(out); result=typeof out==='number'? formatNum(out) : 'Matrix'; updateDisplay(); }
-function transpose(A){ return A[0].map((_,j)=>A.map(r=>r[j])); }
-function mulMatrices(A,B){ return A.map(r=>B[0].map((_,j)=>r.reduce((s,v,k)=>s+v*B[k][j],0))); }
-function determinant(A){ if(A.length===1) return A[0][0]; if(A.length===2) return A[0][0]*A[1][1]-A[0][1]*A[1][0]; let det=0; for(let j=0;j<A.length;j++) det+=((j%2? -1:1)*A[0][j]*determinant(A.slice(1).map(r=>r.filter((_,k)=>k!==j)))); return det; }
-function invertMatrix(A){ const n=A.length; if(!A.every(r=>r.length===n)) return null; const M=A.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]); for(let i=0;i<n;i++){ let pivot=i; for(let r=i;r<n;r++) if(Math.abs(M[r][i])>Math.abs(M[pivot][i])) pivot=r; if(Math.abs(M[pivot][i])<1e-12) return null; [M[i],M[pivot]]=[M[pivot],M[i]]; const div=M[i][i]; for(let j=0;j<2*n;j++) M[i][j]/=div; for(let r=0;r<n;r++) if(r!==i){ const f=M[r][i]; for(let j=0;j<2*n;j++) M[r][j]-=f*M[i][j]; } } return M.map(r=>r.slice(n)); }
-function mulMatVec(A,v){ return A.map(r=>r.reduce((s,x,i)=>s+x*v[i],0)); }
-function vectorOp(op){ const A=parseNums(byId('vecA').value), B=parseNums(byId('vecB').value); let out=''; if(op==='add') out='['+A.map((v,i)=>formatNum(v+(B[i]||0))).join(', ')+']'; if(op==='sub') out='['+A.map((v,i)=>formatNum(v-(B[i]||0))).join(', ')+']'; if(op==='dot') out=formatNum(A.reduce((s,v,i)=>s+v*(B[i]||0),0)); if(op==='cross') out='['+[A[1]*B[2]-A[2]*B[1],A[2]*B[0]-A[0]*B[2],A[0]*B[1]-A[1]*B[0]].map(formatNum).join(', ')+']'; if(op==='magA') out=formatNum(Math.hypot(...A)); if(op==='unitA'){ const m=Math.hypot(...A)||1; out='['+A.map(v=>formatNum(v/m)).join(', ')+']'; } byId('vectorOut').textContent=out; result=String(out); updateDisplay(); }
-function generateTable(){ const ex1=byId('tableExpr').value.trim(), ex2=byId('tableExpr2').value.trim(); const start=+byId('tableStart').value,end=+byId('tableEnd').value,step=+byId('tableStep').value; let rows='<table><thead><tr><th>x</th><th>f(x)</th>'+(ex2?'<th>g(x)</th>':'')+'</tr></thead><tbody>'; for(let x=start;x<=end+1e-12;x+=step){ vars.X=x; const y1=formatNum(evaluate(ex1)); const y2=ex2?formatNum(evaluate(ex2)):''; rows+=`<tr><td>${formatNum(x)}</td><td>${y1}</td>${ex2?`<td>${y2}</td>`:''}</tr>`; } rows+='</tbody></table>'; byId('tableOut').innerHTML=rows; result='Table ready'; updateDisplay(); }
+function matrixOp(op){ const A=parseMatrix(byId('matA').value), B=parseMatrix(byId('matB').value); let out; try{ if(op==='add') out=math.add(A,B); if(op==='sub') out=math.subtract(A,B); if(op==='mul') out=math.multiply(A,B); if(op==='det') out=math.det(A); if(op==='transpose') out=math.transpose(A); if(op==='inverse') out=math.inv(A); } catch(e){ out='Matrix ERROR'; } if(out && out.valueOf) out=out.valueOf(); byId('matrixOut').textContent=typeof out==='string'? out : matrixToText(out); result=typeof out==='number'? formatNum(out) : 'Matrix'; updateDisplay(); }
+function transpose(A){ return math.transpose(A).valueOf ? math.transpose(A).valueOf() : math.transpose(A); }
+function mulMatrices(A,B){ return math.multiply(A,B).valueOf ? math.multiply(A,B).valueOf() : math.multiply(A,B); }
+function determinant(A){ return math.det(A); }
+function invertMatrix(A){ try{ const v=math.inv(A); return v.valueOf ? v.valueOf() : v; } catch(e){ return null; } }
+function mulMatVec(A,v){ const r=math.multiply(A,v); return r.valueOf ? r.valueOf() : r; }
+function vectorOp(op){ const A=parseNums(byId('vecA').value), B=parseNums(byId('vecB').value); let out=''; if(op==='add') out='['+math.add(A,B).map(formatNum).join(', ')+']'; if(op==='sub') out='['+math.subtract(A,B).map(formatNum).join(', ')+']'; if(op==='dot') out=formatNum(math.dot(A,B)); if(op==='cross') out='['+math.cross(A,B).map(formatNum).join(', ')+']'; if(op==='magA') out=formatNum(math.norm(A)); if(op==='unitA'){ const m=math.norm(A)||1; out='['+A.map(v=>formatNum(v/m)).join(', ')+']'; } byId('vectorOut').textContent=out; result=String(out); updateDisplay(); }
+function generateTable(){ const ex1=byId('tableExpr').value.trim(), ex2=byId('tableExpr2').value.trim(); const start=+byId('tableStart').value,end=+byId('tableEnd').value,step=+byId('tableStep').value; let rows='<table><thead><tr><th>x</th><th>f(x)</th>'+(ex2?'<th>g(x)</th>':'')+'</tr></thead><tbody>'; for(let x=start;x<=end+1e-12;x+=step){ vars.X=x; const y1=formatValue(evaluate(ex1)); const y2=ex2?formatValue(evaluate(ex2)):''; rows+=`<tr><td>${formatNum(x)}</td><td>${y1}</td>${ex2?`<td>${y2}</td>`:''}</tr>`; } rows+='</tbody></table>'; byId('tableOut').innerHTML=rows; result='Table ready'; updateDisplay(); }
 function doPol(){ if(currentMode!=='CMPLX'){ menuMessage='Pol helper is most useful in CMPLX mode'; updateDisplay(); return; } complexOp('polar1'); }
 function doRec(){ if(currentMode!=='CMPLX'){ menuMessage='Rec helper is most useful in CMPLX mode'; updateDisplay(); return; } complexOp('rect1'); }
 
