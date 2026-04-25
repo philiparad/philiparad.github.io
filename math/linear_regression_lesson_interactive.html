@@ -373,6 +373,7 @@ function mirrorHebrewInMathJaxText(){
 
 const baseX = [1,2,3,4,5,6,7,8,9,10];
 const baseNoise = [-5,3,-2,5,-4,1,6,-3,4,-1];
+const el = {};
 
 function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
 function sd(arr){const m=mean(arr); return Math.sqrt(arr.reduce((s,v)=>s+(v-m)*(v-m),0)/arr.length)}
@@ -383,6 +384,9 @@ function corr(x,y){
 }
 function regression(x,y){
   const r=corr(x,y), sx=sd(x), sy=sd(y), mx=mean(x), my=mean(y);
+  if(!Number.isFinite(r) || sx===0){
+    return {r,m:NaN,b:NaN,mx,my,sx,sy};
+  }
   const m = r*sy/sx;
   const b = my-m*mx;
   return {r,m,b,mx,my,sx,sy};
@@ -402,8 +406,8 @@ function layout(title,xTitle,yTitle){
 }
 
 function updateChart1(){
-  const m=+mSlider.value, b=+bSlider.value, noise=+noiseSlider.value, x0=+x0Slider.value;
-  mVal.textContent=m.toFixed(1); bVal.textContent=b.toFixed(0); noiseVal.textContent=noise.toFixed(0); x0Val.textContent=x0.toFixed(1);
+  const m=+el.mSlider.value, b=+el.bSlider.value, noise=+el.noiseSlider.value, x0=+el.x0Slider.value;
+  el.mVal.textContent=m.toFixed(1); el.bVal.textContent=b.toFixed(0); el.noiseVal.textContent=noise.toFixed(0); el.x0Val.textContent=x0.toFixed(1);
   const x=baseX;
   const y=x.map((v,i)=>m*v+b + baseNoise[i]/7*noise);
   const xs=[0,11], ys=line(xs,m,b);
@@ -418,8 +422,8 @@ function updateChart1(){
 
 function seededNoise(i){ return Math.sin(i*12.9898)*43758.5453 % 1; }
 function updateChart2(){
-  const rT=+rTargetSlider.value, n=+nSlider.value;
-  rTargetVal.textContent=rT.toFixed(2); nVal.textContent=n;
+  const rT=+el.rTargetSlider.value, n=+el.nSlider.value;
+  el.rTargetVal.textContent=rT.toFixed(2); el.nVal.textContent=n;
   const x=[], y=[];
   const noiseScale=Math.sqrt(Math.max(0.001,1-rT*rT));
   for(let i=0;i<n;i++){
@@ -437,8 +441,8 @@ function updateChart2(){
 }
 
 function updateChart3(){
-  const r=+r3.value, sxv=+sx.value, syv=+sy.value, xbval=+xb.value, ybval=+yb.value;
-  r3Val.textContent=r.toFixed(2); sxVal.textContent=sxv.toFixed(1); syVal.textContent=syv.toFixed(1); xbVal.textContent=xbval.toFixed(1); ybVal.textContent=ybval.toFixed(0);
+  const r=+el.r3.value, sxv=+el.sx.value, syv=+el.sy.value, xbval=+el.xb.value, ybval=+el.yb.value;
+  el.r3Val.textContent=r.toFixed(2); el.sxVal.textContent=sxv.toFixed(1); el.syVal.textContent=syv.toFixed(1); el.xbVal.textContent=xbval.toFixed(1); el.ybVal.textContent=ybval.toFixed(0);
   const m=r*syv/sxv;
   const b=ybval-m*xbval;
   const xs=[xbval-3*sxv, xbval+3*sxv];
@@ -454,30 +458,40 @@ function updateChart3(){
     {x:xs,y:line(xs,m,b),mode:'lines',name:'ישר רגרסיה'},
     {x:[xbval],y:[ybval],mode:'markers+text',name:'נקודת ממוצעים',text:['(x̄,ȳ)'],textposition:'top center',marker:{size:14}}
   ],layout('בניית ישר רגרסיה מנתוני סיכום','x','ŷ'),{responsive:true});
-  eq3.innerHTML = `<span class="ltr">m = r·Sy/Sx = ${m.toFixed(3)}, &nbsp; b = ȳ − m·x̄ = ${b.toFixed(3)}, &nbsp; ŷ = ${m.toFixed(3)}x ${b>=0?'+':'−'} ${Math.abs(b).toFixed(3)}</span>`;
+  el.eq3.innerHTML = `<span class="ltr">m = r·Sy/Sx = ${m.toFixed(3)}, &nbsp; b = ȳ − m·x̄ = ${b.toFixed(3)}, &nbsp; ŷ = ${m.toFixed(3)}x ${b>=0?'+':'−'} ${Math.abs(b).toFixed(3)}</span>`;
 }
 
 function updateChart4(){
-  const a=+a4.value, c=+c4.value, b=+b4.value, d=+d4.value;
-  a4Val.textContent=a.toFixed(1); c4Val.textContent=c.toFixed(1); b4Val.textContent=b.toFixed(0); d4Val.textContent=d.toFixed(1);
+  const a=+el.a4.value, c=+el.c4.value, b=+el.b4.value, d=+el.d4.value;
+  el.a4Val.textContent=a.toFixed(1); el.c4Val.textContent=c.toFixed(1); el.b4Val.textContent=b.toFixed(0); el.d4Val.textContent=d.toFixed(1);
   const x=baseX;
   const y=x.map((v,i)=>4*v+50+baseNoise[i]);
   const xt=x.map(v=>c*v+a);
   const yt=y.map(v=>d*v+b);
   const reg0=regression(x,y), regT=regression(xt,yt);
   const xs0=[Math.min(...x)-1,Math.max(...x)+1], xsT=[Math.min(...xt)-1,Math.max(...xt)+1];
-  Plotly.react('chart4',[
+  const traces = [
     {x,y,mode:'markers',name:`מקור: r=${reg0.r.toFixed(2)}`,marker:{size:9}},
     {x:xs0,y:line(xs0,reg0.m,reg0.b),mode:'lines',name:'ישר מקור',line:{dash:'dot'}},
-    {x:xt,y:yt,mode:'markers',name:`אחרי שינוי: r=${isNaN(regT.r)?'לא מוגדר':regT.r.toFixed(2)}`,marker:{size:11}},
-    {x:xsT,y:line(xsT,regT.m,regT.b),mode:'lines',name:'ישר אחרי שינוי'}
-  ],layout('השפעת הזזה, מתיחה ושיקוף','x / x′','y / y′'),{responsive:true});
+    {x:xt,y:yt,mode:'markers',name:`אחרי שינוי: r=${isNaN(regT.r)?'לא מוגדר':regT.r.toFixed(2)}`,marker:{size:11}}
+  ];
+  if(Number.isFinite(regT.m) && Number.isFinite(regT.b)){
+    traces.push({x:xsT,y:line(xsT,regT.m,regT.b),mode:'lines',name:'ישר אחרי שינוי'});
+  }
+  Plotly.react('chart4',traces,layout('השפעת הזזה, מתיחה ושיקוף','x / x′','y / y′'),{responsive:true});
 }
 
-['mSlider','bSlider','noiseSlider','x0Slider'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart1));
-['rTargetSlider','nSlider'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart2));
-['r3','sx','sy','xb','yb'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart3));
-['a4','c4','b4','d4'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart4));
+[
+  'mSlider','bSlider','noiseSlider','x0Slider','mVal','bVal','noiseVal','x0Val',
+  'rTargetSlider','nSlider','rTargetVal','nVal',
+  'r3','sx','sy','xb','yb','r3Val','sxVal','syVal','xbVal','ybVal','eq3',
+  'a4','c4','b4','d4','a4Val','c4Val','b4Val','d4Val'
+].forEach(id=>{ el[id]=document.getElementById(id); });
+
+['mSlider','bSlider','noiseSlider','x0Slider'].forEach(id=>el[id].addEventListener('input',updateChart1));
+['rTargetSlider','nSlider'].forEach(id=>el[id].addEventListener('input',updateChart2));
+['r3','sx','sy','xb','yb'].forEach(id=>el[id].addEventListener('input',updateChart3));
+['a4','c4','b4','d4'].forEach(id=>el[id].addEventListener('input',updateChart4));
 
 window.addEventListener('load',()=>{
   updateChart1(); updateChart2(); updateChart3(); updateChart4();
