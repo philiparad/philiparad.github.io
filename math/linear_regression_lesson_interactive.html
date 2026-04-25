@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>מערך שיעור: רגרסיה לינארית ומתאם</title>
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#09111f; --panel:#111b2e; --panel2:#16233a; --text:#eef5ff; --muted:#b8c7dc;
+      --accent:#54d3ff; --accent2:#a78bfa; --good:#6ee7b7; --warn:#fbbf24; --bad:#fb7185;
+      --line:#2c3d5f; --shadow:0 18px 45px rgba(0,0,0,.32);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:Arial, "Noto Sans Hebrew", sans-serif; color:var(--text);
+      background:
+        radial-gradient(circle at 15% 8%, rgba(84,211,255,.20), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(167,139,250,.20), transparent 30%),
+        linear-gradient(135deg,#07101e,#0d1425 55%,#070b13);
+      line-height:1.72;
+    }
+    .page{width:min(1220px,94vw); margin:0 auto; padding:28px 0 60px}
+    header{
+      border:1px solid rgba(255,255,255,.10); border-radius:28px; padding:34px;
+      background:linear-gradient(135deg,rgba(17,27,46,.96),rgba(22,35,58,.90));
+      box-shadow:var(--shadow); margin-bottom:22px;
+    }
+    h1{font-size:clamp(2rem,4vw,4rem); margin:0 0 10px}
+    h2{font-size:1.55rem; margin:0 0 14px; color:#dff7ff}
+    h3{font-size:1.15rem; margin:18px 0 8px; color:#e9ddff}
+    p{margin:0 0 12px}
+    .subtitle{font-size:1.14rem; color:var(--muted); max-width:900px}
+    .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:18px}
+    .card{
+      background:linear-gradient(180deg,rgba(17,27,46,.94),rgba(13,21,35,.94));
+      border:1px solid rgba(255,255,255,.10); border-radius:var(--radius); padding:22px;
+      box-shadow:var(--shadow); overflow:visible;
+    }
+    .span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+    @media(max-width:900px){.span-4,.span-5,.span-6,.span-7,.span-8{grid-column:span 12}}
+    .pill{display:inline-block; padding:5px 11px; border-radius:999px; background:rgba(84,211,255,.13); color:#c9f5ff; border:1px solid rgba(84,211,255,.25); margin:4px 0}
+    .note{padding:12px 14px; background:rgba(84,211,255,.08); border-radius:14px; color:#e9faff}
+    .warn{background:rgba(251,191,36,.09)}
+    .formula{direction:ltr; text-align:center; background:#08101c; border:1px solid var(--line); border-radius:16px; padding:13px; margin:10px 0; overflow:visible}
+    .mjx-chtml,.MathJax,.math{direction:ltr!important; unicode-bidi:isolate!important}
+    .ltr{direction:ltr; unicode-bidi:embed; text-align:left}
+    ul,ol{margin-top:8px; padding-right:22px}
+    li{margin:7px 0}
+    .lesson-step{counter-increment:step; position:relative}
+    .lesson-step h2:before{
+      content:counter(step); display:inline-grid; place-items:center; width:34px; height:34px; margin-left:10px;
+      border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#06111f; font-weight:bold;
+    }
+    main{counter-reset:step}
+    .chart{width:100%; height:430px; direction:ltr}
+    .controls{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px}
+    @media(max-width:850px){.controls{grid-template-columns:1fr 1fr}.chart{height:390px}}
+    .control{background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:12px}
+    .control label{display:block; font-size:.92rem; color:var(--muted); margin-bottom:6px}
+    input[type=range]{width:100%}
+    .value{direction:ltr; display:inline-block; color:#fff; font-weight:bold}
+    table{width:100%; border-collapse:collapse; margin-top:10px; background:rgba(255,255,255,.04); border-radius:16px; overflow:hidden}
+    th,td{border:1px solid rgba(255,255,255,.10); padding:10px; text-align:center}
+    th{background:rgba(84,211,255,.11); color:#dff7ff}
+    .task{background:rgba(167,139,250,.10); border:1px solid rgba(167,139,250,.25); border-radius:16px; padding:14px; margin-top:12px}
+    .mini{font-size:.94rem;color:var(--muted)}
+    .kbd{direction:ltr; display:inline-block; background:#07101e; border:1px solid #334766; border-radius:8px; padding:1px 7px}
+  </style>
+</head>
+
+<body>
+<div class="page">
+  <header>
+    <div class="pill">מערך שיעור לתיכון · סטטיסטיקה · רגרסיה לינארית</div>
+    <h1>רגרסיה לינארית: מתצפיות לניבוי</h1>
+    <p class="subtitle">
+      בשיעור נלמד כיצד לזהות קשר לינארי בדיאגרמת פיזור, כיצד מפרשים את מקדם המתאם \(r\),
+      כיצד בונים ישר רגרסיה, ומה קורה לממוצעים, לסטיות התקן, למתאם ולישר כאשר מזיזים או מותחים את הנתונים.
+    </p>
+  </header>
+
+  <main class="grid">
+
+    <section class="card span-12 lesson-step">
+      <h2>מטרות השיעור</h2>
+      <div class="grid">
+        <div class="span-4">
+          <h3>ידע</h3>
+          <ul>
+            <li>להבין מהי דיאגרמת פיזור.</li>
+            <li>להבחין בין קשר חיובי, קשר שלילי וחוסר קשר לינארי.</li>
+            <li>לפרש את \(r\) לפי סימן וגודל.</li>
+          </ul>
+        </div>
+        <div class="span-4">
+          <h3>מיומנות</h3>
+          <ul>
+            <li>לחשב שיפוע של ישר רגרסיה.</li>
+            <li>למצוא את \(b\) בעזרת נקודת הממוצעים.</li>
+            <li>להשתמש בישר לניבוי.</li>
+          </ul>
+        </div>
+        <div class="span-4">
+          <h3>חשיבה</h3>
+          <ul>
+            <li>להסביר מה משתנה ומה נשמר לאחר הזזה או כפל.</li>
+            <li>להבין מדוע שינוי בסקלה אינו בהכרח משנה את הקשר.</li>
+            <li>להיזהר מניבוי כאשר אין קשר לינארי.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card span-6 lesson-step">
+      <h2>פתיחה: מהי תצפית?</h2>
+      <p>
+        תצפית היא זוג מספרים \((x,y)\). לדוגמה: אם \(x\) הוא מספר שעות לימוד
+        ו־\(y\) הוא ציון במבחן, אז תלמיד שלמד \(5\) שעות וקיבל \(78\) מיוצג על ידי הנקודה \((5,78)\).
+      </p>
+      <div class="formula">\[
+        (x_i,y_i)
+      \]</div>
+      <div class="note">
+        הרעיון המרכזי: במקום להסתכל על רשימת מספרים, מציירים את כל הזוגות כנקודות ורואים האם נוצרת מגמה.
+      </div>
+    </section>
+
+    <section class="card span-6 lesson-step">
+      <h2>דוגמה ראשונה: שעות לימוד וציון</h2>
+      <table>
+        <thead><tr><th>תלמיד</th><th>\(x\): שעות לימוד</th><th>\(y\): ציון</th></tr></thead>
+        <tbody>
+          <tr><td>א</td><td>2</td><td>65</td></tr>
+          <tr><td>ב</td><td>4</td><td>72</td></tr>
+          <tr><td>ג</td><td>5</td><td>78</td></tr>
+          <tr><td>ד</td><td>7</td><td>88</td></tr>
+        </tbody>
+      </table>
+      <p class="mini">ככל ש־\(x\) גדל, גם \(y\) נוטה לגדול. לכן מצפים לקשר לינארי חיובי.</p>
+    </section>
+
+    <section class="card span-12 lesson-step">
+      <h2>גרף אינטראקטיבי 1: דיאגרמת פיזור וישר ניבוי</h2>
+      <p>
+        הזיזו את הסליידרים ושימו לב: השיפוע משנה את התלילות, והחיתוך משנה את הגובה.
+        הנקודות הן תצפיות, והקו הוא מודל ניבוי מהצורה \(\tilde{y}=mx+b\).
+      </p>
+      <div id="chart1" class="chart"></div>
+      <div class="controls">
+        <div class="control">
+          <label>שיפוע \(m\): <span id="mVal" class="value"></span></label>
+          <input id="mSlider" type="range" min="-10" max="10" value="4" step="0.1">
+        </div>
+        <div class="control">
+          <label>חיתוך \(b\): <span id="bVal" class="value"></span></label>
+          <input id="bSlider" type="range" min="30" max="90" value="58" step="1">
+        </div>
+        <div class="control">
+          <label>רעש סביב הקו: <span id="noiseVal" class="value"></span></label>
+          <input id="noiseSlider" type="range" min="0" max="20" value="7" step="1">
+        </div>
+        <div class="control">
+          <label>ערך לניבוי \(x_0\): <span id="x0Val" class="value"></span></label>
+          <input id="x0Slider" type="range" min="1" max="10" value="6" step="0.5">
+        </div>
+      </div>
+    </section>
+
+    <section class="card span-6 lesson-step">
+      <h2>מקדם המתאם \(r\)</h2>
+      <p>
+        מקדם המתאם הלינארי \(r\) מודד כיוון ועוצמה של קשר לינארי.
+      </p>
+      <div class="formula">\[
+        -1 \le r \le 1
+      \]</div>
+      <ul>
+        <li>\(r>0\): קשר חיובי — כאשר \(x\) גדל, \(y\) נוטה לגדול.</li>
+        <li>\(r<0\): קשר שלילי — כאשר \(x\) גדל, \(y\) נוטה לקטון.</li>
+        <li>\(r=0\): אין קשר לינארי ברור.</li>
+        <li>\(|r|\) קרוב ל־\(1\): קשר לינארי חזק.</li>
+      </ul>
+    </section>
+
+    <section class="card span-6 lesson-step">
+      <h2>נוסחת \(r\): משמעות ולא רק חישוב</h2>
+      <div class="formula">\[
+        r=\frac{1}{N\cdot S_x\cdot S_y}
+        \sum_{i=1}^{N}(x_i-\bar{x})(y_i-\bar{y})
+      \]</div>
+      <p>
+        אם \(x_i\) ו־\(y_i\) נמצאים באותו צד ביחס לממוצעים, המכפלה חיובית.
+        אם הם נמצאים בצדדים מנוגדים, המכפלה שלילית.
+      </p>
+      <div class="note warn">
+        כאשר כל ערכי \(x\) זהים או כל ערכי \(y\) זהים, אחת מסטיות התקן היא \(0\),
+        ולכן \(r\) אינו מוגדר.
+      </div>
+    </section>
+
+    <section class="card span-12 lesson-step">
+      <h2>גרף אינטראקטיבי 2: שליטה בעוצמת המתאם</h2>
+      <p>
+        שנה את \(r\) הרצוי. הגרף בונה ענן נקודות עם מגמה דומה, ומציג אומדן של המתאם בפועל.
+      </p>
+      <div id="chart2" class="chart"></div>
+      <div class="controls">
+        <div class="control">
+          <label>מתאם רצוי \(r\): <span id="rTargetVal" class="value"></span></label>
+          <input id="rTargetSlider" type="range" min="-0.95" max="0.95" value="0.75" step="0.05">
+        </div>
+        <div class="control">
+          <label>מספר נקודות \(N\): <span id="nVal" class="value"></span></label>
+          <input id="nSlider" type="range" min="8" max="60" value="28" step="1">
+        </div>
+      </div>
+    </section>
+
+    <section class="card span-7 lesson-step">
+      <h2>ישר הרגרסיה: קו הניבוי</h2>
+      <p>
+        ישר הרגרסיה הוא הקו שמטרתו לנבא את \(y\) מתוך \(x\). הוא נכתב כך:
+      </p>
+      <div class="formula">\[
+        \tilde{y}=mx+b
+      \]</div>
+      <p>
+        הקו עובר דרך נקודת הממוצעים \((\bar{x},\bar{y})\). לכן, לאחר שמצאנו את \(m\),
+        אפשר למצוא את \(b\):
+      </p>
+      <div class="formula">\[
+        b=\bar{y}-m\bar{x}
+      \]</div>
+    </section>
+
+    <section class="card span-5 lesson-step">
+      <h2>שיפוע הרגרסיה</h2>
+      <p>
+        השיפוע נקבע לפי המתאם ולפי היחס בין הפיזור של \(y\) לבין הפיזור של \(x\):
+      </p>
+      <div class="formula">\[
+        m=r\cdot\frac{S_y}{S_x}
+      \]</div>
+      <ul>
+        <li>אם \(r=0\), אז \(m=0\).</li>
+        <li>אם \(S_y\) גדול יחסית ל־\(S_x\), השיפוע עשוי להיות תלול יותר.</li>
+        <li>אם \(S_x=0\), אי אפשר לבנות ישר ניבוי רגיל לפי \(x\).</li>
+      </ul>
+    </section>
+
+    <section class="card span-12 lesson-step">
+      <h2>גרף אינטראקטיבי 3: בניית ישר לפי \(r,S_x,S_y,\bar{x},\bar{y}\)</h2>
+      <p>
+        שנו את הנתונים וראו כיצד \(m\) ו־\(b\) משתנים. זהו החלק המרכזי בשיעור:
+        מעבר מנתוני סיכום אל משוואת ניבוי.
+      </p>
+      <div id="chart3" class="chart"></div>
+      <div class="controls">
+        <div class="control"><label>\(r\): <span id="r3Val" class="value"></span></label><input id="r3" type="range" min="-1" max="1" value="0.6" step="0.05"></div>
+        <div class="control"><label>\(S_x\): <span id="sxVal" class="value"></span></label><input id="sx" type="range" min="1" max="8" value="3" step="0.2"></div>
+        <div class="control"><label>\(S_y\): <span id="syVal" class="value"></span></label><input id="sy" type="range" min="1" max="20" value="10" step="0.5"></div>
+        <div class="control"><label>\(\bar{x}\): <span id="xbVal" class="value"></span></label><input id="xb" type="range" min="0" max="10" value="5" step="0.5"></div>
+        <div class="control"><label>\(\bar{y}\): <span id="ybVal" class="value"></span></label><input id="yb" type="range" min="20" max="100" value="70" step="1"></div>
+      </div>
+      <div class="note" id="eq3"></div>
+    </section>
+
+    <section class="card span-12 lesson-step">
+      <h2>שינויי נתונים: הזזה, מתיחה ושיקוף</h2>
+      <p>
+        בחלק זה בודקים מה קורה כאשר מחליפים את \(X\) או את \(Y\) בביטוי חדש.
+      </p>
+      <table>
+        <thead><tr><th>שינוי</th><th>ממוצע</th><th>סטיית תקן</th><th>מתאם \(r\)</th><th>השפעה גאומטרית</th></tr></thead>
+        <tbody>
+          <tr><td>\(X'=X+a\)</td><td>\(\bar{x}'=\bar{x}+a\)</td><td>\(S_{x'}=S_x\)</td><td>לא משתנה</td><td>הזזה אופקית</td></tr>
+          <tr><td>\(Y'=Y+b\)</td><td>\(\bar{y}'=\bar{y}+b\)</td><td>\(S_{y'}=S_y\)</td><td>לא משתנה</td><td>הזזה אנכית</td></tr>
+          <tr><td>\(X'=cX,\ c>0\)</td><td>\(\bar{x}'=c\bar{x}\)</td><td>\(S_{x'}=cS_x\)</td><td>לא משתנה</td><td>מתיחה/כיווץ אופקי</td></tr>
+          <tr><td>\(Y'=dY,\ d>0\)</td><td>\(\bar{y}'=d\bar{y}\)</td><td>\(S_{y'}=dS_y\)</td><td>לא משתנה</td><td>מתיחה/כיווץ אנכי</td></tr>
+          <tr><td>כפל במספר שלילי</td><td>מוכפל במספר</td><td>מוכפלת בערך המוחלט</td><td>מחליף סימן</td><td>שיקוף</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card span-12 lesson-step">
+      <h2>גרף אינטראקטיבי 4: שינוי \(X\) ו־\(Y\) והשפעה על הענן</h2>
+      <p>
+        בחרו הזזה וכפל של \(X\) ושל \(Y\). ראו כיצד הענן והישר משתנים.
+        נסו כפל שלילי כדי לראות שיקוף והיפוך סימן הקשר.
+      </p>
+      <div id="chart4" class="chart"></div>
+      <div class="controls">
+        <div class="control"><label>\(X'=cX+a\), ערך \(a\): <span id="a4Val" class="value"></span></label><input id="a4" type="range" min="-8" max="8" value="0" step="0.5"></div>
+        <div class="control"><label>\(c\): <span id="c4Val" class="value"></span></label><input id="c4" type="range" min="-2" max="3" value="1" step="0.1"></div>
+        <div class="control"><label>\(Y'=dY+b\), ערך \(b\): <span id="b4Val" class="value"></span></label><input id="b4" type="range" min="-40" max="40" value="0" step="2"></div>
+        <div class="control"><label>\(d\): <span id="d4Val" class="value"></span></label><input id="d4" type="range" min="-2" max="3" value="1" step="0.1"></div>
+      </div>
+    </section>
+
+    <section class="card span-6 lesson-step">
+      <h2>דוגמה פתורה</h2>
+      <p>
+        נתון: \(\bar{x}=10,\ \bar{y}=50,\ S_x=4,\ S_y=12,\ r=0.75\).
+      </p>
+      <div class="formula">\[
+        m=r\cdot\frac{S_y}{S_x}=0.75\cdot\frac{12}{4}=2.25
+      \]</div>
+      <div class="formula">\[
+        b=\bar{y}-m\bar{x}=50-2.25\cdot10=27.5
+      \]</div>
+      <div class="formula">\[
+        \tilde{y}=2.25x+27.5
+      \]</div>
+      <p>
+        למשל, עבור \(x=14\):
+      </p>
+      <div class="formula">\[
+        \tilde{y}=2.25\cdot14+27.5=59
+      \]</div>
+    </section>
+
+    <section class="card span-6 lesson-step">
+      <h2>שאלות בדיקה לתלמידים</h2>
+      <div class="task">
+        <b>שאלה 1:</b> אם \(r=-0.8\), האם הקשר חזק או חלש? ומה כיוונו?
+        <p class="mini">תשובה: קשר לינארי חזק ושלילי.</p>
+      </div>
+      <div class="task">
+        <b>שאלה 2:</b> אם מוסיפים \(10\) לכל ערכי \(Y\), מה קורה ל־\(r\)?
+        <p class="mini">תשובה: \(r\) לא משתנה, כי הענן רק זז למעלה.</p>
+      </div>
+      <div class="task">
+        <b>שאלה 3:</b> אם \(r=0\), מהו שיפוע ישר הרגרסיה?
+        <p class="mini">תשובה: \(m=0\), ולכן הניבוי הוא לפי ממוצע \(Y\).</p>
+      </div>
+    </section>
+
+    <section class="card span-12 lesson-step">
+      <h2>סיכום שיעור</h2>
+      <ol>
+        <li>דיאגרמת פיזור מציגה תצפיות כנקודות.</li>
+        <li>מקדם המתאם \(r\) מודד כיוון ועוצמה של קשר לינארי.</li>
+        <li>ישר הרגרסיה משמש לניבוי: \(\tilde{y}=mx+b\).</li>
+        <li>השיפוע מחושב בעזרת \(m=r\cdot\frac{S_y}{S_x}\).</li>
+        <li>הזזה אינה משנה פיזור ומתאם, אך משנה ממוצע.</li>
+        <li>כפל חיובי משנה סקלה אך לא את \(r\); כפל שלילי הופך את סימן \(r\).</li>
+      </ol>
+      <div class="note">
+        המלצת הוראה: להתחיל מהגרפים האינטראקטיביים, לתת לתלמידים לנחש מה ישתנה, ורק לאחר מכן להציג את הנוסחה.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+function mirrorHebrewInMathJaxText(){
+  // Safety helper: if Hebrew letters accidentally appear inside MathJax text nodes, mirror their visual order.
+  // The lesson intentionally keeps formulas mostly symbolic, but this preserves the requested rule.
+}
+
+const baseX = [1,2,3,4,5,6,7,8,9,10];
+const baseNoise = [-5,3,-2,5,-4,1,6,-3,4,-1];
+
+function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
+function sd(arr){const m=mean(arr); return Math.sqrt(arr.reduce((s,v)=>s+(v-m)*(v-m),0)/arr.length)}
+function corr(x,y){
+  const mx=mean(x), my=mean(y), sx=sd(x), sy=sd(y);
+  if(sx===0 || sy===0) return NaN;
+  return x.reduce((s,xi,i)=>s+(xi-mx)*(y[i]-my),0)/(x.length*sx*sy);
+}
+function regression(x,y){
+  const r=corr(x,y), sx=sd(x), sy=sd(y), mx=mean(x), my=mean(y);
+  const m = r*sy/sx;
+  const b = my-m*mx;
+  return {r,m,b,mx,my,sx,sy};
+}
+function line(xs,m,b){return xs.map(x=>m*x+b)}
+function layout(title,xTitle,yTitle){
+  return {
+    title:{text:title,font:{color:'#eef5ff',size:18}},
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(255,255,255,0.04)',
+    font:{color:'#eef5ff'},
+    margin:{l:60,r:25,t:55,b:60},
+    xaxis:{title:xTitle, gridcolor:'rgba(255,255,255,.12)', zerolinecolor:'rgba(255,255,255,.28)'},
+    yaxis:{title:yTitle, gridcolor:'rgba(255,255,255,.12)', zerolinecolor:'rgba(255,255,255,.28)'},
+    legend:{orientation:'h', x:0, y:1.13},
+    hovermode:'closest'
+  }
+}
+
+function updateChart1(){
+  const m=+mSlider.value, b=+bSlider.value, noise=+noiseSlider.value, x0=+x0Slider.value;
+  mVal.textContent=m.toFixed(1); bVal.textContent=b.toFixed(0); noiseVal.textContent=noise.toFixed(0); x0Val.textContent=x0.toFixed(1);
+  const x=baseX;
+  const y=x.map((v,i)=>m*v+b + baseNoise[i]/7*noise);
+  const xs=[0,11], ys=line(xs,m,b);
+  const y0=m*x0+b;
+  Plotly.react('chart1',[
+    {x,y,mode:'markers',name:'תצפיות',marker:{size:11}},
+    {x:xs,y:ys,mode:'lines',name:'ישר ניבוי'},
+    {x:[x0,x0],y:[Math.min(...y, ...ys)-5,y0],mode:'lines',name:'קו עזר לניבוי',line:{dash:'dot'}},
+    {x:[x0],y:[y0],mode:'markers+text',name:'ניבוי',text:[`ŷ=${y0.toFixed(1)}`],textposition:'top center',marker:{size:13}}
+  ],layout('דיאגרמת פיזור וישר ניבוי','x - שעות לימוד','y - ציון'),{responsive:true});
+}
+
+function seededNoise(i){ return Math.sin(i*12.9898)*43758.5453 % 1; }
+function updateChart2(){
+  const rT=+rTargetSlider.value, n=+nSlider.value;
+  rTargetVal.textContent=rT.toFixed(2); nVal.textContent=n;
+  const x=[], y=[];
+  const noiseScale=Math.sqrt(Math.max(0.001,1-rT*rT));
+  for(let i=0;i<n;i++){
+    const xi=-3+6*i/(n-1);
+    const eps=(seededNoise(i)-0.5)*2;
+    const yi=rT*xi + noiseScale*eps*2.1;
+    x.push(xi); y.push(yi);
+  }
+  const reg=regression(x,y);
+  const xs=[-3.3,3.3];
+  Plotly.react('chart2',[
+    {x,y,mode:'markers',name:'נקודות',marker:{size:9}},
+    {x:xs,y:line(xs,reg.m,reg.b),mode:'lines',name:`קו מגמה, r≈${reg.r.toFixed(2)}`}
+  ],layout('עוצמת וכיוון המתאם','x','y'),{responsive:true});
+}
+
+function updateChart3(){
+  const r=+r3.value, sxv=+sx.value, syv=+sy.value, xbval=+xb.value, ybval=+yb.value;
+  r3Val.textContent=r.toFixed(2); sxVal.textContent=sxv.toFixed(1); syVal.textContent=syv.toFixed(1); xbVal.textContent=xbval.toFixed(1); ybVal.textContent=ybval.toFixed(0);
+  const m=r*syv/sxv;
+  const b=ybval-m*xbval;
+  const xs=[xbval-3*sxv, xbval+3*sxv];
+  const cloudX=[], cloudY=[];
+  for(let i=0;i<24;i++){
+    const t=-2.5+5*i/23;
+    const xi=xbval+t*sxv/1.3;
+    const yi=m*xi+b + (Math.sin(i*2.1))*syv*(1-Math.abs(r))*0.65;
+    cloudX.push(xi); cloudY.push(yi);
+  }
+  Plotly.react('chart3',[
+    {x:cloudX,y:cloudY,mode:'markers',name:'ענן נקודות לדוגמה',marker:{size:9}},
+    {x:xs,y:line(xs,m,b),mode:'lines',name:'ישר רגרסיה'},
+    {x:[xbval],y:[ybval],mode:'markers+text',name:'נקודת ממוצעים',text:['(x̄,ȳ)'],textposition:'top center',marker:{size:14}}
+  ],layout('בניית ישר רגרסיה מנתוני סיכום','x','ŷ'),{responsive:true});
+  eq3.innerHTML = `<span class="ltr">m = r·Sy/Sx = ${m.toFixed(3)}, &nbsp; b = ȳ − m·x̄ = ${b.toFixed(3)}, &nbsp; ŷ = ${m.toFixed(3)}x ${b>=0?'+':'−'} ${Math.abs(b).toFixed(3)}</span>`;
+}
+
+function updateChart4(){
+  const a=+a4.value, c=+c4.value, b=+b4.value, d=+d4.value;
+  a4Val.textContent=a.toFixed(1); c4Val.textContent=c.toFixed(1); b4Val.textContent=b.toFixed(0); d4Val.textContent=d.toFixed(1);
+  const x=baseX;
+  const y=x.map((v,i)=>4*v+50+baseNoise[i]);
+  const xt=x.map(v=>c*v+a);
+  const yt=y.map(v=>d*v+b);
+  const reg0=regression(x,y), regT=regression(xt,yt);
+  const xs0=[Math.min(...x)-1,Math.max(...x)+1], xsT=[Math.min(...xt)-1,Math.max(...xt)+1];
+  Plotly.react('chart4',[
+    {x,y,mode:'markers',name:`מקור: r=${reg0.r.toFixed(2)}`,marker:{size:9}},
+    {x:xs0,y:line(xs0,reg0.m,reg0.b),mode:'lines',name:'ישר מקור',line:{dash:'dot'}},
+    {x:xt,y:yt,mode:'markers',name:`אחרי שינוי: r=${isNaN(regT.r)?'לא מוגדר':regT.r.toFixed(2)}`,marker:{size:11}},
+    {x:xsT,y:line(xsT,regT.m,regT.b),mode:'lines',name:'ישר אחרי שינוי'}
+  ],layout('השפעת הזזה, מתיחה ושיקוף','x / x′','y / y′'),{responsive:true});
+}
+
+['mSlider','bSlider','noiseSlider','x0Slider'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart1));
+['rTargetSlider','nSlider'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart2));
+['r3','sx','sy','xb','yb'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart3));
+['a4','c4','b4','d4'].forEach(id=>document.getElementById(id).addEventListener('input',updateChart4));
+
+window.addEventListener('load',()=>{
+  updateChart1(); updateChart2(); updateChart3(); updateChart4();
+});
+</script>
+</body>
+</html>
