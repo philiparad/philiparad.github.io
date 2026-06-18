@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>דף עזר לבגרות — פעולות עזר למחרוזות Java — גרסת עמודה אחת</title>
+
+<style>
+@page {
+  size: A4;
+  margin: 10mm 10mm 12mm 10mm;
+  @bottom-center {
+    content: "עמוד " counter(page);
+    font-family: "Noto Sans Hebrew", "Arial", sans-serif;
+    font-size: 10.5px;
+    color: #506f94;
+  }
+}
+:root{
+  --blue:#1459d9;
+  --blue2:#2f7df6;
+  --light:#eaf4ff;
+  --light2:#f6fbff;
+  --ink:#1b2430;
+  --muted:#526171;
+  --line:#b6d2ff;
+  --warn:#fff7df;
+  --ok:#edf9f0;
+  --bad:#fff0f0;
+  --purple:#f1edff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #eef3fb; }
+body {
+  font-family: "Noto Sans Hebrew", "Arial", sans-serif;
+  color: var(--ink);
+  direction: rtl;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.doc {
+  width: 190mm;
+  max-width: calc(100vw - 24px);
+  margin: 0 auto;
+  padding: 10mm 0 12mm;
+  background: #fff;
+}
+header.hero{
+  border:2px solid var(--blue);
+  border-radius:16px;
+  overflow:hidden;
+  margin:0 0 11px;
+  background:linear-gradient(135deg, #dbeaff 0%, #f8fbff 100%);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.hero-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  background:#cfe3ff;
+  border-bottom:1px solid var(--line);
+}
+.title{ font-size:21px; font-weight:900; color:#123d91; margin:0; line-height:1.2; }
+.subtitle{ font-size:12.5px; color:#274368; margin-top:3px; line-height:1.35; }
+.badge{ direction:ltr; font-size:27px; font-weight:900; color:white; background:var(--blue); padding:8px 14px; border-radius:14px; letter-spacing:.5px; flex:0 0 auto; }
+.hero-body{ padding:9px 14px 12px; align-items:center; }
+.formula-card{ background:#fff; border:1.1px solid var(--line); border-radius:12px; padding:7px 10px; font-weight:700; color:#24415f; font-size:13px; line-height:1.4; margin-bottom:6px; }
+.note{ background:var(--warn); border:1.1px solid #f2d37a; border-radius:12px; padding:7px 10px; font-size:12.5px; line-height:1.42; }
+.sectionTitle{
+  margin: 14px 0 7px;
+  color:#114aa9;
+  font-size:18px;
+  border-right:4px solid var(--blue);
+  padding-right:8px;
+  line-height:1.2;
+  break-after:avoid;
+  page-break-after:avoid;
+}
+h3{ margin:0 0 5px; color:#123d91; font-size:15px; line-height:1.24; }
+p{ margin:3px 0 6px; line-height:1.36; font-size:12.8px; }
+.small{ font-size:11.5px; color:var(--muted); }
+.grid2, .grid3, .two-col-code{
+  display:block !important;
+  width:100%;
+  margin:0 0 7px;
+}
+.card{
+  width:100%;
+  border:1.1px solid var(--line);
+  border-radius:11px;
+  padding:8px 9px 7px;
+  background:var(--light2);
+  overflow:visible;
+  margin:0 0 7px;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.card.white{ background:#fff; }
+.card.ok{ background:var(--ok); border-color:#b9dfc1; }
+.card.warn{ background:var(--warn); border-color:#efd07c; }
+.card.bad{ background:var(--bad); border-color:#e7b0b0; }
+.card.purple{ background:var(--purple); border-color:#d5ccff; }
+.tight{ margin-top:7px; }
+table{ width:100%; border-collapse:separate; border-spacing:0; overflow:visible; border:1px solid var(--line); border-radius:11px; background:white; margin:0 0 7px; break-inside:avoid; page-break-inside:avoid; }
+th,td{ border-bottom:1px solid var(--line); padding:6px 8px; vertical-align:top; font-size:12.8px; line-height:1.32; }
+th{ background:#d8e9ff; color:#123d91; font-weight:900; }
+tr:last-child td{ border-bottom:0; }
+.op{ direction:ltr; text-align:left; font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; font-size:11.4px; font-weight:700; color:#0756c8; }
+.ltr, .signature, pre, code { direction:ltr; unicode-bidi:embed; text-align:left; }
+.signature{ font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#114aa9; font-weight:900; font-size:10.6px; margin:0 0 3px; white-space:pre-wrap; }
+pre, .code{
+  direction:ltr;
+  text-align:left;
+  unicode-bidi:embed;
+  white-space:pre-wrap;
+  overflow:visible;
+  margin:5px 0 0;
+  padding:7px 8px;
+  border-radius:10px;
+  background:#0f172a;
+  color:#e7eefc;
+  border:1px solid #263857;
+  font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace;
+  font-size:11.8px;
+  line-height:1.20;
+}
+.mini-code{ font-size:10.1px; line-height:1.16; }
+code{ font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#0a54c7; font-weight:700; font-size:.96em; }
+pre code, .code code { color:inherit; font-weight:inherit; }
+.pill{ display:inline-block; background:#e8f1ff; border:1px solid var(--line); color:#0f56c7; border-radius:999px; padding:2px 8px; font-weight:800; font-size:11px; margin:1px 0; }
+.rule{ display:flex; align-items:flex-start; gap:7px; margin:4px 0; font-size:12.5px; line-height:1.3; }
+.num{ min-width:21px; height:21px; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; background:var(--blue); color:white; font-weight:900; direction:ltr; }
+.compact li{ margin-bottom:3px; }
+.avoid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; margin-top:5px; }
+.avoid span{ background:#fff; border:1px dashed #df9c9c; border-radius:8px; padding:4px 5px; direction:ltr; text-align:center; font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#b22020; font-size:10.2px; font-weight:700; }
+.map td:first-child{ width:26%; font-weight:800; color:#123d91; }
+.foot{ margin-top:7px; padding:7px 9px; background:#eef6ff; border:1px solid var(--line); border-radius:12px; font-size:12.5px; line-height:1.35; break-inside:avoid; page-break-inside:avoid; }
+.example{ margin:5px 0 0; padding:4px 6px; background:#eef6ff; border:1px solid var(--line); border-radius:8px; font-size:10.6px; line-height:1.2; }
+.example code{ color:#0a54c7; }
+.formula{ direction:ltr; unicode-bidi:isolate; font-family:"DejaVu Serif", serif; font-style:italic; color:#17365d; }
+@media print{
+  html, body{ background:white; }
+  .doc{ width:auto; max-width:none; padding:0; }
+  a{ color:inherit; text-decoration:none; }
+}
+</style></head>
+<body><main class="doc"><header class="hero">
+<div class="hero-top">
+<div>
+<h1 class="title">דף עזר לבחינת הבגרות — מחרוזות ב־Java</h1>
+<div class="subtitle">פעולות מותרות + פעולות עזר שאפשר לבנות לבד בלי להשתמש בפעולות String נוספות</div>
+</div>
+<div class="badge">Java</div>
+</div>
+<div class="hero-body">
+<div class="formula-card">
+        כלל אינדקסים מרכזי: אם <span class="formula">n = str.length()</span>, אז האינדקסים החוקיים הם <span class="formula">0 ≤ i &lt; n</span>. 
+        האינדקס האחרון הוא <span class="formula">n - 1</span>, ולכן אסור לכתוב <code>str.charAt(str.length())</code>.
+      </div>
+<div class="note">
+        בדף זה לא משתמשים בפעולות נוספות של <code>String</code>, כגון <code>substring</code>, <code>replace</code>, <code>trim</code>, <code>split</code>, <code>startsWith</code>, <code>endsWith</code>, <code>compareTo</code>. ב־Java כל הפעולות ה־<code>static</code> צריכות להיכתב בתוך מחלקה.
+      </div>
+</div>
+</header><h2 class="sectionTitle">1. הפעולות המותרות לפי הטבלה</h2><table>
+<thead>
+<tr><th>פעולה</th><th>מה מקבלים?</th><th>דוגמה קצרה</th></tr>
+</thead>
+<tbody>
+<tr>
+<td class="op" dir="ltr">str.charAt(i)</td>
+<td>תו בודד מהמחרוזת. התוצאה היא <code>char</code>.</td>
+<td class="ltr" dir="ltr"><code>String str = "hello";char c = str.charAt(1); // 'e'</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.length()</td>
+<td>מספר התווים במחרוזת. זו פעולה, ולכן כותבים סוגריים.</td>
+<td class="ltr" dir="ltr"><code>int len = str.length();</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str1 + str2</td>
+<td>שרשור: יצירת מחרוזת חדשה משתי מחרוזות.</td>
+<td class="ltr" dir="ltr"><code>String s = "Good " + "Morning";</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.contains(value)</td>
+<td>האם תת־מחרוזת קיימת בתוך המחרוזת. התוצאה היא <code>boolean</code>.</td>
+<td class="ltr" dir="ltr"><code>boolean ok = str.contains("ab");</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.indexOf(value)</td>
+<td>מיקום ההופעה הראשונה של תת־מחרוזת. אם לא נמצא — מתקבל <code>-1</code>.</td>
+<td class="ltr" dir="ltr"><code>int p = "banana".indexOf("na"); // 2</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.indexOf(ch)</td>
+<td>מיקום ההופעה הראשונה של תו. אם לא נמצא — מתקבל <code>-1</code>.</td>
+<td class="ltr" dir="ltr"><code>int p = "hello".indexOf('l'); // 2</code></td>
+</tr>
+</tbody>
+</table><h2 class="sectionTitle">3. פעולות עזר בסיסיות לבדיקה ולחיפוש</h2><div class="grid2">
+<div class="card white">
+<h3>בדיקת אינדקס חוקי</h3>
+<div class="signature" dir="ltr">static boolean isValidIndex(String str, int i)</div>
+<pre class="code" dir="ltr">static boolean isValidIndex(String str, int i)
+{
+    return i &gt;= 0 &amp;&amp; i &lt; str.length();
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(isValidIndex("hello", 1)); // true</code></span></div>
+</div>
+<div class="card white">
+<h3>ספירת תו</h3>
+<div class="signature" dir="ltr">static int countChar(String str, char ch)</div>
+<pre class="code" dir="ltr">static int countChar(String str, char ch)
+{
+    int count = 0;
+    for (int i = 0; i &lt; str.length(); i++)
+    {
+        if (str.charAt(i) == ch)
+            count++;
+    }
+    return count;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(countChar("banana", 'a')); // 3</code></span></div>
+</div>
+<div class="card white">
+<h3>מציאת הופעה אחרונה של תו</h3>
+<div class="signature" dir="ltr">static int lastIndexOfChar(String str, char ch)</div>
+<pre class="code" dir="ltr">static int lastIndexOfChar(String str, char ch)
+{
+    int index = -1;
+    for (int i = 0; i &lt; str.length(); i++)
+    {
+        if (str.charAt(i) == ch)
+            index = i;
+    }
+    return index;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(lastIndexOfChar("banana", 'a')); // 5</code></span></div>
+</div>
+
+<div class="card white">
+<h3>בדיקת שוויון בין שתי מחרוזות</h3>
+<div class="signature" dir="ltr">static boolean areEqual(String a, String b)</div>
+<pre class="code" dir="ltr">static boolean areEqual(String a, String b)
+{
+    if (a.length() != b.length())
+        return false;
+
+    boolean same = true;
+    for (int i = 0; i &lt; a.length(); i++)
+    {
+        if (a.charAt(i) != b.charAt(i))
+            same = false;
+    }
+    return same;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(areEqual("abc", "abc")); // true</code></span></div>
+</div>
+</div><div class="grid2 tight">
+<div class="card ok">
+<h3>בדיקה אם תו הוא ספרה</h3>
+<div class="signature" dir="ltr">static boolean isDigit(char ch)</div>
+<pre class="code" dir="ltr">static boolean isDigit(char ch)
+{
+    return ch &gt;= '0' &amp;&amp; ch &lt;= '9';
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(isDigit('7')); // true</code></span></div>
+</div>
+<div class="card ok">
+<h3>בדיקה אם תו הוא אות באנגלית</h3>
+<div class="signature" dir="ltr">static boolean isLetter(char ch)</div>
+<pre class="code" dir="ltr">static boolean isLetter(char ch)
+{
+    boolean small = ch &gt;= 'a' &amp;&amp; ch &lt;= 'z';
+    boolean big = ch &gt;= 'A' &amp;&amp; ch &lt;= 'Z';
+    return small || big;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(isLetter('G')); // true</code></span></div>
+</div>
+</div><h2 class="tight sectionTitle">4. בדיקת התאמה של תת־מחרוזת בלי substring</h2><p>הרעיון: בודקים תו־תו האם <code>value</code> מתחילה במקום <code>index</code> בתוך <code>str</code>.</p><div class="grid2">
+<div class="card purple">
+<h3>האם יש התאמה במקום מסוים?</h3>
+<div class="signature" dir="ltr">static boolean isMatchAt(String str, String value, int index)</div>
+<pre class="code" dir="ltr">static boolean isMatchAt(String str, String value, int index)
+{
+    if (index &lt; 0 || index + value.length() &gt; str.length())
+        return false;
+
+    boolean ok = true;
+    for (int j = 0; j &lt; value.length(); j++)
+    {
+        if (str.charAt(index + j) != value.charAt(j))
+            ok = false;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(isMatchAt("banana", "na", 2)); // true</code></span></div>
+</div>
+<div class="card purple">
+<h3>מציאת תת־מחרוזת בצורה ידנית</h3>
+<div class="signature" dir="ltr">static int indexOfText(String str, String value)</div>
+<pre class="code" dir="ltr">static int indexOfText(String str, String value)
+{
+    if (value.length() == 0)
+        return 0;
+
+    int index = -1;
+    for (int i = 0; i &lt;= str.length() - value.length() &amp;&amp; index == -1; i++)
+    {
+        if (isMatchAt(str, value, i))
+            index = i;
+    }
+    return index;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(indexOfText("banana", "na")); // 2</code></span></div>
+</div>
+</div><div class="grid2 tight">
+<div class="card white">
+<h3>ספירת תת־מחרוזת</h3>
+<p class="small">הקוד סופר גם הופעות חופפות. לדוגמה: ב־<code>"aaaa"</code>, המחרוזת <code>"aa"</code> נספרת 3 פעמים.</p>
+<div class="signature" dir="ltr">static int countText(String str, String value)</div>
+<pre class="code" dir="ltr">static int countText(String str, String value)
+{
+    if (value.length() == 0)
+        return 0;
+
+    int count = 0;
+    for (int i = 0; i &lt;= str.length() - value.length(); i++)
+    {
+        if (isMatchAt(str, value, i))
+            count++;
+    }
+    return count;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(countText("aaaa", "aa")); // 3</code></span></div>
+</div>
+<div class="card white">
+<h3>האם כל התווים שונים?</h3>
+<div class="signature" dir="ltr">static boolean allDifferentChars(String str)</div>
+<pre class="code" dir="ltr">static boolean allDifferentChars(String str)
+{
+    boolean ok = true;
+    for (int i = 0; i &lt; str.length(); i++)
+    {
+        for (int j = i + 1; j &lt; str.length(); j++)
+        {
+            if (str.charAt(i) == str.charAt(j))
+                ok = false;
+        }
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(allDifferentChars("abcd")); // true</code></span></div>
+</div>
+</div><h2 class="sectionTitle">5. התחלה, סוף וגזירה ידנית של מחרוזת</h2><div class="grid2">
+<div class="card white">
+<h3>בדיקה אם מחרוזת מתחילה בערך מסוים</h3>
+<div class="signature" dir="ltr">static boolean startsWithText(String str, String prefix)</div>
+<pre class="code" dir="ltr">static boolean startsWithText(String str, String prefix)
+{
+    if (prefix.length() &gt; str.length())
+        return false;
+
+    boolean ok = true;
+    for (int i = 0; i &lt; prefix.length(); i++)
+    {
+        if (str.charAt(i) != prefix.charAt(i))
+            ok = false;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(startsWithText("computer", "com")); // true</code></span></div>
+</div>
+<div class="card white">
+<h3>בדיקה אם מחרוזת מסתיימת בערך מסוים</h3>
+<div class="signature" dir="ltr">static boolean endsWithText(String str, String suffix)</div>
+<pre class="code" dir="ltr">static boolean endsWithText(String str, String suffix)
+{
+    if (suffix.length() &gt; str.length())
+        return false;
+
+    int start = str.length() - suffix.length();
+    boolean ok = true;
+    for (int i = 0; i &lt; suffix.length(); i++)
+    {
+        if (str.charAt(start + i) != suffix.charAt(i))
+            ok = false;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(endsWithText("computer", "ter")); // true</code></span></div>
+</div>
+</div><div class="card purple tight">
+<h3>יצירת חלק ממחרוזת בלי substring</h3>
+<p>הפעולה מחזירה מחרוזת באורך <code>length</code>, שמתחילה במקום <code>start</code>. אם הנתונים לא חוקיים — מוחזרת מחרוזת ריקה.</p>
+<div class="signature" dir="ltr">static String mySubstring(String str, int start, int length)</div>
+<pre class="code" dir="ltr">static String mySubstring(String str, int start, int length)
+{
+    String result = "";
+
+    if (start &lt; 0 || length &lt; 0 || start + length &gt; str.length())
+        return result;
+
+    for (int i = start; i &lt; start + length; i++)
+    {
+        result = result + str.charAt(i);
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(mySubstring("computer", 3, 4)); // pute</code></span></div>
+</div><h2 class="tight sectionTitle">6. יצירת מחרוזות חדשות</h2><div class="grid2">
+<div class="card ok">
+<h3>היפוך מחרוזת</h3>
+<div class="signature" dir="ltr">static String reverse(String str)</div>
+<pre class="code" dir="ltr">static String reverse(String str)
+{
+    String result = "";
+    for (int i = str.length() - 1; i &gt;= 0; i--)
+    {
+        result = result + str.charAt(i);
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(reverse("abc")); // cba</code></span></div>
+</div>
+<div class="card ok">
+<h3>מחיקת כל ההופעות של תו</h3>
+<div class="signature" dir="ltr">static String removeChar(String str, char ch)</div>
+<pre class="code" dir="ltr">static String removeChar(String str, char ch)
+{
+    String result = "";
+    for (int i = 0; i &lt; str.length(); i++)
+    {
+        if (str.charAt(i) != ch)
+            result = result + str.charAt(i);
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(removeChar("banana", 'a')); // bnn</code></span></div>
+</div>
+<div class="card ok">
+<h3>החלפת תו בתו אחר</h3>
+<div class="signature" dir="ltr">static String replaceChar(String str, char oldCh, char newCh)</div>
+<pre class="code" dir="ltr">static String replaceChar(String str, char oldCh, char newCh)
+{
+    String result = "";
+    for (int i = 0; i &lt; str.length(); i++)
+    {
+        if (str.charAt(i) == oldCh)
+            result = result + newCh;
+        else
+            result = result + str.charAt(i);
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(replaceChar("banana", 'a', 'o')); // bonono</code></span></div>
+</div>
+<div class="card ok">
+<h3>מחיקת תו במקום מסוים</h3>
+<div class="signature" dir="ltr">static String deleteAt(String str, int index)</div>
+<pre class="code" dir="ltr">static String deleteAt(String str, int index)
+{
+    if (index &lt; 0 || index &gt;= str.length())
+        return str;
+
+    String result = "";
+    for (int i = 0; i &lt; str.length(); i++)
+    {
+        if (i != index)
+            result = result + str.charAt(i);
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(deleteAt("hello", 1)); // hllo</code></span></div>
+</div>
+</div><div class="card white tight">
+<h3>הוספת מחרוזת במקום מסוים</h3>
+<p class="small">מותר להוסיף גם בסוף: כאשר <code>index == str.length()</code>.</p>
+<div class="signature" dir="ltr">static String insertAt(String str, String value, int index)</div>
+<pre class="code" dir="ltr">static String insertAt(String str, String value, int index)
+{
+    if (index &lt; 0 || index &gt; str.length())
+        return str;
+
+    String result = "";
+    for (int i = 0; i &lt; index; i++)
+        result = result + str.charAt(i);
+
+    result = result + value;
+
+    for (int i = index; i &lt; str.length(); i++)
+        result = result + str.charAt(i);
+
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(insertAt("helo", "l", 3)); // hello</code></span></div>
+</div><h2 class="sectionTitle">7. פעולות בדיקה נפוצות</h2><div class="grid2">
+<div class="card white">
+<h3>בדיקת פלינדרום</h3>
+<p class="small">פלינדרום הוא מחרוזת שנקראת אותו הדבר משני הכיוונים.</p>
+<div class="signature" dir="ltr">static boolean isPalindrome(String str)</div>
+<pre class="code" dir="ltr">static boolean isPalindrome(String str)
+{
+    boolean ok = true;
+    int left = 0;
+    int right = str.length() - 1;
+
+    while (left &lt; right)
+    {
+        if (str.charAt(left) != str.charAt(right))
+            ok = false;
+
+        left++;
+        right--;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(isPalindrome("level")); // true</code></span></div>
+</div>
+<div class="card white">
+<h3>ספירת מילים לפי רווחים</h3>
+<p class="small">מתאים למילים שמופרדות ברווח אחד או יותר. אין צורך ב־<code>trim</code>.</p>
+<div class="signature" dir="ltr">static int countWords(String str)</div>
+<pre class="code" dir="ltr">static int countWords(String str)
+{
+    int count = 0;
+    boolean insideWord = false;
+
+    for (int i = 0; i &lt; str.length(); i++)
+    {
+        if (str.charAt(i) != ' ' &amp;&amp; !insideWord)
+        {
+            count++;
+            insideWord = true;
+        }
+        else if (str.charAt(i) == ' ')
+        {
+            insideWord = false;
+        }
+    }
+    return count;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(countWords("one two  three")); // 3</code></span></div>
+</div>
+</div><div class="grid2 tight">
+<div class="card purple">
+<h3>השוואה מילונית בלי compareTo</h3>
+<p class="small"><code>-1</code> אם <code>a</code> לפני <code>b</code>, <code>1</code> אם אחרי, <code>0</code> אם שוות.</p>
+<div class="signature" dir="ltr">static int compareStrings(String a, String b)</div>
+<pre class="code" dir="ltr">static int compareStrings(String a, String b)
+{
+    int i = 0;
+    int result = 0;
+
+    while (i &lt; a.length() &amp;&amp; i &lt; b.length() &amp;&amp; result == 0)
+    {
+        if (a.charAt(i) &lt; b.charAt(i))
+            result = -1;
+        else if (a.charAt(i) &gt; b.charAt(i))
+            result = 1;
+
+        i++;
+    }
+
+    if (result == 0)
+    {
+        if (a.length() &lt; b.length())
+            result = -1;
+        else if (a.length() &gt; b.length())
+            result = 1;
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(compareStrings("abc", "abd")); // -1</code></span></div>
+</div>
+<div class="card purple">
+<h3>המרת אות גדולה לקטנה בלי toLowerCase</h3>
+<p class="small">הפעולה מטפלת באותיות באנגלית בלבד. כל תו אחר נשאר כפי שהוא.</p>
+<div class="signature" dir="ltr">static char toLowerChar(char ch)</div>
+<pre class="code" dir="ltr">static char toLowerChar(char ch)
+{
+    if (ch &gt;= 'A' &amp;&amp; ch &lt;= 'Z')
+        return (char)(ch + ('a' - 'A'));
+
+    return ch;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(toLowerChar('G')); // g</code></span></div>
+<div class="signature tight" dir="ltr">static String toLowerText(String str)</div>
+<pre class="mini-code code" dir="ltr">static String toLowerText(String str)
+{
+    String result = "";
+    for (int i = 0; i &lt; str.length(); i++)
+        result = result + toLowerChar(str.charAt(i));
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>System.out.println(toLowerText("AbC!")); // abc!</code></span></div>
+</div>
+</div><div class="foot">
+<strong>כלל עבודה מומלץ:</strong> לפני כתיבת הקוד סמנו את הטווח המדויק של הלולאה. כמעט כל טעות במחרוזות נובעת מאינדקס התחלה שגוי, אינדקס סוף שגוי, או שכחה שהתו האחרון נמצא במקום <span class="formula">n - 1</span>.
+  </div></main></body>
+</html>
