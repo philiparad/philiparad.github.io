@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>יישומון אינטראקטיבי — משפחות של פונקציות רציונליות</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --blue: #184d88;
+      --blue-2: #1f67bd;
+      --blue-soft: #eef5fc;
+      --border: #bfd4eb;
+      --text: #10233c;
+      --muted: #506781;
+      --panel: #f7fbff;
+      --purple: #7d2aa6;
+      --shadow: 0 7px 24px rgba(24, 77, 136, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(31, 103, 189, 0.05), transparent 34rem),
+        #ffffff;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app-shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 14px 0 22px;
+    }
+
+    .screen-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      direction: rtl;
+    }
+
+    .screen-switcher button {
+      border: 1px solid #aac5e2;
+      background: #ffffff;
+      color: var(--blue);
+      border-radius: 999px;
+      padding: 9px 18px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .screen-switcher button:hover,
+    .screen-switcher button:focus-visible {
+      background: #eef6ff;
+      outline: none;
+    }
+
+    .screen-switcher button.active {
+      background: var(--blue);
+      color: #ffffff;
+      border-color: var(--blue);
+      box-shadow: 0 4px 13px rgba(24, 77, 136, 0.18);
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .screen-header {
+      padding: 0 5px 8px;
+    }
+
+    .unit-label {
+      color: #5d7898;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .main-title {
+      margin: 0;
+      padding-bottom: 12px;
+      border-bottom: 3px solid var(--blue);
+      color: var(--blue);
+      font-size: 25px;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .instructions {
+      margin: 8px 0 10px;
+      text-align: center;
+      font-size: 1rem;
+      color: #223b58;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      direction: ltr;
+    }
+
+    .control-card {
+      direction: rtl;
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px 12px 8px;
+      box-shadow: 0 3px 11px rgba(24, 77, 136, 0.035);
+    }
+
+    .control-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .control-symbol {
+      direction: ltr;
+      color: var(--blue);
+      font-family: "Times New Roman", serif;
+      font-size: 1.04rem;
+      font-style: italic;
+      font-weight: 700;
+    }
+
+    .control-value {
+      min-width: 3ch;
+      text-align: center;
+      font-weight: 700;
+      direction: ltr;
+      color: #0e1a2c;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #2c649b;
+      cursor: pointer;
+      direction: ltr;
+    }
+
+    .equation-card {
+      min-height: 82px;
+      margin-top: 9px;
+      display: grid;
+      place-items: center;
+      background: #f4f9fe;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      font-size: clamp(1.35rem, 2.7vw, 2rem);
+      direction: ltr;
+      overflow: visible;
+    }
+
+    .graph-panel {
+      position: relative;
+      margin-top: 9px;
+      padding: 38px 8px 8px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      overflow: visible;
+    }
+
+    .graph-title {
+      position: absolute;
+      top: 9px;
+      right: 12px;
+      left: 190px;
+      min-height: 24px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 0.94rem;
+      white-space: normal;
+    }
+
+    .graph-actions {
+      position: absolute;
+      top: 7px;
+      left: 8px;
+      z-index: 20;
+      display: flex;
+      gap: 5px;
+      direction: rtl;
+    }
+
+    .graph-actions button {
+      border: 1px solid #a9c1dd;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #153d68;
+      padding: 4px 9px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      line-height: 1.1;
+    }
+
+    .graph-actions button:hover,
+    .graph-actions button:focus-visible {
+      background: #edf6ff;
+      outline: none;
+    }
+
+    .jxgbox {
+      width: 100%;
+      height: clamp(420px, 55vh, 565px);
+      border: 0;
+      border-radius: 8px;
+      background: #ffffff;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    .graph-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 18px;
+      padding: 7px 8px 1px;
+      color: #415873;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    .status-card {
+      margin-top: 9px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-right: 6px solid #2d70ac;
+      border-radius: 11px;
+      background: #f5f9fe;
+      line-height: 1.55;
+      text-align: right;
+      font-size: 0.98rem;
+      overflow: visible;
+    }
+
+    .kbd-tip {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    .ltr-math {
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: inline-block;
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        width: min(100% - 14px, 1180px);
+        padding-top: 8px;
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .control-card {
+        padding: 7px 10px 6px;
+      }
+
+      .equation-card {
+        min-height: 68px;
+      }
+
+      .graph-panel {
+        padding-top: 72px;
+      }
+
+      .graph-actions {
+        top: 39px;
+        left: 8px;
+      }
+
+      .graph-title {
+        left: 8px;
+      }
+
+      .jxgbox {
+        height: 58vh;
+        min-height: 390px;
+      }
+    }
+
+    @media print {
+      .screen-switcher {
+        display: none;
+      }
+
+      .screen {
+        display: block !important;
+        page-break-after: always;
+      }
+
+      .screen:last-child {
+        page-break-after: auto;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      .graph-panel,
+      .control-card {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <nav class="screen-switcher" aria-label="בחירת מסך">
+      <button type="button" class="active" data-screen-target="screen-family-1">משפחה 1</button>
+      <button type="button" data-screen-target="screen-family-2">משפחה 2</button>
+    </nav>
+
+    <!-- SCREEN 1 -->
+    <section class="screen active" id="screen-family-1" aria-labelledby="title-family-1">
+      <header class="screen-header">
+        <h1 class="main-title" id="title-family-1">
+          המשפחה הכללית
+          <span class="ltr-math">\( f(x)=\dfrac{a}{x-h}+k \)</span>
+        </h1>
+        <p class="instructions">
+          שנו את הפרמטרים <span class="ltr-math">\(a,h,k\)</span> בעזרת המחוונים.
+          הגרף, האסימפטוטות ומשוואת הפונקציה יתעדכנו מיד.
+        </p>
+      </header>
+
+      <div class="controls-grid" aria-label="בקרי משפחה 1">
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">a</span>
+            <span class="control-value" id="f1-a-value">1</span>
+          </span>
+          <input id="f1-a" type="range" min="0" max="19" step="1" value="10" aria-label="הפרמטר a" />
+        </label>
+
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">h</span>
+            <span class="control-value" id="f1-h-value">0</span>
+          </span>
+          <input id="f1-h" type="range" min="-4" max="4" step="0.5" value="0" aria-label="הפרמטר h" />
+        </label>
+
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">k</span>
+            <span class="control-value" id="f1-k-value">0</span>
+          </span>
+          <input id="f1-k" type="range" min="-4" max="4" step="0.5" value="0" aria-label="הפרמטר k" />
+        </label>
+      </div>
+
+      <div class="equation-card" id="f1-equation" aria-live="polite">\( f(x)=\dfrac{1}{x} \)</div>
+
+      <div class="graph-panel">
+        <div class="graph-actions" aria-label="בקרי תצוגת הגרף">
+          <button type="button" data-graph="f1" data-action="zoom-in">הגדלה</button>
+          <button type="button" data-graph="f1" data-action="zoom-out">הקטנה</button>
+          <button type="button" data-graph="f1" data-action="center">מרכז</button>
+        </div>
+
+        <div id="board-family-1" class="jxgbox" aria-label="גרף של משפחה 1"></div>
+
+        <div class="graph-meta" id="f1-meta">
+          <span>אסימפטוטה אנכית: <span class="ltr-math">\(x=0\)</span></span>
+          <span>אסימפטוטה אופקית: <span class="ltr-math">\(y=0\)</span></span>
+          <span>מרכז סימטריה: <span class="ltr-math">\((0,0)\)</span></span>
+        </div>
+      </div>
+
+      <div class="status-card" id="f1-status">
+        מצב נוכחי: <span class="ltr-math">\(a=1,\ h=0,\ k=0\)</span>.
+        לכן מתקבלת פונקציית האם <span class="ltr-math">\(f(x)=1/x\)</span>.
+      </div>
+    </section>
+
+    <!-- SCREEN 2 -->
+    <section class="screen" id="screen-family-2" aria-labelledby="title-family-2">
+      <header class="screen-header">
+        <h1 class="main-title" id="title-family-2">
+          המשפחה הכללית
+          <span class="ltr-math">\( f(x)=\dfrac{a}{x^2+h}+k,\ h\gt 0 \)</span>
+        </h1>
+        <p class="instructions">
+          שנו את הפרמטרים <span class="ltr-math">\(a,h,k\)</span> בעזרת המחוונים.
+          הגרף, משוואת הפונקציה, האסימפטוטה ונקודת הקיצון יתעדכנו מיד.
+        </p>
+      </header>
+
+      <div class="controls-grid" aria-label="בקרי משפחה 2">
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">a</span>
+            <span class="control-value" id="f2-a-value">1</span>
+          </span>
+          <input id="f2-a" type="range" min="0" max="9" step="1" value="5" aria-label="הפרמטר a" />
+        </label>
+
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">h</span>
+            <span class="control-value" id="f2-h-value">1</span>
+          </span>
+          <input id="f2-h" type="range" min="0.5" max="5" step="0.25" value="1" aria-label="הפרמטר h" />
+        </label>
+
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">k</span>
+            <span class="control-value" id="f2-k-value">0</span>
+          </span>
+          <input id="f2-k" type="range" min="-2" max="2" step="0.25" value="0" aria-label="הפרמטר k" />
+        </label>
+      </div>
+
+      <div class="equation-card" id="f2-equation" aria-live="polite">\( f(x)=\dfrac{1}{x^2+1} \)</div>
+
+      <div class="graph-panel">
+        <div class="graph-actions" aria-label="בקרי תצוגת הגרף">
+          <button type="button" data-graph="f2" data-action="zoom-in">הגדלה</button>
+          <button type="button" data-graph="f2" data-action="zoom-out">הקטנה</button>
+          <button type="button" data-graph="f2" data-action="center">מרכז</button>
+        </div>
+
+        <div id="board-family-2" class="jxgbox" aria-label="גרף של משפחה 2"></div>
+
+        <div class="graph-meta" id="f2-meta">
+          <span>אסימפטוטה אופקית: <span class="ltr-math">\(y=0\)</span></span>
+          <span>נקודת קיצון: <span class="ltr-math">\((0,1)\)</span></span>
+          <span>סוג הקיצון: מקסימום</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const FAMILY_1_A_VALUES = [
+        -5, -4.5, -4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5,
+         1,  1.5,  2,  2.5,  3,  3.5,  4,  4.5,  5,  5.5
+      ];
+
+      const FAMILY_2_A_VALUES = [-2.5, -2, -1.5, -1, -0.5, 1, 1.5, 2, 2.5, 3];
+
+      const INITIAL_BOUNDS = {
+        f1: [-11.5, 8.0, 11.5, -8.0],
+        f2: [-8.0, 6.6, 8.0, -5.0]
+      };
+
+      let board1 = null;
+      let board2 = null;
+      let family1Objects = [];
+      let family2Objects = [];
+      let typesetScheduled = false;
+      const pendingTypesetElements = new Set();
+
+      function num(value) {
+        const n = Number(value);
+        if (Math.abs(n) < 1e-10) return "0";
+        return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(2)));
+      }
+
+      function signedTerm(value, variablePrefix) {
+        const v = Number(value);
+        if (Math.abs(v) < 1e-10) return "";
+        return v > 0
+          ? ` + ${variablePrefix}${num(v)}`
+          : ` - ${variablePrefix}${num(Math.abs(v))}`;
+      }
+
+      function denominatorLinear(h) {
+        const v = Number(h);
+        if (Math.abs(v) < 1e-10) return "x";
+        return v > 0 ? `x-${num(v)}` : `x+${num(Math.abs(v))}`;
+      }
+
+      function numeratorA(a) {
+        return num(a);
+      }
+
+      function family1Latex(a, h, k) {
+        const den = denominatorLinear(h);
+        const kPart = signedTerm(k, "");
+        return `\\( f(x)=\\dfrac{${numeratorA(a)}}{${den}}${kPart} \\)`;
+      }
+
+      function family2Latex(a, h, k) {
+        const kPart = signedTerm(k, "");
+        return `\\( f(x)=\\dfrac{${numeratorA(a)}}{x^2+${num(h)}}${kPart} \\)`;
+      }
+
+      function scheduleTypeset(elements) {
+        elements.forEach(function (element) {
+          if (element) pendingTypesetElements.add(element);
+        });
+
+        if (typesetScheduled) return;
+        typesetScheduled = true;
+
+        window.requestAnimationFrame(function () {
+          typesetScheduled = false;
+          const targets = Array.from(pendingTypesetElements);
+          pendingTypesetElements.clear();
+
+          if (!targets.length) return;
+
+          function runTypeset() {
+            if (!window.MathJax || !window.MathJax.typesetPromise) {
+              window.setTimeout(function () {
+                scheduleTypeset(targets);
+              }, 40);
+              return;
+            }
+
+            if (window.MathJax.typesetClear) {
+              window.MathJax.typesetClear(targets);
+            }
+
+            window.MathJax.typesetPromise(targets).catch(function (err) {
+              console.error("MathJax typesetting error:", err);
+            });
+          }
+
+          if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
+            window.MathJax.startup.promise.then(runTypeset).catch(function (err) {
+              console.error("MathJax startup error:", err);
+            });
+          } else {
+            runTypeset();
+          }
+        });
+      }
+
+      function setHtmlAndTypeset(element, html) {
+        element.innerHTML = html;
+        scheduleTypeset([element]);
+      }
+
+      function createBoard(containerId, bounds) {
+        return JXG.JSXGraph.initBoard(containerId, {
+          boundingbox: bounds,
+          axis: true,
+          grid: true,
+          showCopyright: false,
+          showNavigation: false,
+          keepAspectRatio: false,
+          pan: {
+            enabled: true,
+            needShift: false
+          },
+          zoom: {
+            enabled: true,
+            wheel: true,
+            needShift: false,
+            min: 0.12,
+            max: 20
+          }
+        });
+      }
+
+      function removeObjects(board, objects) {
+        objects.forEach(function (obj) {
+          if (obj) {
+            try {
+              board.removeObject(obj);
+            } catch (e) {
+              console.warn("Could not remove JSXGraph object.", e);
+            }
+          }
+        });
+        objects.length = 0;
+      }
+
+      function addText(board, x, y, text) {
+        return board.create("text", [x, y, text], {
+          fixed: true,
+          highlight: false,
+          fontSize: 14,
+          cssStyle: "font-family: Arial, sans-serif; color:#111;"
+        });
+      }
+
+      function updateFamily1Graph(a, h, k) {
+        removeObjects(board1, family1Objects);
+
+        const bbox = board1.getBoundingBox();
+        const left = bbox[0];
+        const right = bbox[2];
+        const width = right - left;
+        const eps = Math.max(0.001 * width, 0.015);
+
+        const vertical = board1.create("line", [[h, 0], [h, 1]], {
+          straightFirst: true,
+          straightLast: true,
+          fixed: true,
+          highlight: false,
+          strokeColor: "#7f8fa3",
+          strokeWidth: 1.5,
+          dash: 2
+        });
+
+        const horizontal = board1.create("line", [[0, k], [1, k]], {
+          straightFirst: true,
+          straightLast: true,
+          fixed: true,
+          highlight: false,
+          strokeColor: "#7f8fa3",
+          strokeWidth: 1.5,
+          dash: 2
+        });
+
+        const fn = function (x) {
+          return a / (x - h) + k;
+        };
+
+        const curveAttrs = {
+          strokeColor: "#1768c5",
+          strokeWidth: 3,
+          fixed: true,
+          highlight: false
+        };
+
+        const leftCurve = board1.create("functiongraph", [fn, left, Math.min(h - eps, right)], curveAttrs);
+        const rightCurve = board1.create("functiongraph", [fn, Math.max(h + eps, left), right], curveAttrs);
+
+        const center = board1.create("point", [h, k], {
+          name: "C",
+          size: 3,
+          fixed: true,
+          highlight: false,
+          strokeColor: "#7d2aa6",
+          fillColor: "#7d2aa6",
+          label: {
+            offset: [8, 4],
+            fontSize: 13
+          }
+        });
+
+        family1Objects.push(vertical, horizontal, leftCurve, rightCurve, center);
+        board1.update();
+      }
+
+      function updateFamily2Graph(a, h, k) {
+        removeObjects(board2, family2Objects);
+
+        const horizontal = board2.create("line", [[0, k], [1, k]], {
+          straightFirst: true,
+          straightLast: true,
+          fixed: true,
+          highlight: false,
+          strokeColor: "#7f8fa3",
+          strokeWidth: 1.5,
+          dash: 2
+        });
+
+        const fn = function (x) {
+          return a / (x * x + h) + k;
+        };
+
+        const curve = board2.create("functiongraph", [fn], {
+          strokeColor: "#1768c5",
+          strokeWidth: 3,
+          fixed: true,
+          highlight: false
+        });
+
+        const extremumY = a / h + k;
+        const point = board2.create("point", [0, extremumY], {
+          name: "E",
+          size: 3,
+          fixed: true,
+          highlight: false,
+          strokeColor: "#7d2aa6",
+          fillColor: "#7d2aa6",
+          label: {
+            offset: [8, 4],
+            fontSize: 13
+          }
+        });
+
+        family2Objects.push(horizontal, curve, point);
+        board2.update();
+      }
+
+      function family1State() {
+        const aIndex = Number(document.getElementById("f1-a").value);
+        return {
+          a: FAMILY_1_A_VALUES[aIndex],
+          h: Number(document.getElementById("f1-h").value),
+          k: Number(document.getElementById("f1-k").value)
+        };
+      }
+
+      function family2State() {
+        const aIndex = Number(document.getElementById("f2-a").value);
+        return {
+          a: FAMILY_2_A_VALUES[aIndex],
+          h: Number(document.getElementById("f2-h").value),
+          k: Number(document.getElementById("f2-k").value)
+        };
+      }
+
+      function updateFamily1() {
+        const s = family1State();
+
+        document.getElementById("f1-a-value").textContent = num(s.a);
+        document.getElementById("f1-h-value").textContent = num(s.h);
+        document.getElementById("f1-k-value").textContent = num(s.k);
+
+        setHtmlAndTypeset(
+          document.getElementById("f1-equation"),
+          family1Latex(s.a, s.h, s.k)
+        );
+
+        setHtmlAndTypeset(
+          document.getElementById("f1-meta"),
+          [
+            `<span>אסימפטוטה אנכית: <span class="ltr-math">\\(x=${num(s.h)}\\)</span></span>`,
+            `<span>אסימפטוטה אופקית: <span class="ltr-math">\\(y=${num(s.k)}\\)</span></span>`,
+            `<span>מרכז סימטריה: <span class="ltr-math">\\((${num(s.h)},${num(s.k)})\\)</span></span>`
+          ].join("")
+        );
+
+        const isParent = s.a === 1 && s.h === 0 && s.k === 0;
+        const statusText = "";
+
+        setHtmlAndTypeset(document.getElementById("f1-status"), statusText);
+        updateFamily1Graph(s.a, s.h, s.k);
+      }
+
+      function updateFamily2() {
+        const s = family2State();
+        const extremumY = s.a / s.h + s.k;
+        const extremumType = s.a > 0 ? "מקסימום" : "מינימום";
+
+        document.getElementById("f2-a-value").textContent = num(s.a);
+        document.getElementById("f2-h-value").textContent = num(s.h);
+        document.getElementById("f2-k-value").textContent = num(s.k);
+
+        setHtmlAndTypeset(
+          document.getElementById("f2-equation"),
+          family2Latex(s.a, s.h, s.k)
+        );
+
+        setHtmlAndTypeset(
+          document.getElementById("f2-meta"),
+          [
+            `<span>אסימפטוטה אופקית: <span class="ltr-math">\\(y=${num(s.k)}\\)</span></span>`,
+            `<span>נקודת קיצון: <span class="ltr-math">\\((0,${num(extremumY)})\\)</span></span>`,
+            `<span>סוג הקיצון: ${extremumType}</span>`
+          ].join("")
+        );
+
+        const statusText =
+          `מצב נוכחי: <span class="ltr-math">\\(a=${num(s.a)},\\ h=${num(s.h)},\\ k=${num(s.k)}\\)</span>. ` +
+          `מאחר ש־<span class="ltr-math">\\(h\\gt 0\\)</span>, המכנה <span class="ltr-math">\\(x^2+h\\)</span> חיובי לכל <span class="ltr-math">\\(x\\)</span>. ` +
+          `האסימפטוטה האופקית היא <span class="ltr-math">\\(y=${num(s.k)}\\)</span>, ונקודת הקיצון היא <span class="ltr-math">\\((0,${num(extremumY)})\\)</span> מסוג ${extremumType}.`;
+
+        setHtmlAndTypeset(document.getElementById("f2-status"), statusText);
+        if (board2) {
+          updateFamily2Graph(s.a, s.h, s.k);
+        }
+      }
+
+      function ensureBoard2() {
+        if (!board2) {
+          board2 = createBoard("board-family-2", INITIAL_BOUNDS.f2);
+          const s = family2State();
+          updateFamily2Graph(s.a, s.h, s.k);
+        }
+      }
+
+      function zoomBoard(board, factor) {
+        const box = board.getBoundingBox();
+        const cx = (box[0] + box[2]) / 2;
+        const cy = (box[1] + box[3]) / 2;
+        const halfW = ((box[2] - box[0]) / 2) * factor;
+        const halfH = ((box[1] - box[3]) / 2) * factor;
+        board.setBoundingBox([cx - halfW, cy + halfH, cx + halfW, cy - halfH], false);
+        board.fullUpdate();
+      }
+
+      function resetBoard(board, bounds) {
+        board.setBoundingBox(bounds, false);
+        board.fullUpdate();
+      }
+
+      function bindGraphButtons() {
+        document.querySelectorAll(".graph-actions button").forEach(function (button) {
+          button.addEventListener("click", function () {
+            const graph = button.dataset.graph;
+            const action = button.dataset.action;
+            const board = graph === "f1" ? board1 : board2;
+            const bounds = INITIAL_BOUNDS[graph];
+
+            if (action === "zoom-in") zoomBoard(board, 0.78);
+            if (action === "zoom-out") zoomBoard(board, 1.28);
+            if (action === "center") resetBoard(board, bounds);
+          });
+        });
+      }
+
+      function bindScreenSwitcher() {
+        document.querySelectorAll("[data-screen-target]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            const targetId = button.dataset.screenTarget;
+
+            document.querySelectorAll(".screen").forEach(function (screen) {
+              screen.classList.toggle("active", screen.id === targetId);
+            });
+
+            document.querySelectorAll("[data-screen-target]").forEach(function (b) {
+              b.classList.toggle("active", b === button);
+            });
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+            window.requestAnimationFrame(function () {
+              if (targetId === "screen-family-1") {
+                board1.resizeContainer(
+                  document.getElementById("board-family-1").clientWidth,
+                  document.getElementById("board-family-1").clientHeight
+                );
+                board1.fullUpdate();
+              } else {
+                ensureBoard2();
+                board2.resizeContainer(
+                  document.getElementById("board-family-2").clientWidth,
+                  document.getElementById("board-family-2").clientHeight
+                );
+                board2.fullUpdate();
+              }
+            });
+          });
+        });
+      }
+
+      function bindSliders() {
+        ["f1-a", "f1-h", "f1-k"].forEach(function (id) {
+          document.getElementById(id).addEventListener("input", updateFamily1);
+        });
+
+        ["f2-a", "f2-h", "f2-k"].forEach(function (id) {
+          document.getElementById(id).addEventListener("input", updateFamily2);
+        });
+      }
+
+      function waitForLibraries() {
+        if (!window.JXG || !window.JXG.JSXGraph) {
+          window.setTimeout(waitForLibraries, 40);
+          return;
+        }
+
+        board1 = createBoard("board-family-1", INITIAL_BOUNDS.f1);
+
+        bindSliders();
+        bindGraphButtons();
+        bindScreenSwitcher();
+
+        updateFamily1();
+        updateFamily2();
+
+        window.addEventListener("resize", function () {
+          if (board1) board1.fullUpdate();
+          if (board2) board2.fullUpdate();
+        });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", waitForLibraries);
+      } else {
+        waitForLibraries();
+      }
+    })();
+  </script>
+</body>
+</html>
