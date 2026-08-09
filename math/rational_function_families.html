@@ -366,6 +366,7 @@
     <nav class="screen-switcher" aria-label="בחירת מסך">
       <button type="button" class="active" data-screen-target="screen-family-1">משפחה 1</button>
       <button type="button" data-screen-target="screen-family-2">משפחה 2</button>
+      <button type="button" data-screen-target="screen-family-3">משפחה 3</button>
     </nav>
 
     <!-- SCREEN 1 -->
@@ -487,6 +488,68 @@
           <span>סוג הקיצון: מקסימום</span>
         </div>
       </div>
+
+      <div class="status-card" id="f2-status"></div>
+    </section>
+
+    <!-- SCREEN 3 -->
+    <section class="screen" id="screen-family-3" aria-labelledby="title-family-3">
+      <header class="screen-header">
+        <h1 class="main-title" id="title-family-3">
+          המשפחה הכללית
+          <span class="ltr-math">\( f(x)=\dfrac{a}{x^2-h}+k,\ k\ge 0 \)</span>
+        </h1>
+        <p class="instructions">
+          שנו את הפרמטרים <span class="ltr-math">\(a,h,k\)</span> בעזרת המחוונים.
+          הגרף, משוואת הפונקציה והאסימפטוטות יתעדכנו מיד.
+        </p>
+      </header>
+
+      <div class="controls-grid" aria-label="בקרי משפחה 3">
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">a</span>
+            <span class="control-value" id="f3-a-value">1</span>
+          </span>
+          <input id="f3-a" type="range" min="0" max="9" step="1" value="5" aria-label="הפרמטר a" />
+        </label>
+
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">h</span>
+            <span class="control-value" id="f3-h-value">0</span>
+          </span>
+          <input id="f3-h" type="range" min="0" max="4" step="0.25" value="0" aria-label="הפרמטר h" />
+        </label>
+
+        <label class="control-card">
+          <span class="control-line">
+            <span class="control-symbol">k</span>
+            <span class="control-value" id="f3-k-value">0</span>
+          </span>
+          <input id="f3-k" type="range" min="0" max="4" step="0.25" value="0" aria-label="הפרמטר k" />
+        </label>
+      </div>
+
+      <div class="equation-card" id="f3-equation" aria-live="polite">\( f(x)=\dfrac{1}{x^2} \)</div>
+
+      <div class="graph-panel">
+        <div class="graph-actions" aria-label="בקרי תצוגת הגרף">
+          <button type="button" data-graph="f3" data-action="zoom-in">הגדלה</button>
+          <button type="button" data-graph="f3" data-action="zoom-out">הקטנה</button>
+          <button type="button" data-graph="f3" data-action="center">מרכז</button>
+        </div>
+
+        <div id="board-family-3" class="jxgbox" aria-label="גרף של משפחה 3"></div>
+
+        <div class="graph-meta" id="f3-meta">
+          <span>אסימפטוטה אנכית: <span class="ltr-math">\(x=0\)</span></span>
+          <span>אסימפטוטה אופקית: <span class="ltr-math">\(y=0\)</span></span>
+          <span>אין נקודת קיצון ב־<span class="ltr-math">\(x=0\)</span> כי הפונקציה אינה מוגדרת שם</span>
+        </div>
+      </div>
+
+      <div class="status-card" id="f3-status"></div>
     </section>
   </main>
 
@@ -500,16 +563,20 @@
       ];
 
       const FAMILY_2_A_VALUES = [-2.5, -2, -1.5, -1, -0.5, 1, 1.5, 2, 2.5, 3];
+      const FAMILY_3_A_VALUES = [-2.5, -2, -1.5, -1, -0.5, 1, 1.5, 2, 2.5, 3];
 
       const INITIAL_BOUNDS = {
         f1: [-11.5, 8.0, 11.5, -8.0],
-        f2: [-8.0, 6.6, 8.0, -5.0]
+        f2: [-8.0, 6.6, 8.0, -5.0],
+        f3: [-8.0, 7.0, 8.0, -7.0]
       };
 
       let board1 = null;
       let board2 = null;
+      let board3 = null;
       let family1Objects = [];
       let family2Objects = [];
+      let family3Objects = [];
       let typesetScheduled = false;
       const pendingTypesetElements = new Set();
 
@@ -546,6 +613,18 @@
       function family2Latex(a, h, k) {
         const kPart = signedTerm(k, "");
         return `\\( f(x)=\\dfrac{${numeratorA(a)}}{x^2+${num(h)}}${kPart} \\)`;
+      }
+
+      function family3Latex(a, h, k) {
+        const kPart = signedTerm(k, "");
+        const hValue = Number(h);
+        let denominator = "x^2";
+        if (Math.abs(hValue) >= 1e-10) {
+          denominator = hValue > 0
+            ? `x^2-${num(hValue)}`
+            : `x^2+${num(Math.abs(hValue))}`;
+        }
+        return `\\( f(x)=\\dfrac{${numeratorA(a)}}{${denominator}}${kPart} \\)`;
       }
 
       function scheduleTypeset(elements) {
@@ -741,6 +820,102 @@
         board2.update();
       }
 
+      function updateFamily3Graph(a, h, k) {
+        removeObjects(board3, family3Objects);
+
+        const bbox = board3.getBoundingBox();
+        const left = bbox[0];
+        const right = bbox[2];
+        const width = right - left;
+        const eps = Math.max(0.001 * width, 0.015);
+
+        const horizontal = board3.create("line", [[0, k], [1, k]], {
+          straightFirst: true,
+          straightLast: true,
+          fixed: true,
+          highlight: false,
+          strokeColor: "#7f8fa3",
+          strokeWidth: 1.5,
+          dash: 2
+        });
+        family3Objects.push(horizontal);
+
+        const fn = function (x) {
+          return a / (x * x - h) + k;
+        };
+
+        const curveAttrs = {
+          strokeColor: "#1768c5",
+          strokeWidth: 3,
+          fixed: true,
+          highlight: false
+        };
+
+        if (h > 1e-10) {
+          const r = Math.sqrt(h);
+          [-r, r].forEach(function (xAsymptote) {
+            const vertical = board3.create("line", [[xAsymptote, 0], [xAsymptote, 1]], {
+              straightFirst: true,
+              straightLast: true,
+              fixed: true,
+              highlight: false,
+              strokeColor: "#7f8fa3",
+              strokeWidth: 1.5,
+              dash: 2
+            });
+            family3Objects.push(vertical);
+          });
+
+          family3Objects.push(
+            board3.create("functiongraph", [fn, left, Math.min(-r - eps, right)], curveAttrs),
+            board3.create("functiongraph", [fn, Math.max(-r + eps, left), Math.min(r - eps, right)], curveAttrs),
+            board3.create("functiongraph", [fn, Math.max(r + eps, left), right], curveAttrs)
+          );
+
+          const extremumY = k - a / h;
+          const point = board3.create("point", [0, extremumY], {
+            name: "E",
+            size: 3,
+            fixed: true,
+            highlight: false,
+            strokeColor: "#7d2aa6",
+            fillColor: "#7d2aa6",
+            label: { offset: [8, 4], fontSize: 13 }
+          });
+          family3Objects.push(point);
+        } else if (Math.abs(h) <= 1e-10) {
+          const vertical = board3.create("line", [[0, 0], [0, 1]], {
+            straightFirst: true,
+            straightLast: true,
+            fixed: true,
+            highlight: false,
+            strokeColor: "#7f8fa3",
+            strokeWidth: 1.5,
+            dash: 2
+          });
+          family3Objects.push(
+            vertical,
+            board3.create("functiongraph", [fn, left, Math.min(-eps, right)], curveAttrs),
+            board3.create("functiongraph", [fn, Math.max(eps, left), right], curveAttrs)
+          );
+        } else {
+          family3Objects.push(board3.create("functiongraph", [fn], curveAttrs));
+          const extremumY = k - a / h;
+          const point = board3.create("point", [0, extremumY], {
+            name: "E",
+            size: 3,
+            fixed: true,
+            highlight: false,
+            strokeColor: "#7d2aa6",
+            fillColor: "#7d2aa6",
+            label: { offset: [8, 4], fontSize: 13 }
+          });
+          family3Objects.push(point);
+        }
+
+        board3.update();
+      }
+
       function family1State() {
         const aIndex = Number(document.getElementById("f1-a").value);
         return {
@@ -756,6 +931,15 @@
           a: FAMILY_2_A_VALUES[aIndex],
           h: Number(document.getElementById("f2-h").value),
           k: Number(document.getElementById("f2-k").value)
+        };
+      }
+
+      function family3State() {
+        const aIndex = Number(document.getElementById("f3-a").value);
+        return {
+          a: FAMILY_3_A_VALUES[aIndex],
+          h: Number(document.getElementById("f3-h").value),
+          k: Number(document.getElementById("f3-k").value)
         };
       }
 
@@ -821,11 +1005,54 @@
         }
       }
 
+      function updateFamily3() {
+        const s = family3State();
+        document.getElementById("f3-a-value").textContent = num(s.a);
+        document.getElementById("f3-h-value").textContent = num(s.h);
+        document.getElementById("f3-k-value").textContent = num(s.k);
+
+        setHtmlAndTypeset(document.getElementById("f3-equation"), family3Latex(s.a, s.h, s.k));
+
+        let metaParts = [`<span>אסימפטוטה אופקית: <span class="ltr-math">\\(y=${num(s.k)}\\)</span></span>`];
+        let statusText = `מצב נוכחי: <span class="ltr-math">\\(a=${num(s.a)},\\ h=${num(s.h)},\\ k=${num(s.k)}\\)</span>. `;
+
+        if (s.h > 1e-10) {
+          const r = Math.sqrt(s.h);
+          const extremumY = s.k - s.a / s.h;
+          const extremumType = s.a > 0 ? "מקסימום" : "מינימום";
+          metaParts.unshift(`<span>אסימפטוטות אנכיות: <span class="ltr-math">\\(x=-\\sqrt{${num(s.h)}},\\ x=\\sqrt{${num(s.h)}}\\)</span></span>`);
+          metaParts.push(`<span>נקודת קיצון: <span class="ltr-math">\\((0,${num(extremumY)})\\)</span> — ${extremumType}</span>`);
+          statusText += `למשוואה <span class="ltr-math">\\(x^2-${num(s.h)}=0\\)</span> יש שני פתרונות, ולכן האסימפטוטות האנכיות הן <span class="ltr-math">\\(x=\\pm${num(r)}\\)</span>.`;
+        } else if (Math.abs(s.h) <= 1e-10) {
+          metaParts.unshift(`<span>אסימפטוטה אנכית: <span class="ltr-math">\\(x=0\\)</span></span>`);
+          metaParts.push(`<span>אין נקודת קיצון ב־<span class="ltr-math">\\(x=0\\)</span> כי הפונקציה אינה מוגדרת שם</span>`);
+          statusText += `המכנה הוא <span class="ltr-math">\\(x^2\\)</span>, ולכן <span class="ltr-math">\\(x=0\\)</span> היא אסימפטוטה אנכית.`;
+        } else {
+          const extremumY = s.k - s.a / s.h;
+          const extremumType = s.a > 0 ? "מקסימום" : "מינימום";
+          metaParts.unshift(`<span>אין אסימפטוטות אנכיות</span>`);
+          metaParts.push(`<span>נקודת קיצון: <span class="ltr-math">\\((0,${num(extremumY)})\\)</span> — ${extremumType}</span>`);
+          statusText += `מאחר ש־<span class="ltr-math">\\(h\\lt 0\\)</span>, המכנה אינו מתאפס ולכן אין אסימפטוטות אנכיות.`;
+        }
+
+        setHtmlAndTypeset(document.getElementById("f3-meta"), metaParts.join(""));
+        setHtmlAndTypeset(document.getElementById("f3-status"), statusText);
+        if (board3) updateFamily3Graph(s.a, s.h, s.k);
+      }
+
       function ensureBoard2() {
         if (!board2) {
           board2 = createBoard("board-family-2", INITIAL_BOUNDS.f2);
           const s = family2State();
           updateFamily2Graph(s.a, s.h, s.k);
+        }
+      }
+
+      function ensureBoard3() {
+        if (!board3) {
+          board3 = createBoard("board-family-3", INITIAL_BOUNDS.f3);
+          const s = family3State();
+          updateFamily3Graph(s.a, s.h, s.k);
         }
       }
 
@@ -849,8 +1076,10 @@
           button.addEventListener("click", function () {
             const graph = button.dataset.graph;
             const action = button.dataset.action;
-            const board = graph === "f1" ? board1 : board2;
+            const boards = { f1: board1, f2: board2, f3: board3 };
+            const board = boards[graph];
             const bounds = INITIAL_BOUNDS[graph];
+            if (!board) return;
 
             if (action === "zoom-in") zoomBoard(board, 0.78);
             if (action === "zoom-out") zoomBoard(board, 1.28);
@@ -881,13 +1110,20 @@
                   document.getElementById("board-family-1").clientHeight
                 );
                 board1.fullUpdate();
-              } else {
+              } else if (targetId === "screen-family-2") {
                 ensureBoard2();
                 board2.resizeContainer(
                   document.getElementById("board-family-2").clientWidth,
                   document.getElementById("board-family-2").clientHeight
                 );
                 board2.fullUpdate();
+              } else {
+                ensureBoard3();
+                board3.resizeContainer(
+                  document.getElementById("board-family-3").clientWidth,
+                  document.getElementById("board-family-3").clientHeight
+                );
+                board3.fullUpdate();
               }
             });
           });
@@ -901,6 +1137,10 @@
 
         ["f2-a", "f2-h", "f2-k"].forEach(function (id) {
           document.getElementById(id).addEventListener("input", updateFamily2);
+        });
+
+        ["f3-a", "f3-h", "f3-k"].forEach(function (id) {
+          document.getElementById(id).addEventListener("input", updateFamily3);
         });
       }
 
@@ -918,10 +1158,12 @@
 
         updateFamily1();
         updateFamily2();
+        updateFamily3();
 
         window.addEventListener("resize", function () {
           if (board1) board1.fullUpdate();
           if (board2) board2.fullUpdate();
+          if (board3) board3.fullUpdate();
         });
       }
 
