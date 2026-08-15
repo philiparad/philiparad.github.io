@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="מעבדה אינטראקטיבית להבנת הנגזרת של פונקציה מעריכית והגבול היסודי.">
+  <title>מעבדת הגבול | הנגזרת של פונקציה מעריכית</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        macros: {
+          lt: '\\mathrel{<}',
+          gt: '\\mathrel{>}'
+        }
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      startup: {
+        typeset: true
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --ink: #f4f8ff;
+      --muted: #91a4c0;
+      --navy-950: #030b17;
+      --navy-900: #071426;
+      --navy-850: #0a1b33;
+      --navy-800: #0c2345;
+      --cobalt: #153b8e;
+      --cyan: #22d3ee;
+      --cyan-soft: #7be7f5;
+      --yellow: #f4c95d;
+      --violet: #a88cff;
+      --green: #58e2b5;
+      --line: rgba(92, 151, 231, 0.30);
+      --panel: linear-gradient(145deg, rgba(11, 31, 60, 0.96), rgba(5, 18, 35, 0.94));
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--navy-950);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      direction: rtl;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    .math, mjx-container { direction: ltr; unicode-bidi: isolate; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      min-height: 68px;
+      padding: 0 4vw;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: rgba(3, 11, 23, 0.91);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.28rem;
+    }
+    .brand-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 18px var(--cyan);
+    }
+
+    .title-section {
+      position: relative;
+      overflow: hidden;
+      padding: 54px max(4vw, 24px) 44px;
+      background:
+        radial-gradient(circle at 82% 15%, rgba(34, 211, 238, 0.14), transparent 28%),
+        linear-gradient(rgba(22, 70, 138, 0.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22, 70, 138, 0.09) 1px, transparent 1px),
+        var(--navy-950);
+      background-size: auto, 42px 42px, 42px 42px, auto;
+    }
+    .hero-intro { max-width: 1480px; margin: 0 auto; }
+    .eyebrow { color: var(--cyan); font-size: 0.78rem; font-weight: 900; letter-spacing: 0.06em; }
+    h1 {
+      margin: 10px 0 12px;
+      font-size: clamp(2.4rem, 5.2vw, 5rem);
+      line-height: 1.04;
+      letter-spacing: -0.055em;
+    }
+    .hero-intro p { margin: 0; color: var(--muted); font-size: clamp(1rem, 1.7vw, 1.28rem); line-height: 1.7; }
+
+    .lesson-section { position: relative; padding: 92px max(4vw, 24px); overflow: hidden; }
+    .lesson-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(22, 70, 138, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22, 70, 138, 0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+    }
+    .opening-section { background: linear-gradient(180deg, #030b17, #06152a); }
+    .idea-section { background: linear-gradient(180deg, #04101f, #071426); }
+    .section-heading {
+      position: relative;
+      max-width: 1480px;
+      margin: 0 auto 38px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .section-number {
+      flex: 0 0 auto;
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      color: var(--cyan);
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      border-radius: 50%;
+      font-family: Georgia, serif;
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.10);
+    }
+    .section-heading p { margin: 0 0 4px; color: var(--cyan); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; }
+    .section-heading h2 { margin: 0; font-size: clamp(2rem, 3.4vw, 3.25rem); letter-spacing: -0.04em; }
+
+    .opening-grid {
+      position: relative;
+      max-width: 1480px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.32fr 0.88fr;
+      gap: 24px;
+    }
+    .opening-card, .calculator-panel, .concept-card, .graph-panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+    }
+    .opening-card { border-radius: 24px; padding: 28px; }
+    .opening-card h3, .calculator-preview h3 { margin: 7px 0 12px; font-size: 1.35rem; }
+    .opening-card p, .calculator-preview p { margin: 0; color: var(--muted); line-height: 1.75; }
+    .card-kicker { color: var(--cyan); font-size: 0.78rem; font-weight: 900; letter-spacing: 0.05em; }
+    .opening-divider { height: 1px; margin: 24px 0; background: rgba(92, 151, 231, 0.22); }
+    .formula-box {
+      margin: 18px 0;
+      padding: 20px 16px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border: 1px solid rgba(92, 151, 231, 0.30);
+      border-radius: 15px;
+      background: rgba(3, 11, 23, 0.58);
+      font-size: clamp(1.05rem, 1.9vw, 1.55rem);
+      overflow: hidden;
+    }
+    .formula-box.emphasized { color: var(--yellow); border-color: rgba(244, 201, 93, 0.38); background: rgba(244, 201, 93, 0.06); }
+    .formula-box.compact { font-size: 1.55rem; color: var(--cyan-soft); }
+    .insight-card { border-color: rgba(34, 211, 238, 0.48); }
+    .coefficient-box {
+      margin: 22px 0;
+      padding: 22px;
+      display: grid;
+      gap: 10px;
+      text-align: center;
+      border-radius: 17px;
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.30);
+      color: var(--cyan);
+      font-size: clamp(1.25rem, 2vw, 1.7rem);
+    }
+    .coefficient-box > span { direction: rtl; color: var(--muted); font-family: Arial, sans-serif; font-size: 0.78rem; }
+
+    .calculator-preview {
+      position: relative;
+      max-width: 1480px;
+      margin: 24px auto 0;
+      padding: 26px;
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr 0.92fr;
+      gap: 22px;
+      align-items: center;
+      border: 1px solid rgba(244, 201, 93, 0.38);
+      border-radius: 24px;
+      background: rgba(244, 201, 93, 0.055);
+    }
+    .preview-examples { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; direction: ltr; }
+    .preview-examples > div {
+      min-height: 142px;
+      padding: 17px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(3, 11, 23, 0.60);
+    }
+    .preview-examples span { color: var(--cyan-soft); }
+    .preview-examples strong { color: var(--cyan); font-size: clamp(1.8rem, 3vw, 2.8rem); margin: 7px 0; }
+    .preview-examples small { color: var(--muted); }
+    .e-discovery {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 18px;
+      border-radius: 17px;
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+    }
+    .e-discovery p { color: #dbe8f7; }
+    .e-symbol {
+      flex: 0 0 auto;
+      width: 62px;
+      height: 62px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #031220;
+      background: var(--cyan);
+      font-family: Georgia, serif;
+      font-size: 2.75rem;
+      font-style: italic;
+      box-shadow: 0 0 28px rgba(34, 211, 238, 0.30);
+    }
+
+    .idea-grid {
+      position: relative;
+      max-width: 1480px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 28px;
+    }
+    .graph-panel { position: relative; border-radius: 24px; padding: 18px; }
+    .graph-toolbar {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .graph-legend { display: flex; gap: 18px; color: var(--muted); font-size: 0.82rem; flex-wrap: wrap; }
+    .graph-legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .legend-line { width: 20px; height: 3px; display: inline-block; border-radius: 3px; }
+    .curve-key { background: var(--cyan); }
+    .secant-key { background: var(--yellow); }
+    .tangent-key { background: var(--violet); }
+    .target-key { background: var(--yellow); }
+    .data-key { background: var(--cyan); }
+    .graph-controls { display: flex; gap: 7px; direction: ltr; }
+    .graph-controls button {
+      min-width: 38px;
+      height: 36px;
+      padding: 0 10px;
+      color: var(--cyan-soft);
+      background: rgba(3, 11, 23, 0.72);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      border-radius: 9px;
+      font-weight: 900;
+    }
+    .graph-controls button:hover, .graph-controls button:focus-visible { border-color: var(--cyan); background: rgba(34, 211, 238, 0.12); outline: none; }
+    .graph-controls .center-button { min-width: 74px; }
+    .jxgbox {
+      width: 100%;
+      height: 430px;
+      overflow: hidden;
+      direction: ltr;
+      border: 1px solid rgba(92, 151, 231, 0.25);
+      border-radius: 16px;
+      background: #04101f;
+      touch-action: none;
+    }
+    .jxgbox.jxg-focus { outline: 2px solid rgba(34, 211, 238, 0.65); outline-offset: 2px; }
+    .graph-readout { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; direction: ltr; }
+    .graph-readout span {
+      color: var(--cyan-soft);
+      border: 1px solid rgba(34, 211, 238, 0.26);
+      background: rgba(3, 11, 23, 0.55);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 0.83rem;
+    }
+    .graph-instruction { margin: 13px 0 0; padding-top: 13px; color: var(--muted); line-height: 1.65; border-top: 1px solid rgba(92, 151, 231, 0.20); }
+    .explanation-stack { display: grid; gap: 14px; }
+    .explanation-stack article {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      padding: 22px;
+      border: 1px solid rgba(92, 151, 231, 0.24);
+      border-radius: 20px;
+      background: rgba(7, 20, 38, 0.70);
+    }
+    .explanation-stack b {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #031220;
+      background: var(--cyan);
+    }
+    .explanation-stack h3 { margin: 2px 0 7px; font-size: 1.08rem; }
+    .explanation-stack p { margin: 0; color: var(--muted); line-height: 1.75; }
+
+    .experiment-section {
+      padding: 80px max(4vw, 24px) 100px;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(21, 59, 142, 0.32), transparent 28%),
+        var(--navy-900);
+    }
+    .hero-grid {
+      max-width: 1480px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.75fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+    .calculator-panel { border-radius: 26px; padding: 28px; }
+    .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+    .panel-heading h2 { margin: 8px 0 0; font-size: clamp(1.75rem, 3vw, 2.65rem); }
+    .live-badge { display: inline-flex; align-items: center; gap: 7px; color: var(--cyan); font-size: 0.78rem; font-weight: 900; }
+    .live-badge > span { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); animation: pulse 1.6s ease-in-out infinite; }
+    .reset-button {
+      flex: 0 0 auto;
+      color: var(--cyan-soft);
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.34);
+      border-radius: 11px;
+      padding: 10px 15px;
+      font-weight: 800;
+    }
+    .control-block { margin-top: 24px; padding: 20px; border: 1px solid rgba(92, 151, 231, 0.22); border-radius: 18px; background: rgba(3, 11, 23, 0.46); }
+    .control-block > label { display: block; margin-bottom: 14px; font-weight: 800; }
+    .preset-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; direction: ltr; }
+    .preset-row button, .side-switch button {
+      min-height: 40px;
+      color: var(--muted);
+      border: 1px solid rgba(92, 151, 231, 0.28);
+      border-radius: 10px;
+      background: rgba(3, 11, 23, 0.60);
+    }
+    .preset-row button.selected, .side-switch button.selected { color: #031220; background: var(--cyan); border-color: var(--cyan); font-weight: 900; }
+    .range-line { margin-top: 17px; display: grid; grid-template-columns: 1fr 82px; gap: 14px; align-items: center; direction: ltr; }
+    input[type="range"] { width: 100%; accent-color: var(--cyan); }
+    output { min-height: 38px; display: grid; place-items: center; direction: ltr; border-radius: 10px; color: var(--cyan); background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.25); font-weight: 800; }
+    .h-display { margin-bottom: 10px; display: flex; justify-content: space-between; gap: 14px; color: var(--cyan-soft); direction: ltr; }
+    .range-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.75rem; }
+    .side-switch { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .side-switch button.selected { color: var(--cyan-soft); background: rgba(34, 211, 238, 0.10); }
+
+    .experiment-output { margin-top: 21px; display: grid; grid-template-columns: 0.72fr 1.45fr 1fr; gap: 14px; direction: ltr; }
+    .result-card, .chart-card, .value-table { border: 1px solid rgba(92, 151, 231, 0.26); background: rgba(3, 11, 23, 0.58); border-radius: 17px; min-height: 250px; }
+    .result-card { direction: rtl; display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 18px 12px; }
+    .result-card > span { color: var(--muted); font-size: 0.78rem; }
+    .result-card strong { color: var(--cyan); font-size: clamp(1.55rem, 2.6vw, 2.5rem); direction: ltr; margin: 8px 0; text-shadow: 0 0 24px rgba(34, 211, 238, 0.35); }
+    .result-card small { color: var(--yellow); line-height: 1.6; }
+    .chart-card { padding: 10px; display: flex; flex-direction: column; min-width: 0; }
+    .chart-card .graph-toolbar { margin: 0; min-height: 42px; }
+    .chart-card .graph-legend { font-size: 0.72rem; }
+    #convergence-board { height: 190px; min-height: 190px; border-radius: 11px; }
+    .value-table { direction: ltr; overflow: hidden; display: grid; grid-template-rows: repeat(4, 1fr); }
+    .value-table > div { display: grid; grid-template-columns: 0.72fr 1.28fr; align-items: center; text-align: center; border-bottom: 1px solid rgba(92, 151, 231, 0.20); }
+    .value-table > div:last-child { border-bottom: 0; }
+    .value-table span + span { border-left: 1px solid rgba(92, 151, 231, 0.20); height: 100%; display: grid; place-items: center; }
+    .table-head { color: var(--muted); font-size: 0.77rem; }
+    .current-row { color: var(--cyan); background: rgba(34, 211, 238, 0.08); }
+
+    .concept-column { display: grid; grid-template-rows: auto auto 1fr; gap: 18px; }
+    .concept-card { border-radius: 24px; padding: 25px; }
+    .concept-card.primary { border-color: rgba(34, 211, 238, 0.58); }
+    .step-tag { color: var(--cyan); font-size: 0.78rem; font-weight: 800; }
+    .concept-card h2 { margin: 7px 0 10px; font-size: 1.45rem; }
+    .concept-card p { color: var(--muted); line-height: 1.72; margin: 0; }
+    .display-formula { margin-top: 18px; min-height: 68px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 15px; background: rgba(3, 11, 23, 0.50); font-size: 1.75rem; }
+    .result-summary { text-align: center; }
+    .result-summary > span { color: var(--muted); }
+    .result-summary strong { display: block; direction: ltr; color: var(--cyan); font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1; margin: 10px 0 14px; text-shadow: 0 0 28px rgba(34, 211, 238, 0.35); }
+    .target-chip { display: inline-flex; direction: ltr; background: var(--yellow); color: #1e2430; padding: 6px 14px; border-radius: 9px; font-weight: 800; }
+    .formula-summary { display: flex; flex-direction: column; }
+    .conclusion-formula { color: var(--yellow); font-size: clamp(1.35rem, 2.2vw, 2rem); }
+    .formula-summary button { margin-top: auto; color: #031220; border: 0; border-radius: 12px; padding: 12px 16px; background: var(--cyan); font-weight: 900; box-shadow: 0 8px 22px rgba(34, 211, 238, 0.18); }
+    .formula-summary button:hover { transform: translateY(-1px); box-shadow: 0 11px 28px rgba(34, 211, 238, 0.30); }
+
+    footer { min-height: 90px; padding: 24px 4vw; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--ink); border-top: 1px solid var(--line); background: #020813; font-weight: 800; }
+    footer small { color: var(--muted); font-weight: 400; margin-right: 12px; }
+    .noscript-note { max-width: 900px; margin: 24px auto; padding: 16px; color: #1b2130; background: var(--yellow); border-radius: 12px; }
+    @keyframes pulse { 50% { opacity: 0.4; transform: scale(0.7); } }
+
+    @media (max-width: 1100px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .concept-column { grid-template-columns: 1fr 0.8fr 1fr; grid-template-rows: auto; }
+      .opening-grid, .idea-grid { grid-template-columns: 1fr; }
+      .calculator-preview { grid-template-columns: 1fr 1fr; }
+      .preview-intro { grid-column: 1 / -1; }
+    }
+    @media (max-width: 760px) {
+      .topbar { padding: 0 18px; }
+      .title-section { padding: 34px 15px 30px; }
+      .lesson-section { padding: 68px 15px; }
+      .experiment-section { padding: 42px 15px 60px; }
+      .opening-card, .calculator-preview, .calculator-panel { padding: 19px; }
+      .calculator-preview { grid-template-columns: 1fr; }
+      .preview-intro { grid-column: auto; }
+      .preview-examples { grid-template-columns: 1fr; }
+      .formula-box { justify-content: start; text-align: left; font-size: 0.88rem; padding: 16px 8px; }
+      .jxgbox { height: 340px; }
+      .concept-column { grid-template-columns: 1fr; }
+      .preset-row { grid-template-columns: repeat(3, 1fr); }
+      .experiment-output { grid-template-columns: 1fr; }
+      .result-card, .chart-card, .value-table { min-height: 190px; }
+      #convergence-board { height: 220px; }
+      .side-switch { grid-template-columns: 1fr; }
+      .panel-heading { gap: 12px; }
+      footer { flex-wrap: wrap; text-align: center; }
+    }
+    @media print {
+      .topbar { position: static; }
+      .graph-controls, .reset-button { display: none; }
+      body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      section, article, .graph-panel { break-inside: avoid; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="מעבדת הגבול, חזרה להתחלה">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <span>מעבדת הגבול</span>
+    </a>
+  </header>
+
+  <main>
+    <section class="title-section" id="top">
+      <div class="hero-intro">
+        <span class="eyebrow">חקירה אינטראקטיבית • 5 יחידות מתמטיקה</span>
+        <h1>הנגזרת של פונקציה מעריכית</h1>
+        <p>נבין בניסוי מדוע שיפוע הגרף תלוי בבסיס, ומה הופך את \(e\) לבסיס מיוחד.</p>
+      </div>
+    </section>
+
+    <noscript><p class="noscript-note">כדי להפעיל את הניסוי ואת הגרפים, יש לאפשר JavaScript בדפדפן.</p></noscript>
+
+    <section class="lesson-section opening-section" id="opening">
+      <div class="section-heading">
+        <span class="section-number">01</span>
+        <div><p>נקודת המוצא</p><h2>מאין מגיע המקדם בנגזרת?</h2></div>
+      </div>
+
+      <div class="opening-grid">
+        <article class="opening-card development-card">
+          <span class="card-kicker">הבעיה</span>
+          <h3>איך גוזרים פונקציה מעריכית כלשהי?</h3>
+          <p>נרצה לחשב את הנגזרת של \(f(x)=a^x\), כאשר \(a\gt0\), באמצעות הגדרת הנגזרת בלבד.</p>
+          <div class="opening-divider"></div>
+          <span class="card-kicker">הפיתוח לפי הגדרת הנגזרת</span>
+          <div class="formula-box" dir="ltr">
+            \[
+              f'(x)=\lim_{h\to0}\frac{a^{x+h}-a^x}{h}
+              =\lim_{h\to0}\frac{a^x\cdot a^h-a^x}{h}
+            \]
+          </div>
+          <p>מוציאים את \(a^x\) כגורם משותף:</p>
+          <div class="formula-box emphasized" dir="ltr">
+            \[
+              f'(x)=a^x\cdot\left(\lim_{h\to0}\frac{a^h-1}{h}\right)
+            \]
+          </div>
+        </article>
+
+        <article class="opening-card insight-card">
+          <span class="card-kicker">התובנה</span>
+          <h3>הגבול הוא מספר קבוע התלוי רק בבסיס</h3>
+          <p>הביטוי שבתוך הסוגריים אינו תלוי ב־\(x\). לכן עבור כל בסיס \(a\) מתקבל מקדם קבוע אחר.</p>
+          <div class="coefficient-box" dir="ltr">
+            <span>מקדם הבסיס</span>
+            \[
+              L(a)=\lim_{h\to0}\frac{a^h-1}{h}
+            \]
+          </div>
+          <p>אם נציב \(x=0\), נקבל שזה בדיוק שיפוע המשיק לגרף בנקודה \((0,1)\):</p>
+          <div class="formula-box compact" dir="ltr">\[L(a)=f'(0)\]</div>
+        </article>
+      </div>
+
+      <article class="calculator-preview">
+        <div class="preview-intro">
+          <span class="card-kicker">הניסוי המחשבוני</span>
+          <h3>בוחרים \(h\) קטן מאוד ובודקים לאיזה מספר המנה מתקרבת</h3>
+          <p>לדוגמה, נבחר \(h=0.00001\). המספר המתקבל הוא המקדם של הפונקציה בנגזרת.</p>
+        </div>
+        <div class="preview-examples">
+          <div><span>\(a=2\)</span><strong>0.693...</strong><small>\((2^x)'\approx0.693\cdot2^x\)</small></div>
+          <div><span>\(a=3\)</span><strong>1.098...</strong><small>\((3^x)'\approx1.098\cdot3^x\)</small></div>
+        </div>
+        <div class="e-discovery">
+          <span class="e-symbol">e</span>
+          <p><strong>האם קיים בסיס שעבורו המקדם שווה בדיוק ל־1?</strong><br>כן. הבסיס היחיד הזה נקרא \(e\), ולכן \((e^x)'=e^x\).</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="lesson-section idea-section" id="idea">
+      <div class="section-heading">
+        <span class="section-number">02</span>
+        <div><p>הרעיון הגאומטרי</p><h2>ממיתר למשיק</h2></div>
+      </div>
+
+      <div class="idea-grid">
+        <article class="graph-panel" aria-labelledby="slope-graph-title">
+          <div class="graph-toolbar">
+            <div class="graph-legend" id="slope-graph-title">
+              <span><i class="legend-line curve-key"></i> הפונקציה</span>
+              <span><i class="legend-line secant-key"></i> המיתר</span>
+              <span><i class="legend-line tangent-key"></i> המשיק</span>
+            </div>
+            <div class="graph-controls" aria-label="בקרי תצוגת גרף המיתר והמשיק">
+              <button type="button" data-graph="slope" data-action="zoom-out" aria-label="הקטנת גרף המיתר והמשיק">−</button>
+              <button type="button" data-graph="slope" data-action="center" class="center-button">מרכז</button>
+              <button type="button" data-graph="slope" data-action="zoom-in" aria-label="הגדלת גרף המיתר והמשיק">+</button>
+            </div>
+          </div>
+          <div id="slope-board" class="jxgbox" role="img" aria-label="גרף פונקציה מעריכית עם נקודה נגררת, מיתר ומשיק"></div>
+          <div class="graph-readout" aria-live="polite">
+            <span id="demo-h-value">h = 0.55</span>
+            <span id="secant-slope-value">secant slope = 0</span>
+          </div>
+          <p class="graph-instruction">גררו את הנקודה \(Q\) ימינה ושמאלה לאורך הגרף. אפשר גם לשנות את מיקומה בעזרת מקשי החצים לאחר בחירתה.</p>
+        </article>
+
+        <div class="explanation-stack">
+          <article><b>1</b><div><h3>מתחילים בנקודה ידועה</h3><p>עבור \(f(x)=a^x\) מתקיים \(f(0)=1\), ולכן הנקודה \(P(0,1)\) נמצאת על כל גרף מעריכי.</p></div></article>
+          <article><b>2</b><div><h3>בוחרים נקודה סמוכה</h3><p>לנקודה השנייה קואורדינטות \(Q(h,a^h)\). שיפוע המיתר \(PQ\) הוא בדיוק \(\frac{a^h-1}{h}\).</p></div></article>
+          <article><b>3</b><div><h3>מקרבים את הנקודות</h3><p>כאשר \(h\) מתקרב ל־0, הנקודה \(Q\) מתקרבת ל־\(P\), והמיתר מתקרב למשיק. לכן גבול המנה הוא שיפוע המשיק ב־\(x=0\).</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="experiment-section" id="experiment">
+      <div class="hero-grid">
+        <article class="calculator-panel">
+          <div class="panel-heading">
+            <div><span class="live-badge"><span></span> ניסוי חי</span><h2>מקרבים את \(h\) אל 0</h2></div>
+            <button class="reset-button" id="reset-experiment" type="button" aria-label="איפוס הניסוי">איפוס</button>
+          </div>
+
+          <div class="control-block">
+            <label for="base-range">בחרו בסיס \(a\)</label>
+            <div class="preset-row" id="preset-row">
+              <button type="button" data-base="0.5">½</button>
+              <button type="button" data-base="1">1</button>
+              <button type="button" data-base="1.4142135623730951">√2</button>
+              <button type="button" data-base="2" class="selected">2</button>
+              <button type="button" data-base="2.718281828459045">e</button>
+              <button type="button" data-base="3">3</button>
+            </div>
+            <div class="range-line">
+              <input id="base-range" type="range" min="0.2" max="5" step="0.01" value="2" aria-describedby="base-output">
+              <output id="base-output" for="base-range">2</output>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <label for="h-range">בחרו עד כמה \(h\) קטן</label>
+            <div class="h-display" aria-live="polite">
+              <span id="h-power-value">h = 10^-5</span>
+              <span id="h-decimal-value">1e-5</span>
+            </div>
+            <input id="h-range" type="range" min="1" max="8" step="1" value="5">
+            <div class="range-labels" aria-hidden="true"><span>קרוב פחות</span><span>קרוב יותר ל־0</span></div>
+            <div class="side-switch" aria-label="בחירת צד ההתקרבות">
+              <button type="button" id="direction-positive" class="selected" aria-pressed="true">מימין: \(h\gt0\)</button>
+              <button type="button" id="direction-negative" aria-pressed="false">משמאל: \(h\lt0\)</button>
+            </div>
+          </div>
+
+          <div class="experiment-output">
+            <div class="result-card">
+              <span>תוצאת המנה</span>
+              <strong id="quotient-result">0.693149583</strong>
+              <small>היעד: \(\ln(a)\) = <span id="target-result">0.693147181</span></small>
+            </div>
+
+            <article class="chart-card" aria-labelledby="convergence-title">
+              <div class="graph-toolbar">
+                <div class="graph-legend" id="convergence-title">
+                  <span><i class="legend-line data-key"></i> ערכי המנה</span>
+                  <span><i class="legend-line target-key"></i> \(\ln(a)\)</span>
+                </div>
+                <div class="graph-controls" aria-label="בקרי תצוגת גרף ההתכנסות">
+                  <button type="button" data-graph="convergence" data-action="zoom-out" aria-label="הקטנת גרף ההתכנסות">−</button>
+                  <button type="button" data-graph="convergence" data-action="center" class="center-button">מרכז</button>
+                  <button type="button" data-graph="convergence" data-action="zoom-in" aria-label="הגדלת גרף ההתכנסות">+</button>
+                </div>
+              </div>
+              <div id="convergence-board" class="jxgbox" role="img" aria-label="גרף התכנסות של מנת ההפרשים אל הלוגריתם הטבעי של הבסיס"></div>
+            </article>
+
+            <div class="value-table" role="table" aria-label="טבלת התכנסות">
+              <div role="row" class="table-head"><span role="columnheader">\(h\)</span><span role="columnheader">תוצאת המנה</span></div>
+              <div role="row"><span role="cell" id="table-h-0"></span><span role="cell" id="table-v-0"></span></div>
+              <div role="row"><span role="cell" id="table-h-1"></span><span role="cell" id="table-v-1"></span></div>
+              <div role="row" class="current-row"><span role="cell" id="table-h-2"></span><span role="cell" id="table-v-2"></span></div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="concept-column">
+          <article class="concept-card primary">
+            <span class="step-tag">מה אנחנו מודדים?</span>
+            <h2>שיפוע רגעי בבסיס \(a\)</h2>
+            <p>המנה היא שיפועו של מיתר קצר בגרף \(y=a^x\) ליד \(x=0\).</p>
+            <div class="display-formula" dir="ltr">\[\frac{a^h-1}{h}\]</div>
+          </article>
+          <article class="concept-card result-summary">
+            <span>ככל ש־\(h\to0\)</span>
+            <strong id="summary-result">0.69315</strong>
+            <div class="target-chip">≈ ln(<span id="target-base">2</span>)</div>
+          </article>
+          <article class="concept-card formula-summary">
+            <span class="step-tag">המסקנה שנוכיח</span>
+            <div class="display-formula conclusion-formula" dir="ltr">\[f'(x)=a^x\cdot\ln(a)\]</div>
+            <p>כאשר \(a=e\), מתקבל \(\ln(e)=1\), ולכן הנגזרת שווה לפונקציה עצמה.</p>
+            <button type="button" id="try-e">נסו את הבסיס \(e\) ⇐</button>
+          </article>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer><span class="brand-dot" aria-hidden="true"></span> מעבדת הגבול <small>למידה אינטראקטיבית של פונקציות מעריכיות</small></footer>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const state = {
+        base: 2,
+        exponent: 5,
+        direction: 1,
+        demoH: 0.55
+      };
+
+      const originalBoxes = {
+        slope: [-1.55, 5.2, 1.55, -0.65],
+        convergence: [0.45, 1.48, 8.55, 0.48]
+      };
+
+      let slopeBoard;
+      let convergenceBoard;
+      let slopeCurve;
+      let movingPoint;
+      let convergencePoints = [];
+      let convergenceCurve;
+      let targetLine;
+      let keyHandlerAttached = false;
+
+      const byId = (id) => document.getElementById(id);
+      const quotient = (base, h) => h === 0 ? Math.log(base) : Math.expm1(h * Math.log(base)) / h;
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+      function formatNumber(value, digits = 8) {
+        if (!Number.isFinite(value)) return '-';
+        return value.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '');
+      }
+
+      function signedPowerLabel(power) {
+        return `${state.direction < 0 ? '-' : ''}10^-${power}`;
+      }
+
+      function valuesForConvergence() {
+        return Array.from({ length: 8 }, (_, index) => {
+          const power = index + 1;
+          const h = state.direction * 10 ** (-power);
+          return { power, h, value: quotient(state.base, h) };
+        });
+      }
+
+      function convergenceBox() {
+        const values = valuesForConvergence().map((item) => item.value);
+        values.push(Math.log(state.base));
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const span = Math.max(max - min, 0.02);
+        return [0.45, max + 0.30 * span, 8.55, min - 0.30 * span];
+      }
+
+      function slopeBox() {
+        const edgeHeight = Math.max(state.base ** 1.5, state.base ** -1.5, 2.2);
+        return [-1.55, edgeHeight * 1.12, 1.55, -0.65];
+      }
+
+      function setBoardBox(board, box) {
+        board.setBoundingBox(box, false);
+        board.fullUpdate();
+      }
+
+      function zoomBoard(board, factor) {
+        const box = board.getBoundingBox();
+        const centerX = (box[0] + box[2]) / 2;
+        const centerY = (box[1] + box[3]) / 2;
+        const halfWidth = (box[2] - box[0]) * factor / 2;
+        const halfHeight = (box[1] - box[3]) * factor / 2;
+        setBoardBox(board, [centerX - halfWidth, centerY + halfHeight, centerX + halfWidth, centerY - halfHeight]);
+      }
+
+      function initializeSlopeBoard() {
+        originalBoxes.slope = slopeBox();
+        slopeBoard = JXG.JSXGraph.initBoard('slope-board', {
+          boundingbox: originalBoxes.slope,
+          axis: true,
+          showNavigation: false,
+          showCopyright: false,
+          pan: { enabled: true },
+          zoom: { enabled: true, wheel: true, pinch: true, factorX: 1.2, factorY: 1.2 },
+          defaultAxes: {
+            x: { strokeColor: '#607897', ticks: { strokeColor: '#607897', label: { color: '#91a4c0', fontSize: 11 } } },
+            y: { strokeColor: '#607897', ticks: { strokeColor: '#607897', label: { color: '#91a4c0', fontSize: 11 } } }
+          }
+        });
+
+        slopeCurve = slopeBoard.create('functiongraph', [x => state.base ** x, -1.5, 1.5], {
+          strokeColor: '#22d3ee', strokeWidth: 3, highlight: false
+        });
+        const p = slopeBoard.create('point', [0, 1], {
+          name: 'P(0,1)', size: 4, fixed: true, strokeColor: '#ffffff', fillColor: '#22d3ee',
+          label: { color: '#dbeafe', fontSize: 13, offset: [10, 12] }
+        });
+        movingPoint = slopeBoard.create('glider', [state.demoH, state.base ** state.demoH, slopeCurve], {
+          name: 'Q', size: 5, strokeWidth: 2, strokeColor: '#ffffff', fillColor: '#f4c95d',
+          highlightFillColor: '#f4c95d', highlightStrokeColor: '#ffffff',
+          label: { color: '#dbeafe', fontSize: 13, offset: [10, 12] }
+        });
+        slopeBoard.create('line', [p, movingPoint], {
+          straightFirst: true, straightLast: true, strokeColor: '#f4c95d', strokeWidth: 2,
+          dash: 2, highlight: false
+        });
+        slopeBoard.create('line', [p, [1, () => 1 + Math.log(state.base)]], {
+          straightFirst: true, straightLast: true, strokeColor: '#a88cff', strokeWidth: 2,
+          highlight: false
+        });
+
+        movingPoint.on('drag', () => {
+          state.demoH = clamp(movingPoint.X(), -1.25, 1.25);
+          if (Math.abs(movingPoint.X() - state.demoH) > 0.0001) {
+            movingPoint.setPosition(JXG.COORDS_BY_USER, [state.demoH, state.base ** state.demoH]);
+          }
+          updateSlopeReadout();
+        });
+
+        if (!keyHandlerAttached) {
+          byId('slope-board').setAttribute('tabindex', '0');
+          byId('slope-board').addEventListener('keydown', (event) => {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            const step = event.shiftKey ? 0.10 : 0.03;
+            if (event.key === 'ArrowLeft') state.demoH -= step;
+            if (event.key === 'ArrowRight') state.demoH += step;
+            if (event.key === 'Home') state.demoH = -1.25;
+            if (event.key === 'End') state.demoH = 1.25;
+            state.demoH = clamp(state.demoH, -1.25, 1.25);
+            movingPoint.setPosition(JXG.COORDS_BY_USER, [state.demoH, state.base ** state.demoH]);
+            slopeBoard.update();
+            updateSlopeReadout();
+          });
+          keyHandlerAttached = true;
+        }
+        updateSlopeReadout();
+      }
+
+      function initializeConvergenceBoard() {
+        originalBoxes.convergence = convergenceBox();
+        convergenceBoard = JXG.JSXGraph.initBoard('convergence-board', {
+          boundingbox: originalBoxes.convergence,
+          axis: true,
+          showNavigation: false,
+          showCopyright: false,
+          pan: { enabled: true },
+          zoom: { enabled: true, wheel: true, pinch: true, factorX: 1.2, factorY: 1.2 },
+          defaultAxes: {
+            x: { strokeColor: '#607897', ticks: { ticksDistance: 1, minorTicks: 0, strokeColor: '#607897', label: { color: '#91a4c0', fontSize: 10 } } },
+            y: { strokeColor: '#607897', ticks: { minorTicks: 0, strokeColor: '#607897', label: { color: '#91a4c0', fontSize: 10 } } }
+          }
+        });
+
+        convergencePoints = Array.from({ length: 8 }, (_, index) => convergenceBoard.create('point', [
+          index + 1,
+          () => quotient(state.base, state.direction * 10 ** (-(index + 1)))
+        ], {
+          name: '',
+          size: () => state.exponent === index + 1 ? 5 : 3,
+          fillColor: () => state.exponent === index + 1 ? '#f4c95d' : '#22d3ee',
+          strokeColor: () => state.exponent === index + 1 ? '#f4c95d' : '#04101f',
+          strokeWidth: 2,
+          fixed: true,
+          highlight: false
+        }));
+
+        convergenceCurve = convergenceBoard.create('curve', [
+          valuesForConvergence().map((_, index) => index + 1),
+          valuesForConvergence().map((item) => item.value)
+        ], { strokeColor: '#22d3ee', strokeWidth: 2.5, highlight: false });
+
+        targetLine = convergenceBoard.create('line', [[0, () => Math.log(state.base)], [1, () => Math.log(state.base)]], {
+          straightFirst: true, straightLast: true, strokeColor: '#f4c95d', strokeWidth: 2,
+          dash: 2, fixed: true, highlight: false
+        });
+
+        for (let index = 0; index < 8; index += 1) {
+          convergenceBoard.create('text', [index + 1, () => convergenceBoard.getBoundingBox()[3] + 0.06 * (convergenceBoard.getBoundingBox()[1] - convergenceBoard.getBoundingBox()[3]), `10^-${index + 1}`], {
+            anchorX: 'middle', anchorY: 'bottom', fixed: true, highlight: false,
+            fontSize: 9, color: '#91a4c0'
+          });
+        }
+      }
+
+      function updateSlopeReadout() {
+        const currentH = movingPoint ? clamp(movingPoint.X(), -1.25, 1.25) : state.demoH;
+        state.demoH = currentH;
+        byId('demo-h-value').textContent = `h = ${formatNumber(currentH, 3)}`;
+        byId('secant-slope-value').textContent = `secant slope = ${formatNumber(quotient(state.base, currentH), 4)}`;
+      }
+
+      function updatePresetButtons() {
+        document.querySelectorAll('[data-base]').forEach((button) => {
+          const isSelected = Math.abs(Number(button.dataset.base) - state.base) < 0.00001;
+          button.classList.toggle('selected', isSelected);
+          button.setAttribute('aria-pressed', String(isSelected));
+        });
+      }
+
+      function updateTable() {
+        const powers = [Math.max(1, state.exponent - 2), Math.max(1, state.exponent - 1), state.exponent];
+        powers.forEach((power, index) => {
+          const rowH = state.direction * 10 ** (-power);
+          byId(`table-h-${index}`).textContent = signedPowerLabel(power);
+          byId(`table-v-${index}`).textContent = formatNumber(quotient(state.base, rowH), 7);
+        });
+      }
+
+      function updateExperiment() {
+        const signedH = state.direction * 10 ** (-state.exponent);
+        const result = quotient(state.base, signedH);
+        const target = Math.log(state.base);
+
+        byId('base-range').value = String(state.base);
+        byId('base-output').textContent = formatNumber(state.base, 4);
+        byId('h-range').value = String(state.exponent);
+        byId('h-power-value').textContent = `h = ${signedPowerLabel(state.exponent)}`;
+        byId('h-decimal-value').textContent = signedH.toExponential(0);
+        byId('quotient-result').textContent = formatNumber(result, 9);
+        byId('target-result').textContent = formatNumber(target, 9);
+        byId('summary-result').textContent = formatNumber(result, 6);
+        byId('target-base').textContent = formatNumber(state.base, 3);
+        byId('direction-positive').classList.toggle('selected', state.direction === 1);
+        byId('direction-negative').classList.toggle('selected', state.direction === -1);
+        byId('direction-positive').setAttribute('aria-pressed', String(state.direction === 1));
+        byId('direction-negative').setAttribute('aria-pressed', String(state.direction === -1));
+        updatePresetButtons();
+        updateTable();
+
+        if (movingPoint) {
+          movingPoint.setPosition(JXG.COORDS_BY_USER, [state.demoH, state.base ** state.demoH]);
+          if (!slopeBoard.userHasZoomed) {
+            originalBoxes.slope = slopeBox();
+            setBoardBox(slopeBoard, originalBoxes.slope);
+          }
+          slopeBoard.update();
+          updateSlopeReadout();
+        }
+        if (convergenceBoard) {
+          const currentValues = valuesForConvergence();
+          convergenceCurve.dataX = currentValues.map((_, index) => index + 1);
+          convergenceCurve.dataY = currentValues.map((item) => item.value);
+          convergenceCurve.updateCurve();
+          convergenceBoard.update();
+          if (!convergenceBoard.userHasZoomed) {
+            originalBoxes.convergence = convergenceBox();
+            setBoardBox(convergenceBoard, originalBoxes.convergence);
+          }
+        }
+      }
+
+      function attachControls() {
+        byId('base-range').addEventListener('input', (event) => {
+          state.base = Number(event.target.value);
+          updateExperiment();
+        });
+        byId('h-range').addEventListener('input', (event) => {
+          state.exponent = Number(event.target.value);
+          updateExperiment();
+        });
+        byId('preset-row').addEventListener('click', (event) => {
+          const button = event.target.closest('[data-base]');
+          if (!button) return;
+          state.base = Number(button.dataset.base);
+          updateExperiment();
+        });
+        byId('direction-positive').addEventListener('click', () => {
+          state.direction = 1;
+          updateExperiment();
+        });
+        byId('direction-negative').addEventListener('click', () => {
+          state.direction = -1;
+          updateExperiment();
+        });
+        byId('reset-experiment').addEventListener('click', () => {
+          state.base = 2;
+          state.exponent = 5;
+          state.direction = 1;
+          state.demoH = 0.55;
+          movingPoint.setPosition(JXG.COORDS_BY_USER, [state.demoH, state.base ** state.demoH]);
+          convergenceBoard.userHasZoomed = false;
+          slopeBoard.userHasZoomed = false;
+          setBoardBox(slopeBoard, originalBoxes.slope);
+          updateExperiment();
+        });
+        byId('try-e').addEventListener('click', () => {
+          state.base = Math.E;
+          state.exponent = 6;
+          state.direction = 1;
+          updateExperiment();
+          byId('experiment').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        document.querySelectorAll('.graph-controls button').forEach((button) => {
+          button.addEventListener('click', () => {
+            const board = button.dataset.graph === 'slope' ? slopeBoard : convergenceBoard;
+            if (button.dataset.action === 'zoom-in') zoomBoard(board, 0.80);
+            if (button.dataset.action === 'zoom-out') zoomBoard(board, 1.25);
+            if (button.dataset.action === 'center') {
+              const key = button.dataset.graph;
+              if (key === 'slope') {
+                originalBoxes.slope = slopeBox();
+                slopeBoard.userHasZoomed = false;
+              }
+              if (key === 'convergence') {
+                originalBoxes.convergence = convergenceBox();
+                convergenceBoard.userHasZoomed = false;
+              }
+              setBoardBox(board, originalBoxes[key]);
+            }
+            if (button.dataset.graph === 'convergence' && button.dataset.action !== 'center') {
+              convergenceBoard.userHasZoomed = true;
+            }
+            if (button.dataset.graph === 'slope' && button.dataset.action !== 'center') {
+              slopeBoard.userHasZoomed = true;
+            }
+          });
+        });
+
+        byId('slope-board').addEventListener('wheel', () => {
+          slopeBoard.userHasZoomed = true;
+        }, { passive: true });
+        byId('convergence-board').addEventListener('wheel', () => {
+          convergenceBoard.userHasZoomed = true;
+        }, { passive: true });
+      }
+
+      function start() {
+        if (!window.JXG || !JXG.JSXGraph) {
+          window.setTimeout(start, 40);
+          return;
+        }
+        initializeSlopeBoard();
+        initializeConvergenceBoard();
+        attachControls();
+        updateExperiment();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start, { once: true });
+      } else {
+        start();
+      }
+    })();
+  </script>
+</body>
+</html>
