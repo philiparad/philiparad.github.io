@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור: מערכות אי־שוויונים ריבועיים — וגם / או</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],packages:{'[+]':['ams']}},chtml:{scale:.96},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{--blue:#24649a;--blue-dark:#173f62;--blue-soft:#eaf3fb;--teal:#187f7a;--orange:#d56a2d;--green:#2e7d4b;--red:#a94343;--ink:#1c2730;--muted:#5d6974;--line:#cdd8e2;--soft:#f6f8fa;--paper:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9eef3;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.53;overflow:visible}
+body{direction:rtl}
+main{width:210mm;margin:10mm auto;background:var(--paper);box-shadow:0 2mm 8mm rgba(20,45,65,.16);overflow:visible}
+.sheet{padding:13mm 15mm 17mm;min-height:297mm;position:relative;overflow:visible;break-after:page;page-break-after:always}
+.sheet:last-child{break-after:auto;page-break-after:auto}
+.cover{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#f9fcff 0%,#eaf3fb 58%,#fff 100%)}
+.cover::before{content:"";position:absolute;top:0;left:0;right:0;height:18mm;background:linear-gradient(90deg,var(--blue-dark),var(--blue),var(--teal))}
+.kicker{color:var(--teal);font-weight:800;font-size:14px;letter-spacing:.25px;margin-bottom:5mm}.kicker.small{font-size:12px;margin-bottom:2mm}
+h1{font-size:33px;line-height:1.18;color:var(--blue-dark);margin:0 0 4mm}
+.subtitle{font-size:21px;color:var(--blue);font-weight:750;margin-bottom:9mm}
+h2{font-size:24px;line-height:1.2;color:var(--blue-dark);margin:0 0 5mm;padding-bottom:2mm;border-bottom:2px solid var(--blue)}
+h3{font-size:18px;color:var(--blue);margin:6mm 0 2.5mm}h4{font-size:16px;color:var(--teal);margin:4mm 0 2mm}
+p{margin:2.3mm 0}ul,ol{margin:2mm 0;padding-right:7mm}li{margin:1.2mm 0}
+.cover-grid,.grid-2,.term-grid,.graph-grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+.cover-card,.card,.term,.example,.graph-card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:5mm;break-inside:avoid;page-break-inside:avoid}
+.cover-card{box-shadow:0 1mm 3mm rgba(24,58,88,.08)}.cover-card strong{display:block;color:var(--blue);font-size:17px;margin-bottom:1.5mm}
+.meta{margin-top:10mm;border-top:2px solid var(--blue);padding-top:4mm;color:var(--muted);font-size:13px}
+.callout{border-right:5px solid var(--blue);background:var(--blue-soft);border-radius:8px;padding:4mm 5mm;margin:4mm 0}.callout.warning{border-right-color:var(--orange);background:#fff3e9}.callout.success{border-right-color:var(--green);background:#edf8f0}.callout.danger{border-right-color:var(--red);background:#fff0f0}
+.math-display{direction:ltr;text-align:center;font-size:1.03em;margin:2mm 0}.ltr{direction:ltr;text-align:left}
+.logic{display:inline-block;color:#fff;border-radius:14px;padding:1mm 3.2mm;font-weight:800;font-size:12px}.logic.and{background:var(--green)}.logic.or{background:var(--orange)}
+.term strong{color:var(--blue-dark)}
+.algorithm{counter-reset:alg}.alg-step{position:relative;padding-right:10mm;margin:3mm 0}.alg-step::before{counter-increment:alg;content:counter(alg);position:absolute;right:0;top:.4mm;width:7mm;height:7mm;border-radius:50%;background:var(--blue);color:#fff;text-align:center;line-height:7mm;font-size:12px;font-weight:800}
+table{width:100%;border-collapse:collapse;margin:4mm 0;font-size:13px;break-inside:avoid}th,td{border:1px solid var(--line);padding:2.8mm;vertical-align:top}th{background:var(--blue-soft);color:var(--blue-dark)}
+.example-title{font-weight:800;color:var(--blue-dark);font-size:17px;margin-bottom:2mm}.solution-line{border-right:3px solid var(--line);padding-right:4mm;margin:2.5mm 0}
+.jxgbox{direction:ltr;width:100%;height:61mm;border:1px solid #9eb2c3;border-radius:8px;background:#fff;overflow:hidden!important}.numberline{height:48mm}.graph-caption{text-align:center;color:var(--muted);font-size:12px;margin-top:1.5mm}
+.compare-table td:first-child{font-weight:800;color:var(--blue-dark);white-space:nowrap}
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:3mm}.check{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:3mm}
+.exercise-header{display:flex;justify-content:space-between;gap:6mm;align-items:flex-end}.level-key{font-size:12px;color:var(--muted);max-width:72mm}
+.exercise-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-top:4mm}.exercise{border:1px solid var(--line);border-radius:10px;padding:3.6mm;background:#fff;min-height:49mm;break-inside:avoid;page-break-inside:avoid}.exercise-top{display:flex;justify-content:space-between;align-items:center}.exercise-number{width:8mm;height:8mm;border-radius:50%;display:inline-grid;place-items:center;background:var(--blue);color:#fff;font-weight:800;font-size:12px}.instruction{font-size:12px;color:var(--muted);margin-top:1mm}.exercise .math-display{font-size:.91em;margin-top:1mm}.exercise.level-5,.exercise.level-6{border-right:4px solid var(--orange)}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm}.answer{display:flex;align-items:center;gap:3mm;border:1px solid var(--line);border-radius:8px;padding:3mm;background:var(--soft);min-height:16mm;break-inside:avoid}.answer-num{flex:0 0 8mm;width:8mm;height:8mm;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:800;font-size:12px}.answer-math{direction:ltr;text-align:left;font-size:14px}
+.source-box{font-size:12.5px;color:var(--muted);background:#f5f8fb;border:1px solid var(--line);border-radius:9px;padding:4mm;margin-top:6mm}
+.footer{position:absolute;bottom:7mm;left:15mm;right:15mm;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:2mm;font-size:10.5px;color:#7a8792}
+.keep{break-inside:avoid;page-break-inside:avoid}.no-break{white-space:nowrap}
+@media(max-width:900px){main{width:100%;margin:0;box-shadow:none}.sheet{min-height:auto;padding:8mm}.cover-grid,.grid-2,.term-grid,.graph-grid,.exercise-grid,.answer-grid,.checklist{grid-template-columns:1fr}.footer{position:static;margin-top:8mm}.exercise-header{display:block}.jxgbox{height:66mm}}
+@media print{@page{size:A4;margin:0}html,body{background:#fff!important;overflow:visible!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}main{width:210mm;margin:0;box-shadow:none}.sheet{min-height:297mm;padding:13mm 15mm 17mm;overflow:visible!important}.jxgbox{break-inside:avoid;page-break-inside:avoid}a{color:inherit;text-decoration:none}}
+</style>
+</head>
+<body>
+<main>
+<section class="sheet cover">
+  <div class="kicker">אלגברה · כיתה י׳ / 4–5 יחידות</div>
+  <h1>מערכות אי־שוויונים ריבועיים</h1>
+  <div class="subtitle">מערכות “וגם” ו“או” · פתרון אלגברי ופתרון גרפי</div>
+  <div class="callout success">מערך מלא לשיעור כפול של 90 דקות או לשני שיעורים בני 45 דקות. המסמך כולל הוראה מפורשת, פתרונות מודרכים, גרפים אינטראקטיביים ב־JSXGraph ו־48 תרגילים בסדר קושי עולה.</div>
+  <div class="cover-grid">
+    <div class="cover-card"><strong>מטרת־על</strong>לפתור כל אי־שוויון ריבועי בנפרד, לתרגם כל פתרון לקבוצת מספרים, ולשלב את הקבוצות באמצעות חיתוך או איחוד.</div>
+    <div class="cover-card"><strong>ידע קודם</strong>פירוק לגורמים, נוסחת השורשים, גרף פרבולה, תחומי חיוביות ושליליות וכתיב תחומים.</div>
+    <div class="cover-card"><strong>תוצרי למידה</strong>פתרון אלגברי, פתרון גרפי, סימון על ציר המספרים, זיהוי \(\varnothing\) ו־\(\mathbb{R}\).</div>
+    <div class="cover-card"><strong>מאגר התרגול</strong>24 תרגילים שעובדו מן המקורות בעברית ובאנגלית ו־24 תרגילים מקבילים חדשים — פי שניים ממאגר המקור שנבחר.</div>
+  </div>
+  <div class="meta">HTML + MathJax + JSXGraph · עיצוב A4 להדפסה או שמירה כ־PDF · ללא גלילה פנימית</div>
+  <div class="footer"><span>מערכות אי־שוויונים ריבועיים</span><span>1</span></div>
+</section>
+
+<section class="sheet">
+<h2>1. מטרות, אבני דרך ומדדי הצלחה</h2>
+<div class="grid-2">
+  <div class="card"><h3>מטרות התלמיד</h3><ul>
+    <li>לפתור אי־שוויון ריבועי בעזרת נקודות אפס וסימן הפרבולה.</li>
+    <li>להבחין בין מערכת <strong>“וגם”</strong> לבין מערכת <strong>“או”</strong>.</li>
+    <li>לבצע חיתוך או איחוד של תחומים בלי לאבד קצוות פתוחים וסגורים.</li>
+    <li>לאמת פתרון באמצעות גרף או באמצעות הצבת ערך בדיקה.</li>
+    <li>לזהות מקרים מיוחדים: אין פתרון, כל המספרים הממשיים ושורש כפול.</li>
+  </ul></div>
+  <div class="card"><h3>מדדי הצלחה</h3><ul>
+    <li>אני מעביר כל אי־שוויון לצורה שבה אגף אחד הוא \(0\).</li>
+    <li>אני מוצא נכון את נקודות האפס ואת כיוון פתיחת הפרבולה.</li>
+    <li>אני כותב את פתרון כל תנאי לפני שאני משלב ביניהם.</li>
+    <li>במערכת “וגם” אני משאיר רק את החלק המשותף.</li>
+    <li>במערכת “או” אני כולל כל ערך שמקיים לפחות תנאי אחד.</li>
+  </ul></div>
+</div>
+<h3>מהלך שיעור מומלץ</h3>
+<table><thead><tr><th>זמן</th><th>שלב</th><th>פעולת המורה</th><th>פעולת התלמידים</th><th>הערכה מעצבת</th></tr></thead><tbody>
+<tr><td>8 דק׳</td><td>פתיחה</td><td>מציג שני תחומי פתרון ושואל מה פירוש “גם” ומה פירוש “או”.</td><td>מסמנים חיתוך ואיחוד על ציר מספרים.</td><td>הסבר מילולי קצר.</td></tr>
+<tr><td>15 דק׳</td><td>חזרה</td><td>פותר אי־שוויון ריבועי יחיד אלגברית וגרפית.</td><td>מזהים נקודות אפס ותחומי סימן.</td><td>כרטיס התאמה: ביטוי ↔ גרף ↔ תחום.</td></tr>
+<tr><td>20 דק׳</td><td>מערכת “וגם”</td><td>מדגים חיתוך של שתי קבוצות פתרון.</td><td>פותרים כל תנאי בנפרד ומשווים תחומים.</td><td>בדיקת ערך מתוך החיתוך.</td></tr>
+<tr><td>18 דק׳</td><td>מערכת “או”</td><td>מדגים איחוד, כולל מקרה שבו האיחוד הוא \(\mathbb{R}\).</td><td>מסמנים את כל הקטעים שמתקבלים.</td><td>שאלה: האם נשאר פער על הציר?</td></tr>
+<tr><td>20 דק׳</td><td>פתרון גרפי</td><td>מציג שתי פרבולות ואת תחומי הסימן שלהן.</td><td>קוראים מן הגרף את קבוצות הפתרון.</td><td>נימוק לפי מיקום מעל או מתחת לציר \(x\).</td></tr>
+<tr><td>9 דק׳</td><td>סיכום</td><td>מפעיל כרטיס יציאה.</td><td>פותרים מערכת קצרה ומסבירים את פעולת הקבוצות.</td><td>מיון להעמקה או לחזרה.</td></tr>
+</tbody></table>
+<div class="callout"><strong>עיקרון מרכזי:</strong> המילה הלוגית אינה משנה את דרך פתרון כל אי־שוויון. היא משנה רק את הפעולה האחרונה על קבוצות הפתרון.</div>
+<div class="footer"><span>מטרות ומהלך שיעור</span><span>2</span></div>
+</section>
+
+<section class="sheet">
+<h2>2. מן הפרבולה אל מערכת פתרונות</h2>
+<div class="term-grid">
+  <div class="term"><span class="logic and">וגם</span><h3>חיתוך</h3><div class="math-display">\[A\cap B\]</div><p>נשארים רק הערכים שמקיימים את שני התנאים בו־זמנית.</p></div>
+  <div class="term"><span class="logic or">או</span><h3>איחוד</h3><div class="math-display">\[A\cup B\]</div><p>לוקחים כל ערך שמקיים לפחות אחד משני התנאים.</p></div>
+</div>
+<h3>האלגוריתם המלא</h3>
+<div class="algorithm">
+  <div class="alg-step"><strong>מסדרים כל תנאי בנפרד:</strong> מעבירים את כל האיברים לאגף אחד ומקבלים ביטוי ביחס ל־\(0\).</div>
+  <div class="alg-step"><strong>מוצאים נקודות אפס:</strong> פירוק לגורמים, נוסחת השורשים או זיהוי ריבוע מושלם.</div>
+  <div class="alg-step"><strong>קובעים סימן:</strong> בעזרת כיוון הפרבולה, טבלת סימנים או ערך בדיקה.</div>
+  <div class="alg-step"><strong>כותבים תחום לכל תנאי:</strong> לפני ביצוע חיתוך או איחוד.</div>
+  <div class="alg-step"><strong>משלבים:</strong> חיתוך עבור “וגם”, איחוד עבור “או”.</div>
+  <div class="alg-step"><strong>בודקים קצוות:</strong> \(<,>\) נותנים קצה פתוח; \(\le,\ge\) נותנים קצה סגור, אם הנקודה שייכת לתנאי.</div>
+</div>
+<h3>טבלת החלטה מהירה לביטוי ריבועי</h3>
+<table class="compare-table"><thead><tr><th>כיוון הפרבולה</th><th>סימן מבוקש</th><th>מיקום הפתרון ביחס לשורשים</th></tr></thead><tbody>
+<tr><td>פונה מעלה</td><td>חיובי</td><td>מחוץ לקטע שבין השורשים.</td></tr>
+<tr><td>פונה מעלה</td><td>שלילי</td><td>בין השורשים.</td></tr>
+<tr><td>פונה מטה</td><td>חיובי</td><td>בין השורשים.</td></tr>
+<tr><td>פונה מטה</td><td>שלילי</td><td>מחוץ לקטע שבין השורשים.</td></tr>
+</tbody></table>
+<div class="callout warning"><strong>אין לקצר מוקדם מדי:</strong> כתבו קודם \(A\) ו־\(B\). רק לאחר ששני התחומים ברורים, חשבו \(A\cap B\) או \(A\cup B\).</div>
+<div class="footer"><span>מושגים ואלגוריתם</span><span>3</span></div>
+</section>
+
+<section class="sheet">
+<h2>3. דוגמה מודרכת — מערכת “וגם”</h2>
+<div class="example">
+  <div class="example-title">פתרו את המערכת:</div>
+  <div class="math-display">\[\begin{cases}x^2-5x+6\le 0\\x^2-1>0\end{cases}\]</div>
+  <div class="solution-line"><strong>תנאי ראשון:</strong><div class="math-display">\[x^2-5x+6=(x-2)(x-3)\]</div>הפרבולה פונה מעלה, ולכן הביטוי אינו חיובי בין השורשים:<div class="math-display">\[A=[2,3]\]</div></div>
+  <div class="solution-line"><strong>תנאי שני:</strong><div class="math-display">\[x^2-1=(x-1)(x+1)\]</div>הביטוי חיובי מחוץ לשורשים:<div class="math-display">\[B=(-\infty,-1)\cup(1,\infty)\]</div></div>
+  <div class="callout success"><strong>חיתוך:</strong><div class="math-display">\[A\cap B=[2,3]\]</div>כל הקטע \([2,3]\) נמצא בתוך התחום השני, ולכן הוא נשאר בשלמותו.</div>
+</div>
+<div class="graph-grid">
+  <div class="graph-card"><div id="andQuad" class="jxgbox"></div><div class="graph-caption">שתי הפרבולות והקשר שלהן לציר \(x\).</div></div>
+  <div class="graph-card"><div id="andLine" class="jxgbox numberline"></div><div class="graph-caption">החיתוך של קבוצות הפתרון על ציר המספרים.</div></div>
+</div>
+<h3>בדיקת פתרון</h3>
+<p>נבחר \(x=\frac52\), שנמצא בתוך הפתרון. בשני התנאים מתקבל פסוק אמת. לעומת זאת, \(x=0\) מקיים את התנאי השני? לא; ולכן אינו יכול להיות בפתרון המערכת.</p>
+<div class="callout"><strong>תובנה גרפית:</strong> מחפשים נקודות שבהן הפרבולה הראשונה נמצאת על ציר \(x\) או מתחתיו, ובאותו זמן הפרבולה השנייה נמצאת מעל הציר.</div>
+<div class="footer"><span>דוגמה — וגם</span><span>4</span></div>
+</section>
+
+<section class="sheet">
+<h2>4. דוגמה מודרכת — מערכת “או”</h2>
+<div class="example">
+  <div class="example-title">פתרו את המערכת:</div>
+  <div class="math-display">\[\begin{cases}x^2-5x-6<0\\x^2-2x-8\ge 0\end{cases}\]</div>
+  <div class="solution-line"><strong>תנאי ראשון:</strong><div class="math-display">\[(x+1)(x-6)<0\quad\Longrightarrow\quad A=(-1,6)\]</div></div>
+  <div class="solution-line"><strong>תנאי שני:</strong><div class="math-display">\[(x+2)(x-4)\ge 0\quad\Longrightarrow\quad B=(-\infty,-2]\cup[4,\infty)\]</div></div>
+  <div class="callout success"><strong>איחוד:</strong><div class="math-display">\[A\cup B=(-\infty,-2]\cup(-1,\infty)\]</div>הקטע \((-2,-1]\) אינו מכוסה על ידי אף אחד מן התנאים.</div>
+</div>
+<div class="graph-grid">
+  <div class="graph-card"><div id="orQuad" class="jxgbox"></div><div class="graph-caption">כל פרבולה תורמת חלק אחר לאיחוד.</div></div>
+  <div class="graph-card"><div id="orLine" class="jxgbox numberline"></div><div class="graph-caption">האיחוד כולל כל חלק שסומן לפחות בשורה אחת.</div></div>
+</div>
+<h3>שני מקרי קצה חשובים</h3>
+<div class="grid-2">
+  <div class="card"><strong>חיתוך ריק</strong><div class="math-display">\[(-1,1)\cap[2,4]=\varnothing\]</div>אין ערך שמקיים את שני התנאים.</div>
+  <div class="card"><strong>איחוד מלא</strong><div class="math-display">\[(-1,5)\cup\bigl(( -\infty,2]\cup[4,\infty)\bigr)=\mathbb{R}\]</div>כל מספר ממשי מכוסה לפחות פעם אחת.</div>
+</div>
+<div class="footer"><span>דוגמה — או</span><span>5</span></div>
+</section>
+
+<section class="sheet">
+<h2>5. פתרון גרפי שיטתי</h2>
+<div class="grid-2">
+  <div class="card"><h3>קריאה מכל פרבולה</h3><ol>
+    <li>מסמנים את נקודות החיתוך עם ציר \(x\).</li>
+    <li>מזהים היכן הגרף מעל הציר והיכן מתחתיו.</li>
+    <li>מתאימים את הסימן המבוקש: חיובי, שלילי, אינו חיובי או אינו שלילי.</li>
+    <li>כותבים תחום מספרי מדויק.</li>
+  </ol></div>
+  <div class="card"><h3>שילוב שני הגרפים</h3><ol>
+    <li>מציירים שורת פתרון נפרדת לכל תנאי.</li>
+    <li>ב“וגם” משאירים רק חפיפה.</li>
+    <li>ב“או” משאירים את כל הכיסוי.</li>
+    <li>בודקים שוב נקודות קצה לפי סוג הסימן.</li>
+  </ol></div>
+</div>
+<h3>דוגמה עם שורשים אי־רציונליים</h3>
+<div class="example">
+<div class="math-display">\[\begin{cases}x^2-6x+4\le0\\x^2-4x+3>0\end{cases}\]</div>
+<p>מן התנאי הראשון:</p><div class="math-display">\[A=[3-\sqrt5,3+\sqrt5]\]</div>
+<p>מן התנאי השני:</p><div class="math-display">\[B=(-\infty,1)\cup(3,\infty)\]</div>
+<p>לכן:</p><div class="math-display">\[A\cap B=[3-\sqrt5,1)\cup(3,3+\sqrt5]\]</div>
+</div>
+<div class="graph-grid">
+  <div class="graph-card"><div id="irrQuad" class="jxgbox"></div><div class="graph-caption">הגרף מאפשר לאמוד את השורשים לפני החישוב המדויק.</div></div>
+  <div class="graph-card"><div id="irrLine" class="jxgbox numberline"></div><div class="graph-caption">הפתרון מורכב משני קטעים נפרדים.</div></div>
+</div>
+<div class="callout warning"><strong>דיוק:</strong> בפתרון הסופי משאירים שורשים בצורה מדויקת, למשל \(3\pm\sqrt5\), ולא מחליפים אותם בקירוב עשרוני.</div>
+<div class="footer"><span>פתרון גרפי</span><span>6</span></div>
+</section>
+
+<section class="sheet">
+<h2>6. טעויות נפוצות, אבחון והתאמות</h2>
+<div class="grid-2">
+<div class="card"><h3>טעויות נפוצות</h3><ul>
+<li>ביצוע איחוד במקום חיתוך מפני שהפתרון “נראה גדול יותר”.</li>
+<li>כתיבת השורשים בלבד במקום תחום שלם.</li>
+<li>התעלמות מכיוון פתיחת הפרבולה.</li>
+<li>הכללת שורש באי־שוויון חזק או השמטתו באי־שוויון חלש.</li>
+<li>חיבור או כפל של שני אי־השוויונים במקום פתרון נפרד.</li>
+<li>עיגול מוקדם של שורשים אי־רציונליים.</li>
+</ul></div>
+<div class="card"><h3>שאלות אבחון קצרות</h3><ul>
+<li>האם המספר \(x=2\) חייב לקיים תנאי אחד או שניים?</li>
+<li>מה קורה כאשר שני התחומים אינם חופפים?</li>
+<li>מה קורה כאשר תחום אחד כלול כולו בשני?</li>
+<li>כיצד יודעים אם נקודת אפס שייכת לפתרון?</li>
+<li>האם גרף לבדו מספיק כאשר השורשים אינם שלמים?</li>
+</ul></div>
+</div>
+<h3>התאמות לפי רמת תלמיד</h3>
+<table><thead><tr><th>צורך</th><th>התאמה</th><th>דגש למורה</th></tr></thead><tbody>
+<tr><td>חיזוק בסיסי</td><td>לתת ביטויים מפורקים ולסמן שורשים מראש.</td><td>להפריד חזותית בין פתרון תנאי א׳ לתנאי ב׳.</td></tr>
+<tr><td>רמת כיתה</td><td>לעבוד עם ביטויים ניתנים לפירוק ועם קצוות פתוחים וסגורים.</td><td>לדרוש גם כתיב תחום וגם גרף.</td></tr>
+<tr><td>העמקה</td><td>לשלב העברת אגפים, שורשים אי־רציונליים ומקרים ללא שורשים.</td><td>לדרוש נימוק אלגברי וגרפי.</td></tr>
+<tr><td>מצטיינים</td><td>לבקש לבנות מערכת שהפתרון שלה נתון מראש.</td><td>לעודד בחירה מודעת של שורשים וכיוון פרבולה.</td></tr>
+</tbody></table>
+<h3>כרטיס יציאה</h3>
+<div class="example"><div class="math-display">\[\begin{cases}x^2-4\le0\\x^2-2x-3>0\end{cases}\]</div><p>א. פתרו. ב. כתבו במשפט אחד מדוע הפעולה האחרונה היא חיתוך. ג. בדקו ערך אחד ששייך לפתרון וערך אחד שאינו שייך.</p></div>
+<div class="footer"><span>אבחון והתאמות</span><span>7</span></div>
+</section>
+
+<section class="sheet">
+<h2>7. דף עזר לתלמיד</h2>
+<div class="checklist">
+<div class="check"><strong>1.</strong> העברתי כל תנאי לצורה \(f(x)\,\square\,0\), כאשר הסימן מתאים לשאלה.</div>
+<div class="check"><strong>2.</strong> מצאתי את כל נקודות האפס של כל ביטוי.</div>
+<div class="check"><strong>3.</strong> קבעתי את כיוון פתיחת כל פרבולה.</div>
+<div class="check"><strong>4.</strong> כתבתי תחום פתרון נפרד לכל תנאי.</div>
+<div class="check"><strong>5.</strong> סימנתי קצוות פתוחים או סגורים נכון.</div>
+<div class="check"><strong>6.</strong> ביצעתי חיתוך עבור “וגם” או איחוד עבור “או”.</div>
+<div class="check"><strong>7.</strong> פישטתי את האיחוד או החיתוך ככל האפשר.</div>
+<div class="check"><strong>8.</strong> בדקתי מספר מתוך הפתרון ומספר מחוצה לו.</div>
+</div>
+<h3>תבנית כתיבה מומלצת</h3>
+<div class="example">
+<p><strong>תנאי א׳:</strong></p><div class="math-display">\[A=\{x\in\mathbb{R}:\ldots\}\]</div>
+<p><strong>תנאי ב׳:</strong></p><div class="math-display">\[B=\{x\in\mathbb{R}:\ldots\}\]</div>
+<p><strong>פעולה לוגית:</strong></p><div class="math-display">\[A\cap B\qquad\text{or}\qquad A\cup B\]</div>
+<p><strong>פתרון סופי:</strong> כתיב תחום ברור ומפושט.</p>
+</div>
+<div class="callout danger"><strong>אזהרה:</strong> אין לכפול שני אי־שוויונים זה בזה ואין “לאחד” אותם לביטוי ריבועי אחד. המערכת היא שתי דרישות נפרדות על אותו משתנה.</div>
+<h3>משימת העמקה יצירתית</h3>
+<p>בנו שתי מערכות שונות שהפתרון של כל אחת מהן הוא:</p><div class="math-display">\[[-3,-1]\cup[2,5)\]</div><p>מערכת אחת תהיה מסוג “או”, והאחרת מסוג “וגם”. לאחר מכן שרטטו את הפרבולות המתאימות והסבירו את הבחירה.</p>
+<div class="footer"><span>דף עזר</span><span>8</span></div>
+</section>
+<section class="sheet">
+      <div class="exercise-header"><div><div class="kicker small">תרגול מדורג · רמה 1</div><h2>תרגילים 1–8</h2></div><div class="level-key">יש לפתור כל אי־שוויון בנפרד, ואז לבצע חיתוך או איחוד.</div></div>
+      <div class="exercise-grid"><article class="exercise level-1" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">1</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (x-1)(x-4)\le 0\\[2pt]
+          (x-2)(x-5)\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-1" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">2</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (x+3)(x-1)>0\\[2pt]
+          x^2-4<0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-1" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">3</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (x-1)(x-3)<0\\[2pt]
+          (x-5)(x-7)<0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-1" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">4</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-9\le 0\\[2pt]
+          x^2-4\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-1" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">5</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-1<0\\[2pt]
+          x^2-16>0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-1" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">6</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (x+2)(x-4)\ge 0\\[2pt]
+          x^2-6x+5<0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-1" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">7</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (x+5)(x+1)\le 0\\[2pt]
+          (x-2)(x-6)\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-1" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">8</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2<25\\[2pt]
+          x^2\ge 9
+          \end{cases}
+          \]</div>
+        </article></div>
+      <div class="footer"><span>מערכות אי־שוויונים ריבועיים</span><span>9</span></div>
+    </section><section class="sheet">
+      <div class="exercise-header"><div><div class="kicker small">תרגול מדורג · רמה 2</div><h2>תרגילים 9–16</h2></div><div class="level-key">יש לפתור כל אי־שוויון בנפרד, ואז לבצע חיתוך או איחוד.</div></div>
+      <div class="exercise-grid"><article class="exercise level-2" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">9</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-5x+6\le 0\\[2pt]
+          x^2-1>0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-2" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">10</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2+4x+3<0\\[2pt]
+          x^2+2x-8\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-2" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">11</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-5x-6<0\\[2pt]
+          x^2-2x-8\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-2" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">12</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2+7x+10<0\\[2pt]
+          x^2+9x+20>0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-2" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">13</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-8x+12\le 0\\[2pt]
+          x^2-11x+30\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-2" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">14</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-12x+27\ge 0\\[2pt]
+          x^2-13x+36\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-2" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">15</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2+15x+36\le 0\\[2pt]
+          x^2-36\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-2" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">16</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-8x+16>0\\[2pt]
+          x^2-5x+4\le 0
+          \end{cases}
+          \]</div>
+        </article></div>
+      <div class="footer"><span>מערכות אי־שוויונים ריבועיים</span><span>10</span></div>
+    </section><section class="sheet">
+      <div class="exercise-header"><div><div class="kicker small">תרגול מדורג · רמה 3</div><h2>תרגילים 17–24</h2></div><div class="level-key">יש לפתור כל אי־שוויון בנפרד, ואז לבצע חיתוך או איחוד.</div></div>
+      <div class="exercise-grid"><article class="exercise level-3" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">17</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          -x^2-5x+6>0\\[2pt]
+          x^2-1\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-3" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">18</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          -x^2-12x-11\le 0\\[2pt]
+          x^2+4x-5>0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-3" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">19</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          -3x^2+12x>0\\[2pt]
+          x^2-10x+25\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-3" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">20</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-10x+25>0\\[2pt]
+          x^2-4x+4\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-3" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">21</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          2x^2+5x+2\le 0\\[2pt]
+          3x^2+7x+2>0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-3" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">22</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          4x^2-4x-3<0\\[2pt]
+          2x^2-x-3\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-3" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">23</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          9x^2-29x+6\le 0\\[2pt]
+          8x^2-6x+1\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-3" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">24</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          18x^2+23x+5\le 0\\[2pt]
+          17x^2+15x-2\ge 0
+          \end{cases}
+          \]</div>
+        </article></div>
+      <div class="footer"><span>מערכות אי־שוויונים ריבועיים</span><span>11</span></div>
+    </section><section class="sheet">
+      <div class="exercise-header"><div><div class="kicker small">תרגול מדורג · רמה 4</div><h2>תרגילים 25–32</h2></div><div class="level-key">יש לפתור כל אי־שוויון בנפרד, ואז לבצע חיתוך או איחוד.</div></div>
+      <div class="exercise-grid"><article class="exercise level-4" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">25</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          4x^2-6x-9>x^2\\[2pt]
+          2x^2+2x-8>x^2
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-4" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">26</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          3x^2-5x\ge 4x^2+6\\[2pt]
+          4x^2-12>3x^2+x
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-4" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">27</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          2x^2+2x-8>x^2\\[2pt]
+          3x^2+7x\le 5x^2+3x-6
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-4" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">28</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          5x^2-15x+10<0\\[2pt]
+          4x^2+20x-11<0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-4" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">29</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          12x^2+10x-12>0\\[2pt]
+          5x^2-15x+10\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-4" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">30</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          3x^2+7x\le 5x^2+3x-6\\[2pt]
+          x^2>5x+6
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-4" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">31</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          4x^2-12>3x^2+x\\[2pt]
+          2x^2+2x-8\le x^2
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-4" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">32</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          -9x^2+29x-6\ge 0\\[2pt]
+          -8x^2+6x-1\le 0
+          \end{cases}
+          \]</div>
+        </article></div>
+      <div class="footer"><span>מערכות אי־שוויונים ריבועיים</span><span>12</span></div>
+    </section><section class="sheet">
+      <div class="exercise-header"><div><div class="kicker small">תרגול מדורג · רמה 5</div><h2>תרגילים 33–40</h2></div><div class="level-key">יש לפתור כל אי־שוויון בנפרד, ואז לבצע חיתוך או איחוד.</div></div>
+      <div class="exercise-grid"><article class="exercise level-5" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">33</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-6x+4\le 0\\[2pt]
+          x^2-4x+3>0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-5" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">34</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-2x-1<0\\[2pt]
+          x^2-8x+8\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-5" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">35</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          2x^2-4x-1\ge 0\\[2pt]
+          x^2-6x+7\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-5" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">36</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          3x^2+x-1>0\\[2pt]
+          x^2+2x-2<0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-5" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">37</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2+4x+1\le 0\\[2pt]
+          x^2+6x+7<0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-5" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">38</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          2x^2+8x+5\ge 0\\[2pt]
+          x^2-2x-2\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-5" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">39</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-2x-5<0\\[2pt]
+          x^2+2x-1\ge 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-5" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">40</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2-10x+20>0\\[2pt]
+          x^2-4x-1\le 0
+          \end{cases}
+          \]</div>
+        </article></div>
+      <div class="footer"><span>מערכות אי־שוויונים ריבועיים</span><span>13</span></div>
+    </section><section class="sheet">
+      <div class="exercise-header"><div><div class="kicker small">תרגול מדורג · רמה 6</div><h2>תרגילים 41–48</h2></div><div class="level-key">יש לפתור כל אי־שוויון בנפרד, ואז לבצע חיתוך או איחוד.</div></div>
+      <div class="exercise-grid"><article class="exercise level-6" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">41</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (x-2)^2\le 9\\[2pt]
+          (x+1)^2>4
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-6" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">42</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (x+2)^2<1\\[2pt]
+          (x-3)^2\le 4
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-6" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">43</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (2x-1)^2\ge 9\\[2pt]
+          (x+2)^2<16
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-6" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">44</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          (3x+1)^2<4\\[2pt]
+          (x-1)^2\ge 9
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-6" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">45</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2+2x+5>0\\[2pt]
+          x^2-6x+10\le 0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-6" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">46</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          x^2+4x+5>0\\[2pt]
+          x^2-8x+20<0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-6" data-origin="מקור ועיבוד">
+          <div class="exercise-top"><span class="exercise-number">47</span><span class="logic and">וגם</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          -(x-1)^2+9\ge 0\\[2pt]
+          (x+2)^2-1>0
+          \end{cases}
+          \]</div>
+        </article><article class="exercise level-6" data-origin="תרגיל מקביל חדש">
+          <div class="exercise-top"><span class="exercise-number">48</span><span class="logic or">או</span></div>
+          <div class="instruction">פתרו את המערכת וכתבו את הפתרון בכתיב תחום.</div>
+          <div class="math-display">\[
+          \begin{cases}
+          -(x+1)^2+4<0\\[2pt]
+          (x-2)^2-9\le 0
+          \end{cases}
+          \]</div>
+        </article></div>
+      <div class="footer"><span>מערכות אי־שוויונים ריבועיים</span><span>14</span></div>
+    </section><section class="sheet">
+      <div class="kicker small">מפתח תשובות</div><h2>תשובות לתרגילים 1–16</h2>
+      <div class="answer-grid"><div class="answer"><span class="answer-num">1</span><span class="answer-math">\([2,4]\)</span></div><div class="answer"><span class="answer-num">2</span><span class="answer-math">\((1,2)\)</span></div><div class="answer"><span class="answer-num">3</span><span class="answer-math">\((1,3)\cup(5,7)\)</span></div><div class="answer"><span class="answer-num">4</span><span class="answer-math">\([-3,-2]\cup[2,3]\)</span></div><div class="answer"><span class="answer-num">5</span><span class="answer-math">\((-\infty,-4)\cup(-1,1)\cup(4,\infty)\)</span></div><div class="answer"><span class="answer-num">6</span><span class="answer-math">\([4,5)\)</span></div><div class="answer"><span class="answer-num">7</span><span class="answer-math">\([-5,-1]\cup[2,6]\)</span></div><div class="answer"><span class="answer-num">8</span><span class="answer-math">\((-5,-3]\cup[3,5)\)</span></div><div class="answer"><span class="answer-num">9</span><span class="answer-math">\([2,3]\)</span></div><div class="answer"><span class="answer-num">10</span><span class="answer-math">\(\varnothing\)</span></div><div class="answer"><span class="answer-num">11</span><span class="answer-math">\((-\infty,-2]\cup(-1,\infty)\)</span></div><div class="answer"><span class="answer-num">12</span><span class="answer-math">\((-4,-2)\)</span></div><div class="answer"><span class="answer-num">13</span><span class="answer-math">\([2,6]\)</span></div><div class="answer"><span class="answer-num">14</span><span class="answer-math">\((-\infty,3]\cup[9,\infty)\)</span></div><div class="answer"><span class="answer-num">15</span><span class="answer-math">\([-12,6]\)</span></div><div class="answer"><span class="answer-num">16</span><span class="answer-math">\([1,4)\)</span></div></div>
+      <div class="footer"><span>מפתח תשובות</span><span>15</span></div>
+    </section><section class="sheet">
+      <div class="kicker small">מפתח תשובות</div><h2>תשובות לתרגילים 17–32</h2>
+      <div class="answer-grid"><div class="answer"><span class="answer-num">17</span><span class="answer-math">\((-6,-1]\)</span></div><div class="answer"><span class="answer-num">18</span><span class="answer-math">\((-\infty,-5)\cup[-1,\infty)\)</span></div><div class="answer"><span class="answer-num">19</span><span class="answer-math">\((0,4)\)</span></div><div class="answer"><span class="answer-num">20</span><span class="answer-math">\(\mathbb{R}\setminus\{5\}\)</span></div><div class="answer"><span class="answer-num">21</span><span class="answer-math">\(\varnothing\)</span></div><div class="answer"><span class="answer-num">22</span><span class="answer-math">\((-\infty,-1]\cup\left(-\frac12,\infty\right)\)</span></div><div class="answer"><span class="answer-num">23</span><span class="answer-math">\(\left[\frac29,\frac14\right]\cup\left[\frac12,3\right]\)</span></div><div class="answer"><span class="answer-num">24</span><span class="answer-math">\(\left(-\infty,-\frac5{18}\right]\cup\left[\frac2{17},\infty\right)\)</span></div><div class="answer"><span class="answer-num">25</span><span class="answer-math">\((-\infty,-4)\cup(3,\infty)\)</span></div><div class="answer"><span class="answer-num">26</span><span class="answer-math">\((-\infty,-2]\cup(4,\infty)\)</span></div><div class="answer"><span class="answer-num">27</span><span class="answer-math">\((-\infty,-4)\cup[3,\infty)\)</span></div><div class="answer"><span class="answer-num">28</span><span class="answer-math">\(\left(-\frac{11}{2},\frac12\right)\cup(1,2)\)</span></div><div class="answer"><span class="answer-num">29</span><span class="answer-math">\([1,2]\)</span></div><div class="answer"><span class="answer-num">30</span><span class="answer-math">\((-\infty,-1]\cup[3,\infty)\)</span></div><div class="answer"><span class="answer-num">31</span><span class="answer-math">\([-4,-3)\)</span></div><div class="answer"><span class="answer-num">32</span><span class="answer-math">\(\mathbb{R}\)</span></div></div>
+      <div class="footer"><span>מפתח תשובות</span><span>16</span></div>
+    </section><section class="sheet">
+      <div class="kicker small">מפתח תשובות</div><h2>תשובות לתרגילים 33–48</h2>
+      <div class="answer-grid"><div class="answer"><span class="answer-num">33</span><span class="answer-math">\([3-\sqrt5,1)\cup(3,3+\sqrt5]\)</span></div><div class="answer"><span class="answer-num">34</span><span class="answer-math">\((1-\sqrt2,4+2\sqrt2]\)</span></div><div class="answer"><span class="answer-num">35</span><span class="answer-math">\(\left[1+\frac{\sqrt6}{2},3+\sqrt2\right]\)</span></div><div class="answer"><span class="answer-num">36</span><span class="answer-math">\(\mathbb{R}\)</span></div><div class="answer"><span class="answer-num">37</span><span class="answer-math">\([-2-\sqrt3,-3+\sqrt2)\)</span></div><div class="answer"><span class="answer-num">38</span><span class="answer-math">\(\left(-\infty,-2-\frac{\sqrt6}{2}\right]\cup\left[-2+\frac{\sqrt6}{2},\infty\right)\)</span></div><div class="answer"><span class="answer-num">39</span><span class="answer-math">\([-1+\sqrt2,1+\sqrt6)\)</span></div><div class="answer"><span class="answer-num">40</span><span class="answer-math">\((-\infty,2+\sqrt5]\cup(5+\sqrt5,\infty)\)</span></div><div class="answer"><span class="answer-num">41</span><span class="answer-math">\((1,5]\)</span></div><div class="answer"><span class="answer-num">42</span><span class="answer-math">\((-3,-1)\cup[1,5]\)</span></div><div class="answer"><span class="answer-num">43</span><span class="answer-math">\((-6,-1]\)</span></div><div class="answer"><span class="answer-num">44</span><span class="answer-math">\((-\infty,-2]\cup\left(-1,\frac13\right)\cup[4,\infty)\)</span></div><div class="answer"><span class="answer-num">45</span><span class="answer-math">\(\varnothing\)</span></div><div class="answer"><span class="answer-num">46</span><span class="answer-math">\(\mathbb{R}\)</span></div><div class="answer"><span class="answer-num">47</span><span class="answer-math">\((-1,4]\)</span></div><div class="answer"><span class="answer-num">48</span><span class="answer-math">\((-\infty,-3)\cup[-1,\infty)\)</span></div></div><div class="source-box"><strong>בסיס התרגול:</strong> 24 תרגילים עובדו מתוך המקורות שהועלו בעברית ובאנגלית, ולצדם 24 תרגילים מקבילים חדשים. כל התרגילים הוכנסו במלואם וסודרו מחדש לפי קושי.</div>
+      <div class="footer"><span>מפתח תשובות</span><span>17</span></div>
+    </section>
+</main>
+<script>
+(function(){
+  function ready(fn){if(window.JXG&&JXG.JSXGraph){fn();}else{setTimeout(function(){ready(fn);},80);}}
+  function quadBoard(id, funcs, box){
+    var b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:true,grid:true,showCopyright:false,showNavigation:false,pan:{enabled:false},zoom:{enabled:false},keepaspectratio:false,defaultAxes:{x:{name:'x',withLabel:true,label:{position:'rt',offset:[-10,12]}},y:{name:'y',withLabel:true,label:{position:'rt',offset:[10,-10]}}}});
+    funcs.forEach(function(c){b.create('functiongraph',[c.fn,box[0],box[2]],{strokeColor:c.color,strokeWidth:2.4,fixed:true,highlight:false});});
+    return b;
+  }
+  function endpoint(board,x,y,closed,color){board.create('point',[x,y],{name:'',size:3,face:'o',fillColor:closed?color:'#fff',strokeColor:color,strokeWidth:2,fixed:true,highlight:false});}
+  function setRow(board,y,intervals,color,label,xmin,xmax){
+    board.create('text',[xmin+.15,y+.22,label],{fontSize:12,color:color,fixed:true,anchorX:'left'});
+    intervals.forEach(function(it){
+      var a=it[0]===null?xmin+.55:it[0], c=it[1]===null?xmax-.35:it[1];
+      board.create('segment',[[a,y],[c,y]],{strokeColor:color,strokeWidth:5,fixed:true,highlight:false,firstArrow:it[0]===null,lastArrow:it[1]===null});
+      if(it[0]!==null)endpoint(board,it[0],y,it[2],color);
+      if(it[1]!==null)endpoint(board,it[1],y,it[3],color);
+    });
+  }
+  function numberBoard(id,xmin,xmax,rows){
+    var b=JXG.JSXGraph.initBoard(id,{boundingbox:[xmin,3.25,xmax,-.3],axis:false,grid:false,showCopyright:false,showNavigation:false,pan:{enabled:false},zoom:{enabled:false},keepaspectratio:false});
+    b.create('line',[[xmin+.45,.28],[xmax-.25,.28]],{straightFirst:false,straightLast:false,strokeColor:'#4f5d68',strokeWidth:1.4,lastArrow:true,fixed:true,highlight:false});
+    for(var k=Math.ceil(xmin);k<=Math.floor(xmax);k++){
+      b.create('segment',[[k,.18],[k,.38]],{strokeColor:'#64727e',strokeWidth:1,fixed:true,highlight:false});
+      b.create('text',[k,.02,String(k)],{fontSize:10,anchorX:'middle',anchorY:'top',fixed:true});
+    }
+    rows.forEach(function(r){setRow(b,r.y,r.intervals,r.color,r.label,xmin,xmax);});
+    return b;
+  }
+  ready(function(){
+    quadBoard('andQuad',[{fn:function(x){return x*x-5*x+6;},color:'#24649a'},{fn:function(x){return x*x-1;},color:'#d56a2d'}],[ -4,12,7,-5]);
+    numberBoard('andLine',-4,7,[
+      {y:2.55,label:'A',color:'#24649a',intervals:[[2,3,true,true]]},
+      {y:1.65,label:'B',color:'#d56a2d',intervals:[[null,-1,false,false],[1,null,false,false]]},
+      {y:.8,label:'A ∩ B',color:'#2e7d4b',intervals:[[2,3,true,true]]}
+    ]);
+    quadBoard('orQuad',[{fn:function(x){return x*x-5*x-6;},color:'#24649a'},{fn:function(x){return x*x-2*x-8;},color:'#d56a2d'}],[-5,16,8,-10]);
+    numberBoard('orLine',-5,8,[
+      {y:2.55,label:'A',color:'#24649a',intervals:[[-1,6,false,false]]},
+      {y:1.65,label:'B',color:'#d56a2d',intervals:[[null,-2,false,true],[4,null,true,false]]},
+      {y:.8,label:'A ∪ B',color:'#2e7d4b',intervals:[[null,-2,false,true],[-1,null,false,false]]}
+    ]);
+    quadBoard('irrQuad',[{fn:function(x){return x*x-6*x+4;},color:'#24649a'},{fn:function(x){return x*x-4*x+3;},color:'#d56a2d'}],[-2,10,8,-6]);
+    var r1=3-Math.sqrt(5),r2=3+Math.sqrt(5);
+    numberBoard('irrLine',-2,8,[
+      {y:2.55,label:'A',color:'#24649a',intervals:[[r1,r2,true,true]]},
+      {y:1.65,label:'B',color:'#d56a2d',intervals:[[null,1,false,false],[3,null,false,false]]},
+      {y:.8,label:'A ∩ B',color:'#2e7d4b',intervals:[[r1,1,true,false],[3,r2,false,true]]}
+    ]);
+  });
+})();
+</script>
+</body>
+</html>

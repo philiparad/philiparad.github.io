@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור — מערכות אי־שוויונים ריבועיים ולינאריים משולבים</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    packages: {'[+]':['ams']}
+  },
+  chtml: {scale: 0.96},
+  options: {skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --blue:#285f92;--navy:#173b5d;--teal:#167a74;--orange:#c96a2d;
+  --green:#2f7d4a;--ink:#1e2933;--muted:#60707e;--line:#cbd7e1;
+  --soft:#f4f8fb;--blue-soft:#eaf3fb;--orange-soft:#fff3e8;--paper:#fff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e8edf2;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.5;overflow:visible}
+body{direction:rtl}
+main{width:210mm;margin:10mm auto;background:var(--paper);box-shadow:0 2mm 8mm rgba(15,40,60,.16);overflow:visible}
+.page{position:relative;min-height:297mm;padding:14mm 15mm 17mm;break-after:page;page-break-after:always;overflow:visible;background:#fff}
+.page:last-child{break-after:auto;page-break-after:auto}
+.cover{display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#f9fcff 0%,#e9f3fb 58%,#fff 100%)}
+.cover::before{content:"";position:absolute;inset:0 0 auto 0;height:18mm;background:linear-gradient(90deg,var(--navy),var(--blue),var(--teal))}
+.kicker{color:var(--teal);font-weight:700;font-size:15px;margin-bottom:8mm}
+h1{font-size:31px;line-height:1.2;color:var(--navy);margin:0 0 4mm}
+.subtitle{font-size:20px;color:var(--blue);font-weight:700;margin-bottom:10mm}
+h2{font-size:24px;color:var(--navy);margin:0 0 5mm;padding-bottom:2.2mm;border-bottom:2px solid var(--blue)}
+h3{font-size:18px;color:var(--blue);margin:6mm 0 2.5mm}
+h4{font-size:16px;color:var(--teal);margin:4mm 0 2mm}
+p{margin:2.2mm 0}
+ul,ol{margin:2mm 0;padding-right:7mm}
+li{margin:1.2mm 0}
+.lead{color:var(--muted);font-size:14px;margin-bottom:4mm}
+.cover-grid,.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+.cover-card,.card,.example{border:1px solid var(--line);border-radius:11px;padding:5mm;background:#fff;page-break-inside:avoid;break-inside:avoid}
+.cover-card strong{display:block;color:var(--blue);font-size:17px;margin-bottom:1mm}
+.hero-note{border-right:5px solid var(--green);background:#edf8f0;padding:4mm 5mm;border-radius:9px;margin:5mm 0}
+.meta{margin-top:11mm;padding-top:4mm;border-top:2px solid var(--blue);font-size:13px;color:var(--muted)}
+.callout{border-right:5px solid var(--blue);background:var(--blue-soft);padding:4mm 5mm;border-radius:8px;margin:4mm 0}
+.callout.warning{border-right-color:var(--orange);background:var(--orange-soft)}
+.callout.success{border-right-color:var(--green);background:#edf8f0}
+.callout.teacher{border-right-color:var(--teal);background:#eef9f8;font-size:13px}
+table{width:100%;border-collapse:collapse;margin:4mm 0;font-size:13px;page-break-inside:avoid}
+th,td{border:1px solid var(--line);padding:2.7mm;vertical-align:top}
+th{background:var(--blue-soft);color:var(--navy)}
+.math-display{direction:ltr;text-align:center;unicode-bidi:isolate;font-size:1.02em}
+mjx-container{direction:ltr!important;unicode-bidi:isolate!important}
+mjx-container[jax="CHTML"][display="true"]{text-align:center!important}
+.formula-box{border:1px solid var(--line);background:var(--soft);border-radius:9px;padding:3mm 4mm;margin:3mm 0;page-break-inside:avoid}
+.steps{counter-reset:step}
+.step{position:relative;padding-right:9mm;margin:2.4mm 0}
+.step::before{counter-increment:step;content:counter(step);position:absolute;right:0;top:.4mm;width:6mm;height:6mm;line-height:6mm;text-align:center;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700}
+.logic-grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin:4mm 0}
+.logic-card{border:1px solid var(--line);border-radius:10px;padding:5mm;background:#fff}
+.logic-chip{display:inline-block;color:#fff;background:var(--green);padding:1mm 3mm;border-radius:999px;font-weight:700;font-size:13px}
+.logic-chip.or{background:var(--orange)}
+.graph-grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+.graph-card{page-break-inside:avoid;break-inside:avoid}
+.jxgbox{width:100%;height:61mm;border:1px solid #9fb4c5;border-radius:8px;background:#fff;direction:ltr;overflow:hidden!important}
+.number-board{height:34mm}
+.caption{font-size:12px;color:var(--muted);text-align:center;margin-top:1.5mm}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.check{border:1px solid var(--line);border-radius:8px;padding:3.5mm;background:var(--soft)}
+.rubric{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-top:4mm}
+.rubric .card{padding:3.5mm;font-size:13px}
+.exercises-page h2{margin-bottom:2mm}
+.exercise-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.exercise{border:1px solid var(--line);border-radius:9px;padding:3mm;background:#fff;min-height:52mm;page-break-inside:avoid;break-inside:avoid}
+.exercise-top{display:flex;justify-content:space-between;align-items:center;gap:2mm}
+.exercise-number{display:inline-block;width:8mm;height:8mm;line-height:8mm;text-align:center;border-radius:50%;background:var(--blue);color:#fff;font-weight:700}
+.source-chip{font-size:10.5px;color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:.7mm 2mm}
+.exercise-prompt{font-size:11.5px;color:var(--muted);margin-top:1mm}
+.exercise .math-display{font-size:.93em;margin-top:-1mm}
+.work-lines{height:8mm;border-bottom:1px dotted #aebdca}
+.level-4{border-right:4px solid var(--teal)}
+.level-5{border-right:4px solid var(--orange)}
+.level-6{border-right:4px solid var(--navy)}
+.answers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5mm}
+.answer{border:1px solid var(--line);border-radius:7px;background:var(--soft);padding:2.5mm 3mm;font-size:13px;display:flex;gap:2mm;align-items:center;min-height:12mm}
+.answer strong{color:var(--blue)}
+.source-list{font-size:13px;color:var(--muted)}
+.footer{position:absolute;bottom:7mm;left:15mm;right:15mm;border-top:1px solid var(--line);padding-top:2mm;display:flex;justify-content:space-between;font-size:11px;color:#7a8792}
+@media(max-width:900px){
+  main{width:100%;margin:0;box-shadow:none}
+  .page{padding:9mm}
+  .cover-grid,.two-col,.logic-grid,.graph-grid,.exercise-grid,.check-grid,.rubric{grid-template-columns:1fr}
+  .answers-grid{grid-template-columns:1fr}
+}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff!important;overflow:visible!important}
+  main{width:210mm;margin:0;box-shadow:none}
+  .page{min-height:297mm;overflow:visible!important}
+  .jxgbox{page-break-inside:avoid;break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<main>
+
+<section class="page cover">
+  <div class="kicker">אלגברה · כיתה י׳ / 4–5 יחידות</div>
+  <h1>מערכות אי־שוויונים ריבועיים ולינאריים משולבים</h1>
+  <div class="subtitle">מערכות “וגם” ו“או” · פתרון אלגברי ופתרון גרפי</div>
+  <div class="hero-note">
+    מערך שיעור מלא עם דוגמאות מודרכות, גרפים ב־JSXGraph, טבלאות סימנים ו־48 תרגילים בסדר קושי עולה.
+    המאגר כולל 24 תרגילים המבוססים על המקורות המצורפים ו־24 תרגילים מקבילים נוספים.
+  </div>
+  <div class="cover-grid">
+    <div class="cover-card"><strong>משך מומלץ</strong>שני שיעורים בני 45 דקות, או שיעור כפול בן 90 דקות.</div>
+    <div class="cover-card"><strong>ידע קודם</strong>פתרון אי־שוויון לינארי, פירוק טרינום, נקודות אפס וקריאת גרף פרבולה.</div>
+    <div class="cover-card"><strong>מטרת־על</strong>לפתור מערכת שבה תנאי ריבועי ותנאי לינארי פועלים יחד, ולבחור נכון בין חיתוך לאיחוד.</div>
+    <div class="cover-card"><strong>תוצרי תלמיד</strong>פתרון אלגברי, כתיב תחום, גרף על ציר המספרים ובדיקת פתרון באמצעות פונקציות.</div>
+  </div>
+  <div class="meta">HTML + MathJax · כל הגרפים ב־JSXGraph · עיצוב A4 · עברית RTL · ללא גלילה פנימית</div>
+  <div class="footer"><span>מערכות אי־שוויונים משולבות</span><span>1</span></div>
+</section>
+
+<section class="page">
+  <h2>1. מטרות, מדדי הצלחה ומהלך השיעור</h2>
+  <h3>מטרות למידה</h3>
+  <div class="check-grid">
+    <div class="check">לפתור אי־שוויון ריבועי בעזרת נקודות אפס וטבלת סימנים.</div>
+    <div class="check">לפתור אי־שוויון לינארי ולזכור להפוך סימן בחלוקה במספר שלילי.</div>
+    <div class="check">לזהות ש־“וגם” פירושו חיתוך וש־“או” פירושו איחוד.</div>
+    <div class="check">לשלב תחומים הכוללים קצוות פתוחים, סגורים ואינסוף.</div>
+    <div class="check">לפתור גרפית באמצעות מיקום הפרבולה והישר ביחס לציר או זה ביחס לזה.</div>
+    <div class="check">לבדוק פתרון באמצעות ערכי מבחן מתוך התחום ומחוצה לו.</div>
+  </div>
+  <h3>מהלך שיעור מוצע</h3>
+  <table>
+    <thead><tr><th>זמן</th><th>שלב</th><th>פעולת המורה</th><th>פעולת התלמידים</th><th>הערכה מעצבת</th></tr></thead>
+    <tbody>
+      <tr><td>8 דק׳</td><td>פתיחה</td><td>מציג שני תנאים: אחד לינארי ואחד ריבועי, ושואל אילו ערכים מקיימים את שניהם.</td><td>מסמנים תחומים על שני צירים ומשערים את החלק המשותף.</td><td>הבחנה בין “וגם” ל“או”.</td></tr>
+      <tr><td>15 דק׳</td><td>חזרה ריבועית</td><td>מדגים מעבר לצורה שבה הביטוי הריבועי נמצא באגף אחד ו־\(0\) באגף האחר, מציאת שורשים וטבלת סימנים.</td><td>פותרים אי־שוויון ריבועי קצר.</td><td>בדיקת סימן בכל תחום.</td></tr>
+      <tr><td>15 דק׳</td><td>מערכת “וגם”</td><td>פותר כל תנאי בנפרד ומבצע חיתוך.</td><td>מציגים פתרון בכתיב תחום ועל ציר.</td><td>בדיקת קצוות.</td></tr>
+      <tr><td>15 דק׳</td><td>מערכת “או”</td><td>מדגים איחוד והפשטת תחומים חופפים.</td><td>מסבירים מדוע מספיק לקיים תנאי אחד.</td><td>זיהוי \(\emptyset\) ו־\(\mathbb{R}\).</td></tr>
+      <tr><td>22 דק׳</td><td>פתרון גרפי</td><td>מצייר פרבולה וישר, מזהה נקודות חיתוך ומתרגם “מעל/מתחת” לתחומים.</td><td>משווים פתרון גרפי לאלגברי.</td><td>נימוק באמצעות גרף.</td></tr>
+      <tr><td>10 דק׳</td><td>תרגול וכרטיס יציאה</td><td>בוחר תרגילים מדורגים ומסכם בשאלת יציאה.</td><td>פותרים ומגישים פתרון אישי.</td><td>מיון להמשך חזרה או העמקה.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warning"><strong>מוקדי טעות:</strong> איחוד במקום חיתוך; הכללת שורש באי־שוויון חמור; אי־היפוך הסימן בחלוקה בשלילי; קריאת “מעל/מתחת” ללא העברת אגפים.</div>
+  <div class="footer"><span>מטרות ומהלך שיעור</span><span>2</span></div>
+</section>
+
+<section class="page">
+  <h2>2. רעיון מרכזי: פותרים בנפרד ואז משלבים</h2>
+  <div class="logic-grid">
+    <div class="logic-card">
+      <span class="logic-chip">וגם</span>
+      <h3>חיתוך</h3>
+      <p>הערך חייב לקיים את שני התנאים בו־זמנית.</p>
+      <div class="math-display">\[
+      A\cap B
+      \]</div>
+      <p>על ציר המספרים לוקחים רק את החלק המשותף.</p>
+    </div>
+    <div class="logic-card">
+      <span class="logic-chip or">או</span>
+      <h3>איחוד</h3>
+      <p>הערך צריך לקיים לפחות תנאי אחד.</p>
+      <div class="math-display">\[
+      A\cup B
+      \]</div>
+      <p>על ציר המספרים מחברים את כל התחומים ומפשטים חפיפות.</p>
+    </div>
+  </div>
+  <h3>אלגוריתם עבודה קבוע</h3>
+  <div class="steps">
+    <div class="step">פתרו את התנאי הריבועי: העבירו הכול לאגף אחד, מצאו נקודות אפס ובנו טבלת סימנים.</div>
+    <div class="step">פתרו את התנאי הלינארי בנפרד.</div>
+    <div class="step">שרטטו כל פתרון על ציר נפרד. הקפידו על קצה פתוח או סגור.</div>
+    <div class="step">בצעו חיתוך עבור “וגם” או איחוד עבור “או”.</div>
+    <div class="step">כתבו תשובה סופית כתחום ובדקו מספר אחד מתוך כל קטע.</div>
+  </div>
+  <h3>טבלת סימנים של ביטוי ריבועי</h3>
+  <div class="formula-box">
+    <div class="math-display">\[
+    q(x)=a(x-r_1)(x-r_2),\qquad r_1&lt;r_2
+    \]</div>
+    <p>כאשר \(a>0\), הביטוי חיובי מחוץ לשורשים ושלילי ביניהם. כאשר \(a&lt;0\), הכיוונים מתהפכים.</p>
+  </div>
+  <table>
+    <thead><tr><th>סוג הפרבולה</th><th>תחום חיובי</th><th>תחום שלילי</th></tr></thead>
+    <tbody>
+      <tr><td>\(a>0\)</td><td>\((-\infty,r_1)\cup(r_2,\infty)\)</td><td>\((r_1,r_2)\)</td></tr>
+      <tr><td>\(a&lt;0\)</td><td>\((r_1,r_2)\)</td><td>\((-\infty,r_1)\cup(r_2,\infty)\)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout success">באי־שוויון \(\le\) או \(\ge\) כוללים שורשים. באי־שוויון \(&lt;\) או \(>\) אינם כוללים אותם.</div>
+  <div class="footer"><span>האלגוריתם המרכזי</span><span>3</span></div>
+</section>
+
+<section class="page">
+  <h2>3. דוגמה מודרכת — מערכת “וגם”</h2>
+  <div class="example">
+    <h3>פתרו אלגברית וגרפית</h3>
+    <div class="math-display">\[
+    \begin{gathered}
+    x^2-5x+6\le0\\
+    \text{and}\\
+    2x-1>3
+    \end{gathered}
+    \]</div>
+    <div class="steps">
+      <div class="step">מפרקים: \(x^2-5x+6=(x-2)(x-3)\).</div>
+      <div class="step">הפרבולה פונה כלפי מעלה, ולכן \(x^2-5x+6\le0\) בתחום \([2,3]\).</div>
+      <div class="step">מן התנאי הלינארי: \(2x>4\), ולכן \(x>2\).</div>
+      <div class="step">חיתוך התחומים: \([2,3]\cap(2,\infty)=(2,3]\).</div>
+    </div>
+  </div>
+  <div class="graph-grid">
+    <div class="graph-card">
+      <div id="quad-and" class="jxgbox"></div>
+      <div class="caption">הביטוי הריבועי אינו חיובי בין השורשים.</div>
+    </div>
+    <div class="graph-card">
+      <div id="line-and" class="jxgbox"></div>
+      <div class="caption">הביטוי הלינארי חיובי מימין ל־\(x=2\).</div>
+    </div>
+  </div>
+  <h3>שילוב על ציר המספרים</h3>
+  <div id="and-number" class="jxgbox number-board"></div>
+  <div class="callout success"><strong>תשובה:</strong> <span dir="ltr">\((2,3]\)</span></div>
+  <div class="footer"><span>דוגמת “וגם”</span><span>4</span></div>
+</section>
+
+<section class="page">
+  <h2>4. דוגמה מודרכת — מערכת “או”</h2>
+  <div class="example">
+    <h3>פתרו אלגברית וגרפית</h3>
+    <div class="math-display">\[
+    \begin{gathered}
+    x^2+x-6>0\\
+    \text{or}\\
+    3x+6\le0
+    \end{gathered}
+    \]</div>
+    <div class="steps">
+      <div class="step">מפרקים: \(x^2+x-6=(x+3)(x-2)\).</div>
+      <div class="step">הפרבולה פונה מעלה, ולכן הביטוי חיובי מחוץ לשורשים: \((-\infty,-3)\cup(2,\infty)\).</div>
+      <div class="step">מן התנאי הלינארי: \(3x\le-6\), ולכן \(x\le-2\).</div>
+      <div class="step">מאחדים ומפשטים: \((-\infty,-2]\cup(2,\infty)\).</div>
+    </div>
+  </div>
+  <div class="graph-grid">
+    <div class="graph-card"><div id="quad-or" class="jxgbox"></div><div class="caption">הפרבולה מעל ציר \(x\) מחוץ לשורשים.</div></div>
+    <div class="graph-card"><div id="line-or" class="jxgbox"></div><div class="caption">הישר אינו חיובי עבור \(x\le-2\).</div></div>
+  </div>
+  <h3>האיחוד הסופי</h3>
+  <div id="or-number" class="jxgbox number-board"></div>
+  <div class="callout success"><strong>תשובה:</strong> <span dir="ltr">\((-\infty,-2]\cup(2,\infty)\)</span></div>
+  <div class="footer"><span>דוגמת “או”</span><span>5</span></div>
+</section>
+
+<section class="page">
+  <h2>5. פתרון גרפי: השוואת פרבולה וישר</h2>
+  <p>כאשר מתקבל אי־שוויון מן הצורה \(f(x)\le g(x)\), אפשר לפתור בשתי דרכים שקולות:</p>
+  <div class="two-col">
+    <div class="card">
+      <h3>דרך אלגברית</h3>
+      <div class="math-display">\[
+      f(x)-g(x)\le0
+      \]</div>
+      <p>מעבירים אגפים, מקבלים אי־שוויון ריבועי ופותרים בטבלת סימנים.</p>
+    </div>
+    <div class="card">
+      <h3>דרך גרפית</h3>
+      <p>משרטטים את שני הגרפים ובודקים היכן גרף \(f\) נמצא מתחת לגרף \(g\).</p>
+    </div>
+  </div>
+  <div class="example">
+    <div class="math-display">\[
+    \begin{gathered}
+    x^2-4x+3\le x-1\\
+    \text{and}\\
+    x>2
+    \end{gathered}
+    \]</div>
+    <div class="steps">
+      <div class="step">נקודות החיתוך מתקבלות מן \(x^2-4x+3=x-1\), כלומר \(x^2-5x+4=0\).</div>
+      <div class="step">השורשים הם \(x=1\) ו־\(x=4\).</div>
+      <div class="step">הפרבולה נמצאת מתחת לישר בתחום \([1,4]\).</div>
+      <div class="step">חיתוך עם \(x>2\) נותן \((2,4]\).</div>
+    </div>
+  </div>
+  <div id="compare-graph" class="jxgbox" style="height:86mm"></div>
+  <div class="caption">כחול: \(y=x^2-4x+3\). כתום: \(y=x-1\). התחום המבוקש בין נקודות החיתוך.</div>
+  <div class="footer"><span>השוואת פונקציות</span><span>6</span></div>
+</section>
+
+<section class="page">
+  <h2>6. מקרים מיוחדים ובדיקת תשובה</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>קבוצה ריקה</h3>
+      <div class="math-display">\[
+      (1,3)\cap[4,\infty)=\emptyset
+      \]</div>
+      <p>במערכת “וגם” אין תחום משותף.</p>
+    </div>
+    <div class="card">
+      <h3>כל המספרים הממשיים</h3>
+      <div class="math-display">\[
+      \bigl((-\infty,-1]\cup[1,\infty)\bigr)\cup(-\infty,1)=\mathbb{R}
+      \]</div>
+      <p>במערכת “או” האיחוד מכסה את כל הישר.</p>
+    </div>
+    <div class="card">
+      <h3>שורש כפול</h3>
+      <div class="math-display">\[
+      (x-2)^2\ge0
+      \]</div>
+      <p>הביטוי אינו שלילי לכל \(x\), ושווה לאפס רק ב־\(x=2\).</p>
+    </div>
+    <div class="card">
+      <h3>אין שורשים ממשיים</h3>
+      <div class="math-display">\[
+      x^2+2x+5=(x+1)^2+4>0
+      \]</div>
+      <p>הביטוי חיובי לכל מספר ממשי.</p>
+    </div>
+  </div>
+  <h3>בדיקת תשובה בשלושה שלבים</h3>
+  <ol>
+    <li>בדקו את נקודות האפס ואת סימן המקדם המוביל.</li>
+    <li>בדקו ערך פנימי וערך חיצוני בכל תחום.</li>
+    <li>בדקו בנפרד את מילת הקישור: האם נדרש לקיים את שני התנאים או רק אחד?</li>
+  </ol>
+  <h3>כרטיס יציאה</h3>
+  <div class="callout">
+    <div class="math-display">\[
+    \begin{gathered}
+    x^2-4x+3&lt;0\\
+    \text{and}\\
+    x\ge2
+    \end{gathered}
+    \]</div>
+    <p>פתרו, שרטטו על ציר המספרים, וכתבו במשפט אחד מדוע הקצה \(x=3\) אינו כלול.</p>
+  </div>
+  <div class="rubric">
+    <div class="card"><strong>4</strong><br>פתרון מלא, נימוק וגרף תקין.</div>
+    <div class="card"><strong>3</strong><br>פתרון נכון עם טעות ייצוג קטנה.</div>
+    <div class="card"><strong>2</strong><br>הבנת השיטה אך שגיאה בחיתוך/איחוד.</div>
+    <div class="card"><strong>1</strong><br>נדרש תיווך מחדש של אי־שוויון ריבועי.</div>
+  </div>
+  <div class="footer"><span>מקרים מיוחדים והערכה</span><span>7</span></div>
+</section>
+
+<section class="page">
+  <h2>7. הנחיות לתרגול המדורג</h2>
+  <div class="callout success">
+    48 התרגילים מסודרים מן הקל אל הקשה. תרגילים 1–24 מבוססים על דפוסים ותרגילים מתוך המקורות בעברית ובאנגלית; תרגילים 25–48 הם תרגילים מקבילים שנבנו באותם מבנים.
+  </div>
+  <table>
+    <thead><tr><th>תרגילים</th><th>מוקד</th><th>מיומנות</th><th>המלצה</th></tr></thead>
+    <tbody>
+      <tr><td>1–8</td><td>“וגם” בסיסי</td><td>פירוק לגורמים וחיתוך</td><td>תרגול חובה לכל הכיתה</td></tr>
+      <tr><td>9–16</td><td>“או” בסיסי</td><td>איחוד ופישוט תחומים</td><td>עבודה בזוגות</td></tr>
+      <tr><td>17–24</td><td>מקדמים</td><td>שורשים רציונליים ופרבולה הפוכה</td><td>תרגול עצמאי</td></tr>
+      <tr><td>25–32</td><td>השוואת פונקציות</td><td>מעבר מהשוואה בין \(f(x)\) ל־\(g(x)\) לאי־שוויון ריבועי</td><td>לפתור גם בגרף</td></tr>
+      <tr><td>33–40</td><td>לוגיקה מורכבת</td><td>סדר פעולות בין חיתוך לאיחוד</td><td>העמקה</td></tr>
+      <tr><td>41–48</td><td>מקרים מתקדמים</td><td>שורשים אי־רציונליים ודיסקרימיננטה</td><td>אתגר</td></tr>
+    </tbody>
+  </table>
+  <h3>כלל כתיבה לתלמיד</h3>
+  <div class="formula-box">
+    <ol>
+      <li>כתבו פתרון לכל תנאי בשורה נפרדת.</li>
+      <li>כתבו במפורש \(A\cap B\) או \(A\cup B\).</li>
+      <li>פשטו את התחום הסופי.</li>
+      <li>שרטטו קצוות פתוחים/סגורים.</li>
+    </ol>
+  </div>
+  <h3>התאמות פדגוגיות</h3>
+  <div class="two-col">
+    <div class="card"><strong>לתלמידים הזקוקים לתמיכה:</strong> לתת טבלת סימנים מוכנה עם השורשים ולהתמקד בשילוב התחומים.</div>
+    <div class="card"><strong>לתלמידים מתקדמים:</strong> לדרוש פתרון כפול — אלגברי וגרפי — והסבר מדוע שתי הדרכים שקולות.</div>
+  </div>
+  <div class="footer"><span>הנחיות לתרגול</span><span>8</span></div>
+</section>
+
+
+<section class="page exercises-page">
+  <h2>רמה 1 — מערכות “וגם” בסיסיות</h2>
+  <p class="lead">פירוק לגורמים, נקודות אפס וחיתוך עם תחום לינארי פשוט.</p>
+  <div class="exercise-grid">
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">1</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      (x-1)(x-4)\le 0\\[2pt]
+      \text{and}\\[2pt]
+      x>0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">2</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      (x+3)(x-2)&lt;0\\[2pt]
+      \text{and}\\[2pt]
+      x\ge -1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">3</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      (x-5)(x+1)\ge 0\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">4</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-9>0\\[2pt]
+      \text{and}\\[2pt]
+      x\le 5
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">5</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-4x\le 0\\[2pt]
+      \text{and}\\[2pt]
+      x\ge 1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">6</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2+5x+6>0\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">7</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      (x-2)^2\le 0\\[2pt]
+      \text{and}\\[2pt]
+      x\ge 2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-1">
+      <div class="exercise-top">
+        <span class="exercise-number">8</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2+1>0\\[2pt]
+      \text{and}\\[2pt]
+      x\le 3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article></div>
+  <div class="footer"><span>תרגול מדורג · 1–8</span><span>9</span></div>
+</section>
+<section class="page exercises-page">
+  <h2>רמה 2 — מערכות “או” בסיסיות</h2>
+  <p class="lead">פתרון כל תנאי בנפרד ואיחוד התחומים.</p>
+  <div class="exercise-grid">
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">9</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      (x-1)(x-5)\le 0\\[2pt]
+      \text{or}\\[2pt]
+      x&lt;0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">10</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      (x+4)(x+1)>0\\[2pt]
+      \text{or}\\[2pt]
+      x\ge -2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">11</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-9&lt;0\\[2pt]
+      \text{or}\\[2pt]
+      x\ge 4
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">12</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-2x-3\ge 0\\[2pt]
+      \text{or}\\[2pt]
+      x&lt;2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">13</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      (x-2)^2>0\\[2pt]
+      \text{or}\\[2pt]
+      x\le 2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">14</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2+4x+3\le 0\\[2pt]
+      \text{or}\\[2pt]
+      x&lt;-3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">15</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-6x+8>0\\[2pt]
+      \text{or}\\[2pt]
+      x\ge 3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-2">
+      <div class="exercise-top">
+        <span class="exercise-number">16</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2+2x+5&lt;0\\[2pt]
+      \text{or}\\[2pt]
+      x>1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article></div>
+  <div class="footer"><span>תרגול מדורג · 9–16</span><span>10</span></div>
+</section>
+<section class="page exercises-page">
+  <h2>רמה 3 — מקדמים ומבנים מורכבים יותר</h2>
+  <p class="lead">שורשים רציונליים, פרבולה הפוכה וקצוות פתוחים/סגורים.</p>
+  <div class="exercise-grid">
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">17</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      2x^2-7x+3\le 0\\[2pt]
+      \text{and}\\[2pt]
+      x>1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">18</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      3x^2+x-2>0\\[2pt]
+      \text{and}\\[2pt]
+      x\le 2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">19</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      4x^2-4x-3\ge 0\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">20</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      2x^2+x-6&lt;0\\[2pt]
+      \text{and}\\[2pt]
+      x\ge -2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">21</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      5x^2-20x+15\le 0\\[2pt]
+      \text{or}\\[2pt]
+      x&lt;0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">22</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      2x^2-8x+6>0\\[2pt]
+      \text{or}\\[2pt]
+      x\ge 4
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">23</span>
+        <span class="source-chip">מן המקורות — עברית</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      -x^2+5x-6\ge 0\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-3">
+      <div class="exercise-top">
+        <span class="exercise-number">24</span>
+        <span class="source-chip">מן המקורות — English</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      -2x^2-3x+2&lt;0\\[2pt]
+      \text{or}\\[2pt]
+      x\le -2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article></div>
+  <div class="footer"><span>תרגול מדורג · 17–24</span><span>11</span></div>
+</section>
+<section class="page exercises-page">
+  <h2>רמה 4 — השוואת פונקציה ריבועית ופונקציה לינארית</h2>
+  <p class="lead">מעבירים אגפים, פותרים אי־שוויון ריבועי, ומשלבים תנאי לינארי נוסף.</p>
+  <div class="exercise-grid">
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">25</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-4x+3\le x-1\\[2pt]
+      \text{and}\\[2pt]
+      x>2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">26</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2+x-2>2x-2\\[2pt]
+      \text{and}\\[2pt]
+      x\le 3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">27</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      2x^2-3x-2\ge x+4\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;4
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">28</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      -x^2+4x+1&lt;x+3\\[2pt]
+      \text{and}\\[2pt]
+      x\ge 0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">29</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-6x+5\le -x+5\\[2pt]
+      \text{or}\\[2pt]
+      x>6
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">30</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      2x^2+x-3>x+1\\[2pt]
+      \text{or}\\[2pt]
+      x\le -1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">31</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2+2x+1\ge 3x+1\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;4
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-4">
+      <div class="exercise-top">
+        <span class="exercise-number">32</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      -2x^2+8x-5\le 3\\[2pt]
+      \text{or}\\[2pt]
+      x>5
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article></div>
+  <div class="footer"><span>תרגול מדורג · 25–32</span><span>12</span></div>
+</section>
+<section class="page exercises-page">
+  <h2>רמה 5 — לוגיקה משולבת</h2>
+  <p class="lead">סוגריים לוגיים, חיתוך בתוך איחוד ואיחוד בתוך חיתוך.</p>
+  <div class="exercise-grid">
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">33</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl((x-2)(x-6)\le0\ \text{and}\ x>3\bigr)\\[2pt]
+      \text{or}\\[2pt]
+      x&lt;-1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">34</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl((x+2)(x-4)>0\ \text{or}\ x\ge0\bigr)\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;5
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">35</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl(x^2-1&lt;0\ \text{and}\ 2x-1\ge0\bigr)\\[2pt]
+      \text{or}\\[2pt]
+      x\ge3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">36</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl(x^2-5x+6\ge0\ \text{or}\ x&lt;0\bigr)\\[2pt]
+      \text{and}\\[2pt]
+      x\le4
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">37</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl(2x^2-5x+2&lt;0\ \text{and}\ x\le1\bigr)\\[2pt]
+      \text{or}\\[2pt]
+      x>4
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">38</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl(x^2+4x+4\le0\ \text{or}\ x>-2\bigr)\\[2pt]
+      \text{and}\\[2pt]
+      x\le3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">39</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl(x^2-4\ge0\ \text{and}\ x&lt;3\bigr)\\[2pt]
+      \text{or}\\[2pt]
+      \bigl(x+1>0\ \text{and}\ x\le0\bigr)
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-5">
+      <div class="exercise-top">
+        <span class="exercise-number">40</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      \bigl(x^2-6x+9>0\ \text{or}\ x&lt;3\bigr)\\[2pt]
+      \text{and}\\[2pt]
+      x\ge1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article></div>
+  <div class="footer"><span>תרגול מדורג · 33–40</span><span>13</span></div>
+</section>
+<section class="page exercises-page">
+  <h2>רמה 6 — העמקה</h2>
+  <p class="lead">שורשים אי־רציונליים, דיסקרימיננטה שלילית, קבוצה ריקה וכל הישר הממשי.</p>
+  <div class="exercise-grid">
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">41</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-2x-1\le0\\[2pt]
+      \text{and}\\[2pt]
+      x>0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">42</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      2x^2+4x-1>0\\[2pt]
+      \text{or}\\[2pt]
+      x\ge0
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">43</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2+4x+7\le0\\[2pt]
+      \text{and}\\[2pt]
+      x>-10
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">44</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      -x^2+6x-10&lt;0\\[2pt]
+      \text{or}\\[2pt]
+      x\le3
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">45</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-3x-1\ge0\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;2
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">46</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      2x^2-4x+5>0\\[2pt]
+      \text{and}\\[2pt]
+      x&lt;7
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">47</span>
+        <span class="source-chip">תרגיל מקביל — דגם עברי</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-4x+4>0\\[2pt]
+      \text{and}\\[2pt]
+      x\le4
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article>
+
+    <article class="exercise level-6">
+      <div class="exercise-top">
+        <span class="exercise-number">48</span>
+        <span class="source-chip">תרגיל מקביל — English model</span>
+      </div>
+      <div class="exercise-prompt">פתרו את המערכת. הציגו גם חיתוך/איחוד על ציר המספרים.</div>
+      <div class="math-display">
+      \[
+      \begin{gathered}
+      x^2-2x-3\le2x+1\\[2pt]
+      \text{or}\\[2pt]
+      3x-2&lt;1
+      \end{gathered}
+      \]
+      </div>
+      <div class="work-lines"></div>
+    </article></div>
+  <div class="footer"><span>תרגול מדורג · 41–48</span><span>14</span></div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות — תרגילים 1–24</h2>
+  <div class="callout teacher">המפתח מיועד לבדיקה. מומלץ לדרוש מן התלמידים להציג נקודות אפס, טבלת סימנים ושילוב תחומים.</div>
+  <div class="answers-grid"><div class="answer"><strong>1.</strong><span dir="ltr">\(\left[1, 4\right]\)</span></div>
+<div class="answer"><strong>2.</strong><span dir="ltr">\(\left[-1, 2\right)\)</span></div>
+<div class="answer"><strong>3.</strong><span dir="ltr">\(\left(-\infty, -1\right]\)</span></div>
+<div class="answer"><strong>4.</strong><span dir="ltr">\(\left(-\infty, -3\right) \cup \left(3, 5\right]\)</span></div>
+<div class="answer"><strong>5.</strong><span dir="ltr">\(\left[1, 4\right]\)</span></div>
+<div class="answer"><strong>6.</strong><span dir="ltr">\(\left(-\infty, -3\right) \cup \left(-2, 0\right)\)</span></div>
+<div class="answer"><strong>7.</strong><span dir="ltr">\(\left\{2\right\}\)</span></div>
+<div class="answer"><strong>8.</strong><span dir="ltr">\(\left(-\infty, 3\right]\)</span></div>
+<div class="answer"><strong>9.</strong><span dir="ltr">\(\left(-\infty, 0\right) \cup \left[1, 5\right]\)</span></div>
+<div class="answer"><strong>10.</strong><span dir="ltr">\(\left(-\infty, -4\right) \cup \left[-2, \infty\right)\)</span></div>
+<div class="answer"><strong>11.</strong><span dir="ltr">\(\left(-3, 3\right) \cup \left[4, \infty\right)\)</span></div>
+<div class="answer"><strong>12.</strong><span dir="ltr">\(\left(-\infty, 2\right) \cup \left[3, \infty\right)\)</span></div>
+<div class="answer"><strong>13.</strong><span dir="ltr">\(\mathbb{R}\)</span></div>
+<div class="answer"><strong>14.</strong><span dir="ltr">\(\left(-\infty, -1\right]\)</span></div>
+<div class="answer"><strong>15.</strong><span dir="ltr">\(\left(-\infty, 2\right) \cup \left[3, \infty\right)\)</span></div>
+<div class="answer"><strong>16.</strong><span dir="ltr">\(\left(1, \infty\right)\)</span></div>
+<div class="answer"><strong>17.</strong><span dir="ltr">\(\left(1, 3\right]\)</span></div>
+<div class="answer"><strong>18.</strong><span dir="ltr">\(\left(-\infty, -1\right) \cup \left(\frac{2}{3}, 2\right]\)</span></div>
+<div class="answer"><strong>19.</strong><span dir="ltr">\(\left(-\infty, -\frac{1}{2}\right]\)</span></div>
+<div class="answer"><strong>20.</strong><span dir="ltr">\(\left(-2, \frac{3}{2}\right)\)</span></div>
+<div class="answer"><strong>21.</strong><span dir="ltr">\(\left(-\infty, 0\right) \cup \left[1, 3\right]\)</span></div>
+<div class="answer"><strong>22.</strong><span dir="ltr">\(\left(-\infty, 1\right) \cup \left(3, \infty\right)\)</span></div>
+<div class="answer"><strong>23.</strong><span dir="ltr">\(\left[2, 3\right)\)</span></div>
+<div class="answer"><strong>24.</strong><span dir="ltr">\(\left(-\infty, -2\right] \cup \left(\frac{1}{2}, \infty\right)\)</span></div></div>
+  <div class="footer"><span>מפתח תשובות</span><span>15</span></div>
+</section>
+<section class="page">
+  <h2>מפתח תשובות — תרגילים 25–48</h2>
+  <div class="callout teacher">המפתח מיועד לבדיקה. מומלץ לדרוש מן התלמידים להציג נקודות אפס, טבלת סימנים ושילוב תחומים.</div>
+  <div class="answers-grid"><div class="answer"><strong>25.</strong><span dir="ltr">\(\left(2, 4\right]\)</span></div>
+<div class="answer"><strong>26.</strong><span dir="ltr">\(\left(-\infty, 0\right) \cup \left(1, 3\right]\)</span></div>
+<div class="answer"><strong>27.</strong><span dir="ltr">\(\left(-\infty, -1\right] \cup \left[3, 4\right)\)</span></div>
+<div class="answer"><strong>28.</strong><span dir="ltr">\(\left[0, 1\right) \cup \left(2, \infty\right)\)</span></div>
+<div class="answer"><strong>29.</strong><span dir="ltr">\(\left[0, 5\right] \cup \left(6, \infty\right)\)</span></div>
+<div class="answer"><strong>30.</strong><span dir="ltr">\(\left(-\infty, -1\right] \cup \left(\sqrt{2}, \infty\right)\)</span></div>
+<div class="answer"><strong>31.</strong><span dir="ltr">\(\left(-\infty, 0\right] \cup \left[1, 4\right)\)</span></div>
+<div class="answer"><strong>32.</strong><span dir="ltr">\(\mathbb{R}\)</span></div>
+<div class="answer"><strong>33.</strong><span dir="ltr">\(\left(-\infty, -1\right) \cup \left(3, 6\right]\)</span></div>
+<div class="answer"><strong>34.</strong><span dir="ltr">\(\left(-\infty, -2\right) \cup \left[0, 5\right)\)</span></div>
+<div class="answer"><strong>35.</strong><span dir="ltr">\(\left[\frac{1}{2}, 1\right) \cup \left[3, \infty\right)\)</span></div>
+<div class="answer"><strong>36.</strong><span dir="ltr">\(\left(-\infty, 2\right] \cup \left[3, 4\right]\)</span></div>
+<div class="answer"><strong>37.</strong><span dir="ltr">\(\left(\frac{1}{2}, 1\right] \cup \left(4, \infty\right)\)</span></div>
+<div class="answer"><strong>38.</strong><span dir="ltr">\(\left[-2, 3\right]\)</span></div>
+<div class="answer"><strong>39.</strong><span dir="ltr">\(\left(-\infty, -2\right] \cup \left(-1, 0\right] \cup \left[2, 3\right)\)</span></div>
+<div class="answer"><strong>40.</strong><span dir="ltr">\(\left[1, 3\right) \cup \left(3, \infty\right)\)</span></div>
+<div class="answer"><strong>41.</strong><span dir="ltr">\(\left(0, 1+\sqrt{2}\right]\)</span></div>
+<div class="answer"><strong>42.</strong><span dir="ltr">\(\left(-\infty, -\frac{\sqrt{6}}{2} - 1\right) \cup \left[0, \infty\right)\)</span></div>
+<div class="answer"><strong>43.</strong><span dir="ltr">\(\emptyset\)</span></div>
+<div class="answer"><strong>44.</strong><span dir="ltr">\(\mathbb{R}\)</span></div>
+<div class="answer"><strong>45.</strong><span dir="ltr">\(\left(-\infty, \frac{3}{2} -\frac{\sqrt{13}}{2}\right]\)</span></div>
+<div class="answer"><strong>46.</strong><span dir="ltr">\(\left(-\infty, 7\right)\)</span></div>
+<div class="answer"><strong>47.</strong><span dir="ltr">\(\left(-\infty, 2\right) \cup \left(2, 4\right]\)</span></div>
+<div class="answer"><strong>48.</strong><span dir="ltr">\(\left(-\infty, 2+2\sqrt{2}\right]\)</span></div></div>
+  <div class="footer"><span>מפתח תשובות</span><span>16</span></div>
+</section>
+
+<section class="page">
+  <h2>מקורות ובדיקות סופיות</h2>
+  <h3>מקורות בעברית ששולבו</h3>
+  <ul class="source-list">
+    <li><strong>יחידה 25 — משוואות ואי־שוויונות ריבועיים</strong>: גרפים של פרבולות וישרים, נקודות חיתוך והשוואת פונקציות.</li>
+    <li><strong>אי־שוויונים אלגבריים — חדו״א 1, פרק 37</strong>: אי־שוויונים ממעלה שנייה, טבלאות סימנים ומערכות “וגם/או”.</li>
+    <li><strong>מערכות אי־שוויונים לינאריים</strong>: מבנה השיעור, ייצוגי חיתוך ואיחוד ותרגול על ציר המספרים.</li>
+  </ul>
+  <h3>מקורות באנגלית ששולבו</h3>
+  <ul class="source-list">
+    <li><em>Kuta Software — Polynomial Inequalities</em>: תרגילים מפורקים ומורחבים באי־שוויונים פולינומיים.</li>
+    <li><em>Kuta Software — Compound Inequalities</em>: מערכות <span dir="ltr">and/or</span>, אי־שוויונים כפולים ושרטוט תחומים.</li>
+  </ul>
+  <h3>בדיקות שבוצעו במסמך</h3>
+  <div class="check-grid">
+    <div class="check">כל 48 קבוצות הפתרון חושבו ונבדקו חישובית.</div>
+    <div class="check">כל ביטויי MathJax מכילים טקסט באנגלית בלבד.</div>
+    <div class="check">כל הגרפים והצירים נבנו ב־JSXGraph.</div>
+    <div class="check">העמודים מוגדרים ל־A4 וללא אזורי גלילה פנימיים.</div>
+    <div class="check">סימני קצה פתוח וסגור תואמים לאי־השוויונים.</div>
+    <div class="check">התרגילים מסודרים לפי קושי עולה ובחלוקה לשש רמות.</div>
+  </div>
+  <div class="callout teacher"><strong>הערה למורה:</strong> תרגילים 1–24 הם עיבוד ושילוב של מבנים מן המקורות; תרגילים 25–48 מכפילים את מאגר התרגול תוך שמירה על אותם עקרונות.</div>
+  <div class="footer"><span>מקורות ובדיקת איכות</span><span>17</span></div>
+</section>
+
+</main>
+<script>
+(function(){
+  function waitForJSXGraph(cb, tries){
+    if(window.JXG && JXG.JSXGraph){cb();return;}
+    if((tries||0)<100) setTimeout(function(){waitForJSXGraph(cb,(tries||0)+1);},80);
+  }
+  function base(id,bbox){
+    return JXG.JSXGraph.initBoard(id,{
+      boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,
+      pan:{enabled:false},zoom:{enabled:false},keepaspectratio:false,
+      defaultAxes:{
+        x:{withLabel:true,name:'x',label:{position:'rt',offset:[-8,12]}},
+        y:{withLabel:true,name:'y',label:{position:'rt',offset:[8,-8]}}
+      }
+    });
+  }
+  function point(board,x,y,closed){
+    return board.create('point',[x,y],{
+      name:'',size:3.2,fixed:true,highlight:false,
+      face:'o',strokeWidth:2,strokeColor:'#285f92',
+      fillColor:closed?'#285f92':'#ffffff'
+    });
+  }
+  function numberBase(id,min,max){
+    var b=JXG.JSXGraph.initBoard(id,{
+      boundingbox:[min,1.3,max,-1.3],axis:false,showCopyright:false,showNavigation:false,
+      pan:{enabled:false},zoom:{enabled:false}
+    });
+    b.create('arrow',[[min+.2,0],[max-.2,0]],{strokeColor:'#263746',strokeWidth:2,fixed:true,highlight:false});
+    for(var k=Math.ceil(min);k<=Math.floor(max);k++){
+      b.create('segment',[[k,-.09],[k,.09]],{strokeColor:'#263746',strokeWidth:1,fixed:true,highlight:false});
+      b.create('text',[k,-.37,String(k)],{fontSize:11,anchorX:'middle',fixed:true,highlight:false});
+    }
+    return b;
+  }
+  function seg(b,a,c,opts){
+    return b.create('segment',[a,c],Object.assign({strokeColor:'#167a74',strokeWidth:5,fixed:true,highlight:false},opts||{}));
+  }
+  waitForJSXGraph(function(){
+    var q1=base('quad-and',[-1,7,6,-3]);
+    q1.create('functiongraph',[function(t){return t*t-5*t+6;}],{strokeColor:'#285f92',strokeWidth:3,fixed:true,highlight:false});
+    point(q1,2,0,true); point(q1,3,0,true);
+    seg(q1,[2,-.45],[3,-.45],{strokeColor:'#2f7d4a'});
+
+    var l1=base('line-and',[-1,6,6,-5]);
+    l1.create('functiongraph',[function(t){return 2*t-4;}],{strokeColor:'#c96a2d',strokeWidth:3,fixed:true,highlight:false});
+    point(l1,2,0,false);
+    seg(l1,[2,-.55],[5.5,-.55],{strokeColor:'#2f7d4a'});
+
+    var na=numberBase('and-number',-1,6);
+    seg(na,[2,0],[3,0],{strokeColor:'#2f7d4a',strokeWidth:7});
+    point(na,2,0,false); point(na,3,0,true);
+
+    var q2=base('quad-or',[-6,10,5,-8]);
+    q2.create('functiongraph',[function(t){return t*t+t-6;}],{strokeColor:'#285f92',strokeWidth:3,fixed:true,highlight:false});
+    point(q2,-3,0,false); point(q2,2,0,false);
+
+    var l2=base('line-or',[-6,10,4,-10]);
+    l2.create('functiongraph',[function(t){return 3*t+6;}],{strokeColor:'#c96a2d',strokeWidth:3,fixed:true,highlight:false});
+    point(l2,-2,0,true);
+
+    var no=numberBase('or-number',-7,6);
+    seg(no,[-6.7,0],[-2,0],{strokeColor:'#c96a2d',strokeWidth:7});
+    seg(no,[2,0],[5.7,0],{strokeColor:'#c96a2d',strokeWidth:7});
+    point(no,-2,0,true); point(no,2,0,false);
+
+    var cg=base('compare-graph',[-2,9,7,-6]);
+    cg.create('functiongraph',[function(t){return t*t-4*t+3;}],{strokeColor:'#285f92',strokeWidth:3,fixed:true,highlight:false});
+    cg.create('functiongraph',[function(t){return t-1;}],{strokeColor:'#c96a2d',strokeWidth:3,fixed:true,highlight:false});
+    point(cg,1,0,true); point(cg,4,3,true);
+    cg.create('text',[1.12,.5,'(1,0)'],{fontSize:12,fixed:true,highlight:false});
+    cg.create('text',[4.15,3.45,'(4,3)'],{fontSize:12,fixed:true,highlight:false});
+  });
+})();
+</script>
+</body>
+</html>

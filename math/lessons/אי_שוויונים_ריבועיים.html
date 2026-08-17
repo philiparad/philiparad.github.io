@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור — אי־שוויונים ריבועיים</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 1.02 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --ink:#16324f;
+  --muted:#52677c;
+  --blue:#3679bd;
+  --blue-dark:#1e5f9f;
+  --blue-soft:#eaf4ff;
+  --teal:#1d8a84;
+  --teal-soft:#e9f8f6;
+  --gold:#b87500;
+  --gold-soft:#fff5df;
+  --rose:#a34155;
+  --rose-soft:#fff0f3;
+  --line:#cdd9e5;
+  --paper:#fff;
+  --bg:#eef3f8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;line-height:1.48}
+body{overflow:visible}
+main{width:210mm;margin:0 auto}
+.page{
+  width:210mm;
+  min-height:297mm;
+  background:var(--paper);
+  padding:12mm 14mm 14mm;
+  margin:10mm auto;
+  box-shadow:0 8px 28px rgba(22,50,79,.13);
+  position:relative;
+  overflow:visible;
+}
+.page::after{
+  content:"";
+  position:absolute;
+  inset:auto 14mm 7mm 14mm;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--blue),transparent);
+  opacity:.35;
+}
+h1,h2,h3,h4{margin:0 0 .55rem;color:var(--ink);line-height:1.25}
+h1{font-size:29pt;color:var(--blue-dark)}
+h2{font-size:18.5pt;border-bottom:3px solid var(--blue);padding-bottom:.25rem;margin-bottom:1rem}
+h3{font-size:14.5pt;color:var(--blue-dark);margin-top:1rem}
+h4{font-size:12.5pt;color:var(--teal);margin-top:.8rem}
+p{margin:.45rem 0}
+ul,ol{margin:.35rem 0 .65rem;padding-right:1.3rem}
+li{margin:.18rem 0}
+.math,ltr-math,.mjx-container{direction:ltr;text-align:left}
+.mjx-container[display="true"]{margin:.45rem 0!important;text-align:center!important}
+.kicker{font-weight:700;color:var(--teal);letter-spacing:.05em;margin-bottom:.35rem}
+.subtitle{font-size:15pt;color:var(--muted);margin-bottom:1.2rem}
+.hero{
+  background:linear-gradient(135deg,var(--blue-soft),#fff 55%,var(--teal-soft));
+  border:1px solid #b9d7f2;
+  border-radius:18px;
+  padding:18px 20px;
+  margin-bottom:1rem;
+}
+.hero-grid,.grid-2,.grid-3,.lesson-grid,.exercise-grid,.answer-grid{display:grid;gap:12px}
+.hero-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:1rem}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-2>*{min-width:0}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-3>*{min-width:0}
+.lesson-grid{grid-template-columns:92px 1fr}
+.card,.step,.exercise-card,.answer-card,.graph-card{
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:10px 12px;
+  background:#fff;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.card strong,.hero-grid strong{display:block;color:var(--blue-dark);margin-bottom:.2rem}
+.callout{border-right:5px solid var(--blue);background:var(--blue-soft);padding:10px 13px;border-radius:10px;margin:.7rem 0;break-inside:avoid}
+.callout.success{border-color:var(--teal);background:var(--teal-soft)}
+.callout.warn{border-color:var(--gold);background:var(--gold-soft)}
+.callout.danger{border-color:var(--rose);background:var(--rose-soft)}
+.badge{display:inline-block;border-radius:999px;padding:.1rem .55rem;background:var(--blue);color:#fff;font-size:9.5pt;font-weight:700;margin-left:.25rem}
+.timeline{display:grid;grid-template-columns:85px 1fr;gap:8px 12px;margin-top:.5rem}
+.time{font-weight:800;color:var(--blue-dark);background:var(--blue-soft);border-radius:9px;text-align:center;padding:.45rem .3rem;align-self:start}
+.phase{border-bottom:1px dashed var(--line);padding-bottom:.55rem;margin-bottom:.1rem}
+.phase:last-child{border-bottom:0}
+.formula-box{border:2px solid var(--blue);background:#fbfdff;border-radius:14px;padding:12px 14px;margin:.7rem 0;break-inside:avoid}
+.steps{counter-reset:step}
+.step{position:relative;padding-right:54px;margin:.55rem 0}
+.step::before{counter-increment:step;content:counter(step);position:absolute;right:12px;top:12px;width:29px;height:29px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:800}
+.sign-table{width:100%;border-collapse:collapse;margin:.55rem 0;direction:ltr;text-align:center;break-inside:avoid}
+.sign-table th,.sign-table td{border:1px solid var(--line);padding:.45rem .35rem}
+.sign-table th{background:var(--blue-soft);color:var(--blue-dark)}
+.positive{color:#087f5b;font-weight:800}.negative{color:#b02a37;font-weight:800}.zero{color:#6c5ce7;font-weight:800}
+.jxgbox{width:100%;height:225px;border:1px solid #aebfd0;border-radius:10px;background:#fff;direction:ltr;overflow:hidden!important;break-inside:avoid;page-break-inside:avoid}
+.graph-card{padding:10px}
+.graph-title{font-weight:800;color:var(--blue-dark);margin-bottom:.35rem}
+.two-col-example{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}.two-col-example>*{min-width:0}
+.example{border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin:.65rem 0;break-inside:avoid}
+.example .label{font-weight:800;color:var(--teal);margin-bottom:.35rem}
+.teacher-note{font-size:10.5pt;color:var(--muted);border-right:3px solid var(--gold);padding-right:.6rem;margin-top:.45rem}
+.checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:.6rem 0}
+.check{background:#f8fbfe;border:1px solid var(--line);border-radius:9px;padding:.55rem .7rem}
+.exercise-section{margin-top:.9rem}
+.exercise-section h3{background:var(--blue-soft);border-right:5px solid var(--blue);padding:.45rem .7rem;border-radius:8px}
+.exercise-grid{grid-template-columns:repeat(2,1fr);counter-reset:exercise var(--start,0)}
+.exercise-card{position:relative;padding:10px 45px 10px 12px;min-height:52px;display:flex;align-items:center}
+.exercise-card::before{counter-increment:exercise;content:counter(exercise);position:absolute;right:10px;top:10px;width:27px;height:27px;border-radius:50%;background:var(--blue-dark);color:white;display:grid;place-items:center;font-weight:800;font-size:10pt}
+.graph-exercises{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;counter-reset:graphExercise var(--graph-start,0)}
+.graph-exercises .exercise-card{margin-top:7px}.graph-exercises .exercise-card::before{counter-increment:graphExercise;content:counter(graphExercise)}
+.level-note{color:var(--muted);font-size:10pt;margin:-.35rem 0 .55rem}
+.answer-grid{grid-template-columns:repeat(2,1fr);counter-reset:answer var(--answer-start,0)}
+.answer-card{position:relative;padding:7px 42px 7px 10px;min-height:40px;display:flex;align-items:center;background:#fbfdff}
+.answer-card::before{counter-increment:answer;content:counter(answer);position:absolute;right:9px;top:8px;width:24px;height:24px;border-radius:50%;border:2px solid var(--blue);color:var(--blue-dark);display:grid;place-items:center;font-weight:800;font-size:9pt}
+.source-box{font-size:10pt;color:var(--muted);background:#f5f8fb;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:1rem}
+.footer-note{font-size:9.5pt;color:var(--muted);margin-top:1rem;text-align:center}
+.keep{break-inside:avoid;page-break-inside:avoid}
+.page-break{break-before:page;page-break-before:always}
+.no-break{white-space:nowrap}
+@media(max-width:900px){
+  main,.page{width:100%;min-height:auto;margin:0;box-shadow:none;padding:18px}
+  .grid-2,.grid-3,.hero-grid,.two-col-example,.exercise-grid,.answer-grid,.graph-exercises,.checklist{grid-template-columns:1fr}
+}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  main{width:210mm}
+  .page{margin:0;width:210mm;min-height:297mm;box-shadow:none;break-after:page;page-break-after:always}
+  .page:last-child{break-after:auto;page-break-after:auto}
+  .jxgbox{height:205px}
+  a{text-decoration:none;color:inherit}
+}
+</style>
+</head>
+<body>
+<main>
+
+<section class="page">
+  <div class="kicker">אלגברה · כיתה י׳ · פתרון אלגברי וגרפי</div>
+  <div class="hero">
+    <h1>אי־שוויונים ריבועיים</h1>
+    <div class="subtitle">מהפרבולה אל טבלת הסימנים — ומטבלת הסימנים אל תחום הפתרון</div>
+    <div class="callout success">
+      מערך זה בנוי לשיעור כפול של 90 דקות או לשני שיעורים בני 45 דקות. בסופו מצורף מאגר של 48 תרגילים בסדר קושי עולה: 24 תרגילים שעובדו מן המקורות בעברית ובאנגלית, ולצדם 24 תרגילים מקבילים חדשים.
+    </div>
+    <div class="hero-grid">
+      <div class="card"><strong>מטרת־על</strong>לקשר בין הסימן של ביטוי ריבועי לבין מיקום גרף הפרבולה ביחס לציר \(x\).</div>
+      <div class="card"><strong>ידע קודם</strong>פירוק לגורמים, פתרון משוואה ריבועית, נקודות אפס ותחומי חיוביות ושליליות.</div>
+      <div class="card"><strong>תוצרי למידה</strong>פתרון אלגברי, פתרון גרפי, טבלת סימנים וכתיבת תשובה בכתיב אי־שוויון ובכתיב תחומים.</div>
+      <div class="card"><strong>אמצעים</strong>לוח, מחשב ומקרן אם זמינים, והגרפים האינטראקטיביים במסמך באמצעות JSXGraph.</div>
+    </div>
+  </div>
+
+  <h2>מטרות אופרטיביות</h2>
+  <div class="grid-2">
+    <div class="card">
+      <strong>התלמיד יוכל לזהות</strong>
+      <ul>
+        <li>מתי הביטוי הריבועי חיובי, שלילי או שווה לאפס.</li>
+        <li>מתי קצות התחום נכללים בפתרון.</li>
+        <li>את השפעת הסימן של \(a\) על כיוון פתיחת הפרבולה.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <strong>התלמיד יוכל לבצע</strong>
+      <ul>
+        <li>העברת כל האיברים לאגף אחד.</li>
+        <li>מציאת נקודות האפס בפירוק לגורמים או בנוסחת השורשים.</li>
+        <li>בניית טבלת סימנים ובדיקת הפתרון בגרף.</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+<section class="page">
+  <h2>מהלך השיעור</h2>
+  <div class="timeline">
+    <div class="time"><span dir="ltr">0–10</span> דק׳</div><div class="phase"><strong>פתיחה חזותית:</strong> מציגים פרבולה החותכת את ציר \(x\) ושואלים: “באילו ערכי \(x\) הגרף מתחת לציר?” עדיין לא משתמשים במונח אי־שוויון ריבועי.</div>
+    <div class="time"><span dir="ltr">10–25</span> דק׳</div><div class="phase"><strong>תרגום לשפה אלגברית:</strong> מחברים בין “מעל הציר” לבין \(f(x)>0\), “מתחת לציר” לבין \(f(x)&lt;0\), ו“על הציר” לבין \(f(x)=0\).</div>
+    <div class="time"><span dir="ltr">25–45</span> דק׳</div><div class="phase"><strong>שיטת הפתרון האלגברית:</strong> מסדרים לאפס, מוצאים שורשים, קובעים סימנים בכל תחום וכותבים תשובה.</div>
+    <div class="time"><span dir="ltr">45–60</span> דק׳</div><div class="phase"><strong>פתרון גרפי:</strong> מאמתים את טבלת הסימנים באמצעות פרבולה ומדגישים את תפקיד כיוון הפתיחה.</div>
+    <div class="time"><span dir="ltr">60–75</span> דק׳</div><div class="phase"><strong>מקרים מיוחדים:</strong> שורש כפול, אין שורשים ממשיים, ואי־שוויון שבו שני האגפים ריבועיים.</div>
+    <div class="time"><span dir="ltr">75–87</span> דק׳</div><div class="phase"><strong>תרגול מודרך:</strong> זוגות תלמידים פותרים תרגיל אחד אלגברית ותרגיל אחד גרפית ומשווים דרכים.</div>
+    <div class="time"><span dir="ltr">87–90</span> דק׳</div><div class="phase"><strong>כרטיס יציאה:</strong> תלמיד מסביר במשפט אחד מדוע פתרון של \(f(x)&lt;0\) הוא “תחום” ולא ערך יחיד.</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>הרעיון המרכזי: סימן הפונקציה הוא מיקום הגרף</h2>
+  <div class="formula-box">
+    עבור \(f(x)=ax^2+bx+c\), \(a\ne0\):
+    \[
+      f(x)>0 \Longleftrightarrow \text{the graph is above the }x\text{-axis}
+    \]
+    \[
+      f(x)&lt;0 \Longleftrightarrow \text{the graph is below the }x\text{-axis}
+    \]
+    \[
+      f(x)=0 \Longleftrightarrow \text{the graph intersects the }x\text{-axis}
+    \]
+  </div>
+  <div class="callout warn">
+    אין “מעבירים אגף ומחליפים סימן” באי־שוויון ריבועי. קודם מעבירים את הכול לאגף אחד, ורק אחר כך חוקרים את סימן הביטוי שהתקבל.
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>דוגמה 1 — פרבולה הפונה כלפי מעלה</h3>
+      <div class="example">
+        <div class="label">פתרו: \(x^2-5x+6&lt;0\)</div>
+        \[
+        x^2-5x+6=(x-2)(x-3)
+        \]
+        נקודות האפס הן \(x=2\), \(x=3\). הפרבולה שלילית בין השורשים.
+        \[
+        2&lt;x&lt;3
+        \]
+      </div>
+      <table class="sign-table">
+        <tr><th>\(x\)</th><th>\(( -\infty,2 )\)</th><th>\(2\)</th><th>\((2,3)\)</th><th>\(3\)</th><th>\((3,\infty)\)</th></tr>
+        <tr><th>\(f(x)\)</th><td class="positive">+</td><td class="zero">0</td><td class="negative">−</td><td class="zero">0</td><td class="positive">+</td></tr>
+      </table>
+      <div class="graph-card">
+        <div class="graph-title">\(y=x^2-5x+6\)</div>
+        <div id="graph-up" class="jxgbox" aria-label="גרף פרבולה הפונה כלפי מעלה"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>דוגמה 2 — פרבולה הפונה כלפי מטה</h3>
+      <div class="example">
+        <div class="label">פתרו: \(-x^2+x+6\ge0\)</div>
+        \[
+        -x^2+x+6=-(x+2)(x-3)
+        \]
+        השורשים הם \(x=-2\), \(x=3\). הפרבולה חיובית בין השורשים, והסימן \(\ge\) כולל אותם.
+        \[
+        -2\le x\le3
+        \]
+      </div>
+      <div class="graph-card">
+        <div class="graph-title">\(y=-x^2+x+6\)</div>
+        <div id="graph-down" class="jxgbox" aria-label="גרף פרבולה הפונה כלפי מטה"></div>
+      </div>
+      <div class="teacher-note">שאלת הוראה מומלצת: מה היה משתנה אילו הסימן היה \(>\) במקום \(\ge\)?</div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>אלגוריתם פתרון מלא</h2>
+  <div class="steps">
+    <div class="step"><strong>מסדרים את האי־שוויון.</strong> מעבירים את כל האיברים לאגף אחד ומקבלים \(ax^2+bx+c\;\square\;0\).</div>
+    <div class="step"><strong>מוצאים נקודות אפס.</strong> פותרים \(ax^2+bx+c=0\) באמצעות פירוק לגורמים, השלמה לריבוע או נוסחת השורשים.</div>
+    <div class="step"><strong>מחלקים את ציר המספרים לתחומים.</strong> כל שורש מפריד בין תחומים שבהם הסימן קבוע.</div>
+    <div class="step"><strong>קובעים את הסימן.</strong> אפשר להציב מספר בדיקה בכל תחום, להשתמש בכיוון פתיחת הפרבולה, או לקרוא מן הגרף.</div>
+    <div class="step"><strong>כוללים או מוציאים קצוות.</strong> בסימנים \(\le\), \(\ge\) כוללים שורשים; בסימנים \(&lt;\), \(>\) אינם נכללים.</div>
+    <div class="step"><strong>בודקים.</strong> בוחרים ערך מתוך תחום הפתרון וערך מחוץ לו ומוודאים שהאי־שוויון מתנהג כמצופה.</div>
+  </div>
+
+  <h3>דוגמה 3 — שני אגפים</h3>
+  <div class="example">
+    <div class="label">פתרו: \(2x^2+2x-8>x^2\)</div>
+    \[
+    2x^2+2x-8>x^2
+    \]
+    \[
+    x^2+2x-8>0
+    \]
+    \[
+    (x+4)(x-2)>0
+    \]
+    המכפלה חיובית מחוץ לשורשים:
+    \[
+    x&lt;-4 \quad\lor\quad x>2
+    \]
+  </div>
+
+  <h3>דוגמה 4 — נוסחת השורשים</h3>
+  <div class="example">
+    <div class="label">פתרו: \(x^2-6x+4\le0\)</div>
+    \[
+    x=\frac{6\pm\sqrt{36-16}}{2}=3\pm\sqrt5
+    \]
+    הפרבולה פונה כלפי מעלה, ולכן ערכיה אינם חיוביים בין השורשים:
+    \[
+    3-\sqrt5\le x\le3+\sqrt5
+    \]
+  </div>
+
+</section>
+
+<section class="page">
+  <h2>מקרים מיוחדים שחייבים ללמד</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>שורש כפול</h3>
+      \[
+      (x-4)^2>0
+      \]
+      ריבוע הוא חיובי לכל \(x\) פרט לנקודה שבה הוא מתאפס:
+      \[
+      x\in\mathbb{R}\setminus\{4\}
+      \]
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(y=(x-4)^2\)</div>
+      <div id="graph-double" class="jxgbox" aria-label="גרף פרבולה עם שורש כפול"></div>
+    </div>
+    <div class="card">
+      <h3>אין שורשים ממשיים</h3>
+      \[
+      x^2-6x+10=(x-3)^2+1>0
+      \]
+      לכן האי־שוויון \(x^2-6x+10>0\) מתקיים לכל מספר ממשי:
+      \[
+      x\in\mathbb{R}
+      \]
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(y=x^2-6x+10\)</div>
+      <div id="graph-noroot" class="jxgbox" aria-label="גרף פרבולה ללא נקודות אפס"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>בחירה בין שלוש דרכי פתרון</h2>
+  <div class="grid-3">
+    <div class="card"><strong>פירוק לגורמים</strong>הדרך המהירה כאשר השורשים שלמים או רציונליים ונוחים לזיהוי.</div>
+    <div class="card"><strong>נוסחת השורשים</strong>הדרך הבטוחה כאשר אין פירוק מיידי, או כאשר מתקבלים שורשים אי־רציונליים.</div>
+    <div class="card"><strong>קריאה גרפית</strong>דרך מצוינת להבנת המשמעות ולאימות, אך יש להיזהר מקריאה לא מדויקת של נקודות חיתוך.</div>
+  </div>
+
+  <h3>שאלות מנחות למורה</h3>
+  <div class="checklist">
+    <div class="check">מה מייצגות נקודות האפס בהקשר של האי־שוויון?</div>
+    <div class="check">כיצד הסימן של \(a\) משפיע על תחומי החיוביות?</div>
+    <div class="check">מדוע אין צורך להציב מספר בכל תחום כאשר מכירים את כיוון הפרבולה?</div>
+    <div class="check">מתי נקודת אפס נכללת בתשובה ומתי לא?</div>
+    <div class="check">כיצד נזהה שהפתרון הוא \(\mathbb{R}\) או \(\varnothing\)?</div>
+    <div class="check">כיצד נבדוק פתרון שהתקבל מן הגרף בלבד?</div>
+  </div>
+
+  <h3>שגיאות נפוצות ותגובה הוראתית</h3>
+  <div class="grid-2">
+    <div class="callout danger"><strong>שגיאה:</strong> פתרון המשוואה בלבד וכתיבת שני השורשים כתשובה.<br><strong>תגובה:</strong> להזכיר שהשורשים הם גבולות התחומים, לא בהכרח הפתרון עצמו.</div>
+    <div class="callout danger"><strong>שגיאה:</strong> בחירת התחום הלא נכון בין השורשים.<br><strong>תגובה:</strong> לצייר סקיצה מהירה או להציב מספר בדיקה אחד.</div>
+    <div class="callout danger"><strong>שגיאה:</strong> הכללת שורשים באי־שוויון חזק.<br><strong>תגובה:</strong> לבדוק האם בנקודת האפס מתקיים \(0>0\) או \(0&lt;0\).</div>
+    <div class="callout danger"><strong>שגיאה:</strong> התעלמות מהמקדם השלילי של \(x^2\).<br><strong>תגובה:</strong> לסמן בראש הדף: \(a>0\) — פתיחה מעלה; \(a&lt;0\) — פתיחה מטה.</div>
+  </div>
+
+  <h3>הערכה מעצבת קצרה</h3>
+  <div class="example">
+    ללא חישוב מלא, קבעו את סוג הפתרון:
+    <ol>
+      <li>\((x-2)^2\ge0\)</li>
+      <li>\((x+1)^2&lt;0\)</li>
+      <li>\(-2x^2+8x-15\le0\)</li>
+    </ol>
+    <div class="teacher-note">תשובות למורה: \(\mathbb{R}\), \(\varnothing\), \(\mathbb{R}\).</div>
+  </div>
+
+</section>
+
+<section class="page">
+  <h2>תרגול — חלק א׳: קריאה גרפית</h2>
+  <div class="level-note">תרגילים 1–8: קראו את תחום הפתרון ישירות מן הגרף. שימו לב לנקודות החיתוך ולכיוון פתיחת הפרבולה.</div>
+  <div class="graph-exercises" style="--graph-start:0">
+    <div class="graph-card">
+      <div class="graph-title">גרף A: \(f(x)=(x+2)(x-3)\)</div>
+      <div id="ex-graph-a" class="jxgbox"></div>
+      <div class="exercise-card">פתרו לפי הגרף: \(f(x)&lt;0\).</div>
+      <div class="exercise-card">פתרו לפי הגרף: \(f(x)\ge0\).</div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">גרף B: \(g(x)=-(x-1)(x-5)\)</div>
+      <div id="ex-graph-b" class="jxgbox"></div>
+      <div class="exercise-card">פתרו לפי הגרף: \(g(x)>0\).</div>
+      <div class="exercise-card">פתרו לפי הגרף: \(g(x)\le0\).</div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">גרף C: \(h(x)=(x-4)^2\)</div>
+      <div id="ex-graph-c" class="jxgbox"></div>
+      <div class="exercise-card">פתרו לפי הגרף: \(h(x)>0\).</div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">גרף D: \(p(x)=x^2+4x+5\)</div>
+      <div id="ex-graph-d" class="jxgbox"></div>
+      <div class="exercise-card">פתרו לפי הגרף: \(p(x)&lt;0\).</div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>תרגול — חלק א׳: קריאה גרפית (המשך)</h2>
+  <div class="level-note">תרגילים 7–8: בדקו במיוחד את המקרה של נגיעה בציר ואת הכללת נקודת האפס.</div>
+  <div class="graph-exercises" style="--graph-start:6">
+    <div class="graph-card">
+      <div class="graph-title">גרף E: \(q(x)=-x^2+4x-4\)</div>
+      <div id="ex-graph-e" class="jxgbox"></div>
+      <div class="exercise-card">פתרו לפי הגרף: \(q(x)\ge0\).</div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">גרף F: \(r(x)=x^2-5x+4\)</div>
+      <div id="ex-graph-f" class="jxgbox"></div>
+      <div class="exercise-card">פתרו לפי הגרף: \(r(x)\le0\).</div>
+    </div>
+  </div>
+
+  <h2>תרגול — חלק ב׳: פירוק ישיר</h2>
+  <div class="level-note">תרגילים 9–16: מצאו נקודות אפס, בנו טבלת סימנים וכתבו תחום פתרון.</div>
+  <div class="exercise-grid" style="--start:8">
+    <div class="exercise-card">\(x^2-1&lt;0\)</div>
+    <div class="exercise-card">\(x^2-4\le0\)</div>
+    <div class="exercise-card">\(x^2-9>0\)</div>
+    <div class="exercise-card">\(x(x-5)&lt;0\)</div>
+    <div class="exercise-card">\(x(x+4)\ge0\)</div>
+    <div class="exercise-card">\((x-2)(x-6)\le0\)</div>
+    <div class="exercise-card">\((x+3)(x-1)>0\)</div>
+    <div class="exercise-card">\(-(x+2)(x-3)>0\)</div>
+  </div>
+
+</section>
+
+<section class="page">
+  <h2>תרגול — חלק ג׳: טרינומים מתפרקים</h2>
+  <div class="level-note">תרגילים 17–24: סדרו, פרקו לגורמים ובחרו בין התחום הפנימי לתחומים החיצוניים.</div>
+  <div class="exercise-grid" style="--start:16">
+    <div class="exercise-card">\(x^2+4x+3\le0\)</div>
+    <div class="exercise-card">\(x^2-5x+6>0\)</div>
+    <div class="exercise-card">\(x^2-2x-3\ge0\)</div>
+    <div class="exercise-card">\(x^2+7x+10&lt;0\)</div>
+    <div class="exercise-card">\(x^2+9x+20>0\)</div>
+    <div class="exercise-card">\(x^2-8x+12\le0\)</div>
+    <div class="exercise-card">\(x^2-11x+30\le0\)</div>
+    <div class="exercise-card">\(x^2-12x+27\ge0\)</div>
+  </div>
+
+  <h2>תרגול — חלק ד׳: סימנים ומקרים מיוחדים</h2>
+  <div class="level-note">תרגילים 25–32: כוללים מקדם מוביל שלילי, שורש כפול ומצב ללא שורשים ממשיים.</div>
+  <div class="exercise-grid" style="--start:24">
+    <div class="exercise-card">\(x^2-36\le0\)</div>
+    <div class="exercise-card">\(x^2-13x+36\ge0\)</div>
+    <div class="exercise-card">\(x^2+15x+36\le0\)</div>
+    <div class="exercise-card">\(-x^2-5x+6>0\)</div>
+    <div class="exercise-card">\(-x^2-12x-11\le0\)</div>
+    <div class="exercise-card">\((x-4)^2>0\)</div>
+    <div class="exercise-card">\((x+1)^2&lt;0\)</div>
+    <div class="exercise-card">\(x^2+4x+5>0\)</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>תרגול — חלק ה׳: שני אגפים ומקדמים שאינם 1</h2>
+  <div class="level-note">תרגילים 33–40: העבירו הכול לאגף אחד לפני מציאת השורשים.</div>
+  <div class="exercise-grid" style="--start:32">
+    <div class="exercise-card">\(x^2>5x+6\)</div>
+    <div class="exercise-card">\(4x^2-6x-9>x^2\)</div>
+    <div class="exercise-card">\(5x^2-15x+10&lt;0\)</div>
+    <div class="exercise-card">\(3x^2-5x\ge4x^2+6\)</div>
+    <div class="exercise-card">\(4x^2-12>3x^2+x\)</div>
+    <div class="exercise-card">\(x^2-2x\ge x^2-6x+12\)</div>
+    <div class="exercise-card">\(2x^2+2x-8>x^2\)</div>
+    <div class="exercise-card">\(4x^2+20x-11&lt;0\)</div>
+  </div>
+
+  <h2>תרגול — חלק ו׳: אתגר מדורג</h2>
+  <div class="level-note">תרגילים 41–48: שורשים שבריים, זיהוי פתרון אוניברסלי ושורשים אי־רציונליים.</div>
+  <div class="exercise-grid" style="--start:40">
+    <div class="exercise-card">\(-9x^2+29x-6\ge0\)</div>
+    <div class="exercise-card">\(-8x^2+6x-1\le0\)</div>
+    <div class="exercise-card">\(12x^2+10x-12>0\)</div>
+    <div class="exercise-card">\(18x^2+23x+5\le0\)</div>
+    <div class="exercise-card">\(17x^2+15x-2\ge0\)</div>
+    <div class="exercise-card">\(3x^2+7x\le5x^2+3x-6\)</div>
+    <div class="exercise-card">\(x^2-6x+10>0\)</div>
+    <div class="exercise-card">\(x^2-4x+1\le2x-3\)</div>
+  </div>
+
+  <div class="callout success">
+    משימת העמקה: בחרו שני תרגילים — אחד שפתרונו תחום פנימי ואחד שפתרונו שני תחומים חיצוניים — ושרטטו לכל אחד גרף ב־JSXGraph או במחברת. הסבירו כיצד הגרף מאמת את התשובה האלגברית.
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות</h2>
+  <div class="level-note">התשובות ניתנות בכתיב תחומים. מומלץ לדרוש מן התלמידים דרך מלאה ולא תשובה סופית בלבד.</div>
+
+  <h3>תרגילים 1–16</h3>
+  <div class="answer-grid" style="--answer-start:0">
+    <div class="answer-card">\((-2,3)\)</div>
+    <div class="answer-card">\(( -\infty,-2]\cup[3,\infty)\)</div>
+    <div class="answer-card">\((1,5)\)</div>
+    <div class="answer-card">\(( -\infty,1]\cup[5,\infty)\)</div>
+    <div class="answer-card">\(\mathbb{R}\setminus\{4\}\)</div>
+    <div class="answer-card">\(\varnothing\)</div>
+    <div class="answer-card">\(\{2\}\)</div>
+    <div class="answer-card">\([1,4]\)</div>
+    <div class="answer-card">\((-1,1)\)</div>
+    <div class="answer-card">\([-2,2]\)</div>
+    <div class="answer-card">\(( -\infty,-3)\cup(3,\infty)\)</div>
+    <div class="answer-card">\((0,5)\)</div>
+    <div class="answer-card">\(( -\infty,-4]\cup[0,\infty)\)</div>
+    <div class="answer-card">\([2,6]\)</div>
+    <div class="answer-card">\(( -\infty,-3)\cup(1,\infty)\)</div>
+    <div class="answer-card">\((-2,3)\)</div>
+  </div>
+
+  <h3>תרגילים 17–32</h3>
+  <div class="answer-grid" style="--answer-start:16">
+    <div class="answer-card">\([-3,-1]\)</div>
+    <div class="answer-card">\(( -\infty,2)\cup(3,\infty)\)</div>
+    <div class="answer-card">\(( -\infty,-1]\cup[3,\infty)\)</div>
+    <div class="answer-card">\((-5,-2)\)</div>
+    <div class="answer-card">\(( -\infty,-5)\cup(-4,\infty)\)</div>
+    <div class="answer-card">\([2,6]\)</div>
+    <div class="answer-card">\([5,6]\)</div>
+    <div class="answer-card">\(( -\infty,3]\cup[9,\infty)\)</div>
+    <div class="answer-card">\([-6,6]\)</div>
+    <div class="answer-card">\(( -\infty,4]\cup[9,\infty)\)</div>
+    <div class="answer-card">\([-12,-3]\)</div>
+    <div class="answer-card">\((-6,1)\)</div>
+    <div class="answer-card">\(( -\infty,-11]\cup[-1,\infty)\)</div>
+    <div class="answer-card">\(\mathbb{R}\setminus\{4\}\)</div>
+    <div class="answer-card">\(\varnothing\)</div>
+    <div class="answer-card">\(\mathbb{R}\)</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות — המשך</h2>
+  <h3>תרגילים 33–48</h3>
+  <div class="answer-grid" style="--answer-start:32">
+    <div class="answer-card">\(( -\infty,-1)\cup(6,\infty)\)</div>
+    <div class="answer-card">\(( -\infty,-1)\cup(3,\infty)\)</div>
+    <div class="answer-card">\((1,2)\)</div>
+    <div class="answer-card">\([-3,-2]\)</div>
+    <div class="answer-card">\(( -\infty,-3)\cup(4,\infty)\)</div>
+    <div class="answer-card">\([3,\infty)\)</div>
+    <div class="answer-card">\(( -\infty,-4)\cup(2,\infty)\)</div>
+    <div class="answer-card">\((-\frac{11}{2},\frac12)\)</div>
+    <div class="answer-card">\([\frac{2}{9},3]\)</div>
+    <div class="answer-card">\(( -\infty,\frac14]\cup[\frac12,\infty)\)</div>
+    <div class="answer-card">\(( -\infty,-\frac32)\cup(\frac23,\infty)\)</div>
+    <div class="answer-card">\([-1,-\frac{5}{18}]\)</div>
+    <div class="answer-card">\(( -\infty,-1]\cup[\frac{2}{17},\infty)\)</div>
+    <div class="answer-card">\(( -\infty,-1]\cup[3,\infty)\)</div>
+    <div class="answer-card">\(\mathbb{R}\)</div>
+    <div class="answer-card">\([3-\sqrt5,3+\sqrt5]\)</div>
+  </div>
+
+  <h2>בדיקת איכות עצמית לתלמיד</h2>
+  <div class="checklist">
+    <div class="check">העברתי את כל האיברים לאגף אחד.</div>
+    <div class="check">מצאתי נכון את כל נקודות האפס.</div>
+    <div class="check">סימנתי אם הפרבולה פונה מעלה או מטה.</div>
+    <div class="check">בדקתי אם השורשים נכללים.</div>
+    <div class="check">כתבתי תחום, ולא רק את השורשים.</div>
+    <div class="check">אימתתי בעזרת הצבה או גרף.</div>
+  </div>
+
+  <div class="source-box">
+    <strong>בסיס המקורות:</strong> יחידה 25 — משוואות ואי־שוויונות ריבועיים; פרק אי־שוויונים אלגבריים; דף עבודה עברי מתקדם באי־שוויונים ממעלה שנייה; ודף העבודה האנגלי Solving Quadratic Inequalities. התרגילים עברו מיון, תיקון ניסוח והתאמה לרצף לימודי אחיד.
+  </div>
+
+  <div class="footer-note">מסמך HTML + MathJax + JSXGraph · מותאם ל־A4 · ללא גלילה פנימית</div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  function makeBoard(id, fn, box, roots, opts){
+    opts = opts || {};
+    var board = JXG.JSXGraph.initBoard(id, {
+      boundingbox: box,
+      axis: true,
+      grid: true,
+      showCopyright: false,
+      showNavigation: false,
+      keepaspectratio: false,
+      pan: {enabled:false},
+      zoom: {enabled:false},
+      defaultAxes: {
+        x: {name:'x', withLabel:true, label:{position:'rt', offset:[-10,15]}, ticks:{insertTicks:false, ticksDistance:1, minorTicks:0}},
+        y: {name:'y', withLabel:true, label:{position:'rt', offset:[15,-10]}, ticks:{insertTicks:false, ticksDistance:1, minorTicks:0}}
+      }
+    });
+    board.create('functiongraph',[fn],{strokeWidth:3,strokeColor:opts.color || '#3679bd'});
+    (roots || []).forEach(function(r){
+      board.create('point',[r,0],{name:'',size:3,fillColor:'#b42318',strokeColor:'#b42318',fixed:true});
+    });
+    if(opts.vertex){
+      board.create('point',opts.vertex,{name:'',size:2.8,fillColor:'#1d8a84',strokeColor:'#1d8a84',fixed:true});
+    }
+    return board;
+  }
+
+  function init(){
+    if(typeof JXG === 'undefined'){
+      document.querySelectorAll('.jxgbox').forEach(function(el){
+        el.innerHTML='<div style="padding:1rem;text-align:center;color:#a34155">JSXGraph could not load.</div>';
+      });
+      return;
+    }
+    makeBoard('graph-up', function(x){return x*x-5*x+6;}, [-2,8,7,-5], [2,3], {vertex:[2.5,-0.25]});
+    makeBoard('graph-down', function(x){return -x*x+x+6;}, [-5,9,6,-5], [-2,3], {vertex:[0.5,6.25], color:'#1d8a84'});
+    makeBoard('graph-double', function(x){return (x-4)*(x-4);}, [-1,10,9,-2], [4], {vertex:[4,0]});
+    makeBoard('graph-noroot', function(x){return x*x-6*x+10;}, [-1,10,8,-1], [], {vertex:[3,1], color:'#b87500'});
+
+    makeBoard('ex-graph-a', function(x){return (x+2)*(x-3);}, [-6,10,7,-8], [-2,3], {vertex:[0.5,-6.25]});
+    makeBoard('ex-graph-b', function(x){return -(x-1)*(x-5);}, [-2,10,8,-6], [1,5], {vertex:[3,4], color:'#1d8a84'});
+    makeBoard('ex-graph-c', function(x){return (x-4)*(x-4);}, [-1,10,9,-2], [4], {vertex:[4,0]});
+    makeBoard('ex-graph-d', function(x){return x*x+4*x+5;}, [-7,4,7,-2], [], {vertex:[-2,1], color:'#b87500'});
+    makeBoard('ex-graph-e', function(x){return -x*x+4*x-4;}, [-3,5,7,-7], [2], {vertex:[2,0], color:'#a34155'});
+    makeBoard('ex-graph-f', function(x){return x*x-5*x+4;}, [-2,8,7,-5], [1,4], {vertex:[2.5,-2.25]});
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){setTimeout(init,80);});
+  }else{
+    setTimeout(init,80);
+  }
+})();
+</script>
+</body>
+</html>
