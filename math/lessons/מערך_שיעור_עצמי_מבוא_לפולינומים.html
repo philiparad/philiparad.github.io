@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>מערך שיעור עצמי — מבוא לפולינומים, 5 יח״ל</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]},
+      chtml: {scale: 0.92},
+      options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+  <style>
+    :root{--ink:#173149;--muted:#5e7181;--navy:#103b59;--teal:#13857f;--gold:#e7a33a;--red:#c55a55;--line:#d8e3e6;--paper:#fff;--bg:#dde5e6}
+    *{box-sizing:border-box}html{background:var(--bg)}body{margin:0;color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;line-height:1.47;background:var(--bg);overflow-x:hidden}
+    #book{display:grid;gap:12mm;justify-content:center;padding:12mm 0}
+    .page{position:relative;width:210mm;height:297mm;padding:14mm 15mm 13mm;background:var(--paper);box-shadow:0 8px 28px #17314924;overflow:hidden;break-after:page;page-break-after:always}
+    .page:last-child{break-after:auto;page-break-after:auto}.page::after{content:attr(data-page);position:absolute;bottom:6mm;left:0;right:0;text-align:center;color:#8b9aa5;font-size:9pt}
+    .cover{color:#fff;background:linear-gradient(145deg,#0e3049,#155d76 61%,#13857f)}.cover::before{content:"ƒ(x)";position:absolute;direction:ltr;left:9mm;bottom:8mm;color:#ffffff0d;font:700 94mm/1 Georgia,serif}.cover .inner{position:relative;z-index:1;margin-top:24mm}.kicker{font-size:12pt;font-weight:800;color:#bceae5}.cover h1{max-width:165mm;margin:8mm 0 5mm;font-size:30pt;line-height:1.08}.cover .lead{max-width:155mm;font-size:14pt;color:#e8f5f4}.cover-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:19mm}.cover-card{padding:6mm;border:1px solid #ffffff45;border-radius:5mm;background:#ffffff12}.cover-card strong{display:block;font-size:21pt}.cover-card span{font-size:10pt;color:#dbefed}
+    .page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8mm;margin-bottom:5mm;padding-bottom:3mm;border-bottom:1px solid var(--line)}.page-header h2{margin:0;color:var(--navy);font-size:20pt;line-height:1.15}.num{display:grid;place-items:center;min-width:13mm;height:13mm;border-radius:50%;color:#fff;background:var(--teal);font-weight:850;font-size:13pt}
+    .band{display:flex;justify-content:space-between;align-items:center;margin:-1mm 0 4mm;padding:2.2mm 3mm;border-radius:3mm;background:#edf6f4;color:#09645f;font-size:9.5pt;font-weight:750}.band.medium{background:#fff3dc;color:#7b500d}.band.hard{background:#fbe9e7;color:#883e39}
+    h3{margin:4mm 0 2mm;color:var(--navy);font-size:13pt}.goal{margin:0 0 4mm;color:var(--muted);font-size:10.5pt}.theory{padding:4mm;border-right:1.2mm solid var(--teal);border-radius:2mm;background:#f4f8f8;font-size:10.5pt}.theory p{margin:0 0 2mm}.theory p:last-child{margin-bottom:0}.formula{direction:ltr;text-align:center;margin:2.5mm 0;unicode-bidi:isolate}
+    .example{margin-top:4mm;padding:3.5mm 4mm;border:1px solid var(--line);border-radius:3mm;font-size:10pt}.example strong{color:var(--teal)}.example p{margin:1mm 0}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.board{width:100%;height:58mm;border:1px solid #b9c9ce;background:#fff}.board.small{height:49mm}.jxgbox{direction:ltr}
+    .exercises{margin-top:5mm;padding-top:3mm;border-top:1px dashed #aebdc2}.exercises h3{margin-top:0}.exercise{position:relative;margin:2.5mm 0;padding:3mm 12mm 3mm 3mm;border:1px solid var(--line);border-radius:3mm;background:#fff;font-size:10.2pt;break-inside:avoid}.exercise .n{position:absolute;right:3mm;top:3mm;display:grid;place-items:center;width:7mm;height:7mm;border-radius:50%;color:#fff;background:var(--teal);font-size:8.5pt;font-weight:800}.level{display:inline-block;margin-inline-start:2mm;padding:.6mm 2mm;border-radius:8mm;background:#e7f5f2;color:#09635f;font-size:8pt;font-weight:800}.level.medium{background:#fff0d3;color:#80530d}.level.hard{background:#f8dfdc;color:#8a3e39}.source{position:absolute;bottom:7mm;right:15mm;color:#8a9aa5;font-size:8.5pt}.tip{margin-top:3mm;padding:2.5mm 3mm;border-radius:2mm;background:#fff5df;color:#6f4a14;font-size:9pt}.check{list-style:none;padding:0;margin:4mm 0}.check li{position:relative;margin:2mm 0;padding-right:8mm}.check li::before{content:"✓";position:absolute;right:0;color:var(--teal);font-weight:900}
+    .answers{columns:2;column-gap:7mm}.answer{break-inside:avoid;margin:0 0 4mm;padding:3mm;border:1px solid var(--line);border-radius:3mm;font-size:9.6pt}.answer strong{color:var(--teal)}.answer p{margin:1mm 0}.refs{font-size:9.5pt}.refs li{margin:2.3mm 0}.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+    mjx-container{direction:ltr!important;unicode-bidi:isolate}.exercise mjx-container[display="true"],.theory mjx-container[display="true"]{margin:.35em 0!important}
+    @media(max-width:850px){#book{transform-origin:top center}.page{box-shadow:0 5px 18px #17314922}}
+    @media print{@page{size:A4;margin:0}html,body{background:#fff}#book{display:block;padding:0}.page{margin:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<main id="book">
+  <section class="page cover" data-page="1">
+    <div class="inner">
+      <div class="kicker">למידה עצמית • כיתה י׳ • 5 יחידות לימוד</div>
+      <h1>מבוא לפונקציות פולינומיות</h1>
+      <p class="lead">מערך שיעור מדורג מן היסודות ועד התאמת משוואה לגרף, אי־שוויונות ונימוק מתמטי. בכל תחנה: תאוריה קצרה, דוגמה מודרכת ותרגול עצמאי.</p>
+      <div class="cover-grid">
+        <div class="cover-card"><strong>13</strong><span>תתי־נושאים לפי סדר הוראה</span></div>
+        <div class="cover-card"><strong>25</strong><span>תרגילים בתוך החוברת</span></div>
+        <div class="cover-card"><strong>3</strong><span>רמות קושי: קל, בינוני וקשה</span></div>
+      </div>
+      <h3 style="color:#fff;margin-top:18mm">איך ללמוד מן החוברת?</h3>
+      <ul class="check">
+        <li>קרא את ההסבר ונסה לשחזר את הדוגמה בלי להביט בפתרון.</li>
+        <li>פתור את התרגילים לפי הסדר. אל תדלג על נימוקים מילוליים.</li>
+        <li>בדוק תשובות רק לאחר ניסיון מלא; אם טעית, כתוב מה גרם לטעות.</li>
+        <li>בגרפים: נבא תחילה את הצורה ורק אחר כך השווה להמחשה.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="page" data-page="2">
+    <header class="page-header"><div><h2>יסודות אלגבריים וחוקי חזקות</h2><p class="goal">מטרה: לפשט ביטויים ולהציב ערכים בלי שגיאות סימן.</p></div><div class="num">1</div></header>
+    <div class="band"><span>חלק א׳ — תרגול קל</span><span>ידע קדם</span></div>
+    <div class="theory">
+      <p>מחברים רק איברים דומים. בכפל חזקות בעלות אותו בסיס מחברים מעריכים, ובחזקה של חזקה כופלים מעריכים.</p>
+      <div class="formula">\[x^m\cdot x^n=x^{m+n},\qquad (x^m)^n=x^{mn},\qquad x^0=1\quad(x\ne0)\]</div>
+      <p>שים לב: \(-x^2=-(x^2)\), ואילו \((-x)^2=x^2\).</p>
+    </div>
+    <div class="example"><strong>דוגמה מודרכת</strong><p>\(3x^2-2x+5-(x^2+4x-1)=2x^2-6x+6\).</p><p>בהצבה \(x=-2\): \(2(-2)^2-6(-2)+6=26\).</p></div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">1</span><span class="level">קל</span> פשט: \[(2x^3-5x+4)+(3x^3+2x-7)-(x^3-x+1)\]</div>
+      <div class="exercise"><span class="n">2</span><span class="level">קל</span> נתון \(P(x)=-2x^4+3x^2-1\). חשב את \(P(-2)\), ונמק מדוע כל החזקות של \(x\) תרמו ערך חיובי לפני הכפלתן במקדמים.</div>
+    </div>
+    <div class="tip">בדיקה עצמית: הצבה נכונה במספר שלילי תמיד כוללת סוגריים סביב המספר.</div>
+    <div class="source">מבוסס על H1, E1, A1</div>
+  </section>
+
+  <section class="page" data-page="3">
+    <header class="page-header"><div><h2>פירוק לגורמים וזהויות</h2><p class="goal">מטרה: לעבור בין צורה מפותחת לצורה מפורקת.</p></div><div class="num">2</div></header>
+    <div class="band"><span>חלק א׳ — תרגול קל</span><span>כלי אלגברי מרכזי</span></div>
+    <div class="theory">
+      <p>פירוק לגורמים חושף את האפסים של הפולינום. מתחילים תמיד בבדיקת גורם משותף.</p>
+      <div class="formula">\[a^2-b^2=(a-b)(a+b),\qquad a^2\pm2ab+b^2=(a\pm b)^2\]</div>
+      <p>בטרינום \(x^2+bx+c\) מחפשים שני מספרים שסכומם \(b\) ומכפלתם \(c\).</p>
+    </div>
+    <div class="example"><strong>דוגמה מודרכת</strong><p>\(2x^3-8x=2x(x^2-4)=2x(x-2)(x+2)\).</p></div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">3</span><span class="level">קל</span> פרק לגורמים באופן מלא: \[x^3-5x^2+6x\]</div>
+      <div class="exercise"><span class="n">4</span><span class="level">קל</span> פרק לגורמים: \[4x^4-25x^2\] לאחר מכן ציין כמה גורמים ליניאריים ממשיים התקבלו, כולל חזרות.</div>
+    </div>
+    <div class="tip">אם פתחת את הגורמים וחזרת לביטוי המקורי — הפירוק עבר בדיקה מהירה.</div>
+    <div class="source">מבוסס על H1, E1, A1, F1</div>
+  </section>
+
+  <section class="page" data-page="4">
+    <header class="page-header"><div><h2>הגדרת פולינום והשפה שלו</h2><p class="goal">מטרה: לזהות פולינום ולקרוא את “תעודת הזהות” שלו.</p></div><div class="num">3</div></header>
+    <div class="band"><span>חלק א׳ — תרגול קל</span><span>הגדרות</span></div>
+    <div class="theory">
+      <p>פולינום במשתנה \(x\) הוא סכום סופי מן הצורה:</p>
+      <div class="formula">\[P(x)=a_nx^n+a_{n-1}x^{n-1}+\cdots+a_1x+a_0,\qquad a_n\ne0\]</div>
+      <p>המעריכים הם שלמים אי־שליליים. המעלה היא \(n\), והמקדם המוביל הוא \(a_n\). ביטוי עם \(x\) במכנה, בשורש או בחזקה שלילית אינו פולינום.</p>
+    </div>
+    <div class="example"><strong>דוגמה מודרכת</strong><p>\(7-3x+x^5\) הוא פולינום ממעלה \(5\), מקדם מוביל \(1\), ואיבר חופשי \(7\).</p></div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">5</span><span class="level">קל</span> קבע אילו ביטויים הם פולינומים. עבור כל פולינום ציין מעלה ומקדם מוביל:
+        \[\mathrm{(a)}\ 4x^6-\sqrt2x+1\qquad \mathrm{(b)}\ x^{-2}+3x\qquad \mathrm{(c)}\ \sqrt{x}+x^2\]</div>
+      <div class="exercise"><span class="n">6</span><span class="level">קל</span> סדר לפי חזקות יורדות ומצא את האיבר החופשי:
+        \[Q(x)=3x-7x^4+2-x^2+5x^4\]</div>
+    </div>
+    <div class="source">מבוסס על H1, E1, A1</div>
+  </section>
+
+  <section class="page" data-page="5">
+    <header class="page-header"><div><h2>פונקציה פולינומית והצבה</h2><p class="goal">מטרה: לקשר בין נוסחה, ערך פונקציה ונקודה על הגרף.</p></div><div class="num">4</div></header>
+    <div class="band"><span>חלק א׳ — תרגול קל</span><span>ייצוג אלגברי ונקודות</span></div>
+    <div class="theory">
+      <p>הנקודה \((a,b)\) נמצאת על גרף \(f\) בדיוק כאשר \(b=f(a)\). נקודת החיתוך עם ציר \(y\) מתקבלת בהצבת \(x=0\), ולכן היא \((0,f(0))\).</p>
+    </div>
+    <div class="example"><strong>דוגמה מודרכת</strong><p>עבור \(f(x)=x^3-4x+2\), מתקבל \(f(0)=2\), ולכן החיתוך עם ציר \(y\) הוא \((0,2)\). הנקודה \((2,2)\) על הגרף כי \(f(2)=2\).</p></div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">7</span><span class="level">קל</span> נתונה \(f(x)=2x^3-3x^2-5\). מצא את \(f(0)\), \(f(1)\), \(f(-1)\), ואת נקודת החיתוך עם ציר \(y\).</div>
+      <div class="exercise"><span class="n">8</span><span class="level">קל</span> נתונה \(g(x)=x^4-5x^2+4\). אילו מן הנקודות נמצאות על הגרף?
+        \[(0,4),\qquad (1,0),\qquad (-2,0),\qquad (2,1)\]</div>
+    </div>
+    <div class="tip">סיום חלק א׳: אם השגת לפחות 7 מתוך 8 תשובות נכונות, עבור לחלק הבינוני.</div>
+    <div class="source">מבוסס על H1, E1, G1</div>
+  </section>
+
+  <section class="page" data-page="6">
+    <header class="page-header"><div><h2>אפסי הפונקציה וחיתוך עם הצירים</h2><p class="goal">מטרה: לפתור \(f(x)=0\) ולתרגם פתרונות לנקודות גרפיות.</p></div><div class="num">5</div></header>
+    <div class="band medium"><span>חלק ב׳ — תרגול בינוני</span><span>אלגברה ↔ גרף</span></div>
+    <div class="theory">
+      <p>אפס של \(f\) הוא מספר \(a\) המקיים \(f(a)=0\). לכן כל אפס יוצר נקודת חיתוך \((a,0)\) עם ציר \(x\). פולינום ממעלה \(n\) אינו יכול לקבל יותר מ־\(n\) אפסים ממשיים שונים.</p>
+    </div>
+    <div class="example"><strong>דוגמה מודרכת</strong><p>\(f(x)=x(x-3)(x+2)\), ולכן האפסים הם \(-2,0,3\), ונקודות החיתוך הן \((-2,0),(0,0),(3,0)\).</p></div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">9</span><span class="level medium">בינוני</span> מצא את כל האפסים ואת נקודות החיתוך עם הצירים:
+        \[f(x)=x^3-4x^2-5x\]</div>
+      <div class="exercise"><span class="n">10</span><span class="level medium">בינוני</span> בנה פולינום ממעלה \(3\) שאפסיו \(-2,1,4\) ושמקיים \(f(0)=16\). כתוב אותו בצורה מפורקת.</div>
+    </div>
+    <div class="source">מבוסס על H1, E1, E2, S1</div>
+  </section>
+
+  <section class="page" data-page="7">
+    <header class="page-header"><div><h2>ריבוי שורש: חצייה או נגיעה</h2><p class="goal">מטרה: לנבא את התנהגות הגרף בכל אפס.</p></div><div class="num">6</div></header>
+    <div class="band medium"><span>חלק ב׳ — תרגול בינוני</span><span>ריבוי זוגי ואי־זוגי</span></div>
+    <div class="two-col">
+      <div>
+        <div class="theory"><p>אם \((x-a)^m\) הוא גורם, אז \(a\) הוא שורש מריבוי \(m\). בריבוי אי־זוגי הגרף חוצה את ציר \(x\); בריבוי זוגי הוא נוגע וחוזר. ככל שהריבוי גבוה יותר, הגרף שטוח יותר סמוך לאפס.</p></div>
+        <div class="example"><strong>דוגמה</strong><p>ב־\(f(x)=(x+1)^2(x-2)^3\), הגרף נוגע בציר ב־\(x=-1\) וחוצה ב־\(x=2\).</p></div>
+      </div>
+      <div id="boardMultiplicity" class="board small" aria-label="גרפי חצייה ונגיעה"></div>
+    </div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">11</span><span class="level medium">בינוני</span> עבור
+        \[f(x)=-2(x+3)^2x(x-1)^4\]
+        רשום כל אפס, ריבויו, והאם הגרף חוצה או נוגע בציר.</div>
+      <div class="exercise"><span class="n">12</span><span class="level medium">בינוני</span> כתוב פולינום אפשרי שמקדםו המוביל חיובי, נוגע בציר ב־\(x=-2\), חוצה באופן שטוח ב־\(x=1\), ומעלתו המינימלית האפשרית.</div>
+    </div>
+    <div class="source">מבוסס על H1, E1, E2</div>
+  </section>
+
+  <section class="page" data-page="8">
+    <header class="page-header"><div><h2>מעלה, מקדם מוביל והתנהגות קצה</h2><p class="goal">מטרה: לנבא את שני קצות הגרף מן האיבר המוביל בלבד.</p></div><div class="num">7</div></header>
+    <div class="band medium"><span>חלק ב׳ — תרגול בינוני</span><span>ארבעת דפוסי הקצה</span></div>
+    <div class="two-col">
+      <div>
+        <div class="theory">
+          <p>כאשר \(|x|\) גדול, האיבר המוביל \(a_nx^n\) שולט בהתנהגות.</p>
+          <p>מעלה זוגית: שני הקצוות לאותו כיוון. מעלה אי־זוגית: הקצוות מנוגדים. סימן \(a_n\) קובע את הקצה הימני.</p>
+        </div>
+        <div class="example"><strong>דוגמה</strong><p>ל־\(f(x)=-3x^5+2x^2-1\) מעלה אי־זוגית ומקדם מוביל שלילי: משמאל הגרף עולה, ומימין יורד.</p></div>
+      </div>
+      <div id="boardEnds" class="board" aria-label="ארבעת דפוסי התנהגות הקצה"></div>
+    </div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">13</span><span class="level medium">בינוני</span> תאר באמצעות גבולות את התנהגות הקצה של:
+        \[f(x)=7-2x^3+5x^6\]</div>
+      <div class="exercise"><span class="n">14</span><span class="level medium">בינוני</span> פולינום \(P\) יורד בשני קצותיו ויש לו שלושה אפסים ממשיים שונים. מה ניתן להסיק על זוגיות המעלה, על סימן המקדם המוביל ועל המעלה המינימלית?</div>
+    </div>
+    <div class="source">מבוסס על H1, E1, E2, G1</div>
+  </section>
+
+  <section class="page" data-page="9">
+    <header class="page-header"><div><h2>סימטריה: פונקציה זוגית ואי־זוגית</h2><p class="goal">מטרה: לבדוק סימטריה אלגברית ולזהותה בגרף.</p></div><div class="num">8</div></header>
+    <div class="band medium"><span>חלק ב׳ — תרגול בינוני</span><span>בדיקה באמצעות \(f(-x)\)</span></div>
+    <div class="two-col">
+      <div>
+        <div class="theory">
+          <p>פונקציה זוגית מקיימת \(f(-x)=f(x)\) וסימטרית לציר \(y\). פונקציה אי־זוגית מקיימת \(f(-x)=-f(x)\) וסימטרית לראשית.</p>
+          <p>פולינום המכיל רק חזקות זוגיות הוא זוגי; רק חזקות אי־זוגיות וללא איבר חופשי — אי־זוגי.</p>
+        </div>
+        <div class="example"><strong>דוגמה</strong><p>\(f(x)=2x^6-3x^2+1\) זוגית. \(g(x)=x^5-4x\) אי־זוגית.</p></div>
+      </div>
+      <div id="boardSymmetry" class="board" aria-label="גרפים של פונקציה זוגית ואי זוגית"></div>
+    </div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">15</span><span class="level medium">בינוני</span> סווג כזוגית, אי־זוגית או אף אחת, והוכח באמצעות הצבת \(-x\):
+        \[f(x)=3x^4-2x^2+5,\qquad g(x)=x^5-4x^3+x,\qquad h(x)=x^4+x\]</div>
+      <div class="exercise"><span class="n">16</span><span class="level medium">בינוני</span> פולינום אי־זוגי עובר בנקודה \((2,-5)\). באיזו נקודה נוספת הוא חייב לעבור? האם ייתכן ש־\(f(0)=3\)? נמק.</div>
+    </div>
+    <div class="source">מבוסס על E1, G1, S2</div>
+  </section>
+
+  <section class="page" data-page="10">
+    <header class="page-header"><div><h2>מספר נקודות קיצון וצורת גרף אפשרית</h2><p class="goal">מטרה: להשתמש בחסם על מספר שינויי הכיוון.</p></div><div class="num">9</div></header>
+    <div class="band medium"><span>חלק ב׳ — תרגול בינוני</span><span>חשיבה מבנית</span></div>
+    <div class="theory">
+      <p>לפולינום ממעלה \(n\) יש לכל היותר \(n-1\) נקודות קיצון. זהו חסם עליון בלבד: ייתכנו פחות נקודות קיצון. אם רואים \(k\) נקודות קיצון, המעלה היא לפחות \(k+1\).</p>
+      <p>משלבים את החסם עם מספר האפסים ועם התנהגות הקצה; אין להשתמש בנגזרת בשלב זה.</p>
+    </div>
+    <div id="boardTurns" class="board small" aria-label="פולינום בעל ארבע נקודות קיצון"></div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">17</span><span class="level medium">בינוני</span> בגרף המוצג יש חמש נקודות קיצון ושני הקצוות פונים כלפי מעלה. קבע את המעלה המינימלית האפשרית ואת זוגיות המעלה. האם מעלה \(5\) אפשרית?</div>
+      <div class="exercise"><span class="n">18</span><span class="level medium">בינוני</span> תלמיד טוען: “לכל פולינום ממעלה \(6\) יש בדיוק \(5\) נקודות קיצון.” קבע אם הטענה נכונה. אם לא, הצג פולינום נגד־דוגמה והסבר.</div>
+    </div>
+    <div class="tip">סיום חלק ב׳: חזור על תרגילים 9–18 אם אינך מצליח לנמק ללא שרטוט ממוחשב.</div>
+    <div class="source">מבוסס על E1, E2</div>
+  </section>
+
+  <section class="page" data-page="11">
+    <header class="page-header"><div><h2>בניית סקיצה איכותית</h2><p class="goal">מטרה: לאחד אפסים, ריבויים, סימנים וקצוות לגרף עקבי.</p></div><div class="num">10</div></header>
+    <div class="band hard"><span>חלק ג׳ — תרגול קשה</span><span>אינטגרציה</span></div>
+    <div class="two-col">
+      <div>
+        <div class="theory">
+          <p>סדר עבודה: (1) מעלה ומקדם מוביל; (2) אפסים וריבויים; (3) חיתוך עם \(y\); (4) סימן בין האפסים; (5) קצוות; (6) סקיצה רציפה בעלת מספר קיצונים סביר.</p>
+          <p>פולינום רציף בכל הישר: אין קפיצות, חורים או אסימפטוטות.</p>
+        </div>
+        <div class="example"><strong>דוגמה</strong><p>ל־\(f(x)=\frac14(x+2)^2(x-1)(x-3)\) שני קצוות עולים; נגיעה ב־\(-2\), וחצייה ב־\(1,3\).</p></div>
+      </div>
+      <div id="boardSketch" class="board" aria-label="סקיצת פולינום לפי אפסים וריבויים"></div>
+    </div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">19</span><span class="level hard">קשה</span> עבור
+        \[f(x)=-x(x+2)^2(x-3)\]
+        בנה טבלת סימנים, מצא חיתוכים עם הצירים ותאר סקיצה מלאה כולל קצוות וחצייה/נגיעה.</div>
+      <div class="exercise"><span class="n">20</span><span class="level hard">קשה</span> בנה פולינום ממעלה מינימלית שהגרף שלו נוגע בציר ב־\(x=-1\), חוצה ב־\(x=2\), הקצה הימני שלו יורד, והוא עובר בנקודה \((0,4)\). כתוב נוסחה ותאר סקיצה.</div>
+    </div>
+    <div class="source">מבוסס על H1, E1, E2, S2</div>
+  </section>
+
+  <section class="page" data-page="12">
+    <header class="page-header"><div><h2>התאמה בין משוואה לגרף</h2><p class="goal">מטרה: לפסול אפשרויות לפי מאפיינים ולא לפי “דמיון”.</p></div><div class="num">11</div></header>
+    <div class="band hard"><span>חלק ג׳ — תרגול קשה</span><span>תעודת זהות של גרף</span></div>
+    <div class="two-col">
+      <div>
+        <div class="theory"><p>בודקים בסדר יעיל: כיווני קצה, אפסים, ריבוי, חיתוך עם \(y\), סימטריה ומספר קיצונים. מאפיין אחד שסותר את הגרף מספיק לפסילה.</p></div>
+        <div class="example"><strong>דוגמה</strong><p>גרף ששני קצותיו עולים ונוגע ב־\(x=0\) יכול להתאים ל־\(x^2(x-2)(x+1)\), אך לא לפולינום ממעלה אי־זוגית.</p></div>
+      </div>
+      <div id="boardMatch" class="board" aria-label="גרף להתאמת משוואה"></div>
+    </div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">21</span><span class="level hard">קשה</span> הגרף המוצג מתאים לאחת הפונקציות. בחר ונמק באמצעות ארבעה מאפיינים:
+        \[\mathrm{(A)}\ (x+2)^2(x-1)(x-3)\]
+        \[\mathrm{(B)}\ -(x+2)(x-1)^2(x-3)\qquad \mathrm{(C)}\ (x+2)(x-1)(x-3)\]</div>
+      <div class="exercise"><span class="n">22</span><span class="level hard">קשה</span> לפולינום \(P\) יש אפסים \(-1\) מריבוי \(2\) ו־\(2\) מריבוי \(3\), ו־\(P(0)=-8\). מצא נוסחה אפשרית וקבע את ארבע התכונות הגרפיות המרכזיות שלה.</div>
+    </div>
+    <div class="source">מבוסס על H1, E2, S1, S2</div>
+  </section>
+
+  <section class="page" data-page="13">
+    <header class="page-header"><div><h2>אי־שוויונות פולינומיים</h2><p class="goal">מטרה: למצוא תחומי חיוביות ושליליות מגרף ומפירוק.</p></div><div class="num">12</div></header>
+    <div class="band hard"><span>חלק ג׳ — תרגול קשה</span><span>טבלת סימנים</span></div>
+    <div class="two-col">
+      <div>
+        <div class="theory">
+          <p>האפסים מחלקים את הישר לתחומים. בוחרים ערך בדיקה בכל תחום או משתמשים בריבוי: באפס מריבוי אי־זוגי הסימן מתחלף; בזוגי אינו מתחלף.</p>
+          <p>באי־שוויון חלש \(\le\) או \(\ge\) כוללים את האפסים; בחזק \(<\) או \(>\) לא כוללים.</p>
+        </div>
+      </div>
+      <div id="boardIneq" class="board" aria-label="גרף לפתרון אי שוויון"></div>
+    </div>
+    <div class="exercises"><h3>תרגול</h3>
+      <div class="exercise"><span class="n">23</span><span class="level hard">קשה</span> פתר:
+        \[(x+3)^2(x-1)(x-4)\le0\]
+        הצג טבלת סימנים והסבר את תפקיד השורש הכפול.</div>
+      <div class="exercise"><span class="n">24</span><span class="level hard">קשה</span> על פי הגרף של
+        \[f(x)=\tfrac14(x+2)^2(x-1)(x-3)\]
+        מצא את קבוצות הפתרונות של \(f(x)>0\) ושל \(f(x)\le0\).</div>
+    </div>
+    <div class="source">מבוסס על E1, E2, S2, F1</div>
+  </section>
+
+  <section class="page" data-page="14">
+    <header class="page-header"><div><h2>נימוק, הפרכה והכללה</h2><p class="goal">מטרה: להבחין בין טענה נכונה, טענה אפשרית וטענה שגויה.</p></div><div class="num">13</div></header>
+    <div class="band hard"><span>חלק ג׳ — תרגול קשה</span><span>רמת 5 יח״ל</span></div>
+    <div class="theory">
+      <p>כדי להוכיח טענה כללית יש להסביר מדוע היא נכונה לכל המקרים. כדי להפריך טענה כללית מספיק למצוא דוגמה נגדית אחת.</p>
+      <p>מילים המחייבות תשומת לב: “תמיד”, “בהכרח”, “לכל היותר”, “ייתכן”. אל תחליף תכונה הכרחית בתכונה מספיקה.</p>
+    </div>
+    <div class="example"><strong>דוגמה מודרכת</strong><p>הטענה “לכל פולינום ממעלה זוגית יש אפס ממשי” שגויה: \(f(x)=x^2+1\) הוא דוגמה נגדית.</p></div>
+    <div class="exercises"><h3>תרגול מסכם</h3>
+      <div class="exercise"><span class="n">25</span><span class="level hard">קשה</span> קבע לגבי כל טענה אם היא נכונה או שגויה. הוכח טענה נכונה והפרך טענה שגויה בדוגמה נגדית.
+        <ol>
+          <li>לפולינום ממעלה אי־זוגית יש לפחות אפס ממשי אחד.</li>
+          <li>אם שני קצות גרף פולינום עולים, המקדם המוביל חיובי.</li>
+          <li>אם לפולינום יש שלושה אפסים ממשיים שונים, מעלתו בדיוק \(3\).</li>
+          <li>אם \(f\) אי־זוגית, אז \(f(0)=0\).</li>
+        </ol>
+      </div>
+    </div>
+    <h3>בדיקת סיום</h3>
+    <ul class="check">
+      <li>אני מסוגל לעבור מצורה מפורקת למאפייני גרף ללא מחשבון.</li>
+      <li>אני מבחין בין ריבוי זוגי לאי־זוגי ובין מעלה זוגית לאי־זוגית.</li>
+      <li>אני מנמק התאמה או פסילה באמצעות לפחות שלושה מאפיינים.</li>
+      <li>אני פותר אי־שוויון פולינומי ויודע מתי לכלול את האפסים.</li>
+    </ul>
+    <div class="source">מבוסס על H1, E1, E2</div>
+  </section>
+
+  <section class="page" data-page="15">
+    <header class="page-header"><div><h2>מפתח תשובות והכוונות — תרגילים 1–12</h2><p class="goal">בדוק רק לאחר ניסיון מלא. תשובה קצרה אינה תחליף לדרך.</p></div><div class="num">✓</div></header>
+    <div class="answers">
+      <div class="answer"><strong>1.</strong><p>\(4x^3-2x-4\).</p></div>
+      <div class="answer"><strong>2.</strong><p>\(P(-2)=-2\cdot16+3\cdot4-1=-21\). החזקות זוגיות ולכן \((-2)^4,(-2)^2>0\).</p></div>
+      <div class="answer"><strong>3.</strong><p>\(x(x-2)(x-3)\).</p></div>
+      <div class="answer"><strong>4.</strong><p>\(x^2(2x-5)(2x+5)\). ארבעה גורמים ליניאריים עם חזרות: \(x,x,2x-5,2x+5\).</p></div>
+      <div class="answer"><strong>5.</strong><p>(a) פולינום, מעלה \(6\), מקדם מוביל \(4\). (b), (c) אינם פולינומים.</p></div>
+      <div class="answer"><strong>6.</strong><p>\(-2x^4-x^2+3x+2\); האיבר החופשי \(2\).</p></div>
+      <div class="answer"><strong>7.</strong><p>\(f(0)=-5,\ f(1)=-6,\ f(-1)=-10\). חיתוך: \((0,-5)\).</p></div>
+      <div class="answer"><strong>8.</strong><p>\((0,4),(1,0),(-2,0)\) נמצאות; \((2,1)\) אינה נמצאת כי \(g(2)=0\).</p></div>
+      <div class="answer"><strong>9.</strong><p>\(f(x)=x(x-5)(x+1)\). אפסים: \(-1,0,5\). חיתוך \(y\): \((0,0)\).</p></div>
+      <div class="answer"><strong>10.</strong><p>\(f(x)=a(x+2)(x-1)(x-4)\). מן \(f(0)=8a=16\) נקבל \(a=2\).</p></div>
+      <div class="answer"><strong>11.</strong><p>\(-3\): ריבוי \(2\), נגיעה; \(0\): ריבוי \(1\), חצייה; \(1\): ריבוי \(4\), נגיעה.</p></div>
+      <div class="answer"><strong>12.</strong><p>\(f(x)=a(x+2)^2(x-1)^3,\ a>0\). המעלה המינימלית היא \(5\).</p></div>
+    </div>
+  </section>
+
+  <section class="page" data-page="16">
+    <header class="page-header"><div><h2>מפתח תשובות והכוונות — תרגילים 13–25</h2><p class="goal">בתרגילי נימוק, השווה גם את מבנה ההסבר שלך.</p></div><div class="num">✓</div></header>
+    <div class="answers">
+      <div class="answer"><strong>13.</strong><p>\(\lim_{x\to\infty}f(x)=\infty\), \(\lim_{x\to-\infty}f(x)=\infty\).</p></div>
+      <div class="answer"><strong>14.</strong><p>מעלה זוגית, מקדם מוביל שלילי; לפחות מעלה \(4\).</p></div>
+      <div class="answer"><strong>15.</strong><p>\(f\) זוגית; \(g\) אי־זוגית; \(h\) אף אחת.</p></div>
+      <div class="answer"><strong>16.</strong><p>הנקודה \((-2,5)\). לא ייתכן \(f(0)=3\); בפונקציה אי־זוגית \(f(0)=0\).</p></div>
+      <div class="answer"><strong>17.</strong><p>מעלה לפחות \(5\), אך הקצוות באותו כיוון מחייבים מעלה זוגית; לכן המינימום \(6\). מעלה \(5\) אינה אפשרית.</p></div>
+      <div class="answer"><strong>18.</strong><p>שגויה. למשל \(f(x)=x^6\) ממעלה \(6\) ובעלת נקודת קיצון אחת בלבד.</p></div>
+      <div class="answer"><strong>19.</strong><p>אפסים: \(-2\) כפול, \(0,3\) פשוטים. סימן: שלילי ב־\((-\infty,-2)\), נשאר שלילי ב־\((-2,0)\), חיובי ב־\((0,3)\), שלילי ב־\((3,\infty)\). שני הקצוות יורדים.</p></div>
+      <div class="answer"><strong>20.</strong><p>\(f(x)=a(x+1)^2(x-2)\). מן \(f(0)=4\) מתקבל \(-2a=4\), ולכן \(a=-2\).</p></div>
+      <div class="answer"><strong>21.</strong><p>A. מעלה זוגית ומקדם חיובי; נגיעה ב־\(-2\), חצייה ב־\(1,3\); חיתוך \(y=12\).</p></div>
+      <div class="answer"><strong>22.</strong><p>\(P(x)=a(x+1)^2(x-2)^3\). מן \(P(0)=-8a=-8\), \(a=1\). מעלה \(5\), קצה שמאל למטה וימין למעלה, נגיעה ב־\(-1\), חצייה שטוחה ב־\(2\).</p></div>
+      <div class="answer"><strong>23.</strong><p>\([1,4]\cup\{-3\}\). ב־\(-3\) הסימן אינו מתחלף, אך הנקודה נכללת בגלל \(\le0\).</p></div>
+      <div class="answer"><strong>24.</strong><p>\(f(x)>0:\ (-\infty,-2)\cup(-2,1)\cup(3,\infty)\). \(f(x)\le0:\ \{-2\}\cup[1,3]\).</p></div>
+      <div class="answer"><strong>25.</strong><p>(1) נכונה; קצוות מנוגדים ורציפות מחייבים חציית הציר. (2) נכונה. (3) שגויה, למשל \(x(x-1)(x+1)(x^2+1)\). (4) נכונה: \(f(0)=-f(0)\).</p></div>
+    </div>
+  </section>
+</main>
+
+<script>
+  window.addEventListener('load', function () {
+    if (!window.JXG) return;
+    JXG.Options.text.useMathJax = false;
+    const axes = {axis:true, ticks:{visible:false}, firstArrow:true, lastArrow:true, strokeColor:'#78909b', highlight:false};
+    const curve = {strokeColor:'#13857f', strokeWidth:2.4, highlight:false, fixed:true};
+    const make = (id, box) => JXG.JSXGraph.initBoard(id,{boundingbox:box,showCopyright:false,showNavigation:false,axis:false,keepaspectratio:false,pan:{enabled:false},zoom:{enabled:false}});
+
+    let b=make('boardMultiplicity',[-3,3,3,-3]);
+    b.create('axis',[[0,0],[1,0]],axes); b.create('axis',[[0,0],[0,1]],axes);
+    b.create('functiongraph',[x=>0.4*(x+1)**2,-3,1],curve);
+    b.create('functiongraph',[x=>0.18*(x-1)**3,-1,3],{...curve,strokeColor:'#e7a33a'});
+    b.create('text',[-2.7,2.45,'even: touch'],{fontSize:11,color:'#13857f',fixed:true});
+    b.create('text',[0.7,-2.35,'odd: cross'],{fontSize:11,color:'#b97810',fixed:true});
+
+    b=make('boardEnds',[-3.4,3.4,3.4,-3.4]);
+    b.create('axis',[[0,0],[1,0]],axes); b.create('axis',[[0,0],[0,1]],axes);
+    b.create('functiongraph',[x=>0.035*x**4+1.45,-3.2,3.2],curve);
+    b.create('functiongraph',[x=>-0.035*x**4-1.45,-3.2,3.2],{...curve,strokeColor:'#c55a55'});
+    b.create('functiongraph',[x=>0.07*x**3,-3.2,3.2],{...curve,strokeColor:'#e7a33a'});
+    b.create('functiongraph',[x=>-0.07*x**3,-3.2,3.2],{...curve,strokeColor:'#476a9f'});
+
+    b=make('boardSymmetry',[-3.2,3.2,3.2,-3.2]);
+    b.create('axis',[[0,0],[1,0]],axes); b.create('axis',[[0,0],[0,1]],axes);
+    b.create('functiongraph',[x=>0.14*x**4-0.8*x**2+0.4,-3,3],curve);
+    b.create('functiongraph',[x=>0.13*x**3-0.55*x,-3,3],{...curve,strokeColor:'#e7a33a'});
+
+    b=make('boardTurns',[-3.6,3.5,3.6,-3.5]);
+    b.create('axis',[[0,0],[1,0]],axes); b.create('axis',[[0,0],[0,1]],axes);
+    b.create('functiongraph',[x=>0.015*(x*x-1)*(x*x-4)*(x*x-9),-3.4,3.4],curve);
+
+    const sketchFn=x=>0.25*(x+2)**2*(x-1)*(x-3);
+    b=make('boardSketch',[-3.8,6,4.2,-7]);
+    b.create('axis',[[0,0],[1,0]],axes); b.create('axis',[[0,0],[0,1]],axes);
+    b.create('functiongraph',[sketchFn,-3.6,4],curve);
+    [-2,1,3].forEach(x=>b.create('point',[x,0],{size:2.2,face:'o',fillColor:'#fff',strokeColor:'#13857f',fixed:true,highlight:false,name:''}));
+
+    b=make('boardMatch',[-3.8,6,4.2,-7]);
+    b.create('axis',[[0,0],[1,0]],axes); b.create('axis',[[0,0],[0,1]],axes);
+    b.create('functiongraph',[sketchFn,-3.6,4],curve);
+    [-2,1,3].forEach(x=>b.create('point',[x,0],{size:2.2,face:'o',fillColor:'#fff',strokeColor:'#13857f',fixed:true,highlight:false,name:''}));
+
+    b=make('boardIneq',[-3.8,6,4.2,-7]);
+    b.create('axis',[[0,0],[1,0]],axes); b.create('axis',[[0,0],[0,1]],axes);
+    b.create('functiongraph',[sketchFn,-3.6,4],curve);
+    [-2,1,3].forEach(x=>b.create('point',[x,0],{size:2.2,face:'o',fillColor:'#fff',strokeColor:'#13857f',fixed:true,highlight:false,name:''}));
+  });
+</script>
+</body>
+</html>
