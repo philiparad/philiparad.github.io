@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>מהי פונקציה? — מערך שיעור ל־5 יחידות</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.12.2/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.12.2/distrib/jsxgraphcore.js"></script>
+  <style>
+    :root {
+      --ink: #17324d;
+      --muted: #587086;
+      --blue: #1769aa;
+      --blue-2: #0b88a8;
+      --pale: #eaf5fb;
+      --pale-2: #f4f9fc;
+      --gold: #d89a20;
+      --red: #c84b4b;
+      --green: #2b8a6e;
+      --line: #cbdce8;
+      --paper: #ffffff;
+      --shadow: 0 8px 28px rgba(23, 50, 77, .14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #dfeaf1;
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      font-size: 14px;
+      line-height: 1.44;
+    }
+
+    body { counter-reset: page; }
+
+    .page {
+      counter-increment: page;
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      margin: 10mm auto;
+      padding: 12mm 14mm 14mm;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .page:last-of-type {
+      break-after: auto;
+      page-break-after: auto;
+    }
+
+    .page::after {
+      content: counter(page);
+      position: absolute;
+      bottom: 6mm;
+      left: 14mm;
+      width: 9mm;
+      height: 9mm;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .page::before {
+      content: "מתמטיקה 5 יחידות • מהי פונקציה?";
+      position: absolute;
+      bottom: 7mm;
+      right: 14mm;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(255,255,255,.23) 0 7%, transparent 7.5%),
+        radial-gradient(circle at 85% 74%, rgba(255,255,255,.14) 0 12%, transparent 12.5%),
+        linear-gradient(145deg, #123e68 0%, #1769aa 55%, #0b88a8 100%);
+      color: #fff;
+    }
+
+    .cover::before { color: rgba(255,255,255,.82); }
+    .cover::after { background: #fff; color: var(--blue); }
+
+    .cover h1 {
+      margin: 0 0 6mm;
+      font-size: 45px;
+      line-height: 1.08;
+      letter-spacing: -.8px;
+    }
+
+    .cover .subtitle {
+      max-width: 155mm;
+      margin: 0 0 13mm;
+      font-size: 23px;
+      line-height: 1.35;
+      color: #e9f6ff;
+    }
+
+    .cover-card {
+      width: 100%;
+      padding: 7mm;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 5mm;
+      background: rgba(255,255,255,.13);
+      backdrop-filter: blur(2px);
+    }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4mm;
+      margin-top: 5mm;
+    }
+
+    .cover-chip {
+      min-height: 28mm;
+      padding: 4mm;
+      border-radius: 3mm;
+      background: rgba(255,255,255,.13);
+    }
+
+    .cover-chip strong { display: block; font-size: 16px; margin-bottom: 1mm; }
+
+    h2 {
+      margin: 0 0 5mm;
+      padding-bottom: 2.5mm;
+      border-bottom: 2px solid var(--line);
+      color: var(--blue);
+      font-size: 27px;
+      line-height: 1.15;
+    }
+
+    h3 {
+      margin: 4mm 0 2mm;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    p { margin: 0 0 3mm; }
+    ul, ol { margin: 1.5mm 0 3mm; padding-right: 6mm; }
+    li { margin: 1mm 0; }
+
+    .lead {
+      margin-bottom: 4mm;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .formula {
+      direction: ltr;
+      text-align: center;
+      margin: 3mm 0;
+      padding: 3mm 4mm;
+      border: 1px solid #b9d7e8;
+      border-radius: 3mm;
+      background: #f6fbfe;
+      font-size: 17px;
+    }
+
+    .math { direction: ltr; unicode-bidi: isolate; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+      align-items: start;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4mm;
+      align-items: start;
+    }
+
+    .card {
+      padding: 4mm;
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      background: var(--paper);
+    }
+
+    .card.soft { background: var(--pale-2); }
+    .card.blue { border-right: 4px solid var(--blue); }
+    .card.green { border-right: 4px solid var(--green); }
+    .card.red { border-right: 4px solid var(--red); }
+    .card.gold { border-right: 4px solid var(--gold); }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 2mm;
+      padding: .8mm 2.2mm;
+      border-radius: 99px;
+      background: var(--pale);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .example, .checkpoint, .warning {
+      margin: 3mm 0;
+      padding: 3.5mm 4mm;
+      border-radius: 3mm;
+    }
+
+    .example { border-right: 4px solid var(--green); background: #eff9f5; }
+    .checkpoint { border-right: 4px solid var(--blue); background: var(--pale); }
+    .warning { border-right: 4px solid var(--gold); background: #fff8e9; }
+
+    .example strong, .checkpoint strong, .warning strong {
+      display: inline-block;
+      margin-bottom: 1mm;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 3mm 0;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 2.2mm 2.5mm;
+      border: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th { background: #eaf4fa; color: var(--ink); }
+    td.math-cell, th.math-cell { direction: ltr; text-align: center; }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 2mm;
+      margin-top: 4mm;
+    }
+
+    .timeline div {
+      padding: 3mm 2mm;
+      border-radius: 2mm;
+      background: var(--pale);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .timeline strong { display: block; color: var(--blue); font-size: 14px; }
+
+    .jxgbox {
+      width: 100%;
+      height: 190px;
+      border: 1px solid #9fbfd2;
+      border-radius: 3mm;
+      background: #fff;
+      direction: ltr;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .jxgbox.tall { height: 235px; }
+    .jxgbox.small { height: 155px; }
+    .jxgbox.map { height: 220px; }
+
+    .graph-caption {
+      margin: 1.5mm 1mm 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .callout-number {
+      float: right;
+      width: 9mm;
+      height: 9mm;
+      margin-left: 2mm;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .exercise-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm 5mm;
+      margin-top: 3mm;
+    }
+
+    .exercise {
+      padding: 3mm;
+      border: 1px solid var(--line);
+      border-radius: 2.5mm;
+      background: #fbfdfe;
+    }
+
+    .exercise b {
+      display: inline-grid;
+      place-items: center;
+      width: 7mm;
+      height: 7mm;
+      margin-left: 1.5mm;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .answer {
+      margin-bottom: 2.5mm;
+      padding: 2.5mm 3mm;
+      border-right: 3px solid var(--green);
+      background: #f2faf7;
+    }
+
+    .source-list { font-size: 12px; }
+    .source-list li { margin-bottom: 2mm; }
+    a { color: #0d5f9d; overflow-wrap: anywhere; }
+
+    .mini-title {
+      margin-bottom: 2mm;
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .center { text-align: center; }
+    .ltr { direction: ltr; text-align: left; }
+    .tight p { margin-bottom: 1.7mm; }
+
+    @media print {
+      html, body { background: #fff; }
+      .page {
+        margin: 0;
+        box-shadow: none;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+
+    @page { size: A4; margin: 0; }
+  </style>
+</head>
+<body>
+
+  <section class="page cover">
+    <span class="tag" style="background:#fff;color:#1769aa;width:max-content">מערך שיעור מלא • 90 דקות</span>
+    <h1>מהי פונקציה?</h1>
+    <p class="subtitle">מהתאמה בין גדלים ועד להגדרה פורמלית, ייצוגים גרפיים, תחום, תמונה ומידול — לתלמידי 5 יחידות מתמטיקה</p>
+    <div class="cover-card">
+      <div style="font-size:18px;font-weight:700">רעיון מארגן</div>
+      <p style="font-size:17px;margin-top:2mm">פונקציה אינה בהכרח נוסחה או גרף רציף. היא התאמה חד־ערכית: לכל קלט מותר יש פלט אחד ויחיד.</p>
+      <div class="formula" style="background:rgba(255,255,255,.92);color:#17324d;border:0">\[f:A\to B,\qquad x\mapsto f(x)\]</div>
+      <div class="cover-grid">
+        <div class="cover-chip"><strong>הגדרה מדויקת</strong>תחום, קבוצת יעד ותמונה</div>
+        <div class="cover-chip"><strong>ארבעה ייצוגים</strong>מילולי, טבלאי, אלגברי וגרפי</div>
+        <div class="cover-chip"><strong>חשיבה ביקורתית</strong>דוגמאות, נגד־דוגמאות וטעויות נפוצות</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>מטרות השיעור ורצף ההוראה</h2>
+    <p class="lead">בסוף השיעור התלמיד יוכל להסביר מהי פונקציה במילים ובסימנים, לזהות פונקציה בייצוגים שונים ולנמק את החלטתו.</p>
+
+    <div class="grid-2">
+      <div class="card blue">
+        <div class="mini-title">מטרות ידע</div>
+        <ul>
+          <li>להגדיר פונקציה כהתאמה חד־ערכית.</li>
+          <li>להבחין בין תחום, קבוצת יעד ותמונה.</li>
+          <li>להבין את הסימונים \(f(x)\),‏ \(f:A\to B\) ו-\(x\mapsto f(x)\).</li>
+          <li>להכיר ארבע דרכי ייצוג ולעבור ביניהן.</li>
+          <li>להפעיל את מבחן הישר האנכי.</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <div class="mini-title">מטרות חשיבה</div>
+        <ul>
+          <li>לנמק מדוע התאמה מסוימת היא פונקציה או אינה פונקציה.</li>
+          <li>להפריד בין כלל אלגברי לבין הפונקציה המלאה.</li>
+          <li>לקבוע תחום מתמטי ותחום מציאותי.</li>
+          <li>לבנות פונקציה המתארת מצב מחיי היום־יום.</li>
+          <li>לזהות ולתקן תפיסות שגויות.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>חלוקת זמן מומלצת — שיעור כפול</h3>
+    <div class="timeline">
+      <div><strong>10 דק׳</strong>פתיחה מציאותית</div>
+      <div><strong>15 דק׳</strong>התאמה וחד־ערכיות</div>
+      <div><strong>15 דק׳</strong>הגדרה וסימון</div>
+      <div><strong>20 דק׳</strong>ייצוגים וגרפים</div>
+      <div><strong>20 דק׳</strong>תחום ומידול</div>
+      <div><strong>10 דק׳</strong>תרגול וסיכום</div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>שאלת פתיחה לתלמידים</strong>
+      <p>מה משותף להתאמות הבאות: תלמיד ⇐ מספר תעודת זהות; זמן ⇐ מרחק שנסע רכב; אורך צלע ריבוע ⇐ שטח הריבוע?</p>
+    </div>
+
+    <div class="warning">
+      <strong>דגש פדגוגי</strong>
+      <p>אין להתחיל מן הנוסחה בלבד. קודם בונים את רעיון ההתאמה, אחר כך מנסחים את דרישת הייחודיות ורק לבסוף מציגים את הסימון האלגברי.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>1. תלות בין גדלים — מאיפה נולד הצורך בפונקציה?</h2>
+    <p class="lead">כאשר גודל אחד קובע באופן חד־משמעי גודל אחר, אפשר לתאר את התלות בעזרת פונקציה.</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="example">
+          <strong>דוגמה: מחיר נסיעה במונית</strong>
+          <p>מחיר פתיחה הוא 8 שקלים, ולכל קילומטר מתווספים 5 שקלים. אם \(x\) הוא המרחק בקילומטרים ו-\(C(x)\) הוא המחיר, אז:</p>
+          <div class="formula">\[C(x)=8+5x,\qquad x\ge 0\]</div>
+          <p>כל מרחק אפשרי קובע מחיר יחיד. לכן המחיר הוא פונקציה של המרחק.</p>
+        </div>
+
+        <table>
+          <thead><tr><th>מרחק בק״מ</th><th class="math-cell">\(0\)</th><th class="math-cell">\(1\)</th><th class="math-cell">\(2\)</th><th class="math-cell">\(4\)</th></tr></thead>
+          <tbody><tr><th>מחיר בש״ח</th><td class="math-cell">\(8\)</td><td class="math-cell">\(13\)</td><td class="math-cell">\(18\)</td><td class="math-cell">\(28\)</td></tr></tbody>
+        </table>
+
+        <div class="warning">
+          <strong>תחום מציאותי</strong>
+          <p>הנוסחה \(8+5x\) מוגדרת אלגברית לכל מספר ממשי, אבל במצב המתואר מרחק שלילי אינו אפשרי. לכן התחום הוא \(x\ge0\).</p>
+        </div>
+      </div>
+      <div>
+        <div id="taxiGraph" class="jxgbox tall" aria-label="גרף מחיר נסיעה כתלות במרחק"></div>
+        <p class="graph-caption">הגרף מתחיל בנקודה \((0,8)\) וממשיך רק ימינה, בהתאם לתחום המציאותי.</p>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>בדיקת הבנה</strong>
+      <p>האם המרחק הוא פונקציה של המחיר? במודל הזה כן: לכל מחיר \(C\ge8\) מתאים מרחק יחיד \(x=(C-8)/5\). במודלים אחרים התשובה עשויה להשתנות.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>2. ההגדרה האינטואיטיבית — קלט אחד, פלט אחד</h2>
+    <p class="lead">פונקציה היא כלל שמקבל קלט מותר ומחזיר עבורו פלט אחד ויחיד.</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="formula">\[x\longmapsto f(x)\]</div>
+        <p>המילה החשובה היא <strong>יחיד</strong>. מותר ששני קלטים שונים יקבלו אותו פלט; אסור שקלט אחד יקבל שני פלטים שונים.</p>
+
+        <div class="example">
+          <strong>דוגמה</strong>
+          <p>הכלל “לכל מספר מתאים הריבוע שלו” הוא פונקציה:</p>
+          <div class="formula">\[f(x)=x^2\]</div>
+          <p>למשל \(f(-2)=4\),‏ \(f(0)=0\),‏ \(f(3)=9\).</p>
+        </div>
+
+        <div class="checkpoint">
+          <strong>שימו לב</strong>
+          <p>העובדה שגם \(-2\) וגם \(2\) נשלחים אל \(4\) אינה מפריעה. כל אחד מהקלטים מקבל פלט יחיד.</p>
+        </div>
+      </div>
+      <div>
+        <div id="squareMap" class="jxgbox map" aria-label="דיאגרמת התאמה של פונקציית הריבוע"></div>
+        <p class="graph-caption">דיאגרמת חצים: לכל איבר בצד הקלט יוצא חץ אחד בדיוק.</p>
+      </div>
+    </div>
+
+    <h3>שלוש בדיקות מהירות</h3>
+    <div class="grid-3">
+      <div class="card soft"><span class="callout-number">1</span><strong>האם לכל קלט בתחום יש פלט?</strong><p>אם קלט נשאר ללא פלט — אין פונקציה על התחום שנבחר.</p></div>
+      <div class="card soft"><span class="callout-number">2</span><strong>האם הפלט יחיד?</strong><p>שני פלטים שונים לאותו קלט שוללים פונקציה.</p></div>
+      <div class="card soft"><span class="callout-number">3</span><strong>האם התחום ברור?</strong><p>בלי תחום אי אפשר לדעת אילו קלטים חייבים לקבל פלט.</p></div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>3. ההגדרה הפורמלית — פונקציה בין שתי קבוצות</h2>
+    <div class="formula">\[f:A\to B\]</div>
+    <p class="lead">פונקציה מ-\(A\) אל \(B\) היא התאמה שלכל איבר \(x\in A\) מתאימה בדיוק תמונה אחת \(f(x)\in B\).</p>
+
+    <div class="grid-2">
+      <div class="card green">
+        <span class="tag">פונקציה</span>
+        <p>לכל קלט יש חץ אחד בלבד. מותר לשני קלטים להגיע לאותו פלט.</p>
+        <div id="formalFunction" class="jxgbox small" aria-label="דיאגרמה של התאמה שהיא פונקציה"></div>
+      </div>
+      <div class="card red">
+        <span class="tag" style="background:#fdecec;color:#a93636">אינה פונקציה</span>
+        <p>מן הקלט \(2\) יוצאים שני חצים אל שני פלטים שונים.</p>
+        <div id="formalNotFunction" class="jxgbox small" aria-label="דיאגרמה של התאמה שאינה פונקציה"></div>
+      </div>
+    </div>
+
+    <div class="example">
+      <strong>דוגמה מהחיים</strong>
+      <p>ההתאמה “אדם ⇐ תאריך הלידה שלו” היא פונקציה. ההתאמה “אדם ⇐ מספרי הטלפון שלו” אינה פונקציה אם לאדם יכולים להיות כמה מספרים.</p>
+    </div>
+
+    <div class="warning">
+      <strong>דיוק חשוב ברמת 5 יחידות</strong>
+      <p>פונקציה אינה חייבת להיות מספרית. גם ההתאמה “מדינה ⇐ עיר הבירה שלה” היא פונקציה. פונקציה גם אינה חייבת להינתן באמצעות נוסחה.</p>
+    </div>
+
+    <div class="checkpoint">
+      <strong>חשיבה</strong>
+      <p>האם “מספר ממשי ⇐ השורשים הריבועיים שלו” הוא פונקציה? לא: למשל לקלט \(9\) מתקבלים שני פלטים, \(3\) ו-\(-3\). לעומת זאת, הכלל \(x\mapsto\sqrt{x}\) בתחום \(x\ge0\) מחזיר את השורש הראשי הלא־שלילי ולכן הוא פונקציה.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>4. סימון פונקציה וחישוב ערכים</h2>
+    <p class="lead">הביטוי \(f(x)\) הוא ערך הפונקציה בקלט \(x\); הוא אינו מכפלה של \(f\) ב-\(x\).</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="example">
+          <strong>דוגמה: הצבה</strong>
+          <div class="formula">\[f(x)=2x+1\]</div>
+          <p>לכן:</p>
+          <div class="formula">\[f(3)=2\cdot3+1=7\]</div>
+          <div class="formula">\[f(-2)=2\cdot(-2)+1=-3\]</div>
+          <div class="formula">\[f(a+1)=2(a+1)+1=2a+3\]</div>
+        </div>
+
+        <div class="warning">
+          <strong>טעות נפוצה</strong>
+          <p>מן השוויון \(f(3)=7\) לא נובע \(f\cdot3=7\). הסוגריים מציינים את הקלט של הפונקציה.</p>
+        </div>
+      </div>
+      <div>
+        <div id="evaluationGraph" class="jxgbox tall" aria-label="גרף הפונקציה שתיים איקס ועוד אחת"></div>
+        <p class="graph-caption">הנקודה \((3,7)\) נמצאת על הגרף מפני ש-\(f(3)=7\).</p>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>שתי דרכי קריאה של אותו מידע</strong>
+      <p>\(f(3)=7\) פירושו: התמונה של \(3\) היא \(7\); ובגרף — הנקודה \((3,7)\) שייכת לגרף הפונקציה.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>5. תחום, קבוצת יעד ותמונה</h2>
+    <p class="lead">אלה שלוש קבוצות שונות, ויש להבחין ביניהן במפורש.</p>
+
+    <div class="grid-2">
+      <div>
+        <table>
+          <thead><tr><th>מושג</th><th>משמעות</th><th class="math-cell">סימון</th></tr></thead>
+          <tbody>
+            <tr><td><strong>תחום</strong></td><td>כל הקלטים המותרים</td><td class="math-cell">\(A\) או \(D_f\)</td></tr>
+            <tr><td><strong>קבוצת יעד</strong></td><td>הקבוצה שבה אמורים להימצא הפלטים</td><td class="math-cell">\(B\)</td></tr>
+            <tr><td><strong>תמונה</strong></td><td>הפלטים שמתקבלים בפועל</td><td class="math-cell">\(f(A)\) או \(\operatorname{Im}(f)\)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="example">
+          <strong>דוגמה</strong>
+          <div class="formula">\[f:\{-2,-1,0,1,2\}\to\{0,1,2,3,4,5\},\qquad f(x)=x^2\]</div>
+          <p>התחום הוא \(\{-2,-1,0,1,2\}\), קבוצת היעד היא \(\{0,1,2,3,4,5\}\), ואילו התמונה היא רק \(\{0,1,4\}\).</p>
+        </div>
+      </div>
+      <div>
+        <div id="domainImageMap" class="jxgbox map" aria-label="דיאגרמת תחום קבוצת יעד ותמונה"></div>
+        <p class="graph-caption">האיברים \(2,3,5\) נמצאים בקבוצת היעד אך אינם מתקבלים כפלט.</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>זהירות במונחים</strong>
+      <p>בספרים שונים המילה “טווח” משמשת לעיתים לקבוצת היעד ולעיתים לתמונה בפועל. במערך זה נשתמש במונחים המפורשים “קבוצת יעד” ו“תמונה” כדי למנוע עמימות.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>6. ארבעה ייצוגים של אותה פונקציה</h2>
+    <p class="lead">פונקציה היא הרעיון המתמטי; נוסחה, טבלה, סיפור וגרף הם דרכים שונות להציג אותו.</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="card blue">
+          <div class="mini-title">ייצוג מילולי</div>
+          <p>לכל מספר מכפילים ב־2 ומחסרים 1.</p>
+        </div>
+        <div class="card green" style="margin-top:3mm">
+          <div class="mini-title">ייצוג אלגברי</div>
+          <div class="formula">\[f(x)=2x-1\]</div>
+        </div>
+        <div class="card gold" style="margin-top:3mm">
+          <div class="mini-title">ייצוג טבלאי</div>
+          <table style="margin-bottom:0">
+            <tr><th class="math-cell">\(x\)</th><td class="math-cell">\(-2\)</td><td class="math-cell">\(-1\)</td><td class="math-cell">\(0\)</td><td class="math-cell">\(1\)</td><td class="math-cell">\(2\)</td></tr>
+            <tr><th class="math-cell">\(f(x)\)</th><td class="math-cell">\(-5\)</td><td class="math-cell">\(-3\)</td><td class="math-cell">\(-1\)</td><td class="math-cell">\(1\)</td><td class="math-cell">\(3\)</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card red">
+          <div class="mini-title">ייצוג גרפי</div>
+          <div id="representationsGraph" class="jxgbox tall" aria-label="גרף הפונקציה שתיים איקס פחות אחת"></div>
+          <p class="graph-caption">כל זוג מן הטבלה מופיע כנקודה על הישר.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>מעבר בין ייצוגים</strong>
+      <p>מן הסיפור מקבלים כלל; מן הכלל מחשבים טבלה; מן הטבלה מסמנים נקודות; ומן הגרף קוראים תמונות ומקורות. ברמת 5 יחידות נדרשת גמישות במעבר לכל כיוון.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>7. גרף של פונקציה ומבחן הישר האנכי</h2>
+    <p class="lead">גרף הפונקציה הוא אוסף כל הנקודות מן הצורה \((x,f(x))\). לכן לכל ערך \(x\) בתחום מותרת נקודה אחת בלבד בגובה המתאים.</p>
+
+    <div class="grid-2">
+      <div class="card green">
+        <span class="tag">פונקציה</span>
+        <div id="verticalPass" class="jxgbox tall" aria-label="פרבולה העוברת את מבחן הישר האנכי"></div>
+        <p class="graph-caption">כל ישר אנכי חותך את הפרבולה לכל היותר פעם אחת.</p>
+      </div>
+      <div class="card red">
+        <span class="tag" style="background:#fdecec;color:#a93636">אינה פונקציה של x</span>
+        <div id="verticalFail" class="jxgbox tall" aria-label="מעגל שאינו עובר את מבחן הישר האנכי"></div>
+        <p class="graph-caption">הישר \(x=1\) חותך את המעגל בשתי נקודות.</p>
+      </div>
+    </div>
+
+    <div class="formula">\[x^2+y^2=9\]</div>
+    <p>המעגל אינו גרף של \(y\) כפונקציה של \(x\), מפני שלמשל עבור \(x=0\) מתקבלים \(y=3\) וגם \(y=-3\).</p>
+
+    <div class="warning">
+      <strong>הכיוון חשוב</strong>
+      <p>אותה עקומה עשויה לתאר את \(x\) כפונקציה של \(y\) אך לא את \(y\) כפונקציה של \(x\), או להפך. תמיד בודקים מהו המשתנה הבלתי־תלוי.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>8. תחום טבעי — אילו קלטים מותרים?</h2>
+    <p class="lead">כאשר ניתנת נוסחה ללא תחום מפורש, מקובל לבחור את כל המספרים הממשיים שעבורם הביטוי מוגדר.</p>
+
+    <div class="grid-2">
+      <div class="card blue">
+        <div class="mini-title">מנה: המכנה אינו אפס</div>
+        <div class="formula">\[f(x)=\frac{1}{x-2}\]</div>
+        <div class="formula">\[D_f=\mathbb{R}\setminus\{2\}\]</div>
+        <div id="rationalDomain" class="jxgbox small" aria-label="גרף פונקציה רציונלית עם אסימפטוטה"></div>
+        <p class="graph-caption">הקו המקווקו \(x=2\) אינו חלק מהגרף.</p>
+      </div>
+      <div class="card green">
+        <div class="mini-title">שורש זוגי: הביטוי תחת השורש אינו שלילי</div>
+        <div class="formula">\[g(x)=\sqrt{x+1}\]</div>
+        <div class="formula">\[D_g=[-1,\infty)\]</div>
+        <div id="rootDomain" class="jxgbox small" aria-label="גרף פונקציית שורש"></div>
+        <p class="graph-caption">הגרף מתחיל ב-\((-1,0)\) וממשיך ימינה.</p>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>סוג הביטוי</th><th>תנאי בתחום</th><th>דוגמה</th></tr></thead>
+      <tbody>
+        <tr><td>פולינום</td><td>אין הגבלה</td><td class="math-cell">\(x^3-2x+5\)</td></tr>
+        <tr><td>מנה</td><td>המכנה שונה מאפס</td><td class="math-cell">\(Q(x)\ne0\)</td></tr>
+        <tr><td>שורש ממעלה זוגית</td><td>הביטוי תחת השורש אי־שלילי</td><td class="math-cell">\(R(x)\ge0\)</td></tr>
+        <tr><td>לוגריתם</td><td>הארגומנט חיובי</td><td class="math-cell">\(L(x)\gt0\)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="page">
+    <h2>9. פונקציה אינה חייבת להיות נוסחה אחת או גרף רציף</h2>
+    <p class="lead">ההגדרה דורשת פלט יחיד לכל קלט; היא אינה דורשת רציפות, נוסחה יחידה או תחום רציף.</p>
+
+    <div class="grid-2">
+      <div class="card blue">
+        <div class="mini-title">פונקציה המוגדרת בחלקים</div>
+        <div class="formula">\[f(x)=\begin{cases}x+2,&x\lt0\\x^2,&x\ge0\end{cases}\]</div>
+        <div id="piecewiseGraph" class="jxgbox tall" aria-label="גרף פונקציה המוגדרת בחלקים"></div>
+        <p class="graph-caption">ב-\(x=0\) הנקודה \((0,2)\) פתוחה והנקודה \((0,0)\) סגורה; לכן יש פלט יחיד.</p>
+      </div>
+      <div class="card gold">
+        <div class="mini-title">פונקציה בדידה</div>
+        <div class="formula">\[g(n)=n^2,\qquad n\in\mathbb{Z}\]</div>
+        <div id="discreteGraph" class="jxgbox tall" aria-label="גרף פונקציה בדידה על המספרים השלמים"></div>
+        <p class="graph-caption">הנקודות אינן מחוברות, מפני שהתחום הוא מספרים שלמים בלבד.</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>טעות נפוצה</strong>
+      <p>חיבור נקודות בגרף בדיד מוסיף קלטים שלא היו בתחום. צורת הגרף חייבת לשקף את התחום, ולא רק את הכלל האלגברי.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>10. אותו כלל אלגברי — פונקציות שונות</h2>
+    <p class="lead">פונקציה נקבעת לא רק על ידי הנוסחה, אלא גם על ידי התחום וקבוצת היעד.</p>
+
+    <div class="grid-2">
+      <div class="card blue">
+        <div class="mini-title">תחום כל הממשיים</div>
+        <div class="formula">\[f:\mathbb{R}\to\mathbb{R},\qquad f(x)=x^2\]</div>
+        <div id="fullSquare" class="jxgbox tall" aria-label="גרף איקס בריבוע על כל הממשיים"></div>
+        <p class="graph-caption">התמונה היא \([0,\infty)\).</p>
+      </div>
+      <div class="card green">
+        <div class="mini-title">תחום מוגבל</div>
+        <div class="formula">\[g:[0,2]\to\mathbb{R},\qquad g(x)=x^2\]</div>
+        <div id="restrictedSquare" class="jxgbox tall" aria-label="גרף איקס בריבוע בתחום אפס עד שתיים"></div>
+        <p class="graph-caption">התמונה היא \([0,4]\).</p>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>מסקנה</strong>
+      <p>למרות שהכלל האלגברי זהה, \(f\) ו-\(g\) אינן אותה פונקציה: התחומים שונים, הגרפים שונים והתמונות שונות.</p>
+    </div>
+
+    <div class="example">
+      <strong>יישום נוסף</strong>
+      <p>הכלל \(A(r)=\pi r^2\) יכול להיות מוגדר אלגברית לכל \(r\in\mathbb{R}\), אך אם \(r\) הוא רדיוס של מעגל התחום המציאותי הוא \(r\gt0\).</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>11. מידול: בניית פונקציה מבעיה גאומטרית</h2>
+    <p class="lead">במידול לא די למצוא נוסחה; יש לזהות את המשתנים, התחום והמשמעות של כל נקודה בגרף.</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="example">
+          <strong>מלבן שהיקפו 20 ס״מ</strong>
+          <p>נסמן את אורך אחת הצלעות ב-\(x\). הצלע השנייה היא \(10-x\), ולכן השטח הוא:</p>
+          <div class="formula">\[A(x)=x(10-x)=10x-x^2\]</div>
+          <p>כיוון ששתי הצלעות חייבות להיות חיוביות:</p>
+          <div class="formula">\[0\lt x\lt10\]</div>
+        </div>
+
+        <table>
+          <tr><th class="math-cell">\(x\)</th><td class="math-cell">\(1\)</td><td class="math-cell">\(3\)</td><td class="math-cell">\(5\)</td><td class="math-cell">\(7\)</td><td class="math-cell">\(9\)</td></tr>
+          <tr><th class="math-cell">\(A(x)\)</th><td class="math-cell">\(9\)</td><td class="math-cell">\(21\)</td><td class="math-cell">\(25\)</td><td class="math-cell">\(21\)</td><td class="math-cell">\(9\)</td></tr>
+        </table>
+
+        <div class="checkpoint">
+          <strong>פרשנות</strong>
+          <p>השטח המרבי הוא \(25\) סמ״ר ומתקבל ב-\(x=5\), כלומר כאשר המלבן הוא ריבוע.</p>
+        </div>
+      </div>
+      <div>
+        <div id="rectangleArea" class="jxgbox tall" aria-label="גרף שטח מלבן כתלות באורך צלע"></div>
+        <p class="graph-caption">הקצוות פתוחים: \(x=0\) ו-\(x=10\) יוצרים מלבן מנוון ולכן אינם בתחום.</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>שאלה לדיון</strong>
+      <p>מדוע לכל שטח \(0\lt A\lt25\) מתאימים בדרך כלל שני ערכי \(x\)? אין בכך סתירה: \(A\) הוא הפלט. מותר לפלט אחד להיות תמונה של שני קלטים שונים.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>12. תפיסות שגויות — ואיך מתקנים אותן</h2>
+
+    <div class="grid-2">
+      <div class="card red tight">
+        <div class="mini-title">שגיאה: “כל משוואה ב-\(x,y\) היא פונקציה”</div>
+        <p>למשוואה \(y^2=x\) מתקבלים שני ערכי \(y\) כאשר \(x\gt0\).</p>
+        <div id="sidewaysParabola" class="jxgbox tall" aria-label="פרבולה אופקית שאינה פונקציה של איקס"></div>
+        <p class="graph-caption">לדוגמה, עבור \(x=4\) מתקבלים \(y=2\) וגם \(y=-2\).</p>
+      </div>
+      <div class="card green tight">
+        <div class="mini-title">תיקון: בוחרים ענף יחיד</div>
+        <p>הכלל \(y=\sqrt{x}\) בוחר את הערך הלא־שלילי בלבד.</p>
+        <div id="principalRoot" class="jxgbox tall" aria-label="הענף החיובי של פונקציית השורש"></div>
+        <p class="graph-caption">כעת כל ישר אנכי חותך את הגרף לכל היותר פעם אחת.</p>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>תפיסה שגויה</th><th>תיקון מדויק</th></tr></thead>
+      <tbody>
+        <tr><td>פונקציה חייבת להיות נוסחה.</td><td>אפשר להגדיר פונקציה במילים, בטבלה, בגרף או בהתאמה שאינה מספרית.</td></tr>
+        <tr><td>לכל פלט חייב להיות קלט יחיד.</td><td>הדרישה היא הפוכה: לכל קלט חייב להיות פלט יחיד.</td></tr>
+        <tr><td>גרף פונקציה חייב להיות רציף.</td><td>פונקציה יכולה להיות מקוטעת או בדידה.</td></tr>
+        <tr><td>אותה נוסחה פירושה אותה פונקציה.</td><td>גם התחום וקבוצת היעד הם חלק מהגדרת הפונקציה.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="page">
+    <h2>13. תרגול מודרך — זיהוי, סימון וקריאת גרף</h2>
+    <div class="grid-2">
+      <div>
+        <div id="practiceGraph" class="jxgbox tall" aria-label="גרף לתרגילי קריאת פונקציה"></div>
+        <p class="graph-caption">השתמשו בגרף עבור שאלות 1–4. נקודה מלאה שייכת לגרף; נקודה חלולה אינה שייכת.</p>
+      </div>
+      <div class="exercise-list" style="grid-template-columns:1fr">
+        <div class="exercise"><b>1</b> קבעו את תחום הפונקציה מן הגרף.</div>
+        <div class="exercise"><b>2</b> חשבו מן הגרף: \(f(-3)\),‏ \(f(-1)\),‏ \(f(0)\),‏ \(f(3)\).</div>
+        <div class="exercise"><b>3</b> מצאו את כל המקורות של הערך \(2\).</div>
+        <div class="exercise"><b>4</b> קבעו את תמונת הפונקציה.</div>
+      </div>
+    </div>
+
+    <div class="exercise-list">
+      <div class="exercise"><b>5</b> נתונה \(f(x)=3x-4\). חשבו \(f(2)\),‏ \(f(-1)\),‏ \(f(a+1)\).</div>
+      <div class="exercise"><b>6</b> האם הזוגות \(\{(1,2),(2,3),(1,5)\}\) מגדירים פונקציה? נמקו.</div>
+      <div class="exercise"><b>7</b> קבעו את התחום הטבעי של \(g(x)=\dfrac{2}{x^2-9}\).</div>
+      <div class="exercise"><b>8</b> קבעו את התחום הטבעי של \(h(x)=\sqrt{5-2x}\).</div>
+      <div class="exercise"><b>9</b> האם \(x=y^2+1\) מגדירה את \(y\) כפונקציה של \(x\)? הסבירו.</div>
+      <div class="exercise"><b>10</b> תנו דוגמה לפונקציה מחיי היום־יום שאינה מתוארת באופן טבעי בנוסחה.</div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>הנחיית עבודה</strong>
+      <p>בכל שאלה כתבו נימוק המשתמש במילים “לכל קלט”, “פלט יחיד” או בתנאי התחום המתאים. תשובה ללא נימוק אינה מלאה.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>14. תרגול ברמת 5 יחידות — חיבור בין רעיונות</h2>
+
+    <div class="exercise-list">
+      <div class="exercise"><b>11</b> נתונה \(f:[-2,3]\to\mathbb{R}\),‏ \(f(x)=x^2-1\). מצאו את התמונה.</div>
+      <div class="exercise"><b>12</b> הגדירו שתי פונקציות שונות בעלות הכלל \(x\mapsto |x|\), והסבירו מדוע הן שונות.</div>
+      <div class="exercise"><b>13</b> מצאו את כל ערכי \(a\) שעבורם הנקודה \((a,7)\) נמצאת על גרף \(f(x)=x^2-2\).</div>
+      <div class="exercise"><b>14</b> נתונה \(f(x)=\sqrt{x-1}+\dfrac{1}{x-4}\). קבעו את התחום הטבעי.</div>
+      <div class="exercise"><b>15</b> האם היחס \(R=\{(x,y)\in\mathbb{R}^2:x^2+y^2=16,\ y\ge0\}\) מגדיר פונקציה \(y=f(x)\)? אם כן, כתבו כלל ותחום.</div>
+      <div class="exercise"><b>16</b> עבור איזה תחום \(D\) הכלל \(f(x)=x^2\) יהיה חד־חד־ערכי? תנו שתי אפשרויות.</div>
+      <div class="exercise"><b>17</b> ריבוע היקפו \(P\). הגדירו את שטחו \(A\) כפונקציה של \(P\), וציינו תחום מציאותי.</div>
+      <div class="exercise"><b>18</b> בנו דוגמה לפונקציה מקוטעת שיש לה קפיצה ב-\(x=1\), אך מוגדרת שם.</div>
+    </div>
+
+    <h3>משימת חקר גרפית</h3>
+    <div class="grid-2">
+      <div class="card blue">
+        <p>הגרף מציג משפחה של פונקציות:</p>
+        <div class="formula">\[f_a(x)=x^2+a\]</div>
+        <p>השוו בין \(a=-2\),‏ \(a=0\),‏ \(a=2\). מה נשאר קבוע ומה משתנה: תחום, תמונה, צורת הגרף או ערך מינימלי?</p>
+      </div>
+      <div>
+        <div id="familyGraph" class="jxgbox tall" aria-label="משפחת פרבולות מוזזות אנכית"></div>
+        <p class="graph-caption">שלוש פונקציות בעלות אותו תחום ואותה צורה, אך תמונות שונות.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>15. פתרונות לתרגול</h2>
+    <div class="grid-2">
+      <div>
+        <div class="answer"><strong>1.</strong> \(D=[-4,-1]\cup[0,4]\).</div>
+        <div class="answer"><strong>2.</strong> \(f(-3)=1\),‏ \(f(-1)=3\),‏ \(f(0)=0\),‏ \(f(3)=2\).</div>
+        <div class="answer"><strong>3.</strong> המקורות של \(2\) הם \(x=-2\) ו-\(x=3\).</div>
+        <div class="answer"><strong>4.</strong> \(\operatorname{Im}(f)=[0,3]\).</div>
+        <div class="answer"><strong>5.</strong> \(f(2)=2\),‏ \(f(-1)=-7\),‏ \(f(a+1)=3a-1\).</div>
+        <div class="answer"><strong>6.</strong> לא. לקלט \(1\) מותאמים שני פלטים שונים: \(2\) ו-\(5\).</div>
+        <div class="answer"><strong>7.</strong> \(D_g=\mathbb{R}\setminus\{-3,3\}\).</div>
+        <div class="answer"><strong>8.</strong> \(5-2x\ge0\), ולכן \(D_h=(-\infty,5/2]\).</div>
+        <div class="answer"><strong>9.</strong> לא על התחום \(x\gt1\): מתקבלים \(y=\pm\sqrt{x-1}\).</div>
+      </div>
+      <div>
+        <div class="answer"><strong>10.</strong> לדוגמה: לכל תלמיד מתאים מספר תעודת הזהות שלו.</div>
+        <div class="answer"><strong>11.</strong> \(f(x)=x^2-1\) מקבלת מינימום \(-1\) ב-\(x=0\) ומקסימום \(8\) ב-\(x=3\); לכן התמונה \([-1,8]\).</div>
+        <div class="answer"><strong>12.</strong> למשל \(f:\mathbb{R}\to\mathbb{R}\) ו-\(g:[0,\infty)\to\mathbb{R}\), שתיהן עם כלל \(|x|\). התחומים שונים.</div>
+        <div class="answer"><strong>13.</strong> \(a^2-2=7\Rightarrow a=\pm3\).</div>
+        <div class="answer"><strong>14.</strong> נדרש \(x\ge1\) וגם \(x\ne4\): \(D_f=[1,4)\cup(4,\infty)\).</div>
+        <div class="answer"><strong>15.</strong> כן. \(f(x)=\sqrt{16-x^2}\),‏ \(D=[-4,4]\).</div>
+        <div class="answer"><strong>16.</strong> למשל \(D=[0,\infty)\) או \(D=(-\infty,0]\).</div>
+        <div class="answer"><strong>17.</strong> צלע הריבוע היא \(P/4\), לכן \(A(P)=P^2/16\),‏ \(P\gt0\).</div>
+        <div class="answer"><strong>18.</strong> לדוגמה \(f(x)=0\) עבור \(x\lt1\), ו-\(f(x)=2\) עבור \(x\ge1\).</div>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>בדיקת שאלה 4</strong>
+      <p>הקטע השמאלי מקבל את כל הערכים מ-\(0\) עד \(3\), והקטע הימני נשאר בתחום ערכים זה. לכן התמונה הכוללת היא \([0,3]\).</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>16. סיכום — התמונה המלאה של מושג הפונקציה</h2>
+    <div class="card blue" style="padding:6mm">
+      <div class="formula">\[f:A\to B,\qquad \forall x\in A\ \exists!\,y\in B:\ y=f(x)\]</div>
+      <p class="center" style="font-size:16px">לכל קלט בתחום קיים פלט אחד ויחיד בקבוצת היעד.</p>
+    </div>
+
+    <div class="grid-3" style="margin-top:5mm">
+      <div class="card soft"><div class="mini-title">מה מגדיר פונקציה?</div><p>תחום, קבוצת יעד וכלל התאמה.</p></div>
+      <div class="card soft"><div class="mini-title">כיצד מציגים?</div><p>במילים, בטבלה, בנוסחה או בגרף.</p></div>
+      <div class="card soft"><div class="mini-title">כיצד מזהים בגרף?</div><p>באמצעות מבחן הישר האנכי.</p></div>
+      <div class="card soft"><div class="mini-title">מה מותר?</div><p>שני קלטים שונים יכולים לקבל אותו פלט.</p></div>
+      <div class="card soft"><div class="mini-title">מה אסור?</div><p>לקלט יחיד אסור לקבל שני פלטים שונים.</p></div>
+      <div class="card soft"><div class="mini-title">מה אינו הכרחי?</div><p>נוסחה יחידה, רציפות או תחום של כל הממשיים.</p></div>
+    </div>
+
+    <h3>כרטיס יציאה</h3>
+    <div class="exercise-list">
+      <div class="exercise"><b>א</b> כתבו במילים הגדרה מדויקת של פונקציה.</div>
+      <div class="exercise"><b>ב</b> תנו דוגמה להתאמה שאינה פונקציה והסבירו.</div>
+      <div class="exercise"><b>ג</b> הסבירו מדוע \(f(x)=x^2\) היא פונקציה אף כי \(f(2)=f(-2)\).</div>
+      <div class="exercise"><b>ד</b> מה ההבדל בין קבוצת היעד לבין התמונה?</div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>משפט מפתח לזכירה</strong>
+      <p style="font-size:17px">מסתכלים מן הקלט אל הפלט: מכל קלט יוצא חץ אחד בדיוק.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>17. הנחיות למורה ומקורות</h2>
+    <div class="grid-2">
+      <div>
+        <h3>הצעות להפעלה בכיתה</h3>
+        <ol>
+          <li>הציגו קודם דוגמאות מן החיים ובקשו מן התלמידים לנסח מה משותף להן.</li>
+          <li>הציגו דיאגרמות חצים לפני ההגדרה הפורמלית.</li>
+          <li>בכל נגד־דוגמה בקשו לזהות קלט מסוים המפר את הייחודיות.</li>
+          <li>החליפו בין ייצוגים של אותה פונקציה, ולא רק מן הנוסחה לגרף.</li>
+          <li>בבעיות מידול דרשו תמיד תחום מציאותי ויחידות מידה.</li>
+          <li>השתמשו בגרפים האינטראקטיביים לדיון, ובגרסה המודפסת לסימון ידני.</li>
+        </ol>
+
+        <div class="warning">
+          <strong>הבחנה לשונית</strong>
+          <p>מומלץ להגדיר במפורש בתחילת השיעור את המונחים “קבוצת יעד” ו“תמונה”, משום שהמילה “טווח” אינה משמשת באופן אחיד בכל המקורות.</p>
+        </div>
+      </div>
+      <div>
+        <h3>מקורות מרכזיים</h3>
+        <ul class="source-list">
+          <li><a href="https://highmath.haifa.ac.il/Ogdan/Intro_To_Functions.pdf">המרכז הארצי למורים למתמטיקה — מבוא לפונקציות</a></li>
+          <li><a href="https://meyda.education.gov.il/files/Pop/0files/matmatika/Chativat-Beynayim/curriculum/updating/algebra_Rationale.pdf">משרד החינוך — רציונל והנחיות דידקטיות באלגברה</a></li>
+          <li><a href="https://www.mathcentre.ac.uk/resources/uploaded/mc-ty-introfns-2009-1.pdf">Mathcentre — Introduction to Functions</a></li>
+          <li><a href="https://s315b6c33f5b65a32.jimcontent.com/download/version/1548072660/module/11299428095/name/Tema6_Funciones.pdf">Matemáticas I — Tema 6: Funciones</a></li>
+          <li><a href="https://funes.uniandes.edu.co/wp-content/uploads/tainacan-items/32454/1182033/Bernal_Carlos_Eduardo_2020_Funciones252C_sus_gr25C325A1ficas252C_dominios_y_codominios.pdf">Funciones: gráficas, dominios y codominios</a></li>
+          <li><a href="https://www.compendio.ch/shop/resources/cms/19527_XMA506_01N25_BiB.pdf">Das Prinzip der Zuordnung</a></li>
+          <li><a href="https://www.ifmg.edu.br/conselheirolafaiete/noticias/anexos-noticias/alexandre-1-ano-nocoes-basicas-sobre-funcoes.pdf">IFMG — Noções Básicas sobre Funções</a></li>
+          <li><a href="https://mathus.ru/math/function.pdf">MathUs — Что такое функция?</a></li>
+          <li><a href="https://www.maths-et-tiques.fr/telech/19FctGenTM.pdf">Maths et Tiques — Généralités sur les fonctions</a></li>
+          <li><a href="https://www.tec.ac.cr/sites/default/files/media/doc/paem_decimo_funciones.pdf">Tecnológico de Costa Rica — Funciones</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <strong>הערת הדפסה</strong>
+      <p>יש לבחור גודל נייר A4, קנה מידה 100%, שוליים “ללא” ולהפעיל הדפסת גרפיקת רקע. כל מקטע במסמך תוכנן כעמוד A4 נפרד.</p>
+    </div>
+  </section>
+
+  <script>
+    window.addEventListener('load', function () {
+      if (!window.JXG) return;
+
+      JXG.Options.text.useMathJax = false;
+
+      const C = {
+        blue: '#1769aa', teal: '#0b88a8', red: '#c84b4b',
+        green: '#2b8a6e', gold: '#d89a20', ink: '#17324d', pale: '#a9c8d9'
+      };
+
+      function makeBoard(id, box, axis, keepAspect) {
+        return JXG.JSXGraph.initBoard(id, {
+          boundingbox: box,
+          axis: axis !== false,
+          showNavigation: false,
+          showCopyright: false,
+          keepaspectratio: keepAspect !== false,
+          pan: { enabled: false },
+          zoom: { enabled: false },
+          defaultAxes: {
+            x: { name: 'x', withLabel: true, ticks: { drawLabels: true, minorTicks: 0 } },
+            y: { name: 'y', withLabel: true, ticks: { drawLabels: true, minorTicks: 0 } }
+          }
+        });
+      }
+
+      function point(board, x, y, name, color, filled) {
+        return board.create('point', [x, y], {
+          name: name || '', fixed: true, size: 3.2,
+          strokeColor: color || C.blue,
+          fillColor: filled === false ? '#ffffff' : (color || C.blue),
+          strokeWidth: 2,
+          highlight: false,
+          label: { offset: [8, 2], fontSize: 13 }
+        });
+      }
+
+      function textLabel(board, x, y, txt, color, size) {
+        return board.create('text', [x, y, txt], {
+          fixed: true, highlight: false, strokeColor: color || C.ink,
+          fontSize: size || 15, anchorX: 'middle', anchorY: 'middle'
+        });
+      }
+
+      function arrow(board, p1, p2, color) {
+        return board.create('arrow', [p1, p2], {
+          fixed: true, highlight: false, strokeWidth: 2,
+          strokeColor: color || C.blue, lastArrow: { type: 2, size: 5 }
+        });
+      }
+
+      function guide(board, p1, p2, color) {
+        return board.create('segment', [p1, p2], {
+          fixed: true, highlight: false, dash: 2, strokeWidth: 1.4,
+          strokeColor: color || C.pale
+        });
+      }
+
+      // Taxi model
+      {
+        const b = makeBoard('taxiGraph', [-1, 42, 7, -5], true);
+        b.create('functiongraph', [x => 8 + 5 * x, 0, 6.4], { strokeColor: C.blue, strokeWidth: 3, highlight: false });
+        point(b, 0, 8, '', C.blue, true);
+        [[1,13],[2,18],[4,28],[6,38]].forEach(v => point(b, v[0], v[1], '', C.teal, true));
+        textLabel(b, 4.7, 34, 'C(x)=8+5x', C.blue, 14);
+      }
+
+      // Square mapping
+      {
+        const b = makeBoard('squareMap', [-6, 4.6, 6, -4.6], false);
+        textLabel(b, -3.5, 4, 'Input A', C.blue, 16);
+        textLabel(b, 3.5, 4, 'Output B', C.green, 16);
+        const left = [[-3.5,2.4,'-2'],[-3.5,0,'0'],[-3.5,-2.4,'3']].map(v => point(b,v[0],v[1],v[2],C.blue,true));
+        const right = [[3.5,2.4,'4'],[3.5,0,'0'],[3.5,-2.4,'9']].map(v => point(b,v[0],v[1],v[2],C.green,true));
+        arrow(b,left[0],right[0],C.blue); arrow(b,left[1],right[1],C.blue); arrow(b,left[2],right[2],C.blue);
+        textLabel(b,0,-4,'f(x)=x^2',C.ink,16);
+      }
+
+      // Formal function and non-function
+      {
+        const b = makeBoard('formalFunction', [-5, 3.5, 5, -3.5], false);
+        const l = [[-3,2,'1'],[-3,0,'2'],[-3,-2,'3']].map(v=>point(b,v[0],v[1],v[2],C.blue,true));
+        const r = [[3,1.2,'a'],[3,-1.2,'b']].map(v=>point(b,v[0],v[1],v[2],C.green,true));
+        arrow(b,l[0],r[0],C.green); arrow(b,l[1],r[0],C.green); arrow(b,l[2],r[1],C.green);
+      }
+      {
+        const b = makeBoard('formalNotFunction', [-5, 3.5, 5, -3.5], false);
+        const l = [[-3,1.7,'1'],[-3,-1.2,'2']].map(v=>point(b,v[0],v[1],v[2],C.blue,true));
+        const r = [[3,1.8,'a'],[3,0,'b'],[3,-1.8,'c']].map(v=>point(b,v[0],v[1],v[2],C.red,true));
+        arrow(b,l[0],r[0],C.red); arrow(b,l[1],r[1],C.red); arrow(b,l[1],r[2],C.red);
+      }
+
+      // Evaluation graph
+      {
+        const b = makeBoard('evaluationGraph', [-5, 10, 5, -8], true);
+        b.create('functiongraph', [x => 2*x+1, -4.4, 4.4], { strokeColor:C.blue, strokeWidth:3, highlight:false });
+        point(b,3,7,'(3,7)',C.red,true);
+        guide(b,[3,0],[3,7],C.red); guide(b,[0,7],[3,7],C.red);
+      }
+
+      // Domain and image map
+      {
+        const b = makeBoard('domainImageMap', [-7, 5.2, 7, -5.2], false);
+        textLabel(b,-4.4,4.5,'Domain',C.blue,16); textLabel(b,4.2,4.5,'Codomain',C.green,16);
+        const xs = [-2,-1,0,1,2], ys = [0,1,2,3,4,5];
+        const lp = xs.map((n,i)=>point(b,-4.2,3-i*1.5,String(n),C.blue,true));
+        const rp = ys.map((n,i)=>point(b,4.2,3.75-i*1.5,String(n),[0,1,4].includes(n)?C.green:C.pale,true));
+        const idx = {0:0,1:1,4:4};
+        xs.forEach((n,i)=>arrow(b,lp[i],rp[idx[n*n]],C.blue));
+        textLabel(b,5.8,-4.7,'Image={0,1,4}',C.green,14);
+      }
+
+      // Four representations
+      {
+        const b = makeBoard('representationsGraph', [-4, 7, 4, -7], true);
+        b.create('functiongraph',[x=>2*x-1,-3.2,3.8],{strokeColor:C.red,strokeWidth:3,highlight:false});
+        [-2,-1,0,1,2].forEach(x=>point(b,x,2*x-1,'',C.blue,true));
+      }
+
+      // Vertical line test
+      {
+        const b = makeBoard('verticalPass', [-4, 6, 4, -2], true);
+        b.create('functiongraph',[x=>0.5*x*x,-3.2,3.2],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        b.create('line',[[1,0],[1,1]],{straightFirst:true,straightLast:true,strokeColor:C.red,dash:2,strokeWidth:2,highlight:false});
+        point(b,1,0.5,'',C.red,true);
+      }
+      {
+        const b = makeBoard('verticalFail', [-4, 4, 4, -4], true);
+        b.create('curve',[t=>3*Math.cos(t),t=>3*Math.sin(t),0,2*Math.PI],{strokeColor:C.red,strokeWidth:3,highlight:false});
+        b.create('line',[[1,0],[1,1]],{straightFirst:true,straightLast:true,strokeColor:C.blue,dash:2,strokeWidth:2,highlight:false});
+        const yy=Math.sqrt(8); point(b,1,yy,'',C.blue,true); point(b,1,-yy,'',C.blue,true);
+      }
+
+      // Domains
+      {
+        const b = makeBoard('rationalDomain', [-4, 5, 7, -5], true);
+        b.create('functiongraph',[x=>1/(x-2),-3.6,1.88],{strokeColor:C.blue,strokeWidth:3,highlight:false});
+        b.create('functiongraph',[x=>1/(x-2),2.12,6.6],{strokeColor:C.blue,strokeWidth:3,highlight:false});
+        b.create('line',[[2,0],[2,1]],{straightFirst:true,straightLast:true,strokeColor:C.red,dash:2,strokeWidth:2,highlight:false});
+      }
+      {
+        const b = makeBoard('rootDomain', [-3, 4, 7, -2], true);
+        b.create('functiongraph',[x=>Math.sqrt(x+1),-1,6.5],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        point(b,-1,0,'',C.green,true);
+      }
+
+      // Piecewise and discrete
+      {
+        const b = makeBoard('piecewiseGraph', [-4, 6, 4, -2], true);
+        b.create('functiongraph',[x=>x+2,-3.5,-0.03],{strokeColor:C.blue,strokeWidth:3,highlight:false});
+        b.create('functiongraph',[x=>x*x,0,2.4],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        point(b,0,2,'',C.blue,false); point(b,0,0,'',C.green,true);
+      }
+      {
+        const b = makeBoard('discreteGraph', [-4, 10, 4, -2], true);
+        for(let n=-3;n<=3;n++) point(b,n,n*n,'',C.gold,true);
+      }
+
+      // Same rule, different domains
+      {
+        const b = makeBoard('fullSquare', [-4, 10, 4, -2], true);
+        b.create('functiongraph',[x=>x*x,-3.1,3.1],{strokeColor:C.blue,strokeWidth:3,highlight:false});
+      }
+      {
+        const b = makeBoard('restrictedSquare', [-1, 5, 3, -1], true);
+        b.create('functiongraph',[x=>x*x,0,2],{strokeColor:C.green,strokeWidth:4,highlight:false});
+        point(b,0,0,'',C.green,true); point(b,2,4,'',C.green,true);
+      }
+
+      // Rectangle model
+      {
+        const b = makeBoard('rectangleArea', [-1, 28, 11, -3], true, false);
+        b.create('functiongraph',[x=>x*(10-x),0.05,9.95],{strokeColor:C.blue,strokeWidth:3,highlight:false});
+        point(b,0,0,'',C.blue,false); point(b,10,0,'',C.blue,false); point(b,5,25,'(5,25)',C.red,true);
+        guide(b,[5,0],[5,25],C.red); guide(b,[0,25],[5,25],C.red);
+      }
+
+      // Misconceptions
+      {
+        const b = makeBoard('sidewaysParabola', [-1, 4, 9, -4], true);
+        b.create('curve',[t=>t*t,t=>t,-3,3],{strokeColor:C.red,strokeWidth:3,highlight:false});
+        b.create('line',[[4,0],[4,1]],{straightFirst:true,straightLast:true,strokeColor:C.blue,dash:2,strokeWidth:2,highlight:false});
+        point(b,4,2,'',C.blue,true); point(b,4,-2,'',C.blue,true);
+      }
+      {
+        const b = makeBoard('principalRoot', [-1, 4, 9, -1], true);
+        b.create('functiongraph',[x=>Math.sqrt(x),0,8.5],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        point(b,4,2,'(4,2)',C.green,true);
+      }
+
+      // Practice graph: one closed segment and a second piece with an open endpoint at (0,2)
+      {
+        const b = makeBoard('practiceGraph', [-5, 4, 5, -1], true);
+        b.create('segment',[[-4,0],[-1,3]],{strokeColor:C.blue,strokeWidth:3,highlight:false});
+        point(b,-4,0,'',C.blue,true); point(b,-1,3,'',C.blue,true);
+        b.create('segment',[[0,2],[2,0]],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        b.create('segment',[[2,0],[3,2]],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        b.create('segment',[[3,2],[4,1]],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        point(b,0,2,'',C.green,false); point(b,0,0,'',C.red,true);
+        point(b,2,0,'',C.green,true); point(b,3,2,'',C.green,true); point(b,4,1,'',C.green,true);
+      }
+
+      // Family of functions
+      {
+        const b = makeBoard('familyGraph', [-4, 11, 4, -4], true);
+        b.create('functiongraph',[x=>x*x-2,-3.2,3.2],{strokeColor:C.blue,strokeWidth:2.5,highlight:false});
+        b.create('functiongraph',[x=>x*x,-3.2,3.2],{strokeColor:C.green,strokeWidth:2.5,highlight:false});
+        b.create('functiongraph',[x=>x*x+2,-3,3],{strokeColor:C.red,strokeWidth:2.5,highlight:false});
+        textLabel(b,2.7,5.3,'a=-2',C.blue,13); textLabel(b,2.45,7,'a=0',C.green,13); textLabel(b,2.2,8.8,'a=2',C.red,13);
+      }
+    });
+  </script>
+</body>
+</html>
