@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור - פונקציה ריבועית - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+  },
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --ink:#172033;
+  --muted:#667085;
+  --line:#d9dee8;
+  --soft:#f5f7fb;
+  --accent:#3157d5;
+  --accent2:#7a3ff2;
+  --good:#126b52;
+  --warn:#9a5b00;
+}
+*{box-sizing:border-box}
+html{background:#e9edf4}
+body{
+  margin:0;
+  font-family:Arial,"Noto Sans Hebrew","Segoe UI",sans-serif;
+  color:var(--ink);
+  direction:rtl;
+  line-height:1.45;
+  background:#e9edf4;
+}
+.page{
+  width:210mm;
+  height:297mm;
+  margin:8mm auto;
+  background:#fff;
+  padding:11mm 13mm 10mm;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 6px 24px rgba(18,35,62,.12);
+}
+.page-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  border-bottom:2px solid var(--ink);
+  padding-bottom:4mm;
+  margin-bottom:5mm;
+}
+.page-header h1{font-size:22px;margin:1mm 0 0;line-height:1.15}
+.page-kicker{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.03em}
+.subtitle{font-size:11px;color:var(--muted);margin-top:1.5mm}
+.page-no{
+  width:9mm;height:9mm;border-radius:50%;
+  border:1.5px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;flex:0 0 auto;
+}
+.page-content{font-size:12.2px}
+h2{font-size:16px;margin:0 0 2.5mm}
+h3{font-size:13.5px;margin:0 0 2mm}
+p{margin:1.6mm 0}
+ul,ol{margin:1mm 0 1mm;padding-right:5.5mm}
+li{margin:1.1mm 0}
+hr{border:none;border-top:1px solid var(--line);margin:3mm 0}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:8mm;align-items:center;height:185mm}
+.hero-copy{padding:3mm}
+.lead{font-size:16px;line-height:1.55;margin:5mm 0}
+.pill{display:inline-block;background:var(--ink);color:#fff;padding:1.5mm 4mm;border-radius:999px;font-size:11px}
+.formula-xl{font-size:25px;margin:7mm 0}
+.formula-lg{font-size:17px;text-align:center}
+.formula-md{font-size:14px;text-align:center}
+.card,.exercise-card,.solution-card,.question-box,.callout,.teacher-note,.activity,.error-card{
+  border:1px solid var(--line);
+  border-radius:4mm;
+  padding:4mm;
+  background:#fff;
+}
+.card{background:var(--soft)}
+.exercise-card{border-right:4px solid var(--accent)}
+.solution-card{border-right:4px solid var(--good);background:#f4fbf8}
+.question-box{border-right:4px solid var(--accent2);background:#faf8ff}
+.callout{border-right:4px solid var(--accent);background:#f3f6ff}
+.teacher-note{border-right:4px solid var(--warn);background:#fff9ef;font-size:11.5px}
+.activity{background:#f4fbf8;border-right:4px solid var(--good)}
+.error-card{background:#fff8f5;border-right:4px solid #c2552d}
+.emphasis{border:2px solid var(--accent);background:#f7f9ff}
+.source-badge{
+  display:inline-block;background:#eef2ff;color:#233a9f;
+  border:1px solid #cfd8ff;padding:1mm 2.2mm;border-radius:999px;
+  font-size:10px;font-weight:700;margin-bottom:2mm
+}
+.solution-strip{
+  margin-top:4mm;padding:3mm 4mm;border-radius:3mm;
+  background:#eefaf5;border:1px solid #bfe3d3;font-size:11.7px
+}
+.top-gap{margin-top:4mm}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.compact .card{padding:3mm}
+.two-col-text{display:grid;grid-template-columns:1.25fr .75fr;gap:6mm}
+.graph-layout{align-items:start}
+.jxgbox{
+  width:100%;
+  height:88mm;
+  border:1px solid #cbd2dd;
+  border-radius:3mm;
+  background:#fff;
+  touch-action:none;
+}
+.wide-graph{height:95mm;margin-top:5mm}
+.cover-graph .jxgbox{height:118mm}
+.graph-toolbar{
+  display:flex;gap:2mm;justify-content:center;flex-wrap:wrap;
+  margin-top:2mm
+}
+.graph-toolbar button{
+  border:1px solid #b9c2d1;background:#fff;color:var(--ink);
+  border-radius:2mm;padding:1.3mm 2.5mm;font-size:10px;cursor:pointer
+}
+.graph-toolbar button:hover{background:#f0f3f8}
+.live-equation{text-align:center;margin-top:2mm;font-size:13px;min-height:7mm}
+.sequence{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:2.5mm;
+  margin-top:5mm
+}
+.sequence div{
+  background:#f5f7fb;border:1px solid var(--line);padding:3mm;
+  border-radius:2.5mm;text-align:center;font-size:11px
+}
+.exercise-list{padding-right:6mm}
+.proof{background:#fbfcff;border:1px solid var(--line);padding:5mm;border-radius:4mm}
+.derivation{font-size:15px;text-align:center}
+.compact-proof .derivation{font-size:14.5px}
+.derivation.small{font-size:12.5px}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.method{border:1px solid var(--line);border-radius:4mm;padding:4mm;background:#fafbfe}
+.algorithm{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.alg-step{
+  display:flex;gap:3mm;align-items:flex-start;
+  border:1px solid var(--line);border-radius:3mm;padding:3mm;background:#fafbfe
+}
+.alg-step span{
+  width:8mm;height:8mm;border-radius:50%;background:var(--ink);color:white;
+  display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 auto
+}
+.alg-step p{font-size:11px;color:var(--muted);margin:1mm 0 0}
+.practice-set{font-size:12.8px}
+.practice-set li{margin:2.6mm 0}
+.dense{font-size:11.5px}
+.dense li{margin:1.6mm 0}
+table{width:100%;border-collapse:collapse;margin-top:2mm}
+th,td{border:1px solid var(--line);padding:2.3mm;text-align:right}
+th{background:#eef2f7}
+.sources{display:flex;flex-direction:column;gap:3mm}
+.source-item{border-bottom:1px solid var(--line);padding-bottom:2.5mm}
+.source-item h3{margin-bottom:1mm}
+.source-item code{direction:ltr;display:block;text-align:left;font-size:9.5px;color:#38445b;white-space:normal;word-break:break-all}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff}
+  body{margin:0}
+  .page{
+    margin:0;
+    box-shadow:none;
+    page-break-after:always;
+    break-after:page;
+  }
+  .page:last-child{page-break-after:auto}
+  .graph-toolbar{display:none}
+}
+</style>
+</head>
+<body>
+
+<section class="page " id="page-1">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>מערך שיעור מלא: פונקציה ריבועית</h1>
+    </div>
+    <div class="page-no">1</div>
+  </header>
+  <main class="page-content">
+    
+<div class="hero">
+  <div class="hero-copy">
+    <div class="pill">רמה: 5 יחידות</div>
+    <p class="lead">יחידת הוראה מלאה הבנויה כרצף מושגי: מן הפונקציה הבסיסית ועד פרמטרים, דיסקרימיננטה, חיתוכים, אי-שוויונות וגאומטריה אנליטית.</p>
+    <div class="formula-xl">\[
+      f(x)=ax^2+bx+c,\qquad a\ne 0
+    \]</div>
+    <div class="callout">
+      <strong>עיקרון מוביל:</strong> בכל שלב מחברים בין ייצוג אלגברי, גרפי ומילולי. התלמיד נדרש לבחור ייצוג יעיל, להסביר את הבחירה ולהסיק תכונות - לא רק לבצע אלגוריתם.
+    </div>
+  </div>
+  <div class="cover-graph">
+    <div id="g-cover" class="jxgbox" data-bbox="-6,8,6,-5"></div>
+    <div class="graph-toolbar" data-for="g-cover"></div>
+  </div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-2">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>מטרות, ידע קודם ורצף הוראה</h1>
+      <div class="subtitle">תכנון פדגוגי לפני תחילת היחידה</div>
+    </div>
+    <div class="page-no">2</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2">
+  <div class="card">
+    <h2>מטרות ידע</h2>
+    <ul>
+      <li>לזהות תכונות של פרבולה מתוך כל אחד משלושת הייצוגים.</li>
+      <li>לעבור בין הצורה הכללית, המפורשת והמפורקת.</li>
+      <li>לפתור משוואות ואי-שוויונות ריבועיים בשיטות שונות.</li>
+      <li>לקשר בין \(\Delta\), מספר שורשים ומצב גרפי.</li>
+      <li>לבנות פונקציה ריבועית מנתונים, מגרף ומאילוצים.</li>
+      <li>לפתור בעיות פרמטר, חיתוכים ושטחים.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>ידע קודם נדרש</h2>
+    <ul>
+      <li>פירוק לגורמים ונוסחאות כפל מקוצר.</li>
+      <li>פתרון משוואות ממעלה ראשונה.</li>
+      <li>מושג הפונקציה, תחום, חיתוך עם הצירים.</li>
+      <li>משוואת ישר ושיפוע.</li>
+      <li>מערכת צירים, מרחקים ושטחי משולשים וטרפזים.</li>
+    </ul>
+  </div>
+</div>
+<div class="sequence">
+  <div>1. \(x^2\)</div><div>2. \(ax^2\)</div><div>3. טרנספורמציות</div><div>4. צורה קודקודית</div>
+  <div>5. צורה כללית</div><div>6. השלמה לריבוע</div><div>7. צורה מפורקת</div><div>8. משוואות</div>
+  <div>9. דיסקרימיננטה</div><div>10. אי-שוויונות</div><div>11. ישר ופרבולה</div><div>12. פרמטרים</div>
+  <div>13. גאומטריה אנליטית</div><div>14. סיכום ותרגול</div>
+</div>
+<div class="callout top-gap"><strong>הערכה:</strong> מומלץ להשתמש בבדיקות קצרות לאורך היחידה ולא להמתין למבחן מסכם. בכל בדיקה יש לכלול לפחות שאלה אחת שבה אין דרך פתרון מוכתבת.</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-3">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>אבחון פתיחה</h1>
+      <div class="subtitle">שיעור 1 - 20 עד 30 דקות</div>
+    </div>
+    <div class="page-no">3</div>
+  </header>
+  <main class="page-content">
+    
+<div class="two-col-text">
+  <div>
+    <h2>בדיקת מוכנות - ללא מחשבון</h2>
+    <ol class="exercise-list">
+      <li>פרקו לגורמים: \(x^2-7x+12\).</li>
+      <li>פתרו: \(2x^2-18=0\).</li>
+      <li>פתרו: \((x-3)^2=16\).</li>
+      <li>מצאו את משוואת הישר העובר דרך \((1,4)\) ו-\((3,10)\).</li>
+      <li>עבור \(f(x)=x^2-4x-5\), חשבו \(f(2)\), \(f(-1)\).</li>
+      <li>מצאו את נקודות החיתוך של \(y=x+1\) ו-\(y=2x-3\).</li>
+    </ol>
+  </div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-4">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>הפונקציה הבסיסית \(f(x)=x^2\)</h1>
+      <div class="subtitle">שיעור 1 - בניית שפת התכונות</div>
+    </div>
+    <div class="page-no">4</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-base" class="jxgbox" data-bbox="-5,10,5,-2"></div>
+    <div class="graph-toolbar" data-for="g-base"></div>
+  </div>
+<div style="height:30px;"></div>
+  <div>
+    <div class="card">
+      <h2>תכונות יסוד</h2>
+      <table>
+        <tr><th>תכונה</th><th>ערך</th></tr>
+        <tr><td>קודקוד</td><td>\((0,0)\)</td></tr>
+        <tr><td>ציר סימטריה</td><td>\(x=0\)</td></tr>
+        <tr><td>תחום הגדרה</td><td>\(x\in\mathbb{R}\)</td></tr>
+        <tr><td>תחום ערכים</td><td>\(y\ge 0\)</td></tr>
+        <tr><td>ירידה</td><td>\(x\lt 0\)</td></tr>
+        <tr><td>עלייה</td><td>\(x\gt 0\)</td></tr>
+      </table>
+    </div>
+<div style="height:30px;"></div>
+    <div class="question-box">
+      <strong>בדיקת הבנה:</strong> מדוע הנקודות \((t,t^2)\) ו-\((-t,t^2)\) נמצאות תמיד באותו גובה?
+    </div>
+  </div>
+</div>
+<div style="height:30px;"></div>
+<div class="callout"><strong>מסר מרכזי:</strong> סימטריה אינה רק תכונה חזותית. היא נובעת מן השוויון \(f(-x)=f(x)\).</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-5">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>השפעת המקדם \(a\) בפונקציה \(f(x)=ax^2\)</h1>
+      <div class="subtitle">שיעור 2 - השפעת הפרמטר \(a\)</div>
+    </div>
+    <div class="page-no">5</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-a" class="jxgbox" data-bbox="-5,9,5,-9"></div>
+    <div class="graph-toolbar" data-for="g-a"></div>
+    <div id="eq-a" class="live-equation">\(y=ax^2\)</div>
+  </div>
+<div style="height:20px;"></div>
+  <div>
+    <div class="card">
+      <h2>השפעת \(a\)</h2>
+      <ul>
+        <li>\(a\gt 0\) - הפרבולה פונה כלפי מעלה.</li>
+        <li>\(a\lt 0\) - הפרבולה פונה כלפי מטה.</li>
+        <li>\(|a|\gt 1\) - הפרבולה צרה יותר ביחס ל-\(y=x^2\).</li>
+        <li>\(0\lt |a|\lt 1\) - הפרבולה רחבה יותר.</li>
+        <li>הקודקוד וציר הסימטריה אינם משתנים.</li>
+      </ul>
+    </div>
+<div style="height:30px;"></div>
+    <div class="activity">
+      <h3>חקירה</h3>
+      <p>גררו את המחוון בתוך הלוח. רשמו שלוש תכונות שמשתנות ושתי תכונות שאינן משתנות.</p>
+    </div>
+  </div>
+</div>
+<div style="height:30px;"></div>
+<div class="teacher-note">דגש: לא להשתמש בניסוח "ככל ש-\(a\) גדול יותר הפרבולה צרה יותר" בלי ערך מוחלט. ההשוואה הנכונה היא לפי \(|a|\).</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-6">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>טרנספורמציות של פרבולה</h1>
+      <div class="subtitle">שיעור 3 - חקירה דינמית עם מחוונים</div>
+    </div>
+    <div class="page-no">6</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-transform" class="jxgbox" data-bbox="-7,8,7,-6"></div>
+    <div class="graph-toolbar" data-for="g-transform"></div>
+    <div id="eq-transform" class="live-equation">\(y=a(x-h)^2+k\)</div>
+  </div>
+  <div>
+    <div class="card">
+      <h2>הצורה המפורשת</h2>
+      <div class="formula-lg">\[
+        f(x)=a(x-h)^2+k
+      \]</div>
+      <ul>
+        <li>הזזה אופקית נקבעת על ידי \(h\).</li>
+        <li>הזזה אנכית נקבעת על ידי \(k\).</li>
+        <li>הכיוון והרוחב נקבעים על ידי \(a\).</li>
+        <li>הקודקוד הוא \((h,k)\).</li>
+        <li>ציר הסימטריה הוא \(x=h\).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-7">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>טרנספורמציות וייצוגים</h1>
+      <div class="subtitle">שיעור 3 - מעבר בין תיאור מילולי, גרף ואלגברה</div>
+    </div>
+    <div class="page-no">7</div>
+  </header>
+  <main class="page-content">
+    
+<div class="exercise-card">
+  <h2>תרגיל</h2>
+  <p><strong>א.</strong> רשמו את הפונקציה המתקבלת בצורה \(y=a(x-p)^2+k\) מביצוע הפעולות הבאות על הפונקציה \(y=x^2\):</p>
+  <ul>
+    <li>הזזה של 4 יחידות שמאלה.</li>
+    <li>כיווץ פי 2.</li>
+    <li>הזזה של 2 יחידות למטה.</li>
+  </ul>
+  <p><strong>ב.</strong> כמה נקודות חיתוך יש לגרף הפונקציה עם ציר ה-\(x\)?</p>
+  <p><strong>ג.</strong> מצאו את נקודות החיתוך וכתבו את הפונקציה בצורה \(y=a(x-m)(x-n)\).</p>
+  <p><strong>ד.</strong> מהו ציר הסימטריה ומהי נקודת הקודקוד?</p>
+</div>
+<div class="grid-2 top-gap">
+  <div class="card">
+    <h3>פתרון מודרך</h3>
+    <p>אחרי ההזזה שמאלה: \(y=(x+4)^2\).</p>
+    <p>אחרי הכיווץ פי 2: \(y=\frac12(x+4)^2\).</p>
+    <p>אחרי ההזזה למטה: \(y=\frac12(x+4)^2-2\).</p>
+  </div>
+  <div class="card">
+    <h3>מסקנות</h3>
+    <p>קודקוד: \((-4,-2)\).</p>
+    <p>ציר סימטריה: \(x=-4\).</p>
+    <p>אפסים מתקבלים מ-\((x+4)^2=4\), ולכן \(x=-6,-2\).</p>
+    <p>הצורה המפורקת: \(y=\frac12(x+6)(x+2)\).</p>
+  </div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-8">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>קריאת כל תכונות הפרבולה מן הצורה המפורשת</h1>
+      <div class="subtitle">שיעור 4 - חקירה מלאה מן הצורה המפורשת</div>
+    </div>
+    <div class="page-no">8</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2">
+  <div class="card">
+    <h2>כאשר \(a\gt 0\)</h2>
+    <p>קודקוד מינימום: \((h,k)\).</p>
+    <p>תחום ערכים: \(y\ge k\).</p>
+    <p>ירידה: \(x\lt h\).</p>
+    <p>עלייה: \(x\gt h\).</p>
+  </div>
+  <div class="card">
+    <h2>כאשר \(a\lt 0\)</h2>
+    <p>קודקוד מקסימום: \((h,k)\).</p>
+    <p>תחום ערכים: \(y\le k\).</p>
+    <p>עלייה: \(x\lt h\).</p>
+    <p>ירידה: \(x\gt h\).</p>
+  </div>
+</div>
+<div class="exercise-card top-gap">
+  <h2>דוגמה</h2>
+  <p>נתונה \(f(x)=-3(x+2)^2+12\).</p>
+  <ol class="exercise-list">
+    <li>מצאו קודקוד וציר סימטריה.</li>
+    <li>קבעו תחום ערכים.</li>
+    <li>קבעו תחומי עלייה וירידה.</li>
+    <li>מצאו את האפסים.</li>
+    <li>קבעו תחומי חיוביות ושליליות.</li>
+  </ol>
+</div>
+<div class="solution-strip">תשובות קצרות: \((-2,12)\), \(x=-2\), \(y\le12\), אפסים \(x=-4,0\), חיובית כאשר \(-4\lt x\lt0\).</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-9">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>הצורה הכללית \(f(x)=ax^2+bx+c\)</h1>
+      <div class="subtitle">שיעור 5 - קשר בין מקדמים לגרף</div>
+    </div>
+    <div class="page-no">9</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-standard" class="jxgbox" data-bbox="-6,10,6,-6"></div>
+    <div class="graph-toolbar" data-for="g-standard"></div>
+  </div>
+<div style="height:30px;"></div>
+  <div>
+    <div class="card">
+      <h2>מה רואים מיד?</h2>
+      <ul>
+        <li>\(a\) קובע כיוון פתיחה ורוחב.</li>
+        <li>\(c=f(0)\), ולכן נקודת החיתוך עם ציר \(y\) היא \((0,c)\).</li>
+        <li>\(b\) משפיע על מיקום ציר הסימטריה ואינו "הזזה" פשוטה בפני עצמו.</li>
+      </ul>
+    </div>
+<div style="height:30px;"></div>
+    <div class="callout">
+      למנוע את הטעות הנפוצה של ניסיון לקרוא את הקודקוד ישירות מן המקדמים \(b,c\).
+    </div>
+  </div>
+</div>
+<div style="height:30px;"></div>
+<div class="question-box"><strong>חקירה:</strong> שמרו על \(a=1\), \(c=4\) ושנו רק את \(b\). מה נשאר קבוע? מה משתנה?</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-10">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>השלמה לריבוע</h1>
+      <div class="subtitle">שיעור 6 - תהליך אלגברי בעל משמעות גרפית</div>
+    </div>
+    <div class="page-no">10</div>
+  </header>
+  <main class="page-content">
+    
+<div class="proof">
+  <h2>המטרה</h2>
+  <p>להפוך \(ax^2+bx+c\) לצורה שממנה רואים מיד את הקודקוד.</p>
+  <div class="derivation">
+    \[
+    \begin{aligned}
+    ax^2+bx+c
+      &=a\left(x^2+\frac{b}{a}x\right)+c\\
+      &=a\left[x^2+\frac{b}{a}x+\left(\frac{b}{2a}\right)^2-\left(\frac{b}{2a}\right)^2\right]+c\\
+      &=a\left(x+\frac{b}{2a}\right)^2-\frac{b^2}{4a}+c.
+    \end{aligned}
+    \]
+  </div>
+  <div class="formula-lg">\[
+  f(x)=a\left(x+\frac{b}{2a}\right)^2+\frac{4ac-b^2}{4a}
+  \]</div>
+</div>
+<div class="grid-2 top-gap">
+  <div class="card"><h3>דוגמה</h3><p>\(x^2-6x+5=(x-3)^2-4\).</p><p>לכן הקודקוד \((3,-4)\).</p></div>
+  <div class="card"><h3>תרגול</h3><p>העבירו לצורה קודקודית:</p><p>\(2x^2+8x-3\)</p><p>\(-x^2+10x-17\)</p></div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-11">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>מציאת נוסחת ציר הסימטריה והקודקוד</h1>
+      <div class="subtitle">שיעור 6 - פיתוח ולא שינון</div>
+    </div>
+    <div class="page-no">11</div>
+  </header>
+  <main class="page-content">
+    
+<div class="card emphasis">
+  <h2>מן ההשלמה לריבוע</h2>
+  <p>בצורה</p>
+  <div class="formula-lg">\[
+    f(x)=a\left(x+\frac{b}{2a}\right)^2+\frac{4ac-b^2}{4a}
+  \]</div>
+  <p>האיבר הריבועי מתאפס כאשר</p>
+  <div class="formula-lg">\[
+    x=-\frac{b}{2a}.
+  \]</div>
+  <p>ולכן:</p>
+  <div class="formula-lg">\[
+    x_{\mathrm{vertex}}=-\frac{b}{2a},
+    \qquad
+    y_{\mathrm{vertex}}=f\left(-\frac{b}{2a}\right).
+  \]</div>
+</div>
+<div class="grid-2_ top-gap">
+  <div class="question-box"><strong>שאלה:</strong> מדוע זו גם משוואת ציר הסימטריה?</div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-12">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>הצורה המפורקת והשורשים</h1>
+      <div class="subtitle">שיעור 7 - חיבור בין שורשים, גרף ופירוק לגורמים</div>
+    </div>
+    <div class="page-no">12</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_">
+  <div class="card">
+    <h2>צורה מפורקת</h2>
+    <div class="formula-lg">\[
+      f(x)=a(x-x_1)(x-x_2)
+    \]</div>
+    <p>אם \(x_1,x_2\) ממשיים, אלו נקודות החיתוך עם ציר \(x\).</p>
+    <p>ציר הסימטריה נמצא בדיוק באמצע:</p>
+    <div class="formula-lg">\[
+      x_{\mathrm{axis}}=\frac{x_1+x_2}{2}.
+    \]</div>
+  </div>
+<div style="height:30px;"></div>
+  <div class="card">
+    <p>רשמו בצורה \(y=a(x-m)(x-n)\):</p>
+    <p>א. \(y=2x^2-12x+10\)</p>
+    <p>ב. \(y=3x^2+24x+36\)</p>
+    <p>ג. \(y=-x^2-4x+21\)</p>
+    <p>ד. \(y=2x^2-72\)</p>
+  </div>
+</div>
+<div class="solution-strip">
+  א. \(2(x-1)(x-5)\) &nbsp;|&nbsp;
+  ב. \(3(x+2)(x+6)\) &nbsp;|&nbsp;
+  ג. \(-(x-3)(x+7)\) &nbsp;|&nbsp;
+  ד. \(2(x-6)(x+6)\)
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-13">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>שלושת הייצוגים - מתי לבחור כל אחד?</h1>
+      <div class="subtitle">שיעור 8 - בחירת ייצוג לפי מטרת השאלה</div>
+    </div>
+    <div class="page-no">13</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-3">
+  <div class="card">
+    <h2>כללית</h2>
+    <div>\[ax^2+bx+c\]</div>
+    <p><strong>יתרון:</strong> חיתוך עם ציר \(y\), חיבור וחיסור פונקציות, שימוש ישיר בנוסחאות.</p>
+  </div>
+  <div class="card">
+    <h2>קודקודית</h2>
+    <div>\[a(x-h)^2+k\]</div>
+    <p><strong>יתרון:</strong> קודקוד, ציר סימטריה, מקסימום/מינימום וטרנספורמציות.</p>
+  </div>
+  <div class="card">
+    <h2>מפורקת</h2>
+    <div>\[a(x-x_1)(x-x_2)\]</div>
+    <p><strong>יתרון:</strong> אפסים, סימן, ומרכז סימטריה בין השורשים.</p>
+  </div>
+</div>
+<div id="g-forms" class="jxgbox wide-graph" data-bbox="-6,8,6,-6"></div>
+<div class="graph-toolbar" data-for="g-forms"></div>
+<div style="height:30px;"></div>
+<div class="question-box"><strong>משימה:</strong> עבור \(f(x)=x^2-6x+5\), כתבו את שלושת הייצוגים והסבירו איזו תכונה של הגרף נראית בקלות בכל ייצוג.</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-14">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>בניית פונקציה מנתונים</h1>
+      <div class="subtitle">שיעור 9 - בחירת הצורה החכמה לפני החישוב</div>
+    </div>
+    <div class="page-no">14</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_">
+  <div class="card">
+    <h2>תבניות עבודה</h2>
+    <p><strong>קודקוד ונקודה:</strong> מתחילים מ-\(y=a(x-h)^2+k\).</p>
+    <p><strong>שני שורשים ונקודה:</strong> מתחילים מ-\(y=a(x-x_1)(x-x_2)\).</p>
+    <p><strong>שלוש נקודות:</strong> מציבים ב-\(y=ax^2+bx+c\) ופותרים מערכת.</p>
+    <p><strong>ציר סימטריה ושורש אחד:</strong> משתמשים בסימטריה למציאת השורש השני.</p>
+  </div>
+<div style="height:30px;"></div>
+  <div class="exercise-card">
+    <div class="source-badge">מקור: 022.png</div>
+    <p>נתונה פרבולה שקודקודה בנקודה \((4,0)\), והיא עוברת דרך הנקודה \((6,-2)\).</p>
+    <p>מצאו את משוואת הפרבולה וכתבו אותה בצורה \(y=ax^2+bx+c\).</p>
+  </div>
+</div>
+<div class="solution-card top-gap">
+  <h3>פתרון</h3>
+  <p>נבחר צורה קודקודית: \(y=a(x-4)^2\).</p>
+  <p>נציב \((6,-2)\): \(-2=4a\), ולכן \(a=-\frac12\).</p>
+  <p>מכאן \(y=-\frac12(x-4)^2=-\frac12x^2+4x-8\).</p>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-15">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>פתרון משוואות ריבועיות - בחירת שיטה</h1>
+      <div class="subtitle">שיעור 10 - אסטרטגיה ולא אלגוריתם יחיד</div>
+    </div>
+    <div class="page-no">15</div>
+  </header>
+  <main class="page-content">
+    
+<div class="method-grid_">
+  <div class="method"><h3>1. פירוק לגורמים</h3><p>כאשר ניתן לזהות גורמים במהירות.</p><div>\[x^2-7x+12=0\]</div></div>
+<div style="height:30px;"></div>
+  <div class="method"><h3>2. הוצאת שורש</h3><p>כאשר מתקבלת צורה \((x-h)^2=r\).</p><div>\[(x-3)^2=20\]</div></div>
+<div style="height:30px;"></div>
+  <div class="method"><h3>3. השלמה לריבוע</h3><p>כאשר רוצים גם משמעות גרפית או פיתוח נוסחה.</p><div>\[x^2+6x-7=0\]</div></div>
+<div style="height:30px;"></div>
+  <div class="method"><h3>4. נוסחת השורשים</h3><p>שיטה כללית, אך לא תמיד הקצרה ביותר.</p><div>\[ax^2+bx+c=0\]</div></div>
+</div>
+<div style="height:30px;"></div>
+<div class="question-box"><strong>מיון:</strong> בחרו את השיטה היעילה ביותר לכל משוואה: \(3x^2-27=0\), \(x^2-10x+25=0\), \(2x^2+3x-7=0\), \((x+4)^2=11\).</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-16">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>הוכחת נוסחת השורשים</h1>
+      <div class="subtitle">שיעור 10 - מקור הנוסחה וקישור לסימטריה</div>
+    </div>
+    <div class="page-no">16</div>
+  </header>
+  <main class="page-content">
+    
+<div class="proof compact-proof">
+  <div class="derivation">
+  \[
+  \begin{aligned}
+  ax^2+bx+c&=0\\
+  x^2+\frac{b}{a}x&=-\frac{c}{a}\\
+  x^2+\frac{b}{a}x+\frac{b^2}{4a^2}
+  &=\frac{b^2-4ac}{4a^2}\\
+  \left(x+\frac{b}{2a}\right)^2
+  &=\frac{b^2-4ac}{4a^2}\\
+  x+\frac{b}{2a}&=\pm\frac{\sqrt{b^2-4ac}}{2a}\\
+  x&=\frac{-b\pm\sqrt{b^2-4ac}}{2a}.
+  \end{aligned}
+  \]
+  </div>
+</div>
+<div class="grid-2 top-gap">
+  <div class="card"><h3>מסקנה 1</h3><p>הביטוי שמתחת לשורש קובע אם קיימים פתרונות ממשיים.</p></div>
+  <div class="card"><h3>מסקנה 2</h3><p>הממוצע של שני השורשים הוא \(-\frac{b}{2a}\), בדיוק ציר הסימטריה.</p></div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-17">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>הדיסקרימיננטה ומשמעותה הגרפית</h1>
+      <div class="subtitle">שיעור 11 - חיבור בין אלגברה לגאומטריה</div>
+    </div>
+    <div class="page-no">17</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-disc" class="jxgbox" data-bbox="-6,8,6,-8"></div>
+    <div class="graph-toolbar" data-for="g-disc"></div>
+    <div id="eq-disc" class="live-equation">\(y=x^2+c\)</div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="formula-lg">\[\Delta=b^2-4ac\]</div>
+      <table>
+        <tr><th>מצב</th><th>משמעות</th></tr>
+        <tr><td>\(\Delta\gt0\)</td><td>שני שורשים ממשיים שונים</td></tr>
+        <tr><td>\(\Delta=0\)</td><td>שורש ממשי כפול</td></tr>
+        <tr><td>\(\Delta\lt0\)</td><td>אין שורשים ממשיים</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-18">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>חיוביות, שליליות ואי-שוויונות ריבועיים</h1>
+      <div class="subtitle">שיעור 12 - פתרון גרפי ואלגברי של אי-שוויונות</div>
+    </div>
+    <div class="page-no">18</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-sign" class="jxgbox" data-bbox="-6,8,6,-8"></div>
+    <div class="graph-toolbar" data-for="g-sign"></div>
+  </div>
+<div style="height:30px;"></div>
+  <div class="card">
+    <h2>אלגוריתם חשיבה</h2>
+    <ol class="exercise-list">
+      <li>מעבירים את כל האיברים לאגף אחד.</li>
+      <li>מוצאים שורשים, אם קיימים.</li>
+      <li>קובעים את כיוון הפתיחה.</li>
+      <li>מסמנים את השורשים על ציר מספרים.</li>
+      <li>קוראים מהגרף או מטבלת הסימנים את התחומים המבוקשים.</li>
+    </ol>
+    <div class="formula-lg">\[
+      (x-x_1)(x-x_2)\gt0
+    \]</div>
+  </div>
+</div>
+<div style="height:30px;"></div>
+<div class="exercise-card">
+  <p>קבעו תחומי חיוביות ושליליות עבור \(f(x)=x^2-9\) ועבור \(g(x)=-x^2+4x\).</p>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-19">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>מספר פתרונות ושאלות פרמטר</h1>
+      <div class="subtitle">שיעור 13 - תרגום תנאים מילוליים לאלגברה</div>
+    </div>
+    <div class="page-no">19</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_">
+  <div class="card">
+    <h2>תבנית מרכזית</h2>
+    <p>עבור המשוואה</p>
+    <div class="formula-lg">\[
+      ax^2+bx+c=0
+    \]</div>
+    <p>מתרגמים תנאי מילולי לתנאי על \(\Delta\):</p>
+    <p>שני פתרונות ⇐ \(\Delta\gt0\)</p>
+    <p>פתרון אחד ⇐ \(\Delta=0\)</p>
+    <p>אין פתרונות ממשיים ⇐ \(\Delta\lt0\)</p>
+  </div>	
+<div style="height:30px;"></div>
+  <div class="exercise-card">
+    <h2>דוגמה 5 יחידות</h2>
+    <p>עבור אילו ערכי \(m\) יש למשוואה \(x^2-2mx+m+3=0\) שני פתרונות ממשיים שונים?</p>
+    <div class="derivation small">
+      \[
+      \Delta=(-2m)^2-4(m+3)=4(m^2-m-3).
+      \]
+    </div>
+    <p>נדרש: \(m^2-m-3\gt0\).</p>
+  </div>
+</div>
+<div class="question-box top-gap"><strong>העמקה:</strong> מה משתנה אם נוסף התנאי ששני השורשים חיוביים?</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-20">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>ישר ופרבולה</h1>
+      <div class="subtitle">שיעור 14 - מצב הדדי בין ישר לפרבולה</div>
+    </div>
+    <div class="page-no">20</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-line" class="jxgbox" data-bbox="-6,10,8,-8"></div>
+    <div class="graph-toolbar" data-for="g-line"></div>
+  </div>
+<div style="height:30px;"></div>
+  <div class="card">
+    <h2>עיקרון</h2>
+    <p>נקודות חיתוך של \(y=f(x)\) ושל \(y=mx+n\) מתקבלות מן המשוואה</p>
+    <div class="formula-lg">\[
+      f(x)=mx+n.
+    \]</div>
+    <p>לאחר סידור מתקבלת משוואה ריבועית, ולכן \(\Delta\) קובע את מספר נקודות החיתוך.</p>
+    <p><strong>השקה:</strong> \(\Delta=0\).</p>
+  </div>
+</div>
+<div style="height:30px;"></div>
+<div class="exercise-card">
+  <p>מצאו עבור אילו ערכי \(t\) הישר \(y=2x+t\) משיק לפרבולה \(y=x^2-4x+7\).</p>
+</div>
+<div class="solution-strip">פותרים \(x^2-6x+(7-t)=0\) ודורשים \(\Delta=0\): \(36-4(7-t)=0\), ולכן \(t=-2\).</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-21">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>שתי פרבולות ופרמטר</h1>
+      <div class="subtitle">שיעור 15 - בחירה חכמה של הצבה ושימוש בשורש ידוע</div>
+    </div>
+    <div class="page-no">21</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-two" class="jxgbox" data-bbox="-4,52,8,-12"></div>
+    <div class="graph-toolbar" data-for="g-two"></div>
+  </div>
+<div style="height:30px;"></div>
+  <div class="exercise-card">
+    <p>נתונות שתי הפרבולות \(y=x^2-x+6\) ו-\(y=ax^2-6x-8\), כאשר \(a\ne0\).</p>
+    <p><strong>א.</strong> לשתי הפרבולות נקודת חיתוך משותפת \((-2,12)\). מצאו את \(a\).</p>
+    <p><strong>ב.</strong> מצאו את נקודת החיתוך השנייה של שתי הפרבולות.</p>
+    <p><strong>ג.</strong> שרטטו סקיצה של \(y=x^2-x+6\).</p>
+  </div>
+</div>
+<div style="height:30px;"></div>
+<div class="solution-card">
+  <p>הצבה ב-\(y=ax^2-6x-8\): \(12=4a+12-8\), ולכן \(a=2\).</p>
+  <p>נשווה: \(x^2-x+6=2x^2-6x-8\), כלומר \(x^2-5x-14=0\).</p>
+  <p>השורשים: \(x=-2,7\). לכן החיתוך השני הוא \((7,48)\).</p>
+</div>
+
+  </main>
+</section>
+
+
+
+
+<section class="page " id="page-22">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>גאומטריה אנליטית עם פרבולה וישר</h1>
+      <div class="subtitle">שיעור 16 - שילוב אלגברה, גרף ושטח</div>
+    </div>
+    <div class="page-no">22</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_ graph-layout">
+  <div>
+    <div id="g-geo34" class="jxgbox" data-bbox="-4,12,10,-8"></div>
+    <div class="graph-toolbar" data-for="g-geo34"></div>
+  </div>
+<div style="height:30px;"></div>
+  <div class="exercise-card">
+    <p>נתונות הפונקציות \((1)\;y=-x^2+8x-7\) ו-\((2)\;y=x+3\).</p>
+    <p><strong>א.</strong> מצאו את שיעורי הנקודות \(A,B,C,D,E,P,Q\) לפי השרטוט.</p>
+    <p><strong>ב.</strong> מן הנקודות \(P,Q\) הורידו אנכים לציר \(x\), החותכים אותו ב-\(N,M\). מצאו את שטח הטרפז \(PQMN\) ואת שטח המשולש \(PMQ\).</p>
+    <p><strong>ג.</strong> האם ערך הפונקציה \((1)\) יכול להיות \(11\)?</p>
+  </div>
+</div>
+<div style="height:30px;"></div>
+<div class="callout">דגש: בשאלות שטח אין להסתפק במציאת נקודות. יש לתרגם את הקואורדינטות לאורך בסיסים וגבהים.</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-23">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>גאומטריה אנליטית - משימת עומק</h1>
+      <div class="subtitle">שיעור 17 - פתרון אינטגרטיבי ברמת 5 יחידות</div>
+    </div>
+    <div class="page-no">23</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2_">
+  <div class="exercise-card">
+    <p>הגרפים הם של הפונקציות \(y=-x^2+8x\) ו-\(y=x-6\). הנקודה \(M\) היא קודקוד הפרבולה. הנקודה \(P\) היא נקודת החיתוך של ציר הסימטריה של הפרבולה עם הישר \(y=x-6\). מן הנקודה \(B\) העלו אנך לציר \(x\), החותך את הפרבולה בנקודה \(Q\).</p>
+    <p><strong>א.</strong> מצאו את שיעורי \(P,Q\).</p>
+    <p><strong>ב.</strong> האם ערך הפונקציה \(y=-x^2+8x\) יכול להיות \(11\)? בכמה נקודות?</p>
+    <p><strong>ג.</strong> מצאו את שטח הטרפז \(MQBP\).</p>
+    <p><strong>ד.</strong> הנקודה \(C\) היא נקודה כלשהי על הישר \(MP\). חשבו את שטח המשולש \(CBQ\).</p>
+  </div>
+<div style="height:30px;"></div>
+  <div class="card">
+    <h2>אסטרטגיית פתרון</h2>
+    <ol class="exercise-list">
+      <li>מצאו קודם את ציר הסימטריה וקודקוד הפרבולה.</li>
+      <li>השתמשו במשוואת הישר כדי למצוא את \(P\).</li>
+      <li>קבעו את \(x_B=x_Q\) מתוך השרטוט והנתונים.</li>
+      <li>תרגמו קואורדינטות לאורכים לפני חישוב שטח.</li>
+      <li>בסעיף ד' חפשו גובה קבוע או בסיס קבוע במקום לחשב נקודה כללית.</li>
+    </ol>
+  </div>
+</div>
+
+  </main>
+</section>
+
+
+
+<section class="page " id="page-24">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>אלגוריתם חקירה מלא של פונקציה ריבועית</h1>
+      <div class="subtitle">דף סיכום לשימוש לאורך כל היחידה</div>
+    </div>
+    <div class="page-no">24</div>
+  </header>
+  <main class="page-content">
+    
+<div class="algorithm">
+  <div class="alg-step"><span>1</span><div><strong>זהו את הייצוג.</strong><p>כללי, קודקודי או מפורק.</p></div></div>
+  <div class="alg-step"><span>2</span><div><strong>כיוון פתיחה ורוחב.</strong><p>קבעו לפי \(a\).</p></div></div>
+  <div class="alg-step"><span>3</span><div><strong>קודקוד וציר סימטריה.</strong><p>מן הצורה המפורשת או \(x=-\frac{b}{2a}\).</p></div></div>
+  <div class="alg-step"><span>4</span><div><strong>חיתוך עם הצירים.</strong><p>\((0,c)\) ופתרון \(f(x)=0\).</p></div></div>
+  <div class="alg-step"><span>5</span><div><strong>תחום ערכים.</strong><p>נקבע לפי הקודקוד וכיוון הפתיחה.</p></div></div>
+  <div class="alg-step"><span>6</span><div><strong>עלייה וירידה.</strong><p>משני צדי ציר הסימטריה.</p></div></div>
+  <div class="alg-step"><span>7</span><div><strong>חיוביות ושליליות.</strong><p>לפי השורשים וכיוון הפתיחה.</p></div></div>
+  <div class="alg-step"><span>8</span><div><strong>סקיצה.</strong><p>סמנו קודקוד, ציר וחיתוכים, ורק אז שרטטו.</p></div></div>
+</div>
+<div class="callout top-gap"><strong>כלל:</strong> אין צורך לחשב כל תכונה בכל שאלה. מתחילים מן הנתונים ומהמטרה ובוחרים את הייצוג שמקצר את הדרך.</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-25">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>תרגול מסכם - רמה א</h1>
+      <div class="subtitle">תרגול מדורג - שליטה במיומנויות המרכזיות</div>
+    </div>
+    <div class="page-no">25</div>
+  </header>
+  <main class="page-content">
+    
+<div class="practice-set">
+  <ol>
+    <li>עבור \(f(x)=2(x-3)^2-8\): מצאו קודקוד, ציר סימטריה, אפסים ותחומי סימן.</li>
+    <li>העבירו את \(f(x)=x^2+6x-7\) לצורה קודקודית ולצורה מפורקת.</li>
+    <li>בנו פונקציה שקודקודה \((-2,5)\) והיא עוברת דרך \((0,1)\).</li>
+    <li>פתרו בדרך היעילה ביותר: \(3x^2-12x=0\).</li>
+    <li>פתרו: \(x^2-4x-1=0\).</li>
+    <li>קבעו עבור אילו \(x\): \(x^2-5x+6\le0\).</li>
+    <li>לפרבולה \(y=ax^2+bx+4\) קודקוד ש-\(x\) שלו הוא \(3\), ו-\(a=2\). מצאו \(b\).</li>
+    <li>מצאו את נקודות החיתוך של \(y=x^2-5x+1\) ו-\(y=x-5\).</li>
+    <li>עבור אילו ערכי \(m\) יש למשוואה \(x^2+mx+9=0\) שורש כפול?</li>
+    <li>עבור \(f(x)=2x^2-7x+3\): מצאו את האפסים, הקודקוד וציר הסימטריה.</li>
+  </ol>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-26">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>תרגול מסכם - רמה ב</h1>
+      <div class="subtitle">תרגול 5 יחידות - פרמטרים, הוכחה וחיבורים</div>
+    </div>
+    <div class="page-no">26</div>
+  </header>
+  <main class="page-content">
+    
+<div class="practice-set dense">
+  <ol>
+    <li>עבור אילו ערכי \(m\) הפונקציה \(f(x)=x^2-2mx+m+2\) חיובית לכל \(x\in\mathbb{R}\)?</li>
+    <li>הישר \(y=3x+t\) משיק לפרבולה \(y=2x^2-x+5\). מצאו את \(t\) ואת נקודת ההשקה.</li>
+    <li>שתי פרבולות \(f(x)=x^2+px+6\), \(g(x)=2x^2-5x+q\) עוברות דרך \((2,0)\). מצאו \(p,q\), ולאחר מכן את נקודת החיתוך השנייה.</li>
+    <li>נתונה הפרבולה \(y=x^2+bx+c\), שקודקודה נמצא על הישר \(x=4\) והיא עוברת דרך \((2,-3)\). מצאו את \(b,c\) ואת הקודקוד.</li>
+    <li>נתונה \(f(x)=a(x-1)^2-9\). ידוע שאחד האפסים הוא \(4\). מצאו \(a\), את האפס השני ואת הצורה הכללית.</li>
+    <li>הוכיחו כי אם \(ax^2+bx+c=0\) בעל שני שורשים ממשיים שונים, אז ציר הסימטריה נמצא ביניהם.</li>
+    <li>מצאו את כל ערכי \(m\) שעבורם לגרפים \(y=x^2-4x+m\) ו-\(y=2x+1\) אין נקודת חיתוך.</li>
+    <li>עבור \(f_k(x)=x^2+4x+k\), סווגו לפי \(k\): שתי נקודות חיתוך עם ציר \(x\), השקה, ללא חיתוך.</li>
+  </ol>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-27">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>טעויות נפוצות והוראה מתקנת</h1>
+      <div class="subtitle">כלי למורה - אבחון מהיר והתערבות ממוקדת</div>
+    </div>
+    <div class="page-no">27</div>
+  </header>
+  <main class="page-content">
+    
+<div class="grid-2">
+  <div class="error-card">
+    <h3>טעות: קודקוד \((-b,c)\)</h3>
+    <p><strong>תיקון:</strong> לחזור להשלמה לריבוע ולהראות ש-\(b\) אינו הזזה עצמאית.</p>
+  </div>
+  <div class="error-card">
+    <h3>טעות: \(|a|\) נשכח</h3>
+    <p><strong>תיקון:</strong> להשוות \(a=2\) ו-\(a=-2\) ולבודד כיוון מול רוחב.</p>
+  </div>
+  <div class="error-card">
+    <h3>טעות: אי-שוויון נפתר רק בין השורשים</h3>
+    <p><strong>תיקון:</strong> תמיד לצייר סקיצה או טבלת סימנים ולבדוק את כיוון הפתיחה.</p>
+  </div>
+  <div class="error-card">
+    <h3>טעות: \(\Delta=0\) פירושו "אין פתרון"</h3>
+    <p><strong>תיקון:</strong> להציג השקה לציר \(x\) ושורש כפול.</p>
+  </div>
+  <div class="error-card">
+    <h3>טעות: שימוש אוטומטי בנוסחת השורשים</h3>
+    <p><strong>תיקון:</strong> משימות "בחרו שיטה" לפני כל פתרון.</p>
+  </div>
+  <div class="error-card">
+    <h3>טעות: שרטוט לפני נקודות מפתח</h3>
+    <p><strong>תיקון:</strong> חובה לסמן קודקוד, ציר וחיתוכים לפני ציור הקשת.</p>
+  </div>
+</div>
+
+  </main>
+</section>
+
+<section class="page " id="page-28">
+  <header class="page-header">
+    <div>
+      <div class="page-kicker">פונקציה ריבועית - 5 יחידות</div>
+      <h1>הערכה מסכמת</h1>
+      <div class="subtitle">כלי למורה - בדיקת ידע, אסטרטגיה ונימוק</div>
+    </div>
+    <div class="page-no">28</div>
+  </header>
+  <main class="page-content">
+<div class="question-box top-gap"> עבור \(f_m(x)=x^2-2mx+m+3\), חקרו את מספר האפסים, את מיקום הקודקוד ואת תחומי החיוביות כתלות ב-\(m\).</div>
+
+  </main>
+</section>
+
+<script>
+(function(){
+  const boards = {};
+  const defaults = {};
+
+  function bboxFrom(el){
+    return el.dataset.bbox.split(',').map(Number);
+  }
+  function initBoard(id, options){
+    const el = document.getElementById(id);
+    const bbox = bboxFrom(el);
+    defaults[id] = bbox.slice();
+    const board = JXG.JSXGraph.initBoard(id, Object.assign({
+      boundingbox:bbox,
+      axis:true,
+      showCopyright:false,
+      showNavigation:false,
+      pan:{enabled:true},
+      zoom:{enabled:true,wheel:true,needShift:false}
+    }, options || {}));
+    boards[id] = board;
+    return board;
+  }
+  function toolbar(id){
+    const host = document.querySelector('.graph-toolbar[data-for="'+id+'"]');
+    if(!host) return;
+    const board = boards[id];
+    const mk=(label,fn)=>{
+      const b=document.createElement('button');
+      b.type='button'; b.textContent=label; b.addEventListener('click',fn); host.appendChild(b);
+    };
+    mk('הגדלה +',()=>board.zoomIn());
+    mk('הקטנה -',()=>board.zoomOut());
+    mk('מרכז',()=>board.setBoundingBox(defaults[id],false));
+    mk('איפוס',()=>{board.setBoundingBox(defaults[id],false); board.fullUpdate();});
+  }
+  function curve(board, fn, attrs){
+    return board.create('functiongraph',[fn],Object.assign({strokeWidth:2.5},attrs||{}));
+  }
+  function point(board, p, name){
+    return board.create('point',p,{name:name,size:3,fixed:true});
+  }
+  function typeset(id, tex){
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.innerHTML='\\('+tex+'\\)';
+    if(window.MathJax && MathJax.typesetPromise){
+      MathJax.typesetPromise([el]).catch(()=>{});
+    }
+  }
+
+  // Cover
+  let b=initBoard('g-cover');
+  curve(b,x=>0.5*(x-1)*(x-1)+1,{strokeColor:'#3157d5'});
+  curve(b,x=>-0.35*(x+1)*(x+1)+5,{strokeColor:'#7a3ff2'});
+  point(b,[1,1],'V');
+  toolbar('g-cover');
+
+  // Base
+  b=initBoard('g-base');
+  curve(b,x=>x*x,{strokeColor:'#3157d5'});
+  point(b,[0,0],'V');
+  b.create('line',[[0,-2],[0,10]],{strokeColor:'#9aa4b2',dash:2,fixed:true});
+  toolbar('g-base');
+
+  // a slider
+  b=initBoard('g-a');
+  const sa=b.create('slider',[[-4,-6],[4,-6],[-3,1,3]],{name:'a',snapWidth:0.25});
+  curve(b,x=>sa.Value()*x*x,{strokeColor:'#3157d5'});
+  b.on('update',()=>typeset('eq-a','y='+sa.Value().toFixed(2)+'x^2'));
+  toolbar('g-a');
+
+  // transform sliders
+  b=initBoard('g-transform',{axis:true});
+  const ta=b.create('slider',[[-6,-4.8],[-1.8,-4.8],[-3,1,3]],{name:'a',snapWidth:0.5});
+  const th=b.create('slider',[[-0.8,-4.8],[3.4,-4.8],[-4,0,4]],{name:'h',snapWidth:0.5});
+  const tk=b.create('slider',[[4.2,-4.8],[6.6,-4.8],[-3,0,3]],{name:'k',snapWidth:0.5});
+  curve(b,x=>ta.Value()*(x-th.Value())*(x-th.Value())+tk.Value(),{strokeColor:'#3157d5'});
+  b.create('point',[()=>th.Value(),()=>tk.Value()],{name:'V',size:3,strokeColor:'#7a3ff2',fillColor:'#7a3ff2'});
+  b.on('update',()=>typeset('eq-transform','y='+ta.Value().toFixed(1)+'(x-'+th.Value().toFixed(1)+')^2+'+tk.Value().toFixed(1)));
+  toolbar('g-transform');
+
+  // Standard form
+  b=initBoard('g-standard');
+  const sb=b.create('slider',[[-5,-4.8],[-1.8,-4.8],[-6,-2,6]],{name:'b',snapWidth:1});
+  curve(b,x=>x*x+sb.Value()*x+4,{strokeColor:'#3157d5'});
+  point(b,[0,4],'(0,c)');
+  toolbar('g-standard');
+
+  // Forms
+  b=initBoard('g-forms');
+  curve(b,x=>x*x-6*x+5,{strokeColor:'#3157d5'});
+  point(b,[1,0],'x₁');
+  point(b,[5,0],'x₂');
+  point(b,[3,-4],'V');
+  b.create('line',[[3,-6],[3,8]],{dash:2,strokeColor:'#7a3ff2',fixed:true});
+  toolbar('g-forms');
+
+  // Discriminant
+  b=initBoard('g-disc');
+  const sc=b.create('slider',[[-5,-6],[-1,-6],[-5,0,5]],{name:'c',snapWidth:0.5});
+  curve(b,x=>x*x+sc.Value(),{strokeColor:'#3157d5'});
+  b.on('update',()=>typeset('eq-disc','y=x^2+'+sc.Value().toFixed(1)));
+  toolbar('g-disc');
+
+  // sign
+  b=initBoard('g-sign');
+  curve(b,x=>x*x-4*x,{strokeColor:'#3157d5'});
+  point(b,[0,0],'0');
+  point(b,[4,0],'4');
+  toolbar('g-sign');
+
+  // line parabola
+  b=initBoard('g-line');
+  curve(b,x=>x*x-4*x+7,{strokeColor:'#3157d5'});
+  curve(b,x=>2*x-2,{strokeColor:'#7a3ff2'});
+  toolbar('g-line');
+
+  // two parabolas
+  b=initBoard('g-two');
+  curve(b,x=>x*x-x+6,{strokeColor:'#3157d5'});
+  curve(b,x=>2*x*x-6*x-8,{strokeColor:'#7a3ff2'});
+  point(b,[-2,12],'A');
+  toolbar('g-two');
+
+  // analytic geometry 034
+  b=initBoard('g-geo34');
+  curve(b,x=>-x*x+8*x-7,{strokeColor:'#3157d5'});
+  curve(b,x=>x+3,{strokeColor:'#7a3ff2'});
+  point(b,[2,5],'P');
+  point(b,[5,8],'Q');
+  b.create('segment',[[2,0],[2,5]],{dash:2,strokeColor:'#9aa4b2'});
+  b.create('segment',[[5,0],[5,8]],{dash:2,strokeColor:'#9aa4b2'});
+  toolbar('g-geo34');
+
+  window.addEventListener('resize',()=>{
+    Object.values(boards).forEach(board=>board.resizeContainer(board.containerObj.clientWidth, board.containerObj.clientHeight));
+  });
+})();
+</script>
+</body>
+</html>
