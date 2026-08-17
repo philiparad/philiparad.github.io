@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מערך שיעור — פונקציה זוגית ופונקציה אי־זוגית | 5 יח״ל</title>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true,
+        packages: {'[+]': ['ams']}
+      },
+      chtml: {scale: 1.02},
+      options: {skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']},
+      startup: {typeset: true}
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --ink: #16324f;
+      --muted: #5d6b7a;
+      --blue: #1769aa;
+      --cyan: #16a3b6;
+      --red: #c43d4f;
+      --gold: #d69024;
+      --green: #18845c;
+      --purple: #7754a5;
+      --paper: #ffffff;
+      --wash: #f4f8fc;
+      --line: #cfdbe7;
+      --soft-blue: #eaf4fc;
+      --soft-gold: #fff5df;
+      --soft-red: #fff0f2;
+      --soft-green: #eaf8f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #dfe7ee;
+      color: var(--ink);
+      font-family: "Arial", "Noto Sans Hebrew", sans-serif;
+      font-size: 16px;
+      line-height: 1.42;
+    }
+
+    body { overflow-x: hidden; }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8mm;
+      padding: 8mm 0;
+    }
+
+    section.page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      min-width: 210mm;
+      min-height: 297mm;
+      max-width: 210mm;
+      max-height: 297mm;
+      padding: 14mm 15mm 13mm;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: 0 4px 18px rgba(28, 49, 70, 0.16);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    section.page:last-child { page-break-after: auto; break-after: auto; }
+
+    .page-content { height: 260mm; overflow: hidden; }
+
+    .page-header {
+      height: 10mm;
+      margin-bottom: 4mm;
+      padding-bottom: 2mm;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .page-footer {
+      position: absolute;
+      right: 15mm;
+      left: 15mm;
+      bottom: 6mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 2mm;
+    }
+
+    h1, h2, h3, h4 { margin: 0; line-height: 1.18; }
+    h1 { font-size: 34px; }
+    h2 { font-size: 25px; color: var(--blue); margin-bottom: 4mm; }
+    h3 { font-size: 19px; color: var(--ink); margin-bottom: 2mm; }
+    h4 { font-size: 16px; color: var(--blue); margin-bottom: 1.5mm; }
+    p { margin: 0 0 2.5mm; }
+    ul, ol { margin: 1.5mm 0 3mm; padding-right: 6mm; }
+    li { margin-bottom: 1.2mm; }
+    a { color: var(--blue); text-decoration: none; }
+
+    .ltr, mjx-container { direction: ltr; unicode-bidi: isolate; }
+    mjx-container[display="true"] { margin: 2.2mm 0 !important; }
+
+    .cover {
+      background:
+        radial-gradient(circle at 14% 14%, rgba(22, 163, 182, 0.18), transparent 24%),
+        radial-gradient(circle at 87% 82%, rgba(214, 144, 36, 0.18), transparent 22%),
+        linear-gradient(145deg, #f7fbff 0%, #ffffff 48%, #edf6fb 100%) !important;
+    }
+
+    .cover-band {
+      height: 6mm;
+      background: linear-gradient(90deg, var(--blue), var(--cyan), var(--gold));
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+    }
+
+    .cover-main {
+      height: 252mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6mm 8mm 0;
+    }
+
+    .kicker {
+      display: inline-block;
+      color: var(--blue);
+      background: var(--soft-blue);
+      border: 1px solid #b9d8ef;
+      border-radius: 999px;
+      padding: 2mm 5mm;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8mm;
+    }
+
+    .cover h1 { max-width: 155mm; color: var(--ink); }
+    .cover .subtitle { font-size: 21px; color: var(--muted); margin: 5mm 0 9mm; }
+
+    .formula-hero {
+      direction: ltr;
+      width: 146mm;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+      margin: 4mm 0 10mm;
+    }
+
+    .formula-hero > div {
+      border-radius: 5mm;
+      padding: 5mm;
+      background: rgba(255,255,255,0.86);
+      border: 2px solid var(--line);
+      font-size: 19px;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4mm;
+      width: 150mm;
+    }
+
+    .meta-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 4mm;
+      padding: 4mm 3mm;
+    }
+
+    .meta-card strong { display: block; color: var(--blue); margin-bottom: 1mm; }
+
+    .box {
+      border: 1px solid var(--line);
+      border-right: 4px solid var(--blue);
+      border-radius: 3mm;
+      padding: 3.5mm 4mm;
+      margin: 3mm 0;
+      background: var(--wash);
+      break-inside: avoid;
+    }
+
+    .box.gold { border-right-color: var(--gold); background: var(--soft-gold); }
+    .box.red { border-right-color: var(--red); background: var(--soft-red); }
+    .box.green { border-right-color: var(--green); background: var(--soft-green); }
+    .box.purple { border-right-color: var(--purple); background: #f4effa; }
+
+    .definition {
+      background: linear-gradient(135deg, #f6fbff, #edf6fc);
+      border: 2px solid #a9d0eb;
+      border-radius: 4mm;
+      padding: 4mm 5mm;
+      margin: 3mm 0;
+    }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+    .four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+    .align-start { align-items: start; }
+    .center { text-align: center; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      padding: 3.5mm;
+      background: #fff;
+      break-inside: avoid;
+    }
+
+    .card.blue { border-top: 4px solid var(--blue); }
+    .card.red { border-top: 4px solid var(--red); }
+    .card.green { border-top: 4px solid var(--green); }
+    .card.gold { border-top: 4px solid var(--gold); }
+    .card.purple { border-top: 4px solid var(--purple); }
+
+    .step-list { counter-reset: lesson-step; list-style: none; padding: 0; }
+    .step-list li {
+      position: relative;
+      padding: 2.4mm 11mm 2.4mm 3mm;
+      margin-bottom: 2mm;
+      background: var(--wash);
+      border-radius: 2.5mm;
+      border: 1px solid var(--line);
+    }
+    .step-list li::before {
+      counter-increment: lesson-step;
+      content: counter(lesson-step);
+      position: absolute;
+      right: 2.5mm;
+      top: 2.1mm;
+      width: 6mm;
+      height: 6mm;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--blue);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 3mm 0;
+      font-size: 15px;
+    }
+    th, td { border: 1px solid var(--line); padding: 2.2mm 2.5mm; vertical-align: top; }
+    th { background: var(--ink); color: white; font-weight: 700; }
+    tbody tr:nth-child(even) { background: #f7fafc; }
+
+    .graph-wrap {
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      background: #fff;
+      padding: 2.5mm;
+      break-inside: avoid;
+    }
+
+    .graph-title { text-align: center; font-weight: 700; color: var(--ink); margin-bottom: 1.5mm; }
+    .graph-note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 1.5mm; }
+
+    .jxgbox {
+      direction: ltr;
+      width: 100%;
+      height: 65mm;
+      border: 0 !important;
+      background: #fff;
+      touch-action: none;
+    }
+
+    .jxgbox.small { height: 48mm; }
+    .jxgbox.tiny { height: 39mm; }
+    .jxgbox.wide { height: 73mm; }
+    .JXGtext { font-family: Arial, sans-serif !important; font-size: 13px !important; }
+
+    .callout {
+      display: flex;
+      align-items: flex-start;
+      gap: 3mm;
+      padding: 3mm;
+      border-radius: 3mm;
+      background: var(--soft-gold);
+      border: 1px solid #eccd90;
+      margin: 3mm 0;
+    }
+    .callout .icon { font-size: 22px; line-height: 1; }
+
+    .example-line {
+      display: grid;
+      grid-template-columns: 24mm 1fr;
+      gap: 3mm;
+      padding: 2mm 0;
+      border-bottom: 1px dashed var(--line);
+    }
+    .example-line:last-child { border-bottom: 0; }
+    .example-line strong { color: var(--blue); }
+
+    .exercise-list { counter-reset: exercise; list-style: none; padding: 0; margin: 0; }
+    .exercise-list li {
+      counter-increment: exercise;
+      position: relative;
+      padding: 2.4mm 11mm 2.4mm 3mm;
+      border-bottom: 1px solid var(--line);
+      min-height: 12mm;
+    }
+    .exercise-list li::before {
+      content: counter(exercise);
+      position: absolute;
+      right: 0;
+      top: 2.2mm;
+      width: 8mm;
+      height: 8mm;
+      border-radius: 2mm;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+    }
+    .exercise-list.start-9 { counter-reset: exercise 8; }
+    .exercise-list.start-17 { counter-reset: exercise 16; }
+
+    .solution-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+    .solution {
+      border: 1px solid var(--line);
+      border-radius: 2.5mm;
+      padding: 2.5mm 3mm;
+      background: #fbfdff;
+      min-height: 32mm;
+      font-size: 15px;
+    }
+    .solution strong { color: var(--blue); }
+    .solution p { margin-bottom: 1.2mm; }
+
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 0.6mm 2.3mm;
+      color: white;
+      background: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+      margin-left: 1.5mm;
+    }
+    .tag.green { background: var(--green); }
+    .tag.gold { background: var(--gold); }
+    .tag.red { background: var(--red); }
+    .tag.purple { background: var(--purple); }
+
+    .checklist { columns: 2; column-gap: 8mm; }
+    .checklist li { break-inside: avoid; }
+
+    .source-list { font-size: 14px; line-height: 1.35; }
+    .source-list li { margin-bottom: 1.4mm; }
+
+    .page-mini-title { color: var(--muted); font-size: 14px; font-weight: 700; }
+    .no-margin { margin: 0; }
+    .mb-2 { margin-bottom: 2mm; }
+    .mb-3 { margin-bottom: 3mm; }
+    .mb-4 { margin-bottom: 4mm; }
+    .mt-3 { margin-top: 3mm; }
+
+    @media print {
+      @page { size: A4; margin: 0; }
+      html, body { width: 210mm; background: white; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      main { display: block; padding: 0; }
+      section.page { margin: 0; box-shadow: none; }
+    }
+
+    @media screen and (max-width: 900px) {
+      main { align-items: flex-start; }
+      section.page { transform-origin: top right; }
+    }
+  </style>
+</head>
+
+<body>
+<main>
+
+  <!-- PAGE 1 -->
+  <section class="page cover" data-page="1">
+    <div class="cover-band"></div>
+    <div class="cover-main">
+      <div class="kicker">מערך שיעור ללמידה עצמית ולכיתה • מתמטיקה 5 יח״ל</div>
+      <h1>פונקציה זוגית<br>ופונקציה אי־זוגית</h1>
+      <div class="subtitle">מהסימטריה הגרפית אל ההוכחה האלגברית</div>
+
+      <div class="formula-hero">
+        <div>\(f(-x)=f(x)\)</div>
+        <div>\(f(-x)=-f(x)\)</div>
+      </div>
+
+      <div class="cover-meta">
+        <div class="meta-card"><strong>רמה</strong>5 יחידות לימוד</div>
+        <div class="meta-card"><strong>היקף מומלץ</strong>3–4 שיעורים</div>
+        <div class="meta-card"><strong>תרגול</strong>24 שאלות מדורגות</div>
+      </div>
+
+      <div class="box green" style="width:150mm; margin-top:10mm; text-align:right;">
+        <strong>מטרת־העל:</strong> לקשר באופן מדויק בין סימטריה של גרף, תחום ההגדרה והזהות האלגברית; להשתמש בזוגיות כדי להשלים גרפים ולהסיק מידע בלי לחקור את הפונקציה מחדש.
+      </div>
+    </div>
+    <div class="page-footer"><span>מערך שיעור: פונקציות זוגיות ואי־זוגיות</span><span>1</span></div>
+  </section>
+
+  <!-- PAGE 2 -->
+  <section class="page" data-page="2">
+    <div class="page-header"><span>תכנון השיעור</span><span>לפני שמתחילים</span></div>
+    <div class="page-content">
+      <h2>מטרות, ידע קודם ורצף ההוראה</h2>
+
+      <div class="two-col align-start">
+        <div class="card blue">
+          <h3>בסיום הלמידה התלמיד יוכל</h3>
+          <ul>
+            <li>לבדוק אם תחום ההגדרה סימטרי ביחס ל־\(0\).</li>
+            <li>לזהות זוגיות מתוך גרף ומתוך ביטוי אלגברי.</li>
+            <li>להוכיח באמצעות חישוב \(f(-x)\).</li>
+            <li>להבחין בין זוגית, אי־זוגית ובין אף אחת מהן.</li>
+            <li>להשלים חצי גרף בעזרת הסימטריה המתאימה.</li>
+            <li>להסיק מידע על אפסים, קיצון ועלייה וירידה.</li>
+            <li>לקבוע זוגיות של סכום ומכפלה של פונקציות.</li>
+          </ul>
+        </div>
+
+        <div class="card gold">
+          <h3>ידע קודם נדרש</h3>
+          <ul>
+            <li>תחום הגדרה של פולינום, שורש ומנה.</li>
+            <li>הצבת ביטוי במקום משתנה.</li>
+            <li>חוקי חזקות ופישוט אלגברי.</li>
+            <li>קריאת נקודות וקטעים מתוך גרף.</li>
+            <li>סימטריה ביחס לציר וביחס לנקודה.</li>
+          </ul>
+          <div class="box red">
+            <strong>מוקד קושי צפוי:</strong> הצבה של \(-x\) בכל מופע של \(x\), כולל בתוך סוגריים, שורש ומכנה.
+          </div>
+        </div>
+      </div>
+
+      <h3 class="mt-3">רצף הוראה מומלץ</h3>
+      <ol class="step-list">
+        <li><strong>שיעור 1:</strong> סימטריה של נקודות, זיהוי חזותי והגדרות.</li>
+        <li><strong>שיעור 2:</strong> בדיקה אלגברית, תחום סימטרי ושלוש אפשרויות המיון.</li>
+        <li><strong>שיעור 3:</strong> השלמת גרפים, מסקנות וכללי פעולות על פונקציות.</li>
+        <li><strong>שיעור 4:</strong> שאלות פרמטר, טענות, הפרכות ותרגול מסכם.</li>
+      </ol>
+
+      <div class="callout">
+        <div class="icon">✓</div>
+        <div><strong>הערכה מעצבת:</strong> בכל שלב יש לבקש לא רק תשובה אלא גם נימוק: תחום, חישוב \(f(-x)\), השוואה ומסקנה.</div>
+      </div>
+    </div>
+    <div class="page-footer"><span>מטרות ורצף הוראה</span><span>2</span></div>
+  </section>
+
+  <!-- PAGE 3 -->
+  <section class="page" data-page="3">
+    <div class="page-header"><span>חלק א</span><span>מסימטריה של נקודות לסימטריה של גרף</span></div>
+    <div class="page-content">
+      <h2>שתי סימטריות — שני סוגי פונקציות</h2>
+
+      <div class="two-col">
+        <div class="graph-wrap">
+          <div class="graph-title">סימטריה ביחס לציר \(y\)</div>
+          <div id="graph-even-intro" class="jxgbox"></div>
+          <div class="graph-note">הנקודות \((x,y)\) ו־\((-x,y)\) מופיעות בזוגות.</div>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-title">סימטריה ביחס לראשית</div>
+          <div id="graph-odd-intro" class="jxgbox"></div>
+          <div class="graph-note">הנקודות \((x,y)\) ו־\((-x,-y)\) מופיעות בזוגות.</div>
+        </div>
+      </div>
+
+      <div class="two-col mt-3">
+        <div class="definition">
+          <h3>פונקציה זוגית</h3>
+          אם \((x,f(x))\) נמצאת על הגרף, גם \((-x,f(x))\) נמצאת עליו. לכן שני צדי הגרף הם תמונת־ראי ביחס לציר \(y\).
+        </div>
+        <div class="definition">
+          <h3>פונקציה אי־זוגית</h3>
+          אם \((x,f(x))\) נמצאת על הגרף, גם \((-x,-f(x))\) נמצאת עליו. אפשר לקבל את הצד השני בסיבוב של \(180^\circ\) סביב הראשית.
+        </div>
+      </div>
+
+      <div class="box gold">
+        <h3>בדיקת הבנה מהירה</h3>
+        <p>על גרף זוגי נמצאת הנקודה \((3,-2)\). איזו נקודה נוספת חייבת להימצא עליו?</p>
+        <p><strong>תשובה:</strong> \((-3,-2)\).</p>
+        <p>על גרף אי־זוגי נמצאת הנקודה \((3,-2)\). איזו נקודה נוספת חייבת להימצא עליו?</p>
+        <p><strong>תשובה:</strong> \((-3,2)\).</p>
+      </div>
+
+      <div class="callout">
+        <div class="icon">!</div>
+        <div><strong>אין “סימטריה ביחס לציר \(x\)” לפונקציה רגילה שאינה אפס:</strong> נקודות \((x,y)\) ו־\((x,-y)\) היו נותנות שני ערכי \(y\) לאותו \(x\).</div>
+      </div>
+    </div>
+    <div class="page-footer"><span>המשמעות הגאומטרית</span><span>3</span></div>
+  </section>
+
+  <!-- PAGE 4 -->
+  <section class="page" data-page="4">
+    <div class="page-header"><span>חלק ב</span><span>הגדרה מדויקת ותחום ההגדרה</span></div>
+    <div class="page-content">
+      <h2>לפני הזהות: בודקים את התחום</h2>
+
+      <div class="definition">
+        <h3>מה צריך לבדוק לפני שמתחילים?</h3>
+        לכל מספר שאפשר להציב בפונקציה, צריך להיות אפשר להציב גם את המספר הנגדי לו.
+        לדוגמה, אם אפשר להציב שלוש, צריך להיות אפשר להציב גם מינוס שלוש; ואם אפשר להציב חמש, צריך להיות אפשר להציב גם מינוס חמש.
+      </div>
+
+      <table>
+        <thead><tr><th>תחום</th><th>סימטרי?</th><th>נימוק</th></tr></thead>
+        <tbody>
+          <tr><td>\(\mathbb{R}\)</td><td>כן</td><td>לכל מספר ממשי גם הנגדי הוא ממשי.</td></tr>
+          <tr><td>\([-4,4]\)</td><td>כן</td><td>הקצוות נגדיים והמרחקים מ־\(0\) שווים.</td></tr>
+          <tr><td>\(( -\infty,-2]\cup[2,\infty )\)</td><td>כן</td><td>שני חלקי התחום משתקפים זה בזה.</td></tr>
+          <tr><td>\([-3,5]\)</td><td>לא</td><td>\(5\) בתחום, אך \(-5\) אינו בתחום.</td></tr>
+          <tr><td>\([0,\infty)\)</td><td>לא</td><td>מספר חיובי בתחום, אך הנגדי לו אינו בתחום.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="two-col mt-3">
+        <div class="card blue">
+          <h3>פונקציה זוגית</h3>
+          <p>פונקציה נקראת זוגית כאשר לכל מספר שאפשר להציב בה, אפשר להציב גם את המספר הנגדי לו, ושתי ההצבות נותנות אותה תוצאה.</p>
+          <p>בציור הפונקציה, הצד הימני והצד השמאלי נראים כתמונות ראי זה של זה ביחס לקו האנכי העובר באמצע.</p>
+        </div>
+        <div class="card red">
+          <h3>פונקציה אי־זוגית</h3>
+          <p>פונקציה נקראת אי־זוגית כאשר לכל מספר שאפשר להציב בה, אפשר להציב גם את המספר הנגדי לו, והתוצאות המתקבלות הן מספרים נגדיים.</p>
+          <p>בציור הפונקציה, סיבוב של חצי סיבוב סביב נקודת המפגש של שני הקווים משאיר את הציור ללא שינוי.</p>
+        </div>
+      </div>
+
+      <div class="box red">
+        <h3>דוגמה מכריעה</h3>
+        <p>הפונקציה \(f(x)=\sqrt{x}\) מוגדרת בתחום \([0,\infty)\). הביטוי \(f(-x)\) אינו מוגדר עבור כל \(x>0\), ולכן הפונקציה אינה זוגית ואינה אי־זוגית.</p>
+        <p><strong>מסקנה:</strong> אי אפשר להתחיל בפישוט \(f(-x)\) לפני שבודקים את התחום.</p>
+      </div>
+    </div>
+    <div class="page-footer"><span>תחום סימטרי והגדרות</span><span>4</span></div>
+  </section>
+
+  <!-- PAGE 5 -->
+  <section class="page" data-page="5">
+    <div class="page-header"><span>חלק ג</span><span>אלגוריתם הבדיקה האלגברית</span></div>
+    <div class="page-content">
+      <h2>כיצד מוכיחים זוגיות?</h2>
+
+      <ol class="step-list">
+        <li>מוצאים את תחום ההגדרה ובודקים שהוא סימטרי ביחס ל־\(0\).</li>
+        <li>מעתיקים את הביטוי ומציבים \(-x\) במקום כל מופע של \(x\).</li>
+        <li>מפשטים בזהירות, במיוחד חזקות, סוגריים, שורשים ומכנים.</li>
+        <li>משווים: האם התקבל \(f(x)\), האם התקבל \(-f(x)\), או אף אחד מהם?</li>
+      </ol>
+
+      <div class="three-col align-start">
+        <div class="card blue">
+          <h3>דוגמה 1 — זוגית</h3>
+          \[f(x)=3x^4-2x^2+5\]
+          \[\begin{aligned}f(-x)&=3(-x)^4-2(-x)^2+5\\&=3x^4-2x^2+5\\&=f(x)\end{aligned}\]
+          <p><strong>מסקנה:</strong> \(f\) זוגית.</p>
+        </div>
+
+        <div class="card red">
+          <h3>דוגמה 2 — אי־זוגית</h3>
+          \[g(x)=2x^5-7x\]
+          \[\begin{aligned}g(-x)&=2(-x)^5-7(-x)\\&=-2x^5+7x\\&=-g(x)\end{aligned}\]
+          <p><strong>מסקנה:</strong> \(g\) אי־זוגית.</p>
+        </div>
+
+        <div class="card gold">
+          <h3>דוגמה 3 — אף אחת</h3>
+          \[h(x)=x^2+2x+1\]
+          \[h(-x)=x^2-2x+1\]
+          <p>הביטוי אינו שווה ל־\(h(x)\) ואינו שווה ל־\(-h(x)\).</p>
+          <p><strong>מסקנה:</strong> לא זוגית ולא אי־זוגית.</p>
+        </div>
+      </div>
+
+      <div class="two-col mt-3">
+        <div class="graph-wrap">
+          <div class="graph-title">\(f(x)=3x^4-2x^2+5\)</div>
+          <div id="graph-test-even" class="jxgbox small"></div>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-title">\(g(x)=2x^5-7x\)</div>
+          <div id="graph-test-odd" class="jxgbox small"></div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="icon">⚠</div>
+        <div><strong>טעות נפוצה:</strong> “בפולינום ממעלה זוגית הפונקציה זוגית”. הטענה שגויה. למשל \(x^4+x\) הוא פולינום ממעלה זוגית, אך אינו פונקציה זוגית.</div>
+      </div>
+    </div>
+    <div class="page-footer"><span>בדיקה אלגברית</span><span>5</span></div>
+  </section>
+
+  <!-- PAGE 6 -->
+  <section class="page" data-page="6">
+    <div class="page-header"><span>חלק ד</span><span>משפחות מוכרות ודפוסים שימושיים</span></div>
+    <div class="page-content">
+      <h2>בונים “ספריית פונקציות”</h2>
+
+      <div class="three-col">
+        <div class="graph-wrap">
+          <div class="graph-title">\(|x|\) — זוגית</div>
+          <div id="graph-family-abs" class="jxgbox tiny"></div>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-title">\(x^3\) — אי־זוגית</div>
+          <div id="graph-family-cubic" class="jxgbox tiny"></div>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-title">\(1/x\) — אי־זוגית</div>
+          <div id="graph-family-recip" class="jxgbox tiny"></div>
+        </div>
+      </div>
+
+      <table>
+        <thead><tr><th>משפחה</th><th>דוגמאות זוגיות</th><th>דוגמאות אי־זוגיות</th><th>הערה</th></tr></thead>
+        <tbody>
+          <tr><td>חזקות</td><td>\(x^2,x^4,x^6\)</td><td>\(x,x^3,x^5\)</td><td>המעריך קובע את הסימן לאחר הצבת \(-x\).</td></tr>
+          <tr><td>פולינומים</td><td>רק חזקות זוגיות וקבוע</td><td>רק חזקות אי־זוגיות וללא קבוע</td><td>ערבוב שני הסוגים יוצר בדרך כלל “אף אחת”.</td></tr>
+          <tr><td>ערך מוחלט</td><td>\(|x|,\ |x|^3\)</td><td>\(x|x|\)</td><td>\(|-x|=|x|\).</td></tr>
+          <tr><td>שורשים</td><td>\(\sqrt{x^2+1}\)</td><td>\(x\sqrt{x^2+1}\)</td><td>יש לבדוק תחום לפני המיון.</td></tr>
+          <tr><td>טריגונומטריה</td><td>\(\cos x\)</td><td>\(\sin x,\tan x\)</td><td>התחומים של שלושתן סימטריים.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="two-col">
+        <div class="box green">
+          <h3>דוגמה עם שורש</h3>
+          \[p(x)=x\sqrt{x^2+4}\]
+          \[p(-x)=(-x)\sqrt{(-x)^2+4}=-x\sqrt{x^2+4}=-p(x)\]
+          ולכן \(p\) אי־זוגית.
+        </div>
+        <div class="box purple">
+          <h3>דוגמה עם מנה</h3>
+          \[q(x)=\frac{x}{x^2+1}\]
+          \[q(-x)=\frac{-x}{(-x)^2+1}=-\frac{x}{x^2+1}=-q(x)\]
+          ולכן \(q\) אי־זוגית.
+        </div>
+      </div>
+
+      <div class="box red">
+        <strong>זהירות:</strong> \(\sqrt{x^2}=|x|\), ולא \(x\). ההבחנה הזאת חיונית בבדיקת זוגיות של ביטויים עם שורש.
+      </div>
+    </div>
+    <div class="page-footer"><span>משפחות ודפוסים</span><span>6</span></div>
+  </section>
+
+  <!-- PAGE 7 -->
+  <section class="page" data-page="7">
+    <div class="page-header"><span>חלק ה</span><span>השלמת גרף מחצי תחום</span></div>
+    <div class="page-content">
+      <h2>מספיק לדעת חצי מן הגרף</h2>
+
+      <div class="two-col">
+        <div class="graph-wrap">
+          <div class="graph-title">השלמה זוגית</div>
+          <div id="graph-complete-even" class="jxgbox wide"></div>
+          <div class="graph-note">החלק הכחול נתון עבור \(x\ge 0\); החלק המקווקו מתקבל בשיקוף בציר \(y\).</div>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-title">השלמה אי־זוגית</div>
+          <div id="graph-complete-odd" class="jxgbox wide"></div>
+          <div class="graph-note">החלק האדום נתון עבור \(x\ge 0\); החלק המקווקו מתקבל בסיבוב סביב הראשית.</div>
+        </div>
+      </div>
+
+      <div class="two-col mt-3">
+        <div class="card blue">
+          <h3>אלגוריתם להשלמה זוגית</h3>
+          <ol>
+            <li>בוחרים נקודה \((a,b)\) בחלק הנתון.</li>
+            <li>מסמנים את \((-a,b)\).</li>
+            <li>חוזרים על הפעולה ומחברים באותה צורה.</li>
+          </ol>
+          <p>נקודות על ציר \(y\) נשארות במקומן.</p>
+        </div>
+        <div class="card red">
+          <h3>אלגוריתם להשלמה אי־זוגית</h3>
+          <ol>
+            <li>בוחרים נקודה \((a,b)\) בחלק הנתון.</li>
+            <li>מסמנים את \((-a,-b)\).</li>
+            <li>חוזרים על הפעולה ומחברים באותה צורה.</li>
+          </ol>
+          <p>אם \(0\) בתחום, חייב להתקיים \(f(0)=0\).</p>
+        </div>
+      </div>
+
+      <div class="box gold">
+        <h3>שאלת כיתה</h3>
+        <p>נתונה פונקציה אי־זוגית המוגדרת בכל \(\mathbb{R}\), ובחצי הימני של הגרף יש נקודת מקסימום \((2,5)\). איזו נקודה מתאימה בחצי השמאלי ומה סוגה?</p>
+        <p><strong>פתרון:</strong> הנקודה המתאימה היא \((-2,-5)\), והיא נקודת מינימום.</p>
+      </div>
+    </div>
+    <div class="page-footer"><span>השלמת גרפים</span><span>7</span></div>
+  </section>
+
+  <!-- PAGE 8 -->
+  <section class="page" data-page="8">
+    <div class="page-header"><span>חלק ו</span><span>מסקנות מן הסימטריה</span></div>
+    <div class="page-content">
+      <h2>מה אפשר לדעת בלי חקירה נוספת?</h2>
+
+      <div class="two-col">
+        <div class="graph-wrap">
+          <div class="graph-title">פונקציה זוגית: \(x^4-5x^2+4\)</div>
+          <div id="graph-conclusions-even" class="jxgbox small"></div>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-title">פונקציה אי־זוגית: \(x^3-4x\)</div>
+          <div id="graph-conclusions-odd" class="jxgbox small"></div>
+        </div>
+      </div>
+
+      <table>
+        <thead><tr><th>תכונה</th><th>פונקציה זוגית</th><th>פונקציה אי־זוגית</th></tr></thead>
+        <tbody>
+          <tr><td>נקודות אפס</td><td>אפס \(a\ne0\) גורר גם אפס ב־\(-a\).</td><td>אפס \(a\ne0\) גורר גם אפס ב־\(-a\); אם \(0\) בתחום, גם \(0\) הוא אפס.</td></tr>
+          <tr><td>חיתוך עם ציר \(y\)</td><td>יכול להיות בכל גובה.</td><td>אם קיים, הוא חייב להיות בראשית.</td></tr>
+          <tr><td>נקודות קיצון</td><td>\((a,b)\) וקיצון מאותו סוג ב־\((-a,b)\).</td><td>מקסימום \((a,b)\) מתאים למינימום \((-a,-b)\), ולהפך.</td></tr>
+          <tr><td>עלייה וירידה</td><td>עלייה בקטע חיובי מתאימה לירידה בקטע השלילי המשוקף.</td><td>עלייה מתאימה לעלייה; ירידה מתאימה לירידה בקטע המשוקף.</td></tr>
+          <tr><td>טווח</td><td>אין מסקנה כללית של סימטריה סביב \(0\).</td><td>הטווח סימטרי סביב \(0\).</td></tr>
+        </tbody>
+      </table>
+
+      <div class="box green">
+        <h3>דוגמה מסכמת</h3>
+        <p>פונקציה זוגית יורדת בתחום \((0,4)\). לכן היא <strong>עולה</strong> בתחום \((-4,0)\). אם \((3,-1)\) נקודת מינימום, גם \((-3,-1)\) נקודת מינימום.</p>
+      </div>
+
+      <div class="box red">
+        <strong>דיוק חשוב:</strong> פונקציה אי־זוגית עוברת בראשית רק כאשר \(0\) שייך לתחום. לדוגמה, \(f(x)=1/x\) היא אי־זוגית אך אינה מוגדרת בראשית.
+      </div>
+    </div>
+    <div class="page-footer"><span>מסקנות גרפיות</span><span>8</span></div>
+  </section>
+
+  <!-- PAGE 9 -->
+  <section class="page" data-page="9">
+    <div class="page-header"><span>חלק ז</span><span>פעולות על פונקציות</span></div>
+    <div class="page-content">
+      <h2>זוגיות של סכום ומכפלה</h2>
+
+      <table>
+        <thead><tr><th>\(f\)</th><th>\(g\)</th><th>\(f+g\)</th><th>\(f-g\)</th><th>\(fg\)</th><th>\(f/g\)</th></tr></thead>
+        <tbody>
+          <tr><td>זוגית</td><td>זוגית</td><td>זוגית</td><td>זוגית</td><td>זוגית</td><td>זוגית*</td></tr>
+          <tr><td>אי־זוגית</td><td>אי־זוגית</td><td>אי־זוגית</td><td>אי־זוגית</td><td>זוגית</td><td>זוגית*</td></tr>
+          <tr><td>זוגית</td><td>אי־זוגית</td><td>בדרך כלל אף אחת</td><td>בדרך כלל אף אחת</td><td>אי־זוגית</td><td>אי־זוגית*</td></tr>
+        </tbody>
+      </table>
+      <p class="page-mini-title">* בתנאי שהמנה מוגדרת בתחום סימטרי.</p>
+
+      <div class="two-col mt-3">
+        <div class="card blue">
+          <h3>הוכחת מכפלת שתי אי־זוגיות</h3>
+          <p>נגדיר \(h(x)=f(x)g(x)\). אז:</p>
+          \[\begin{aligned}h(-x)&=f(-x)g(-x)\\&=[-f(x)][-g(x)]\\&=f(x)g(x)=h(x)\end{aligned}\]
+          <p>לכן המכפלה זוגית.</p>
+        </div>
+        <div class="card red">
+          <h3>הוכחת מכפלה זוגית–אי־זוגית</h3>
+          <p>אם \(f\) זוגית ו־\(g\) אי־זוגית:</p>
+          \[\begin{aligned}h(-x)&=f(-x)g(-x)\\&=f(x)[-g(x)]\\&=-h(x)\end{aligned}\]
+          <p>לכן המכפלה אי־זוגית.</p>
+        </div>
+      </div>
+
+      <div class="graph-wrap mt-3">
+        <div class="graph-title">\(f(x)=x^2+1\), \(g(x)=x^3\), והמכפלה \(f(x)g(x)\)</div>
+        <div id="graph-operations" class="jxgbox small"></div>
+        <div class="graph-note"><span style="color:#1769aa">כחול — זוגית</span> • <span style="color:#c43d4f">אדום — אי־זוגית</span> • <span style="color:#18845c">ירוק — מכפלה אי־זוגית</span></div>
+      </div>
+
+      <div class="box gold">
+        <strong>מקרה מיוחד:</strong> פונקציית האפס \(f(x)=0\), על תחום סימטרי, היא גם זוגית וגם אי־זוגית. זו הפונקציה היחידה שיכולה להיות משני הסוגים יחד.
+      </div>
+    </div>
+    <div class="page-footer"><span>כללי פעולות</span><span>9</span></div>
+  </section>
+
+  <!-- PAGE 10 -->
+  <section class="page" data-page="10">
+    <div class="page-header"><span>חלק ח</span><span>טרנספורמציות ומלכודות</span></div>
+    <div class="page-content">
+      <h2>לא להתבלבל בין ארבע פעולות</h2>
+
+      <div class="graph-wrap">
+        <div class="graph-title">מתחילים מן הפונקציה \(f(x)=x^2+x-2\)</div>
+        <div id="graph-transformations" class="jxgbox wide"></div>
+        <div class="graph-note">כחול: \(f(x)\) • אדום: \(f(-x)\) • ירוק: \(-f(x)\) • סגול: \(f(|x|)\)</div>
+      </div>
+
+      <table>
+        <thead><tr><th>ביטוי</th><th>פעולה גרפית</th><th>מסקנה שימושית</th></tr></thead>
+        <tbody>
+          <tr><td>\(f(-x)\)</td><td>שיקוף הגרף ביחס לציר \(y\)</td><td>אם הגרף אינו משתנה, \(f\) זוגית.</td></tr>
+          <tr><td>\(-f(x)\)</td><td>שיקוף ביחס לציר \(x\)</td><td>אינו בדיקת זוגיות בפני עצמו.</td></tr>
+          <tr><td>\(-f(-x)\)</td><td>סיבוב \(180^\circ\) סביב הראשית</td><td>אם הגרף אינו משתנה, \(f\) אי־זוגית.</td></tr>
+          <tr><td>\(f(|x|)\)</td><td>שומרים את החצי הימני ומשקפים שמאלה</td><td>תמיד זוגית, אם התחום המתקבל סימטרי.</td></tr>
+          <tr><td>\(|f(x)|\)</td><td>מעלים מעל ציר \(x\) את החלקים השליליים</td><td>לא תמיד זוגית; תלוי ב־\(f\).</td></tr>
+        </tbody>
+      </table>
+
+      <div class="two-col">
+        <div class="box red">
+          <h3>הזזה אנכית</h3>
+          אם \(f\) אי־זוגית ו־\(c\ne0\), אז \(f(x)+c\) בדרך כלל אינה אי־זוגית, מפני שהראשית כבר אינה מרכז הסימטריה.
+        </div>
+        <div class="box blue">
+          <h3>הזזה אופקית</h3>
+          פונקציה יכולה להיות סימטרית ביחס לישר \(x=a\) ועדיין לא להיות זוגית. “זוגית” דורש דווקא סימטריה ביחס לציר \(y\).
+        </div>
+      </div>
+    </div>
+    <div class="page-footer"><span>טרנספורמציות</span><span>10</span></div>
+  </section>
+
+  <!-- PAGE 11 -->
+  <section class="page" data-page="11">
+    <div class="page-header"><span>חלק ט</span><span>פרמטרים והעשרה</span></div>
+    <div class="page-content">
+      <h2>שאלות ברמת 5 יח״ל</h2>
+
+      <div class="two-col align-start">
+        <div class="card blue">
+          <span class="tag">דוגמה 1</span>
+          <h3 class="mt-3">מציאת פרמטר לזוגיות</h3>
+          <p>עבור אילו ערכי \(a,b\) הפונקציה</p>
+          \[f(x)=x^4+ax^3+bx+7\]
+          <p>זוגית?</p>
+          \[f(-x)=x^4-ax^3-bx+7\]
+          <p>כדי שיתקיים \(f(-x)=f(x)\), מקדמי החזקות האי־זוגיות חייבים להתאפס:</p>
+          \[a=0,\qquad b=0\]
+        </div>
+
+        <div class="card red">
+          <span class="tag red">דוגמה 2</span>
+          <h3 class="mt-3">פרמטר ומנה</h3>
+          <p>קבעו את \(a\) כך שהפונקציה</p>
+          \[g(x)=\frac{x^3+ax^2+4x}{x^2+1}\]
+          <p>תהיה אי־זוגית.</p>
+          <p>המכנה זוגי. כדי שהמנה תהיה אי־זוגית, המונה צריך להיות אי־זוגי; לכן איבר \(x^2\) חייב להיעלם:</p>
+          \[a=0\]
+        </div>
+      </div>
+
+      <div class="box purple mt-3">
+        <span class="tag purple">העשרה</span>
+        <h3 class="mt-3">פירוק כל פונקציה לחלק זוגי ולחלק אי־זוגי</h3>
+        <p>אם תחום הפונקציה סימטרי, נגדיר:</p>
+        \[f_{even}(x)=\frac{f(x)+f(-x)}{2},\qquad f_{odd}(x)=\frac{f(x)-f(-x)}{2}\]
+        <p>אז \(f_{even}\) זוגית, \(f_{odd}\) אי־זוגית, ומתקיים:</p>
+        \[f(x)=f_{even}(x)+f_{odd}(x)\]
+      </div>
+
+      <div class="two-col">
+        <div class="card green">
+          <h3>דוגמת פירוק</h3>
+          <p>עבור \(f(x)=x^3+2x^2-5x+4\):</p>
+          \[f_{even}(x)=2x^2+4\]
+          \[f_{odd}(x)=x^3-5x\]
+        </div>
+        <div class="card gold">
+          <h3>מדוע הפירוק שימושי?</h3>
+          <ul>
+            <li>הוא מפריד את שני סוגי הסימטריה.</li>
+            <li>הוא מסביר את מבנה הפולינום.</li>
+            <li>הוא כלי להעמקה ולהוכחות.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="icon">★</div>
+        <div><strong>אתגר:</strong> הוכיחו שהפירוק יחיד. רמז: אם פונקציה היא גם זוגית וגם אי־זוגית, היא חייבת להיות פונקציית האפס.</div>
+      </div>
+    </div>
+    <div class="page-footer"><span>פרמטרים והעשרה</span><span>11</span></div>
+  </section>
+
+  <!-- PAGE 12 -->
+  <section class="page" data-page="12">
+    <div class="page-header"><span>תרגול א</span><span>רמה בסיסית — זיהוי ובדיקה</span></div>
+    <div class="page-content">
+      <h2>תרגילים 1–8</h2>
+      <p class="mb-3">בכל שאלה יש לציין את תחום ההגדרה ולנמק באמצעות \(f(-x)\), אלא אם נדרש נימוק גרפי.</p>
+
+      <div class="two-col align-start">
+        <ol class="exercise-list">
+          <li>מיינו את \(f(x)=0.1x^4-0.6x^2+2\).</li>
+          <li>מיינו את \(g(x)=0.3x^5-0.2x^3+x\).</li>
+          <li>מיינו את \(h(x)=x^3+x^2\).</li>
+          <li>בדקו את \(p(x)=\dfrac{4}{x^2+4}\).</li>
+        </ol>
+        <ol class="exercise-list" style="counter-reset:exercise 4;">
+          <li>בדקו את \(q(x)=\dfrac{x}{x^2-9}\).</li>
+          <li>בדקו את \(r(x)=\sqrt{x^2+9}\).</li>
+          <li>בדקו את \(s(x)=\sqrt{x+2}\).</li>
+          <li>על גרף זוגי נמצאת \((-4,3)\), ועל גרף אי־זוגי נמצאת \((2,-5)\). רשמו את הנקודות הסימטריות המתחייבות.</li>
+        </ol>
+      </div>
+
+      <div class="two-col mt-3">
+        <div class="graph-wrap">
+          <div class="graph-title">לתרגילים 1 ו־4</div>
+          <div id="graph-ex-basic-even" class="jxgbox small"></div>
+          <div class="graph-note">שני הגרפים סימטריים לאותו ציר. איזה?</div>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-title">לתרגילים 2 ו־5</div>
+          <div id="graph-ex-basic-odd" class="jxgbox small"></div>
+          <div class="graph-note">שני הגרפים סימטריים לאותה נקודה. איזו?</div>
+        </div>
+      </div>
+
+      <div class="box gold">
+        <strong>בדיקה עצמית:</strong> בתשובה מלאה צריכים להופיע ארבעה רכיבים: תחום, הצבה, פישוט ומסקנה.
+      </div>
+    </div>
+    <div class="page-footer"><span>תרגול בסיסי</span><span>12</span></div>
+  </section>
+
+  <!-- PAGE 13 -->
+  <section class="page" data-page="13">
+    <div class="page-header"><span>תרגול ב</span><span>רמה בינונית — גרפים ומסקנות</span></div>
+    <div class="page-content">
+      <h2>תרגילים 9–16</h2>
+
+      <ol class="exercise-list start-9">
+        <li>פונקציה זוגית מוגדרת ב־\([-6,6]\). נתון \(f(2)=7\), \(f(5)=-1\). מצאו \(f(-2)\), \(f(-5)\).</li>
+        <li>פונקציה אי־זוגית מוגדרת בכל \(\mathbb{R}\). נתון \(g(-3)=8\). מצאו \(g(3)\) ו־\(g(0)\).</li>
+        <li>פונקציה זוגית עולה ב־\((-5,0)\). קבעו את המונוטוניות שלה ב־\((0,5)\).</li>
+        <li>פונקציה אי־זוגית עולה ב־\((1,4)\). קבעו את המונוטוניות שלה ב־\((-4,-1)\).</li>
+        <li>בפונקציה זוגית הנקודה \((3,2)\) היא מקסימום. מצאו נקודת קיצון נוספת ואת סוגה.</li>
+        <li>בפונקציה אי־זוגית הנקודה \((2,5)\) היא מקסימום. מצאו נקודת קיצון נוספת ואת סוגה.</li>
+        <li>האם פונקציה אי־זוגית חייבת לעבור בראשית? נסחו תשובה מדויקת והביאו דוגמה נגדית לטענה הלא־מדויקת.</li>
+        <li>הגרף למטה מציג פונקציה רק עבור \(x\ge0\). העתיקו והשלימו פעם אחת כפונקציה זוגית ופעם אחת כפונקציה אי־זוגית.</li>
+      </ol>
+
+      <div class="graph-wrap mt-3">
+        <div class="graph-title">לתרגיל 16 — החלק הנתון בלבד</div>
+        <div id="graph-ex-complete" class="jxgbox wide"></div>
+        <div class="graph-note">השתמשו בהתאמות \((x,y)\mapsto(-x,y)\) ו־\((x,y)\mapsto(-x,-y)\).</div>
+      </div>
+    </div>
+    <div class="page-footer"><span>תרגול בינוני</span><span>13</span></div>
+  </section>
+
+  <!-- PAGE 14 -->
+  <section class="page" data-page="14">
+    <div class="page-header"><span>תרגול ג</span><span>רמה גבוהה — פעולות, פרמטרים והוכחות</span></div>
+    <div class="page-content">
+      <h2>תרגילים 17–24</h2>
+
+      <ol class="exercise-list start-17">
+        <li>נתון ש־\(f\) זוגית ו־\(g\) אי־זוגית. קבעו את זוגיות \(h(x)=f(x)g(x)^3\).</li>
+        <li>נתון ש־\(f\) אי־זוגית. קבעו את זוגיות \(p(x)=f(x)^2+4\).</li>
+        <li>מצאו את \(a,b\) כך ש־\(f(x)=x^5+ax^4+3x^3+bx^2-2x\) תהיה אי־זוגית.</li>
+        <li>מצאו את \(a\) כך ש־\(g(x)=\dfrac{x^3+ax^2+x}{x^2+4}\) תהיה אי־זוגית.</li>
+        <li>הפריכו את הטענה: “כל פולינום ממעלה זוגית הוא פונקציה זוגית”.</li>
+        <li>הוכיחו שאם פונקציה המוגדרת בתחום סימטרי היא גם זוגית וגם אי־זוגית, אז היא פונקציית האפס.</li>
+        <li>פרקו את \(F(x)=2x^5-3x^4+x^3+7x^2-6x+9\) לחלק זוגי ולחלק אי־זוגי.</li>
+        <li>נתונה \(H(x)=\dfrac{f(x)+f(-x)}{2}\). הוכיחו ש־\(H\) זוגית לכל פונקציה \(f\) בעלת תחום סימטרי.</li>
+      </ol>
+
+      <div class="two-col mt-3">
+        <div class="box red">
+          <h3>בתרגילי פרמטר</h3>
+          השוו מקדמים של חזקות מתאימות רק לאחר שכתבתם במפורש את \(f(-x)\).
+        </div>
+        <div class="box purple">
+          <h3>בתרגילי הוכחה</h3>
+          התחילו מן ההגדרה. דוגמה אחת יכולה להפריך טענה, אך אינה מוכיחה טענה כללית.
+        </div>
+      </div>
+
+      <div class="graph-wrap mt-3">
+        <div class="graph-title">בדיקה חזותית לתרגיל 23</div>
+        <div id="graph-ex-decomposition" class="jxgbox small"></div>
+        <div class="graph-note">כחול — \(F\) המקורית; אדום — החלק האי־זוגי; ירוק — החלק הזוגי.</div>
+      </div>
+    </div>
+    <div class="page-footer"><span>תרגול מתקדם</span><span>14</span></div>
+  </section>
+
+  <!-- PAGE 15 -->
+  <section class="page" data-page="15">
+    <div class="page-header"><span>פתרונות</span><span>תרגילים 1–12</span></div>
+    <div class="page-content">
+      <h2>פתרונות ובדיקת דרך</h2>
+      <div class="solution-grid">
+          <div class="solution"><strong>1.</strong> אפשר להציב בפונקציה כל מספר. מתקבל \(f(-x)=0.1x^4-0.6x^2+2=f(x)\). זוגית.</div>
+          <div class="solution"><strong>2.</strong> אפשר להציב בפונקציה כל מספר. מתקבל \(g(-x)=-0.3x^5+0.2x^3-x=-g(x)\). אי־זוגית.</div>
+        <div class="solution"><strong>3.</strong> \(h(-x)=-x^3+x^2\), שאינו \(h(x)\) ואינו \(-h(x)\). אף אחת.</div>
+        <div class="solution"><strong>4.</strong> התחום \(\mathbb{R}\); המונה קבוע והמכנה זוגי, ולכן \(p(-x)=p(x)\). זוגית.</div>
+        <div class="solution"><strong>5.</strong> התחום \(\mathbb{R}\setminus\{-3,3\}\) סימטרי. \(q(-x)=-q(x)\). אי־זוגית.</div>
+        <div class="solution"><strong>6.</strong> התחום \(\mathbb{R}\). \(r(-x)=\sqrt{(-x)^2+9}=r(x)\). זוגית.</div>
+        <div class="solution"><strong>7.</strong> התחום \([-2,\infty)\) אינו סימטרי; לא זוגית ולא אי־זוגית.</div>
+        <div class="solution"><strong>8.</strong> בזוגית: \((4,3)\). באי־זוגית: \((-2,5)\).</div>
+        <div class="solution"><strong>9.</strong> \(f(-2)=f(2)=7\), וכן \(f(-5)=f(5)=-1\).</div>
+        <div class="solution"><strong>10.</strong> \(g(3)=-g(-3)=-8\). מכיוון ש־\(0\) בתחום, \(g(0)=0\).</div>
+        <div class="solution"><strong>11.</strong> בזוגית כיוון המונוטוניות מתהפך בשיקוף: הפונקציה יורדת ב־\((0,5)\).</div>
+        <div class="solution"><strong>12.</strong> באי־זוגית סיבוב סביב הראשית שומר על כיוון העלייה: עולה ב־\((-4,-1)\).</div>
+      </div>
+
+      <div class="box green mt-3">
+        <strong>מחוון קצר:</strong> תשובה אלגברית מלאה — 1 נקודה לתחום, 1 להצבה, 1 לפישוט, 1 להשוואה ולמסקנה.
+      </div>
+    </div>
+    <div class="page-footer"><span>פתרונות 1–12</span><span>15</span></div>
+  </section>
+
+  <!-- PAGE 16 -->
+  <section class="page" data-page="16">
+    <div class="page-header"><span>פתרונות</span><span>תרגילים 13–24</span></div>
+    <div class="page-content">
+      <h2>פתרונות ובדיקת דרך</h2>
+      <div class="solution-grid">
+        <div class="solution"><strong>13.</strong> נקודת מקסימום נוספת: \((-3,2)\), מאותו סוג ובאותו גובה.</div>
+        <div class="solution"><strong>14.</strong> הנקודה המתאימה היא \((-2,-5)\), והיא נקודת מינימום.</div>
+        <div class="solution"><strong>15.</strong> רק אם \(0\in D_f\). דוגמה נגדית: \(f(x)=1/x\) אי־זוגית ואינה מוגדרת ב־\(0\).</div>
+        <div class="solution"><strong>16.</strong> בזוגית: \((x,y)\mapsto(-x,y)\). באי־זוגית: \((x,y)\mapsto(-x,-y)\).</div>
+        <div class="solution"><strong>17.</strong> \(g^3\) אי־זוגית; מכפלת זוגית ואי־זוגית היא אי־זוגית. לכן \(h\) אי־זוגית.</div>
+        <div class="solution"><strong>18.</strong> ריבוע של אי־זוגית הוא זוגי; הוספת קבוע שומרת על זוגיות. לכן \(p\) זוגית.</div>
+        <div class="solution"><strong>19.</strong> בפונקציה אי־זוגית אין חזקות זוגיות. לכן \(a=0\) ו־\(b=0\).</div>
+        <div class="solution"><strong>20.</strong> המכנה זוגי; המונה צריך להיות אי־זוגי. לכן \(a=0\).</div>
+        <div class="solution"><strong>21.</strong> למשל \(f(x)=x^4+x\): המעלה \(4\), אך \(f(-x)=x^4-x\), ולכן אינה זוגית.</div>
+        <div class="solution"><strong>22.</strong> מתקיים \(f(-x)=f(x)\) וגם \(f(-x)=-f(x)\). לכן \(f(x)=-f(x)\), ומכאן \(f(x)=0\).</div>
+        <div class="solution"><strong>23.</strong> \(F_{even}(x)=-3x^4+7x^2+9\); \(F_{odd}(x)=2x^5+x^3-6x\).</div>
+        <div class="solution"><strong>24.</strong> \(H(-x)=\frac{f(-x)+f(x)}{2}=H(x)\), ולכן \(H\) זוגית.</div>
+      </div>
+
+      <div class="box purple mt-3">
+        <strong>להעמקה:</strong> בתרגיל 24 לא נדרש ש־\(f\) עצמה תהיה זוגית או אי־זוגית — רק ש־\(f(x)\) ו־\(f(-x)\) יהיו מוגדרות יחד.
+      </div>
+    </div>
+    <div class="page-footer"><span>פתרונות 13–24</span><span>16</span></div>
+  </section>
+
+  <!-- PAGE 17 -->
+  <section class="page" data-page="17">
+    <div class="page-header"><span>סיכום</span><span>מפת ידע ומקורות</span></div>
+    <div class="page-content">
+      <h2>דף סיכום לתלמיד</h2>
+
+      <div class="two-col align-start">
+        <div class="card blue">
+          <h3>אלגוריתם המיון</h3>
+          <ol>
+            <li>בודקים תחום סימטרי.</li>
+            <li>מחשבים \(f(-x)\).</li>
+            <li>מפשטים.</li>
+            <li>משווים ל־\(f(x)\) ול־\(-f(x)\).</li>
+            <li>כותבים מסקנה מנומקת.</li>
+          </ol>
+        </div>
+        <div class="card red">
+          <h3>שלוש תוצאות אפשריות</h3>
+          <p>\(f(-x)=f(x)\) — זוגית.</p>
+          <p>\(f(-x)=-f(x)\) — אי־זוגית.</p>
+          <p>אף שוויון אינו מתקיים — אף אחת.</p>
+          <p>חריג: פונקציית האפס היא שתיהן.</p>
+        </div>
+      </div>
+
+      <h3 class="mt-3">רשימת בדיקה לפני הגשה</h3>
+      <ul class="checklist">
+        <li>ציינתי את תחום ההגדרה.</li>
+        <li>בדקתי שהתחום סימטרי.</li>
+        <li>הצבתי \(-x\) בכל המקומות.</li>
+        <li>טיפלתי נכון בחזקות.</li>
+        <li>השוויתי לביטוי המלא.</li>
+        <li>נימקתי ולא הסתפקתי בגרף.</li>
+        <li>בגרף זוגי שיקפתי בציר \(y\).</li>
+        <li>בגרף אי־זוגי סובבתי סביב הראשית.</li>
+      </ul>
+
+    </div>
+    <div class="page-footer"><span>סיכום</span><span>17</span></div>
+  </section>
+
+</main>
+
+<script>
+  function makeBoard(id, boundingbox, options) {
+    return JXG.JSXGraph.initBoard(id, Object.assign({
+      boundingbox,
+      axis: false,
+      grid: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: {enabled: false},
+      zoom: {enabled: false, wheel: false, pinchHorizontal: false, pinchVertical: false},
+      keepAspectRatio: false
+    }, options || {}));
+  }
+
+  function addAxes(board) {
+    const axisStyle = {
+      strokeColor: '#7b8b99',
+      strokeWidth: 1.2,
+      highlight: false,
+      fixed: true,
+      ticks: {
+        strokeColor: '#9aabb9',
+        majorHeight: 7,
+        minorTicks: 0,
+        drawLabels: true,
+        label: {fontSize: 12, color: '#5d6b7a', offset: [-4, -15]}
+      }
+    };
+    board.create('axis', [[0, 0], [1, 0]], Object.assign({name: 'x', withLabel: true, label: {position: 'rt', offset: [-12, 14]}}, axisStyle));
+    board.create('axis', [[0, 0], [0, 1]], Object.assign({name: 'y', withLabel: true, label: {position: 'rt', offset: [12, -12]}}, axisStyle));
+  }
+
+  const colors = {
+    blue: '#1769aa', red: '#c43d4f', green: '#18845c', gold: '#d69024',
+    purple: '#7754a5', cyan: '#16a3b6', gray: '#71808f'
+  };
+
+  function curve(board, fn, min, max, color, width, dash) {
+    return board.create('functiongraph', [fn, min, max], {
+      strokeColor: color,
+      strokeWidth: width || 3,
+      dash: dash || 0,
+      highlight: false,
+      fixed: true
+    });
+  }
+
+  function point(board, x, y, name, color) {
+    return board.create('point', [x, y], {
+      name,
+      size: 3,
+      fixed: true,
+      highlight: false,
+      strokeColor: color,
+      fillColor: '#ffffff',
+      label: {fontSize: 13, color, offset: [6, 7]}
+    });
+  }
+
+  function initBoards() {
+    JXG.Options.text.useMathJax = false;
+
+    let b = makeBoard('graph-even-intro', [-4.5, 6, 4.5, -5]); addAxes(b);
+    curve(b, x => x * x - 3, -3, 3, colors.blue, 3.2);
+    point(b, 2, 1, 'A(2,1)', colors.blue); point(b, -2, 1, "A'(-2,1)", colors.blue);
+    b.create('segment', [[2,1],[-2,1]], {strokeColor: colors.gold, dash: 2, fixed:true, highlight:false});
+
+    b = makeBoard('graph-odd-intro', [-4.5, 6, 4.5, -6]); addAxes(b);
+    curve(b, x => 0.35 * x * x * x - x, -3, 3, colors.red, 3.2);
+    point(b, 2, 0.8, 'B(2,0.8)', colors.red); point(b, -2, -0.8, "B'(-2,-0.8)", colors.red);
+    b.create('segment', [[2,0.8],[-2,-0.8]], {strokeColor: colors.gold, dash: 2, fixed:true, highlight:false});
+
+    b = makeBoard('graph-test-even', [-1.8, 22, 1.8, 0]); addAxes(b);
+    curve(b, x => 3 * x ** 4 - 2 * x * x + 5, -1.65, 1.65, colors.blue, 3);
+
+    b = makeBoard('graph-test-odd', [-1.8, 9, 1.8, -9]); addAxes(b);
+    curve(b, x => 2 * x ** 5 - 7 * x, -1.6, 1.6, colors.red, 3);
+
+    b = makeBoard('graph-family-abs', [-4, 4, 4, -1]); addAxes(b);
+    curve(b, x => Math.abs(x), -3.5, 3.5, colors.blue, 3);
+
+    b = makeBoard('graph-family-cubic', [-2.5, 6, 2.5, -6]); addAxes(b);
+    curve(b, x => x ** 3, -1.75, 1.75, colors.red, 3);
+
+    b = makeBoard('graph-family-recip', [-5, 5, 5, -5]); addAxes(b);
+    curve(b, x => 1 / x, -4.7, -0.18, colors.red, 3);
+    curve(b, x => 1 / x, 0.18, 4.7, colors.red, 3);
+
+    b = makeBoard('graph-complete-even', [-4.5, 6, 4.5, -5]); addAxes(b);
+    const evenHalf = x => 0.35 * (x - 2.3) ** 2 - 1.5;
+    curve(b, evenHalf, 0, 4.2, colors.blue, 3.4);
+    curve(b, x => evenHalf(-x), -4.2, 0, colors.blue, 3, 2);
+    point(b, 2.3, -1.5, 'P', colors.blue); point(b, -2.3, -1.5, "P'", colors.blue);
+
+    b = makeBoard('graph-complete-odd', [-4.5, 6, 4.5, -6]); addAxes(b);
+    const oddHalf = x => 0.5 * x * x - 2 * x;
+    curve(b, oddHalf, 0, 4.1, colors.red, 3.4);
+    curve(b, x => -oddHalf(-x), -4.1, 0, colors.red, 3, 2);
+    point(b, 2, -2, 'Q', colors.red); point(b, -2, 2, "Q'", colors.red);
+
+    b = makeBoard('graph-conclusions-even', [-2.8, 18, 2.8, -4]); addAxes(b);
+    curve(b, x => x ** 4 - 5 * x * x + 4, -2.65, 2.65, colors.blue, 3);
+    [-2, -1, 1, 2].forEach(x => point(b, x, 0, '', colors.gold));
+
+    b = makeBoard('graph-conclusions-odd', [-3.5, 6, 3.5, -6]); addAxes(b);
+    curve(b, x => x ** 3 - 4 * x, -3, 3, colors.red, 3);
+    [-2, 0, 2].forEach(x => point(b, x, 0, '', colors.gold));
+
+    b = makeBoard('graph-operations', [-3.2, 10, 3.2, -10]); addAxes(b);
+    curve(b, x => x * x + 1, -2.8, 2.8, colors.blue, 2.7);
+    curve(b, x => x ** 3, -2.15, 2.15, colors.red, 2.7);
+    curve(b, x => (x * x + 1) * x ** 3, -1.65, 1.65, colors.green, 3.2);
+
+    b = makeBoard('graph-transformations', [-5, 9, 5, -9]); addAxes(b);
+    const base = x => x * x + x - 2;
+    curve(b, base, -4, 3, colors.blue, 3);
+    curve(b, x => base(-x), -3, 4, colors.red, 2.5, 2);
+    curve(b, x => -base(x), -3, 4, colors.green, 2.5, 1);
+    curve(b, x => base(Math.abs(x)), -4, 4, colors.purple, 3, 3);
+
+    b = makeBoard('graph-ex-basic-even', [-3.5, 6, 3.5, -1]); addAxes(b);
+    curve(b, x => 0.1 * x ** 4 - 0.6 * x * x + 2, -3.1, 3.1, colors.blue, 3);
+    curve(b, x => 4 / (x * x + 4), -3.2, 3.2, colors.cyan, 3);
+
+    b = makeBoard('graph-ex-basic-odd', [-3.2, 8, 3.2, -8]); addAxes(b);
+    curve(b, x => 0.3 * x ** 5 - 0.2 * x ** 3 + x, -1.75, 1.75, colors.red, 3);
+    curve(b, x => x / (x * x - 9), -3.1, -0.15, colors.purple, 2.8);
+    curve(b, x => x / (x * x - 9), 0.15, 3.1, colors.purple, 2.8);
+
+    b = makeBoard('graph-ex-complete', [-5, 6, 5, -5]); addAxes(b);
+    curve(b, x => 0.12 * (x - 1) * (x - 3) * (x - 4), 0, 4.7, colors.blue, 3.4);
+    point(b, 1, 0, '', colors.gold); point(b, 3, 0, '', colors.gold); point(b, 4, 0, '', colors.gold);
+
+    b = makeBoard('graph-ex-decomposition', [-2, 45, 2, -35]); addAxes(b);
+    const evenPart = x => -3 * x ** 4 + 7 * x * x + 9;
+    const oddPart = x => 2 * x ** 5 + x ** 3 - 6 * x;
+    curve(b, x => evenPart(x) + oddPart(x), -1.8, 1.8, colors.blue, 3.2);
+    curve(b, oddPart, -1.8, 1.8, colors.red, 2.7, 2);
+    curve(b, evenPart, -1.8, 1.8, colors.green, 2.7, 1);
+  }
+
+  function runDiagnostics() {
+    const report = {pages: [], boards: [], math: {pending: 0}, errors: []};
+    document.querySelectorAll('section.page').forEach((page) => {
+      const content = page.querySelector('.page-content') || page;
+      const overflow = content.scrollHeight - content.clientHeight;
+      report.pages.push({page: page.dataset.page, overflow: Math.round(overflow)});
+      if (overflow > 2) report.errors.push('Page ' + page.dataset.page + ' overflows by ' + Math.round(overflow) + 'px');
+    });
+    document.querySelectorAll('.jxgbox').forEach((box) => {
+      const canvas = box.querySelector('svg');
+      const ok = !!canvas && box.clientWidth > 0 && box.clientHeight > 0;
+      report.boards.push({id: box.id, ok, width: box.clientWidth, height: box.clientHeight});
+      if (!ok) report.errors.push('Board failed: ' + box.id);
+    });
+    const visibleText = Array.from(document.querySelectorAll('section.page'))
+      .map((page) => page.textContent)
+      .join(' ');
+    report.math.pending = visibleText.includes('\\(') || visibleText.includes('\\[') ? 1 : 0;
+    if (report.math.pending) report.errors.push('Unprocessed MathJax delimiters remain');
+    document.documentElement.dataset.diagnostics = report.errors.length ? 'failed' : 'passed';
+    window.__lessonDiagnostics = report;
+    console.info('LESSON_DIAGNOSTICS', JSON.stringify(report));
+  }
+
+  window.addEventListener('load', async function () {
+    try {
+      initBoards();
+      if (window.MathJax && MathJax.typesetPromise) await MathJax.typesetPromise();
+      requestAnimationFrame(() => requestAnimationFrame(runDiagnostics));
+    } catch (error) {
+      document.documentElement.dataset.diagnostics = 'failed';
+      window.__lessonDiagnostics = {errors: [String(error)]};
+      console.error(error);
+    }
+  });
+</script>
+</body>
+</html>
