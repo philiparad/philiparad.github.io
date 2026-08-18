@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>מערך שיעור - אי-שוויונים פולינומיים ונקודות חיתוך של פונקציות פולינומיות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{
+    --ink:#17212b; --muted:#586574; --accent:#0f5f78; --accent2:#7b4f1d;
+    --paper:#fff; --soft:#f4f7f9; --line:#d8e0e5; --good:#eef7f2; --warn:#fff8e8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e9edf0;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.45}
+  body{padding:10mm 0}
+  .page{
+    width:210mm;height:297mm;margin:0 auto 10mm;background:var(--paper);
+    padding:12mm 14mm 11mm;position:relative;overflow:hidden;
+    box-shadow:0 3px 18px rgba(0,0,0,.12);page-break-after:always;break-after:page;
+  }
+  .page:last-child{page-break-after:auto;break-after:auto}
+  .page-no{position:absolute;left:12mm;bottom:7mm;font-size:9.5pt;color:#75808a}
+  h1{font-size:27pt;margin:0 0 4mm;color:#123d4c}
+  h2{font-size:19pt;margin:0 0 4mm;color:#123d4c;border-bottom:2px solid #c6d6dc;padding-bottom:2mm}
+  h3{font-size:14.5pt;margin:0;color:#264f5d}
+  p{margin:1.5mm 0;font-size:11.5pt}
+  ul,ol{margin:2mm 0 2mm;padding-right:6mm}
+  li{margin:1mm 0;font-size:11.2pt}
+  .lead{font-size:13pt;color:#31434e}
+  .hero{border:1px solid #c5d5db;background:linear-gradient(135deg,#f8fbfc,#eef5f7);padding:5mm;border-radius:4mm;margin:5mm 0}
+  .tagrow{display:flex;gap:2mm;flex-wrap:wrap;margin:3mm 0}
+  .tag{font-size:10pt;background:#eef4f6;border:1px solid #cfdde2;padding:1.2mm 2.3mm;border-radius:99px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5mm}
+  .card{border:1px solid var(--line);border-radius:3mm;padding:3.4mm;background:#fff}
+  .soft{background:var(--soft)}
+  .good{background:var(--good)}
+  .warn{background:var(--warn)}
+  .formula{direction:ltr;text-align:center;margin:2.5mm 0;font-size:12.5pt}
+  .callout{border-right:4px solid var(--accent);padding:2.6mm 3.5mm;background:#f6fafb;margin:3mm 0}
+  .exercise{border:1.5px solid #b9cbd2;border-radius:3mm;padding:3.2mm;margin:3mm 0;background:#fff}
+  .exercise-title{font-weight:700;color:#174e62;margin-bottom:1.2mm}
+  .solution{background:#f8fafb;border-right:3px solid #8096a0;padding:2.5mm 3mm;margin-top:2mm}
+  table{border-collapse:collapse;width:100%;margin:2.5mm 0;font-size:10.8pt}
+  th,td{border:1px solid #cfd9de;padding:1.7mm 2mm;text-align:center;vertical-align:middle}
+  th{background:#eef4f6}
+  .sign-table{direction:ltr;}
+  .sign-table td:first-child,.sign-table th:first-child{font-weight:700;white-space:nowrap}
+  .chart-card{border:1px solid #ccd9de;border-radius:3mm;padding:3mm;background:#fbfcfd;direction:ltr}
+  .jxgbox{width:100%;height:74mm;border:1px solid #bccbd2;border-radius:2mm;background:#fff;touch-action:none}
+  .jxgbox.small{height:55mm}.jxgbox.tiny{height:43mm}
+  .controls{display:flex;gap:2mm;justify-content:center;margin-top:2.2mm;direction:rtl}
+  .controls button{font:inherit;font-size:10pt;border:1px solid #aebec5;background:#fff;border-radius:2mm;padding:1.2mm 2.8mm;cursor:pointer}
+  .controls button:hover{background:#eef5f7}
+  .ltr{direction:ltr;text-align:left}
+  .rtl{direction:rtl}
+  .mini{font-size:9.7pt;color:var(--muted)}
+  .two-col-text{columns:1;column-gap:7mm}
+  .source{font-size:9.6pt;direction:ltr;text-align:left;word-break:break-word;margin:1.5mm 0}
+  .check{display:grid;grid-template-columns:1fr 1fr;gap:2mm 5mm}
+  .check div{font-size:10.7pt;border-bottom:1px dotted #c8d1d6;padding:1.2mm 0}
+  .compact p,.compact li{font-size:10.6pt}
+  .answerline{border-bottom:1px solid #9ba9b0;display:inline-block;min-width:36mm;height:5mm}
+  .footer-note{position:absolute;right:14mm;bottom:7mm;font-size:9pt;color:#7a868e}
+  .mathline{direction:ltr;text-align:center}
+  @media print{
+    html,body{background:#fff;padding:0}
+    .page{margin:0;box-shadow:none;width:210mm;height:297mm;page-break-after:always;break-after:page}
+    .controls{display:none}
+  }
+</style>
+</head>
+<body>
+
+<section class="page" id="p1">
+  <h1>אי-שוויונים פולינומיים ונקודות חיתוך של פונקציות פולינומיות</h1>
+  <p class="lead">מערך שיעור מלא - רמת 5 יחידות לימוד</p>
+  <div class="hero">
+    <p>הנושא נבנה מתוך מעבר עקבי בין ייצוגים: ביטוי אלגברי, פירוק לגורמים, נקודות אפס, גרף, סימן הפונקציה, טבלת סימנים ואי-שוויון.</p>
+    <p>בחלק השני עוברים משתי פונקציות אל פונקציית ההפרש, וכך מאחדים את נושא החיתוך והמיקום היחסי של גרפים עם אי-שוויונים פולינומיים.</p>
+    <div class="formula">\[f(x)=g(x)\quad\Longleftrightarrow\quad f(x)-g(x)=0\]</div>
+  </div>
+  <div class="grid2">
+    <div class="card soft">
+      <h3>מטרות ידע</h3>
+      <ul>
+        <li>למצוא נקודות אפס של פולינום באמצעות פירוק מתאים.</li>
+        <li>לקבוע את סימן הפונקציה מתוך גרף ומתוך פירוק לגורמים.</li>
+        <li>להבין את השפעת ריבוי השורש על מעבר הגרף דרך ציר ה-x.</li>
+        <li>לפתור אי-שוויונים פולינומיים גרפית ואלגברית.</li>
+        <li>למצוא נקודות חיתוך בין שתי פונקציות פולינומיות.</li>
+        <li>לקבוע באילו תחומים גרף אחד נמצא מעל או מתחת לגרף אחר.</li>
+      </ul>
+    </div>
+    <div class="card good">
+      <h3>מיומנויות 5 יחידות</h3>
+      <ul>
+        <li>מעבר בין ייצוגים ולא רק ביצוע אלגוריתם.</li>
+        <li>נימוק בעזרת ריבוי שורשים ושינוי סימן.</li>
+        <li>בדיקת סבירות של פתרון באמצעות גרף.</li>
+        <li>בניית פונקציית הפרש לצורך חיתוך והשוואה.</li>
+        <li>פתרון בעיות הפוכות: מהגרף אל מבנה הפולינום.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tagrow">
+    <span class="tag">נקודות אפס של פונקציה</span><span class="tag">ריבוי שורש</span><span class="tag">טבלת סימנים</span>
+    <span class="tag">אי-שוויון</span><span class="tag">נקודות חיתוך</span><span class="tag">פונקציית הפרש</span>
+  </div>
+  <div class="callout"><strong>עיקרון הוראה:</strong> מתחילים בהבנה גרפית של חיוביות ושליליות ורק לאחר מכן מציגים את טבלת הסימנים ככלי שיטתי.</div>
+  <div class="page-no">1</div>
+</section>
+
+<section class="page" id="p2">
+  <h2>1. נקודות אפס, פירוק לגורמים והמשמעות הגרפית</h2>
+  <div class="grid2_">
+    <div>
+      <h3>נקודת אפס</h3>
+      <p>מספר <span class="ltr">\(r\)</span> הוא אפס של הפולינום אם:</p>
+      <div class="formula">\[P(r)=0\]</div>
+      <p>אם <span class="ltr">\((x-r)\)</span> הוא גורם של הפולינום, אז <span class="ltr">\(r\)</span> הוא נקודת אפס של הפונקציה.</p>
+      <div class="formula">\[P(x)=(x-r)Q(x)\]</div>
+      <p>בגרף, נקודות האפס הן שיעורי ה-x שבהם הגרף נפגש עם ציר ה-x.</p>
+      <div class="callout"><strong>שימו לב:</strong> פולינום ממעלה <span class="ltr">\(n\)</span> יכול לכל היותר להכיל <span class="ltr">\(n\)</span> אפסים ממשיים שונים.</div>
+      <h3>דוגמה</h3>
+      <div class="formula">\[P(x)=x^3-7x^2+10x=x(x-2)(x-5)\]</div>
+      <p>לכן נקודות האפס הן:</p>
+      <div class="formula">\[x=0,\;2,\;5\]</div>
+    </div>
+    <div class="chart-card">
+      <div id="g1" class="jxgbox"></div>
+      <div class="controls">
+        <button onclick="zoomBoard('g1',0.8)">הגדלה</button>
+        <button onclick="zoomBoard('g1',1.25)">הקטנה</button>
+        <button onclick="resetBoard('g1')">איפוס / מרכוז</button>
+      </div>
+      <p class="mini rtl">בגרף מסומנות שלוש נקודות האפס של <span class="ltr">\(P(x)=x(x-2)(x-5)\)</span>.</p>
+    </div>
+  </div>
+  <div class="exercise">
+    <div class="exercise-title">בדיקת הבנה</div>
+    <p>נתונה הפונקציה <span class="ltr">\(F(x)=x(x+3)(x-4)\)</span>. מצאו את נקודות האפס ורשמו כמה קטעים נוצרים על ציר ה-x לצורך בדיקת הסימן.</p>
+    <div class="solution"><strong>תשובה:</strong> <span class="ltr">\(x=-3,0,4\)</span>, ולכן מתקבלים ארבעה תחומים.</div>
+  </div>
+  <div class="page-no">2</div>
+</section>
+
+<section class="page" id="p3">
+  <h2>2. ריבוי שורש ושינוי סימן</h2>
+  <p>כאשר גורם מופיע בחזקה, החזקה היא ריבוי השורש. לריבוי יש משמעות גרפית ומשמעות ישירה בטבלת הסימנים.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>ריבוי אי-זוגי</h3>
+      <div class="formula">\[P(x)=(x-r)^{2k+1}Q(x)\]</div>
+      <p>בדרך כלל הגרף <strong>עובר</strong> דרך ציר ה-x בנקודה <span class="ltr">\(x=r\)</span>, וסימן הפונקציה מתחלף.</p>
+    </div>
+    <div class="card">
+      <h3>ריבוי זוגי</h3>
+      <div class="formula">\[P(x)=(x-r)^{2k}Q(x)\]</div>
+      <p>בדרך כלל הגרף <strong>נוגע</strong> בציר ה-x וחוזר לאותו צד, ולכן סימן הפונקציה אינו מתחלף.</p>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:4mm">
+    <div class="chart-card">
+      <div id="g2a" class="jxgbox small"></div>
+      <div class="controls">
+        <button onclick="zoomBoard('g2a',0.8)">הגדלה</button><button onclick="zoomBoard('g2a',1.25)">הקטנה</button><button onclick="resetBoard('g2a')">איפוס / מרכוז</button>
+      </div>
+      <p class="mini rtl">שורש פשוט: <span class="ltr">\(P(x)=(x-1)(x+2)\)</span>.</p>
+    </div>
+    <div class="chart-card">
+      <div id="g2b" class="jxgbox small"></div>
+      <div class="controls">
+        <button onclick="zoomBoard('g2b',0.8)">הגדלה</button><button onclick="zoomBoard('g2b',1.25)">הקטנה</button><button onclick="resetBoard('g2b')">איפוס / מרכוז</button>
+      </div>
+      <p class="mini rtl">שורש כפול: <span class="ltr">\(Q(x)=x^2(5x-2)\)</span>.</p>
+    </div>
+  </div>
+  <table class="sign-table">
+    <tr><th>מאפיין</th><th>ריבוי אי-זוגי</th><th>ריבוי זוגי</th></tr>
+    <tr><td>מעבר דרך הציר</td><td>כן</td><td>לא בהכרח - בדרך כלל נגיעה</td></tr>
+    <tr><td>שינוי סימן</td><td>כן</td><td>לא</td></tr>
+    <tr><td>טבלת סימנים</td><td>מחליפים סימן</td><td>שומרים על הסימן</td></tr>
+  </table>
+  <div class="callout"><strong>טעות נפוצה:</strong> אין כלל שאומר שהסימן תמיד מתחלף בכל נקודת אפס. קודם בודקים את ריבוי השורש.</div>
+  <div class="page-no">3</div>
+</section>
+
+<section class="page" id="p4">
+  <h2>3. סימן הפונקציה מתוך הגרף</h2>
+  <div class="grid2_">
+    <div>
+      <p>הקשר הבסיסי בין גרף לסימן הוא:</p>
+      <table>
+        <tr><th>מיקום הגרף</th><th>משמעות אלגברית</th></tr>
+        <tr><td>מעל ציר ה-x</td><td class="ltr">\(P(x)\gt0\)</td></tr>
+        <tr><td>על ציר ה-x</td><td class="ltr">\(P(x)=0\)</td></tr>
+        <tr><td>מתחת לציר ה-x</td><td class="ltr">\(P(x)\lt0\)</td></tr>
+      </table>
+      <div class="exercise">
+        <div class="exercise-title">דוגמה מהחומר המצורף</div>
+        <p>נתונה הפונקציה <span class="ltr">\(F(x)=x^3-16x\)</span>.</p>
+        <p>א. מצאו את נקודות האפס.</p>
+        <p>ב. רשמו את התחומים שבהם הפונקציה חיובית.</p>
+        <p>ג. רשמו את התחומים שבהם הפונקציה שלילית.</p>
+        <p>ד. פתרו את <span class="ltr">\(x^3-16x\gt0\)</span> ואת <span class="ltr">\(x^3-16x\lt0\)</span>.</p>
+      </div>
+      <div class="solution compact">
+        <p><span class="ltr">\(F(x)=x(x-4)(x+4)\)</span>.</p>
+        <p>אפסים: <span class="ltr">\(x=-4,0,4\)</span>.</p>
+        <p><span class="ltr">\(F(x)\gt0\)</span>: <span class="ltr">\((-4,0)\cup(4,\infty)\)</span>.</p>
+        <p><span class="ltr">\(F(x)\lt0\)</span>: <span class="ltr">\(( -\infty,-4)\cup(0,4)\)</span>.</p>
+      </div>
+    </div>
+<div style="height:20px;"></div>
+    <div class="chart-card">
+      <div id="g3" class="jxgbox"></div>
+      <div class="controls">
+        <button onclick="zoomBoard('g3',0.8)">הגדלה</button><button onclick="zoomBoard('g3',1.25)">הקטנה</button><button onclick="resetBoard('g3')">איפוס / מרכוז</button>
+      </div>
+      <p class="mini rtl">היעזרו בגרף כדי לבדוק את תחומי החיוביות והשליליות.</p>
+    </div>
+  </div>
+  <div class="page-no">4</div>
+</section>
+
+<section class="page" id="p5">
+  <h2>4. פתרון אי-שוויון פולינומי באמצעות טבלת סימנים</h2>
+  <h3>האלגוריתם</h3>
+  <div class="grid3 compact">
+    <div class="card"><strong>1.</strong> מעבירים את כל האיברים לאגף אחד כך שמקבלים <span class="ltr">\(P(x)\gtrless0\)</span>.</div>
+    <div class="card"><strong>2.</strong> מפרקים את <span class="ltr">\(P(x)\)</span> לגורמים ככל האפשר.</div>
+    <div class="card"><strong>3.</strong> מוצאים את כל נקודות האפס ומציבים אותן בסדר על ציר ה-x.</div>
+    <div class="card"><strong>4.</strong> בודקים ריבוי של כל שורש.</div>
+    <div class="card"><strong>5.</strong> קובעים את הסימן בכל תחום.</div>
+    <div class="card"><strong>6.</strong> בוחרים את התחומים המתאימים לסימן המבוקש.</div>
+  </div>
+  <div class="exercise">
+    <div class="exercise-title">דוגמה מלאה</div>
+    <div class="formula">\[x^3-7x^2+10x\lt0\]</div>
+    <div class="formula">\[x(x-2)(x-5)\lt0\]</div>
+  </div>
+  <table class="sign-table">
+    <tr><th>תחום</th><th class="ltr">\(x\lt0\)</th><th class="ltr">\(0\lt x\lt2\)</th><th class="ltr">\(2\lt x\lt5\)</th><th class="ltr">\(x\gt5\)</th></tr>
+    <tr><td class="ltr">\(x\)</td><td>-</td><td>+</td><td>+</td><td>+</td></tr>
+    <tr><td class="ltr">\(x-2\)</td><td>-</td><td>-</td><td>+</td><td>+</td></tr>
+    <tr><td class="ltr">\(x-5\)</td><td>-</td><td>-</td><td>-</td><td>+</td></tr>
+    <tr><td class="ltr">\(P(x)\)</td><td>-</td><td>+</td><td>-</td><td>+</td></tr>
+  </table>
+  <div class="formula">\[x\in(-\infty,0)\cup(2,5)\]</div>
+  <div class="callout"><strong>בדיקת קצה:</strong> באי-שוויון ממש, נקודות האפס אינן נכללות. באי-שוויון מסוג <span class="ltr">\(\le\)</span> או <span class="ltr">\(\ge\)</span>, נקודות האפס נכללות.</div>
+  <div class="exercise">
+    <div class="exercise-title">תרגול קצר</div>
+    <p>פתרו: <span class="ltr">\(x^2(x-3)(x+1)\ge0\)</span>. שימו לב במיוחד לשורש הכפול.</p>
+    <div class="solution"><strong>תשובה:</strong> <span class="ltr">\((-\infty,-1]\cup\{0\}\cup[3,\infty)\)</span>.</div>
+  </div>
+  <div class="page-no">5</div>
+</section>
+
+<section class="page" id="p6">
+  <h2>5. כאשר האי-שוויון לא גדול\קטן מאפס</h2>
+  <p>בכל שאלה מהצורה <span class="ltr">\(A(x)\gtrless B(x)\)</span>, מעבירים צד כדי ליצור פולינום אחד.</p>
+  <div class="formula">\[A(x)-B(x)\gtrless0\]</div>
+  <div class="exercise">
+    <div class="exercise-title">דוגמה מהחומר המצורף</div>
+    <div class="formula">\[(3x-8)^2-(3+x)^2\ge1+3x\]</div>
+    <p>פותחים סוגריים ומעבירים את כל האיברים לאגף אחד:</p>
+    <div class="formula">\[8x^2-57x+54\ge0\]</div>
+    <div class="formula">\[8x^2-57x+54\ge0\]</div>
+    <p>שורשי המשוואה המתאימה:</p>
+    <div class="formula">\[x=\frac{57\pm39}{16}\]</div>
+    <p>מאחר שמקדם <span class="ltr">\(x^2\)</span> חיובי, הביטוי אינו שלילי מחוץ לקטע שבין השורשים.</p>
+    <div class="formula">\[x\le\frac98\quad\text{or}\quad x\ge6\]</div>
+  </div>
+  <div class="grid2_">
+    <div class="card warn">
+      <h3>בדיקה אלגברית</h3>
+      <p>באי-שוויון ממעלה שנייה ניתן להשתמש גם בכיוון הפרבולה ובשורשים. עם זאת, העיקרון הכללי נשאר זהה: בניית פונקציה אחת ובדיקת הסימן שלה.</p>
+    </div>
+<div style="height:8px;"></div>
+    <div class="card good">
+      <h3>בדיקה גרפית</h3>
+      <p>אפשר לשרטט את הפולינום המתקבל ולראות באילו תחומים הוא נמצא על ציר ה-x או מעליו.</p>
+    </div>
+  </div>
+  <div class="chart-card" style="margin-top:2mm">
+    <div id="g4" class="jxgbox tiny"></div>
+    <div class="controls"><button onclick="zoomBoard('g4',0.8)">הגדלה</button><button onclick="zoomBoard('g4',1.25)">הקטנה</button><button onclick="resetBoard('g4')">איפוס / מרכוז</button></div>
+  </div>
+  <div class="page-no">6</div>
+</section>
+
+<section class="page" id="p7">
+  <h2>6. נקודות חיתוך בין שתי פונקציות פולינומיות</h2>
+  <p>בנקודת חיתוך של שני גרפים יש אותו ערך של <span class="ltr">\(x\)</span> ואותו ערך של <span class="ltr">\(y\)</span>. לכן:</p>
+  <div class="formula">\[f(x)=g(x)\]</div>
+  <p>בפועל פותרים:</p>
+  <div class="formula">\[f(x)-g(x)=0\]</div>
+  <div class="grid2_">
+    <div>
+      <div class="exercise">
+        <div class="exercise-title">דוגמה מהחומר המצורף</div>
+        <div class="formula">\[f(x)=2x^2-10x+7\]</div>
+        <div class="formula">\[g(x)=-x^2+14x-14\]</div>
+        <p>מצאו את נקודות החיתוך בין הפונקציות.</p>
+      </div>
+      <div class="solution compact">
+        <div class="formula">\[2x^2-10x+7=-x^2+14x-14\]</div>
+        <div class="formula">\[3x^2-24x+21=0\]</div>
+        <div class="formula">\[(x-1)(x-7)=0\]</div>
+        <p>לכן <span class="ltr">\(x=1\)</span> או <span class="ltr">\(x=7\)</span>.</p>
+        <p>בהצבה מתקבלות נקודות החיתוך:</p>
+        <div class="formula">\[(1,-1),\;(7,35)\]</div>
+      </div>
+    </div>
+    <div style="zoom:.75;" class="chart-card">
+      <div id="g5" class="jxgbox"></div>
+      <div class="controls"><button onclick="zoomBoard('g5',0.8)">הגדלה</button><button onclick="zoomBoard('g5',1.25)">הקטנה</button><button onclick="resetBoard('g5')">איפוס / מרכוז</button></div>
+      <p class="mini rtl">שתי הפרבולות ונקודות החיתוך שלהן.</p>
+    </div>
+  </div>
+  <div class="callout"><strong>השלמה חשובה:</strong> מציאת ערכי <span class="ltr">\(x\)</span> בלבד אינה מספיקה כאשר מבקשים נקודות חיתוך. יש להציב ולקבל גם את ערך <span class="ltr">\(y\)</span>.</div>
+  <div class="page-no">7</div>
+</section>
+
+<section class="page" id="p8">
+  <h2>7. מיקום יחסי של שני גרפים</h2>
+  <p>השאלה "מתי הגרף של <span class="ltr">\(f\)</span> נמצא מעל הגרף של <span class="ltr">\(g\)</span>?" שקולה לאי-שוויון:</p>
+  <div class="formula">\[f(x)\gt g(x)\]</div>
+  <p>מגדירים פונקציית הפרש:</p>
+  <div class="formula">\[h(x)=f(x)-g(x)\]</div>
+  <p>ואז בודקים את הסימן של <span class="ltr">\(h\)</span>.</p>
+  <div class="grid2_">
+    <div class="chart-card">
+      <div id="g6" class="jxgbox"></div>
+      <div class="controls"><button onclick="zoomBoard('g6',0.8)">הגדלה</button><button onclick="zoomBoard('g6',1.25)">הקטנה</button><button onclick="resetBoard('g6')">איפוס / מרכוז</button></div>
+    </div>
+    <div>
+      <div class="exercise">
+        <div class="exercise-title">המשך לדוגמת החיתוך</div>
+        <p>עבור:</p>
+        <div class="formula">\[f(x)=2x^2-10x+7\]</div>
+        <div class="formula">\[g(x)=-x^2+14x-14\]</div>
+        <p>קבעו מתי <span class="ltr">\(f(x)\gt g(x)\)</span>.</p>
+      </div>
+      <div class="solution">
+        <div class="formula">\[h(x)=3x^2-24x+21=3(x-1)(x-7)\]</div>
+        <p>לכן:</p>
+        <div class="formula">\[f(x)\gt g(x)\quad\text{for}\quad x\lt1\quad\text{or}\quad x\gt7\]</div>
+        <p>ובתחום <span class="ltr">\(1\lt x\lt7\)</span> מתקיים <span class="ltr">\(f(x)\lt g(x)\)</span>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="callout"><strong>רעיון מרכזי:</strong> נקודות החיתוך הן בדיוק נקודות האפס של פונקציית ההפרש.</div>
+  <div class="page-no">8</div>
+</section>
+
+<section class="page" id="p9">
+  <h2>8. השוואת שני פולינומים ממעלה שלישית</h2>
+  <div class="exercise">
+    <div class="exercise-title">תרגיל מהחומר המצורף</div>
+    <div class="formula">\[f(x)=x^3-9x,\qquad g(x)=-x^3+9x\]</div>
+    <p>א. מצאו את נקודות האפס של כל פונקציה.</p>
+    <p>ב. התאימו לכל פונקציה את הגרף המתאים.</p>
+    <p>ג. מצאו את נקודות החיתוך בין שתי הפונקציות.</p>
+    <p>ד. קבעו באילו תחומים מתקיים <span class="ltr">\(f(x)\gt g(x)\)</span>.</p>
+  </div>
+  <div class="grid2_">
+    <div class="chart-card">
+      <div id="g7" class="jxgbox"></div>
+      <div class="controls"><button onclick="zoomBoard('g7',0.8)">הגדלה</button><button onclick="zoomBoard('g7',1.25)">הקטנה</button><button onclick="resetBoard('g7')">איפוס / מרכוז</button></div>
+    </div>
+    <div class="solution compact">
+      <p><span class="ltr">\(f(x)=x(x-3)(x+3)\)</span>, ולכן האפסים שלה <span class="ltr">\(-3,0,3\)</span>.</p>
+      <p><span class="ltr">\(g(x)=-x(x-3)(x+3)\)</span>, ולכן אותם אפסים.</p>
+      <p>לחיתוך פותרים <span class="ltr">\(f(x)=g(x)\)</span>:</p>
+      <div class="formula">\[2x^3-18x=0\]</div>
+      <div class="formula">\[2x(x-3)(x+3)=0\]</div>
+      <p>נקודות החיתוך:</p>
+      <div class="formula">\[(-3,0),\;(0,0),\;(3,0)\]</div>
+      <p>למיקום היחסי בודקים את סימן <span class="ltr">\(2x(x-3)(x+3)\)</span>.</p>
+      <div class="formula">\[f(x)\gt g(x)\quad\text{for}\quad -3\lt x\lt0\quad\text{or}\quad x\gt3\]</div>
+    </div>
+  </div>
+  <div class="page-no">9</div>
+</section>
+
+<section class="page" id="p10">
+  <h2>9. שני פולינומים דומים - קריאה גרפית מדויקת</h2>
+  <div class="exercise">
+    <div class="formula">\[f(x)=\frac12x(x^2-4),\qquad g(x)=\frac12x(x+\sqrt2)(x-\sqrt2)\]</div>
+    <p>א. מצאו את נקודות האפס של כל פונקציה.</p>
+    <p>ב. קבעו איזה גרף מתאים לכל פונקציה.</p>
+    <p>ג. פתרו את <span class="ltr">\(f(x)\gt0\)</span>.</p>
+    <p>ד. מצאו את נקודות החיתוך בין <span class="ltr">\(f\)</span> ו-<span class="ltr">\(g\)</span>.</p>
+  </div>
+  <div class="grid2_">
+    <div style="zoom:.9;" class="chart-card">
+      <div id="g8" class="jxgbox"></div>
+      <div class="controls"><button onclick="zoomBoard('g8',0.8)">הגדלה</button><button onclick="zoomBoard('g8',1.25)">הקטנה</button><button onclick="resetBoard('g8')">איפוס / מרכוז</button></div>
+    </div>
+    <div class="solution compact">
+      <p>ל-<span class="ltr">\(f\)</span>: אפסים <span class="ltr">\(-2,0,2\)</span>.</p>
+      <p>ל-<span class="ltr">\(g\)</span>: אפסים <span class="ltr">\(-\sqrt2,0,\sqrt2\)</span>.</p>
+      <p>פתרון <span class="ltr">\(f(x)\gt0\)</span>:</p>
+      <div class="formula">\[x\in(-2,0)\cup(2,\infty)\]</div>
+      <p>לחיתוך:</p>
+      <div class="formula">\[\frac12x(x^2-4)=\frac12x(x^2-2)\]</div>
+      <div class="formula">\[-x=0\]</div>
+      <p>ולכן קיימת נקודת חיתוך אחת בלבד:</p>
+      <div class="formula">\[(0,0)\]</div>
+    </div>
+  </div>
+  <div class="callout"><strong>מיומנות חשובה:</strong> כאשר לשני פולינומים אותה צורה כללית אך אפסים שונים, מיקום החיתוכים עם ציר ה-x מאפשר לזהות את הפונקציה המתאימה לכל גרף.</div>
+  <div class="page-no">10</div>
+</section>
+
+<section class="page" id="p11">
+  <h2>10. בעיות הפוכות - מהגרף אל הפולינום</h2>
+  <p>ברמת 5 יחידות חשוב לדעת לא רק לשרטט גרף מפולינום, אלא גם להסיק מידע אלגברי מתוך הגרף.</p>
+  <div class="grid2_">
+    <div class="chart-card">
+      <div id="g9" class="jxgbox"></div>
+      <div class="controls"><button onclick="zoomBoard('g9',0.8)">הגדלה</button><button onclick="zoomBoard('g9',1.25)">הקטנה</button><button onclick="resetBoard('g9')">איפוס / מרכוז</button></div>
+    </div>
+    <div>
+      <div class="exercise">
+        <div class="exercise-title">חקירה מן הגרף</div>
+        <p>הגרף משמאל מתאים לפולינום שמקדם החזקה הגבוהה שלו חיובי.</p>
+        <p>א. מצאו את נקודות האפס.</p>
+        <p>ב. קבעו איזה שורש הוא בעל ריבוי זוגי.</p>
+        <p>ג. כתבו פולינום אפשרי בעל הגרף הנתון.</p>
+        <p>ד. פתרו את אי-השוויון <span class="ltr">\(P(x)\le0\)</span>.</p>
+      </div>
+      <div class="solution compact">
+        <p>מן הגרף מתקבלים האפסים <span class="ltr">\(-2,1,3\)</span>.</p>
+        <p>ב-<span class="ltr">\(x=1\)</span> יש נגיעה בציר ולכן ריבוי זוגי.</p>
+        <p>פולינום אפשרי:</p>
+        <div class="formula">\[P(x)=(x+2)(x-1)^2(x-3)\]</div>
+        <p>פתרון <span class="ltr">\(P(x)\le0\)</span>:</p>
+        <div class="formula">\[x\in[-2,3]\]</div>
+        <p class="mini">הנקודה <span class="ltr">\(x=1\)</span> נכללת אך אינה מפצלת את תחום השליליות לשני תחומי סימן שונים.</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-no">11</div>
+</section>
+
+<section class="page" id="p12">
+  <h2>11. תרגול מסכם - חלק א</h2>
+  <div class="compact">
+    <div class="exercise"><strong>1.</strong> פתרו: <span class="ltr">\(x(x-2)(x-5)\lt0\)</span>.</div>
+    <div class="exercise"><strong>2.</strong> פתרו: <span class="ltr">\((x+3)^2(x-1)\ge0\)</span>. הסבירו מה תפקידו של השורש הכפול.</div>
+    <div class="exercise"><strong>3.</strong> נתונה <span class="ltr">\(P(x)=x^4-5x^2+4\)</span>. מצאו את האפסים ופתרו <span class="ltr">\(P(x)\le0\)</span>.</div>
+    <div class="exercise"><strong>4.</strong> נתונות <span class="ltr">\(f(x)=x^2-5x+4\)</span> ו-<span class="ltr">\(g(x)=2x-2\)</span>. מצאו את נקודות החיתוך וקבעו מתי <span class="ltr">\(f(x)\gt g(x)\)</span>.</div>
+    <div class="exercise"><strong>5.</strong> פתרו: <span class="ltr">\((2x-1)(x+4)(x-3)^2\lt0\)</span>.</div>
+    <div class="exercise"><strong>6.</strong> נתונה <span class="ltr">\(F(x)=x^3-4x\)</span>. ללא מחשבון, שרטטו סקיצה איכותנית ופתרו <span class="ltr">\(F(x)\ge0\)</span>.</div>
+    <div class="exercise"><strong>7.</strong> מצאו את כל נקודות החיתוך של <span class="ltr">\(f(x)=x^3-4x\)</span> ו-<span class="ltr">\(g(x)=x\)</span>.</div>
+    <div class="exercise"><strong>8.</strong> קבעו מתי <span class="ltr">\(x^3-4x\lt x\)</span>.</div>
+    <div class="exercise"><strong>9.</strong> פולינום בעל מקדם מוביל חיובי חותך את ציר ה-x ב-<span class="ltr">\(-3\)</span> וב-<span class="ltr">\(2\)</span>, ונוגע בציר ב-<span class="ltr">\(x=0\)</span>. כתבו פולינום אפשרי ממעלה מינימלית.</div>
+    <div class="exercise"><strong>10.</strong> נתון <span class="ltr">\(P(x)=(x-a)^2(x-b)\)</span>, כאשר <span class="ltr">\(a\lt b\)</span>. תארו את סימן הפולינום בכל אחד מהתחומים שנוצרים.</div>
+  </div>
+  <div class="page-no">12</div>
+</section>
+
+<section class="page" id="p13">
+  <h2>12. תרגול מסכם - חלק ב, עם גרפים</h2>
+  <div class="grid2">
+    <div class="chart-card">
+      <div id="g10" class="jxgbox small"></div>
+      <div class="controls"><button onclick="zoomBoard('g10',0.8)">הגדלה</button><button onclick="zoomBoard('g10',1.25)">הקטנה</button><button onclick="resetBoard('g10')">איפוס / מרכוז</button></div>
+      <div class="exercise compact"><strong>11.</strong> מן הגרף: מצאו את נקודות האפס, קבעו את תחומי החיוביות והשליליות, והציעו פירוק אפשרי לפולינום.</div>
+    </div>
+    <div class="chart-card">
+      <div id="g11" class="jxgbox small"></div>
+      <div class="controls"><button onclick="zoomBoard('g11',0.8)">הגדלה</button><button onclick="zoomBoard('g11',1.25)">הקטנה</button><button onclick="resetBoard('g11')">איפוס / מרכוז</button></div>
+      <div class="exercise compact"><strong>12.</strong> שני גרפים נתונים. מצאו מתוך השרטוט את ערכי ה-x של נקודות החיתוך וקבעו מתי הגרף העולה מהר יותר נמצא מעל האחר.</div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:4mm">
+    <div class="chart-card">
+      <div id="g12" class="jxgbox small"></div>
+      <div class="controls"><button onclick="zoomBoard('g12',0.8)">הגדלה</button><button onclick="zoomBoard('g12',1.25)">הקטנה</button><button onclick="resetBoard('g12')">איפוס / מרכוז</button></div>
+      <div class="exercise compact"><strong>13.</strong> בגרף יש שורש כפול. זהו אותו והסבירו כיצד הוא משנה את טבלת הסימנים.</div>
+    </div>
+    <div class="chart-card">
+      <div id="g13" class="jxgbox small"></div>
+      <div class="controls"><button onclick="zoomBoard('g13',0.8)">הגדלה</button><button onclick="zoomBoard('g13',1.25)">הקטנה</button><button onclick="resetBoard('g13')">איפוס / מרכוז</button></div>
+      <div class="exercise compact"><strong>14.</strong> קבעו, רק מתוך הגרפים, מתי <span class="ltr">\(f(x)\lt g(x)\)</span>. לאחר מכן אימתו אלגברית באמצעות פונקציית הפרש.</div>
+    </div>
+  </div>
+  <div class="page-no">13</div>
+</section>
+
+<section class="page" id="p14">
+  <h2>13. מפתח תשובות לתרגול המסכם</h2>
+  <div class="two-col-text">
+    <p><strong>1.</strong> <span class="ltr">\((-\infty,0)\cup(2,5)\)</span>.</p>
+    <p><strong>2.</strong> <span class="ltr">\([-3,\infty)\)</span>. ב-<span class="ltr">\(x=-3\)</span> אין החלפת סימן.</p>
+    <p><strong>3.</strong> <span class="ltr">\(x=\pm1,\pm2\)</span>; הפתרון: <span class="ltr">\([-2,-1]\cup[1,2]\)</span>.</p>
+    <p><strong>4.</strong> החיתוך מתקבל מן <span class="ltr">\(x^2-7x+6=0\)</span>, ולכן <span class="ltr">\(x=1,6\)</span>. הנקודות: <span class="ltr">\((1,0),(6,10)\)</span>. מתקיים <span class="ltr">\(f(x)\gt g(x)\)</span> עבור <span class="ltr">\(x\lt1\)</span> או <span class="ltr">\(x\gt6\)</span>.</p>
+    <p><strong>5.</strong> <span class="ltr">\((-4,\frac12)\)</span>.</p>
+    <p><strong>6.</strong> <span class="ltr">\([-2,0]\cup[2,\infty)\)</span>.</p>
+    <p><strong>7.</strong> <span class="ltr">\(x^3-5x=0\)</span>, ולכן <span class="ltr">\(x=0,\pm\sqrt5\)</span>. נקודות החיתוך: <span class="ltr">\((-\sqrt5,-\sqrt5),(0,0),(\sqrt5,\sqrt5)\)</span>.</p>
+    <p><strong>8.</strong> פותרים <span class="ltr">\(x^3-5x\lt0\)</span>: <span class="ltr">\(( -\infty,-\sqrt5)\cup(0,\sqrt5)\)</span>.</p>
+    <p><strong>9.</strong> לדוגמה: <span class="ltr">\(P(x)=(x+3)x^2(x-2)\)</span>.</p>
+    <p><strong>10.</strong> השורש <span class="ltr">\(x=a\)</span> כפול ולכן אינו משנה סימן. השורש <span class="ltr">\(x=b\)</span> פשוט ולכן משנה סימן. אם המקדם המוביל חיובי, אז <span class="ltr">\(P(x)\lt0\)</span> עבור <span class="ltr">\(x\lt b\)</span>, למעט האפס ב-<span class="ltr">\(x=a\)</span>, ו-<span class="ltr">\(P(x)\gt0\)</span> עבור <span class="ltr">\(x\gt b\)</span>.</p>
+    <p><strong>11.</strong> אפסים: <span class="ltr">\(-2,1,4\)</span>; בהתאם לגרף מתקבלות החלפות סימן בכל שורש.</p>
+    <p><strong>12.</strong> ערכי החיתוך הם ערכי ה-x שבהם שני הגרפים נפגשים. יש לאמת באמצעות <span class="ltr">\(f(x)-g(x)=0\)</span>.</p>
+    <p><strong>13.</strong> השורש הכפול הוא נקודת הנגיעה עם הציר. הסימן נשמר משני צדיו.</p>
+    <p><strong>14.</strong> קובעים תחילה מן הגרף את התחומים שבהם גרף <span class="ltr">\(f\)</span> נמוך יותר, ואז פותרים <span class="ltr">\(f(x)-g(x)\lt0\)</span>.</p>
+  </div>
+  <div class="callout"><strong>הערכה:</strong> בתשובות פתוחות יש לדרוש נימוק גרפי או אלגברי ולא רק תחום סופי.</div>
+  <div class="page-no">14</div>
+</section>
+
+<script>
+const boards = {};
+const initialBoxes = {};
+function mkBoard(id, box, opts={}){
+  initialBoxes[id] = box.slice();
+  const b = JXG.JSXGraph.initBoard(id, {
+    boundingbox: box,
+    axis: true,
+    showCopyright: false,
+    showNavigation: false,
+    pan: {enabled:true, needShift:false},
+    zoom: {enabled:true, wheel:true, pinch:true, factorX:1.2, factorY:1.2},
+    keepaspectratio: false,
+    defaultAxes: {
+      x: {name:'x', withLabel:true, label:{position:'rt', offset:[-8,10]}, ticks:{drawLabels:true, minorTicks:0}},
+      y: {name:'y', withLabel:true, label:{position:'rt', offset:[10,-8]}, ticks:{drawLabels:true, minorTicks:0}}
+    },
+    ...opts
+  });
+  boards[id]=b;
+  return b;
+}
+function resetBoard(id){ const b=boards[id]; if(!b) return; b.setBoundingBox(initialBoxes[id], false); b.update(); }
+function zoomBoard(id, factor){
+  const b=boards[id]; if(!b) return;
+  const bb=b.getBoundingBox();
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const hw=(bb[0]-bb[2])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+  b.setBoundingBox([cx+hw, cy+hh, cx-hw, cy-hh], false); b.update();
+}
+function addCurve(b, f, attrs={}){ return b.create('functiongraph',[f],{strokeWidth:2.4, ...attrs}); }
+function addRoots(b, roots){ roots.forEach(r=>b.create('point',[r,0],{name:'',size:3,fixed:true})); }
+function initGraphs(){
+  let b;
+  b=mkBoard('g1',[-1.5,8,6.5,-8]); addCurve(b,x=>x*(x-2)*(x-5)); addRoots(b,[0,2,5]);
+  b=mkBoard('g2a',[-4,8,4,-8]); addCurve(b,x=>(x-1)*(x+2)); addRoots(b,[-2,1]);
+  b=mkBoard('g2b',[-1.5,7,2,-7]); addCurve(b,x=>x*x*(5*x-2)); addRoots(b,[0,0.4]);
+  b=mkBoard('g3',[-5.5,28,5.5,-28]); addCurve(b,x=>x*x*x-16*x); addRoots(b,[-4,0,4]);
+  b=mkBoard('g4',[-1,60,9,-30]); addCurve(b,x=>8*x*x-57*x+54); addRoots(b,[9/8,6]);
+  b=mkBoard('g5',[-1,50,9,-10]); addCurve(b,x=>2*x*x-10*x+7,{strokeWidth:2.3,strokeColor:'#1f77b4'}); addCurve(b,x=>-x*x+14*x-14,{strokeWidth:2.3,dash:2,strokeColor:'#d62728'}); [[1,-1],[7,35]].forEach(p=>b.create('point',p,{name:'',size:3,fixed:true}));
+  b=mkBoard('g6',[-1,50,9,-10]); addCurve(b,x=>2*x*x-10*x+7,{strokeWidth:2.3,strokeColor:'#1f77b4'}); addCurve(b,x=>-x*x+14*x-14,{strokeWidth:2.3,dash:2,strokeColor:'#d62728'});
+  b=mkBoard('g7',[-4.2,16,4.2,-16]); addCurve(b,x=>x*x*x-9*x,{strokeWidth:2.3,strokeColor:'#1f77b4'}); addCurve(b,x=>-x*x*x+9*x,{strokeWidth:2.3,dash:2,strokeColor:'#d62728'}); addRoots(b,[-3,0,3]);
+  b=mkBoard('g8',[-3.2,5,3.2,-5]); addCurve(b,x=>0.5*x*(x*x-4),{strokeWidth:2.3,strokeColor:'#1f77b4'}); addCurve(b,x=>0.5*x*(x*x-2),{strokeWidth:2.3,dash:2,strokeColor:'#d62728'}); addRoots(b,[-2,-Math.sqrt(2),0,Math.sqrt(2),2]);
+  b=mkBoard('g9',[-3.4,12,4.4,-8]); addCurve(b,x=>0.3*(x+2)*(x-1)*(x-1)*(x-3)); addRoots(b,[-2,1,3]);
+  b=mkBoard('g10',[-3.5,12,5,-12]); addCurve(b,x=>0.55*(x+2)*(x-1)*(x-4)); addRoots(b,[-2,1,4]);
+  b=mkBoard('g11',[-4,16,4,-16]); addCurve(b,x=>x*x*x-4*x,{strokeWidth:2.3,strokeColor:'#1f77b4'}); addCurve(b,x=>0.75*x*x-2,{strokeWidth:2.3,dash:2,strokeColor:'#d62728'});
+  b=mkBoard('g12',[-3.5,10,4.2,-10]); addCurve(b,x=>0.6*(x+2)*(x-1)*(x-1)*(x-3)); addRoots(b,[-2,1,3]);
+  b=mkBoard('g13',[-4,16,4,-16]); addCurve(b,x=>0.55*(x+2)*(x-1)*(x-3),{strokeWidth:2.3,strokeColor:'#1f77b4'}); addCurve(b,x=>-0.4*(x+1)*(x-2)*(x-3),{strokeWidth:2.3,dash:2,strokeColor:'#d62728'});
+}
+window.addEventListener('load', initGraphs);
+</script>
+</body>
+</html>
