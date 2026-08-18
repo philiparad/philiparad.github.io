@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>דף עבודה — שרטוט גרפים של פולינומים</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    @page { size: A4; margin: 12mm; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: #f3f4f6;
+      color: #111827;
+      font-family: Arial, "Noto Sans Hebrew", "David", sans-serif;
+      line-height: 1.48;
+      font-size: 14.5px;
+    }
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 12mm auto;
+      padding: 12mm;
+      background: white;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+      overflow: visible;
+      break-after: page;
+      page-break-after: always;
+    }
+    .page:last-child { break-after: auto; page-break-after: auto; }
+    h1 {
+      margin: 0 0 4mm 0;
+      font-size: 27px;
+      line-height: 1.2;
+      color: #0f172a;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      margin-bottom: 5mm;
+      color: #374151;
+      font-size: 15.5px;
+    }
+    .instructions {
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 5mm;
+      margin-bottom: 5mm;
+    }
+    .instructions h2 {
+      margin: 0 0 2.5mm 0;
+      font-size: 19px;
+      color: #1e293b;
+    }
+    .instructions ol { margin: 0; padding-right: 8mm; }
+    .instructions li { margin: 0.9mm 0; }
+    .note {
+      margin-top: 3mm;
+      padding: 2.5mm 3.5mm;
+      border-right: 4px solid #64748b;
+      background: #fff;
+      color: #334155;
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 2mm;
+      margin: 0 0 4mm 0;
+      color: #0f172a;
+    }
+    .section-title h2 { margin: 0; font-size: 20px; }
+    .section-title span { font-size: 13px; color: #64748b; }
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4mm;
+      margin-top: 4mm;
+    }
+    .exercise {
+      border: 1.4px solid #d1d5db;
+      border-radius: 11px;
+      padding: 4mm;
+      min-height: 42mm;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      background: #ffffff;
+    }
+    .exercise-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4mm;
+      margin-bottom: 3mm;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 1.7mm;
+    }
+    .exercise-title strong { font-size: 17px; color: #111827; }
+    .exercise-title span { font-size: 12.5px; color: #64748b; }
+    .function {
+      direction: ltr;
+      text-align: center;
+      font-size: 17px;
+      padding: 1.5mm 0 2mm 0;
+      min-height: 11mm;
+      white-space: nowrap;
+    }
+    .task-lines { margin-top: 2mm; color: #374151; font-size: 12.7px; }
+    .task-lines span { display: block; margin: 0.45mm 0; }
+    .footer {
+      margin-top: 7mm;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 3mm;
+      color: #475569;
+      font-size: 13px;
+      text-align: center;
+    }
+    @media print {
+      body { background: white; }
+      .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+      .exercise { break-inside: avoid; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>דף עבודה — שרטוט גרפים של פולינומים</h1>
+    <div class="subtitle">פולינומים בצורה מפורקת: שורשים, ריבויים, התנהגות ליד ציר \(x\) וסקיצה איכותית</div>
+
+    <section class="instructions">
+      <h2>הוראות עבודה</h2>
+      <ol>
+        <li>מצאו את נקודות החיתוך עם ציר \(x\), כלומר את שורשי הפונקציה.</li>
+        <li>קבעו את הריבוי של כל שורש: ריבוי זוגי — הגרף נוגע בציר \(x\); ריבוי אי־זוגי — הגרף חוצה את ציר \(x\).</li>
+        <li>קבעו את מעלת הפולינום ואת סימן המקדם המוביל, ולפיהם קבעו את התנהגות קצות הגרף.</li>
+        <li>בנו טבלת סימנים לפי השורשים, וקבעו באילו תחומים הפונקציה חיובית או שלילית.</li>
+        <li>שרטטו סקיצה איכותית של הגרף. אין צורך למצוא נקודות קיצון מדויקות, אך יש לשמור על ההתנהגות ליד השורשים ובקצות הגרף.</li>
+      </ol>
+      <div class="note">שימו לב: כאשר הריבוי גדול מ־\(1\), הגרף נראה שטוח יותר ליד השורש. בריבוי \(3\) או יותר החצייה או הנגיעה בציר מתבצעת בצורה “מרוחה” יותר.</div>
+    </section>
+
+    <section aria-label="תרגילים 1 עד 8">
+      <div class="section-title"><h2>תרגילים 1–8</h2><span>רמה בסיסית עד בינונית</span></div>
+      <div class="exercise-grid">
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 1</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x+1)^2(x-2) \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 2</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x-3)^2(x+4) \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 3</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=x^2(x-5) \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 4</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(2x+1)^2(x-3) \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 5</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x+2)^3(x-1) \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 6</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x-1)^2(x+3)^2 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 7</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x+2)^3(x-4)^2 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 8</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(2x-1)^2(x+1)^3 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+      </div>
+    </section>
+
+    <div class="footer">שם התלמיד/ה: ____________________ &nbsp;&nbsp;&nbsp; כיתה: __________ &nbsp;&nbsp;&nbsp; תאריך: __________</div>
+  </main>
+
+  <main class="page">
+    <h1>דף עבודה — שרטוט גרפים של פולינומים</h1>
+    <div class="subtitle">המשך — תרגילים 9–20</div>
+    <section aria-label="תרגילים 9 עד 20">
+      <div class="section-title"><h2>תרגילים 9–20</h2><span>רמה בינונית עד מתקדמת</span></div>
+      <div class="exercise-grid">
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 9</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=x^3(x-2)^4 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 10</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(3x+2)^2(x-5)^3 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 11</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(2x+3)^3(x-1)^2 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 12</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x-4)^4(x+1)^3 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 13</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(3x-1)^2(x+2)^4 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 14</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(2x-5)^3(x+3)^3 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 15</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(4x+1)^2(x-2)^5 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 16</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x-2)^2(x+2)(x+4)^2 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 17</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=x^3(x+2)^2(x+4)^3 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 18</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x-1)^4(x+2)^2(x+4)^3 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 19</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x+2)^3(x+3)^2(x+4)^3 \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+
+      <article class="exercise">
+        <div class="exercise-title"><strong>תרגיל 20</strong><span>ניתוח ושרטוט</span></div>
+        <div class="function">\( f(x)=(x-3)^4(x+2)^4(x+4) \)</div>
+        <div class="task-lines">
+          <span>א. מצאו את כל השורשים ואת הריבוי של כל שורש.</span>
+          <span>ב. קבעו ליד כל שורש: חצייה של ציר \(x\) או נגיעה בציר \(x\).</span>
+          <span>ג. קבעו את מעלת הפולינום ואת התנהגות קצות הגרף.</span>
+          <span>ד. בנו טבלת סימנים ושרטטו סקיצה איכותית.</span>
+        </div>
+      </article>
+      </div>
+    </section>
+
+    <div class="footer">שם התלמיד/ה: ____________________ &nbsp;&nbsp;&nbsp; כיתה: __________ &nbsp;&nbsp;&nbsp; תאריך: __________</div>
+  </main>
+</body>
+</html>
