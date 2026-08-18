@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>מערך שיעור עצמי - משוואות ואי־שוויונים פולינומיים - ללא יחידות 12-16</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      chtml: { scale: 0.94 },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+  <style>
+    :root {
+      --ink: #17233c;
+      --muted: #586579;
+      --navy: #15375f;
+      --blue: #216a8b;
+      --teal: #21868a;
+      --gold: #eaae43;
+      --paper: #fff;
+      --canvas: #dfe6ee;
+      --line: #d9e2ec;
+      --easy: #dff3e6;
+      --medium: #fff0cf;
+      --hard: #f9dddd;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--canvas); }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+
+    #document {
+      width: 210mm;
+      margin: 12mm auto;
+    }
+
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      margin: 0 0 10mm;
+      padding: 13mm 14mm 15mm;
+      border: 1px solid #cad5e0;
+      background: var(--paper);
+      box-shadow: 0 8px 26px rgba(23, 35, 60, .14);
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .page:last-child { break-after: auto; page-break-after: auto; }
+
+    .page::after {
+      content: attr(data-page);
+      position: absolute;
+      bottom: 7mm;
+      left: 14mm;
+      color: #778397;
+      font-size: 9pt;
+      font-variant-numeric: tabular-nums;
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    .page::before {
+      content: "מתמטיקה 5 יח״ל · למידה עצמית";
+      position: absolute;
+      right: 14mm;
+      bottom: 7mm;
+      color: #778397;
+      font-size: 8.5pt;
+    }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: white;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(80, 195, 194, .28), transparent 34%),
+        linear-gradient(145deg, #112a4c, #185c75 70%, #208287);
+    }
+
+    .cover::before { color: rgba(255,255,255,.68); }
+    .cover::after { color: rgba(255,255,255,.68); }
+
+    .cover-mark {
+      color: #b5ece9;
+      font-size: 12pt;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    .cover h1 {
+      max-width: 168mm;
+      margin: 14mm 0 7mm;
+      font-size: 34pt;
+      line-height: 1.12;
+      letter-spacing: -.03em;
+    }
+
+    .cover .subtitle {
+      max-width: 158mm;
+      color: #e4f3f5;
+      font-size: 15pt;
+    }
+
+    .cover-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5mm;
+      margin-top: 22mm;
+    }
+
+    .stat {
+      padding: 7mm 5mm;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 4mm;
+      background: rgba(255,255,255,.09);
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 23pt;
+    }
+
+    .cover-note {
+      padding: 7mm;
+      border-right: 1.5mm solid var(--gold);
+      border-radius: 3mm;
+      color: #f2f7f8;
+      background: rgba(8,28,50,.3);
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 5mm;
+      align-items: center;
+      margin-bottom: 5mm;
+      padding-bottom: 3mm;
+      border-bottom: .5mm solid var(--line);
+    }
+
+    .chapter {
+      color: var(--blue);
+      font-size: 10pt;
+      font-weight: 700;
+    }
+
+    .source {
+      max-width: 104mm;
+      color: var(--muted);
+      font-size: 8.5pt;
+      text-align: left;
+    }
+
+    h2 {
+      margin: 0 0 4mm;
+      color: var(--navy);
+      font-size: 23pt;
+      line-height: 1.18;
+    }
+
+    h3 {
+      margin: 0 0 2mm;
+      color: var(--navy);
+      font-size: 13pt;
+    }
+
+    p { margin: 0 0 3mm; }
+
+    .goals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3mm;
+      margin: 0 0 5mm;
+      padding: 0;
+      list-style: none;
+    }
+
+    .goals li {
+      padding: 3mm;
+      border-radius: 2.5mm;
+      color: #24465e;
+      background: #eef6f8;
+      font-size: 9.5pt;
+    }
+
+    .theory-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 5mm;
+      align-items: start;
+    }
+
+    .box {
+      padding: 4mm;
+      border: .35mm solid var(--line);
+      border-radius: 3mm;
+      background: #f8fafc;
+      font-size: 10pt;
+    }
+
+    .box + .box { margin-top: 3mm; }
+
+    .rule {
+      border-right: 1.4mm solid var(--gold);
+      background: #fffaf0;
+    }
+
+    .worked {
+      border-color: #b8dddd;
+      background: #f2fbfb;
+    }
+
+    .steps {
+      margin: 2mm 0 0;
+      padding-right: 5mm;
+    }
+
+    .steps li { margin-bottom: 1.6mm; }
+
+    .self-check {
+      margin-top: 4mm;
+      padding: 3mm 4mm;
+      border-radius: 2.5mm;
+      color: #24465e;
+      background: #eaf3f8;
+      font-size: 9.5pt;
+    }
+
+    .jxgbox {
+      width: 100%;
+      height: 73mm;
+      margin-top: 3mm;
+      border: .35mm solid #b9cad8;
+      border-radius: 2mm;
+      background: white;
+    }
+
+    .exercise-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4mm;
+      align-items: end;
+      margin-bottom: 4mm;
+      padding-bottom: 3mm;
+      border-bottom: .5mm solid var(--line);
+    }
+
+    .exercise-head h2 { margin-bottom: 0; font-size: 20pt; }
+
+    .level {
+      padding: 2mm 4mm;
+      border-radius: 999px;
+      font-size: 10pt;
+      font-weight: 700;
+    }
+
+    .level.easy { background: var(--easy); color: #23623a; }
+    .level.medium { background: var(--medium); color: #73500e; }
+    .level.hard { background: var(--hard); color: #7c2929; }
+
+    .exercise-list {
+      display: grid;
+      gap: 2.1mm;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: ex var(--start);
+    }
+
+    .exercise {
+      min-height: 24mm;
+      padding: 2.8mm 4mm;
+      border: .3mm solid #dde5ed;
+      border-radius: 2.5mm;
+      background: #fcfdff;
+      counter-increment: ex;
+      font-size: 10pt;
+    }
+
+    .exercise::before {
+      content: counter(ex) ".";
+      float: right;
+      margin-left: 2.5mm;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .answer {
+      margin-top: 1.8mm;
+      padding-top: 1.4mm;
+      color: #536579;
+      border-top: .25mm dashed #d6dee7;
+      font-size: 8.8pt;
+    }
+
+    .answer strong { color: #2c7184; }
+
+    .hint {
+      margin-top: 1.4mm;
+      color: #6a531e;
+      font-size: 8.35pt;
+      line-height: 1.35;
+    }
+
+    .hint strong { color: #9a6814; }
+
+    mjx-container { max-width: 100%; }
+    mjx-container[display="true"] { margin: 2.5mm 0 !important; }
+
+    @media screen and (max-width: 850px) {
+      #document {
+        width: 100%;
+        margin: 0;
+        transform-origin: top center;
+      }
+      .page { margin-left: auto; margin-right: auto; }
+    }
+
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+      html, body { width: 210mm; background: white; }
+      #document { width: 210mm; margin: 0; }
+      .page {
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="document"></main>
+
+  <script>
+    const texSafe = value => String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const M = value => `\\(${texSafe(value)}\\)`;
+    const D = value => `\\[${texSafe(value)}\\]`;
+    const pair = (q, a) => ({ q, a });
+    const signed = n => n < 0 ? `${n}` : `+${n}`;
+    const factor = r => r === 0 ? 'x' : r > 0 ? `(x-${r})` : `(x+${-r})`;
+    const interval = (a, b, closedA=false, closedB=false) =>
+      `${closedA ? '[' : '('}${a},${b}${closedB ? ']' : ')'}`;
+
+    const topicData = [
+      {
+        title: 'שפת המספרים, תחומים וסימון פתרונות',
+        source: '',
+        goals: ['לסמן תחומים על ציר', 'להבחין בין איחוד לחיתוך', 'לעבור בין אי־שוויון לכתיב תחומים'],
+        theory: `פתרון של אי־שוויון הוא קבוצה של מספרים. סוגר עגול מציין שקצה אינו שייך לקבוצה; סוגר מרובע מציין שהוא שייך. באינסוף משתמשים תמיד בסוגר עגול.`,
+        rule: D(`x>a\\Longleftrightarrow (a,\\infty),\\qquad x\\le b\\Longleftrightarrow (-\\infty,b]`),
+        example: `כתבו בכתיב תחומים את ${M('-2<x\\le 5')} וסמנו על ציר.`,
+        solution: `הקצה ${M('-2')} פתוח והקצה ${M('5')} סגור, לכן התשובה היא ${M('(-2,5]')}.`,
+        check: 'בדיקה עצמית: האם השתמשתם בסוגר עגול ליד אינסוף?',
+        make: () => {
+          const out = [];
+          for (let i=1;i<=8;i++) out.push(pair(`כתבו בכתיב תחומים: ${M(`x${i%2?'\\ge':'>'}${i-5}`)}.`, M(`${i%2?'[':'('}${i-5},\\infty)`)));
+          for (let i=1;i<=8;i++) {
+            const a=i-6,b=i+1;
+            out.push(pair(
+              `כתבו כאי־שוויון: ${M(`${i%2?'[':'('}${a},${b}${i%3?')':']'}`)}.`,
+              M(`${a} ${i%2?'\\le':'<'} x ${i%3?'<':'\\le'} ${b}`)
+            ));
+          }
+          const hard=[
+            pair(`מצאו את החיתוך: ${M('(-4,3]\\cap[1,7)')}.`,M('[1,3]')),
+            pair(`מצאו את האיחוד: ${M('(-\\infty,2)\\cup[-1,5]')}.`,M('(-\\infty,5]')),
+            pair(`פתרו כקבוצה: ${M('x>-3')} וגם ${M('x\\le4')}.`,M('(-3,4]')),
+            pair(`פתרו כקבוצה: ${M('x<-2')} או ${M('x\\ge1')}.`,M('(-\\infty,-2)\\cup[1,\\infty)')),
+            pair(`פשטו: ${M('([-5,2)\\cup(0,6])\\cap[-1,4]')}.`,M('[-1,4]')),
+            pair(`מצאו משלים ב־${M('\\mathbb R')}: ${M('[-2,7)')}.`,M('(-\\infty,-2)\\cup[7,\\infty)')),
+            pair(`מצאו את החיתוך: ${M('(-\\infty,1]\\cap(1,\\infty)')}.`,M('\\varnothing')),
+            pair(`פתרו וכתבו בכתיב תחומים: ${M('(x-6)(x+6)\\le0')}.`,M('[-6,6]')),
+            pair(`פתרו וכתבו בכתיב תחומים: ${M('(x^2-4)(x^2-25)<0')}.`,M('(-5,-2)\\cup(2,5)'))
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'מיומנויות אלגבריות וביטויים פולינומיים',
+        source: '',
+        goals: ['לפתוח סוגריים', 'לכנס איברים דומים', 'לזהות מעלה ומקדם מוביל'],
+        theory: `פולינום הוא סכום של איברים מהצורה ${M('ax^n')} כאשר ${M('n')} מספר שלם אי־שלילי. מסדרים לפי חזקות יורדות ומכנסים רק איברים בעלי אותה חזקה.`,
+        rule: D(`a(b+c)=ab+ac,\\qquad x^m x^n=x^{m+n}`),
+        example: `פשטו את ${M('3(x^2-2x+1)-2(x^2+x-4)')}.`,
+        solution: `${M('3x^2-6x+3-2x^2-2x+8=x^2-8x+11')}. המעלה היא ${M('2')} והמקדם המוביל הוא ${M('1')}.`,
+        check: 'בדיקה עצמית: לאחר הכינוס, האם לכל חזקה מופיע איבר אחד לכל היותר?',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`פשטו: ${M(`${i+1}x+${i}x-${i-1}`)}.`,M(`${2*i+1}x-${i-1}`)));
+          for(let i=1;i<=8;i++) out.push(pair(`פתחו סוגריים וכנסו: ${M(`${i}(x^2-${i}x+2)-${i-1}(x^2+x-1)`)}.`,M(`x^2${signed(-(i*i+i-1))}x${signed(3*i-1)}`)));
+          const hard=[];
+          for(let i=1;i<=9;i++) {
+            const a=i+1,b=i-5;
+            hard.push(pair(`פשטו וקבעו מעלה: ${M(`(x${signed(a)})(x${signed(b)})-x(x${signed(a+b)})`)}.`,`${M(`${a*b}`)}; פולינום קבוע ממעלה ${M('0')}.`));
+          }
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'משוואות ואי־שוויונים ממעלה ראשונה',
+        source: '',
+        goals: ['לבודד נעלם', 'להפוך סימן בחילוק בשלילי', 'לפתור אי־שוויון כפול'],
+        theory: `מבצעים אותה פעולה בשני האגפים. בכפל או בחילוק במספר שלילי הופכים את כיוון אי־השוויון. באי־שוויון כפול פועלים על שלושת החלקים יחד או מפצלים למערכת.`,
+        rule: D(`a<b,\\ c<0\\Longrightarrow ac>bc`),
+        example: `פתרו את ${M('-3(2x-1)\\le 9')}.`,
+        solution: `${M('-6x+3\\le9\\Rightarrow -6x\\le6\\Rightarrow x\\ge-1')}. הסימן התהפך בחילוק ב־${M('-6')}.`,
+        check: 'בדיקה עצמית: סמנו במיוחד כל שלב שבו חילקתם במספר שלילי.',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`פתרו: ${M(`${i+2}x-${i}= ${3*i+4}`)}.`,M(`x=${(4*i+4)/(i+2)}`)));
+          for(let i=1;i<=8;i++) {
+            const a=i+2,b=2*i-7;
+            out.push(pair(`פתרו: ${M(`${i%2?'-':''}${a}x${signed(b)} ${i%3?'\\le':'>'} ${b+a*2}`)}.`,M(i%2?`x ${i%3?'\\ge':'<'} -2`:`x ${i%3?'\\le':'>'} 2`)));
+          }
+          const hard=[
+            pair(`פתרו: ${M('3<2x+1\\le11')}.`,M('(1,5]')),
+            pair(`פתרו: ${M('-7\\le3-2x<9')}.`,M('(-3,5]')),
+            pair(`פתרו: ${M('4(x-2)-3(2x+1)>5')}.`,M('x<-8')),
+            pair(`פתרו: ${M('\\frac{x-2}{3}-\\frac{2x+1}{4}\\le1')}.`,M('x\\ge-\\frac{23}{2}')),
+            pair(`פתרו: ${M('2-3(1-2x)\\ge4x+7')}.`,M('x\\ge4')),
+            pair(`פתרו: ${M('5(2-x)<3(x+6)\\le2(5x-1)')}.`,M('[\\frac{20}{7},\\infty)')),
+            pair(`מצאו ${M('a')} כך שלמשוואה ${M('a(x-2)=3x-6')} אינסוף פתרונות.`,M('a=3')),
+            pair(`מצאו ${M('a')} כך שלמשוואה ${M('ax+2=x+a')} אין פתרון.`,M('a=1')),
+            pair(`פתרו ודונו: ${M('(a-2)x>a-2')}.`,`אם ${M('a>2')}: ${M('x>1')}; אם ${M('a<2')}: ${M('x<1')}; אם ${M('a=2')}: אין פתרון.`)
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'נוסחאות כפל מקוצר ופירוק לגורמים',
+        source: '',
+        goals: ['להוציא גורם משותף', 'לזהות הפרש ריבועים', 'לפרק טרינום וקיבוץ'],
+        theory: `פירוק לגורמים מחליף סכום במכפלה. מתחילים תמיד בבדיקת גורם משותף, ממשיכים לזהויות, ולבסוף בודקים טרינום או קיבוץ.`,
+        rule: D(`a^2-b^2=(a-b)(a+b),\\quad a^2\\pm2ab+b^2=(a\\pm b)^2`),
+        example: `פרקו את ${M('2x^3-8x')}.`,
+        solution: `${M('2x(x^2-4)=2x(x-2)(x+2)')}.`,
+        check: 'בדיקה עצמית: כפל חוזר של הגורמים חייב להחזיר בדיוק את הביטוי המקורי.',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`פרקו: ${M(`${i+1}x^2+${(i+1)*2}x`)}.`,M(`${i+1}x(x+2)`)));
+          for(let i=1;i<=8;i++) out.push(pair(`פרקו: ${M(`x^2-${i*i}`)}.`,M(`${factor(i)}${factor(-i)}`)));
+          const hard=[
+            pair(`פרקו: ${M('x^2+7x+12')}.`,M('(x+3)(x+4)')),
+            pair(`פרקו: ${M('2x^2-7x+3')}.`,M('(2x-1)(x-3)')),
+            pair(`פרקו: ${M('3x^2+11x+6')}.`,M('(3x+2)(x+3)')),
+            pair(`פרקו: ${M('x^3-4x^2-x+4')}.`,M('(x-4)(x-1)(x+1)')),
+            pair(`פרקו מעל המספרים הממשיים: ${M('4x^4-81')}.`,M('(\\sqrt2x-3)(\\sqrt2x+3)(2x^2+9)')),
+            pair(`פרקו: ${M('x^4-5x^2+4')}.`,M('(x-1)(x+1)(x-2)(x+2)')),
+            pair(`פרקו: ${M('8x^3+27')}.`,M('(2x+3)(4x^2-6x+9)')),
+            pair(`פרקו: ${M('x^3-3x^2-4x+12')}.`,M('(x-3)(x-2)(x+2)')),
+            pair(`פרקו לחלוטין: ${M('2x^4-18x^2')}.`,M('2x^2(x-3)(x+3)'))
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'משוואה ריבועית ונקודות האפס שלה',
+        source: '',
+        goals: ['לפתור בפירוק', 'להשתמש בנוסחת השורשים', 'לקבוע מספר פתרונות בעזרת דלתא'],
+        theory: `במשוואה ${M('ax^2+bx+c=0')} אפשר לפרק לגורמים או להשתמש בנוסחת השורשים. הדיסקרימיננטה קובעת את מספר השורשים הממשיים.`,
+        rule: D(`x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a},\\qquad \\Delta=b^2-4ac`),
+        example: `פתרו את ${M('2x^2-5x-3=0')}.`,
+        solution: `${M('\\Delta=49')} ולכן ${M('x=\\frac{5\\pm7}{4}')} ומקבלים ${M('x=3,-\\frac12')}.`,
+        check: 'בדיקה עצמית: הציבו כל שורש במשוואה המקורית.',
+        graph: 'quadratic',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`פתרו: ${M(`${factor(i)}${factor(-1)}=0`)}.`,M(`x=${i},-1`)));
+          for(let i=1;i<=8;i++) out.push(pair(`פתרו: ${M(`x^2-${2*i}x+${i*i-4}=0`)}.`,M(`x=${i-2},${i+2}`)));
+          const hard=[
+            pair(`פתרו: ${M('3x^2-2x-7=0')}.`,M('x=\\frac{1\\pm\\sqrt{22}}{3}')),
+            pair(`קבעו מספר שורשים: ${M('5x^2+2x+3=0')}.`,`אין שורשים ממשיים כי ${M('\\Delta=-56')}.`),
+            pair(`מצאו ${M('k')} כך של־${M('x^2-6x+k=0')} שורש כפול.`,M('k=9')),
+            pair(`פתרו: ${M('(x-2)^2=5x-1')}.`,M('x=\\frac{9\\pm\\sqrt{61}}{2}')),
+            pair(`מצאו משוואה ריבועית ששורשיה ${M('-2,5')}.`,M('x^2-3x-10=0')),
+            pair(`פתרו: ${M('2x^4-7x^2+3=0')}.`,M('x=\\pm\\sqrt3,\\ \\pm\\frac{1}{\\sqrt2}')),
+            pair(`אם סכום השורשים ${M('4')} ומכפלתם ${M('-5')}, מצאו אותם.`,M('x=5,-1')),
+            pair(`מצאו ${M('m')} כך שלמשוואה ${M('x^2+(m-2)x+1=0')} שני שורשים שונים.`,M('m<0\\ \\text{or}\\ m>4')),
+            pair(`פתרו ודונו: ${M('x^2-2ax+a^2-4=0')}.`,M('x=a\\pm2'))
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'נקודות אפס של פולינום, גורמים וריבוי שורש',
+        source: '',
+        goals: ['לקרוא אפסים מצורת מכפלה', 'לקבוע ריבוי', 'לנבא חצייה או השקה'],
+        theory: `בחזקה ${M('(x-a)^m')} המספר ${M('a')} הוא שורש בריבוי ${M('m')}. בריבוי אי־זוגי הגרף חוצה את הציר; בריבוי זוגי הוא נוגע בציר וחוזר.`,
+        rule: D(`f(x)=(x-a)^m g(x),\\quad g(a)\\ne0`),
+        example: `נתון ${M('f(x)=(x+2)^2(x-1)^3')}. מצאו אפסים וריבוי.`,
+        solution: `${M('x=-2')} בריבוי ${M('2')}; ${M('x=1')} בריבוי ${M('3')}.`,
+        check: 'בדיקה עצמית: סכום הריבויים אינו יכול לעלות על מעלת הפולינום.',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`מצאו אפסים וריבוי: ${M(`${factor(i)}^2${factor(-1)}`)}.`,`${M(`x=${i}`)} ריבוי ${M('2')}; ${M('x=-1')} ריבוי ${M('1')}.`));
+          for(let i=1;i<=8;i++) out.push(pair(`קבעו היכן יש חצייה: ${M(`${factor(i-4)}^3${factor(i)}^2`)}.`,`${M(`x=${i-4}`)} — חצייה; ${M(`x=${i}`)} — השקה.`));
+          const hard=[
+            pair(`בנו פולינום ממעלה ${M('5')} עם שורש כפול ב־${M('-1')} ושורש משולש ב־${M('2')}.`,M('(x+1)^2(x-2)^3')),
+            pair(`מצאו את ${M('a')} אם ${M('x=3')} שורש של ${M('x^3-4x^2+ax+6')}.`,M('a=1')),
+            pair(`קבעו ריבוי של ${M('0')} ב־${M('x^5-3x^4')}.`,M('4')),
+            pair(`מצאו את כל האפסים של ${M('(x^2-4)^2(x+1)')}.`,M('x=-2,2,-1')),
+            pair(`האם הסימן משתנה ב־${M('x=1')} עבור ${M('(x-1)^4(x+3)')}?`,`לא; הריבוי זוגי.`),
+            pair(`מצאו פולינום מינימלי עם אפסים ${M('-2,0,4')} וריבויים ${M('1,2,3')}.`,M('(x+2)x^2(x-4)^3')),
+            pair(`אם ${M('f(x)=(x-a)^2(x+1)')} ו־${M('f(2)=0')}, מצאו ${M('a')}.`,M('a=2')),
+            pair(`מצאו את הריבוי של ${M('x=2')} לאחר פירוק ${M('x^3-6x^2+12x-8')}.`,M('3')),
+            pair(`קבעו סימן סמוך ל־${M('x=-1')} עבור ${M('-(x+1)^3(x-4)^2')}.`,`חיובי משמאל ושלילי מימין.`)
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'התנהגות קצה וסקיצה איכותית של פולינום',
+        source: '',
+        goals: ['לקבוע כיוון קצוות', 'לסמן אפסים וריבוי', 'לשרטט סקיצה עקבית'],
+        theory: `התנהגות הקצוות נקבעת לפי האיבר המוביל. מעלה זוגית נותנת קצוות באותו כיוון; מעלה אי־זוגית — כיוונים מנוגדים. סימן המקדם המוביל קובע את הכיוון מימין.`,
+        rule: D(`f(x)\\sim a_nx^n\\quad \\text{as}\\quad x\\to\\pm\\infty`),
+        example: `שרטטו סקיצה ל־${M('f(x)=-(x+1)^2(x-2)')}.`,
+        solution: `מעלה ${M('3')} ומקדם מוביל שלילי: משמאל הגרף עולה ומימין יורד. יש השקה ב־${M('-1')} וחצייה ב־${M('2')}.`,
+        check: 'בדיקה עצמית: האם כל אפס מופיע בסקיצה באופן המתאים לריבוי שלו?',
+        graph: 'polynomial',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`קבעו התנהגות קצה: ${M(`${i%2?'-':''}${i}x^${i%4+2}+2x`)}.`,i%2?`מימין ${M('-\\infty')}; הכיוון משמאל נקבע לפי זוגיות המעלה.`:`מימין ${M('+\\infty')}; הכיוון משמאל נקבע לפי זוגיות המעלה.`));
+          for(let i=1;i<=8;i++) out.push(pair(`שרטטו סקיצה: ${M(`${factor(i-4)}^2${factor(i-1)}`)}.`,`השקה ב־${M(`x=${i-4}`)}, חצייה ב־${M(`x=${i-1}`)}; מעלה ${M('3')} ומקדם מוביל חיובי.`));
+          const hard=[
+            pair(`שרטטו: ${M('-x^2(x-3)^3')}.`,`מעלה ${M('5')}, מקדם שלילי; השקה ב־${M('0')}, חצייה ב־${M('3')}.`),
+            pair(`בנו פולינום המתאים לקצוות למעלה ולשורשים כפולים ב־${M('-2')} וב־${M('1')}.`,M('(x+2)^2(x-1)^2')),
+            pair(`האם ייתכן פולינום ממעלה ${M('4')} עם שלושה שורשים פשוטים בלבד?`,`לא, משום שסכום הריבויים יהיה אי־זוגי.`),
+            pair(`שרטטו: ${M('(2-x)^3(x+1)^2')}.`,`מעלה ${M('5')} ומקדם מוביל שלילי; חצייה ב־${M('2')}, השקה ב־${M('-1')}.`),
+            pair(`מצאו סימן מקדם מוביל אם שני הקצוות למטה.`,`שלילי והמעלה זוגית.`),
+            pair(`בנו פולינום ממעלה ${M('6')} שנוגע בציר ב־${M('-1,2,4')}.`,M('(x+1)^2(x-2)^2(x-4)^2')),
+            pair(`כמה חציות לכל היותר לפולינום ממעלה ${M('7')}?`,M('7')),
+            pair(`שרטטו סקיצה עקבית ל־${M('x(x^2-1)^2')}.`,`חצייה ב־${M('0')}; השקות ב־${M('\\pm1')}; קצוות של מעלה ${M('5')}.`),
+            pair(`קבעו האם ${M('-(x-1)^4(x+2)^2')} חיובי אי־פעם.`,`לא; הוא קטן או שווה לאפס לכל ${M('x')}.`)
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'חיוביות, שליליות ומפת סימנים',
+        source: '',
+        goals: ['לסדר נקודות קריטיות', 'לקבוע סימן בכל תחום', 'להסיק חיוביות ושליליות'],
+        theory: `נקודות האפס מחלקות את הציר לתחומים. בתוך כל תחום סימן פולינום רציף קבוע. אפשר להציב נציג או להתקדם לפי ריבוי השורשים.`,
+        rule: D(`f(x)>0\\Longleftrightarrow\\ x\\text{ ה ריצ לעמ  }\F`),
+        example: `מצאו תחומי חיוביות של ${M('(x+2)(x-1)')}.`,
+        solution: `האפסים הם ${M('-2,1')}. הסימן חיובי מחוץ להם: ${M('(-\\infty,-2)\\cup(1,\\infty)')}.`,
+        check: 'בדיקה עצמית: מספר התחומים חייב להיות מספר הנקודות הקריטיות ועוד אחד.',
+        graph: 'sign',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`מצאו היכן חיובי: ${M(`${factor(-i)}${factor(i)}`)}.`,M(`(-\\infty,-${i})\\cup(${i},\\infty)`)));
+          for(let i=1;i<=8;i++) out.push(pair(`בנו מפת סימנים: ${M(`${factor(i-4)}^2${factor(i-1)}`)}.`,`הסימן אינו מתחלף ב־${M(`x=${i-4}`)} ומתחלף ב־${M(`x=${i-1}`)}.`));
+          const hard=[
+            pair(`מצאו חיוביות: ${M('-x(x-2)(x+3)')}.`,M('(-\\infty,-3)\\cup(0,2)')),
+            pair(`מצאו שליליות: ${M('(x+1)^2(x-4)')}.`,M('(-\\infty,-1)\\cup(-1,4)')),
+            pair(`מצאו היכן ${M('(x^2-9)(x^2-1)>0')}.`,M('(-\\infty,-3)\\cup(-1,1)\\cup(3,\\infty)')),
+            pair(`מצאו היכן ${M('-2(x-1)^3(x+2)^2\\ge0')}.`,M('(-\\infty,1]')),
+            pair(`בנו פולינום שסימנו ${M('+,-,+')} סביב האפסים ${M('0,3')}.`,M('x(x-3)')),
+            pair(`מצאו סימן של ${M('(2-x)^3(x+1)')} בתחום ${M('(-1,2')}.`,`חיובי.`),
+            pair(`מצאו חיוביות של ${M('x^2(x-5)^2')}.`,M('\\mathbb R\\setminus\\{0,5\\}')),
+            pair(`פתרו לפי מפה: ${M('(x+4)(x-2)^2(x-5)<0')}.`,M('(-4,2)\\cup(2,5)')),
+            pair(`הסבירו מדוע ${M('(x^2+1)(x-3)')} משנה סימן פעם אחת בלבד.`,`כי ${M('x^2+1>0')} תמיד, ורק ${M('x-3')} מתאפס.`)
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'אי־שוויונים ריבועיים',
+        source: '',
+        goals: ['לאפס אגף', 'למצוא שורשים', 'לבחור תחומים מתאימים'],
+        theory: `מעבירים את כל האיברים לאגף אחד. נקודות האפס מחלקות את הציר; כיוון הפרבולה או טבלת סימנים קובעים היכן הביטוי חיובי או שלילי.`,
+        rule: D(`a(x-r_1)(x-r_2)\\gtrless0`),
+        example: `פתרו את ${M('x^2-5x+6\\le0')}.`,
+        solution: `${M('(x-2)(x-3)\\le0')}. הפרבולה פונה למעלה, לכן ${M('x\\in[2,3]')}.`,
+        check: 'בדיקה עצמית: בחרו מספר מתוך כל תחום ובדקו את סימן הביטוי.',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`פתרו: ${M(`${factor(i)}${factor(-1)}\\le0`)}.`,M(`[-1,${i}]`)));
+          for(let i=1;i<=8;i++) out.push(pair(`פתרו: ${M(`x^2-${2*i}x+${i*i-9}>0`)}.`,M(`(-\\infty,${i-3})\\cup(${i+3},\\infty)`)));
+          const hard=[
+            pair(`פתרו: ${M('2x^2-7x+3<0')}.`,M('(\\frac12,3)')),
+            pair(`פתרו: ${M('-3x^2+5x+2\\ge0')}.`,M('[-\\frac13,2]')),
+            pair(`פתרו: ${M('(3x-8)^2-(x+3)^2\\ge1+3x')}.`,M('(-\\infty,\\frac98]\\cup[6,\\infty)')),
+            pair(`פתרו: ${M('(x-2)^2>4x+5')}.`,M('(-\\infty,4-\\sqrt{17})\\cup(4+\\sqrt{17},\\infty)')),
+            pair(`פתרו: ${M('x^2+4x+5\\le0')}.`,M('\\varnothing')),
+            pair(`פתרו: ${M('-x^2+6x-9<0')}.`,M('\\mathbb R\\setminus\\{3\\}')),
+            pair(`מצאו ${M('m')} כך ש־${M('x^2-2mx+m^2+1>0')} לכל ${M('x')}.`,M('m\\in\\mathbb R')),
+            pair(`מצאו ${M('a')} כך של־${M('x^2+ax+9\\le0')} יש פתרון יחיד.`,M('a=\\pm6')),
+            pair(`פתרו: ${M('(x^2-4x)^2\\le16')}.`,M('[2-2\\sqrt2,2+2\\sqrt2]'))
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'אי־שוויונים פולינומיים ממעלה שלישית ומעלה',
+        source: '',
+        goals: ['לפרק לחלוטין', 'להשתמש בריבוי שורש', 'לכתוב איחוד תחומים'],
+        theory: `לאחר איפוס האגף מפרקים לגורמים ומסמנים כל שורש. הסימן מתחלף רק בשורש ממעלה אי־זוגית. נקודת אפס נכללת רק כאשר מופיע שוויון.`,
+        rule: D(`(x-r_1)^{m_1}(x-r_2)^{m_2}\\cdots(x-r_n)^{m_n}\\le 0`),
+        example: `פתרו ${M('x(x-2)(x+1)>0')}.`,
+        solution: `האפסים הם ${M('-1,0,2')}, כולם פשוטים. מפת הסימנים נותנת ${M('(-1,0)\\cup(2,\\infty)')}.`,
+        check: 'בדיקה עצמית: עברו מימין לשמאל והחליפו סימן רק ליד ריבוי אי־זוגי.',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`פתרו: ${M(`x${factor(i)}${factor(-1)}>0`)}.`,M(`(-${1},0)\\cup(${i},\\infty)`)));
+          for(let i=1;i<=8;i++) out.push(pair(`פתרו: ${M(`${factor(i-4)}^2${factor(i)}\\le0`)}.`,M(`(-\\infty,${i}]`)));
+          const hard=[
+            pair(`פתרו: ${M('(x-1)(x-2)(x-3)(x-4)\\ge0')}.`,M('(-\\infty,1]\\cup[2,3]\\cup[4,\\infty)')),
+            pair(`פתרו: ${M('x^3-25x\\ge0')}.`,M('[-5,0]\\cup[5,\\infty)')),
+            pair(`פתרו: ${M('x^4-5x^2+4<0')}.`,M('(-2,-1)\\cup(1,2)')),
+            pair(`פתרו: ${M('-x^2(x+2)^3(x-4)>0')}.`,M('(-\\infty,-2)\\cup(0,4)')),
+            pair(`פתרו: ${M('(x^2-1)^3(x^2-9)\\le0')}.`,M('[-3,-1]\\cup[1,3]')),
+            pair(`פתרו: ${M('x^6-9x^4\\ge0')}.`,M('(-\\infty,-3]\\cup\\{0\\}\\cup[3,\\infty)')),
+            pair(`פתרו: ${M('(2-x)^3(x+1)^2(x-5)<0')}.`,M('(-\\infty,-1)\\cup(-1,2)\\cup(5,\\infty)')),
+            pair(`פתרו: ${M('(x^2-4x+3)(x^2-4x-5)>0')}.`,M('(-\\infty,-1)\\cup(1,3)\\cup(5,\\infty)')),
+            pair(`מצאו את כל ${M('x')} שעבורם ${M('x^5\\le x^3')}.`,M('(-\\infty,-1]\\cup[0,1]'))
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'השוואת פונקציות ונקודות חיתוך',
+        source: '',
+        goals: ['לפתור משוואת חיתוך', 'לקבוע מי מעל מי', 'לתרגם בין גרף לאלגברה'],
+        theory: `נקודות חיתוך מתקבלות מ־${M('f(x)=g(x)')}. כדי לקבוע היכן ${M('f')} מעל ${M('g')}, פותרים ${M('f(x)-g(x)>0')}.`,
+        rule: D(`f(x)>g(x)\\Longleftrightarrow f(x)-g(x)>0`),
+        example: `מצאו חיתוך בין ${M('f(x)=x^2')} ובין ${M('g(x)=2x+3')}.`,
+        solution: `${M('x^2-2x-3=0\\Rightarrow x=-1,3')}. הנקודות: ${M('(-1,1),(3,9)')}.`,
+        check: 'בדיקה עצמית: נקודת חיתוך חייבת לקיים את שתי הפונקציות.',
+        graph: 'intersection',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`מצאו חיתוך: ${M(`f(x)=x^2,\\ g(x)=${i}x`)}.`,M(`x=0,${i}`)));
+          for(let i=1;i<=8;i++) out.push(pair(`מצאו היכן ${M(`x^2>${2*i}x-${i*i+1}`)}.`,M(`(-\\infty,${i-1})\\cup(${i+1},\\infty)`)));
+          const hard=[
+            pair(`מצאו את נקודות החיתוך של ${M('2x^2-10x+7')} ו־${M('-x^2+14x-14')}.`,M('x=1,7')),
+            pair(`מצאו היכן ${M('x^3-7x^2+10x<0')}.`,M('(-\\infty,0)\\cup(2,5)')),
+            pair(`מצאו היכן ${M('x^2-4')} מעל ${M('3x-4')}.`,M('(-\\infty,0)\\cup(3,\\infty)')),
+            pair(`ל־${M('f(x)=x^2+k')} ול־${M('g(x)=4x')} משיק משותף בנקודת חיתוך אחת. מצאו ${M('k')}.`,M('k=4')),
+            pair(`מצאו חיתוך של ${M('x^3')} ושל ${M('4x')}.`,M('x=-2,0,2')),
+            pair(`מצאו היכן ${M('(x-1)^2')} מתחת ל־${M('x+5')}.`,M('(-1,4)')),
+            pair(`מצאו ${M('a')} אם הגרפים ${M('x^2+a')} ו־${M('6x-5')} נוגעים.`,M('a=4')),
+            pair(`מצאו היכן ${M('x(x^2-4)')} מעל ציר ${M('x')}.`,M('(-2,0)\\cup(2,\\infty)')),
+            pair(`הוכיחו שאין חיתוך בין ${M('x^2+1')} ובין ${M('-x^2-2')}.`,`${M('2x^2+3=0')} ללא פתרון ממשי.`)
+          ];
+          return out.concat(hard);
+        }
+      },
+      {
+        title: 'תרגילים עם פרמטרים',
+        source: '',
+        goals: ['לזהות ערכים קריטיים של פרמטר', 'לחלק למקרים', 'להציג תנאים הכרחיים ומספיקים'],
+        theory: `בבעיה עם פרמטר לא מחפשים רק מספר אלא מסווגים מצבים. ערכים שבהם מעלה, מכנה, דלתא או ריבוי משתנים הם נקודות החלוקה לדיון.`,
+        rule: D(`\\Delta(a)=0\\quad \\text{marks a transition}`),
+        example: `לאילו ${M('a')} למשוואה ${M('x^2-2ax+1=0')} שני שורשים שונים?`,
+        solution: `${M('\\Delta=4(a^2-1)>0')}, לכן ${M('a<-1')} או ${M('a>1')}.`,
+        check: 'בדיקה עצמית: האם טיפלתם בנפרד בערך שבו המקדם המוביל מתאפס?',
+        make: () => {
+          const out=[];
+          for(let i=1;i<=8;i++) out.push(pair(`מצאו ${M('a')} לשורש כפול: ${M(`x^2-${2*i}x+a=0`)}.`,M(`a=${i*i}`)));
+          for(let i=1;i<=8;i++) out.push(pair(`מצאו ${M('a')} כך ש־${M(`x^2+ax+${i}>0`)} לכל ${M('x')}.`,M(`-2\\sqrt{${i}}<a<2\\sqrt{${i}}`)));
+          const hard=[
+            pair(`דונו במספר פתרונות של ${M('ax^2-2x+1=0')}.`,`אם ${M('a=0')}: אחד; אם ${M('a<1,a\\ne0')}: שניים; אם ${M('a=1')}: אחד כפול; אם ${M('a>1')}: אין ממשיים.`),
+            pair(`מצאו ${M('a')} כך של־${M('(x-a)(x-2)\\ge0')} הפתרון כולל את ${M('x=0')}.`,M('a\\ge0')),
+            pair(`מצאו ${M('a')} כך של־${M('x^2+(a-3)x+a=0')} יש שורש ${M('1')}.`,M('a=1')),
+            pair(`מצאו ${M('a')} כך ש־${M('(x-a)^2(x+1)')} אינו משנה סימן ב־${M('x=a')}.`,M('a\\in\\mathbb R')),
+            pair(`מצאו ${M('a')} כך ש־${M('x^2-ax+4\\ge0')} לכל ${M('x\\in\\mathbb R')}.`,M('-4\\le a\\le4')),
+            pair(`מצאו ${M('a')} כך שלגרפים ${M('y=x^2')} ו־${M('y=ax-1')} אין חיתוך.`,M('-2<a<2')),
+            pair(`דונו ב־${M('(x-1)(x-a)>0')} לפי סדר ${M('a')} ו־${M('1')}.`,`אם ${M('a<1')}: ${M('(-\\infty,a)\\cup(1,\\infty)')}; אם ${M('a>1')}: ${M('(-\\infty,1)\\cup(a,\\infty)')}; אם ${M('a=1')}: ${M('\\mathbb R\\setminus\\{1\\}')}.`),
+            pair(`מצאו ${M('a')} כך שמינימום ${M('x^2-2ax+a+3')} שווה ${M('0')}.`,M('a=\\frac{1\\pm\\sqrt{13}}{2}')),
+            pair(`מצאו ${M('a')} כך שפתרון אי־השוויון ${M('(x-a)(x-4)<0')} הוא בדיוק ${M('(2,4)')}.`,M('a=2'))
+          ];
+          return out.concat(hard);
+        }
+      }
+    ];
+
+    const guidance = [
+      {
+        easy:'זהו את נקודת הקצה ואת כיוון התחום. סוגר מרובע מתאים לשוויון, וסוגר עגול לאי־שוויון חזק.',
+        medium:'קראו בנפרד את הסוגר השמאלי והימני, ותרגמו כל אחד לסימן המתאים סביב המשתנה.',
+        hard:'סמנו תחילה כל קבוצה על אותו ציר; בחיתוך שומרים רק על החלק המשותף, ובאיחוד על כל החלקים.'
+      },
+      {
+        easy:'חברו רק איברים בעלי אותו חלק משתני; המספר החופשי נשאר בנפרד.',
+        medium:'פתחו כל סוגר באמצעות חוק הפילוג, הקפידו על סימן המינוס ורק אז כנסו איברים.',
+        hard:'פתחו את שתי המכפלות והשוו מקדמים לפי חזקות. איברים זהים עשויים להתבטל.'
+      },
+      {
+        easy:'העבירו את האיבר החופשי לאגף השני וחלקו במקדם של המשתנה.',
+        medium:'פתחו סוגריים וכנסו איברים. אם מחלקים במספר שלילי, יש להפוך את סימן אי־השוויון.',
+        hard:'פשטו כל חלק בנפרד. באי־שוויון כפול פתרו את שתי הדרישות וקחו את החיתוך.'
+      },
+      {
+        easy:'חפשו תחילה גורם משותף מספרי ומשתני והוציאו אותו מחוץ לסוגריים.',
+        medium:'זהו הפרש ריבועים לפי התבנית של סכום והפרש אותם איברים.',
+        hard:'בדקו לפי הסדר: גורם משותף, זהות, טרינום וקיבוץ. בסוף כפל חוזר מאמת את הפירוק.'
+      },
+      {
+        easy:'השתמשו בחוק המכפלה האפס: השוו כל גורם בנפרד לאפס.',
+        medium:'פרקו לטרינום או השתמשו בנוסחת השורשים; לאחר מכן בדקו את שני השורשים.',
+        hard:'סדרו לצורה תקנית, חשבו דיסקרימיננטה וטפלו גם במקרי פרמטר או בהצבה ריבועית.'
+      },
+      {
+        easy:'השוו כל גורם ליניארי לאפס; המעריך של הגורם הוא הריבוי של השורש.',
+        medium:'ריבוי זוגי פירושו השקה ללא שינוי סימן; ריבוי אי־זוגי פירושו חצייה ושינוי סימן.',
+        hard:'אם הפולינום אינו מפורק, פרקו או הציבו את השורש הנתון. בבנייה השתמשו בגורם מתאים לכל שורש וריבוי.'
+      },
+      {
+        easy:'הסתכלו רק על האיבר בעל החזקה הגבוהה ביותר: זוגיות המעלה וסימן המקדם קובעים את הקצוות.',
+        medium:'סמנו את האפסים, קבעו בכל אחד חצייה או השקה, וחברו לסקיצה המתאימה להתנהגות הקצה.',
+        hard:'שלבו מעלה, מקדם מוביל וריבויי שורשים. ודאו שמספר החציות וההשקות מתאים למעלה.'
+      },
+      {
+        easy:'סדרו את האפסים על ציר ובדקו סימן של מספר אחד בכל תחום.',
+        medium:'התחילו מהסימן מימין והחליפו אותו רק כאשר עוברים שורש בריבוי אי־זוגי.',
+        hard:'פרקו לחלוטין, בנו מפת סימנים ורק בסוף בחרו את התחומים המתאימים לדרישה.'
+      },
+      {
+        easy:'פרקו לשני גורמים וסמנו את שני השורשים; בפרבולה הפונה למעלה הביטוי שלילי ביניהם.',
+        medium:'מצאו שורשים באמצעות פירוק או נוסחה, ואז השתמשו בכיוון הפרבולה לבחירת התחומים.',
+        hard:'העבירו הכול לאגף אחד. בדקו גם מקרים של שורש כפול, היעדר שורשים או ביטוי בהצבה ריבועית.'
+      },
+      {
+        easy:'מצאו את כל השורשים וסדרו אותם. עברו בין התחומים לפי שינוי הסימן בכל שורש פשוט.',
+        medium:'שימו לב לגורם בריבוע: הוא יוצר אפס אך אינו מחליף את הסימן.',
+        hard:'פרקו גם גורמים ריבועיים, רשמו ריבויים ובנו מפת סימנים מלאה לפני כתיבת האיחוד.'
+      },
+      {
+        easy:'השוו בין הפונקציות והעבירו לאגף אחד; פתרונות המשוואה הם ערכי האיקס של נקודות החיתוך.',
+        medium:'כדי לקבוע איזו פונקציה מעל האחרת, פתרו את אי־השוויון של ההפרש ביניהן.',
+        hard:'בנו את פונקציית ההפרש, פרקו או פתרו אותה, והשתמשו באפסים ובסימן כדי להסיק על הגרפים.'
+      },
+      {
+        easy:'השתמשו בתנאי לשורש כפול: הדיסקרימיננטה שווה לאפס.',
+        medium:'כדי שהביטוי הריבועי יהיה חיובי תמיד, דרשו מקדם מוביל חיובי ודיסקרימיננטה שלילית.',
+        hard:'אתרו ערכי פרמטר שבהם המעלה, הדיסקרימיננטה או סדר הנקודות משתנים, וחלקו את הדיון למקרים.'
+      }
+    ];
+
+    const unitNumbers = [1,2,3,4,5,6,7,8,9,10,11,17];
+    const coverTitle = "משוואות ואי־שוויונים פולינומיים";
+    const coverSubtitle = "";
+
+    function coverPage() {
+      return `
+        <section class="page cover">
+          <div>
+            <div class="cover-mark">מערך שיעור · לימוד עצמאי</div>
+            <h1>${coverTitle}</h1>
+          </div>
+        </section>`;
+    }
+
+    function theoryPage(topic, index) {
+      const graph = topic.graph ? `<div id="board-${index}" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>` : '';
+      return `
+        <section class="page theory-page">
+          <div class="topline">
+            <span class="chapter">יחידה ${String(unitNumbers[index]).padStart(2,'0')} מתוך 17</span>
+          </div>
+          <h2>${topic.title}</h2>
+          <ul class="goals">${topic.goals.map(g=>`<li>${g}</li>`).join('')}</ul>
+          <div class="theory-grid_">
+            <div>
+              <div class="box">
+                <h3>הרעיון המרכזי</h3>
+                <p>${topic.theory}</p>
+              </div>
+              <div class="self-check">${topic.check}</div>
+            </div>
+<div style="height:20px;"></div>
+            <div>
+              <div class="box worked">
+                <h3>דוגמה פתורה</h3>
+                <p>${topic.example}</p>
+                <p><strong>פתרון:</strong> ${topic.solution}</p>
+              </div>
+              ${graph}
+            </div>
+          </div>
+        </section>`;
+    }
+
+    function exercisePage(topic, topicIndex, items, level, start) {
+      const levelNames = { easy:'קל', medium:'בינוני', hard:'קשה' };
+      const hint = guidance[topicIndex][level];
+      return `
+        <section class="page exercise-page">
+          <div class="exercise-head">
+            <div>
+              <span class="chapter">יחידה ${String(unitNumbers[topicIndex]).padStart(2,'0')} · תרגול</span>
+              <h2>${topic.title}</h2>
+            </div>
+            <span class="level ${level}">${levelNames[level]}</span>
+          </div>
+          <ol class="exercise-list" style="--start:${start-1}">
+            ${items.map(item=>`
+              <li class="exercise">
+                <div>${item.q}</div>
+                <div class="answer"><strong>תשובה לבדיקה:</strong> ${item.a}</div>
+              </li>`).join('')}
+          </ol>
+        </section>`;
+    }
+
+    function renderDocument() {
+      const pages = [coverPage()];
+      topicData.forEach((topic, i) => {
+        const exercises = topic.make();
+        if (exercises.length !== 25) throw new Error(`Topic ${unitNumbers[i]} has ${exercises.length} exercises`);
+        pages.push(theoryPage(topic, i));
+        pages.push(exercisePage(topic, i, exercises.slice(0,8), 'easy', 1));
+        pages.push(exercisePage(topic, i, exercises.slice(8,16), 'medium', 9));
+        pages.push(exercisePage(topic, i, exercises.slice(16,25), 'hard', 17));
+      });
+      const root = document.getElementById('document');
+      root.innerHTML = pages.join('');
+      [...root.querySelectorAll('.page')].forEach((page,i)=>page.dataset.page=`${i+1} / ${pages.length}`);
+    }
+
+    function initBoards() {
+      if (!window.JXG) return;
+      JXG.Options.text.useMathJax = false;
+      const specs = {
+        quadratic: { box:[-5,8,5,-5], f:x=>2*x*x-5*x-3, color:'#216a8b' },
+        polynomial:{ box:[-4,8,5,-8], f:x=>-(x+1)*(x+1)*(x-2), color:'#216a8b' },
+        sign:{ box:[-4,2.6,3,-2.6], color:'#21868a' },
+        intersection:{ box:[-4,12,5,-5], f:x=>x*x, g:x=>2*x+3, color:'#216a8b' },
+        rational:{ box:[-6,8,7,-7], f:x=>(x+1)/(x-2), color:'#216a8b', asym:true }
+      };
+      topicData.forEach((topic,i)=>{
+        if(!topic.graph) return;
+        const s=specs[topic.graph];
+        const board=JXG.JSXGraph.initBoard(`board-${i}`,{
+          boundingbox:s.box, axis:true, showCopyright:false, showNavigation:false,
+          pan:{enabled:false}, zoom:{enabled:false}, keepaspectratio:false
+        });
+        if(topic.graph==='sign'){
+          board.suspendUpdate();
+          board.removeObject(board.defaultAxes.x);
+          board.removeObject(board.defaultAxes.y);
+          const drawSignMap=(y, roots, signs, label)=>{
+            board.create('arrow',[[-3.55,y],[2.55,y]],{
+              strokeColor:'#586579',strokeWidth:2.2,fixed:true,highlight:false
+            });
+            roots.forEach(r=>{
+              board.create('segment',[[r,y-.16],[r,y+.16]],{
+                strokeColor:'#17233c',strokeWidth:3,fixed:true,highlight:false
+              });
+              board.create('text',[r,y-.38,String(r)],{
+                anchorX:'middle',anchorY:'top',fontSize:12,color:'#34465a',fixed:true,
+                cssStyle:'direction:ltr;unicode-bidi:isolate;'
+              });
+            });
+            const edges=[-3.55,...roots,2.55];
+            signs.forEach((sign,j)=>{
+              board.create('text',[(edges[j]+edges[j+1])/2,y+.42,sign],{
+                anchorX:'middle',anchorY:'middle',fontSize:18,
+                color:sign==='+'?'#227d67':'#b24a4a',fixed:true,
+                cssStyle:'direction:ltr;unicode-bidi:isolate;'
+              });
+            });
+            board.create('text',[-3.55,y+.75,label],{
+              anchorX:'left',anchorY:'middle',fontSize:12,color:'#15375f',fixed:true
+              ,cssStyle:'direction:ltr;unicode-bidi:isolate;'
+            });
+          };
+          drawSignMap(.95,[-2,1],['+','-','+'],'f(x) = (x + 2)(x − 1)');
+          drawSignMap(-1.05,[-2,1],['-','-','+'],'g(x) = (x + 2)²(x − 1)');
+          board.unsuspendUpdate();
+          return;
+        }
+        board.create('functiongraph',[s.f],{strokeColor:s.color,strokeWidth:2.4});
+        if(s.g) board.create('functiongraph',[s.g],{strokeColor:'#d58e24',strokeWidth:2.2,dash:2});
+        if(s.asym){
+          board.create('line',[[2,0],[2,1]],{straightFirst:true,straightLast:true,strokeColor:'#d58e24',dash:2,fixed:true});
+          board.create('line',[[0,1],[1,1]],{straightFirst:true,straightLast:true,strokeColor:'#d58e24',dash:2,fixed:true});
+        }
+      });
+    }
+
+    async function boot() {
+      renderDocument();
+      const wait = ms => new Promise(resolve=>setTimeout(resolve,ms));
+      for(let i=0;i<80 && (!window.MathJax?.typesetPromise || !window.JXG);i++) await wait(100);
+      if(window.MathJax?.typesetPromise) await MathJax.typesetPromise([document.getElementById('document')]);
+      initBoards();
+      document.documentElement.dataset.ready = 'true';
+    }
+
+    window.addEventListener('load', boot);
+  </script>
+</body>
+</html>
