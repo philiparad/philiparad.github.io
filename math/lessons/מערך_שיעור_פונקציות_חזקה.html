@@ -1,0 +1,2216 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="מערך שיעור מלא בפונקציות חזקה לרמת 5 יחידות לימוד.">
+  <title>מערך שיעור — פונקציות חזקה | 5 יח״ל</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      chtml: { scale: 0.98 },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --ink: #16334a;
+      --muted: #587083;
+      --navy: #0f3b5b;
+      --blue: #176b87;
+      --teal: #178a87;
+      --cyan: #e1f3f6;
+      --gold: #efa929;
+      --orange: #d96c2f;
+      --green: #2f7d61;
+      --red: #ba3d4b;
+      --paper: #ffffff;
+      --canvas: #dfe9ed;
+      --line: #cbdce2;
+      --soft: #f5f9fa;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.48;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9mm;
+      padding: 9mm 0;
+    }
+
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      padding: 12mm 13mm 14mm;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: 0 8px 28px rgba(16, 54, 76, .14);
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .page:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4mm;
+      background: linear-gradient(90deg, var(--navy), var(--teal), var(--gold));
+    }
+
+    .page-number {
+      position: absolute;
+      inset-inline-start: auto;
+      left: 13mm;
+      bottom: 5mm;
+      color: #718693;
+      font-size: 14px;
+      direction: ltr;
+    }
+
+    .running-title {
+      position: absolute;
+      inset-inline-end: auto;
+      right: 13mm;
+      bottom: 5mm;
+      color: #718693;
+      font-size: 14px;
+    }
+
+    h1, h2, h3, h4, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 5mm;
+      color: var(--navy);
+      font-size: 35px;
+      line-height: 1.15;
+    }
+
+    h2 {
+      margin: 0 0 4mm;
+      color: var(--navy);
+      font-size: 27px;
+      line-height: 1.2;
+    }
+
+    h3 {
+      margin: 4mm 0 2mm;
+      color: var(--blue);
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    h4 {
+      margin: 2.5mm 0 1.2mm;
+      color: var(--navy);
+      font-size: 17px;
+    }
+
+    p { margin-bottom: 2.5mm; }
+
+    ul, ol {
+      margin: 1.5mm 0 3mm;
+      padding-inline-start: 7mm;
+    }
+
+    li { margin-bottom: 1.2mm; }
+
+    a { color: #0a6382; text-decoration: none; }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 3mm;
+      padding: 1.5mm 3mm;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      max-width: 165mm;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .lead {
+      color: #365669;
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .hero {
+      display: grid;
+      min-height: 245mm;
+      align-content: center;
+      padding: 18mm;
+      border-radius: 6mm;
+      color: #fff;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,.15), transparent 37mm),
+        linear-gradient(145deg, #0c344f 0%, #145f77 68%, #1a8790 100%);
+    }
+
+    .hero h1 {
+      max-width: 145mm;
+      color: #fff;
+      font-size: 46px;
+    }
+
+    .hero .subtitle { color: #dceff3; }
+
+    .hero-formula {
+      margin: 7mm 0;
+      color: #fff;
+      font-size: 32px;
+      direction: ltr;
+      text-align: right;
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3mm;
+      margin-top: 7mm;
+    }
+
+    .hero-meta div {
+      padding: 3.5mm;
+      border: .4mm solid rgba(255,255,255,.25);
+      border-radius: 3mm;
+      background: rgba(255,255,255,.09);
+    }
+
+    .hero-meta strong { display: block; font-size: 17px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      margin: 0 0 4mm;
+      padding-bottom: 3mm;
+      border-bottom: .45mm solid var(--line);
+    }
+
+    .section-no {
+      display: grid;
+      flex: 0 0 12mm;
+      width: 12mm;
+      height: 12mm;
+      place-items: center;
+      border-radius: 3mm;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 800;
+      direction: ltr;
+    }
+
+    .section-head h2 { margin: 0; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4mm;
+    }
+
+    .two-col.wide-left { grid-template-columns: 1.18fr .82fr; }
+    .two-col.wide-right { grid-template-columns: .82fr 1.18fr; }
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 3mm;
+    }
+
+    .card {
+      min-width: 0;
+      padding: 3.5mm;
+      border: .35mm solid var(--line);
+      border-radius: 3mm;
+      background: var(--soft);
+    }
+
+    .card h3:first-child, .card h4:first-child { margin-top: 0; }
+
+    .concept {
+      padding: 3.5mm 4mm;
+      border-inline-start: 1.4mm solid var(--blue);
+      border-radius: 2.5mm;
+      background: #edf7f9;
+    }
+
+    .example {
+      padding: 3.5mm 4mm;
+      border: .35mm solid #efd28b;
+      border-radius: 3mm;
+      background: #fff9e9;
+    }
+
+    .try {
+      margin-top: 3mm;
+      padding: 3.5mm 4mm;
+      border: .45mm dashed #77a9b9;
+      border-radius: 3mm;
+      background: #f7fbfc;
+    }
+
+    .warning {
+      padding: 3.5mm 4mm;
+      border-inline-start: 1.4mm solid var(--red);
+      border-radius: 2.5mm;
+      background: #fff1f2;
+    }
+
+    .success {
+      padding: 3.5mm 4mm;
+      border-inline-start: 1.4mm solid var(--green);
+      border-radius: 2.5mm;
+      background: #eef8f3;
+    }
+
+    .formula-box {
+      margin: 2.5mm 0;
+      padding: 3mm;
+      border-radius: 3mm;
+      background: var(--navy);
+      color: #fff;
+      direction: ltr;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .formula-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.5mm;
+      margin: 2.5mm 0;
+    }
+
+    .formula-chip {
+      padding: 2.5mm;
+      border: .35mm solid var(--line);
+      border-radius: 2.5mm;
+      background: #fff;
+      direction: ltr;
+      text-align: center;
+    }
+
+    .steps {
+      margin: 2mm 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 2mm 11mm 2mm 2mm;
+      border-bottom: .25mm solid #dbe6e9;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      inset-inline-start: 0;
+      top: 1.5mm;
+      display: grid;
+      width: 7mm;
+      height: 7mm;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin: 2mm 0 3mm;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 2mm;
+      border: .3mm solid var(--line);
+      text-align: right;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+
+    th {
+      color: #fff;
+      background: var(--navy);
+    }
+
+    tr:nth-child(even) td { background: #f5f9fa; }
+
+    .math-table td:not(:first-child),
+    .math-table th:not(:first-child) {
+      direction: ltr;
+      text-align: center;
+    }
+
+    .jxgbox {
+      width: 100%;
+      height: 72mm;
+      margin: 2.5mm 0 1.5mm;
+      border: .35mm solid #9eb8c3;
+      border-radius: 2.5mm;
+      background: #fff;
+      touch-action: none;
+    }
+
+    .jxgbox.small { height: 55mm; }
+    .jxgbox.compact { height: 46mm; }
+
+    .graph-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3mm;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.5mm 4mm;
+      margin: 1mm 0 2mm;
+      font-size: 14px;
+      direction: ltr;
+      justify-content: center;
+    }
+
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 8mm;
+      height: 1mm;
+      margin-inline-end: 1.5mm;
+      border-radius: 2mm;
+      background: var(--legend-color);
+      vertical-align: middle;
+    }
+
+    .source-strip {
+      margin-top: 3mm;
+      padding: 2.5mm 3mm;
+      border-radius: 2.5mm;
+      color: #496474;
+      background: #edf3f5;
+      font-size: 14px;
+    }
+
+    .answer {
+      color: #205b48;
+      font-weight: 700;
+    }
+
+    .compact-list li { margin-bottom: .7mm; }
+
+    .practice-grid {
+      display: grid;
+      gap: 3mm;
+    }
+
+    .exercise-block {
+      padding: 3.2mm 4mm;
+      border: .35mm solid var(--line);
+      border-radius: 3mm;
+      background: #f8fbfc;
+    }
+
+    .exercise-block h3 {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      margin: 0 0 1.5mm;
+      font-size: 18px;
+    }
+
+    .level-badge {
+      display: inline-grid;
+      min-width: 22mm;
+      padding: 1mm 2mm;
+      place-items: center;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 13px;
+    }
+
+    .exercise-block.medium .level-badge { background: var(--orange); }
+    .exercise-block.challenge .level-badge { background: var(--red); }
+    .exercise-block ol { margin: 0; }
+    .exercise-block li { margin-bottom: 1.1mm; }
+    .exercise-page .source-strip { margin-top: 3mm; }
+
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.5mm 5mm;
+      margin-top: 4mm;
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: baseline;
+      gap: 2mm;
+      padding: 2mm 0;
+      border-bottom: .3mm dotted #aebfc6;
+    }
+
+    .toc-item b { color: var(--blue); direction: ltr; }
+    .toc-item span:last-child { margin-inline-start: auto; direction: ltr; }
+
+    .source-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: source;
+    }
+
+    .source-list li {
+      counter-increment: source;
+      position: relative;
+      margin-bottom: 2.2mm;
+      padding-inline-start: 9mm;
+      overflow-wrap: anywhere;
+    }
+
+    .source-list li::before {
+      content: counter(source);
+      position: absolute;
+      inset-inline-start: 0;
+      top: .2mm;
+      display: grid;
+      width: 6mm;
+      height: 6mm;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    mjx-container { direction: ltr !important; unicode-bidi: isolate; }
+    mjx-container[display="true"] { margin: .7em 0 !important; }
+
+    @media print {
+      @page { size: A4; margin: 0; }
+      html, body { width: 210mm; background: #fff; }
+      body { display: block; padding: 0; }
+      .page { margin: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="page" id="page-1">
+    <div class="hero">
+      <span class="kicker">מתמטיקה · 5 יחידות לימוד · קדם־אנליזה</span>
+      <h1>מערך שיעור:<br>פונקציות חזקה</h1>
+      <p class="subtitle">למידה מדורגת מן החזקה האלגברית ועד חקירת משפחות, משוואות, חיתוכים ואי־שוויונים</p>
+      <div class="hero-formula">\[f(x)=a x^n\]</div>
+    </div>
+    <span class="page-number">1 / 48</span>
+    <span class="running-title">מערך שיעור — פונקציות חזקה</span>
+  </section>
+
+  <section class="page" id="page-2">
+    <div class="section-head"><div class="section-no">0</div><h2>מטרות, עקרונות ורצף ההוראה</h2></div>
+    <div class="concept">
+      <strong>מטרת־העל:</strong> התלמיד יוכל לעבור באופן גמיש בין ביטוי אלגברי, טבלת ערכים וגרף של פונקציית חזקה, לחקור את תכונותיה, ולהשתמש בהן לפתרון משוואות ואי־שוויונים.
+    </div>
+
+    <h3>תוצרי למידה</h3>
+    <div class="two-col">
+      <div class="card">
+        <h4>ידע והבנה</h4>
+        <ul class="compact-list">
+          <li>הכרת המשפחה \(f(x)=a x^n\).</li>
+          <li>הבחנה בין מעריך זוגי לאי־זוגי.</li>
+          <li>הבנת השפעת \(a\) ו־\(n\) על הגרף.</li>
+          <li>תחום, טווח, סימטריה והתנהגות קצה.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>מיומנויות</h4>
+        <ul class="compact-list">
+          <li>סרטוט סקיצה והשלמת טבלה.</li>
+          <li>מציאת מעריך או מקדם מנתונים.</li>
+          <li>פתרון משוואות וחיתוכים.</li>
+          <li>השוואת חזקות ופתרון אי־שוויונים.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>חלוקה לשישה מפגשים</h3>
+    <table>
+      <thead><tr><th style="width:13%">מפגש</th><th style="width:33%">מוקד</th><th>נושאים</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>תשתית</td><td>חוקי חזקות, פונקציה, הצבה, טבלה וגרף</td></tr>
+        <tr><td>2</td><td>המשפחה הבסיסית</td><td>מעריך טבעי זוגי ואי־זוגי, סימטריה וזיהוי</td></tr>
+        <tr><td>3</td><td>חקירה</td><td>מאפייני גרף, התנהגות קצה, מציאת מעריך והמקדם \(a\)</td></tr>
+        <tr><td>4</td><td>משוואות והשוואות</td><td>חיתוכים, השוואת חזקות ואי־שוויונים</td></tr>
+        <tr><td>5</td><td>הרחבת המעריך</td><td>מעריך אפס, שלילי ושברי</td></tr>
+        <tr><td>6</td><td>יישום והערכה</td><td>תרגול מדורג, נימוק טענות ומשימת סיכום</td></tr>
+      </tbody>
+    </table>
+    <span class="page-number">2 / 48</span><span class="running-title">מטרות ורצף ההוראה</span>
+  </section>
+
+  <section class="page" id="page-3">
+    <div class="section-head"><div class="section-no">1</div><h2>חוקי חזקות במספרים ממשיים</h2></div>
+    <p class="lead">פונקציית חזקה נשענת על הבנה מדויקת של הבסיס, המעריך וסימן התוצאה. לפני הגרפים יש לוודא שליטה מלאה בחוקי החזקות.</p>
+
+    <div class="formula-row">
+      <div class="formula-chip">\(a^m a^n=a^{m+n}\)</div>
+      <div class="formula-chip">\(\dfrac{a^m}{a^n}=a^{m-n}\)</div>
+      <div class="formula-chip">\((a^m)^n=a^{mn}\)</div>
+      <div class="formula-chip">\((ab)^n=a^n b^n\)</div>
+      <div class="formula-chip">\(a^0=1,\quad a\ne0\)</div>
+      <div class="formula-chip">\(a^{-n}=\dfrac{1}{a^n}\)</div>
+    </div>
+
+    <div class="two-col">
+      <div class="example">
+        <h3>דוגמה 1 — סימן של חזקה</h3>
+        <p>כאשר הבסיס שלילי:</p>
+        \[(-2)^4=16,\qquad (-2)^5=-32\]
+        <p>מעריך זוגי נותן תוצאה חיובית; מעריך אי־זוגי שומר את סימן הבסיס.</p>
+      </div>
+      <div class="example">
+        <h3>דוגמה 2 — פישוט</h3>
+        \[\frac{x^7 x^2}{x^4}=x^{7+2-4}=x^5\]
+        <p>הפעולה מותרת עבור \(x\ne0\) בגלל המכנה בביטוי המקורי.</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>טעות נפוצה:</strong> הסימן מינוס אינו חלק מן הבסיס ללא סוגריים.
+      \[-2^4=-(2^4)=-16,\qquad (-2)^4=16\]
+    </div>
+
+    <div class="try">
+      <h3>בדיקת הבנה</h3>
+      <ol>
+        <li>חשבו: \((-3)^6\), \(-3^6\), \((-3)^5\).</li>
+        <li>פשטו: \(\dfrac{x^{11}}{x^4}\cdot x^{-2}\).</li>
+        <li>קבעו ללא חישוב מלא איזה גדול יותר: \((0.4)^3\) או \((0.4)^5\).</li>
+      </ol>
+    </div>
+    <span class="page-number">3 / 48</span><span class="running-title">שלב א — תשתית</span>
+  </section>
+
+  <section class="page" id="page-4">
+    <div class="section-head"><div class="section-no">2</div><h2>מושג הפונקציה וייצוגים</h2></div>
+    <div class="concept">
+      פונקציה משייכת לכל ערך מותר של \(x\) ערך יחיד של \(y\). הכתיבה \(y=f(x)\) מדגישה שערך הפלט תלוי בערך הקלט.
+    </div>
+
+    <h3>שלושה ייצוגים לאותה פונקציה</h3>
+    <div class="three-col">
+      <div class="card"><h4>אלגברי</h4><div class="formula-box">\(f(x)=x^3\)</div><p>הכלל שלפיו מחשבים כל ערך.</p></div>
+      <div class="card"><h4>טבלת ערכים</h4><table class="math-table"><tr><th>\(x\)</th><th>\(-2\)</th><th>\(-1\)</th><th>\(0\)</th><th>\(1\)</th><th>\(2\)</th></tr><tr><td>\(f(x)\)</td><td>\(-8\)</td><td>\(-1\)</td><td>\(0\)</td><td>\(1\)</td><td>\(8\)</td></tr></table></div>
+      <div class="card"><h4>גרפי</h4><p>הגרף הוא אוסף הנקודות \((x,f(x))\) במערכת הצירים.</p><p>לדוגמה: \((-2,-8)\), \((0,0)\), \((2,8)\).</p></div>
+    </div>
+
+    <h3>הצבה ובדיקת נקודה</h3>
+    <div class="two-col">
+      <div class="example">
+        <p>נתונה \(f(x)=2x^4\). נחשב:</p>
+        \[f(-3)=2(-3)^4=2\cdot81=162\]
+      </div>
+      <div class="example">
+        <p>האם \((2,32)\) על גרף \(g(x)=x^5\)?</p>
+        \[g(2)=2^5=32\]
+        <p class="answer">כן, הנקודה נמצאת על הגרף.</p>
+      </div>
+    </div>
+
+    <div class="try">
+      <h3>תרגול קצר</h3>
+      <ol>
+        <li>השלימו טבלה עבור \(h(x)=x^4\) והערכים \(x=-2,-1,0,1,2\).</li>
+        <li>בדקו אם \((-3,-243)\) נמצאת על \(y=x^5\).</li>
+        <li>מצאו שתי נקודות נוספות על \(y=-2x^3\).</li>
+      </ol>
+    </div>
+    <span class="page-number">4 / 48</span><span class="running-title">שלב א — תשתית</span>
+  </section>
+
+  <section class="page" id="page-5">
+    <div class="section-head"><div class="section-no">3</div><h2>הגדרת פונקציית חזקה</h2></div>
+    <div class="formula-box">\[f(x)=a x^n,\qquad a\ne0\]</div>
+    <p class="lead">המשתנה נמצא בבסיס והמעריך קבוע. זה ההבדל המרכזי בין פונקציית חזקה לבין פונקציה מעריכית.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>פונקציית חזקה</h3>
+        \[f(x)=3x^4\]
+        <p>הבסיס הוא המשתנה \(x\), והמעריך \(4\) קבוע.</p>
+      </div>
+      <div class="card">
+        <h3>אינה פונקציית חזקה</h3>
+        \[g(x)=3^x\]
+        <p>הבסיס \(3\) קבוע והמשתנה נמצא במעריך.</p>
+      </div>
+    </div>
+
+    <h3>נקודות עוגן כאשר \(a=1\)</h3>
+    <table class="math-table">
+      <thead><tr><th>סוג המעריך</th><th>נקודות משותפות</th><th>סיבה</th></tr></thead>
+      <tbody>
+        <tr><td>טבעי זוגי</td><td>\((-1,1),(0,0),(1,1)\)</td><td>\((-1)^{2k}=1\)</td></tr>
+        <tr><td>טבעי אי־זוגי</td><td>\((-1,-1),(0,0),(1,1)\)</td><td>\((-1)^{2k+1}=-1\)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="example">
+      <h3>זיהוי מתוך תיאור</h3>
+      <p>מבין \(x^4\), \(4^x\), \(x^4+1\), \(\frac{1}{x^3}\) — הביטויים הראשון והרביעי הם פונקציות חזקה. השלישי הוא סכום של שני איברים.</p>
+    </div>
+
+    <div class="try">
+      <h3>בדיקת הבנה</h3>
+      <p>קבעו אילו מן הפונקציות הן פונקציות חזקה וציינו את \(a\) ואת \(n\):</p>
+      \[2x^7,\qquad x^3+2,\qquad -\frac{3}{x^4},\qquad 5^x,\qquad \sqrt{x}\]
+    </div>
+    <span class="page-number">5 / 48</span><span class="running-title">שלב ב — משפחת פונקציות החזקה</span>
+  </section>
+
+  <section class="page" id="page-6">
+    <div class="section-head"><div class="section-no">4</div><h2>פונקציות חזקה בעלות מעריך זוגי</h2></div>
+    <div class="formula-box">\[f(x)=x^{2k},\qquad k\in\mathbb{N}\]</div>
+    <div class="two-col wide-left">
+      <div>
+        <div id="board-even" class="jxgbox"></div>
+        <div class="legend">
+          <span style="--legend-color:#176b87">y=x²</span>
+          <span style="--legend-color:#d96c2f">y=x⁴</span>
+          <span style="--legend-color:#2f7d61">y=x⁶</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>מאפיינים</h3>
+        <ul class="compact-list">
+          <li>תחום: \(\mathbb{R}\).</li>
+          <li>טווח: \([0,\infty)\).</li>
+          <li>סימטריה לציר \(y\).</li>
+          <li>יורדת ב־\(( -\infty,0]\).</li>
+          <li>עולה ב־\([0,\infty)\).</li>
+          <li>מינימום ב־\((0,0)\).</li>
+          <li>חיובית לכל \(x\ne0\).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept">
+      הסימטריה נובעת מכך ש־\((-x)^{2k}=x^{2k}\), ולכן \(f(-x)=f(x)\).
+    </div>
+    <div class="try">
+      <strong>שאלת חשיבה:</strong> מדוע הגרף של \(x^6\) קרוב יותר לציר \(x\) מאשר הגרף של \(x^2\) כאשר \(-1&lt;x&lt;1\), אך רחוק ממנו יותר כאשר \(|x|&gt;1\)?
+    </div>
+    <span class="page-number">6 / 48</span><span class="running-title">שלב ב — מעריך זוגי</span>
+  </section>
+
+  <section class="page" id="page-7">
+    <div class="section-head"><div class="section-no">5</div><h2>פונקציות חזקה בעלות מעריך אי־זוגי</h2></div>
+    <div class="formula-box">\[f(x)=x^{2k+1},\qquad k\in\mathbb{N}_0\]</div>
+    <div class="two-col wide-left">
+      <div>
+        <div id="board-odd" class="jxgbox"></div>
+        <div class="legend">
+          <span style="--legend-color:#176b87">y=x</span>
+          <span style="--legend-color:#d96c2f">y=x³</span>
+          <span style="--legend-color:#2f7d61">y=x⁵</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>מאפיינים</h3>
+        <ul class="compact-list">
+          <li>תחום: \(\mathbb{R}\).</li>
+          <li>טווח: \(\mathbb{R}\).</li>
+          <li>סימטריה ביחס לראשית.</li>
+          <li>עולה בכל התחום.</li>
+          <li>שלילית כאשר \(x&lt;0\).</li>
+          <li>חיובית כאשר \(x&gt;0\).</li>
+          <li>עוברת דרך \((0,0)\).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept">
+      הסימטריה נובעת מכך ש־\((-x)^{2k+1}=-x^{2k+1}\), ולכן \(f(-x)=-f(x)\).
+    </div>
+    <div class="try">
+      <strong>תרגול:</strong> השלימו ללא מחשבון:
+      \[f(-2)\;\square\;f(2),\qquad f(-0.5)\;\square\;0,\qquad f(3)\;\square\;f(2)\]
+      עבור \(f(x)=x^7\).
+    </div>
+    <span class="page-number">7 / 48</span><span class="running-title">שלב ב — מעריך אי־זוגי</span>
+  </section>
+
+  <section class="page" id="page-8">
+    <div class="section-head"><div class="section-no">6</div><h2>זיהוי זוגיות המעריך מתוך מידע חלקי</h2></div>
+    <p class="lead">אין צורך למצוא תמיד את המעריך. פעמים רבות די בסימן של ערך אחד, בסימטריה או בקשר בין ערכים נגדיים.</p>
+
+    <table>
+      <thead><tr><th style="width:30%">המידע הנתון</th><th style="width:32%">המסקנה</th><th>הנימוק</th></tr></thead>
+      <tbody>
+        <tr><td>\(f(-2)=f(2)\)</td><td>המעריך עשוי להיות זוגי</td><td>ערכים שווים בנקודות נגדיות</td></tr>
+        <tr><td>\(f(-3)=-f(3)\)</td><td>המעריך עשוי להיות אי־זוגי</td><td>ערכים נגדיים בנקודות נגדיות</td></tr>
+        <tr><td>\(f(-1)&lt;0\), כאשר \(a&gt;0\)</td><td>המעריך אי־זוגי</td><td>חזקה זוגית אינה שלילית</td></tr>
+        <tr><td>הגרף סימטרי לציר \(y\)</td><td>המעריך זוגי</td><td>מתקיים \(f(-x)=f(x)\)</td></tr>
+        <tr><td>הגרף סימטרי לראשית</td><td>המעריך אי־זוגי</td><td>מתקיים \(f(-x)=-f(x)\)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="two-col">
+      <div class="example">
+        <h3>דוגמה מתוך טבלה</h3>
+        <p>נתון \(f(-2)=-32\) וגם \(f(-1)=-1\), כאשר \(f(x)=x^n\).</p>
+        <p>הערכים השליליים עבור קלט שלילי מלמדים ש־\(n\) אי־זוגי. מן השוויון \((-2)^n=-32\) נקבל \(n=5\).</p>
+      </div>
+      <div class="example">
+        <h3>דוגמה מתוך גרף</h3>
+        <p>גרף עובר ברביעים הראשון והשלישי וסימטרי ביחס לראשית.</p>
+        <p class="answer">המעריך אי־זוגי והמקדם חיובי.</p>
+      </div>
+    </div>
+
+    <div class="try">
+      <h3>תרגול אבחנה</h3>
+      <ol>
+        <li>נתון \(g(-3)=81\) ו־\(g(x)=x^n\). מה ניתן להסיק על \(n\)?</li>
+        <li>הגרף סימטרי לציר \(y\) ונמצא כולו מתחת לציר \(x\). מה ניתן להסיק על \(n\) ועל \(a\)?</li>
+      </ol>
+    </div>
+    <span class="page-number">8 / 48</span><span class="running-title">שלב ב — זיהוי המשפחה</span>
+  </section>
+
+  <section class="page" id="page-9">
+    <div class="section-head"><div class="section-no">7</div><h2>שגרת חקירה מלאה</h2></div>
+    <p class="lead">בכל פונקציה מן הצורה \(f(x)=a x^n\) עובדים לפי אותו סדר. השגרה מונעת דילוג על מאפיינים ומאפשרת נימוק עקבי.</p>
+
+    <div class="two-col">
+      <ol class="steps">
+        <li><strong>תחום הגדרה:</strong> אילו ערכי \(x\) מותרים?</li>
+        <li><strong>חיתוך עם הצירים:</strong> מחשבים \(f(0)\) ופותרים \(f(x)=0\).</li>
+        <li><strong>סימטריה:</strong> משווים בין \(f(-x)\), \(f(x)\) ו־\(-f(x)\).</li>
+        <li><strong>תחומי סימן:</strong> מתי ערך הפונקציה חיובי או שלילי?</li>
+        <li><strong>עלייה וירידה:</strong> לפי סוג המעריך וסימן המקדם.</li>
+      </ol>
+      <ol class="steps" style="counter-reset:step 5">
+        <li><strong>קיצון:</strong> האם הראשית היא מינימום או מקסימום?</li>
+        <li><strong>טווח:</strong> אילו ערכי \(y\) מתקבלים?</li>
+        <li><strong>התנהגות קצה:</strong> מה קורה כאשר \(x\) גדול מאוד בערכו המוחלט?</li>
+        <li><strong>נקודות עזר:</strong> בוחרים ערכים נוחים כגון \(-1,0,1\).</li>
+        <li><strong>סקיצה:</strong> משלבים את כל המידע בגרף אחד.</li>
+      </ol>
+    </div>
+
+    <h3>טבלת החלטה מהירה</h3>
+    <table class="math-table">
+      <thead><tr><th>\(n\)</th><th>\(a\)</th><th>סימטריה</th><th>כיוון הקצוות</th><th>טווח</th></tr></thead>
+      <tbody>
+        <tr><td>זוגי</td><td>\(a&gt;0\)</td><td>\(y\)_ציר</td><td>למעלה, למעלה</td><td>\([0,\infty)\)</td></tr>
+        <tr><td>זוגי</td><td>\(a&lt;0\)</td><td>\(y\)_ציר</td><td>למטה, למטה</td><td>\(( -\infty,0]\)</td></tr>
+        <tr><td>אי זוגי</td><td>\(a&gt;0\)</td><td>ראשית הצירים</td><td>למטה, למעלה</td><td>\(\mathbb{R}\)</td></tr>
+        <tr><td>אי זוגי</td><td>\(a&lt;0\)</td><td>ראשית הצירים</td><td>למעלה, למטה</td><td>\(\mathbb{R}\)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="success"><strong>עיקרון מרכזי:</strong> זוגיות המעריך קובעת את הקשר בין שני צדי הגרף; סימן המקדם קובע אם הגרף נשאר בכיוונו או משתקף ביחס לציר \(x\).</div>
+    <span class="page-number">9 / 48</span><span class="running-title">שלב ג — חקירה</span>
+  </section>
+
+  <section class="page" id="page-10">
+    <div class="section-head"><div class="section-no">8</div><h2>דוגמה מלאה: חקירת \(f(x)=x^4\)</h2></div>
+    <div class="two-col wide-left">
+      <div>
+        <div id="board-x4" class="jxgbox"></div>
+      </div>
+      <div class="card">
+        <h3>תוצאות החקירה</h3>
+        <ul class="compact-list">
+          <li>תחום: \(\mathbb{R}\).</li>
+          <li>חיתוך: \((0,0)\).</li>
+          <li>סימטריה: לציר \(y\).</li>
+          <li>חיובית: \(( -\infty,0)\cup(0,\infty)\).</li>
+          <li>אפס: \(x=0\).</li>
+          <li>יורדת: \(( -\infty,0]\).</li>
+          <li>עולה: \([0,\infty)\).</li>
+          <li>מינימום: \((0,0)\).</li>
+          <li>טווח: \([0,\infty)\).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="example">
+      <h3>פתרון משוואה בעזרת הגרף</h3>
+      <p>הישר \(y=16\) חותך את הגרף בשתי נקודות:</p>
+      \[x^4=16\quad\Longrightarrow\quad x=\pm2\]
+      <p>הסיבה לשני הפתרונות היא סימטריית הגרף לציר \(y\).</p>
+    </div>
+
+    <div class="try">
+      <ol>
+        <li>כמה פתרונות יש למשוואה \(x^4=25\)?</li>
+        <li>האם קיים פתרון ממשי למשוואה \(x^4=-1\)? נמקו באמצעות הטווח.</li>
+        <li>קבעו אם הנקודות \((-1,-1)\) ו־\((-1,1)\) נמצאות על הגרף.</li>
+      </ol>
+    </div>
+    <span class="page-number">10 / 48</span><span class="running-title">שלב ג — דוגמה זוגית</span>
+  </section>
+
+  <section class="page" id="page-11">
+    <div class="section-head"><div class="section-no">9</div><h2>דוגמה מלאה: חקירת \(g(x)=x^5\)</h2></div>
+    <div class="two-col wide-left">
+      <div><div id="board-x5" class="jxgbox"></div></div>
+      <div class="card">
+        <h3>תוצאות החקירה</h3>
+        <ul class="compact-list">
+          <li>תחום: \(\mathbb{R}\).</li>
+          <li>חיתוך: \((0,0)\).</li>
+          <li>סימטריה: ביחס לראשית.</li>
+          <li>שלילית: \(( -\infty,0)\).</li>
+          <li>חיובית: \((0,\infty)\).</li>
+          <li>עולה בכל \(\mathbb{R}\).</li>
+          <li>אין מינימום או מקסימום.</li>
+          <li>טווח: \(\mathbb{R}\).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="example">
+      <h3>פתרון משוואה</h3>
+      \[x^5=-32\quad\Longrightarrow\quad x=-2\]
+      <p>לפונקציה אי־זוגית עולה יש בדיוק פתרון אחד לכל ישר אופקי \(y=c\).</p>
+    </div>
+
+    <div class="try">
+      <ol>
+        <li>פתרו: \(x^5=243\).</li>
+        <li>כמה פתרונות יש למשוואה \(x^5=c\) לכל \(c\in\mathbb{R}\)?</li>
+        <li>השוו ללא חישוב: \(g(-4)\) ו־\(g(-3)\).</li>
+      </ol>
+    </div>
+    <span class="page-number">11 / 48</span><span class="running-title">שלב ג — דוגמה אי־זוגית</span>
+  </section>
+
+  <section class="page" id="page-12">
+    <div class="section-head"><div class="section-no">10</div><h2>התנהגות קצה</h2></div>
+    <p class="lead">התנהגות קצה מתארת את כיוון הגרף כאשר \(x\) נעשה גדול מאוד לחיוב או לשלילה. די בזוגיות \(n\) ובסימן \(a\).</p>
+
+    <div id="board-end" class="jxgbox small"></div>
+    <div class="legend">
+      <span style="--legend-color:#176b87">y=x⁴</span>
+      <span style="--legend-color:#ba3d4b">y=−x⁴</span>
+      <span style="--legend-color:#2f7d61">y=x³</span>
+      <span style="--legend-color:#d96c2f">y=−x³</span>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>מעריך זוגי</h3>
+        \[a&gt;0:\quad f(x)\to\infty\text{ as }x\to\pm\infty\]
+        \[a&lt;0:\quad f(x)\to-\infty\text{ as }x\to\pm\infty\]
+      </div>
+      <div class="card">
+        <h3>מעריך אי־זוגי</h3>
+        \[a&gt;0:\quad f(x)\to\infty\text{ as }x\to\infty\]
+        \[a&gt;0:\quad f(x)\to-\infty\text{ as }x\to-\infty\]
+        <p>כאשר \(a&lt;0\), הכיוונים מתהפכים.</p>
+      </div>
+    </div>
+
+    <div class="try">
+      <p>תארו את התנהגות הקצה של \(f(x)=-5x^8\) ושל \(g(x)=-2x^7\).</p>
+    </div>
+    <span class="page-number">12 / 48</span><span class="running-title">שלב ג — התנהגות קצה</span>
+  </section>
+
+  <section class="page" id="page-13">
+    <div class="section-head"><div class="section-no">11</div><h2>מציאת המעריך מתוך נקודה או טבלה</h2></div>
+    <p class="lead">אם נקודה \((u,v)\) נמצאת על \(f(x)=x^n\), אז מתקיים \(u^n=v\). בוחרים ייצוג מתאים ומזהים את המעריך.</p>
+
+    <div class="two-col">
+      <div class="example">
+        <h3>דוגמה 1 — נקודה</h3>
+        <p>הנקודה \((3,81)\) נמצאת על \(f(x)=x^n\).</p>
+        \[3^n=81=3^4\quad\Longrightarrow\quad n=4\]
+      </div>
+      <div class="example">
+        <h3>דוגמה 2 — ערך שלילי</h3>
+        <p>נתון \(f(-2)=-32\).</p>
+        \[(-2)^n=-32=(-2)^5\quad\Longrightarrow\quad n=5\]
+      </div>
+    </div>
+
+    <h3>מציאת מעריך ומקדם יחד</h3>
+    <div class="concept">
+      נתונה \(f(x)=a x^n\), והיא עוברת בנקודות \((1,3)\) ו־\((2,24)\).
+      \[f(1)=a=3\]
+      \[3\cdot2^n=24\quad\Longrightarrow\quad2^n=8\quad\Longrightarrow\quad n=3\]
+      לכן \(f(x)=3x^3\).
+    </div>
+
+    <div class="try">
+      <ol>
+        <li>מצאו \(n\) אם \((2,64)\) על \(y=x^n\).</li>
+        <li>מצאו \(n\) אם \((-3,-27)\) על \(y=x^n\).</li>
+        <li>מצאו \(a,n\) אם \(f(x)=a x^n\), \(f(1)=-2\), \(f(3)=-162\).</li>
+      </ol>
+    </div>
+    <span class="page-number">13 / 48</span><span class="running-title">שלב ג — מציאת פרמטרים</span>
+  </section>
+
+  <section class="page" id="page-14">
+    <div class="section-head"><div class="section-no">12</div><h2>השפעת המקדם בפונקציה \(f(x)=a x^n\)</h2></div>
+    <div class="two-col wide-left">
+      <div>
+        <div id="board-coeff" class="jxgbox"></div>
+        <div class="legend">
+          <span style="--legend-color:#176b87">y=x³</span>
+          <span style="--legend-color:#d96c2f">y=2x³</span>
+          <span style="--legend-color:#2f7d61">y=0.5x³</span>
+          <span style="--legend-color:#ba3d4b">y=−x³</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>כללי השינוי</h3>
+        <ul>
+          <li>\(a&gt;1\): מתיחה אנכית.</li>
+          <li>\(0&lt;a&lt;1\): כיווץ אנכי.</li>
+          <li>\(a&lt;0\): שיקוף ביחס לציר \(x\).</li>
+          <li>המקדם אינו משנה את נקודת האפס.</li>
+          <li>הנקודה \((1,1)\) עוברת ל־\((1,a)\).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="example">
+      <p>בפונקציה \(g(x)=-3x^4\), המעריך זוגי והמקדם שלילי. לכן הגרף סימטרי לציר \(y\), כולו מתחת לציר \(x\), והראשית היא נקודת מקסימום.</p>
+    </div>
+
+    <div class="try">
+      <ol>
+        <li>סדרו לפי רוחב הגרף סמוך ל־\(x=1\): \(x^4\), \(4x^4\), \(0.25x^4\).</li>
+        <li>תארו כיצד מתקבל הגרף של \(-2x^5\) מן הגרף של \(x^5\).</li>
+      </ol>
+    </div>
+    <span class="page-number">14 / 48</span><span class="running-title">שלב ג — השפעת המקדם</span>
+  </section>
+
+  <section class="page" id="page-15">
+    <div class="section-head"><div class="section-no">13</div><h2>משוואות חזקה פשוטות</h2></div>
+    <div class="formula-box">\[a x^n=c\quad\Longrightarrow\quad x^n=\frac{c}{a}\]</div>
+
+    <h3>מספר הפתרונות הממשיים</h3>
+    <table class="math-table">
+      <thead><tr><th>סוג \(n\)</th><th>\(d&gt;0\)</th><th>\(d=0\)</th><th>\(d&lt;0\)</th></tr></thead>
+      <tbody>
+        <tr><td>even</td><td>two</td><td>one</td><td>none</td></tr>
+        <tr><td>odd</td><td>one</td><td>one</td><td>one</td></tr>
+      </tbody>
+    </table>
+    <p>בטבלה \(d=\frac{c}{a}\).</p>
+
+    <div class="two-col">
+      <div class="example">
+        <h3>מעריך זוגי</h3>
+        \[2x^4=32\]
+        \[x^4=16\quad\Longrightarrow\quad x=\pm2\]
+      </div>
+      <div class="example">
+        <h3>מעריך אי־זוגי</h3>
+        \[-3x^5=96\]
+        \[x^5=-32\quad\Longrightarrow\quad x=-2\]
+      </div>
+    </div>
+
+    <div class="warning"><strong>טעות נפוצה:</strong> במשוואה \(x^4=16\) יש שני פתרונות, אך במשוואה \(x^5=32\) יש פתרון אחד בלבד.</div>
+
+    <div class="try">
+      <h3>תרגול</h3>
+      <ol>
+        <li>פתרו: \(3x^4=48\).</li>
+        <li>פתרו: \(-2x^3=54\).</li>
+        <li>קבעו ללא פתרון מפורט כמה פתרונות יש ל־\(-5x^8=20\).</li>
+      </ol>
+    </div>
+    <span class="page-number">15 / 48</span><span class="running-title">שלב ד — משוואות</span>
+  </section>
+
+  <section class="page" id="page-16">
+    <div class="section-head"><div class="section-no">14</div><h2>חיתוך עם ישרים ועם פונקציות</h2></div>
+    <div class="two-col wide-left">
+      <div>
+        <div id="board-intersections" class="jxgbox"></div>
+        <div class="legend">
+          <span style="--legend-color:#176b87">y=x⁴</span>
+          <span style="--legend-color:#d96c2f">y=16</span>
+          <span style="--legend-color:#2f7d61">y=x</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>דרך עבודה</h3>
+        <ol class="compact-list">
+          <li>משווים בין הביטויים של \(y\).</li>
+          <li>מעבירים אגפים ומפרקים לגורמים.</li>
+          <li>פותרים את המשוואה.</li>
+          <li>מציבים למציאת \(y\).</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="example">
+        <h3>חיתוך עם \(y=x\)</h3>
+        \[x^3=x\]
+        \[x(x^2-1)=0\]
+        \[x=-1,0,1\]
+      </div>
+      <div class="example">
+        <h3>חיתוך שתי חזקות</h3>
+        \[x^6=x^4\]
+        \[x^4(x^2-1)=0\]
+        \[x=-1,0,1\]
+      </div>
+    </div>
+
+    <div class="try">
+      <p>מצאו את נקודות החיתוך של \(f(x)=-3x^5\) ושל \(g(x)=-3x\).</p>
+    </div>
+    <span class="page-number">16 / 48</span><span class="running-title">שלב ד — חיתוכים</span>
+  </section>
+
+  <section class="page" id="page-17">
+    <div class="section-head"><div class="section-no">15</div><h2>השוואת חזקות זוגיות</h2></div>
+    <p class="lead">נשווה את \(x^m\) ואת \(x^k\), כאשר \(k&gt;m\) ושני המעריכים זוגיים.</p>
+    <div id="board-compare-even" class="jxgbox small"></div>
+    <div class="legend"><span style="--legend-color:#176b87">y=x⁴</span><span style="--legend-color:#d96c2f">y=x⁶</span></div>
+
+    <table class="math-table">
+      <thead><tr><th>תחום</th><th>השוואה</th><th>הסבר</th></tr></thead>
+      <tbody>
+        <tr><td>\(|x|&gt;1\)</td><td>\(x^k&gt;x^m\)</td><td>כפל נוסף במספר שגודלו מעל \(1\)</td></tr>
+        <tr><td>\(0&lt;|x|&lt;1\)</td><td>\(x^k&lt;x^m\)</td><td>כפל נוסף בשבר מקטין את התוצאה</td></tr>
+        <tr><td>\(x=-1,0,1\)</td><td>\(x^k=x^m\)</td><td>נקודות החיתוך המשותפות</td></tr>
+      </tbody>
+    </table>
+
+    <div class="example">
+      <p>לכן פתרון האי־שוויון \(x^6&lt;x^4\) הוא:</p>
+      \[-1&lt;x&lt;0\quad\text{or}\quad0&lt;x&lt;1\]
+    </div>
+    <div class="try">
+      <ol>
+        <li>השוו בין \(x^8\) ל־\(x^4\) כאשר \(x=-2\), \(x=-0.5\), \(x=3\).</li>
+        <li>פתרו: \(x^{10}&gt;x^6\).</li>
+      </ol>
+    </div>
+    <span class="page-number">17 / 48</span><span class="running-title">שלב ד — השוואת חזקות זוגיות</span>
+  </section>
+
+  <section class="page" id="page-18">
+    <div class="section-head"><div class="section-no">16</div><h2>השוואת חזקות אי־זוגיות</h2></div>
+    <p class="lead">בצד החיובי ההתנהגות דומה למקרה הזוגי. בצד השלילי יש לשים לב גם לסימן וגם לגודל המוחלט.</p>
+    <div id="board-compare-odd" class="jxgbox small"></div>
+    <div class="legend"><span style="--legend-color:#176b87">y=x³</span><span style="--legend-color:#d96c2f">y=x⁵</span></div>
+
+    <table class="math-table">
+      <thead><tr><th>תחום</th><th>השוואה כאשר \(k&gt;m\)</th></tr></thead>
+      <tbody>
+        <tr><td>\(x&gt;1\)</td><td>\(x^k&gt;x^m\)</td></tr>
+        <tr><td>\(0&lt;x&lt;1\)</td><td>\(x^k&lt;x^m\)</td></tr>
+        <tr><td>\(-1&lt;x&lt;0\)</td><td>\(x^k&gt;x^m\)</td></tr>
+        <tr><td>\(x&lt;-1\)</td><td>\(x^k&lt;x^m\)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="example">
+      <p>לדוגמה, עבור \(x=-0.5\):</p>
+      \[(-0.5)^5=-0.03125&gt;-0.125=(-0.5)^3\]
+      <p>החזקה הגבוהה קרובה יותר לאפס ולכן היא גדולה יותר, אף ששתי התוצאות שליליות.</p>
+    </div>
+
+    <div class="try"><p>פתרו: \(x^5&lt;x^3\). סמנו תחילה את נקודות החיתוך \(-1,0,1\) ובדקו את ארבעת התחומים.</p></div>
+    <span class="page-number">18 / 48</span><span class="running-title">שלב ד — השוואת חזקות אי־זוגיות</span>
+  </section>
+
+  <section class="page" id="page-19">
+    <div class="section-head"><div class="section-no">17</div><h2>אי־שוויונים בין פונקציות חזקה</h2></div>
+    <p class="lead">הפתרון הגרפי והפתרון האלגברי מתארים אותה שאלה: באילו ערכי \(x\) גרף אחד נמצא מעל הגרף האחר?</p>
+
+    <ol class="steps">
+      <li>מוצאים נקודות חיתוך על ידי פתרון השוויון המתאים.</li>
+      <li>מסמנים את נקודות החיתוך על ציר \(x\).</li>
+      <li>מחלקים את הציר לתחומים.</li>
+      <li>משווים בכל תחום לפי חוקי החזקות או בעזרת ערך בדיקה.</li>
+      <li>כותבים את הפתרון כאיחוד תחומים ומתייחסים לשוויון בקצוות.</li>
+    </ol>
+
+    <div class="example">
+      <h3>דוגמה: פתרו \(x^6\ge x^4\)</h3>
+      \[x^6-x^4\ge0\]
+      \[x^4(x^2-1)\ge0\]
+      <p>מאחר ש־\(x^4\ge0\), הסימן נקבע בעיקר על ידי \(x^2-1\), אך \(x=0\) נותן שוויון.</p>
+      \[x\le-1\quad\text{or}\quad x=0\quad\text{or}\quad x\ge1\]
+    </div>
+
+    <div class="two-col">
+      <div class="warning"><strong>בדיקת קצוות:</strong> בסימן \(\ge\) או \(\le\), נקודות שבהן מתקיים שוויון נכללות בפתרון.</div>
+      <div class="success"><strong>בדיקה גרפית:</strong> הפתרון הוא המקום שבו הגרף של \(x^6\) נמצא מעל או על הגרף של \(x^4\).</div>
+    </div>
+
+    <div class="try">
+      <ol><li>פתרו: \(x^8&lt;x^2\).</li><li>פתרו: \(x^7\ge x^3\).</li></ol>
+    </div>
+    <span class="page-number">19 / 48</span><span class="running-title">שלב ד — אי־שוויונים</span>
+  </section>
+
+  <section class="page" id="page-20">
+    <div class="section-head"><div class="section-no">18</div><h2>נימוק טענות בעזרת חוקים וגרפים</h2></div>
+    <p class="lead">ברמת 5 יח״ל לא די לסמן נכון או לא נכון. יש לציין את התחום, החוק או תכונת הגרף שעליהם מבוססת המסקנה.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>טענה א</h3>
+        <p>אם \(n&gt;8\) זוגי, אז \((0.5)^n&lt;(0.5)^8\).</p>
+        <p class="answer">נכונה.</p>
+        <p>כאשר \(0&lt;x&lt;1\), הגדלת המעריך מקטינה את ערך החזקה.</p>
+      </div>
+      <div class="card">
+        <h3>טענה ב</h3>
+        <p>לכל \(x\), מתקיים \(x^6\ge x^4\).</p>
+        <p class="answer" style="color:#9d3442">שגויה.</p>
+        <p>בתחום \(0&lt;|x|&lt;1\) מתקיים דווקא \(x^6&lt;x^4\).</p>
+      </div>
+      <div class="card">
+        <h3>טענה ג</h3>
+        <p>אם \(f(x)=x^5\), אז \(f(-a)=-f(a)\).</p>
+        <p class="answer">נכונה.</p>
+        <p>הפונקציה אי־זוגית.</p>
+      </div>
+      <div class="card">
+        <h3>טענה ד</h3>
+        <p>אם \(f(x)=-x^4\), אז הראשית היא נקודת מינימום.</p>
+        <p class="answer" style="color:#9d3442">שגויה.</p>
+        <p>המקדם השלילי הופך את הראשית לנקודת מקסימום.</p>
+      </div>
+    </div>
+
+    <h3>תבנית לנימוק מלא</h3>
+    <div class="formula-box">טענה ⇐ תחום מתאים ⇐ חוק או תכונה ⇐ מסקנה</div>
+
+    <div class="try">
+      <ol>
+        <li>קבעו ונמקו: לכל \(x&gt;1\), מתקיים \(x^9&gt;x^7\).</li>
+        <li>קבעו ונמקו: אם \(f(x)=x^{10}\), אז \(f(-2)=-f(2)\).</li>
+        <li>קבעו ונמקו: למשוואה \(-x^6=4\) יש שני פתרונות.</li>
+      </ol>
+    </div>
+    <span class="page-number">20 / 48</span><span class="running-title">שלב ד — נימוק מתמטי</span>
+  </section>
+
+  <section class="page" id="page-21">
+    <div class="section-head"><div class="section-no">19</div><h2>מעריך אפס</h2></div>
+    <div class="formula-box">\[x^0=1,\qquad x\ne0\]</div>
+    <p class="lead">חוק זה אינו קביעה שרירותית; הוא נובע מן הרצון לשמור על חוק החילוק של חזקות.</p>
+
+    <div class="example">
+      \[\frac{x^5}{x^5}=1\]
+      <p>ומצד שני, לפי חוק החזקות:</p>
+      \[\frac{x^5}{x^5}=x^{5-5}=x^0\]
+      <p>לכן \(x^0=1\) לכל \(x\ne0\).</p>
+    </div>
+
+    <h3>הגרף של \(f(x)=x^0\)</h3>
+    <div class="two-col">
+      <div class="card">
+        <ul>
+          <li>תחום: \(\mathbb{R}\setminus\{0\}\).</li>
+          <li>טווח: \(\{1\}\).</li>
+          <li>הגרף נמצא על הישר \(y=1\).</li>
+          <li>הנקודה \((0,1)\) אינה כלולה.</li>
+        </ul>
+      </div>
+      <div class="warning">
+        <strong>שימו לב:</strong> הביטוי \(0^0\) אינו מוגדר במסגרת זו. לכן אין לכלול את \(x=0\) בתחום של \(x^0\).
+      </div>
+    </div>
+
+    <div class="try">
+      <ol>
+        <li>חשבו: \((-7)^0\), \(\left(\frac{3}{5}\right)^0\).</li>
+        <li>מהו תחום ההגדרה של \(g(x)=(x-2)^0\)?</li>
+        <li>הסבירו מדוע הגרף של \(x^0\) אינו הישר השלם \(y=1\).</li>
+      </ol>
+    </div>
+    <span class="page-number">21 / 48</span><span class="running-title">שלב ה — מעריך אפס</span>
+  </section>
+
+  <section class="page" id="page-22">
+    <div class="section-head"><div class="section-no">20</div><h2>מעריך שלילי</h2></div>
+    <div class="formula-box">\[x^{-n}=\frac{1}{x^n},\qquad x\ne0\]</div>
+    <div class="two-col wide-left">
+      <div>
+        <div id="board-negative" class="jxgbox"></div>
+        <div class="legend"><span style="--legend-color:#176b87">y=x⁻²</span><span style="--legend-color:#d96c2f">y=x⁻³</span></div>
+      </div>
+      <div class="card">
+        <h3>מאפיינים</h3>
+        <ul class="compact-list">
+          <li>\(x=0\) מחוץ לתחום.</li>
+          <li>הצירים הם אסימפטוטות.</li>
+          <li>מעריך שלילי זוגי: שני ענפים מעל ציר \(x\).</li>
+          <li>מעריך שלילי אי־זוגי: ענפים ברביעים הראשון והשלישי.</li>
+          <li>כאשר \(|x|\) גדל, ערך הפונקציה מתקרב ל־\(0\).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="example">\[(-2)^{-4}=\frac{1}{(-2)^4}=\frac{1}{16}\]</div>
+      <div class="example">\[(-2)^{-3}=\frac{1}{(-2)^3}=-\frac{1}{8}\]</div>
+    </div>
+    <div class="try"><p>חקרו את \(f(x)=-2x^{-2}\): תחום, טווח, סימטריה, סימן ואסימפטוטות.</p></div>
+    <span class="page-number">22 / 48</span><span class="running-title">שלב ה — מעריך שלילי</span>
+  </section>
+
+  <section class="page" id="page-23">
+    <div class="section-head"><div class="section-no">21</div><h2>מעריך שברי חיובי</h2></div>
+    <div class="formula-box">\[x^{p/q}=\sqrt[q]{x^p}\]</div>
+    <div class="two-col wide-left">
+      <div>
+        <div id="board-fractional" class="jxgbox"></div>
+        <div class="legend">
+          <span style="--legend-color:#176b87">y=x¹ᐟ²</span>
+          <span style="--legend-color:#d96c2f">y=x¹ᐟ³</span>
+          <span style="--legend-color:#2f7d61">y=x²ᐟ³</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>תחום לפי המכנה</h3>
+        <ul>
+          <li>אם \(q\) זוגי — בדרך כלל נדרש \(x\ge0\).</li>
+          <li>אם \(q\) אי־זוגי — ניתן להציב גם \(x&lt;0\).</li>
+          <li>כאשר \(0&lt;n&lt;1\), הגרף גדל אך מתמתן ככל ש־\(x\) גדל.</li>
+        </ul>
+      </div>
+    </div>
+
+    <table class="math-table">
+      <thead><tr><th>פונקציה</th><th>כתיבת שורש</th><th>תחום</th></tr></thead>
+      <tbody>
+        <tr><td>\(x^{1/2}\)</td><td>\(\sqrt{x}\)</td><td>\([0,\infty)\)</td></tr>
+        <tr><td>\(x^{1/3}\)</td><td>\(\sqrt[3]{x}\)</td><td>\(\mathbb{R}\)</td></tr>
+        <tr><td>\(x^{2/3}\)</td><td>\(\sqrt[3]{x^2}\)</td><td>\(\mathbb{R}\)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="try"><p>קבעו תחום והמירו לכתיב שורש: \(x^{3/2}\), \(x^{5/3}\), \(x^{4/5}\).</p></div>
+    <span class="page-number">23 / 48</span><span class="running-title">שלב ה — מעריך שברי</span>
+  </section>
+
+  <section class="page exercise-page" id="page-24">
+    <div class="section-head"><div class="section-no">ת1</div><h2>תרגול — חוקי חזקות</h2></div>
+    <p class="lead">פשטו, חשבו ונמקו. ציינו מגבלות על המשתנים כאשר יש מכנה.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> חישוב וסימן</h3>
+        <ol>
+          <li>חשבו: \((-4)^3\), \((-4)^4\), \(-4^4\).</li>
+          <li>חשבו: \(2^5\cdot2^3\), \(\dfrac{5^7}{5^4}\), \((3^2)^4\).</li>
+          <li>כתבו כחזקה אחת: \(a^6a^{-2}\), \(\dfrac{x^9}{x^5}\), \(y^3y^4y\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> פישוט אלגברי</h3>
+        <ol start="4">
+          <li>פשטו: \(\dfrac{x^8x^{-3}}{x^2}\).</li>
+          <li>פשטו: \(\dfrac{(a^3b^2)^2}{a^4b}\).</li>
+          <li>פשטו: \(\left(\dfrac{2x^3}{y^2}\right)^2\cdot\dfrac{y^5}{4x}\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> השוואה ונימוק</h3>
+        <ol start="7">
+          <li>קבעו ללא מחשבון איזה גדול יותר: \(0.7^6\) או \(0.7^9\).</li>
+          <li>מצאו את \(m\): \(\dfrac{3^{m+4}}{3^{m-1}}=3^5\). הסבירו את התוצאה.</li>
+          <li>תלמיד כתב \((a+b)^4=a^4+b^4\). הפריכו בעזרת דוגמה מספרית.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">24 / 48</span><span class="running-title">תרגול 1 — חוקי חזקות</span>
+  </section>
+
+  <section class="page exercise-page" id="page-25">
+    <div class="section-head"><div class="section-no">ת2</div><h2>תרגול — פונקציה וייצוגים</h2></div>
+    <p class="lead">עברו בין כלל אלגברי, טבלה, נקודות ותיאור גרפי.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> הצבה וטבלה</h3>
+        <ol>
+          <li>השלימו טבלה עבור \(f(x)=2x^3\) כאשר \(x=-2,-1,0,1,2\).</li>
+          <li>חשבו \(g(-3)\), \(g(0.5)\), \(g(2)\) עבור \(g(x)=-x^4\).</li>
+          <li>רשמו ארבע נקודות על הגרף \(y=3x^2\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> בדיקת נקודות</h3>
+        <ol start="4">
+          <li>אילו מן הנקודות \((-2,-16)\), \((-1,-1)\), \((2,16)\) נמצאות על \(y=x^4\)?</li>
+          <li>הנקודה \((k,54)\) נמצאת על \(y=2x^3\). מצאו את \(k\).</li>
+          <li>בנו טבלה מתאימה ל־\(h(x)=-\frac12x^5\) וסרטטו סקיצה.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> מעבר בין ייצוגים</h3>
+        <ol start="7">
+          <li>טבלה מכילה את הנקודות \((-2,-32)\), \((-1,-1)\), \((0,0)\), \((1,1)\), \((2,32)\). הציעו כלל מתאים.</li>
+          <li>הסבירו כיצד ניתן להחליט מטבלה אם הקשר הנתון אינו פונקציה.</li>
+          <li>צרו טבלה בת חמש שורות לפונקציית חזקה שהגרף שלה סימטרי לציר \(y\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">25 / 48</span><span class="running-title">תרגול 2 — ייצוגי פונקציה</span>
+  </section>
+
+  <section class="page exercise-page" id="page-26">
+    <div class="section-head"><div class="section-no">ת3</div><h2>תרגול — הגדרת פונקציית חזקה</h2></div>
+    <p class="lead">זהו את המבנה \(f(x)=a x^n\), והבחינו בינו לבין מבנים קרובים.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> זיהוי רכיבים</h3>
+        <ol>
+          <li>בכל פונקציה ציינו את \(a\) ואת \(n\): \(4x^7\), \(-x^6\), \(\frac35x^2\).</li>
+          <li>כתבו את \(\dfrac{7}{x^4}\) ואת \(5\sqrt{x}\) בצורה \(a x^n\).</li>
+          <li>קבעו אילו פונקציות הן פונקציות חזקה: \(x^8\), \(8^x\), \(x^8+2\), \(-3x^{-2}\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> סיווג ונימוק</h3>
+        <ol start="4">
+          <li>מיינו לפונקציות חזקה ולפונקציות שאינן כאלה: \(\sqrt[3]{x^2}\), \((2x)^5\), \(x^3-x\), \(2^{-x}\).</li>
+          <li>האם \(f(x)=0\cdot x^4\) נכללת במשפחה כפי שהוגדרה? נמקו.</li>
+          <li>רשמו שתי פונקציות חזקה העוברות בראשית ושתי פונקציות חזקה שאינן מוגדרות בראשית.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> בניית דוגמאות</h3>
+        <ol start="7">
+          <li>בנו פונקציית חזקה בעלת מקדם שלילי ומעריך שברי חיובי.</li>
+          <li>בנו פונקציית חזקה שעוברת בנקודה \((1,-4)\) ושמעריכה טבעי זוגי.</li>
+          <li>הסבירו מדוע \(x^3+x^2\) אינה פונקציית חזקה יחידה אף שכל איבר בה הוא חזקה.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">26 / 48</span><span class="running-title">תרגול 3 — הגדרה וסיווג</span>
+  </section>
+
+  <section class="page exercise-page" id="page-27">
+    <div class="section-head"><div class="section-no">ת4</div><h2>תרגול — מעריך זוגי</h2></div>
+    <p class="lead">השתמשו בסימטריה, בטווח ובקשר בין גודל המעריך לצורת הגרף.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> תכונות</h3>
+        <ol>
+          <li>רשמו תחום, טווח, סימטריה ונקודת קיצון של \(f(x)=x^8\).</li>
+          <li>השלימו: \(f(-3)\;\square\;f(3)\) ו־\(f(-0.2)\;\square\;0\) עבור \(f(x)=x^{10}\).</li>
+          <li>קבעו אילו נקודות נמצאות על \(y=x^6\): \((-1,1)\), \((0,1)\), \((1,-1)\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> השוואת גרפים</h3>
+        <ol start="4">
+          <li>סדרו \(x^2,x^4,x^8\) מן הגדול לקטן עבור \(x=0.5\) ועבור \(x=2\).</li>
+          <li>סרטטו באותה מערכת את \(y=x^2\) ואת \(y=x^8\), וסמנו את נקודות החיתוך.</li>
+          <li>הסבירו מדוע הישר \(y=-3\) אינו חותך אף גרף מן הצורה \(y=x^{2k}\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> הכללה</h3>
+        <ol start="7">
+          <li>לגרף \(y=x^{2k}\) שייכת הנקודה \((a,b)\). איזו נקודה נוספת שייכת בהכרח?</li>
+          <li>קבעו את מספר הפתרונות של \(x^{12}=c\) לפי סימנו של \(c\).</li>
+          <li>הוכיחו מן ההגדרה כי \(f(x)=x^{2k}\) היא פונקציה זוגית.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">27 / 48</span><span class="running-title">תרגול 4 — מעריך זוגי</span>
+  </section>
+
+  <section class="page exercise-page" id="page-28">
+    <div class="section-head"><div class="section-no">ת5</div><h2>תרגול — מעריך אי־זוגי</h2></div>
+    <p class="lead">השתמשו בסימטריה לראשית, במונוטוניות ובסימן הערכים.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> תכונות</h3>
+        <ol>
+          <li>רשמו תחום, טווח, סימטריה ותחומי סימן של \(f(x)=x^9\).</li>
+          <li>השלימו: \(f(-4)\;\square\;f(4)\), \(f(-1)\;\square\;0\), \(f(3)\;\square\;f(2)\).</li>
+          <li>קבעו אילו נקודות נמצאות על \(y=x^7\): \((-1,-1)\), \((-1,1)\), \((0,0)\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> גרף ומשוואה</h3>
+        <ol start="4">
+          <li>סרטטו סקיצה של \(y=x^3\) ושל \(y=x^9\) באותה מערכת.</li>
+          <li>קבעו כמה פתרונות יש למשוואה \(x^{11}=c\) לכל \(c\in\mathbb{R}\).</li>
+          <li>פתרו: \(x^7=-128\), והסבירו מדוע אין פתרון נוסף.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> הכללה</h3>
+        <ol start="7">
+          <li>לגרף \(y=x^{2k+1}\) שייכת הנקודה \((a,b)\). איזו נקודה נוספת שייכת בהכרח?</li>
+          <li>השוו בין \(x^5\) ל־\(x^9\) בכל אחד מארבעת התחומים שנקבעים על ידי \(-1,0,1\).</li>
+          <li>הוכיחו מן ההגדרה כי \(f(x)=x^{2k+1}\) היא פונקציה אי־זוגית.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">28 / 48</span><span class="running-title">תרגול 5 — מעריך אי־זוגי</span>
+  </section>
+
+  <section class="page exercise-page" id="page-29">
+    <div class="section-head"><div class="section-no">ת6</div><h2>תרגול — זיהוי זוגיות המעריך</h2></div>
+    <p class="lead">בכל סעיף קבעו מה אפשר להסיק על \(n\), ובמידת האפשר גם על סימן \(a\).</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> מידע מערכים</h3>
+        <ol>
+          <li>נתון \(f(-2)=f(2)\ne0\), כאשר \(f(x)=a x^n\). מה ניתן להסיק?</li>
+          <li>נתון \(g(-3)=-g(3)\), כאשר \(g(x)=a x^n\). מה ניתן להסיק?</li>
+          <li>נתון \(h(-1)&lt;0\) ו־\(a&gt;0\). קבעו אם \(n\) זוגי או אי־זוגי.</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> מידע מגרף</h3>
+        <ol start="4">
+          <li>הגרף סימטרי לציר \(y\) ונמצא מתחת לציר \(x\). קבעו את זוגיות \(n\) ואת סימן \(a\).</li>
+          <li>הגרף עובר ברביעים השני והרביעי וסימטרי לראשית. קבעו את זוגיות \(n\) ואת סימן \(a\).</li>
+          <li>הגרף עובר בנקודות \((-2,64)\) ו־\((2,64)\). הציעו שני מעריכים אפשריים.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> מידע משולב</h3>
+        <ol start="7">
+          <li>נתון \(f(2)=96\), \(f(-2)=-96\), \(f(1)=3\). מצאו \(a,n\).</li>
+          <li>נתון \(g(-3)=243\), \(g(1)=-1\). מצאו \(a,n\).</li>
+          <li>האם מן השוויון \(f(-1)=f(1)\) בלבד ניתן תמיד להסיק שהפונקציה זוגית? הסבירו בהקשר של \(a x^n\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">29 / 48</span><span class="running-title">תרגול 6 — זיהוי המשפחה</span>
+  </section>
+
+  <section class="page exercise-page" id="page-30">
+    <div class="section-head"><div class="section-no">ת7</div><h2>תרגול — שגרת חקירה מלאה</h2></div>
+    <p class="lead">בצעו חקירה לפי עשרת השלבים שבמערך: תחום, חיתוכים, סימטריה, סימן, עלייה וירידה, קיצון, טווח, קצוות, נקודות עזר וסקיצה.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> חקירה מודרכת</h3>
+        <ol>
+          <li>חקרו את \(f(x)=2x^4\).</li>
+          <li>חקרו את \(g(x)=-x^3\).</li>
+          <li>חקרו את \(h(x)=\frac12x^6\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> השוואת חקירות</h3>
+        <ol start="4">
+          <li>חקרו את \(p(x)=-3x^8\) והשוו את טווחה לזה של \(3x^8\).</li>
+          <li>חקרו את \(q(x)=-2x^7\) והשוו את התנהגות הקצה לזו של \(2x^7\).</li>
+          <li>ללא סרטוט מלא, קבעו את כל מאפייני \(r(x)=5x^{11}\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> בנייה מנתונים</h3>
+        <ol start="7">
+          <li>בנו פונקציה \(a x^n\) זוגית, בעלת מקסימום בראשית ועוברת בנקודה \((1,-4)\).</li>
+          <li>בנו פונקציה \(a x^n\) אי־זוגית, יורדת בכל התחום ועוברת בנקודה \((-1,2)\).</li>
+          <li>נסחו כלל המקשר בין זוגיות \(n\), סימן \(a\) וסוג הקיצון בראשית.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">30 / 48</span><span class="running-title">תרגול 7 — חקירת פונקציה</span>
+  </section>
+
+  <section class="page exercise-page" id="page-31">
+    <div class="section-head"><div class="section-no">ת8</div><h2>תרגול — חקירת חזקה זוגית</h2></div>
+    <p class="lead">העמיקו בדגם של \(x^4\) והעבירו את המסקנות לחזקות זוגיות נוספות.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> \(x^4\)</h3>
+        <ol>
+          <li>השלימו טבלת ערכים של \(f(x)=x^4\) עבור \(x=-2,-1,-0.5,0,0.5,1,2\).</li>
+          <li>מצאו את נקודות החיתוך של \(y=x^4\) עם \(y=1\) ועם \(y=81\).</li>
+          <li>קבעו את מספר הפתרונות של \(x^4=c\) עבור \(c=-2,0,7\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> מאפיינים וסקיצה</h3>
+        <ol start="4">
+          <li>סרטטו סקיצה של \(y=x^4\) וסמנו את \((0,0)\), \((\pm1,1)\), \((\pm2,16)\).</li>
+          <li>מצאו את כל ערכי \(x\) שעבורם \(x^4\le16\).</li>
+          <li>מצאו את נקודות החיתוך של \(y=x^4\) ושל \(y=x^2\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> הרחבה</h3>
+        <ol start="7">
+          <li>קבעו את מספר החיתוכים של \(y=x^4\) עם \(y=k\) לפי ערכי \(k\).</li>
+          <li>פתרו: \(x^4-5x^2+4=0\).</li>
+          <li>הסבירו כיצד הטווח של \(x^4\) קובע מראש אם למשוואה \(x^4=c\) יש פתרון.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">31 / 48</span><span class="running-title">תרגול 8 — הדגם \(x^4\)</span>
+  </section>
+
+  <section class="page exercise-page" id="page-32">
+    <div class="section-head"><div class="section-no">ת9</div><h2>תרגול — חקירת חזקה אי־זוגית</h2></div>
+    <p class="lead">העמיקו בדגם של \(x^5\) והשתמשו בחד־ערכיות של הפתרון.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> \(x^5\)</h3>
+        <ol>
+          <li>השלימו טבלת ערכים של \(g(x)=x^5\) עבור \(x=-2,-1,-0.5,0,0.5,1,2\).</li>
+          <li>פתרו: \(x^5=1\), \(x^5=-1\), \(x^5=1024\).</li>
+          <li>השוו ללא חישוב מלא: \(g(-3)\) ו־\(g(-2)\); \(g(0.4)\) ו־\(g(0.7)\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> גרף וחיתוכים</h3>
+        <ol start="4">
+          <li>סרטטו סקיצה וסמנו את \((-1,-1)\), \((0,0)\), \((1,1)\).</li>
+          <li>מצאו את נקודות החיתוך של \(y=x^5\) ושל \(y=x\).</li>
+          <li>פתרו: \(x^5\ge32\) ו־\(x^5&lt;-243\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> פרמטר</h3>
+        <ol start="7">
+          <li>קבעו את מספר החיתוכים של \(y=x^5\) עם \(y=k\) לכל \(k\in\mathbb{R}\).</li>
+          <li>פתרו: \(x^5-5x^3+4x=0\).</li>
+          <li>הסבירו מדוע לכל ערך ממשי \(c\) יש בדיוק \(x\) ממשי אחד המקיים \(x^5=c\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">32 / 48</span><span class="running-title">תרגול 9 — הדגם \(x^5\)</span>
+  </section>
+
+  <section class="page exercise-page" id="page-33">
+    <div class="section-head"><div class="section-no">ת10</div><h2>תרגול — התנהגות קצה</h2></div>
+    <p class="lead">תארו כל קצה בנפרד, ולאחר מכן התאימו תיאור אלגברי לצורת גרף.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> תיאור קצוות</h3>
+        <ol>
+          <li>תארו את התנהגות הקצה של \(f(x)=4x^6\).</li>
+          <li>תארו את התנהגות הקצה של \(g(x)=-2x^8\).</li>
+          <li>תארו את התנהגות הקצה של \(h(x)=3x^7\) ושל \(p(x)=-3x^7\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> זיהוי מן התיאור</h3>
+        <ol start="4">
+          <li>שני קצות הגרף פונים מעלה. מה ניתן להסיק על \(n\) ועל \(a\)?</li>
+          <li>הקצה השמאלי למעלה והימני למטה. מה ניתן להסיק?</li>
+          <li>התאימו: \(2x^4\), \(-x^5\), \(-3x^6\), \(x^9\) לארבעת דפוסי הקצוות.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> בנייה והנמקה</h3>
+        <ol start="7">
+          <li>בנו פונקציית חזקה שקצותיה פונים מטה ועוברת בנקודה \((1,-5)\).</li>
+          <li>בנו פונקציית חזקה שהקצה השמאלי מטה והימני מעלה ועוברת ב־\((-1,-2)\).</li>
+          <li>הסבירו מדוע ערכו המדויק של המעריך אינו דרוש לקביעת כיוון הקצוות.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">33 / 48</span><span class="running-title">תרגול 10 — התנהגות קצה</span>
+  </section>
+
+  <section class="page exercise-page" id="page-34">
+    <div class="section-head"><div class="section-no">ת11</div><h2>תרגול — מציאת מעריך ומקדם</h2></div>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> מעריך מנקודה</h3>
+        <ol>
+          <li>מצאו \(n\) אם \((2,256)\) נמצאת על \(y=x^n\).</li>
+          <li>מצאו \(n\) אם \((-2,-128)\) נמצאת על \(y=x^n\).</li>
+          <li>מצאו \(n\) אם \((3,729)\) נמצאת על \(y=x^n\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> \(a\) ו־\(n\)</h3>
+        <ol start="4">
+          <li>נתון \(f(x)=a x^n\), \(f(1)=4\), \(f(2)=128\). מצאו \(a,n\).</li>
+          <li>נתון \(g(-1)=3\), \(g(2)=-96\). מצאו \(a,n\).</li>
+          <li>נתון \(h(2)=48\), \(h(4)=768\). מצאו \(a,n\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> מידע מטבלה</h3>
+        <ol start="7">
+          <li>בטבלה מופיעים \(f(1)=-2\), \(f(2)=-64\), \(f(3)=-486\). מצאו את הפונקציה.</li>
+          <li>הנקודות \((-2,-160)\), \((1,5)\) נמצאות על \(a x^n\). מצאו \(a,n\).</li>
+          <li>האם שתי נקודות שאחת מהן בראשית מספיקות תמיד לקביעת \(a,n\)? נמקו.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">34 / 48</span><span class="running-title">תרגול 11 — מציאת פרמטרים</span>
+  </section>
+
+  <section class="page exercise-page" id="page-35">
+    <div class="section-head"><div class="section-no">ת12</div><h2>תרגול — השפעת המקדם</h2></div>
+    <p class="lead">נתחו מתיחה, כיווץ ושיקוף ביחס לגרף הבסיסי \(y=x^n\).</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> תיאור שינוי</h3>
+        <ol>
+          <li>תארו כיצד מתקבל \(y=5x^4\) מן הגרף \(y=x^4\).</li>
+          <li>תארו כיצד מתקבל \(y=-\frac12x^5\) מן הגרף \(y=x^5\).</li>
+          <li>ציינו את תמונת הנקודה \((2,32)\) לאחר מעבר מ־\(y=x^5\) ל־\(y=-3x^5\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> השוואת גרפים</h3>
+        <ol start="4">
+          <li>סדרו לפי הערך בנקודה \(x=2\): \(\frac14x^4\), \(x^4\), \(3x^4\).</li>
+          <li>אילו תכונות משותפות ל־\(x^6\), \(4x^6\), \(-2x^6\), ואילו משתנות?</li>
+          <li>מצאו \(a\) אם \(f(x)=a x^3\) עוברת בנקודה \((-2,24)\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> בנייה</h3>
+        <ol start="7">
+          <li>בנו פונקציה מן הצורה \(a x^8\) בעלת מקסימום בראשית ועוברת ב־\((1,-6)\).</li>
+          <li>מצאו את \(a\) אם הגרף \(a x^5\) עובר דרך \((2,-16)\), ותארו את הקצוות.</li>
+          <li>הסבירו מדוע שינוי \(a\) אינו משנה את נקודת החיתוך עם ציר \(x\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">35 / 48</span><span class="running-title">תרגול 12 — המקדם \(a\)</span>
+  </section>
+
+  <section class="page exercise-page" id="page-36">
+    <div class="section-head"><div class="section-no">ת13</div><h2>תרגול — משוואות חזקה</h2></div>
+    <p class="lead">בכל משוואה קבעו תחילה את מספר הפתרונות הממשיים הצפוי, ורק אחר כך פתרו.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> פתרון ישיר</h3>
+        <ol>
+          <li>פתרו: \(x^4=625\).</li>
+          <li>פתרו: \(x^7=-2187\).</li>
+          <li>פתרו: \(5x^6=320\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> מקדם וסימן</h3>
+        <ol start="4">
+          <li>פתרו: \(-4x^5=128\).</li>
+          <li>קבעו ללא חישוב כמה פתרונות יש ל־\(3x^8=-24\).</li>
+          <li>מצאו את ערכי \(c\) שעבורם למשוואה \(2x^4=c\) יש שני פתרונות שונים.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> משוואות משולבות</h3>
+        <ol start="7">
+          <li>פתרו: \(2x^8-512=0\).</li>
+          <li>פתרו: \(x^6-9x^3=0\).</li>
+          <li>קבעו לפי \(k\) את מספר הפתרונות של \(-3x^{10}=k\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">36 / 48</span><span class="running-title">תרגול 13 — משוואות</span>
+  </section>
+
+  <section class="page exercise-page" id="page-37">
+    <div class="section-head"><div class="section-no">ת14</div><h2>תרגול — נקודות חיתוך</h2></div>
+    <p class="lead">השוו ביטויים, פרקו לגורמים ומצאו את שתי הקואורדינטות של כל נקודת חיתוך.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> חיתוך עם ישר אופקי</h3>
+        <ol>
+          <li>מצאו את חיתוכי \(y=x^6\) עם \(y=64\).</li>
+          <li>מצאו את חיתוך \(y=x^5\) עם \(y=-32\).</li>
+          <li>קבעו אם \(y=-2\) חותך את \(y=3x^4\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> חיתוך פונקציות</h3>
+        <ol start="4">
+          <li>מצאו את נקודות החיתוך של \(y=x^5\) ושל \(y=x^3\).</li>
+          <li>מצאו את נקודות החיתוך של \(y=2x^4\) ושל \(y=8x^2\).</li>
+          <li>מצאו את נקודות החיתוך של \(y=-3x^7\) ושל \(y=-3x\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> פרמטר</h3>
+        <ol start="7">
+          <li>קבעו לפי \(k\) את מספר החיתוכים של \(y=x^8\) עם \(y=k\).</li>
+          <li>מצאו \(a\) אם הגרפים \(y=a x^4\) ו־\(y=2x^2\) נחתכים בנקודה ש־\(x=2\).</li>
+          <li>מצאו את כל החיתוכים של \(y=x^6\) עם \(y=5x^4-4x^2\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">37 / 48</span><span class="running-title">תרגול 14 — חיתוכים</span>
+  </section>
+
+  <section class="page exercise-page" id="page-38">
+    <div class="section-head"><div class="section-no">ת15</div><h2>תרגול — השוואת חזקות זוגיות</h2></div>
+    <p class="lead">חלקו את ציר המספרים לפי \(-1,0,1\) והשתמשו בגודל \(|x|\).</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> השוואה בנקודה</h3>
+        <ol>
+          <li>השוו \(x^4\) ו־\(x^8\) עבור \(x=3\), \(x=0.2\), \(x=-2\), \(x=-0.5\).</li>
+          <li>השלימו עבור \(|x|&gt;1\): \(x^{12}\;\square\;x^6\).</li>
+          <li>השלימו עבור \(0&lt;|x|&lt;1\): \(x^{14}\;\square\;x^4\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> פתרון תחומים</h3>
+        <ol start="4">
+          <li>פתרו: \(x^8&gt;x^2\).</li>
+          <li>פתרו: \(x^{12}\le x^6\).</li>
+          <li>פתרו: \(3x^{10}&lt;3x^4\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> הכללה</h3>
+        <ol start="7">
+          <li>נתונים \(k&gt;m&gt;0\), ושניהם זוגיים. נסחו את ההשוואה בין \(x^k\) ו־\(x^m\) בכל תחום.</li>
+          <li>פתרו: \(x^{2n}&gt;x^{2m}\), כאשר \(n&gt;m\) טבעיים.</li>
+          <li>הסבירו מדוע שלוש נקודות החיתוך \(-1,0,1\) אינן תלויות בערכי שני המעריכים הזוגיים השונים.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">38 / 48</span><span class="running-title">תרגול 15 — חזקות זוגיות</span>
+  </section>
+
+  <section class="page exercise-page" id="page-39">
+    <div class="section-head"><div class="section-no">ת16</div><h2>תרגול — השוואת חזקות אי־זוגיות</h2></div>
+    <p class="lead">התייחסו בנפרד לסימן ולגודל המוחלט בכל אחד מארבעת התחומים.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> השוואה בנקודה</h3>
+        <ol>
+          <li>השוו \(x^3\) ו־\(x^7\) עבור \(x=2\), \(x=0.5\), \(x=-0.5\), \(x=-2\).</li>
+          <li>השלימו עבור \(x&lt;-1\): \(x^9\;\square\;x^5\).</li>
+          <li>השלימו עבור \(-1&lt;x&lt;0\): \(x^{11}\;\square\;x^3\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> פתרון תחומים</h3>
+        <ol start="4">
+          <li>פתרו: \(x^7&gt;x^3\).</li>
+          <li>פתרו: \(x^9\le x^5\).</li>
+          <li>פתרו: \(-2x^7&lt;-2x^3\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> נימוק</h3>
+        <ol start="7">
+          <li>נסחו טבלת השוואה כללית עבור \(x^k,x^m\), כאשר \(k&gt;m\) אי־זוגיים.</li>
+          <li>הסבירו מדוע בתחום \(-1&lt;x&lt;0\) החזקה הגבוהה יותר היא המספר הגדול יותר.</li>
+          <li>פתרו: \(x^{2n+1}&lt;x^{2m+1}\), כאשר \(n&gt;m\ge0\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">39 / 48</span><span class="running-title">תרגול 16 — חזקות אי־זוגיות</span>
+  </section>
+
+  <section class="page exercise-page" id="page-40">
+    <div class="section-head"><div class="section-no">ת17</div><h2>תרגול — אי־שוויונים בין פונקציות חזקה</h2></div>
+    <p class="lead">מצאו נקודות חיתוך, בנו חלוקת תחומים ובדקו הכללה של נקודות השוויון.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> אי־שוויונים זוגיים</h3>
+        <ol>
+          <li>פתרו: \(x^6&lt;x^2\).</li>
+          <li>פתרו: \(x^{10}\ge x^4\).</li>
+          <li>פתרו: \(2x^8\le2x^6\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> אי־שוויונים אי־זוגיים</h3>
+        <ol start="4">
+          <li>פתרו: \(x^9&gt;x^3\).</li>
+          <li>פתרו: \(x^7\le x\).</li>
+          <li>פתרו: \(-x^5\ge-x^3\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> פירוק לגורמים</h3>
+        <ol start="7">
+          <li>פתרו: \(x^8-5x^4+4\le0\).</li>
+          <li>פתרו: \(x^7-4x^3\ge0\).</li>
+          <li>פתרו: \(x^6+x^4-2x^2&lt;0\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">40 / 48</span><span class="running-title">תרגול 17 — אי־שוויונים</span>
+  </section>
+
+  <section class="page exercise-page" id="page-41">
+    <div class="section-head"><div class="section-no">ת18</div><h2>תרגול — נימוק טענות</h2></div>
+    <p class="lead">לכל טענה כתבו: נכונה או שגויה, התחום הרלוונטי, החוק או תכונת הגרף, והמסקנה.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> אמת או שקר</h3>
+        <ol>
+          <li>לכל \(x\in\mathbb{R}\), מתקיים \(x^8\ge0\).</li>
+          <li>לכל \(x\in\mathbb{R}\), מתקיים \(x^7\ge0\).</li>
+          <li>אם \(0&lt;x&lt;1\), אז \(x^{12}&lt;x^6\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> תכונות גרף</h3>
+        <ol start="4">
+          <li>אם \(f(x)=-2x^6\), אז הראשית היא נקודת מינימום.</li>
+          <li>אם \(g(x)=3x^5\), אז \(g(-a)=-g(a)\) לכל \(a\).</li>
+          <li>למשוואה \(x^{10}=-1\) אין פתרון ממשי.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> טענות כלליות</h3>
+        <ol start="7">
+          <li>אם \(k&gt;m&gt;0\), אז \(x^k&gt;x^m\) לכל \(x&gt;0\).</li>
+          <li>כל שתי פונקציות \(x^{2m}\) ו־\(x^{2k}\) נחתכות בדיוק בשלוש נקודות.</li>
+          <li>נסחו טענה נכונה אחת וטענה שגויה אחת על \(a x^n\), והוסיפו נימוק או הפרכה.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">41 / 48</span><span class="running-title">תרגול 18 — נימוק מתמטי</span>
+  </section>
+
+  <section class="page exercise-page" id="page-42">
+    <div class="section-head"><div class="section-no">ת19</div><h2>תרגול — מעריך אפס</h2></div>
+    <p class="lead">שמרו על מגבלת התחום: בסיס החזקה אינו יכול להיות אפס.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> חישוב</h3>
+        <ol>
+          <li>חשבו: \(12^0\), \((-5)^0\), \(\left(\frac27\right)^0\).</li>
+          <li>פשטו: \(a^7\cdot a^0\), \(\dfrac{x^4}{x^4}\), \((3y)^0\).</li>
+          <li>הסבירו מדוע \(\dfrac{x^6}{x^6}=x^0\) מחייב \(x\ne0\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> תחום וגרף</h3>
+        <ol start="4">
+          <li>מצאו את תחום ההגדרה של \(f(x)=(x-4)^0\).</li>
+          <li>מצאו את תחום ההגדרה של \(g(x)=(x^2-9)^0\).</li>
+          <li>תארו את הגרף של \(h(x)=(2x+1)^0\), כולל הנקודה החסרה.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> שילוב</h3>
+        <ol start="7">
+          <li>פתרו: \((x-2)^0=1\).</li>
+          <li>פתרו: \((x^2-4)^0=2\).</li>
+          <li>השוו בין הגרפים \(y=x^0\) ו־\(y=1\), וציינו במדויק את ההבדל ביניהם.</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">42 / 48</span><span class="running-title">תרגול 19 — מעריך אפס</span>
+  </section>
+
+  <section class="page exercise-page" id="page-43">
+    <div class="section-head"><div class="section-no">ת20</div><h2>תרגול — מעריך שלילי</h2></div>
+    <p class="lead">המירו לחזקה חיובית, ציינו תחום והשתמשו בזוגיות המעריך לתיאור הגרף.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> המרה וחישוב</h3>
+        <ol>
+          <li>כתבו ללא מעריך שלילי: \(x^{-4}\), \(3x^{-2}\), \(-2x^{-5}\).</li>
+          <li>חשבו: \(2^{-3}\), \((-2)^{-4}\), \((-3)^{-3}\).</li>
+          <li>ציינו את תחום ההגדרה של \(x^{-6}\) ושל \(-4x^{-7}\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> תכונות וגרף</h3>
+        <ol start="4">
+          <li>חקרו: \(f(x)=3x^{-2}\) — תחום, טווח, סימטריה, סימן ואסימפטוטות.</li>
+          <li>חקרו: \(g(x)=-2x^{-3}\) באותם סעיפים.</li>
+          <li>מצאו את חיתוכי \(y=x^{-2}\) עם \(y=\frac14\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> משוואות והשוואות</h3>
+        <ol start="7">
+          <li>פתרו: \(x^{-4}=16\).</li>
+          <li>פתרו: \(x^{-3}=-\frac18\).</li>
+          <li>השוו \(x^{-2}\) ו־\(x^{-4}\) בתחומים \(0&lt;|x|&lt;1\) ו־\(|x|&gt;1\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">43 / 48</span><span class="running-title">תרגול 20 — מעריך שלילי</span>
+  </section>
+
+  <section class="page exercise-page" id="page-44">
+    <div class="section-head"><div class="section-no">ת21</div><h2>תרגול — מעריך שברי חיובי</h2></div>
+    <p class="lead">המירו בין כתיב חזקה לכתיב שורש וקבעו תחום לפי זוגיות המכנה המצומצם.</p>
+    <div class="practice-grid">
+      <div class="exercise-block">
+        <h3><span class="level-badge">בסיס</span> המרה ותחום</h3>
+        <ol>
+          <li>כתבו כשורש וקבעו תחום: \(x^{1/4}\), \(x^{2/5}\), \(x^{3/2}\).</li>
+          <li>כתבו כחזקה שברית: \(\sqrt[3]{x^2}\), \(\sqrt{x^5}\), \(\sqrt[7]{x^4}\).</li>
+          <li>חשבו: \(16^{3/4}\), \(27^{2/3}\), \(32^{4/5}\).</li>
+        </ol>
+      </div>
+      <div class="exercise-block medium">
+        <h3><span class="level-badge">ביניים</span> נקודות וגרפים</h3>
+        <ol start="4">
+          <li>קבעו אילו נקודות נמצאות על \(y=x^{2/3}\): \((-8,4)\), \((-1,-1)\), \((27,9)\).</li>
+          <li>השוו את תחומי ההגדרה של \(x^{3/4}\) ושל \(x^{4/3}\).</li>
+          <li>סרטטו סקיצה של \(y=x^{1/2}\) ושל \(y=x^{1/3}\), וסמנו נקודות עוגן.</li>
+        </ol>
+      </div>
+      <div class="exercise-block challenge">
+        <h3><span class="level-badge">אתגר</span> משוואות ודיוק</h3>
+        <ol start="7">
+          <li>פתרו בתחום הממשי: \(x^{3/2}=8\).</li>
+          <li>פתרו בתחום הממשי: \(x^{2/3}=4\).</li>
+          <li>הסבירו מדוע יש לצמצם את השבר במעריך לפני שקובעים תחום, ובדקו את \(x^{2/4}\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">44 / 48</span><span class="running-title">תרגול 21 — מעריך שברי</span>
+  </section>
+
+  <section class="page" id="page-45">
+    <div class="section-head"><div class="section-no">22</div><h2>תרגול מסכם — רמה א׳</h2></div>
+    <p class="lead">המטרה: שליטה בייצוגים, בזוגיות המעריך ובחקירה הבסיסית.</p>
+
+    <ol>
+      <li>השלימו טבלת ערכים עבור \(f(x)=x^4\) כאשר \(x=-2,-1,0,1,2\).</li>
+      <li>קבעו אילו נקודות נמצאות על \(y=x^5\): \((2,32)\), \((-2,32)\), \((-1,-1)\).</li>
+      <li>קבעו אם המעריך זוגי או אי־זוגי: \(f(-3)=f(3)\), כאשר \(f(x)=x^n\).</li>
+      <li>רשמו תחום, טווח, סימטריה ותחומי סימן של \(g(x)=x^6\).</li>
+      <li>רשמו תחום, טווח, סימטריה ותחומי סימן של \(h(x)=x^7\).</li>
+      <li>מצאו \(n\) אם הנקודה \((2,128)\) נמצאת על \(y=x^n\).</li>
+      <li>מצאו \(n\) אם \((-3,-243)\) נמצאת על \(y=x^n\).</li>
+      <li>תארו כיצד מתקבל \(y=-4x^3\) מן הגרף של \(y=x^3\).</li>
+      <li>פתרו: \(x^4=81\).</li>
+      <li>פתרו: \(x^5=-243\).</li>
+      <li>מצאו את נקודות החיתוך של \(y=x^3\) ושל \(y=x\).</li>
+      <li>השלימו בסימן מתאים עבור \(0&lt;x&lt;1\): \(x^8\;\square\;x^4\).</li>
+    </ol>
+
+    <span class="page-number">45 / 48</span><span class="running-title">תרגול מסכם — רמה א׳</span>
+  </section>
+
+  <section class="page" id="page-46">
+    <div class="section-head"><div class="section-no">23</div><h2>תרגול מסכם — רמה ב׳</h2></div>
+    <p class="lead">המטרה: שילוב חקירה, פרמטרים, חיתוכים, השוואות ונימוק.</p>
+
+    <ol>
+      <li>חקרו את \(f(x)=-3x^4\): תחום, טווח, חיתוכים, סימטריה, סימן, עלייה, ירידה, קיצון והתנהגות קצה.</li>
+      <li>נתונה \(g(x)=a x^n\), והיא עוברת בנקודות \((1,-2)\), \((2,-64)\). מצאו \(a,n\).</li>
+      <li>מצאו את נקודות החיתוך של \(y=x^6\) ושל \(y=x^4\).</li>
+      <li>פתרו: \(x^8&lt;x^4\).</li>
+      <li>פתרו: \(x^7\ge x^3\).</li>
+      <li>קבעו ונמקו: אם \(0&lt;x&lt;1\) ו־\(k&gt;m&gt;0\), אז \(x^k&lt;x^m\).</li>
+      <li>קבעו ונמקו: אם \(x&lt;-1\) ו־\(k&gt;m\) אי־זוגיים, אז \(x^k&lt;x^m\).</li>
+      <li>חקרו את \(p(x)=2x^{-4}\): תחום, טווח, סימטריה, סימן ואסימפטוטות.</li>
+      <li>כתבו \(x^{5/3}\) באמצעות שורש וקבעו את תחום ההגדרה.</li>
+      <li>נתון שהישר \(y=k\) חותך את \(y=x^8\) בשתי נקודות. מה ניתן להסיק על \(k\)?</li>
+      <li>כמה נקודות חיתוך יכולות להיות ל־\(y=x^{2m}\) ולישר \(y=-2k\), אם \(k&gt;0\)? נמקו.</li>
+    </ol>
+
+    <span class="page-number">46 / 48</span><span class="running-title">תרגול מסכם — רמה ב׳</span>
+  </section>
+
+  <section class="page" id="page-47">
+    <div class="section-head"><div class="section-no">24</div><h2>תשובות קצרות לתרגול המסכם</h2></div>
+    <div class="two-col">
+      <div class="card">
+        <h3>רמה א׳</h3>
+        <ol class="compact-list">
+          <li>\(16,1,0,1,16\).</li>
+          <li>\((2,32)\), \((-1,-1)\).</li>
+          <li>זוגי.</li>
+          <li>\(D=\mathbb{R}\), \(R=[0,\infty)\), סימטריה לציר \(y\).</li>
+          <li>\(D=R=\mathbb{R}\), סימטריה לראשית.</li>
+          <li>\(n=7\).</li>
+          <li>\(n=5\).</li>
+          <li>מתיחה פי \(4\) ושיקוף ביחס לציר \(x\).</li>
+          <li>\(x=\pm3\).</li>
+          <li>\(x=-3\).</li>
+          <li>\((-1,-1),(0,0),(1,1)\).</li>
+          <li>\(x^8&lt;x^4\).</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>רמה ב׳</h3>
+        <ol class="compact-list">
+          <li>טווח \(( -\infty,0]\), מקסימום בראשית, קצוות מטה.</li>
+          <li>\(a=-2,\ n=5\).</li>
+          <li>\((-1,1),(0,0),(1,1)\).</li>
+          <li>\(-1&lt;x&lt;0\) או \(0&lt;x&lt;1\).</li>
+          <li>\(x\in[-1,0]\cup[1,\infty)\).</li>
+          <li>נכון: כפל נוסף במספר שבין \(0\) ל־\(1\) מקטין.</li>
+          <li>נכון: הערך נעשה שלילי יותר.</li>
+          <li>\(D=\mathbb{R}\setminus\{0\}\), \(R=(0,\infty)\), זוגית.</li>
+          <li>\(\sqrt[3]{x^5}\), תחום \(\mathbb{R}\).</li>
+          <li>\(k&gt;0\).</li>
+          <li>אין חיתוך, כי \(x^{2m}\ge0\) ו־\(-2k&lt;0\).</li>
+        </ol>
+      </div>
+    </div>
+    <span class="page-number">47 / 48</span><span class="running-title">תשובות והערכה</span>
+  </section>
+
+  <script>
+    (function arrangeLessonAndPracticePages() {
+      const pagePairs = [];
+
+      for (let topic = 1; topic <= 21; topic += 1) {
+        pagePairs.push([
+          document.getElementById(`page-${topic + 2}`),
+          document.getElementById(`page-${topic + 23}`)
+        ]);
+      }
+
+      pagePairs.forEach(([lessonPage, exercisePage]) => {
+        if (lessonPage && exercisePage) {
+          lessonPage.insertAdjacentElement('afterend', exercisePage);
+        }
+      });
+
+      const pages = Array.from(document.querySelectorAll('section.page'));
+      pages.forEach((page, index) => {
+        const pageNumber = index + 1;
+        page.id = `page-${pageNumber}`;
+
+        const pageNumberLabel = page.querySelector('.page-number');
+        if (pageNumberLabel) {
+          pageNumberLabel.textContent = `${pageNumber} / ${pages.length}`;
+        }
+      });
+    })();
+
+    window.addEventListener('load', function () {
+      if (!window.JXG) return;
+
+      JXG.Options.text.cssDefaultStyle = 'font-family: Arial, sans-serif; font-size: 14px;';
+      JXG.Options.point.showInfobox = false;
+
+      function board(id, box) {
+        return JXG.JSXGraph.initBoard(id, {
+          boundingbox: box,
+          axis: true,
+          showCopyright: false,
+          showNavigation: false,
+          pan: { enabled: false },
+          zoom: { enabled: false },
+          keepAspectRatio: false,
+          defaultAxes: {
+            x: { name: 'x', withLabel: true, label: { position: 'rt', offset: [-12, 12] }, ticks: { visible: true, majorHeight: 8, minorTicks: 0 } },
+            y: { name: 'y', withLabel: true, label: { position: 'rt', offset: [10, -12] }, ticks: { visible: true, majorHeight: 8, minorTicks: 0 } }
+          }
+        });
+      }
+
+      function curve(b, fn, color, width) {
+        return b.create('functiongraph', [fn], { strokeColor: color, strokeWidth: width || 2.8, fixed: true, highlight: false });
+      }
+
+      function point(b, x, y, color, name) {
+        return b.create('point', [x, y], { size: 3, fillColor: color, strokeColor: color, name: name || '', fixed: true, highlight: false, label: { offset: [6, 8] } });
+      }
+
+      const blue = '#176b87', orange = '#d96c2f', green = '#2f7d61', red = '#ba3d4b';
+
+      let b = board('board-even', [-2.25, 10, 2.25, -1.6]);
+      curve(b, x => x * x, blue); curve(b, x => Math.pow(x, 4), orange); curve(b, x => Math.pow(x, 6), green);
+      point(b, -1, 1, blue, '(-1,1)'); point(b, 0, 0, blue, '(0,0)'); point(b, 1, 1, blue, '(1,1)');
+
+      b = board('board-odd', [-2.1, 10, 2.1, -10]);
+      curve(b, x => x, blue); curve(b, x => Math.pow(x, 3), orange); curve(b, x => Math.pow(x, 5), green);
+      point(b, -1, -1, blue, '(-1,-1)'); point(b, 0, 0, blue, '(0,0)'); point(b, 1, 1, blue, '(1,1)');
+
+      b = board('board-x4', [-2.5, 18, 2.5, -2]);
+      curve(b, x => Math.pow(x, 4), blue, 3.2); curve(b, () => 16, orange, 2.2);
+      point(b, -2, 16, orange, '(-2,16)'); point(b, 2, 16, orange, '(2,16)'); point(b, 0, 0, blue, '(0,0)');
+
+      b = board('board-x5', [-2, 12, 2, -12]);
+      curve(b, x => Math.pow(x, 5), green, 3.2);
+      point(b, -1, -1, green, '(-1,-1)'); point(b, 0, 0, green, '(0,0)'); point(b, 1, 1, green, '(1,1)');
+
+      b = board('board-end', [-2.2, 10, 2.2, -10]);
+      curve(b, x => Math.pow(x, 4), blue); curve(b, x => -Math.pow(x, 4), red);
+      curve(b, x => Math.pow(x, 3), green); curve(b, x => -Math.pow(x, 3), orange);
+
+      b = board('board-coeff', [-2, 10, 2, -10]);
+      curve(b, x => Math.pow(x, 3), blue); curve(b, x => 2 * Math.pow(x, 3), orange);
+      curve(b, x => .5 * Math.pow(x, 3), green); curve(b, x => -Math.pow(x, 3), red);
+
+      b = board('board-intersections', [-2.7, 18, 2.7, -3]);
+      curve(b, x => Math.pow(x, 4), blue); curve(b, () => 16, orange); curve(b, x => x, green);
+      point(b, -2, 16, orange, 'A'); point(b, 2, 16, orange, 'B');
+      point(b, -1, 1, green, 'C'); point(b, 0, 0, green, 'O'); point(b, 1, 1, green, 'D');
+
+      b = board('board-compare-even', [-1.8, 6, 1.8, -1]);
+      curve(b, x => Math.pow(x, 4), blue, 3); curve(b, x => Math.pow(x, 6), orange, 3);
+      point(b, -1, 1, blue, '(-1,1)'); point(b, 0, 0, blue, '(0,0)'); point(b, 1, 1, blue, '(1,1)');
+
+      b = board('board-compare-odd', [-1.8, 6, 1.8, -6]);
+      curve(b, x => Math.pow(x, 3), blue, 3); curve(b, x => Math.pow(x, 5), orange, 3);
+      point(b, -1, -1, blue, '(-1,-1)'); point(b, 0, 0, blue, '(0,0)'); point(b, 1, 1, blue, '(1,1)');
+
+      b = board('board-negative', [-4, 6, 4, -6]);
+      curve(b, x => Math.abs(x) < 0.08 ? NaN : 1 / (x * x), blue, 3);
+      curve(b, x => Math.abs(x) < 0.08 ? NaN : 1 / Math.pow(x, 3), orange, 3);
+      b.create('line', [[0, 0], [0, 1]], { strokeColor: '#8299a5', dash: 2, strokeWidth: 1.5, fixed: true, highlight: false });
+
+      b = board('board-fractional', [-4.2, 4, 4.2, -4]);
+      curve(b, x => x < 0 ? NaN : Math.sqrt(x), blue, 3);
+      curve(b, x => Math.cbrt(x), orange, 3);
+      curve(b, x => Math.pow(Math.abs(x), 2 / 3), green, 3);
+      point(b, 0, 0, blue, '(0,0)'); point(b, 1, 1, blue, '(1,1)');
+    });
+  </script>
+</body>
+</html>
