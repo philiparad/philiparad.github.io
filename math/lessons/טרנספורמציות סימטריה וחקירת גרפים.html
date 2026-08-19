@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>מערך שיעור — טרנספורמציות וחקירת גרפים עם פולינומים ממעלה 3 ו־4</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" rel="stylesheet"/>
+<script>
+window.MathJax = {
+  svg: {fontCache: 'global'},
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root {
+  --ink:#14213d;
+  --muted:#506078;
+  --accent:#1f6f8b;
+  --accent2:#2a9d8f;
+  --soft:#eef6f8;
+  --warm:#fff7e8;
+  --danger:#9d3d3d;
+  --border:#cbd7df;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; background:#e7edf1; font-family:Arial, "Noto Sans Hebrew", sans-serif; color:var(--ink); }
+body { counter-reset: page; }
+.page {
+  width:210mm;
+  height:297mm;
+  padding:12mm 14mm 13mm;
+  margin:12px auto;
+  background:white;
+  position:relative;
+  overflow:hidden;
+  break-after:page;
+  page-break-after:always;
+  counter-increment:page;
+  box-shadow:0 4px 18px rgba(20,33,61,.13);
+}
+.page::after { content:"עמוד " counter(page); position:absolute; bottom:5.5mm; left:14mm; color:#6b7888; font-size:10px; }
+.page-header { border-bottom:2px solid var(--accent); padding-bottom:4mm; margin-bottom:4mm; }
+.header-brand { color:var(--accent); font-size:10px; font-weight:700; letter-spacing:.2px; }
+h1 { font-size:23px; margin:1.2mm 0 0; line-height:1.1; color:var(--ink); }
+.subtitle { font-size:12px; color:var(--muted); margin-top:1mm; }
+h2 { font-size:24px; line-height:1.25; margin:5mm 0; }
+h3 { font-size:15px; margin:3.4mm 0 1.5mm; color:#164f63; }
+p, li { font-size:12.4px; line-height:1.43; }
+p { margin:1.5mm 0; }
+ul, ol { margin:1mm 0 2mm; padding-right:6mm; }
+li { margin:.7mm 0; }
+.compact li { margin:.35mm 0; }
+.page-body { height:242mm; overflow:hidden; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:7mm; align-items:start; }
+.graph-layout { grid-template-columns:1.07fr .93fr; }
+.two-col-text { columns:2; column-gap:8mm; }
+.three-blocks { display:grid; grid-template-columns:1fr 1fr 1fr; gap:5mm; }
+.rule, .mapping, .derivation, .formula { background:var(--soft); border-right:4px solid var(--accent); padding:2mm 3mm; border-radius:4px; margin:2mm 0; text-align:center; direction:ltr; }
+.rule.big { font-size:17px; }
+.mapping { background:#edf8f5; border-color:var(--accent2); }
+.formula-center { text-align:center; font-size:17px; direction:ltr; margin:3mm 0; }
+.formula-pair { display:grid; grid-template-columns:1fr 1fr; gap:5mm; direction:ltr; text-align:center; }
+.formula-list { direction:ltr; text-align:center; }
+.solution { background:#eef8ed; border-right:4px solid #4c8b4a; padding:2mm 3mm; border-radius:4px; }
+.note, .warning, .task, .quick, .challenge { padding:2.4mm 3mm; border-radius:5px; margin:3mm 0; font-size:12px; line-height:1.4; }
+.note { background:#edf4ff; border:1px solid #bfd2ed; }
+.warning { background:#fff3f0; border:1px solid #e6b8ad; color:#6f2c24; }
+.task { background:#f5f0ff; border:1px solid #d6c5ef; }
+.quick { background:#eef9f4; border:1px solid #bddfce; }
+.challenge { background:var(--warm); border:1px solid #e8d39e; }
+.graph { width:100%; height:215px; border:1px solid #aab8c2; border-radius:5px; background:white; direction:ltr; }
+.graph.medium { height:235px; }
+.graph-caption, .legend { text-align:center; color:var(--muted); font-size:10.5px; margin-top:1.5mm; }
+.line-swatch { display:inline-block; width:18px; border-top:2px solid #244c7a; vertical-align:middle; margin:0 2mm; }
+.line-swatch.dash { border-top-style:dashed; }
+table { width:100%; border-collapse:collapse; margin:2mm 0; }
+th, td { border:1px solid var(--border); padding:1.6mm 2mm; text-align:right; vertical-align:top; font-size:11.2px; line-height:1.3; }
+th { background:#eaf1f5; color:#173f4e; }
+.dense th, .dense td { padding:1.25mm 1.6mm; font-size:10.8px; }
+.small { width:75%; margin-right:auto; margin-left:auto; }
+.steps { counter-reset:item; }
+.checklist { list-style:none; padding-right:0; }
+.checklist li::before { content:"✓"; color:var(--accent2); font-weight:bold; margin-left:2mm; }
+.warning-list { list-style:none; padding-right:0; }
+.warning-list li::before { content:"!"; display:inline-grid; place-items:center; width:4mm; height:4mm; border-radius:50%; background:#b85145; color:white; font-size:9px; font-weight:bold; margin-left:2mm; }
+.cover { height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:10mm; }
+.cover-badge { background:var(--accent); color:white; padding:2mm 5mm; border-radius:999px; font-size:12px; font-weight:bold; }
+.cover-grid { display:grid; grid-template-columns:1fr 1fr; gap:4mm; width:100%; margin:5mm 0; }
+.cover-card { background:#f4f8fa; border:1px solid var(--border); border-radius:7px; padding:5mm; min-height:27mm; font-size:12px; line-height:1.5; }
+.formula-hero { font-size:27px; direction:ltr; margin:6mm 0; }
+.cover-note { font-size:14px; max-width:150mm; color:var(--muted); }
+.workflow { display:grid; grid-template-columns:repeat(4,1fr); gap:4mm; margin:4mm 0 6mm; }
+.flow-card { border:1px solid var(--border); border-radius:6px; padding:4mm 3mm; background:#f8fbfc; min-height:31mm; font-size:11px; line-height:1.35; }
+.flow-card span { display:inline-grid; place-items:center; width:6mm; height:6mm; border-radius:50%; background:var(--accent); color:white; font-weight:bold; margin-left:1.5mm; }
+.two-list { columns:2; column-gap:8mm; }
+.exercise-list { padding-right:7mm; margin-top:2mm; }
+.exercise-list li { margin:1.6mm 0; font-size:12px; line-height:1.38; }
+.instructions { background:#eef6f8; padding:2mm 3mm; border-radius:4px; }
+.answers p { margin:1mm 0; font-size:11.5px; break-inside:avoid; }
+.solutions-list li { margin:1.3mm 0; }
+.rubric-mini { background:#f2f5f7; border:1px solid var(--border); padding:3mm; border-radius:5px; margin-top:4mm; }
+.lesson-table th, .lesson-table td { font-size:9.4px; padding:1.1mm 1.2mm; }
+.sources-list li { margin:2mm 0; }
+.closing { margin-top:8mm; padding:6mm; text-align:center; background:linear-gradient(135deg,#e9f5f7,#edf8f5); border:1px solid #b9d6dc; border-radius:8px; font-size:15px; font-weight:bold; }
+.jxgbox { touch-action:none; }
+.MathJax { direction:ltr; }
+@media print {
+  html, body { background:white; }
+  .page { margin:0; box-shadow:none; }
+  @page { size:A4; margin:0; }
+}
+
+.poly-grid { display:grid; grid-template-columns:1fr 1fr; gap:5mm; align-items:stretch; }
+.poly-card { border:1px solid var(--border); border-radius:7px; padding:3.2mm; background:#fbfdfe; min-height:211mm; overflow:hidden; }
+.poly-card h3 { margin-top:0; font-size:15.5px; }
+.poly-card p, .poly-card li { font-size:11.35px; line-height:1.38; }
+.poly-card ul { margin:1.3mm 0; padding-right:5.5mm; }
+.poly-card .formula { margin:1.4mm 0; padding:1.5mm 2mm; font-size:13px; }
+.poly-card .solution { margin-top:2mm; padding:1.8mm 2.3mm; font-size:11.1px; }
+.poly-graph { height:155px; margin-top:2.2mm; }
+.poly-caption { text-align:center; color:var(--muted); font-size:10px; line-height:1.25; margin-top:1mm; }
+.poly-label { display:inline-block; padding:.8mm 2.2mm; border-radius:999px; background:#e8f2f5; color:#174f62; font-size:10px; font-weight:700; margin-bottom:1.5mm; }
+
+/* Per-unit practice pages */
+.practice-page .page-body { height:242mm; display:flex; flex-direction:column; }
+.practice-instructions { background:#eef6f8; border:1px solid #c4d9df; border-radius:5px; padding:2.2mm 3mm; font-size:11.2px; line-height:1.35; margin-bottom:3mm; }
+.practice-grid { grid-template-columns:repeat(3,1fr); gap:4mm; flex:1; min-height:0; align-items:stretch; }
+.level-card { border:1px solid var(--border); border-radius:7px; padding:3mm 3.2mm 2.5mm; background:#fbfdfe; overflow:hidden;margin-bottom: 10px; }
+.level-card h3 { display:flex; align-items:center; gap:1.5mm; margin:0 0 2mm; padding-bottom:1.5mm; border-bottom:1px solid var(--border); font-size:14px; }
+.level-number { display:inline-grid; place-items:center; width:6mm; height:6mm; border-radius:50%; color:white; background:var(--accent); font-size:10px; }
+.level-easy { border-top:4px solid #4f8a68; }
+.level-medium { border-top:4px solid #c58a2b; }
+.level-hard { border-top:4px solid #a64b4b; }
+.level-easy .level-number { background:#4f8a68; }
+.level-medium .level-number { background:#c58a2b; }
+.level-hard .level-number { background:#a64b4b; }
+.practice-list { margin:0; padding-right:5.5mm; }
+.practice-list li { font-size:10.35px; line-height:1.34; margin:0 0 5mm; padding-right:.5mm; break-inside:avoid; }
+.practice-list li::marker { font-weight:700; color:#174f62; }
+.practice-source { opacity: 0; margin-top:2.5mm; padding-top:1.7mm; border-top:1px solid var(--border); color:var(--muted); font-size:9.2px; line-height:1.3; }
+.practice-source a { color:#1f6f8b; text-decoration:none; }
+.practice-source a:hover { text-decoration:underline; }
+
+
+
+/* Per-unit solution pages */
+.solutions-page .page-body { height:242mm; overflow:hidden; }
+.solutions-intro { background:#eef8ed; border:1px solid #bfd9bd; border-radius:5px; padding:1.4mm 2mm; margin-bottom:1.5mm; font-size:9.2px; line-height:1.2; }
+.solutions-stack_ { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1.25mm 2mm; align-content:start; }
+.solution-item { border:1px solid var(--border); border-right:3px solid #4c8b4a; border-radius:5px; padding:1.1mm 1.5mm; background:#fbfefb; overflow:visible; break-inside:avoid;margin-bottom: 10px; }
+.solution-item h3 { margin:0 0 .45mm; font-size:9.7px; line-height:1.1; color:#2f6931; }
+.solution-item p { margin:0; font-size:11px; line-height:1.18; }
+.solution-item .answer-label { font-weight:700; color:#2f6931; }
+
+</style>
+</head>
+<body>
+<section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>טרנספורמציות, סימטריה וחקירת גרפים</h1>
+<div class="subtitle">מסמך להוראה, לתרגול וללמידה עצמית</div>
+</header>
+<main class="page-body">
+<div class="cover">
+<div class="cover-badge">מערך שיעור מלא · רמת 5 יחידות</div>
+<h2>מהזזה בסיסית ועד חקירה משולבת</h2>
+<div class="cover-grid">
+<div class="cover-card"><b>נושאים מרכזיים</b><br/>הזזות, שיקופים, מתיחות, סימטריה, חיתוכים, משיקים, פרמטרים ומרחקים.</div>
+<div class="cover-card"><b>מבנה</b><br/>הסבר מדורג, דוגמאות פתורות, גרפים אינטראקטיביים, תרגול ופתרונות.</div>
+<div class="cover-card"><b>קהל יעד</b><br/>תלמידי 5 יחידות בכיתות י׳–י״ב, בהתאם לידע הקודם בנגזרות ובאינטגרלים.</div>
+<div class="cover-card"><b>משך מומלץ</b><br/>14–18 שיעורים בני 45 דקות, או 8–10 מפגשים כפולים.</div>
+</div>
+<div class="formula-hero">\[g(x)=a\,f\!\left(b(x-h)\right)+k\]</div>
+<p class="cover-note">עיקרון מארגן: במקום לחקור כל פונקציה מחדש, מעבירים מידע מן הגרף המקורי אל הגרף החדש.</p>
+</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>מפת ההוראה ומטרות הלמידה</h1>
+</header>
+<main class="page-body">
+<div class="two-col">
+<div>
+<h3>רצף מומלץ</h3>
+<ol class="steps compact">
+<li>קריאת גרף ופונקציית מקור.</li>
+<li>הזזה אנכית ואופקית.</li>
+<li>שיקוף ביחס לציר \(x\), ולאחריו שיקוף ביחס לציר \(y\).</li>
+<li>מתיחה וכיווץ אנכיים.</li>
+<li>טרנספורמציות משולבות.</li>
+<li>זוגיות, אי־זוגיות וסימטריה.</li>
+<li>חיתוכים ומספר פתרונות.</li>
+<li>השקה ותנאי השקה לפונקציה ריבועית — ללא נגזרת.</li>
+<li>מרחקים בין גרפים.</li>
+<li>חקירה ושרטוט משולבים.</li>
+</ol>
+</div>
+<div>
+<h3>בסיום היחידה התלמיד יוכל</h3>
+<ul class="checklist compact">
+<li>לתרגם ביטוי אלגברי לשינוי גרפי ולהפך.</li>
+<li>להעביר נקודות מיוחדות, תחומים וטווחים.</li>
+<li>לנמק סימטריה אלגברית וגרפית.</li>
+<li>לקשר בין חיתוכים למספר פתרונות.</li>
+<li>לנסח תנאי השקה לפרבולה באמצעות דיסקרימיננטה או שורש כפול.</li>
+<li>לבנות פונקציית מרחק בין גרפים.</li>
+<li>לשרטט גרף חדש ללא חקירה מלאה מיותרת.</li>
+</ul>
+</div>
+</div>
+<h3>חלוקת זמן מוצעת</h3>
+<table class="dense">
+<tr><th>אשכול</th><th>שיעורים</th><th>תוצר מסכם</th></tr>
+<tr><td>טרנספורמציות בסיסיות</td><td>4–5</td><td>שרטוט והעברת נקודות</td></tr>
+<tr><td>סימטריה וחיתוכים</td><td>3–4</td><td>ניתוח מספר פתרונות</td></tr>
+<tr><td>פרבולות, פרמטרים והשקה</td><td>3–4</td><td>פתרון תנאי השקה ללא נגזרת</td></tr>
+<tr><td>מרחקים וחקירה</td><td>4–5</td><td>משימת חקר מלאה</td></tr>
+</table>
+<div class="quick">לאחר כל יחידת טרנספורמציה מופיע עמוד ייעודי ובו שתי דוגמאות מלאות — פולינום ממעלה שלישית ופולינום ממעלה רביעית.</div></main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 1 — קריאת גרף ופונקציית מקור</h1>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<h3>לפני כל טרנספורמציה</h3>
+<p>מסמנים על הגרף המקורי מידע שיהיה אפשר להעביר לגרף החדש:</p>
+<ul class="compact">
+<li>תחום הגדרה וטווח.</li>
+<li>נקודות חיתוך עם הצירים.</li>
+<li>נקודות קיצון.</li>
+<li>תחומי עלייה וירידה.</li>
+<li>נקודות קצה והתנהגות הגרף בקצוות.</li>
+<li>סימן הפונקציה.</li>
+</ul>
+<div style="height:20px;"></div>
+<div class="rule">אם \((u,v)\) נמצאת על \(y=f(x)\), אז</div>
+<div class="rule"> \(v=f(u)\).</div>
+<div style="height:20px;"></div>
+<h3>דוגמה</h3>
+<p>בגרף הנתון של \(f\) בתחום \([-2,2]\) מסומנות הנקודות \((-2,2)\), \((-1,-2)\), \((0,0)\), \((1,2)\), \((2,-2)\). קבעו את הטווח ואת תחומי העלייה והירידה.</p>
+<p class="solution"><b>פתרון:</b> הטווח הוא \([-2,2]\). הפונקציה עולה ב־\((-1,1)\) ויורדת ב־\((-2,-1)\cup(1,2)\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-source"></div>
+<div class="graph-caption">גרף מקור לדוגמה — נקודות מפתח לפני ביצוע שינוי</div>
+</div>
+</div>
+<div class="task"><b>בדיקת פתיחה:</b> אילו מן הנתונים הבאים ניתן להעביר ללא פתרון משוואה חדשה: קיצון, תחום, טווח, חיתוך עם ציר \(x\)? נמקו.</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 1 — קריאת גרף ופונקציית מקור</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>נתון \(f(x)=(x-2)(x+1)\). מצאו את חיתוכי הצירים, קבעו היכן \(f(x)&gt;0\), ושרטטו סקיצה.</li>
+<li>נתון \(f(x)=(x+2)^2(x-1)\). ציינו את השורשים ואת ריבוים, וקבעו באילו שורשים הגרף חוצה את ציר \(x\).</li>
+<li>לגרף \(f\) נקודות קיצון \((-1,3)\), \((2,-4)\) ושורשים \(x=-2,1,4\). סמנו את המידע במערכת צירים והציעו סקיצה אפשרית.</li>
+<li>נתון \(f(x)=x^4-5x^2+4\). קבעו אם הפונקציה זוגית, מצאו את שורשיה ותארו את התנהגות הקצוות.</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>חקרו את \(f(x)=x^3-3x\): חיתוכים, נקודות קיצון, תחומי עלייה וירידה וסימן הפונקציה.</li>
+<li>לפולינום ממעלה רביעית שורשים \(x=-2,0,3\), כאשר \(x=0\) שורש כפול, ומקדם מוביל חיובי. תארו את התנהגות הגרף ליד כל שורש ובקצוות.</li>
+<li>גרף פולינום יורד ב-\((-\infty,-1)\), עולה ב-\((-1,2)\), ויורד ב-\((2,\infty)\). נתון \(f(-1)=-3\), \(f(2)=5\), וכן \(f(x)\to\infty\) כאשר \(x\to-\infty\) ו-\(f(x)\to-\infty\) כאשר \(x\to\infty\). סווגו את מספר פתרונות \(f(x)=m\).</li>
+<li>נתון \(f(x)=x^4-4x^2\). מצאו את כל נקודות הקיצון וקבעו כמה פתרונות יש למשוואה \(f(x)=-3\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>בנו פולינום ממעלה רביעית בעל שורש פשוט ב-\(x=-2\), שורש כפול ב-\(x=1\), וחיתוך עם ציר \(y\) בנקודה \((0,-4)\).</li>
+<li>גרף פולינום בעל שלוש נקודות קיצון ושני קצותיו עולים. מהי המעלה המינימלית האפשרית? תנו דוגמה לפולינום מתאים.</li>
+<li>נתון פולינום \(f\) ממעלה שלישית עם מקדם מוביל חיובי, מקסימום מקומי בגובה \(4\) ומינימום מקומי בגובה \(-2\). סווגו את מספר פתרונות \(f(x)=m\) לכל \(m\).</li>
+<li>מצאו פולינום ממעלה רביעית זוגי ששורשיו \(x=\pm1,\pm3\), וערכו בנקודה \(x=0\) הוא \(9\). לאחר מכן תארו את הסקיצה ללא טבלת ערכים.</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/precalculus-2e/pages/3-3-power-functions-and-polynomial-functions" rel="noopener" target="_blank">OpenStax — Power and Polynomial Functions</a> · <a href="https://openstax.org/books/precalculus-2e/pages/3-4-graphs-of-polynomial-functions" rel="noopener" target="_blank">OpenStax — Graphs of Polynomial Functions</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 1 — קריאת גרף ופונקציית מקור</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> מפתחים או משתמשים בגורמים: \(f(x)=(x-2)(x+1)\). חיתוכי ציר \(x\): \((-1,0),(2,0)\). חיתוך ציר \(y\): \((0,-2)\). מאחר שהמקדם המוביל חיובי, \(f(x)&gt;0\) עבור \(x&lt;-1\) או \(x&gt;2\), והפרבולה פונה כלפי מעלה.</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> השורשים הם \(x=-2\) בריבוי \(2\), ו־\(x=1\) בריבוי \(1\). לכן הגרף נוגע בציר \(x\) ב־\(x=-2\) ואינו חוצה אותו שם; ב־\(x=1\) הוא חוצה את הציר.</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> סקיצה אפשרית של פולינום ממעלה שלישית בעל מקדם מוביל חיובי: הגרף מתחיל למטה משמאל, חוצה ב־\(x=-2\), מגיע למקסימום \((-1,3)\), חוצה ב־\(x=1\), מגיע למינימום \((2,-4)\), חוצה ב־\(x=4\) וממשיך למעלה מימין.</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> \(f(-x)=(-x)^4-5(-x)^2+4=f(x)\), ולכן הפונקציה זוגית. \(f(x)=(x^2-1)(x^2-4)\), ולכן השורשים הם \(x=\pm1,\pm2\). המקדם המוביל חיובי והמעלה זוגית, ולכן שני קצות הגרף עולים.</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> \(f(x)=x(x^2-3)\), ולכן השורשים \(-\sqrt3,0,\sqrt3\). \(f'(x)=3(x^2-1)\), ומתקבלים מקסימום \((-1,2)\) ומינימום \((1,-2)\). הפונקציה עולה ב־\((-\infty,-1)\cup(1,\infty)\) ויורדת ב־\((-1,1)\). סימנה: שלילי ב־\((-\infty,-\sqrt3)\cup(0,\sqrt3)\), וחיובי ב־\((-\sqrt3,0)\cup(\sqrt3,\infty)\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> שני הקצוות עולים. ליד \(x=-2\), שהוא שורש פשוט, הגרף חוצה מחיובי לשלילי. ב־\(x=0\), שורש כפול, הגרף נוגע בציר ונשאר שלילי משני הצדדים. ב־\(x=3\), שורש פשוט, הוא חוצה משלילי לחיובי.</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> ל־\(m&gt;5\) יש פתרון אחד; ל־\(m=5\) שני פתרונות שונים; ל־\(-3&lt;m&lt;5\) שלושה פתרונות; ל־\(m=-3\) שני פתרונות שונים; ול־\(m&lt;-3\) פתרון אחד. הסיווג מתקבל מחיתוך הגרף עם הישר האופקי \(y=m\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> \(f'(x)=4x(x^2-2)\). נקודות הקיצון: מקסימום מקומי \((0,0)\), ומינימות \((\pm\sqrt2,-4)\). המשוואה \(f(x)=-3\) שקולה ל־\((x^2-1)(x^2-3)=0\), ולכן יש ארבעה פתרונות: \(x=\pm1,\pm\sqrt3\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> אפשר לבחור \(f(x)=(x+2)(x-1)^2(x-2)\). זהו פולינום ממעלה רביעית, \(x=-2\) שורש פשוט, \(x=1\) שורש כפול, וב־\(x=0\): \(f(0)=2\cdot1\cdot(-2)=-4\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> המעלה המינימלית היא \(4\): לפולינום ממעלה \(n\) יש לכל היותר \(n-1\) נקודות קיצון, ושני קצוות עולים מחייבים מעלה זוגית ומקדם מוביל חיובי. דוגמה: \(f(x)=x^4-4x^2\), שלה שלוש נקודות קיצון.</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> ל־\(m&gt;4\) פתרון אחד; ל־\(m=4\) שני פתרונות שונים; ל־\(-2&lt;m&lt;4\) שלושה; ל־\(m=-2\) שניים; ול־\(m&lt;-2\) פתרון אחד.</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> הצורה היא \(f(x)=a(x^2-1)(x^2-9)\). מן התנאי \(f(0)=9\) מתקבל \(9a=9\), ולכן \(a=1\). כלומר \(f(x)=x^4-10x^2+9\). שני הקצוות עולים; השורשים \(\pm1,\pm3\); מקסימום מקומי \((0,9)\), ומינימות \((\pm\sqrt5,-16)\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 2 — הזזה אנכית</h1>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<div class="rule big">\[g(x)=f(x)+k\]</div>
+<p>כל ערך של הפונקציה משתנה באותו מספר. לכן:</p>
+<div class="mapping">\[(u,v)\longmapsto(u,v+k)\]</div>
+<ul class="compact">
+<li>אם \(k&gt;0\): הגרף עולה ב־\(k\) יחידות.</li>
+<li>אם \(k&lt;0\): הגרף יורד ב־\(|k|\) יחידות.</li>
+<li>תחום ההגדרה אינו משתנה.</li>
+<li>ערכי \(y\) והטווח זזים ב־\(k\).</li>
+<li>ערכי ה־\(x\) של נקודות הקיצון נשמרים.</li>
+</ul>
+<h3>דוגמה פתורה</h3>
+<p>נתון \(f(x)=x^2-1\), ומוגדר \(g(x)=f(x)+2\).</p>
+<p class="solution">לכן \(g(x)=x^2+1\). הקודקוד עובר מ־\((0,-1)\) אל \((0,1)\), ואין לגרף החדש חיתוך עם ציר \(x\).</p>
+</div>
+<div style="height:20px;"></div>
+<div>
+<div class="jxgbox graph medium" id="graph-vshift"></div>
+<div class="legend"><span class="line-swatch solid"></span> \(f\) <span class="line-swatch dash"></span> \(g=f+2\)</div>
+</div>
+</div>
+<div class="warning"><b>טעות נפוצה:</b> הזזה אנכית משנה בדרך כלל את חיתוכי ציר \(x\), אף שערכי ה־\(x\) של הקיצון נשמרים.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 2 — הזזה אנכית בפולינומים</h1>
+<div class="subtitle">שתי דוגמאות נוספות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>הזזה שתי יחידות למעלה</h3>
+<div class="formula">\[f(x)=x^3-3x\]</div>
+<div class="formula">\[g(x)=f(x)+2=x^3-3x+2\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,v+2)\]</div>
+<ul>
+<li>נקודות הקיצון עוברות מ־\((-1,2),(1,-2)\) אל \((-1,4),(1,0)\).</li>
+<li>נקודת הפיתול עוברת מ־\((0,0)\) אל \((0,2)\).</li>
+<li>תחומי העלייה והירידה אינם משתנים.</li>
+<li>מתקבל \(g(x)=(x-1)^2(x+2)\), ולכן השורשים הם \(x=-2\) ו־\(x=1\).</li>
+</ul>
+<p class="solution">ב־\(x=1\) הגרף משיק לציר \(x\), משום שזהו שורש כפול וגם נקודת מינימום.</p>
+<div class="jxgbox graph poly-graph" id="graph-u02-cubic"></div>
+<div class="poly-caption">הזזה אנכית משנה ערכי \(y\), אך לא את ערכי \(x\) של הקיצון</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>הזזה יחידה אחת למטה</h3>
+<div class="formula">\[f(x)=x^4-4x^2\]</div>
+<div class="formula">\[g(x)=f(x)-1=x^4-4x^2-1\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,v-1)\]</div>
+<ul>
+<li>המקסימום המקומי עובר אל \((0,-1)\).</li>
+<li>נקודות המינימום עוברות אל \((\pm\sqrt2,-5)\).</li>
+<li>ציר הסימטריה \(x=0\) נשמר.</li>
+<li>השורשים החדשים מקיימים \(x^2=2+\sqrt5\).</li>
+</ul>
+<div class="formula">\[x=\pm\sqrt{2+\sqrt5}\]</div>
+<p class="solution">הזזה אנכית אינה שומרת בדרך כלל על חיתוכי ציר \(x\).</p>
+<div class="jxgbox graph poly-graph" id="graph-u02-quartic"></div>
+<div class="poly-caption">כל ערכי הפונקציה קטנים ביחידה אחת</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 2 — הזזה אנכית</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>נתון \(f(x)=x^2-4\). כתבו את \(g(x)=f(x)+3\), מצאו את קודקודה ואת חיתוכיה עם ציר \(x\).</li>
+<li>הנקודה \((-2,5)\) נמצאת על \(y=f(x)\). מצאו את הנקודה המתאימה על \(y=f(x)-7\).</li>
+<li>ל-\(f\) טווח \([-3,\infty)\). מצאו את טווח \(g(x)=f(x)+5\).</li>
+<li>ל-\(f\) חיתוך עם ציר \(y\) בנקודה \((0,2)\). מצאו את חיתוך ציר \(y\) של \(g(x)=f(x)-6\).</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>נתון \(f(x)=x^3-3x\). מצאו את נקודות הקיצון של \(g(x)=f(x)+4\) ואת נקודת הפיתול.</li>
+<li>נתון \(f(x)=x^4-4x^2\). קבעו את מספר הפתרונות של \(f(x)+k=0\) עבור \(k=-1,0,3,4,5\).</li>
+<li>לגרף \(f\) מינימום בנקודה \((3,-5)\). ידוע ש-\(g(x)=f(x)+k\) נוגע בציר \(x\) בנקודת המינימום. מצאו את \(k\).</li>
+<li>נתון \(g(x)=x^4-4x^2+3\). זהו את פונקציית המקור \(f(x)=x^4-4x^2\), והעבירו אל \(g\) את כל נקודות הקיצון.</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו את כל ערכי \(k\) שעבורם \(g(x)=x^3-3x+k\) משיק לציר \(x\).</li>
+<li>עבור \(g_k(x)=x^4-4x^2+k\), סווגו את מספר השורשים הממשיים לפי \(k\).</li>
+<li>נתון שלמשוואה \(f(x)=2\) יש בדיוק שלושה פתרונות. כמה פתרונות יש למשוואה \(f(x)-5=-3\)? נמקו ללא שרטוט חדש.</li>
+<li>לפונקציה \(f\) טווח \([-4,7]\), והיא מקבלת את הערך \(0\) בארבע נקודות. בחרו \(k\) כך שטווח \(g=f+k\) יהיה סימטרי ביחס לציר \(x\). האם ניתן להסיק מן הנתונים את מספר שורשי \(g\)? נמקו.</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions" rel="noopener" target="_blank">OpenStax — Transformation of Functions</a> · <a href="https://allaboutmaths-classic.aqa.org.uk/application/topicheaders/guidance.php?id=168" rel="noopener" target="_blank">AQA — Transformation of Functions</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 2 — הזזה אנכית</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> \(g(x)=x^2-4+3=x^2-1\). הקודקוד הוא \((0,-1)\), וחיתוכי ציר \(x\) הם \((\pm1,0)\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> הזזה מטה ב־\(7\): \((-2,5)\mapsto(-2,-2)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> כל ערכי \(y\) גדלים ב־\(5\), ולכן הטווח החדש הוא \([2,\infty)\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> נקודת החיתוך עם ציר \(y\) זזה מטה ב־\(6\), ולכן חיתוך ציר \(y\) של \(g\) הוא \((0,-4)\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> ל־\(f\) מקסימום \((-1,2)\), מינימום \((1,-2)\) ופיתול \((0,0)\). לאחר הזזה מעלה ב־\(4\): מקסימום \((-1,6)\), מינימום \((1,2)\), ופיתול \((0,4)\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> פותרים \(f(x)=-k\). עבור \(k=-1\): שני פתרונות; \(k=0\): שלושה פתרונות שונים \((-2,0,2)\); \(k=3\): ארבעה; \(k=4\): שניים \((\pm\sqrt2)\); \(k=5\): אין פתרונות.</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> בנקודת המינימום של \(g\) הערך הוא \(-5+k\). כדי שהגרף ייגע בציר \(x\): \(-5+k=0\), ולכן \(k=5\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> המקור הוא \(f(x)=x^4-4x^2\), ו־\(g=f+3\). המקסימום \((0,0)\) עובר ל־\((0,3)\), והמינימות \((\pm\sqrt2,-4)\) עוברות ל־\((\pm\sqrt2,-1)\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> השקה לציר \(x\) מתרחשת כאשר ערך קיצון הוא \(0\). \(g(-1)=2+k\), \(g(1)=-2+k\). לכן \(k=-2\) או \(k=2\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> ל־\(k&lt;0\): שני שורשים; \(k=0\): שלושה שורשים שונים; \(0&lt;k&lt;4\): ארבעה; \(k=4\): שניים; \(k&gt;4\): אין שורשים. הסיבה: המינימום הוא \(k-4\) והמקסימום המקומי הוא \(k\).</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> \(f(x)-5=-3\iff f(x)=2\). לכן מספר הפתרונות נשאר בדיוק שלושה.</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> כדי שהטווח יהיה סימטרי סביב \(0\), נדרוש \((-4+k)+(7+k)=0\), ולכן \(k=-\tfrac32\). הטווח יהיה \([-\tfrac{11}{2},\tfrac{11}{2}]\). לא ניתן להסיק את מספר שורשי \(g\), כי הם מתאימים לפתרונות \(f(x)=\tfrac32\), והמידע על ארבעת פתרונות \(f(x)=0\) אינו קובע זאת.</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 3 — הזזה אופקית</h1>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<div class="rule big">\[g(x)=f(x-h)\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u+h,v)\]</div>
+<ul class="compact">
+<li>אם \(h&gt;0\): הגרף זז ימינה.</li>
+<li>אם \(h&lt;0\): הגרף זז שמאלה.</li>
+<li>הטווח אינו משתנה.</li>
+<li>כל ערכי ה־\(x\) המיוחדים משתנים ב־\(h\).</li>
+<li>תחום הגדרה \([a,b]\) עובר אל \([a+h,b+h]\).</li>
+</ul>
+<h3>מדוע הסימן “הפוך”?</h3>
+<p>כדי לקבל ב־\(g\) את הערך שהיה ל־\(f\) ב־\(u\), דרוש:</p>
+<div class="derivation">\[x-h=u\quad\Longrightarrow\quad x=u+h\]</div>
+<div style="height:20px;"></div>
+<h3>דוגמה</h3>
+<p>אם \(f(x)=x^2\) ו־\(g(x)=f(x-2)\), הקודקוד עובר מ־\((0,0)\) אל \((2,0)\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-hshift"></div>
+<div class="graph-caption">אותה צורה, מיקום אופקי חדש</div>
+</div>
+</div>
+<div class="quick"><b>בדיקה:</b> \(f(x+3)\) הוא הזזה שמאלה ב־3 יחידות; \(f(x-3)\) הוא הזזה ימינה ב־3 יחידות.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 3 — הזזה אופקית בפולינומים</h1>
+<div class="subtitle">שתי דוגמאות נוספות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>הזזה שתי יחידות ימינה</h3>
+<div class="formula">\[f(x)=x^3-3x\]</div>
+<div class="formula">\[g(x)=f(x-2)=(x-2)^3-3(x-2)\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u+2,v)\]</div>
+<ul>
+<li>הקיצון עובר מ־\((-1,2),(1,-2)\) אל \((1,2),(3,-2)\).</li>
+<li>נקודת הפיתול עוברת אל \((2,0)\).</li>
+<li>השורשים עוברים מ־\(-\sqrt3,0,\sqrt3\) אל \(2-\sqrt3,2,2+\sqrt3\).</li>
+</ul>
+<p class="solution">הטווח נשמר, וכל ערכי ה־\(x\) המיוחדים גדלים ב־2.</p>
+<div class="jxgbox graph poly-graph" id="graph-u03-cubic"></div>
+<div class="poly-caption">אותה צורה לאחר הזזה אופקית ימינה</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>הזזה יחידה אחת שמאלה</h3>
+<div class="formula">\[f(x)=x^4-4x^2\]</div>
+<div class="formula">\[g(x)=f(x+1)=(x+1)^4-4(x+1)^2\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u-1,v)\]</div>
+<ul>
+<li>ציר הסימטריה החדש הוא \(x=-1\).</li>
+<li>המקסימום המקומי הוא \((-1,0)\).</li>
+<li>נקודות המינימום הן \((-1\pm\sqrt2,-4)\).</li>
+<li>השורשים הם \(x=-3,-1,1\), כאשר \(x=-1\) שורש כפול.</li>
+</ul>
+<p class="solution">הסימן בתוך הסוגריים הפוך לכיוון ההזזה: \(x+1\) מזיז שמאלה.</p>
+<div class="jxgbox graph poly-graph" id="graph-u03-quartic"></div>
+<div class="poly-caption">הזזה שמאלה של פולינום זוגי יוצרת סימטריה סביב \(x=-1\)</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 3 — הזזה אופקית</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>נתון \(f(x)=x^2\). כתבו את הביטוי לפונקציה המתקבלת מהזזה 4 יחידות ימינה ומצאו את הקודקוד.</li>
+<li>הנקודה \((3,-2)\) נמצאת על \(y=f(x)\). מצאו את תמונתה על \(y=f(x+5)\).</li>
+<li>ל-\(f\) תחום \([-2,6]\). מצאו את תחום \(g(x)=f(x-3)\).</li>
+<li>ל-\(f\) שורש ב־\(x=-1\). מצאו את השורש המתאים של \(g(x)=f(x+4)\).</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>נתון \(f(x)=x^3-3x\). מצאו את השורשים ונקודות הקיצון של \(g(x)=f(x-2)\).</li>
+<li>נתון \(f(x)=x^4-4x^2\). מצאו את ציר הסימטריה ואת נקודות הקיצון של \(g(x)=f(x+3)\).</li>
+<li>לגרף \(f\) שורש ב-\(x=5\). ידוע של-\(g(x)=f(x-h)\) שורש ב-\(x=-2\). מצאו את \(h\).</li>
+<li>כתבו פונקציה מהצורה \(g(x)=f(x-h)\), כאשר \(f(x)=(x+1)^2-4\), כך שקודקוד \(g\) יהיה \((6,-4)\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו \(h\) כך שהפונקציה \(g(x)=(x-h)^3-3(x-h)\) תהיה בעלת נקודת פיתול ב-\((-4,0)\).</li>
+<li>ל-\(f\) ציר סימטריה \(x=2\). מהו ציר הסימטריה של \(g(x)=f(x+7)\)? הוכיחו באמצעות הצבת נקודות סימטריות.</li>
+<li>נתון \(f(x)=x^4-5x^2+4\). מצאו \(h\) כך ששני השורשים האמצעיים של \(f(x-h)\) יהיו \(x=1\) ו-\(x=3\).</li>
+<li>פונקציה \(f\) מוגדרת ב-\([0,\infty)\) ומקבלת מינימום בקצה התחום. מצאו את \(h\) אם \(g(x)=f(x-h)\) מוגדרת ב-\([-5,\infty)\), ותארו את מיקום המינימום.</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions" rel="noopener" target="_blank">OpenStax — Transformation of Functions</a> · <a href="https://www.mathsisfun.com/sets/function-transformations.html" rel="noopener" target="_blank">Math Is Fun — Function Transformations</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 3 — הזזה אופקית</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> הזזה ימינה ב־\(4\): \(g(x)=f(x-4)=(x-4)^2\). הקודקוד הוא \((4,0)\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> \(f(x+5)\) מזיזה שמאלה ב־\(5\), ולכן \((3,-2)\mapsto(-2,-2)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> התחום זז ימינה ב־\(3\): \([-2+3,6+3]=[1,9]\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> \(f(x+4)\) מזיזה שמאלה ב־\(4\), ולכן השורש עובר מ־\(x=-1\) אל \(x=-5\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> כל ערכי \(x\) גדלים ב־\(2\). השורשים: \(2-\sqrt3,2,2+\sqrt3\). הקיצון: מקסימום \((1,2)\), מינימום \((3,-2)\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> \(f(x+3)\) מזיזה שמאלה ב־\(3\). ציר הסימטריה: \(x=-3\). מקסימום מקומי \((-3,0)\), ומינימות \((-3\pm\sqrt2,-4)\).</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> שורש \(u=5\) עובר ב־\(g=f(x-h)\) אל \(x=u+h\). לכן \(5+h=-2\), ומתקבל \(h=-7\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> קודקוד \(f\) הוא \((-1,-4)\). נדרש \(-1+h=6\), ולכן \(h=7\). מתקבל \(g(x)=f(x-7)=(x-6)^2-4\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> נקודת הפיתול של פונקציית המקור נמצאת ב־\(x=0\), ולאחר הזזה היא ב־\(x=h\). לכן \(h=-4\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> ציר הסימטריה זז שמאלה ב־\(7\): \(x=2-7=-5\). אכן, \(g(-5+t)=f(2+t)\) ו־\(g(-5-t)=f(2-t)\), והערכים שווים.</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> שורשי \(f\) הם \(-2,-1,1,2\). לאחר הזזה הם \(h-2,h-1,h+1,h+2\). שני האמצעיים הם \(h-1,h+1\), ולכן \(h-1=1\), \(h+1=3\), ומתקבל \(h=2\).</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> תחום \(g=f(x-h)\) הוא \([h,\infty)\). מן התנאי \([h,\infty)=[-5,\infty)\) מתקבל \(h=-5\). המינימום שבקצה התחום עובר ל־\(x=-5\), וערך ה־\(y\) נשמר.</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 4א — שיקוף ביחס לציר \(x\)</h1>
+<div class="subtitle">שינוי ערכי הפונקציה: כל נקודה עוברת מעל הציר אל מתחתיו ולהפך</div>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<div class="rule">\[g(x)=-f(x)\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,-v)\]</div>
+<h3>המשמעות</h3>
+<p>כופלים כל ערך של הפונקציה ב־\(-1\). ערך ה־\(x\) של כל נקודה נשאר קבוע, ורק ערך ה־\(y\) מחליף סימן.</p>
+<h3>מה נשמר ומה משתנה?</h3>
+<ul class="compact">
+<li>תחום ההגדרה נשמר.</li>
+<li>נקודות החיתוך עם ציר \(x\) נשמרות.</li>
+<li>חיתוך עם ציר \(y\) מחליף סימן.</li>
+<li>מקסימום הופך למינימום ולהפך.</li>
+<li>תחום עלייה הופך לתחום ירידה ולהפך.</li>
+<li>הטווח משתקף: אם \(y\) שייך לטווח של \(f\), אז \(-y\) שייך לטווח של \(g\).</li>
+</ul>
+<h3>דוגמה</h3>
+<div class="formula">\[f(x)=\tfrac12x^2+x-1\]</div>
+<div class="formula">\[g(x)=-f(x)=-\tfrac12x^2-x+1\]</div>
+<p>הקודקוד של \(f\) הוא \((-1,-\tfrac32)\), ולכן הקודקוד של \(g\) הוא \((-1,\tfrac32)\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-reflect-x"></div>
+<div class="graph-caption">הגרף המקורי והשתקפותו ביחס לציר \(x\)</div>
+<div class="quick"><b>בדיקת נקודה:</b> \((2,3)\) עוברת אל \((2,-3)\). ערך ה־\(x\) אינו משתנה.</div>
+</div>
+</div>
+<div class="warning"><b>טעות נפוצה:</b> בשיקוף ביחס לציר \(x\) כותבים \(-f(x)\), ולא \(f(-x)\). סימן המינוס נמצא מחוץ לפונקציה מפני שמשנים את הפלט.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 4א — שיקוף ביחס לציר \(x\) בפולינומים</h1>
+<div class="subtitle">שתי דוגמאות מלאות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>החלפת מקסימום ומינימום</h3>
+<div class="formula">\[f(x)=x^3-3x^2\]</div>
+<div class="formula">\[g(x)=-f(x)=-x^3+3x^2\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,-v)\]</div>
+<ul>
+<li>השורשים \(x=0\) ו־\(x=3\) נשמרים.</li>
+<li>הנקודה \((0,0)\) הופכת ממקסימום מקומי למינימום מקומי.</li>
+<li>המינימום \((2,-4)\) עובר למקסימום \((2,4)\).</li>
+<li>תחומי החיוב והשלילה מתחלפים.</li>
+</ul>
+<p class="solution">ערכי ה־\(x\) של כל הנקודות המיוחדות נשמרים; ערכי ה־\(y\) מחליפים סימן.</p>
+<div class="jxgbox graph poly-graph" id="graph-u04x-cubic"></div>
+<div class="poly-caption">שיקוף אנכי של פולינום ממעלה שלישית</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>החלפת טווח וסוגי הקיצון</h3>
+<div class="formula">\[f(x)=x^4-4x^2+3\]</div>
+<div class="formula">\[g(x)=-f(x)=-x^4+4x^2-3\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,-v)\]</div>
+<ul>
+<li>ארבעת השורשים \(x=\pm1,\pm\sqrt3\) נשמרים.</li>
+<li>המקסימום המקומי \((0,3)\) עובר למינימום \((0,-3)\).</li>
+<li>נקודות המינימום \((\pm\sqrt2,-1)\) עוברות למקסימום \((\pm\sqrt2,1)\).</li>
+<li>הטווח \([-1,\infty)\) הופך ל־\(( -\infty,1]\).</li>
+</ul>
+<p class="solution">הסימטריה ביחס לציר \(y\) נשמרת, אך כיוון הפתיחה וסוגי הקיצון מתהפכים.</p>
+<div class="jxgbox graph poly-graph" id="graph-u04x-quartic"></div>
+<div class="poly-caption">שיקוף ביחס לציר \(x\) של פולינום זוגי</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 4א — שיקוף ביחס לציר \(x\)</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>הנקודה \((-3,4)\) נמצאת על \(y=f(x)\). מצאו את תמונתה על \(y=-f(x)\).</li>
+<li>נתון \(f(x)=x^2-5x+4\). כתבו את \(-f(x)\) ומצאו את חיתוכיה עם ציר \(x\).</li>
+<li>ל-\(f\) מקסימום \((2,7)\). קבעו את נקודת הקיצון המתאימה ואת סוגה ב-\(g=-f\).</li>
+<li>ל-\(f\) טווח \([-1,6]\). מצאו את טווח \(g(x)=-f(x)\).</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>נתון \(f(x)=x^3-3x^2\). חקרו כיצד השיקוף משנה את הקיצון, תחומי העלייה והירידה וסימן הפונקציה.</li>
+<li>נתון \(f(x)=x^4-4x^2+3\). מצאו את כל נקודות הקיצון של \(g(x)=-f(x)\) ואת טווחה.</li>
+<li>הוכיחו כי ל-\(f\) ול-\(-f\) אותם שורשים, וקבעו מתי קיימת ביניהן נקודת חיתוך שאינה על ציר \(x\).</li>
+<li>גרף \(f\) נמצא כולו מעל הישר \(y=-2\). מה ניתן להסיק על מיקום הגרף של \(-f\) ביחס לישר \(y=2\)?</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>נתון \(g(x)=-2f(x)+3\). נקודת מקסימום של \(f\) היא \((-1,5)\). מצאו את התמונה, את סוג הקיצון ואת משוואת הישר האופקי העובר בה.</li>
+<li>מצאו את כל הפולינומים \(f(x)=ax^3+bx\) המקיימים \(f(-x)=-f(x)\), והסבירו מדוע שיקוף ביחס לציר \(x\) זהה עבורם לשיקוף ביחס לציר \(y\).</li>
+<li>עבור \(f(x)=x^4-4x^2+k\), מצאו את \(k\) כך שהגרפים \(y=f(x)\) ו-\(y=-f(x)\) ייחתכו בשלוש נקודות שונות.</li>
+<li>ל-\(f\) מינימום מוחלט \(-4\) ומקסימום מוחלט \(9\). מצאו את המרחק האנכי המרבי בין \(f\) לבין \(-f\), וקבעו באילו ערכי פונקציה הוא מתקבל.</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions" rel="noopener" target="_blank">OpenStax — Transformation of Functions</a> · <a href="https://www.khanacademy.org/algebra2" rel="noopener" target="_blank">Khan Academy — Transformations of Functions</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 4א — שיקוף ביחס לציר \(x\)</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> בשיקוף ביחס לציר \(x\), ערך ה־\(y\) מחליף סימן: \((-3,4)\mapsto(-3,-4)\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> \(-f(x)=-x^2+5x-4\). השורשים נשמרים: \(x=1,4\), ולכן החיתוכים הם \((1,0),(4,0)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> המקסימום \((2,7)\) הופך למינימום \((2,-7)\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> הטווח משתקף: \([-1,6]\mapsto[-6,1]\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> ל־\(f=x^2(x-3)\) מקסימום \((0,0)\) ומינימום \((2,-4)\). לכן ל־\(g=-f\) מינימום \((0,0)\) ומקסימום \((2,4)\). \(g\) יורדת ב־\((-\infty,0)\cup(2,\infty)\), ועולה ב־\((0,2)\). היא חיובית עבור \(x&lt;3\) פרט ל־\(x=0\), ושלילית עבור \(x&gt;3\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> ל־\(f\) מקסימום \((0,3)\) ומינימות \((\pm\sqrt2,-1)\). לכן ל־\(g=-f\) מינימום \((0,-3)\), מקסימות \((\pm\sqrt2,1)\), וטווח \((-\infty,1]\).</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> \(f(x)=0\iff -f(x)=0\), ולכן השורשים זהים. נקודת חיתוך בין הגרפים מקיימת \(f(x)=-f(x)\), כלומר \(f(x)=0\). לכן כל נקודות החיתוך נמצאות על ציר \(x\), ולעולם אין חיתוך שאינו על הציר.</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> אם \(f(x)&gt;-2\), אז לאחר כפל ב־\(-1\) מתקבל \(-f(x)&lt;2\). לכן הגרף של \(-f\) נמצא כולו מתחת לישר \(y=2\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> מיפוי הערך הוא \((u,v)\mapsto(u,-2v+3)\). לכן \((-1,5)\mapsto(-1,-7)\). מאחר שהמקדם שלילי, מקסימום הופך למינימום. המשיק האופקי הוא \(y=-7\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> לכל \(a,b\in\mathbb R\), \(f(-x)=-ax^3-bx=-f(x)\); לכן כל הפולינומים מן הצורה הנתונה אי־זוגיים. עבור פונקציה אי־זוגית מתקיים \(f(-x)=-f(x)\), ולכן שני השיקופים נותנים אותו גרף.</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> הגרפים נחתכים כאשר \(f(x)=0\). נדרשות בדיוק שלוש נקודות חיתוך שונות. עבור \(x^4-4x^2+k\) זה קורה רק כאשר \(k=0\), ואז השורשים הם \(-2,0,2\), כאשר \(x=0\) שורש כפול.</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> המרחק האנכי הוא \(|f(x)-(-f(x))|=2|f(x)|\). בטווח \([-4,9]\), הערך המוחלט המרבי הוא \(9\), ולכן המרחק המרבי הוא \(18\), והוא מתקבל בנקודות שבהן \(f(x)=9\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 4ב — שיקוף ביחס לציר \(y\)</h1>
+<div class="subtitle">שינוי הקלט: החלק הימני והחלק השמאלי של הגרף מחליפים מקומות</div>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<div class="rule big">\[g(x)=f(-x)\]</div>
+<div class="mapping">\[(u,v)\longmapsto(-u,v)\]</div>
+<h3>המשמעות</h3>
+<p>מחליפים את הקלט \(x\) ב־\(-x\). ערך ה־\(y\) של כל נקודה נשאר קבוע, וערך ה־\(x\) מחליף סימן.</p>
+<h3>מה נשמר ומה משתנה?</h3>
+<ul class="compact">
+<li>הטווח נשמר.</li>
+<li>נקודת החיתוך עם ציר \(y\) נשמרת.</li>
+<li>כל שורש \(x=r\) עובר לשורש \(x=-r\).</li>
+<li>נקודת קיצון \((u,v)\) עוברת אל \((-u,v)\), וסוג הקיצון נשמר.</li>
+<li>תחומי העלייה והירידה משתקפים מימין לשמאל.</li>
+<li>תחום ההגדרה משתקף ביחס ל־\(0\).</li>
+</ul>
+<h3>דוגמה</h3>
+<div class="formula">\[f(x)=\tfrac12x^2+x-1\]</div>
+<div class="formula">\[g(x)=f(-x)=\tfrac12x^2-x-1\]</div>
+<p>הקודקוד \((-1,-\tfrac32)\) עובר אל \((1,-\tfrac32)\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-reflect-y"></div>
+<div class="graph-caption">הגרף המקורי והשתקפותו ביחס לציר \(y\)</div>
+<div class="quick"><b>בדיקת נקודה:</b> \((2,3)\) עוברת אל \((-2,3)\). ערך ה־\(y\) אינו משתנה.</div>
+</div>
+</div>
+<div class="warning"><b>טעות נפוצה:</b> בשיקוף ביחס לציר \(y\) כותבים \(f(-x)\), ולא \(-f(x)\). סימן המינוס נמצא בתוך הפונקציה מפני שמשנים את הקלט.</div>
+<div class="note"><b>מקרים מיוחדים:</b> אם \(f\) זוגית, אז \(f(-x)=f(x)\) והגרף אינו משתנה. אם \(f\) אי־זוגית, אז \(f(-x)=-f(x)\).</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 4ב — שיקוף ביחס לציר \(y\) בפולינומים</h1>
+<div class="subtitle">שתי דוגמאות מלאות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>העברת נקודות מיוחדות מצד לצד</h3>
+<div class="formula">\[f(x)=x^3-3x^2\]</div>
+<div class="formula">\[g(x)=f(-x)=-x^3-3x^2\]</div>
+<div class="mapping">\[(u,v)\longmapsto(-u,v)\]</div>
+<ul>
+<li>השורש \(x=3\) עובר אל \(x=-3\).</li>
+<li>השורש הכפול \(x=0\) נשאר במקומו.</li>
+<li>המקסימום המקומי \((0,0)\) נשאר במקומו.</li>
+<li>המינימום \((2,-4)\) עובר אל \((-2,-4)\).</li>
+</ul>
+<p class="solution">סוגי הקיצון וערכי ה־\(y\) נשמרים; סימני ערכי ה־\(x\) מתחלפים.</p>
+<div class="jxgbox graph poly-graph" id="graph-u04y-cubic"></div>
+<div class="poly-caption">החלפת הצד הימני והצד השמאלי של הגרף</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>שיקוף של פולינום שאינו זוגי</h3>
+<div class="formula">\[f(x)=x^4-2x^3\]</div>
+<div class="formula">\[g(x)=f(-x)=x^4+2x^3\]</div>
+<div class="mapping">\[(u,v)\longmapsto(-u,v)\]</div>
+<ul>
+<li>השורש \(x=2\) עובר אל \(x=-2\).</li>
+<li>השורש המשולש \(x=0\) נשאר במקומו.</li>
+<li>נקודת הקיצון \((\tfrac32,-\tfrac{27}{16})\) עוברת אל \((-\tfrac32,-\tfrac{27}{16})\).</li>
+<li>הטווח וסוג הקיצון נשמרים.</li>
+</ul>
+<p class="solution">כל המידע בצד ימין של הגרף מועבר לצד שמאל ולהפך, ללא שינוי בגובה הנקודות.</p>
+<div class="jxgbox graph poly-graph" id="graph-u04y-quartic"></div>
+<div class="poly-caption">שיקוף אופקי של הגרף סביב ציר \(y\)</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 4ב — שיקוף ביחס לציר \(y\)</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>הנקודה \((4,-3)\) נמצאת על \(y=f(x)\). מצאו את תמונתה על \(y=f(-x)\).</li>
+<li>נתון \(f(x)=x^2+2x-1\). כתבו את \(g(x)=f(-x)\) ומצאו את קודקודה.</li>
+<li>ל-\(f\) שורשים \(x=-4,1,3\). מצאו את שורשי \(f(-x)\).</li>
+<li>ל-\(f\) תחום \([-2,5]\). מצאו את תחום \(g(x)=f(-x)\).</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>נתון \(f(x)=x^3-3x^2\). מצאו את נקודות הקיצון והשורשים של \(g(x)=f(-x)\).</li>
+<li>נתון \(f(x)=x^4-2x^3\). קבעו את השורשים, ריבוים ונקודת הקיצון של \(f(-x)\).</li>
+<li>הוכיחו שאם \(f\) זוגית אז השיקוף ביחס לציר \(y\) אינו משנה את הגרף.</li>
+<li>ל-\(f\) תחומי עלייה \((-4,-1)\cup(2,\infty)\). כתבו את תחומי הירידה של \(g(x)=f(-x)\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>נתון \(g(x)=f(2-x)\). תארו את ההשתקפות וההזזה, וכתבו את מיפוי הנקודה \((u,v)\).</li>
+<li>מצאו את כל ערכי \(a\) שעבורם \(f(x)=x^4+ax^3+2x^2\) אינו משתנה תחת השיקוף \(x\mapsto -x\).</li>
+<li>נתון של-\(f(-x)\) מינימום ב-\((-5,-2)\) ושורש כפול ב-\(x=1\). מצאו את המידע המתאים על \(f\).</li>
+<li>גרף \(f\) סימטרי סביב הישר \(x=3\). הוכיחו שהגרף של \(g(x)=f(-x)\) סימטרי סביב הישר \(x=-3\).</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions" rel="noopener" target="_blank">OpenStax — Transformation of Functions</a> · <a href="https://www.khanacademy.org/algebra2" rel="noopener" target="_blank">Khan Academy — Reflecting Functions</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 4ב — שיקוף ביחס לציר \(y\)</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> בשיקוף ביחס לציר \(y\), ערך ה־\(x\) מחליף סימן: \((4,-3)\mapsto(-4,-3)\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> \(g(x)=f(-x)=x^2-2x-1=(x-1)^2-2\). הקודקוד הוא \((1,-2)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> כל שורש \(r\) עובר ל־\(-r\). לכן השורשים הם \(4,-1,-3\), כלומר בסדר עולה: \(-3,-1,4\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> נדרש \(-x\in[-2,5]\), ולכן \(-5\le x\le2\). התחום הוא \([-5,2]\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> \(g(x)=f(-x)=-x^3-3x^2=-x^2(x+3)\). השורשים: \(x=-3\) פשוט, \(x=0\) כפול. נקודות הקיצון מתקבלות בשיקוף: מקסימום \((0,0)\), מינימום \((-2,-4)\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> \(f(-x)=x^4+2x^3=x^3(x+2)\). השורשים: \(x=0\) בריבוי \(3\), ו־\(x=-2\) בריבוי \(1\). נקודת הקיצון היא מינימום \((-\tfrac32,-\tfrac{27}{16})\); ב־\((0,0)\) יש נקודה סטציונרית שאינה קיצון.</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> אם \(f\) זוגית, אז לפי ההגדרה \(f(-x)=f(x)\) לכל \(x\) בתחום. לכן פונקציית השיקוף זהה לפונקציה המקורית והגרף אינו משתנה.</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> \(g'(x)=-f'(-x)\). לכן \(g\) יורדת כאשר \(-x\) נמצא בתחום עלייה של \(f\). מן \((-4,-1)\cup(2,\infty)\) מתקבלים התחומים \((1,4)\cup(-\infty,-2)\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> \(g(x)=f(2-x)\) הוא שיקוף ביחס לציר \(y\) ואחריו הזזה \(2\) ימינה; שקול לשיקוף ביחס לישר \(x=1\). מן \(2-x=u\) מתקבל מיפוי \((u,v)\mapsto(2-u,v)\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> כדי שהגרף לא ישתנה נדרשת זוגיות. האיבר האי־זוגי היחיד הוא \(ax^3\), ולכן \(a=0\).</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> מינימום של \(f(-x)\) ב־\((-5,-2)\) נובע ממינימום של \(f\) ב־\((5,-2)\). שורש כפול של \(f(-x)\) ב־\(x=1\) מתאים לשורש כפול של \(f\) ב־\(x=-1\).</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> מסימטריית \(f\): \(f(3+t)=f(3-t)\). עבור \(g(x)=f(-x)\): \(g(-3+t)=f(3-t)\) ו־\(g(-3-t)=f(3+t)\). לכן הערכים שווים, וציר הסימטריה הוא \(x=-3\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 5 — מתיחה וכיווץ אנכיים</h1>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<div class="rule big">\[g(x)=a f(x)\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,av)\]</div>
+<table class="dense">
+<tr><th>ערך \(a\)</th><th>השפעה</th></tr>
+<tr><td>\(|a|&gt;1\)</td><td>מתיחה אנכית</td></tr>
+<tr><td>\(0&lt;|a|&lt;1\)</td><td>כיווץ אנכי</td></tr>
+<tr><td>\(a&lt;0\)</td><td>נוסף שיקוף ביחס לציר \(x\)</td></tr>
+</table>
+<ul class="compact">
+<li>חיתוכי ציר \(x\) נשמרים כאשר \(a\ne0\).</li>
+<li>תחום ההגדרה נשמר.</li>
+<li>ערכי ה־\(x\) של הקיצון נשמרים.</li>
+<li>ערכי ה־\(y\) מוכפלים ב־\(a\).</li>
+</ul>
+<div style="height:20px;"></div>
+<h3>דוגמה</h3>
+<p>אם \(f(x)=x^2\), אז \(2f(x)=2x^2\) צר יותר חזותית, ואילו \(\tfrac12f(x)=\tfrac12x^2\) רחב יותר.</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-vscale"></div>
+<div class="graph-caption">הכפלת ערכי \(y\), לא שינוי ערכי \(x\)</div>
+</div>
+</div>
+<div class="note"><b>הבחנה:</b> \(a f(x)\) הוא שינוי אנכי. לעומת זאת \(f(ax)\) הוא שינוי אופקי, ואינו נושא מרכזי ביחידה זו אך חשוב לא לבלבל ביניהם.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 5 — מתיחה וכיווץ אנכיים בפולינומים</h1>
+<div class="subtitle">שתי דוגמאות נוספות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>מתיחה אנכית פי 2</h3>
+<div class="formula">\[f(x)=x^3-3x\]</div>
+<div class="formula">\[g(x)=2f(x)=2x^3-6x\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,2v)\]</div>
+<ul>
+<li>השורשים \(-\sqrt3,0,\sqrt3\) נשמרים.</li>
+<li>הקיצון עובר מ־\((-1,2),(1,-2)\) אל \((-1,4),(1,-4)\).</li>
+<li>נקודת הפיתול נשארת \((0,0)\).</li>
+<li>הגרף מתרחק מציר \(x\) בכל נקודה שאינה שורש.</li>
+</ul>
+<p class="solution">ערכי ה־\(x\) אינם משתנים; רק הגובה מוכפל.</p>
+<div class="jxgbox graph poly-graph" id="graph-u05-cubic"></div>
+<div class="poly-caption">מתיחה אנכית של פונקציה ממעלה שלישית</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>כיווץ ושיקוף ביחס לציר \(x\)</h3>
+<div class="formula">\[f(x)=x^4-4x^2\]</div>
+<div class="formula">\[g(x)=-\tfrac12f(x)=-\tfrac12x^4+2x^2\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u,-\tfrac12v)\]</div>
+<ul>
+<li>השורשים \(x=-2,0,2\) נשמרים.</li>
+<li>המקסימום \((0,0)\) הופך למינימום.</li>
+<li>המינימום \((\pm\sqrt2,-4)\) עובר למקסימום \((\pm\sqrt2,2)\).</li>
+<li>הגרף מתקרב לציר \(x\) פי 2 ומתהפך.</li>
+</ul>
+<p class="solution">כאשר המקדם שלילי, סוגי הקיצון מתחלפים.</p>
+<div class="jxgbox graph poly-graph" id="graph-u05-quartic"></div>
+<div class="poly-caption">כיווץ אנכי יחד עם שיקוף</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 5 — מתיחה וכיווץ אנכיים</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>הנקודה \((-2,3)\) נמצאת על \(y=f(x)\). מצאו את תמונתה על \(y=4f(x)\).</li>
+<li>נתון \(f(x)=x^2-1\). כתבו \(g(x)=\frac12f(x)\) ומצאו את קודקודה ושורשיה.</li>
+<li>ל-\(f\) טווח \([-2,5]\). מצאו את טווח \(g(x)=3f(x)\).</li>
+<li>ל-\(f\) שורשים \(x=-3,1\). קבעו את שורשי \(g(x)=-2f(x)\).</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>נתון \(f(x)=x^3-3x\). מצאו את נקודות הקיצון של \(g(x)=-\frac32f(x)\) וסווגו אותן.</li>
+<li>נתון \(f(x)=x^4-4x^2\). השוו בין טווחי \(2f(x)\), \(\frac14f(x)\) ו-\(-f(x)\).</li>
+<li>לגרף \(f\) נקודת מינימום \((4,-6)\). נקודת הקיצון המתאימה של \(g(x)=af(x)\) היא \((4,9)\). מצאו את \(a\).</li>
+<li>הסבירו מדוע \(af(x)\) שומר על נקודות החיתוך עם ציר \(x\) כאשר \(a\ne0\), אך אינו שומר בהכרח על חיתוך ציר \(y\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו \(a\) כך שהמרחק האנכי בין נקודות הקיצון של \(f(x)=x^3-3x\) יגדל מ-\(4\) ל-\(10\) בפונקציה \(g=af\).</li>
+<li>עבור \(g_a(x)=a(x^4-4x^2)\), קבעו לפי \(a\) את סוגי הקיצון ואת הטווח.</li>
+<li>ל-\(f\) טווח \([-3,8]\). מצאו את כל \(a\) שעבורם טווח \(af(x)\) הוא \([-12,\frac92]\), או הוכיחו שאין ערך כזה.</li>
+<li>נתון \(f(x)=x^4-4x^2\). מצאו \(a\ne0,h,k\) כך של-\(g(x)=af(x-h)+k\) יהיו מינימות בנקודות \((1-\sqrt2,0)\), \((1+\sqrt2,0)\) ומקסימום מקומי בגובה \(8\).</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://stwww1.weizmann.ac.il/mesimatika/mesimatika_case/%D7%9E%D7%AA%D7%99%D7%97%D7%95%D7%AA-%D7%95%D7%9B%D7%99%D7%95%D7%95%D7%A6%D7%99%D7%9D-%D7%A9%D7%9C-%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94/" rel="noopener" target="_blank">מכון ויצמן — מתיחות וכיווצים של פונקציה</a> · <a href="https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions" rel="noopener" target="_blank">OpenStax — Transformation of Functions</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 5 — מתיחה וכיווץ אנכיים</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> בכפל אנכי פי \(4\): \((-2,3)\mapsto(-2,12)\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> \(g(x)=\tfrac12(x^2-1)=\tfrac12x^2-\tfrac12\). הקודקוד \((0,-\tfrac12)\), והשורשים נשארים \(x=\pm1\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> מאחר שהכפל חיובי: \([-2,5]\mapsto[-6,15]\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> כיוון ש־\(-2\ne0\), השורשים אינם משתנים: \(x=-3,1\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> נקודות הקיצון של \(f\) הן מקסימום \((-1,2)\) ומינימום \((1,-2)\). בכפל ב־\(-\tfrac32\): מתקבלים מינימום \((-1,-3)\) ומקסימום \((1,3)\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> טווח \(f\) הוא \([-4,\infty)\). לכן טווח \(2f\): \([-8,\infty)\); טווח \(\tfrac14f\): \([-1,\infty)\); טווח \(-f\): \((-\infty,4]\).</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> נדרש \(a\cdot(-6)=9\), ולכן \(a=-\tfrac32\). הסימן השלילי גם הופך מינימום למקסימום.</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> כאשר \(a\ne0\), \(af(x)=0\iff f(x)=0\), ולכן שורשי ציר \(x\) נשמרים. לעומת זאת חיתוך ציר \(y\) משתנה מ־\(f(0)\) ל־\(af(0)\), אלא אם \(a=1\) או \(f(0)=0\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> הפרש הגבהים מוכפל ב־\(|a|\). לכן \(4|a|=10\), ומתקבל \(a=\pm\tfrac52\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> אם \(a&gt;0\): מקסימום מקומי \((0,0)\), מינימות \((\pm\sqrt2,-4a)\), וטווח \([-4a,\infty)\). אם \(a&lt;0\): מינימום מקומי \((0,0)\), מקסימות \((\pm\sqrt2,-4a)\), וטווח \((-\infty,-4a]\). אם \(a=0\), הפונקציה קבועה \(0\).</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> אם \(a&gt;0\), הטווח הוא \([-3a,8a]\), ואין ערך המקיים את שני הקצוות. אם \(a&lt;0\), הטווח הוא \([8a,-3a]\). מן \(8a=-12\) מתקבל \(a=-\tfrac32\), וגם \(-3a=\tfrac92\). לכן זהו הפתרון היחיד.</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> מיקומי המינימות נותנים \(h=1\). המקסימום המקומי של המקור הוא בגובה \(0\), ולכן \(k=8\). תנאי גובה המינימות: \(-4a+8=0\), ולכן \(a=2\). מתקבל \(g(x)=2f(x-1)+8\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 6 — טרנספורמציות משולבות</h1>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<div class="rule big">\[g(x)=a f\!\left(b(x-h)\right)+k\]</div>
+<p>מיפוי נקודה כללי:</p>
+<div class="mapping">\[(u,v)\longmapsto\left(h+\frac{u}{b},\,av+k\right)\]</div>
+<h3>אלגוריתם עבודה</h3>
+<ol class="steps compact">
+<li>מזהים את פונקציית המקור \(f\).</li>
+<li>מפרקים לפרמטרים \(a,b,h,k\).</li>
+<li>מעבירים נקודות מפתח בעזרת כלל המיפוי.</li>
+<li>מעבירים תחום, טווח ונקודות מפתח.</li>
+<li>משלימים שרטוט חלק ורציף.</li>
+</ol>
+<div style="height:20px;"></div>
+<h3>דוגמה פתורה — פונקציית פולינום</h3>
+<p>ל־\(f(x)=x^4-2x^2\) נתונה:</p>
+<div class="formula">\[g(x)=-2f(x-1)+3=-2\left[(x-1)^4-2(x-1)^2\right]+3\]</div>
+<p class="solution">\(a=-2\), \(b=1\), \(h=1\), \(k=3\). כלל המיפוי הוא \((u,v)\mapsto(u+1,-2v+3)\). המינימום \((-1,-1)\) עובר למקסימום \((0,5)\), המקסימום המקומי \((0,0)\) עובר למינימום \((1,3)\), והמינימום \((1,-1)\) עובר למקסימום \((2,5)\). התחום הוא כל המספרים הממשיים והטווח הוא \(y\le5\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-combined"></div>
+<div class="graph-caption">שיקוף, מתיחה והזזה באותו גרף</div>
+</div>
+</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 6 — טרנספורמציות משולבות בפולינומים</h1>
+<div class="subtitle">שתי דוגמאות נוספות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>שיקוף, מתיחה ושתי הזזות</h3>
+<div class="formula">\[f(x)=x^3-3x\]</div>
+<div class="formula">\[g(x)=-2f(x-1)+3\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u+1,-2v+3)\]</div>
+<ul>
+<li>המקסימום \((-1,2)\) עובר למינימום \((0,-1)\).</li>
+<li>המינימום \((1,-2)\) עובר למקסימום \((2,7)\).</li>
+<li>נקודת הפיתול עוברת אל \((1,3)\).</li>
+<li>החיתוכים עם \(y=3\) מתקבלים ב־\(x=1-\sqrt3,1,1+\sqrt3\).</li>
+</ul>
+<p class="solution">כל נקודות המפתח מתקבלות ישירות מכלל המיפוי.</p>
+<div class="jxgbox graph poly-graph" id="graph-u06-cubic"></div>
+<div class="poly-caption">שינוי משולב בפולינום ממעלה שלישית</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>כיווץ אנכי והזזה בשני הכיוונים</h3>
+<div class="formula">\[f(x)=x^4-4x^2\]</div>
+<div class="formula">\[g(x)=\tfrac12f(x+1)-2\]</div>
+<div class="mapping">\[(u,v)\longmapsto(u-1,\tfrac12v-2)\]</div>
+<ul>
+<li>ציר הסימטריה החדש הוא \(x=-1\).</li>
+<li>המקסימום המקומי הוא \((-1,-2)\).</li>
+<li>נקודות המינימום הן \((-1\pm\sqrt2,-4)\).</li>
+<li>הגרף שומר על פתיחה כלפי מעלה.</li>
+</ul>
+<p class="solution">הכיווץ משנה את ערכי הקיצון, אך ההזזה האופקית קובעת את מיקומם על ציר \(x\).</p>
+<div class="jxgbox graph poly-graph" id="graph-u06-quartic"></div>
+<div class="poly-caption">כיווץ אנכי, הזזה שמאלה והזזה למטה</div>
+</article>
+</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>סדר פעולות ותכונות נשמרות</h1>
+</header>
+<main class="page-body">
+<h3>אין להסתמך על “סיפור פעולות” בלבד</h3>
+<p>במקום לנחש את הסדר, משתמשים בכלל המיפוי. לדוגמה, אם:</p>
+<div class="formula-center">\[g(x)=-3f(x-2)+4\]</div>
+<p>אז כל נקודה \((u,v)\) עוברת ישירות אל:</p>
+<div class="formula-center">\[(u+2,-3v+4)\]</div>
+<div class="two-col">
+<div>
+<h3>תכונות הנשמרות לעיתים</h3>
+<table class="dense">
+<tr><th>שינוי</th><th>נשמר</th></tr>
+<tr><td>\(f(x)+k\)</td><td>תחום, ערכי \(x\) של קיצון</td></tr>
+<tr><td>\(f(x-h)\)</td><td>טווח, ערכי \(y\) של קיצון</td></tr>
+<tr><td>\(a f(x)\)</td><td>תחום, שורשים אם \(a\ne0\)</td></tr>
+<tr><td>\(-f(x)\)</td><td>שורשים, תחום</td></tr>
+<tr><td>\(f(-x)\)</td><td>טווח</td></tr>
+</table>
+</div>
+<div>
+<h3>תכונות שיש לחשב מחדש</h3>
+<ul class="compact">
+<li>חיתוך עם ציר \(x\) לאחר הזזה אנכית.</li>
+<li>חיתוך עם ציר \(y\) לאחר הזזה אופקית.</li>
+<li>זוגיות לאחר הזזה שאינה סביב הראשית.</li>
+<li>מספר חיתוכים עם גרף נוסף.</li>
+</ul>
+<div class="warning">כלל: “אותה צורה” אינו אומר “אותן נקודות חיתוך”.</div>
+</div>
+</div>
+<h3>תרגיל קצר</h3>
+<p>לגרף \(f\) נקודת מקסימום \((-1,5)\) ושורש \(x=2\). מצאו את התמונות המתאימות ב־\(g(x)=-2f(x-3)+1\).</p>
+<p class="solution"><b>תשובה:</b> המקסימום הופך למינימום בנקודה \((2,-9)\). השורש המקורי עובר לנקודה \((5,1)\), אך אינו שורש של \(g\).</p>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 6 — טרנספורמציות משולבות</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>עבור \(g(x)=2f(x-3)+1\), כתבו את מיפוי הנקודה \((u,v)\).</li>
+<li>עבור \(g(x)=-f(x+4)-2\), תארו במילים את השינויים ומצאו את תמונת \((1,5)\).</li>
+<li>ל-\(f\) שורש ב-\(x=-2\). באיזה גובה תימצא הנקודה המתאימה ב-\(g(x)=3f(x-1)+4\)?</li>
+<li>נתון \(f(x)=x^2\). כתבו את הפונקציה שמתקבלת משיקוף בציר \(x\), הזזה 2 ימינה ו-5 למעלה.</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>נתון \(f(x)=x^3-3x\). חקרו את \(g(x)=-2f(x-1)+3\) באמצעות מיפוי נקודות בלבד.</li>
+<li>נתון \(f(x)=x^4-4x^2\). מצאו את ציר הסימטריה, נקודות הקיצון והטווח של \(g(x)=\frac12f(x+2)-1\).</li>
+<li>ל-\(f\) תחום \([-4,6]\) וטווח \([-2,7]\). מצאו תחום וטווח של \(g(x)=-3f(x-5)+1\).</li>
+<li>גרף \(g\) מתקבל מ-\(f\) באמצעות \((u,v)\mapsto(u-2,4v+3)\). כתבו את \(g\) בעזרת \(f\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו את כל ערכי \(a,b\) שעבורם \(f(x)=x^5+ax^4+bx^3+2x\) היא אי־זוגית.</li>
+<li>ל-\(f\) מקסימום \((-1,4)\), מינימום \((2,-3)\) ושורש \(x=5\). העבירו את כל המידע אל \(g(x)=-2f(3(x-1))+5\).</li>
+<li>מצאו \(a,h,k\) כך שהגרף של \(g(x)=a(x-h)^2+k\) יהיה בעל קודקוד \((3,-2)\), יעבור ב-\((5,6)\), וייפתח כלפי מעלה.</li>
+<li>נתון \(f(x)=x^4-4x^2\). מצאו את כל הפרמטרים \(a\ne0,h,k\) כך של-\(g(x)=af(x-h)+k\) יהיו מינימות בנקודות \((-1,0)\), \((3,0)\) ומקסימום מקומי בגובה \(8\).</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions" rel="noopener" target="_blank">OpenStax — Transformation of Functions</a> · <a href="https://math.libretexts.org/Workbench/FHSU_College_Algebra/03%3A_Polynomial_Functions/3.03%3A_Graph_Polynomials_with_Transformations" rel="noopener" target="_blank">LibreTexts — Graph Polynomials with Transformations</a> · <a href="https://allaboutmaths-classic.aqa.org.uk/application/topicheaders/guidance.php?id=168" rel="noopener" target="_blank">AQA — Transformation of Functions</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 6 — טרנספורמציות משולבות</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> מן \(x-3=u\) מתקבל \(x=u+3\), והפלט הוא \(2v+1\). לכן \((u,v)\mapsto(u+3,2v+1)\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> השינויים: הזזה \(4\) שמאלה, שיקוף ביחס לציר \(x\), והזזה \(2\) מטה. לכן \((1,5)\mapsto(-3,-7)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> השורש הוא הנקודה \((-2,0)\). לאחר ההזזה ימינה ב־\(1\) והטרנספורמציה האנכית, הנקודה המתאימה היא \((-1,4)\). לכן הגובה הוא \(4\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> מתחילים ב־\(x^2\): שיקוף נותן \(-x^2\), הזזה ימינה ב־\(2\) נותנת \(-(x-2)^2\), והזזה מעלה ב־\(5\): \(g(x)=-(x-2)^2+5\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> המיפוי הוא \((u,v)\mapsto(u+1,-2v+3)\). לכן: מינימום \((0,-1)\), מקסימום \((2,7)\), פיתול ומרכז סימטריה \((1,3)\). הפונקציה יורדת ב־\((-\infty,0)\cup(2,\infty)\), ועולה ב־\((0,2)\). נקודות הגובה \(y=3\) הן ב־\(x=1-\sqrt3,1,1+\sqrt3\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> המיפוי הוא \((u,v)\mapsto(u-2,\tfrac12v-1)\). ציר הסימטריה \(x=-2\); מקסימום \((-2,-1)\); מינימות \((-2\pm\sqrt2,-3)\); טווח \([-3,\infty)\).</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> בתחום: \(x-5\in[-4,6]\), ולכן \(x\in[1,11]\). הטווח \([-2,7]\) מוכפל ב־\(-3\) ונהפך ל־\([-21,6]\), ולאחר תוספת \(1\): \([-20,7]\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> המיפוי \(u\mapsto u-2\) מתקבל כאשר בתוך \(f\) מציבים \(x+2\). לכן \(g(x)=4f(x+2)+3\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> פונקציה אי־זוגית אינה מכילה חזקות זוגיות. לכן חייבים \(a=0\). האיבר \(bx^3\) אי־זוגי לכל \(b\), ולכן \(b\) שרירותי.</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> מן \(u=3(x-1)\): \(x=1+\tfrac u3\), והפלט \(-2v+5\). לכן המקסימום \((-1,4)\) עובר למינימום \((\tfrac23,-3)\); המינימום \((2,-3)\) עובר למקסימום \((\tfrac53,11)\); והשורש \((5,0)\) עובר לנקודה \((\tfrac83,5)\).</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> הקודקוד נותן \(h=3,k=-2\). הצבה של \((5,6)\): \(6=a(5-3)^2-2\), ולכן \(4a=8\) ו־\(a=2\). מתקבל \(g(x)=2(x-3)^2-2\).</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> מיקומי המינימות \(h\pm\sqrt2=-1,3\) נותנים \(h=1\). גובה המקסימום המקומי הוא \(k=8\). מן \(-4a+k=0\) מתקבל \(a=2\). לכן \(g(x)=2f(x-1)+8\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 7 — זוגיות, אי־זוגיות וסימטריה</h1>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<h3>פונקציה זוגית</h3>
+<div class="rule">\[f(-x)=f(x)\]</div>
+<p>הגרף סימטרי ביחס לציר \(y\).</p>
+<h3>פונקציה אי־זוגית</h3>
+<div class="rule">\[f(-x)=-f(x)\]</div>
+<p>הגרף סימטרי בסיבוב של \(180^\circ\) סביב הראשית.</p>
+<h3>תנאי מקדים</h3>
+<p>תחום ההגדרה חייב להיות סימטרי ביחס ל־0.</p>
+<h3>דוגמאות</h3>
+<div class="formula-list">
+      \[x^4-3x^2+1\quad\text{יגוז}\]
+      \[x^3-2x\quad\text{יגוז יא}\]
+      \[x^2+x\quad\text{רחא}\]
+    </div>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-symmetry"></div>
+<div class="graph-caption">פונקציה זוגית ופונקציה אי־זוגית</div>
+</div>
+</div>
+<div class="task"><b>השלמת גרף:</b> כאשר נתון חצי גרף וידוע שהפונקציה זוגית או אי־זוגית, משלימים את החצי השני באמצעות הסימטריה לפני כל חישוב נוסף.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 7 — סימטריה לאחר טרנספורמציה</h1>
+<div class="subtitle">שתי דוגמאות נוספות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>סימטריה מרכזית של פונקציה מוזזת</h3>
+<div class="formula">\[f(x)=x^3-4x\]</div>
+<p>הפונקציה \(f\) אי־זוגית. נגדיר:</p>
+<div class="formula">\[g(x)=f(x-2)+1\]</div>
+<ul>
+<li>הגרף החדש אינו אי־זוגי ביחס לראשית.</li>
+<li>מרכז הסימטריה עובר מן הראשית אל \((2,1)\).</li>
+<li>לכל \(t\) מתקיים:</li>
+</ul>
+<div class="formula">\[g(2+t)+g(2-t)=2\]</div>
+<p class="solution">הנקודות של \(f\) על ציר \(x\) עוברות לנקודות של \(g\) על הישר \(y=1\).</p>
+<div class="jxgbox graph poly-graph" id="graph-u07-cubic"></div>
+<div class="poly-caption">סימטריה מרכזית סביב \((2,1)\)</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>סימטריה צירית של פונקציה מוזזת</h3>
+<div class="formula">\[f(x)=x^4-5x^2+4\]</div>
+<p>הפונקציה \(f\) זוגית. נגדיר:</p>
+<div class="formula">\[g(x)=f(x+1)-2\]</div>
+<ul>
+<li>ציר הסימטריה עובר מ־\(x=0\) אל \(x=-1\).</li>
+<li>לכל \(t\) מתקיים:</li>
+</ul>
+<div class="formula">\[g(-1+t)=g(-1-t)\]</div>
+<ul>
+<li>השורשים של \(f\), שהם \(\pm1,\pm2\), עוברים לנקודות בגובה \(y=-2\).</li>
+</ul>
+<p class="solution">זוגיות ביחס לראשית הופכת לאחר הזזה לסימטריה סביב ישר אנכי אחר.</p>
+<div class="jxgbox graph poly-graph" id="graph-u07-quartic"></div>
+<div class="poly-caption">סימטריה צירית סביב \(x=-1\)</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 7 — זוגיות, אי־זוגיות וסימטריה</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>קבעו אם \(f(x)=x^6-3x^2+1\) היא \(\text{even}\), \(\text{odd}\) או \(\text{neither}\).</li>
+<li>קבעו אם \(f(x)=x^5-4x\) היא \(\text{even}\), \(\text{odd}\) או \(\text{neither}\).</li>
+<li>קבעו אם \(f(x)=x^4+x\) היא \(\text{even}\), \(\text{odd}\) או \(\text{neither}\).</li>
+<li>פונקציה אי־זוגית עוברת בנקודה \((3,-5)\). מצאו נקודה נוספת שחייבת להיות על הגרף.</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>בדקו את הזוגיות של \(f(x)=\frac{x}{x^2+4}\) בתחום הגדרתה.</li>
+<li>בדקו את הזוגיות של \(f(x)=\sqrt{x^2-9}\) בתחום הגדרתה.</li>
+<li>נתון \(f\) זוגית. הוכיחו כי \(g(x)=f(x-2)\) סימטרית ביחס לישר \(x=2\).</li>
+<li>נתון \(f\) אי־זוגית. הוכיחו כי \(g(x)=f(x+1)-3\) סימטרית בסיבוב של \(180^\circ\) סביב \((-1,-3)\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו את כל ערכי \(a,b\) שעבורם \(f(x)=x^5+ax^3+bx\) היא אי־זוגית, והסבירו את התוצאה.</li>
+<li>מצאו את כל ערכי \(a,b\) שעבורם \(f(x)=x^4+ax^3+bx^2+2\) היא זוגית.</li>
+<li>פונקציה \(g\) מקיימת \(g(4+t)+g(4-t)=6\) לכל \(t\). זהו את מרכז הסימטריה והוכיחו את הטענה.</li>
+<li>נתון פולינום ממעלה רביעית הסימטרי ביחס לישר \(x=2\), בעל מינימות ב-\(x=0,4\) ומקסימום מקומי ב-\(x=2\). כתבו צורה אלגברית אפשרית והסבירו את הסימטריה.</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://www.khanacademy.org/math/algebra2/x2ec2f6f830c9fb89%3Atransformations/x2ec2f6f830c9fb89%3Asymmetry/e/even_and_odd_functions" rel="noopener" target="_blank">Khan Academy — Even and Odd Functions</a> · <a href="https://openstax.org/books/precalculus-2e/pages/1-5-transformation-of-functions" rel="noopener" target="_blank">OpenStax — Transformation of Functions</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 7 — זוגיות, אי־זוגיות וסימטריה</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> כל החזקות זוגיות וקיים איבר קבוע, ולכן \(f(-x)=f(x)\): הפונקציה \(\text{even}\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> כל החזקות אי־זוגיות, ולכן \(f(-x)=-f(x)\): הפונקציה \(\text{odd}\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> יש איבר זוגי \(x^4\) ואיבר אי־זוגי \(x\), ולכן הפונקציה \(\text{neither}\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> בפונקציה אי־זוגית \((x,y)\mapsto(-x,-y)\). לכן הנקודה הנוספת היא \((-3,5)\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> התחום הוא כל \(\mathbb R\), ו־\(f(-x)=\frac{-x}{x^2+4}=-f(x)\). לכן הפונקציה אי־זוגית.</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> התחום \((-\infty,-3]\cup[3,\infty)\) סימטרי סביב \(0\), ו־\(f(-x)=\sqrt{(-x)^2-9}=f(x)\). לכן הפונקציה זוגית.</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> \(g(2+t)=f(t)\), ואילו \(g(2-t)=f(-t)=f(t)\), משום ש־\(f\) זוגית. לכן \(g\) סימטרית ביחס לישר \(x=2\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> \(g(-1+t)=f(t)-3\), ו־\(g(-1-t)=f(-t)-3=-f(t)-3\). סכום הערכים הוא \(-6=2\cdot(-3)\), ולכן קיימת סימטריה בסיבוב \(180^\circ\) סביב \((-1,-3)\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> כל האיברים הם בחזקות אי־זוגיות, ולכן הפונקציה אי־זוגית לכל \(a,b\in\mathbb R\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> כדי שהפונקציה תהיה זוגית יש לבטל את האיבר האי־זוגי \(ax^3\). לכן \(a=0\), ואילו \(b\) שרירותי.</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> השוויון הוא \(g(4+t)+g(4-t)=2\cdot3\). זהו בדיוק תנאי לסימטריה מרכזית סביב \((4,3)\): שתי נקודות שמרחקיהן האופקיים מן המרכז שווים, וערכי ה־\(y\) שלהן ממוצעים ל־\(3\).</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> דוגמה: \(f(x)=\big((x-2)^2-4\big)^2\). היא תלויה רק ב־\((x-2)^2\), ולכן סימטרית סביב \(x=2\). ב־\(x=0,4\) מתקבלות מינימות בגובה \(0\), וב־\(x=2\) מתקבל מקסימום מקומי בגובה \(16\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 8 — חיתוכים ומספר פתרונות</h1>
+</header>
+<main class="page-body">
+<div class="two-col_ graph-layout">
+<div>
+<div class="rule big">\[f(x)=g(x)\]</div>
+<p>מספר הפתרונות של המשוואה שווה למספר ערכי ה־\(x\) של נקודות החיתוך בין הגרפים.</p>
+<h3>שלוש אפשרויות בסיסיות</h3>
+<ul class="compact">
+<li>אין חיתוך — אין פתרונות ממשיים.</li>
+<li>השקה — פתרון אחד מקומי.</li>
+<li>חיתוך — פתרון אחד או יותר.</li>
+</ul>
+<div style="height:20px;"></div>
+<h3>דוגמה</h3>
+<p>מצאו את מספר הפתרונות של:</p>
+<div class="formula">\[x^2-2=x\]</div>
+<p class="solution">הגרפים \(y=x^2-2\) ו־\(y=x\) נחתכים פעמיים. אלגברית: \(x^2-x-2=0\), ולכן \(x=-1,2\).</p>
+<h3>שאלת פרמטר טיפוסית</h3>
+<p>מספר הפתרונות של \(f(x)=m\) הוא מספר החיתוכים של גרף \(f\) עם הישר האופקי \(y=m\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-intersections"></div>
+<div class="graph-caption">כל חיתוך מייצג פתרון משותף</div>
+</div>
+</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 8 — חיתוכים ומספר פתרונות בפולינומים</h1>
+<div class="subtitle">שתי דוגמאות נוספות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>שלושה חיתוכים עם ישר אופקי</h3>
+<div class="formula">\[g(x)=(x-1)^3-3(x-1)+2\]</div>
+<p>נבדוק את מספר הפתרונות של \(g(x)=2\):</p>
+<div class="derivation">\[(x-1)^3-3(x-1)=0\]</div>
+<div class="derivation">\[(x-1)\left((x-1)^2-3\right)=0\]</div>
+<div class="formula">\[x=1-\sqrt3,\quad x=1,\quad x=1+\sqrt3\]</div>
+<p class="solution">לגרף \(g\) ולישר \(y=2\) יש שלוש נקודות חיתוך, ולכן למשוואה שלושה פתרונות.</p>
+<div class="jxgbox graph poly-graph" id="graph-u08-cubic"></div>
+<div class="poly-caption">מספר החיתוכים שווה למספר פתרונות המשוואה</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>שלושה פתרונות, אחד מהם כפול</h3>
+<div class="formula">\[g(x)=(x+1)^4-4(x+1)^2+1\]</div>
+<p>נפתור את \(g(x)=1\). נסמן \(t=x+1\):</p>
+<div class="derivation">\[t^4-4t^2=0\]</div>
+<div class="derivation">\[t^2(t^2-4)=0\]</div>
+<div class="formula">\[x=-3,\quad x=-1,\quad x=1\]</div>
+<p class="solution">יש שלוש נקודות חיתוך שונות. ב־\(x=-1\) הישר \(y=1\) משיק לגרף, ולכן הפתרון מתאים לשורש כפול.</p>
+<div class="jxgbox graph poly-graph" id="graph-u08-quartic"></div>
+<div class="poly-caption">חיתוך, השקה וחיתוך נוסף באותה משוואה</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 8 — חיתוכים ומספר פתרונות</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>מצאו את מספר נקודות החיתוך של \(y=x^2-3\) ושל \(y=x+1\), ולאחר מכן מצאו אותן.</li>
+<li>מצאו את מספר הפתרונות של \(x^3=x\) ופרשו כל פתרון כנקודת חיתוך.</li>
+<li>קבעו כמה פתרונות יש למשוואה \(x^4-5x^2+4=0\).</li>
+<li>נתון שלגרף \(f\) ולישר \(y=2\) ארבע נקודות חיתוך. כמה פתרונות יש למשוואה \(f(x)-5=-3\)?</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>עבור \(f(x)=x^3-3x\), סווגו את מספר הפתרונות של \(f(x)=m\) לפי \(m\).</li>
+<li>עבור \(f(x)=x^4-4x^2\), סווגו את מספר הפתרונות של \(f(x)=m\) לפי \(m\).</li>
+<li>מצאו את מספר נקודות החיתוך של \(y=x^4-4x^2+1\) ושל \(y=1\), וציינו היכן קיימת השקה.</li>
+<li>מצאו את כל \(m\) שעבורם למשוואה \(x^2-2x=m\) יש פתרון יחיד.</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו את כל ערכי \(m\) שעבורם למשוואה \(x^3-3x=m\) יש בדיוק שני פתרונות ממשיים שונים.</li>
+<li>עבור \(x^4-4x^2+k=0\), סווגו את מספר השורשים הממשיים השונים לפי \(k\).</li>
+<li>נתון \(f(x)=x^4-5x^2+4\). מצאו את מספר החיתוכים בין \(y=f(x)\) לבין \(y=ax^2\) לפי \(a\), כולל מקרי השקה.</li>
+<li>בנו פולינום ממעלה רביעית שיש לו בדיוק שלוש נקודות חיתוך שונות עם ציר \(x\), כאשר אחת מהן היא נקודת השקה. תנו ביטוי והסבירו באמצעות ריבוי השורשים.</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/precalculus-2e/pages/3-4-graphs-of-polynomial-functions" rel="noopener" target="_blank">OpenStax — Graphs of Polynomial Functions</a> · <a href="https://www.khanacademy.org/algebra2" rel="noopener" target="_blank">Khan Academy — Solving Equations Graphically</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 8 — חיתוכים ומספר פתרונות</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> משווים: \(x^2-3=x+1\Rightarrow x^2-x-4=0\). לכן \(x=\frac{1\pm\sqrt{17}}2\), ויש שתי נקודות חיתוך: \(\left(x,x+1\right)\) עבור שני הערכים.</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> \(x^3=x\Rightarrow x(x-1)(x+1)=0\). הפתרונות \(-1,0,1\), ונקודות החיתוך הן \((-1,-1),(0,0),(1,1)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> \(x^4-5x^2+4=(x^2-1)(x^2-4)\), ולכן יש ארבעה פתרונות: \(x=\pm1,\pm2\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> המשוואה \(f(x)-5=-3\) שקולה ל־\(f(x)=2\), ולכן יש ארבעה פתרונות.</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> ל־\(|m|&gt;2\) פתרון אחד; ל־\(m=\pm2\) שני פתרונות ממשיים שונים; ול־\(-2&lt;m&lt;2\) שלושה פתרונות.</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> ל־\(m&lt;-4\): אין פתרונות; \(m=-4\): שניים; \(-4&lt;m&lt;0\): ארבעה; \(m=0\): שלושה; \(m&gt;0\): שניים.</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> השוואה ל־\(y=1\) נותנת \(x^4-4x^2=0\Rightarrow x^2(x^2-4)=0\). לכן החיתוכים ב־\(x=-2,0,2\). ב־\(x=0\) השורש כפול ולכן קיימת השקה; ב־\(x=\pm2\) יש חצייה.</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> \(x^2-2x=(x-1)^2-1\). פתרון יחיד מתקבל כאשר הישר האופקי עובר בקודקוד, ולכן \(m=-1\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> בדיוק שני פתרונות שונים מתקבלים כאשר הישר משיק באחת מנקודות הקיצון: \(m=2\) או \(m=-2\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> ל־\(k&lt;0\): שני שורשים; \(k=0\): שלושה שונים; \(0&lt;k&lt;4\): ארבעה; \(k=4\): שניים; \(k&gt;4\): אין שורשים.</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> משווים: \(x^4-(a+5)x^2+4=0\). נסמן \(z=x^2\ge0\): \(z^2-(a+5)z+4=0\). אם \(a&gt;-1\), יש שני ערכי \(z\) חיוביים ולכן ארבעה חיתוכים. אם \(a=-1\), מתקבל \((z-2)^2=0\), ולכן שני חיתוכי השקה \(x=\pm\sqrt2\). אם \(a&lt;-1\), אין חיתוכים ממשיים.</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> לדוגמה \(f(x)=(x+2)(x-1)^2(x-3)\). יש שלושה שורשים שונים: \(-2,1,3\). השורש \(x=1\) כפול ולכן הגרף משיק שם לציר \(x\); בשני השורשים האחרים הוא חוצה.</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 10 — השקה לפונקציה ריבועית</h1>
+<div class="subtitle">זיהוי השקה באמצעות משוואת החיתוך — ללא שימוש בנגזרת</div>
+</header>
+<main class="page-body">
+<div class="two-col graph-layout">
+<div>
+<h3>מהי השקה?</h3>
+<p>ישר משיק לפרבולה כאשר יש להם נקודה משותפת אחת בלבד. לכן משוואת החיתוך היא משוואה ריבועית בעלת פתרון ממשי יחיד.</p>
+<div class="rule big">\[\Delta=0\]</div>
+<p>עבור הפרבולה \(y=ax^2+bx+c\) והישר \(y=mx+n\), משוואת החיתוך היא:</p>
+<div class="derivation">\[ax^2+(b-m)x+(c-n)=0\]</div>
+<div class="formula">\[\Delta=(b-m)^2-4a(c-n)\]</div>
+<h3>דוגמה פתורה</h3>
+<p>מצאו את \(p\) כך שהישר \(y=2x+p\) ישיק לפרבולה \(y=x^2-4x+7\).</p>
+<div class="derivation">\[x^2-4x+7=2x+p\]</div>
+<div class="derivation">\[x^2-6x+(7-p)=0\]</div>
+<div class="derivation">\[\Delta=36-4(7-p)=0\Longrightarrow p=-2\]</div>
+<p class="solution">המשיק הוא \(y=2x-2\). שורש החיתוך הכפול הוא \(x=3\), ולכן נקודת המגע היא \((3,4)\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-quadratic-tangency"></div>
+<div class="graph-caption">הישר והפרבולה נפגשים בנקודה אחת בלבד</div>
+</div>
+</div>
+<div class="note"><b>בדיקה:</b> אם \(\Delta&gt;0\) יש שתי נקודות חיתוך; אם \(\Delta=0\) קיימת השקה; ואם \(\Delta&lt;0\) אין נקודות חיתוך ממשיות.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 10 — שתי דרכים לזהות השקה לפרבולה</h1>
+<div class="subtitle">ריבוע מושלם ודיסקרימיננטה — בשתי הדוגמאות הפונקציה ריבועית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פרבולה בצורת קודקוד</span>
+<h3>השקה של ישר אופקי</h3>
+<div class="formula">\[f(x)=-2(x-1)^2+5\]</div>
+<p>מאחר ש־\((x-1)^2\ge0\), מתקיים \(f(x)\le5\). השוויון מתקבל רק כאשר \(x=1\).</p>
+<div class="derivation">\[-2(x-1)^2+5=5\Longrightarrow (x-1)^2=0\]</div>
+<ul>
+<li>הישר המשיק הוא \(y=5\).</li>
+<li>נקודת המגע היא \((1,5)\).</li>
+<li>משוואת החיתוך מכילה שורש כפול.</li>
+</ul>
+<p class="solution">בצורת קודקוד ניתן לזהות השקה אופקית ישירות, ללא חישוב נגזרת.</p>
+<div class="jxgbox graph poly-graph" id="graph-u10-horizontal"></div>
+<div class="poly-caption">הישר \(y=5\) נוגע בפרבולה בקודקוד בלבד</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פרבולה וישר משופע</span>
+<h3>מציאת פרמטר באמצעות \(\Delta=0\)</h3>
+<div class="formula">\[f(x)=x^2+2x+3\]</div>
+<div class="formula">\[y=4x+p\]</div>
+<div class="derivation">\[x^2-2x+(3-p)=0\]</div>
+<div class="derivation">\[\Delta=(-2)^2-4(3-p)=0\Longrightarrow p=2\]</div>
+<ul>
+<li>המשיק הוא \(y=4x+2\).</li>
+<li>שורש החיתוך הכפול הוא \(x=1\).</li>
+<li>נקודת המגע היא \((1,6)\).</li>
+</ul>
+<p class="solution">הדיסקרימיננטה קובעת את הפרמטר וגם מבטיחה שקיימת נקודת חיתוך יחידה.</p>
+<div class="jxgbox graph poly-graph" id="graph-u10-oblique"></div>
+<div class="poly-caption">השקה לישר משופע בנקודה \((1,6)\)</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 10 — השקה לפונקציה ריבועית</h1>
+<div class="subtitle">12 תרגילים מדורגים · ללא שימוש בנגזרת</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> בכל תרגיל השתמשו בצורת קודקוד, בריבוע מושלם או בתנאי \(\Delta=0\). אין להשתמש בנגזרת.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>מצאו את הישר האופקי המשיק לפרבולה \(y=(x-3)^2+2\), ואת נקודת המגע.</li>
+<li>בדקו אם הישר \(y=4\) משיק לפרבולה \(y=-2(x+1)^2+4\), ומצאו את נקודת המגע.</li>
+<li>מצאו \(p\) כך שהישר \(y=p\) ישיק לפרבולה \(y=x^2-6x+11\).</li>
+<li>קבעו אם הישר \(y=2x-1\) משיק לפרבולה \(y=x^2-4x+5\), חותך אותה או אינו נפגש עמה.</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>מצאו \(n\) כך שהישר \(y=2x+n\) ישיק לפרבולה \(y=x^2-4x+7\). מצאו גם את נקודת המגע.</li>
+<li>מצאו את כל ערכי \(m\) שעבורם הישר \(y=mx-1\) משיק לפרבולה \(y=x^2\).</li>
+<li>מצאו את הישר המקביל ל־\(y=3x+1\) ומשיק לפרבולה \(y=2x^2-4x+5\).</li>
+<li>מצאו את כל ערכי \(a\) שעבורם הישר \(y=ax+1\) משיק לפרבולה \(y=x^2+2x+5\), ואת נקודות המגע.</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו את כל הישרים העוברים דרך \((0,-3)\) ומשיקים לפרבולה \(y=x^2-2x\).</li>
+<li>מצאו את כל ערכי \(p\) שעבורם הפרבולה \(y=x^2+px+4\) משיקה לציר \(x\), ואת נקודות המגע.</li>
+<li>מצאו את כל ערכי \(b\) שעבורם הישר \(y=-x+1\) משיק לפרבולה \(y=2x^2+bx+3\).</li>
+<li>הוכיחו כי הישר \(y=mx+n\) משיק לפרבולה \(y=ax^2+bx+c\) אם ורק אם \((b-m)^2-4a(c-n)=0\).</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש בהתאם לנושאי פונקציה ריבועית, משוואה ריבועית ודיסקרימיננטה.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 10 — השקה לפונקציה ריבועית</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12 · ללא נגזרת</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> השקה מתקבלת כאשר משוואת החיתוך בעלת פתרון יחיד, כלומר \(\Delta=0\), או כאשר מתקבל ריבוע השווה לאפס.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> הערך הקטן ביותר של \((x-3)^2+2\) הוא \(2\), ורק ב־\(x=3\). לכן המשיק הוא \(y=2\), בנקודה \((3,2)\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> \(-2(x+1)^2+4=4\Rightarrow (x+1)^2=0\). מתקבל פתרון יחיד \(x=-1\), ולכן קיימת השקה בנקודה \((-1,4)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> \(x^2-6x+11=(x-3)^2+2\). לכן הישר האופקי המשיק הוא \(y=2\), ומתקבל \(p=2\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> משווים ומקבלים \(x^2-6x+6=0\). הדיסקרימיננטה היא \(36-24=12&gt;0\), ולכן הישר חותך את הפרבולה בשתי נקודות ואינו משיק.</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> \(x^2-6x+(7-n)=0\). תנאי השקה: \(36-4(7-n)=0\), ולכן \(n=-2\). השורש הכפול הוא \(x=3\), ונקודת המגע \((3,4)\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> \(x^2-mx+1=0\). מן \(\Delta=m^2-4=0\) מתקבל \(m=\pm2\). הישרים הם \(y=2x-1\) ו־\(y=-2x-1\).</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> נסמן את הישר \(y=3x+n\). משוואת החיתוך היא \(2x^2-7x+(5-n)=0\). מן \(49-8(5-n)=0\) מתקבל \(n=-\frac98\). נקודת המגע: \(x=\frac74\), \(y=\frac{33}{8}\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> מתקבלת המשוואה \(x^2+(2-a)x+4=0\). תנאי השקה: \((2-a)^2-16=0\), ולכן \(a=6\) או \(a=-2\). נקודות המגע הן \((2,13)\) ו־\((-2,5)\), בהתאמה.</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> ישר דרך \((0,-3)\) הוא \(y=mx-3\). משוואת החיתוך: \(x^2-(m+2)x+3=0\). מן \((m+2)^2-12=0\) מתקבל \(m=-2\pm2\sqrt3\), ולכן הישרים הם \(y=(-2+2\sqrt3)x-3\) ו־\(y=(-2-2\sqrt3)x-3\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> השקה לציר \(x\) דורשת \(x^2+px+4=0\) עם שורש כפול. לכן \(p^2-16=0\), ומתקבל \(p=\pm4\). נקודות המגע: עבור \(p=4\), \((-2,0)\); עבור \(p=-4\), \((2,0)\).</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> משווים: \(2x^2+(b+1)x+2=0\). תנאי השקה: \((b+1)^2-16=0\), ולכן \(b=3\) או \(b=-5\).</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> משוואת החיתוך היא \(ax^2+(b-m)x+(c-n)=0\). לישר ולפרבולה נקודה משותפת אחת בדיוק אם למשוואה זו פתרון ממשי יחיד, וזה שקול ל־\(\Delta=(b-m)^2-4a(c-n)=0\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 11 — תנאי השקה לפרבולה</h1>
+<div class="subtitle">משיק בנקודה נתונה באמצעות שורש כפול והשוואת מקדמים</div>
+</header>
+<main class="page-body">
+<h3>בניית המשיק בנקודה ש־\(x=x_0\)</h3>
+<p>נניח שהישר \(y=mx+n\) משיק לפרבולה \(f(x)=ax^2+bx+c\) בנקודה ש־\(x=x_0\). אז להפרש בין הפרבולה לישר יש שורש כפול:</p>
+<div class="formula">\[ax^2+bx+c-(mx+n)=a(x-x_0)^2\]</div>
+<p>משווים מקדמים בשני האגפים:</p>
+<div class="formula-pair">
+<div>\[m=2ax_0+b\]</div>
+<div>\[n=c-ax_0^2\]</div>
+</div>
+<div class="two-col">
+<div>
+<h3>דוגמה פתורה</h3>
+<p>מצאו את המשיק לפרבולה \(y=x^2-2x+3\) בנקודה שבה \(x_0=4\).</p>
+<div class="derivation">\[m=2\cdot1\cdot4-2=6\]</div>
+<div class="derivation">\[n=3-1\cdot4^2=-13\]</div>
+<p class="solution">משוואת המשיק היא \(y=6x-13\). אכן, \(x^2-2x+3-(6x-13)=(x-4)^2\).</p>
+</div>
+<div>
+<h3>משיק העובר בנקודה חיצונית</h3>
+<p>כותבים משפחת ישרים דרך הנקודה, משווים לפרבולה, ודורשים \(\Delta=0\). לעיתים מתקבלים שני ישרים משיקים.</p>
+<div class="rule">\[\text{point condition}+\Delta=0\]</div>
+<div class="note">כל התהליך אלגברי: משוואת חיתוך, שורש כפול והשוואת מקדמים בלבד.</div>
+</div>
+</div>
+<div class="warning"><b>חשוב:</b> הנוסחאות לעיל תקפות לפרבולה \(a\ne0\), והן התקבלו מפירוק לריבוע כפול — ללא שימוש בנגזרת.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 11 — שתי תבניות מרכזיות של תנאי השקה</h1>
+<div class="subtitle">נקודת מגע נתונה ונקודה חיצונית — פונקציות ריבועיות בלבד</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">נקודת מגע נתונה</span>
+<h3>בניית משיק באמצעות ריבוע כפול</h3>
+<div class="formula">\[f(x)=2x^2-3x+1,\qquad x_0=1\]</div>
+<div class="derivation">\[m=2\cdot2\cdot1-3=1\]</div>
+<div class="derivation">\[n=1-2\cdot1^2=-1\]</div>
+<div class="formula">\[y=x-1\]</div>
+<p>בדיקה:</p>
+<div class="derivation">\[2x^2-3x+1-(x-1)=2(x-1)^2\]</div>
+<p class="solution">ההפרש הוא ריבוע כפול, ולכן הישר משיק בנקודה \((1,0)\).</p>
+<div class="jxgbox graph poly-graph" id="graph-u11-given-point"></div>
+<div class="poly-caption">המשיק נקבע מתוך נקודת המגע והשוואת מקדמים</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">נקודה חיצונית</span>
+<h3>שני משיקים מאותה נקודה</h3>
+<p>מצאו את המשיקים לפרבולה \(y=x^2\) העוברים דרך \((0,-4)\).</p>
+<div class="formula">\[y=mx-4\]</div>
+<div class="derivation">\[x^2-mx+4=0\]</div>
+<div class="derivation">\[\Delta=m^2-16=0\Longrightarrow m=\pm4\]</div>
+<div class="formula">\[y=4x-4,\qquad y=-4x-4\]</div>
+<ul>
+<li>נקודות המגע הן \((2,4)\) ו־\((-2,4)\).</li>
+<li>שני הישרים עוברים דרך אותה נקודה חיצונית.</li>
+</ul>
+<p class="solution">מספר פתרונות משוואת הפרמטר קובע כמה משיקים ניתן להעביר מן הנקודה.</p>
+<div class="jxgbox graph poly-graph" id="graph-u11-external-point"></div>
+<div class="poly-caption">שני משיקים סימטריים לפרבולה \(y=x^2\)</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 11 — תנאי השקה לפרבולה</h1>
+<div class="subtitle">12 תרגילים מדורגים · פונקציות ריבועיות בלבד · ללא נגזרת</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> השתמשו בשורש כפול, בהשוואת מקדמים או בתנאי \(\Delta=0\). הציגו גם את נקודת המגע כאשר היא נדרשת.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>מצאו את משוואת המשיק לפרבולה \(y=x^2+1\) בנקודה שבה \(x_0=2\).</li>
+<li>מצאו את משוואת המשיק לפרבולה \(y=2x^2-3x+1\) בנקודה שבה \(x_0=1\).</li>
+<li>מצאו \(p\) כך שהישר \(y=4x+p\) ישיק לפרבולה \(y=x^2+1\).</li>
+<li>מצאו את נקודת המגע של הישר \(y=4x-4\) עם הפרבולה \(y=x^2\).</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>מצאו את כל הישרים העוברים דרך \((0,-9)\) ומשיקים לפרבולה \(y=x^2\).</li>
+<li>מצאו את כל הישרים העוברים דרך \((0,1)\) ומשיקים לפרבולה \(y=x^2-4x+5\).</li>
+<li>מצאו \(b\) כך שהישר \(y=3x+b\) ישיק לפרבולה \(y=2x^2+x-1\), ומצאו את נקודת המגע.</li>
+<li>מצאו את כל ערכי \(k\) שעבורם הפרבולה \(y=x^2+kx+4\) משיקה לציר \(x\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו את כל ערכי \(a\) שעבורם הישר \(y=2x-3\) משיק לפרבולה \(y=x^2+ax+1\).</li>
+<li>מצאו את כל הישרים העוברים דרך \((1,-2)\) ומשיקים לפרבולה \(y=x^2+2x+3\).</li>
+<li>מצאו את הפרבולה \(y=ax^2+bx+c\), אם היא משיקה לציר \(x\) בנקודה \((3,0)\) ועוברת דרך \((0,18)\) ו־\((1,8)\).</li>
+<li>הוכיחו באמצעות השוואת מקדמים כי המשיק לפרבולה \(y=ax^2+bx+c\) בנקודה ש־\(x=x_0\) הוא \(y=(2ax_0+b)x+c-ax_0^2\).</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש בהתאם לנושאי משוואה ריבועית, שורש כפול והשוואת מקדמים.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 11 — תנאי השקה לפרבולה</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12 · ללא נגזרת</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> בנקודת השקה ההפרש בין הפרבולה לישר הוא כפולה של \((x-x_0)^2\).</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> עבור \(a=1,b=0,c=1,x_0=2\): \(m=2ax_0+b=4\), \(n=c-ax_0^2=-3\). לכן המשיק הוא \(y=4x-3\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> \(m=2\cdot2\cdot1-3=1\), \(n=1-2\cdot1^2=-1\). לכן המשיק הוא \(y=x-1\), ונקודת המגע \((1,0)\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> \(x^2+1=4x+p\Rightarrow x^2-4x+1-p=0\). מן \(16-4(1-p)=0\) מתקבל \(p=-3\).</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> \(x^2=4x-4\Rightarrow (x-2)^2=0\). לכן נקודת המגע היא \((2,4)\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> ישר דרך הנקודה הוא \(y=mx-9\). מתקבלת \(x^2-mx+9=0\), ולכן \(m^2-36=0\). הישרים: \(y=6x-9\), \(y=-6x-9\); נקודות המגע: \((3,9)\), \((-3,9)\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> ישר דרך \((0,1)\) הוא \(y=mx+1\). מתקבלת \(x^2-(m+4)x+4=0\). מן \((m+4)^2-16=0\) מתקבל \(m=0\) או \(m=-8\). הישרים: \(y=1\), \(y=-8x+1\).</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> משוואת החיתוך היא \(2x^2-2x-(1+b)=0\). מן \(4+8(1+b)=0\) מתקבל \(b=-\frac32\). השורש הכפול הוא \(x=\frac12\), ונקודת המגע \((\frac12,0)\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> השקה לציר \(x\) דורשת \(k^2-16=0\), ולכן \(k=\pm4\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> משווים: \(x^2+(a-2)x+4=0\). תנאי השקה: \((a-2)^2-16=0\), ולכן \(a=6\) או \(a=-2\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> ישר דרך \((1,-2)\): \(y=m(x-1)-2\). מתקבלת \(x^2+(2-m)x+(m+5)=0\). מן \((2-m)^2-4(m+5)=0\) מתקבל \(m=4\pm4\sqrt2\). לכן הישרים הם \(y=(4+4\sqrt2)(x-1)-2\) ו־\(y=(4-4\sqrt2)(x-1)-2\).</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> השקה לציר \(x\) ב־\(x=3\) נותנת \(f(x)=a(x-3)^2\). מן \(f(0)=18\) מתקבל \(9a=18\), ולכן \(a=2\). אכן \(f(1)=2(1-3)^2=8\). לכן \(f(x)=2(x-3)^2=2x^2-12x+18\).</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> נדרוש \(ax^2+bx+c-(mx+n)=a(x-x_0)^2\). השוואת מקדמי \(x\) נותנת \(b-m=-2ax_0\), ולכן \(m=2ax_0+b\). השוואת האיברים החופשיים נותנת \(c-n=ax_0^2\), ולכן \(n=c-ax_0^2\).</p></article></div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 12 — מרחק אנכי בין גרפים</h1>
+</header>
+<main class="page-body">
+<div class="two-col graph-layout">
+<div>
+<h3>הגדרה</h3>
+<div class="rule big">\[d(x)=|f(x)-g(x)|\]</div>
+<p>זהו המרחק האנכי בין הנקודות שעל שני הגרפים בעלות אותו ערך \(x\).</p>
+<h3>כאשר ידוע מי מעל מי</h3>
+<div class="formula">\[f(x)\ge g(x)\quad\Longrightarrow\quad d(x)=f(x)-g(x)\]</div>
+<h3>דוגמה</h3>
+<p>ל־\(f(x)=x^2\), \(g(x)=2x+3\):</p>
+<div class="formula">\[d(x)=|x^2-2x-3|\]</div>
+<p>נקודות האפס של המרחק הן נקודות החיתוך:</p>
+<div class="derivation">\[(x-3)(x+1)=0\]</div>
+<p class="solution">הגרפים נחתכים ב־\(x=-1,3\). בתוך הקטע \([-1,3]\), הישר מעל הפרבולה ולכן \(d(x)=-(x^2-2x-3)\).</p>
+</div>
+<div>
+<div class="jxgbox graph medium" id="graph-distance"></div>
+<div class="graph-caption">הקטעים האנכיים מדגימים את \(d(x)\)</div>
+</div>
+</div>
+<div class="task"><b>מרחק מקסימלי:</b> חוקרים את פונקציית המרחק בקטע הנתון, כולל נקודות קצה ונקודות שבהן סדר הגרפים מתחלף.</div>
+</main>
+</section><section class="page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>יחידה 12 — מרחק אנכי בין גרפים פולינומיים</h1>
+<div class="subtitle">שתי דוגמאות נוספות: פולינום ממעלה שלישית ופולינום ממעלה רביעית</div>
+</header>
+<main class="page-body">
+<div class="poly-grid">
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה שלישית</span>
+<h3>מרחק מן הישר \(y=2\)</h3>
+<div class="formula">\[g(x)=(x-1)^3-3(x-1)+2\]</div>
+<p>בין הגרף לבין הישר \(h(x)=2\), המרחק האנכי הוא:</p>
+<div class="formula">\[d(x)=|g(x)-2|=|(x-1)^3-3(x-1)|\]</div>
+<p>בתחום \(0\le x\le2\), נסמן \(t=x-1\), ולכן \(-1\le t\le1\).</p>
+<ul>
+<li>המרחק מתאפס ב־\(x=1\).</li>
+<li>המרחק המרבי מתקבל בקצוות התחום.</li>
+</ul>
+<div class="formula">\[d_{\max}=2\]</div>
+<p class="solution">הערך המרבי מתקבל ב־\(x=0\) וב־\(x=2\).</p>
+<div class="jxgbox graph poly-graph" id="graph-u12-cubic"></div>
+<div class="poly-caption">מרחק אנכי מן הגרף אל ישר אופקי</div>
+</article>
+<article class="poly-card">
+<span class="poly-label">פולינום ממעלה רביעית</span>
+<h3>מרחק מן הישר \(y=1\)</h3>
+<div class="formula">\[g(x)=(x+1)^4-4(x+1)^2+1\]</div>
+<div class="formula">\[d(x)=|g(x)-1|\]</div>
+<p>בתחום \(-3\le x\le1\), נסמן \(t=x+1\). אז \(-2\le t\le2\), ובתחום זה:</p>
+<div class="formula">\[d(x)=4t^2-t^4\]</div>
+<ul>
+<li>המרחק מתאפס ב־\(t=-2,0,2\).</li>
+<li>המקסימום מתקבל ב־\(t=\pm\sqrt2\).</li>
+</ul>
+<div class="formula">\[d_{\max}=4\]</div>
+<p class="solution">נקודות המרחק המרבי הן \(x=-1\pm\sqrt2\).</p>
+<div class="jxgbox graph poly-graph" id="graph-u12-quartic"></div>
+<div class="poly-caption">שני מרחקים מרביים סימטריים</div>
+</article>
+</div>
+</main>
+</section><section class="page practice-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>דף תרגול — יחידה 12 — מרחק אנכי בין גרפים</h1>
+<div class="subtitle">12 תרגילים מדורגים: 4 קלים · 4 בינוניים · 4 קשים</div>
+</header>
+<main class="page-body">
+<div class="practice-instructions"><b>הנחיות:</b> פתרו בצורה מסודרת, הציגו נימוק גרפי או אלגברי מתאים, ובתרגילי שרטוט סמנו נקודות מפתח לפני השלמת הגרף.</div>
+<div class="practice-grid">
+<article class="level-card level-easy">
+<h3><span class="level-number">1</span> רמה קלה</h3>
+<ol class="practice-list" start="1">
+<li>כתבו את פונקציית המרחק האנכי בין \(f(x)=x^2\) לבין \(g(x)=4\).</li>
+<li>מצאו את נקודות האפס של המרחק בין \(f(x)=x^2\) לבין \(g(x)=3x+4\).</li>
+<li>נתון \(g(x)=f(x)+7\). מצאו את המרחק האנכי בין הגרפים בכל \(x\) משותף.</li>
+<li>נתון \(g(x)=-f(x)\). כתבו את פונקציית המרחק ביניהם.</li>
+</ol>
+</article>
+<article class="level-card level-medium">
+<h3><span class="level-number">2</span> רמה בינונית</h3>
+<ol class="practice-list" start="5">
+<li>מצאו את המרחק האנכי המרבי בין \(y=x^2\) לבין \(y=4\) בקטע \([-2,2]\).</li>
+<li>מצאו את המרחק המרבי בין \(y=x^2\) לבין \(y=3x+4\) בתחום שבין נקודות החיתוך.</li>
+<li>עבור \(f(x)=x^3-x\) והישר \(y=0\), מצאו את המרחק המרבי בקטע \([-1,1]\).</li>
+<li>נתון \(f(x)=x^4-4x^2+1\). מצאו את המרחק המרבי מן הישר \(y=1\) בקטע \([-2,2]\).</li>
+</ol>
+</article>
+<article class="level-card level-hard">
+<h3><span class="level-number">3</span> רמה קשה</h3>
+<ol class="practice-list" start="9">
+<li>מצאו את המרחק האנכי המרבי בין \(y=x^3-3x\) לבין \(y=2\) בקטע שבין שתי נקודות הקיצון.</li>
+<li>עבור \(f(x)=x^4-4x^2\) ו-\(g(x)=m\), מצאו את \(m\) כך שהמרחק המרבי ביניהם בקטע \([-\sqrt2,\sqrt2]\) יהיה מינימלי.</li>
+<li>נתון \(g(x)=af(x)+k\), כאשר טווח \(f\) בקטע סגור הוא \([-2,5]\). כתבו נוסחה למרחק האנכי המרבי בין \(f\) ל-\(g\) במונחי \(a,k\).</li>
+<li>שני גרפים רציפים נחתכים בקצות הקטע \([a,b]\), ובתוכו \(f(x)\ge g(x)\). הוכיחו שכל נקודת מקסימום פנימית של המרחק מקיימת \(f'(x)=g'(x)\).</li>
+</ol>
+</article>
+</div>
+<div class="practice-source"><b>מקור והשראה:</b> התרגילים נוסחו מחדש והותאמו לרמת 5 יחידות על בסיס <a href="https://openstax.org/books/calculus-volume-1/pages/4-3-maxima-and-minima" rel="noopener" target="_blank">OpenStax — Maxima and Minima</a> · <a href="https://openstax.org/books/calculus-volume-1/pages/4-7-applied-optimization-problems" rel="noopener" target="_blank">OpenStax — Applied Optimization Problems</a>.</div>
+</main>
+</section><section class="page solutions-page">
+<header class="page-header">
+<div class="header-brand">מתמטיקה — 5 יחידות לימוד</div>
+<h1>פתרונות — יחידה 12 — מרחק אנכי בין גרפים</h1>
+<div class="subtitle">פתרונות לתרגילים 1–12</div>
+</header>
+<main class="page-body">
+<div class="solutions-intro"><b>עיקרון:</b> הפתרונות מוצגים לפי המספור בדף התרגול של היחידה, עם נימוק אלגברי או גרפי תואם.</div>
+<div class="solutions-stack"><article class="solution-item"><h3>תרגיל 1</h3><p><span class="answer-label">פתרון:</span> פונקציית המרחק היא \(d(x)=|x^2-4|\).</p></article><article class="solution-item"><h3>תרגיל 2</h3><p><span class="answer-label">פתרון:</span> נקודות האפס מתקבלות בחיתוכים: \(x^2=3x+4\Rightarrow(x-4)(x+1)=0\). לכן \(x=-1,4\).</p></article><article class="solution-item"><h3>תרגיל 3</h3><p><span class="answer-label">פתרון:</span> \(d(x)=|g(x)-f(x)|=|7|=7\) לכל \(x\) משותף.</p></article><article class="solution-item"><h3>תרגיל 4</h3><p><span class="answer-label">פתרון:</span> \(d(x)=|f(x)-(-f(x))|=2|f(x)|\).</p></article><article class="solution-item"><h3>תרגיל 5</h3><p><span class="answer-label">פתרון:</span> בקטע \([-2,2]\), \(x^2\le4\), ולכן \(d(x)=4-x^2\). המקסימום הוא \(4\) ב־\(x=0\).</p></article><article class="solution-item"><h3>תרגיל 6</h3><p><span class="answer-label">פתרון:</span> נקודות החיתוך הן \(-1,4\), וביניהן הישר מעל הפרבולה. \(d(x)=-x^2+3x+4\), שקודקודה ב־\(x=\tfrac32\). המרחק המרבי: \(d(\tfrac32)=\tfrac{25}{4}\).</p></article><article class="solution-item"><h3>תרגיל 7</h3><p><span class="answer-label">פתרון:</span> המרחק הוא \(|x^3-x|\). נקודות קריטיות: \(3x^2-1=0\Rightarrow x=\pm1/\sqrt3\). הערך המרבי הוא \(\frac{2}{3\sqrt3}\).</p></article><article class="solution-item"><h3>תרגיל 8</h3><p><span class="answer-label">פתרון:</span> \(d(x)=|x^4-4x^2|\). ב־\([-2,2]\), הביטוי אינו חיובי, ולכן \(d=4x^2-x^4\). המקסימום מתקבל ב־\(x=\pm\sqrt2\), ושווה \(4\).</p></article><article class="solution-item"><h3>תרגיל 9</h3><p><span class="answer-label">פתרון:</span> בין נקודות הקיצון \([-1,1]\), הערך המרבי של \(f\) הוא \(2\) והקטן ביותר \(-2\). ביחס לישר \(y=2\), המרחק המרבי הוא \(2-(-2)=4\), ב־\(x=1\).</p></article><article class="solution-item"><h3>תרגיל 10</h3><p><span class="answer-label">פתרון:</span> בקטע הנתון טווח \(f\) הוא \([-4,0]\). הקבוע הממזער את המרחק המרבי הוא אמצע הטווח: \(m=\frac{-4+0}{2}=-2\). המרחק המרבי המינימלי הוא \(2\).</p></article><article class="solution-item"><h3>תרגיל 11</h3><p><span class="answer-label">פתרון:</span> נסמן \(y=f(x)\in[-2,5]\). ההפרש הוא \((1-a)y-k\), ולכן המרחק המרבי הוא \(\max\{|-2(1-a)-k|,|5(1-a)-k|\}\), כלומר \(\max\{|2(a-1)-k|,|5(1-a)-k|\}\).</p></article><article class="solution-item"><h3>תרגיל 12</h3><p><span class="answer-label">פתרון:</span> בתוך הקטע המרחק הוא \(D(x)=f(x)-g(x)\ge0\). בנקודת מקסימום פנימית וגזירה מתקיים \(D'(x)=0\). לכן \(f'(x)-g'(x)=0\), כלומר \(f'(x)=g'(x)\).</p></article></div>
+</main>
+</section>
+
+<script>
+(function() {
+  function ready(fn) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+  ready(function() {
+    if (typeof JXG === 'undefined') return;
+    JXG.Options.text.useMathJax = false;
+
+    function board(id, box) {
+      return JXG.JSXGraph.initBoard(id, {
+        boundingbox: box,
+        axis: true,
+        showCopyright: false,
+        showNavigation: false,
+        keepaspectratio: false,
+        pan: {enabled:false},
+        zoom: {enabled:false},
+        defaultAxes: {
+          x: {withLabel:true, name:'x', ticks:{majorHeight:7, minorTicks:0}, label:{position:'rt', offset:[-8,12]}},
+          y: {withLabel:true, name:'y', ticks:{majorHeight:7, minorTicks:0}, label:{position:'rt', offset:[10,-8]}}
+        }
+      });
+    }
+    function fn(b, f, min, max, attrs) {
+      return b.create('functiongraph', [f, min, max], Object.assign({strokeWidth:2.2, fixed:true, highlight:false}, attrs||{}));
+    }
+    function pt(b, x, y, label, attrs) {
+      return b.create('point',[x,y],Object.assign({name:label||'', size:2.5, fixed:true, highlight:false, label:{offset:[5,5], fontSize:10}}, attrs||{}));
+    }
+    function txt(b,x,y,t,attrs) {
+      return b.create('text',[x,y,t],Object.assign({fontSize:11, fixed:true, highlight:false},attrs||{}));
+    }
+
+    // 1 source graph
+    let b=board('graph-source',[-2.5,3,2.5,-3]);
+    fn(b,x=>-x*x*x+3*x,-2,2,{strokeColor:'#1f6f8b'});
+    [[-2,2],[-1,-2],[0,0],[1,2],[2,-2]].forEach(p=>pt(b,p[0],p[1],'',{fillColor:'#2a9d8f',strokeColor:'#2a9d8f'}));
+    txt(b,-2.25,2.55,'f(x)');
+
+    // vertical shift
+    b=board('graph-vshift',[-3.5,5,3.5,-3]);
+    fn(b,x=>x*x-1,-3,3,{strokeColor:'#244c7a'});
+    fn(b,x=>x*x+1,-3,3,{strokeColor:'#b24d4d',dash:2});
+    pt(b,0,-1,'(0,-1)',{strokeColor:'#244c7a',fillColor:'#244c7a'});
+    pt(b,0,1,'(0,1)',{strokeColor:'#b24d4d',fillColor:'#b24d4d'});
+
+    // horizontal shift
+    b=board('graph-hshift',[-3,7,6,-1.5]);
+    fn(b,x=>x*x,-2.5,2.5,{strokeColor:'#244c7a'});
+    fn(b,x=>(x-2)*(x-2),-0.5,4.5,{strokeColor:'#b24d4d',dash:2});
+    pt(b,0,0,'(0,0)',{strokeColor:'#244c7a',fillColor:'#244c7a'});
+    pt(b,2,0,'(2,0)',{strokeColor:'#b24d4d',fillColor:'#b24d4d'});
+
+    // reflection in the x-axis
+    b=board('graph-reflect-x',[-4,5.5,4,-5]);
+    let rfx=x=>0.5*x*x+x-1;
+    fn(b,rfx,-3.5,3.5,{strokeColor:'#244c7a'});
+    fn(b,x=>-rfx(x),-3.5,3.5,{strokeColor:'#b24d4d',dash:2});
+    pt(b,-1,-1.5,'',{strokeColor:'#244c7a',fillColor:'#244c7a'});
+    pt(b,-1,1.5,'',{strokeColor:'#b24d4d',fillColor:'#b24d4d'});
+    txt(b,2.35,4.0,'f(x)'); txt(b,2.35,-3.9,'-f(x)');
+
+    // reflection in the y-axis
+    b=board('graph-reflect-y',[-4,5.5,4,-3]);
+    let rfy=x=>0.5*x*x+x-1;
+    fn(b,rfy,-3.5,3.5,{strokeColor:'#244c7a'});
+    fn(b,x=>rfy(-x),-3.5,3.5,{strokeColor:'#2a9d8f',dash:3});
+    pt(b,-1,-1.5,'',{strokeColor:'#244c7a',fillColor:'#244c7a'});
+    pt(b,1,-1.5,'',{strokeColor:'#2a9d8f',fillColor:'#2a9d8f'});
+    txt(b,2.35,4.0,'f(x)'); txt(b,-3.45,4.0,'f(-x)');
+
+    // vertical scale
+    b=board('graph-vscale',[-3.2,6,3.2,-1.5]);
+    fn(b,x=>x*x,-2.3,2.3,{strokeColor:'#244c7a'});
+    fn(b,x=>2*x*x,-1.7,1.7,{strokeColor:'#b24d4d',dash:2});
+    fn(b,x=>0.5*x*x,-3,3,{strokeColor:'#2a9d8f',dash:3});
+    txt(b,1.45,4.6,'2f'); txt(b,2.25,4.0,'f'); txt(b,2.65,3.1,'0.5f');
+
+    // combined transformations — quartic polynomial
+    b=board('graph-combined',[-2.5,6.5,4.5,-8]);
+    fn(b,x=>Math.pow(x,4)-2*x*x,-2.15,2.15,{strokeColor:'#244c7a'});
+    fn(b,x=>-2*(Math.pow(x-1,4)-2*Math.pow(x-1,2))+3,-1.15,3.15,{strokeColor:'#b24d4d',dash:2});
+    pt(b,-1,-1,'',{strokeColor:'#244c7a',fillColor:'#244c7a'});
+    pt(b,0,0,'',{strokeColor:'#244c7a',fillColor:'#244c7a'});
+    pt(b,1,-1,'',{strokeColor:'#244c7a',fillColor:'#244c7a'});
+    pt(b,0,5,'',{strokeColor:'#b24d4d',fillColor:'#b24d4d'});
+    pt(b,1,3,'',{strokeColor:'#b24d4d',fillColor:'#b24d4d'});
+    pt(b,2,5,'',{strokeColor:'#b24d4d',fillColor:'#b24d4d'});
+    txt(b,-2.15,5.7,'f(x)');
+    txt(b,3.05,5.7,'g(x)');
+
+    // symmetry
+    b=board('graph-symmetry',[-4.5,5,4.5,-5]);
+    fn(b,x=>0.12*x*x*x*x-1.2*x*x+1,-4,4,{strokeColor:'#244c7a'});
+    fn(b,x=>0.2*x*x*x-1.5*x,-3.2,3.2,{strokeColor:'#b24d4d',dash:2});
+    txt(b,-4.0,4.4,'even'); txt(b,2.7,-3.8,'odd');
+
+    // intersections
+    b=board('graph-intersections',[-4,6,4,-4]);
+    fn(b,x=>x*x-2,-3,3,{strokeColor:'#244c7a'});
+    fn(b,x=>x,-4,4,{strokeColor:'#b24d4d',dash:2});
+    pt(b,-1,-1,'(-1,-1)',{strokeColor:'#2a9d8f',fillColor:'#2a9d8f'});
+    pt(b,2,2,'(2,2)',{strokeColor:'#2a9d8f',fillColor:'#2a9d8f'});
+
+
+    // Unit 10: tangency between a quadratic function and a line
+    b=board('graph-quadratic-tangency',[-1,10,7,-2]);
+    fn(b,x=>x*x-4*x+7,-0.5,6.5,{strokeColor:'#244c7a'});
+    fn(b,x=>2*x-2,-1,7,{strokeColor:'#b24d4d',dash:2});
+    pt(b,3,4,'(3,4)',{strokeColor:'#2a9d8f',fillColor:'#2a9d8f'});
+
+    // distance
+    b=board('graph-distance',[-2.5,10.5,4.5,-2]);
+    fn(b,x=>x*x,-2,3.8,{strokeColor:'#244c7a'});
+    fn(b,x=>2*x+3,-2.5,2.5,{strokeColor:'#b24d4d',dash:2});
+    [-0.25,1,2.25].forEach(x=>b.create('segment',[[x,x*x],[x,2*x+3]],{strokeColor:'#2a9d8f',strokeWidth:2,fixed:true,highlight:false}));
+    pt(b,-1,1,'',{strokeColor:'#2a9d8f',fillColor:'#2a9d8f'}); pt(b,3,9,'',{strokeColor:'#2a9d8f',fillColor:'#2a9d8f'});
+    // Additional cubic and quartic examples
+    function polyGraph(id, box, curves, points) {
+      const pb = board(id, box);
+      curves.forEach(function(c) {
+        fn(pb, c.f, c.min, c.max, {
+          strokeColor: c.color || '#244c7a',
+          dash: c.dash || 0,
+          strokeWidth: c.width || 2.1
+        });
+      });
+      (points || []).forEach(function(p) {
+        pt(pb, p[0], p[1], p[2] || '', {
+          strokeColor: p[3] || '#2a9d8f',
+          fillColor: p[3] || '#2a9d8f',
+          size: p[4] || 2.2
+        });
+      });
+      return pb;
+    }
+    function vSegment(pb, x, y1, y2) {
+      pb.create('segment', [[x,y1],[x,y2]], {
+        strokeColor:'#2a9d8f', strokeWidth:2,
+        fixed:true, highlight:false
+      });
+    }
+
+    const blue='#244c7a', red='#b24d4d', green='#2a9d8f', purple='#6c63a8';
+    // Unit 2
+    polyGraph('graph-u02-cubic',[-3.2,6,3.2,-4],[
+      {f:x=>x*x*x-3*x,min:-2.5,max:2.5,color:blue},
+      {f:x=>x*x*x-3*x+2,min:-2.5,max:2.5,color:red,dash:2}
+    ],[[-1,4,''],[1,0,'']]);
+    polyGraph('graph-u02-quartic',[-3.1,5,3.1,-6],[
+      {f:x=>x*x*x*x-4*x*x,min:-2.5,max:2.5,color:blue},
+      {f:x=>x*x*x*x-4*x*x-1,min:-2.5,max:2.5,color:red,dash:2}
+    ],[[0,-1,''],[-Math.SQRT2,-5,''],[Math.SQRT2,-5,'']]);
+
+    // Unit 3
+    polyGraph('graph-u03-cubic',[-2.2,5,5.2,-4],[
+      {f:x=>x*x*x-3*x,min:-2.1,max:2.1,color:blue},
+      {f:x=>Math.pow(x-2,3)-3*(x-2),min:-0.1,max:4.1,color:red,dash:2}
+    ],[[1,2,''],[3,-2,''],[2,0,'']]);
+    polyGraph('graph-u03-quartic',[-4.3,4.5,2.3,-5.2],[
+      {f:x=>x*x*x*x-4*x*x,min:-2.3,max:2.3,color:blue},
+      {f:x=>Math.pow(x+1,4)-4*Math.pow(x+1,2),min:-3.3,max:1.3,color:red,dash:2}
+    ],[[-1,0,''],[-1-Math.SQRT2,-4,''],[-1+Math.SQRT2,-4,'']]);
+
+    // Unit 4a: reflection in the x-axis
+    polyGraph('graph-u04x-cubic',[-1.1,6,4.2,-6],[
+      {f:x=>x*x*x-3*x*x,min:-0.6,max:3.6,color:blue},
+      {f:x=>-x*x*x+3*x*x,min:-0.6,max:3.6,color:red,dash:2}
+    ],[[2,-4,''],[2,4,'']]);
+    polyGraph('graph-u04x-quartic',[-2.5,4.5,2.5,-4.5],[
+      {f:x=>Math.pow(x,4)-4*x*x+3,min:-2.15,max:2.15,color:blue},
+      {f:x=>-Math.pow(x,4)+4*x*x-3,min:-2.15,max:2.15,color:red,dash:2}
+    ],[[0,3,''],[0,-3,''],[-Math.SQRT2,-1,''],[Math.SQRT2,-1,''],[-Math.SQRT2,1,''],[Math.SQRT2,1,'']]);
+
+    // Unit 4b: reflection in the y-axis
+    polyGraph('graph-u04y-cubic',[-4.2,6,4.2,-6],[
+      {f:x=>x*x*x-3*x*x,min:-0.6,max:3.6,color:blue},
+      {f:x=>-x*x*x-3*x*x,min:-3.6,max:0.6,color:green,dash:3}
+    ],[[2,-4,''],[-2,-4,'']]);
+    polyGraph('graph-u04y-quartic',[-3.2,4,3.2,-3],[
+      {f:x=>Math.pow(x,4)-2*Math.pow(x,3),min:-1.4,max:2.6,color:blue},
+      {f:x=>Math.pow(x,4)+2*Math.pow(x,3),min:-2.6,max:1.4,color:green,dash:3}
+    ],[[1.5,-27/16,''],[-1.5,-27/16,'']]);
+
+    // Unit 5
+    polyGraph('graph-u05-cubic',[-2.7,6,2.7,-6],[
+      {f:x=>x*x*x-3*x,min:-2.2,max:2.2,color:blue},
+      {f:x=>2*(x*x*x-3*x),min:-2.0,max:2.0,color:red,dash:2}
+    ],[[-1,4,''],[1,-4,'']]);
+    polyGraph('graph-u05-quartic',[-3,5,3,-5],[
+      {f:x=>x*x*x*x-4*x*x,min:-2.4,max:2.4,color:blue},
+      {f:x=>-0.5*(x*x*x*x-4*x*x),min:-2.7,max:2.7,color:red,dash:2}
+    ],[[-Math.SQRT2,2,''],[Math.SQRT2,2,'']]);
+
+    // Unit 6
+    polyGraph('graph-u06-cubic',[-2.8,9,4.5,-5],[
+      {f:x=>x*x*x-3*x,min:-2.3,max:2.3,color:blue},
+      {f:x=>-2*(Math.pow(x-1,3)-3*(x-1))+3,min:-1.2,max:3.2,color:red,dash:2}
+    ],[[0,-1,''],[2,7,''],[1,3,'']]);
+    polyGraph('graph-u06-quartic',[-4,4,2.1,-5],[
+      {f:x=>x*x*x*x-4*x*x,min:-2.3,max:2.3,color:blue},
+      {f:x=>0.5*(Math.pow(x+1,4)-4*Math.pow(x+1,2))-2,min:-3.4,max:1.4,color:red,dash:2}
+    ],[[-1,-2,''],[-1-Math.SQRT2,-4,''],[-1+Math.SQRT2,-4,'']]);
+
+    // Unit 7
+    polyGraph('graph-u07-cubic',[-3.2,7,5.4,-5],[
+      {f:x=>x*x*x-4*x,min:-2.6,max:2.6,color:blue},
+      {f:x=>Math.pow(x-2,3)-4*(x-2)+1,min:-0.6,max:4.6,color:red,dash:2}
+    ],[[2,1,'']]);
+    polyGraph('graph-u07-quartic',[-4.2,6,2.2,-5],[
+      {f:x=>Math.pow(x,4)-5*x*x+4,min:-2.4,max:2.4,color:blue},
+      {f:x=>Math.pow(x+1,4)-5*Math.pow(x+1,2)+2,min:-3.4,max:1.4,color:red,dash:2}
+    ],[[-1,2,'']]);
+
+    // Unit 8
+    polyGraph('graph-u08-cubic',[-1.2,6,3.2,-2],[
+      {f:x=>Math.pow(x-1,3)-3*(x-1)+2,min:-0.9,max:2.9,color:blue},
+      {f:x=>2,min:-1.2,max:3.2,color:red,dash:2}
+    ],[[1-Math.sqrt(3),2,''],[1,2,''],[1+Math.sqrt(3),2,'']]);
+    polyGraph('graph-u08-quartic',[-3.5,5,1.5,-4],[
+      {f:x=>Math.pow(x+1,4)-4*Math.pow(x+1,2)+1,min:-3.2,max:1.2,color:blue},
+      {f:x=>1,min:-3.5,max:1.5,color:red,dash:2}
+    ],[[-3,1,''],[-1,1,''],[1,1,'']]);
+
+
+    // Unit 10: quadratic tangency examples
+    polyGraph('graph-u10-horizontal',[-2.3,7,4.3,-3],[
+      {f:x=>-2*Math.pow(x-1,2)+5,min:-1.4,max:3.4,color:blue},
+      {f:x=>5,min:-2.3,max:4.3,color:red,dash:2}
+    ],[[1,5,'(1,5)']]);
+    polyGraph('graph-u10-oblique',[-2.4,10,4.2,-2],[
+      {f:x=>x*x+2*x+3,min:-2.2,max:3.2,color:blue},
+      {f:x=>4*x+2,min:-2.4,max:4.2,color:red,dash:2}
+    ],[[1,6,'(1,6)']]);
+
+    // Unit 11: tangent at a given point and tangents from an external point
+    polyGraph('graph-u11-given-point',[-1.2,8,3.2,-3],[
+      {f:x=>2*x*x-3*x+1,min:-0.8,max:2.8,color:blue},
+      {f:x=>x-1,min:-1.2,max:3.2,color:red,dash:2}
+    ],[[1,0,'(1,0)']]);
+    polyGraph('graph-u11-external-point',[-4.5,10,4.5,-6],[
+      {f:x=>x*x,min:-3.2,max:3.2,color:blue},
+      {f:x=>4*x-4,min:-1,max:4.5,color:red,dash:2},
+      {f:x=>-4*x-4,min:-4.5,max:1,color:purple,dash:2}
+    ],[[2,4,'(2,4)',red],[-2,4,'(-2,4)',purple],[0,-4,'(0,-4)',green]]);
+
+    // Unit 12
+    let pb = polyGraph('graph-u12-cubic',[-0.3,5,2.3,-1],[
+      {f:x=>Math.pow(x-1,3)-3*(x-1)+2,min:0,max:2,color:blue},
+      {f:x=>2,min:-0.3,max:2.3,color:red,dash:2}
+    ],[[0,4,''],[1,2,''],[2,0,'']]);
+    vSegment(pb,0,2,4); vSegment(pb,2,0,2);
+    pb = polyGraph('graph-u12-quartic',[-3.3,3,1.3,-4],[
+      {f:x=>Math.pow(x+1,4)-4*Math.pow(x+1,2)+1,min:-3,max:1,color:blue},
+      {f:x=>1,min:-3.3,max:1.3,color:red,dash:2}
+    ],[[-1-Math.SQRT2,-3,''],[-1+Math.SQRT2,-3,'']]);
+    vSegment(pb,-1-Math.SQRT2,-3,1); vSegment(pb,-1+Math.SQRT2,-3,1);
+  });
+})();
+</script>
+</body>
+</html>
