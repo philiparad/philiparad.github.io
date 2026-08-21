@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>טרנספורמציות של ערך מוחלט - שאלות לתרגול</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #eef2f7;
+      color: #172033;
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+    }
+
+    body {
+      direction: rtl;
+      line-height: 1.48;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 12px auto;
+      padding: 10mm 12mm;
+      background: #ffffff;
+      box-shadow: 0 8px 24px rgba(20, 32, 51, 0.12);
+      overflow: visible;
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .page:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+
+    .document-title {
+      margin: 0 0 5mm;
+      padding-bottom: 3mm;
+      border-bottom: 2px solid #284b76;
+      color: #1f3b64;
+      font-size: 23px;
+      text-align: center;
+    }
+
+    .question {
+      margin: 0 0 5mm;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .question + .question {
+      padding-top: 4mm;
+      border-top: 1px solid #d9e1eb;
+    }
+
+    .question-heading {
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 2mm;
+    }
+
+    .question-number {
+      min-width: 10mm;
+      color: #0b8fc9;
+      font-size: 23px;
+      font-weight: 700;
+      direction: ltr;
+    }
+
+    .question-text {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .math {
+      display: inline-block;
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    .graph-card {
+      width: 100%;
+      margin: 3mm 0;
+      padding: 2mm;
+      border: 1px solid #d7e0eb;
+      border-radius: 8px;
+      background: #ffffff;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .graph-card.compact {
+      width: 72%;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .jxgbox {
+      width: 100%;
+      height: 48mm;
+      border: 0;
+      background: #ffffff;
+      direction: ltr;
+    }
+
+    .jxgbox.medium {
+      height: 52mm;
+    }
+
+    .jxgbox.answer {
+      height: 43mm;
+    }
+
+    .parts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2mm 10mm;
+      margin: 2mm 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 17px;
+    }
+
+    .part {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 10mm;
+      padding-bottom: 2mm;
+      border-bottom: 1px solid #cfd8e5;
+    }
+
+    .part-label {
+      min-width: 9mm;
+      font-weight: 700;
+      direction: rtl;
+    }
+
+    .instruction {
+      margin: 3mm 0 2mm;
+      font-size: 17px;
+    }
+
+    .answer-block {
+      margin-top: 3mm;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .answer-title {
+      margin: 0 0 1mm;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .source-graph {
+      width: 68%;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .footer {
+      margin-top: 4mm;
+      padding-top: 2mm;
+      border-top: 1px solid #e1e7ef;
+      color: #6b778b;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    @media print {
+      html,
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        width: auto;
+        min-height: 277mm;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .graph-card {
+        border-color: #cfd8e5;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Page 1 -->
+  <main class="page">
+    <h1 class="document-title">טרנספורמציות של ערך מוחלט - שאלות לתרגול</h1>
+
+    <section class="question">
+      <div class="question-heading">
+        <div class="question-number">1.</div>
+        <p class="question-text">
+          בתרשים שלהלן מוצג הגרף
+          <span class="math">\(y=f(x)\)</span>.
+          הנקודה
+          <span class="math">\(P\)</span>
+          נמצאת על הגרף ושיעוריה
+          <span class="math">\((1,-3)\)</span>.
+        </p>
+      </div>
+
+      <div class="graph-card compact">
+        <div id="q1Source" class="jxgbox"></div>
+      </div>
+
+      <p class="instruction">
+        מהם שיעורי הנקודה
+        <span class="math">\(P\)</span>
+        לאחר שהגרף
+        <span class="math">\(y=f(x)\)</span>
+        עובר לכל אחת מהטרנספורמציות הבאות?
+      </p>
+
+      <ol class="parts">
+        <li class="part"><span class="part-label">(א)</span><span class="math">\(y=f(x)+5\)</span></li>
+        <li class="part"><span class="part-label">(ב)</span><span class="math">\(y=-f(x)\)</span></li>
+        <li class="part"><span class="part-label">(ג)</span><span class="math">\(y=f(x+3)\)</span></li>
+        <li class="part"><span class="part-label">(ד)</span><span class="math">\(y=f(-x)\)</span></li>
+      </ol>
+    </section>
+
+    <section class="question">
+      <div class="question-heading">
+        <div class="question-number">2.</div>
+        <p class="question-text">
+          בתרשים שלהלן מוצג הגרף
+          <span class="math">\(y=g(x)\)</span>.
+          הנקודה
+          <span class="math">\(Q\)</span>
+          נמצאת על הגרף ושיעוריה
+          <span class="math">\((4,4)\)</span>.
+        </p>
+      </div>
+
+      <div class="graph-card compact">
+        <div id="q2Source" class="jxgbox"></div>
+      </div>
+
+      <p class="instruction">
+        מהם שיעורי הנקודה
+        <span class="math">\(Q\)</span>
+        לאחר שהגרף
+        <span class="math">\(y=g(x)\)</span>
+        עובר לכל אחת מהטרנספורמציות הבאות?
+      </p>
+
+      <ol class="parts">
+        <li class="part"><span class="part-label">(א)</span><span class="math">\(y=-g(x)\)</span></li>
+        <li class="part"><span class="part-label">(ב)</span><span class="math">\(y=g(x-2)\)</span></li>
+        <li class="part"><span class="part-label">(ג)</span><span class="math">\(y=g(x)-8\)</span></li>
+        <li class="part"><span class="part-label">(ד)</span><span class="math">\(y=g(-x)\)</span></li>
+      </ol>
+    </section>
+
+    <div class="footer">עמוד 1 מתוך 4</div>
+  </main>
+
+  <!-- Page 2 -->
+  <main class="page">
+    <h1 class="document-title">טרנספורמציות של גרפים - שאלות לתרגול</h1>
+
+    <section class="question">
+      <div class="question-heading">
+        <div class="question-number">3.</div>
+        <p class="question-text">
+          בתרשים שלהלן מוצג הגרף
+          <span class="math">\(y=h(x)\)</span>.
+          הנקודה
+          <span class="math">\(R\)</span>
+          נמצאת על הגרף ושיעוריה
+          <span class="math">\((-2,3)\)</span>.
+        </p>
+      </div>
+
+      <div class="graph-card compact">
+        <div id="q3Source" class="jxgbox"></div>
+      </div>
+
+      <p class="instruction">
+        מהם שיעורי הנקודה
+        <span class="math">\(R\)</span>
+        לאחר שהגרף
+        <span class="math">\(y=h(x)\)</span>
+        עובר לכל אחת מהטרנספורמציות הבאות?
+      </p>
+
+      <ol class="parts">
+        <li class="part"><span class="part-label">(א)</span><span class="math">\(y=h(x)+7\)</span></li>
+        <li class="part"><span class="part-label">(ב)</span><span class="math">\(y=h(-x)\)</span></li>
+        <li class="part"><span class="part-label">(ג)</span><span class="math">\(y=-h(x)\)</span></li>
+        <li class="part"><span class="part-label">(ד)</span><span class="math">\(y=h(x-2)\)</span></li>
+      </ol>
+    </section>
+
+    <section class="question">
+      <div class="question-heading">
+        <div class="question-number">4.</div>
+        <p class="question-text">
+          בתרשים שלהלן מוצג הגרף
+          <span class="math">\(y=i(x)\)</span>.
+          הנקודה
+          <span class="math">\(S\)</span>
+          נמצאת על הגרף ושיעוריה
+          <span class="math">\((-4,-1)\)</span>.
+        </p>
+      </div>
+
+      <div class="graph-card compact">
+        <div id="q4Source" class="jxgbox"></div>
+      </div>
+
+      <p class="instruction">
+        מהם שיעורי הנקודה
+        <span class="math">\(S\)</span>
+        לאחר שהגרף
+        <span class="math">\(y=i(x)\)</span>
+        עובר לכל אחת מהטרנספורמציות הבאות?
+      </p>
+
+      <ol class="parts">
+        <li class="part"><span class="part-label">(א)</span><span class="math">\(y=i(x+2)\)</span></li>
+        <li class="part"><span class="part-label">(ב)</span><span class="math">\(y=i(-x)\)</span></li>
+        <li class="part"><span class="part-label">(ג)</span><span class="math">\(y=i(x)+10\)</span></li>
+        <li class="part"><span class="part-label">(ד)</span><span class="math">\(y=-i(x)\)</span></li>
+      </ol>
+    </section>
+
+    <div class="footer">עמוד 2 מתוך 4</div>
+  </main>
+
+  <!-- Page 3 -->
+  <main class="page">
+    <h1 class="document-title">טרנספורמציות של גרפים - שאלות לתרגול</h1>
+
+    <section class="question">
+      <div class="question-heading">
+        <div class="question-number">5.</div>
+        <p class="question-text">
+          בתרשים שלהלן מוצג הגרף
+          <span class="math">\(y=f(x)\)</span>.
+          הנקודה
+          <span class="math">\(P\)</span>
+          נמצאת על הגרף ושיעוריה
+          <span class="math">\((1,-1)\)</span>.
+        </p>
+      </div>
+
+      <div class="graph-card source-graph">
+        <div id="q5Source" class="jxgbox medium"></div>
+      </div>
+
+      <p class="instruction">
+        שרטטו את הגרפים הבאים על מערכות הצירים שלהלן, וסמנו בבירור את הנקודה
+        <span class="math">\(P\)</span>.
+      </p>
+
+      <div class="answer-block">
+        <p class="answer-title">(א) <span class="math">\(y=-f(x)\)</span></p>
+        <div class="graph-card"><div id="q5a" class="jxgbox answer"></div></div>
+      </div>
+
+      <div class="answer-block">
+        <p class="answer-title">(ב) <span class="math">\(y=f(x)+1\)</span></p>
+        <div class="graph-card"><div id="q5b" class="jxgbox answer"></div></div>
+      </div>
+
+      <div class="answer-block">
+        <p class="answer-title">(ג) <span class="math">\(y=f(x+1)\)</span></p>
+        <div class="graph-card"><div id="q5c" class="jxgbox answer"></div></div>
+      </div>
+    </section>
+
+    <div class="footer">עמוד 3 מתוך 4</div>
+  </main>
+
+  <!-- Page 4 -->
+  <main class="page">
+    <h1 class="document-title">טרנספורמציות של גרפים - שאלות לתרגול</h1>
+
+    <section class="question">
+      <div class="question-heading">
+        <div class="question-number">6.</div>
+        <p class="question-text">
+          בתרשים שלהלן מוצג הגרף
+          <span class="math">\(y=f(x)\)</span>.
+          הנקודה
+          <span class="math">\(P\)</span>
+          נמצאת על הגרף ושיעוריה
+          <span class="math">\((-1,7)\)</span>.
+        </p>
+      </div>
+
+      <div class="graph-card source-graph">
+        <div id="q6Source" class="jxgbox medium"></div>
+      </div>
+
+      <p class="instruction">
+        שרטטו את הגרפים הבאים על מערכות הצירים שלהלן, וסמנו בבירור את הנקודה
+        <span class="math">\(P\)</span>.
+      </p>
+
+      <div class="answer-block">
+        <p class="answer-title">(א) <span class="math">\(y=f(x-3)\)</span></p>
+        <div class="graph-card"><div id="q6a" class="jxgbox answer"></div></div>
+      </div>
+
+      <div class="answer-block">
+        <p class="answer-title">(ב) <span class="math">\(y=f(-x)\)</span></p>
+        <div class="graph-card"><div id="q6b" class="jxgbox answer"></div></div>
+      </div>
+
+      <div class="answer-block">
+        <p class="answer-title">(ג) <span class="math">\(y=f(x)-5\)</span></p>
+        <div class="graph-card"><div id="q6c" class="jxgbox answer"></div></div>
+      </div>
+    </section>
+
+    <div class="footer">עמוד 4 מתוך 4</div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const boardDefaults = {
+        axis: false,
+        grid: false,
+        showCopyright: false,
+        showNavigation: false,
+        keepAspectRatio: true,
+        pan: { enabled: false },
+        zoom: { enabled: false }
+      };
+
+      function createBoard(id, boundingbox) {
+        return JXG.JSXGraph.initBoard(id, {
+          ...boardDefaults,
+          boundingbox: boundingbox
+        });
+      }
+
+      function drawAxes(board, xMin, xMax, yMin, yMax) {
+        board.create('line', [[xMin, 0], [xMax, 0]], {
+          straightFirst: false,
+          straightLast: false,
+          lastArrow: true,
+          strokeWidth: 1.4,
+          strokeColor: '#4b5563',
+          fixed: true,
+          highlight: false
+        });
+
+        board.create('line', [[0, yMin], [0, yMax]], {
+          straightFirst: false,
+          straightLast: false,
+          lastArrow: true,
+          strokeWidth: 1.4,
+          strokeColor: '#4b5563',
+          fixed: true,
+          highlight: false
+        });
+
+        board.create('text', [xMax - 0.45, -0.45, 'x'], {
+          fontSize: 16,
+          fixed: true,
+          highlight: false
+        });
+
+        board.create('text', [0.25, yMax - 0.4, 'y'], {
+          fontSize: 16,
+          fixed: true,
+          highlight: false
+        });
+      }
+
+      function drawVertexGraph(id, settings) {
+        const board = createBoard(id, settings.boundingbox);
+        drawAxes(
+          board,
+          settings.boundingbox[0] + 0.25,
+          settings.boundingbox[2] - 0.25,
+          settings.boundingbox[3] + 0.25,
+          settings.boundingbox[1] - 0.25
+        );
+
+        board.create('functiongraph', [
+          settings.fn,
+          settings.domain[0],
+          settings.domain[1]
+        ], {
+          strokeWidth: 2.8,
+          strokeColor: '#111827',
+          fixed: true,
+          highlight: false
+        });
+
+        board.create('point', settings.vertex, {
+          name: settings.label,
+          size: 3.2,
+          face: 'o',
+          fillColor: '#111827',
+          strokeColor: '#111827',
+          fixed: true,
+          highlight: false,
+          label: {
+            offset: settings.labelOffset || [8, -18],
+            fontSize: 16
+          }
+        });
+
+        return board;
+      }
+
+      function drawBlankBoard(id, boundingbox) {
+        const board = createBoard(id, boundingbox);
+        drawAxes(
+          board,
+          boundingbox[0] + 0.25,
+          boundingbox[2] - 0.25,
+          boundingbox[3] + 0.25,
+          boundingbox[1] - 0.25
+        );
+        return board;
+      }
+
+      drawVertexGraph('q1Source', {
+        boundingbox: [-4.5, 4.2, 6.5, -5.0],
+        fn: function (x) { return Math.abs(x - 1) - 3; },
+        domain: [-3.6, 5.6],
+        vertex: [1, -3],
+        label: 'P (1, -3)',
+        labelOffset: [8, -18]
+      });
+
+      drawVertexGraph('q2Source', {
+        boundingbox: [-2.5, 6.2, 9.2, -3.4],
+        fn: function (x) { return -Math.abs(x - 4) + 4; },
+        domain: [-1.4, 8.3],
+        vertex: [4, 4],
+        label: 'Q (4, 4)',
+        labelOffset: [-22, 20]
+      });
+
+      drawVertexGraph('q3Source', {
+        boundingbox: [-7.4, 5.3, 3.2, -3.3],
+        fn: function (x) { return -Math.abs(x + 2) + 3; },
+        domain: [-6.4, 2.2],
+        vertex: [-2, 3],
+        label: 'R (-2, 3)',
+        labelOffset: [-28, 20]
+      });
+
+      drawVertexGraph('q4Source', {
+        boundingbox: [-9.2, 5.0, 3.4, -4.2],
+        fn: function (x) { return Math.abs(x + 4) - 1; },
+        domain: [-8.2, 2.4],
+        vertex: [-4, -1],
+        label: 'S (-4, -1)',
+        labelOffset: [-10, -22]
+      });
+
+      drawVertexGraph('q5Source', {
+        boundingbox: [-5.2, 4.6, 6.2, -3.5],
+        fn: function (x) { return Math.abs(x - 1) - 1; },
+        domain: [-4.1, 5.1],
+        vertex: [1, -1],
+        label: 'P (1, -1)',
+        labelOffset: [8, -18]
+      });
+
+      drawBlankBoard('q5a', [-5.5, 4.8, 6.2, -4.2]);
+      drawBlankBoard('q5b', [-5.5, 4.8, 6.2, -4.2]);
+      drawBlankBoard('q5c', [-5.5, 4.8, 6.2, -4.2]);
+
+      drawVertexGraph('q6Source', {
+        boundingbox: [-7.2, 9.1, 5.8, -2.8],
+        fn: function (x) { return -Math.abs(x + 1) + 7; },
+        domain: [-6.0, 4.8],
+        vertex: [-1, 7],
+        label: 'P (-1, 7)',
+        labelOffset: [-25, 20]
+      });
+
+      drawBlankBoard('q6a', [-7.0, 9.0, 7.0, -4.5]);
+      drawBlankBoard('q6b', [-7.0, 9.0, 7.0, -4.5]);
+      drawBlankBoard('q6c', [-7.0, 9.0, 7.0, -4.5]);
+    });
+  </script>
+</body>
+</html>
