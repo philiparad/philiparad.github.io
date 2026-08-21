@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>אי שוויון עם ערך מוחלט</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      chtml: { scale: 0.94 },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+  <style>
+    :root {
+      --ink: #17233c;
+      --muted: #586579;
+      --navy: #15375f;
+      --blue: #216a8b;
+      --teal: #21868a;
+      --gold: #eaae43;
+      --paper: #fff;
+      --canvas: #dfe6ee;
+      --line: #d9e2ec;
+      --easy: #dff3e6;
+      --medium: #fff0cf;
+      --hard: #f9dddd;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--canvas); }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+
+    #document {
+      width: 210mm;
+      margin: 12mm auto;
+    }
+
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      margin: 0 0 10mm;
+      padding: 13mm 14mm 15mm;
+      border: 1px solid #cad5e0;
+      background: var(--paper);
+      box-shadow: 0 8px 26px rgba(23, 35, 60, .14);
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .page:last-child { break-after: auto; page-break-after: auto; }
+
+    .page::after {
+      content: attr(data-page);
+      position: absolute;
+      bottom: 7mm;
+      left: 14mm;
+      color: #778397;
+      font-size: 9pt;
+      font-variant-numeric: tabular-nums;
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    .page::before {
+      content: "מתמטיקה 5 יח״ל · למידה עצמית";
+      position: absolute;
+      right: 14mm;
+      bottom: 7mm;
+      color: #778397;
+      font-size: 8.5pt;
+    }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: white;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(80, 195, 194, .28), transparent 34%),
+        linear-gradient(145deg, #112a4c, #185c75 70%, #208287);
+    }
+
+    .cover::before { color: rgba(255,255,255,.68); }
+    .cover::after { color: rgba(255,255,255,.68); }
+
+    .cover-mark {
+      color: #b5ece9;
+      font-size: 12pt;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+
+    .cover h1 {
+      max-width: 168mm;
+      margin: 14mm 0 7mm;
+      font-size: 34pt;
+      line-height: 1.12;
+      letter-spacing: -.03em;
+    }
+
+    .cover .subtitle {
+      max-width: 158mm;
+      color: #e4f3f5;
+      font-size: 15pt;
+    }
+
+    .cover-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5mm;
+      margin-top: 22mm;
+    }
+
+    .stat {
+      padding: 7mm 5mm;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 4mm;
+      background: rgba(255,255,255,.09);
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 23pt;
+    }
+
+    .cover-note {
+      padding: 7mm;
+      border-right: 1.5mm solid var(--gold);
+      border-radius: 3mm;
+      color: #f2f7f8;
+      background: rgba(8,28,50,.3);
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 5mm;
+      align-items: center;
+      margin-bottom: 5mm;
+      padding-bottom: 3mm;
+      border-bottom: .5mm solid var(--line);
+    }
+
+    .chapter {
+      color: var(--blue);
+      font-size: 10pt;
+      font-weight: 700;
+    }
+
+    .source {
+      max-width: 104mm;
+      color: var(--muted);
+      font-size: 8.5pt;
+      text-align: left;
+    }
+
+    h2 {
+      margin: 0 0 4mm;
+      color: var(--navy);
+      font-size: 23pt;
+      line-height: 1.18;
+    }
+
+    h3 {
+      margin: 0 0 2mm;
+      color: var(--navy);
+      font-size: 13pt;
+    }
+
+    p { margin: 0 0 3mm; }
+
+    .goals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3mm;
+      margin: 0 0 5mm;
+      padding: 0;
+      list-style: none;
+    }
+
+    .goals li {
+      padding: 3mm;
+      border-radius: 2.5mm;
+      color: #24465e;
+      background: #eef6f8;
+      font-size: 9.5pt;
+    }
+
+    .theory-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 5mm;
+      align-items: start;
+    }
+
+    .box {
+      padding: 4mm;
+      border: .35mm solid var(--line);
+      border-radius: 3mm;
+      background: #f8fafc;
+      font-size: 10pt;
+    }
+
+    .box + .box { margin-top: 3mm; }
+
+    .rule {
+      border-right: 1.4mm solid var(--gold);
+      background: #fffaf0;
+    }
+
+    .worked {
+      border-color: #b8dddd;
+      background: #f2fbfb;
+    }
+
+    .steps {
+      margin: 2mm 0 0;
+      padding-right: 5mm;
+    }
+
+    .steps li { margin-bottom: 1.6mm; }
+
+    .self-check {
+      margin-top: 4mm;
+      padding: 3mm 4mm;
+      border-radius: 2.5mm;
+      color: #24465e;
+      background: #eaf3f8;
+      font-size: 9.5pt;
+    }
+
+    .jxgbox {
+      width: 100%;
+      height: 73mm;
+      margin-top: 3mm;
+      border: .35mm solid #b9cad8;
+      border-radius: 2mm;
+      background: white;
+    }
+
+    .exercise-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4mm;
+      align-items: end;
+      margin-bottom: 4mm;
+      padding-bottom: 3mm;
+      border-bottom: .5mm solid var(--line);
+    }
+
+    .exercise-head h2 { margin-bottom: 0; font-size: 20pt; }
+
+    .level {
+      padding: 2mm 4mm;
+      border-radius: 999px;
+      font-size: 10pt;
+      font-weight: 700;
+    }
+
+    .level.easy { background: var(--easy); color: #23623a; }
+    .level.medium { background: var(--medium); color: #73500e; }
+    .level.hard { background: var(--hard); color: #7c2929; }
+
+    .exercise-list {
+      display: grid;
+      gap: 2.1mm;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: ex var(--start);
+    }
+
+    .exercise {
+      min-height: 24mm;
+      padding: 2.8mm 4mm;
+      border: .3mm solid #dde5ed;
+      border-radius: 2.5mm;
+      background: #fcfdff;
+      counter-increment: ex;
+    }
+
+    .exercise::before {
+      content: counter(ex) ".";
+      float: right;
+      margin-left: 2.5mm;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .answer {
+      margin-top: 1.8mm;
+      padding-top: 1.4mm;
+      color: #536579;
+      border-top: .25mm dashed #d6dee7;
+      font-size: 8.8pt;
+    }
+
+    .answer strong { color: #2c7184; }
+
+    .hint {
+      margin-top: 1.4mm;
+      color: #6a531e;
+      font-size: 8.35pt;
+      line-height: 1.35;
+    }
+
+    .hint strong { color: #9a6814; }
+
+    .source-intro {
+      margin-bottom: 5mm;
+      padding: 4mm;
+      border-right: 1.4mm solid var(--gold);
+      border-radius: 3mm;
+      background: #fffaf0;
+      color: #4d596a;
+      font-size: 9.7pt;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 3mm;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .source-card {
+      padding: 4mm;
+      border: .3mm solid #dce5ed;
+      border-radius: 2.5mm;
+      background: #fbfdff;
+    }
+
+    .source-lang {
+      display: inline-block;
+      margin-left: 2mm;
+      padding: 1mm 2.4mm;
+      border-radius: 999px;
+      background: #eaf3f8;
+      color: #285f7a;
+      font-size: 8.2pt;
+      font-weight: 700;
+    }
+
+    .source-card a {
+      color: var(--blue);
+      font-weight: 700;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .source-card p {
+      margin-top: 1.5mm;
+      color: var(--muted);
+      font-size: 9pt;
+    }
+
+    mjx-container { max-width: 100%; }
+    mjx-container[display="true"] { margin: 2.5mm 0 !important; }
+
+    @media screen and (max-width: 850px) {
+      #document {
+        width: 100%;
+        margin: 0;
+        transform-origin: top center;
+      }
+      .page { margin-left: auto; margin-right: auto; }
+    }
+
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+      html, body { width: 210mm; background: white; }
+      #document { width: 210mm; margin: 0; }
+      .page {
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="document"></main>
+
+  <script>
+    const texSafe = value => String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const M = value => `\\(${texSafe(value)}\\)`;
+    const D = value => `\\[${texSafe(value)}\\]`;
+    const pair = (q, a, level='medium', origin='existing') => ({ q, a, level, origin });
+    const signed = n => n < 0 ? `${n}` : `+${n}`;
+    const factor = r => r === 0 ? 'x' : r > 0 ? `(x-${r})` : `(x+${-r})`;
+    const interval = (a, b, closedA=false, closedB=false) =>
+      `${closedA ? '[' : '('}${a},${b}${closedB ? ']' : ')'}`;
+
+    const topicData = [
+      {
+        title: 'אי שוויון עם ערך מוחלט',
+        source: '',
+        goals: ['לפרש ערך מוחלט כמרחק', 'לפתור קטן/גדול', 'לחלק לתחומים במספר ערכים מוחלטים'],
+        theory: `${M('|x-a|')} הוא המרחק של ${M('x')} מן ${M('a')}. “קטן” יוצר תחום פנימי; “גדול” יוצר שני תחומים חיצוניים. עם כמה ערכים מוחלטים מחלקים לפי נקודות האיפוס.`,
+        rule: D(`|x-a|\\lt r\\Longleftrightarrow a-r\\lt x\\lt a+r`),
+        example: `פתרו ${M('|2x-3|\\le5')}.`,
+        solution: `${M('-5\\le2x-3\\le5\\Rightarrow -1\\le x\\le4')}.`,
+        check: 'בדיקה עצמית: ציירו מרחק על ציר לפני הפעלת הנוסחה.',
+        make: () => {
+          const out=[];
+
+          // קל - בסיס לינארי. שמונה התרגילים המקוריים נשמרו.
+          for(let i=1;i<=8;i++) {
+            out.push(pair(
+              `פתרו: ${M(`|x-${i}|\\lt${i+2}`)}.`,
+              M(`(-2,${2*i+2})`),
+              'easy'
+            ));
+          }
+
+          // מהתמונה המצורפת - סעיף 1א.
+          out.push(pair(`פתרו: ${M('|x+2|\\lt3')}.`, M('(-5,1)'), 'easy', 'image'));
+
+          // תרגילים חדשים שנבנו בהשראת מקורות הרשת.
+          out.push(pair(`פתרו: ${M('|3x-5|\\lt7')}.`, M('(-\\frac23,4)'), 'easy', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('|x-4|+3\\le9')}.`, M('[-2,10]'), 'easy', 'web-inspired'));
+
+          // בינוני - אי שוויונות “גדול” והצבת ביטוי לינארי משני אגפים.
+          for(let i=1;i<=8;i++) {
+            const rightNumerator = 2*i + 1;
+            out.push(pair(
+              `פתרו: ${M(`|2x-${i}|\\ge${i+1}`)}.`,
+              M(`(-\\infty,-\\frac12]\\cup[\\frac{${rightNumerator}}2,\\infty)`),
+              'medium'
+            ));
+          }
+
+          out.push(pair(`פתרו: ${M('|2x+1|\\gt7')}.`, M('(-\\infty,-4)\\cup(3,\\infty)'), 'medium', 'image'));
+          out.push(pair(`פתרו: ${M('|5x-2|\\ge13')}.`, M('(-\\infty,-\\frac{11}{5}]\\cup[3,\\infty)'), 'medium', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('-2|x+1|\\le-6')}.`, M('(-\\infty,-4]\\cup[2,\\infty)'), 'medium', 'web-inspired'));
+
+          // מהתמונה המצורפת - סעיפים 1ג, 1ד.
+          out.push(pair(`פתרו: ${M('|6-2x|\\lt x')}.`, M('(2,6)'), 'medium', 'image'));
+          out.push(pair(`פתרו: ${M('|2x+1|-3x\\gt4')}.`, M('(-\\infty,-1)'), 'medium', 'image'));
+
+          // מהתמונה המצורפת - סעיף 2.
+          out.push(pair(`פתרו: ${M('1\\lt|4-3x|\\lt7')}.`, M('(-1,1)\\cup(\\frac53,\\frac{11}{3})'), 'medium', 'image'));
+          out.push(pair(`פתרו: ${M('|2x+3|\\lt8\\lt|5-x|')}.`, M('(-\\frac{11}{2},-3)'), 'medium', 'image'));
+
+          // תרגילים דומים ברמה בינונית.
+          out.push(pair(`פתרו: ${M('2\\lt|3x-1|\\lt8')}.`, M('(-\\frac73,-\\frac13)\\cup(1,3)'), 'medium', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('|x+4|\\lt6\\lt|2x-1|')}.`, M('(-10,-\\frac52)'), 'medium', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('|2x-3|\\gt|x+1|')}.`, M('(-\\infty,\\frac23)\\cup(4,\\infty)'), 'medium'));
+          out.push(pair(`פתרו: ${M('|x-2|\\le x+1')}.`, M('[\\frac12,\\infty)'), 'medium'));
+          out.push(pair(`פתרו: ${M('|x-1|+|x+2|\\le5')}.`, M('[-3,2]'), 'medium'));
+          out.push(pair(`פתרו: ${M('||x|-3|\\le1')}.`, M('[-4,-2]\\cup[2,4]'), 'medium'));
+
+          // קשה - מהתמונה המצורפת, סעיף 3: ערך מוחלט עם ביטויים ריבועיים.
+          out.push(pair(`פתרו: ${M('|x^2+6x-4|\\lt12')}.`, M('(-8,-4)\\cup(-2,2)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|x^2+x-10|\\gt3x-2')}.`, M('(-\\infty,2)\\cup(4,\\infty)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|x^2-3x|\\lt4')}.`, M('(-1,4)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|6x^2-7x-4|\\gt1')}.`, M('(-\\infty,-\\frac12)\\cup(-\\frac13,\\frac32)\\cup(\\frac53,\\infty)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('x^2-6|x|+5\\le0')}.`, M('[-5,-1]\\cup[1,5]'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('x^2-6|x+1|-1\\gt0')}.`, M('(-\\infty,-5)\\cup(7,\\infty)'), 'hard', 'image'));
+
+          // תרגילי השלמה ברמה דומה לביטויים ריבועיים.
+          out.push(pair(`פתרו: ${M('|x^2-4|\\lt3')}.`, M('(-\\sqrt7,-1)\\cup(1,\\sqrt7)'), 'hard'));
+          out.push(pair(`פתרו: ${M('|x^2-1|\\ge3')}.`, M('(-\\infty,-2]\\cup[2,\\infty)'), 'hard'));
+          out.push(pair(`פתרו: ${M('|x^2-4x-5|\\lt9')}.`, M('(2-3\\sqrt2,2)\\cup(2,2+3\\sqrt2)'), 'hard', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('|2x^2+x-3|\\ge5')}.`, M('(-\\infty,\\frac{-1-\\sqrt{65}}4]\\cup[\\frac{-1+\\sqrt{65}}4,\\infty)'), 'hard', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('|x^2-2x|\\gt|x-1|')}.`, M('(-\\infty,\\frac{1-\\sqrt5}{2})\\cup(\\frac{3-\\sqrt5}{2},\\frac{1+\\sqrt5}{2})\\cup(\\frac{3+\\sqrt5}{2},\\infty)'), 'hard', 'web-inspired'));
+
+          // מהתמונה המצורפת - סעיף 4: כמה ערכים מוחלטים.
+          out.push(pair(`פתרו: ${M('|x-3|+|2x+2|\\gt7')}.`, M('(-\\infty,-2)\\cup(2,\\infty)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|x+8|\\lt11-|1-3x|')}.`, M('(-1,1)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|3-2x|-11\\gt4-|6+x|')}.`, M('(-\\infty,-6)\\cup(4,\\infty)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|2x-6|+|x+5|\\gt14-|1-x|')}.`, M('(-\\infty,-1)\\cup(4,\\infty)'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|5+4x|-|3-x|+|4-\\frac12x|\\le22')}.`, M('[-\\frac{52}{7},4]'), 'hard', 'image'));
+          out.push(pair(`פתרו: ${M('|x+3|+|x^2-5x+4|\\lt19')}.`, M('(-2,6)'), 'hard', 'image'));
+
+          // תרגילים חדשים דומים לסעיף 4 ולמקורות בשפות נוספות.
+          out.push(pair(`פתרו: ${M('|x-2|+|x+3|\\le9')}.`, M('[-5,4]'), 'hard', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('|2x+1|-|x-4|\\gt2')}.`, M('(-\\infty,-7)\\cup(\\frac53,\\infty)'), 'hard', 'web-inspired'));
+          out.push(pair(`פתרו: ${M('|x+2|+|x^2-4|\\lt10')}.`, M('(\\frac{1-\\sqrt{65}}2,3)'), 'hard', 'web-inspired'));
+
+          // תרגילי האתגר שהיו במסמך המקורי.
+          out.push(pair(`פתרו: ${M('\\frac{|x-1|}{x+2}\\gt1')}.`, M('(-2,-\\frac12)'), 'hard'));
+          out.push(pair(`מצאו ${M('a')} כך שפתרון ${M('|x-a|\\le3')} הוא ${M('[2,8]')}.`, M('a=5'), 'hard'));
+          out.push(pair(`אתגר משלים - פתרו: ${M('|x+1|+|x-3|=6')}.`, M('x=-2,4'), 'hard'));
+
+          return out;
+        }
+      }
+    ];
+
+    const guidance = [
+      {
+        easy:'פרשו את הערך המוחלט כמרחק: “קטן” נותן תחום פנימי סביב המרכז.',
+        medium:'כאשר יש ערך מוחלט מול ביטוי או אי שוויון כפול, בדקו גם את התנאים על האגף שמחוץ לערך המוחלט.',
+        hard:'סמנו את כל הנקודות המאפסות את הביטויים שבתוך הערכים המוחלטים, חלקו לתחומים ופתרו בכל תחום בנפרד.'
+      }
+    ];
+
+    const researchSources = [
+      {
+        lang:'עברית',
+        title:'באומן - אי שוויון עם ערך מוחלט',
+        url:'https://baumann.co.il/course_order/2097',
+        note:'רצף תרגול מסוג ראשון ושני באי שוויונות עם ערך מוחלט.'
+      },
+      {
+        lang:'English',
+        title:'OpenStax - College Algebra, Linear and Absolute Value Inequalities',
+        url:'https://openstax.org/books/college-algebra/pages/2-7-linear-inequalities-and-absolute-value-inequalities',
+        note:'תרגול מדורג של אי שוויונות לינאריים וערך מוחלט, כולל כתיבה באינטרוולים.'
+      },
+      {
+        lang:'Español',
+        title:'Universidad de los Andes - Desigualdades con valor absoluto',
+        url:'https://math.uniandes.edu.co/~o.martinez25/files/precalculo/material/ejer_desabs.pdf',
+        note:'דף תרגול הכולל ערך מוחלט לינארי, ריבועי, מקונן ושברי.'
+      },
+      {
+        lang:'Italiano',
+        title:'Università di Bologna - Esercizi sulle disequazioni con valore assoluto',
+        url:'https://www.dm.unibo.it/~cerri/OFA/Giorno4/disequazioniValoreAssolutoBis.pdf',
+        note:'תרגילים מתקדמים עם ביטויים ריבועיים וכמה ערכים מוחלטים.'
+      },
+      {
+        lang:'Italiano',
+        title:'Altramatica - Disequazioni con valore assoluto',
+        url:'https://altramatica.altervista.org/disequazioni-con-valori-assoluti-esercizi-svolti/',
+        note:'רצף מתרגילים בסיסיים עד תרגילים עם שני ערכים מוחלטים.'
+      }
+    ];
+
+    const unitNumbers = [16];
+    const coverTitle = "אי שוויון עם ערך מוחלט";
+    const coverSubtitle = "יחידה נפרדת הכוללת תאוריה, דוגמה פתורה ותרגול מדורג בנושא ערך מוחלט.";
+
+    function coverPage() {
+      return `
+        <section class="page cover">
+          <div>
+            <div class="cover-mark">מערך שיעור מלא · לימוד עצמאי</div>
+            <h1>${coverTitle}</h1>
+          </div>
+        </section>`;
+    }
+
+    function theoryPage(topic, index) {
+      const graph = topic.graph ? `<div id="board-${index}" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>` : '';
+      return `
+        <section class="page theory-page">
+          <h2>${topic.title}</h2>
+          <ul class="goals">${topic.goals.map(g=>`<li>${g}</li>`).join('')}</ul>
+          <div class="theory-grid_">
+            <div>
+              <div class="box">
+                <h3>הרעיון המרכזי</h3>
+                <p>${topic.theory}</p>
+              </div>
+              <div class="box rule">
+                <h3>כלל שכדאי לזכור</h3>
+                ${topic.rule}
+              </div>
+              <div class="self-check">${topic.check}</div>
+            </div>
+<div style="height:20px;"></div>
+            <div>
+              <div class="box worked">
+                <h3>דוגמה פתורה</h3>
+                <p>${topic.example}</p>
+                <p><strong>פתרון:</strong> ${topic.solution}</p>
+              </div>
+              ${graph}
+            </div>
+          </div>
+        </section>`;
+    }
+
+    function exercisePage(topic, topicIndex, items, level, start) {
+      const levelNames = { easy:'קל', medium:'בינוני', hard:'קשה' };
+      const hint = guidance[topicIndex][level];
+      const finish = start + items.length - 1;
+      return `
+        <section class="page exercise-page">
+          <div class="exercise-head">
+            <div>
+              <h2>${topic.title}</h2>
+              <div class="chapter">תרגילים ${start}-${finish}</div>
+            </div>
+            <span class="level ${level}">${levelNames[level]}</span>
+          </div>
+          <div class="hint"><strong>כיוון לפתרון:</strong> ${hint}</div>
+          <div style="height:2.5mm"></div>
+          <ol class="exercise-list" style="--start:${start-1}">
+            ${items.map(item=>`
+              <li class="exercise">
+                <div>${item.q}</div>
+                <div class="answer"><strong>תשובה לבדיקה:</strong> ${item.a}</div>
+              </li>`).join('')}
+          </ol>
+        </section>`;
+    }
+
+    function balancedChunks(items, maxSize=8) {
+      if (!items.length) return [];
+      const pageCount = Math.ceil(items.length / maxSize);
+      const base = Math.floor(items.length / pageCount);
+      let remainder = items.length % pageCount;
+      const chunks = [];
+      let cursor = 0;
+      for (let p=0; p<pageCount; p++) {
+        const size = base + (remainder > 0 ? 1 : 0);
+        if (remainder > 0) remainder--;
+        chunks.push(items.slice(cursor, cursor + size));
+        cursor += size;
+      }
+      return chunks;
+    }
+
+    function sourcesPage() {
+      return `
+        <section class="page sources-page">
+          <div class="exercise-head">
+            <div>
+              <h2>מקורות והשראה לתרגילים החדשים</h2>
+              <div class="chapter">חיפוש רב-לשוני ורב-פורמטי</div>
+            </div>
+          </div>
+          <div class="source-intro">
+            התרגילים מהתמונות הוכנסו כפי שהופיעו במקור. התרגילים הנוספים במסמך נבנו מחדש,
+            ברמה ובסגנון דומים, בהשראת מקורות לימודיים בעברית, באנגלית, בספרדית ובאיטלקית.
+            הם אינם העתקה רציפה של דף תרגול חיצוני.
+          </div>
+          <ul class="source-list">
+            ${researchSources.map(s=>`
+              <li class="source-card">
+                <span class="source-lang">${s.lang}</span>
+                <a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.title}</a>
+                <p>${s.note}</p>
+              </li>`).join('')}
+          </ul>
+        </section>`;
+    }
+
+    function renderDocument() {
+      const pages = [];
+      topicData.forEach((topic, i) => {
+        const exercises = topic.make();
+        const expected = 55;
+        if (exercises.length !== expected) throw new Error(`Topic ${unitNumbers[i]} has ${exercises.length} exercises; expected ${expected}`);
+
+        let start = 1;
+        ['easy','medium','hard'].forEach(level => {
+          const levelItems = exercises.filter(item => item.level === level);
+          balancedChunks(levelItems, 8).forEach(chunk => {
+            pages.push(exercisePage(topic, i, chunk, level, start));
+            start += chunk.length;
+          });
+        });
+      });
+      //pages.push(sourcesPage());
+
+      const root = document.getElementById('document');
+      root.innerHTML = pages.join('');
+      [...root.querySelectorAll('.page')].forEach((page,i)=>page.dataset.page=`${i+1} / ${pages.length}`);
+    }
+
+    function initBoards() {
+      if (!window.JXG) return;
+      JXG.Options.text.useMathJax = false;
+      const specs = {
+        quadratic: { box:[-5,8,5,-5], f:x=>2*x*x-5*x-3, color:'#216a8b' },
+        polynomial:{ box:[-4,8,5,-8], f:x=>-(x+1)*(x+1)*(x-2), color:'#216a8b' },
+        sign:{ box:[-4,2.6,3,-2.6], color:'#21868a' },
+        intersection:{ box:[-4,12,5,-5], f:x=>x*x, g:x=>2*x+3, color:'#216a8b' },
+        rational:{ box:[-6,8,7,-7], f:x=>(x+1)/(x-2), color:'#216a8b', asym:true }
+      };
+      topicData.forEach((topic,i)=>{
+        if(!topic.graph) return;
+        const s=specs[topic.graph];
+        const board=JXG.JSXGraph.initBoard(`board-${i}`,{
+          boundingbox:s.box, axis:true, showCopyright:false, showNavigation:false,
+          pan:{enabled:false}, zoom:{enabled:false}, keepaspectratio:false
+        });
+        if(topic.graph==='sign'){
+          board.suspendUpdate();
+          board.removeObject(board.defaultAxes.x);
+          board.removeObject(board.defaultAxes.y);
+          const drawSignMap=(y, roots, signs, label)=>{
+            board.create('arrow',[[-3.55,y],[2.55,y]],{
+              strokeColor:'#586579',strokeWidth:2.2,fixed:true,highlight:false
+            });
+            roots.forEach(r=>{
+              board.create('segment',[[r,y-.16],[r,y+.16]],{
+                strokeColor:'#17233c',strokeWidth:3,fixed:true,highlight:false
+              });
+              board.create('text',[r,y-.38,String(r)],{
+                anchorX:'middle',anchorY:'top',fontSize:12,color:'#34465a',fixed:true,
+                cssStyle:'direction:ltr;unicode-bidi:isolate;'
+              });
+            });
+            const edges=[-3.55,...roots,2.55];
+            signs.forEach((sign,j)=>{
+              board.create('text',[(edges[j]+edges[j+1])/2,y+.42,sign],{
+                anchorX:'middle',anchorY:'middle',fontSize:18,
+                color:sign==='+'?'#227d67':'#b24a4a',fixed:true,
+                cssStyle:'direction:ltr;unicode-bidi:isolate;'
+              });
+            });
+            board.create('text',[-3.55,y+.75,label],{
+              anchorX:'left',anchorY:'middle',fontSize:12,color:'#15375f',fixed:true
+              ,cssStyle:'direction:ltr;unicode-bidi:isolate;'
+            });
+          };
+          drawSignMap(.95,[-2,1],['+','-','+'],'f(x) = (x + 2)(x − 1)');
+          drawSignMap(-1.05,[-2,1],['-','-','+'],'g(x) = (x + 2)²(x − 1)');
+          board.unsuspendUpdate();
+          return;
+        }
+        board.create('functiongraph',[s.f],{strokeColor:s.color,strokeWidth:2.4});
+        if(s.g) board.create('functiongraph',[s.g],{strokeColor:'#d58e24',strokeWidth:2.2,dash:2});
+        if(s.asym){
+          board.create('line',[[2,0],[2,1]],{straightFirst:true,straightLast:true,strokeColor:'#d58e24',dash:2,fixed:true});
+          board.create('line',[[0,1],[1,1]],{straightFirst:true,straightLast:true,strokeColor:'#d58e24',dash:2,fixed:true});
+        }
+      });
+    }
+
+    async function boot() {
+      renderDocument();
+      const wait = ms => new Promise(resolve=>setTimeout(resolve,ms));
+      for(let i=0;i<80 && (!window.MathJax?.typesetPromise || !window.JXG);i++) await wait(100);
+      if(window.MathJax?.typesetPromise) await MathJax.typesetPromise([document.getElementById('document')]);
+      initBoards();
+      document.documentElement.dataset.ready = 'true';
+    }
+
+    window.addEventListener('load', boot);
+  </script>
+</body>
+</html>
