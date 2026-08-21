@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="מעבדת חורים ואי-רציפויות בפונקציות שורש">
+  <title>מעבדת החורים והאי-רציפויות - Native JS</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --bg: #f5f7ff;
+      --surface: #ffffff;
+      --surface-soft: #f7f9ff;
+      --ink: #202a44;
+      --muted: #0a2a68;
+      --line: #dce5f2;
+      --accent: #5b5bd6;
+      --accent-soft: #eeeeff;
+      --success: #14836f;
+      --success-soft: #e8faf4;
+      --warning: #ad6700;
+      --warning-soft: #fff5df;
+      --danger: #c94268;
+      --danger-soft: #fff0f4;
+      --shadow: 0 12px 32px rgba(72, 77, 140, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #5052c9 0%, #6c63e8 46%, #2aa7d6 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      font-size: .88rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    h1, h2, h3 { line-height: 1.25; margin-top: 0; }
+    h1 { margin-bottom: 10px; }
+    h2 { margin-bottom: 14px; }
+    h3 { font-size: 1.18rem; margin-bottom: 9px; }
+
+    .hero p {
+      margin: 0;
+      max-width: 820px;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.92);
+    }
+
+    .summary-grid,
+    .classification-grid,
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-card,
+    .classification-card,
+    .exercise-card,
+    .panel,
+    .theory-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card { padding: 15px; }
+    .summary-card strong { display: block; font-size: 1.02rem; margin-bottom: 4px; }
+    .summary-card span { color: var(--muted); font-size: .94rem; }
+
+    .section {
+      margin-top: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: bold;
+    }
+
+    .panel {
+      padding: 20px;
+      margin-top: 14px;
+    }
+
+    .lab-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(310px, .82fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .graph-panel {
+      min-width: 0;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .jxgbox {
+      width: 100%;
+      height: 430px;
+      border: 1px solid #cdd8e6;
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .graph-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      direction: ltr;
+      justify-content: flex-start;
+    }
+
+    .btn {
+      border: 1px solid #c9d5e7;
+      background: #fff;
+      color: #253550;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 700;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+
+    .btn:hover {
+      border-color: #96a9c5;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(27,46,94,.08);
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+    }
+
+    .control {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .value-pill {
+      min-width: 42px;
+      text-align: center;
+      direction: ltr;
+      background: var(--accent-soft);
+      color: #4b4bbd;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .formula-box {
+      background: #fbfbff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      min-height: 74px;
+      display: grid;
+      align-items: center;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .fact {
+      border-radius: 12px;
+      padding: 8px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+    }
+
+    .fact small { display: block; color: var(--muted); margin-bottom: 3px; }
+    .fact strong { direction: ltr; display: inline-block; }
+
+    .status {
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 700;
+    }
+    .status.success { background: var(--success-soft); color: var(--success); }
+    .status.warning { background: var(--warning-soft); color: var(--warning); }
+    .status.danger { background: var(--danger-soft); color: var(--danger); }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .legend-item { display: inline-flex; align-items: center; gap: 7px; }
+    .swatch { width: 24px; height: 4px; border-radius: 999px; display: inline-block; }
+    .swatch.function { background: #5b5bd6; }
+    .swatch.hole { height: 12px; width: 12px; background: #fff; border: 2px solid #e05c7b; border-radius: 50%; }
+    .swatch.asymptote { background: #e05c7b; background-image: repeating-linear-gradient(90deg,#e05c7b 0 6px, transparent 6px 10px); }
+    .swatch.left { background: #8a5be2; }
+    .swatch.right { background: #18a184; }
+
+    .labs-tabs {
+      margin-top: 24px;
+    }
+
+    .tab-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 8px;
+      margin-bottom: 14px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 8px;
+      z-index: 20;
+    }
+
+    .tab-button {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: bold;
+      transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
+    }
+
+    .tab-button:hover {
+      background: var(--surface-soft);
+      color: var(--ink);
+    }
+
+    .tab-button[aria-selected="true"] {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 6px 16px rgba(91,91,214,.22);
+    }
+
+    .tab-button:focus-visible {
+      outline: 3px solid rgba(91,91,214,.25);
+      outline-offset: 2px;
+    }
+
+    .tab-panel {
+      margin-top: 0;
+    }
+
+    .tab-panel[hidden] {
+      display: none !important;
+    }
+
+    .classification-card { padding: 18px; }
+    .classification-card .tag {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: .83rem;
+      font-weight: 700;
+      margin-bottom: 9px;
+    }
+    .tag.hole { background: var(--success-soft); color: var(--success); }
+    .tag.vertical { background: var(--danger-soft); color: var(--danger); }
+    .tag.jump { background: var(--warning-soft); color: var(--warning); }
+
+    .theory-card { padding: 20px; }
+    .steps { counter-reset: step; display: grid; gap: 12px; }
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: #4b4bbd;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      direction: ltr;
+    }
+    .step p { margin: 3px 0 0; color: var(--muted); }
+
+    .exercise-card {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      min-height: 240px;
+    }
+    .exercise-card .difficulty {
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 700;
+    }
+    .answer {
+      display: none;
+      border-radius: 12px;
+      padding: 12px;
+      background: #f7f9ff;
+      border: 1px solid #dfe5f6;
+      margin-top: 2px;
+    }
+    .answer.open { display: block; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 28px;
+    }
+
+    .ltr { direction: ltr; unicode-bidi: isolate; }
+
+    /* Student-friendly visual layer */
+    body {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(91,91,214,.3), transparent 24%),
+        radial-gradient(circle at 92% 16%, rgba(42,167,214,.3), transparent 22%),
+        var(--bg);
+    }
+
+    .hero { position: relative; overflow: hidden; }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.10);
+      left: -72px;
+      top: -96px;
+      pointer-events: none;
+    }
+
+    .icon, .title-icon, .tab-icon, .btn-icon {
+      display: inline-grid;
+      place-items: center;
+      line-height: 1;
+      vertical-align: -0.08em;
+    }
+    .title-icon {
+      width: 38px;
+      height: 38px;
+      margin-left: 8px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      font-size: 1.2rem;
+    }
+    .section-head h2 { display: flex; align-items: center; gap: 2px; }
+
+    .tab-button {
+      background: #fafbff;
+      border-color: #e3e8f5;
+      color: #485572;
+    }
+    .tab-button .tab-icon { margin-left: 6px; font-size: 1.08rem; }
+    .tab-button[data-tab="hole"]:hover { background: #eefaf5; }
+    .tab-button[data-tab="asymptote"]:hover { background: #fff2f5; }
+    .tab-button[data-tab="jump"]:hover { background: #f4f0ff; }
+    .tab-button[data-tab="hole"][aria-selected="true"] { background: #168b74; border-color: #168b74; }
+    .tab-button[data-tab="asymptote"][aria-selected="true"] { background: #d84e72; border-color: #d84e72; }
+    .tab-button[data-tab="jump"][aria-selected="true"] { background: #7656d6; border-color: #7656d6; }
+
+    .panel { border-top: 5px solid #cfd6ff; }
+    #lab-hole .panel { border-top-color: #56c3a7; }
+    #lab-asymptote .panel { border-top-color: #ef86a0; }
+    #lab-jump .panel { border-top-color: #a78af0; }
+
+    .graph-panel {
+      background: linear-gradient(180deg, #fbfcff 0%, #f5f8ff 100%);
+    }
+    .jxgbox { box-shadow: inset 0 0 0 1px rgba(91,91,214,.03); }
+
+    .btn {
+      border-color: #d5dcef;
+      background: #ffffff;
+      color: #34405d;
+    }
+    .btn:hover { border-color: #aeb9dd; box-shadow: 0 5px 13px rgba(72,77,140,.11); }
+    .btn.primary, .btn.reveal {
+      background: linear-gradient(135deg, #5b5bd6, #7272e8);
+      color: #fff;
+      border-color: transparent;
+    }
+    .btn.reveal:hover { border-color: transparent; }
+    .graph-toolbar .btn:nth-child(1) { background: #fff8e8; border-color: #f4d892; }
+    .graph-toolbar .btn:nth-child(2) { background: #eefaf5; border-color: #b8e4d7; }
+    .graph-toolbar .btn:nth-child(3) { background: #fff1f5; border-color: #efc5d0; }
+    .graph-toolbar .btn:nth-child(4) { background: #eef4ff; border-color: #c6d6f7; }
+
+    .control { background: linear-gradient(180deg, #ffffff, #fafbff); }
+    .value-pill { box-shadow: inset 0 0 0 1px rgba(91,91,214,.08); }
+    input[type="range"] { accent-color: #6969df; }
+
+    .fact { background: #fbfcff; }
+    .fact:nth-child(1) { background: #eef7ff; border-color: #d2e7fa; }
+    .fact:nth-child(2) { background: #f0fbf7; border-color: #d2eee4; }
+    .fact:nth-child(3) { background: #fff9ec; border-color: #f4e4bb; }
+    .fact:nth-child(4) { background: #f7f2ff; border-color: #e3d8fa; }
+
+    .status { display: flex; align-items: center; gap: 8px; }
+    .status::before { font-size: 1.08rem; }
+    .status.success::before { content: "✓"; }
+    .status.warning::before { content: "⚡"; }
+    .status.danger::before { content: "!"; }
+
+    .exercise-card {
+      position: relative;
+      overflow: hidden;
+      border-top: 4px solid #6e73df;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .exercise-card:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(72,77,140,.13); }
+    .exercise-card:nth-child(3n+2) { border-top-color: #2aa7d6; }
+    .exercise-card:nth-child(3n) { border-top-color: #27a786; }
+    .difficulty {
+      width: fit-content;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #f0f2ff;
+      color: #565ac4 !important;
+    }
+    .answer { border-right: 4px solid #6a6edb; }
+
+    .legend-item {
+      background: #fff;
+      border: 1px solid #e0e6f2;
+      border-radius: 999px;
+      padding: 5px 9px;
+    }
+
+    @media (max-width: 900px) {
+      .lab-grid { grid-template-columns: 1fr; }
+      .summary-grid, .classification-grid, .exercise-grid { grid-template-columns: 1fr 1fr; }
+      .jxgbox { height: 390px; }
+    }
+
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 18px, 1180px); padding-top: 10px; }
+      .hero { padding: 24px 20px; border-radius: 18px; }
+      .summary-grid, .classification-grid, .exercise-grid, .facts { grid-template-columns: 1fr; }
+      .panel { padding: 14px; }
+      .jxgbox { height: 340px; }
+      .section-head { align-items: start; flex-direction: column; }
+      .tab-list { grid-template-columns: 1fr; position: static; }
+      .tab-button { padding: 10px 12px; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { background: #fff; }
+      .shell { width: 100%; padding: 0; }
+      .hero, .summary-card, .classification-card, .exercise-card, .panel, .theory-card {
+        box-shadow: none;
+      }
+      .graph-toolbar, .btn.reveal, .tab-list { display: none !important; }
+      .tab-panel[hidden] { display: block !important; }
+      .panel, .theory-card, .exercise-card { break-inside: avoid; }
+      .jxgbox { height: 360px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <h1><span aria-hidden="true">🔎</span> מעבדת חורים ואי-רציפויות בפונקציות שורש</h1>
+    </header>
+
+    <section class="labs-tabs" aria-label="מעבדות אינטראקטיביות">
+      <div class="tab-list" role="tablist" aria-label="בחירת מעבדה">
+        <button class="tab-button" id="tab-hole" type="button" role="tab" aria-selected="true" aria-controls="lab-hole" data-tab="hole"><span class="tab-icon" aria-hidden="true">◌</span>מעבדה 1 - חור בר-סילוק</button>
+        <button class="tab-button" id="tab-asymptote" type="button" role="tab" aria-selected="false" aria-controls="lab-asymptote" data-tab="asymptote" tabindex="-1"><span class="tab-icon" aria-hidden="true">↕</span>מעבדה 2 - אסימפטוטה אנכית</button>
+        <button class="tab-button" id="tab-jump" type="button" role="tab" aria-selected="false" aria-controls="lab-jump" data-tab="jump" tabindex="-1"><span class="tab-icon" aria-hidden="true">⚡</span>מעבדה 3 - קפיצה</button>
+      </div>
+
+      <section class="section tab-panel" id="lab-hole" role="tabpanel" aria-labelledby="tab-hole">
+      <div class="section-head">
+        <div>
+          <h2><span class="title-icon" aria-hidden="true">◌</span>מעבדה 1 - חור בר-סילוק</h2>
+          <p>המונה והמכנה מתאפסים באותה נקודה. לאחר רציונליזציה מתקבל ביטוי פשוט יותר, אבל הנקודה נשארת מחוץ לתחום המקורי.</p>
+        </div>
+      </div>
+
+      <article class="panel lab-grid">
+        <div class="graph-panel">
+          <div id="boardHole" class="jxgbox" role="img" aria-label="גרף אינטראקטיבי של פונקציית שורש עם חור"></div>
+          <div class="graph-toolbar" aria-label="בקרי גרף החור">
+            <button class="btn" type="button" data-board="hole" data-action="reset"><span class="btn-icon" aria-hidden="true">↺</span> Reset</button>
+            <button class="btn" type="button" data-board="hole" data-action="zoom-in"><span class="btn-icon" aria-hidden="true">＋</span> Zoom In</button>
+            <button class="btn" type="button" data-board="hole" data-action="zoom-out"><span class="btn-icon" aria-hidden="true">−</span> Zoom Out</button>
+            <button class="btn" type="button" data-board="hole" data-action="center"><span class="btn-icon" aria-hidden="true">◎</span> Center</button>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch function"></i> הפונקציה</span>
+            <span class="legend-item"><i class="swatch hole"></i> חור</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="formula-box" id="holeFormula">\(f(x)=\dfrac{\sqrt{x+a}-b}{x-(b^2-a)}\)</div>
+
+          <div class="control">
+            <label for="holeA"><span>הפרמטר \(a\)</span><span class="value-pill" id="holeAValue">4</span></label>
+            <input id="holeA" type="range" min="0" max="9" step="1" value="4">
+          </div>
+
+          <div class="control">
+            <label for="holeB"><span>הפרמטר \(b\)</span><span class="value-pill" id="holeBValue">3</span></label>
+            <input id="holeB" type="range" min="1" max="5" step="1" value="3">
+          </div>
+
+          <div class="facts">
+            <div class="fact"><small>נקודת האי-תחום</small><strong id="holeX0">x = 5</strong></div>
+            <div class="fact"><small>גובה החור</small><strong id="holeY0">y = 1/6</strong></div>
+            <div class="fact"><small>תחום</small><strong id="holeDomain">x ≥ -4, x ≠ 5</strong></div>
+            <div class="fact"><small>הגבול</small><strong id="holeLimit">1/6</strong></div>
+          </div>
+
+          <div class="status success" id="holeStatus">סיווג: חור בר-סילוק.</div>
+          <div class="formula-box" id="holeSimplified">\(f(x)=\dfrac{1}{\sqrt{x+a}+b},\quad x\ne b^2-a\)</div>
+        </div>
+      </article>
+    </section>
+
+      <section class="section tab-panel" id="lab-asymptote" role="tabpanel" aria-labelledby="tab-asymptote" hidden>
+      <div class="section-head">
+        <div>
+          <h2><span class="title-icon" aria-hidden="true">↕</span>מעבדה 2 - אסימפטוטה אנכית</h2>
+          <p>כאן המכנה מתאפס, אבל אין גורם שמתבטל. ערכי הפונקציה גדלים ללא חסם ליד הנקודה החשודה.</p>
+        </div>
+      </div>
+
+      <article class="panel lab-grid">
+        <div class="graph-panel">
+          <div id="boardAsymptote" class="jxgbox" role="img" aria-label="גרף אינטראקטיבי של פונקציית שורש עם אסימפטוטה אנכית"></div>
+          <div class="graph-toolbar" aria-label="בקרי גרף האסימפטוטה">
+            <button class="btn" type="button" data-board="asymptote" data-action="reset"><span class="btn-icon" aria-hidden="true">↺</span> Reset</button>
+            <button class="btn" type="button" data-board="asymptote" data-action="zoom-in"><span class="btn-icon" aria-hidden="true">＋</span> Zoom In</button>
+            <button class="btn" type="button" data-board="asymptote" data-action="zoom-out"><span class="btn-icon" aria-hidden="true">−</span> Zoom Out</button>
+            <button class="btn" type="button" data-board="asymptote" data-action="center"><span class="btn-icon" aria-hidden="true">◎</span> Center</button>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch function"></i> הפונקציה</span>
+            <span class="legend-item"><i class="swatch asymptote"></i> אסימפטוטה אנכית</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="formula-box" id="asymFormula">\(g(x)=\dfrac{1}{\sqrt{x+c}-d}\)</div>
+
+          <div class="control">
+            <label for="asymC"><span>הפרמטר \(c\)</span><span class="value-pill" id="asymCValue">4</span></label>
+            <input id="asymC" type="range" min="1" max="9" step="1" value="4">
+          </div>
+
+          <div class="control">
+            <label for="asymD"><span>הפרמטר \(d\)</span><span class="value-pill" id="asymDValue">2</span></label>
+            <input id="asymD" type="range" min="1" max="4" step="1" value="2">
+          </div>
+
+          <div class="facts">
+            <div class="fact"><small>נקודה חשודה</small><strong id="asymX0">x = 0</strong></div>
+            <div class="fact"><small>תחום השורש</small><strong id="asymRootDomain">x ≥ -4</strong></div>
+            <div class="fact"><small>תחום הפונקציה</small><strong id="asymDomain">x ≥ -4, x ≠ 0</strong></div>
+            <div class="fact"><small>התנהגות</small><strong id="asymBehavior">±∞</strong></div>
+          </div>
+
+          <div class="status danger">סיווג: אסימפטוטה אנכית בנקודה - לא חור.</div>
+        </div>
+      </article>
+    </section>
+
+      <section class="section tab-panel" id="lab-jump" role="tabpanel" aria-labelledby="tab-jump" hidden>
+      <div class="section-head">
+        <div>
+          <h2><span class="title-icon" aria-hidden="true">⚡</span>מעבדה 3 - אי-רציפות מסוג קפיצה</h2>
+          <p>שורש של ריבוע הוא ערך מוחלט. לכן שני צדי הנקודה מתנהגים אחרת, והגבולות החד-צדדיים אינם שווים.</p>
+        </div>
+      </div>
+
+      <article class="panel lab-grid">
+        <div class="graph-panel">
+          <div id="boardJump" class="jxgbox" role="img" aria-label="גרף אינטראקטיבי של פונקציית שורש עם קפיצה"></div>
+          <div class="graph-toolbar" aria-label="בקרי גרף הקפיצה">
+            <button class="btn" type="button" data-board="jump" data-action="reset"><span class="btn-icon" aria-hidden="true">↺</span> Reset</button>
+            <button class="btn" type="button" data-board="jump" data-action="zoom-in"><span class="btn-icon" aria-hidden="true">＋</span> Zoom In</button>
+            <button class="btn" type="button" data-board="jump" data-action="zoom-out"><span class="btn-icon" aria-hidden="true">−</span> Zoom Out</button>
+            <button class="btn" type="button" data-board="jump" data-action="center"><span class="btn-icon" aria-hidden="true">◎</span> Center</button>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch left"></i> צד שמאל</span>
+            <span class="legend-item"><i class="swatch right"></i> צד ימין</span>
+            <span class="legend-item"><i class="swatch hole"></i> נקודה שאינה בתחום</span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="formula-box" id="jumpFormula">\(h(x)=\dfrac{\sqrt{(x-u)^2}}{x-u}\)</div>
+
+          <div class="control">
+            <label for="jumpU"><span>הפרמטר \(u\)</span><span class="value-pill" id="jumpUValue">2</span></label>
+            <input id="jumpU" type="range" min="-5" max="5" step="1" value="2">
+          </div>
+
+          <div class="facts">
+            <div class="fact"><small>נקודת האי-תחום</small><strong id="jumpX0">x = 2</strong></div>
+            <div class="fact"><small>גבול משמאל</small><strong>-1</strong></div>
+            <div class="fact"><small>גבול מימין</small><strong>1</strong></div>
+            <div class="fact"><small>גבול דו-צדדי</small><strong>does not exist</strong></div>
+          </div>
+
+          <div class="status warning">סיווג: קפיצה. הגבולות החד-צדדיים קיימים אך אינם שווים.</div>
+          <div class="formula-box">\(\sqrt{(x-u)^2}=|x-u|⇒ h(x)=\begin{cases}-1,&x\lt u\\1,&x\gt u\end{cases}\)</div>
+        </div>
+      </article>
+      </section>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2><span class="title-icon" aria-hidden="true">✏️</span>תרגול</h2>
+        </div>
+      </div>
+
+      <div class="exercise-grid">
+        <article class="exercise-card">
+          <div class="difficulty">● רמה 1</div>
+          <h3>תרגיל 1</h3>
+          <div>נתונה \(f(x)=\dfrac{\sqrt{x+7}-3}{x-2}\). מצאו את תחום ההגדרה, את נקודת החור ואת הגבול בנקודה.</div>
+          <button class="btn reveal" type="button" data-answer="ans1"><span class="btn-icon" aria-hidden="true">💡</span> הצג פתרון</button>
+          <div class="answer" id="ans1">\(x\ge-7,\ x\ne2\). לאחר רציונליזציה: \(f(x)=\dfrac{1}{\sqrt{x+7}+3}\), ולכן החור הוא \((2,1/6)\) והגבול הוא \(1/6\).</div>
+        </article>
+
+        <article class="exercise-card">
+          <div class="difficulty">● רמה 1</div>
+          <h3>תרגיל 2</h3>
+          <div>נתונה \(g(x)=\dfrac{1}{\sqrt{x+5}-2}\). מצאו את האסימפטוטה האנכית.</div>
+          <button class="btn reveal" type="button" data-answer="ans2"><span class="btn-icon" aria-hidden="true">💡</span> הצג פתרון</button>
+          <div class="answer" id="ans2">המכנה מתאפס כאשר \(\sqrt{x+5}=2⇒ x=-1\). לכן \(x=-1\) היא אסימפטוטה אנכית.</div>
+        </article>
+
+        <article class="exercise-card">
+          <div class="difficulty">◆ רמה 2</div>
+          <h3>תרגיל 3</h3>
+          <div>סווגו את האי-רציפות של \(h(x)=\dfrac{\sqrt{(x+1)^2}}{x+1}\) בנקודה \(x=-1\).</div>
+          <button class="btn reveal" type="button" data-answer="ans3"><span class="btn-icon" aria-hidden="true">💡</span> הצג פתרון</button>
+          <div class="answer" id="ans3">משמאל מתקבל הגבול \(-1\), ומימין מתקבל הגבול \(1\). הגבולות שונים, ולכן זו קפיצה.</div>
+        </article>
+
+        <article class="exercise-card">
+          <div class="difficulty">◆ רמה 2</div>
+          <h3>תרגיל 4</h3>
+          <div>עבור \(p\gt0\), נתונה \(F(x)=\dfrac{\sqrt{x+p}-\sqrt{p}}{x}\). מצאו את ערך הגבול כאשר \(x\to0\).</div>
+          <button class="btn reveal" type="button" data-answer="ans4"><span class="btn-icon" aria-hidden="true">💡</span> הצג פתרון</button>
+          <div class="answer" id="ans4">לאחר רציונליזציה: \(F(x)=\dfrac{1}{\sqrt{x+p}+\sqrt{p}}\), ולכן \(\lim_{x\to0}F(x)=\dfrac{1}{2\sqrt{p}}\).</div>
+        </article>
+
+        <article class="exercise-card">
+          <div class="difficulty">★ רמה 3</div>
+          <h3>תרגיל 5</h3>
+          <div>נתונה \(Q(x)=\dfrac{\sqrt{x+12}-4}{x-4}\). הגדירו \(Q(4)\) כך שהפונקציה המורחבת תהיה רציפה.</div>
+          <button class="btn reveal" type="button" data-answer="ans5"><span class="btn-icon" aria-hidden="true">💡</span> הצג פתרון</button>
+          <div class="answer" id="ans5">הגבול הוא \(1/(4+4)=1/8\). לכן יש להגדיר \(Q(4)=1/8\).</div>
+        </article>
+
+        <article class="exercise-card">
+          <div class="difficulty">★ רמה 3</div>
+          <h3>תרגיל 6</h3>
+          <div>מצאו את ערך \(k\) כך שלפונקציה \(R(x)=\dfrac{\sqrt{x+5}-k}{x-4}\) יהיה חור בנקודה \(x=4\).</div>
+          <button class="btn reveal" type="button" data-answer="ans6"><span class="btn-icon" aria-hidden="true">💡</span> הצג פתרון</button>
+          <div class="answer" id="ans6">כדי לקבל \(0/0\) צריך \(\sqrt{4+5}-k=0⇒ 3-k=0⇒ k=3\).</div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    'use strict';
+
+    const state = {
+      boards: {},
+      initialBoxes: {
+        hole: [-10, 5, 18, -5],
+        asymptote: [-10, 8, 18, -8],
+        jump: [-8, 3, 10, -3]
+      }
+    };
+
+    function qs(id) {
+      return document.getElementById(id);
+    }
+
+    function num(id) {
+      return Number(qs(id).value);
+    }
+
+    function niceNumber(value, digits = 4) {
+      if (!Number.isFinite(value)) return String(value);
+      const rounded = Number(value.toFixed(digits));
+      return String(rounded);
+    }
+
+    function typeset(elements) {
+      if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+        window.MathJax.typesetClear(elements);
+        return window.MathJax.typesetPromise(elements).catch(function (error) {
+          console.error('MathJax typesetting error:', error);
+        });
+      }
+      return Promise.resolve();
+    }
+
+    function setMath(id, latex) {
+      const el = qs(id);
+      el.textContent = '\\(' + latex + '\\)';
+      typeset([el]);
+    }
+
+    function initBoard(id, box) {
+      return JXG.JSXGraph.initBoard(id, {
+        boundingbox: box,
+        axis: true,
+        keepaspectratio: false,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled: true, needTwoFingers: false },
+        zoom: { enabled: true, wheel: true, pinchHorizontal: true, pinchVertical: true, pinchSensitivity: 7 }
+      });
+    }
+
+    function updateHolePanel() {
+      const a = num('holeA');
+      const b = num('holeB');
+      const x0 = b * b - a;
+      const y0 = 1 / (2 * b);
+
+      qs('holeAValue').textContent = a;
+      qs('holeBValue').textContent = b;
+      qs('holeX0').textContent = 'x = ' + niceNumber(x0);
+      qs('holeY0').textContent = 'y = ' + niceNumber(y0);
+      qs('holeDomain').textContent = 'x ≥ ' + niceNumber(-a) + ', x ≠ ' + niceNumber(x0);
+      qs('holeLimit').textContent = niceNumber(y0);
+
+      setMath('holeFormula', 'f(x)=\\dfrac{\\sqrt{x+' + a + '}-' + b + '}{x-(' + niceNumber(x0) + ')}');
+      setMath('holeSimplified', 'f(x)=\\dfrac{1}{\\sqrt{x+' + a + '}+' + b + '},\\quad x\\ne ' + niceNumber(x0));
+
+      if (state.boards.hole) state.boards.hole.update();
+    }
+
+    function initHoleBoard() {
+      const board = initBoard('boardHole', state.initialBoxes.hole);
+      state.boards.hole = board;
+
+      const f = function (x) {
+        const a = num('holeA');
+        const b = num('holeB');
+        const x0 = b * b - a;
+        if (x < -a || Math.abs(x - x0) < 0.025) return NaN;
+        const root = Math.sqrt(x + a);
+        const denominator = x - x0;
+        if (Math.abs(denominator) < 1e-10) return NaN;
+        return (root - b) / denominator;
+      };
+
+      board.create('functiongraph', [f], {
+        strokeColor: '#4f68e8',
+        strokeWidth: 3,
+        highlight: false
+      });
+
+      board.create('point', [
+        function () { const a = num('holeA'); const b = num('holeB'); return b * b - a; },
+        function () { return 1 / (2 * num('holeB')); }
+      ], {
+        name: '',
+        size: 5,
+        face: 'o',
+        fillColor: '#ffffff',
+        strokeColor: '#e05c7b',
+        strokeWidth: 3,
+        fixed: true,
+        highlight: false
+      });
+
+      updateHolePanel();
+    }
+
+    function updateAsymPanel() {
+      const c = num('asymC');
+      const d = num('asymD');
+      const x0 = d * d - c;
+
+      qs('asymCValue').textContent = c;
+      qs('asymDValue').textContent = d;
+      qs('asymX0').textContent = 'x = ' + niceNumber(x0);
+      qs('asymRootDomain').textContent = 'x ≥ ' + niceNumber(-c);
+      qs('asymDomain').textContent = 'x ≥ ' + niceNumber(-c) + ', x ≠ ' + niceNumber(x0);
+      qs('asymBehavior').textContent = '±∞';
+
+      setMath('asymFormula', 'g(x)=\\dfrac{1}{\\sqrt{x+' + c + '}-' + d + '}');
+      if (state.boards.asymptote) state.boards.asymptote.update();
+    }
+
+    function initAsymBoard() {
+      const board = initBoard('boardAsymptote', state.initialBoxes.asymptote);
+      state.boards.asymptote = board;
+
+      const g = function (x) {
+        const c = num('asymC');
+        const d = num('asymD');
+        const x0 = d * d - c;
+        if (x < -c || Math.abs(x - x0) < 0.018) return NaN;
+        const denominator = Math.sqrt(x + c) - d;
+        if (Math.abs(denominator) < 1e-10) return NaN;
+        return 1 / denominator;
+      };
+
+      board.create('functiongraph', [g], {
+        strokeColor: '#4f68e8',
+        strokeWidth: 3,
+        highlight: false
+      });
+
+      const asymPoint1 = board.create('point', [
+        function () { const c = num('asymC'); const d = num('asymD'); return d * d - c; },
+        -100
+      ], { visible: false, fixed: true, name: '' });
+      const asymPoint2 = board.create('point', [
+        function () { const c = num('asymC'); const d = num('asymD'); return d * d - c; },
+        100
+      ], { visible: false, fixed: true, name: '' });
+
+      board.create('line', [asymPoint1, asymPoint2], {
+        straightFirst: true,
+        straightLast: true,
+        strokeColor: '#e05c7b',
+        dash: 2,
+        strokeWidth: 2,
+        fixed: true,
+        highlight: false
+      });
+
+      updateAsymPanel();
+    }
+
+    function updateJumpPanel() {
+      const u = num('jumpU');
+      qs('jumpUValue').textContent = u;
+      qs('jumpX0').textContent = 'x = ' + niceNumber(u);
+      setMath('jumpFormula', 'h(x)=\\dfrac{\\sqrt{(x-' + (u < 0 ? '(' + u + ')' : u) + ')^2}}{x-' + (u < 0 ? '(' + u + ')' : u) + '}');
+      if (state.boards.jump) state.boards.jump.update();
+    }
+
+    function initJumpBoard() {
+      const board = initBoard('boardJump', state.initialBoxes.jump);
+      state.boards.jump = board;
+
+      const left = function (x) {
+        const u = num('jumpU');
+        return x < u ? -1 : NaN;
+      };
+      const right = function (x) {
+        const u = num('jumpU');
+        return x > u ? 1 : NaN;
+      };
+
+      board.create('functiongraph', [left], {
+        strokeColor: '#8a5be2', strokeWidth: 3, highlight: false
+      });
+      board.create('functiongraph', [right], {
+        strokeColor: '#18a184', strokeWidth: 3, highlight: false
+      });
+
+      board.create('point', [function () { return num('jumpU'); }, -1], {
+        name: '', size: 5, face: 'o', fillColor: '#ffffff', strokeColor: '#8a5be2', strokeWidth: 3, fixed: true, highlight: false
+      });
+      board.create('point', [function () { return num('jumpU'); }, 1], {
+        name: '', size: 5, face: 'o', fillColor: '#ffffff', strokeColor: '#18a184', strokeWidth: 3, fixed: true, highlight: false
+      });
+
+      updateJumpPanel();
+    }
+
+    function zoomBoard(board, factor) {
+      const box = board.getBoundingBox();
+      const cx = (box[0] + box[2]) / 2;
+      const cy = (box[1] + box[3]) / 2;
+      const halfW = (box[2] - box[0]) * factor / 2;
+      const halfH = (box[1] - box[3]) * factor / 2;
+      board.setBoundingBox([cx - halfW, cy + halfH, cx + halfW, cy - halfH], false);
+    }
+
+    function resetBoard(name) {
+      const board = state.boards[name];
+      const box = state.initialBoxes[name];
+      if (!board || !box) return;
+      board.setBoundingBox(box.slice(), false);
+      board.update();
+    }
+
+    function centerBoard(name) {
+      const board = state.boards[name];
+      if (!board) return;
+      const box = board.getBoundingBox();
+      const halfW = (box[2] - box[0]) / 2;
+      const halfH = (box[1] - box[3]) / 2;
+      let cx = 0;
+      let cy = 0;
+
+      if (name === 'hole') {
+        const a = num('holeA');
+        const b = num('holeB');
+        cx = b * b - a;
+        cy = 1 / (2 * b);
+      } else if (name === 'asymptote') {
+        const c = num('asymC');
+        const d = num('asymD');
+        cx = d * d - c;
+      } else if (name === 'jump') {
+        cx = num('jumpU');
+      }
+
+      board.setBoundingBox([cx - halfW, cy + halfH, cx + halfW, cy - halfH], false);
+      board.update();
+    }
+
+    function ensureBoard(name) {
+      if (state.boards[name]) return state.boards[name];
+      if (name === 'hole') initHoleBoard();
+      if (name === 'asymptote') initAsymBoard();
+      if (name === 'jump') initJumpBoard();
+      return state.boards[name];
+    }
+
+    function activateTab(name, focusButton) {
+      const button = document.querySelector('.tab-button[data-tab="' + name + '"]');
+      const panel = qs('lab-' + name);
+      if (!button || !panel) return;
+
+      document.querySelectorAll('.tab-button').forEach(function (item) {
+        const active = item === button;
+        item.setAttribute('aria-selected', active ? 'true' : 'false');
+        item.tabIndex = active ? 0 : -1;
+      });
+
+      document.querySelectorAll('.tab-panel').forEach(function (item) {
+        item.hidden = item !== panel;
+      });
+
+      const board = ensureBoard(name);
+      requestAnimationFrame(function () {
+        if (board && typeof board.resizeContainer === 'function') {
+          const box = board.containerObj;
+          board.resizeContainer(box.clientWidth, box.clientHeight, true);
+        }
+        if (board) board.fullUpdate();
+      });
+
+      if (focusButton) button.focus();
+      if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+        typeset([panel]);
+      }
+    }
+
+    function bindTabs() {
+      const tabs = Array.from(document.querySelectorAll('.tab-button'));
+      tabs.forEach(function (button, index) {
+        button.addEventListener('click', function () {
+          activateTab(button.dataset.tab, false);
+        });
+
+        button.addEventListener('keydown', function (event) {
+          let nextIndex = null;
+          if (event.key === 'ArrowLeft') nextIndex = (index + 1) % tabs.length;
+          if (event.key === 'ArrowRight') nextIndex = (index - 1 + tabs.length) % tabs.length;
+          if (event.key === 'Home') nextIndex = 0;
+          if (event.key === 'End') nextIndex = tabs.length - 1;
+          if (nextIndex === null) return;
+          event.preventDefault();
+          activateTab(tabs[nextIndex].dataset.tab, true);
+        });
+      });
+    }
+
+    function bindGraphToolbar() {
+      document.querySelectorAll('.graph-toolbar button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          const name = button.dataset.board;
+          const action = button.dataset.action;
+          const board = state.boards[name];
+          if (!board) return;
+
+          if (action === 'reset') resetBoard(name);
+          if (action === 'zoom-in') zoomBoard(board, 0.78);
+          if (action === 'zoom-out') zoomBoard(board, 1.28);
+          if (action === 'center') centerBoard(name);
+        });
+      });
+    }
+
+    function bindControls() {
+      ['holeA', 'holeB'].forEach(function (id) {
+        qs(id).addEventListener('input', updateHolePanel);
+      });
+      ['asymC', 'asymD'].forEach(function (id) {
+        qs(id).addEventListener('input', updateAsymPanel);
+      });
+      qs('jumpU').addEventListener('input', updateJumpPanel);
+
+      document.querySelectorAll('.btn.reveal').forEach(function (button) {
+        button.addEventListener('click', function () {
+          const answer = qs(button.dataset.answer);
+          const open = answer.classList.toggle('open');
+          button.innerHTML = open ? '<span class="btn-icon" aria-hidden="true">🙈</span> הסתר פתרון' : '<span class="btn-icon" aria-hidden="true">💡</span> הצג פתרון';
+          if (open) typeset([answer]);
+        });
+      });
+    }
+
+    function init() {
+      if (!window.JXG || !JXG.JSXGraph) {
+        console.error('JSXGraph failed to load.');
+        return;
+      }
+      bindTabs();
+      bindGraphToolbar();
+      bindControls();
+      activateTab('hole', false);
+    }
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
