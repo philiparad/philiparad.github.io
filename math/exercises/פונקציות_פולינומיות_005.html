@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>נגזרות, קיצון, עלייה וירידה ומשיקים - 5 יחידות</title>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+<style>
+:root{
+  --bg:#eaf0f8;
+  --page:#fff;
+  --ink:#172033;
+  --muted:#5e687a;
+  --line:#d7e0ed;
+  --accent:#1f55b8;
+  --accent2:#0b7f82;
+  --soft:#f5f8fd;
+  --ok:#eefaf4;
+  --warn:#fff8e7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif}
+body{line-height:1.42}
+.page{
+  width:210mm;
+  height:297mm;
+  margin:10mm auto;
+  padding:11mm 12mm 13mm;
+  background:var(--page);
+  border:1px solid var(--line);
+  box-shadow:0 12px 36px rgba(23,32,51,.12);
+  position:relative;
+  overflow:hidden;
+}
+.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.exercise-tag,.difficulty{
+  display:inline-block;border-radius:999px;padding:4px 11px;font-size:10pt;font-weight:700
+}
+.exercise-tag{background:var(--accent);color:#fff}
+.difficulty{background:#e9f1ff;color:#244e96;border:1px solid #c9daf7}
+h2{font-size:17.5pt;color:var(--accent);margin:0 0 9px;border-bottom:3px solid var(--accent);padding-bottom:5px}
+h3{font-size:12.8pt;color:#263650;margin:5px 0}
+p{margin:5px 0}
+.question{
+  background:var(--soft);border-right:5px solid var(--accent);border-radius:13px;
+  padding:9px 12px;margin:7px 0 9px;font-size:11.2pt
+}
+.solution-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:start}
+.full{grid-column:1/-1}
+.box{
+  border:1px solid var(--line);border-radius:13px;background:#fff;padding:8px 10px;font-size:10.2pt
+}
+.box.highlight{background:var(--ok)}
+.box.note{background:var(--warn)}
+.formula{
+  direction:ltr;text-align:center;background:#f8fbff;border:1px dashed #c7d4e7;
+  border-radius:9px;padding:5px 7px;margin:5px 0
+}
+table{border-collapse:collapse;width:100%;margin:5px 0;font-size:9.7pt}
+th,td{border:1px solid var(--line);padding:4px 5px;text-align:center}
+th{background:#edf3ff;color:#1f438c}
+.compact{margin:3px 0;padding-right:20px}
+.compact li{margin:3px 0}
+.graph-panel{
+  border:1px solid var(--line);border-radius:13px;padding:7px;background:#fff
+}
+.graph-toolbar{display:flex;gap:6px;align-items:center;justify-content:flex-start;margin-bottom:5px}
+.graph-toolbar button{
+  border:1px solid #b9c7dc;background:#f6f9fe;color:#243a60;border-radius:8px;
+  min-width:34px;padding:4px 8px;font-weight:700;cursor:pointer
+}
+.graph-toolbar button:hover{background:#edf3ff}
+.jxgbox{width:100%;height:235px;border:0!important}
+.legend{font-size:9.2pt;color:var(--muted);margin-top:3px}
+.legend span{display:inline-block;margin-left:13px}
+.swatch{width:11px;height:3px;display:inline-block;vertical-align:middle;margin-left:4px}
+.footer{
+  position:absolute;bottom:6mm;left:12mm;right:12mm;border-top:1px solid var(--line);
+  padding-top:4px;display:flex;justify-content:space-between;color:var(--muted);font-size:9pt
+}
+.small{font-size:9.3pt;color:var(--muted)}
+.mjx-container{direction:ltr!important;unicode-bidi:isolate!important}
+@media print{
+  html,body{background:#fff}
+  .page{margin:0;border:0;box-shadow:none;page-break-after:always}
+  .page:last-child{page-break-after:auto}
+}
+@page{size:A4;margin:0}
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 1</span><span class="difficulty">קושי 1/10</span></div>
+  <h2>משיק לפונקציית מכפלה</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=(x-2)^3(6-x)^4\). בנקודה שבה \(x=4\):<br>
+    א. מצאו את שיפוע המשיק.<br>
+    ב. מצאו את משוואת המשיק.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת</h3>
+      <div class="formula">\[
+      f'(x)=3(x-2)^2(6-x)^4-4(x-2)^3(6-x)^3
+      \]</div>
+      <div class="formula">\[
+      f'(x)=(x-2)^2(6-x)^3(26-7x)
+      \]</div>
+      <div class="formula">\[
+      f'(4)=2^2\cdot2^3\cdot(-2)=-64
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>נקודת ההשקה והמשיק</h3>
+      <div class="formula">\[
+      f(4)=2^3\cdot2^4=128
+      \]</div>
+      <p>נקודת ההשקה היא \((4,128)\).</p>
+      <div class="formula">\[
+      y-128=-64(x-4)
+      \]</div>
+      <div class="formula">\[
+      \boxed{y=-64x+384}
+      \]</div>
+    </div>
+    <div class="box full graph-panel">
+      <h3>גרף הפונקציה והמשיק</h3>
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g1',0.8)">+</button>
+        <button onclick="zoomBoard('g1',1.25)">−</button>
+        <button onclick="resetBoard('g1')">מרכז</button>
+      </div>
+      <div id="g1" class="jxgbox"></div>
+      <div class="legend"><span><i class="swatch" style="background:#1f55b8"></i>הפונקציה</span><span><i class="swatch" style="background:#c23b3b"></i>המשיק</span></div>
+    </div>
+  </div>
+  <div class="footer"><span>נגזרות ומשיקים - 5 יחידות</span><span>1</span></div>
+</section>
+
+<!-- 2 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 2</span><span class="difficulty">קושי 2/10</span></div>
+  <h2>הוכחת ירידה בכל תחום ההגדרה</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=x^4-(x+2)^4\).<br>
+    א. הראו שאין לפונקציה נקודה עם שיפוע אפס.<br>
+    ב. קבעו את תחומי העלייה והירידה.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת</h3>
+      <div class="formula">\[
+      f'(x)=4x^3-4(x+2)^3
+      \]</div>
+      <div class="formula">\[
+      f'(x)=-24x^2-48x-32
+      \]</div>
+      <div class="formula">\[
+      f'(x)=-8\left(3(x+1)^2+1\right)
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>סימן הנגזרת</h3>
+      <div class="formula">\[
+      3(x+1)^2+1\gt0
+      \]</div>
+      <div class="formula">\[
+      f'(x)\lt0 \qquad x\;\text{לכל }
+      \]</div>
+      <p><b>מסקנה:</b> אין נקודה עם שיפוע אפס, והפונקציה יורדת בכל \(\mathbb{R}\).</p>
+    </div>
+    <div class="box full graph-panel">
+      <h3>גרף הפונקציה</h3>
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g2',0.8)">+</button><button onclick="zoomBoard('g2',1.25)">−</button><button onclick="resetBoard('g2')">מרכז</button>
+      </div>
+      <div id="g2" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="footer"><span>נגזרות, עלייה וירידה - 5 יחידות</span><span>2</span></div>
+</section>
+
+<!-- 3 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 3</span><span class="difficulty">קושי 3/10</span></div>
+  <h2>שלוש נקודות קיצון בפולינום ממעלה רביעית</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=(x+1)^2(x-1)^2\).<br>
+    א. מצאו את כל נקודות הקיצון וסווגו אותן.<br>
+    ב. מצאו את תחומי העלייה והירידה.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת ופירוק לגורמים</h3>
+      <div class="formula">\[
+      f(x)=(x^2-1)^2
+      \]</div>
+      <div class="formula">\[
+      f'(x)=4x(x^2-1)=4x(x-1)(x+1)
+      \]</div>
+      <div class="formula">\[
+      f'(x)=0 \quad\text{for}\quad x=-1,0,1
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>קיצון</h3>
+      <table>
+        <tr><th>נקודה</th><th>סוג</th></tr>
+        <tr><td>\((-1,0)\)</td><td>מינימום</td></tr>
+        <tr><td>\((0,1)\)</td><td>מקסימום</td></tr>
+        <tr><td>\((1,0)\)</td><td>מינימום</td></tr>
+      </table>
+      <p>הסיווג מתקבל משינוי סימן הנגזרת בכל נקודה.</p>
+    </div>
+    <div class="box full">
+      <h3>תחומי עלייה וירידה</h3>
+      <table>
+        <tr><th>תחום</th><th>התנהגות</th></tr>
+        <tr><td>\(x\lt-1\)</td><td>ירידה</td></tr>
+        <tr><td>\(-1\lt x\lt0\)</td><td>עלייה</td></tr>
+        <tr><td>\(0\lt x\lt1\)</td><td>ירידה</td></tr>
+        <tr><td>\(x\gt1\)</td><td>עלייה</td></tr>
+      </table>
+    </div>
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g3',0.8)">+</button><button onclick="zoomBoard('g3',1.25)">−</button><button onclick="resetBoard('g3')">מרכז</button>
+      </div>
+      <div id="g3" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="footer"><span>חקירת פולינום - 5 יחידות</span><span>3</span></div>
+</section>
+
+<!-- 4 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 4</span><span class="difficulty">קושי 4/10</span></div>
+  <h2>שיפוע אפס שאינו בהכרח קיצון</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=(x^2-4)^3\).<br>
+    א. מצאו את כל הנקודות שבהן השיפוע שווה לאפס.<br>
+    ב. קבעו אילו מהן נקודות קיצון.<br>
+    ג. מצאו את תחומי העלייה והירידה.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת</h3>
+      <div class="formula">\[
+      f'(x)=6x(x^2-4)^2
+      \]</div>
+      <div class="formula">\[
+      f'(x)=0 \quad\text{for}\quad x=-2,0,2
+      \]</div>
+      <p>הגורם \((x^2-4)^2\) אינו שלילי, ולכן סימן הנגזרת נקבע למעשה לפי \(x\).</p>
+    </div>
+    <div class="box highlight">
+      <h3>סיווג הנקודות</h3>
+      <table>
+        <tr><th>נקודה</th><th>מסקנה</th></tr>
+        <tr><td>\((-2,0)\)</td><td>שיפוע אפס, לא קיצון</td></tr>
+        <tr><td>\((0,-64)\)</td><td>מינימום</td></tr>
+        <tr><td>\((2,0)\)</td><td>שיפוע אפס, לא קיצון</td></tr>
+      </table>
+    </div>
+    <div class="box full">
+      <div class="formula">\[
+      \text{תדרוי }x\lt0
+      \qquad
+      \text{הלוע }x\gt0
+      \]</div>
+      <p>ב-\(x=-2\) וב-\(x=2\) הנגזרת מתאפסת, אך אינה מחליפה סימן.</p>
+    </div>
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g4',0.8)">+</button><button onclick="zoomBoard('g4',1.25)">−</button><button onclick="resetBoard('g4')">מרכז</button>
+      </div>
+      <div id="g4" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="footer"><span>שיפוע אפס וקיצון - 5 יחידות</span><span>4</span></div>
+</section>
+
+<!-- 5 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 5</span><span class="difficulty">קושי 5/10</span></div>
+  <h2>שורש כפול של הנגזרת והשלכתו על הגרף</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=x^4-8x^3+18x^2\).<br>
+    א. מצאו את כל הנקודות שבהן השיפוע שווה לאפס.<br>
+    ב. מצאו את נקודות הקיצון ואת תחומי העלייה והירידה.<br>
+    ג. הסבירו מדוע אחת מנקודות השיפוע האפס אינה נקודת קיצון.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת</h3>
+      <div class="formula">\[
+      f'(x)=4x^3-24x^2+36x
+      \]</div>
+      <div class="formula">\[
+      f'(x)=4x(x-3)^2
+      \]</div>
+      <div class="formula">\[
+      f'(x)=0 \quad\text{for}\quad x=0,3
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>סימן וקיצון</h3>
+      <p>מאחר ש-\((x-3)^2\ge0\), סימן הנגזרת נקבע על ידי \(x\).</p>
+      <div class="formula">\[
+      x\lt0:\ f'(x)\lt0
+      \qquad
+      x\gt0:\ f'(x)\gt0
+      \]</div>
+      <p>לכן \((0,0)\) היא נקודת מינימום.</p>
+      <p>בנקודה \((3,27)\) השיפוע אפס, אך אין שינוי סימן.</p>
+    </div>
+    <div class="box full">
+      <div class="formula">\[
+      \text{תדרוי }x\lt0
+      \qquad
+      \text{הלוע }x\gt0
+      \]</div>
+    </div>
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g5',0.8)">+</button><button onclick="zoomBoard('g5',1.25)">−</button><button onclick="resetBoard('g5')">מרכז</button>
+      </div>
+      <div id="g5" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="footer"><span>שורשים כפולים בנגזרת - 5 יחידות</span><span>5</span></div>
+</section>
+
+<!-- 6 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 6</span><span class="difficulty">קושי 6/10</span></div>
+  <h2>מכפלה ממעלה חמישית - נקודת שיפוע אפס ללא קיצון</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=x^3(x-5)^2\).<br>
+    א. מצאו את כל הנקודות שבהן השיפוע שווה לאפס.<br>
+    ב. מצאו את נקודות הקיצון וסווגו אותן.<br>
+    ג. מצאו את תחומי העלייה והירידה.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת מפורקת</h3>
+      <div class="formula">\[
+      f'(x)=3x^2(x-5)^2+2x^3(x-5)
+      \]</div>
+      <div class="formula">\[
+      f'(x)=5x^2(x-5)(x-3)
+      \]</div>
+      <div class="formula">\[
+      x=0,3,5
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>נקודות וסיווג</h3>
+      <table>
+        <tr><th>נקודה</th><th>סוג</th></tr>
+        <tr><td>\((0,0)\)</td><td>שיפוע אפס, לא קיצון</td></tr>
+        <tr><td>\((3,108)\)</td><td>מקסימום</td></tr>
+        <tr><td>\((5,0)\)</td><td>מינימום</td></tr>
+      </table>
+    </div>
+    <div class="box full">
+      <div class="formula">\[
+      \text{הלוע }x\lt3,\ x\gt5
+      \qquad
+      \text{תדרוי }3\lt x\lt5
+      \]</div>
+      <p>הגורם \(x^2\) גורם לנגזרת להתאפס ב-\(x=0\), אך אינו גורם להחלפת סימן.</p>
+    </div>
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g6',0.8)">+</button><button onclick="zoomBoard('g6',1.25)">−</button><button onclick="resetBoard('g6')">מרכז</button>
+      </div>
+      <div id="g6" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="footer"><span>פולינום ממעלה חמישית - 5 יחידות</span><span>6</span></div>
+</section>
+
+<!-- 7 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 7</span><span class="difficulty">קושי 7/10</span></div>
+  <h2>מכפלה ממעלה חמישית - שלוש נקודות שיפוע אפס</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=x^2(x-5)^3\).<br>
+    א. מצאו את כל הנקודות שבהן השיפוע שווה לאפס.<br>
+    ב. מצאו את נקודות הקיצון ואת תחומי העלייה והירידה.<br>
+    ג. קבעו איזו נקודה עם שיפוע אפס אינה נקודת קיצון והסבירו מדוע.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת</h3>
+      <div class="formula">\[
+      f'(x)=2x(x-5)^3+3x^2(x-5)^2
+      \]</div>
+      <div class="formula">\[
+      f'(x)=5x(x-5)^2(x-2)
+      \]</div>
+      <div class="formula">\[
+      x=0,2,5
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>נקודות וסיווג</h3>
+      <table>
+        <tr><th>נקודה</th><th>סוג</th></tr>
+        <tr><td>\((0,0)\)</td><td>מקסימום</td></tr>
+        <tr><td>\((2,-108)\)</td><td>מינימום</td></tr>
+        <tr><td>\((5,0)\)</td><td>שיפוע אפס, לא קיצון</td></tr>
+      </table>
+    </div>
+    <div class="box full">
+      <div class="formula">\[
+      \text{הלוע }x\lt0,\ x\gt2
+      \qquad
+      \text{תדרוי }0\lt x\lt2
+      \]</div>
+      <p>ב-\(x=5\) הגורם \((x-5)^2\) אינו מחליף סימן, ולכן גם הנגזרת אינה מחליפה סימן.</p>
+    </div>
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g7',0.8)">+</button><button onclick="zoomBoard('g7',1.25)">−</button><button onclick="resetBoard('g7')">מרכז</button>
+      </div>
+      <div id="g7" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="footer"><span>מכפלות וחזקות - 5 יחידות</span><span>7</span></div>
+</section>
+
+<!-- 8 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 8</span><span class="difficulty">קושי 8/10</span></div>
+  <h2>פולינום זוגי ממעלה שישית - חמש נקודות קיצון</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=2x^6-15x^4+24x^2\).<br>
+    א. מצאו את כל נקודות הקיצון וסווגו אותן.<br>
+    ב. מצאו את תחומי העלייה והירידה.<br>
+    ג. מצאו את נקודות המינימום המוחלט.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>נגזרת</h3>
+      <div class="formula">\[
+      f'(x)=12x^5-60x^3+48x
+      \]</div>
+      <div class="formula">\[
+      f'(x)=12x(x^2-1)(x^2-4)
+      \]</div>
+      <div class="formula">\[
+      x=-2,-1,0,1,2
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>ערכי הקיצון</h3>
+      <table>
+        <tr><th>\(x\)</th><th>\(f(x)\)</th><th>סוג</th></tr>
+        <tr><td>\(-2\)</td><td>\(-16\)</td><td>מינימום</td></tr>
+        <tr><td>\(-1\)</td><td>\(11\)</td><td>מקסימום</td></tr>
+        <tr><td>\(0\)</td><td>\(0\)</td><td>מינימום</td></tr>
+        <tr><td>\(1\)</td><td>\(11\)</td><td>מקסימום</td></tr>
+        <tr><td>\(2\)</td><td>\(-16\)</td><td>מינימום</td></tr>
+      </table>
+    </div>
+    <div class="box full">
+      <table>
+        <tr><th>ירידה</th><th>עלייה</th></tr>
+        <tr>
+          <td>\(x\lt-2,\ -1\lt x\lt0,\ 1\lt x\lt2\)</td>
+          <td>\(-2\lt x\lt-1,\ 0\lt x\lt1,\ x\gt2\)</td>
+        </tr>
+      </table>
+      <p>נקודות המינימום המוחלט הן \((-2,-16)\) ו-\((2,-16)\).</p>
+    </div>
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g8',0.8)">+</button><button onclick="zoomBoard('g8',1.25)">−</button><button onclick="resetBoard('g8')">מרכז</button>
+      </div>
+      <div id="g8" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="footer"><span>חקירה מלאה - 5 יחידות</span><span>8</span></div>
+</section>
+
+<!-- 9 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 9</span><span class="difficulty">קושי 9/10</span></div>
+  <h2>משיק יחיד בשיפוע נתון והוכחת מגע יחיד</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=x^4-4x^3\), והנקודה \(P\) שעל הגרף שעבורה \(x=4\).<br>
+    א. מצאו את משוואת המשיק לגרף בנקודה \(P\).<br>
+    ב. הוכיחו שאין על הגרף נקודה אחרת שבה המשיק מקביל למשיק שמצאתם.<br>
+    ג. הוכיחו שהמשיק שמצאתם אינו חותך את גרף הפונקציה בנקודה ממשית נוספת.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>המשיק בנקודה \(P\)</h3>
+      <div class="formula">\[
+      f(4)=0,\qquad f'(x)=4x^2(x-3)
+      \]</div>
+      <div class="formula">\[
+      f'(4)=64
+      \]</div>
+      <div class="formula">\[
+      \boxed{y=64x-256}
+      \]</div>
+    </div>
+    <div class="box highlight">
+      <h3>אין משיק מקביל נוסף</h3>
+      <div class="formula">\[
+      4x^2(x-3)=64
+      \]</div>
+      <div class="formula">\[
+      x^3-3x^2-16=(x-4)(x^2+x+4)=0
+      \]</div>
+      <div class="formula">\[
+      \Delta=1-16=-15\lt0
+      \]</div>
+      <p>לכן הפתרון הממשי היחיד הוא \(x=4\).</p>
+    </div>
+    <div class="box full">
+      <h3>בדיקת נקודות החיתוך של המשיק עם הגרף</h3>
+      <div class="formula">\[
+      x^4-4x^3=64x-256
+      \]</div>
+      <div class="formula">\[
+      (x-4)^2(x^2+4x+16)=0
+      \]</div>
+      <div class="formula">\[
+      x^2+4x+16=(x+2)^2+12\gt0
+      \]</div>
+      <p>לכן נקודת המגע \(P=(4,0)\) היא נקודת החיתוך הממשית היחידה.</p>
+    </div>
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g9',0.8)">+</button><button onclick="zoomBoard('g9',1.25)">−</button><button onclick="resetBoard('g9')">מרכז</button>
+      </div>
+      <div id="g9" class="jxgbox"></div>
+      <div class="legend"><span><i class="swatch" style="background:#1f55b8"></i>הפונקציה</span><span><i class="swatch" style="background:#c23b3b"></i>המשיק</span></div>
+    </div>
+  </div>
+  <div class="footer"><span>משיקים והוכחה אלגברית - 5 יחידות</span><span>9</span></div>
+</section>
+
+<!-- 10 -->
+<section class="page">
+  <div class="topline"><span class="exercise-tag">תרגיל 10</span><span class="difficulty">קושי 10/10</span></div>
+  <h2>שלושה משיקים העוברים דרך נקודה אחת</h2>
+  <div class="question">
+    נתונה הפונקציה \(f(x)=x^4-6x^2+5\), והנקודה \(A=(0,5)\).<br>
+    א. מצאו את נקודות הקיצון ואת תחומי העלייה והירידה.<br>
+    ב. מצאו את כל הנקודות על גרף הפונקציה שבהן המשיק עובר דרך \(A\).<br>
+    ג. מצאו את משוואות כל המשיקים האלה.
+  </div>
+  <div class="solution-grid">
+    <div class="box">
+      <h3>קיצון ועלייה/ירידה</h3>
+      <div class="formula">\[
+      f'(x)=4x(x^2-3)
+      \]</div>
+      <p>נקודות הקיצון:</p>
+      <div class="formula">\[
+      (-\sqrt3,-4),\quad (0,5),\quad (\sqrt3,-4)
+      \]</div>
+      <p>מינימום ב-\(x=\pm\sqrt3\), מקסימום ב-\(x=0\).</p>
+    </div>
+    <div class="box highlight">
+      <h3>תנאי שהמשיק יעבור דרך \(A\)</h3>
+      <p>נסמן את שיעור ה-\(x\) של נקודת ההשקה ב-\(t\). ערך המשיק ב-\(x=0\) חייב להיות \(5\):</p>
+      <div class="formula">\[
+      5=f(t)-t f'(t)
+      \]</div>
+      <div class="formula">\[
+      5=-3t^4+6t^2+5
+      \]</div>
+      <div class="formula">\[
+      3t^2(2-t^2)=0
+      \]</div>
+      <div class="formula">\[
+      t=0,\ \pm\sqrt2
+      \]</div>
+    </div>
+    <div class="box full">
+      <h3>המשיקים</h3>
+      <table>
+        <tr><th>נקודת השקה</th><th>שיפוע</th><th>משיק</th></tr>
+        <tr><td>\((0,5)\)</td><td>\(0\)</td><td>\(y=5\)</td></tr>
+        <tr><td>\((\sqrt2,-3)\)</td><td>\(-4\sqrt2\)</td><td>\(y=-4\sqrt2\,x+5\)</td></tr>
+        <tr><td>\((-\sqrt2,-3)\)</td><td>\(4\sqrt2\)</td><td>\(y=4\sqrt2\,x+5\)</td></tr>
+      </table>
+      <div class="formula">\[
+      x\lt-\sqrt3,\ 0\lt x\lt\sqrt3 \;\text{תדרוי } 
+      \]</div>
+      <div class="formula">\[
+      \sqrt3\lt x\lt0,\ x\gt\sqrt3 \;\text{הלוע }
+      \]</div>
+    </div>
+   <div class="footer"><span>אתגר משיקים - 5 יחידות</span><span>10</span></div>
+</section>
+
+<section class="page">
+    <div class="box full graph-panel">
+      <div class="graph-toolbar">
+        <button onclick="zoomBoard('g10',0.8)">+</button><button onclick="zoomBoard('g10',1.25)">−</button><button onclick="resetBoard('g10')">מרכז</button>
+      </div>
+      <div id="g10" class="jxgbox"></div>
+      <div class="legend"><span><i class="swatch" style="background:#1f55b8"></i>הפונקציה</span><span><i class="swatch" style="background:#c23b3b"></i>המשיקים</span></div>
+    </div>
+  </div>
+  <div class="footer"><span>אתגר משיקים - 5 יחידות</span><span>10</span></div>
+</section>
+
+<script>
+const boards = {};
+const initialBoxes = {};
+
+function makeBoard(id, bbox) {
+  initialBoxes[id] = bbox.slice();
+  const b = JXG.JSXGraph.initBoard(id, {
+    boundingbox: bbox,
+    axis: true,
+    showCopyright: false,
+    showNavigation: false,
+    pan: {enabled: true},
+    zoom: {wheel: true, needshift: false}
+  });
+  boards[id] = b;
+  return b;
+}
+function resetBoard(id){ boards[id].setBoundingBox(initialBoxes[id], true); }
+function zoomBoard(id, factor){
+  const bb = boards[id].getBoundingBox();
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const hw=(bb[2]-bb[0])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+  boards[id].setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh], true);
+}
+function curve(b, fn, color='#1f55b8', width=2.5){
+  return b.create('functiongraph',[fn],{strokeColor:color,strokeWidth:width,highlight:false});
+}
+function mark(b, x, y, label){
+  return b.create('point',[x,y],{name:label,size:3,fixed:true,strokeColor:'#111',fillColor:'#fff',highlight:false});
+}
+function lineFn(b, fn, color='#c23b3b'){
+  return b.create('functiongraph',[fn],{strokeColor:color,strokeWidth:2.2,dash:2,highlight:false});
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  let b;
+
+  b=makeBoard('g1',[1.4,300,6.2,-80]);
+  curve(b,x=>(x-2)**3*(6-x)**4);
+  lineFn(b,x=>-64*x+384);
+  mark(b,4,128,'P');
+
+  b=makeBoard('g2',[-4.2,280,2.2,-280]);
+  curve(b,x=>x**4-(x+2)**4);
+
+  b=makeBoard('g3',[-2.2,7,2.2,-1]);
+  curve(b,x=>(x*x-1)**2);
+  mark(b,-1,0,'min'); mark(b,0,1,'max'); mark(b,1,0,'min');
+
+  b=makeBoard('g4',[-3.1,145,3.1,-80]);
+  curve(b,x=>(x*x-4)**3);
+  mark(b,-2,0,''); mark(b,0,-64,'min'); mark(b,2,0,'');
+
+  b=makeBoard('g5',[-1.2,65,6.2,-15]);
+  curve(b,x=>x**4-8*x**3+18*x**2);
+  mark(b,0,0,'min'); mark(b,3,27,'');
+
+  b=makeBoard('g6',[-1.3,230,6.1,-90]);
+  curve(b,x=>x**3*(x-5)**2);
+  mark(b,0,0,''); mark(b,3,108,'max'); mark(b,5,0,'min');
+
+  b=makeBoard('g7',[-0.8,70,6.1,-155]);
+  curve(b,x=>x**2*(x-5)**3);
+  mark(b,0,0,'max'); mark(b,2,-108,'min'); mark(b,5,0,'');
+
+  b=makeBoard('g8',[-2.8,35,2.8,-25]);
+  curve(b,x=>2*x**6-15*x**4+24*x**2);
+  [-2,-1,0,1,2].forEach(v=>mark(b,v,2*v**6-15*v**4+24*v**2,''));
+
+  b=makeBoard('g9',[-1.2,150,5.2,-350]);
+  curve(b,x=>x**4-4*x**3);
+  lineFn(b,x=>64*x-256);
+  mark(b,4,0,'P');
+
+  b=makeBoard('g10',[-3.1,36,3.1,-16]);
+  curve(b,x=>x**4-6*x**2+5);
+  lineFn(b,x=>5);
+  lineFn(b,x=>-4*Math.sqrt(2)*x+5);
+  lineFn(b,x=>4*Math.sqrt(2)*x+5);
+  mark(b,0,5,'A');
+  mark(b,Math.sqrt(2),-3,'');
+  mark(b,-Math.sqrt(2),-3,'');
+});
+</script>
+
+</body>
+</html>

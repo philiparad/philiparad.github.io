@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>דף תרגילים - גזירת פונקציות מכפלה</title>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --page: #ffffff;
+      --ink: #111827;
+      --muted: #4b5563;
+      --line: #d7deea;
+      --panel: #f8fafc;
+      --panel-2: #eef6ff;
+      --accent: #1d4ed8;
+      --accent-2: #0f766e;
+      --accent-3: #7c3aed;
+      --warning: #b45309;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    body {
+      padding: 18px 0;
+    }
+
+    .toolbar {
+      width: 210mm;
+      margin: 0 auto 14px auto;
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+      direction: rtl;
+    }
+
+    .print-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 18px;
+      background: var(--accent);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(29, 78, 216, 0.25);
+    }
+
+    .sheet {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 18px auto;
+      padding: 16mm 15mm 14mm 15mm;
+      background: var(--page);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+      position: relative;
+      overflow: visible;
+      page-break-after: always;
+    }
+
+    .sheet:last-child {
+      page-break-after: auto;
+    }
+
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 9px;
+      margin-bottom: 13px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      color: var(--accent);
+      letter-spacing: -0.4px;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    h2 {
+      margin: 14px 0 9px 0;
+      font-size: 19px;
+      color: var(--accent-2);
+      border-right: 6px solid var(--accent-2);
+      padding-right: 9px;
+    }
+
+    h3 {
+      margin: 12px 0 8px 0;
+      font-size: 16px;
+      color: var(--accent-3);
+    }
+
+    .instructions {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 10px 13px;
+      break-inside: avoid;
+    }
+
+    .box.blue {
+      background: var(--panel-2);
+      border-color: #bfdbfe;
+    }
+
+    .box-title {
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    ol.steps {
+      margin: 0;
+      padding-right: 22px;
+    }
+
+    .note {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 12px;
+    }
+
+    .exercise {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 8px 10px 8px 10px;
+      background: #ffffff;
+      min-height: 43px;
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      align-items: center;
+      break-inside: avoid;
+    }
+
+    .num {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: #e0ecff;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      margin-left: 7px;
+    }
+
+    .formula {
+      direction: ltr;
+      text-align: left;
+      font-size: 17px;
+    }
+
+    .level {
+      margin-top: 10px;
+      break-inside: avoid;
+    }
+
+    .compact .exercise {
+      min-height: 40px;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px 12px;
+      margin-top: 8px;
+    }
+
+    .answer {
+      border-bottom: 1px dashed #cbd5e1;
+      padding: 4px 0 5px 0;
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      align-items: start;
+      break-inside: avoid;
+    }
+
+    .answer .formula {
+      font-size: 15.7px;
+    }
+
+    .worked {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .math-block {
+      direction: ltr;
+      text-align: left;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 15px;
+      overflow: visible;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 8mm;
+      left: 15mm;
+      right: 15mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 5px;
+    }
+
+    mjx-container {
+      direction: ltr !important;
+      text-align: left !important;
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    @media print {
+      html, body {
+        width: 210mm;
+        background: white;
+        padding: 0;
+      }
+
+      .toolbar {
+        display: none;
+      }
+
+      .sheet {
+        margin: 0;
+        width: 210mm;
+        min-height: 297mm;
+        box-shadow: none;
+        page-break-after: always;
+      }
+
+      .sheet:last-child {
+        page-break-after: auto;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section class="sheet">
+    <header>
+      <h1>דף תרגילים - גזירת פונקציות מכפלה</h1>
+      <div class="subtitle">פונקציות שבהן כל גורם הוא פולינום פשוט בחזקה - תרגול מדורג</div>
+    </header>
+
+    <div class="instructions">
+      <div class="box blue">
+        <div class="box-title">הוראות עבודה</div>
+        <ol class="steps">
+          <li>גוזרים בעזרת כלל המכפלה.</li>
+          <li>משווים: \( f'(x)=0 \).</li>
+          <li>מוציאים גורמים משותפים מהנגזרת.</li>
+          <li>פותרים את המשוואה שהתקבלה.</li>
+          <li>אין צורך לפתוח את כל הסוגריים.</li>
+        </ol>
+      </div>
+
+      <div class="box">
+        <div class="box-title">תזכורת חשובה</div>
+        כאשר \( f(x)=u(x)\cdot v(x) \), אז:
+        \[
+          f'(x)=u'(x)v(x)+u(x)v'(x)
+        \]
+        <div class="note">המטרה המרכזית: לזהות גורם משותף ולא לפתוח ביטויים מיותרים.</div>
+      </div>
+    </div>
+
+    <div class="level">
+      <h2>רמה 1 - שני גורמים, חזקות פשוטות</h2>
+      <div class="grid">
+        <div class="exercise"><span class="num">1</span><div class="formula">\( f(x)=(x+1)^2(x-2) \)</div></div>
+        <div class="exercise"><span class="num">2</span><div class="formula">\( f(x)=(x-3)^2(x+4) \)</div></div>
+        <div class="exercise"><span class="num">3</span><div class="formula">\( f(x)=x^2(x-5) \)</div></div>
+        <div class="exercise"><span class="num">4</span><div class="formula">\( f(x)=(2x+1)^2(x-3) \)</div></div>
+        <div class="exercise"><span class="num">5</span><div class="formula">\( f(x)=(x+2)^3(x-1) \)</div></div>
+      </div>
+    </div>
+
+    <div class="level">
+      <h2>רמה 2 - שני גורמים, שתי חזקות</h2>
+      <div class="grid">
+        <div class="exercise"><span class="num">6</span><div class="formula">\( f(x)=(x-1)^2(x+3)^2 \)</div></div>
+        <div class="exercise"><span class="num">7</span><div class="formula">\( f(x)=(x+2)^3(x-4)^2 \)</div></div>
+        <div class="exercise"><span class="num">8</span><div class="formula">\( f(x)=(2x-1)^2(x+1)^3 \)</div></div>
+        <div class="exercise"><span class="num">9</span><div class="formula">\( f(x)=x^3(x-2)^4 \)</div></div>
+        <div class="exercise"><span class="num">10</span><div class="formula">\( f(x)=(3x+2)^2(x-5)^3 \)</div></div>
+      </div>
+    </div>
+
+    <div class="level">
+      <h2>דוגמת דרך פתרון</h2>
+      <div class="worked">
+        <div class="math-block">
+          \[
+          f(x)=(x+1)^2(x-2)
+          \]
+          \[
+          f'(x)=2(x+1)(x-2)+(x+1)^2
+          \]
+          \[
+          f'(x)=(x+1)\left[2(x-2)+(x+1)\right]
+          \]
+          \[
+          f'(x)=(x+1)(3x-3)=3(x+1)(x-1)
+          \]
+          \[
+          f'(x)=0 \quad \Rightarrow \quad x=-1,\;x=1
+          \]
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>עמוד 1 מתוך 3</span>
+      <span>כלל המכפלה - תרגול מדורג</span>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <header>
+      <h1>המשך דף התרגילים</h1>
+      <div class="subtitle">רמות מתקדמות: מקדמים בתוך הסוגריים ושלושה גורמים במכפלה</div>
+    </header>
+
+    <div class="level compact">
+      <h2>רמה 3 - מקדמים בתוך הסוגריים וחזקות גבוהות יותר</h2>
+      <div class="grid">
+        <div class="exercise"><span class="num">11</span><div class="formula">\( f(x)=(2x+3)^3(x-1)^2 \)</div></div>
+        <div class="exercise"><span class="num">12</span><div class="formula">\( f(x)=(x-4)^4(x+1)^3 \)</div></div>
+        <div class="exercise"><span class="num">13</span><div class="formula">\( f(x)=(3x-1)^2(x+2)^4 \)</div></div>
+        <div class="exercise"><span class="num">14</span><div class="formula">\( f(x)=(2x-5)^3(x+3)^3 \)</div></div>
+        <div class="exercise"><span class="num">15</span><div class="formula">\( f(x)=(4x+1)^2(x-2)^5 \)</div></div>
+      </div>
+    </div>
+
+    <div class="level compact">
+      <h2>רמה 4 - שלושה גורמים במכפלה</h2>
+      <div class="grid">
+        <div class="exercise"><span class="num">16</span><div class="formula">\( f(x)=(x-2)^2(x+2)(x+4)^2 \)</div></div>
+        <div class="exercise"><span class="num">17</span><div class="formula">\( f(x)=x^3(x+2)^2(x+4)^3 \)</div></div>
+        <div class="exercise"><span class="num">18</span><div class="formula">\( f(x)=(x-1)^4(x+2)^2(x+4)^3 \)</div></div>
+        <div class="exercise"><span class="num">19</span><div class="formula">\( f(x)=(x+2)^3(x+3)^2(x+4)^3 \)</div></div>
+        <div class="exercise"><span class="num">20</span><div class="formula">\( f(x)=(x-3)^4(x+2)^4(x+4) \)</div></div>
+      </div>
+    </div>
+
+    <div class="level">
+      <h2>תבנית פתרון מומלצת לתלמיד</h2>
+      <div class="box blue">
+        עבור פונקציה מהצורה:
+        \[
+          f(x)=(ax+b)^m(cx+d)^n
+        \]
+        אפשר לגזור כך:
+        \[
+          f'(x)=m\cdot a(ax+b)^{m-1}(cx+d)^n
+          +n\cdot c(ax+b)^m(cx+d)^{n-1}
+        \]
+        לאחר מכן מוציאים גורם משותף:
+        \[
+          f'(x)=(ax+b)^{m-1}(cx+d)^{n-1}\left[m\cdot a(cx+d)+n\cdot c(ax+b)\right]
+        \]
+        ואז פותרים:
+        \[
+          f'(x)=0
+        \]
+      </div>
+    </div>
+
+    <div class="level">
+      <h2>מקום לעבודה עצמית</h2>
+      <div class="box">
+        בכל תרגיל מומלץ לכתוב שלוש שורות בלבד:
+        <br />
+        <strong>נגזרת</strong> ← <strong>הוצאת גורם משותף</strong> ← <strong>פתרון המשוואה</strong>.
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>עמוד 2 מתוך 3</span>
+      <span>כלל המכפלה - תרגול מדורג</span>
+    </div>
+  </section>
+
+  <section class="sheet">
+    <header>
+      <h1>תשובות סופיות</h1>
+      <div class="subtitle">ערכי \(x\) שמקיימים \( f'(x)=0 \)</div>
+    </header>
+
+    <div class="answer-grid">
+      <div class="answer"><span class="num">1</span><div class="formula">\(x=-1,\;1\)</div></div>
+      <div class="answer"><span class="num">2</span><div class="formula">\(x=-\frac{5}{3},\;3\)</div></div>
+      <div class="answer"><span class="num">3</span><div class="formula">\(x=0,\;\frac{10}{3}\)</div></div>
+      <div class="answer"><span class="num">4</span><div class="formula">\(x=-\frac{1}{2},\;\frac{11}{6}\)</div></div>
+      <div class="answer"><span class="num">5</span><div class="formula">\(x=-2,\;\frac{1}{4}\)</div></div>
+      <div class="answer"><span class="num">6</span><div class="formula">\(x=-3,\;-1,\;1\)</div></div>
+      <div class="answer"><span class="num">7</span><div class="formula">\(x=-2,\;\frac{8}{5},\;4\)</div></div>
+      <div class="answer"><span class="num">8</span><div class="formula">\(x=-1,\;-\frac{1}{10},\;\frac{1}{2}\)</div></div>
+      <div class="answer"><span class="num">9</span><div class="formula">\(x=0,\;\frac{6}{7},\;2\)</div></div>
+      <div class="answer"><span class="num">10</span><div class="formula">\(x=-\frac{2}{3},\;\frac{8}{5},\;5\)</div></div>
+      <div class="answer"><span class="num">11</span><div class="formula">\(x=-\frac{3}{2},\;0,\;1\)</div></div>
+      <div class="answer"><span class="num">12</span><div class="formula">\(x=-1,\;\frac{8}{7},\;4\)</div></div>
+      <div class="answer"><span class="num">13</span><div class="formula">\(x=-2,\;-\frac{4}{9},\;\frac{1}{3}\)</div></div>
+      <div class="answer"><span class="num">14</span><div class="formula">\(x=-3,\;-\frac{1}{4},\;\frac{5}{2}\)</div></div>
+      <div class="answer"><span class="num">15</span><div class="formula">\(x=-\frac{1}{4},\;\frac{11}{28},\;2\)</div></div>
+      <div class="answer"><span class="num">16</span><div class="formula">\(x=-4,\;-\frac{14}{5},\;0,\;2\)</div></div>
+      <div class="answer"><span class="num">17</span><div class="formula">\(x=-4,\;-3,\;-2,\;-1,\;0\)</div></div>
+      <div class="answer"><span class="num">18</span><div class="formula">\(x=-4,\;-3,\;-2,\;-\frac{2}{3},\;1\)</div></div>
+      <div class="answer"><span class="num">19</span><div class="formula">\(x=-4,\;-\frac{7}{2},\;-3,\;-\frac{5}{2},\;-2\)</div></div>
+      <div class="answer"><span class="num">20</span><div class="formula">\(x=-\frac{11}{3},\;-2,\;\frac{2}{3},\;3\)</div></div>
+    </div>
+
+    <div class="footer">
+      <span>עמוד 3 מתוך 3</span>
+      <span>תשובות סופיות</span>
+    </div>
+  </section>
+</body>
+</html>

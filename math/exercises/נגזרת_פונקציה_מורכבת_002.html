@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>דף תרגילים - פונקציה מורכבת</title>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(','\\)']],
+        displayMath: [['\\[','\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+
+    :root{
+      --bg:#eef2f7;
+      --page:#ffffff;
+      --ink:#111827;
+      --muted:#4b5563;
+      --line:#d7deea;
+      --panel:#f8fafc;
+      --panel2:#eef6ff;
+      --accent:#1d4ed8;
+      --accent2:#0f766e;
+      --accent3:#7c3aed;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Segoe UI",Arial,sans-serif;
+      line-height:1.55;
+    }
+
+    body{
+      padding:18px 0;
+    }
+
+    .toolbar{
+      width:210mm;
+      margin:0 auto 14px auto;
+      display:flex;
+      justify-content:flex-start;
+    }
+
+    .print-btn{
+      border:0;
+      border-radius:999px;
+      padding:10px 18px;
+      background:var(--accent);
+      color:white;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(29,78,216,0.25);
+    }
+
+    .sheet{
+      width:210mm;
+      min-height:297mm;
+      margin:0 auto 18px auto;
+      padding:16mm 15mm 14mm 15mm;
+      background:var(--page);
+      box-shadow:0 16px 36px rgba(15,23,42,0.16);
+      position:relative;
+      overflow:visible;
+      page-break-after:always;
+    }
+
+    .sheet:last-child{
+      page-break-after:auto;
+    }
+
+    header{
+      border-bottom:3px solid var(--accent);
+      padding-bottom:9px;
+      margin-bottom:13px;
+    }
+
+    h1{
+      margin:0;
+      font-size:28px;
+      color:var(--accent);
+    }
+
+    .subtitle{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:15px;
+      font-weight:600;
+    }
+
+    h2{
+      margin:14px 0 9px 0;
+      font-size:19px;
+      color:var(--accent2);
+      border-right:6px solid var(--accent2);
+      padding-right:9px;
+    }
+
+    .instructions{
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .box{
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:14px;
+      padding:10px 13px;
+    }
+
+    .box.blue{
+      background:var(--panel2);
+      border-color:#bfdbfe;
+    }
+
+    .box-title{
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-weight:bold;
+      color:var(--accent);
+      margin-bottom:4px;
+    }
+
+    ol.steps{
+      margin:0;
+      padding-right:22px;
+    }
+
+    .note{
+      font-size:13.5px;
+      color:var(--muted);
+      margin-top:5px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px 12px;
+    }
+
+    .exercise{
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:8px 10px;
+      background:#ffffff;
+      min-height:43px;
+      display:grid;
+      grid-template-columns:32px 1fr;
+      align-items:center;
+    }
+
+    .num{
+      width:25px;
+      height:25px;
+      border-radius:50%;
+      background:#e0ecff;
+      color:var(--accent);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:13px;
+    }
+
+    .formula{
+      direction:ltr;
+      text-align:left;
+      font-size:17px;
+    }
+
+    .math-block{
+      text-align:right;
+      background:#ffffff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px 10px;
+      font-size:15px;
+    }
+
+    .answer-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:7px 12px;
+      margin-top:8px;
+    }
+
+    .answer{
+      border-bottom:1px dashed #cbd5e1;
+      padding:4px 0 5px 0;
+      display:grid;
+      grid-template-columns:32px 1fr;
+      align-items:start;
+    }
+
+    .footer{
+      position:absolute;
+      bottom:8mm;
+      left:15mm;
+      right:15mm;
+      display:flex;
+      justify-content:space-between;
+      font-size:11.5px;
+      color:#64748b;
+      border-top:1px solid #e2e8f0;
+      padding-top:5px;
+    }
+
+    mjx-container{
+      direction:ltr !important;
+      text-align:left !important;
+    }
+
+    @page{
+      size:A4;
+      margin:0;
+    }
+
+    @media print{
+
+      html,body{
+        width:210mm;
+        background:white;
+        padding:0;
+      }
+
+      .toolbar{
+        display:none;
+      }
+
+      .sheet{
+        margin:0;
+        width:210mm;
+        min-height:297mm;
+        box-shadow:none;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+<section class="sheet">
+
+<header>
+  <h1>דף תרגילים - פונקציה מורכבת</h1>
+  <div class="subtitle">כלל השרשרת - תרגול מדורג</div>
+</header>
+
+<div class="instructions">
+
+  <div class="box blue">
+
+    <div class="box-title">הוראות עבודה</div>
+
+    <ol class="steps">
+      <li>זהו את הפונקציה החיצונית והפנימית.</li>
+      <li>גזרו את הפונקציה החיצונית.</li>
+      <li>השאירו את הביטוי הפנימי ללא שינוי.</li>
+      <li>כפלו בנגזרת של הפונקציה הפנימית.</li>
+      <li>פשטו במידת הצורך.</li>
+    </ol>
+
+  </div>
+
+  <div class="box">
+
+    <div class="box-title">תזכורת - כלל השרשרת</div>
+
+    כאשר:
+
+    \[
+    y=f(g(x))
+    \]
+
+    אז:
+
+    \[
+    y'=f'(g(x))\cdot g'(x)
+    \]
+
+    <div class="note">
+      גוזרים את החיצונית ומשאירים את הפנימית כפי שהיא.
+    </div>
+
+  </div>
+
+</div>
+
+<h2>רמה 1 - פונקציות מורכבות בסיסיות</h2>
+
+<div class="grid">
+
+<div class="exercise"><span class="num">1</span><div class="formula">\( f(x)=(x^2+1)^3 \)</div></div>
+
+<div class="exercise"><span class="num">2</span><div class="formula">\( f(x)=(x-4)^5 \)</div></div>
+
+<div class="exercise"><span class="num">3</span><div class="formula">\( f(x)=(2x+1)^4 \)</div></div>
+
+<div class="exercise"><span class="num">4</span><div class="formula">\( f(x)=(x^2-5)^2 \)</div></div>
+
+<div class="exercise"><span class="num">5</span><div class="formula">\( f(x)=(3x-2)^6 \)</div></div>
+
+</div>
+
+<h2>רמה 2 - פונקציות מורכבות עם פולינומים</h2>
+
+<div class="grid">
+
+<div class="exercise"><span class="num">6</span><div class="formula">\( f(x)=(x^3+2x)^4 \)</div></div>
+
+<div class="exercise"><span class="num">7</span><div class="formula">\( f(x)=(x^2-3x+1)^5 \)</div></div>
+
+<div class="exercise"><span class="num">8</span><div class="formula">\( f(x)=(2x^2+1)^3 \)</div></div>
+
+<div class="exercise"><span class="num">9</span><div class="formula">\( f(x)=(x^3-1)^2 \)</div></div>
+
+<div class="exercise"><span class="num">10</span><div class="formula">\( f(x)=(x^2+4x)^4 \)</div></div>
+
+</div>
+
+<h2>דוגמת פתרון</h2>
+
+<div class="math-block">
+
+\[
+f(x)=(x^2+1)^3
+\]
+
+הפונקציה החיצונית:
+
+\[
+u^3
+\]
+
+הפונקציה הפנימית:
+
+\[
+u=x^2+1
+\]
+
+נגזור:
+
+\[
+f'(x)=3(x^2+1)^2\cdot 2x
+\]
+
+ולכן:
+
+\[
+f'(x)=6x(x^2+1)^2
+\]
+
+</div>
+
+<div class="footer">
+  <span>עמוד 1 מתוך 2</span>
+  <span>כלל השרשרת - תרגול מדורג</span>
+</div>
+
+</section>
+
+<section class="sheet">
+
+<header>
+  <h1>המשך דף התרגילים</h1>
+  <div class="subtitle">רמות מתקדמות ותשובות סופיות</div>
+</header>
+
+<h2>רמה 3 - פונקציות מורכבות מתקדמות</h2>
+
+<div class="grid">
+
+<div class="exercise"><span class="num">11</span><div class="formula">\( f(x)=(x^4+2x^2)^3 \)</div></div>
+
+<div class="exercise"><span class="num">12</span><div class="formula">\( f(x)=(3x^2-5x)^4 \)</div></div>
+
+<div class="exercise"><span class="num">13</span><div class="formula">\( f(x)=(x^3+2x^2-1)^5 \)</div></div>
+
+<div class="exercise"><span class="num">14</span><div class="formula">\( f(x)=(2x^3+1)^4 \)</div></div>
+
+<div class="exercise"><span class="num">15</span><div class="formula">\( f(x)=(x^2-1)^6 \)</div></div>
+
+<div class="exercise"><span class="num">16</span><div class="formula">\( f(x)=(x^5+2)^2 \)</div></div>
+
+<div class="exercise"><span class="num">17</span><div class="formula">\( f(x)=(4x^2-3)^5 \)</div></div>
+
+<div class="exercise"><span class="num">18</span><div class="formula">\( f(x)=(x^3+x)^4 \)</div></div>
+
+<div class="exercise"><span class="num">19</span><div class="formula">\( f(x)=(5x^2+1)^3 \)</div></div>
+
+<div class="exercise"><span class="num">20</span><div class="formula">\( f(x)=(x^4-2x)^5 \)</div></div>
+
+</div>
+
+<h2>תבנית פתרון כללית</h2>
+
+<div class="box blue">
+
+עבור פונקציה מהצורה:
+
+\[
+f(x)=(g(x))^n
+\]
+
+נקבל:
+
+\[
+f'(x)=n(g(x))^{n-1}\cdot g'(x)
+\]
+
+דוגמא:
+
+\[
+f(x)=(2x+1)^5
+\]
+
+\[
+f'(x)=5(2x+1)^4\cdot2
+\]
+
+\[
+f'(x)=10(2x+1)^4
+\]
+
+</div>
+
+<h2>תשובות סופיות</h2>
+
+<div class="answer-grid">
+
+<div class="answer"><span class="num">1</span><div class="formula">\(6x(x^2+1)^2\)</div></div>
+
+<div class="answer"><span class="num">2</span><div class="formula">\(5(x-4)^4\)</div></div>
+
+<div class="answer"><span class="num">3</span><div class="formula">\(8(2x+1)^3\)</div></div>
+
+<div class="answer"><span class="num">4</span><div class="formula">\(4x(x^2-5)\)</div></div>
+
+<div class="answer"><span class="num">5</span><div class="formula">\(18(3x-2)^5\)</div></div>
+
+<div class="answer"><span class="num">6</span><div class="formula">\(4(x^3+2x)^3(3x^2+2)\)</div></div>
+
+<div class="answer"><span class="num">7</span><div class="formula">\(5(x^2-3x+1)^4(2x-3)\)</div></div>
+
+<div class="answer"><span class="num">8</span><div class="formula">\(12x(2x^2+1)^2\)</div></div>
+
+<div class="answer"><span class="num">9</span><div class="formula">\(6x^2(x^3-1)\)</div></div>
+
+<div class="answer"><span class="num">10</span><div class="formula">\(8(x+2)(x^2+4x)^3\)</div></div>
+
+<div class="answer"><span class="num">11</span><div class="formula">\(3(x^4+2x^2)^2(4x^3+4x)\)</div></div>
+
+<div class="answer"><span class="num">12</span><div class="formula">\(4(3x^2-5x)^3(6x-5)\)</div></div>
+
+<div class="answer"><span class="num">13</span><div class="formula">\(5(x^3+2x^2-1)^4(3x^2+4x)\)</div></div>
+
+<div class="answer"><span class="num">14</span><div class="formula">\(24x^2(2x^3+1)^3\)</div></div>
+
+<div class="answer"><span class="num">15</span><div class="formula">\(12x(x^2-1)^5\)</div></div>
+
+<div class="answer"><span class="num">16</span><div class="formula">\(10x^4(x^5+2)\)</div></div>
+
+<div class="answer"><span class="num">17</span><div class="formula">\(40x(4x^2-3)^4\)</div></div>
+
+<div class="answer"><span class="num">18</span><div class="formula">\(4(x^3+x)^3(3x^2+1)\)</div></div>
+
+<div class="answer"><span class="num">19</span><div class="formula">\(30x(5x^2+1)^2\)</div></div>
+
+<div class="answer"><span class="num">20</span><div class="formula">\(5(x^4-2x)^4(4x^3-2)\)</div></div>
+
+</div>
+
+<div class="footer">
+  <span>עמוד 2 מתוך 2</span>
+  <span>תשובות סופיות</span>
+</div>
+
+</section>
+
+</body>
+</html>
