@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>חקירת משפחות של פונקציות פולינומיות עם פרמטרים - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraph.css" />
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{
+  --ink:#17212b;
+  --muted:#5d6874;
+  --accent:#1f5f99;
+  --accent2:#8a3f71;
+  --line:#d8e0e8;
+  --soft:#f5f8fb;
+  --soft2:#eef4f9;
+  --ok:#2d6a4f;
+  --warn:#9c5a15;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e8edf2;color:var(--ink);font-family:"Segoe UI",Arial,sans-serif}
+body{direction:rtl;overflow-x:hidden}
+.page{
+  width:210mm;
+  height:297mm;
+  margin:8mm auto;
+  padding:14mm 15mm 13mm;
+  background:white;
+  box-shadow:0 2px 14px rgba(0,0,0,.10);
+  position:relative;
+  overflow:hidden;
+  break-after:page;
+  page-break-after:always;
+}
+.page:last-child{break-after:auto;page-break-after:auto}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:white}
+  .page{margin:0;box-shadow:none;width:210mm;height:297mm;break-after:page;page-break-after:always}
+}
+h1,h2,h3{margin:0 0 8px;color:#123d62}
+h1{font-size:27px;line-height:1.2}
+h2{font-size:21px;padding-bottom:7px;border-bottom:2px solid #dbe7f1}
+h3{font-size:16px;color:#315b7e;margin-top:10px}
+p,li{font-size:13.4px;line-height:1.5;margin:5px 0}
+ul,ol{margin:6px 0 8px;padding-right:22px}
+.small{font-size:11.5px;color:var(--muted)}
+.lead{font-size:15px;line-height:1.6;color:#273746}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;background:var(--soft2);border:1px solid var(--line);font-size:11.5px;margin:2px}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:9px 0;background:#fff}
+.card.soft{background:var(--soft)}
+.card.emphasis{border-right:5px solid var(--accent);background:#f7fbff}
+.card.warn{border-right:5px solid var(--warn);background:#fff9f1}
+.card.ok{border-right:5px solid var(--ok);background:#f5fbf8}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);text-align:center}
+.kpi strong{display:block;color:#123d62;font-size:17px;margin-bottom:4px}
+.mathbox{direction:ltr;text-align:center;background:#fbfdff;border:1px solid #d8e8f4;border-radius:10px;padding:7px 9px;margin:7px 0;min-height:34px}
+.mathbox mjx-container{margin:0 !important}
+.step{display:flex;gap:8px;align-items:flex-start;margin:7px 0}
+.step .n{flex:0 0 25px;width:25px;height:25px;border-radius:50%;background:#123d62;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.step .txt{flex:1}
+.graph-panel{border:1px solid var(--line);border-radius:12px;padding:8px;margin:8px 0;background:#fcfdff;direction:rtl}
+.graph-title{font-size:12px;color:#40576c;margin-bottom:5px}
+.jxgbox{width:100%;height:245px;border:1px solid #ccd7e2;border-radius:8px;background:white;direction:ltr}
+.graph-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px}
+.graph-tools button{border:1px solid #b8c7d6;background:white;border-radius:7px;padding:4px 9px;cursor:pointer;font:inherit;font-size:11.5px}
+.graph-tools button:hover{background:#f1f5f9}
+.graph-tools label{font-size:11.5px;color:#44515e}
+.graph-tools input[type=range]{width:150px}
+.value-chip{display:inline-block;min-width:58px;text-align:center;border:1px solid #bfd2e3;background:#f2f8fd;padding:3px 7px;border-radius:7px;font-size:11.5px;direction:ltr}
+.legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:#44515e;margin:5px 0}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-left:4px}
+.blue{background:#2c6fb7}.red{background:#b33b3b}.purple{background:#7947a8}.green{background:#2f7d4f}
+table{width:100%;border-collapse:collapse;margin:7px 0;font-size:12.2px}
+th,td{border:1px solid #d9e1e8;padding:6px 7px;vertical-align:top}
+th{background:#eef4f9;color:#284d6a}
+.q{border-right:4px solid #4779a7;padding:6px 10px;margin:8px 0;background:#f8fbfe;border-radius:6px}
+.answer{border-right:4px solid #5f8b68;padding:6px 10px;margin:8px 0;background:#f7fbf8;border-radius:6px}
+.teacher{border:1px dashed #9fb3c4;background:#fbfcfe;padding:8px 10px;border-radius:9px;margin:8px 0}
+.footer{position:absolute;bottom:6mm;left:15mm;right:15mm;display:flex;justify-content:space-between;color:#7a8794;font-size:9.5px;border-top:1px solid #edf1f4;padding-top:3px}
+.ltr{direction:ltr;text-align:left}
+.no-break{break-inside:avoid;page-break-inside:avoid}
+.source-list li{font-size:11.3px;line-height:1.4}
+.hr{height:1px;background:#e7edf2;margin:8px 0}
+</style>
+</head>
+<body>
+
+<section class="page" id="p1">
+  <div style="margin-top:22mm"></div>
+  <div class="badge">5 יחידות מתמטיקה</div>
+  <div class="badge">חדו"א</div>
+  <div class="badge">משפחות פרמטריות</div>
+  <h1 style="margin-top:10px">חקירת משפחות של פונקציות פולינומיות עם פרמטרים</h1>
+  <p class="lead">מערך שיעור אינטראקטיבי שבו כל מושג, דוגמה ותרגיל נלמדים דרך תבנית פרמטרית היוצרת משפחה של פונקציות.</p>
+  <div class="card emphasis" style="margin-top:18px">
+    <h3>עקרון מוביל</h3>
+    <p>לא חוקרים פונקציה בודדת ואז "מוסיפים פרמטר". מתחילים ממשפחה, משנים את הפרמטר, מעלים השערות על צורת הגרף ורק לאחר מכן מוכיחים אותן בעזרת הנגזרת.</p>
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="kpi"><strong>משפחה של פונקציות</strong>הפרמטר קובע איזו פונקציה מתוך המשפחה נבחרת.</div>
+    <div class="kpi"><strong>נגזרת של פולינום</strong>הנגזרת עצמה היא משפחה פרמטרית נוספת.</div>
+    <div class="kpi"><strong>שיפוע משיק</strong>שיפוע המשיק הופך לפונקציה של הפרמטר.</div>
+    <div class="kpi"><strong>קיצון וחקירה</strong>מספר נקודות הקיצון ומיקומן תלויים בפרמטר.</div>
+    <div class="kpi"><strong>נגזרת מכפלה</strong>משפחות מפורקות לגורמים חושפות מבנה אלגברי.</div>
+    <div class="kpi"><strong>פונקציה מורכבת</strong>כלל השרשרת נלמד בתוך משפחות תלויות פרמטר.</div>
+  </div>
+  <div class="card soft" style="margin-top:14px">
+    <h3>מטרות</h3>
+    <ul>
+      <li>לזהות את ההבדל בין משתנה לבין פרמטר.</li>
+      <li>לחקור שינוי איכותי במשפחה כאשר הפרמטר עובר בין תחומים שונים.</li>
+      <li>לקשר בין תנאים גאומטריים על משיק או קיצון לבין משוואות בפרמטרים.</li>
+      <li>לשלב נגזרת מכפלה וכלל השרשרת בחקירות פולינומיות ברמת 5 יחידות.</li>
+    </ul>
+  </div>
+  <div class="footer"><span>מערך שיעור - משפחות פולינומיות עם פרמטרים</span><span>1</span></div>
+</section>
+
+<section class="page" id="p2">
+  <h2>מפת היחידה - מן המשפחה אל החקירה המלאה</h2>
+  <div class="step"><div class="n">1</div><div class="txt"><strong>משפחה פרמטרית:</strong> זיהוי תפקידו של הפרמטר ותצפית בשינוי הגרף.</div></div>
+  <div class="step"><div class="n">2</div><div class="txt"><strong>נגזרת של משפחה:</strong> גזירת התבנית תוך התייחסות לפרמטר כקבוע.</div></div>
+  <div class="step"><div class="n">3</div><div class="txt"><strong>שיפוע משיק:</strong> הפיכת שיפוע המשיק לביטוי התלוי בפרמטר ומציאת פרמטר לפי תנאי.</div></div>
+  <div class="step"><div class="n">4</div><div class="txt"><strong>קיצון:</strong> פתרון משוואת הנגזרת וחלוקה למקרים לפי הפרמטר.</div></div>
+  <div class="step"><div class="n">5</div><div class="txt"><strong>חקירה מלאה:</strong> חיתוכים, עלייה וירידה, נקודות עם שיפוע אפס, קיצון וסקיצה - כולם כתלות בפרמטר.</div></div>
+  <div class="step"><div class="n">6</div><div class="txt"><strong>שני פרמטרים:</strong> שימוש בדיסקרימיננטה של הנגזרת לקביעת מספר נקודות עם שיפוע אפס.</div></div>
+  <div class="step"><div class="n">7</div><div class="txt"><strong>נגזרת מכפלה:</strong> משפחות המופיעות כמכפלה של גורמים התלויים בפרמטר.</div></div>
+  <div class="step"><div class="n">8</div><div class="txt"><strong>פונקציה מורכבת:</strong> כלל השרשרת בתוך תבנית פרמטרית.</div></div>
+  <div class="step"><div class="n">9</div><div class="txt"><strong>שילוב כללים:</strong> מכפלה + פונקציה מורכבת + פרמטרים.</div></div>
+  <div class="step"><div class="n">10</div><div class="txt"><strong>משימות אינטגרטיביות:</strong> מעבר בין אלגברה, נגזרת, גרף ותנאים גאומטריים.</div></div>
+
+  <div class="card warn">
+    <h3>כלל עבודה קבוע לאורך היחידה</h3>
+    <p>בכל משפחה מתחילים בשאלה: <strong>מה יכול להשתנות כאשר הפרמטר משתנה?</strong> לאחר מכן בוחרים ערכים מייצגים, מסיקים השערה, ורק בסוף מוכיחים באמצעות הנגזרת.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>שלב</th><th>שאלת חקר</th><th>כלי עיקרי</th></tr></thead>
+    <tbody>
+      <tr><td>חזותי</td><td>אילו צורות גרף מתקבלות?</td><td>גרפים</td></tr>
+      <tr><td>אלגברי</td><td>מה משתנה בביטוי כאשר הפרמטר משתנה?</td><td>פירוק לגורמים, משוואות</td></tr>
+      <tr><td>דיפרנציאלי</td><td>מתי השיפוע חיובי, שלילי או אפס?</td><td>נגזרת וטבלת סימנים</td></tr>
+      <tr><td>פרמטרי</td><td>באילו ערכי פרמטר התנהגות המשפחה משתנה?</td><td>חלוקה למקרים ודיסקרימיננטה</td></tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>מפת היחידה</span><span>2</span></div>
+</section>
+
+<section class="page" id="p3">
+  <h2>משפחה של פונקציות - הפרמטר יוצר גרפים שונים</h2>
+  <div class="mathbox">\[f_a(x)=x^3-3ax\]</div>
+  <p>עבור כל ערך קבוע של \(a\) מתקבלת פונקציה אחרת. המשתנה הוא \(x\), ואילו \(a\) קובע איזו פונקציה מתוך המשפחה נבחרת.</p>
+
+  <div class="graph-panel" id="panel-family1">
+    <div class="graph-title">שנה את \(a\) ובדוק כיצד משתנה מספר ה"פניות" של הגרף.</div>
+    <div id="board-family1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-family1" type="range" min="-4" max="4" value="1" step="0.25"></label>
+      <span id="a-family1-value" class="value-chip">a = 1</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="card emphasis">
+    <h3>תצפית מודרכת</h3>
+    <ol>
+      <li>בחר \(a=-2\), \(a=0\), \(a=2\).</li>
+      <li>כמה נקודות עם שיפוע אפס נראה שיש בכל מקרה?</li>
+      <li>באיזה תחום של \(a\) הגרף נראה עולה לכל אורכו?</li>
+    </ol>
+  </div>
+  <div class="card ok">
+    <h3>השערה לפני הוכחה</h3>
+    <p>הפרמטר אינו רק מזיז את הגרף. הוא עשוי לשנות את <strong>מספר נקודות הקיצון</strong> ואת המבנה האיכותי של כל המשפחה.</p>
+  </div>
+  <div class="footer"><span>משפחה פרמטרית</span><span>3</span></div>
+</section>
+
+<section class="page" id="p4">
+  <h2>נגזרת של משפחה פולינומית</h2>
+  <div class="mathbox">\[p_a(x)=x^4+ax^3-2x+a\]</div>
+  <p>בעת הגזירה ביחס ל-\(x\), הפרמטר \(a\) נחשב קבוע.</p>
+  <div class="mathbox">\[p_a'(x)=4x^3+3ax^2-2\]</div>
+
+  <div class="graph-panel" id="panel-derivative1">
+    <div class="graph-title">הגרף הכחול הוא \(p_a\), והגרף האדום הוא \(p_a'\).</div>
+    <div id="board-derivative1" class="jxgbox"></div>
+    <div class="legend"><span><i class="dot blue"></i>\(p_a\)</span><span><i class="dot red"></i>\(p_a'\)</span></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-derivative1" type="range" min="-3" max="3" value="1" step="0.25"></label>
+      <span id="a-derivative1-value" class="value-chip">a = 1</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card soft">
+      <h3>מה קבוע?</h3>
+      <p>חוקי הגזירה אינם משתנים עם \(a\). רק המקדמים בתבנית הנגזרת משתנים.</p>
+    </div>
+    <div class="card soft">
+      <h3>מה משתנה?</h3>
+      <p>מיקום האפסים של \(p_a'\), ולכן גם תחומי העלייה והירידה של \(p_a\).</p>
+    </div>
+  </div>
+
+  <div class="q"><strong>תרגיל:</strong> עבור המשפחה \(r_a(x)=x^5-ax^3+a^2x\), מצא את \(r_a'(x)\) ופירק ככל האפשר לגורמים.</div>
+  <div class="mathbox">\[r_a'(x)=5x^4-3ax^2+a^2\]</div>
+  <div class="teacher"><strong>נקודת הוראה:</strong> הנגזרת של משפחה היא בעצמה משפחה. זה מאפשר לחקור לא רק גרף אחד, אלא מתי המבנה של כל המשפחה משתנה.</div>
+  <div class="footer"><span>נגזרת של פולינום פרמטרי</span><span>4</span></div>
+</section>
+
+<section class="page" id="p5">
+  <h2>שיפוע משיק כתלות בפרמטר</h2>
+  <div class="mathbox">\[f_a(x)=x^3+ax^2\]</div>
+  <p>נחקור את המשיק בנקודה שבה \(x=1\). עבור כל ערך של \(a\), מתקבל גרף אחר ולכן גם משיק אחר.</p>
+  <div class="mathbox">\[f_a'(x)=3x^2+2ax\]</div>
+  <div class="mathbox">\[m(a)=f_a'(1)=3+2a\]</div>
+
+  <div class="graph-panel" id="panel-tangent1">
+    <div class="graph-title">המשיק האדום נבנה מחדש כאשר \(a\) משתנה.</div>
+    <div id="board-tangent1" class="jxgbox"></div>
+    <div class="legend"><span><i class="dot blue"></i>\(f_a\)</span><span><i class="dot red"></i>משיק ב-\(x=1\)</span></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-tangent1" type="range" min="-4" max="3" value="0" step="0.25"></label>
+      <span id="a-tangent1-value" class="value-chip">a = 0</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="card emphasis">
+    <h3>מציאת פרמטר מתוך תנאי על המשיק</h3>
+    <p>כדי שהמשיק יהיה אופקי נדרוש:</p>
+    <div class="mathbox">\[3+2a=0\Rightarrow a=-\frac{3}{2}\]</div>
+  </div>
+
+  <div class="q"><strong>תרגיל:</strong> עבור אותה משפחה, מצא את \(a\) כך ששיפוע המשיק ב-\(x=1\) יהיה \(7\).</div>
+  <div class="answer">פתרון קצר: \(3+2a=7\Rightarrow a=2\).</div>
+  <div class="footer"><span>שיפוע משיק ופרמטר</span><span>5</span></div>
+</section>
+
+<section class="page" id="p6">
+  <h2>קיצון במשפחה - חלוקה למקרים לפי הפרמטר</h2>
+  <div class="mathbox">\[f_a(x)=x^3-3ax\]</div>
+  <div class="mathbox">\[f_a'(x)=3x^2-3a=3(x^2-a)\]</div>
+  <p>נקודות עם שיפוע אפס מתקבלות מפתרון:</p>
+  <div class="mathbox">\[x^2=a\]</div>
+
+  <table>
+    <thead><tr><th>תחום הפרמטר</th><th>פתרונות של \(f_a'(x)=0\)</th><th>מסקנה על הגרף</th></tr></thead>
+    <tbody>
+      <tr><td>\(a\lt0\)</td><td>אין פתרונות ממשיים</td><td>הנגזרת חיובית לכל \(x\), ולכן הפונקציה עולה לכל אורכה.</td></tr>
+      <tr><td>\(a=0\)</td><td>\(x=0\)</td><td>נקודה עם שיפוע אפס, אך אין שינוי סימן בנגזרת ולכן אין קיצון.</td></tr>
+      <tr><td>\(a\gt0\)</td><td>\(x=\pm\sqrt{a}\)</td><td>שתי נקודות קיצון - מקסימום ומינימום.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="graph-panel" id="panel-extrema1">
+    <div class="graph-title">בחר ערכים משני צדי \(a=0\) ואמת את החלוקה למקרים.</div>
+    <div id="board-extrema1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-extrema1" type="range" min="-4" max="4" value="2" step="0.25"></label>
+      <span id="a-extrema1-value" class="value-chip">a = 2</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+  <div class="card warn"><strong>חשוב:</strong> פתרון של \(f_a'(x)=0\) נותן נקודה עם שיפוע אפס. רק שינוי סימן של הנגזרת מאפשר לקבוע שמדובר בקיצון.</div>
+  <div class="footer"><span>קיצון כתלות בפרמטר</span><span>6</span></div>
+</section>
+
+<section class="page" id="p7">
+  <h2>חקירה מלאה של משפחה פולינומית</h2>
+  <div class="mathbox">\[g_a(x)=x^4-2ax^2\]</div>
+  <div class="mathbox">\[g_a'(x)=4x^3-4ax=4x(x^2-a)\]</div>
+
+  <div class="grid2">
+    <div class="card soft">
+      <h3>כאשר \(a\le0\)</h3>
+      <p>לנגזרת יש רק פתרון ממשי אחד: \(x=0\). הפונקציה יורדת לפניו ועולה אחריו ולכן מתקבל מינימום ב-\(x=0\).</p>
+    </div>
+    <div class="card soft">
+      <h3>כאשר \(a\gt0\)</h3>
+      <p>לנגזרת שלושה אפסים: \(x=-\sqrt{a},0,\sqrt{a}\). מתקבלים שני מינימום ומקסימום ביניהם.</p>
+    </div>
+  </div>
+
+  <div class="mathbox">\[g_a(0)=0,\qquad g_a(\pm\sqrt{a})=-a^2\quad (a\gt0)\]</div>
+  <div class="mathbox">\[g_a(x)=x^2(x^2-2a)\]</div>
+  <p>כאשר \(a\gt0\), נקודות החיתוך עם ציר \(x\) הן \(x=0\) ו-\(x=\pm\sqrt{2a}\).</p>
+
+  <div class="graph-panel" id="panel-quartic1">
+    <div class="graph-title">השתמש בסליידר כדי לראות את המעבר ממשפחה עם מינימום יחיד למשפחה עם שלוש נקודות עם שיפוע אפס.</div>
+    <div id="board-quartic1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-quartic1" type="range" min="-3" max="4" value="2" step="0.25"></label>
+      <span id="a-quartic1-value" class="value-chip">a = 2</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+  <div class="teacher"> כאן יש הזדמנות להדגיש ש-\(a=0\) הוא ערך מעבר. סביבו משתנה מספר נקודות עם שיפוע אפס ולכן משתנה המבנה האיכותי של הגרף.</div>
+  <div class="footer"><span>חקירת פולינום פרמטרי</span><span>7</span></div>
+</section>
+
+<section class="page" id="p8">
+  <h2>שני פרמטרים - דיסקרימיננטה של הנגזרת</h2>
+  <div class="mathbox">\[f_{a,b}(x)=x^3+ax^2+bx\]</div>
+  <div class="mathbox">\[f_{a,b}'(x)=3x^2+2ax+b\]</div>
+  <p>מספר הנקודות עם שיפוע אפס נקבע לפי מספר הפתרונות הממשיים של משוואת הנגזרת.</p>
+  <div class="mathbox">\[\Delta_{f'}=(2a)^2-4\cdot3\cdot b=4a^2-12b\]</div>
+  <table>
+    <thead><tr><th>תנאי</th><th>מספר פתרונות של \(f'=0\)</th><th>מבנה טיפוסי</th></tr></thead>
+    <tbody>
+      <tr><td>\(b\lt\frac{a^2}{3}\)</td><td>2</td><td>מקסימום ומינימום מקומיים.</td></tr>
+      <tr><td>\(b=\frac{a^2}{3}\)</td><td>1 כפול</td><td>נקודה עם שיפוע אפס ללא קיצון.</td></tr>
+      <tr><td>\(b\gt\frac{a^2}{3}\)</td><td>0</td><td>הפונקציה עולה לכל \(x\).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="graph-panel" id="panel-ab1">
+    <div class="graph-title">שנה את שני הפרמטרים ועקוב אחרי הסימן של \(\Delta_{f'}\).</div>
+    <div id="board-ab1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-ab1" type="range" min="-4" max="4" value="2" step="0.25"></label>
+      <span id="a-ab1-value" class="value-chip">a = 2</span>
+      <label>\(b\): <input id="b-ab1" type="range" min="-3" max="6" value="0" step="0.25"></label>
+      <span id="b-ab1-value" class="value-chip">b = 0</span>
+      <span id="delta-ab1" class="value-chip">Delta = 16</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+  <div class="q"><strong>שאלת חקר:</strong> קבע תחום של זוגות \((a,b)\) שעבורם למשפחה אין נקודות קיצון.</div>
+  <div class="answer">התנאי הוא \(b\ge\frac{a^2}{3}\), אך במקרה של שוויון קיימת נקודה עם שיפוע אפס שאינה קיצון.</div>
+  <div class="footer"><span>שני פרמטרים ודיסקרימיננטה</span><span>8</span></div>
+</section>
+
+<section class="page" id="p9">
+  <h2>מציאת פרמטרים מתוך מידע על משיק וקיצון</h2>
+  <div class="mathbox">\[f_{a,b}(x)=x^3+ax^2+bx\]</div>
+  <div class="mathbox">\[f_{a,b}'(x)=3x^2+2ax+b\]</div>
+  <div class="card emphasis">
+    <h3>נתונים</h3>
+    <p>בנקודה שבה \(x=1\) יש נקודה עם שיפוע אפס, ושיפוע המשיק בנקודה שבה \(x=-1\) הוא \(8\).</p>
+  </div>
+
+  <div class="step"><div class="n">1</div><div class="txt">מהתנאי הראשון:<div class="mathbox">\[f_{a,b}'(1)=0\Rightarrow 3+2a+b=0\]</div></div></div>
+  <div class="step"><div class="n">2</div><div class="txt">מהתנאי השני:<div class="mathbox">\[f_{a,b}'(-1)=8\Rightarrow 3-2a+b=8\]</div></div></div>
+  <div class="step"><div class="n">3</div><div class="txt">פתרון המערכת:<div class="mathbox">\[a=-2,\qquad b=1\]</div></div></div>
+  <div class="mathbox">\[f(x)=x^3-2x^2+x\]</div>
+
+  <div class="card ok">
+    <h3>תרגום קבוע מנתון גאומטרי למשוואה</h3>
+    <p>נקודה על הגרף ⇐ הצבה ב-\(f\). שיפוע משיק ⇐ הצבה ב-\(f'\). נקודה עם שיפוע אפס ⇐ משוואה \(f'(x_0)=0\).</p>
+  </div>
+
+  <div class="q"><strong>תרגיל:</strong> במשפחה \(g_{a,b}(x)=x^3+ax^2+bx\), ידוע כי ב-\(x=2\) יש נקודה עם שיפוע אפס וכי שיפוע המשיק ב-\(x=0\) הוא \(-4\). מצא את \(a,b\).</div>
+  <div class="answer">\(b=-4\), ובהצבה ב-\(g'(2)=0\) מתקבל \(12+4a-4=0\Rightarrow a=-2\).</div>
+  <div class="footer"><span>מציאת פרמטרים מתנאים</span><span>9</span></div>
+</section>
+
+<section class="page" id="p10">
+  <h2>נגזרת מכפלה בתוך משפחה פרמטרית</h2>
+  <div class="mathbox">\[p_a(x)=(x-a)(x^2+a)\]</div>
+  <p>התבנית בנויה כמכפלה של שני גורמים, ושניהם תלויים בפרמטר.</p>
+  <div class="mathbox">\[p_a'(x)=1\cdot(x^2+a)+(x-a)\cdot2x\]</div>
+  <div class="mathbox">\[p_a'(x)=3x^2-2ax+a\]</div>
+
+  <div class="graph-panel" id="panel-product1">
+    <div class="graph-title">בדוק כיצד שינוי \(a\) משפיע בו-זמנית על האפס של הגורם הראשון ועל צורת הגרף כולו.</div>
+    <div id="board-product1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-product1" type="range" min="-4" max="4" value="1" step="0.25"></label>
+      <span id="a-product1-value" class="value-chip">a = 1</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="card emphasis">
+    <h3>תרגיל פרמטרי</h3>
+    <p>מצא את \(a\) כך שב-\(x=1\) תהיה נקודה עם שיפוע אפס.</p>
+    <div class="mathbox">\[p_a'(1)=3-2a+a=0\Rightarrow a=3\]</div>
+  </div>
+
+  <div class="teacher"> ניתן לפתוח סוגריים ולגזור שוב כדי לאמת את כלל המכפלה. כך התלמיד רואה ששתי הדרכים מובילות לאותה משפחת נגזרות.</div>
+  <div class="footer"><span>נגזרת מכפלה במשפחה</span><span>10</span></div>
+</section>
+
+<section class="page" id="p11">
+  <h2>מכפלה + קיצון - מבנה אלגברי שחושף את הפרמטר</h2>
+  <div class="mathbox">\[g_a(x)=(x-a)^2(x+a)\]</div>
+  <div class="mathbox">\[g_a'(x)=2(x-a)(x+a)+(x-a)^2\]</div>
+  <div class="mathbox">\[g_a'(x)=(x-a)(3x+a)\]</div>
+  <p>לכן, כאשר \(a\ne0\), הנקודות עם שיפוע אפס נמצאות ב:</p>
+  <div class="mathbox">\[x=a,\qquad x=-\frac{a}{3}\]</div>
+  <div class="mathbox">\[g_a(a)=0,\qquad g_a\left(-\frac{a}{3}\right)=\frac{32a^3}{27}\]</div>
+
+  <div class="graph-panel" id="panel-product2">
+    <div class="graph-title">בדוק מה קורה לסדר המקסימום והמינימום כאשר הסימן של \(a\) מתחלף.</div>
+    <div id="board-product2" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-product2" type="range" min="-4" max="4" value="2" step="0.25"></label>
+      <span id="a-product2-value" class="value-chip">a = 2</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>מקרה</th><th>סדר נקודות עם שיפוע אפס על ציר \(x\)</th><th>מה כדאי לבדוק?</th></tr></thead>
+    <tbody>
+      <tr><td>\(a\gt0\)</td><td>\(-a/3\lt a\)</td><td>שינוי סימן הנגזרת בכל נקודה.</td></tr>
+      <tr><td>\(a\lt0\)</td><td>\(a\lt -a/3\)</td><td>האם תפקידי המקסימום והמינימום מתחלפים?</td></tr>
+      <tr><td>\(a=0\)</td><td>שתי הנקודות מתלכדות</td><td>המשפחה מתקבלת כ-\(g_0(x)=x^3\).</td></tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>מכפלה וקיצון</span><span>11</span></div>
+</section>
+
+<section class="page" id="p12">
+  <h2>פונקציה מורכבת במשפחה פרמטרית</h2>
+  <div class="mathbox">\[h_a(x)=(x^2+a)^3\]</div>
+  <p>הפונקציה החיצונית היא חזקה שלישית, והפונקציה הפנימית היא \(x^2+a\).</p>
+  <div class="mathbox">\[h_a'(x)=3(x^2+a)^2\cdot2x\]</div>
+  <div class="mathbox">\[h_a'(x)=6x(x^2+a)^2\]</div>
+
+  <div class="graph-panel" id="panel-chain1">
+    <div class="graph-title">עקוב אחרי נקודות עם שיפוע אפס כאשר \(a\) עובר מערכים חיוביים לשליליים.</div>
+    <div id="board-chain1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-chain1" type="range" min="-4" max="4" value="-2" step="0.25"></label>
+      <span id="a-chain1-value" class="value-chip">a = -2</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="card warn">
+    <h3>נקודה עם שיפוע אפס אינה בהכרח קיצון</h3>
+    <p>כאשר \(a\lt0\), מתקבלים גם \(x=\pm\sqrt{-a}\). הגורם \((x^2+a)^2\) אינו מחליף סימן, ולכן בנקודות אלה הנגזרת אינה מחליפה סימן.</p>
+  </div>
+  <div class="mathbox">\[h_a'(x)=0\Rightarrow x=0\quad\text{or}\quad x^2+a=0\]</div>
+  <div class="q"><strong>תרגיל:</strong> קבע אילו מהפתרונות של \(h_a'(x)=0\) הם נקודות קיצון כאשר \(a=-9\).</div>
+  <div class="answer">הפתרונות הם \(x=-3,0,3\). רק \(x=0\) הוא קיצון.</div>
+  <div class="footer"><span>כלל השרשרת במשפחה</span><span>12</span></div>
+</section>
+
+<section class="page" id="p13">
+  <h2>שילוב נגזרת מכפלה וכלל השרשרת</h2>
+  <div class="mathbox">\[k_a(x)=(x-a)^2(x^2+a)^2\]</div>
+  <p>כדי לגזור נכון, מזהים שתי שכבות: מכפלה של שני גורמים, ובכל גורם מופיעה פונקציה מורכבת.</p>
+  <div class="mathbox">\[k_a'(x)=2(x-a)(x^2+a)^2+4x(x-a)^2(x^2+a)\]</div>
+  <p>נוציא גורמים משותפים:</p>
+  <div class="mathbox">\[k_a'(x)=2(x-a)(x^2+a)(3x^2-2ax+a)\]</div>
+
+  <div class="graph-panel" id="panel-combo1">
+    <div class="graph-title">המשפחה עשויה לקבל מספר שונה של נקודות עם שיפוע אפס לפי \(a\).</div>
+    <div id="board-combo1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-combo1" type="range" min="-3" max="3" value="1" step="0.25"></label>
+      <span id="a-combo1-value" class="value-chip">a = 1</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="card emphasis">
+    <h3>אסטרטגיית פתרון</h3>
+    <ol>
+      <li>גזור לפני פתיחת סוגריים.</li>
+      <li>הוצא גורמים משותפים.</li>
+      <li>פתור כל גורם בנפרד.</li>
+      <li>בדוק מתי כל גורם נותן פתרונות ממשיים לפי הפרמטר.</li>
+      <li>רק לאחר מכן בנה טבלת סימנים.</li>
+    </ol>
+  </div>
+  <div class="q"><strong>שאלת חקר:</strong> באילו ערכי \(a\) המשוואה \(x^2+a=0\) מוסיפה שתי נקודות עם שיפוע אפס למשפחה?</div>
+  <div class="answer">כאשר \(a\lt0\).</div>
+  <div class="footer"><span>מכפלה + שרשרת + פרמטר</span><span>13</span></div>
+</section>
+
+<section class="page" id="p14">
+  <h2>דוגמה אינטגרטיבית - חקירה מלאה ממשפחה מפורקת לגורמים</h2>
+  <div class="mathbox">\[q_a(x)=(x-a)^2(x+2a)\]</div>
+  <div class="mathbox">\[q_a'(x)=2(x-a)(x+2a)+(x-a)^2\]</div>
+  <div class="mathbox">\[q_a'(x)=3(x-a)(x+a)\]</div>
+
+  <div class="grid2">
+    <div class="card soft"><h3>אפסי הפונקציה</h3><div class="mathbox">\[x=a\quad\text{and}\quad x=-2a\]</div><p>ב-\(x=a\) האפס כפול.</p></div>
+    <div class="card soft"><h3>נקודות עם שיפוע אפס</h3><div class="mathbox">\[x=-a\quad\text{and}\quad x=a\]</div><p>כאשר \(a=0\), הנקודות מתלכדות.</p></div>
+  </div>
+  <div class="mathbox">\[q_a(a)=0,\qquad q_a(-a)=4a^3\]</div>
+
+  <div class="graph-panel" id="panel-integrated1">
+    <div class="graph-title">השווה בין \(a\gt0\), \(a=0\), \(a\lt0\).</div>
+    <div id="board-integrated1" class="jxgbox"></div>
+    <div class="graph-tools">
+      <label>\(a\): <input id="a-integrated1" type="range" min="-4" max="4" value="2" step="0.25"></label>
+      <span id="a-integrated1-value" class="value-chip">a = 2</span>
+      <button data-action="in">הגדל</button><button data-action="out">הקטן</button><button data-action="center">מרכז</button><button data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="card ok">
+    <h3>מסקנה</h3>
+    <p>במקום לחקור כל ערך של \(a\) בנפרד, מספיק לזהות את ערכי המעבר ואת הסדר היחסי של \(-2a,-a,a\). מכאן ניתן לתאר את כל המשפחה.</p>
+  </div>
+  <div class="footer"><span>חקירה אינטגרטיבית</span><span>14</span></div>
+</section>
+
+<section class="page" id="p15">
+  <h2>קריאת גרפים של משפחה - מן התמונה אל התנאי האלגברי</h2>
+  <div class="mathbox">\[f_{a,b}(x)=x^3+ax^2+bx\]</div>
+  <p>במשפחה זו, הנגזרת היא פרבולה. לכן אפשר לתרגם תיאור של הגרף לתנאי על הדיסקרימיננטה של הנגזרת.</p>
+  <div class="mathbox">\[f_{a,b}'(x)=3x^2+2ax+b\]</div>
+  <div class="mathbox">\[\Delta_{f'}=4a^2-12b\]</div>
+
+  <table>
+    <thead><tr><th>תיאור גרפי של הפונקציה</th><th>תנאי אלגברי מתאים</th></tr></thead>
+    <tbody>
+      <tr><td>הגרף עולה לכל אורכו ואין נקודות עם שיפוע אפס.</td><td>\(\Delta_{f'}\lt0\)</td></tr>
+      <tr><td>יש נקודה אחת עם שיפוע אפס אך אין קיצון.</td><td>\(\Delta_{f'}=0\)</td></tr>
+      <tr><td>יש מקסימום ומינימום.</td><td>\(\Delta_{f'}\gt0\)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="q"><strong>תרגיל 1:</strong> במשפחה \(f_{a,b}\), ידוע כי לכל ערך של \(x\) מתקיים \(f_{a,b}'(x)\gt0\). כתוב תנאי על \(a,b\).</div>
+  <div class="answer">\(4a^2-12b\lt0\Rightarrow b\gt\frac{a^2}{3}\).</div>
+
+  <div class="q"><strong>תרגיל 2:</strong> קבע את \(b\) כתלות ב-\(a\) כך שלמשפחה תהיה בדיוק נקודה אחת עם שיפוע אפס.</div>
+  <div class="answer">\(b=\frac{a^2}{3}\).</div>
+
+  <div class="q"><strong>תרגיל 3:</strong> עבור \(a=3\), מצא את תחום הערכים של \(b\) שבו קיימות שתי נקודות קיצון.</div>
+  <div class="answer">\(b\lt3\).</div>
+
+  <div class="teacher"><strong>הרחבה:</strong> אפשר להציג את התחומים במישור הפרמטרים \((a,b)\). הפרבולה \(b=a^2/3\) מחלקת את מישור הפרמטרים לאזורי התנהגות שונים.</div>
+  <div class="footer"><span>מתיאור גרפי לתנאי בפרמטרים</span><span>15</span></div>
+</section>
+
+<section class="page" id="p17">
+  <h2>תרגול - חלק א</h2>
+  <div class="q"><strong>1.</strong> נתונה המשפחה \(f_a(x)=x^3+ax^2\). מצא את \(a\) כך ששיפוע המשיק ב-\(x=1\) יהיה \(5\).</div>
+  <div class="q"><strong>2.</strong> נתונה המשפחה \(f_a(x)=x^3-3ax\). קבע עבור אילו ערכי \(a\) יש שתי נקודות קיצון, עבור אילו ערכים אין קיצון, ומה קורה ב-\(a=0\).</div>
+  <div class="q"><strong>3.</strong> נתונה המשפחה \(g_a(x)=x^4-2ax^2\). חקור את המשפחה לפי \(a\le0\) ו-\(a\gt0\): נקודות חיתוך עם הצירים, נקודות עם שיפוע אפס, תחומי עלייה וירידה וקיצון.</div>
+  <div class="q"><strong>4.</strong> נתונה המשפחה \(f_{a,b}(x)=x^3+ax^2+bx\). קבע תנאי על \(a,b\) כך שיהיו בדיוק שתי נקודות עם שיפוע אפס.</div>
+  <div class="q"><strong>5.</strong> באותה משפחה, ידוע כי ב-\(x=2\) יש נקודה עם שיפוע אפס ושיפוע המשיק ב-\(x=0\) הוא \(-4\). מצא את \(a,b\).</div>
+  <div class="card soft">
+    <h3>הנחיית פתרון</h3>
+    <p>בכל תרגיל כתוב תחילה את משפחת הנגזרות. לאחר מכן סמן במפורש את התנאי שמתקבל מהפרמטר. אין להציב ערכים אקראיים של הפרמטר במקום חלוקה למקרים.</p>
+  </div>
+  <div class="footer"><span>תרגול חלק א</span><span>17</span></div>
+</section>
+
+<section class="page" id="p18">
+  <h2>תרגול - חלק ב</h2>
+  <div class="q"><strong>6.</strong> נתונה המשפחה \(p_a(x)=(x-a)(x^2+a)\). גזור באמצעות כלל המכפלה ומצא את \(a\) כך שב-\(x=1\) תהיה נקודה עם שיפוע אפס.</div>
+  <div class="q"><strong>7.</strong> נתונה המשפחה \(g_a(x)=(x-a)^2(x+a)\). מצא את כל הנקודות עם שיפוע אפס כתלות ב-\(a\), וסווג את הקיצון בנפרד עבור \(a\gt0\), \(a=0\), \(a\lt0\).</div>
+  <div class="q"><strong>8.</strong> נתונה המשפחה \(h_a(x)=(x^2+a)^3\). מצא את כל הנקודות עם שיפוע אפס כתלות ב-\(a\). קבע אילו מהן נקודות קיצון ואילו אינן קיצון.</div>
+  <div class="q"><strong>9.</strong> נתונה המשפחה \(k_a(x)=(x-a)^2(x^2+a)^2\). גזור באמצעות כלל המכפלה וכלל השרשרת, פרק את הנגזרת לגורמים, וקבע באילו ערכי \(a\) הגורם \(x^2+a\) מוסיף פתרונות ממשיים למשוואה \(k_a'(x)=0\).</div>
+  <div class="q"><strong>10.</strong> נתונה המשפחה \(q_a(x)=(x-a)^2(x+2a)\). בצע חקירה מלאה לפי שלושת המקרים \(a\gt0\), \(a=0\), \(a\lt0\). התייחס לאפסי הפונקציה, נקודות עם שיפוע אפס, קיצון וסקיצה.</div>
+  <div class="card warn"><strong>אתגר:</strong> בתרגיל 10, נסה לתאר את סדר הנקודות \(-2a,-a,a\) על ציר \(x\) בכל אחד משלושת המקרים לפני בניית טבלת הסימנים.</div>
+  <div class="footer"><span>תרגול חלק ב</span><span>18</span></div>
+</section>
+
+<section class="page" id="p19">
+  <h2>תשובות מקוצרות לתרגול</h2>
+  <table>
+    <thead><tr><th>#</th><th>תשובה עיקרית</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>\(3+2a=5\Rightarrow a=1\).</td></tr>
+      <tr><td>2</td><td>\(a\gt0\): שתי נקודות קיצון. \(a\lt0\): אין קיצון. \(a=0\): נקודה עם שיפוע אפס ב-\(x=0\), ללא קיצון.</td></tr>
+      <tr><td>3</td><td>\(g_a'=4x(x^2-a)\). עבור \(a\le0\): מינימום יחיד ב-\(x=0\). עבור \(a\gt0\): מינימום ב-\(x=\pm\sqrt a\), מקסימום ב-\(x=0\); אפסים נוספים ב-\(x=\pm\sqrt{2a}\).</td></tr>
+      <tr><td>4</td><td>\(\Delta_{f'}=4a^2-12b\gt0\Rightarrow b\lt a^2/3\).</td></tr>
+      <tr><td>5</td><td>\(b=-4\), \(12+4a-4=0\Rightarrow a=-2\).</td></tr>
+      <tr><td>6</td><td>\(p_a'=3x^2-2ax+a\). ב-\(x=1\): \(3-a=0\Rightarrow a=3\).</td></tr>
+      <tr><td>7</td><td>\(g_a'=(x-a)(3x+a)\). נקודות עם שיפוע אפס: \(x=a\), \(x=-a/3\). ב-\(a=0\) הן מתלכדות.</td></tr>
+      <tr><td>8</td><td>\(h_a'=6x(x^2+a)^2\). \(x=0\) הוא קיצון. אם \(a\lt0\), גם \(x=\pm\sqrt{-a}\) הם נקודות עם שיפוע אפס אך אינן קיצון.</td></tr>
+      <tr><td>9</td><td>\(k_a'=2(x-a)(x^2+a)(3x^2-2ax+a)\). הגורם \(x^2+a\) מוסיף שני פתרונות כאשר \(a\lt0\).</td></tr>
+      <tr><td>10</td><td>\(q_a'=3(x-a)(x+a)\). נקודות עם שיפוע אפס: \(x=\pm a\). אפסים: \(x=a\) כפול ו-\(x=-2a\). יש להתאים את סדר הנקודות לפי סימן \(a\).</td></tr>
+    </tbody>
+  </table>
+  <div class="card ok"><strong>מדד הצלחה:</strong> פתרון מלא ברמת 5 יחידות חייב לכלול נימוק לחלוקה למקרים ולא רק תוצאה סופית לכל ערך פרמטר.</div>
+  <div class="footer"><span>תשובות</span><span>19</span></div>
+</section>
+
+<script>
+(function(){
+  'use strict';
+  const C = {blue:'#2c6fb7', red:'#b33b3b', purple:'#7947a8', green:'#2f7d4f'};
+
+  function setupBoard(boardId, panelId, bbox){
+    const board = JXG.JSXGraph.initBoard(boardId, {
+      boundingbox: bbox,
+      axis: true,
+      showCopyright: false,
+      showNavigation: false,
+      keepaspectratio: false,
+      pan: {enabled: true},
+      zoom: {wheel: true, needshift: false}
+    });
+    const initial = bbox.slice();
+    const panel = document.getElementById(panelId);
+    const buttons = panel.querySelectorAll('button[data-action]');
+    buttons.forEach(btn => btn.addEventListener('click', function(){
+      const action = this.getAttribute('data-action');
+      const bb = board.getBoundingBox();
+      const cx = (bb[0] + bb[2]) / 2;
+      const cy = (bb[1] + bb[3]) / 2;
+      const w = bb[2] - bb[0];
+      const h = bb[1] - bb[3];
+      if(action === 'in') board.setBoundingBox([cx-w*0.4, cy+h*0.4, cx+w*0.4, cy-h*0.4], false);
+      if(action === 'out') board.setBoundingBox([cx-w*0.625, cy+h*0.625, cx+w*0.625, cy-h*0.625], false);
+      if(action === 'center') board.setBoundingBox([-w/2, h/2, w/2, -h/2], false);
+      if(action === 'reset') board.setBoundingBox(initial.slice(), false);
+      board.update();
+    }));
+    return board;
+  }
+
+  function bindRange(board, inputId, outputId, name, extra){
+    const input = document.getElementById(inputId);
+    const out = document.getElementById(outputId);
+    const update = function(){
+      out.textContent = name + ' = ' + Number(input.value).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+      if(extra) extra();
+      board.update();
+    };
+    input.addEventListener('input', update);
+    update();
+    return function(){ return Number(input.value); };
+  }
+
+  // Page 3
+  {
+    const board = setupBoard('board-family1','panel-family1',[-5,10,5,-10]);
+    const input = document.getElementById('a-family1');
+    board.create('functiongraph',[x => x*x*x - 3*Number(input.value)*x],{strokeColor:C.blue,strokeWidth:3});
+    bindRange(board,'a-family1','a-family1-value','a');
+  }
+
+  // Page 4
+  {
+    const board = setupBoard('board-derivative1','panel-derivative1',[-4,12,4,-12]);
+    const input = document.getElementById('a-derivative1');
+    board.create('functiongraph',[x => x**4 + Number(input.value)*x**3 - 2*x + Number(input.value)],{strokeColor:C.blue,strokeWidth:3});
+    board.create('functiongraph',[x => 4*x**3 + 3*Number(input.value)*x**2 - 2],{strokeColor:C.red,strokeWidth:2.5,dash:2});
+    bindRange(board,'a-derivative1','a-derivative1-value','a');
+  }
+
+  // Page 5
+  {
+    const board = setupBoard('board-tangent1','panel-tangent1',[-4,12,4,-12]);
+    const input = document.getElementById('a-tangent1');
+    const aval = () => Number(input.value);
+    board.create('functiongraph',[x => x**3 + aval()*x**2],{strokeColor:C.blue,strokeWidth:3});
+    board.create('functiongraph',[x => (1+aval()) + (3+2*aval())*(x-1)],{strokeColor:C.red,strokeWidth:2.5});
+    board.create('point',[1,() => 1+aval()],{name:'P',size:3,strokeColor:C.red,fillColor:C.red});
+    bindRange(board,'a-tangent1','a-tangent1-value','a');
+  }
+
+  // Page 6
+  {
+    const board = setupBoard('board-extrema1','panel-extrema1',[-5,12,5,-12]);
+    const input = document.getElementById('a-extrema1');
+    board.create('functiongraph',[x => x**3 - 3*Number(input.value)*x],{strokeColor:C.blue,strokeWidth:3});
+    bindRange(board,'a-extrema1','a-extrema1-value','a');
+  }
+
+  // Page 7
+  {
+    const board = setupBoard('board-quartic1','panel-quartic1',[-4,12,4,-12]);
+    const input = document.getElementById('a-quartic1');
+    board.create('functiongraph',[x => x**4 - 2*Number(input.value)*x**2],{strokeColor:C.purple,strokeWidth:3});
+    bindRange(board,'a-quartic1','a-quartic1-value','a');
+  }
+
+  // Page 8
+  {
+    const board = setupBoard('board-ab1','panel-ab1',[-5,12,5,-12]);
+    const ia = document.getElementById('a-ab1');
+    const ib = document.getElementById('b-ab1');
+    board.create('functiongraph',[x => x**3 + Number(ia.value)*x**2 + Number(ib.value)*x],{strokeColor:C.blue,strokeWidth:3});
+    const updateDelta = () => {
+      const a = Number(ia.value), b = Number(ib.value);
+      const d = 4*a*a - 12*b;
+      document.getElementById('delta-ab1').textContent = 'Delta = ' + d.toFixed(2).replace(/\.00$/,'');
+    };
+    bindRange(board,'a-ab1','a-ab1-value','a',updateDelta);
+    bindRange(board,'b-ab1','b-ab1-value','b',updateDelta);
+  }
+
+  // Page 10
+  {
+    const board = setupBoard('board-product1','panel-product1',[-5,12,5,-12]);
+    const input = document.getElementById('a-product1');
+    board.create('functiongraph',[x => (x-Number(input.value))*(x*x+Number(input.value))],{strokeColor:C.green,strokeWidth:3});
+    bindRange(board,'a-product1','a-product1-value','a');
+  }
+
+  // Page 11
+  {
+    const board = setupBoard('board-product2','panel-product2',[-5,14,5,-14]);
+    const input = document.getElementById('a-product2');
+    board.create('functiongraph',[x => (x-Number(input.value))**2*(x+Number(input.value))],{strokeColor:C.purple,strokeWidth:3});
+    bindRange(board,'a-product2','a-product2-value','a');
+  }
+
+  // Page 12
+  {
+    const board = setupBoard('board-chain1','panel-chain1',[-5,16,5,-16]);
+    const input = document.getElementById('a-chain1');
+    board.create('functiongraph',[x => (x*x+Number(input.value))**3],{strokeColor:C.blue,strokeWidth:3});
+    bindRange(board,'a-chain1','a-chain1-value','a');
+  }
+
+  // Page 13
+  {
+    const board = setupBoard('board-combo1','panel-combo1',[-4,18,4,-3]);
+    const input = document.getElementById('a-combo1');
+    board.create('functiongraph',[x => (x-Number(input.value))**2*(x*x+Number(input.value))**2],{strokeColor:C.green,strokeWidth:3});
+    bindRange(board,'a-combo1','a-combo1-value','a');
+  }
+
+  // Page 14
+  {
+    const board = setupBoard('board-integrated1','panel-integrated1',[-6,18,6,-18]);
+    const input = document.getElementById('a-integrated1');
+    board.create('functiongraph',[x => (x-Number(input.value))**2*(x+2*Number(input.value))],{strokeColor:C.blue,strokeWidth:3});
+    bindRange(board,'a-integrated1','a-integrated1-value','a');
+  }
+})();
+</script>
+</body>
+</html>
