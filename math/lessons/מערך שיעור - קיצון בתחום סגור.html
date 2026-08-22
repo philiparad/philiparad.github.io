@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור — קיצון בתחום סגור | 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['ams']}
+  },
+  chtml: { scale: 0.98 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --ink:#152638;
+  --muted:#536579;
+  --blue:#175d9c;
+  --blue2:#eaf3fb;
+  --teal:#087f74;
+  --gold:#a66a00;
+  --red:#b43a3a;
+  --green:#2f7d4a;
+  --line:#cbd8e4;
+  --paper:#ffffff;
+  --bg:#edf1f5;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.45}
+body{counter-reset:page}
+.page{
+  position:relative;
+  width:210mm;
+  height:297mm;
+  margin:8mm auto;
+  padding:13mm 14mm 13mm;
+  background:var(--paper);
+  overflow:hidden;
+  break-after:page;
+  page-break-after:always;
+  counter-increment:page;
+  box-shadow:0 3px 18px rgba(21,38,56,.14);
+}
+.page:last-child{break-after:auto;page-break-after:auto}
+.page::after{
+  content:"עמוד " counter(page);
+  position:absolute;
+  left:14mm;
+  bottom:6mm;
+  color:#718195;
+  font-size:10.5px;
+}
+.page::before{
+  content:"קיצון בתחום סגור • 5 יחידות";
+  position:absolute;
+  right:14mm;
+  bottom:6mm;
+  color:#718195;
+  font-size:10.5px;
+}
+.cover{background:linear-gradient(145deg,#f8fbff 0%,#ffffff 54%,#eef7f6 100%)}
+.cover::before,.cover::after{display:none}
+h1{font-size:28px;line-height:1.2;margin:0 0 8px;color:#103f6b}
+h2{font-size:22px;line-height:1.25;margin:0 0 10px;color:#154f83;border-bottom:2px solid #d9e8f4;padding-bottom:6px}
+h3{font-size:17px;margin:12px 0 6px;color:#0b6f67}
+p{margin:6px 0}
+ul,ol{margin:5px 0 5px;padding-right:23px}
+li{margin:3px 0}
+.small{font-size:12.6px}.dense{font-size:13.5px;line-height:1.36}.large{font-size:18px}
+.kicker{font-size:15px;color:var(--teal);font-weight:700;letter-spacing:.2px}
+.subtitle{font-size:18px;color:var(--muted);max-width:150mm}
+.hero{
+  margin-top:26mm;
+  padding:18mm 14mm;
+  border:2px solid #c9dced;
+  border-radius:18px;
+  background:rgba(255,255,255,.82);
+}
+.hero h1{font-size:34px}
+.hero-formula{font-size:28px;text-align:center;margin:22px 0;color:#183c5d}
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.meta{padding:10px;border-radius:10px;background:#eff6fc;border:1px solid #d3e4f2;text-align:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.card{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff}
+.card.blue{background:#f4f9fd;border-color:#c9deef}.card.green{background:#f1f8f5;border-color:#cbe4d5}.card.gold{background:#fff8e9;border-color:#ebd7a7}.card.red{background:#fff3f3;border-color:#e9c3c3}
+.callout{border-right:5px solid var(--blue);background:#f2f7fc;padding:9px 12px;margin:8px 0;border-radius:6px}
+.callout.warn{border-right-color:var(--gold);background:#fff8e9}.callout.good{border-right-color:var(--green);background:#f0f8f3}.callout.red{border-right-color:var(--red);background:#fff3f3}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#e5f1fb;color:#154f83;font-weight:700;font-size:11.5px;margin-left:4px}
+.mathbox{direction:ltr;text-align:center;border:1px solid #d6e0ea;background:#fbfdff;border-radius:8px;padding:8px;margin:7px 0;font-size:16px}
+table{width:100%;border-collapse:collapse;margin:7px 0;font-size:13.2px}
+th,td{border:1px solid #cbd7e2;padding:5px 7px;vertical-align:top}
+th{background:#eaf2f9;color:#173d60}
+.ltr{direction:ltr;text-align:left}.center{text-align:center}.rtl{text-align:right;direction:rtl}
+.step{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:start;margin:7px 0}
+.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#175d9c;color:white;font-weight:700}
+.graph-shell{position:relative;border:1px solid #b9ccdc;border-radius:10px;background:#fbfdff;padding:8px;margin:7px 0}
+.graph-title{font-size:12.5px;color:#43586e;margin-bottom:4px;font-weight:700}
+.jxgbox{width:100%;height:275px;border:1px solid #ced9e3;background:white}
+.jxgbox.sm{height:190px}.jxgbox.md{height:235px}.jxgbox.lg{height:325px}
+.graph-tools{display:flex;gap:5px;align-items:center;justify-content:flex-start;direction:rtl;margin-top:6px;flex-wrap:wrap}
+.graph-tools button{border:1px solid #9fb8cc;background:#fff;color:#174f7e;border-radius:6px;padding:4px 9px;font-size:11.5px;cursor:pointer}
+.graph-tools button:hover{background:#eaf3fa}
+.exercise{border-bottom:1px dashed #c8d4de;padding:5px 0}.exercise:last-child{border-bottom:0}
+.answer{background:#f5f8fb;border-right:4px solid #6f8da7;padding:7px 9px;margin:6px 0;border-radius:5px}
+.flow{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr;gap:4px;align-items:center;margin:10px 0}
+.flow .node{border:1px solid #bfd2e1;background:#f4f9fd;border-radius:10px;padding:12px 8px;text-align:center;min-height:74px;display:flex;align-items:center;justify-content:center}
+.flow .arrow{text-align:center;font-size:24px;color:#5d7d98;direction:ltr}
+.two-col-list{columns:2;column-gap:24px}.two-col-list li{break-inside:avoid}
+.checklist{list-style:none;padding:0}.checklist li::before{content:"✓";color:var(--green);font-weight:bold;margin-left:7px}
+.mistakes{list-style:none;padding:0;counter-reset:err}.mistakes li{counter-increment:err;margin:7px 0;padding:6px 8px;background:#fff5f5;border-right:4px solid #c84b4b}.mistakes li::before{content:counter(err) ". ";font-weight:700;color:#a52e2e}
+.note-lines{height:110px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 25px,#d9e1e8 26px);border:1px solid #d5dee7;border-radius:8px}
+.source{font-size:12.2px;border-bottom:1px solid #e0e6eb;padding:7px 0}.source a{color:#175d9c;word-break:break-all}
+.footer-note{position:absolute;right:14mm;left:14mm;bottom:12mm;font-size:10.5px;color:#6b7b8c;text-align:center}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:white}
+  .page{margin:0;box-shadow:none}
+  .graph-tools button{background:white}
+}
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="hero">
+    <div class="kicker">מערך שיעור מלא • מתמטיקה 5 יחידות</div>
+    <h1>קיצון בתחום סגור</h1>
+    <p class="subtitle">קיצון מקומי ומוחלט, קיצון בקצות התחום, משפט ערך הקיצון, שיטת המועמדים, שינוי תחום ומספר פתרונות של משוואה.</p>
+    <div class="hero-formula">\[\min_{x\in[a,b]} f(x) \qquad \max_{x\in[a,b]} f(x)\]</div>
+    <div class="meta-grid">
+      <div class="meta"><strong>רמה</strong><br>5 יחידות</div>
+      <div class="meta"><strong>משך מומלץ</strong><br>5 שיעורים</div>
+      <div class="meta"><strong>מבנה</strong><br>הקניה, חקר, תרגול והערכה</div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפת היחידה ומטרות הלמידה</h2>
+  <div class="grid2">
+    <div class="card blue">
+      <h3>בסיום היחידה התלמיד יוכל</h3>
+      <ul class="checklist">
+        <li>להבחין בין קיצון מקומי, קיצון מוחלט וקיצון בקצה.</li>
+        <li>לנסח ולהפעיל את משפט ערך הקיצון.</li>
+        <li>לאתר את כל המועמדים לקיצון מוחלט בקטע סגור.</li>
+        <li>להשוות ערכי פונקציה ולא רק שיעורי \(x\).</li>
+        <li>לחקור פולינום בתחום סגור ולשרטט סקיצה מתאימה.</li>
+        <li>להסיק כיצד שינוי התחום משנה את הקיצון המוחלט.</li>
+        <li>לקבוע את מספר פתרונות \(f(x)=k\) מתוך גרף וקיצון.</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>ידע מוקדם נדרש</h3>
+      <ul>
+        <li>תחום הגדרה וקריאת גרף.</li>
+        <li>נגזרת של פולינום וכללי גזירה בסיסיים.</li>
+        <li>פתרון משוואות \(f'(x)=0\).</li>
+        <li>טבלת סימנים של נגזרת.</li>
+        <li>תחומי עלייה וירידה.</li>
+        <li>קיצון פנימי לפי שינוי סימן הנגזרת.</li>
+      </ul>
+      <div class="callout good"><strong>עיקרון מארגן:</strong> קיצון מוחלט תלוי בפונקציה <em>ובתחום שנקבע לה</em>.</div>
+    </div>
+  </div>
+  <h3>רצף הוראה מומלץ</h3>
+  <table>
+    <tr><th>שיעור</th><th>מוקד</th><th>תוצר למידה</th></tr>
+    <tr><td>1</td><td>חקירה גרפית והבחנות</td><td>זיהוי מקומי, מוחלט וקצה</td></tr>
+    <tr><td>2</td><td>משפט ערך הקיצון ושיטת המועמדים</td><td>אלגוריתם מלא ומנומק</td></tr>
+    <tr><td>3</td><td>חקירת פולינומים בקטע סגור</td><td>טבלה, קיצון וסקיצה</td></tr>
+    <tr><td>4</td><td>שינוי תחום וטרנספורמציות</td><td>הסקה ללא חישוב מחדש</td></tr>
+    <tr><td>5</td><td>שאלות העמקה והערכה</td><td>בחירת תחום ו־\(f(x)=k\)</td></tr>
+  </table>
+  <div class="callout warn"><strong>המלצת הוראה:</strong> אין להתחיל באלגוריתם. תחילה משנים תחום על אותו גרף ומגלים שקצות התחום עשויים “לנצח” נקודת קיצון פנימית.</div>
+</section>
+
+<section class="page">
+  <h2>פתיחה חוקרת: אותה פונקציה — תחומים שונים</h2>
+  <p>נתונה הפונקציה \(f(x)=x^3+3x^2\). בגרף מסומנות הנקודות החשובות בתחום \([-3,1]\).</p>
+  <div class="graph-shell">
+    <div class="graph-title">גרף 1 — הזזה והגדלה מותרות באמצעות הכפתורים ובגרירה</div>
+    <div id="boardIntro" class="jxgbox lg"></div>
+    <div class="graph-tools">
+      <button onclick="zoomBoard('boardIntro',1.25)">הגדלה</button><button onclick="zoomBoard('boardIntro',0.8)">הקטנה</button><button onclick="centerBoard('boardIntro')">מרכז</button><button onclick="resetBoard('boardIntro')">איפוס</button>
+    </div>
+  </div>
+  <div class="grid2 dense">
+    <div class="card blue">
+      <h3>שאלות לתלמידים</h3>
+      <ol>
+        <li>מהו הערך הגדול ביותר בתחום \([-3,1]\)?</li>
+        <li>באילו נקודות מתקבל הערך הקטן ביותר?</li>
+        <li>מה ישתנה אם התחום יהיה \([-2.5,-0.5]\)?</li>
+        <li>האם הנקודה \((-2,4)\) תמיד תהיה מקסימום מוחלט?</li>
+      </ol>
+    </div>
+    <div class="card green">
+      <h3>מסקנה רצויה</h3>
+      <p>הנקודות הפנימיות של הגרף אינן מספיקות. בכל תחום סגור יש לבדוק גם את שני הקצוות.</p>
+      <p>בקטע \([-3,1]\):</p>
+      <div class="mathbox">\[f(-3)=0,\quad f(-2)=4,\quad f(0)=0,\quad f(1)=4\]</div>
+      <p>לכן יש שתי נקודות מינימום מוחלט ושתי נקודות מקסימום מוחלט.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מושגי יסוד והבחנות</h2>
+  <div class="grid2">
+    <div class="card blue">
+      <h3>קיצון מקומי</h3>
+      <p>הערך מושווה לערכי הפונקציה בסביבה הקרובה של הנקודה.</p>
+      <div class="mathbox">\[f(c)\ge f(x)\quad \text{for nearby }x\]</div>
+      <p>או בהתאמה למינימום:</p>
+      <div class="mathbox">\[f(c)\le f(x)\quad \text{for nearby }x\]</div>
+    </div>
+    <div class="card green">
+      <h3>קיצון מוחלט</h3>
+      <p>הערך מושווה לכל ערכי הפונקציה בתחום הנתון.</p>
+      <div class="mathbox">\[f(c)\ge f(x)\quad \text{for every }x\in[a,b]\]</div>
+      <div class="mathbox">\[f(c)\le f(x)\quad \text{for every }x\in[a,b]\]</div>
+    </div>
+  </div>
+  <div class="graph-shell">
+    <div class="graph-title">גרף 2 — קיצון מקומי שאינו מוחלט וקיצון מוחלט בקצה</div>
+    <div id="boardTypes" class="jxgbox md"></div>
+    <div class="graph-tools"><button onclick="zoomBoard('boardTypes',1.25)">הגדלה</button><button onclick="zoomBoard('boardTypes',0.8)">הקטנה</button><button onclick="centerBoard('boardTypes')">מרכז</button><button onclick="resetBoard('boardTypes')">איפוס</button></div>
+  </div>
+  <table>
+    <tr><th>מושג</th><th>מה משווים?</th><th>האם קצה תחום אפשרי?</th></tr>
+    <tr><td>מקסימום מקומי</td><td>סביבה קרובה</td><td>כן, לפי סביבה חד־צדדית בתחום</td></tr>
+    <tr><td>מינימום מקומי</td><td>סביבה קרובה</td><td>כן, לפי סביבה חד־צדדית בתחום</td></tr>
+    <tr><td>מקסימום מוחלט</td><td>כל התחום</td><td>כן</td></tr>
+    <tr><td>מינימום מוחלט</td><td>כל התחום</td><td>כן</td></tr>
+  </table>
+  <div class="callout"><strong>דיוק לשוני:</strong> “נקודת מקסימום” היא \((c,f(c))\); “ערך מקסימום” הוא \(f(c)\).</div>
+</section>
+
+<section class="page">
+  <h2>משפט ערך הקיצון</h2>
+  <div class="callout good large"><strong>המשפט:</strong> אם פונקציה רציפה בקטע הסגור \([a,b]\), אז היא מקבלת בקטע ערך מקסימלי מוחלט וערך מינימלי מוחלט.</div>
+  <div class="grid3_">
+    <div class="graph-shell">
+      <div class="graph-title">רציפה וקטע סגור</div><div id="boardEVT1" class="jxgbox sm"></div>
+      <div class="graph-tools"><button onclick="zoomBoard('boardEVT1',1.25)">+</button><button onclick="zoomBoard('boardEVT1',0.8)">−</button><button onclick="centerBoard('boardEVT1')">מרכז</button><button onclick="resetBoard('boardEVT1')">איפוס</button></div>
+    </div>
+    <div class="graph-shell">
+      <div class="graph-title">קטע פתוח</div><div id="boardEVT2" class="jxgbox sm"></div>
+      <div class="graph-tools"><button onclick="zoomBoard('boardEVT2',1.25)">+</button><button onclick="zoomBoard('boardEVT2',0.8)">−</button><button onclick="centerBoard('boardEVT2')">מרכז</button><button onclick="resetBoard('boardEVT2')">איפוס</button></div>
+    </div>
+  </div>
+  <div class="grid2 dense">
+    <div class="card blue">
+      <h3>מה המשפט מבטיח?</h3>
+      <ul><li>קיום של מקסימום מוחלט.</li><li>קיום של מינימום מוחלט.</li><li>שהערכים מתקבלים בפועל בנקודות בתחום.</li></ul>
+    </div>
+    <div class="card red">
+      <h3>מה המשפט אינו אומר?</h3>
+      <ul><li>הוא אינו מציין היכן הקיצון נמצא.</li><li>הוא אינו אומר שכל נקודה קריטית היא קיצון.</li><li>אם תנאי המשפט אינם מתקיימים, אין להסיק שאין קיצון.</li></ul>
+    </div>
+  </div>
+  <div class="callout warn"><strong>דוגמה נגדית:</strong> בקטע הפתוח \((0,1)\), הפונקציה \(f(x)=x\) אינה מקבלת את הערכים \(0\) ו־\(1\), ולכן אין לה מינימום או מקסימום מוחלט.</div>
+</section>
+
+<section class="page">
+  <h2>דוגמה פתורה 1 — פונקציה ריבועית</h2>
+  <p>נתונה הפונקציה \(f(x)=x^2-6x+10\) בקטע \([0,4]\).</p>
+  <div class="grid2_">
+    <div>
+      <div class="step"><div class="step-num">1</div><div><strong>רציפות:</strong> פולינום רציף בכל מספר ממשי, ולכן גם ב־\([0,4]\).</div></div>
+      <div class="step"><div class="step-num">2</div><div><strong>נגזרת:</strong><div class="mathbox">\[f'(x)=2x-6\]</div></div></div>
+      <div class="step"><div class="step-num">3</div><div><strong>מספר קריטי:</strong><div class="mathbox">\[2x-6=0\quad\Rightarrow\quad x=3\]</div></div></div>
+      <div class="step"><div class="step-num">4</div><div><strong>טבלת מועמדים:</strong></div></div>
+      <table>
+        <tr><th>\(x\)</th><th>\(f(x)\)</th></tr>
+        <tr><td>\(0\)</td><td>\(10\)</td></tr><tr><td>\(3\)</td><td>\(1\)</td></tr><tr><td>\(4\)</td><td>\(2\)</td></tr>
+      </table>
+      <div class="callout good"><strong>מסקנה:</strong> מינימום מוחלט ב־\((3,1)\); מקסימום מוחלט ב־\((0,10)\).</div>
+    </div>
+    <div class="graph-shell">
+      <div class="graph-title">גרף 7 — הקטע הנתון מודגש</div><div id="boardQuad" class="jxgbox lg"></div>
+      <div class="graph-tools"><button onclick="zoomBoard('boardQuad',1.25)">הגדלה</button><button onclick="zoomBoard('boardQuad',0.8)">הקטנה</button><button onclick="centerBoard('boardQuad')">מרכז</button><button onclick="resetBoard('boardQuad')">איפוס</button></div>
+    </div>
+  </div>
+  <div class="callout warn"><strong>נקודה חשובה:</strong> הקצה \((4,2)\) הוא מקסימום קצה בסביבה חד־צדדית, אך אינו מקסימום מוחלט, משום ש־\(f(0)=10\).</div>
+</section>
+
+<section class="page">
+  <h2>דוגמה פתורה 2 — מקומי אינו מוחלט</h2>
+  <p>נתונה הפונקציה \(f(x)=x^3-x^2+4\) בקטע \([-1,3]\).</p>
+  <div class="grid2_">
+    <div class="graph-shell">
+      <div class="graph-title">גרף 8 — שתי נקודות קריטיות ושני קצוות</div><div id="boardCubic" class="jxgbox lg"></div>
+      <div class="graph-tools"><button onclick="zoomBoard('boardCubic',1.25)">הגדלה</button><button onclick="zoomBoard('boardCubic',0.8)">הקטנה</button><button onclick="centerBoard('boardCubic')">מרכז</button><button onclick="resetBoard('boardCubic')">איפוס</button></div>
+    </div>
+    <div class="dense">
+      <div class="mathbox">\[f'(x)=3x^2-2x=x(3x-2)\]</div>
+      <div class="mathbox">\[f'(x)=0\quad\Rightarrow\quad x=0,\;x=\frac23\]</div>
+      <table>
+        <tr><th>מועמד</th><th>ערך</th><th>סיווג</th></tr>
+        <tr><td>\(x=-1\)</td><td>\(2\)</td><td>מינימום קצה ומוחלט</td></tr>
+        <tr><td>\(x=0\)</td><td>\(4\)</td><td>מקסימום מקומי בלבד</td></tr>
+        <tr><td>\(x=\frac23\)</td><td>\(\frac{104}{27}\)</td><td>מינימום מקומי בלבד</td></tr>
+        <tr><td>\(x=3\)</td><td>\(22\)</td><td>מקסימום קצה ומוחלט</td></tr>
+      </table>
+      <div class="callout red"><strong>השוואה מקומית אינה מספיקה:</strong> אף ש־\((0,4)\) הוא מקסימום מקומי, הערך \(22\) בקצה הימני גדול ממנו.</div>
+    </div>
+  </div>
+  <h3>תחומי עלייה וירידה</h3>
+  <table>
+    <tr><th>תחום</th><th>סימן \(f'(x)\)</th><th>התנהגות</th></tr>
+    <tr><td>\(-1\lt x\lt0\)</td><td>חיובי</td><td>עולה</td></tr>
+    <tr><td>\(0\lt x\lt\frac23\)</td><td>שלילי</td><td>יורדת</td></tr>
+    <tr><td>\(\frac23\lt x\lt3\)</td><td>חיובי</td><td>עולה</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2>קיצון בקצות התחום</h2>
+  <div class="grid2">
+    <div class="card blue">
+      <h3>קצה שמאלי \(x=a\)</h3>
+      <ul>
+        <li>אם הפונקציה עולה מיד מימין ל־\(a\), הקצה הוא מינימום קצה.</li>
+        <li>אם הפונקציה יורדת מיד מימין ל־\(a\), הקצה הוא מקסימום קצה.</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>קצה ימני \(x=b\)</h3>
+      <ul>
+        <li>אם הפונקציה עולה עד \(b\), הקצה הוא מקסימום קצה.</li>
+        <li>אם הפונקציה יורדת עד \(b\), הקצה הוא מינימום קצה.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="graph-shell">
+    <div class="graph-title">גרף 9 — אותה פרבולה בשני תחומים שונים</div><div id="boardEndpoints" class="jxgbox lg"></div>
+    <div class="graph-tools"><button onclick="zoomBoard('boardEndpoints',1.25)">הגדלה</button><button onclick="zoomBoard('boardEndpoints',0.8)">הקטנה</button><button onclick="centerBoard('boardEndpoints')">מרכז</button><button onclick="resetBoard('boardEndpoints')">איפוס</button></div>
+  </div>
+  <div class="callout warn"><strong>אין דרישה ש־\(f'(a)=0\) או ש־\(f'(b)=0\).</strong> בקצה התחום בודקים התנהגות חד־צדדית בתוך התחום בלבד.</div>
+  <table>
+    <tr><th>טענה</th><th>נכון / לא נכון</th><th>הסבר</th></tr>
+    <tr><td>כל קצה סגור הוא מועמד לקיצון מוחלט.</td><td>נכון</td><td>חייבים להציב אותו בטבלת המועמדים.</td></tr>
+    <tr><td>כל קצה הוא בהכרח קיצון מוחלט.</td><td>לא נכון</td><td>יש להשוות לכל המועמדים.</td></tr>
+    <tr><td>קצה יכול להיות קיצון מקומי.</td><td>נכון</td><td>לפי סביבה חד־צדדית בתחום.</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2>דוגמה מלאה — חקירת פולינום בתחום סגור</h2>
+  <p>נתונה \(f(x)=x^3-9x^2+3\) בקטע \([-1,10]\).</p>
+  <div class="grid2_">
+    <div class="dense">
+      <div class="mathbox">\[f'(x)=3x^2-18x=3x(x-6)\]</div>
+      <p>המספרים הקריטיים בתחום הם \(x=0\) ו־\(x=6\).</p>
+      <table>
+        <tr><th>\(x\)</th><th>\(f(x)\)</th><th>סיווג</th></tr>
+        <tr><td>\(-1\)</td><td>\(-7\)</td><td>מינימום קצה</td></tr>
+        <tr><td>\(0\)</td><td>\(3\)</td><td>מקסימום מקומי</td></tr>
+        <tr><td>\(6\)</td><td>\(-105\)</td><td>מינימום מקומי ומוחלט</td></tr>
+        <tr><td>\(10\)</td><td>\(103\)</td><td>מקסימום קצה ומוחלט</td></tr>
+      </table>
+      <div class="callout good">תחומי עלייה: \((-1,0)\) ו־\((6,10)\). תחום ירידה: \((0,6)\).</div>
+    </div>
+    <div class="graph-shell">
+      <div class="graph-title">גרף 10 — חקירה מלאה</div><div id="boardFull" class="jxgbox lg"></div>
+      <div class="graph-tools"><button onclick="zoomBoard('boardFull',1.25)">הגדלה</button><button onclick="zoomBoard('boardFull',0.8)">הקטנה</button><button onclick="centerBoard('boardFull')">מרכז</button><button onclick="resetBoard('boardFull')">איפוס</button></div>
+    </div>
+  </div>
+  <h3>שאלת בגרות אופיינית</h3>
+  <p>האם קיים מקסימום מקומי שאינו מקסימום מוחלט? כן. הנקודה \((0,3)\) היא מקסימום מקומי, אך \(f(10)=103\).</p>
+</section>
+
+<section class="page">
+  <h2>טרנספורמציה: \(g(x)=-f(x)\)</h2>
+  <p>נתונה \(f(x)=x^3-15x^2+48x-3\) בקטע \([0,11]\), ומוגדרת \(g(x)=-f(x)\).</p>
+  <div class="grid2_">
+    <div class="graph-shell"><div class="graph-title">\(f(x)\)</div><div id="boardTransformF" class="jxgbox md"></div><div class="graph-tools"><button onclick="zoomBoard('boardTransformF',1.25)">+</button><button onclick="zoomBoard('boardTransformF',0.8)">−</button><button onclick="centerBoard('boardTransformF')">מרכז</button><button onclick="resetBoard('boardTransformF')">איפוס</button></div></div>
+    <div class="graph-shell"><div class="graph-title">\(g(x)=-f(x)\)</div><div id="boardTransformG" class="jxgbox md"></div><div class="graph-tools"><button onclick="zoomBoard('boardTransformG',1.25)">+</button><button onclick="zoomBoard('boardTransformG',0.8)">−</button><button onclick="centerBoard('boardTransformG')">מרכז</button><button onclick="resetBoard('boardTransformG')">איפוס</button></div></div>
+  </div>
+  <table>
+    <tr><th>עבור \(f\)</th><th>עבור \(g=-f\)</th></tr>
+    <tr><td>מקסימום מוחלט \(41\) ב־\(x=2\) וב־\(x=11\)</td><td>מינימום מוחלט \(-41\) באותם שיעורי \(x\)</td></tr>
+    <tr><td>מינימום מוחלט \(-67\) ב־\(x=8\)</td><td>מקסימום מוחלט \(67\) ב־\(x=8\)</td></tr>
+    <tr><td>שלוש נקודות חיתוך עם ציר \(x\)</td><td>אותן שלוש נקודות חיתוך</td></tr>
+  </table>
+  <div class="callout"><strong>כלל:</strong> שיקוף ביחס לציר \(x\) שומר את שיעורי \(x\), מחליף את סימן ערכי \(y\), ומחליף בין מקסימום למינימום.</div>
+</section>
+
+<section class="page">
+  <h2>פעילות העמקה — בוחרים את התחום</h2>
+  <p>עבור \(f(x)=x^3+3x^2\), בחרו קטע סגור מתאים לכל דרישה. ניתן להיעזר בגרף.</p>
+  <div class="graph-shell">
+    <div class="graph-title">גרף 13 — נקודות מפתח: \((-2,4)\), \((0,0)\)</div><div id="boardDesign" class="jxgbox lg"></div>
+    <div class="graph-tools"><button onclick="zoomBoard('boardDesign',1.25)">הגדלה</button><button onclick="zoomBoard('boardDesign',0.8)">הקטנה</button><button onclick="centerBoard('boardDesign')">מרכז</button><button onclick="resetBoard('boardDesign')">איפוס</button></div>
+  </div>
+  <div class="grid2 dense">
+    <div class="card blue">
+      <ol>
+        <li>שתי נקודות מינימום מוחלט ונקודת מקסימום מוחלט אחת.</li>
+        <li>המינימום המוחלט מתקבל בקצה הימני.</li>
+        <li>מקסימום מוחלט יחיד שהוא פנימי.</li>
+      </ol>
+    </div>
+    <div class="card green">
+      <ol start="4">
+        <li>בדיוק שלושה מועמדים לקיצון מוחלט, וכולם נקודות קיצון מוחלט.</li>
+        <li>הנקודה \((-2,4)\) היא מקסימום מקומי אך אינה מוחלטת.</li>
+        <li>אין אף מספר קריטי בתוך הקטע.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="answer"><strong>פתרונות אפשריים:</strong> 1. \([-3,0]\). 2. \([-2,-1]\). 3. \([-2.5,-0.5]\). 4. \([-3,0]\). 5. למשל \([-2.5,2]\). 6. למשל \([0.5,2]\).</div>
+</section>
+
+<section class="page">
+  <h2>מספר הפתרונות של \(f(x)=k\)</h2>
+  <p>נמשיך עם \(f(x)=x^3+3x^2\) בתחום \([-3,1]\). הזיזו את הישר האופקי בעזרת המחוון.</p>
+  <div class="graph-shell">
+    <div class="graph-title">גרף 14 — החיתוכים בין \(y=f(x)\) ובין \(y=k\)</div>
+    <div id="boardK" class="jxgbox lg"></div>
+    <div class="graph-tools">
+      <label for="kRange"><strong>\(k\):</strong></label><input id="kRange" type="range" min="-1" max="5" value="2" step="0.1" oninput="updateK(this.value)"><span id="kValue">2.0</span>
+      <button onclick="zoomBoard('boardK',1.25)">הגדלה</button><button onclick="zoomBoard('boardK',0.8)">הקטנה</button><button onclick="centerBoard('boardK')">מרכז</button><button onclick="resetBoard('boardK')">איפוס</button>
+    </div>
+  </div>
+  <div id="kCount" class="callout good center large">מספר פתרונות בתחום: 3</div>
+  <table>
+    <tr><th>ערך \(k\)</th><th>מספר פתרונות</th><th>הסבר</th></tr>
+    <tr><td>\(k\lt0\) או \(k\gt4\)</td><td>0</td><td>הישר מחוץ לטווח הערכים.</td></tr>
+    <tr><td>\(k=0\)</td><td>2</td><td>חיתוך ב־\(x=-3\) וב־\(x=0\).</td></tr>
+    <tr><td>\(0\lt k\lt4\)</td><td>3</td><td>חיתוך אחד בכל קטע מונוטוני.</td></tr>
+    <tr><td>\(k=4\)</td><td>2</td><td>חיתוך ב־\(x=-2\) וב־\(x=1\).</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2>כאשר נתון גרף הנגזרת</h2>
+  <p>נניח כי \(f\) רציפה ב־\([-2,3]\), והגרף הבא הוא גרף \(f'\). בנוסף נתונים ערכי הפונקציה במועמדים.</p>
+  <div class="grid2_">
+    <div class="graph-shell"><div class="graph-title">גרף 15 — \(f'(x)=(x+1)(x-2)\)</div><div id="boardDerivative" class="jxgbox lg"></div><div class="graph-tools"><button onclick="zoomBoard('boardDerivative',1.25)">הגדלה</button><button onclick="zoomBoard('boardDerivative',0.8)">הקטנה</button><button onclick="centerBoard('boardDerivative')">מרכז</button><button onclick="resetBoard('boardDerivative')">איפוס</button></div></div>
+    <div>
+      <table>
+        <tr><th>\(x\)</th><th>\(f(x)\)</th></tr>
+        <tr><td>\(-2\)</td><td>\(-\frac23\)</td></tr>
+        <tr><td>\(-1\)</td><td>\(\frac76\)</td></tr>
+        <tr><td>\(2\)</td><td>\(-\frac{10}{3}\)</td></tr>
+        <tr><td>\(3\)</td><td>\(-\frac32\)</td></tr>
+      </table>
+      <div class="callout good"><strong>מסקנות:</strong><br>מקסימום מקומי ומוחלט ב־\(x=-1\).<br>מינימום מקומי ומוחלט ב־\(x=2\).</div>
+      <div class="callout warn">גרף הנגזרת קובע עלייה, ירידה וסוג קיצון פנימי; ערכי \(f\) נדרשים כדי להשוות קיצון מוחלט.</div>
+    </div>
+  </div>
+  <table>
+    <tr><th>תחום</th><th>סימן \(f'\)</th><th>התנהגות \(f\)</th></tr>
+    <tr><td>\(-2\lt x\lt-1\)</td><td>חיובי</td><td>עולה</td></tr>
+    <tr><td>\(-1\lt x\lt2\)</td><td>שלילי</td><td>יורדת</td></tr>
+    <tr><td>\(2\lt x\lt3\)</td><td>חיובי</td><td>עולה</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2>תרגול מדורג א</h2>
+  <p class="small">בכל תרגיל: מצאו מספרים קריטיים בתחום, חשבו ערכים בקצוות ובנקודות הקריטיות, וקבעו מינימום ומקסימום מוחלטים.</p>
+  <div class="dense">
+    <div class="exercise"><strong>1.</strong> \(f(x)=x^2-4x+1\), בתחום \([0,5]\).</div>
+    <div class="exercise"><strong>2.</strong> \(f(x)=x^2+2x-3\), בתחום \([-4,2]\).</div>
+    <div class="exercise"><strong>3.</strong> \(f(x)=x^3-3x\), בתחום \([-2,2]\).</div>
+    <div class="exercise"><strong>4.</strong> \(f(x)=x^3-6x^2+9x\), בתחום \([0,5]\).</div>
+    <div class="exercise"><strong>5.</strong> \(f(x)=x^3-3x^2+2\), בתחום \([-1,4]\).</div>
+    <div class="exercise"><strong>6.</strong> \(f(x)=x^4-4x^2\), בתחום \([-3,2]\).</div>
+    <div class="exercise"><strong>7.</strong> \(f(x)=|x-2|+\frac{x}{2}\), בתחום \([-1,5]\).</div>
+    <div class="exercise"><strong>8.</strong> \(f(x)=\sqrt{x+1}-\frac{x}{2}\), בתחום \([-1,8]\).</div>
+  </div>
+  <h3>שאלות חשיבה</h3>
+  <ol class="dense">
+    <li>באילו תרגילים הקיצון המוחלט מתקבל בקצה?</li>
+    <li>באילו תרגילים יש מועמד שבו הנגזרת אינה קיימת?</li>
+    <li>האם בכל תרגיל נקודת מקסימום מקומית היא גם מקסימום מוחלט?</li>
+  </ol>
+  <div class="note-lines_"></div>
+</section>
+
+<section class="page">
+  <h2>תרגול מדורג ב — רמת 5 יחידות</h2>
+  <div class="dense_">
+    <div class="exercise"><strong>9.</strong> נתונה \(f(x)=x^3-9x^2+24x-7\) בתחום \([0,8]\). חקרו את הפונקציה בתחום וסרטטו סקיצה.</div>
+    <div class="exercise"><strong>10.</strong> נתונה \(f(x)=x^4-8x^2+3\) בתחום \([-3,3]\). מצאו את כל הנקודות שבהן מתקבל קיצון מוחלט.</div>
+    <div class="exercise"><strong>11.</strong> נתונה \(f(x)=x^3+3x^2\). מצאו קטע סגור שבו יש שתי נקודות מינימום מוחלט ונקודת מקסימום מוחלט אחת.</div>
+    <div class="exercise"><strong>12.</strong> עבור אותה פונקציה, מצאו קטע סגור שבו \((-2,4)\) הוא מקסימום מקומי שאינו מוחלט.</div>
+    <div class="exercise"><strong>13.</strong> נתונה \(f(x)=x^3-3x\) בתחום \([-2,2]\). קבעו עבור אילו ערכי \(k\) למשוואה \(f(x)=k\) יש 1, 2 או 3 פתרונות.</div>
+    <div class="exercise"><strong>14.</strong> נתונה \(f(x)=x^3-15x^2+48x-3\) בתחום \([0,11]\), ו־\(g(x)=-f(x)\). מצאו את הקיצון המוחלט של \(g\) ללא גזירה מחדש.</div>
+    <div class="exercise"><strong>15.</strong> פונקציה רציפה ב־\([a,b]\) ומקיימת \(f'(x)\gt0\) בכל \((a,b)\). הוכיחו שהמינימום המוחלט מתקבל ב־\(a\) והמקסימום המוחלט ב־\(b\).</div>
+    <div class="exercise"><strong>16.</strong> תנו דוגמה לפונקציה שאינה רציפה בקטע סגור אך בכל זאת מקבלת בו מקסימום ומינימום מוחלטים.</div>
+  </div>
+  <div class="callout warn"><strong>דרישת נימוק:</strong> בשאלות 11–16 אין די בתשובה סופית. יש להסביר באמצעות מונוטוניות, ערכי קצה או משפט מתאים.</div>
+  <div class="note-lines_" style="height:170px"></div>
+</section>
+
+<section class="page">
+  <h2>הערכת סיום</h2>
+  <div class="card blue dense_">
+    <h3>שאלה 1</h3>
+    <p>נתונה \(f(x)=x^3-6x^2+9x+1\) בתחום \([0,5]\).</p>
+    <ol>
+      <li>מצאו את המספרים הקריטיים בתחום.</li>
+      <li>קבעו את תחומי העלייה והירידה.</li>
+      <li>מצאו את כל נקודות הקיצון המקומיות והמוחלטות.</li>
+      <li>סרטטו סקיצה בתחום הנתון.</li>
+    </ol>
+  </div>
+<div style="height:20px;"></div>
+  <div class="card green dense_">
+    <h3>שאלה 2 </h3>
+    <p>נתונה \(h(x)=|x-1|+\frac{x}{2}\) בתחום \([-2,4]\).</p>
+    <ol><li>רשמו את כל המועמדים לקיצון מוחלט.</li><li>מצאו מינימום ומקסימום מוחלטים.</li><li>הסבירו מדוע פתרון המשוואה \(h'(x)=0\) בלבד אינו מספיק.</li></ol>
+  </div>
+<div style="height:20px;"></div>
+  <div class="card gold dense_">
+    <h3>שאלה 3</h3>
+    <p>הסבירו מדוע תנאי משפט ערך הקיצון הם תנאים מספיקים אך אינם הכרחיים לקיום קיצון מוחלט.</p>
+  </div>
+  <h3>מחוון קצר</h3>
+  <table>
+    <tr><th>מרכיב</th><th>מלא</th><th>חלקי</th></tr>
+    <tr><td>איתור מועמדים</td><td>כולל קצוות וכל המספרים הקריטיים</td><td>חסר מועמד אחד</td></tr>
+    <tr><td>השוואת ערכים</td><td>טבלה נכונה ומסקנה מנומקת</td><td>חישוב נכון ללא ניסוח מלא</td></tr>
+    <tr><td>דיוק מתמטי</td><td>הבחנה בין נקודה לערך</td><td>בלבול סימון או ניסוח</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <h2>פתרונות לתרגול א</h2>
+  <div class="dense_ grid2_">
+    <div>
+      <div class="answer"><strong>1.</strong> מועמדים: \(0,2,5\). ערכים: \(1,-3,6\). מינימום \((2,-3)\), מקסימום \((5,6)\).</div>
+      <div class="answer"><strong>2.</strong> מועמדים: \(-4,-1,2\). ערכים: \(5,-4,5\). מינימום \((-1,-4)\); מקסימום בשתי הנקודות \((-4,5)\), \((2,5)\).</div>
+      <div class="answer"><strong>3.</strong> מועמדים: \(-2,-1,1,2\). ערכים: \(-2,2,-2,2\). שני מינימומים ושני מקסימומים מוחלטים.</div>
+      <div class="answer"><strong>4.</strong> \(f'(x)=3(x-1)(x-3)\). מועמדים: \(0,1,3,5\). ערכים: \(0,4,0,20\). מינימום \(0\) ב־\(x=0,3\); מקסימום \((5,20)\).</div>
+    </div>
+    <div>
+      <div class="answer"><strong>5.</strong> \(f'(x)=3x(x-2)\). ערכים: \(f(-1)=-2\), \(f(0)=2\), \(f(2)=-2\), \(f(4)=18\). מינימום ב־\(x=-1,2\); מקסימום ב־\(x=4\).</div>
+      <div class="answer"><strong>6.</strong> מספרים קריטיים: \(0,\pm\sqrt2\). ערך מינימום \(-4\) ב־\(x=\pm\sqrt2\). ערך מקסימום \(45\) ב־\(x=-3\).</div>
+      <div class="answer"><strong>7.</strong> ב־\(x=2\) הנגזרת אינה קיימת. \(f(-1)=\frac52\), \(f(2)=1\), \(f(5)=\frac{11}{2}\). מינימום \((2,1)\), מקסימום \((5,\frac{11}{2})\).</div>
+      <div class="answer"><strong>8.</strong> \(f'(x)=\frac{1}{2\sqrt{x+1}}-\frac12\). מספר קריטי \(x=0\). ערכים: \(f(-1)=\frac12\), \(f(0)=1\), \(f(8)=-1\). מקסימום \((0,1)\), מינימום \((8,-1)\).</div>
+    </div>
+  </div>
+  <div class="callout red"><strong>תיקון עצמי:</strong> בתרגיל 8, הקצה \(x=-1\) עצמו בתחום אף שהנגזרת אינה מוגדרת בו. הוא ממילא נבדק כקצה.</div>
+</section>
+
+<section class="page">
+  <h2>פתרונות לתרגול ב ולהערכת הסיום</h2>
+  <div class="dense_">
+    <div class="answer"><strong>9.</strong> \(f'(x)=3(x-2)(x-4)\). ערכים: \(f(0)=-7\), \(f(2)=13\), \(f(4)=9\), \(f(8)=121\). מינימום מוחלט ב־\((0,-7)\), מקסימום מוחלט ב־\((8,121)\).</div>
+    <div class="answer"><strong>10.</strong> \(f'(x)=4x(x^2-4)\). מינימום מוחלט \(-13\) ב־\(x=-2,2\). מקסימום מוחלט \(12\) ב־\(x=-3,3\).</div>
+    <div class="answer"><strong>11.</strong> למשל \([-3,0]\): מינימום מוחלט \(0\) ב־\(x=-3,0\), ומקסימום מוחלט \(4\) ב־\(x=-2\).</div>
+    <div class="answer"><strong>12.</strong> למשל \([-2.5,1]\). הערך בקצה הימני הוא \(4\), ולכן כדי לקבל מקסימום מוחלט גדול ממש מ־\(4\) אפשר לבחור קצה ימני גדול יותר, כגון \([-2.5,2]\), ואז \(f(2)=20\).</div>
+    <div class="answer"><strong>13.</strong> עבור \(f(x)=x^3-3x\) ב־\([-2,2]\): טווח הערכים הוא \([-2,2]\). כאשר \(-2\lt k\lt2\) יש בדרך כלל 3 פתרונות, למעט ערכי הקיצון שבהם מתקבלים 2; כאשר \(k=-2\) או \(k=2\) יש 2; מחוץ לטווח אין פתרונות.</div>
+    <div class="answer"><strong>14.</strong> מקסימום מוחלט של \(g\): \(67\) ב־\(x=8\). מינימום מוחלט: \(-41\) ב־\(x=2,11\).</div>
+    <div class="answer"><strong>15.</strong> מן הנתון \(f'(x)\gt0\) נובע ש־\(f\) עולה בכל הקטע. לכן לכל \(x\in[a,b]\), מתקיים \(f(a)\le f(x)\le f(b)\).</div>
+    <div class="answer"><strong>16.</strong> למשל פונקציה מדרגתית ב־\([0,1]\): \(f(0)=0\), ו־\(f(x)=1\) לכל \(0\lt x\le1\). היא אינה רציפה ב־\(0\), אך מקבלת מינימום \(0\) ומקסימום \(1\).</div>
+  </div>
+  <h3>הערכת הסיום — עיקרי פתרון</h3>
+  <p class="dense"><strong>שאלה 1:</strong> \(f'(x)=3(x-1)(x-3)\). המועמדים \(0,1,3,5\); הערכים \(1,5,1,21\). מינימום מוחלט \(1\) ב־\(x=0,3\); מקסימום מוחלט \(21\) ב־\(x=5\).</p>
+</section>
+
+<section class="page">
+  <h2>שגיאות שכיחות ודרכי תיקון</h2>
+  <ul class="mistakes dense_">
+    <li><strong>שוכחים את הקצוות.</strong> תיקון: להתחיל כל פתרון ברשימת מועמדים ריקה ולהוסיף מיד \(a,b\).</li>
+    <li><strong>משווים שיעורי \(x\).</strong> תיקון: קיצון מוחלט נקבע לפי ערכי \(f(x)\).</li>
+    <li><strong>כל פתרון של \(f'(x)=0\) מסומן כקיצון.</strong> תיקון: בודקים שינוי סימן או משווים ערכים.</li>
+    <li><strong>משתמשים רק בנגזרת השנייה.</strong> תיקון: הנגזרת השנייה אינה מחליפה הצבת קצוות.</li>
+    <li><strong>משאירים מספר קריטי מחוץ לתחום.</strong> תיקון: מסננים לפי \(a\lt c\lt b\).</li>
+    <li><strong>מתעלמים מנקודה שבה הנגזרת אינה קיימת.</strong> תיקון: בודקים שהנקודה בתחום ושהפונקציה מוגדרת.</li>
+    <li><strong>כותבים “מקסימום ב־\(x=2\)” בלבד.</strong> תיקון: מציינים גם ערך וגם נקודה.</li>
+    <li><strong>מסיקים שאם תנאי המשפט לא מתקיימים אין קיצון.</strong> תיקון: המשפט מבטיח קיום; הוא אינו משפט הפוך.</li>
+  </ul>
+  <h3>שאלות אבחון מהירות</h3>
+  <div class="grid2 dense">
+    <div class="card blue"><strong>א.</strong> האם פונקציה רציפה ב־\((0,1)\) חייבת לקבל מקסימום? נמקו.</div>
+    <div class="card green"><strong>ב.</strong> האם \(f'(c)=0\) מספיק כדי לקבוע קיצון? תנו דוגמה.</div>
+    <div class="card gold"><strong>ג.</strong> האם קצה תחום יכול להיות קיצון גם כאשר הנגזרת בו אינה אפס?</div>
+    <div class="card red"><strong>ד.</strong> האם ייתכנו שתי נקודות מינימום מוחלט בעלות אותו ערך?</div>
+  </div>
+  <div class="callout"><strong>תשובות:</strong> א. לא. ב. לא, למשל \(x^3\). ג. כן. ד. כן.</div>
+</section>
+
+<script>
+const boards = {};
+const defaults = {};
+function initBoard(id, bbox, opts={}){
+  defaults[id] = bbox.slice();
+  const board = JXG.JSXGraph.initBoard(id, {
+    boundingbox:bbox,
+    axis:true,
+    showNavigation:false,
+    showCopyright:false,
+    keepaspectratio:false,
+    pan:{enabled:true, needShift:false},
+    zoom:{enabled:false},
+    defaultAxes:{x:{name:'x',withLabel:true,label:{position:'rt',offset:[-10,12]}},y:{name:'y',withLabel:true,label:{position:'rt',offset:[10,-10]}}},
+    ...opts
+  });
+  boards[id]=board;
+  return board;
+}
+function zoomBoard(id,factor){
+  const b=boards[id]; if(!b) return;
+  const bb=b.getBoundingBox();
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const w=(bb[2]-bb[0])/factor, h=(bb[1]-bb[3])/factor;
+  b.setBoundingBox([cx-w/2,cy+h/2,cx+w/2,cy-h/2],true);
+}
+function centerBoard(id){
+  const b=boards[id], d=defaults[id]; if(!b||!d) return;
+  const bb=b.getBoundingBox();
+  const w=bb[2]-bb[0], h=bb[1]-bb[3];
+  const cx=(d[0]+d[2])/2, cy=(d[1]+d[3])/2;
+  b.setBoundingBox([cx-w/2,cy+h/2,cx+w/2,cy-h/2],true);
+}
+function resetBoard(id){ const b=boards[id]; if(b) b.setBoundingBox(defaults[id],true); }
+function point(b,x,y,name,color='#b43a3a'){
+  return b.create('point',[x,y],{name:name,size:3.4,strokeColor:color,fillColor:color,label:{offset:[6,8],fontSize:13}});
+}
+function plotSegment(b,fn,a,c,color='#175d9c',width=3){
+  return b.create('functiongraph',[fn,a,c],{strokeColor:color,strokeWidth:width,highlight:false});
+}
+function initGraphs(){
+  let b, f;
+  f=x=>x*x*x+3*x*x;
+  b=initBoard('boardIntro',[-4.2,5.5,2.2,-2]); plotSegment(b,f,-3.2,1.1,'#9aa7b3',2); plotSegment(b,f,-3,1,'#c23b3b',4); point(b,-3,0,'A'); point(b,-2,4,'M'); point(b,0,0,'m'); point(b,1,4,'B');
+
+  f=x=>0.12*(x+3)*(x+1)*(x-1)*(x-3)+2;
+  b=initBoard('boardTypes',[-4.3,10,4.3,-2.5]); plotSegment(b,f,-3.7,3.7,'#175d9c',3); point(b,-2.25,f(-2.25),'local max','#087f74'); point(b,0,f(0),'local min','#087f74'); point(b,3.7,f(3.7),'absolute max','#b43a3a');
+
+  b=initBoard('boardEVT1',[-2.3,4.5,2.3,-1.5]); f=x=>x*x-1; plotSegment(b,f,-2,2,'#175d9c',3); point(b,-2,3,''); point(b,0,-1,''); point(b,2,3,'');
+  b=initBoard('boardEVT2',[-.2,1.4,1.2,-.3]); plotSegment(b,x=>x,0.02,.98,'#175d9c',3); b.create('point',[0,0],{name:'',size:3,face:'o',fillColor:'white',strokeColor:'#b43a3a'}); b.create('point',[1,1],{name:'',size:3,face:'o',fillColor:'white',strokeColor:'#b43a3a'});
+  //b=initBoard('boardEVT3',[-2.2,3.5,2.2,-2]); plotSegment(b,x=>x+1,-2,-.02,'#175d9c',3); plotSegment(b,x=>x-1,.02,2,'#175d9c',3); b.create('point',[0,1],{name:'',size:3,face:'o',fillColor:'white',strokeColor:'#b43a3a'}); b.create('point',[0,-1],{name:'',size:3,fillColor:'#b43a3a',strokeColor:'#b43a3a'});
+
+  f=x=>Math.abs(x-1)+x/2;
+  //b=initBoard('boardNondiff',[-3,6,5,-1]); plotSegment(b,f,-2,4,'#175d9c',4); point(b,-2,f(-2),'A'); point(b,1,f(1),'C'); point(b,4,f(4),'B');
+
+  f=x=>x*x-6*x+10;
+  b=initBoard('boardQuad',[-1,12,5,-1]); plotSegment(b,f,-.5,4.5,'#a0aab3',2); plotSegment(b,f,0,4,'#175d9c',4); point(b,0,10,'A'); point(b,3,1,'m'); point(b,4,2,'B');
+
+  f=x=>x*x*x-x*x+4;
+  b=initBoard('boardCubic',[-1.6,24,3.5,-2]); plotSegment(b,f,-1,3,'#175d9c',4); point(b,-1,f(-1),'A'); point(b,0,4,'M'); point(b,2/3,f(2/3),'m'); point(b,3,22,'B');
+
+  f=x=>(x-1)*(x-1)+1;
+  b=initBoard('boardEndpoints',[-3,11,5,-2]); plotSegment(b,f,-2.5,4.5,'#9aa7b3',2); plotSegment(b,f,-2,1,'#b43a3a',4); plotSegment(b,f,1,4,'#175d9c',4); point(b,-2,f(-2),'A'); point(b,1,f(1),'V'); point(b,4,f(4),'B');
+
+  f=x=>x*x*x-9*x*x+3;
+  b=initBoard('boardFull',[-2,120,11,-125]); plotSegment(b,f,-1,10,'#175d9c',4); point(b,-1,f(-1),'A'); point(b,0,3,'M'); point(b,6,-105,'m'); point(b,10,103,'B');
+
+  f=x=>x*x*x-15*x*x+48*x-3;
+  b=initBoard('boardTransformF',[-1,80,12,-90]); plotSegment(b,f,0,11,'#175d9c',4); point(b,2,41,''); point(b,8,-67,''); point(b,11,41,'');
+
+  f=x=>-x*x*x+15*x*x-48*x+3;
+  b=initBoard('boardTransformG',[-1,90,12,-80]); plotSegment(b,f,0,11,'#087f74',4); point(b,2,-41,''); point(b,8,67,''); point(b,11,-41,'');
+
+  f=x=>x*x*x+3*x*x;
+  b=initBoard('boardDesign',[-4,7,3,-3]); plotSegment(b,f,-3.4,1.3,'#175d9c',3); point(b,-3,0,'A'); point(b,-2,4,'M'); point(b,0,0,'m'); point(b,1,4,'B');
+
+  b=initBoard('boardK',[-3.5,5.5,1.5,-1.5]); plotSegment(b,f,-3,1,'#175d9c',4); window.kp1=b.create('point',[-3,2],{visible:false}); window.kp2=b.create('point',[1,2],{visible:false}); window.kline=b.create('line',[window.kp1,window.kp2],{straightFirst:false,straightLast:false,strokeColor:'#b43a3a',strokeWidth:3,dash:2});
+
+  b=initBoard('boardDerivative',[-2.7,6,3.7,-4]); f=x=>(x+1)*(x-2); plotSegment(b,f,-2,3,'#175d9c',4); point(b,-1,0,''); point(b,2,0,'');
+}
+function updateK(v){
+  const k=parseFloat(v); document.getElementById('kValue').textContent=k.toFixed(1);
+  if(window.kp1){ window.kp1.setPosition(JXG.COORDS_BY_USER,[-3,k]); window.kp2.setPosition(JXG.COORDS_BY_USER,[1,k]); boards.boardK.update(); }
+  let n=0; if(Math.abs(k)<0.051 || Math.abs(k-4)<0.051) n=2; else if(k>0 && k<4) n=3;
+  document.getElementById('kCount').textContent='מספר פתרונות בתחום: '+n;
+}
+window.addEventListener('load',()=>{
+  if(window.JXG){ initGraphs(); updateK(2); }
+  else { document.querySelectorAll('.jxgbox').forEach(el=>{el.innerHTML='<div style="padding:18px;text-align:center;color:#7b8794">טעינת JSXGraph נכשלה. יש לפתוח את הקובץ בחיבור לאינטרנט.</div>';}); }
+});
+</script>
+</body>
+</html>
