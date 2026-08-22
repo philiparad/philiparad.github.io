@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור — נגזרת של פולינום — 5 יחידות</title>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  direction: rtl;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #e9eef4;
+  color: #172033;
+  line-height: 1.42;
+  counter-reset: page;
+}
+.page {
+  width: 210mm;
+  height: 297mm;
+  margin: 10px auto;
+  padding: 13mm 14mm 12mm;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  break-after: page;
+  counter-increment: page;
+  box-shadow: 0 8px 28px rgba(27, 48, 74, .16);
+}
+.page:last-of-type { page-break-after: auto; break-after: auto; }
+.page::after {
+  content: counter(page);
+  position: absolute;
+  bottom: 5.5mm;
+  left: 14mm;
+  font-size: 10pt;
+  color: #64748b;
+}
+.page::before {
+  content: "נגזרת של פולינום • 5 יחידות";
+  position: absolute;
+  bottom: 5.5mm;
+  right: 14mm;
+  font-size: 9.5pt;
+  color: #94a3b8;
+}
+.cover::before, .cover::after { content: ""; }
+.cover {
+  background: linear-gradient(145deg, #eef6ff 0%, #ffffff 52%, #f1f8f6 100%);
+  padding: 20mm 18mm;
+}
+.cover-band {
+  height: 30	mm;
+  background: linear-gradient(90deg, #0f4c81, #167c80, #80b918);
+  margin: -20mm -18mm 22mm;
+}
+.cover h1 { font-size: 31pt; line-height: 1.12; color: #0f3f69; margin: 12mm 0 4mm; }
+.cover h2 { font-size: 18pt; font-weight: 500; color: #167c80; margin: 0 0 12mm; }
+.cover-card {
+  border: 1px solid #c7d7e8;
+  border-right: 6px solid #167c80;
+  border-radius: 14px;
+  padding: 7mm;
+  background: rgba(255,255,255,.86);
+  font-size: 14.2pt;
+}
+.cover-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 6mm; margin-top: 10mm; }
+.cover-chip { padding: 4mm; border-radius: 12px; background:#fff; border:1px solid #d7e2ec; font-size:12pt; }
+.kicker { color:#167c80; font-size:10.5pt; font-weight:700; letter-spacing:.04em; margin-bottom:1.5mm; }
+h1 { font-size: 22pt; margin: 0 0 4mm; color: #0f4c81; line-height:1.15; }
+h2 { font-size: 15.5pt; color:#0f4c81; margin: 4mm 0 2mm; }
+h3 { font-size: 12.8pt; color:#116466; margin: 3mm 0 1.5mm; }
+p { margin: 1.4mm 0; font-size: 11.4pt; }
+ul, ol { margin: 1.8mm 0 2mm; padding-right: 6mm; }
+li { margin: .8mm 0; font-size: 11.1pt; }
+.small { font-size: 9.8pt; }
+.tiny { font-size: 8.8pt; }
+.lead { font-size: 13pt; color:#334155; }
+.note, .goal, .warning, .example, .solution, .task, .teacher {
+  border-radius: 10px;
+  padding: 3.2mm 4mm;
+  margin: 3mm 0;
+  break-inside: avoid;
+}
+.note { background:#f2f7fc; border-right:4px solid #4b83b5; }
+.goal { background:#eef9f6; border-right:4px solid #16877f; }
+.warning { background:#fff7e6; border-right:4px solid #e29b27; }
+.example { background:#f8fafc; border:1px solid #dbe4ee; }
+.solution { background:#f2f9ef; border-right:4px solid #76a942; }
+.task { background:#f7f4ff; border-right:4px solid #7356a8; }
+.teacher { background:#fff3f5; border-right:4px solid #c6536a; }
+.label { font-weight:700; color:#0f4c81; }
+.math, .math-block, mjx-container { direction:ltr !important; unicode-bidi:isolate; }
+.math-block { text-align:center; margin:2.5mm 0; font-size: 112%; }
+.inline-ltr { direction:ltr; unicode-bidi:isolate; display:inline-block; }
+.grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+.grid-3 { display:grid; grid-template-columns: repeat(3,1fr); gap: 3.5mm; }
+.grid-40-60 { display:grid; grid-template-columns: .82fr 1.18fr; gap: 5mm; }
+.columns { columns:1; column-gap:8mm; }
+.keep { break-inside:avoid; }
+table { width:100%; border-collapse:collapse; margin:2.5mm 0; font-size:10.3pt; }
+th, td { border:1px solid #cbd5e1; padding:1.6mm 2mm; vertical-align:top; }
+th { background:#eaf2f8; color:#123f64; font-weight:700; }
+.compact th, .compact td { padding:1.1mm 1.5mm; font-size:9.5pt; }
+.steps { counter-reset: step; list-style:none; padding:0; }
+.steps li { counter-increment:step; padding:2mm 11mm 2mm 2mm; position:relative; border-bottom:1px dashed #dbe4ee; }
+.steps li::before { content:counter(step); position:absolute; right:0; top:1.2mm; width:7mm; height:7mm; border-radius:50%; background:#167c80; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.exercise-list { margin-top:1mm; }
+.exercise-list li { margin:3mm 0; }
+.answer-line { border-bottom:1px solid #94a3b8; display:inline-block; min-width:38mm; height:5mm; }
+.badge { display:inline-block; padding:.7mm 2.2mm; border-radius:999px; background:#e4f2f1; color:#116466; font-size:9.2pt; font-weight:700; margin-left:1mm; }
+.callout { font-size:16pt; font-weight:700; color:#167c80; text-align:center; margin:4mm 0; }
+.formula-card { border:1px solid #cbd5e1; border-radius:10px; background:#fff; text-align:center;}
+.graph-wrap { border:1px solid #cbd5e1; border-radius:12px; background:#fbfdff; padding:3mm; margin:2.5mm 0; }
+.graph-caption { font-size:9.5pt; color:#475569; margin-top:1.5mm; }
+.jxgbox {
+  position: relative;
+  overflow: hidden;
+  background-color: #fff;
+  border: 1px solid #a8bfd3;
+  border-radius: 8px;
+  touch-action: none;
+  direction:ltr;
+}
+.graph-lg { width:100%; height:104mm; }
+.graph-md { width:100%; height:78mm; }
+.graph-sm { width:100%; height:59mm; }
+.source { direction:ltr; text-align:left; font-size:9.2pt; word-break:break-word; margin:2mm 0; }
+.source a { color:#0f4c81; }
+.hr { height:1px; background:#dbe4ee; margin:3mm 0; }
+.two-board { display:grid; grid-template-columns:1fr 1fr; gap:4mm; direction:ltr; }
+.checklist { display:grid; grid-template-columns:1fr 1fr; gap:2mm 5mm; }
+.checkitem { border-bottom:1px dotted #94a3b8; padding:1.5mm 0; font-size:10.6pt; }
+@media print {
+  body { background:#fff; }
+  .page { margin:0; box-shadow:none; }
+  a { color:inherit; text-decoration:none; }
+}
+</style>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.12.2/distrib/jsxgraphcore.js"></script>
+</head>
+<body>
+<section class="page cover"><div class="kicker"></div><h1>נגזרת של פולינום</h1>
+<div class="cover-band"></div>
+<h2>מערך שיעור ללמידה עצמית ולהוראה בכיתה — רמת 5 יחידות</h2>
+<div class="cover-card">
+  <p><strong>מוקד היחידה:</strong> מעבר מקצב שינוי ממוצע לשיפוע משיק, הגדרת הנגזרת, כלל החזקה, גזירת פולינומים, ערך הנגזרת בנקודה, משוואות משיקים, מציאת נקודות לפי שיפוע, פרמטרים ויישומים גאומטריים.</p>
+</div>
+</section>
+
+<section class="page "><div class="kicker">מפת הוראה</div><h1>רצף היחידה ומטרות הלמידה</h1>
+<div class="goal">
+<strong>בסיום היחידה התלמיד יוכל:</strong> להסביר את הנגזרת כשיפוע משיק וכקצב שינוי רגעי; לגזור פולינום המוצג בצורות שונות; לחשב שיפוע ומשוואת משיק; למצוא נקודות השקה לפי שיפוע; לפתור שאלות עם פרמטרים, ישרים, חיתוכים ושטחים.
+</div>
+<div style="height:20px;"></div>
+<table class="compact">
+<tr><th>שלב</th><th>נושא</th><th>שיעורים</th><th>תוצר מרכזי</th></tr>
+<tr><td>1</td><td>מיתר, משיק וקצב שינוי</td><td>1–2</td><td>הבנת המעבר משיפוע ממוצע לרגעי</td></tr>
+<tr><td>2</td><td>הגדרת הנגזרת וכלל החזקה</td><td>2–3</td><td>גילוי והצדקה של \((x^n)'=nx^{n-1}\)</td></tr>
+<tr><td>3</td><td>גזירת פולינומים</td><td>2–3</td><td>שליטה בכללים ובצורות אלגבריות</td></tr>
+<tr><td>4</td><td>שיפוע ומשוואת משיק</td><td>2–3</td><td>אלגוריתם מלא ונימוק כל שלב</td></tr>
+<tr><td>5</td><td>שאלות הפוכות ופרמטרים</td><td>2–3</td><td>פתרון \(f'(x)=m\) ובניית כל המשיקים</td></tr>
+<tr><td>6</td><td>יישומים והערכה</td><td>2</td><td>חיתוכים, שטחים, זוויות ומבחן מסכם</td></tr>
+</table>
+<div style="height:20px;"></div>
+<h2>ידע מוקדם הכרחי</h2>
+<div class="checklist">
+<div class="checkitem">שיפוע ישר משתי נקודות</div><div class="checkitem">משוואת ישר בנקודה ושיפוע</div>
+<div class="checkitem">חוקי חזקות</div><div class="checkitem">פתיחת סוגריים וכינוס איברים</div>
+<div class="checkitem">פתרון משוואות ריבועיות</div><div class="checkitem">חיתוך פולינום עם הצירים</div>
+</div>
+</section>
+<section class="page "><div class="kicker">יחידה 1</div><h1>אבחון ידע מוקדם</h1>
+<p class="lead">יש להשלים ללא מחשבון. מטרת הדף היא לזהות פערים לפני תחילת הנגזרת.</p>
+<ol class="exercise-list">
+<li>מצא את שיפוע הישר העובר דרך \(A(1,3)\) ו־\(B(5,11)\).</li>
+<li>כתוב משוואת ישר ששיפועו \(-3\) והוא עובר דרך \((2,7)\).</li>
+<li>סדר את הישר \(3y-12x=5\) בצורה \(y=mx+n\), ורשום את שיפועו.</li>
+<li>פתח וכנס: \((x-2)(x+3)\).</li>
+<li>פתח וכנס: \(x^2(2x+1)^2\).</li>
+<li>פתור: \(3x^2+4x+1=0\).</li>
+<li>מצא את נקודות החיתוך של \(y=x^2-7x+10\) עם ציר \(x\).</li>
+<li>חשב את קצב השינוי הממוצע של \(f(x)=x^2\) בין \(x=1\) לבין \(x=1.2\).</li>
+</ol>
+<div class="task">
+<strong>שאלת חשיבה:</strong> לפונקציה שאינה קווית אין שיפוע אחד קבוע. כיצד אפשר בכל זאת לתאר את השיפוע שלה בנקודה יחידה?
+</div>
+<h2>תשובות לבדיקה עצמית</h2>
+<table class="compact">
+<tr><th>1</th><td>\(m=2\)</td><th>2</th><td>\(y=-3x+13\)</td></tr>
+<tr><th>3</th><td>\(y=4x+\frac{5}{3}\), ולכן \(m=4\)</td><th>4</th><td>\(x^2+x-6\)</td></tr>
+<tr><th>5</th><td>\(4x^4+4x^3+x^2\)</td><th>6</th><td>\(x=-1,-\frac13\)</td></tr>
+<tr><th>7</th><td>\((2,0),(5,0)\)</td><th>8</th><td>\(2.2\)</td></tr>
+</table>
+<div class="teacher"><strong>החלטת הוראה:</strong> תלמיד שטעה בשאלות 1–3 זקוק לחזרה על ישרים; תלמיד שטעה בשאלות 4–7 זקוק לחזרה אלגברית לפני גזירה.</div>
+</section>
+<section class="page "><div class="kicker">יחידה 2</div><h1>משיפוע מיתר לשיפוע משיק</h1>
+<div class="grid-40-60_">
+<div>
+<p>נבחר שתי נקודות על הגרף \(f(x)=x^2\):</p>
+<div class="math-block">\[A=(1,1),\qquad B=(1+h,(1+h)^2)\]</div>
+<p>שיפוע המיתר הוא:</p>
+<div class="math-block">\[m_{AB}=\frac{(1+h)^2-1}{h}=2+h\]</div>
+<p>כאשר \(h\) מתקרב ל־\(0\), הנקודה \(B\) מתקרבת ל־\(A\), והמיתר מתקרב למשיק.</p>
+<div class="math-block">\[\lim_{h\to0}(2+h)=2\]</div>
+<div class="goal"><strong>מסקנה:</strong> שיפוע המשיק לגרף \(y=x^2\) בנקודה שבה \(x=1\) הוא \(2\).</div>
+</div>
+<div class="graph-wrap"><div id="boardSecant" class="jxgbox graph-lg"></div><div class="graph-caption">הזז את המחוון \(x_B\). השווה בין שיפוע המיתר לבין שיפוע המשיק.</div></div>
+</div>
+<div class="task"><strong>חקירה:</strong> רשום שלושה ערכים של \(x_B\) המתקרבים ל־\(1\), וחשב בכל פעם את שיפוע המיתר. מה קורה כאשר מתקרבים מימין? מה קורה כאשר מתקרבים משמאל?</div>
+<div class="warning">אין מציבים \(h=0\) בתוך המנה, משום שהמכנה יהיה אפס. תחילה מפשטים, ורק לאחר מכן מחשבים את הגבול.</div>
+</section>
+<section class="page "><div class="kicker">יחידה 3</div><h1>הגדרת הנגזרת</h1>
+<p class="lead">הנגזרת בנקודה היא הגבול של קצבי השינוי הממוצעים על קטעים ההולכים ומתקצרים.</p>
+<div style="height:10px;"></div>
+<div class="formula-card">
+<div class="math-block">\[f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h}\]</div>
+<div>פירוש גאומטרי: שיפוע המשיק לגרף בנקודה \((a,f(a))\).</div>
+</div>
+<div style="height:10px;"></div>
+<div class="grid-2_">
+<div class="example"><strong>דוגמה: \(f(x)=x^2\)</strong>
+<div class="math-block">\[\begin{aligned}f'(a)&=\lim_{h\to0}\frac{(a+h)^2-a^2}{h}\\&=\lim_{h\to0}\frac{2ah+h^2}{h}\\&=\lim_{h\to0}(2a+h)=2a\end{aligned}\]</div>
+<p>לכן \(f'(x)=2x\).</p></div>
+<div style="height:10px;"></div>
+<div class="note"><strong>הבחנה חשובה</strong>
+<ul><li>\(f'(a)\) הוא מספר: השיפוע בנקודה מסוימת.</li><li>\(f'(x)\) היא פונקציה: לכל \(x\) היא מחזירה את שיפוע המשיק.</li><li>\(f(a)\) הוא ערך הפונקציה, לא השיפוע.</li></ul></div>
+</div>
+<div style="height:20px;"></div>
+<h2>טבלת התקרבות עבור \(a=2\)</h2>
+<table class="compact">
+<tr><th>\(h\)</th><td>\(1\)</td><td>\(0.5\)</td><td>\(0.1\)</td><td>\(-0.1\)</td><td>\(-0.5\)</td></tr>
+<tr><th>\(\frac{f(2+h)-f(2)}{h}\)</th><td>\(5\)</td><td>\(4.5\)</td><td>\(4.1\)</td><td>\(3.9\)</td><td>\(3.5\)</td></tr>
+</table>
+<div class="task"><strong>בדיקה:</strong> השתמש בהגדרה כדי למצוא את הנגזרת של \(f(x)=3x+5\). הסבר מדוע מתקבלת פונקציה קבועה.</div>
+</section>
+<section class="page "><div class="kicker">יחידה 3</div><h1>הנגזרת כפונקציה — קשר בין הפונקציה לנגזרת</h1>
+<div class="grid-40-60_">
+<div>
+<p>בגרף מופיעות שתי פונקציות:</p>
+<div class="math-block">\[f(x)=x^3-3x\]</div>
+<div class="math-block">\[f'(x)=3x^2-3\]</div>
+<p>הנקודה \(A\) נמצאת על \(f\). הנקודה \(D\) נמצאת באותו ערך \(x\), אך גובהה הוא שיפוע המשיק בנקודה \(A\).</p>
+<div class="goal"><strong>שפה גרפית:</strong><ul><li>כאשר \(f'(x)\gt0\), הגרף עולה.</li><li>כאשר \(f'(x)\lt0\), הגרף יורד.</li><li>כאשר \(f'(x)=0\), המשיק אופקי.</li></ul></div>
+</div>
+<div class="graph-wrap"><div id="boardDerivativeLink" class="jxgbox graph-lg"></div><div class="graph-caption">העקומה הרציפה היא \(f\); העקומה המקווקוות היא \(f'\). הזז את \(a\).</div></div>
+</div>
+<div class="task"><strong>חיזוי לפני חישוב:</strong> באילו ערכי \(x\) המשיק ל־\(f\) אופקי? ודא בעזרת פתרון המשוואה \(3x^2-3=0\).</div>
+</section>
+<section class="page "><div class="kicker">יחידה 4</div><h1>גילוי והצדקה של כלל החזקה</h1>
+<h2>שלב א — זיהוי דפוס</h2>
+<table>
+<tr><th>הפונקציה</th><td>\(1\)</td><td>\(x\)</td><td>\(x^2\)</td><td>\(x^3\)</td><td>\(x^4\)</td></tr>
+<tr><th>הנגזרת</th><td>\(0\)</td><td>\(1\)</td><td>\(2x\)</td><td>\(3x^2\)</td><td>\(4x^3\)</td></tr>
+</table>
+<div class="callout">המעריך יורד כמקדם, והחזקה קטנה באחת.</div>
+<div class="formula-card"><div class="math-block">\[(x^n)'=nx^{n-1}\qquad n\in\mathbb{N}\]</div></div>
+<h2>שלב ב — הצדקה באמצעות ההגדרה</h2>
+<div class="math-block">\[\begin{aligned}
+\frac{(x+h)^n-x^n}{h}
+&=\frac{x^n+nx^{n-1}h+\binom{n}{2}x^{n-2}h^2+\cdots+h^n-x^n}{h}\\
+&=nx^{n-1}+\binom{n}{2}x^{n-2}h+\cdots+h^{n-1}
+\end{aligned}\]</div>
+<p>כאשר \(h\to0\), כל האיברים המכילים גורם \(h\) מתאפסים, ולכן:</p>
+<div class="math-block">\[\lim_{h\to0}\frac{(x+h)^n-x^n}{h}=nx^{n-1}\]</div>
+<div class="warning"><strong>שגיאה נפוצה:</strong> \((x^4)'\ne4x^4\). התשובה הנכונה היא \(4x^3\).</div>
+<div class="task"><strong>תרגול מהיר:</strong> גזור: \(x^6\), \(12x^4\), \(-\frac13x^3\), \(7\).</div>
+</section>
+<section class="page "><div class="kicker">יחידה 5</div><h1>כללי הגזירה של פולינום</h1>
+<div class="grid-3">
+<div class="formula-card"><strong>קבוע</strong><div class="math-block">\[(c)'=0\]</div></div>
+<div class="formula-card"><strong>כפל בקבוע</strong><div class="math-block">\[(cf(x))'=cf'(x)\]</div></div>
+<div class="formula-card"><strong>סכום והפרש</strong><div class="math-block">\[(f\pm g)'=f'\pm g'\]</div></div>
+</div>
+<h2>פולינום כללי</h2>
+<div class="math-block">\[f(x)=a_nx^n+a_{n-1}x^{n-1}+\cdots+a_1x+a_0\]</div>
+<div class="math-block">\[f'(x)=na_nx^{n-1}+(n-1)a_{n-1}x^{n-2}+\cdots+a_1\]</div>
+<div class="example"><strong>דוגמה</strong>
+<div class="math-block">\[f(x)=\frac16x^4-\frac37x^5\]</div>
+<div class="math-block">\[f'(x)=\frac{4}{6}x^3-\frac{15}{7}x^4=\frac23x^3-\frac{15}{7}x^4\]</div></div>
+<div class="example"><strong>דוגמה נוספת</strong>
+<div class="math-block">\[g(x)=\frac57x^7-\frac45x^5+\frac12x\]</div>
+<div class="math-block">\[g'(x)=5x^6-4x^4+\frac12\]</div></div>
+<div class="task"><strong>תרגול:</strong> גזור את \(5x^2-3x\), \(3x^3+14x\), \(\frac13x^6-\frac25x^5\), \(x^4+1+\frac{x^3+9x}{3}\).</div>
+</section>
+<section class="page "><div class="kicker">יחידה 5</div><h1>אלגוריתם גזירה מסודר</h1>
+<ol class="steps">
+<li><strong>פשט את הביטוי</strong> אם יש מנה במספר קבוע או מכפלות שקל לפתוח.</li>
+<li><strong>גזור כל איבר בנפרד</strong> בעזרת כלל החזקה.</li>
+<li><strong>שמור על הסימן ועל המקדם</strong> של כל איבר.</li>
+<li><strong>כנס ופשט</strong> רק לאחר הגזירה.</li>
+<li><strong>בדוק את המעלה:</strong> מעלה של פולינום לא קבוע צריכה לרדת באחת.</li>
+</ol>
+<div class="grid-2">
+<div class="example"><strong>מנה במספר קבוע</strong>
+<div class="math-block">\[f(x)=\frac{4x^2-2x+6}{2}=2x^2-x+3\]</div>
+<div class="math-block">\[f'(x)=4x-1\]</div></div>
+<div class="example"><strong>סכום עם שבר</strong>
+<div class="math-block">\[g(x)=x^4+1+\frac{x^3+9x}{3}\]</div>
+<div class="math-block">\[g'(x)=4x^3+x^2+3\]</div></div>
+</div>
+<div class="warning"><strong>בדיקת היגיון:</strong> אם \(f\) ממעלה \(7\), אז \(f'\) אמורה להיות ממעלה \(6\). אם התקבלה מעלה \(7\), יש טעות.</div>
+<h2>תרגול מודרך</h2>
+<ol class="exercise-list">
+<li>\(f(x)=\frac{x^3-3x^2-6x-9}{5}\)</li>
+<li>\(g(x)=\frac{x(x+7)^2}{2}\) — פתח תחילה.</li>
+<li>\(h(x)=\frac{x^5-15x^3+20x+4}{5}\)</li>
+</ol>
+</section>
+<section class="page "><div class="kicker">יחידה 6</div><h1>פולינום שאינו מוצג בצורה מפותחת</h1>
+<p class="lead">כאשר הביטוי הוא עדיין פולינום, ניתן לפתוח סוגריים ולגזור איבר־איבר. בחירת הדרך היא חלק מהפתרון.</p>
+<div class="grid-2_">
+<div class="example"><strong>מכפלת שני ביטויים</strong>
+<div class="math-block">\[f(x)=(x^2-1)(x^2+3)=x^4+2x^2-3\]</div>
+<div class="math-block">\[f'(x)=4x^3+4x\]</div></div>
+<div class="example"><strong>מכפלה עם חזקה</strong>
+<div class="math-block">\[g(x)=x^2(2x+1)^2\]</div>
+<div class="math-block">\[g(x)=4x^4+4x^3+x^2\]</div>
+<div class="math-block">\[g'(x)=16x^3+12x^2+2x\]</div></div>
+</div>
+<div class="example"><strong>שלושה גורמים</strong>
+<div class="math-block">\[p(x)=x(x-3)(x^2+1)=x^4-3x^3+x^2-3x\]</div>
+<div class="math-block">\[p'(x)=4x^3-9x^2+2x-3\]</div></div>
+<div class="note"><strong>מתי לא כדאי לפתוח?</strong> הביטוי \((3x+2)^8\) הוא פולינום, אך פתיחתו ארוכה מאוד. במקרה כזה משתמשים בכלל המיוחד שנלמד בהמשך.</div>
+<h2>תרגול</h2>
+<ol class="exercise-list columns">
+<li>\((x-2)(x+3)\)</li><li>\(x^2(3-x)\)</li><li>\(3x(x-1)^2\)</li><li>\((x^2-1)(x^2+3)\)</li><li>\(x(x-3)(x^2+1)\)</li><li>\(\frac{x(x+7)^2}{2}\)</li>
+</ol>
+</section>
+<section style="display:none;" class="page "><div class="kicker">יחידה 6</div><h1>חזקה של ביטוי ליניארי</h1>
+<div class="formula-card"><div class="math-block">\[f(x)=(ax+b)^n\quad\Longrightarrow\quad f'(x)=na(ax+b)^{n-1}\]</div></div>
+<p>זהו מקרה ממוקד של כלל השרשרת: גוזרים את החזקה החיצונית וכופלים בנגזרת הביטוי הפנימי \(ax+b\), שהיא \(a\).</p>
+<div class="grid-2">
+<div class="example"><strong>דוגמה 1</strong><div class="math-block">\[f(x)=(x-1)^6\]</div><div class="math-block">\[f'(x)=6(x-1)^5\]</div></div>
+<div class="example"><strong>דוגמה 2</strong><div class="math-block">\[g(x)=(3x+2)^8\]</div><div class="math-block">\[g'(x)=24(3x+2)^7\]</div></div>
+<div class="example"><strong>דוגמה 3</strong><div class="math-block">\[h(x)=(4x-5)^4\]</div><div class="math-block">\[h'(x)=16(4x-5)^3\]</div></div>
+<div class="warning"><strong>שגיאה נפוצה:</strong> ב־\((3x+2)^8\) התשובה אינה \(8(3x+2)^7\); חסר הכפל ב־\(3\).</div>
+</div>
+<h2>תרגול מדורג</h2>
+<ol class="exercise-list columns">
+<li>\((x+2)^5\)</li><li>\((2x-1)^4\)</li><li>\((5-3x)^6\)</li><li>\(7(x-4)^3\)</li><li>\(-2(4x+1)^5\)</li><li>\(\frac13(6x-5)^4\)</li>
+</ol>
+<div class="task"><strong>בדיקת שקילות:</strong> פתח וגזור את \((x-1)^3\), ולאחר מכן גזור בעזרת הכלל. ודא ששתי התוצאות זהות.</div>
+</section>
+<section style="display:none;" class="page "><div class="kicker">יחידה 7</div><h1>נגזרות מסדר גבוה ומעלת הפולינום</h1>
+<table>
+<tr><th>מעלת \(f\)</th><th>מעלת \(f'\)</th><th>דוגמה</th></tr>
+<tr><td>\(1\)</td><td>\(0\)</td><td>פונקציה קווית נגזרת לקבוע</td></tr>
+<tr><td>\(2\)</td><td>\(1\)</td><td>ריבועית נגזרת לקווית</td></tr>
+<tr><td>\(3\)</td><td>\(2\)</td><td>ממעלה שלישית נגזרת לריבועית</td></tr>
+<tr><td>\(n\)</td><td>\(n-1\)</td><td>כל עוד \(f\) אינה קבועה</td></tr>
+</table>
+<div class="formula-card"><div class="math-block">\[f^{(n)}(x)=n!a_n,\qquad f^{(n+1)}(x)=0\]</div></div>
+<div class="example"><strong>דוגמה מהקבצים</strong>
+<div class="math-block">\[f(x)=-x^3+4x^2+12x\]</div>
+<div class="math-block">\[f'(x)=-3x^2+8x+12,\qquad f''(x)=-6x+8\]</div>
+<div class="math-block">\[f''(2)=-4\lt0,\qquad f''(-2)=20\gt0\]</div>
+</div>
+<div class="note">הנגזרת השנייה מתארת את קצב השינוי של השיפוע. בהמשך היא תשמש לזיהוי קעירות ונקודות פיתול.</div>
+<h2>תרגול</h2>
+<ol class="exercise-list">
+<li>מצא את \(f'\), \(f''\), \(f^{(3)}\) עבור \(f(x)=x^3-4x^2+4x+3\).</li>
+<li>גזור שוב ושוב את \(g(x)=\frac57x^7-\frac45x^5+\frac12x\) עד שמתקבלת פונקציית האפס.</li>
+<li>הסבר מדוע הנגזרת החמישית של פולינום ממעלה \(4\) היא אפס.</li>
+</ol>
+</section>
+<section class="page "><div class="kicker">יחידה 8</div><h1>ערך הנגזרת ושיפוע המשיק בנקודה</h1>
+<div class="grid-40-60_">
+<div>
+<ol class="steps"><li>גוזרים את הפונקציה ומקבלים \(f'(x)\).</li><li>מציבים בנגזרת את ערך ה־\(x\) של הנקודה.</li><li>התוצאה היא שיפוע המשיק: \(m=f'(a)\).</li></ol>
+<div class="example"><strong>דוגמה</strong>
+<div class="math-block">\[f(x)=2x^2-x,\qquad a=1\]</div>
+<div class="math-block">\[f'(x)=4x-1\]</div>
+<div class="math-block">\[m=f'(1)=3\]</div></div>
+<div class="warning">כדי למצוא שיפוע מציבים ב־\(f'\), לא ב־\(f\). הצבה ב־\(f\) נותנת את גובה הנקודה.</div>
+</div>
+<div class="graph-wrap"><div id="boardSlope" class="jxgbox graph-lg"></div><div class="graph-caption">הזז את \(a\). בדוק כיצד משתנים הנקודה, השיפוע והמשיק.</div></div>
+</div>
+<div class="task"><strong>תרגול:</strong> חשב את שיפוע המשיק עבור \(f(x)=x^3+5x^2-5x\) בנקודה שבה \(x=7\), ועבור \(g(x)=x(x-3)(x^2+1)\) בנקודה שבה \(x=-1\).</div>
+</section>
+<section class="page "><div class="kicker">יחידה 9</div><h1>משוואת משיק — האלגוריתם המלא</h1>
+<div class="formula-card"><div class="math-block">\[y-f(a)=f'(a)(x-a)\]</div></div>
+<ol class="steps"><li>חשב את נקודת ההשקה: \(P=(a,f(a))\).</li><li>גזור ומצא את השיפוע: \(m=f'(a)\).</li><li>הצב במשוואת נקודה־שיפוע.</li><li>פשט לצורה \(y=mx+n\) ובדוק שהנקודה מקיימת אותה.</li></ol>
+<div class="grid-2_">
+<div class="example"><strong>דוגמה 1</strong>
+<div class="math-block">\[f(x)=x^2-4x-5,\qquad a=3\]</div>
+<div class="math-block">\[f(3)=-8,\qquad f'(3)=2\]</div>
+<div class="math-block">\[y+8=2(x-3)\Longrightarrow y=2x-14\]</div></div>
+<div class="example"><strong>דוגמה 2</strong>
+<div class="math-block">\[g(x)=x^3-4x,\qquad a=-1\]</div>
+<div class="math-block">\[g(-1)=3,\qquad g'(-1)=-1\]</div>
+<div class="math-block">\[y-3=-(x+1)\Longrightarrow y=-x+2\]</div></div>
+</div>
+<div class="task"><strong>תרגול:</strong> מצא משיק ל־\(y=x(x+5)^2\) בנקודה שבה \(x=0\), ול־\(y=3x^4+4x^5+5x\) בנקודה שבה \(x=1\).</div>
+</section>
+<section class="page "><div class="kicker">יחידה 9</div><h1>משיקים בנקודות חיתוך עם הצירים</h1>
+<div class="grid-40-60_">
+<div>
+<div class="example"><strong>חיתוך עם ציר \(y\)</strong>
+<div class="math-block">\[f(x)=x^3-3x+12\]</div>
+<p>נקודת החיתוך היא \((0,12)\). מאחר ש־\(f'(x)=3x^2-3\), השיפוע הוא \(-3\).</p>
+<div class="math-block">\[y=-3x+12\]</div></div>
+<div class="example"><strong>חיתוך עם ציר \(x\)</strong>
+<div class="math-block">\[g(x)=x^2-7x+10=(x-2)(x-5)\]</div>
+<p>נקודות החיתוך: \((2,0)\), \((5,0)\).</p>
+<div class="math-block">\[g'(x)=2x-7\]</div>
+<div class="math-block">\[m_1=-3,\qquad m_2=3\]</div>
+<div class="math-block">\[y=-3x+6,\qquad y=3x-15\]</div></div>
+</div>
+<div style="zoom:0.85;" class="graph-wrap"><div id="boardAxisTangents" class="jxgbox graph-lg"></div><div class="graph-caption">שני המשיקים בנקודות החיתוך עם ציר \(x\).</div></div>
+</div>
+<div class="task"><strong>תרגול:</strong> מצא את המשיקים לגרף \(y=3x^2-12x\) בנקודות החיתוך שלו עם ציר \(x\).</div>
+</section>
+<section class="page "><div class="kicker">יחידה 10</div><h1>מציאת נקודות ומשיקים לפי שיפוע נתון</h1>
+<div class="grid-40-60_">
+<div>
+<ol class="steps"><li>גזור את הפונקציה.</li><li>פתור את המשוואה \(f'(x)=m\).</li><li>לכל פתרון \(x_i\), חשב \(y_i=f(x_i)\).</li><li>כתוב משיק נפרד לכל נקודה.</li></ol>
+<div class="example"><strong>דוגמה עם שני משיקים</strong>
+<div class="math-block">\[f(x)=x^3+2x^2,\qquad m=-1\]</div>
+<div class="math-block">\[3x^2+4x=-1\Longrightarrow 3x^2+4x+1=0\]</div>
+<div class="math-block">\[x=-1,\qquad x=-\frac13\]</div>
+<div class="math-block">\[y=-x,\qquad y=-x-\frac{4}{27}\]</div></div>
+</div>
+<div  style="zoom:0.85;" class="graph-wrap"><div id="boardManyTangents" class="jxgbox graph-lg"></div><div class="graph-caption">אותו שיפוע יכול להופיע ביותר מנקודה אחת.</div></div>
+</div>
+<div class="note">למשוואה \(f'(x)=m\) עשויים להיות אפס פתרונות, פתרון אחד או כמה פתרונות. אין לעצור אחרי הפתרון הראשון.</div>
+</section>
+<section class="page "><div class="kicker">יחידה 10</div><h1>משיק המקביל לישר נתון</h1>
+<p>ישרים מקבילים בעלי אותו שיפוע. תחילה מוצאים את שיפוע הישר, ולאחר מכן פותרים \(f'(x)=m\).</p>
+<div class="grid-2_">
+<div class="example"><strong>דוגמה 1</strong>
+<div class="math-block">\[f(x)=x^4+12x+4\]</div>
+<p>המשיק מקביל ל־\(y=44x+1\), ולכן \(m=44\).</p>
+<div class="math-block">\[4x^3+12=44\Longrightarrow x=2\]</div>
+<div class="math-block">\[f(2)=44\]</div>
+<div class="math-block">\[y-44=44(x-2)\Longrightarrow y=44x-44\]</div></div>
+<div class="example"><strong>דוגמה 2</strong>
+<div class="math-block">\[f(x)=(x^2-1)(x+1)\]</div>
+<p>הישר \(3y-12x=5\) הוא \(y=4x+\frac53\), ולכן \(m=4\).</p>
+<div class="math-block">\[f'(x)=3x^2+2x-1\]</div>
+<div class="math-block">\[3x^2+2x-1=4\Longrightarrow x=1,-\frac53\]</div>
+<div class="math-block">\[y=4x-4,\qquad y=4x+\frac{148}{27}\]</div></div>
+</div>
+<div class="warning">מקביל אינו זהה. למשיק ולישר הנתון יש אותו שיפוע, אך בדרך כלל חיתוך שונה עם ציר \(y\).</div>
+<h2>תרגול</h2>
+<p>מצא נקודות על \(y=3x^2-x-2\) שבהן המשיק מקביל ל־\(y=5x+2\), ועל \(y=x^3+3x^2+2x\) שבהן המשיק מקביל ל־\(x+y=3\).</p>
+</section>
+<section class="page "><div class="kicker">יחידה 11</div><h1>חיתוך בין ישר לפונקציה ומשיקים בנקודות החיתוך</h1>
+<div class="grid-40-60_">
+<div>
+<ol class="steps"><li>מצא את נקודות החיתוך באמצעות השוואת משוואות.</li><li>חשב את שיפוע המשיק בכל ערך \(x\) שהתקבל.</li><li>כתוב משיק בכל נקודת חיתוך.</li></ol>
+<div class="example"><strong>דוגמה</strong>
+<div class="math-block">\[f(x)=4x^3,\qquad y=4x\]</div>
+<div class="math-block">\[4x^3=4x\Longrightarrow x=-1,0,1\]</div>
+<div class="math-block">\[f'(x)=12x^2\]</div>
+<div class="math-block">\[y=12x+8,\qquad y=0,\qquad y=12x-8\]</div></div>
+</div>
+<div class="graph-wrap"><div id="boardIntersections" class="jxgbox graph-lg"></div><div class="graph-caption">שלוש נקודות חיתוך ושלושה משיקים שונים.</div></div>
+</div>
+<div class="task"><strong>תרגול:</strong> הפונקציה \(y=2x^2+5x+3\) והישר \(y=4x+4\). מצא את נקודות החיתוך ואת המשיקים לגרף הפונקציה בכל אחת מהן.</div>
+</section>
+<section class="page "><div class="kicker">יחידה 11</div><h1>פרמטרים ושיפוע משותף</h1>
+<div class="grid-2_">
+<div class="example"><strong>משיק לציר \(x\)</strong>
+<div class="math-block">\[h(x)=3x^3+bx^2+cx+20\]</div>
+<p>הגרף משיק לציר \(x\) בנקודה שבה \(x=2\). לכן מתקיימים שני תנאים:</p>
+<div class="math-block">\[h(2)=0,\qquad h'(2)=0\]</div>
+<div class="math-block">\[44+4b+2c=0\]</div>
+<div class="math-block">\[36+4b+c=0\]</div>
+<div class="math-block">\[b=-7,\qquad c=-8\]</div></div>
+<div class="example"><strong>נתון שיפוע ונתון גובה</strong>
+<div class="math-block">\[f(x)=\frac14x^4-5x+a\]</div>
+<p>בנקודה שבה \(y=1\), שיפוע המשיק הוא \(3\).</p>
+<div class="math-block">\[f'(x)=x^3-5=3\Longrightarrow x=2\]</div>
+<div class="math-block">\[f(2)=1\Longrightarrow a=7\]</div>
+<div class="math-block">\[y=3x-5\]</div></div>
+</div>
+<div class="example"><strong>שיפוע משותף אינו משיק משותף</strong>
+<div class="math-block">\[f(x)=ax^3-4x,\qquad g(x)=-x^2-2x-1\]</div>
+<p>לגרפים אותו שיפוע כאשר \(x=-2\), ולכן \(12a-4=2\), ומתקבל \(a=\frac12\). המשיק ל־\(f\) הוא \(y=2x+8\), אך \(g(-2)=-1\), ולכן אותו ישר אינו משיק גם ל־\(g\).</p>
+</div>
+<div class="warning">בבעיה פרמטרית יש לתרגם כל משפט לתנאי אלגברי נפרד: נקודה על הגרף, שיפוע, חיתוך, השקה או מקבילות.</div>
+</section>
+<section class="page "><div class="kicker">יחידה 12</div><h1>יישום גאומטרי — משיק ושטח משולש</h1>
+<div class="grid-40-60">
+<div>
+<div class="example"><strong>נתון</strong>
+<div class="math-block">\[f(x)=-x^2+3x\]</div>
+<p>הגרף חותך את ציר \(x\) ב־\(O=(0,0)\) וב־\(A=(3,0)\).</p>
+<div class="math-block">\[f'(x)=-2x+3\]</div>
+<div class="math-block">\[f'(3)=-3\]</div>
+<p>לכן המשיק בנקודה \(A\) הוא:</p>
+<div class="math-block">\[y=-3x+9\]</div>
+<p>אם \(B=(a,9-3a)\) נמצאת על המשיק, אז:</p>
+<div class="math-block">\[S_{AOB}=\frac12\cdot3\cdot(9-3a)\]</div>
+<p>כאשר השטח הוא \(9\):</p>
+<div class="math-block">\[\frac32(9-3a)=9\Longrightarrow a=1\]</div></div>
+</div>
+<div class="graph-wrap"><div id="boardGeometry" class="jxgbox graph-lg"></div><div class="graph-caption">הזז את \(a\) ועקוב אחר שינוי שטח המשולש.</div></div>
+</div>
+<div class="task"><strong>הרחבה:</strong> מצא נוסחה לשטח המשולש כפונקציה של \(a\), וציין עבור אילו ערכי \(a\) הנקודה \(B\) נמצאת ברביע הראשון.</div>
+</section>
+<section class="page "><div class="kicker">יחידה 12</div><h1>זווית המשיק עם הכיוון החיובי של ציר \(x\)</h1>
+<div class="grid-40-60_">
+<div>
+<div class="formula-card"><div class="math-block">\[\tan(\alpha)=m\]</div></div>
+<p>עבור \(f(x)=3x^2-12x\), נקודות החיתוך עם ציר \(x\) הן \(x=0\) ו־\(x=4\).</p>
+<div class="math-block">\[f'(x)=6x-12\]</div>
+<div class="math-block">\[m_A=-12,\qquad m_B=12\]</div>
+<p>לשיפוע החיובי:</p>
+<div class="math-block">\[\alpha_B=\arctan(12)\approx85.24^\circ\]</div>
+<p>לשיפוע השלילי, כאשר מבקשים זווית בתחום \(0^\circ\le\alpha\lt180^\circ\):</p>
+<div class="math-block">\[\alpha_A=180^\circ-\arctan(12)\approx94.76^\circ\]</div>
+<div class="warning">המחשבון עשוי להחזיר זווית שלילית עבור שיפוע שלילי. יש להתאים את התוצאה להגדרת הזווית המבוקשת.</div>
+</div>
+<div class="graph-wrap"><div id="boardAngles" class="jxgbox graph-lg"></div><div class="graph-caption">שיפועים נגדיים יוצרים זוויות משלימות ל־\(180^\circ\).</div></div>
+</div>
+</section>
+<section class="page "><div class="kicker">אבחון והעמקה</div><h1>ניתוח שגיאות אופייניות</h1>
+<table class="compact">
+<tr><th>פתרון שגוי</th><th>מה השתבש?</th><th>תיקון</th></tr>
+<tr><td>\((x^4)'=4x^4\)</td><td>החזקה לא הוקטנה.</td><td>\(4x^3\)</td></tr>
+<tr><td>\((7)'=7\)</td><td>נגזרת של קבוע אינה הקבוע.</td><td>\(0\)</td></tr>
+<tr><td>\(((3x+2)^8)'=8(3x+2)^7\)</td><td>נשכחה נגזרת הביטוי הפנימי.</td><td>\(24(3x+2)^7\)</td></tr>
+<tr><td>שיפוע בנקודה: מציבים ב־\(f\)</td><td>בלבול בין גובה לשיפוע.</td><td>מציבים ב־\(f'\)</td></tr>
+<tr><td>משיק: משתמשים רק ב־\(m\)</td><td>אין נקודה לקביעת הישר.</td><td>מחשבים גם \((a,f(a))\)</td></tr>
+<tr><td>ב־\(f'(x)=m\) נבחר פתרון אחד</td><td>ייתכנו כמה נקודות השקה.</td><td>בודקים את כל הפתרונות</td></tr>
+<tr><td>שני גרפים בעלי אותו שיפוע — אותו משיק</td><td>שיפוע זהה אינו מבטיח נקודה משותפת.</td><td>בודקים גם את נקודת ההשקה</td></tr>
+<tr><td>מכפילים נגזרות של גורמים</td><td>אין כלל כזה.</td><td>ביחידה זו פותחים את הפולינום תחילה</td></tr>
+</table>
+<div style="height:20px;"></div>
+<div class="task"><strong>מצא ותקן:</strong> תלמיד כתב עבור \(f(x)=x^3-4x\) בנקודה \(x=-1\): \(f'(-1)=f(-1)=3\), ולכן המשיק הוא \(y=3x\). כתוב פתרון מתוקן והסבר כל תיקון.</div>
+<div style="height:20px;"></div>
+<div class="teacher"><strong>כרטיס יציאה:</strong> כתוב במשפט אחד את ההבדל בין \(f(a)\) לבין \(f'(a)\), ובמשפט נוסף את שני הנתונים הנדרשים לכתיבת משוואת משיק.</div>
+</section>
+<section class="page "><div class="kicker">תרגול א</div><h1>גזירה בסיסית</h1>
+<p class="lead">גזור ופשט. אין צורך למצוא משיקים.</p>
+<ol class="exercise-list columns">
+<li>\(y=x^2\)</li>
+<li>\(y=x^3\)</li>
+<li>\(y=x^6\)</li>
+<li>\(y=4x^3\)</li>
+<li>\(y=12x^4\)</li>
+<li>\(y=-3x^2\)</li>
+<li>\(y=7\)</li>
+<li>\(y=\frac12x^2\)</li>
+<li>\(y=-\frac13x^3\)</li>
+<li>\(y=5x^2-3x\)</li>
+<li>\(y=3x^3+14x\)</li>
+<li>\(y=\frac13x^6-\frac25x^5\)</li>
+<li>\(y=\frac16x^4-\frac37x^5\)</li>
+<li>\(y=\frac12x^2+\frac13x+4\)</li>
+<li>\(y=\frac57x^7-\frac45x^5+\frac12x\)</li>
+<li>\(y=\frac{4x^2-2x+6}{2}\)</li>
+<li>\(y=\frac{x^3-3x^2-6x-9}{5}\)</li>
+<li>\(y=x^4+1+\frac{x^3+9x}{3}\)</li>
+</ol>
+<div class="goal"><strong>בדיקה עצמית:</strong> בכל תרגיל שאינו קבוע, ודא שמעלת הנגזרת קטנה באחת ממעלת הפונקציה.</div>
+</section>
+<section class="page "><div class="kicker">תרגול ב</div><h1>צורות אלגבריות, ערכי נגזרת ומשיקים</h1>
+<ol class="exercise-list">
+<li>גזור: \(y=(x-2)(x+3)\).</li>
+<li>גזור: \(y=x^2(3-x)\).</li>
+<li>גזור: \(y=(x+2)^2\).</li>
+<li>גזור: \(y=3x(x-1)^2\).</li>
+<li>גזור: \(y=(x^2-1)(x^2+3)\).</li>
+<li>גזור: \(y=x^2(2x+1)^2\).</li>
+<li>גזור: \(y=(x-1)^6\), \(y=(3x+2)^8\), \(y=(4x-5)^4\).</li>
+<li>חשב שיפוע משיק ל־\(f(x)=2x^2-x\) כאשר \(x=1\).</li>
+<li>חשב שיפוע משיק ל־\(f(x)=x^3+5x^2-5x\) כאשר \(x=7\).</li>
+<li>מצא משיק ל־\(y=x^2-4x-5\) בנקודה שבה \(x=3\).</li>
+<li>מצא משיק ל־\(y=x^3-4x\) בנקודה שבה \(x=-1\).</li>
+<li>מצא משיק ל־\(y=x(x+5)^2\) בנקודה שבה \(x=0\).</li>
+<li>מצא את המשיק ל־\(y=x^3-3x+12\) העובר דרך נקודת החיתוך של הגרף עם ציר \(y\).</li>
+</ol>
+<div style="height:20px;"></div>
+<div class="task"><strong>אתגר קצר:</strong> ישר ששיפועו \(2\) חותך את הפרבולה \(y=3x^2-2x-6\) בנקודה שבה \(x=-1\). מצא את נקודת החיתוך השנייה.</div>
+</section>
+<section class="page "><div class="kicker">תרגול ג</div><h1>שאלות הפוכות, מקבילות ופרמטרים</h1>
+<ol class="exercise-list">
+<li>ל־\(f(x)=5x^2+3x\), מצא את הנקודה שבה שיפוע המשיק הוא \(13\).</li>
+<li>ל־\(f(x)=2x^3+14x\), מצא את כל הנקודות שבהן שיפוע המשיק הוא \(20\).</li>
+<li>ל־\(f(x)=x(x-2)^2\), מצא את כל המשיקים ששיפועם \(0\).</li>
+<li>ל־\(f(x)=(x^2+6)(x-2)\), מצא את כל המשיקים ששיפועם \(6\).</li>
+<li>מצא נקודה על \(y=3x^2-x-2\) שבה המשיק מקביל ל־\(y=5x+2\).</li>
+<li>מצא נקודות על \(y=x^3+3x^2+2x\) שבהן המשיק מקביל ל־\(x+y=3\).</li>
+<li>ל־\(f(x)=4x^2+x+3\), מצא את משוואת המשיק ששיפועו \(9\).</li>
+<li>ל־\(f(x)=x^3+2x^2\), מצא את כל המשיקים ששיפועם \(-1\).</li>
+<li>ל־\(f(x)=x(x+4)^2\), מצא את כל המשיקים ששיפועם \(0\).</li>
+<li>ל־\(f(x)=x^4+12x+4\), מצא משיק המקביל ל־\(y=44x+1\).</li>
+<li>ל־\(h(x)=3x^3+bx^2+cx+20\), הגרף משיק לציר \(x\) כאשר \(x=2\). מצא \(b,c\).</li>
+<li>ל־\(f(x)=\frac14x^4-5x+a\), בנקודה שבה \(y=1\) שיפוע המשיק הוא \(3\). מצא \(a\) ואת המשיק.</li>
+</ol>
+</section>
+<section class="page "><div class="kicker">הערכה</div><h1>מבחן מסכם א — 45 דקות</h1>
+<p class="small">מומלץ: 100 נקודות. יש להציג דרך מלאה.</p>
+<ol class="exercise-list">
+<li><strong>12 נק׳</strong> גזור ופשט: \(f(x)=\frac{x^3-3x^2-6x-9}{5}\).</li>
+<li><strong>12 נק׳</strong> גזור: \(g(x)=x^2(2x+1)^2\).</li>
+<li><strong>14 נק׳</strong> עבור \(h(x)=-x^3+4x^2+12x\), חשב \(h''(2)\) ו־\(h''(-2)\).</li>
+<li><strong>14 נק׳</strong> מצא משיק לגרף \(y=x^2-4x-5\) כאשר \(x=3\).</li>
+<li><strong>16 נק׳</strong> מצא את כל המשיקים לגרף \(y=x^3+2x^2\) ששיפועם \(-1\).</li>
+<li><strong>16 נק׳</strong> מצא נקודות על \(y=3x^2-x-2\) שבהן המשיק מקביל ל־\(y=5x+2\).</li>
+<li><strong>16 נק׳</strong> נתון \(p(x)=3x^3+bx^2+cx+20\). הגרף משיק לציר \(x\) בנקודה שבה \(x=2\). מצא \(b,c\).</li>
+</ol>
+<div class="warning"><strong>קריטריונים:</strong> נקודה ושיפוע חייבים להופיע לפני משוואת משיק; בכל משוואה \(f'(x)=m\) יש לבדוק את כל הפתרונות.</div>
+</section>
+<section class="page "><div class="kicker">הערכה</div><h1>מבחן מסכם ב — 100 דקות</h1>
+<ol class="exercise-list">
+<li><strong>20 נק׳</strong> נתונות \(f(x)=x^2+3x-4\), \(g(x)=5x-x^2\).<br>א. מצא את המשיק לכל פונקציה בנקודה שבה \(x=1\).<br>ב. מצא את נקודת החיתוך של שני המשיקים.</li>
+<li><strong>20 נק׳</strong> נתונות \(f(x)=4x^3\) והישר \(y=4x\).<br>א. מצא את נקודות החיתוך.<br>ב. מצא משיק לגרף הפונקציה בכל נקודת חיתוך.</li>
+<li><strong>20 נק׳</strong> נתונה \(f(x)=3x^2-12x\). הראה ששיפועי המשיקים בנקודות החיתוך עם ציר \(x\) הם מספרים נגדיים, ומצא את זוויות המשיקים עם הכיוון החיובי של ציר \(x\).</li>
+<li><strong>20 נק׳</strong> נתונה \(f(x)=-x^2+3x\). המשיק בנקודת החיתוך הימנית עם ציר \(x\) מכיל נקודה \(B\) ששיעור ה־\(x\) שלה הוא \(a\). שטח המשולש שנוצר עם ראשית הצירים הוא \(9\). מצא \(a\).</li>
+<li><strong>20 נק׳</strong> ל־\(f(x)=ax^3-4x\) ול־\(g(x)=-x^2-2x-1\) אותו שיפוע כאשר \(x=-2\). מצא \(a\), מצא את המשיק ל־\(f\), וקבע אם הוא משיק גם ל־\(g\).</li>
+</ol>
+</section>
+<section class="page "><div class="kicker">פתרונות</div><h1>תשובות נבחרות לתרגול ולהערכה</h1>
+<table class="compact">
+<tr><th>נושא</th><th>תשובה</th></tr>
+<tr><td>\(x^2(2x+1)^2\)</td><td>\(16x^3+12x^2+2x\)</td></tr>
+<tr><td>\((3x+2)^8\)</td><td>\(24(3x+2)^7\)</td></tr>
+<tr><td>\(x^3-4x\), ב־\(x=-1\)</td><td>נקודה \((-1,3)\), שיפוע \(-1\), משיק \(y=-x+2\)</td></tr>
+<tr><td>\(x(x+5)^2\), ב־\(x=0\)</td><td>נקודה \((0,0)\), שיפוע \(25\), משיק \(y=25x\)</td></tr>
+<tr><td>\(5x^2+3x\), שיפוע \(13\)</td><td>\(x=1\), נקודה \((1,8)\), משיק \(y=13x-5\)</td></tr>
+<tr><td>\(2x^3+14x\), שיפוע \(20\)</td><td>\(x=\pm1\); נקודות \((1,16),(-1,-16)\)</td></tr>
+<tr><td>\(x(x-2)^2\), שיפוע \(0\)</td><td>\(x=2,\frac23\); משיקים \(y=0\), \(y=\frac{32}{27}\)</td></tr>
+<tr><td>\(x^3+2x^2\), שיפוע \(-1\)</td><td>\(y=-x\), \(y=-x-\frac4{27}\)</td></tr>
+<tr><td>\(x(x+4)^2\), שיפוע \(0\)</td><td>\(y=0\), \(y=-\frac{256}{27}\)</td></tr>
+<tr><td>\(x^4+12x+4\), מקביל ל־\(y=44x+1\)</td><td>\(y=44x-44\)</td></tr>
+<tr><td>פרמטרים \(3x^3+bx^2+cx+20\)</td><td>\(b=-7,c=-8\)</td></tr>
+<tr><td>\(\frac14x^4-5x+a\)</td><td>\(a=7\), משיק \(y=3x-5\)</td></tr>
+</table>
+<div style="height:20px;"></div>
+<div class="note">בפתרון מלא יש להראות את משוואת הנגזרת, את ההצבה, את נקודת ההשקה ואת בניית הישר — לא רק תשובה סופית.</div>
+</section>
+<section class="page ">
+<h2>שאלות הערכה מעצבת</h2>
+<ol class="exercise-list">
+<li>מה אפשר לדעת על מעלת \(f'\) בלי לגזור בפועל?</li>
+<li>האם לשני משיקים בעלי אותו שיפוע חייבת להיות אותה משוואה?</li>
+<li>מדוע צריך לחשב גם \(f(a)\) וגם \(f'(a)\)?</li>
+<li>באיזה מצב משיק מקביל לציר \(x\)?</li>
+<li>כיצד מזהים מתוך הנתונים ששאלה דורשת שני תנאים לפרמטרים?</li>
+</ol>
+<h2>משימת חקר מסכמת</h2>
+<div class="task">בנה פולינום ממעלה שלישית המקיים \(f(0)=2\), \(f'(0)=-1\), \(f(2)=0\), ו־\(f'(2)=3\). מצא את מקדמיו, בדוק את התנאים ושרטט את הפונקציה ואת שני המשיקים.</div>
+</section>
+<section class="page "><div class="kicker">סיכום</div><h1>דף נוסחאות ואלגוריתמים</h1>
+<div class="grid-2">
+<div class="formula-card"><strong>הגדרת הנגזרת</strong><div class="math-block">\[f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h}\]</div></div>
+<div class="formula-card"><strong>כלל החזקה</strong><div class="math-block">\[(x^n)'=nx^{n-1}\]</div></div>
+<div class="formula-card"><strong>כללי פולינום</strong><div class="math-block">\[(c)'=0\]</div><div class="math-block">\[(cf)'=cf'\]</div><div class="math-block">\[(f\pm g)'=f'\pm g'\]</div></div>
+<div class="formula-card"><strong>חזקה של ביטוי ליניארי</strong><div class="math-block">\[((ax+b)^n)'=na(ax+b)^{n-1}\]</div></div>
+<div class="formula-card"><strong>שיפוע בנקודה</strong><div class="math-block">\[m=f'(a)\]</div></div>
+<div class="formula-card"><strong>משוואת משיק</strong><div class="math-block">\[y-f(a)=f'(a)(x-a)\]</div></div>
+<div class="formula-card"><strong>שיפוע נתון</strong><div class="math-block">\[f'(x)=m\]</div><div>לכל פתרון מחשבים נקודה ומשיק.</div></div>
+<div class="formula-card"><strong>משיק אופקי</strong><div class="math-block">\[f'(x)=0\]</div></div>
+<div class="formula-card"><strong>מקביל לישר</strong><div>מסדרים את הישר ומזהים את \(m\), ואז פותרים \(f'(x)=m\).</div></div>
+<div class="formula-card"><strong>זווית משיק</strong><div class="math-block">\[\tan(\alpha)=m\]</div></div>
+</div>
+</section>
+<script>
+window.addEventListener('load', function () {
+  function fallback() {
+    document.querySelectorAll('.jxgbox').forEach(function (el) {
+      el.innerHTML = '<div style="padding:18px;text-align:center;color:#64748b;direction:rtl">טעינת JSXGraph נכשלה. יש לפתוח את הקובץ בחיבור לאינטרנט.</div>';
+    });
+  }
+  if (!window.JXG) { fallback(); return; }
+  JXG.Options.text.useMathJax = false;
+  const common = {
+    axis: true, showNavigation: false, showCopyright: false,
+    pan: {enabled:false}, zoom: {enabled:false}, keepAspectRatio:false,
+    defaultAxes: {
+      x: {ticks:{minorTicks:0, drawLabels:true, label:{offset:[0,-14]}}},
+      y: {ticks:{minorTicks:0, drawLabels:true, label:{offset:[8,0]}}}
+    }
+  };
+  function init(id, cfg) { return JXG.JSXGraph.initBoard(id, Object.assign({}, common, cfg)); }
+  function fnum(v, d) { return Number.isFinite(v) ? v.toFixed(d || 2) : '—'; }
+
+  // Page 4: secant approaches tangent for f(x)=x^2.
+  (function(){
+    const b = init('boardSecant', {boundingbox:[-3.2,6.2,4.2,-2.2]});
+    const f = b.create('functiongraph',[x=>x*x],{strokeWidth:3,strokeColor:'#0f6690'});
+    const A = b.create('point',[1,1],{name:'A',size:4,strokeColor:'#0f4c81',fillColor:'#0f4c81',fixed:true});
+    const s = b.create('slider',[[-2.5,-1.45],[3.3,-1.45],[1.15,2.8,3.8]],{name:'x_B',snapWidth:0.05});
+    const B = b.create('point',[()=>s.Value(),()=>s.Value()*s.Value()],{name:'B',size:4,strokeColor:'#d97706',fillColor:'#f59e0b'});
+    const sec = b.create('line',[A,B],{strokeColor:'#d97706',strokeWidth:2,straightFirst:true,straightLast:true});
+    const T = b.create('point',[2,3],{visible:false,fixed:true});
+    b.create('line',[A,T],{strokeColor:'#16877f',strokeWidth:3,dash:2,straightFirst:true,straightLast:true});
+    b.create('text',[-3.0,5.55,()=>{
+      const dx=B.X()-A.X(); const m=Math.abs(dx)<1e-8?2:(B.Y()-A.Y())/dx;
+      return '';
+    }],{fontSize:16,color:'#334155'});
+  })();
+
+  // Page 6: function and derivative linked by a movable point.
+  (function(){
+    const b = init('boardDerivativeLink', {boundingbox:[-3.6,8.5,3.6,-6.5]});
+    const f = x=>x*x*x-3*x;
+    const df = x=>3*x*x-3;
+    b.create('functiongraph',[f],{strokeWidth:3,strokeColor:'#0f6690'});
+    b.create('functiongraph',[df],{strokeWidth:3,strokeColor:'#a33d55',dash:2});
+    const s=b.create('slider',[[-3,-5.4],[2.8,-5.4],[-2,1,2]],{name:'a',snapWidth:0.05});
+    const A=b.create('point',[()=>s.Value(),()=>f(s.Value())],{name:'A',size:4,strokeColor:'#0f6690',fillColor:'#0f6690'});
+    const D=b.create('point',[()=>s.Value(),()=>df(s.Value())],{name:"D",size:4,strokeColor:'#a33d55',fillColor:'#a33d55'});
+    const T=b.create('point',[()=>A.X()+1,()=>A.Y()+df(A.X())],{visible:false});
+    b.create('line',[A,T],{strokeColor:'#16877f',strokeWidth:2,straightFirst:true,straightLast:true});
+    b.create('segment',[A,D],{strokeColor:'#94a3b8',dash:1});
+    b.create('text',[-3.35,7.7,()=>"f(x)=x^3-3x    f'(x)=3x^2-3    f'(a)="+fnum(df(s.Value()),2)],{fontSize:15,color:'#334155'});
+  })();
+
+  // Page 13: tangent at a movable point.
+  (function(){
+    const b=init('boardSlope',{boundingbox:[-2.5,8,6.5,-14]});
+    const f=x=>x*x-4*x-5, df=x=>2*x-4;
+    b.create('functiongraph',[f],{strokeWidth:3,strokeColor:'#0f6690'});
+    const s=b.create('slider',[[-1.8,-12.3],[5.6,-12.3],[-1,3,6]],{name:'a',snapWidth:0.1});
+    const A=b.create('point',[()=>s.Value(),()=>f(s.Value())],{name:'A',size:4,strokeColor:'#0f4c81',fillColor:'#0f4c81'});
+    const T=b.create('point',[()=>A.X()+1,()=>A.Y()+df(A.X())],{visible:false});
+    b.create('line',[A,T],{strokeColor:'#d97706',strokeWidth:3,straightFirst:true,straightLast:true});
+    b.create('text',[-2.2,6.9,()=>"a="+fnum(s.Value(),1)+"   f(a)="+fnum(f(s.Value()),2)+"   f'(a)="+fnum(df(s.Value()),2)],{fontSize:15,color:'#334155'});
+  })();
+
+  // Page 15: tangents at the x-intercepts of a quadratic.
+  (function(){
+    const b=init('boardAxisTangents',{boundingbox:[-1.5,13,8,-10]});
+    const f=x=>x*x-7*x+10;
+    b.create('functiongraph',[f],{strokeWidth:3,strokeColor:'#0f6690'});
+    [[2,0,-3,'A'],[5,0,3,'B']].forEach(function(q){
+      const P=b.create('point',[q[0],q[1]],{name:q[3],fixed:true,size:4,strokeColor:'#0f4c81',fillColor:'#0f4c81'});
+      const Q=b.create('point',[q[0]+1,q[1]+q[2]],{visible:false,fixed:true});
+      b.create('line',[P,Q],{strokeWidth:2.5,strokeColor:q[2]<0?'#d97706':'#16877f',straightFirst:true,straightLast:true});
+    });
+  })();
+
+  // Page 16: two tangents with the same prescribed slope.
+  (function(){
+    const b=init('boardManyTangents',{boundingbox:[-3.2,4.5,2.4,-4.8]});
+    const f=x=>x*x*x+2*x*x;
+    b.create('functiongraph',[f],{strokeWidth:3,strokeColor:'#0f6690'});
+    [[-1,1],[-1/3,5/27]].forEach(function(q,i){
+      const P=b.create('point',[q[0],q[1]],{name:i===0?'P':'Q',size:4,strokeColor:'#a33d55',fillColor:'#a33d55'});
+      const R=b.create('point',[q[0]+1,q[1]-1],{visible:false});
+      b.create('line',[P,R],{strokeColor:i===0?'#d97706':'#16877f',strokeWidth:2.5,straightFirst:true,straightLast:true});
+    });
+    //b.create('text',[-3.0,3.85,"Both tangent lines have slope m = -1"],{fontSize:15,color:'#334155'});
+  })();
+
+  // Page 18: intersection points and tangents.
+  (function(){
+    const b=init('boardIntersections',{boundingbox:[-1.8,14,1.8,-14]});
+    const f=x=>4*x*x*x;
+    b.create('functiongraph',[f],{strokeWidth:3,strokeColor:'#0f6690'});
+    b.create('line',[[0,0],[1,4]],{strokeColor:'#64748b',strokeWidth:2,dash:2,straightFirst:true,straightLast:true});
+    [[-1,-4,12], [0,0,0], [1,4,12]].forEach(function(q,i){
+      const P=b.create('point',[q[0],q[1]],{name:['A','B','C'][i],size:4,strokeColor:'#a33d55',fillColor:'#a33d55'});
+      const Q=b.create('point',[q[0]+1,q[1]+q[2]],{visible:false});
+      b.create('line',[P,Q],{strokeColor:['#d97706','#16877f','#7356a8'][i],strokeWidth:2,straightFirst:true,straightLast:true});
+    });
+  })();
+
+  // Page 20: geometry with a tangent and triangle area.
+  (function(){
+    const b=init('boardGeometry',{boundingbox:[-0.8,10,4.1,-1.8]});
+    const f=x=>-x*x+3*x;
+    b.create('functiongraph',[f],{strokeWidth:3,strokeColor:'#0f6690'});
+    const O=b.create('point',[0,0],{name:'O',fixed:true,size:3,strokeColor:'#0f4c81',fillColor:'#0f4c81'});
+    const A=b.create('point',[3,0],{name:'A',fixed:true,size:4,strokeColor:'#0f4c81',fillColor:'#0f4c81'});
+    const T=b.create('point',[2,3],{visible:false,fixed:true});
+    b.create('line',[A,T],{strokeColor:'#d97706',strokeWidth:3,straightFirst:true,straightLast:true});
+    const s=b.create('slider',[[0.2,8.5],[3.4,8.5],[0.2,1,2.8]],{name:'a',snapWidth:0.05});
+    const B=b.create('point',[()=>s.Value(),()=>-3*s.Value()+9],{name:'B',size:4,strokeColor:'#a33d55',fillColor:'#a33d55'});
+    b.create('polygon',[O,A,B],{fillColor:'#a7d8d1',fillOpacity:0.28,borders:{strokeColor:'#16877f',strokeWidth:2},vertices:{visible:true}});
+    b.create('text',[-0.5,9.25,()=>"Area(AOB) = "+fnum(0.5*3*B.Y(),2)],{fontSize:16,color:'#334155'});
+  })();
+
+  // Page 21: tangent angles at the x-intercepts.
+  (function(){
+    const b=init('boardAngles',{boundingbox:[-2,9,6,-10]});
+    const f=x=>3*x*x-12*x;
+    b.create('functiongraph',[f],{strokeWidth:3,strokeColor:'#0f6690'});
+    [[0,0,-12,'A'],[4,0,12,'B']].forEach(function(q,i){
+      const P=b.create('point',[q[0],q[1]],{name:q[3],size:4,strokeColor:'#0f4c81',fillColor:'#0f4c81'});
+      const Q=b.create('point',[q[0]+1,q[1]+q[2]],{visible:false});
+      b.create('line',[P,Q],{strokeColor:i===0?'#d97706':'#16877f',strokeWidth:2.5,straightFirst:true,straightLast:true});
+    });
+    b.create('text',[-1.7,7.8,'m_A = -12,  angle ≈ 94.76°'],{fontSize:14,color:'#d97706'});
+    b.create('text',[-1.7,6.7,'m_B = 12,   angle ≈ 85.24°'],{fontSize:14,color:'#16877f'});
+  })();
+});
+</script>
+</body></html>
