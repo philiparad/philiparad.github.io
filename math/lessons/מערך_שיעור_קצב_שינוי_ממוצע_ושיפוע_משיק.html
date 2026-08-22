@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור — קצב שינוי ממוצע ושיפוע משיק</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --ink:#18324a; --muted:#5b6b7a; --blue:#1d5d8f; --blue2:#eaf4fb;
+  --gold:#b47b17; --gold2:#fff6df; --green:#2d7558; --green2:#eaf7f1;
+  --red:#9b3a3a; --red2:#fff0f0; --line:#cdd8e2; --paper:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#dfe5ea;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}
+body{direction:rtl}
+.page{
+  width:210mm;height:297mm;margin:8mm auto;background:var(--paper);
+  padding:11mm 13mm 10mm;position:relative;overflow:hidden;
+  page-break-after:always;break-after:page;box-shadow:0 2px 14px rgba(0,0,0,.15)
+}
+.page:last-child{page-break-after:auto;break-after:auto}
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:white}
+  .page{margin:0;box-shadow:none}
+}
+.header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--blue);padding-bottom:4mm;margin-bottom:5mm}
+.header h1,.header h2{margin:0;color:var(--blue)}
+.header h1{font-size:24pt}.header h2{font-size:19pt}
+.kicker{font-size:10.5pt;color:var(--muted);font-weight:700;letter-spacing:.2px}
+.footer{position:absolute;bottom:5mm;right:13mm;left:13mm;border-top:1px solid var(--line);padding-top:2mm;display:flex;justify-content:space-between;color:var(--muted);font-size:8.5pt}
+h1,h2,h3,h4{margin:0 0 2.5mm;line-height:1.2}h3{font-size:15pt;color:var(--blue)}h4{font-size:12.5pt;color:var(--green)}
+p{margin:0 0 2.2mm;line-height:1.45;font-size:11.4pt}
+ul,ol{margin:1.5mm 0 2.5mm;padding-right:6mm}li{font-size:11pt;line-height:1.42;margin-bottom:1mm}
+.small{font-size:9.6pt}.tiny{font-size:8.6pt}.muted{color:var(--muted)}.center{text-align:center}.ltr{direction:ltr;text-align:left}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.card{border:1px solid var(--line);border-radius:4mm;padding:4mm;background:#fff}
+.card.blue{background:var(--blue2);border-color:#b9d8ec}.card.gold{background:var(--gold2);border-color:#ead5a3}.card.green{background:var(--green2);border-color:#b8dfcc}.card.red{background:var(--red2);border-color:#e4bcbc}
+.callout{border-right:4px solid var(--blue);padding:3mm 4mm;background:var(--blue2);margin:3mm 0;border-radius:2mm}
+.formula{direction:ltr;text-align:center;background:#f6f9fb;border:1px solid var(--line);border-radius:3mm;padding:3mm;margin:3mm 0;font-size:14pt}
+.tag{display:none;padding:1mm 2.5mm;border-radius:10mm;background:var(--blue);color:white;font-size:8.8pt;font-weight:700;margin-left:1mm}
+.tag.green{background:var(--green)}.tag.gold{background:var(--gold)}.tag.red{background:var(--red)}
+.timeline{display:grid;grid-template-columns:27mm 1fr;gap:2mm 5mm}.timeline div{padding:1.5mm 0;border-bottom:1px dotted var(--line);font-size:10.6pt}.timeline .time{font-weight:700;color:var(--blue)}
+table{width:100%;border-collapse:collapse;margin:2mm 0 3mm;font-size:10.4pt}th,td{border:1px solid var(--line);padding:2mm 2.5mm;text-align:center;vertical-align:middle}th{background:#eaf1f6;color:var(--blue)}
+.exercise{counter-increment:ex;position:relative;padding-right:8mm;margin:2mm 0 3mm;font-size:10.7pt;line-height:1.42}.exercise:before{content:counter(ex) ".";position:absolute;right:0;font-weight:700;color:var(--blue)}
+.exlist{counter-reset:ex}
+.answer{background:#f8fafb;border-right:3px solid var(--green);padding:2.5mm 3.5mm;margin:2mm 0;font-size:9.7pt;line-height:1.4}
+.jxgbox{border:1px solid #9fb4c5;border-radius:2mm;background:#fff;direction:ltr;margin:2mm auto}
+.g-sm{width:100%;height:40mm}.g-md{width:100%;height:53mm}.g-lg{width:100%;height:68mm}.g-wide{width:100%;height:47mm}
+.math-note{direction:ltr;unicode-bidi:isolate}
+.cover{background:linear-gradient(145deg,#f7fbfe 0%,#fff 58%,#edf7f2 100%)}
+.cover .hero{height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10mm}
+.cover h1{font-size:30pt;color:var(--blue);margin-bottom:5mm}.cover h2{font-size:18pt;color:var(--green);font-weight:600;margin-bottom:8mm}.cover .formula{width:82%;font-size:18pt;background:white}
+.cover .pillrow{display:flex;gap:3mm;flex-wrap:wrap;justify-content:center;margin-top:7mm}
+.cover .pill{border:1px solid var(--line);border-radius:20mm;padding:2.5mm 5mm;background:white;font-size:10pt}
+.two-graphs{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.three-graphs{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
+.note-line{border-bottom:1px solid #aebdca;height:8mm;margin-top:1mm}
+.checklist li{list-style:none;position:relative;padding-right:6mm}.checklist li:before{content:'□';position:absolute;right:0;color:var(--blue);font-weight:700}
+.source{font-size:9.4pt;line-height:1.4;margin:1.5mm 0}.source b{color:var(--blue)}
+.no-break{break-inside:avoid}.teacher{border:1px dashed var(--gold);background:var(--gold2);padding:3mm;border-radius:3mm}
+hr{border:0;border-top:1px solid var(--line);margin:3mm 0}
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="hero">
+    <div class="kicker">מתמטיקה — כיתה י׳ — 5 יחידות לימוד</div>
+    <h1>קצב שינוי ממוצע ושיפוע משיק</h1>
+    <h2>בניית המשמעות הגרפית והמספרית</h2>
+    <div class="formula">\[\text{עצוממ יוניש בצק}=\frac{f(b)-f(a)}{b-a}\]</div>
+    <p style="max-width:145mm;font-size:13pt">מערך הוראה מלא המוביל משינוי כולל וקצב ליחידה, דרך שיפוע מיתר, ועד לאומדן שיפוע הגרף בנקודה באמצעות משיק ומיתרים מתקרבים.</p>
+    <div class="pillrow">
+      <span class="pill">6 שיעורים</span><span class="pill">פעילויות חקר</span><span class="pill">תרגול מדורג</span><span class="pill">הערכה מעצבת</span><span class="pill">פתרונות</span>
+    </div>
+    <div style="margin-top:18mm;width:70%;border-top:1px solid var(--line);padding-top:5mm">
+      <p><b>עיקרון מנחה:</b> תחילה מבינים את הרעיון מתוך הקשר, טבלה וגרף; רק לאחר מכן עוברים לנוסחה ולחישוב.</p>
+    </div>
+  </div>
+  <div class="footer"><span>מערך שיעור ללמידה ולהוראה</span><span>1</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">מפת היחידה</div><h2>מטרות, ידע קודם ורצף הוראה</h2></div><span class="tag">למורה</span></div>
+  <div class="grid2_">
+    <div class="card blue">
+      <h3>מטרות תוכן</h3>
+      <ul>
+        <li>להבחין בין שינוי כולל לבין שינוי ליחידת קלט.</li>
+        <li>לחשב קצב שינוי ממוצע מנקודות, מטבלה, מגרף ומביטוי.</li>
+        <li>לפרש את הקצב כשיפוע המיתר ולצרף יחידות.</li>
+        <li>להבחין בין קצב קבוע לקצב משתנה.</li>
+        <li>לתאר תלילות וכיוון מקומי של גרף.</li>
+        <li>לאמוד שיפוע משיק.</li>
+      </ul>
+    </div>
+<div style="height:20px;"></div>
+    <div class="card green">
+      <h3>ידע קודם</h3>
+      <ul>
+        <li>מערכת צירים וקריאת נקודות.</li>
+        <li>שיפוע ישר באמצעות שתי נקודות.</li>
+        <li>פונקציה עולה, יורדת וקבועה.</li>
+        <li>הצבה בביטוי אלגברי.</li>
+        <li>יחידות מידה ויחס.</li>
+      </ul>
+    </div>
+  </div>
+  <h3 style="margin-top:5mm">שיעורים</h3>
+  <div class="timeline">
+    <div class="time">שיעור 1</div><div>שינוי כולל, קצב ליחידה ויחידות.</div>
+    <div class="time">שיעור 2</div><div>קצב שינוי ממוצע כשיפוע מיתר — ארבעה ייצוגים.</div>
+    <div class="time">שיעור 3</div><div>סימן, גודל, קצב קבוע ושגיאות נפוצות.</div>
+    <div class="time">שיעור 4</div><div>תלילות מקומית וכיוון הגרף בנקודה.</div>
+    <div class="time">שיעור 5</div><div>המשיק ומעבר דינמי ממיתר למשיק.</div>
+    <div class="time">שיעור 6</div><div>אומדן שיפוע משיק, יישום בתנועה והערכה מסכמת.</div>
+  </div>
+  <div class="teacher" style="margin-top:5mm"><b>המלצת הוראה:</b> בכל שיעור נשלב שלוש שפות: תיאור מילולי, ייצוג גרפי וחישוב. אין להסתפק בהצבה טכנית בנוסחה.</div>
+  <div class="footer"><span>מטרות ורצף</span><span>2</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 1</div><h2>שינוי כולל לעומת קצב שינוי</h2></div><span class="tag green">פתיחה</span></div>
+  <div class="grid2_">
+    <div>
+      <h3>משימת פתיחה: שני רוכבים</h3>
+      <p>רוכב א׳ עבר 24 ק״מ במשך 2 שעות. רוכב ב׳ עבר 30 ק״מ במשך 3 שעות.</p>
+      <div class="card gold">
+        <p><b>שאלות לדיון</b></p>
+        <ol>
+          <li>מי עבר מרחק גדול יותר?</li>
+          <li>מי התקדם מהר יותר בכל שעה?</li>
+          <li>מדוע השוואת המרחקים בלבד אינה מספיקה?</li>
+        </ol>
+      </div>
+      <div class="formula">\[\text{בצק}=\frac{\text{טלפב יוניש}}{\text{טלקב יוניש}}\]</div>
+      <div class="answer"><b>מסקנה:</b> שינוי כולל מודד “כמה השתנה”. קצב שינוי מודד “כמה השתנה לכל יחידת קלט”.</div>
+    </div>
+    <div>
+      <div id="g_riders" class="jxgbox g-lg" aria-label="גרף מרחק זמן של שני רוכבים"></div>
+      <table>
+        <tr><th>רוכב</th><th>שינוי במרחק</th><th>שינוי בזמן</th><th>קצב</th></tr>
+        <tr><td>א׳</td><td>24 ק״מ</td><td>2 שעות</td><td>12 קמ״ש</td></tr>
+        <tr><td>ב׳</td><td>30 ק״מ</td><td>3 שעות</td><td>10 קמ״ש</td></tr>
+      </table>
+    </div>
+  </div>
+  <h3>בדיקת הבנה</h3>
+  <div class="grid3">
+    <div class="card"><p>מכל התמלא ב־18 ליטר במשך 6 דקות. מהו קצב המילוי?</p><p class="center">__________</p></div>
+    <div class="card"><p>הטמפרטורה ירדה ב־12 מעלות במשך 4 שעות. מהו הקצב?</p><p class="center">__________</p></div>
+    <div class="card"><p>מחיר עלה ב־40 שקלים במשך 5 חודשים. כתבו תשובה עם יחידות.</p><p class="center">__________</p></div>
+  </div>
+  <div class="footer"><span>שינוי וקצב</span><span>3</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 1 — חקר</div><h2>קצב שינוי מטבלה ומגרף</h2></div><span class="tag gold">פעילות</span></div>
+  <div class="grid2_">
+    <div>
+      <h3>טמפרטורה במהלך הלילה</h3>
+      <table>
+        <tr><th>שעה</th><th>20:00</th><th>22:00</th><th>00:00</th><th>02:00</th><th>04:00</th></tr>
+        <tr><th>טמפרטורה</th><td>18</td><td>15</td><td>13</td><td>8</td><td>6</td></tr>
+      </table>
+      <div class="exlist">
+        <div class="exercise">חשבו את קצב השינוי הממוצע בין 20:00 ל־22:00.</div>
+        <div class="exercise">חשבו את הקצב בין 22:00 ל־02:00.</div>
+        <div class="exercise">באיזה מן התחומים הירידה הייתה מהירה יותר?</div>
+        <div class="exercise">מה משמעות הסימן השלילי בהקשר?</div>
+      </div>
+      <div class="callout"><b>דגש:</b> תשובה מלאה כוללת מספר, סימן, יחידה ומשפט פירוש.</div>
+    </div>
+    <div>
+      <div id="g_temp" class="jxgbox g-lg" aria-label="גרף טמפרטורה לאורך זמן"></div>
+      <p class="small center">הציר האופקי מייצג שעות שחלפו מאז 20:00.</p>
+    </div>
+  </div>
+  <div class="card blue">
+    <h3>תבנית כתיבה מומלצת</h3>
+    <p>“בין השעות ______ ו־______, הטמפרטורה השתנתה בקצב ממוצע של ______ מעלות לשעה. הסימן ______ מציין כי הטמפרטורה ______.”</p>
+  </div>
+  <div class="footer"><span>טבלה, גרף ויחידות</span><span>4</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 2</div><h2>קצב שינוי ממוצע כשיפוע מיתר</h2></div><span class="tag">מושג מרכזי</span></div>
+  <div class="grid2">
+    <div>
+      <p>תהיינה שתי נקודות על גרף הפונקציה:</p>
+      <div class="formula">\[A=(a,f(a)),\qquad B=(b,f(b)),\qquad a\lt b\]</div>
+      <p>הישר המחבר את שתי הנקודות נקרא <b>מיתר</b>. שיפוע המיתר הוא קצב השינוי הממוצע של הפונקציה בתחום.</p>
+      <div class="formula">\[\text{עצוממ יוניש בצק}=\frac{f(b)-f(a)}{b-a}\]</div>
+      <div class="card green">
+        <h4>משמעות החלקים</h4>
+        <p>המונה: שינוי בערכי הפונקציה.</p>
+        <p>המכנה: שינוי בערכי הקלט.</p>
+        <p>המנה: שינוי ממוצע בפלט לכל יחידת קלט.</p>
+      </div>
+      <div class="callout"><b>בדיקת סימנים:</b> אפשר להפוך את סדר החיסור בשני המקומות יחד, אך לא רק באחד מהם.</div>
+    </div>
+    <div>
+      <div id="g_secant_intro" class="jxgbox g-lg" aria-label="פרבולה ומיתר בין שתי נקודות"></div>
+      <p class="small center">המיתר מתאר את הכיוון הממוצע של הגרף בין שתי נקודות.</p>
+    </div>
+  </div>
+  <h3>דוגמה</h3>
+  <p>נתון \(f(x)=x^2-2x\). חשבו את קצב השינוי הממוצע בתחום \(1\le x\le4\).</p>
+  <div class="formula">\[\frac{f(4)-f(1)}{4-1}=\frac{8-(-1)}{3}=3\]</div>
+  <p>פירוש: בכל תוספת ממוצעת של יחידה אחת ב־\(x\), ערך הפונקציה גדל ב־3 יחידות בתחום הנתון.</p>
+  <div class="footer"><span>מיתר וקצב ממוצע</span><span>5</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 2</div><h2>ארבעה ייצוגים — אותה משמעות</h2></div><span class="tag green">חיבור ייצוגים</span></div>
+  <div class="grid2">
+    <div class="card blue">
+      <h3>1. שתי נקודות</h3>
+      <p>\(A=(-2,5)\), \(B=(4,-1)\)</p>
+      <div class="formula">\[\frac{-1-5}{4-(-2)}=-1\]</div>
+    </div>
+    <div class="card green">
+      <h3>2. טבלה</h3>
+      <table><tr><th>\(x\)</th><td>1</td><td>3</td><td>7</td></tr><tr><th>\(f(x)\)</th><td>4</td><td>10</td><td>18</td></tr></table>
+      <p>בין \(x=3\) ל־\(x=7\):</p>
+      <div class="formula">\[\frac{18-10}{7-3}=2\]</div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:4mm">
+    <div class="card gold">
+      <h3>3. גרף</h3>
+      <div id="g_repr" class="jxgbox g-md" aria-label="גרף לקריאת קצב שינוי"></div>
+      <p class="small">קוראים את שיעורי נקודות הקצה, ואז מחשבים את שיפוע המיתר.</p>
+    </div>
+    <div class="card">
+      <h3>4. ביטוי אלגברי</h3>
+      <p>עבור \(f(x)=2x^2-3\), בתחום \(-1\le x\le2\):</p>
+      <div class="formula">\[\frac{f(2)-f(-1)}{2-(-1)}=\frac{5-(-1)}{3}=2\]</div>
+      <h4>בדיקה עצמית</h4>
+      <ul class="checklist">
+        <li>הצבתי נכון בשני הקצוות.</li>
+        <li>שמרתי על סוגריים סביב מספר שלילי.</li>
+        <li>חילקתי בהפרש ערכי \(x\).</li>
+        <li>כתבתי פירוש ויחידות כשיש הקשר.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>נקודות, טבלה, גרף וביטוי</span><span>6</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 2 — דוגמאות</div><h2>קצב שינוי בפונקציות מסוגים שונים</h2></div><span class="tag gold">תרגול מודרך</span></div>
+  <div class="grid3">
+    <div class="card">
+      <h3>פונקציה קווית</h3>
+      <p>\(f(x)=3x-4\)</p>
+      <p>בכל תחום:</p>
+      <div class="formula">\[\frac{f(b)-f(a)}{b-a}=3\]</div>
+      <p class="small">הקצב קבוע ושווה לשיפוע הישר.</p>
+    </div>
+    <div class="card blue">
+      <h3>פונקציה ריבועית</h3>
+      <p>\(g(x)=x^2\)</p>
+      <p>בין \(x=1\) ל־\(x=3\):</p>
+      <div class="formula">\[\frac{9-1}{3-1}=4\]</div>
+      <p class="small">בתחום אחר יתקבל בדרך כלל קצב אחר.</p>
+    </div>
+    <div class="card green">
+      <h3>פונקציה ממעלה שלישית</h3>
+      <p>\(h(x)=x^3-3x\)</p>
+      <p>בין \(x=-2\) ל־\(x=1\):</p>
+      <div class="formula">\[\frac{-2-(-2)}{1-(-2)}=0\]</div>
+      <p class="small">קצב ממוצע אפס אינו אומר שהפונקציה קבועה בתחום.</p>
+    </div>
+  </div>
+  <div id="g_three_funcs" class="jxgbox g-lg" aria-label="שלוש פונקציות ומיתרים"></div>
+  <div class="card red">
+    <h4>מלכודת חשובה</h4>
+    <p>הקצב תלוי רק בערכי הקצה של התחום, אך הגרף עשוי להתנהג בדרכים שונות מאוד בין הקצוות.</p>
+  </div>
+  <div class="footer"><span>קווי, ריבועי ומעלה שלישית</span><span>7</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 3</div><h2>סימן הקצב וגודל הקצב</h2></div><span class="tag">פרשנות</span></div>
+  <div class="grid2_">
+    <div>
+      <div id="g_signs" class="jxgbox g-lg" aria-label="גרף גלי עם נקודות A B C D"></div>
+    </div>
+    <div>
+<div style="height:15px;"></div>
+      <div class="card green"><h4>קצב חיובי</h4><p>ערך הקצה הימני גבוה מערך הקצה השמאלי.</p></div>
+<div style="height:15px;"></div>
+      <div class="card red" style="margin-top:3mm"><h4>קצב שלילי</h4><p>ערך הקצה הימני נמוך מערך הקצה השמאלי.</p></div>
+<div style="height:15px;"></div>
+      <div class="card gold" style="margin-top:3mm"><h4>קצב אפס</h4><p>לשתי נקודות הקצה אותו ערך \(y\).</p></div>
+<div style="height:15px;"></div>
+      <div class="callout"><b>אין להסיק:</b> קצב ממוצע חיובי אינו מבטיח שהפונקציה עלתה בכל נקודה בתחום.</div>
+    </div>
+  </div>
+  <h3>שאלות על הגרף</h3>
+  <div class="exlist grid2">
+    <div class="exercise">קבעו את סימן הקצב בין \(A\) ל־\(B\).</div>
+    <div class="exercise">קבעו את סימן הקצב בין \(B\) ל־\(C\).</div>
+    <div class="exercise">קבעו את סימן הקצב בין \(A\) ל־\(C\).</div>
+    <div class="exercise">באיזה תחום ערכו המוחלט של הקצב גדול יותר: \(AB\) או \(CD\)? נמקו לפי תלילות המיתר.</div>
+  </div>
+  <div class="footer"><span>חיובי, שלילי ואפס</span><span>8</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 3 — חקר</div><h2>אותם קצוות, אותו קצב ממוצע</h2></div><span class="tag green">חשיבה עמוקה</span></div>
+  <p>בכל אחד משלושת הגרפים נקודות הקצה הן \(A=(0,1)\) ו־\(B=(6,5)\).</p>
+<div style="height:15px;"></div>
+  <div class="three-graphs">
+    <div><div id="g_same1" class="jxgbox g-md"></div><p class="small center">גרף עולה בקצב משתנה</p></div>
+    <div><div id="g_same2" class="jxgbox g-md"></div><p class="small center">גרף עולה ויורד</p></div>
+    <div><div id="g_same3" class="jxgbox g-md"></div><p class="small center">גרף בצורת מדרגה חלקה</p></div>
+  </div>
+  <div class="formula">\[\frac{5-1}{6-0}=\frac{2}{3}\]</div>
+<div style="height:15px;"></div>
+  <div class="grid2">
+    <div class="card blue">
+      <h3>מה קובע את הקצב הממוצע?</h3>
+      <p>רק ערכי שתי נקודות הקצה והמרחק האופקי ביניהן.</p>
+    </div>
+    <div class="card gold">
+      <h3>מה הקצב הממוצע אינו מספר?</h3>
+      <p>הוא אינו מתאר לבדו מה קרה בכל רגע או בכל נקודה בין הקצוות.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 3</div><h2>קצב קבוע לעומת קצב משתנה</h2></div><span class="tag gold">השוואה</span></div>
+  <div class="two-graphs">
+    <div class="card blue"><h3>פונקציה קווית</h3><div id="g_const" class="jxgbox g-lg"></div><p>כל המיתרים מקבילים. לכן קצב השינוי הממוצע זהה בכל תחום.</p></div>
+    <div class="card green"><h3>פונקציה לא קווית</h3><div id="g_var" class="jxgbox g-lg"></div><p>המיתרים אינם מקבילים. הקצב הממוצע משתנה לפי התחום.</p></div>
+  </div>
+  <div class="grid2_" style="margin-top:4mm">
+    <div class="card">
+      <h4>טענה</h4>
+      <p>אם לכל שני תחומים מתקבל אותו קצב שינוי ממוצע, הגרף הוא ישר.</p>
+    </div>
+<div style="height:20px;"></div>
+    <div class="card gold">
+      <h4>בדיקה מהירה</h4>
+      <p>בפונקציה \(f(x)=4x+1\), חשבו את הקצב בתחומים \([-2,1]\) ו־\([3,8]\).</p>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <div class="answer">בשני התחומים מתקבל \(4\). התוצאה אינה מקרית: בפונקציה קווית הקצב קבוע.</div>
+  <div class="footer"><span>קבוע ומשתנה</span><span>10</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">הערכה מעצבת</div><h2>שגיאות נפוצות ותיקונן</h2></div><span class="tag red">אבחון</span></div>
+  <table>
+    <tr><th>אמירה שגויה</th><th>מדוע היא שגויה?</th><th>שאלת תיקון</th></tr>
+    <tr><td>“הגרף מעל ציר \(x\), לכן הקצב חיובי.”</td><td>גובה הגרף ושיפועו הם מושגים שונים.</td><td>האם ערכי הפונקציה גדלים משמאל לימין?</td></tr>
+    <tr><td>“קצב אפס פירושו \(f(x)=0\).”</td><td>קצב אפס פירושו שערכי הקצה שווים.</td><td>האם שתי נקודות הקצה באותו גובה?</td></tr>
+    <tr><td>“מחלקים ב־\(b\).”</td><td>יש לחלק בשינוי בקלט.</td><td>מהו המרחק האופקי בין הקצוות?</td></tr>
+    <tr><td>“קצב חיובי אומר שהפונקציה עולה בכל התחום.”</td><td>הקצב הממוצע משתמש רק בקצוות.</td><td>האם ייתכנו ירידות פנימיות?</td></tr>
+    <tr><td>“שיפוע גדול יותר כי הגרף גבוה יותר.”</td><td>שיפוע מתאר תלילות, לא גובה.</td><td>איזה ישר יוצר זווית חדה יותר עם הכיוון החיובי של הציר?</td></tr>
+  </table>
+<div style="height:20px;"></div>
+  <div class="card blue">
+    <h3>כרטיס יציאה</h3>
+    <div class="exlist">
+      <div class="exercise">כתבו דוגמה לפונקציה שקצב השינוי הממוצע שלה בתחום מסוים הוא אפס, אף שאינה קבועה בתחום.</div>
+      <div class="exercise">הסבירו במילים מדוע יש לחלק ב־\(b-a\).</div>
+      <div class="exercise">האם אפשר לקבל אותו קצב ממוצע בשני גרפים שונים? נמקו.</div>
+    </div>
+  </div>
+  <div class="footer"><span>אבחון תפיסות</span><span>11</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 4</div><h2>מתיאור ממוצע לתיאור מקומי</h2></div><span class="tag green">מעבר רעיוני</span></div>
+  <div class="grid2_">
+    <div>
+      <h3>השאלה החדשה</h3>
+      <p>קצב שינוי ממוצע מתייחס לתחום. כיצד נתאר את כיוון הגרף <b>בנקודה אחת</b>?</p>
+      <div class="card blue">
+        <h4>שפה איכותית לפני חישוב</h4>
+        <ul>
+          <li>עולה בתלילות.</li>
+          <li>עולה במתינות.</li>
+          <li>כמעט אופקי.</li>
+          <li>יורד במתינות.</li>
+          <li>יורד בתלילות.</li>
+        </ul>
+      </div>
+      <div class="callout">לגרף לא קווי אין שיפוע אחיד. לכל נקודה עשוי להיות כיוון מקומי שונה.</div>
+    </div>
+    <div><div id="g_local" class="jxgbox g-lg"></div></div>
+  </div>
+<div style="height:20px;"></div>
+  <h3>משימה</h3>
+  <p>סדרו את הנקודות \(A,B,C,D,E\) לפי שיפוע מקומי, מהקטן ביותר לגדול ביותר. אין לחשב; הסתמכו על כיוון ותלילות.</p>
+<div style="height:20px;"></div>
+  <div class="card gold" style="margin-top:4mm"><b>דיון:</b> נקודה יכולה להיות מעל ציר \(x\) ובעלת שיפוע שלילי; או מתחת לציר \(x\) ובעלת שיפוע חיובי.</div>
+  <div class="footer"><span>תלילות מקומית</span><span>12</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 5</div><h2>המשיק — ישר המתאים לכיוון המקומי</h2></div><span class="tag">הגדרה אינטואיטיבית</span></div>
+  <div class="grid2_">
+    <div><div id="g_tangent_def" class="jxgbox g-lg"></div></div>
+<div style="height:20px;"></div>
+    <div>
+      <div class="card blue">
+        <h3>הגדרה</h3>
+        <p>המשיק בנקודה הוא ישר המתאים לכיוון המקומי של הגרף בסביבת אותה נקודה.</p>
+      </div>
+      <h3 style="margin-top:4mm">שלוש דרכי חשיבה</h3>
+      <ol>
+        <li><b>הגדלה מקומית:</b> גרף חלק נראה כמעט ישר בהגדלה חזקה.</li>
+        <li><b>כיוון תנועה:</b> המשיק מראה לאן גוף הנע על הגרף “פונה” באותו רגע.</li>
+        <li><b>מיתרים מתקרבים:</b> כאשר נקודה שנייה מתקרבת לנקודה הקבועה, כיוון המיתר מתקרב לכיוון המשיק.</li>
+      </ol>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <div class="card red">
+    <h4>הגדרה שיש להימנע ממנה</h4>
+    <p>אין להגדיר משיק כ“ישר שנוגע בגרף בנקודה אחת בלבד”. משיק יכול לחצות את הגרף או לפגוש אותו שוב במקום אחר.</p>
+  </div>
+<div style="height:20px;"></div>
+  <h3 style="margin-top:4mm">בדיקת התאמה</h3>
+  <p>איזה ישר מן הישרים \(l_1,l_2,l_3\) מתאים ביותר לכיוון המקומי של הגרף בנקודה \(P\)? נמקו לפי ההתנהגות בסביבה הקרובה.</p>
+  <div class="footer"><span>משמעות המשיק</span><span>13</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 5 — יישומון</div><h2>ממיתר למשיק</h2></div><span class="tag green">JSXGraph</span></div>
+  <p>גררו את הנקודה \(B\) לאורך הגרף וקרבו אותה אל \(A\). עקבו אחר שיפוע המיתר.</p>
+  <div class="grid2_">
+    <div><div id="g_secant_dynamic" class="jxgbox g-lg"></div></div>
+<div style="height:20px;"></div>
+    <div>
+      <div class="card blue">
+        <h3>טבלת חקר</h3>
+        <table>
+          <tr><th>\(x_B\)</th><th>שיפוע המיתר \(AB\)</th></tr>
+          <tr><td>3</td><td>________</td></tr>
+          <tr><td>2</td><td>________</td></tr>
+          <tr><td>1.5</td><td>________</td></tr>
+          <tr><td>1.1</td><td>________</td></tr>
+        </table>
+      </div>
+<div style="height:20px;"></div>
+      <div class="callout"><b>שאלת חקר:</b> לאיזה מספר מתקרבים שיפועי המיתרים כאשר \(B\) מתקרבת ל־\(A\)?</div>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <div class="formula">\[m_{AB}=\frac{f(x_B)-f(x_A)}{x_B-x_A}\]</div>
+  <p class="center"><b>ככל שהנקודות קרובות יותר, המיתר מתאר טוב יותר את הכיוון המקומי בנקודה \(A\).</b></p>
+  <div class="footer"><span>מיתרים מתקרבים</span><span>14</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 6</div><h2>אומדן שיפוע משיק מתוך גרף</h2></div><span class="tag gold">שיטה מעשית</span></div>
+  <div class="grid2_">
+    <div><div id="g_estimate" class="jxgbox g-lg"></div></div>
+<div style="height:15px;"></div>
+    <div>
+      <h3>שלבי העבודה</h3>
+      <ol>
+        <li>מזהים את המשיק המצויר בנקודה.</li>
+        <li>בוחרים שתי נקודות נוחות <b>על המשיק</b>.</li>
+        <li>בונים משולש שיפוע גדול ככל האפשר.</li>
+        <li>מחשבים שינוי אנכי חלקי שינוי אופקי.</li>
+      </ol>
+      <div class="formula">\[m=\frac{y_2-y_1}{x_2-x_1}\]</div>
+<div style="height:15px;"></div>
+      <div class="card green">
+        <p>בגרף: שתי נקודות נוחות על המשיק הן \((-1,-1)\) ו־\((3,5)\).</p>
+        <div class="formula">\[m=\frac{5-(-1)}{3-(-1)}=\frac{3}{2}\]</div>
+      </div>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="card red">
+    <h4>שגיאה נפוצה</h4>
+    <p>אין לבחור שתי נקודות על העקומה כאשר מבקשים את שיפוע המשיק. בוחרים שתי נקודות על הישר המשיק המצויר.</p>
+  </div>
+  <div class="footer"><span>משולש שיפוע</span><span>15</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">שיעור 6</div><h2>סימן וגודל של שיפוע משיק</h2></div><span class="tag">פרשנות מקומית</span></div>
+  <div class="grid2">
+    <div><div id="g_tangent_signs" class="jxgbox g-lg"></div></div>
+    <div>
+      <table>
+        <tr><th>מצב מקומי</th><th>שיפוע המשיק</th></tr>
+        <tr><td>הגרף עולה משמאל לימין</td><td>חיובי</td></tr>
+        <tr><td>הגרף יורד משמאל לימין</td><td>שלילי</td></tr>
+        <tr><td>הגרף אופקי מקומית</td><td>אפס</td></tr>
+        <tr><td>הגרף תלול יותר</td><td>ערך מוחלט גדול יותר</td></tr>
+      </table>
+      <div class="card blue">
+        <h4>סדרו לפי השיפוע</h4>
+        <p>סדרו את \(A,B,C,D\) מן השיפוע הקטן ביותר לגדול ביותר.</p>
+        <div class="note-line"></div>
+      </div>
+    </div>
+  </div>
+  <h3>אבחנה בין שני מושגים</h3>
+  <div class="grid2">
+    <div class="card gold"><p><b>ערך הפונקציה</b> מתאר את גובה הנקודה.</p></div>
+    <div class="card green"><p><b>שיפוע המשיק</b> מתאר את הכיוון והתלילות המקומיים.</p></div>
+  </div>
+  <div class="footer"><span>חיובי, שלילי ואפס מקומית</span><span>16</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">העמקה</div><h2>משיק אופקי וקיצון — לא תמיד אותו דבר</h2></div><span class="tag red">דיוק מושגי</span></div>
+  <div class="two-graphs">
+    <div class="card blue"><h3>מינימום מקומי</h3><div id="g_horizontal_ext" class="jxgbox g-lg"></div><p>בנקודת המינימום הגרף עובר מירידה לעלייה, והמשיק אופקי.</p></div>
+    <div class="card green"><h3>משיק אופקי ללא קיצון</h3><div id="g_horizontal_nonext" class="jxgbox g-lg"></div><p>בגרף \(y=x^3\), המשיק בראשית אופקי, אך הפונקציה ממשיכה לעלות משני הצדדים.</p></div>
+  </div>
+  <div class="formula">\[m=0\]</div>
+  <div class="card gold">
+    <h3>המסקנה המדויקת</h3>
+    <p>בנקודת קיצון חלקה המשיק אופקי. הכיוון ההפוך אינו תמיד נכון: משיק אופקי אינו מבטיח נקודת קיצון.</p>
+  </div>
+  <div class="callout"> קובעים לפי צורת הגרף וההתנהגות משני צדי הנקודה.</div>
+  <div class="footer"><span>משיק אופקי</span><span>17</span></div>
+</section>
+
+<section style="display:none;" class="page">
+  <div class="header"><div><div class="kicker">יישום מרכזי</div><h2>ריצת 100 מטר — ממוצע ורגע</h2></div><span class="tag green">מודל תנועה</span></div>
+  <div class="grid2">
+    <div><div id="g_race" class="jxgbox g-lg"></div></div>
+    <div>
+      <h3>פירוש הצירים</h3>
+      <p>\(t\) — זמן בשניות; \(s(t)\) — מרחק במטרים.</p>
+      <div class="card blue">
+        <h4>מהירות ממוצעת</h4>
+        <p>שיפוע המיתר בין שני רגעים.</p>
+        <div class="formula">\[\frac{s(t_2)-s(t_1)}{t_2-t_1}\]</div>
+      </div>
+      <div class="card green" style="margin-top:3mm">
+        <h4>מהירות ברגע מסוים</h4>
+        <p>אומדן באמצעות שיפוע המשיק לגרף באותו רגע.</p>
+      </div>
+    </div>
+  </div>
+  <div class="exlist grid2">
+    <div class="exercise">חשבו את המהירות הממוצעת לכל המרוץ אם הסיום היה לאחר 12.5 שניות.</div>
+    <div class="exercise">באיזה חלק של המרוץ הגרף תלול ביותר?</div>
+    <div class="exercise">מדוע בתחילת המרוץ השיפוע קטן?</div>
+    <div class="exercise">מה משמעות השתטחות הגרף לאחר קו הסיום?</div>
+  </div>
+  <div class="footer"><span>תנועה ומהירות</span><span>18</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">תרגול א׳</div><h2>קצב שינוי ממוצע — יסודות</h2></div><span class="tag gold">עבודה עצמית</span></div>
+  <div class="exlist">
+    <div class="exercise">נתונות הנקודות \(A=(-3,7)\), \(B=(5,-1)\). חשבו את קצב השינוי הממוצע.</div>
+    <div class="exercise">עבור \(f(x)=2x+5\), חשבו את הקצב בתחומים \(-2\le x\le3\) ו־\(4\le x\le10\). מה גיליתם?</div>
+    <div class="exercise">עבור \(g(x)=x^2-4x\), חשבו את הקצב בתחום \(0\le x\le5\).</div>
+    <div class="exercise">עבור \(h(x)=x^3-4x\), חשבו את הקצב בתחום \(-2\le x\le2\).</div>
+  </div>
+  <div class="grid2">
+    <div>
+      <table>
+        <tr><th>\(x\)</th><td>-2</td><td>0</td><td>3</td><td>7</td></tr>
+        <tr><th>\(p(x)\)</th><td>9</td><td>5</td><td>2</td><td>10</td></tr>
+      </table>
+      <div class="exlist" style="counter-reset:ex 4">
+        <div class="exercise">חשבו את הקצב בין \(x=-2\) ל־\(x=3\).</div>
+        <div class="exercise">חשבו את הקצב בין \(x=3\) ל־\(x=7\).</div>
+      </div>
+    </div>
+    <div><div id="g_practice_aroc1" class="jxgbox g-md"></div></div>
+  </div>
+  <div class="exlist" style="counter-reset:ex 6">
+    <div class="exercise">בגרף מסומנות הנקודות \(A,B,C\). חשבו את הקצב ב־\(AB\), ב־\(BC\) וב־\(AC\).</div>
+    <div class="exercise">באיזה מן התחומים הקצב שלילי? באיזה הוא אפס?</div>
+  </div>
+  <div class="footer"><span>תרגול יסודות</span><span>19</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">תרגול ב׳</div><h2>קצב שינוי ממוצע — העמקה</h2></div><span class="tag red">5 יחידות</span></div>
+  <div class="grid2_">
+    <div>
+      <div id="g_practice_aroc2" class="jxgbox g-lg"></div>
+<div style="height:15px;"></div>
+      <div class="exlist">
+        <div class="exercise">קבעו את סימן הקצב בכל אחד מן התחומים \(AB,BC,CD,AD\).</div>
+        <div class="exercise">האם קצב אפס בתחום מסוים מחייב שהגרף אופקי בכל התחום?</div>
+        <div class="exercise">מצאו שני תחומים שונים שבהם קצב השינוי הממוצע שווה.</div>
+      </div>
+    </div>
+<div style="height:10px;"></div>
+    <div>
+      <div class="card blue">
+        <h3>שאלות אלגבריות</h3>
+        <div class="exlist" style="counter-reset:ex 3">
+          <div class="exercise">עבור \(f(x)=ax^2+bx+c\), פשטו את קצב השינוי הממוצע בתחום \(u\le x\le v\).</div>
+          <div class="exercise">עבור \(g(x)=x^2\), מצאו תחום באורך 4 שבו הקצב הממוצע הוא 6.</div>
+          <div class="exercise">עבור \(h(x)=x^3\), מצאו את הקצב בתחום \(-a\le x\le a\), כאשר \(a\gt0\).</div>
+          <div class="exercise">פונקציה עוברת דרך \((1,4)\) ו־\((k,10)\), וקצב השינוי הממוצע הוא 2. מצאו את \(k\).</div>
+        </div>
+      </div>
+<div style="height:10px;"></div>
+      <div class="card gold" style="margin-top:4mm">
+        <h4>שאלת נימוק</h4>
+        <p>בנו שתי פונקציות שונות שקצב השינוי הממוצע שלהן בתחום \(0\le x\le4\) הוא \(-1\). הסבירו מדוע יש אינסוף תשובות.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>תרגול העמקה</span><span>20</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">תרגול ג׳</div><h2>שיפוע משיק — זיהוי ואומדן</h2></div><span class="tag gold">עבודה עצמית</span></div>
+  <div class="two-graphs">
+    <div><div id="g_tan_ex1" class="jxgbox g-lg"></div></div>
+    <div><div id="g_tan_ex2" class="jxgbox g-lg"></div></div>
+  </div>
+<div style="height:10px;"></div>
+  <div class="exlist grid2_">
+    <div class="exercise">בגרף השמאלי, קבעו את סימן השיפוע בנקודות \(A,B,C,D\).</div>
+    <div class="exercise">סדרו את הנקודות לפי השיפוע, מן הקטן לגדול.</div>
+    <div class="exercise">בגרף הימני, איזה מן הישרים \(l_1,l_2,l_3\) הוא המשיק בנקודה \(P\)? נמקו.</div>
+    <div class="exercise">בחרו שתי נקודות נוחות על המשיק והעריכו את שיפועו.</div>
+  </div>
+<div style="height:10px;"></div>
+  <div class="card blue">
+    <h4>כתיבה מתמטית מלאה</h4>
+    <p>“המשיק בנקודה ______ בעל שיפוע ______, משום שהגרף ______ בסביבה הקרובה, ובאמצעות שתי הנקודות ______ ו־______ מתקבל האומדן ______.”</p>
+  </div>
+  <div class="footer"><span>זיהוי ואומדן</span><span>21</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">תרגול ד׳</div><h2>שיפוע משיק — חשיבה מתקדמת</h2></div><span class="tag red">5 יחידות</span></div>
+  <div class="grid2">
+    <div>
+      <div id="g_tan_adv" class="jxgbox g-lg"></div>
+      <div class="exlist">
+        <div class="exercise">מצאו נקודה שבה שיפוע המשיק אפס ואינה נקודת קיצון.</div>
+        <div class="exercise">מצאו שתי נקודות בעלות שיפועים שווי סימן אך שונים בגודלם.</div>
+        <div class="exercise">מצאו נקודה שבה ערך הפונקציה שלילי אך שיפוע המשיק חיובי.</div>
+      </div>
+    </div>
+    <div>
+      <div class="card green">
+        <h3>מיתרים קצרים</h3>
+        <p>עבור \(f(x)=x^2\), מעריכים את השיפוע בנקודה \(A=(2,4)\).</p>
+        <table>
+          <tr><th>נקודה שנייה</th><th>שיפוע המיתר</th></tr>
+          <tr><td>\((3,9)\)</td><td>5</td></tr>
+          <tr><td>\((2.5,6.25)\)</td><td>4.5</td></tr>
+          <tr><td>\((2.1,4.41)\)</td><td>4.1</td></tr>
+          <tr><td>\((1.9,3.61)\)</td><td>3.9</td></tr>
+        </table>
+        <div class="exlist" style="counter-reset:ex 3">
+          <div class="exercise">לאיזה מספר מתקרבים השיפועים?</div>
+          <div class="exercise">מדוע שימוש בנקודות משני צדי \(A\) מחזק את האומדן?</div>
+        </div>
+      </div>
+      <div class="card gold" style="margin-top:4mm">
+        <h4>פינה או חוד</h4>
+        <p>כאשר הגרף משנה כיוון בחדות, ייתכן שאין ישר יחיד המתאים לכיוון משני הצדדים. במקרה כזה אין לקבוע שיפוע משיק יחיד מתוך הגרף.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>שאלות מתקדמות</span><span>22</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">הערכה מסכמת</div><h2>משימה משולבת</h2></div><span class="tag">45 דקות</span></div>
+  <div id="g_assessment" class="jxgbox g-wide"></div>
+<div style="height:15px;"></div>
+  <div class="exlist grid2_">
+    <div class="exercise">קראו מן הגרף את שיעורי \(A,B,C,D\).</div>
+    <div class="exercise">חשבו את קצב השינוי הממוצע בכל אחד מן התחומים \(AB,BC,CD,AD\).</div>
+    <div class="exercise">הסבירו מדוע קצב השינוי הממוצע ב־\(AD\) אינו מתאר את כל התנהגות הגרף בתחום.</div>
+    <div class="exercise">קבעו את סימן שיפוע המשיק בכל אחת מן הנקודות.</div>
+    <div class="exercise">באיזו נקודה ערכו המוחלט של שיפוע המשיק הגדול ביותר?</div>
+    <div class="exercise">העבירו משיק משוער בנקודה \(B\), בחרו שתי נקודות עליו ואמדו את שיפועו.</div>
+    <div class="exercise">האם קיימת בגרף נקודה שבה המשיק אופקי? האם זו בהכרח נקודת קיצון?</div>
+    <div class="exercise">כתבו תיאור מציאותי אפשרי לצירים ופרשו אחד מן הקצבים עם יחידות.</div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="card blue">
+    <h3>מחוון מקוצר</h3>
+    <table><tr><th>חישוב</th><th>פרשנות</th><th>גרף</th><th>נימוק</th></tr><tr><td>40%</td><td>25%</td><td>20%</td><td>15%</td></tr></table>
+  </div>
+  <div class="footer"><span>משימה משולבת</span><span>23</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">פתרונות</div><h2>מפתח תשובות — קצב שינוי ממוצע</h2></div><span class="tag green">למורה</span></div>
+  <div class="grid2_">
+    <div>
+      <h3>עמוד 3</h3>
+      <div class="answer">מכל: \(18/6=3\) ליטרים לדקה. טמפרטורה: \((-12)/4=-3\) מעלות לשעה. מחיר: \(40/5=8\) שקלים לחודש.</div>
+      <h3>עמוד 4</h3>
+      <div class="answer">20:00–22:00: \((15-18)/2=-1.5\). 22:00–02:00: \((8-15)/4=-1.75\). הירידה מהירה יותר בתחום השני.</div>
+      <h3>עמוד 8</h3>
+      <div class="answer">לפי נקודות הגרף: \(AB\) חיובי, \(BC\) שלילי, \(AC\) אפס. השוואת \(AB\) ו־\(CD\) נעשית לפי שיפועי המיתרים.</div>
+      <h3>עמוד 10</h3>
+      <div class="answer">בפונקציה \(f(x)=4x+1\) מתקבל קצב \(4\) בכל תחום.</div>
+    </div>
+    <div>
+      <h3>עמוד 19</h3>
+      <div class="answer">1. \(-1\). 2. בשני התחומים \(2\). 3. \(1\). 4. \(0\). 5. \((2-9)/(3-(-2))=-7/5\). 6. \((10-2)/(7-3)=2\).</div>
+      <h3>עמוד 20</h3>
+      <div class="answer">4. עבור \(f(x)=ax^2+bx+c\): \(a(u+v)+b\). 5. ב־\(g(x)=x^2\), תחום \([1,5]\) מתאים, וכן כל תחום שקצותיו סכומם 6. 6. בפונקציה \(x^3\): \(a^2\). 7. \(k=4\).</div>
+      <h3>עקרונות בדיקה</h3>
+      <ul>
+        <li>תוצאה מספרית ללא יחידות בהקשר: תשובה חלקית.</li>
+        <li>סדר חיסור עקבי במונה ובמכנה: תקין.</li>
+        <li>נימוק גרפי צריך להתייחס לקצוות או לתלילות, לפי השאלה.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>פתרונות — חלק א׳</span><span>24</span></div>
+</section>
+
+<section class="page">
+  <div class="header"><div><div class="kicker">פתרונות</div><h2>מפתח תשובות — שיפוע משיק</h2></div><span class="tag green">למורה</span></div>
+  <div class="grid2_">
+    <div>
+      <h3>עקרונות לעמודים 12–17</h3>
+      <div class="answer">שיפוע חיובי כאשר הגרף עולה מקומית; שלילי כאשר הוא יורד; אפס כאשר הכיוון המקומי אופקי.</div>
+      <div class="answer">השוואת גודל השיפוע נעשית לפי התלילות. גרף גבוה יותר אינו בהכרח תלול יותר.</div>
+      <div class="answer">ב־\(y=x^3\) בנקודה \((0,0)\) מתקבל משיק אופקי ללא קיצון.</div>
+      <h3>עמוד 18</h3>
+      <div class="answer">מהירות ממוצעת לכל המרוץ: \(100/12.5=8\) מטרים לשנייה. התלילות הגדולה ביותר מתארת את המהירות הגבוהה ביותר.</div>
+    </div>
+    <div>
+      <h3>עמוד 22</h3>
+      <div class="answer">בטבלת המיתרים של \(x^2\) סביב \(x=2\), השיפועים מתקרבים ל־\(4\). נקודות משני הצדדים מראות שהתקרבות מתרחשת משני הכיוונים.</div>
+      <h3>קריטריונים לאומדן</h3>
+      <ul>
+        <li>המשיק מתאים לכיוון המקומי של הגרף.</li>
+        <li>שתי הנקודות לחישוב נלקחו על המשיק.</li>
+        <li>משולש השיפוע גדול וברור.</li>
+        <li>מתקבל מספר התואם לסימן ולתלילות הנראים.</li>
+      </ul>
+      <div class="card gold">
+        <h4>טווח קבלה</h4>
+        <p>באומדן גרפי יש לקבל טווח סביר בהתאם לרזולוציית הגרף, בתנאי שהדרך נכונה והמספר תואם חזותית.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>פתרונות — חלק ב׳</span><span>25</span></div>
+</section>
+
+<script>
+(function(){
+'use strict';
+function init(){
+  if(!window.JXG){ setTimeout(init,150); return; }
+  JXG.Options.text.useMathJax = false;
+  const axisStyle={strokeColor:'#7f93a4',strokeWidth:1,ticks:{strokeColor:'#aebbc6',majorHeight:6,minorTicks:0,label:{fontSize:10}}};
+  const curveStyle={strokeColor:'#1d5d8f',strokeWidth:3,fixed:true,highlight:false};
+  const secantStyle={strokeColor:'#b47b17',strokeWidth:2.5,fixed:true,highlight:false};
+  const tangentStyle={strokeColor:'#2d7558',strokeWidth:2.5,fixed:true,highlight:false};
+  function board(id,bbox,axes=true){
+    return JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:axes,showCopyright:false,showNavigation:false,keepaspectratio:false,pan:{enabled:false},zoom:{enabled:false}});
+  }
+  function pt(b,x,y,name,color='#18324a',size=3){return b.create('point',[x,y],{name:name,size:size,strokeColor:color,fillColor:color,fixed:true,highlight:false,label:{fontSize:11}})}
+  function seg(b,p1,p2,style=secantStyle){return b.create('segment',[p1,p2],style)}
+  function lineThrough(b,p,slope,style=tangentStyle){return b.create('line',[p,[()=>p.X()+1,()=>p.Y()+slope]],style)}
+
+  // Page 3
+  let b=board('g_riders',[-0.5,34,3.6,-4]);
+  b.create('functiongraph',[x=>12*x,0,2],{...curveStyle,strokeColor:'#1d5d8f'});
+  b.create('functiongraph',[x=>10*x,0,3],{...curveStyle,strokeColor:'#2d7558'});
+  pt(b,2,24,'A','#1d5d8f'); pt(b,3,30,'B','#2d7558');
+  b.create('text',[2.15,22,'12 km/h'],{fontSize:11,color:'#1d5d8f'}); b.create('text',[2.35,31,'10 km/h'],{fontSize:11,color:'#2d7558'});
+
+  // Page 4
+  b=board('g_temp',[-0.5,20,8.5,4]);
+  let xs=[0,2,4,6,8], ys=[18,15,13,8,6];
+  for(let i=0;i<xs.length-1;i++) seg(b,[xs[i],ys[i]],[xs[i+1],ys[i+1]],curveStyle);
+  xs.forEach((x,i)=>pt(b,x,ys[i],String(i+1),'#1d5d8f',2.5));
+
+  // Page 5
+  b=board('g_secant_intro',[-1.5,11,5.5,-3]);
+  const f1=x=>x*x-2*x; b.create('functiongraph',[f1,-1,5],curveStyle);
+  let A=pt(b,1,f1(1),'A'), B=pt(b,4,f1(4),'B'); seg(b,A,B);
+  b.create('segment',[[1,-1],[4,-1]],{strokeColor:'#9b3a3a',dash:2});
+  b.create('segment',[[4,-1],[4,8]],{strokeColor:'#9b3a3a',dash:2});
+  b.create('text',[2.2,-1.6,'run = 3'],{fontSize:10,color:'#9b3a3a'}); b.create('text',[4.1,3.3,'rise = 9'],{fontSize:10,color:'#9b3a3a'});
+
+  // Page 6
+  b=board('g_repr',[-3.5,7,5.5,-4]);
+  const fr=x=>0.25*x*x-x+2; b.create('functiongraph',[fr,-3,5],curveStyle); A=pt(b,-2,fr(-2),'A');B=pt(b,4,fr(4),'B');seg(b,A,B);
+
+  // Page 7 combined
+  b=board('g_three_funcs',[-3.5,11,5.5,-11]);
+  b.create('functiongraph',[x=>3*x-4,-3,5],{...curveStyle,strokeColor:'#1d5d8f'});
+  b.create('functiongraph',[x=>x*x,-3,3.3],{...curveStyle,strokeColor:'#2d7558'});
+  b.create('functiongraph',[x=>x*x*x-3*x,-2.3,2.3],{...curveStyle,strokeColor:'#9b3a3a'});
+  b.create('text',[-3,8,'linear'],{fontSize:11,color:'#1d5d8f'}); b.create('text',[2.5,8,'quadratic'],{fontSize:11,color:'#2d7558'}); b.create('text',[-2.9,-8,'cubic'],{fontSize:11,color:'#9b3a3a'});
+
+  // Page 8
+  b=board('g_signs',[-1,6,9,-4]);
+  const fs=x=>(x*x*x/7)-(61*x*x/35)+(787*x/140)-(39/28); b.create('functiongraph',[fs,0.35,7.7],curveStyle);
+  [0.5,2.5,5,7.5].forEach((x,i)=>pt(b,x,fs(x),['A','B','C','D'][i]));
+
+  // Page 9
+  function same(id,fn){let q=board(id,[-0.7,7,6.7,-1]);q.create('functiongraph',[fn,0,6],curveStyle);let p=pt(q,0,1,'A'),r=pt(q,6,5,'B');seg(q,p,r);}
+  same('g_same1',x=>1+4*Math.pow(x/6,1.8));
+  same('g_same2',x=>1+(2/3)*x+1.7*Math.sin(Math.PI*x/3));
+  same('g_same3',x=>{const L=t=>1/(1+Math.exp(-1.8*(t-3)));return 1+4*(L(x)-L(0))/(L(6)-L(0));});
+
+  // Page 10
+  b=board('g_const',[-2,9,5,-5]); const fl=x=>1.5*x+1;b.create('functiongraph',[fl,-2,5],curveStyle); [[-1,1],[1,3]].forEach(pair=>{let p=pt(b,pair[0],fl(pair[0]),'', '#18324a',2),r=pt(b,pair[1],fl(pair[1]),'', '#18324a',2);seg(b,p,r);});
+  b=board('g_var',[-2,9,5,-5]); const fv=x=>0.7*x*x-2;b.create('functiongraph',[fv,-2,4],curveStyle); [[-1,1],[1,3]].forEach(pair=>{let p=pt(b,pair[0],fv(pair[0]),'', '#18324a',2),r=pt(b,pair[1],fv(pair[1]),'', '#18324a',2);seg(b,p,r);});
+
+  // Page 12
+  b=board('g_local',[-4,6,5,-6]); const loc=x=>0.12*x*x*x-1.2*x;b.create('functiongraph',[loc,-3.6,4],curveStyle); [-3,-1.7,0,1.7,3.3].forEach((x,i)=>pt(b,x,loc(x),['A','B','C','D','E'][i]));
+
+  // Page 13
+  b=board('g_tangent_def',[-3.5,8,5,-5]); const ft=x=>0.15*x*x*x-0.7*x*x+1.2*x+1;b.create('functiongraph',[ft,-3,4.5],curveStyle); let P=pt(b,1.2,ft(1.2),'P'); let slope=0.45*1.2*1.2-1.4*1.2+1.2; lineThrough(b,P,slope,tangentStyle); lineThrough(b,P,slope+1.3,{...tangentStyle,strokeColor:'#9b3a3a',dash:2}); lineThrough(b,P,slope-1.2,{...tangentStyle,strokeColor:'#b47b17',dash:2});
+  b.create('text',[3.1,5.3,'l1'],{color:'#9b3a3a'}); b.create('text',[3.2,2.5,'l2'],{color:'#2d7558'}); b.create('text',[3.1,-1,'l3'],{color:'#b47b17'});
+
+  // Page 14 dynamic
+  b=board('g_secant_dynamic',[-2,10,4.5,-3]); const fd=x=>x*x; b.create('functiongraph',[fd,-1.5,4],curveStyle); A=pt(b,1,1,'A');
+  B=b.create('glider',[3,9,b.create('functiongraph',[fd,-1.5,4],{visible:false})],{name:'B',size:4,strokeColor:'#b47b17',fillColor:'#b47b17',label:{fontSize:11}});
+  b.create('line',[A,B],{...secantStyle,straightFirst:true,straightLast:true});
+  b.create('text',[-1.65,8.7,()=>{let dx=B.X()-A.X();let m=Math.abs(dx)<0.03?NaN:(B.Y()-A.Y())/dx;return 'm ≈ '+(Number.isFinite(m)?m.toFixed(2):'—');}],{fontSize:13,color:'#b47b17'});
+  lineThrough(b,A,2,{...tangentStyle,dash:2});
+
+  // Page 15
+  b=board('g_estimate',[-3.5,8,5,-5]); const fe=x=>0.18*(x-1)*(x-1)*(x-1)+1.5*(x-1)+2;b.create('functiongraph',[fe,-3,4.5],curveStyle); P=pt(b,1,2,'P'); lineThrough(b,P,1.5,tangentStyle); pt(b,-1,-1,'Q','#2d7558',2.5);pt(b,3,5,'R','#2d7558',2.5); b.create('segment',[[-1,-1],[3,-1]],{strokeColor:'#9b3a3a',dash:2});b.create('segment',[[3,-1],[3,5]],{strokeColor:'#9b3a3a',dash:2});
+
+  // Page 16
+  b=board('g_tangent_signs',[-4,7,5,-6]); const fts=x=>0.15*x*x*x-1.2*x;b.create('functiongraph',[fts,-3.5,4],curveStyle); [-2.7,-1.2,1.2,2.7].forEach((x,i)=>{let p=pt(b,x,fts(x),['A','B','C','D'][i]);let m=0.45*x*x-1.2;lineThrough(b,p,m,{...tangentStyle,strokeWidth:1.8});});
+
+  // Page 17
+  b=board('g_horizontal_ext',[-4,7,4,-2]); const fex=x=>0.5*x*x+1;b.create('functiongraph',[fex,-3.5,3.5],curveStyle);P=pt(b,0,1,'P');lineThrough(b,P,0,tangentStyle);
+  b=board('g_horizontal_nonext',[-3.5,8,3.5,-8]); const fnx=x=>0.3*x*x*x;b.create('functiongraph',[fnx,-3,3],curveStyle);P=pt(b,0,0,'P');lineThrough(b,P,0,tangentStyle);
+
+  // Page 18
+  b=board('g_race',[-0.8,108,14,-8]); const race=t=>{const u=t/12.5;return 100*(3*u*u-2*u*u*u);};b.create('functiongraph',[race,0,12.5],curveStyle); pt(b,0,0,'S');pt(b,12.5,100,'F');seg(b,[0,0],[12.5,100]); let tr=6.25;P=pt(b,tr,race(tr),'P');lineThrough(b,P,12,{...tangentStyle,straightFirst:true,straightLast:true});
+
+  // Page 19
+  b=board('g_practice_aroc1',[-1,6,8,-4]); const pa=x=>-3*x*x/8+3*x-13/8;b.create('functiongraph',[pa,0,7.4],curveStyle); [1,3,7].forEach((x,i)=>pt(b,x,pa(x),['A','B','C'][i]));
+
+  // Page 20
+  b=board('g_practice_aroc2',[-1,9,9,-4]); const pb=x=>11*x*x*x/80-25*x*x/16+183*x/40+1;b.create('functiongraph',[pb,0,8],curveStyle); [0,2,5,8].forEach((x,i)=>pt(b,x,pb(x),['A','B','C','D'][i]));
+
+  // Page 21
+  b=board('g_tan_ex1',[-4,7,5,-6]); const te1=x=>0.12*x*x*x-1.1*x;b.create('functiongraph',[te1,-3.6,4.2],curveStyle);[-2.8,-1.1,1.1,3].forEach((x,i)=>pt(b,x,te1(x),['A','B','C','D'][i]));
+  b=board('g_tan_ex2',[-4,7,5,-5]); const te2=x=>-0.25*(x-1)*(x-1)+3;b.create('functiongraph',[te2,-3,4.5],curveStyle);P=pt(b,2,te2(2),'P'); lineThrough(b,P,-0.5,{...tangentStyle,strokeColor:'#9b3a3a'});lineThrough(b,P,-1.5,{...tangentStyle,strokeColor:'#2d7558'});lineThrough(b,P,0.5,{...tangentStyle,strokeColor:'#b47b17'}); b.create('text',[3.4,1.1,'l1'],{color:'#9b3a3a'});b.create('text',[3.4,-1.2,'l2'],{color:'#2d7558'});b.create('text',[3.4,4.7,'l3'],{color:'#b47b17'});
+
+  // Page 22
+  b=board('g_tan_adv',[-4,8,5,-7]); const ta=x=>0.12*(x+1)*(x+1)*(x+1)-1;b.create('functiongraph',[ta,-3.5,4],curveStyle); let H=pt(b,-1,ta(-1),'H');lineThrough(b,H,0,tangentStyle);pt(b,-2.7,ta(-2.7),'A');pt(b,0.4,ta(0.4),'B');
+
+  // Page 23
+  b=board('g_assessment',[-0.5,7,9.7,-5]); const as=x=>17*x*x*x/120-41*x*x/20+943*x/120-99/20;b.create('functiongraph',[as,0,9.3],curveStyle); [1,3,6,9].forEach((x,i)=>pt(b,x,as(x),['A','B','C','D'][i]));
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+</body>
+</html>
