@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חקירה מלאה של פונקציית ערך מוחלט - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], processEscapes: true },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{--ink:#16243a;--muted:#5b6b7e;--line:#d9e1ec;--paper:#fff;--soft:#f5f8fc;--accent:#1f5fa8;--accent2:#0f766e;--warn:#fff4e6;--danger:#fff0f0;--good:#edf9f5}
+*{box-sizing:border-box} html,body{margin:0;padding:0;background:#e9edf3;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.46} body{overflow-x:hidden}
+.page{width:210mm;height:297mm;margin:10mm auto;background:var(--paper);padding:13mm 14mm 12mm;position:relative;overflow:hidden;box-shadow:0 3mm 8mm rgba(20,35,55,.12);display:flex;flex-direction:column;page-break-after:always}
+.page-head{border-bottom:1px solid var(--line);padding-bottom:4mm;margin-bottom:5mm}.page-head h2{margin:1mm 0 0;font-size:22px;line-height:1.2;color:#143f72}.eyebrow{font-size:11px;color:var(--accent);font-weight:700}main{flex:1;min-height:0}footer{position:absolute;right:14mm;left:14mm;bottom:5mm;border-top:1px solid var(--line);padding-top:2mm;display:flex;justify-content:space-between;color:#7b8796;font-size:9px}
+.cover .page-head{display:none}.cover main{display:flex;align-items:center;height:100%}.cover-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:10mm;align-items:center}.badge{display:inline-block;background:#e8f1fb;color:#174e87;border-radius:999px;padding:2mm 4mm;font-weight:700;font-size:12px}.lead{font-size:16px;line-height:1.65}.pill-row{display:flex;gap:2mm;flex-wrap:wrap;margin:4mm 0}.pill-row span{background:#f0f4f9;border:1px solid #dde5ef;border-radius:999px;padding:2mm 3mm;font-size:11px}.hero{font-size:27px;margin:8mm 0}.hero2{font-size:19px}.big{font-size:16px}.formula,.answer,.conclusion{direction:ltr;text-align:center;background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:3mm;margin:3mm 0}.formula.small{font-size:13px}.answer{background:#eaf5ff;border-color:#b8d8f5}.conclusion{background:var(--good);border-color:#bfe6d8}.definition,.note,.warning,.highlight,.question,.hint{border-radius:9px;padding:3mm 4mm;margin:3mm 0}.definition{background:#eef6ff;border-right:4px solid var(--accent)}.note{background:#f3f7fb;border-right:4px solid #8ba7c5}.warning{background:var(--warn);border-right:4px solid #e59b3a}.highlight{background:var(--good);border-right:4px solid var(--accent2)}.question{background:#f3efff;border-right:4px solid #7557b8}.hint{background:#fff8df;border-right:4px solid #d6aa20}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:6mm;align-items:start}.three-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:5mm}.card,.theorem{border:1px solid var(--line);border-radius:12px;padding:4mm;background:#fff}.theorem{background:#f8fbff;border:2px solid #bfd3e9}.card h3,.theorem h3{margin:0 0 3mm;color:#194f86}.check li{margin-bottom:2mm}.compact li{margin-bottom:1.5mm}.flow{display:flex;align-items:center;justify-content:center;gap:3mm;margin-top:8mm;flex-wrap:wrap}.flow span{background:#eef4fa;border:1px solid var(--line);padding:3mm 5mm;border-radius:8px}.flow b{color:#6883a1}.math-list{display:grid;grid-template-columns:1fr 1fr;gap:2mm}.math-list>div{direction:ltr;text-align:center;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:2mm}
+.chart-panel{border:1px solid var(--line);border-radius:12px;background:#fbfdff;padding:3mm}.jxgbox{width:100%;height:95mm;border:0!important;background:white}.graph-controls{display:flex;gap:2mm;justify-content:center;margin-top:2mm}.graph-controls button{border:1px solid #c7d2df;background:white;border-radius:7px;padding:1.5mm 3mm;font-weight:700;color:#284a6e;cursor:pointer}.graph-controls button:hover{background:#edf5ff}.chart-caption{text-align:center;color:var(--muted);font-size:10px;margin-top:1.5mm}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #dce3eb;padding:2.2mm;vertical-align:top}th{background:#eef4fa;color:#244d77}.big-table{font-size:13px}.sign-table{font-size:14px}.steps p{margin:2.5mm 0}.algorithm{grid-template-columns:1fr 1fr;gap:3mm}.algorithm div{border:1px solid var(--line);border-radius:10px;padding:3mm;background:#fbfdff;display:grid;grid-template-columns:9mm 1fr;column-gap:2mm;margin-bottom:3mm}.algorithm span{grid-row:1/3;display:flex;align-items:center;justify-content:center;width:8mm;height:8mm;border-radius:50%;background:#1f5fa8;color:white;font-weight:700}.algorithm small{color:var(--muted)}.exercise-list{font-size:14px}.exercise-list li{margin-bottom:3.2mm}.bad li{margin-bottom:2.5mm}.sources{font-size:12px}.sources p{margin:0 0 3.2mm;padding-bottom:2.5mm;border-bottom:1px solid #e6ebf1}.sources a{direction:ltr;display:inline-block;color:#1e63a9}.JXGtext{font-family:Arial,sans-serif!important}
+@media print{html,body{background:#fff}.page{margin:0;box-shadow:none;page-break-after:always;break-after:page}@page{size:A4;margin:0}}
+@media(max-width:900px){.page{transform-origin:top center}.two-col,.cover-grid,.three-cards{grid-template-columns:1fr}.page{height:auto;min-height:297mm}.jxgbox{height:80mm}}
+</style>
+</head>
+<body>
+<section class="page cover">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>חקירה מלאה של פונקציית ערך מוחלט - כולל נגזרת</h2></header>
+      <main>
+<div class="cover-grid">
+  <div>
+    <div class="badge">מערך מקיף לרמת 5 יחידות</div>
+    <p class="lead">מטרת המערך היא להפוך את הערך המוחלט מפעולה אלגברית נקודתית לכלי מלא לחקירת פונקציות: מעבר להגדרה לפי מקרים, טרנספורמציות, קשר בין גרפים, נגזרת, גזירות, נקודות קיצון, פרמטרים ומספר פתרונות.</p>
+    <div class="formula hero">\[F(x)=|g(x)|\]</div>
+    <div class="note"><b>עיקרון מרכזי:</b> לא גוזרים ערך מוחלט באופן מכני. קודם קובעים את סימן הביטוי שבתוך הערך המוחלט, ורק אחר כך גוזרים בכל תחום.</div>
+  </div>
+  <div class="chart-panel">
+      <div id="g1" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g1">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">פונקציית האם והנקודה הזוויתית בראשית</div>
+    </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>מטרות, ידע קודם ורצף הוראה</h2></header>
+      <main>
+<div class="two-col">
+  <div class="card">
+    <h3>מטרות למידה</h3>
+    <ul class="check">
+      <li>לפרש ערך מוחלט כמרחק וכפונקציה המוגדרת לפי מקרים.</li>
+      <li>לחקור את המשפחה \(a|x-h|+k\) ולבנות נוסחה מתוך גרף.</li>
+      <li>לבנות ולחקור \(|f(x)|\), \(f(|x|)\) ו-\(|f(|x|)|\).</li>
+      <li>לפתור משוואות ואי-שוויונות ככלי לחקירת פונקציות.</li>
+      <li>לחשב את \((|g(x)|)'\) ולבדוק גזירות בנקודות האפס של \(g\).</li>
+      <li>לקבוע תחומי עלייה וירידה, נקודות קיצון ונקודות שבהן הנגזרת אינה קיימת.</li>
+      <li>לחקור פונקציות פולינומיות, רציונליות ופונקציות שורש עם ערך מוחלט.</li>
+      <li>לנתח מספר פתרונות כתלות בפרמטר.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>ידע קודם</h3>
+    <p>פונקציות פולינומיות, תחום הגדרה, טרנספורמציות, פתרון משוואות ואי-שוויונות, נגזרת, קשר בין סימן הנגזרת לעלייה וירידה, נקודות קיצון וקריאת גרפים.</p>
+    <h3>רצף מומלץ</h3>
+    <ol class="compact">
+      <li>הגדרה ומשמעות גאומטרית.</li><li>פונקציית האם והמשפחה הקנונית.</li>
+      <li>הטרנספורמציות \(|f(x)|\) ו-\(f(|x|)\).</li><li>כמה ערכים מוחלטים וערך מוחלט מקונן.</li>
+      <li>נגזרת וגזירות.</li><li>ריבוי שורשים.</li><li>חקירה מלאה.</li><li>פרמטרים ומספר פתרונות.</li>
+    </ol>
+  </div>
+</div>
+<div class="flow"><span>משמעות</span><b>⇐</b><span>לפי מקרים</span><b>⇐</b><span>גרף</span><b>⇐</b><span>נגזרת</span><b>⇐</b><span>חקירה מלאה</span></div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>1. משמעות הערך המוחלט והגדרה לפי מקרים</h2></header>
+      <main>
+<div class="two-col">
+  <div>
+    <div class="definition"><b>מרחק:</b> \(|x-a|\) הוא המרחק של \(x\) מן המספר \(a\) על ציר המספרים.</div>
+    <div class="formula">\[|u|=\begin{cases}u,&u\ge0\\-u,&u\lt0\end{cases}\]</div>
+    <h3>תכונות בסיסיות</h3>
+    <div class="math-list">
+      <div>\(|u|\ge0\)</div><div>\(|u|=0\Leftrightarrow u=0\)</div>
+      <div>\(|uv|=|u||v|\)</div><div>\(\left|\frac{u}{v}\right|=\frac{|u|}{|v|},\ v\ne0\)</div>
+      <div>\(|u|=\sqrt{u^2}\)</div><div>\(|u+v|\le|u|+|v|\)</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>דוגמה</h3>
+    <p>כתבו לפי מקרים את \(f(x)=|2x-3|\).</p>
+    <p>נקודת החלוקה מתקבלת מן \(2x-3=0\), ולכן \(x=\frac32\).</p>
+    <div class="formula">\[f(x)=\begin{cases}3-2x,&x\lt\frac32\\2x-3,&x\ge\frac32\end{cases}\]</div>
+    <div class="note"><b>כלל עבודה:</b> בכל ביטוי ערך מוחלט, האפסים של הביטוי הפנימי הם נקודות החלוקה של ציר \(x\).</div>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>2. פונקציית האם \(f(x)=|x|\) והנגזרת בראשית</h2></header>
+      <main>
+<div class="two-col_">
+  <div style="zoom:0.9;" class="chart-panel">
+      <div id="g2" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g2">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">הגרף רציף בכל התחום, אך אינו גזיר ב-\(x=0\)</div>
+    </div>
+  <div>
+    <h3>חקירה מלאה</h3>
+    <table><tr><th>מאפיין</th><th>תוצאה</th></tr>
+      <tr><td>תחום</td><td>\(\mathbb{R}\)</td></tr><tr><td>טווח</td><td>\([0,\infty)\)</td></tr>
+      <tr><td>אפסים</td><td>\(x=0\)</td></tr><tr><td>זוגיות</td><td>זוגית</td></tr>
+      <tr><td>ירידה</td><td>\(( -\infty,0)\)</td></tr><tr><td>עלייה</td><td>\((0,\infty)\)</td></tr>
+      <tr><td>קיצון</td><td>מינימום מוחלט \((0,0)\)</td></tr>
+    </table>
+    <h3>נגזרת חד-צדדית</h3>
+    <div class="formula small">\[f'_-(0)=-1,\qquad f'_+(0)=1\]</div>
+    <p>הנגזרות החד-צדדיות שונות, ולכן \(f'(0)\) אינה קיימת.</p>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>3. המשפחה הקנונית \(g(x)=a|x-h|+k\)</h2></header>
+      <main>
+<div class="two-col_">
+  <div>
+    <div class="formula">\[g(x)=a|x-h|+k\]</div>
+    <table><tr><th>מאפיין</th><th>קריאה מן הנוסחה</th></tr>
+      <tr><td>קודקוד</td><td>\((h,k)\)</td></tr><tr><td>ציר סימטריה</td><td>\(x=h\)</td></tr>
+      <tr><td>כיוון</td><td>למעלה אם \(a\gt0\), למטה אם \(a\lt0\)</td></tr>
+      <tr><td>שיפוע ענף ימני</td><td>\(a\)</td></tr><tr><td>שיפוע ענף שמאלי</td><td>\(-a\)</td></tr>
+      <tr><td>טווח</td><td>\([k,\infty)\) אם \(a\gt0\), \(( -\infty,k]\) אם \(a\lt0\)</td></tr>
+    </table>
+    <div class="note">כאשר \(a=0\) מתקבלת פונקציה קבועה, ולכן אין צורת V.</div>
+  </div>
+  <div class="chart-panel">
+      <div id="g3" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g3">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">הזזה, מתיחה, כיווץ ושיקוף</div>
+    </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>4. חקירה מלאה של \(g(x)=-2|x+3|+4\)</h2></header>
+      <main>
+<div class="two-col_">
+  <div class="chart-panel">
+      <div id="g4" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g4">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">דוגמה מלאה למשפחה הקנונית</div>
+    </div>
+  <div class="steps">
+    <p><b>1. קודקוד:</b> \((-3,4)\), ולכן ציר הסימטריה הוא \(x=-3\).</p>
+    <p><b>2. טווח:</b> \(( -\infty,4]\).</p>
+    <p><b>3. אפסים:</b> \(-2|x+3|+4=0\Rightarrow |x+3|=2\Rightarrow x=-5,-1\).</p>
+    <p><b>4. חיתוך עם ציר \(y\):</b> \(g(0)=-2\).</p>
+    <p><b>5. עלייה:</b> \(( -\infty,-3)\). <b>ירידה:</b> \((-3,\infty)\).</p>
+    <p><b>6. סימן:</b> חיובית עבור \(-5\lt x\lt-1\), שלילית מחוץ לקטע.</p>
+    <p><b>7. נגזרת:</b> אינה קיימת ב-\(x=-3\) בגלל נקודה זוויתית.</p>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>5. מציאת נוסחה מתוך גרף</h2></header>
+      <main>
+<div class="two-col_">
+  <div class="card">
+    <h3>אלגוריתם</h3>
+    <ol><li>קוראים את הקודקוד \((h,k)\).</li><li>כותבים \(g(x)=a|x-h|+k\).</li><li>בוחרים נקודה נוספת על הגרף ומציבים כדי למצוא את \(a\).</li><li>בודקים כיוון פתיחה וחיתוכים.</li></ol>
+    <h3>דוגמה</h3>
+    <p>הקודקוד הוא \((2,-1)\), והגרף עובר בנקודה \((5,5)\).</p>
+    <div class="formula">\[5=a|5-2|-1\Rightarrow 6=3a\Rightarrow a=2\]</div>
+    <div class="answer">\[g(x)=2|x-2|-1\]</div>
+  </div>
+  <div class="chart-panel">
+      <div id="g5" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g5">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">קודקוד ונקודה נוספת קובעים את המקדם</div>
+    </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>6. הטרנספורמציה \(F(x)=|f(x)|\)</h2></header>
+      <main>
+<div class="two-col_">
+  <div class="chart-panel">
+      <div id="g6" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g6">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">החלקים השליליים של \(f\) משתקפים כלפי מעלה</div>
+    </div>
+  <div>
+    <div class="formula">\[F(x)=|f(x)|=\begin{cases}f(x),&f(x)\ge0\\-f(x),&f(x)\lt0\end{cases}\]</div>
+    <ul>
+      <li>תחום ההגדרה נשמר.</li><li>נקודות האפס נשמרות.</li><li>הטווח החדש אינו מכיל ערכים שליליים.</li>
+      <li>בכל תחום שבו \(f(x)\lt0\), הגרף משתקף ביחס לציר \(x\).</li>
+      <li>תחומי עלייה וירידה מתהפכים בתוך קטעים שבהם \(f\lt0\).</li>
+      <li>אפס פשוט של \(f\) יוצר בדרך כלל נקודה זוויתית ב-\(|f|\).</li>
+    </ul>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>7. דוגמה מלאה: \(F(x)=|x^2-4|\)</h2></header>
+      <main>
+<div class="two-col_">
+  <div class="chart-panel">
+      <div id="g7" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g7">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">פרבולה שלילית בין האפסים משתקפת כלפי מעלה</div>
+    </div>
+  <div>
+    <div class="formula small">\[F(x)=\begin{cases}x^2-4,&x\le-2\ \text{or}\ x\ge2\\4-x^2,&-2\lt x\lt2\end{cases}\]</div>
+    <p><b>תחום:</b> \(\mathbb{R}\). <b>טווח:</b> \([0,\infty)\).</p>
+    <p><b>אפסים:</b> \(x=\pm2\). <b>חיתוך עם \(y\):</b> \((0,4)\).</p>
+    <p><b>נגזרת:</b></p>
+    <div class="formula small">\[F'(x)=\begin{cases}2x,&x\lt-2\ \text{or}\ x\gt2\\-2x,&-2\lt x\lt2\end{cases}\]</div>
+    <p>ב-\(x=\pm2\) הנגזרת אינה קיימת. ב-\(x=0\) מתקבלת נקודה עם שיפוע אפס ומקסימום מקומי.</p>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>8. הטרנספורמציה \(G(x)=f(|x|)\)</h2></header>
+      <main>
+<div class="two-col_">
+  <div>
+    <h3>כלל הבנייה</h3>
+    <ol><li>שומרים את החלק של גרף \(f\) עבור \(x\ge0\).</li><li>משקפים חלק זה ביחס לציר \(y\).</li><li>מתעלמים מן החלק המקורי עבור \(x\lt0\).</li></ol>
+    <p>מכאן \(f(|x|)\) היא פונקציה זוגית בכל תחום שבו ההרכבה מוגדרת.</p>
+    <div class="formula">\[f(|x|)=\begin{cases}f(x),&x\ge0\\f(-x),&x\lt0\end{cases}\]</div>
+    <div class="note">כאן הערך המוחלט פועל על הקלט ולא על הפלט. ערכים שליליים של \(f\) אינם משתקפים כלפי מעלה.</div>
+  </div>
+  <div class="chart-panel">
+      <div id="g8" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g8">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">דוגמה: \(f(x)=x^2-4x+1\) והפונקציה \(f(|x|)\)</div>
+    </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>9. השוואה בין \(|f(x)|\), \(f(|x|)\) ו-\(|f(|x|)|\)</h2></header>
+      <main>
+<table class="big-table"><tr><th>פונקציה</th><th>מה משתנה?</th><th>סימטריה</th><th>ערכים שליליים</th></tr>
+<tr><td>\(|f(x)|\)</td><td>הפלט</td><td>לא בהכרח זוגית</td><td>לא קיימים</td></tr>
+<tr><td>\(f(|x|)\)</td><td>הקלט</td><td>תמיד זוגית</td><td>יכולים להתקיים</td></tr>
+<tr><td>\(|f(|x|)|\)</td><td>קודם הקלט, אחר כך הפלט</td><td>תמיד זוגית</td><td>לא קיימים</td></tr></table>
+<div class="three-cards">
+  <div class="card"><h3>בדיקת הבנה</h3><p>אם \(f\) זוגית, אז \(f(|x|)=f(x)\).</p></div>
+  <div class="card"><h3>זהירות</h3><p>אם \(|f|\) זוגית, אין להסיק בהכרח ש-\(f\) זוגית.</p></div>
+  <div class="card"><h3>סדר פעולות</h3><p>ב-\(|f(|x|)|\) מבצעים תחילה את שינוי הקלט ורק לאחר מכן את הערך המוחלט של הפלט.</p></div>
+</div>
+<div class="question">שאלה לחשיבה: אילו תנאים על \(f\) מבטיחים ש-\(|f(x)|=f(|x|)\) לכל \(x\)?</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>10. ערך מוחלט בחלקים</h2></header>
+      <main>
+<div class="two-col_">
+  <div class="chart-panel">
+      <div id="g9" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g9">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">\(f(x)=|x-2|+|x+1|\) - סכום מרחקים</div>
+    </div>
+  <div>
+    <p>נקודות החלוקה הן \(x=-1,2\).</p>
+    <div class="formula small">\[f(x)=\begin{cases}1-2x,&x\lt-1\\3,&-1\le x\lt2\\2x-1,&x\ge2\end{cases}\]</div>
+    <p>הפונקציה מתארת את סכום המרחקים של \(x\) מן הנקודות \(-1\) ו-\(2\).</p>
+    <div class="highlight">המינימום הוא \(3\), והוא מתקבל בכל הקטע \([-1,2]\).</div>
+    <h3>אלגוריתם</h3><p>מוצאים את כל האפסים של כל הביטויים הפנימיים, מסדרים אותם, ובכל תחום מסירים את הערכים המוחלטים לפי הסימנים.</p>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>11. ערך מוחלט מקונן</h2></header>
+      <main>
+<div class="two-col">
+  <div>
+    <h3>דוגמה</h3>
+    <div class="formula">\[F(x)=\bigl||x|-3\bigr|\]</div>
+    <div class="formula small">\[F(x)=\begin{cases}-x-3,&x\le-3\\x+3,&-3\lt x\le0\\3-x,&0\lt x\lt3\\x-3,&x\ge3\end{cases}\]</div>
+    <p>אפסים: \(x=\pm3\). מינימום מוחלט: \(0\) בנקודות \((\pm3,0)\). מקסימום מקומי: \((0,3)\).</p>
+    <p>הנגזרת אינה קיימת ב-\(x=-3,0,3\), משום שבכל אחת מן הנקודות מתקבל שינוי חד בשיפוע.</p>
+  </div>
+  <div class="chart-panel">
+      <div id="g10" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g10">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">גרף עם ארבעה ענפים לינאריים</div>
+    </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>12. נגזרת של \(|x|\) מתוך הגדרת הנגזרת</h2></header>
+      <main>
+<div class="two-col">
+  <div class="card">
+    <h3>מימין</h3>
+    <div class="formula">\[f'_+(0)=\lim_{h\to0^+}\frac{|h|-0}{h}=\lim_{h\to0^+}\frac{h}{h}=1\]</div>
+  </div>
+  <div class="card">
+    <h3>משמאל</h3>
+    <div class="formula">\[f'_-(0)=\lim_{h\to0^-}\frac{|h|-0}{h}=\lim_{h\to0^-}\frac{-h}{h}=-1\]</div>
+  </div>
+</div>
+<div class="conclusion">\[f'_-(0)\ne f'_+(0)\Rightarrow f'(0)\ \text{תמייק אל}\]</div>
+<p class="lead">המשמעות הגרפית: בנקודה \((0,0)\) נפגשים שני ענפים בעלי שיפועים שונים. זהו המודל הבסיסי לנקודה זוויתית.</p>
+<div class="note"><b>מסקנה פדגוגית:</b> יש להבחין בין רציפות לגזירות. \(|x|\) רציפה ב-0 אך אינה גזירה שם.</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>13. המשפט המרכזי: נגזרת של \(F(x)=|g(x)|\)</h2></header>
+      <main>
+<div class="theorem">
+  <h3>כאשר \(g(x)\ne0\)</h3>
+  <div class="formula">\[F'(x)=\begin{cases}g'(x),&g(x)\gt0\\-g'(x),&g(x)\lt0\end{cases}\]</div>
+  <div class="formula">\[F'(x)=g'(x)\frac{g(x)}{|g(x)|}\]</div>
+</div>
+<div class="two-col">
+  <div class="card"><h3>אם \(g(x)\gt0\)</h3><p>אין שינוי בגרף ולכן אין שינוי בנגזרת.</p></div>
+  <div class="card"><h3>אם \(g(x)\lt0\)</h3><p>הגרף משתקף ביחס לציר \(x\), ולכן סימן הנגזרת מתהפך.</p></div>
+</div>
+<div class="warning"><b>אסור:</b> להציב בנוסחה \(g(x)=0\), משום שהמנה \(\frac{g(x)}{|g(x)|}\) אינה מוגדרת שם. בנקודות אלה חייבים לבצע בדיקה נפרדת.</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>16. האלגוריתם המלא לחקירת \(F(x)=|g(x)|\)</h2></header>
+      <main>
+<div class="algorithm">
+  <div><span>1</span><b>תחום הגדרה של \(g\)</b><small>לפני כל פעולה אחרת</small></div>
+  <div><span>2</span><b>אפסי \(g\)</b><small>נקודות חלוקה ונקודות חשודות</small></div>
+  <div><span>3</span><b>טבלת סימנים של \(g\)</b><small>קובעת היכן יש שיקוף</small></div>
+  <div><span>4</span><b>כתיבה לפי מקרים</b><small>\(F=g\) או \(F=-g\)</small></div>
+  <div><span>5</span><b>חיתוכים וסימטריה</b><small>אפסים נשמרים</small></div>
+  <div><span>6</span><b>נגזרת בכל תחום</b><small>לפי סימן \(g\)</small></div>
+  <div><span>7</span><b>נקודות חשודות לקיצון</b><small>\(F'=0\) וגם נקודות שבהן \(F'\) אינה קיימת</small></div>
+  <div><span>8</span><b>טבלת עלייה וירידה</b><small>מסימן \(F'\)</small></div>
+  <div><span>9</span><b>קיצון וטווח</b><small>כולל קיצון בנקודות זוויתיות</small></div>
+  <div><span>10</span><b>שרטוט מנומק</b><small>עם כל הנתונים שנמצאו</small></div>
+</div>
+<div class="warning"><b>כלל קריטי:</b> בחקירה של \(|g|\), רשימת המועמדים לקיצון אינה רק פתרונות \(F'(x)=0\). יש לצרף גם נקודות בתחום שבהן הנגזרת אינה קיימת.</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>17. חקירה מלאה: \(F(x)=|x^3-4x|\)</h2></header>
+      <main>
+<div class="two-col_">
+  <div class="chart-panel">
+      <div id="g11" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g11">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">שלושה אפסים פשוטים ושני מקסימום מקומיים</div>
+    </div>
+  <div>
+    <p>\(g(x)=x(x-2)(x+2)\), ולכן האפסים הם \(-2,0,2\).</p>
+    <div class="formula small">\[g'(x)=3x^2-4=0\Rightarrow x=\pm\frac{2}{\sqrt3}\]</div>
+    <p>כל שלושת האפסים פשוטים, ולכן \(F\) אינה גזירה ב-\(x=-2,0,2\), ובכל אחד מהם מינימום מוחלט \(0\).</p>
+    <p>המקסימום המקומי מתקבל ב-\(x=\pm\frac{2}{\sqrt3}\):</p>
+    <div class="formula small">\[F\left(\pm\frac{2}{\sqrt3}\right)=\frac{16}{3\sqrt3}\]</div>
+    <p><b>עלייה:</b> \((-2,-\frac{2}{\sqrt3})\cup(0,\frac{2}{\sqrt3})\cup(2,\infty)\).</p>
+    <p><b>ירידה:</b> \(( -\infty,-2)\cup(-\frac{2}{\sqrt3},0)\cup(\frac{2}{\sqrt3},2)\).</p>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>18. חקירה מלאה: \(F(x)=|x^4-5x^2+4|\)</h2></header>
+      <main>
+<div class="two-col_">
+  <div class="chart-panel">
+      <div id="g12" class="jxgbox" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-controls" data-board="g12">
+        <button type="button" data-action="zoom-in" title="הגדלה">+</button>
+        <button type="button" data-action="zoom-out" title="הקטנה">−</button>
+        <button type="button" data-action="center">מרכז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div><div class="chart-caption">ארבעה אפסים פשוטים ושלוש נקודות עם שיפוע אפס</div>
+    </div>
+  <div>
+    <div class="formula small">\[g(x)=(x^2-1)(x^2-4)\]</div>
+    <p>אפסים: \(x=\pm1,\pm2\). כולם פשוטים ולכן \(F\) אינה גזירה בהם.</p>
+    <div class="formula small">\[g'(x)=4x^3-10x=2x(2x^2-5)\]</div>
+    <p>נקודות עם שיפוע אפס: \(x=0,\pm\sqrt{\frac52}\).</p>
+    <p>ב-\(x=0\): מקסימום מקומי \(F(0)=4\).</p>
+    <p>ב-\(x=\pm\sqrt{\frac52}\): מקסימום מקומי בגובה \(\frac94\).</p>
+    <p>בכל אחד מארבעת האפסים מתקבל מינימום מוחלט \(0\).</p>
+    <div class="note">הפונקציה זוגית, ולכן אפשר לבדוק את החצי הימני ולהשתמש בסימטריה לצורך ביקורת.</div>
+  </div>
+</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>תרגול א - בסיס וחקר אלגברי</h2></header>
+      <main>
+<div class="exercise-list">
+  <ol>
+    <li>כתבו לפי מקרים את \(f(x)=|3x-6|\).</li>
+    <li>חקרו את \(f(x)=2|x+1|-4\): תחום, טווח, חיתוכים, סימן, עלייה, ירידה וקיצון.</li>
+    <li>מצאו את נוסחת פונקציית הערך המוחלט שקודקודה \((-2,3)\) והיא עוברת דרך \((1,-3)\).</li>
+    <li>שרטטו את \(f(x)=|x^2-9|\) מתוך גרף \(x^2-9\).</li>
+    <li>כתבו לפי מקרים את \(|x-4|+|x+2|\) ומצאו את ערכה המינימלי.</li>
+    <li>שרטטו את \(f(|x|)\) עבור \(f(x)=x^2-6x+5\).</li>
+    <li>קבעו האם \(|f(x)|\) זוגית כאשר \(f\) אי-זוגית. נמקו.</li>
+    <li>פתרו \(|2x-5|=7\).</li>
+    <li>פתרו \(|3x+1|\le8\).</li>
+    <li>קבעו את מספר הפתרונות של \(|x^2-1|=m\) לכל \(m\).</li>
+  </ol>
+</div>
+<div class="hint">בתרגילים 2, 4, 5 ו-10 הציגו גם שרטוט מנומק.</div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>תרגול ב - נגזרת וגזירות</h2></header>
+      <main>
+<div class="exercise-list">
+<ol>
+  <li>מצאו את תחום הגזירות של \(F(x)=|x^2-5x+6|\).</li>
+  <li>חקרו באמצעות נגזרת את \(F(x)=|x^2-4x|\).</li>
+  <li>בדקו גזירות ב-0 עבור \(F(x)=|x^3|\).</li>
+  <li>בדקו גזירות ב-0 עבור \(F(x)=|x^2|\).</li>
+  <li>בדקו גזירות ב-0 עבור \(F(x)=|x^5|\).</li>
+  <li>חקרו את \(F(x)=|x^3-3x|\), כולל כל נקודות הקיצון.</li>
+  <li>חקרו את \(F(x)=|(x-1)^2(x+2)|\), ובדקו גזירות בכל אפס.</li>
+  <li>נתון \(F(x)=|g(x)|\), \(g(2)=0\), \(g'(2)=0\). מה ניתן להסיק על \(F'(2)\)? נמקו.</li>
+  <li>נתון \(g(a)=0\), \(g'(a)=5\). הוכיחו ש-\(|g|\) אינה גזירה ב-\(a\).</li>
+  <li>מצאו את כל \(a\) שעבורם \(|x^2+ax+4|\) גזירה לכל \(x\).</li>
+</ol></div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>תרגול ג - חקירה מלאה ברמת 5 יחידות</h2></header>
+      <main>
+<div class="exercise-list">
+<ol>
+  <li>חקרו במלואה את \(F(x)=|x^3-9x|\).</li>
+  <li>חקרו במלואה את \(F(x)=|x^4-10x^2+9|\).</li>
+  <li>חקרו במלואה את \(F(x)=|x^3-6x^2+9x|\), כולל תחום, חיתוכים, תחום גזירות, נקודות קיצון ותחומי עלייה וירידה.</li>
+  <li>חקרו במלואה את \(F(x)=|x^4-8x^2+7|\), כולל תחום, חיתוכים, תחום גזירות, נקודות קיצון ותחומי עלייה וירידה.</li>
+  <li>קבעו את מספר הפתרונות של \(|x^3-3x|=m\) כתלות ב-\(m\ge0\).</li>
+  <li>נתונה \(f(x)=x^3-4x\). שרטטו סקיצה של \((|f(x)|)'\) ללא מציאת נוסחה מלאה.</li>
+  <li>מצאו את כל \(a\) שעבורם \(|x^2+ax+9|\) גזירה לכל \(x\).</li>
+  <li>מצאו את כל \(a\) שעבורם לפונקציה \(|x^2-4x+a|\) יש בדיוק נקודה אחת שבה הנגזרת אינה קיימת.</li>
+  <li>הוכיחו: אם \(g\) גזירה ב-\(x_0\), \(g(x_0)=0\), \(g'(x_0)=0\), אז \((|g|)'(x_0)=0\).</li>
+  <li>הפריכו את הטענה: "אם \(g\) משנה סימן ב-\(x_0\), אז \(|g|\) אינה גזירה ב-\(x_0\)".</li>
+</ol></div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+<section class="page ">
+      <header class="page-head"><div class="eyebrow">פונקציית ערך מוחלט - 5 יחידות</div><h2>תרגול ד - שאלות פרמטר וחשיבה</h2></header>
+      <main>
+<div class="exercise-list">
+<ol>
+  <li>לכל \(a\), קבעו את מספר נקודות אי-הגזירות של \(F_a(x)=|x^2-a|\).</li>
+  <li>קבעו את כל \(a\) שעבורם \(|x^2-2ax+a^2|\) גזירה לכל \(x\).</li>
+  <li>לכל \(m\), קבעו את מספר הפתרונות של \(|x^2-4|=m\).</li>
+  <li>לכל \(m\), קבעו את מספר הפתרונות של \(\bigl||x|-2\bigr|=m\).</li>
+  <li>האם ייתכן של-\(|g|\) תהיה נקודת מקסימום בנקודה שבה \(g=0\)? נמקו.</li>
+  <li>האם כל נקודת מינימום של \(|g|\) היא אפס של \(g\)? תנו דוגמה או הוכחה.</li>
+  <li>אם \(g\gt0\) בקטע מסוים, מה הקשר בין נקודות הקיצון של \(g\) ושל \(|g|\) בקטע?</li>
+  <li>אם \(g\lt0\) בקטע מסוים, מה קורה לסוג הקיצון לאחר הפעלת ערך מוחלט?</li>
+  <li>בנו פונקציה פולינומית \(g\) כך ש-\(|g|\) תהיה גזירה בכל אפסיה אך \(g\) תחליף סימן לפחות באפס אחד.</li>
+  <li>בנו פונקציה \(g\) שעבורה \(|g|\) זוגית אך \(g\) אינה זוגית.</li>
+</ol></div>
+</main>
+      <footer><span>מערך שיעור מלא - HTML + MathJax + JSXGraph</span><span class="page-no"></span></footer>
+    </section>
+
+<script>
+(function(){
+  const boards = {};
+  const initial = {};
+  function init(id,bbox,draw){
+    const b=JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,keepAspectRatio:false,pan:{enabled:true},zoom:{wheel:true}});
+    boards[id]=b; initial[id]=bbox.slice(); draw(b); return b;
+  }
+  function fg(b,fn,opts={}){return b.create('functiongraph',[fn],Object.assign({strokeWidth:2},opts));}
+  function pt(b,x,y,name){return b.create('point',[x,y],{name:name||'',size:3,fixed:true,withLabel:!!name,label:{fontSize:12}});}
+  function zoom(id,factor){const b=boards[id];if(!b)return;const bb=b.getBoundingBox();const cx=(bb[0]+bb[2])/2,cy=(bb[1]+bb[3])/2;const w=(bb[2]-bb[0])*factor/2,h=(bb[1]-bb[3])*factor/2;b.setBoundingBox([cx-w,cy+h,cx+w,cy-h],false);}
+  function reset(id){if(boards[id])boards[id].setBoundingBox(initial[id].slice(),false)}
+  function center(id){const b=boards[id],bb0=initial[id];if(!b)return;const bb=b.getBoundingBox(),w=(bb[2]-bb[0])/2,h=(bb[1]-bb[3])/2,cx=(bb0[0]+bb0[2])/2,cy=(bb0[1]+bb0[3])/2;b.setBoundingBox([cx-w,cy+h,cx+w,cy-h],false)}
+  document.querySelectorAll('.graph-controls').forEach(c=>c.addEventListener('click',e=>{if(e.target.tagName!=='BUTTON')return;const id=c.dataset.board,a=e.target.dataset.action;if(a==='zoom-in')zoom(id,.8);if(a==='zoom-out')zoom(id,1.25);if(a==='reset')reset(id);if(a==='center')center(id);}));
+  document.querySelectorAll('.page').forEach((p,i)=>{const n=p.querySelector('.page-no');if(n)n.textContent=(i+1)+' / '+document.querySelectorAll('.page').length;});
+
+  init('g1',[-5,6,5,-2],b=>{fg(b,x=>Math.abs(x),{strokeWidth:3});pt(b,0,0,'(0,0)');});
+  init('g2',[-5,6,5,-2],b=>{fg(b,x=>Math.abs(x),{strokeWidth:3});pt(b,0,0,'(0,0)');});
+  init('g3',[-6,7,7,-5],b=>{fg(b,x=>Math.abs(x),{dash:2});fg(b,x=>Math.abs(x-2)+1,{strokeWidth:3});fg(b,x=>-1.5*Math.abs(x+1)+2,{strokeWidth:3});});
+  init('g4',[-8,7,3,-8],b=>{fg(b,x=>-2*Math.abs(x+3)+4,{strokeWidth:3});pt(b,-3,4,'V');pt(b,-5,0,'');pt(b,-1,0,'');pt(b,0,-2,'');});
+  init('g5',[-3,9,7,-4],b=>{fg(b,x=>2*Math.abs(x-2)-1,{strokeWidth:3});pt(b,2,-1,'V');pt(b,5,5,'P');});
+  init('g6',[-5,7,5,-7],b=>{fg(b,x=>x*x-4,{dash:2});fg(b,x=>Math.abs(x*x-4),{strokeWidth:3});});
+  init('g7',[-5,9,5,-2],b=>{fg(b,x=>Math.abs(x*x-4),{strokeWidth:3});pt(b,-2,0,'');pt(b,2,0,'');pt(b,0,4,'');});
+  init('g8',[-6,8,6,-5],b=>{const f=x=>x*x-4*x+1;fg(b,f,{dash:2});fg(b,x=>f(Math.abs(x)),{strokeWidth:3});});
+  init('g9',[-5,9,6,-1],b=>{fg(b,x=>Math.abs(x-2)+Math.abs(x+1),{strokeWidth:3});pt(b,-1,3,'');pt(b,2,3,'');});
+  init('g10',[-6,7,6,-1],b=>{fg(b,x=>Math.abs(Math.abs(x)-3),{strokeWidth:3});pt(b,-3,0,'');pt(b,3,0,'');pt(b,0,3,'');});
+  init('g11',[-3.5,8,3.5,-1],b=>{fg(b,x=>Math.abs(x*x*x-4*x),{strokeWidth:3});[-2,0,2].forEach(x=>pt(b,x,0,''));});
+  init('g12',[-3,6,3,-1],b=>{fg(b,x=>Math.abs(x**4-5*x*x+4),{strokeWidth:3});[-2,-1,1,2].forEach(x=>pt(b,x,0,''));});
+  init('g13',[-3.5,7,3.5,-7],b=>{const f=x=>x*x*x-4*x;fg(b,f,{dash:2});fg(b,x=>Math.abs(f(x)),{strokeWidth:3});});
+  init('g14',[-3.5,10,3.5,-10],b=>{const gp=x=>3*x*x-4;fg(b,gp,{dash:2});const pieces=[[-3.5,-2,x=>-gp(x)],[-2,0,x=>gp(x)],[0,2,x=>-gp(x)],[2,3.5,x=>gp(x)]];pieces.forEach(p=>b.create('functiongraph',[p[2],p[0],p[1]],{strokeWidth:3}));});
+
+  init('g16',[-5,9,5,-2],b=>{fg(b,x=>Math.abs(x*x-4),{strokeWidth:3});[1,4,6].forEach(m=>fg(b,x=>m,{dash:2,strokeWidth:1}));});
+  init('g17',[-8,7,7,-1],b=>{b.create('functiongraph',[x=>Math.abs((x-1)/(x+2)),-8,-2.05],{strokeWidth:3});b.create('functiongraph',[x=>Math.abs((x-1)/(x+2)),-1.95,7],{strokeWidth:3});b.create('line',[[-2,0],[-2,1]],{straightFirst:true,straightLast:true,dash:2,strokeWidth:1,fixed:true});pt(b,1,0,'');});
+  init('g18',[-2,5,10,-1],b=>{b.create('functiongraph',[x=>Math.abs(Math.sqrt(x+1)-2),-1,10],{strokeWidth:3});pt(b,3,0,'');});
+})();
+</script>
+</body></html>
