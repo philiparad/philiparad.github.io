@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פתרונות מאוחדים - נגזרות, קיצון ועלייה וירידה</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root {
+      --bg: #eef3fb;
+      --page: #ffffff;
+      --ink: #172033;
+      --muted: #5d687a;
+      --line: #d8e1ef;
+      --accent: #2357c5;
+      --accent-2: #0f8b8d;
+      --soft: #f5f8fe;
+      --warn: #fff5db;
+      --ok: #ecfbf4;
+      --danger: #fff0f0;
+      --shadow: 0 14px 40px rgba(23,32,51,0.12);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: "Segoe UI", Arial, sans-serif; }
+    body { line-height: 1.55; }
+
+    .page {
+      width: 245mm;
+      min-height: 297mm;
+      margin: 12mm auto;
+      padding: 14mm 15mm;
+      background: var(--page);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 269mm;
+      background:
+        radial-gradient(circle at top left, rgba(35,87,197,.12), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(15,139,141,.12), transparent 35%),
+        #fff;
+    }
+
+    h1, h2, h3 { margin: 0; line-height: 1.25; }
+    h1 { font-size: 30pt; color: var(--accent); }
+    h2 { font-size: 20pt; color: var(--accent); border-bottom: 3px solid var(--accent); padding-bottom: 6px; margin-bottom: 14px; }
+    h3 { font-size: 14.5pt; color: #24324a; margin-top: 12px; margin-bottom: 6px; }
+    p { margin: 8px 0; }
+
+    .subtitle { font-size: 15pt; color: var(--muted); margin-top: 12px; }
+    .meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 28px; }
+    .meta-card { background: var(--soft); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+    .meta-card b { color: var(--accent); }
+
+    .exercise-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-size: 11pt;
+    }
+
+    .question {
+      background: var(--soft);
+      border-right: 5px solid var(--accent);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin: 10px 0 14px;
+    }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: 1.03fr 0.97fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .full { grid-column: 1 / -1; }
+    .box {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+    .highlight { background: var(--ok); border-color: #bcebd2; }
+    .note { background: var(--warn); border-color: #f0db9a; }
+    .danger { background: var(--danger); border-color: #f0c8c8; }
+
+    .steps { counter-reset: step; padding: 0; margin: 0; list-style: none; }
+    .steps li { counter-increment: step; margin: 8px 0; padding-right: 34px; position: relative; }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      right: 0;
+      top: 0.05em;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      line-height: 24px;
+      font-size: 10pt;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 10.5pt; }
+    th, td { border: 1px solid var(--line); padding: 7px 8px; text-align: center; vertical-align: middle; }
+    th { background: #edf3ff; color: #1f3f8f; }
+
+    .math-line { direction: ltr; text-align: center; }
+    .mjx-container { direction: ltr !important; unicode-bidi: isolate !important; }
+    .formula { background: #f8fbff; border: 1px dashed #c7d5ea; border-radius: 12px; padding: 8px; margin: 8px 0; }
+
+    .chart {
+      width: 100%;
+      height: 245px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+    }
+
+    .chart.tall { height: 300px; }
+    .small { font-size: 10.5pt; color: var(--muted); }
+    .ltr { direction: ltr; unicode-bidi: isolate; text-align: left; }
+    .footer {
+      position: absolute;
+      bottom: 7mm;
+      left: 15mm;
+      right: 15mm;
+      border-top: 1px solid var(--line);
+      padding-top: 5px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 9.5pt;
+    }
+
+    .toc { columns: 2; column-gap: 28px; margin-top: 24px; }
+    .toc div { break-inside: avoid; padding: 6px 0; border-bottom: 1px dashed #ccd6e6; }
+
+
+
+    .practice-items {
+      margin: 10px 0 0;
+      padding: 0 24px 0 0;
+      font-size: 12.5pt;
+    }
+    .practice-items li { margin: 10px 0; }
+    .work-area {
+      margin-top: 14px;
+      min-height: 150mm;
+      border: 1px dashed #c7d5ea;
+      border-radius: 18px;
+      background:
+        linear-gradient(to bottom, rgba(199,213,234,.35) 1px, transparent 1px);
+      background-size: 100% 12mm;
+    }
+
+    @media print {
+      html, body { background: #fff; }
+      .page { margin: 0; width: 210mm; min-height: 297mm; box-shadow: none; border: none; page-break-after: always; }
+      .page:last-child { page-break-after: auto; }
+      .chart { break-inside: avoid; }
+      .box, .question, table { break-inside: avoid; }
+    }
+
+    @page { size: A4; margin: 0; }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <span class="exercise-tag">תרגיל 1</span>
+    <h2>פרבולה עם פרמטר</h2>
+    <div class="question">
+      נתונה הפונקציה \(y=x^2-2x+m\).<br>
+      א. מצאו את נקודת הקיצון של הפונקציה.<br>
+      ב. אם שיעור ה־\(y\) של נקודת הקיצון הוא \(6\), מצאו את \(m\).
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>נקודת הקיצון</h3>
+        <div class="formula math-line">\[y'=2x-2\]</div>
+        <div class="formula math-line">\[y'=0 \quad\Rightarrow\quad 2x-2=0 \quad\Rightarrow\quad x=1\]</div>
+        <div class="formula math-line">\[y(1)=1^2-2\cdot1+m=m-1\]</div>
+        <p>לכן נקודת הקיצון היא \((1,m-1)\).</p>
+      </div>
+
+      <div class="box highlight">
+        <h3>מציאת \(m\)</h3>
+        <p>בפרבולה \(y=x^2-2x+m\) המקדם של \(x^2\) חיובי, ולכן נקודת הקיצון היא מינימום.</p>
+        <div class="formula math-line">\[m-1=6\]</div>
+        <div class="formula math-line">\[m=7\]</div>
+        <p><b>תשובה:</b> עבור \(m=7\), נקודת המינימום היא \((1,6)\).</p>
+      </div>
+
+      <div class="box full">
+        <h3>גרף לדוגמה עבור \(m=7\)</h3>
+        <div id="chart854" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>1</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 2</span>
+    <h2>קיצון ותחומי עלייה/ירידה עם פרמטר חיובי</h2>
+    <div class="question">
+      נתונה הפונקציה \(y=x^3-9mx^2\), כאשר \(m&gt;0\).<br>
+      א. מצאו את נקודות המקסימום והמינימום של הפונקציה.<br>
+      ב. מצאו את תחומי העלייה והירידה של הפונקציה.
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>נגזרת ונקודות חשודות</h3>
+        <div class="formula math-line">\[y'=3x^2-18mx=3x(x-6m)\]</div>
+        <div class="formula math-line">\[y'=0 \quad\Rightarrow\quad 3x(x-6m)=0\]</div>
+        <div class="formula math-line">\[x=0 \quad\text{or}\quad x=6m\]</div>
+        <p>מאחר ש־\(m&gt;0\), מתקיים \(6m&gt;0\), ולכן סדר הנקודות על ציר \(x\) הוא: \(0&lt;6m\).</p>
+      </div>
+
+      <div class="box highlight">
+        <h3>ערכי הפונקציה וסיווג</h3>
+        <div class="formula math-line">\[y(0)=0\]</div>
+        <div class="formula math-line">\[y(6m)=(6m)^3-9m(6m)^2=-108m^3\]</div>
+        <table>
+          <tr><th>נקודה</th><th>סימן נגזרת שנייה</th><th>סוג</th></tr>
+          <tr><td>\((0,0)\)</td><td>\(y''(0)=-18m&lt;0\)</td><td>מקסימום</td></tr>
+          <tr><td>\((6m,-108m^3)\)</td><td>\(y''(6m)=18m&gt;0\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>תחומי עלייה וירידה</h3>
+        <table>
+          <tr><th>תחום</th><th>סימן \(y'\)</th><th>מסקנה</th></tr>
+          <tr><td>\(x&lt;0\)</td><td>חיובי</td><td>עלייה</td></tr>
+          <tr><td>\(0&lt;x&lt;6m\)</td><td>שלילי</td><td>ירידה</td></tr>
+          <tr><td>\(x&gt;6m\)</td><td>חיובי</td><td>עלייה</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>גרף לדוגמה עבור \(m=1\)</h3>
+        <div id="chart853" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>2</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 3</span>
+    <h2>פונקציה ממעלה שלישית כאשר \(a&gt;0\)</h2>
+    <div class="question">
+      נתונה הפונקציה \(y=x^3+2ax^2+a^2x\), כאשר \(a&gt;0\).<br>
+      מצאו נקודות קיצון ותחומי עלייה וירידה.
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>נגזרת ונקודות חשודות</h3>
+        <div class="formula math-line">\[y'=3x^2+4ax+a^2\]</div>
+        <div class="formula math-line">\[3x^2+4ax+a^2=0\]</div>
+        <div class="formula math-line">\[x_{1,2}=\frac{-4a\pm\sqrt{16a^2-12a^2}}{6}\]</div>
+        <div class="formula math-line">\[x_1=-a,\qquad x_2=-\frac{a}{3}\]</div>
+      </div>
+
+      <div class="box highlight">
+        <h3>ערכי הפונקציה</h3>
+        <div class="formula math-line">\[y(-a)=(-a)^3+2a(-a)^2+a^2(-a)=0\]</div>
+        <div class="formula math-line">\[y\left(-\frac{a}{3}\right)=-\frac{4a^3}{27}\]</div>
+        <table>
+          <tr><th>נקודה</th><th>סוג</th></tr>
+          <tr><td>\((-a,0)\)</td><td>מקסימום</td></tr>
+          <tr><td>\(\left(-\frac{a}{3},-\frac{4a^3}{27}\right)\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>תחומי עלייה וירידה</h3>
+        <table>
+          <tr><th>תחום</th><th>סימן \(y'\)</th><th>מסקנה</th></tr>
+          <tr><td>\(x&lt;-a\)</td><td>חיובי</td><td>עלייה</td></tr>
+          <tr><td>\(-a&lt;x&lt;-\frac{a}{3}\)</td><td>שלילי</td><td>ירידה</td></tr>
+          <tr><td>\(x&gt;-\frac{a}{3}\)</td><td>חיובי</td><td>עלייה</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>גרף לדוגמה עבור \(a=3\)</h3>
+        <div id="chart15" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>3</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 4</span>
+    <h2>תחומי עלייה וירידה כאשר \(a&lt;0\)</h2>
+    <div class="question">
+      נתונה הפונקציה \(y=x^3-3ax^2-9a^2x\), כאשר \(a&lt;0\).<br>
+      מצאו את נקודות הקיצון ואת תחומי העלייה והירידה.
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>פתרון הנגזרת</h3>
+        <div class="formula math-line">\[y'=3x^2-6ax-9a^2\]</div>
+        <div class="formula math-line">\[3x^2-6ax-9a^2=0\quad\Rightarrow\quad x^2-2ax-3a^2=0\]</div>
+        <div class="formula math-line">\[x=3a \quad\text{or}\quad x=-a\]</div>
+        <p>מאחר ש־\(a&lt;0\), מתקבל הסדר \(3a&lt;-a\).</p>
+      </div>
+
+      <div class="box highlight">
+        <h3>ערכי הקיצון</h3>
+        <div class="formula math-line">\[y(3a)=-27a^3\]</div>
+        <div class="formula math-line">\[y(-a)=5a^3\]</div>
+        <table>
+          <tr><th>נקודה</th><th>סוג</th></tr>
+          <tr><td>\((3a,-27a^3)\)</td><td>מקסימום</td></tr>
+          <tr><td>\((-a,5a^3)\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>תחומי עלייה וירידה</h3>
+        <table>
+          <tr><th>תחום</th><th>סימן \(y'\)</th><th>מסקנה</th></tr>
+          <tr><td>\(x&lt;3a\)</td><td>חיובי</td><td>עלייה</td></tr>
+          <tr><td>\(3a&lt;x&lt;-a\)</td><td>שלילי</td><td>ירידה</td></tr>
+          <tr><td>\(x&gt;-a\)</td><td>חיובי</td><td>עלייה</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>גרף לדוגמה עבור \(a=-1\)</h3>
+        <div id="chart7" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>4</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 5</span>
+    <h2>פונקציה ממעלה שלישית - מציאת פרמטר מתוך נקודת קיצון</h2>
+    <div class="question">
+      נתונה משפחת הפונקציות \(f_k(x)=2x^3+3x^2-kx+4\), כאשר \(k\) פרמטר ממשי.<br>
+      ידוע שלגרף הפונקציה יש נקודת קיצון בנקודה שבה \(x=2\).<br>
+      א. מצאו את \(k\).<br>
+      ב. מצאו את כל נקודות הקיצון של הפונקציה וקבעו את סוגן.<br>
+      ג. מצאו את תחומי העלייה והירידה של הפונקציה.
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>מציאת הפרמטר</h3>
+        <div class="formula math-line">\[f_k'(x)=6x^2+6x-k\]</div>
+        <p>בנקודת קיצון פנימית שיפוע הפונקציה שווה לאפס, ולכן:</p>
+        <div class="formula math-line">\[f_k'(2)=0\]</div>
+        <div class="formula math-line">\[6\cdot2^2+6\cdot2-k=0\]</div>
+        <div class="formula math-line">\[36-k=0\quad\Rightarrow\quad k=36\]</div>
+      </div>
+
+      <div class="box highlight">
+        <h3>נקודות הקיצון</h3>
+        <div class="formula math-line">\[f(x)=2x^3+3x^2-36x+4\]</div>
+        <div class="formula math-line">\[f'(x)=6x^2+6x-36=6(x+3)(x-2)\]</div>
+        <div class="formula math-line">\[f'(x)=0\quad\Rightarrow\quad x=-3,\;2\]</div>
+        <div class="formula math-line">\[f(-3)=85,\qquad f(2)=-40\]</div>
+        <table>
+          <tr><th>נקודה</th><th>סוג</th></tr>
+          <tr><td>\((-3,85)\)</td><td>מקסימום</td></tr>
+          <tr><td>\((2,-40)\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>תחומי עלייה וירידה</h3>
+        <table>
+          <tr><th>תחום</th><th>סימן \(f'(x)\)</th><th>מסקנה</th></tr>
+          <tr><td>\(x\lt-3\)</td><td>חיובי</td><td>עלייה</td></tr>
+          <tr><td>\(-3\lt x\lt2\)</td><td>שלילי</td><td>ירידה</td></tr>
+          <tr><td>\(x\gt2\)</td><td>חיובי</td><td>עלייה</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>גרף הפונקציה לאחר מציאת הפרמטר</h3>
+        <div id="chart906" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>5</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 6</span>
+    <h2>פונקציה עם פרמטר</h2>
+    <div class="question">
+      נתונה הפונקציה \(y=-x^3-ax^2+ax\). לפונקציה יש נקודת קיצון בנקודה שבה \(x=2\).<br>
+    </div>
+
+    <div class="solution-grid">
+      <div class="box full note">
+        <ol class="practice-items" type="א">
+          <li>מצאו את \(a\).</li>
+          <li>מצאו את נקודות הקיצון של הפונקציה.</li>
+          <li>מצאו את תחומי העלייה והירידה של הפונקציה.</li>
+          <li>מצאו את נקודות החיתוך של הפונקציה עם הצירים.</li>
+          <li>שרטטו סקיצה של גרף הפונקציה.</li>
+        </ol>
+      </div>
+
+    </div>
+    <div class="footer"><span>תרגול ללא פתרון</span><span>6</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 7</span>
+    <h2>פונקציה ממעלה שלישית עם שני פרמטרים</h2>
+    <div class="question">
+      נתונה הפונקציה \(y=x^3+ax^2+bx+10\). הנקודה \((2,54)\) היא נקודת קיצון של הפונקציה.<br>
+      א. מצאו את \(a\) ואת \(b\).<br>
+      ב. מצאו את נקודת הקיצון השנייה של הפונקציה.
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>בניית שתי משוואות</h3>
+        <ol class="steps">
+          <li>נגזור את הפונקציה:</li>
+        </ol>
+        <div class="formula math-line">\[y'=3x^2+2ax+b\]</div>
+        <ol class="steps" start="2">
+          <li>כיוון ש־\((2,54)\) נקודת קיצון, השיפוע בנקודה הוא \(0\):</li>
+        </ol>
+        <div class="formula math-line">\[0=3\cdot2^2+2a\cdot2+b=12+4a+b\]</div>
+        <ol class="steps" start="3">
+          <li>הנקודה נמצאת על הפונקציה:</li>
+        </ol>
+        <div class="formula math-line">\[54=2^3+a\cdot2^2+b\cdot2+10\]</div>
+        <div class="formula math-line">\[54=18+4a+2b \quad\Rightarrow\quad 4a+2b=36\]</div>
+      </div>
+
+      <div class="box highlight">
+        <h3>פתרון המערכת</h3>
+        <div class="formula math-line">\[\begin{cases}12+4a+b=0\\4a+2b=36\end{cases}\]</div>
+        <div class="formula math-line">\[b=-12-4a\]</div>
+        <div class="formula math-line">\[4a+2(-12-4a)=36\]</div>
+        <div class="formula math-line">\[-4a=60\quad\Rightarrow\quad a=-15\]</div>
+        <div class="formula math-line">\[b=-12-4(-15)=48\]</div>
+        <p><b>תשובה:</b> \(a=-15,\; b=48\).</p>
+      </div>
+
+      <div class="box full">
+        <h3>מציאת נקודת הקיצון השנייה</h3>
+        <div class="formula math-line">\[y=x^3-15x^2+48x+10\]</div>
+        <div class="formula math-line">\[y'=3x^2-30x+48=3(x-2)(x-8)\]</div>
+        <p>הערך \(x=2\) כבר נתון, ולכן נקודת הקיצון השנייה מתקבלת כאשר \(x=8\).</p>
+        <div class="formula math-line">\[y(8)=8^3-15\cdot8^2+48\cdot8+10=-54\]</div>
+        <table>
+          <tr><th>נקודה</th><th>בדיקת נגזרת שנייה</th><th>סוג</th></tr>
+          <tr><td>\((2,54)\)</td><td>\(y''(2)=6\cdot2-30=-18&lt;0\)</td><td>מקסימום</td></tr>
+          <tr><td>\((8,-54)\)</td><td>\(y''(8)=6\cdot8-30=18&gt;0\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+      <div class="box full">
+        <h3>גרף הפונקציה לאחר הצבת הפרמטרים</h3>
+        <div id="chart850" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>7</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 8</span>
+    <h2>פונקציה מהצורה \((x^2-ax)^4\), כאשר \(a&gt;0\)</h2>
+    <div class="question">
+      נתונה הפונקציה \(y=(x^2-ax)^4\), כאשר \(a&gt;0\).<br>
+      מצאו נקודות קיצון ותחומי עלייה וירידה.
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>נגזרת ונקודות קריטיות</h3>
+        <div class="formula math-line">\[y'=4(x^2-ax)^3(2x-a)\]</div>
+        <div class="formula math-line">\[y'=4\bigl(x(x-a)\bigr)^3(2x-a)\]</div>
+        <div class="formula math-line">\[y'=0 \quad\Rightarrow\quad x=0,\;x=\frac{a}{2},\;x=a\]</div>
+      </div>
+
+      <div class="box highlight">
+        <h3>ערכי הפונקציה</h3>
+        <div class="formula math-line">\[y(0)=0,\qquad y(a)=0\]</div>
+        <div class="formula math-line">\[y\left(\frac{a}{2}\right)=\left(\frac{a^2}{4}-\frac{a^2}{2}\right)^4=\frac{a^8}{256}\]</div>
+        <table>
+          <tr><th>נקודה</th><th>סוג</th></tr>
+          <tr><td>\((0,0)\)</td><td>מינימום</td></tr>
+          <tr><td>\(\left(\frac{a}{2},\frac{a^8}{256}\right)\)</td><td>מקסימום</td></tr>
+          <tr><td>\((a,0)\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>תחומי עלייה וירידה</h3>
+        <table>
+          <tr><th>תחום</th><th>מסקנה</th></tr>
+          <tr><td>\(x&lt;0\)</td><td>ירידה</td></tr>
+          <tr><td>\(0&lt;x&lt;\frac{a}{2}\)</td><td>עלייה</td></tr>
+          <tr><td>\(\frac{a}{2}&lt;x&lt;a\)</td><td>ירידה</td></tr>
+          <tr><td>\(x&gt;a\)</td><td>עלייה</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>גרף לדוגמה עבור \(a=2\)</h3>
+        <div id="chart16" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>8</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 9</span>
+    <h2>משפחת פולינומים ממעלה רביעית - מספר נקודות הקיצון כתלות בפרמטר</h2>
+    <div class="question">
+      נתונה משפחת הפונקציות \(f_a(x)=x^4-4ax^2\), כאשר \(a\) פרמטר ממשי.<br>
+      א. קבעו, כתלות בערכו של \(a\), כמה נקודות שבהן שיפוע הפונקציה שווה לאפס יש לגרף.<br>
+      ב. עבור \(a\gt0\), מצאו את נקודות הקיצון וקבעו את סוגן.<br>
+      ג. עבור \(a\gt0\), מצאו את תחומי העלייה והירידה.<br>
+      ד. ידוע שערך המינימום של הפונקציה הוא \(-16\). מצאו את \(a\).
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>נגזרת ודיון לפי הפרמטר</h3>
+        <div class="formula math-line">\[f_a'(x)=4x^3-8ax=4x(x^2-2a)\]</div>
+        <p>תמיד מתקבל הפתרון \(x=0\). פתרונות נוספים מתקבלים מן המשוואה:</p>
+        <div class="formula math-line">\[x^2=2a\]</div>
+        <table>
+          <tr><th>תנאי על \(a\)</th><th>נקודות שבהן השיפוע אפס</th></tr>
+          <tr><td>\(a\lt0\)</td><td>\(x=0\) בלבד</td></tr>
+          <tr><td>\(a=0\)</td><td>\(x=0\) בלבד</td></tr>
+          <tr><td>\(a\gt0\)</td><td>\(x=-\sqrt{2a},\;0,\;\sqrt{2a}\)</td></tr>
+        </table>
+      </div>
+
+      <div class="box highlight">
+        <h3>קיצון עבור \(a\gt0\)</h3>
+        <div class="formula math-line">\[f_a(0)=0\]</div>
+        <div class="formula math-line">\[f_a(\pm\sqrt{2a})=(2a)^2-4a(2a)=-4a^2\]</div>
+        <table>
+          <tr><th>נקודה</th><th>סוג</th></tr>
+          <tr><td>\((-\sqrt{2a},-4a^2)\)</td><td>מינימום</td></tr>
+          <tr><td>\((0,0)\)</td><td>מקסימום</td></tr>
+          <tr><td>\((\sqrt{2a},-4a^2)\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>תחומי עלייה וירידה עבור \(a\gt0\)</h3>
+        <table>
+          <tr><th>תחום</th><th>מסקנה</th></tr>
+          <tr><td>\(x\lt-\sqrt{2a}\)</td><td>ירידה</td></tr>
+          <tr><td>\(-\sqrt{2a}\lt x\lt0\)</td><td>עלייה</td></tr>
+          <tr><td>\(0\lt x\lt\sqrt{2a}\)</td><td>ירידה</td></tr>
+          <tr><td>\(x\gt\sqrt{2a}\)</td><td>עלייה</td></tr>
+        </table>
+        <p>בסעיף ד':</p>
+        <div class="formula math-line">\[-4a^2=-16\quad\Rightarrow\quad a^2=4\]</div>
+        <p>מאחר שבסעיף זה \(a\gt0\), מתקבל <b>\(a=2\)</b>.</p>
+      </div>
+
+      <div class="box full">
+        <h3>גרף לדוגמה עבור \(a=2\)</h3>
+        <div id="chart908" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>9</span></div>
+  </section>
+
+  <section class="page">
+    <span class="exercise-tag">תרגיל 10</span>
+    <h2>פולינום ממעלה רביעית עם שני פרמטרים</h2>
+    <div class="question">
+      נתונה משפחת הפונקציות \(f(x)=x^4+ax^3+bx^2\), כאשר \(a,b\) פרמטרים ממשיים.<br>
+      ידוע שבנקודות שבהן \(x=1\) ו-\(x=2\) שיפוע הפונקציה שווה לאפס.<br>
+      א. מצאו את \(a\) ואת \(b\).<br>
+      ב. מצאו את כל נקודות הקיצון של הפונקציה וקבעו את סוגן.<br>
+      ג. מצאו את תחומי העלייה והירידה.<br>
+      ד. מצאו את נקודות החיתוך עם הצירים.<br>
+      ה. הראו כי גרף הפונקציה סימטרי ביחס לישר \(x=1\), ושרטטו סקיצה מתאימה.
+    </div>
+
+    <div class="solution-grid">
+      <div class="box">
+        <h3>מציאת שני הפרמטרים</h3>
+        <div class="formula math-line">\[f'(x)=4x^3+3ax^2+2bx\]</div>
+        <p>מן הנתון \(f'(1)=0\) ו-\(f'(2)=0\):</p>
+        <div class="formula math-line">\[4+3a+2b=0\]</div>
+        <div class="formula math-line">\[32+12a+4b=0\quad\Rightarrow\quad 8+3a+b=0\]</div>
+        <div class="formula math-line">\[b=4,\qquad a=-4\]</div>
+      </div>
+
+      <div class="box highlight">
+        <h3>פירוק ונקודות קיצון</h3>
+        <div class="formula math-line">\[f(x)=x^4-4x^3+4x^2=x^2(x-2)^2\]</div>
+        <div class="formula math-line">\[f'(x)=4x(x-1)(x-2)\]</div>
+        <div class="formula math-line">\[f'(x)=0\quad\Rightarrow\quad x=0,\;1,\;2\]</div>
+        <div class="formula math-line">\[f(0)=0,\qquad f(1)=1,\qquad f(2)=0\]</div>
+        <table>
+          <tr><th>נקודה</th><th>סוג</th></tr>
+          <tr><td>\((0,0)\)</td><td>מינימום</td></tr>
+          <tr><td>\((1,1)\)</td><td>מקסימום</td></tr>
+          <tr><td>\((2,0)\)</td><td>מינימום</td></tr>
+        </table>
+      </div>
+
+      <div class="box full">
+        <h3>עלייה, ירידה וחיתוך עם הצירים</h3>
+        <table>
+          <tr><th>תחום</th><th>מסקנה</th></tr>
+          <tr><td>\(x\lt0\)</td><td>ירידה</td></tr>
+          <tr><td>\(0\lt x\lt1\)</td><td>עלייה</td></tr>
+          <tr><td>\(1\lt x\lt2\)</td><td>ירידה</td></tr>
+          <tr><td>\(x\gt2\)</td><td>עלייה</td></tr>
+        </table>
+        <div class="formula math-line">\[x^2(x-2)^2=0\quad\Rightarrow\quad x=0\;\text{or}\;x=2\]</div>
+        <p>נקודות החיתוך עם ציר \(x\): \((0,0)\), \((2,0)\). נקודת החיתוך עם ציר \(y\): \((0,0)\).</p>
+      </div>
+
+      <div class="box full">
+        <h3>סימטריה</h3>
+        <div class="formula math-line">\[f(1+t)=(1+t)^2(t-1)^2=(1-t)^2(t+1)^2=f(1-t)\]</div>
+        <p>לכן הגרף סימטרי ביחס לישר \(x=1\).</p>
+      </div>
+
+      <div class="box full">
+        <h3>גרף הפונקציה</h3>
+        <div id="chart909" class="chart tall"></div>
+      </div>
+    </div>
+    <div class="footer"><span>פתרון מאוחד</span><span>10</span></div>
+  </section>
+
+  <script>
+    function linspace(start, end, n) {
+      const arr = [];
+      const step = (end - start) / (n - 1);
+      for (let i = 0; i < n; i++) arr.push(start + i * step);
+      return arr;
+    }
+
+    function createChart(id, title, xLabel, yLabel, traces, options = {}) {
+      const layout = {
+        title: { text: title, font: { size: 16 } },
+        margin: { l: 58, r: 20, t: 48, b: 50 },
+        paper_bgcolor: 'white',
+        plot_bgcolor: 'white',
+        xaxis: {
+          title: { text: xLabel },
+          zeroline: true,
+          zerolinewidth: 2,
+          showgrid: true,
+          gridcolor: '#e8eef7'
+        },
+        yaxis: {
+          title: { text: yLabel },
+          zeroline: true,
+          zerolinewidth: 2,
+          showgrid: true,
+          gridcolor: '#e8eef7'
+        },
+        showlegend: true,
+        legend: { orientation: 'h', x: 0, y: 1.14 },
+        annotations: options.annotations || []
+      };
+      if (options.xrange) layout.xaxis.range = options.xrange;
+      if (options.yrange) layout.yaxis.range = options.yrange;
+      Plotly.newPlot(id, traces, layout, { responsive: true, displayModeBar: false });
+    }
+
+    function lineTrace(name, xs, fn) {
+      return { x: xs, y: xs.map(fn), type: 'scatter', mode: 'lines', name, line: { width: 3 } };
+    }
+    function pointTrace(name, pts) {
+      return { x: pts.map(p => p[0]), y: pts.map(p => p[1]), type: 'scatter', mode: 'markers+text', text: pts.map(p => p[2] || ''), textposition: 'top center', name, marker: { size: 9 } };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Exercise 1 (original exercise 3)
+      const x854 = linspace(-2, 4, 300), m854 = 7;
+      createChart('chart854', 'Exercise 1: y = x² - 2x + 7', 'x', 'y', [
+        lineTrace('Function', x854, x => x**2 - 2*x + m854),
+        pointTrace('Vertex', [[1,6,'min (1,6)']])
+      ]);
+
+      // Exercise 2 (original exercise 2)
+      const x853 = linspace(-2, 8, 400), m853 = 1;
+      createChart('chart853', 'Exercise 2: y = x³ - 9mx², m = 1', 'x', 'y', [
+        lineTrace('Function', x853, x => x**3 - 9*m853*x**2),
+        pointTrace('Extrema', [[0,0,'max'], [6,-108,'min']])
+      ], { yrange: [-130, 20] });
+
+      // Exercise 3 (original exercise 4)
+      const x15 = linspace(-4.5, 1.0, 450), a15 = 3;
+      createChart('chart15', 'Exercise 3: y = x³ + 2ax² + a²x, a = 3', 'x', 'y', [
+        lineTrace('Function', x15, x => x**3 + 2*a15*x**2 + a15**2*x),
+        pointTrace('Extrema', [[-3,0,'max'], [-1,-4,'min']])
+      ], { yrange: [-8, 8] });
+
+      // Exercise 4 (original exercise 5)
+      const x7 = linspace(-5, 3, 450), a7 = -1;
+      createChart('chart7', 'Exercise 4: y = x³ - 3ax² - 9a²x, a = -1', 'x', 'y', [
+        lineTrace('Function', x7, x => x**3 - 3*a7*x**2 - 9*a7**2*x),
+        pointTrace('Extrema', [[3*a7, -27*a7**3, 'max'], [-a7, 5*a7**3, 'min']])
+      ], { yrange: [-20, 35] });
+
+      // Exercise 5 - new polynomial parameter question
+      const x906 = linspace(-6, 5, 500);
+      createChart('chart906', 'Exercise 5: y = 2x³ + 3x² - 36x + 4', 'x', 'y', [
+        lineTrace('Function', x906, x => 2*x**3 + 3*x**2 - 36*x + 4),
+        pointTrace('Extrema', [[-3,85,'max (-3,85)'], [2,-40,'min (2,-40)']])
+      ], { yrange: [-80, 120] });
+
+      // Exercise 7 (original exercise 1)
+      const x850 = linspace(-1, 11, 400);
+      createChart('chart850', 'Exercise 7: y = x³ - 15x² + 48x + 10', 'x', 'y', [
+        lineTrace('Function', x850, x => x**3 - 15*x**2 + 48*x + 10),
+        pointTrace('Extrema', [[2, 54, 'max (2,54)'], [8, -54, 'min (8,-54)']])
+      ], { yrange: [-90, 80] });
+
+      // Exercise 8 (original exercise 7)
+      const x16 = linspace(-0.8, 2.8, 450), a16 = 2;
+      createChart('chart16', 'Exercise 8: y = (x² - ax)⁴, a = 2', 'x', 'y', [
+        lineTrace('Function', x16, x => (x**2 - a16*x)**4),
+        pointTrace('Extrema', [[0,0,'min'], [1,1,'max'], [2,0,'min']])
+      ], { yrange: [-0.1, 4] });
+
+      // Exercise 9 - new parameter-case quartic
+      const x908 = linspace(-3.2, 3.2, 500), a908 = 2;
+      createChart('chart908', 'Exercise 9: y = x⁴ - 4ax², a = 2', 'x', 'y', [
+        lineTrace('Function', x908, x => x**4 - 4*a908*x**2),
+        pointTrace('Extrema', [[-2,-16,'min'], [0,0,'max'], [2,-16,'min']])
+      ], { yrange: [-20, 25] });
+
+      // Exercise 10 - new two-parameter quartic
+      const x909 = linspace(-1.5, 3.5, 500);
+      createChart('chart909', 'Exercise 10: y = x²(x - 2)²', 'x', 'y', [
+        lineTrace('Function', x909, x => x**2 * (x-2)**2),
+        pointTrace('Extrema', [[0,0,'min'], [1,1,'max'], [2,0,'min']])
+      ], { yrange: [-0.2, 8] });
+    });
+  </script>
+</body>
+</html>

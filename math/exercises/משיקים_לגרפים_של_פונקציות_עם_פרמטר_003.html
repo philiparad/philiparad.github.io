@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>משיקים לגרפים של פונקציות עם פרמטר</title>
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#eef3fb;
+      --page:#ffffff;
+      --ink:#172033;
+      --muted:#5d6880;
+      --line:#d9e1ef;
+      --primary:#2457c5;
+      --primary2:#0e8a83;
+      --soft:#f4f7fc;
+      --accent:#fff7df;
+      --danger:#a12c2c;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      background:linear-gradient(135deg,#e9f0fb 0%,#f8fafc 45%,#eef8f7 100%);
+      color:var(--ink);
+      font-family:Arial,"Noto Sans Hebrew","Rubik",sans-serif;
+      line-height:1.55;
+    }
+
+    .document{
+      width:210mm;
+      margin:0 auto;
+      padding:0;
+    }
+
+    .page{
+      width:210mm;
+      min-height:297mm;
+      background:var(--page);
+      margin:14px auto;
+      padding:13mm 13mm 15mm;
+      box-shadow:0 18px 45px rgba(22,34,60,.16);
+      page-break-after:always;
+      position:relative;
+    }
+
+    .page:last-child{page-break-after:auto;}
+
+    header{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px 18px;
+      background:linear-gradient(135deg,#f8fbff 0%,#eef6ff 100%);
+      margin-bottom:18px;
+    }
+
+    h1{
+      margin:0 0 6px;
+      font-size:27px;
+      color:#12356d;
+      letter-spacing:-.3px;
+    }
+
+    h2{
+      margin:0 0 12px;
+      font-size:22px;
+      color:#12356d;
+      border-bottom:2px solid var(--line);
+      padding-bottom:7px;
+    }
+
+    h3{
+      margin:14px 0 8px;
+      font-size:17px;
+      color:#1f4a93;
+    }
+
+    p{margin:7px 0;}
+
+    .subtitle{
+      color:var(--muted);
+      font-size:15px;
+      margin:0;
+    }
+
+    .exercise-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px 16px;
+      margin:14px 0;
+      background:#fff;
+    }
+
+    .statement{
+      background:var(--soft);
+      border-right:5px solid var(--primary);
+      border-radius:14px;
+      padding:12px 14px;
+      margin-bottom:12px;
+    }
+
+    .answer-box{
+      border:1px solid #f1d488;
+      background:linear-gradient(135deg,#fffdf4,#fff7df);
+      border-radius:14px;
+      padding:11px 14px;
+      margin-top:10px;
+      font-weight:700;
+    }
+
+    .step-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      align-items:start;
+      margin-top:10px;
+    }
+
+    .step{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fbfdff;
+      min-height:92px;
+    }
+
+    .wide{grid-column:1/-1;}
+
+    .tag{
+      display:inline-block;
+      padding:3px 10px;
+      border-radius:999px;
+      background:#e8f0ff;
+      color:#1f4a93;
+      font-weight:700;
+      font-size:13px;
+      margin-left:6px;
+    }
+
+    .formula{
+      direction:ltr;
+      text-align:center;
+      margin:8px 0;
+      font-size:17px;
+    }
+
+    .graph-wrap{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:10px 12px 6px;
+      background:#fff;
+      margin-top:14px;
+      break-inside:avoid;
+    }
+
+    .graph-title{
+      font-weight:700;
+      color:#12356d;
+      margin:0 0 4px;
+      font-size:15px;
+    }
+
+    .plot{
+      width:100%;
+      height:275px;
+    }
+
+    .note{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:8px;
+    }
+
+    .summary-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+      font-size:15px;
+    }
+
+    .summary-table th,
+    .summary-table td{
+      border:1px solid var(--line);
+      padding:8px 10px;
+      vertical-align:top;
+    }
+
+    .summary-table th{
+      background:#eef5ff;
+      color:#12356d;
+    }
+
+    .homework-list{
+      margin:10px 0 0;
+      padding:0 22px 0 0;
+    }
+
+    .homework-list li{
+      margin:11px 0;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fbfdff;
+      break-inside:avoid;
+    }
+
+    .work-space{
+      height:42px;
+      border-bottom:1px dashed #b8c4d8;
+      margin-top:8px;
+    }
+
+    .ltr{direction:ltr; unicode-bidi:embed; display:inline-block;}
+
+    .page-number{
+      position:absolute;
+      bottom:7mm;
+      left:13mm;
+      color:#8893a7;
+      font-size:12px;
+    }
+
+    mjx-container{
+      direction:ltr !important;
+      text-align:center !important;
+    }
+
+    @media print{
+      body{background:#fff;}
+      .document{width:210mm;}
+      .page{
+        margin:0;
+        box-shadow:none;
+        border:none;
+        width:210mm;
+        min-height:297mm;
+      }
+      .graph-wrap,.exercise-card,.step{break-inside:avoid;}
+      @page{size:A4; margin:0;}
+    }
+  </style>
+</head>
+<body>
+  <main class="document">
+    <section class="page">
+      <header>
+        <h1>משיקים לגרפים של פונקציות עם פרמטר</h1>
+      </header>
+
+      <div class="exercise-card">
+        <h2>שאלה 1</h2>
+        <div class="statement">
+          נתונה הפונקציה \(y=ax^2\), כאשר \(a ≠ 0\). בנקודה שבה \(x=1\) מעבירים משיק לגרף הפונקציה. יש להביע באמצעות \(a\) את משוואת המשיק.
+        </div>
+
+        <div class="step-grid">
+          <div class="step">
+            <h3><span class="tag">1</span>גוזרים את הפונקציה</h3>
+            <div class="formula">\[f(x)=ax^2\]</div>
+            <div class="formula">\[f'(x)=2ax\]</div>
+          </div>
+
+          <div class="step">
+            <h3><span class="tag">2</span>מוצאים את שיפוע המשיק</h3>
+            בנקודה שבה \(x=1\):
+            <div class="formula">\[m=f'(1)=2a\]</div>
+          </div>
+
+          <div class="step">
+            <h3><span class="tag">3</span>מוצאים את נקודת ההשקה</h3>
+            <div class="formula">\[f(1)=a\cdot 1^2=a\]</div>
+            לכן נקודת ההשקה היא:
+            <div class="formula">\[(1,a)\]</div>
+          </div>
+
+          <div class="step">
+            <h3><span class="tag">4</span>בונים משוואת ישר</h3>
+            <div class="formula">\[y-a=2a(x-1)\]</div>
+            <div class="formula">\[y=2ax-a\]</div>
+          </div>
+        </div>
+
+        <div class="answer-box">תשובה: \(\boxed{y=2ax-a}\)</div>
+
+        <div class="graph-wrap">
+          <p class="graph-title">גרף מסומן לשאלה 1: דוגמה עבור \(a=1.2\)</p>
+          <div id="plot40" class="plot"></div>
+          <p class="note">הגרף מציג את הפונקציה, את המשיק בנקודה \(x=1\), ואת נקודת ההשקה.</p>
+        </div>
+      </div>
+
+      <div class="page-number">עמוד 1</div>
+    </section>
+
+    <section class="page">
+      <div class="exercise-card">
+        <h2>שאלה 2</h2>
+        <div class="statement">
+          נתונה הפונקציה \(y=x^3+a\), כאשר \(a\) הוא פרמטר. ישר משיק לגרף הפונקציה בנקודה שבה \(x=1\).<br>
+          א. יש להביע באמצעות \(a\) את משוואת המשיק.<br>
+          ב. יש למצוא את הפרמטר \(a\), אם נתון כי המשיק עובר בנקודה \((0,2)\).
+        </div>
+
+        <h3>סעיף א — משוואת המשיק</h3>
+        <div class="step-grid">
+          <div class="step">
+            <h3><span class="tag">1</span>נגזרת ושיפוע</h3>
+            <div class="formula">\[f(x)=x^3+a\]</div>
+            <div class="formula">\[f'(x)=3x^2\]</div>
+            <div class="formula">\[m=f'(1)=3\]</div>
+          </div>
+
+          <div class="step">
+            <h3><span class="tag">2</span>נקודת ההשקה</h3>
+            <div class="formula">\[f(1)=1+a\]</div>
+            לכן נקודת ההשקה היא:
+            <div class="formula">\[(1,1+a)\]</div>
+          </div>
+
+          <div class="step wide">
+            <h3><span class="tag">3</span>משוואת המשיק</h3>
+            <div class="formula">\[y-(1+a)=3(x-1)\]</div>
+            <div class="formula">\[y=3x+a-2\]</div>
+          </div>
+        </div>
+
+        <div class="answer-box">תשובה לסעיף א: \(\boxed{y=3x+a-2}\)</div>
+
+        <h3>סעיף ב — שימוש בנקודה \((0,2)\)</h3>
+        <p>המשיק עובר בנקודה \((0,2)\), ולכן מציבים במשוואת המשיק \(x=0\), \(y=2\):</p>
+        <div class="formula">\[2=3\cdot 0+a-2\]</div>
+        <div class="formula">\[2=a-2\]</div>
+        <div class="formula">\[a=4\]</div>
+
+        <div class="answer-box">תשובה לסעיף ב: \(\boxed{a=4}\)</div>
+
+        <div class="graph-wrap">
+          <p class="graph-title">גרף מסומן לשאלה 2: הפונקציה \(y=x^3+4\) והמשיק \(y=3x+2\)</p>
+          <div id="plot41" class="plot"></div>
+          <p class="note">הגרף מדגיש גם את נקודת ההשקה \((1,5)\) וגם את הנקודה \((0,2)\), הנמצאת על המשיק.</p>
+        </div>
+      </div>
+
+      <div class="page-number">עמוד 2</div>
+    </section>
+
+    <section class="page">
+      <div class="exercise-card">
+        <h2>שאלה 3</h2>
+        <div class="statement">
+          לגרף הפונקציה \(y=ax^2+1\) מעבירים משיק בנקודה שבה \(x=1\).<br>
+          א. יש להביע באמצעות \(a\) את משוואת המשיק.<br>
+          ב. המשיק שמצאת בסעיף א חותך את ציר \(x\) בנקודה שבה \(x=-2\). יש למצוא את \(a\).
+        </div>
+
+        <h3>סעיף א — משוואת המשיק</h3>
+        <div class="step-grid">
+          <div class="step">
+            <h3><span class="tag">1</span>גוזרים</h3>
+            <div class="formula">\[f(x)=ax^2+1\]</div>
+            <div class="formula">\[f'(x)=2ax\]</div>
+          </div>
+
+          <div class="step">
+            <h3><span class="tag">2</span>שיפוע ונקודת השקה</h3>
+            <div class="formula">\[m=f'(1)=2a\]</div>
+            <div class="formula">\[f(1)=a+1\]</div>
+            נקודת ההשקה היא \((1,a+1)\).
+          </div>
+
+          <div class="step wide">
+            <h3><span class="tag">3</span>בונים את משוואת המשיק</h3>
+            <div class="formula">\[y-(a+1)=2a(x-1)\]</div>
+            <div class="formula">\[y=2ax-a+1\]</div>
+          </div>
+        </div>
+
+        <div class="answer-box">תשובה לסעיף א: \(\boxed{y=2ax-a+1}\)</div>
+
+        <h3>סעיף ב — מציאת \(a\)</h3>
+        <p>חיתוך עם ציר \(x\) מתקבל כאשר \(y=0\). נתון כי החיתוך הוא בנקודה שבה \(x=-2\), לכן מציבים:</p>
+        <div class="formula">\[0=2a(-2)-a+1\]</div>
+        <div class="formula">\[0=-5a+1\]</div>
+        <div class="formula">\[5a=1\]</div>
+        <div class="formula">\[a=\frac{1}{5}\]</div>
+
+        <div class="answer-box">תשובה לסעיף ב: \(\boxed{a=\frac{1}{5}}\)</div>
+
+        <div class="graph-wrap">
+          <p class="graph-title">גרף מסומן לשאלה 3: הפונקציה \(y=\frac{1}{5}x^2+1\) והמשיק \(y=\frac{2}{5}x+\frac{4}{5}\)</p>
+          <div id="plot42" class="plot"></div>
+          <p class="note">הגרף מראה את נקודת ההשקה \(\left(1,\frac{6}{5}\right)\) ואת חיתוך המשיק עם ציר \(x\) בנקודה \((-2,0)\).</p>
+        </div>
+      </div>
+
+      <div class="page-number">עמוד 3</div>
+    </section>
+
+    <section class="page">
+      <header>
+        <h1>סיכום שיטות</h1>
+        <p class="subtitle">שלבי העבודה למציאת משוואת משיק בנקודה נתונה.</p>
+      </header>
+
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>שלב</th>
+            <th>מה עושים?</th>
+            <th>המשמעות</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>גוזרים את הפונקציה: \(f'(x)\)</td>
+            <td>הנגזרת נותנת את שיפוע המשיק בכל נקודה.</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>מציבים את ערך ה־\(x\) הנתון בנגזרת</td>
+            <td>מקבלים את שיפוע המשיק: \(m=f'(x_0)\).</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>מציבים את ערך ה־\(x\) בפונקציה</td>
+            <td>מקבלים את נקודת ההשקה: \((x_0,f(x_0))\).</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>משתמשים בנוסחת ישר דרך נקודה ושיפוע</td>
+            <td>\(y-y_0=m(x-x_0)\)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="exercise-card">
+        <h2>תשובות סופיות</h2>
+        <p><strong>שאלה 1:</strong> \(\boxed{y=2ax-a}\)</p>
+        <p><strong>שאלה 2, סעיף א:</strong> \(\boxed{y=3x+a-2}\)</p>
+        <p><strong>שאלה 3, סעיף ב:</strong> \(\boxed{a=4}\)</p>
+        <p><strong>שאלה 3, סעיף א:</strong> \(\boxed{y=2ax-a+1}\)</p>
+        <p><strong>שאלה 3, סעיף ב:</strong> \(\boxed{a=\frac{1}{5}}\)</p>
+      </div>
+
+      <div class="page-number">עמוד 4</div>
+    </section>
+
+    <section class="page">
+      <header>
+        <h1>שיעורי בית — משיקים עם פרמטר</h1>
+        <p class="subtitle">פתרו במחברת. אין לכלול פתרונות בדף זה. בכל תרגיל יש למצוא נקודת השקה, שיפוע משיק ומשוואת משיק.</p>
+      </header>
+
+      <div class="exercise-card">
+        <h2>תרגילים 1–5</h2>
+        <ol class="homework-list">
+          <li>
+            נתונה הפונקציה \(y=ax^2+3\), כאשר \(a
+≠ 0\). בנקודה שבה \(x=2\) מעבירים משיק לגרף הפונקציה. הביעו באמצעות \(a\) את משוואת המשיק.
+            <div class="work-space"></div>
+          </li>
+          <li>
+            נתונה הפונקציה \(y=x^3+a\). ישר משיק לגרף הפונקציה בנקודה שבה \(x=2\).<br>
+            א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+            ב. מצאו את \(a\), אם המשיק עובר בנקודה \((0,5)\).
+            <div class="work-space"></div>
+          </li>
+          <li>
+            נתונה הפונקציה \(y=ax^2-4\), כאשר \(a
+≠ 0\). מעבירים משיק בנקודה שבה \(x=-1\).<br>
+            א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+            ב. מצאו את \(a\), אם המשיק חותך את ציר \(y\) בנקודה שבה \(y=2\).
+            <div class="work-space"></div>
+          </li>
+          <li>
+            נתונה הפונקציה \(y=2x^2+a\). מעבירים משיק לגרף הפונקציה בנקודה שבה \(x=1\).<br>
+            א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+            ב. מצאו את \(a\), אם המשיק עובר בנקודה \((3,10)\).
+            <div class="work-space"></div>
+          </li>
+          <li>
+            נתונה הפונקציה \(y=ax^3+1\), כאשר \(a
+≠ 0\). מעבירים משיק בנקודה שבה \(x=1\). הביעו באמצעות \(a\) את משוואת המשיק.
+            <div class="work-space"></div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="page-number">עמוד 5</div>
+    </section>
+
+    <section class="page">
+      <header>
+        <h1>שיעורי בית — המשך</h1>
+        <p class="subtitle">התרגילים ללא פתרונות, כדי לשמש לתרגול עצמאי או להגשה.</p>
+      </header>
+
+      <div class="exercise-card">
+        <h2>תרגילים 6–10</h2>
+        <ol class="homework-list" start="6">
+          <li>
+            נתונה הפונקציה \(y=x^2+ax\). מעבירים משיק בנקודה שבה \(x=2\).<br>
+            א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+            ב. מצאו את \(a\), אם שיפוע המשיק הוא \(7\).
+            <div class="work-space"></div>
+          </li>
+          <li>
+            נתונה הפונקציה \(y=ax^2+2x\), כאשר \(a
+≠ 0\). מעבירים משיק בנקודה שבה \(x=-1\).<br>
+            א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+            ב. מצאו את \(a\), אם המשיק מקביל לישר \(y=6x-1\).
+            <div class="work-space"></div>
+          </li>
+          <li>
+            נתונה הפונקציה \(y=x^3+ax\). מעבירים משיק בנקודה שבה \(x=1\).<br>
+            א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+            ב. מצאו את \(a\), אם המשיק עובר בראשית הצירים.
+            <div class="work-space"></div>
+          </li>
+          <li>
+            נתונה הפונקציה \(y=a(x-1)^2+2\), כאשר \(a
+≠ 0\). מעבירים משיק בנקודה שבה \(x=3\).<br>
+            א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+            ב. מצאו את \(a\), אם המשיק חותך את ציר \(x\) בנקודה שבה \(x=1\).
+            <div class="work-space"></div>
+          </li>
+<li>
+  נתונה הפונקציה \(y=\frac{1}{2}x^2+a\). מעבירים משיק בנקודה שבה \(x=4\).<br>
+  א. הביעו באמצעות \(a\) את משוואת המשיק.<br>
+  ב. מצאו את \(a\), אם המשיק עובר בנקודה \((0,-6)\).
+  <div class="work-space"></div>
+</li>
+        </ol>
+      </div>
+
+      <div class="page-number">עמוד 6</div>
+    </section>
+  </main>
+
+  <script>
+    function range(start, end, step){
+      const arr=[];
+      for(let x=start; x<=end+1e-9; x+=step){ arr.push(Number(x.toFixed(4))); }
+      return arr;
+    }
+
+    const commonConfig = {
+      responsive:true,
+      displayModeBar:false,
+      staticPlot:false
+    };
+
+    const commonLayout = (title, xRange, yRange) => ({
+      title:{text:title, x:0.5, font:{size:15}},
+      margin:{l:52,r:24,t:45,b:50},
+      paper_bgcolor:'#ffffff',
+      plot_bgcolor:'#ffffff',
+      xaxis:{
+        title:{text:'x'},
+        range:xRange,
+        zeroline:true,
+        zerolinewidth:2,
+        showgrid:true,
+        gridcolor:'#e8edf5'
+      },
+      yaxis:{
+        title:{text:'y'},
+        range:yRange,
+        zeroline:true,
+        zerolinewidth:2,
+        showgrid:true,
+        gridcolor:'#e8edf5'
+      },
+      legend:{orientation:'h', x:0.5, xanchor:'center', y:-0.22},
+      annotations:[]
+    });
+
+    function addPointLabel(layout, x, y, text, ax, ay){
+      layout.annotations.push({
+        x:x, y:y, text:text, showarrow:true, arrowhead:2, ax:ax, ay:ay,
+        bgcolor:'#ffffff', bordercolor:'#cfd8ea', borderwidth:1, borderpad:4,
+        font:{size:12}
+      });
+    }
+
+    const x40 = range(-2.4, 3.0, 0.04);
+    const a40 = 1.2;
+    const y40 = x40.map(x => a40*x*x);
+    const t40 = x40.map(x => 2*a40*x-a40);
+    const layout40 = commonLayout('Question 1: y = ax² and tangent at x = 1', [-2.4,3.0], [-2.2,8.8]);
+    addPointLabel(layout40, 1, a40, '(1, a)', 35, -35);
+    Plotly.newPlot('plot40', [
+      {x:x40, y:y40, mode:'lines', name:'Function: y = ax²'},
+      {x:x40, y:t40, mode:'lines', name:'Tangent: y = 2ax − a'},
+      {x:[1], y:[a40], mode:'markers', name:'Tangency point'}
+    ], layout40, commonConfig);
+
+    const x41 = range(-2.4, 2.6, 0.04);
+    const y41 = x41.map(x => x*x*x + 4);
+    const t41 = x41.map(x => 3*x + 2);
+    const layout41 = commonLayout('Question 2: y = x³ + 4 and tangent at x = 1', [-2.4,2.6], [-5.0,12.5]);
+    addPointLabel(layout41, 1, 5, '(1, 5)', 35, -35);
+    addPointLabel(layout41, 0, 2, '(0, 2)', -35, 35);
+    Plotly.newPlot('plot41', [
+      {x:x41, y:y41, mode:'lines', name:'Function: y = x³ + 4'},
+      {x:x41, y:t41, mode:'lines', name:'Tangent: y = 3x + 2'},
+      {x:[1,0], y:[5,2], mode:'markers', name:'Marked points'}
+    ], layout41, commonConfig);
+
+    const x42 = range(-4, 4, 0.04);
+    const a42 = 1/5;
+    const y42 = x42.map(x => a42*x*x + 1);
+    const t42 = x42.map(x => (2/5)*x + 4/5);
+    const layout42 = commonLayout('Question 3: y = (1/5)x² + 1 and tangent at x = 1', [-4,4], [-0.8,5.0]);
+    addPointLabel(layout42, 1, 1.2, '(1, 6/5)', 35, -35);
+    addPointLabel(layout42, -2, 0, '(-2, 0)', -45, -38);
+    Plotly.newPlot('plot42', [
+      {x:x42, y:y42, mode:'lines', name:'Function: y = (1/5)x² + 1'},
+      {x:x42, y:t42, mode:'lines', name:'Tangent: y = (2/5)x + 4/5'},
+      {x:[1,-2], y:[1.2,0], mode:'markers', name:'Marked points'}
+    ], layout42, commonConfig);
+  </script>
+</body>
+</html>

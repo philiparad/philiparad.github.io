@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>דף עבודה - חקירת פונקציות ונקודות קיצון</title>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #eef1f5;
+      color: #172033;
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      line-height: 1.65;
+    }
+
+    body {
+      direction: rtl;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 16px auto;
+      padding: 18mm 17mm;
+      background: #ffffff;
+      position: relative;
+      overflow: visible;
+      break-after: page;
+    }
+
+    .page:last-child {
+      break-after: auto;
+    }
+
+    .header {
+      border-bottom: 3px solid #1f4e79;
+      padding-bottom: 10mm;
+      margin-bottom: 10mm;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 29px;
+      font-weight: 800;
+      color: #1f4e79;
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      margin-top: 4mm;
+      font-size: 17px;
+      color: #44546a;
+    }
+
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8mm;
+      margin-top: 8mm;
+      font-size: 15px;
+      color: #2d3748;
+    }
+
+    .field {
+      border-bottom: 1px solid #8a94a6;
+      min-height: 10mm;
+      padding-bottom: 1mm;
+    }
+
+    .instructions {
+      border: 1.5px solid #c4ccd8;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 7mm;
+      margin-bottom: 9mm;
+      font-size: 16px;
+    }
+
+    .instructions strong {
+      color: #1f4e79;
+    }
+
+    .question {
+      border: 1.4px solid #c7ced9;
+      border-radius: 12px;
+      padding: 6mm 7mm;
+      margin-bottom: 7mm;
+      background: #ffffff;
+      box-shadow: 0 1px 0 rgba(17, 24, 39, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .question-title {
+      display: inline-block;
+      margin: 0 0 4mm 0;
+      padding: 1.5mm 5mm;
+      border-radius: 999px;
+      background: #1f4e79;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .question p {
+      margin: 3mm 0;
+      font-size: 18px;
+    }
+
+    .parts {
+      margin: 4mm 0 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: part-counter;
+    }
+
+    .parts li {
+      counter-increment: part-counter;
+      margin: 2mm 0;
+      font-size: 18px;
+    }
+
+    .parts li::before {
+      content: counter(part-counter, hebrew) ". ";
+      font-weight: 700;
+      color: #1f4e79;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 9mm;
+      left: 17mm;
+      right: 17mm;
+      border-top: 1px solid #d3dae5;
+      padding-top: 3mm;
+      font-size: 12px;
+      color: #667085;
+      text-align: center;
+    }
+
+    mjx-container {
+      direction: ltr;
+      unicode-bidi: isolate;
+      font-size: 105% !important;
+    }
+
+    .math-line {
+      direction: ltr;
+      text-align: center;
+      margin: 4mm 0;
+    }
+
+    .note {
+      font-size: 15px;
+      color: #5f6b7a;
+      margin-top: 2mm;
+    }
+
+    @media print {
+      html, body {
+        width: 210mm;
+        background: #ffffff;
+      }
+
+      .page {
+        margin: 0;
+        width: auto;
+        min-height: auto;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      .footer {
+        position: fixed;
+        bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="page">
+      <div class="header">
+        <h1>דף עבודה — חקירת פונקציות ונקודות קיצון</h1>
+        <div class="subtitle">מציאת נקודות קיצון, תחומי עלייה ותחומי ירידה</div>
+      </div>
+
+      <div class="instructions">
+        <strong>הנחיות:</strong>
+        בכל תרגיל יש לגזור את הפונקציה, למצוא נקודות חשודות לקיצון, לבדוק את סוג הקיצון ולקבוע את תחומי העלייה והירידה בהתאם לדרישות השאלה.
+      </div>
+
+      <article class="question">
+        <h2 class="question-title">תרגיל 1</h2>
+        <p>נתונה הפונקציה</p>
+        <div class="math-line">\[y=x^3+ax^2+bx+10\]</div>
+        <p>ידוע כי \((2,54)\) היא נקודת קיצון של הפונקציה.</p>
+        <ol class="parts">
+          <li>מצא את \(a\) ואת \(b\).</li>
+          <li>חקור את הפונקציה ומצא את נקודת הקיצון השנייה של הפונקציה.</li>
+        </ol>
+      </article>
+
+      <article class="question">
+        <h2 class="question-title">תרגיל 3</h2>
+        <p>נתונה הפונקציה</p>
+        <div class="math-line">\[y=x^2-2x+m\]</div>
+        <ol class="parts">
+          <li>מצא את נקודת הקיצון של הפונקציה.</li>
+          <li>ידוע כי ערך ה־\(y\) של נקודת הקיצון הוא \(6\). מצא את \(m\).</li>
+        </ol>
+      </article>
+
+      <article class="question">
+        <h2 class="question-title">תרגיל 4</h2>
+        <p>נתונה הפונקציה</p>
+        <div class="math-line">\[y=x^3+2ax^2+a^2x\]</div>
+        <p>כאשר \(a>0\).</p>
+        <p>מצא את נקודות הקיצון של הפונקציה ואת תחומי העלייה והירידה שלה.</p>
+      </article>
+
+      <article class="question">
+        <h2 class="question-title">תרגיל 6</h2>
+        <p>נתונה הפונקציה</p>
+        <div class="math-line">\[y=x^4-(x+2)^4\]</div>
+        <p>הראה שאין לפונקציה נקודות קיצון, וקבע את תחומי העלייה והירידה שלה.</p>
+      </article>
+
+      <div class="footer">עמוד 1 מתוך 2</div>
+    </section>
+
+    <section class="page">
+      <article class="question">
+        <h2 class="question-title">תרגיל 7</h2>
+        <p>נתונה הפונקציה</p>
+        <div class="math-line">\[y=(x^2-ax)^4\]</div>
+        <p>כאשר \(a>0\).</p>
+        <p>מצא את נקודות הקיצון של הפונקציה ואת תחומי העלייה והירידה שלה.</p>
+      </article>
+
+      <article class="question">
+        <h2 class="question-title">תרגיל 8</h2>
+        <p>נתונה הפונקציה</p>
+        <div class="math-line">\[y=(x+1)^2(x-1)^2\]</div>
+        <p>מצא את נקודות הקיצון של הפונקציה ואת תחומי העלייה והירידה שלה.</p>
+      </article>
+
+      <article class="question">
+        <h2 class="question-title">תרגיל 10</h2>
+        <p>נתונה הפונקציה</p>
+        <div class="math-line">\[y=-x^3-ax^2+ax\]</div>
+        <p>ידוע כי לפונקציה יש נקודת קיצון בנקודה שבה \(x=2\).</p>
+        <p>מצא את \(a\).</p>
+      </article>
+
+      <div class="instructions">
+        <strong>בדיקה עצמית:</strong>
+        לאחר הפתרון יש לוודא שכל נקודת קיצון מתקבלת מתוך \(y'=0\), שכל תחום עלייה או ירידה נקבע לפי סימן הנגזרת, ושכל ערכי הפרמטרים מקיימים את תנאי השאלה.
+      </div>
+
+      <div class="footer">עמוד 2 מתוך 2</div>
+    </section>
+  </main>
+</body>
+</html>
