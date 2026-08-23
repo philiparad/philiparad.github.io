@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css" rel="stylesheet"/>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],packages:{'[+]':['ams']}},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraphcore.js"></script>
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e8edf2;font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#17202a}
+body{direction:rtl}
+.page{width:210mm;height:297mm;margin:8mm auto;background:#fff;padding:11mm 13mm 12mm;position:relative;overflow:hidden;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.page-head{height:8mm;border-bottom:1px solid #d9e1e8;display:flex;justify-content:space-between;align-items:flex-start;font-size:10.5px;color:#6a7683;margin-bottom:4mm}
+.page-head .unit{font-weight:700}.pageno{direction:ltr}
+.page-foot{position:absolute;bottom:4mm;right:13mm;left:13mm;border-top:1px solid #e3e8ed;padding-top:2mm;font-size:9.5px;color:#7a8793}
+h1{margin:0 0 5mm;font-size:25px;color:#0d4775;line-height:1.15}
+h2{font-size:20px;color:#0d4775}h3{margin:0 0 2.2mm;font-size:16px;color:#175a86}
+p{font-size:14px;line-height:1.55;margin:2mm 0}
+.lead{font-size:16px}.hero{padding:14mm 10mm 9mm;text-align:center;border:2px solid #d6e8f5;border-radius:5mm;background:#f6fbff}
+.hero-kicker{font-size:18px;font-weight:700;color:#2a6f9e}.hero-formula{font-size:26px;margin:6mm 0}.hero p{font-size:17px;max-width:145mm;margin:auto;line-height:1.6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin:4mm 0}.graph-layout{grid-template-columns:0.95fr 1.05fr;align-items:start}
+.card,.trap{border:1px solid #dce5ec;border-radius:3mm;padding:4mm;background:#fbfdff;min-height:34mm}.trap{border-right:4px solid #d96b5b;background:#fffafa;min-height:30mm}
+ul,ol{font-size:13.5px;line-height:1.55;margin:2mm 0;padding-right:6mm}li{margin-bottom:1.2mm}
+.formula{direction:ltr;text-align:center;font-size:18px;margin:3mm 0}.formula.small{font-size:15px}.formula.big{font-size:19px;margin:8mm 0}
+.note,.warning,.teacher,.example,.conclusion,.hint,.checklist{border-radius:2.5mm;padding:3.2mm 4mm;margin:4mm 0;font-size:13.5px;line-height:1.5}
+.note{background:#eef7ff;border-right:4px solid #4b91c3}.note.strong{font-size:14.5px;font-weight:600}.warning{background:#fff3ef;border-right:4px solid #d96b5b}.teacher{background:#f4f2ff;border-right:4px solid #806cc2}.example{background:#f8fbf0;border-right:4px solid #88a84a}.conclusion{background:#eef8f4;border-right:4px solid #44a07b}.hint{background:#fff9e8;border-right:4px solid #d3a236}.checklist{background:#eef7ff;border:1px solid #b9d6e8}
+.flow{display:flex;align-items:center;justify-content:space-between;gap:2mm;margin:6mm 0 8mm;direction:rtl}.flow div{background:#eef6fb;border:1px solid #c8deec;border-radius:2mm;padding:3mm 2mm;text-align:center;font-weight:700;font-size:12px;flex:1}.flow span{font-size:18px;color:#417da4}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-top:7mm}.timeline span{text-align:center;background:#0d4775;color:#fff;border-radius:2mm;padding:4mm 2mm;font-size:12px}
+.graph-panel{position:relative;border:1px solid #cbd8e2;border-radius:3mm;padding:10mm 3mm 3mm;background:#fbfdff;overflow:hidden}.jxgbox{width:100%;height:90mm;border:0!important;background:#fff}.graph-controls{position:absolute;top:2mm;left:3mm;z-index:8;display:flex;direction:ltr;gap:1.5mm}.graph-controls button{border:1px solid #a9bcc9;background:white;border-radius:2mm;padding:1.3mm 2.5mm;cursor:pointer;font-weight:700}.graph-caption{font-size:10.5px;color:#687782;text-align:center;margin-top:2mm}
+.sliderline{display:flex;align-items:center;gap:3mm;margin:4mm 0;font-size:14px;font-weight:700}.sliderline input{flex:1}.sliderline output{direction:ltr;min-width:12mm;text-align:center;background:#edf4f8;border-radius:2mm;padding:1mm}
+.threshold{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;direction:ltr;margin:10mm 0}.case{direction:rtl;text-align:center;border:1px solid #c9d9e6;border-radius:3mm;padding:6mm;background:#f8fbfd}.case.focus{border:2px solid #2f7ba8;background:#eaf5fc}.case small{display:block;color:#657682;margin-top:2mm}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:3mm 0}th,td{border:1px solid #ccd7df;padding:2.2mm;text-align:center;vertical-align:middle}th{background:#edf4f8;color:#174f73}
+.method{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.method div{display:flex;align-items:center;gap:3mm;border:1px solid #d6e1e8;border-radius:3mm;padding:4mm;background:#fbfdff}.method b{display:grid;place-items:center;width:10mm;height:10mm;border-radius:50%;background:#0d4775;color:#fff}.method span{font-size:13.5px}
+.worked{border:1px solid #ccdbe5;border-radius:3mm;padding:4mm;background:#fbfdff}.decision{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.decision>div{position:relative;border:1px solid #d5e0e7;border-radius:3mm;padding:4mm 14mm 4mm 4mm;background:#fbfdff;min-height:31mm}.decision span{position:absolute;right:3mm;top:4mm;width:8mm;height:8mm;border-radius:50%;background:#0d4775;color:white;display:grid;place-items:center}.decision p{font-size:12.5px;margin:1mm 0}
+.exercises{columns:1;column-gap:10mm;font-size:13px}.exercises li{break-inside:avoid;margin-bottom:4mm}.solutions{font-size:13px}.solutions li{margin-bottom:3mm}.examq{border:1px solid #d4e0e7;border-right:4px solid #2c78a6;border-radius:2mm;padding:3mm 4mm;margin:3.5mm 0;background:#fbfdff}.examq p{font-size:13px}
+.plan{font-size:12.2px}.plan td{padding:3mm 2mm}.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm}.summary-grid .card{min-height:29mm;font-size:12.5px}.exit{margin-top:6mm;border:2px solid #2f789f;border-radius:3mm;padding:4mm;background:#f6fbff}.sources{display:grid;grid-template-columns:1fr;gap:3mm}.sources div{border:1px solid #dbe4ea;border-radius:2mm;padding:3mm 4mm;background:#fbfdff;font-size:12.5px}.sources a{direction:ltr;display:inline-block;color:#1b6a9b;text-decoration:none;margin-top:1mm}
+.cover h1{font-size:30px;text-align:center;margin-top:4mm}
+@media print{html,body{background:white}.page{margin:0;box-shadow:none}button,input{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@media screen{.page{box-shadow:0 2mm 8mm rgba(27,46,62,.14)}}
+</style>
+</head>
+<body>
+<section class="page cover" id="page-1">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">1</span></div>
+<h1>חקירת פונקציה רציונלית עם פרמטרים</h1>
+<div class="hero">
+<div class="hero-kicker">מערך שיעור מלא - רמת 5 יחידות</div>
+<div class="hero-formula">\[ f_a(x)=\frac{P(x,a)}{Q(x,a)} \]</div>
+<p>המטרה: לעבור מחקירה של פונקציה אחת לחקירה של <b>משפחה של פונקציות</b>, לזהות ערכי סף של הפרמטר ולתרגם מידע גרפי לתנאים אלגבריים.</p>
+</div>
+<div class="grid2">
+<div class="card"><h3>מה התלמיד כבר יודע</h3><ul><li>תחום הגדרה של פונקציה רציונלית</li><li>חיתוך עם הצירים ואסימפטוטות</li><li>נגזרת לפי כלל המנה</li><li>תחומי עלייה וירידה ונקודות קיצון</li></ul></div><div class="card"><h3>מה חדש כאן</h3><ul><li>אותה נוסחה מייצגת גרפים שונים</li><li>הפרמטר עשוי לשנות את תחום ההגדרה ואת מספר האסימפטוטות</li><li>מספר הנקודות עם שיפוע אפס עשוי להשתנות</li><li>נדרש לפצל את החקירה למקרים</li></ul></div></div><div class="note strong">רעיון מוביל: לא מחפשים רק את ערך הפרמטר - מחפשים מתי שינוי בפרמטר משנה את המבנה של הגרף.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-2">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">2</span></div>
+<h1>מפת הלמידה ומטרות</h1>
+<div class="flow">
+<div>פרמטר ומשפחה</div><span>⇐</span><div>תחום הגדרה</div><span>⇐</span><div>אסימפטוטות</div><span>⇐</span><div>נגזרת</div><span>⇐</span><div>חלוקה למקרים</div><span>⇐</span><div>סקיצה</div>
+</div>
+<div class="grid2">
+<div class="card"><h3>מטרות ידע</h3><ul><li>לזהות מה קבוע ומה משתנה כאשר הפרמטר משתנה.</li><li>למצוא ערכי סף באמצעות משוואה, דיסקרימיננטה או תנאי נגזרת.</li><li>לקבוע תחום, אסימפטוטות, חיתוכים, עלייה, ירידה וקיצון לכל מקרה.</li><li>לפתור שאלות שבהן נתון משיק, קיצון, אסימפטוטה או מספר פתרונות.</li></ul></div><div class="card"><h3>מטרות חשיבה</h3><ul><li>לתרגם נתון מילולי למשוואה.</li><li>להבחין בין תנאי הכרחי לתנאי מספיק.</li><li>לבדוק התאמה לתחום ההגדרה אחרי פתרון.</li><li>להסביר מדוע ערך מסוים של הפרמטר הוא ערך סף.</li></ul></div></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-3">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">3</span></div>
+<h1>1. פרמטר יוצר משפחת פונקציות</h1>
+<div class="grid2_ graph-layout">
+<div>
+<p>נחקור את המשפחה:</p>
+<div class="formula">\[ f_a(x)=\frac{a}{x^2+1} \]</div>
+<label class="sliderline">\(a\) <input id="a3" max="6" min="-6" oninput="updateReadout('a3','a3v'); updateBoard('g3')" step="0.1" type="range" value="2"/><output id="a3v">2</output></label>
+<ol><li>הזיזו את המחוון דרך ערכים חיוביים, אפס ושליליים.</li><li>מה נשאר קבוע בכל המשפחה?</li><li>מה משתנה בכיוון ובגובה הגרף?</li></ol>
+<div class="note">המכנה חיובי לכל מספר ממשי, ולכן שינוי ב-\(a\) אינו משנה את תחום ההגדרה.</div>
+</div>
+<div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g3','in')" type="button">+</button>
+<button onclick="graphCtl('g3','out')" type="button">-</button>
+<button onclick="graphCtl('g3','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g3"></div><div class="graph-caption">הגרף מתעדכן לפי ערך הפרמטר. אפשר לבצע הגדלה, הקטנה ומרכוז.</div></div></div>
+</div>
+<div class="conclusion"><b>מסקנה:</b> פרמטר יכול לשנות את ערכי הפונקציה ואת כיוון הגרף גם כאשר תחום ההגדרה נשאר ללא שינוי.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-4">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">4</span></div>
+<h1>2. ערכי סף של הפרמטר</h1>
+<p class="lead">ערך סף הוא ערך של הפרמטר שבו <b>מבנה החקירה משתנה</b>. סביב ערך כזה יש לבדוק מקרים נפרדים.</p>
+<div class="threshold">
+<div class="case">\[ a\lt a_0 \]<small>מקרה 1</small></div>
+<div class="case focus">\[ a=a_0 \]<small>ערך הסף</small></div>
+<div class="case">\[ a\gt a_0 \]<small>מקרה 3</small></div>
+</div>
+<div class="grid2">
+<div class="card"><h3>איך נוצר ערך סף?</h3><ul><li>שורשים של המכנה מתלכדים או נעלמים.</li><li>גורם משותף למונה ולמכנה נוצר רק בערך מסוים.</li><li>פתרונות של \(f'(x)=0\) מתלכדים או נעלמים.</li><li>נקודה מיוחדת מגיעה לנקודת אי-הגדרה.</li></ul></div><div class="card"><h3>כלים מרכזיים</h3><ul><li>דיסקרימיננטה של פולינום ריבועי.</li><li>פירוק לגורמים וצמצום.</li><li>בדיקת סימן של מונה הנגזרת.</li><li>מערכת תנאים כאשר יש יותר מפרמטר אחד.</li></ul></div></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-5">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">5</span></div>
+<h1>3. תחום הגדרה התלוי בפרמטר</h1>
+<div class="grid2_ graph-layout">
+<div>
+<div class="formula">\[ f_k(x)=\frac{2x}{x^2-4x+k} \]</div>
+<p>המכנה מתאפס כאשר:</p>
+<div class="formula small">\[ x^2-4x+k=0,\qquad \Delta=16-4k \]</div>
+<table><tr><th>תנאי</th><th>תחום ההגדרה</th></tr>
+<tr><td>\(k\gt4\)</td><td>כל המספרים הממשיים</td></tr>
+<tr><td>\(k=4\)</td><td>\(x\ne2\)</td></tr>
+<tr><td>\(k\lt4\)</td><td>שני ערכי \(x\) אינם בתחום</td></tr></table>
+<label class="sliderline">\(k\) <input id="k5" max="9" min="-2" oninput="updateReadout('k5','k5v'); updateBoard('g5')" step="0.1" type="range" value="5"/><output id="k5v">5</output></label>
+</div>
+<div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g5','in')" type="button">+</button>
+<button onclick="graphCtl('g5','out')" type="button">-</button>
+<button onclick="graphCtl('g5','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g5"></div><div class="graph-caption">שנו את k ועברו דרך ערך הסף k=4.</div></div></div></div>
+<div class="note strong">בדיקה חובה: פתרון של משוואת המכנה קובע נקודת אי-הגדרה. רק לאחר בדיקת צמצום אפשר להחליט אם זו אסימפטוטה אנכית או חור.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-6">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">6</span></div>
+<h1>4. חור או אסימפטוטה אנכית?</h1>
+<div class="grid2_ graph-layout"><div>
+<div class="formula">\[ f_k(x)=\frac{x^2-k}{x^2-9} \]</div>
+<p>המכנה מתאפס ב-\(x=3\) וב-\(x=-3\).</p>
+<ul><li>אם \(k\ne9\): המונה אינו מתאפס בשתי הנקודות ולכן מתקבלות אסימפטוטות אנכיות.</li><li>אם \(k=9\): מתקבל \(x^2-9\) גם במונה, ולכן לאחר צמצום מתקבלת פונקציה קבועה עם שתי נקודות חסרות.</li></ul>
+<div class="formula small">\[ k=9\;⇒\;f(x)=1,\qquad x\ne3,-3 \]</div>
+<label class="sliderline">\(k\) <input id="k6" max="13" min="5" oninput="updateReadout('k6','k6v'); updateBoard('g6')" step="0.1" type="range" value="9"/><output id="k6v">9</output></label>
+</div><div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g6','in')" type="button">+</button>
+<button onclick="graphCtl('g6','out')" type="button">-</button>
+<button onclick="graphCtl('g6','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g6"></div><div class="graph-caption">בערך k=9 שתי האסימפטוטות נעלמות והופכות לנקודות אי-רציפות סליקות.</div></div></div></div>
+<div class="warning"><b>מלכודת נפוצה:</b> "המכנה שווה לאפס" אינו מספיק כדי לקבוע אסימפטוטה אנכית.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-7">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">7</span></div>
+<h1>5. אסימפטוטה אופקית ופרמטר</h1>
+<div class="grid2_"><div>
+<div class="formula">\[ f_m(x)=\frac{mx^2+2x+3}{x^2+1} \]</div>
+<p>מעלות המונה והמכנה שוות, לכן:</p>
+<div class="formula">\[ y=m \]</div>
+<label class="sliderline">\(m\) <input id="m7" max="6" min="-4" oninput="updateReadout('m7','m7v'); updateBoard('g7')" step="0.1" type="range" value="3"/><output id="m7v">3</output></label>
+<p>אם נתון שהאסימפטוטה האופקית היא \(y=3\), נקבל מיד:</p>
+<div class="formula">\[ m=3 \]</div>
+<div class="note">אין צורך להתחיל בנגזרת. משתמשים תחילה בנתון שמבודד את הפרמטר בדרך הקצרה ביותר.</div>
+</div><div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g7','in')" type="button">+</button>
+<button onclick="graphCtl('g7','out')" type="button">-</button>
+<button onclick="graphCtl('g7','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g7"></div><div class="graph-caption">שנו את m: הגרף והאסימפטוטה האופקית y=m מתעדכנים יחד, ונקודת החיתוך מסומנת באדום.</div></div></div></div>
+<div class="example"><b>בדיקת חיתוך עם האסימפטוטה:</b> מציבים \(f(x)=3\). מתקבל \(2x+3=3\), ולכן \(x=0\). אסימפטוטה אופקית אינה מחסום.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-8">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">8</span></div>
+<h1>6. חיתוך עם הצירים כתלות בפרמטר</h1>
+<div class="grid2">
+<div style="padding: 4mm 4mm 0mm 4mm;" class="card"><h3>חיתוך עם ציר x</h3><p>פותרים את משוואת המונה:</p><div class="formula small">\[ P(x,a)=0 \]</div><p>ואז בודקים שכל פתרון נמצא בתחום ההגדרה. אם המונה ריבועי, הדיסקרימיננטה עשויה ליצור חלוקה למקרי פרמטר.</p></div><div class="card"><h3>חיתוך עם ציר y</h3><p>מציבים \(x=0\), רק אם \(0\) שייך לתחום:</p><div class="formula small">\[ y=f_a(0) \]</div><p>נתון על חיתוך עם ציר y הוא לעיתים הדרך המהירה ביותר למצוא פרמטר.</p></div></div>
+<div class="grid2_ graph-layout">
+<div class="worked">
+<h3>דוגמה אינטראקטיבית</h3>
+<div class="formula">\[ f_a(x)=\frac{x^2-a}{x^2+1} \]</div>
+<p>נקודות החיתוך עם ציר x קיימות כאשר \(x^2=a\).</p>
+<label class="sliderline">\(a\) <input id="a8" max="9" min="-4" oninput="updateReadout('a8','a8v'); updateA8Status(); updateBoard('g8')" step="0.1" type="range" value="4"/><output id="a8v">4</output></label>
+<table><tr><th>ערך הפרמטר</th><th>מספר החיתוכים עם ציר x</th></tr><tr><td>\(a\lt0\)</td><td>0</td></tr><tr><td>\(a=0\)</td><td>1</td></tr><tr><td>\(a\gt0\)</td><td>2</td></tr></table>
+</div>
+<div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g8','in')" type="button">+</button>
+<button onclick="graphCtl('g8','out')" type="button">-</button>
+<button onclick="graphCtl('g8','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g8"></div><div class="graph-caption">הנקודות האדומות הן חיתוכי הגרף עם ציר x. כאשר a משתנה, הן נעות לפי \(x=\pm\sqrt{a}\) עבור \(a\gt0\).</div></div></div>
+</div>
+<div class="teacher"><b>שאלת עומק:</b> מדוע \(a=0\) הוא ערך סף גם בלי לשרטט?</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-9">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">9</span></div>
+<h1>7. נגזרת של פונקציה רציונלית עם פרמטר</h1>
+<p class="lead">הפרמטר מתנהג כקבוע בזמן הגזירה.</p>
+<div class="formula big">\[ f(x)=\frac{P(x,a)}{Q(x,a)} \;⇒\; f'(x)=\frac{P'(x,a)Q(x,a)-P(x,a)Q'(x,a)}{Q(x,a)^2} \]</div>
+<div class="grid2_">
+<div class="card"><h3>שלב 1 - גוזרים</h3><p>יש לכתוב נגזרת מלאה ומדויקת. אין לגזור את הפרמטר אם הוא קבוע.</p></div>
+<div style="height:10px;"></div>
+<div class="card"><h3>שלב 2 - מפשטים</h3><p>מפרקים לגורמים ומחפשים גורם חיובי במכנה. לרוב סימן הנגזרת נקבע על ידי המונה בלבד.</p></div>
+<div style="height:10px;"></div>
+<div class="card"><h3>שלב 3 - מוצאים נקודות עם שיפוע אפס</h3><div class="formula small">\[ f'(x)=0 \]</div><p>כל פתרון חייב להיבדק מול תחום ההגדרה.</p></div>
+<div style="height:10px;"></div>
+<div class="card"><h3>שלב 4 - טבלת סימנים</h3><p>מסמנים גם נקודות שבהן הפונקציה אינה מוגדרת, מפצלים תחומים וקובעים עלייה וירידה.</p></div></div>
+<div style="height:10px;"></div>
+<div class="warning"><b>חשוב:</b> אין להסיק קיצון רק מ-\(f'(x)=0\). יש לבדוק שינוי סימן של הנגזרת.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section>
+
+<section class="page" id="page-10">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">10</span></div>
+<h1>8. נקודות קיצון ותחומי עלייה לפי הפרמטר</h1>
+<div class="grid2_ graph-layout"><div>
+<div class="formula">\[ f_a(x)=\frac{x-a}{x-1},\qquad a\ne1 \]</div>
+<div class="formula small">\[ f'_a(x)=\frac{a-1}{(x-1)^2} \]</div>
+<p>המכנה חיובי בכל תחום ההגדרה, לכן הסימן נקבע רק על ידי \(a-1\).</p>
+<table><tr><th>תנאי</th><th>מסקנה</th></tr><tr><td>\(a\gt1\)</td><td>עולה בכל אחד מתחומי ההגדרה</td></tr><tr><td>\(a\lt1\)</td><td>יורדת בכל אחד מתחומי ההגדרה</td></tr></table>
+<label class="sliderline">\(a\) <input id="a10" max="6" min="-4" oninput="updateReadout('a10','a10v'); updateBoard('g10')" step="0.1" type="range" value="3"/><output id="a10v">3</output></label>
+</div><div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g10','in')" type="button">+</button>
+<button onclick="graphCtl('g10','out')" type="button">-</button>
+<button onclick="graphCtl('g10','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g10"></div><div class="graph-caption">שימו לב: אין נקודות עם שיפוע אפס עבור a≠1, אך כיוון המונוטוניות משתנה ב-a=1.</div></div></div></div>
+<div class="note">כאשר \(a=1\) מתקבל ביטוי שמתצמצם ל-1 עם חור ב-\(x=1\). זהו מקרה מבני נפרד.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-11">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">11</span></div>
+<h1>9. מספר נקודות עם שיפוע אפס כתלות בפרמטר</h1>
+<div class="grid2_ graph-layout"><div>
+<div class="formula">\[ f_a(x)=x+\frac{a}{x}=\frac{x^2+a}{x},\qquad x\ne0 \]</div>
+<div class="formula small">\[ f'_a(x)=1-\frac{a}{x^2}=\frac{x^2-a}{x^2} \]</div>
+<p>לכן נקודות עם שיפוע אפס מתקבלות מן התנאי:</p>
+<div class="formula small">\[ x^2=a \]</div>
+<table><tr><th>תנאי</th><th>מספר נקודות עם שיפוע אפס</th></tr><tr><td>\(a\lt0\)</td><td>0</td></tr><tr><td>\(a=0\)</td><td>0 בתחום, כי x=0 אינו בתחום</td></tr><tr><td>\(a\gt0\)</td><td>2</td></tr></table>
+<label class="sliderline">\(a\) <input id="a11" max="7" min="-5" oninput="updateReadout('a11','a11v'); updateBoard('g11')" step="0.1" type="range" value="4"/><output id="a11v">4</output></label>
+</div><div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g11','in')" type="button">+</button>
+<button onclick="graphCtl('g11','out')" type="button">-</button>
+<button onclick="graphCtl('g11','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g11"></div><div class="graph-caption">כאשר a&gt;0 מתקבלות שתי נקודות קיצון, אחת בכל צד של x=0.</div></div></div></div>
+<div class="warning">ערך \(a=0\) מדגים מדוע תמיד בודקים את תחום ההגדרה אחרי פתרון משוואת הנגזרת.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-12">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">12</span></div>
+<h1>10. שיטה כללית למספר נקודות קיצון</h1>
+<div class="method">
+<div><b>1</b><span>מצא את תחום ההגדרה כתלות בפרמטר.</span></div>
+<div><b>2</b><span>גזור ופשט ככל האפשר.</span></div>
+<div><b>3</b><span>נתח את מונה הנגזרת.</span></div>
+<div><b>4</b><span>מצא את ערכי הסף של הפרמטר.</span></div>
+<div><b>5</b><span>בדוק אילו שורשים נמצאים בתחום.</span></div>
+<div><b>6</b><span>בדוק שינוי סימן וקבע קיצון.</span></div>
+</div>
+<div class="grid2">
+<div class="card"><h3>כאשר מונה הנגזרת ריבועי</h3><p>אם מתקבל \(Ax^2+Bx+C\), אפשר להשתמש בדיסקרימיננטה:</p><div class="formula small">\[ \Delta=B^2-4AC \]</div><p>אולם גם לאחר מציאת מספר השורשים, יש לבדוק את תחום ההגדרה.</p></div><div class="card"><h3>כאשר מונה הנגזרת מתפרק</h3><p>פירוק לגורמים עדיף על נוסחת השורשים. הוא חושף מיד ערכי סף ומקל על טבלת הסימנים.</p><div class="formula small">\[ N(x,a)=C(a)(x-r_1)(x-r_2) \]</div></div></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-13">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">13</span></div>
+<h1>11. מציאת פרמטר ממשיק</h1>
+<div class="grid2 graph-layout"><div>
+<div class="formula">\[ f_A(x)=\frac{x^2+3}{x+A} \]</div>
+<p>נתון: המשיק לגרף בנקודה שבה \(x=1\) מקביל לציר x.</p>
+<p>משיק מקביל לציר x פירושו:</p>
+<div class="formula small">\[ f'_A(1)=0 \]</div>
+<div class="formula small">\[ f'_A(x)=\frac{x^2+2Ax-3}{(x+A)^2} \]</div>
+<div class="formula small">\[ 1+2A-3=0\;⇒\;A=1 \]</div>
+<div class="note">לאחר מציאת הפרמטר יש לבדוק שהנקודה אכן בתחום. כאן \(1+A=2\ne0\).</div>
+</div><div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g13','in')" type="button">+</button>
+<button onclick="graphCtl('g13','out')" type="button">-</button>
+<button onclick="graphCtl('g13','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g13"></div><div class="graph-caption">עבור A=1 המשיק בנקודה x=1 אופקי.</div></div></div></div>
+<div class="teacher"><b>תרגום נתונים למשוואות:</b> נקודה על הגרף ⇐ \(f(x_0)=y_0\); שיפוע משיק ⇐ \(f'(x_0)=m\); משיק מקביל לישר ⇐ שוויון שיפועים.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-14">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">14</span></div>
+<h1>12. שני פרמטרים - בונים מערכת תנאים</h1>
+<div class="grid2 graph-layout"><div>
+<div class="formula">\[ f(x)=\frac{Ax^2+1}{x^2+1}+B \]</div>
+<p><b>נתון 1:</b> האסימפטוטה האופקית היא \(y=1\).</p>
+<div class="formula small">\[ A+B=1 \]</div>
+<p><b>נתון 2:</b> שיפוע הגרף בנקודה שבה \(x=1\) הוא 1.</p>
+<div class="formula small">\[ f'(x)=\frac{2x(A-1)}{(x^2+1)^2} \]</div>
+<div class="formula small">\[ f'(1)=\frac{A-1}{2}=1\;⇒\;A=3 \]</div>
+<div class="formula small">\[ B=-2 \]</div>
+</div><div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g14','in')" type="button">+</button>
+<button onclick="graphCtl('g14','out')" type="button">-</button>
+<button onclick="graphCtl('g14','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g14"></div><div class="graph-caption">הגרף לאחר קביעת A=3 ו-B=-2. האסימפטוטה האופקית היא y=1.</div></div></div></div>
+<div class="note strong">עיקרון: כל נתון בלתי תלוי צריך להפוך למשוואה נפרדת. שני פרמטרים דורשים בדרך כלל שני תנאים בלתי תלויים.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-15">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">15</span></div>
+<h1>13. דוגמה מלאה א - נתון על ציר y</h1>
+<div class="formula">\[ f_a(x)=\frac{a}{x^2+5} \]</div>
+<p>נתון שהגרף חותך את ציר y בנקודה שבה \(y=2\).</p>
+<div class="formula small">\[ f_a(0)=2\;⇒\;\frac{a}{5}=2\;⇒\;a=10 \]</div>
+<div class="grid2">
+<div class="card"><h3>חקירה לאחר מציאת הפרמטר</h3><ul><li>תחום: כל המספרים הממשיים.</li><li>חיתוך עם ציר y: \( (0,2) \).</li><li>אין חיתוך עם ציר x.</li><li>אסימפטוטה אופקית: \(y=0\).</li></ul></div><div class="card"><h3>נגזרת וקיצון</h3><div class="formula small">\[ f'(x)=\frac{-20x}{(x^2+5)^2} \]</div><p>הפונקציה עולה עבור \(x\lt0\), יורדת עבור \(x\gt0\), ולכן ב-\(x=0\) מתקבלת נקודת מקסימום.</p></div></div>
+<div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g15','in')" type="button">+</button>
+<button onclick="graphCtl('g15','out')" type="button">-</button>
+<button onclick="graphCtl('g15','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g15"></div><div class="graph-caption">חקירה מלאה של f(x)=10/(x²+5).</div></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-16">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">16</span></div>
+<h1>14. דוגמה מלאה ב - אסימפטוטה קובעת פרמטר</h1>
+<div class="formula">\[ f_a(x)=\frac{-9}{10+ax-2x^2} \]</div>
+<p>נתון ש-\(x=5\) היא אסימפטוטה אנכית. לכן המכנה מתאפס ב-5:</p>
+<div class="formula small">\[ 10+5a-50=0\;⇒\;a=8 \]</div>
+<div class="grid2">
+<div class="card"><h3>פירוק המכנה</h3><div class="formula small">\[ 10+8x-2x^2=-2(x-5)(x+1) \]</div><p>לכן יש שתי אסימפטוטות אנכיות: \(x=5\) ו-\(x=-1\).</p></div><div class="card"><h3>נגזרת</h3><div class="formula small">\[ f'(x)=\frac{9(8-4x)}{(10+8x-2x^2)^2} \]</div><p>נקודה עם שיפוע אפס מתקבלת ב-\(x=2\). שינוי הסימן הוא מחיובי לשלילי, ולכן זו נקודת מקסימום.</p></div></div>
+<div class="formula small">\[ f(2)=-\frac12 \]</div>
+<div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g16','in')" type="button">+</button>
+<button onclick="graphCtl('g16','out')" type="button">-</button>
+<button onclick="graphCtl('g16','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g16"></div><div class="graph-caption">הגרף כולל שתי אסימפטוטות אנכיות ונקודת מקסימום בין שתיהן.</div></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-17">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">17</span></div>
+<h1>15. דוגמה מלאה ג - אסימפטוטה וחיתוך איתה</h1>
+<div class="formula">\[ f_a(x)=\frac{ax^2-20x+28}{x^2+2a} \]</div>
+<p>נתון שהאסימפטוטה האופקית חותכת את הגרף בנקודה \((0.5,3)\). האסימפטוטה היא \(y=a\), ולכן:</p>
+<div class="formula small">\[ a=3 \]</div>
+<div class="grid2">
+<div class="card"><h3>חיתוכים ואסימפטוטה</h3><div class="formula small">\[ f(x)=\frac{3x^2-20x+28}{x^2+6} \]</div><p>תחום: כל הממשיים. אסימפטוטה: \(y=3\). חיתוכי x: \(x=2\), \(x=\frac{14}{3}\). חיתוך y: \(\frac{14}{3}\).</p></div><div class="card"><h3>נגזרת וקיצון</h3><div class="formula small">\[ f'(x)=\frac{20(x-3)(x+2)}{(x^2+6)^2} \]</div><p>מקסימום ב-\((-2,8)\), מינימום ב-\((3,-\frac13)\).</p></div></div>
+<div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g17','in')" type="button">+</button>
+<button onclick="graphCtl('g17','out')" type="button">-</button>
+<button onclick="graphCtl('g17','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g17"></div><div class="graph-caption">הגרף חוצה את האסימפטוטה האופקית בנקודה הנתונה.</div></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-18">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">18</span></div>
+<h1>16. מספר פתרונות של משוואה בעזרת הגרף</h1>
+<p class="lead">לאחר חקירה מלאה אפשר לענות על שאלות פרמטר נוספות בלי לפתור משוואות מסובכות.</p>
+<div class="grid2"><div>
+<p>אם שואלים כמה פתרונות יש למשוואה:</p>
+<div class="formula">\[ f(x)=k \]</div>
+<p>מציירים את הישר האופקי \(y=k\) וסופרים נקודות חיתוך.</p>
+<ul><li>ערכי y של נקודות קיצון הם ערכי סף למספר הפתרונות.</li><li>אסימפטוטה אופקית יכולה להיות ערך מיוחד, אך הגרף עשוי לחצות אותה.</li><li>נקודות אי-הגדרה לעולם אינן פתרונות.</li></ul>
+<label class="sliderline">\(k\) <input id="k18" max="9" min="-2" oninput="updateReadout('k18','k18v'); updateBoard('g18')" step="0.1" type="range" value="3"/><output id="k18v">3</output></label>
+</div><div><div class="graph-panel"><div aria-label="בקרי גרף" class="graph-controls">
+<button onclick="graphCtl('g18','in')" type="button">+</button>
+<button onclick="graphCtl('g18','out')" type="button">-</button>
+<button onclick="graphCtl('g18','reset')" type="button">מרכז</button>
+</div><div class="jxgbox" id="g18"></div><div class="graph-caption">הגרף מהדוגמה הקודמת יחד עם y=k. הזיזו את k וספרו חיתוכים.</div></div></div></div>
+<table><tr><th>ערכי k</th><th>מספר פתרונות</th></tr><tr><td>\(k\lt-\frac{1}{3}\)</td><td>0</td></tr><tr><td>\(k=-\frac{1}{3}\)</td><td>1</td></tr><tr><td>\(-\frac{1}{3}\lt k\lt3\)</td><td>2</td></tr><tr><td>\(k=3\)</td><td>1</td></tr><tr><td>\(3\lt k\lt8\)</td><td>2</td></tr><tr><td>\(k=8\)</td><td>1</td></tr><tr><td>\(k\gt8\)</td><td>0</td></tr></table>
+<div class="teacher"><b>תובנה:</b> גם \(k=3\) הוא ערך מיוחד, משום שזו האסימפטוטה האופקית. הגרף חוצה אותה בנקודה אחת בלבד.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-19">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">19</span></div>
+<h1>17. מלכודות נפוצות ובדיקות איכות</h1>
+<div class="grid2">
+<div class="trap"><h3>טעות 1</h3><b>מכנה אפס = אסימפטוטה.</b><p>לא תמיד. יש לבדוק אם קיים גורם משותף שמתצמצם.</p></div><div class="trap"><h3>טעות 2</h3><b>כל פתרון של \(f'(x)=0\) הוא קיצון.</b><p>צריך לבדוק תחום ושינוי סימן.</p></div><div class="trap"><h3>טעות 3</h3><b>מוצאים פרמטר ומתעלמים מתנאי השאלה.</b><p>ערך שהתקבל עלול להפר תנאי כמו \(a\gt0\) או לגרום לביטוי לא להיות מוגדר.</p></div><div class="trap"><h3>טעות 4</h3><b>אסימפטוטה אופקית אינה נחתכת.</b><p>היא מתארת התנהגות באינסוף. חיתוך במספר סופי אפשרי.</p></div><div class="trap"><h3>טעות 5</h3><b>מציבים ערך מספרי מוקדם מדי.</b><p>לפני ההצבה כדאי לזהות ערכי סף ולבנות תמונה כללית.</p></div><div class="trap"><h3>טעות 6</h3><b>לא מפצלים לפי נקודות אי-הגדרה.</b><p>טבלת הסימנים חייבת להתייחס לכל תחום רציפות בנפרד.</p></div></div>
+<div class="checklist"><b>בדיקת סיום לכל חקירה:</b> תחום ✓ חיתוכים ✓ אסימפטוטות ✓ נגזרת ✓ נקודות עם שיפוע אפס ✓ שינוי סימן ✓ קיצון ✓ סקיצה ✓ התאמה לכל תנאי הפרמטר.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-20">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">20</span></div>
+<h1>18. אלגוריתם עבודה</h1>
+<div class="decision">
+<div><span>1</span><b>קרא את כל הנתונים</b><p>סמן אילו נתונים נותנים משוואה מיידית לפרמטר.</p></div>
+<div><span>2</span><b>מצא ערכי סף</b><p>בדוק מכנה, צמצום, דיסקרימיננטה ומונה נגזרת.</p></div>
+<div><span>3</span><b>קבע את הפרמטר אם אפשר</b><p>השתמש קודם בנתון הקצר ביותר: חיתוך, אסימפטוטה או שיפוע.</p></div>
+<div><span>4</span><b>חקור את הפונקציה</b><p>תחום, חיתוכים, אסימפטוטות, נגזרת, עלייה וירידה, קיצון.</p></div>
+<div><span>5</span><b>שרטט ובדוק</b><p>ודא שכל תכונות הגרף תואמות את החישובים.</p></div>
+<div><span>6</span><b>ענה על שאלות המשך</b><p>מספר פתרונות, משיקים, חיתוך עם ישר או תלות נוספת בפרמטר.</p></div>
+</div>
+
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-21">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">21</span></div>
+<h1>19. תרגול א - תחום הגדרה, חורים ואסימפטוטות</h1>
+<p>בכל סעיף מצאו את ערכי הפרמטר המבוקשים ונמקו באמצעות חלוקה למקרים.</p>
+<ol style="line-height: 4;" class="exercises">
+<li>\(f_a(x)=\frac{1}{x^2-6x+a}\). עבור אילו ערכי \(a\) הפונקציה מוגדרת לכל \(x\)?</li>
+<li>\(f_k(x)=\frac{x}{x^2+kx+4}\). עבור אילו ערכי \(k\) יש בדיוק נקודת אי-הגדרה אחת?</li>
+<li>\(f_a(x)=\frac{x^2-a}{x^2-16}\). עבור איזה \(a\) אין אסימפטוטות אנכיות?</li>
+<li>\(f_b(x)=\frac{x-b}{x^2-b^2}\). חקרו בנפרד את המקרים \(b=0\) ו-\(b\ne0\).</li>
+<li>\(f_k(x)=\frac{x+2}{x^2+(k-1)x-2k}\). מצאו ערכי \(k\) שעבורם \(x=-2\) היא נקודת אי-רציפות סליקה.</li>
+<li>\(f_a(x)=\frac{x^2+1}{x^2-2ax+a^2+1}\). הוכיחו שהפונקציה מוגדרת לכל \(x\) ולכל \(a\).</li>
+<li>\(f_m(x)=\frac{mx^2+1}{2x^2-8}\). מצאו את האסימפטוטות האופקיות והאנכיות כתלות ב-\(m\).</li>
+<li>\(f_a(x)=\frac{x^2-a^2}{x-a}\). תארו את הגרף עבור \(a\) קבוע והסבירו מה חסר בו.</li>
+</ol>
+<div class="hint"><b>רמז:</b> בשאלות 1-2 התחילו בדיסקרימיננטה. בשאלות 3-5 התחילו מפירוק לגורמים.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-22">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">22</span></div>
+<h1>20. תרגול ב - נגזרת, עלייה, ירידה וקיצון</h1>
+<ol style="line-height: 4;" class="exercises">
+<li>\(f_a(x)=x+\frac{a}{x}\). קבעו את מספר נקודות הקיצון לכל ערך של \(a\).</li>
+<li>\(f_a(x)=\frac{x-a}{x+2}\). עבור אילו ערכי \(a\) הפונקציה עולה בכל אחד מתחומי ההגדרה?</li>
+<li>\(f_a(x)=\frac{a}{x^2+4}\). קבעו את סוג הקיצון ב-\(x=0\) לפי סימן \(a\).</li>
+<li>\(f_a(x)=\frac{x^2+a}{x}\). מצאו את נקודות הקיצון כאשר \(a=9\).</li>
+<li>\(f_a(x)=\frac{x^2+ax+1}{x^2+1}\). מצאו את הנקודות עם שיפוע אפס לכל \(a\ne0\).</li>
+<li>\(f_a(x)=\frac{x}{x^2+a}\), כאשר \(a\gt0\). הביעו את נקודות הקיצון באמצעות \(a\).</li>
+<li>\(f_a(x)=\frac{x^2}{x^2+a}\), כאשר \(a\gt0\). הוכיחו שהפונקציה יורדת עבור \(x\lt0\) ועולה עבור \(x\gt0\).</li>
+<li>\(f_a(x)=\frac{ax+1}{x^2+1}\). נתון שאחת הנקודות עם שיפוע אפס היא ב-\(x=1\). מצאו את \(a\).</li>
+</ol>
+<div class="hint">בכל נגזרת שבה המכנה בריבוע וחיובי, סמנו במפורש: "סימן הנגזרת נקבע על ידי המונה".</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-23">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">23</span></div>
+<h1>21. תרגול ג - מציאת פרמטר מנתונים גרפיים</h1>
+<ol style="line-height: 4;" class="exercises">
+<li>\(f_a(x)=\frac{a}{x^2+5}\). הגרף חותך את ציר y ב-\(y=4\). מצאו \(a\).</li>
+<li>\(f_m(x)=\frac{mx^2+3x-1}{x^2+2}\). האסימפטוטה האופקית היא \(y=-2\). מצאו \(m\).</li>
+<li>\(f_A(x)=\frac{x^2+3}{x+A}\). המשיק ב-\(x=1\) מקביל לציר x. מצאו \(A\).</li>
+<li>\(f_a(x)=\frac{ax+4}{x^2}\). לגרף יש נקודת קיצון ב-\(x=-8\). מצאו \(a\).</li>
+<li>\(f_a(x)=\frac{-9}{10+ax-2x^2}\). \(x=5\) היא אסימפטוטה אנכית. מצאו \(a\).</li>
+<li>\(f(x)=\frac{Ax^2+1}{x^2+1}+B\). האסימפטוטה האופקית היא \(y=1\) ושיפוע הגרף ב-\(x=1\) הוא 1. מצאו \(A,B\).</li>
+<li>\(f_a(x)=\frac{ax^2-20x+28}{x^2+2a}\). האסימפטוטה האופקית חותכת את הגרף ב-\((0.5,3)\). מצאו \(a\).</li>
+<li>\(f_a(x)=\frac{x^2+a}{x-2}\). נתון שהנקודה שבה \(x=4\) היא נקודה עם שיפוע אפס. מצאו \(a\).</li>
+</ol>
+<div class="teacher"><b>כלל עבודה:</b> לפני גזירה שאלו: האם הנתון מאפשר למצוא את הפרמטר ישירות?</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-24">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">24</span></div>
+<h1>22. תרגול מסכם - שאלות ברמת 5 יחידות</h1>
+<div class="examq"><b>שאלה 1</b><div class="formula small">\[ f_a(x)=\frac{x^2-a}{x^2-9} \]</div><p>א. מצאו את כל ערכי \(a\) שעבורם אין לגרף אסימפטוטה אנכית. ב. עבור הערך שמצאתם, תארו במדויק את הגרף ואת נקודות אי-ההגדרה.</p></div>
+<div class="examq"><b>שאלה 2</b><div class="formula small">\[ f_a(x)=\frac{x-a}{x-1},\qquad a\ne1 \]</div><p>א. מצאו תחום ואסימפטוטות. ב. מצאו את \(a\) שעבורו הפונקציה עולה בכל אחד מתחומי ההגדרה. ג. קבעו אם קיימות נקודות קיצון.</p></div>
+<div class="examq"><b>שאלה 3</b><div class="formula small">\[ f_a(x)=\frac{ax^2-20x+28}{x^2+2a} \]</div><p>האסימפטוטה האופקית חותכת את הגרף בנקודה \((0.5,3)\). מצאו \(a\), חקרו את הפונקציה במלואה ושרטטו סקיצה.</p></div>
+<div class="examq"><b>שאלה 4</b><div class="formula small">\[ f_a(x)=x+\frac{a}{x} \]</div><p>קבעו לכל ערך של \(a\) את מספר נקודות הקיצון ואת תחומי העלייה והירידה.</p></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-25">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">25</span></div>
+<h1>23. פתרונות מקוצרים - תרגול א</h1>
+<ol style="line-height:3;" class="solutions">
+<li>\(x^2-6x+a\) ללא שורשים ⇐ \(36-4a\lt0\) ⇐ \(a\gt9\).</li>
+<li>שורש כפול ⇐ \(k^2-16=0\) ⇐ \(k=4\) או \(k=-4\).</li>
+<li>כדי לבטל את שתי האסימפטוטות: \(a=16\).</li>
+<li>אם \(b\ne0\), לאחר צמצום מתקבל \(1/(x+b)\): חור ב-\(x=b\) ואסימפטוטה אנכית ב-\(x=-b\). אם \(b=0\), מתקבל \(1/x\) עם אסימפטוטה אנכית ב-\(x=0\).</li>
+<li>מציבים \(x=-2\) במכנה: \(6-4k=0\), ולכן \(k=\frac{3}{2}\). אז המכנה מתפרק ל-\((x+2)(x-\frac{3}{2})\), והגורם \(x+2\) מצטמצם.</li>
+<li>המכנה הוא \((x-a)^2+1\gt0\), ולכן התחום הוא כל הממשיים.</li>
+<li>האסימפטוטה האופקית היא \(y=\frac{m}{2}\). אם \(m\ne-\frac{1}{4}\), האסימפטוטות האנכיות הן \(x=2,-2\). אם \(m=-\frac{1}{4}\), שני הגורמים מצטמצמים ומתקבלים שני חורים ללא אסימפטוטות אנכיות.</li>
+<li>\(f(x)=x+a\) עבור \(x\ne a\); חסרה הנקודה \((a,2a)\).</li>
+</ol>
+<div class="note">בפתרון 4 יש לבדוק בנפרד אם נותרה אסימפטוטה לאחר צמצום. מטרת הפתרונות המקוצרים היא בדיקה, לא תחליף לנימוק מלא.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-26">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">26</span></div>
+<h1>24. פתרונות מקוצרים - תרגול ב</h1>
+<ol style="line-height:3;" class="solutions">
+<li>\(a\gt0\): שתי נקודות קיצון; \(a\le0\): אין נקודות עם שיפוע אפס בתחום.</li>
+<li>\(f'(x)=\frac{a+2}{(x+2)^2}\), ולכן \(a\gt-2\).</li>
+<li>\(a\gt0\): מקסימום ב-\(x=0\); \(a\lt0\): מינימום; \(a=0\): פונקציה קבועה אפס.</li>
+<li>\(x=\pm3\). ערכי הפונקציה: \(6\) ו-\(-6\).</li>
+<li>\(f'(x)=\frac{a(1-x^2)}{(x^2+1)^2}\), ולכן \(x=\pm1\).</li>
+<li>\(f'(x)=\frac{a-x^2}{(x^2+a)^2}\), ולכן \(x=\pm\sqrt a\).</li>
+<li>\(f'(x)=\frac{2ax}{(x^2+a)^2}\). הסימן הוא סימן x.</li>
+<li>\(f'(x)=\frac{a(1-x^2)-2x}{(x^2+1)^2}\). הצבה של \(x=1\) נותנת \(a(0)-2\ne0\), ולכן אין ערך כזה של \(a\).</li>
+</ol>
+<div class="warning"><b>שאלה 8 היא שאלת בדיקת עקביות:</b> לפעמים הנתון אינו אפשרי. גם זו מסקנה מתמטית תקפה.</div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section><section class="page" id="page-27">
+<div class="page-head"><span class="unit">חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</span><span class="pageno">27</span></div>
+<h1>25. פתרונות מקוצרים - תרגול ג</h1>
+<ol style="line-height:3;" class="solutions">
+<li>\(a=20\).</li>
+<li>\(m=-2\).</li>
+<li>\(A=1\).</li>
+<li>\(f'(x)=-\frac{ax+8}{x^3}\), ולכן \(a=1\).</li>
+<li>\(a=8\).</li>
+<li>\(A=3,\;B=-2\).</li>
+<li>\(a=3\).</li>
+<li>\(f'(x)=\frac{x^2-4x-a}{(x-2)^2}\). הצבה של \(x=4\) נותנת \(a=0\).</li>
+</ol>
+<div class="grid2">
+<div class="card"><h3>בדיקת פתרון</h3><p>לאחר מציאת הפרמטר מציבים אותו חזרה בפונקציה המקורית ובודקים שהנתון המקורי מתקיים.</p></div><div class="card"><h3>שפה מתמטית מומלצת</h3><p>"נקודה עם שיפוע אפס" מתייחסת לתנאי \(f'(x)=0\). כדי לקבוע קיצון מוסיפים בדיקת שינוי סימן.</p></div></div>
+<div class="page-foot">מערך שיעור - חקירה, פרמטרים, נגזרת וגרף</div>
+</section>
+
+<script>
+const boards={};
+function val(id){return parseFloat(document.getElementById(id).value)}
+function updateReadout(id,out){document.getElementById(out).value=Number(val(id).toFixed(2))}
+function reg(id,board,bb){boards[id]={board:board,initial:bb.slice()};}
+function graphCtl(id,act){const m=boards[id];if(!m)return;const b=m.board;if(act==='reset'){b.setBoundingBox(m.initial,false);return;}const bb=b.getBoundingBox();const cx=(bb[0]+bb[2])/2,cy=(bb[1]+bb[3])/2;const hw=(bb[2]-bb[0])/2,hh=(bb[1]-bb[3])/2;const f=act==='in'?0.78:1.28;b.setBoundingBox([cx-hw*f,cy+hh*f,cx+hw*f,cy-hh*f],false)}
+function updateBoard(id){if(boards[id])boards[id].board.update()}
+function updateA8Status(){
+ const el=document.getElementById('a8status');
+ if(!el)return;
+ const a=val('a8'),clean=n=>{const r=Number(n.toFixed(2));return Object.is(r,-0)?0:r};
+ if(a<0){el.textContent=`עבור a=${clean(a)}: אין נקודות חיתוך עם ציר x.`;return;}
+ if(Math.abs(a)<1e-9){el.textContent='עבור a=0: נקודת החיתוך עם ציר x היא (0,0).';return;}
+ const s=clean(Math.sqrt(a));
+ el.textContent=`עבור a=${clean(a)}: נקודות החיתוך עם ציר x הן (${-s},0), (${s},0).`;
+}
+function base(id,bb){const b=JXG.JSXGraph.initBoard(id,{boundingbox:bb,axis:true,showNavigation:false,showCopyright:false,keepaspectratio:false,pan:{enabled:true},zoom:{wheel:true,needshift:false}});reg(id,b,bb);return b}
+function vline(b,x,color='#8b99a4'){b.create('line',[[x,-1],[x,1]],{straightFirst:true,straightLast:true,strokeColor:color,dash:2,strokeWidth:1.4,fixed:true,highlight:false})}
+function hline(b,y,color='#8b99a4'){b.create('line',[[-1,y],[1,y]],{straightFirst:true,straightLast:true,strokeColor:color,dash:2,strokeWidth:1.4,fixed:true,highlight:false})}
+function fg(b,fn,a,bx,color='#136fa3',w=2.4){return b.create('functiongraph',[fn,a,bx],{strokeColor:color,strokeWidth:w,highlight:false,doAdvancedPlot:true})}
+function initGraphs(){
+ let b;
+ b=base('g3',[-6,6,6,-6]);fg(b,x=>val('a3')/(x*x+1),-6,6,'#1d75a5',3);
+ b=base('g5',[-7,8,8,-8]);fg(b,x=>2*x/(x*x-4*x+val('k5')),-7,8,'#1d75a5',2.6);
+ let r1=b.create('point',[()=>{const k=val('k5'),d=16-4*k;return d>=0?(4-Math.sqrt(d))/2:999},-7],{visible:false});let r2=b.create('point',[()=>r1.X(),7],{visible:false});b.create('line',[r1,r2],{strokeColor:'#b45b52',dash:2,strokeWidth:1.3,highlight:false});
+ let s1=b.create('point',[()=>{const k=val('k5'),d=16-4*k;return d>=0?(4+Math.sqrt(d))/2:999},-7],{visible:false});let s2=b.create('point',[()=>s1.X(),7],{visible:false});b.create('line',[s1,s2],{strokeColor:'#b45b52',dash:2,strokeWidth:1.3,highlight:false});
+ b=base('g6',[-7,5,7,-5]);fg(b,x=>(x*x-val('k6'))/(x*x-9),-7,7,'#1d75a5',2.6);vline(b,-3,'#b45b52');vline(b,3,'#b45b52');b.create('point',[-3,1],{name:'',face:'o',size:4,fillColor:'white',strokeColor:'#1d75a5',visible:()=>Math.abs(val('k6')-9)<0.06});b.create('point',[3,1],{name:'',face:'o',size:4,fillColor:'white',strokeColor:'#1d75a5',visible:()=>Math.abs(val('k6')-9)<0.06});
+ b=base('g7',[-6,7,6,-3]);fg(b,x=>{const m=val('m7');return (m*x*x+2*x+3)/(x*x+1)},-6,6,'#1d75a5',2.8);b.create('line',[[-1,()=>val('m7')],[1,()=>val('m7')]],{straightFirst:true,straightLast:true,strokeColor:'#b45b52',dash:2,strokeWidth:1.4,fixed:true,highlight:false});b.create('point',[()=>{const m=val('m7');return (m-3)/2},()=>val('m7')],{name:'',size:3,fillColor:'#b45b52',strokeColor:'#b45b52',fixed:true,highlight:false});
+ b=base('g8',[-5,4,5,-5]);fg(b,x=>(x*x-val('a8'))/(x*x+1),-5,5,'#1d75a5',2.8);hline(b,1,'#7f8f99');
+ b.create('point',[()=>-Math.sqrt(Math.max(0,val('a8'))),0],{name:'',size:4,fillColor:'#b45b52',strokeColor:'#b45b52',fixed:true,highlight:false,visible:()=>val('a8')>0});
+ b.create('point',[()=>Math.sqrt(Math.max(0,val('a8'))),0],{name:'',size:4,fillColor:'#b45b52',strokeColor:'#b45b52',fixed:true,highlight:false,visible:()=>val('a8')>0});
+ b.create('point',[0,0],{name:'',size:4,fillColor:'#b45b52',strokeColor:'#b45b52',fixed:true,highlight:false,visible:()=>Math.abs(val('a8'))<0.05});
+ b.create('text',[()=>-Math.sqrt(Math.max(0,val('a8')))-0.15,0.45,()=>{const a=val('a8');if(a<=0)return '';const s=Number(Math.sqrt(a).toFixed(2));return `(${-s}, 0)`;}],{anchorX:'right',fontSize:12,strokeColor:'#9a453e',fixed:true,highlight:false,visible:()=>val('a8')>0});
+ b.create('text',[()=>Math.sqrt(Math.max(0,val('a8')))+0.15,0.45,()=>{const a=val('a8');if(a<=0)return '';const s=Number(Math.sqrt(a).toFixed(2));return `(${s}, 0)`;}],{anchorX:'left',fontSize:12,strokeColor:'#9a453e',fixed:true,highlight:false,visible:()=>val('a8')>0});
+ b.create('text',[0.18,0.45,'(0, 0)'],{fontSize:12,strokeColor:'#9a453e',fixed:true,highlight:false,visible:()=>Math.abs(val('a8'))<0.05});
+ b=base('g10',[-6,8,6,-6]);fg(b,x=>(x-val('a10'))/(x-1),-6,0.98,'#1d75a5',2.5);fg(b,x=>(x-val('a10'))/(x-1),1.02,6,'#1d75a5',2.5);vline(b,1,'#b45b52');hline(b,1,'#7f8f99');
+ b=base('g11',[-7,9,7,-9]);fg(b,x=>x+val('a11')/x,-7,-0.03,'#1d75a5',2.6);fg(b,x=>x+val('a11')/x,0.03,7,'#1d75a5',2.6);vline(b,0,'#b45b52');
+ b=base('g13',[-6,10,8,-6]);fg(b,x=>(x*x+3)/(x+1),-6,-1.03,'#1d75a5',2.5);fg(b,x=>(x*x+3)/(x+1),-0.97,8,'#1d75a5',2.5);vline(b,-1,'#b45b52');const y13=2;b.create('point',[1,y13],{name:'',size:3,fillColor:'#b45b52',strokeColor:'#b45b52'});hline(b,y13,'#b45b52');
+ b=base('g14',[-6,3,6,-3]);fg(b,x=>(3*x*x+1)/(x*x+1)-2,-6,6,'#1d75a5',2.8);hline(b,1,'#b45b52');
+ b=base('g15',[-7,3,7,-1]);fg(b,x=>10/(x*x+5),-7,7,'#1d75a5',2.8);hline(b,0,'#7f8f99');b.create('point',[0,2],{name:'',size:3,fillColor:'#b45b52',strokeColor:'#b45b52'});
+ b=base('g16',[-5,5,9,-5]);fg(b,x=>-9/(10+8*x-2*x*x),-5,-1.03,'#1d75a5',2.5);fg(b,x=>-9/(10+8*x-2*x*x),-0.97,4.97,'#1d75a5',2.5);fg(b,x=>-9/(10+8*x-2*x*x),5.03,9,'#1d75a5',2.5);vline(b,-1,'#b45b52');vline(b,5,'#b45b52');b.create('point',[2,-0.5],{name:'',size:3,fillColor:'#b45b52',strokeColor:'#b45b52'});
+ b=base('g17',[-7,10,8,-4]);fg(b,x=>(3*x*x-20*x+28)/(x*x+6),-7,8,'#1d75a5',2.6);hline(b,3,'#b45b52');b.create('point',[-2,8],{name:'',size:3,fillColor:'#b45b52',strokeColor:'#b45b52'});b.create('point',[3,-1/3],{name:'',size:3,fillColor:'#b45b52',strokeColor:'#b45b52'});b.create('point',[0.5,3],{name:'',size:3,fillColor:'#d19a2c',strokeColor:'#d19a2c'});
+ b=base('g18',[-7,10,8,-4]);fg(b,x=>(3*x*x-20*x+28)/(x*x+6),-7,8,'#1d75a5',2.6);b.create('line',[[-1,()=>val('k18')],[1,()=>val('k18')]],{straightFirst:true,straightLast:true,strokeColor:'#d36a55',strokeWidth:2,dash:2,highlight:false});
+}
+window.addEventListener('load',()=>{if(window.JXG){initGraphs();updateA8Status()}else{document.querySelectorAll('.jxgbox').forEach(x=>x.innerHTML='<div style="padding:20px;text-align:center">JSXGraph requires an internet connection when this document is opened.</div>')}});
+</script>
+</body></html>
