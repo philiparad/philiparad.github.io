@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דף תרגילים - בעיות קיצון עם פונקציית מטרה ריבועית - ללא נגזרת</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 0.94 },
+  startup: {
+    ready: () => {
+      MathJax.startup.defaultReady();
+      MathJax.startup.promise.then(() => {
+        window.__mathJaxReady = true;
+        if (typeof window.runWorksheetTests === 'function') window.runWorksheetTests();
+      });
+    }
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --ink:#172033;
+  --muted:#5f6b7a;
+  --accent:#145a72;
+  --accent2:#9a3412;
+  --soft:#eef5f7;
+  --soft2:#fff7ed;
+  --line:#cfd8df;
+  --ok:#166534;
+  --warn:#92400e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e7edf1;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;}
+body{direction:rtl;line-height:1.45;}
+@page{size:A4;margin:0}
+.page{
+  position:relative;
+  width:210mm;
+  height:297mm;
+  margin:8mm auto;
+  padding:10mm 11mm 11mm;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 3px 18px rgba(0,0,0,.12);
+  page-break-after:always;
+  break-after:page;
+}
+.page:last-of-type{page-break-after:auto;break-after:auto}
+@media print{
+  html,body{background:#fff}
+  .page{margin:0;box-shadow:none}
+  .no-print{display:none!important}
+}
+h1,h2,h3{margin:0;color:#123c4a}
+h1{font-size:25px;line-height:1.2}
+h2{font-size:20px;border-bottom:2px solid #9fc4cf;padding-bottom:3mm;margin-bottom:4mm}
+h3{font-size:15px;margin-bottom:1.5mm}
+p{margin:1.3mm 0}
+.small{font-size:11.5px;color:var(--muted)}
+.subtitle{font-size:15px;color:#415462;margin-top:3mm}
+.kicker{display:inline-block;background:var(--soft);color:#164e63;border-radius:999px;padding:1mm 3mm;font-size:11px;font-weight:700;margin-bottom:3mm}
+.cover-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:7mm;align-items:start;margin-top:8mm}
+.hero-card,.info-card,.answer-box,.source-box{border:1px solid var(--line);border-radius:4mm;padding:4mm;background:#fff}
+.hero-card{background:linear-gradient(135deg,#f0f9fb,#fff)}
+.method{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm;margin-top:3mm}
+.method div{border:1px solid #d9e4e8;border-radius:3mm;padding:3mm;background:#fbfdfe;font-size:12px}
+.method b{color:var(--accent)}
+.rule-list{margin:2mm 0;padding-right:5mm;font-size:12.5px}
+.rule-list li{margin:1.4mm 0}
+.formula-box{direction:ltr;text-align:left;border:1px dashed #7aa8b5;background:#f7fbfc;border-radius:3mm;padding:3mm 4mm;margin-top:3mm;font-size:13px}
+.exercise-list{display:flex;flex-direction:column;gap:3.2mm}
+.exercise-card{border:1px solid #d7e0e6;border-radius:3.5mm;padding:3.2mm 3.5mm;background:#fff;break-inside:avoid;}
+.exercise-card.with-diagram{display:flex;flex-direction:row;gap:3.5mm;align-items:flex-start}
+.exercise-card.with-diagram>div:first-child{flex:1 1 auto;min-width:0}
+.exercise-card.with-diagram>.diagram-panel{flex:0 0 56mm;width:56mm}
+.exercise-card p,.exercise-card li{font-size:12.4px}
+.exercise-card ol,.exercise-card ul{margin:1.5mm 0;padding-right:5mm}
+.exercise-card li{margin:.7mm 0}
+.ex-head{display:flex;justify-content:space-between;align-items:flex-start;gap:3mm;margin-bottom:1mm}
+.ex-num{font-weight:bold;font-size:15px;color:var(--accent)}
+.source-tag{display:none;font-size:9.5px;color:#687684;background:#f4f7f9;border-radius:999px;padding:.7mm 2mm;white-space:nowrap}
+.note{border-right:3px solid #d97706;background:#fff8ed;padding:2mm 3mm;border-radius:2mm;font-size:11px;color:#6b3b06}
+.diagram-panel{direction:ltr}
+.jxgbox{width:100%;height:39mm;border:1px solid #b9c8cf;border-radius:2.5mm;background:#fff;touch-action:none}
+.jxgbox.graph{height:43mm}
+.graph-controls{display:flex;gap:1mm;justify-content:center;flex-wrap:wrap;margin-top:1.3mm;direction:rtl}
+.graph-controls button{font:inherit;font-size:9.5px;border:1px solid #9fb2bc;background:#f7fafb;border-radius:2mm;padding:.8mm 1.7mm;cursor:pointer;color:#23424f}
+.graph-controls button:hover{background:#eaf2f5}
+.page-footer{position:absolute;bottom:4mm;right:11mm;left:11mm;display:flex;justify-content:space-between;color:#77828d;font-size:9.5px;border-top:1px solid #edf0f2;padding-top:1.5mm}
+.section-banner{display:flex;align-items:center;gap:3mm;margin:-1mm 0 3mm;color:#3e5966;font-size:11px}
+.section-banner span{background:#eef5f7;border-radius:999px;padding:1mm 2.5mm}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.8mm}
+.answer-item{border-bottom:1px solid #e0e6ea;padding:1.5mm 0;font-size:11.5px}
+.answer-item b{color:var(--accent)}
+.source-box{font-size:11px}
+.source-box a{color:#0f5f7a;word-break:break-all}
+.qa-badge{position:fixed;left:12px;bottom:12px;z-index:9999;background:#162b35;color:#fff;border-radius:999px;padding:8px 12px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.qa-badge.ok{background:#166534}.qa-badge.bad{background:#991b1b}
+.math{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.tight p{margin:.8mm 0}
+.compact .exercise-card p,.compact .exercise-card li{font-size:11.8px}
+.compact .exercise-card{padding:2.7mm 3.2mm}
+hr.soft{border:0;border-top:1px solid #e5eaed;margin:3mm 0}
+
+</style>
+</head>
+<body>
+<div id="qaBadge" class="qa-badge no-print">בדיקות אוטומטיות: ממתין...</div>
+
+<section class="page" id="page-1">
+  <div class="kicker">5 יחידות מתמטיקה - אלגברה ויישומים</div>
+  <h1>דף תרגילים - בעיות קיצון עם פונקציית מטרה ריבועית</h1>
+  <div class="subtitle">מציאת מינימום או מקסימום ללא נגזרת - בעזרת קודקוד הפרבולה, צורה קודקודית ובדיקת תחום</div>
+  <div class="cover-grid_">
+    <div class="hero-card">
+      <h3>הנחיה קבועה לכל תרגיל</h3>
+      <ol class="rule-list">
+        <li>הגדירו משתנה אחד והביעו בעזרתו את כל הגדלים הדרושים.</li>
+        <li>קבעו את תחום הערכים האפשרי של המשתנה.</li>
+        <li>בנו את פונקציית המטרה ופשטו אותה לצורה ריבועית.</li>
+        <li>מצאו את הקודקוד ללא נגזרת - באמצעות <span class="math">\(x_v=-\frac{b}{2a}\)</span> או השלמה לריבוע.</li>
+        <li>בדקו שהקודקוד נמצא בתחום. אם התחום סגור, בדקו גם את נקודות הקצה.</li>
+        <li>פרשו את התוצאה בהקשר של השאלה וביחידות המתאימות.</li>
+      </ol>
+      <div class="formula-box">
+        \[
+        f(x)=ax^2+bx+c,\qquad x_v=-\frac{b}{2a}
+        \]
+        \[
+        a\gt0\Rightarrow \text{minimum},\qquad a\lt0\Rightarrow \text{maximum}
+        \]
+      </div>
+    </div>
+  </div>
+  <div class="info-card" style="margin-top:7mm">
+    <h3>רמת עבודה מומלצת</h3>
+    <p>תרגילים 1-12: בניית מודל ריבועי בסיסי. תרגילים 13-24: שילוב גאומטריה, כלכלה וגרפים. תרגילים 25-30: העמקה ברמת 5 יחידות - בניית מודל מתוך תנאי מילולי מורכב יותר.</p>
+  </div>
+  <div class="page-footer"><span>דף תרגילים - בעיות קיצון ריבועיות</span><span>עמוד 1 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-2">
+  <h2>חלק א - גאומטריה</h2>
+  <div class="section-banner"><span>תרגילים 1-3</span><span>קל - בינוני</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">1. מלבן בעל היקף קבוע</span><span class="source-tag">קובץ א - עמ' 2, שאלה 1</span></div>
+        <p>נתון מלבן שהיקפו 24 ס"מ. נסמן ב-<span class="math">\(x\)</span> את אורך אחת מצלעותיו.</p>
+        <ol type="א"><li>הביעו את אורך הצלע השנייה באמצעות <span class="math">\(x\)</span>.</li><li>בנו את פונקציית המטרה המתארת את שטח המלבן.</li><li>מצאו את ממדי המלבן שעבורם השטח מקסימלי.</li><li>מצאו את השטח המקסימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g1" class="jxgbox geometry"></div><div class="graph-controls" data-board="g1"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">2. משולש ישר זווית - סכום ניצבים 14</span><span class="source-tag">קובץ א - עמ' 3, שאלה 2</span></div>
+        <p>במשולש ישר זווית סכום אורכי הניצבים הוא 14 ס"מ. נסמן ב-<span class="math">\(x\)</span> את אורך אחד הניצבים.</p>
+        <ol type="א"><li>הביעו את אורך הניצב השני.</li><li>בנו פונקציית מטרה לשטח המשולש.</li><li>מצאו את אורכי הניצבים שעבורם השטח מקסימלי.</li><li>מצאו את השטח המקסימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g2" class="jxgbox geometry"></div><div class="graph-controls" data-board="g2"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">3. משולש ישר זווית - סכום ניצבים 20</span><span class="source-tag">קובץ א - עמ' 3, שאלה 3</span></div>
+        <p>ידוע שסכום אורכי הניצבים של משולש ישר זווית הוא 20 ס"מ.</p>
+        <ol type="א"><li>בנו פונקציית מטרה לשטח המשולש.</li><li>מצאו את השטח המקסימלי.</li><li>מהו סוגו של המשולש שמתקבל כאשר השטח מקסימלי?</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g3" class="jxgbox geometry"></div><div class="graph-controls" data-board="g3"></div></div>
+    </div>
+  </div>
+  <div class="page-footer"><span>גאומטריה - בניית פונקציית מטרה</span><span>עמוד 2 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-3">
+  <h2>חלק א - גאומטריה</h2>
+  <div class="section-banner"><span>תרגילים 4-6</span><span>בינוני</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">4. מלבן פנימי בתוך מלבן חיצוני</span><span class="source-tag">קובץ א - עמ' 4, שאלה 5 - סעיפים א-ב</span></div>
+        <p>היקף המלבן החיצוני הוא 96 ס"מ. בתוך המלבן שורטט מלבן פנימי, כך שהמרחק מן השוליים הימני והשמאלי הוא 2 ס"מ, והמרחק מן השוליים העליון והתחתון הוא 3 ס"מ. נסמן ב-<span class="math">\(x\)</span> את אורך אחת מצלעות המלבן החיצוני.</p>
+        <ol type="א"><li>הביעו את שטח המלבן הפנימי באמצעות <span class="math">\(x\)</span>.</li><li>מצאו את ממדי המלבן החיצוני כך ששטח המלבן הפנימי יהיה מקסימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g4" class="jxgbox geometry"></div><div class="graph-controls" data-board="g4"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">5. רשת מלבנית מחוט תיל</span><span class="source-tag">קובץ א - עמ' 4, שאלה 6</span></div>
+        <p>מחוט תיל שאורכו 96 ס"מ בנו רשת מלבנית המורכבת מ-6 קטעים אנכיים באורך שווה ומ-4 קטעים אופקיים באורך שווה. נסמן ב-<span class="math">\(x\)</span> את גובה הרשת.</p>
+        <ol type="א"><li>הביעו את רוחב הרשת באמצעות <span class="math">\(x\)</span>.</li><li>בנו את פונקציית המטרה המתארת את שטח הרשת.</li><li>מצאו את ממדי הרשת בעלי השטח המקסימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g5" class="jxgbox geometry"></div><div class="graph-controls" data-board="g5"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">6. מגרש ליד יציע מרכזי</span><span class="source-tag">קובץ א - עמ' 4, שאלה 8 - נוסח הותאם למטרת השטח</span></div>
+        <p>מגרש מלבני צמוד ליציע מרכזי לאורך אחת מצלעותיו. יש 220 מ' גדר כדי לגדר את שלוש הצלעות האחרות. נסמן ב-<span class="math">\(x\)</span> את אורך כל אחת משתי הצלעות המאונכות ליציע.</p>
+        <ol type="א"><li>הביעו את הצלע המקבילה ליציע.</li><li>בנו פונקציית מטרה לשטח המגרש.</li><li>מצאו את ממדי המגרש שעבורם השטח מקסימלי ואת השטח המקסימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g6" class="jxgbox geometry"></div><div class="graph-controls" data-board="g6"></div></div>
+    </div>
+  </div>
+  <div class="page-footer"><span>גאומטריה - אילוץ לינארי ושטח ריבועי</span><span>עמוד 3 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-4">
+  <h2>חלק א - גאומטריה</h2>
+  <div class="section-banner"><span>תרגילים 7-9</span><span>בינוני - מתקדם</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">7. בסיס וגובה שסכומם 20</span><span class="source-tag">קובץ א - עמ' 5, שאלה 11</span></div>
+        <p>במשולש נתון שסכום אורך הבסיס ואורך הגובה אליו הוא 20 ס"מ.</p>
+        <ol type="א"><li>נסמן את הגובה ב-<span class="math">\(x\)</span>. הביעו את הבסיס.</li><li>בנו פונקציית מטרה לשטח המשולש.</li><li>מצאו את גובה המשולש ואת בסיסו כאשר השטח מקסימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g7" class="jxgbox geometry"></div><div class="graph-controls" data-board="g7"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">8. מלבן ועליו משולש שווה צלעות</span><span class="source-tag">קובץ א - עמ' 6, שאלה 16</span></div>
+        <p>על אחת מצלעותיו של מלבן בנו משולש שווה צלעות, כך שהצלע המשותפת היא בסיס המשולש. היקף הצורה החיצונית כולה הוא 75 ס"מ.</p>
+        <ol type="א"><li>נסמן ב-<span class="math">\(x\)</span> את צלע המשולש. הביעו את גובה המלבן.</li><li>בנו פונקציית מטרה לשטח המלבן ומצאו את <span class="math">\(x\)</span> שעבורו שטח המלבן מקסימלי.</li><li>מצאו את שטח הצורה כולה במצב זה.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g8" class="jxgbox geometry"></div><div class="graph-controls" data-board="g8"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">9. חלון מלבני עם חצי מעגל</span><span class="source-tag">קובץ א - עמ' 7, שאלה 18</span></div>
+        <p>חלון בנוי ממלבן ומחצי מעגל שמונח מעליו. היקף החלון הוא 178.5 ס"מ. נסמן ב-<span class="math">\(x\)</span> את רדיוס חצי המעגל ונשתמש ב-<span class="math">\(\pi=3.14\)</span>.</p>
+        <ol type="א"><li>הביעו את גובה המלבן באמצעות <span class="math">\(x\)</span>.</li><li>בנו פונקציית מטרה לשטח החלון.</li><li>מצאו את ממדי המלבן שעבורם שטח החלון מקסימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g9" class="jxgbox geometry"></div><div class="graph-controls" data-board="g9"></div></div>
+    </div>
+  </div>
+  <div class="page-footer"><span>גאומטריה - שאלות מורכבות יותר</span><span>עמוד 4 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-5">
+  <h2>חלק א - גאומטריה</h2>
+  <div class="section-banner"><span>תרגילים 10-12</span><span>בינוני - מתקדם</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">10. ריבוע ומשולש ישר זווית ושווה שוקיים</span><span class="source-tag">קובץ ב - עמ' 1, שאלה 1</span></div>
+        <p>על הקטע <span class="math">\(AB\)</span> שאורכו 12 ס"מ בנו ריבוע ומשולש ישר זווית ושווה שוקיים כמתואר. נסמן ב-<span class="math">\(x\)</span> את אורך כל ניצב של המשולש.</p>
+        <ol type="א"><li>הביעו את צלע הריבוע באמצעות <span class="math">\(x\)</span>.</li><li>הביעו את שטח המשולש ואת שטח הריבוע.</li><li>מצאו את <span class="math">\(x\)</span> שעבורו סכום השטחים מינימלי.</li><li>מצאו את הסכום המינימלי, ואת החלק היחסי של כל אחד משני השטחים מן הסכום.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g10" class="jxgbox geometry"></div><div class="graph-controls" data-board="g10"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">11. מלבן פנימי עם שוליים קבועים</span><span class="source-tag">קובץ ב - עמ' 1, שאלה 2</span></div>
+        <p>בתוך מלבן שהיקפו 36 ס"מ נמצא מלבן פנימי שצלעותיו מקבילות לצלעות המלבן החיצוני. רוחב השוליים הוא 3 ס"מ מכל צד שמאל וימין, ו-2 ס"מ מכל צד עליון ותחתון. נסמן ב-<span class="math">\(x\)</span> את אחת מצלעות המלבן החיצוני.</p>
+        <ol type="א"><li>הביעו את שתי צלעות המלבן הפנימי ואת שטחו באמצעות <span class="math">\(x\)</span>.</li><li>מצאו את ממדי המלבן החיצוני כך ששטח המלבן הפנימי יהיה מקסימלי.</li><li>מצאו את ממדי המלבן הפנימי, שטחו והיקפו במצב זה.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g11" class="jxgbox geometry"></div><div class="graph-controls" data-board="g11"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">12. שני ריבועים בתוך ריבוע</span><span class="source-tag">קובץ ב - עמ' 1, שאלה 3</span></div>
+        <p>בתוך ריבוע שאורך צלעו 12 ס"מ חסומים שני ריבועים בפינות נגדיות, כמתואר. נסמן ב-<span class="math">\(x\)</span> את אורך צלע הריבוע הימני-תחתון.</p>
+        <ol type="א"><li>הביעו באמצעות <span class="math">\(x\)</span> את סכום שטחי שני הריבועים.</li><li>קבעו את תחום <span class="math">\(x\)</span>.</li><li>מצאו את <span class="math">\(x\)</span> שעבורו סכום השטחים מינימלי ואת הסכום המינימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g12" class="jxgbox geometry"></div><div class="graph-controls" data-board="g12"></div></div>
+    </div>
+  </div>
+  <div class="page-footer"><span>גאומטריה - סכומי שטחים</span><span>עמוד 5 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-6">
+  <h2>חלק ב - גאומטריה וכלכלה</h2>
+  <div class="section-banner"><span>תרגילים 13-15</span><span>מתקדם</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">13. ריבוע על היתר של משולש ישר זווית</span><span class="source-tag">קובץ ב - עמ' 2, שאלה 4</span></div>
+        <p>במשולש ישר זווית <span class="math">\(ABC\)</span>, מתקיים <span class="math">\(\angle C=90^\circ\)</span> וסכום אורכי הניצבים הוא 14 ס"מ. על היתר <span class="math">\(AB\)</span> בנו ריבוע <span class="math">\(ABDE\)</span>. נסמן <span class="math">\(BC=x\)</span>.</p>
+        <ol type="א"><li>הביעו את <span class="math">\(AC\)</span>, את שטח המשולש, את <span class="math">\(AB^2\)</span> ואת שטח הריבוע באמצעות <span class="math">\(x\)</span>.</li><li>מצאו את אורכי הניצבים כך ששטח המחומש המורכב מן המשולש והריבוע יהיה מינימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g13" class="jxgbox geometry"></div><div class="graph-controls" data-board="g13"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">14. עלות ריצוף חדר</span><span class="source-tag">קובץ ב - עמ' 2, כלכליות שאלה 1</span></div>
+        <p>חדר מלבני אורכו 9 מ' ורוחבו 5 מ'. הריצוף מורכב משני סוגים. מחיר ריצוף החלק המקווקו הוא 200 ש"ח למ"ר, ומחיר ריצוף שאר השטח הוא 100 ש"ח למ"ר. נסמן ב-<span class="math">\(x\)</span> את צלע הריבוע הימני-תחתון.</p>
+        <ol type="א"><li>הביעו את שטח החלק המקווקו ואת שטח החלק האחר.</li><li>בנו פונקציית מטרה למחיר הכולל.</li><li>מצאו את <span class="math">\(x\)</span> שעבורו המחיר הכולל מינימלי ואת המחיר המינימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g14" class="jxgbox geometry"></div><div class="graph-controls" data-board="g14"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div>
+        <div class="ex-head"><span class="ex-num">15. עלות זכוכית בחלון</span><span class="source-tag">קובץ ב - עמ' 2, כלכליות שאלה 2</span></div>
+        <p>חלון מלבני ממדיו 10 מ' על 7 מ' מורכב משני סוגי זכוכית. בחלק המקווקו מחיר הזכוכית הוא 50 ש"ח למ"ר ובחלק האחר 20 ש"ח למ"ר. שני הריבועים התחתונים זהים, וצלע כל אחד מהם היא <span class="math">\(x\)</span>.</p>
+        <ol type="א"><li>הביעו את שטח החלק המקווקו ואת השטח האחר.</li><li>בנו פונקציית מטרה למחיר הכולל.</li><li>מצאו את <span class="math">\(x\)</span> ואת המחיר המינימלי.</li></ol>
+      </div>
+      <div class="diagram-panel"><div id="g15" class="jxgbox geometry"></div><div class="graph-controls" data-board="g15"></div></div>
+    </div>
+  </div>
+  <div class="page-footer"><span>גאומטריה וכלכלה</span><span>עמוד 6 מתוך 13</span></div>
+</section>
+
+<section class="page compact" id="page-7">
+  <h2>חלק ג - בעיות קיצון במספרים</h2>
+  <div class="section-banner"><span>תרגילים 16-21</span><span>אלגברה - ללא שרטוט</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card"><div class="ex-head"><span class="ex-num">16. הוכחת חסם תחתון</span><span class="source-tag">קובץ א - עמ' 9, שאלה 2</span></div><p>הוכיחו, ללא נגזרת, שלכל מספר ממשי <span class="math">\(x\)</span> מתקיים <span class="math">\(x+x^2\ge-\frac14\)</span>. קבעו מתי מתקבל שוויון.</p></div>
+    <div class="exercise-card"><div class="ex-head"><span class="ex-num">17. שלושה מספרים חיוביים</span><span class="source-tag">קובץ א - עמ' 10, שאלה 7</span></div><p>נתונים שלושה מספרים חיוביים שסכומם 13. המספר הראשון גדול פי 3 מן המספר השני.</p><ol type="א"><li>מצאו את שלושת המספרים שעבורם סכום ריבועיהם מינימלי.</li><li>מצאו את סכום הריבועים המינימלי.</li></ol></div>
+    <div class="exercise-card"><div class="ex-head"><span class="ex-num">18. שני מספרים שסכומם 24</span><span class="source-tag">קובץ א - עמ' 10, שאלה 8ב</span></div><p>נתונים שני מספרים שסכומם 24. מצאו את שני המספרים שעבורם סכום ריבועיהם מינימלי, ואת הערך המינימלי של סכום הריבועים.</p></div>
+    <div class="exercise-card"><div class="ex-head"><span class="ex-num">19. מכפלה מקסימלית</span><span class="source-tag">קובץ ב - עמ' 3, מספרים שאלה 1</span></div><p>סכומם של שני מספרים הוא 10. נסמן אחד מהם ב-<span class="math">\(x\)</span>.</p><ol type="א"><li>הביעו את המספר השני ואת מכפלת שני המספרים באמצעות <span class="math">\(x\)</span>.</li><li>מצאו את שני המספרים שעבורם המכפלה מקסימלית ואת המכפלה המקסימלית.</li></ol></div>
+    <div class="exercise-card"><div class="ex-head"><span class="ex-num">20. סכום ריבועים מינימלי</span><span class="source-tag">קובץ ב - עמ' 3, מספרים שאלה 2</span></div><p>סכומם של שני מספרים הוא 8. מצאו את שני המספרים שעבורם סכום ריבועיהם מינימלי, ואת הסכום המינימלי.</p></div>
+    <div class="exercise-card"><div class="ex-head"><span class="ex-num">21. מספר ועוד ריבועו</span><span class="source-tag">קובץ ב - עמ' 3, מספרים שאלה 3</span></div><ol type="א"><li>מצאו מספר שאם נוסיף לו את ריבועו נקבל תוצאה מינימלית.</li><li>מצאו את התוצאה המינימלית.</li><li>מצאו את מכפלת המספר שמצאתם בריבועו.</li></ol></div>
+  </div>
+  <div class="page-footer"><span>מספרים - קודקוד של פרבולה</span><span>עמוד 7 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-8">
+  <h2>חלק ד - בעיות קיצון גרפיות</h2>
+  <div class="section-banner"><span>תרגילים 22-24</span><span>גרף + מודל ריבועי</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card with-diagram">
+      <div><div class="ex-head"><span class="ex-num">22. מלבן מתחת לישר <span class="math">\(y=-3x+6\)</span></span><span class="source-tag">קובץ ב - עמ' 3, גרפיות שאלה 1</span></div><p>בין גרף הישר <span class="math">\(y=-3x+6\)</span> והצירים חסום מלבן. הקודקוד הימני-עליון <span class="math">\(A\)</span> נמצא על הישר ושיעור ה-<span class="math">\(x\)</span> שלו הוא <span class="math">\(x\)</span>.</p><ol type="א"><li>הביעו את שיעור ה-<span class="math">\(y\)</span> של <span class="math">\(A\)</span> ואת שטח המלבן.</li><li>מצאו את <span class="math">\(x\)</span> שעבורו שטח המלבן מקסימלי ואת שיעורי <span class="math">\(A\)</span>.</li><li>מצאו את השטח המקסימלי ואת היקף המלבן במצב זה.</li></ol></div>
+      <div class="diagram-panel"><div id="g22" class="jxgbox graph"></div><div class="graph-controls" data-board="g22"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div><div class="ex-head"><span class="ex-num">23. מלבן מתחת לישר <span class="math">\(y=-2x+12\)</span></span><span class="source-tag">קובץ ב - עמ' 4, שאלה 2</span></div><p>בין גרף הישר <span class="math">\(y=-2x+12\)</span> והצירים חסום מלבן. הקודקוד הימני-עליון <span class="math">\(P\)</span> נמצא על הישר ושיעור ה-<span class="math">\(x\)</span> שלו הוא <span class="math">\(x\)</span>.</p><ol type="א"><li>הביעו את <span class="math">\(y_P\)</span> ואת שטח המלבן.</li><li>מצאו את <span class="math">\(x\)</span> ואת שיעורי <span class="math">\(P\)</span> שעבורם השטח מקסימלי.</li><li>מצאו את השטח המקסימלי.</li></ol></div>
+      <div class="diagram-panel"><div id="g23" class="jxgbox graph"></div><div class="graph-controls" data-board="g23"></div></div>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div><div class="ex-head"><span class="ex-num">24. נקודה על פרבולה - סכום שיעורים</span><span class="source-tag">קובץ ב - עמ' 4, שאלה 4</span></div><p>על גרף הפונקציה <span class="math">\(f(x)=-\frac12x^2+2\)</span>, ברביע הראשון, בוחרים נקודה <span class="math">\(P(x,y)\)</span>.</p><ol type="א"><li>הביעו את <span class="math">\(x+y\)</span> כפונקציה של <span class="math">\(x\)</span>.</li><li>מצאו את שיעורי <span class="math">\(P\)</span> שעבורם <span class="math">\(x+y\)</span> מקסימלי.</li><li>מצאו את הסכום המקסימלי.</li></ol></div>
+      <div class="diagram-panel"><div id="g24" class="jxgbox graph"></div><div class="graph-controls" data-board="g24"></div></div>
+    </div>
+  </div>
+  <div class="page-footer"><span>גרפים - מעבר מגאומטריה לפונקציית מטרה</span><span>עמוד 8 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-9">
+  <h2>חלק ה - תרגילים נוספים</h2>
+  <div class="section-banner"><span>תרגילים 25-27</span><span>5 יחידות - בניית מודל</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card with-diagram">
+      <div><div class="ex-head"><span class="ex-num">25. מכלאה עם מחיצה פנימית</span><span class="source-tag">נוסח חדש - בהשראת OpenStax ו-UNAM</span></div><p>ליד קיר קיים רוצים לבנות מכלאה מלבנית. הקיר משמש כאחת הצלעות הארוכות ולכן אין צורך לגדר אותה. בנוסף רוצים להוסיף מחיצה פנימית אחת המאונכת לקיר ומחלקת את המכלאה לשני תאים. לרשותנו 140 מ' גדר.</p><ol type="א"><li>נסמן ב-<span class="math">\(x\)</span> את אורך כל צלע המאונכת לקיר. הביעו את אורך הצלע המקבילה לקיר.</li><li>בנו פונקציית מטרה לשטח המכלאה וקבעו את תחומה.</li><li>מצאו את ממדי המכלאה ואת השטח המקסימלי.</li></ol></div>
+      <div class="diagram-panel"><div id="g25" class="jxgbox geometry"></div><div class="graph-controls" data-board="g25"></div></div>
+    </div>
+    <div class="exercise-card">
+      <div class="ex-head"><span class="ex-num">26. מחיר כרטיס והכנסה</span><span class="source-tag">נוסח חדש - בהשראת Matarus</span></div>
+      <p>באולם מופע נמכרים כיום 400 כרטיסים במחיר 60 ש"ח לכרטיס. לפי ניסיון העבר, כל העלאה של 2 ש"ח במחיר גורמת לירידה של 10 כרטיסים במספר הכרטיסים הנמכרים. נניח שהקשר נשאר לינארי.</p>
+      <ol type="א"><li>נסמן ב-<span class="math">\(x\)</span> את מספר ההעלאות של 2 ש"ח. הביעו את מחיר הכרטיס ואת מספר הכרטיסים הנמכרים.</li><li>בנו פונקציית הכנסה ריבועית.</li><li>מצאו את מחיר הכרטיס שמביא להכנסה מקסימלית, את מספר הכרטיסים ואת ההכנסה המקסימלית.</li></ol>
+    </div>
+    <div class="exercise-card">
+      <div class="ex-head"><span class="ex-num">27. מודל ביקוש לינארי</span><span class="source-tag">נוסח חדש - בהשראת OpenStax</span></div>
+      <p>מספר המנויים החודשי <span class="math">\(q\)</span> לשירות דיגיטלי תלוי במחיר החודשי <span class="math">\(p\)</span> לפי המודל <span class="math">\(q=1600-20p\)</span>, כאשר <span class="math">\(p\gt0\)</span> ו-<span class="math">\(q\gt0\)</span>.</p>
+      <ol type="א"><li>בנו את פונקציית ההכנסה <span class="math">\(R(p)\)</span>.</li><li>מצאו את המחיר שמביא להכנסה מקסימלית.</li><li>מצאו את מספר המנויים ואת ההכנסה המקסימלית.</li></ol>
+    </div>
+  </div>
+  <div class="page-footer"><span>תרגילים נוספים - גאומטריה והכנסה</span><span>עמוד 9 מתוך 13</span></div>
+</section>
+
+<section class="page" id="page-10">
+  <h2>חלק ה - תרגילים נוספים</h2>
+  <div class="section-banner"><span>תרגילים 28-30</span><span>5 יחידות - העמקה</span></div>
+  <div class="exercise-list">
+    <div class="exercise-card">
+      <div class="ex-head"><span class="ex-num">28. רווח של יצרן</span><span class="source-tag">נוסח חדש - בהשראת מקורות אלגברה יישומית</span></div>
+      <p>יצרן יכול למכור <span class="math">\(q\)</span> יחידות ביום. מחיר המכירה ליחידה, בש"ח, נתון על ידי <span class="math">\(p=180-\frac12q\)</span>. עלות הייצור היומית היא <span class="math">\(C(q)=40q+3000\)</span>.</p>
+      <ol type="א"><li>בנו פונקציית הכנסה <span class="math">\(R(q)\)</span> ופונקציית רווח <span class="math">\(P(q)=R(q)-C(q)\)</span>.</li><li>קבעו את התחום המעשי של <span class="math">\(q\)</span>.</li><li>מצאו את מספר היחידות שמביא לרווח מקסימלי, את מחיר היחידה ואת הרווח המקסימלי.</li></ol>
+    </div>
+    <div class="exercise-card with-diagram">
+      <div><div class="ex-head"><span class="ex-num">29. מלבן מתחת לישר - נוסח חדש</span><span class="source-tag">נוסח חדש - בהשראת TI ו-Khan Academy</span></div><p>ברביע הראשון נתון הישר <span class="math">\(y=-\frac12x+10\)</span>. מלבן שאחת מפינותיו בראשית הצירים וצלעותיו מונחות על הצירים, וקודקודו הנגדי <span class="math">\(P\)</span> נמצא על הישר.</p><ol type="א"><li>בנו פונקציית מטרה לשטח המלבן.</li><li>מצאו את שיעורי <span class="math">\(P\)</span> שעבורם השטח מקסימלי.</li><li>מצאו את השטח המקסימלי.</li></ol></div>
+      <div class="diagram-panel"><div id="g29" class="jxgbox graph"></div><div class="graph-controls" data-board="g29"></div></div>
+    </div>
+    <div class="exercise-card">
+      <div class="ex-head"><span class="ex-num">30. מינימום משוקלל של ריבועים</span><span class="source-tag">נוסח חדש - הרחבה אלגברית</span></div>
+      <p>נתונים שני מספרים ממשיים <span class="math">\(x,y\)</span> המקיימים <span class="math">\(x+y=18\)</span>. יש למזער את הביטוי <span class="math">\(2x^2+y^2\)</span>.</p>
+      <ol type="א"><li>הביעו את הביטוי כפונקציה ריבועית של <span class="math">\(x\)</span>.</li><li>מצאו את <span class="math">\(x,y\)</span> שעבורם הביטוי מינימלי.</li><li>מצאו את הערך המינימלי.</li><li>הסבירו מדוע שני המספרים אינם שווים למרות שהסכום שלהם קבוע.</li></ol>
+    </div>
+  </div>
+  <div class="info-card" style="margin-top:5mm"><h3>אתגר מסכם</h3><p>בחרו אחד מתרגילים 25-30 ופתרו אותו בשתי דרכים ללא נגזרת: פעם אחת באמצעות הנוסחה <span class="math">\(x_v=-\frac{b}{2a}\)</span>, ופעם אחת באמצעות השלמה לריבוע. השוו בין שתי הדרכים.</p></div>
+  <div class="page-footer"><span>תרגילים נוספים - העמקה</span><span>עמוד 10 מתוך 13</span></div>
+</section>
+
+<section class="page compact" id="page-11">
+  <h2>תשובות קצרות - תרגילים 1-15</h2>
+  <div class="answer-grid">
+    <div class="answer-item"><b>1.</b> <span class="math">\(A(x)=x(12-x)\)</span>; ממדים <span class="math">\(6\times6\)</span>; שטח <span class="math">\(36\)</span>.</div>
+    <div class="answer-item"><b>2.</b> ניצבים <span class="math">\(7,7\)</span>; שטח <span class="math">\(\frac{49}{2}\)</span>.</div>
+    <div class="answer-item"><b>3.</b> ניצבים <span class="math">\(10,10\)</span>; שטח <span class="math">\(50\)</span>; משולש ישר זווית ושווה שוקיים.</div>
+    <div class="answer-item"><b>4.</b> <span class="math">\(A(x)=(x-4)(42-x)\)</span>; חיצוני <span class="math">\(23\times25\)</span>; פנימי <span class="math">\(19\times19\)</span>; שטח <span class="math">\(361\)</span>.</div>
+    <div class="answer-item"><b>5.</b> <span class="math">\(A(x)=x(24-\frac32x)\)</span>; גובה <span class="math">\(8\)</span>, רוחב <span class="math">\(12\)</span>; שטח <span class="math">\(96\)</span>.</div>
+    <div class="answer-item"><b>6.</b> <span class="math">\(A(x)=x(220-2x)\)</span>; <span class="math">\(x=55\)</span>, הצלע המקבילה ליציע <span class="math">\(110\)</span>; שטח <span class="math">\(6050\)</span>.</div>
+    <div class="answer-item"><b>7.</b> בסיס וגובה <span class="math">\(10,10\)</span>; שטח <span class="math">\(50\)</span>.</div>
+    <div class="answer-item"><b>8.</b> <span class="math">\(x=12.5\)</span>; גובה המלבן <span class="math">\(18.75\)</span>; שטח המלבן <span class="math">\(234.375\)</span>; שטח כל הצורה <span class="math">\(234.375+39.0625\sqrt3\)</span>.</div>
+    <div class="answer-item"><b>9.</b> <span class="math">\(A(x)=178.5x-3.57x^2\)</span>; רדיוס <span class="math">\(25\)</span>; מלבן <span class="math">\(50\times25\)</span>; שטח חלון <span class="math">\(2231.25\)</span>.</div>
+    <div class="answer-item"><b>10.</b> <span class="math">\(S(x)=\frac12x^2+(12-x)^2\)</span>; <span class="math">\(x=8\)</span>; סכום מינימלי <span class="math">\(48\)</span>; משולש <span class="math">\(\frac23\)</span>, ריבוע <span class="math">\(\frac13\)</span>.</div>
+    <div class="answer-item"><b>11.</b> חיצוני <span class="math">\(8\times10\)</span>; פנימי <span class="math">\(4\times4\)</span>; שטח <span class="math">\(16\)</span>; היקף פנימי <span class="math">\(16\)</span>.</div>
+    <div class="answer-item"><b>12.</b> <span class="math">\(f(x)=x^2+(12-x)^2\)</span>; <span class="math">\(x=6\)</span>; מינימום <span class="math">\(72\)</span>.</div>
+    <div class="answer-item"><b>13.</b> <span class="math">\(AC=14-x\)</span>; <span class="math">\(AB^2=x^2+(14-x)^2\)</span>; מינימום כאשר הניצבים <span class="math">\(7,7\)</span>; שטח המחומש <span class="math">\(122.5\)</span>.</div>
+    <div class="answer-item"><b>14.</b> עלות <span class="math">\(C(x)=200x^2-1400x+9000\)</span>; <span class="math">\(x=3.5\)</span>; עלות מינימלית <span class="math">\(6550\)</span> ש"ח.</div>
+    <div class="answer-item"><b>15.</b> עלות <span class="math">\(C(x)=120x^2-720x+3500\)</span>; <span class="math">\(x=3\)</span>; עלות מינימלית <span class="math">\(2420\)</span> ש"ח.</div>
+  </div>
+  <div class="info-card" style="margin-top:5mm"><h3>בדיקה עצמית</h3><p>בכל תשובה ודאו שהערך שמצאתם נמצא בתחום הגאומטרי או המעשי של הבעיה. אם התוצאה היא אורך - הוא חייב להיות חיובי, ואם מדובר במחיר או בכמות - יש לפרש את התחום בהתאם למצב.</p></div>
+  <div class="page-footer"><span>תשובות קצרות</span><span>עמוד 11 מתוך 13</span></div>
+</section>
+
+<section class="page compact" id="page-12">
+  <h2>תשובות קצרות - תרגילים 16-30</h2>
+  <div class="answer-grid">
+    <div class="answer-item"><b>16.</b> <span class="math">\(x^2+x=(x+\frac12)^2-\frac14\)</span>; מינימום <span class="math">\(-\frac14\)</span> ב-<span class="math">\(x=-\frac12\)</span>.</div>
+    <div class="answer-item"><b>17.</b> המספרים <span class="math">\(6,2,5\)</span>; סכום ריבועים מינימלי <span class="math">\(65\)</span>.</div>
+    <div class="answer-item"><b>18.</b> <span class="math">\(12,12\)</span>; סכום ריבועים מינימלי <span class="math">\(288\)</span>.</div>
+    <div class="answer-item"><b>19.</b> <span class="math">\(5,5\)</span>; מכפלה מקסימלית <span class="math">\(25\)</span>.</div>
+    <div class="answer-item"><b>20.</b> <span class="math">\(4,4\)</span>; סכום ריבועים מינימלי <span class="math">\(32\)</span>.</div>
+    <div class="answer-item"><b>21.</b> <span class="math">\(x=-\frac12\)</span>; תוצאה מינימלית <span class="math">\(-\frac14\)</span>; מכפלה <span class="math">\(-\frac18\)</span>.</div>
+    <div class="answer-item"><b>22.</b> <span class="math">\(A(x)=-3x^2+6x\)</span>; <span class="math">\(x=1\)</span>; <span class="math">\(A=(1,3)\)</span>; שטח <span class="math">\(3\)</span>; היקף <span class="math">\(8\)</span>.</div>
+    <div class="answer-item"><b>23.</b> <span class="math">\(A(x)=-2x^2+12x\)</span>; <span class="math">\(x=3\)</span>; <span class="math">\(P=(3,6)\)</span>; שטח <span class="math">\(18\)</span>.</div>
+    <div class="answer-item"><b>24.</b> <span class="math">\(x+y=-\frac12x^2+x+2\)</span>; <span class="math">\(P=(1,1.5)\)</span>; סכום מקסימלי <span class="math">\(2.5\)</span>.</div>
+    <div class="answer-item"><b>25.</b> <span class="math">\(A(x)=x(140-3x)\)</span>; <span class="math">\(x=\frac{70}{3}\)</span>, אורך מקביל לקיר <span class="math">\(70\)</span>; שטח <span class="math">\(\frac{4900}{3}\)</span>.</div>
+    <div class="answer-item"><b>26.</b> <span class="math">\(R(x)=(60+2x)(400-10x)\)</span>; <span class="math">\(x=5\)</span>; מחיר <span class="math">\(70\)</span> ש"ח; 350 כרטיסים; הכנסה <span class="math">\(24500\)</span> ש"ח.</div>
+    <div class="answer-item"><b>27.</b> <span class="math">\(R(p)=p(1600-20p)\)</span>; <span class="math">\(p=40\)</span>; <span class="math">\(q=800\)</span>; הכנסה <span class="math">\(32000\)</span>.</div>
+    <div class="answer-item"><b>28.</b> <span class="math">\(P(q)=-\frac12q^2+140q-3000\)</span>; <span class="math">\(q=140\)</span>; מחיר <span class="math">\(110\)</span>; רווח <span class="math">\(6800\)</span>.</div>
+    <div class="answer-item"><b>29.</b> <span class="math">\(A(x)=-\frac12x^2+10x\)</span>; <span class="math">\(P=(10,5)\)</span>; שטח <span class="math">\(50\)</span>.</div>
+    <div class="answer-item"><b>30.</b> <span class="math">\(F(x)=3x^2-36x+324\)</span>; <span class="math">\(x=6,y=12\)</span>; מינימום <span class="math">\(216\)</span>.</div>
+  </div>
+  <div class="page-footer"><span>תשובות קצרות</span><span>עמוד 12 מתוך 13</span></div>
+</section>
+
+<script>
+(function(){
+'use strict';
+const STYLE={
+  line:{strokeColor:'#111111',strokeWidth:2,fixed:true,highlight:false},
+  aux:{strokeColor:'#111111',strokeWidth:1.4,dash:2,fixed:true,highlight:false},
+  point:{size:2.4,face:'o',fillColor:'#111111',strokeColor:'#111111',fixed:true,highlight:false},
+  text:{fontSize:13,cssStyle:'font-family:Times New Roman,serif;color:#111;',fixed:true,highlight:false},
+  fill:{fillColor:'#dcecf1',fillOpacity:0.55,strokeColor:'#111111',strokeWidth:1.8,highlight:false,fixed:true}
+};
+const boards={};
+const initialBoxes={};
+const initErrors=[];
+function initBoard(id,box,opts={}){
+  try{
+    const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:!!opts.axis,showNavigation:false,showCopyright:false,keepAspectRatio:!!opts.keepAspect,pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false}});
+    boards[id]=b;initialBoxes[id]=box.slice();
+    const el=document.getElementById(id); if(opts.geometry){el.dataset.styleOk='1';}
+    return b;
+  }catch(e){initErrors.push(id+': '+e.message);throw e;}
+}
+function seg(b,p1,p2,extra={}){return b.create('segment',[p1,p2],Object.assign({},STYLE.line,extra));}
+function aux(b,p1,p2,extra={}){return b.create('segment',[p1,p2],Object.assign({},STYLE.aux,extra));}
+function pt(b,p,name,offset=[4,4]){return b.create('point',p,Object.assign({},STYLE.point,{name:name||'',label:{offset:offset,cssStyle:'font-family:Times New Roman,serif;font-size:13px;color:#111;'}}));}
+function txt(b,x,y,t,extra={}){return b.create('text',[x,y,t],Object.assign({},STYLE.text,extra));}
+function poly(b,pts,extra={}){return b.create('polygon',pts,Object.assign({},STYLE.fill,extra,{vertices:{visible:false},borders:{strokeColor:'#111111',strokeWidth:1.8,highlight:false}}));}
+function rightMark(b,x,y,s=0.5){seg(b,[x+s,y],[x+s,y+s],{strokeWidth:1.2});seg(b,[x+s,y+s],[x,y+s],{strokeWidth:1.2});}
+function tick(b,p1,p2,count=1){
+  const mx=(p1[0]+p2[0])/2,my=(p1[1]+p2[1])/2,dx=p2[0]-p1[0],dy=p2[1]-p1[1],len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len;
+  for(let i=0;i<count;i++){const off=(i-(count-1)/2)*0.22;const cx=mx+off*dx/len,cy=my+off*dy/len;seg(b,[cx-.18*nx,cy-.18*ny],[cx+.18*nx,cy+.18*ny],{strokeWidth:1.4});}
+}
+function attachControls(){
+ document.querySelectorAll('.graph-controls').forEach(panel=>{
+   const id=panel.dataset.board;
+   [['איפוס','reset'],['הגדלה','in'],['הקטנה','out'],['מרכוז','center']].forEach(([label,act])=>{
+      const bt=document.createElement('button'); bt.type='button'; bt.textContent=label; bt.dataset.action=act;
+      bt.addEventListener('click',()=>{
+        const b=boards[id]; if(!b)return;
+        if(act==='in'){b.zoomIn();return;}
+        if(act==='out'){b.zoomOut();return;}
+        if(act==='reset'){b.setBoundingBox(initialBoxes[id].slice(),false);return;}
+        const cur=b.getBoundingBox(), orig=initialBoxes[id];
+        const width=cur[2]-cur[0], height=cur[1]-cur[3];
+        const cx=(orig[0]+orig[2])/2, cy=(orig[1]+orig[3])/2;
+        b.setBoundingBox([cx-width/2,cy+height/2,cx+width/2,cy-height/2],false);
+      });
+      panel.appendChild(bt);
+   });
+ });
+}
+function rect(b,x0,y0,w,h,fill=false){if(fill)return poly(b,[[x0,y0],[x0+w,y0],[x0+w,y0+h],[x0,y0+h]]);seg(b,[x0,y0],[x0+w,y0]);seg(b,[x0+w,y0],[x0+w,y0+h]);seg(b,[x0+w,y0+h],[x0,y0+h]);seg(b,[x0,y0+h],[x0,y0]);}
+function buildGeometry(){
+ let b;
+ b=initBoard('g1',[-1,8,13,-1],{geometry:true});rect(b,1,1,9,5,true);txt(b,5.5,.45,'12 - x');txt(b,.35,3.5,'x');
+ b=initBoard('g2',[-1,9,14,-1],{geometry:true});seg(b,[1,1],[11,1]);seg(b,[1,1],[1,7]);seg(b,[1,7],[11,1]);rightMark(b,1,1,.55);txt(b,5.8,.45,'14 - x');txt(b,.15,4.1,'x');
+ b=initBoard('g3',[-1,10,14,-1],{geometry:true});seg(b,[1,1],[11.5,1]);seg(b,[1,1],[1,8]);seg(b,[1,8],[11.5,1]);rightMark(b,1,1,.55);txt(b,6,.45,'20 - x');txt(b,.15,4.5,'x');
+ b=initBoard('g4',[-1,12,16,-1],{geometry:true});rect(b,1,1,13,9,false);rect(b,3,4,9,3,true);txt(b,7.2,.4,'x');txt(b,14.3,5.5,'48 - x');txt(b,1.65,2.5,'2');txt(b,12.5,2.5,'2');txt(b,7.2,10.5,'3');txt(b,7.2,3.2,'3');
+ b=initBoard('g5',[-1,9,16,-1],{geometry:true});for(let i=0;i<6;i++)seg(b,[1+i*2.4,1],[1+i*2.4,7]);for(let j=0;j<4;j++)seg(b,[1,1+j*2],[13,1+j*2]);txt(b,14,4,'x');txt(b,6.5,.35,'y');
+ b=initBoard('g6',[-1,9,16,-1],{geometry:true});seg(b,[1,7],[13,7],{strokeWidth:4});txt(b,6.5,7.7,'יציע');seg(b,[1,1],[13,1]);seg(b,[1,1],[1,7]);seg(b,[13,1],[13,7]);txt(b,.2,4,'x');txt(b,6.5,.35,'220 - 2x');
+ b=initBoard('g7',[-1,10,15,-1],{geometry:true});seg(b,[1,1],[13,1]);seg(b,[1,1],[7,8]);seg(b,[7,8],[13,1]);aux(b,[7,8],[7,1]);rightMark(b,7,1,.45);txt(b,9,.4,'20 - x');txt(b,7.35,4.4,'x');
+ b=initBoard('g8',[-1,14,15,-1],{geometry:true});rect(b,3,1,8,7,false);seg(b,[3,8],[7,12]);seg(b,[7,12],[11,8]);tick(b,[3,8],[7,12]);tick(b,[7,12],[11,8]);tick(b,[3,8],[11,8]);txt(b,6.8,.4,'x');txt(b,11.4,4.5,'h');
+ b=initBoard('g9',[-1,14,14,-1],{geometry:true});seg(b,[3,1],[11,1]);seg(b,[3,1],[3,8]);seg(b,[11,1],[11,8]);b.create('arc',[[7,8],[11,8],[3,8]],{strokeColor:'#111111',strokeWidth:2,fixed:true,highlight:false});txt(b,6.8,.4,'2x');txt(b,11.4,4.5,'h');aux(b,[7,8],[11,8]);txt(b,9,8.5,'x');
+ b=initBoard('g10',[-1,10,16,-1],{geometry:true});seg(b,[1,1],[13,1]);seg(b,[1,1],[1,7]);seg(b,[1,7],[7,1]);rightMark(b,1,1,.5);tick(b,[1,1],[1,7]);tick(b,[1,1],[7,1]);rect(b,7,1,6,6,false);txt(b,3.5,.35,'x');txt(b,10,.35,'12 - x');
+ b=initBoard('g11',[-1,11,17,-1],{geometry:true});rect(b,1,1,14,8,false);rect(b,4,3,8,4,true);txt(b,7.5,.35,'18 - x');txt(b,15.2,5,'x');txt(b,2.1,5,'3');txt(b,13,5,'3');txt(b,8,2.1,'2');txt(b,8,8.35,'2');
+ b=initBoard('g12',[-1,14,14,-1],{geometry:true,keepAspect:true});rect(b,1,1,11,11,false);rect(b,1,7,5,5,true);rect(b,7,1,5,5,true);txt(b,3.5,12.5,'12 - x');txt(b,9.3,.35,'x');
+ b=initBoard('g13',[-2,12,15,-2],{geometry:true});const C=[1,1],B=[9,1],A=[1,7];seg(b,C,B);seg(b,C,A);seg(b,A,B);rightMark(b,1,1,.55);pt(b,C,'C',[-12,-12]);pt(b,A,'A',[-14,4]);pt(b,B,'B',[5,-12]);const vx=B[0]-A[0],vy=B[1]-A[1],len=Math.hypot(vx,vy),nx=-vy/len,ny=vx/len,s=5;const D=[B[0]+nx*s,B[1]+ny*s],E=[A[0]+nx*s,A[1]+ny*s];seg(b,A,E);seg(b,E,D);seg(b,D,B);pt(b,D,'D',[4,4]);pt(b,E,'E',[-12,4]);txt(b,4.5,.3,'x');txt(b,.1,4,'14 - x');
+ b=initBoard('g14',[-1,8,13,-1],{geometry:true});rect(b,1,1,10,5,false);seg(b,[8,1],[8,6]);seg(b,[1,3.5],[11,3.5]);poly(b,[[1,3.5],[8,3.5],[8,6],[1,6]],{fillColor:'#f4e4e1',fillOpacity:.7});poly(b,[[8,1],[11,1],[11,3.5],[8,3.5]],{fillColor:'#dcecf1',fillOpacity:.7});txt(b,5.5,6.4,'9');txt(b,11.3,3.5,'5');txt(b,9.5,.35,'x');txt(b,11.4,2.1,'x');
+ b=initBoard('g15',[-1,10,14,-1],{geometry:true});rect(b,1,1,11,7,false);seg(b,[3.2,1],[3.2,8]);seg(b,[9.8,1],[9.8,8]);seg(b,[1,3.2],[12,3.2]);poly(b,[[3.2,3.2],[9.8,3.2],[9.8,8],[3.2,8]],{fillColor:'#f4e4e1',fillOpacity:.7});poly(b,[[1,1],[3.2,1],[3.2,3.2],[1,3.2]],{fillColor:'#dcecf1',fillOpacity:.7});poly(b,[[9.8,1],[12,1],[12,3.2],[9.8,3.2]],{fillColor:'#dcecf1',fillOpacity:.7});txt(b,6.5,8.45,'10');txt(b,12.25,4.5,'7');txt(b,2,.35,'x');txt(b,10.8,.35,'x');
+ b=initBoard('g25',[-1,10,16,-1],{geometry:true});seg(b,[1,8],[13,8],{strokeWidth:4});txt(b,6.5,8.6,'wall');seg(b,[1,1],[13,1]);seg(b,[1,1],[1,8]);seg(b,[13,1],[13,8]);seg(b,[7,1],[7,8]);txt(b,.2,4.5,'x');txt(b,7,.35,'140 - 3x');
+}
+function buildGraphs(){
+ let b;
+ b=initBoard('g22',[-.8,7,3,-.8],{axis:true});b.create('functiongraph',[x=>-3*x+6,0,2.1],{strokeColor:'#145a72',strokeWidth:2.4,highlight:false});rect(b,0,0,1,3,true);pt(b,[1,3],'A',[5,5]);txt(b,1.55,4.5,'y = -3x + 6');
+ b=initBoard('g23',[-.8,13,7,-.8],{axis:true});b.create('functiongraph',[x=>-2*x+12,0,6.1],{strokeColor:'#145a72',strokeWidth:2.4,highlight:false});rect(b,0,0,3,6,true);pt(b,[3,6],'P',[5,5]);txt(b,3.8,9,'y = -2x + 12');
+ b=initBoard('g24',[-.8,3,2.5,-.8],{axis:true});b.create('functiongraph',[x=>-.5*x*x+2,0,2],{strokeColor:'#9a3412',strokeWidth:2.4,highlight:false});pt(b,[1,1.5],'P',[5,5]);aux(b,[1,0],[1,1.5]);aux(b,[0,1.5],[1,1.5]);txt(b,1.2,2.2,'y = -0.5x² + 2');
+ b=initBoard('g29',[-1,11,22,-1],{axis:true});b.create('functiongraph',[x=>-.5*x+10,0,20],{strokeColor:'#145a72',strokeWidth:2.4,highlight:false});rect(b,0,0,10,5,true);pt(b,[10,5],'P',[5,5]);txt(b,12,6.7,'y = -0.5x + 10');
+}
+function initialize(){
+  if(!window.JXG || !JXG.JSXGraph){initErrors.push('JSXGraph library not loaded');return;}
+  try{buildGeometry();buildGraphs();attachControls();}catch(e){initErrors.push('General init: '+e.message);}
+  window.__jsxReady=true;
+  setTimeout(()=>window.runWorksheetTests&&window.runWorksheetTests(),300);
+}
+window.__worksheetTest={html:true,duplicateIds:[],mathJax:false,jsxInit:false,a4Overflow:[],missingTitles:[],missingControls:[],geometryStyle:[]};
+window.runWorksheetTests=function(){
+ const r=window.__worksheetTest;
+ const ids=[...document.querySelectorAll('[id]')].map(e=>e.id); const seen=new Set(); r.duplicateIds=[]; ids.forEach(id=>{if(seen.has(id))r.duplicateIds.push(id);seen.add(id)});
+ r.mathJax=!!window.__mathJaxReady && document.querySelectorAll('mjx-container').length>0;
+ r.jsxInit=!!window.__jsxReady && initErrors.length===0 && Object.keys(boards).length===20;
+ r.a4Overflow=[];document.querySelectorAll('.page').forEach(p=>{if(p.scrollHeight>p.clientHeight+2||p.scrollWidth>p.clientWidth+2)r.a4Overflow.push(p.id+':'+p.scrollHeight+'/'+p.clientHeight)});
+ r.missingTitles=[];document.querySelectorAll('.page').forEach(p=>{if(!p.querySelector('h1,h2'))r.missingTitles.push(p.id)});
+ r.missingControls=[];document.querySelectorAll('.jxgbox').forEach(g=>{const panel=document.querySelector('.graph-controls[data-board="'+g.id+'"]');if(!panel||panel.querySelectorAll('button').length<4)r.missingControls.push(g.id)});
+ r.geometryStyle=[];document.querySelectorAll('.jxgbox.geometry').forEach(g=>{if(g.dataset.styleOk!=='1')r.geometryStyle.push(g.id)});
+ const checks=[r.duplicateIds.length===0,r.mathJax,r.jsxInit,r.a4Overflow.length===0,r.missingTitles.length===0,r.missingControls.length===0,r.geometryStyle.length===0,document.doctype&&document.documentElement.lang==='he'];
+ const ok=checks.every(Boolean); const badge=document.getElementById('qaBadge'); if(badge){badge.textContent='בדיקות אוטומטיות: '+checks.filter(Boolean).length+'/8';badge.classList.toggle('ok',ok);badge.classList.toggle('bad',!ok);}
+ document.documentElement.dataset.qa=ok?'pass':'fail';
+ return {ok,checks,result:r,initErrors:initErrors.slice(),boardCount:Object.keys(boards).length};
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(initialize,50));else setTimeout(initialize,50);
+})();
+</script>
+</body>
+</html>
