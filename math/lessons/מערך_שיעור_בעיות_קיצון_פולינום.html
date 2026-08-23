@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור — בעיות קיצון של פונקציות פולינום | 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true,
+    packages: {'[+]': ['ams']}
+  },
+  chtml: {scale: 0.96},
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --ink:#18212f;
+  --muted:#5f6b7a;
+  --paper:#ffffff;
+  --canvas:#e8edf3;
+  --navy:#143d66;
+  --blue:#2a6f97;
+  --cyan:#e9f5fb;
+  --gold:#d79b2b;
+  --gold-soft:#fff6df;
+  --green:#2d7d5b;
+  --green-soft:#eaf7f0;
+  --red:#a94646;
+  --red-soft:#fff0f0;
+  --line:#d8e0e8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--canvas);color:var(--ink);font-family:"Arial","Noto Sans Hebrew",sans-serif;}
+body{counter-reset:page;}
+.page{
+  width:210mm;
+  height:297mm;
+  margin:8mm auto;
+  padding:12mm 14mm 11mm;
+  background:var(--paper);
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 5px 22px rgba(18,39,63,.14);
+  break-after:page;
+  page-break-after:always;
+  counter-increment:page;
+}
+.page::after{
+  content:counter(page);
+  position:absolute;
+  left:14mm;
+  bottom:5mm;
+  font-size:10px;
+  color:#7c8795;
+}
+.page:last-child{break-after:auto;page-break-after:auto}
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff}
+  .page{margin:0;box-shadow:none}
+  .graph-controls button{border:1px solid #888;background:#fff}
+}
+h1,h2,h3,h4{margin:0;color:var(--navy);line-height:1.18}
+h1{font-size:30px}
+h2{font-size:23px;margin-bottom:8px}
+h3{font-size:17px;margin-bottom:5px}
+h4{font-size:14px;margin-bottom:3px}
+p{margin:4px 0 7px;line-height:1.42;font-size:14px}
+ul,ol{margin:4px 0 7px;padding-right:20px}
+li{font-size:13.5px;line-height:1.38;margin:2px 0}
+small,.small{font-size:11.5px;color:var(--muted)}
+a{color:var(--blue);text-decoration:none;overflow-wrap:anywhere}
+.math-ltr,mjx-container{direction:ltr!important;text-align:left!important}
+.page-title{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:2px solid var(--navy);padding-bottom:6px;margin-bottom:9px}
+.unit-badge{font-size:12px;font-weight:700;color:#fff;background:var(--navy);padding:5px 10px;border-radius:999px;white-space:nowrap}
+.subtitle{font-size:16px;color:var(--muted);margin-top:6px}
+.hero{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:
+ radial-gradient(circle at 20% 20%,#eef8fd 0,transparent 31%),
+ radial-gradient(circle at 80% 74%,#fff4d7 0,transparent 29%)}
+.hero .formula{margin:18px 0;padding:12px 22px;border:2px solid var(--navy);border-radius:16px;background:rgba(255,255,255,.78);font-size:19px}
+.hero-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:88%;margin-top:22px}
+.hero-meta div{border:1px solid var(--line);padding:10px;border-radius:12px;background:#fff}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.col-40-60{display:grid;grid-template-columns:40% 60%;gap:10px}
+.col-55-45{display:grid;grid-template-columns:55% 45%;gap:10px}
+.card{border:1px solid var(--line);border-radius:11px;padding:9px 11px;background:#fff;margin-bottom: 10px;}
+.card.blue{background:var(--cyan);border-color:#bad9e9}
+.card.gold{background:var(--gold-soft);border-color:#f0d89e}
+.card.green{background:var(--green-soft);border-color:#b8dfca}
+.card.red{background:var(--red-soft);border-color:#efc4c4}
+.callout{border-right:5px solid var(--blue);background:#f7fbfe;border-radius:8px;padding:8px 10px;margin:7px 0}
+.callout.warn{border-right-color:var(--gold);background:#fffaf0}
+.callout.good{border-right-color:var(--green);background:#f4fbf7}
+.callout.bad{border-right-color:var(--red);background:#fff7f7}
+.kpi{font-size:26px;font-weight:800;color:var(--navy);display:block}
+.step{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start;margin:6px 0}
+.step-num{width:27px;height:27px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.formula-box{direction:ltr;text-align:center;border:1px dashed #94a9bb;border-radius:9px;padding: 0 0 0 16px;background:#fbfdff;font-size:15px}
+table{width:100%;border-collapse:collapse;margin:5px 0 7px;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:5px 6px;vertical-align:top}
+th{background:#edf4f8;color:var(--navy)}
+.exercise-list{columns:1;column-gap:18px;margin:0;padding-right:20px}
+.exercise-list li{margin:0 0 8px;break-inside:avoid;font-size:13.2px;line-height:1.37}
+.exercise-list.compact li{margin-bottom:5px;font-size:12.6px}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 14px}
+.answer{border-bottom:1px dotted #b5c0ca;padding:4px 0;font-size:12.5px;line-height:1.35}
+.checklist{list-style:none;padding:0;margin:4px 0}
+.checklist li::before{content:"□";margin-left:7px;color:var(--navy);font-weight:700}
+.source-list li{font-size:12.5px;margin-bottom:5px}
+.teacher-note{font-size:12px;color:#354352;border-right:3px solid #7fa6bd;padding-right:8px;margin:5px 0}
+.rubric td:first-child{font-weight:700;color:var(--navy);width:27%}
+.jxg-panel{border:1px solid #b7c9d7;border-radius:12px;background:#f9fcfe;padding:7px;min-width:0}
+.jxgbox{width:100%;height:255px;border:0;background:#fff;border-radius:8px;touch-action:none}
+.jxgbox.short{height:210px}
+.jxgbox.tall{height:300px}
+.graph-controls{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;direction:ltr}
+.graph-controls button{border:1px solid #9db4c6;background:#fff;color:var(--navy);border-radius:7px;padding:4px 9px;font-weight:700;cursor:pointer;font-size:12px}
+.graph-caption{font-size:11px;color:var(--muted);text-align:center;margin-top:4px}
+.two-graphs{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lesson-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+.lesson-flow div{background:#eef5f9;border:1px solid #c8dae5;border-radius:9px;text-align:center;padding:7px 4px;font-size:12px}
+.tight p{margin:3px 0 5px}.tight li{margin:1px 0}
+.footer-note{position:absolute;right:14mm;bottom:5mm;color:#7c8795;font-size:9.5px}
+.spacer{height:4px}
+.no-break{break-inside:avoid}
+.code-like{direction:ltr;text-align:left;font-family:Consolas,monospace;background:#f5f7fa;padding:6px;border-radius:7px;font-size:11.5px}
+</style>
+</head>
+<body>
+<section class="page hero">
+<div class="unit-badge">מתמטיקה — 5 יחידות</div>
+<h1>בעיות קיצון של פונקציות פולינום</h1>
+<div class="subtitle">מערך שיעור מלא ללמידה, הוראה ותרגול מדורג</div>
+
+<p style="max-width:680px">המערך בנוי על רצף הוראה של מידול, פונקציית מטרה, תחום מציאותי, נגזרת, בדיקת מועמדים ופירוש התשובה בהקשר. הוא משלב בעיות גאומטריות, גרפיות, נפח, מספרים, כלכלה ופרמטרים.</p>
+<div class="hero-meta">
+  <div><span class="kpi">9</span><b>יחידות הוראה</b><br><span class="small">מן המבוא ועד פרמטרים</span></div>
+  <div><span class="kpi">48</span><b>תרגילים מדורגים</b><br><span class="small">כולל תשובות סופיות</span></div>
+  <div><span class="kpi">10</span><b>שיעורים מוצעים</b><br><span class="small">45–60 דקות לשיעור</span></div>
+</div>
+<div class="footer-note">Philip Arad · 2026</div>
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>מפת המערך ומטרות הלמידה</h2></div><span class="unit-badge">מבוא</span></div>
+
+<div class="grid-2_">
+<div class="card blue">
+<h3>מטרות מרכזיות</h3>
+<ul>
+<li>לתרגם מצב מילולי או גאומטרי למודל מתמטי.</li>
+<li>להבחין בין <b>משוואת אילוץ</b> לבין <b>פונקציית מטרה</b>.</li>
+<li>לקבוע תחום מציאותי ולבדוק נקודות קצה.</li>
+<li>למצוא קיצון של פולינום בעזרת נגזרת ולנמק את סוגו.</li>
+<li>לפרש את ערך המשתנה ואת ערך פונקציית המטרה בהקשר.</li>
+</ul>
+</div>
+<div style="height:20px;"></div>
+<div class="card gold">
+<h3>ידע מוקדם נדרש</h3>
+<ul>
+<li>אלגברה של פולינומים: פתיחת סוגריים, פירוק ופתרון משוואות.</li>
+<li>נגזרת של פולינום וטבלת סימני נגזרת.</li>
+<li>קיצון בתחום סגור.</li>
+<li>שטחים, היקפים, דמיון משולשים ונפח תיבה.</li>
+<li>קריאת גרף ושיעורי נקודות.</li>
+</ul>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h3 style="margin-top:9px">רצף היחידות</h3>
+<table>
+<tr><th>יחידה</th><th>מוקד</th><th>תוצר מצופה</th></tr>
+<tr><td>1</td><td>מהי בעיית קיצון?</td><td>זיהוי משתנה, קבוע וגודל מיטבי</td></tr>
+<tr><td>2</td><td>פונקציית מטרה ואילוץ</td><td>צמצום למשתנה אחד</td></tr>
+<tr><td>3</td><td>תחום מציאותי ונקודות קצה</td><td>קביעה ונימוק של התחום</td></tr>
+<tr><td>4</td><td>פתרון מלא בנגזרת</td><td>אלגוריתם פתרון עקבי</td></tr>
+<tr><td>5</td><td>בעיות גאומטריות</td><td>מידול שטחים והיקפים</td></tr>
+<tr><td>6</td><td>בעיות גרפיות</td><td>בניית אורכים משיעורי נקודות</td></tr>
+<tr><td>7</td><td>נפח ופולינום ממעלה שלישית</td><td>תיבה פתוחה וגופים</td></tr>
+<tr><td>8</td><td>מספרים וכלכלה</td><td>העברת המודל להקשרים חדשים</td></tr>
+<tr><td>9</td><td>פרמטרים ואתגר</td><td>הכללה והוכחה</td></tr>
+</table>
+</section>
+
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 1 — מהי בעיית קיצון?</h2></div><span class="unit-badge">יחידה 1</span></div>
+<h3>משימת פתיחה קצרה</h3>
+<div class="card blue">
+<p>היקף מלבן הוא \(40\) ס״מ. הציעו שלושה זוגות אפשריים של אורך ורוחב, חשבו את השטח, ושערו מהן המידות היוצרות שטח מרבי. אין להשתמש עדיין בנגזרת.</p>
+<table><tr><th>\(x\)</th><th>\(y\)</th><th>\(F=xy\)</th><th>השערה</th></tr><tr><td>2</td><td>18</td><td>36</td><td rowspan="3">ככל שהמלבן קרוב לריבוע, השטח גדל.</td></tr><tr><td>6</td><td>14</td><td>84</td></tr><tr><td>10</td><td>10</td><td>100</td></tr></table>
+</div>
+
+<div class="grid-2_">
+<div class="card"><h3>1. משתנה בחירה</h3><p>הגודל שאנו רשאים לשנות. רצוי לבחור משתנה שמאפשר לבטא בקלות את שאר הגדלים.</p><div class="formula-box">\[x=\text{רחבנ ךרוא}\]</div></div>
+<div class="card"><h3>2. אילוץ</h3><p>קשר נתון בין הגדלים. האילוץ מאפשר לבטל משתנה נוסף.</p><div class="formula-box">\[2x+2y=40\]</div></div>
+<div class="card"><h3>3. פונקציית מטרה</h3><p>הגודל שאותו רוצים למקסם או למזער, לאחר שנכתב באמצעות משתנה אחד.</p><div class="formula-box">\[F(x)=x(20-x)\]</div></div>
+<div class="card"><h3>4. תחום מציאותי</h3><p>הערכים שיוצרים מצב אפשרי בבעיה — אורכים חיוביים, נקודות בתוך קטע או גוף ממשי.</p><div class="formula-box">\[0\lt x\lt 20\]</div></div>
+</div>
+<div class="callout warn"><b>הבחנה קריטית:</b> התחום האלגברי של פולינום הוא כל המספרים הממשיים, אך תחום הבעיה עשוי להיות קטע קטן בלבד.</div>
+<div style="height:20px;"></div>
+<h3>שלוש שאלות אבחון לפני חישוב</h3>
+<ol>
+<li>מהו הגודל שאותו מבקשים למקסם או למזער?</li>
+<li>איזה קשר מאפשר לכתוב את כל הגדלים בעזרת משתנה אחד?</li>
+<li>אילו ערכי משתנה יוצרים מצב ממשי?</li>
+</ol>
+</section>
+
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה מונחית — מלבן בעל היקף קבוע</h2></div><span class="unit-badge">יחידה 1</span></div>
+
+<div class="col-40-60_">
+<div class="jxg-panel">
+<div id="board-rect-model" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">גררו את הנקודה הכחולה כדי לשנות את רוחב המלבן.</div>
+</div>
+<div class="tight">
+<div style="height:50px;"></div>
+<p><b>נתון:</b> היקף מלבן הוא \(40\) ס״מ. מצאו את מידות המלבן ששטחו מרבי.</p>
+<div class="step"><span class="step-num">1</span><div><b>בחירת משתנה:   אורך המלבן</b> \(x=\).</div></div>
+<div class="step"><span class="step-num">2</span><div><b>אילוץ:</b> \[2x+2y=40\]</div></div>
+<div class="step"><span class="step-num">3</span><div><b>ביטול משתנה:</b> \[y=20-x\]</div></div>
+<div class="step"><span class="step-num">4</span><div><b>פונקציית מטרה:</b> \[A(x)=x(20-x)=20x-x^2\]</div></div>
+<div class="step"><span class="step-num">5</span><div><b>תחום:</b> \[0\lt x\lt 20\]</div></div>
+<div class="step"><span class="step-num">6</span><div><b>השערה:</b> גרף השטח הוא פרבולה הפוכה, ולכן צפוי מקסימום פנימי.</div></div>
+<div style="height:50px;"></div>
+<div class="callout"><b>בשלב זה אין חובה לגזור.</b> מטרת הדוגמה היא לבנות נכון את המודל ולחבר בין המלבן לבין גרף פונקציית השטח.</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תרגול 1 — בניית פונקציית מטרה</h2></div><span class="unit-badge">יחידה 1</span></div>
+
+<p>בכל תרגיל: הגדירו משתנה, כתבו אילוץ, בנו פונקציית מטרה וקבעו תחום. <b>אין צורך למצוא קיצון.</b></p>
+<ol class="exercise-list">
+<li>היקף מלבן הוא \(40\) ס״מ. סמנו את אחת הצלעות ב־\(x\) וכתבו את פונקציית השטח.</li>
+<li>במשולש ישר־זווית סכום אורכי הניצבים הוא \(18\) ס״מ. סמנו ניצב אחד ב־\(x\) וכתבו את פונקציית השטח.</li>
+<li>לגידור מלבן הצמוד לקיר דרושים רק שלושה צדדים. אורך הגדר הוא \(60\) מ׳. סמנו את המרחק מן הקיר ב־\(x\) וכתבו את פונקציית השטח.</li>
+<li>שני תאים מלבניים צמודים זה לזה. הגדר כוללת שתי צלעות ארוכות ושלוש מחיצות רוחביות, וסך אורכה \(80\) מ׳. סמנו את רוחב כל תא ב־\(x\) וכתבו את השטח הכולל.</li>
+<li>לוח מלבני שמידותיו \(30\times20\) ס״מ מוקף מסגרת פנימית אחידה שרוחבה \(x\). כתבו את שטח המלבן הפנימי.</li>
+<li>הגרף \(y=16-x^2\) נמצא מעל ציר \(x\). מלבן סימטרי לציר \(y\), שקודקודיו העליונים על הגרף וקודקודיו התחתונים על ציר \(x\). כתבו את פונקציית השטח.</li>
+</ol>
+<div style="height:20px;"></div>
+<div class="card blue"><h3>בדיקה עצמית</h3><ul class="checklist"><li>פונקציית המטרה מכילה משתנה אחד בלבד.</li><li>כל האורכים מופיעים באמצעות אותו משתנה.</li><li>התחום נובע מן המציאות ולא רק מן הנוסחה.</li></ul></div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 2 — פונקציית מטרה ואילוץ</h2></div><span class="unit-badge">יחידה 2</span></div>
+
+<div class="grid-2_">
+<div>
+<h3>הרעיון המרכזי</h3>
+<p>ברוב הבעיות קיימים בתחילה שני משתנים או יותר. משוואת האילוץ משמשת כדי לבטא את כולם באמצעות משתנה אחד.</p>
+<div style="height:50px;"></div>
+<h3>שלוש אסטרטגיות לבחירת משתנה</h3>
+<ol>
+<li>בחרו מידה שמופיעה פעמים רבות בשרטוט.</li>
+<li>בחרו מידה שהתחום שלה קל לזיהוי.</li>
+<li>בחרו מידה שמובילה לפולינום פשוט ככל האפשר.</li>
+</ol>
+</div>
+</div>
+<div style="height:50px;"></div>
+<h3>מיקרו־תרגול</h3>
+<table><tr><th>תיאור</th><th>משוואה ראשית</th><th>אילוץ</th><th>פונקציית מטרה</th></tr>
+<tr><td>מלבן — שטח מרבי</td><td>\(F=xy\)</td><td>\(2x+2y=P\)</td><td>\(F(x)=x\left(\frac{P}{2}-x\right)\)</td></tr>
+<tr><td>משולש ישר־זווית</td><td>\(F=\frac{1}{2}xy\)</td><td>\(x+y=S\)</td><td>\(F(x)=\frac{1}{2}x(S-x)\)</td></tr>
+<tr><td>תיבה פתוחה</td><td>\(V=lwh\)</td><td>\(l=a-2x,\;w=b-2x,\;h=x\)</td><td>\(V(x)=x(a-2x)(b-2x)\)</td></tr>
+</table>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה מונחית — שני תאים צמודים</h2></div><span class="unit-badge">יחידה 2</span></div>
+
+<div class="col-55-45_">
+<div class="tight">
+<p><b>בעיה:</b> בעזרת \(80\) מ׳ גדר יוצרים שני תאים מלבניים צמודים. מצאו פונקציית שטח מתאימה.</p>
+<div class="step"><span class="step-num">1</span><div>נסמן את רוחב התא ב־\(x\) ואת האורך הכולל ב־\(y\).</div></div>
+<div class="step"><span class="step-num">2</span><div>הגדר כוללת שתי צלעות באורך \(y\) ושלוש צלעות באורך \(x\): \[3x+2y=80\]</div></div>
+<div class="step"><span class="step-num">3</span><div>לכן: \[y=40-\frac{3}{2}x\]</div></div>
+<div class="step"><span class="step-num">4</span><div>השטח הכולל הוא שטח המלבן החיצוני: \[A(x)=xy=x\left(40-\frac{3}{2}x\right)\]</div></div>
+<div class="step"><span class="step-num">5</span><div>התחום: \[0\lt x\lt \frac{80}{3}\]</div></div>
+<div class="callout good"><b>בדיקת יחידות:</b> בתוך הפונקציה מופיעה מכפלה של מטר במטר, ולכן התוצאה במ״ר.</div>
+</div>
+<div style="height:20px;"></div>
+<div class="jxg-panel">
+<div id="board-two-pens" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">גררו את המחוון כדי לשנות את \(x\). הערך \(y\) מתעדכן אוטומטית לפי \(y=40-\frac{3}{2}x\).</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תרגול 2 — תחום ופונקציית מטרה</h2></div><span class="unit-badge">יחידה 2</span></div>
+
+<p>כתבו פונקציית מטרה ותחום מציאותי. אין צורך לגזור.</p>
+<ol class="exercise-list" start="7">
+<li>מקרטון שמידותיו \(30\times20\) ס״מ גוזרים מכל פינה ריבוע שצלעו \(x\), ומקפלים לתיבה פתוחה. כתבו את פונקציית הנפח.</li>
+<li>אותה משימה עבור קרטון שמידותיו \(24\times18\) ס״מ.</li>
+<li>נקודה \((x,y)\) נמצאת ברביע הראשון על הגרף \(y=9-x^2\). בונים מלבן שצלעותיו מקבילות לצירים וקודקודו הנגדי בראשית. כתבו את פונקציית השטח.</li>
+<li>בקטע \(0\le x\le2\), הקטע האנכי מחבר בין הגרפים \(f(x)=-x^2+12\) ו־\(g(x)=x+2\). כתבו את פונקציית אורך הקטע.</li>
+<li>נקודה ברביע הראשון נמצאת על הישר \(y=12-2x\). בונים מלבן עם הצירים. כתבו את פונקציית השטח.</li>
+<li>בתוך מלבן שמידותיו \(20\times14\) ס״מ יוצרים מסגרת אחידה שרוחבה \(x\). כתבו את שטח המלבן הפנימי ואת התחום.</li>
+</ol>
+<div class="callout warn"><b>שאלה לדיון:</b> מדוע בתרגיל 12 אפשר לכלול את \(x=7\) בתחום האלגברי, אף שהמלבן הפנימי מתנוון לקטע?</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 3 — תחום מציאותי ונקודות קצה</h2></div><span class="unit-badge">יחידה 3</span></div>
+
+<div class="grid-2_">
+<div class="card blue">
+<h3>כיצד קובעים תחום?</h3>
+<ul>
+<li>אורך חייב להיות חיובי או אי־שלילי לפי ההקשר.</li>
+<li>נקודה חייבת להישאר בתוך קטע או בין נקודות חיתוך.</li>
+<li>בגוף תלת־ממדי כל ממד חייב להיות חיובי.</li>
+<li>בבעיה בתחום סגור יש לבדוק גם נקודות קצה.</li>
+</ul>
+</div>
+<div style="height:20px;"></div>
+</div>
+<h3>ארבעה סוגי תחום שכיחים</h3>
+<table><tr><th>מצב</th><th>דוגמה</th><th>תחום</th></tr>
+<tr><td>אורכים חיוביים</td><td>מלבן בעל היקף קבוע</td><td>\(0\lt x\lt \frac{P}{2}\)</td></tr>
+<tr><td>תחום סגור גאומטרי</td><td>נקודה נעה על קטע</td><td>\(a\le x\le b\)</td></tr>
+<tr><td>תיבה פתוחה</td><td>קרטון \(a\times b\)</td><td>\(0\lt x\lt \frac{\min(a,b)}{2}\)</td></tr>
+<tr><td>בין גרפים</td><td>גרף עליון פחות תחתון</td><td>בין נקודות החיתוך או בתחום נתון</td></tr>
+</table>
+<div style="height:20px;"></div>
+<div class="callout bad"><b>טעות שכיחה:</b> לפתור \(F'(x)=0\) לפני כתיבת התחום. סדר נכון מונע קבלת פתרון שאינו אפשרי.</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה מלאה — מקסימום בתחום סגור</h2></div><span class="unit-badge">יחידה 3</span></div>
+
+<p><b>בעיה:</b> מצאו את הערך המקסימלי של \(F(x)=x(12-x)\) בתחום \(2\le x\le9\).</p>
+<div class="grid-2_">
+<div>
+<div class="step"><span class="step-num">1</span><div>נגזור: \[F'(x)=12-2x\]</div></div>
+<div class="step"><span class="step-num">2</span><div>נפתור: \[12-2x=0\quad\Longrightarrow\quad x=6\]</div></div>
+<div class="step"><span class="step-num">3</span><div>נבדוק שהנקודה בתחום: \[2\le6\le9\]</div></div>
+<div class="step"><span class="step-num">4</span><div>נשווה מועמדים:</div></div>
+<div style="height:10px;"></div>
+<table><tr><th>\(x\)</th><th>\(F(x)\)</th></tr><tr><td>2</td><td>20</td></tr><tr><td>6</td><td>36</td></tr><tr><td>9</td><td>27</td></tr></table>
+<div class="callout good">המקסימום המוחלט הוא \(36\), והוא מתקבל כאשר \(x=6\).</div>
+</div>
+<div style="height:10px;"></div>
+<div class="jxg-panel">
+<div id="board-closed-domain" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">הנקודות האדומות מסמנות את קצות התחום; הנקודה הירוקה היא המועמד הפנימי.</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תרגול 3 — פתרון ריבועי מלא</h2></div><span class="unit-badge">יחידה 3</span></div>
+
+<p>פתרו באופן מלא, כולל תחום, נגזרת, נימוק ותשובה בהקשר.</p>
+<ol class="exercise-list" start="13">
+<li>היקף מלבן הוא \(40\) ס״מ. מצאו את מידותיו כאשר שטחו מרבי.</li>
+<li>סכום ניצבי משולש ישר־זווית הוא \(18\) ס״מ. מצאו את השטח המרבי.</li>
+<li>למלבן הצמוד לקיר יש \(60\) מ׳ גדר לשלושה צדדים. מצאו את מידות המלבן בעל השטח המרבי.</li>
+<li>שני תאים מלבניים צמודים מוקפים ב־\(120\) מ׳ גדר: שתי צלעות ארוכות וארבע מחיצות רוחביות. מצאו את המידות המיטביות.</li>
+<li>שני מספרים חיוביים שסכומם \(50\). מצאו את המכפלה המרבית.</li>
+<li>שני מספרים שסכומם \(20\). מצאו את הערך המינימלי של סכום ריבועיהם.</li>
+</ol>
+<div class="card green"><h3>ניסוח תשובה</h3><p>תשובה מלאה כוללת: ערך המשתנה, המידות הנוספות, ערך המטרה ויחידות מתאימות.</p></div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 4 — אלגוריתם פתרון מלא בנגזרת</h2></div><span class="unit-badge">יחידה 4</span></div>
+
+<div class="grid-2_">
+<div>
+<div class="step"><span class="step-num">1</span><div><b>שרטוט והגדרת משתנה.</b> סמנו בבירור מה מייצג \(x\).</div></div>
+<div class="step"><span class="step-num">2</span><div><b>אילוץ.</b> כתבו קשר בין המשתנים.</div></div>
+<div class="step"><span class="step-num">3</span><div><b>פונקציית מטרה.</b> צמצמו למשתנה אחד.</div></div>
+<div class="step"><span class="step-num">4</span><div><b>תחום מציאותי.</b> נמקו כל גבול.</div></div>
+<div class="step"><span class="step-num">5</span><div><b>נגזרת ונקודות חשודות.</b> פתרו \(F'(x)=0\).</div></div>
+<div class="step"><span class="step-num">6</span><div><b>קביעת סוג הקיצון.</b> טבלת סימנים, השוואת ערכים או נגזרת שנייה.</div></div>
+<div class="step"><span class="step-num">7</span><div><b>חזרה להקשר.</b> מצאו את כל המידות וכתבו משפט תשובה.</div></div>
+</div>
+<div style="height:50px;"></div>
+<div class="card gold">
+<h3>בחירת כלי לנימוק</h3>
+<table><tr><th>כלי</th><th>מתי מתאים?</th></tr><tr><td>טבלת סימני נגזרת</td><td>כאשר רוצים להראות מעבר מעלייה לירידה</td></tr><tr><td>השוואת ערכים</td><td>בתחום סגור או כשיש מספר מועמדים</td></tr><tr><td>נגזרת שנייה</td><td>כאשר הסימן בנקודה פשוט לחישוב</td></tr><tr><td>פרבולה</td><td>בפונקציה ריבועית, כהצדקה נוספת</td></tr></table>
+<div class="callout warn"><b>אין די לכתוב:</b> “יצא \(x=4\), לכן זה מקסימום”. יש לציין מדוע זהו מקסימום בתחום.</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 5 — בעיות גאומטריות במישור</h2></div><span class="unit-badge">יחידה 5</span></div>
+
+<div class="grid-2_">
+<div class="card blue">
+<h3>משפחות מרכזיות</h3>
+<ul>
+<li>מלבנים בעלי היקף או גדר קבועה.</li>
+<li>חלוקת מלבן לתאים ומחיצות.</li>
+<li>מלבן חסום במשולש.</li>
+<li>מסגרות ואזורים המתקבלים מהפרש שטחים.</li>
+<li>צורות מורכבות המתפרקות למלבנים ולמשולשים.</li>
+</ul>
+</div>
+<div style="height:50px;"></div>
+<div class="card gold">
+<h3>אסטרטגיית שרטוט</h3>
+<ul>
+<li>סמנו כל קטע השווה ל־\(x\).</li>
+<li>כתבו ליד כל קטע את הביטוי המתאים.</li>
+<li>השתמשו בדמיון משולשים לפני כתיבת השטח.</li>
+<li>בדקו האם השטח הוא סכום, הפרש או מכפלה.</li>
+</ul>
+</div>
+</div>
+<div style="height:50px;"></div>
+<h3>בדיקת סבירות לפני גזירה</h3>
+<table><tr><th>מצב קצה</th><th>מה קורה לשטח?</th><th>מסקנה</th></tr><tr><td>גובה קרוב לאפס</td><td>השטח קרוב לאפס</td><td>המקסימום אינו בקצה זה</td></tr><tr><td>רוחב קרוב לאפס</td><td>השטח קרוב לאפס</td><td>צפוי מקסימום פנימי</td></tr><tr><td>פונקציה יורדת בכל התחום</td><td>הערך הגדול ביותר בקצה השמאלי</td><td>יש לבדוק קצה</td></tr></table>
+</section>
+
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה גאומטרית — מלבן חסום במשולש</h2></div><span class="unit-badge">יחידה 5</span></div>
+
+<div class="col-40-60_">
+<div class="jxg-panel">
+<div id="board-triangle-rect" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">גררו את המחוון כדי לשנות את \(h\). הרוחב מתעדכן לפי \(w=24-2h\), ומוצג גם הערך \(F(h)=h(24-2h)\).</div>
+</div>
+<div style="height:20px;"></div>
+<div class="tight">
+<p>במשולש שווה־שוקיים בסיס \(24\) וגובה \(12\). מלבן חסום כך שצלעו התחתונה על הבסיס וקודקודיו העליונים על השוקיים. מצאו את שטחו המרבי.</p>
+<p>נסמן את גובה המלבן ב־\(h\). לפי דמיון משולשים, רוחב המשולש בגובה \(h\) הוא:</p>
+<div class="formula-box">\[w=24-2h\]</div>
+<p>לכן:</p>
+<div class="formula-box">\[F(h)=h(24-2h)=24h-2h^2\]</div>
+<div class="formula-box">\[0\le h\le12\]</div>
+<p>נגזור:</p>
+<div class="formula-box">\[F'(h)=24-4h\]</div>
+<div class="formula-box">\[F'(h)=0\quad\Longrightarrow\quad h=6\]</div>
+<p>רוחב המלבן: \(w=12\), ולכן:</p>
+<div class="formula-box">\[F_{\max}=6\cdot12=72\]</div>
+<div class="callout good">המלבן המיטבי הוא בעל רוחב \(12\) וגובה \(6\).</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה גאומטרית — גדר ומחיצות</h2></div><span class="unit-badge">יחידה 5</span></div>
+
+<div class="col-55-45_">
+<div class="tight">
+<p>יוצרים שלושה תאים מלבניים צמודים. הגדר כוללת שתי צלעות ארוכות וארבע מחיצות רוחביות. סך הגדר \(240\) מ׳.</p>
+<p>נסמן רוחב ב־\(x\) ואורך כולל ב־\(y\):</p>
+<div class="formula-box">\[4x+2y=240\]</div>
+<div class="formula-box">\[y=120-2x\]</div>
+<p>השטח הכולל:</p>
+<div class="formula-box">\[F(x)=x(120-2x)=120x-2x^2\]</div>
+<div class="formula-box">\[0\lt x\lt60\]</div>
+<div class="formula-box">\[F'(x)=120-4x\]</div>
+<div class="formula-box">\[x=30,\qquad y=60\]</div>
+<div class="formula-box">\[F_{\max}=1800\]</div>
+<div class="callout">שימו לב: השטח הכולל הוא \(xy\), ולא פי שלושה, מפני ש־\(y\) הוא כבר האורך הכולל של שלושת התאים.</div>
+</div>
+<div class="jxg-panel">
+<div id="board-three-pens" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">גררו את המחוון כדי לשנות את \(x\). הערך \(y\) מתעדכן לפי \(y=120-2x\), ומוצג גם \(F(x)=xy=x(120-2x)\).</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תרגול 4 — בעיות גאומטריות</h2></div><span class="unit-badge">יחידה 5</span></div>
+
+<ol class="exercise-list" start="19">
+<li>למלבן הצמוד לקיר יש \(100\) מ׳ גדר לשלושה צדדים. מצאו מידות ושטח מרבי.</li>
+<li>יוצרים שלושה תאים צמודים בעזרת \(240\) מ׳ גדר: שתי צלעות ארוכות וארבע מחיצות רוחביות. מצאו מידות ושטח מרבי.</li>
+<li>במשולש ישר־זווית ששוקיו מונחות על הצירים והיתר על הישר \(x+y=20\), חסום מלבן שקודקודו בראשית. מצאו שטח מרבי.</li>
+<li>מלבן סימטרי לציר \(y\), בסיסו על ציר \(x\), וקודקודיו העליונים על \(y=12-x^2\). מצאו את מידותיו ואת שטחו המרבי.</li>
+<li>במשולש שווה־שוקיים בסיס \(24\) וגובה \(12\) חסום מלבן כבתרגיל המודגם. מצאו שטח מרבי.</li>
+<li>מלבן חיצוני שמידותיו \(24\times16\) מכיל מלבן פנימי שמרחקו האחיד מכל צלע הוא \(x\). מצאו את ערך \(x\) שעבורו מכפלת שטח המסגרת בשטח המלבן הפנימי היא מרבית.</li>
+</ol>
+<div class="callout warn"><b>תרגיל 24 — אתגר:</b> פונקציית המטרה היא מכפלה של שני שטחים ולכן מתקבל פולינום ממעלה רביעית. מומלץ להציגו כהרחבה.</div>
+</section>
+
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 6 — מלבן מתחת לפרבולה</h2></div><span class="unit-badge">יחידה 6</span></div>
+<div class="two-graphs_">
+<div class="jxg-panel">
+<div id="board-parabola-rect" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">מלבן סימטרי מתחת ל־\(y=16-x^2\).</div>
+</div>
+<div class="tight">
+<p>הקודקודים העליונים הם:</p>
+<div class="formula-box">\[A=(-x,16-x^2),\qquad B=(x,16-x^2)\]</div>
+<p>רוחב המלבן:</p><div class="formula-box">\[2x\]</div>
+<p>גובהו:</p><div class="formula-box">\[16-x^2\]</div>
+<p>לכן:</p><div class="formula-box">\[S(x)=2x(16-x^2)=32x-2x^3\]</div>
+<div class="formula-box">\[0\le x\le4\]</div>
+<p>נגזור:</p><div class="formula-box">\[S'(x)=32-6x^2\]</div>
+<div class="formula-box">\[x=\frac{4}{\sqrt{3}}\]</div>
+<p>המידות המיטביות:</p>
+<div class="formula-box">\[\text{width}=\frac{8}{\sqrt{3}},\qquad \text{height}=\frac{32}{3}\]</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 6 — המרחק בין שני גרפים</h2></div><span class="unit-badge">יחידה 6</span></div>
+
+<div class="col-55-45_">
+<div class="tight">
+<p>נתונים:</p>
+<div class="formula-box">\[f(x)=-x^2+8x,\qquad g(x)=2x\]</div>
+<p>בתחום \(0\le x\le6\), \(f(x)\ge g(x)\). אורך הקטע האנכי הוא:</p>
+<div class="formula-box">\[D(x)=f(x)-g(x)=-x^2+6x\]</div>
+<p>נגזור:</p>
+<div class="formula-box">\[D'(x)=-2x+6\]</div>
+<div class="formula-box">\[D'(x)=0\quad\Longrightarrow\quad x=3\]</div>
+<p>נבדוק:</p>
+<div class="formula-box">\[D(0)=0,\qquad D(3)=9,\qquad D(6)=0\]</div>
+<div class="callout good">האורך המרבי הוא \(9\), והוא מתקבל כאשר \(x=3\).</div>
+</div>
+<div class="jxg-panel">
+<div id="board-between-graphs" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">הקטע האנכי נע בין שני הגרפים.</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תרגול 5 — בעיות גרפיות</h2></div><span class="unit-badge">יחידה 6</span></div>
+
+<ol class="exercise-list" start="25">
+<li>נקודה ברביע הראשון נמצאת על \(y=9-x^2\). מלבן נבנה עם הצירים. מצאו שטח מרבי.</li>
+<li>מלבן סימטרי לציר \(y\) נבנה מתחת ל־\(y=16-x^2\). מצאו מידות ושטח מרבי.</li>
+<li>מצאו את האורך המרבי של קטע אנכי בין \(f(x)=-x^2+8x\) לבין \(g(x)=2x\), בתחום \(0\le x\le6\).</li>
+<li>בתחום \(0\le x\le2\), בונים מלבן שרוחבו \(x\) וגובהו ההפרש בין \(f(x)=-x^2+10\) לבין \(g(x)=x+4\). מצאו את ערך \(x\) המיטבי.</li>
+<li>נקודה ברביע הראשון נמצאת על \(y=-2x^2+12x\). מלבן נבנה עם הצירים. מצאו שטח מרבי.</li>
+<li>הנקודות \((-x,12-x^2)\) ו־\((x,12-x^2)\) הן בסיס משולש שקודקודו בראשית. מצאו את שטח המשולש המרבי.</li>
+</ol>
+<div class="card blue"><h3>בדיקת סימטריה</h3><p>כאשר שתי נקודות סימטריות לציר \(y\), המרחק האופקי ביניהן הוא \(2x\), ולא \(x\).</p></div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 7 — נפח ופולינום ממעלה שלישית</h2></div><span class="unit-badge">יחידה 7</span></div>
+
+<div class="grid-2_">
+<div class="card blue">
+<h3>תיבה פתוחה מקרטון</h3>
+<p>מקרטון שמידותיו \(a\times b\) גוזרים ריבועים שצלע כל אחד מהם \(x\).</p>
+<div class="formula-box">\[V(x)=x(a-2x)(b-2x)\]</div>
+<div class="formula-box">\[0\lt x\lt\frac{\min(a,b)}{2}\]</div>
+</div>
+<div style="height:50px;"></div>
+<div class="card gold">
+<h3>קופסה עם בסיס ריבועי</h3>
+<p>אם אורך צלע הבסיס \(x\), הגובה \(h\), ושטח החומר נתון, אפשר לבטא את \(h\) בעזרת \(x\). לעיתים הנפח המתקבל הוא פולינום ממעלה שלישית.</p>
+<div class="formula-box">\[V(x)=x^2h(x)\]</div>
+</div>
+</div>
+<div style="height:50px;"></div>
+<h3>בדיקות חובה</h3>
+<ul><li>המידות לאחר החיתוך חייבות להיות חיוביות.</li><li>יש לבחור רק שורש של הנגזרת הנמצא בתחום.</li><li>יש לחשב את הנפח עצמו לאחר מציאת \(x\).</li><li>יש לציין יחידות מעוקבות.</li></ul>
+<div style="height:40px;"></div>
+<div class="callout warn"><b>סינון חשוב:</b> המערך מתמקד בבעיות שבהן פונקציית המטרה היא פולינומית. בעיה שמובילה לפונקציה רציונלית אינה חלק מליבת היחידה.</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה אינטראקטיבית — תיבה פתוחה</h2></div><span class="unit-badge">יחידה 7</span></div>
+
+<p>מקרטון שמידותיו \(24\times12\) ס״מ גוזרים ריבועים שצלע כל אחד מהם \(x\), ומקפלים לתיבה פתוחה.</p>
+<div class="two-graphs">
+<div class="jxg-panel">
+<div id="board-box-net" class="jxgbox short"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">גררו את המחוון כדי לשנות את גודל החיתוך.</div>
+</div>
+<div class="jxg-panel">
+<div id="board-box-volume" class="jxgbox short"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">הנקודה נעה על גרף הנפח.</div>
+</div>
+</div>
+<div style="height:20px;"></div>
+<div class="grid-2" style="margin-top:8px">
+<div class="card">
+<div class="formula-box">\[V(x)=x(24-2x)(12-2x)\]</div>
+<div class="formula-box">\[V(x)=4x^3-72x^2+288x\]</div>
+</div>
+<div class="card">
+<div class="formula-box">\[V'(x)=12x^2-144x+288\]</div>
+<div class="formula-box">\[x=6-2\sqrt{3}\]</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה — קופסה פתוחה בעלת בסיס ריבועי</h2></div><span class="unit-badge">יחידה 7</span></div>
+
+<div class="col-55-45_">
+<div class="tight">
+<p>לקופסה פתוחה בעלת בסיס ריבועי יש שטח חומר כולל \(108\) סמ״ר. מצאו את מידות הקופסה שנפחה מרבי.</p>
+<p>נסמן את צלע הבסיס ב־\(x\) ואת הגובה ב־\(h\).</p>
+<div class="formula-box">\[x^2+4xh=108\]</div>
+<div class="formula-box">\[h=\frac{108-x^2}{4x}\]</div>
+<p>הנפח:</p>
+<div class="formula-box">\[V(x)=x^2h=\frac{x(108-x^2)}{4}\]</div>
+<div class="formula-box">\[V'(x)=\frac{108-3x^2}{4}\]</div>
+<div class="formula-box">\[x=6\]</div>
+<p>ולכן:</p>
+<div class="formula-box">\[h=3,\qquad V_{\max}=108\]</div>
+<div class="callout good">צלע הבסיס היא \(6\) ס״מ והגובה \(3\) ס״מ.</div>
+</div>
+<div class="jxg-panel">
+<div id="board-square-box" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">גרף הנפח בתחום שבו הגובה חיובי.</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תרגול 6 — נפח וגופים</h2></div><span class="unit-badge">יחידה 7</span></div>
+
+<ol class="exercise-list" start="31">
+<li>מקרטון \(24\times12\) גוזרים ריבועים שצלע כל אחד מהם \(x\). מצאו את \(x\) היוצר נפח מרבי.</li>
+<li>מדף ריבועי שצלעו \(18\) ס״מ יוצרים תיבה פתוחה באמצעות גזירת ריבועים מן הפינות. מצאו את גודל החיתוך ואת הנפח המרבי.</li>
+<li>לקופסה פתוחה בעלת בסיס ריבועי שטח חומר \(108\) סמ״ר. מצאו את המידות המיטביות.</li>
+<li>לקופסה סגורה בעלת בסיס ריבועי שטח פנים \(216\) סמ״ר. מצאו את המידות היוצרות נפח מרבי.</li>
+<li>לקופסה פתוחה בעלת בסיס ריבועי שטח חומר \(192\) סמ״ר. מצאו מידות ונפח מרבי.</li>
+<li>בתיבה מלבנית האורך כפול מן הרוחב, וסכום האורך, הרוחב והגובה הוא \(20\) ס״מ. מצאו את המידות היוצרות נפח מרבי.</li>
+</ol>
+<div class="callout good"><b>העשרה:</b> בתרגילים 33–35 האילוץ כולל שטח פנים, אך לאחר הצבה מתקבלת פונקציית נפח פולינומית ממעלה שלישית.</div>
+</section>
+
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 8 — מספרים והכנסה</h2></div><span class="unit-badge">יחידה 8</span></div>
+
+<div class="grid-2_">
+<div class="card">
+<h3>שלושה מספרים</h3>
+<p>שלושה מספרים חיוביים הם \(x,x,30-2x\). מצאו מכפלה מרבית.</p>
+<div class="formula-box">\[P(x)=x^2(30-2x)=30x^2-2x^3\]</div>
+<div class="formula-box">\[P'(x)=60x-6x^2=6x(10-x)\]</div>
+<div class="formula-box">\[x=10\]</div>
+<p>שלושת המספרים הם \(10,10,10\), והמכפלה המרבית היא \(1000\).</p>
+</div>
+<div class="card">
+<h3>מחיר וכמות</h3>
+<p>נסמן ב-\(p\) את <b>מחיר המוצר בש״ח ליחידה</b>. לכן, בכל ערך של \(p\), הפונקציה \(q(p)\) מתארת את הכמות המבוקשת במחיר זה.</p>
+<p>הביקוש מתואר על ידי:</p>
+<div class="formula-box">\[q(p)=120-4p\]</div>
+<p>ההכנסה:</p>
+<div class="formula-box">\[R(p)=p(120-4p)=120p-4p^2\]</div>
+<div class="formula-box">\[R'(p)=120-8p\]</div>
+<div class="formula-box">\[p=15,\qquad q=60,\qquad R_{\max}=900\]</div>
+</div>
+</div>
+<div class="jxg-panel" style="margin-top:9px">
+<div id="board-revenue" class="jxgbox short"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">גרף ההכנסה מדגים את ההבדל בין המחיר המיטבי לבין ההכנסה המרבית.</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 8 — מספרים וכלכלה</h2></div><span class="unit-badge">יחידה 8</span></div>
+
+<ol class="exercise-list" start="37">
+<li>שני מספרים חיוביים שסכומם \(60\). מצאו מכפלה מרבית.</li>
+<li>שלושה מספרים חיוביים הם \(x,x,30-2x\). מצאו מכפלה מרבית.</li>
+<li>שני מספרים שסכומם \(40\). מצאו את סכום הריבועים המינימלי.</li>
+<li>הביקוש למוצר הוא \(q(p)=120-4p\). מצאו את המחיר היוצר הכנסה מרבית, את הכמות ואת ההכנסה.</li>
+<li>כרטיס נמכר ב־\(50\) ש״ח ונמכרים \(200\) כרטיסים. כל העלאה של \(5\) ש״ח מפחיתה את המכירות ב־\(10\) כרטיסים. מצאו את המחיר היוצר הכנסה מרבית.</li>
+<li>הרווח מאלפי יחידות מתואר על ידי \(P(x)=-2x^2+160x-1800\). מצאו את כמות הייצור המיטבית ואת הרווח המרבי.</li>
+</ol>
+<div class="card green"><h3>הערה למורה</h3><p>בתרגיל 41 יש להגדיר \(x\) כמספר ההעלאות של \(5\) ש״ח. לאחר פתרון רציף מתקבל מספר שלם, ולכן אין צורך בהשוואת שכנים.</p></div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>יחידה 9 — פרמטרים והכללה</h2></div><span class="unit-badge">יחידה 9</span></div>
+
+<div class="grid-2_">
+<div>
+<h3>מטרות</h3>
+<ul><li>למצוא קיצון כתלות בפרמטר.</li><li>להוכיח נוסחה כללית.</li><li>לפתור בעיה הפוכה: נתון ערך מקסימלי ומבקשים פרמטר.</li><li>לבדוק תנאים על הפרמטר המבטיחים תחום לא ריק.</li></ul>
+</div>
+<div style="height:50px;"></div>
+<div class="card gold">
+<h3>דוגמת יסוד</h3>
+<div class="formula-box">\[F_a(x)=x(a-x),\qquad 0\le x\le a\]</div>
+<div class="formula-box">\[F_a'(x)=a-2x\]</div>
+<div class="formula-box">\[x=\frac{a}{2}\]</div>
+<div class="formula-box">\[F_{\max}=\frac{a^2}{4}\]</div>
+</div>
+</div>
+<div style="height:50px;"></div>
+<div class="callout good"><b>הכללה גאומטרית:</b> מבין כל המלבנים שסכום שתי צלעות סמוכות שלהם הוא \(a\), הריבוע נותן שטח מרבי.</div>
+<div style="height:50px;"></div>
+<h3>שאלת עומק</h3>
+<p>מה משתנה בגרף \(F_a(x)\) כאשר \(a\) גדל: תחום ההגדרה, מיקום הקודקוד, ערך המקסימום או כולם?</p>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>דוגמה פרמטרית — משפחת פרבולות שטח</h2></div><span class="unit-badge">יחידה 9</span></div>
+
+<div class="col-55-45">
+<div class="tight">
+<p>לכל \(a\gt0\), נבחן:</p>
+<div class="formula-box">\[F_a(x)=x(a-x)\]</div>
+<p>הנגזרת:</p>
+<div class="formula-box">\[F_a'(x)=a-2x\]</div>
+<p>לכן נקודת הקיצון:</p>
+<div class="formula-box">\[x=\frac{a}{2}\]</div>
+<p>הערך המרבי:</p>
+<div class="formula-box">\[F_a\left(\frac{a}{2}\right)=\frac{a^2}{4}\]</div>
+<div class="callout">הגרף נעשה רחב יותר בתחום, הקודקוד זז ימינה ולמעלה, אך צורת הפרבולה נשארת קמורה כלפי מטה.</div>
+</div>
+<div class="jxg-panel">
+<div id="board-parameter-family" class="jxgbox tall"></div>
+<div class="graph-controls"><button data-act="out">−</button><button data-act="home">מרכז</button><button data-act="in">+</button></div>
+<div class="graph-caption">שלוש פונקציות עבור \(a=8,10,12\).</div>
+</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תרגול 8 — פרמטרים ואתגר</h2></div><span class="unit-badge">יחידה 9</span></div>
+
+<ol class="exercise-list" start="43">
+<li>לכל \(a\gt0\), מצאו את המקסימום של \(F(x)=x(a-x)\) בתחום \(0\le x\le a\).</li>
+<li>מלבן סימטרי לציר \(y\) חסום מתחת לגרף \(y=a-x^2\), כאשר \(a\gt0\). מצאו את מידותיו ואת שטחו המרבי כתלות ב־\(a\).</li>
+<li>מדף ריבועי שצלעו \(a\) יוצרים תיבה פתוחה באמצעות גזירת ריבועים שצלע כל אחד מהם \(x\). הוכיחו כי \(x=\frac{a}{6}\) יוצר נפח מרבי.</li>
+<li>נתונה הפונקציה \(F_m(x)=-x^2+mx\) בתחום \(0\le x\le m\), כאשר \(m\gt0\). מצאו את \(m\) אם הערך המרבי הוא \(16\).</li>
+<li>נתונה \(F(x)=x(12-x)+k\). מצאו את \(k\) אם הערך המרבי של הפונקציה הוא \(45\).</li>
+<li>מלבן סימטרי לציר \(y\) חסום מתחת לגרף \(y=a-bx^2\), כאשר \(a\gt0\) ו־\(b\gt0\). מצאו את ערך \(x\) ואת השטח המרבי.</li>
+</ol>
+<div class="callout warn"><b>הוכחה מלאה:</b> בתרגילים פרמטריים יש לציין תנאים על הפרמטרים ולוודא שהנקודה החשודה נמצאת בתחום.</div>
+</section>
+
+<section class="page ">
+<div class="page-title"><div><h2>תשובות סופיות — תרגילים 1–16</h2></div><span class="unit-badge">תשובות</span></div>
+
+<div class="answer-grid">
+<div class="answer"><b>1.</b> \(F(x)=x(20-x),\;0\lt x\lt20\).</div>
+<div class="answer"><b>2.</b> \(F(x)=\frac{1}{2}x(18-x),\;0\lt x\lt18\).</div>
+<div class="answer"><b>3.</b> \(F(x)=x(60-2x),\;0\lt x\lt30\).</div>
+<div class="answer"><b>4.</b> \(F(x)=x\left(40-\frac{3}{2}x\right),\;0\lt x\lt\frac{80}{3}\).</div>
+<div class="answer"><b>5.</b> \(F(x)=(30-2x)(20-2x),\;0\le x\le10\).</div>
+<div class="answer"><b>6.</b> \(F(x)=2x(16-x^2),\;0\le x\le4\).</div>
+<div class="answer"><b>7.</b> \(V(x)=x(30-2x)(20-2x),\;0\lt x\lt10\).</div>
+<div class="answer"><b>8.</b> \(V(x)=x(24-2x)(18-2x),\;0\lt x\lt9\).</div>
+<div class="answer"><b>9.</b> \(F(x)=x(9-x^2),\;0\le x\le3\).</div>
+<div class="answer"><b>10.</b> \(D(x)=-x^2-x+10,\;0\le x\le2\).</div>
+<div class="answer"><b>11.</b> \(F(x)=x(12-2x),\;0\le x\le6\).</div>
+<div class="answer"><b>12.</b> \(F(x)=(20-2x)(14-2x),\;0\le x\le7\).</div>
+<div class="answer"><b>13.</b> \(10\times10\), שטח \(100\).</div>
+<div class="answer"><b>14.</b> ניצבים \(9,9\), שטח \(\frac{81}{2}\).</div>
+<div class="answer"><b>15.</b> רוחב \(15\), אורך \(30\), שטח \(450\).</div>
+<div class="answer"><b>16.</b> רוחב \(20\), אורך כולל \(60\), שטח \(1200\).</div>
+</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תשובות סופיות — תרגילים 17–32</h2></div><span class="unit-badge">תשובות</span></div>
+
+<div class="answer-grid">
+<div class="answer"><b>17.</b> המספרים \(25,25\); מכפלה \(625\).</div>
+<div class="answer"><b>18.</b> המספרים \(10,10\); מינימום \(200\).</div>
+<div class="answer"><b>19.</b> רוחב \(25\), אורך \(50\), שטח \(1250\).</div>
+<div class="answer"><b>20.</b> רוחב \(30\), אורך כולל \(60\), שטח \(1800\).</div>
+<div class="answer"><b>21.</b> \(x=y=10\), שטח \(100\).</div>
+<div class="answer"><b>22.</b> חצי־רוחב \(2\), רוחב \(4\), גובה \(8\), שטח \(32\).</div>
+<div class="answer"><b>23.</b> גובה \(6\), רוחב \(12\), שטח \(72\).</div>
+<div class="answer"><b>24.</b> \(x=10-2\sqrt{13}\); מכפלת השטחים המרבית היא \(36864\).</div>
+<div class="answer"><b>25.</b> \(x=\sqrt{3}\), גובה \(6\), שטח \(6\sqrt{3}\).</div>
+<div class="answer"><b>26.</b> \(x=\frac{4}{\sqrt{3}}\), רוחב \(\frac{8}{\sqrt{3}}\), גובה \(\frac{32}{3}\).</div>
+<div class="answer"><b>27.</b> \(x=3\), אורך מרבי \(9\).</div>
+<div class="answer"><b>28.</b> \(x=\frac{-1+\sqrt{19}}{3}\).</div>
+<div class="answer"><b>29.</b> \(x=4\), גובה \(16\), שטח \(64\).</div>
+<div class="answer"><b>30.</b> \(x=2\), שטח מרבי \(16\).</div>
+<div class="answer"><b>31.</b> \(x=6-2\sqrt{3}\).</div>
+<div class="answer"><b>32.</b> \(x=3\), נפח \(432\).</div>
+</div>
+<div class="callout warn"><b>הערה לתרגיל 24:</b> במקסימום מתקיים: שטח המסגרת שווה לשטח המלבן הפנימי, וכל אחד מהם \(192\) סמ״ר.</div>
+
+</section>
+<section class="page ">
+<div class="page-title"><div><h2>תשובות סופיות — תרגילים 33–48</h2></div><span class="unit-badge">תשובות</span></div>
+
+<div class="answer-grid">
+<div class="answer"><b>33.</b> בסיס \(6\times6\), גובה \(3\), נפח \(108\).</div>
+<div class="answer"><b>34.</b> \(6\times6\times6\), נפח \(216\).</div>
+<div class="answer"><b>35.</b> בסיס \(8\times8\), גובה \(4\), נפח \(256\).</div>
+<div class="answer"><b>36.</b> רוחב \(\frac{40}{9}\), אורך \(\frac{80}{9}\), גובה \(\frac{20}{3}\).</div>
+<div class="answer"><b>37.</b> \(30,30\); מכפלה \(900\).</div>
+<div class="answer"><b>38.</b> \(10,10,10\); מכפלה \(1000\).</div>
+<div class="answer"><b>39.</b> \(20,20\); מינימום \(800\).</div>
+<div class="answer"><b>40.</b> מחיר \(15\), כמות \(60\), הכנסה \(900\).</div>
+<div class="answer"><b>41.</b> \(5\) העלאות; מחיר \(75\), כמות \(150\), הכנסה \(11250\).</div>
+<div class="answer"><b>42.</b> \(x=40\), רווח מרבי \(1400\).</div>
+<div class="answer"><b>43.</b> \(x=\frac{a}{2}\), מקסימום \(\frac{a^2}{4}\).</div>
+<div class="answer"><b>44.</b> \(x=\sqrt{\frac{a}{3}}\), רוחב \(2\sqrt{\frac{a}{3}}\), גובה \(\frac{2a}{3}\), שטח \(\frac{4a^{3/2}}{3\sqrt{3}}\).</div>
+<div class="answer"><b>45.</b> \(x=\frac{a}{6}\), נפח מרבי \(\frac{2a^3}{27}\).</div>
+<div class="answer"><b>46.</b> \(m=8\).</div>
+<div class="answer"><b>47.</b> \(k=9\).</div>
+<div class="answer"><b>48.</b> \(x=\sqrt{\frac{a}{3b}}\), שטח \(\frac{4a^{3/2}}{3\sqrt{3b}}\).</div>
+</div>
+</section>
+
+<script>
+(function(){
+  const homeBoxes = {};
+  function axis(board){
+    board.create('axis', [[0,0],[1,0]], {name:'x',withLabel:true,label:{position:'rt',offset:[-8,12]},ticks:{drawLabels:true,minorTicks:0}});
+    board.create('axis', [[0,0],[0,1]], {name:'y',withLabel:true,label:{position:'rt',offset:[10,-8]},ticks:{drawLabels:true,minorTicks:0}});
+  }
+  function init(id,bbox,setup,opts={}){
+    const el=document.getElementById(id); if(!el || typeof JXG==='undefined') return null;
+    homeBoxes[id]=bbox.slice();
+    const board=JXG.JSXGraph.initBoard(id,Object.assign({boundingbox:bbox,axis:false,showNavigation:false,showCopyright:false,keepaspectratio:false,pan:{enabled:true},zoom:{enabled:true,wheel:true,needshift:false}},opts));
+    setup(board);
+    const panel=el.closest('.jxg-panel');
+    if(panel){
+      panel.querySelectorAll('.graph-controls button').forEach(btn=>btn.addEventListener('click',()=>{
+        const act=btn.dataset.act;
+        if(act==='in') board.zoomIn();
+        if(act==='out') board.zoomOut();
+        if(act==='home') board.setBoundingBox(homeBoxes[id],true);
+      }));
+    }
+    return board;
+  }
+  function seg(board,p1,p2,attr={}){return board.create('segment',[p1,p2],Object.assign({strokeWidth:2,fixed:true},attr));}
+  function poly(board,pts,attr={}){return board.create('polygon',pts,Object.assign({fillOpacity:.18,borders:{strokeWidth:2},vertices:{visible:false}},attr));}
+
+  window.addEventListener('load',function(){
+    setTimeout(function(){
+      init('board-rect-model',[-1,22,22,-2],b=>{
+        const s=b.create('slider',[[1,-1],[19,-1],[1,5,19]],{name:'x',snapWidth:.25,precision:2});
+        const y=()=>20-s.Value();
+        const P1=b.create('point',[0,0],{visible:false}),P2=b.create('point',[()=>s.Value(),0],{visible:false}),P3=b.create('point',[()=>s.Value(),y],{visible:false}),P4=b.create('point',[0,y],{visible:false});
+        poly(b,[P1,P2,P3,P4],{fillColor:'#6aaed6',borders:{strokeColor:'#285f82',strokeWidth:2}});
+        b.create('text',[10,20,()=>`Perimeter = 40, Area = ${(s.Value()*y()).toFixed(2)}`],{fontSize:14,anchorX:'middle'});
+        b.create('text',[()=>s.Value()/2,-.45,()=>`x = ${s.Value().toFixed(2)}`],{fontSize:12,anchorX:'middle'});
+        b.create('text',[()=>s.Value()+.3,()=>y()/2,()=>`y = ${y().toFixed(2)}`],{fontSize:12});
+      });
+
+      init('board-two-pens',[-3,31,43,-6],b=>{
+        // Constraint: 3x + 2y = 80  =>  y = 40 - 3x/2
+        const s=b.create('slider',[[2,-3.7],[38,-3.7],[0.5,8,26.5]],{
+          name:'x',snapWidth:.5,precision:1
+        });
+        const x=()=>s.Value();
+        const y=()=>40-1.5*x();
+
+        const P1=b.create('point',[0,0],{visible:false});
+        const P2=b.create('point',[y,0],{visible:false});
+        const P3=b.create('point',[y,x],{visible:false});
+        const P4=b.create('point',[0,x],{visible:false});
+        const D1=b.create('point',[()=>y()/2,0],{visible:false});
+        const D2=b.create('point',[()=>y()/2,x],{visible:false});
+
+        poly(b,[P1,P2,P3,P4],{fillColor:'#b9d9ea',borders:{strokeColor:'#245d80',strokeWidth:2}});
+        seg(b,D1,D2,{strokeColor:'#245d80',strokeWidth:2});
+
+        b.create('text',[()=>y()/4,()=>x()/2,'cell 1'],{fontSize:13,anchorX:'middle',anchorY:'middle'});
+        b.create('text',[()=>3*y()/4,()=>x()/2,'cell 2'],{fontSize:13,anchorX:'middle',anchorY:'middle'});
+        b.create('text',[()=>y()/2,-1.15,()=>`y = ${y().toFixed(1)}`],{fontSize:14,anchorX:'middle'});
+        b.create('text',[()=>y()+1.0,()=>x()/2,()=>`x = ${x().toFixed(1)}`],{fontSize:14});
+        b.create('text',[20,29,()=>`y = 40 - 1.5x = ${y().toFixed(1)}   |   A = xy = ${(x()*y()).toFixed(1)}`],{
+          fontSize:14,anchorX:'middle'
+        });
+      });
+
+      init('board-closed-domain',[-1,45,13,-5],b=>{
+        axis(b); b.create('functiongraph',[x=>x*(12-x),0,12],{strokeColor:'#2a6f97',strokeWidth:3});
+        b.create('segment',[[2,0],[2,20]],{dash:2,strokeColor:'#a94646'}); b.create('segment',[[9,0],[9,27]],{dash:2,strokeColor:'#a94646'});
+        b.create('point',[2,20],{name:'(2,20)',size:3,fillColor:'#a94646',strokeColor:'#a94646'});
+        b.create('point',[6,36],{name:'(6,36)',size:4,fillColor:'#2d7d5b',strokeColor:'#2d7d5b'});
+        b.create('point',[9,27],{name:'(9,27)',size:3,fillColor:'#a94646',strokeColor:'#a94646'});
+      });
+
+      init('board-triangle-rect',[-2,14,26,-4],b=>{
+        // Isosceles triangle: base 24, height 12.
+        // At rectangle height h, similar triangles give w = 24 - 2h.
+        const s=b.create('slider',[[2,-2.7],[22,-2.7],[0,6,12]],{
+          name:'h',snapWidth:.1,precision:1
+        });
+        const h=()=>s.Value();
+        const w=()=>24-2*h();
+        const area=()=>h()*w();
+
+        poly(b,[[0,0],[24,0],[12,12]],{fillColor:'#f4d68f',borders:{strokeColor:'#8f6718'}});
+
+        const R1=b.create('point',[h,0],{visible:false});
+        const R2=b.create('point',[()=>24-h(),0],{visible:false});
+        const R3=b.create('point',[()=>24-h(),h],{visible:false});
+        const R4=b.create('point',[h,h],{visible:false});
+        poly(b,[R1,R2,R3,R4],{fillColor:'#8ecae6',borders:{strokeColor:'#2a6f97'}});
+
+        seg(b,[12,0],[12,12],{dash:2,strokeColor:'#777'});
+        b.create('text',[12,-.7,'24'],{anchorX:'middle',fontSize:13});
+        b.create('text',[12.5,9,'12'],{fontSize:13});
+        b.create('text',[()=>24-h()+.55,()=>h()/2,()=>`h = ${h().toFixed(1)}`],{fontSize:13});
+        b.create('text',[12,()=>h()+.45,()=>`w = ${w().toFixed(1)}`],{anchorX:'middle',fontSize:13});
+        b.create('text',[12,13.1,()=>`h = ${h().toFixed(1)}   |   w = ${w().toFixed(1)}   |   F(h) = ${area().toFixed(1)}`],{
+          anchorX:'middle',fontSize:14
+        });
+      },{keepaspectratio:true});
+
+      init('board-three-pens',[-10,70,130,-14],b=>{
+        // Constraint: 4x + 2y = 240  =>  y = 120 - 2x
+        // Total area: F(x) = xy = x(120 - 2x)
+        const s=b.create('slider',[[5,-8],[115,-8],[0.5,30,59.5]],{
+          name:'x',snapWidth:.5,precision:1
+        });
+        const x=()=>s.Value();
+        const y=()=>120-2*x();
+        const area=()=>x()*y();
+
+        const P1=b.create('point',[0,0],{visible:false});
+        const P2=b.create('point',[y,0],{visible:false});
+        const P3=b.create('point',[y,x],{visible:false});
+        const P4=b.create('point',[0,x],{visible:false});
+        const D1a=b.create('point',[()=>y()/3,0],{visible:false});
+        const D1b=b.create('point',[()=>y()/3,x],{visible:false});
+        const D2a=b.create('point',[()=>2*y()/3,0],{visible:false});
+        const D2b=b.create('point',[()=>2*y()/3,x],{visible:false});
+
+        poly(b,[P1,P2,P3,P4],{fillColor:'#d5ebf6',borders:{strokeColor:'#245d80',strokeWidth:2}});
+        seg(b,D1a,D1b,{strokeColor:'#245d80',strokeWidth:2});
+        seg(b,D2a,D2b,{strokeColor:'#245d80',strokeWidth:2});
+
+        b.create('text',[()=>y()/6,()=>x()/2,'cell 1'],{fontSize:12,anchorX:'middle',anchorY:'middle'});
+        b.create('text',[()=>y()/2,()=>x()/2,'cell 2'],{fontSize:12,anchorX:'middle',anchorY:'middle'});
+        b.create('text',[()=>5*y()/6,()=>x()/2,'cell 3'],{fontSize:12,anchorX:'middle',anchorY:'middle'});
+        b.create('text',[()=>y()/2,-2.7,()=>`y = ${y().toFixed(1)}`],{fontSize:14,anchorX:'middle'});
+        b.create('text',[()=>y()+2.0,()=>x()/2,()=>`x = ${x().toFixed(1)}`],{fontSize:14});
+        b.create('text',[60,66,()=>`x = ${x().toFixed(1)}   |   y = 120 - 2x = ${y().toFixed(1)}   |   F(x) = xy = ${area().toFixed(1)}`],{
+          fontSize:14,anchorX:'middle'
+        });
+      },{keepaspectratio:true});
+
+      init('board-parabola-rect',[-5,18,5,-2],b=>{
+        axis(b); b.create('functiongraph',[x=>16-x*x,-4,4],{strokeColor:'#2a6f97',strokeWidth:3});
+        const s=b.create('slider',[[-3.5,-1],[-.5,-1],[.5,2,3.8]],{name:'x',snapWidth:.05,precision:2});
+        const y=()=>16-s.Value()*s.Value();
+        const p1=b.create('point',[()=>-s.Value(),0],{visible:false}),p2=b.create('point',[()=>s.Value(),0],{visible:false}),p3=b.create('point',[()=>s.Value(),y],{visible:false}),p4=b.create('point',[()=>-s.Value(),y],{visible:false});
+        poly(b,[p1,p2,p3,p4],{fillColor:'#f4d06f',borders:{strokeColor:'#a97700'}});
+      });
+
+      init('board-between-graphs',[-4,18,9,-2],b=>{
+        axis(b); b.create('functiongraph',[x=>-x*x+8*x,0,7],{strokeColor:'#2a6f97',strokeWidth:3});
+        b.create('functiongraph',[x=>2*x,0,7],{strokeColor:'#a94646',strokeWidth:3});
+        const s=b.create('slider',[[.5,-1],[5.5,-1],[0,3,6]],{name:'x',snapWidth:.05,precision:2});
+        b.create('segment',[[()=>s.Value(),()=>2*s.Value()],[()=>s.Value(),()=>-s.Value()*s.Value()+8*s.Value()]],{strokeColor:'#2d7d5b',strokeWidth:5});
+      });
+
+      let boxVolumeBoard=null;
+      const net=init('board-box-net',[-2,15,26,-3],b=>{
+        const s=b.create('slider',[[2,-2],[18,-2],[.2,2,5.8]],{name:'x',snapWidth:.05,precision:2});
+        poly(b,[[0,0],[24,0],[24,12],[0,12]],{fillColor:'#e7f3f9',borders:{strokeColor:'#245d80'}});
+        const x=()=>s.Value();
+        const lines=[[[x,0],[x,12]],[[()=>24-x(),0],[()=>24-x(),12]],[[0,x],[24,x]],[[0,()=>12-x()],[24,()=>12-x()]]];
+        lines.forEach(q=>b.create('segment',q,{dash:2,strokeColor:'#d79b2b',strokeWidth:2}));
+        b.create('text',[12,13.2,()=>`x = ${s.Value().toFixed(2)}   V = ${(s.Value()*(24-2*s.Value())*(12-2*s.Value())).toFixed(2)}`],{anchorX:'middle',fontSize:13});
+        s.on('drag',()=>{if(boxVolumeBoard) boxVolumeBoard.update();});
+        window.__boxSlider=s;
+      },{keepaspectratio:true});
+      boxVolumeBoard=init('board-box-volume',[-.5,520,6.5,-30],b=>{
+        axis(b); const V=x=>x*(24-2*x)*(12-2*x); b.create('functiongraph',[V,0,6],{strokeColor:'#2a6f97',strokeWidth:3});
+        b.create('point',[()=>window.__boxSlider?window.__boxSlider.Value():2,()=>window.__boxSlider?V(window.__boxSlider.Value()):V(2)],{name:'',size:4,fillColor:'#d79b2b',strokeColor:'#a97700'});
+      });
+
+      init('board-square-box',[-1,125,12,-10],b=>{
+        axis(b); const V=x=>x*(108-x*x)/4; b.create('functiongraph',[V,.1,Math.sqrt(108)],{strokeColor:'#2a6f97',strokeWidth:3});
+        b.create('point',[6,108],{name:'maximum',size:4,fillColor:'#2d7d5b',strokeColor:'#2d7d5b'});
+      });
+
+      init('board-revenue',[-2,1000,34,-80],b=>{
+        axis(b); b.create('functiongraph',[p=>120*p-4*p*p,0,30],{strokeColor:'#2a6f97',strokeWidth:3});
+        b.create('point',[15,900],{name:'(15,900)',size:4,fillColor:'#2d7d5b',strokeColor:'#2d7d5b'});
+        b.create('text',[28,100,'price'],{fontSize:12}); b.create('text',[2,930,'revenue'],{fontSize:12});
+      });
+
+      init('board-parameter-family',[-1,40,13,-4],b=>{
+        axis(b); [[8,'#2a6f97'],[10,'#d79b2b'],[12,'#2d7d5b']].forEach(([a,c])=>{
+          b.create('functiongraph',[x=>x*(a-x),0,a],{strokeColor:c,strokeWidth:3});
+          b.create('point',[a/2,a*a/4],{name:`a=${a}`,size:3,fillColor:c,strokeColor:c});
+        });
+      });
+    },150);
+  });
+})();
+</script>
+
+</body>
+</html>
