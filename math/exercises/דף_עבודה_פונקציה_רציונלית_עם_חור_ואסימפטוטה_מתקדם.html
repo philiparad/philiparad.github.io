@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מערך שיעור - פונקציות רציונליות ונקודות אי-רציפות - 5 יחידות ומעלה</title>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 0.96 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #e9eef4; font-family: Arial, "Noto Sans Hebrew", sans-serif; color: #172033; }
+body { direction: rtl; }
+.page {
+  width: 210mm;
+  height: 297mm;
+  margin: 8mm auto;
+  padding: 12mm 14mm 11mm;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  break-after: page;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(21, 34, 50, .14);
+}
+.page:last-of-type { page-break-after: auto; break-after: auto; }
+@media print {
+  html, body { background: #fff; }
+  .page { margin: 0; border-radius: 0; box-shadow: none; }
+  .screen-only { display: none !important; }
+}
+h1, h2, h3 { margin: 0 0 5mm; color: #103d67; line-height: 1.18; }
+h1 { font-size: 27px; }
+h2 { font-size: 21px; padding-bottom: 2mm; border-bottom: 2px solid #d5e3ef; }
+h3 { font-size: 16px; margin-top: 4mm; margin-bottom: 2mm; color: #176b70; }
+p, li, td, th { font-size: 13.2px; line-height: 1.48; }
+p { margin: 2mm 0; }
+ul, ol { margin: 2mm 0; padding-right: 6mm; }
+li { margin-bottom: 1.25mm; }
+.small { font-size: 11.6px; color: #4c5b6c; }
+.lead { font-size: 15px; line-height: 1.6; }
+.badge {
+  display: inline-block; padding: 1.5mm 3mm; margin: 1mm 0 1mm 1mm;
+  border-radius: 999px; background: #e6f2f5; color: #0e5d63; font-size: 11.5px; font-weight: 700;
+}
+.card {
+  border: 1px solid #d8e2eb; border-radius: 9px; padding: 3.2mm 4mm; margin: 3mm 0; background: #fbfdff;
+}
+.card.accent { border-right: 5px solid #177c83; background: #f3fbfb; }
+.card.warn { border-right: 5px solid #c67a17; background: #fff9ef; }
+.card.dark { border-right: 5px solid #173e67; background: #f3f7fb; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; align-items: start; }
+.three { display: grid; grid-template-columns: repeat(3,1fr); gap: 3mm; align-items: start; }
+table { width: 100%; border-collapse: collapse; margin: 3mm 0; }
+th, td { border: 1px solid #cbd7e2; padding: 2.2mm 2.7mm; vertical-align: top; }
+th { background: #edf4f9; color: #123f66; }
+.mathline { direction: ltr; text-align: center; font-size: 15px; margin: 2mm 0; }
+.tip { font-weight: 700; color: #0d646a; }
+.teacher { color: #704e11; }
+.exercise-list { columns: 1; list-style: none; padding: 0; margin-top: 2mm; }
+.exercise-list li { padding: 1.5mm 2mm; border-bottom: 1px dotted #d5dee6; break-inside: avoid; }
+.exnum { font-weight: 700; color: #176b70; margin-left: 1mm; }
+.jxgbox { width: 100%; height: 72mm; border: 1px solid #b9c9d7 !important; border-radius: 8px; background: #fff; }
+.graph-panel { border: 1px solid #d6e0e9; border-radius: 10px; padding: 3mm; background: #fbfdff; margin: 3mm 0; }
+.graph-tools { direction: ltr; display: flex; gap: 2mm; justify-content: center; margin-top: 2mm; flex-wrap: wrap; }
+.graph-tools button {
+  border: 1px solid #9fb4c4; background: #fff; color: #123f66; border-radius: 6px;
+  padding: 1.5mm 3mm; font-weight: 700; cursor: pointer; font-size: 11px;
+}
+.graph-tools button:hover { background: #edf5fa; }
+.legend { display: flex; gap: 4mm; flex-wrap: wrap; justify-content: center; font-size: 11px; margin-top: 1.5mm; }
+.dot { width: 10px; height: 10px; display: inline-block; border-radius: 50%; margin-left: 1mm; }
+.c1 { background:#167c80; } .c2 { background:#b86f18; } .c3 { background:#6f4ba8; }
+.sliderrow { display: grid; grid-template-columns: auto 1fr auto; gap: 3mm; align-items: center; direction: rtl; margin: 2mm 0; }
+.sliderrow input { width: 100%; direction: ltr; }
+.callout {
+  border-radius: 10px; padding: 4mm; background: linear-gradient(135deg,#103e67,#176b70);
+  color: white; margin: 4mm 0;
+}
+.callout h3 { color: white; margin-top: 0; }
+.timeline { display: grid; grid-template-columns: 22mm 1fr; gap: 2mm 4mm; align-items: start; }
+.timeline .time { font-weight: 700; color:#176b70; }
+.source { direction:ltr; text-align:left; font-size:10.5px; word-break:break-word; color:#415466; }
+.footer { position: absolute; bottom: 5mm; left: 14mm; right: 14mm; display:flex; justify-content:space-between; font-size: 9.5px; color:#6a7886; border-top:1px solid #e2e8ee; padding-top:1.7mm; }
+.cover {
+  background: linear-gradient(160deg,#f8fbfd 0%,#edf7f7 55%,#ffffff 100%);
+}
+.cover h1 { font-size: 34px; margin-top: 24mm; }
+.big-number { font-size: 42px; font-weight: 800; color: #176b70; line-height:1; }
+.check-grid { display:grid; grid-template-columns:1fr 1fr; gap:2.5mm 5mm; margin-top:2mm; }
+.check-item { border-bottom:1px dotted #cfd8e0; padding:1.2mm 0; font-size:12px; }
+.answer { background:#f8fafc; border-right:4px solid #718096; padding:2mm 3mm; margin:2mm 0; font-size:12.3px; }
+.no-poly { color:#9b3e27; font-weight:800; }
+</style>
+</head>
+<body>
+
+<section class="page cover" id="p1">
+  <span class="badge">5 יחידות ומעלה</span>
+  <h1>פונקציות רציונליות ונקודות אי-רציפות</h1>
+  <div class="callout">
+    <h3>עקרון מארגן</h3>
+    <p>לא כל אפס של המכנה יוצר אסימפטוטה אנכית. תחילה שומרים את תחום ההגדרה המקורי, אחר כך מפרקים ומצמצמים, ורק אז מסווגים כל נקודת אי-הגדרה.</p>
+  </div>
+  <h3 style="margin-top:10mm">מטרות</h3>
+  <div class="check-grid">
+    <div class="check-item">להבחין בין חור לבין אסימפטוטה אנכית.</div>
+    <div class="check-item">לשמור תחום הגדרה גם לאחר צמצום.</div>
+    <div class="check-item">לנתח השפעת פרמטר על סוג אי-הרציפות.</div>
+    <div class="check-item">לקבוע מספר נקודות אי-הגדרה בעזרת פירוק ודיסקרימיננטה.</div>
+    <div class="check-item">לעבור בין ביטוי, גרף ותיאור מילולי.</div>
+    <div class="check-item">לבנות פונקציה רציונלית מתוך תכונות נתונות.</div>
+  </div>
+  <div class="footer"><span>מערך שיעור - פונקציות רציונליות</span><span>1</span></div>
+</section>
+
+<section class="page" id="p2">
+  <h2>1. האבחון הפותח</h2>
+
+  <h3>אבחון</h3>
+  <div class="card accent">
+    <p>ללא מחשבון וללא שרטוט: נתונה הפונקציה</p>
+    <div class="mathline">\(f(x)=\frac{(x-2)(x+1)}{(x-2)(x+3)}\)</div>
+    <ol>
+      <li>רשום את תחום ההגדרה לפני צמצום.</li>
+      <li>צמצם את הביטוי.</li>
+      <li>מה קורה ב-\(x=2\)?</li>
+      <li>מה קורה ב-\(x=-3\)?</li>
+      <li>מדוע אסור לכתוב רק את הביטוי המצומצם ולשכוח את התחום?</li>
+    </ol>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>תשובה מצופה</h3>
+      <p>\(x\neq2,-3\). לאחר צמצום מתקבל \(\frac{x+1}{x+3}\), אך \(x=2\) נשאר מחוץ לתחום ולכן מתקבל חור. ב-\(x=-3\) נשאר אפס במכנה ולכן מתקבלת אסימפטוטה אנכית.</p>
+    </div>
+    <div class="card warn">
+      <h3>טעות מכוונת לדיון</h3>
+      <p>"צמצמתי את \(x-2\), לכן \(x=2\) חזר לתחום."</p>
+      <p class="teacher"><b>שאלת מורה:</b> האם פעולה אלגברית על הביטוי יכולה לשנות את הפונקציה המקורית בנקודה שבה כלל לא הייתה מוגדרת?</p>
+    </div>
+  </div>
+  <h3>כלל עבודה</h3>
+  <div class="card dark">
+    <p><b>שלב א:</b> תחום לפי המכנה המקורי. <b>שלב ב:</b> פירוק לגורמים. <b>שלב ג:</b> צמצום. <b>שלב ד:</b> בכל ערך שנאסר מראש בודקים מה נשאר לאחר הצמצום.</p>
+  </div>
+  <div class="footer"><span>רצף והערכה מעצבת</span><span>2</span></div>
+</section>
+
+<section class="page" id="p3">
+  <h2>2. חור לעומת אסימפטוטה אנכית - מה בדיוק קובע?</h2>
+  <div class="two">
+    <div>
+      <div class="card accent">
+        <h3>חור - אי-רציפות סליקה</h3>
+        <p>אם הגורם שגרם לאפס במכנה <b>נעלם לחלוטין</b> לאחר צמצום, הערך עדיין מחוץ לתחום המקורי אבל הגבול סופי.</p>
+      </div>
+      <div class="card warn">
+        <h3>אסימפטוטה אנכית</h3>
+        <p>אם לאחר צמצום עדיין נשאר במכנה גורם שמתאפס ב-\(x=a\), ערכי הפונקציה גדלים ללא חסם לפחות מצד אחד.</p>
+      </div>
+      <div class="card">
+        <h3>ריבוי הגורם</h3>
+        <p>השווה את ריבוי \((x-a)\) במונה ובמכנה. אם ריבוי המכנה גדול יותר גם אחרי הצמצום - נשארת אסימפטוטה אנכית. אם הגורם נעלם מהמכנה - מתקבל חור.</p>
+      </div>
+    </div>
+    <div>
+      <div class="graph-panel">
+        <div id="g-hole-va" class="jxgbox" aria-label="גרף עם חור ואסימפטוטה אנכית"></div>
+        <div class="legend">
+          <span><i class="dot c1"></i>\(f(x)\)</span>
+          <span><i class="dot c2"></i>חור ב-\(x=2\)</span>
+          <span><i class="dot c3"></i>אסימפטוטה \(x=-3\)</span>
+        </div>
+        <div class="graph-tools">
+          <button type="button" onclick="zoomBoard('g-hole-va',1.2)">Zoom In</button>
+          <button type="button" onclick="zoomBoard('g-hole-va',0.82)">Zoom Out</button>
+          <button type="button" onclick="resetBoard('g-hole-va')">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card dark">
+    <h3>בדיקה מהירה</h3>
+    <p>בפונקציה \(\frac{(x-1)^2}{(x-1)^3}\), צמצום של גורם משותף אינו יוצר חור: נשאר \(\frac{1}{x-1}\), ולכן \(x=1\) היא אסימפטוטה אנכית.</p>
+  </div>
+  <div class="footer"><span>חור מול אסימפטוטה אנכית</span><span>3</span></div>
+</section>
+
+<section class="page" id="p4">
+  <h2>תרגול 1 - חור, אסימפטוטה ותחום הגדרה</h2>
+  <ol class="exercise-list">
+    <li><span class="exnum">0.</span> קבע את תחום ההגדרה וסווג כל נקודת אי-הגדרה של \(f(x)=\frac{(x-2)(x+1)}{(x-2)(x+3)}\). מצא גם את שיעורי החור, אם קיים.</li>
+<li><span class="exnum">1.</span> נתונה \(g(x)=\frac{(x+4)^2}{(x+4)(x-1)}\). קבע מה קורה ב-\(x=-4\) וב-\(x=1\), ונמק בעזרת פירוק לגורמים.</li>
+<li><span class="exnum">2.</span> חקור את נקודות אי-ההגדרה של \(h(x)=\frac{(x-1)^2(x+2)}{(x-1)(x+2)^2}\). עבור כל נקודה קבע אם מתקבל חור או אסימפטוטה אנכית.</li>
+<li><span class="exnum">3.</span> מצא פונקציה מצומצמת המתלכדת עם \(p(x)=\frac{x^2-5x+6}{x^2-x-6}\) בכל נקודה בתחום של \(p\), ואז קבע איזה מידע על הגרף אובד אם שוכחים את התחום המקורי.</li>
+<li><span class="exnum">4.</span> נתונה \(q(x)=\frac{x^2-9}{(x-3)^2(x+1)}\). קבע האם \(x=3\) היא חור או אסימפטוטה אנכית. הסבר מדוע עצם קיום גורם משותף אינו מספיק.</li>
+<li><span class="exnum">5.</span> מצא את כל נקודות אי-ההגדרה של \(r(x)=\frac{(x+2)(x-5)^2}{(x+2)^2(x-5)}\), וסווג אותן לאחר צמצום מלא.</li>
+<li><span class="exnum">6.</span> לגרף של פונקציה רציונלית יש שני ערכי \(x\) שאינם בתחום, אך רק אסימפטוטה אנכית אחת. האם בהכרח קיים חור? נמק באופן כללי באמצעות ריבויי גורמים.</li>
+<li><span class="exnum">7.</span> בנה דוגמה לפונקציה רציונלית עם בדיוק שתי נקודות אי-הגדרה: אחת חור ואחת אסימפטוטה אנכית. דרוש בנוסף שהאסימפטוטה האופקית תהיה \(y=2\).</li>
+<li><span class="exnum">8.</span> בנה שתי פונקציות בעלות אותו ביטוי מצומצם, אך תחומי הגדרה שונים, כך שבאחת מהן יש חור ובשנייה אין חור באותו ערך \(x\).</li>
+<li><span class="exnum">9.</span> נתון שהפונקציה מתלכדת עם \(y=\frac{x+1}{x-2}\) לכל \(x\neq2,5\). קבע מה ניתן להסיק על נקודת \(x=5\), ומה אי אפשר להסיק בלי מידע נוסף על ההגדרה המקורית.</li>
+  </ol>
+  <div class="footer"><span>תרגול לאחר נושא 1</span><span>4</span></div>
+</section>
+
+<section class="page" id="p5">
+  <h2>3. פרמטר שמשנה חור ↔ אסימפטוטה</h2>
+  <div class="card accent">
+    <p>נחקור את המשפחה</p>
+    <div class="mathline">\(f_k(x)=\frac{x^2-k}{x^2-9}\)</div>
+    <p>המכנה מתאפס ב-\(x=\pm3\) ללא תלות ב-\(k\). השאלה היא האם המונה מתאפס באותן נקודות בדיוק, וכך מבטל את הגורמים לאחר פירוק.</p>
+  </div>
+  <div class="two">
+    <div>
+      <table>
+        <tr><th>מצב</th><th>מסקנה</th></tr>
+        <tr><td>\(k\neq9\)</td><td>המונה אינו מכיל את שני הגורמים \(x-3,x+3\) יחד, ולכן \(x=\pm3\) נשארות אסימפטוטות אנכיות.</td></tr>
+        <tr><td>\(k=9\)</td><td>\(x^2-9\) מצטמצם במלואו. הפונקציה שווה \(1\) בתחום המקורי, עם שני חורים ב-\(x=\pm3\).</td></tr>
+      </table>
+      <div class="card warn">
+        <h3>שאלת עומק</h3>
+        <p>מדוע ב-\(k=9\) אין "אפס אסימפטוטות ולכן אין אי-רציפות"? אילו שתי נקודות נשארות מחוץ לתחום?</p>
+      </div>
+    </div>
+    <div>
+      <div class="graph-panel">
+        <div class="sliderrow"><label for="kSlider">פרמטר \(k\)</label><input id="kSlider" type="range" min="-4" max="16" step="1" value="9"><b id="kVal">9</b></div>
+        <div id="g-param-k" class="jxgbox" aria-label="גרף משפחת פונקציות לפי k"></div>
+        <div class="graph-tools">
+          <button type="button" onclick="zoomBoard('g-param-k',1.2)">Zoom In</button>
+          <button type="button" onclick="zoomBoard('g-param-k',0.82)">Zoom Out</button>
+          <button type="button" onclick="resetBoard('g-param-k')">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>פרמטר משנה סוג אי-רציפות</span><span>5</span></div>
+</section>
+
+<section class="page" id="p6">
+  <h2>תרגול 2 - פרמטרים וחורים</h2>
+  <ol class="exercise-list">
+    <li><span class="exnum">0.</span> עבור \(f_k(x)=\frac{x^2-k}{x^2-9}\), קבע עבור אילו ערכי \(k\) מתקבלות שתי אסימפטוטות אנכיות, ועבור איזה ערך מתקבלים חורים במקום אסימפטוטות.</li>
+<li><span class="exnum">1.</span> עבור \(g_a(x)=\frac{(x-a)(x+2)}{(x-a)(x-3)}\), תאר את נקודות אי-ההגדרה כאשר \(a\neq3\), והשווה למקרה \(a=3\).</li>
+<li><span class="exnum">2.</span> נתונה \(h_m(x)=\frac{(x-1)(x-m)}{(x+2)(x-m)}\). מצא את שיעורי החור כתלות ב-\(m\), כאשר הוא קיים, וציין אילו ערכי \(m\) דורשים טיפול נפרד.</li>
+<li><span class="exnum">3.</span> מצא את \(k\) כך של-\(p_k(x)=\frac{x^2+kx+6}{(x+2)(x+3)}\) לא תהיה אף אסימפטוטה אנכית.</li>
+<li><span class="exnum">4.</span> מצא את כל ערכי \(a\) שעבורם \(q_a(x)=\frac{x^2+(a-1)x-a}{(x-1)(x+2)}\) כוללת חור ב-\(x=1\). לאחר מכן סווג את \(x=-2\).</li>
+<li><span class="exnum">5.</span> נתונה \(r_t(x)=\frac{(x-t)^2(x+1)}{(x-t)(x-4)}\). תאר כיצד סוג אי-ההרציפות ב-\(x=t\) משתנה כאשר \(t=4\) לעומת \(t\neq4\).</li>
+<li><span class="exnum">6.</span> בנה משפחה \(F_a(x)\) שבה עבור כל \(a\neq1\) יש חור ב-\(x=a\) ואסימפטוטה אנכית ב-\(x=1\), אך עבור \(a=1\) נשארת רק אסימפטוטה אנכית אחת.</li>
+<li><span class="exnum">7.</span> מצא ערך פרמטר כך שהפונקציה \(s_c(x)=\frac{x^2-4x+c}{x^2-5x+6}\) תהיה בעלת חור ב-\(x=2\) ואסימפטוטה אנכית ב-\(x=3\).</li>
+<li><span class="exnum">8.</span> האם אפשר לבחור \(m\) כך של-\(u_m(x)=\frac{x^2-m^2}{(x-m)(x+4)}\) יהיו שתי נקודות אי-הגדרה אך ללא אסימפטוטה אנכית? נמק.</li>
+<li><span class="exnum">9.</span> עבור \(v_a(x)=\frac{(x-a)(x-2)}{(x-a)^2(x+1)}\), סווג את \(x=a\) כתלות ב-\(a\), וקבע מתי מתקבלת התלכדות של שתי נקודות אי-הגדרה.</li>
+  </ol>
+  <div class="footer"><span>תרגול לאחר נושא 2</span><span>6</span></div>
+</section>
+
+<section class="page" id="p7">
+  <h2>4. מספר ערכי אי-הגדרה - דיסקרימיננטה ואז סיווג</h2>
+  <div class="two">
+    <div>
+      <div class="card accent">
+        <div class="mathline">\(f_k(x)=\frac{2x}{x^2-4x+k}\)</div>
+        <p>ראשית בודקים כמה שורשים ממשיים יש למכנה:</p>
+        <div class="mathline">\(\Delta=(-4)^2-4k=16-4k\)</div>
+        <table>
+          <tr><th>תנאי</th><th>מספר ערכי אי-הגדרה</th></tr>
+          <tr><td>\(k\lt4\)</td><td>2</td></tr>
+          <tr><td>\(k=4\)</td><td>1</td></tr>
+          <tr><td>\(k\gt4\)</td><td>0</td></tr>
+        </table>
+      </div>
+      <div class="card warn">
+        <h3>אבל זו רק חצי הדרך</h3>
+        <p>לאחר שמצאנו את ערכי אי-ההגדרה צריך לסווג אותם. לדוגמה, כאשר \(k=0\):</p>
+        <div class="mathline">\(f_0(x)=\frac{2x}{x(x-4)}=\frac{2}{x-4}\)</div>
+        <p>לכן \(x=0\) הוא חור ו-\(x=4\) אסימפטוטה אנכית.</p>
+      </div>
+    </div>
+    <div>
+      <div class="graph-panel">
+        <div class="sliderrow"><label for="dSlider">פרמטר \(k\)</label><input id="dSlider" type="range" min="0" max="8" step="0.5" value="4"><b id="dVal">4</b></div>
+        <div id="g-discriminant" class="jxgbox" aria-label="גרף מספר נקודות אי הגדרה"></div>
+        <div class="graph-tools">
+          <button type="button" onclick="zoomBoard('g-discriminant',1.2)">Zoom In</button>
+          <button type="button" onclick="zoomBoard('g-discriminant',0.82)">Zoom Out</button>
+          <button type="button" onclick="resetBoard('g-discriminant')">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card dark">
+    <h3>רצף פתרון מומלץ</h3>
+    <p>מכנה \(=0\) ⇐ מספר שורשים ממשיים ⇐ תחום הגדרה ⇐ פירוק מלא של המונה והמכנה ⇐ צמצום ⇐ סיווג כל ערך שנאסר מראש.</p>
+  </div>
+  <div class="footer"><span>מספר נקודות אי-הגדרה</span><span>7</span></div>
+</section>
+
+<section class="page" id="p8">
+  <h2>תרגול 3 - כמה נקודות אי-הגדרה קיימות?</h2>
+  <ol class="exercise-list">
+    <li><span class="exnum">0.</span> עבור \(f_k(x)=\frac{2x}{x^2-4x+k}\), קבע לפי \(k\) האם יש אפס, אחד או שני ערכי \(x\) שאינם בתחום ההגדרה.</li>
+<li><span class="exnum">1.</span> במקרה \(k=0\) בתרגיל הקודם, סווג כל אחת מנקודות אי-ההגדרה. מדוע מספר ערכי אי-ההגדרה אינו שווה למספר האסימפטוטות האנכיות?</li>
+<li><span class="exnum">2.</span> עבור \(g_a(x)=\frac{x-1}{x^2+ax+4}\), מצא את תחומי \(a\) שבהם יש שתי נקודות אי-הגדרה, אחת, או אף אחת.</li>
+<li><span class="exnum">3.</span> עבור \(h_m(x)=\frac{x+2}{x^2-2mx+m^2-9}\), מצא את ערכי \(m\) שבהם אחת מנקודות אי-ההגדרה הופכת לחור.</li>
+<li><span class="exnum">4.</span> נתונה \(p_k(x)=\frac{x-k}{x^2-(k+2)x+2k}\). פרק את המכנה וקבע כיצד תחום ההגדרה וסוגי אי-ההרציפות תלויים ב-\(k\).</li>
+<li><span class="exnum">5.</span> מצא משפחה רציונלית שבה הדיסקרימיננטה של המכנה קובעת אם קיימות 0, 1 או 2 נקודות אי-הגדרה, ובערך פרמטר מיוחד אחת מהן תהיה חור.</li>
+<li><span class="exnum">6.</span> עבור \(q_a(x)=\frac{x^2-a^2}{x^2-(a+3)x+3a}\), פרק לגורמים וסווג את נקודות אי-ההגדרה עבור ערכי \(a\) כלליים ועבור ערכים מיוחדים.</li>
+<li><span class="exnum">7.</span> נתון שלמכנה ריבועי יש שורש כפול ב-\(x=2\). איזה תנאי על המונה יגרום לכך שב-\(x=2\) יהיה חור, ואיזה תנאי ישאיר אסימפטוטה אנכית? תן שתי דוגמאות.</li>
+<li><span class="exnum">8.</span> מצא \(k\) כך של-\(r_k(x)=\frac{x^2-1}{x^2+kx+k+1}\) תהיה בדיוק נקודת אי-הגדרה אחת. לאחר מכן בדוק אם היא חור.</li>
+<li><span class="exnum">9.</span> נסח אלגוריתם קצר הקובע, מתוך פירוק המונה והמכנה לגורמים, את מספר ערכי אי-ההגדרה ואת סוג כל אחד מהם. בדוק אותו על לפחות שתי פונקציות מהעמוד.</li>
+  </ol>
+  <div class="footer"><span>תרגול לאחר נושא 3</span><span>8</span></div>
+</section>
+
+<section class="page" id="p9">
+  <h2>5. בנייה הפוכה - מתכונות אל הפונקציה</h2>
+  <div class="card accent">
+    <h3>מילון בין תכונה לגורם</h3>
+    <table>
+      <tr><th>תכונה רצויה</th><th>איך מייצרים אותה</th></tr>
+      <tr><td>אפס ב-\(x=a\)</td><td>גורם \(x-a\) במונה שאינו מצטמצם.</td></tr>
+      <tr><td>חור ב-\(x=a\)</td><td>גורם \(x-a\) גם במונה וגם במכנה, כך שייעלם מהמכנה לאחר צמצום.</td></tr>
+      <tr><td>אסימפטוטה אנכית ב-\(x=a\)</td><td>לאחר צמצום נשאר במכנה גורם \(x-a\).</td></tr>
+      <tr><td>אין שינוי סימן סביב האסימפטוטה</td><td>במקרה פשוט, השאר במכנה חזקה זוגית של \(x-a\).</td></tr>
+      <tr><td>אסימפטוטה אופקית \(y=c\)</td><td>בחר מעלות שוות ומנת מקדמים מובילים \(c\), או בנה תחילה ביטוי מתאים.</td></tr>
+    </table>
+  </div>
+  <div class="two">
+    <div class="card dark">
+      <h3>דוגמת בנייה</h3>
+      <p>נדרשים: שני חורים ב-\(x=-3,4\), אפסים ב-\(x=0,2\), אסימפטוטה אנכית \(x=1\), אסימפטוטה אופקית \(y=5\), וללא שינוי סימן סביב \(x=1\).</p>
+      <div class="mathline">\[
+      F(x)=\frac{5x(x-2)(x+3)(x-4)}{(x-1)^2(x+3)(x-4)}
+      \]</div>
+      <p>הגורמים \(x+3\) ו-\(x-4\) יוצרים חורים; \((x-1)^2\) נשאר במכנה; והיחס בין המקדמים המובילים הוא \(5\).</p>
+    </div>
+    <div class="graph-panel">
+      <div id="g-build" class="jxgbox" aria-label="גרף פונקציה שנבנתה מתכונות"></div>
+      <div class="graph-tools">
+        <button type="button" onclick="zoomBoard('g-build',1.2)">Zoom In</button>
+        <button type="button" onclick="zoomBoard('g-build',0.82)">Zoom Out</button>
+        <button type="button" onclick="resetBoard('g-build')">Reset</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>בנייה הפוכה</span><span>9</span></div>
+</section>
+
+<section class="page" id="p10">
+  <h2>תרגול 4 - בנה פונקציה מתוך תכונות</h2>
+  <ol class="exercise-list">
+    <li><span class="exnum">0.</span> בנה פונקציה רציונלית שלה חור ב-\(x=-2\), אסימפטוטה אנכית ב-\(x=3\), אפס ב-\(x=1\) ואסימפטוטה אופקית \(y=2\).</li>
+<li><span class="exnum">1.</span> בנה פונקציה עם שני חורים ב-\(x=-3,4\), אפסים ב-\(x=0,2\), אסימפטוטה אנכית ב-\(x=1\), ואסימפטוטה אופקית \(y=5\).</li>
+<li><span class="exnum">2.</span> שנה את הפונקציה מהתרגיל הקודם כך שמשני צדי האסימפטוטה האנכית \(x=1\) הפונקציה תשאף לאותו סימן של אינסוף.</li>
+<li><span class="exnum">3.</span> בנה פונקציה עם שתי נקודות אי-הגדרה בדיוק, אך רק אסימפטוטה אנכית אחת; החור צריך להיות בנקודה ששיעור ה-\(y\) שלה הוא \(4\), והאסימפטוטה האופקית \(y=2\).</li>
+<li><span class="exnum">4.</span> בנה פונקציה שהגרף שלה חוצה את ציר \(x\) ב-\(x=-1\), נוגע בציר \(x\) ב-\(x=2\), ויש לה אסימפטוטה אנכית ב-\(x=4\). אין להשתמש באסימפטוטה שאינה אופקית או אנכית.</li>
+<li><span class="exnum">5.</span> בנה פונקציה עם אסימפטוטות אנכיות ב-\(x=-2\) וב-\(x=3\), כאשר רק ב-\(x=-2\) יש שינוי סימן בין שני צדי האסימפטוטה.</li>
+<li><span class="exnum">6.</span> בנה שתי פונקציות שונות המקיימות: חור ב-\(x=1\), אסימפטוטה אנכית ב-\(x=-3\), אסימפטוטה אופקית \(y=1\). הסבר מדוע אין פתרון יחיד.</li>
+<li><span class="exnum">7.</span> מצא פונקציה פשוטה ככל האפשר עם חור ב-\((2,3)\), אפס ב-\(x=-1\), ואסימפטוטה אנכית ב-\(x=4\).</li>
+<li><span class="exnum">8.</span> נתונות רק התכונות: תחום ההגדרה חסר את \(x=-1,2\), יש אסימפטוטה אנכית אחת בלבד, והאסימפטוטה האופקית היא \(y=-2\). בנה לפחות שתי אפשרויות שונות והסבר את ההבדל.</li>
+<li><span class="exnum">9.</span> צור בעצמך רשימת חמש תכונות שאינן סותרות זו את זו עבור פונקציה רציונלית, ובנה פונקציה המקיימת את כולן. בדוק תחום, חורים, אסימפטוטות ואפסים.</li>
+  </ol>
+  <div class="footer"><span>תרגול לאחר נושא 4</span><span>10</span></div>
+</section>
+
+<section class="page" id="p11">
+  <h2>6. אותה צורה כמעט - אבל תחום אחר משנה את הגרף</h2>
+  <div class="two">
+    <div>
+      <div class="card">
+        <h3>השוואה</h3>
+        <div class="mathline">\(p(x)=\frac{x+1}{x-2}\)</div>
+        <div class="mathline">\(q(x)=\frac{(x+1)(x-5)}{(x-2)(x-5)}\)</div>
+        <p>אחרי צמצום מתקבל אותו ביטוי, אבל הפונקציות אינן זהות: ב-\(q\), הערך \(x=5\) אסור בתחום המקורי ולכן יש חור.</p>
+      </div>
+      <div class="card warn">
+        <h3>שאלת חשיבה</h3>
+        <p>אם רואים רק את הגרף ללא סימון החור, האם אפשר לזהות שהביטוי המקורי כלל גורם מצטמצם? מה חייב להופיע בגרף כדי שהמידע יהיה שלם?</p>
+      </div>
+      <div class="card dark">
+        <h3>מעבר בין ייצוגים</h3>
+        <p>בכל תרגיל מתקדם דרוש מן התלמיד לעבור לפחות פעמיים בין: ביטוי אלגברי ⇐ תחום ⇐ גרף ⇐ תיאור מילולי ⇐ גבול.</p>
+      </div>
+    </div>
+    <div class="graph-panel">
+      <div id="g-same-shape" class="jxgbox" aria-label="שתי פונקציות עם אותו ביטוי מצומצם"></div>
+      <div class="legend">
+        <span><i class="dot c1"></i>\(p(x)\)</span>
+        <span><i class="dot c2"></i>\(q(x)\) - חור ב-\(x=5\)</span>
+      </div>
+      <div class="graph-tools">
+        <button type="button" onclick="zoomBoard('g-same-shape',1.2)">Zoom In</button>
+        <button type="button" onclick="zoomBoard('g-same-shape',0.82)">Zoom Out</button>
+        <button type="button" onclick="resetBoard('g-same-shape')">Reset</button>
+      </div>
+    </div>
+  </div>
+  <h3>משימת זוגות - 12 דקות</h3>
+  <p>תלמיד א' בונה פונקציה עם חור ואסימפטוטה אנכית. תלמיד ב' מקבל רק את רשימת התכונות ומנסה לשחזר פונקציה אפשרית. לאחר מכן מחליפים תפקידים ובודקים האם הפתרון יחיד.</p>
+  <div class="footer"><span>מעבר בין ייצוגים</span><span>11</span></div>
+</section>
+
+<section class="page" id="p12">
+  <h2>7. מעבדת אתגר - פרמטר שמתלכד עם אסימפטוטה</h2>
+  <div class="card accent">
+    <div class="mathline">\[
+    F_a(x)=\frac{(x-a)(x+1)}{(x-a)(x-2)^2}
+    \]</div>
+    <p>כאשר \(a\neq2\), יש חור ב-\(x=a\) ואסימפטוטה אנכית ב-\(x=2\). כאשר \(a=2\), הגורמים מתלכדים ומתקבל מצב אחר.</p>
+  </div>
+  <div class="two">
+    <div>
+      <h3>משימות</h3>
+      <ol>
+        <li>קבע את התחום עבור \(a\neq2\).</li>
+        <li>מצא את שיעורי החור כתלות ב-\(a\).</li>
+        <li>בדוק מה מתקבל כאשר \(a=2\) לפני ואחרי צמצום.</li>
+        <li>הסבר מדוע "חור נע" יכול להיעלם כאשר הוא מגיע אל מקום האסימפטוטה.</li>
+        <li>שנה את המשפחה כך שכאשר \(a=2\) יישאר גורם בחזקה שלישית במכנה לפני הצמצום.</li>
+      </ol>
+      <div class="card warn">
+        <h3>מטרה פדגוגית</h3>
+        <p>להפריד בין "מיקום נקודת אי-הגדרה" לבין "סוג נקודת אי-הגדרה", ולהראות שהתלכדות גורמים מחייבת ספירה מחדש של הריבויים.</p>
+      </div>
+    </div>
+    <div class="graph-panel">
+      <div class="sliderrow"><label for="aSlider">פרמטר \(a\)</label><input id="aSlider" type="range" min="-4" max="6" step="0.5" value="0"><b id="aVal">0</b></div>
+      <div id="g-moving-hole" class="jxgbox" aria-label="חור נע ואסימפטוטה"></div>
+      <div class="graph-tools">
+        <button type="button" onclick="zoomBoard('g-moving-hole',1.2)">Zoom In</button>
+        <button type="button" onclick="zoomBoard('g-moving-hole',0.82)">Zoom Out</button>
+        <button type="button" onclick="resetBoard('g-moving-hole')">Reset</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מעבדת אתגר</span><span>12</span></div>
+</section>
+
+<section class="page" id="p13">
+  <h2>8. משימת סיכום - בנה, הוכח, בדוק בגרף</h2>
+  <div class="callout">
+    <h3>אתגר מסכם</h3>
+    <p>בנה פונקציה רציונלית המקיימת בו-זמנית את כל התנאים הבאים, ולאחר מכן הוכח אלגברית שכל תנאי מתקיים.</p>
+  </div>
+  <ol>
+    <li>תחום ההגדרה חסר בדיוק שלושה ערכים: \(x=-3,1,4\).</li>
+    <li>ב-\(x=-3\) וב-\(x=4\) יש חורים.</li>
+    <li>ב-\(x=1\) יש אסימפטוטה אנכית ללא שינוי סימן בין שני הצדדים.</li>
+    <li>הגרף חותך את ציר \(x\) ב-\(x=0\) וב-\(x=2\).</li>
+    <li>האסימפטוטה האופקית היא \(y=5\).</li>
+  </ol>
+  <div class="two">
+    <div class="card dark">
+      <h3>תוצר נדרש</h3>
+      <p>א. ביטוי אלגברי. ב. תחום. ג. פירוק וצמצום. ד. שיעורי שני החורים. ה. ניתוח ההתנהגות ליד \(x=1\). ו. הסבר האסימפטוטה האופקית. ז. סקיצה.</p>
+    </div>
+    <div class="card warn">
+      <h3>הרחבה</h3>
+      <p>האם יש אינסוף פונקציות המקיימות את התנאים? אם כן, תן שינוי בגורמים שאינו משנה את חמש התכונות המרכזיות.</p>
+    </div>
+  </div>
+  <div class="graph-panel">
+    <div id="g-final" class="jxgbox" aria-label="גרף אתגר מסכם"></div>
+    <div class="graph-tools">
+      <button type="button" onclick="zoomBoard('g-final',1.2)">Zoom In</button>
+      <button type="button" onclick="zoomBoard('g-final',0.82)">Zoom Out</button>
+      <button type="button" onclick="resetBoard('g-final')">Reset</button>
+    </div>
+  </div>
+  <div class="footer"><span>משימת סיכום</span><span>13</span></div>
+</section>
+
+<section class="page" id="p14">
+  <h2>9. הערכה מסכמת ומחוון</h2>
+  <div class="card accent">
+    <h3>כרטיס יציאה - 12 דקות</h3>
+    <ol>
+      <li>בפונקציה \(\frac{(x-2)^2(x+1)}{(x-2)(x+1)^2}\), סווג את \(x=2\) ואת \(x=-1\).</li>
+      <li>מצא ערך \(k\) כך שב-\(\frac{x^2-k}{x^2-16}\) לא תהיה אסימפטוטה אנכית.</li>
+      <li>בנה פונקציה עם חור ב-\(x=1\), אסימפטוטה אנכית ב-\(x=-2\), ואסימפטוטה אופקית \(y=3\).</li>
+    </ol>
+  </div>
+  <table>
+    <tr><th>רכיב</th><th>שליטה מלאה</th><th>שליטה חלקית</th><th>דורש חיזוק</th></tr>
+    <tr><td>תחום הגדרה</td><td>נרשם לפני צמצום ונשמר לכל אורך הפתרון.</td><td>נכון אך לא מודגש לאחר צמצום.</td><td>התחום נקבע מן הביטוי המצומצם בלבד.</td></tr>
+    <tr><td>סיווג אי-רציפות</td><td>מבוסס על ריבוי הגורם לאחר צמצום.</td><td>סיווג נכון ללא נימוק מלא.</td><td>כל אפס מכנה מסווג כאסימפטוטה.</td></tr>
+    <tr><td>פרמטרים</td><td>מטפל במקרים מיוחדים ובהתלכדות גורמים.</td><td>מוצא ערכים אך מפספס מקרה קצה.</td><td>מציב ערכים ללא ניתוח מבני.</td></tr>
+    <tr><td>בנייה הפוכה</td><td>כל גורם מקושר לתכונה והבנייה נבדקת.</td><td>הבנייה כמעט מתאימה.</td><td>הביטוי אינו מקיים חלק מן התנאים.</td></tr>
+  </table>
+  <h3>סימני הצלחה של היחידה</h3>
+  <div class="check-grid">
+    <div class="check-item">התלמיד אומר "ערך מחוץ לתחום" לפני "חור/אסימפטוטה".</div>
+    <div class="check-item">התלמיד אינו מחזיר לתחום גורם שהצטמצם.</div>
+    <div class="check-item">התלמיד משתמש בריבויי גורמים.</div>
+    <div class="check-item">התלמיד מזהה מקרה פרמטר מיוחד.</div>
+    <div class="check-item">התלמיד בונה פונקציה מתוך תכונות.</div>
+    <div class="check-item">התלמיד בודק את הבנייה בגרף ובאלגברה.</div>
+  </div>
+  <div class="footer"><span>הערכה מסכמת</span><span>14</span></div>
+</section>
+
+<section class="page" id="p15">
+  <h2>10. פתרונות מקוצרים למורה - תרגול 1 ו-2</h2>
+  <h3>תרגול 1 - נקודות מפתח</h3>
+  <div class="answer">1. \(x\neq2,-3\); חור ב-\(x=2\), אסימפטוטה אנכית \(x=-3\); החור הוא \((2,\frac35)\).</div>
+  <div class="answer">2. חור ב-\(x=-4\), אסימפטוטה אנכית \(x=1\).</div>
+  <div class="answer">3. לאחר צמצום מתקבל \(\frac{x-1}{x+2}\); חור ב-\(x=1\), אסימפטוטה אנכית \(x=-2\).</div>
+  <div class="answer">4. \(\frac{x-2}{x+2}\) בתחום המקורי \(x\neq3,-2\); החור ב-\(x=3\) נשמר.</div>
+  <div class="answer">5. ב-\(x=3\) נשאר גורם במכנה ולכן זו אסימפטוטה אנכית.</div>
+  <div class="answer">6. חור ב-\(x=5\), אסימפטוטה אנכית \(x=-2\).</div>
+  <div class="answer">7. כן, אם שתי נקודות בלבד מחוץ לתחום ורק אחת אסימפטוטה, השנייה חייבת להיות סליקה במסגרת פונקציה רציונלית לאחר צמצום.</div>
+  <div class="answer">8-10. יש תשובות רבות; חובה לבדוק תחום מקורי ולא רק ביטוי מצומצם.</div>
+  <h3>תרגול 2 - נקודות מפתח</h3>
+  <div class="answer">1. \(k=9\) מבטל את שתי האסימפטוטות ויוצר שני חורים; לכל \(k\neq9\) נשארות \(x=\pm3\) אסימפטוטות אנכיות.</div>
+  <div class="answer">2. כאשר \(a\neq3\): חור ב-\(x=a\) ואסימפטוטה \(x=3\). כאשר \(a=3\): נשארת אסימפטוטה ב-\(x=3\).</div>
+  <div class="answer">4. צריך שהמונה יתאפס ב-\(x=-2,-3\), ולכן \(x^2+kx+6=(x+2)(x+3)\) ומתקבל \(k=5\).</div>
+  <div class="answer">8. הצבה \(x=2\) במונה נותנת \(c=4\); אז \(x=2\) חור ו-\(x=3\) אסימפטוטה.</div>
+  <div class="answer">יתר הסעיפים: בדיקת גורמים משותפים ומקרי התלכדות של פרמטר עם ערך אסור קבוע.</div>
+  <div class="footer"><span>פתרונות למורה</span><span>15</span></div>
+</section>
+
+<section class="page" id="p16">
+  <h2>11. פתרונות מקוצרים למורה - תרגול 3 ו-4</h2>
+  <h3>תרגול 3</h3>
+  <div class="answer">1. \(\Delta=16-4k\): אם \(k\lt4\) - שני ערכים; \(k=4\) - ערך אחד; \(k\gt4\) - אין ערכים אסורים.</div>
+  <div class="answer">2. ב-\(k=0\): \(x=0\) חור, \(x=4\) אסימפטוטה אנכית.</div>
+  <div class="answer">3. \(\Delta=a^2-16\): שני ערכים אם \(|a|\gt4\), ערך אחד אם \(|a|=4\), ואין אם \(|a|\lt4\).</div>
+  <div class="answer">8. אם המונה מכיל לפחות אותו ריבוי של \(x-2\) כמו המכנה - החור אפשרי; אם נשאר \(x-2\) במכנה לאחר צמצום - אסימפטוטה.</div>
+  <div class="answer">10. אלגוריתם תקין חייב לשמור קודם את כל שורשי המכנה המקורי ורק לאחר מכן להשוות ריבויים.</div>
+  <h3>תרגול 4 - דוגמאות אפשריות</h3>
+  <div class="answer">1. לדוגמה: \(\displaystyle f(x)=\frac{2(x-1)(x+2)}{(x-3)(x+2)}\). החור ב-\(x=-2\), האסימפטוטה \(x=3\), האפס \(x=1\), והאסימפטוטה האופקית \(y=2\).</div>
+  <div class="answer">2-3. \(\displaystyle F(x)=\frac{5x(x-2)(x+3)(x-4)}{(x-1)^2(x+3)(x-4)}\) מתאימה גם לדרישה ללא שינוי סימן סביב \(x=1\).</div>
+  <div class="answer">6. כדי לקבל שינוי סימן רק ב-\(x=-2\), אפשר להשאיר \((x+2)\) בחזקה אי-זוגית ו-\((x-3)^2\) בחזקה זוגית במכנה.</div>
+  <div class="answer">7-10. אין פתרון יחיד. יש להעריך לפי התאמת הגורמים לתכונות, שמירת התחום ובדיקת האסימפטוטה האופקית.</div>
+  <div class="card dark">
+    <h3>פתרון האתגר המסכם</h3>
+    <div class="mathline">\[
+    F(x)=\frac{5x(x-2)(x+3)(x-4)}{(x-1)^2(x+3)(x-4)}
+    \]</div>
+    <p>החורים: \(\left(-3,\frac{75}{16}\right)\), \(\left(4,\frac{40}{9}\right)\). האסימפטוטה האנכית: \(x=1\). האסימפטוטה האופקית: \(y=5\).</p>
+  </div>
+  <div class="footer"><span>פתרונות למורה</span><span>16</span></div>
+</section>
+
+<!--
+<section class="page" id="p17">
+  <h2>12. מקורות והערות פדגוגיות</h2>
+  <div class="card accent">
+    <p><b>הערת זכויות יוצרים:</b> התרגילים במסמך זה מנוסחים מחדש או מקוריים. המקורות שימשו לבחירת סוגי החשיבה, הרצף ורמת הקושי, ולא להעתקת נוסחים מלאים.</p>
+  </div>
+  <h3>מקורות מרכזיים</h3>
+  <p><b>משרד החינוך - חדו"א לכיתה י' 5 יח"ל.</b> ברצף המומלץ מופיעים תחום הגדרה של פונקציה רציונלית, אסימפטוטות ואי-רציפות סליקה, לצד פעילויות ייעודיות לחורים ואסימפטוטות.</p>
+  <p class="source">https://meyda.education.gov.il/files/Pop/0files/matmatika/Chativa-Elyona/tashpav/5units/calculus-5-yud.pdf</p>
+  <p><b>יואל גבע - פונקציות רציונליות, שאלון 581.</b> המקור מדגיש פרמטרים, הקשר בין ערך הפרמטר למספר פתרונות, אסימפטוטות אנכיות ואופקיות, חורים, פונקציות ללא תבנית אלגברית ידועה ופתרון באמצעות גרף.</p>
+  <p class="source">https://files.geva.co.il/geva_website/uploads/2021/04/%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA-%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%95%D7%AA-2021-%D7%A9%D7%90%D7%9C%D7%95%D7%9F-581.pdf</p>
+  <p><b>Johannes Gutenberg-Universität Mainz - Gebrochenrationale Funktionen.</b> דפי התרגול כוללים תחום, חיתוכי צירים, אסימפטוטות אנכיות ואופקיות, חורים, שינויי סימן ובניית פונקציה מתכונות. מן היחידה הנוכחית הושמטו במכוון כל משימות האסימפטוטה האלכסונית או הפולינומית.</p>
+  <p class="source">https://fit.mathematik.uni-mainz.de/files/fit/auf_2_1_Gebrochenrationale%20Funktionen.pdf</p>
+  <p><b>OpenStax Precalculus 2e - Rational Functions.</b> מקור משלים לחקירת חורים, אסימפטוטות וייצוגים של פונקציות רציונליות.</p>
+  <p class="source">https://openstax.org/books/precalculus-2e/pages/3-7-rational-functions</p>
+  <div class="card warn">
+    <h3>בחירת תוכן</h3>
+    <p>המערך נשאר במכוון בתוך אסימפטוטות אנכיות ואופקיות. אין בו אסימפטוטה אלכסונית, עקומת קירוב או אסימפטוטה פולינומית.</p>
+  </div>
+  <div class="footer"><span>מקורות</span><span>17</span></div>
+</section>
+-->
+
+<script>
+'use strict';
+
+const boards = {};
+const boardBoxes = {};
+const graphObjects = {};
+window.__selfTest = { jsxgraph: [], initialized: [] };
+
+function recordGraphError(id, err) {
+  window.__selfTest.jsxgraph.push({id, error: String(err && err.message ? err.message : err)});
+  console.error('JSXGraph init error:', id, err);
+}
+function makeBoard(id, bbox) {
+  const board = JXG.JSXGraph.initBoard(id, {
+    boundingbox: bbox,
+    axis: true,
+    showCopyright: false,
+    showNavigation: false,
+    pan: {enabled: true},
+    zoom: {wheel: true, needShift: false},
+    keepaspectratio: false
+  });
+  boards[id] = board;
+  boardBoxes[id] = bbox.slice();
+  graphObjects[id] = [];
+  window.__selfTest.initialized.push(id);
+  return board;
+}
+function addObj(id, obj) { graphObjects[id].push(obj); return obj; }
+function resetBoard(id) {
+  if (!boards[id]) return;
+  boards[id].setBoundingBox(boardBoxes[id].slice(), false);
+  boards[id].update();
+}
+function zoomBoard(id, factor) {
+  const b = boards[id];
+  if (!b) return;
+  if (factor > 1 && typeof b.zoomIn === 'function') b.zoomIn();
+  else if (factor < 1 && typeof b.zoomOut === 'function') b.zoomOut();
+}
+function clearObjects(id) {
+  const b = boards[id];
+  if (!b) return;
+  const arr = graphObjects[id] || [];
+  if (typeof b.suspendUpdate === 'function') b.suspendUpdate();
+  arr.forEach(o => { try { b.removeObject(o); } catch(e) {} });
+  graphObjects[id] = [];
+  if (typeof b.unsuspendUpdate === 'function') b.unsuspendUpdate();
+}
+function segment(board, id, fn, left, right, color, width=2.4) {
+  if (!(right > left)) return null;
+  return addObj(id, board.create('functiongraph', [fn, left, right], {strokeColor: color, strokeWidth: width, highlight: false}));
+}
+function asymptote(board,id,x,color='#6f4ba8') {
+  return addObj(id, board.create('line', [[x,0],[x,1]], {straightFirst:true, straightLast:true, strokeColor:color, strokeWidth:1.5, dash:2, fixed:true, highlight:false, point1:{visible:false}, point2:{visible:false}}));
+}
+function horizontal(board,id,y,color='#778899') {
+  return addObj(id, board.create('line', [[0,y],[1,y]], {straightFirst:true, straightLast:true, strokeColor:color, strokeWidth:1.2, dash:2, fixed:true, highlight:false, point1:{visible:false}, point2:{visible:false}}));
+}
+function hole(board,id,x,y,color='#b86f18') {
+  return addObj(id, board.create('point', [x,y], {name:'', size:4, face:'o', strokeWidth:2, strokeColor:color, fillColor:'#ffffff', fixed:true, highlight:false}));
+}
+
+function initHoleVA() {
+  const id='g-hole-va', b=makeBoard(id,[-8,7,8,-7]);
+  const fn=x=>(x+1)/(x+3);
+  segment(b,id,fn,-8,-3.04,'#167c80');
+  segment(b,id,fn,-2.96,1.96,'#167c80');
+  segment(b,id,fn,2.04,8,'#167c80');
+  asymptote(b,id,-3);
+  horizontal(b,id,1);
+  hole(b,id,2,3/5);
+}
+function drawParamK(k) {
+  const id='g-param-k', b=boards[id];
+  clearObjects(id);
+  const fn=x=>(x*x-k)/(x*x-9);
+  horizontal(b,id,1);
+  if (Math.abs(k-9)<1e-9) {
+    segment(b,id,x=>1,-8,2.96,'#167c80');
+    segment(b,id,x=>1,3.04,8,'#167c80');
+    segment(b,id,x=>1,-2.96,2.96,'#167c80');
+    hole(b,id,-3,1); hole(b,id,3,1);
+  } else {
+    segment(b,id,fn,-8,-3.04,'#167c80');
+    segment(b,id,fn,-2.96,2.96,'#167c80');
+    segment(b,id,fn,3.04,8,'#167c80');
+    asymptote(b,id,-3); asymptote(b,id,3);
+  }
+  if (typeof b.update === 'function') b.update();
+}
+function initParamK() {
+  const id='g-param-k'; makeBoard(id,[-8,7,8,-7]);
+  const slider=document.getElementById('kSlider'), val=document.getElementById('kVal');
+  const update=()=>{ const k=Number(slider.value); val.textContent=String(k); drawParamK(k); };
+  slider.addEventListener('input',update); update();
+}
+function drawDiscriminant(k) {
+  const id='g-discriminant', b=boards[id]; clearObjects(id);
+  const fn=x=>2*x/(x*x-4*x+k);
+  const D=16-4*k;
+  if (D>1e-9) {
+    const s=Math.sqrt(D), r1=(4-s)/2, r2=(4+s)/2;
+    const eps=.04;
+    segment(b,id,fn,-6,r1-eps,'#167c80');
+    segment(b,id,fn,r1+eps,r2-eps,'#167c80');
+    segment(b,id,fn,r2+eps,8,'#167c80');
+    if (Math.abs(k)<1e-9 && Math.abs(r1)<1e-9) {
+      hole(b,id,0,-0.5);
+      asymptote(b,id,r2);
+    } else { asymptote(b,id,r1); asymptote(b,id,r2); }
+  } else if (Math.abs(D)<=1e-9) {
+    const r=2, eps=.04;
+    segment(b,id,fn,-6,r-eps,'#167c80'); segment(b,id,fn,r+eps,8,'#167c80'); asymptote(b,id,r);
+  } else {
+    segment(b,id,fn,-6,8,'#167c80');
+  }
+  if (typeof b.update === 'function') b.update();
+}
+function initDiscriminant() {
+  const id='g-discriminant'; makeBoard(id,[-6,8,8,-8]);
+  const slider=document.getElementById('dSlider'), val=document.getElementById('dVal');
+  const update=()=>{ const k=Number(slider.value); val.textContent=String(k); drawDiscriminant(k); };
+  slider.addEventListener('input',update); update();
+}
+function initBuild(id='g-build') {
+  const b=makeBoard(id,[-7,9,7,-9]);
+  const fn=x=>5*x*(x-2)/((x-1)*(x-1));
+  const cuts=[-7,-3.04,-2.96,.96,1.04,3.96,4.04,7];
+  for(let i=0;i<cuts.length;i+=2) segment(b,id,fn,cuts[i],cuts[i+1],'#167c80');
+  asymptote(b,id,1); horizontal(b,id,5);
+  hole(b,id,-3,75/16); hole(b,id,4,40/9);
+}
+function initSameShape() {
+  const id='g-same-shape', b=makeBoard(id,[-7,8,8,-8]);
+  const fn=x=>(x+1)/(x-2);
+  segment(b,id,fn,-7,1.96,'#167c80',2.3);
+  segment(b,id,fn,2.04,8,'#167c80',2.3);
+  asymptote(b,id,2);
+  hole(b,id,5,2,'#b86f18');
+}
+function drawMovingHole(a) {
+  const id='g-moving-hole', b=boards[id]; clearObjects(id);
+  const fn=x=>(x+1)/((x-2)*(x-2));
+  const eps=.04;
+  segment(b,id,fn,-6,1.96,'#167c80');
+  segment(b,id,fn,2.04,8,'#167c80');
+  asymptote(b,id,2);
+  if (Math.abs(a-2)>1e-9) {
+    const y=(a+1)/((a-2)*(a-2));
+    if (Number.isFinite(y) && Math.abs(y)<30) hole(b,id,a,y);
+  }
+  if (typeof b.update === 'function') b.update();
+}
+function initMovingHole() {
+  const id='g-moving-hole'; makeBoard(id,[-6,10,8,-6]);
+  const slider=document.getElementById('aSlider'), val=document.getElementById('aVal');
+  const update=()=>{ const a=Number(slider.value); val.textContent=String(a); drawMovingHole(a); };
+  slider.addEventListener('input',update); update();
+}
+function initFinal() {
+  const id='g-final', b=makeBoard(id,[-7,10,7,-8]);
+  const fn=x=>5*x*(x-2)/((x-1)*(x-1));
+  segment(b,id,fn,-7,-3.04,'#167c80');
+  segment(b,id,fn,-2.96,.96,'#167c80');
+  segment(b,id,fn,1.04,3.96,'#167c80');
+  segment(b,id,fn,4.04,7,'#167c80');
+  asymptote(b,id,1); horizontal(b,id,5);
+  hole(b,id,-3,75/16); hole(b,id,4,40/9);
+}
+
+function runDocumentTests() {
+  const report = {
+    invalidHTML: [],
+    brokenMathJax: [],
+    duplicatedIDs: [],
+    jsxgraphInitializationFailures: window.__selfTest.jsxgraph.slice(),
+    a4Overflow: [],
+    missingTitles: [],
+    missingGraphControls: [],
+    geometryStyleViolations: []
+  };
+
+  const ids = [...document.querySelectorAll('[id]')].map(el => el.id);
+  const seen = new Set();
+  ids.forEach(id => { if (seen.has(id) && !report.duplicatedIDs.includes(id)) report.duplicatedIDs.push(id); seen.add(id); });
+
+  if (!document.documentElement || !document.head || !document.body) report.invalidHTML.push('Missing html/head/body structure');
+  [...document.querySelectorAll('section.page')].forEach(page => {
+    if (!page.querySelector('h1,h2')) report.missingTitles.push(page.id || '(no id)');
+    if (page.scrollHeight > page.clientHeight + 2) report.a4Overflow.push({id: page.id, overflow: page.scrollHeight - page.clientHeight});
+  });
+
+  [...document.querySelectorAll('.jxgbox')].forEach(box => {
+    const panel = box.closest('.graph-panel');
+    const labels = panel ? [...panel.querySelectorAll('.graph-tools button')].map(b => b.textContent.trim()) : [];
+    const required = ['Reset','Zoom In','Zoom Out'];
+    if (!required.every(t => labels.includes(t))) report.missingGraphControls.push(box.id);
+  });
+
+  // No geometry diagrams are used in this document, so the geometry-style test is not applicable and passes.
+  const merrors = [...document.querySelectorAll('mjx-merror')];
+  if (merrors.length) report.brokenMathJax = merrors.map(e => e.textContent.trim());
+
+  window.__documentTestReport = report;
+  const failures = Object.entries(report).filter(([k,v]) => Array.isArray(v) && v.length);
+  if (failures.length) console.warn('Document self-test found issues:', report);
+  else console.info('Document self-test passed:', report);
+  return report;
+}
+
+function initAllGraphs() {
+  if (typeof JXG === 'undefined' || !JXG.JSXGraph) {
+    recordGraphError('global','JSXGraph library did not load');
+    runDocumentTests();
+    return;
+  }
+  const jobs = [
+    ['g-hole-va',initHoleVA],
+    ['g-param-k',initParamK],
+    ['g-discriminant',initDiscriminant],
+    ['g-build',()=>initBuild('g-build')],
+    ['g-same-shape',initSameShape],
+    ['g-moving-hole',initMovingHole],
+    ['g-final',initFinal]
+  ];
+  jobs.forEach(([id,fn])=>{ try { fn(); } catch(e) { recordGraphError(id,e); } });
+  setTimeout(runDocumentTests, 250);
+  if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
+    MathJax.startup.promise.then(() => setTimeout(runDocumentTests, 50)).catch(err => {
+      window.__selfTest.mathjaxError = String(err && err.message ? err.message : err);
+      runDocumentTests();
+    });
+  }
+}
+window.addEventListener('load', initAllGraphs);
+</script>
+</body>
+</html>
