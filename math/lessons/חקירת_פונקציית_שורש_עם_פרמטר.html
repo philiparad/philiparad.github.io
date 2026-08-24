@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>חקירת פונקציית שורש עם פרמטר</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css" rel="stylesheet"/>
+<style>
+@page { size: A4; margin: 0; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#dfe4ea;font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#172033;}
+body{direction:rtl;counter-reset:pg;}
+.page{position:relative;width:210mm;height:297mm;margin:10mm auto;background:#fff;padding:13mm 15mm 12mm;overflow:hidden;page-break-after:always;break-after:page;counter-increment:pg;box-shadow:0 3px 18px rgba(0,0,0,.18);}
+.page::before{content:attr(data-title);position:absolute;top:6mm;right:15mm;font-size:9pt;color:#76829a;}
+.page::after{content:counter(pg);position:absolute;bottom:5mm;left:50%;font-size:9pt;color:#7d8798;}
+@media print{html,body{background:#fff}.page{margin:0;box-shadow:none;}}
+h1{font-size:28pt;margin:15mm 0 6mm;color:#173c74;line-height:1.15}h2{font-size:17pt;margin:4mm 0 2mm;color:#214f89}h3{font-size:13pt;margin:1mm 0 2mm;color:#2a4f7b}
+p,li{font-size:12.2pt;line-height:1.55}p{margin:2mm 0 3mm}ul,ol{margin:2mm 0 3mm;padding-right:7mm}.latin,.url{direction:ltr;unicode-bidi:embed}.url{font-family:Consolas,monospace;font-size:10.5pt;color:#345}
+.lead{font-size:16pt;max-width:160mm}.kicker{display:inline-block;background:#e8f1ff;color:#174d8f;border-radius:20px;padding:2.5mm 5mm;font-weight:700;margin-top:19mm}.cover{text-align:center}.cover .grid2{text-align:right;margin-top:14mm}.cover-page{background:linear-gradient(180deg,#fff 0%,#f7faff 100%)}
+.formula{direction:ltr;text-align:center;margin:3mm auto;font-size:13pt}.formula.hero{font-size:18pt}.formula.answer{background:#eef8f1;border:1px solid #b6dec2;border-radius:10px;max-width:120mm}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6mm;align-items:start}.grid2.compact{gap:4mm}.card{border:1px solid #dbe3ef;border-radius:12px;padding:4mm;background:#fbfcfe}.callout,.teacher-note,.warning,.think{padding:3.5mm 4mm;border-radius:10px;margin:4mm 0;font-size:11.5pt;line-height:1.5}.callout{background:#eef5ff;border-right:4px solid #3e7fc8}.teacher-note{background:#fff8e8;border-right:4px solid #d8a21e}.warning{background:#fff0f0;border-right:4px solid #c84d4d}.think{background:#f2f0ff;border-right:4px solid #7359c5}.source-tag{display:inline-block;background:#f1f3f6;border-radius:14px;padding:1.4mm 3mm;color:#586276;font-size:9.5pt;margin:1mm 0 3mm}
+table{width:100%;border-collapse:collapse;margin:4mm 0;font-size:10.8pt}th,td{border:1px solid #cfd7e4;padding:2.3mm 2.6mm;vertical-align:top}th{background:#edf3fb;color:#244f83}.small{font-size:10.2pt}.worksheet{font-size:10pt}.answers{font-size:10.6pt}
+.graph-card{border:1px solid #d6dce7;border-radius:12px;padding:3mm;background:#fafbfd;margin:3mm auto;max-width:160mm}.jxgbox{width:100%;height:76mm;border:0!important;background:#fff}.jxgbox.smallbox{height:65mm}.graph-controls{direction:rtl;display:flex;gap:2mm;justify-content:center;margin-top:2mm}.graph-controls button{border:1px solid #9eacc0;background:#fff;border-radius:7px;padding:1.3mm 3mm;font-size:9.5pt;cursor:pointer}.graph-controls button:hover{background:#eef4fb}
+/* Parameter sliders - designed to match the supplied reference */
+.graph-card.has-params{border-color:#b8d3f1;background:#f8fbff;padding-top:2.5mm}
+.graph-card.has-params .jxgbox{height:55mm;border:1px solid #b8d3f1!important;border-radius:8px;background:#fff}
+.dynamic-function{direction:ltr;display:flex;align-items:center;justify-content:center;min-height:11mm;margin:0 0 2mm;padding:1.4mm 3mm;background:#f5f9ff;border:1px solid #b8d3f1;border-radius:8px;color:#16395d;font-size:17pt;line-height:1.1;overflow:hidden}
+.dynamic-function mjx-container{margin:0!important}
+.dynamic-function .math-fallback{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:16pt}
+.dynamic-discriminant{direction:ltr;display:flex;align-items:center;justify-content:center;min-height:9mm;margin:0 0 2mm;padding:1.1mm 3mm;background:#eef6ff;border:1px solid #b8d3f1;border-radius:8px;color:#16395d;font-size:12.5pt;line-height:1.05;overflow:hidden}
+.dynamic-discriminant mjx-container{margin:0!important}
+.quadratic-param-graph{max-width:170mm;margin-top:2mm}
+.quadratic-param-graph.has-params .jxgbox{height:50mm}
+.quadratic-param-page table{margin:2.5mm 0}.quadratic-param-page .teacher-note{margin-top:2.5mm}.quadratic-param-page p{margin-bottom:2mm}
+.param-controls{direction:ltr;display:grid;gap:2mm;width:100%;margin:0 0 2mm;align-items:stretch}
+.param-slider-card{background:#f1f7ff;border:1px solid #b8d3f1;border-radius:8px;padding:1.7mm 2.4mm 1.8mm;min-height:13mm;box-shadow:inset 0 1px 0 rgba(255,255,255,.65)}
+.param-slider-head{display:flex;direction:ltr;justify-content:space-between;align-items:center;line-height:1;margin-bottom:.7mm;min-height:4mm}
+.param-slider-value{font:700 10.5pt Arial,sans-serif;color:#16395d;min-width:12mm;text-align:left;font-variant-numeric:tabular-nums}
+.param-slider-symbol{font:italic 11.5pt Georgia,"Times New Roman",serif;color:#0f4b84;min-width:10mm;text-align:right}
+.param-range{-webkit-appearance:none;appearance:none;display:block;width:100%;height:3.2mm;margin:0;padding:0;border:0;outline:0;border-radius:999px;cursor:pointer;background:#d9dee6;box-shadow:inset 0 0 0 1px #aeb8c5}
+.param-range::-webkit-slider-runnable-track{height:2.1mm;border-radius:999px;background:transparent}
+.param-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:3.5mm;height:3.5mm;margin-top:-.7mm;border-radius:50%;border:0;background:#2f6fa6;box-shadow:0 0 0 .35mm rgba(47,111,166,.08)}
+.param-range::-moz-range-track{height:2.1mm;border-radius:999px;background:transparent;border:0}
+.param-range::-moz-range-thumb{width:3.5mm;height:3.5mm;border-radius:50%;border:0;background:#2f6fa6}
+.param-range:focus-visible{outline:2px solid #7aa8d8;outline-offset:2px}
+@media print{.param-range{print-color-adjust:exact;-webkit-print-color-adjust:exact}.param-slider-card{break-inside:avoid}}
+/* Compact interactive graphs added to worked-example pages */
+.page-mini-graph{max-width:170mm;margin:2mm auto 2.5mm;padding:2.2mm}
+.page-mini-graph.has-params .jxgbox{height:42mm}
+.page-mini-graph .param-controls{gap:1.5mm;margin-bottom:1.2mm}
+.page-mini-graph .param-slider-card{min-height:10.5mm;padding:1.1mm 2mm 1.3mm}
+.page-mini-graph .param-slider-head{min-height:3.4mm;margin-bottom:.45mm}
+.page-mini-graph .dynamic-function{min-height:8mm;margin-bottom:1.2mm;padding:1mm 2mm;font-size:13.5pt}
+.page-mini-graph .dynamic-discriminant{min-height:7mm;margin-bottom:1.2mm;padding:.8mm 2mm;font-size:11pt}
+.page-mini-graph .graph-controls{margin-top:1mm}
+.page-mini-graph .graph-controls button{padding:1mm 2.5mm;font-size:9pt}
+
+.flow{display:grid;grid-template-columns:1fr auto 1fr;gap:2mm;align-items:center;margin:8mm 0}.flow div{background:#eef5ff;border:1px solid #c9dbef;border-radius:9px;padding:3mm;text-align:center;font-weight:700}.flow span{font-size:18pt;color:#557}.center{text-align:center}.exercises{font-size:11pt}.exercises li{margin:2.3mm 0;line-height:1.45}.solutions li{margin:2mm 0}.sources li{margin:4mm 0}.compact p,.compact li{font-size:11.5pt}
+
+/* Original source questions inserted before the corresponding worked solutions */
+.source-question-page{padding-top:15mm}
+.source-question-page h2{margin-top:5mm}
+.original-question{border:1px solid #c9d9ec;border-radius:12px;background:#f8fbff;padding:5mm 6mm;margin:5mm 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
+.original-question .source-tag{margin-bottom:4mm}
+.original-question p,.original-question li{font-size:11.8pt;line-height:1.55}
+.original-question p{margin:2.5mm 0}
+.original-question .formula{margin:3.5mm auto;font-size:14pt}
+.original-question .subq{margin:2.5mm 0;padding-right:2mm}
+.original-question .subq strong{color:#214f89}
+.source-question-note{margin-top:5mm;background:#eef5ff;border-right:4px solid #3e7fc8;border-radius:10px;padding:3.5mm 4mm;font-size:11pt;line-height:1.5}
+.source-question-page.long-question .original-question p,.source-question-page.long-question .original-question li{font-size:11.2pt;line-height:1.46}
+.source-question-page.long-question .original-question{padding:4mm 5mm}
+
+@media screen and (max-width:900px){.page{transform-origin:top center;margin:8px auto}.grid2{gדrid-template-columns:1fr 1fr}}
+
+.page::before{content:none!important;}
+.page-title{font-size:17pt;margin:0 0 3mm;color:#214f89;line-height:1.2;}
+.cover h2.cover-main-title{font-size:28pt;margin:15mm 0 6mm;color:#173c74;line-height:1.15;}
+
+
+/* Questions 7-17: question and full solution on one A4 section */
+.question-solution-page{padding:10mm 12mm 9mm;}
+.question-solution-page h2{margin:2mm 0 1.5mm;}
+.question-solution-page h3{margin:1mm 0;}
+.question-solution-page p,.question-solution-page li{font-size:10.5pt;line-height:1.35;}
+.question-solution-page .original-question{padding:3mm 4mm;margin:2mm 0;}
+.question-solution-page .original-question p,.question-solution-page .original-question li{font-size:10.4pt;line-height:1.35;}
+.question-solution-page .formula{margin:1.5mm auto;font-size:11.5pt;}
+.question-solution-page .graph-card{margin:1.5mm auto;padding:2mm;}
+.question-solution-page .jxgbox{height:47mm;}
+.question-solution-page .page-mini-graph .jxgbox{height:38mm;}
+.question-solution-page table{margin:2mm 0;font-size:9.6pt;}
+.question-solution-page th,.question-solution-page td{padding:1.5mm 1.8mm;}
+.question-solution-page .callout,.question-solution-page .teacher-note,.question-solution-page .warning,.question-solution-page .think{margin:2mm 0;padding:2.2mm 3mm;font-size:10pt;line-height:1.35;}
+.question-solution-page ul,.question-solution-page ol{margin:1.5mm 0 2mm;}
+
+.question-solution-page .combined-solution{margin-top:1mm;}
+.question-solution-page[data-question="12"] .combined-solution{column-count:2;column-gap:5mm;column-fill:auto;}
+.question-solution-page[data-question="12"] .combined-solution>h2:first-child{column-span:all;margin-bottom:1mm;}
+.question-solution-page[data-question="12"] .combined-solution .graph-card,
+.question-solution-page[data-question="12"] .combined-solution .card,
+.question-solution-page[data-question="12"] .combined-solution table{break-inside:avoid;page-break-inside:avoid;}
+.question-solution-page[data-question="12"]{padding:8mm 10mm 8mm;}
+.question-solution-page[data-question="12"] p,
+.question-solution-page[data-question="12"] li{font-size:9.2pt;line-height:1.24;}
+.question-solution-page[data-question="12"] .original-question p,
+.question-solution-page[data-question="12"] .original-question li{font-size:9.3pt;line-height:1.25;}
+.question-solution-page[data-question="12"] h2{font-size:14pt;margin:1.3mm 0 1mm;}
+.question-solution-page[data-question="12"] h3{font-size:10.8pt;margin:.8mm 0;}
+.question-solution-page[data-question="12"] .formula{font-size:9.8pt;margin:.8mm auto;}
+.question-solution-page[data-question="12"] .jxgbox{height:31mm;}
+.question-solution-page[data-question="12"] .graph-card{padding:1.2mm;margin:1mm auto;}
+.question-solution-page[data-question="12"] table{font-size:8.4pt;margin:1mm 0;}
+.question-solution-page[data-question="12"] th,
+.question-solution-page[data-question="12"] td{padding:.8mm 1mm;}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+
+</script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+</head>
+<body>
+<section class="page cover-page">
+<div class="cover">
+<div class="kicker">מערך שיעור מלא</div>
+<h2 class="cover-main-title">חקירת פונקציית שורש עם פרמטר</h2>
+<p class="lead">תחום הגדרה, משפחות פונקציות, מציאת פרמטר, נגזרת, משיק, נקודות קצה, קיצון, אסימפטוטות וחקירה מלאה.</p>
+<div class="formula hero">\[ f_a(x)=\sqrt{g_a(x)} \]</div>
+<div class="grid2 compact">
+<div class="card"><h3>מטרת היחידה</h3><p>לעבור מחשיבה על פונקציה יחידה לחשיבה על <strong>משפחה</strong> של פונקציות, ולזהות כיצד שינוי הפרמטר משפיע על תחום ההגדרה, הגרף והחקירה.</p></div>
+<div class="card"><h3>עקרון מנחה</h3><p>בכל שאלה בודקים תחילה מה הפרמטר משנה: את הביטוי שבתוך השורש, את גורם הכפל, את המכנה, את המשיק או את צורת הגרף.</p></div>
+</div>
+</div>
+</section><section class="page">
+<h2 class="page-title">מטרות, ידע מוקדם ותוצרי למידה</h2>
+<div class="grid2_">
+<div>
+<h2>ידע מוקדם</h2>
+<ul>
+<li>פתרון משוואות ואי-שוויונות ממעלה ראשונה ושנייה.</li>
+<li>סימן של פרבולה ודיסקרימיננטה.</li>
+<li>תחום הגדרה של פונקציה רציונלית.</li>
+<li>נגזרת של פולינום, כלל המכפלה, כלל המנה וכלל השרשרת.</li>
+<li>משוואת משיק ותחומי עלייה וירידה.</li>
+</ul>
+</div>
+<div style="height:40px;"></div>
+<div>
+<h2>בסיום היחידה התלמיד יוכל</h2>
+<ul>
+<li>לקבוע תחום הגדרה כתלות בפרמטר.</li>
+<li>למצוא פרמטר מתוך תחום, נקודה, חיתוך, קיצון או משיק.</li>
+<li>לחקור משפחת פונקציות ולזהות ערכי פרמטר קריטיים.</li>
+<li>לשלב שורש במכפלה ובמנה.</li>
+<li>לבצע חקירה מלאה ולשרטט סקיצה אמינה.</li>
+</ul>
+</div>
+</div>
+<div style="height:40px;"></div>
+<div class="callout">בכל שלב שואלים: מהו התחום? מה משתנה כאשר הפרמטר משתנה? אילו נקודות מיוחדות חייבות להיבדק גם אם הנגזרת אינה מוגדרת?</div>
+</section><section class="page">
+<h2 class="page-title">1. מהו פרמטר במשפחת פונקציות?</h2>
+<p>בפונקציה עם פרמטר, המשתנה <span class="latin">x</span> מקבל ערכים לאורך הגרף, ואילו הפרמטר קובע <strong>איזו פונקציה מתוך המשפחה</strong> אנו בוחרים.</p>
+<div class="formula">\[ f_a(x)=\sqrt{x-a} \]</div>
+<p>כאשר משנים את <span class="latin">a</span>, נקודת תחילת הגרף זזה לאורך ציר <span class="latin">x</span>. לכל ערך של הפרמטר מתקבל תחום הגדרה אחר.</p>
+<div class="graph-card">
+<div class="jxgbox" id="g-family"></div>
+<div class="graph-controls" data-board="g-family"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div>
+</div>
+<div class="think"><strong>שאלת חקר:</strong> מה הקשר בין ערך <span class="latin">a</span> לבין הקצה השמאלי של תחום ההגדרה?</div>
+</section><section class="page">
+<h2 class="page-title">2. תחום הגדרה - הכלל הבסיסי</h2>
+<h2>שורש במונה או כפונקציה עצמאית</h2>
+<div class="formula">\[ f(x)=\sqrt{g(x)} \quad\Rightarrow\quad g(x)\ge 0 \]</div>
+<h2>שורש במכנה</h2>
+<div class="formula">\[ f(x)=\frac{p(x)}{\sqrt{g(x)}} \quad\Rightarrow\quad g(x)\gt 0 \]</div>
+<div class="grid2_ compact">
+<div class="card"><h3>מדוע?</h3><p>בשורש ממשי הביטוי שבתוך השורש אינו יכול להיות שלילי.</p></div>
+<div style="height:40px;"></div>
+<div class="card"><h3>במכנה</h3><p>בנוסף, המכנה אינו יכול להיות אפס, ולכן האי-שוויון מחמיר.</p></div>
+</div>
+<div class="warning"><strong>טעות נפוצה:</strong> להשתמש תמיד ב-\(g(x)\ge 0\). כאשר השורש במכנה יש להשתמש ב-\(g(x)\gt 0\).</div>
+</section><section class="page">
+<h2 class="page-title">3. פרמטר שמשנה את מבנה תחום ההגדרה</h2>
+<p>במשפחה הבאה מתקבלים שלושה מבנים שונים של תחום הגדרה:</p>
+<div class="formula">\[ f_k(x)=\sqrt{x^2-k} \]</div>
+<div class="graph-card">
+<div class="jxgbox" id="g-domain-k"></div>
+<div class="graph-controls" data-board="g-domain-k"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div>
+</div>
+<table><tr><th>מצב</th><th>תחום ההגדרה</th><th>משמעות גרפית</th></tr>
+<tr><td>\(k\lt 0\)</td><td>כל \(x\)</td><td>הגרף קיים לכל אורך הציר.</td></tr>
+<tr><td>\(k=0\)</td><td>כל \(x\)</td><td>\(f(x)=|x|\).</td></tr>
+<tr><td>\(k\gt 0\)</td><td>\(x\le-\sqrt{k}\) או \(x\ge\sqrt{k}\)</td><td>שני ענפים נפרדים.</td></tr></table>
+</section><section class="page quadratic-param-page">
+<h2 class="page-title">4. שורש של ביטוי ריבועי - מיון שיטתי</h2>
+<div class="formula">\[ f(x)=\sqrt{ax^2+bx+c} \]</div>
+<p>תחום ההגדרה מתקבל מפתרון:</p>
+<div class="formula">\[ ax^2+bx+c\ge 0 \]</div>
+<p>לכן בודקים את כיוון הפרבולה ואת מספר השורשים של הביטוי הריבועי.</p>
+<div class="formula">\[ \Delta=b^2-4ac \]</div>
+<table class="small"><tr><th></th><th>\(\Delta\lt 0\)</th><th>\(\Delta=0\)</th><th>\(\Delta\gt 0\)</th></tr>
+<tr><th>\(a\gt 0\)</th><td>כל \(x\)</td><td>כל \(x\)</td><td>מחוץ לקטע שבין השורשים</td></tr>
+<tr><th>\(a\lt 0\)</th><td>אין ערכים ממשיים</td><td>נקודה אחת</td><td>בין השורשים</td></tr></table>
+<div class="graph-card quadratic-param-graph">
+<div class="jxgbox" id="g-quadratic-param"></div>
+<div class="graph-controls" data-board="g-quadratic-param"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div>
+</div>
+<div class="teacher-note">כאשר \(\Delta=0\) ו-\(a\gt 0\), הפונקציה מוגדרת לכל \(x\), אבל בנקודת השורש הכפול מתקבלת התנהגות שיש לבדוק בנפרד. בגרף ניתן לשנות את \(a,b,c\) ולראות מיד את ערך הדיסקרימיננטה ואת השפעתו על תחום ההגדרה. כאשר \(a=0\), הביטוי אינו ריבועי ולכן טבלת המקרים אינה חלה.</div>
+</section>
+<section class="page source-question-page">
+<h2>שאלה 1</h2>
+<div class="original-question">
+<p>תחום ההגדרה של הפונקציה הזוגית</p>
+<div class="formula">\[ f(x)=\sqrt{cx^2+bx-1} \]</div>
+<p>הוא:</p>
+<div class="formula">\[ |x|\ge 4 \]</div>
+<p>מצאו את הערך של הפרמטרים \(b\) ו-\(c\).</p>
+</div>
+<div style="height:20px;"></div>
+<h2>פתרון</h2>
+<ol>
+<li>הפונקציה זוגית, ולכן הביטוי שבתוך השורש חייב להיות זוגי: \(b=0\).</li>
+<li>נקודות הגבול הן \(x=-4\) ו-\(x=4\), ולכן: \(16c-1=0\).</li>
+<li>מתקבל: \(c=\frac{1}{16}\).</li>
+</ol>
+<div class="formula answer">\[ b=0,\qquad c=\frac{1}{16} \]</div>
+<div class="callout"><strong>עיקרון:</strong> קצות תחום ההגדרה של שורש נוצרים בדרך כלל מאפסים של הביטוי שבתוך השורש.</div>
+</section>
+<section class="page source-question-page">
+<h2>שאלה 2</h2>
+<div class="original-question">
+<p>נתונה פונקציה זוגית:</p>
+<div class="formula">\[ f(x)=\sqrt{-x^2+bx+c} \]</div>
+<p>\(b\) ו-\(c\) הם פרמטרים.</p>
+<p class="subq"><strong>א.</strong> מצאו את הערך של הפרמטר \(b\).</p>
+<p class="subq"><strong>ב.</strong> תחום ההגדרה של הפונקציה הוא:</p>
+<div class="formula">\[ -3\le x\le 3 \]</div>
+<p>מצאו את הערך של הפרמטר \(c\).</p>
+</div>
+<h2>פתרון</h2>
+<div class="grid2_">
+<div>
+<h2>שלב 1 - זוגיות</h2><p>אין איבר ליניארי:</p>
+<div ;="" class="formula" style="position: absolute;top: 527px;left: 378px;">\[ b=0 \]</div>
+<h2>שלב 2 - קצות התחום</h2><div class="formula">\[ -9+c=0 ⇒ c=9 \]</div>
+</div>
+<div class="graph-card" style="zoom:0.86;"><div class="jxgbox smallbox" id="g-even-domain"></div><div class="graph-controls" data-board="g-even-domain"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</div>
+<div class="formula answer">\[ f(x)=\sqrt{9-x^2} \]</div>
+</section><section class="page source-question-page">
+<h2>שאלה 3</h2>
+<div class="original-question">
+<p>נתונה הפונקציה הבאה:</p>
+<div class="formula">\[ y=ax+\sqrt{x-b} \]</div>
+<p>\(a,b\) פרמטרים.</p>
+<p>ידוע כי הפונקציה עוברת בנקודה \((2,2)\), וכי תחום הגדרתה הוא:</p>
+<div class="formula">\[ x\ge 2 \]</div>
+<p>מצא את \(a\) ואת \(b\).</p>
+</div>
+<h2>פתרון</h2>
+<ol>
+<li>מהתחום מתקבל: \(b=2\).</li>
+<li>נציב את הנקודה: \(2a+\sqrt{0}=2\).</li>
+<li>ולכן: \(a=1\).</li>
+</ol>
+<div class="formula answer">\[ a=1,\qquad b=2 \]</div>
+<div class="graph-card page-mini-graph"><div class="jxgbox" id="g-point-ab"></div><div class="graph-controls" data-board="g-point-ab"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+<div class="warning">כאשר מעלים משוואה עם שורש בריבוע, יש להציב את הפתרון במשוואה המקורית כדי למנוע פתרונות זרים.</div>
+</section>
+<section class="page source-question-page">
+<h2>שאלה 4</h2>
+<div class="original-question">
+<p>נתונה משפחת הפונקציות:</p>
+<div class="formula">\[ f(x)=2x+m\sqrt{x-6} \]</div>
+<p>\(m\) הוא פרמטר.</p>
+<p class="subq"><strong>א.</strong> מצא את תחום ההגדרה של הפונקציות \(f(x)\) השייכות למשפחה.</p>
+<p class="subq"><strong>ב.</strong> הנקודה \(P\) היא נקודה קבועה ששיעוריה אינם תלויים ב-\(m\), והיא נמצאת על כל הגרפים השייכים למשפחת הפונקציות \(f(x)\). מצאו את שיעורי הנקודה \(P\).</p>
+</div>
+<h2>פתרון</h2>
+<p>בנקודה שבה איבר הפרמטר נעלם, ערך הפונקציה אינו תלוי ב-\(m\).</p>
+<div class="formula">\[ \sqrt{x-6}=0 ⇒ x=6 \]</div>
+<div class="formula">\[ f_m(6)=12 \]</div>
+<div class="formula answer">\[ P=(6,12) \]</div>
+<div class="graph-card"><div class="jxgbox" id="g-common-point"></div><div class="graph-controls" data-board="g-common-point"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+<div class="callout"> אם \(f_a(x)=g(x)+a h(x)\), אז כל \(x\) שעבורו \(h(x)=0\) הוא מועמד לנקודה משותפת לכל המשפחה.</div>
+</section><section class="page">
+<h2 class="page-title">9. נגזרת של פונקציית שורש עם פרמטר</h2>
+<div class="formula">\[ f(x)=\sqrt{g(x)} \]</div>
+<p>בתוך התחום, במקום שבו \(g(x)\gt 0\):</p>
+<div class="formula hero">\[ f'(x)=\frac{g'(x)}{2\sqrt{g(x)}} \]</div>
+<p>אם \(g\) תלויה בפרמטר, גם הנגזרת תלויה בו.</p>
+<div class="formula">\[ f_k(x)=\sqrt{-x^2+2x+k} \]</div>
+<div class="formula">\[ f_k'(x)=\frac{-2x+2}{2\sqrt{-x^2+2x+k}} \]</div>
+<div class="teacher-note">אין להסתפק בפתרון \(f'(x)=0\). בפונקציות שורש יש לבדוק גם קצות תחום ונקודות שבהן הפונקציה מוגדרת אך הנגזרת אינה מוגדרת.</div>
+<div style="height:30px;"></div>
+<h2>שלושה סוגי מועמדים לקיצון</h2>
+<ol>
+<li>נקודות עם שיפוע אפס: \(f'(x)=0\).</li>
+<li>נקודות בתחום שבהן הנגזרת אינה מוגדרת.</li>
+<li>קצות תחום ההגדרה.</li>
+</ol>
+<div class="grid2 compact">
+<div class="card"><div class="formula">\[ f(x)=\sqrt{x} \]</div><p>בקצה \(x=0\) יש משיק אנכי.</p></div>
+<div class="card"><div class="formula">\[ f(x)=\sqrt{x^2}=|x| \]</div><p>ב-\(x=0\) אין נגזרת, אך זו אינה אותה התנהגות.</p></div>
+</div>
+<div class="warning"><strong>אסור להשתמש בכלל אוטומטי:</strong> "מכנה הנגזרת שווה לאפס ⇐ משיק אנכי". צריך לבדוק את התנהגות הפונקציה והנגזרת ליד הנקודה.</div>
+</section>
+<section class="page source-question-page long-question">
+<h2>שאלה 5</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div class="formula" style="position: absolute;top: 108px;left: 133px;">\[ f(x)=\sqrt{-x^2+2x+k} \]</div>
+<div style="height:20px;"></div>
+<p>שיפוע המשיק לגרף הפונקציה בנקודה שבה \(x=2\) הוא:</p>
+<div class="formula" style="position: absolute;top: 160px;left: 293px;">\[ -\frac{1}{\sqrt3} \]</div>
+<p class="subq"><strong>א.</strong> מצאו את הערך של \(k\).</p>
+<p class="subq"><strong>ב.</strong> מצאו את תחום ההגדרה של הפונקציה.</p>
+<p class="subq"><strong>ג.</strong> מצאו את נקודות הקיצון המוחלט של הפונקציה וקבעו את סוגן.</p>
+<p class="subq"><strong>ד.</strong> שרטטו סקיצה של גרף הפונקציה.</p>
+<p class="subq"><strong>ה.</strong> הפונקציה \(g(x)\) מקיימת:</p>
+<div class="formula" style="position: absolute;top: 329px;left: 360px;">\[ g(x)=3f(x)+m \]</div>
+<p>נקודת הקיצון הפנימית של \(g(x)\) היא \((1,7)\). מצאו את \(m\).</p>
+</div>
+<h2>פתרון</h2>
+<p>ידוע ששיפוע המשיק בנקודה שבה \(x=2\) הוא \(-\frac{1}{\sqrt3}\).</p>
+<div class="formula">\[ f_k'(x)=\frac{-x+1}{\sqrt{-x^2+2x+k}} \]</div>
+<div class="formula">\[ f_k'(2)=\frac{-1}{\sqrt{k}}=-\frac{1}{\sqrt3} ⇒ k=3 \]</div>
+<div class="graph-card"><div class="jxgbox" id="g-tangent-k"></div><div class="graph-controls" data-board="g-tangent-k"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</section>
+<section class="page source-question-page">
+<h2>שאלה 6</h2>
+<div class="original-question">
+<p>נתונה הפונקציה הבאה:</p>
+<div class="formula" style="position: absolute;top: 110px;left: 133px;">\[ f(x)=\sqrt{x^2+Ax+B} \]</div>
+<p>\(A,B\) פרמטרים.</p>
+<p>משוואת המשיק לגרף הפונקציה בנקודה שבה \(x=1\) היא:</p>
+<div class="formula" style="position: absolute;top: 188px;left: 249px;">\[ y=x+2 \]</div>
+<p>מצא את \(A\) ואת \(B\).</p>
+</div>
+<h2>פתרון</h2>
+<p>מהמשיק מקבלים שני תנאים:</p>
+<div class="formula">\[ f(1)=3,\qquad f'(1)=1 \]</div>
+<div class="formula">\[ 1+A+B=9 \]</div>
+<div class="formula">\[ \frac{2+A}{2\sqrt{1+A+B}}=1 \]</div>
+<p>ולכן:</p>
+<div class="formula answer">\[ A=4,\qquad B=4 \]</div>
+<div class="graph-card page-mini-graph"><div class="jxgbox" id="g-tangent-ab"></div><div class="graph-controls" data-board="g-tangent-ab"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+<div class="callout"><strong> חשוב:</strong> משוואת משיק נותנת בדרך כלל גם נקודה על הגרף וגם שיפוע.</div>
+</section><section class="page source-question-page long-question question-solution-page" data-question="7">
+<h2>שאלה 7</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div style="position: absolute;top: 83px;left: 249px;" class="formula">\[ f(x)=\sqrt{x^2+bx+5} \]</div>
+<p>\(b\) הוא פרמטר.</p>
+<p>שיפוע הישר המשיק לגרף הפונקציה בנקודה שבה \(x=0\) הוא:</p>
+<div style="position: absolute;top: 133px;left: 296px;" class="formula">\[ -\frac{3\sqrt5}{5} \]</div>
+<p class="subq"><strong>א.</strong> מצאו את הערך של \(b\).</p>
+<p>הציבו \(b=-6\), וענו על הסעיפים ב'-ה':</p>
+<p class="subq"><strong>ב.</strong> מצאו את תחום ההגדרה של הפונקציה.</p>
+<p class="subq"><strong>ג.</strong> מצאו את שיעורי נקודות החיתוך של גרף הפונקציה עם הצירים.</p>
+<p class="subq"><strong>ד.</strong> מצאו את תחומי העלייה והירידה של הפונקציה.</p>
+<p class="subq"><strong>ה.</strong> שרטטו סקיצה של גרף הפונקציה.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<div class="formula">\[ f_b'(0)=\frac{b}{2\sqrt5}=-\frac{3\sqrt5}{5} ⇒ b=-6 \]</div>
+<p>לכן:</p><div class="formula">\[ f(x)=\sqrt{x^2-6x+5}=\sqrt{(x-1)(x-5)} \]</div>
+<ul>
+<li>תחום: \(x\le1\) או \(x\ge5\).</li>
+<li>חיתוך עם ציר \(x\): \((1,0),(5,0)\).</li>
+<li>בכל ענף בודקים סימן נגזרת בנפרד.</li>
+</ul>
+<div class="graph-card"><div class="jxgbox" id="g-b-slope"></div><div class="graph-controls" data-board="g-b-slope"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</div></section>
+<section class="page source-question-page question-solution-page" data-question="8">
+<h2>שאלה 8</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div class="formula">\[ f(x)=3x+k\sqrt{x} \]</div>
+<p>\(k\) פרמטר.</p>
+<p>ידוע כי הפונקציה חותכת את ציר ה-\(x\) בנקודה שבה \(x=16\).</p>
+<p class="subq"><strong>א.</strong> מצא את ערך הפרמטר \(k\).</p>
+<p class="subq"><strong>ב.</strong> מצא את נקודות הקיצון של הפונקציה.</p>
+<p class="subq"><strong>ג.</strong> כתוב את תחומי העלייה והירידה של הפונקציה.</p>
+<p class="subq"><strong>ד.</strong> שרטט סקיצה של גרף הפונקציה.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<p>ידוע שהפונקציה חותכת את ציר \(x\) בנקודה שבה \(x=16\).</p>
+<div class="formula">\[ 48+4k=0 ⇒ k=-12 \]</div>
+<div class="formula">\[ f(x)=3x-12\sqrt{x} \]</div>
+<div class="formula">\[ f'(x)=3-\frac{6}{\sqrt{x}} \]</div>
+<p>נקודה עם שיפוע אפס מתקבלת ב-\(x=4\), ושם \(f(4)=-12\). בנוסף יש לבדוק את קצה התחום \(x=0\).</p>
+<div class="graph-card"><div class="jxgbox" id="g-k-sqrtx"></div><div class="graph-controls" data-board="g-k-sqrtx"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</div></section>
+<section class="page source-question-page question-solution-page" data-question="9">
+<h2>שאלה 9</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div style="position: absolute;top: 71px;left: 249px;" class="formula">\[ f(x)=4x\sqrt{b^2-x^2},\qquad b\gt0 \]</div>
+<p>חקור לפי הסעיפים הבאים:</p>
+<p class="subq"><strong>א.</strong> מציאת תחום ההגדרה.</p>
+<p class="subq"><strong>ב.</strong> מציאת נקודות קיצון של הפונקציה.</p>
+<p class="subq"><strong>ג.</strong> כתיבת תחומי העלייה והירידה של הפונקציה.</p>
+<p class="subq"><strong>ד.</strong> מציאת נקודות החיתוך של גרף הפונקציה עם הצירים.</p>
+<p class="subq"><strong>ה.</strong> שרטוט סקיצה של גרף הפונקציה.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<div class="formula">\[ f(x)=4x\sqrt{b^2-x^2},\qquad b\gt0 \]</div>
+<h2>תחום הגדרה</h2>
+<div class="formula">\[ b^2-x^2\ge0 ⇒ -b\le x\le b \]</div>
+<h2>נגזרת</h2>
+<div class="formula">\[ f'(x)=4\sqrt{b^2-x^2}-\frac{4x^2}{\sqrt{b^2-x^2}} \]</div>
+<div class="formula">\[ f'(x)=\frac{4(b^2-2x^2)}{\sqrt{b^2-x^2}} \]</div>
+<p>בתוך התחום המכנה חיובי, ולכן סימן הנגזרת נקבע על ידי המונה.</p>
+<div class="formula">\[ b^2-2x^2=0 ⇒ x=\pm\frac{b}{\sqrt2} \]</div>
+<div class="graph-card page-mini-graph"><div class="jxgbox" id="g-product-b"></div><div class="graph-controls" data-board="g-product-b"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+<div class="callout">זהו דפוס חשוב: לאחר קביעת התחום, אפשר לעיתים לקבוע את סימן הנגזרת בעזרת המונה בלבד.</div>
+</div></section>
+<section class="page source-question-page long-question question-solution-page" data-question="10">
+<h2>שאלה 10</h2>
+<div class="original-question">
+<p>נתונה הפונקציה הבאה:</p>
+<div style="position: absolute;top: 73px;left: 394px;" class="formula">\[ f(x)=\frac{kx}{\sqrt{k-x^2}} \]</div>
+<p>\(k\) פרמטר חיובי.</p>
+<p class="subq"><strong>א.</strong> ענה על הסעיפים הבאים:</p>
+<p class="subq"><strong>i.</strong> מהו תחום ההגדרה של הפונקציה? בטא באמצעות \(k\).</p>
+<p class="subq"><strong>ii.</strong> מהן האסימפטוטות האנכיות של הפונקציה?</p>
+<p class="subq"><strong>ב.</strong> הראה כי הפונקציה עולה עבור כל ערך של \(k\) בתחום הגדרתה.</p>
+<p class="subq"><strong>ג.</strong> כתוב את משוואת המשיק לגרף הפונקציה בנקודת החיתוך שלה עם ציר ה-\(x\), בטא באמצעות \(k\).</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<div class="formula">\[ f_k(x)=\frac{kx}{\sqrt{k-x^2}},\qquad k\gt0 \]</div>
+<h2>תחום</h2>
+<div class="formula">\[ k-x^2\gt0 ⇒ -\sqrt{k}\lt x\lt\sqrt{k} \]</div>
+<h2>אסימפטוטות אנכיות</h2>
+<div class="formula">\[ x=-\sqrt{k},\qquad x=\sqrt{k} \]</div>
+<p>הפונקציה אי-זוגית. שיפוע המשיק בראשית הוא \(\sqrt{k}\).</p>
+<div class="graph-card"><div class="jxgbox" id="g-rational-root"></div><div class="graph-controls" data-board="g-rational-root"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</div></section>
+<section class="page source-question-page question-solution-page" data-question="11">
+<h2>שאלה 11</h2>
+<div class="original-question">
+<p>נתונה הפונקציה הבאה:</p>
+<div style="position: absolute;top: 65px;left: 349px;" class="formula">\[ f(x)=\frac{\sqrt{x+A}}{x+B} \]</div>
+<p>\(A,B\) פרמטרים.</p>
+<p>שיפוע המשיק לגרף הפונקציה בנקודה \(\left(0,-\frac13\right)\) הוא:</p>
+<div style="position: absolute;top: 127px;left: 387px;" class="formula">\[ -\frac1{18} \]</div>
+<p class="subq"><strong>א.</strong> מצא את \(A\) ואת \(B\).</p>
+<p class="subq"><strong>ב.</strong> מצא את נקודת החיתוך של הפונקציה עם ציר ה-\(y\) והראה כי עבור שני המקרים מתקבלת אותה הנקודה.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<p>אם המשיק בנקודה \((0,-\frac13)\) בעל שיפוע \(-\frac1{18}\), מתקבלים שני תנאים:</p>
+<div class="formula">\[ \frac{\sqrt A}{B}=-\frac13 \]</div>
+<div class="formula">\[ f'(0)=-\frac1{18} \]</div>
+<p>פתרון המערכת נותן:</p>
+<div class="formula answer">\[ A=9,\qquad B=-9 \]</div>
+<h2>תחום לאחר ההצבה</h2>
+<div class="formula">\[ x\ge-9,\qquad x\ne9 \]</div>
+<div class="graph-card page-mini-graph"><div class="jxgbox" id="g-num-den-ab"></div><div class="graph-controls" data-board="g-num-den-ab"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+<div class="warning">בפונקציה משולבת יש לאחד את כל מגבלות התחום: מגבלת השורש ומגבלת המכנה.</div>
+</div></section>
+<section class="page source-question-page question-solution-page" data-question="12">
+<h2>שאלה 12</h2>
+<div class="original-question">
+<p>תחום ההגדרה של הפונקציה</p>
+<div style="position: absolute;top: 61px;left: 349px;" class="formula">\[ f(x)=x\sqrt{a-x^2} \]</div>
+<p>הוא:</p>
+<div style="position: absolute;top: 90px;left: 344px;" class="formula">\[ -\sqrt{18}\le x\le\sqrt{18} \]</div>
+<p class="subq"><strong>א.</strong> מצאו את הערך של \(a\).</p>
+<p>הציבו \(a=18\) וענו על הסעיפים הבאים:</p>
+<p class="subq"><strong>ב.</strong> הוכיחו שהפונקציה \(f(x)\) היא פונקציה אי-זוגית.</p>
+<p class="subq"><strong>ג.</strong> מצאו עבור הפונקציה: נקודות קיצון, תחומי עלייה וירידה, נקודות חיתוך עם הצירים.</p>
+<p class="subq"><strong>ד.</strong> שרטטו סקיצה של גרף הפונקציה \(f(x)\).</p>
+<p class="subq"><strong>ה.</strong> הסבירו מדוע גרף הפונקציה \(f(x)+11\) משיק לישר \(y=2\).</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<h3>א. מציאת הפרמטר \(a\)</h3>
+<p>כדי שהשורש יהיה מוגדר נדרש:</p>
+<div class="formula">\[ a-x^2\ge0 \]</div>
+<p>ולכן, עבור \(a\ge0\), תחום ההגדרה הוא:</p>
+<div class="formula">\[ -\sqrt{a}\le x\le\sqrt{a} \]</div>
+<p>משווים לתחום הנתון:</p>
+<div class="formula">\[ -\sqrt{18}\le x\le\sqrt{18} \]</div>
+<div class="formula answer">\[ a=18 \]</div>
+<h3>ב. הוכחת אי-זוגיות</h3>
+<p>לאחר ההצבה מתקבלת הפונקציה:</p>
+<div class="formula">\[ f(x)=x\sqrt{18-x^2} \]</div>
+<p>תחום ההגדרה סימטרי ביחס לראשית. בנוסף:</p>
+<div style="position:relative;left:-60px;" class="formula">\[ f(-x)=(-x)\sqrt{18-(-x)^2}=-x\sqrt{18-x^2}=-f(x) \]</div>
+<div class="callout"><strong>מסקנה:</strong> \(f(x)\) היא פונקציה אי-זוגית.</div>
+<h3>ג. קיצון, עלייה וירידה</h3>
+<p>בתוך תחום ההגדרה הפתוח:</p>
+<div style="position:relative;left:-80px;" class="formula">\[ f'(x)=\sqrt{18-x^2}-\frac{x^2}{\sqrt{18-x^2}}=\frac{18-2x^2}{\sqrt{18-x^2}}=\frac{2(9-x^2)}{\sqrt{18-x^2}} \]</div>
+<p>המכנה חיובי עבור \(-\sqrt{18}\lt x\lt\sqrt{18}\), ולכן סימן הנגזרת נקבע על ידי \(9-x^2\).</p>
+<table style="direction: ltr;position: relative;left: -85px;zoom: 1.3;" class="small">
+<tr><th>תחום</th><th>\((-\sqrt{18},-3)\)</th><th>\(-3\)</th><th>\((-3,3)\)</th><th>\(3\)</th><th>\((3,\sqrt{18})\)</th></tr>
+<tr><th>סימן \(f'(x)\)</th><td>−</td><td>0</td><td>+</td><td>0</td><td>−</td></tr>
+<tr><th>התנהגות</th><td>ירידה</td><td>מינימום</td><td>עלייה</td><td>מקסימום</td><td>ירידה</td></tr>
+</table>
+</section>
+<section class="page source-question-page question-solution-page" data-question="12">
+<h2>פתרון - המשך</h2>
+<div class="grid2 compact">
+<div class="card">
+<h3>נקודות הקיצון</h3>
+<div class="formula">\[ f(-3)=-9,\qquad f(3)=9 \]</div>
+<ul>
+<li>מינימום מוחלט ופנימי: \((-3,-9)\).</li>
+<li>מקסימום מוחלט ופנימי: \((3,9)\).</li>
+<li>מקסימום בקצה התחום: \((-\sqrt{18},0)\).</li>
+<li>מינימום בקצה התחום: \((\sqrt{18},0)\).</li>
+</ul>
+</div>
+<div class="card">
+<h3>חיתוך עם הצירים</h3>
+<p>חיתוך עם ציר \(x\):</p>
+<div class="formula">\[ x\sqrt{18-x^2}=0 \]</div>
+<div class="formula">\[ x=-\sqrt{18},\ 0,\ \sqrt{18} \]</div>
+<p>ולכן:</p>
+<div class="formula">\[ (-\sqrt{18},0),\ (0,0),\ (\sqrt{18},0) \]</div>
+<p>החיתוך עם ציר \(y\) הוא \((0,0)\).</p>
+</div>
+</div>
+<h3>ד. סקיצה של \(f(x)\)</h3>
+<div class="graph-card page-mini-graph">
+<div class="jxgbox" id="g-xroot18"></div>
+<div class="small center"><span style="color:#1f5fa8;font-weight:700">━ \(f(x)=x\sqrt{18-x^2}\)</span></div>
+<div class="graph-controls" data-board="g-xroot18"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div>
+</div>
+<h3>ה. המשיק לגרף \(f(x)+11\)</h3>
+<p>נסמן \(g(x)=f(x)+11\). ההזזה האנכית אינה משנה את הנגזרת, ולכן:</p>
+<div class="formula">\[ g'(x)=f'(x) \]</div>
+<p>בנקודת המינימום של \(f\), כאשר \(x=-3\):</p>
+<div class="formula">\[ g(-3)=f(-3)+11=-9+11=2,\qquad g'(-3)=f'(-3)=0 \]</div>
+<p>לכן בנקודה \((-3,2)\) לגרף \(g\) יש משיק אופקי, ומשוואתו:</p>
+<div class="formula answer">\[ y=2 \]</div>
+<div class="graph-card page-mini-graph">
+<div class="jxgbox" id="g-xroot18-shift"></div>
+<div class="small center"><span style="color:#2e8b57;font-weight:700">━ \(g(x)=f(x)+11\)</span>  <span style="color:#c23b3b;font-weight:700">━ \(y=2\)</span></div>
+<div class="graph-controls" data-board="g-xroot18-shift"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div>
+</div>
+</div></section>
+<section class="page source-question-page question-solution-page" data-question="13">
+<h2>שאלה 13</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div class="formula">\[ f(x)=\frac{ax+8}{x+b\sqrt{x}} \]</div>
+<p>הפונקציה חותכת את האסימפטוטה האופקית שלה בנקודה \((16,2)\).</p>
+<p>מצא את ערכי הפרמטרים \(a\) ו-\(b\).</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<div class="formula">\[ f(x)=\frac{ax+8}{x+b\sqrt{x}} \]</div>
+<p>כאשר \(x\to\infty\), האיברים מסדר \(x\) שולטים:</p>
+<div class="formula">\[ \frac{ax+8}{x+b\sqrt{x}}\to a \]</div>
+<p>לכן האסימפטוטה האופקית היא \(y=a\). אם ידוע שהגרף חותך אותה בנקודה \((16,2)\):</p>
+<div class="formula">\[ a=2 \]</div>
+<div class="formula">\[ \frac{40}{16+4b}=2 ⇒ b=1 \]</div>
+<div class="graph-card"><div class="jxgbox" id="g-hasym"></div><div class="graph-controls" data-board="g-hasym"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</div></section>
+<section class="page source-question-page long-question question-solution-page" data-question="14">
+<h2>שאלה 14</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div class="formula">\[ f(x)=\sqrt{-x^2+10x-16}+k \]</div>
+<p>\(k\) פרמטר.</p>
+<p>ידוע כי לפונקציה יש נקודת מקסימום הנמצאת על ציר ה-\(x\).</p>
+<p class="subq"><strong>א.</strong> מצא את ערך הפרמטר \(k\).</p>
+<p class="subq"><strong>ב.</strong> מצא את תחום ההגדרה של הפונקציה.</p>
+<p class="subq"><strong>ג.</strong> האם יש לפונקציה עוד נקודות קיצון כלשהן? אם כן, מצא אותן. אם לא, נמק מדוע והראה חישוב מתאים.</p>
+<p class="subq"><strong>ד.</strong> כתוב את תחומי העלייה והירידה של הפונקציה.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<div class="formula">\[ f_k(x)=\sqrt{-x^2+10x-16}+k \]</div>
+<p>הביטוי שבתוך השורש הוא:</p>
+<div class="formula">\[ -x^2+10x-16=9-(x-5)^2 \]</div>
+<p>הערך המרבי של השורש הוא \(3\), והוא מתקבל ב-\(x=5\). אם נקודת המקסימום נמצאת על ציר \(x\):</p>
+<div class="formula">\[ 3+k=0 ⇒ k=-3 \]</div>
+<div class="graph-card"><div class="jxgbox" id="g-maxshift"></div><div class="graph-controls" data-board="g-maxshift"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</div></section>
+<section class="page source-question-page long-question question-solution-page" data-question="15">
+<h2>שאלה 15</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div class="formula">\[ f(x)=k\sqrt{9-x^2} \]</div>
+<p>ידוע כי לפונקציה נקודת קיצון שבה:</p>
+<div class="formula">\[ y=12 \]</div>
+<p class="subq"><strong>א.</strong> מצא את ערך הפרמטר \(k\).</p>
+<p class="subq"><strong>ב.</strong> מצא את תחום ההגדרה של הפונקציה.</p>
+<p class="subq"><strong>ג.</strong> האם יש לפונקציה עוד נקודות קיצון כלשהן? אם כן, מצא אותן. אם לא, נמק מדוע והראה חישוב מתאים.</p>
+<p class="subq"><strong>ד.</strong> כתוב את תחומי העלייה והירידה של הפונקציה.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<p>עבור \(k\gt0\), נקודת המקסימום מתקבלת ב-\(x=0\):</p>
+<div class="formula">\[ f_k(0)=3k \]</div>
+<p>אם ערך המקסימום הוא \(12\):</p>
+<div class="formula answer">\[ 3k=12 ⇒ k=4 \]</div>
+<div class="grid2 compact"><div class="card"><h3>תחום</h3><div class="formula">\[-3\le x\le3\]</div></div><div class="card"><h3>טווח</h3><div class="formula">\[0\le f(x)\le12\]</div></div></div>
+<div class="graph-card page-mini-graph"><div class="jxgbox" id="g-height-k"></div><div class="graph-controls" data-board="g-height-k"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+<div class="teacher-note">אם לא נתון \(k\gt0\), יש למיין גם את המקרה \(k\lt0\), שבו נקודת הקיצון המרכזית הופכת למינימום.</div>
+</div></section>
+<section class="page source-question-page long-question question-solution-page" data-question="16">
+<h2>שאלה 16</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div style="position: absolute;top: 78x;left: 311;" class="formula">\[ f(x)=\sqrt{8-x^2}+kx \]</div>
+<p>\(k\) פרמטר.</p>
+<p>הישר</p>
+<div class="formula">\[ y=-2x+4 \]</div>
+<p>משיק לפונקציה בנקודת החיתוך שלה עם ציר ה-\(x\).</p>
+<p class="subq"><strong>א.</strong> מצא את ערך הפרמטר \(k\).</p>
+<p class="subq"><strong>ב.</strong> מצא את תחום ההגדרה של הפונקציה.</p>
+<p class="subq"><strong>ג.</strong> מצא את נקודות הקיצון של הפונקציה.</p>
+<p class="subq"><strong>ד.</strong> כתוב את תחומי העלייה והירידה של הפונקציה.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<p>הישר \(y=-2x+4\) משיק לגרף בנקודת החיתוך של הפונקציה עם ציר \(x\).</p>
+<p>הישר חותך את ציר \(x\) ב-\(x=2\), ולכן בנקודת ההשקה:</p>
+<div class="formula">\[ f_k(2)=0 ⇒ 2+2k=0 ⇒ k=-1 \]</div>
+<p>בדיקת השיפוע:</p>
+<div class="formula">\[ f_k'(x)=\frac{-x}{\sqrt{8-x^2}}+k \]</div>
+<div class="formula">\[ f_{-1}'(2)=-1-1=-2 \]</div>
+<div class="graph-card"><div class="jxgbox" id="g-line-tangent"></div><div class="graph-controls" data-board="g-line-tangent"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+</div></section>
+<section class="page source-question-page long-question question-solution-page" data-question="17">
+<h2>שאלה 17</h2>
+<div class="original-question">
+<p>נתונה הפונקציה:</p>
+<div style="position: absolute;top: 80px;left: 249px;" class="formula">\[ f(x)=a\sqrt{3x+16} \]</div>
+<p>ידוע כי הישר</p>
+<div style="position: absolute;top:116px; left: 281px;" class="formula">\[ y=2x-8 \]</div>
+<p>חותך את גרף הפונקציה בנקודה שבה \(x=11\).</p>
+<p class="subq"><strong>א.</strong> מצא את נקודת החיתוך.</p>
+<p class="subq"><strong>ב.</strong> מצא את ערך הפרמטר \(a\).</p>
+<p class="subq"><strong>ג.</strong> האם הישר חותך את גרף הפונקציה בעוד נקודה? אם כן, מהי?</p>
+<p class="subq"><strong>ד.</strong> האם הישר הנתון הוא המשיק לגרף הפונקציה בנקודה שמצאת בסעיף א'? אם כן, נמק. אם לא, מצא את משוואת המשיק.</p>
+</div>
+<div class="combined-solution"><h2>פתרון</h2>
+<p>נבדוק חיתוך עם הישר:</p>
+<div class="formula">\[ y=2x-8 \]</div>
+<div class="formula">\[ 2\sqrt{3x+16}=2x-8 \]</div>
+<p>לפני העלאה בריבוע נדרש:</p>
+<div class="formula">\[ x-4\ge0 ⇒ x\ge4 \]</div>
+<p>לאחר העלאה בריבוע מתקבלים המועמדים \(x=0\) ו-\(x=11\), אך רק:</p>
+<div class="formula answer">\[ x=11 \]</div>
+<p>מקיים את התנאי ואת המשוואה המקורית.</p>
+<div class="graph-card page-mini-graph"><div class="jxgbox" id="g-square-check"></div><div class="graph-controls" data-board="g-square-check"><button data-act="zin">הגדל</button><button data-act="zout">הקטן</button><button data-act="center">מרכז</button><button data-act="reset">איפוס</button></div></div>
+<div class="warning">בכל משוואת שורש: קובעים תנאי סימן לפני הריבוע ומבצעים בדיקה במשוואה המקורית.</div>
+</div></section>
+<section class="page">
+<h2 class="page-title">מספר פתרונות כתלות בפרמטר</h2>
+<p>בשאלות מתקדמות לא תמיד מבקשים למצוא פרמטר יחיד. לעיתים יש לקבוע עבור אילו ערכי פרמטר קיימים 0, 1 או 2 פתרונות.</p>
+<div class="formula">\[ f_a(x)=\sqrt{x-a},\qquad y=x-1 \]</div>
+<p>מחפשים חיתוכים תחת שני תנאים:</p>
+<div class="formula">\[ x-a\ge0,\qquad x-1\ge0 \]</div>
+<p>ואז מעלים בריבוע:</p>
+<div class="formula">\[ x-a=(x-1)^2 \]</div>
+<p>המשוואה הריבועית שמתקבלת תלויה ב-\(a\), ולכן מספר הפתרונות נקבע גם על ידי הדיסקרימיננטה וגם על ידי תנאי המקור.</p>
+<div class="callout"><strong>מסר פדגוגי:</strong> דיסקרימיננטה לבדה אינה מספיקה במשוואות שורש - כל פתרון חייב לעמוד בתחום ובתנאי הסימן.</div>
+</section><section class="page">
+<h2 class="page-title">ערכים קריטיים של הפרמטר</h2>
+<p>ערך פרמטר קריטי הוא ערך שבו המבנה האיכותי של הגרף משתנה.</p>
+<div class="formula">\[ f_a(x)=\sqrt{x^2-a} \]</div>
+<ul>
+<li>\(a\lt0\): תחום ההגדרה הוא כל הישר.</li>
+<li>\(a=0\): מתקבלת \(|x|\).</li>
+<li>\(a\gt0\): התחום מתפצל לשני חלקים.</li>
+</ul>
+<p>במשפחות אחרות ערך קריטי עשוי להיות ערך שבו:</p>
+<ul>
+<li>שני אפסים מתלכדים.</li>
+<li>נקודת קיצון מגיעה לציר.</li>
+<li>אסימפטוטה נוצרת או נעלמת.</li>
+<li>מספר נקודות החיתוך משתנה.</li>
+</ul>
+<div class="formula">\[ \Delta=0 \]</div>
+<p>הוא אחד הכלים המרכזיים לאיתור ערך כזה כאשר הביטוי שבתוך השורש ריבועי.</p>
+</section>
+<section class="page">
+<h2 class="page-title">תרגול A - תחום והשלמת פרמטר</h2>
+<ol class="exercises">
+<li>\(f_a(x)=\sqrt{x-a}\), תחום ההגדרה הוא \(x\ge4\). מצא את \(a\).</li>
+<li>\(f_k(x)=\sqrt{kx^2-18}\), תחום ההגדרה הוא \(x\le-3\) או \(x\ge3\). מצא את \(k\).</li>
+<li>\(f(x)=\sqrt{-x^2+bx+c}\) זוגית ותחומה ב-\(-3\le x\le3\). מצא \(b,c\).</li>
+<li>\(f(x)=\sqrt{cx^2+bx-1}\) זוגית ותחומה ב-\(|x|\ge4\). מצא \(b,c\).</li>
+<li>\(f(x)=ax+\sqrt{x-b}\), תחום \(x\ge2\), ועוברת ב-\((2,2)\). מצא \(a,b\).</li>
+<li>\(f(x)=a\sqrt{x-3}\) עוברת ב-\((12,a+4)\). מצא \(a\).</li>
+<li>\(f_k(x)=k\sqrt{9-x^2}\), \(k\gt0\), וערך המקסימום הוא 12. מצא \(k\).</li>
+<li>\(f_k(x)=\sqrt{-x^2+10x-16}+k\), וערך המקסימום הוא 0. מצא \(k\).</li>
+<li>\(f_k(x)=k\sqrt{x}-x\) והגרף עובר ב-\((9,3)\). מצא \(k\).</li>
+<li>\(f_k(x)=\sqrt{kx}-\sqrt{4-x}\) חותכת את ציר \(x\) ב-\(x=2\). מצא \(k\).</li>
+</ol>
+</section><section class="page">
+<h2 class="page-title">תרגול B - נגזרת ומשיק</h2>
+<ol class="exercises">
+<li>\(f_k(x)=\sqrt{-x^2+2x+k}\), ושיפוע המשיק ב-\(x=2\) הוא \(-1/\sqrt3\). מצא \(k\).</li>
+<li>\(f_b(x)=\sqrt{x^2+bx+5}\), ושיפוע המשיק ב-\(x=0\) הוא \(-3\sqrt5/5\). מצא \(b\).</li>
+<li>\(f(x)=\sqrt{x^2+Ax+B}\), והמשיק ב-\(x=1\) הוא \(y=x+2\). מצא \(A,B\).</li>
+<li>\(f(x)=a\sqrt{3x+16}\), והישר \(y=2x-8\) חותך את הגרף ב-\(x=11\). מצא \(a\).</li>
+<li>\(f_k(x)=\sqrt{8-x^2}+kx\), והישר \(y=-2x+4\) משיק בנקודת חיתוך עם ציר \(x\). מצא \(k\).</li>
+<li>\(f_A(x)=A/\sqrt{x^2+4}\), וחיתוך ציר \(y\) הוא 5. מצא \(A\) ואת שיפוע המשיק בראשית.</li>
+<li>\(f_a(x)=(ax+6)/\sqrt{9-x^2}\), והמשיק בראשית הוא \(y=2-x\). מצא \(a\).</li>
+<li>\(f(x)=\sqrt{x+A}/(x+B)\), והמשיק ב-\((0,-1/3)\) בעל שיפוע \(-1/18\). מצא \(A,B\).</li>
+<li>\(f(x)=x/\sqrt{Ax^2+Bx}\), והמשיק ב-\((1,1/2)\) בעל שיפוע \(1/8\). מצא \(A,B\).</li>
+<li>\(f(x)=A/x+B/\sqrt{x}\), נתון \(f(1)=3\) ו-\(f'(1)=-2\). מצא \(A,B\).</li>
+</ol>
+</section><section class="page">
+<h2 class="page-title">תרגול C - חקירה מתקדמת</h2>
+<ol class="exercises">
+<li>מיין את תחום ההגדרה של \(f_a(x)=\sqrt{x^2-a}\) עבור \(a\lt0,a=0,a\gt0\).</li>
+<li>מיין את תחום ההגדרה של \(f_a(x)=\sqrt{a-x^2}\) וקבע עבור אילו \(a\) קיימת פונקציה ממשית.</li>
+<li>עבור \(f(x)=2\sqrt{x-3}\), מצא את משוואת המשיק ב-\(x=12\) ואת השטח הנוצר עם הצירים.</li>
+<li>\(f_k(x)=kx/\sqrt{k-x^2}\), \(k\gt0\). מצא את האסימפטוטות ואת \(k\) אם שיפוע המשיק בראשית הוא 2.</li>
+<li>חקור את \(f(x)=(2x+8)/(x+\sqrt{x})\), כולל אסימפטוטה אופקית ונקודת החיתוך איתה.</li>
+<li>חקור את \(f(x)=4\sqrt{x}-x\).</li>
+<li>חקור את \(f(x)=3x-12\sqrt{x}\), תוך בדיקה מפורשת של קצה התחום.</li>
+<li>חקור את \(f(x)=\sqrt{x}-\sqrt{9-2x}+2\).</li>
+<li>חקור את \(f(x)=\sqrt{x}-\sqrt{4-x}\).</li>
+<li>פתור \(2\sqrt{3x+16}=2x-8\) והסבר מדוע אחד מפתרונות המשוואה לאחר הריבוע נפסל.</li>
+</ol>
+</section><section class="page">
+<h2 class="page-title">פתרונות - תרגול A</h2>
+<table class="answers"><tr><th>#</th><th>תשובה</th><th>רעיון מרכזי</th></tr>
+<tr><td>1</td><td>\(a=4\)</td><td>קצה תחום</td></tr>
+<tr><td>2</td><td>\(k=2\)</td><td>אפסים ב-\(\pm3\)</td></tr>
+<tr><td>3</td><td>\(b=0,c=9\)</td><td>זוגיות וקצות תחום</td></tr>
+<tr><td>4</td><td>\(b=0,c=1/16\)</td><td>זוגיות ואפסים</td></tr>
+<tr><td>5</td><td>\(a=1,b=2\)</td><td>תחום ונקודה</td></tr>
+<tr><td>6</td><td>\(a=2\)</td><td>הצבת נקודה</td></tr>
+<tr><td>7</td><td>\(k=4\)</td><td>מקסימום ב-\(x=0\)</td></tr>
+<tr><td>8</td><td>\(k=-3\)</td><td>הזזה אנכית</td></tr>
+<tr><td>9</td><td>\(k=4\)</td><td>הצבת \((9,3)\)</td></tr>
+<tr><td>10</td><td>\(k=1\)</td><td>חיתוך ציר \(x\)</td></tr></table>
+</section><section class="page">
+<h2 class="page-title">פתרונות - תרגול B</h2>
+<table class="answers"><tr><th>#</th><th>תשובה</th><th>הערה</th></tr>
+<tr><td>1</td><td>\(k=3\)</td><td>השוואת נגזרת לשיפוע</td></tr>
+<tr><td>2</td><td>\(b=-6\)</td><td>נגזרת ב-\(x=0\)</td></tr>
+<tr><td>3</td><td>\(A=4,B=4\)</td><td>ערך ושיפוע</td></tr>
+<tr><td>4</td><td>\(a=2\)</td><td>הצבת נקודת חיתוך</td></tr>
+<tr><td>5</td><td>\(k=-1\)</td><td>נקודה ושיפוע</td></tr>
+<tr><td>6</td><td>\(A=10,\ f'(0)=0\)</td><td>זוגיות</td></tr>
+<tr><td>7</td><td>\(a=-3\)</td><td>\(f(0)=2\), שיפוע \(-1\)</td></tr>
+<tr><td>8</td><td>\(A=9,B=-9\)</td><td>מערכת משתי משוואות</td></tr>
+<tr><td>9</td><td>\(A=2,B=2\)</td><td>ערך ושיפוע</td></tr>
+<tr><td>10</td><td>\(A=1,B=2\)</td><td>מערכת ליניארית בפרמטרים</td></tr></table>
+</section><section class="page">
+<h2 class="page-title">פתרונות - תרגול C</h2>
+<ol class="solutions">
+<li>\(a\lt0\): כל \(x\). \(a=0\): כל \(x\), מתקבל \(|x|\). \(a\gt0\): \(x\le-\sqrt a\) או \(x\ge\sqrt a\).</li>
+<li>קיימת פונקציה ממשית רק עבור \(a\ge0\). אז \(-\sqrt a\le x\le\sqrt a\).</li>
+<li>ב-\(x=12\): נקודה \((12,6)\), שיפוע \(1/3\), משיק \(y=x/3+2\), שטח עם הצירים: \(6\).</li>
+<li>אסימפטוטות \(x=\pm\sqrt k\). שיפוע בראשית \(\sqrt k=2\), ולכן \(k=4\).</li>
+<li>אסימפטוטה אופקית \(y=2\). חיתוך איתה ב-\((16,2)\).</li>
+<li>תחום \(x\ge0\). עלייה ב-\(0\lt x\lt4\), ירידה ב-\(x\gt4\), מקסימום \((4,4)\), וקצה התחום \((0,0)\) הוא מינימום מקומי.</li>
+<li>תחום \(x\ge0\). קצה \((0,0)\) הוא מקסימום מקומי; מינימום ב-\((4,-12)\).</li>
+<li>תחום \(0\le x\le9/2\). הפונקציה עולה בכל פנים התחום; הקצוות הם הקיצונים המוחלטים.</li>
+<li>תחום \(0\le x\le4\). הפונקציה עולה, חותכת את ציר \(x\) ב-\(x=2\).</li>
+<li>לאחר הריבוע מתקבלים \(0,11\), אך התנאי \(x\ge4\) משאיר רק \(x=11\).</li>
+</ol>
+</section>
+<script>
+function safeSqrt(v){ return v >= 0 ? Math.sqrt(v) : NaN; }
+function baseBoard(id, bbox){
+  return JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,keepaspectratio:false,
+    pan:{enabled:true},zoom:{wheel:true,needshift:false,factorX:1.25,factorY:1.25}});
+}
+function wireControls(id, board, def){
+  const holder=document.querySelector('.graph-controls[data-board="'+id+'"]');
+  if(!holder) return;
+  holder.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+    const a=btn.dataset.act;
+    if(a==='zin') board.zoomIn();
+    if(a==='zout') board.zoomOut();
+    if(a==='reset') board.setBoundingBox(def,true);
+    if(a==='center'){
+      const bb=board.getBoundingBox(), w=bb[2]-bb[0], h=bb[1]-bb[3];
+      board.setBoundingBox([-w/2,h/2,w/2,-h/2],true);
+    }
+  }));
+}
+function vline(board, xf, ymin, ymax){
+  const p1=board.create('point',[xf,()=>ymin],{visible:false});
+  const p2=board.create('point',[xf,()=>ymax],{visible:false});
+  return board.create('line',[p1,p2],{strokeWidth:1.5,dash:2,strokeOpacity:.65,fixed:true});
+}
+function formatParamValue(v){
+  const n=Number(v);
+  if(Number.isInteger(n)) return String(n);
+  return String(parseFloat(n.toFixed(4)));
+}
+function paintRange(input){
+  const min=Number(input.min), max=Number(input.max), value=Number(input.value);
+  const pct=max===min?0:Math.max(0,Math.min(100,100*(value-min)/(max-min)));
+  input.style.background='linear-gradient(to right,#2f6fa6 0%,#2f6fa6 '+pct+'%,#d9dee6 '+pct+'%,#d9dee6 100%)';
+}
+function latexNumber(v){
+  const n=Number(v);
+  if(Math.abs(n)<1e-10) return '0';
+  if(Number.isInteger(n)) return String(n);
+  return String(parseFloat(n.toFixed(4)));
+}
+function latexTerm(v, symbol, first=false){
+  const n=Number(v);
+  if(Math.abs(n)<1e-10) return first ? '0' : '';
+  const a=Math.abs(n);
+  const coeff=Math.abs(a-1)<1e-10 ? '' : latexNumber(a);
+  if(first) return (n<0?'-':'')+coeff+symbol;
+  return (n<0?'-':'+')+coeff+symbol;
+}
+function latexConstant(v, first=false){
+  const n=Number(v);
+  if(Math.abs(n)<1e-10) return first ? '0' : '';
+  if(first) return latexNumber(n);
+  return (n<0?'-':'+')+latexNumber(Math.abs(n));
+}
+function latexQuadratic(a,b,c){
+  const parts=[];
+  if(Math.abs(Number(a))>=1e-10) parts.push(latexTerm(a,'x^2',true));
+  if(Math.abs(Number(b))>=1e-10) parts.push(latexTerm(b,'x',parts.length===0));
+  if(Math.abs(Number(c))>=1e-10) parts.push(latexConstant(c,parts.length===0));
+  return parts.length?parts.join(''):'0';
+}
+function updateDynamicFormula(el, latex){
+  if(!el) return;
+  if(window.MathJax && MathJax.typesetClear) MathJax.typesetClear([el]);
+  el.innerHTML='\\[ '+latex+' \\]';
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el]).catch(()=>{});
+  }
+}
+function makeParamControls(id, board, specs, formulaFn, secondaryFn){
+  const box=document.getElementById(id);
+  const card=box ? box.closest('.graph-card') : null;
+  if(!box || !card) return {};
+  card.classList.add('has-params');
+  const controls=document.createElement('div');
+  controls.className='param-controls';
+  controls.style.gridTemplateColumns='repeat('+specs.length+', minmax(0,1fr))';
+  const formula=document.createElement('div');
+  formula.className='dynamic-function';
+  formula.setAttribute('aria-live','polite');
+  const secondary=document.createElement('div');
+  secondary.className='dynamic-discriminant';
+  secondary.setAttribute('aria-live','polite');
+  const state={};
+  const refreshFormula=()=>{
+    if(typeof formulaFn==='function') updateDynamicFormula(formula, formulaFn(state));
+    if(typeof secondaryFn==='function') updateDynamicFormula(secondary, secondaryFn(state));
+  };
+  specs.forEach(spec=>{
+    const item=document.createElement('div');
+    item.className='param-slider-card';
+    const head=document.createElement('div');
+    head.className='param-slider-head';
+    const value=document.createElement('span');
+    value.className='param-slider-value';
+    const symbol=document.createElement('span');
+    symbol.className='param-slider-symbol';
+    symbol.textContent=spec.label || spec.key;
+    const input=document.createElement('input');
+    input.type='range';
+    input.className='param-range';
+    input.min=String(spec.min);
+    input.max=String(spec.max);
+    input.step=String(spec.step);
+    input.value=String(spec.value);
+    input.setAttribute('aria-label',(spec.label || spec.key)+' parameter');
+    const refresh=()=>{
+      value.textContent=formatParamValue(input.value);
+      paintRange(input);
+      board.update();
+      refreshFormula();
+    };
+    input.addEventListener('input',refresh);
+    value.textContent=formatParamValue(input.value);
+    paintRange(input);
+    head.append(value,symbol);
+    item.append(head,input);
+    controls.appendChild(item);
+    state[spec.key]=()=>Number(input.value);
+  });
+  card.insertBefore(controls,box);
+  if(typeof formulaFn==='function') card.insertBefore(formula,box);
+  if(typeof secondaryFn==='function') card.insertBefore(secondary,box);
+  if(typeof formulaFn==='function' || typeof secondaryFn==='function') refreshFormula();
+  return state;
+}
+function initGraphs(){
+  // sqrt(ax^2+bx+c) with dynamic discriminant
+  {const id='g-quadratic-param', def=[-6,14,6,-3], b=baseBoard(id,def);
+   const p=makeParamControls(id,b,[
+     {key:'a',min:-4,max:4,value:1,step:1},
+     {key:'b',min:-6,max:6,value:0,step:1},
+     {key:'c',min:-8,max:8,value:0,step:1}
+   ],s=>{
+     const q=latexQuadratic(s.a(),s.b(),s.c());
+     return `f(x)=\\sqrt{${q}}`;
+   },s=>{
+     const d=s.b()*s.b()-4*s.a()*s.c();
+     return `\\Delta=b^2-4ac=(${latexNumber(s.b())})^2-4\\cdot(${latexNumber(s.a())})\\cdot(${latexNumber(s.c())})=${latexNumber(d)}`;
+   });
+   b.create('functiongraph',[x=>safeSqrt(p.a()*x*x+p.b()*x+p.c())],{strokeWidth:3});
+   b.create('point',[()=>{const a=p.a(),bb=p.b(),c=p.c(),d=bb*bb-4*a*c;if(Math.abs(a)<1e-10){return Math.abs(bb)<1e-10?NaN:-c/bb;}if(d<0)return NaN;return (-bb-Math.sqrt(Math.max(0,d)))/(2*a);},0],{name:'',size:3,fixed:true});
+   b.create('point',[()=>{const a=p.a(),bb=p.b(),c=p.c(),d=bb*bb-4*a*c;if(Math.abs(a)<1e-10||d<0)return NaN;return (-bb+Math.sqrt(Math.max(0,d)))/(2*a);},0],{name:'',size:3,fixed:true});
+   wireControls(id,b,def);}
+  // family sqrt(x-a)
+  {const id='g-family', def=[-8,9,12,-3], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'a',min:-5,max:7,value:-2,step:1}],s=>`f(x)=\\sqrt{x${latexConstant(-s.a())}}`);
+   b.create('functiongraph',[x=>safeSqrt(x-p.a())],{strokeWidth:3}); b.create('point',[()=>p.a(),0],{name:'endpoint',size:3}); wireControls(id,b,def);}
+  // sqrt(x^2-k)
+  {const id='g-domain-k', def=[-8,8,8,-2], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'k',min:-5,max:9,value:-4,step:1}],s=>`f(x)=\\sqrt{x^2${latexConstant(-s.k())}}`);
+   b.create('functiongraph',[x=>safeSqrt(x*x-p.k())],{strokeWidth:3}); wireControls(id,b,def);}
+  // even domain with b,c sliders
+  {const id='g-even-domain', def=[-6,6,6,-2], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'b',min:-4,max:4,value:0,step:1},{key:'c',min:0,max:14,value:9,step:1}],s=>`f(x)=\\sqrt{-x^2${latexTerm(s.b(),'x')}${latexConstant(s.c())}}`);
+   b.create('functiongraph',[x=>safeSqrt(-x*x+p.b()*x+p.c())],{strokeWidth:3}); wireControls(id,b,def);}
+  // common point
+  {const id='g-common-point', def=[4,25,18,-6], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'m',min:-4,max:4,value:0,step:.5}],s=>`f(x)=2x${latexTerm(s.m(),'\\sqrt{x-6}')}`);
+   b.create('functiongraph',[x=>x>=6?2*x+p.m()*Math.sqrt(x-6):NaN,6,18],{strokeWidth:3}); b.create('point',[6,12],{name:'P',size:4,fixed:true}); wireControls(id,b,def);}
+  // page 7 - parameters from domain and point
+  {const id='g-point-ab', def=[-4,10,12,-6], b=baseBoard(id,def); const p=makeParamControls(id,b,[
+     {key:'a',label:'a',min:-2,max:3,value:1,step:.25},
+     {key:'b',label:'b',min:-2,max:6,value:2,step:.5}
+   ],s=>`f(x)=${latexTerm(s.a(),'x',true)}+\\sqrt{x${latexConstant(-s.b())}}`);
+   b.create('functiongraph',[x=>x>=p.b()?p.a()*x+Math.sqrt(x-p.b()):NaN],{strokeWidth:3});
+   b.create('point',[()=>p.b(),()=>p.a()*p.b()],{name:'E',size:3,fixed:true});
+   b.create('point',[2,2],{name:'P',size:4,fixed:true}); wireControls(id,b,def);}
+  // tangent k
+  {const id='g-tangent-k', def=[-4,6,6,-3], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'k',min:.5,max:8,value:3,step:.5}],s=>`f(x)=\\sqrt{-x^2+2x${latexConstant(s.k())}}`);
+   b.create('functiongraph',[x=>safeSqrt(-x*x+2*x+p.k())],{strokeWidth:3}); b.create('point',[2,()=>safeSqrt(p.k())],{name:'T',size:3}); wireControls(id,b,def);}
+  // page 12 - two parameters constrained by a tangent
+  {const id='g-tangent-ab', def=[-5,9,7,-3], b=baseBoard(id,def); const p=makeParamControls(id,b,[
+     {key:'A',label:'A',min:-8,max:8,value:4,step:.5},
+     {key:'B',label:'B',min:-4,max:12,value:4,step:.5}
+   ],s=>`f(x)=\\sqrt{x^2${latexTerm(s.A(),'x')}${latexConstant(s.B())}}`);
+   b.create('functiongraph',[x=>safeSqrt(x*x+p.A()*x+p.B())],{strokeWidth:3});
+   b.create('functiongraph',[x=>x+2],{strokeWidth:2,dash:2});
+   b.create('point',[1,3],{name:'T',size:4,fixed:true}); b.create('point',[1,()=>safeSqrt(1+p.A()+p.B())],{name:'',size:3,fixed:true});
+   wireControls(id,b,def);}
+  // b slope
+  {const id='g-b-slope', def=[-5,8,11,-2], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'b',min:-8,max:4,value:-6,step:.5}],s=>`f(x)=\\sqrt{x^2${latexTerm(s.b(),'x')}+5}`);
+   b.create('functiongraph',[x=>safeSqrt(x*x+p.b()*x+5)],{strokeWidth:3}); wireControls(id,b,def);}
+  // k sqrtx
+  {const id='g-k-sqrtx', def=[-2,12,22,-16], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'k',min:-16,max:8,value:-12,step:1}],s=>`f(x)=3x${latexTerm(s.k(),'\\sqrt{x}')}`);
+   b.create('functiongraph',[x=>x>=0?3*x+p.k()*Math.sqrt(x):NaN,0,22],{strokeWidth:3}); wireControls(id,b,def);}
+  // page 15 - product with a square root
+  {const id='g-product-b', def=[-6,55,6,-55], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'b',label:'b',min:1,max:5,value:3,step:.5}],s=>{const b2=s.b()*s.b();return `f(x)=4x\\sqrt{${latexNumber(b2)}-x^2}`;});
+   b.create('functiongraph',[x=>Math.abs(x)<=p.b()?4*x*Math.sqrt(Math.max(0,p.b()*p.b()-x*x)):NaN],{strokeWidth:3});
+   b.create('point',[()=>-p.b(),0],{name:'',size:3,fixed:true}); b.create('point',[()=>p.b(),0],{name:'',size:3,fixed:true});
+   b.create('point',[()=>-p.b()/Math.sqrt(2),()=>-2*p.b()*p.b()],{name:'',size:3,fixed:true}); b.create('point',[()=>p.b()/Math.sqrt(2),()=>2*p.b()*p.b()],{name:'',size:3,fixed:true});
+   wireControls(id,b,def);}
+  // rational root
+  {const id='g-rational-root', def=[-6,12,6,-12], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'k',min:1,max:16,value:4,step:1}],s=>`f(x)=\\frac{${latexTerm(s.k(),'x',true)}}{\\sqrt{${latexNumber(s.k())}-x^2}}`);
+   b.create('functiongraph',[x=>{const r=p.k()-x*x; return r>0?p.k()*x/Math.sqrt(r):NaN;}],{strokeWidth:3});
+   vline(b,()=>Math.sqrt(p.k()),-12,12); vline(b,()=>-Math.sqrt(p.k()),-12,12); wireControls(id,b,def);}
+  // page 17 - square root in numerator and linear denominator
+  {const id='g-num-den-ab', def=[-12,5,15,-5], b=baseBoard(id,def); const p=makeParamControls(id,b,[
+     {key:'A',label:'A',min:1,max:14,value:9,step:1},
+     {key:'B',label:'B',min:-12,max:4,value:-9,step:1}
+   ],s=>`f(x)=\\frac{\\sqrt{x${latexConstant(s.A())}}}{x${latexConstant(s.B())}}`);
+   b.create('functiongraph',[x=>{const rad=x+p.A(),den=x+p.B();return rad>=0&&Math.abs(den)>0.08?Math.sqrt(rad)/den:NaN;}],{strokeWidth:3});
+   vline(b,()=>-p.B(),-5,5); b.create('functiongraph',[x=>-x/18-1/3],{strokeWidth:2,dash:2}); b.create('point',[0,-1/3],{name:'T',size:4,fixed:true});
+   wireControls(id,b,def);}
+  // full solution: f(x)=x sqrt(18-x^2)
+  {const id='g-xroot18', def=[-5,11,5,-11], b=baseBoard(id,def);
+   b.create('functiongraph',[x=>Math.abs(x)<=Math.sqrt(18)?x*Math.sqrt(Math.max(0,18-x*x)):NaN],{strokeWidth:3,strokeColor:'#1f5fa8'});
+   b.create('point',[-Math.sqrt(18),0],{name:'',size:3,fixed:true,strokeColor:'#1f5fa8',fillColor:'#1f5fa8'});
+   b.create('point',[0,0],{name:'O',size:3,fixed:true,strokeColor:'#1f5fa8',fillColor:'#1f5fa8'});
+   b.create('point',[Math.sqrt(18),0],{name:'',size:3,fixed:true,strokeColor:'#1f5fa8',fillColor:'#1f5fa8'});
+   b.create('point',[-3,-9],{name:'min',size:4,fixed:true,strokeColor:'#1f5fa8',fillColor:'#1f5fa8'});
+   b.create('point',[3,9],{name:'max',size:4,fixed:true,strokeColor:'#1f5fa8',fillColor:'#1f5fa8'});
+   wireControls(id,b,def);}
+  // full solution: vertical shift and tangent y=2
+  {const id='g-xroot18-shift', def=[-5,22,5,-2], b=baseBoard(id,def);
+   b.create('functiongraph',[x=>Math.abs(x)<=Math.sqrt(18)?x*Math.sqrt(Math.max(0,18-x*x))+11:NaN],{strokeWidth:3,strokeColor:'#2e8b57'});
+   b.create('functiongraph',[x=>2],{strokeWidth:2,dash:2,strokeColor:'#c23b3b'});
+   b.create('point',[-3,2],{name:'T',size:4,fixed:true,strokeColor:'#c23b3b',fillColor:'#c23b3b'});
+   wireControls(id,b,def);}
+  // horizontal asymptote
+  {const id='g-hasym', def=[-2,6,30,-2], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'a',min:-1,max:5,value:2,step:.5},{key:'b',min:-1,max:4,value:1,step:.5}],s=>{const num=latexTerm(s.a(),'x',true); const n=num==='0'?'8':num+'+8'; const den='x'+latexTerm(s.b(),'\\sqrt{x}'); return `f(x)=\\frac{${n}}{${den}}`;});
+   b.create('functiongraph',[x=>x>0?(p.a()*x+8)/(x+p.b()*Math.sqrt(x)):NaN,.02,30],{strokeWidth:3});
+   b.create('functiongraph',[x=>p.a(),0,30],{strokeWidth:1.5,dash:2}); wireControls(id,b,def);}
+  // max shift
+  {const id='g-maxshift', def=[-1,8,11,-8], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'k',min:-6,max:3,value:-3,step:.5}],s=>`f(x)=\\sqrt{-x^2+10x-16}${latexConstant(s.k())}`);
+   b.create('functiongraph',[x=>safeSqrt(-x*x+10*x-16)+p.k()],{strokeWidth:3}); b.create('point',[5,()=>3+p.k()],{name:'M',size:3}); wireControls(id,b,def);}
+  // page 20 - extremum height controlled by k
+  {const id='g-height-k', def=[-4,20,4,-2], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'k',label:'k',min:.5,max:6,value:4,step:.5}],s=>`f(x)=${latexNumber(s.k())}\\sqrt{9-x^2},\\qquad \\mathrm{Maximum}=${latexNumber(3*s.k())}`);
+   b.create('functiongraph',[x=>Math.abs(x)<=3?p.k()*Math.sqrt(Math.max(0,9-x*x)):NaN],{strokeWidth:3}); b.create('point',[0,()=>3*p.k()],{name:'M',size:4,fixed:true});
+   b.create('point',[-3,0],{name:'',size:3,fixed:true}); b.create('point',[3,0],{name:'',size:3,fixed:true}); wireControls(id,b,def);}
+  // line tangent
+  {const id='g-line-tangent', def=[-4,8,5,-5], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'k',min:-3,max:2,value:-1,step:.25}],s=>`f(x)=\\sqrt{8-x^2}${latexTerm(s.k(),'x')}`);
+   b.create('functiongraph',[x=>safeSqrt(8-x*x)+p.k()*x],{strokeWidth:3}); b.create('functiongraph',[x=>-2*x+4],{strokeWidth:2,dash:2}); b.create('point',[2,0],{name:'T',size:3,fixed:true}); wireControls(id,b,def);}
+  // page 22 - checking the original radical equation with a movable x value
+  {const id='g-square-check', def=[-6,34,16,-14], b=baseBoard(id,def); const p=makeParamControls(id,b,[{key:'xv',label:'x',min:-5,max:15,value:11,step:1}],
+     s=>`f(x)=2\\sqrt{3x+16},\\qquad g(x)=2x-8`,
+     s=>{const x=s.xv(),fv=2*Math.sqrt(Math.max(0,3*x+16)),gv=2*x-8;return `x=${latexNumber(x)},\\qquad f(x)=${latexNumber(fv)},\\qquad g(x)=${latexNumber(gv)}`;});
+   b.create('functiongraph',[x=>x>=-16/3?2*Math.sqrt(3*x+16):NaN],{strokeWidth:3}); b.create('functiongraph',[x=>2*x-8],{strokeWidth:2,dash:2});
+   b.create('point',[()=>p.xv(),()=>2*Math.sqrt(Math.max(0,3*p.xv()+16))],{name:'F',size:3,fixed:true}); b.create('point',[()=>p.xv(),()=>2*p.xv()-8],{name:'G',size:3,fixed:true});
+   b.create('point',[11,14],{name:'I',size:4,fixed:true}); wireControls(id,b,def);}
+}
+window.addEventListener('load',()=>{
+  if(window.JXG){ initGraphs(); }
+  else { document.querySelectorAll('.jxgbox').forEach(x=>x.innerHTML='<div style="padding:20px;direction:rtl">JSXGraph לא נטען. יש לפתוח את הקובץ עם חיבור לאינטרנט.</div>'); }
+});
+</script>
+</body>
+</html>
