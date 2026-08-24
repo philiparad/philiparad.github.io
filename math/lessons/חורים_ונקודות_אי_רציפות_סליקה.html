@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>חורים ונקודות אי־רציפות סליקה - פונקציות רציונליות, 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+  :root{--ink:#172033;--muted:#5f6b7a;--line:#d8dee8;--panel:#f7f9fc;--accent:#2457a6;--warn:#9a4d00;--ok:#166534;}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e9edf3;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}
+  body{font-size:15px;line-height:1.42}
+  .page{width:210mm;height:297mm;margin:0 auto 8mm;background:white;padding:13mm 14mm 12mm;position:relative;overflow:hidden;page-break-after:always;break-after:page}
+  .page:last-child{page-break-after:auto;break-after:auto}
+  h1,h2,h3{margin:0 0 4mm;color:#153a72;line-height:1.15}
+  h1{font-size:29px} h2{font-size:23px} h3{font-size:17px}
+  p{margin:2.2mm 0}
+  ul,ol{margin:2mm 0;padding-right:6mm}
+  li{margin:1.1mm 0}
+  .lead{font-size:17px;color:#26364d}
+  .tag{display:inline-block;border:1px solid #b8c7dc;background:#eef4fb;border-radius:999px;padding:1.2mm 3mm;margin:0 0 2mm 2mm;font-size:13px}
+  .box{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:1mm 5mm;margin:3mm 0}
+  .key{border-right:5px solid var(--accent);background:#f3f7fd}
+  .warn{border-right:5px solid #c66b00;background:#fff8ed}
+  .success{border-right:5px solid #27824b;background:#f1fbf4}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;align-items:start}
+  .small{font-size:13.4px}
+  .tiny{font-size:12.5px}
+  .formula{direction:ltr;text-align:center;margin:2mm 0;unicode-bidi:isolate}
+  mjx-container{direction:ltr!important;unicode-bidi:isolate;text-align:inherit!important}
+  table{width:100%;border-collapse:collapse;margin:3mm 0;font-size:13.5px}
+  th,td{border:1px solid #cfd6e0;padding:2mm 2.5mm;vertical-align:top}
+  th{background:#eef3f8;color:#17375e}
+  .graph-panel{border:1px solid #cfd6e0;border-radius:9px;background:#fff;padding:2.5mm;margin:3mm 0;overflow:hidden}
+  .graph-title{font-weight:700;color:#28496f;margin-bottom:1.5mm}
+  .graph-controls{display:flex;gap:1.5mm;align-items:center;flex-wrap:wrap;margin:1.5mm 0 2mm;direction:rtl}
+  .graph-controls button{border:1px solid #aeb8c6;background:#f7f9fb;border-radius:6px;padding:1.4mm 2.6mm;font:inherit;font-size:12px;cursor:pointer}
+  .graph-controls button:hover{background:#eef3f8}
+  .jxgbox{width:100%;height:70mm;border:1px solid #d9dee6;border-radius:6px;direction:ltr}
+  .jxgbox.short{height:55mm}.jxgbox.tall{height:82mm}
+  .jxgbox.number-line{height:27mm}
+  .number-line-panel{margin:2mm 0;padding:2mm 2.5mm}
+  .number-line-panel .graph-title{margin-bottom:1mm}
+  .number-line-panel .graph-controls{margin:1mm 0 1.5mm}
+  .step{display:flex;gap:3mm;align-items:flex-start;margin:2mm 0}
+  .num{flex:0 0 8mm;height:8mm;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#244f8f;color:white;font-weight:700;font-size:13px}
+  .exercise{border-bottom:1px dashed #d6dce5;padding:1.5mm 0}
+  .answer{color:#365b3b}
+  .page-no{position:absolute;left:14mm;bottom:6mm;font-size:11px;color:#7b8492}
+  .footer-note{position:absolute;right:14mm;bottom:6mm;font-size:10.5px;color:#8a93a0}
+  .source{font-size:12.5px;line-height:1.35;word-break:break-word}
+  .source a{color:#1f5a9d;text-decoration:none}
+  .checklist li{margin:1.5mm 0}
+  .center{text-align:center}
+  .rtl{text-align:right}
+  .ltr{direction:ltr;text-align:left;unicode-bidi:isolate}
+  .em{font-weight:700;color:#163f78}
+  .grid2_{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+  .jxg-shell{border:1px solid #cfd6e0;border-radius:9px;background:#fff;padding:2.5mm;overflow:hidden}
+  .jxgbox.compact{height:62mm}
+  .legend{display:flex;gap:4mm;align-items:center;justify-content:center;flex-wrap:wrap;margin:1.5mm 0;font-size:12.5px}
+  .legend span{display:inline-flex;gap:1.5mm;align-items:center}
+  .sw{display:inline-block;width:11mm;height:0;border-top:3px solid currentColor}
+  .sw.blue{color:#2457a6}.sw.purple{color:#7c3aed}
+  .graphbar{display:flex;gap:1.5mm;justify-content:center;flex-wrap:wrap;margin-top:1.5mm}
+  .graphbar button{border:1px solid #aeb8c6;background:#f7f9fb;border-radius:6px;padding:1.4mm 2.6mm;font:inherit;font-size:12px;cursor:pointer}
+  .graphbar button:hover{background:#eef3f8}
+  .warning{border-right:5px solid #c66b00;background:#fff8ed;border-radius:9px;padding:3mm 4mm;margin:3mm 0}
+  @media print{
+    @page{size:A4;margin:0}
+    html,body{background:white}
+    .page{margin:0;width:210mm;height:297mm;box-shadow:none}
+    .graph-controls{display:flex}
+  }
+</style>
+</head>
+<body>
+
+<section class="page" id="p1">
+  <div class="tag">מתמטיקה 5 יחידות</div><div class="tag">פונקציות רציונליות</div><div class="tag">אי־רציפות סליקה</div>
+  <h1>חורים ונקודות אי־רציפות סליקה</h1>
+  <p class="lead">מערך שיעור מלא: מהגדרה גרפית ותחום ההגדרה, דרך פירוק לגורמים וצמצום, ועד ריבוי שורש, חקירה מלאה ותרגילי פרמטר.</p>
+  <div class="box key">
+    <h3>הרעיון המרכזי</h3>
+    <p>בפונקציה רציונלית כל ערך שמאפס את המכנה הוא תחילה <b>נקודת אי־הגדרה</b>. רק לאחר פירוק לגורמים וצמצום ניתן להחליט אם בנקודה מתקבלת <b>אסימפטוטה אנכית</b> או <b>חור</b>.</p>
+  </div>
+  <div class="two">
+    <div class="box">
+      <h3>מטרות למידה</h3>
+      <ul>
+        <li>מציאת תחום ההגדרה לפני כל צמצום.</li>
+        <li>זיהוי חור מתוך ביטוי אלגברי ומתוך גרף.</li>
+        <li>מציאת שיעורי החור.</li>
+        <li>הבחנה בין חור, אפס של פונקציה ואסימפטוטה אנכית.</li>
+        <li>הבנת השפעת ריבוי הגורם המשותף.</li>
+        <li>שילוב החורים בחקירה מלאה של פונקציה רציונלית.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>ידע מוקדם</h3>
+      <ul>
+        <li>פירוק פולינומים לגורמים.</li>
+        <li>תחום הגדרה של פונקציה רציונלית.</li>
+        <li>נקודות חיתוך עם הצירים.</li>
+        <li>אסימפטוטות אנכיות ואופקיות/אלכסוניות.</li>
+        <li>נגזרת ותחומי עלייה/ירידה - לצורך החלק של החקירה המלאה.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box warn">
+    <h3>טעות שמונעים כבר בתחילת השיעור</h3>
+    <p>הצמצום מפשט את הנוסחה, אך <b>אינו מחזיר לתחום ההגדרה</b> ערכים שנפסלו בפונקציה המקורית.</p>
+  </div>
+</section>
+
+<section class="page" id="p2">
+  <h2>1. מהו חור בגרף?</h2>
+  <p>חור הוא נקודה שהגרף מתקרב אליה, אך הפונקציה המקורית אינה מוגדרת בה. מבחינה גרפית מסמנים אותה בעיגול פתוח.</p>
+  <div class="formula">\[ f(x)=\frac{x^2-1}{x-1},\qquad x\ne1 \]</div>
+  <p>לאחר פירוק לגורמים:</p>
+  <div class="formula">\[ f(x)=\frac{(x-1)(x+1)}{x-1}=x+1,\qquad x\ne1 \]</div>
+  <p>הגרף זהה לישר \(y=x+1\) בכל נקודה שבה הפונקציה מוגדרת, אבל חסרה בו הנקודה המתאימה ל־\(x=1\):</p>
+  <div class="formula">\[ (1,2) \]</div>
+  <div class="graph-panel">
+    <div class="graph-title">הגרף המצומצם עם החור של הפונקציה המקורית</div>
+    <div class="graph-controls" data-for="g1"></div>
+    <div id="g1" class="jxgbox"></div>
+  </div>
+  <div class="page-no">2</div>
+</section>
+
+<section class="page" id="p3">
+  <h2>2. האלגוריתם האלגברי - מה עושים בכל שאלה?</h2>
+<div style="height:10px;"></div>
+  <div class="step"><div class="num">1</div><div><b>מוצאים תחום הגדרה מן הביטוי המקורי.</b><br>פותרים \(Q(x)=0\) ורושמים את כל הערכים שאינם בתחום.</div></div>
+  <div class="step"><div class="num">2</div><div><b>מפרקים מונה ומכנה לגורמים.</b><br>לא מחליטים עדיין אם מדובר בחור או באסימפטוטה.</div></div>
+  <div class="step"><div class="num">3</div><div><b>מצמצמים גורמים משותפים.</b><br>שומרים בצד את ההגבלות של התחום המקורי.</div></div>
+  <div class="step"><div class="num">4</div><div><b>מסווגים כל נקודת אי־הגדרה.</b><br>גורם שנעלם לחלוטין מן המכנה ⇐ חור. גורם שנשאר במכנה ⇐ אסימפטוטה אנכית.</div></div>
+  <div class="step"><div class="num">5</div><div><b>מוצאים את שיעור ה־\(y\) של החור.</b><br>מציבים את ערך ה־\(x\) של החור <b>בביטוי המצומצם</b>.</div></div>
+<div style="height:20px;"></div>
+  <div class="box key">
+    <h3>כלל החלטה</h3>
+    <div class="formula">\[ f(x)=\frac{(x-a)A(x)}{(x-a)B(x)}=\frac{A(x)}{B(x)},\qquad x\ne a \]</div>
+    <p>אם \(B(a)\ne0\), יש חור ב־</p>
+    <div class="formula">\[ \left(a,\frac{A(a)}{B(a)}\right). \]</div>
+  </div>
+<div style="height:20px;"></div>
+  <table>
+    <thead><tr><th>מה קורה לאחר הצמצום?</th><th>סוג נקודת אי־ההגדרה</th><th>מה רואים בגרף?</th></tr></thead>
+    <tbody>
+      <tr><td>הגורם נעלם מן המכנה</td><td>חור</td><td>עיגול פתוח בנקודה סופית</td></tr>
+      <tr><td>הגורם נשאר במכנה</td><td>אסימפטוטה אנכית</td><td>ערכי הפונקציה גדלים בערכם המוחלט ליד הנקודה</td></tr>
+    </tbody>
+  </table>
+  <div class="page-no">3</div>
+</section>
+
+<section class="page" id="p4">
+  <h2>3. דוגמה מלאה 1 - חור ואסימפטוטה באותה פונקציה</h2>
+  <div class="formula">\[ f(x)=\frac{x^3-x^2}{x^2-1} \]</div>
+  <div class="two_ small">
+    <div>
+      <h3>שלב א - תחום הגדרה</h3>
+      <div class="formula">\[ x^2-1=(x-1)(x+1) \]</div>
+      <div class="formula">\[ x\ne1,\qquad x\ne-1 \]</div>
+      <h3>שלב ב - פירוק וצמצום</h3>
+      <div class="formula">\[ x^3-x^2=x^2(x-1) \]</div>
+      <div class="formula">\[ f(x)=\frac{x^2(x-1)}{(x-1)(x+1)}=\frac{x^2}{x+1} \]</div>
+      <p>הגורם \(x-1\) נעלם לחלוטין ⇐ חור ב־\(x=1\).</p>
+      <p>הגורם \(x+1\) נשאר במכנה ⇐ אסימפטוטה אנכית \(x=-1\).</p>
+      <h3>שלב ג - שיעורי החור</h3>
+      <div class="formula">\[ y=\frac{1^2}{1+1}=\frac12 \]</div>
+      <div class="formula">\[ \boxed{\left(1,\frac12\right)} \]</div>
+    </div>
+    <div class="box key">
+      <h3>חשוב</h3>
+      <p>הפונקציה המצומצמת \(g(x)=\frac{x^2}{x+1}\) מוגדרת ב־\(x=1\), אבל הפונקציה המקורית אינה מוגדרת שם.</p>
+      <p>לכן:</p>
+      <div class="formula">\[ f(x)=g(x),\qquad x\ne1,-1 \]</div>
+      <p>אך לא מדובר באותה פונקציה על כל תחום ההגדרה של \(g\).</p>
+    </div>
+  </div>
+  <div class="graph-panel">
+    <div class="graph-title">\(f(x)=\frac{x^3-x^2}{x^2-1}\): חור ב־\(x=1\), אסימפטוטה ב־\(x=-1\)</div>
+    <div class="graph-controls" data-for="g2"></div>
+    <div id="g2" class="jxgbox short"></div>
+  </div>
+  <div class="page-no">4</div>
+</section>
+
+<section class="page" id="p5">
+  <h2>4. דוגמה מלאה 2 - החור נסתר לפני מכנה משותף</h2>
+  <div class="formula">\[ f(x)=\frac1{x-3}+\frac6{9-x^2} \]</div>
+  <p>בדוגמה זו אי אפשר לראות את החור מיד. תחילה שומרים את תחום ההגדרה של הביטוי המקורי:</p>
+  <div class="formula">\[ x\ne3,\qquad x\ne-3 \]</div>
+  <div class="box">
+    <div class="formula">\[ 9-x^2=(3-x)(3+x)=-(x-3)(x+3) \]</div>
+    <div class="formula">\[ f(x)=\frac1{x-3}-\frac6{(x-3)(x+3)} \]</div>
+    <div class="formula">\[ f(x)=\frac{x+3-6}{(x-3)(x+3)}=\frac{x-3}{(x-3)(x+3)} \]</div>
+    <div class="formula">\[ f(x)=\frac1{x+3},\qquad x\ne3,-3 \]</div>
+  </div>
+  <div class="two">
+    <div class="box success">
+      <h3>החור</h3>
+      <p>הגורם \(x-3\) נעלם.</p>
+      <div class="formula">\[ y=\frac1{3+3}=\frac16 \]</div>
+      <div class="formula">\[ \boxed{\left(3,\frac16\right)} \]</div>
+    </div>
+    <div class="box warn">
+      <h3>האסימפטוטה</h3>
+      <p>הגורם \(x+3\) נשאר במכנה.</p>
+      <div class="formula">\[ \boxed{x=-3} \]</div>
+      <div style="height:83px;"></div>
+    </div>
+  </div>
+  <div class="graph-panel">
+    <div class="graph-title">הפונקציה המקורית והפונקציה המצומצמת חופפות, מלבד החור</div>
+    <div class="graph-controls" data-for="g3"></div>
+    <div id="g3" class="jxgbox short"></div>
+  </div>
+  <div class="box key small"><b>עיקרון:</b> כאשר הביטוי אינו נתון כמנה אחת, יש קודם לאחד אותו לביטוי רציונלי אחד - אבל את תחום ההגדרה קובעים מן הביטוי המקורי.</div>
+  <div class="page-no">5</div>
+</section>
+
+<section class="page" id="p6">
+  <h2>5. דוגמה מלאה 3 - חור + אסימפטוטה + שאלה גאומטרית</h2>
+  <div class="formula">\[ f(x)=\frac{x^2+12x+32}{x^2+9x+20} \]</div>
+  <div class="formula">\[ x^2+12x+32=(x+4)(x+8) \]</div>
+  <div class="formula">\[ x^2+9x+20=(x+4)(x+5) \]</div>
+  <div class="formula">\[ f(x)=\frac{(x+4)(x+8)}{(x+4)(x+5)}=\frac{x+8}{x+5},\qquad x\ne-4,-5 \]</div>
+  <div class="two">
+    <div class="box success">
+      <h3>חור</h3>
+      <div class="formula">\[ x=-4 \]</div>
+      <div class="formula">\[ y=\frac{-4+8}{-4+5}=4 \]</div>
+      <div class="formula">\[ \boxed{A=(-4,4)} \]</div>
+    </div>
+    <div class="box warn">
+      <h3>אסימפטוטה אנכית</h3>
+      <div class="formula">\[ \boxed{x=-5} \]</div>
+      <p>בנוסף, מאחר שמקדמי החזקה הגבוהה שווים:</p>
+      <div class="formula">\[ \boxed{y=1} \]</div>
+      <div style="height:9px;"></div>
+    </div>
+  </div>
+  <div class="box key small">
+    <h3>הרחבה גאומטרית מן הדוגמה המצורפת</h3>
+    <p>הישר המחבר את הראשית \(O=(0,0)\) עם החור \(A=(-4,4)\) בעל שיפוע:</p>
+    <div class="formula">\[ m=\frac{4-0}{-4-0}=-1 \]</div>
+    <p>ולכן משוואתו \(y=-x\), אחד מחוצי הזוויות שבין הצירים.</p>
+  </div>
+  <div class="graph-panel">
+    <div class="graph-title">גרף הפונקציה: חור \(A=(-4,4)\), אסימפטוטות \(x=-5\), \(y=1\)</div>
+    <div class="graph-controls" data-for="g4"></div>
+    <div id="g4" class="jxgbox short"></div>
+  </div>
+  <div class="page-no">6</div>
+</section>
+
+<section class="page" id="p7">
+  <h2>6. דוגמה מלאה 4 - חור שנמצא על ציר ה־\(x\)</h2>
+  <div class="formula">\[ f(x)=\frac{x^2}{2x^2-4x} \]</div>
+  <div class="formula">\[ 2x^2-4x=2x(x-2) \]</div>
+  <div class="formula">\[ f(x)=\frac{x}{2(x-2)},\qquad x\ne0,2 \]</div>
+  <div class="two">
+    <div class="box success">
+      <h3>חור</h3>
+      <p>הגורם \(x\) מצטמצם ולכן \(x=0\) הוא חור.</p>
+      <div class="formula">\[ y=\frac0{2(0-2)}=0 \]</div>
+      <div class="formula">\[ \boxed{(0,0)} \]</div>
+    </div>
+    <div class="box warn">
+      <h3>אבל זו אינה נקודת חיתוך!</h3>
+      <p>נקודת חיתוך עם ציר ה־\(x\) חייבת להשתייך לגרף. מאחר ש־\(x=0\) אינו בתחום ההגדרה, \((0,0)\) אינו חיתוך עם הציר.</p>
+      <div style="height:69px;"></div>
+    </div>
+  </div>
+  <div class="formula">\[ \boxed{x=2} \qquad \boxed{y=\frac12} \]</div>
+  <p class="small">הראשונה אסימפטוטה אנכית והשנייה אסימפטוטה אופקית.</p>
+  <div class="graph-panel">
+    <div class="graph-title">החור נמצא בדיוק בראשית - אך הראשית אינה נקודה של הפונקציה</div>
+    <div class="graph-controls" data-for="g5"></div>
+    <div id="g5" class="jxgbox"></div>
+  </div>
+  <div class="box key small">
+    <b>כלל חשוב:</b> אפס של פונקציה הוא ערך \(x\) שבו הפונקציה <b>מוגדרת</b> ושווה לאפס. ערך שנפסל מתחום ההגדרה לעולם אינו אפס של הפונקציה המקורית.
+  </div>
+  <div class="page-no">7</div>
+</section>
+
+<section class="page" id="p8">
+  <h2>7. הקשר בין \(f(x)\) לבין \(\frac{1}{f(x)}\)</h2>
+  <p>הקשר בין פונקציה לבין ההופכית שלה מאפשר להסיק גרף חדש בלי לחקור מאפס.</p>
+  <table>
+    <tr><th>מידע על \(f\)</th><th>מה קורה ל־\(g=1/f\)</th></tr>
+    <tr><td>\(f(x)=0\)</td><td>\(g\) אינה מוגדרת; בדרך כלל נוצרת אסימפטוטה אנכית.</td></tr>
+    <tr><td>\(|f(x)|\) גדול מאוד</td><td>\(g(x)\) קרוב ל־\(0\).</td></tr>
+    <tr><td>\(f(x)\gt0\)</td><td>\(g(x)\gt0\).</td></tr>
+    <tr><td>\(f(x)\lt0\)</td><td>\(g(x)\lt0\).</td></tr>
+    <tr><td>\(f(x)=1\) או \(f(x)=-1\)</td><td>הנקודה נשארת באותו גובה.</td></tr>
+  </table>
+<div style="height:20px;"></div>
+  <div class="grid2__">
+    <div>
+      <div class="formula">\[ f(x)=\frac{x-2}{x+1} \]</div>
+      <div class="formula">\[ g(x)=\frac{1}{f(x)}=\frac{x+1}{x-2},\qquad x\ne-1,2 \]</div>
+      <p>האפס של \(f\) ב־\(x=2\) הופך לערך אסור של \(g\), ולכן מתקבלת אסימפטוטה אנכית של \(g\) ב־\(x=2\).</p>
+      <div class="warning small"><b>חשוב:</b> ב־\(x=-1\) הפונקציה \(f\) אינה מוגדרת, ולכן גם \(g=\frac{1}{f}\) אינה מוגדרת שם. אף על פי שהביטוי האלגברי המצומצם \(\frac{x+1}{x-2}\) נותן ערך \(0\) כאשר \(x=-1\), הערך הזה <b>אינו שייך</b> לפונקציה \(g\), כי צריך לשמור את תחום ההגדרה של \(f\). לכן בגרף של \(g\) יש <b>חור</b> בנקודה \((-1,0)\), ולא אפס רגיל של הפונקציה.</div>
+    </div>
+<div style="height:20px;"></div>
+    <div class="jxg-shell">
+      <div id="boardRecip" class="jxgbox compact"></div>
+      <div class="legend"><span><i class="sw blue"></i>\(f\)</span><span><i class="sw purple"></i>\(1/f\)</span></div>
+      <div class="graphbar">
+        <button onclick="zoomBoard('boardRecip',0.80)">הגדלה</button>
+        <button onclick="zoomBoard('boardRecip',1.25)">הקטנה</button>
+        <button onclick="resetBoard('boardRecip')">מרכוז</button>
+      </div>
+    </div>
+  </div>
+  <div class="exercise"><b>אתגר:</b> אם ידוע של־\(f\) יש נקודת מינימום חיובית, מה ניתן להסיק על נקודת הקיצון המתאימה של \(1/f\)? נמקו.</div>
+  <div class="page-no">8</div>
+</section>
+
+<section class="page" id="p9">
+  <h2>8. שילוב החור בחקירה מלאה של פונקציה</h2>
+  <p>נחזור לדוגמה:</p>
+  <div class="formula">\[ f(x)=\frac{x^3-x^2}{x^2-1}=\frac{x^2}{x+1},\qquad x\ne-1,1 \]</div>
+  <div class="two small">
+    <div class="box">
+      <h3>נתונים בסיסיים</h3>
+      <ul>
+        <li>חור: \(\left(1,\frac12\right)\)</li>
+        <li>אסימפטוטה אנכית: \(x=-1\)</li>
+        <li>חיתוך עם הצירים: \((0,0)\)</li>
+        <li>אסימפטוטה אלכסונית: \(y=x-1\)</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>נגזרת</h3>
+      <div class="formula">\[ f'(x)=\frac{x(x+2)}{(x+1)^2} \]</div>
+      <p>המכנה חיובי בכל תחום ההגדרה, ולכן סימן הנגזרת נקבע על ידי \(x(x+2)\).</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>תחום</th><th>סימן \(f'(x)\)</th><th>התנהגות</th></tr></thead>
+    <tbody>
+      <tr><td>\(x\lt-2\)</td><td>+</td><td>עולה</td></tr>
+      <tr><td>\(-2\lt x\lt-1\)</td><td>−</td><td>יורדת</td></tr>
+      <tr><td>\(-1\lt x\lt0\)</td><td>−</td><td>יורדת</td></tr>
+      <tr><td>\(0\lt x\lt1\)</td><td>+</td><td>עולה</td></tr>
+      <tr><td>\(x\gt1\)</td><td>+</td><td>עולה</td></tr>
+    </tbody>
+  </table>
+  <div class="graph-panel number-line-panel">
+    <div class="graph-title">ציר מספרים המתאים לטבלת הסימנים של \(f'(x)\)</div>
+    <div id="g7sign" class="jxgbox number-line"></div>
+  </div>
+  <div class="box warn small">
+    <b>למה מפצלים גם ב־\(x=1\)?</b> אף שסימן הנגזרת אינו משתנה סביב החור, \(x=1\) אינו בתחום ולכן הוא מפריד בין שני קטעים של תחום ההגדרה. בטבלה מלאה יש לסמן אותו.
+  </div>
+  <div class="graph-panel">
+    <div class="graph-title">חקירה מלאה: גרף הפונקציה</div>
+    <div class="graph-controls" data-for="g7"></div>
+    <div id="g7" class="jxgbox short"></div>
+  </div>
+  <div class="page-no">9</div>
+</section>
+
+<section class="page" id="p10">
+  <h2>9. שאלות פרמטר - יצירת חור בכוונה</h2>
+  <h3>דוגמה א</h3>
+  <p>מצא את \(k\) כך שלפונקציה יהיה חור ב־\(x=2\):</p>
+  <div class="formula">\[ f(x)=\frac{x^2+kx-6}{x^2-x-2} \]</div>
+  <div class="formula">\[ x^2-x-2=(x-2)(x+1) \]</div>
+  <p>כדי ש־\(x=2\) יהיה חור, גם המונה חייב להכיל את הגורם \(x-2\), ולכן:</p>
+  <div class="formula">\[ 2^2+2k-6=0 \]</div>
+  <div class="formula">\[ 2k-2=0\quad\Longrightarrow\quad \boxed{k=1} \]</div>
+  <p>אז:</p>
+  <div class="formula">\[ f(x)=\frac{(x-2)(x+3)}{(x-2)(x+1)}=\frac{x+3}{x+1},\qquad x\ne2,-1 \]</div>
+  <div class="formula">\[ \boxed{\left(2,\frac53\right)} \]</div>
+  <h3>דוגמה ב - בניית פונקציה לפי נתונים</h3>
+  <p>בנה פונקציה רציונלית שיש לה חור ב־\((3,2)\) ואסימפטוטה אנכית \(x=-1\).</p>
+  <p>נבחר פונקציה מצומצמת שעוברת דרך \((3,2)\) ושמכנהּ מתאפס ב־\(-1\), למשל:</p>
+  <div class="formula">\[ g(x)=\frac{8}{x+1} \]</div>
+  <p>כדי ליצור חור ב־\(x=3\), נכפיל מונה ומכנה ב־\(x-3\):</p>
+  <div class="formula">\[ \boxed{f(x)=\frac{8(x-3)}{(x+1)(x-3)}} \]</div>
+  <div class="box key small">
+    <h3>עיקרון בנייה</h3>
+    <p>חור ב־\(x=a\) נוצר על ידי גורם משותף \(x-a\) במונה ובמכנה. האסימפטוטות נקבעות מהגורמים שנשארים במכנה לאחר הצמצום.</p>
+  </div>
+  <div class="page-no">10</div>
+</section>
+
+<section class="page" id="p11">
+  <h2>10. הבחנות וטעויות נפוצות</h2>
+  <div class="two small">
+    <div class="box warn">
+      <h3>טעות 1 - “המכנה אפס, לכן אסימפטוטה”</h3>
+      <p>לא נכון. קודם מפרקים ומצמצמים. אם הגורם נעלם, מתקבל חור.</p>
+    </div>
+    <div class="box warn">
+      <h3>טעות 2 - “צמצמתי, לכן מותר להציב”</h3>
+      <p>לא נכון בפונקציה המקורית. ההגבלה מן התחום המקורי נשמרת.</p>
+    </div>
+    <div class="box warn">
+      <h3>טעות 3 - “\(0/0\) פירושו חור”</h3>
+      <p>לא תמיד. אם ריבוי הגורם במכנה גדול יותר, תישאר אסימפטוטה אנכית.</p>
+    </div>
+    <div class="box warn">
+      <h3>טעות 4 - “חור על ציר ה־\(x\) הוא חיתוך”</h3>
+      <p>לא. נקודה שאינה בתחום אינה נקודת חיתוך.</p>
+    </div>
+    <div class="box warn">
+      <h3>טעות 5 - שוכחים חורים בטבלת תחומים</h3>
+      <p>החור מפריד את תחום ההגדרה לשני קטעים גם אם אין שינוי בסימן הנגזרת.</p>
+    </div>
+    <div class="box warn">
+      <h3>טעות 6 - קובעים תחום אחרי צמצום</h3>
+      <p>תחום ההגדרה חייב להיקבע מן הביטוי המקורי, לפני כל פעולה שמוחקת גורם.</p>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <h3>שאלת חשיבה מן הגרף</h3>
+  <p>בגרף הבא יש חור ב־\(x=2\) ואסימפטוטה אנכית ב־\(x=-1\). אילו גורמים חייבים להופיע במכנה של נוסחה אפשרית לפני הצמצום?</p>
+  <div class="graph-panel">
+    <div class="graph-title">קריאת מידע מן הגרף</div>
+    <div class="graph-controls" data-for="g8"></div>
+    <div id="g8" class="jxgbox short"></div>
+  </div>
+  <div class="box success small">
+    <b>מסקנה:</b> במכנה חייבים להופיע הגורמים \(x-2\) ו־\(x+1\). כדי ש־\(x=2\) יהיה חור, גם המונה חייב להכיל לפחות גורם אחד \(x-2\). כדי ש־\(x=-1\) תישאר אסימפטוטה, לאחר הצמצום חייב להישאר לפחות גורם אחד \(x+1\) במכנה.
+  </div>
+  <div class="page-no">11</div>
+</section>
+
+<section class="page" id="p12">
+  <h2>11. תרגול מדורג - חלק א</h2>
+  <p class="small">בכל שאלה: מצאו תחום הגדרה, סווגו כל נקודת אי־הגדרה, ומצאו את שיעורי החורים.</p>
+  <div class="exercise"><b>1.</b> \(\displaystyle f(x)=\frac{x^2-9}{x-3}\)</div>
+  <div class="exercise"><b>2.</b> \(\displaystyle f(x)=\frac{x^2-4x}{x^2-2x}\)</div>
+  <div class="exercise"><b>3.</b> \(\displaystyle f(x)=\frac{x^2+5x+6}{x^2+x-6}\)</div>
+  <div class="exercise"><b>4.</b> \(\displaystyle f(x)=\frac{x^2}{x^2-5x}\)</div>
+  <div class="exercise"><b>5.</b> \(\displaystyle f(x)=\frac{x^3-4x^2+4x}{x^2-4x+4}\)</div>
+  <div class="exercise"><b>6.</b> \(\displaystyle f(x)=\frac{(x-1)^2(x+4)}{(x-1)^3(x+2)}\)</div>
+  <div class="exercise"><b>7.</b> \(\displaystyle f(x)=\frac{(x+3)^4(x-2)}{(x+3)^2(x-5)}\)</div>
+  <div class="exercise"><b>8.</b> \(\displaystyle f(x)=\frac1{x-2}+\frac4{4-x^2}\)</div>
+  <div class="box key small">
+    <h3>שאלות הסבר</h3>
+    <p><b>9.</b> הסבירו מדוע הפונקציות \(\displaystyle \frac{x^2-1}{x-1}\) ו־\(x+1\) אינן אותה פונקציה, אף שהביטויים שווים לאחר צמצום.</p>
+    <p><b>10.</b> האם כל נקודה שבה המונה והמכנה מתאפסים היא חור? נמקו באמצעות ריבוי גורמים.</p>
+  </div>
+  <div class="graph-panel">
+    <div class="graph-title">תרגיל 11 - מן הגרף: קבעו את החור ואת האסימפטוטה האנכית</div>
+    <div class="graph-controls" data-for="g9"></div>
+    <div id="g9" class="jxgbox short"></div>
+  </div>
+  <div class="page-no">12</div>
+</section>
+
+<section class="page" id="p13">
+  <h2>12. תרגול מדורג - חלק ב: רמת 5 יחידות</h2>
+  <div class="exercise"><b>12.</b> עבור \(\displaystyle f(x)=\frac{x^3-x^2}{x^2-1}\), בצעו חקירה מלאה: תחום, חיתוכים, חור, אסימפטוטות, נקודות קיצון, תחומי עלייה/ירידה וסקיצה.</div>
+  <div class="exercise"><b>13.</b> מצאו את \(k\) כך של־\(\displaystyle f(x)=\frac{x^2+kx-20}{x^2-3x-10}\) יהיה חור ב־\(x=5\), ומצאו את שיעורי החור.</div>
+  <div class="exercise"><b>14.</b> מצאו את \(a\) כך של־\(\displaystyle f(x)=\frac{x^2+ax+6}{x^2-5x+6}\) יהיה חור ב־\(x=2\). האם קיימת אז גם אסימפטוטה אנכית?</div>
+  <div class="exercise"><b>15.</b> בנו פונקציה רציונלית שיש לה חור ב־\((-2,3)\), אסימפטוטה אנכית \(x=4\), ואסימפטוטה אופקית \(y=0\).</div>
+  <div class="exercise"><b>16.</b> נתון \(\displaystyle f(x)=\frac{(x-a)^3(x+1)}{(x-a)^n(x-2)}\), כאשר \(n\) מספר טבעי. עבור אילו ערכי \(n\) יש חור ב־\(x=a\), ועבור אילו ערכים יש אסימפטוטה אנכית?</div>
+  <div class="exercise"><b>17.</b> מצאו פונקציה רציונלית שאחרי צמצום מתקבלת \(\displaystyle g(x)=\frac{x+2}{x-1}\), אך לפונקציה המקורית יש חורים ב־\(x=-3\) וב־\(x=4\).</div>
+  <div class="exercise"><b>18.</b> האם אפשר שלפונקציה רציונלית יהיה חור בנקודה \((2,5)\) ובו־זמנית אסימפטוטה אנכית \(x=2\)? נמקו.</div>
+  <div class="exercise"><b>19.</b> האם אפשר שלפונקציה רציונלית יהיו שני חורים באותו ערך \(x\)? נמקו.</div>
+  <div class="exercise"><b>20.</b> מצאו את כל ערכי \(k\) שעבורם \(\displaystyle f(x)=\frac{(x-1)^2(x-k)}{(x-1)(x-k)^2}\) כוללת גם חור וגם אסימפטוטה אנכית בשני ערכי \(x\) שונים.</div>
+  <div class="box key small">
+    <h3>משימת אתגר</h3>
+    <p><b>21.</b> בנו שתי פונקציות רציונליות שונות בעלות אותו גרף בכל נקודה שבה שתיהן מוגדרות, אך עם קבוצות שונות של חורים. הסבירו כיצד עשיתם זאת.</p>
+  </div>
+  <div class="page-no">13</div>
+</section>
+
+<section class="page" id="p14">
+  <h2>13. תשובות קצרות, הערכה ומקורות</h2>
+  <div class="two_ tiny">
+    <div>
+      <h3>תשובות לתרגול</h3>
+      <p><b>1.</b> חור \((3,6)\).</p>
+      <p><b>2.</b> חור \((0,2)\); אסימפטוטה \(x=2\).</p>
+      <p><b>3.</b> חור \((-3,\tfrac15)\); אסימפטוטה \(x=2\).</p>
+      <p><b>4.</b> חור \((0,0)\); אסימפטוטה \(x=5\).</p>
+      <p><b>5.</b> לאחר צמצום \(f(x)=x\), \(x\ne2\); חור \((2,2)\).</p>
+      <p><b>6.</b> ב־\(x=1\) נשאר גורם במכנה ⇐ אסימפטוטה; גם \(x=-2\) אסימפטוטה.</p>
+      <p><b>7.</b> חור ב־\(x=-3\), שיעורו \(0\); אסימפטוטה \(x=5\).</p>
+      <p><b>8.</b> \(\displaystyle f(x)=\frac1{x+2}\), \(x\ne2,-2\); חור \((2,\tfrac14)\), אסימפטוטה \(x=-2\).</p>
+      <p><b>11.</b> חור \((2,\tfrac43)\), אסימפטוטה \(x=-1\).</p>
+      <p><b>13.</b> \(k=-1\); החור \((5,\tfrac97)\), ונשארת אסימפטוטה \(x=-2\).</p>
+      <p><b>14.</b> \(a=-5\); מתקבלת הפונקציה המצומצמת \(1\), ולכן יש חורים ב־\(x=2\) וב־\(x=3\), ואין אסימפטוטה אנכית.</p>
+      <p><b>16.</b> חור אם \(n\le3\); אסימפטוטה אם \(n\gt3\), בהנחה \(a\ne2,-1\).</p>
+      <p><b>18.</b> לא. באותו ערך \(x\), לאחר צמצום או שנשאר גורם במכנה או שלא.</p>
+      <p><b>19.</b> לא. לגרף פונקציה יש לכל ערך \(x\) לכל היותר נקודת השלמה אחת.</p>
+      <p><b>20.</b> כל \(k\ne1\). אז ב־\(x=1\) יש חור וב־\(x=k\) אסימפטוטה אנכית.</p>
+    </div>
+<div style="height:20px;"></div>
+    <div>
+      <h3>כרטיס יציאה</h3>
+      <ol class="checklist">
+        <li>מה ההבדל בין נקודת אי־הגדרה לבין אסימפטוטה?</li>
+        <li>מדוע תחום ההגדרה נקבע לפני צמצום?</li>
+        <li>איך מוצאים את שיעור ה־\(y\) של חור?</li>
+        <li>מה קובע את הסיווג כאשר אותו גורם מופיע בריבויים שונים?</li>
+      </ol>
+    </div>
+  </div>
+  <div class="page-no">14</div>
+</section>
+
+<script>
+(function(){
+  const registry = {};
+  window.zoomBoard = function(id,factor){
+    const r=registry[id]; if(!r) return;
+    const b=r.board, bb=b.getBoundingBox();
+    const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+    const hw=(bb[2]-bb[0])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+    b.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],false);
+  };
+  window.resetBoard = function(id){
+    const r=registry[id]; if(!r) return;
+    r.board.setBoundingBox(r.initial.slice(),false);
+  };
+  function initBoard(id, bbox){
+    const b = JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showNavigation:false,showCopyright:false,keepaspectratio:false,pan:{enabled:true},zoom:{wheel:true,needShift:false}});
+    registry[id] = {board:b, initial:bbox.slice()};
+    return b;
+  }
+  function initMiniBoard(id, bbox){
+    const b = JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:false,showNavigation:false,showCopyright:false,keepaspectratio:false,pan:{enabled:true},zoom:{wheel:true,needShift:false}});
+    registry[id] = {board:b, initial:bbox.slice()};
+    return b;
+  }
+  function splitGraph(b,fn,cuts,xmin,xmax,attrs){
+    const eps=0.02;
+    const pts=[xmin].concat(cuts.filter(x=>x>xmin&&x<xmax).sort((a,b)=>a-b)).concat([xmax]);
+    for(let i=0;i<pts.length-1;i++){
+      let a=pts[i], c=pts[i+1];
+      if(i>0) a+=eps;
+      if(i<pts.length-2) c-=eps;
+      b.create('functiongraph',[fn,a,c],attrs||{strokeWidth:2.5});
+    }
+  }
+  function openPoint(b,x,y,label){
+    return b.create('point',[x,y],{name:label||'',size:5,face:'o',fillColor:'white',strokeWidth:2.5,fixed:true,highlight:false});
+  }
+  function vline(b,x){b.create('line',[[x,0],[x,1]],{straightFirst:true,straightLast:true,dash:2,strokeWidth:1.5,fixed:true,highlight:false});}
+  function hline(b,y){b.create('line',[[0,y],[1,y]],{straightFirst:true,straightLast:true,dash:2,strokeWidth:1.5,fixed:true,highlight:false});}
+  function addControls(){
+    document.querySelectorAll('.graph-controls').forEach(c=>{
+      const id=c.getAttribute('data-for');
+      c.innerHTML='<button type="button" data-act="in">＋ הגדלה</button><button type="button" data-act="out">− הקטנה</button><button type="button" data-act="center">מרכוז</button><button type="button" data-act="reset">איפוס</button>';
+      c.addEventListener('click',ev=>{
+        if(!ev.target.matches('button')) return;
+        const r=registry[id]; if(!r) return;
+        const b=r.board, act=ev.target.getAttribute('data-act');
+        if(act==='in') b.zoomIn();
+        if(act==='out') b.zoomOut();
+        if(act==='reset') b.setBoundingBox(r.initial.slice(),false);
+        if(act==='center'){
+          const bb=b.getBoundingBox();
+          const w=bb[2]-bb[0], h=bb[1]-bb[3];
+          b.setBoundingBox([-w/2,h/2,w/2,-h/2],false);
+        }
+      });
+    });
+  }
+  function build(){
+    let b;
+    b=initBoard('g1',[-5,6,5,-4]);
+    splitGraph(b,x=>x+1,[1],-5,5,{strokeWidth:2.8}); openPoint(b,1,2,'(1,2)');
+
+    b=initBoard('g2',[-6,6,6,-6]);
+    splitGraph(b,x=>x*x/(x+1),[-1,1],-6,6,{strokeWidth:2.5}); vline(b,-1); openPoint(b,1,0.5,'(1,1/2)');
+
+    b=initBoard('g3',[-9,6,9,-6]);
+    splitGraph(b,x=>1/(x+3),[-3,3],-9,9,{strokeWidth:2.5}); vline(b,-3); openPoint(b,3,1/6,'(3,1/6)');
+
+    b=initBoard('g4',[-10,8,6,-5]);
+    splitGraph(b,x=>(x+8)/(x+5),[-5,-4],-10,6,{strokeWidth:2.5}); vline(b,-5); hline(b,1); openPoint(b,-4,4,'A');
+    b.create('line',[[0,0],[-4,4]],{straightFirst:true,straightLast:true,dash:3,strokeWidth:1.2,fixed:true,highlight:false});
+
+    b=initBoard('g5',[-8,5,8,-5]);
+    splitGraph(b,x=>x/(2*(x-2)),[0,2],-8,8,{strokeWidth:2.5}); vline(b,2); hline(b,0.5); openPoint(b,0,0,'(0,0)');
+
+    b=initBoard('boardRecip',[-7,7,7,-7]);
+    splitGraph(b,x=>(x-2)/(x+1),[-1],-7,7,{strokeWidth:2.6,strokeColor:'#2457a6',highlight:false});
+    splitGraph(b,x=>(x+1)/(x-2),[-1,2],-7,7,{strokeWidth:2.6,strokeColor:'#7c3aed',highlight:false});
+    vline(b,-1); vline(b,2);
+    openPoint(b,-1,0,'(-1,0)').setAttribute({strokeColor:'#7c3aed',fillColor:'white'});
+
+    b=initMiniBoard('g7sign',[-3.8,1.8,2.8,-1.35]);
+    b.create('arrow',[[-3.55,0],[2.55,0]],{strokeWidth:2,fixed:true,highlight:false});
+    b.create('arrow',[[2.55,0],[-3.55,0]],{strokeWidth:2,fixed:true,highlight:false});
+    [-2,-1,0,1].forEach(x=>b.create('segment',[[x,-0.13],[x,0.13]],{strokeWidth:1.5,fixed:true,highlight:false}));
+    b.create('point',[-2,0],{name:'',size:2.8,face:'o',fillColor:'#172033',strokeColor:'#172033',fixed:true,highlight:false});
+    b.create('point',[0,0],{name:'',size:2.8,face:'o',fillColor:'#172033',strokeColor:'#172033',fixed:true,highlight:false});
+    b.create('point',[-1,0],{name:'',size:4.2,face:'o',fillColor:'white',strokeWidth:2,fixed:true,highlight:false});
+    b.create('point',[1,0],{name:'',size:4.2,face:'o',fillColor:'white',strokeWidth:2,fixed:true,highlight:false});
+    [{x:-2,t:'−2'},{x:-1,t:'−1'},{x:0,t:'0'},{x:1,t:'1'}].forEach(o=>
+      b.create('text',[o.x,-0.42,o.t],{anchorX:'middle',fontSize:14,fixed:true,highlight:false}));
+    [{x:-2.75,t:'+'},{x:-1.5,t:'−'},{x:-0.5,t:'−'},{x:0.5,t:'+'},{x:1.75,t:'+'}].forEach(o=>
+      b.create('text',[o.x,0.68,o.t],{anchorX:'middle',fontSize:18,fixed:true,highlight:false}));
+    b.create('text',[-2,1.18,"f′=0"],{anchorX:'middle',fontSize:12,fixed:true,highlight:false});
+    b.create('text',[0,1.18,"f′=0"],{anchorX:'middle',fontSize:12,fixed:true,highlight:false});
+    b.create('text',[-1,-0.88,'לא בתחום'],{anchorX:'middle',fontSize:11,fixed:true,highlight:false});
+    b.create('text',[1,-0.88,'חור'],{anchorX:'middle',fontSize:11,fixed:true,highlight:false});
+
+    b=initBoard('g7',[-6,6,6,-6]);
+    splitGraph(b,x=>x*x/(x+1),[-1,1],-6,6,{strokeWidth:2.5}); vline(b,-1); openPoint(b,1,0.5,'hole');
+    //b.create('line',[[0,-1],[1,0]],{straightFirst:true,straightLast:true,dash:2,strokeWidth:1.4,fixed:true,highlight:false});
+    b.create('point',[0,0],{name:'min',size:3,fixed:true}); b.create('point',[-2,-4],{name:'max',size:3,fixed:true});
+
+    b=initBoard('g8',[-6,6,7,-5]);
+    splitGraph(b,x=>(x+2)/(x+1),[-1,2],-6,7,{strokeWidth:2.5}); vline(b,-1); openPoint(b,2,4/3,'(2,4/3)');
+
+    b=initBoard('g9',[-6,6,7,-5]);
+    splitGraph(b,x=>(x+2)/(x+1),[-1,2],-6,7,{strokeWidth:2.5}); vline(b,-1); openPoint(b,2,4/3,'?');
+
+    addControls();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build); else build();
+})();
+</script>
+</body>
+</html>
