@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>תרגול גזירת פונקציות שורש</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+  <style>
+    :root {
+      --ink: #14213d;
+      --muted: #52606d;
+      --line: #d9e2ec;
+      --soft: #f7f9fc;
+      --accent: #0f6b8f;
+      --accent-soft: #e7f6fb;
+    }
+
+    @page {
+      size: A4;
+      margin: 14mm 12mm 14mm 12mm;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #eef2f6;
+      color: var(--ink);
+      font-family: "Arial", "Noto Sans Hebrew", sans-serif;
+      line-height: 1.45;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: white;
+      padding: 14mm 12mm;
+      box-shadow: 0 0 18px rgba(0,0,0,.10);
+    }
+
+    header {
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
+      margin-bottom: 14px;
+      break-inside: avoid;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .instructions {
+      margin: 14px 0;
+      padding: 12px 16px;
+      border-right: 5px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 12px;
+      break-inside: avoid;
+    }
+
+    .instructions h2 {
+      font-size: 18px;
+      margin: 0 0 8px 0;
+    }
+
+    .instructions ul {
+      margin: 0;
+      padding-right: 22px;
+    }
+
+    .rule-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      break-inside: avoid;
+    }
+
+    .rule-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .formula, .math-line {
+      direction: ltr;
+      text-align: center;
+      unicode-bidi: isolate;
+      font-size: 19px;
+      margin: 8px 0 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .exercise-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      min-height: 112px;
+    }
+
+    .exercise-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .num {
+      font-weight: 800;
+      font-size: 17px;
+    }
+
+    .level {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .given {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .tasks {
+      margin: 6px 0 0 0;
+      padding-right: 20px;
+      font-size: 13.5px;
+    }
+
+    footer {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      break-inside: avoid;
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    @media print {
+      body { background: white; }
+      .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+      a { color: inherit; text-decoration: none; }
+    }
+
+    @media (max-width: 800px) {
+      .page { width: 100%; padding: 16px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>תרגול: גזירת פונקציות שורש</h1>
+      <p class="subtitle">דף עבודה מתוקן בעברית ובכתיב מתמטי תקין. בכל התרגילים יש להשתמש בכלל השרשרת.</p>
+    </header>
+
+    <section class="instructions">
+      <h2>הנחיות עבודה</h2>
+      <ul>
+        <li>בכל תרגיל מצאו תחילה את תחום ההגדרה של הפונקציה.</li>
+        <li>לאחר מכן גזרו את הפונקציה.</li>
+        <li>לבסוף ציינו את תחום ההגדרה של הנגזרת.</li>
+      </ul>
+      <div class="rule-box">
+        <div class="rule-title">כלל עזר</div>
+        <div class="math-line">\( \text{If } f(x)=\sqrt{u(x)}\text{, then } f'(x)=\dfrac{u'(x)}{2\sqrt{u(x)}}\text{, where } u(x)>0. \)</div>
+        <p class="note">הערה: תחום ההגדרה של הנגזרת מחייב שהביטוי שבתוך השורש יהיה חיובי ממש.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 1</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 2</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x+3} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 3</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{2x-1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 4</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x^{2}+1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 5</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{5x+4} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 6</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{3x^{2}+2} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 7</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x^{2}-4x+5} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 8</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{4x^{2}+1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 9</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x^{3}+1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 10</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{2x^{2}-3x} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 11</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x^{4}+2x} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 12</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{3x^{2}-5x+1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 13</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x^{3}+2x^{2}-1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 14</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{2x^{3}+1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 15</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{x^{2}-1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 16</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=3\sqrt{x^{2}+4} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 17</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{4x^{2}-3} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 18</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=2\sqrt{x^{3}+x} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 19</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=\sqrt{5x^{2}+1} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+      <section class="exercise-card">
+        <div class="exercise-head">
+          <span class="num">תרגיל 20</span>
+          <span class="level">גזירת פונקציית שורש</span>
+        </div>
+        <div class="given">נתונה הפונקציה:</div>
+        <div class="formula">\( f(x)=4\sqrt{x^{4}-2x} \)</div>
+        <ol class="tasks">
+          <li>מצאו את תחום ההגדרה של הפונקציה.</li>
+          <li>גזרו את הפונקציה בעזרת כלל השרשרת.</li>
+          <li>ציינו את תחום ההגדרה של הנגזרת.</li>
+        </ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

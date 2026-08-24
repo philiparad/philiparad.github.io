@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דף עבודה — חקירה מלאה של פונקציות אי־רציונליות</title>
+<meta name="description" content="דף עבודה הכולל את תרגילים 1–12 בחקירת פונקציות אי־רציונליות.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 1.02 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<style>
+:root {
+  --ink:#172033;
+  --muted:#5b6474;
+  --blue:#3679bd;
+  --blue-dark:#245a91;
+  --blue-soft:#eaf3fb;
+  --line:#b9c7d5;
+  --paper:#ffffff;
+  --background:#dfe7ee;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; background:var(--background); color:var(--ink); font-family:Arial,"Noto Sans Hebrew",sans-serif; }
+body { overflow:visible; }
+.print-toolbar {
+  width:210mm; margin:10px auto; padding:10px 14px; background:#fff; border-radius:10px;
+  display:flex; align-items:center; justify-content:space-between; gap:14px; box-shadow:0 3px 14px rgba(0,0,0,.12);
+}
+.print-toolbar button {
+  border:0; border-radius:7px; background:var(--blue); color:#fff; padding:9px 18px;
+  font-size:15px; cursor:pointer; font-weight:700;
+}
+.print-toolbar button:hover { background:var(--blue-dark); }
+.print-toolbar span { color:var(--muted); font-size:14px; }
+.sheet-page {
+  position:relative; width:210mm; min-height:297mm; margin:0 auto 12mm; padding:12mm 14mm 11mm;
+  background:var(--paper); box-shadow:0 4px 18px rgba(0,0,0,.14); page-break-after:always;
+  break-after:page; overflow:hidden;
+}
+.sheet-page:last-of-type { page-break-after:auto; break-after:auto; }
+.exercise-header {
+  min-height:34mm; display:grid; grid-template-columns:1fr 1.1fr; align-items:center;
+  gap:10mm; border-bottom:2.2px solid var(--blue); padding-bottom:5mm;
+}
+.exercise-meta { text-align:right; }
+.unit-label { display:inline-block; font-size:13px; font-weight:700; color:var(--blue-dark); margin-bottom:3mm; }
+h1 { margin:0; font-size:29px; line-height:1.1; color:var(--ink); }
+.formula {
+  direction:ltr; text-align:center; min-height:25mm; display:flex; align-items:center; justify-content:center;
+  background:var(--blue-soft); border:1px solid #bdd4e8; border-radius:10px; font-size:24px;
+}
+.formula mjx-container[display="true"] { margin:0 !important; }
+.student-line {
+  display:grid; grid-template-columns:1.5fr .9fr 1fr; gap:8mm; margin:5mm 0 3.5mm; font-size:14px;
+}
+.student-line span { display:flex; align-items:flex-end; gap:3mm; white-space:nowrap; }
+.student-line b { display:inline-block; flex:1; min-width:25mm; height:6mm; border-bottom:1px solid #6d7684; }
+.instruction { margin:0 0 4mm; font-size:14px; font-weight:700; line-height:1.45; }
+.investigation-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:12.5px; }
+.investigation-table th, .investigation-table td { border:1px solid var(--line); }
+.investigation-table th { background:var(--blue); color:#fff; padding:2.3mm; text-align:center; font-size:12.5px; }
+.investigation-table th:nth-child(1) { width:10mm; }
+.investigation-table th:nth-child(2) { width:61mm; }
+.investigation-table td { padding:2mm 2.5mm; vertical-align:top; }
+.investigation-table tbody tr { height:15mm; }
+.investigation-table .letter { text-align:center; font-weight:800; font-size:15px; color:var(--blue-dark); vertical-align:middle; }
+.task strong { display:block; font-size:12.8px; margin-bottom:1mm; }
+.task span { display:block; color:var(--muted); font-size:11.4px; line-height:1.25; }
+.answer-space {
+  background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 7mm, rgba(105,125,145,.17) 7.2mm, transparent 7.4mm);
+}
+.graph-section { margin-top:4mm; }
+.graph-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:8mm; margin-bottom:2mm; }
+.graph-heading strong { font-size:13.2px; }
+.graph-heading span { font-size:11.2px; color:var(--muted); }
+.graph-board { width:100%; height:83mm; border:1.3px solid #8ea7bd; border-radius:4px; overflow:hidden; background:#fff; }
+.page-footer {
+  position:absolute; bottom:5.5mm; right:14mm; left:14mm; display:flex; justify-content:space-between;
+  border-top:1px solid #d7e0e8; padding-top:2mm; color:#6f7886; font-size:10px;
+}
+.jxgbox { touch-action:none; }
+.JXGtext { font-family:Arial,sans-serif !important; }
+@page { size:A4 portrait; margin:0; }
+@media print {
+  html,body { background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-toolbar { display:none !important; }
+  .sheet-page { margin:0; box-shadow:none; width:210mm; min-height:297mm; }
+}
+@media screen and (max-width:900px) {
+  .print-toolbar, .sheet-page { width:100%; }
+  .sheet-page { min-height:auto; margin-bottom:18px; padding:24px; }
+  .exercise-header { grid-template-columns:1fr; gap:12px; }
+  .student-line { grid-template-columns:1fr; gap:10px; }
+  .graph-board { height:420px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+    <section class="sheet-page" aria-labelledby="exercise-1">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-1">תרגיל 1</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=2\sqrt{x}-x\]</div>
+        </header>
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 1">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-1" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 1"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 1</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-2">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-2">תרגיל 2</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=2x-\frac{\sqrt{16x-1}}{4}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 2">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-2" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 2"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 2</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-3">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-3">תרגיל 3</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=x^2\sqrt{4x+5}\]</div>
+        </header>
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 3">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-3" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 3"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 3</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-4">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-4">תרגיל 4</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\sqrt{x^3-x}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 4">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-4" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 4"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 4</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-5">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-5">תרגיל 5</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=x\sqrt{x^2+5x+7}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 5">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-5" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 5"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 5</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-6">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-6">תרגיל 6</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\sqrt{x+8}+\sqrt{x+1}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 6">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-6" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 6"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 6</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-7">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-7">תרגיל 7</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\frac{\sqrt{x}}{x+2}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 7">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-7" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 7"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 7</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-8">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-8">תרגיל 8</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\frac{\sqrt{x}}{x-2}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 8">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-8" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 8"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 8</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-9">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-9">תרגיל 9</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\frac{\sqrt{x}+8}{x^2}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 9">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-9" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 9"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 9</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-10">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-10">תרגיל 10</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\frac{x}{\sqrt{10-x}}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 10">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-10" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 10"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 10</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-11">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-11">תרגיל 11</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\frac{3x^2}{\sqrt{x^2+3}}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 11">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-11" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 11"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 11</span>
+        </footer>
+    </section>
+    <section class="sheet-page" aria-labelledby="exercise-12">
+        <header class="exercise-header">
+            <div class="exercise-meta">
+                <span class="unit-label">חקירה מלאה של פונקציה אי־רציונלית</span>
+                <h1 id="exercise-12">תרגיל 12</h1>
+            </div>
+            <div class="formula" dir="ltr">\[f(x)=\frac{x^2-4}{\sqrt{9-x^2}}\]</div>
+        </header>
+
+        <p class="instruction">חקרו את הפונקציה לפי כל הסעיפים. הציגו חישובים מלאים ונימוקים מתאימים.</p>
+
+        <table class="investigation-table" aria-label="סעיפי החקירה לתרגיל 12">
+            <thead>
+                <tr><th>סעיף</th><th>משימה</th><th>חישובים ותשובה</th></tr>
+            </thead>
+            <tbody><tr>
+            <td class="letter">א</td>
+            <td class="task"><strong>תחום ההגדרה</strong><span>רשמו את התחום בצורה מדויקת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ב</td>
+            <td class="task"><strong>נקודות קיצון</strong><span>מצאו את שיעורי נקודות הקיצון.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ג</td>
+            <td class="task"><strong>סוג הקיצון ותחומי עלייה וירידה</strong><span>נמקו בעזרת סימן הנגזרת.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ד</td>
+            <td class="task"><strong>נקודות חיתוך עם הצירים</strong><span>רשמו שיעורים מדויקים, במידה שיש.</span></td>
+            <td class="answer-space"></td>
+        </tr><tr>
+            <td class="letter">ה</td>
+            <td class="task"><strong>אסימפטוטות המקבילות לצירים</strong><span>בדקו אסימפטוטות אנכיות ואופקיות.</span></td>
+            <td class="answer-space"></td>
+        </tr></tbody>
+        </table>
+
+        <div class="graph-section">
+            <div class="graph-heading">
+                <strong>ו. שרטוט סקיצה של גרף הפונקציה</strong>
+                <span>סמנו נקודות חשובות ואסימפטוטות לפני שרטוט הגרף.</span>
+            </div>
+            <div id="board-12" class="jxgbox graph-board" aria-label="מערכת צירים לתרגיל 12"></div>
+        </div>
+
+        <footer class="page-footer">
+            <span>חקירת פונקציות אי־רציונליות</span>
+            <span>תרגיל 12</span>
+        </footer>
+    </section>
+</main>
+<script>
+(function() {
+  function start() {
+    if (!window.JXG || !JXG.JSXGraph) {
+      window.setTimeout(start, 60);
+      return;
+    }
+
+    window.createWorksheetBoard = function(id, boundingBox, tickX, tickY) {
+      const board = JXG.JSXGraph.initBoard(id, {
+        boundingbox: boundingBox,
+        axis: false,
+        grid: true,
+        keepaspectratio: false,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled:false },
+        zoom: { enabled:false, wheel:false, needShift:false },
+        keyboard: { enabled:false },
+        renderer: 'svg'
+      });
+
+      board.create('axis', [[0,0],[1,0]], {
+        name:'x', withLabel:true, label:{position:'rt', offset:[-12,14]},
+        ticks:{ ticksDistance:tickX, minorTicks:0, insertTicks:false, drawLabels:true }
+      });
+      board.create('axis', [[0,0],[0,1]], {
+        name:'y', withLabel:true, label:{position:'rt', offset:[10,-12]},
+        ticks:{ ticksDistance:tickY, minorTicks:0, insertTicks:false, drawLabels:true }
+      });
+      return board;
+    };
+
+    
+    createWorksheetBoard('board-1', [-1, 7, 10, -5], 1, 1);
+    createWorksheetBoard('board-2', [-1, 13, 8, -4], 1, 2);
+    createWorksheetBoard('board-3', [-2, 20, 3, -2], 0.5, 2);
+    createWorksheetBoard('board-4', [-3, 5, 3, -1], 0.5, 1);
+    createWorksheetBoard('board-5', [-8, 12, 4, -12], 1, 2);
+    createWorksheetBoard('board-6', [-9, 9, 8, -1], 1, 1);
+    createWorksheetBoard('board-7', [-1, 2.5, 16, -1], 2, 0.5);
+    createWorksheetBoard('board-8', [-1, 5, 16, -5], 2, 1);
+    createWorksheetBoard('board-9', [-1, 12, 10, -2], 1, 2);
+    createWorksheetBoard('board-10', [-10, 10, 11, -10], 2, 2);
+    createWorksheetBoard('board-11', [-6, 18, 6, -1], 1, 2);
+    createWorksheetBoard('board-12', [-4, 6, 4, -10], 0.5, 2);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
+</script>
+</body>
+</html>
