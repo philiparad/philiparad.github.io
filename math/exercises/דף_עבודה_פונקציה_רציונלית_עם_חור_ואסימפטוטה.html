@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פונקציה רציונלית עם חור ואסימפטוטה - מסמך מאוחד 001 + 002</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraph.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraphcore.js"></script>
+  <script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    @page { size: A4; margin: 0; }
+    html, body { margin: 0; padding: 0; background: #eef2f7; }
+    @media print { html, body { background: white; } }
+
+    /* ===== 001 ===== */
+
+    .doc001 :root{
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --soft: #f8fafc;
+      --accent: #0f766e;
+      --accent2: #c2410c;
+      --danger: #dc2626;
+    }
+
+    .doc001 *{ box-sizing: border-box; }
+    .doc001, .doc001{ margin: 0; padding: 0; background: #eef2f7; color: var(--ink); }
+    .doc001{
+      font-family: "Arial", "Noto Sans Hebrew", sans-serif;
+      line-height: 1.45;
+    }
+
+    .doc001 .page{
+      width: 210mm;
+      min-height: 297mm;
+      margin: 10mm auto;
+      background: white;
+      padding: 13mm 13mm 11mm 13mm;
+      box-shadow: 0 8px 26px rgba(15, 23, 42, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .doc001 header{
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 7px;
+      margin-bottom: 10px;
+    }
+
+    .doc001 h1{
+      margin: 0;
+      font-size: 27px;
+      color: #0f172a;
+      letter-spacing: -0.4px;
+    }
+
+    .doc001 .subtitle{
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .doc001 h2{
+      font-size: 18px;
+      margin: 0;
+      color: #0f172a;
+      border-right: 5px solid var(--accent);
+      padding-right: 8px;
+    }
+
+    .doc001 h3{
+      font-size: 16px;
+      margin: 8px 0 6px;
+      color: #0f172a;
+    }
+
+    .doc001 .grid{
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .doc001 .card{
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .doc001 .given{
+      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+      border-color: #99f6e4;
+      text-align: center;
+      font-size: 19px;
+      padding: 14px;
+    }
+
+    .doc001 .note{
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13.5px;
+      color: #334155;
+    }
+
+    .doc001 .tasks{
+      counter-reset: item;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 14.6px;
+    }
+
+    .doc001 .tasks li{
+      counter-increment: item;
+      display: grid;
+      grid-template-columns: 25px minmax(0, 1fr);
+      column-gap: 7px;
+      align-items: start;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .doc001 .tasks li::before{
+      content: counter(item, hebrew);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 21px;
+      height: 21px;
+      border-radius: 50%;
+      background: #e0f2fe;
+      color: #075985;
+      font-weight: bold;
+      font-size: 12px;
+      margin-top: 1px;
+    }
+
+    .doc001 .tasks li:last-child{ border-bottom: none; }
+
+    .doc001 .task-content{
+      grid-column: 2;
+      min-width: 0;
+    }
+
+    .doc001 .task-text{
+      display: block;
+      white-space: normal;
+    }
+
+    .doc001 .task-text .MathJax, .doc001 .solution-step .MathJax, .doc001 .check-table .MathJax{
+      white-space: nowrap;
+    }
+
+    .doc001 .answer-line{
+      height: 22px;
+      border-bottom: 1px solid #cbd5e1;
+      margin-top: 4px;
+    }
+
+    .doc001 .small-lines{ margin-top: 6px; display: grid; gap: 5px; }
+    .doc001 .small-lines div{ height: 18px; border-bottom: 1px solid #cbd5e1; }
+
+    .doc001 .jxgbox{
+      direction: ltr;
+      border: 1px solid #94a3b8 !important;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .doc001 #box1{ width: 100%; height: 370px; }
+    .doc001 #box2{ width: 100%; height: 355px; }
+
+    .doc001 .legend{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 7px;
+      font-size: 12.5px;
+      color: #334155;
+      align-items: center;
+    }
+
+    .doc001 .pill{
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
+    .doc001 .solution-step{
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      background: #ffffff;
+      font-size: 14.3px;
+    }
+
+    .doc001 .solution-step strong{
+      color: #0f766e;
+    }
+
+    .doc001 .solution-grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .doc001 .check-table{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 13.4px;
+    }
+
+    .doc001 .check-table th, .doc001 .check-table td{
+      border: 1px solid #dbe3ec;
+      padding: 6px;
+      vertical-align: top;
+    }
+
+    .doc001 .check-table th{
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .doc001 .ltr{ direction: ltr; unicode-bidi: embed; text-align: left; }
+    .doc001 .center{ text-align: center; }
+    .doc001 .highlight{ color: var(--danger); font-weight: bold; }
+    .doc001 .muted{ color: var(--muted); }
+
+    .doc001 .footer{
+      position: absolute;
+      bottom: 7mm;
+      left: 13mm;
+      right: 13mm;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 5px;
+      color: #64748b;
+      font-size: 11.5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media print{
+      .doc001, .doc001{ background: white; }
+      .doc001 .page{
+        margin: 0;
+        width: 210mm;
+        min-height: 297mm;
+        box-shadow: none;
+        page-break-after: always;
+      }
+      .doc001 .page:last-child{ page-break-after: auto; }
+    }
+  
+
+    /* ===== 002 ===== */
+
+    .doc002 :root{
+      --ink: #172033;
+      --muted: #64748b;
+      --line: #dbe4ee;
+      --soft: #f8fafc;
+      --soft2: #eef6ff;
+      --accent: #0f766e;
+      --accent-light: #ccfbf1;
+    }
+
+    .doc002 *{ box-sizing: border-box; }
+    .doc002, .doc002{ margin: 0; padding: 0; background: #edf2f7; color: var(--ink); }
+    .doc002{ font-family: Arial, "Noto Sans Hebrew", sans-serif; line-height: 1.35; }
+
+    .doc002 .page{
+      width: 210mm;
+      min-height: 297mm;
+      margin: 10mm auto;
+      padding: 11mm 12mm;
+      background: #ffffff;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.16);
+      overflow: visible;
+      page-break-after: always;
+    }
+
+    .doc002 header{
+      display: grid;
+      grid-template-columns: 1fr 58mm;
+      gap: 10mm;
+      align-items: start;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 7px;
+      margin-bottom: 8px;
+    }
+
+    .doc002 header.small-header{
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    .doc002 h1{
+      margin: 0;
+      font-size: 24px;
+      color: #0f172a;
+      letter-spacing: -0.25px;
+    }
+
+    .doc002 .subtitle{ margin: 4px 0 0; color: var(--muted); font-size: 13.5px; }
+    .doc002 .student-box{
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: var(--soft);
+      font-size: 13.5px;
+      line-height: 1.8;
+    }
+    .doc002 .page-note{ color: var(--muted); font-size: 13px; }
+
+    .doc002 .instructions{
+      border: 1px solid #99f6e4;
+      background: linear-gradient(180deg, #f0fdfa, #ffffff);
+      border-radius: 12px;
+      padding: 8px 11px;
+      margin: 9px 0 10px;
+      font-size: 13.5px;
+    }
+
+    .doc002 .exercise-stack{ display: flex; flex-direction: column; gap: 9px; }
+
+    .doc002 .exercise{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 8px 9px 9px;
+      background: #ffffff;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .doc002 .ex-head{
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .doc002 .badge{
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .doc002 .formula{
+      direction: ltr;
+      unicode-bidi: embed;
+      text-align: left;
+      font-size: 18px;
+      flex: 1;
+      padding-left: 4px;
+      min-width: 0;
+    }
+
+    .doc002 .formula mjx-container[jax="SVG"][display="true"]{ margin: 0 !important; }
+    .doc002 .math-word mjx-container{ white-space: nowrap; }
+
+    .doc002 .work-grid{
+      display: grid;
+      grid-template-columns: 1fr 78mm;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .doc002 .tasks{ min-width: 0; }
+
+    .doc002 .task-row{
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      font-size: 13.3px;
+      margin: 3px 0 2px;
+    }
+
+    .doc002 .letter{
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--soft2);
+      border: 1px solid #bfdbfe;
+      color: #075985;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      font-size: 12.5px;
+    }
+
+    .doc002 .answer-line{
+      height: 14px;
+      border-bottom: 1px solid #b8c4d4;
+      margin: 0 30px 2px 2px;
+    }
+    .doc002 .answer-line.short{ width: 78%; }
+
+    .doc002 .board-wrap{
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 4px;
+      background: var(--soft);
+    }
+
+    .doc002 .board{
+      width: 100%;
+      height: 67mm;
+      border: 0 !important;
+      border-radius: 9px;
+      overflow: hidden;
+      background: white;
+      direction: ltr;
+    }
+
+    .doc002 .footer-note{
+      margin-top: 7px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    @page{ size: A4; margin: 0; }
+    @media print{
+      .doc002, .doc002{ background: white; }
+      .doc002 .page{
+        margin: 0;
+        width: 210mm;
+        min-height: 297mm;
+        box-shadow: none;
+        page-break-after: always;
+      }
+    }
+  
+  </style>
+</head>
+<body>
+  <!-- 001 starts here -->
+  <div class="doc001">
+
+<section class="page">
+<header>
+<h1>דף עבודה: פונקציה רציונלית עם חור ואסימפטוטה</h1>
+<div class="subtitle">חקירת פונקציית מנה, תחום הגדרה, צמצום, נקודת אי־רציפות סליקה ואסימפטוטה אנכית</div>
+</header>
+<div class="grid">
+<div>
+<div class="card given">
+          נתונה הפונקציה
+          \[
+            f(x)=\frac{1}{x-3}+\frac{6}{9-x^2}
+          \]
+        </div>
+<h2>משימות</h2>
+<ol class="tasks">
+<li>
+<div class="task-content">
+<span class="task-text">קבעו את תחום ההגדרה של \(f(x)\).</span>
+<div class="answer-line"></div>
+</div>
+</li>
+<li>
+<div class="task-content">
+<span class="task-text">פרקו לגורמים את הביטוי \(9-x^2\), והסבירו מדוע חשוב לבדוק את תחום ההגדרה לפני הצמצום.</span>
+<div class="small-lines"><div></div><div></div></div>
+</div>
+</li>
+<li>
+<div class="task-content">
+<span class="task-text">הביאו את שני השברים למכנה משותף ופשטו את הביטוי ככל האפשר.</span>
+<div class="small-lines"><div></div><div></div><div></div></div>
+</div>
+</li>
+<li>
+<div class="task-content">
+<span class="task-text">רשמו את הפונקציה המצומצמת \(g(x)\), וציינו במה היא שונה מ־\(f(x)\).</span>
+<div class="small-lines"><div></div><div></div></div>
+</div>
+</li>
+<li>
+<div class="task-content">
+<span class="task-text">קבעו איזו נקודת אי־הגדרה יוצרת אסימפטוטה אנכית, ואיזו נקודת אי־הגדרה יוצרת חור.</span>
+<div class="small-lines"><div></div><div></div></div>
+</div>
+</li>
+<li>
+<div class="task-content">
+<span class="task-text">מצאו את שיעורי נקודת החור.</span>
+<div class="answer-line"></div>
+</div>
+</li>
+<li>
+<div class="task-content">
+<span class="task-text">קבעו את האסימפטוטה האופקית של הפונקציה.</span>
+<div class="answer-line"></div>
+</div>
+</li>
+<li>
+<div class="task-content">
+<span class="task-text">נמקו: האם נכון לכתוב \(f(3)=\frac{1}{6}\)?</span>
+<div class="small-lines"><div></div><div></div></div>
+</div>
+</li>
+</ol>
+</div>
+<div>
+<h2>גרף לבדיקה וניתוח</h2>
+<div class="jxgbox" id="box1"></div>
+<div class="legend">
+<span class="pill">העקומה הכחולה: הגרף לאחר צמצום, עם תחום ההגדרה המקורי</span>
+<span class="pill">עיגול פתוח: נקודת חור</span>
+<span class="pill">קו מקווקו: אסימפטוטה</span>
+</div>
+<h2>תזכורת קצרה</h2>
+<div class="note">
+          כאשר גורם במכנה מתאפס וגם מצטמצם עם גורם מתאים במונה, מתקבלת בדרך כלל נקודת חור. כאשר לאחר הצמצום עדיין נשאר גורם במכנה שמתאפס, מתקבלת אסימפטוטה אנכית.
+        </div>
+</div>
+</div>
+<div class="footer"><span>עמוד 1 — דף עבודה לתלמיד</span><span>פונקציות רציונליות</span></div>
+</section>
+<section class="page">
+<header>
+<h1>פתרון מלא ובדיקת תקינות</h1>
+<div class="subtitle">הפתרון מדגיש את ההבדל בין הפונקציה המקורית לבין הפונקציה המצומצמת</div>
+</header>
+<div class="solution-grid">
+<div>
+<div class="solution-step">
+<strong>1. תחום ההגדרה</strong><br/>
+          במכנה מופיעים \(x-3\) ו־\(9-x^2\). לכן:
+          \[
+            x-3\ne 0,\qquad 9-x^2\ne 0
+          \]
+          ומקבלים:
+          \[
+            x\ne 3,\qquad x\ne -3
+          \]
+        </div>
+<div class="solution-step">
+<strong>2. פירוק לגורמים</strong><br/>
+          \[
+            9-x^2=(3-x)(3+x)=-(x-3)(x+3)
+          \]
+          לכן:
+          \[
+            \frac{6}{9-x^2}=-\frac{6}{(x-3)(x+3)}
+          \]
+        </div>
+<div class="solution-step">
+<strong>3. מכנה משותף וצמצום</strong><br/>
+          \[
+          \begin{aligned}
+            f(x)&amp;=\frac{1}{x-3}-\frac{6}{(x-3)(x+3)}\\
+                &amp;=\frac{x+3}{(x-3)(x+3)}-\frac{6}{(x-3)(x+3)}\\
+                &amp;=\frac{x+3-6}{(x-3)(x+3)}\\
+                &amp;=\frac{x-3}{(x-3)(x+3)}\\
+                &amp;=\frac{1}{x+3}
+          \end{aligned}
+          \]
+          הצמצום נכון רק עבור \(x\ne 3\), כי ב־\(x=3\) הפונקציה המקורית אינה מוגדרת.
+        </div>
+<div class="solution-step">
+<strong>4. הפונקציה המצומצמת</strong><br/>
+          \[
+            g(x)=\frac{1}{x+3}
+          \]
+          לפונקציה \(g(x)\) יש תחום הגדרה \(x\ne -3\). לעומת זאת, לפונקציה המקורית \(f(x)\) יש גם איסור \(x\ne 3\). לכן ב־\(x=3\) מתקבל חור בגרף של \(f(x)\).
+        </div>
+</div>
+<div>
+<div class="jxgbox" id="box2"></div>
+<div class="solution-step" style="margin-top: 8px;">
+<strong>5. אסימפטוטה וחור</strong><br/>
+          הערך \(x=-3\) עדיין מאפס את המכנה לאחר הצמצום, לכן:
+          \[
+            x=-3
+          \]
+          היא אסימפטוטה אנכית.
+          הערך \(x=3\) נעלם לאחר הצמצום, אך היה אסור בתחום המקורי. לכן יש חור.
+        </div>
+<div class="solution-step">
+<strong>6. שיעורי החור</strong><br/>
+          כדי למצוא את שיעור ה־\(y\) של החור, מציבים בפונקציה המצומצמת:
+          \[
+            g(3)=\frac{1}{3+3}=\frac{1}{6}
+          \]
+          לכן נקודת החור היא:
+          \[
+            \left(3,\frac{1}{6}\right)
+          \]
+        </div>
+<div class="solution-step">
+<strong>7. אסימפטוטה אופקית</strong><br/>
+          כאשר \(x\) גדל בערכו המוחלט, הביטוי \(\frac{1}{x+3}\) מתקרב ל־\(0\). לכן:
+          \[
+            y=0
+          \]
+          היא אסימפטוטה אופקית.
+        </div>
+</div>
+</div>
+<h2>טבלת סיכום</h2>
+<table class="check-table">
+<thead>
+<tr>
+<th>סעיף</th>
+<th>תוצאה</th>
+<th>נימוק קצר</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>תחום הגדרה</td>
+<td class="center">\(x\ne -3,\; x\ne 3\)</td>
+<td>בודקים את המכנים לפני כל צמצום.</td>
+</tr>
+<tr>
+<td>פונקציה מצומצמת</td>
+<td class="center">\(g(x)=\frac{1}{x+3}\)</td>
+<td>הגרף זהה לגרף של \(f(x)\), חוץ מהחור.</td>
+</tr>
+<tr>
+<td>אסימפטוטה אנכית</td>
+<td class="center">\(x=-3\)</td>
+<td>הגורם \(x+3\) נשאר במכנה.</td>
+</tr>
+<tr>
+<td>נקודת חור</td>
+<td class="center">\(\left(3,\frac{1}{6}\right)\)</td>
+<td>הגורם \(x-3\) הצטמצם, אך \(x=3\) נשאר מחוץ לתחום.</td>
+</tr>
+<tr>
+<td>אסימפטוטה אופקית</td>
+<td class="center">\(y=0\)</td>
+<td>הפונקציה המצומצמת מתקרבת ל־\(0\).</td>
+</tr>
+</tbody>
+</table>
+<div class="note" style="margin-top: 9px;">
+      מסקנה חשובה: לא נכון לכתוב \(f(3)=\frac{1}{6}\), כי \(f(3)\) לא מוגדר. נכון לכתוב שהחור בגרף נמצא בנקודה \(\left(3,\frac{1}{6}\right)\), כי \(g(3)=\frac{1}{6}\).
+    </div>
+</section>
+
+
+  </div>
+
+  <!-- 002 starts here -->
+  <div class="doc002">
+
+<main class="page">
+<header>
+<div>
+<h1>דף עבודה: פונקציה רציונלית עם חור ואסימפטוטה</h1>
+<p class="subtitle">10 תרגילים באותו סגנון: פירוק לגורמים, צמצום, תחום הגדרה, חור ואסימפטוטה</p>
+</div>
+</header>
+<div class="exercise-stack">
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">1</div>
+<div class="formula">\[f(x)=\frac{1}{x-3}+\frac{6}{9-x^2}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board1"></div>
+</div>
+</div>
+</section>
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">2</div>
+<div class="formula">\[f(x)=\frac{2}{x-4}+\frac{16}{16-x^2}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board2"></div>
+</div>
+</div>
+</section>
+</div>
+</main><main class="page">
+<header class="small-header">
+<h1>המשך דף עבודה</h1>
+<div class="page-note">פונקציה רציונלית עם חור ואסימפטוטה</div>
+</header>
+<div class="exercise-stack">
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">3</div>
+<div class="formula">\[f(x)=\frac{3}{x-1}-\frac{9}{x^2+x-2}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board3"></div>
+</div>
+</div>
+</section>
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">4</div>
+<div class="formula">\[f(x)=-\frac{2}{x+2}-\frac{10}{x^2-x-6}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board4"></div>
+</div>
+</div>
+</section>
+</div>
+</main><main class="page">
+<header class="small-header">
+<h1>המשך דף עבודה</h1>
+<div class="page-note">פונקציה רציונלית עם חור ואסימפטוטה</div>
+</header>
+<div class="exercise-stack">
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">5</div>
+<div class="formula">\[f(x)=\frac{4}{x+1}+\frac{24}{x^2-4x-5}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board5"></div>
+</div>
+</div>
+</section>
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">6</div>
+<div class="formula">\[f(x)=-\frac{3}{x-2}+\frac{27}{x^2+5x-14}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board6"></div>
+</div>
+</div>
+</section>
+</div>
+</main><main class="page">
+<header class="small-header">
+<h1>המשך דף עבודה</h1>
+<div class="page-note">פונקציה רציונלית עם חור ואסימפטוטה</div>
+</header>
+<div class="exercise-stack">
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">7</div>
+<div class="formula">\[f(x)=\frac{5}{x+4}+\frac{25}{x^2+3x-4}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board7"></div>
+</div>
+</div>
+</section>
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">8</div>
+<div class="formula">\[f(x)=\frac{1}{x+5}+\frac{3}{x^2+7x+10}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board8"></div>
+</div>
+</div>
+</section>
+</div>
+</main><main class="page">
+<header class="small-header">
+<h1>המשך דף עבודה</h1>
+<div class="page-note">פונקציה רציונלית עם חור ואסימפטוטה</div>
+</header>
+<div class="exercise-stack">
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">9</div>
+<div class="formula">\[f(x)=-\frac{4}{x-6}+\frac{28}{x^2-5x-6}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board9"></div>
+</div>
+</div>
+</section>
+<section class="exercise">
+<div class="ex-head">
+<div class="badge">10</div>
+<div class="formula">\[f(x)=\frac{2}{x+3}+\frac{14}{x^2-x-12}\]</div>
+</div>
+<div class="work-grid">
+<div class="tasks">
+<div class="task-row"><span class="letter">א</span><span>פרקו לגורמים את כל המכנים האפשריים.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ב</span><span>רשמו את תחום ההגדרה של הפונקציה המקורית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ג</span><span>הביאו את הביטוי לשבר יחיד, ואז צמצמו אם אפשר.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ד</span><span>רשמו את הפונקציה המצומצמת.</span></div><div class="answer-line short"></div><div class="task-row"><span class="letter">ה</span><span>קבעו: אסימפטוטה אנכית, חור בגרף, ואסימפטוטה אופקית.</span></div><div class="answer-line"></div><div class="task-row"><span class="letter">ו</span><span>שרטטו סקיצה מתאימה במערכת הצירים.</span></div>
+</div>
+<div class="board-wrap">
+<div class="jxgbox board" id="board10"></div>
+</div>
+</div>
+</section>
+</div>
+</main>
+
+
+  </div>
+
+  <script>
+  (function() {
+
+    function buildBoard(divId, labeled) {
+      const board = JXG.JSXGraph.initBoard(divId, {
+        boundingbox: [-10, 6.2, 8, -6.2],
+        axis: true,
+        showCopyright: false,
+        showNavigation: false,
+        keepaspectratio: false,
+        grid: true,
+        defaultAxes: {
+          x: { ticks: { visible: true, majorHeight: 8, insertTicks: false, ticksDistance: 1 }, name: 'x', withLabel: true, label: { position: 'rt', offset: [-10, 12] } },
+          y: { ticks: { visible: true, majorHeight: 8, insertTicks: false, ticksDistance: 1 }, name: 'y', withLabel: true, label: { position: 'rt', offset: [10, -5] } }
+        }
+      });
+
+      const g = function(x) { return 1 / (x + 3); };
+
+      board.create('functiongraph', [g, -10, -3.08], { strokeWidth: 3, strokeColor: '#2563eb', highlight: false });
+      board.create('functiongraph', [g, -2.92, 8], { strokeWidth: 3, strokeColor: '#2563eb', highlight: false });
+
+      board.create('line', [[-3, -10], [-3, 10]], {
+        straightFirst: false,
+        straightLast: false,
+        strokeColor: '#f97316',
+        strokeWidth: 4,
+        dash: 2,
+        fixed: true,
+        highlight: false
+      });
+
+      board.create('line', [[-10, 0], [8, 0]], {
+        straightFirst: false,
+        straightLast: false,
+        strokeColor: '#f97316',
+        strokeWidth: 3,
+        dash: 2,
+        fixed: true,
+        highlight: false
+      });
+
+      const hole = board.create('point', [3, 1 / 6], {
+        name: labeled ? '(3, 1/6)' : '',
+        size: 5,
+        strokeColor: '#111827',
+        fillColor: 'white',
+        strokeWidth: 3,
+        fixed: true,
+        highlight: false,
+        label: { offset: [8, 10], fontSize: 14, color: '#111827' }
+      });
+
+      if (labeled) {
+        board.create('text', [-5.8, 4.7, 'x = -3'], { fontSize: 14, color: '#dc2626', fixed: true });
+        board.create('text', [0.7, 4.7, ''], { fontSize: 14, color: '#dc2626', fixed: true });
+        board.create('text', [2.3, -0.8, 'y = 0'], { fontSize: 13, color: '#c2410c', fixed: true });
+      } else {
+        board.create('text', [-9.6, 5.2, ''], { fontSize: 14, color: '#334155', fixed: true });
+      }
+      return board;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      buildBoard('box1', false);
+      buildBoard('box2', true);
+    });
+  
+  })();
+  </script>
+  <script>
+  (function() {
+
+    function buildBoard(id) {
+      var board = JXG.JSXGraph.initBoard(id, {
+        boundingbox: [-8, 6, 8, -6],
+        axis: true,
+        grid: true,
+        showCopyright: false,
+        showNavigation: false,
+        showInfobox: false,
+        keepaspectratio: false,
+        pan: { enabled: false },
+        zoom: { enabled: false, wheel: false }
+      });
+      board.create('text', [-7.6, 5.25, ''], {
+        fixed: true,
+        fontSize: 12,
+        color: '#64748b',
+        highlight: false
+      });
+      return board;
+    }
+
+    window.addEventListener('load', function () {
+      for (var i = 1; i <= 10; i += 1) {
+        buildBoard('board' + i);
+      }
+    });
+  
+  })();
+  </script>
+</body>
+</html>
