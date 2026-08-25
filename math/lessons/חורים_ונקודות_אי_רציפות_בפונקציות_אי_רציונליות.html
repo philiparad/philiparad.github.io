@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חורים ונקודות אי רציפות בפונקציות שורש - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e8edf3;color:#172033;font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.42}
+body{padding:10mm 0}
+.a4-page{position:relative;width:210mm;height:297mm;margin:0 auto 10mm;background:#fff;padding:13mm 15mm 12mm;overflow:hidden;page-break-after:always;break-after:page}
+.page-header{height:12mm;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d6dfeb;margin-bottom:5mm;font-size:11px;color:#5a6575}
+.unit-tag{font-weight:700;color:#1f4f87}.page-no{direction:ltr}
+h1{font-size:26px;line-height:1.15;margin:0 0 4mm;color:#153a65}h2{font-size:18px;margin:4mm 0 2mm;color:#1f4f87}h3{font-size:15px;margin:2.5mm 0 1.5mm;color:#244d78}
+p{margin:1.5mm 0}.lead{font-size:17px;line-height:1.55}.small{font-size:12px}.muted{color:#667085}
+.cover{background:linear-gradient(145deg,#f7fbff 0%,#fff 55%,#eef5fb 100%)}
+.cover-grid{grid-template-columns:1.45fr 1fr;gap:10mm;align-items:center;margin-top:22mm}.cover-math{direction:ltr;text-align:center;font-size:27px;border:1px solid #bfd2e6;border-radius:14px;padding:15mm 7mm;background:#fff}
+.badges{display:flex;gap:2mm;flex-wrap:wrap;margin-bottom:4mm}.badge{padding:1.5mm 3mm;border-radius:999px;background:#eaf2fb;color:#1e4e83;font-weight:700;font-size:11px}
+.card,.worked,.warning,.success,.accent{border:1px solid #d7e0ea;border-radius:10px;padding:3.2mm 4mm;margin:3mm 0;background:#fbfcfe}.accent{border-right:5px solid #2e6da8;background:#f3f8fd}.warning{border-right:5px solid #b7791f;background:#fff9ed}.success{border-right:5px solid #2f855a;background:#f2fbf6}.worked{background:#f8fafc}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.two-wide{display:grid;grid-template-columns:0.92fr 1.28fr;gap:5mm}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}.four{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}
+ul,ol{margin:1.5mm 0;padding-right:5mm}li{margin:1.2mm 0}.tight li{margin:.6mm 0}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:4mm 0}.flow>div{border:1px solid #d7e0ea;border-radius:9px;padding:3mm;background:#fff2cb;text-align:center}.flow b{display:block;color:#1e5b96;font-size:18px;margin-bottom:1mm}
+.rule-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:3mm 0}.rule-table th,.rule-table td{border:1px solid #d6dee8;padding:2.2mm;vertical-align:top}.rule-table th{background:#edf4fb;color:#174b80}.rule-table td:first-child{font-weight:700}
+.formula{direction:ltr;text-align:center;margin:2mm 0}.ltr{direction:ltr;text-align:left}.rtl{text-align:right}
+.graph-panel{border:1px solid #cdd9e6;border-radius:10px;padding:3mm;background:#fbfdff;margin:2mm 0}.graph-toolbar{display:flex;gap:2mm;justify-content:flex-start;direction:ltr;margin-bottom:2mm}.graph-toolbar button{border:1px solid #9fb5cc;background:white;border-radius:6px;padding:1.2mm 3mm;font-weight:700;cursor:pointer}.graph-toolbar button:hover{background:#edf4fb}.jxgbox{width:100%;height:76mm;border:1px solid #d1dbe6;border-radius:7px;direction:ltr}.jxgbox.short{height:58mm}.jxgbox.tall{height:92mm}.graph-caption{font-size:11px;color:#667085;margin-top:1.5mm;text-align:center}.legend{display:flex;gap:4mm;flex-wrap:wrap;justify-content:center;font-size:11px;margin-top:1.5mm}
+.compare{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm}.compare .card{height:100%}.answer{color:#24543a}
+.steps{counter-reset:s}.step{display:grid;grid-template-columns:10mm 1fr;gap:3mm;align-items:start;margin:2.2mm 0}.step .n{width:8mm;height:8mm;border-radius:50%;background:#1f5f99;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;direction:ltr}.step strong{color:#174b80}
+.exercise{border-bottom:1px dashed #d6dee8;padding:2.4mm 0}.exercise:last-child{border-bottom:0}
+.signline{direction:ltr;display:flex;align-items:center;justify-content:center;gap:3mm;margin-top:3mm;font-size:12px}.signline span{padding:1.5mm 2.5mm;border:1px solid #d3dce6;border-radius:999px;background:#fff}
+.param-controls{direction:ltr;border:1px solid #d5e0eb;border-radius:9px;padding:3mm;margin-top:2mm;background:#f8fbfe}.param-row{display:grid;grid-template-columns:20mm 1fr 20mm;gap:3mm;align-items:center}.param-row input{width:100%}.dynamic-eq{direction:ltr;text-align:center;font-weight:700;margin-top:2mm;min-height:8mm}.status{direction:rtl;text-align:center;font-weight:700;margin-top:2mm}
+.sources{font-size:11.5px;line-height:1.45}.sources a{word-break:break-all;color:#18558e}.footer-note{position:absolute;bottom:7mm;right:15mm;left:15mm;border-top:1px solid #e1e7ee;padding-top:2mm;font-size:9.5px;color:#7a8492}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff}
+  body{padding:0}
+  .a4-page{margin:0;width:210mm;height:297mm;box-shadow:none;page-break-after:always;break-after:page}
+  .graph-toolbar{display:flex}
+}
+</style>
+</head>
+<body>
+
+<section class="a4-page cover" id="p1">
+<header class="page-header"><div class="unit-tag">פונקציות שורש - 5 יחידות</div><div class="page-no">1</div></header>
+<div class="badges"><span class="badge">אי רציפות</span><span class="badge">חורים</span><span class="badge">כפל בצמוד</span><span class="badge">חקירה מלאה</span></div>
+<h1>חורים ונקודות אי רציפות בפונקציות אי רציונליות</h1>
+<div class="cover-grid">
+<div>
+<p class="lead">מערך שיעור מקיף לפונקציות שורש ברמת 5 יחידות: מן התחום והרציפות, דרך זיהוי חור וכפל בצמוד, ועד חקירה מלאה ושאלות פרמטר.</p>
+</div>
+<div style="height:40px;"></div>
+<div class="cover-math">\[f(x)=\frac{\sqrt{g(x)}-c}{h(x)}\]</div>
+</div>
+<div class="footer-note">נושא: חורים ואי רציפות סליקה בפונקציות שורש</div>
+</section>
+
+<section class="a4-page" id="p2">
+<header class="page-header"><div class="unit-tag">מטרות ורצף</div><div class="page-no">2</div></header>
+<h1>מטרות היחידה ורצף ההוראה</h1>
+<div class="two_">
+<div>
+<h2>בסיום היחידה התלמיד ידע</h2>
+<ul>
+<li>לקבוע תחום הגדרה של פונקציות שורש ומנות הכוללות שורש.</li>
+<li>להבחין בין נקודת קצה, חור, אסימפטוטה אנכית וקטע שאינו בתחום.</li>
+<li>להשתמש בפירוק לגורמים, שינוי צורה וכפל בצמוד כדי לחשוף חור.</li>
+<li>למצוא את שיעורי החור בעזרת הביטוי המצומצם והצבה מתאימה.</li>
+<li>לזהות מקרים שבהם מתקבלת הצורה \(0/0\) אך אין חור.</li>
+<li>לשלב חורים בחקירה מלאה ובשאלות פרמטר.</li>
+</ul>
+</div>
+<div style="height:20px;"></div>
+<div>
+<h2>ידע קודם</h2>
+<ul>
+<li>תחום הגדרה של שורש ריבועי.</li>
+<li>פירוק לגורמים וכפל מקוצר.</li>
+<li>כפל בצמוד.</li>
+<li>בדיקת התנהגות הפונקציה ליד נקודה שאינה בתחום.</li>
+<li>נגזרת של פונקציית שורש וכלל השרשרת.</li>
+<li>אסימפטוטה אנכית וחקירת פונקציה.</li>
+</ul>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h2>רצף מומלץ</h2>
+<div class="flow"><div><b>1</b>תחום ורציפות</div><div><b>2</b>מהו חור?</div><div><b>3</b>כפל בצמוד</div><div><b>4</b>מקרים מטעים</div><div><b>5</b>חור מול אסימפטוטה</div><div><b>6</b>חקירה מלאה</div><div><b>7</b>פרמטרים</div><div><b>8</b>תרגול מסכם</div></div>
+</section>
+
+<section class="a4-page" id="p3">
+<header class="page-header"><div class="unit-tag">יסודות</div><div class="page-no">3</div></header>
+<h1>1. תחום הגדרה ורציפות בפונקציות שורש</h1>
+<table class="rule-table">
+<tr><th>צורה</th><th>תנאי התחום</th><th>הערה</th></tr>
+<tr><td>\(\sqrt{g(x)}\)</td><td>\(g(x)\ge0\)</td><td>השורש יכול להתאפס.</td></tr>
+<tr><td>\(\dfrac{1}{\sqrt{g(x)}}\)</td><td>\(g(x)\gt0\)</td><td>המכנה אינו יכול להתאפס.</td></tr>
+<tr><td>\(\dfrac{\sqrt{g(x)}}{h(x)}\)</td><td>\(g(x)\ge0,\ h(x)\ne0\)</td><td>משלבים את שתי המגבלות.</td></tr>
+<tr><td>\(\sqrt{\dfrac{p(x)}{q(x)}}\)</td><td>\(\dfrac{p(x)}{q(x)}\ge0,\ q(x)\ne0\)</td><td>פותרים אי שוויון רציונלי.</td></tr>
+</table>
+<div style="height:10px;"></div>
+<div class="warning"><b>כלל ראשון לכל היחידה:</b> תחום ההגדרה נקבע מן הביטוי המקורי לפני כל פישוט. פישוט יכול לשנות את צורת הנוסחה, אך אינו מחזיר נקודה שנפסלה מן התחום המקורי.</div>
+<div style="height:10px;"></div>
+<div class="two">
+<div class="worked"><h3>דוגמה א</h3>\[f(x)=\sqrt{x-2}\]\[x-2\ge0⇒x\ge2\]<p>הנקודה \((2,0)\) שייכת לגרף והיא נקודת קצה.</p></div>
+<div class="worked"><h3>דוגמה ב</h3>\[g(x)=\frac{1}{\sqrt{x-2}}\]\[x-2\gt0⇒x\gt2\]<p>כאן \(x=2\) אינו בתחום. עבור ערכי \(x\) חיוביים הקרובים מאוד ל-\(2\) מימין, המכנה חיובי וקטן מאוד ולכן ערכי הפונקציה חיוביים וגדולים מאוד.</p></div>
+</div>
+<div style="height:10px;"></div>
+<div class="accent"><b>מסקנה:</b> עצם העובדה שערך מסוים אינו בתחום אינה מספיקה כדי לקרוא לו חור.</div>
+</section>
+
+<section class="a4-page" id="p4">
+<header class="page-header"><div class="unit-tag">סיווג נקודות</div><div class="page-no">4</div></header>
+<h1>2. ארבעה מצבים שחייבים להבחין ביניהם</h1>
+<div class="four">
+<div class="card"><h3>נקודת קצה</h3><p>הפונקציה מוגדרת בנקודה, אך התחום מסתיים שם.</p>\[f(x)=\sqrt{x}\]<p>\((0,0)\) שייכת לגרף.</p></div>
+<div class="card"><h3>חור</h3><p>הפונקציה אינה מוגדרת ב-\(x=a\), אך לאחר פישוט מתקבל ביטוי שמוגדר ב-\(a\). הערך שמתקבל בהצבת \(a\) בביטוי המצומצם הוא שיעור ה-\(y\) של החור.</p></div>
+<div class="card"><h3>אסימפטוטה אנכית</h3><p>ערכי הפונקציה גדלים בערכם המוחלט ליד הנקודה.</p>\[x=a\]</div>
+<div class="card"><h3>קטע מחוץ לתחום</h3><p>אין נקודה מבודדת חסרה, אלא מרווח שלם שאין בו גרף.</p>\[\sqrt{x^2-1}\]</div>
+</div>
+<div style="height:10px;"></div>
+<h2>שאלת אבחון</h2>
+<p>נתונה \(f(x)=\sqrt{x^2-1}\). תחום ההגדרה הוא:</p>
+\[x\le-1\quad\text{or}\quad x\ge1\]
+<div style="height:20px;"></div>
+<div class="two">
+<div class="success"><b>נכון:</b> \((-1,0)\) ו-\((1,0)\) הן נקודות קצה השייכות לגרף.</div>
+<div class="warning"><b>לא נכון:</b> לומר שכל נקודה בתחום \(-1\lt x\lt1\) היא חור. אין שם נקודה מבודדת חסרה.</div>
+</div>
+<div class="accent"><b>מבחן מהיר:</b> חור הוא תופעה מקומית סביב ערך יחיד של \(x\), לא הפסקה של תחום שלם.</div>
+</section>
+
+<section class="a4-page" id="p5">
+<header class="page-header"><div class="unit-tag">הגדרה פורמלית</div><div class="page-no">5</div></header>
+<h1>3. מהו חור - אי רציפות סליקה</h1>
+<div class="two-wide_">
+<div>
+<h2>הגדרה</h2>
+<p>ב-\(x=a\) יש אי רציפות סליקה כאשר \(a\) אינו שייך לתחום הפונקציה המקורית, אך לאחר פישוט אלגברי מתקבל ביטוי \(g(x)\) שמוגדר ב-\(a\) ומתאר את אותה פונקציה לכל \(x\) בתחום המקורי.</p>
+<p>שיעור ה-\(y\) של החור מתקבל בהצבת \(x=a\) בביטוי המצומצם: \(L=g(a)\). אם נגדיר ערך חדש \(f(a)=L\), נקבל פונקציה רציפה בנקודה.</p>
+<div style="height:20px;"></div>
+<div class="accent"><b>לכן החור נמצא בנקודה:</b> \[(a,L)\]</div>
+</div>
+<div style="height:20px;"></div>
+<div>
+<div class="warning"><b>חשוב:</b> הצורה \(0/0\) היא אות לחקירה, לא הוכחה לקיום חור.</div>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h2>דוגמת נגד 1 - קפיצה</h2>
+\[f(x)=\frac{\sqrt{(x-1)^2}}{x-1}=\frac{|x-1|}{x-1},\qquad x\ne1\]
+<p>כאן המונה והמכנה מתאפסים ב-\(x=1\), אך עבור \(x\lt1\) מתקבל הערך \(-1\) ועבור \(x\gt1\) מתקבל הערך \(1\). לכן אין ערך יחיד שמתאים להשלמת הנקודה, ואין אי רציפות סליקה.</p>
+<div style="height:30px;"></div>
+<h2>דוגמת נגד 2 - אסימפטוטה אנכית</h2>
+\[g(x)=\frac{\sqrt{(x-1)^2}}{(x-1)^2}=\frac{|x-1|}{(x-1)^2}=\frac{1}{|x-1|},\qquad x\ne1\]
+<p>גם כאן המונה והמכנה מתאפסים ב-\(x=1\), אך לאחר הפישוט מתקבל \(g(x)=\frac{1}{|x-1|}\). כאשר \(x\) קרוב מאוד ל-\(1\), המכנה חיובי וקטן מאוד ולכן ערכי הפונקציה חיוביים וגדולים מאוד. לכן \(x=1\) היא אסימפטוטה אנכית, ולא חור.</p>
+</section>
+
+<section class="a4-page" id="p6">
+<header class="page-header"><div class="unit-tag">אלגוריתם</div><div class="page-no">6</div></header>
+<h1>4. האלגוריתם לפונקציות שורש</h1>
+<div class="step"><div class="n">1</div><div><strong>קבע תחום מן הביטוי המקורי.</strong><br>כתוב כל תנאי של שורש וכל איסור של מכנה.</div></div>
+<div class="step"><div class="n">2</div><div><strong>אתר נקודות חשודות.</strong><br>בדרך כלל נקודות שבהן המכנה מתאפס, או מתקבלת הצורה \(0/0\).</div></div>
+<div class="step"><div class="n">3</div><div><strong>בחר כלי פישוט.</strong><br>פירוק לגורמים, כפל בצמוד, זהות אלגברית או שינוי צורה מתאים.</div></div>
+<div class="step"><div class="n">4</div><div><strong>שמור את הגבלות התחום המקורי.</strong><br>גם אם הביטוי החדש מוגדר בנקודה, הפונקציה המקורית עדיין אינה מוגדרת שם.</div></div>
+<div class="step"><div class="n">5</div><div><strong>בדוק את ההתנהגות ליד הנקודה.</strong><br>אם מתקבל ערך סופי יחיד - חור. אם הערכים אינם חסומים - אסימפטוטה. אם שני הצדדים שונים - אי רציפות שאינה סליקה.</div></div>
+<div class="step"><div class="n">6</div><div><strong>מצא את שיעור \(y\) של החור.</strong><br>הצב את ערך \(x\) בביטוי המצומצם.</div></div>
+<div class="step"><div class="n">7</div><div><strong>סמן בגרף עיגול פתוח.</strong><br>בחקירה מלאה המשך עם הפונקציה המצומצמת, תוך שמירת החור.</div></div>
+</section>
+
+<section class="a4-page" id="p7">
+<header class="page-header"><div class="unit-tag">כלי אלגברי</div><div class="page-no">7</div></header>
+<h1>5.כפל בצמוד</h1>
+<div class="two_">
+<div>
+<h2>הזהות המרכזית</h2>
+\[(A-B)(A+B)=A^2-B^2\]
+<p>כאשר אחד האיברים הוא שורש, הכפל בצמוד יכול להפוך ביטוי עם שורש לביטוי פולינומי.</p>
+<div class="worked">\[(\sqrt{x}-1)(\sqrt{x}+1)=x-1\]</div>
+<div class="worked">\[(\sqrt{x+3}-2)(\sqrt{x+3}+2)=x-1\]</div>
+</div>
+<div style="height:20px;"></div>
+<div>
+<h2>מתי משתמשים?</h2>
+<ul>
+<li>כאשר המונה או המכנה כוללים הפרש של שורשים.</li>
+<li>כאשר בנקודה חשודה מתקבלת הצורה \(0/0\).</li>
+<li>כאשר רוצים לחשוף גורם משותף שאינו נראה בתחילה.</li>
+</ul>
+<div class="warning"><b>אין לכפול בצמוד באופן עיוור:</b> תחילה קובעים תחום, ורק אז מפשטים.</div>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h2>שני כיוונים חשובים</h2>
+<table class="rule-table">
+<tr><th>ביטוי</th><th>פעולה</th><th>מה מתקבל?</th></tr>
+<tr><td>\(\dfrac{x-1}{\sqrt{x}-1}\)</td><td>כפל בצמוד של המכנה</td><td>\(\sqrt{x}+1\)</td></tr>
+<tr><td>\(\dfrac{\sqrt{x}-1}{x-1}\)</td><td>כפל בצמוד של המונה</td><td>\(\dfrac{1}{\sqrt{x}+1}\)</td></tr>
+</table>
+</section>
+
+<section class="a4-page" id="p8">
+<header class="page-header"><div class="unit-tag">דוגמה 1</div><div class="page-no">8</div></header>
+<h1>6. חור כאשר השורש במכנה</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\frac{x-1}{\sqrt{x}-1}\]
+<h3>תחום מקורי</h3>
+\[x\ge0,\qquad x\ne1\]
+<h3>פישוט</h3>
+\[f(x)=\frac{(x-1)(\sqrt{x}+1)}{x-1}=\sqrt{x}+1,\qquad x\ne1\]
+<h3>החור</h3>
+\[L=\sqrt{1}+1=2\]
+\[\boxed{(1,2)}\]
+<div class="success">הפונקציה המצומצמת מוגדרת ב-\(x=1\), אך הפונקציה המקורית אינה מוגדרת שם.</div>
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g1')">+</button><button onclick="zoomOut('g1')">-</button><button onclick="centerGraph('g1')">מרכז</button></div>
+<div id="g1" class="jxgbox"></div>
+<div class="graph-caption">הגרף \(y=\sqrt{x}+1\) עם עיגול פתוח ב-\((1,2)\).</div>
+</div>
+</div>
+</section>
+
+<section class="a4-page" id="p9">
+<header class="page-header"><div class="unit-tag">דוגמה 2</div><div class="page-no">9</div></header>
+<h1>7. חור כאשר השורש במונה</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\frac{\sqrt{x}-1}{x-1}\]
+<h3>תחום מקורי</h3>
+\[x\ge0,\qquad x\ne1\]
+<h3>פישוט</h3>
+\[f(x)=\frac{\sqrt{x}-1}{(\sqrt{x}-1)(\sqrt{x}+1)}=\frac{1}{\sqrt{x}+1},\qquad x\ne1\]
+<h3>החור</h3>
+\[L=\frac{1}{\sqrt{1}+1}=\frac12\]
+\[\boxed{\left(1,\frac12\right)}\]
+<div class="accent"><b>דגש:</b> אותה נקודת \(x\) יכולה להוביל לשיעור \(y\) שונה לגמרי בהתאם לפונקציה.</div>
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g2')">+</button><button onclick="zoomOut('g2')">-</button><button onclick="centerGraph('g2')">מרכז</button></div>
+<div id="g2" class="jxgbox"></div>
+<div class="graph-caption">הגרף \(y=1/(\sqrt{x}+1)\) עם החור המקורי.</div>
+</div>
+</div>
+</section>
+
+<section class="a4-page" id="p10">
+<header class="page-header"><div class="unit-tag">דוגמה 3</div><div class="page-no">10</div></header>
+<h1>8. חור מוסתר - צריך ליצור הפרש ריבועים</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\frac{\sqrt{x+3}-2}{x-1}\]
+<h3>תחום מקורי</h3>
+\[x\ge-3,\qquad x\ne1\]
+<p>ב-\(x=1\) מתקבלת הצורה \(0/0\).</p>
+<h3>כפל בצמוד</h3>
+\[f(x)=\frac{(\sqrt{x+3}-2)(\sqrt{x+3}+2)}{(x-1)(\sqrt{x+3}+2)}\]
+\[f(x)=\frac{x-1}{(x-1)(\sqrt{x+3}+2)}=\frac{1}{\sqrt{x+3}+2}\]
+<h3>החור</h3>
+\[\boxed{\left(1,\frac14\right)}\]
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g3')">+</button><button onclick="zoomOut('g3')">-</button><button onclick="centerGraph('g3')">מרכז</button></div>
+<div id="g3" class="jxgbox"></div>
+<div class="graph-caption">הביטוי המקורי והביטוי המצומצם חופפים בכל נקודה בתחום המקורי.</div>
+</div>
+</div>
+</section>
+
+<section class="a4-page" id="p11">
+<header class="page-header"><div class="unit-tag">לא כל אי הגדרה היא חור</div><div class="page-no">11</div></header>
+<h1>9. מקרה שאינו חור - אסימפטוטה אנכית</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\frac{1}{\sqrt{x}-1}\]
+<h3>תחום</h3>
+\[x\ge0,\qquad x\ne1\]
+<p>אפשר לכפול בצמוד:</p>
+\[f(x)=\frac{\sqrt{x}+1}{x-1}\]
+<p>אבל הגורם \(x-1\) נשאר במכנה. אין צמצום שמסלק את נקודת אי ההגדרה.</p>
+<p>כאשר \(0\le x\lt1\) ו-\(x\) קרוב מאוד ל-\(1\), המכנה שלילי וקטן מאוד בערכו המוחלט ולכן ערכי הפונקציה שליליים וגדולים מאוד בערכם המוחלט. כאשר \(x\gt1\) וקרוב מאוד ל-\(1\), המכנה חיובי וקטן מאוד ולכן ערכי הפונקציה חיוביים וגדולים מאוד.</p>
+<div class="warning"><b>מסקנה:</b> \(x=1\) היא אסימפטוטה אנכית, לא חור.</div>
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g4')">+</button><button onclick="zoomOut('g4')">-</button><button onclick="centerGraph('g4')">מרכז</button></div>
+<div id="g4" class="jxgbox"></div>
+<div class="graph-caption">שני ענפים משני צדי \(x=1\).</div>
+</div>
+</div>
+</section>
+
+<section class="a4-page" id="p12">
+<header class="page-header"><div class="unit-tag">תחום מפוצל</div><div class="page-no">12</div></header>
+<h1>10. קטע שאינו בתחום - לא אוסף של חורים</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\sqrt{x^2-1}\]
+<h3>תחום</h3>
+\[x^2-1\ge0⇒x\le-1\quad\text{or}\quad x\ge1\]
+<ul>
+<li>הנקודות \((-1,0)\) ו-\((1,0)\) שייכות לגרף.</li>
+<li>אין גרף עבור \(-1\lt x\lt1\).</li>
+<li>אין חור ב-\(x=0\), משום שאין נקודה מבודדת שהגרף מתקרב אליה משני עברי התחום.</li>
+</ul>
+<div class="accent"><b>שפה מדויקת:</b> התחום מפוצל לשני רכיבים. אין לדבר על חור בכל נקודה במרווח החסר.</div>
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g5')">+</button><button onclick="zoomOut('g5')">-</button><button onclick="centerGraph('g5')">מרכז</button></div>
+<div id="g5" class="jxgbox"></div>
+<div class="graph-caption">שני רכיבי תחום עם נקודות קצה סגורות.</div>
+</div>
+</div>
+</section>
+
+<section class="a4-page" id="p13">
+<header class="page-header"><div class="unit-tag">מלכודת ערך מוחלט</div><div class="page-no">13</div></header>
+<h1>11. הצורה \(0/0\) שאינה יוצרת חור</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\frac{\sqrt{(x-1)^2}}{x-1},\qquad x\ne1\]
+<p>הזהות הנכונה היא:</p>
+\[\sqrt{(x-1)^2}=|x-1|\]
+<p>לכן:</p>
+\[f(x)=\frac{|x-1|}{x-1}=\begin{cases}-1,&x\lt1\\1,&x\gt1\end{cases}\]
+<p>משני צדי \(x=1\) מתקבלים ערכים שונים:</p>
+\[f(x)=-1\quad\text{for}\quad x\lt1,\qquad f(x)=1\quad\text{for}\quad x\gt1\]
+<div class="warning"><b>מסקנה:</b> אין ערך יחיד שיכול להשלים את הנקודה ב-\(x=1\). זו אי רציפות קפיצה, לא חור.</div>
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g6')">+</button><button onclick="zoomOut('g6')">-</button><button onclick="centerGraph('g6')">מרכז</button></div>
+<div id="g6" class="jxgbox"></div>
+<div class="graph-caption">שני עיגולים פתוחים ב-\((1,-1)\) וב-\((1,1)\).</div>
+</div>
+</div>
+</section>
+
+<section class="a4-page" id="p14">
+<header class="page-header"><div class="unit-tag">טבלת החלטה</div><div class="page-no">14</div></header>
+<h1>12. חור, אסימפטוטה, קצה או קפיצה?</h1>
+<table class="rule-table">
+<tr><th>מה קורה ליד \(x=a\)?</th><th>האם \(f(a)\) מוגדרת?</th><th>סיווג</th><th>סימון בגרף</th></tr>
+<tr><td>הערכים מתקרבים למספר סופי יחיד, אך הנקודה חסרה</td><td>לא</td><td>חור - אי רציפות סליקה</td><td>עיגול פתוח יחיד</td></tr>
+<tr><td>ערכי הפונקציה גדלים בערכם המוחלט</td><td>לא</td><td>אסימפטוטה אנכית</td><td>ענפים המתקרבים לישר אנכי</td></tr>
+<tr><td>הפונקציה מוגדרת והתחום מסתיים בנקודה</td><td>כן</td><td>נקודת קצה</td><td>נקודה סגורה</td></tr>
+<tr><td>משמאל ומימין מתקבלים ערכים הקרובים לשני מספרים סופיים שונים</td><td>לא בהכרח</td><td>אי רציפות קפיצה</td><td>שתי התקרבויות לגבהים שונים</td></tr>
+<tr><td>אין כלל ערכי תחום במרווח שלם</td><td>לא במרווח</td><td>תחום מפוצל</td><td>ענפים מנותקים</td></tr>
+</table>
+<div class="two_">
+<div class="card"><h3>שאלה 1</h3>\[\frac{\sqrt{x}-2}{x-4}\]<p>ב-\(x=4\) מתקבל \(0/0\). לאחר כפל בצמוד הגורם נעלם.</p><p class="answer"><b>סיווג:</b> חור.</p></div>
+<div class="card"><h3>שאלה 2</h3>\[\frac{1}{\sqrt{x}-2}\]<p>ב-\(x=4\) המכנה מתאפס, אך אין גורם שמתבטל.</p><p class="answer"><b>סיווג:</b> אסימפטוטה אנכית.</p></div>
+</div>
+<div class="accent"><b>כלל החלטה:</b> אין לסווג לפי "איפוס המכנה" בלבד. הסיווג נקבע לפי התחום וההתנהגות של הפונקציה ליד הנקודה.</div>
+</section>
+
+<section class="a4-page" id="p15">
+<header class="page-header"><div class="unit-tag">חקירה מלאה</div><div class="page-no">15</div></header>
+<h1>13. חקירה מלאה של פונקציה עם חור</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\frac{x-1}{\sqrt{x}-1}\]
+<p>לאחר פישוט:</p>
+\[f(x)=\sqrt{x}+1,\qquad x\ge0,\ x\ne1\]
+<ul class="tight">
+<li><b>תחום:</b> \([0,1)\cup(1,\infty)\).</li>
+<li><b>חור:</b> \((1,2)\).</li>
+<li><b>חיתוך עם ציר \(y\):</b> \((0,1)\).</li>
+<li><b>חיתוך עם ציר \(x\):</b> אין.</li>
+<li><b>נגזרת:</b> \(f'(x)=\dfrac{1}{2\sqrt{x}}\) עבור \(x\gt0,\ x\ne1\).</li>
+<li><b>עלייה:</b> \((0,1)\) וגם \((1,\infty)\).</li>
+<li><b>נקודה עם שיפוע אפס:</b> אין.</li>
+<li><b>נקודת קצה:</b> \((0,1)\), מינימום בתחום.</li>
+<li><b>טווח:</b> \([1,2)\cup(2,\infty)\).</li>
+</ul>
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g7')">+</button><button onclick="zoomOut('g7')">-</button><button onclick="centerGraph('g7')">מרכז</button></div>
+<div id="g7" class="jxgbox"></div>
+<div class="graph-caption">החור מפצל את התחום לשני קטעי עלייה, אך אינו יוצר נקודת קיצון.</div>
+</div>
+</div>
+<div class="signline"><span>0</span><span>\(f'\gt0\)</span><span>1 - hole</span><span>\(f'\gt0\)</span><span>\(\infty\)</span></div>
+</section>
+
+<section class="a4-page" id="p16">
+<header class="page-header"><div class="unit-tag">חור ואסימפטוטה יחד</div><div class="page-no">16</div></header>
+<h1>14. פונקציה עם חור ואסימפטוטה אנכית</h1>
+<div class="two-wide_">
+<div>
+\[f(x)=\frac{x-1}{(\sqrt{x}-1)(x-4)}\]
+<h3>תחום מקורי</h3>
+\[x\ge0,\qquad x\ne1,\qquad x\ne4\]
+<h3>פישוט</h3>
+\[f(x)=\frac{\sqrt{x}+1}{x-4},\qquad x\ne1,4\]
+<ul class="tight">
+<li>ב-\(x=1\) הגורם הסליק נעלם ⇒ חור.</li>
+<li>ב-\(x=4\) המכנה נשאר אפס ⇒ אסימפטוטה אנכית.</li>
+</ul>
+\[y_{hole}=\frac{2}{-3}=-\frac23\]
+\[\boxed{\left(1,-\frac23\right)},\qquad \boxed{x=4}\]
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g8')">+</button><button onclick="zoomOut('g8')">-</button><button onclick="centerGraph('g8')">מרכז</button></div>
+<div id="g8" class="jxgbox"></div>
+<div class="graph-caption">חור ב-\(x=1\) ואסימפטוטה אנכית ב-\(x=4\).</div>
+</div>
+</div>
+<div class="warning"><b>טעות נפוצה:</b> לסמן את כל ערכי \(x\) האסורים באותו אופן. יש לסווג כל נקודה בנפרד.</div>
+</section>
+
+<section class="a4-page" id="p17">
+<header class="page-header"><div class="unit-tag">פרמטר</div><div class="page-no">17</div></header>
+<h1>15. שאלת פרמטר - מתי נוצר חור?</h1>
+<div class="two-wide_">
+<div>
+<p>נתונה המשפחה:</p>
+\[f_k(x)=\frac{\sqrt{x+k}-3}{x-5}\]
+<p>מצא את \(k\) כך שב-\(x=5\) תהיה אי רציפות סליקה, ומצא את שיעורי החור.</p>
+<h3>פתרון</h3>
+<p>כדי שאפשר יהיה לצמצם, המונה צריך להתאפס ב-\(x=5\):</p>
+\[\sqrt{5+k}-3=0⇒\sqrt{5+k}=3⇒k=4\]
+<p>עבור \(k=4\):</p>
+\[f_4(x)=\frac{\sqrt{x+4}-3}{x-5}=\frac{1}{\sqrt{x+4}+3},\qquad x\ne5\]
+\[\boxed{\left(5,\frac16\right)}\]
+</div>
+<div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g9')">+</button><button onclick="zoomOut('g9')">-</button><button onclick="centerGraph('g9')">מרכז</button></div>
+<div id="g9" class="jxgbox short"></div>
+</div>
+<div class="param-controls">
+<div class="param-row"><label for="kSlider">k</label><input id="kSlider" type="range" min="0" max="8" step="0.25" value="4"><output id="kValue">4.00</output></div>
+<div id="paramEq" class="dynamic-eq">\(f_k(x)=\dfrac{\sqrt{x+4.00}-3}{x-5}\)</div>
+<div id="paramStatus" class="status">ב-\(x=5\) מתקבל חור.</div>
+</div>
+</div>
+</div>
+<div class="accent"><b>רעיון כללי:</b> שאלת פרמטר על חור מתורגמת לתנאי שהביטוי הבעייתי ייצור \(0/0\) שניתן לסלק, ולא רק לאיפוס של המכנה.</div>
+</section>
+
+<section class="a4-page" id="p18">
+<header class="page-header"><div class="unit-tag">טעויות נפוצות</div><div class="page-no">18</div></header>
+<h1>16. טעויות נפוצות וכיצד מתקנים אותן</h1>
+<div style="height:10px;"></div>
+<table class="rule-table">
+<tr><th>טעות</th><th>מדוע היא שגויה?</th><th>תיקון</th></tr>
+<tr><td>\(0/0\) ⇒ תמיד חור</td><td>ייתכן שההתנהגות משמאל ומימין שונה.</td><td>לפשט ולבדוק את ההתנהגות.</td></tr>
+<tr><td>\(\sqrt{u^2}=u\)</td><td>שורש ריבועי מחזיר ערך לא שלילי.</td><td>\(\sqrt{u^2}=|u|\).</td></tr>
+<tr><td>מצמצמים ואז קובעים תחום</td><td>הצמצום עלול להסתיר נקודה שנפסלה במקור.</td><td>תחום תמיד לפני פישוט.</td></tr>
+<tr><td>כל איפוס מכנה הוא אסימפטוטה</td><td>ייתכן שהגורם מתבטל ונוצר חור.</td><td>לבדוק צמצום והתנהגות ליד הנקודה.</td></tr>
+<tr><td>כל הפסקה בגרף היא חור</td><td>ייתכן שמדובר בתחום מפוצל או בקצה תחום.</td><td>לבדוק האם מדובר בנקודה מבודדת.</td></tr>
+<tr><td>החור הוא אפס של הפונקציה</td><td>נקודה שאינה בתחום אינה נקודת חיתוך.</td><td>אפס דורש שהפונקציה תהיה מוגדרת ושווה לאפס.</td></tr>
+</table>
+<div style="height:10px;"></div>
+<div class="two_">
+<div class="warning"><h3>שאלת אבחון</h3><p>האם \((1,0)\) הוא חיתוך עם ציר \(x\) של:</p>\[f(x)=\frac{\sqrt{x}-1}{x-1}\]<p><b>לא.</b> \(x=1\) אינו בתחום.</p></div>
+<div style="height:10px;"></div>
+<div class="success"><h3>ניסוח נכון</h3><p>ב-\(x=1\) יש חור בנקודה \(\left(1,\frac12\right)\). הפונקציה אינה חותכת שם אף ציר.</p></div>
+</div>
+</section>
+
+<section class="a4-page" id="p19">
+<header class="page-header"><div class="unit-tag">תרגול מודרך</div><div class="page-no">19</div></header>
+<h1>17. דף תרגול - קל עד מתקדם</h1>
+<div class="exercise"><b>1.</b> עבור \(f(x)=\dfrac{x-4}{\sqrt{x}-2}\), מצא תחום, פשט וקבע אם יש חור. אם כן, מצא את שיעוריו.</div>
+<div class="exercise"><b>2.</b> עבור \(f(x)=\dfrac{\sqrt{x}-3}{x-9}\), מצא תחום ואת נקודת החור.</div>
+<div class="exercise"><b>3.</b> עבור \(f(x)=\dfrac{\sqrt{x+5}-3}{x-4}\), קבע האם ב-\(x=4\) יש חור או אסימפטוטה אנכית.</div>
+<div class="exercise"><b>4.</b> עבור \(f(x)=\dfrac{1}{\sqrt{x}-3}\), מצא את תחום ההגדרה וסווג את \(x=9\).</div>
+<div class="exercise"><b>5.</b> עבור \(f(x)=\sqrt{x^2-4}\), מצא תחום והסבר מדוע \(x=0\) אינו חור.</div>
+<div class="exercise"><b>6.</b> עבור \(f(x)=\dfrac{\sqrt{(x-2)^2}}{x-2}\), בדוק את ערכי הפונקציה עבור \(x\lt2\) ועבור \(x\gt2\), וסווג את אי הרציפות.</div>
+<div class="exercise"><b>7.</b> עבור \(f(x)=\dfrac{x-4}{(\sqrt{x}-2)(x-9)}\), מצא את החור ואת האסימפטוטה האנכית.</div>
+<div class="exercise"><b>8.</b> מצא את \(k\) כך שלפונקציה \(f_k(x)=\dfrac{\sqrt{x+k}-4}{x-7}\) יהיה חור ב-\(x=7\), ומצא את החור.</div>
+<div class="exercise"><b>9.</b> חקור חקירה מלאה את \(f(x)=\dfrac{x-1}{\sqrt{x}-1}\), כולל תחום, חור, חיתוכים, עלייה/ירידה וטווח.</div>
+<div class="exercise"><b>10.</b> בנה פונקציית שורש מהצורה \(\dfrac{\sqrt{x+c}-d}{x-a}\) שיש לה חור בנקודה \((5,\frac18)\).</div>
+<div class="accent"><b>מטרת הדף:</b> לעבור מזיהוי טכני של חור להבנת מבנה התחום, שאלות סיווג ושאלות בנייה עם פרמטר.</div>
+</section>
+
+<section class="a4-page" id="p20">
+<header class="page-header"><div class="unit-tag">פתרונות 1-5</div><div class="page-no">20</div></header>
+<h1>18. פתרונות מלאים - תרגילים 1-5</h1>
+<div class="exercise"><b>1.</b> \(x\ge0,\ x\ne4\). כפל בצמוד: \(f(x)=\sqrt{x}+2\). לכן החור: \(\boxed{(4,4)}\).</div>
+<div class="exercise"><b>2.</b> \(x\ge0,\ x\ne9\). \(x-9=(\sqrt{x}-3)(\sqrt{x}+3)\), לכן \(f(x)=\dfrac1{\sqrt{x}+3}\). החור: \(\boxed{(9,\frac16)}\).</div>
+<div class="exercise"><b>3.</b> התחום הוא \(x\ge-5,\ x\ne4\). ב-\(x=4\): \(\sqrt9-3=0\). לאחר כפל בצמוד: \(f(x)=\dfrac1{\sqrt{x+5}+3}\), ולכן \(\boxed{(4,\frac16)}\) הוא חור.</div>
+<div class="exercise"><b>4.</b> התחום: \(x\ge0,\ x\ne9\). אין גורם שנעלם מן המכנה. כאשר \(x⇒9\), המכנה שואף ל-0 והמונה ל-1. לכן \(\boxed{x=9}\) אסימפטוטה אנכית.</div>
+<div class="exercise"><b>5.</b> \(x^2-4\ge0⇒x\le-2\quad\text{or}\quad x\ge2\). המרווח \(-2\lt x\lt2\) כולו מחוץ לתחום. לכן \(x=0\) אינו נקודה מבודדת חסרה ואינו חור.</div>
+<div class="warning"><b>בדיקה עצמית:</b> בכל פתרון יש ארבעה מרכיבים: תחום מקורי, פעולה אלגברית, סיווג, ושיעורי הנקודה כאשר מדובר בחור.</div>
+</section>
+
+<section class="a4-page" id="p21">
+<header class="page-header"><div class="unit-tag">פתרונות 6-10</div><div class="page-no">21</div></header>
+<h1>19. פתרונות מלאים - תרגילים 6-10</h1>
+<div class="exercise"><b>6.</b> \(\sqrt{(x-2)^2}=|x-2|\), ולכן \(f(x)=-1\) עבור \(x\lt2\) ו-\(f(x)=1\) עבור \(x\gt2\). משני צדי \(x=2\) מתקבלים ערכים שונים, ולכן זו אי רציפות קפיצה ולא חור.</div>
+<div class="exercise"><b>7.</b> התחום: \(x\ge0,\ x\ne4,9\). מצמצמים את \(x-4=(\sqrt{x}-2)(\sqrt{x}+2)\), ולכן \(f(x)=\dfrac{\sqrt{x}+2}{x-9}\). חור ב-\(x=4\): \(y=\dfrac4{-5}=-\dfrac45\). אסימפטוטה אנכית: \(x=9\).</div>
+<div class="exercise"><b>8.</b> נדרש \(\sqrt{7+k}-4=0⇒7+k=16⇒\boxed{k=9}\). אז \(f(x)=\dfrac1{\sqrt{x+9}+4}\), ולכן החור: \(\boxed{(7,\frac18)}\).</div>
+<div class="exercise"><b>9.</b> תחום \([0,1)\cup(1,\infty)\), חור \((1,2)\), חיתוך עם ציר \(y\): \((0,1)\), אין חיתוך עם ציר \(x\), הפונקציה עולה בכל אחד מרכיבי התחום, מינימום בקצה \((0,1)\), טווח \([1,2)\cup(2,\infty)\).</div>
+<div class="exercise"><b>10.</b> כדי לקבל חור ב-\(x=5\) נבחר \(a=5\) ונדרוש \(\sqrt{5+c}=d\). לאחר כפל בצמוד ערך החור הוא \(1/(2d)\). נדרש \(1/(2d)=1/8⇒d=4\), ולכן \(5+c=16⇒c=11\). דוגמה מתאימה: \[\boxed{f(x)=\frac{\sqrt{x+11}-4}{x-5}}\]</div>
+</section>
+
+<section class="a4-page" id="p22">
+<header class="page-header"><div class="unit-tag">הערכה מסכמת</div><div class="page-no">22</div></header>
+<h1>20. שאלות אבחון, שאלת יציאה</h1>
+<div class="two_">
+<div>
+<h2>שאלות אבחון</h2>
+<ol>
+<li>מדוע נקודת קצה של \(\sqrt{x-a}\) אינה חור?</li>
+<li>מה צריך לבדוק לאחר שמתקבלת הצורה \(0/0\)?</li>
+<li>מתי כפל בצמוד חושף גורם משותף?</li>
+<li>מדוע \(\sqrt{(x-a)^2}\) מחייב ערך מוחלט?</li>
+<li>כיצד מבחינים בין חור לאסימפטוטה אנכית?</li>
+<li>האם חור יכול להיות נקודת חיתוך עם ציר? נמק.</li>
+</ol>
+<h2>שאלת יציאה</h2>
+<div class="accent">כתוב אלגוריתם בן ארבעה שלבים לזיהוי חור בפונקציית שורש, והוסף דוגמה שבה \(0/0\) אינו יוצר חור.</div>
+</div>
+<div>
+<div class="success">להסתפק בצמצום, אלא להסביר מדוע הנקודה היא חור מבחינת התחום וההתנהגות של הפונקציה.</div>
+</div>
+</div>
+</section>
+
+<script>
+const graphStore = {};
+function makeBoard(id, bbox){
+  const b = JXG.JSXGraph.initBoard(id, {
+    boundingbox: bbox,
+    axis: true,
+    showCopyright: false,
+    showNavigation: false,
+    keepaspectratio: false,
+    pan: {enabled: true},
+    zoom: {enabled: true, wheel: true, pinch: true, factorX: 1.2, factorY: 1.2}
+  });
+  graphStore[id] = {board:b, bbox:bbox.slice()};
+  return b;
+}
+function zoomIn(id){ if(graphStore[id]) graphStore[id].board.zoomIn(); }
+function zoomOut(id){ if(graphStore[id]) graphStore[id].board.zoomOut(); }
+function centerGraph(id){ if(graphStore[id]) graphStore[id].board.setBoundingBox(graphStore[id].bbox, false); }
+function openPoint(board,x,y){
+  return board.create('point',[x,y],{name:'',size:4,face:'o',strokeWidth:2,fillColor:'#ffffff',fixed:true,highlight:false});
+}
+function closedPoint(board,x,y){
+  return board.create('point',[x,y],{name:'',size:3,face:'o',fixed:true,highlight:false});
+}
+function vline(board,x){
+  return board.create('line',[[x,0],[x,1]],{straightFirst:true,straightLast:true,dash:2,fixed:true,highlight:false});
+}
+
+function initStaticGraphs(){
+  let b;
+  b=makeBoard('g1',[-1,5,8,-1]);
+  b.create('functiongraph',[x=>x>=0?Math.sqrt(x)+1:NaN,0,8],{strokeWidth:2});
+  closedPoint(b,0,1); openPoint(b,1,2);
+
+  b=makeBoard('g2',[-1,1.5,8,-0.2]);
+  b.create('functiongraph',[x=>x>=0?1/(Math.sqrt(x)+1):NaN,0,8],{strokeWidth:2});
+  openPoint(b,1,0.5);
+
+  b=makeBoard('g3',[-4,1.2,8,-0.2]);
+  b.create('functiongraph',[x=>x>=-3?1/(Math.sqrt(x+3)+2):NaN,-3,8],{strokeWidth:2});
+  closedPoint(b,-3,0.5); openPoint(b,1,0.25);
+
+  b=makeBoard('g4',[-1,8,8,-8]);
+  b.create('functiongraph',[x=>x>=0&&x<1?1/(Math.sqrt(x)-1):NaN,0,0.985],{strokeWidth:2});
+  b.create('functiongraph',[x=>x>1?1/(Math.sqrt(x)-1):NaN,1.015,8],{strokeWidth:2});
+  vline(b,1);
+
+  b=makeBoard('g5',[-5,5,5,-1]);
+  b.create('functiongraph',[x=>x<=-1?Math.sqrt(x*x-1):NaN,-5,-1],{strokeWidth:2});
+  b.create('functiongraph',[x=>x>=1?Math.sqrt(x*x-1):NaN,1,5],{strokeWidth:2});
+  closedPoint(b,-1,0); closedPoint(b,1,0);
+
+  b=makeBoard('g6',[-4,2,6,-2]);
+  b.create('functiongraph',[x=>x<1?-1:NaN,-4,0.99],{strokeWidth:2});
+  b.create('functiongraph',[x=>x>1?1:NaN,1.01,6],{strokeWidth:2});
+  openPoint(b,1,-1); openPoint(b,1,1);
+
+  b=makeBoard('g7',[-1,5,8,-1]);
+  b.create('functiongraph',[x=>x>=0?Math.sqrt(x)+1:NaN,0,8],{strokeWidth:2});
+  closedPoint(b,0,1); openPoint(b,1,2);
+
+  b=makeBoard('g8',[-1,5,9,-5]);
+  b.create('functiongraph',[x=>x>=0&&x<4?(Math.sqrt(x)+1)/(x-4):NaN,0,3.94],{strokeWidth:2});
+  b.create('functiongraph',[x=>x>4?(Math.sqrt(x)+1)/(x-4):NaN,4.06,9],{strokeWidth:2});
+  openPoint(b,1,-2/3); vline(b,4);
+}
+
+let paramBoard=null,paramCurveLeft=null,paramCurveRight=null,paramHole=null,paramVLine=null,currentK=4;
+function paramFn(x,k){
+  if(x+k<0 || Math.abs(x-5)<1e-8) return NaN;
+  return (Math.sqrt(x+k)-3)/(x-5);
+}
+function initParameterGraph(){
+  paramBoard=makeBoard('g9',[-2,3,12,-3]);
+  paramCurveLeft=paramBoard.create('functiongraph',[x=>paramFn(x,currentK),-2,4.97],{strokeWidth:2});
+  paramCurveRight=paramBoard.create('functiongraph',[x=>paramFn(x,currentK),5.03,12],{strokeWidth:2});
+  paramHole=openPoint(paramBoard,5,1/6);
+}
+function updateParameter(){
+  const slider=document.getElementById('kSlider');
+  const k=parseFloat(slider.value);
+  currentK=k;
+  document.getElementById('kValue').value=k.toFixed(2);
+  document.getElementById('paramEq').textContent=`\\(f_k(x)=\\dfrac{\\sqrt{x+${k.toFixed(2)}}-3}{x-5}\\)`;
+  const hole=Math.abs(k-4)<1e-9;
+  document.getElementById('paramStatus').textContent=hole?'ב-x=5 מתקבל חור.':'ב-x=5 מתקבלת אסימפטוטה אנכית.';
+  if(paramHole){ paramHole.setAttribute({visible:hole}); if(hole){paramHole.moveTo([5,1/6],0);} }
+  if(paramVLine){ paramVLine.setAttribute({visible:!hole}); }
+  if(!paramVLine){ paramVLine=vline(paramBoard,5); paramVLine.setAttribute({visible:!hole}); }
+  paramBoard.update();
+  if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([document.getElementById('paramEq')]); }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initStaticGraphs();
+  initParameterGraph();
+  const slider=document.getElementById('kSlider');
+  slider.addEventListener('input',updateParameter);
+  updateParameter();
+});
+</script>
+</body>
+</html>
