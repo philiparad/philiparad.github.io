@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>טרנספורמציות של פונקציות רציונליות — מערך שיעור 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<script>
+window.__docErrors = [];
+window.addEventListener('error', function(e){ window.__docErrors.push(String(e.message || e.error || 'error')); });
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+@page { size: A4 portrait; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:#e9eef5; color:#172033; font-family:Arial,"Noto Sans Hebrew",sans-serif; }
+body { direction:rtl; line-height:1.42; counter-reset: page; }
+.page {
+  width:210mm; height:297mm; margin:10px auto; padding:11mm 13mm 10mm;
+  background:#fff; box-shadow:0 5px 22px rgba(15,32,55,.12);
+  overflow:hidden; position:relative; break-after:page; page-break-after:always;
+  counter-increment:page;
+}
+.page:last-of-type { break-after:auto; page-break-after:auto; }
+.page::after {
+  content:"עמוד " counter(page); position:absolute; bottom:4.8mm; left:13mm;
+  font-size:10.5px; color:#7a8798;
+}
+.header { border-bottom:2px solid #264d7c; padding-bottom:6px; margin-bottom:8px; }
+.kicker { font-size:11.5px; font-weight:700; color:#5a6f8c; letter-spacing:.2px; }
+h1 { margin:2px 0 0; font-size:24px; color:#173b67; line-height:1.2; }
+h2 { margin:3px 0 6px; font-size:20px; color:#1f4d7d; line-height:1.25; }
+h3 { margin:7px 0 4px; font-size:16px; color:#315a86; }
+p { margin:5px 0; font-size:14.5px; }
+ul,ol { margin:4px 0 6px; padding-right:20px; }
+li { margin:2px 0; font-size:14px; }
+.math, mjx-container { direction:ltr !important; unicode-bidi:isolate; }
+.math { display:inline-block; }
+.display-math { direction:ltr; text-align:center; margin:5px 0; }
+.callout { border:1px solid #cbd8e7; border-right:5px solid #2f6fa5; border-radius:9px; padding:7px 9px; margin:7px 0; background:#f8fbff; }
+.callout.warn { border-right-color:#b87716; background:#fffaf1; }
+.callout.challenge { border-right-color:#6a49a5; background:#fbf8ff; }
+.small { font-size:12.5px; }
+.muted { color:#68778a; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; align-items:start; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; align-items:start; }
+.card { border:1px solid #d9e2ee; border-radius:9px; padding:7px 8px; background:#fff; break-inside:avoid; }
+.card h3 { margin-top:0; }
+table { width:100%; border-collapse:collapse; margin:5px 0; font-size:12.8px; }
+th,td { border:1px solid #d6dfeb; padding:4px 5px; vertical-align:top; }
+th { background:#eef4fa; color:#244c78; }
+.compact td,.compact th { padding:3px 4px; font-size:12.2px; }
+.graph-card { border:1px solid #d4deea; border-radius:10px; padding:6px 7px 7px; margin:6px 0; background:#fff; break-inside:avoid; }
+.graph-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; }
+.graph-title { font-size:13px; font-weight:700; color:#31587f; }
+.graph-toolbar { display:flex; gap:4px; direction:rtl; }
+.graph-toolbar button { border:1px solid #b9c7d8; background:#f4f8fc; border-radius:6px; padding:3px 7px; font-size:11.5px; cursor:pointer; }
+.graph-toolbar button:hover { background:#e8f1fa; }
+.jxgbox { width:100%; height:67mm; border:0 !important; background:#fff; direction:ltr; }
+.jxgbox.smallg { height:53mm; }
+.jxgbox.tinyg { height:42mm; }
+.jxgbox.interactiveg { height:126mm; }
+.param-panel { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:7px 0; direction:ltr; }
+.param-control { border:1px solid #d6dfeb; border-radius:9px; padding:7px 9px; background:#f8fbff; }
+.param-control label { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#244c78; margin-bottom:4px; }
+.param-control input[type="range"] { width:100%; accent-color:#315a86; cursor:pointer; }
+.param-value { min-width:38px; text-align:center; direction:ltr; font-variant-numeric:tabular-nums; color:#172033; }
+.live-equation { border:1px solid #cbd8e7; border-radius:9px; background:#f8fbff; padding:7px 10px; margin:7px 0; text-align:center; min-height:15mm; display:flex; align-items:center; justify-content:center; }
+.asymptote-readout { display:flex; justify-content:center; flex-wrap:wrap; gap:8px 22px; margin-top:5px; font-size:12.5px; color:#4f6075; direction:rtl; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:5px; font-size:11.8px; direction:rtl; align-items:center; }
+.legend .legend-item { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+.legend .legend-item::before { content:""; display:inline-block; width:20px; height:3px; border-radius:2px; background:var(--legend-color); flex:0 0 auto; }
+.exercise { border-bottom:1px solid #edf1f6; padding:4px 0 5px; font-size:13.4px; }
+.exercise:last-child { border-bottom:0; }
+.exnum { display:inline-block; min-width:28px; font-weight:700; color:#27699e; }
+.answer { color:#223b57; font-size:12.7px; }
+.teacher { background:#f5f8fb; border:1px dashed #9fb2c7; padding:6px 8px; border-radius:8px; margin:5px 0; }
+.source-note { font-size:10.8px; color:#6e7b8b; margin-top:5px; }
+.toc { columns:2; column-gap:24px; }
+.toc li { break-inside:avoid; }
+.check { color:#1f6a45; font-weight:700; }
+.dense p,.dense li { font-size:12.8px; }
+.dense table { font-size:11.8px; }
+.dense .exercise { font-size:12.2px; padding:3px 0 4px; }
+.footer-note { position:absolute; bottom:4.8mm; right:13mm; font-size:10.5px; color:#7a8798; }
+@media print {
+  html,body { background:#fff; }
+  .page { margin:0; box-shadow:none; }
+  .graph-toolbar { display:none !important; }
+}
+</style>
+</head>
+<body>
+
+<section class="page" id="p1">
+  <div class="header"><div class="kicker">מתמטיקה — 5 יחידות | מערך שיעור מלא</div><h1>טרנספורמציות של פונקציות רציונליות</h1></div>
+  <div style="height:20px;"></div>
+  <div class="callout">
+    <strong>מוקד היחידה:</strong> מעבר בין גרף, תכונות וייצוג אלגברי של פונקציות רציונליות; וכן טרנספורמציות של פונקציות אחרות היוצרות פונקציה רציונלית, ובראשן <span class="math">\(g(x)=\dfrac{1}{f(x)}\)</span>.
+  </div>
+  <div style="height:20px;"></div>
+  <div class="grid2_">
+    <div class="card">
+      <h3>מטרות ידע</h3>
+      <ul>
+        <li>לשלוט בטרנספורמציות <span class="math">\(A f(B(x-h))+K\)</span>.</li>
+        <li>לחקור את המשפחה <span class="math">\(\dfrac{a}{x-h}+k\)</span>.</li>
+        <li>לעבור בין <span class="math">\(\dfrac{Ax+B}{Cx+D}\)</span> לבין צורת הזזה.</li>
+        <li>להסיק תכונות של <span class="math">\(\dfrac{1}{f(x)}\)</span>, <span class="math">\([f(x)]^2\)</span> ו־<span class="math">\(f(x^2)\)</span>.</li>
+        <li>להעביר אסימפטוטות, נקודות קיצון, תחומי עליה/ירידה וחיתוכים ללא חקירה מחדש כאשר אפשר.</li>
+      </ul>
+    </div>
+<div style="height:30px;"></div>
+    <div class="card">
+      <h3>מטרות מיומנות</h3>
+      <ul>
+        <li>שרטוט מדויק מתוך מידע חלקי.</li>
+        <li>זיהוי פונקציה מתוך אסימפטוטות ונקודה.</li>
+        <li>שמירת מגבלות תחום לאחר פישוט אלגברי.</li>
+        <li>פתרון שאלות פרמטריות ושאלות בסגנון 5 יחידות.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="p2">
+  <div class="header"><div class="kicker">מפת הוראה</div><h2>12 שיעורים</h2></div>
+  <table>
+    <tr><th>שיעור</th><th>נושא</th><th>תוצר תלמיד</th></tr>
+    <tr><td>1</td><td>רענון טרנספורמציות ו־<span class="math">\(1/x\)</span></td><td>מעביר נקודה ואסימפטוטה תחת טרנספורמציה.</td></tr>
+    <tr><td>2</td><td><span class="math">\(a/(x-h)+k\)</span></td><td>מזהה תחום, טווח, אסימפטוטות וחיתוכים.</td></tr>
+    <tr><td>3</td><td><span class="math">\((Ax+B)/(Cx+D)\)</span></td><td>ממיר לצורת הזזה ומשרטט.</td></tr>
+    <tr><td>4</td><td>טרנספורמציות של פונקציה רציונלית נתונה</td><td>מעביר קיצון ואסימפטוטות.</td></tr>
+    <tr><td>5–6</td><td><span class="math">\(1/f(x)\)</span> — כללי יסוד</td><td>ממיר אפסים לאסימפטוטות, מזהה נקודות קבועות וסימן.</td></tr>
+    <tr><td>7</td><td><span class="math">\(1/f(x)\)</span> — חורים ותחום</td><td>שומר את תחום הפונקציה המקורית גם אחרי פישוט.</td></tr>
+    <tr><td>8</td><td>קיצון ועליה/ירידה של <span class="math">\(1/f(x)\)</span></td><td>מוכיח בעזרת טרנפורמציה.</td></tr>
+    <tr><td>9</td><td><span class="math">\([f(x)]^2\)</span></td><td>קובע שינויי סימן, אפסים וקיצון.</td></tr>
+    <tr><td>10</td><td><span class="math">\(f(ax+b)\)</span>, <span class="math">\(f(x^2)\)</span></td><td>מעביר נקודות, תחום ואסימפטוטות.</td></tr>
+    <tr><td>11</td><td>שילובים ופרמטרים</td><td>חוקר פונקציה רציונלית שנוצרה מטרנספורמציה.</td></tr>
+    <tr><td>12</td><td>תרגול מסכם והערכה</td><td>פתרון מלא בסגנון 5 יחידות.</td></tr>
+  </table>
+<div style="height:30px;"></div>
+  <div class="grid2_">
+    <div class="card"><h3>ידע מקדים</h3><ul><li>תחום הגדרה ופתרון משוואות.</li><li>אסימפטוטה אנכית ואופקית.</li><li>טרנספורמציות בסיסיות של גרפים.</li></ul></div>
+<div style="height:30px;"></div>
+    <div class="card"><h3>אבחון פתיחה — 8 דקות</h3><ol><li>מה קורה לגרף <span class="math">\(f(x)\)</span> ב־<span class="math">\(f(x-3)\)</span>?</li><li>מה תחום <span class="math">\(1/(x+2)\)</span>?</li><li>מהי האסימפטוטה האופקית של <span class="math">\(2+1/x\)</span>?</li><li>אם <span class="math">\(f(4)=0\)</span>, מה אי אפשר להציב ב־<span class="math">\(1/f(x)\)</span>?</li></ol></div>
+  </div>
+</section>
+
+<section class="page" id="p3">
+  <div class="header"><div class="kicker">יחידה 1</div><h2>טרנספורמציה כללית של גרף</h2></div>
+  <p>אם ידוע הגרף של <span class="math">\(y=f(x)\)</span>, נבחן את</p>
+  <div class="display-math">\[g(x)=A f(B(x-h))+K\]</div>
+  <table class="compact">
+    <tr><th>פעולה</th><th>מה קורה לנקודה <span class="math">\((u,v)\)</span></th><th>רעיון גרפי</th></tr>
+    <tr><td><span class="math">\(f(x)+K\)</span></td><td><span class="math">\((u,v+K)\)</span></td><td>הזזה אנכית.</td></tr>
+    <tr><td><span class="math">\(f(x-h)\)</span></td><td><span class="math">\((u+h,v)\)</span></td><td>הזזה אופקית.</td></tr>
+    <tr><td><span class="math">\(A f(x)\)</span></td><td><span class="math">\((u,Av)\)</span></td><td>מתיחה/כיווץ אנכי; אם <span class="math">\(A\lt0\)</span> גם שיקוף ביחס לציר <span class="math">\(x\)</span>.</td></tr>
+    <tr><td><span class="math">\(f(Bx)\)</span></td><td><span class="math">\((u/B,v)\)</span></td><td>שינוי אופקי; אם <span class="math">\(B\lt0\)</span> גם שיקוף ביחס לציר <span class="math">\(y\)</span>.</td></tr>
+  </table>
+<div style="height:30px;"></div>
+  <div class="callout"><strong>נוסחת מיפוי אחת:</strong> נקודה <span class="math">\((u,v)\)</span> על <span class="math">\(f\)</span> עוברת לנקודה <span class="math">\(\left(h+\dfrac{u}{B},K+Av\right)\)</span> על <span class="math">\(g\)</span>, כאשר <span class="math">\(B\ne0\)</span>.</div>
+<div style="height:30px;"></div>
+  <h3>מה קורה לאסימפטוטות?</h3>
+  <ul>
+    <li>אסימפטוטה אנכית <span class="math">\(x=p\)</span> של <span class="math">\(f\)</span> עוברת ל־<span class="math">\(x=h+\dfrac{p}{B}\)</span>.</li>
+    <li>אסימפטוטה אופקית <span class="math">\(y=q\)</span> עוברת ל־<span class="math">\(y=K+Aq\)</span>.</li>
+    <li>סוג קיצון נשמר תחת שינוי אופקי בלבד; אם <span class="math">\(A\lt0\)</span> מקסימום ומינימום מתחלפים.</li>
+  </ul>
+<div style="height:30px;"></div>
+  <div class="grid2_">
+    <div class="card"><h3>דוגמה</h3><p>ל־<span class="math">\(f\)</span> נקודת מינימום <span class="math">\((4,-2)\)</span> ואסימפטוטה אנכית <span class="math">\(x=1\)</span>. עבור <span class="math">\(g(x)=-3f(2(x-5))+1\)</span>:</p><p>הנקודה עוברת ל־<span class="math">\((7,7)\)</span> והופכת למקסימום. האסימפטוטה עוברת ל־<span class="math">\(x=\dfrac{11}{2}\)</span>.</p></div>
+<div style="height:20px;"></div>
+    <div class="card"><h3>בדיקת הבנה</h3><p>אסימפטוטה <span class="math">\(y=2\)</span> עוברת תחת אותה טרנספורמציה ל־</p><div class="display-math">\[y=-3\cdot2+1=-5\]</div></div>
+  </div>
+</section>
+
+<section class="page" id="p4">
+  <div class="header"><div class="kicker">יחידה 2</div><h2>פונקציית האם <span class="math">\(y=1/x\)</span></h2></div>
+  <div class="grid2_	">
+    <div>
+      <h3>תכונות בסיס</h3>
+      <ul>
+        <li>תחום: <span class="math">\(x\ne0\)</span>.</li>
+        <li>טווח: <span class="math">\(y\ne0\)</span>.</li>
+        <li>אסימפטוטה אנכית: <span class="math">\(x=0\)</span>.</li>
+        <li>אסימפטוטה אופקית: <span class="math">\(y=0\)</span>.</li>
+        <li>הפונקציה אי־זוגית.</li>
+        <li>אין חיתוך עם הצירים.</li>
+      </ul>
+      <div class="display-math">\[\lim_{x\to0^+}\frac1x=\infty,\qquad \lim_{x\to0^-}\frac1x=-\infty\]</div>
+      <div class="display-math">\[\lim_{x\to\infty}\frac1x=0,\qquad \lim_{x\to-\infty}\frac1x=0\]</div>
+      <div style="height:30px;"></div>
+    </div>
+    <div>
+      <div class="graph-card">
+        <div class="graph-head"><div class="graph-title">גרף <span class="math">\(y=1/x\)</span></div><div class="graph-toolbar" data-board="g_recip"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+        <div id="g_recip" class="jxgbox"></div>
+      </div>
+<div style="height:20px;"></div>
+    </div>
+  </div>
+  <div class="callout warn"><strong>טעות נפוצה:</strong> אסימפטוטה אופקית אינה מחסום. פונקציה רציונלית יכולה לחצות אסימפטוטה אופקית; אסימפטוטה אנכית לעומת זאת אינה חלק מהתחום.</div>
+</section>
+
+<section class="page" id="p5">
+  <div class="header"><div class="kicker">יחידה 3</div><h2>המשפחה <span class="math">\(\dfrac{a}{x-h}+k\)</span></h2></div>
+  <div class="grid2_">
+    <div>
+      <div class="display-math">\[f(x)=\frac{a}{x-h}+k,\qquad a\ne0\]</div>
+      <table class="compact">
+        <tr><th>תכונה</th><th>תוצאה</th></tr>
+        <tr><td>תחום</td><td><span class="math">\(x\ne h\)</span></td></tr>
+        <tr><td>טווח</td><td><span class="math">\(y\ne k\)</span></td></tr>
+        <tr><td>אסימפטוטה אנכית</td><td><span class="math">\(x=h\)</span></td></tr>
+        <tr><td>אסימפטוטה אופקית</td><td><span class="math">\(y=k\)</span></td></tr>
+        <tr><td>מרכז סימטריה</td><td><span class="math">\((h,k)\)</span></td></tr>
+        <tr><td>חיתוך עם ציר <span class="math">\(x\)</span></td><td>אם <span class="math">\(k\ne0\)</span>: <span class="math">\(x=h-\dfrac{a}{k}\)</span></td></tr>
+      </table>
+      <p>אם <span class="math">\(a\gt0\)</span> הענפים נמצאים ביחס למרכז ברביעים הראשון והשלישי; אם <span class="math">\(a\lt0\)</span> — בשני והרביעי.</p>
+<div style="height:20px;"></div>
+      <div class="callout"><strong>זיהוי מתוך גרף:</strong> תחילה קוראים את האסימפטוטות כדי למצוא <span class="math">\(h,k\)</span>; לאחר מכן משתמשים בנקודה אחת כדי למצוא את <span class="math">\(a\)</span>.</div>
+<div style="height:20px;"></div>
+    </div>
+    <div>
+      <div class="graph-card">
+        <div class="graph-head"><div class="graph-title"><span class="math">\(y=-\dfrac{2}{x-1}+3\)</span></div><div class="graph-toolbar" data-board="g_shifted"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+        <div id="g_shifted" class="jxgbox"></div>
+      </div>
+      <p class="small">בגרף: <span class="math">\(x=1\)</span>, <span class="math">\(y=3\)</span>. חיתוך עם ציר <span class="math">\(x\)</span>: <span class="math">\(x=\dfrac53\)</span>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="p5b">
+  <div class="header"><div class="kicker">יחידה 3 — יישומון אינטראקטיבי</div><h2>המשפחה הכללית <span class="math">\(f(x)=\dfrac{a}{x-h}+k\)</span></h2></div>
+  <p>שנו את הפרמטרים <span class="math">\(a\)</span>, <span class="math">\(h\)</span> ו־<span class="math">\(k\)</span> בעזרת המחוונים. הגרף, האסימפטוטות ומשוואת הפונקציה יתעדכנו מיד.</p>
+
+  <div class="param-panel" aria-label="מחווני הפרמטרים">
+    <div class="param-control">
+      <label for="param_a"><span>\(a\)</span><span id="param_a_value" class="param-value">1</span></label>
+      <input id="param_a" type="range" min="-20" max="19" step="1" value="3" aria-label="ערך a">
+    </div>
+    <div class="param-control">
+      <label for="param_h"><span>\(h\)</span><span id="param_h_value" class="param-value">0</span></label>
+      <input id="param_h" type="range" min="-5" max="5" step="0.25" value="0" aria-label="ערך h">
+    </div>
+    <div class="param-control">
+      <label for="param_k"><span>\(k\)</span><span id="param_k_value" class="param-value">0</span></label>
+      <input id="param_k" type="range" min="-5" max="5" step="0.25" value="0" aria-label="ערך k">
+    </div>
+  </div>
+
+  <div class="live-equation" id="general_rational_equation" aria-live="polite">
+    <span class="math">\(f(x)=\dfrac{1}{x}\)</span>
+  </div>
+
+  <div class="graph-card">
+    <div class="graph-head">
+      <div class="graph-title">גרף אינטראקטיבי של <span class="math">\(f(x)=\dfrac{a}{x-h}+k\)</span></div>
+      <div class="graph-toolbar" data-board="g_general_rational"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div>
+    </div>
+    <div id="g_general_rational" class="jxgbox interactiveg"></div>
+    <div class="asymptote-readout">
+      <span>אסימפטוטה אנכית: <span class="math">\(x=\)</span><strong id="general_asym_x">0</strong></span>
+      <span>אסימפטוטה אופקית: <span class="math">\(y=\)</span><strong id="general_asym_y">0</strong></span>
+      <span>מרכז סימטריה: <strong id="general_center">(0, 0)</strong></span>
+    </div>
+  </div>
+
+  <div class="callout"><strong>ברירת מחדל:</strong> <span class="math">\(a=1\)</span>, <span class="math">\(h=0\)</span>, <span class="math">\(k=0\)</span>, ולכן מתקבלת פונקציית האם <span class="math">\(f(x)=1/x\)</span>. המחוון של <span class="math">\(a\)</span> מדלג על <span class="math">\(0\)</span>, בהתאם לתנאי <span class="math">\(a\ne0\)</span>.</div>
+</section>
+
+<section class="page" id="p6">
+  <div class="header"><div class="kicker">יחידה 3</div><h2>צירוף טרנספורמציות: שאלה 12</h2></div>
+  <p>מתחילים מ־<span class="math">\(y=1/x\)</span> ומגיעים אל</p>
+  <div class="display-math">\[y=-\frac{1}{2(x+1)}-2\]</div>
+  <ol>
+    <li>שיקוף ביחס לציר <span class="math">\(x\)</span>: <span class="math">\(y=-1/x\)</span>.</li>
+    <li>כיווץ אנכי ביחס <span class="math">\(1/2\)</span>: <span class="math">\(y=-1/(2x)\)</span>.</li>
+    <li>הזזה שמאלה יחידה: <span class="math">\(y=-1/(2(x+1))\)</span>.</li>
+    <li>הזזה מטה 2: <span class="math">\(y=-1/(2(x+1))-2\)</span>.</li>
+  </ol>
+<div style="height:20px;"></div>
+  <div class="graph-card">
+    <div class="graph-head"><div class="graph-title">ארבעת הגרפים על אותה מערכת צירים</div><div class="graph-toolbar" data-board="g_q12"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+    <div id="g_q12" class="jxgbox"></div>
+    <div class="legend" aria-label="מקרא צבעים לגרפים">
+      <span class="legend-item" style="--legend-color:#1565c0"><span class="math">\(y=1/x\)</span></span>
+      <span class="legend-item" style="--legend-color:#d32f2f"><span class="math">\(y=-1/x\)</span></span>
+      <span class="legend-item" style="--legend-color:#2e7d32"><span class="math">\(y=-1/(2x)\)</span></span>
+      <span class="legend-item" style="--legend-color:#7b1fa2"><span class="math">\(y=-1/(2(x+1))-2\)</span></span>
+    </div>
+  </div>
+<div style="height:10px;"></div>
+  <div class="grid2_">
+    <div class="card"><h3>צורה רציונלית</h3><div class="display-math">\[ -\frac{1}{2(x+1)}-2=\frac{-4x-5}{2x+2}\]</div></div>
+<div style="height:30px;"></div>
+    <div class="card"><h3>מידע מהיר</h3><p>תחום: <span class="math">\(x\ne-1\)</span>. טווח: <span class="math">\(y\ne-2\)</span>. אסימפטוטות: <span class="math">\(x=-1\)</span>, <span class="math">\(y=-2\)</span>.</p></div>
+  </div>
+</section>
+
+<section class="page" id="p7">
+  <div class="header"><div class="kicker">יחידה 4</div><h2>מ־<span class="math">\((Ax+B)/(Cx+D)\)</span> לצורת הזזה</h2></div>
+<div style="height:20px;"></div>
+  <div class="callout">
+    <strong>המטרה:</strong> לכתוב את הפונקציה בצורה
+    <span class="math">\(f(x)=\dfrac{a}{x-h}+k\)</span>.
+    הרעיון האלגברי הוא <strong>לכתוב את המונה כמכפלה של המכנה ועוד שארית קבועה</strong>.
+  </div>
+<div style="height:30px;"></div>
+  <h3>הדרך האלגברית — שלב אחר שלב</h3>
+  <div class="card">
+    <h3>דוגמה מלאה</h3>
+    <p>ניקח <span class="math">\(f(x)=\dfrac{2x+5}{x-4}\)</span>. המכנה כבר כתוב כ־<span class="math">\(x-4\)</span>, ולכן <span class="math">\(h=4\)</span>.</p>
+    <p>כדי לקבל במונה את <span class="math">\(2x\)</span>, מכפילים את המכנה ב־<span class="math">\(2\)</span>:</p>
+    <div class="display-math">\[2(x-4)=2x-8\]</div>
+    <p>כדי לעבור מ־<span class="math">\(2x-8\)</span> אל <span class="math">\(2x+5\)</span> צריך להוסיף <span class="math">\(13\)</span>:</p>
+    <div class="display-math">\[2x+5=2(x-4)+13\]</div>
+    <p>ולכן</p>
+    <div class="display-math">\[f(x)=\frac{2(x-4)+13}{x-4}=2+\frac{13}{x-4}\]</div>
+    <p><strong>מכאן מיד:</strong> <span class="math">\(a=13\)</span>, <span class="math">\(h=4\)</span>, <span class="math">\(k=2\)</span>; ולכן האסימפטוטות הן <span class="math">\(x=4\)</span> ו־<span class="math">\(y=2\)</span>.</p>
+  </div>
+<div style="height:20px;"></div>
+  <div class="graph-card">
+    <div class="graph-head"><div class="graph-title"><span class="math">\(f(x)=(2x+5)/(x-4)\)</span></div><div class="graph-toolbar" data-board="g_mobius"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+    <div id="g_mobius" class="jxgbox tinyg"></div>
+  </div>
+</section>
+
+
+<section class="page" id="p8a">
+  <div class="header"><div class="kicker">יחידה 5</div><h2>המשפחה <span class="math">\(f(x)=\dfrac{a}{x^2+h}+k\)</span>, כאשר <span class="math">\(h\gt0\)</span></h2></div>
+
+  <div class="grid2">
+    <div>
+      <div class="display-math">\[f(x)=\frac{a}{x^2+h}+k,\qquad a\ne0,\qquad h\gt0\]</div>
+      <div class="callout">
+        <strong>למה דורשים <span class="math">\(h\gt0\)</span>?</strong>
+        לכל <span class="math">\(x\)</span> מתקיים <span class="math">\(x^2\ge0\)</span>, ולכן <span class="math">\(x^2+h\gt0\)</span>. המכנה לעולם אינו מתאפס, ולכן תחום ההגדרה הוא כל המספרים הממשיים ואין אסימפטוטות אנכיות.
+      </div>
+      <h3>תפקיד הפרמטרים</h3>
+      <table class="compact">
+        <tr><th>פרמטר</th><th>השפעה על הגרף</th></tr>
+        <tr><td><span class="math">\(a\)</span></td><td>קובע מתיחה/כיווץ אנכי ביחס ל־<span class="math">\(y=k\)</span>. אם <span class="math">\(a\gt0\)</span> הגרף כולו מעל <span class="math">\(y=k\)</span>; אם <span class="math">\(a\lt0\)</span> הגרף כולו מתחתיה.</td></tr>
+        <tr><td><span class="math">\(h\)</span></td><td>אינו הזזה אופקית. הוא משנה את גובה הקיצון ואת מידת ה"שטיחות": המרחק של הקיצון מן האסימפטוטה הוא <span class="math">\(|a|/h\)</span>. כאשר <span class="math">\(h\)</span> גדל, הגרף מתקרב ל־<span class="math">\(y=k\)</span>.</td></tr>
+        <tr><td><span class="math">\(k\)</span></td><td>הזזה אנכית של כל הגרף; האסימפטוטה האופקית היא <span class="math">\(y=k\)</span>.</td></tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>תכונות המשפחה</h3>
+      <table class="compact">
+        <tr><th>תכונה</th><th>תוצאה</th></tr>
+        <tr><td>תחום</td><td><span class="math">\(\mathbb{R}\)</span></td></tr>
+        <tr><td>סימטריה</td><td>פונקציה זוגית; סימטרית ביחס לציר <span class="math">\(y\)</span>.</td></tr>
+        <tr><td>אסימפטוטה אופקית</td><td><span class="math">\(y=k\)</span></td></tr>
+        <tr><td>אסימפטוטה אנכית</td><td>אין, משום ש־<span class="math">\(x^2+h\gt0\)</span>.</td></tr>
+        <tr><td>חיתוך עם ציר <span class="math">\(y\)</span></td><td><span class="math">\(\left(0,k+\dfrac{a}{h}\right)\)</span>; זוהי גם נקודת הקיצון היחידה.</td></tr>
+        <tr><td>קיצון</td><td>אם <span class="math">\(a\gt0\)</span> — מקסימום; אם <span class="math">\(a\lt0\)</span> — מינימום.</td></tr>
+        <tr><td>טווח</td><td>אם <span class="math">\(a\gt0\)</span>: <span class="math">\(k\lt y\le k+\dfrac{a}{h}\)</span>. אם <span class="math">\(a\lt0\)</span>: <span class="math">\(k+\dfrac{a}{h}\le y\lt k\)</span>.</td></tr>
+      </table>
+      <div class="callout"><strong>כיוון השינוי:</strong> אם <span class="math">\(a\gt0\)</span>, הפונקציה עולה עד <span class="math">\(x=0\)</span> ואז יורדת. אם <span class="math">\(a\lt0\)</span>, היא יורדת עד <span class="math">\(x=0\)</span> ואז עולה.</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>חיתוך עם ציר <span class="math">\(x\)</span></h3>
+      <p>פותרים <span class="math">\(\dfrac{a}{x^2+h}+k=0\)</span>. אם <span class="math">\(k\ne0\)</span>, מתקבל</p>
+      <div class="display-math">\[x^2=-\frac{a}{k}-h\]</div>
+      <p>לכן יש שני חיתוכים אם אגף ימין חיובי, חיתוך אחד ב־<span class="math">\(x=0\)</span> אם הוא אפס, ואין חיתוך אם הוא שלילי. אם <span class="math">\(k=0\)</span> ו־<span class="math">\(a\ne0\)</span>, אין חיתוך עם ציר <span class="math">\(x\)</span>.</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title">דוגמה: <span class="math">\(f(x)=\dfrac{2}{x^2+1}+1\)</span></div><div class="graph-toolbar" data-board="g_quad_family_example"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_quad_family_example" class="jxgbox tinyg"></div>
+      <div class="legend" aria-label="מקרא הגרף">
+        <span class="legend-item" style="--legend-color:#1565c0"><span class="math">\(f(x)=\dfrac{2}{x^2+1}+1\)</span></span>
+        <span class="legend-item" style="--legend-color:#64748b"><span class="math">\(y=1\)</span> — אסימפטוטה אופקית</span>
+      </div>
+    </div>
+  </div>
+  <div class="teacher"><strong>זיהוי מתוך גרף:</strong> קוראים תחילה את <span class="math">\(k\)</span> מן האסימפטוטה האופקית. נקודת הקיצון נמצאת תמיד על ציר <span class="math">\(y\)</span> וגובהה <span class="math">\(k+a/h\)</span>. סימן <span class="math">\(a\)</span> נקבע לפי השאלה אם הגרף נמצא מעל האסימפטוטה או מתחתיה.</div>
+</section>
+
+<section class="page" id="p8b">
+  <div class="header"><div class="kicker">יחידה 5 — יישומון אינטראקטיבי</div><h2>המשפחה הכללית <span class="math">\(f(x)=\dfrac{a}{x^2+h}+k\)</span>, <span class="math">\(h\gt0\)</span></h2></div>
+  <p>שנו את הפרמטרים <span class="math">\(a\)</span>, <span class="math">\(h\)</span> ו־<span class="math">\(k\)</span>. הגרף, משוואת הפונקציה, האסימפטוטה ונקודת הקיצון יתעדכנו מיד.</p>
+
+  <div class="param-panel" aria-label="מחווני הפרמטרים של המשפחה הריבועית">
+    <div class="param-control">
+      <label for="quad_param_a"><span>\(a\)</span><span id="quad_param_a_value" class="param-value">1</span></label>
+      <input id="quad_param_a" type="range" min="-20" max="19" step="1" value="3" aria-label="ערך a">
+    </div>
+    <div class="param-control">
+      <label for="quad_param_h"><span>\(h\)</span><span id="quad_param_h_value" class="param-value">1</span></label>
+      <input id="quad_param_h" type="range" min="0.25" max="6" step="0.25" value="1" aria-label="ערך h">
+    </div>
+    <div class="param-control">
+      <label for="quad_param_k"><span>\(k\)</span><span id="quad_param_k_value" class="param-value">0</span></label>
+      <input id="quad_param_k" type="range" min="-5" max="5" step="0.25" value="0" aria-label="ערך k">
+    </div>
+  </div>
+
+  <div class="live-equation" id="quad_family_equation" aria-live="polite">
+    <span class="math">\(f(x)=\dfrac{1}{x^2+1}\)</span>
+  </div>
+
+  <div class="graph-card">
+    <div class="graph-head">
+      <div class="graph-title">גרף אינטראקטיבי</div>
+      <div class="graph-toolbar" data-board="g_quad_family"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div>
+    </div>
+    <div id="g_quad_family" class="jxgbox interactiveg"></div>
+    <div class="asymptote-readout">
+      <span>אסימפטוטה אופקית: <span class="math">\(y=\)</span><strong id="quad_asym_y">0</strong></span>
+      <span>נקודת קיצון: <strong id="quad_extreme">(0, 1)</strong></span>
+      <span>סוג הקיצון: <strong id="quad_extreme_type">מקסימום</strong></span>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <div class="callout"><strong>ברירת מחדל:</strong> <span class="math">\(a=1\)</span>, <span class="math">\(h=1\)</span>, <span class="math">\(k=0\)</span>, ולכן <span class="math">\(f(x)=1/(x^2+1)\)</span>. המחוון של <span class="math">\(a\)</span> מדלג על <span class="math">\(0\)</span>, ומחוון <span class="math">\(h\)</span> מאפשר רק ערכים חיוביים.</div>
+</section>
+
+<section class="page" id="p8">
+  <div class="header"><div class="kicker">יחידה 5</div><h2>תבנית לחקירה מלאה של פונקציה רציונלית</h2></div>
+  <ol>
+    <li><strong>תחום הגדרה:</strong> כל ערך שמאפס מכנה יוצא מן התחום — גם אם לאחר צמצום הוא נעלם.</li>
+    <li><strong>חיתוכים:</strong> אפסי המונה נותנים חיתוך עם ציר <span class="math">\(x\)</span>, בתנאי שהנקודה בתחום.</li>
+    <li><strong>אי־רציפויות:</strong> גורם מצטמצם יוצר חור; גורם מכנה שאינו מצטמצם עשוי ליצור אסימפטוטה אנכית.</li>
+    <li><strong>התנהגות באינסוף:</strong> השוואת דרגות או חלוקה אלגברית.</li>
+    <li><strong>סקיצה:</strong> מסמנים תחילה אסימפטוטות, חורים, חיתוכים וקיצון — ורק אז מחברים ענפים.</li>
+  </ol>
+  <div class="grid2_">
+    <div class="card">
+      <h3>דוגמה</h3>
+      <div class="display-math">\[f(x)=\frac{x^2+4x+6}{x^2+4x+5}=1+\frac{1}{(x+2)^2+1}\]</div>
+      <div class="callout">
+        <strong>איך מגיעים מאגף שמאל לאגף ימין?</strong>
+        <p>שמים לב שהמונה גדול מן המכנה בדיוק ב־<span class="math">\(1\)</span>:</p>
+        <div class="display-math">\[x^2+4x+6=(x^2+4x+5)+1\]</div>
+        <p>לכן מפרקים את השבר:</p>
+        <div class="display-math">\[\frac{x^2+4x+6}{x^2+4x+5}=\frac{x^2+4x+5}{x^2+4x+5}+\frac{1}{x^2+4x+5}=1+\frac{1}{x^2+4x+5}\]</div>
+        <p>כעת משלימים ריבוע במכנה:</p>
+        <div class="display-math">\[x^2+4x+5=x^2+4x+4+1=(x+2)^2+1\]</div>
+        <p>ומקבלים:</p>
+        <div class="display-math">\[f(x)=1+\frac{1}{(x+2)^2+1}\]</div>
+      </div>
+      <ul>
+        <li>תחום: כל המספרים הממשיים.</li>
+        <li>אסימפטוטה אופקית: <span class="math">\(y=1\)</span>.</li>
+        <li>המכנה מינימלי ב־<span class="math">\(x=-2\)</span>, ולכן שם <span class="math">\(f(-2)=2\)</span> והיא נקודת מקסימום.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="graph-card">
+        <div class="graph-head"><div class="graph-title">הפונקציה <span class="math">\(1+1/((x+2)^2+1)\)</span></div><div class="graph-toolbar" data-board="g_bump"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+        <div id="g_bump" class="jxgbox smallg"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="p10">
+  <div class="header"><div class="kicker">יחידה 6</div><h2>העברת נקודת קיצון תחת <span class="math">\(f(2x)\)</span>, <span class="math">\(f(-x)\)</span>, <span class="math">\(f(-2x+1)\)</span></h2></div>
+  <p>נשתמש ב־</p><div class="display-math">\[f(x)=\frac{x^2+4x+6}{x^2+4x+5}=1+\frac{1}{(x+2)^2+1}\]</div>
+  <p>נקודת המקסימום של <span class="math">\(f\)</span> היא <span class="math">\((-2,2)\)</span>.</p>
+  <table class="compact">
+    <tr><th>פונקציה</th><th>משוואת העברת <span class="math">\(x\)</span></th><th>נקודת הקיצון</th><th>סוג</th></tr>
+    <tr><td><span class="math">\(g(x)=f(2x)\)</span></td><td><span class="math">\(2x=-2\)</span></td><td><span class="math">\((-1,2)\)</span></td><td>מקסימום</td></tr>
+    <tr><td><span class="math">\(h(x)=f(-x)\)</span></td><td><span class="math">\(-x=-2\)</span></td><td><span class="math">\((2,2)\)</span></td><td>מקסימום</td></tr>
+    <tr><td><span class="math">\(i(x)=f(-2x+1)\)</span></td><td><span class="math">\(-2x+1=-2\)</span></td><td><span class="math">\((3/2,2)\)</span></td><td>מקסימום</td></tr>
+  </table>
+  <div class="grid2_">
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title"><span class="math">\(f(x)\)</span> ו־<span class="math">\(f(2x)\)</span></div><div class="graph-toolbar" data-board="g_horiz1"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_horiz1" class="jxgbox tinyg"></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title"><span class="math">\(f(-x)\)</span> ו־<span class="math">\(f(-2x+1)\)</span></div><div class="graph-toolbar" data-board="g_horiz2"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_horiz2" class="jxgbox tinyg"></div>
+    </div>
+  </div>
+  <div class="callout"><strong>כלל:</strong> ב־<span class="math">\(f(ax+b)\)</span>, אם נקודת קיצון של <span class="math">\(f\)</span> נמצאת ב־<span class="math">\(x=u\)</span>, אז ערך ה־<span class="math">\(x\)</span> החדש מקיים <span class="math">\(ax+b=u\)</span>. ערך ה־<span class="math">\(y\)</span> וסוג הקיצון נשמרים.</div>
+</section>
+
+<section class="page" id="p11">
+  <div class="header"><div class="kicker">יחידה 7</div><h2>הליבה: <span class="math">\(g(x)=1/f(x)\)</span> — מילון תכונות</h2></div>
+  <div class="display-math">\[g(x)=\frac{1}{f(x)}\]</div>
+  <table class="compact">
+    <tr><th>בגרף <span class="math">\(f\)</span></th><th>בגרף <span class="math">\(1/f\)</span></th></tr>
+    <tr><td>נקודה <span class="math">\((x,y)\)</span>, <span class="math">\(y\ne0\)</span></td><td><span class="math">\((x,1/y)\)</span></td></tr>
+    <tr><td><span class="math">\(f(x)=1\)</span> או <span class="math">\(f(x)=-1\)</span></td><td>הנקודה נשארת במקום.</td></tr>
+    <tr><td><span class="math">\(f(x)=0\)</span></td><td>בדרך כלל אסימפטוטה אנכית באותו <span class="math">\(x\)</span>.</td></tr>
+    <tr><td><span class="math">\(f(x)\gt0\)</span></td><td><span class="math">\(1/f(x)\gt0\)</span>.</td></tr>
+    <tr><td><span class="math">\(f(x)\lt0\)</span></td><td><span class="math">\(1/f(x)\lt0\)</span>.</td></tr>
+    <tr><td><span class="math">\(|f(x)|\gt1\)</span></td><td>הגרף החדש קרוב יותר לציר <span class="math">\(x\)</span>.</td></tr>
+    <tr><td><span class="math">\(0\lt|f(x)|\lt1\)</span></td><td>הגרף החדש רחוק יותר מציר <span class="math">\(x\)</span>.</td></tr>
+    <tr><td>אסימפטוטה אופקית <span class="math">\(y=L\ne0\)</span></td><td>אסימפטוטה <span class="math">\(y=1/L\)</span>.</td></tr>
+  </table>
+<div style="height:20px;"></div>
+  <div class="callout warn"><strong>תחום:</strong> תחום <span class="math">\(1/f\)</span> הוא תחום <span class="math">\(f\)</span> לאחר שמסירים גם את כל האפסים של <span class="math">\(f\)</span>. אסור להחזיר ערך שהיה מחוץ לתחום המקורי רק משום שהביטוי הצטמצם.</div>
+<div style="height:20px;"></div>
+  <div class="callout"><strong>עליה וירידה:</strong> בכל קטע שבו <span class="math">\(f\ne0\)</span>, המגמה מתהפכת: עליה של <span class="math">\(f\)</span> נעשית ירידה של <span class="math">\(1/f\)</span>, ולהפך.</div>
+</section>
+
+<section class="page" id="p12">
+  <div class="header"><div class="kicker">יחידה 7</div><h2>מפונקציה לינארית לפונקציה רציונלית</h2></div>
+  <p>נתונה <span class="math">\(f(x)=-2x+3\)</span>. נגדיר <span class="math">\(g(x)=1/f(x)\)</span>.</p>
+  <div class="grid2_">
+    <div>
+      <h3>שלב 1 — נקודות קבועות</h3>
+      <p><span class="math">\(f(x)=1\Rightarrow x=1\)</span>, ולכן <span class="math">\((1,1)\)</span> קבועה.</p>
+      <p><span class="math">\(f(x)=-1\Rightarrow x=2\)</span>, ולכן <span class="math">\((2,-1)\)</span> קבועה.</p>
+      <h3>שלב 2 — אסימפטוטה</h3>
+      <p><span class="math">\(-2x+3=0\Rightarrow x=3/2\)</span>. לכן <span class="math">\(x=3/2\)</span> אסימפטוטה אנכית של <span class="math">\(g\)</span>.</p>
+      <h3>שלב 3 — חיתוך עם ציר <span class="math">\(y\)</span></h3>
+      <p><span class="math">\(g(0)=1/3\)</span>.</p>
+      <h3>שלב 4 — אינסוף</h3><p>כאשר <span class="math">\(|x|\)</span> גדל, <span class="math">\(|f(x)|\)</span> גדל ולכן <span class="math">\(g(x)\to0\)</span>.</p>
+    </div>
+<div style="height:30px;"></div>
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title"><span class="math">\(f(x)=-2x+3\)</span> ו־<span class="math">\(1/f(x)\)</span></div><div class="graph-toolbar" data-board="g_q13"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_q13" class="jxgbox"></div>
+    </div>
+  </div>
+  <div class="callout"><strong>תוצאה:</strong> פונקציה לינארית שאינה אפסית קבועה הופכת תחת <span class="math">\(1/f\)</span> לפונקציה רציונלית מהצורה <span class="math">\(1/(ax+b)\)</span>.</div>
+</section>
+
+<section class="page" id="p13">
+  <div class="header"><div class="kicker">יחידה 8</div><h2>מפונקציה ריבועית ל־<span class="math">\(1/f(x)\)</span></h2></div>
+  <p>נתונה <span class="math">\(f(x)=x^2+4x+3=(x+1)(x+3)\)</span>.</p>
+  <div class="grid2_">
+    <div>
+      <ul>
+        <li>אפסי <span class="math">\(f\)</span>: <span class="math">\(x=-3,-1\)</span> → אסימפטוטות אנכיות של <span class="math">\(1/f\)</span>.</li>
+        <li>קודקוד <span class="math">\((-2,-1)\)</span> נמצא גם על <span class="math">\(1/f\)</span> כי <span class="math">\(-1\)</span> קבוע תחת הדדיות.</li>
+        <li><span class="math">\(f\)</span> בעלת מינימום ב־<span class="math">\((-2,-1)\)</span>; <span class="math">\(1/f\)</span> בעלת מקסימום שם.</li>
+        <li>חיתוך עם ציר <span class="math">\(y\)</span>: <span class="math">\((0,1/3)\)</span>.</li>
+        <li>אסימפטוטה אופקית: <span class="math">\(y=0\)</span>.</li>
+      </ul>
+    </div>
+<div style="height:30px;"></div>
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title"><span class="math">\(f(x)\)</span> ו־<span class="math">\(1/f(x)\)</span></div><div class="graph-toolbar" data-board="g_q5"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_q5" class="jxgbox"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="p14">
+  <div class="header"><div class="kicker">יחידה 8 — נקודה קריטית</div><h2>כאשר <span class="math">\(f\)</span>עצמה רציונלית: יצירת חור</h2></div>
+  <p>מהקובץ המצורף:</p>
+  <div class="display-math">\[f(x)=\frac{c}{x+c},\qquad c\gt0,\qquad x\ne-c\]</div>
+  <p>אלגברית:</p>
+  <div class="display-math">\[\frac{1}{f(x)}=\frac{x+c}{c}=\frac{x}{c}+1\]</div>
+<div style="height:20px;"></div>
+  <div class="callout warn"><strong>אבל:</strong> <span class="math">\(x=-c\)</span> היה מחוץ לתחום של <span class="math">\(f\)</span>, ולכן גם <span class="math">\(1/f\)</span> אינו מוגדר שם. מתקבל קו ישר עם חור בנקודה <span class="math">\((-c,0)\)</span>. זו אינה נקודת חיתוך עם ציר <span class="math">\(x\)</span>.</div>
+<div style="height:20px;"></div>
+  <div class="grid2">
+    <div class="card"><h3>ב־<span class="math">\(f\)</span></h3><ul><li>אסימפטוטה אנכית <span class="math">\(x=-c\)</span>.</li><li>אסימפטוטה אופקית <span class="math">\(y=0\)</span>.</li><li>נקודה <span class="math">\((0,1)\)</span>.</li></ul></div>
+    <div class="card"><h3>ב־<span class="math">\(1/f\)</span></h3><ul><li>הקו <span class="math">\(y=x/c+1\)</span>.</li><li>חור <span class="math">\((-c,0)\)</span>.</li><li>נקודה <span class="math">\((0,1)\)</span> נשארת.</li></ul></div>
+  </div>
+  <div class="graph-card">
+    <div class="graph-head"><div class="graph-title">דוגמה <span class="math">\(c=2\)</span>: <span class="math">\(f(x)=2/(x+2)\)</span> והדדי</div><div class="graph-toolbar" data-board="g_hole"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+    <div id="g_hole" class="jxgbox smallg"></div>
+  </div>
+</section>
+
+<section class="page" id="p16">
+  <div class="header"><div class="kicker">יחידה 9</div><h2>אפסים, ריבוי והתנהגות ליד אסימפטוטות של <span class="math">\(1/f\)</span></h2></div>
+  <div class="grid2_">
+    <div class="card">
+      <h3>אפס פשוט של <span class="math">\(f\)</span></h3>
+      <p>אם <span class="math">\(f\)</span> מחליפה סימן ב־<span class="math">\(x=a\)</span>, אז <span class="math">\(1/f\)</span> נוטה לאינסופים בסימנים מנוגדים משני צדי <span class="math">\(a\)</span>.</p>
+      <div class="display-math">\[f(x)=x-1\quad\Rightarrow\quad \frac1{f(x)}=\frac1{x-1}\]</div>
+    </div>
+
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title"><span class="math">\(1/(x-1)\)</span></div><div class="graph-toolbar" data-board="g_oddzero"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_oddzero" class="jxgbox tinyg"></div>
+    </div>
+
+  </div>
+  <div class="grid2_">
+<div style="height:30px;"></div>
+    <div class="card">
+      <h3>אפס ממעלה זוגית</h3>
+      <p>אם <span class="math">\(f\)</span> אינה מחליפה סימן, שני הענפים של <span class="math">\(1/f\)</span> נוטים לאותו סימן אינסוף.</p>
+      <div class="display-math">\[f(x)=(x-1)^2\quad\Rightarrow\quad \frac1{f(x)}=\frac1{(x-1)^2}\]</div>
+    </div>
+
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title"><span class="math">\(1/(x-1)^2\)</span></div><div class="graph-toolbar" data-board="g_evenzero"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_evenzero" class="jxgbox tinyg"></div>
+    </div>
+  </div>
+  <div class="callout"><strong>אסימפטוטה אנכית של <span class="math">\(f\)</span>:</strong> אם <span class="math">\(|f(x)|\to\infty\)</span> כאשר <span class="math">\(x\to a\)</span>, אז <span class="math">\(1/f(x)\to0\)</span>. אם <span class="math">\(a\)</span> מחוץ לתחום המקורי, בגרף ההדדי מתקבל חור על ציר <span class="math">\(x\)</span>.</div>
+</section>
+
+<section class="page" id="p17">
+  <div class="header"><div class="kicker">יחידה 10</div><h2>טרנספורמציית הריבוע <span class="math">\(g(x)=[f(x)]^2\)</span></h2></div>
+<div style="height:20px;"></div>
+  <table class="compact">
+    <tr><th>תכונה של <span class="math">\(f\)</span></th><th>מה קורה ב־<span class="math">\(f^2\)</span></th></tr>
+    <tr><td>נקודה <span class="math">\((x,y)\)</span></td><td><span class="math">\((x,y^2)\)</span></td></tr>
+    <tr><td>ערכים שליליים</td><td>עוברים מעל ציר <span class="math">\(x\)</span>.</td></tr>
+    <tr><td>אפסים</td><td>נשארים אפסים; ריבוי האפס מוכפל.</td></tr>
+    <tr><td>נקודות קבועות</td><td><span class="math">\(y=0\)</span> ו־<span class="math">\(y=1\)</span>.</td></tr>
+    <tr><td>אסימפטוטה אנכית</td><td>נשארת; שני הצדדים נוטים ל־<span class="math">\(+\infty\)</span>.</td></tr>
+    <tr><td>אסימפטוטה אופקית <span class="math">\(y=L\)</span></td><td>עוברת ל־<span class="math">\(y=L^2\)</span>.</td></tr>
+  </table>
+<div style="height:20px;"></div>
+  <h3>נקודות קיצון</h3>
+  <div class="callout">
+    <strong>הרעיון המרכזי:</strong> ב־<span class="math">\(g(x)=[f(x)]^2\)</span> ערך ה־<span class="math">\(x\)</span> אינו משתנה; רק המרחק של הנקודה מציר <span class="math">\(x\)</span> נלקח בריבוע. לכן בודקים אם נקודת הקיצון של <span class="math">\(f\)</span> נמצאת מעל הציר, מתחת לציר או עליו.
+  </div>
+<div style="height:20px;"></div>
+  <table class="compact">
+    <tr><th>מיקום נקודת הקיצון של <span class="math">\(f\)</span></th><th>מה קורה לסוג הקיצון ב־<span class="math">\(g=f^2\)</span></th><th>למה?</th></tr>
+    <tr><td><span class="math">\(f(x_0)\gt0\)</span></td><td>הסוג נשמר: מקסימום נשאר מקסימום, מינימום נשאר מינימום.</td><td>מעל ציר <span class="math">\(x\)</span>, ערך גדול יותר של <span class="math">\(f\)</span> נותן גם ערך גדול יותר של <span class="math">\(f^2\)</span>.</td></tr>
+    <tr><td><span class="math">\(f(x_0)\lt0\)</span></td><td>הסוג מתהפך: מקסימום הופך למינימום, ומינימום הופך למקסימום.</td><td>מתחת לציר, ערך שלילי הקרוב יותר ל־0 נותן ריבוע קטן יותר; ערך שלילי הרחוק יותר מ־0 נותן ריבוע גדול יותר.</td></tr>
+    <tr><td><span class="math">\(f(x_0)=0\)</span></td><td>מתקבלת נקודת מינימום של <span class="math">\(g\)</span> בגובה <span class="math">\(0\)</span>.</td><td>תמיד <span class="math">\([f(x)]^2\ge0\)</span>, ולכן אי אפשר לקבל ערך נמוך מ־0.</td></tr>
+  </table>
+<div style="height:20px;"></div>
+  <p><strong>חשוב:</strong> גם אפס של <span class="math">\(f\)</span> שאינו נקודת קיצון של <span class="math">\(f\)</span> הופך לנקודת מינימום של <span class="math">\(g\)</span>, משום שבאותה נקודה <span class="math">\(g(x)=0\)</span>.</p>
+</section>
+
+<section class="page" id="p17b">
+  <div class="header"><div class="kicker">יחידה 10 — דוגמה</div><h2>פונקציית מנה שמעלים בריבוע</h2></div>
+  <div class="grid2_">
+    <div class="card">
+      <h3>דוגמה מלאה</h3>
+      <p>נגדיר</p>
+      <div class="display-math">
+        \[f(x)=\frac{x^2-2}{x^2+1}\]
+      </div>
+      <div class="display-math">
+        \[g(x)=[f(x)]^2=\left(\frac{x^2-2}{x^2+1}\right)^2=\frac{(x^2-2)^2}{(x^2+1)^2}\]
+      </div>
+      <p>זוהי פונקציית מנה, משום שהיא כתובה כמנה של שני פולינומים.</p>
+      <p>לפונקציה <span class="math">\(f\)</span> יש נקודת מינימום ב־<span class="math">\((0,-2)\)</span>.</p>
+      <p>הנקודה נמצאת <strong>מתחת</strong> לציר <span class="math">\(x\)</span>, ולכן כאשר מעלים בריבוע מתקבל המעבר</p>
+      <div class="display-math">\[(0,-2)\longrightarrow(0,4)\]</div>
+      <p>כדי לקבוע את סוג הקיצון, בודקים ערכים סמוכים. למשל:</p>
+      <div class="display-math">\[f(0.2)=\frac{0.04-2}{0.04+1}=\frac{-1.96}{1.04}\approx-1.885\]</div>
+      <div class="display-math">\[g(0.2)=\left(\frac{-1.96}{1.04}\right)^2\approx3.55\lt4\]</div>
+      <p>כלומר ליד <span class="math">\(x=0\)</span> מתקבלים ב־<span class="math">\(g\)</span> ערכים קטנים מ־<span class="math">\(4\)</span>, ולכן <span class="math">\((0,4)\)</span> היא נקודת <strong>מקסימום</strong> של <span class="math">\(g\)</span>.</p>
+      <p>בנוסף, האפסים של <span class="math">\(f\)</span> מתקבלים מ־<span class="math">\(x^2-2=0\)</span>, ולכן <span class="math">\(x=\pm\sqrt{2}\)</span>. אותם אפסים נשארים אפסים גם של <span class="math">\(g\)</span>, ולכן בגרף של <span class="math">\(g\)</span> מתקבלות נקודות מינימום ב־<span class="math">\((\pm\sqrt{2},0)\)</span>.</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-head"><div class="graph-title">גרף הפונקציה המקורית והפונקציה החדשה</div><div class="graph-toolbar" data-board="g_square_example"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+      <div id="g_square_example" class="jxgbox smallg"></div>
+      <div class="legend" aria-label="מקרא צבעים לגרף הדוגמה">
+        <span class="legend-item" style="--legend-color:#1565c0"><span class="math">\(f(x)=\dfrac{x^2-2}{x^2+1}\)</span></span>
+        <span class="legend-item" style="--legend-color:#d32f2f"><span class="math">\(g(x)=\left(\dfrac{x^2-2}{x^2+1}\right)^2\)</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="callout"><strong>מה רואים בגרף?</strong> הגרף הכחול הוא הפונקציה המקורית <span class="math">\(f\)</span>. הגרף האדום הוא הפונקציה החדשה <span class="math">\(g=[f(x)]^2\)</span>. כל ערך שלילי של <span class="math">\(f\)</span> עובר מעל ציר <span class="math">\(x\)</span> לאחר הריבוע.</div>
+</section>
+
+<section class="page" id="p19">
+  <div class="header"><div class="kicker">יחידה 11</div><h2>טרנספורמציות היוצרות פונקציה רציונלית</h2></div>
+  <p>אם <span class="math">\(f\)</span> פולינומית, אז הפעולה <span class="math">\(1/f\)</span> יוצרת פונקציה רציונלית. שילובים מאפשרים לבנות משפחות עשירות:</p>
+  <div class="display-math">\[g(x)=\frac{A}{f(Bx+C)}+K\]</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>דוגמה 1 — נוצרת אסימפטוטה</h3>
+      <p>ניקח <span class="math">\(f(x)=x^2-4\)</span>:</p>
+      <div class="display-math">\[g(x)=\frac{1}{f(2x-1)}=\frac{1}{(2x-1)^2-4}\]</div>
+      <p>אסימפטוטות אנכיות מתקבלות מ־<span class="math">\((2x-1)^2-4=0\)</span>:</p>
+      <div class="display-math">\[x=-\frac12,\qquad x=\frac32\]</div>
+      <p>אסימפטוטה אופקית: <span class="math">\(y=0\)</span>.</p>
+    </div>
+    <div class="card">
+      <h3>דוגמה 2 — ללא אסימפטוטה אנכית</h3>
+      <p>ניקח <span class="math">\(f(x)=x^2+1\)</span>:</p>
+      <div class="display-math">\[h(x)=\frac{2}{f(3x+1)}-1=\frac{2}{(3x+1)^2+1}-1\]</div>
+      <p>המחנה חיובי תמיד, לכן התחום כולו ממשי. האסימפטוטה האופקית היא <span class="math">\(y=-1\)</span>. המקסימום מתקבל ב־<span class="math">\(x=-1/3\)</span> ושווה <span class="math">\(1\)</span>.</p>
+    </div>
+  </div>
+  <div class="graph-card">
+    <div class="graph-head"><div class="graph-title">שתי דוגמאות של פונקציות רציונליות שנוצרו מטרנספורמציה</div><div class="graph-toolbar" data-board="g_created"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+    <div id="g_created" class="jxgbox smallg"></div>
+  </div>
+</section>
+
+<section class="page" id="p17c">
+  <div class="header">
+    <div class="kicker">יחידה 12</div>
+    <h2>פונקציה רציונלית בערך מוחלט: <span class="math">\(g(x)=|f(x)|\)</span></h2>
+  </div>
+
+  <div class="callout">
+    <strong>הרעיון המרכזי:</strong>
+    בפונקציה <span class="math">\(g(x)=|f(x)|\)</span> ערך ה־<span class="math">\(x\)</span> אינו משתנה.
+    כל נקודה של <span class="math">\(f\)</span> שנמצאת מעל ציר <span class="math">\(x\)</span> נשארת במקומה,
+    וכל נקודה שנמצאת מתחת לציר <span class="math">\(x\)</span> משתקפת כלפי מעלה ביחס לציר <span class="math">\(x\)</span>.
+  </div>
+
+  <table class="compact">
+    <tr><th>תכונה של <span class="math">\(f\)</span></th><th>מה קורה ב־<span class="math">\(g(x)=|f(x)|\)</span></th></tr>
+    <tr><td>נקודה <span class="math">\((x,y)\)</span> עם <span class="math">\(y\ge0\)</span></td><td>נשארת <span class="math">\((x,y)\)</span>.</td></tr>
+    <tr><td>נקודה <span class="math">\((x,y)\)</span> עם <span class="math">\(y\lt0\)</span></td><td>עוברת ל־<span class="math">\((x,-y)\)</span>.</td></tr>
+    <tr><td>אפסים של <span class="math">\(f\)</span></td><td>נשארים אפסים של <span class="math">\(|f|\)</span>.</td></tr>
+    <tr><td>תחום ההגדרה</td><td>אינו משתנה.</td></tr>
+    <tr><td>אסימפטוטה אנכית</td><td>נשארת באותו ערך של <span class="math">\(x\)</span>.</td></tr>
+    <tr><td>אסימפטוטה אופקית <span class="math">\(y=L\)</span></td><td>עוברת ל־<span class="math">\(y=|L|\)</span>.</td></tr>
+  </table>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>דוגמה</h3>
+      <p>נשתמש בפונקציית המנה:</p>
+      <div class="display-math">\[f(x)=\frac{x^2-2}{x^2+1}\]</div>
+      <p>ונגדיר:</p>
+      <div class="display-math">\[g(x)=|f(x)|=\left|\frac{x^2-2}{x^2+1}\right|\]</div>
+
+      <p>המכנה <span class="math">\(x^2+1\)</span> חיובי לכל <span class="math">\(x\)</span>, ולכן סימן הפונקציה נקבע לפי המונה <span class="math">\(x^2-2\)</span>.</p>
+      <div class="display-math">\[x^2-2=0 \quad\Rightarrow\quad x=\pm\sqrt{2}\]</div>
+
+      <ul>
+        <li>כאשר <span class="math">\(|x|\ge\sqrt{2}\)</span>, הפונקציה <span class="math">\(f(x)\ge0\)</span>, ולכן הגרף נשאר ללא שינוי.</li>
+        <li>כאשר <span class="math">\(|x|\lt\sqrt{2}\)</span>, הפונקציה <span class="math">\(f(x)\lt0\)</span>, ולכן חלק זה של הגרף משתקף כלפי מעלה.</li>
+        <li>הנקודה <span class="math">\((0,-2)\)</span> עוברת לנקודה <span class="math">\((0,2)\)</span>.</li>
+        <li>האפסים <span class="math">\((-\sqrt{2},0)\)</span> ו־<span class="math">\((\sqrt{2},0)\)</span> נשארים במקומם.</li>
+      </ul>
+    </div>
+
+    <div class="graph-card">
+      <div class="graph-head">
+        <div class="graph-title">הפונקציה המקורית והפונקציה בערך מוחלט</div>
+        <div class="graph-toolbar" data-board="g_abs_rational">
+          <button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button>
+        </div>
+      </div>
+      <div id="g_abs_rational" class="jxgbox smallg"></div>
+      <div class="legend" aria-label="מקרא צבעים לגרף הערך המוחלט">
+        <span class="legend-item" style="--legend-color:#1565c0"><span class="math">\(f(x)=\dfrac{x^2-2}{x^2+1}\)</span></span>
+        <span class="legend-item" style="--legend-color:#2e7d32"><span class="math">\(g(x)=\left|\dfrac{x^2-2}{x^2+1}\right|\)</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>נקודות קיצון:</strong>
+    מאחר שכל הערכים של <span class="math">\(g\)</span> אינם שליליים, כל אפס של <span class="math">\(f\)</span> הופך לנקודת מינימום של <span class="math">\(|f|\)</span>.
+    בדוגמה מתקבלות נקודות מינימום ב־<span class="math">\((\pm\sqrt{2},0)\)</span>, ואילו <span class="math">\((0,-2)\)</span> עוברת ל־<span class="math">\((0,2)\)</span>.
+  </div>
+</section>
+
+<section class="page dense" id="p20">
+  <div class="header"><div class="kicker">תרגול A</div><h2>משפחת <span class="math">\(1/x\)</span> וצורת <span class="math">\((Ax+B)/(Cx+D)\)</span></h2></div>
+  <div class="exercise"><span class="exnum">A1</span> חקרו את <span class="math">\(y=\dfrac{1}{x-3}+2\)</span>: תחום, טווח, אסימפטוטות וחיתוכים.</div>
+  <div class="exercise"><span class="exnum">A2</span> תארו את הטרנספורמציות מ־<span class="math">\(1/x\)</span> אל <span class="math">\(y=-\dfrac{2}{x+1}-4\)</span>.</div>
+  <div class="exercise"><span class="exnum">A3</span> לפונקציה <span class="math">\(y=\dfrac{a}{x-h}+k\)</span> אסימפטוטות <span class="math">\(x=5\)</span>, <span class="math">\(y=-2\)</span>, והיא עוברת ב־<span class="math">\((6,1)\)</span>. מצאו את הפונקציה.</div>
+  <div class="exercise"><span class="exnum">A4</span> כתבו <span class="math">\(\dfrac{3x+7}{x+2}\)</span> בצורת הזזה וקבעו תחום וטווח.</div>
+  <div class="exercise"><span class="exnum">A5</span> כתבו <span class="math">\(\dfrac{-4x-5}{2x+2}\)</span> בצורת הזזה. זהו הביטוי המתקבל בשאלה 12 המצורפת.</div>
+  <div class="exercise"><span class="exnum">A6</span> חקרו את <span class="math">\(y=\dfrac{2x+4}{x+2}\)</span>. הסבירו מדוע אין כאן היפרבולה רגילה.</div>
+  <div class="exercise"><span class="exnum">A7</span> שרטטו על אותה מערכת צירים: <span class="math">\(1/x\)</span>, <span class="math">\(-1/x\)</span>, <span class="math">\(-1/(2x)\)</span>, <span class="math">\(-1/(2(x+1))-2\)</span>.</div>
+  <div class="exercise"><span class="exnum">A8</span> עבור <span class="math">\(f(x)=\dfrac{2x+5}{x-4}\)</span> מצאו את שתי האסימפטוטות ואת נקודות החיתוך עם הצירים.</div>
+  <div class="graph-card">
+    <div class="graph-head"><div class="graph-title">מערכת צירים לתרגילים A2–A7</div><div class="graph-toolbar" data-board="g_blankA"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+    <div id="g_blankA" class="jxgbox smallg"></div>
+  </div>
+</section>
+
+<section class="page dense" id="p21">
+  <div class="header"><div class="kicker">תרגול B</div><h2>טרנספורמציות של פונקציה רציונלית שכבר נחקרה</h2></div>
+  <p>בתרגילים B1–B4 נתונה <span class="math">\(f(x)=\dfrac{2x+5}{x-4}\)</span>. אין לחקור מחדש — השתמשו בטרנספורמציות.</p>
+  <div class="exercise"><span class="exnum">B1</span> מצאו את האסימפטוטות של <span class="math">\(f(x)-6\)</span>.</div>
+  <div class="exercise"><span class="exnum">B2</span> מצאו את האסימפטוטות של <span class="math">\(f(x-6)\)</span>.</div>
+  <div class="exercise"><span class="exnum">B3</span> מצאו את האסימפטוטות של <span class="math">\(6f(x)\)</span>.</div>
+  <div class="exercise"><span class="exnum">B4</span> מצאו את האסימפטוטות של <span class="math">\(-f(x)+6\)</span>.</div>
+  <p>בתרגילים B5–B7 נתונה</p><div class="display-math">\[p(x)=\frac{x^2+4x+6}{x^2+4x+5}\]</div>
+  <div class="exercise"><span class="exnum">B5</span> מצאו את נקודת הקיצון וסוגה של <span class="math">\(p(2x)\)</span> מתוך נקודת הקיצון של <span class="math">\(p\)</span>.</div>
+  <div class="exercise"><span class="exnum">B6</span> מצאו את נקודת הקיצון וסוגה של <span class="math">\(p(-x)\)</span>.</div>
+  <div class="exercise"><span class="exnum">B7</span> מצאו את נקודת הקיצון וסוגה של <span class="math">\(p(-2x+1)\)</span>.</div>
+  <div class="exercise"><span class="exnum">B8</span> ל־<span class="math">\(f\)</span אסימפטוטות <span class="math">\(x=3\)</span>, <span class="math">\(y=-1\)</span> ומינימום ב־<span class="math">\((5,2)\)</span>. עבור <span class="math">\(g(x)=-2f(3(x-1))+4\)</span>, מצאו את האסימפטוטות ואת נקודת הקיצון החדשה וסוגה.</div>
+</section>
+
+<section class="page dense" id="p22">
+  <div class="header"><div class="kicker">תרגול C</div><h2><span class="math">\(1/f(x)\)</span> — אפסים, אסימפטוטות, חורים וקיצון</h2></div>
+  <div class="exercise"><span class="exnum">C1</span> עבור <span class="math">\(f(x)=-2x+3\)</span>, מצאו את הנקודות הקבועות במעבר ל־<span class="math">\(1/f(x)\)</span>.</div>
+  <div class="exercise"><span class="exnum">C2</span> עבור אותה פונקציה מצאו אסימפטוטה אנכית, אסימפטוטה אופקית וחיתוך עם ציר <span class="math">\(y\)</span> של <span class="math">\(1/f\)</span>.</div>
+  <div class="exercise"><span class="exnum">C3</span> עבור <span class="math">\(f(x)=x^2+4x+3\)</span>, מצאו את האסימפטוטות ואת החיתוך עם ציר <span class="math">\(y\)</span> של <span class="math">\(1/f\)</span>.</div>
+  <div class="exercise"><span class="exnum">C4</span> פתרו <span class="math">\(\dfrac{1}{x^2+4x+3}=\dfrac{4}{21}\)</span>.</div>
+  <div class="exercise"><span class="exnum">C5</span> נתונה <span class="math">\(f(x)=\dfrac{c}{x+c}\)</span>, <span class="math">\(c\gt0\)</span>. מצאו ביטוי ל־<span class="math">\(1/f\)</span> וקבעו את תחומו ואת החור.</div>
+  <div class="exercise"><span class="exnum">C6</span> אם ל־<span class="math">\(f\)</span> אסימפטוטה אנכית <span class="math">\(x=2\)</span> ו־<span class="math">\(|f(x)|\to\infty\)</span> כאשר <span class="math">\(x\to2\)</span>, תארו את התנהגות <span class="math">\(1/f\)</span> ליד <span class="math">\(x=2\)</span>.</div>
+  <div class="exercise"><span class="exnum">C7</span> ל־<span class="math">\(f\)</span> אסימפטוטה אופקית <span class="math">\(y=-3\)</span>. מהי האסימפטוטה האופקית של <span class="math">\(1/f\)</span>?</div>
+  <div class="exercise"><span class="exnum">C8</span> ל־<span class="math">\(f\)</span> מקסימום מקומי ב־<span class="math">\((a,-2)\)</span> ואין שם אפס. קבעו את נקודת הקיצון וסוגה של <span class="math">\(1/f\)</span>.</div>
+  <div class="exercise"><span class="exnum">C9</span> עבור <span class="math">\(f(x)=\dfrac{x^2+1}{x^2+2}\)</span> מצאו קיצון של <span class="math">\(f\)</span> ושל <span class="math">\(1/f\)</span> והשוו.</div>
+</section>
+
+<section class="page dense" id="p23">
+  <div class="header"><div class="kicker">תרגול D</div><h2><span class="math">\([f(x)]^2\)</span>, <span class="math">\(f(x^2)\)</span> ושילובים</h2></div>
+  <div class="exercise"><span class="exnum">D1</span> אילו ערכי <span class="math">\(y\)</span> נשארים קבועים תחת <span class="math">\(y\mapsto y^2\)</span>?</div>
+  <div class="exercise"><span class="exnum">D2</span> ל־<span class="math">\(f\)</span> מינימום מקומי ב־<span class="math">\((2,-3)\)</span>. קבעו את נקודת הקיצון וסוגה של <span class="math">\([f(x)]^2\)</span>.</div>
+  <div class="exercise"><span class="exnum">D3</span> ל־<span class="math">\(f\)</span> מקסימום מקומי ב־<span class="math">\((-1,4)\)</span>. מה קורה ל־<span class="math">\(f^2\)</span>?</div>
+  <div class="exercise"><span class="exnum">D4</span> אם ל־<span class="math">\(f\)</span> אפס פשוט ב־<span class="math">\(x=5\)</span> ואסימפטוטה אנכית ב־<span class="math">\(x=-2\)</span>, תארו את המידע המקביל ב־<span class="math">\(f^2\)</span>.</div>
+  <div class="exercise"><span class="exnum">D5</span> נתונה <span class="math">\(f(u)=1/(u-1)\)</span>. חקרו את <span class="math">\(g(x)=f(x^2)\)</span>: תחום, זוגיות ואסימפטוטות.</div>
+  <div class="exercise"><span class="exnum">D6</span> נתונה <span class="math">\(f(x)=x^2-4\)</span>. חקרו את האסימפטוטות של <span class="math">\(g(x)=1/f(2x-1)\)</span>.</div>
+  <div class="exercise"><span class="exnum">D7</span> נתונה <span class="math">\(f(x)=x^2+1\)</span>. חקרו תחום, אסימפטוטה אופקית וקיצון של <span class="math">\(g(x)=2/f(3x+1)-1\)</span>.</div>
+  <div class="exercise"><span class="exnum">D8</span> בהשראת מאגר 196: נתונה <span class="math">\(f(x)=-x^2+27/x+60\)</span>. כתבו במפורש את <span class="math">\(f(x^2)\)</span> וקבעו את תחום ההגדרה.</div>
+  <div class="graph-card">
+    <div class="graph-head"><div class="graph-title">מערכת צירים לתרגילים D5–D7</div><div class="graph-toolbar" data-board="g_blankD"><button data-act="in">הגדלה</button><button data-act="out">הקטנה</button><button data-act="reset">מרכז</button></div></div>
+    <div id="g_blankD" class="jxgbox smallg"></div>
+  </div>
+</section>
+
+<section class="page dense" id="p24">
+  <div class="header"><div class="kicker">שאלות העמקה</div><h2>פרמטרים, הוכחות ובנייה הפוכה</h2></div>
+  <div class="exercise"><span class="exnum">P1</span> הוכיחו: אם <span class="math">\(x_0\)</span> נקודת מינימום מקומי של <span class="math">\(f\)</span>, <span class="math">\(f(x_0)\ne0\)</span> ו־<span class="math">\(f''(x_0)\ne0\)</span>, אז <span class="math">\(x_0\)</span> נקודת מקסימום מקומי של <span class="math">\(1/f\)</span>.</div>
+  <div class="exercise"><span class="exnum">P2</span> הוכיחו את הפירוק <span class="math">\(\dfrac{Ax+B}{Cx+D}=\dfrac AC+\dfrac{BC-AD}{C^2}\cdot\dfrac1{x+D/C}\)</span> עבור <span class="math">\(C\ne0\)</span>.</div>
+  <div class="exercise"><span class="exnum">P3</span> הסבירו מדוע ב־<span class="math">\(f(x)=c/(x+c)\)</span> הנקודה <span class="math">\((-c,0)\)</span> אינה חיתוך של <span class="math">\(1/f\)</span> עם ציר <span class="math">\(x\)</span>, אף שהביטוי המצומצם הוא קו ישר העובר דרך נקודה זו.</div>
+  <div class="exercise"><span class="exnum">P4</span> מצאו פונקציה מהצורה <span class="math">\(g(x)=a/(x-h)+k\)</span> שאסימפטוטותיה <span class="math">\(x=-2\)</span>, <span class="math">\(y=3\)</span> והיא עוברת בנקודה <span class="math">\((0,1)\)</span>.</div>
+  <div class="exercise"><span class="exnum">P5</span> בנו פונקציה רציונלית בעלת אסימפטוטות אנכיות <span class="math">\(x=-2,3\)</span>, אסימפטוטה אופקית <span class="math">\(y=1\)</span> ואפס כפול ב־<span class="math">\(x=0\)</span>.</div>
+  <div class="exercise"><span class="exnum">P6</span> נתונה פונקציה <span class="math">\(f\)</span> שאינה מתאפסת. הראו כי הנקודות הקבועות המשותפות לגרפים <span class="math">\(y=f(x)\)</span> ו־<span class="math">\(y=1/f(x)\)</span> נמצאות רק על הישרים <span class="math">\(y=1\)</span> ו־<span class="math">\(y=-1\)</span>.</div>
+  <div class="exercise"><span class="exnum">P7</span> נתונה <span class="math">\(f(x)=\dfrac{x-1}{x+2}\)</span>. ללא שרטוט ממוחשב, שרטטו את <span class="math">\(1/f(x)\)</span> תוך שמירה על תחום <span class="math">\(f\)</span>, וסמנו את כל האי־רציפויות.</div>
+  <div class="callout challenge"><strong>דיון:</strong> ב־P7 מתקבל <span class="math">\((x+2)/(x-1)\)</span>, אך <span class="math">\(x=-2\)</span> עדיין אסור. לכן יש אסימפטוטה אנכית ב־<span class="math">\(x=1\)</span> וגם חור ב־<span class="math">\((-2,0)\)</span>.</div>
+</section>
+
+<section class="page" id="p25">
+  <div class="header"><div class="kicker">הערכה מעצבת</div><h2>כרטיס יציאה — 15 דקות</h2></div>
+  <div class="card">
+    <h3>שאלה 1</h3>
+    <p>נתונה <span class="math">\(f(x)=\dfrac{3}{x-2}-1\)</span>.</p>
+    <ol><li>רשמו תחום, טווח ואסימפטוטות.</li><li>רשמו את הפונקציה בצורת <span class="math">\((Ax+B)/(Cx+D)\)</span>.</li><li>קבעו את האסימפטוטות של <span class="math">\(-2f(x+1)+4\)</span>.</li></ol>
+  </div>
+  <div class="card">
+    <h3>שאלה 2</h3>
+    <p>נתונה <span class="math">\(p(x)=x^2-4x+3\)</span>. חקרו באופן איכותי את <span class="math">\(1/p(x)\)</span>: תחום, אסימפטוטות אנכיות ואופקית, חיתוך עם ציר <span class="math">\(y\)</span>, וסוג הקיצון הנובע מקודקוד הפרבולה.</p>
+  </div>
+  <div class="card">
+    <h3>שאלה 3</h3>
+    <p>נתונה <span class="math">\(q(x)=1/(x-4)\)</span>. חקרו את <span class="math">\(q(x^2)\)</span> וקבעו האם היא זוגית.</p>
+  </div>
+  <h3>מחוון</h3>
+  <table class="compact"><tr><th>רמה</th><th>תיאור</th></tr><tr><td>4</td><td>מזהה טרנספורמציה, תחום ואסימפטוטות ומנמק ללא חקירה מיותרת.</td></tr><tr><td>3</td><td>פתרון נכון ברובו, עם טעות נקודתית בחור/טווח/סוג קיצון.</td></tr><tr><td>2</td><td>שולט ב־<span class="math">\(1/x\)</span> אך מתקשה להעביר מידע בין <span class="math">\(f\)</span> ל־<span class="math">\(1/f\)</span>.</td></tr><tr><td>1</td><td>נדרש לחזור למיפוי נקודות ולאסימפטוטות בסיסיות.</td></tr></table>
+</section>
+
+<section class="page dense" id="p26">
+  <div class="header"><div class="kicker">פתרונות</div><h2>פתרונות תרגול A</h2></div>
+  <div class="exercise answer"><span class="exnum">A1</span> תחום <span class="math">\(x\ne3\)</span>, טווח <span class="math">\(y\ne2\)</span>, אסימפטוטות <span class="math">\(x=3\)</span>, <span class="math">\(y=2\)</span>. חיתוך <span class="math">\(x\)</span>: <span class="math">\(x=5/2\)</span>; חיתוך <span class="math">\(y\)</span>: <span class="math">\(y=5/3\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">A2</span> הזזה שמאלה 1, מתיחה אנכית פי 2, שיקוף ביחס לציר <span class="math">\(x\)</span>, הזזה מטה 4.</div>
+  <div class="exercise answer"><span class="exnum">A3</span> <span class="math">\(h=5\)</span>, <span class="math">\(k=-2\)</span>, ומ־<span class="math">\(1=a-2\)</span> מתקבל <span class="math">\(a=3\)</span>. לכן <span class="math">\(y=3/(x-5)-2\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">A4</span> <span class="math">\(3+1/(x+2)\)</span>. תחום <span class="math">\(x\ne-2\)</span>, טווח <span class="math">\(y\ne3\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">A5</span> <span class="math">\(-2-1/(2(x+1))\)</span>. תחום <span class="math">\(x\ne-1\)</span>, טווח <span class="math">\(y\ne-2\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">A6</span> <span class="math">\((2x+4)/(x+2)=2\)</span> עבור <span class="math">\(x\ne-2\)</span>. זהו הישר <span class="math">\(y=2\)</span> עם חור ב־<span class="math">\((-2,2)\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">A7</span> האסימפטוטה האנכית עוברת מ־<span class="math">\(x=0\)</span> ל־<span class="math">\(x=-1\)</span> בשלב האחרון; האופקית עוברת מ־<span class="math">\(y=0\)</span> ל־<span class="math">\(y=-2\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">A8</span> <span class="math">\(f(x)=2+13/(x-4)\)</span>; אסימפטוטות <span class="math">\(x=4\)</span>, <span class="math">\(y=2\)</span>; חיתוכים <span class="math">\((-5/2,0)\)</span>, <span class="math">\((0,-5/4)\)</span>.</div>
+  <div class="teacher"><strong>בדיקה מהירה:</strong> ב־A1 חיתוך עם ציר <span class="math">\(x\)</span> מתקבל מ־<span class="math">\(1/(x-3)=-2\)</span>, ולכן <span class="math">\(x=5/2\)</span>.</div>
+</section>
+
+<section class="page dense" id="p27">
+  <div class="header"><div class="kicker">פתרונות</div><h2>פתרונות תרגול B</h2></div>
+  <div class="exercise answer"><span class="exnum">B1</span> <span class="math">\(x=4\)</span>, <span class="math">\(y=-4\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">B2</span> <span class="math">\(x=10\)</span>, <span class="math">\(y=2\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">B3</span> <span class="math">\(x=4\)</span>, <span class="math">\(y=12\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">B4</span> <span class="math">\(x=4\)</span>, <span class="math">\(y=4\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">B5</span> ל־<span class="math">\(p\)</span> מקסימום <span class="math">\((-2,2)\)</span>; ב־<span class="math">\(p(2x)\)</span> מתקבל <span class="math">\((-1,2)\)</span>, מקסימום.</div>
+  <div class="exercise answer"><span class="exnum">B6</span> <span class="math">\((2,2)\)</span>, מקסימום.</div>
+  <div class="exercise answer"><span class="exnum">B7</span> פותרים <span class="math">\(-2x+1=-2\)</span>, ולכן <span class="math">\((3/2,2)\)</span>, מקסימום.</div>
+  <div class="exercise answer"><span class="exnum">B8</span> אסימפטוטה אנכית: <span class="math">\(3(x-1)=3\Rightarrow x=2\)</span>. אופקית: <span class="math">\(y=-2(-1)+4=6\)</span>. הקיצון: <span class="math">\(3(x-1)=5\Rightarrow x=8/3\)</span>, ו־<span class="math">\(y=-2\cdot2+4=0\)</span>. מינימום הופך למקסימום בגלל הכפל ב־<span class="math">\(-2\)</span>.</div>
+</section>
+
+<section class="page dense" id="p28">
+  <div class="header"><div class="kicker">פתרונות</div><h2>פתרונות תרגול C</h2></div>
+  <div class="exercise answer"><span class="exnum">C1</span> <span class="math">\(f(x)=1\Rightarrow x=1\)</span>; <span class="math">\(f(x)=-1\Rightarrow x=2\)</span>. הנקודות: <span class="math">\((1,1)\)</span>, <span class="math">\((2,-1)\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">C2</span> אסימפטוטות <span class="math">\(x=3/2\)</span>, <span class="math">\(y=0\)</span>; חיתוך <span class="math">\((0,1/3)\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">C3</span> <span class="math">\(x=-3,-1\)</span> אנכיות; <span class="math">\(y=0\)</span> אופקית; חיתוך <span class="math">\((0,1/3)\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">C4</span> <span class="math">\(x=1/2,-9/2\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">C5</span> <span class="math">\(1/f(x)=x/c+1\)</span> עם <span class="math">\(x\ne-c\)</span>; חור <span class="math">\((-c,0)\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">C6</span> <span class="math">\(1/f(x)\to0\)</span> כאשר <span class="math">\(x\to2\)</span>. אם <span class="math">\(x=2\)</span> אינו בתחום המקורי, מתקבל חור ב־<span class="math">\((2,0)\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">C7</span> <span class="math">\(y=-1/3\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">C8</span> נקודה <span class="math">\((a,-1/2)\)</span>, מינימום מקומי.</div>
+  <div class="exercise answer"><span class="exnum">C9</span> <span class="math">\(f=1-1/(x^2+2)\)</span>: מינימום <span class="math">\((0,1/2)\)</span>. ההדדי <span class="math">\((x^2+2)/(x^2+1)\)</span>: מקסימום <span class="math">\((0,2)\)</span>.</div>
+</section>
+
+<section class="page dense" id="p29">
+  <div class="header"><div class="kicker">פתרונות</div><h2>פתרונות תרגול D</h2></div>
+  <div class="exercise answer"><span class="exnum">D1</span> פותרים <span class="math">\(y^2=y\)</span>: <span class="math">\(y=0,1\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">D2</span> הנקודה עוברת ל־<span class="math">\((2,9)\)</span>. מאחר שהקיצון המקורי מינימום ונמצא מתחת לציר, הסוג מתהפך: מקסימום.</div>
+  <div class="exercise answer"><span class="exnum">D3</span> <span class="math">\((-1,16)\)</span>, מקסימום.</div>
+  <div class="exercise answer"><span class="exnum">D4</span> <span class="math">\(x=5\)</span> נשאר אפס אך הריבוי מוכפל ולכן הגרף נוגע בציר; <span class="math">\(x=-2\)</span> נשאר אסימפטוטה אנכית, ושני הצדדים של <span class="math">\(f^2\)</span> נוטים ל־<span class="math">\(+\infty\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">D5</span> <span class="math">\(g(x)=1/(x^2-1)\)</span>; תחום <span class="math">\(x\ne-1,1\)</span>; זוגית; אסימפטוטות <span class="math">\(x=-1,1\)</span>, <span class="math">\(y=0\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">D6</span> <span class="math">\((2x-1)^2-4=0\)</span>, לכן <span class="math">\(x=-1/2,3/2\)</span> הן אסימפטוטות אנכיות; <span class="math">\(y=0\)</span> אופקית.</div>
+  <div class="exercise answer"><span class="exnum">D7</span> תחום כל הממשיים. אסימפטוטה <span class="math">\(y=-1\)</span>. המכנה מינימלי כאשר <span class="math">\(3x+1=0\)</span>, ולכן מקסימום <span class="math">\((-1/3,1)\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">D8</span> <span class="math">\(f(x^2)=-x^4+27/x^2+60\)</span>, תחום <span class="math">\(x\ne0\)</span>.</div>
+</section>
+
+<section class="page dense" id="p30">
+  <div class="header"><div class="kicker">פתרונות</div><h2>פתרונות העמקה וכרטיס יציאה</h2></div>
+  <div class="exercise answer"><span class="exnum">P1</span> <span class="math">\(g'(x_0)=0\)</span> ו־<span class="math">\(g''(x_0)=-f''(x_0)/[f(x_0)]^2\)</span>. במינימום <span class="math">\(f''(x_0)\gt0\)</span>, לכן <span class="math">\(g''(x_0)\lt0\)</span> ומתקבל מקסימום.</div>
+  <div class="exercise answer"><span class="exnum">P2</span> מפרקים <span class="math">\(Ax+B=(A/C)(Cx+D)+(BC-AD)/C\)</span> ומחלקים ב־<span class="math">\(Cx+D\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">P3</span> כי <span class="math">\(x=-c\)</span> מחוץ לתחום <span class="math">\(f\)</span>; תחום <span class="math">\(1/f\)</span> חייב להיות תת־קבוצה של תחום <span class="math">\(f\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">P4</span> <span class="math">\(h=-2,k=3\)</span>. מן הנקודה <span class="math">\((0,1)\)</span>: <span class="math">\(1=a/2+3\Rightarrow a=-4\)</span>. לכן <span class="math">\(g(x)=-4/(x+2)+3\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">P5</span> דוגמה: <span class="math">\(f(x)=x^2/((x+2)(x-3))\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">P6</span> נקודה משותפת מחייבת <span class="math">\(f(x)=1/f(x)\)</span>, ולכן <span class="math">\([f(x)]^2=1\)</span> ומכאן <span class="math">\(f(x)=\pm1\)</span>.</div>
+  <div class="exercise answer"><span class="exnum">P7</span> <span class="math">\(1/f(x)=(x+2)/(x-1)\)</span>, אך התחום <span class="math">\(x\ne-2,1\)</span>. אסימפטוטה <span class="math">\(x=1\)</span>, חור <span class="math">\((-2,0)\)</span>, אסימפטוטה אופקית <span class="math">\(y=1\)</span>.</div>
+  <h3>כרטיס יציאה</h3>
+  <p><strong>1.</strong> <span class="math">\(f=3/(x-2)-1=(5-x)/(x-2)\)</span>. תחום <span class="math">\(x\ne2\)</span>, טווח <span class="math">\(y\ne-1\)</span>. עבור <span class="math">\(-2f(x+1)+4\)</span>: אנכית <span class="math">\(x=1\)</span>, אופקית <span class="math">\(y=6\)</span>.</p>
+  <p><strong>2.</strong> <span class="math">\(p=(x-1)(x-3)\)</span>. ב־<span class="math">\(1/p\)</span>: <span class="math">\(x=1,3\)</span> אנכיות, <span class="math">\(y=0\)</span> אופקית, חיתוך <span class="math">\((0,1/3)\)</span>. קודקוד <span class="math">\((2,-1)\)</span> הוא מקסימום של ההדדי.</p>
+  <p><strong>3.</strong> <span class="math">\(q(x^2)=1/(x^2-4)\)</span>, תחום <span class="math">\(x\ne-2,2\)</span>, זוגית, אסימפטוטות <span class="math">\(x=\pm2\)</span>, <span class="math">\(y=0\)</span>.</p>
+</section>
+
+<!--
+<section class="page dense" id="p31">
+  <div class="header"><div class="kicker">מקורות והערות למורה</div><h2>מקורות, התאמות ובקרת איכות</h2></div>
+  <h3>מקורות חיצוניים</h3>
+  <ol>
+    <li><strong>OpenStax — Algebra and Trigonometry, 5.6 Rational Functions.</strong><br><a href="https://openstax.org/books/algebra-and-trigonometry/pages/5-6-rational-functions">openstax.org/books/algebra-and-trigonometry/pages/5-6-rational-functions</a></li>
+    <li><strong>Save My Exams — IB Mathematics AA HL, Reciprocal Graph Transformations.</strong><br><a href="https://www.savemyexams.com/dp/maths/ib/aa/21/hl/revision-notes/functions/modulus-functions-and-further-transformations/reciprocal-and-square-transformations/">savemyexams.com — reciprocal transformations</a></li>
+    <li><strong>GeoGebra / המרכז הארצי למורים למתמטיקה:</strong> היישומונים המצורפים למשפחות <span class="math">\(1/(x-a)\)</span> ו־<span class="math">\(1/(x-a)+b\)</span>.</li>
+  </ol>
+  <h3>קבצים מצורפים שנעשה בהם שימוש</h3>
+  <ul>
+    <li>שאלות 12–14 — טרנספורמציות, <span class="math">\(1/f(x)\)</span> ופונקציה רציונלית עם פרמטר.</li>
+    <li>שאלה 5 — פונקציה ריבועית והפונקציה ההופכית לערכיה.</li>
+    <li>תרגיל טרנספורמציית ריבוע פונקציה.</li>
+    <li>applet_ofkit.pdf ו־applet_mixed.pdf — מטרות הוראה, אסימפטוטות, הזזות וזיהוי פונקציה.</li>
+    <li>196.zip — תרגילים על <span class="math">\(f(2x)\)</span>, <span class="math">\(f(-x)\)</span>, <span class="math">\(f(-2x+1)\)</span>, קיצון של <span class="math">\(1/f\)</span> ו־<span class="math">\(f(x^2)\)</span>.</li>
+  </ul>
+</section>
+-->
+<script>
+(function(){
+  const BOARDS = {};
+  function mkBoard(id, bbox, opts={}) {
+    const board = JXG.JSXGraph.initBoard(id, {
+      boundingbox: bbox.slice(), axis:false, grid: opts.grid !== false,
+      showCopyright:false, showNavigation:false, keepAspectRatio: opts.keepAspectRatio !== false,
+      pan:{enabled:true, needTwoFingers:false}, zoom:{enabled:false}
+    });
+    board.__defaultBBox = bbox.slice();
+    BOARDS[id] = board;
+    // axes
+    board.create('axis', [[0,0],[1,0]], {name:'x', withLabel:true, label:{position:'rt',offset:[-10,-16]}, ticks:{ticksDistance:1, minorTicks:0, drawLabels:true, label:{offset:[-3,-14]}}});
+    board.create('axis', [[0,0],[0,1]], {name:'y', withLabel:true, label:{position:'rt',offset:[-16,-4]}, ticks:{ticksDistance:1, minorTicks:0, drawLabels:true, label:{offset:[-18,-2]}}});
+    return board;
+  }
+  function vline(b,x,label){ b.create('line', [[x,0],[x,1]], {strokeWidth:1.2,dash:2,fixed:true,highlight:false}); if(label) b.create('text',[x+0.12,b.getBoundingBox()[1]-0.7,label],{fontSize:11,fixed:true,highlight:false}); }
+  function hline(b,y,label){ b.create('line', [[0,y],[1,y]], {strokeWidth:1.2,dash:2,fixed:true,highlight:false}); if(label) b.create('text',[b.getBoundingBox()[2]-2.0,y+0.18,label],{fontSize:11,fixed:true,highlight:false}); }
+  function graphPieces(b, fn, intervals, attr={}) { intervals.forEach(pair=>b.create('functiongraph',[fn,pair[0],pair[1]],Object.assign({strokeWidth:2.2,fixed:true,highlight:false},attr))); }
+  function dot(b,x,y,name,attr={}) { return b.create('point',[x,y],Object.assign({name:name||'',size:2.5,fixed:true,highlight:false,label:{fontSize:11,offset:[6,6]}},attr)); }
+  function hole(b,x,y,name){ return b.create('point',[x,y],{name:name||'',size:4,face:'o',fillColor:'#fff',fillOpacity:1,strokeWidth:2,fixed:true,highlight:false,label:{fontSize:11,offset:[7,5]}}); }
+
+  document.querySelectorAll('.graph-toolbar button').forEach(btn=>btn.addEventListener('click', function(){
+    const id = this.closest('.graph-toolbar').dataset.board;
+    const b = BOARDS[id]; if(!b) return;
+    const act=this.dataset.act;
+    if(act==='reset'){ b.setBoundingBox(b.__defaultBBox.slice(), false); return; }
+    const bb=b.getBoundingBox(); const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+    const factor=act==='in'?0.8:1.25; const hw=(bb[2]-bb[0])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+    b.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh], false);
+  }));
+
+  // p4 reciprocal
+  let b=mkBoard('g_recip',[-6,6,6,-6]);
+  graphPieces(b,x=>1/x,[[-6,-0.12],[0.12,6]]); vline(b,0,'x = 0'); hline(b,0,'y = 0');
+
+  // p5 shifted reciprocal
+  b=mkBoard('g_shifted',[-5,8,7,-5]);
+  graphPieces(b,x=>-2/(x-1)+3,[[-5,0.86],[1.14,7]]); vline(b,1,'x = 1'); hline(b,3,'y = 3'); dot(b,5/3,0,'');
+
+  // p5b interactive general rational function a/(x-h)+k
+  const generalState = {a:1, h:0, k:0};
+  const aSlider = document.getElementById('param_a');
+  const hSlider = document.getElementById('param_h');
+  const kSlider = document.getElementById('param_k');
+  const aValueEl = document.getElementById('param_a_value');
+  const hValueEl = document.getElementById('param_h_value');
+  const kValueEl = document.getElementById('param_k_value');
+  const eqEl = document.getElementById('general_rational_equation');
+  const asymXEl = document.getElementById('general_asym_x');
+  const asymYEl = document.getElementById('general_asym_y');
+  const centerEl = document.getElementById('general_center');
+
+  function sliderAValue(raw){
+    const n = Number(raw);
+    return n < 0 ? n/4 : (n+1)/4; // skips a = 0
+  }
+  function tidyNumber(v){
+    const n = Math.abs(v) < 1e-10 ? 0 : v;
+    if (Number.isInteger(n)) return String(n);
+    return n.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+  }
+  function generalEquationTex(a,h,k){
+    const aText = a === 1 ? '1' : (a === -1 ? '-1' : tidyNumber(a));
+    const denominator = h === 0 ? 'x' : (h > 0 ? 'x-'+tidyNumber(h) : 'x+'+tidyNumber(-h));
+    const verticalShift = k === 0 ? '' : (k > 0 ? '+'+tidyNumber(k) : '-'+tidyNumber(-k));
+    return '\\[f(x)=\\frac{' + aText + '}{' + denominator + '}' + verticalShift + '\\]';
+  }
+  function renderGeneralEquation(){
+    if (!eqEl) return;
+    if (window.MathJax && MathJax.typesetClear) MathJax.typesetClear([eqEl]);
+    eqEl.innerHTML = generalEquationTex(generalState.a,generalState.h,generalState.k);
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([eqEl]).catch(function(err){ window.__docErrors.push(String(err)); });
+  }
+
+  b=mkBoard('g_general_rational',[-8,8,8,-8]);
+  const gv1=b.create('point',[()=>generalState.h,0],{visible:false,fixed:true});
+  const gv2=b.create('point',[()=>generalState.h,1],{visible:false,fixed:true});
+  const gh1=b.create('point',[0,()=>generalState.k],{visible:false,fixed:true});
+  const gh2=b.create('point',[1,()=>generalState.k],{visible:false,fixed:true});
+  b.create('line',[gv1,gv2],{strokeWidth:1.4,strokeColor:'#64748b',dash:2,fixed:true,highlight:false});
+  b.create('line',[gh1,gh2],{strokeWidth:1.4,strokeColor:'#64748b',dash:2,fixed:true,highlight:false});
+  b.create('point',[()=>generalState.h,()=>generalState.k],{name:'C',size:2.6,strokeColor:'#7b1fa2',fillColor:'#7b1fa2',fixed:true,highlight:false,label:{fontSize:11,offset:[7,6]}});
+  const generalBoard=b;
+  let generalCurves=[];
+  function drawGeneralCurves(){
+    generalCurves.forEach(function(curve){ generalBoard.removeObject(curve); });
+    const gap=0.035;
+    const fn=x=>generalState.a/(x-generalState.h)+generalState.k;
+    generalCurves=[
+      generalBoard.create('functiongraph',[fn,-20,generalState.h-gap],{strokeWidth:2.6,strokeColor:'#1565c0',fixed:true,highlight:false}),
+      generalBoard.create('functiongraph',[fn,generalState.h+gap,20],{strokeWidth:2.6,strokeColor:'#1565c0',fixed:true,highlight:false})
+    ];
+  }
+
+  function updateGeneralRational(){
+    generalState.a=sliderAValue(aSlider.value);
+    generalState.h=Number(hSlider.value);
+    generalState.k=Number(kSlider.value);
+    aValueEl.textContent=tidyNumber(generalState.a);
+    hValueEl.textContent=tidyNumber(generalState.h);
+    kValueEl.textContent=tidyNumber(generalState.k);
+    asymXEl.textContent=tidyNumber(generalState.h);
+    asymYEl.textContent=tidyNumber(generalState.k);
+    centerEl.textContent='(' + tidyNumber(generalState.h) + ', ' + tidyNumber(generalState.k) + ')';
+    renderGeneralEquation();
+    drawGeneralCurves();
+    generalBoard.fullUpdate();
+  }
+  [aSlider,hSlider,kSlider].forEach(function(slider){ slider.addEventListener('input',updateGeneralRational); });
+  updateGeneralRational();
+
+  // p8a static example: a/(x^2+h)+k with h>0
+  b=mkBoard('g_quad_family_example',[-6,5,6,-1]);
+  b.create('functiongraph',[x=>2/(x*x+1)+1,-12,12],{strokeWidth:2.6,strokeColor:'#1565c0',fixed:true,highlight:false});
+  b.create('line',[[0,1],[1,1]],{strokeWidth:1.4,strokeColor:'#64748b',dash:2,fixed:true,highlight:false});
+  b.create('text',[4.2,1.18,'y = 1'],{fontSize:11,strokeColor:'#64748b',fixed:true,highlight:false});
+  dot(b,0,3,'(0, 3)',{strokeColor:'#7b1fa2',fillColor:'#7b1fa2'});
+
+  // p8b interactive family a/(x^2+h)+k, h>0
+  const quadState = {a:1, h:1, k:0};
+  const quadASlider = document.getElementById('quad_param_a');
+  const quadHSlider = document.getElementById('quad_param_h');
+  const quadKSlider = document.getElementById('quad_param_k');
+  const quadAValueEl = document.getElementById('quad_param_a_value');
+  const quadHValueEl = document.getElementById('quad_param_h_value');
+  const quadKValueEl = document.getElementById('quad_param_k_value');
+  const quadEqEl = document.getElementById('quad_family_equation');
+  const quadAsymYEl = document.getElementById('quad_asym_y');
+  const quadExtremeEl = document.getElementById('quad_extreme');
+  const quadExtremeTypeEl = document.getElementById('quad_extreme_type');
+
+  function quadFamilyEquationTex(a,h,k){
+    const aText = a === 1 ? '1' : (a === -1 ? '-1' : tidyNumber(a));
+    const hText = tidyNumber(h);
+    const verticalShift = k === 0 ? '' : (k > 0 ? '+'+tidyNumber(k) : '-'+tidyNumber(-k));
+    return '\\[f(x)=\\frac{' + aText + '}{x^2+' + hText + '}' + verticalShift + '\\]';
+  }
+  function renderQuadFamilyEquation(){
+    if (!quadEqEl) return;
+    if (window.MathJax && MathJax.typesetClear) MathJax.typesetClear([quadEqEl]);
+    quadEqEl.innerHTML = quadFamilyEquationTex(quadState.a,quadState.h,quadState.k);
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([quadEqEl]).catch(function(err){ window.__docErrors.push(String(err)); });
+  }
+
+  b=mkBoard('g_quad_family',[-8,6,8,-4]);
+  const qh1=b.create('point',[0,()=>quadState.k],{visible:false,fixed:true});
+  const qh2=b.create('point',[1,()=>quadState.k],{visible:false,fixed:true});
+  b.create('line',[qh1,qh2],{strokeWidth:1.4,strokeColor:'#64748b',dash:2,fixed:true,highlight:false});
+  b.create('functiongraph',[x=>quadState.a/(x*x+quadState.h)+quadState.k,-20,20],{strokeWidth:2.8,strokeColor:'#1565c0',fixed:true,highlight:false});
+  b.create('point',[0,()=>quadState.k+quadState.a/quadState.h],{name:'E',size:2.8,strokeColor:'#7b1fa2',fillColor:'#7b1fa2',fixed:true,highlight:false,label:{fontSize:11,offset:[7,6]}});
+  const quadBoard=b;
+
+  function updateQuadFamily(){
+    quadState.a=sliderAValue(quadASlider.value);
+    quadState.h=Number(quadHSlider.value);
+    quadState.k=Number(quadKSlider.value);
+    const y0=quadState.k+quadState.a/quadState.h;
+    quadAValueEl.textContent=tidyNumber(quadState.a);
+    quadHValueEl.textContent=tidyNumber(quadState.h);
+    quadKValueEl.textContent=tidyNumber(quadState.k);
+    quadAsymYEl.textContent=tidyNumber(quadState.k);
+    quadExtremeEl.textContent='(0, ' + tidyNumber(y0) + ')';
+    quadExtremeTypeEl.textContent=quadState.a > 0 ? 'מקסימום' : 'מינימום';
+    renderQuadFamilyEquation();
+    quadBoard.fullUpdate();
+  }
+  [quadASlider,quadHSlider,quadKSlider].forEach(function(slider){ slider.addEventListener('input',updateQuadFamily); });
+  updateQuadFamily();
+
+  // p6 q12
+  b=mkBoard('g_q12',[-6,6,6,-6]);
+  graphPieces(b,x=>1/x,[[-6,-0.12],[0.12,6]],{strokeWidth:2.2,strokeColor:'#1565c0'});
+  graphPieces(b,x=>-1/x,[[-6,-0.12],[0.12,6]],{strokeWidth:2.2,strokeColor:'#d32f2f'});
+  graphPieces(b,x=>-1/(2*x),[[-6,-0.12],[0.12,6]],{strokeWidth:2.2,strokeColor:'#2e7d32'});
+  graphPieces(b,x=>-1/(2*(x+1))-2,[[-6,-1.12],[-0.88,6]],{strokeWidth:2.6,strokeColor:'#7b1fa2'});
+  b.create('line',[[-1,0],[-1,1]],{strokeWidth:1.25,strokeColor:'#64748b',dash:2,fixed:true,highlight:false});
+  b.create('text',[-0.88,5.3,'x = -1'],{fontSize:11,strokeColor:'#64748b',fixed:true,highlight:false});
+  b.create('line',[[0,-2],[1,-2]],{strokeWidth:1.25,strokeColor:'#64748b',dash:2,fixed:true,highlight:false});
+  b.create('text',[4.0,-1.82,'y = -2'],{fontSize:11,strokeColor:'#64748b',fixed:true,highlight:false});
+
+  // p7 mobius
+  b=mkBoard('g_mobius',[-8,8,10,-8]);
+  graphPieces(b,x=>(2*x+5)/(x-4),[[-8,3.78],[4.22,10]]); vline(b,4,'x = 4'); hline(b,2,'y = 2'); dot(b,-2.5,0,''); dot(b,0,-1.25,'');
+
+  // p8 bump
+  b=mkBoard('g_bump',[-8,3,5,0]);
+  b.create('functiongraph',[x=>1+1/((x+2)*(x+2)+1),-8,5],{strokeWidth:2.4,fixed:true,highlight:false}); hline(b,1,'y = 1'); dot(b,-2,2,'(-2, 2)');
+
+  // p10 horiz transforms
+  const pf=x=>(x*x+4*x+6)/(x*x+4*x+5);
+  b=mkBoard('g_horiz1',[-5,3,5,0]);
+  b.create('functiongraph',[pf,-5,5],{strokeWidth:2.2,fixed:true,highlight:false});
+  b.create('functiongraph',[x=>pf(2*x),-5,5],{strokeWidth:2.2,dash:2,fixed:true,highlight:false}); dot(b,-2,2,''); dot(b,-1,2,''); hline(b,1,'');
+  b=mkBoard('g_horiz2',[-5,3,5,0]);
+  b.create('functiongraph',[x=>pf(-x),-5,5],{strokeWidth:2.2,fixed:true,highlight:false});
+  b.create('functiongraph',[x=>pf(-2*x+1),-5,5],{strokeWidth:2.2,dash:2,fixed:true,highlight:false}); dot(b,2,2,''); dot(b,1.5,2,''); hline(b,1,'');
+
+  // p12 q13
+  b=mkBoard('g_q13',[-3,7,5,-5]);
+  b.create('functiongraph',[x=>-2*x+3,-3,5],{strokeWidth:1.8,dash:1,fixed:true,highlight:false});
+  graphPieces(b,x=>1/(-2*x+3),[[-3,1.43],[1.57,5]],{strokeWidth:2.4}); vline(b,1.5,'x = 3/2'); hline(b,0,''); dot(b,1,1,''); dot(b,2,-1,''); dot(b,0,1/3,'');
+
+  // p13 q5
+  b=mkBoard('g_q5',[-6,8,2,-8]);
+  b.create('functiongraph',[x=>x*x+4*x+3,-6,2],{strokeWidth:1.7,dash:1,fixed:true,highlight:false});
+  graphPieces(b,x=>1/(x*x+4*x+3),[[-6,-3.12],[-2.88,-1.12],[-0.88,2]],{strokeWidth:2.4}); vline(b,-3,''); vline(b,-1,''); hline(b,0,''); dot(b,-2,-1,''); dot(b,0,1/3,'');
+
+  // p14 hole example c=2
+  b=mkBoard('g_hole',[-7,6,6,-5]);
+  graphPieces(b,x=>2/(x+2),[[-7,-2.12],[-1.88,6]],{strokeWidth:2.3}); vline(b,-2,'x = -2'); hline(b,0,'');
+  b.create('functiongraph',[x=>x/2+1,-7,6],{strokeWidth:1.9,dash:2,fixed:true,highlight:false}); hole(b,-2,0,''); dot(b,0,1,'');
+
+  // p15 extrema reciprocal
+  //b=mkBoard('g_extrema_recip',[-5,3,5,0]);
+  //b.create('functiongraph',[x=>(x*x+1)/(x*x+2),-5,5],{strokeWidth:2.2,fixed:true,highlight:false});
+  //b.create('functiongraph',[x=>(x*x+2)/(x*x+1),-5,5],{strokeWidth:2.2,dash:2,fixed:true,highlight:false}); dot(b,0,0.5,''); dot(b,0,2,''); hline(b,1,'y = 1');
+
+  // p16 odd/even zero reciprocal
+  b=mkBoard('g_oddzero',[-4,6,6,-6]); graphPieces(b,x=>1/(x-1),[[-4,0.86],[1.14,6]]); vline(b,1,''); hline(b,0,'');
+  b=mkBoard('g_evenzero',[-4,8,6,-2]); graphPieces(b,x=>1/((x-1)*(x-1)),[[-4,0.86],[1.14,6]]); vline(b,1,''); hline(b,0,'');
+
+  // p17 square example aligned with the written example
+  b=mkBoard('g_square_example',[-3.5,4.8,3.5,-2.5]);
+  const fsq=x=>(x*x-2)/(x*x+1);
+  const gsq=x=>fsq(x)*fsq(x);
+  b.create('functiongraph',[fsq,-3.5,3.5],{strokeWidth:2.3,strokeColor:'#1565c0',fixed:true,highlight:false});
+  b.create('functiongraph',[gsq,-3.5,3.5],{strokeWidth:2.5,strokeColor:'#d32f2f',fixed:true,highlight:false});
+  dot(b,0,-2,'A',{strokeColor:'#1565c0',fillColor:'#1565c0'});
+  dot(b,0,4,'A²',{strokeColor:'#d32f2f',fillColor:'#d32f2f'});
+  dot(b,Math.sqrt(2),0,'',{strokeColor:'#d32f2f',fillColor:'#d32f2f'});
+  dot(b,-Math.sqrt(2),0,'',{strokeColor:'#d32f2f',fillColor:'#d32f2f'});
+  hline(b,1,'y = 1');
+
+  // p17c rational absolute value example
+  b=mkBoard('g_abs_rational',[-3.5,3.2,3.5,-2.5]);
+  const fabsr=x=>(x*x-2)/(x*x+1);
+  b.create('functiongraph',[fabsr,-3.5,3.5],{strokeWidth:2.3,strokeColor:'#1565c0',fixed:true,highlight:false});
+  b.create('functiongraph',[x=>Math.abs(fabsr(x)),-3.5,3.5],{strokeWidth:2.6,strokeColor:'#2e7d32',fixed:true,highlight:false});
+  dot(b,0,-2,'A',{strokeColor:'#1565c0',fillColor:'#1565c0'});
+  dot(b,0,2,'A′',{strokeColor:'#2e7d32',fillColor:'#2e7d32'});
+  dot(b,Math.sqrt(2),0,'',{strokeColor:'#2e7d32',fillColor:'#2e7d32'});
+  dot(b,-Math.sqrt(2),0,'',{strokeColor:'#2e7d32',fillColor:'#2e7d32'});
+  hline(b,1,'y = 1');
+
+  // p18 f(x^2)
+  //b=mkBoard('g_x2',[-5,7,5,-7]);
+  //graphPieces(b,u=>1/(u-1),[[-5,0.86],[1.14,5]],{strokeWidth:1.6,dash:1});
+  //graphPieces(b,x=>1/(x*x-1),[[-5,-1.12],[-0.88,0.88],[1.12,5]],{strokeWidth:2.5}); vline(b,-1,''); vline(b,1,''); hline(b,0,'');
+
+  // p19 created rational
+  b=mkBoard('g_created',[-3,5,3,-5]);
+  const g1=x=>1/((2*x-1)*(2*x-1)-4);
+  graphPieces(b,g1,[[-3,-0.62],[-0.38,1.38],[1.62,3]],{strokeWidth:2.4}); vline(b,-0.5,''); vline(b,1.5,''); hline(b,0,'');
+  b.create('functiongraph',[x=>2/((3*x+1)*(3*x+1)+1)-1,-3,3],{strokeWidth:2.0,dash:2,fixed:true,highlight:false}); hline(b,-1,'y = -1'); dot(b,-1/3,1,'');
+
+  // blank practice boards
+  mkBoard('g_blankA',[-7,7,7,-7]);
+  mkBoard('g_blankD',[-5,7,5,-7]);
+
+  document.documentElement.setAttribute('data-js-init','ok');
+  // overflow diagnostics after fonts/math have had time to settle
+  setTimeout(function(){
+    document.querySelectorAll('.page').forEach((p,i)=>{
+      if(p.scrollHeight > p.clientHeight + 2) p.setAttribute('data-overflow','true');
+    });
+    document.documentElement.setAttribute('data-error-count', String(window.__docErrors.length));
+  }, 3500);
+})();
+</script>
+</body>
+</html>
