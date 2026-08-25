@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>קשר פונקציה-נגזרת בפונקציות רציונליות - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: {skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+:root{
+  --ink:#17324d; --muted:#60758a; --line:#d6e1ea; --soft:#f5f8fb;
+  --blue:#eaf4ff; --green:#ebf8ef; --warn:#fff4e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9eef3;font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#1c2d3d}
+body{direction:rtl}
+@page{size:A4;margin:0}
+.page{
+  width:210mm;height:297mm;margin:0 auto 8mm;background:#fff;
+  padding:14mm 14mm 12mm;position:relative;overflow:hidden;
+  page-break-after:always;break-after:page;
+}
+.page:last-child{page-break-after:auto;break-after:auto}
+.page-header{position:relative;border-bottom:2px solid #dbe7f0;padding-bottom:5mm;margin-bottom:5mm}
+.brand{font-size:10pt;color:#526b80;font-weight:700}
+.page-chip{position:absolute;left:0;top:0;background:#edf4fb;border:1px solid #d2e1ee;padding:2mm 4mm;border-radius:12mm;font-size:9pt;color:#3b5f7e}
+h1{font-size:22pt;margin:3mm 0 1mm;color:#123e67}
+.subtitle{font-size:11pt;color:#6b7e90}
+.page-body{font-size:11.2pt;line-height:1.45}
+.page-footer{position:absolute;bottom:6mm;right:14mm;left:14mm;display:flex;justify-content:space-between;border-top:1px solid #dce5ed;padding-top:2mm;color:#748596;font-size:8.5pt}
+h2.mini-head{font-size:15pt;color:#154d78;margin:0 0 3mm}
+h3{margin:0 0 2mm;color:#154d78}
+p{margin:2mm 0}
+ul,ol{margin:2mm 0;padding-right:6mm}
+li{margin:1.2mm 0}
+.lead{font-size:14pt;line-height:1.55}.lead-sm{font-size:12pt;font-weight:600}.micro{font-size:9.5pt;color:#617487}
+.hero{background:linear-gradient(135deg,#f2f8ff,#f7fcfa);border:1px solid #d6e5f2;border-radius:5mm;padding:8mm;margin-bottom:6mm}
+.hero-badge{display:inline-block;background:#123e67;color:white;padding:2mm 4mm;border-radius:3mm;font-weight:700;font-size:10pt}
+.flow4{margin-top:6mm;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:3mm;align-items:center;text-align:center}
+.flow4 div{padding:3mm;border-radius:3mm;background:#fff;border:1px solid #d5e2ec;font-weight:700}
+.flow4 div:nth-child(even){border:none;background:none;font-size:18pt;color:#4c7da5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}.top-align{align-items:start}
+.box{border:1px solid #d5e1ea;border-radius:4mm;padding:4mm;margin:3mm 0;background:#fff}
+.box.blue{background:var(--blue);border-color:#c9dff2}.box.green{background:var(--green);border-color:#cce9d4}
+.box.warning{background:var(--warn);border-color:#efdbb9}.box.tip{background:#f4f0ff;border-color:#ddd1f3}
+.source-note{margin-top:5mm;padding:3mm;border-right:4px solid #7ca7c8;background:#f8fbfd;color:#53697a}
+.formula{background:#f8fbfd;border:1px solid #dbe5ed;border-radius:3mm;margin:3mm 0;text-align:center;direction:ltr}
+.rule-banner{margin-top:4mm;padding:4mm;border-radius:3mm;background:#143f68;color:#fff;text-align:center;font-weight:700;font-size:12pt}
+.rule-table{width:100%;border-collapse:collapse;margin:3mm 0;background:#fff}.rule-table th,.rule-table td{border:1px solid #d6e1e9;padding:2.5mm;text-align:center}
+.rule-table th{background:#eef5fa;color:#254e70}.rule-table.compact th,.rule-table.compact td{padding:1.8mm}
+.graph-panel{border:1px solid #cfdde8;border-radius:4mm;padding:3mm;background:#fbfdff}
+.graph-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5mm;gap:2mm}
+.chart-legend{direction:rtl;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2mm 4mm;min-height:5.5mm;margin:0 0 1.5mm;font-size:8.5pt;color:#425c72}
+.chart-legend .legend-item{display:inline-flex;align-items:center;gap:1.2mm;white-space:nowrap}
+.chart-legend .legend-swatch{display:inline-block;width:8mm;height:0;border-top:2.2px solid var(--legend-color);transform:translateY(-.2mm)}
+.chart-legend .legend-swatch.dashed{border-top-style:dashed}
+.chart-legend .legend-dot{display:inline-block;width:3mm;height:3mm;border-radius:50%;background:var(--legend-color);border:1px solid rgba(0,0,0,.18)}
+.chart-legend .legend-dot.hollow{background:#fff;border:2px solid var(--legend-color)}
+.graph-title{font-weight:700;color:#174a72}.graph-controls{display:flex;gap:1.5mm}
+.graph-controls button{border:1px solid #bdd0df;background:#fff;border-radius:2mm;padding:1.5mm 2.2mm;font-size:8.5pt;cursor:pointer}
+.jxgbox{width:100%;height:89mm;border:1px solid #d6e1e9;background:#fff;overflow:hidden!important}
+.jxgbox.short{height:39mm}
+.timeline{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-bottom:5mm}
+.timeline>div{position:relative;padding:3mm 3mm 3mm 13mm;border:1px solid #d8e3ec;border-radius:3mm;background:#fafcfe}
+.timeline span{position:absolute;left:3mm;top:3mm;width:7mm;height:7mm;border-radius:50%;background:#174a72;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8pt}
+.timeline b{display:block;color:#174a72}.timeline small{color:#657a8d}
+.worksheet-intro{background:#f5f8fb;border-right:4px solid #5d88a8;padding:3mm;margin-bottom:4mm}
+.exercise-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.exercise-card{min-height:29mm;border:1px solid #dbe4eb;border-radius:3mm;padding:3mm;background:#fff;display:flex;gap:2.5mm;align-items:flex-start}
+.exnum{flex:0 0 7mm;height:7mm;border-radius:50%;background:#174a72;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9pt}
+.sign-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;margin:4mm 0}
+.sign-strip div{border:1px solid #d8e3ec;border-radius:3mm;padding:2.5mm;text-align:center;background:#fafcfe}
+.sign-strip b,.sign-strip span{display:block;margin-top:1mm}
+.legend-row{display:flex;gap:6mm;justify-content:center;margin:3mm 0}.legend{font-size:10pt}
+.problem{border:2px solid #cddce7;border-radius:4mm;padding:5mm;background:#f9fcfe;margin-bottom:5mm}
+.solution-steps{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.solution-steps>div{border:1px solid #dce5ec;border-radius:3mm;padding:3mm;background:#fff}
+.mistakes{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.mistakes>div{border:1px solid #e0e6eb;border-radius:3mm;padding:3mm;background:#fff9f7;min-height:37mm}
+.mistakes b{color:#8c3b33}.mistakes p{font-size:10pt}
+.algorithm{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.algorithm>div{position:relative;border:1px solid #d8e3ec;border-radius:3mm;padding:3mm 3mm 3mm 12mm;min-height:30mm}
+.algorithm span{position:absolute;left:3mm;top:3mm;width:7mm;height:7mm;border-radius:50%;background:#174a72;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.algorithm b{color:#174a72}.algorithm p{font-size:9.5pt}
+.answers-cols{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+.answers-cols>div{border:1px solid #dbe4eb;border-radius:3mm;padding:3mm;background:#fbfdff}
+.answers-cols ol{font-size:9.4pt;line-height:1.28}.answers-cols li{margin:.7mm 0}.answers-cols.smaller ol{font-size:8.7pt}
+.checklist li{margin:2mm 0}
+.rubric{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;margin-top:6mm}
+.rubric div{border:1px solid #d7e2ea;border-radius:3mm;padding:3mm;text-align:center}.rubric b,.rubric span{display:block}.rubric b{color:#174a72}
+.sources{display:grid;grid-template-columns:1fr 1fr;gap:3mm}.sources>div{border:1px solid #dbe4eb;border-radius:3mm;padding:3mm;background:#fbfdff;min-height:34mm}.sources p{font-size:9.6pt}
+.final-note{text-align:center;margin-top:5mm;font-weight:700;color:#42637d}
+.steps li{margin:2.5mm 0}
+@media print{
+  html,body{background:#fff}
+  .page{margin:0;box-shadow:none}
+  .graph-controls{display:none}
+}
+@media screen{
+  .page{box-shadow:0 2mm 7mm rgba(37,63,82,.12)}
+}
+</style>
+</head>
+<body>
+
+<section class="page" id="page-1">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 1</div>
+    <h1>קשר פונקציה-נגזרת בפונקציות רציונליות</h1>
+    <div class="subtitle">מערך שיעור + תרגול מדורג + דוגמאות אינטראקטיביות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="hero">
+  <div class="hero-badge">מערך שיעור מלא - רמת 5 יחידות</div>
+  <p class="lead">יחידה הבונה מעבר שיטתי בין ביטוי אלגברי, גרף הפונקציה, גרף הנגזרת וטבלת ההשתנות - עם דגש מיוחד על תחום ההגדרה, אסימפטוטות ומונה הנגזרת.</p>
+</div>
+<div class="grid2">
+<div class="box blue"><h3>מטרות הלמידה</h3><ul>
+<li>לקרוא את סימן הנגזרת מתוך גרף ולהסיק עלייה וירידה.</li>
+<li>להסיק נקודות קיצון משינוי סימן של הנגזרת.</li>
+<li>להבחין בין נקודות אפס של הנגזרת לבין נקודת אי-הגדרה.</li>
+<li>לחקור פונקציה רציונלית בעזרת מונה הנגזרת בלבד.</li>
+<li>לבנות סקיצה עקבית מתוך תחום, אסימפטוטות וטבלת השתנות.</li>
+</ul></div>
+<div class="box green"><h3>עיקרון מארגן</h3><p>בפונקציה רציונלית תחום ההגדרה קודם לכל חישוב. נקודה שאינה בתחום אינה יכולה להיות נקודת קיצון, גם אם סימן הביטוי של הנגזרת משתנה סביבה.</p></div>
+</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>1</span></footer>
+</section>
+<section class="page" id="page-2">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 2</div>
+    <h1>מפת היחידה ורצף ההוראה</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="timeline">
+<div><span>1</span><b>משמעות הנגזרת</b><small>שיפוע משיק וסימן</small></div>
+<div><span>2</span><b>מגרף f לגרף 'f</b><small>אפסים וסימן</small></div>
+<div><span>3</span><b>מגרף 'f לגרף f</b><small>עלייה, ירידה וקיצון</small></div>
+<div><span>4</span><b>נקודות אפס של הנגזרת</b><small>לא תמיד קיצון</small></div>
+<div><span>5</span><b>תחום רציונלי</b><small>חור ואסימפטוטה</small></div>
+<div><span>6</span><b>כלל המנה</b><small>מונה הנגזרת</small></div>
+<div><span>7</span><b>ציר משולב</b><small>נקודות האפס של הנגזרת + אי-הגדרה</small></div>
+<div><span>8</span><b>חקירה מלאה</b><small>טבלה ⇐ גרף</small></div>
+<div><span>9</span><b>אסימפטוטות</b><small>התנהגות f ו-'f</small></div>
+<div><span>10</span><b>שאלות הפוכות</b><small>פרמטרים והתאמת גרפים</small></div>
+</div>
+<div class="grid2">
+<div class="box tip"><h3>ידע קודם נדרש</h3><ul><li>נגזרת של פולינום.</li><li>משוואת משיק.</li><li>פתרון משוואות ריבועיות.</li><li>פירוק לגורמים ותחום הגדרה.</li><li>אסימפטוטה אנכית ואופקית בסיסית.</li></ul></div>
+<div class="box blue"><h3>שפה קבועה לאורך היחידה</h3><p>בכל שאלה עוברים באותו סדר:</p><ol><li>תחום.</li><li>נקודות חלוקה.</li><li>סימן הנגזרת.</li><li>עלייה/ירידה.</li><li>קיצון.</li><li>אסימפטוטות.</li><li>סקיצה.</li></ol></div>
+</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>2</span></footer>
+</section>
+<section class="page" id="page-3">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 3</div>
+    <h1>1. משמעות הנגזרת - שיפוע המשיק</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2_ top-align">
+<div>
+<p class="lead-sm">לכל נקודה בתחום שבה הפונקציה גזירה, ערך הנגזרת הוא שיפוע המשיק לגרף.</p>
+<div class="formula">\[f'(a)=m_{\mathrm{tangent}}\]</div>
+<table class="rule-table">
+<tr><th>מידע על הנגזרת</th><th>מסקנה על הפונקציה</th></tr>
+<tr><td>\(f'(x)\gt0\)</td><td>הפונקציה עולה</td></tr>
+<tr><td>\(f'(x)\lt0\)</td><td>הפונקציה יורדת</td></tr>
+<tr><td>\(f'(a)=0\)</td><td>משיק אופקי - עדיין צריך לבדוק שינוי סימן</td></tr>
+</table>
+<div class="box warning"><p>בפונקציה רציונלית אסור להסיק דבר בנקודה לפני שבודקים שהיא שייכת לתחום.</p></div>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">גררו את הנקודה על הגרף - המשיק מתעדכן</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board1',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board1',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board1')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#1565C0"></span>\(f(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#EF6C00"></span>משיק</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#D32F2F"></span>\(x=-2\)</span>
+  </div>
+  <div id="board1" class="jxgbox"></div>
+</div></div>
+</div>
+<div class="formula">\[f(x)=\frac{x^2+1}{x+2},\qquad f'(x)=\frac{x^2+4x-1}{(x+2)^2}\]</div>
+<p class="micro">הנקודה אינה יכולה להתקיים ב-\(x=-2\), משום שהפונקציה אינה מוגדרת שם.</p>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>3</span></footer>
+</section>
+<section class="page" id="page-4">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 4</div>
+    <h1>תרגול 1 - משמעות הנגזרת</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>אם \(f'(x)\gt0\) בכל התחום \((1,4)\), קבעו את התנהגות \(f\) בתחום זה.</div></div><div class="exercise-card"><span class="exnum">2</span><div>אם \(f'(x)\lt0\) עבור \(x\lt2\) ו-\(f'(x)\gt0\) עבור \(x\gt2\), מה סוג הקיצון ב-\(x=2\)?</div></div><div class="exercise-card"><span class="exnum">3</span><div>אם \(f'(3)=0\), האם ניתן לקבוע בוודאות שקיים קיצון? נמקו.</div></div><div class="exercise-card"><span class="exnum">4</span><div>אם שיפוע המשיק לגרף בנקודה \(x=5\) הוא \(-4\), מהו \(f'(5)\)?</div></div><div class="exercise-card"><span class="exnum">5</span><div>אם \(f\) יורדת בתחום \((-3,1)\), מה ניתן להסיק על סימן \(f'\) בתחום שבו היא גזירה?</div></div><div class="exercise-card"><span class="exnum">6</span><div>גרף \(f\) עולה מהר יותר ליד \(x=4\) מאשר ליד \(x=1\). השוו איכותית את ערכי הנגזרת החיוביים.</div></div><div class="exercise-card"><span class="exnum">7</span><div>נתון \(f'(0)=0\), והנגזרת חיובית משני צדי 0. קבעו אם יש קיצון.</div></div><div class="exercise-card"><span class="exnum">8</span><div>נתון של-\(f\) מינימום מקומי ב-\(x=3\) והיא גזירה שם. תארו את שינוי סימן \(f'\).</div></div><div class="exercise-card"><span class="exnum">9</span><div>בפונקציה רציונלית \(x=2\) אינו בתחום. האם \((2,f(2))\) יכולה להיות נקודת קיצון?</div></div><div class="exercise-card"><span class="exnum">10</span><div>אם פונקציה רציונלית מתקרבת לאסימפטוטה אופקית ושיפועיה מתיישרים, לאיזה ערך צפוי \(f'(x)\) להתקרב?</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>4</span></footer>
+</section>
+<section class="page" id="page-5">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 5</div>
+    <h1>2. מגרף הפונקציה לגרף הנגזרת</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2 top-align">
+<div>
+<h2 class="mini-head">הדוגמה המרכזית</h2>
+<div class="formula">\[f(x)=\frac{x^2+1}{x+2}\]</div>
+<div class="formula">\[f'(x)=\frac{x^2+4x-1}{(x+2)^2}\]</div>
+<p>מכיוון שהמכנה של הנגזרת חיובי בכל נקודה בתחום, סימן הנגזרת נקבע על ידי הפרבולה:</p>
+<div class="formula">\[N(x)=x^2+4x-1\]</div>
+<p>נקודות האפס של המונה:</p>
+<div class="formula">\[x=-2-\sqrt5,\qquad x=-2+\sqrt5\]</div>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">f ו-'f באותה מערכת צירים</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board2',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board2',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board2')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#1565C0"></span>\(f(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#EF6C00"></span>\(f'(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#D32F2F"></span>\(x=-2\)</span>
+  </div>
+  <div id="board2" class="jxgbox"></div>
+</div></div>
+</div>
+<div class="sign-strip">
+<div>\((-\infty,-2-\sqrt5)\)<b>'f +</b><span>f עולה</span></div>
+<div>\((-2-\sqrt5,-2)\)<b>'f -</b><span>f יורדת</span></div>
+<div>\((-2,-2+\sqrt5)\)<b>'f -</b><span>f יורדת</span></div>
+<div>\((-2+\sqrt5,\infty)\)<b>'f +</b><span>f עולה</span></div>
+</div>
+<div class="box green"><h3>מסקנה</h3><p>מקסימום מקומי מתקבל ב-\(x=-2-\sqrt5\), ומינימום מקומי ב-\(x=-2+\sqrt5\). הנקודה \(x=-2\) אינה בתחום ולכן אינה קיצון.</p></div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>5</span></footer>
+</section>
+<section class="page" id="page-6">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 6</div>
+    <h1>תרגול 2 - מגרף f לגרף 'f</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>עבור \(f(x)=\frac{x^2+1}{x+2}\), מצאו את תחום ההגדרה.</div></div><div class="exercise-card"><span class="exnum">2</span><div>מצאו את נקודות האפס \(f'\).</div></div><div class="exercise-card"><span class="exnum">3</span><div>קבעו את תחומי העלייה של \(f\).</div></div><div class="exercise-card"><span class="exnum">4</span><div>קבעו את תחומי הירידה של \(f\).</div></div><div class="exercise-card"><span class="exnum">5</span><div>סווגו את הקיצון ב-\(x=-2-\sqrt5\).</div></div><div class="exercise-card"><span class="exnum">6</span><div>סווגו את הקיצון ב-\(x=-2+\sqrt5\).</div></div><div class="exercise-card"><span class="exnum">7</span><div>הסבירו מדוע \(x=-2\) אינו נקודת קיצון למרות שהוא מחלק את טבלת ההשתנות.</div></div><div class="exercise-card"><span class="exnum">8</span><div>חשבו את ערך המקסימום המקומי.</div></div><div class="exercise-card"><span class="exnum">9</span><div>חשבו את ערך המינימום המקומי.</div></div><div class="exercise-card"><span class="exnum">10</span><div>שרטטו סקיצה של \(f'\) על סמך הנוסחה וסמנו את האסימפטוטה האנכית.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>6</span></footer>
+</section>
+<section class="page" id="page-7">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 7</div>
+    <h1>3. מגרף הנגזרת לגרף הפונקציה</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2 top-align">
+<div>
+<div class="formula">\[r(x)=\frac{6x}{x^2-5x+4}=\frac{6x}{(x-1)(x-4)}\]</div>
+<div class="formula">\[r'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2}\]</div>
+<p>נקודות שבהן הנגזרת שווה לאפס הם \(x=-2,2\), אך נקודות אי-ההגדרה של הפונקציה הן \(x=1,4\).</p>
+<table class="rule-table compact">
+<tr><th>תחום</th><th>סימן \(r'\)</th><th>התנהגות \(r\)</th></tr>
+<tr><td>\((-\infty,-2)\)</td><td>-</td><td>יורדת</td></tr>
+<tr><td>\((-2,1)\)</td><td>+</td><td>עולה</td></tr>
+<tr><td>\((1,2)\)</td><td>+</td><td>עולה</td></tr>
+<tr><td>\((2,4)\)</td><td>-</td><td>יורדת</td></tr>
+<tr><td>\((4,\infty)\)</td><td>-</td><td>יורדת</td></tr>
+</table>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">הגרף המתקבל מן המידע על 'r</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board3',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board3',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board3')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#6A1B9A"></span>\(r(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#D32F2F"></span>אסימפטוטות אנכיות</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#546E7A"></span>\(y=0\)</span>
+  </div>
+  <div id="board3" class="jxgbox"></div>
+</div></div>
+</div>
+<div class="formula">\[r(-2)=-\frac23,\qquad r(2)=-6\]</div>
+<div class="box blue"><h3>קריאה נכונה של גרף נגזרת</h3><p>אפס של הנגזרת מסמן מועמד לקיצון. נקודת אי-הגדרה מחלקת את הגרף לענפים, אך אינה נקודה על הגרף.</p></div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>7</span></footer>
+</section>
+<section class="page" id="page-8">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 8</div>
+    <h1>תרגול 3 - מגרף 'f לגרף f</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>עבור \(r'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2}\), מצאו את נקודות שבהן הנגזרת שווה לאפס.</div></div><div class="exercise-card"><span class="exnum">2</span><div>מצאו את נקודות אי-ההגדרה של \(r\).</div></div><div class="exercise-card"><span class="exnum">3</span><div>קבעו את סימן \(r'\) עבור \(x\lt-2\).</div></div><div class="exercise-card"><span class="exnum">4</span><div>קבעו את סימן \(r'\) עבור \(-2\lt x\lt1\).</div></div><div class="exercise-card"><span class="exnum">5</span><div>קבעו את התנהגות \(r\) בתחום \(1\lt x\lt2\).</div></div><div class="exercise-card"><span class="exnum">6</span><div>קבעו את התנהגות \(r\) בתחום \(2\lt x\lt4\).</div></div><div class="exercise-card"><span class="exnum">7</span><div>סווגו את הנקודה שבה \(x=-2\).</div></div><div class="exercise-card"><span class="exnum">8</span><div>סווגו את הנקודה שבה \(x=2\).</div></div><div class="exercise-card"><span class="exnum">9</span><div>האם \(x=1\) או \(x=4\) יכולות להיות נקודות קיצון? נמקו.</div></div><div class="exercise-card"><span class="exnum">10</span><div>נתון רק גרף \(r'\). תארו אילו פרטים נוספים דרושים כדי לשרטט סקיצה מדויקת יותר של \(r\).</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>8</span></footer>
+</section>
+<section class="page" id="page-9">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 9</div>
+    <h1>4. נקודת אפס של הנגזרת אינו בהכרח נקודת קיצון</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2 top-align">
+<div>
+<div class="formula">\[s(x)=\frac{x^3}{x^2+1}\]</div>
+<div class="formula">\[s'(x)=\frac{x^2(x^2+3)}{(x^2+1)^2}\]</div>
+<p>לכל \(x\):</p>
+<div class="formula">\[s'(x)\ge0\]</div>
+<p>ובפרט:</p>
+<div class="formula">\[s'(0)=0\]</div>
+<p>אבל אין שינוי סימן של הנגזרת סביב 0. לכן אין מקסימום ואין מינימום ב-0.</p>
+<div class="box warning"><h3>המבחן הנכון</h3><p>לא מספיק לפתור \(f'(x)=0\). יש לבנות סימן לפני ואחרי כל מועמד.</p></div>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">נקודה שיפוע אפס ללא קיצון</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board4',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board4',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board4')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#00897B"></span>\(s(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#C2185B"></span>\(s'(x)\)</span>
+    <span class="legend-item"><span class="legend-dot" style="--legend-color:#EF6C00"></span>נקודה שיפוע 0</span>
+  </div>
+  <div id="board4" class="jxgbox"></div>
+</div></div>
+</div>
+<div class="rule-banner">\(f'(a)=0\) + שינוי סימן ⇐ קיצון. ללא שינוי סימן ⇐ אין קיצון.</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>9</span></footer>
+</section>
+<section class="page" id="page-10">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 10</div>
+    <h1>תרגול 4 - נקודות אפס של הנגזרת וקיצון</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>עבור \(s(x)=\frac{x^3}{x^2+1}\), הראו כי \(s'(0)=0\).</div></div><div class="exercise-card"><span class="exnum">2</span><div>קבעו את סימן \(s'\) כאשר \(x\ne0\).</div></div><div class="exercise-card"><span class="exnum">3</span><div>האם \(x=0\) נקודת מקסימום, מינימום או לא קיצון?</div></div><div class="exercise-card"><span class="exnum">4</span><div>אם \(f'\) משתנה מ-\(+\) ל-\(-\) בנקודה \(a\), מה סוג הקיצון?</div></div><div class="exercise-card"><span class="exnum">5</span><div>אם \(f'\) משתנה מ-\(-\) ל-\(+\) בנקודה \(a\), מה סוג הקיצון?</div></div><div class="exercise-card"><span class="exnum">6</span><div>אם \(f'\) חיובית משני צדי \(a\) ו-\(f'(a)=0\), מה המסקנה?</div></div><div class="exercise-card"><span class="exnum">7</span><div>אם \(f'\) שלילית משני צדי \(a\) ו-\(f'(a)=0\), מה המסקנה?</div></div><div class="exercise-card"><span class="exnum">8</span><div>תנו דוגמה לפונקציה רציונלית פשוטה שאין לה קיצון אף על פי שהנגזרת מתאפסת.</div></div><div class="exercise-card"><span class="exnum">9</span><div>מדוע נקודת אי-הגדרה אינה יכולה להיות נקודה שיפוע אפס של הפונקציה?</div></div><div class="exercise-card"><span class="exnum">10</span><div>נסחו במילים את First Derivative Test.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>10</span></footer>
+</section>
+<section class="page" id="page-11">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 11</div>
+    <h1>5. בפונקציה רציונלית - תחום לפני נגזרת</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2 top-align">
+<div>
+<div class="formula">\[q(x)=\frac{(x-1)(x+2)}{(x-1)(x-4)}\]</div>
+<p>התחום המקורי הוא:</p>
+<div class="formula">\[D_q=\mathbb{R}\setminus\{1,4\}\]</div>
+<p>לאחר צמצום:</p>
+<div class="formula">\[q(x)=\frac{x+2}{x-4},\qquad x\ne1,4\]</div>
+<ul>
+<li>ב-\(x=1\) נשאר חור.</li>
+<li>ב-\(x=4\) נשארת אסימפטוטה אנכית.</li>
+<li>האסימפטוטה האופקית היא \(y=1\).</li>
+</ul>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">חור ב-(1,-1) ואסימפטוטה אנכית x=4</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board5',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board5',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board5')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#2E7D32"></span>\(q(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#D32F2F"></span>\(x=4\)</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#546E7A"></span>\(y=1\)</span>
+    <span class="legend-item"><span class="legend-dot hollow" style="--legend-color:#EF6C00"></span>חור</span>
+  </div>
+  <div id="board5" class="jxgbox"></div>
+</div></div>
+</div>
+<div class="box warning"><h3>טעות נפוצה</h3><p>צמצום אלגברי אינו מחזיר לתחום נקודה שהוצאה מהביטוי המקורי.</p></div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>11</span></footer>
+</section>
+<section class="page" id="page-12">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 12</div>
+    <h1>תרגול 5 - תחום, חור ואסימפטוטה</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>מצאו את תחום \(q(x)=\frac{(x-1)(x+2)}{(x-1)(x-4)}\).</div></div><div class="exercise-card"><span class="exnum">2</span><div>צמצמו את הביטוי בלי לשנות את תחום ההגדרה.</div></div><div class="exercise-card"><span class="exnum">3</span><div>קבעו את מיקום החור.</div></div><div class="exercise-card"><span class="exnum">4</span><div>קבעו את האסימפטוטה האנכית.</div></div><div class="exercise-card"><span class="exnum">5</span><div>קבעו את האסימפטוטה האופקית.</div></div><div class="exercise-card"><span class="exnum">6</span><div>האם \(x=1\) יכול להיות אפס של \(q\)?</div></div><div class="exercise-card"><span class="exnum">7</span><div>האם \(x=4\) יכול להיות נקודת קיצון?</div></div><div class="exercise-card"><span class="exnum">8</span><div>מצאו את חיתוך הגרף עם ציר \(x\).</div></div><div class="exercise-card"><span class="exnum">9</span><div>מצאו את חיתוך הגרף עם ציר \(y\).</div></div><div class="exercise-card"><span class="exnum">10</span><div>הסבירו מדוע חייבים לרשום תחום לפני גזירה.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>12</span></footer>
+</section>
+<section class="page" id="page-13">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 13</div>
+    <h1>6. כלל המנה והשיטה של מונה הנגזרת</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2 top-align">
+<div>
+<p>אם:</p>
+<div class="formula">\[h(x)=\frac{P(x)}{Q(x)}\]</div>
+<p>אז:</p>
+<div class="formula">\[h'(x)=\frac{P'(x)Q(x)-P(x)Q'(x)}{[Q(x)]^2}\]</div>
+<p>בכל נקודה בתחום:</p>
+<div class="formula">\[[Q(x)]^2\gt0\]</div>
+<p>לכן:</p>
+<div class="formula">\[\operatorname{sign}(h'(x))=\operatorname{sign}(N(x))\]</div>
+<div class="formula">\[N(x)=P'(x)Q(x)-P(x)Q'(x)\]</div>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">מונה הנגזרת כפרבולה - סימנו קובע את סימן 'h</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board6',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board6',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board6')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#5E35B1"></span>\(N(x)\)</span>
+    <span class="legend-item"><span class="legend-dot" style="--legend-color:#EF6C00"></span>נקודות אפס</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#546E7A"></span>\(x=-2\)</span>
+  </div>
+  <div id="board6" class="jxgbox"></div>
+</div></div>
+</div>
+<div class="box green"><h3>עיקרון 5 יחידות</h3><p>בחקירת מנה של פולינומים, לאחר קביעת התחום, מנתחים את סימן מונה הנגזרת. המכנה בריבוע אינו משנה את הסימן.</p></div>
+<div class="box warning"><h3>אין לשכוח</h3><p>נקודות שבהן המכנה המקורי מתאפס עדיין חייבות להופיע על ציר הסימנים כנקודות הפרדה.</p></div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>13</span></footer>
+</section>
+<section class="page" id="page-14">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 14</div>
+    <h1>תרגול 6 - כלל המנה ומונה הנגזרת</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>גזרו \(h(x)=\frac{x^2+1}{x+2}\) ופשטו את מונה הנגזרת.</div></div><div class="exercise-card"><span class="exnum">2</span><div>עבור אותה פונקציה, הסבירו מדוע המכנה של \(h'\) אינו משפיע על הסימן.</div></div><div class="exercise-card"><span class="exnum">3</span><div>מצאו את נקודות האפס של מונה הנגזרת \(x^2+4x-1\).</div></div><div class="exercise-card"><span class="exnum">4</span><div>קבעו את סימן המונה מחוץ לשורשים.</div></div><div class="exercise-card"><span class="exnum">5</span><div>קבעו את סימן המונה בין השורשים.</div></div><div class="exercise-card"><span class="exnum">6</span><div>גזרו \(p(x)=\frac{x^2-4}{x+1}\).</div></div><div class="exercise-card"><span class="exnum">7</span><div>מצאו את מונה הנגזרת של \(p\) ללא צורך לנתח את המכנה.</div></div><div class="exercise-card"><span class="exnum">8</span><div>גזרו \(m(x)=\frac{3x}{x^2+1}\).</div></div><div class="exercise-card"><span class="exnum">9</span><div>מצאו את נקודות החשודות לקיצון של \(m\).</div></div><div class="exercise-card"><span class="exnum">10</span><div>נסחו אלגוריתם של שלושה שלבים למציאת תחומי עלייה וירידה של פונקציה רציונלית.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>14</span></footer>
+</section>
+<section class="page" id="page-15">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 15</div>
+    <h1>7. הציר המשולב - נקודות האפס של נגזרת ונקודות אי-הגדרה</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<p class="lead-sm">הציר חייב להכיל שני סוגים שונים של נקודות חלוקה: נקודות שבהן הנגזרת שווה לאפס ונקודות שאינן בתחום.</p>
+<div class="formula">\[r(x)=\frac{6x}{(x-1)(x-4)},\qquad r'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2}\]</div>
+
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">ציר סימנים אינטראקטיבי של r'</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board7',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board7',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board7')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לציר הסימנים">
+    <span class="legend-item"><span class="legend-dot" style="--legend-color:#2E7D32"></span>\(r'(x)=0\)</span>
+    <span class="legend-item"><span class="legend-dot" style="--legend-color:#D32F2F"></span>אי-הגדרה</span>
+  </div>
+  <div id="board7" class="jxgbox short"></div>
+</div>
+<div class="legend-row">
+<span class="legend dot-green">נקודות האפס של נגזרת: \(-2,2\)</span>
+<span class="legend dot-red">אי-הגדרה: \(1,4\)</span>
+</div>
+<table class="rule-table">
+<tr><th>נקודה</th><th>סוג</th><th>מה בודקים?</th></tr>
+<tr><td>\(-2\)</td><td>\(r'=0\)</td><td>שינוי סימן - מתקבל מינימום</td></tr>
+<tr><td>\(1\)</td><td>מחוץ לתחום</td><td>אסימפטוטה אנכית, לא קיצון</td></tr>
+<tr><td>\(2\)</td><td>\(r'=0\)</td><td>שינוי סימן - מתקבל מקסימום</td></tr>
+<tr><td>\(4\)</td><td>מחוץ לתחום</td><td>אסימפטוטה אנכית, לא קיצון</td></tr>
+</table>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>15</span></footer>
+</section>
+<section class="page" id="page-16">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 16</div>
+    <h1>תרגול 7 - ציר משולב</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>בנו ציר חלוקה עבור \(r(x)=\frac{6x}{(x-1)(x-4)}\).</div></div><div class="exercise-card"><span class="exnum">2</span><div>סמנו בצבע אחד את נקודות שבהן הנגזרת שווה לאפס ובצבע אחר את נקודות אי-ההגדרה.</div></div><div class="exercise-card"><span class="exnum">3</span><div>קבעו את סימן \(r'\) בכל אחד מחמשת התחומים.</div></div><div class="exercise-card"><span class="exnum">4</span><div>קבעו את תחומי העלייה.</div></div><div class="exercise-card"><span class="exnum">5</span><div>קבעו את תחומי הירידה.</div></div><div class="exercise-card"><span class="exnum">6</span><div>קבעו את סוג הקיצון ב-\(x=-2\).</div></div><div class="exercise-card"><span class="exnum">7</span><div>קבעו את סוג הקיצון ב-\(x=2\).</div></div><div class="exercise-card"><span class="exnum">8</span><div>הסבירו מדוע אין צורך להציב נקודות מבחן במכנה של \(r'\).</div></div><div class="exercise-card"><span class="exnum">9</span><div>מה יקרה אם מונה הנגזרת יתאפס בדיוק בנקודה שאינה בתחום?</div></div><div class="exercise-card"><span class="exnum">10</span><div>הסבירו כיצד הציר המשולב מונע טעות של סיווג אסימפטוטה כקיצון.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>16</span></footer>
+</section>
+<section class="page" id="page-17">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 17</div>
+    <h1>8. חקירה מלאה - מטבלת הנגזרת אל הגרף</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2 top-align">
+<div>
+<h2 class="mini-head">שלבי החקירה</h2>
+<ol class="steps">
+<li><b>תחום:</b> \(x\ne1,4\).</li>
+<li><b>חיתוכים:</b> \((0,0)\).</li>
+<li><b>אסימפטוטות:</b> \(x=1,x=4\), \(y=0\).</li>
+<li><b>נגזרת:</b> \(r'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2}\).</li>
+<li><b>קיצון:</b> מינימום ב-\((-2,-\frac23)\), מקסימום ב-\((2,-6)\).</li>
+<li><b>סקיצה:</b> מחברים את כל הנתונים ללא חציית אסימפטוטה אנכית.</li>
+</ol>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">חקירה מלאה של r(x)</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board8',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board8',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board8')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#1976D2"></span>\(r(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#D32F2F"></span>אסימפטוטות אנכיות</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#546E7A"></span>\(y=0\)</span>
+    <span class="legend-item"><span class="legend-dot" style="--legend-color:#EF6C00"></span>נקודות קיצון</span>
+  </div>
+  <div id="board8" class="jxgbox"></div>
+</div></div>
+</div>
+<table class="rule-table compact">
+<tr><th>תחום</th><th>\(r'\)</th><th>\(r\)</th></tr>
+<tr><td>\((-\infty,-2)\)</td><td>-</td><td>יורדת</td></tr>
+<tr><td>\((-2,1)\)</td><td>+</td><td>עולה</td></tr>
+<tr><td>\((1,2)\)</td><td>+</td><td>עולה</td></tr>
+<tr><td>\((2,4)\)</td><td>-</td><td>יורדת</td></tr>
+<tr><td>\((4,\infty)\)</td><td>-</td><td>יורדת</td></tr>
+</table>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>17</span></footer>
+</section>
+<section class="page" id="page-18">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 18</div>
+    <h1>תרגול 8 - חקירה מלאה</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>מצאו את תחום ההגדרה של \(r(x)=\frac{6x}{x^2-5x+4}\).</div></div><div class="exercise-card"><span class="exnum">2</span><div>מצאו את החיתוכים עם הצירים.</div></div><div class="exercise-card"><span class="exnum">3</span><div>מצאו את האסימפטוטות האנכיות.</div></div><div class="exercise-card"><span class="exnum">4</span><div>מצאו את האסימפטוטה האופקית.</div></div><div class="exercise-card"><span class="exnum">5</span><div>גזרו את \(r\) והראו את הפישוט המלא.</div></div><div class="exercise-card"><span class="exnum">6</span><div>מצאו את נקודות שבהן הנגזרת שווה לאפס.</div></div><div class="exercise-card"><span class="exnum">7</span><div>קבעו תחומי עלייה וירידה.</div></div><div class="exercise-card"><span class="exnum">8</span><div>מצאו את שיעורי נקודות הקיצון.</div></div><div class="exercise-card"><span class="exnum">9</span><div>תארו את התנהגות הגרף ליד \(x=1\) וליד \(x=4\).</div></div><div class="exercise-card"><span class="exnum">10</span><div>שרטטו סקיצה מלאה והשוו לגרף האינטראקטיבי.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>18</span></footer>
+</section>
+<section class="page" id="page-19">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 19</div>
+    <h1>9. אסימפטוטה אופקית וההתנהגות של הנגזרת</h1>
+    <div class="subtitle">קשר פונקציה-נגזרת בפונקציות רציונליות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="grid2 top-align">
+<div>
+<div class="formula">\[u(x)=\frac{2x^2+1}{x^2+1}\]</div>
+<p>המעלות שוות, ולכן:</p>
+<div class="formula">\[\lim_{x\to\pm\infty}u(x)=2\]</div>
+<p>כלומר האסימפטוטה האופקית היא \(y=2\).</p>
+<div class="formula">\[u'(x)=\frac{2x}{(x^2+1)^2}\]</div>
+<p>ולכן:</p>
+<div class="formula">\[\lim_{x\to\pm\infty}u'(x)=0\]</div>
+<p>כאשר הגרף מתיישר לקראת אסימפטוטה אופקית, השיפועים שלו מתקרבים ל-0.</p>
+</div>
+<div>
+<div class="graph-panel">
+  <div class="graph-head">
+    <span class="graph-title">u(x) ו-u'(x) - התיישרות מול האסימפטוטה</span>
+    <div class="graph-controls">
+      <button type="button" onclick="zoomBoard('board9',0.80)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board9',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board9')">מרכז</button>
+    </div>
+  </div>
+  <div class="chart-legend" aria-label="מקרא לגרף">
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#00838F"></span>\(u(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch" style="--legend-color:#EF6C00"></span>\(u'(x)\)</span>
+    <span class="legend-item"><span class="legend-swatch dashed" style="--legend-color:#D32F2F"></span>\(y=2\)</span>
+  </div>
+  <div id="board9" class="jxgbox"></div>
+</div></div>
+</div>
+<div class="box warning"><h3>דיוק</h3><p>הטענה כאן מתייחסת להתנהגות הרציונלית הטיפוסית בדוגמה. לא מסיקים באופן אוטומטי מכל אסימפטוטה של פונקציה כללית מידע על נגזרתה בלי תנאים מתאימים.</p></div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>19</span></footer>
+</section>
+<section class="page" id="page-20">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 20</div>
+    <h1>תרגול 9 - אסימפטוטות ונגזרת</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>מצא את האסימפטוטה האופקית של \(u(x)=\frac{2x^2+1}{x^2+1}\).</div></div><div class="exercise-card"><span class="exnum">2</span><div>גזרו את \(u\).</div></div><div class="exercise-card"><span class="exnum">3</span><div>קבעו את סימן \(u'\) כאשר \(x\lt0\).</div></div><div class="exercise-card"><span class="exnum">4</span><div>קבעו את סימן \(u'\) כאשר \(x\gt0\).</div></div><div class="exercise-card"><span class="exnum">5</span><div>קבעו את נקודת הקיצון של \(u\).</div></div><div class="exercise-card"><span class="exnum">6</span><div>חשבו את ערך הפונקציה בנקודת הקיצון.</div></div><div class="exercise-card"><span class="exnum">7</span><div>לאיזה ערך מתקרבת \(u'\) כאשר \(x\to\infty\)?</div></div><div class="exercise-card"><span class="exnum">8</span><div>לאיזה ערך מתקרבת \(u'\) כאשר \(x\to-\infty\)?</div></div><div class="exercise-card"><span class="exnum">9</span><div>הסבירו גרפית את הקשר בין התקרבות \(u\) ל-\(y=2\) לבין ערכי \(u'\).</div></div><div class="exercise-card"><span class="exnum">10</span><div>תנו דוגמה נוספת למנה של פולינומים בעלת אסימפטוטה אופקית.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>20</span></footer>
+</section>
+<section class="page" id="page-21">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 21</div>
+    <h1>דוגמה מתקדמת ב - שימוש בערכי פונקציה ונגזרת בנקודה</h1>
+    <div class="subtitle">שאלות המבוססות על מידע חלקי</div>
+  </header>
+  <main class="page-body">
+    
+<div class="problem">
+<p>נתון:</p>
+<div class="formula">\[h(x)=\frac{x^2}{g(x)}\]</div>
+<p>כאשר \(g\) פולינומית, וכן:</p>
+<div class="formula">\[h(x_1)=288,\qquad h'(x_1)=354,\qquad g'(x_1)=0\]</div>
+<p>מצאו את \(x_1\).</p>
+</div>
+<div class="solution-steps">
+<div><b>1. משתמשים בערך הפונקציה:</b>
+<div class="formula">\[288=\frac{x_1^2}{g(x_1)}\Rightarrow g(x_1)=\frac{x_1^2}{288}\]</div></div>
+<div><b>2. גוזרים:</b>
+<div class="formula">\[h'(x)=\frac{2xg(x)-x^2g'(x)}{[g(x)]^2}\]</div></div>
+<div><b>3. משתמשים ב-\(g'(x_1)=0\):</b>
+<div class="formula">\[354=\frac{2x_1g(x_1)}{[g(x_1)]^2}=\frac{2x_1}{g(x_1)}\]</div></div>
+<div><b>4. מציבים את הקשר משלב 1:</b>
+<div class="formula">\[354=\frac{2x_1}{x_1^2/288}=\frac{576}{x_1}\]</div></div>
+<div><b>5. פתרון:</b>
+<div class="formula">\[\boxed{x_1=\frac{96}{59}}\]</div></div>
+</div>
+<div class="box green"><h3>רעיון מרכזי</h3><p>אין צורך לדעת את הנוסחה של \(g\). מספיק להשתמש בערכים הנתונים בנקודה ובכלל המנה.</p></div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>21</span></footer>
+</section>
+<section class="page" id="page-22">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 22</div>
+    <h1>טעויות נפוצות ומלכודות</h1>
+    <div class="subtitle">אבחון טעויות לפני תרגול בגרות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="mistakes">
+<div><b>1. \(f'(a)=0\) ⇐ קיצון</b><p>לא נכון. חייבים שינוי סימן מתאים.</p></div>
+<div><b>2. אפס מכנה ⇐ אסימפטוטה אנכית</b><p>לא תמיד. ייתכן חור לאחר צמצום.</p></div>
+<div><b>3. צמצמנו ולכן הנקודה חזרה לתחום</b><p>לא נכון. התחום המקורי נשמר.</p></div>
+<div><b>4. \((P/Q)'=P'/Q'\)</b><p>לא נכון. משתמשים בכלל המנה.</p></div>
+<div><b>5. צריך טבלת סימנים גם למכנה של \(f'\)</b><p>במנה של פולינומים המכנה בריבוע חיובי בתחום, ולכן סימן הנגזרת נקבע על ידי המונה.</p></div>
+<div><b>6. נקודת אי-הגדרה שבה הסימן משתנה היא קיצון</b><p>לא. אין שם נקודה על גרף הפונקציה.</p></div>
+<div><b>7. גרף \(f'\) מעל ציר \(x\) אומר ש-\(f\) חיובית</b><p>לא. פירוש הדבר ש-\(f\) עולה.</p></div>
+<div><b>8. \(f'=0\) אומר \(f=0\)</b><p>אין קשר כזה. מדובר בשיפוע ולא בערך הפונקציה.</p></div>
+<div><b>9. אסימפטוטה אופקית היא קו שהגרף אינו חוצה</b><p>לא נכון. גרף יכול לחצות אסימפטוטה אופקית.</p></div>
+<div><b>10. אפשר לשרטט לפני שסיימנו את הטבלה</b><p>עדיף לבנות את הסקיצה רק לאחר שכל המידע עקבי.</p></div>
+</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>22</span></footer>
+</section>
+<section class="page" id="page-23">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 23</div>
+    <h1>אלגוריתם מלא לחקירת פונקציה רציונלית</h1>
+    <div class="subtitle">דף סיכום לשימוש תלמיד</div>
+  </header>
+  <main class="page-body">
+    
+<div class="algorithm">
+<div><span>1</span><b>תחום הגדרה</b><p>נקודות האפס של המכנה המקורי יוצאים מן התחום.</p></div>
+<div><span>2</span><b>פישוט</b><p>מפרקים ומצמצמים, אך שומרים את התחום המקורי.</p></div>
+<div><span>3</span><b>חיתוכים</b><p>נקודות האפס של המונה השייכים לתחום וחיתוך עם ציר \(y\).</p></div>
+<div><span>4</span><b>אי-רציפות</b><p>חור או אסימפטוטה אנכית.</p></div>
+<div><span>5</span><b>אסימפטוטה באינסוף</b><p>אופקית או אלכסונית לפי המבנה האלגברי.</p></div>
+<div><span>6</span><b>נגזרת</b><p>כלל המנה ופישוט מונה הנגזרת.</p></div>
+<div><span>7</span><b>ציר משולב</b><p>נקודות האפס של מונה הנגזרת + נקודות אי-הגדרה.</p></div>
+<div><span>8</span><b>סימן הנגזרת</b><p>קובעים באמצעות מונה הנגזרת בלבד.</p></div>
+<div><span>9</span><b>עלייה, ירידה וקיצון</b><p>קיצון רק בנקודה בתחום ובשינוי סימן מתאים.</p></div>
+<div><span>10</span><b>סקיצה</b><p>מחברים את כל המידע לענפים עקביים.</p></div>
+</div>
+<div class="rule-banner">סדר עבודה מומלץ בבחינה: תחום ⇐ אסימפטוטות ⇐ נגזרת ⇐ ציר משולב ⇐ טבלת השתנות ⇐ סקיצה.</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>23</span></footer>
+</section>
+<section class="page" id="page-24">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 24</div>
+    <h1>תרגול מסכם א - 10 שאלות משולבות</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>חקור את \(f(x)=\frac{x}{x^2+1}\) עד וכולל קיצון ועלייה/ירידה.</div></div><div class="exercise-card"><span class="exnum">2</span><div>חקור את \(f(x)=\frac{x^2}{x-1}\) עד וכולל קיצון ואסימפטוטות.</div></div><div class="exercise-card"><span class="exnum">3</span><div>עבור \(f(x)=\frac{x+1}{x-2}\), קבעו את סימן הנגזרת ללא טבלת מכנה.</div></div><div class="exercise-card"><span class="exnum">4</span><div>עבור \(f(x)=\frac{x^2+4}{x}\), מצאו את נקודות הקיצון.</div></div><div class="exercise-card"><span class="exnum">5</span><div>עבור \(f(x)=\frac{x^2-1}{x^2+1}\), קבעו את תחומי העלייה והירידה.</div></div><div class="exercise-card"><span class="exnum">6</span><div>עבור \(f(x)=\frac{1}{x^2-4}\), מצאו תחום, אסימפטוטות ונקודות קיצון.</div></div><div class="exercise-card"><span class="exnum">7</span><div>עבור \(f(x)=\frac{x}{x-1}\), הסבירו מדוע אין נקודות קיצון.</div></div><div class="exercise-card"><span class="exnum">8</span><div>נתון \(f'(x)=\frac{(x-3)(x+1)}{(x-2)^2}\) ותחום \(x\ne2\). קבעו את תחומי העלייה והירידה של \(f\).</div></div><div class="exercise-card"><span class="exnum">9</span><div>נתון \(f'(x)=\frac{x^2}{(x-1)^2}\), \(x\ne1\). האם \(x=0\) קיצון? נמקו.</div></div><div class="exercise-card"><span class="exnum">10</span><div>נתון גרף נגזרת בעל אפסים ב-\(-2,4\) ואי-הגדרה ב-1, עם סימנים +,-,-,+ בארבעת התחומים. סווגו את הקיצון האפשרי.</div></div></div><div class="box tip"><h3>דגש</h3>בכל שאלה יש להפריד במפורש בין נקודת אפס של הנגזרת לבין נקודת אי-הגדרה.</div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>24</span></footer>
+</section>
+<section class="page" id="page-25">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 25</div>
+    <h1>תרגול מסכם ב - 10 שאלות משולבות</h1>
+    <div class="subtitle">דף תרגול - 10 תרגילים</div>
+  </header>
+  <main class="page-body">
+    <div class="worksheet-intro">פתרו ללא מחשבון כאשר אפשר. בכל מסקנה גרפית נמקו באמצעות סימן הנגזרת או תחום ההגדרה.</div><div class="exercise-grid"><div class="exercise-card"><span class="exnum">1</span><div>חקור את \(f(x)=\frac{2x}{x^2+4}\) עד וכולל סקיצה.</div></div><div class="exercise-card"><span class="exnum">2</span><div>חקור את \(f(x)=\frac{x^2+1}{x-2}\) וקבע קיצון ואסימפטוטות.</div></div><div class="exercise-card"><span class="exnum">3</span><div>מצא את \(a\) אם ל-\(F_a(x)=\frac{x^2+a}{x+1}\) יש נקודה שיפוע אפס ב-\(x=3\).</div></div><div class="exercise-card"><span class="exnum">4</span><div>מצא את \(a\) אם אותה פונקציה בעלת שיפוע אפס ב-\(x=-5\).</div></div><div class="exercise-card"><span class="exnum">5</span><div>עבור \(g(x)=\frac{x^2+a}{x+2}\), מצאו תנאי על \(a\) לקיום שתי נקודות שיפוע אפס.</div></div><div class="exercise-card"><span class="exnum">6</span><div>נתון \(f'(x)=\frac{4-x^2}{(x-3)^2}\), \(x\ne3\). בנו טבלת השתנות אפשרית ל-\(f\).</div></div><div class="exercise-card"><span class="exnum">7</span><div>נתון \(f'(x)=\frac{(x-1)^2(x+2)}{(x-4)^2}\), \(x\ne4\). אילו אפסים של הנגזרת עשויים לתת קיצון?</div></div><div class="exercise-card"><span class="exnum">8</span><div>פונקציה רציונלית מתקרבת ל-\(y=5\) כאשר \(x\to\infty\). תארו מה צפוי לקרות לשיפועי המשיקים בדוגמה רציונלית טיפוסית.</div></div><div class="exercise-card"><span class="exnum">9</span><div>עבור \(f(x)=\frac{(x-1)(x+3)}{(x-1)(x-2)}\), מצאו חור, אסימפטוטה ונגזרת של הביטוי המצומצם תוך שמירת התחום.</div></div><div class="exercise-card"><span class="exnum">10</span><div>הסבירו כיצד ניתן לזהות מתוך גרף \(f'\) את מספר נקודות הקיצון של \(f\), ומהו המידע הנוסף הדרוש בפונקציה רציונלית.</div></div></div>
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>25</span></footer>
+</section>
+<section class="page" id="page-26">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 26</div>
+    <h1>תשובות מקוצרות - תרגולים 1 עד 4</h1>
+    <div class="subtitle">מפתח תשובות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="answers-cols">
+<div><h3>תרגול 1</h3>
+<ol><li>עולה.</li><li>מינימום.</li><li>לא.</li><li>\(-4\).</li><li>\(f'\lt0\).</li><li>הנגזרת ליד 4 גדולה יותר.</li><li>אין קיצון.</li><li>- ⇐ 0 ⇐ +.</li><li>לא.</li><li>0.</li></ol></div>
+<div><h3>תרגול 2</h3>
+<ol><li>\(x\ne-2\).</li><li>\(-2\pm\sqrt5\).</li><li>\((-\infty,-2-\sqrt5)\cup(-2+\sqrt5,\infty)\).</li><li>\((-2-\sqrt5,-2)\cup(-2,-2+\sqrt5)\).</li><li>מקסימום.</li><li>מינימום.</li><li>מחוץ לתחום.</li><li>\(-4-2\sqrt5\).</li><li>\(-4+2\sqrt5\).</li><li>אסימפטוטה \(x=-2\).</li></ol></div>
+<div><h3>תרגול 3</h3>
+<ol><li>\(-2,2\).</li><li>\(1,4\).</li><li>-.</li><li>+.</li><li>עולה.</li><li>יורדת.</li><li>מינימום.</li><li>מקסימום.</li><li>לא.</li><li>תחום, ערך התחלתי/חיתוכים ואסימפטוטות.</li></ol></div>
+<div><h3>תרגול 4</h3>
+<ol><li>מתקבל 0.</li><li>חיובי.</li><li>אין קיצון.</li><li>מקסימום.</li><li>מינימום.</li><li>אין קיצון.</li><li>אין קיצון.</li><li>למשל \(x^3/(x^2+1)\).</li><li>אין ערך פונקציה.</li><li>בודקים שינוי סימן של \(f'\).</li></ol></div>
+</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>26</span></footer>
+</section>
+<section class="page" id="page-27">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 27</div>
+    <h1>תשובות מקוצרות - תרגולים 5 עד 8</h1>
+    <div class="subtitle">מפתח תשובות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="answers-cols">
+<div><h3>תרגול 5</h3>
+<ol><li>\(x\ne1,4\).</li><li>\((x+2)/(x-4)\), עם התחום המקורי.</li><li>\((1,-1)\).</li><li>\(x=4\).</li><li>\(y=1\).</li><li>לא.</li><li>לא.</li><li>\((-2,0)\).</li><li>\((0,-1/2)\).</li><li>כדי לא לסווג נקודות מחוץ לתחום.</li></ol></div>
+<div><h3>תרגול 6</h3>
+<ol><li>\((x^2+4x-1)/(x+2)^2\).</li><li>חיובי בתחום.</li><li>\(-2\pm\sqrt5\).</li><li>חיובי.</li><li>שלילי.</li><li>\((x^2+2x+4)/(x+1)^2\).</li><li>\(x^2+2x+4\).</li><li>\(3(1-x^2)/(x^2+1)^2\).</li><li>\(x=\pm1\).</li><li>תחום ⇐ מונה נגזרת ⇐ סימן.</li></ol></div>
+<div><h3>תרגול 7</h3>
+<ol><li>\(-2,1,2,4\).</li><li>\(-2,2\) נגזרת; \(1,4\) אי-הגדרה.</li><li>-,+,+,-,-.</li><li>\((-2,1),(1,2)\).</li><li>\((-\infty,-2),(2,4),(4,\infty)\).</li><li>מינימום.</li><li>מקסימום.</li><li>המכנה בריבוע.</li><li>לא קיצון.</li><li>מפריד סוגי נקודות.</li></ol></div>
+<div><h3>תרגול 8</h3>
+<ol><li>\(x\ne1,4\).</li><li>\((0,0)\).</li><li>\(x=1,4\).</li><li>\(y=0\).</li><li>כמוצג בדוגמה.</li><li>\(x=\pm2\).</li><li>לפי הטבלה בעמוד 17.</li><li>\((-2,-2/3),(2,-6)\).</li><li>התבדרות משני צדי כל אסימפטוטה.</li><li>בהתאם לגרף.</li></ol></div>
+</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>27</span></footer>
+</section>
+<section class="page" id="page-28">
+  <header class="page-header">
+    <div class="brand">מתמטיקה - 5 יחידות לימוד</div>
+    <div class="page-chip">עמוד 28</div>
+    <h1>תשובות מקוצרות - תרגולים 9, 10 והמסכמים</h1>
+    <div class="subtitle">מפתח תשובות</div>
+  </header>
+  <main class="page-body">
+    
+<div class="answers-cols smaller">
+<div><h3>תרגול 9</h3>
+<ol><li>\(y=2\).</li><li>\(2x/(x^2+1)^2\).</li><li>-.</li><li>+.</li><li>מינימום ב-0.</li><li>1.</li><li>0.</li><li>0.</li><li>השיפועים מתקרבים ל-0.</li><li>למשל \((3x^2+1)/(x^2+2)\).</li></ol></div>
+<div><h3>תרגול 10</h3>
+<ol><li>\(x\ne-1\).</li><li>\((x^2+2x-a)/(x+1)^2\).</li><li>השלמת ריבוע.</li><li>\(a\gt-1\).</li><li>אין אפס בתחום; עולה.</li><li>עולה בכל ענף.</li><li>8.</li><li>8.</li><li>\(-3,1\).</li><li>מקסימום ב-\(x=-4\), מינימום ב-\(x=2\).</li></ol></div>
+<div><h3>מסכם א</h3>
+<ol><li>קיצון ב-\(x=\pm1\).</li><li>נגזרת \(x(x-2)/(x-1)^2\).</li><li>שלילית בכל התחום.</li><li>\(x=\pm2\).</li><li>יורדת ב-\((-\infty,0)\), עולה ב-\((0,\infty)\).</li><li>קיצון ב-0; אסימפטוטות \(x=\pm2,y=0\).</li><li>הנגזרת שלילית.</li><li>עולה מחוץ ל-\([-1,3]\) בהתחשב ב-2; יורדת בין השורשים.</li><li>לא.</li><li>מקסימום ב-\(x=-2\), מינימום ב-\(x=4\).</li></ol></div>
+<div><h3>מסכם ב</h3>
+<ol><li>קיצון ב-\(x=\pm2\).</li><li>נקודות האפס של הנגזרת \(2\pm\sqrt5\).</li><li>15.</li><li>15.</li><li>\(a\gt-4\).</li><li>נקודות האפס של הנגזרת \(\pm2\), אי-הגדרה 3.</li><li>רק \(x=-2\); ב-1 אין שינוי סימן.</li><li>השיפועים נוטים ל-0.</li><li>חור \((1,-4)\), אסימפטוטה \(x=2\), נגזרת \(-5/(x-2)^2\).</li><li>נקודות האפס של הנגזרת עם שינוי סימן, תוך בדיקת תחום.</li></ol></div>
+</div>
+
+  </main>
+  <footer class="page-footer"><span>מערך שיעור מלא - פונקציה ונגזרת</span><span>28</span></footer>
+</section>
+
+<script>
+const boards = {};
+const initialBoxes = {};
+function rememberBoard(id, board, bbox){
+  boards[id]=board; initialBoxes[id]=bbox.slice();
+}
+function zoomBoard(id, factor){
+  const b=boards[id]; if(!b) return;
+  const bb=b.getBoundingBox();
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const hw=(bb[2]-bb[0])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+  b.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],true);
+}
+function resetBoard(id){
+  const b=boards[id]; if(!b) return;
+  b.setBoundingBox(initialBoxes[id],true);
+}
+function initBoard(id,bbox,opts={}){
+  const b=JXG.JSXGraph.initBoard(id,{
+    boundingbox:bbox, axis:true, showCopyright:false, showNavigation:false,
+    keepaspectratio:false, pan:{enabled:true}, zoom:{wheel:true,needShift:false},
+    defaultAxes:{x:{ticks:{drawLabels:true}},y:{ticks:{drawLabels:true}}}, ...opts
+  });
+  rememberBoard(id,b,bbox); return b;
+}
+function safeDiv(num, den, eps=0.03){ return Math.abs(den)<eps ? NaN : num/den; }
+
+window.addEventListener('load',()=>{
+  {
+    const b=initBoard('board1',[-8,9,6,-9]);
+    const f=x=>safeDiv(x*x+1,x+2);
+    const fp=x=>(x*x+4*x-1)/((x+2)*(x+2));
+    const c=b.create('functiongraph',[f,-8,6],{strokeColor:'#1565C0',strokeWidth:2,name:'f(x)'});
+    b.create('line',[[-2,-9],[-2,9]],{strokeColor:'#D32F2F',dash:2,strokeWidth:1,fixed:true});
+    const p=b.create('glider',[0,f(0),c],{size:4,name:'P'});
+    b.create('tangent',[p],{strokeColor:'#EF6C00',strokeWidth:2});
+    b.create('text',[-7.5,8,()=>`x = ${p.X().toFixed(2)}   f'(x) = ${fp(p.X()).toFixed(2)}`],{fontSize:14});
+  }
+  {
+    const b=initBoard('board2',[-8,10,6,-10]);
+    const f=x=>safeDiv(x*x+1,x+2);
+    const fp=x=>safeDiv(x*x+4*x-1,(x+2)*(x+2),0.06);
+    b.create('functiongraph',[f,-8,6],{strokeColor:'#1565C0',strokeWidth:2,name:'f'});
+    b.create('functiongraph',[fp,-8,6],{strokeColor:'#EF6C00',strokeWidth:2,name:"f'"});
+    b.create('line',[[-2,-10],[-2,10]],{strokeColor:'#D32F2F',dash:2,strokeWidth:1,fixed:true});
+  }
+  {
+    const b=initBoard('board3',[-7,10,8,-10]);
+    const r=x=>safeDiv(6*x,x*x-5*x+4,0.05);
+    b.create('functiongraph',[r,-7,8],{strokeColor:'#6A1B9A',strokeWidth:2,name:'r'});
+    [1,4].forEach(v=>b.create('line',[[v,-10],[v,10]],{strokeColor:'#D32F2F',dash:2,strokeWidth:1,fixed:true}));
+    b.create('line',[[-7,0],[8,0]],{strokeColor:'#546E7A',dash:2,strokeWidth:1,fixed:true});
+    b.create('point',[-2,-2/3],{strokeColor:'#00897B',fillColor:'#00897B',size:3,name:'min'});
+    b.create('point',[2,-6],{strokeColor:'#C2185B',fillColor:'#C2185B',size:3,name:'max'});
+  }
+  {
+    const b=initBoard('board4',[-6,7,6,-7]);
+    const s=x=>x*x*x/(x*x+1);
+    const sp=x=>x*x*(x*x+3)/((x*x+1)*(x*x+1));
+    b.create('functiongraph',[s,-6,6],{strokeColor:'#00897B',strokeWidth:2,name:'s'});
+    b.create('functiongraph',[sp,-6,6],{strokeColor:'#C2185B',strokeWidth:2,name:"s'"});
+    b.create('point',[0,0],{strokeColor:'#EF6C00',fillColor:'#EF6C00',size:4,name:'נקודה עם שיפוע 0'});
+  }
+  {
+    const b=initBoard('board5',[-6,8,8,-8]);
+    const q=x=>safeDiv(x+2,x-4);
+    b.create('functiongraph',[q,-6,8],{strokeColor:'#2E7D32',strokeWidth:2,name:'q'});
+    b.create('line',[[4,-8],[4,8]],{strokeColor:'#D32F2F',dash:2,strokeWidth:1,fixed:true});
+    b.create('line',[[-6,1],[8,1]],{strokeColor:'#546E7A',dash:2,strokeWidth:1,fixed:true});
+    b.create('point',[1,-1],{size:5,face:'o',strokeColor:'#EF6C00',fillColor:'white',name:'hole'});
+  }
+  {
+    const b=initBoard('board6',[-8,15,5,-12]);
+    const N=x=>x*x+4*x-1;
+    b.create('functiongraph',[N,-8,5],{strokeColor:'#5E35B1',strokeWidth:2,name:'N(x)'});
+    const a=-2-Math.sqrt(5), c=-2+Math.sqrt(5);
+    b.create('point',[a,0],{strokeColor:'#EF6C00',fillColor:'#EF6C00',size:3,name:'zero'});
+    b.create('point',[c,0],{strokeColor:'#EF6C00',fillColor:'#EF6C00',size:3,name:'zero'});
+    b.create('line',[[-2,-12],[-2,15]],{strokeColor:'#546E7A',dash:2,strokeWidth:1,fixed:true});
+  }
+  {
+    const b=JXG.JSXGraph.initBoard('board7',{boundingbox:[-6,3,7,-3],axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true,needShift:false}});
+    rememberBoard('board7',b,[-6,3,7,-3]);
+    b.create('arrow',[[-5,0],[6,0]],{strokeWidth:2,fixed:true});
+    [-2,2].forEach(v=>b.create('point',[v,0],{strokeColor:'#2E7D32',fillColor:'#2E7D32',size:4,name:String(v),fixed:true}));
+    [1,4].forEach(v=>b.create('point',[v,0],{strokeColor:'#D32F2F',fillColor:'#D32F2F',size:5,face:'x',name:String(v),fixed:true}));
+    const labels=[[-4.3,'−'],[-0.5,'+'],[1.5,'+'],[3,'−'],[5,'−']];
+    labels.forEach(([xv,t])=>b.create('text',[xv,1,t],{fontSize:20,fixed:true}));
+    b.create('text',[-4.8,-1.4,"ירידה"],{fontSize:12,fixed:true});
+    b.create('text',[-0.7,-1.4,"עלייה"],{fontSize:12,fixed:true});
+    b.create('text',[1.25,-1.4,"עלייה"],{fontSize:12,fixed:true});
+    b.create('text',[2.7,-1.4,"ירידה"],{fontSize:12,fixed:true});
+    b.create('text',[4.6,-1.4,"ירידה"],{fontSize:12,fixed:true});
+  }
+  {
+    const b=initBoard('board8',[-7,10,8,-10]);
+    const r=x=>safeDiv(6*x,x*x-5*x+4,0.05);
+    b.create('functiongraph',[r,-7,8],{strokeColor:'#1976D2',strokeWidth:2,name:'r(x)'});
+    [1,4].forEach(v=>b.create('line',[[v,-10],[v,10]],{strokeColor:'#D32F2F',dash:2,strokeWidth:1,fixed:true}));
+    b.create('line',[[-7,0],[8,0]],{strokeColor:'#546E7A',dash:2,strokeWidth:1,fixed:true});
+    b.create('point',[-2,-2/3],{strokeColor:'#EF6C00',fillColor:'#EF6C00',size:4,name:'min'});
+    b.create('point',[2,-6],{strokeColor:'#EF6C00',fillColor:'#EF6C00',size:4,name:'max'});
+  }
+  {
+    const b=initBoard('board9',[-7,4,7,-3]);
+    const u=x=>(2*x*x+1)/(x*x+1);
+    const up=x=>2*x/Math.pow(x*x+1,2);
+    b.create('functiongraph',[u,-7,7],{strokeColor:'#00838F',strokeWidth:2,name:'u'});
+    b.create('functiongraph',[up,-7,7],{strokeColor:'#EF6C00',strokeWidth:2,name:"u'"});
+    b.create('line',[[-7,2],[7,2]],{strokeColor:'#D32F2F',dash:2,strokeWidth:1,fixed:true});
+    b.create('point',[0,1],{strokeColor:'#00838F',fillColor:'#00838F',size:4,name:'min'});
+  }
+  {
+    const b=initBoard('board10',[-8,12,7,-12]);
+    const slider=b.create('slider',[[-7,10],[-1,10],[-4,3,12]],{name:'a',snapWidth:0.5});
+    const F=x=>safeDiv(x*x+slider.Value(),x+1,0.05);
+    const Fp=x=>safeDiv(x*x+2*x-slider.Value(),(x+1)*(x+1),0.05);
+    b.create('functiongraph',[F,-8,7],{strokeColor:'#1565C0',strokeWidth:2,name:'F_a'});
+    b.create('functiongraph',[Fp,-8,7],{strokeColor:'#EF6C00',strokeWidth:2,name:"F_a'"});
+    b.create('line',[[-1,-12],[-1,12]],{strokeColor:'#D32F2F',dash:2,strokeWidth:1,fixed:true});
+  }
+});
+</script>
+</body>
+</html>
