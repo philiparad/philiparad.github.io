@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>בעיות מינימום ומקסימום בפונקציות אי רציונליות - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true,
+    packages: {'[+]': ['ams']}
+  },
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:#eceff3; font-family: Arial, "Noto Sans Hebrew", sans-serif; }
+body { direction: rtl; color:#172033; }
+.a4 {
+  width:210mm; height:297mm; margin:8mm auto; padding:12mm 14mm 11mm;
+  background:white; page-break-after:always; break-after:page; position:relative; overflow:hidden;
+  box-shadow:0 2mm 7mm rgba(0,0,0,.12);
+}
+.a4:last-child { page-break-after:auto; }
+@media print {
+  html,body{background:white}
+  .a4{margin:0; box-shadow:none}
+  .graph-toolbar{display:none!important}
+}
+h1,h2,h3{margin:0 0 4mm;color:#123d66;line-height:1.25}
+h1{font-size:28pt}.cover h1{font-size:34pt}.cover h2{font-size:20pt;color:#365d7c}
+h2{font-size:21pt;border-bottom:1px solid #d8e1ea;padding-bottom:2mm}
+h3{font-size:15.5pt;color:#285477;margin-top:3mm}
+p,li{font-size:12.3pt;line-height:2.52;margin:1.6mm 0}
+ul,ol{margin:2mm 0;padding-right:7mm}
+.small{font-size:10.5pt}.tiny{font-size:9.5pt}.muted{color:#5a6673}
+.badge{display:inline-block;padding:1.2mm 3mm;border-radius:999px;background:#eef5fb;border:1px solid #c9dceb;margin:0 0 2.5mm;font-size:10.5pt}
+.box{border:1px solid #cdd8e4;border-radius:3mm;padding:4mm 5mm;margin:3mm 0;background:#fbfdff}
+.box.key{border-right:4mm solid #2f6f9f}.box.warn{border-right:4mm solid #b87324;background:#fffaf2}.box.success{border-right:4mm solid #397b5b;background:#f7fcf9}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:6mm;align-items:start}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;align-items:start}
+.table{width:100%;border-collapse:collapse;margin:3mm 0;font-size:10.7pt}.table th,.table td{border:1px solid #cfd8e2;padding:2mm 2.5mm;vertical-align:top}.table th{background:#eef4f8;color:#173c5b}
+.mathline{font-size:13.5pt;text-align:center;margin:3mm 0}
+.flow{display:flex;gap:2mm;flex-wrap:wrap;align-items:center;justify-content:center;margin:4mm 0}.flow span{border:1px solid #c8d8e6;background:#f7fbfe;border-radius:2mm;padding:2.2mm 3mm;font-size:10.8pt}
+.exercise{border:1px solid #cbd5df;border-radius:3mm;padding:3.5mm 4.5mm;margin:3mm 0;background:white}.exercise h3{margin-top:0}.exercise .source{font-size:9.6pt;color:#637080}
+.solution{border:1px dashed #aab9c7;border-radius:3mm;padding:3.5mm 4.5mm;margin:3mm 0;background:#f8fbfd}
+.graph-card{border:1px solid #cbd8e5;border-radius:3mm;padding:3mm;background:#fcfeff;margin:3mm 0}
+.graph-toolbar{display:flex;gap:2mm;flex-wrap:wrap;margin-bottom:2.5mm;direction:rtl}
+.graph-toolbar button{font:inherit;font-size:9.8pt;border:1px solid #aebdcc;background:white;border-radius:2mm;padding:1.5mm 3mm;cursor:pointer}
+.jxgbox{width:100%;height:82mm;border:1px solid #d1dae3!important;border-radius:2mm;background:white}
+.jxgbox.short{height:62mm}.jxgbox.tinyg{height:48mm}.jxgbox.answer-g{height:46mm}.jxgbox.circle-segment-g{height:60mm}.jxgbox.compact-g{height:32mm}
+.rhombus-legend-line{font-weight:600;line-height:1.35;background:rgba(255,255,255,.88);padding:1px 5px;border-radius:4px;}
+.note{font-size:10.4pt;color:#425264}
+.footer{position:absolute;bottom:5mm;left:14mm;right:14mm;display:flex;justify-content:space-between;direction:rtl;color:#8290a0;font-size:8.8pt;border-top:1px solid #edf1f4;padding-top:1.5mm}
+.cover{display:flex;flex-direction:column;justify-content:center;text-align:center}.cover .subtitle{font-size:17pt;line-height:1.5;color:#38556e;margin:5mm auto 10mm;max-width:150mm}.cover .meta{margin-top:10mm;font-size:11pt;color:#657485}
+.kicker{font-size:11pt;color:#2f6f9f;font-weight:700;letter-spacing:.2px;margin-bottom:2mm}
+.checklist li{margin:2.5mm 0}
+.page-num{direction:ltr}
+code{direction:ltr}
+</style>
+</head>
+<body>
+<section class="a4 cover" id="page-1">
+
+<div class="cover">
+  <div class="kicker">מערך שיעור מלא - מתמטיקה 5 יחידות</div>
+  <h1>בעיות מינימום ומקסימום<br>בפונקציות אי רציונליות</h1>
+  <h2>פונקציות שורש - נגזרת ואופטימיזציה</h2>
+  <p class="subtitle">יחידת הוראה מדורגת המשלבת פונקציות שורש, תחום הגדרה, בניית פונקציית מטרה, גאומטריה, מרחקים, שטחים, היקפים ונפחים.</p>
+  <div class="box key" style="text-align:right;max-width:165mm;margin:0 auto">
+    <b>עיקרון מנחה:</b> עיקר הקושי אינו בגזירה אלא במעבר מהבעיה המילולית אל פונקציית המטרה הנכונה ובקביעת התחום המתאים לבעיה.
+  </div>
+</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">1</span></div>
+</section>
+<section class="a4 " id="page-2">
+
+<div class="kicker">מטרות היחידה</div><h2>מה צריך לדעת בסיום היחידה?</h2>
+<div class="two-col_">
+<div class="box">
+<h3>ידע מתמטי</h3>
+<ul>
+<li>לקבוע תחום הגדרה של פונקציות הכוללות שורש.</li>
+<li>לגזור פונקציות מהצורה \(f(x)=\sqrt{u(x)}\) ומכפלות הכוללות שורש.</li>
+<li>למצוא נקודות שבהן הנגזרת שווה לאפס ולנתח את סימן הנגזרת.</li>
+<li>לבדוק מועמדים לקיצון מוחלט, כולל קצות תחום.</li>
+</ul>
+</div>
+<div class="box">
+<h3>מיומנויות</h3>
+<ul>
+<li>לבחור משתנה מתאים ולהגדיר אותו במילים.</li>
+<li>לכתוב אילוץ ולבטא את שאר הגדלים באמצעות משתנה אחד.</li>
+<li>לבנות פונקציית מטרה המתארת אורך, שטח, היקף, מרחק או נפח.</li>
+<li>לתרגם את תוצאת החקירה חזרה להקשר של הבעיה.</li>
+</ul>
+</div>
+</div>
+<div style="height:20px;"></div>
+<div class="box success"><b>יעד ברמת 5 יחידות:</b> נזהה גם מצבים שבהם פונקציית השורש אינה נתונה מראש אלא נוצרת מתוך משפט פיתגורס או מתוך נוסחת מרחק.</div>
+<div style="height:20px;"></div>
+<h3>ידע קודם נדרש</h3>
+<div class="flow"><span>פונקציות וגרפים</span><span>נגזרת</span><span>כלל השרשרת</span><span>כלל המכפלה</span><span>משפט פיתגורס</span><span>נוסחת מרחק</span><span>שטחים ונפחים</span></div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">2</span></div>
+</section>
+<section class="a4 " id="page-3">
+
+<div class="kicker">מפת הנושא</div>
+<div style="height:20px;"></div>
+<h2>היכן מופיעות פונקציות שורש בבעיות קיצון?</h2>
+<table class="table">
+<tr><th>משפחת בעיות</th><th>כיצד נוצר השורש?</th><th>פונקציית מטרה אופיינית</th></tr>
+<tr><td>מספרים ואילוצים</td><td>הכמות שממקסמים מכילה שורשים</td><td>\(S(x)=\sqrt{x}+\sqrt{a-bx}\)</td></tr>
+<tr><td>משולשים ומרובעים</td><td>משפט פיתגורס</td><td>\(P(x)=x+\sqrt{a^2-x^2}\)</td></tr>
+<tr><td>מלבן מתחת לגרף</td><td>גובה המלבן הוא ערך הפונקציה</td><td>\(A(x)=x f(x)\)</td></tr>
+<tr><td>מרחק בין גרפים</td><td>אחת הפונקציות היא פונקציית שורש</td><td>\(D(x)=g(x)-f(x)\)</td></tr>
+<tr><td>מרחק מנקודה לעקום</td><td>נוסחת המרחק</td><td>\(D(x)=\sqrt{(x-a)^2+(f(x)-b)^2}\)</td></tr>
+<tr><td>מעגלים</td><td>פיתגורס ברדיוס</td><td>\(A(x)=2x\sqrt{R^2-x^2}\)</td></tr>
+<tr><td>גופים במרחב</td><td>גובה או רדיוס מתקבלים מפיתגורס</td><td>\(V(x)=c x^2\sqrt{a^2-x^2}\)</td></tr>
+</table>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">3</span></div>
+</section>
+<section class="a4 " id="page-4">
+
+<div class="kicker">חזרה הכרחית</div><h2>פונקציות שורש - תחום הגדרה ונגזרת</h2>
+<div class="two-col_">
+<div class="box">
+<h3>תחום הגדרה</h3>
+<p>בפונקציה</p><div class="mathline">\[f(x)=\sqrt{u(x)}\]</div>
+<p>נדרש</p><div class="mathline">\[u(x)\ge 0\]</div>
+<p>בבעיה מילולית מצטרפות מגבלות נוספות: אורכים חיוביים, נקודה ברביע מסוים, מידות שאינן יכולות להתאפס וכדומה.</p>
+</div>
+<div class="box">
+<h3>נגזרת</h3>
+<div class="mathline">\[f(x)=\sqrt{u(x)}\]</div>
+<div class="mathline">\[f'(x)=\frac{u'(x)}{2\sqrt{u(x)}}\]</div>
+<p>אם יש מכפלה, משתמשים גם בכלל המכפלה.</p>
+</div>
+</div>
+<div class="box warn"><b>הבחנה חשובה:</b> ייתכן שהפונקציה מוגדרת בקצה שבו \(u(x)=0\), אך הנגזרת אינה מוגדרת שם. לכן קצה כזה עדיין עשוי להיות מועמד לקיצון מוחלט.</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">4</span></div>
+</section>
+<section class="a4 " id="page-5">
+
+<div class="kicker">עקרון מרכזי</div><h2>תחום אלגברי מול תחום הנובע ממשמעות הבעיה</h2>
+<div class="box">
+<p>נניח שמתקבלת פונקציית מטרה</p>
+<div class="mathline">\[L(x)=\sqrt{25-x^2}+x\]</div>
+<p>מהשורש בלבד מתקבל</p>
+<div class="mathline">\[-5\le x\le 5\]</div>
+<p>אבל אם \(x\) הוא אורך, התחום המתאים לבעיה עשוי להיות</p>
+<div class="mathline">\[0\le x\le 5\]</div>
+<p>ואם שני האורכים חייבים להיות חיוביים ממש:</p>
+<div class="mathline">\[0\lt x\lt 5\]</div>
+</div>
+<div class="box success"><b>כלל עבודה:</b> תחום הבעיה = חיתוך בין התחום האלגברי לבין כל המגבלות הגאומטריות והמילוליות.</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">5</span></div>
+</section>
+<section class="a4 " id="page-6">
+
+<div class="kicker">מועמדים לקיצון</div><h2>מה בודקים לפני שמכריזים על מקסימום או מינימום?</h2>
+<div class="three-col">
+<div class="box"><h3>1. שיפוע אפס</h3><div class="mathline">\[f'(x)=0\]</div><p>אלו נקודות פנימיות שבהן השיפוע שווה לאפס.</p></div>
+<div class="box"><h3>2. הנגזרת אינה קיימת</h3><p>בפונקציות שורש זה קורה לעיתים בקצה התחום.</p></div>
+<div class="box"><h3>3. קצות תחום</h3><p>אם הקצה שייך לתחום, יש לבדוק גם את ערך פונקציית המטרה בו.</p></div>
+</div>
+<div class="box key"><b>המסר לתלמיד:</b> פתרון המשוואה \(f'(x)=0\) נותן מועמדים. הוא אינו לבדו הוכחה למקסימום או למינימום.</div>
+<h3>קביעת סוג הקיצון</h3>
+<div class="two-col">
+<div class="box"><p>אם הנגזרת משנה סימן מ-
+\(f'(x)\gt 0\) ל-
+\(f'(x)\lt 0\), מתקבל מקסימום מקומי.</p></div>
+<div class="box"><p>אם הנגזרת משנה סימן מ-
+\(f'(x)\lt 0\) ל-
+\(f'(x)\gt 0\), מתקבל מינימום מקומי.</p></div>
+</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">6</span></div>
+</section>
+<section class="a4 " id="page-7">
+
+<div class="kicker">אלגוריתם מלא</div><h2>רצף פתרון קבוע לכל בעיית מינימום ומקסימום</h2>
+<ol class="checklist">
+<li><b>הגדרת המשתנה:</b> מה מייצג \(x\), ומה היחידות?</li>
+<li><b>כתיבת האילוץ:</b> משוואה המקשרת בין הגדלים.</li>
+<li><b>צמצום למשתנה אחד:</b> בטא את כל הגדלים באמצעות \(x\).</li>
+<li><b>בניית פונקציית המטרה:</b> מה בדיוק צריך למקסם או למזער?</li>
+<li><b>קביעת תחום:</b> תחום אלגברי + מגבלות הבעיה.</li>
+<li><b>גזירה:</b> מצא \(F'(x)\).</li>
+<li><b>איתור מועמדים:</b> פתרון \(F'(x)=0\), נקודות שבהן הנגזרת אינה קיימת וקצות תחום.</li>
+<li><b>קביעת סוג הקיצון:</b> סימן הנגזרת או השוואת ערכי פונקציית המטרה.</li>
+<li><b>חזרה לבעיה המקורית:</b> ענה על מה שנשאל, כולל יחידות.</li>
+</ol>
+<div class="flow"><span>משתנה</span><b>⇐</b><span>אילוץ</span><b>⇐</b><span>פונקציית מטרה</span><b>⇐</b><span>תחום</span><b>⇐</b><span>נגזרת</span><b>⇐</b><span>קיצון</span><b>⇐</b><span>תשובה</span></div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">7</span></div>
+</section>
+<section class="a4 " id="page-8">
+
+<div class="kicker">דוגמה פתורה - בעיה מספרית</div><h2>סכום שורשים מקסימלי</h2>
+<div class="exercise">
+<p>נתונים שני מספרים חיוביים \(x\) ו-\(y\) המקיימים \(3x+y=36\).</p>
+<ol><li>הבע את \(y\) באמצעות \(x\).</li><li>מצא את המספרים שעבורם סכום השורשים שלהם מקסימלי.</li><li>מה יהיה סכום השורשים שלהם במקרה זה?</li></ol>
+</div>
+<div class="solution">
+<p>מן האילוץ:</p><div class="mathline">\[y=36-3x\]</div>
+<p>פונקציית המטרה:</p><div class="mathline">\[S(x)=\sqrt{x}+\sqrt{36-3x}\]</div>
+<p>תחום הבעיה:</p><div class="mathline">\[0\lt x\lt 12\]</div>
+<div class="mathline">\[S'(x)=\frac{1}{2\sqrt{x}}-\frac{3}{2\sqrt{36-3x}}\]</div>
+<p>נפתור \(S'(x)=0\):</p>
+<div class="mathline">\[\sqrt{36-3x}=3\sqrt{x}⇒ 36-3x=9x⇒ x=3\]</div>
+<p>ולכן \(y=27\). סכום השורשים הוא \(\sqrt{3}+3\sqrt{3}=4\sqrt{3}\).</p>
+</div>
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">8</span></div>
+</section>
+
+<section class="a4 " id="page-9">
+<div class="kicker">תרגול מדורג 1</div><h2>10 בעיות מספריות - בניית פונקציית מטרה</h2>
+<ol class="small">
+<li>נתונים \(x,y\gt 0\) ו-\(x+y=20\). מצא מתי \(\sqrt{x}+\sqrt{y}\) מקסימלי.</li>
+<li>נתונים \(x,y\gt 0\) ו-\(2x+y=24\). מצא מתי \(\sqrt{x}+\sqrt{y}\) מקסימלי.</li>
+<li>נתונים \(x,y\ge 0\) ו-\(x+4y=32\). מצא את המקסימום של \(\sqrt{x}+2\sqrt{y}\).</li>
+<li>נתונים \(x,y\gt 0\) ו-\(3x+2y=30\). מצא מתי \(\sqrt{x}+\sqrt{2y}\) מקסימלי.</li>
+<li>נתונים \(x,y\ge 0\) ו-\(x+y=16\). מצא את המקסימום של \(\sqrt{3x}+\sqrt{y}\).</li>
+<li>נתונים \(x,y\gt 0\) ו-\(x+2y=18\). מצא את המקסימום של \(2\sqrt{x}+\sqrt{y}\).</li>
+<li>נתונים \(x,y\gt 0\) ו-\(4x+y=40\). מצא את המקסימום של \(\sqrt{x}+\sqrt{y}\).</li>
+<li>נתונים \(x,y\ge 0\) ו-\(x+3y=27\). מצא את המקסימום של \(\sqrt{x}+\sqrt{3y}\).</li>
+<li>נתונים \(x,y\gt 0\) ו-\(5x+y=45\). מצא מתי \(\sqrt{x}+\sqrt{y}\) מקסימלי.</li>
+<li>נתונים \(x,y\gt 0\) ו-\(2x+3y=36\). מצא את המקסימום של \(\sqrt{2x}+\sqrt{3y}\).</li>
+</ol>
+<div class="box key"><b>הנחיה:</b> בכל תרגיל כתוב תחילה אילוץ, אחר כך פונקציית מטרה ותחום - ורק אז גזור.</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">9</span></div>
+</section>
+<section class="a4 " id="page-10">
+
+<div class="kicker">מעבר לגאומטריה</div><h2>כיצד משפט פיתגורס יוצר פונקציית שורש?</h2>
+<div class="two-col_">
+<div class="box">
+<p>במשולש ישר זווית בעל יתר קבוע \(a\), אם ניצב אחד הוא \(x\), אז הניצב השני הוא</p>
+<div class="mathline">\[y=\sqrt{a^2-x^2}\]</div>
+<p>מכאן היקף או שטח הופכים לפונקציות של משתנה יחיד.</p>
+</div>
+<div class="box">
+<p>כאשר סכום שני קטעים קבוע, למשל \(p+q=c\), אפשר לכתוב</p>
+<div class="mathline">\[q=c-p\]</div>
+<p>ואז להשתמש בפיתגורס כדי לקבל שורש.</p>
+</div>
+</div>
+<div class="box success"><b>דפוס זיהוי:</b> קטע אלכסוני + שני קטעים מאונכים ⇐ חפש משולש ישר זווית ⇐ פיתגורס ⇐ שורש.</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">10</span></div>
+</section>
+<section class="a4 " id="page-11">
+
+<div class="kicker">דוגמה פתורה - מעוין</div><h2>מינימום אורך צלע במעוין</h2>
+<div class="exercise">
+<p>נתון המעוין \(ABCD\). סכום אורכי האלכסונים הוא 80 ס"מ. הנקודה \(O\) היא נקודת מפגש האלכסונים. הקטע \(AO\) יסומן ב-\(x\).</p>
+<ol><li>הבע את אורכי האלכסונים באמצעות \(x\).</li><li>מצא עבור איזה ערך של \(x\) אורך צלע המעוין מינימלי.</li></ol></div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="rhombus1">הגדלה</button><button data-act="out" data-board="rhombus1">הקטנה</button><button data-act="reset" data-board="rhombus1">מרכוז</button></div><div id="rhombus1" class="jxgbox tinyg"></div><p class="note">הזז את הסליידר \(x\) כדי לראות כיצד אורכי חצאי האלכסונים משתנים תוך שמירת סכום האלכסונים 80 ס"מ.</p></div>
+<div class="two-col">
+<div class="solution">
+<p>במעוין האלכסונים חוצים זה את זה ומאונכים זה לזה.</p>
+<div class="mathline">\[AC=2x\]</div>
+<div class="mathline">\[BD=80-2x\]</div>
+<div class="mathline">\[OB=40-x\]</div>
+<p>לכן הצלע:</p><div class="mathline">\[s(x)=\sqrt{x^2+(40-x)^2}\]</div>
+</div>
+<div class="solution">
+<p>מותר למזער את ריבוע האורך:</p>
+<div class="mathline">\[Q(x)=x^2+(40-x)^2\]</div>
+<div class="mathline">\[Q'(x)=4x-80\]</div>
+<div class="mathline">\[Q'(x)=0⇒ x=20\]</div>
+<p>לכן האלכסונים שווים, ואורך הצלע מינימלי.</p>
+</div>
+</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">11</span></div>
+</section>
+<section class="a4 " id="page-12">
+
+<div class="kicker">דוגמה פתורה - טרפז</div><h2>מקסימום בסיס גדול</h2>
+<div style="padding: 1.5mm 4.5mm;" class="exercise">
+<p>באיור מתואר טרפז ישר זווית \(ABCD\) המחולק למלבן ומשולש ישר זווית. גובה הטרפז \(BC\) גדול פי 3 מהבסיס הקטן \(AB\), ואורך השוק הארוכה \(AD\) הוא \(\sqrt{360}\). הבסיס הקטן יסומן ב-\(x\).</p>
+<ol><li>הבע באמצעות \(x\) את אורך הבסיס הגדול \(DC\).</li><li>מצא את ערכו של \(x\) שבעבורו \(DC\) מקסימלי.</li></ol></div>
+<div class="two-col_">
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="trapezoid1">הגדלה</button><button data-act="out" data-board="trapezoid1">הקטנה</button><button data-act="reset" data-board="trapezoid1">מרכוז</button></div><div id="trapezoid1" class="jxgbox tinyg"></div><p class="note">השרטוט מדגים את פירוק הטרפז למלבן ולמשולש ישר זווית. הזז את \(x\) כדי לעקוב אחר \(AB=x\), \(BC=3x\) והקטע האופקי \(\sqrt{360-9x^2}\).</p></div>
+
+<div class="solution">
+<p style="line-height:0;margin:0">גובה הטרפז הוא \(3x\). במשולש השמאלי מתקבל בסיס אופקי</p>
+<div style="line-height:0;margin:0" class="mathline">\[\sqrt{360-9x^2}\]</div>
+<p style="line-height:0;margin:0">ולכן</p><div style="line-height:0;margin:0" class="mathline">\[D(x)=x+\sqrt{360-9x^2}\]</div>
+<p style="line-height:0;margin:0">תחום:</p><div style="line-height:0;margin:0" class="mathline">\[0\lt x\le 2\sqrt{10}\]</div>
+<div style="line-height:0;margin:0" class="mathline">\[D'(x)=1-\frac{9x}{\sqrt{360-9x^2}}\]</div>
+<p style="line-height:0;margin:0">המשוואה \(D'(x)=0\) נותנת</p><div style="line-height:0;margin:0" class="mathline">\[360-9x^2=81x^2⇒ x=2\]</div>
+<p style="line-height:0;margin:0">ומכאן מתקבל המקסימום בתחום.</p>
+</div>
+</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">12</span></div>
+</section>
+<section class="a4 " id="page-13">
+
+<div class="kicker">תרגול מדורג 2</div><h2>10 תרגילי גאומטריה שבהם השורש נוצר מפיתגורס</h2>
+<ol class="small">
+<li>במשולש ישר זווית היתר הוא 10. מצא את אורכי הניצבים שעבורם סכום הניצבים מקסימלי.</li>
+<li>במשולש ישר זווית היתר הוא 12. מצא את הניצבים שעבורם שטח המשולש מקסימלי.</li>
+<li>במלבן האלכסון הוא 20. מצא את צלעות המלבן שעבורן ההיקף מקסימלי.</li>
+<li>במלבן האלכסון הוא 14. מצא את צלעות המלבן שעבורן השטח מקסימלי.</li>
+<li>ריבוע נמצא בתוך מעגל שרדיוסו 5. מצא את אורך צלע הריבוע ואת שטחו.</li>
+<li>מלבן חסום בחצי מעגל שרדיוסו 8, ובסיסו על הקוטר. מצא את המידות לשטח מקסימלי.</li>
+<li>במשולש שווה שוקיים אורך כל שוק הוא 10. מצא את הגובה שעבורו השטח מקסימלי.</li>
+<li>במעוין סכום חצאי האלכסונים הוא 18. מצא מתי אורך הצלע מינימלי.</li>
+<li>במלבן סכום האלכסון ואחת הצלעות הוא 24. בנה פונקציית מטרה להיקף וחפש את המקסימום.</li>
+<li>במשולש ישר זווית סכום היתר וניצב אחד הוא 30. מצא את הניצב השני המקסימלי.</li>
+</ol>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">13</span></div>
+</section>
+<section class="a4 " id="page-14">
+
+<div class="kicker">פונקציה וגרף</div><h2>מקסימום היקף של מלבן מתחת ל-\(f(x)=2\sqrt{4-x}\)</h2>
+<div class="two-col_">
+<div>
+<div class="exercise">
+<p>הנקודה \(A\) נמצאת על גרף הפונקציה ברביע הראשון. מורידים אנכים לצירים כך שנוצר מלבן. מסמנים את שיעור ה-\(x\) של \(A\) ב-\(t\).</p>
+<ol><li>הבע באמצעות \(t\) את היקף המלבן.</li><li>מצא את \(t\) שבעבורו ההיקף מקסימלי.</li><li>מה היקף המלבן במקרה זה?</li></ol></div>
+<div class="solution"><div class="mathline">\[P(t)=2t+4\sqrt{4-t}\]</div><div class="mathline">\[0\le t\le 4\]</div><div class="mathline">\[P'(t)=2-\frac{2}{\sqrt{4-t}}\]</div><div class="mathline">\[P'(t)=0⇒ t=3\]</div><div class="mathline">\[P(3)=10\]</div></div>
+</div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="rect1">הגדלה</button><button data-act="out" data-board="rect1">הקטנה</button><button data-act="reset" data-board="rect1">מרכוז</button></div><div id="rect1" class="jxgbox short"></div><p class="note">גרור את הנקודה \(A\) לאורך הגרף וצפה בשינוי ההיקף.</p></div>
+</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">14</span></div>
+</section>
+<section class="a4 " id="page-15">
+
+<div class="kicker">פונקציה וגרף</div><h2>מקסימום היקף של מלבן מתחת ל-\(f(x)=4\sqrt{5-x}\)</h2>
+<div class="two-col_"><div>
+<div class="exercise">
+<p>הנקודה \(A\) נמצאת על גרף הפונקציה ברביע הראשון. מורידים אנכים לצירים כך שנוצר מלבן. מסמנים את שיעור ה-\(x\) של \(A\) ב-\(t\).</p><ol><li>הבע באמצעות \(t\) את היקף המלבן.</li><li>מצא את \(t\) שבעבורו ההיקף מקסימלי.</li><li>מה היקף המלבן במקרה זה?</li></ol></div>
+<div class="solution"><div class="mathline">\[P(t)=2t+8\sqrt{5-t}\]</div><div class="mathline">\[0\le t\le 5\]</div><div class="mathline">\[P'(t)=2-\frac{4}{\sqrt{5-t}}\]</div><div class="mathline">\[P'(t)=0⇒ t=1\]</div><div class="mathline">\[P(1)=18\]</div></div>
+</div><div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="rect2">הגדלה</button><button data-act="out" data-board="rect2">הקטנה</button><button data-act="reset" data-board="rect2">מרכוז</button></div><div id="rect2" class="jxgbox short"></div><p class="note">הנקודה הדינמית מאפשרת להשוות בין המודל הגאומטרי לבין פונקציית המטרה.</p></div></div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">15</span></div>
+</section>
+<section class="a4 " id="page-16">
+
+<div class="kicker">תרגול מדורג 3</div><h2>10 תרגילים - מלבן מתחת לגרף פונקציית שורש</h2>
+<ol class="small">
+<li>\(f(x)=\sqrt{9-x}\). מצא את המלבן בעל השטח המקסימלי ברביע הראשון.</li>
+<li>\(f(x)=2\sqrt{9-x}\). מצא את המלבן בעל ההיקף המקסימלי.</li>
+<li>\(f(x)=3\sqrt{8-x}\). מצא את המלבן בעל השטח המקסימלי.</li>
+<li>\(f(x)=\sqrt{16-x^2}\), \(0\le x\le 4\). מצא את המלבן בעל השטח המקסימלי.</li>
+<li>\(f(x)=2\sqrt{16-x^2}\), \(0\le x\le 4\). מצא את ההיקף המקסימלי.</li>
+<li>\(f(x)=\sqrt{12-2x}\). מצא את השטח המקסימלי של מלבן הצמוד לצירים.</li>
+<li>\(f(x)=5\sqrt{6-x}\). מצא את היקף המלבן המקסימלי.</li>
+<li>\(f(x)=\sqrt{25-4x}\). מצא את מידות המלבן לשטח מקסימלי.</li>
+<li>\(f(x)=4\sqrt{10-x}\). מצא את \(x\) שעבורו ההיקף מקסימלי.</li>
+<li>\(f(x)=\sqrt{a-x}\), \(a\gt 0\). בנה ביטוי כללי לשטח המלבן ומצא את \(x\) המיטבי כתלות ב-\(a\).</li>
+</ol>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">16</span></div>
+</section>
+<section class="a4 " id="page-17">
+
+<div class="kicker">מרחק אנכי בין שני גרפים</div><h2>מקסימום של \(AB\) עבור \(f(x)=x+3\), \(g(x)=4\sqrt{x}\)</h2>
+<div class="two-col_"><div>
+<div class="exercise">
+<p>הנקודה \(A\) נמצאת על גרף \(g(x)\), והנקודה \(B\) על גרף \(f(x)\), כך שהקטע \(AB\) מקביל לציר ה-\(y\).</p><ol><li>מצא את שיעורי \(A\) שעבורם \(AB\) מקסימלי.</li><li>מה יהיה אורך \(AB\) במקרה זה?</li></ol></div>
+<div class="solution"><p>בקטע אנכי לשתי הנקודות אותו \(x\):</p><div class="mathline">\[L(x)=g(x)-f(x)=4\sqrt{x}-x-3\]</div><div class="mathline">\[L'(x)=\frac{2}{\sqrt{x}}-1\]</div><div class="mathline">\[L'(x)=0⇒ x=4\]</div><div class="mathline">\[A=(4,8),\qquad L(4)=1\]</div></div>
+</div><div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="gap1">הגדלה</button><button data-act="out" data-board="gap1">הקטנה</button><button data-act="reset" data-board="gap1">מרכוז</button></div><div id="gap1" class="jxgbox short"></div></div></div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">17</span></div>
+</section>
+<section class="a4 " id="page-18">
+
+<div class="kicker">מרחק אנכי - רמה מתקדמת</div><h2>מינימום של \(AB\) עבור \(f(x)=2x^2+30\), \(g(x)=8\sqrt{x}\)</h2>
+<div class="exercise"><p>הנקודה \(A\) נמצאת על גרף \(f(x)\), והנקודה \(B\) על גרף \(g(x)\), כך שהקטע \(AB\) מקביל לציר ה-\(y\). נסמן את שיעור ה-\(x\) של \(A\) ב-\(t\).</p><ol><li>הבע באמצעות \(t\) את שיעורי \(B\) ואת אורך \(AB\).</li><li>מצא את \(t\) שבעבורו \(AB\) מינימלי.</li></ol></div>
+<div class="solution">
+<div class="mathline">\[B=(t,8\sqrt{t})\]</div>
+<div class="mathline">\[L(t)=2t^2+30-8\sqrt{t}\]</div>
+<div class="mathline">\[L'(t)=4t-\frac{4}{\sqrt{t}}\]</div>
+<div class="mathline">\[L'(t)=0⇒ t\sqrt{t}=1⇒ t=1\]</div>
+<p>מכיוון שהנגזרת עוברת משלילית לחיובית, מתקבל מינימום.</p>
+</div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="gap2">הגדלה</button><button data-act="out" data-board="gap2">הקטנה</button><button data-act="reset" data-board="gap2">מרכוז</button></div><div id="gap2" class="jxgbox answer-g"></div><p class="note">הזז את \(t\). הקטע האנכי \(AB\) מציג את המרחק בין \(f(t)\) לבין \(g(t)\), והמינימום מתקבל ב-\(t=1\).</p></div>
+
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">18</span></div>
+</section>
+<section class="a4 " id="page-19">
+
+<div class="kicker">טכניקה חשובה</div><h2>מינימום מרחק מנקודה לגרף \(f(x)=2\sqrt{x}\)</h2>
+<div class="two-col_"><div>
+<div class="exercise"><p>נתון גרף הפונקציה \(f(x)=2\sqrt{x}\). מצא נקודה על גרף הפונקציה ברביע הראשון שמרחקה מהנקודה \(A=(6,0)\) מינימלי.</p></div>
+<div class="solution"><p>נקודה כללית על הגרף:</p><div class="mathline">\[P=(x,2\sqrt{x})\]</div><p>במקום למזער את המרחק, נמזער את ריבועו:</p><div class="mathline">\[D^2(x)=(x-6)^2+4x\]</div><div class="mathline">\[\frac{d}{dx}D^2(x)=2x-8\]</div><div class="mathline">\[x=4\]</div><div class="mathline">\[P=(4,4)\]</div></div>
+</div><div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="dist1">הגדלה</button><button data-act="out" data-board="dist1">הקטנה</button><button data-act="reset" data-board="dist1">מרכוז</button></div><div id="dist1" class="jxgbox short"></div><p class="note">מינימום של \(D\) ומינימום של \(D^2\) מתקבלים באותה נקודה, משום ש-\(D\ge 0\).</p></div></div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">19</span></div>
+</section>
+<section class="a4 " id="page-20">
+
+<div class="kicker">תרגול מדורג 4</div><h2>10 תרגילים - מרחק מנקודה ומרחק בין גרפים</h2>
+<ol class="small">
+<li>מצא את המרחק המינימלי מן \(A=(5,0)\) לגרף \(y=\sqrt{x}\).</li>
+<li>מצא נקודה על \(y=3\sqrt{x}\) שמרחקה מן \(A=(8,0)\) מינימלי.</li>
+<li>מצא נקודה על \(y=-2\sqrt{x}\) ברביע הרביעי שמרחקה מן \(A=(6,0)\) מינימלי.</li>
+<li>נתונות \(f(x)=x+2\) ו-\(g(x)=3\sqrt{x}\). מצא את המרחק האנכי המקסימלי בתחום שבו \(g(x)\ge f(x)\).</li>
+<li>נתונות \(f(x)=x+5\) ו-\(g(x)=4\sqrt{x}\). מצא את המרחק האנכי המקסימלי בתחום שבו \(g(x)\ge f(x)\).</li>
+<li>נתונות \(f(x)=x^2+12\) ו-\(g(x)=6\sqrt{x}\). מצא את המרחק האנכי המינימלי עבור \(x\gt 0\).</li>
+<li>מצא את המרחק המינימלי מן \(A=(0,5)\) לפרבולה \(y=\frac12x^2\), תוך שימוש בריבוע המרחק.</li>
+<li>מצא את המרחק המינימלי מן \(A=(7,1)\) לגרף \(y=2\sqrt{x}\).</li>
+<li>נתונה \(f(x)=\sqrt{16-x}\). מצא נקודה ברביע הראשון שמרחקה מן הראשית מינימלי.</li>
+<li>הסבר מדוע בבעיית מרחק ניתן לעיתים למזער \(D^2\) במקום \(D\), ומה התנאי הדרוש לכך.</li>
+</ol>
+<div class="box key"><b>הנחיה:</b> בבעיות מרחק כתוב תחילה נקודה כללית על הגרף. לאחר מכן החלט אם כדאי לחקור את \(D\) או את \(D^2\).</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">20</span></div>
+</section>
+
+<section class="a4 " id="page-22">
+<div class="kicker">העברת טכניקה</div><h2>מרחק מינימלי מן הנקודה \(A=(0,6)\) לפרבולה \(f(x)=\frac14x^2\)</h2>
+<div class="exercise"><p>הנקודה \(B\) היא נקודה כלשהי על גרף הפונקציה ברביע השני. מצא את שיעורי \(B\) שבעבורם המרחק בין \(A\) ל-\(B\) מינימלי.</p></div>
+<div class="solution">
+<p>נסמן \(B=(x,\frac14x^2)\), כאשר \(x\lt 0\). נחקור את ריבוע המרחק:</p>
+<div class="mathline">\[Q(x)=x^2+\left(\frac14x^2-6\right)^2\]</div>
+<div class="mathline">\[Q'(x)=2x+x\left(\frac14x^2-6\right)\]</div>
+<div class="mathline">\[Q'(x)=x\left(\frac14x^2-4\right)\]</div>
+<p>ברביע השני נקבל \(x=-4\), ולכן \(B=(-4,4)\).</p>
+</div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="parabdist1">הגדלה</button><button data-act="out" data-board="parabdist1">הקטנה</button><button data-act="reset" data-board="parabdist1">מרכוז</button></div><div id="parabdist1" class="jxgbox answer-g"></div><p class="note">הנקודה \(A=(0,6)\) קבועה. הזז את \(x\) עבור \(B=(x,\frac14x^2)\) ברביע השני וצפה במרחק \(AB\).</p></div>
+
+<div class="box key"><b>הקשר לנושא:</b> זו אינה פונקציית שורש, אך אותה טכניקת אופטימיזציה של מרחק מופיעה שוב ושוב גם בבעיות אי רציונליות.</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">22</span></div>
+</section>
+<section class="a4 " id="page-23">
+
+<div class="kicker">פונקציית מטרה שאינה שטח או מרחק</div><h2>מקסימום של סכום קטעים עבור \(f(x)=8\sqrt{x}-2x\)</h2>
+<div class="two-col_"><div>
+<div class="exercise"><p>הנקודה \(A\) נמצאת על גרף הפונקציה ברביע הראשון. מן הנקודה \(A\) מותחים אנכים לצירים, ונוצרים הקטעים \(AB\) ו-\(AC\). מצא את שיעורי \(A\) שבעבורם סכום הקטעים \(AB+AC\) מקסימלי.</p></div>
+<div class="solution"><div class="mathline">\[S(x)=x+f(x)=8\sqrt{x}-x\]</div><div class="mathline">\[S'(x)=\frac{4}{\sqrt{x}}-1\]</div><div class="mathline">\[S'(x)=0⇒ x=16\]</div><div class="mathline">\[f(16)=0\]</div><p>אם לפי מוסכמת התרגיל נקודת הקצה שעל ציר ה-\(x\) נכללת, מתקבל המקסימום ב-\(A=(16,0)\). אם דורשים רביע ראשון במובן המחמיר \(x\gt 0, y\gt 0\), אין מקסימום בתחום הפתוח אלא ערך עליון השואף ל-16.</p></div>
+</div><div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="sum1">הגדלה</button><button data-act="out" data-board="sum1">הקטנה</button><button data-act="reset" data-board="sum1">מרכוז</button></div><div id="sum1" class="jxgbox short"></div></div></div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">23</span></div>
+</section>
+<section class="a4 " id="page-24">
+
+<div class="kicker">גאומטריה מורכבת</div><h2>שטח מקסימלי של מחומש המורכב ממלבן ומשולש</h2>
+<div class="exercise"><p>המחומש \(ABCDE\) מורכב ממשולש \(ABE\) וממלבן \(EBCD\). נתון \(BC=2\) ס"מ ו-\(AB=AE=4\) ס"מ. מצא את השטח המקסימלי של המחומש.</p></div>
+<div class="solution">
+<p style="line-height:0;margin:0">נסמן \(EB=x\). שטח המלבן:</p>
+<div style="line-height:0;margin:0" class="mathline">\[A_R=2x\]</div>
+<p style="line-height:0;margin:0">במשולש השווה שוקיים, הגובה לבסיס \(EB\) הוא</p>
+<div style="line-height:0;margin:0" class="mathline">\[h=\sqrt{16-\frac{x^2}{4}}\]</div>
+<p style="line-height:0;margin:0">שטח המשולש:</p>
+<div style="line-height:0;margin:0" class="mathline">\[A_T=\frac{x}{2}\sqrt{16-\frac{x^2}{4}}\]</div>
+<p style="line-height:0;margin:0">פונקציית המטרה:</p>
+<div style="line-height:0;margin:0" class="mathline">\[A(x)=2x+\frac{x}{2}\sqrt{16-\frac{x^2}{4}}\]</div>
+<p style="line-height:0;margin:0">תחום:</p>
+<div style="line-height:0;margin:0" class="mathline">\[0\lt x\le 8\]</div>
+<p style="line-height:0;margin:0">מכאן ממשיכים בגזירה, איתור נקודות שבהן הנגזרת שווה לאפס והשוואה לקצות התחום הרלוונטיים.</p>
+</div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="pentagon1">הגדלה</button><button data-act="out" data-board="pentagon1">הקטנה</button><button data-act="reset" data-board="pentagon1">מרכוז</button></div><div id="pentagon1" class="jxgbox answer-g compact-g"></div><p class="note">הזז את \(x=EB\). השרטוט שומר על \(AB=AE=4\) ועל גובה המלבן \(BC=2\), ומציג את שטח המחומש המתאים.</p></div>
+
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">24</span></div>
+</section>
+<section class="a4 " id="page-25">
+
+<div class="kicker">גאומטריה מורכבת</div><h2>מקסימום בסיס גדול בטרפז שווה שוקיים</h2>
+<div class="exercise"><p>המרובע \(ABCD\) הוא טרפז שווה שוקיים. מורידים את הגבהים \(AE\) ו-\(BF\) כך שהמרובע \(ABFE\) הוא ריבוע. ידוע כי אורך שוק הטרפז הוא \(\sqrt{5}\) ס"מ. מצא מה צריך להיות אורך הבסיס הקטן \(AB\) כדי שאורך הבסיס \(DC\) יהיה מקסימלי.</p></div>
+<div class="solution">
+<p>נסמן את צלע הריבוע \(AB=AE=x\). במשולשים שבצדדים:</p>
+<div class="mathline">\[DE=FC=\sqrt{5-x^2}\]</div>
+<p style="line-height:0;margin:0">ולכן</p><div class="mathline">\[D(x)=x+2\sqrt{5-x^2}\]</div>
+<div class="mathline">\[0\lt x\le \sqrt{5}\]</div>
+<div class="mathline">\[D'(x)=1-\frac{2x}{\sqrt{5-x^2}}\]</div>
+<div class="mathline">\[D'(x)=0⇒ 5-x^2=4x^2⇒ x=1\]</div>
+<p>לכן \(AB=1\) ס"מ.</p>
+</div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="isotrap1">הגדלה</button><button data-act="out" data-board="isotrap1">הקטנה</button><button data-act="reset" data-board="isotrap1">מרכוז</button></div><div id="isotrap1" class="jxgbox answer-g"></div><p class="note">הזז את \(x=AB=AE\). השוקיים נשארות באורך \(\sqrt5\), והבסיס הגדול \(DC\) משתנה בהתאם.</p></div>
+
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">25</span></div>
+</section>
+<section class="a4 " id="page-26">
+
+<div class="kicker">מעגלים</div><h2>מלבן חסום במקטע מעגלי - בניית מודל</h2>
+<div class="exercise"><p>במעגל שמרכזו \(O\) ורדיוסו \(R\) העבירו מיתר \(AB\) שמרחקו ממרכז המעגל הוא \(a\). במקטע שנוצר מן המיתר חסום מלבן כמתואר. מצא את היקפו של המלבן בעל ההיקף הגדול ביותר.</p></div>
+
+<div class="solution">
+<p>אם נבחר חצי רוחב \(x\), הקואורדינטה האנכית של הפינות העליונות מתקבלת מן המעגל:</p>
+<div class="mathline">\[y=\sqrt{R^2-x^2}\]</div>
+<p>גובה המלבן הוא ההפרש בין \(y\) לבין גובה המיתר הקבוע, ורוחבו \(2x\). לאחר מכן כותבים היקף ומבצעים חקירה מלאה בתחום הגאומטרי.</p>
+</div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="circleRect1">הגדלה</button><button data-act="out" data-board="circleRect1">הקטנה</button><button data-act="reset" data-board="circleRect1">מרכוז</button></div><div id="circleRect1" class="jxgbox circle-segment-g"></div><p class="note">הדגמה גאומטרית עבור \(R=10\), \(a=4\). הזז את חצי הרוחב \(x\) וצפה ברוחב, בגובה ובהיקף המלבן החסום במקטע המעגלי.</p></div>
+
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">26</span></div>
+</section>
+<section class="a4 " id="page-27">
+
+<div class="kicker">גופים במרחב</div><h2>פירמידה ישרה בעלת בסיס ריבועי - נפח מקסימלי</h2>
+<div class="exercise"><p>מכל הפירמידות הישרות שבסיסן ריבוע ושטח הפנים שלהן הוא 200 סמ"ר, יש למצוא את נפח הפירמידה בעלת הנפח המקסימלי.</p></div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="pyramid1">הגדלה</button><button data-act="out" data-board="pyramid1">הקטנה</button><button data-act="reset" data-board="pyramid1">מרכוז</button></div><div id="pyramid1" class="jxgbox answer-g"></div><p class="note">שרטוט סכמטי של פירמידה ישרה: \(x\) מסמן את צלע הבסיס הריבועי, ו-\(h\) מסמן את גובה הפירמידה מן הקדקוד אל מרכז הבסיס.</p></div>
+<div class="box">
+<p>נסמן את צלע הבסיס ב-\(x\) ואת גובה הפירמידה ב-\(h\). גובה פאת הצד \(l\) מקיים</p>
+<div class="mathline">\[l^2=h^2+\frac{x^2}{4}\]</div>
+<p>שטח הפנים נותן אילוץ המקשר בין \(x\) ל-\(l\). לאחר שמבטאים \(h\) באמצעות \(x\), פונקציית המטרה היא</p>
+<div class="mathline">\[V(x)=\frac13 x^2 h(x)\]</div>
+</div>
+<div class="box warn"><b>דגש הוראתי:</b> בגופים במרחב כדאי להפריד על הלוח בין שלוש שכבות: אילוץ שטח פנים, פיתגורס לחישוב הגובה, ופונקציית הנפח.</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">27</span></div>
+</section>
+<section class="a4 " id="page-28">
+
+<div class="kicker">גופים במרחב</div><h2>חרוט בעל קו יוצר קבוע - נפח מקסימלי</h2>
+<div class="exercise"><p>מבין כל החרוטים שאורך הקו היוצר שלהם הוא 10 ס"מ, מהו נפח החרוט המקסימלי?</p></div>
+<div class="graph-card"><div class="graph-toolbar"><button data-act="in" data-board="cone1">הגדלה</button><button data-act="out" data-board="cone1">הקטנה</button><button data-act="reset" data-board="cone1">מרכוז</button></div><div id="cone1" class="jxgbox answer-g"></div><p class="note">שרטוט סכמטי של חרוט ישר: \(10\) מסמן את אורך הקו היוצר, \(h\) את גובה החרוט, ו-\(r\) את רדיוס הבסיס.</p></div>
+<div class="solution">
+<p style="line-height:0;margin:0">נסמן את הרדיוס ב-\(r\) ואת הגובה ב-\(h\). מתקיים</p>
+<div style="line-height:0;margin:0" class="mathline">\[h=\sqrt{100-r^2}\]</div>
+<p style="line-height:0;margin:0">ולכן</p>
+<div style="line-height:0;margin:0" class="mathline">\[V(r)=\frac13\pi r^2\sqrt{100-r^2}\]</div>
+<div style="line-height:0;margin:0" class="mathline">\[0\lt r\lt 10\]</div>
+<p style="line-height:0;margin:0">נגזור:</p>
+<div style="line-height:0;margin:0" class="mathline">\[V'(r)=\frac{\pi}{3}\left(2r\sqrt{100-r^2}-\frac{r^3}{\sqrt{100-r^2}}\right)\]</div>
+<p style="line-height:0;margin:0">לאחר כפל בגורם חיובי ופישוט:</p>
+<div style="line-height:0;margin:0" class="mathline">\[2r(100-r^2)-r^3=0⇒ r^2=\frac{200}{3}\]</div>
+<div style="line-height:0;margin:0" class="mathline">\[r=10\sqrt{\frac23},\qquad h=\frac{10}{\sqrt3}\]</div>
+<div style="line-height:0;margin:0" class="mathline">\[V_{max}=\frac{2000\pi}{9\sqrt3}\]</div>
+</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">28</span></div>
+</section>
+<section class="a4 " id="page-29">
+
+<div class="kicker">תרגול מדורג 5</div><h2>10 תרגילים - מעגלים וגופים במרחב</h2>
+<ol class="small">
+<li>מלבן חסום בחצי מעגל שרדיוסו 5 ובסיסו על הקוטר. מצא את שטחו המקסימלי.</li>
+<li>מלבן חסום במעגל שרדיוסו 10. מצא את היקפו המקסימלי.</li>
+<li>מלבן חסום במעגל שרדיוסו \(R\). מצא את שטחו המקסימלי כתלות ב-\(R\).</li>
+<li>במעגל שרדיוסו 8, מיתר נמצא במרחק 3 מן המרכז. בנה פונקציית מטרה להיקף מלבן החסום במקטע שמעל המיתר.</li>
+<li>חרוט בעל קו יוצר 15. מצא את הרדיוס והגובה לנפח מקסימלי.</li>
+<li>חרוט בעל קו יוצר \(l\), \(l\gt 0\). מצא את יחס \(r:h\) עבור נפח מקסימלי.</li>
+<li>גליל ישר חסום בכדור שרדיוסו \(R\). בנה פונקציית מטרה לנפח באמצעות רדיוס הגליל.</li>
+<li>פירמידה ישרה בעלת בסיס ריבועי: הקטע מן הקודקוד לפינת הבסיס קבוע ושווה \(a\). בנה פונקציית נפח במשתנה אחד.</li>
+<li>בפירמידה ישרה בעלת בסיס ריבועי שטח הפנים קבוע. פרט את שלוש המשוואות הדרושות לפני שלב הגזירה.</li>
+<li>השווה בין בעיית חרוט בעל קו יוצר קבוע לבין בעיית משולש בעל יתר קבוע: היכן מופיע אותו מבנה \(\sqrt{a^2-x^2}\)?</li>
+</ol>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">29</span></div>
+</section>
+<section class="a4 " id="page-30">
+
+<div class="kicker">אבחון טעויות</div><h2>8 טעויות נפוצות וכיצד למנוע אותן</h2>
+<table class="table">
+<tr><th>טעות</th><th>מה קורה?</th><th>תיקון</th></tr>
+<tr><td>חוקרים את האילוץ</td><td>התלמיד גוזר משוואה שאינה הכמות המבוקשת</td><td>לכתוב במפורש: "פונקציית המטרה היא..."</td></tr>
+<tr><td>נשארים עם שני משתנים</td><td>אי אפשר לבצע חקירה של פונקציה במשתנה אחד</td><td>להשתמש באילוץ לפני הגזירה</td></tr>
+<tr><td>מתעלמים מתחום הבעיה</td><td>מתקבל פתרון שאינו גאומטרי</td><td>לכתוב תחום לפני הנגזרת</td></tr>
+<tr><td>\(f'(x)=0\) נחשב מיד לקיצון</td><td>אין הוכחה לסוג הקיצון</td><td>טבלת סימנים או השוואת ערכים</td></tr>
+<tr><td>שוכחים קצה תחום</td><td>מפספסים קיצון מוחלט</td><td>לרשום רשימת מועמדים מסודרת</td></tr>
+<tr><td>נגזרת שורש שגויה</td><td>נשמט \(u'(x)\)</td><td>לכתוב קודם את כלל השרשרת</td></tr>
+<tr><td>מעלים בריבוע בלי תנאים</td><td>נוספים פתרונות זרים</td><td>בדיקה במשוואה המקורית ובתחום</td></tr>
+<tr><td>לא חוזרים לשאלה</td><td>מוצאים \(x\) אבל לא את האורך או הנפח</td><td>משפט תשובה מלא עם יחידות</td></tr>
+</table>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">30</span></div>
+</section>
+<section class="a4 " id="page-31">
+
+<div class="kicker">דף סיכום לתלמיד</div><h2>תבנית עבודה לבחינה</h2>
+<div class="box key">
+<ol class="checklist">
+<li>אני מגדיר: \(x=\) ________.</li>
+<li>האילוץ הוא: ________.</li>
+<li>אני מבטא את שאר הגדלים באמצעות \(x\).</li>
+<li>פונקציית המטרה: \(F(x)=\) ________.</li>
+<li>תחום הבעיה: ________.</li>
+<li>אני מחשב \(F'(x)\).</li>
+<li>אני מוצא נקודות שבהן הנגזרת שווה לאפס ומועמדים נוספים.</li>
+<li>אני קובע מקסימום או מינימום.</li>
+<li>אני מציב בחזרה ועונה על הכמות שנשאלה.</li>
+</ol>
+</div>
+<div class="box success"><b>בדיקת היגיון:</b> האם התוצאה מתאימה לציור? האם כל האורכים חיוביים? האם הנקודה נמצאת ברביע שנדרש? האם היחידות נכונות?</div>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">31</span></div>
+</section>
+
+<section class="a4 " id="page-35">
+<div class="kicker">הערכה מסכמת</div><h2>10 שאלות ברמת 5 יחידות - מן הבסיס ועד שילוב נושאים</h2>
+<ol class="small">
+<li>נתון \(x+y=25\), \(x,y\gt 0\). מצא את המקסימום של \(\sqrt{x}+2\sqrt{y}\).</li>
+<li>במלבן האלכסון הוא 18. מצא את ההיקף המקסימלי.</li>
+<li>נתונה \(f(x)=3\sqrt{9-x}\). מלבן ברביע הראשון צמוד לצירים ופינתו על הגרף. מצא את שטחו המקסימלי.</li>
+<li>מצא את המרחק המינימלי מן \(A=(8,0)\) לגרף \(y=2\sqrt{x}\).</li>
+<li>נתונות \(f(x)=x+4\) ו-\(g(x)=5\sqrt{x}\). מצא את המרחק האנכי המקסימלי בין הגרפים בתחום שבו \(g(x)\ge f(x)\).</li>
+<li>משולש ישר זווית בעל יתר 15. מצא את שטחו המקסימלי.</li>
+<li>מלבן חסום בחצי מעגל שרדיוסו 6. מצא את שטחו המקסימלי.</li>
+<li>חרוט בעל קו יוצר 12. מצא את הרדיוס והגובה לנפח מקסימלי.</li>
+<li>נתונה \(f(x)=6\sqrt{x}-x\). נקודה \(A\) על הגרף ברביע הראשון. מצא את \(A\) שעבורה סכום המרחקים של \(A\) מן הצירים מקסימלי.</li>
+<li>בנה בעצמך בעיית קיצון גאומטרית שבה השורש נוצר מפיתגורס, ופתור אותה במלואה לפי האלגוריתם.</li>
+</ol>
+
+<div class="footer"><span>בעיות מינימום ומקסימום בפונקציות שורש - 5 יחידות</span><span class="page-num">35</span></div>
+</section>
+
+<script>
+const boards = {};
+function makeBoard(id, bbox){
+  const b = JXG.JSXGraph.initBoard(id, {boundingbox:bbox, axis:true, showCopyright:false, showNavigation:false, pan:{enabled:true}, zoom:{enabled:true,wheel:true}});
+  boards[id] = {board:b, bbox:bbox.slice()};
+  return b;
+}
+function makeGeomBoard(id, bbox, keepAspect=false){
+  const b = JXG.JSXGraph.initBoard(id, {boundingbox:bbox, axis:false, showCopyright:false, showNavigation:false, pan:{enabled:true}, zoom:{enabled:true,wheel:true}, keepaspectratio:keepAspect});
+  boards[id] = {board:b, bbox:bbox.slice()};
+  return b;
+}
+function graphFn(b, fn, a, c, attrs={}){ return b.create('functiongraph',[fn,a,c], Object.assign({strokeWidth:2.5},attrs)); }
+function addControls(){
+  document.querySelectorAll('.graph-toolbar button').forEach(btn=>btn.addEventListener('click',()=>{
+    const id=btn.dataset.board, act=btn.dataset.act, item=boards[id]; if(!item) return;
+    const b=item.board;
+    if(act==='reset'){ b.setBoundingBox(item.bbox,true); return; }
+    if(act==='in'){ b.zoomIn(); return; }
+    if(act==='out'){ b.zoomOut(); return; }
+  }));
+}
+function initGraphs(){
+  // Rhombus: diagonals sum to 80 cm, AO = x and OB = 40 - x.
+  {
+    const b=makeGeomBoard('rhombus1',[-42,42,42,-42]);
+    const s=b.create('slider',[[-32,35],[8,35],[5,16,35]],{name:'x',snapWidth:1,withLabel:true});
+    const A=b.create('point',[0,()=>s.Value()],{name:'A',size:2.5,fixed:true});
+    const B=b.create('point',[()=>40-s.Value(),0],{name:'B',size:2.5,fixed:true});
+    const C=b.create('point',[0,()=>-s.Value()],{name:'C',size:2.5,fixed:true});
+    const D=b.create('point',[()=>-(40-s.Value()),0],{name:'D',size:2.5,fixed:true});
+    const O=b.create('point',[0,0],{name:'O',size:2,fixed:true});
+    // Light fill + explicit solid borders so the four sides of the rhombus stay clearly visible.
+    b.create('polygon',[A,B,C,D],{fillOpacity:0.06,borders:{visible:false},vertices:{visible:false}});
+    const sideStyle={strokeColor:'#214f78',strokeWidth:3,highlightStrokeColor:'#214f78',fixed:true};
+    b.create('segment',[A,B],sideStyle);
+    b.create('segment',[B,C],sideStyle);
+    b.create('segment',[C,D],sideStyle);
+    b.create('segment',[D,A],sideStyle);
+
+    // Diagonals remain dashed so they are visually distinct from the rhombus sides.
+    b.create('segment',[A,C],{dash:2,strokeColor:'#2f87bd',strokeWidth:1.6,highlightStrokeColor:'#2f87bd',fixed:true});
+    b.create('segment',[B,D],{dash:2,strokeColor:'#2f87bd',strokeWidth:1.6,highlightStrokeColor:'#2f87bd',fixed:true});
+    b.create('segment',[[0,4],[4,4]],{strokeColor:'#214f78',strokeWidth:1.3,fixed:true});
+    b.create('segment',[[4,4],[4,0]],{strokeColor:'#214f78',strokeWidth:1.3,fixed:true});
+
+    // Dynamic data legend with larger vertical spacing for readability.
+    const legendStyle={fontSize:13,fixed:true,cssClass:'rhombus-legend-line',anchorX:'left',anchorY:'middle'};
+    b.create('text',[-39,28,()=>`AO = x = ${s.Value().toFixed(0)}`],legendStyle);
+    b.create('text',[-39,20,()=>`OB = 40 - x = ${(40-s.Value()).toFixed(0)}`],legendStyle);
+    b.create('text',[-39,12,()=>`AC = ${(2*s.Value()).toFixed(0)},   BD = ${(80-2*s.Value()).toFixed(0)}`],legendStyle);
+  }
+  // Right trapezoid: AB = x, BC = 3x, AD = sqrt(360).
+  {
+    const b=makeGeomBoard('trapezoid1',[-2,22,24,-4]);
+    const s=b.create('slider',[[1,20.5],[12,20.5],[0.5,4,6.25]],{name:'x',snapWidth:0.1,withLabel:true});
+    const leg=()=>Math.sqrt(Math.max(0,360-9*s.Value()*s.Value()));
+    const D=b.create('point',[0,0],{name:'D',size:2.5,fixed:true});
+    const E=b.create('point',[()=>leg(),0],{name:'E',size:2.2,fixed:true});
+    const C=b.create('point',[()=>leg()+s.Value(),0],{name:'C',size:2.5,fixed:true});
+    const B=b.create('point',[()=>leg()+s.Value(),()=>3*s.Value()],{name:'B',size:2.5,fixed:true});
+    const A=b.create('point',[()=>leg(),()=>3*s.Value()],{name:'A',size:2.5,fixed:true});
+
+    // Light fills without borders, then explicit dark outlines to keep the trapezoid sides clear.
+    b.create('polygon',[A,B,C,D],{fillOpacity:0.05,borders:{visible:false},vertices:{visible:false}});
+    b.create('polygon',[A,B,C,E],{fillOpacity:0.08,borders:{visible:false},vertices:{visible:false}});
+    const trapSideStyle={strokeColor:'#214f78',strokeWidth:3,highlightStrokeColor:'#214f78',fixed:true};
+    b.create('segment',[D,A],trapSideStyle);
+    b.create('segment',[A,B],trapSideStyle);
+    b.create('segment',[B,C],trapSideStyle);
+    b.create('segment',[C,D],trapSideStyle);
+
+    // Inner height and right-angle marker.
+    b.create('segment',[A,E],{dash:2,strokeColor:'#2f87bd',strokeWidth:1.8,highlightStrokeColor:'#2f87bd',fixed:true});
+    const R1=b.create('point',[()=>leg(),1],{visible:false,fixed:true});
+    const R2=b.create('point',[()=>leg()-1,1],{visible:false,fixed:true});
+    const R3=b.create('point',[()=>leg()-1,0],{visible:false,fixed:true});
+    b.create('segment',[E,R1],{strokeColor:'#214f78',strokeWidth:1.3,fixed:true});
+    b.create('segment',[R1,R2],{strokeColor:'#214f78',strokeWidth:1.3,fixed:true});
+    b.create('segment',[R2,R3],{strokeColor:'#214f78',strokeWidth:1.3,fixed:true});
+
+    // Labels on the figure.
+    b.create('text',[()=>leg()+0.15,()=>3*s.Value()+1.0,'AB = x'],{fontSize:13,fixed:true});
+    b.create('text',[()=>leg()+s.Value()+0.6,()=>1.5*s.Value(),'BC = 3x'],{fontSize:13,fixed:true});
+    b.create('text',[()=>leg()/2-1.5,()=>1.5*s.Value()+0.4,'AD = √360'],{fontSize:13,fixed:true});
+
+    // Dynamic legend with larger spacing and a light background for readability.
+    const trapLegendStyle={fontSize:13,fixed:true,cssClass:'rhombus-legend-line',anchorX:'left',anchorY:'middle'};
+    b.create('text',[1,18.4,()=>`DC = ${(leg()+s.Value()).toFixed(2)}`],trapLegendStyle);
+    b.create('text',[1,14.8,()=>`DE = √(360 - 9x²) = ${leg().toFixed(2)}`],trapLegendStyle);
+  }
+  // Rectangle under f(x)=2sqrt(4-x)
+  {
+    const b=makeBoard('rect1',[-1,6,5,-1]);
+    graphFn(b,x=>2*Math.sqrt(Math.max(0,4-x)),0,4,{strokeColor:'#0b76bd',highlightStrokeColor:'#0b76bd',strokeWidth:3});
+    const p=b.create('glider',[3,2,boards.rect1.board.defaultAxes.x],{visible:false});
+    // slider used only to control x while keeping the point on the curve
+    const s=b.create('slider',[[0.4,5.25],[3.7,5.25],[0,3,4]],{name:'t',snapWidth:0.05,withLabel:true});
+    const A=b.create('point',[()=>s.Value(),()=>2*Math.sqrt(Math.max(0,4-s.Value()))],{name:'A',size:3.4,strokeColor:'#c96a00',fillColor:'#e67e00',highlightStrokeColor:'#c96a00',highlightFillColor:'#e67e00'});
+    const O=b.create('point',[0,0],{visible:false});
+    const X=b.create('point',[()=>A.X(),0],{visible:false});
+    const Y=b.create('point',[0,()=>A.Y()],{visible:false});
+
+    // Light filled rectangle + explicit borders so the sides remain visible.
+    b.create('polygon',[O,X,A,Y],{fillColor:'#eadfa6',fillOpacity:0.24,borders:{visible:false},vertices:{visible:false}});
+    const rectSideStyle={strokeColor:'#9db8de',strokeWidth:2.2,highlightStrokeColor:'#9db8de',fixed:true};
+    b.create('segment',[O,X],rectSideStyle);
+    b.create('segment',[X,A],rectSideStyle);
+    b.create('segment',[A,Y],rectSideStyle);
+    b.create('segment',[Y,O],rectSideStyle);
+
+    // Perimeter value with clearer appearance.
+    b.create('text',[0.3,-0.65,()=>`P = ${(2*A.X()+2*A.Y()).toFixed(2)}`],{fontSize:14,fixed:true,cssClass:'rhombus-legend-line',anchorX:'left',anchorY:'middle'});
+  }
+  {
+    const b=makeBoard('rect2',[-1,10,6,-1]);
+    graphFn(b,x=>4*Math.sqrt(Math.max(0,5-x)),0,5,{strokeColor:'#0b76bd',highlightStrokeColor:'#0b76bd',strokeWidth:3});
+    const s=b.create('slider',[[0.4,9],[4.2,9],[0,1,5]],{name:'t',snapWidth:0.05,withLabel:true});
+    const A=b.create('point',[()=>s.Value(),()=>4*Math.sqrt(Math.max(0,5-s.Value()))],{name:'A',size:3.4,strokeColor:'#c96a00',fillColor:'#e67e00',highlightStrokeColor:'#c96a00',highlightFillColor:'#e67e00'});
+    const O=b.create('point',[0,0],{visible:false}), X=b.create('point',[()=>A.X(),0],{visible:false}), Y=b.create('point',[0,()=>A.Y()],{visible:false});
+
+    // Light filled rectangle + explicit borders so the sides remain visible.
+    b.create('polygon',[O,X,A,Y],{fillColor:'#eadfa6',fillOpacity:0.24,borders:{visible:false},vertices:{visible:false}});
+    const rectSideStyle={strokeColor:'#9db8de',strokeWidth:2.2,highlightStrokeColor:'#9db8de',fixed:true};
+    b.create('segment',[O,X],rectSideStyle);
+    b.create('segment',[X,A],rectSideStyle);
+    b.create('segment',[A,Y],rectSideStyle);
+    b.create('segment',[Y,O],rectSideStyle);
+
+    // Perimeter value with clearer appearance.
+    b.create('text',[0.3,-0.65,()=>`P = ${(2*A.X()+2*A.Y()).toFixed(2)}`],{fontSize:14,fixed:true,cssClass:'rhombus-legend-line',anchorX:'left',anchorY:'middle'});
+  }
+  {
+    const b=makeBoard('gap1',[-1,10,11,-2]);
+    graphFn(b,x=>x+3,0,9,{dash:0});
+    graphFn(b,x=>4*Math.sqrt(Math.max(0,x)),0,9,{dash:2});
+    const s=b.create('slider',[[0.6,9],[5.5,9],[0,4,9]],{name:'x',snapWidth:0.05,withLabel:true});
+    const A=b.create('point',[()=>s.Value(),()=>4*Math.sqrt(s.Value())],{name:'A'});
+    const B=b.create('point',[()=>s.Value(),()=>s.Value()+3],{name:'B'});
+    b.create('segment',[A,B],{strokeWidth:3});
+    b.create('text',[6,8.5,()=>`AB = ${Math.abs(A.Y()-B.Y()).toFixed(2)}`],{fontSize:14});
+  }
+  {
+    const b=makeBoard('dist1',[-1,7,10,-1]);
+    graphFn(b,x=>2*Math.sqrt(Math.max(0,x)),0,10);
+    const s=b.create('slider',[[0.6,6.2],[5.3,6.2],[0,4,10]],{name:'x',snapWidth:0.05,withLabel:true});
+    const P=b.create('point',[()=>s.Value(),()=>2*Math.sqrt(s.Value())],{name:'P'});
+    const A=b.create('point',[6,0],{name:'A',fixed:true});
+    b.create('segment',[P,A],{strokeWidth:3});
+    b.create('text',[6.2,5.6,()=>`D = ${Math.hypot(P.X()-6,P.Y()).toFixed(2)}`],{fontSize:14});
+  }
+  {
+    const b=makeBoard('sum1',[-1,18,18,-3]);
+    graphFn(b,x=>8*Math.sqrt(Math.max(0,x))-2*x,0,16);
+    const s=b.create('slider',[[0.8,16],[8,16],[0,4,16]],{name:'x',snapWidth:0.05,withLabel:true});
+    const A=b.create('point',[()=>s.Value(),()=>8*Math.sqrt(s.Value())-2*s.Value()],{name:'A'});
+    const B=b.create('point',[0,()=>A.Y()],{name:'B',size:2});
+    const C=b.create('point',[()=>A.X(),0],{name:'C',size:2});
+    b.create('segment',[A,B],{dash:2}); b.create('segment',[A,C],{dash:2});
+    b.create('text',[9,15,()=>`AB+AC = ${(A.X()+A.Y()).toFixed(2)}`],{fontSize:14});
+  }
+
+  // Page 8: objective function for the maximum sum of square roots.
+/*
+  {
+    const b=makeBoard('sumroots1',[-0.8,8,12.8,-0.6]);
+    const S=x=>Math.sqrt(Math.max(0,x))+Math.sqrt(Math.max(0,36-3*x));
+    graphFn(b,S,0,12,{strokeColor:'#0b76bd',highlightStrokeColor:'#0b76bd',strokeWidth:3});
+    const s=b.create('slider',[[0.5,7.2],[6.2,7.2],[0.05,3,11.95]],{name:'x',snapWidth:0.05,withLabel:true});
+    const P=b.create('point',[()=>s.Value(),()=>S(s.Value())],{name:'S(x)',size:3,strokeColor:'#c96a00',fillColor:'#e67e00'});
+    const M=b.create('point',[3,S(3)],{name:'max',size:3,fixed:true,strokeColor:'#397b5b',fillColor:'#397b5b'});
+    b.create('segment',[[3,0],M],{dash:2,strokeColor:'#7b8794',fixed:true});
+    b.create('text',[7.2,6.8,()=>`S(x) = ${S(s.Value()).toFixed(3)}`],{fontSize:14,fixed:true,cssClass:'rhombus-legend-line'});
+  }
+*/
+  // Page 18: dynamic vertical gap between a parabola and a square-root graph.
+  {
+    const b=makeBoard('gap2',[-0.8,52,3.8,-2]);
+    const f=x=>2*x*x+30, g=x=>8*Math.sqrt(Math.max(0,x));
+    graphFn(b,f,0,3.6,{strokeColor:'#0b76bd',highlightStrokeColor:'#0b76bd',strokeWidth:3});
+    graphFn(b,g,0,3.6,{strokeColor:'#d97706',highlightStrokeColor:'#d97706',strokeWidth:3});
+    const s=b.create('slider',[[0.2,48],[2.1,48],[0.05,1,3.5]],{name:'t',snapWidth:0.05,withLabel:true});
+    const A=b.create('point',[()=>s.Value(),()=>f(s.Value())],{name:'A',size:3});
+    const B=b.create('point',[()=>s.Value(),()=>g(s.Value())],{name:'B',size:3});
+    b.create('segment',[A,B],{strokeWidth:3,strokeColor:'#397b5b'});
+    b.create('text',[3,44,'f(x)=2x²+30'],{fontSize:13,fixed:true,strokeColor:'#0b76bd'});
+    b.create('text',[2.35,17,'g(x)=8√x'],{fontSize:13,fixed:true,strokeColor:'#d97706'});
+    b.create('text',[2.35,37,()=>`AB = ${Math.abs(f(s.Value())-g(s.Value())).toFixed(2)}`],{fontSize:13,fixed:true,cssClass:'rhombus-legend-line'});
+  }
+  // Page 22: distance from A=(0,6) to the parabola y=x^2/4 in quadrant II.
+  {
+    const b=makeBoard('parabdist1',[-9,11,5,-2]);
+    graphFn(b,x=>0.25*x*x,-8.5,4.5,{strokeColor:'#0b76bd',highlightStrokeColor:'#0b76bd',strokeWidth:3});
+    const s=b.create('slider',[[-8,10],[-1,10],[-8,-4,-0.1]],{name:'x',snapWidth:0.05,withLabel:true});
+    const A=b.create('point',[0,6],{name:'A',fixed:true,size:3,strokeColor:'#c96a00',fillColor:'#e67e00'});
+    const B=b.create('point',[()=>s.Value(),()=>0.25*s.Value()*s.Value()],{name:'B',size:3});
+    b.create('segment',[A,B],{strokeWidth:3,strokeColor:'#397b5b'});
+    b.create('text',[0.7,9.1,()=>`AB = ${Math.hypot(B.X(),B.Y()-6).toFixed(2)}`],{fontSize:14,fixed:true,cssClass:'rhombus-legend-line'});
+  }
+  // Page 24: pentagon = isosceles triangle ABE + rectangle EBCD.
+  {
+    const b=makeGeomBoard('pentagon1',[-6,8,6,-4]);
+    const s=b.create('slider',[[-5.2,7],[-0.5,7],[0.5,4,7.9]],{name:'x',snapWidth:0.1,withLabel:true});
+    const h=()=>Math.sqrt(Math.max(0,16-s.Value()*s.Value()/4));
+    const A=b.create('point',[0,()=>h()],{name:'A',size:2.5,fixed:true});
+    const E=b.create('point',[()=>-s.Value()/2,0],{name:'E',size:2.5,fixed:true});
+    const B=b.create('point',[()=>s.Value()/2,0],{name:'B',size:2.5,fixed:true});
+    const C=b.create('point',[()=>s.Value()/2,-2],{name:'C',size:2.5,fixed:true});
+    const D=b.create('point',[()=>-s.Value()/2,-2],{name:'D',size:2.5,fixed:true});
+    b.create('polygon',[A,B,C,D,E],{fillOpacity:0.08,borders:{strokeColor:'#214f78',strokeWidth:2.6},vertices:{visible:false}});
+    b.create('segment',[E,B],{strokeColor:'#2f87bd',dash:2,strokeWidth:1.7});
+    b.create('segment',[A,[0,0]],{strokeColor:'#7b8794',dash:2,strokeWidth:1.5});
+    const area=()=>2*s.Value()+0.5*s.Value()*h();
+    b.create('text',[-5.2,-3.1,()=>`EB = ${s.Value().toFixed(1)}   Area = ${area().toFixed(2)}`],{fontSize:13,fixed:true,cssClass:'rhombus-legend-line'});
+  }
+  // Page 25: isosceles trapezoid with central square ABFE.
+  {
+    const b=makeGeomBoard('isotrap1',[-3,4.6,5.5,-1.2]);
+    const maxX=Math.sqrt(5);
+    const s=b.create('slider',[[-2.5,4.15],[1.2,4.15],[0.2,1,maxX]],{name:'x',snapWidth:0.05,withLabel:true});
+    const u=()=>Math.sqrt(Math.max(0,5-s.Value()*s.Value()));
+    const E=b.create('point',[0,0],{name:'E',size:2.3,fixed:true});
+    const F=b.create('point',[()=>s.Value(),0],{name:'F',size:2.3,fixed:true});
+    const A=b.create('point',[0,()=>s.Value()],{name:'A',size:2.5,fixed:true});
+    const B=b.create('point',[()=>s.Value(),()=>s.Value()],{name:'B',size:2.5,fixed:true});
+    const D=b.create('point',[()=>-u(),0],{name:'D',size:2.5,fixed:true});
+    const C=b.create('point',[()=>s.Value()+u(),0],{name:'C',size:2.5,fixed:true});
+    b.create('polygon',[A,B,C,D],{fillOpacity:0.07,borders:{strokeColor:'#214f78',strokeWidth:2.8},vertices:{visible:false}});
+    b.create('segment',[A,E],{dash:2,strokeColor:'#2f87bd',strokeWidth:1.6});
+    b.create('segment',[B,F],{dash:2,strokeColor:'#2f87bd',strokeWidth:1.6});
+    b.create('segment',[E,F],{dash:2,strokeColor:'#2f87bd',strokeWidth:1.6});
+    b.create('text',[-2.5,-0.65,()=>`DC = ${(s.Value()+2*u()).toFixed(3)}`],{fontSize:13,fixed:true,cssClass:'rhombus-legend-line'});
+  }
+  // Page 26: rectangle inside a circular segment, illustrated with R=10 and a=4.
+  {
+    const R=10, a=4, xmax=Math.sqrt(R*R-a*a);
+    const b=makeGeomBoard('circleRect1',[-11.5,11.6,11.5,2.6],true);
+    b.create('circle',[[0,0],R],{strokeColor:'#0b76bd',strokeWidth:2.5,fillOpacity:0});
+    const s=b.create('slider',[[-10.3,10.9],[-3.0,10.9],[0.3,5,xmax-0.05]],{name:'x',snapWidth:0.1,withLabel:true});
+    const y=()=>Math.sqrt(Math.max(0,R*R-s.Value()*s.Value()));
+    const BL=b.create('point',[()=>-s.Value(),a],{name:'',size:2,fixed:true});
+    const BR=b.create('point',[()=>s.Value(),a],{name:'',size:2,fixed:true});
+    const TR=b.create('point',[()=>s.Value(),()=>y()],{name:'',size:2,fixed:true});
+    const TL=b.create('point',[()=>-s.Value(),()=>y()],{name:'',size:2,fixed:true});
+    b.create('segment',[[-xmax,a],[xmax,a]],{strokeColor:'#7b8794',strokeWidth:2,fixed:true});
+    b.create('polygon',[BL,BR,TR,TL],{fillOpacity:0.12,borders:{strokeColor:'#214f78',strokeWidth:2.5},vertices:{visible:false}});
+    const per=()=>4*s.Value()+2*(y()-a);
+    b.create('text',[-10.3,3.15,()=>`width = ${(2*s.Value()).toFixed(1)}   height = ${(y()-a).toFixed(1)}   P = ${per().toFixed(2)}`],{fontSize:13,fixed:true,cssClass:'rhombus-legend-line'});
+  }
+  // Page 27: right square pyramid - schematic with base edge x and height h.
+  {
+    const b=makeGeomBoard('pyramid1',[-6.5,6.6,6.5,-4.2]);
+    const A=b.create('point',[-3,-2.2],{name:'',size:2.2,fixed:true});
+    const B=b.create('point',[1,-2.2],{name:'',size:2.2,fixed:true});
+    const C=b.create('point',[3,0],{name:'',size:2.2,fixed:true});
+    const D=b.create('point',[-1,0],{name:'',size:2.2,fixed:true});
+    const O=b.create('point',[0,-1.1],{name:'',size:2.2,fixed:true});
+    const S=b.create('point',[0,4.2],{name:'',size:2.5,fixed:true});
+    b.create('polygon',[A,B,C,D],{fillOpacity:0.07,borders:{strokeColor:'#214f78',strokeWidth:2.3},vertices:{visible:false}});
+    const edgeStyle={strokeColor:'#214f78',strokeWidth:2.5,highlightStrokeColor:'#214f78',fixed:true};
+    b.create('segment',[S,A],edgeStyle);
+    b.create('segment',[S,B],edgeStyle);
+    b.create('segment',[S,C],edgeStyle);
+    b.create('segment',[S,D],edgeStyle);
+    b.create('segment',[S,O],{dash:2,strokeColor:'#2f87bd',strokeWidth:2,highlightStrokeColor:'#2f87bd',fixed:true});
+    const R1=b.create('point',[0.45,-1.1],{visible:false,fixed:true});
+    const R2=b.create('point',[0.45,-0.65],{visible:false,fixed:true});
+    const R3=b.create('point',[0,-0.65],{visible:false,fixed:true});
+    b.create('segment',[O,R1],{strokeColor:'#214f78',strokeWidth:1.2,fixed:true});
+    b.create('segment',[R1,R2],{strokeColor:'#214f78',strokeWidth:1.2,fixed:true});
+    b.create('segment',[R2,R3],{strokeColor:'#214f78',strokeWidth:1.2,fixed:true});
+    b.create('text',[-1.25,-2.95,'x'],{fontSize:16,fixed:true,fontWeight:'bold'});
+    b.create('text',[0.35,1.65,'h'],{fontSize:16,fixed:true,fontWeight:'bold'});
+    b.create('text',[3.35,4.25,'S'],{fontSize:13,fixed:true,strokeColor:'#425264'});
+    b.create('text',[0.22,-1.48,'O'],{fontSize:13,fixed:true,strokeColor:'#425264'});
+  }
+  // Page 28: right cone - corrected schematic with slant height 10, height h, and radius r.
+  {
+    const b=makeGeomBoard('cone1',[-7.2,6.8,7.2,-4.8]);
+    const cx=0, cy=-1.7, rx=4.1, ry=0.95;
+    const A=b.create('point',[0,5.0],{name:'',size:2.6,fixed:true});
+    const O=b.create('point',[cx,cy],{name:'',size:2.2,fixed:true});
+    const L=b.create('point',[cx-rx,cy],{name:'',size:2.1,fixed:true});
+    const R=b.create('point',[cx+rx,cy],{name:'',size:2.1,fixed:true});
+
+    // Light lateral surface.
+    b.create('polygon',[A,L,R],{fillColor:'#eef5fb',fillOpacity:0.22,borders:{visible:false},vertices:{visible:false}});
+
+    // Slant edges.
+    const coneEdge={strokeColor:'#214f78',strokeWidth:2.7,highlightStrokeColor:'#214f78',fixed:true};
+    b.create('segment',[A,L],coneEdge);
+    b.create('segment',[A,R],coneEdge);
+
+    // Height and radius.
+    b.create('segment',[A,O],{dash:2,strokeColor:'#2f87bd',strokeWidth:2,highlightStrokeColor:'#2f87bd',fixed:true});
+    b.create('segment',[O,R],{strokeColor:'#2f87bd',strokeWidth:2,highlightStrokeColor:'#2f87bd',fixed:true});
+
+    // Base ellipse: back half dashed, front half solid.
+    b.create('curve',[
+      function(t){ return cx + rx*Math.cos(t); },
+      function(t){ return cy + ry*Math.sin(t); },
+      0, Math.PI
+    ],{strokeColor:'#7b8794',strokeWidth:1.8,dash:2,fixed:true});
+    b.create('curve',[
+      function(t){ return cx + rx*Math.cos(t); },
+      function(t){ return cy + ry*Math.sin(t); },
+      Math.PI, 2*Math.PI
+    ],{strokeColor:'#214f78',strokeWidth:2.4,fixed:true});
+
+    // Right-angle marker near O.
+    const P1=b.create('point',[0.45,cy],{visible:false,fixed:true});
+    const P2=b.create('point',[0.45,cy+0.45],{visible:false,fixed:true});
+    const P3=b.create('point',[0,cy+0.45],{visible:false,fixed:true});
+    b.create('segment',[O,P1],{strokeColor:'#214f78',strokeWidth:1.2,fixed:true});
+    b.create('segment',[P1,P2],{strokeColor:'#214f78',strokeWidth:1.2,fixed:true});
+    b.create('segment',[P2,P3],{strokeColor:'#214f78',strokeWidth:1.2,fixed:true});
+
+    // Labels.
+    b.create('text',[-2.35,2.05,'10'],{fontSize:16,fixed:true,fontWeight:'bold'});
+    b.create('text',[0.35,1.45,'h'],{fontSize:16,fixed:true,fontWeight:'bold'});
+    b.create('text',[2.0,cy+0.3,'r'],{fontSize:16,fixed:true,fontWeight:'bold'});
+    b.create('text',[0.18,5.2,'A'],{fontSize:13,fixed:true,strokeColor:'#425264'});
+    b.create('text',[0.18,cy-0.45,'O'],{fontSize:13,fixed:true,strokeColor:'#425264'});
+  }
+  // Page 28: cone volume as a function of radius for slant height 10.
+/*
+  {
+    const b=makeBoard('coneVol1',[-0.8,900,10.7,-45]);
+    const V=r=>(Math.PI/3)*r*r*Math.sqrt(Math.max(0,100-r*r));
+    graphFn(b,V,0,10,{strokeColor:'#0b76bd',highlightStrokeColor:'#0b76bd',strokeWidth:3});
+    const rStar=10*Math.sqrt(2/3);
+    const s=b.create('slider',[[0.5,820],[5.4,820],[0.1,rStar,9.9]],{name:'r',snapWidth:0.05,withLabel:true});
+    const P=b.create('point',[()=>s.Value(),()=>V(s.Value())],{name:'V(r)',size:3,strokeColor:'#c96a00',fillColor:'#e67e00'});
+    const M=b.create('point',[rStar,V(rStar)],{name:'max',size:3,fixed:true,strokeColor:'#397b5b',fillColor:'#397b5b'});
+    b.create('segment',[[rStar,0],M],{dash:2,strokeColor:'#7b8794',fixed:true});
+    b.create('text',[6.1,800,()=>`V = ${V(s.Value()).toFixed(1)}`],{fontSize:14,fixed:true,cssClass:'rhombus-legend-line'});
+  }
+*/
+  addControls();
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initGraphs); else initGraphs();
+</script>
+
+</body></html>
