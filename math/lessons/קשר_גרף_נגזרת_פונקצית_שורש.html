@@ -1,0 +1,1304 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  chtml: { scale: 0.94 }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:#e9edf2; font-family:Arial,"Noto Sans Hebrew",sans-serif; color:#172033; }
+body { direction:rtl; }
+.a4-page { width:210mm; height:297mm; margin:8mm auto; background:#fff; padding:12mm 14mm 10mm; position:relative; overflow:hidden; break-after:page; page-break-after:always; box-shadow:0 2px 14px rgba(20,35,60,.14); }
+.page-header { border-bottom:1px solid #d7dde6; padding-bottom:5mm; margin-bottom:5mm; }
+.unit-tag { font-size:11px; color:#5a6b84; margin-bottom:2mm; }
+h1 { font-size:25px; line-height:1.18; margin:0; color:#173a67; }
+h2 { font-size:18px; margin:4mm 0 2mm; color:#234b7a; }
+p,li,td,th { font-size:14.4px; line-height:1.45; }
+p { margin:2mm 0; }
+ul,ol { margin:2mm 0; padding-right:7mm; }
+.steps li { margin-bottom:1.3mm; }
+.compact { line-height:1.35; }
+.lead-box,.teacher-note,.important,.rule,.example,.question-box,.hint,.source-badge { border-radius:8px; padding:3mm 4mm; margin:3mm 0; }
+.lead-box { background:#f0f5fb; border-right:4px solid #2d6498; }
+.teacher-note { background:#fff8e8; border-right:4px solid #d69b2d; }
+.important { background:#f9eef1; border-right:4px solid #b84c68; }
+.rule { background:#f5f8fc; border:1px solid #d7e0eb; }
+.example { background:#fbfcfe; border:1px solid #e2e7ef; }
+.question-box { background:#f3faf5; border-right:4px solid #4d8d63; }
+.hint { background:#f4f2fb; border-right:4px solid #705ab5; }
+.source-badge { display:inline-block; background:#edf3f9; color:#385a80; font-size:12px; padding:2mm 3mm; }
+.graph-panel { margin:3mm 0; border:1px solid #dce3ec; border-radius:10px; padding:2.5mm; background:#fcfdff; }
+.graph-panel.small .jxgbox { height:205px; }
+.graph-panel.tiny .jxgbox { height:150px; }
+.graph-title { font-weight:700; font-size:13px; color:#2c4565; margin-bottom:1.5mm; }
+.jxgbox { width:100%; height:245px; direction:ltr; border:1px solid #d6dde7; border-radius:8px; overflow:hidden; }
+.graph-controls { text-align:center; margin-top:2mm; direction:rtl; }
+.graph-controls button { border:1px solid #b9c6d6; background:#fff; color:#24496f; padding:1.5mm 3mm; border-radius:6px; margin:0 1mm; cursor:pointer; font-size:12px; }
+.legend { text-align:center; font-size:12px; margin-top:1mm; direction:rtl; }
+.legend span { margin:0 3mm; font-weight:700; }
+.legend .blue { color:#245da9; } .legend .red { color:#b73a47; }
+.sign-table,.mistakes { width:100%; border-collapse:collapse; margin:3mm 0; }
+.sign-table th,.sign-table td,.mistakes th,.mistakes td { border:1px solid #ccd5e2; padding:2mm; text-align:center; }
+.sign-table th,.mistakes th { background:#eff4f9; color:#274d79; }
+.formula-row { text-align:center; direction:ltr; font-size:14px; margin:2mm 0; }
+.exercise { border-right:4px solid #2d6498; padding-right:4mm; }
+.exercise.dense p,.exercise.dense li { font-size:14.4px; line-height:1.45; }
+.exercise ol ol { margin-top:1mm; }
+.hebrew-alpha { list-style-type:hebrew; }
+.selector-label { display:block; text-align:center; margin-bottom:1.5mm; font-size:13px; }
+.selector-label select { padding:1mm 3mm; border:1px solid #bdc9d7; border-radius:5px; }
+.candidate-stack { margin:2mm 0; }
+.candidate-item { margin:1.2mm 0; border:1px solid #dce3ec; border-radius:7px; padding:1.2mm 2mm; background:#fcfdff; }
+.candidate-item strong { display:block; color:#244f7e; font-size:12px; margin-bottom:.5mm; }
+.candidate-item .jxgbox { height:78px; }
+.candidate-item .graph-controls { margin-top:.5mm; }
+.candidate-item .graph-controls button { padding:.7mm 2mm; font-size:10px; }
+.alg-step { border-bottom:1px solid #d9e0e9; padding:2.4mm 0; min-height:16mm; }
+.alg-step span { float:right; width:8mm; height:8mm; line-height:8mm; text-align:center; border-radius:50%; background:#244f7e; color:#fff; font-weight:700; margin-left:3mm; }
+.alg-step strong { color:#244f7e; font-size:15px; }
+.alg-step p { margin:1mm 11mm 0 0; }
+.mistakes td:first-child { background:#fff8f7; width:46%; }
+.exercise-stack .mini-ex { border-bottom:1px solid #d9e0e9; padding:3mm 0; }
+.mini-ex strong { color:#244f7e; font-size:15px; }
+.sources li { margin-bottom:2mm; }
+.url { direction:ltr; text-align:left; font-size:11px; word-break:break-all; color:#3c5e83; }
+.page-footer { position:absolute; right:14mm; left:14mm; bottom:5mm; border-top:1px solid #e0e5eb; padding-top:2mm; display:flex; justify-content:space-between; font-size:10.5px; color:#6d7888; }
+.compact-page .page-header { margin-bottom:3mm; padding-bottom:3mm; }
+.compact-page h1 { font-size:22px; }
+.compact-page .page-content p,.compact-page .page-content li { font-size:14.4px; line-height:1.45; }
+.exercise-page .page-content { padding-bottom:6mm; }
+.teacher-page h2 { font-size:16px; margin-top:3mm; }
+.teacher-page p { font-size:13.4px; }
+mjx-container[display="true"] { margin:.45em 0 !important; }
+
+.cover-page {
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:18mm 18mm 14mm;
+  background:linear-gradient(160deg,#f7faff 0%,#ffffff 52%,#edf4fb 100%);
+}
+.cover-page::before {
+  content:"";
+  position:absolute;
+  top:0;
+  right:0;
+  width:100%;
+  height:7mm;
+  background:#173a67;
+}
+.cover-topline { font-size:13px; font-weight:700; color:#5c7089; letter-spacing:.2px; }
+.cover-main { margin-top:18mm; }
+.cover-kicker { display:inline-block; padding:2.2mm 4mm; border-radius:999px; background:#eaf1f8; color:#2c5a88; font-size:13px; font-weight:700; }
+.cover-title { font-size:34px; line-height:1.25; color:#173a67; margin:8mm 0 4mm; max-width:160mm; }
+.cover-subtitle { font-size:22px; line-height:1.35; color:#345f8e; margin:0 0 9mm; font-weight:700; }
+.cover-rule { width:38mm; height:1.2mm; background:#2d6498; border-radius:2mm; margin:0 0 9mm auto; }
+.cover-desc { font-size:16px; line-height:1.65; color:#3d4b5e; max-width:155mm; }
+.cover-topics { display:flex; flex-wrap:wrap; gap:3mm; margin-top:10mm; }
+.cover-topic { padding:2.3mm 3.8mm; border:1px solid #cbd8e6; border-radius:7px; background:rgba(255,255,255,.82); color:#294d75; font-size:13px; font-weight:700; }
+.cover-bottom { border-top:1px solid #d8e1eb; padding-top:5mm; display:flex; justify-content:space-between; align-items:flex-end; gap:8mm; }
+.cover-level { font-size:16px; font-weight:700; color:#173a67; }
+.cover-note { font-size:12px; color:#718096; text-align:left; direction:rtl; }
+
+@media print { html,body{background:#fff}.a4-page{margin:0;box-shadow:none}.graph-controls{display:none} }
+</style>
+</head>
+<body>
+
+<section class="a4-page cover-page" id="page-1">
+  <div>
+    <div class="cover-topline">מתמטיקה - 5 יחידות</div>
+    <main class="cover-main">
+      <div class="cover-kicker">מערך שיעור</div>
+      <h1 class="cover-title">קשר בין גרף פונקציה לגרף נגזרת</h1>
+      <div class="cover-subtitle">פונקציות שורש</div>
+      <div class="cover-rule"></div>
+      <p class="cover-desc">
+        יחידת לימוד העוסקת בקריאה, חקירה והתאמה בין גרף הפונקציה לבין גרף הנגזרת,
+        תוך דגש על תחום ההגדרה, קצות תחום, נקודות עם שיפוע אפס, סימן הנגזרת והתנהגות אופיינית של פונקציות שורש.
+      </p>
+      <div class="cover-topics">
+        <span class="cover-topic">גרף הפונקציה</span>
+        <span class="cover-topic">גרף הנגזרת</span>
+        <span class="cover-topic">תחום הגדרה</span>
+        <span class="cover-topic">קיצון</span>
+        <span class="cover-topic">סימן הנגזרת</span>
+        <span class="cover-topic">פונקציות שורש</span>
+      </div>
+    </main>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-level">רמת לימוד: 5 יחידות מתמטיקה</div>
+    <div class="cover-note">עמוד פתיחה</div>
+  </div>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 1 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-2">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>מפת היחידה ומטרות הלמידה</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="lead-box">
+  <h2>מטרת היחידה</h2>
+  <p>לבנות הבנה מלאה של הקשר בין גרף פונקציה לבין גרף הנגזרת שלה כאשר הפונקציה כוללת שורש ריבועי, תוך שילוב בין ייצוג גרפי, תחום הגדרה, גזירה וחקירה ברמת 5 יחידות.</p>
+</div>
+<h2>בסיום היחידה התלמיד יוכל</h2>
+<ul class="steps">
+  <li>להסיק מגרף \(f(x)\) מידע על סימן \(f'(x)\), אפסי הנגזרת והתנהגותה.</li>
+  <li>להסיק מגרף \(f'(x)\) תחומי עליה וירידה, נקודות קיצון ומבנה אפשרי של \(f(x)\).</li>
+  <li>להבחין בין תחום ההגדרה של \(f\) לבין תחום ההגדרה של \(f'\).</li>
+  <li>לזהות התנהגות אופיינית בקצה תחום של פונקציית שורש - לרבות משיק אנכי ואסימפטוטה אנכית אפשרית של \(f'\).</li>
+  <li>לגזור ביטויים מן הצורות \(\sqrt{u(x)}\), \(P(x)\sqrt{Q(x)}\), \(\sqrt{f(x)}\).</li>
+  <li>להשתמש במונה של הנגזרת לצורך ניתוח סימן כאשר המכנה חיובי בתחום.</li>
+  <li>לפתור שאלות פרמטר ושאלות בגרות שבהן נתון אחד מן הגרפים \(f\) או \(f'\).</li>
+</ul>
+<div class="teacher-note">
+  <strong>עיקרון הוראה:</strong> בכל נושא פועלים בסדר הבא: ניבוי גרפי ⇐ נימוק מתמטי ⇐ חישוב אלגברי ⇐ אימות באמצעות גרף.
+</div>
+<h2>רצף היחידה</h2>
+<p class="compact">יסודות הקשר הגרפי - תחום הגדרה - קצה תחום - נגזרת של שורש - ניתוח סימן - קיצון - זוגיות - התאמת גרפים - הרכבה \(g(x)=\sqrt{f(x)}\) - שאלות פרמטר - תרגילים מסכמים.</p>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 2 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-3">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>מה מספר לנו גרף הנגזרת?</h1>
+  </header>
+  <main class="page-content">
+    
+<p>הנגזרת היא פונקציה המתארת את <strong>שיפוע גרף הפונקציה</strong> בכל נקודה שבה הנגזרת קיימת.</p>
+<div class="rule">
+  \[
+  f'(x)\gt 0 \Rightarrow \text{ הלוע} f(x)
+  \]
+  \[
+  f'(x)\lt 0 \Rightarrow \text{ תדרוי} f(x)
+  \]
+  \[
+  f'(a)=0 \Rightarrow x=a\;\text{רובע ספאל הווש היצקנופה עופיש}
+  \]
+</div>
+<p>המשוואה \(f'(a)=0\) אינה מספיקה לבדה כדי לקבוע שקיימת נקודת קיצון. יש לבדוק שינוי סימן של הנגזרת משני צדי \(a\).</p>
+<div class="graph-panel">
+  <div class="graph-title">דוגמה: \(f(x)=x\sqrt{4-x^2}\) והנגזרת שלה</div>
+  <div id="board2" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board2',1.25)">＋</button>
+    <button onclick="zoomBoard('board2',0.8)">−</button>
+    <button onclick="resetBoard('board2')">מרכז</button>
+  </div>
+  <div class="legend"><span class="blue">\(f(x)\)</span><span class="red">\(f'(x)\)</span></div>
+</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 3 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-4">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>קריאת שיפועים ישירות מגרף \(f\)</h1>
+  </header>
+  <main class="page-content">
+    
+<h2>שלושה דברים שמחפשים בגרף</h2>
+<ol class="steps">
+  <li><strong>כיוון:</strong> עולה או יורדת.</li>
+  <li><strong>תלילות:</strong> שיפוע גדול בערכו המוחלט או קרוב לאפס.</li>
+  <li><strong>נקודות עם שיפוע אפס:</strong> משיק אופקי בתוך תחום ההגדרה.</li>
+</ol>
+<div class="graph-panel">
+  <div class="graph-title">\(f(x)=(x-1)\sqrt{2x+10}\)</div>
+  <div id="board3" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board3',1.25)">＋</button>
+    <button onclick="zoomBoard('board3',0.8)">−</button>
+    <button onclick="resetBoard('board3')">מרכז</button>
+  </div>
+</div>
+<div class="question-box">
+  <strong>חשיבה ללא גזירה:</strong>
+  <ol>
+    <li>באיזה תחום נראה שהפונקציה יורדת?</li>
+    <li>באיזו נקודה פנימית השיפוע מתאפס?</li>
+    <li>מה צפוי להיות סימן \(f'(x)\) לפני ואחרי נקודה זו?</li>
+  </ol>
+</div>
+<div class="teacher-note">נחשב את הנגזרת: \(\displaystyle f'(x)=\frac{3(x+3)}{\sqrt{2x+10}}\).</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 4 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-5">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>מגרף \(f\) אל גרף \(f'\)</h1>
+  </header>
+  <main class="page-content">
+    
+<h2>אלגוריתם גרפי ראשון</h2>
+<ol class="steps">
+  <li>קובעים את תחום ההגדרה של \(f\).</li>
+  <li>מסמנים נקודות פנימיות שבהן שיפוע \(f\) שווה לאפס.</li>
+  <li>מתרגמים עליה של \(f\) ל-\(f'\gt0\), וירידה ל-\(f'\lt0\).</li>
+  <li>בודקים את התנהגות השיפוע ליד קצות תחום ההגדרה.</li>
+  <li>מציירים סקיצה איכותית של \(f'\) ורק לאחר מכן מבצעים גזירה.</li>
+</ol>
+<div class="graph-panel">
+  <div class="graph-title">דוגמה מרכזית: \(f(x)=x^2\sqrt{12-2x^2}\)</div>
+  <div id="board4" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="toggleCurve('board4','f4')">הצג/הסתר \(f\)</button>
+    <button onclick="toggleCurve('board4','d4')">הצג/הסתר \(f'\)</button>
+    <button onclick="zoomBoard('board4',1.25)">＋</button>
+    <button onclick="zoomBoard('board4',0.8)">−</button>
+    <button onclick="resetBoard('board4')">מרכז</button>
+  </div>
+</div>
+<p class="compact">הנגזרת מתאפסת ב-\(x=-2,0,2\). סמוך ל-\(x=\pm\sqrt6\) הפונקציה עצמה סופית, אך גודל השיפוע גדל מאוד.</p>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 5 מתוך 31</span>
+  </footer>
+</section>
+
+<section class="a4-page " id="page-7">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>פונקציות שורש - תחום ההגדרה קודם לכל</h1>
+  </header>
+  <main class="page-content">
+    
+<p>בכל שאלה על פונקציית שורש, תחום ההגדרה הוא השלב הראשון - עוד לפני גזירה ולפני קריאת הגרף.</p>
+<div class="rule">
+  אם \(\displaystyle f(x)=\sqrt{u(x)}\), יש לדרוש
+  \[
+  u(x)\ge0.
+  \]
+</div>
+<h2>דוגמאות</h2>
+<div class="example">
+  \[
+  f(x)=\sqrt{12-2x^2}
+  \]
+  \[
+  12-2x^2\ge0 \Rightarrow x^2\le6
+  \]
+  ולכן \(\displaystyle -\sqrt6\le x\le\sqrt6\).
+</div>
+<div class="example">
+  \[
+  f(x)=x^2\sqrt{5-x}
+  \]
+  הדרישה היא \(5-x\ge0\), ולכן \(x\le5\).
+</div>
+<div class="example">
+  \[
+  f(x)=\frac{\sqrt{3x}}{\sqrt{4x^2-1}}
+  \]
+  במונה: \(3x\ge0\). במכנה נדרש \(4x^2-1\gt0\), משום שהמכנה אינו יכול להתאפס.
+</div>
+<div class="teacher-note">טעות שכיחה: לפתור רק את אי-השוויון שמתחת לשורש ולהתעלם מהמכנה. בכל שורש במכנה נדרשת חיוביות ממש.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 7 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-8">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>תחום \(f\) לעומת תחום \(f'\)</h1>
+  </header>
+  <main class="page-content">
+    
+<p>נקודה יכולה להשתייך לתחום ההגדרה של הפונקציה, אך לא לתחום ההגדרה של הנגזרת.</p>
+<div class="example">
+  \[
+  f(x)=\sqrt{x}
+  \]
+  \[
+  D_f:\ x\ge0
+  \]
+  ואילו
+  \[
+  f'(x)=\frac{1}{2\sqrt{x}}
+  \]
+  ולכן
+  \[
+  D_{f'}:\ x\gt0.
+  \]
+</div>
+<div class="graph-panel">
+  <div class="graph-title">הקצה \(x=0\) שייך ל-\(f\), אך לא ל-\(f'\)</div>
+  <div id="board7" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board7',1.25)">＋</button>
+    <button onclick="zoomBoard('board7',0.8)">−</button>
+    <button onclick="resetBoard('board7')">מרכז</button>
+  </div>
+  <div class="legend"><span class="blue">\(f(x)=\sqrt{x}\)</span><span class="red">\(f'(x)\)</span></div>
+</div>
+<div class="important">בעת מציאת קיצון אין לבדוק רק פתרונות של \(f'(x)=0\). יש לבדוק גם קצות תחום שבהם \(f\) מוגדרת.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 8 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-9">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>קצה תחום ומשיק אנכי</h1>
+  </header>
+  <main class="page-content">
+    
+<p>בפונקציות שורש מתקבלת לעיתים נקודת קצה שבה ערך הפונקציה סופי, אך השיפוע שואף בערכו המוחלט לאינסוף.</p>
+<div class="example">
+  \[
+  f(x)=\sqrt{4-x^2},\qquad -2\le x\le2
+  \]
+  \[
+  f'(x)=\frac{-x}{\sqrt{4-x^2}}
+  \]
+</div>
+<div class="graph-panel">
+  <div class="graph-title">בקצוות \(x=-2,2\) לגרף \(f\) יש משיקים אנכיים</div>
+  <div id="board8" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board8',1.25)">＋</button>
+    <button onclick="zoomBoard('board8',0.8)">−</button>
+    <button onclick="resetBoard('board8')">מרכז</button>
+  </div>
+</div>
+<div class="rule">
+  אם \(u(a)=0\) ו-\(u'(a)\ne0\), אז בביטוי
+  \[
+  \frac{u'(x)}{2\sqrt{u(x)}}
+  \]
+  המכנה מתקרב לאפס. במקרים אלה יש לבדוק האם \(|f'(x)|\) גדל ללא גבול.
+</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 9 מתוך 31</span>
+  </footer>
+</section>
+
+<section class="a4-page " id="page-11">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>נגזרת של \(\sqrt{u(x)}\)</h1>
+  </header>
+  <main class="page-content">
+    
+<h2>כלל השרשרת</h2>
+<div class="rule">
+  \[
+  f(x)=\sqrt{u(x)}
+  \]
+  \[
+  f'(x)=\frac{u'(x)}{2\sqrt{u(x)}}
+  \]
+  בכל נקודה פנימית שבה \(u(x)\gt0\).
+</div>
+<div class="example">
+  \[
+  f(x)=\sqrt{3x+6}
+  \]
+  \[
+  f'(x)=\frac{3}{2\sqrt{3x+6}}
+  \]
+</div>
+<div class="graph-panel">
+  <div class="graph-title">הפונקציה והנגזרת - אותו תחום פנימי, התנהגות שונה בקצה</div>
+  <div id="board10" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board10',1.25)">＋</button>
+    <button onclick="zoomBoard('board10',0.8)">−</button>
+    <button onclick="resetBoard('board10')">מרכז</button>
+  </div>
+</div>
+<p class="compact">כאן \(f'(x)\gt0\) בכל תחום הגזירות, ולכן \(f\) עולה בכל תחום ההגדרה שלה.</p>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 11 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-12">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>נגזרת של \(P(x)\sqrt{Q(x)}\)</h1>
+  </header>
+  <main class="page-content">
+    
+<p>זהו המבנה הנפוץ ביותר בשאלות 5 יחידות בנושא.</p>
+<div class="rule">
+  אם
+  \[
+  f(x)=P(x)\sqrt{Q(x)},
+  \]
+  אז
+  \[
+  f'(x)=P'(x)\sqrt{Q(x)}+
+  \frac{P(x)Q'(x)}{2\sqrt{Q(x)}}.
+  \]
+  לאחר איחוד:
+  \[
+  f'(x)=
+  \frac{2P'(x)Q(x)+P(x)Q'(x)}
+  {2\sqrt{Q(x)}}.
+  \]
+</div>
+<div class="example">
+  עבור
+  \[
+  f(x)=x^2\sqrt{5-x},
+  \]
+  מתקבל
+  \[
+  f'(x)=\frac{5x(4-x)}{2\sqrt{5-x}}.
+  \]
+</div>
+<div class="graph-panel">
+  <div id="board11" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board11',1.25)">＋</button>
+    <button onclick="zoomBoard('board11',0.8)">−</button>
+    <button onclick="resetBoard('board11')">מרכז</button>
+  </div>
+</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 12 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-13">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>ניתוח סימן הנגזרת באמצעות המונה</h1>
+  </header>
+  <main class="page-content">
+    
+<p>כאשר המכנה של \(f'(x)\) חיובי בכל תחום הגזירות, סימן הנגזרת נקבע רק על ידי המונה.</p>
+<div class="example">
+  \[
+  f(x)=x^2\sqrt{5-x}
+  \]
+  \[
+  f'(x)=\frac{5x(4-x)}{2\sqrt{5-x}}
+  \]
+  בתחום \(x\lt5\):
+  \[
+  2\sqrt{5-x}\gt0.
+  \]
+  לכן מספיק לחקור:
+  \[
+  5x(4-x).
+  \]
+</div>
+<table class="sign-table">
+  <tr><th>תחום</th><th>\(x\)</th><th>\(4-x\)</th><th>\(f'(x)\)</th><th>\(f\)</th></tr>
+  <tr><td>\(x\lt0\)</td><td>-</td><td>+</td><td>-</td><td>יורדת</td></tr>
+  <tr><td>\(0\lt x\lt4\)</td><td>+</td><td>+</td><td>+</td><td>עולה</td></tr>
+  <tr><td>\(4\lt x\lt5\)</td><td>+</td><td>-</td><td>-</td><td>יורדת</td></tr>
+</table>
+<div class="important">שיטה זו מקצרת משמעותית שאלות חקירה: אין צורך לבדוק סימן של השורש במכנה, משום שהוא חיובי בתחום הפנימי.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 13 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-14">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>נקודות קיצון פנימיות וקיצון בקצה תחום</h1>
+  </header>
+  <main class="page-content">
+    
+<p>בפונקציית שורש יש לבדוק שלושה סוגי מועמדים:</p>
+<div class="rule">
+  <div class="formula-row" style="border:1px solid #172033; padding:2.2mm 3mm; background:#fff; display:flex; align-items:center; justify-content:center; gap:4mm; flex-wrap:wrap;">
+    <span dir="ltr">\(f'(x)=0\)</span>
+    <span aria-hidden="true">+</span>
+    <span dir="rtl">נקודות שבהן \(f'\) אינה קיימת אך \(f\) קיימת</span>
+    <span aria-hidden="true">+</span>
+    <span dir="rtl">קצות תחום ההגדרה</span>
+  </div>
+</div>
+<div class="example">
+  עבור
+  \[
+  f(x)=x^2\sqrt{5-x}
+  \]
+  מתקבלים:
+  <ul>
+    <li>\(x=0\) - מינימום פנימי.</li>
+    <li>\(x=4\) - מקסימום פנימי.</li>
+    <li>\(x=5\) - קצה תחום, \(f(5)=0\), ויש לבדוק אותו בנפרד.</li>
+  </ul>
+</div>
+<div class="graph-panel">
+  <div id="board13" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board13',1.25)">＋</button>
+    <button onclick="zoomBoard('board13',0.8)">−</button>
+    <button onclick="resetBoard('board13')">מרכז</button>
+  </div>
+</div>
+<div class="teacher-note">הדגש: קיצון בקצה תחום אינו מחייב \(f'(x)=0\).</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 14 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-15">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>זוגיות וסימטריה בין \(f\) לבין \(f'\)</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="rule">
+  אם \(f\) זוגית וגזירה בתחום סימטרי:
+  \[
+  f(-x)=f(x)\Rightarrow f'(-x)=-f'(x).
+  \]
+  כלומר \(f'\) אי-זוגית.
+</div>
+<div class="rule">
+  אם \(f\) אי-זוגית וגזירה בתחום סימטרי:
+  \[
+  f(-x)=-f(x)\Rightarrow f'(-x)=f'(x).
+  \]
+  כלומר \(f'\) זוגית.
+</div>
+<div class="graph-panel">
+  <div class="graph-title">\(f(x)=x^2\sqrt{12-2x^2}\) זוגית - \(f'(x)\) אי-זוגית</div>
+  <div id="board14" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="toggleCurve('board14','f14')">הצג/הסתר \(f\)</button>
+    <button onclick="toggleCurve('board14','d14')">הצג/הסתר \(f'\)</button>
+    <button onclick="zoomBoard('board14',1.25)">＋</button>
+    <button onclick="zoomBoard('board14',0.8)">−</button>
+    <button onclick="resetBoard('board14')">מרכז</button>
+  </div>
+</div>
+<div class="important">התאמת סימטריה מאפשרת לפסול גרפים אפשריים לפני כל חישוב נוסף.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 15 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-16">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>התאמת גרף פונקציה לגרף נגזרת</h1>
+  </header>
+  <main class="page-content">
+    
+<h2>אסטרטגיית פסילה מהירה</h2>
+<ol class="steps">
+  <li>השווה תחומי הגדרה.</li>
+  <li>מצא את מספר אפסי \(f'\) הצפוי.</li>
+  <li>בדוק סדר סימנים של \(f'\).</li>
+  <li>בדוק זוגיות/אי-זוגיות.</li>
+  <li>בדוק אסימפטוטות של \(f'\) בקצות תחום.</li>
+</ol>
+<div class="graph-panel">
+  <div class="graph-title">בחר גרף מועמד עבור הנגזרת של \(f(x)=x^2\sqrt{12-2x^2}\)</div>
+  <label class="selector-label">גרף מועמד:
+    <select id="candidate15" onchange="showCandidate15(this.value)">
+      <option value="I">I</option><option value="II">II</option>
+      <option value="III">III</option><option value="IV">IV</option>
+    </select>
+  </label>
+  <div id="board15" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board15',1.25)">＋</button>
+    <button onclick="zoomBoard('board15',0.8)">−</button>
+    <button onclick="resetBoard('board15')">מרכז</button>
+  </div>
+</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 16 מתוך 31</span>
+  </footer>
+</section>
+
+<section class="a4-page " id="page-18">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>הרכבה: \(g(x)=\sqrt{f(x)}\)</h1>
+  </header>
+  <main class="page-content">
+    
+<p>כאשר מפעילים שורש על פונקציה קיימת, תחום ההגדרה משתנה לפי הסימן של \(f\).</p>
+<div class="rule">
+  \[
+  g(x)=\sqrt{f(x)}
+  \]
+  מוגדרת בדיוק בנקודות בתחום \(f\) שבהן
+  \[
+  f(x)\ge0.
+  \]
+</div>
+<div class="example">
+  \[
+  f(x)=\frac{3x}{4x^2-1}
+  \]
+  סימן \(f\):
+  \[
+  f(x)\ge0
+  \]
+  בקטעים
+  \[
+  -\frac12\lt x\le0
+  \quad\text{or}\quad
+  x\gt\frac12.
+  \]
+</div>
+<div class="graph-panel">
+  <div class="graph-title">\(g(x)=\sqrt{\frac{3x}{4x^2-1}}\)</div>
+  <div id="board17" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board17',1.25)">＋</button>
+    <button onclick="zoomBoard('board17',0.8)">−</button>
+    <button onclick="resetBoard('board17')">מרכז</button>
+  </div>
+</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 18 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-19">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>הקשר בין \(f'\) לבין \(g'\) כאשר \(g=\sqrt f\)</h1>
+  </header>
+  <main class="page-content">
+    
+<p>אם \(f(x)\gt0\), אז:</p>
+<div class="rule">
+  \[
+  g(x)=\sqrt{f(x)}
+  \]
+  \[
+  g'(x)=\frac{f'(x)}{2\sqrt{f(x)}}.
+  \]
+</div>
+<p>בכל נקודה שבה \(f(x)\gt0\), המכנה חיובי. לכן:</p>
+<div class="rule">
+  \[
+  \operatorname{sign}(g'(x))=\operatorname{sign}(f'(x)).
+  \]
+</div>
+<p>מכאן שבכל קטע שבו \(g\) מוגדרת ו-\(f\gt0\), שתי הפונקציות עולות ויורדות באותם כיוונים.</p>
+<div class="graph-panel">
+  <div class="graph-title">הדוגמה המוצגת: \(f(x)=\frac{3x}{4x^2-1}\), ולכן \(g(x)=\sqrt{f(x)}\)</div>
+  <div id="board18" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board18',1.25)">＋</button>
+    <button onclick="zoomBoard('board18',0.8)">−</button>
+    <button onclick="resetBoard('board18')">מרכז</button>
+  </div>
+  <div class="legend"><span class="blue">כחול: \(g(x)=\sqrt{f(x)}\)</span><span class="red">אדום: \(g'(x)\)</span></div>
+</div>
+<div class="rule compact">
+  <strong>משמעות הגרפים:</strong>
+  <ul>
+    <li><strong style="color:#245da9">הגרף הכחול</strong> הוא \(g(x)=\sqrt{\frac{3x}{4x^2-1}}\). הוא מופיע רק היכן ש-\(f(x)\ge0\): \(-\frac12\lt x\le0\) או \(x\gt\frac12\).</li>
+    <li><strong style="color:#b73a47">הגרף האדום</strong> הוא \(g'(x)\). בדוגמה זו \(f'(x)\lt0\) בכל תחום הגזירות, ולכן גם \(g'(x)\lt0\). מכאן שהגרף הכחול יורד בכל אחד משני קטעי התחום.</li>
+    <li>הקווים המקווקווים \(x=-\frac12\) ו-\(x=\frac12\) מציינים אסימפטוטות אנכיות. הקו \(x=0\) מסמן קצה תחום של \(g\): מתקיים \(g(0)=0\), אך \(g'(0)\) אינה מוגדרת.</li>
+  </ul>
+</div>
+<div class="important">בנקודות שבהן \(f(x)=0\), הנוסחה עבור \(g'\) אינה ניתנת להצבה ישירה. יש לבדוק את ההתנהגות החד-צדדית.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 19 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-20">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>שורש של מנה לעומת מנה של שורשים</h1>
+  </header>
+  <main class="page-content">
+    
+<p>זהו הבדל תחומי חשוב מאוד במספרים ממשיים.</p>
+<div class="example">
+  \[
+  g(x)=\sqrt{\frac{3x}{4x^2-1}}
+  \]
+  לעומת
+  \[
+  h(x)=\frac{\sqrt{3x}}{\sqrt{4x^2-1}}.
+  \]
+</div>
+<p>עבור \(g\) דורשים שהמנה שבתוך השורש תהיה אי-שלילית. עבור \(h\) נדרשות שתי דרישות נפרדות:</p>
+\[
+3x\ge0
+\]
+\[
+4x^2-1\gt0.
+\]
+<p>לכן:</p>
+\[
+D_h:\ x\gt\frac12.
+\]
+<div class="graph-panel">
+  <div class="graph-title">הגרפים חופפים במקום שבו שני הביטויים מוגדרים - אך תחומי ההגדרה שונים</div>
+  <div id="board19" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board19',1.25)">＋</button>
+    <button onclick="zoomBoard('board19',0.8)">−</button>
+    <button onclick="resetBoard('board19')">מרכז</button>
+  </div>
+  <div class="legend">
+    <span class="blue">כחול רציף: \(g(x)=\sqrt{\frac{3x}{4x^2-1}}\)</span>
+    <span style="color:#d1842f;">כתום מקווקו: \(h(x)=\frac{\sqrt{3x}}{\sqrt{4x^2-1}}\)</span>
+  </div>
+</div>
+<div class="teacher-note">אין להשתמש אוטומטית בזהות \(\sqrt{\frac{A}{B}}=\frac{\sqrt A}{\sqrt B}\) בלי בדיקת תחומי ההגדרה בממשיים.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 20 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page exercise-page" id="page-21">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>תרגיל 1 - \(f(x)=x^2\sqrt{12-2x^2}\)</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="exercise">
+  <p><strong>4.</strong> נתונה הפונקציה:</p>
+  \[
+  f(x)=x^2\sqrt{12-2x^2}.
+  \]
+  <ol class="hebrew-alpha">
+    <li>מצאו את תחום ההגדרה של הפונקציה \(f(x)\).</li>
+    <li>הראו כי הפונקציה \(f(x)\) היא זוגית.</li>
+    <li>מצאו את שיעורי נקודות החיתוך של \(f(x)\) עם הצירים.</li>
+    <li>מצאו את שיעורי נקודות הקיצון של הפונקציה \(f(x)\), וקבעו את סוגן.</li>
+    <li>סרטטו סקיצה של גרף הפונקציה \(f(x)\).</li>
+    <li>אחד מהגרפים שלפניכם הוא גרף הנגזרת \(f'(x)\). קבעו איזה מהגרפים הוא המתאים. נמקו.</li>
+  </ol>
+</div>
+<div style="height:40px;"></div>
+<div class="candidate-stack">
+  <div class="candidate-item"><strong>I</strong><div id="board20I" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board20I',1.25)">＋</button><button onclick="zoomBoard('board20I',0.8)">−</button><button onclick="resetBoard('board20I')">מרכז</button></div></div>
+  <div class="candidate-item"><strong>II</strong><div id="board20II" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board20II',1.25)">＋</button><button onclick="zoomBoard('board20II',0.8)">−</button><button onclick="resetBoard('board20II')">מרכז</button></div></div>
+  <div class="candidate-item"><strong>III</strong><div id="board20III" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board20III',1.25)">＋</button><button onclick="zoomBoard('board20III',0.8)">−</button><button onclick="resetBoard('board20III')">מרכז</button></div></div>
+  <div class="candidate-item"><strong>IV</strong><div id="board20IV" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board20IV',1.25)">＋</button><button onclick="zoomBoard('board20IV',0.8)">−</button><button onclick="resetBoard('board20IV')">מרכז</button></div></div>
+</div>
+<div class="hint"><strong>הנחיה:</strong> לפני גזירה השתמשו בזוגיות: אם \(f\) זוגית, \(f'\) חייבת להיות אי-זוגית.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 21 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page exercise-page" id="page-22">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>תרגיל 2 - \(f(x)=(x-1)\sqrt{2x+10}\)</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="exercise">
+  <p><strong>7.</strong> נתונה הפונקציה \(\displaystyle f(x)=(x-1)\sqrt{2x+10}\).</p>
+  <ol class="hebrew-alpha">
+    <li>מצאו את תחום ההגדרה של הפונקציה \(f(x)\).</li>
+    <li>מצאו את שיעורי נקודות החיתוך של גרף הפונקציה \(f(x)\) עם הצירים.</li>
+    <li>מצאו את שיעורי כל נקודות הקיצון של הפונקציה \(f(x)\), וקבעו את סוגן.</li>
+    <li>סרטטו סקיצה של גרף הפונקציה \(f(x)\).</li>
+  </ol>
+  <p>בסוף השאלה מופיעים שני גרפים, I ו-II. אחד מן הגרפים מתאר את פונקציית הנגזרת \(f'(x)\), והגרף האחר מתאר את הפונקציה \(g(x)=-f'(x)\).</p>
+  <ol class="hebrew-alpha" start="5">
+    <li>קבעו איזה מן הגרפים I ו-II מתאר את פונקציית הנגזרת \(f'(x)\). נמקו את קביעתכם.</li>
+    <li>חשבו את השטח המוגבל על ידי גרף פונקציית הנגזרת \(f'(x)\), על ידי הישר \(x=3\) ועל ידי ציר ה-\(x\).</li>
+  </ol>
+</div>
+<div style="height:30px;"></div>
+<div class="graph-panel small">
+  <div id="board21" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board21',1.25)">＋</button>
+    <button onclick="zoomBoard('board21',0.8)">−</button>
+    <button onclick="resetBoard('board21')">מרכז</button>
+  </div>
+  <div class="legend"><span class="blue">I</span><span class="red">II</span></div>
+</div>
+<div class="hint"><strong>הנחיה:</strong> חשבו תחילה היכן \(f\) עולה. הגרף המתאים ל-\(f'\) חייב להיות חיובי שם. בשטח השתמשו גם בכך שאינטגרל של \(f'\) נותן שינוי בערכי \(f\).</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 22 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page exercise-page compact-page" id="page-23">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>תרגיל 3 - שחזור פונקציה מגרף הנגזרת</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="exercise">
+  <p><strong>7.</strong> נתונה הפונקציה \(f(x)\), המוגדרת בתחום \(x\le a,\ x\ne0\). \(a\) הוא פרמטר חיובי.</p>
+  <p>בסרטוט שלפניכם מתואר גרף פונקציית הנגזרת \(f'(x)\). פונקציית הנגזרת \(f'(x)\) מוגדרת בתחום \(x\lt a,\ x\ne0\). לפונקציית הנגזרת \(f'(x)\) יש שלוש אסימפטוטות המאונכות לצירים שמשוואותיהן: \(x=0\), \(x=a\), \(y=0\). בתחום \(x\lt0\) פונקציית הנגזרת \(f'(x)\) עולה. הישר \(x=0\) הוא אסימפטוטה גם לגרף הפונקציה \(f(x)\). נתון \(f(a)=0\).</p>
+  <ol class="hebrew-alpha">
+    <li>(1) מצאו את תחום העלייה ואת תחום הירידה של \(f(x)\) והביעו באמצעות \(a\), אם יש צורך. נמקו.<br>(2) כמה נקודות קיצון יש לפונקציה \(f(x)\)? נמקו.</li>
+    <li>נתון כי הישר \(y=0\) הוא אסימפטוטה של גרף הפונקציה \(f(x)\). סרטטו סקיצה אפשרית של גרף \(f(x)\).</li>
+    <li>אחד מן הביטויים I-IV מייצג את \(f(x)\). קבעו איזה ונמקו.</li>
+  </ol>
+  <div class="formula-row">I. \(\frac{\sqrt{a-x}}{x^2}\) &nbsp; II. \(\frac{\sqrt{x-a}}{x^2}\) &nbsp; III. \(\frac{\sqrt{a-x}}{x}\) &nbsp; IV. \(\frac{\sqrt{x-a}}{x}\)</div>
+  <ol class="hebrew-alpha" start="4">
+    <li>ידוע כי שיפוע המשיק לגרף \(f(x)\) בנקודה שבה \(x=-2\) הוא \(\frac{7}{16}\). מצאו את \(a\).</li>
+    <li>הציבו \(a=2\) וחשבו את השטח המוגבל על ידי גרף הפונקציה \((f(x))^2\), על ידי ציר ה-\(x\) ועל ידי הישר \(x=1\).</li>
+  </ol>
+</div>
+<div style="height:30px;"></div>
+<div class="graph-panel">
+  <div id="board22" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board22',1.25)">＋</button>
+    <button onclick="zoomBoard('board22',0.8)">−</button>
+    <button onclick="resetBoard('board22')">מרכז</button>
+  </div>
+</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 23 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page exercise-page" id="page-24">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>תרגיל 4 - פרמטרים \(a,b\)</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="exercise dense">
+  <p><strong>5.</strong> אחת מנקודות הקיצון הפנימיות של הפונקציה</p>
+  \[
+  f(x)=ax^2\sqrt{b-x}
+  \]
+  <p>היא \((4,16)\).</p>
+  <ol class="hebrew-alpha">
+    <li>מצאו את \(a\) ואת \(b\).</li>
+    <li>עבור הפונקציה \(f(x)\) מצאו את:
+      <ol>
+        <li>תחום ההגדרה.</li>
+        <li>שיעורי נקודות החיתוך עם הצירים.</li>
+        <li>שיעורי נקודות הקיצון ואת סוגן.</li>
+        <li>תחומי העלייה והירידה.</li>
+      </ol>
+    </li>
+    <li>סרטטו סקיצה של גרף הפונקציה \(f(x)\).</li>
+    <li>אחד מהגרפים שלפניכם הוא גרף הנגזרת \(f'(x)\). קבעו איזה מהגרפים הוא המתאים. נמקו.</li>
+  </ol>
+</div>
+<div style="height:30px;"></div>
+<div class="candidate-stack">
+  <div class="candidate-item"><strong>I</strong><div id="board23I" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board23I',1.25)">＋</button><button onclick="zoomBoard('board23I',0.8)">−</button><button onclick="resetBoard('board23I')">מרכז</button></div></div>
+  <div class="candidate-item"><strong>II</strong><div id="board23II" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board23II',1.25)">＋</button><button onclick="zoomBoard('board23II',0.8)">−</button><button onclick="resetBoard('board23II')">מרכז</button></div></div>
+  <div class="candidate-item"><strong>III</strong><div id="board23III" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board23III',1.25)">＋</button><button onclick="zoomBoard('board23III',0.8)">−</button><button onclick="resetBoard('board23III')">מרכז</button></div></div>
+  <div class="candidate-item"><strong>IV</strong><div id="board23IV" class="jxgbox"></div><div class="graph-controls"><button onclick="zoomBoard('board23IV',1.25)">＋</button><button onclick="zoomBoard('board23IV',0.8)">−</button><button onclick="resetBoard('board23IV')">מרכז</button></div></div>
+</div>
+<div class="hint"><strong>הנחיה:</strong> השתמשו בו-זמנית ב-\(f(4)=16\) וב-\(f'(4)=0\).</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 24 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page exercise-page compact-page" id="page-25">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>תרגיל 5 - שורש של פונקציה רציונלית</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="exercise dense">
+  <p><strong>7.</strong> נתונה הפונקציה \(\displaystyle f(x)=\frac{3x}{4x^2-1}\), שתחום הגדרתה הוא \(\displaystyle x\ne\pm\frac12\).</p>
+  <ol class="hebrew-alpha">
+    <li>(1) מצאו את תחומי העלייה והירידה של הפונקציה \(f(x)\), אם יש כאלה.<br>(2) מצאו את תחומי החיוביות והשליליות של \(f(x)\).</li>
+  </ol>
+  <p>נתונה הפונקציה \(\displaystyle g(x)=\sqrt{\frac{3x}{4x^2-1}}\).</p>
+  <ol class="hebrew-alpha" start="2">
+    <li>(1) מהו תחום ההגדרה של \(g(x)\)?<br>(2) מה הן משוואות האסימפטוטות של \(g(x)\) המאונכות לצירים?</li>
+  </ol>
+  <p>נתון כי לפונקציה \(g(x)\) יש בדיוק נקודת פיתול אחת, ששיעור ה-\(x\) שלה קטן מאפס.</p>
+  <ol class="hebrew-alpha" start="3">
+    <li>(1) סרטטו סקיצה של גרף הפונקציה \(g(x)\).<br>(2) סרטטו סקיצה של גרף פונקציית הנגזרת \(g'(x)\).</li>
+    <li>מהו תחום ההגדרה של הפונקציה \(\displaystyle h(x)=\frac{\sqrt{3x}}{\sqrt{4x^2-1}}\)?</li>
+  </ol>
+</div>
+<div style="height:30px;"></div>
+<div class="graph-panel">
+  <div id="board24" class="jxgbox"></div>
+  <div class="graph-controls">
+    <button onclick="zoomBoard('board24',1.25)">＋</button>
+    <button onclick="zoomBoard('board24',0.8)">−</button>
+    <button onclick="resetBoard('board24')">מרכז</button>
+  </div>
+  <div class="legend"><span class="blue">\(g(x)\)</span><span class="red">\(g'(x)\)</span></div>
+</div>
+<div class="hint"><strong>הנחיה:</strong> בסעיף ב יש לפתור אי-שוויון של פונקציה רציונלית. בסעיף ד אין להניח של-\(g\) ול-\(h\) אותו תחום.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 25 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-26">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>אלגוריתם מלא - מ-\(f\) אל \(f'\)</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="algorithm">
+  <div class="alg-step"><span>1</span><strong>תחום</strong><p>מצא את \(D_f\), ובמיוחד קצות תחום שנוצרו מן השורש.</p></div>
+  <div class="alg-step"><span>2</span><strong>כיוון</strong><p>סמן היכן \(f\) עולה והיכן יורדת.</p></div>
+  <div class="alg-step"><span>3</span><strong>שיפוע אפס</strong><p>כל נקודה פנימית עם משיק אופקי נותנת אפס של \(f'\).</p></div>
+  <div class="alg-step"><span>4</span><strong>סימן</strong><p>עליה ⇐ \(f'\gt0\); ירידה ⇐ \(f'\lt0\).</p></div>
+  <div class="alg-step"><span>5</span><strong>קצות התחום</strong><p>בדוק האם השיפוע נעשה אנכי ולכן \(|f'|\) גדל ללא גבול.</p></div>
+  <div class="alg-step"><span>6</span><strong>סימטריה</strong><p>זוגיות של \(f\) יכולה לקבוע אי-זוגיות של \(f'\), ולהפך.</p></div>
+  <div class="alg-step"><span>7</span><strong>גזירה</strong><p>חשב את \(f'\) וסדר את הביטוי כך שסימנו יהיה קל לקריאה.</p></div>
+  <div class="alg-step"><span>8</span><strong>אימות</strong><p>השווה בין הסקיצה שנובאה לבין גרף JSXGraph.</p></div>
+</div>
+<div class="teacher-note">בתרגיל התאמה, אין צורך לבצע את כל השלבים אם כבר ניתן לפסול תשובות לפי תחום, סימטריה או מספר אפסים.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 26 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-27">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>אלגוריתם מלא - מ-\(f'\) אל \(f\)</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="algorithm">
+  <div class="alg-step"><span>1</span><strong>תחום הנגזרת</strong><p>רשום במדויק היכן \(f'\) קיימת ואילו נקודות חסרות.</p></div>
+  <div class="alg-step"><span>2</span><strong>טבלת סימנים</strong><p>חלק את ציר \(x\) לפי אפסי \(f'\) ואי-רציפויות.</p></div>
+  <div class="alg-step"><span>3</span><strong>עליה/ירידה</strong><p>\(f'\gt0\) ⇐ \(f\) עולה; \(f'\lt0\) ⇐ \(f\) יורדת.</p></div>
+  <div class="alg-step"><span>4</span><strong>קיצון</strong><p>חפש שינוי סימן של \(f'\), וגם קצות תחום של \(f\).</p></div>
+  <div class="alg-step"><span>5</span><strong>מידע נוסף</strong><p>השתמש ב-\(f(a)\), חיתוכים, אסימפטוטות וזוגיות כדי למקם את הגרף.</p></div>
+  <div class="alg-step"><span>6</span><strong>התנהגות ליד אסימפטוטות</strong><p>גרף \(f'\) עשוי לרמוז על משיק אנכי או אסימפטוטה של \(f\), אך אין להסיק בלי מידע נוסף.</p></div>
+  <div class="alg-step"><span>7</span><strong>בחירת ביטוי</strong><p>בדוק את תחום ההגדרה של כל ביטוי מועמד לפני גזירה.</p></div>
+</div>
+<div class="important">הנגזרת אינה קובעת את ההזזה האנכית של הפונקציה. נתון כמו \(f(a)=0\) הוא מידע הכרחי לשחזור מדויק.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 27 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-28">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>טעויות נפוצות - ומה עושים במקום</h1>
+  </header>
+  <main class="page-content">
+    
+<table class="mistakes">
+  <tr><th>טעות</th><th>תיקון</th></tr>
+  <tr><td>לחשוב ש-\(f'(a)=0\) תמיד נותן קיצון.</td><td>בודקים שינוי סימן של \(f'\).</td></tr>
+  <tr><td>להתעלם מקצה תחום כי \(f'\) אינה מוגדרת בו.</td><td>אם \(f\) מוגדרת בקצה - בודקים קיצון בקצה.</td></tr>
+  <tr><td>להניח ש-\(D_f=D_{f'}\).</td><td>מוצאים כל תחום בנפרד.</td></tr>
+  <tr><td>לזהות אסימפטוטה של \(f'\) כאסימפטוטה של \(f\).</td><td>בודקים את ערכי \(f\) עצמם.</td></tr>
+  <tr><td>לפרק שורש של מנה למנת שורשים ללא בדיקת תחום.</td><td>משווים תחומי הגדרה לפני כל שינוי אלגברי.</td></tr>
+  <tr><td>לפתור התאמת גרפים רק על ידי גזירה ארוכה.</td><td>מתחילים מתחום, סימטריה, אפסים וסימן.</td></tr>
+  <tr><td>לבלבל בין \(f(x)=0\) לבין \(f'(x)=0\).</td><td>הראשון הוא חיתוך עם ציר \(x\); השני הוא שיפוע אפס.</td></tr>
+</table>
+<div class="teacher-note">פעילות מומלצת: הציגו לכל קבוצה טעות אחת ובקשו מהם ליצור דוגמה נגדית מפונקציית שורש.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 28 מתוך 31</span>
+  </footer>
+</section>
+
+
+<section class="a4-page " id="page-29">
+  <header class="page-header">
+    <div class="unit-tag">5 יחידות מתמטיקה | פונקציות שורש ונגזרת</div>
+    <h1>תרגול מסכם</h1>
+  </header>
+  <main class="page-content">
+    
+<div class="exercise-stack">
+  <div class="mini-ex">
+    <strong>1. בסיסי</strong>
+    <p>נתונה \(\displaystyle f(x)=x\sqrt{9-x^2}\).</p>
+    <p>מצאו את התחום, קבעו זוגיות/אי-זוגיות, מצאו את אפסי \(f'\) וקבעו באילו קטעים \(f'\) חיובית.</p>
+  </div>
+  <div class="mini-ex">
+    <strong>2. בינוני</strong>
+    <p>נתונה \(\displaystyle f(x)=(x+2)\sqrt{6-x}\).</p>
+    <p>חקרו עליה וירידה וקבעו כיצד חייב להיראות גרף \(f'\) ליד \(x=6\).</p>
+  </div>
+  <div class="mini-ex">
+    <strong>3. מתקדם</strong>
+    <p>נתונה \(\displaystyle f(x)=\frac{\sqrt{4-x}}{x^2}\), \(x\le4,\ x\ne0\).</p>
+    <p>ללא שרטוט ממוחשב: קבעו את סימן \(f'\) ב-\(x\lt0\) וב-\(0\lt x\lt4\), ואת סוג הקיצון בנקודת הקצה \(x=4\).</p>
+  </div>
+  <div class="mini-ex">
+    <strong>4. אתגר</strong>
+    <p>נתונה \(g(x)=\sqrt{f(x)}\). ידוע כי \(f(x)\gt0\) בקטע \((a,b)\), וכי \(f'(x)\) משנה סימן מ-\(+\) ל-\(-\) ב-\(x=c\).</p>
+    <p>הסבירו מה ניתן להסיק על \(g\) ב-\(x=c\), ומה עדיין יש לבדוק בנקודות שבהן \(f(x)=0\).</p>
+  </div>
+</div>
+<div class="teacher-note">הנחיה כללית: בכל תרגיל רשמו תחום לפני גזירה וטבלת סימנים לפני שרטוט.</div>
+
+  </main>
+  <footer class="page-footer">
+    <span>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש</span>
+    <span>עמוד 29 מתוך 31</span>
+  </footer>
+</section>
+
+<script>
+const boards={}, initialBoxes={}, namedCurves={};
+function initBoard(id,box){
+  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:true,showCopyright:false,showNavigation:false,keepaspectratio:false,pan:{enabled:true,needShift:false},zoom:{enabled:true,wheel:true,needShift:false}});
+  boards[id]=b; initialBoxes[id]=box.slice(); namedCurves[id]={}; return b;
+}
+function resetBoard(id){ if(boards[id]) boards[id].setBoundingBox(initialBoxes[id],true); }
+function zoomBoard(id,factor){
+  const b=boards[id]; if(!b)return; const bb=b.getBoundingBox(),cx=(bb[0]+bb[2])/2,cy=(bb[1]+bb[3])/2;
+  const hw=(bb[2]-bb[0])/(2*factor),hh=(bb[1]-bb[3])/(2*factor); b.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],true);
+}
+function toggleCurve(boardId,name){ const c=namedCurves[boardId]&&namedCurves[boardId][name]; if(!c)return; c.setAttribute({visible:!c.visProp.visible}); boards[boardId].update(); }
+function fnGraph(b,fn,min,max,color,width=2.2,dash=0){ return b.create('functiongraph',[fn,min,max],{strokeColor:color,strokeWidth:width,dash:dash,highlight:false}); }
+function vline(b,x,color='#707b8a',dash=2){ return b.create('line',[[x,0],[x,1]],{straightFirst:true,straightLast:true,strokeColor:color,strokeWidth:1.2,dash:dash,fixed:true,highlight:false}); }
+function point(b,x,y,label,color='#274d79'){ return b.create('point',[x,y],{name:label,size:2.5,strokeColor:color,fillColor:color,fixed:true,highlight:false,label:{fontSize:12}}); }
+const blue='#245da9',red='#b73a47',green='#3d8662',orange='#d1842f',purple='#7355a8';
+
+{
+ const b=initBoard('board2',[-2.6,7,2.6,-7]);
+ const f=x=>Math.abs(x)<=2?x*Math.sqrt(4-x*x):NaN;
+ const d=x=>Math.abs(x)<2?(4-2*x*x)/Math.sqrt(4-x*x):NaN;
+ fnGraph(b,f,-2,2,blue); fnGraph(b,d,-1.999,1.999,red); vline(b,-2); vline(b,2);
+}
+{
+ const b=initBoard('board3',[-5.6,12,5,-12]);
+ const f=x=>x>=-5?(x-1)*Math.sqrt(2*x+10):NaN;
+ fnGraph(b,f,-5,5,blue,2.6); point(b,-5,0,'(-5,0)'); point(b,-3,-8,'(-3,-8)',red); point(b,1,0,'(1,0)');
+}
+{
+ const b=initBoard('board4',[-2.7,13,2.7,-13]);
+ const f=x=>Math.abs(x)<=Math.sqrt(6)?x*x*Math.sqrt(12-2*x*x):NaN;
+ const d=x=>Math.abs(x)<Math.sqrt(6)?6*x*(4-x*x)/Math.sqrt(12-2*x*x):NaN;
+ namedCurves.board4.f4=fnGraph(b,f,-Math.sqrt(6),Math.sqrt(6),blue,2.6);
+ namedCurves.board4.d4=fnGraph(b,d,-Math.sqrt(6)+.003,Math.sqrt(6)-.003,red,2.2); vline(b,-Math.sqrt(6)); vline(b,Math.sqrt(6));
+}
+{
+ //const a=2,b=initBoard('board5',[-8,7,2.5,-7]);
+ const d=x=>{if(x>=a||Math.abs(x)<.03)return NaN;return (3*x-4*a)/(2*Math.pow(x,3)*Math.sqrt(a-x));};
+ //fnGraph(b,d,-8,-.04,red); fnGraph(b,d,.04,a-.005,red); vline(b,0,'#666'); vline(b,a,'#666');
+}
+{
+ const b=initBoard('board7',[-1,5,8,-2]);
+ fnGraph(b,x=>x>=0?Math.sqrt(x):NaN,0,8,blue,2.6); fnGraph(b,x=>x>0?1/(2*Math.sqrt(x)):NaN,.02,8,red,2.1); vline(b,0,'#777');
+}
+{
+ const b=initBoard('board8',[-2.8,3.3,2.8,-3.3]),f=x=>Math.abs(x)<=2?Math.sqrt(4-x*x):NaN,d=x=>Math.abs(x)<2?-x/Math.sqrt(4-x*x):NaN;
+ fnGraph(b,f,-2,2,blue,2.7); fnGraph(b,d,-1.995,1.995,red,2); vline(b,-2); vline(b,2);
+}
+{
+ //const b=initBoard('board9',[-2.8,8,2.8,-8]),d=x=>Math.abs(x)<2?-x/Math.sqrt(4-x*x):NaN;
+ //fnGraph(b,d,-1.999,1.999,red,2.5); vline(b,-2,'#555'); vline(b,2,'#555');
+}
+{
+ const b=initBoard('board10',[-3,6,8,-2]);
+ fnGraph(b,x=>x>=-2?Math.sqrt(3*x+6):NaN,-2,8,blue,2.6); fnGraph(b,x=>x>-2?3/(2*Math.sqrt(3*x+6)):NaN,-1.995,8,red,2.1); vline(b,-2);
+}
+{
+ const b=initBoard('board11',[-5,20,5.5,-15]),f=x=>x<=5?x*x*Math.sqrt(5-x):NaN,d=x=>x<5?5*x*(4-x)/(2*Math.sqrt(5-x)):NaN;
+ fnGraph(b,f,-5,5,blue,2.6); fnGraph(b,d,-5,4.995,red,2.1); vline(b,5);
+}
+{
+ const b=initBoard('board13',[-4,18,5.6,-5]),f=x=>x<=5?x*x*Math.sqrt(5-x):NaN;
+ fnGraph(b,f,-4,5,blue,2.6); point(b,0,0,'(0,0)',green); point(b,4,16,'(4,16)',red); point(b,5,0,'(5,0)',orange);
+}
+{
+ const b=initBoard('board14',[-2.7,13,2.7,-13]),f=x=>Math.abs(x)<=Math.sqrt(6)?x*x*Math.sqrt(12-2*x*x):NaN,d=x=>Math.abs(x)<Math.sqrt(6)?6*x*(4-x*x)/Math.sqrt(12-2*x*x):NaN;
+ namedCurves.board14.f14=fnGraph(b,f,-Math.sqrt(6),Math.sqrt(6),blue,2.6); namedCurves.board14.d14=fnGraph(b,d,-Math.sqrt(6)+.003,Math.sqrt(6)-.003,red,2.1);
+}
+let cand15={};
+{
+ const b=initBoard('board15',[-2.7,14,2.7,-14]),L=Math.sqrt(6),actual=x=>Math.abs(x)<L?6*x*(4-x*x)/Math.sqrt(12-2*x*x):NaN;
+ cand15.I=fnGraph(b,actual,-L+.003,L-.003,blue,2.5); cand15.II=fnGraph(b,x=>-Math.abs(actual(x)),-L+.003,L-.003,red,2.3);
+ cand15.III=fnGraph(b,x=>-actual(x),-L+.003,L-.003,green,2.3); cand15.IV=fnGraph(b,x=>Math.abs(actual(x)),-L+.003,L-.003,orange,2.3);
+ ['II','III','IV'].forEach(k=>cand15[k].setAttribute({visible:false}));
+}
+function showCandidate15(k){Object.keys(cand15).forEach(x=>cand15[x].setAttribute({visible:x===k}));boards.board15.update();}
+{
+ //const b=initBoard('board16',[-5.5,7,5,-7]),d=x=>x>-5?3*(x+3)/Math.sqrt(2*x+10):NaN;
+ //namedCurves.board16.p16=fnGraph(b,d,-4.995,5,blue,2.5); namedCurves.board16.n16=fnGraph(b,x=>-d(x),-4.995,5,red,2.5); vline(b,-5);
+}
+{
+ const b=initBoard('board17',[-1.2,6,6,-1]),g=x=>{const den=4*x*x-1,q=3*x/den;return(Math.abs(den)>1e-6&&q>=0)?Math.sqrt(q):NaN;};
+ fnGraph(b,g,-.499,0,blue,2.6); fnGraph(b,g,.501,6,blue,2.6); vline(b,-.5); vline(b,.5);
+}
+{
+ const b=initBoard('board18',[-1.2,7,5,-8]),f=x=>3*x/(4*x*x-1),fp=x=>-3*(4*x*x+1)/Math.pow(4*x*x-1,2);
+ const g=x=>{const q=f(x);return q>=0?Math.sqrt(q):NaN;},dg=x=>{const q=f(x);return q>0?fp(x)/(2*Math.sqrt(q)):NaN;};
+ fnGraph(b,g,-.499,-.0005,blue,2.5); fnGraph(b,g,.501,5,blue,2.5); fnGraph(b,dg,-.499,-.0005,red,2); fnGraph(b,dg,.501,5,red,2); vline(b,-.5); vline(b,0); vline(b,.5);
+}
+{
+ const b=initBoard('board19',[-1.2,6,5,-1]),g=x=>{const den=4*x*x-1,q=3*x/den;return(Math.abs(den)>1e-6&&q>=0)?Math.sqrt(q):NaN;},h=x=>x>.5?Math.sqrt(3*x)/Math.sqrt(4*x*x-1):NaN;
+ fnGraph(b,g,-.499,0,blue,2.6); fnGraph(b,g,.501,5,blue,2.6); fnGraph(b,h,.501,5,orange,1.8,2); vline(b,-.5); vline(b,.5);
+}
+{
+ const L=Math.sqrt(6),actual=x=>Math.abs(x)<L?6*x*(4-x*x)/Math.sqrt(12-2*x*x):NaN;
+ const specs=[
+   ['board20I', actual, blue],
+   ['board20II', x=>-Math.abs(actual(x)), red],
+   ['board20III', x=>-actual(x), green],
+   ['board20IV', x=>Math.abs(actual(x)), orange]
+ ];
+ specs.forEach(([id,fn,color])=>{const b=initBoard(id,[-2.7,14,2.7,-14]);fnGraph(b,fn,-L+.003,L-.003,color,2.2);});
+}
+{
+ const b=initBoard('board21',[-5.5,7,4.5,-7]),d=x=>x>-5?3*(x+3)/Math.sqrt(2*x+10):NaN;
+ fnGraph(b,d,-4.995,4.5,blue,2.5); fnGraph(b,x=>-d(x),-4.995,4.5,red,2.5); vline(b,-5); point(b,-3,0,'-3','#333');
+}
+{
+ const a=3,b=initBoard('board22',[-7,7,4,-7]),d=x=>{if(x>=a||Math.abs(x)<.035)return NaN;return(3*x-4*a)/(2*Math.pow(x,3)*Math.sqrt(a-x));};
+ fnGraph(b,d,-7,-.04,blue,2.4); fnGraph(b,d,.04,a-.006,blue,2.4); vline(b,0,'#555'); vline(b,a,'#555'); b.create('text',[a+.08,-.7,'a'],{fontSize:13,fixed:true});
+}
+{
+ const actual=x=>x<5?5*x*(4-x)/(2*Math.sqrt(5-x)):NaN;
+ const specs=[
+   ['board23I', x=>Math.abs(actual(x)), orange],
+   ['board23II', x=>-actual(-x), purple],
+   ['board23III', actual, blue],
+   ['board23IV', x=>-actual(x), red]
+ ];
+ specs.forEach(([id,fn,color])=>{const b=initBoard(id,[-5,16,5.4,-16]);fnGraph(b,fn,-5,4.995,color,2.2);vline(b,5,'#555');});
+}
+{
+ const b=initBoard('board24',[-1.1,6.5,5,-8]),f=x=>3*x/(4*x*x-1),fp=x=>-3*(4*x*x+1)/Math.pow(4*x*x-1,2);
+ const g=x=>{const q=f(x);return q>=0?Math.sqrt(q):NaN;};
+ const dg=x=>{const q=f(x);return q>0?fp(x)/(2*Math.sqrt(q)):NaN;};
+ fnGraph(b,g,-.499,-.0005,blue,2.5); fnGraph(b,g,.501,5,blue,2.5);
+ fnGraph(b,dg,-.499,-.0005,red,2.0); fnGraph(b,dg,.501,5,red,2.0);
+ vline(b,-.5); vline(b,0); vline(b,.5);
+}
+window.addEventListener('load',()=>setTimeout(()=>Object.values(boards).forEach(b=>{try{b.fullUpdate();}catch(e){}}),250));
+</script>
+</body>
+</html>
