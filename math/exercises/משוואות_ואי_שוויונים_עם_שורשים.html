@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="he" dir="rtl" data-build-html-valid="true" data-math-normalized="true">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>משוואות ואי-שוויונים עם שורשים - מעודכן</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 0.92 },
+  startup: { typeset: false }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<style>
+:root{--ink:#17233c;--muted:#5e6a7b;--navy:#15375f;--blue:#216a8b;--teal:#21868a;--gold:#eaae43;--paper:#fff;--canvas:#dfe6ee;--line:#d9e2ec;--easy:#e2f4e8;--medium:#fff2d6;--hard:#f9dddd;}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{margin:0;color:var(--ink);background:var(--canvas);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.38;overflow-x:hidden}
+#document{width:210mm;margin:10mm auto}
+.page{position:relative;width:210mm;height:297mm;margin:0 0 9mm;padding:11mm 13mm 15mm;background:var(--paper);border:1px solid #cbd6e0;box-shadow:0 8px 25px rgba(23,35,60,.13);break-after:page;page-break-after:always;overflow:hidden}
+.page:last-child{break-after:auto;page-break-after:auto}
+.page::after{content:attr(data-page) " / 15";position:absolute;bottom:6mm;left:13mm;color:#768295;font-size:8.5pt;direction:ltr;unicode-bidi:isolate}
+.page::before{content:"מתמטיקה 5 יח״ל - משוואות ואי-שוויונים עם שורשים";position:absolute;right:13mm;bottom:6mm;color:#768295;font-size:8pt}
+.cover{display:flex;flex-direction:column;justify-content:space-between;color:white;background:radial-gradient(circle at 18% 18%,rgba(80,195,194,.28),transparent 34%),linear-gradient(145deg,#112a4c,#185c75 70%,#208287)}
+.cover::before,.cover::after{color:rgba(255,255,255,.7)}
+.cover-mark{color:#b5ece9;font-size:12pt;font-weight:700;letter-spacing:.05em}
+.cover h1{max-width:170mm;margin:18mm 0 7mm;font-size:32pt;line-height:1.12}
+.subtitle{max-width:160mm;color:#e7f3f5;font-size:14pt}
+.cover-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;margin-top:20mm}
+.stat{padding:7mm 5mm;border:1px solid rgba(255,255,255,.22);border-radius:4mm;background:rgba(255,255,255,.09);text-align:center}
+.stat strong{display:block;font-size:23pt}
+.cover-note{padding:7mm;border-right:1.5mm solid var(--gold);border-radius:3mm;background:rgba(8,28,50,.3);font-size:11pt}
+.topline{display:flex;justify-content:space-between;gap:5mm;align-items:center;margin-bottom:4mm;padding-bottom:2.5mm;border-bottom:.45mm solid var(--line)}
+.chapter{color:var(--blue);font-size:9pt;font-weight:700}
+.source{color:var(--muted);font-size:8.5pt}
+h2{margin:0 0 4mm;color:var(--navy);font-size:21pt;line-height:1.17}
+h3{margin:0 0 2mm;color:var(--navy);font-size:13pt}
+p{margin:0 0 3mm}
+.box{padding:4mm;border:.35mm solid var(--line);border-radius:3mm;background:#f8fafc;font-size:10pt}
+.rule{border-right:1.3mm solid var(--gold);background:#fffaf0}
+.worked{margin-top:5mm;border-color:#b8dddd;background:#f2fbfb}
+.steps{margin:2mm 0 0;padding-right:5mm}
+.steps li{margin-bottom:2mm}
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+.toc{width:100%;border-collapse:collapse;font-size:9.5pt}
+.toc th,.toc td{border:.25mm solid #d9e2ec;padding:2.2mm 2.5mm;text-align:right}
+.toc th{background:#edf4f8;color:var(--navy)}
+.self-check{margin-top:5mm;padding:4mm;border-radius:2.5mm;background:#eaf3f8;color:#24465e;font-size:9.5pt}
+.method{margin-bottom:4mm;padding:3.3mm 4mm;border-right:1.2mm solid var(--teal);border-radius:2.5mm;background:#eef8f8;font-size:9.7pt}
+.exercise-list{display:grid;gap:2.2mm;margin:0;padding:0;list-style:none}
+.exercise{padding:2.5mm 3.5mm;border:.28mm solid #dce5ed;border-radius:2.4mm;background:#fcfdff;font-size:9.6pt;break-inside:avoid}
+.exercise.easy{border-right:1.2mm solid #74b58a}
+.exercise.medium{border-right:1.2mm solid #ddb75d}
+.exercise.hard{border-right:1.2mm solid #d48181}
+.exercise-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1mm}
+.num{font-weight:700;color:var(--blue);font-size:10pt}
+.level{padding:.6mm 2mm;border-radius:999px;font-size:7.6pt;font-weight:700}
+.level-easy{background:var(--easy);color:#23623a} .level-medium{background:var(--medium);color:#73500e} .level-hard{background:var(--hard);color:#7c2929}
+.question{font-size:9.8pt}
+.answer{margin-top:1.2mm;padding-top:1mm;border-top:.22mm dashed #d6dee7;color:#536579;font-size:8.5pt}
+.answer strong{color:#2c7184}
+.origin{display:none;}
+mjx-container{max-width:100%;direction:ltr;unicode-bidi:isolate}
+mjx-container[display="true"]{margin:2mm 0!important}
+.graph-panel{position:relative} .graph-controls{display:flex;gap:2mm;margin-top:2mm} .graph-controls button{font:inherit;padding:1.5mm 2.5mm}
+@media screen and (max-width:850px){#document{width:100%;margin:0}.page{margin-left:auto;margin-right:auto}}
+@media print{@page{size:A4 portrait;margin:0}html,body{width:210mm;background:white}#document{width:210mm;margin:0}.page{margin:0;border:0;box-shadow:none;print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<main id="document">
+<section class="page cover" data-page="1">
+  <div>
+    <div class="cover-mark">דף עבודה מדורג - 5 יחידות</div>
+    <h1>משוואות ואי-שוויונים עם שורשים</h1>
+    <p class="subtitle">התרגילים  מאורגנים לפי תתי-נושאים ובסדר קושי עולה.</p>
+  </div>
+  <div class="cover-note">בכל משוואה עם שורש: קובעים תחום הצבה, פותרים, ובודקים את הפתרונות במשוואה המקורית.</div>
+</section><section class="page overview" data-page="2">
+      <div class="topline"><span class="chapter">פתיחה</span><span class="source">ארגון מחדש של הקובץ המקורי</span></div>
+      <h2>מפת עבודה וכללי פתרון</h2>
+      
+<div class="overview-grid_">
+  <div class="box rule"><h3>כללי עבודה</h3>
+    <ol class="steps">
+      <li>תחום הצבה קודם לכל פעולה אלגברית.</li>
+      <li>במשוואה מהצורה \(\sqrt{A(x)}=B(x)\) יש לדרוש גם \(B(x)\ge0\).</li>
+      <li>העלאה בריבוע עלולה ליצור פתרונות זרים - בודקים תמיד במקור.</li>
+      <li>אם השורש עצמו נמצא במכנה, הביטוי מתחתיו חייב להיות חיובי. בכל מקרה המכנה כולו חייב להיות שונה מאפס.</li>
+    </ol>
+  </div>
+<div style="height:20px;"></div>
+  <div class="box"><h3>מפת תתי-הנושאים</h3>
+    <table class="toc"><thead><tr><th>תת-נושא</th><th>מספר תרגילים</th></tr></thead><tbody>
+      <tr><td>תחום הגדרה</td><td>14</td></tr>
+      <tr><td>שורש יחיד</td><td>29</td></tr>
+      <tr><td>הצבה \(t=\sqrt{x}\)</td><td>8</td></tr>
+      <tr><td>שני שורשים</td><td>11</td></tr>
+      <tr><td>שורשים במכנה</td><td>6</td></tr>
+      <tr><td>אי-שוויונים</td><td>6</td></tr>
+    </tbody></table>
+  </div>
+</div>
+<div class="box worked"><h3>דוגמה קצרה</h3>
+  <p>פתרו \(\sqrt{x+6}=x\).</p>
+  <p>תחום: \(x\ge0\). בריבוע: \(x^2-x-6=0\), ולכן המועמדים הם \(x=3,-2\). רק \(x=3\) עומד בתחום ובמשוואה המקורית.</p>
+</div>
+<div class="self-check">בדיקה עצמית: לפני שמסמנים תשובה סופית, ודאו שכל הפתרונות עומדים בתחום ההצבה ובמשוואה או באי-השוויון המקוריים.</div>
+
+    </section><section class="page exercise-page" data-page="3">
+      <div class="topline"><span class="chapter">תת-נושא: תחום הגדרה</span><span class="source">חלק 1 מתוך 3</span></div>
+      <h2>1. תחום הגדרה של ביטויים עם שורשים</h2>
+      <div class="method"><strong>שיטת עבודה:</strong> דרשו שכל ביטוי מתחת לשורש יהיה לא שלילי. אם שורש נמצא במכנה, יש לדרוש שהמכנה יהיה שונה מאפס. בביטוי רציונלי מתחת לשורש מבצעים טבלת סימנים.</div><ol class="exercise-list"><li class="exercise easy">
+      <div class="exercise-top"><span class="num">1</span><span class="level level-easy">קל</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\sqrt{3x-4}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x\ge\frac{4}{3}\)</div>
+      <div class="origin">תמונה 1 - 1א</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">2</span><span class="level level-easy">קל</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\sqrt{x^2-5x-6}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-\infty,-1]\cup[6,\infty)\)</div>
+      <div class="origin">תמונה 1 - 1ב</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">3</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\sqrt{\frac{x-1}{x+2}}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-\infty,-2)\cup[1,\infty)\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">4</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\sqrt{12x-x^2-x^3}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-\infty,-4]\cup[0,3]\)</div>
+      <div class="origin">תמונה 1 - 1ג</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">5</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\sqrt{\frac{x+5}{x^2-4}}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \([-5,-2)\cup(2,\infty)\)</div>
+      <div class="origin">תמונה 1 - 1ד</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">6</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\frac{\sqrt{3x^2-2x-1}}{2x-3}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-\infty,-\frac{1}{3}]\cup[1,\frac{3}{2})\cup(\frac{3}{2},\infty)\)</div>
+      <div class="origin">תמונה 1 - 1ו</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="4">
+      <div class="topline"><span class="chapter">תת-נושא: תחום הגדרה</span><span class="source">חלק 2 מתוך 3</span></div>
+      <h2>1. תחום הגדרה של ביטויים עם שורשים</h2>
+      <ol class="exercise-list"><li class="exercise medium">
+      <div class="exercise-top"><span class="num">7</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\sqrt{\sqrt{x+2}-3}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x\ge7\)</div>
+      <div class="origin">תמונה 1 - 2א</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">8</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\frac{1}{x+\sqrt{x+6}}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \([-6,-2)\cup(-2,\infty)\)</div>
+      <div class="origin">תמונה 1 - 2ב</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">9</span><span class="level level-hard">קשה</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\sqrt{\frac{2x^2+x-3}{x^2+5x+9}}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-\infty,-\frac{3}{2}]\cup[1,\infty)\)</div>
+      <div class="origin">תמונה 1 - 2ג</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">10</span><span class="level level-hard">קשה</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\frac{\sqrt{x^2+5x+6}}{x-1}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-\infty,-3]\cup[-2,1)\cup(1,\infty)\)</div>
+      <div class="origin">תמונה 1 - 2ד</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">11</span><span class="level level-hard">קשה</span></div>
+      <div class="question">מצאו את תחום ההגדרה של \(f(x)=\frac{1}{\sqrt{x+2}-x}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \([-2,2)\cup(2,\infty)\)</div>
+      <div class="origin">תמונה 1 - 1ה</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="5">
+      <div class="topline"><span class="chapter">תת-נושא: תחום הגדרה</span><span class="source">חלק 3 מתוך 3</span></div>
+      <h2>1. תחום הגדרה של ביטויים עם שורשים</h2>
+      <ol class="exercise-list"><li class="exercise hard">
+      <div class="exercise-top"><span class="num">12</span><span class="level level-hard">קשה</span></div>
+      <div class="question">תחום ההגדרה של \(f(x)=\sqrt{ax-x^2-4}\) הוא \(1\le x\le4\). מצאו את ערכו של הפרמטר \(a\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(a=5\)</div>
+      <div class="origin">תמונה 1 - 3</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">13</span><span class="level level-hard">קשה</span></div>
+      <div class="question">תחום ההגדרה של \(f(x)=\sqrt{\frac{x+a}{x-a}}\) הוא \(x\le-2\) או \(x\gt2\). מצאו את ערכו של הפרמטר \(a\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(a=2\)</div>
+      <div class="origin">תמונה 1 - 4</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">14</span><span class="level level-hard">קשה</span></div>
+      <div class="question">נתונה הפונקציה \(f(x)=\sqrt{\sqrt{x+6}-a}\), כאשר \(a\gt0\). א. הביעו באמצעות \(a\) את תחום ההגדרה. ב. מגדירים \(g(x)=\sqrt{\frac{2x}{x+5}}\). ידוע כי תחום ההגדרה של שתי הפונקציות מכסה את כל ציר המספרים. מצאו את תחום הערכים האפשרי של \(a\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> א. \(x\ge a^2-6\). ב. \(0\lt a\le1\).</div>
+      <div class="origin">תמונה 1 - 5</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="6">
+      <div class="topline"><span class="chapter">תת-נושא: שורש יחיד</span><span class="source">חלק 1 מתוך 4</span></div>
+      <h2>2. משוואות עם שורש יחיד</h2>
+      <div class="method"><strong>שיטת עבודה:</strong> בודדו את השורש. לפני העלאה בריבוע בדקו שהאגף שמול השורש יכול להיות לא שלילי. לאחר הריבוע פתרו ובדקו כל מועמד במשוואה המקורית.</div><ol class="exercise-list"><li class="exercise easy">
+      <div class="exercise-top"><span class="num">1</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+1}=1\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=0\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">2</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+2}=2\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=2\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">3</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+3}=3\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=6\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">4</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+4}=4\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=12\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">5</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+5}=5\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=20\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">6</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+6}=6\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=30\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">7</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+7}=7\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=42\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="7">
+      <div class="topline"><span class="chapter">תת-נושא: שורש יחיד</span><span class="source">חלק 2 מתוך 4</span></div>
+      <h2>2. משוואות עם שורש יחיד</h2>
+      <ol class="exercise-list"><li class="exercise easy">
+      <div class="exercise-top"><span class="num">8</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+8}=8\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=56\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">9</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{2x-1}-4=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{17}{2}\)</div>
+      <div class="origin">תמונה 3 - 1</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">10</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(2\sqrt{4-x}-6=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=-5\)</div>
+      <div class="origin">תמונה 3 - 18</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">11</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{2x+1}+3=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> אין פתרון</div>
+      <div class="origin">תמונה 3 - 2</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">12</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{3x-2}+4=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> אין פתרון</div>
+      <div class="origin">תמונה 3 - 17</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">13</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{1x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{1+\sqrt{5}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">14</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{2x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{2+\sqrt{8}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="8">
+      <div class="topline"><span class="chapter">תת-נושא: שורש יחיד</span><span class="source">חלק 3 מתוך 4</span></div>
+      <h2>2. משוואות עם שורש יחיד</h2>
+      <ol class="exercise-list"><li class="exercise medium">
+      <div class="exercise-top"><span class="num">15</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{3x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{3+\sqrt{13}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">16</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{4x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{4+\sqrt{20}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">17</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{5x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{5+\sqrt{29}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">18</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{6x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{6+\sqrt{40}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">19</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{7x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{7+\sqrt{53}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">20</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{8x+1}=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{8+\sqrt{68}}{2}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">21</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{x-2}+4=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=6\)</div>
+      <div class="origin">תמונה 3 - 9</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="9">
+      <div class="topline"><span class="chapter">תת-נושא: שורש יחיד</span><span class="source">חלק 4 מתוך 4</span></div>
+      <h2>2. משוואות עם שורש יחיד</h2>
+      <ol class="exercise-list"><li class="exercise medium">
+      <div class="exercise-top"><span class="num">22</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{7-2x}+x=2\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=-1\)</div>
+      <div class="origin">תמונה 3 - 25</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">23</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(-2\sqrt{4x-1}+3=2x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{1}{2}\)</div>
+      <div class="origin">תמונה 3 - 27</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">24</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{x+1}+1=x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=3\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">25</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{2x+3}=x-1\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=2+\sqrt{6}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">26</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{x^2-5x+6}=x-2\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=2\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">27</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(3x-\sqrt{7-6x}-2=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=1\)</div>
+      <div class="origin">תמונה 3 - 10</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">28</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(x+3\sqrt{1-4x}=9\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=-12,-6\)</div>
+      <div class="origin">תמונה 3 - 11</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">29</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(3\sqrt{2x-2}-x=3\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=3,9\)</div>
+      <div class="origin">תמונה 3 - 26</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="10">
+      <div class="topline"><span class="chapter">תת-נושא: הצבה</span><span class="source">חלק 1 מתוך 2</span></div>
+      <h2>3. משוואות המתאימות להצבה \(t=\sqrt{x}\)</h2>
+      <div class="method"><strong>שיטת עבודה:</strong> כאשר מופיעים גם \(x\) וגם \(\sqrt{x}\), אפשר להציב \(t=\sqrt{x}\) ולכן \(x=t^2\) עם \(t\ge0\). פותרים ב-\(t\) וחוזרים ל-\(x\).</div><ol class="exercise-list"><li class="exercise easy">
+      <div class="exercise-top"><span class="num">1</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(x=\sqrt{x}+2\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=4\)</div>
+      <div class="origin">תמונה 3 - 22</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">2</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(x-6\sqrt{x}+5=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=1,25\)</div>
+      <div class="origin">תמונה 3 - 23</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">3</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(x-3\sqrt{x}-4=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=16\)</div>
+      <div class="origin">תמונה 3 - 24</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">4</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(4\sqrt{x}-x=3\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=1,9\)</div>
+      <div class="origin">תמונה 3 - 6</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="11">
+      <div class="topline"><span class="chapter">תת-נושא: הצבה</span><span class="source">חלק 2 מתוך 2</span></div>
+      <h2>3. משוואות המתאימות להצבה \(t=\sqrt{x}\)</h2>
+      <ol class="exercise-list"><li class="exercise medium">
+      <div class="exercise-top"><span class="num">5</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(x-5\sqrt{x}+6=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=4,9\)</div>
+      <div class="origin">תמונה 3 - 7</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">6</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(2x+5\sqrt{x}-3=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{1}{4}\)</div>
+      <div class="origin">תמונה 3 - 8</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">7</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(\sqrt{x}-x^2=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=0,1\)</div>
+      <div class="origin">תמונה 3 - 19</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">8</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו באמצעות הצבה מתאימה: \(x^2-8\sqrt{x}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=0,4\)</div>
+      <div class="origin">תמונה 3 - 3</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="12">
+      <div class="topline"><span class="chapter">תת-נושא: שני שורשים</span><span class="source">חלק 1 מתוך 2</span></div>
+      <h2>4. משוואות עם שני שורשים</h2>
+      <div class="method"><strong>שיטת עבודה:</strong> ראשית קבעו תחום הצבה. בודדו שורש אחד והעלו בריבוע. אם נשאר שורש נוסף, בודדו אותו וחזרו על התהליך. בדיקה במקור הכרחית.</div><ol class="exercise-list"><li class="exercise easy">
+      <div class="exercise-top"><span class="num">1</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x-7}-\sqrt{2-2x}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> אין פתרון</div>
+      <div class="origin">תמונה 3 - 20</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">2</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x^2+5}-\sqrt{x+7}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=-1,2\)</div>
+      <div class="origin">תמונה 3 - 4</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">3</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x-1}=\sqrt{7-x}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=4\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">4</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{3x-1}-\sqrt{x^2-4x+11}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=3,4\)</div>
+      <div class="origin">תמונה 3 - 21</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">5</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{x+3}-\sqrt{x-2}=1\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=6\)</div>
+      <div class="origin">תמונה 3 - 12</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">6</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{x+5}-\sqrt{x}=1\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=4\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="13">
+      <div class="topline"><span class="chapter">תת-נושא: שני שורשים</span><span class="source">חלק 2 מתוך 2</span></div>
+      <h2>4. משוואות עם שני שורשים</h2>
+      <ol class="exercise-list"><li class="exercise medium">
+      <div class="exercise-top"><span class="num">7</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{3x+7}-3=\sqrt{x-2}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=3,6\)</div>
+      <div class="origin">תמונה 3 - 28</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">8</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{3x+1}-\sqrt{17-x}=2\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=8\)</div>
+      <div class="origin">תמונה 3 - 13</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">9</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{x^2-5x+2}-\sqrt{2x^2-4}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=-6\)</div>
+      <div class="origin">תמונה 3 - 5</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">10</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{x+2}+\sqrt{2x-3}=2\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=17-4\sqrt{15}\)</div>
+      <div class="origin">תמונה 3 - 29</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">11</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{x+3}+\sqrt{x-1}=4\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=\frac{13}{4}\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="14">
+      <div class="topline"><span class="chapter">תת-נושא: שורשים במכנה</span><span class="source">חלק 1 מתוך 1</span></div>
+      <h2>5. משוואות עם שורשים במכנה ובביטויים רציונליים</h2>
+      <div class="method"><strong>שיטת עבודה:</strong> קבעו תחום הצבה לפני כפל במכנים. כאשר שורש מופיע במכנה, הוא חייב להיות מוגדר וגם שונה מאפס. רק לאחר מכן מפשטים ופותרים.</div><ol class="exercise-list"><li class="exercise easy">
+      <div class="exercise-top"><span class="num">1</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(2x\sqrt{x-2}-\frac{x^2}{\sqrt{x-2}}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=4\)</div>
+      <div class="origin">תמונה 3 - 31</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">2</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x}-\frac{3-x}{2\sqrt{x}}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=1\)</div>
+      <div class="origin">תמונה 3 - 32</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">3</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\sqrt{2x+3}-\frac{x}{2\sqrt{2x+3}}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> אין פתרון</div>
+      <div class="origin">תמונה 3 - 16</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">4</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\frac{x+2}{\sqrt{x-1}}=\sqrt{3x+10}\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=2\)</div>
+      <div class="origin">תמונה 3 - 14</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">5</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{5-x}-\frac{7-x}{\sqrt{x+5}}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=3,4\)</div>
+      <div class="origin">תמונה 3 - 30</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">6</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\frac{6x^3}{\sqrt{4-x^2}}-2x\sqrt{4-x^2}=0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x=-1,0,1\)</div>
+      <div class="origin">תמונה 3 - 15</div>
+    </li></ol>
+    </section><section class="page exercise-page" data-page="15">
+      <div class="topline"><span class="chapter">תת-נושא: אי-שוויונים</span><span class="source">חלק 1 מתוך 1</span></div>
+      <h2>6. אי-שוויונים עם שורשים וערך מוחלט</h2>
+      <div class="method"><strong>שיטת עבודה:</strong> קבעו תחום הצבה, פצלו לפי הצורך למקרים של ערך מוחלט, ורק כאשר שני האגפים מתאימים מבחינת סימן העלו בריבוע. בסוף חותכים עם תחום ההצבה.</div><ol class="exercise-list"><li class="exercise easy">
+      <div class="exercise-top"><span class="num">1</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{x+4}\le x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \([\frac{1+\sqrt{17}}{2},\infty)\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise easy">
+      <div class="exercise-top"><span class="num">2</span><span class="level level-easy">קל</span></div>
+      <div class="question">פתרו: \(\sqrt{9-x^2}\gt 1\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-2\sqrt{2},2\sqrt{2})\)</div>
+      <div class="origin">מהקובץ המקורי</div>
+    </li><li class="exercise medium">
+      <div class="exercise-top"><span class="num">3</span><span class="level level-medium">בינוני</span></div>
+      <div class="question">פתרו: \(\frac{|x+2|-|x|}{\sqrt{4-x^3}}\gt0\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-1,\sqrt[3]{4})\)</div>
+      <div class="origin">תמונה 2 - 6ד</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">4</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(2-\sqrt{1-x}\le |x+2|-3\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \(x\le\frac{-15+\sqrt{33}}{2}\)</div>
+      <div class="origin">תמונה 2 - 6ב</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">5</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{|2x+1|-x-1}\lt 4-|3x|\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \((-1,-\frac{2}{3}]\cup[0,1)\)</div>
+      <div class="origin">תמונה 2 - 6ג</div>
+    </li><li class="exercise hard">
+      <div class="exercise-top"><span class="num">6</span><span class="level level-hard">קשה</span></div>
+      <div class="question">פתרו: \(\sqrt{x^2-|x-12|}\lt x\).</div>
+      <div class="answer"><strong>תשובה לבדיקה:</strong> \([3,12)\cup(12,\infty)\)</div>
+      <div class="origin">תמונה 2 - 6א</div>
+    </li></ol>
+    </section>
+</main>
+<script>
+(function(){
+  const results={};
+  const tests={
+    invalidHTML:()=>document.documentElement.dataset.buildHtmlValid==='true' && !document.querySelector('parsererror') && document.querySelectorAll('html').length===1 && document.querySelectorAll('body').length===1 && !!document.querySelector('main#document'),
+    duplicateIDs:()=>{const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);return ids.length===new Set(ids).size;},
+    missingTitles:()=>[...document.querySelectorAll('section.page')].every(s=>s.querySelector('h1,h2')),
+    graphControls:()=>[...document.querySelectorAll('.jxgbox')].every(b=>{const p=b.closest('.graph-panel');return p&&p.querySelector('[data-action="reset"]')&&p.querySelector('[data-action="zoom-in"]')&&p.querySelector('[data-action="zoom-out"]');}),
+    geometryStyle:()=>document.querySelectorAll('[data-geometry-diagram]').length===0,
+    jsxgraphInit:()=>[...document.querySelectorAll('.jxgbox')].every(b=>b.dataset.jxgReady==='true'),
+    a4Overflow:()=>[...document.querySelectorAll('section.page')].every(s=>s.scrollHeight<=s.clientHeight+2),
+    mathjaxErrors:()=>document.querySelectorAll('mjx-merror').length===0 && ![...document.querySelectorAll('.question,.answer,.method,.box,.toc,h2')].some(e=>/\\\(|\\\)/.test(e.textContent))
+  };
+  async function boot(){
+    const wait=ms=>new Promise(r=>setTimeout(r,ms));
+    for(let i=0;i<100&&!window.MathJax?.typesetPromise;i++) await wait(80);
+    if(window.MathJax?.typesetPromise) await MathJax.typesetPromise([document.getElementById('document')]);
+    await wait(100);
+    Object.entries(tests).forEach(([k,fn])=>{try{results[k]=!!fn();}catch(e){results[k]=false;console.error(k,e);}});
+    document.documentElement.dataset.selfTest=Object.values(results).every(Boolean)?'pass':'fail';
+    window.__documentSelfTest=results;
+    if(document.documentElement.dataset.selfTest!=='pass') console.error('Document self-test failed',results);
+  }
+  window.addEventListener('load',boot);
+})();
+</script>
+</body>
+</html>
