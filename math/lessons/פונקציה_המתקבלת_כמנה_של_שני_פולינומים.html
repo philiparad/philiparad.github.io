@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פונקציה המתקבלת כמנה של שני פולינומים - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --ink:#1f2937;
+  --muted:#5b6473;
+  --accent:#245b78;
+  --accent2:#eaf4f8;
+  --warm:#fff7e8;
+  --ok:#edf8ef;
+  --danger:#fff0f0;
+  --line:#d7e0e7;
+  --paper:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#edf1f5;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.46}
+body{overflow-x:hidden}
+a{color:#184e77;text-decoration:none}
+.page{
+  width:210mm;
+  height:297mm;
+  margin:8mm auto;
+  padding:10mm 12mm 9mm;
+  background:var(--paper);
+  box-shadow:0 4px 18px rgba(0,0,0,.12);
+  position:relative;
+  overflow:hidden;
+  page-break-after:always;
+}
+.page:last-child{page-break-after:auto}
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fff}
+  .page{margin:0;box-shadow:none}
+  .no-print{display:none!important}
+}
+h1,h2,h3{color:#173f59;margin:0 0 8px;font-weight:700}
+h1{font-size:29px;line-height:1.18}
+h2{font-size:22px;border-bottom:2px solid #dbe8ef;padding-bottom:5px}
+h3{font-size:17px;margin-top:8px}
+p{margin:5px 0;font-size:14.1px}
+ul,ol{margin:5px 0 7px;padding-right:23px;font-size:14px}
+li{margin:3px 0}
+.small{font-size:12.3px;color:var(--muted)}
+.lead{font-size:16px;line-height:1.55}
+.hero{padding-top:18mm}
+.hero .formula{font-size:26px;margin:18px 0}
+.kicker{display:inline-block;padding:5px 10px;border-radius:999px;background:var(--accent2);color:#164c6a;font-weight:700;font-size:13px;margin-bottom:12px}
+.box{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin:8px 0;background:#fff}
+.box.blue{background:var(--accent2);border-color:#c6dce7}
+.box.warm{background:var(--warm);border-color:#f1dab0}
+.box.ok{background:var(--ok);border-color:#cbe4d0}
+.box.danger{background:var(--danger);border-color:#eccaca}
+.rule{font-size:18px;text-align:center;padding:8px;background:#f7fafc;border-radius:8px;margin:8px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.card{border:1px solid var(--line);border-radius:9px;padding:8px 9px;background:#fff}
+.card h3{font-size:15.5px;margin:0 0 5px}
+.step{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
+.step .n{flex:0 0 25px;height:25px;border-radius:50%;background:#245b78;color:#fff;text-align:center;line-height:25px;font-weight:700;font-size:13px}
+.step .txt{flex:1;font-size:14px}
+table{width:100%;border-collapse:collapse;margin:7px 0;font-size:13.2px}
+th,td{border:1px solid #cad5dd;padding:5px 7px;text-align:center;vertical-align:middle}
+th{background:#eef4f7;color:#173f59}
+.mathline{direction:ltr;text-align:center;font-size:15px;margin:6px 0}
+.ltr{direction:ltr;text-align:left}
+.graph-panel{border:1px solid #cad8e1;border-radius:10px;background:#fbfdfe;padding:7px;margin:8px 0}
+.graph-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.graph-title{font-weight:700;color:#173f59;font-size:13.5px}
+.graph-controls{display:flex;gap:5px;direction:rtl;flex-wrap:wrap}
+.graph-controls button{border:1px solid #b7c8d3;background:white;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;color:#173f59}
+.jxgbox{width:100%;height:245px;border-radius:6px;border:1px solid #d9e3e9;background:white}
+.jxgbox.short{height:170px}
+.legend{display:flex;gap:13px;justify-content:center;flex-wrap:wrap;font-size:12px;margin-top:4px}
+.swatch{display:inline-block;width:16px;height:3px;vertical-align:middle;margin-left:4px;border-radius:2px}
+.exercise{border-right:4px solid #2d6f8d;padding:5px 9px 5px 6px;margin:7px 0;background:#f9fcfd;border-radius:0 7px 7px 0}
+.answer{border-right:4px solid #3f7f4c;padding:5px 9px;margin:6px 0;background:#f4faf5;border-radius:0 7px 7px 0}
+.warning{border-right:4px solid #b26a00;padding:6px 9px;margin:7px 0;background:#fff8e9;border-radius:0 7px 7px 0}
+.footer{position:absolute;bottom:5mm;right:12mm;left:12mm;display:flex;justify-content:space-between;border-top:1px solid #d8e1e7;padding-top:3px;color:#6b7280;font-size:10.5px}
+.page-no::before{content:attr(data-page)}
+.teach-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:11px}
+.teach-flow div{padding:8px 6px;border-radius:8px;background:#f3f7fa;text-align:center;font-size:12.4px;border:1px solid #d9e4ea}
+.source-list li{font-size:12.3px;margin:5px 0}
+.check{font-weight:700;color:#205a31}
+.cross{font-weight:700;color:#8a2d2d}
+.tight p,.tight li{font-size:13.2px}
+.mini-formula{font-size:14.2px;direction:ltr;text-align:center;margin:4px 0}
+</style>
+</head>
+<body>
+
+<section class="page hero">
+  <span class="kicker">מערך שיעור מלא - מתמטיקה 5 יחידות</span>
+  <h1>פונקציה המתקבלת כמנה של שני פולינומים</h1>
+  <div class="formula mathline">\[ h(x)=\frac{f(x)}{g(x)} \]</div>
+  <p class="lead">המערך עוסק רק בבניית פונקציה חדשה כמנה של שני פולינומים, ובהסקת תכונות הפונקציה החדשה מתוך \(f\) ו-\(g\).</p>
+  <div class="box blue">
+    <h3>מטרות על</h3>
+    <ul>
+      <li>לקבוע תחום הגדרה של מנה גם כאשר \(f\) ו-\(g\) נתונות באופן עקיף.</li>
+      <li>להסיק אפסים, חיתוכים עם הצירים וסימן של \(h\).</li>
+      <li>להבחין בין נקודת אי-הגדרה, חור ואסימפטוטה אנכית.</li>
+      <li>לשמור על תחום ההגדרה המקורי לאחר צמצום אלגברי.</li>
+      <li>לגזור מנה ולחקור עליה, ירידה וקיצון בעזרת מונה הנגזרת.</li>
+      <li>לפתור שאלות 5 יחידות המבוססות על ערכי פונקציה ונגזרת בנקודה.</li>
+    </ul>
+  </div>
+  <h3>רצף הוראה מומלץ</h3>
+  <div class="teach-flow">
+    <div>1<br>הגדרה ותחום</div>
+    <div>2<br>אפסים וסימן</div>
+    <div>3<br>חורים ואסימפטוטות</div>
+    <div>4<br>נגזרת וחקירה</div>
+    <div>5<br>שאלות בגרות</div>
+  </div>
+  <div class="footer"><span>פונקציית מנה</span><span class="page-no" data-page="1"></span></div>
+</section>
+
+<section class="page">
+  <h2>1. מהי פונקציה המתקבלת כמנה?</h2>
+  <p>בהינתן שני פולינומים \(f\) ו-\(g\), מגדירים פונקציה חדשה:</p>
+  <div class="rule">\[ h(x)=\frac{f(x)}{g(x)} \]</div>
+  <p>לכל ערך \(x\) שמותר להציב, מחשבים תחילה את שני הערכים \(f(x)\) ו-\(g(x)\), ולאחר מכן מחלקים.</p>
+  <div class="box blue">
+    <p> בוחרים \(x\) ⇐ מחשבים \(f(x)\) ו-\(g(x)\) ⇐ בודקים שהמכנה אינו אפס ⇐ מחשבים את המנה.</p>
+  </div>
+  <div class="grid2_">
+    <div class="card">
+      <h3>דוגמה 1</h3>
+      <p>נתון:</p>
+      <div class="mini-formula">\[ f(x)=x^2+3,\qquad g(x)=x-1 \]</div>
+      <p>לכן:</p>
+      <div class="mini-formula">\[ h(x)=\frac{x^2+3}{x-1} \]</div>
+      <p>למשל:</p>
+      <div class="mini-formula">\[ h(2)=\frac{7}{1}=7 \]</div>
+    </div>
+<div style="height:20px;"></div>
+    <div class="card">
+      <h3>דוגמה 2 - אין צורך בנוסחאות</h3>
+      <p>אם ידוע שבנקודה \(x=4\):</p>
+      <div class="mini-formula">\[ f(4)=12,\qquad g(4)=-3 \]</div>
+      <p>אז:</p>
+      <div class="mini-formula">\[ h(4)=\frac{12}{-3}=-4 \]</div>
+      <p>אפשר לעבוד גם מטבלה או מגרף.</p>
+    </div>
+  </div>
+  <div class="warning">
+    <strong>טעות נפוצה:</strong> עצם קיום הערכים \(f(a)\) ו-\(g(a)\) אינו מספיק. חייבים גם \(g(a)\ne0\).
+  </div>
+  <h3>שאלת פתיחה:</h3>
+  <p>אם \(f(3)=0\) ו-\(g(3)=5\), מהו \(h(3)\)? ומה משתנה אם \(g(3)=0\)?</p>
+  <div class="answer">תשובה: במקרה הראשון \(h(3)=0\). במקרה השני \(h(3)\) אינה מוגדרת.</div>
+  <div class="footer"><span>הגדרה</span><span class="page-no" data-page="2"></span></div>
+</section>
+
+<section class="page">
+  <h2>2. תחום ההגדרה</h2>
+  <p>כדי ש-\(h(x)\) תהיה מוגדרת, צריך להתקיים:</p>
+  <div class="rule">\[  g(x)\ne0 \]</div>
+  <div style="height:10px;"></div>
+  <h3>דוגמה מלאה</h3>
+  <div class="exercise">
+    \[ f(x)=x^2+2x+5,\qquad g(x)=x^2-2x-3,\qquad h(x)=\frac{f(x)}{g(x)} \]
+  </div>
+  <div style="height:20px;"></div>
+  <div class="step"><span class="n">1</span><div class="txt">הפונקציה \(f\) היא פולינום, ולכן היא מוגדרת לכל \(x\in\mathbb{R}\).</div></div>
+  <div class="step"><span class="n">2</span><div class="txt">גם \(g\) היא פולינום, ולכן היא מוגדרת לכל \(x\in\mathbb{R}\).</div></div>
+  <div class="step"><span class="n">3</span><div class="txt">מפרקים \(g(x)=(x-3)(x+1)\). המכנה מתאפס ב-\(x=3\) וב-\(x=-1\), ולכן מוציאים ערכים אלה.</div></div>
+  <div style="height:20px;"></div>
+  <div class="answer">
+    \[ D_h=\mathbb{R}\setminus\{-1,3\} \]
+  </div>
+  <div style="height:20px;"></div>
+  <div class="warning"><strong>חשוב:</strong> כאשר \(f\) ו-\(g\) פולינומים, שתיהן מוגדרות לכל מספר ממשי. ההגבלות של \(h\) נובעות מאפסי המכנה.</div>
+  <div style="height:20px;"></div>
+  <h3>בדיקת הבנה</h3>
+  <p>נתון \(f(x)=x^3-2x+1\) ו-\(g(x)=x^2-4\). מצאו את תחום ההגדרה של \(h(x)=\frac{f(x)}{g(x)}\).</p>
+  <div class="answer">\[ D_h=\mathbb{R}\setminus\{-2,2\} \]</div>
+  <div class="footer"><span>תחום הגדרה</span><span class="page-no" data-page="3"></span></div>
+</section>
+
+<section class="page">
+  <h2>3. אפסים וחיתוך עם הצירים</h2>
+  <h3>חיתוך עם ציר \(x\)</h3>
+  <p>מנה שווה לאפס כאשר המונה שווה לאפס והמכנה אינו שווה לאפס:</p>
+  <div class="rule">\[ h(a)=0\iff f(a)=0\ \text{and}\ g(a)\ne0 \]</div>
+  <div class="warning">אי אפשר להסיק שכל אפס של \(f\) הוא אוטומטית אפס של \(h\). צריך לוודא שהנקודה שייכת לתחום.</div>
+  <h3>חיתוך עם ציר \(y\)</h3>
+  <p>אם \(0\in D_h\), מציבים:</p>
+  <div class="rule">\[ h(0)=\frac{f(0)}{g(0)} \]</div>
+  <div class="grid2_">
+    <div class="card">
+      <h3>דוגמה</h3>
+      <div class="mini-formula">\[ f(x)=(x-2)(x+1),\qquad g(x)=x-4 \]</div>
+      <p>אפסי \(h\):</p>
+      <div class="mini-formula">\[ x=-1,\ 2 \]</div>
+      <p>כי בשתי הנקודות המכנה אינו אפס.</p>
+    </div>
+    <div style="height:20px;"></div>
+    <div class="card">
+      <h3>מלכודת</h3>
+      <div class="mini-formula">\[ f(x)=x-1,\qquad g(x)=x-1 \]</div>
+      <p>אמנם \(f(1)=0\), אבל:</p>
+      <div class="mini-formula">\[ h(1)=\frac{0}{0} \]</div>
+      <p>ולכן \(x=1\) אינו אפס של \(h\), אלא נקודת אי-הגדרה.</p>
+    </div>
+  </div>
+  <h3>כלל עבודה</h3>
+  <table>
+    <tr><th>מידע</th><th>מה מסיקים על \(h\)?</th></tr>
+    <tr><td>\(f(a)=0,\ g(a)\ne0\)</td><td>\(h(a)=0\)</td></tr>
+    <tr><td>\(f(a)=0,\ g(a)=0\)</td><td>\(h(a)\) אינה מוגדרת</td></tr>
+    <tr><td>\(f(a)\ne0,\ g(a)=0\)</td><td>\(h(a)\) אינה מוגדרת</td></tr>
+  </table>
+  <div class="footer"><span>אפסים וחיתוכים</span><span class="page-no" data-page="4"></span></div>
+</section>
+
+<section class="page">
+  <h2>4. סימן פונקציית המנה</h2>
+  <p>סימן המנה נקבע לפי סימני המונה והמכנה:</p>
+  <table>
+    <tr><th>סימן \(f(x)\)</th><th>סימן \(g(x)\)</th><th>סימן \(h(x)\)</th></tr>
+    <tr><td>+</td><td>+</td><td>+</td></tr>
+    <tr><td>-</td><td>-</td><td>+</td></tr>
+    <tr><td>+</td><td>-</td><td>-</td></tr>
+    <tr><td>-</td><td>+</td><td>-</td></tr>
+  </table>
+  <div class="exercise">
+    נחקור את הסימן של
+    \[ h(x)=\frac{(x+2)(x-1)}{(x+1)(x-3)}. \]
+  </div>
+  <p>נקודות החלוקה הן אפסי המונה ואפסי המכנה:</p>
+  <div class="mathline">\[ -2,\ -1,\ 1,\ 3 \]</div>
+  <div class="graph-panel">
+    <div class="graph-head"><span class="graph-title">ציר סימנים אינטראקטיבי</span><div class="graph-controls"><button onclick="zoomBoard('signBoard',0.8)">הגדלה</button><button onclick="zoomBoard('signBoard',1.25)">הקטנה</button><button onclick="resetBoard('signBoard')">מרכז</button></div></div>
+    <div id="signBoard" class="jxgbox short"></div>
+  </div>
+  <p>מימין לשמאל מתקבלים הסימנים:</p>
+  <div class="rule">\[ (+),\ (-),\ (+),\ (-),\ (+) \]</div>
+  <div class="box blue"><strong>שיטה יעילה:</strong> לאחר מציאת נקודות החלוקה, אפשר לבדוק נקודת מבחן אחת בכל תחום. אין צורך להציב ערכים רבים.</div>
+  <div class="footer"><span>סימן המנה</span><span class="page-no" data-page="5"></span></div>
+</section>
+
+<section class="page">
+  <h2>5. כאשר המכנה מתאפס - מה באמת אפשר להסיק?</h2>
+  <div class="rule">\[ g(a)=0\Rightarrow a\notin D_h \]</div>
+  <div style="height:20px;"></div>
+  <p>זו המסקנה היחידה שתמיד נכונה. מכאן <strong>לא</strong> נובע אוטומטית שקיימת אסימפטוטה אנכית.</p>
+  <div style="height:20px;"></div>
+  <div class="grid2_">
+    <div class="card">
+      <h3>אפשרות א - חור</h3>
+      <p>במקרה של מנה אלגברית, גורם משותף עשוי להצטמצם.</p>
+      <div class="mini-formula">\[ \frac{(x-1)(x+2)}{x-1}=x+2,\qquad x\ne1 \]</div>
+      <p>ב-\(x=1\) נשארת נקודת אי-הגדרה בודדת.</p>
+    </div>
+    <div style="height:20px;"></div>
+    <div class="card">
+      <h3>אפשרות ב - אסימפטוטה אנכית</h3>
+      <p>במנה של פולינומים, אם לאחר צמצום נשאר גורם מאפס במכנה, מתקבלת אסימפטוטה אנכית.</p>
+      <div class="mini-formula">\[ \frac{x+1}{x-2} \]</div>
+      <p>כאן \(x=2\) היא אסימפטוטה אנכית.</p>
+    </div>
+  </div>
+  <div style="height:10px;"></div>
+  <div class="box danger">
+    <h3>דיוק חשוב</h3>
+    <p>כאשר \(f\) ו-\(g\) הן פונקציות כלליות, ידיעת \(g(a)=0\) לבדה אינה מספיקה כדי לסווג את ההתנהגות ליד \(a\). צריך מידע נוסף על הפונקציות בסביבת הנקודה.</p>
+  </div>
+  <div style="height:20px;"></div>
+  <h3>מבחן שלוש השאלות</h3>
+  <ol>
+    <li>האם \(g(a)=0\)? אם לא - אין בעיית מכנה בנקודה.</li>
+    <li>האם ניתן לצמצם גורם משותף כאשר מדובר בביטויים אלגבריים?</li>
+    <li>מה קורה לביטוי המצומצם ליד \(a\)? זה קובע חור או אסימפטוטה.</li>
+  </ol>
+  <div class="footer"><span>אפסי מכנה</span><span class="page-no" data-page="6"></span></div>
+</section>
+
+<section class="page">
+  <h2>6. חור ואסימפטוטה באותו גרף</h2>
+  <div class="exercise">
+    \[ h(x)=\frac{x-2}{x^2-4}. \]
+  </div>
+  <p>מפרקים את המכנה:</p>
+  <div class="mathline">\[ x^2-4=(x-2)(x+2) \]</div>
+  <p>ולכן:</p>
+  <div class="rule">\[ h(x)=\frac{1}{x+2},\qquad x\ne-2,\ 2 \]</div>
+  <ul>
+    <li>ב-\(x=2\) הגורם הצטמצם - מתקבל חור.</li>
+    <li>ב-\(x=-2\) נשאר אפס במכנה - מתקבלת אסימפטוטה אנכית.</li>
+    <li>גובה החור מתקבל מהביטוי המצומצם: \(\frac{1}{2+2}=\frac14\).</li>
+  </ul>
+  <div class="graph-panel">
+    <div class="graph-head"><span class="graph-title">הגרף עם חור ואסימפטוטה</span><div class="graph-controls"><button onclick="zoomBoard('holeAsymBoard',0.8)">הגדלה</button><button onclick="zoomBoard('holeAsymBoard',1.25)">הקטנה</button><button onclick="resetBoard('holeAsymBoard')">מרכז</button></div></div>
+    <div id="holeAsymBoard" class="jxgbox"></div>
+    <div class="legend"><span><i class="swatch" style="background:#245b78"></i>\(h(x)\)</span><span><i class="swatch" style="background:#a94442"></i>\(x=-2\)</span><span>○ חור ב-\((2,\frac14)\)</span></div>
+  </div>
+  <div style="height:20px;"></div>
+  <div class="warning">גם לאחר הצמצום אסור לכתוב שתחום ההגדרה הוא רק \(x\ne-2\). הערך \(x=2\) נשאר מחוץ לתחום.</div>
+  <div class="footer"><span>חור מול אסימפטוטה</span><span class="page-no" data-page="7"></span></div>
+</section>
+
+<section class="page">
+  <h2>7.תרגיל מודרך</h2>
+  <div class="exercise">
+    נתונות שתי פונקציות פולינומיות:
+    \[ f(x)=x(x-2),\qquad g(x)=x-2,\qquad h(x)=\frac{f(x)}{g(x)}. \]
+    א. מצאו את תחום ההגדרה. ב. הראו שבתחום שמצאתם מתקיים \(h(x)=x\). ג. שרטטו סקיצה.
+  </div>
+  <div style="height:20px;"></div>
+  <h3>שלב א - תחום הגדרה</h3>
+  <p>שתי הפונקציות \(f\) ו-\(g\) הן פולינומים, ולכן הן מוגדרות לכל מספר ממשי. ההגבלה היחידה מתקבלת מאפס של המכנה: \(g(2)=0\).</p>
+  <div class="rule">\[ D_h=\mathbb{R}\setminus\{2\} \]</div>
+  <div style="height:20px;"></div>
+  <h3>שלב ב - פישוט</h3>
+  <div class="mathline">\[
+  h(x)=\frac{x(x-2)}{x-2}=x,\qquad x\ne2
+  \]</div>
+  <p>הגורם \(x-2\) מצטמצם, אך \(x=2\) נשאר מחוץ לתחום המקורי.</p>
+  <div class="graph-panel">
+    <div class="graph-head"><span class="graph-title">\(y=x\) עם חור ב-\((2,2)\)</span><div class="graph-controls"><button onclick="zoomBoard('attached5Board',0.8)">הגדלה</button><button onclick="zoomBoard('attached5Board',1.25)">הקטנה</button><button onclick="resetBoard('attached5Board')">מרכז</button></div></div>
+    <div id="attached5Board" class="jxgbox"></div>
+  </div>
+  <div style="height:20px;"></div>
+  <div class="box ok"><strong>מסקנה:</strong> הביטוי המצומצם הוא \(x\), אך תחום ההגדרה הוא \(x\ne2\). לכן בגרף יש חור בנקודה \((2,2)\).</div>
+  <div class="footer"><span>תרגיל מהקובץ</span><span class="page-no" data-page="8"></span></div>
+</section>
+
+<section class="page tight">
+  <h2>תרגיל נוסף</h2>
+  <div class="exercise">
+    <p><strong>5.</strong> נתונות שתי פונקציות פולינומיות:</p>
+    <div class="mathline">\[ f(x)=x^2+1,\qquad g(x)=x+\frac{1}{x} \]</div>
+    <p>נסמן:</p>
+    <div class="mathline">\[ h(x)=\frac{f(x)}{g(x)} \]</div>
+    <ol type="א">
+      <li>מהו תחום ההגדרה של הפונקציה \(h(x)\)?</li>
+      <li>הראו שבתחום שמצאתם בסעיף א' מתקיים: \(h(x)=x\).</li>
+      <li>שרטטו סקיצה של גרף הפונקציה \(h(x)\).</li>
+    </ol>
+  </div>
+
+  <h3>פתרון</h3>
+  <div class="step"><span class="n">א</span><div class="txt"><strong>תחום ההגדרה:</strong> הפונקציה \(g(x)=x+\frac{1}{x}\) אינה מוגדרת כאשר \(x=0\). עבור \(x\ne0\):</div></div>
+  <div class="mathline">\[ g(x)=x+\frac{1}{x}=\frac{x^2+1}{x} \]</div>
+  <p>כדי שהמנה \(h(x)=\frac{f(x)}{g(x)}\) תהיה מוגדרת, צריך גם \(g(x)\ne0\). אבל \(x^2+1\gt0\) לכל \(x\in\mathbb{R}\), ולכן \(g(x)\) אינה מתאפסת בתחום שלה.</p>
+  <div class="rule">\[ D_h=\mathbb{R}\setminus\{0\} \]</div>
+
+  <div class="step"><span class="n">ב</span><div class="txt"><strong>פישוט הפונקציה:</strong> בתחום שמצאנו, כלומר כאשר \(x\ne0\), נכתוב:</div></div>
+  <div class="mathline">\[
+    h(x)=\frac{x^2+1}{x+\frac{1}{x}}
+    =\frac{x^2+1}{\frac{x^2+1}{x}}
+    =x,\qquad x\ne0
+  \]</div>
+  <div class="box ok"><strong>מסקנה:</strong> \(h(x)=x\) בכל תחום ההגדרה, אבל \(x=0\) נשאר מחוץ לתחום.</div>
+
+  <div class="step"><span class="n">ג</span><div class="txt"><strong>סקיצת הגרף:</strong> הגרף הוא הישר \(y=x\), עם חור בנקודה \((0,0)\).</div></div>
+  <div class="graph-panel">
+    <div class="graph-head"><span class="graph-title">\(h(x)=x\), \(x\ne0\)</span><div class="graph-controls"><button onclick="zoomBoard('q053Board',0.8)">הגדלה</button><button onclick="zoomBoard('q053Board',1.25)">הקטנה</button><button onclick="resetBoard('q053Board')">מרכז</button></div></div>
+    <div id="q053Board" class="jxgbox short"></div>
+    <div class="legend"><span><i class="swatch" style="background:#245b78"></i>\(y=x\)</span><span>○ חור ב-\((0,0)\)</span></div>
+  </div>
+
+  <div class="footer"><span>תרגיל 053 - פתרון</span><span class="page-no" data-page="9"></span></div>
+</section>
+
+<section class="page">
+  <h2>8. אותו ביטוי אינו בהכרח אותה פונקציה</h2>
+  <p>פונקציה נקבעת לא רק על ידי נוסחה אלא גם על ידי תחום ההגדרה שלה.</p>
+  <div class="grid2_">
+    <div class="card">
+      <h3>פונקציה א</h3>
+      <div class="mini-formula">\[ p(x)=x \]</div>
+      <div class="mini-formula">\[ D_p=\mathbb{R} \]</div>
+    </div>
+    <div style="height:20px;"></div>
+    <div class="card">
+      <h3>פונקציה ב</h3>
+      <div class="mini-formula">\[ q(x)=\frac{x(x-3)}{x-3} \]</div>
+      <div class="mini-formula">\[ D_q=\mathbb{R}\setminus\{3\} \]</div>
+    </div>
+  </div>
+  <p>לאחר צמצום:</p>
+  <div class="rule">\[ q(x)=x,\qquad x\ne3 \]</div>
+  <p>לכן \(p\) ו-\(q\) מקבלות אותו ערך בכל מקום שבו \(q\) מוגדרת, אבל הן אינן אותה פונקציה.</p>
+  <div style="height:20px;"></div>
+  <div class="box blue">
+    <h3>כלל שמירת התחום</h3>
+    <p>בכל פישוט של פונקציית מנה, רושמים תחילה את תחום ההגדרה המקורי. רק אחר כך מצמצמים.</p>
+  </div>
+  <div style="height:20px;"></div>
+  <h3>תרגול קצר</h3>
+  <ol>
+    <li>\(h(x)=\frac{x^2-9}{x-3}\). כתבו ביטוי מצומצם ותחום.</li>
+    <li>\(h(x)=\frac{x^2+x}{x}\). כתבו ביטוי מצומצם ותחום.</li>
+    <li>\(h(x)=\frac{(x-1)^2}{x-1}\). מהי נקודת החור?</li>
+  </ol>
+  <div style="height:20px;"></div>
+  <div class="answer">
+    1. \(h(x)=x+3,\ x\ne3\). 2. \(h(x)=x+1,\ x\ne0\). 3. החור הוא \((1,0)\).
+  </div>
+  <div class="footer"><span>שמירת תחום</span><span class="page-no" data-page="10"></span></div>
+</section>
+
+<section class="page">
+  <h2>9.נכון או לא נכון</h2>
+  <p>נתונה פונקציה:</p>
+  <div class="rule">\[ F(x)=\frac{g(x)}{h(x)} \]</div>
+  <div style="height:20px;"></div>
+  <div class="exercise"><strong>טענה 1:</strong> נקודות החיתוך של \(F\) עם ציר \(x\) מתקבלות בהכרח בכל נקודה שבה \(g(x)=0\).</div>
+  <p><span class="cross">לא נכון.</span> אם גם \(h(a)=0\), הפונקציה אינה מוגדרת ב-\(a\).</p>
+  <div class="mini-formula">\[ g(x)=x,\qquad h(x)=x\Rightarrow F(x)=1,\qquad x\ne0 \]</div>
+  <div style="height:20px;"></div>
+  <div class="exercise"><strong>טענה 2:</strong> נקודות החיתוך של \(F\) עם ציר \(x\) מתקבלות בהכרח בכל נקודה שבה \(h(x)=0\).</div>
+  <p><span class="cross">לא נכון.</span> אפס של המכנה מוציא את הנקודה מתחום ההגדרה.</p>
+  <div style="height:20px;"></div>
+  <div class="exercise"><strong>טענה 3:</strong> ל-\(F\) יש בהכרח אסימפטוטה אנכית בכל נקודה שבה \(h(x)=0\).</div>
+  <p><span class="cross">לא נכון.</span> ייתכן גורם משותף שמצטמצם ומתקבל חור.</p>
+  <div class="mini-formula">\[ F(x)=\frac{x^2-1}{x-1}=x+1,\qquad x\ne1 \]</div>
+  <div style="height:20px;"></div>
+  <div class="box ok">
+    <h3>הניסוח הנכון</h3>
+    <ul>
+      <li>\(F(a)=0\) אם ורק אם \(g(a)=0\) וגם \(h(a)\ne0\).</li>
+      <li>אם \(h(a)=0\), אז \(F(a)\) אינה מוגדרת.</li>
+      <li>סוג אי-ההגדרה דורש בדיקה נוספת.</li>
+    </ul>
+  </div>
+  <div class="footer"><span>נכון או לא נכון</span><span class="page-no" data-page="11"></span></div>
+</section>
+
+<section class="page">
+  <h2>10. נגזרת של פונקציית מנה</h2>
+  <p>אם \(f\) ו-\(g\) גזירות ו-\(g(x)\ne0\), אז:</p>
+  <div class="rule">\[ h'(x)=\frac{f'(x)g(x)-f(x)g'(x)}{[g(x)]^2} \]</div>
+  <div class="box warm">
+     נגזרת המונה כפול המכנה - המונה כפול נגזרת המכנה, הכל חלקי ריבוע המכנה.
+  </div>
+  <div style="height:20px;"></div>
+  <h3>דוגמה</h3>
+  <div class="exercise">\[ h(x)=\frac{x^2+1}{x+2} \]</div>
+  <div class="mathline">\[
+  h'(x)=\frac{2x(x+2)-(x^2+1)}{(x+2)^2}
+  \]</div>
+  <div class="mathline">\[
+  h'(x)=\frac{x^2+4x-1}{(x+2)^2}
+  \]</div>
+  <div class="warning"><strong>טעות נפוצה:</strong> \(\left(\frac{f}{g}\right)'\ne\frac{f'}{g'}\).</div>
+  <div style="height:20px;"></div>
+  <h3>בדיקת ערך נגזרת בנקודה בלי למצוא נוסחה מלאה</h3>
+  <p>אם ידוע:</p>
+  <div class="mathline">\[ f(a)=6,\quad f'(a)=4,\quad g(a)=2,\quad g'(a)=-1 \]</div>
+  <p>אז:</p>
+  <div class="mathline">\[
+  h'(a)=\frac{4\cdot2-6\cdot(-1)}{2^2}=\frac{14}{4}=\frac72
+  \]</div>
+  <div class="footer"><span>כלל המנה</span><span class="page-no" data-page="12"></span></div>
+</section>
+
+<section class="page">
+  <h2>11. סימן הנגזרת - מנתחים רק את המונה</h2>
+  <p>בכל נקודה בתחום ההגדרה:</p>
+  <div class="mathline">\[ [g(x)]^2\gt0 \]</div>
+  <p>לכן סימן הנגזרת נקבע רק על ידי:</p>
+  <div class="rule">\[ N(x)=f'(x)g(x)-f(x)g'(x) \]</div>
+  <p>בדוגמה:</p>
+  <div class="mathline">\[ h(x)=\frac{x^2+1}{x+2},\qquad h'(x)=\frac{x^2+4x-1}{(x+2)^2} \]</div>
+  <p>אפסי מונה הנגזרת:</p>
+  <div class="mathline">\[ x=-2\pm\sqrt5 \]</div>
+  <div class="graph-panel">
+    <div class="graph-head"><span class="graph-title">ציר סימני \(h'(x)\)</span><div class="graph-controls"><button onclick="zoomBoard('derivSignBoard',0.8)">הגדלה</button><button onclick="zoomBoard('derivSignBoard',1.25)">הקטנה</button><button onclick="resetBoard('derivSignBoard')">מרכז</button></div></div>
+    <div id="derivSignBoard" class="jxgbox short"></div>
+  </div>
+  <ul>
+    <li>כאשר \(N(x)\gt0\), הפונקציה עולה.</li>
+    <li>כאשר \(N(x)\lt0\), הפונקציה יורדת.</li>
+    <li>\(x=-2\) אינו נקודת קיצון - הוא מחוץ לתחום.</li>
+  </ul>
+  <div style="height:20px;"></div>
+  <div class="box blue"> אפס של מונה הנגזרת הוא מועמד לקיצון רק אם הוא שייך לתחום ההגדרה ויש שינוי סימן מתאים.</div>
+  <div class="footer"><span>מונה הנגזרת</span><span class="page-no" data-page="13"></span></div>
+</section>
+
+<section class="page">
+  <h2>12.תרגיל מתקדם</h2>
+  <div class="exercise">
+    נתון
+    \[ h(x)=\frac{x^2}{g(x)} \]
+    כאשר \(g\) היא פונקציה פולינומית, וכן
+    \[ h(x_1)=288,\qquad h'(x_1)=354,\qquad g'(x_1)=0. \]
+    חשבו את \(x_1\).
+  </div>
+  <h3>שלב 1 - משתמשים בערך הפונקציה</h3>
+  <div class="mathline">\[
+  288=\frac{x_1^2}{g(x_1)}
+  \]</div>
+  <div class="mathline">\[
+  g(x_1)=\frac{x_1^2}{288}
+  \]</div>
+  <h3>שלב 2 - גוזרים</h3>
+  <div class="mathline">\[
+  h'(x)=\frac{2xg(x)-x^2g'(x)}{[g(x)]^2}
+  \]</div>
+  <p>בנקודה \(x_1\), נתון \(g'(x_1)=0\), ולכן:</p>
+  <div class="mathline">\[
+  354=\frac{2x_1g(x_1)}{[g(x_1)]^2}=\frac{2x_1}{g(x_1)}
+  \]</div>
+  <h3>שלב 3 - מציבים את הקשר משלב 1</h3>
+  <div class="mathline">\[
+  354=\frac{2x_1}{x_1^2/288}=\frac{576}{x_1}
+  \]</div>
+  <div class="rule">\[ \boxed{x_1=\frac{96}{59}} \]</div>
+  <div class="box ok"><strong>הרעיון המרכזי:</strong> אין צורך למצוא את \(g(x)\). משתמשים רק בערך \(g(x_1)\) ובנגזרת בנקודה.</div>
+  <div class="footer"><span>הסקה מנתונים בנקודה</span><span class="page-no" data-page="14"></span></div>
+</section>
+
+<section class="page">
+  <h2>13. אלגוריתם לחקירה מלאה של \(h=\frac{f}{g}\)</h2>
+  <div class="step"><span class="n">1</span><div class="txt"><strong>תחום:</strong> משלבים את תחומי \(f\), \(g\), ומוציאים אפסים של \(g\).</div></div>
+  <div class="step"><span class="n">2</span><div class="txt"><strong>פישוט:</strong> אם יש ביטויים אלגבריים, מפרקים לגורמים ומצמצמים - בלי לשנות את התחום המקורי.</div></div>
+  <div class="step"><span class="n">3</span><div class="txt"><strong>אפסים:</strong> פותרים \(f(x)=0\) ובודקים \(g(x)\ne0\).</div></div>
+  <div class="step"><span class="n">4</span><div class="txt"><strong>חיתוך עם \(y\):</strong> מחשבים \(h(0)\) רק אם \(0\in D_h\).</div></div>
+  <div class="step"><span class="n">5</span><div class="txt"><strong>סימן:</strong> בונים ציר סימנים לפי אפסי \(f\), אפסי \(g\) ושאר נקודות אי-הגדרה.</div></div>
+  <div class="step"><span class="n">6</span><div class="txt"><strong>אי-רציפות:</strong> מסווגים חורים ואסימפטוטות רק לפי מידע מספיק.</div></div>
+  <div class="step"><span class="n">7</span><div class="txt"><strong>נגזרת:</strong> משתמשים בכלל המנה ומפשטים את מונה הנגזרת.</div></div>
+  <div class="step"><span class="n">8</span><div class="txt"><strong>עליה וירידה:</strong> חוקרים את סימן \(N(x)=f'g-fg'\), תוך הפרדת נקודות שאינן בתחום.</div></div>
+  <div class="step"><span class="n">9</span><div class="txt"><strong>קצוות ואסימפטוטות אופקיות:</strong> בודקים התנהגות כאשר המידע הנתון מאפשר זאת.</div></div>
+  <div class="step"><span class="n">10</span><div class="txt"><strong>סקיצה:</strong> מחברים את כל המידע לגרף עקבי.</div></div>
+  <div class="box warm"><strong>סדר מומלץ בבחינה:</strong> תחום לפני הכל. הוא מונע כמעט את כל הטעויות בחורים, אפסים וקיצון.</div>
+  <div class="footer"><span>אלגוריתם חקירה</span><span class="page-no" data-page="15"></span></div>
+</section>
+
+<section class="page">
+  <h2>14. התנהגות בקצוות - מקרה חשוב של מנה פולינומית</h2>
+  <p>כאשר \(h(x)=\frac{P(x)}{Q(x)}\) ו-\(P,Q\) פולינומים, אפשר להסיק את ההתנהגות בקצוות לפי המעלות.</p>
+  <table>
+    <tr><th>השוואת המעלות</th><th>מסקנה</th></tr>
+    <tr><td>\(\deg P\lt\deg Q\)</td><td>אסימפטוטה אופקית \(y=0\)</td></tr>
+    <tr><td>\(\deg P=\deg Q\)</td><td>אסימפטוטה אופקית - יחס המקדמים המובילים</td></tr>
+    <tr><td>\(\deg P\gt\deg Q\)</td><td>אין אסימפטוטה אופקית</td></tr>
+  </table>
+  <div class="exercise">\[ h(x)=\frac{2x^2+1}{x^2+1} \]</div>
+  <p>המעלות שוות והמקדמים המובילים הם \(2\) ו-\(1\), ולכן האסימפטוטה האופקית היא:</p>
+  <div class="rule">\[ y=2 \]</div>
+  <div style="height:20px;"></div>
+  <div class="graph-panel">
+    <div class="graph-head"><span class="graph-title">התקרבות ל-\(y=2\)</span><div class="graph-controls"><button onclick="zoomBoard('horizontalBoard',0.8)">הגדלה</button><button onclick="zoomBoard('horizontalBoard',1.25)">הקטנה</button><button onclick="resetBoard('horizontalBoard')">מרכז</button></div></div>
+    <div id="horizontalBoard" class="jxgbox"></div>
+  </div>
+  <div style="height:20px;"></div>
+  <div class="warning">הכלל של המעלות חל על מנה של פולינומים. כאשר \(f\) ו-\(g\) אינן פולינומים, צריך לנתח את ההתנהגות שלהן בקצוות באופן מתאים.</div>
+  <div class="footer"><span>התנהגות בקצוות</span><span class="page-no" data-page="16"></span></div>
+</section>
+
+<section class="page">
+  <h2>15. הסקת מידע מגרפים של \(f\) ו-\(g\)</h2>
+  <p>ב-5 יחידות לא תמיד נותנים נוסחאות. לעיתים הגרפים או טבלת הערכים הם המקור היחיד למידע.</p>
+  <div class="exercise">
+    נשתמש בדוגמה
+    \[ f(x)=x-1,\qquad g(x)=x+2,\qquad h(x)=\frac{x-1}{x+2}. \]
+  </div>
+  <div style="height:20px;"></div>
+  <div class="graph-panel">
+    <div class="graph-head"><span class="graph-title">שלוש הפונקציות באותה מערכת צירים</span><div class="graph-controls"><button onclick="zoomBoard('threeFunctionsBoard',0.8)">הגדלה</button><button onclick="zoomBoard('threeFunctionsBoard',1.25)">הקטנה</button><button onclick="resetBoard('threeFunctionsBoard')">מרכז</button></div></div>
+    <div id="threeFunctionsBoard" class="jxgbox"></div>
+    <div class="legend"><span><i class="swatch" style="background:#2b6f95"></i>\(f\)</span><span><i class="swatch" style="background:#7c4d8b"></i>\(g\)</span><span><i class="swatch" style="background:#1f7a4d"></i>\(h\)</span></div>
+  </div>
+  <div style="height:20px;"></div>
+  <table>
+    <tr><th>מה רואים על \(f,g\)</th><th>מה מסיקים על \(h\)</th></tr>
+    <tr><td>\(f(1)=0\), \(g(1)\ne0\)</td><td>אפס ב-\(x=1\)</td></tr>
+    <tr><td>\(g(-2)=0\)</td><td>\(x=-2\) מחוץ לתחום</td></tr>
+    <tr><td>ל-\(f\) ול-\(g\) אותו סימן</td><td>\(h\gt0\)</td></tr>
+    <tr><td>ל-\(f\) ול-\(g\) סימנים מנוגדים</td><td>\(h\lt0\)</td></tr>
+  </table>
+  <div class="footer"><span>הסקה גרפית</span><span class="page-no" data-page="17"></span></div>
+</section>
+
+<section class="page tight">
+  <h2>16. תרגול - רמה בסיסית עד בינונית</h2>
+  <ol>
+    <li>נתון \(f(x)=x+3\), \(g(x)=x-2\). מצאו את \(h(x)\) ואת תחום ההגדרה.</li>
+    <li>נתון \(f(x)=x^2-9\), \(g(x)=x+3\). פשטו את \(h\) ורשמו את התחום המקורי.</li>
+    <li>נתון \(f(x)=x^2-4\), \(g(x)=x-1\). מצאו את אפסי \(h\).</li>
+    <li>נתון \(f(x)=x-5\), \(g(x)=x^2-4\). מצאו את נקודות אי-ההגדרה.</li>
+    <li>נתון \(f(2)=7\), \(g(2)=-1\). חשבו \(h(2)\).</li>
+    <li>נתון \(f(a)=0\), \(g(a)=4\). מהו \(h(a)\)?</li>
+    <li>נתון \(f(a)=3\), \(g(a)=0\). מה ניתן להסיק בוודאות?</li>
+    <li>קבעו את סימן \(h\) אם \(f(x)\lt0\) ו-\(g(x)\gt0\).</li>
+    <li>מצאו את תחום \(h\) אם \(f(x)=x^3-4x+1\), \(g(x)=x^2+x-6\).</li>
+    <li>נתון \(h(x)=\frac{x^2+x}{x}\). מהי נקודת החור?</li>
+  </ol>
+  <div style="height:20px;"></div>
+  <div class="box blue"><strong>מטרת השלב:</strong> לתרגל את ארבעת העוגנים - תחום, אפסים, סימן ואי-הגדרה - לפני מעבר לנגזרת.</div>
+  <div style="height:20px;"></div>
+  <h3>שאלת אתגר</h3>
+  <p>מצאו פונקציות \(f,g\) כך ש-\(h(x)=\frac{f(x)}{g(x)}\) תיראה כמו הישר \(y=2x-1\), אך תהיה עם חור ב-\(x=3\).</p>
+  <div class="footer"><span>תרגול א</span><span class="page-no" data-page="18"></span></div>
+</section>
+
+<section class="page tight">
+  <h2>17. תרגול - נגזרת וחקירה</h2>
+  <ol>
+    <li>גזרו \(h(x)=\frac{x^2+1}{x-1}\).</li>
+    <li>גזרו \(h(x)=\frac{3x-2}{x^2+1}\).</li>
+    <li>נתון \(f(1)=4\), \(f'(1)=3\), \(g(1)=2\), \(g'(1)=5\). חשבו \(h'(1)\).</li>
+    <li>עבור \(h(x)=\frac{x^2+1}{x+2}\), מצאו נקודות חשודות לקיצון.</li>
+    <li>עבור אותה פונקציה, קבעו תחומי עליה וירידה.</li>
+    <li>נתון \(h(x)=\frac{f(x)}{g(x)}\), ובתחום מסוים \(f'(x)g(x)-f(x)g'(x)\gt0\). מה ניתן להסיק?</li>
+    <li>נתון \(g(a)=0\) וגם \(f'(a)g(a)-f(a)g'(a)=0\). האם \(a\) יכולה להיות נקודת קיצון של \(h\)? נמקו.</li>
+    <li>נתון \(f(a)=8\), \(f'(a)=0\), \(g(a)=-2\), \(g'(a)=3\). חשבו \(h'(a)\).</li>
+  </ol>
+  <div style="height:20px;"></div>
+  <div class="warning"><strong>בדיקת תחום בכל שאלה:</strong> לפני שמכריזים על קיצון, יש לוודא שהנקודה שייכת ל-\(D_h\).</div>
+  <div style="height:20px;"></div>
+  <h3>משימת חקירה</h3>
+  <p>חקרו באופן מלא את:</p>
+  <div class="rule">\[ h(x)=\frac{x^2+1}{x+2} \]</div>
+  <p>כללו תחום, חיתוכים, אסימפטוטה אנכית, נגזרת, תחומי עליה וירידה ונקודות קיצון.</p>
+  <div class="footer"><span>תרגול ב</span><span class="page-no" data-page="19"></span></div>
+</section>
+
+<section class="page tight">
+  <h2>18. תרגול - רמת 5 יחידות</h2>
+  <div class="exercise">
+    <strong>1.</strong> נתון \(h(x)=\frac{f(x)}{g(x)}\). בנקודה \(x=a\) ידוע \(f(a)=0\), \(g(a)=0\). תלמיד טוען ש-\(h(a)=0\). קבעו אם הטענה נכונה והציגו שתי אפשרויות שונות להתנהגות הגרף ליד \(a\).
+  </div>
+  <div style="height:10px;"></div>
+  <div class="exercise">
+    <strong>2.</strong> נתון \(h(x)=\frac{f(x)}{g(x)}\), וכן \(f(a)=12\), \(f'(a)=5\), \(g(a)=3\), \(g'(a)=-2\). חשבו \(h(a)\) ו-\(h'(a)\).
+  </div>
+  <div style="height:10px;"></div>
+  <div class="exercise">
+    <strong>3.</strong> נתון \(h(x)=\frac{x^2}{g(x)}\), כאשר \(g\) פולינום, וכן \(h(a)=50\), \(h'(a)=20\), \(g'(a)=0\). מצאו את \(a\).
+  </div>
+  <div style="height:10px;"></div>
+  <div class="exercise">
+    <strong>4.</strong> נתון \(f(x)=(x-1)(x+2)\), \(g(x)=(x-1)(x-4)\). בנו את \(h=\frac{f}{g}\), מצאו תחום, חור, אסימפטוטה אנכית, אפס וחיתוך עם ציר \(y\).
+  </div>
+  <div style="height:10px;"></div>
+  <div class="exercise">
+    <strong>5.</strong> לפונקציות \(f,g\) נתון כי על התחום \((0,5)\): \(f\gt0\), \(g\lt0\), \(f'\gt0\), \(g'\gt0\). האם ניתן לקבוע בוודאות אם \(h=\frac{f}{g}\) עולה או יורדת? נמקו באמצעות מונה הנגזרת.
+  </div>
+  <div style="height:10px;"></div>
+  <div class="box blue"><strong>דגש:</strong> בשאלה 5, סימני \(f,f',g,g'\) מאפשרים לנתח את שני האיברים במונה הנגזרת ולבדוק האם המסקנה חד-משמעית.</div>
+  <div class="footer"><span>תרגול ג</span><span class="page-no" data-page="20"></span></div>
+</section>
+
+<section class="page tight">
+  <h2>19. תשובות מקוצרות לתרגול</h2>
+  <h3>עמוד 17</h3>
+  <ol>
+    <li>\(h(x)=\frac{x+3}{x-2}\), תחום \(x\ne2\).</li>
+    <li>\(h(x)=x-3\), אך \(x\ne-3\).</li>
+    <li>\(x=-2,2\).</li>
+    <li>\(x=-2,2\).</li>
+    <li>\(-7\).</li>
+    <li>\(0\).</li>
+    <li>\(h(a)\) אינה מוגדרת.</li>
+    <li>\(h(x)\lt0\).</li>
+    <li>\(\mathbb{R}\setminus\{-3,2\}\).</li>
+    <li>\((0,1)\).</li>
+  </ol>
+  <p><strong>אתגר:</strong> למשל \(f(x)=(2x-1)(x-3)\), \(g(x)=x-3\).</p>
+  <h3>עמוד 18</h3>
+  <ol>
+    <li>\(h'(x)=\frac{x^2-2x-1}{(x-1)^2}\).</li>
+    <li>\(h'(x)=\frac{-3x^2+4x+3}{(x^2+1)^2}\).</li>
+    <li>\(-\frac72\).</li>
+    <li>החשודות לקיצון הן \(x=-2\pm\sqrt5\). הערך \(x=-2\) אינו מועמד לקיצון משום שאינו בתחום.</li>
+    <li>עולה ב-\(( -\infty,-2-\sqrt5)\) וב-\((-2+\sqrt5,+\infty)\); יורדת ב-\((-2-\sqrt5,-2)\) וב-\((-2,-2+\sqrt5)\).</li>
+    <li>\(h\) עולה בתחום הנתון.</li>
+    <li>לא. \(a\notin D_h\).</li>
+    <li>\(-6\).</li>
+  </ol>
+  <div class="footer"><span>תשובות א-ב</span><span class="page-no" data-page="21"></span></div>
+</section>
+
+<section class="page tight">
+  <h2>20. תשובות 5 יחידות, הערכה ומקורות</h2>
+  <h3>תשובות לעמוד 19</h3>
+  <ol>
+    <li>הטענה שגויה. למשל, במנה אלגברית ייתכן חור לאחר צמצום, וייתכן גם שתישאר אסימפטוטה אנכית אם במכנה נשאר גורם מאפס. בכל מקרה אין להסיק ש-\(h(a)=0\).</li>
+    <li>\(h(a)=4\), \(h'(a)=\frac{5\cdot3-12\cdot(-2)}{9}=\frac{13}{3}\).</li>
+    <li>\(50=\frac{a^2}{g(a)}\Rightarrow g(a)=\frac{a^2}{50}\). מכיוון ש-\(g'(a)=0\), \(20=\frac{2a}{g(a)}=\frac{100}{a}\Rightarrow a=5\).</li>
+    <li>\(h(x)=\frac{x+2}{x-4}\), תחום \(x\ne1,4\), חור \((1,-1)\), אסימפטוטה \(x=4\), אפס \(x=-2\), חיתוך \((0,-\frac12)\).</li>
+    <li>כן. \(f'g\lt0\) וגם \(-fg'\lt0\), לכן \(N=f'g-fg'\lt0\), ומכאן \(h'\lt0\). הפונקציה יורדת.</li>
+  </ol>
+  <div style="height:10px;"></div>
+  <h3>כרטיס יציאה</h3>
+  <div class="box warm">
+    <ol>
+      <li>כתבו במשפט אחד את תנאי התחום של \(h=\frac{f}{g}\).</li>
+      <li>מה חייב להתקיים כדי ש-\(x=a\) יהיה אפס של \(h\)?</li>
+      <li>מדוע אפס של המכנה אינו מוכיח לבדו קיום אסימפטוטה אנכית?</li>
+      <li>איזה ביטוי קובע את סימן \(h'\)?</li>
+    </ol>
+  </div>
+<!--
+  <h3>מקורות שעליהם מבוסס הרצף</h3>
+  <ul class="source-list">
+    <li><a href="https://meyda.education.gov.il/files/Pop/0files/matmatika/Chativa-Elyona/tashpah/prisa5tashpah.docx">משרד החינוך - פריסת הוראה 5 יחידות</a> - תחום, פונקציה רציונלית וקדם אנליזה.</li>
+    <li><a href="https://openstax.org/books/algebra-and-trigonometry-2e/pages/3-4-composition-of-functions">OpenStax Algebra and Trigonometry 2e</a> - פעולות אלגבריות על פונקציות, כולל חילוק ותחום של מנה.</li>
+    <li><a href="https://openstax.org/books/precalculus/pages/3-key-concepts">OpenStax Precalculus</a> - תחום, אסימפטוטות וחורים בפונקציות רציונליות.</li>
+    <li><a href="https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules">OpenStax Calculus Volume 1</a> - כלל המנה.</li>
+    <li><a href="https://math.libretexts.org/Workbench/FHSU_College_Algebra/03%3A_Polynomial_Functions/3.08%3A_Rational_Functions">LibreTexts</a> - הבחנה בין חור לאסימפטוטה אנכית.</li>
+    <li><a href="https://portalacademico.cch.unam.mx/sites/default/files/2023-08/cuaderno-trabajo-matematicas-IV-%20PB100123-2024.pdf">UNAM - Matemáticas IV</a> - אפסים, תחום, חורים ואסימפטוטות של פונקציות רציונליות.</li>
+    <li><a href="https://www.maths-et-tiques.fr/index.php/cours-maths/niveau-terminale">Maths et Tiques - Terminale</a> - רצף חקירת פונקציות, נגזרות ואסימפטוטות.</li>
+  </ul>
+  <div class="footer"><span>הערכה ומקורות</span><span class="page-no" data-page="22"></span></div>
+-->
+</section>
+
+<script>
+const boards = {};
+const initialBoxes = {};
+function registerBoard(id, box, options={}){
+  initialBoxes[id]=box.slice();
+  boards[id]=JXG.JSXGraph.initBoard(id, Object.assign({
+    boundingbox:box,
+    axis:false,
+    showCopyright:false,
+    showNavigation:false,
+    pan:{enabled:true},
+    zoom:{wheel:true, needShift:false}
+  }, options));
+  return boards[id];
+}
+function resetBoard(id){
+  if(boards[id]) boards[id].setBoundingBox(initialBoxes[id].slice(), true);
+}
+function zoomBoard(id,factor){
+  const b=boards[id];
+  if(!b) return;
+  const bb=b.getBoundingBox();
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const hw=(bb[2]-bb[0])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+  b.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],true);
+}
+function axes(board){
+  board.create('axis', [[0,0],[1,0]], {strokeColor:'#7b8791', ticks:{strokeColor:'#9aa6af', label:{fontSize:10}}});
+  board.create('axis', [[0,0],[0,1]], {strokeColor:'#7b8791', ticks:{strokeColor:'#9aa6af', label:{fontSize:10}}});
+}
+function openPoint(board,x,y){
+  board.create('point',[x,y],{name:'',size:5,face:'o',fillColor:'white',strokeColor:'#b24a42',strokeWidth:2,fixed:true});
+}
+function initGraphs(){
+  if(typeof JXG==='undefined') return;
+  let b;
+  b=registerBoard('signBoard',[-4,1.4,5,-1.4]);
+  b.create('line',[[-4,0],[5,0]],{straightFirst:false,straightLast:false,strokeColor:'#5d6872',fixed:true});
+  [-2,-1,1,3].forEach((x,i)=>{
+    b.create('point',[x,0],{name:'',size:3,fillColor:(x===-1||x===3)?'#a94442':'#245b78',strokeColor:(x===-1||x===3)?'#a94442':'#245b78',fixed:true});
+    b.create('text',[x,-0.36,String(x)],{anchorX:'middle',fontSize:12,fixed:true});
+  });
+  [[-3,'+'],[-1.5,'-'],[0,'+'],[2,'-'],[4,'+']].forEach(t=>b.create('text',[t[0],0.55,t[1]],{anchorX:'middle',fontSize:18,fixed:true}));
+
+  b=registerBoard('holeAsymBoard',[-7,5,7,-5]); axes(b);
+  b.create('line',[[-2,-5],[-2,5]],{straightFirst:false,straightLast:false,dash:2,strokeColor:'#a94442',fixed:true});
+  b.create('functiongraph',[x=>1/(x+2),-7,-2.08],{strokeColor:'#245b78',strokeWidth:2.4});
+  b.create('functiongraph',[x=>1/(x+2),-1.92,1.96],{strokeColor:'#245b78',strokeWidth:2.4});
+  b.create('functiongraph',[x=>1/(x+2),2.04,7],{strokeColor:'#245b78',strokeWidth:2.4});
+  openPoint(b,2,0.25);
+
+  b=registerBoard('attached5Board',[-6,6,6,-6]); axes(b);
+  b.create('functiongraph',[x=>x,-6,1.94],{strokeColor:'#245b78',strokeWidth:2.5});
+  b.create('functiongraph',[x=>x,2.06,6],{strokeColor:'#245b78',strokeWidth:2.5});
+  openPoint(b,2,2);
+
+  b=registerBoard('q053Board',[-6,6,6,-6]); axes(b);
+  b.create('functiongraph',[x=>x,-6,-0.06],{strokeColor:'#245b78',strokeWidth:2.5});
+  b.create('functiongraph',[x=>x,0.06,6],{strokeColor:'#245b78',strokeWidth:2.5});
+  openPoint(b,0,0);
+
+  b=registerBoard('derivSignBoard',[-6,1.4,2,-1.4]);
+  b.create('line',[[-6,0],[2,0]],{straightFirst:false,straightLast:false,strokeColor:'#5d6872',fixed:true});
+  const r1=-2-Math.sqrt(5), r2=-2+Math.sqrt(5);
+  [r1,-2,r2].forEach((x,i)=>{
+    b.create('point',[x,0],{name:'',size:3,fillColor:(i===1)?'#a94442':'#245b78',strokeColor:(i===1)?'#a94442':'#245b78',fixed:true});
+  });
+  b.create('text',[r1,-0.38,'-2-sqrt(5)'],{anchorX:'middle',fontSize:10,fixed:true});
+  b.create('text',[-2,-0.38,'-2'],{anchorX:'middle',fontSize:11,fixed:true});
+  b.create('text',[r2,-0.38,'-2+sqrt(5)'],{anchorX:'middle',fontSize:10,fixed:true});
+  [[-5,'+'],[-3.2,'-'],[-1,'-'],[1,'+']].forEach(t=>b.create('text',[t[0],0.55,t[1]],{anchorX:'middle',fontSize:18,fixed:true}));
+
+  b=registerBoard('horizontalBoard',[-8,4,8,-1]); axes(b);
+  b.create('line',[[-8,2],[8,2]],{straightFirst:false,straightLast:false,dash:2,strokeColor:'#a94442',fixed:true});
+  b.create('functiongraph',[x=>(2*x*x+1)/(x*x+1),-8,8],{strokeColor:'#245b78',strokeWidth:2.4});
+
+  b=registerBoard('threeFunctionsBoard',[-7,7,7,-7]); axes(b);
+  b.create('functiongraph',[x=>x-1,-7,7],{strokeColor:'#2b6f95',strokeWidth:2});
+  b.create('functiongraph',[x=>x+2,-7,7],{strokeColor:'#7c4d8b',strokeWidth:2});
+  b.create('line',[[-2,-7],[-2,7]],{straightFirst:false,straightLast:false,dash:2,strokeColor:'#a94442',fixed:true});
+  b.create('functiongraph',[x=>(x-1)/(x+2),-7,-2.06],{strokeColor:'#1f7a4d',strokeWidth:2.5});
+  b.create('functiongraph',[x=>(x-1)/(x+2),-1.94,7],{strokeColor:'#1f7a4d',strokeWidth:2.5});
+}
+window.addEventListener('load',()=>{
+  let tries=0;
+  const timer=setInterval(()=>{
+    tries++;
+    if(typeof JXG!=='undefined'){
+      clearInterval(timer);
+      initGraphs();
+    } else if(tries>50){ clearInterval(timer); }
+  },100);
+});
+</script>
+</body>
+</html>
