@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>דף תרגילים - מפות סימנים, פולינומים ופונקציות רציונליות - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+  :root{
+    --ink:#172033;
+    --muted:#5d6678;
+    --line:#d9deea;
+    --panel:#f7f9fc;
+    --accent:#315b9d;
+    --accent-soft:#eaf0fa;
+    --success:#eaf7ef;
+    --warn:#fff7df;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#eef1f6;color:var(--ink);font-family:"Arial","Noto Sans Hebrew",sans-serif}
+  body{direction:rtl;line-height:1.45;overflow-x:hidden}
+  @page{size:A4;margin:0}
+  .page{
+    width:210mm;
+    height:297mm;
+    padding:13mm 14mm 12mm;
+    margin:8mm auto;
+    background:white;
+    position:relative;
+    overflow:hidden;
+    page-break-after:always;
+    break-after:page;
+  }
+  .page:last-child{page-break-after:auto;break-after:auto}
+  @media print{
+    html,body{background:white}
+    .page{margin:0;box-shadow:none}
+    .graph-controls{display:none!important}
+    .screen-note{display:none!important}
+  }
+  h1,h2,h3,p{margin-top:0}
+  h1{font-size:28px;line-height:1.2;margin-bottom:7px;color:#203d6b}
+  h2{font-size:21px;margin-bottom:9px;color:#254d87;border-bottom:2px solid #dbe5f5;padding-bottom:5px}
+  h3{font-size:16px;margin:8px 0 5px;color:#283b59}
+  p,li{font-size:14px}
+  .subtitle{font-size:17px;color:var(--muted);margin-bottom:12px}
+  .badge{display:inline-block;background:var(--accent-soft);color:#244777;border-radius:999px;padding:4px 9px;font-weight:700;font-size:12px;margin-left:5px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
+  .tip{background:var(--success);border-right:4px solid #5fa878}
+  .challenge{background:var(--warn);border-right:4px solid #c99a2f}
+  .question{display:flex;align-items:flex-start;gap:9px;margin:9px 0;padding:8px 9px;border:1px solid #e2e6ef;border-radius:9px;background:#fff}
+  .question.compact{margin:6px 0;padding:6px 8px}
+  .qnum{flex:0 0 29px;width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2f5f9f;color:#fff;font-weight:700;font-size:14px;margin-top:1px}
+  .qbody{flex:1;min-width:0;font-size:14px}
+  .qbody p{margin:0 0 4px}
+  .qbody ol,.qbody ul{margin:4px 18px 2px 0;padding:0}
+  .mathline{font-size:15px;margin:3px 0}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-top:5px}
+  .option{font-size:13px}
+  .progression{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px}
+  .step{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fbfcfe;text-align:center;font-size:12.5px}
+  .step b{display:block;color:#28548d;font-size:13px;margin-bottom:3px}
+  .graph-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+  .graph-card{border:1px solid #d9dfeb;border-radius:9px;padding:5px;background:#fff;min-width:0}
+  .graph-title{font-weight:700;font-size:12.5px;margin-bottom:3px;text-align:center;color:#33435d}
+  .jxgbox{width:100%;height:150px;border:1px solid #cfd5e1;background:#fff}
+  .jxgbox.sign{height:112px}
+  .jxgbox.tall{height:190px}
+  .graph-controls{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:4px;direction:rtl}
+  .graph-controls button{border:1px solid #bfc8d7;background:#f8fafc;border-radius:6px;padding:3px 6px;font:inherit;font-size:11px;color:#31415a;cursor:pointer}
+  .graph-controls button:hover{background:#edf2f9}
+  .graph-note{font-size:10.5px;color:#6d7685;text-align:center;margin-top:2px}
+  .answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+  .answer{border:1px solid #e1e6ef;border-radius:8px;padding:6px 8px;font-size:12.5px;background:#fcfdff}
+  .answer b{color:#2d5488}
+  table{width:100%;border-collapse:collapse;margin:7px 0;font-size:12.5px}
+  th,td{border:1px solid #cfd5df;padding:5px 6px;vertical-align:top}
+  th{background:#f0f4fa;color:#2b4f80}
+  .source-note{font-size:10.5px;color:#667085;line-height:1.35}
+  .footer{position:absolute;bottom:5mm;right:14mm;left:14mm;display:flex;justify-content:space-between;color:#8a93a2;font-size:9.5px;border-top:1px solid #edf0f5;padding-top:2mm}
+  .ltr{direction:ltr;display:inline-block}
+  .small{font-size:12px;color:#5f6877}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tight p{margin-bottom:3px}
+  .screen-note{font-size:10px;color:#7a8493;text-align:center;margin-top:3px}
+  .spacer{height:4px}
+</style>
+</head>
+<body>
+
+<section class="page" id="page-2">
+  <h1>דף תרגילים - מפות סימנים, פולינומים ופונקציות רציונליות</h1>
+  <div style="height:20px;"></div>
+  <h2>שלב א - מביטוי אל מפת סימנים | רמה 1</h2>
+
+  <div class="question"><div class="qnum">1</div><div class="qbody">
+    <p>נתונה הפונקציה</p><div class="mathline">\[f(x)=(x+2)(x-1)^2(x-4)\]</div>
+    <ol><li>מצאו את מאפסי הפונקציה ואת הריבוי של כל מאפס.</li><li>בנו מפת סימנים.</li><li>פתרו: \(f(x)\ge 0\).</li></ol>
+  </div></div>
+
+  <div class="question"><div class="qnum">2</div><div class="qbody">
+    <p>נתונה הפונקציה</p><div class="mathline">\[p(x)=-(x+3)^3(x-2)^2(x-5)\]</div>
+    <ol><li>קבעו באילו מאפסים הסימן מתחלף.</li><li>בנו מפת סימנים.</li><li>פתרו: \(p(x)\lt 0\).</li></ol>
+  </div></div>
+
+  <div class="question"><div class="qnum">3</div><div class="qbody">
+    <p>נתונה הפונקציה</p><div class="mathline">\[q(x)=x^2(x+1)^3(x-3)^2\]</div>
+    <ol><li>קבעו את סימן הפונקציה בכל תחום.</li><li>פתרו: \(q(x)\le 0\).</li><li>הסבירו מדוע בנקודות \(x=0\) ו-\(x=3\) אין שינוי סימן.</li></ol>
+  </div></div>
+
+  <div class="footer"><span>שלב א - פולינומים</span><span>2</span></div>
+</section>
+
+<section class="page" id="page-3">
+  <h2>שלב א - פונקציות רציונליות | רמה 2</h2>
+
+  <div class="question compact"><div class="qnum">4</div><div class="qbody">
+    <div class="mathline">\[r(x)=\frac{(x+4)(x-1)^2}{(x+2)(x-3)}\]</div>
+    <ol><li>מצאו את תחום ההגדרה.</li><li>בנו מפת סימנים מלאה.</li><li>פתרו: \(r(x)\ge 0\).</li></ol>
+  </div></div>
+
+  <div class="question compact"><div class="qnum">5</div><div class="qbody">
+    <div class="mathline">\[s(x)=-\frac{(x-5)^3(x+1)}{(x-2)^2(x+4)}\]</div>
+    <ol><li>קבעו באילו נקודות הסימן מתחלף ובאילו אינו מתחלף.</li><li>פתרו: \(s(x)\lt 0\).</li></ol>
+  </div></div>
+
+  <div class="question compact"><div class="qnum">6</div><div class="qbody">
+    <div class="mathline">\[t(x)=\frac{(x+3)^2(x-1)^3}{(x+1)^3(x-4)^2}\]</div>
+    <ol><li>בנו מפת סימנים ללא הצבה של נקודת בדיקה בכל תחום.</li><li>פתרו: \(t(x)\le 0\).</li><li>הסבירו את תפקיד הריבוי של \((x-4)^2\) במכנה.</li></ol>
+  </div></div>
+
+  <div class="footer"><span>שלב א - פונקציות רציונליות</span><span>3</span></div>
+</section>
+
+<section class="page" id="page-4">
+  <h2>שלב ב - ממפת סימנים אל ביטוי | רמה 3</h2>
+  <p class="small">בכל תרגיל בנו ביטוי מן הדרגה הנמוכה ביותר האפשרית, אלא אם נאמר אחרת.</p>
+
+  <div class="question compact"><div class="qnum">7</div><div class="qbody">
+    <p>מפת הסימנים הבאה מתארת פולינום שמאפסיו הם בדיוק \(-3,1,4\). מצאו פולינום מתאים.</p>
+    <div class="graph-card"><div id="sign7" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="sign7"></div></div>
+  </div></div>
+
+  <div class="question compact"><div class="qnum">8</div><div class="qbody">
+    <p>במפה הבאה \(x=-4\) ו-\(x=5\) הם מאפסים, ואילו \(x=-1\) ו-\(x=3\) אינם בתחום. בנו פונקציה רציונלית מתאימה.</p>
+    <div class="graph-card"><div id="sign8" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="sign8"></div></div>
+  </div></div>
+
+  <div class="question compact"><div class="qnum">9</div><div class="qbody">
+    <p>במפה הבאה \(x=-2\) ו-\(x=4\) הם אסימפטוטות אנכיות, ו-\(x=0\) הוא מאפס. בנו פונקציה רציונלית בעלת דרגה כוללת מינימלית.</p>
+    <div class="graph-card"><div id="sign9" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="sign9"></div></div>
+  </div></div>
+
+  <div class="question compact"><div class="qnum">10</div><div class="qbody">
+    <p>מפת הסימנים הבאה שייכת לפולינום שמאפסיו הם \(-5,-1,2\). בנו פולינום מן הדרגה הנמוכה ביותר.</p>
+    <div class="graph-card"><div id="sign10" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="sign10"></div></div>
+  </div></div>
+
+  <div class="footer"><span>שלב ב - בנייה ממפת סימנים</span><span>4</span></div>
+</section>
+
+<section class="page" id="page-5">
+  <h2>שלב ב - בנייה והצדקה | רמה 4</h2>
+
+  <div class="question"><div class="qnum">11</div><div class="qbody">
+    <p>נתונה מפת סימנים של פונקציה רציונלית: ב-\(x=-3\) וב-\(x=1\) יש מאפסים, וב-\(x=4\) הפונקציה אינה מוגדרת.</p>
+    <p>הסימנים, משמאל לימין, הם: \(-,+,-,+\).</p>
+    <ol><li>בנו פונקציה אחת בעלת דרגה כוללת מינימלית.</li><li>בנו פונקציה אחרת, בעלת אותם סימנים בדיוק, שבה כל אחד מן הריבויים גדול יותר.</li><li>נמקו מדוע שתי הפונקציות נותנות אותה מפת סימנים.</li></ol>
+  </div></div>
+
+  <div class="question"><div class="qnum">12</div><div class="qbody">
+    <p>הפולינום</p><div class="mathline">\[P(x)=(x+2)^2(x-1)^3(x-5)\]</div>
+    <p>נתונות ארבע פונקציות רציונליות. בחרו את זו שלה אותה מפת סימנים כמו \(P\), בכל תחום שבו שתי הפונקציות מוגדרות.</p>
+    <div class="options">
+      <div class="option">א. \(R_1(x)=\dfrac{(x+2)^4(x-1)}{(x-5)^3}\)</div>
+      <div class="option">ב. \(R_2(x)=\dfrac{(x+2)^3(x-1)}{(x-5)^2}\)</div>
+      <div class="option">ג. \(R_3(x)=-\dfrac{(x+2)^4(x-1)}{(x-5)^3}\)</div>
+      <div class="option">ד. \(R_4(x)=\dfrac{(x+2)^2(x-1)^2}{x-5}\)</div>
+    </div>
+  </div></div>
+
+  <div class="question"><div class="qnum">13</div><div class="qbody">
+    <p>נתונה הפונקציה</p><div class="mathline">\[R(x)=\frac{(x+4)^3(x-2)^2}{(x+1)(x-5)^3}\]</div>
+    <p>בנו פולינום מן הדרגה הנמוכה ביותר, שיש לו אותה מפת סימנים כמו \(R\) בכל התחומים המשותפים. נמקו באמצעות זוגיות הריבויים.</p>
+  </div></div>
+
+  <div class="footer"><span>שלב ב - בנייה והצדקה</span><span>5</span></div>
+</section>
+
+<section class="page" id="page-6">
+  <h2>שלב ג - פולינום ⇔ פונקציה רציונלית | רמה 5</h2>
+
+  <div class="question compact"><div class="qnum">14</div><div class="qbody">
+    <p>התאימו לכל פולינום פונקציה רציונלית בעלת אותה מפת סימנים. פונקציה רציונלית אחת מיותרת.</p>
+    <table>
+      <tr><th>פולינומים</th><th>פונקציות רציונליות</th></tr>
+      <tr><td>א. \(P_1=(x+3)(x-1)^2(x-4)^3\)</td><td>1. \(R_1=\dfrac{(x+3)^3(x-1)^4}{x-4}\)</td></tr>
+      <tr><td>ב. \(P_2=-(x+3)^2(x-1)(x-4)\)</td><td>2. \(R_2=-\dfrac{(x+3)^4(x-1)^3}{(x-4)^3}\)</td></tr>
+      <tr><td>ג. \(P_3=(x+3)^3(x-1)(x-4)^2\)</td><td>3. \(R_3=\dfrac{(x+3)(x-1)^3}{(x-4)^2}\)</td></tr>
+      <tr><td></td><td>4. \(R_4=-\dfrac{(x+3)(x-1)^3}{(x-4)^2}\)</td></tr>
+    </table>
+  </div></div>
+
+  <div class="question compact"><div class="qnum">15</div><div class="qbody">
+    <p>נניח שבביטוי מפורק מופיע הגורם \((x-a)^m\). מחליפים אותו ב-\((x-a)^{m+2}\), בלי לשנות דבר נוסף.</p>
+    <ol><li>הוכיחו שמפת הסימנים אינה משתנה מחוץ ל-\(x=a\).</li><li>הסבירו מה כן עשוי להשתנות בסקיצת הגרף.</li></ol>
+  </div></div>
+
+  <div class="question compact"><div class="qnum">16</div><div class="qbody">
+    <p>השוו בין</p>
+    <div class="mathline">\[f(x)=\frac{(x-2)(x+1)^2}{x-4},\qquad g(x)=\frac{(x-2)^3(x+1)^4}{(x-4)^3}\]</div>
+    <ol><li>האם לשתיהן אותה מפת סימנים? נמקו.</li><li>האם לגרפים חייבת להיות אותה צורה? נמקו.</li><li>פתרו \(f(x)\lt 0\) ו-\(g(x)\lt 0\).</li></ol>
+  </div></div>
+
+  <div class="footer"><span>שלב ג - אותה מפת סימנים</span><span>6</span></div>
+</section>
+
+<section class="page" id="page-7">
+  <h2>שלב ד - התאמת ביטוי לגרף | רמה 6</h2>
+  <div class="question compact"><div class="qnum">17</div><div class="qbody">
+    <p>איזה מן הגרפים מתאים לפונקציה</p>
+    <div class="mathline">\[f(x)=\frac{(x+2)(x-1)^2}{x-3}\]</div>
+    <p>נמקו לפי מאפסים, שינויי סימן והאסימפטוטה האנכית.</p>
+  </div></div>
+
+  <div class="graph-grid">
+    <div class="graph-card"><div class="graph-title">גרף א</div><div id="g17a" class="jxgbox"></div><div class="graph-controls" data-controls-for="g17a"></div></div>
+    <div class="graph-card"><div class="graph-title">גרף ב</div><div id="g17b" class="jxgbox"></div><div class="graph-controls" data-controls-for="g17b"></div></div>
+    <div class="graph-card"><div class="graph-title">גרף ג</div><div id="g17c" class="jxgbox"></div><div class="graph-controls" data-controls-for="g17c"></div></div>
+    <div class="graph-card"><div class="graph-title">גרף ד</div><div id="g17d" class="jxgbox"></div><div class="graph-controls" data-controls-for="g17d"></div></div>
+  </div>
+  <div class="screen-note">במסך: אפשר להגדיל, להקטין, למרכז ולאפס כל גרף בנפרד.</div>
+  <div class="footer"><span>שלב ד - התאמת גרף</span><span>7</span></div>
+</section>
+
+<section class="page" id="page-8">
+  <h2>שלב ד - גרף ⇐ מפת סימנים ⇐ אי-שוויון | רמה 7</h2>
+
+  <div class="question compact"><div class="qnum">18</div><div class="qbody">
+    <p>הגרף מתאר את הפונקציה \(g\). ידוע שכל נקודות האפס וכל האסימפטוטות האנכיות נראות בתחום השרטוט.</p>
+    <ol><li>קבעו את תחום ההגדרה.</li><li>בנו מפת סימנים.</li><li>פתרו \(g(x)\le 0\).</li><li>כתבו ביטוי מפורק אפשרי לפונקציה מן הדרגה הכוללת הנמוכה ביותר.</li></ol>
+  </div></div>
+  <div class="graph-card"><div id="g18" class="jxgbox tall"></div><div class="graph-controls" data-controls-for="g18"></div></div>
+
+  <div class="question compact"><div class="qnum">19</div><div class="qbody">
+    <p>מפת הסימנים של \(h\) מוצגת להלן. \(x=-4\) ו-\(x=2\) הם מאפסים; \(x=-1\) ו-\(x=5\) הם אסימפטוטות אנכיות.</p>
+    <ol><li>בנו ביטוי רציונלי מן הדרגה הכוללת הנמוכה ביותר.</li><li>שרטטו סקיצה על מערכת הצירים שמתחת למפה.</li></ol>
+  </div></div>
+  <div class="graph-grid">
+    <div class="graph-card"><div class="graph-title">מפת הסימנים</div><div id="sign19" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="sign19"></div></div>
+    <div class="graph-card"><div class="graph-title">מערכת צירים לסקיצה</div><div id="blank19" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="blank19"></div></div>
+  </div>
+  <div class="footer"><span>שלב ד - מעבר בין ייצוגים</span><span>8</span></div>
+</section>
+
+<section class="page" id="page-9">
+  <h2>שלב ד - קריאת ריבויים מתוך גרף | רמה 8</h2>
+
+  <div class="question compact"><div class="qnum">20</div><div class="qbody">
+    <p>הגרף הבא שייך לפונקציה רציונלית שגורמיה ליניאריים בלבד.</p>
+    <ol><li>זהו את נקודות האפס ואת האסימפטוטות האנכיות.</li><li>בכל נקודה קבעו אם הריבוי זוגי או אי-זוגי.</li><li>כתבו ביטוי אפשרי מן הדרגה הכוללת הנמוכה ביותר.</li></ol>
+  </div></div>
+  <div class="graph-card"><div id="g20" class="jxgbox tall"></div><div class="graph-controls" data-controls-for="g20"></div></div>
+
+  <div class="question compact"><div class="qnum">21</div><div class="qbody">
+    <p>שני הגרפים הבאים שייכים לפונקציות \(P\) ו-\(R\).</p>
+    <ol><li>קבעו האם יש להן אותו סימן בכל תחום שבו שתיהן מוגדרות.</li><li>הסבירו מדוע \(x=2\) אינו גורם לשינוי סימן של \(R\).</li><li>פתרו \(P(x)\cdot R(x)\lt 0\).</li></ol>
+  </div></div>
+  <div class="graph-grid">
+    <div class="graph-card"><div class="graph-title">\(P(x)=(x+1)^3(x-3)^2\)</div><div id="g21p" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="g21p"></div></div>
+    <div class="graph-card"><div class="graph-title">\(R(x)=\dfrac{(x+1)(x-3)^4}{(x-2)^2}\)</div><div id="g21r" class="jxgbox sign"></div><div class="graph-controls" data-controls-for="g21r"></div></div>
+  </div>
+  <div class="footer"><span>שלב ד - ריבוי וצורת הגרף</span><span>9</span></div>
+</section>
+
+<section class="page" id="page-10">
+  <h2>אתגר 5 יחידות - בנייה הפוכה והכללה | רמה 9</h2>
+
+  <div class="question"><div class="qnum">22</div><div class="qbody">
+    <p>בנו פונקציה רציונלית \(F\) בעלת דרגה כוללת מינימלית, המקיימת את כל התנאים:</p>
+    <ul>
+      <li>ב-\(x=-2\) יש מאפס שבו הסימן אינו מתחלף.</li>
+      <li>ב-\(x=1\) יש מאפס שבו הסימן מתחלף.</li>
+      <li>ב-\(x=-4\) יש אסימפטוטה אנכית שבה הסימן מתחלף.</li>
+      <li>ב-\(x=3\) יש אסימפטוטה אנכית שבה הסימן אינו מתחלף.</li>
+      <li>לכל \(x\gt 3\) בתחום ההגדרה מתקיים \(F(x)\gt 0\).</li>
+    </ul>
+    <p>לאחר הבנייה, פתרו \(F(x)\le 0\).</p>
+  </div></div>
+
+  <div class="question"><div class="qnum">23</div><div class="qbody">
+    <p>בנו אי-שוויון רציונלי מן הצורה \(H(x)\ge 0\), כך שקבוצת הפתרונות תהיה בדיוק</p>
+    <div class="mathline">\[(-\infty,-3)\cup[1,2)\cup(5,\infty)\]</div>
+    <p>השתמשו במספר הקטן ביותר האפשרי של גורמים ליניאריים ונמקו את בחירת המונה והמכנה.</p>
+  </div></div>
+
+  <div class="question"><div class="qnum">24</div><div class="qbody">
+    <p>נתונה המשפחה</p>
+    <div class="mathline">\[F_{a,b,c,d}(x)=\frac{(x+2)^a(x-1)^b}{(x+4)^c(x-3)^d}\]</div>
+    <p>כאשר \(a,b,c,d\in\{1,2,3,4\}\). מצאו את כל התנאים על \(a,b,c,d\) כך שלפונקציה תהיה אותה מפת סימנים כמו</p>
+    <div class="mathline">\[F_{1,2,1,3}(x)\]</div>
+    <ol><li>כמה רביעיות מתאימות קיימות?</li><li>מהי הדרגה הכוללת המינימלית האפשרית?</li><li>תנו רביעייה אחת שמממשת מינימום זה.</li></ol>
+  </div></div>
+
+  <div class="footer"><span>אתגר 5 יחידות</span><span>10</span></div>
+</section>
+
+<section class="page" id="page-11">
+  <h2>תשובות קצרות - תרגילים 1-12</h2>
+  <div class="answer-grid">
+    <div class="answer"><b>1.</b> סימנים: \(+,-,-,+\) ביחס ל-\(-2,1,4\). פתרון: \(( -\infty,-2]\cup\{1\}\cup[4,\infty)\).</div>
+    <div class="answer"><b>2.</b> שינוי סימן ב-\(-3,5\), ללא שינוי ב-\(2\). פתרון: \(( -\infty,-3)\cup(5,\infty)\).</div>
+    <div class="answer"><b>3.</b> סימנים: \(-,+,+,+\) ביחס ל-\(-1,0,3\). פתרון: \(( -\infty,-1]\cup\{0,3\}\).</div>
+    <div class="answer"><b>4.</b> תחום: \(x\ne-2,3\). סימנים: \(-,+,-,-,+\). פתרון: \([-4,-2)\cup\{1\}\cup(3,\infty)\).</div>
+    <div class="answer"><b>5.</b> תחום: \(x\ne-4,2\). סימנים: \(+,-,+,+,-\). פתרון: \((-4,-1)\cup(5,\infty)\).</div>
+    <div class="answer"><b>6.</b> תחום: \(x\ne-1,4\). פתרון: \(\{-3\}\cup(-1,1]\).</div>
+    <div class="answer"><b>7.</b> למשל \(P(x)=(x+3)(x-1)^2(x-4)\).</div>
+    <div class="answer"><b>8.</b> למשל \(z(x)=-\dfrac{(x+4)(x-5)^2}{(x+1)(x-3)}\).</div>
+    <div class="answer"><b>9.</b> למשל \(r(x)=-\dfrac{x^2}{(x+2)(x-4)}\).</div>
+    <div class="answer"><b>10.</b> למשל \(P(x)=(x+5)^2(x+1)(x-2)\).</div>
+    <div class="answer"><b>11.</b> מינימלית: \(u(x)=\dfrac{(x+3)(x-1)}{x-4}\). דוגמה נוספת: \(v(x)=\dfrac{(x+3)^3(x-1)^5}{(x-4)^3}\).</div>
+    <div class="answer"><b>12.</b> תשובה א - \(R_1\). זוגיות הריבויים בכל נקודה קריטית מתאימה לזו של \(P\), וגם הסימן בתחום הימני זהה.</div>
+  </div>
+  <div class="footer"><span>תשובות קצרות</span><span>11</span></div>
+</section>
+
+<section class="page" id="page-12">
+  <h2>תשובות קצרות - תרגילים 13-24</h2>
+  <div class="answer-grid">
+    <div class="answer"><b>13.</b> \(P(x)=(x+4)(x+1)(x-2)^2(x-5)\).</div>
+    <div class="answer"><b>14.</b> א-1, ב-2, ג-3. פונקציה 4 מיותרת.</div>
+    <div class="answer"><b>15.</b> היחס בין הביטוי החדש לישן הוא \((x-a)^2\gt0\) לכל \(x\ne a\), ולכן הסימן נשמר. סדר המגע או ההתבדרות ליד \(x=a\) עשוי להשתנות.</div>
+    <div class="answer"><b>16.</b> אותה מפת סימנים. בשתיהן: \((2,4)\) הוא הפתרון של \(\lt0\). הגרפים אינם חייבים להיות זהים משום שהריבויים שונים.</div>
+    <div class="answer"><b>17.</b> גרף א.</div>
+    <div class="answer"><b>18.</b> אפשרות מינימלית: \(g(x)=\dfrac{(x+3)^2(x-2)}{x+1}\). תחום: \(x\ne-1\). פתרון \(g(x)\le0\): \(\{-3\}\cup(-1,2]\).</div>
+    <div class="answer"><b>19.</b> \(h(x)=\dfrac{(x+4)(x-2)}{(x+1)^2(x-5)}\).</div>
+    <div class="answer"><b>20.</b> אפשרות מינימלית: \(\dfrac{(x+2)^2(x-1)}{(x+4)(x-3)^2}\). ב-\(-2\) וב-\(3\) ריבוי זוגי; ב-\(1\) וב-\(-4\) ריבוי אי-זוגי.</div>
+    <div class="answer"><b>21.</b> לשתיהן אותו סימן בכל תחום משותף. ב-\(x=2\) ריבוי המכנה זוגי ולכן אין שינוי סימן. ל-\(P(x)R(x)\lt0\) אין פתרון.</div>
+    <div class="answer"><b>22.</b> \(F(x)=\dfrac{(x+2)^2(x-1)}{(x+4)(x-3)^2}\). פתרון: \((-4,1]\).</div>
+    <div class="answer"><b>23.</b> למשל \(\dfrac{x-1}{(x+3)(x-2)(x-5)}\ge0\).</div>
+    <div class="answer"><b>24.</b> \(a,c,d\) אי-זוגיים ו-\(b\) זוגי. יש \(16\) רביעיות. הדרגה הכוללת המינימלית היא \(5\), למשל \((a,b,c,d)=(1,2,1,1)\).</div>
+  </div>
+  <div class="footer"><span>תשובות</span><span>12</span></div>
+</section>
+
+<script>
+(function(){
+  const registry = {};
+  const lineStyle = {strokeColor:'#111111', strokeWidth:2, fixed:true, highlight:false};
+  const curveStyle = {strokeColor:'#315b9d', strokeWidth:2.2, fixed:true, highlight:false};
+  const asymStyle = {strokeColor:'#6f7785', strokeWidth:1.2, dash:2, fixed:true, highlight:false};
+
+  function store(id, board, bbox){ registry[id] = {board, bbox:bbox.slice()}; }
+  function controls(id){
+    const host = document.querySelector('[data-controls-for="'+id+'"]');
+    if(!host) return;
+    host.innerHTML = '<button type="button" data-act="zin">הגדלה +</button><button type="button" data-act="zout">הקטנה -</button><button type="button" data-act="center">מרכוז</button><button type="button" data-act="reset">איפוס</button>';
+    host.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+      const item=registry[id]; if(!item) return;
+      const b=item.board, act=btn.dataset.act;
+      if(act==='reset'){ b.setBoundingBox(item.bbox,true); return; }
+      const bb=b.getBoundingBox();
+      const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+      if(act==='center'){
+        const ocx=(item.bbox[0]+item.bbox[2])/2, ocy=(item.bbox[1]+item.bbox[3])/2;
+        const w=bb[2]-bb[0], h=bb[1]-bb[3];
+        b.setBoundingBox([ocx-w/2, ocy+h/2, ocx+w/2, ocy-h/2], true); return;
+      }
+      const factor = act==='zin' ? 0.78 : 1.28;
+      const w=(bb[2]-bb[0])*factor, h=(bb[1]-bb[3])*factor;
+      b.setBoundingBox([cx-w/2, cy+h/2, cx+w/2, cy-h/2], true);
+    }));
+  }
+
+  function initBoard(id,bbox,opts={}){
+    const board=JXG.JSXGraph.initBoard(id,{
+      boundingbox:bbox,
+      axis:opts.axis!==false,
+      showCopyright:false,
+      showNavigation:false,
+      pan:{enabled:true},
+      zoom:{enabled:false},
+      keepAspectRatio:false
+    });
+    store(id,board,bbox); controls(id); return board;
+  }
+
+  function vertical(board,x){ board.create('line',[[x,0],[x,1]],asymStyle); }
+  function splitPlot(board,fn,breaks,bbox){
+    const xmin=bbox[0], xmax=bbox[2], eps=0.035;
+    const bs=[...breaks].filter(x=>x>xmin&&x<xmax).sort((a,b)=>a-b);
+    let a=xmin;
+    for(const br of [...bs,xmax]){
+      const right=br===xmax?xmax:br-eps;
+      if(right>a) board.create('functiongraph',[fn,a,right],curveStyle);
+      a=br===xmax?xmax:br+eps;
+    }
+    breaks.forEach(x=>vertical(board,x));
+  }
+
+  function signChart(id,breaks,signs){
+    const xmin=breaks[0]-2.1, xmax=breaks[breaks.length-1]+2.1;
+    const bbox=[xmin,1.35,xmax,-1.15];
+    const b=initBoard(id,bbox,{axis:false});
+    b.create('arrow',[[xmin+0.25,0],[xmax-0.25,0]],lineStyle);
+    breaks.forEach(x=>{
+      b.create('segment',[[x,-0.18],[x,0.18]],lineStyle);
+      b.create('text',[x,-0.47,String(x)],{anchorX:'middle',fontSize:12,fixed:true,highlight:false});
+    });
+    const pts=[xmin,...breaks,xmax];
+    signs.forEach((s,i)=>{
+      const mid=(pts[i]+pts[i+1])/2;
+      b.create('text',[mid,0.55,s],{anchorX:'middle',fontSize:17,fixed:true,highlight:false});
+    });
+    b.create('text',[xmax-0.45,-0.42,'x'],{fontSize:13,fixed:true,highlight:false});
+    return b;
+  }
+
+  function blankAxes(id){ initBoard(id,[-6,6,7,-6]); }
+
+  function graph(id,fn,breaks=[],bbox=[-6,8,7,-8]){
+    const b=initBoard(id,bbox);
+    splitPlot(b,fn,breaks,bbox);
+    return b;
+  }
+
+  function initAll(){
+    if(!window.JXG || !JXG.JSXGraph){
+      document.documentElement.dataset.jsxgraph='missing';
+      return;
+    }
+    try{
+      signChart('sign7',[-3,1,4],['+','-','-','+']);
+      signChart('sign8',[-4,-1,3,5],['+','-','+','-','-']);
+      signChart('sign9',[-2,0,4],['-','+','+','-']);
+      signChart('sign10',[-5,-1,2],['+','+','-','+']);
+
+      graph('g17a',x=>((x+2)*(x-1)*(x-1))/(x-3),[3],[-6,8,7,-8]);
+      graph('g17b',x=>-((x+2)*(x-1)*(x-1))/(x-3),[3],[-6,8,7,-8]);
+      graph('g17c',x=>((x+2)*(x+2)*(x-1))/(x-3),[3],[-6,8,7,-8]);
+      graph('g17d',x=>((x+2)*(x-1)*(x-1))/((x-3)*(x-3)),[3],[-6,8,7,-8]);
+
+      graph('g18',x=>((x+3)*(x+3)*(x-2))/(x+1),[-1],[-6,9,7,-9]);
+      signChart('sign19',[-4,-1,2,5],['-','+','+','-','+']);
+      blankAxes('blank19');
+
+      graph('g20',x=>((x+2)*(x+2)*(x-1))/((x+4)*(x-3)*(x-3)),[-4,3],[-6,8,7,-8]);
+      graph('g21p',x=>Math.pow(x+1,3)*Math.pow(x-3,2),[],[-5,7,6,-7]);
+      graph('g21r',x=>((x+1)*Math.pow(x-3,4))/Math.pow(x-2,2),[2],[-5,7,6,-7]);
+      document.documentElement.dataset.jsxgraph='ok';
+    }catch(err){
+      document.documentElement.dataset.jsxgraph='error';
+      document.documentElement.dataset.jsxgraphMessage=String(err && err.message || err);
+      console.error(err);
+    }
+  }
+
+  function selfTest(){
+    const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);
+    const dup=ids.filter((id,i)=>ids.indexOf(id)!==i);
+    const pages=[...document.querySelectorAll('.page')];
+    const missingTitles=pages.filter(p=>!p.querySelector('h1,h2')).map(p=>p.id);
+    const graphs=[...document.querySelectorAll('.jxgbox')];
+    const missingControls=graphs.filter(g=>!document.querySelector('[data-controls-for="'+g.id+'"]')).map(g=>g.id);
+    const overflow=pages.filter(p=>p.scrollHeight>p.clientHeight+2 || p.scrollWidth>p.clientWidth+2).map(p=>p.id);
+    const mathErrors=[...document.querySelectorAll('mjx-merror')].map(e=>e.textContent.trim()).filter(Boolean);
+    const geometry=[...document.querySelectorAll('[data-geometry-diagram]')];
+    const geometryStyleViolations=geometry.filter(g=>!g.classList.contains('jsxgraph-geometry')).map(g=>g.id||'(unnamed)');
+    const htmlStructure=!!(document.doctype && document.head && document.body && pages.length);
+    const report={
+      htmlStructure,
+      duplicateIds:[...new Set(dup)],
+      mathErrors,
+      jsxgraphStatus:document.documentElement.dataset.jsxgraph||'unknown',
+      missingTitles,
+      missingControls,
+      overflow,
+      geometryStyleViolations,
+      graphCount:graphs.length
+    };
+    document.documentElement.dataset.selftest=JSON.stringify(report);
+    console.log('DOCUMENT_SELF_TEST',report);
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    initAll();
+    const run=()=>setTimeout(selfTest,80);
+    if(window.MathJax && MathJax.startup && MathJax.startup.promise){
+      MathJax.startup.promise.then(run).catch(run);
+    }else{
+      setTimeout(run,900);
+    }
+  });
+})();
+</script>
+</body>
+</html>
