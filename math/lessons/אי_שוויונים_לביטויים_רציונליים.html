@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>מערך שיעור — אי־שוויונים לביטויים רציונליים</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], processEscapes: true},
+  chtml: {scale: 0.98},
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --navy:#17324d; --blue:#3679bd; --blue2:#eaf3fb; --teal:#0f766e;
+  --green:#e9f7ef; --amber:#fff5dd; --red:#b42318; --redbg:#fff0ee;
+  --ink:#17202a; --muted:#5f6f7f; --line:#c9d8e6; --paper:#fff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e8eef4;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;overflow:visible!important}
+body{direction:rtl}
+main{width:210mm;margin:0 auto;background:var(--paper);box-shadow:0 0 24px rgba(20,45,70,.18)}
+.page{width:210mm;min-height:297mm;padding:13mm 14mm 12mm;position:relative;page-break-after:always;break-after:page;overflow:visible!important;background:#fff}
+.page:last-child{page-break-after:auto}
+h1,h2,h3,h4{color:var(--navy);margin:0 0 8px;line-height:1.25}
+h1{font-size:29pt} h2{font-size:22pt} h3{font-size:15pt} h4{font-size:12.5pt}
+p{margin:6px 0;line-height:1.55}
+ul,ol{margin:6px 0 6px;padding-right:22px;line-height:1.52}
+li{margin:3px 0}
+.math-ltr,.exercise-math,.answer-math,.formula{direction:ltr;unicode-bidi:isolate;text-align:left}
+.kicker{display:inline-block;background:var(--blue2);color:var(--blue);font-weight:700;border:1px solid #cfe3f6;border-radius:999px;padding:5px 12px;margin-bottom:12px}
+.subtitle{font-size:16pt;color:var(--muted);font-weight:700;margin-top:7px}
+.hero{margin-top:18mm;padding:18mm 12mm;border-radius:20px;background:linear-gradient(135deg,#edf6ff 0%,#fff 58%,#e9f7ef 100%);border:1px solid #cfe0ef}
+.hero-note{margin-top:16px;padding:12px 14px;background:#fff;border-right:5px solid var(--blue);border-radius:10px;line-height:1.6}
+.cover-grid,.two-col,.three-col,.lesson-grid,.graph-grid,.exercise-grid,.answer-grid{display:grid;gap:10px}
+.cover-grid{grid-template-columns:repeat(3,1fr);margin-top:17px}
+.cover-card,.box,.step,.source-card{border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff;break-inside:avoid}
+.cover-card strong{display:block;color:var(--blue);font-size:12.5pt;margin-bottom:5px}
+.footer{position:absolute;right:14mm;left:14mm;bottom:7mm;border-top:1px solid #dbe5ee;padding-top:5px;display:flex;justify-content:space-between;color:#6d7c8b;font-size:9pt}
+.section-head{display:flex;align-items:center;gap:10px;border-bottom:3px solid var(--blue);padding-bottom:7px;margin-bottom:12px}
+.section-no{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:700;flex:0 0 auto}
+.two-col{grid-template-columns:1fr 1fr}.three-col{grid-template-columns:repeat(3,1fr)}
+.lesson-grid{grid-template-columns:1.1fr .9fr}
+.box{background:#fbfdff}.box.blue{background:var(--blue2)}.box.green{background:var(--green)}.box.amber{background:var(--amber)}.box.red{background:var(--redbg);border-color:#f1b7b1}
+.callout{border-radius:10px;padding:10px 12px;margin:9px 0;border-right:5px solid var(--blue);background:var(--blue2);line-height:1.55}
+.callout.warn{border-right-color:#d28a00;background:var(--amber)}
+.callout.danger{border-right-color:var(--red);background:var(--redbg)}
+.timeline{display:grid;grid-template-columns:70px 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.timeline div{padding:8px 10px;border-bottom:1px solid var(--line)}
+.timeline div:nth-last-child(-n+2){border-bottom:none}.timeline .time{background:#edf5fc;color:var(--blue);font-weight:700;text-align:center}
+.step-list{display:grid;gap:8px}.step{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:start;background:#fbfdff}.step-n{width:30px;height:30px;border-radius:8px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700}
+.rule-table,.sign-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:10.5pt;break-inside:avoid}
+.rule-table th,.rule-table td,.sign-table th,.sign-table td{border:1px solid var(--line);padding:7px;text-align:center;vertical-align:middle}
+.rule-table th,.sign-table th{background:#edf5fc;color:var(--navy)}
+.sign-pos{background:#e9f7ef;color:#166534;font-weight:700}.sign-neg{background:#fff0ee;color:#9f1d15;font-weight:700}.sign-zero{background:#f6f7f8;color:#4b5563}
+.formula-panel{direction:ltr;text-align:center;background:#f8fbfe;border:1px solid var(--line);border-radius:12px;padding:6px;margin:10px 0;font-size:13pt}
+.graph-grid{grid-template-columns:1.08fr .92fr;align-items:start}
+.jxgbox{width:100%;height:330px;border:1px solid #b8cde0;border-radius:12px;background:#fff;direction:ltr;overflow:hidden!important;break-inside:avoid}
+.jxgbox.small{height:245px}
+.graph-caption{font-size:9.5pt;color:var(--muted);margin-top:5px;text-align:center}
+.solution-line{display:grid;grid-template-columns:34px 1fr;gap:8px;margin:7px 0;align-items:start}.solution-line b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#dcecf9;color:var(--navy)}
+.badge{display:inline-block;border-radius:999px;padding:3px 8px;font-size:9pt;font-weight:700;background:#edf5fc;color:var(--blue);margin:2px}
+.exercise-grid{grid-template-columns:1fr 1fr;gap:8px}
+.exercise-card{border:1px solid var(--line);border-radius:10px;padding:8px 9px;min-height:88px;display:grid;grid-template-columns:31px 1fr;grid-template-rows:auto 1fr;gap:2px 8px;break-inside:avoid;background:#fff}
+.exercise-num{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700}
+.exercise-math{text-align:center;font-size:11.5pt;min-height:34px;display:flex;align-items:center;justify-content:center}
+.answer-line{border-bottom:1px dashed #9fb1c2;margin:8px 8px 0;height:18px}
+.level-strip{display:flex;justify-content:space-between;align-items:center;background:#edf5fc;border-radius:10px;padding:8px 11px;margin-bottom:10px;color:var(--navy);font-weight:700}
+.answer-grid{grid-template-columns:1fr 1fr;gap:7px}
+.answer-item{border:1px solid var(--line);border-radius:9px;padding:7px 9px;display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:center;min-height:43px;break-inside:avoid}
+.answer-num{width:26px;height:26px;border-radius:7px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700}.answer-math{text-align:center;font-size:10.3pt}
+.checklist{list-style:none;padding:0}.checklist li{padding-right:26px;position:relative;margin:7px 0}.checklist li:before{content:"✓";position:absolute;right:0;color:var(--teal);font-weight:700;font-size:14pt;top:-2px}
+.error-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.error-card{border:1px solid #efc0bb;border-radius:10px;padding:9px;background:#fff8f7;break-inside:avoid}.error-card strong{color:var(--red)}
+.source-list{font-size:10pt}.source-list li{margin:5px 0}
+.note-small{font-size:9.4pt;color:var(--muted)}
+@media(max-width:900px){main,.page{width:100%}.page{min-height:auto;padding:20px}.two-col,.three-col,.lesson-grid,.graph-grid,.cover-grid,.exercise-grid,.answer-grid,.error-grid{grid-template-columns:1fr}.footer{position:static;margin-top:18px}.jxgbox{height:320px}}
+@media print{
+ @page{size:A4;margin:0}
+ html,body{background:#fff!important;overflow:visible!important}
+ main{width:210mm;margin:0;box-shadow:none}
+ .page{width:210mm;min-height:297mm;overflow:visible!important}
+ .jxgbox{page-break-inside:avoid;break-inside:avoid}
+ a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<main>
+
+<section class="page">
+  <div class="hero">
+    <div class="kicker">אלגברה · כיתה י׳ · 4–5 יחידות</div>
+    <h1>אי־שוויונים לביטויים רציונליים</h1>
+    <div class="subtitle">פתרון אלגברי · טבלת סימנים · פתרון גרפי · תחום הגדרה</div>
+    <div style="height:30px;"></div>
+    <div class="cover-grid">
+      <div class="cover-card"><strong>מטרת־על</strong>לפתור אי־שוויון רציונלי תוך הפרדה ברורה בין אפסי המונה, אפסי המכנה ותחומי הסימן.</div>
+      <div class="cover-card"><strong>ידע קודם</strong>פירוק לגורמים, אי־שוויון פולינומי, כתיב תחומים, קריאת גרף ותחום הגדרה.</div>
+      <div class="cover-card"><strong>תוצרי למידה</strong>פתרון אלגברי וגרפי, סימון נקודות אסורות, זיהוי אסימפטוטה אנכית ונקודה חסרה.</div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">2</div><div><h2>הבסיס האלגברי</h2><p>תחום הגדרה, נקודות קריטיות וכללי הכללה</p></div></div>
+  <div class="formula-panel">\[\frac{N(x)}{D(x)}\;\mathrel{\square}\;0,\qquad \square\in\{<,\le,>,\ge\},\qquad D(x)\ne 0\]</div>
+  <div class="step-list">
+    <div class="step"><div class="step-n">1</div><div><h3>מעבירים לאגף אחד</h3><p>כאשר האגף הימני אינו אפס, מאחדים שברים וכותבים מנה אחת מול אפס.</p></div></div>
+    <div class="step"><div class="step-n">2</div><div><h3>כותבים תחום הגדרה</h3><p>פותרים \(D(x)=0\) ומוציאים את הערכים האלה מכל פתרון אפשרי.</p></div></div>
+    <div class="step"><div class="step-n">3</div><div><h3>מפרקים לגורמים</h3><p>מוצאים אפסים של המונה ושל המכנה ושומרים גם גורמים בעלי חזקה זוגית.</p></div></div>
+    <div class="step"><div class="step-n">4</div><div><h3>בונים טבלת סימנים</h3><p>מסדרים את הנקודות הקריטיות על ציר המספרים ובודקים את סימן המנה בכל תחום.</p></div></div>
+    <div class="step"><div class="step-n">5</div><div><h3>בוחרים תחומים</h3><p>נקודות האפס של המונה, שבהם המכנה אינו מתאפס, נכללים רק בסימנים \(\le\) או \(\ge\). נקודות האפס של המכנה, תמיד נקודות פתוחות.</p></div></div>
+  </div>
+  <table class="rule-table">
+    <thead><tr><th>סוג נקודה</th><th>משמעות</th><th>באי־שוויון חזק</th><th>באי־שוויון חלש</th></tr></thead>
+    <tbody>
+      <tr><td>אפס מונה שאינו אפס מכנה</td><td>ערך הפונקציה הוא \(0\)</td><td>לא נכלל</td><td>נכלל</td></tr>
+      <tr><td>אפס מכנה</td><td>הביטוי אינו מוגדר</td><td>לא נכלל</td><td>לא נכלל</td></tr>
+      <tr><td>גורם בריבוי אפקטיבי זוגי</td><td>הסימן אינו מתחלף סביב הנקודה</td><td colspan="2">הריבוי נקבע לאחר איחוד גורמים זהים, אך ההכללה נקבעת לפי תחום ההגדרה המקורי</td></tr>
+      <tr><td>גורם בריבוי אפקטיבי אי־זוגי</td><td>הסימן מתחלף סביב הנקודה</td><td colspan="2">גם לאחר צמצום, כל אפס של המכנה המקורי נשאר מחוץ לפתרון</td></tr>
+    </tbody>
+  </table>
+  <div class="callout danger"><strong>איסור מרכזי:</strong> אין לכפול או לחלק בביטוי משתנה לפני שיודעים את סימנו. הדרך הבטוחה היא להעביר הכול למנה אחת ולבנות טבלת סימנים.</div>
+  <div class="footer"><span>כללים ואלגוריתם</span><span>עמוד 3</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">3</div><div><h2>דוגמה אלגברית מלאה</h2><p>פתרון בעזרת טבלת סימנים</p></div></div>
+  <div class="formula-panel">\[\frac{x-1}{x+2}>0\]</div>
+  <div class="graph-grid_">
+    <div>
+      <div class="solution-line"><b>1</b><div><h3>תחום הגדרה</h3><p>\(x\ne-2\).</p></div></div>
+      <div class="solution-line"><b>2</b><div><h3>נקודות קריטיות</h3><p>אפס מונה: \(x=1\). אפס מכנה: \(x=-2\).</p></div></div>
+      <div class="solution-line"><b>3</b><div><h3>סימנים</h3><p>הנקודות מחלקות את הציר לשלושה תחומים.</p></div></div>
+      <table class="sign-table">
+        <tr><th>תחום</th><td>\((-\\infty,-2)\)</td><td>\((-2,1)\)</td><td>\((1,\\infty)\)</td></tr>
+        <tr><th>\(x-1\)</th><td class="sign-neg">−</td><td class="sign-neg">−</td><td class="sign-pos">+</td></tr>
+        <tr><th>\(x+2\)</th><td class="sign-neg">−</td><td class="sign-pos">+</td><td class="sign-pos">+</td></tr>
+        <tr><th>מנה</th><td class="sign-pos">+</td><td class="sign-neg">−</td><td class="sign-pos">+</td></tr>
+      </table>
+      <div class="solution-line"><b>4</b><div><h3>בחירת התחומים</h3><p>נדרשת מנה חיובית. שתי נקודות הגבול אינן נכללות.</p></div></div>
+      <div class="formula-panel">\[x\in(-\infty,-2)\cup(1,\infty)\]</div>
+    </div>
+    <div>
+      <div id="signBoard" class="jxgbox small" aria-label="טבלת סימנים על ציר מספרים"></div>
+      <div class="graph-caption">ציר סימנים: נקודת מכנה ואפס מונה מסומנים כנקודות פתוחות.</div>
+      <div class="box amber" style="margin-top:9px"><h3>בדיקת הצבה מהירה</h3><p>למשל \(x=-3,0,2\). מספיק ערך אחד מכל תחום, מפני שהסימן אינו משתנה בתוך תחום שאין בו אפס או נקודת אי־הגדרה.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span>פתרון אלגברי</span><span>עמוד 4</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">4</div><div><h2>פתרון גרפי</h2><p>קוראים את תחומי החיוביות של הפונקציה הרציונלית</p></div></div>
+  <div class="graph-grid_">
+    <div>
+      <div id="rationalBoard" class="jxgbox" aria-label="גרף פונקציה רציונלית"></div>
+      <div class="graph-caption">הגרף של \(y=\\frac{x-1}{x+2}\), אסימפטוטה אנכית \(x=-2\) ואפס ב־\(x=1\).</div>
+    </div>
+    <div style="height:20px;"></div>
+    <div>
+      <h3>כיצד קוראים פתרון מן הגרף?</h3>
+      <ol>
+        <li>מציירים את \(y=\\frac{N(x)}{D(x)}\).</li>
+        <li>מזהים היכן הגרף מעל ציר \(x\) עבור \(>0\).</li>
+        <li>מזהים היכן הגרף מתחת לציר \(x\) עבור \(<0\).</li>
+        <li>בנקודות האפס של המונה, בודקים אם הסימן כולל שוויון.</li>
+        <li>בנקודות האפס של המכנה, הגרף אינו מוגדר; הנקודה אינה נכללת.</li>
+      </ol>
+      <div class="box blue">
+        <h3>התאמה בין אלגברה לגרף</h3>
+        <p><span class="badge">אפס מונה</span> חיתוך עם ציר \(x\).</p>
+        <p><span class="badge">אפס מכנה</span> בדרך כלל אסימפטוטה אנכית או נקודה חסרה.</p>
+        <p><span class="badge">סימן המנה</span> מיקום הגרף מעל או מתחת לציר.</p>
+      </div>
+      <div class="formula-panel">\[(-\infty,-2)\cup(1,\infty)\]</div>
+    </div>
+  </div>
+  <div class="callout"><strong>בדיקה הדדית:</strong> הפתרון האלגברי והפתרון הגרפי חייבים להיות זהים. אי־התאמה מצביעה בדרך כלל על טעות בתחום ההגדרה או בהכללת נקודת גבול.</div>
+  <div class="footer"><span>פתרון גרפי</span><span>עמוד 5</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">5</div><div><h2>צמצום גורמים ונקודה חסרה</h2><p>הגורם מצטמצם, אך הערך האסור נשאר מחוץ לתחום</p></div></div>
+  <div class="formula-panel">\[\frac{x-3}{2x^2-10x+12}>0\]</div>
+  <div class="two-col_">
+    <div>
+      <h3>פירוק לגורמים</h3>
+      <div class="formula-panel">\[2x^2-10x+12=2(x-2)(x-3)\]</div>
+      <div class="formula-panel">\[\frac{x-3}{2(x-2)(x-3)}=\frac{1}{2(x-2)},\qquad x\ne 2,3\]</div>
+      <div class="callout danger"><strong>אך:</strong> מן הביטוי המקורי מתקבל \(x\ne2\) וגם \(x\ne3\). הצמצום אינו מחזיר את \(x=3\) לתחום.</div>
+      <h3>פתרון</h3>
+      <p>הביטוי המצומצם חיובי כאשר \(x>2\), אך יש להוציא את \(x=3\).</p>
+      <div class="formula-panel">\[(2,3)\cup(3,\infty)\]</div>
+      <div class="box amber"><h3>משמעות גרפית</h3><p>ב־\(x=2\) קיימת אסימפטוטה אנכית. ב־\(x=3\) קיימת נקודה חסרה בגובה \(\frac12\).</p></div>
+    </div>
+    <div style="height:10px;"></div>
+    <div>
+      <div id="holeBoard" class="jxgbox" aria-label="גרף עם נקודה חסרה"></div>
+      <div class="graph-caption">העיגול הפתוח מציין נקודה שאינה בתחום אף שהביטוי המצומצם מקבל שם ערך.</div>
+    </div>
+  </div>
+  <div class="footer"><span>צמצום ותחום הגדרה</span><span>עמוד 6</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">6</div><div><h2>כאשר האגף הימני אינו אפס</h2><p>מאחדים למנה אחת לפני בניית טבלת הסימנים</p></div></div>
+  <div class="formula-panel">\[\frac{x-1}{x+2}\le1\]</div>
+  <div class="graph-grid_">
+    <div>
+      <div class="solution-line"><b>1</b><div><p>תחום הגדרה: \(x\ne-2\).</p></div></div>
+      <div class="solution-line"><b>2</b><div><p>מעבירים אגף ומאחדים שברים:</p></div></div>
+      <div class="formula-panel">\[\frac{x-1}{x+2}-1\le0\]</div>
+      <div class="formula-panel">\[\frac{x-1-(x+2)}{x+2}\le0\]</div>
+      <div class="formula-panel">\[\frac{-3}{x+2}\le0\]</div>
+      <div class="solution-line"><b>3</b><div><p>המונה שלילי תמיד ואינו מתאפס. כדי שהמנה תהיה שלילית, המכנה חייב להיות חיובי.</p></div></div>
+      <div class="formula-panel">\[x>-2\]</div>
+      <div class="callout warn">אין נקודת שוויון בין שני הגרפים; הסימן \(\le\) אינו מוסיף נקודה, מפני שההפרש לעולם אינו אפס.</div>
+    </div>
+    <div>
+      <div id="compareBoard" class="jxgbox" aria-label="השוואת פונקציה רציונלית לישר אופקי"></div>
+      <div class="graph-caption">מימין לאסימפטוטה הגרף נמצא מתחת לישר \(y=1\).</div>
+    </div>
+  </div>
+  <div class="footer"><span>איחוד שברים והשוואת גרפים</span><span>עמוד 7</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">7</div><div><h2>תרגול מודרך ובקרת טעויות</h2><p>שאלות מפתח, שגיאות נפוצות וכרטיס יציאה</p></div></div>
+  <div class="two-col_">
+    <div>
+      <h3>דוגמה קצרה</h3>
+      <div class="formula-panel">\[\frac{1}{x^2-5x+6}<0\]</div>
+      <p>מפרקים: \(x^2-5x+6=(x-2)(x-3)\).</p>
+      <p>המונה חיובי תמיד, ולכן המנה שלילית בדיוק כאשר המכנה שלילי.</p>
+      <div class="formula-panel">\[2<x<3\]</div>
+      <div id="quadraticDenBoard" class="jxgbox small" aria-label="גרף פונקציה עם שתי אסימפטוטות"></div>
+    </div>
+    <div>
+      <h3>שגיאות נפוצות</h3>
+      <div class="error-grid">
+        <div class="error-card"><strong>כפל במכנה</strong><p>מכפילים ב־\(D(x)\) בלי לדעת את סימנו.</p></div>
+        <div class="error-card"><strong>הכללת אפס מכנה</strong><p>סוגרים נקודה מפני שהסימן כולל שוויון.</p></div>
+        <div class="error-card"><strong>איבוד נקודה חסרה</strong><p>מצמצמים גורם ושוכחים את תחום הביטוי המקורי.</p></div>
+        <div class="error-card"><strong>החלפת סימן אוטומטית</strong><p>מניחים שכל שורש משנה סימן, גם כשחזקתו זוגית.</p></div>
+      </div>
+      <h3 style="margin-top:12px">שאלות שהמורה שואל</h3>
+      <ul>
+        <li>איזו נקודה היא אפס מונה ואיזו אפס מכנה?</li>
+        <li>האם הגורם מופיע בחזקה זוגית או אי־זוגית?</li>
+        <li>מה רואים בגרף בנקודת המכנה?</li>
+        <li>האם השוויון אפשרי בכלל?</li>
+      </ul>
+      <div class="box green"><h3>כרטיס יציאה</h3><p>פתרו \(\\frac{x+1}{x-2}>0\), כתבו תחום הגדרה והסבירו במשפט אחד מדוע \(x=2\) אינו בפתרון.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span>הערכה מעצבת</span><span>עמוד 8</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">8</div><div><h2>תרגילים 1–8</h2><p>רמה א׳ — מנה ליניארית ותחום הגדרה בסיסי</p></div></div>
+  <div class="level-strip"><span>מטרה: שתי נקודות קריטיות לכל היותר</span><span>פתרו אלגברית ואמתו לפחות שני תרגילים בגרף</span></div>
+  <div class="exercise-grid"><article class="exercise-card">
+          <div class="exercise-num">1</div>
+          <div class="exercise-math">\(\frac{1}{-3(x-1)}<0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">2</div>
+          <div class="exercise-math">\(\frac{x-4}{x+3}<0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">3</div>
+          <div class="exercise-math">\(\frac{2x-1}{x-5}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">4</div>
+          <div class="exercise-math">\(\frac{x-4}{x+1}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">5</div>
+          <div class="exercise-math">\(\frac{x-1}{3x-4}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">6</div>
+          <div class="exercise-math">\(\frac{x+2}{x-5}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">7</div>
+          <div class="exercise-math">\(\frac{3x+6}{x-1}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">8</div>
+          <div class="exercise-math">\(\frac{x-1}{x+2}\le 1\)</div>
+          <div class="answer-line"></div>
+        </article></div>
+  <div class="callout warn"><strong>תזכורת:</strong> לפני כל פתרון כתבו במפורש אילו ערכים מאפסים את המכנה.</div>
+  <div class="footer"><span>תרגול מדורג</span><span>עמוד 9</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">9</div><div><h2>תרגילים 9–16</h2><p>רמה ב׳ — מכנה ריבועי, פירוק לגורמים וחזקות זוגיות</p></div></div>
+  <div class="level-strip"><span>מטרה: אפסים מרובים ושינויי סימן</span><span>סמנו את נקודות האפס של המכנה, בנקודה פתוחה</span></div>
+  <div class="exercise-grid"><article class="exercise-card">
+          <div class="exercise-num">9</div>
+          <div class="exercise-math">\(\frac{1}{x^2-16}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">10</div>
+          <div class="exercise-math">\(\frac{1}{x^2-5x+6}<0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">11</div>
+          <div class="exercise-math">\(\frac{1}{x^2-8x+12}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">12</div>
+          <div class="exercise-math">\(\frac{x-1}{x^2-9}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">13</div>
+          <div class="exercise-math">\(\frac{x-3}{2x^2-10x+12}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">14</div>
+          <div class="exercise-math">\(\frac{x^2-7x+6}{-x^2+3x-7}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">15</div>
+          <div class="exercise-math">\(\frac{x^2+5x+4}{x-1}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">16</div>
+          <div class="exercise-math">\(\frac{(x-7)^2}{x+2}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article></div>
+  <div class="footer"><span>תרגול מדורג</span><span>עמוד 10</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">10</div><div><h2>תרגילים 17–24</h2><p>רמה ג׳ — מונה ומכנה מפורקים, שלוש וארבע נקודות קריטיות</p></div></div>
+  <div class="level-strip"><span>מטרה: טבלת סימנים מלאה</span><span>בדקו ריבוי שורש לפני החלפת סימן</span></div>
+  <div class="exercise-grid"><article class="exercise-card">
+          <div class="exercise-num">17</div>
+          <div class="exercise-math">\(\frac{(x+8)(x+2)}{x-3}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">18</div>
+          <div class="exercise-math">\(\frac{x^2-4x-32}{x-3}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">19</div>
+          <div class="exercise-math">\(\frac{x^2+10x+24}{x-2}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">20</div>
+          <div class="exercise-math">\(\frac{(x+5)(x-2)}{(x-1)(x+1)}<0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">21</div>
+          <div class="exercise-math">\(\frac{(x+8)^2(x+5)}{(x+7)^2}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">22</div>
+          <div class="exercise-math">\(\frac{x^2-1}{x-4}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">23</div>
+          <div class="exercise-math">\(\frac{(x-2)(x+3)}{x+1}<0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">24</div>
+          <div class="exercise-math">\(\frac{2}{x^2-x-6}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article></div>
+  <div class="footer"><span>תרגול מדורג</span><span>עמוד 11</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">11</div><div><h2>תרגילים 25–32</h2><p>רמה ד׳ — מנות של פולינומים והשוואה למספר</p></div></div>
+  <div class="level-strip"><span>מטרה: גורמים חוזרים ואיחוד לאגף אחד</span><span>אין לצמצם לפני כתיבת תחום הגדרה</span></div>
+  <div class="exercise-grid"><article class="exercise-card">
+          <div class="exercise-num">25</div>
+          <div class="exercise-math">\(\frac{x^2-9}{x^2-4}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">26</div>
+          <div class="exercise-math">\(\frac{(x-1)^2}{x+4}<0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">27</div>
+          <div class="exercise-math">\(\frac{(x+2)(x-5)}{(x-3)^2}\ge 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">28</div>
+          <div class="exercise-math">\(\frac{(x-4)(x+1)}{(x-2)(x+3)}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">29</div>
+          <div class="exercise-math">\(\frac{x^2-5x+6}{x^2-x-6}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">30</div>
+          <div class="exercise-math">\(\frac{x^2-4}{x^2-5x+6}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">31</div>
+          <div class="exercise-math">\(\frac{x-1}{3x+2}\ge -3\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">32</div>
+          <div class="exercise-math">\(\frac{x+1}{x-2}>2\)</div>
+          <div class="answer-line"></div>
+        </article></div>
+  <div class="footer"><span>תרגול מדורג</span><span>עמוד 12</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">12</div><div><h2>תרגילים 33–40</h2><p>רמה ה׳ — מספר מנות, השוואת פונקציות ונקודות חסרות</p></div></div>
+  <div class="level-strip"><span>מטרה: סינתזה מלאה</span><span>הציגו גם תחום הגדרה וגם תשובה בכתיב תחומים</span></div>
+  <div class="exercise-grid"><article class="exercise-card">
+          <div class="exercise-num">33</div>
+          <div class="exercise-math">\(\frac{x+1}{x-2}+\frac{x-3}{x+2}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">34</div>
+          <div class="exercise-math">\(\frac{1}{x-1}-\frac{2}{x+3}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">35</div>
+          <div class="exercise-math">\(\frac{2x-4}{x-1}\ge \frac{x-2}{x+1}\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">36</div>
+          <div class="exercise-math">\(\frac{x^2-1}{x-2}<x+1\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">37</div>
+          <div class="exercise-math">\(\frac{(x-1)(x+2)^2}{(x-3)^2(x+4)}>0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">38</div>
+          <div class="exercise-math">\(\frac{(x^2-4x+3)^2}{(x-1)(x-5)}\le 0\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">39</div>
+          <div class="exercise-math">\(\frac{x^2-4x+7}{x^2-5x+6}<1\)</div>
+          <div class="answer-line"></div>
+        </article>
+<article class="exercise-card">
+          <div class="exercise-num">40</div>
+          <div class="exercise-math">\(\frac{(x-1)(x-2)}{(x-2)(x-3)}\ge \frac{x-1}{x-3}\)</div>
+          <div class="answer-line"></div>
+        </article></div>
+  <div class="callout"><strong>אתגר 40:</strong> גם כאשר שני אגפי האי־שוויון נראים זהים לאחר צמצום, תחום ההגדרה נקבע מן הביטויים המקוריים.</div>
+  <div class="footer"><span>תרגול מסכם</span><span>עמוד 13</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">13</div><div><h2>תשובות סופיות — 1–20</h2><p>יש להשתמש בתשובות לבדיקה לאחר הצגת דרך מלאה</p></div></div>
+  <div class="answer-grid"><div class="answer-item"><span class="answer-num">1</span><span class="answer-math">\((1,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">2</span><span class="answer-math">\((-3,4)\)</span></div>
+<div class="answer-item"><span class="answer-num">3</span><span class="answer-math">\(\left[\frac12,5\right)\)</span></div>
+<div class="answer-item"><span class="answer-num">4</span><span class="answer-math">\((-\infty,-1)\cup[4,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">5</span><span class="answer-math">\((-\infty,1]\cup\left(\frac43,\infty\right)\)</span></div>
+<div class="answer-item"><span class="answer-num">6</span><span class="answer-math">\((-\infty,-2)\cup(5,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">7</span><span class="answer-math">\([-2,1)\)</span></div>
+<div class="answer-item"><span class="answer-num">8</span><span class="answer-math">\((-2,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">9</span><span class="answer-math">\((-\infty,-4)\cup(4,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">10</span><span class="answer-math">\((2,3)\)</span></div>
+<div class="answer-item"><span class="answer-num">11</span><span class="answer-math">\((-\infty,2)\cup(6,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">12</span><span class="answer-math">\((-3,1)\cup(3,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">13</span><span class="answer-math">\((2,3)\cup(3,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">14</span><span class="answer-math">\([1,6]\)</span></div>
+<div class="answer-item"><span class="answer-num">15</span><span class="answer-math">\((-\infty,-4]\cup[-1,1)\)</span></div>
+<div class="answer-item"><span class="answer-num">16</span><span class="answer-math">\((-2,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">17</span><span class="answer-math">\([-8,-2]\cup(3,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">18</span><span class="answer-math">\((-4,3)\cup(8,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">19</span><span class="answer-math">\((-6,-4)\cup(2,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">20</span><span class="answer-math">\((-5,-1)\cup(1,2)\)</span></div></div>
+  <div class="callout warn"><strong>בדיקת איכות:</strong> בכל תשובה ודאו שאף אפס מכנה אינו מופיע בתוך תחום סגור.</div>
+  <div class="footer"><span>מפתח תשובות</span><span>עמוד 14</span></div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="section-no">14</div><div><h2>תשובות סופיות — 21–40</h2><p>ומיפוי המקורות ששימשו לבניית המערך</p></div></div>
+  <div class="answer-grid"><div class="answer-item"><span class="answer-num">21</span><span class="answer-math">\(\{-8\}\cup[-5,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">22</span><span class="answer-math">\([-1,1]\cup(4,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">23</span><span class="answer-math">\((-\infty,-3)\cup(-1,2)\)</span></div>
+<div class="answer-item"><span class="answer-num">24</span><span class="answer-math">\((-2,3)\)</span></div>
+<div class="answer-item"><span class="answer-num">25</span><span class="answer-math">\((-\infty,-3)\cup(-2,2)\cup(3,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">26</span><span class="answer-math">\((-\infty,-4)\)</span></div>
+<div class="answer-item"><span class="answer-num">27</span><span class="answer-math">\((-\infty,-2]\cup[5,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">28</span><span class="answer-math">\((-3,-1]\cup(2,4]\)</span></div>
+<div class="answer-item"><span class="answer-num">29</span><span class="answer-math">\((-\infty,-2)\cup(2,3)\cup(3,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">30</span><span class="answer-math">\([-2,2)\cup(2,3)\)</span></div>
+<div class="answer-item"><span class="answer-num">31</span><span class="answer-math">\(\left(-\infty,-\frac23\right)\cup\left[-\frac12,\infty\right)\)</span></div>
+<div class="answer-item"><span class="answer-num">32</span><span class="answer-math">\((2,5)\)</span></div>
+<div class="answer-item"><span class="answer-num">33</span><span class="answer-math">\((-\infty,-2)\cup(2,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">34</span><span class="answer-math">\((-3,1)\cup[5,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">35</span><span class="answer-math">\((-\infty,-3]\cup(-1,1)\cup[2,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">36</span><span class="answer-math">\((-1,2)\)</span></div>
+<div class="answer-item"><span class="answer-num">37</span><span class="answer-math">\((-\infty,-4)\cup(1,3)\cup(3,\infty)\)</span></div>
+<div class="answer-item"><span class="answer-num">38</span><span class="answer-math">\((1,5)\)</span></div>
+<div class="answer-item"><span class="answer-num">39</span><span class="answer-math">\((-\infty,-1)\cup(2,3)\)</span></div>
+<div class="answer-item"><span class="answer-num">40</span><span class="answer-math">\(\mathbb{R}\setminus\{2,3\}\)</span></div></div>
+<!--
+  <div class="two-col" style="margin-top:12px">
+    <div class="source-card">
+      <h3>מקורות בעברית</h3>
+      <ul class="source-list">
+        <li><strong>אי שוויונים אלגבריים — חדו״א 1:</strong> הגדרה, שיטת פתרון ועשרת תרגילי המנה.</li>
+        <li><strong>אלגברה — אי־שוויונים ומשוואות שורש:</strong> טבלת סימנים והדגשת נקודות מכנה פתוחות.</li>
+        <li><strong>כיתה י — יחידה 4 — אי שוויון:</strong> רצף מדורג מאי־שוויון ליניארי לריבועי ולרציונלי.</li>
+      </ul>
+    </div>
+    <div class="source-card">
+      <h3>מקורות באנגלית</h3>
+      <ul class="source-list">
+        <li><strong>Polynomial Inequalities:</strong> מבני פירוק לגורמים וריבוי שורשים שעובדו למנות.</li>
+        <li><strong>Solving Quadratic Inequalities:</strong> תרגילים ריבועיים מדורגים ששימשו למונים ולמכנים.</li>
+        <li><strong>Graphical Inequalities and Regions:</strong> השוואת פונקציות וקריאת תחומי פתרון מן הגרף.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note-small">התרגילים מן המקורות האנגליים עובדו לצורת מנה תוך שמירה על מבנה הגורמים והקושי האלגברי. לצד 20 תרגילים מבוססי מקור נוספו 20 תרגילים מקבילים חדשים, ולכן המאגר הכולל כפול מן המאגר שנבחר.</p>
+-->
+  <div class="footer"><span>בקרת איכות</span><span>עמוד 15</span></div>
+</section>
+
+</main>
+<script>
+(function(){
+  function whenReady(){
+    if(!window.JXG){setTimeout(whenReady,120);return;}
+    JXG.Options.text.useMathJax = false;
+    const blue='#3679bd', red='#b42318', green='#0f766e', gray='#64748b', navy='#17324d';
+    const base={showCopyright:false,showNavigation:false,axis:true,keepaspectratio:false,pan:{enabled:false},zoom:{enabled:false},renderer:'svg'};
+    function vline(board,xv,label){
+      board.create('line',[[xv,-10],[xv,10]],{straightFirst:false,straightLast:false,strokeColor:red,strokeWidth:2,dash:2,fixed:true,highlight:false});
+      if(label) board.create('text',[xv+0.12,5.2,label],{fontSize:12,color:red,fixed:true,highlight:false});
+    }
+    function interval(board,a,b,y,color,openA=true,openB=true){
+      board.create('segment',[[a,y],[b,y]],{strokeColor:color,strokeWidth:5,fixed:true,highlight:false});
+      board.create('point',[a,y],{name:'',size:3,face:'o',fillColor:openA?'white':color,strokeColor:color,fixed:true,highlight:false});
+      board.create('point',[b,y],{name:'',size:3,face:'o',fillColor:openB?'white':color,strokeColor:color,fixed:true,highlight:false});
+    }
+    try{
+      const b=JXG.JSXGraph.initBoard('signBoard',{...base,axis:false,boundingbox:[-6,2.2,6,-2.2]});
+      b.create('segment',[[-5.4,0],[5.4,0]],{strokeColor:navy,strokeWidth:2,lastArrow:true,firstArrow:true,fixed:true,highlight:false});
+      [-2,1].forEach(v=>b.create('segment',[[v,-.16],[v,.16]],{strokeColor:navy,strokeWidth:2,fixed:true,highlight:false}));
+      b.create('point',[-2,0],{name:'-2',size:4,face:'o',fillColor:'white',strokeColor:red,label:{offset:[-9,-24]},fixed:true,highlight:false});
+      b.create('point',[1,0],{name:'1',size:4,face:'o',fillColor:'white',strokeColor:blue,label:{offset:[-3,-24]},fixed:true,highlight:false});
+      b.create('text',[-4.2,.7,'+'],{fontSize:22,color:green,fixed:true});
+      b.create('text',[-.7,.7,'−'],{fontSize:22,color:red,fixed:true});
+      b.create('text',[3.2,.7,'+'],{fontSize:22,color:green,fixed:true});
+      b.create('text',[-2.65,-1.15,'לא מוגדר'],{fontSize:11,color:red,fixed:true});
+      b.create('text',[.62,-1.15,'אפס'],{fontSize:11,color:blue,fixed:true});
+    }catch(e){console.error('signBoard',e)}
+    try{
+      const b=JXG.JSXGraph.initBoard('rationalBoard',{...base,boundingbox:[-8,6,8,-6]});
+      b.create('functiongraph',[x=>(x-1)/(x+2),-8,-2.06],{strokeColor:blue,strokeWidth:2.5,fixed:true,highlight:false});
+      b.create('functiongraph',[x=>(x-1)/(x+2),-1.94,8],{strokeColor:blue,strokeWidth:2.5,fixed:true,highlight:false});
+      vline(b,-2,'x=-2');
+      b.create('point',[1,0],{name:'zero',size:3.5,fillColor:blue,strokeColor:blue,label:{offset:[8,10]},fixed:true,highlight:false});
+      interval(b,-7.7,-2.08,-5.35,green,true,true); interval(b,1.02,7.7,-5.35,green,true,true);
+    }catch(e){console.error('rationalBoard',e)}
+    try{
+      const b=JXG.JSXGraph.initBoard('holeBoard',{...base,boundingbox:[-5,5,8,-4]});
+      const f=x=>1/(2*(x-2));
+      b.create('functiongraph',[f,-5,1.94],{strokeColor:blue,strokeWidth:2.5,fixed:true,highlight:false});
+      b.create('functiongraph',[f,2.06,2.96],{strokeColor:blue,strokeWidth:2.5,fixed:true,highlight:false});
+      b.create('functiongraph',[f,3.04,8],{strokeColor:blue,strokeWidth:2.5,fixed:true,highlight:false});
+      vline(b,2,'x=2');
+      b.create('point',[3,.5],{name:'hole',size:4,face:'o',fillColor:'white',strokeColor:red,label:{offset:[8,10]},fixed:true,highlight:false});
+      interval(b,2,3,-3.45,green,true,true); interval(b,3,7.7,-3.45,green,true,true);
+    }catch(e){console.error('holeBoard',e)}
+    try{
+      const b=JXG.JSXGraph.initBoard('compareBoard',{...base,boundingbox:[-8,5,8,-5]});
+      b.create('functiongraph',[x=>(x-1)/(x+2),-8,-2.06],{strokeColor:blue,strokeWidth:2.5,fixed:true,highlight:false});
+      b.create('functiongraph',[x=>(x-1)/(x+2),-1.94,8],{strokeColor:blue,strokeWidth:2.5,fixed:true,highlight:false});
+      b.create('functiongraph',[()=>1,-8,8],{strokeColor:green,strokeWidth:2,dash:2,fixed:true,highlight:false});
+      vline(b,-2,'x=-2');
+      b.create('text',[5.7,1.35,'y=1'],{fontSize:12,color:green,fixed:true});
+      interval(b,-2,7.7,-4.45,green,true,true);
+    }catch(e){console.error('compareBoard',e)}
+    try{
+      const b=JXG.JSXGraph.initBoard('quadraticDenBoard',{...base,boundingbox:[-1,5,6,-5]});
+      const f=x=>1/((x-2)*(x-3));
+      b.create('functiongraph',[f,-1,1.94],{strokeColor:blue,strokeWidth:2.3,fixed:true,highlight:false});
+      b.create('functiongraph',[f,2.06,2.94],{strokeColor:blue,strokeWidth:2.3,fixed:true,highlight:false});
+      b.create('functiongraph',[f,3.06,6],{strokeColor:blue,strokeWidth:2.3,fixed:true,highlight:false});
+      vline(b,2,'x=2'); vline(b,3,'x=3');
+      interval(b,2,3,-4.45,green,true,true);
+    }catch(e){console.error('quadraticDenBoard',e)}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',whenReady); else whenReady();
+})();
+</script>
+</body>
+</html>
