@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>מערך שיעור — נגזרת שנייה, קעירות ונקודות פיתול — 40 תרגילים</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    packages: {'[+]': ['ams']}
+  },
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']},
+  svg: {fontCache: 'global'}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --ink:#172033;--muted:#5c667a;--blue:#245aa8;--blue2:#eaf2ff;
+  --teal:#087f73;--teal2:#e8f7f4;--amber:#b76900;--amber2:#fff4df;
+  --red:#b42318;--red2:#fff0ee;--line:#cfd7e3;--paper:#fff;--bg:#e9edf3;
+}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew","Noto Sans",sans-serif;line-height:1.45;overflow:visible}
+body{counter-reset:page}
+.sheet{width:210mm;min-height:297mm;margin:0 auto 9mm;background:var(--paper);padding:12mm 14mm 14mm;position:relative;page-break-after:always;box-shadow:0 0 10px rgba(0,0,0,.10)}
+.sheet::after{counter-increment:page;content:counter(page);position:absolute;left:14mm;bottom:6mm;color:#748094;font-size:9pt}
+h1,h2,h3,h4{margin:0 0 3mm;line-height:1.2}
+h1{font-size:25pt;color:var(--blue)}
+h2{font-size:17.5pt;color:var(--blue);border-bottom:1.5px solid var(--line);padding-bottom:2mm}
+h3{font-size:13.5pt;color:var(--teal);margin-top:4mm}
+h4{font-size:11.2pt;color:var(--amber);margin-top:2mm}
+p,li{font-size:10.5pt;margin-top:0}p{margin-bottom:2.5mm}ul,ol{margin:0 0 3mm;padding-right:6mm}li{margin-bottom:1.2mm}
+.cover{border:1.5px solid #aac6ef;border-radius:5mm;padding:10mm;background:linear-gradient(135deg,#edf5ff,#fff)}
+.subtitle{font-size:14pt;color:var(--muted)}.meta{font-size:10pt;color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:start}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;align-items:start}
+.box{border:1px solid var(--line);border-radius:3mm;padding:3mm 3.5mm;background:#fafcff;margin:2.5mm 0}.box.blue{background:var(--blue2);border-color:#bad1f2}.box.teal{background:var(--teal2);border-color:#a9dfd7}.box.amber{background:var(--amber2);border-color:#f0ce92}.box.red{background:var(--red2);border-color:#efb6b0}
+.formula{direction:ltr;text-align:center;border:1px dashed #b9c6d6;background:#fbfdff;border-radius:2mm;padding:2mm;margin:2.5mm 0;font-size:11.6pt}
+table{width:100%;border-collapse:collapse;margin:2mm 0 4mm;font-size:9.7pt}th,td{border:1px solid var(--line);padding:2mm;vertical-align:top}th{background:var(--blue2);color:#173b70}.center{text-align:center}.ltr{direction:ltr;text-align:left}.small{font-size:9.3pt}.muted{color:var(--muted)}.strong{font-weight:700}.warn{color:var(--red);font-weight:700}.ok{color:var(--teal);font-weight:700}
+.timeline td:first-child{width:21mm;text-align:center;font-weight:700}.timeline td:nth-child(2){width:42mm}.no-break{break-inside:avoid;page-break-inside:avoid}
+.board{width:100%;height:62mm;border:1px solid var(--line);border-radius:2mm;background:white;margin:2mm 0 3mm}.board.tall{height:74mm}.board.small{height:48mm}.graph-note{font-size:9.2pt;color:var(--muted);text-align:center}
+.level-title{display:flex;align-items:center;gap:3mm;border-radius:3mm;padding:3mm 4mm;margin-bottom:4mm;color:white}.level-title.easy{background:#27805f}.level-title.medium{background:#bc730d}.level-title.hard{background:#9d2e32}.level-title span:first-child{font-size:18pt;font-weight:700}
+.exercise{border:1px solid var(--line);border-radius:3mm;padding:3mm 3.5mm;margin:0 0 3.2mm;background:#fff}.exercise-head{display:flex;align-items:center;gap:2mm;font-weight:700;color:var(--blue);margin-bottom:1.5mm}.num{display:inline-flex;width:8mm;height:8mm;border-radius:50%;align-items:center;justify-content:center;background:var(--blue);color:white;font-size:9.5pt}.exercise p{margin-bottom:1mm}.work-lines{height:7mm;background:repeating-linear-gradient(to bottom,transparent 0,transparent 6mm,#e7ebf1 6mm,#e7ebf1 6.2mm)}
+.exercise.compact .work-lines{height:3mm}.answer-table td:first-child{width:13mm;text-align:center;font-weight:700;background:#f6f9fd}.answer-table td{font-size:9.2pt}
+.source-list li{font-size:9.5pt;margin-bottom:1.4mm}.footer-note{font-size:9pt;color:var(--muted);border-top:1px solid var(--line);padding-top:2mm;margin-top:4mm}
+@media print{html,body{background:white}.sheet{margin:0;box-shadow:none}a{color:inherit;text-decoration:none}}
+</style>
+</head>
+<body>
+
+<section class="sheet">
+  <div class="cover">
+    <h1>מערך שיעור מאוחד</h1>
+    <p class="subtitle">נגזרת שנייה, קעירות ונקודות פיתול</p>
+    <p class="meta">כיתה י״א | 5 יחידות </p>
+  </div>
+  <h2 style="margin-top:10mm">רעיון מרכזי</h2>
+  <p>המושג קעירות נבנה מתוך שינוי השיפוע ולא מתוך צורת הגרף בלבד. הנגזרת הראשונה מתארת את שיפוע הפונקציה, והנגזרת השנייה מתארת כיצד השיפוע משתנה. נקודת פיתול היא נקודה על הגרף שבה כיוון הקעירות משתנה.</p>
+  <div class="grid-3">
+    <div class="box blue no-break"><h3>מטרות ידע</h3><ul><li>להבחין בין עלייה לבין קעירות.</li><li>לקשר בין עליית \(f'\) לבין \(f''&gt;0\).</li><li>להגדיר נקודת פיתול כשינוי קעירות.</li></ul></div>
+    <div class="box teal no-break"><h3>מטרות מיומנות</h3><ul><li>חישוב \(f''\).</li><li>בניית טבלת סימנים.</li><li>קריאת גרפים של \(f,f',f''\).</li><li>נימוק מילולי מדויק.</li></ul></div>
+    <div class="box amber no-break"><h3>תפיסות שגויות לטיפול</h3><ul><li>\(f''&gt;0\) אינו אומר ש־\(f\) עולה.</li><li>\(f''=0\) נותן רק מועמד לפיתול.</li><li>אסימפטוטה אינה נקודת פיתול.</li></ul></div>
+  </div>
+</section>
+
+<!-- הגדרת קעירות באמצעות מיתר -->
+<section class="sheet">
+<h2>הגדרת קמירות וקעירות באמצעות מיתר</h2>
+<p>נבחר שתי נקודות שונות על גרף הפונקציה, \(A=(a,f(a))\) ו־\(B=(b,f(b))\), כאשר \(a&lt;b\). המיתר \(AB\) הוא קטע הישר המחבר את שתי הנקודות. ערך ה־\(y\) של המיתר מעל \(x\) נתון על ידי:</p>
+<div class="formula">\[
+L_{AB}(x)=\frac{b-x}{b-a}f(a)+\frac{x-a}{b-a}f(b),\qquad a&lt;x&lt;b
+\]</div>
+<div class="grid-2">
+  <div class="box teal no-break">
+    <h3>קעירות כלפי מעלה</h3>
+    <p>הפונקציה \(f\) קעורה כלפי מעלה בתחום אם לכל שתי נקודות \(A,B\) בתחום, כל החלק של הגרף שביניהן נמצא <strong>מתחת למיתר</strong> המחבר אותן, או עליו.</p>
+    <div class="formula">\[
+f(x)\le L_{AB}(x),\qquad a&lt;x&lt;b
+\]</div>
+    <div id="chordUpBoard" class="board small"></div>
+  </div>
+  <div class="box amber no-break">
+    <h3>קעירות כלפי מטה</h3>
+    <p>הפונקציה \(f\) קעורה כלפי מטה בתחום אם לכל שתי נקודות \(A,B\) בתחום, כל החלק של הגרף שביניהן נמצא <strong>מעל למיתר</strong> המחבר אותן, או עליו.</p>
+    <div class="formula">\[
+f(x)\ge L_{AB}(x),\qquad a&lt;x&lt;b
+\]</div>
+    <div id="chordDownBoard" class="board small"></div>
+  </div>
+</div>
+<div class="box blue no-break">
+  <h3>הקשר לשאר האפיונים</h3>
+  <p>כאשר \(f\) גזירה פעמיים בתחום, הגדרת המיתר שקולה לאפיונים המוכרים: בגרף קעור כלפי מעלה מתקיים \(f''(x)\ge0\), ובגרף קעור כלפי מטה מתקיים \(f''(x)\le0\). כאשר מבקשים קעירות ממש, משתמשים באי־שוויונות החזקים \(f''(x)&gt;0\) או \(f''(x)&lt;0\).</p>
+</div>
+</section>
+
+<section class="sheet">
+<h2>פתיחת חקר — אותה מונוטוניות, קעירות שונה</h2>
+<div id="introBoard" class="board tall"></div>
+<p class="graph-note">שני הגרפים עולים; באחד השיפוע גדל ובאחר השיפוע קטן.</p>
+<div class="grid-2">
+<div class="box teal"><ol><li>מה משותף לשני הגרפים?</li><li>איזה גרף נעשה תלול יותר?</li><li>באיזה גרף השיפוע עדיין חיובי אך הולך וקטן?</li><li>היכן המשיק נמצא מעל הגרף והיכן מתחתיו?</li></ol></div>
+<div style="height: 130px;" class="box blue"><p>הסימן של \(f'\) מתאר עלייה או ירידה. אופן ההשתנות של \(f'\) מתאר קעירות. לכן שתי פונקציות יכולות לעלות אך להיות בעלות קעירות מנוגדת.</p></div>
+</div>
+<h3>שפה מתפתחת</h3>
+<table><tr><th>מונח חופשי</th><th>שפה מתמטית</th></tr><tr><td>נעשה תלול יותר</td><td>השיפוע גדל; \(f'\) עולה; \(f''&gt;0\)</td></tr><tr><td>נעשה מתון יותר</td><td>השיפוע קטן; \(f'\) יורדת; \(f''&lt;0\)</td></tr></table>
+</section>
+
+<section class="sheet">
+<h2>משיקים, נגזרת שנייה וקעירות</h2>
+<div id="tangentBoard" class="board tall"></div>
+<p class="graph-note">המשיק לגרף קעור כלפי מעלה נמצא מתחת לגרף; בגרף קעור כלפי מטה הוא נמצא מעליו.</p>
+<div class="formula">\[
+ f''(x)&gt;0 \Longrightarrow \text{הלעמ יפלכ תוריעק},\qquad f''(x)&lt;0 \Longrightarrow \text{קעירות כלפי מטה}
+\]</div>
+<h3>אלגוריתם למציאת תחומי קעירות</h3>
+<ol><li>מוצאים את תחום ההגדרה.</li><li>מחשבים \(f''(x)\).</li><li>מוצאים אפסים ונקודות אי־הגדרה של \(f''\).</li><li>מחלקים את התחום לקטעים ובודקים סימן.</li><li>כותבים את תחומי הקעירות במרווחים.</li></ol>
+<div class="box blue no-break"><h3>דוגמה</h3><p>עבור \(f(x)=x^3-3x\):</p><div class="formula">\[f'(x)=3x^2-3,\qquad f''(x)=6x\]</div><p>לכן הגרף קעור כלפי מטה כאשר \(x&lt;0\), וקעור כלפי מעלה כאשר \(x&gt;0\).</p></div>
+</section>
+
+<section class="sheet">
+<h2>נקודת פיתול — שינוי קעירות, לא רק איפוס</h2>
+<div id="inflectBoard" class="board tall"></div>
+<div class="grid-2">
+<div style="height:144px;" class="box teal"><h3>הגדרה</h3><p>נקודה \((c,f(c))\) היא נקודת פיתול כאשר \(f\) רציפה ב־\(c\) וכיוון הקעירות משתנה משני צידי \(c\).</p></div>
+<div class="box red"><h3>מלכודת</h3><p>המשוואה \(f''(c)=0\) מאתרת מועמד בלבד. לדוגמה, ב־\(f(x)=x^4\) מתקיים \(f''(0)=0\), אך \(f''\) חיובית משני הצדדים.</p></div>
+</div>
+<h3>אלגוריתם בדיקה</h3>
+<ol><li>מצאו מועמדים: \(f''=0\) או \(f''\) אינה קיימת.</li><li>בדקו שהפונקציה מוגדרת ורציפה בנקודה.</li><li>בדקו סימן של \(f''\) משמאל ומימין.</li><li>חשבו את ערך \(y\) רק לאחר שהוכח שינוי קעירות.</li></ol>
+<table><tr><th>מקרה</th><th>מסקנה</th></tr><tr><td>\(f''(c)=0\) ללא שינוי סימן</td><td>אין פיתול</td></tr><tr><td>\(f''(c)\) אינה קיימת, אך \(f\) רציפה ויש שינוי קעירות</td><td>ייתכן פיתול</td></tr><tr><td>שינוי קעירות סביב נקודה שאינה בתחום</td><td>אין פיתול</td></tr></table>
+</section>
+
+<!--
+<section class="sheet">
+<h2>הקשרים בין \(f\), \(f'\) ו־\(f''\)</h2>
+<div class="grid-2"><div id="derivativeBoard" class="board"></div><div id="secondBoard" class="board"></div></div>
+<table>
+<tr><th>מידע נתון</th><th>מסקנה על \(f\)</th><th>נימוק תקין</th></tr>
+<tr><td>\(f'&gt;0\)</td><td>עולה</td><td>הנגזרת הראשונה חיובית.</td></tr>
+<tr><td>\(f'&lt;0\)</td><td>יורדת</td><td>הנגזרת הראשונה שלילית.</td></tr>
+<tr><td>\(f'\) עולה</td><td>קעורה כלפי מעלה</td><td>\(f''&gt;0\).</td></tr>
+<tr><td>\(f'\) יורדת</td><td>קעורה כלפי מטה</td><td>\(f''&lt;0\).</td></tr>
+<tr><td>\(f'\) משנה מונוטוניות</td><td>פיתול אפשרי</td><td>יש לבדוק שינוי סימן של \(f''\).</td></tr>
+</table>
+<div class="box amber"><h3>כתיבת נימוק</h3><p>אין להסתפק בטבלת סימנים. יש לכתוב: “הפונקציה \(f\) קעורה כלפי מעלה בתחום הנתון, משום שהנגזרת הראשונה \(f'\) עולה שם”, או “משום ש־\(f''&gt;0\) בתחום”.</p></div>
+</section>
+-->
+
+<section class="sheet">
+<h2>מבחן הנגזרת השנייה לקיצון</h2>
+<div class="formula">\[
+ f'(c)=0,\ f''(c)&gt;0 \Rightarrow \text{ימוקמ םומינימ};\qquad
+ f'(c)=0,\ f''(c)&lt;0 \Rightarrow \text{ימוקמ םומיסקמ}
+\]</div>
+<div class="formula">\[
+ f'(c)=0,\ f''(c)=0 \Rightarrow \text{עובקל ןתינ אל}
+\]</div>
+<div class="grid-2">
+<div class="box blue"><h3>דוגמה</h3><p>עבור \(g(x)=x^3-3x^2+2\):</p><div class="formula">\[g'(x)=3x(x-2),\qquad g''(x)=6x-6\]</div><p>ב־\(x=0\), הנגזרת השנייה שלילית ולכן מקסימום. ב־\(x=2\), הנגזרת השנייה חיובית ולכן מינימום.</p></div>
+<div style="height:231px;" class="box red"><h3>מקרה שבו המבחן נכשל</h3><p>עבור \(h(x)=x^4\), מתקיים \(h'(0)=0\) ו־\(h''(0)=0\). המבחן אינו מכריע, אף שהנקודה היא מינימום. יש לעבור למבחן הנגזרת הראשונה או להשוואת ערכים.</p></div>
+</div>
+<h3>תרגיל</h3><div class="box blue"><p>נתונה \(f(x)=x^4-2x^2\). מצאו את המועמדים לפיתול וקבעו אילו מהם נקודות פיתול.</p></div>
+</section>
+
+<section class="sheet"><div class="level-title easy"><span>א</span><div><strong>קל — מושגים, סימן הנגזרת השנייה ופולינומים בסיסיים</strong></div></div><p>בכל שאלה יש לכתוב את הנגזרת השנייה ואת הנימוק לקעירות.</p><article class="exercise no-break" data-exercise="1">
+      <div class="exercise-head"><span class="num">1</span><span>תרגיל 1</span></div>
+      <p>בכל אחד מן המצבים קבעו את כיוון הקעירות: (א) שיפועי המשיקים חיוביים והולכים וגדלים; (ב) שיפועי המשיקים חיוביים והולכים וקטנים; (ג) שיפועי המשיקים שליליים אך הולכים וגדלים; (ד) שיפועי המשיקים שליליים והולכים וקטנים.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="2">
+      <div class="exercise-head"><span class="num">2</span><span>תרגיל 2</span></div>
+      <p>השלימו: כאשר \(f'\) עולה, \(f\) ________; כאשר \(f'\) יורדת, \(f\) ________; כאשר \(f''(x)&gt;0\), הגרף ________; כאשר \(f''(x)&lt;0\), הגרף ________.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="3">
+      <div class="exercise-head"><span class="num">3</span><span>תרגיל 3</span></div>
+      <p>קבעו אם כל טענה נכונה או שגויה ונמקו: (א) \(f''(x)&gt;0\) פירושו שהפונקציה עולה; (ב) כל פתרון של \(f''(x)=0\) הוא נקודת פיתול; (ג) נקודת פיתול יכולה להיות נקודה שבה \(f'(x)\neq0\); (ד) שינוי קעירות ליד אסימפטוטה אנכית יוצר נקודת פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="4">
+      <div class="exercise-head"><span class="num">4</span><span>תרגיל 4</span></div>
+      <p>נתונה \(f(x)=x^2+3x-1\). מצאו את \(f''(x)\), את תחומי הקעירות ואת נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="5">
+      <div class="exercise-head"><span class="num">5</span><span>תרגיל 5</span></div>
+      <p>נתונה \(f(x)=-2x^2+4x+3\). מצאו את \(f''(x)\), את תחומי הקעירות ואת נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="6">
+      <div class="exercise-head"><span class="num">6</span><span>תרגיל 6</span></div>
+      <p>נתונה \(f(x)=x^3\). מצאו תחומי קעירות ואת נקודת הפיתול.</p>
+      <div class="work-lines"></div>
+    </article>
+</section>
+
+<section class="sheet"><div class="level-title easy"><span>א</span><div><strong>קל — המשך</strong></div></div><article class="exercise no-break" data-exercise="7">
+      <div class="exercise-head"><span class="num">7</span><span>תרגיל 7</span></div>
+      <p>נתונה \(f(x)=x^3-6x^2+9x+1\). מצאו תחומי קעירות ואת נקודת הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="8">
+      <div class="exercise-head"><span class="num">8</span><span>תרגיל 8</span></div>
+      <p>נתונה \(f(x)=2x^3+3x^2-12x\). מצאו תחומי קעירות ואת נקודת הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="9">
+      <div class="exercise-head"><span class="num">9</span><span>תרגיל 9</span></div>
+      <p>נתונה \(f(x)=x^4\). בדקו האם \((0,0)\) היא נקודת פיתול. יש לנמק בעזרת טבלת סימנים של \(f''\).</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="10">
+      <div class="exercise-head"><span class="num">10</span><span>תרגיל 10</span></div>
+      <p>נתונה \(f(x)=x^4-4x^3\). מצאו את כל תחומי הקעירות ואת נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="11">
+      <div class="exercise-head"><span class="num">11</span><span>תרגיל 11</span></div>
+      <p>ידוע כי \(f''(x)=(x-1)(x+3)\), והפונקציה רציפה בכל \(\mathbb{R}\). מצאו את תחומי הקעירות ואת ערכי ה־\(x\) של נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="12">
+      <div class="exercise-head"><span class="num">12</span><span>תרגיל 12</span></div>
+      <p>טבלת הסימנים של \(f''\) היא: חיובי ב־\(({-}\infty,-2)\), שלילי ב־\((-2,3)\), וחיובי ב־\((3,\infty)\). קבעו את תחומי הקעירות ואת ערכי ה־\(x\) של נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article>
+</section>
+
+<section class="sheet"><div class="level-title medium"><span>ב</span><div><strong> בינוני — פולינומים, מבחן הנגזרת השנייה ונתוני נגזרת</strong></div></div><article class="exercise no-break" data-exercise="13">
+      <div class="exercise-head"><span class="num">13</span><span>תרגיל 13</span></div>
+      <p>נתונה \(f(x)=x^4-6x^2-5\). מצאו תחומי קעירות ואת נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="14">
+      <div class="exercise-head"><span class="num">14</span><span>תרגיל 14</span></div>
+      <p>נתונה \(f(x)=3x^4-4x^3\). מצאו תחומי קעירות ואת נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="15">
+      <div class="exercise-head"><span class="num">15</span><span>תרגיל 15</span></div>
+      <p>נתונה \(f(x)=x^6-5x^4\). מצאו את כל הנקודות החשודות לפיתול, וקבעו אילו מהן נקודות פיתול אמיתיות.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="16">
+      <div class="exercise-head"><span class="num">16</span><span>תרגיל 16</span></div>
+      <p>נתונה \(f(x)=x^3-3x^2+2\). מצאו את הנקודות הקריטיות וסווגו אותן באמצעות מבחן הנגזרת השנייה.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="17">
+      <div class="exercise-head"><span class="num">17</span><span>תרגיל 17</span></div>
+      <p>נתונה \(f(x)=x^2e^{-x}\). מצאו את הנקודות הקריטיות וסווגו אותן באמצעות מבחן הנגזרת השנייה.</p>
+      <div class="work-lines"></div>
+    </article></section>
+<section class="sheet"><div class="level-title medium"><span>ב</span><div><strong>בינוני — גרפים וניתוח ללא נוסחה</strong></div></div><div class="grid-2"><div id="exerciseDerivativeBoard" class="board small"></div><div id="exerciseSecondBoard" class="board small"></div></div><article class="exercise no-break" data-exercise="18">
+      <div class="exercise-head"><span class="num">18</span><span>תרגיל 18</span></div>
+      <p>נתון \(f'(x)=x^2-4\). מצאו תחומי עלייה וירידה, ערכי \(x\) של נקודות קיצון, תחומי קעירות וערך \(x\) של נקודת הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="19">
+      <div class="exercise-head"><span class="num">19</span><span>תרגיל 19</span></div>
+      <p>נתון \(f'(x)=x^3-3x\). מצאו תחומי עלייה וירידה, ערכי \(x\) של נקודות קיצון, תחומי קעירות וערכי \(x\) של נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="20">
+      <div class="exercise-head"><span class="num">20</span><span>תרגיל 20</span></div>
+      <p>ידוע כי \(f''(x)=x(x+2)(x-3)\), והפונקציה רציפה בכל הישר. מצאו תחומי קעירות ואת ערכי ה־\(x\) של נקודות הפיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="21">
+      <div class="exercise-head"><span class="num">21</span><span>תרגיל 21</span></div>
+      <p>בגרף שלהלן מוצגת \(f'(x)=x^3-3x\). מתוך הגרף בלבד קבעו: תחומי עלייה וירידה של \(f\), תחומי קעירות של \(f\), ערכי \(x\) של נקודות קיצון וערכי \(x\) של נקודות פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="22">
+      <div class="exercise-head"><span class="num">22</span><span>תרגיל 22</span></div>
+      <p>בגרף שלהלן מוצגת \(f''(x)=(x+2)(x-1)(x-3)\). קבעו את תחומי הקעירות ואת ערכי ה־\(x\) של נקודות הפיתול של \(f\).</p>
+      <div class="work-lines"></div>
+    </article></section>
+<section class="sheet"><div class="level-title medium"><span>ב</span><div><strong>בינוני — פונקציות מנה ושורש</strong></div></div><article class="exercise no-break" data-exercise="23">
+      <div class="exercise-head"><span class="num">23</span><span>תרגיל 23</span></div>
+      <p>נתונה \(f(x)=\frac{1}{x}\). מצאו תחום הגדרה, תחומי קעירות, ובדקו אם קיימת נקודת פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="24">
+      <div class="exercise-head"><span class="num">24</span><span>תרגיל 24</span></div>
+      <p>נתונה \(f(x)=\frac{x^2-1}{x-2}\). מצאו תחום הגדרה, תחומי קעירות, ובדקו אם \(x=2\) היא נקודת פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="25">
+      <div class="exercise-head"><span class="num">25</span><span>תרגיל 25</span></div>
+      <p>נתונה \(f(x)=\sqrt[3]{x}\). מצאו תחומי קעירות והסבירו מדוע \((0,0)\) היא נקודת פיתול אף על פי ש־\(f''(0)\) אינה קיימת.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="26">
+      <div class="exercise-head"><span class="num">26</span><span>תרגיל 26</span></div>
+      <p>נתונה \(f(x)=\sqrt{x+1}\). מצאו תחום הגדרה, תחומי קעירות ונקודות פיתול.</p>
+      <div class="work-lines"></div>
+    </article></section>
+<section class="sheet"><div class="level-title hard"><span>ג</span><div><strong>קשה — חקירה מלאה</strong></div></div><div class="grid-2"><div id="fullBoard" class="board small"></div><div id="rationalBoard" class="board small"></div></div><article class="exercise no-break" data-exercise="27">
+      <div class="exercise-head"><span class="num">27</span><span>תרגיל 27</span></div>
+      <p>חקרו את \(f(x)=x^4-2x^3+1\): תחומי עלייה וירידה, נקודות קיצון, תחומי קעירות, נקודות פיתול והתנהגות באינסוף. שרטטו סקיצה מתאימה.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="28">
+      <div class="exercise-head"><span class="num">28</span><span>תרגיל 28</span></div>
+      <p>חקרו את \(f(x)=x^5-5x^3\): תחומי עלייה וירידה, נקודות קיצון, תחומי קעירות, נקודות פיתול והתנהגות באינסוף. שרטטו סקיצה.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="29">
+      <div class="exercise-head"><span class="num">29</span><span>תרגיל 29</span></div>
+      <p>חקרו את \(f(x)=\frac{x}{x^2+1}\): תחום הגדרה, עלייה וירידה, קיצון, קעירות, נקודות פיתול והתנהגות באינסוף.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="30">
+      <div class="exercise-head"><span class="num">30</span><span>תרגיל 30</span></div>
+      <p>חקרו את \(f(x)=x^2\ln x\) בתחום \(x&gt;0\): קיצון, קעירות, נקודת פיתול והתנהגות כאשר \(x\to0^+\) וכאשר \(x\to\infty\).</p>
+      <div class="work-lines"></div>
+    </article></section>
+<section class="sheet"><div class="level-title hard"><span>ג</span><div><strong>קשה — פונקציות קטעיות ופרמטרים</strong></div></div><article class="exercise no-break" data-exercise="31">
+      <div class="exercise-head"><span class="num">31</span><span>תרגיל 31</span></div>
+      <p>נתונה הפונקציה \(f(x)=\begin{cases}x^2,&amp;x\le0\\-x^2,&amp;x&gt;0\end{cases}\). בדקו רציפות וגזירות ב־\(x=0\), קבעו תחומי קעירות והאם \((0,0)\) נקודת פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="32">
+      <div class="exercise-head"><span class="num">32</span><span>תרגיל 32</span></div>
+      <p>נתונה הפונקציה \(g(x)=\begin{cases}x^2,&amp;x&lt;0\\-x^2+1,&amp;x\ge0\end{cases}\). קבעו את הקעירות משני צידי \(0\) והסבירו מדוע אין נקודת פיתול ב־\(x=0\).</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="33">
+      <div class="exercise-head"><span class="num">33</span><span>תרגיל 33</span></div>
+      <p>עבור המשפחה \(f_a(x)=x^4+ax^2\), קבעו לפי ערך הפרמטר \(a\) כמה נקודות פיתול יש לפונקציה ומהם ערכי ה־\(x\) שלהן.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="34">
+      <div class="exercise-head"><span class="num">34</span><span>תרגיל 34</span></div>
+      <p>עבור המשפחה \(f_a(x)=x^3-3ax\), קבעו לכל \(a\): את נקודת הפיתול, האם קיימות נקודות קיצון, ומה סוגן.</p>
+      <div class="work-lines"></div>
+    </article></section>
+<section class="sheet"><div class="level-title hard"><span>ג</span><div><strong>קשה — שחזור, נתוני נגזרת וסיווג</strong></div></div><article class="exercise no-break" data-exercise="35">
+      <div class="exercise-head"><span class="num">35</span><span>תרגיל 35</span></div>
+      <p>ידוע כי \(f''(x)=(x+2)(x-1)^2(x-4)\). מצאו תחומי קעירות ואת נקודות הפיתול האפשריות. הסבירו את תפקיד הריבוי הזוגי של השורש \(x=1\).</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="36">
+      <div class="exercise-head"><span class="num">36</span><span>תרגיל 36</span></div>
+      <p>ידוע כי \(f''(x)=12(x-1)(x+1)\), \(f'(0)=0\), ו־\(f(0)=2\). מצאו את \(f(x)\), ולאחר מכן חקרו קיצון, קעירות ונקודות פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="37">
+      <div class="exercise-head"><span class="num">37</span><span>תרגיל 37</span></div>
+      <p>נתון \(f'(x)=x^4-4x^2\). בלי למצוא נוסחה ל־\(f\), קבעו תחומי עלייה וירידה, ערכי \(x\) של נקודות קיצון, תחומי קעירות וערכי \(x\) של נקודות פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="38">
+      <div class="exercise-head"><span class="num">38</span><span>תרגיל 38</span></div>
+      <p>בנקודות הקריטיות \(x=-2,1,4\) נתון: \(f''(-2)=5\), \(f''(1)=0\), \(f''(4)=-3\). נוסף על כך, ליד \(x=1\) הסימן של \(f'\) חיובי משני הצדדים, ואילו \(f''\) משנה סימן משלילי לחיובי. סווגו כל נקודה וקבעו מה מיוחד ב־\(x=1\).</p>
+      <div class="work-lines"></div>
+    </article></section>
+<section class="sheet"><div class="level-title hard"><span>ג</span><div><strong>קשה — הוכחה, הפרכה ובנייה</strong></div></div><article class="exercise no-break" data-exercise="39">
+      <div class="exercise-head"><span class="num">39</span><span>תרגיל 39</span></div>
+      <p>הוכיחו או הפריכו: (א) אם \(f''(c)=0\), אז \(c\) נקודת פיתול; (ב) אם \(c\) נקודת פיתול ו־\(f''(c)\) קיימת, אז \(f''(c)=0\); (ג) אם \(f\) רציפה ב־\(c\) ו־\(f''\) משנה סימן ב־\(c\), אז \(c\) נקודת פיתול; (ד) אם \(f''\) משנה סימן משני צידי נקודה שאינה בתחום, קיימת שם נקודת פיתול.</p>
+      <div class="work-lines"></div>
+    </article><article class="exercise no-break" data-exercise="40">
+      <div class="exercise-head"><span class="num">40</span><span>תרגיל 40</span></div>
+      <p>בנו דוגמה לכל דרישה: (א) \(f''(0)=0\) אך אין פיתול; (ב) יש פיתול ב־\(0\) וגם \(f'(0)\neq0\); (ג) יש פיתול ב־\(0\) אך \(f''(0)\) אינה קיימת; (ד) הקעירות משתנה משני צידי אסימפטוטה אנכית אך אין נקודת פיתול.</p>
+      <div class="work-lines"></div>
+    </article></section>
+<section class="sheet"><h2>מפתח תשובות מקוצר — קל</h2><p class="muted">המפתח מיועד למורה. הוא מציג תוצאות מרכזיות ולא מחליף פתרון מנומק.</p><table class="answer-table"><tr><th>מס׳</th><th>תשובה</th></tr><tr><td>1</td><td>(א) כלפי מעלה; (ב) כלפי מטה; (ג) כלפי מעלה; (ד) כלפי מטה.</td></tr><tr><td>2</td><td>עולה \(\Rightarrow\) קעורה כלפי מעלה; יורדת \(\Rightarrow\) קעורה כלפי מטה; \(f''&gt;0\) \(\Rightarrow\) כלפי מעלה; \(f''&lt;0\) \(\Rightarrow\) כלפי מטה.</td></tr><tr><td>3</td><td>(א) שגויה; (ב) שגויה; (ג) נכונה; (ד) שגויה, כי נקודת פיתול חייבת להיות על הגרף ובתחום.</td></tr><tr><td>4</td><td>\(f''=2&gt;0\): קעורה כלפי מעלה בכל \(\mathbb{R}\); אין פיתול.</td></tr><tr><td>5</td><td>\(f''=-4&lt;0\): קעורה כלפי מטה בכל \(\mathbb{R}\); אין פיתול.</td></tr><tr><td>6</td><td>מטה ב־\(({-}\infty,0)\), מעלה ב־\((0,\infty)\); פיתול \((0,0)\).</td></tr><tr><td>7</td><td>\(f''=6x-12\); מטה \(x&lt;2\), מעלה \(x&gt;2\); פיתול \((2,3)\).</td></tr><tr><td>8</td><td>\(f''=12x+6\); מטה \(x&lt;-\tfrac12\), מעלה \(x&gt;-\tfrac12\); פיתול \((-\tfrac12,\tfrac{13}{2})\).</td></tr><tr><td>9</td><td>\(f''=12x^2\ge0\) ואינו משנה סימן; אין פיתול.</td></tr><tr><td>10</td><td>\(f''=12x(x-2)\); מעלה \(({-}\infty,0)\cup(2,\infty)\), מטה \((0,2)\); פיתול \((0,0),(2,-16)\).</td></tr><tr><td>11</td><td>מעלה \(({-}\infty,-3)\cup(1,\infty)\), מטה \((-3,1)\); פיתול ב־\(x=-3,1\).</td></tr><tr><td>12</td><td>מעלה \(({-}\infty,-2)\cup(3,\infty)\), מטה \((-2,3)\); פיתול ב־\(x=-2,3\).</td></tr></table></section><section class="sheet"><h2>מפתח תשובות מקוצר — חלק בינוני</h2><table class="answer-table"><tr><th>מס׳</th><th>תשובה</th></tr><tr><td>13</td><td>\(f''=12(x^2-1)\); מעלה מחוץ ל־\([-1,1]\), מטה ב־\((-1,1)\); פיתול \((-1,-10),(1,-10)\).</td></tr><tr><td>14</td><td>\(f''=12x(3x-2)\); מעלה \(x&lt;0\) או \(x&gt;\tfrac23\), מטה \(0&lt;x&lt;\tfrac23\); פיתול \((0,0),(\tfrac23,-\tfrac{16}{27})\).</td></tr><tr><td>15</td><td>\(f''=30x^2(x^2-2)\); חשודות \(x=-\sqrt2,0,\sqrt2\); פיתול רק ב־\(x=\pm\sqrt2\), הנקודות \((\pm\sqrt2,-12)\).</td></tr><tr><td>16</td><td>קריטיות \(x=0,2\); מקסימום \((0,2)\), מינימום \((2,-2)\).</td></tr><tr><td>17</td><td>קריטיות \(x=0,2\); מינימום \((0,0)\), מקסימום \((2,4e^{-2})\).</td></tr><tr><td>18</td><td>עולה \(({-}\infty,-2)\cup(2,\infty)\), יורדת \((-2,2)\); מקסימום ב־\(-2\), מינימום ב־\(2\); מטה \(x&lt;0\), מעלה \(x&gt;0\); פיתול ב־\(0\).</td></tr><tr><td>19</td><td>עולה \((-\sqrt3,0)\cup(\sqrt3,\infty)\), יורדת \(({-}\infty,-\sqrt3)\cup(0,\sqrt3)\); קיצון ב־\(-\sqrt3,0,\sqrt3\); מעלה \(x&lt;-1\) או \(x&gt;1\), מטה \((-1,1)\); פיתול ב־\(x=\pm1\).</td></tr><tr><td>20</td><td>מטה \(({-}\infty,-2)\cup(0,3)\); מעלה \((-2,0)\cup(3,\infty)\); פיתול ב־\(x=-2,0,3\).</td></tr></table></section><section class="sheet"><h2>מפתח תשובות מקוצר — חלק בינוני, המשך</h2><table class="answer-table"><tr><th>מס׳</th><th>תשובה</th></tr><tr><td>21</td><td>כמו שאלה 19: אפסי \(f'\) ב־\(-\sqrt3,0,\sqrt3\); שינוי המונוטוניות של \(f'\) ב־\(x=\pm1\) נותן פיתול.</td></tr><tr><td>22</td><td>מטה \(({-}\infty,-2)\cup(1,3)\); מעלה \((-2,1)\cup(3,\infty)\); פיתול ב־\(x=-2,1,3\).</td></tr><tr><td>23</td><td>תחום \(x\neq0\); מטה \(x&lt;0\), מעלה \(x&gt;0\); אין פיתול כי \(0\) אינו בתחום.</td></tr><tr><td>24</td><td>תחום \(x\neq2\); \(f=x+2+\frac3{x-2}\), \(f''=\frac6{(x-2)^3}\); מטה \(x&lt;2\), מעלה \(x&gt;2\); אין פיתול.</td></tr><tr><td>25</td><td>מעלה \(x&lt;0\), מטה \(x&gt;0\); הפונקציה רציפה ומחליפה קעירות ב־\(0\), לכן \((0,0)\) פיתול אף שהנגזרת השנייה אינה קיימת שם.</td></tr><tr><td>26</td><td>תחום \([-1,\infty)\); \(f''&lt;0\) לכל \(x&gt;-1\); קעורה כלפי מטה בלבד, אין פיתול.</td></tr></table><div class="box amber"><h3>בדיקת כרטיס היציאה</h3><p>\(f''(x)=12x^2-4\), ולכן המועמדים הם \(x=\pm1/\sqrt3\). הנגזרת השנייה משנה סימן בשתי הנקודות, ולכן שתיהן נקודות פיתול.</p></div></section><section class="sheet"><h2>מפתח תשובות מקוצר — קשה</h2><table class="answer-table"><tr><th>מס׳</th><th>תשובה</th></tr><tr><td>27</td><td>יורדת עד \(x=\tfrac32\) ועולה אחריו; מינימום \((\tfrac32,-\tfrac{11}{16})\). מעלה \(({-}\infty,0)\cup(1,\infty)\), מטה \((0,1)\); פיתול \((0,1),(1,0)\); בשני הקצוות \(f\to\infty\).</td></tr><tr><td>28</td><td>עולה מחוץ ל־\([-\sqrt3,\sqrt3]\), יורדת בתוכו; מקסימום \((-\sqrt3,6\sqrt3)\), מינימום \((\sqrt3,-6\sqrt3)\). אם \(a=\sqrt{3/2}\): מטה \(({-}\infty,-a)\cup(0,a)\), מעלה \((-a,0)\cup(a,\infty)\); פיתול ב־\((-a,\tfrac{21}{4}a),(0,0),(a,-\tfrac{21}{4}a))\).</td></tr><tr><td>29</td><td>יורדת \(({-}\infty,-1)\cup(1,\infty)\), עולה \((-1,1)\); מינימום \((-1,-\tfrac12)\), מקסימום \((1,\tfrac12)\). פיתול ב־\((-\sqrt3,-\tfrac{\sqrt3}{4}),(0,0),(\sqrt3,\tfrac{\sqrt3}{4}))\); \(f\to0\) באינסוף.</td></tr><tr><td>30</td><td>\(f'=x(2\ln x+1)\): מינימום ב־\(x=e^{-1/2}\), ערך \(-\frac1{2e}\). \(f''=2\ln x+3\): מטה \((0,e^{-3/2})\), מעלה \((e^{-3/2},\infty)\); פיתול \((e^{-3/2},-\frac3{2e^3})\). גבולות: \(0^-\) ו־\(\infty\).</td></tr><tr><td>31</td><td>רציפה וגזירה ב־\(0\); מעלה משמאל ומטה מימין; \((0,0)\) נקודת פיתול.</td></tr><tr><td>32</td><td>מעלה משמאל ומטה מימין, אך אינה רציפה ב־\(0\); לכן אין פיתול.</td></tr><tr><td>33</td><td>\(f_a''=12x^2+2a\). אם \(a&lt;0\): שתי נקודות פיתול ב־\(x=\pm\sqrt{-a/6}\); אם \(a\ge0\): אין נקודות פיתול.</td></tr></table></section><section class="sheet"><h2>מפתח תשובות מקוצר — קשה, המשך</h2><table class="answer-table"><tr><th>מס׳</th><th>תשובה</th></tr><tr><td>34</td><td>פיתול \((0,0)\) לכל \(a\). אם \(a&gt;0\): מקסימום ב־\(x=-\sqrt a\), מינימום ב־\(x=\sqrt a\). אם \(a=0\): אין קיצון, ויש פיתול אופקי. אם \(a&lt;0\): הפונקציה עולה בכל הישר ואין קיצון.</td></tr><tr><td>35</td><td>מעלה \(({-}\infty,-2)\cup(4,\infty)\), מטה \((-2,4)\); פיתול ב־\(x=-2,4\). ב־\(x=1\) אין שינוי סימן בגלל ריבוי זוגי.</td></tr><tr><td>36</td><td>\(f(x)=x^4-6x^2+2\). מינימום ב־\((\pm\sqrt3,-7)\), מקסימום \((0,2)\); מעלה \(({-}\infty,-1)\cup(1,\infty)\), מטה \((-1,1)\); פיתול \((-1,-3),(1,-3)\).</td></tr><tr><td>37</td><td>עולה \(({-}\infty,-2)\cup(2,\infty)\), יורדת \((-2,2)\); מקסימום ב־\(-2\), מינימום ב־\(2\), \(x=0\) נקודה קריטית שאינה קיצון. מטה \(({-}\infty,-\sqrt2)\cup(0,\sqrt2)\), מעלה \((-\sqrt2,0)\cup(\sqrt2,\infty)\); פיתול ב־\(-\sqrt2,0,\sqrt2\).</td></tr><tr><td>38</td><td>ב־\(-2\) מינימום; ב־\(4\) מקסימום; ב־\(1\) אין קיצון כי \(f'\) חיובית משני הצדדים, אך יש נקודת פיתול כי \(f''\) משנה סימן.</td></tr><tr><td>39</td><td>(א) שגויה, למשל \(x^4\). (ב) נכונה בתנאים הנתונים. (ג) נכונה. (ד) שגויה; נקודה שאינה בתחום אינה נקודת פיתול.</td></tr><tr><td>40</td><td>אפשרויות: (א) \(x^4\); (ב) \(x^3+x\); (ג) \(\sqrt[3]{x}\); (ד) \(1/x\).</td></tr></table>
+<h2>המקורות שאוחדו</h2>
+<ul class="source-list">
+<li><strong>הנגזרת השנייה ושימושיה</strong> — ספר מתמטי־דידקטי למורה, הטכניון.</li>
+<li><strong>להתחיל ברגל ימין</strong> — פעילות פתיחה על קמירות, קעירות ונקודות פיתול.</li>
+<li><strong>תחומי קעירות ונקודות פיתול — שאלון 571</strong> — דף עבודה בעברית.</li>
+<li><strong>תפקידי הנגזרת השנייה והנגזרת השלישית</strong> — שיעור חקר לכיתה מועשרת.</li>
+<li><strong>חשבון דיפרנציאלי — עמודים 102–104</strong> — דוגמאות פולינומיות, רציונליות ושורש.</li>
+<li><strong>Lecture 20: The Second Derivative Test</strong> — concavity, inflection and singular examples.</li>
+<li><strong>Unit 2: Curve Sketching</strong> — lesson sequence, second derivative test and rational functions.</li>
+<li><strong>Graphical Relationships Among f, f' and f''</strong> — שאלות גרפיות ונימוקים.</li>
+<li>קובצי HTML וצילומי המסך המצורפים — הגדרות, דוגמאות והצגת המושגים בעברית.</li>
+</ul>
+<div class="box blue"><h3>הערת עריכה</h3><p>התרגילים במסמך נבחרו, תורגמו או עובדו מן הרעיונות והדוגמאות שבמקורות, וסודרו מחדש לפי קושי עולה. הניסוחים אוחדו לשפה וסימון עקביים.</p></div>
+</section>
+
+<script>
+function initGraph(id, bbox){
+  const el=document.getElementById(id); if(!el || typeof JXG==='undefined') return null;
+  return JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showNavigation:false,showCopyright:false,keepaspectratio:false,pan:{enabled:false},zoom:{enabled:false}});
+}
+function graph(board,fn,a,b,opts){if(board) board.create('functiongraph',[fn,a,b],Object.assign({strokeWidth:2.5,highlight:false},opts||{}));}
+function txt(board,x,y,s){if(board) board.create('text',[x,y,s],{fixed:true,highlight:false,fontSize:12});}
+window.addEventListener('load',function(){
+  let b=initGraph('introBoard',[-.5,6.5,6.5,-.8]);
+  graph(b,x=>0.14*x*x+0.2,0,6,{strokeColor:'#245aa8'});
+  graph(b,x=>2.15*Math.sqrt(x)+0.2,0,6,{strokeColor:'#9d2e8a'});
+  txt(b,.4,5.7,'slope increases'); txt(b,3.8,1.0,'slope decreases');
+
+  b=initGraph('tangentBoard',[-3.2,6.5,3.2,-6.5]);
+  graph(b,x=>x*x,-2.3,2.3,{strokeColor:'#245aa8'});
+  graph(b,x=>-x*x,-2.3,2.3,{strokeColor:'#b76900'});
+  graph(b,x=>2*x-1,-1.6,2.6,{strokeColor:'#245aa8',dash:2,strokeWidth:1.5});
+  graph(b,x=>-2*x+1,-1.6,2.6,{strokeColor:'#b76900',dash:2,strokeWidth:1.5});
+  txt(b,-3,5.7,'קעירות כלפי מעלה'); txt(b,1.1,-5.4,'קעירות כלפי מטה');
+
+  b=initGraph('chordUpBoard',[-3,4,3,-1]);
+  graph(b,x=>0.6*x*x,-2.4,2.4,{strokeColor:'#087f73'});
+  graph(b,x=>2.4,-2,2,{strokeColor:'#b42318',dash:2,strokeWidth:2});
+  if(b){
+    b.create('point',[-2,2.4],{name:'A',size:3,fixed:true,strokeColor:'#b42318',fillColor:'#b42318'});
+    b.create('point',[2,2.4],{name:'B',size:3,fixed:true,strokeColor:'#b42318',fillColor:'#b42318'});
+  }
+  txt(b,-2.8,3.55,'גרף מתחת למיתר');
+
+  b=initGraph('chordDownBoard',[-3,1,3,-4]);
+  graph(b,x=>-0.6*x*x,-2.4,2.4,{strokeColor:'#b76900'});
+  graph(b,x=>-2.4,-2,2,{strokeColor:'#b42318',dash:2,strokeWidth:2});
+  if(b){
+    b.create('point',[-2,-2.4],{name:'A',size:3,fixed:true,strokeColor:'#b42318',fillColor:'#b42318'});
+    b.create('point',[2,-2.4],{name:'B',size:3,fixed:true,strokeColor:'#b42318',fillColor:'#b42318'});
+  }
+  txt(b,-2.8,.55,'גרף מעל המיתר');
+
+  b=initGraph('inflectBoard',[-2.4,6.5,2.4,-6.5]);
+  graph(b,x=>x*x*x,-1.8,1.8,{strokeColor:'#245aa8'});
+  graph(b,x=>x*x*x*x,-1.55,1.55,{strokeColor:'#b76900'});
+  if(b){b.create('point',[0,0],{name:'c',size:3,fixed:true,strokeColor:'#b42318',fillColor:'#b42318'});} txt(b,-2.2,5.8,'x^3: נקודת פיתול'); txt(b,.5,4.8,'x^4: אין נקודת פיתול');
+
+  b=initGraph('derivativeBoard',[-3.2,6,3.2,-6]); graph(b,x=>x*x*x-3*x,-3,3,{strokeColor:'#245aa8'}); txt(b,-3,5.4,"graph of f'");
+  b=initGraph('secondBoard',[-3.5,16,4.5,-16]); graph(b,x=>(x+2)*(x-1)*(x-3),-3.4,4.2,{strokeColor:'#087f73'}); txt(b,-3.3,14,"graph of f''");
+  b=initGraph('exerciseDerivativeBoard',[-3.2,6,3.2,-6]); graph(b,x=>x*x*x-3*x,-3,3,{strokeColor:'#245aa8'}); txt(b,-3,5.3,"Exercise 21: f'");
+  b=initGraph('exerciseSecondBoard',[-3.5,16,4.5,-16]); graph(b,x=>(x+2)*(x-1)*(x-3),-3.4,4.2,{strokeColor:'#087f73'}); txt(b,-3.3,14,"Exercise 22: f''");
+  b=initGraph('fullBoard',[-1.5,6,3,-2]); graph(b,x=>Math.pow(x,4)-2*Math.pow(x,3)+1,-1.4,2.8,{strokeColor:'#245aa8'}); txt(b,-1.3,5.3,'Exercise 27');
+  b=initGraph('rationalBoard',[-4,1.2,4,-1.2]); graph(b,x=>x/(x*x+1),-4,4,{strokeColor:'#087f73'}); txt(b,-3.8,1.0,'Exercise 29');
+});
+</script>
+</body>
+</html>
