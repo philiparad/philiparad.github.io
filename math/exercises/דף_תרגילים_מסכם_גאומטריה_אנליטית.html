@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דף תרגילים מסכם – גאומטריה אנליטית, 5 יח״ל</title>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 0.95 }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+<style>
+@page { size: A4 portrait; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #e9eef4; font-family: Arial, "Noto Sans Hebrew", sans-serif; color: #17202a; }
+body { counter-reset: page; }
+.page {
+  width: 210mm;
+  height: 297mm;
+  margin: 8mm auto;
+  padding: 13mm 14mm 12mm;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  break-after: page;
+}
+.page:last-child { page-break-after: auto; }
+.page::after {
+  counter-increment: page;
+  content: counter(page);
+  position: absolute;
+  bottom: 5mm;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10pt;
+  color: #6b7280;
+}
+h1, h2, h3 { margin: 0; color: #123d6a; }
+h1 { font-size: 25pt; line-height: 1.2; }
+h2 { font-size: 18pt; margin-bottom: 5mm; border-bottom: 2px solid #8fb3d9; padding-bottom: 2mm; }
+h3 { font-size: 14pt; margin: 3mm 0 2mm; }
+p, li, td, th { font-size: 12.2pt; line-height: 1.48; }
+.small { font-size: 10.5pt; }
+.subtitle { font-size: 15pt; color: #335f85; margin-top: 4mm; }
+.cover {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.cover-box {
+  margin-top: 15mm;
+  border: 2px solid #b8cee4;
+  border-radius: 10px;
+  padding: 10mm;
+  background: #f7fbff;
+}
+.name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+  margin-top: 12mm;
+}
+.field { border-bottom: 1px solid #455b70; min-height: 10mm; padding: 2mm 0; }
+.badge {
+  display: inline-block;
+  padding: 2mm 4mm;
+  border-radius: 999px;
+  background: #e7f0fa;
+  color: #123d6a;
+  font-weight: bold;
+  margin-left: 2mm;
+}
+.note {
+  border-right: 5px solid #4c86bf;
+  padding: 3mm 4mm;
+  background: #f3f8fd;
+  margin: 4mm 0;
+}
+.exercise-list {
+  margin: 0;
+  padding-right: 7mm;
+}
+.exercise-list li {
+  margin-bottom: 3.2mm;
+  padding-right: 1mm;
+}
+.exercise-list.compact li { margin-bottom: 2.1mm; }
+.exercise-list.tight li { margin-bottom: 1.3mm; }
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+}
+.three-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5mm;
+}
+.card {
+  border: 1px solid #c7d6e5;
+  border-radius: 8px;
+  padding: 4mm;
+  background: #fbfdff;
+}
+.level {
+  font-weight: bold;
+  color: #7a3b00;
+  background: #fff3df;
+  padding: 1mm 3mm;
+  border-radius: 4px;
+}
+.formula {
+  direction: ltr;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px solid #d5dde6;
+  border-radius: 6px;
+  padding: 3mm;
+  margin: 2mm 0;
+}
+.graph-wrap {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 7mm;
+  align-items: start;
+}
+.jxgbox {
+  width: 100%;
+  height: 92mm;
+  border: 1px solid #8da8c2;
+  background: #fff;
+
+  direction: ltr;}
+.jxgbox.smallgraph { height: 72mm; }
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5mm 8mm;
+}
+.answer-item {
+  border-bottom: 1px dotted #9aa8b5;
+  padding: 1.3mm 0;
+  font-size: 10.8pt;
+  line-height: 1.35;
+}
+.source-list li { margin-bottom: 2mm; font-size: 10.6pt; }
+.footer-note {
+  position: absolute;
+  bottom: 10mm;
+  right: 14mm;
+  left: 14mm;
+  font-size: 9.5pt;
+  color: #64748b;
+}
+.math-ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+@media print {
+  html, body { background: white; }
+  .page { margin: 0; box-shadow: none; }
+}
+</style>
+</head>
+
+<body>
+
+<section class="page">
+  <div class="cover">
+    <div>
+      <span class="badge">מתמטיקה 5 יח״ל</span>
+      <span class="badge">גאומטריה אנליטית</span>
+      <div class="cover-box">
+        <h1>דף תרגילים מסכם</h1>
+        <div class="subtitle">נקודות, מרחקים, אמצע קטע, שיפוע, משוואת ישר, מקבילים, מאונכים ומרחק נקודה מישר</div>
+      </div>
+<div style="height:25px;"></div>
+      <h3>נוסחאות עזר</h3>
+      <div class="two-col">
+        <div class="card">
+          <div class="formula">\[d=\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\]</div>
+          <div class="formula">\[M\left(\frac{x_1+x_2}{2},\frac{y_1+y_2}{2}\right)\]</div>
+        </div>
+        <div class="card">
+          <div class="formula">\[m=\frac{y_2-y_1}{x_2-x_1}\]</div>
+          <div class="formula">\[y-y_1=m(x-x_1)\]</div>
+        </div>
+      </div>
+      <div class="two-col" style="margin-top:5mm;">
+        <div class="card">
+          <div class="formula">\[m_1=m_2\]</div>
+          <p class="small">תנאי לישרים מקבילים בעלי שיפוע מוגדר.</p>
+        </div>
+        <div class="card">
+          <div class="formula">\[m_1m_2=-1\]</div>
+          <p class="small">תנאי לישרים מאונכים בעלי שיפועים מוגדרים.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>חלק א — נקודות במערכת הצירים</h2>
+  <div class="graph-wrap">
+    <div>
+      <ol class="exercise-list" start="1">
+        <li>רשמו את שיעורי הנקודות \(A,B,C,D,E\) המופיעות בשרטוט.</li>
+        <li>קבעו באיזה רביע נמצאת כל אחת מן הנקודות \(A,B,C,D\).</li>
+        <li>איזו נקודה נמצאת על ציר \(x\)? איזו נקודה נמצאת על ציר \(y\)?</li>
+        <li>שקפו את הנקודה \(A\) ביחס לציר \(x\), ורשמו את שיעורי תמונתה.</li>
+        <li>שקפו את הנקודה \(B\) ביחס לציר \(y\), ורשמו את שיעורי תמונתה.</li>
+        <li>שקפו את הנקודה \(C\) ביחס לראשית הצירים.</li>
+      </ol>
+    </div>
+    <div id="board1" class="jxgbox"></div>
+  </div>
+  <h3>תרגילים נוספים</h3>
+  <ol class="exercise-list compact" start="7">
+    <li>הנקודה \(P(a-2,3a+1)\) נמצאת על ציר \(y\). מצאו את \(a\) ואת שיעורי \(P\).</li>
+    <li>הנקודה \(Q(2b+6,b-4)\) נמצאת על ציר \(x\). מצאו את \(b\) ואת שיעורי \(Q\).</li>
+    <li>נתונה הנקודה \(R(k-1,2k+3)\). מצאו את כל ערכי \(k\) שעבורם \(R\) נמצאת ברביע השני.</li>
+    <li>נתונה הנקודה \(S(t+4,5-2t)\). מצאו את כל ערכי \(t\) שעבורם \(S\) נמצאת ברביע הרביעי.</li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>חלק ב — מרחק בין שתי נקודות</h2>
+  <ol class="exercise-list" start="11">
+    <li>חשבו את המרחק בין \(A(1,2)\) לבין \(B(5,5)\).</li>
+    <li>חשבו את המרחק בין \(C(-3,4)\) לבין \(D(2,4)\).</li>
+    <li>חשבו את המרחק בין \(E(-2,-1)\) לבין \(F(4,7)\).</li>
+    <li>הוכיחו שהמשולש שקודקודיו \(A(0,0)\), \(B(6,0)\), \(C(3,4)\) הוא שווה־שוקיים.</li>
+    <li>קבעו אם המשולש שקודקודיו \(A(-1,2)\), \(B(3,5)\), \(C(6,1)\) הוא ישר־זווית.</li>
+    <li>מצאו את \(x\), אם המרחק בין \(P(x,2)\) לבין \(Q(5,6)\) הוא \(5\).</li>
+    <li>מצאו את \(y\), אם המרחק בין \(M(-2,y)\) לבין \(N(4,3)\) הוא \(\sqrt{61}\).</li>
+    <li>הנקודה \(P\) נמצאת על ציר \(x\) ומרחקה מן הנקודה \(A(3,4)\) הוא \(5\). מצאו את כל האפשרויות לשיעורי \(P\).</li>
+    <li>הנקודה \(Q\) נמצאת על הישר \(y=2\), ומרחקה מן הנקודה \(B(-1,6)\) הוא \(5\). מצאו את כל האפשרויות לשיעורי \(Q\).</li>
+    <li>נתונות \(A(a,1)\), \(B(2,5)\). מצאו את \(a\), אם \(AB=\sqrt{20}\).</li>
+  </ol>
+<div style="height:25px;"></div>
+  <div class="note"><strong>בדיקה עצמית:</strong> בתרגילים עם פרמטר ייתכנו שתי תשובות. לאחר העלאה בריבוע, יש להציב חזרה ולוודא שכל פתרון מתאים.</div>
+</section>
+
+<section class="page">
+  <h2>חלק ג — אמצע קטע וחלוקת קטע</h2>
+  <ol class="exercise-list" start="21">
+    <li>מצאו את אמצע הקטע המחבר את \(A(2,6)\) ואת \(B(8,-4)\).</li>
+    <li>מצאו את אמצע הקטע המחבר את \(C(-5,3)\) ואת \(D(7,9)\).</li>
+    <li>הנקודה \(M(4,1)\) היא אמצע הקטע \(AB\), ונתון \(A(-2,5)\). מצאו את \(B\).</li>
+    <li>הנקודה \(N(-1,3)\) היא אמצע הקטע \(CD\), ונתון \(D(6,-4)\). מצאו את \(C\).</li>
+    <li>קודקודי מקבילית הם \(A(1,2)\), \(B(7,4)\), \(C(9,10)\), \(D\). מצאו את \(D\), כאשר הקודקודים רשומים לפי סדרם.</li>
+    <li>האלכסונים במרובע \(ABCD\) נחתכים בנקודה \(M(2,-1)\). נתונים \(A(-3,4)\), \(B(5,2)\), \(C\) ו-\(D\). אם המרובע מקבילית, מצאו את \(C,D\).</li>
+    <li>הנקודה \(P\) מחלקת את הקטע \(AB\) ביחס \(AP:PB=1:2\). נתונים \(A(0,0)\), \(B(9,6)\). מצאו את \(P\).</li>
+    <li>הנקודה \(Q\) מחלקת את הקטע \(CD\) ביחס \(CQ:QD=3:1\). נתונים \(C(-4,2)\), \(D(8,10)\). מצאו את \(Q\).</li>
+    <li>נתונים \(A(a,2)\), \(B(6,b)\), ואמצע הקטע הוא \(M(1,5)\). מצאו את \(a,b\).</li>
+    <li>הוכיחו כי האלכסונים של המרובע שקודקודיו \(A(-2,0)\), \(B(4,2)\), \(C(6,8)\), \(D(0,6)\) חוצים זה את זה.</li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>חלק ד — שיפוע של ישר</h2>
+  <div class="graph-wrap">
+    <div>
+      <ol class="exercise-list compact" start="31">
+        <li>חשבו את שיפוע הישר העובר דרך \(A(1,2)\), \(B(5,10)\).</li>
+        <li>חשבו את שיפוע הישר העובר דרך \(C(-3,4)\), \(D(2,-1)\).</li>
+        <li>קבעו איזה מן הישרים בשרטוט בעל שיפוע חיובי, שלילי או אפס.</li>
+        <li>סדרו את הישרים \(l_1,l_2,l_3\) לפי שיפוע עולה.</li>
+        <li>הישר עובר דרך \(P(k,1)\), \(Q(4,7)\), ושיפועו \(2\). מצאו את \(k\).</li>
+        <li>הישר עובר דרך \(M(-2,t)\), \(N(4,3)\), ושיפועו \(-\frac{1}{2}\). מצאו את \(t\).</li>
+      </ol>
+    </div>
+    <div id="board2" class="jxgbox"></div>
+  </div>
+  <ol class="exercise-list compact" start="37">
+    <li>מצאו את שיפוע הקטע המחבר את אמצעי הקטעים \(AB\) ו-\(CD\), כאשר \(A(-2,0)\), \(B(4,8)\), \(C(2,-6)\), \(D(8,2)\).</li>
+    <li>נתונות \(A(a,3)\), \(B(5,11)\). מצאו את \(a\), אם שיפוע \(AB\) הוא \(\frac{4}{3}\).</li>
+    <li>מצאו את \(p\), אם השיפוע בין \(P(p,p+1)\) לבין \(Q(2p,7)\) שווה ל-\(2\), ו-\(p\neq0\).</li>
+    <li>קבעו אם שלוש הנקודות \(A(-1,4)\), \(B(2,10)\), \(C(5,16)\) נמצאות על ישר אחד.</li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>חלק ה — משוואת ישר: בסיס</h2>
+  <ol class="exercise-list compact" start="41">
+    <li>מצאו את משוואת הישר ששיפועו \(3\) והוא עובר בנקודה \(A(2,-1)\).</li>
+    <li>מצאו את משוואת הישר ששיפועו \(-2\) והוא עובר בנקודה \(B(-3,5)\).</li>
+    <li>מצאו את משוואת הישר העובר דרך \(C(1,4)\), \(D(5,12)\).</li>
+    <li>מצאו את משוואת הישר העובר דרך \(E(-2,7)\), \(F(4,-5)\).</li>
+    <li>העבירו את הישר \(3x-2y+8=0\) לצורה \(y=mx+b\), ורשמו את שיפועו ואת נקודת החיתוך שלו עם ציר \(y\).</li>
+    <li>מצאו את נקודות החיתוך עם הצירים של הישר \(2x+5y=20\).</li>
+    <li>מצאו את משוואת הישר שחותך את ציר \(x\) בנקודה \((6,0)\) ואת ציר \(y\) בנקודה \((0,-3)\).</li>
+    <li>מצאו את \(k\), אם הנקודה \(P(k,7)\) נמצאת על הישר \(2x-y+5=0\).</li>
+    <li>מצאו את \(a\), אם הישר \(y=(a-1)x+4\) עובר בנקודה \((3,10)\).</li>
+    <li>בדקו אם הנקודה \(Q(-2,9)\) נמצאת על הישר העובר דרך \(A(1,3)\), \(B(5,-5)\).</li>
+  </ol>
+<div style="height:25px;"></div>
+  <div class="two-col">
+    <div class="card">
+      <h3>תזכורת</h3>
+      <p>כאשר נתונות שתי נקודות: תחילה מחשבים שיפוע, לאחר מכן מציבים בנוסחת נקודה־שיפוע.</p>
+    </div>
+    <div class="card">
+      <h3>מקרה מיוחד</h3>
+      <p>ישר אנכי הוא מהצורה \(x=c\), ולכן השיפוע שלו אינו מוגדר.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>חלק ו — משוואת ישר: תרגילים מתקדמים</h2>
+  <ol class="exercise-list" start="51">
+    <li>מצאו את משוואת התיכון לצלע \(BC\) במשולש \(A(2,7)\), \(B(-4,1)\), \(C(6,-3)\).</li>
+    <li>מצאו את משוואת האנך האמצעי לקטע שקצותיו \(A(-2,4)\), \(B(6,0)\).</li>
+    <li>מצאו את משוואות שלושת הישרים שעליהם מונחות צלעות המשולש \(A(0,1)\), \(B(4,5)\), \(C(7,-1)\).</li>
+    <li>הישר \(l\) עובר דרך נקודת החיתוך של \(y=2x-3\) ו-\(y=-x+6\), וגם דרך הנקודה \((0,-2)\). מצאו את משוואתו.</li>
+    <li>מצאו את משוואת הישר העובר דרך נקודת החיתוך של \(2x+y=7\) ו-\(x-y=2\), ושיפועו \(-3\).</li>
+    <li>הישר \(ax+2y-6=0\) עובר דרך הנקודה \((4,-1)\). מצאו את \(a\), ואחר כך את נקודות החיתוך של הישר עם הצירים.</li>
+    <li>הישר \(y=(k+1)x+2k\) עובר דרך הנקודה \((2,8)\). מצאו את \(k\) ואת משוואת הישר.</li>
+    <li>מצאו את כל ערכי \(a\) שעבורם הנקודות \(A(1,a)\), \(B(3,5)\), \(C(7,13)\) נמצאות על ישר אחד.</li>
+    <li>מצאו את משוואת הישר העובר דרך \((2,-3)\) ויוצר עם הכיוון החיובי של ציר \(x\) זווית של \(135^\circ\).</li>
+    <li>ישר עובר דרך \((a,2a)\) ו-\((a+3,2a+9)\). מצאו את משוואתו במונחי \(a\), ופשטו ככל האפשר.</li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>חלק ז — ישרים מקבילים</h2>
+  <ol class="exercise-list" start="61">
+    <li>מצאו את משוואת הישר המקביל ל-\(y=3x-7\) ועובר בנקודה \((2,5)\).</li>
+    <li>מצאו את משוואת הישר המקביל ל-\(2x-5y+4=0\) ועובר בנקודה \((-5,1)\).</li>
+    <li>מצאו את \(a\), אם הישרים \(y=(2a-1)x+4\) ו-\(y=5x-3\) מקבילים.</li>
+    <li>מצאו את \(k\), אם הישרים \((k+2)x-3y+1=0\) ו-\(4x-6y+7=0\) מקבילים.</li>
+    <li>הוכיחו כי המרובע \(A(0,0)\), \(B(5,2)\), \(C(8,7)\), \(D(3,5)\) הוא מקבילית.</li>
+    <li>מצאו את משוואות שני הישרים המקבילים ל-\(3x+4y-8=0\), שמרחקם מן הישר הנתון הוא \(5\).</li>
+  </ol>
+  <div class="graph-wrap" style="margin-top:5mm;">
+    <div>
+      <ol class="exercise-list compact" start="67">
+        <li>בשרטוט מופיעים שני ישרים מקבילים ונקודה \(P\). מצאו את משוואת הישר העובר דרך \(P\) ומקביל לשני הישרים.</li>
+        <li>מצאו את המרחק האנכי בין הישרים \(y=2x+5\) ו-\(y=2x-3\) בנקודה שבה \(x=4\). הסבירו מדוע זה אינו המרחק הקצר ביותר בין הישרים.</li>
+      </ol>
+    </div>
+    <div id="board3" class="jxgbox smallgraph"></div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>חלק ח — ישרים מאונכים</h2>
+  <ol class="exercise-list" start="69">
+    <li>מצאו את משוואת הישר המאונך ל-\(y=2x+1\) ועובר בנקודה \((4,3)\).</li>
+    <li>מצאו את משוואת הישר המאונך ל-\(3x-4y+8=0\) ועובר בראשית הצירים.</li>
+    <li>מצאו את \(a\), אם הישרים \(y=(a-2)x+1\) ו-\(y=\frac{1}{3}x-4\) מאונכים.</li>
+    <li>מצאו את \(k\), אם הישרים \(kx+2y-5=0\) ו-\(4x-y+7=0\) מאונכים.</li>
+    <li>הוכיחו כי המשולש \(A(-2,1)\), \(B(4,3)\), \(C(2,9)\) הוא ישר־זווית, וקבעו באיזה קודקוד נמצאת הזווית הישרה.</li>
+    <li>מצאו את משוואת הגובה לצלע \(BC\) במשולש \(A(1,6)\), \(B(-3,0)\), \(C(5,2)\).</li>
+  </ol>
+<div style="height:25px;"></div>
+  <div class="note">
+    כאשר אחד הישרים אנכי והשני אופקי, הם מאונכים אף שאין אפשרות להשתמש במכפלת השיפועים.
+  </div>
+</section>
+
+<section class="page">
+  <h2>חלק ט — מרחק נקודה מישר</h2>
+  <div class="formula">\[d=\frac{|Ax_0+By_0+C|}{\sqrt{A^2+B^2}}\]</div>
+  <ol class="exercise-list" start="75">
+    <li>מצאו את המרחק של הנקודה \(P(2,3)\) מן הישר \(3x+4y-10=0\).</li>
+    <li>מצאו את המרחק של הנקודה \(Q(-1,5)\) מן הישר \(x-2y+7=0\).</li>
+    <li>מצאו את כל ערכי \(k\), אם מרחק הנקודה \(R(k,2)\) מן הישר \(3x-4y+1=0\) הוא \(2\).</li>
+    <li>מצאו את משוואות הישרים המקבילים ל-\(4x-3y+6=0\) ומרחקם מן הנקודה \(A(1,2)\) הוא \(5\).</li>
+  </ol>
+  <div class="graph-wrap" style="margin-top:4mm;">
+    <div>
+      <ol class="exercise-list compact" start="79">
+        <li>בשרטוט נתונים הישר \(l\) והנקודה \(P\). מצאו את נקודת ההיטל \(H\) של \(P\) על \(l\), ולאחר מכן את \(PH\).</li>
+        <li><span class="level">אתגר מסכם</span> נתון המשולש \(A(-2,1)\), \(B(6,3)\), \(C(2,9)\). מצאו את משוואת \(BC\), את משוואת הגובה היוצא מ-\(A\), את נקודת מפגש הגובה עם \(BC\), ואת אורך הגובה.</li>
+      </ol>
+    </div>
+    <div id="board4" class="jxgbox smallgraph"></div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות — תרגילים 1–20</h2>
+  <div class="answer-grid">
+    <div class="answer-item"><strong>1.</strong> \(A(3,4), B(-4,3), C(-3,-2), D(4,-3), E(0,5)\)</div>
+    <div class="answer-item"><strong>2.</strong> \(A\): ראשון, \(B\): שני, \(C\): שלישי, \(D\): רביעי.</div>
+    <div class="answer-item"><strong>3.</strong> אין נקודה על ציר \(x\); \(E\) על ציר \(y\).</div>
+    <div class="answer-item"><strong>4.</strong> \((3,-4)\)</div>
+    <div class="answer-item"><strong>5.</strong> \((4,3)\)</div>
+    <div class="answer-item"><strong>6.</strong> \((3,2)\)</div>
+    <div class="answer-item"><strong>7.</strong> \(a=2,\ P(0,7)\)</div>
+    <div class="answer-item"><strong>8.</strong> \(b=4,\ Q(14,0)\)</div>
+    <div class="answer-item"><strong>9.</strong> \(-\frac{3}{2}<k<1\)</div>
+    <div class="answer-item"><strong>10.</strong> \(t<-4\)</div>
+    <div class="answer-item"><strong>11.</strong> \(5\)</div>
+    <div class="answer-item"><strong>12.</strong> \(5\)</div>
+    <div class="answer-item"><strong>13.</strong> \(10\)</div>
+    <div class="answer-item"><strong>14.</strong> \(AC=BC=5\)</div>
+    <div class="answer-item"><strong>15.</strong> כן, הזווית ב-\(B\).</div>
+    <div class="answer-item"><strong>16.</strong> \(x=2\) או \(x=8\)</div>
+    <div class="answer-item"><strong>17.</strong> \(y=8\) או \(y=-2\)</div>
+    <div class="answer-item"><strong>18.</strong> \(P(0,0)\) או \(P(6,0)\)</div>
+    <div class="answer-item"><strong>19.</strong> \(Q(2,2)\) או \(Q(-4,2)\)</div>
+    <div class="answer-item"><strong>20.</strong> \(a=0\) או \(a=4\)</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות — תרגילים 21–40</h2>
+  <div class="answer-grid">
+    <div class="answer-item"><strong>21.</strong> \(M(5,1)\)</div>
+    <div class="answer-item"><strong>22.</strong> \(M(1,6)\)</div>
+    <div class="answer-item"><strong>23.</strong> \(B(10,-3)\)</div>
+    <div class="answer-item"><strong>24.</strong> \(C(-8,10)\)</div>
+    <div class="answer-item"><strong>25.</strong> \(D(3,8)\)</div>
+    <div class="answer-item"><strong>26.</strong> \(C(7,-6), D(-1,-4)\)</div>
+    <div class="answer-item"><strong>27.</strong> \(P(3,2)\)</div>
+    <div class="answer-item"><strong>28.</strong> \(Q(5,8)\)</div>
+    <div class="answer-item"><strong>29.</strong> \(a=-4,\ b=8\)</div>
+    <div class="answer-item"><strong>30.</strong> שני אמצעי האלכסונים הם \((2,4)\).</div>
+    <div class="answer-item"><strong>31.</strong> \(m=2\)</div>
+    <div class="answer-item"><strong>32.</strong> \(m=-1\)</div>
+    <div class="answer-item"><strong>33.</strong> \(l_1\) חיובי, \(l_2\) שלילי, \(l_3\) אפס.</div>
+    <div class="answer-item"><strong>34.</strong> \(l_2<l_3<l_1\)</div>
+    <div class="answer-item"><strong>35.</strong> \(k=1\)</div>
+    <div class="answer-item"><strong>36.</strong> \(t=6\)</div>
+    <div class="answer-item"><strong>37.</strong> \(m=-\frac{3}{2}\)</div>
+    <div class="answer-item"><strong>38.</strong> \(a=-1\)</div>
+    <div class="answer-item"><strong>39.</strong> \(p=2\)</div>
+    <div class="answer-item"><strong>40.</strong> כן; כל השיפועים שווים ל-\(2\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות — תרגילים 41–60</h2>
+  <div class="answer-grid">
+    <div class="answer-item"><strong>41.</strong> \(y=3x-7\)</div>
+    <div class="answer-item"><strong>42.</strong> \(y=-2x-1\)</div>
+    <div class="answer-item"><strong>43.</strong> \(y=2x+2\)</div>
+    <div class="answer-item"><strong>44.</strong> \(y=-2x+3\)</div>
+    <div class="answer-item"><strong>45.</strong> \(y=\frac{3}{2}x+4\)</div>
+    <div class="answer-item"><strong>46.</strong> \((10,0),(0,4)\)</div>
+    <div class="answer-item"><strong>47.</strong> \(y=\frac{1}{2}x-3\)</div>
+    <div class="answer-item"><strong>48.</strong> \(k=1\)</div>
+    <div class="answer-item"><strong>49.</strong> \(a=3\)</div>
+    <div class="answer-item"><strong>50.</strong> כן.</div>
+    <div class="answer-item"><strong>51.</strong> \(y=8x-9\)</div>
+    <div class="answer-item"><strong>52.</strong> \(y=2x-2\)</div>
+    <div class="answer-item"><strong>53.</strong> \(AB:y=x+1,\ BC:y=-2x+13,\ AC:y=-\frac{2}{7}x+1\)</div>
+    <div class="answer-item"><strong>54.</strong> \(y=\frac{5}{3}x-2\)</div>
+    <div class="answer-item"><strong>55.</strong> \(y=-3x+10\)</div>
+    <div class="answer-item"><strong>56.</strong> \(a=2;\ (3,0),(0,3)\)</div>
+    <div class="answer-item"><strong>57.</strong> \(k=2,\ y=3x+4\)</div>
+    <div class="answer-item"><strong>58.</strong> \(a=1\)</div>
+    <div class="answer-item"><strong>59.</strong> \(y=-x-1\)</div>
+    <div class="answer-item"><strong>60.</strong> \(y=3x-a\)</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות — תרגילים 61–80</h2>
+  <div class="answer-grid">
+    <div class="answer-item"><strong>61.</strong> \(y=3x-1\)</div>
+    <div class="answer-item"><strong>62.</strong> \(y=\frac{2}{5}x+3\)</div>
+    <div class="answer-item"><strong>63.</strong> \(a=3\)</div>
+    <div class="answer-item"><strong>64.</strong> \(k=0\)</div>
+    <div class="answer-item"><strong>65.</strong> \(AB\parallel CD,\ BC\parallel AD\)</div>
+    <div class="answer-item"><strong>66.</strong> \(3x+4y-33=0,\ 3x+4y+17=0\)</div>
+    <div class="answer-item"><strong>67.</strong> \(y=x-5\)</div>
+    <div class="answer-item"><strong>68.</strong> \(8\); זהו מרחק אנכי ולא מרחק לאורך אנך לישרים.</div>
+    <div class="answer-item"><strong>69.</strong> \(y=-\frac{1}{2}x+5\)</div>
+    <div class="answer-item"><strong>70.</strong> \(y=-\frac{4}{3}x\)</div>
+    <div class="answer-item"><strong>71.</strong> \(a=-1\)</div>
+    <div class="answer-item"><strong>72.</strong> \(k=\frac{1}{2}\)</div>
+    <div class="answer-item"><strong>73.</strong> ישר־זווית ב-\(B\).</div>
+    <div class="answer-item"><strong>74.</strong> \(y=-4x+10\)</div>
+    <div class="answer-item"><strong>75.</strong> \(\frac{8}{5}\)</div>
+    <div class="answer-item"><strong>76.</strong> \(\frac{4}{\sqrt{5}}\)</div>
+    <div class="answer-item"><strong>77.</strong> \(k=-1\) או \(k=\frac{17}{3}\)</div>
+    <div class="answer-item"><strong>78.</strong> \(4x-3y+27=0,\ 4x-3y-23=0\)</div>
+    <div class="answer-item"><strong>79.</strong> \(H\left(\frac{12}{5},\frac{11}{5}\right),\ PH=\frac{3}{\sqrt{5}}\)</div>
+    <div class="answer-item"><strong>80.</strong> \(BC:y=-\frac{3}{2}x+12;\ h_A:y=\frac{2}{3}x+\frac{7}{3};\ H\left(\frac{58}{13},\frac{69}{13}\right);\ AH=\frac{28}{\sqrt{13}}\)</div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof JXG === 'undefined') {
+    console.error('JSXGraph failed to load.');
+    return;
+  }
+
+  JXG.Options.text.useMathJax = true;
+
+  const common = {
+    axis: true,
+    boundingbox: [-7, 7, 7, -7],
+    keepaspectratio: true,
+    showCopyright: false,
+    showNavigation: false,
+    pan: { enabled: false },
+    zoom: { enabled: false },
+    defaultAxes: {
+      x: { name: 'x', withLabel: true, label: { position: 'rt', offset: [-12, 12] }, ticks: { drawLabels: true, minorTicks: 0 } },
+      y: { name: 'y', withLabel: true, label: { position: 'rt', offset: [10, -10] }, ticks: { drawLabels: true, minorTicks: 0 } }
+    }
+  };
+
+  const b1 = JXG.JSXGraph.initBoard('board1', common);
+  [
+    [3,4,'A'],[-4,3,'B'],[-3,-2,'C'],[4,-3,'D'],[0,5,'E']
+  ].forEach(p => b1.create('point',[p[0],p[1]],{name:p[2],size:2,fixed:true}));
+
+  const b2 = JXG.JSXGraph.initBoard('board2', common);
+  b2.create('functiongraph',[x => 1.5*x-1],{name:'l₁',withLabel:true,fixed:true});
+  b2.create('functiongraph',[x => -0.75*x+2],{name:'l₂',withLabel:true,fixed:true});
+  b2.create('functiongraph',[x => -3],{name:'l₃',withLabel:true,fixed:true});
+
+  const b3 = JXG.JSXGraph.initBoard('board3', common);
+  b3.create('functiongraph',[x => x+2],{name:'l₁',withLabel:true,fixed:true});
+  b3.create('functiongraph',[x => x-2],{name:'l₂',withLabel:true,fixed:true});
+  b3.create('point',[2,-3],{name:'P',size:2,fixed:true});
+  b3.create('functiongraph',[x => x-5],{dash:2,name:'?',withLabel:true,fixed:true});
+
+  const b4 = JXG.JSXGraph.initBoard('board4', common);
+  const l = b4.create('line',[[0,1],[4,3]],{name:'l',withLabel:true,fixed:true,straightFirst:true,straightLast:true});
+  const P = b4.create('point',[3,1],{name:'P',size:2,fixed:true});
+  const H = b4.create('perpendicularpoint',[P,l],{name:'H',size:2,fixed:true});
+  b4.create('segment',[P,H],{dash:2,fixed:true});
+});
+</script>
+
+</body>
+</html>

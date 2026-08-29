@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>גאומטריה אנליטית – דף אתגר מתקדם, 5 יח״ל</title>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 0.92 }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+<style>
+@page { size: A4 portrait; margin: 0; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #e8edf3;
+  font-family: Arial, "Noto Sans Hebrew", sans-serif;
+  color: #17212b;
+}
+body { counter-reset: page; }
+.page {
+  width: 210mm;
+  height: 297mm;
+  margin: 7mm auto;
+  padding: 12mm 14mm 12mm;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  break-after: page;
+}
+.page:last-child { page-break-after: auto; }
+.page::after {
+  counter-increment: page;
+  content: counter(page);
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 4.5mm;
+  text-align: center;
+  color: #667585;
+  font-size: 9.5pt;
+}
+h1, h2, h3 { margin: 0; color: #173f67; }
+h1 { font-size: 25pt; line-height: 1.25; }
+h2 {
+  font-size: 18pt;
+  margin-bottom: 4mm;
+  padding-bottom: 2mm;
+  border-bottom: 2px solid #7ea4c8;
+}
+h3 { font-size: 13.5pt; margin: 3mm 0 2mm; }
+p, li, td, th { font-size: 11.8pt; line-height: 1.42; }
+.small { font-size: 9.8pt; }
+.subtitle { font-size: 14.5pt; color: #355f85; margin-top: 4mm; }
+.cover {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.hero {
+  margin-top: 15mm;
+  padding: 10mm;
+  border: 2px solid #9bb9d5;
+  border-radius: 12px;
+  background: #f5faff;
+}
+.badge {
+  display: inline-block;
+  background: #e7f0fa;
+  color: #173f67;
+  border-radius: 999px;
+  padding: 2mm 4mm;
+  margin-left: 2mm;
+  font-weight: bold;
+}
+.name-row {
+  margin-top: 10mm;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8mm;
+}
+.field {
+  border-bottom: 1px solid #52687c;
+  min-height: 9mm;
+}
+.note {
+  margin: 4mm 0;
+  padding: 3mm 4mm;
+  background: #f4f8fc;
+  border-right: 5px solid #3e78ad;
+}
+.warning {
+  margin: 4mm 0;
+  padding: 3mm 4mm;
+  background: #fff7e8;
+  border-right: 5px solid #ba7424;
+}
+.exercise-list { margin: 0; padding-right: 7mm; }
+.exercise-list li { margin-bottom: 4mm; padding-right: 1mm; }
+.exercise-list.compact li { margin-bottom: 2.7mm; }
+.exercise-list.tight li { margin-bottom: 1.8mm; }
+.subparts { margin-top: 1.5mm; padding-right: 6mm; }
+.subparts li { margin-bottom: 1.4mm; }
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7mm;
+}
+.card {
+  border: 1px solid #c6d4e1;
+  border-radius: 8px;
+  padding: 4mm;
+  background: #fbfdff;
+}
+.level {
+  display: inline-block;
+  padding: 1mm 3mm;
+  background: #fff0d8;
+  color: #7b4300;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.graph-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 7mm;
+  align-items: start;
+}
+.jxgbox {
+  direction: ltr;
+  width: 100%;
+  height: 84mm;
+  border: 1px solid #8ca5bb;
+  background: white;
+}
+.jxgbox.short { height: 68mm; }
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4mm 8mm;
+}
+.answer {
+  border-bottom: 1px dotted #98a6b3;
+  padding: 1.2mm 0;
+  font-size: 10.4pt;
+  line-height: 1.35;
+}
+.source-list li {
+  font-size: 9.8pt;
+  line-height: 1.35;
+  margin-bottom: 1.6mm;
+}
+.formula {
+  direction: ltr;
+  text-align: center;
+  border: 1px solid #d5dde5;
+  background: #f8fafc;
+  padding: 2.5mm;
+  border-radius: 6px;
+  margin: 2mm 0;
+}
+@media print {
+  html, body { background: white; }
+  .page { margin: 0; }
+}
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="cover">
+    <div>
+      <span class="badge">מתמטיקה 5 יח״ל</span>
+      <span class="badge">רמת אתגר גבוהה</span>
+      <div class="hero">
+        <h1>גאומטריה אנליטית — דף תרגילים מתקדם</h1>
+        <div class="subtitle">שאלות פרמטריות, תנאי מרחק, משפחות ישרים, מרכזי משולש, שיקופים, מרחקים ושאלות הוכחה</div>
+      </div>
+<div style="height:30px;"></div>
+      <div class="two-col">
+        <div class="card">
+          <h3>מיומנויות מרכזיות</h3>
+          <p>בניית משוואות, פתרון פרמטרים, שימוש במרחקים, הוכחת תכונות גאומטריות וניתוח מצבים אפשריים.</p>
+        </div>
+        <div class="card">
+          <h3>המלצה לפתרון</h3>
+          <p>שרטטו סקיצה, הגדירו משתנים, כתבו תנאים אלגבריים ורק לאחר מכן בצעו חישובים.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>פרק א — נקודות, מרחקים ותנאי מרחק</h2>
+  <ol class="exercise-list" start="1">
+    <li>
+      הנקודה \(P(k,2k-1)\) שווה־מרחק מן הנקודות \(A(-3,4)\) ו-\(B(5,-2)\).
+      <ol class="subparts">
+        <li>מצאו את \(k\).</li>
+        <li>מצאו את משוואת האנך האמצעי לקטע \(AB\), והראו כי \(P\) נמצאת עליו.</li>
+      </ol>
+    </li>
+    <li>
+      הנקודה \(Q\) נמצאת על הישר \(y=x+1\) ושווה־מרחק מן הנקודות \(C(-2,5)\), \(D(6,-1)\).
+      <ol class="subparts">
+        <li>מצאו את \(Q\).</li>
+        <li>מצאו את שטח המשולש \(CQD\).</li>
+      </ol>
+    </li>
+    <li>
+      הנקודה \(R\) נמצאת על ציר \(x\), ומקיימת \(RA:RB=2:3\), כאשר \(A(-1,4)\), \(B(7,-2)\).
+      <ol class="subparts">
+        <li>מצאו את כל האפשרויות לשיעורי \(R\).</li>
+        <li>הסבירו מדוע מתקבלות שתי אפשרויות.</li>
+      </ol>
+    </li>
+    <li>
+      הנקודה \(P\) נמצאת על הישר \(5x+3y=7\). מרחקה מן הישר
+      \(3x-4y+5=0\) גדול פי \(2\) ממרחקה מן הישר \(4x+3y-1=0\).
+      <ol class="subparts">
+        <li>מצאו את כל האפשרויות לשיעורי הנקודה \(P\).</li>
+        <li>עבור כל אפשרות, חשבו את מרחק הנקודה מראשית הצירים וקבעו איזו נקודה קרובה יותר לראשית.</li>
+      </ol>
+    </li>
+  </ol>
+  <div class="note">בתרגיל 4 יש להשתמש בנוסחת מרחק נקודה מישר. לאחר ביטול המכנים מתקבלת משוואה עם ערכים מוחלטים, ולכן יש לבדוק שני מקרים.</div>
+</section>
+
+<section class="page">
+  <h2>פרק ב — שטחים, פרמטרים ותנאים גאומטריים</h2>
+  <ol class="exercise-list" start="5">
+    <li>
+      נתונות הנקודות \(A(1,2)\), \(B(7,-1)\), \(C(k,5)\). שטח המשולש \(ABC\) הוא \(18\).
+      <ol class="subparts">
+        <li>מצאו את כל ערכי \(k\).</li>
+        <li>עבור כל ערך, קבעו באיזה צד של הישר \(AB\) נמצאת \(C\).</li>
+      </ol>
+    </li>
+    <li>
+      נתונות \(A(a,1)\), \(B(4,a)\), \(C(7,5)\).
+      <ol class="subparts">
+        <li>מצאו את כל ערכי \(a\) שעבורם שלוש הנקודות אינן קולינריות ושטח המשולש הוא \(9\).</li>
+        <li>בדקו עבור כל פתרון אם המשולש ישר־זווית.</li>
+      </ol>
+    </li>
+    <li>
+      במשולש \(ABC\), נתונים \(A(-4,1)\), \(B(6,3)\), והקודקוד \(C\) נמצא על הישר \(x=2\).
+      <ol class="subparts">
+        <li>מצאו את כל האפשרויות ל-\(C\), אם שטח המשולש הוא \(20\).</li>
+        <li>עבור איזו אפשרות אורך \(AC\) קטן יותר?</li>
+      </ol>
+    </li>
+    <li>
+      מצאו את כל הנקודות על הישר \(2x-y-3=0\) שיוצרות עם הנקודות \(A(-1,2)\), \(B(5,4)\) משולש ששטחו \(12\).
+    </li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>פרק ג — משפחות ישרים ונקודות חיתוך</h2>
+  <ol class="exercise-list compact" start="9">
+    <li>
+      הישרים \(2x-y=1\) ו-\(x+3y=14\) נחתכים בנקודה \(S\).
+      <ol class="subparts">
+        <li>מצאו את \(S\).</li>
+        <li>מצאו את כל הישרים העוברים דרך \(S\) ומרחקם מראשית הצירים הוא \(3\).</li>
+      </ol>
+    </li>
+    <li>
+      נתונה משפחת הישרים
+      \[
+      (x-2y+3)+\lambda(3x+y-7)=0.
+      \]
+      <ol class="subparts">
+        <li>מצאו את הנקודה המשותפת לכל ישרי המשפחה.</li>
+        <li>מצאו את \(\lambda\) שעבורו הישר מקביל ל-\(5x-4y+9=0\).</li>
+        <li>מצאו את \(\lambda\) שעבורו הישר מאונך ל-\(2x+y-6=0\).</li>
+      </ol>
+    </li>
+    <li>
+      ישר עובר בנקודה \(P(2,5)\), וחותך את החלקים החיוביים של שני הצירים בנקודות \(A,B\). שטח המשולש \(OAB\) הוא \(12\).
+      <ol class="subparts">
+        <li>מצאו את כל משוואות הישר האפשריות.</li>
+        <li>קבעו איזו מן האפשרויות יוצרת היקף קטן יותר למשולש \(OAB\).</li>
+      </ol>
+    </li>
+    <li>
+      מצאו את משוואת הישר העובר בנקודת החיתוך של \(3x+2y=12\) ו-\(x-y=1\), כך שסכום חיתוכיו עם הצירים שווה ל-\(10\).
+    </li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>פרק ד — מקבילים, מאונכים ומרחק בין ישרים</h2>
+  <ol class="exercise-list" start="13">
+    <li>
+      מצאו את כל ערכי \(k\) שעבורם המרחק בין הישרים
+      \[
+      (k+1)x-2y+3=0,\qquad (k+1)x-2y-9=0
+      \]
+      הוא \(4\).
+    </li>
+    <li>
+      נתון הישר \(l:3x-4y+8=0\). מצאו את שתי משוואות הישרים המקבילים ל-\(l\), הנמצאים במרחק \(5\) ממנו, וקבעו איזה מהם חותך את החלק החיובי של ציר \(y\).
+    </li>
+    <li>
+      הנקודה \(P(4,-1)\) נמצאת בין שני ישרים מקבילים שמרחקם זה מזה \(6\), ואחד מהם הוא \(2x-y+3=0\).
+      <ol class="subparts">
+        <li>מצאו את משוואת הישר המקביל השני.</li>
+        <li>בדקו אם \(P\) אכן נמצאת ברצועה שבין הישרים.</li>
+      </ol>
+    </li>
+    <li>
+      נתונים הישרים \(l_1:y=mx+4\), \(l_2:y=-\frac{1}{m}x-2\), כאשר \(m\neq0\).
+      <ol class="subparts">
+        <li>הוכיחו שהישרים מאונכים לכל \(m\neq0\).</li>
+        <li>מצאו את \(m\), אם נקודת החיתוך שלהם נמצאת על הישר \(x+y=3\).</li>
+      </ol>
+    </li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>פרק ה — משולשים ומרכזים מיוחדים</h2>
+  <div class="graph-grid">
+    <div>
+      <ol class="exercise-list compact" start="17">
+        <li>
+          במשולש \(ABC\) נתונים \(A(-2,6)\), \(B(4,-2)\), \(C(8,4)\).
+          <ol class="subparts">
+            <li>מצאו את משוואות שני האנכים האמצעיים.</li>
+            <li>מצאו את מרכז המעגל החוסם.</li>
+            <li>מצאו את רדיוס המעגל החוסם.</li>
+          </ol>
+        </li>
+        <li>
+          במשולש \(DEF\) נתונים \(D(-3,1)\), \(E(5,3)\), \(F(1,9)\).
+          <ol class="subparts">
+            <li>מצאו את משוואות שני הגבהים.</li>
+            <li>מצאו את נקודת מפגש הגבהים.</li>
+            <li>בדקו אם המשולש חד־זווית, קהה־זווית או ישר־זווית.</li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+    <div id="board1" class="jxgbox"></div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>פרק ה — משולשים ומרכזים מיוחדים, המשך</h2>
+  <ol class="exercise-list" start="19">
+    <li>
+      במשולש \(ABC\) נתונים \(A(0,8)\), \(B(-6,0)\), \(C(4,0)\).
+      <ol class="subparts">
+        <li>מצאו את מרכז הכובד \(G\).</li>
+        <li>מצאו את מרכז המעגל החוסם \(O\).</li>
+        <li>מצאו את נקודת מפגש הגבהים \(H\).</li>
+        <li>הוכיחו כי \(O,G,H\) נמצאות על ישר אחד.</li>
+      </ol>
+    </li>
+    <li>
+      במשולש \(PQR\), נתונים \(P(-4,0)\), \(Q(4,0)\), \(R(1,6)\).
+      <ol class="subparts">
+        <li>מצאו את משוואת חוצה הזווית הפנימי היוצא מן \(R\), באמצעות משפט חוצה הזווית וחלוקת קטע ביחס נתון.</li>
+        <li>מצאו את נקודת החיתוך שלו עם \(PQ\).</li>
+      </ol>
+    </li>
+    <li>
+      במשולש \(ABC\), הישר \(x+y-5=0\) הוא תיכון היוצא מן \(A\), והישר \(2x-y+1=0\) הוא גובה היוצא מן \(B\). נתון \(A(2,3)\), \(B(1,-1)\).
+      <ol class="subparts">
+        <li>מצאו את משוואת הצלע \(AC\).</li>
+        <li>מצאו את \(C\).</li>
+      </ol>
+    </li>
+    <li>
+      קודקודיו של משולש הם \(A(-1,5)\), \(B(7,1)\), \(C(k,-3)\). מצאו את \(k\), אם התיכון היוצא מ-\(A\) מאונך לצלע \(BC\).
+    </li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>פרק ו — שיקוף, הטלה ומרחק קצר ביותר</h2>
+  <div class="graph-grid">
+    <div>
+      <ol class="exercise-list compact" start="23">
+        <li>
+          נתונים הנקודה \(P(7,1)\) והישר \(l:2x-y-3=0\).
+          <ol class="subparts">
+            <li>מצאו את נקודת ההיטל \(H\) של \(P\) על \(l\).</li>
+            <li>מצאו את הנקודה \(P'\), שהיא שיקוף \(P\) ביחס ל-\(l\).</li>
+            <li>בדקו כי \(l\) הוא האנך האמצעי לקטע \(PP'\).</li>
+          </ol>
+        </li>
+        <li>
+          נתונות הנקודות \(A(-3,4)\), \(B(5,2)\). הנקודה \(P\) נמצאת על הישר \(y=-1\).
+          <ol class="subparts">
+            <li>מצאו את \(P\) שעבורה הסכום \(PA+PB\) מינימלי.</li>
+            <li>מצאו את הערך המינימלי של הסכום.</li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+    <div id="board2" class="jxgbox"></div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>פרק ז — שאלות הוכחה ואתגר מסכמות</h2>
+  <ol class="exercise-list compact" start="25">
+    <li>
+      נתונות הנקודות \(A(-4,1)\), \(B(2,7)\), \(C(8,1)\), \(D(2,-5)\).
+      <ol class="subparts">
+        <li>הוכיחו שהמרובע \(ABCD\) הוא מעוין.</li>
+        <li>מצאו את משוואות האלכסונים.</li>
+        <li>מצאו את שטח המעוין בשתי דרכים שונות.</li>
+      </ol>
+    </li>
+    <li>
+      נתון המרובע \(A(0,0)\), \(B(6,2)\), \(C(4,8)\), \(D(-2,6)\).
+      <ol class="subparts">
+        <li>הוכיחו שהוא מלבן.</li>
+        <li>מצאו את מרכז המעגל החוסם אותו.</li>
+        <li>מצאו את משוואת המעגל החוסם.</li>
+      </ol>
+    </li>
+    <li>
+      במשולש \(ABC\), נתונים \(A(-2,2)\), \(B(6,4)\), \(C(1,10)\).
+      <ol class="subparts">
+        <li>מצאו את משוואת הצלע \(BC\).</li>
+        <li>מצאו את אורך הגובה מ-\(A\) אל \(BC\).</li>
+        <li>מצאו את שטח המשולש בשתי דרכים ואמתו שהתוצאות זהות.</li>
+      </ol>
+    </li>
+    <li>
+      <span class="level">אתגר</span>
+      נתונה משפחת הישרים
+      \[
+      l_t:(t-1)x+(t+2)y-3t=0.
+      \]
+      <ol class="subparts">
+        <li>הוכיחו שכל ישרי המשפחה עוברים בנקודה קבועה אחת, ומצאו אותה.</li>
+        <li>מצאו את \(t\) שעבורו המרחק של ראשית הצירים מן הישר הוא מקסימלי.</li>
+        <li>מצאו את הערך המקסימלי של המרחק.</li>
+      </ol>
+    </li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות מקוצר — תרגילים 1–8</h2>
+  <div class="answer-grid">
+    <div class="answer"><strong>1.</strong> \(k=1,\ P(1,1)\); האנך האמצעי: \(4x-3y-1=0\).</div>
+    <div class="answer"><strong>2.</strong> \(Q(5,6)\); שטח \(=25\).</div>
+    <div class="answer"><strong>3.</strong> \(x=\frac{-37\pm8\sqrt{26}}{5}\), ולכן \(R\left(\frac{-37\pm8\sqrt{26}}{5},0\right)\).</div>
+    <div class="answer"><strong>4.</strong> \(P\left(\frac{7}{5},0\right)\) או \(P(-1,4)\); המרחקים מראשית הצירים הם \(\frac{7}{5}\) ו-\(\sqrt{17}\) בהתאמה, ולכן \(P\left(\frac{7}{5},0\right)\) קרובה יותר.</div>
+    <div class="answer"><strong>5.</strong> \(k=7\) או \(k=-17\).</div>
+    <div class="answer"><strong>6.</strong> מתקבלת משוואה ריבועית ב-\(a\); יש לבדוק כל פתרון בתנאי הזווית הישרה.</div>
+    <div class="answer"><strong>7.</strong> \(C\left(2,\frac{31}{5}\right)\) או \(C\left(2,-\frac{9}{5}\right)\); האפשרות \(C\left(2,\frac{31}{5}\right)\) נותנת \(AC\) קטן יותר.</div>
+    <div class="answer"><strong>8.</strong> שתי נקודות מתקבלות מחיתוך הישר הנתון עם שני ישרים המקבילים ל-\(AB\) במרחק המתאים לשטח \(12\).</div>
+  </div>
+  <div class="note">בתרגילים 6 ו־8 מומלץ להשאיר לתלמיד מקום לפתרון מלא. המפתח מציין את מבנה הפתרון ולא רק תוצאה מספרית.</div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות מקוצר — תרגילים 9–16</h2>
+  <div class="answer-grid">
+    <div class="answer"><strong>9.</strong> \(S\left(\frac{17}{7},\frac{27}{7}\right)\); הישרים מתקבלים מתנאי מרחק נקודה מישר.</div>
+    <div class="answer"><strong>10.</strong> נקודה קבועה: \(\left(\frac{11}{7},\frac{16}{7}\right)\).</div>
+    <div class="answer"><strong>11.</strong> יש לפתור באמצעות צורת החיתוכים \(\frac{x}{a}+\frac{y}{b}=1\), עם \(ab=24\) והצבת \(P(2,5)\).</div>
+    <div class="answer"><strong>12.</strong> נקודת החיתוך היא \((2,3)\); לאחר הצבת צורת חיתוכים מתקבלת משוואה ריבועית.</div>
+    <div class="answer"><strong>13.</strong> \(\frac{12}{\sqrt{(k+1)^2+4}}=4\), ולכן \((k+1)^2=5\).</div>
+    <div class="answer"><strong>14.</strong> \(3x-4y+33=0\), \(3x-4y-17=0\).</div>
+    <div class="answer"><strong>15.</strong> הישר השני הוא \(2x-y+3-6\sqrt5=0\).</div>
+    <div class="answer"><strong>16.</strong> מאונכים כי מכפלת השיפועים היא \(-1\); \(m=\frac{-3+\sqrt{14}}{5}\) או \(m=\frac{-3-\sqrt{14}}{5}\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות מקוצר — תרגילים 17–24</h2>
+  <div class="answer-grid">
+    <div class="answer"><strong>17.</strong> מרכז המעגל החוסם מתקבל מחיתוך שני האנכים האמצעיים.</div>
+    <div class="answer"><strong>18.</strong> נקודת מפגש הגבהים מתקבלת מחיתוך שני ישרים המאונכים לצלעות המתאימות.</div>
+    <div class="answer"><strong>19.</strong> \(G\left(-\frac{2}{3},\frac{8}{3}\right)\); יש להראות ששיפועי \(OG\) ו-\(GH\) שווים.</div>
+    <div class="answer"><strong>20.</strong> נקודת החיתוך עם \(PQ\) מחלקת את הבסיס ביחס \(PR:RQ\).</div>
+    <div class="answer"><strong>21.</strong> יש להשתמש בכך שנקודת אמצע \(BC\) נמצאת על התיכון וש-\(AC\) מאונכת לגובה היוצא מ-\(B\).</div>
+    <div class="answer"><strong>22.</strong> מתקבלת משוואה לינארית ב-\(k\) מתנאי מכפלת שיפועים \(-1\).</div>
+    <div class="answer"><strong>23.</strong> \(H\) מתקבלת מחיתוך \(l\) עם הישר דרך \(P\) ששיפועו \(-\frac12\); \(P'=2H-P\).</div>
+    <div class="answer"><strong>24.</strong> משקפים אחת הנקודות ביחס ל-\(y=-1\), מחברים בקו ישר לנקודה השנייה ומוצאים את החיתוך עם \(y=-1\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מפתח תשובות מקוצר — תרגילים 25–28</h2>
+  <div class="answer-grid">
+    <div class="answer"><strong>25.</strong> כל ארבע הצלעות באורך \(6\sqrt2\); האלכסונים: \(y=1\), \(x=2\); שטח \(=72\).</div>
+    <div class="answer"><strong>26.</strong> צלעות סמוכות מאונכות וצלעות נגדיות מקבילות; המרכז הוא אמצע כל אחד מן האלכסונים.</div>
+    <div class="answer"><strong>27.</strong> \(BC:6x+5y-56=0\); הגובה הוא \(\frac{|6(-2)+5(2)-56|}{\sqrt{61}}=\frac{58}{\sqrt{61}}\).</div>
+    <div class="answer"><strong>28.</strong> הנקודה הקבועה מתקבלת מהשוואת מקדמי \(t\); את המקסימום מוצאים על ידי מקסום ריבוע המרחק כפונקציה של \(t\).</div>
+  </div>
+  <div class="warning"><strong>למורה:</strong> מומלץ להשתמש במפתח זה לבדיקה מהירה בלבד ולשמור פתרונות מלאים למסמך נפרד.</div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof JXG === 'undefined') {
+    console.error('JSXGraph failed to load');
+    return;
+  }
+
+  // Render all JSXGraph text with MathJax.
+  JXG.Options.text.useMathJax = true;
+  JXG.Options.point.size = 2;
+
+  const opts = {
+    axis: true,
+    boundingbox: [-8, 11, 11, -8],
+    keepaspectratio: true,
+    showNavigation: false,
+    showCopyright: false,
+    pan: { enabled: false },
+    zoom: { enabled: false },
+    defaultAxes: {
+      x: { name: '\\(x\\)', withLabel: true, ticks: { minorTicks: 0 } },
+      y: { name: '\\(y\\)', withLabel: true, ticks: { minorTicks: 0 } }
+    }
+  };
+
+  const b1 = JXG.JSXGraph.initBoard('board1', opts);
+  const A = b1.create('point', [-2,6], {name:'\\(A\\)', fixed:true, size:2});
+  const B = b1.create('point', [4,-2], {name:'\\(B\\)', fixed:true, size:2});
+  const C = b1.create('point', [8,4], {name:'\\(C\\)', fixed:true, size:2});
+  b1.create('polygon', [A,B,C], {fixed:true, fillOpacity:0.08, borders:{fixed:true}});
+  const mAB = b1.create('midpoint',[A,B],{name:'\\(M_1\\)',fixed:true,size:2});
+  const mBC = b1.create('midpoint',[B,C],{name:'\\(M_2\\)',fixed:true,size:2});
+  b1.create('perpendicular',[b1.create('line',[A,B],{visible:false}),mAB],{dash:2,fixed:true});
+  b1.create('perpendicular',[b1.create('line',[B,C],{visible:false}),mBC],{dash:2,fixed:true});
+
+  const b2 = JXG.JSXGraph.initBoard('board2', opts);
+  const P = b2.create('point',[7,1],{name:'\\(P\\)',fixed:true,size:2});
+  const l = b2.create('line',[[0,-3], [2,1]],{name:'\\(l\\)',withLabel:true,fixed:true});
+  const H = b2.create('perpendicularpoint',[P,l],{name:'\\(H\\)',fixed:true,size:2});
+  b2.create('segment',[P,H],{dash:2,fixed:true});
+  const P2 = b2.create('point',[
+    () => 2*H.X()-P.X(),
+    () => 2*H.Y()-P.Y()
+  ],{name:"\\(P'\\)",fixed:true,size:2});
+  b2.create('segment',[H,P2],{dash:2,fixed:true});
+});
+</script>
+</body>
+</html>
