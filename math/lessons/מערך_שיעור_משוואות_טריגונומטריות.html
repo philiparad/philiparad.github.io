@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מערך שיעור כולל – פתרון משוואות טריגונומטריות</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+  <style>
+    :root{
+      --ink:#1f2937;
+      --muted:#64748b;
+      --line:#cbd5e1;
+      --soft:#f8fafc;
+      --blue:#e0f2fe;
+      --blue-dark:#0369a1;
+      --green:#dcfce7;
+      --green-dark:#166534;
+      --amber:#fef3c7;
+      --amber-dark:#92400e;
+      --rose:#ffe4e6;
+      --rose-dark:#9f1239;
+      --violet:#ede9fe;
+      --violet-dark:#5b21b6;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ margin:0; padding:0; background:#e5e7eb; color:var(--ink); }
+    body{ font-family: Arial, "Noto Sans Hebrew", "Segoe UI", sans-serif; line-height:1.55; }
+
+    .page{
+      width:210mm;
+      min-height:297mm;
+      margin:10mm auto;
+      padding:13mm 14mm 14mm 14mm;
+      background:white;
+      box-shadow:0 4px 18px rgba(15,23,42,.14);
+      position:relative;
+      break-after:page;
+      page-break-after:always;
+    }
+    .page:last-child{ break-after:auto; page-break-after:auto; }
+
+    @page{ size:A4; margin:0; }
+    @media print{
+      html, body{ background:white; }
+      .page{ margin:0; box-shadow:none; width:210mm; min-height:297mm; }
+      .no-print{ display:none; }
+      a{ color:inherit; text-decoration:none; }
+    }
+
+    h1,h2,h3{ margin:0 0 8px 0; line-height:1.2; }
+    h1{ font-size:31px; color:#0f172a; letter-spacing:-.3px; }
+    h2{ font-size:23px; color:#0f172a; border-bottom:2px solid #e2e8f0; padding-bottom:6px; margin-top:2px; }
+    h3{ font-size:18px; color:#1e3a8a; margin-top:12px; }
+    p{ margin:6px 0; }
+    ul,ol{ margin:6px 0 10px 0; padding-right:22px; }
+    li{ margin:3px 0; }
+    .ltr{ direction:ltr; text-align:left; unicode-bidi:isolate; }
+    .center{ text-align:center; }
+    .small{ font-size:12.5px; color:var(--muted); }
+    .tight{ line-height:1.34; }
+    .header-line{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .tag{ display:inline-block; border-radius:999px; padding:3px 10px; font-weight:700; font-size:12px; background:#eef2ff; color:#3730a3; }
+    .lesson-title{ display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
+    .badge{
+      width:76px; height:76px; border-radius:22px; background:linear-gradient(135deg,#dbeafe,#f0f9ff);
+      display:flex; align-items:center; justify-content:center; font-size:36px; color:#0369a1; font-weight:bold;
+      border:1px solid #bae6fd;
+    }
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .card{
+      border:1px solid var(--line); background:var(--soft); border-radius:14px; padding:10px 12px; margin:8px 0;
+    }
+    .card.blue{ background:var(--blue); border-color:#7dd3fc; }
+    .card.green{ background:var(--green); border-color:#86efac; }
+    .card.amber{ background:var(--amber); border-color:#fcd34d; }
+    .card.rose{ background:var(--rose); border-color:#fecdd3; }
+    .card.violet{ background:var(--violet); border-color:#c4b5fd; }
+    .card h3{ margin-top:0; }
+    .step{
+      display:flex; gap:10px; align-items:flex-start; margin:8px 0; padding:8px 10px; border:1px solid #e2e8f0; border-radius:12px; background:#fff;
+    }
+    .num{
+      min-width:30px; height:30px; border-radius:9px; background:#0ea5e9; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold;
+      direction:ltr;
+    }
+    table{ width:100%; border-collapse:collapse; margin:8px 0 12px 0; table-layout:fixed; }
+    th,td{ border:1px solid #cbd5e1; padding:7px 8px; vertical-align:top; }
+    th{ background:#f1f5f9; color:#0f172a; font-weight:bold; }
+    td.math, th.math{ direction:ltr; text-align:center; font-size:15px; }
+    .formula{
+      direction:ltr; text-align:center; background:#fff; border:1px solid #dbeafe; border-radius:12px; padding:8px 10px; margin:6px 0;
+    }
+    .formula.smallf{ font-size:13.5px; }
+    .example{
+      background:#f8fafc; border-radius:12px; padding:9px 12px; margin:10px 0;
+    }
+    .example .title{ font-weight:bold; color:#075985; margin-bottom:4px; }
+    .answer{ background:#f0fdf4; }
+    .warning{ background:#fff1f2; border-radius:12px; padding:9px 12px; margin:10px 0; }
+    .teacher{ background:#f5f3ff; border-radius:12px; padding:9px 12px; margin:10px 0; }
+    .jsxbox{ width:100%; height:190px; border:1px solid #cbd5e1; border-radius:12px; background:white; margin:6px 0 12px; }
+    .jsxbox.tall{ height:235px; }
+    .mini{ font-size:13px; }
+    .footer{ position:absolute; bottom:6mm; left:14mm; right:14mm; display:flex; justify-content:space-between; color:#94a3b8; font-size:11px; border-top:1px solid #e2e8f0; padding-top:4px; }
+    .pill-list span{ display:inline-block; background:#f1f5f9; border:1px solid #cbd5e1; padding:4px 8px; border-radius:999px; margin:3px; font-size:13px; }
+    .two-col-list{ columns:2; column-gap:28px; }
+    .avoid-break{ break-inside:avoid; page-break-inside:avoid; }
+  </style>
+</head>
+<body>
+
+<section class="page">
+  <div class="lesson-title">
+    <div>
+      <div class="tag">מערך שיעור כולל</div>
+      <h1>פתרון משוואות טריגונומטריות</h1>
+    </div>
+    <div class="badge">Trig</div>
+  </div>
+<div style="height:20px;"></div>
+  <h2>מטרות השיעור</h2>
+  <ol>
+    <li>להבין שמשוואה טריגונומטרית נפתרת תחילה כמשוואה בסיסית, ולאחר מכן מוסיפים מחזוריות.</li>
+    <li>לזהות האם נכון לפתור בעזרת זהות, פירוק לגורמים, הצבה, מעבר מסכום למכפלה, או משוואה הומוגנית.</li>
+    <li>להבחין בין פתרון במעלות לבין פתרון ברדיאנים, ולשמור על עקביות מלאה לאורך כל התרגיל.</li>
+    <li>להימנע מחלוקה בביטוי שעלול להתאפס, אלא אם בודקים בנפרד את המקרה שהתבטל.</li>
+  </ol>
+
+<div style="height:30px;"></div>
+  <h2>ידע קודם נדרש</h2>
+  <div class="pill-list">
+    <span>מעגל היחידה</span><span>מחזוריות</span><span>זהויות זוגיות ואי־זוגיות</span><span>זהויות זווית כפולה</span><span>פירוק לגורמים</span><span>נוסחאות כפל מקוצר</span><span>תחום הגדרה</span>
+  </div>
+<div style="height:30px;"></div>
+  <h2>מפת התקדמות מומלצת</h2>
+  <div class="step"><div class="num">1</div><div><b>משוואות בסיסיות:</b> מעבר ישיר לטבלת פתרונות כלליים.</div></div>
+  <div class="step"><div class="num">2</div><div><b>התאמת זוויות:</b> שימוש בזהויות מעגל היחידה, זהויות משלימות וזהויות סכום/הפרש כדי להגיע לאותה פונקציה.</div></div>
+  <div class="step"><div class="num">3</div><div><b>פירוק לגורמים:</b> גורם משותף, הוצאת גורם מאיברי המשוואה, ופירוק לפי קבוצות.</div></div>
+  <div class="step"><div class="num">4</div><div><b>הצבות:</b> הפחתת המשוואה למשוואה אלגברית בפונקציה אחת.</div></div>
+  <div class="step"><div class="num">5</div><div><b>מעבר מסכום למכפלה:</b> כאשר מופיעים סכומי סינוסים/קוסינוסים או מכפלות.</div></div>
+  <div class="step"><div class="num">6</div><div><b>משוואות הומוגניות:</b> חלוקה מושכלת והמרה ל־<span class="ltr">tg</span> או הצבה מתאימה.</div></div>
+  <div class="step"><div class="num">7</div><div><b>השלמות מתקדמות:</b> שיטת זווית עזר כללית, פתרון בתחום נתון, עבודה ברדיאנים ואי־שוויונים.</div></div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 1</span></div>
+</section>
+
+<section class="page">
+  <h2>2. תבנית פתרון - משוואות סינוס</h2>
+
+  <div class="card blue">
+    <h3>הרעיון</h3>
+    <p>במעגל היחידה, <span class="ltr">\(\sin x\)</span> הוא <b>הגובה</b> של הנקודה על המעגל. לכן בדרך כלל ישר אופקי חותך את המעגל בשתי נקודות - שתי זוויות באותו מחזור.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="avoid-break">
+      <h3>מעגל היחידה: \(\sin x=\frac12\)</h3>
+      <div id="unitCircleSinBoard" class="jsxbox"></div>
+      <p class="small">הגובה <span class="ltr">\(y=\frac12\)</span> מתקבל בזוויות <span class="ltr">\(30^\circ\)</span> ו־<span class="ltr">\(150^\circ\)</span>.</p>
+    </div>
+    <div class="avoid-break">
+      <h3>גרף הסינוס</h3>
+      <div id="sinTemplateBoard" class="jsxbox"></div>
+      <p class="small">הישר <span class="ltr">\(y=\frac12\)</span> חותך את הגרף פעמיים במחזור של <span class="ltr">\(360^\circ\)</span>.</p>
+    </div>
+  </div>
+
+  <div class="card green">
+    <h3>תבנית הפתרון</h3>
+    <div class="formula">\[\sin x=\sin\alpha\quad\Rightarrow\quad x=\alpha+360^\circ k\quad\text{or}\quad x=180^\circ-\alpha+360^\circ k\]</div>
+    <p>הענף הראשון חוזר לזווית <span class="ltr">\(\alpha\)</span>. הענף השני הוא הזווית הסימטרית ביחס לציר האנכי: <span class="ltr">\(180^\circ-\alpha\)</span>.</p>
+  </div>
+
+  <div class="example answer">
+    <div class="title">דוגמה</div>
+    <p class="ltr">\[\sin x=\frac12=\sin30^\circ\]</p>
+    <p class="ltr">\[x=30^\circ+360^\circ k\quad\text{or}\quad x=150^\circ+360^\circ k,\qquad k\in\mathbb Z\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 2</span></div>
+</section>
+
+<section class="page">
+  <h2>2א. תבנית פתרון - משוואות קוסינוס</h2>
+
+  <div class="card blue">
+    <h3>הרעיון</h3>
+    <p>במעגל היחידה, <span class="ltr">\(\cos x\)</span> הוא <b>ערך ה־x</b> של הנקודה. ישר אנכי קבוע חותך את המעגל בדרך כלל בשתי נקודות - אחת מעל הציר ואחת מתחתיו.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="avoid-break">
+      <h3>מעגל היחידה: \(\cos x=\frac{\sqrt2}{2}\)</h3>
+      <div id="unitCircleCosBoard" class="jsxbox"></div>
+      <p class="small">אותו ערך אופקי מתקבל בזוויות <span class="ltr">\(45^\circ\)</span> ו־<span class="ltr">\(315^\circ\)</span>, כלומר <span class="ltr">\(\pm45^\circ\)</span>.</p>
+    </div>
+    <div class="avoid-break">
+      <h3>גרף הקוסינוס</h3>
+      <div id="cosTemplateBoard" class="jsxbox"></div>
+      <p class="small">הישר <span class="ltr">\(y=\frac{\sqrt2}{2}\)</span> חותך את הגרף ב־<span class="ltr">\(45^\circ\)</span> וב־<span class="ltr">\(315^\circ\)</span> במחזור אחד.</p>
+    </div>
+  </div>
+
+  <div class="card green">
+    <h3>תבנית הפתרון</h3>
+    <div class="formula">\[\cos x=\cos\alpha\quad\Rightarrow\quad x=\pm\alpha+360^\circ k\]</div>
+    <p>לקוסינוס יש אותו ערך בזוויות <span class="ltr">\(\alpha\)</span> ו־<span class="ltr">\(-\alpha\)</span>. הוספת <span class="ltr">\(360^\circ k\)</span> מחזירה את כל המחזורים.</p>
+  </div>
+
+  <div class="example answer">
+    <div class="title">דוגמה</div>
+    <p class="ltr">\[\cos x=\frac{\sqrt2}{2}=\cos45^\circ\]</p>
+    <p class="ltr">\[x=45^\circ+360^\circ k\quad\text{or}\quad x=-45^\circ+360^\circ k,\qquad k\in\mathbb Z\]</p>
+    <p class="small">אפשר לכתוב את הענף השני גם כ־<span class="ltr">\(x=315^\circ+360^\circ k\)</span>.</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 3</span></div>
+</section>
+
+<section class="page">
+  <h2>2ב. תבנית פתרון - משוואות טנגנס</h2>
+  <p>בטנגנס מתקבלת תבנית שונה: המחזור הוא <span class="ltr">\(180^\circ\)</span>, ולכן שתי הזוויות שמופיעות במעגל היחידה שייכות לאותה משפחת פתרונות.</p>
+
+  <div class="card blue">
+    <h3>הרעיון</h3>
+    <p>במעגל היחידה, <span class="ltr">\(\operatorname{tg}x=\frac{y}{x}\)</span>. כאשר היחס קבוע, הנקודות נמצאות על אותו ישר העובר דרך ראשית הצירים. שתי נקודות נגדיות במעגל מייצגות זוויות שהפרשן <span class="ltr">\(180^\circ\)</span>.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="avoid-break">
+      <h3>מעגל היחידה: \(\operatorname{tg}x=1\)</h3>
+      <div id="unitCircleTanBoard" class="jsxbox"></div>
+      <p class="small">הישר <span class="ltr">\(y=x\)</span> פוגש את המעגל ב־<span class="ltr">\(45^\circ\)</span> וב־<span class="ltr">\(225^\circ\)</span>. ההפרש הוא בדיוק <span class="ltr">\(180^\circ\)</span>.</p>
+    </div>
+    <div class="avoid-break">
+      <h3>גרף הטנגנס</h3>
+      <div id="tanTemplateBoard" class="jsxbox"></div>
+      <p class="small">הישר <span class="ltr">\(y=1\)</span> פוגש כל ענף של גרף הטנגנס פעם אחת, והפתרונות חוזרים כל <span class="ltr">\(180^\circ\)</span>.</p>
+    </div>
+  </div>
+
+  <div class="card green">
+    <h3>תבנית הפתרון</h3>
+    <div class="formula">\[\operatorname{tg}x=\operatorname{tg}\alpha\quad\Rightarrow\quad x=\alpha+180^\circ k\]</div>
+    <p>אין צורך בשני ענפים נפרדים: הזווית <span class="ltr">\(\alpha+180^\circ\)</span> כבר מתקבלת כאשר מגדילים את <span class="ltr">\(k\)</span> ב־1.</p>
+  </div>
+
+  <div class="example answer">
+    <div class="title">דוגמה במעלות</div>
+    <p class="ltr">\[\operatorname{tg}x=1=\operatorname{tg}45^\circ\]</p>
+    <p class="ltr">\[x=45^\circ+180^\circ k,\qquad k\in\mathbb Z\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 4</span></div>
+</section>
+
+<section class="page">
+  <h2>1. טבלת פתרונות בסיסיים</h2>
+  <p>בכל הפתרונות הבאים הפרמטר הוא מספר שלם. יש לכתוב זאת במפורש בסיום הפתרון.</p>
+  <div class="formula">\[k\in\mathbb{Z}\]</div>
+<div style="height:20px;"></div>
+  <table>
+    <thead>
+      <tr>
+        <th>סוג המשוואה</th>
+        <th class="math">פתרון במעלות</th>
+        <th class="math">פתרון ברדיאנים</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>משוואת סינוס כללית</td>
+        <td class="math">\(x=\alpha+360k\) או \(x=180-\alpha+360k\)</td>
+        <td class="math">\(x=\alpha+2\pi k\) או \(x=\pi-\alpha+2\pi k\)</td>
+      </tr>
+      <tr>
+        <td>משוואת קוסינוס כללית</td>
+        <td class="math">\(x=\pm\alpha+360k\)</td>
+        <td class="math">\(x=\pm\alpha+2\pi k\)</td>
+      </tr>
+      <tr>
+        <td>משוואת טנגנס כללית</td>
+        <td class="math">\(x=\alpha+180k\)</td>
+        <td class="math">\(x=\alpha+\pi k\)</td>
+      </tr>
+    </tbody>
+  </table>
+<div style="height:20px;"></div>
+  <div class="grid-2">
+    <div>
+      <h3>ערכים מיוחדים של סינוס</h3>
+      <table class="mini">
+        <tbody>
+          <tr><td class="math">\(\sin x=0\)</td><td class="math">\(x=180k\)</td><td style="zoom:.85" class="math">\(x=\pi k\)</td></tr>
+          <tr><td class="math">\(\sin x=1\)</td><td style="zoom:.85" class="math">\(x=90+360k\)</td><td style="zoom:.85" class="math">\(x=\frac{\pi}{2}+2\pi k\)</td></tr>
+          <tr><td class="math">\(\sin x=-1\)</td><td style="zoom:.85" class="math">\(x=-90+360k\)</td><td style="zoom:.85" class="math">\(x=-\frac{\pi}{2}+2\pi k\)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>ערכים מיוחדים של קוסינוס</h3>
+      <table class="mini">
+        <tbody>
+          <tr><td class="math">\(\cos x=0\)</td><td style="zoom:.85" class="math">\(x=90+180k\)</td><td style="zoom:.85" class="math">\(x=\frac{\pi}{2}+\pi k\)</td></tr>
+          <tr><td class="math">\(\cos x=1\)</td><td style="zoom:.85" class="math">\(x=360k\)</td><td style="zoom:.85" class="math">\(x=2\pi k\)</td></tr>
+          <tr><td class="math">\(\cos x=-1\)</td><td style="zoom:.85" class="math">\(x=180+360k\)</td><td style="zoom:.85" class="math">\(x=\pi+2\pi k\)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="warning">
+     אין לערבב מעלות ורדיאנים באותו פתרון. אם התחלתם במעלות, כל שלבי הפתרון יהיו במעלות. אם התחלתם ברדיאנים, כל שלבי הפתרון יהיו ברדיאנים.
+  </div>
+<div style="height:20px;"></div>
+  <h3>תרגול פתיחה מהיר</h3>
+  <div class="grid-2">
+    <div class="card"><span class="ltr">1.</span> פתרו: <span class="ltr">\(\sin x=-\frac{\sqrt3}{2}\)</span></div>
+    <div class="card"><span class="ltr">2.</span> פתרו: <span class="ltr">\(\cos x=\frac12\)</span></div>
+    <div class="card"><span class="ltr">3.</span> פתרו: <span class="ltr">\(\operatorname{tg}x=\sqrt3\)</span></div>
+    <div class="card"><span class="ltr">4.</span> פתרו: <span class="ltr">\(\cos 2x=0\)</span></div>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 5</span></div>
+</section>
+
+<section class="page">
+  <h2>3. משוואות בסיסיות עם ביטוי פנימי</h2>
+  <p>כאשר בתוך הפונקציה מופיע ביטוי כמו <span class="ltr">\(3x+30\)</span>, פותרים כאילו הביטוי כולו הוא הזווית, ורק בסוף מבודדים את <span class="ltr">\(x\)</span>.</p>
+
+  <div class="step"><div class="num">1</div><div>זיהוי הפונקציה והערך.</div></div>
+  <div class="step"><div class="num">2</div><div>כתיבת פתרונות כלליים לביטוי הפנימי.</div></div>
+  <div class="step"><div class="num">3</div><div>פתיחת כל ענף פתרון בנפרד.</div></div>
+  <div class="step"><div class="num">4</div><div>בידוד <span class="ltr">\(x\)</span> ושמירה על הפרמטר <span class="ltr">\(k\)</span>.</div></div>
+
+  <div class="example">
+    <div class="title">דוגמה 1: סינוס שלילי</div>
+    <p class="ltr">\[\sin x=-\frac{\sqrt3}{2}\]</p>
+    <p>נזהה את הזווית המתאימה:</p>
+    <p class="ltr">\[\sin x=\sin(-60)\]</p>
+    <p>לכן:</p>
+    <p class="ltr">\[x=-60+360k\quad \text{or}\quad x=240+360k\]</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 2: קוסינוס עם ביטוי פנימי</div>
+    <p class="ltr">\[\cos(3x+30)=\frac{\sqrt2}{2}\]</p>
+    <p>נכתוב:</p>
+    <p class="ltr">\[\cos(3x+30)=\cos45\]</p>
+    <p>נקבל שני ענפים:</p>
+    <div>
+      <div class="formula smallf">\[3x+30=45+360k\\3x=15+360k\\x=5+120k\]</div>
+      <div class="formula smallf">\[3x+30=-45+360k\\3x=-75+360k\\x=-25+120k\]</div>
+    </div>
+  </div>
+
+  <h3>משימות לתרגול מודרך</h3>
+  <div class="grid-2">
+    <div class="card">פתרו: <span class="ltr">\(\sin(2x-40)=\frac12\)</span></div>
+    <div class="card">פתרו: <span class="ltr">\(\cos(4x+20)=-\frac12\)</span></div>
+    <div class="card">פתרו: <span class="ltr">\(\operatorname{tg}(3x-15)=1\)</span></div>
+    <div class="card">פתרו: <span class="ltr">\(\sin(5x)=0\)</span></div>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 6</span></div>
+</section>
+
+<section class="page">
+  <h2>4. שימוש בזהויות כדי להגיע למשוואה בסיסית</h2>
+  <p>לפעמים המשוואה אינה נראית בסיסית, אבל זהות טריגונומטרית אחת הופכת אותה למשוואה שנמצאת בטבלה. לאחר דוגמאות היסוד מופיע פרק 4א, שבו מרחיבים את הזהויות כחלק מרצף הלמידה.</p>
+
+  <div class="grid-2">
+    <div class="card blue">
+      <h3>זהויות שינוי סימן</h3>
+      <div class="formula smallf">\[\sin(-\alpha)=-\sin\alpha\]</div>
+      <div class="formula smallf">\[\cos(180-\alpha)=-\cos\alpha\]</div>
+      <div class="formula smallf">\[\operatorname{tg}(-\alpha)=-\operatorname{tg}\alpha\]</div>
+    </div>
+    <div class="card green">
+      <h3>זהויות משלימות</h3>
+      <div class="formula smallf">\[\sin\alpha=\cos(90-\alpha)\]</div>
+      <div class="formula smallf">\[\cos\alpha=\sin(90-\alpha)\]</div>
+      <div class="formula smallf">\[\operatorname{tg}\alpha=\frac{\sin\alpha}{\cos\alpha}\]</div>
+      <div class="formula smallf">\[\operatorname{tg}(90-\alpha)=\frac{\cos\alpha}{\sin\alpha}\]</div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 1: העברת אגפים וזהות אי־זוגית</div>
+    <p class="ltr">\[\operatorname{tg}(x-30)+\operatorname{tg}(x+60)=0\]</p>
+    <p>מעבירים אגף ומחליפים סימן בעזרת זהות:</p>
+    <p class="ltr">\[\operatorname{tg}(x-30)=-\operatorname{tg}(x+60)=\operatorname{tg}(-x-60)\]</p>
+    <p>כעת משתמשים במחזור הטנגנס:</p>
+    <p class="ltr">\[x-30=-x-60+180k\]</p>
+    <p class="ltr">\[2x=-30+180k\quad\Rightarrow\quad x=-15+90k\]</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 2: מעבר לקוסינוס ואז לסינוס</div>
+    <p class="ltr">\[\sin x+\cos2x=0\]</p>
+    <p class="ltr">\[\sin x=-\cos2x=\cos(180-2x)\]</p>
+    <p class="ltr">\[\cos(180-2x)=\sin(2x-90)\]</p>
+    <p>לכן:</p>
+    <p class="ltr">\[\sin x=\sin(2x-90)\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[x=2x-90+360k\\x=90+360k\]</div>
+      <div class="formula smallf">\[x=180-(2x-90)+360k\\3x=270+360k\\x=90+120k\]</div>
+    </div>
+    <p class="small">הענף הראשון כלול בענף השני, ולכן התשובה הסופית היא <span class="ltr">\(x=90+120k\)</span>.</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 7</span></div>
+</section>
+
+<section class="page">
+  <h2>4א. זהויות מעגל היחידה, מחזוריות וסכום/הפרש זוויות</h2>
+  <div>
+    <div class="card blue">
+      <h3>זהויות סכום והפרש זוויות</h3>
+      <div class="formula smallf">\[\sin(\alpha\pm\beta)=\sin\alpha\cos\beta\pm\cos\alpha\sin\beta\]</div>
+      <div class="formula smallf">\[\cos(\alpha\pm\beta)=\cos\alpha\cos\beta\mp\sin\alpha\sin\beta\]</div>
+      <div class="formula smallf">\[\operatorname{tg}(\alpha\pm\beta)=\frac{\operatorname{tg}\alpha\pm\operatorname{tg}\beta}{1\mp\operatorname{tg}\alpha\operatorname{tg}\beta}\]</div>
+    </div>
+    <div class="card green">
+      <h3>זהויות מעגל היחידה</h3>
+      <div class="formula smallf">\[\sin(180-\alpha)=\sin\alpha,\quad \sin(180+\alpha)=-\sin\alpha,\quad \sin(-\alpha)=-\sin\alpha\]</div>
+      <div class="formula smallf">\[\cos(180-\alpha)=-\cos\alpha,\quad \cos(180+\alpha)=-\cos\alpha,\quad \cos(-\alpha)=\cos\alpha\]</div>
+      <div class="formula smallf">\[\operatorname{tg}(180-\alpha)=-\operatorname{tg}\alpha,\quad \operatorname{tg}(180+\alpha)=\operatorname{tg}\alpha,\quad \operatorname{tg}(-\alpha)=-\operatorname{tg}\alpha\]</div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <h3>מחזוריות לזוויות גדולות</h3>
+    <div class="grid-2">
+      <div class="formula smallf">\[\sin(\alpha+360k)=\sin\alpha,\quad \cos(\alpha+360k)=\cos\alpha\]</div>
+      <div class="formula smallf">\[\operatorname{tg}(\alpha+180k)=\operatorname{tg}\alpha\]</div>
+    </div>
+    <p class="small">בכל הנוסחאות: <span class="ltr">\(k\in\mathbb{Z}\)</span>. השימוש המרכזי הוא הפיכת זוויות לא נוחות לזוויות מוכרות ואז פתרון בעזרת הטבלה הבסיסית.</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה: שימוש בזהות סכום והפרש זוויות</div>
+    <p class="ltr">\[2\sin x=\sin(60-x)\]</p>
+    <p class="ltr">\[2\sin x=\sin60\cos x-\cos60\sin x\]</p>
+    <p class="ltr">\[2\sin x=\frac{\sqrt3}{2}\cos x-\frac12\sin x\]</p>
+    <p class="ltr">\[5\sin x=\sqrt3\cos x\]</p>
+    <p class="ltr">\[\operatorname{tg}x=\frac{\sqrt3}{5}\quad\Rightarrow\quad x\approx19.11+180k\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 8</span></div>
+</section>
+
+<section class="page">
+  <h2>4א. דוגמאות יישום נוספות</h2>
+  <p>בכל דוגמה נזהה תחילה איזו זהות מקצרת את הדרך, ורק לאחר מכן נעבור לתבנית הפתרון הבסיסית של סינוס, קוסינוס או טנגנס.</p>
+
+  <div class="grid-2_">
+<div style="height:20px;"></div>
+    <div class="example avoid-break">
+      <div class="title">דוגמה 1: זהות מעגל היחידה</div>
+      <p class="ltr">\[\cos(180^\circ-x)=\frac12\]</p>
+      <p>נשתמש בזהות:</p>
+      <p class="ltr">\[\cos(180^\circ-x)=-\cos x\]</p>
+      <p class="ltr">\[-\cos x=\frac12\quad\Rightarrow\quad \cos x=-\frac12\]</p>
+      <p class="ltr">\[x=120^\circ+360^\circ k\quad\text{or}\quad x=240^\circ+360^\circ k\]</p>
+    </div>
+<div style="height:20px;"></div>
+    <div class="example avoid-break">
+      <div class="title">דוגמה 2: מחזוריות של סינוס</div>
+      <p class="ltr">\[\sin(x+750^\circ)=\frac12\]</p>
+      <p>נפריד מספר שלם של מחזורים:</p>
+      <p class="ltr">\[750^\circ=720^\circ+30^\circ\]</p>
+      <p class="ltr">\[\sin(x+750^\circ)=\sin(x+30^\circ)\]</p>
+      <p class="ltr">\[x+30^\circ=30^\circ+360^\circ k\quad\text{or}\quad x+30^\circ=150^\circ+360^\circ k\]</p>
+      <p class="ltr">\[x=360^\circ k\quad\text{or}\quad x=120^\circ+360^\circ k\]</p>
+    </div>
+  </div>
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 9</span></div>
+</section>
+
+<section class="page">
+  <h2>4א. דוגמאות יישום נוספות</h2>
+  <p>בכל דוגמה נזהה תחילה איזו זהות מקצרת את הדרך, ורק לאחר מכן נעבור לתבנית הפתרון הבסיסית של סינוס, קוסינוס או טנגנס.</p>
+
+  <div class="grid-2_">
+<div style="height:20px;"></div>
+    <div class="example avoid-break">
+      <div class="title">דוגמה 3: נוסחת סכום זוויות</div>
+      <p class="ltr">\[\sin(x+30^\circ)=\cos x\]</p>
+      <p class="ltr">\[\sin x\cos30^\circ+\cos x\sin30^\circ=\cos x\]</p>
+      <p class="ltr">\[\frac{\sqrt3}{2}\sin x+\frac12\cos x=\cos x\]</p>
+      <p class="ltr">\[\sqrt3\sin x=\cos x\]</p>
+      <p class="small">הערך <span class="ltr">\(\cos x=0\)</span> אינו פותר את המשוואה המקורית, ולכן מותר לחלק ב־<span class="ltr">\(\cos x\)</span>.</p>
+      <p class="ltr">\[\operatorname{tg}x=\frac1{\sqrt3}\quad\Rightarrow\quad x=30^\circ+180^\circ k\]</p>
+    </div>
+<div style="height:20px;"></div>
+    <div class="example avoid-break">
+      <div class="title">דוגמה 4: נוסחת הפרש זוויות</div>
+      <p class="ltr">\[\cos(x-45^\circ)=\sqrt2\sin x\]</p>
+      <p class="ltr">\[\cos x\cos45^\circ+\sin x\sin45^\circ=\sqrt2\sin x\]</p>
+      <p class="ltr">\[\frac{\sqrt2}{2}\cos x+\frac{\sqrt2}{2}\sin x=\sqrt2\sin x\]</p>
+      <p class="ltr">\[\cos x=\sin x\]</p>
+      <p class="ltr">\[\operatorname{tg}x=1\quad\Rightarrow\quad x=45^\circ+180^\circ k\]</p>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <h3>איך לבחור את הזהות המתאימה?</h3>
+    <table class="mini">
+      <tbody>
+        <tr><td>זווית מהצורה <span class="ltr">\(180^\circ\pm\alpha\)</span> או <span class="ltr">\(-\alpha\)</span></td><td>חפשו זהות של מעגל היחידה.</td></tr>
+        <tr><td>זווית גדולה שיש בה תוספת של <span class="ltr">\(360^\circ\)</span> או <span class="ltr">\(180^\circ\)</span></td><td>צמצמו תחילה בעזרת מחזוריות.</td></tr>
+        <tr><td>מופיע ביטוי מהצורה <span class="ltr">\(x\pm\alpha\)</span></td><td>בדקו אם נוסחת סכום/הפרש יוצרת משוואה פשוטה יותר.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 9</span></div>
+</section>
+
+<section class="page">
+  <h2>5. פירוק לגורמים</h2>
+  <p>כאשר המשוואה היא מכפלה השווה לאפס, כל גורם שווה לאפס בנפרד. זהו אחד הכלים המרכזיים בפתרון משוואות טריגונומטריות.</p>
+
+  <div class="formula">\[A\cdot B=0\quad\Rightarrow\quad A=0\quad \text{or}\quad B=0\]</div>
+
+  <div class="example">
+    <div class="title">דוגמה 1: הוצאת גורם משותף מכל איברי המשוואה</div>
+    <p class="ltr">\[\sin2x=\sqrt3\sin x\]</p>
+    <p class="ltr">\[2\sin x\cos x=\sqrt3\sin x\]</p>
+    <p class="ltr">\[2\sin x\cos x-\sqrt3\sin x=0\]</p>
+    <p class="ltr">\[\sin x(2\cos x-\sqrt3)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\sin x=0\qquad x=180k\]</div>
+	<div>
+	  <div class="formula smallf">\[2\cos x-\sqrt3=0\]</div>
+      	  <div class="formula smallf">\[cos x=\frac{\sqrt3}{2}\qquad x=\pm30+360k\]</div>
+        </div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 2: הוצאת גורם משותף רק מחלק מאיברי המשוואה</div>
+    <p class="ltr">\[2\cos^3x-\cos x=\cos2x\]</p>
+    <p class="ltr">\[\cos x(2\cos^2x-1)=\cos2x\]</p>
+    <p class="ltr">\[\cos x\cdot\cos2x=\cos2x\]</p>
+    <p class="ltr">\[\cos2x(\cos x-1)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\cos2x=0\qquad 2x=90+180k\qquad x=45+90k\]</div>
+      <div class="formula smallf">\[\cos x-1=0\qquad x=360k\]</div>
+    </div>
+  </div>
+
+  <div class="warning">
+    <b>אזהרה חשובה:</b> אל תחלקו ב־<span class="ltr">\(\sin x\)</span>, <span class="ltr">\(\cos x\)</span>, או כל ביטוי טריגונומטרי בלי לבדוק האם הוא יכול להיות אפס. חלוקה כזו עלולה למחוק פתרונות.
+  </div>
+
+  <h3>בדיקת הבנה</h3>
+  <p>מה היה קורה בדוגמה 1 אילו חילקנו את שני האגפים ב־<span class="ltr">\(\sin x\)</span>? איזה ענף פתרון היה נעלם?</p>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 10</span></div>
+</section>
+
+<section class="page">
+  <h2>6. פירוק לפי קבוצות ונוסחאות כפל מקוצר</h2>
+  <p>כאשר במשוואה יש ארבעה איברים, לעיתים כדאי להעביר הכול לאגף אחד, לחלק לזוגות, ולהוציא גורם משותף מכל זוג.</p>
+
+  <div class="example">
+    <div class="title">דוגמה: פירוק לפי קבוצות</div>
+    <p class="ltr">\[\sin^2x-\sin x\cos x=\sin x-\cos x\]</p>
+    <p>מעבירים הכול לאגף אחד ומקבצים:</p>
+    <p class="ltr">\[\sin^2x-\sin x\cos x-\sin x+\cos x=0\]</p>
+    <p class="ltr">\[\sin x(\sin x-\cos x)-1(\sin x-\cos x)=0\]</p>
+    <p class="ltr">\[(\sin x-\cos x)(\sin x-1)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\sin x-\cos x=0\\x=45+180k\]</div>
+      <div class="formula smallf">\[\sin x-1=0\\x=90+360k\]</div>
+    </div>
+  </div>
+
+  <h3>נוסחאות פירוק שכדאי להזכיר לפני התרגול</h3>
+  <table>
+    <thead><tr><th class="math">ביטוי</th><th class="math">פירוק או ייצוג שימושי</th><th>הערה הוראתית</th></tr></thead>
+    <tbody>
+      <tr><td class="math">\(a^2-b^2\)</td><td class="math">\((a+b)(a-b)\)</td><td>שימושי מאוד בטריגונומטריה.</td></tr>
+      <tr><td class="math">\(a^3-b^3\)</td><td class="math">\((a-b)(a^2+ab+b^2)\)</td><td>רלוונטי לתרגילים מתקדמים.</td></tr>
+      <tr><td class="math">\(a^3+b^3\)</td><td class="math">\((a+b)(a^2-ab+b^2)\)</td><td>מתאים לפירוק לאחר הצבה.</td></tr>
+      <tr><td class="math">\(a^4-b^4\)</td><td class="math">\((a^2+b^2)(a^2-b^2)\)</td><td>רצוי לפרק בשלבים.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example">
+    <div class="title">דוגמה: שימוש בנוסחת הפרש ריבועים</div>
+    <p class="ltr">\[\sin^4x-\cos^4x=1\]</p>
+    <p class="ltr">\[(\sin^2x-\cos^2x)(\sin^2x+\cos^2x)=1\]</p>
+    <p class="ltr">\[\sin^2x+\cos^2x=1\]</p>
+    <p class="ltr">\[\sin^2x-\cos^2x=1\]</p>
+    <p class="ltr">\[-\cos2x=1\quad\Rightarrow\quad \cos2x=-1\]</p>
+    <p class="ltr">\[2x=180+360k\quad\Rightarrow\quad x=90+180k\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 11</span></div>
+</section>
+
+<section class="page">
+  <h2>7. הצבה: להפוך טריגונומטריה לאלגברה</h2>
+  <p>כאשר מופיעה פונקציה אחת בלבד, או שניתן להפוך את כל המשוואה לפונקציה אחת, כדאי להציב משתנה עזר.</p>
+
+  <div class="step"><div class="num">1</div><div>מזהים את הפונקציה החזקה ביותר או הפונקציה המרכזית.</div></div>
+  <div class="step"><div class="num">2</div><div>מציבים משתנה עזר, למשל <span class="ltr">\(a=\sin x\)</span> או <span class="ltr">\(a=\operatorname{tg}x\)</span>.</div></div>
+  <div class="step"><div class="num">3</div><div>פותרים משוואה אלגברית.</div></div>
+  <div class="step"><div class="num">4</div><div>חוזרים לפונקציה הטריגונומטרית ובודקים התאמה לתחום הערכים.</div></div>
+
+  <div class="example">
+    <div class="title">דוגמה 1: משוואת סינוס וקוסינוס שהופכת לפונקציה אחת</div>
+    <p class="ltr">\[2\cos^2x+3\sin x-3=0\]</p>
+    <p>נשתמש בזהות:</p>
+    <p class="ltr">\[\cos^2x=1-\sin^2x\]</p>
+    <p class="ltr">\[2(1-\sin^2x)+3\sin x-3=0\]</p>
+    <p class="ltr">\[2\sin^2x-3\sin x+1=0\]</p>
+    <p>נציב:</p>
+    <p class="ltr">\[a=\sin x\]</p>
+    <p class="ltr">\[2a^2-3a+1=0\]</p>
+    <div class="grid-2">
+       <div>
+         <div class="formula smallf">\[a=1\]</div>
+         <div class="formula smallf">\[sin x=1\]</div>
+         <div class="formula smallf">\[x=90+360k\]</div>
+       </div>
+       <div>
+         <div class="formula smallf">\[a=\frac12\]</div>
+         <div class="formula smallf">\[sin x=\frac12\]</div>
+         <div class="formula smallf">\[x=30+360k\quad\text{or}\quad x=150+360k\]</div>
+       </div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 2: משוואת טנגנס וסינוס</div>
+    <p class="ltr">\[\operatorname{tg}^2x-\sin^2x=\frac12\]</p>
+    <p>נשתמש בייצוג:</p>
+    <p class="ltr">\[\operatorname{tg}^2x=\frac{\sin^2x}{\cos^2x}=\frac{\sin^2x}{1-\sin^2x}\]</p>
+    <p>נציב:</p>
+    <p class="ltr">\[a=\sin^2x\]</p>
+    <p class="ltr">\[\frac{a}{1-a}-a=\frac12\]</p>
+    <p class="ltr">\[2a^2+a-1=0\]</p>
+    <p>מאחר ש־<span class="ltr">\(0\le a\lt1\)</span>, הפתרון המתאים הוא <span class="ltr">\(a=\frac12\)</span>.</p>
+    <p class="ltr">\[\sin^2x=\frac12\quad\Rightarrow\quad x=45+90k\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 12</span></div>
+</section>
+
+<section class="page">
+  <h2>8. משוואות טנגנס</h2>
+  <p>במשוואות הכוללות <span class="ltr">tg</span>, המטרה היא לרוב להגיע לפונקציה אחת בלבד. חשוב לבדוק תחום הגדרה כאשר מחלקים או משתמשים בנוסחאות מנה.</p>
+
+  <div class="grid-2">
+    <div class="card blue">
+      <h3>זהות מרכזית</h3>
+      <div class="formula">\[\operatorname{tg}x=\frac{\sin x}{\cos x}\]</div>
+      <div class="formula">\[1+\operatorname{tg}^2x=\frac{1}{\cos^2x}\]</div>
+    </div>
+    <div class="card green">
+      <h3>זווית כפולה</h3>
+      <div class="formula">\[\operatorname{tg}2x=\frac{2\operatorname{tg}x}{1-\operatorname{tg}^2x}\]</div>
+    </div>
+  </div>
+
+  <div id="tanBoard" class="jsxbox"></div>
+
+  <div class="example">
+    <div class="title">דוגמה: שימוש בזהות של טנגנס כפול</div>
+    <p class="ltr">\[\operatorname{tg}^2x\cdot\operatorname{tg}2x+2\operatorname{tg}x=\sqrt3\]</p>
+    <p>נציב:</p>
+    <p class="ltr">\[a=\operatorname{tg}x\]</p>
+    <p class="ltr">\[\operatorname{tg}2x=\frac{2a}{1-a^2}\]</p>
+    <p class="ltr">\[a^2\cdot\frac{2a}{1-a^2}+2a=\sqrt3\]</p>
+    <p>לאחר כפל וסידור מתקבלת משוואה אלגברית:</p>
+    <p class="ltr">\[\sqrt3a^2+2a-\sqrt3=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[a=\frac1{\sqrt3}\qquad\operatorname{tg}x=\frac1{\sqrt3}\qquad x=30+180k\]</div>
+      <div class="formula smallf">\[a=-\sqrt3\qquad\operatorname{tg}x=-\sqrt3\qquad x=-60+180k\]</div>
+    </div>
+  </div>
+
+  <div class="warning">
+    <b>תחום הגדרה:</b> כאשר משתמשים ב־<span class="ltr">\(\operatorname{tg}x\)</span>, חייבים לוודא ש־<span class="ltr">\(\cos x\ne0\)</span>.
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 13</span></div>
+</section>
+
+<section class="page">
+  <h2>9. מעבר מסכום למכפלה וממכפלה לסכום</h2>
+  <p>כאשר במשוואה מופיע סכום של סינוסים או קוסינוסים עם זוויות שונות, כדאי להפוך את הסכום למכפלה. לאחר מכן נפתור מכפלה השווה לאפס.</p>
+
+  <table>
+    <thead><tr><th>מצב במשוואה</th><th class="math">זהות שימושית</th></tr></thead>
+<tbody>
+  <tr><td>סכום סינוסים</td><td class="math">\(\sin\alpha+\sin\beta=2\sin\frac{\alpha+\beta}{2}\cos\frac{\alpha-\beta}{2}\)</td></tr>
+  <tr><td>סכום קוסינוסים</td><td class="math">\(\cos\alpha+\cos\beta=2\cos\frac{\alpha+\beta}{2}\cos\frac{\alpha-\beta}{2}\)</td></tr>
+  <tr><td>מכפלת סינוסים</td><td class="math">\(\sin\alpha\sin\beta=\frac12[\cos(\alpha-\beta)-\cos(\alpha+\beta)]\)</td></tr>
+  <tr><td>מכפלת קוסינוסים</td><td class="math">\(\cos\alpha\cos\beta=\frac12[\cos(\alpha-\beta)+\cos(\alpha+\beta)]\)</td></tr>
+</tbody>
+  </table>
+
+  <div class="example">
+    <div class="title">דוגמה 1: סכום סינוסים</div>
+    <p class="ltr">\[\sin5x+\sin x=2\cos^2 2x\]</p>
+    <p class="ltr">\[2\sin3x\cos2x=2\cos^2 2x\]</p>
+    <p class="ltr">\[2\cos2x(\sin3x-\cos2x)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\cos2x=0\\2x=90+180k\\x=45+90k\]</div>
+      <div>
+         <div class="formula smallf">\[\sin3x=\cos2x\]</div>
+         <div class="formula smallf">\[\sin3x=\sin(90-2x)\]</div>
+         <div class="formula smallf">\[x=18+72k\quad\text{or}\quad x=90+360k\]</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 2: סכום של שלושה קוסינוסים</div>
+    <p class="ltr">\[\cos x+\cos2x+\cos3x=0\]</p>
+    <p>מחברים את הפונקציות הקיצוניות:</p>
+    <p class="ltr">\[\cos x+\cos3x=2\cos2x\cos x\]</p>
+    <p class="ltr">\[2\cos2x\cos x+\cos2x=0\]</p>
+    <p class="ltr">\[\cos2x(2\cos x+1)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\cos2x=0\qquad x=45+90k\]</div>
+      <div>
+         <div class="formula smallf">\[2\cos x+1=0\]</div>
+         <div class="formula smallf">\[\cos x=-\frac12\]</div>
+         <div class="formula smallf">\[x=\pm120+360k\]</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 3: מכפלה לסכום</div>
+    <p class="ltr">\[\cos5x\cos3x=\cos8x\]</p>
+    <p class="ltr">\[\frac12(\cos2x+\cos8x)=\cos8x\]</p>
+    <p class="ltr">\[\cos2x=\cos8x\]</p>
+    <p class="ltr">\[x=60k\quad \text{or}\quad x=36k\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 14</span></div>
+</section>
+
+<section class="page">
+  <h2>10. משוואות הומוגניות פשוטות</h2>
+  <p>משוואה הומוגנית היא משוואה שבה כל האיברים בנויים מסינוס וקוסינוס של אותה זווית ובאותה דרגה. אם אין איבר חופשי, ניתן בדרך כלל לחלק בזהירות בקוסינוס או בסינוס כדי להגיע לטנגנס.</p>
+
+  <div class="card blue">
+    <h3>צורה בסיסית ללא איבר חופשי</h3>
+    <div class="formula">\[a\sin(kx)+b\cos(kx)=0\]</div>
+    <p>כאשר מחלקים ב־<span class="ltr">\(\cos(kx)\)</span>, מתקבלת משוואה ב־<span class="ltr">\(\operatorname{tg}(kx)\)</span>.</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 1: ללא איבר חופשי</div>
+    <p class="ltr">\[\sqrt3\sin x-3\cos x=0\]</p>
+    <p>מחלקים ב־<span class="ltr">\(\cos x\)</span> לאחר בדיקת תחום:</p>
+    <p class="ltr">\[\sqrt3\operatorname{tg}x-3=0\]</p>
+    <p class="ltr">\[\operatorname{tg}x=\sqrt3\]</p>
+    <p class="ltr">\[x=60+180k\]</p>
+  </div>
+
+  <div class="card green">
+    <h3>צורה עם איבר חופשי ומקדם מיוחד</h3>
+    <div class="formula">\[a\sin(kx)+b\cos(kx)=c\]</div>
+    <p>אם אחד המקדמים מתאים לערכי <span class="ltr">\(\sqrt3\)</span> או <span class="ltr">\(\frac{\sqrt3}{3}\)</span>, ניתן לעיתים לייצג אותו בעזרת טנגנס של זווית ידועה.</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה 2: זווית עזר</div>
+    <p class="ltr">\[\sqrt3\cos x-\sin x=1\]</p>
+    <p>נכתוב:</p>
+    <p class="ltr">\[\sqrt3=\frac{\sin60}{\cos60}\]</p>
+    <p>לאחר כפל ב־<span class="ltr">\(\cos60\)</span> מתקבל:</p>
+    <p class="ltr">\[\sin60\cos x-\cos60\sin x=\cos60\]</p>
+    <p class="ltr">\[\sin(60-x)=\cos60=\sin30\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[60-x=30+360k\\x=30+360k\]</div>
+      <div class="formula smallf">\[60-x=150+360k\\x=-90+360k\]</div>
+    </div>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 15</span></div>
+</section>
+
+<section class="page">
+  <h2>11. משוואות הומוגניות באמצעות זווית כפולה וחצי זווית</h2>
+  <p>כאשר במשוואה מופיעים גם <span class="ltr">\(\sin x\)</span> וגם <span class="ltr">\(\cos x\)</span> עם איבר חופשי, לפעמים מעבר לחצי זווית מאפשר להגיע למשוואה ריבועית ב־<span class="ltr">\(\operatorname{tg}\frac{x}{2}\)</span>.</p>
+
+  <div class="grid-2">
+    <div class="card blue">
+      <h3>זהויות חצי זווית שימושיות</h3>
+      <div class="formula smallf">\[\sin x=2\sin\frac{x}{2}\cos\frac{x}{2}\]</div>
+      <div class="formula smallf">\[\cos x=2\cos^2\frac{x}{2}-1\]</div>
+    </div>
+    <div class="card amber">
+      <h3>מעבר לטנגנס חצי זווית</h3>
+      <div class="formula smallf">\[\frac{\sin\frac{x}{2}}{\cos\frac{x}{2}}=\operatorname{tg}\frac{x}{2}\]</div>
+      <div class="formula smallf">\[\frac{1}{\cos^2\frac{x}{2}}=\operatorname{tg}^2\frac{x}{2}+1\]</div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה: הצבה בחצי זווית</div>
+    <p class="ltr">\[2\sin x+3\cos x=2\]</p>
+    <p>נציג בעזרת חצי זווית:</p>
+    <p class="ltr">\[2\cdot2\sin\frac{x}{2}\cos\frac{x}{2}+3\left(2\cos^2\frac{x}{2}-1\right)=2\]</p>
+    <p class="ltr">\[4\sin\frac{x}{2}\cos\frac{x}{2}+6\cos^2\frac{x}{2}=5\]</p>
+    <p>מחלקים ב־<span class="ltr">\(\cos^2\frac{x}{2}\)</span> ומציבים:</p>
+    <p class="ltr">\[a=\operatorname{tg}\frac{x}{2}\]</p>
+    <p class="ltr">\[4a+6=5(a^2+1)\]</p>
+    <p class="ltr">\[5a^2-4a-1=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[a=1\quad \frac{x}{2}=45+180k\quad x=90+360k\]</div>
+      <div class="formula smallf">\[a=-\frac15\quad\frac{x}{2}\approx-11.31+180k\quad x\approx-22.62+360k\]</div>
+    </div>
+  </div>
+  <ol>
+    <li>מדוע היה כדאי לעבור לחצי זווית?</li>
+    <li>באיזה שלב המשוואה הפכה לאלגברית?</li>
+    <li>מה צריך לבדוק כאשר מחלקים ב־<span class="ltr">\(\cos^2\frac{x}{2}\)</span>?</li>
+  </ol>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 16</span></div>
+</section>
+
+<section class="page">
+  <h2>12. משוואות הומוגניות ריבועיות</h2>
+  <p>בצורה זו כל האיברים הם מדרגה שנייה בסינוס וקוסינוס של אותה זווית, ולעיתים מופיע גם איבר חופשי.</p>
+
+  <div class="card blue">
+    <h3>צורה כללית</h3>
+    <div class="formula">\[a\sin^2(kx)+b\sin(kx)\cos(kx)+c\cos^2(kx)=d\]</div>
+  </div>
+
+  <div class="step"><div class="num">1</div><div>מפרקים לפי הגורם הריבועי בעל המקדם הגדול יותר, או מחלקים בביטוי מתאים.</div></div>
+  <div class="step"><div class="num">2</div><div>משתמשים בזהות <span class="ltr">\(\sin^2u+\cos^2u=1\)</span> כדי לשלוט באיבר החופשי.</div></div>
+  <div class="step"><div class="num">3</div><div>מגיעים לרוב למשוואה ריבועית ב־<span class="ltr">\(\operatorname{tg}(kx)\)</span>.</div></div>
+
+  <div class="example">
+    <div class="title">דוגמה מודרכת: זיהוי מבנה ריבועי</div>
+    <p class="ltr">\[9\sin^2x+12\sin x\cos x+4\cos^2x=9\]</p>
+    <p>האגף השמאלי הוא ריבוע של סכום:</p>
+    <p class="ltr">\[(3\sin x+2\cos x)^2=9\]</p>
+    <p>לכן מתקבלים שני ענפים:</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[3\sin x+2\cos x=3\]</div>
+      <div class="formula smallf">\[3\sin x+2\cos x=-3\]</div>
+    </div>
+    <p>מכאן ממשיכים באחת משתי דרכים: זווית עזר, או מעבר לחצי זווית.</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 17</span></div>
+</section>
+
+
+<section class="page">
+  <h2>13. חילוק בפונקציה טריגונומטרית: מתי מותר?</h2>
+  <p>חילוק ב־<span class="ltr">\(\sin x\)</span>, ב־<span class="ltr">\(\cos x\)</span> או בריבועים שלהם כדי להגיע למשוואת טנגנס. זה כלי יעיל, אך הוא חוקי רק אחרי בדיקת המקרה שבו המחלק מתאפס.</p>
+
+  <div class="warning">
+    <b>כלל בטיחות:</b> לפני חלוקה בביטוי טריגונומטרי יש לבדוק בנפרד אם הביטוי יכול להיות שווה לאפס ואם הוא נותן פתרונות למשוואה המקורית. אחרת עלולים לאבד פתרונות.
+  </div>
+
+  <div class="grid-2">
+    <div class="card blue">
+      <h3>מותר לחלק כאשר</h3>
+      <p>כבר הוכחנו שהמחלק אינו אפס עבור כל פתרון אפשרי, או שטיפלנו קודם במקרה שבו המחלק שווה לאפס.</p>
+      <p class="formula smallf">\[\cos x\ne0\]</p>
+    </div>
+    <div class="card rose">
+      <h3>אסור לחלק כאשר</h3>
+      <p>המחלק עצמו עשוי להיות אחד הגורמים שנותנים פתרון למשוואה. במצב כזה קודם מפרקים לגורמים.</p>
+      <p class="formula smallf">\[A(x)\cdot B(x)=0\]</p>
+    </div>
+  </div>
+
+  <div style="display:none;" class="jsxbox" id="domainBoard"></div>
+
+  <div class="example">
+    <div class="title">דוגמה: חלוקה מסוכנת ב־<span class="ltr">\(\cos x\)</span></div>
+    <p class="ltr">\[5\sin^2x+12\sin x\cos x+4\sin^2x+4\cos^2x=9\]</p>
+    <p>נוציא גורם משותף בעזרת הזהות הבסיסית:</p>
+    <p class="ltr">\[5\sin^2x+12\sin x\cos x+4(\sin^2x+\cos^2x)=9\]</p>
+    <p class="ltr">\[5\sin^2x+12\sin x\cos x+4=9\]</p>
+    <p class="ltr">\[12\sin x\cos x=5(1-\sin^2x)=5\cos^2x\]</p>
+    <p class="ltr">\[\cos x(12\sin x-5\cos x)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\cos x=0\Rightarrow x=90^\circ+180^\circ k\]</div>
+      <div class="formula smallf">\[12\sin x-5\cos x=0\Rightarrow \operatorname{tg}x=\frac{5}{12}\Rightarrow x\approx22.62^\circ+180^\circ k\]</div>
+    </div>
+  </div>
+
+  <div class="teacher">
+     אם היינו מחלקים מיד ב־<span class="ltr">\(\cos x\)</span>, הפתרון <span class="ltr">\(x=90^\circ+180^\circ k\)</span> היה נעלם. לכן הפירוק לגורמים הוא הדרך הבטוחה ביותר.
+  </div>
+
+  <div class="example answer">
+    <div class="title">דוגמה שבה החלוקה מותרת לאחר בדיקה</div>
+    <p class="ltr">\[\sin x=\cos x\]</p>
+    <p>כדי לחלק ב־<span class="ltr">\(\cos x\)</span> בודקים קודם את המקרה <span class="ltr">\(\cos x=0\)</span>. אם <span class="ltr">\(\cos x=0\)</span>, אז <span class="ltr">\(\sin x=\pm1\)</span>, ולכן המשוואה המקורית אינה מתקיימת. לכן מותר לחלק:</p>
+    <p class="ltr">\[\frac{\sin x}{\cos x}=\frac{\cos x}{\cos x}\Rightarrow \operatorname{tg}x=1\Rightarrow x=45^\circ+180^\circ k\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 18</span></div>
+</section>
+
+<section class="page">
+  <h2>14. ביטול חזקה ריבועית באמצעות זווית כפולה</h2>
+  <p>כאשר מופיעים <span class="ltr">\(\sin^2x\)</span> או <span class="ltr">\(\cos^2x\)</span>, לפעמים עדיף להעביר אותם לזווית כפולה. כך עוברים ממשוואה ריבועית למשוואה בסיסית או למשוואה שניתנת לפירוק.</p>
+
+  <div class="grid-2">
+    <div class="formula">\[\cos^2\alpha=\frac{\cos2\alpha+1}{2}\]</div>
+    <div class="formula">\[\sin^2\alpha=\frac{1-\cos2\alpha}{2}\]</div>
+  </div>
+
+  <h3>א. משוואות בסיסיות בריבוע</h3>
+  <p>כאשר אפשר לבטל את הריבוע ולקבל משוואה בסיסית פשוטה, אין צורך להוציא שורש. עדיף להשתמש בזהות, כי היא שומרת על המחזוריות.</p>
+  <div class="example">
+    <div class="title">דוגמה מודרכת</div>
+    <p class="ltr">\[\cos^2x=\frac12\]</p>
+    <p class="ltr">\[\frac{\cos2x+1}{2}=\frac12\]</p>
+    <p class="ltr">\[\cos2x=0\]</p>
+    <p class="ltr">\[2x=90^\circ+180^\circ k\]</p>
+    <p class="ltr">\[x=45^\circ+90^\circ k\]</p>
+  </div>
+
+  <h3>ב. סכום והפרש ריבועים במשוואות</h3>
+  <p>כאשר במשוואה יש סכום או הפרש של ריבועים, אי־אפשר תמיד להשתמש מיד בנוסחאות מעבר מסכום למכפלה. קודם מחליפים את הריבועים לפי זווית כפולה.</p>
+  <div class="example">
+    <div class="title">דוגמה מתוך ההמשך</div>
+    <p class="ltr">\[\sin^2x-\sin^2 2x=\sin3x\]</p>
+    <p class="ltr">\[\frac{1-\cos2x}{2}-\frac{1-\cos4x}{2}=\sin3x\]</p>
+    <p class="ltr">\[\cos4x-\cos2x=2\sin3x\]</p>
+    <p>כעת משתמשים בנוסחת הפרש קוסינוסים:</p>
+    <p class="ltr">\[\cos4x-\cos2x=-2\sin3x\sin x\]</p>
+    <p class="ltr">\[-2\sin3x\sin x=2\sin3x\]</p>
+    <p class="ltr">\[2\sin3x(1+\sin x)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\sin3x=0\Rightarrow x=60^\circ k\]</div>
+      <div class="formula smallf">\[1+\sin x=0\Rightarrow x=-90^\circ+360^\circ k\]</div>
+    </div>
+  </div>
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 19</span></div>
+</section>
+
+<section class="page">
+  <h2>15. תחום ההגדרה של סינוס, קוסינוס וטנגנס</h2>
+  <p>סינוס וקוסינוס מוגדרים לכל מספר ממשי. במשוואות שבהן מופיע טנגנס, חובה לבדוק את תחום ההגדרה עוד לפני פתרון המשוואה. פתרון שמתקבל מאלגברה נכונה אך אינו בתחום ההגדרה של הביטוי המקורי חייב להתבטל.</p>
+
+  <table>
+    <thead><tr><th>פונקציה</th><th class="math">אינה מוגדרת כאשר</th><th>סיבה</th><th>מה לבדוק בסוף?</th></tr></thead>
+    <tbody>
+      <tr><td class="ltr">\(y=\sin x\)</td><td class="math">אף פעם</td><td>סינוס מוגדר לכל <span class="ltr">\(x\in\mathbb{R}\)</span></td><td>אין הגבלת תחום</td></tr>
+      <tr><td class="ltr">\(y=\cos x\)</td><td class="math">אף פעם</td><td>קוסינוס מוגדר לכל <span class="ltr">\(x\in\mathbb{R}\)</span></td><td>אין הגבלת תחום</td></tr>
+      <tr><td class="ltr">\(y=\operatorname{tg}x\)</td><td class="math">\(x=90^\circ+180^\circ k\)</td><td>המכנה <span class="ltr">\(\cos x\)</span> שווה לאפס</td><td>לא להשאיר פתרונות מסוג זה</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example">
+    <div class="title">דוגמה: פתרון שמתבטל בגלל תחום הגדרה</div>
+    <p class="ltr">\[\operatorname{tg}x\cdot\cos x=0\]</p>
+    <p>לפי מכפלה השווה לאפס נקבל שתי אפשרויות:</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\operatorname{tg}x=0\Rightarrow x=180^\circ k\]</div>
+      <div class="formula smallf">\[\cos x=0\Rightarrow x=90^\circ+180^\circ k\]</div>
+    </div>
+    <p>הענף השני מתבטל, כי עבור <span class="ltr">\(x=90^\circ+180^\circ k\)</span> הפונקציה <span class="ltr">\(\operatorname{tg}x\)</span> אינה מוגדרת במשוואה המקורית.</p>
+    <p class="formula">\[x=180^\circ k\]</p>
+  </div>
+
+  <h3>נוהל בדיקה קבוע</h3>
+  <div class="step"><div class="num">1</div><div>לפני הפתרון: כתבו את תחום ההגדרה של כל פונקציה שמופיעה במשוואה.</div></div>
+  <div class="step"><div class="num">2</div><div>במהלך הפתרון: כאשר מחלקים בביטוי, בדקו קודם את המקרה שבו הוא שווה לאפס.</div></div>
+  <div class="step"><div class="num">3</div><div>בסוף הפתרון: הציבו את קבוצות הפתרונות המועמדות בתחום ההגדרה, ובטלו פתרונות שאינם חוקיים.</div></div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 20</span></div>
+</section>
+
+<section class="page">
+  <h2>16. דף תרגול מדורג</h2>
+
+  <h3>רמה א: משוואות בסיסיות</h3>
+  <ol class="two-col-list ltr">
+    <li>\(\sin x=\frac12\)</li>
+    <li>\(\cos x=-\frac12\)</li>
+    <li>\(\operatorname{tg}x=-1\)</li>
+    <li>\(\sin(2x+30)=\frac{\sqrt3}{2}\)</li>
+    <li>\(\cos(3x-15)=0\)</li>
+    <li>\(\operatorname{tg}(4x)=\sqrt3\)</li>
+  </ol>
+
+  <h3>רמה ב: זהויות ופירוק לגורמים</h3>
+  <ol class="two-col-list ltr" start="7">
+    <li>\(\sin2x=\sin x\)</li>
+    <li>\(\sin2x=\sqrt3\sin x\)</li>
+    <li>\(2\cos^3x-\cos x=\cos2x\)</li>
+    <li>\(\sin x+\cos2x=0\)</li>
+    <li>\(\sin^4x-\cos^4x=1\)</li>
+    <li>\(\sin^2x-\sin x\cos x=\sin x-\cos x\)</li>
+  </ol>
+
+  <h3>רמה ג: הצבה וסכום למכפלה</h3>
+  <ol class="two-col-list ltr" start="13">
+    <li>\(2\cos^2x+3\sin x-3=0\)</li>
+    <li>\(\operatorname{tg}^2x-\sin^2x=\frac12\)</li>
+    <li>\(\sin5x+\sin x=2\cos^2 2x\)</li>
+    <li>\(\cos x+\cos2x+\cos3x=0\)</li>
+    <li>\(\cos5x\cos3x=\cos8x\)</li>
+    <li>\(\operatorname{tg}^2x\operatorname{tg}2x+2\operatorname{tg}x=\sqrt3\)</li>
+  </ol>
+
+  <h3>רמה ד: משוואות הומוגניות</h3>
+  <ol class="two-col-list ltr" start="19">
+    <li>\(\sqrt3\sin x-3\cos x=0\)</li>
+    <li>\(\sqrt3\cos x-\sin x=1\)</li>
+    <li>\(2\sin x+3\cos x=2\)</li>
+    <li>\(9\sin^2x+12\sin x\cos x+4\cos^2x=9\)</li>
+  </ol>
+
+  <h3>רמה ה: המשך השיעור — חילוק, ריבועים ותחום הגדרה</h3>
+  <ol class="two-col-list ltr" start="23">
+    <li style="zoom:.77">\(5\sin^2x+12\sin x\cos x+4\sin^2x+4\cos^2x=9\)</li>
+    <li>\(\sin x=\cos x\)</li>
+    <li>\(\cos^2x=\frac12\)</li>
+    <li>\(\sin^2x-\sin^2 2x=\sin3x\)</li>
+    <li>\(\operatorname{tg}x\cdot\cos x=0\)</li>
+  </ol>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 22</span></div>
+</section>
+
+<section class="page">
+  <h2>17. פתרונות</h2>
+  <p>הפתרונות כאן מיועדים לבדיקה מהירה. בכיתה מומלץ לדרוש מהתלמידים דרך מלאה ולא רק תשובה.</p>
+
+  <table class="mini">
+    <thead><tr><th>מספר</th><th class="math">פתרון כללי</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="math">\(x=30+360k\) או \(x=150+360k\)</td><td>סינוס בסיסי</td></tr>
+      <tr><td>2</td><td class="math">\(x=\pm120+360k\)</td><td>קוסינוס בסיסי</td></tr>
+      <tr><td>3</td><td class="math">\(x=-45+180k\)</td><td>טנגנס</td></tr>
+      <tr><td>4</td><td class="math">\(x=15+180k\) או \(x=45+180k\)</td><td>ביטוי פנימי</td></tr>
+      <tr><td>5</td><td class="math">\(x=35+60k\)</td><td>קוסינוס אפס</td></tr>
+      <tr><td>6</td><td class="math">\(x=15+45k\)</td><td>מחזור טנגנס</td></tr>
+      <tr><td>7</td><td class="math">\(x=180k\) או \(x=\pm60+360k\)</td><td>זווית כפולה ופירוק</td></tr>
+      <tr><td>8</td><td class="math">\(x=180k\) או \(x=\pm30+360k\)</td><td>גורם משותף</td></tr>
+      <tr><td>9</td><td class="math">\(x=45+90k\) או \(x=360k\)</td><td>הוצאת גורם מחלק מהאיברים</td></tr>
+      <tr><td>10</td><td class="math">\(x=90+120k\)</td><td>ענף אחד כלול באחר</td></tr>
+      <tr><td>11</td><td class="math">\(x=90+180k\)</td><td>הפרש ריבועים</td></tr>
+      <tr><td>12</td><td class="math">\(x=45+180k\) או \(x=90+360k\)</td><td>קבוצות</td></tr>
+      <tr><td>13</td><td class="math">\(x=90+360k\) או \(x=30+360k\) או \(x=150+360k\)</td><td>הצבה</td></tr>
+      <tr><td>14</td><td class="math">\(x=45+90k\)</td><td>הצבה ב־\(\sin^2x\) ושימוש ב־\(\operatorname{tg}^2x=\frac{\sin^2x}{\cos^2x}\)</td></tr>
+      <tr><td>15</td><td class="math">\(x=45+90k\) או \(x=18+72k\) או \(x=90+360k\)</td><td>סכום למכפלה</td></tr>
+      <tr><td>16</td><td class="math">\(x=45+90k\) או \(x=\pm120+360k\)</td><td>סכום קוסינוסים</td></tr>
+      <tr><td>17</td><td class="math">\(x=60k\) או \(x=36k\)</td><td>מכפלה לסכום</td></tr>
+      <tr><td>18</td><td class="math">\(x=30+180k\) או \(x=-60+180k\)</td><td>הצבת טנגנס</td></tr>
+      <tr><td>19</td><td class="math">\(x=60+180k\)</td><td>הומוגנית פשוטה</td></tr>
+      <tr><td>20</td><td class="math">\(x=30+360k\) או \(x=-90+360k\)</td><td>זווית עזר</td></tr>
+      <tr><td>21</td><td class="math">\(x=90+360k\) או \(x\approx-22.62+360k\)</td><td>חצי זווית</td></tr>
+      <tr><td>22</td><td class="math">\((3\sin x+2\cos x)^2=9\)</td><td>להמשיך בזווית עזר או חצי זווית</td></tr>
+      <tr><td>23</td><td class="math">\(x=90+180k\) או \(x\approx22.62+180k\)</td><td>חלוקה לאחר פירוק לגורמים</td></tr>
+      <tr><td>24</td><td class="math">\(x=45+180k\)</td><td>חלוקה מותרת אחרי בדיקת \(\cos x\ne0\)</td></tr>
+      <tr><td>25</td><td class="math">\(x=45+90k\)</td><td>ביטול ריבוע בעזרת זווית כפולה</td></tr>
+      <tr><td>26</td><td class="math">\(x=60k\) או \(x=-90+360k\)</td><td>החלפת ריבועים ואז הפרש קוסינוסים</td></tr>
+      <tr><td>27</td><td class="math">\(x=180k\)</td><td>הענף \(x=90+180k\) נפסל מתחום \(\operatorname{tg}x\)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warning">
+    <b>הערת בדיקה:</b> סעיף 22 אינו מוצג כפתרון סופי מלא משום שהוא נועד כתרגיל הרחבה. מומלץ לאפשר כמה דרכי המשך תקינות.
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 23</span></div>
+</section>
+
+
+
+<section class="page">
+  <h2>נספח א. משוואות מהצורה <span class="ltr">\(a\sin x+b\cos x=c\)</span></h2>
+  <p>זהו נושא שהופיע בקובץ 002 כנושא עצמאי. הרעיון הוא להפוך צירוף ליניארי של סינוס וקוסינוס לפונקציה טריגונומטרית אחת באמצעות זווית עזר.</p>
+
+  <div class="card blue">
+    <h3>שיטה כללית</h3>
+    <div class="formula">\[a\sin x+b\cos x=c\]</div>
+    <div class="formula">\[R=\sqrt{a^2+b^2}\]</div>
+    <p>נבחר זווית עזר <span class="ltr">\(\varphi\)</span> כך ש־</p>
+    <div class="formula">\[\cos\varphi=\frac{a}{R},\quad \sin\varphi=\frac{b}{R}\]</div>
+    <p>ואז:</p>
+    <div class="formula">\[a\sin x+b\cos x=R\sin(x+\varphi)\]</div>
+  </div>
+
+  <div class="warning">
+    <b>בדיקת קיום פתרון:</b> לאחר החלוקה ב־<span class="ltr">\(R\)</span> חייבים לבדוק ש־<span class="ltr">\(\left|\frac{c}{R}\right|\le1\)</span>. אם הערך גדול מ־1 בערך מוחלט, אין פתרון.
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה מודרכת</div>
+    <p class="ltr">\[10\sin x+3\cos x=5\]</p>
+    <p class="ltr">\[R=\sqrt{10^2+3^2}=\sqrt{109}\]</p>
+    <p>נבחר <span class="ltr">\(\varphi\)</span> כך ש־</p>
+    <p class="ltr">\[\cos\varphi=\frac{10}{\sqrt{109}},\quad \sin\varphi=\frac{3}{\sqrt{109}}\quad\Rightarrow\quad \varphi\approx16.70\]</p>
+    <p class="ltr">\[\sqrt{109}\sin(x+16.70)=5\]</p>
+    <p class="ltr">\[\sin(x+16.70)=\frac{5}{\sqrt{109}}\]</p>
+    <p class="ltr">\[x+16.70\approx28.61+360k\quad\text{or}\quad x+16.70\approx151.39+360k\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[x\approx11.91+360k\]</div>
+      <div class="formula smallf">\[x\approx134.69+360k\]</div>
+    </div>
+  </div>
+
+  <div class="teacher">
+    <b>הבחנה דידקטית:</b> אם האגף הימני הוא אפס, לרוב חלוקה ב־<span class="ltr">\(\cos x\)</span> או ב־<span class="ltr">\(\sin x\)</span> תוביל מהר יותר לטנגנס. אם האגף הימני אינו אפס, שיטת זווית העזר בדרך כלל נקייה יותר.
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 24</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח ב. פתרון משוואה טריגונומטרית בתחום נתון</h2>
+  <p>בקובץ 002 הופיע פרק ייעודי למשוואות עם תחום נתון. זה שלב קריטי בבגרות: לא מספיק למצוא פתרון כללי; צריך לסנן את הערכים שמתאימים לתחום.</p>
+
+  <div class="step"><div class="num">1</div><div>פותרים את המשוואה כרגיל ומקבלים משפחות פתרון כלליות.</div></div>
+  <div class="step"><div class="num">2</div><div>מציבים את כל משפחות הפתרון בתוך אי־השוויון של התחום.</div></div>
+  <div class="step"><div class="num">3</div><div>מוצאים אילו ערכים של <span class="ltr">\(k\)</span> נותנים זוויות בתוך התחום.</div></div>
+  <div class="step"><div class="num">4</div><div>כותבים רק את הזוויות שנמצאו, מסודרות מהקטנה לגדולה.</div></div>
+
+  <div class="example">
+    <div class="title">דוגמה בסיסית</div>
+    <p class="ltr">\[[0,180],\quad 8\sin x-4=0\]</p>
+    <p class="ltr">\[8\sin x-4=0\quad\Rightarrow\quad \sin x=\frac12\]</p>
+    <p class="ltr">\[x=30+360k\quad\text{or}\quad x=150+360k\]</p>
+    <p>כעת בודקים אילו ערכי <span class="ltr">\(k\)</span> מכניסים את הפתרונות לתחום:</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[0\le30+360k\le180\quad\Rightarrow\quad k=0\]</div>
+      <div class="formula smallf">\[0\le150+360k\le180\quad\Rightarrow\quad k=0\]</div>
+    </div>
+    <p class="ltr">\[x=30,150\]</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה עם זווית פנימית</div>
+    <p class="ltr">\[[0,360],\quad \cos(50-x)=-\cos x\]</p>
+    <p class="ltr">\[-\cos x=\cos(180-x)\]</p>
+    <p class="ltr">\[\cos(50-x)=\cos(180-x)\]</p>
+    <p class="ltr">\[50-x=\pm(180-x)+360k\]</p>
+    <p>הענף הראשון אינו נותן ערך מתאים, ומהענף השני מתקבל:</p>
+    <p class="ltr">\[50-x=-180+x+360k\quad\Rightarrow\quad x=115-180k\]</p>
+    <p>בתחום <span class="ltr">\([0,360]\)</span> נקבל:</p>
+    <p class="ltr">\[x=115,295\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 25</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח ג. עבודה ברדיאנים</h2>
+  <p>הקובץ 001 כבר הכיל טבלת פתרונות ברדיאנים, אך קובץ 002 הוסיף מעבר בין מעלות לרדיאנים ותרגול בתחום רדיאני. לכן נוספה כאן מסגרת עבודה מלאה.</p>
+
+  <div class="grid-2">
+    <div class="card blue">
+      <h3>מעבר ממעלות לרדיאנים</h3>
+      <div class="formula">\[\alpha_{rad}=\alpha_{deg}\cdot\frac{\pi}{180}\]</div>
+      <p class="small">לדוגמה: <span class="ltr">\(60=\frac{\pi}{3}\)</span>, <span class="ltr">\(90=\frac{\pi}{2}\)</span>, <span class="ltr">\(180=\pi\)</span>.</p>
+    </div>
+    <div class="card green">
+      <h3>מעבר מרדיאנים למעלות</h3>
+      <div class="formula">\[\alpha_{deg}=\alpha_{rad}\cdot\frac{180}{\pi}\]</div>
+      <p class="small">לדוגמה: <span class="ltr">\(\frac{5\pi}{6}=150\)</span>, <span class="ltr">\(\frac{3\pi}{2}=270\)</span>.</p>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>מעלות</th><th class="math">רדיאנים</th><th>שימוש נפוץ</th></tr></thead>
+    <tbody>
+      <tr><td class="math">\(30\)</td><td class="math">\(\frac{\pi}{6}\)</td><td>ערכי סינוס וקוסינוס בסיסיים</td></tr>
+      <tr><td class="math">\(45\)</td><td class="math">\(\frac{\pi}{4}\)</td><td>משוואות עם <span class="ltr">\(\sqrt2\)</span></td></tr>
+      <tr><td class="math">\(60\)</td><td class="math">\(\frac{\pi}{3}\)</td><td>משוואות עם <span class="ltr">\(\sqrt3\)</span></td></tr>
+      <tr><td class="math">\(90\)</td><td class="math">\(\frac{\pi}{2}\)</td><td>נקודות קצה של סינוס וקוסינוס</td></tr>
+      <tr><td class="math">\(180\)</td><td class="math">\(\pi\)</td><td>מחצית מחזור</td></tr>
+      <tr><td class="math">\(360\)</td><td class="math">\(2\pi\)</td><td>מחזור מלא</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example">
+    <div class="title">דוגמה בתחום רדיאני</div>
+    <p class="ltr">\[[0,2\pi],\quad \cos x=-\frac12\]</p>
+    <p class="ltr">\[x=\pm\frac{2\pi}{3}+2\pi k\]</p>
+    <p>בתחום הנתון מתקבלים שני פתרונות:</p>
+    <p class="ltr">\[x=\frac{2\pi}{3},\frac{4\pi}{3}\]</p>
+  </div>
+
+  <div class="warning">
+    <b>טעות נפוצה:</b> אין לכתוב יחד באותו פתרון <span class="ltr">\(360k\)</span> ו־<span class="ltr">\(2\pi k\)</span>. בוחרים יחידה אחת ושומרים עליה עד סוף התרגיל.
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 26</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח ד. אי־שוויונים טריגונומטריים</h2>
+  <p>אי־שוויון טריגונומטרי אינו משוואה, אך דרך הפתרון מתחילה בדיוק כמו במשוואה: קודם מוצאים את נקודות השוויון, ולאחר מכן בוחרים תחומים מתאימים.</p>
+
+  <div class="step"><div class="num">1</div><div>מחליפים זמנית את סימן אי־השוויון בסימן שוויון ופותרים את המשוואה.</div></div>
+  <div class="step"><div class="num">2</div><div>מסמנים על ציר את כל נקודות השוויון בתחום הנתון.</div></div>
+  <div class="step"><div class="num">3</div><div>אם יש <span class="ltr">\(\operatorname{tg}\)</span> או שבר טריגונומטרי, מסמנים גם נקודות שבהן הביטוי אינו מוגדר.</div></div>
+  <div class="step"><div class="num">4</div><div>בודקים נקודת ניסיון מכל תחום, ומאחדים את התחומים שבהם אי־השוויון נכון.</div></div>
+
+  <div class="example">
+    <div class="title">דוגמה בסיסית</div>
+    <p class="ltr">\[[0,180],\quad \sin x<\frac12\]</p>
+    <p>נקודות השוויון:</p>
+    <p class="ltr">\[\sin x=\frac12\quad\Rightarrow\quad x=30,150\]</p>
+    <p>בודקים תחומים:</p>
+    <table class="mini">
+      <thead><tr><th class="math">תחום</th><th class="math">נקודת בדיקה</th><th>נכון?</th></tr></thead>
+      <tbody>
+        <tr><td class="math">\([0,30)\)</td><td class="math">\(0\)</td><td>כן</td></tr>
+        <tr><td class="math">\((30,150)\)</td><td class="math">\(90\)</td><td>לא</td></tr>
+        <tr><td class="math">\((150,180]\)</td><td class="math">\(180\)</td><td>כן</td></tr>
+      </tbody>
+    </table>
+    <p class="ltr">\[0\le x<30\quad\text{or}\quad 150<x\le180\]</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה עם נקודות אי־הגדרה</div>
+    <p class="ltr">\[[0,2\pi],\quad \operatorname{tg}x>0\]</p>
+    <p class="ltr">\[\operatorname{tg}x=\frac{\sin x}{\cos x}\]</p>
+    <p>נקודות האפס הן <span class="ltr">\(x=0,\pi,2\pi\)</span>, והביטוי אינו מוגדר כאשר <span class="ltr">\(\cos x=0\)</span>, כלומר ב־</p>
+    <p class="ltr">\[x=\frac{\pi}{2},\frac{3\pi}{2}\]</p>
+    <p>הטנגנס חיובי ברבעים הראשון והשלישי:</p>
+    <p class="ltr">\[0<x<\frac{\pi}{2}\quad\text{or}\quad \pi<x<\frac{3\pi}{2}\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 27</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח ה. תרגול השלמה לפי קובץ 002</h2>
+  <p>התרגילים הבאים משלימים את סוגי השאלות שהופיעו בקובץ 002 ולא הופיעו בצורה מסודרת בקובץ 001. מומלץ לפתור אותם אחרי סיום מערך השיעור המרכזי.</p>
+
+  <table>
+    <thead><tr><th>סוג</th><th class="math">תרגילים</th></tr></thead>
+    <tbody>
+      <tr><td>זהויות סכום והפרש זוויות</td><td class="math">\(2\sin x=\sin(60-x)\), \(\sin(x+45)\sin(x-45)=\frac12\)</td></tr>
+      <tr><td>זהויות מעגל היחידה</td><td class="math">\(\sin x=-\sin3x\), \(\cos2x=-\cos3x\), \(\sin(x+30)=-\cos x\)</td></tr>
+      <tr><td>זווית כפולה</td><td class="math">\(\sin x-\sin2x=0\), \(4\cos x=\sin2x\), \(\sin x+\cos2x=1\)</td></tr>
+      <tr><td>שיטת זווית עזר</td><td class="math">\(10\sin x+3\cos x=5\), \(5\cos x-6\sin x=1\)</td></tr>
+      <tr><td>תחום נתון במעלות</td><td class="math">\([0,180],\ 8\sin x-4=0\), \([0,360],\ \cos(50-x)=-\cos x\)</td></tr>
+      <tr><td>רדיאנים</td><td class="math">\([0,2\pi],\ \cos x=-\frac12\), \([0,\pi],\ \sin(2x-\frac{\pi}{4})=\frac{\sqrt2}{2}\)</td></tr>
+      <tr><td>אי־שוויונים</td><td class="math">\([0,180],\ \sin x<\frac12\), \([0,2\pi],\ \operatorname{tg}x>0\)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="teacher">
+    <b>המלצה למורה:</b> בקשו מהתלמידים לכתוב ליד כל תרגיל את שם הטכניקה לפני הפתרון. כך מחזקים את הבחירה האסטרטגית, ולא רק את החישוב.
+  </div>
+
+  <div class="warning">
+    <b>בדיקה עצמית:</b> בכל תרגיל שבו מחלקים בפונקציה טריגונומטרית יש לבדוק תחילה את המקרה שבו המחלק שווה לאפס, ורק אחר כך לבצע חלוקה.
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 28</span></div>
+</section>
+
+
+<section class="page">
+  <h2>נספח ו. השלמות מקבצים 003–004: מה נוסף למסמך</h2>
+  <p>הקבצים החדשים מוסיפים שלושה דגשים חשובים שאינם רק עוד תרגילים: מעבר מוקדם לרדיאנים, ניהול נכון של פתרונות שמתלכדים, ושימוש במשוואות טריגונומטריות בתוך חקירת פונקציות.</p>
+
+  <table>
+    <thead><tr><th>השלמה</th><th>מה חשוב ללמד</th><th>איפה משתלב ברצף השיעור</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>מעבר למעלות ורדיאנים</td>
+        <td>בתרגול אלגברי אפשר לעבוד במעלות, אבל בחקירת פונקציות וגזירה עובדים ברדיאנים.</td>
+        <td>לאחר טבלת הפתרונות הבסיסיים ולפני חקירת פונקציות.</td>
+      </tr>
+      <tr>
+        <td>הוצאת שורש ממשוואה ריבועית</td>
+        <td>כאשר מוציאים שורש חייבים לקבל גם את הערך החיובי וגם את הערך השלילי.</td>
+        <td>לאחר פירוק לגורמים ולפני הצבה ריבועית.</td>
+      </tr>
+      <tr>
+        <td>התלכדות פתרונות</td>
+        <td>מותר למזג משפחות פתרונות רק אם מוכיחים שהמיזוג נותן בדיוק את אותן נקודות, בלי להוסיף פתרונות זרים.</td>
+        <td>בכל סיום פתרון, לפני כתיבת תשובה סופית.</td>
+      </tr>
+      <tr>
+        <td>שורש פסול במשוואה ריבועית</td>
+        <td>כאשר מציבים <span class="ltr">\(t=\sin x\)</span> או <span class="ltr">\(t=\cos x\)</span>, יש לבדוק ש־<span class="ltr">\(-1\le t\le 1\)</span>.</td>
+        <td>בפרק הצבות ומשוואות ריבועיות.</td>
+      </tr>
+      <tr>
+        <td>משוואות בתוך חקירה</td>
+        <td>אותן משוואות משמשות למציאת תחום הגדרה, נקודות שבהן נגזרת מתאפסת, ונקודות שבהן השיפוע נתון.</td>
+        <td>בסיום הנושא, כחיבור לחדו״א.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card blue">
+    <h3>כלל עבודה חדש למסמך</h3>
+    <p>בכל משוואה מתקדמת יש לבצע שלוש בדיקות לפני התשובה הסופית: תחום הגדרה, פתרונות פסולים, וכפילות או התלכדות של משפחות פתרון.</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 29</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח ז. מעבר מוקדם לרדיאנים ושימוש בחקירת פונקציות</h2>
+  <p>בכיתה י׳ נפוץ לפתור במעלות. בחקירת פונקציות טריגונומטריות מומלץ לעבור לרדיאנים, משום שנוסחאות הגזירה הסטנדרטיות תקפות כאשר הזווית ברדיאנים.</p>
+
+  <div class="grid-2">
+    <div class="card green">
+      <h3>במעלות</h3>
+      <div class="formula smallf">\[\sin x=\frac12\Rightarrow x=30^\circ+360^\circ k\quad\text{or}\quad x=150^\circ+360^\circ k\]</div>
+      <p>מתאים לתרגול ראשוני ולקריאת זוויות מוכרות.</p>
+    </div>
+    <div class="card blue">
+      <h3>ברדיאנים</h3>
+      <div class="formula smallf">\[\sin x=\frac12\Rightarrow x=\frac{\pi}{6}+2\pi k\quad\text{or}\quad x=\frac{5\pi}{6}+2\pi k\]</div>
+      <p>מתאים לחקירת פונקציות, נגזרות ואינטגרלים.</p>
+    </div>
+  </div>
+
+  <h3>איך משוואה טריגונומטרית מופיעה בחקירה?</h3>
+  <table>
+    <thead><tr><th>בחקירה</th><th>המשוואה שנפתרת</th><th>משמעות</th></tr></thead>
+    <tbody>
+      <tr><td>תחום הגדרה</td><td class="math">\(\cos x=0\)</td><td>איפוס מכנה או נקודות שבהן <span class="ltr">\(\tan x\)</span> אינה מוגדרת.</td></tr>
+      <tr><td>נקודות קיצון</td><td class="math">\(f'(x)=0\)</td><td>מועמדים לקיצון, לאחר בדיקת שינוי סימן.</td></tr>
+      <tr><td>שיפוע משיק נתון</td><td class="math">\(f'(x)=m\)</td><td>מציאת נקודות שבהן שיפוע המשיק שווה לערך מסוים.</td></tr>
+      <tr><td>נקודות פיתול</td><td class="math">\(f''(x)=0\)</td><td>מועמדים לפיתול, לאחר בדיקת שינוי סימן של הנגזרת השנייה.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example">
+    <div class="title">דוגמה: פתרון משוואת נגזרת בתחום סגור</div>
+    <p class="ltr">\[f'(x)=2\sin 2x\]</p>
+    <p>כדי למצוא חשודות לקיצון בתחום <span class="ltr">\([0,2\pi]\)</span> פותרים:</p>
+    <p class="ltr">\[2\sin2x=0\Rightarrow \sin2x=0\Rightarrow 2x=\pi k\Rightarrow x=\frac{\pi k}{2}\]</p>
+    <p>בתחום הנתון נקבל:</p>
+    <p class="ltr">\[x\in\left\{0,\frac{\pi}{2},\pi,\frac{3\pi}{2},2\pi\right\}\]</p>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 30</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח ח. הוצאת שורש: לא לאבד סימן ולא לאבד מחזוריות</h2>
+  <p>כאשר מופיע ריבוע, טעות נפוצה היא לקחת רק שורש חיובי. בטריגונומטריה זו טעות חמורה, כי היא מוחקת חצי מהפתרונות.</p>
+
+  <div class="card amber">
+    <h3>כלל בסיסי</h3>
+    <div class="formula">\[u^2=a^2\Rightarrow u=\pm a\]</div>
+    <p>לכן אם <span class="ltr">\(u=\sin x\)</span>, פותרים שתי משוואות: אחת עבור הערך החיובי ואחת עבור הערך השלילי.</p>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה מודרכת ברדיאנים</div>
+    <p class="ltr">\[\sin^2x=\frac34\]</p>
+    <p class="ltr">\[\sin x=\pm\frac{\sqrt3}{2}\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\sin x=\frac{\sqrt3}{2}\Rightarrow x=\frac{\pi}{3}+2\pi k\quad\text{or}\quad x=\frac{2\pi}{3}+2\pi k\]</div>
+      <div class="formula smallf">\[\sin x=-\frac{\sqrt3}{2}\Rightarrow x=\frac{4\pi}{3}+2\pi k\quad\text{or}\quad x=\frac{5\pi}{3}+2\pi k\]</div>
+    </div>
+    <p>אפשר למזג בזהירות לשתי משפחות:</p>
+    <p class="ltr">\[x=\frac{\pi}{3}+\pi k\quad\text{or}\quad x=\frac{2\pi}{3}+\pi k\]</p>
+  </div>
+
+  <div class="warning">
+    <b>בדיקת מיזוג:</b> לפני שמאחדים פתרונות, מציבים כמה ערכי <span class="ltr">\(k\)</span> ובודקים שהרשימה החדשה אינה מוסיפה פתרונות שלא הופיעו ברשימה המקורית.
+  </div>
+
+  <h3>תרגול קצר</h3>
+  <ol class="ltr">
+    <li>\(\cos^2x=\frac12\)</li>
+    <li>\(\sin^2(2x)=\frac14\)</li>
+    <li>\(\tan^2x=3\)</li>
+  </ol>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 31</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח ט. התלכדות פתרונות ומיזוג משפחות פתרון</h2>
+  <p>לפעמים מתקבלות כמה משפחות פתרון שניתן לכתוב בצורה קצרה יותר. המטרה היא לפשט את התשובה, אבל לא על חשבון דיוק.</p>
+
+  <div class="grid-2">
+    <div class="card green">
+      <h3>מיזוג מותר</h3>
+      <p>כאשר שתי משפחות יוצרות יחד סדרה מחזורית קבועה.</p>
+      <div class="formula smallf">\[x=\frac{\pi}{4}+2\pi k\quad\text{or}\quad x=\frac{5\pi}{4}+2\pi k\]</div>
+      <div class="formula smallf">\[\Rightarrow x=\frac{\pi}{4}+\pi k\]</div>
+    </div>
+    <div class="card rose">
+      <h3>מיזוג אסור</h3>
+      <p>כאשר המיזוג מוסיף נקודות שאינן פתרונות.</p>
+      <div class="formula smallf">\[x=0,\frac{2\pi}{3},\pi,\frac{4\pi}{3}\]</div>
+      <p>זו אינה סדרה אחת בקפיצה קבועה של <span class="ltr">\(\frac{\pi}{3}\)</span>.</p>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה מתוקנת: לא למזג יותר מדי</div>
+    <p class="ltr">\[\sin2x+\sin x=0\]</p>
+    <p>נפתור בדרך בטוחה בעזרת זהות זווית כפולה:</p>
+    <p class="ltr">\[2\sin x\cos x+\sin x=0\]</p>
+    <p class="ltr">\[\sin x(2\cos x+1)=0\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[\sin x=0\Rightarrow x=\pi k\]</div>
+      <div class="formula smallf">\[2\cos x+1=0\Rightarrow \cos x=-\frac12\Rightarrow x=\frac{2\pi}{3}+2\pi k\quad\text{or}\quad x=\frac{4\pi}{3}+2\pi k\]</div>
+    </div>
+    <p>כאן לא מאחדים ל־<span class="ltr">\(x=\frac{\pi k}{3}\)</span>, כי למשל <span class="ltr">\(x=\frac{\pi}{3}\)</span> אינו פתרון.</p>
+  </div>
+
+  <h3>בדיקת אמת מהירה</h3>
+  <p>לפני מיזוג, בודקים לפחות ערך אחד שמתווסף על ידי הצורה החדשה. אם הוא לא מקיים את המשוואה, המיזוג שגוי.</p>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 32</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח י. משוואה ריבועית וניפוי שורשים פסולים</h2>
+  <p>כאשר מגיעים למשוואה ריבועית ב־<span class="ltr">\(\sin x\)</span> או ב־<span class="ltr">\(\cos x\)</span>, לא כל שורש אלגברי הוא פתרון טריגונומטרי.</p>
+
+  <div class="step"><div class="num">1</div><div>מחליפים זמנית: <span class="ltr">\(t=\sin x\)</span> או <span class="ltr">\(t=\cos x\)</span>.</div></div>
+  <div class="step"><div class="num">2</div><div>פותרים את המשוואה הריבועית.</div></div>
+  <div class="step"><div class="num">3</div><div>מסננים שורשים שאינם בתחום <span class="ltr">\([-1,1]\)</span>.</div></div>
+  <div class="step"><div class="num">4</div><div>פותרים רק את המשוואות הטריגונומטריות שנשארו.</div></div>
+
+  <div class="example">
+    <div class="title">דוגמה: פתרון שבו שורש נפסל</div>
+    <p class="ltr">\[\cos2x-7\cos x=3\]</p>
+    <p>לא כדאי לפתוח את <span class="ltr">\(3\)</span> בעזרת <span class="ltr">\(\sin^2x+\cos^2x\)</span>. עדיף להפוך את <span class="ltr">\(\cos2x\)</span> לקוסינוס בלבד:</p>
+    <p class="ltr">\[2\cos^2x-1-7\cos x=3\]</p>
+    <p class="ltr">\[2\cos^2x-7\cos x-4=0\]</p>
+    <p>נסמן <span class="ltr">\(t=\cos x\)</span>:</p>
+    <p class="ltr">\[2t^2-7t-4=0\Rightarrow t=4\quad\text{or}\quad t=-\frac12\]</p>
+    <p>הפתרון <span class="ltr">\(t=4\)</span> נפסל כי <span class="ltr">\(\cos x\)</span> לא יכול להיות גדול מ־<span class="ltr">\(1\)</span>.</p>
+    <p class="ltr">\[\cos x=-\frac12\Rightarrow x=\frac{2\pi}{3}+2\pi k\quad\text{or}\quad x=\frac{4\pi}{3}+2\pi k\]</p>
+  </div>
+
+  <div class="warning">
+    <b>טעות נפוצה:</b> לא כותבים תשובה סופית למשוואה ריבועית לפני שמחזירים את <span class="ltr">\(t\)</span> לפונקציה הטריגונומטרית ובודקים את תחום הערכים.
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 33</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח יא. משוואות עם אותה פונקציה בשני האגפים</h2>
+  <p>כאשר אותה פונקציה מופיעה בשני האגפים עם זוויות שונות, אין “מצמצמים פונקציה”. משתמשים בנוסחאות השוויון המתאימות.</p>
+
+  <table>
+    <thead><tr><th>משוואה</th><th class="math">פתרון כללי</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="math">\(\sin A=\sin B\)</td>
+        <td class="math">\(A=B+2\pi k\) או \(A=\pi-B+2\pi k\)</td>
+        <td>שתי אפשרויות בכל מחזור.</td>
+      </tr>
+      <tr>
+        <td class="math">\(\cos A=\cos B\)</td>
+        <td class="math">\(A=\pm B+2\pi k\)</td>
+        <td>נובע מזוגיות הקוסינוס.</td>
+      </tr>
+      <tr>
+        <td class="math">\(\tan A=\tan B\)</td>
+        <td class="math">\(A=B+\pi k\)</td>
+        <td>מחזור הטנגנס הוא <span class="ltr">\(\pi\)</span>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="example">
+    <div class="title">דוגמה במעלות</div>
+    <p class="ltr">\[\sin3x=\sin(x+50^\circ)\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[3x=x+50^\circ+360^\circ k\Rightarrow x=25^\circ+180^\circ k\]</div>
+      <div class="formula smallf">\[3x=180^\circ-(x+50^\circ)+360^\circ k\Rightarrow x=32.5^\circ+90^\circ k\]</div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה בקוסינוס</div>
+    <p class="ltr">\[\cos(5x-40^\circ)=\cos(3x+70^\circ)\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[5x-40^\circ=3x+70^\circ+360^\circ k\Rightarrow x=55^\circ+180^\circ k\]</div>
+      <div class="formula smallf">\[5x-40^\circ=-(3x+70^\circ)+360^\circ k\Rightarrow x=-3.75^\circ+45^\circ k\]</div>
+    </div>
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 34</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח יב. פתרון בתחום נתון: שיטת טווח ל־k</h2>
+  <p>לאחר שמוצאים פתרון כללי, יש שאלות שבהן נדרש למצוא את כל הפתרונות בתחום מסוים. הדרך המדויקת ביותר היא להציב את הפתרון הכללי באי־שוויון של התחום.</p>
+
+  <div class="example">
+    <div class="title">דוגמה מלאה</div>
+    <p>מצא את כל הפתרונות של:</p>
+    <p class="ltr">\[x=\frac{\pi}{4}+\frac{\pi}{2}k\]</p>
+    <p>בתחום:</p>
+    <p class="ltr">\[0\le x\le2\pi\]</p>
+    <p>נציב את הביטוי הכללי בתוך התחום:</p>
+    <p class="ltr">\[0\le\frac{\pi}{4}+\frac{\pi}{2}k\le2\pi\]</p>
+    <p>נחלק ב־<span class="ltr">\(\pi\)</span> ונבודד את <span class="ltr">\(k\)</span>:</p>
+    <p class="ltr">\[0\le\frac14+rac12k\le2\Rightarrow -\frac12\le k\le\frac72\]</p>
+    <p>לכן:</p>
+    <p class="ltr">\[k=0,1,2,3\]</p>
+    <p>והפתרונות בתחום הם:</p>
+    <p class="ltr">\[x\in\left\{\frac{\pi}{4},\frac{3\pi}{4},\frac{5\pi}{4},\frac{7\pi}{4}\right\}\]</p>
+  </div>
+
+  <h3>תבנית עבודה לתלמיד</h3>
+  <ol>
+    <li>כותבים את הפתרון הכללי.</li>
+    <li>מציבים אותו בתוך התחום הנתון.</li>
+    <li>פותרים אי־שוויון עבור <span class="ltr">\(k\)</span>.</li>
+    <li>לוקחים רק ערכי <span class="ltr">\(k\)</span> שלמים.</li>
+    <li>מציבים חזרה ומסדרים את התשובות מהקטנה לגדולה.</li>
+  </ol>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 35</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח יג. משוואות מהצורה \(a\sin(mx)+b\cos(mx)=c\)</h2>
+  <p>כאשר מופיע שילוב ליניארי של סינוס וקוסינוס עם אותה זווית פנימית, אפשר להפוך את אגף שמאל לפונקציה אחת בעזרת זהות סכום או הפרש זוויות.</p>
+
+  <div class="card blue">
+    <h3>רעיון מרכזי</h3>
+    <p>במקום להשאיר גם סינוס וגם קוסינוס, בוחרים זווית עזר <span class="ltr">\(\alpha\)</span> כך שהביטוי ייכתב בצורה אחת:</p>
+    <div class="formula">\[a\sin(mx)+b\cos(mx)=R\sin(mx+\alpha)\]</div>
+    <div class="formula">\[R=\sqrt{a^2+b^2}\]</div>
+  </div>
+
+  <div class="example">
+    <div class="title">דוגמה ברדיאנים</div>
+    <p class="ltr">\[3\sin2x-\sqrt3\cos2x=3\]</p>
+    <p>נחלק ב־<span class="ltr">\(3\)</span>:</p>
+    <p class="ltr">\[\sin2x-\frac{\sqrt3}{3}\cos2x=1\]</p>
+    <p>נשתמש בכך ש־<span class="ltr">\(\tan\frac{\pi}{6}=\frac{\sqrt3}{3}\)</span>:</p>
+    <p class="ltr">\[\sin2x-\tan\frac{\pi}{6}\cos2x=1\]</p>
+    <p>לאחר מכנה משותף וזהות הפרש זוויות:</p>
+    <p class="ltr">\[\sin\left(2x-\frac{\pi}{6}\right)=\frac{\sqrt3}{2}\]</p>
+    <div class="grid-2">
+      <div class="formula smallf">\[2x-\frac{\pi}{6}=\frac{\pi}{3}+2\pi k\Rightarrow x=\frac{\pi}{4}+\pi k\]</div>
+      <div class="formula smallf">\[2x-\frac{\pi}{6}=\frac{2\pi}{3}+2\pi k\Rightarrow x=\frac{5\pi}{12}+\pi k\]</div>
+    </div>
+  </div>
+
+  <div class="warning">
+    <b>הערה:</b> זהו כלי מתקדם יחסית. כדאי ללמד אותו אחרי שהתלמידים שולטים בזהויות סכום והפרש זוויות ובמשוואות בסיסיות עם ביטוי פנימי.
+  </div>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 36</span></div>
+</section>
+
+<section class="page">
+  <h2>נספח יד. תרגול מסכם נוסף לפי קבצים 003–004</h2>
+  <p>התרגילים הבאים משלבים את ההשלמות החדשות: רדיאנים, תחום נתון, מיזוג פתרונות, סינון שורשים פסולים ומשוואות עם זוויות שונות.</p>
+
+  <table>
+    <thead><tr><th>רמה</th><th>תרגיל</th><th>טכניקה מרכזית</th></tr></thead>
+    <tbody>
+      <tr><td>בסיסית</td><td class="math">\(\sin^2x=\frac34\)</td><td>הוצאת שורש ושתי משפחות פתרון.</td></tr>
+      <tr><td>בסיסית</td><td class="math">\(\cos3x=\frac12\)</td><td>ביטוי פנימי ומחזוריות.</td></tr>
+      <tr><td>בינונית</td><td class="math">\(2\sin^2x-3\sin x+1=0\)</td><td>הצבה ריבועית.</td></tr>
+      <tr><td>בינונית</td><td class="math">\(\cos2x-7\cos x=3\)</td><td>זהות זווית כפולה וסינון שורש פסול.</td></tr>
+      <tr><td>בינונית</td><td class="math">\(\sin3x=\sin(x+50^\circ)\)</td><td>אותה פונקציה בשני האגפים.</td></tr>
+      <tr><td>מתקדמת</td><td class="math">\(\sin2x+\sin x=0\)</td><td>פירוק ומניעת מיזוג שגוי.</td></tr>
+      <tr><td>מתקדמת</td><td class="math">\(3\sin2x-\sqrt3\cos2x=3\)</td><td>המרה לפונקציה אחת.</td></tr>
+      <tr><td>חקירה</td><td class="math">\(2\sin2x=0,\quad 0\le x\le2\pi\)</td><td>נקודות חשודות לקיצון בתחום נתון.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>תשובות מקוצרות למורה</h3>
+  <ol class="ltr">
+    <li>\(x=\frac{\pi}{3}+\pi k\quad\text{or}\quad x=\frac{2\pi}{3}+\pi k\)</li>
+    <li>\(x=\pm\frac{\pi}{9}+\frac{2\pi}{3}k\)</li>
+    <li>\(x=\frac{\pi}{6}+2\pi k\quad\text{or}\quad x=\frac{5\pi}{6}+2\pi k\quad\text{or}\quad x=\frac{\pi}{2}+2\pi k\)</li>
+    <li>\(x=\frac{2\pi}{3}+2\pi k\quad\text{or}\quad x=\frac{4\pi}{3}+2\pi k\)</li>
+    <li>\(x=25^\circ+180^\circ k\quad\text{or}\quad x=32.5^\circ+90^\circ k\)</li>
+    <li>\(x=\pi k\quad\text{or}\quad x=\frac{2\pi}{3}+2\pi k\quad\text{or}\quad x=\frac{4\pi}{3}+2\pi k\)</li>
+    <li>\(x=\frac{\pi}{4}+\pi k\quad\text{or}\quad x=\frac{5\pi}{12}+\pi k\)</li>
+    <li>\(x\in\left\{0,\frac{\pi}{2},\pi,\frac{3\pi}{2},2\pi\right\}\)</li>
+  </ol>
+
+  <div class="footer"><span>פתרון משוואות טריגונומטריות</span><span>עמוד 37</span></div>
+</section>
+
+<script>
+(function(){
+  function text(board, x, y, label, size){
+    return board.create('text', [x, y, label], {fontSize: size || 13, fixed:true, anchorX:'middle'});
+  }
+
+  function deg(v){ return v * Math.PI / 180; }
+
+  function initUnitCircleSin(){
+    var el = document.getElementById('unitCircleSinBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('unitCircleSinBoard', {
+      boundingbox:[-1.35,1.35,1.35,-1.35], axis:false, keepaspectratio:true,
+      showCopyright:false, showNavigation:true
+    });
+    b.create('circle', [[0,0],1], {strokeWidth:2, fixed:true});
+    b.create('line', [[-1.18,0],[1.18,0]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
+    b.create('line', [[0,-1.18],[0,1.18]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
+    var y = 0.5, x = Math.sqrt(3)/2;
+    b.create('line', [[-1.08,y],[1.08,y]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
+    b.create('point', [x,y], {name:'30°', size:3, fixed:true});
+    b.create('point', [-x,y], {name:'150°', size:3, fixed:true});
+    b.create('segment', [[0,0],[x,y]], {dash:1, fixed:true});
+    b.create('segment', [[0,0],[-x,y]], {dash:1, fixed:true});
+    text(b, 0, y+0.13, 'y = 1/2', 12);
+  }
+
+  function initSinTemplate(){
+    var el = document.getElementById('sinTemplateBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('sinTemplateBoard', {
+      boundingbox:[-20,1.35,380,-1.35], axis:true, showCopyright:false, showNavigation:true
+    });
+    b.create('functiongraph', [function(x){ return Math.sin(deg(x)); }, 0, 360], {strokeWidth:2, fixed:true});
+    b.create('line', [[0,0.5],[360,0.5]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
+    b.create('point', [30,0.5], {name:'30°', size:3, fixed:true});
+    b.create('point', [150,0.5], {name:'150°', size:3, fixed:true});
+    text(b, 205, 1.13, 'y = sin x', 13);
+  }
+
+  function initUnitCircleCos(){
+    var el = document.getElementById('unitCircleCosBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('unitCircleCosBoard', {
+      boundingbox:[-1.35,1.35,1.35,-1.35], axis:false, keepaspectratio:true,
+      showCopyright:false, showNavigation:true
+    });
+    b.create('circle', [[0,0],1], {strokeWidth:2, fixed:true});
+    b.create('line', [[-1.18,0],[1.18,0]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
+    b.create('line', [[0,-1.18],[0,1.18]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
+    var x = Math.sqrt(2)/2, y = Math.sqrt(2)/2;
+    b.create('line', [[x,-1.08],[x,1.08]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
+    b.create('point', [x,y], {name:'45°', size:3, fixed:true});
+    b.create('point', [x,-y], {name:'315°', size:3, fixed:true});
+    b.create('segment', [[0,0],[x,y]], {dash:1, fixed:true});
+    b.create('segment', [[0,0],[x,-y]], {dash:1, fixed:true});
+    text(b, x-0.18, 1.17, 'x = √2/2', 12);
+  }
+
+  function initCosTemplate(){
+    var el = document.getElementById('cosTemplateBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('cosTemplateBoard', {
+      boundingbox:[-20,1.35,380,-1.35], axis:true, showCopyright:false, showNavigation:true
+    });
+    var c = Math.sqrt(2)/2;
+    b.create('functiongraph', [function(x){ return Math.cos(deg(x)); }, 0, 360], {strokeWidth:2, fixed:true});
+    b.create('line', [[0,c],[360,c]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
+    b.create('point', [45,c], {name:'45°', size:3, fixed:true});
+    b.create('point', [315,c], {name:'315°', size:3, fixed:true});
+    text(b, 205, 1.13, 'y = cos x', 13);
+  }
+
+  function initUnitCircleTan(){
+    var el = document.getElementById('unitCircleTanBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('unitCircleTanBoard', {
+      boundingbox:[-1.35,1.35,1.35,-1.35], axis:false, keepaspectratio:true,
+      showCopyright:false, showNavigation:true
+    });
+    b.create('circle', [[0,0],1], {strokeWidth:2, fixed:true});
+    b.create('line', [[-1.18,0],[1.18,0]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
+    b.create('line', [[0,-1.18],[0,1.18]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
+    b.create('line', [[-1.08,-1.08],[1.08,1.08]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
+    var q = Math.sqrt(2)/2;
+    b.create('point', [q,q], {name:'45°', size:3, fixed:true});
+    b.create('point', [-q,-q], {name:'225°', size:3, fixed:true});
+    b.create('segment', [[0,0],[q,q]], {dash:1, fixed:true});
+    b.create('segment', [[0,0],[-q,-q]], {dash:1, fixed:true});
+    text(b, -0.48, 0.72, 'y = x', 12);
+  }
+
+  function initTanTemplate(){
+    var el = document.getElementById('tanTemplateBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('tanTemplateBoard', {
+      boundingbox:[-20,4,380,-4], axis:true, showCopyright:false, showNavigation:true
+    });
+    function t(x){ return Math.tan(deg(x)); }
+    b.create('functiongraph', [t, -20, 80], {strokeWidth:2, fixed:true});
+    b.create('functiongraph', [t, 100, 260], {strokeWidth:2, fixed:true});
+    b.create('functiongraph', [t, 280, 380], {strokeWidth:2, fixed:true});
+    b.create('line', [[0,1],[360,1]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
+    b.create('line', [[90,-4],[90,4]], {straightFirst:false, straightLast:false, dash:1, strokeWidth:1, fixed:true});
+    b.create('line', [[270,-4],[270,4]], {straightFirst:false, straightLast:false, dash:1, strokeWidth:1, fixed:true});
+    b.create('point', [45,1], {name:'45°', size:3, fixed:true});
+    b.create('point', [225,1], {name:'225°', size:3, fixed:true});
+    text(b, 190, 3.25, 'y = tg x', 13);
+  }
+
+  function initTanLine(){
+    var el = document.getElementById('tanBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('tanBoard', {
+      boundingbox:[-220,1.2,400,-1.2],
+      axis:false,
+      showCopyright:false,
+      showNavigation:false
+    });
+    b.create('line', [[-200,0],[380,0]], {straightFirst:false, straightLast:false, strokeWidth:2, fixed:true});
+    var pts = [-150, 30, 210, 390];
+    for(var i=0;i<pts.length;i++){
+      b.create('point', [pts[i],0], {name: pts[i] + '°', size:3, fixed:true});
+    }
+    text(b, 90, 0.65, 'tan solutions repeat every 180°', 14);
+    text(b, 30, -0.55, 'alpha', 12);
+    text(b, 210, -0.55, 'alpha + 180', 12);
+  }
+
+
+  function initDivisionDomain(){
+    var el = document.getElementById('domainBoard');
+    if(!el || !window.JXG) return;
+    var b = JXG.JSXGraph.initBoard('domainBoard', {
+      boundingbox:[-210,1.25,390,-1.25],
+      axis:false,
+      showCopyright:false,
+      showNavigation:false
+    });
+    b.create('line', [[-190,0],[370,0]], {straightFirst:false, straightLast:false, strokeWidth:2, fixed:true});
+    var forbidden = [-90, 90, 270];
+    for(var i=0;i<forbidden.length;i++){
+      b.create('point', [forbidden[i],0], {name: forbidden[i] + '°', size:4, fixed:true, face:'x'});
+    }
+    var safe = [45,225];
+    for(var j=0;j<safe.length;j++){
+      b.create('point', [safe[j],0], {name: safe[j] + '°', size:3, fixed:true});
+    }
+    text(b, 90, 0.88, 'Before dividing by cos x, exclude 90° + 180°k', 13);
+    text(b, 135, -0.62, 'candidate solutions must be checked', 12);
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    try { initUnitCircleSin(); initSinTemplate(); initUnitCircleCos(); initCosTemplate(); initUnitCircleTan(); initTanTemplate(); initTanLine(); initDivisionDomain(); }
+    catch(err) { console.error('JSXGraph initialization error:', err); }
+  });
+})();
+</script>
+</body>
+</html>

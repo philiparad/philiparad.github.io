@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>הוכחת זהויות טריגונומטריות על סמך דף הנוסחאות החדש</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+    :root {
+      --navy: #17324d;
+      --blue: #2f6fa3;
+      --sky: #eaf4fb;
+      --teal: #147d7e;
+      --gold: #b57a11;
+      --ink: #17202a;
+      --muted: #52606d;
+      --line: #cfd8e3;
+      --paper: #ffffff;
+      --soft: #f6f8fb;
+      --danger: #8f2f2f;
+      --success: #236b42;
+      --violet: #5d4c91;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #e9edf2;
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      line-height: 1.45;
+    }
+
+    body { font-size: 14.2px; }
+
+    .document {
+      width: 210mm;
+      margin: 10mm auto;
+      background: var(--paper);
+      box-shadow: 0 5px 28px rgba(20, 35, 50, 0.15);
+    }
+
+    .sheet {
+      width: 210mm;
+      height: 297mm;
+      padding: 13mm 15mm 15mm;
+      position: relative;
+      background: var(--paper);
+      overflow: hidden;
+    }
+
+    .sheet + .sheet { border-top: 1px solid #dde4ec; }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        linear-gradient(145deg, rgba(47,111,163,.10), transparent 43%),
+        linear-gradient(330deg, rgba(20,125,126,.09), transparent 48%),
+        #fff;
+    }
+
+    .kicker {
+      display: inline-block;
+      width: fit-content;
+      color: var(--teal);
+      background: #eef8f4;
+      border: 1px solid #bdd9cb;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      color: var(--navy);
+      font-size: 32px;
+      line-height: 1.2;
+      margin: 0 0 13px;
+    }
+
+    .subtitle {
+      color: var(--blue);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      color: var(--navy);
+      font-size: 23px;
+      line-height: 1.25;
+      margin: 0 0 12px;
+      padding-bottom: 7px;
+      border-bottom: 3px solid var(--blue);
+    }
+
+    h3 {
+      color: var(--blue);
+      font-size: 18px;
+      margin: 16px 0 7px;
+    }
+
+    h4 {
+      color: var(--teal);
+      font-size: 15.5px;
+      margin: 11px 0 5px;
+    }
+
+    p { margin: 5px 0; }
+    ul, ol { margin: 5px 0 9px; padding-right: 22px; }
+    li { margin: 3px 0; }
+
+    .meta-grid, .cards-2, .cards-3, .practice-grid {
+      display: grid;
+      gap: 9px;
+    }
+    .meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
+    .cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .practice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 12px; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      break-inside: avoid;
+    }
+
+    .card strong.label {
+      display: block;
+      color: var(--teal);
+      font-size: 12.5px;
+      margin-bottom: 2px;
+    }
+
+    .hero-box {
+      border: 2px solid var(--blue);
+      border-radius: 14px;
+      padding: 15px 17px;
+      background: rgba(234,244,251,.82);
+      margin-top: 18px;
+    }
+
+    .source-box {
+      border-right: 5px solid var(--teal);
+      background: #f0f8f6;
+      border-radius: 8px;
+      padding: 9px 12px;
+      margin: 9px 0;
+    }
+
+    .formula-box {
+      direction: ltr;
+      text-align: center;
+      border: 1px solid #b9cce0;
+      border-radius: 9px;
+      background: var(--sky);
+      padding: 7px 10px;
+      margin: 8px 0;
+      break-inside: avoid;
+      overflow: visible;
+    }
+    .formula-box.green { background: #eef8f4; border-color: #bdd9cb; }
+    .formula-box.gold { background: #fff8e8; border-color: #ead6a6; }
+    .formula-box.violet { background: #f4f1fb; border-color: #d3caea; }
+
+    .math-step {
+      direction: ltr;
+      text-align: left;
+      background: #f7fbfb;
+      border: 1px solid #e0ecec;
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin: 6px 0;
+      break-inside: avoid;
+      overflow: visible;
+    }
+
+    .teacher-note, .student-note, .warning, .tip {
+      border-radius: 9px;
+      padding: 8px 11px;
+      margin: 8px 0;
+      break-inside: avoid;
+    }
+    .teacher-note { background: #f2f0fb; }
+    .student-note { background: #eef8f4; }
+    .warning { background: #fff1f1; }
+    .tip { background: #fff8e8; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--blue);
+      margin-left: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 12px;
+      break-inside: avoid;
+    }
+    th, td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; }
+    th { color: #fff; background: var(--navy); font-weight: 700; }
+    tr:nth-child(even) td { background: #f7f9fc; }
+    td.math-cell { direction: ltr; text-align: center; }
+
+    .identity-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px 11px;
+      direction: ltr;
+    }
+    .identity-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 6px 8px;
+      text-align: center;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin: 10px 0;
+    }
+    .flow > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 8px;
+      background: #fff;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .exercise {
+      border: 1px solid #dbe2ea;
+      border-radius: 8px;
+      padding: 7px 9px;
+      background: #fff;
+      break-inside: avoid;
+    }
+    .exercise strong { color: var(--navy); }
+
+    mjx-container[display="true"] { margin: .35em 0 !important; }
+    mjx-container { line-height: 1.22; }
+
+    .small { font-size: 12.2px; color: var(--muted); }
+    .center { text-align: center; }
+    .ltr { direction: ltr; text-align: left; }
+
+    .footer {
+      position: absolute;
+      bottom: 6mm;
+      right: 15mm;
+      left: 15mm;
+      border-top: 1px solid #d8e0e8;
+      padding-top: 4px;
+      color: #718096;
+      font-size: 10.5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @page { size: A4; margin: 0; }
+
+    @media print {
+      html, body { background: #fff; }
+      .document { width: auto; margin: 0; box-shadow: none; }
+      .sheet { page-break-after: always; }
+      .sheet:last-child { page-break-after: auto; }
+    }
+
+    @media screen and (max-width: 900px) {
+      .document { width: 100%; margin: 0; box-shadow: none; }
+      .sheet { width: 100%; height: auto; min-height: 100vh; overflow: visible; padding: 24px 18px 54px; }
+      .meta-grid, .cards-2, .cards-3, .practice-grid, .identity-list, .flow { grid-template-columns: 1fr; }
+      .footer { position: static; margin-top: 24px; }
+    }
+  
+
+    .proof-step {
+      padding: 1px 0 2px;
+      break-inside: avoid;
+    }
+
+    .proof-step + .proof-step {
+      border-top: 1px dashed #e4eaef;
+      margin-top: 2px;
+      padding-top: 3px;
+    }
+
+    .proof-step mjx-container[display="true"] {
+      margin: .18em 0 .05em !important;
+    }
+
+    .step-description {
+      direction: rtl;
+      text-align: right;
+      font-size: 9.4px;
+      line-height: 1.18;
+      color: var(--muted);
+      margin: 0 2px 1px;
+    }
+
+    .step-description strong {
+      color: var(--teal);
+      font-weight: 700;
+    }
+</style>
+</head>
+<body>
+<main class="document">
+<section class="sheet cover" data-page="1">
+<div class="kicker">מותאם לנוסחאון החדש - 5 יחידות לימוד</div>
+<h1>הוכחת זהויות טריגונומטריות נוספות</h1>
+<div class="subtitle">איך בונים נוסחה שאינה מופיעה בדף מתוך הזהויות שכן מופיעות בו?</div>
+<div class="hero-box">
+<p><strong>מטרת המסמך:</strong> דף הנוסחאות החדש כבר נותן את זהויות הסימטריה, נוסחאות סכום והפרש זוויות, נוסחאות זווית כפולה ונוסחאות מעבר מסכום למכפלה. לכן אין צורך להוכיח אותן מחדש. במקום זאת משתמשים בהן כאבני בניין כדי להוכיח זהויות נוספות שאינן מופיעות בדף.</p>
+</div>
+<div class="meta-grid">
+<div class="card"><strong class="label">נקודת המוצא</strong>רק נוסחאות שמופיעות בדף הנוסחאות החדש, בצירוף הגדרות בסיסיות.</div>
+<div class="card"><strong class="label">מטרת החשיבה</strong>לזהות איזו נוסחה קיימת היא הקרובה ביותר לזהות שאותה רוצים להוכיח.</div>
+</div>
+<div class="footer"><span>הוכחת זהויות מתוך דף הנוסחאות החדש</span><span>1</span></div>
+</section>
+<section class="sheet" data-page="2">
+<h2>1. מה נתון בדף הנוסחאות החדש?</h2>
+<div style="height:15px;"></div>
+<p>אלו הזהויות שבהן נשתמש כנקודת מוצא. הן מופיעות בפרק הטריגונומטריה של דף הנוסחאות החדש.</p>
+<div style="height:15px;"></div>
+<h3>א. סימטריה וזוויות קשורות</h3>
+<div class="identity-list">
+<div class="identity-item">\(\sin(-\alpha)=-\sin\alpha\)</div>
+<div class="identity-item">\(\cos(-\alpha)=\cos\alpha\)</div>
+<div class="identity-item">\(\sin(\pi-\alpha)=\sin\alpha\)</div>
+<div class="identity-item">\(\cos(\pi-\alpha)=-\cos\alpha\)</div>
+<div class="identity-item">\(\sin\left(\frac{\pi}{2}-\alpha\right)=\cos\alpha\)</div>
+<div class="identity-item">\(\cos\left(\frac{\pi}{2}-\alpha\right)=\sin\alpha\)</div>
+</div>
+<div style="height:15px;"></div>
+<h3>ב. סכום/הפרש וזווית כפולה</h3>
+<div class="formula-box">
+        \[
+        \sin(\alpha\pm\beta)=\sin\alpha\cos\beta\pm\cos\alpha\sin\beta
+        \]
+        \[
+        \cos(\alpha\pm\beta)=\cos\alpha\cos\beta\mp\sin\alpha\sin\beta
+        \]
+        \[
+        \sin 2\alpha=2\sin\alpha\cos\alpha
+        \]
+        \[
+        \cos 2\alpha=\cos^2\alpha-\sin^2\alpha=2\cos^2\alpha-1=1-2\sin^2\alpha
+        \]
+      </div>
+<div style="height:15px;"></div>
+<h3>ג. מעבר מסכום או הפרש למכפלה</h3>
+<div class="cards-2">
+<div class="formula-box green">\[\sin\alpha+\sin\beta=2\sin\frac{\alpha+\beta}{2}\cos\frac{\alpha-\beta}{2}\]</div>
+<div class="formula-box green">\[\sin\alpha-\sin\beta=2\sin\frac{\alpha-\beta}{2}\cos\frac{\alpha+\beta}{2}\]</div>
+<div class="formula-box green">\[\cos\alpha+\cos\beta=2\cos\frac{\alpha+\beta}{2}\cos\frac{\alpha-\beta}{2}\]</div>
+<div class="formula-box green">\[\cos\alpha-\cos\beta=-2\sin\frac{\alpha+\beta}{2}\sin\frac{\alpha-\beta}{2}\]</div>
+</div>
+<div class="student-note"><strong>מכאן והלאה:</strong> נוסחה שמופיעה בעמוד זה נחשבת "נתונה". מטרתנו היא לא להוכיח אותה מחדש אלא להשתמש בה להוכחת נוסחה חדשה.</div>
+<div class="footer"><span>הנוסחאות הנתונות</span><span>2</span></div>
+</section>
+<section class="sheet" data-page="3">
+<h2>2. תבנית עבודה להוכחת זהות חדשה</h2>
+<div style="height:8px;"></div>
+<div class="flow">
+<div>1. מזהים את הצורה המבוקשת</div>
+<div>2. בוחרים זהות קיימת</div>
+<div>3. מבצעים הצבה או שינוי אלגברי</div>
+<div>4. בודקים תחום וסימנים</div>
+</div>
+<div style="height:8px;"></div>
+<div class="tip"><strong>כלל עבודה:</strong> אל תתחילו בפיתוח ארוך. שאלו קודם: "איזו נוסחה בדף כבר דומה למה שאני צריך?" ⇐ זו בדרך כלל הדרך הקצרה ביותר.</div>
+<div style="height:8px;"></div>
+<h3>דוגמה 1 - הוכחת \(\sin(\pi+\alpha)=-\sin\alpha\)</h3>
+<p>בדף מופיעות גם זהות עבור \(\pi-\alpha\) וגם זהות עבור זווית שלילית. נכתוב את הזווית המבוקשת בצורה שמתאימה להן:</p>
+<div class="math-step"><div class="proof-step">\[\sin(\pi+\alpha)=\sin\bigl(\pi-(-\alpha)\bigr)\]<div class="step-description"><strong>הפעולה:</strong> כותבים את הזווית בצורה שקיימת בדף: \(+\alpha=-(-\alpha)\).</div></div><div class="proof-step">\[=\sin(-\alpha)\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזהות \(\sin(\pi-\theta)=\sin\theta\), כאשר \(\theta=-\alpha\).</div></div><div class="proof-step">\[=-\sin\alpha\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזהות הזווית השלילית \(\sin(-\alpha)=-\sin\alpha\).</div></div></div>
+<div class="formula-box green">\[\boxed{\sin(\pi+\alpha)=-\sin\alpha}\]</div>
+<div style="height:8px;"></div>
+<h3>דוגמה 2 - הוכחת \(\cos(\pi+\alpha)=-\cos\alpha\)</h3>
+<div class="math-step"><div class="proof-step">\[\cos(\pi+\alpha)=\cos\bigl(\pi-(-\alpha)\bigr)\]<div class="step-description"><strong>הפעולה:</strong> כותבים את הזווית בצורה \(\pi-(-\alpha)\) כדי להתאים לזהות הנתונה.</div></div><div class="proof-step">\[=-\cos(-\alpha)\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזהות \(\cos(\pi-\theta)=-\cos\theta\), כאשר \(\theta=-\alpha\).</div></div><div class="proof-step">\[=-\cos\alpha\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזהות \(\cos(-\alpha)=\cos\alpha\).</div></div></div>
+<div class="formula-box green">\[\boxed{\cos(\pi+\alpha)=-\cos\alpha}\]</div>
+<div style="height:8px;"></div>
+<div class="footer"><span>שינוי צורת הזווית</span><span>3</span></div>
+</section><section class="sheet" data-page="4"><h2>2. תבנית עבודה להוכחת זהות חדשה - המשך</h2><div style="height:8px;"></div><h3>דוגמה 3 - זווית משלימה מן הצד השני</h3>
+<div class="cards-2_">
+<div class="card">
+<div class="math-step"><div class="proof-step">\[\sin\left(\frac{\pi}{2}+\alpha\right)=\sin\left(\frac{\pi}{2}-(-\alpha)\right)\]<div class="step-description"><strong>הפעולה:</strong> מחליפים \(+\alpha\) ב־\(-(-\alpha)\) כדי לקבל את הצורה של זהות הזוויות המשלימות.</div></div><div class="proof-step">\[=\cos(-\alpha)\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזהות \(\sin\left(\frac{\pi}{2}-\theta\right)=\cos\theta\).</div></div><div class="proof-step">\[=\cos\alpha\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזוגיות של הקוסינוס: \(\cos(-\alpha)=\cos\alpha\).</div></div></div>
+</div>
+<div class="card">
+<div class="math-step"><div class="proof-step">\[\cos\left(\frac{\pi}{2}+\alpha\right)=\cos\left(\frac{\pi}{2}-(-\alpha)\right)\]<div class="step-description"><strong>הפעולה:</strong> מחליפים \(+\alpha\) ב־\(-(-\alpha)\) כדי להתאים לזהות הנתונה.</div></div><div class="proof-step">\[=\sin(-\alpha)\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזהות \(\cos\left(\frac{\pi}{2}-\theta\right)=\sin\theta\).</div></div><div class="proof-step">\[=-\sin\alpha\]<div class="step-description"><strong>הפעולה:</strong> משתמשים באי־זוגיות של הסינוס: \(\sin(-\alpha)=-\sin\alpha\).</div></div></div>
+</div>
+</div>
+<div style="height:8px;"></div>
+<div class="teacher-note"> ההוכחות בעמוד זה אינן דורשות נוסחה חדשה. הן מדגימות כיצד שינוי כתיבה של אותה זווית מאפשר להשתמש ישירות בנוסחה שכבר נמצאת בדף.</div>
+<div class="footer"><span>שינוי צורת הזווית - המשך</span><span>4</span></div></section>
+<section class="sheet" data-page="5">
+<h2>3. מכפלה לסכום - נוסחאות שאינן מופיעות בדף</h2>
+<div style="height:8px;"></div>
+<p>דף הנוסחאות נותן מעבר <strong>מסכום למכפלה</strong>. בעזרת הצבה מתאימה אפשר להפוך את הכיוון ולקבל מעבר <strong>ממכפלה לסכום</strong>.</p>
+<div style="height:8px;"></div>
+<h3>א. הוכחת \(\sin\alpha\cos\beta\)</h3>
+<p>נשתמש בזהות הנתונה לסכום שני סינוסים, אבל נציב בה את הזוויות \(\alpha+\beta\) ו־\(\alpha-\beta\):</p>
+<div class="math-step"><div class="proof-step">\[\sin(\alpha+\beta)+\sin(\alpha-\beta)\]<div class="step-description"><strong>הפעולה:</strong> בוחרים בזהות הנתונה לסכום שני סינוסים ומציבים בה \(x=\alpha+\beta\), \(y=\alpha-\beta\).</div></div><div class="proof-step">\[=2\sin\left(\frac{(\alpha+\beta)+(\alpha-\beta)}{2}\right)\cos\left(\frac{(\alpha+\beta)-(\alpha-\beta)}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> מפעילים את נוסחת המעבר מסכום למכפלה על שתי הזוויות שנבחרו.</div></div><div class="proof-step">\[=2\sin\alpha\cos\beta\]<div class="step-description"><strong>הפעולה:</strong> מפשטים: \((\alpha+\beta)+(\alpha-\beta)=2\alpha\) ו־\((\alpha+\beta)-(\alpha-\beta)=2\beta\).</div></div><div class="proof-step">\[\sin\alpha\cos\beta=\frac12\left[\sin(\alpha+\beta)+\sin(\alpha-\beta)\right]\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את שני אגפי השוויון ב־2 ומסדרים את הזהות בצורה המבוקשת.</div></div></div>
+<div class="formula-box green">\[\boxed{\sin\alpha\cos\beta=\frac12\left[\sin(\alpha+\beta)+\sin(\alpha-\beta)\right]}\]</div>
+<div style="height:8px;"></div>
+<h3>ב. הוכחת \(\cos\alpha\sin\beta\)</h3>
+<p>כעת נשתמש בזהות הנתונה להפרש שני סינוסים:</p>
+<div class="math-step"><div class="proof-step">\[\sin(\alpha+\beta)-\sin(\alpha-\beta)\]<div class="step-description"><strong>הפעולה:</strong> בוחרים בזהות הנתונה להפרש שני סינוסים עם \(x=\alpha+\beta\), \(y=\alpha-\beta\).</div></div><div class="proof-step">\[=2\sin\left(\frac{(\alpha+\beta)-(\alpha-\beta)}{2}\right)\cos\left(\frac{(\alpha+\beta)+(\alpha-\beta)}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> מפעילים את נוסחת המעבר מהפרש למכפלה.</div></div><div class="proof-step">\[=2\sin\beta\cos\alpha\]<div class="step-description"><strong>הפעולה:</strong> מפשטים את סכום הזוויות ואת הפרש הזוויות שבתוך הסינוס והקוסינוס.</div></div><div class="proof-step">\[\cos\alpha\sin\beta=\frac12\left[\sin(\alpha+\beta)-\sin(\alpha-\beta)\right]\]<div class="step-description"><strong>הפעולה:</strong> מחליפים את סדר הגורמים במכפלה ומחלקים את שני האגפים ב־2.</div></div></div>
+<div class="formula-box green">\[\boxed{\cos\alpha\sin\beta=\frac12\left[\sin(\alpha+\beta)-\sin(\alpha-\beta)\right]}\]</div>
+<div style="height:8px;"></div>
+<div class="student-note"> הביטויים \((\alpha+\beta)+(\alpha-\beta)\) ו־\((\alpha+\beta)-(\alpha-\beta)\) הופכים בדיוק ל־\(2\alpha\) ול־\(2\beta\). זו הסיבה שההצבה עובדת.</div>
+<div class="footer"><span>מכפלה לסכום - פונקציות שונות</span><span>5</span></div>
+</section>
+<section class="sheet" data-page="6">
+<h2>3. מכפלה לסכום - המשך</h2>
+<div style="height:8px;"></div>
+<h3>ג. הוכחת \(\cos\alpha\cos\beta\)</h3>
+<div class="math-step"><div class="proof-step">\[\cos(\alpha+\beta)+\cos(\alpha-\beta)\]<div class="step-description"><strong>הפעולה:</strong> בוחרים בזהות הנתונה לסכום שני קוסינוסים עם \(x=\alpha+\beta\), \(y=\alpha-\beta\).</div></div><div class="proof-step">\[=2\cos\left(\frac{(\alpha+\beta)+(\alpha-\beta)}{2}\right)\cos\left(\frac{(\alpha+\beta)-(\alpha-\beta)}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> מפעילים את נוסחת המעבר מסכום למכפלה.</div></div><div class="proof-step">\[=2\cos\alpha\cos\beta\]<div class="step-description"><strong>הפעולה:</strong> מפשטים את הביטויים שבתוך הקוסינוסים ל־\(\alpha\) ול־\(\beta\).</div></div><div class="proof-step">\[\cos\alpha\cos\beta=\frac12\left[\cos(\alpha+\beta)+\cos(\alpha-\beta)\right]\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את שני אגפי השוויון ב־2.</div></div></div>
+<div class="formula-box green">\[\boxed{\cos\alpha\cos\beta=\frac12\left[\cos(\alpha+\beta)+\cos(\alpha-\beta)\right]}\]</div>
+<div style="height:8px;"></div>
+<h3>ד. הוכחת \(\sin\alpha\sin\beta\)</h3>
+<p>כדי לקבל סימן חיובי, נתחיל בסדר \(\cos(\alpha-\beta)-\cos(\alpha+\beta)\):</p>
+<div class="math-step"><div class="proof-step">\[\cos(\alpha-\beta)-\cos(\alpha+\beta)\]<div class="step-description"><strong>הפעולה:</strong> בוחרים בסדר הזה של הקוסינוסים כדי שבסוף תתקבל מכפלת סינוסים עם סימן חיובי.</div></div><div class="proof-step">\[=-2\sin\left(\frac{(\alpha-\beta)+(\alpha+\beta)}{2}\right)\sin\left(\frac{(\alpha-\beta)-(\alpha+\beta)}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> מפעילים את נוסחת המעבר מהפרש קוסינוסים למכפלה.</div></div><div class="proof-step">\[=-2\sin\alpha\sin(-\beta)\]<div class="step-description"><strong>הפעולה:</strong> מפשטים את סכום הזוויות ל־\(2\alpha\) ואת ההפרש ל־\(-2\beta\).</div></div><div class="proof-step">\[=2\sin\alpha\sin\beta\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בזהות \(\sin(-\beta)=-\sin\beta\); שני סימני המינוס מתבטלים.</div></div><div class="proof-step">\[\sin\alpha\sin\beta=\frac12\left[\cos(\alpha-\beta)-\cos(\alpha+\beta)\right]\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את שני אגפי השוויון ב־2 ומסדרים את הזהות.</div></div></div>
+<div class="formula-box green">\[\boxed{\sin\alpha\sin\beta=\frac12\left[\cos(\alpha-\beta)-\cos(\alpha+\beta)\right]}\]</div>
+<div style="height:8px;"></div>
+<div class="footer"><span>מכפלה לסכום - פונקציות זהות</span><span>6</span></div>
+</section><section class="sheet" data-page="7"><h2>3. מכפלה לסכום - סיכום</h2><div style="height:8px;"></div><h3>סיכום ארבע הנוסחאות שהתקבלו</h3>
+<table>
+<thead><tr><th>מכפלה</th><th>הזהות שהוכחנו</th></tr></thead>
+<tbody>
+<tr><td class="math-cell">\(\sin\alpha\cos\beta\)</td><td class="math-cell">\(\frac12[\sin(\alpha+\beta)+\sin(\alpha-\beta)]\)</td></tr>
+<tr><td class="math-cell">\(\cos\alpha\sin\beta\)</td><td class="math-cell">\(\frac12[\sin(\alpha+\beta)-\sin(\alpha-\beta)]\)</td></tr>
+<tr><td class="math-cell">\(\cos\alpha\cos\beta\)</td><td class="math-cell">\(\frac12[\cos(\alpha+\beta)+\cos(\alpha-\beta)]\)</td></tr>
+<tr><td class="math-cell">\(\sin\alpha\sin\beta\)</td><td class="math-cell">\(\frac12[\cos(\alpha-\beta)-\cos(\alpha+\beta)]\)</td></tr>
+</tbody>
+</table>
+<div class="footer"><span>מכפלה לסכום - סיכום</span><span>7</span></div></section>
+<section class="sheet" data-page="8">
+<h2>4. הורדת חזקה ונוסחאות חצי זווית</h2>
+<div style="height:8px;"></div>
+<p>בדף מופיעות כבר שתי הצורות:</p>
+<div class="formula-box">\[\cos 2\alpha=1-2\sin^2\alpha\qquad\cos 2\alpha=2\cos^2\alpha-1\]</div>
+<div style="height:8px;"></div>
+<h3>א. הוכחת נוסחאות הורדת חזקה</h3>
+<div class="cards-2">
+<div class="card">
+<h4>עבור סינוס</h4>
+<div class="math-step"><div class="proof-step">\[\cos 2\alpha=1-2\sin^2\alpha\]<div class="step-description"><strong>הפעולה:</strong> מתחילים מצורת הזווית הכפולה הנתונה שמתאימה לריבוע של סינוס.</div></div><div class="proof-step">\[2\sin^2\alpha=1-\cos 2\alpha\]<div class="step-description"><strong>הפעולה:</strong> מעבירים אגפים: מוסיפים \(2\sin^2\alpha\) ומחסרים \(\cos 2\alpha\) משני האגפים.</div></div><div class="proof-step">\[\boxed{\sin^2\alpha=\frac{1-\cos 2\alpha}{2}}\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את שני אגפי השוויון ב־2.</div></div></div>
+</div>
+<div class="card">
+<h4>עבור קוסינוס</h4>
+<div class="math-step"><div class="proof-step">\[\cos 2\alpha=2\cos^2\alpha-1\]<div class="step-description"><strong>הפעולה:</strong> מתחילים מצורת הזווית הכפולה הנתונה שמתאימה לריבוע של קוסינוס.</div></div><div class="proof-step">\[2\cos^2\alpha=1+\cos 2\alpha\]<div class="step-description"><strong>הפעולה:</strong> מוסיפים 1 לשני האגפים ומסדרים את השוויון.</div></div><div class="proof-step">\[\boxed{\cos^2\alpha=\frac{1+\cos 2\alpha}{2}}\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את שני אגפי השוויון ב־2.</div></div></div>
+</div>
+</div>
+<div style="height:8px;"></div>
+<h3>ב. מעבר לחצי זווית</h3>
+<p>כדי לקבל \(\alpha/2\), מציבים \(\alpha/2\) במקום \(\alpha\) בנוסחאות הקודמות:</p>
+<div class="math-step"><div class="proof-step">\[\sin^2\left(\frac{\alpha}{2}\right)=\frac{1-\cos\alpha}{2}\]<div class="step-description"><strong>הפעולה:</strong> מציבים \(\frac{\alpha}{2}\) במקום \(\alpha\) בנוסחת הורדת החזקה לסינוס; לכן \(2\cdot\frac{\alpha}{2}=\alpha\).</div></div><div class="proof-step">\[\cos^2\left(\frac{\alpha}{2}\right)=\frac{1+\cos\alpha}{2}\]<div class="step-description"><strong>הפעולה:</strong> מבצעים אותה הצבה בנוסחת הורדת החזקה לקוסינוס.</div></div></div>
+<div class="formula-box gold">
+        \[
+        \boxed{\sin^2\left(\frac{\alpha}{2}\right)=\frac{1-\cos\alpha}{2}}
+        \qquad
+        \boxed{\cos^2\left(\frac{\alpha}{2}\right)=\frac{1+\cos\alpha}{2}}
+        \]
+      </div>
+<div style="height:8px;"></div>
+<div class="warning"><strong>זהירות:</strong> אם מוציאים שורש, מתקבל \(\left|\sin\frac{\alpha}{2}\right|\) או \(\left|\cos\frac{\alpha}{2}\right|\). הסימן של הערך עצמו תלוי ברביע שבו נמצאת חצי הזווית.</div>
+<div style="height:8px;"></div>
+<div class="footer"><span>הורדת חזקה וחצי זווית</span><span>8</span></div>
+</section><section class="sheet" data-page="9"><h2>4. הורדת חזקה וחצי זווית - יישום</h2><div style="height:8px;"></div><h3>יישום קצר</h3>
+<div class="math-step"><div class="proof-step">\[\sin^2\alpha\cos^2\alpha=\frac14\sin^2 2\alpha\]<div class="step-description"><strong>הפעולה:</strong> מעלים בריבוע את \(\sin 2\alpha=2\sin\alpha\cos\alpha\) ומחלקים ב־4.</div></div><div class="proof-step">\[=\frac14\cdot\frac{1-\cos 4\alpha}{2}\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בנוסחת הורדת החזקה עבור \(\sin^2 2\alpha\).</div></div><div class="proof-step">\[=\frac{1-\cos 4\alpha}{8}\]<div class="step-description"><strong>הפעולה:</strong> כופלים את המכנים: \(4\cdot2=8\).</div></div></div>
+<div class="footer"><span>הורדת חזקה - יישום</span><span>9</span></div></section>
+<section class="sheet" data-page="10">
+<h2>5. נוסחאות חצי זווית לטנגנס</h2>
+<div style="height:8px;"></div>
+<p>נוסחאות אלו אינן מופיעות בדף, אך אפשר להוכיח אותן מיד מתוך נוסחאות הזווית הכפולה שמופיעות בו.</p>
+<div style="height:8px;"></div>
+<h3>א. הצורה \(\dfrac{\sin\alpha}{1+\cos\alpha}\)</h3>
+<div class="math-step"><div class="proof-step">\[\sin\alpha=2\sin\left(\frac{\alpha}{2}\right)\cos\left(\frac{\alpha}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> משתמשים בנוסחת הזווית הכפולה לסינוס עם הזווית \(\frac{\alpha}{2}\).</div></div><div class="proof-step">\[1+\cos\alpha=1+\left(2\cos^2\left(\frac{\alpha}{2}\right)-1\right)\]<div class="step-description"><strong>הפעולה:</strong> מחליפים את \(\cos\alpha\) לפי נוסחת הזווית הכפולה לקוסינוס.</div></div><div class="proof-step">\[=2\cos^2\left(\frac{\alpha}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> מפשטים את \(1-1\).</div></div><div class="proof-step">\[\frac{\sin\alpha}{1+\cos\alpha}=\frac{2\sin(\alpha/2)\cos(\alpha/2)}{2\cos^2(\alpha/2)}\]<div class="step-description"><strong>הפעולה:</strong> מציבים במונה ובמכנה את הביטויים שמצאנו בשלבים הקודמים.</div></div><div class="proof-step">\[=\tan\left(\frac{\alpha}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> מצמצמים גורם 2 וגורם \(\cos(\alpha/2)\), ואז משתמשים בהגדרת הטנגנס.</div></div></div>
+<div class="formula-box gold">\[\boxed{\tan\left(\frac{\alpha}{2}\right)=\frac{\sin\alpha}{1+\cos\alpha}}\]</div>
+<div style="height:8px;"></div>
+<div class="footer"><span>חצי זווית לטנגנס</span><span>10</span></div>
+</section><section class="sheet" data-page="11"><h2>5. נוסחאות חצי זווית לטנגנס - המשך</h2><div style="height:8px;"></div><h3>ב. הצורה \(\dfrac{1-\cos\alpha}{\sin\alpha}\)</h3>
+<div class="math-step"><div class="proof-step">\[1-\cos\alpha=1-\left(1-2\sin^2\left(\frac{\alpha}{2}\right)\right)\]<div class="step-description"><strong>הפעולה:</strong> מחליפים את \(\cos\alpha\) לפי הצורה \(\cos\alpha=1-2\sin^2(\alpha/2)\).</div></div><div class="proof-step">\[=2\sin^2\left(\frac{\alpha}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> פותחים סוגריים ומפשטים את \(1-1\).</div></div><div class="proof-step">\[\frac{1-\cos\alpha}{\sin\alpha}=\frac{2\sin^2(\alpha/2)}{2\sin(\alpha/2)\cos(\alpha/2)}\]<div class="step-description"><strong>הפעולה:</strong> מציבים במונה את הביטוי שמצאנו ובמכנה את נוסחת הזווית הכפולה לסינוס.</div></div><div class="proof-step">\[=\tan\left(\frac{\alpha}{2}\right)\]<div class="step-description"><strong>הפעולה:</strong> מצמצמים גורם 2 וגורם \(\sin(\alpha/2)\), ואז משתמשים בהגדרת הטנגנס.</div></div></div>
+<div class="formula-box gold">\[\boxed{\tan\left(\frac{\alpha}{2}\right)=\frac{1-\cos\alpha}{\sin\alpha}}\]</div>
+<div style="height:8px;"></div>
+<h3>ג. נוסחת הריבוע</h3>
+<div class="math-step"><div class="proof-step">\[\tan^2\left(\frac{\alpha}{2}\right)=\frac{\sin^2(\alpha/2)}{\cos^2(\alpha/2)}\]<div class="step-description"><strong>הפעולה:</strong> מעלים בריבוע את הגדרת הטנגנס.</div></div><div class="proof-step">\[=\frac{(1-\cos\alpha)/2}{(1+\cos\alpha)/2}\]<div class="step-description"><strong>הפעולה:</strong> מציבים את שתי נוסחאות חצי הזווית בריבוע שהוכחו קודם.</div></div><div class="proof-step">\[=\frac{1-\cos\alpha}{1+\cos\alpha}\]<div class="step-description"><strong>הפעולה:</strong> מצמצמים את הגורם המשותף \(\frac12\) במונה ובמכנה.</div></div></div>
+<div class="formula-box gold">\[\boxed{\tan^2\left(\frac{\alpha}{2}\right)=\frac{1-\cos\alpha}{1+\cos\alpha}}\]</div>
+<div style="height:8px;"></div>
+<div class="warning"><strong>תחום הגדרה:</strong> בכל זהות עם מנה משתמשים בנוסחה רק בתחום שבו כל הביטויים המופיעים באותה כתיבה מוגדרים והמכנים שונים מאפס.</div>
+<div class="footer"><span>חצי זווית לטנגנס - המשך</span><span>11</span></div></section>
+<section class="sheet" data-page="12">
+<h2>6. נוסחאות טנגנס מתוך נוסחאות הסינוס והקוסינוס</h2>
+<div style="height:8px;"></div>
+<p>נשתמש בהגדרה \(\tan\alpha=\dfrac{\sin\alpha}{\cos\alpha}\) ובזהויות שכבר נמצאות בדף.</p>
+<div style="height:8px;"></div>
+<h3>א. טנגנס של זווית כפולה</h3>
+<div class="math-step"><div class="proof-step">\[\tan 2\alpha=\frac{\sin 2\alpha}{\cos 2\alpha}\]<div class="step-description"><strong>הפעולה:</strong> מתחילים מהגדרת הטנגנס.</div></div><div class="proof-step">\[=\frac{2\sin\alpha\cos\alpha}{\cos^2\alpha-\sin^2\alpha}\]<div class="step-description"><strong>הפעולה:</strong> מציבים את נוסחאות הזווית הכפולה לסינוס ולקוסינוס.</div></div><div class="proof-step">\[=\frac{2\dfrac{\sin\alpha}{\cos\alpha}}{1-\left(\dfrac{\sin\alpha}{\cos\alpha}\right)^2}\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את המונה ואת המכנה ב־\(\cos^2\alpha\).</div></div><div class="proof-step">\[=\frac{2\tan\alpha}{1-\tan^2\alpha}\]<div class="step-description"><strong>הפעולה:</strong> מחליפים כל מנה \(\frac{\sin\alpha}{\cos\alpha}\) ב־\(\tan\alpha\).</div></div></div>
+<div class="formula-box violet">\[\boxed{\tan 2\alpha=\frac{2\tan\alpha}{1-\tan^2\alpha}}\]</div>
+<div style="height:8px;"></div>
+<div class="footer"><span>נוסחאות טנגנס נגזרות</span><span>12</span></div>
+</section><section class="sheet" data-page="13"><h2>6. נוסחאות טנגנס מתוך נוסחאות הסינוס והקוסינוס - המשך</h2><div style="height:8px;"></div><h3>ב. טנגנס של סכום זוויות</h3>
+<div class="math-step"><div class="proof-step">\[\tan(\alpha+\beta)=\frac{\sin(\alpha+\beta)}{\cos(\alpha+\beta)}\]<div class="step-description"><strong>הפעולה:</strong> מתחילים מהגדרת הטנגנס של הזווית \(\alpha+\beta\).</div></div><div class="proof-step">\[=\frac{\sin\alpha\cos\beta+\cos\alpha\sin\beta}{\cos\alpha\cos\beta-\sin\alpha\sin\beta}\]<div class="step-description"><strong>הפעולה:</strong> מציבים את נוסחאות סכום הזוויות לסינוס ולקוסינוס.</div></div><div class="proof-step">\[=\frac{\dfrac{\sin\alpha}{\cos\alpha}+\dfrac{\sin\beta}{\cos\beta}}{1-\dfrac{\sin\alpha}{\cos\alpha}\dfrac{\sin\beta}{\cos\beta}}\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את המונה ואת המכנה ב־\(\cos\alpha\cos\beta\).</div></div><div class="proof-step">\[=\frac{\tan\alpha+\tan\beta}{1-\tan\alpha\tan\beta}\]<div class="step-description"><strong>הפעולה:</strong> מחליפים את מנות הסינוס והקוסינוס בטנגנסים.</div></div></div>
+<div class="formula-box violet">\[\boxed{\tan(\alpha+\beta)=\frac{\tan\alpha+\tan\beta}{1-\tan\alpha\tan\beta}}\]</div>
+<div style="height:8px;"></div>
+<div class="footer"><span>נוסחאות טנגנס - המשך</span><span>13</span></div></section><section class="sheet" data-page="14"><h2>6. נוסחאות טנגנס מתוך נוסחאות הסינוס והקוסינוס - הפרש זוויות</h2><div style="height:8px;"></div><h3>ג. טנגנס של הפרש זוויות</h3>
+<div class="math-step"><div class="proof-step">\[\tan(\alpha-\beta)=\frac{\sin(\alpha-\beta)}{\cos(\alpha-\beta)}\]<div class="step-description"><strong>הפעולה:</strong> מתחילים מהגדרת הטנגנס של הזווית \(\alpha-\beta\).</div></div><div class="proof-step">\[=\frac{\sin\alpha\cos\beta-\cos\alpha\sin\beta}{\cos\alpha\cos\beta+\sin\alpha\sin\beta}\]<div class="step-description"><strong>הפעולה:</strong> מציבים את נוסחאות הפרש הזוויות לסינוס ולקוסינוס.</div></div><div class="proof-step">\[=\frac{\dfrac{\sin\alpha}{\cos\alpha}-\dfrac{\sin\beta}{\cos\beta}}{1+\dfrac{\sin\alpha}{\cos\alpha}\dfrac{\sin\beta}{\cos\beta}}\]<div class="step-description"><strong>הפעולה:</strong> מחלקים את המונה ואת המכנה ב־\(\cos\alpha\cos\beta\).</div></div><div class="proof-step">\[=\frac{\tan\alpha-\tan\beta}{1+\tan\alpha\tan\beta}\]<div class="step-description"><strong>הפעולה:</strong> מחליפים את מנות הסינוס והקוסינוס בטנגנסים.</div></div></div>
+<div class="formula-box violet">\[\boxed{\tan(\alpha-\beta)=\frac{\tan\alpha-\tan\beta}{1+\tan\alpha\tan\beta}}\]</div>
+<div style="height:8px;"></div>
+<div class="teacher-note"><strong>מה נעשה כאן?</strong> לא שיננו נוסחה חדשה. בנינו אותה בכל פעם מחדש: הגדרת טנגנס ⇐ נוסחאות סינוס וקוסינוס מהדף ⇐ חלוקה משותפת ב־\(\cos\alpha\cos\beta\).</div>
+<div class="footer"><span>נוסחאות טנגנס - הפרש זוויות</span><span>14</span></div></section>
+<section class="sheet" data-page="15">
+<h2>7. תרגול - הוכחת זהויות מתוך דף הנוסחאות</h2>
+<div style="height:15px;"></div>
+<p>בכל שאלה: ציינו תחילה באיזו זהות נתונה מדף הנוסחאות אתם משתמשים, ורק אחר כך בצעו את האלגברה.</p>
+<div style="height:15px;"></div>
+<div class="practice-grid">
+<div class="exercise"><strong>1.</strong> הוכיחו: \(\sin(\pi+\alpha)=-\sin\alpha\).</div>
+<div class="exercise"><strong>2.</strong> הוכיחו: \(\cos(\pi+\alpha)=-\cos\alpha\).</div>
+<div class="exercise"><strong>3.</strong> הוכיחו: \(\sin\left(\frac{\pi}{2}+\alpha\right)=\cos\alpha\).</div>
+<div class="exercise"><strong>4.</strong> הוכיחו: \(\cos\left(\frac{\pi}{2}+\alpha\right)=-\sin\alpha\).</div>
+<div class="exercise"><strong>5.</strong> הוכיחו את נוסחת המכפלה עבור \(\sin\alpha\cos\beta\).</div>
+<div class="exercise"><strong>6.</strong> הוכיחו את נוסחת המכפלה עבור \(\cos\alpha\sin\beta\).</div>
+<div class="exercise"><strong>7.</strong> הוכיחו את נוסחת המכפלה עבור \(\cos\alpha\cos\beta\).</div>
+<div class="exercise"><strong>8.</strong> הוכיחו את נוסחת המכפלה עבור \(\sin\alpha\sin\beta\).</div>
+<div class="exercise"><strong>9.</strong> הוכיחו: \(\sin^2\alpha=\dfrac{1-\cos 2\alpha}{2}\).</div>
+<div class="exercise"><strong>10.</strong> הוכיחו: \(\cos^2\alpha=\dfrac{1+\cos 2\alpha}{2}\).</div>
+<div class="exercise"><strong>11.</strong> הוכיחו: \(\tan\left(\frac{\alpha}{2}\right)=\dfrac{\sin\alpha}{1+\cos\alpha}\).</div>
+<div class="exercise"><strong>12.</strong> הוכיחו: \(\tan\left(\frac{\alpha}{2}\right)=\dfrac{1-\cos\alpha}{\sin\alpha}\).</div>
+<div class="exercise"><strong>13.</strong> הוכיחו: \(\tan^2\left(\frac{\alpha}{2}\right)=\dfrac{1-\cos\alpha}{1+\cos\alpha}\).</div>
+<div class="exercise"><strong>14.</strong> הוכיחו: \(\tan 2\alpha=\dfrac{2\tan\alpha}{1-\tan^2\alpha}\).</div>
+<div class="exercise"><strong>15.</strong> הוכיחו: \(\tan(\alpha+\beta)=\dfrac{\tan\alpha+\tan\beta}{1-\tan\alpha\tan\beta}\).</div>
+<div class="exercise"><strong>16.</strong> הוכיחו: \(\tan(\alpha-\beta)=\dfrac{\tan\alpha-\tan\beta}{1+\tan\alpha\tan\beta}\).</div>
+</div>
+<div style="height:15px;"></div>
+<h3>אתגר - שרשרת של שתי זהויות</h3>
+<div class="practice-grid">
+<div class="exercise"><strong>17.</strong> הוכיחו: \(\sin^2\alpha\cos^2\alpha=\dfrac{1-\cos 4\alpha}{8}\).</div>
+<div class="exercise"><strong>18.</strong> הוכיחו: \(\dfrac{1-\cos 2\alpha}{\sin 2\alpha}=\tan\alpha\), בתחום המשותף.</div>
+<div class="exercise"><strong>19.</strong> הוכיחו: \(\dfrac{\sin 2\alpha}{1+\cos 2\alpha}=\tan\alpha\), בתחום המשותף.</div>
+<div class="exercise"><strong>20.</strong> הוכיחו: \(\dfrac{\cos(\alpha-\beta)-\cos(\alpha+\beta)}{2}=\sin\alpha\sin\beta\).</div>
+</div>
+<div style="height:15px;"></div>
+<div class="student-note"><strong>בדיקה:</strong> האם בכל שורה ברור מאיזו נוסחה קודמת היא נובעת? האם הופיעה חלוקה בביטוי שעלול להיות אפס? האם הסימנים נשמרו?</div>
+<div class="footer"><span>תרגול</span><span>15</span></div>
+</section>
+<section class="sheet" data-page="16">
+<h2>8. תשובות קצרות ומפת סיכום</h2>
+<div style="height:15px;"></div>
+<h3>מפתח לתרגילים</h3>
+<table>
+<thead><tr><th>תרגיל</th><th>הזהות/המהלך המרכזי</th></tr></thead>
+<tbody>
+<tr><td>1-2</td><td>כתיבה \(\pi+\alpha=\pi-(-\alpha)\), ואז זהויות \(\pi-\alpha\) וזווית שלילית.</td></tr>
+<tr><td>3-4</td><td>כתיבה \(\frac{\pi}{2}+\alpha=\frac{\pi}{2}-(-\alpha)\), ואז זהויות משלימות וזווית שלילית.</td></tr>
+<tr><td>5-8</td><td>מציבים \(\alpha+\beta\) ו־\(\alpha-\beta\) בארבע נוסחאות סכום/הפרש למכפלה, ואז מחלקים ב־2.</td></tr>
+<tr><td>9</td><td>מסדרים את \(\cos 2\alpha=1-2\sin^2\alpha\).</td></tr>
+<tr><td>10</td><td>מסדרים את \(\cos 2\alpha=2\cos^2\alpha-1\).</td></tr>
+<tr><td>11-12</td><td>מחליפים \(\sin\alpha\), \(1+\cos\alpha\), \(1-\cos\alpha\) בביטויי חצי זווית.</td></tr>
+<tr><td>13</td><td>מחלקים את שתי נוסחאות חצי הזווית בריבוע.</td></tr>
+<tr><td>14</td><td>\(\tan 2\alpha=\sin 2\alpha/\cos 2\alpha\), ואז חלוקה ב־\(\cos^2\alpha\).</td></tr>
+<tr><td>15-16</td><td>הגדרת טנגנס + נוסחאות סכום/הפרש + חלוקה ב־\(\cos\alpha\cos\beta\).</td></tr>
+<tr><td>17</td><td>\(\sin 2\alpha=2\sin\alpha\cos\alpha\), ואז הורדת חזקה עבור \(\sin^2 2\alpha\).</td></tr>
+<tr><td>18</td><td>\(1-\cos 2\alpha=2\sin^2\alpha\) ו־\(\sin 2\alpha=2\sin\alpha\cos\alpha\).</td></tr>
+<tr><td>19</td><td>\(1+\cos 2\alpha=2\cos^2\alpha\) ו־\(\sin 2\alpha=2\sin\alpha\cos\alpha\).</td></tr>
+<tr><td>20</td><td>נוסחת המכפלה שהוכחה בעמוד 5.</td></tr>
+</tbody>
+</table>
+<div style="height:15px;"></div>
+<h3>מפת החלטה</h3>
+<div class="cards-2">
+<div class="card"><strong class="label">מופיעה זווית \(\pi+\alpha\) או \(\frac{\pi}{2}+\alpha\)</strong>החליפו את \(+\alpha\) ב־\(-(-\alpha)\) והשתמשו בזהויות הזווית השלילית.</div>
+<div class="card"><strong class="label">מופיעה מכפלה של סינוס/קוסינוס</strong>השתמשו בנוסחאות סכום/הפרש למכפלה עם הזוויות \(\alpha+\beta\), \(\alpha-\beta\).</div>
+<div class="card"><strong class="label">מופיע ריבוע של סינוס או קוסינוס</strong>סדרו מחדש אחת מצורות \(\cos 2\alpha\).</div>
+<div class="card"><strong class="label">מופיע טנגנס שאינו בדף</strong>חזרו להגדרה \(\tan=\sin/\cos\), הציבו נוסחאות נתונות ופשטו.</div>
+</div>
+<div style="height:15px;"></div>
+<div class="hero-box">
+<p><strong>העיקרון המסכם:</strong> דף הנוסחאות אינו רשימת תשובות סגורה. הוא אוסף של אבני בניין. כאשר מכירים את המבנה של הזהויות הקיימות, אפשר לשחזר באופן שיטתי זהויות רבות שאינן כתובות בדף.</p>
+</div>
+<div class="footer"><span>תשובות וסיכום</span><span>16</span></div>
+</section>
+</main>
+</body>
+</html>

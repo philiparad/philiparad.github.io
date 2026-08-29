@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>הוכחת זהויות טריגונומטריות בעזרת מעגל היחידה</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraph.css" />
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --ink: #183047;
+      --muted: #536575;
+      --blue: #28699c;
+      --blue-soft: #eaf4fb;
+      --teal: #177a73;
+      --teal-soft: #e8f6f4;
+      --gold: #a56a0a;
+      --gold-soft: #fff5dc;
+      --red: #a23b3b;
+      --red-soft: #fdeeee;
+      --line: #cfd9e2;
+      --paper: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #e9eef2;
+      color: var(--ink);
+      font-family: "Arial", "Noto Sans Hebrew", sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    body { counter-reset: page; }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 10mm auto;
+      padding: 15mm 16mm 14mm;
+      background: var(--paper);
+      box-shadow: 0 3px 14px rgba(28, 45, 60, 0.14);
+      position: relative;
+      page-break-after: always;
+      overflow: visible;
+    }
+
+    .page:last-child { page-break-after: auto; }
+
+    .page::after {
+      counter-increment: page;
+      content: counter(page);
+      position: absolute;
+      bottom: 7mm;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #7b8994;
+      font-size: 10pt;
+    }
+
+    h1, h2, h3 { margin: 0; color: var(--ink); }
+    h1 { font-size: 26pt; line-height: 1.22; }
+    h2 {
+      font-size: 18pt;
+      margin-bottom: 5mm;
+      padding-bottom: 2mm;
+      border-bottom: 2px solid var(--blue);
+    }
+    h3 { font-size: 14pt; margin-bottom: 2mm; }
+    p { margin: 0 0 3mm; }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 1.5mm 4mm;
+      border-radius: 99px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 10.5pt;
+      margin-bottom: 5mm;
+    }
+
+    .subtitle {
+      font-size: 14pt;
+      color: var(--muted);
+      margin-top: 4mm;
+      max-width: 155mm;
+    }
+
+    .hero {
+      min-height: 88mm;
+      padding: 13mm 12mm;
+      border-radius: 5mm;
+      background: linear-gradient(135deg, #eef7fd 0%, #f8fbfd 52%, #eef8f6 100%);
+      border: 1px solid #c9dfe9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .meta-grid, .two-col, .three-col {
+      display: grid;
+      gap: 5mm;
+    }
+    .meta-grid { grid-template-columns: repeat(2, 1fr); margin-top: 8mm; }
+    .two-col { grid-template-columns: 1fr 1fr; }
+    .three-col { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 3.2mm;
+      padding: 4mm;
+      background: #fff;
+      break-inside: avoid;
+    }
+
+    .card.blue { background: var(--blue-soft); border-color: #c8dfef; }
+    .card.teal { background: var(--teal-soft); border-color: #bfdfdb; }
+    .card.gold { background: var(--gold-soft); border-color: #ecd89e; }
+    .card.red { background: var(--red-soft); border-color: #efcaca; }
+
+    .key-idea {
+      margin: 7mm 0;
+      padding: 5mm;
+      border-right: 5px solid var(--teal);
+      background: var(--teal-soft);
+      border-radius: 2mm;
+      font-size: 13pt;
+    }
+
+    ul, ol { margin: 2mm 0 0; padding-right: 6mm; }
+    li { margin-bottom: 1.7mm; }
+
+    .math-block {
+      direction: ltr;
+      text-align: center;
+      background: #f8fafc;
+      border: 1px solid #d9e2e9;
+      border-radius: 2.5mm;
+      padding: 2mm;
+      margin: 3mm 0;
+      font-size: 12.5pt;
+      break-inside: avoid;
+    }
+
+    .formula-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+      direction: ltr;
+    }
+
+    .formula {
+      text-align: center;
+      padding: 3mm;
+      border-radius: 2.5mm;
+      border: 1px solid #d6e0e7;
+      background: #fbfcfd;
+      font-size: 12pt;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 3mm;
+      font-size: 10.5pt;
+      break-inside: avoid;
+    }
+
+    th, td {
+      border: 1px solid #c9d4dd;
+      padding: 2.4mm;
+      vertical-align: middle;
+    }
+
+    th { background: #eaf2f8; color: #173e5e; }
+    td.math-cell { direction: ltr; text-align: center; white-space: nowrap; }
+
+    .board-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 3mm 0 4mm;
+      break-inside: avoid;
+    }
+
+    .jxgbox {
+      direction: ltr;
+      width: 150mm;
+      height: 104mm;
+      border: 1px solid #aebdca;
+      border-radius: 3mm;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .small-board {
+      width: 78mm;
+      height: 70mm;
+    }
+
+    .angle-board {
+      width: 78mm;
+      height: 67mm;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 14mm 1fr;
+      gap: 3mm;
+      align-items: start;
+      margin-bottom: 3mm;
+      break-inside: avoid;
+    }
+
+    .step-num {
+      width: 11mm;
+      height: 11mm;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .example {
+      border: 1px solid #cbd7e0;
+      border-radius: 3mm;
+      padding: 4mm;
+      margin-bottom: 4mm;
+      break-inside: avoid;
+    }
+
+    .example-title {
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 2mm;
+    }
+
+    .teacher-note {
+      padding: 3.5mm;
+      border: 1px dashed #98a9b7;
+      background: #fafcfd;
+      border-radius: 2.5mm;
+      color: #344b5d;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.7mm 2.4mm;
+      margin-left: 1mm;
+      border-radius: 99px;
+      background: #edf2f6;
+      color: #405566;
+      font-size: 9.5pt;
+      font-weight: 700;
+    }
+
+    .answer {
+      font-size: 10.5pt;
+      color: #31485a;
+      background: #f7fafc;
+      border-right: 3px solid #91a8ba;
+      padding: 2.3mm 3mm;
+      margin-top: 2mm;
+    }
+
+    .compact li { margin-bottom: 1mm; }
+    .center { text-align: center; }
+    .ltr { direction: ltr; text-align: left; }
+    .spacer { height: 4mm; }
+
+
+    .proof-board {
+      width: 74mm;
+      height: 74mm;
+    }
+
+    .graph-controls {
+      direction: ltr;
+      display: flex;
+      justify-content: center;
+      gap: 2mm;
+      margin: -1mm 0 3mm;
+      break-inside: avoid;
+    }
+
+    .graph-controls button {
+      min-width: 24mm;
+      padding: 1.7mm 3mm;
+      border: 1px solid #aebdca;
+      border-radius: 2mm;
+      background: #f8fafc;
+      color: var(--ink);
+      font: inherit;
+      font-size: 9.5pt;
+      cursor: pointer;
+    }
+
+    .graph-controls button:hover { background: var(--blue-soft); }
+
+    .proof-identity {
+      min-height: 43mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+
+    .identity-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 5mm;
+      margin-top: 2mm;
+    }
+
+    .identity-stack .proof-identity {
+      width: 100%;
+      padding: 5mm;
+    }
+
+    .identity-stack .proof-identity .math-block {
+      margin-bottom: 0;
+    }
+
+    @media print {
+      html, body { background: #fff; }
+      .page {
+        margin: 0;
+        box-shadow: none;
+        width: 210mm;
+        min-height: 297mm;
+      }
+      .no-print { display: none !important; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    @page { size: A4; margin: 0; }
+  </style>
+</head>
+<body>
+
+  <section class="page">
+    <div class="hero">
+      <span class="eyebrow">מערך שיעור במתמטיקה · טריגונומטריה</span>
+      <h1>הוכחת זהויות טריגונומטריות<br>בעזרת מעגל היחידה</h1>
+      <p class="subtitle">
+        מעבר משינון טבלאות להבנה גאומטרית: כל זהות נובעת ממיקום נקודה,
+        מסימני הקואורדינטות ומטרנספורמציה פשוטה של הזווית.
+      </p>
+    </div>
+
+    <div class="meta-grid">
+      <div class="card teal">
+        <h3>ידע קודם</h3>
+        <p>מעגל היחידה, רבעים, משפט פיתגורס ותכונות של משולשים מיוחדים.</p>
+      </div>
+      <div class="card gold">
+        <h3>מוקד השיעור</h3>
+        <p>הוכחה באמצעות קואורדינטות ולא באמצעות שינון בלבד.</p>
+      </div>
+    </div>
+
+    <div class="key-idea">
+      <strong>הרעיון המרכזי:</strong>
+      עבור נקודה על מעגל היחידה המתאימה לזווית \(\alpha\), שיעור ה־\(x\) הוא
+      \(\cos\alpha\), שיעור ה־\(y\) הוא \(\sin\alpha\), והמנה ביניהם קובעת את
+      \(\tan\alpha\). כאשר משנים את הזווית, בודקים כיצד הקואורדינטות משתנות.
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>מטרות תוכן</h3>
+        <ul>
+          <li>לחשב ולהסביר את הערכים המדויקים של הפונקציות הטריגונומטריות בזוויות \(30^\circ\), \(45^\circ\), \(60^\circ\).</li>
+          <li>להוכיח את הזהויות עבור \(-\alpha\), \(90^\circ\pm\alpha\), \(180^\circ\pm\alpha\).</li>
+          <li>להסביר את סימן הפונקציה בכל רבע.</li>
+          <li>להשתמש בשתי זהויות היסוד:</li>
+        </ul>
+        <div class="math-block">
+          \[\sin^2\alpha+\cos^2\alpha=1\]
+          \[\tan\alpha=\frac{\sin\alpha}{\cos\alpha}\]
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>מטרות חשיבה</h3>
+        <ul>
+          <li>לזהות את הטרנספורמציה הגאומטרית המתאימה לזווית חדשה.</li>
+          <li>להבחין בין שינוי בערך המוחלט לבין שינוי בסימן.</li>
+          <li>לנסח הוכחה קצרה המבוססת על קואורדינטות.</li>
+          <li>לבקר תוצאה: האם הסימן מתאים לרבע?</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="page">
+    <h2>1. מעגל היחידה ושתי זהויות היסוד</h2>
+
+    <div class="two-col">
+      <div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h3>ממקמים נקודה</h3>
+            <p>לזווית \(\alpha\) מתאימה הנקודה:</p>
+            <div class="math-block">\[P=(\cos\alpha,\sin\alpha)\]</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h3>משתמשים במשוואת המעגל</h3>
+            <p>מאחר שרדיוס מעגל היחידה הוא \(1\):</p>
+            <div class="math-block">
+              \[x^2+y^2=1\]
+              \[\cos^2\alpha+\sin^2\alpha=1\]
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h3>מפרשים את הטנגנס כשיפוע</h3>
+            <p>השיפוע של הישר המחבר את הראשית עם \(P\) הוא:</p>
+            <div class="math-block">
+              \[\tan\alpha=\frac{y}{x}=\frac{\sin\alpha}{\cos\alpha}\]
+              \[\cos\alpha\ne0\]
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="board-wrap">
+          <div id="unitCircleBase" class="jxgbox small-board" aria-label="מעגל היחידה והנקודה P"></div>
+        </div>
+        <div class="card blue">
+          <h3>שאלות מנחות</h3>
+          <ol class="compact">
+            <li>מה מייצג שיעור ה־\(x\)?</li>
+            <li>מה מייצג שיעור ה־\(y\)?</li>
+            <li>מדוע שני הריבועים מסתכמים ל־\(1\)?</li>
+            <li>מתי הטנגנס אינו מוגדר?</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <h3>הבחנה חשובה: ערך מוחלט לעומת סימן</h3>
+    <p>
+      בזוויות קשורות, לעיתים המרחקים מהצירים נשארים זהים ולכן הערכים המוחלטים של
+      הסינוס והקוסינוס אינם משתנים. מה שכן משתנה הוא הסימן, בהתאם לרבע.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>רבע</th>
+          <th>טווח זוויות</th>
+          <th>סימן \(\sin\)</th>
+          <th>סימן \(\cos\)</th>
+          <th>סימן \(\tan\)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ראשון</td><td class="math-cell">\(0^\circ&lt;\theta&lt;90^\circ\)</td><td class="math-cell">\(+\)</td><td class="math-cell">\(+\)</td><td class="math-cell">\(+\)</td></tr>
+        <tr><td>שני</td><td class="math-cell">\(90^\circ&lt;\theta&lt;180^\circ\)</td><td class="math-cell">\(+\)</td><td class="math-cell">\(-\)</td><td class="math-cell">\(-\)</td></tr>
+        <tr><td>שלישי</td><td class="math-cell">\(180^\circ&lt;\theta&lt;270^\circ\)</td><td class="math-cell">\(-\)</td><td class="math-cell">\(-\)</td><td class="math-cell">\(+\)</td></tr>
+        <tr><td>רביעי</td><td class="math-cell">\(270^\circ&lt;\theta&lt;360^\circ\)</td><td class="math-cell">\(-\)</td><td class="math-cell">\(+\)</td><td class="math-cell">\(-\)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="teacher-note" style="margin-top:5mm;">
+      <strong>בדיקת הבנה מהירה:</strong> בלי לחשב, קבעו את הסימן של
+      \(\sin 140^\circ\), \(\cos 220^\circ\), \(\tan 315^\circ\),
+      והסבירו לפי הרבע בלבד.
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>2. חישוב הערכים המדויקים של \(30^\circ\), \(45^\circ\), \(60^\circ\)</h2>
+
+    <p>
+      לפני שמשתמשים בזוויות המיוחדות להוכחת זהויות, נחשב את ערכי הסינוס,
+      הקוסינוס והטנגנס שלהן מתוך משולשים מוכרים. כך הערכים אינם טבלה שיש לשנן,
+      אלא תוצאה גאומטרית שניתן לשחזר בכל עת.
+    </p>
+
+    <div class="two-col" style="margin-top:5mm;">
+      <div class="card blue">
+        <h3>הזוויות \(30^\circ\) ו־\(60^\circ\)</h3>
+        <p>
+          נתחיל במשולש שווה־צלעות שאורך כל צלע בו \(2\). נוריד גובה. הגובה גם
+          חוצה את הבסיס ואת זווית הראש, ולכן מתקבל משולש ישר־זווית שבו:
+        </p>
+        <div class="math-block">
+          \[\text{רתי}=2,\qquad \text{בצינ}=1\]
+          \[\text{בצינ}=\sqrt{2^2-1^2}=\sqrt3\]
+        </div>
+        <div class="board-wrap">
+          <div id="triangle3060" class="jxgbox angle-board" aria-label="משולש לחישוב ערכי 30 ו-60 מעלות"></div>
+        </div>
+      </div>
+
+      <div class="card teal">
+        <h3>הזווית \(45^\circ\)</h3>
+        <p>
+          נבחר משולש ישר־זווית ושווה־שוקיים, שאורכי הניצבים שלו הם \(1\).
+          שתי הזוויות החדדות שוות, ולכן כל אחת מהן \(45^\circ\). לפי פיתגורס:
+        </p>
+        <div class="math-block">
+          \[\text{רתי}=\sqrt{1^2+1^2}=\sqrt2\]
+        </div>
+        <div class="board-wrap">
+          <div id="triangle45" class="jxgbox angle-board" aria-label="משולש לחישוב ערכי 45 מעלות"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col_" style="margin-top:5mm;">
+      <div class="example">
+        <div class="example-title">חישוב עבור \(30^\circ\) ו־\(60^\circ\)</div>
+        <div class="math-block">
+          \[\sin30^\circ=\frac{1}{2},\qquad
+             \cos30^\circ=\frac{\sqrt3}{2},\qquad
+             \tan30^\circ=\frac{1}{\sqrt3}=\frac{\sqrt3}{3}\]
+          \[\sin60^\circ=\frac{\sqrt3}{2},\qquad
+             \cos60^\circ=\frac{1}{2},\qquad
+             \tan60^\circ=\sqrt3\]
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="example-title">חישוב עבור \(45^\circ\)</div>
+        <div class="math-block">
+          \[\sin45^\circ=\frac{1}{\sqrt2}=\frac{\sqrt2}{2}\]
+          \[\cos45^\circ=\frac{1}{\sqrt2}=\frac{\sqrt2}{2}\]
+          \[\tan45^\circ=\frac{1}{1}=1\]
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>זווית</th>
+          <th>\(\sin\theta\)</th>
+          <th>\(\cos\theta\)</th>
+          <th>\(\tan\theta\)</th>
+          <th>הנקודה על מעגל היחידה</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="math-cell">\(30^\circ\)</td>
+          <td class="math-cell">\(\dfrac12\)</td>
+          <td class="math-cell">\(\dfrac{\sqrt3}{2}\)</td>
+          <td class="math-cell">\(\dfrac{\sqrt3}{3}\)</td>
+          <td class="math-cell">\(\left(\dfrac{\sqrt3}{2},\dfrac12\right)\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(45^\circ\)</td>
+          <td class="math-cell">\(\dfrac{\sqrt2}{2}\)</td>
+          <td class="math-cell">\(\dfrac{\sqrt2}{2}\)</td>
+          <td class="math-cell">\(1\)</td>
+          <td class="math-cell">\(\left(\dfrac{\sqrt2}{2},\dfrac{\sqrt2}{2}\right)\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(60^\circ\)</td>
+          <td class="math-cell">\(\dfrac{\sqrt3}{2}\)</td>
+          <td class="math-cell">\(\dfrac12\)</td>
+          <td class="math-cell">\(\sqrt3\)</td>
+          <td class="math-cell">\(\left(\dfrac12,\dfrac{\sqrt3}{2}\right)\)</td>
+        </tr>
+      </tbody>
+    </table>
+
+ </section>
+
+  <section class="page">
+    <h2 style="font-size: 17pt;">2א. חישוב הפונקציות הטריגונומטריות בעזרת משולש בתוך מעגל היחידה</h2>
+
+    <p>
+      כעת נחבר בין המשולשים המיוחדים לבין מעגל היחידה. אם קצה הזווית
+      \(\alpha\) פוגש את מעגל היחידה בנקודה \(P\), והאנך מ־\(P\) לציר
+      \(x\) פוגש אותו בנקודה \(H\), מתקבל המשולש ישר־הזווית \(OHP\)
+      שנמצא כולו בתוך המעגל.
+    </p>
+
+    <div class="key-idea">
+      <strong>היתרון של מעגל היחידה:</strong>
+      היתר \(OP\) הוא רדיוס ולכן אורכו \(1\). לכן אין צורך לחלק ביתר:
+      הניצב האופקי הוא \(\cos\alpha\), הניצב האנכי הוא \(\sin\alpha\),
+      והמנה ביניהם היא \(\tan\alpha\).
+    </div>
+
+    <div class="two-col">
+      <div class="card blue">
+        <h3>המשולש של \(30^\circ\) ו־\(60^\circ\) בתוך המעגל</h3>
+        <p>
+          במשולש \(30^\circ\!\!-60^\circ\!\!-90^\circ\) היחס בין הצלעות הוא
+          \(1:\sqrt3:2\). כדי שהיתר יהיה רדיוס באורך \(1\), מחלקים את כל
+          הצלעות ב־\(2\):
+        </p>
+        <div class="math-block">
+          \[\frac{1}{2},\qquad \frac{\sqrt3}{2},\qquad 1\]
+        </div>
+        <div class="board-wrap">
+          <div id="unitCircle3060" class="jxgbox angle-board" aria-label="משולשי 30 ו-60 מעלות בתוך מעגל היחידה"></div>
+        </div>
+      </div>
+
+      <div class="card teal">
+        <h3>המשולש של \(45^\circ\) בתוך המעגל</h3>
+        <p>
+          במשולש \(45^\circ\!\!-45^\circ\!\!-90^\circ\) היחס הוא
+          \(1:1:\sqrt2\). כדי שהיתר יהיה \(1\), מחלקים את כל הצלעות ב־\(\sqrt2\):
+        </p>
+        <div class="math-block">
+          \[\frac{1}{\sqrt2}=\frac{\sqrt2}{2},\qquad
+            \frac{1}{\sqrt2}=\frac{\sqrt2}{2},\qquad 1\]
+        </div>
+        <div class="board-wrap">
+          <div id="unitCircle45" class="jxgbox angle-board" aria-label="משולש 45 מעלות בתוך מעגל היחידה"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:5mm;">
+      <div class="example">
+        <div class="example-title">קריאת הערכים ישירות מהמשולש</div>
+        <div class="math-block">
+          \[\sin\alpha=\frac{PH}{OP}=PH\]
+          \[\cos\alpha=\frac{OH}{OP}=OH\]
+          \[\tan\alpha=\frac{PH}{OH}=\frac{\sin\alpha}{\cos\alpha}\]
+        </div>
+        <p>
+          כלומר, בתוך מעגל היחידה אורכי שני הניצבים הם ממש ערכי הסינוס
+          והקוסינוס של הזווית.
+        </p>
+      </div>
+
+      <div class="example">
+        <div class="example-title">יישום לזוויות המיוחדות</div>
+        <div class="math-block">
+          \[30^\circ:\quad
+            \cos30^\circ=\frac{\sqrt3}{2},\quad
+            \sin30^\circ=\frac12\]
+          \[45^\circ:\quad
+            \cos45^\circ=\sin45^\circ=\frac{\sqrt2}{2}\]
+          \[60^\circ:\quad
+            \cos60^\circ=\frac12,\quad
+            \sin60^\circ=\frac{\sqrt3}{2}\]
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="page">
+    <h2>3. שינוי זווית כשינוי של נקודה במישור</h2>
+
+    <p>
+      נתחיל מהנקודה \(P=(\cos\alpha,\sin\alpha)\). כל זווית קשורה מתקבלת
+      מהשתקפות, החלפת קואורדינטות או שינוי סימנים.
+    </p>
+
+    <div class="board-wrap">
+      <div id="symmetryBoard" class="jxgbox" aria-label="נקודות סימטריות על מעגל היחידה"></div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>הזווית החדשה</th>
+          <th>הפעולה הגאומטרית</th>
+          <th>הנקודה החדשה</th>
+          <th>מסקנה מיידית</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="math-cell">\(-\alpha\)</td>
+          <td>שיקוף ביחס לציר \(x\)</td>
+          <td class="math-cell">\((\cos\alpha,-\sin\alpha)\)</td>
+          <td class="math-cell">\(\cos(-\alpha)=\cos\alpha\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(180^\circ-\alpha\)</td>
+          <td>שיקוף ביחס לציר \(y\)</td>
+          <td class="math-cell">\((-\cos\alpha,\sin\alpha)\)</td>
+          <td class="math-cell">\(\sin(180^\circ-\alpha)=\sin\alpha\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(180^\circ+\alpha\)</td>
+          <td>סיבוב של \(180^\circ\)</td>
+          <td class="math-cell">\((-\cos\alpha,-\sin\alpha)\)</td>
+          <td class="math-cell">\(\tan(180^\circ+\alpha)=\tan\alpha\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(90^\circ-\alpha\)</td>
+          <td>החלפת הקואורדינטות</td>
+          <td class="math-cell">\((\sin\alpha,\cos\alpha)\)</td>
+          <td class="math-cell">\(\sin(90^\circ-\alpha)=\cos\alpha\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(90^\circ+\alpha\)</td>
+          <td>החלפה ושינוי סימן ב־\(x\)</td>
+          <td class="math-cell">\((-\sin\alpha,\cos\alpha)\)</td>
+          <td class="math-cell">\(\cos(90^\circ+\alpha)=-\sin\alpha\)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="key-idea">
+      <strong>כלל עבודה:</strong> תחילה מוצאים את הקואורדינטות של הנקודה החדשה;
+      רק לאחר מכן קוראים את הסינוס והקוסינוס. את הטנגנס מחשבים כמנה
+      \(\dfrac{y}{x}\).
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>4. טבלת הזהויות והוכחתן מן הקואורדינטות</h2>
+
+    <table style="font-size:9.8pt;">
+      <thead>
+        <tr>
+          <th>זווית</th>
+          <th>סינוס</th>
+          <th>קוסינוס</th>
+          <th>טנגנס</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="math-cell">\(-\alpha\)</td>
+          <td class="math-cell">\(\sin(-\alpha)=-\sin\alpha\)</td>
+          <td class="math-cell">\(\cos(-\alpha)=\cos\alpha\)</td>
+          <td class="math-cell">\(\tan(-\alpha)=-\tan\alpha\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(90^\circ-\alpha\)</td>
+          <td class="math-cell">\(\sin(90^\circ-\alpha)=\cos\alpha\)</td>
+          <td class="math-cell">\(\cos(90^\circ-\alpha)=\sin\alpha\)</td>
+          <td class="math-cell">\(\tan(90^\circ-\alpha)=\dfrac{1}{\tan\alpha}\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(90^\circ+\alpha\)</td>
+          <td class="math-cell">\(\sin(90^\circ+\alpha)=\cos\alpha\)</td>
+          <td class="math-cell">\(\cos(90^\circ+\alpha)=-\sin\alpha\)</td>
+          <td class="math-cell">\(\tan(90^\circ+\alpha)=-\dfrac{1}{\tan\alpha}\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(180^\circ-\alpha\)</td>
+          <td class="math-cell">\(\sin(180^\circ-\alpha)=\sin\alpha\)</td>
+          <td class="math-cell">\(\cos(180^\circ-\alpha)=-\cos\alpha\)</td>
+          <td class="math-cell">\(\tan(180^\circ-\alpha)=-\tan\alpha\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(180^\circ+\alpha\)</td>
+          <td class="math-cell">\(\sin(180^\circ+\alpha)=-\sin\alpha\)</td>
+          <td class="math-cell">\(\cos(180^\circ+\alpha)=-\cos\alpha\)</td>
+          <td class="math-cell">\(\tan(180^\circ+\alpha)=\tan\alpha\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(\alpha-90^\circ\)</td>
+          <td class="math-cell">\(\sin(\alpha-90^\circ)=-\cos\alpha\)</td>
+          <td class="math-cell">\(\cos(\alpha-90^\circ)=\sin\alpha\)</td>
+          <td class="math-cell">\(\tan(\alpha-90^\circ)=-\dfrac{1}{\tan\alpha}\)</td>
+        </tr>
+        <tr>
+          <td class="math-cell">\(\alpha-180^\circ\)</td>
+          <td class="math-cell">\(\sin(\alpha-180^\circ)=-\sin\alpha\)</td>
+          <td class="math-cell">\(\cos(\alpha-180^\circ)=-\cos\alpha\)</td>
+          <td class="math-cell">\(\tan(\alpha-180^\circ)=\tan\alpha\)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="two-col" style="margin-top:6mm;">
+      <div class="example">
+        <div class="example-title">הוכחה לדוגמה א</div>
+        <p>הוכיחו:</p>
+        <div class="math-block">\[\sin(180^\circ-\alpha)=\sin\alpha\]</div>
+        <p>
+          הנקודה המתאימה ל־\(\alpha\) היא \((\cos\alpha,\sin\alpha)\).
+          שיקוף ביחס לציר \(y\) משנה רק את סימן ה־\(x\):
+        </p>
+        <div class="math-block">\[(-\cos\alpha,\sin\alpha)\]</div>
+        <p>הסינוס הוא שיעור ה־\(y\), ולכן הוא נשאר \(\sin\alpha\).</p>
+      </div>
+
+      <div class="example">
+        <div class="example-title">הוכחה לדוגמה ב</div>
+        <p>הוכיחו:</p>
+        <div class="math-block">\[\tan(90^\circ+\alpha)=-\frac{1}{\tan\alpha}\]</div>
+        <p>הנקודה החדשה היא:</p>
+        <div class="math-block">\[(-\sin\alpha,\cos\alpha)\]</div>
+        <p>ולכן:</p>
+        <div class="math-block">
+          \[\tan(90^\circ+\alpha)=\frac{\cos\alpha}{-\sin\alpha}
+          =-\frac{\cos\alpha}{\sin\alpha}
+          =-\frac{1}{\tan\alpha}\]
+        </div>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <h3>תנאי תחום</h3>
+      <p>
+        זהות הכוללת טנגנס או מנה נכונה רק כאשר שני האגפים מוגדרים. לדוגמה,
+        ב־\(\tan(90^\circ-\alpha)=\dfrac{1}{\tan\alpha}\) יש להימנע מערכים
+        שבהם \(\sin\alpha=0\) או \(\cos(90^\circ-\alpha)=0\).
+      </p>
+    </div>
+  </section>
+
+
+  <section class="page">
+    <h2 style="font-size:17pt;">4א. הוכחה מפורטת: הזהויות עבור \(180^\circ-\alpha\)</h2>
+
+    <div class="key-idea" style="margin-top:0;">
+      <strong>הרעיון הגאומטרי:</strong> הנקודה המתאימה לזווית \(180^\circ-\alpha\)
+      מתקבלת מן הנקודה המתאימה ל-\(\alpha\) באמצעות שיקוף ביחס לציר \(y\).
+      בשיקוף כזה שיעור ה-\(y\) נשאר ללא שינוי, ואילו שיעור ה-\(x\) מחליף סימן.
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="board-wrap" style="margin-top:0;">
+          <div id="supplementProofBoard" class="jxgbox proof-board" aria-label="מעגל היחידה להוכחת הזהויות של 180 מעלות פחות אלפא"></div>
+        </div>
+        <div class="graph-controls no-print" aria-label="בקרי תצוגה למעגל היחידה">
+          <button type="button" id="suppProofZoomIn">+ התקרב</button>
+          <button type="button" id="suppProofReset">מרכז</button>
+          <button type="button" id="suppProofZoomOut">- התרחק</button>
+        </div>
+        <div class="card blue">
+          <h3>מה רואים בשרטוט?</h3>
+          <ul class="compact">
+            <li>\(P\) נמצאת ברבע הראשון ומתאימה לזווית \(\alpha\).</li>
+            <li>\(Q\) נמצאת ברבע השני ומתאימה לזווית \(180^\circ-\alpha\).</li>
+            <li>הנקודות \(P\) ו-\(Q\) נמצאות באותו גובה, ולכן שיעורי ה-\(y\) שלהן שווים.</li>
+            <li>המרחקים שלהן מציר \(y\) שווים, אך שיעורי ה-\(x\) בעלי סימנים הפוכים.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="proof-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <h3>מתחילים מן הנקודה של \(\alpha\)</h3>
+            <p>על מעגל היחידה הנקודה המתאימה לזווית \(\alpha\) היא:</p>
+            <div class="math-block">\[P=(\cos\alpha,\sin\alpha)\]</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <h3>משקפים ביחס לציר \(y\)</h3>
+            <p>שיקוף ביחס לציר \(y\) פועל על קואורדינטות לפי:</p>
+            <div class="math-block">\[(x,y)\;⇒\;(-x,y)\]</div>
+            <p>לכן הנקודה \(P\) עוברת לנקודה:</p>
+            <div class="math-block">\[Q=(-\cos\alpha,\sin\alpha)\]</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <h3>מזהים את הזווית של \(Q\)</h3>
+            <p>הרדיוס \(OQ\) יוצר עם הכיוון החיובי של ציר \(x\) את הזווית המשלימה ל-\(180^\circ\):</p>
+            <div class="math-block">\[\theta=180^\circ-\alpha\]</div>
+            <p>לכן \(Q\) היא בדיוק הנקודה של \(180^\circ-\alpha\).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="page">
+    <h2 style="font-size:17pt;">4ב. הוכחת הזהויות עבור \(180^\circ-\alpha\)</h2>
+
+    <p style="margin-bottom:5mm;">
+      מן השיקוף ביחס לציר \(y\) קיבלנו את הנקודה
+      \(Q=(-\cos\alpha,\sin\alpha)\). כעת נקרא מן הקואורדינטות של \(Q\)
+      את ערכי הסינוס, הקוסינוס והטנגנס - כל זהות במסגרת נפרדת.
+    </p>
+
+    <div class="identity-stack">
+      <div class="card teal proof-identity">
+        <h3>1. הוכחת זהות הסינוס</h3>
+        <p>הסינוס הוא שיעור ה-\(y\) של הנקודה על מעגל היחידה. ב-\(Q\) שיעור זה לא השתנה:</p>
+        <div class="math-block">
+          \[\sin(180^\circ-\alpha)=y_Q=\sin\alpha\]
+        </div>
+      </div>
+
+      <div class="card gold proof-identity">
+        <h3>2. הוכחת זהות הקוסינוס</h3>
+        <p>הקוסינוס הוא שיעור ה-\(x\). לאחר השיקוף הסימן של שיעור ה-\(x\) מתחלף:</p>
+        <div class="math-block">
+          \[\cos(180^\circ-\alpha)=x_Q=-\cos\alpha\]
+        </div>
+      </div>
+
+      <div class="card red proof-identity">
+        <h3>3. הוכחת זהות הטנגנס</h3>
+        <p>הטנגנס הוא המנה \(y/x\). לכן:</p>
+        <div class="math-block">
+          \[\tan(180^\circ-\alpha)
+          =\frac{\sin\alpha}{-\cos\alpha}
+          =-\frac{\sin\alpha}{\cos\alpha}
+          =-\tan\alpha\]
+        </div>
+      </div>
+    </div>
+
+    <div class="teacher-note" style="margin-top:6mm;">
+      <strong>תנאי תחום:</strong> זהות הטנגנס תקפה בכל ערך של \(\alpha\) שבו שני האגפים מוגדרים.
+      בפרט נדרש \(\cos\alpha\ne0\). ההוכחה בשרטוט מוצגת עבור זווית חדה כדי שהקשר הגאומטרי יהיה ברור,
+      אך פעולת השיקוף \((x,y)⇒(-x,y)\) נותנת את אותן זהויות לכל זווית מתאימה על מעגל היחידה.
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>5. שיטת הוכחה קבועה — ארבעה צעדים</h2>
+
+    <div class="three-col">
+      <div class="card blue">
+        <span class="tag">צעד 1</span>
+        <h3>זהו את הזווית</h3>
+        <p>כתבו אותה כאחת הצורות:</p>
+        <div class="math-block">
+          \[-\alpha,\quad 90^\circ\pm\alpha,\quad 180^\circ\pm\alpha\]
+        </div>
+      </div>
+      <div class="card teal">
+        <span class="tag">צעד 2</span>
+        <h3>קבעו את הרבע</h3>
+        <p>הרבע קובע את סימני הסינוס, הקוסינוס והטנגנס.</p>
+      </div>
+      <div class="card gold">
+        <span class="tag">צעד 3</span>
+        <h3>כתבו קואורדינטות</h3>
+        <p>החליפו מקום או שנו סימנים לפי הטרנספורמציה.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:5mm;">
+      <span class="tag">צעד 4</span>
+      <h3>קראו את הפונקציה</h3>
+      <div class="formula-pair">
+        <div class="formula">\(\sin\theta=y\)</div>
+        <div class="formula">\(\cos\theta=x\)</div>
+        <div class="formula">\(\tan\theta=\dfrac{y}{x}\)</div>
+        <div class="formula">בדיקת סימן לפי הרבע</div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <h3>דוגמאות מודרכות</h3>
+
+    <div class="example">
+      <div class="example-title">דוגמה 1 — חישוב בעזרת זווית מיוחדת</div>
+      <p>חשבו את \(\sin 150^\circ\).</p>
+      <div class="math-block">
+        \[150^\circ=180^\circ-30^\circ\]
+        \[\sin150^\circ=\sin30^\circ=\frac{1}{2}\]
+      </div>
+      <p>בדיקה: \(150^\circ\) ברבע השני, ולכן הסינוס חיובי.</p>
+    </div>
+
+    <div class="example">
+      <div class="example-title">דוגמה 2 — החלפת סינוס וקוסינוס</div>
+      <p>חשבו את \(\cos 120^\circ\).</p>
+      <div class="math-block">
+        \[120^\circ=90^\circ+30^\circ\]
+        \[\cos120^\circ=-\sin30^\circ=-\frac{1}{2}\]
+      </div>
+    </div>
+
+    <div class="example">
+      <div class="example-title">דוגמה 3 — טנגנס</div>
+      <p>חשבו את \(\tan 135^\circ\).</p>
+      <div class="math-block">
+        \[135^\circ=180^\circ-45^\circ\]
+        \[\tan135^\circ=-\tan45^\circ=-1\]
+      </div>
+    </div>
+
+    <div class="example">
+      <div class="example-title">דוגמה 4 — הוכחת זהות אלגברית בעזרת זהויות מעגל היחידה</div>
+      <p>הוכיחו:</p>
+      <div class="math-block">
+        \[\sin(180^\circ-\alpha)\cos(-\alpha)=\sin\alpha\cos\alpha\]
+      </div>
+      <p>לפי מעגל היחידה:</p>
+      <div class="math-block">
+        \[\sin(180^\circ-\alpha)=\sin\alpha\]
+        \[\cos(-\alpha)=\cos\alpha\]
+      </div>
+      <p>ולכן שני האגפים שווים.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>6. תרגול בכיתה — מן הגאומטריה אל הזהות</h2>
+
+    <div class="two-col">
+      <div class="card blue">
+        <h3>שלב א — קביעת קואורדינטות</h3>
+        <ol>
+          <li>כתבו את נקודת המעגל המתאימה ל־\(-\alpha\).</li>
+          <li>כתבו את הנקודה המתאימה ל־\(180^\circ-\alpha\).</li>
+          <li>כתבו את הנקודה המתאימה ל־\(90^\circ+\alpha\).</li>
+          <li>כתבו את הנקודה המתאימה ל־\(\alpha-90^\circ\).</li>
+        </ol>
+      </div>
+
+      <div class="card teal">
+        <h3>שלב ב — השלמת זהויות</h3>
+        <ol>
+          <li>\(\sin(-\alpha)=\underline{\hspace{18mm}}\)</li>
+          <li>\(\cos(180^\circ-\alpha)=\underline{\hspace{18mm}}\)</li>
+          <li>\(\sin(90^\circ+\alpha)=\underline{\hspace{18mm}}\)</li>
+          <li>\(\tan(180^\circ+\alpha)=\underline{\hspace{18mm}}\)</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card gold" style="margin-top:5mm;">
+      <h3>שלב ג — חישוב ערכים מדויקים</h3>
+      <div class="three-col">
+        <ol start="1">
+          <li>\(\sin150^\circ\)</li>
+          <li>\(\cos120^\circ\)</li>
+          <li>\(\tan135^\circ\)</li>
+        </ol>
+        <ol start="4">
+          <li>\(\sin(-60^\circ)\)</li>
+          <li>\(\cos225^\circ\)</li>
+          <li>\(\tan300^\circ\)</li>
+        </ol>
+        <ol start="7">
+          <li>\(\sin240^\circ\)</li>
+          <li>\(\cos330^\circ\)</li>
+          <li>\(\tan315^\circ\)</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:5mm;">
+      <h3>שלב ד — הוכיחו מן הקואורדינטות</h3>
+      <ol>
+        <li>\(\cos(180^\circ+\alpha)=-\cos\alpha\)</li>
+        <li>\(\sin(\alpha-90^\circ)=-\cos\alpha\)</li>
+        <li>\(\tan(180^\circ-\alpha)=-\tan\alpha\)</li>
+        <li>\(\sin^2(180^\circ-\alpha)+\cos^2(180^\circ-\alpha)=1\)</li>
+      </ol>
+    </div>
+
+    <div class="two-col" style="margin-top:5mm;">
+      <div class="card red">
+        <h3>טעויות שכיחות</h3>
+        <ul>
+          <li>שינוי סימן ללא בדיקת רבע.</li>
+          <li>החלפת סינוס וקוסינוס גם בזווית של \(180^\circ\).</li>
+          <li>שכחת תנאי התחום של טנגנס.</li>
+          <li>התייחסות ל־\(\sin^2\alpha\) כאל \(\sin(2\alpha)\).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>שאלות העמקה</h3>
+        <ul>
+          <li>מדוע סיבוב של \(180^\circ\) אינו משנה את הטנגנס?</li>
+          <li>מדוע בזוויות של \(90^\circ\pm\alpha\) הסינוס והקוסינוס מחליפים תפקידים?</li>
+          <li>איזו זהות משקפת זוגיות ואיזו משקפת אי־זוגיות?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>7. סיכום, הערכה ותשובות קצרות</h2>
+
+    <div class="key-idea">
+      <strong>משפט מסכם לתלמיד:</strong>
+      אינני חייב לזכור כל זהות בנפרד. די שאזכור את הנקודה
+      \((\cos\alpha,\sin\alpha)\), אזהה את הטרנספורמציה, ואקרא את הקואורדינטות.
+    </div>
+
+    <div class="two-col">
+      <div class="card blue">
+        <h3>כרטיס יציאה</h3>
+        <ol>
+          <li>הוכיחו במשפט אחד: \(\cos(-\alpha)=\cos\alpha\).</li>
+          <li>חשבו: \(\sin210^\circ\).</li>
+          <li>קבעו אם נכון או לא נכון:<br>\(\cos(90^\circ-\alpha)=-\sin\alpha\).</li>
+          <li>הסבירו מדוע \(\tan(180^\circ+\alpha)=\tan\alpha\).</li>
+        </ol>
+      </div>
+
+      <div class="card teal">
+        <h3>מדדי הצלחה</h3>
+        <ul>
+          <li>התלמיד מציין את הרבע הנכון.</li>
+          <li>התלמיד כותב את הקואורדינטות החדשות.</li>
+          <li>התלמיד מסביר את הסימן ולא רק מציג תשובה.</li>
+          <li>התלמיד מציין תנאי תחום כשמופיע טנגנס.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-top:7mm;">תשובות קצרות לתרגול</h3>
+    <div class="two-col">
+      <div class="card">
+        <p><strong>שלב א:</strong></p>
+        <div class="answer ltr">
+          1. \((\cos\alpha,-\sin\alpha)\)<br>
+          2. \((-\cos\alpha,\sin\alpha)\)<br>
+          3. \((-\sin\alpha,\cos\alpha)\)<br>
+          4. \((\sin\alpha,-\cos\alpha)\)
+        </div>
+        <p style="margin-top:3mm;"><strong>שלב ב:</strong></p>
+        <div class="answer ltr">
+          1. \(-\sin\alpha\)<br>
+          2. \(-\cos\alpha\)<br>
+          3. \(\cos\alpha\)<br>
+          4. \(\tan\alpha\)
+        </div>
+      </div>
+
+      <div class="card">
+        <p><strong>שלב ג:</strong></p>
+        <div class="answer ltr">
+          1. \(\frac12\) &nbsp; 2. \(-\frac12\) &nbsp; 3. \(-1\)<br>
+          4. \(-\frac{\sqrt3}{2}\) &nbsp; 5. \(-\frac{\sqrt2}{2}\) &nbsp; 6. \(-\sqrt3\)<br>
+          7. \(-\frac{\sqrt3}{2}\) &nbsp; 8. \(\frac{\sqrt3}{2}\) &nbsp; 9. \(-1\)
+        </div>
+        <p style="margin-top:3mm;"><strong>כרטיס יציאה:</strong></p>
+        <div class="answer">
+          1. שיקוף ביחס לציר \(x\) אינו משנה את שיעור ה־\(x\).<br>
+          2. \(-\frac12\).<br>
+          3. לא נכון; התוצאה היא \(\sin\alpha\).<br>
+          4. שני הסימנים מתחלפים ולכן המנה נשארת ללא שינוי.
+        </div>
+      </div>
+    </div>
+<!--
+    <div class="teacher-note" style="margin-top:6mm;">
+      <strong>המשך אפשרי לשיעור הבא:</strong>
+      מעבר מהזהויות הגאומטריות להוכחות אלגבריות מורכבות, שבהן תחילה מצמצמים את
+      הזוויות בעזרת מעגל היחידה ולאחר מכן משתמשים ב־
+      \(\sin^2\alpha+\cos^2\alpha=1\) וב־
+      \(\tan\alpha=\dfrac{\sin\alpha}{\cos\alpha}\).
+    </div>
+-->
+  </section>
+
+  <script>
+    window.addEventListener('load', function () {
+      if (!window.JXG) return;
+
+      // Render every JSXGraph text/label with MathJax.
+      JXG.Options.text.useMathJax = true;
+      JXG.Options.text.parse = false;
+
+      const common = {
+        axis: true,
+        boundingbox: [-1.35, 1.35, 1.35, -1.35],
+        keepaspectratio: true,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled: false },
+        zoom: { enabled: false },
+        defaultAxes: {
+          x: { name: '\\(x\\)', withLabel: true, label: { position: 'rt', offset: [-8, 12], useMathJax: true, parse: false }, ticks: { visible: false } },
+          y: { name: '\\(y\\)', withLabel: true, label: { position: 'rt', offset: [10, -8], useMathJax: true, parse: false }, ticks: { visible: false } }
+        }
+      };
+
+      const board1 = JXG.JSXGraph.initBoard('unitCircleBase', common);
+      board1.create('circle', [[0, 0], 1], { strokeWidth: 2, fixed: true });
+      const a1 = 38 * Math.PI / 180;
+      const p1 = [Math.cos(a1), Math.sin(a1)];
+      board1.create('segment', [[0, 0], p1], { strokeWidth: 2, fixed: true });
+      board1.create('segment', [p1, [p1[0], 0]], { dash: 2, fixed: true });
+      board1.create('segment', [p1, [0, p1[1]]], { dash: 2, fixed: true });
+      board1.create('point', p1, { name: '\\(P\\)', size: 4, fixed: true, label: { useMathJax: true, parse: false } });
+      //board1.create('arc', [[0, 0], [0.35, 0], [0.35 * Math.cos(a1), 0.35 * Math.sin(a1)]], { strokeWidth: 2, fixed: true });
+      board1.create('text', [0.22, 0.1, '\\(\\alpha\\)'], { fixed: true, fontSize: 16, useMathJax: true, parse: false });
+      board1.create('text', [p1[0] / 2, -0.1, '\\(\\cos\\alpha\\)'], { fixed: true, fontSize: 13, useMathJax: true, parse: false });
+      board1.create('text', [-0.42, p1[1] / 2, '\\(\\sin\\alpha\\)'], { fixed: true, fontSize: 13, useMathJax: true, parse: false });
+
+      // Unit 2A: right triangles drawn inside the unit circle.
+      function makeSpecialAngleBoard(id, angles) {
+        const board = JXG.JSXGraph.initBoard(id, {
+          axis: true,
+          boundingbox: [-0.18, 1.18, 1.18, -0.18],
+          keepaspectratio: true,
+          showCopyright: false,
+          showNavigation: false,
+          pan: { enabled: false },
+          zoom: { enabled: false },
+          defaultAxes: {
+            x: { name: '\\(x\\)', withLabel: true, label: { position: 'rt', offset: [-8, 12], useMathJax: true, parse: false }, ticks: { visible: false } },
+            y: { name: '\\(y\\)', withLabel: true, label: { position: 'rt', offset: [10, -8], useMathJax: true, parse: false }, ticks: { visible: false } }
+          }
+        });
+
+        board.create('circle', [[0, 0], 1], { strokeWidth: 2, fixed: true });
+        angles.forEach(function (item) {
+          const rad = item.deg * Math.PI / 180;
+          const x = Math.cos(rad);
+          const y = Math.sin(rad);
+          const P = board.create('point', [x, y], {
+            name: item.pointName,
+            size: 3.5,
+            fixed: true,
+            label: { offset: item.labelOffset || [6, 6], fontSize: 11, useMathJax: true, parse: false }
+          });
+          const H = board.create('point', [x, 0], { name: '', visible: false, fixed: true });
+          board.create('segment', [[0, 0], P], { strokeWidth: 2.2, fixed: true });
+          board.create('segment', [P, H], { strokeWidth: 1.8, dash: 2, fixed: true });
+          board.create('segment', [[0, 0], H], { strokeWidth: 1.8, fixed: true });
+          board.create('text', [0.27 * Math.cos(rad / 2), 0.27 * Math.sin(rad / 2), '\\(' + item.deg + '^\\circ\\)'], {
+            fixed: true, fontSize: 12, useMathJax: true, parse: false
+          });
+        });
+        return board;
+      }
+
+      const unit3060 = makeSpecialAngleBoard('unitCircle3060', [
+        { deg: 30, pointName: '\\(P_{30}\\)', labelOffset: [7, -12] },
+        { deg: 60, pointName: '\\(P_{60}\\)', labelOffset: [7, 7] }
+      ]);
+      unit3060.create('text', [0.70, 0.18, '\\(\\frac{\\sqrt3}{2}\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+      unit3060.create('text', [0.91, 0.50, '\\(\\frac12\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+      unit3060.create('text', [0.30, 0.86, '\\(\\frac{\\sqrt3}{2}\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+      unit3060.create('text', [0.20, 0.08, '\\(\\frac12\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+
+      const unit45 = makeSpecialAngleBoard('unitCircle45', [
+        { deg: 45, pointName: '\\(P_{45}\\)', labelOffset: [7, 7] }
+      ]);
+      unit45.create('text', [0.33, 0.08, '\\(\\frac{\\sqrt2}{2}\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+      unit45.create('text', [0.78, 0.36, '\\(\\frac{\\sqrt2}{2}\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+      unit45.create('text', [0.43, 0.55, '\\(1\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+
+      const board2 = JXG.JSXGraph.initBoard('symmetryBoard', common);
+      board2.create('circle', [[0, 0], 1], { strokeWidth: 2, fixed: true });
+      const a2 = 34 * Math.PI / 180;
+      const c = Math.cos(a2), s = Math.sin(a2);
+      const points = [
+        { p: [c, s], name: '\\(P(\\alpha)\\)' },
+        { p: [c, -s], name: '\\(P(-\\alpha)\\)' },
+        { p: [-c, s], name: '\\(P(180^\\circ-\\alpha)\\)' },
+        { p: [-c, -s], name: '\\(P(180^\\circ+\\alpha)\\)' },
+        { p: [s, c], name: '\\(P(90^\\circ-\\alpha)\\)' },
+        { p: [-s, c], name: '\\(P(90^\\circ+\\alpha)\\)' }
+      ];
+      points.forEach(function (item, index) {
+        board2.create('point', item.p, {
+          name: item.name,
+          size: index === 0 ? 4.5 : 3.5,
+          fixed: true,
+          label: { offset: [6, 6], fontSize: 12, useMathJax: true, parse: false }
+        });
+        board2.create('segment', [[0, 0], item.p], {
+          strokeWidth: index === 0 ? 2.4 : 1.2,
+          dash: index === 0 ? 0 : 2,
+          fixed: true
+        });
+      });
+
+
+      // Detailed proof for the supplementary angle 180° - alpha.
+      const suppDefaultRadius = 1.28;
+      const board180 = JXG.JSXGraph.initBoard('supplementProofBoard', {
+        axis: true,
+        boundingbox: [-suppDefaultRadius, suppDefaultRadius, suppDefaultRadius, -suppDefaultRadius],
+        keepaspectratio: true,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled: false },
+        zoom: { enabled: false },
+        defaultAxes: {
+          x: { name: '\\(x\\)', withLabel: true, label: { position: 'rt', offset: [-8, 12], useMathJax: true, parse: false }, ticks: { visible: false } },
+          y: { name: '\\(y\\)', withLabel: true, label: { position: 'rt', offset: [10, -8], useMathJax: true, parse: false }, ticks: { visible: false } }
+        }
+      });
+      board180.create('circle', [[0, 0], 1], { strokeWidth: 2.2, fixed: true });
+
+      const proofAlpha = 38 * Math.PI / 180;
+      const pc = Math.cos(proofAlpha), ps = Math.sin(proofAlpha);
+      const O180 = board180.create('point', [0, 0], { name: '\\(O\\)', size: 2.5, fixed: true, label: { offset: [6, -14], useMathJax: true, parse: false } });
+      const P180 = board180.create('point', [pc, ps], { name: '\\(P\\)', size: 4, fixed: true, label: { offset: [7, 7], useMathJax: true, parse: false } });
+      const Q180 = board180.create('point', [-pc, ps], { name: '\\(Q\\)', size: 4, fixed: true, label: { offset: [-18, 7], useMathJax: true, parse: false } });
+      const H180 = board180.create('point', [pc, 0], { name: '', visible: false, fixed: true });
+      const K180 = board180.create('point', [-pc, 0], { name: '', visible: false, fixed: true });
+
+      board180.create('segment', [O180, P180], { strokeWidth: 2.3, fixed: true });
+      board180.create('segment', [O180, Q180], { strokeWidth: 2.3, fixed: true });
+      board180.create('segment', [P180, H180], { dash: 2, strokeWidth: 1.7, fixed: true });
+      board180.create('segment', [Q180, K180], { dash: 2, strokeWidth: 1.7, fixed: true });
+      board180.create('segment', [P180, Q180], { dash: 2, strokeWidth: 1.2, fixed: true });
+
+      const aStart = board180.create('point', [0.34, 0], { visible: false, fixed: true });
+      const aEnd = board180.create('point', [0.34 * pc, 0.34 * ps], { visible: false, fixed: true });
+      const bEnd = board180.create('point', [-0.48 * pc, 0.48 * ps], { visible: false, fixed: true });
+      const bStart = board180.create('point', [0.48, 0], { visible: false, fixed: true });
+      board180.create('arc', [O180, aStart, aEnd], { strokeWidth: 2, fixed: true });
+      board180.create('arc', [O180, bStart, bEnd], { strokeWidth: 1.5, dash: 2, fixed: true });
+
+      board180.create('text', [0.28, 0.10, '\\(\\alpha\\)'], { fixed: true, fontSize: 14, useMathJax: true, parse: false });
+      board180.create('text', [-0.43, 0.42, '\\(180^\\circ-\\alpha\\)'], { fixed: true, fontSize: 12, useMathJax: true, parse: false });
+      board180.create('text', [0.43, -0.12, '\\(\\cos\\alpha\\)'], { fixed: true, fontSize: 11, useMathJax: true, parse: false });
+      board180.create('text', [-0.73, -0.12, '\\(-\\cos\\alpha\\)'], { fixed: true, fontSize: 11, useMathJax: true, parse: false });
+      board180.create('text', [0.86, 0.32, '\\(\\sin\\alpha\\)'], { fixed: true, fontSize: 11, useMathJax: true, parse: false });
+      board180.create('text', [-1.16, 0.32, '\\(\\sin\\alpha\\)'], { fixed: true, fontSize: 11, useMathJax: true, parse: false });
+
+      function setSuppProofRadius(radius) {
+        board180.setBoundingBox([-radius, radius, radius, -radius], false);
+        board180.fullUpdate();
+      }
+      let suppProofRadius = suppDefaultRadius;
+      const zoomInBtn = document.getElementById('suppProofZoomIn');
+      const zoomOutBtn = document.getElementById('suppProofZoomOut');
+      const resetBtn = document.getElementById('suppProofReset');
+      if (zoomInBtn) zoomInBtn.addEventListener('click', function () {
+        suppProofRadius = Math.max(0.95, suppProofRadius * 0.86);
+        setSuppProofRadius(suppProofRadius);
+      });
+      if (zoomOutBtn) zoomOutBtn.addEventListener('click', function () {
+        suppProofRadius = Math.min(1.75, suppProofRadius * 1.16);
+        setSuppProofRadius(suppProofRadius);
+      });
+      if (resetBtn) resetBtn.addEventListener('click', function () {
+        suppProofRadius = suppDefaultRadius;
+        setSuppProofRadius(suppProofRadius);
+      });
+
+      const tri3060 = JXG.JSXGraph.initBoard('triangle3060', {
+        axis: false,
+        boundingbox: [-0.35, 2.35, 2.15, -0.35],
+        keepaspectratio: true,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled: false },
+        zoom: { enabled: false }
+      });
+      const A30 = tri3060.create('point', [0, 0], { name: '', visible: false, fixed: true });
+      const B30 = tri3060.create('point', [2, 0], { name: '', visible: false, fixed: true });
+      const C30 = tri3060.create('point', [1, Math.sqrt(5)], { name: '', visible: false, fixed: true });
+      const D30 = tri3060.create('point', [1, 0], { name: '', visible: false, fixed: true });
+      tri3060.create('polygon', [A30, B30, C30], {
+        fillOpacity: 0.08,
+        borders: { strokeWidth: 2 },
+        vertices: { visible: false },
+        fixed: true
+      });
+      tri3060.create('segment', [C30, D30], { dash: 2, strokeWidth: 2, fixed: true });
+      tri3060.create('text', [1.48, 0.84, '\\(2\\)'], { fixed: true, fontSize: 15, useMathJax: true, parse: false });
+      tri3060.create('text', [1.47, -0.13, '\\(1\\)'], { fixed: true, fontSize: 15, useMathJax: true, parse: false });
+      tri3060.create('text', [0.73, 0.83, '\\(\\sqrt{3}\\)'], { fixed: true, fontSize: 15, useMathJax: true, parse: false });
+      tri3060.create('text', [1.72, 0.15, '\\(60^\\circ\\)'], { fixed: true, fontSize: 14, useMathJax: true, parse: false });
+      tri3060.create('text', [1.04, 1.38, '\\(30^\\circ\\)'], { fixed: true, fontSize: 14, useMathJax: true, parse: false });
+      tri3060.create('polygon', [[1, 0], [1.13, 0], [1.13, 0.13], [1, 0.13]], {
+        fillOpacity: 0,
+        borders: { strokeWidth: 1 },
+        vertices: { visible: false },
+        fixed: true
+      });
+
+      const tri45 = JXG.JSXGraph.initBoard('triangle45', {
+        axis: false,
+        boundingbox: [-0.35, 1.35, 1.35, -0.35],
+        keepaspectratio: true,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled: false },
+        zoom: { enabled: false }
+      });
+      const A45 = tri45.create('point', [0, 0], { name: '', visible: false, fixed: true });
+      const B45 = tri45.create('point', [1, 0], { name: '', visible: false, fixed: true });
+      const C45 = tri45.create('point', [0, 1], { name: '', visible: false, fixed: true });
+      tri45.create('polygon', [A45, B45, C45], {
+        fillOpacity: 0.08,
+        borders: { strokeWidth: 2 },
+        vertices: { visible: false },
+        fixed: true
+      });
+      tri45.create('text', [0.47, -0.12, '\\(1\\)'], { fixed: true, fontSize: 15, useMathJax: true, parse: false });
+      tri45.create('text', [-0.15, 0.48, '\\(1\\)'], { fixed: true, fontSize: 15, useMathJax: true, parse: false });
+      tri45.create('text', [0.56, 0.56, '\\(\\sqrt{2}\\)'], { fixed: true, fontSize: 15, useMathJax: true, parse: false });
+      tri45.create('text', [0.67, 0.13, '\\(45^\\circ\\)'], { fixed: true, fontSize: 14, useMathJax: true, parse: false });
+      tri45.create('text', [0.10, 0.70, '\\(45^\\circ\\)'], { fixed: true, fontSize: 14, useMathJax: true, parse: false });
+      tri45.create('polygon', [[0, 0], [0.13, 0], [0.13, 0.13], [0, 0.13]], {
+        fillOpacity: 0,
+        borders: { strokeWidth: 1 },
+        vertices: { visible: false },
+        fixed: true
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור - זהויות טריגונומטריות - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraph.css">
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #e9edf2; font-family: Arial, "Noto Sans Hebrew", sans-serif; color: #18202a; }
+body { counter-reset: page; }
+.page {
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  margin: 10mm auto;
+  padding: 13mm 15mm 12mm;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  break-after: page;
+  counter-increment: page;
+}
+.page:last-of-type { page-break-after: auto; }
+@media print {
+  html, body { background: white; }
+  .page { margin: 0; box-shadow: none; }
+  .screen-only { display: none !important; }
+}
+h1 { font-size: 27px; margin: 0 0 8px; color: #123b66; line-height: 1.18; }
+h2 { font-size: 22px; margin: 0 0 11px; color: #123b66; border-bottom: 2px solid #d8e4f0; padding-bottom: 6px; line-height: 1.25; }
+h3 { font-size: 17px; margin: 10px 0 6px; color: #214d78; line-height: 1.25; }
+p, li, td, th { font-size: 13.2px; line-height: 1.42; }
+p { margin: 5px 0; }
+ul, ol { margin: 5px 0; padding-right: 23px; }
+li { margin: 3px 0; }
+.small { font-size: 11.7px; }
+.tiny { font-size: 10.7px; }
+.lead { font-size: 15px; line-height: 1.5; }
+.ltr { direction: ltr; unicode-bidi: isolate; text-align: left; }
+.center { text-align: center; }
+.muted { color: #647384; }
+.strong { font-weight: 700; }
+.bad { color: #8d2d2d; font-weight: 700; }
+.good { color: #1b6b42; font-weight: 700; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; background: #eef4fa; border: 1px solid #d5e1ec; font-size: 11px; margin: 2px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+.card { border: 1px solid #d9e2ea; background: #fbfcfe; border-radius: 8px; padding: 8px 10px; }
+.card.blue { background: #f2f7fc; border-color: #c9dced; }
+.card.green { background: #f2f9f5; border-color: #cfe5d8; }
+.card.amber { background: #fff9ee; border-color: #ead8b2; }
+.card.red { background: #fff4f4; border-color: #efcaca; }
+.callout { border-right: 5px solid #356b9b; background: #f3f7fb; padding: 8px 11px; margin: 8px 0; border-radius: 6px; }
+.warning { border-right: 5px solid #b57a19; background: #fff8e9; padding: 8px 11px; margin: 8px 0; border-radius: 6px; }
+.formula { direction:ltr; text-align:center; padding: 5px 6px; margin: 5px 0; background:#f8fafc; border:1px solid #e1e7ee; border-radius:6px; }
+.formula.compact { padding: 2px 4px; margin: 3px 0; }
+table { width:100%; border-collapse: collapse; margin: 7px 0; }
+th { background:#edf3f8; font-weight:700; }
+th, td { border:1px solid #cfd9e3; padding:5px 7px; vertical-align: top; }
+.steps { counter-reset: st; margin-top: 7px; }
+.step { display:grid; grid-template-columns: 29px 1fr; gap:7px; align-items:start; margin:13px 0;}
+.step .n { width:26px; height:26px; border-radius:50%; background:#1f5b8f; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;position: relative;top: -2px;}
+.exercise { border-bottom: 1px dashed #cbd5df; padding: 5px 0; }
+.exercise:last-child { border-bottom:0; }
+.level { font-weight:700; color:#1e4f7d; }
+.kpi { text-align:center; border:1px solid #d5dfe8; border-radius:8px; padding:8px; background:#fbfdff; }
+.kpi b { display:block; font-size:21px; color:#143f69; }
+.flow { display:flex; gap:5px; align-items:center; flex-wrap:wrap; direction:rtl; }
+.flow .node { border:1px solid #cbd7e2; border-radius:7px; padding:6px 9px; background:#f7fafc; font-size:12px; }
+.flow .arr { font-size:17px; color:#4f6478; }
+.graph-panel { border:1px solid #d3dde6; border-radius:8px; padding:7px; background:#fcfdff; }
+.jxgbox { width:100%; height:230px; border:1px solid #b7c6d5 !important; background:white; direction:ltr; }
+.graph-controls { display:flex; gap:6px; justify-content:center; margin-top:6px; direction:rtl; }
+.graph-controls button { border:1px solid #aebdcb; background:#f6f9fb; padding:4px 9px; border-radius:6px; font-family:inherit; cursor:pointer; font-size:11.5px; }
+.graph-controls button:hover { background:#e9f0f6; }
+.page-no { position:absolute; bottom:5mm; left:15mm; right:15mm; border-top:1px solid #d8e0e7; padding-top:3px; font-size:10.5px; color:#6a7783; display:flex; justify-content:space-between; }
+.page-no .num::after { content: counter(page); }
+.cover { display:flex; flex-direction:column; justify-content:start; height:248mm; }
+.cover h1 { font-size:34px; }
+.cover .subtitle { font-size:20px; color:#315c82; margin-bottom:22px; }
+.rubric td:first-child { width:19%; font-weight:700; }
+.no-break { break-inside: avoid; }
+.source a { color:#1d5f94; text-decoration:none; word-break:break-all; direction:ltr; unicode-bidi:isolate; }
+.source { margin-bottom:7px; }
+.check { font-weight:700; color:#1c6b44; }
+</style>
+</head>
+<body>
+<section class="page" id="p01"><h1>זהויות טריגונומטריות - מערך שיעור מלא ל-5 יחידות</h1>
+<div style="height:120px;"></div>
+<div class="cover">
+  <div class="subtitle">מהבסיס, דרך הוכחה שיטתית, ועד זהויות משולבות ברמת 5 יחידות</div>
+<div style="height:20px;"></div> 
+ <p class="lead">מטרת היחידה היא להפוך את נושא הזהויות ממאגר נוסחאות למערכת מסודרת: לכל משפחת זהויות יש מקור, סימני זיהוי, פעולות אופייניות ושיטת הוכחה.</p>
+  <div class="callout" style="margin-top:18px">
+    <b>עקרון מרכזי:</b> לפני שמבצעים פעולה, מזהים את מבנה הביטוי, בוחרים מאיזה אגף להתחיל ומגדירים מהי המטרה שאליה רוצים להגיע.
+  </div>
+ <div style="height:20px;"></div>
+  <div class="card blue" style="margin-top:12px">
+    <b>רצף היחידה:</b>
+    <div class="flow" style="margin-top:8px">
+      <span class="node">מעגל היחידה</span><span class="arr">⇐</span>
+      <span class="node">זהויות יסוד</span><span class="arr">⇐</span>
+      <span class="node">שיטת הוכחה</span><span class="arr">⇐</span>
+      <span class="node">אלגברה</span><span class="arr">⇐</span>
+      <span class="node">סכום והפרש</span><span class="arr">⇐</span>
+      <span class="node">זווית כפולה</span><span class="arr">⇐</span>
+      <span class="node">חצי זווית</span><span class="arr">⇐</span>
+      <span class="node">סכום למכפלה</span><span class="arr">⇐</span>
+      <span class="node">מכפלה לסכום</span><span class="arr">⇐</span>
+      <span class="node">הוכחות משולבות</span>
+    </div>
+  </div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div></section>
+<section class="page" id="p02"><h2>1. מהי זהות טריגונומטרית?</h2>
+<div class="grid-2_">
+  <div>
+    <div style="height:20px;"></div>
+    <div class="card blue">
+      <h3>זהות</h3>
+      <p>שוויון שנכון לכל ערך של המשתנה שבו שני האגפים מוגדרים.</p>
+      <div class="formula">\[\sin^2 \alpha+\cos^2 \alpha=1\]</div>
+    </div>
+    <div style="height:20px;"></div>
+    <div class="card amber" style="margin-top:8px">
+      <h3>משוואה</h3>
+      <p>שוויון שנכון רק עבור ערכים מסוימים.</p>
+      <div class="formula">\[\sin \alpha=\cos \alpha\]</div>
+      <p class="small">כאן יש לפתור ולמצוא את ערכי \(\alpha\) המתאימים.</p>
+    </div>
+  </div>
+  <div style="height:20px;"></div>
+  <div>
+    <h3>בדיקה מהירה</h3>
+    <table>
+      <tr><th>טענה</th><th>סוג</th><th>מדוע?</th></tr>
+      <tr><td class="ltr">\(1-\sin^2 \alpha=\cos^2 \alpha\)</td><td>זהות</td><td>נובעת מהזהות הפיתגורית.</td></tr>
+      <tr><td class="ltr">\(\sin \alpha=0\)</td><td>משוואה</td><td>נכונה רק בחלק מן הערכים.</td></tr>
+      <tr><td class="ltr">\(\tan \alpha=\frac{\sin \alpha}{\cos \alpha}\)</td><td>זהות</td><td>בתחום שבו \(\cos \alpha\ne0\).</td></tr>
+    </table>
+    <div style="height:20px;"></div>
+    <div class="warning"> זהות נבדקת תמיד בתחום שבו שני האגפים מוגדרים. אם במהלך ההוכחה מחלקים בביטוי, יש לוודא שלא מתעלמים מאפסים שלו.</div>
+  </div>
+</div>
+<div style="height:20px;"></div>
+<h3>בדיקה מספרית איננה הוכחה</h3>
+<p>אפשר להציב כמה ערכים ולראות ששני האגפים נותנים אותה תוצאה. זה יכול ליצור השערה חזקה, אך הוכחה דורשת רצף פעולות מתמטי שמראה שהאגפים זהים לכל ערך מותר.</p>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div></section>
+
+<section class="page" id="p03"><h2>2. מעגל היחידה כמקור לזהויות</h2>
+<div class="grid-2_">
+  <div>
+    <p>על מעגל היחידה, נקודה בזווית \(\alpha\) נכתבת:</p>
+    <div class="formula">\[P=(\cos \alpha,\sin \alpha)\]</div>
+    <p>משוואת המעגל היא:</p>
+    <div class="formula">\[X^2+Y^2=1\]</div>
+    <p>ולכן מיד:</p>
+    <div class="formula">\[\cos^2 \alpha+\sin^2 \alpha=1\]</div>
+    <h3>סימטריה</h3>
+    <div class="formula compact">\[\sin(-\alpha)=-\sin \alpha\]</div>
+    <div class="formula compact">\[\cos(-\alpha)=\cos \alpha\]</div>
+    <p class="small">הסינוס הוא פונקציה אי-זוגית והקוסינוס פונקציה זוגית.</p>
+  </div>
+ <div style="height:20px;"></div>
+  <div class="graph-panel">
+    <div id="board_unit" class="jxgbox" aria-label="מעגל היחידה"></div>
+    <div class="graph-controls" data-board="board_unit">
+      <button type="button" onclick="zoomBoard('board_unit',0.8)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board_unit',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board_unit')">איפוס ומרכוז</button>
+    </div>
+    <p class="tiny muted">המחשה אינטראקטיבית: גררו את הנקודה על המעגל. הקואורדינטות מייצגות \(\cos \alpha\) ו-\(\sin \alpha\).</p>
+  </div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p04"><h2>3. הוכחת הקשר בין טנגנס, סינוס וקוסינוס</h2>
+<div class="grid-2">
+  <div>
+    <p>במשולש ישר זווית, עבור זווית \(\alpha\):</p>
+    <div class="formula compact">\[\sin \alpha=\frac{a}{c}\]</div>
+    <div class="formula compact">\[\cos \alpha=\frac{b}{c}\]</div>
+    <div class="formula compact">\[\tan \alpha=\frac{a}{b}\]</div>
+    <p>לכן:</p>
+    <div class="formula">\[\frac{\sin \alpha}{\cos \alpha}=\frac{a/c}{b/c}=\frac{a}{b}=\tan \alpha\]</div>
+    <p>קיבלנו את זהות המנה:</p>
+    <div class="formula">\[\boxed{\tan \alpha=\frac{\sin \alpha}{\cos \alpha}}\]</div>
+    <div class="warning small">הזהות מוגדרת כאשר \(\cos \alpha\ne0\).</div>
+  </div>
+  <div class="graph-panel" data-geometry="true" data-geometry-style="clean-black">
+    <div id="board_triangle" class="jxgbox" aria-label="משולש ישר זווית"></div>
+    <div class="graph-controls" data-board="board_triangle">
+      <button type="button" onclick="zoomBoard('board_triangle',0.8)">הגדלה</button>
+      <button type="button" onclick="zoomBoard('board_triangle',1.25)">הקטנה</button>
+      <button type="button" onclick="resetBoard('board_triangle')">איפוס ומרכוז</button>
+    </div>
+  </div>
+</div>
+ <div style="height:20px;"></div>
+<h3>למה הזהות חשובה בהוכחות?</h3>
+<p>כאשר מופיעים באותו ביטוי \(\tan \alpha\), \(\sin \alpha\) ו-\(\cos \alpha\), לעיתים כדאי להמיר את הטנגנס לסינוס וקוסינוס וכך לעבוד בשתי פונקציות בסיסיות בלבד.</p>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p05"><h2>4. מפת המשפחות של הזהויות</h2>
+<div style="height:20px;"></div>
+<table>
+<tr><th>משפחה</th><th>זהויות מרכזיות</th><th>מאין הן מגיעות?</th><th>מתי הן שימושיות?</th></tr>
+<tr><td>פיתגוריות</td><td class="ltr">\(\sin^2\alpha+\cos^2\alpha=1\)</td><td>מעגל היחידה</td><td>כאשר מופיעים ריבועים והמספר 1</td></tr>
+<tr><td>מנה</td><td class="ltr">\(\tan \alpha=\frac{\sin \alpha}{\cos \alpha}\)</td><td>הגדרות במשולש</td><td>איחוד פונקציות לסינוס וקוסינוס</td></tr>
+<tr><td>סימטריה</td><td class="ltr">\(\sin(-\alpha)=-\sin \alpha\), \(\cos(-\alpha)=\cos \alpha\)</td><td>מעגל היחידה</td><td>זוויות שליליות ושינוי סימן</td></tr>
+<tr><td>זוויות משלימות</td><td class="ltr">\(\sin(90^\circ-\alpha)=\cos \alpha\)</td><td>משולש/מעגל</td><td>מעבר בין סינוס וקוסינוס</td></tr>
+<tr><td>סכום והפרש</td><td class="ltr">\(\sin(\alpha\pm\beta)\), \(\cos(\alpha\pm\beta)\)</td><td>זהות בסיסית אחת והסקה</td><td>זוויות מורכבות והוכחות</td></tr>
+<tr><td>זווית כפולה</td><td class="ltr">\(\sin2\alpha\), \(\cos2\alpha\)</td><td>הצבה \(\alpha=\beta=\alpha\)</td><td>כאשר מופיעים \(\alpha\) ו-\(2\alpha\)</td></tr>
+<tr><td>חצי זווית</td><td class="ltr">\(\sin^2\frac{\alpha}{2}=\frac{1-\cos \alpha}{2}\), \(\cos^2\frac{\alpha}{2}=\frac{1+\cos \alpha}{2}\)</td><td>זהויות קוסינוס זווית כפולה</td><td>כאשר מופיעים \(\alpha\), \(\alpha/2\), או \(1\pm\cos \alpha\)</td></tr>
+<tr><td>סכום למכפלה</td><td class="ltr">\(\sin \alpha+\sin \beta\), \(\cos \alpha-\cos \beta\)</td><td>חיבור/חיסור זהויות סכום</td><td>המרת סכום של פונקציות למכפלה</td></tr>
+<tr><td>מכפלה לסכום</td><td class="ltr">\(\sin \alpha\sin \beta\), \(\cos \alpha\cos \beta\)</td><td>חיבור/חיסור זהויות סכום והפרש</td><td>המרת מכפלה של פונקציות לסכום או הפרש</td></tr>
+</table>
+ <div style="height:20px;"></div>
+<div class="callout">
+<b>היררכיה חשובה:</b> רוב הזהויות המתקדמות אינן נוסחאות מבודדות. הן נגזרות ממספר קטן של זהויות בסיסיות. הבנת התלות ביניהן מפחיתה שינון ומגדילה שליטה.
+</div>
+ <div style="height:20px;"></div>
+<h3>מפת תלות</h3>
+<div class="flow">
+<span class="node">מעגל היחידה</span><span class="arr">⇐</span>
+<span class="node">פיתגורית + סימטריה</span><span class="arr">⇐</span>
+<span class="node">סכום/הפרש</span><span class="arr">⇐</span>
+<span class="node">זווית כפולה</span><span class="arr">⇐</span>
+<span class="node">חצי זווית</span><span class="arr">⇐</span>
+<span class="node">סכום למכפלה</span><span class="arr">⇐</span>
+<span class="node">מכפלה לסכום</span>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p06"><h2>5. שיטת ההוכחה - עובדים על אגף אחד בלבד</h2>
+<div style="height:20px;"></div>
+<div class="grid-2_">
+  <div>
+    <h3>האלגוריתם</h3>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><b>מטרה:</b> מהו המבנה של האגף שאליו רוצים להגיע?</div></div>
+      <div class="step"><div class="n">2</div><div><b>בחירת אגף:</b> בדרך כלל מתחילים מהאגף המורכב יותר.</div></div>
+      <div class="step"><div class="n">3</div><div><b>חתימה:</b> מזהים ריבועים, שברים, זווית כפולה, סכום זוויות, גורם משותף וכו'.</div></div>
+      <div class="step"><div class="n">4</div><div><b>פעולה אחת:</b> מפעילים זהות או פעולה אלגברית אחת ברורה.</div></div>
+      <div class="step"><div class="n">5</div><div><b>בדיקת כיוון:</b> האם הביטוי החדש דומה יותר לאגף המטרה?</div></div>
+      <div class="step"><div class="n">6</div><div><b>סיום:</b> מגיעים בדיוק לאגף השני ומציינים את תחום ההגדרה אם יש מגבלות.</div></div>
+    </div>
+  </div>
+  <div>
+<div style="height:20px;"></div>
+    <div class="card red">
+      <h3>מה לא לעשות</h3>
+      <p class="bad">לא לבצע פעולות במקביל בשני האגפים כאילו פותרים משוואה.</p>
+      <p class="small">המטרה היא להראות שאגף אחד ניתן לכתיבה מחדש כאגף השני.</p>
+    </div>
+  </div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p07"><h2>6. טבלת החתימות - איך מזהים את הפעולה הראשונה?</h2>
+<div style="height:20px;"></div>
+<table>
+<tr><th>מה רואים?</th><th>מה לבדוק קודם?</th><th>פעולה אופיינית</th></tr>
+<tr><td class="ltr">\(1-\sin^2\alpha\), \(1-\cos^2\alpha\)</td><td>זהות פיתגורית</td><td class="ltr">\(1-\sin^2\alpha=\cos^2\alpha\)</td></tr>
+<tr><td class="ltr">\(\tan \alpha\) יחד עם \(\sin \alpha,\cos \alpha\)</td><td>זהות המנה</td><td class="ltr">\(\tan \alpha=\frac{\sin \alpha}{\cos \alpha}\)</td></tr>
+<tr><td>מספר שברים</td><td>מכנה משותף</td><td>לא להתחיל בזהות אם האלגברה פשוטה יותר</td></tr>
+<tr><td>אותו גורם בכמה איברים</td><td>גורם משותף</td><td class="ltr">\(ab+ac=a(b+c)\)</td></tr>
+<tr><td class="ltr">\(1\pm\sin \alpha\), \(1\pm\cos \alpha\) במכנה</td><td>צמוד</td><td>כפל במונה ובמכנה בצמוד</td></tr>
+<tr><td class="ltr">\(2\alpha\)</td><td>זווית כפולה</td><td>לבחור גרסה שמתאימה למטרה</td></tr>
+<tr><td class="ltr">\(\alpha/2\), \(1\pm\cos \alpha\)</td><td>חצי זווית</td><td>להמיר בין \(1\pm\cos \alpha\) לבין ריבוע של סינוס/קוסינוס בחצי זווית</td></tr>
+<tr><td class="ltr">\(\alpha\pm\beta\)</td><td>סכום/הפרש</td><td>פתיחה או זיהוי הפוך</td></tr>
+<tr><td class="ltr">\(\sin \alpha+\sin \beta\), \(\cos \alpha-\cos \beta\)</td><td>סכום למכפלה</td><td>לבדוק אם מכפלה תיצור צמצום או זווית מוכרת</td></tr>
+<tr><td class="ltr">\(\sin \alpha\sin \beta\), \(\cos \alpha\cos \beta\), \(\sin \alpha\cos \beta\)</td><td>מכפלה לסכום</td><td>לבדוק אם סכום או הפרש של זוויות יפשט את הביטוי</td></tr>
+</table>
+<div style="height:20px;"></div>
+<div class="callout"><b>כלל איכות:</b> פעולה טובה היא פעולה שמקרבת את מבנה הביטוי לאגף המטרה. אם הביטוי נעשה ארוך יותר בלי סיבה ברורה, כדאי לחזור ולבחור מסלול אחר.</div>
+<div style="height:20px;"></div>
+<h3>תרגול ללא פתרון</h3>
+<p>בכל אחד מהביטויים הבאים כתבו רק את הפעולה הראשונה, בלי לבצע את כל ההוכחה:</p>
+<div class="grid-2">
+<div class="card ltr">\(\frac{1-\cos^2\alpha}{\sin \alpha}\)</div>
+<div class="card ltr">\(\frac{\sin \alpha}{1+\cos \alpha}\)</div>
+<div class="card ltr">\(\sin \alpha-\sin \alpha\cos^2\alpha\)</div>
+<div class="card ltr">\(\sin(\alpha+\beta)+\sin(\alpha-\beta)\)</div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p08"><h2>7. קטגוריות A-B - החלפה ישירה וזהות פיתגורית</h2>
+<div class="grid-2_">
+<div class="card blue">
+<h3>קטגוריה A - החלפה ישירה</h3>
+<p><b>סימן זיהוי:</b> אגף אחד הוא זהות בסיסית כמעט ללא שינוי.</p>
+<div class="formula">\[\tan \alpha\cos \alpha=\sin \alpha\]</div>
+<div class="formula">\[
+\tan \alpha\cos \alpha=\frac{\sin \alpha}{\cos \alpha}\cos \alpha=\sin \alpha
+\]</div>
+<p class="small">בתחום שבו \(\cos \alpha\ne0\).</p>
+</div>
+<div style="height:20px;"></div>
+<div class="card green">
+<h3>קטגוריה B - פיתגורית</h3>
+<p><b>סימן זיהוי:</b> המספר 1 וריבועים של סינוס/קוסינוס.</p>
+<div class="formula">\[1-\sin^2\alpha=\cos^2\alpha\]</div>
+<p>מתוך:</p>
+<div class="formula compact">\[\sin^2\alpha+\cos^2\alpha=1\]</div>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h3>תרגול מדורג</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 1.</span> הוכיחו: <span class="ltr">\(1-\cos^2\alpha=\sin^2\alpha\)</span></div>
+<div class="card"><span class="level">רמה 1.</span> הוכיחו: <span class="ltr">\(\tan \alpha\cos \alpha=\sin \alpha\)</span></div>
+<div class="card"><span class="level">רמה 2.</span> הוכיחו: <span class="ltr">\(\sin^2\alpha=1-\cos^2\alpha\)</span></div>
+<div class="card"><span class="level">רמה 2.</span> הוכיחו: <span class="ltr">\(\frac{\tan \alpha}{\sin \alpha}=\frac{1}{\cos \alpha}\)</span></div>
+</div>
+<div style="height:20px;"></div>
+<div class="warning small"><b>הוראה:</b> יש לציין ליד כל שורה באיזו זהות השתמשנו.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p09"><h2>8. קטגוריות C-D - המרה לפונקציה אחת וזהות + אלגברה</h2>
+<div style="height:20px;"></div>
+<div class="card blue">
+<h3>קטגוריה C - המרה לפונקציות של אגף המטרה</h3>
+<p>כאשר באגף אחד מופיעות פונקציות שונות ובאגף השני רק סינוס וקוסינוס, ממירים את הטנגנס.</p>
+<div class="formula">\[
+\frac{\tan \alpha}{1+\tan^2\alpha}=\sin \alpha\cos \alpha
+\]</div>
+<p class="small">הכיוון: המרת \(\tan \alpha\) ל-\(\sin \alpha/\cos \alpha\), ואז איחוד שברים ופישוט.</p>
+</div>
+<div style="height:20px;"></div>
+<div class="card green" style="margin-top:8px">
+<h3>קטגוריה D - זהות + צמצום</h3>
+<div class="formula">\[\frac{1-\cos^2\alpha}{\sin \alpha}=\sin \alpha\]</div>
+<div class="formula">\[
+\frac{1-\cos^2\alpha}{\sin \alpha}
+=\frac{\sin^2\alpha}{\sin \alpha}
+=\sin \alpha
+\]</div>
+<p class="small">תחום: שני האגפים המקוריים צריכים להיות מוגדרים.</p>
+</div>
+<div style="height:20px;"></div>
+<h3>תרגול</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 3.</span> <span class="ltr">\(\tan \alpha\cos^2\alpha=\sin \alpha\cos \alpha\)</span></div>
+<div class="card"><span class="level">רמה 3.</span> <span class="ltr">\(\frac{\sin \alpha}{\tan \alpha}=\cos \alpha\)</span></div>
+<div class="card"><span class="level">רמה 4.</span> <span class="ltr">\(\frac{1-\sin^2\alpha}{\cos \alpha}=\cos \alpha\)</span></div>
+<div class="card"><span class="level">רמה 4.</span> <span class="ltr">\(\frac{\sin^2\alpha}{1-\cos \alpha}=1+\cos \alpha\)</span></div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p10"><h2>9. קטגוריה E - מכנה משותף</h2>
+<p>כאשר יש שני שברים או יותר, הפעולה הראשונה עשויה להיות אלגברית לחלוטין.</p>
+<div style="height:20px;"></div>
+<div class="card blue">
+<h3>דוגמה מלאה</h3>
+<div class="formula">\[
+\frac{\sin \alpha}{1+\cos \alpha}+\frac{1+\cos \alpha}{\sin \alpha}=\frac{2}{\sin \alpha}
+\]</div>
+<div class="formula">\[
+\begin{aligned}
+\frac{\sin \alpha}{1+\cos \alpha}+\frac{1+\cos \alpha}{\sin \alpha}
+&=\frac{\sin^2\alpha+(1+\cos \alpha)^2}{\sin \alpha(1+\cos \alpha)}\\
+&=\frac{1-\cos^2\alpha+1+2\cos \alpha+\cos^2\alpha}{\sin \alpha(1+\cos \alpha)}\\
+&=\frac{2(1+\cos \alpha)}{\sin \alpha(1+\cos \alpha)}\\
+&=\frac{2}{\sin \alpha}
+\end{aligned}
+\]</div>
+</div>
+<div style="height:20px;"></div>
+<div class="callout"> שני שברים ⇐ לנסות קודם מכנה משותף. רק אחרי האיחוד מחפשים זהות פיתגורית, פירוק או צמצום.</div>
+<div style="height:20px;"></div>
+<h3>תרגול</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 5.</span> <span class="ltr">\(\frac{1-\cos \alpha}{\sin \alpha}+\frac{\sin \alpha}{1-\cos \alpha}=\frac{2}{\sin \alpha}\)</span></div>
+<div class="card"><span class="level">רמה 5.</span> <span class="ltr">\(\frac{\sin \alpha}{1+\cos \alpha}+\frac{\sin \alpha}{1-\cos \alpha}=\frac{2}{\sin \alpha}\)</span></div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p11"><h2>10. קטגוריה F - פירוק לגורמים</h2>
+<div class="grid-2_">
+<div>
+<div style="height:20px;"></div>
+<p>לפעמים הזהות מסתתרת אחרי גורם משותף.</p>
+<div class="formula">\[\sin \alpha-\sin \alpha\cos^2\alpha=\sin^3\alpha\]</div>
+<p>מתחילים בפירוק:</p>
+<div class="formula">\[
+\begin{aligned}
+\sin \alpha-\sin \alpha\cos^2\alpha
+&=\sin \alpha(1-\cos^2\alpha)\\
+&=\sin \alpha\sin^2\alpha\\
+&=\sin^3\alpha
+\end{aligned}
+\]</div>
+</div>
+<div style="height:20px;"></div>
+<div class="card amber">
+<h3>סימני זיהוי</h3>
+<ul>
+<li>אותו גורם מופיע בשני איברים.</li>
+<li>אחרי הפירוק עשוי להופיע \(1-\sin^2\alpha\) או \(1-\cos^2\alpha\).</li>
+<li>פירוק יכול להקטין את מספר האיברים ולחשוף צמצום.</li>
+</ul>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h3>תרגול</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 6.</span> <span class="ltr">\(\cos \alpha-\cos \alpha\sin^2\alpha=\cos^3\alpha\)</span></div>
+<div class="card"><span class="level">רמה 6.</span> <span class="ltr">\(\sin^3\alpha+\sin \alpha\cos^2\alpha=\sin \alpha\)</span></div>
+<div class="card"><span class="level">רמה 6.</span> <span class="ltr">\(\cos^3\alpha+\cos \alpha\sin^2\alpha=\cos \alpha\)</span></div>
+<div class="card"><span class="level">רמה 6.</span> <span class="ltr">\(\sin \alpha\cos^2\alpha+\sin^3\alpha=\sin \alpha\)</span></div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p12"><h2>11. קטגוריה G - כפל בצמוד</h2>
+<div style="height:20px;"></div>
+<div class="card blue">
+<h3>דוגמה מרכזית</h3>
+<div class="formula">\[\frac{\sin \alpha}{1+\cos \alpha}=\frac{1-\cos \alpha}{\sin \alpha}\]</div>
+<p>כופלים את אגף שמאל בצמוד:</p>
+<div class="formula">\[
+\begin{aligned}
+\frac{\sin \alpha}{1+\cos \alpha}
+&=\frac{\sin \alpha(1-\cos \alpha)}{(1+\cos \alpha)(1-\cos \alpha)}\\
+&=\frac{\sin \alpha(1-\cos \alpha)}{1-\cos^2\alpha}\\
+&=\frac{\sin \alpha(1-\cos \alpha)}{\sin^2\alpha}\\
+&=\frac{1-\cos \alpha}{\sin \alpha}
+\end{aligned}
+\]</div>
+</div>
+<div style="height:20px;"></div>
+<div class="callout"><b>למה זה עובד?</b> הצמוד יוצר הפרש ריבועים, והפרש הריבועים יוצר זהות פיתגורית.</div>
+<div style="height:20px;"></div>
+<h3>תרגול</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 7.</span> <span class="ltr">\(\frac{\sin \alpha}{1-\cos \alpha}=\frac{1+\cos \alpha}{\sin \alpha}\)</span></div>
+<div class="card"><span class="level">רמה 7.</span> <span class="ltr">\(\frac{1-\sin \alpha}{\cos \alpha}=\frac{\cos \alpha}{1+\sin \alpha}\)</span></div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p13"><h2>12. זהויות סכום והפרש זוויות</h2>
+<div class="grid-2_">
+<div>
+<div class="formula compact">\[\sin(\alpha+\beta)=\sin\alpha\cos\beta+\cos\alpha\sin\beta\]</div>
+<div class="formula compact">\[\sin(\alpha-\beta)=\sin\alpha\cos\beta-\cos\alpha\sin\beta\]</div>
+</div>
+<div>
+<div class="formula compact">\[\cos(\alpha+\beta)=\cos\alpha\cos\beta-\sin\alpha\sin\beta\]</div>
+<div class="formula compact">\[\cos(\alpha-\beta)=\cos\alpha\cos\beta+\sin\alpha\sin\beta\]</div>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h3>כלל סימנים</h3>
+<p>בסינוס סימן הפעולה נשמר. בקוסינוס סימן האיבר השני מתהפך.</p>
+<div style="height:20px;"></div>
+<h3>בדיקה מספרית - המחשה בלבד</h3>
+<div class="grid-2_">
+<div class="card blue">
+<p><b>סינוס של סכום:</b></p>
+<div class="formula compact">\[\sin(30^\circ+45^\circ)=\sin75^\circ=\frac{\sqrt6+\sqrt2}{4}\]</div>
+<div class="formula compact">\[\sin30^\circ\cos45^\circ+\cos30^\circ\sin45^\circ=\frac{\sqrt6+\sqrt2}{4}\]</div>
+</div>
+<div style="height:20px;"></div>
+<div class="card green">
+<p><b>סינוס של הפרש:</b></p>
+<div class="formula compact">\[\sin(60^\circ-30^\circ)=\sin30^\circ=\frac12\]</div>
+<div class="formula compact">\[\sin60^\circ\cos30^\circ-\cos60^\circ\sin30^\circ=\frac34-\frac14=\frac12\]</div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p13-examples"><h2>12. זהויות סכום והפרש זוויות</h2>
+<div style="height:20px;"></div>
+<div class="card amber">
+<p><b>קוסינוס של סכום:</b></p>
+<div class="formula compact">\[\cos(60^\circ+30^\circ)=\cos90^\circ=0\]</div>
+<div class="formula compact">\[\cos60^\circ\cos30^\circ-\sin60^\circ\sin30^\circ=\frac{\sqrt3}{4}-\frac{\sqrt3}{4}=0\]</div>
+</div>
+<div style="height:20px;"></div>
+<div class="card">
+<p><b>קוסינוס של הפרש:</b></p>
+<div class="formula compact">\[\cos(60^\circ-30^\circ)=\cos30^\circ=\frac{\sqrt3}{2}\]</div>
+<div class="formula compact">\[\cos60^\circ\cos30^\circ+\sin60^\circ\sin30^\circ=\frac{\sqrt3}{4}+\frac{\sqrt3}{4}=\frac{\sqrt3}{2}\]</div>
+</div>
+</div>
+<div style="height:20px;"></div>
+<div class="warning small"> הדוגמאות המספריות מאשרות שהנוסחאות עובדות במקרים שנבדקו, אך אינן מהוות הוכחה כללית.</div>
+<div style="height:20px;"></div>
+<div class="callout small"><b>חתימה:</b> אם רואים \(\alpha+\beta\) או \(\alpha-\beta\), בודקים אם כדאי לפתוח. אם רואים כבר את הצורה המורחבת, בודקים אם כדאי לזהות אותה בכיוון ההפוך.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section style="display:none;" class="page" id="p14"><h2>13. הוכחה וקטורית של \(\cos(\alpha-\beta)\)</h2>
+<div class="grid-2">
+<div>
+<p>נגדיר שני וקטורי יחידה:</p>
+<div class="formula compact">\[u=(\cos\alpha,\sin\alpha)\]</div>
+<div class="formula compact">\[v=(\cos\beta,\sin\beta)\]</div>
+<p>הזווית ביניהם היא \(\alpha-\beta\). לפי מכפלה סקלרית:</p>
+<div class="formula">\[u\cdot v=|u||v|\cos(\alpha-\beta)=\cos(\alpha-\beta)\]</div>
+<p>מצד שני, לפי רכיבים:</p>
+<div class="formula">\[u\cdot v=\cos\alpha\cos\beta+\sin\alpha\sin\beta\]</div>
+<p>ולכן:</p>
+<div class="formula">\[\boxed{\cos(\alpha-\beta)=\cos\alpha\cos\beta+\sin\alpha\sin\beta}\]</div>
+</div>
+<div class="graph-panel" data-geometry="true" data-geometry-style="clean-black">
+<div id="board_vectors" class="jxgbox" aria-label="שני וקטורי יחידה וזווית ביניהם"></div>
+<div class="graph-controls" data-board="board_vectors">
+<button type="button" onclick="zoomBoard('board_vectors',0.8)">הגדלה</button>
+<button type="button" onclick="zoomBoard('board_vectors',1.25)">הקטנה</button>
+<button type="button" onclick="resetBoard('board_vectors')">איפוס ומרכוז</button>
+</div>
+<p class="tiny muted">הקשת הפנימית מסמנת את הזווית בין הווקטורים.</p>
+</div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p15"><h2>13. סכום והפרש - פתיחה וזיהוי הפוך</h2>
+<div class="grid-2_">
+<div style="height:20px;"></div>
+<div class="card blue">
+<h3>כיוון ישיר</h3>
+<div class="formula">\[\sin(\alpha+30^\circ)=\sin \alpha\cos30^\circ+\cos \alpha\sin30^\circ\]</div>
+<p>מתאים כאשר מופיעה זווית מורכבת ורוצים לפרק אותה.</p>
+</div>
+<div style="height:20px;"></div>
+<div class="card green">
+<h3>כיוון הפוך</h3>
+<div class="formula">\[\sin \alpha\cos30^\circ+\cos \alpha\sin30^\circ=\sin(\alpha+30^\circ)\]</div>
+<p>מתאים כאשר הצורה המורחבת כבר קיימת ורוצים לקצר.</p>
+</div>
+</div>
+<div style="height:20px;"></div>
+<h3>תרגול</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 8.</span> הוכיחו: <span class="ltr">\(\sin(\alpha+\beta)+\sin(\alpha-\beta)=2\sin \alpha\cos \beta\)</span></div>
+<div class="card"><span class="level">רמה 8.</span> הוכיחו: <span class="ltr">\(\cos(\alpha+\beta)+\cos(\alpha-\beta)=2\cos \alpha\cos \beta\)</span></div>
+<div class="card"><span class="level">רמה 9.</span> זהו ללא פתיחה: <span class="ltr">\(\cos \alpha\cos40^\circ-\sin \alpha\sin40^\circ\)</span></div>
+<div class="card"><span class="level">רמה 9.</span> זהו ללא פתיחה: <span class="ltr">\(\sin \alpha\cos20^\circ-\cos \alpha\sin20^\circ\)</span></div>
+</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p17"><h2>14. סינוס זווית כפולה</h2>
+<p>את זהות סינוס זווית כפולה מוכיחים ישירות מתוך זהות הסינוס של סכום זוויות שכבר נלמדה.</p>
+<div class="card blue">
+<h3>הוכחה מתוך זהות קיימת</h3>
+<p>מתחילים מן הזהות:</p>
+<div class="formula compact">\[\sin(\alpha+\beta)=\sin\alpha\cos\beta+\cos\alpha\sin\beta\]</div>
+<p>מציבים \(\alpha=\beta=\alpha\):</p>
+<div class="formula">\[
+\begin{aligned}
+\sin(2\alpha)&=\sin(\alpha+\alpha)\\
+&=\sin \alpha\cos \alpha+\cos \alpha\sin \alpha\\
+&=2\sin \alpha\cos \alpha
+\end{aligned}
+\]</div>
+<div class="formula">\[\boxed{\sin2\alpha=2\sin \alpha\cos \alpha}\]</div>
+</div>
+<div style="height:14px;"></div>
+<h3>שתי דוגמאות לזהויות שבהן משתמשים בסינוס זווית כפולה</h3>
+<div class="grid-2">
+<div class="card green">
+<p><b>דוגמה 1</b></p>
+<div class="formula compact">\[\frac{\sin2\alpha}{2\cos \alpha}=\sin \alpha\]</div>
+<div class="formula compact">\[
+\frac{\sin2\alpha}{2\cos \alpha}
+=\frac{2\sin \alpha\cos \alpha}{2\cos \alpha}
+=\sin \alpha
+\]</div>
+<p class="small">בתחום שבו \(\cos \alpha\ne0\).</p>
+</div>
+<div class="card amber">
+<p><b>דוגמה 2</b></p>
+<div class="formula compact">\[\sin2\alpha\tan \alpha=2\sin^2\alpha\]</div>
+<div class="formula compact">\[
+\begin{aligned}
+\sin2\alpha\tan \alpha
+&=2\sin \alpha\cos \alpha\cdot\frac{\sin \alpha}{\cos \alpha}\\
+&=2\sin^2\alpha
+\end{aligned}
+\]</div>
+<p class="small">בתחום שבו \(\cos \alpha\ne0\).</p>
+</div>
+</div>
+<div class="callout small"><b>סימן זיהוי:</b> כאשר מופיעים יחד \(2\alpha\), \(\sin \alpha\) ו-\(\cos \alpha\), כדאי לבדוק אם החלפת \(\sin2\alpha\) ב-\(2\sin \alpha\cos \alpha\) יוצרת צמצום או מבנה פשוט יותר.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+<section class="page" id="p17-practice"><h2>14. תרגול - סינוס זווית כפולה</h2>
+<p>בכל תרגיל השתמשו בזהות \(\sin2\alpha=2\sin \alpha\cos \alpha\). כאשר יש שבר, ציינו את תחום ההגדרה המתאים.</p>
+<div class="callout small"><b>מטרה:</b> לזהות מתי כדאי לפתוח את \(\sin2\alpha\) ומתי כדאי לזהות את המכפלה \(2\sin \alpha\cos \alpha\) בכיוון ההפוך.</div>
+<h3>תרגול מדורג</h3>
+<div class="exercise"><span class="level">1.</span> כתבו בעזרת \(\sin2\alpha\): <span class="ltr">\(2\sin \alpha\cos \alpha\)</span></div>
+<div class="exercise"><span class="level">2.</span> כתבו בעזרת \(\sin2\alpha\): <span class="ltr">\(6\sin \alpha\cos \alpha\)</span></div>
+<div class="exercise"><span class="level">3.</span> פשטו: <span class="ltr">\(\frac{\sin2\alpha}{2\sin \alpha}\)</span></div>
+<div class="exercise"><span class="level">4.</span> פשטו: <span class="ltr">\(\frac{\sin2\alpha}{2\cos \alpha}\)</span></div>
+<div class="exercise"><span class="level">5.</span> הוכיחו: <span class="ltr">\(\frac{\sin2\alpha}{\tan \alpha}=2\cos^2\alpha\)</span></div>
+<div class="exercise"><span class="level">6.</span> הוכיחו: <span class="ltr">\(\frac{\sin2\alpha}{\cos^2\alpha}=2\tan \alpha\)</span></div>
+<div class="exercise"><span class="level">7.</span> הוכיחו: <span class="ltr">\(\sin \alpha\sin2\alpha=2\sin^2\alpha\cos \alpha\)</span></div>
+<div class="exercise"><span class="level">8.</span> הוכיחו: <span class="ltr">\(\cos \alpha\sin2\alpha=2\sin \alpha\cos^2\alpha\)</span></div>
+<div class="exercise"><span class="level">9.</span> הוכיחו: <span class="ltr">\(\frac{\sin2\alpha}{2\tan \alpha}=\cos^2\alpha\)</span></div>
+<div class="exercise"><span class="level">10.</span> הוכיחו: <span class="ltr">\(\frac{2\sin \alpha\cos \alpha}{\sin2\alpha}=1\)</span></div>
+<div style="height:20px;"></div>
+<div class="warning small"><b>בדיקה עצמית:</b> לפני כל פתרון ציינו אם אתם פותחים את \(\sin2\alpha\) ל-\(2\sin \alpha\cos \alpha\), או מזהים את המכפלה בכיוון ההפוך.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p18"><h2>15. קוסינוס זווית כפולה</h2>
+<p>את זהות קוסינוס זווית כפולה מוכיחים מתוך זהות הקוסינוס של סכום זוויות, ולאחר מכן משתמשים בזהות הפיתגורית כדי לקבל שתי צורות נוספות.</p>
+<div class="card blue">
+<h3>הוכחה מתוך זהות קיימת</h3>
+<p>מתחילים מן הזהות:</p>
+<div class="formula compact">\[\cos(\alpha+\beta)=\cos\alpha\cos\beta-\sin\alpha\sin\beta\]</div>
+<p>מציבים \(\alpha=\beta=\alpha\):</p>
+<div class="formula">\[
+\begin{aligned}
+\cos(2\alpha)&=\cos(\alpha+\alpha)\\
+&=\cos^2\alpha-\sin^2\alpha
+\end{aligned}
+\]</div>
+<div class="formula">\[\boxed{\cos2\alpha=\cos^2\alpha-\sin^2\alpha}\]</div>
+<p>מתוך \(\sin^2\alpha+\cos^2\alpha=1\) מתקבלות גם:</p>
+<div class="grid-2">
+<div class="formula compact">\[\cos2\alpha=2\cos^2\alpha-1\]</div>
+<div class="formula compact">\[\cos2\alpha=1-2\sin^2\alpha\]</div>
+</div>
+</div>
+<div style="height:12px;"></div>
+<h3>שתי דוגמאות לזהויות שבהן משתמשים בקוסינוס זווית כפולה</h3>
+<div class="grid-2">
+<div class="card green">
+<p><b>דוגמה 1</b></p>
+<div class="formula compact">\[\frac{1-\cos2\alpha}{2}=\sin^2\alpha\]</div>
+<div class="formula compact">\[
+\frac{1-(1-2\sin^2\alpha)}{2}
+=\frac{2\sin^2\alpha}{2}
+=\sin^2\alpha
+\]</div>
+</div>
+<div class="card amber">
+<p><b>דוגמה 2</b></p>
+<div class="formula compact">\[\frac{1+\cos2\alpha}{2}=\cos^2\alpha\]</div>
+<div class="formula compact">\[
+\frac{1+(2\cos^2\alpha-1)}{2}
+=\frac{2\cos^2\alpha}{2}
+=\cos^2\alpha
+\]</div>
+</div>
+</div>
+<div style="height:20px;"></div>
+<div class="callout small"><b>בחירת הצורה:</b> אם המטרה מכילה רק סינוס, נוח להשתמש ב-\(\cos2\alpha=1-2\sin^2\alpha\). אם המטרה מכילה רק קוסינוס, נוח להשתמש ב-\(\cos2\alpha=2\cos^2\alpha-1\).</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+<section class="page" id="p18-practice">
+<h2>15. תרגול - קוסינוס זווית כפולה</h2>
+<div style="height:20px;"></div>
+<p>בכל תרגיל בחרו את הצורה המתאימה ביותר של זהות קוסינוס זווית כפולה.</p>
+<div class="grid-3">
+<div class="formula compact">\(\cos2\alpha=\cos^2\alpha-\sin^2\alpha\)</div>
+<div class="formula compact">\(\cos2\alpha=2\cos^2\alpha-1\)</div>
+<div class="formula compact">\(\cos2\alpha=1-2\sin^2\alpha\)</div>
+</div>
+<div style="height:20px;"></div>
+<h3>תרגול מדורג</h3>
+<div class="exercise"><span class="level">1.</span> כתבו בעזרת \(\cos2\alpha\): <span class="ltr">\(\cos^2\alpha-\sin^2\alpha\)</span></div>
+<div class="exercise"><span class="level">2.</span> כתבו בעזרת \(\cos2\alpha\): <span class="ltr">\(2\cos^2\alpha-1\)</span></div>
+<div class="exercise"><span class="level">3.</span> כתבו בעזרת \(\cos2\alpha\): <span class="ltr">\(1-2\sin^2\alpha\)</span></div>
+<div class="exercise"><span class="level">4.</span> הוכיחו: <span class="ltr">\(1+\cos2\alpha=2\cos^2\alpha\)</span></div>
+<div class="exercise"><span class="level">5.</span> הוכיחו: <span class="ltr">\(1-\cos2\alpha=2\sin^2\alpha\)</span></div>
+<div class="exercise"><span class="level">6.</span> הוכיחו: <span class="ltr">\(\cos2\alpha+2\sin^2\alpha=1\)</span></div>
+<div class="exercise"><span class="level">7.</span> הוכיחו: <span class="ltr">\(\cos2\alpha-2\cos^2\alpha=-1\)</span></div>
+<div class="exercise"><span class="level">8.</span> הוכיחו: <span class="ltr">\(\frac{1-\cos2\alpha}{1+\cos2\alpha}=\tan^2\alpha\)</span></div>
+<div class="exercise"><span class="level">9.</span> פשטו: <span class="ltr">\(\frac{1+\cos2\alpha}{2\cos \alpha}\)</span></div>
+<div class="exercise"><span class="level">10.</span> פשטו: <span class="ltr">\(\frac{1-\cos2\alpha}{2\sin \alpha}\)</span></div>
+<div style="height:20px;"></div>
+<div class="callout small"><b>בחירת זהות:</b> אם מופיע רק \(\sin \alpha\), העדיפו את \(1-2\sin^2\alpha\). אם מופיע רק \(\cos \alpha\), העדיפו את \(2\cos^2\alpha-1\). אם מופיעים גם סינוס וגם קוסינוס בריבוע, העדיפו את \(\cos^2\alpha-\sin^2\alpha\).</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+<section class="page" id="p19-half-angle">
+<h2>16. זהויות חצי זווית</h2>
+<div style="height:20px;"></div>
+<p>זהויות חצי הזווית מתקבלות ישירות משתי הצורות של זהות קוסינוס זווית כפולה. הן מאפשרות להחליף ריבוע של סינוס או קוסינוס בחצי זווית בביטוי הכולל את \(\cos \alpha\).</p>
+<div class="grid-2">
+  <div class="formula">\[\boxed{\sin^2\frac{\alpha}{2}=\frac{1-\cos \alpha}{2}}\]</div>
+  <div class="formula">\[\boxed{\cos^2\frac{\alpha}{2}=\frac{1+\cos \alpha}{2}}\]</div>
+</div>
+<div style="height:12px;"></div>
+<div class="card blue">
+<h3>הוכחה מתוך זהויות זווית כפולה</h3>
+<p><b>לסינוס:</b> מתחילים מן הזהות \(\cos2u=1-2\sin^2u\).</p>
+<div class="formula compact">\[
+\begin{aligned}
+\cos2u&=1-2\sin^2u\\
+2\sin^2u&=1-\cos2u\\
+\sin^2u&=\frac{1-\cos2u}{2}
+\end{aligned}
+\]</div>
+<p>מציבים \(u=\frac{\alpha}{2}\), ולכן \(2u=\alpha\):</p>
+<div class="formula compact">\[\boxed{\sin^2\frac{\alpha}{2}=\frac{1-\cos \alpha}{2}}\]</div>
+<p><b>לקוסינוס:</b> מתחילים מן הזהות \(\cos2u=2\cos^2u-1\).</p>
+<div class="formula compact">\[
+\begin{aligned}
+\cos2u&=2\cos^2u-1\\
+2\cos^2u&=1+\cos2u\\
+\cos^2u&=\frac{1+\cos2u}{2}
+\end{aligned}
+\]</div>
+<p>שוב מציבים \(u=\frac{\alpha}{2}\):</p>
+<div class="formula compact">\[\boxed{\cos^2\frac{\alpha}{2}=\frac{1+\cos \alpha}{2}}\]</div>
+</div>
+<div style="height:20px;"></div>
+<div class="warning small"><b>חשוב:</b> אם מוציאים שורש, מתקבל \(\sin\frac{\alpha}{2}=\pm\sqrt{\frac{1-\cos \alpha}{2}}\) או \(\cos\frac{\alpha}{2}=\pm\sqrt{\frac{1+\cos \alpha}{2}}\). את הסימן קובעים לפי הרביע שבו נמצאת הזווית \(\frac{\alpha}{2}\).</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p19-half-angle-practice"><h2>16. חצי זווית - דוגמאות ותרגול</h2>
+<h3>שתי דוגמאות לשימוש בזהויות חצי זווית</h3>
+<div class="grid-2_">
+  <div class="card green">
+    <p><b>דוגמה 1 - חישוב ערך מדויק</b></p>
+    <p>חשבו את \(\sin^2 15^\circ\).</p>
+    <div class="formula compact">\[
+    \begin{aligned}
+    \sin^2 15^\circ
+    &=\frac{1-\cos30^\circ}{2}\\
+    &=\frac{1-\frac{\sqrt3}{2}}{2}\\
+    &=\frac{2-\sqrt3}{4}
+    \end{aligned}
+    \]</div>
+  </div>
+<div style="height:20px;"></div>
+  <div class="card amber">
+    <p><b>דוגמה 2 - הוכחת זהות</b></p>
+    <p>הוכיחו:</p>
+    <div class="formula compact">\[\frac{1-\cos \alpha}{1+\cos \alpha}=\tan^2\frac{\alpha}{2}\]</div>
+    <div class="formula compact">\[
+    \begin{aligned}
+    \frac{1-\cos \alpha}{1+\cos \alpha}
+    &=\frac{2\sin^2\frac{\alpha}{2}}{2\cos^2\frac{\alpha}{2}}\\
+    &=\tan^2\frac{\alpha}{2}
+    \end{aligned}
+    \]</div>
+    <p class="small">בתחום שבו שני האגפים מוגדרים.</p>
+  </div>
+</div>
+<div style="height:16px;"></div>
+<h3>תרגול - 4 תרגילים</h3>
+<div class="exercise"><span class="level">1.</span> כתבו בעזרת חצי זווית: <span class="ltr">\(1-\cos \alpha\)</span>.</div>
+<div class="exercise"><span class="level">2.</span> חשבו ערך מדויק: <span class="ltr">\(\cos^2 22.5^\circ\)</span>.</div>
+<div class="exercise"><span class="level">3.</span> הוכיחו: <span class="ltr">\(1+\cos \alpha=2\cos^2\frac{\alpha}{2}\)</span>.</div>
+<div class="exercise"><span class="level">4.</span> הוכיחו: <span class="ltr">\(\frac{1-\cos \alpha}{\sin \alpha}=\tan\frac{\alpha}{2}\)</span>, בתחום שבו שני האגפים מוגדרים.</div>
+<div style="height:18px;"></div>
+<div class="callout small"><b>סימן זיהוי:</b> כאשר מופיעים \(1-\cos \alpha\), \(1+\cos \alpha\), או זווית מן הצורה \(\frac{\alpha}{2}\), בדקו אם זהות חצי זווית מקצרת את הביטוי.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p19"><h2>17. סכום והפרש פונקציות - מסכום למכפלה</h2>
+<div class="formula">\[\sin \alpha+\sin \beta=2\sin\frac{\alpha+\beta}{2}\cos\frac{\alpha-\beta}{2}\]</div>
+<div class="formula">\[\sin \alpha-\sin \beta=2\cos\frac{\alpha+\beta}{2}\sin\frac{\alpha-\beta}{2}\]</div>
+<div class="formula">\[\cos \alpha+\cos \beta=2\cos\frac{\alpha+\beta}{2}\cos\frac{\alpha-\beta}{2}\]</div>
+<div class="formula">\[\cos \alpha-\cos \beta=-2\sin\frac{\alpha+\beta}{2}\sin\frac{\alpha-\beta}{2}\]</div>
+
+<div style="height:20px;"></div>
+<div class="card blue">
+<h3>דוגמה</h3>
+<div class="formula">\[\sin5\alpha+\sin3\alpha=2\sin4\alpha\cos \alpha\]</div>
+<p>כאן:</p>
+<div class="formula compact">\[\frac{5\alpha+3\alpha}{2}=4\alpha,\qquad \frac{5\alpha-3\alpha}{2}=\alpha\]</div>
+</div>
+<div style="height:20px;"></div>
+<h3>תרגול</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 11.</span> <span class="ltr">\(\sin7\alpha+\sin \alpha=2\sin4\alpha\cos3\alpha\)</span></div>
+<div class="card"><span class="level">רמה 11.</span> <span class="ltr">\(\cos5\alpha+\cos \alpha=2\cos3\alpha\cos2\alpha\)</span></div>
+<div class="card"><span class="level">רמה 11.</span> <span class="ltr">\(\sin5\alpha-\sin \alpha=2\cos3\alpha\sin2\alpha\)</span></div>
+<div class="card"><span class="level">רמה 11.</span> <span class="ltr">\(\cos \alpha-\cos3\alpha=2\sin2\alpha\sin \alpha\)</span></div>
+</div>
+<div style="height:20px;"></div>
+<div class="warning small"><b>סימן בקוסינוס:</b> בנוסחת הפרש קוסינוסים מופיע מינוס. כאשר \(\alpha-\beta\) שלילי, גם הסינוס של חצי ההפרש משנה סימן. יש לעקוב בזהירות אחר הסימנים.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+
+<section class="page" id="p24-product-to-sum"><h2>18. מכפלה של פונקציות - ממכפלה לסכום</h2>
+<div class="formula">\[\sin \alpha\sin \beta=\frac{\cos(\alpha-\beta)-\cos(\alpha+\beta)}{2}\]</div>
+<div class="formula">\[\cos \alpha\cos \beta=\frac{\cos(\alpha-\beta)+\cos(\alpha+\beta)}{2}\]</div>
+<div class="formula">\[\sin \alpha\cos \beta=\frac{\sin(\alpha+\beta)+\sin(\alpha-\beta)}{2}\]</div>
+<div class="formula">\[\cos \alpha\sin \beta=\frac{\sin(\alpha+\beta)-\sin(\alpha-\beta)}{2}\]</div>
+
+<div style="height:14px;"></div>
+<div class="callout small"><b>מקור הזהויות:</b> הזהויות מתקבלות מחיבור ומחיסור של נוסחאות סכום והפרש זוויות. לכן אין צורך לראות בהן נוסחאות מבודדות - הן נגזרות ממשפחה שכבר מוכרת.</div>
+<div style="height:14px;"></div>
+<div class="card blue">
+<h3>דוגמה</h3>
+<div class="formula">\[\sin5\alpha\sin3\alpha=\frac{\cos2\alpha-\cos8\alpha}{2}\]</div>
+<p>כאן משתמשים בנוסחה למכפלת שני סינוסים:</p>
+<div class="formula compact">\[5\alpha-3\alpha=2\alpha,\qquad 5\alpha+3\alpha=8\alpha\]</div>
+</div>
+<div style="height:16px;"></div>
+<h3>תרגול</h3>
+<div class="grid-2">
+<div class="card"><span class="level">רמה 12.</span> כתבו כסכום או הפרש: <span class="ltr">\(\sin4\alpha\sin2\alpha\)</span></div>
+<div class="card"><span class="level">רמה 12.</span> כתבו כסכום: <span class="ltr">\(\cos5\alpha\cos \alpha\)</span></div>
+<div class="card"><span class="level">רמה 12.</span> כתבו כסכום: <span class="ltr">\(\sin3\alpha\cos \alpha\)</span></div>
+<div class="card"><span class="level">רמה 12.</span> כתבו כהפרש: <span class="ltr">\(\cos4\alpha\sin2\alpha\)</span></div>
+</div>
+<div style="height:16px;"></div>
+<div class="warning small"><b>סדר הזוויות חשוב:</b> בנוסחאות שבהן מופיע הפרש זוויות, יש לשמור על הסדר \(\alpha-\beta\). אם מתקבלת זווית שלילית, השתמשו בזוגיות או באי-זוגיות של סינוס וקוסינוס לפי הצורך.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p25"><h2>19. טעויות נפוצות</h2>
+<table>
+<tr><th>טעות</th><th>למה היא שגויה?</th><th>תגובה הוראתית</th></tr>
+<tr><td class="ltr">\(\sin(\alpha+\beta)=\sin \alpha+\sin \beta\)</td><td>סינוס אינו פונקציה לינארית.</td><td>הציבו \(\alpha=\beta=30^\circ\) וקבלו דוגמת נגד.</td></tr>
+<tr><td class="ltr">\(\cos(\alpha+\beta)=\cos \alpha+\cos \beta\)</td><td>נוסחת הסכום כוללת מכפלות.</td><td>השוו לנוסחה התקינה.</td></tr>
+<tr><td class="ltr">\(\sin^2\alpha=\sin(\alpha^2)\)</td><td>החזקה חלה על ערך הסינוס.</td><td>כתבו \((\sin \alpha)^2\).</td></tr>
+<tr><td>עבודה על שני האגפים</td><td>מטשטשת את מטרת ההוכחה.</td><td>לסמן אגף התחלתי בתחילת כל פתרון.</td></tr>
+<tr><td>המרה אוטומטית לסינוס וקוסינוס</td><td>לעיתים מסבכת ביטוי שהיה קרוב למטרה.</td><td>לשאול: "איזו פונקציה מופיעה במטרה?"</td></tr>
+<tr><td>צמצום דרך חיבור</td><td>צמצום מותר רק בין גורמים.</td><td>לפרק לגורמים לפני הצמצום.</td></tr>
+<tr><td>התעלמות מתחום</td><td>חלוקה או טנגנס עלולים לא להיות מוגדרים.</td><td>לכתוב תנאי תחום לפני צמצום רגיש.</td></tr>
+</table>
+<div style="height:15px;"></div>
+<div class="warning"><b>כלל בדיקה:</b> אחרי כל שורה שאלו "איזו פעולה חוקית ביצעתי?" אם אין תשובה ברורה, יש בעיה בהוכחה.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+
+<section class="page" id="p26"><h2>20. תרשים החלטה להוכחת זהות</h2>
+<div class="card blue">
+<h3>שלב 1 - בחירת אגף</h3>
+<p>איזה אגף מורכב יותר, ואיזה אגף נותן יותר אפשרויות לפישוט?</p>
+</div>
+<div class="flow" style="margin:9px 0">
+<span class="node">יש \(2\alpha\)?</span><span class="arr">⇐</span><span class="node">בדוק זווית כפולה</span>
+<span class="arr">⇐</span><span class="node">יש \(\alpha\pm\beta\)?</span><span class="arr">⇐</span><span class="node">בדוק סכום/הפרש</span>
+</div>
+<div class="flow" style="margin:9px 0">
+<span class="node">יש \(1\) וריבועים?</span><span class="arr">⇐</span><span class="node">בדוק פיתגורית</span>
+<span class="arr">⇐</span><span class="node">יש טנגנס?</span><span class="arr">⇐</span><span class="node">בדוק המרה לסינוס/קוסינוס</span>
+</div>
+<div class="flow" style="margin:9px 0">
+<span class="node">יש שברים?</span><span class="arr">⇐</span><span class="node">מכנה משותף / צמוד</span>
+<span class="arr">⇐</span><span class="node">יש גורם חוזר?</span><span class="arr">⇐</span><span class="node">פירוק לגורמים</span>
+</div>
+<div class="flow" style="margin:9px 0">
+<span class="node">יש \(\sin \alpha+\sin \beta\) או \(\cos \alpha-\cos \beta\)?</span><span class="arr">⇐</span><span class="node">בדוק סכום למכפלה</span>
+</div>
+<div class="flow" style="margin:9px 0">
+<span class="node">יש מכפלה של פונקציות בזוויות שונות?</span><span class="arr">⇐</span><span class="node">בדוק מכפלה לסכום</span>
+</div>
+<div style="height:15px;"></div>
+<div class="callout"><b>אם אין התאמה ברורה:</b> נסו פתיחת סוגריים, פירוק לגורמים, איחוד שברים או זיהוי הפוך של זהות. בכל שלב בדקו אם התקרבתם למבנה של האגף השני.</div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div></section>
+
+<!--
+<section class="page" id="p35"><h2>34. מקורות ועקרונות שעליהם מבוסס המערך</h2>
+<div class="source"><b>משרד החינוך - תוכנית 5 יחידות, כיתה י"א:</b><br><a href="https://meyda.education.gov.il/files/Mazkirut_Pedagogit/matematika/yodalef5.pdf">https://meyda.education.gov.il/files/Mazkirut_Pedagogit/matematika/yodalef5.pdf</a><br><span class="small">דגש על זהויות סכום/הפרש, זווית כפולה, הוכחת אחת מהזהויות והסקת האחרות, ושימוש בזהויות כתשתית תיאורטית.</span></div>
+<div class="source"><b>Cambridge International - Teaching Pack: Trigonometry, Lesson 3:</b><br><a href="https://learning.cambridgeinternational.org/classroom/pluginfile.php/164646/mod_resource/content/4/9709_Teaching_Pack_2_3_Trigonometry_v1.pdf">Teaching Pack 2.3 Trigonometry</a><br><span class="small">עקרון "Which side?", בחירת אגף פתיחה וציון מפורש של הזהויות שבהן נעשה שימוש.</span></div>
+<div class="source"><b>OpenStax Precalculus 2e - Chapter 7:</b><br><a href="https://openstax.org/books/precalculus-2e/pages/7-introduction-to-trigonometric-identities-and-equations">Trigonometric Identities and Equations</a><br><span class="small">רצף: הוכחת זהויות, סכום/הפרש, זווית כפולה וסכום למכפלה.</span></div>
+<div class="source"><b>Alloprof - La démonstration d'identités trigonométriques:</b><br><a href="https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/la-demonstration-d-identites-trigonometriques-m1296">Alloprof</a><br><span class="small">עבודה על אגף אחד, המרה לסינוס/קוסינוס, מכנה משותף, פירוק לגורמים וצמוד.</span></div>
+<div class="source"><b>Texas Instruments - Proof of Identities:</b><br><a href="https://education.ti.com/en/activity/detail/proof-of-identities">TI Education</a><br><span class="small">גילוי חזותי של זהויות, גרפים, סימטריה וחיבור בין המחשה להוכחה אלגברית.</span></div>
+<div class="source"><b>Mathematics LibreTexts - Verifying Trigonometric Identities:</b><br><a href="https://math.libretexts.org/Courses/Monroe_Community_College/MTH_165_College_Algebra_MTH_175_Precalculus/06%3A_Analytic_Trigonometry/6.03%3A_Verifying_Trigonometric_Identities">LibreTexts</a><br><span class="small">אסטרטגיות אלגבריות: פירוק, מכנים משותפים, צמוד ובחירת האגף המורכב.</span></div>
+<div class="source"><b>החומר המצורף ששולב ברצף:</b><br><span class="small">משוואות_טריגונומטריות_ללא_קוטנגס_מעודכן_עם_דוגמאות_4א.html - זהויות מעגל היחידה, מחזוריות, זוויות משלימות וסכום/הפרש; 002(2).pdf - חלוקה לזהויות יסוד, מעגל היחידה, סכום/הפרש, זווית כפולה וסכום/הפרש פונקציות.</span></div>
+<div class="page-no"><span>זהויות טריגונומטריות - 5 יחידות</span><span>עמוד <span class="num"></span></span></div>
+</section>
+-->
+
+<script>
+const boards = {};
+const boardDefaults = {
+  board_unit: [-1.55, 1.55, 1.55, -1.55],
+  board_triangle: [-0.8, 5.6, 5.8, -0.8],
+  board_vectors: [-1.45, 1.45, 1.45, -1.45]
+};
+window.__graphErrors = [];
+function regBoard(id, board) { boards[id] = board; return board; }
+function resetBoard(id) {
+  const b = boards[id]; if (!b) return;
+  const bb = boardDefaults[id];
+  b.setBoundingBox(bb, false);
+  b.update();
+}
+function zoomBoard(id, factor) {
+  const b = boards[id]; if (!b) return;
+  const bb = b.getBoundingBox();
+  const cx = (bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const hw=(bb[2]-bb[0])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+  b.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh], false);
+  b.update();
+}
+function safeInit(id, fn) {
+  try { fn(); } catch (e) { window.__graphErrors.push(id + ': ' + e.message); console.error(e); }
+}
+function runDocumentTests() {
+  const report = {
+    invalidHTML: [], brokenMathJax: [], duplicateIDs: [], jsxgraphFailures: [],
+    a4Overflow: [], missingTitles: [], missingGraphControls: [], geometryStyleViolations: []
+  };
+  if (!document.documentElement || !document.head || !document.body) report.invalidHTML.push('missing html/head/body');
+  const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);
+  ids.forEach((id,i)=>{ if(ids.indexOf(id)!==i && !report.duplicateIDs.includes(id)) report.duplicateIDs.push(id); });
+  document.querySelectorAll('section.page').forEach(sec=>{
+    if(!sec.querySelector('h1,h2')) report.missingTitles.push(sec.id);
+    if(sec.scrollHeight-sec.clientHeight>2) report.a4Overflow.push({id:sec.id,diff:sec.scrollHeight-sec.clientHeight});
+  });
+  document.querySelectorAll('.jxgbox').forEach(g=>{
+    const panel=g.closest('.graph-panel');
+    const c=panel && panel.querySelector('.graph-controls[data-board="'+g.id+'"]');
+    if(!c || c.querySelectorAll('button').length<3) report.missingGraphControls.push(g.id);
+  });
+  report.jsxgraphFailures=(window.__graphErrors||[]).slice();
+  document.querySelectorAll('mjx-merror').forEach(e=>report.brokenMathJax.push(e.textContent));
+  document.querySelectorAll('[data-geometry="true"]').forEach(panel=>{
+    if(panel.dataset.geometryStyle!=='clean-black') report.geometryStyleViolations.push(panel.querySelector('.jxgbox')?.id || 'unknown');
+    const g=panel.querySelector('.jxgbox'); const c=panel.querySelector('.graph-controls');
+    if(!g || !c) report.geometryStyleViolations.push(g?.id || 'unknown');
+  });
+  report.passed = Object.entries(report).filter(([k])=>k!=='passed').every(([,v])=>Array.isArray(v) && v.length===0);
+  window.__documentTestReport=report;
+  console.info('Document self-test', report);
+  return report;
+}
+window.addEventListener('load', function(){
+  if (!window.JXG) { window.__graphErrors.push('JSXGraph library failed to load'); return; }
+
+  // Render mathematical text created by JSXGraph with MathJax.
+  JXG.Options.text.useMathJax = true;
+
+  safeInit('board_unit', function(){
+    const b = regBoard('board_unit', JXG.JSXGraph.initBoard('board_unit', {boundingbox:boardDefaults.board_unit, axis:true, showCopyright:false, showNavigation:false, keepaspectratio:true}));
+    b.create('circle', [[0,0],1], {strokeColor:'#111', strokeWidth:2, fillOpacity:0});
+    const p = b.create('glider',[0.82,0.57,b.objectsList.find(o=>o.elType==='circle')], {name:'\\(P\\)', size:4, strokeColor:'#111', fillColor:'#fff', label:{useMathJax:true}});
+    const ox = b.create('point',[()=>p.X(),0], {name:'', size:2.5, strokeColor:'#111', fillColor:'#fff'});
+    b.create('segment', [[0,0],p], {strokeColor:'#111', strokeWidth:2});
+    b.create('segment', [p,ox], {strokeColor:'#111', dash:2, strokeWidth:1.5});
+    b.create('segment', [[0,0],ox], {strokeColor:'#111', strokeWidth:2});
+    b.create('text',[0.18,-0.18,'\\(x\\)'], {fontSize:14, useMathJax:true});
+    b.create('text',[()=>p.X()/2,-0.12,()=> '\\(\\cos \\alpha = ' + p.X().toFixed(2) + '\\)'], {fontSize:12, useMathJax:true});
+    b.create('text',[()=>p.X()+0.08,()=>p.Y()/2,()=> '\\(\\sin \\alpha = ' + p.Y().toFixed(2) + '\\)'], {fontSize:12, useMathJax:true});
+  });
+
+  safeInit('board_triangle', function(){
+    const b = regBoard('board_triangle', JXG.JSXGraph.initBoard('board_triangle', {boundingbox:boardDefaults.board_triangle, axis:false, showCopyright:false, showNavigation:false, keepaspectratio:true}));
+    const A=b.create('point',[0,0],{name:'\\(A\\)',size:0,strokeColor:'#111',fillColor:'#fff',label:{useMathJax:true}});
+    const B=b.create('point',[4.6,0],{name:'\\(B\\)',size:0,strokeColor:'#111',fillColor:'#fff',label:{useMathJax:true}});
+    const C=b.create('point',[4.6,3.2],{name:'\\(C\\)',size:0,strokeColor:'#111',fillColor:'#fff',label:{useMathJax:true}});
+    b.create('segment',[A,B],{strokeColor:'#111',strokeWidth:2});
+    b.create('segment',[B,C],{strokeColor:'#111',strokeWidth:2});
+    b.create('segment',[C,A],{strokeColor:'#111',strokeWidth:2});
+    b.create('angle',[B,A,C],{radius:0.65,fillOpacity:0,strokeColor:'#111',name:'\\(\\alpha\\)',withLabel:true,label:{useMathJax:true}});
+    b.create('polygon',[[4.2,0],[4.2,0.4],[4.6,0.4],[4.6,0]],{fillOpacity:0,borders:{strokeColor:'#111',strokeWidth:1},vertices:{visible:false}});
+    b.create('text',[2.2,-0.25,'\\(b\\)'],{fontSize:13,useMathJax:true});
+    b.create('text',[4.82,1.6,'\\(a\\)'],{fontSize:13,useMathJax:true});
+    b.create('text',[2.15,1.85,'\\(c\\)'],{fontSize:13,useMathJax:true});
+  });
+
+  safeInit('board_vectors', function(){
+    const b = regBoard('board_vectors', JXG.JSXGraph.initBoard('board_vectors', {boundingbox:boardDefaults.board_vectors, axis:true, showCopyright:false, showNavigation:false, keepaspectratio:true}));
+    b.create('circle',[[0,0],1],{strokeColor:'#111',strokeWidth:1.6,fillOpacity:0});
+    const alpha=0.95, beta=0.30;
+    const A=b.create('point',[Math.cos(alpha),Math.sin(alpha)],{name:'\\(u\\)',size:3,strokeColor:'#111',fillColor:'#fff',fixed:true,label:{useMathJax:true}});
+    const B=b.create('point',[Math.cos(beta),Math.sin(beta)],{name:'\\(v\\)',size:3,strokeColor:'#111',fillColor:'#fff',fixed:true,label:{useMathJax:true}});
+    const O=b.create('point',[0,0],{name:'\\(O\\)',size:2,strokeColor:'#111',fillColor:'#fff',fixed:true,label:{useMathJax:true}});
+    b.create('arrow',[O,A],{strokeColor:'#111',strokeWidth:2});
+    b.create('arrow',[O,B],{strokeColor:'#111',strokeWidth:2});
+    b.create('angle',[B,O,A],{radius:0.42,fillOpacity:0,strokeColor:'#111',name:'\\(\\alpha-\\beta\\)',withLabel:true,label:{useMathJax:true}});
+    b.create('segment',[A,B],{strokeColor:'#777',dash:2,strokeWidth:1.2});
+  });
+
+
+  if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
+    MathJax.startup.promise.then(()=>setTimeout(runDocumentTests,100));
+  } else {
+    setTimeout(runDocumentTests,300);
+  }
+});
+</script>
+
+</body>
+</html>
