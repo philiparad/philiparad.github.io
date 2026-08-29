@@ -1617,9 +1617,18 @@
 </section>
 
 <script>
+// Render all JSXGraph text and labels with MathJax.
+JXG.Options.text.useMathJax = true;
+
 (function(){
   function text(board, x, y, label, size){
-    return board.create('text', [x, y, label], {fontSize: size || 13, fixed:true, anchorX:'middle'});
+    return board.create('text', [x, y, label], {
+      fontSize: size || 13,
+      fixed: true,
+      anchorX: 'middle',
+      useMathJax: true,
+      parse: false
+    });
   }
 
   function deg(v){ return v * Math.PI / 180; }
@@ -1636,11 +1645,11 @@
     b.create('line', [[0,-1.18],[0,1.18]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
     var y = 0.5, x = Math.sqrt(3)/2;
     b.create('line', [[-1.08,y],[1.08,y]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
-    b.create('point', [x,y], {name:'30°', size:3, fixed:true});
-    b.create('point', [-x,y], {name:'150°', size:3, fixed:true});
+    b.create('point', [x,y], {name:'\\(30^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    b.create('point', [-x,y], {name:'\\(150^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
     b.create('segment', [[0,0],[x,y]], {dash:1, fixed:true});
     b.create('segment', [[0,0],[-x,y]], {dash:1, fixed:true});
-    text(b, 0, y+0.13, 'y = 1/2', 12);
+    text(b, 0, y+0.13, '\\(y=\\frac{1}{2}\\)', 12);
   }
 
   function initSinTemplate(){
@@ -1651,9 +1660,9 @@
     });
     b.create('functiongraph', [function(x){ return Math.sin(deg(x)); }, 0, 360], {strokeWidth:2, fixed:true});
     b.create('line', [[0,0.5],[360,0.5]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
-    b.create('point', [30,0.5], {name:'30°', size:3, fixed:true});
-    b.create('point', [150,0.5], {name:'150°', size:3, fixed:true});
-    text(b, 205, 1.13, 'y = sin x', 13);
+    b.create('point', [30,0.5], {name:'\\(30^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    b.create('point', [150,0.5], {name:'\\(150^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    text(b, 205, 1.13, '\\(y=\\sin x\\)', 13);
   }
 
   function initUnitCircleCos(){
@@ -1668,11 +1677,11 @@
     b.create('line', [[0,-1.18],[0,1.18]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
     var x = Math.sqrt(2)/2, y = Math.sqrt(2)/2;
     b.create('line', [[x,-1.08],[x,1.08]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
-    b.create('point', [x,y], {name:'45°', size:3, fixed:true});
-    b.create('point', [x,-y], {name:'315°', size:3, fixed:true});
+    b.create('point', [x,y], {name:'\\(45^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    b.create('point', [x,-y], {name:'\\(315^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
     b.create('segment', [[0,0],[x,y]], {dash:1, fixed:true});
     b.create('segment', [[0,0],[x,-y]], {dash:1, fixed:true});
-    text(b, x-0.18, 1.17, 'x = √2/2', 12);
+    text(b, x-0.18, 1.17, '\\(x=\\frac{\\sqrt{2}}{2}\\)', 12);
   }
 
   function initCosTemplate(){
@@ -1684,9 +1693,9 @@
     var c = Math.sqrt(2)/2;
     b.create('functiongraph', [function(x){ return Math.cos(deg(x)); }, 0, 360], {strokeWidth:2, fixed:true});
     b.create('line', [[0,c],[360,c]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
-    b.create('point', [45,c], {name:'45°', size:3, fixed:true});
-    b.create('point', [315,c], {name:'315°', size:3, fixed:true});
-    text(b, 205, 1.13, 'y = cos x', 13);
+    b.create('point', [45,c], {name:'\\(45^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    b.create('point', [315,c], {name:'\\(315^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    text(b, 205, 1.13, '\\(y=\\cos x\\)', 13);
   }
 
   function initUnitCircleTan(){
@@ -1701,11 +1710,11 @@
     b.create('line', [[0,-1.18],[0,1.18]], {straightFirst:false, straightLast:false, strokeWidth:1, fixed:true});
     b.create('line', [[-1.08,-1.08],[1.08,1.08]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
     var q = Math.sqrt(2)/2;
-    b.create('point', [q,q], {name:'45°', size:3, fixed:true});
-    b.create('point', [-q,-q], {name:'225°', size:3, fixed:true});
+    b.create('point', [q,q], {name:'\\(45^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    b.create('point', [-q,-q], {name:'\\(225^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
     b.create('segment', [[0,0],[q,q]], {dash:1, fixed:true});
     b.create('segment', [[0,0],[-q,-q]], {dash:1, fixed:true});
-    text(b, -0.48, 0.72, 'y = x', 12);
+    text(b, -0.48, 0.72, '\\(y=x\\)', 12);
   }
 
   function initTanTemplate(){
@@ -1721,9 +1730,9 @@
     b.create('line', [[0,1],[360,1]], {straightFirst:false, straightLast:false, dash:2, strokeWidth:2, fixed:true});
     b.create('line', [[90,-4],[90,4]], {straightFirst:false, straightLast:false, dash:1, strokeWidth:1, fixed:true});
     b.create('line', [[270,-4],[270,4]], {straightFirst:false, straightLast:false, dash:1, strokeWidth:1, fixed:true});
-    b.create('point', [45,1], {name:'45°', size:3, fixed:true});
-    b.create('point', [225,1], {name:'225°', size:3, fixed:true});
-    text(b, 190, 3.25, 'y = tg x', 13);
+    b.create('point', [45,1], {name:'\\(45^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    b.create('point', [225,1], {name:'\\(225^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
+    text(b, 190, 3.25, '\\(y=\\operatorname{tg}x\\)', 13);
   }
 
   function initTanLine(){
@@ -1738,11 +1747,11 @@
     b.create('line', [[-200,0],[380,0]], {straightFirst:false, straightLast:false, strokeWidth:2, fixed:true});
     var pts = [-150, 30, 210, 390];
     for(var i=0;i<pts.length;i++){
-      b.create('point', [pts[i],0], {name: pts[i] + '°', size:3, fixed:true});
+      b.create('point', [pts[i],0], {name: '\\(' + pts[i] + '^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
     }
-    text(b, 90, 0.65, 'tan solutions repeat every 180°', 14);
-    text(b, 30, -0.55, 'alpha', 12);
-    text(b, 210, -0.55, 'alpha + 180', 12);
+    text(b, 90, 0.65, '\\(\\operatorname{tg}\\text{ solutions repeat every }180^\\circ\\)', 14);
+    text(b, 30, -0.55, '\\(\\alpha\\)', 12);
+    text(b, 210, -0.55, '\\(\\alpha+180^\\circ\\)', 12);
   }
 
 
@@ -1758,14 +1767,14 @@
     b.create('line', [[-190,0],[370,0]], {straightFirst:false, straightLast:false, strokeWidth:2, fixed:true});
     var forbidden = [-90, 90, 270];
     for(var i=0;i<forbidden.length;i++){
-      b.create('point', [forbidden[i],0], {name: forbidden[i] + '°', size:4, fixed:true, face:'x'});
+      b.create('point', [forbidden[i],0], {name: '\\(' + forbidden[i] + '^\\circ\\)', size:4, fixed:true, face:'x', label:{useMathJax:true, parse:false}});
     }
     var safe = [45,225];
     for(var j=0;j<safe.length;j++){
-      b.create('point', [safe[j],0], {name: safe[j] + '°', size:3, fixed:true});
+      b.create('point', [safe[j],0], {name: '\\(' + safe[j] + '^\\circ\\)', size:3, fixed:true, label:{useMathJax:true, parse:false}});
     }
-    text(b, 90, 0.88, 'Before dividing by cos x, exclude 90° + 180°k', 13);
-    text(b, 135, -0.62, 'candidate solutions must be checked', 12);
+    text(b, 90, 0.88, '\\(\\text{Before dividing by }\\cos x,\\ \\text{exclude }90^\\circ+180^\\circ k\\)', 13);
+    text(b, 135, -0.62, '\\(\\text{candidate solutions must be checked}\\)', 12);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
