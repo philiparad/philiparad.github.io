@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>גאומטריה אנליטית בסיסית — מערך שיעור מלא ל־5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.8.0/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 0.95 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root{
+    --ink:#14213d;
+    --accent:#0b6fa4;
+    --accent2:#168aad;
+    --soft:#eaf4f8;
+    --line:#bfd7e3;
+    --warm:#fff8e7;
+    --ok:#eaf7ef;
+    --danger:#fff0f0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#dfe7ec;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;}
+  body{counter-reset:page;}
+  .page{
+    width:210mm;
+    height:297mm;
+    margin:8mm auto;
+    padding:12mm 13mm 13mm;
+    background:white;
+    position:relative;
+    overflow:hidden;
+    page-break-after:always;
+    counter-increment:page;
+    box-shadow:0 2mm 7mm rgba(0,0,0,.12);
+  }
+  .page:last-child{page-break-after:auto}
+  .page::after{
+    content:"עמוד " counter(page);
+    position:absolute;
+    bottom:5mm;
+    left:13mm;
+    font-size:9.5pt;
+    color:#607d8b;
+  }
+  h1,h2,h3{margin:0;color:var(--accent)}
+  h1{font-size:27pt;line-height:1.15}
+  h2{font-size:19pt;border-bottom:1.5px solid var(--line);padding-bottom:2.2mm;margin-bottom:4mm}
+  h3{font-size:14.5pt;margin:2.5mm 0 1.5mm}
+  p{font-size:11.4pt;line-height:1.43;margin:1.6mm 0}
+  ul,ol{font-size:11.1pt;line-height:1.4;margin:1.8mm 0;padding-right:5.5mm}
+  li{margin:.8mm 0}
+  .lead{font-size:13pt;line-height:1.5}
+  .small{}
+  .tiny{font-size:8.8pt;line-height:1.3}
+  .center{text-align:center}
+  .ltr{direction:ltr;text-align:left}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
+  .card{border:1px solid var(--line);border-radius:3mm;padding:3mm;background:#fff}
+  .soft{background:var(--soft)}
+  .warm{background:var(--warm)}
+  .ok{background:var(--ok)}
+  .danger{background:var(--danger)}
+  .formula{direction:ltr;text-align:center;background:#f7fbfd;border:1px solid var(--line);border-radius:3mm;padding:2.3mm;margin:2.5mm 0;font-size:12pt}
+  .example{border-right:4px solid var(--accent2);background:#f7fbfd;padding:2.5mm 3mm;margin:2.5mm 0;border-radius:2mm}
+  .exercise{border-right:4px solid #7b8fa1;background:#fafcfd;padding:2.2mm 3mm;margin:2mm 0;border-radius:2mm}
+  .teacher{border:1px dashed #6c8d9c;background:#f7fafb;padding:2.5mm;border-radius:3mm}
+  .tag{display:inline-block;background:var(--accent);color:white;border-radius:10mm;padding:1mm 3mm;font-size:9.5pt;margin-left:1.5mm}
+  .board{width:100%;height:78mm;border:1px solid #9fb8c4;border-radius:2mm;background:white;direction:ltr}
+  .board.smallboard{height:64mm}
+  .board.tallboard{height:88mm}
+  table{width:100%;border-collapse:collapse;font-size:9.8pt;line-height:1.3;margin:2mm 0}
+  th,td{border:1px solid #b7ccd6;padding:1.7mm;vertical-align:top}
+  th{background:#e9f3f7;color:#0d5678}
+  .cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#ffffff 0%,#edf7fb 55%,#d7eef7 100%)}
+  .cover .band{width:100%;padding:7mm;border-top:2px solid var(--accent);border-bottom:2px solid var(--accent);margin:12mm 0}
+  .cover .sub{font-size:15pt;color:#31596d;line-height:1.5}
+  .cover .meta{margin-top:12mm;font-size:11pt;color:#456b7d}
+  .pillrow{display:flex;gap:2mm;justify-content:center;flex-wrap:wrap;margin-top:5mm}
+  .pill{background:white;border:1px solid #9bc4d5;border-radius:8mm;padding:1.5mm 4mm;font-size:10pt}
+  .question-grid{display:grid;grid-template-columns:1fr;gap:1.35mm;counter-reset:q}
+  .q{font-size:12pt;line-height:2;break-inside:avoid;white-space:nowrap;min-width:0}
+  .q::before{counter-increment:q;content:counter(q) ". ";font-weight:bold;color:var(--accent)}
+  .answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.7mm 5mm}
+  .answer{font-size:9.7pt;line-height:1.35}
+  .rule{height:1px;background:var(--line);margin:2.5mm 0}
+  .lesson-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3mm}
+  .lesson-head .num{font-size:31pt;font-weight:bold;color:#b9dce8}
+  .checklist{list-style:none;padding:0}
+  .checklist li::before{content:"✓";color:#198754;font-weight:bold;margin-left:2mm}
+  .warnlist{list-style:none;padding:0}
+  .warnlist li::before{content:"!";color:#b54708;font-weight:bold;margin-left:2mm}
+  .compact p,.compact li{font-size:10.5pt;line-height:1.35}
+  .compact h3{font-size:13.5pt}
+  .rubric td,.rubric th{font-size:9.3pt;padding:1.4mm}
+  mjx-container[display="true"]{margin:1.7mm 0 !important;}
+  @media print{
+    html,body{background:white}
+    .page{margin:0;box-shadow:none}
+    @page{size:A4;margin:0}
+  }
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="tag">מתמטיקה — 5 יחידות לימוד</div>
+  <div class="band">
+    <h1>גאומטריה אנליטית בסיסית</h1>
+    <div class="sub">מערך שיעור מלא: נקודות, קטעים וישרים במישור</div>
+  </div>
+  <p class="lead">מרחק בין נקודות · אמצע קטע · חלוקת קטע ביחס נתון · שיפוע · משוואת ישר · מקבילים ומאונכים · מרחק נקודה מישר · מרחק בין ישרים מקבילים</p>
+  <div class="pillrow">
+    <span class="pill">פיתוח נוסחאות</span><span class="pill">דוגמאות פתורות</span><span class="pill">תרגול מדורג</span><span class="pill">יישומוני JSXGraph</span><span class="pill">הערכה ופתרונות</span>
+  </div>
+  <div class="meta">מיועד לתלמידי תיכון ברמת 5 יחידות · מתאים להוראה בכיתה, למידה עצמית והדפסה ל־PDF</div>
+</section>
+
+<section class="page">
+  <h2>מטרות־העל של היחידה</h2>
+<div style="height:15px;"></div>
+  <div class="grid2">
+    <div class="card soft">
+      <h3>ידע והבנה</h3>
+      <ul class="checklist">
+        <li>להבין כיצד תכונות גאומטריות מתורגמות לקשרים אלגבריים.</li>
+        <li>לפתח את נוסחאות המרחק, אמצע הקטע והחלוקה ביחס.</li>
+        <li>להכיר את משמעות השיפוע ואת צורות הייצוג של ישר.</li>
+        <li>להבין תנאים למקבילות, מאונכות ומרחק בין עצמים.</li>
+      </ul>
+    </div>
+    <div class="card ok">
+      <h3>מיומנויות</h3>
+      <ul class="checklist">
+        <li>לבנות פתרון מלא, מנומק ובעל ייצוג גרפי.</li>
+        <li>לעבור בין שרטוט, טבלה, משוואה וניסוח מילולי.</li>
+        <li>לפתור בעיות הפוכות ובעיות פרמטרים.</li>
+        <li>לבדוק סבירות באמצעות שרטוט או הצבה חוזרת.</li>
+      </ul>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <h3>ידע מוקדם</h3>
+  <div class="grid3">
+    <div class="card"><b>אלגברה</b><p>פתרון משוואות לינאריות, הצבה, פירוק ופעולות בשברים.</p></div>
+    <div class="card"><b>גאומטריה</b><p>משפט פיתגורס, תכונות משולשים ומרובעים, גובה ותיכון.</p></div>
+    <div class="card"><b>מערכת צירים</b><p>רביעים, קריאת נקודות, הפרשים אופקיים ואנכיים.</p></div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>נושאים</h2>
+<div style="height:15px;"></div>
+  <table>
+    <thead><tr><th>שיעור</th><th>נושא</th><th>מוקד מתמטי</th><th>תוצר למידה</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>מרחק בין שתי נקודות</td><td>פיתגורס במערכת צירים</td><td>חישוב מרחק ובעיות הפוכות</td></tr>
+      <tr><td>2</td><td>אמצע קטע</td><td>ממוצע קואורדינטות</td><td>אמצע וקצה חסר</td></tr>
+      <tr><td>3</td><td>חלוקת קטע ביחס נתון</td><td>משקלים יחסיים</td><td>נקודת חלוקה ויחס</td></tr>
+      <tr><td>4</td><td>שיפוע של ישר</td><td>שינוי אנכי חלקי שינוי אופקי</td><td>שיפוע, סימן ומקרה אנכי</td></tr>
+      <tr><td>5–6</td><td>מציאת משוואת ישר</td><td>נקודה–שיפוע, שתי נקודות, צורה כללית</td><td>בניית משוואה ומעבר בין צורות</td></tr>
+      <tr><td>7</td><td>ישרים מקבילים ומאונכים</td><td>קשרים בין שיפועים</td><td>משוואות ישרים תחת תנאים</td></tr>
+      <tr><td>8</td><td>מרחק נקודה מישר</td><td>אנך ונרמול מקדמים</td><td>חישוב מרחק ופרמטרים</td></tr>
+      <tr><td>9</td><td>מרחק בין ישרים מקבילים</td><td>נרמול משוואות</td><td>מרחק קבוע בין ישרים</td></tr>
+      <tr><td>10</td><td>בעיות משולבות</td><td>אינטגרציה של כל הכלים</td><td>הוכחות, פרמטרים ובעיות משולבות</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 1 — מרחק בין שתי נקודות</h2></div><div class="num">01</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>רעיון מרכזי</h3>
+      <p>הפרש הקואורדינטות האופקי והפרש הקואורדינטות האנכי יוצרים ניצבים של משולש ישר־זווית. הקטע המחבר בין שתי הנקודות הוא היתר.</p>
+      <div class="formula">\[\Delta x=x_2-x_1,\qquad \Delta y=y_2-y_1\]</div>
+      <div class="formula">\[d=\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\]</div>
+      <div class="example">
+        <b>דוגמה:</b> עבור \(A(-3,1)\), \(B(5,7)\):
+        \[d=\sqrt{(5+3)^2+(7-1)^2}=\sqrt{64+36}=10\]
+      </div>
+<div style="height:15px;"></div>
+      <h3>מקרים מיוחדים</h3>
+      <ul>
+        <li>אותו ערך \(y\): המרחק הוא \(|x_2-x_1|\).</li>
+        <li>אותו ערך \(x\): המרחק הוא \(|y_2-y_1|\).</li>
+        <li>אותה נקודה: המרחק הוא \(0\).</li>
+      </ul>
+    </div>
+    <div>
+      <div id="board-distance" class="board" style="direction: ltr;"></div>
+      <p class="small center">המשולש הכחול ממחיש את שני ההפרשים ואת הקטע המחבר.</p>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="teacher"> כיצד משתנה המרחק אם מחליפים את סדר הנקודות בנוסחה? מדוע התוצאה נשארת זהה?</div>
+</section>
+
+<section class="page">
+  <h2>מרחק בין נקודות — דוגמאות ותרגול</h2>
+  <div class="grid2_">
+    <div class="example">
+      <b>דוגמה 1 — קואורדינטה חסרה</b><br>
+      נתון \(A(1,2)\), \(B(x,8)\), והמרחק הוא \(10\).
+      \[(x-1)^2+(8-2)^2=100\]
+      \[(x-1)^2=64\Rightarrow x=9\;\text{or}\;x=-7\]
+    </div>
+<div style="height:15px;"></div>
+    <div class="example">
+      <b>דוגמה 2 — בדיקת סוג משולש</b><br>
+      מחשבים את ריבועי שלוש הצלעות. אם סכום שני הריבועים הקטנים שווה לריבוע הגדול, המשולש ישר־זווית.
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <h3>תרגול מדורג</h3>
+  <div class="question-grid">
+    <div class="q">מצא את המרחק בין \(A(2,3)\) ובין \(B(8,11)\).</div>
+    <div class="q">מצא את המרחק בין \(P(-4,5)\) ובין \(Q(2,-3)\).</div>
+    <div class="q">מצא את המרחק בין \(C(-7,4)\) ובין \(D(5,4)\).</div>
+    <div class="q">מצא את המרחק בין \(E(3,-6)\) ובין \(F(3,9)\).</div>
+    <div class="q">נתון \(A(1,1)\), \(B(x,5)\), ו־\(AB=5\). מצא את \(x\).</div>
+    <div class="q">הנקודות \(A(-2,1)\), \(B(4,1)\), \(C(1,5)\). קבע אם המשולש שווה־שוקיים.</div>
+    <div class="q">הנקודות \(A(0,0)\), \(B(6,0)\), \(C(6,8)\). הוכח שהמשולש ישר־זווית.</div>
+    <div class="q">מצא נקודה על ציר \(x\) שמרחקה מן הנקודה \(P(3,4)\) הוא \(5\).</div>
+    <div class="q">נתון ריבוע שאחד מקודקודיו \(A(1,2)\) והקודקוד הנגדי \(C(7,8)\). מצא את אורך האלכסון ואת אורך הצלע.</div>
+    <div class="q">מצא את כל הנקודות \(P\) שעל ציר \(x\) שמרחקן מראשית הצירים הוא \(5\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 2 — אמצע קטע</h2></div><div class="num">02</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>בניית הנוסחה</h3>
+      <p>אמצע קטע נמצא בדיוק באמצע השינוי האופקי ובדיוק באמצע השינוי האנכי. לכן כל קואורדינטה היא ממוצע של הקואורדינטות המתאימות של הקצוות.</p>
+<div style="height:15px;"></div>
+      <div class="formula">\[M\left(\frac{x_1+x_2}{2},\frac{y_1+y_2}{2}\right)\]</div>
+<div style="height:15px;"></div>
+      <div class="example">
+        <b>דוגמה:</b> עבור \(A(-4,2)\), \(B(6,8)\):
+        \[M\left(\frac{-4+6}{2},\frac{2+8}{2}\right)=(1,5)\]
+      </div>
+<div style="height:15px;"></div>
+      <h3>בדיקה</h3>
+      <p>נחשב את המרחקים \(AM\) ו־\(MB\). אם הם שווים והנקודה נמצאת על הישר \(AB\), אכן מדובר באמצע.</p>
+      <div class="formula">\[\overrightarrow{AM}=\overrightarrow{MB}\]</div>
+    </div>
+    <div>
+      <div id="board-midpoint" class="board" style="direction: ltr;"></div>
+      <p class="small center">הנקודה \(M\) מוגדרת כתלות בשתי נקודות הקצה.</p>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="teacher"><b>טעות נפוצה:</b> לחבר קואורדינטה אופקית של נקודה אחת לקואורדינטה האנכית של האחרת. יש לחשב ממוצע אופקי בנפרד וממוצע אנכי בנפרד.</div>
+</section>
+
+<section class="page">
+  <h2>אמצע קטע — קצה חסר ויישומים</h2>
+  <div class="grid2_">
+    <div class="example">
+      <b>קצה חסר</b><br>
+      נתון \(A(-2,7)\), \(M(3,1)\). נסמן \(B(x,y)\):
+      \[\frac{-2+x}{2}=3\Rightarrow x=8\]
+      \[\frac{7+y}{2}=1\Rightarrow y=-5\]
+      ולכן \(B(8,-5)\).
+    </div>
+<div style="height:15px;"></div>
+    <div class="example">
+      <b>יישום במקבילית</b><br>
+      אלכסוני מקבילית חוצים זה את זה. לכן אם ידועים שלושה קודקודים, אפשר למצוא את אמצע האלכסון הידוע ואז לשחזר את הקודקוד הרביעי.
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <h3>תרגול</h3>
+  <div class="question-grid">
+    <div class="q">מצא את אמצע הקטע שקצותיו \(A(2,7)\), \(B(8,-1)\).</div>
+    <div class="q">מצא את אמצע הקטע שקצותיו \(P(-5,-3)\), \(Q(7,9)\).</div>
+    <div class="q">נתון \(A(1,4)\), \(M(6,2)\). מצא את \(B\).</div>
+    <div class="q">נתון \(B(-3,5)\), \(M(2,-1)\). מצא את \(A\).</div>
+    <div class="q">מצא את אמצע היתר במשולש שקודקודיו \(A(0,0)\), \(B(10,0)\), \(C(10,6)\).</div>
+    <div class="q">במקבילית \(ABCD\) נתון \(A(1,2)\), \(B(7,4)\), \(C(9,10)\). מצא את \(D\).</div>
+    <div class="q">הוכח שהאלכסונים של המרובע שקודקודיו \(A(-1,1)\), \(B(5,1)\), \(C(7,5)\), \(D(1,5)\) חוצים זה את זה.</div>
+    <div class="q">נתון \(A(4,-2)\), \(B(-4,6)\). מצא את אמצע הקטע \(AB\) וקבע על איזה ציר הוא נמצא.</div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="teacher"><b>אתגר:</b> הראה שנקודת האמצע של היתר במשולש ישר־זווית שווה־מרחק משלושת הקודקודים.</div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 3 — חלוקת קטע ביחס נתון</h2></div><div class="num">03</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>נוסחת החלוקה הפנימית</h3>
+      <p>אם הנקודה \(P\) מחלקת את הקטע \(AB\) כך ש־\(AP:PB=m:n\), אז הקואורדינטות של \(P\) הן ממוצע משוקלל של קצות הקטע.</p>
+      <div class="formula">\[P\left(\frac{nx_A+mx_B}{m+n},\frac{ny_A+my_B}{m+n}\right)\]</div>
+      <p>המשקל של כל קצה הוא אורך החלק שמולו. ככל שהנקודה קרובה יותר ל־\(A\), המשקל של \(A\) גדול יותר.</p>
+      <div class="example">
+        עבור \(A(-3,1)\), \(B(7,6)\), ו־\(AP:PB=2:3\):
+        \[P\left(\frac{3(-3)+2(7)}{5},\frac{3(1)+2(6)}{5}\right)=(1,3)\]
+      </div>
+    </div>
+<div style="height:15px;"></div>
+    <div>
+      <div id="board-ratio" class="board" style="direction: ltr;"></div>
+      <p class="small center">בציור מתקיים \(AP:PB=2:3\).</p>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="teacher"><b>בדיקת סבירות:</b> כאשר היחס הוא \(1:1\), הנוסחה חייבת להפוך לנוסחת אמצע קטע.</div>
+</section>
+
+<section class="page">
+  <h2>חלוקת קטע — תרגול והעמקה</h2>
+  <div class="grid2_ compact_">
+    <div class="card soft">
+      <h3>מציאת יחס</h3>
+      <p>כאשר \(P\) נתונה, אפשר להשתמש בהפרשי קואורדינטות. לדוגמה, אם \(A(0,0)\), \(B(12,8)\), \(P(3,2)\), אז:</p>
+      \[AP:PB=3:9=1:3\]
+    </div>
+<div style="height:15px;"></div>
+    <div class="card warm">
+      <h3>חלוקה חיצונית — העשרה</h3>
+      <p>כאשר \(P\) נמצאת על המשך הישר מחוץ לקטע, מתקבלת נוסחה עם הפרש במכנה:</p>
+      \[P\left(\frac{mx_B-nx_A}{m-n},\frac{my_B-ny_A}{m-n}\right),\quad m\ne n\]
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <h3>תרגול</h3>
+  <div class="question-grid">
+    <div class="q">מצא את הנקודה המחלקת את הקטע מ־\(A(1,2)\) ל־\(B(11,7)\) ביחס \(2:3\).</div>
+    <div class="q">מצא את הנקודה המחלקת את הקטע מ־\(P(-4,5)\) ל־\(Q(8,-1)\) ביחס \(1:2\).</div>
+    <div class="q">מצא את שתי נקודות השליש של הקטע שקצותיו \(A(0,0)\), \(B(12,9)\).</div>
+    <div class="q">הנקודה \(P(4,3)\) נמצאת על הקטע \(AB\), כאשר \(A(0,1)\), \(B(10,6)\). מצא את היחס \(AP:PB\).</div>
+    <div class="q">נתון \(A(-2,4)\), \(P(2,1)\), ו־\(AP:PB=2:1\). מצא את \(B\).</div>
+    <div class="q">במשולש \(ABC\), התיכון מ־\(A\) פוגש את \(BC\) בנקודה \(M\). נתון \(B(-3,2)\), \(C(5,10)\). מצא את \(M\).</div>
+    <div class="q">נקודת מרכז הכובד מחלקת כל תיכון ביחס \(2:1\) מן הקודקוד. נתון \(A(1,7)\), \(M(7,1)\). מצא את מרכז הכובד שעל \(AM\).</div>
+    <div class="q">מצא נקודה המחלקת חיצונית את הקטע מ־\(A(1,1)\) ל־\(B(5,3)\) ביחס \(3:1\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 4 — שיפוע של ישר</h2></div><div class="num">04</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>משמעות</h3>
+      <p>שיפוע מודד כמה היחס האנכי משתנה לכל יחידת שינוי אופקי.</p>
+      <div class="formula">\[m=\frac{\Delta y}{\Delta x}=\frac{y_2-y_1}{x_2-x_1}\]</div>
+      <div class="example">עבור \(A(-2,1)\), \(B(4,7)\):
+      \[m=\frac{7-1}{4-(-2)}=1\]</div>
+<div style="height:15px;"></div>
+      <h3>סיווג</h3>
+      <ul>
+        <li>\(m>0\): הישר עולה משמאל לימין.</li>
+        <li>\(m<0\): הישר יורד משמאל לימין.</li>
+        <li>\(m=0\): ישר אופקי.</li>
+        <li>\(\Delta x=0\): ישר אנכי; השיפוע אינו מוגדר.</li>
+      </ul>
+    </div>
+    <div>
+      <div id="board-slope" class="board" style="direction: ltr;"></div>
+      <p class="small center">משולש השיפוע מציג את \(\Delta x\) ואת \(\Delta y\).</p>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="teacher"><b>הדגשה:</b> יש לשמור על אותו סדר חיסור במונה ובמכנה. החלפת הסדר בשניהם אינה משנה את השיפוע.</div>
+</section>
+
+<section class="page">
+  <h2>שיפוע — תרגול והקשרים</h2>
+  <div class="grid2_">
+    <div class="card soft">
+      <h3>זווית הנטייה</h3>
+      <div class="formula">\[m=\tan\alpha\]</div>
+      <p>כאשר \(\alpha\) היא הזווית החיובית מן הכיוון החיובי של ציר \(x\) אל הישר.</p>
+    </div>
+<div style="height:15px;"></div>
+    <div class="card warm">
+      <h3>שיעור שינוי</h3>
+      <p>אם \(x\) מייצג זמן ו־\(y\) מייצג מרחק, השיפוע הוא מהירות קבועה. אם \(x\) מייצג כמות ו־\(y\) מחיר, השיפוע הוא תוספת מחיר ליחידה.</p>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <h3>תרגול</h3>
+  <div class="question-grid">
+    <div class="q">מצא את שיפוע הישר העובר דרך \(A(2,5)\), \(B(8,17)\).</div>
+    <div class="q">מצא את שיפוע הישר העובר דרך \(P(-3,7)\), \(Q(5,-1)\).</div>
+    <div class="q">קבע אם הישר דרך \(A(-2,4)\), \(B(6,4)\) עולה, יורד או אופקי.</div>
+    <div class="q">קבע מדוע אין שיפוע מוגדר לישר דרך \(C(3,-5)\), \(D(3,9)\).</div>
+    <div class="q">מצא את \(k\) אם שיפוע הישר דרך \((1,2)\), \((k,8)\) הוא \(2\).</div>
+    <div class="q">מצא נקודה נוספת על ישר ששיפועו \(-3\) ועובר דרך \((2,5)\).</div>
+    <div class="q">מצא את זווית הנטייה של ישר ששיפועו \(\sqrt{3}\).</div>
+    <div class="q">קבע אילו מן הנקודות \(A(0,1)\), \(B(2,5)\), \(C(4,9)\) נמצאות על אותו ישר.</div>
+    <div class="q">גרף לינארי עובר דרך \((4,18)\), \((10,42)\). פרש את השיפוע בהקשר של מחיר לפי כמות.</div>
+    <div class="q">מצא ערך של \(t\) כך שהנקודות \((1,3)\), \((5,t)\), \((9,11)\) יהיו קולינאריות.</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעורים 5 — משוואת ישר</h2></div><div class="num">05</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>צורה מפורשת</h3>
+      <div class="formula">\[y=mx+b\]</div>
+      <p>\(m\) הוא השיפוע ו־\(b\) הוא חיתוך הישר עם ציר \(y\).</p>
+      <h3>צורת נקודה–שיפוע</h3>
+      <div class="formula">\[y-y_0=m(x-x_0)\]</div>
+      <h3>צורה כללית</h3>
+      <div class="formula">\[Ax+By+C=0\]</div>
+      <p>כאשר \(B\ne0\), השיפוע הוא \(m=-A/B\).</p>
+      <div class="example">ישר דרך \(P(2,3)\) ושיפועו \(-1/2\):
+      \[y-3=-\frac12(x-2)\Rightarrow y=-\frac12x+4\]</div>
+    </div>
+<div style="height:15px;"></div>
+    <div>
+      <div id="board-line" class="board" style="direction: ltr;"></div>
+      <p class="small center">הישר בדוגמה עובר דרך \(P(2,3)\) וחותך את ציר \(y\) בנקודה \((0,4)\).</p>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מציאת משוואת ישר — דוגמאות</h2>
+  <div class="grid2_">
+    <div class="example">
+      <b>דרך שתי נקודות</b><br>
+      \(A(-1,2)\), \(B(3,10)\):
+      \[m=\frac{10-2}{3+1}=2\]
+      \[y-2=2(x+1)\Rightarrow y=2x+4\]
+    </div>
+<div style="height:15px;"></div>
+    <div class="example">
+      <b>ישר אנכי</b><br>
+      ישר העובר דרך \((5,-2)\) ומקביל לציר \(y\):
+      \[x=5\]
+      אין לכתוב אותו בצורה \(y=mx+b\).
+    </div>
+<div style="height:15px;"></div>
+    <div class="example">
+      <b>חיתוכים עם הצירים</b><br>
+      עבור \(2x+3y-12=0\):
+      \[x\text{-intercept}=6,\qquad y\text{-intercept}=4\]
+    </div>
+<div style="height:15px;"></div>
+    <div class="example">
+      <b>בדיקת נקודה</b><br>
+      כדי לבדוק אם \((2,5)\) נמצאת על \(3x-y-1=0\), מציבים:
+      \[3(2)-5-1=0\]
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <h3>שלבי פתרון מומלצים</h3>
+  <ol>
+    <li>זהה את הנתונים: נקודה, שתי נקודות, שיפוע או תנאי גאומטרי.</li>
+    <li>חשב שיפוע במידת הצורך.</li>
+    <li>כתוב משוואת נקודה–שיפוע.</li>
+    <li>פשט לצורה הנדרשת.</li>
+    <li>בדוק באמצעות הצבת נקודה ידועה.</li>
+  </ol>
+<div style="height:15px;"></div>
+  <div class="teacher"><b>בדיקת שגיאה:</b> אם שתי הנקודות הנתונות אינן מקיימות את המשוואה שקיבלת, יש טעות בשיפוע או בפישוט.</div>
+</section>
+
+<section class="page">
+  <h2>משוואת ישר — תרגול</h2>
+  <div class="question-grid">
+    <div class="q">מצא משוואת ישר ששיפועו \(3\) ועובר דרך \((2,-1)\).</div>
+    <div class="q">מצא משוואת ישר ששיפועו \(-2\) ועובר דרך \((-4,5)\).</div>
+    <div class="q">מצא משוואת ישר העובר דרך \((1,2)\), \((5,10)\).</div>
+    <div class="q">מצא משוואת ישר העובר דרך \((-3,7)\), \((3,-5)\).</div>
+    <div class="q">מצא משוואת ישר אופקי העובר דרך \((4,-6)\).</div>
+    <div class="q">מצא משוואת ישר אנכי העובר דרך \((-2,9)\).</div>
+    <div class="q">העבר את \(4x-2y+8=0\) לצורה \(y=mx+b\), וציין שיפוע וחיתוך עם ציר \(y\).</div>
+    <div class="q">מצא את נקודות החיתוך של \(3x+2y-12=0\) עם הצירים.</div>
+    <div class="q">מצא את נקודת החיתוך של הישרים \(y=2x+1\) ו־\(y=-x+7\).</div>
+    <div class="q">מצא את \(k\) כך שהנקודה \((k,5)\) תהיה על הישר \(2x+3y-11=0\).</div>
+    <div class="q">מצא משוואת ישר שחותך את ציר \(x\) ב־\(6\) ואת ציר \(y\) ב־\(4\).</div>
+    <div class="q">מצא משוואת התיכון היוצא מן הקודקוד \(A(1,8)\) במשולש שבו \(B(-3,2)\), \(C(5,6)\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 6 — ישרים מקבילים ומאונכים</h2></div><div class="num">07</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>מקבילים</h3>
+      <div class="formula">\[m_1=m_2\]</div>
+      <p>אם גם החיתוך עם ציר \(y\) זהה, הישרים חופפים ולא רק מקבילים.</p>
+      <h3>מאונכים</h3>
+      <div class="formula">\[m_1m_2=-1\]</div>
+      <p>כלומר, השיפועים הם הופכיים ונגדיים, בתנאי ששניהם מוגדרים.</p>
+      <h3>צורה כללית</h3>
+      <div class="formula">\[A_1B_2-A_2B_1=0\quad\text{(םיליבקמ)}\]</div>
+      <div class="formula">\[A_1A_2+B_1B_2=0\quad\text{(םיכנואמ)}\]</div>
+    </div>
+<div style="height:15px;"></div>
+    <div>
+      <div id="board-parallel" class="board" style="direction: ltr;"></div>
+      <p class="small center">שני ישרים מקבילים וישר שלישי המאונך להם.</p>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="teacher"><b>מקרה מיוחד:</b> ישר אנכי וישר אופקי מאונכים, אף שלא ניתן להשתמש במכפלת השיפועים.</div>
+</section>
+
+<section class="page">
+  <h2>מקבילים ומאונכים — דוגמאות ותרגול</h2>
+  <div class="grid2_">
+    <div class="example">
+      <b>מקביל דרך נקודה</b><br>
+      לישר \(2x-3y+6=0\) יש שיפוע \(2/3\). ישר מקביל דרך \((3,-1)\):
+      \[y+1=\frac23(x-3)\]
+    </div>
+<div style="height:15px;"></div>
+    <div class="example">
+      <b>מאונך דרך נקודה</b><br>
+      אם \(m=2/3\), השיפוע המאונך הוא \(-3/2\). לכן דרך \((3,-1)\):
+      \[y+1=-\frac32(x-3)\]
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="question-grid">
+    <div class="q">קבע אם הישרים \(y=3x-1\), \(y=3x+7\) מקבילים, חופפים או נחתכים.</div>
+    <div class="q">קבע אם הישרים \(2x+y-5=0\), \(x-2y+8=0\) מאונכים.</div>
+    <div class="q">מצא משוואת ישר מקביל ל־\(y=-4x+1\) ועובר דרך \((2,5)\).</div>
+    <div class="q">מצא משוואת ישר מאונך ל־\(y=\frac12x-3\) ועובר דרך \((-1,4)\).</div>
+    <div class="q">מצא את \(k\) כך שהישרים \(kx+2y-1=0\), \(3x-6y+5=0\) יהיו מקבילים.</div>
+    <div class="q">מצא את \(k\) כך שהישרים \(2x+ky+7=0\), \(4x-y+3=0\) יהיו מאונכים.</div>
+    <div class="q">מצא את משוואת האנך האמצעי לקטע שקצותיו \(A(-2,1)\), \(B(6,5)\).</div>
+    <div class="q">מצא את משוואת הגובה מן הקודקוד \(A(1,6)\) לצלע \(BC\), כאשר \(B(-3,2)\), \(C(5,4)\).</div>
+    <div class="q">הוכח שהמרובע \(A(0,0)\), \(B(4,2)\), \(C(2,6)\), \(D(-2,4)\) הוא מלבן.</div>
+    <div class="q">הראה שהישרים \(3x+4y-7=0\) ו־\(4x-3y+9=0\) מאונכים ללא מעבר לצורה מפורשת.</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 7 — מרחק נקודה מישר</h2></div><div class="num">08</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>הגדרה</h3>
+      <p>המרחק מנקודה לישר הוא אורך הקטע המאונך מן הנקודה אל הישר.</p>
+      <div class="formula">\[d=\frac{|Ax_0+By_0+C|}{\sqrt{A^2+B^2}}\]</div>
+      <p>הישר כתוב בצורה \(Ax+By+C=0\), והנקודה היא \(P(x_0,y_0)\).</p>
+      <div class="example">לישר \(3x+4y-20=0\) ולנקודה \(P(2,7)\):
+      \[d=\frac{|3(2)+4(7)-20|}{5}=\frac{14}{5}\]</div>
+<div style="height:15px;"></div>
+      <h3>למה ערך מוחלט?</h3>
+      <p>הביטוי במונה עשוי להיות חיובי או שלילי לפי צד הישר, אך מרחק תמיד אינו שלילי.</p>
+    </div>
+    <div>
+      <div id="board-pointline" class="board" style="direction: ltr;"></div>
+      <p class="small center">הקטע המקווקו הוא האנך מן הנקודה אל הישר.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מרחק נקודה מישר — תרגול</h2>
+  <div class="question-grid">
+    <div class="q">מצא את המרחק מן הנקודה \((2,3)\) אל הישר \(4x+3y-17=0\).</div>
+    <div class="q">מצא את המרחק מן הנקודה \((-1,5)\) אל הישר \(x-2y+7=0\).</div>
+    <div class="q">מצא את המרחק מראשית הצירים אל הישר \(5x-12y+26=0\).</div>
+    <div class="q">בדוק אם הנקודה \((3,4)\) נמצאת על הישר \(2x-y-2=0\) באמצעות נוסחת המרחק.</div>
+    <div class="q">מצא את \(k\) אם מרחק הנקודה \((1,2)\) מן הישר \(3x+4y+k=0\) הוא \(2\).</div>
+    <div class="q">מצא את שתי הישרים המקבילים ל־\(3x+4y-5=0\) שמרחקם מן הנקודה \((0,0)\) הוא \(3\).</div>
+    <div class="q">מצא נקודה על ציר \(x\) שמרחקה מן הישר \(x+y-6=0\) הוא \(2\sqrt2\).</div>
+    <div class="q">מצא את שטח המשולש שקודקודיו \(A(0,0)\), \(B(6,0)\), \(C(2,5)\) באמצעות מרחק הנקודה \(C\) מן הישר \(AB\).</div>
+    <div class="q">מצא את רדיוס המעגל שמרכזו \((4,-1)\) ומשיק לישר \(3x-4y+8=0\).</div>
+    <div class="q">מצא את כל הנקודות שעל ציר \(y\) שמרחקן מן הישר \(y=2\) הוא \(5\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 8 — מרחק בין ישרים מקבילים</h2></div><div class="num">09</div></div>
+  <div class="grid2_">
+    <div>
+      <h3>נוסחה</h3>
+      <p>כאשר שני הישרים נכתבו עם אותם מקדמים של \(x\) ושל \(y\):</p>
+      <div class="formula">\[Ax+By+C_1=0,\qquad Ax+By+C_2=0\]</div>
+      <div class="formula">\[d=\frac{|C_2-C_1|}{\sqrt{A^2+B^2}}\]</div>
+      <div class="example">בין \(3x+4y-20=0\) ובין \(3x+4y+5=0\):
+      \[d=\frac{|5-(-20)|}{5}=5\]</div>
+<div style="height:15px;"></div>
+      <h3>עיקרון קריטי</h3>
+      <p>אם המקדמים אינם זהים, יש לנרמל תחילה. למשל, \(2x+2y-6=0\) ו־\(x+y+4=0\) ייכתבו עם אותם מקדמים לפני הפעלת הנוסחה.</p>
+    </div>
+    <div>
+      <div id="board-paralleldistance" class="board" style="direction: ltr;"></div>
+      <p class="small center">הקטע המאונך בין הישרים הוא בעל אורך קבוע בכל מקום.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>מרחק בין ישרים מקבילים — תרגול</h2>
+  <div class="grid2_">
+    <div class="example">
+      <b>נרמול</b><br>
+      בין \(2x+2y-6=0\) ובין \(x+y+4=0\). נכפיל את הישר השני ב־\(2\):
+      \[2x+2y+8=0\]
+      לכן:
+      \[d=\frac{|8-(-6)|}{\sqrt8}=\frac{7}{\sqrt2}\]
+    </div>
+<div style="height:15px;"></div>
+    <div class="example">
+      <b>בניית ישר במרחק נתון</b><br>
+      כל ישר מקביל ל־\(Ax+By+C=0\) הוא \(Ax+By+K=0\). מציבים את המרחק הנתון ופותרים עבור \(K\).
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="question-grid">
+    <div class="q">מצא את המרחק בין \(4x+3y-10=0\) ובין \(4x+3y+15=0\).</div>
+    <div class="q">מצא את המרחק בין \(2x-y+3=0\) ובין \(4x-2y-8=0\).</div>
+    <div class="q">מצא את המרחק בין \(y=3x+2\) ובין \(y=3x-8\).</div>
+    <div class="q">מצא את \(k\) אם המרחק בין \(3x+4y-5=0\) ובין \(3x+4y+k=0\) הוא \(6\).</div>
+    <div class="q">כתוב את שתי המשוואות של ישרים המקבילים ל־\(x-2y+1=0\) ונמצאים במרחק \(3\) ממנו.</div>
+    <div class="q">הישרים \((k+1)x+2y-4=0\) ו־\(3x+6y+5=0\) מקבילים. מצא את \(k\), ולאחר מכן את המרחק ביניהם.</div>
+    <div class="q">שני צדי כביש מיוצגים על ידי הישרים \(5x-12y+7=0\) ו־\(5x-12y-58=0\). מצא את רוחב הכביש.</div>
+    <div class="q">הוכח שהמרחק בין שני ישרים מקבילים אינו תלוי בבחירת הנקודה על אחד מהם.</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="lesson-head"><div><h2>שיעור 9 — בעיות משולבות: מרובעים</h2></div><div class="num">10</div></div>
+  <h3>אסטרטגיית פתרון</h3>
+  <div class="grid3 compact">
+    <div class="card soft"><b>צלעות</b><p>שיפועים להוכחת מקבילות או מאונכות; מרחקים להוכחת שוויון.</p></div>
+    <div class="card warm"><b>אלכסונים</b><p>אמצע קטע להוכחת חצייה; מרחקים להוכחת שוויון.</p></div>
+    <div class="card ok"><b>גובה ושטח</b><p>משוואת ישר ומרחק נקודה מישר.</p></div>
+  </div>
+<div style="height:25px;"></div>
+  <div class="question-grid">
+    <div class="q">הוכח שהמרובע \(A(0,0)\), \(B(6,2)\), \(C(8,8)\), \(D(2,6)\) הוא מעוין.</div>
+    <div class="q">הוכח שהמרובע \(A(-2,1)\), \(B(4,1)\), \(C(4,5)\), \(D(-2,5)\) הוא מלבן.</div>
+    <div class="q">בדוק אם המרובע \(A(0,0)\), \(B(4,2)\), \(C(6,6)\), \(D(2,4)\) הוא מקבילית.</div>
+    <div class="q">מצא את הקודקוד הרביעי של מקבילית כאשר \(A(1,3)\), \(B(7,5)\), \(C(9,11)\) הם קודקודים עוקבים.</div>
+    <div class="q">מצא את שטח המלבן שקודקודיו \(A(1,1)\), \(B(7,4)\), \(C(5,8)\), \(D(-1,5)\).</div>
+    <div class="q">קבע עבור אילו ערכי \(k\) המרובע \(A(0,0)\), \(B(4,0)\), \(C(4,k)\), \(D(0,k)\) הוא ריבוע.</div>
+    <div class="q">במעוין נתונים שלושה קודקודים \(A(-3,0)\), \(B(0,4)\), \(C(3,0)\). מצא את הקודקוד הרביעי.</div>
+    <div class="q">הוכח שהאלכסונים של ריבוע מאונכים וחוצים זה את זה באמצעות קואורדינטות כלליות.</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>בעיות משולבות — משולשים</h2>
+  <div class="question-grid">
+    <div class="q">במשולש \(ABC\) נתון \(A(1,7)\), \(B(-3,1)\), \(C(9,1)\). מצא את משוואת התיכון מ־\(A\).</div>
+    <div class="q">באותו משולש מצא את משוואת הגובה מ־\(A\) ואת אורכו.</div>
+    <div class="q">מצא את משוואת האנך האמצעי לצלע \(AB\) במשולש שקודקודיו \(A(-2,4)\), \(B(6,0)\), \(C(3,8)\).</div>
+    <div class="q">מצא את נקודת מפגש שני האנכים האמצעיים, והסבר מדוע היא שווה־מרחק משלושת הקודקודים.</div>
+    <div class="q">מצא את מרכז הכובד של משולש שקודקודיו \(A(0,0)\), \(B(9,3)\), \(C(3,12)\).</div>
+    <div class="q">הוכח שנקודת מרכז הכובד מחלקת כל תיכון ביחס \(2:1\).</div>
+    <div class="q">מצא את שטח המשולש \(A(-1,2)\), \(B(7,4)\), \(C(3,10)\) בעזרת בסיס וגובה אנליטיים.</div>
+    <div class="q">מצא נקודה על ציר \(x\) השווה־מרחק מן הנקודות \(A(-2,0)\), \(B(4,6)\).</div>
+    <div class="q">הנקודה \(P(k,2k-1)\) נמצאת על התיכון מן \(A(5,8)\) במשולש שבו \(B(-1,2)\), \(C(7,4)\). מצא את \(k\).</div>
+    <div style="font-size: 11pt;" class="q">מצא את כל המשולשים שווי־השוקיים שקדקוד הבסיס שלהם הם \((-4,0)\), \((4,0)\), והקודקוד השלישי נמצא על הישר \(y=3\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>בעיות פרמטרים ברמת 5 יחידות</h2>
+  <div class="grid2 compact">
+    <div class="card soft"><h3>אסטרטגיה</h3><ol><li>תרגם את התנאי הגאומטרי למשוואה.</li><li>פתור עבור הפרמטר.</li><li>בדוק מקרים מיוחדים.</li><li>בדוק שכל פתרון עומד בתנאי המקורי.</li></ol></div>
+    <div class="card warm"><h3>מקרים מיוחדים</h3><ul><li>מכנה אפס בשיפוע.</li><li>ישרים חופפים במקום מקבילים.</li><li>מרחק נתון היוצר שתי תשובות.</li><li>פתרון שאינו נמצא על קטע אלא על המשכו.</li></ul></div>
+  </div>
+<div style="height:25px;"></div>
+  <div class="question-grid">
+    <div class="q">מצא את \(k\) כך שהנקודות \((1,2)\), \((3,k)\), \((7,10)\) יהיו על ישר אחד.</div>
+    <div class="q">מצא את \(k\) כך שהישר דרך \((k,1)\), \((4,7)\) יהיה מקביל ל־\(y=2x-3\).</div>
+    <div class="q">מצא את \(k\) כך שהישר \((k-1)x+3y+5=0\) יהיה מאונך ל־\(2x-y+4=0\).</div>
+    <div class="q">מצא את \(k\) כך שמרחק הנקודה \((2,k)\) מן הישר \(3x+4y-10=0\) יהיה \(4\).</div>
+    <div class="q">מצא את \(k\) כך שהנקודה \((k,2)\) תחלק את הקטע מ־\((0,0)\) ל־\((12,6)\) ביחס \(1:2\).</div>
+    <div class="q">מצא את \(k\) כך שהמרובע \((0,0)\), \((4,0)\), \((k,3)\), \((0,3)\) יהיה מקבילית.</div>
+    <div class="q">מצא את \(k\) כך שהמרחק בין \(2x-3y+k=0\) ובין \(4x-6y+12=0\) יהיה \(2\).</div>
+    <div class="q">מצא את \(k\) כך שהישר דרך \((1,k)\), \((5,3)\) יחתוך את ציר \(y\) בנקודה שגובהה \(7\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>שאלות חקר וחשיבה מתקדמת</h2>
+  <div class="exercise">
+    <b>חקר 1 — מרחק קבוע:</b> בחר נקודה \(P\) על הישר \(3x+4y-20=0\). בנה את האנך אל הישר \(3x+4y+5=0\). הזז את \(P\) והסבר מדוע אורך האנך קבוע.
+  </div>
+  <div class="exercise">
+    <b>חקר 2 — אמצע ומקבילית:</b> נתונות שלוש נקודות \(A,B,C\). פתח כלל למציאת נקודה \(D\) כך ש־\(ABCD\) תהיה מקבילית כאשר הקודקודים מסודרים לפי הסדר.
+  </div>
+  <div class="exercise">
+    <b>חקר 3 — שוויון מרחקים:</b> נתונה הנקודה \(P(0,b)\) והנקודות \(A(-a,0)\), \(B(a,0)\). הוכח באמצעות נוסחת המרחק כי \(PA=PB\) לכל ערכים מתאימים של \(a\) ו־\(b\).
+  </div>
+  <div class="exercise">
+    <b>חקר 4 — משפחת ישרים:</b> חקור את המשפחה \(y=mx+2\). מה משותף לכל הישרים? כיצד משתנה הגרף כאשר \(m\) גדל? מה קורה ב־\(m=0\)?
+  </div>
+  <div class="exercise">
+    <b>חקר 5 — חוסר תלות בייצוג:</b> הוכח שנוסחת המרחק מנקודה לישר נותנת אותה תוצאה גם לאחר הכפלת משוואת הישר במספר \(\lambda\ne0\).
+  </div>
+</section>
+
+<section class="page">
+  <h2>הערכה מעצבת — שאלון אמצע יחידה</h2>
+  <p class="small">משך מומלץ: 35 דקות. ללא מחשבון גרפי.</p>
+  <ol>
+    <li>מצא את המרחק ואת אמצע הקטע בין \(A(-2,3)\), \(B(6,9)\).</li>
+    <li>הנקודה \(P\) מחלקת את \(AB\) ביחס \(1:3\) מן \(A\) אל \(B\). מצא את \(P\).</li>
+    <li>מצא את שיפוע הישר דרך \((-1,4)\), \((5,-2)\).</li>
+    <li>מצא את משוואת הישר דרך \((2,7)\) ושיפועו \(-3\).</li>
+    <li>מצא משוואת ישר מקביל ל־\(2x+y-5=0\) ועובר דרך \((4,1)\).</li>
+    <li>מצא משוואת ישר מאונך ל־\(y=\frac13x+2\) ועובר דרך \((-2,5)\).</li>
+    <li>קבע אם הנקודות \((0,1)\), \((2,5)\), \((5,11)\) קולינאריות.</li>
+    <li>במקבילית \(ABCD\) נתון \(A(1,1)\), \(B(7,3)\), \(C(9,8)\). מצא את \(D\).</li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>מבחן מסכם — חלק א</h2>
+  <p class="small">משך כולל מומלץ: 90 דקות. חלק א — שאלות יסוד; חלק ב — שאלות משולבות.</p>
+  <ol>
+    <li><b>נקודות וקטעים:</b> נתונות \(A(-3,2)\), \(B(5,8)\).
+      <ol type="a">
+        <li>מצא את \(AB\).</li>
+        <li>מצא את אמצע הקטע.</li>
+        <li>מצא נקודה המחלקת את הקטע ביחס \(3:1\) מן \(A\).</li>
+      </ol>
+    </li>
+    <li><b>ישר:</b> נתונות הנקודות \(P(1,6)\), \(Q(7,-3)\).
+      <ol type="a">
+        <li>מצא את השיפוע.</li>
+        <li>מצא את משוואת הישר \(PQ\).</li>
+        <li>מצא את נקודות החיתוך עם הצירים.</li>
+      </ol>
+    </li>
+    <li><b>מקבילות ומאונכות:</b> נתון הישר \(4x-3y+12=0\).
+      <ol type="a">
+        <li>מצא ישר מקביל העובר דרך \((-2,5)\).</li>
+        <li>מצא ישר מאונך העובר דרך אותה נקודה.</li>
+      </ol>
+    </li>
+    <li><b>מרחקים:</b>
+      <ol type="a">
+        <li>מצא את המרחק של \((3,-1)\) מן הישר \(5x+12y-7=0\).</li>
+        <li>מצא את המרחק בין \(5x+12y-7=0\) ובין \(5x+12y+19=0\).</li>
+      </ol>
+    </li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>מבחן מסכם — חלק ב</h2>
+  <ol start="5">
+    <li><b>מרובע:</b> נתונות הנקודות \(A(0,0)\), \(B(6,2)\), \(C(4,8)\), \(D(-2,6)\).
+      <ol type="a">
+        <li>הוכח שהמרובע הוא מלבן.</li>
+        <li>מצא את שטחו.</li>
+        <li>מצא את משוואת אחד האלכסונים.</li>
+      </ol>
+    </li>
+    <li><b>משולש:</b> במשולש \(ABC\), \(A(2,8)\), \(B(-4,2)\), \(C(8,2)\).
+      <ol type="a">
+        <li>מצא את משוואת התיכון מ־\(A\).</li>
+        <li>מצא את משוואת הגובה מ־\(A\).</li>
+        <li>מצא את שטח המשולש.</li>
+      </ol>
+    </li>
+    <li><b>פרמטר:</b> הישר \(kx+2y-6=0\) מקביל לישר \(3x-y+4=0\).
+      <ol type="a">
+        <li>מצא את \(k\).</li>
+        <li>לאחר מציאת \(k\), מצא את המרחק בין הישרים.</li>
+      </ol>
+    </li>
+    <li><b>מרחק נקודה מישר ופרמטר:</b> הנקודה \(P(k,4)\) נמצאת במרחק \(5\) מן הישר \(3x+4y-20=0\). מצא את כל ערכי \(k\).</li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>פתרונות מקוצרים — מרחק, אמצע וחלוקה</h2>
+  <div class="answer-grid">
+    <div class="answer"><b>מרחק 1:</b> \(10\).</div>
+    <div class="answer"><b>מרחק 2:</b> \(10\).</div>
+    <div class="answer"><b>מרחק 3:</b> \(12\).</div>
+    <div class="answer"><b>מרחק 4:</b> \(15\).</div>
+    <div class="answer"><b>מרחק 5:</b> \(x=4\) או \(x=-2\).</div>
+    <div class="answer"><b>מרחק 6:</b> \(AC=BC=5\), לכן שווה־שוקיים.</div>
+    <div class="answer"><b>מרחק 7:</b> \(6^2+8^2=10^2\).</div>
+    <div class="answer"><b>מרחק 8:</b> \((0,0)\) או \((6,0)\).</div>
+    <div class="answer"><b>מרחק 9:</b> אלכסון \(6\sqrt2\), צלע \(6\).</div>
+    <div class="answer"><b>מרחק 10:</b> \(P(5,0)\) או \(P(-5,0)\).</div>
+    <div class="answer"><b>אמצע 1:</b> \((5,3)\).</div>
+    <div class="answer"><b>אמצע 2:</b> \((1,3)\).</div>
+    <div class="answer"><b>אמצע 3:</b> \((11,0)\).</div>
+    <div class="answer"><b>אמצע 4:</b> \((7,-7)\).</div>
+    <div class="answer"><b>אמצע 5:</b> \((5,3)\).</div>
+    <div class="answer"><b>אמצע 6:</b> \(D(3,8)\).</div>
+    <div class="answer"><b>אמצע 7:</b> שני האלכסונים בעלי אמצע \((3,3)\).</div>
+    <div class="answer"><b>אמצע 8:</b> \(M(0,2)\), ולכן נקודת האמצע נמצאת על ציר \(y\).</div>
+    <div class="answer"><b>חלוקה 1:</b> \((5,4)\).</div>
+    <div class="answer"><b>חלוקה 2:</b> \((0,3)\).</div>
+    <div class="answer"><b>חלוקה 3:</b> \((4,3)\), \((8,6)\).</div>
+    <div class="answer"><b>חלוקה 4:</b> \(2:3\).</div>
+    <div class="answer"><b>חלוקה 5:</b> \(B(4,-\tfrac12)\).</div>
+    <div class="answer"><b>חלוקה 6:</b> \((1,6)\).</div>
+    <div class="answer"><b>חלוקה 7:</b> \((5,3)\).</div>
+    <div class="answer"><b>חלוקה 8:</b> \((7,4)\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>פתרונות מקוצרים — שיפוע ומשוואת ישר</h2>
+  <div class="answer-grid">
+    <div class="answer"><b>שיפוע 1:</b> \(2\).</div><div class="answer"><b>שיפוע 2:</b> \(-1\).</div>
+    <div class="answer"><b>שיפוע 3:</b> \(0\), אופקי.</div><div class="answer"><b>שיפוע 4:</b> \(\Delta x=0\).</div>
+    <div class="answer"><b>שיפוע 5:</b> \(k=4\).</div><div class="answer"><b>שיפוע 6:</b> לדוגמה \((3,2)\).</div>
+    <div class="answer"><b>שיפוע 7:</b> \(60^\circ\).</div><div class="answer"><b>שיפוע 8:</b> שלושתן קולינאריות.</div>
+    <div class="answer"><b>שיפוע 9:</b> \(4\) יחידות מחיר לכל יחידה.</div><div class="answer"><b>שיפוע 10:</b> \(t=7\).</div>
+    <div class="answer"><b>ישר 1:</b> \(y=3x-7\).</div><div class="answer"><b>ישר 2:</b> \(y=-2x-3\).</div>
+    <div class="answer"><b>ישר 3:</b> \(y=2x\).</div><div class="answer"><b>ישר 4:</b> \(y=-2x+1\).</div>
+    <div class="answer"><b>ישר 5:</b> \(y=-6\).</div><div class="answer"><b>ישר 6:</b> \(x=-2\).</div>
+    <div class="answer"><b>ישר 7:</b> \(y=2x+4\).</div><div class="answer"><b>ישר 8:</b> \((4,0)\), \((0,6)\).</div>
+    <div class="answer"><b>ישר 9:</b> \((2,5)\).</div><div class="answer"><b>ישר 10:</b> \(k=-2\).</div>
+    <div class="answer"><b>ישר 11:</b> \(2x+3y-12=0\).</div><div class="answer"><b>ישר 12:</b> \(x=1\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>פתרונות מקוצרים — מקבילים ומרחקים</h2>
+  <div class="answer-grid">
+    <div class="answer"><b>מקבילים 1:</b> מקבילים שונים.</div><div class="answer"><b>מקבילים 2:</b> מאונכים.</div>
+    <div class="answer"><b>מקבילים 3:</b> \(y=-4x+13\).</div><div class="answer"><b>מקבילים 4:</b> \(y=-2x+2\).</div>
+    <div class="answer"><b>מקבילים 5:</b> \(k=-1\).</div><div class="answer"><b>מקבילים 6:</b> \(k=8\).</div>
+    <div class="answer"><b>מקבילים 7:</b> \(y=-2x+7\).</div><div class="answer"><b>מקבילים 8:</b> \(y=-4x+10\).</div>
+    <div class="answer"><b>מקבילים 9:</b> צלעות נגדיות מקבילות וצלעות סמוכות מאונכות.</div><div class="answer"><b>מקבילים 10:</b> \(3\cdot4+4(-3)=0\).</div>
+    <div class="answer"><b>נקודה–ישר 1:</b> \(0\).</div><div class="answer"><b>נקודה–ישר 2:</b> \(4/\sqrt5\).</div>
+    <div class="answer"><b>נקודה–ישר 3:</b> \(2\).</div><div class="answer"><b>נקודה–ישר 4:</b> המרחק \(0\).</div>
+    <div class="answer"><b>נקודה–ישר 5:</b> \(k=-1\) או \(k=-21\).</div><div class="answer"><b>נקודה–ישר 6:</b> \(3x+4y\pm15=0\).</div>
+    <div class="answer"><b>נקודה–ישר 7:</b> \(x=2\) או \(x=10\).</div><div class="answer"><b>נקודה–ישר 8:</b> \(15\).</div>
+    <div class="answer"><b>נקודה–ישר 9:</b> \(24/5\).</div><div class="answer"><b>נקודה–ישר 10:</b> \((0,7)\) או \((0,-3)\).</div>
+    <div class="answer"><b>מקבילים־מרחק 1:</b> \(5\).</div><div class="answer"><b>מקבילים־מרחק 2:</b> \(7/\sqrt5\).</div>
+    <div class="answer"><b>מקבילים־מרחק 3:</b> \(\sqrt{10}\).</div><div class="answer"><b>מקבילים־מרחק 4:</b> \(k=25\) או \(k=-35\).</div>
+    <div class="answer"><b>מקבילים־מרחק 5:</b> \(x-2y+1\pm3\sqrt5=0\).</div><div class="answer"><b>מקבילים־מרחק 6:</b> \(k=0\), והמרחק \(17/(3\sqrt5)\).</div>
+    <div class="answer"><b>מקבילים־מרחק 7:</b> \(5\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>פתרונות — שאלון אמצע ומבחן מסכם</h2>
+  <h3>שאלון אמצע</h3>
+  <div class="answer-grid">
+    <div class="answer">1. \(AB=10\), אמצע \((2,6)\).</div>
+    <div class="answer">2. \(P(0,\tfrac92)\).</div>
+    <div class="answer">3. \(-1\).</div>
+    <div class="answer">4. \(y=-3x+13\).</div>
+    <div class="answer">5. \(2x+y-9=0\).</div>
+    <div class="answer">6. \(y=-3x-1\).</div>
+    <div class="answer">7. כן; שני השיפועים שווים ל־\(2\).</div>
+    <div class="answer">8. \(D(3,6)\).</div>
+  </div>
+  <div class="rule"></div>
+  <h3>מבחן מסכם</h3>
+  <div class="answer-grid">
+    <div class="answer">1א. \(10\). 1ב. \((1,5)\). 1ג. \((3,\tfrac{13}{2})\).</div>
+    <div class="answer">2א. \(-3/2\). 2ב. \(3x+2y-15=0\).</div>
+    <div class="answer">2ג. \((5,0)\), \((0,\tfrac{15}{2})\).</div>
+    <div class="answer">3א. \(4x-3y+23=0\).</div>
+    <div class="answer">3ב. \(3x+4y-14=0\).</div>
+    <div class="answer">4א. \(4/13\). 4ב. \(2\).</div>
+    <div class="answer">5. מלבן; שטח \(40\); אלכסון לדוגמה \(y=2x\).</div>
+    <div class="answer">6א. \(x=2\). 6ב. \(x=2\). 6ג. \(36\).</div>
+    <div class="answer">7א. \(k=-6\). 7ב. לאחר נרמול: \(1/\sqrt{10}\).</div>
+    <div class="answer">8. \(k=-7\) או \(k=\frac{29}{3}\).</div>
+  </div>
+</section>
+
+<section class="page">
+  <h2>דף נוסחאות מסכם</h2>
+  <div class="grid2">
+    <div class="card soft">
+      <h3>נקודות וקטעים</h3>
+      \[d=\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\]
+      \[M\left(\frac{x_1+x_2}{2},\frac{y_1+y_2}{2}\right)\]
+      \[P\left(\frac{nx_A+mx_B}{m+n},\frac{ny_A+my_B}{m+n}\right)\]
+    </div>
+    <div class="card warm">
+      <h3>ישרים</h3>
+      \[m=\frac{y_2-y_1}{x_2-x_1}\]
+      \[y-y_0=m(x-x_0)\]
+      \[y=mx+b\]
+      \[Ax+By+C=0\]
+    </div>
+    <div class="card ok">
+      <h3>מקבילות ומאונכות</h3>
+      \[m_1=m_2\]
+      \[m_1m_2=-1\]
+      \[A_1B_2-A_2B_1=0\]
+      \[A_1A_2+B_1B_2=0\]
+    </div>
+    <div class="card danger">
+      <h3>מרחקים מישר</h3>
+      \[d=\frac{|Ax_0+By_0+C|}{\sqrt{A^2+B^2}}\]
+      \[d=\frac{|C_2-C_1|}{\sqrt{A^2+B^2}}\]
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  function safeInit(){
+    if(typeof JXG==='undefined') return;
+    JXG.Options.text.useMathJax = true;
+    const common={axis:true,grid:true,showCopyright:false,showNavigation:false,keepaspectratio:true,pan:{enabled:false},zoom:{enabled:false}};
+
+    const b1=JXG.JSXGraph.initBoard('board-distance',{...common,boundingbox:[-5,9,9,-3]});
+    const A1=b1.create('point',[-3,1],{name:'\\(A\\)',fixed:true,size:2});
+    const B1=b1.create('point',[5,7],{name:'\\(B\\)',fixed:true,size:2});
+    const C1=b1.create('point',[5,1],{name:'\\(C\\)',fixed:true,size:2,visible:true});
+    b1.create('segment',[A1,C1],{strokeWidth:3}); b1.create('segment',[C1,B1],{strokeWidth:3}); b1.create('segment',[A1,B1],{strokeWidth:3});
+    b1.create('text',[0.4,0.5,'\\(\\Delta x = 8\\)'],{fontSize:14,fixed:true}); b1.create('text',[5.2,4,'\\(\\Delta y = 6\\)'],{fontSize:14,fixed:true});
+
+    const b2=JXG.JSXGraph.initBoard('board-midpoint',{...common,boundingbox:[-6,10,8,-2]});
+    const A2=b2.create('point',[-4,2],{name:'\\(A\\)',fixed:true,size:3}); const B2=b2.create('point',[6,8],{name:'\\(B\\)',fixed:true,size:3});
+    const M2=b2.create('point',[()=> (A2.X()+B2.X())/2,()=> (A2.Y()+B2.Y())/2],{name:'\\(M\\)',fixed:true,size:3});
+    b2.create('segment',[A2,B2],{strokeWidth:3}); b2.create('segment',[A2,M2],{strokeWidth:6,strokeOpacity:.25});
+
+    const b3=JXG.JSXGraph.initBoard('board-ratio',{...common,boundingbox:[-5,8,9,-2]});
+    const A3=b3.create('point',[-3,1],{name:'\\(A\\)',fixed:true,size:3}); const B3=b3.create('point',[7,6],{name:'\\(B\\)',fixed:true,size:3}); const P3=b3.create('point',[1,3],{name:'\\(P\\)',fixed:true,size:3});
+    b3.create('segment',[A3,B3],{strokeWidth:3}); b3.create('segment',[A3,P3],{strokeWidth:7,strokeOpacity:.28});
+    b3.create('text',[-1.2,1.3,'\\(2\\;\\text{parts}\\)'],{fontSize:13,fixed:true}); b3.create('text',[4.4,4.8,'\\(3\\;\\text{parts}\\)'],{fontSize:13,fixed:true});
+
+    const b4=JXG.JSXGraph.initBoard('board-slope',{...common,boundingbox:[-4,9,8,-2]});
+    const A4=b4.create('point',[-2,1],{name:'\\(A\\)',fixed:true,size:3}); const B4=b4.create('point',[4,7],{name:'\\(B\\)',fixed:true,size:3}); const C4=b4.create('point',[4,1],{name:'\\(C\\)',fixed:true,size:2});
+    b4.create('line',[A4,B4],{straightFirst:true,straightLast:true,strokeWidth:3}); b4.create('segment',[A4,C4],{strokeWidth:3}); b4.create('segment',[C4,B4],{strokeWidth:3});
+    b4.create('text',[.4,.5,'\\(\\Delta x = 6\\)'],{fontSize:14,fixed:true}); b4.create('text',[4.15,4,'\\(\\Delta y = 6\\)'],{fontSize:14,fixed:true});
+
+    const b5=JXG.JSXGraph.initBoard('board-line',{...common,boundingbox:[-5,8,9,-4]});
+    b5.create('functiongraph',[x=>-.5*x+4],{strokeWidth:3}); b5.create('point',[2,3],{name:'\\(P\\)',fixed:true,size:3}); b5.create('point',[0,4],{name:'\\(Y\\)',fixed:true,size:3});
+    b5.create('text',[4.2,2.2,'\\(y=-0.5x+4\\)'],{fontSize:14,fixed:true});
+
+    const b6=JXG.JSXGraph.initBoard('board-parallel',{...common,boundingbox:[-7,8,8,-7]});
+    b6.create('functiongraph',[x=>.5*x+2],{strokeWidth:3}); b6.create('functiongraph',[x=>.5*x-2],{strokeWidth:3}); b6.create('functiongraph',[x=>-2*x+1],{strokeWidth:3});
+    b6.create('text',[-5.5,0.1,'\\(\\text{parallel}\\)'],{fontSize:13,fixed:true}); b6.create('text',[2.2,-4.7,'\\(\\text{perpendicular}\\)'],{fontSize:13,fixed:true});
+
+    const b7=JXG.JSXGraph.initBoard('board-pointline',{...common,boundingbox:[-3,10,10,-3]});
+    const line7=b7.create('line',[3,4,-20],{strokeWidth:3}); const P7=b7.create('point',[2,7],{name:'\\(P\\)',fixed:true,size:3});
+    const F7=b7.create('perpendicularpoint',[P7,line7],{name:'\\(F\\)',fixed:true,size:3}); b7.create('segment',[P7,F7],{dash:2,strokeWidth:3});
+    b7.create('text',[3.7,7.2,'\\(d=\\frac{14}{5}\\)'],{fontSize:14,fixed:true});
+
+    const b8=JXG.JSXGraph.initBoard('board-paralleldistance',{...common,boundingbox:[-6,9,9,-7]});
+    // Two parallel lines with slope -3/4. The upper line passes through P,
+    // and the lower line passes through Q. The segment PQ is perpendicular to both.
+    const l81=b8.create('functiongraph',[x=>-0.75*x+5],{strokeWidth:3});
+    const l82=b8.create('functiongraph',[x=>-0.75*x-1.25],{strokeWidth:3});
+    const P8=b8.create('point',[4,2],{name:'\\(P\\)',fixed:true,size:3});
+    const Q8=b8.create('point',[1,-2],{name:'\\(Q\\)',fixed:true,size:3});
+    b8.create('segment',[P8,Q8],{dash:2,strokeWidth:3});
+    b8.create('text',[4.9,-0.15,'\\(d=5\\)'],{fontSize:14,fixed:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',safeInit); else safeInit();
+})();
+</script>
+</body>
+</html>
