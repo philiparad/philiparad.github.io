@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור: מערכות אי־שוויונים לינאריים — וגם / או</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    packages: {'[+]': ['ams']}
+  },
+  chtml: { scale: 0.98 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --blue:#235b8e; --blue2:#eaf3fb; --navy:#173b5d; --teal:#187f7a;
+  --orange:#d46b2c; --green:#2f7d4a; --ink:#1d2730; --muted:#5d6974;
+  --line:#cdd8e2; --paper:#ffffff; --soft:#f5f8fb;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9eef3;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.55;overflow:visible}
+body{direction:rtl}
+main{width:210mm;margin:10mm auto;background:var(--paper);box-shadow:0 2mm 8mm rgba(20,45,65,.16);overflow:visible}
+.sheet{padding:14mm 15mm;min-height:270mm;position:relative;overflow:visible}
+.cover{min-height:277mm;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#f8fbfe 0%,#eaf3fb 55%,#fff 100%)}
+.cover::before{content:"";position:absolute;inset:0 0 auto 0;height:17mm;background:var(--blue)}
+.kicker{font-size:14px;font-weight:700;color:var(--teal);letter-spacing:.3px;margin-bottom:8mm}
+h1{font-size:21px;line-height:1.2;color:var(--navy);margin:0 0 5mm}
+.subtitle{font-size:20px;color:var(--blue);font-weight:700;margin-bottom:12mm}
+.cover-grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-top:8mm}
+.cover-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6mm;box-shadow:0 1mm 3mm rgba(24,58,88,.08)}
+.cover-card strong{display:block;color:var(--blue);font-size:18px;margin-bottom:2mm}
+h2{font-size:24px;color:var(--navy);margin:0 0 5mm;padding-bottom:2mm;border-bottom:2px solid var(--blue)}
+h3{font-size:19px;color:var(--blue);margin:7mm 0 3mm}
+h4{font-size:16px;color:var(--teal);margin:5mm 0 2mm}
+p{margin:2.5mm 0}
+ul,ol{margin:2mm 0;padding-right:7mm}
+li{margin:1.3mm 0}
+.callout{border-right:5px solid var(--blue);background:var(--blue2);padding:4mm 5mm;border-radius:8px;margin:4mm 0}
+.callout.warning{border-right-color:var(--orange);background:#fff3e9}
+.callout.success{border-right-color:var(--green);background:#edf8f0}
+.term-grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin:5mm 0}
+.term{border:1px solid var(--line);border-radius:10px;padding:4mm;background:#fff}
+.term .tag{display:inline-block;background:var(--blue);color:white;border-radius:12px;padding:1mm 3mm;font-weight:700;font-size:13px;margin-left:2mm}
+.term .tag.or{background:var(--orange)}
+table{width:100%;border-collapse:collapse;margin:4mm 0;font-size:14px;page-break-inside:avoid}
+th,td{border:1px solid var(--line);padding:3mm;vertical-align:top}
+th{background:var(--blue2);color:var(--navy);font-weight:700}
+.phase{white-space:nowrap;font-weight:700;color:var(--blue)}
+.math-display{direction:ltr;text-align:center;font-size:1.05em;margin:2mm 0}
+.plain-math,.plain-inline-math{direction:ltr;unicode-bidi:isolate;font-family:"Times New Roman",serif;color:var(--ink)}
+.plain-math{font-size:1.15em;line-height:1.4}
+.plain-inline-math{display:inline-block;font-size:1.05em;padding:0 .15em}
+.example{border:1px solid var(--line);border-radius:10px;padding:5mm;margin:5mm 0;page-break-inside:avoid;background:#fff}
+.example-title{font-weight:700;color:var(--navy);font-size:17px;margin-bottom:2mm}
+.steps{counter-reset:step}
+.step{position:relative;padding-right:9mm;margin:2mm 0}
+.step::before{counter-increment:step;content:counter(step);position:absolute;right:0;top:.2mm;width:6mm;height:6mm;border-radius:50%;background:var(--blue);color:white;text-align:center;line-height:6mm;font-size:12px;font-weight:700}
+.jxgbox{direction:ltr;border:1px solid #9eb2c3;background:#fff;border-radius:8px;overflow:hidden!important}
+.graph-row{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin:5mm 0;align-items:start}
+.graph-card{page-break-inside:avoid}
+.graph-card .jxgbox{width:100%;height:58mm}
+.caption{font-size:12px;color:var(--muted);margin-top:1.5mm;text-align:center}
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.check{border:1px solid var(--line);border-radius:8px;padding:3mm;background:var(--soft)}
+.page-break{break-before:page;page-break-before:always}
+.exercise-header{display:flex;justify-content:space-between;gap:5mm;align-items:flex-end;margin-bottom:5mm}
+.level-key{font-size:12px;color:var(--muted)}
+.exercise-list{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm}
+.exercise{display:flex;gap:3mm;border:1px solid var(--line);border-radius:9px;padding:3.5mm;background:#fff;page-break-inside:avoid;min-height:28mm}
+.exercise-number{flex:0 0 8mm;width:8mm;height:8mm;border-radius:50%;background:var(--blue);color:#fff;text-align:center;line-height:8mm;font-weight:700;font-size:13px}
+.exercise-body{flex:1;min-width:0}
+.instruction{font-size:13px;color:var(--muted)}
+.exercise .math-display{font-size:.98em;margin:1mm 0}
+.exercise.level-4{border-right:4px solid var(--orange)}
+.exercise.level-5{grid-column:1/-1;border-right:4px solid var(--teal);display:block;padding:5mm}
+.exercise.level-5 .exercise-number{float:right;margin-left:3mm}
+.exercise-board{width:100%;height:70mm;margin-top:4mm;clear:both}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:2.5mm}
+.answer{border:1px solid var(--line);border-radius:7px;padding:2.5mm;background:var(--soft);font-size:13px;direction:rtl}
+.answer.wide{grid-column:1/-1}
+.source-list{font-size:13px;color:var(--muted)}
+.footer{position:absolute;bottom:7mm;left:15mm;right:15mm;display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:2mm;font-size:11px;color:#7a8792}
+@media(max-width:900px){main{width:100%;margin:0;box-shadow:none}.sheet{padding:8mm}.cover-grid,.term-grid,.graph-row,.exercise-list,.checklist{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.exercise.level-5{grid-column:auto}}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff!important;overflow:visible!important}
+  main{width:210mm;margin:0;box-shadow:none}
+  .sheet{min-height:297mm;padding:14mm 15mm 16mm;break-after:page;page-break-after:always;overflow:visible!important}
+  .sheet:last-child{break-after:auto;page-break-after:auto}
+  .cover{min-height:297mm}
+  .jxgbox{break-inside:avoid;page-break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<main>
+<section class="sheet cover">
+  <div class="kicker">אלגברה · כיתה י׳ / חזרה והעמקה</div>
+  <h1>מערכות אי־שוויונים לינאריים</h1>
+  <div class="subtitle">מערכות “וגם” ו“או” · פתרון אלגברי ופתרון גרפי</div>
+  <div class="cover-grid_">
+    <div class="cover-card"><strong>מטרת־על</strong>לתרגם בין ניסוח מילולי, מערכת אי־שוויונים, כתיב תחום וייצוג גרפי — ולבחור נכון בין חיתוך (“וגם”) לאיחוד (“או”).</div>
+<div style="height:15px;"></div>
+    <div class="cover-card"><strong>ידע קודם</strong>פתרון אי־שוויון לינארי יחיד; היפוך הסימן בכפל או בחילוק במספר שלילי; סימון נקודה פתוחה וסגורה.</div>
+<div style="height:15px;"></div>
+    <div class="cover-card"><strong>תוצרים</strong>פתרון אלגברי, שרטוט על ציר המספרים, כתיב תחום, והצללת תחום במישור.</div>
+  </div>
+  <div class="footer"><span>מערכות אי־שוויונים לינאריים</span><span>1</span></div>
+</section>
+
+<section class="sheet">
+<h2>1.מטרות השיעור</h2>
+<h3>מטרות למידה</h3>
+<ul>
+  <li>להבחין בין מערכת <strong>“וגם”</strong> — חיתוך קבוצות הפתרון — לבין מערכת <strong>“או”</strong> — איחוד קבוצות הפתרון.</li>
+  <li>לפתור כל אי־שוויון בנפרד, לשמור על כיוון הסימן, ולשלב את התוצאות באופן נכון.</li>
+  <li>לייצג פתרון בשלוש דרכים: אי־שוויון, כתיב תחום וגרף על ציר המספרים.</li>
+  <li>לפתור אי־שוויון כפול ולזהות שהוא קיצור של מערכת “וגם”.</li>
+  <li>לשרטט מערכת אי־שוויונים לינאריים בשני משתנים ולהצליל חיתוך או איחוד של חצאי־מישורים.</li>
+</ul>
+<h3>מדדי הצלחה לתלמיד</h3>
+<div class="checklist">
+  <div class="check">אני יודע להסביר במילים מה ההבדל בין \(\cap\) לבין \(\cup\).</div>
+  <div class="check">אני הופך את סימן אי־השוויון כאשר מחלקים במספר שלילי.</div>
+  <div class="check">אני מסמן קצה פתוח עבור \(\lt ,\gt \) וקצה סגור עבור \(\le,\ge\).</div>
+  <div class="check">אני מזהה מתי הפתרון הוא \(\varnothing\) או \(\mathbb{R}\).</div>
+  <div class="check">אני בודק נקודת מבחן כדי לבחור צד של ישר גבול.</div>
+  <div class="check">אני יכול למצוא נקודת חיתוך של ישרי הגבול אלגברית.</div>
+</div>
+<h3>מושגי יסוד</h3>
+<div class="term-grid">
+  <div class="term"><span class="tag">וגם</span><strong>חיתוך</strong><div class="math-display">\[A\cap B\]</div>רק ערכים המקיימים את שני התנאים בו־זמנית.</div>
+  <div class="term"><span class="tag or">או</span><strong>איחוד</strong><div class="math-display">\[A\cup B\]</div>כל ערך המקיים לפחות אחד מן התנאים.</div>
+  <div class="term"><strong>אי־שוויון כפול</strong><div class="math-display plain-math" dir="ltr"><i>a</i> &lt; <i>x</i> &lt; <i>b</i></div><div>פירושו: <span class="plain-inline-math" dir="ltr"><i>x</i> &gt; <i>a</i></span> וגם <span class="plain-inline-math" dir="ltr"><i>x</i> &lt; <i>b</i></span>.</div></div>
+  <div class="term"><strong>ישר גבול</strong><div class="math-display">\[ax+by=c\]</div>קו מלא עבור \(\le,\ge\), וקו מקווקו עבור \(\lt ,\gt \).</div>
+</div>
+<div class="footer"><span>מטרות ומושגים</span><span>2</span></div>
+</section>
+
+<section class="sheet">
+<h3>טעויות נפוצות שיש להציף</h3>
+<div class="callout warning">
+<ul>
+<li>בחירת איחוד במקום חיתוך רק משום שבגרף מופיעים שני קטעים.</li>
+<li>אי־היפוך הסימן לאחר חלוקה במספר שלילי.</li>
+<li>סימון נקודה סגורה עבור אי־שוויון חמור.</li>
+<li>במערכת במישור: הצללת הצד הנכון של כל ישר, אך שכחת לקחת את האזור המשותף.</li>
+<li>בלבול בין פתרון מערכת משוואות — נקודות חיתוך — לבין פתרון מערכת אי־שוויונים — תחום שלם.</li>
+</ul>
+</div>
+<div class="footer"><span>מהלך השיעור</span><span>3</span></div>
+</section>
+
+<section class="sheet">
+<h2>3. פתרון אלגברי וגרפי על ציר המספרים</h2>
+<div class="example">
+  <div class="example-title">דוגמה א — מערכת “וגם”</div>
+  <div class="math-display">\[x\gt -2\;\text{םגו}\;3x-1\le 8\]</div>
+  <div class="steps">
+    <div class="step">פותרים כל תנאי: \(x\gt -2\), וכן \(3x\le9\), ולכן \(x\le3\).</div>
+    <div class="step">לוקחים את החלק המשותף: \(-2\lt x\le3\).</div>
+    <div class="step">כתיב תחום: \( (-2,3] \).</div>
+  </div>
+  <div id="and-line" class="jxgbox" style="direction:ltr;width:100%;height:34mm"></div>
+</div>
+<div class="example">
+  <div class="example-title">דוגמה ב — מערכת “או”</div>
+  <div class="math-display">\[2x+1\lt -3\;\text{וא}\;-x\le-4\]</div>
+  <div class="steps">
+    <div class="step">מן התנאי הראשון: \(2x\lt -4\), ולכן \(x\lt -2\).</div>
+    <div class="step">מן התנאי השני: מחלקים ב־\(-1\) והופכים סימן, ולכן \(x\ge4\).</div>
+    <div class="step">מאחדים: \(( -\infty,-2)\cup[4,\infty)\).</div>
+  </div>
+  <div id="or-line" class="jxgbox" style="direction:ltr;width:100%;height:34mm"></div>
+</div>
+<div class="example">
+  <div class="example-title">דוגמה ג — אי־שוויון כפול</div>
+  <div class="math-display">\[-7\le2x+1\lt 9\]</div>
+  <p>מבצעים אותה פעולה על שלושת האגפים:</p>
+  <div class="math-display">\[-8\le2x\lt 8\quad\Longrightarrow\quad-4\le x\lt 4\]</div>
+  <p>כתיב תחום: \([-4,4)\).</p>
+</div>
+<div class="callout">
+<strong>בדיקת היגיון:</strong> במערכת “וגם” הפתרון אינו יכול להיות גדול יותר מכל אחת מקבוצות הפתרון המקוריות. במערכת “או” הפתרון אינו יכול להיות קטן יותר משתיהן.
+</div>
+<div class="footer"><span>פתרון על ציר המספרים</span><span>4</span></div>
+</section>
+
+<section class="sheet">
+<h2>4. מצבים מיוחדים</h2>
+<div class="graph-row">
+<div class="example">
+  <div class="example-title">אין פתרון</div>
+  <div class="math-display">\[x\ge4\;\text{םגו}\;2x-1\lt 3\]</div>
+  <div class="math-display">\[x\ge4\;\text{םגו}\;x\lt 2\]</div>
+  <p>אין חפיפה, ולכן:</p><div class="math-display">\[\varnothing\]</div>
+  <div id="empty-line" class="jxgbox" style="direction:ltr;width:100%;height:32mm"></div>
+</div>
+<div class="example">
+  <div class="example-title">כל המספרים הממשיים</div>
+  <div class="math-display">\[x\lt 5\;\text{וא}\;x\gt 4\]</div>
+  <p>שני התחומים יחד מכסים את כל הציר, ולכן:</p><div class="math-display">\[\mathbb{R}\]</div>
+  <div id="all-line" class="jxgbox" style="direction:ltr;width:100%;height:32mm"></div>
+</div>
+</div>
+<h3>אלגוריתם עבודה קבוע</h3>
+<ol>
+<li>פתרו כל אי־שוויון בנפרד.</li>
+<li>שרטטו כל פתרון על אותו ציר.</li>
+<li>ב“וגם” — השאירו רק חפיפה. ב“או” — אספו את כל החלקים.</li>
+<li>בדקו קצוות: האם השוויון מותר?</li>
+<li>רשמו תשובה באי־שוויון ובכתיב תחום.</li>
+</ol>
+<h3>שאלות אבחון קצרות</h3>
+<table>
+<tr><th>שאלה</th><th>תשובה מצופה</th></tr>
+<tr><td>האם \(x=3\) שייך ל־\((3,7]\)?</td><td>לא, משום שהקצה \(3\) פתוח.</td></tr>
+<tr><td>מה פירוש \(x\le-1\;\text{וא}\;x\gt 4\)?</td><td>שתי קרניים נפרדות; די לקיים תנאי אחד.</td></tr>
+<tr><td>מה מתקבל מ־\(x\gt 2\;\text{םגו}\;x\le2\)?</td><td>\(\varnothing\).</td></tr>
+<tr><td>מה מתקבל מ־\(x\lt 2\;\text{וא}\;x\ge2\)?</td><td>\(\mathbb{R}\).</td></tr>
+</table>
+<div class="footer"><span>מצבים מיוחדים</span><span>5</span></div>
+</section>
+
+<section class="sheet">
+<h2>5. מערכות אי־שוויונים לינאריים בשני משתנים</h2>
+<div class="callout">
+כל אי־שוויון לינארי בשני משתנים מתאר חצי־מישור. פתרון מערכת “וגם” הוא <strong>החיתוך</strong> של חצאי־המישורים; פתרון “או” הוא <strong>האיחוד</strong> שלהם.
+</div>
+<h3>שלבי עבודה</h3>
+<ol>
+<li>מחליפים זמנית את סימן אי־השוויון בשוויון ומשרטטים את ישר הגבול.</li>
+<li>קו מלא עבור \(\le,\ge\); קו מקווקו עבור \(\lt ,\gt \).</li>
+<li>בוחרים נקודת מבחן שאינה על הישר, בדרך כלל \((0,0)\).</li>
+<li>מצלילים את חצי־המישור המתאים.</li>
+<li>ב“וגם” משאירים רק את החפיפה; ב“או” משאירים את כל האזורים שנצבעו.</li>
+</ol>
+<div class="example">
+  <div class="example-title">דוגמה ד — חיתוך של שלושה חצאי־מישורים</div>
+  <div class="math-display">\[y\ge2x-1,\qquad y\le-x+5,\qquad x\ge0\]</div>
+  <p>נקודת החיתוך של שני הישרים האלכסוניים מתקבלת אלגברית:</p>
+  <div class="math-display">\[2x-1=-x+5\quad\Longrightarrow\quad x=2,\;y=3\]</div>
+  <p>על הישר \(x=0\) מתקבלות הנקודות \((0,-1)\) ו־\((0,5)\). לכן הפתרון הוא המשולש הסגור בעל הקדקודים:</p>
+  <div class="math-display">\[(0,-1),\;(0,5),\;(2,3)\]</div>
+  <div id="and-plane" class="jxgbox" style="direction:ltr;width:100%;height:83mm"></div>
+</div>
+<div class="footer"><span>מערכת במישור — וגם</span><span>6</span></div>
+</section>
+
+<section class="sheet">
+<h2>6. “או” במישור — איחוד אזורים</h2>
+<div class="example">
+  <div class="example-title">דוגמה ה — איחוד שני חצאי־מישורים</div>
+  <div class="math-display">\[y\ge3x+1\;\text{or}\;y\le5-x\]</div>
+  <p>מצלילים את האזור שמעל הישר הראשון ואת האזור שמתחת לישר השני. מכיוון שמדובר ב־“או”, נקודה שייכת לפתרון כאשר היא מקיימת לפחות תנאי אחד.</p>
+  <p>הישרים נפגשים בנקודה:</p>
+  <div class="math-display">\[3x+1=5-x\quad\Longrightarrow\quad(1,4)\]</div>
+  <p>מימין לנקודת החיתוך נשאר אזור לא מוצל בין הישרים; משמאל לה כל המישור מכוסה על־ידי האיחוד.</p>
+  <div id="or-plane" class="jxgbox" style="direction:ltr;width:100%;height:86mm"></div>
+</div>
+<h3>בדיקה באמצעות נקודה</h3>
+<p>לדוגמה, הנקודה \((2,4)\) אינה מקיימת אף תנאי:</p>
+<div class="math-display">\[4\not\ge7,\qquad 4\not\le3\]</div>
+<p>לכן היא נמצאת ב“פער” שאינו שייך לאיחוד.</p>
+<div class="callout success">
+<strong>כלל מסכם:</strong> במערכת “וגם” מחפשים אזור שמקיים את כל התנאים. במערכת “או” מספיקה התאמה לתנאי אחד בלבד.
+</div>
+<div class="footer"><span>מערכת במישור — או</span><span>7</span></div>
+</section>
+
+<section class="sheet page-break">
+<div class="exercise-header">
+<div><h2 style="margin-bottom:1mm">7. תרגול מדורג — 40 תרגילים</h2><div class="level-key">רמות 1–5 · תרגילים ממקורות בעברית ובאנגלית · מסודרים מן הקל אל הקשה</div></div>
+</div>
+<div class="exercise-list">
+<article class="exercise level-1">
+      <div class="exercise-number">1</div>
+      <div class="exercise-body"><div class="instruction">פתרו ורשמו בכתיב תחום.</div><div class="math-display">\[x\gt 0\;\text{םגו}\;x\lt 2\]</div></div>
+    </article>
+<article class="exercise level-1">
+      <div class="exercise-number">2</div>
+      <div class="exercise-body"><div class="instruction">פתרו ורשמו בכתיב תחום.</div><div class="math-display">\[x\ge -1\;\text{םגו}\;x\lt 5\]</div></div>
+    </article>
+<article class="exercise level-1">
+      <div class="exercise-number">3</div>
+      <div class="exercise-body"><div class="instruction">פתרו ורשמו בכתיב תחום.</div><div class="math-display">\[x\ge 0\;\text{םגו}\;x\gt 3\]</div></div>
+    </article>
+<article class="exercise level-1">
+      <div class="exercise-number">4</div>
+      <div class="exercise-body"><div class="instruction">פתרו ורשמו בכתיב תחום.</div><div class="math-display">\[x\lt 5\;\text{םגו}\;x\lt 1\]</div></div>
+    </article>
+<article class="exercise level-1">
+      <div class="exercise-number">5</div>
+      <div class="exercise-body"><div class="instruction">פתרו ורשמו בכתיב תחום.</div><div class="math-display">\[x\lt 5\;\text{וא}\;x\lt 1\]</div></div>
+    </article>
+<article class="exercise level-1">
+      <div class="exercise-number">6</div>
+      <div class="exercise-body"><div class="instruction">פתרו ורשמו בכתיב תחום.</div><div class="math-display">\[x\lt 5\;\text{םגו}\;x\gt 4\]</div></div>
+    </article>
+<article class="exercise level-1">
+      <div class="exercise-number">7</div>
+      <div class="exercise-body"><div class="instruction">פתרו ורשמו בכתיב תחום.</div><div class="math-display">\[x\lt 5\;\text{וא}\;x\gt 4\]</div></div>
+    </article>
+<article class="exercise level-1">
+      <div class="exercise-number">8</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[-1\lt x\lt 5\;\text{םגו}\;x\gt 2\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">9</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[x\gt 1\;\text{םגו}\;-3x-12\lt 0\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">10</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[2x\gt 1\;\text{םגו}\;2-x\lt 0\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">11</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[x\gt 1\;\text{וא}\;-3x-12\lt 0\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">12</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[2x\gt 1\;\text{וא}\;2-x\lt 0\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">13</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[\frac{x}{2}\gt 1\;\text{םגו}\;\frac{4x-4}{5}\lt 0\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">14</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[\frac{x}{2}\gt 1\;\text{וא}\;\frac{4x-4}{5}\lt 0\]</div></div>
+    </article>
+</div>
+<div class="footer"><span>תרגול — רמות 1–2</span><span>8</span></div>
+</section>
+
+<section class="sheet">
+<h2>תרגול מדורג — המשך</h2>
+<div class="exercise-list">
+<article class="exercise level-2">
+      <div class="exercise-number">15</div>
+      <div class="exercise-body"><div class="instruction">פתרו כאי־שוויון כפול.</div><div class="math-display">\[2\lt 2x\lt 6\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">16</div>
+      <div class="exercise-body"><div class="instruction">פתרו כאי־שוויון כפול.</div><div class="math-display">\[6\le x+6\le 11\]</div></div>
+    </article>
+<article class="exercise level-2">
+      <div class="exercise-number">17</div>
+      <div class="exercise-body"><div class="instruction">פתרו כאי־שוויון כפול.</div><div class="math-display">\[-3\lt m-5\lt -1\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">18</div>
+      <div class="exercise-body"><div class="instruction">פתרו את המערכת.</div><div class="math-display">\[5-x\gt \frac{x}{7}\;\text{םגו}\;\frac{3x}{4}\le -x+4\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">19</div>
+      <div class="exercise-body"><div class="instruction">פתרו את המערכת.</div><div class="math-display">\[5-x\gt \frac{x}{7}\;\text{וא}\;\frac{3x}{4}\le -x+4\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">20</div>
+      <div class="exercise-body"><div class="instruction">בדקו אם קיימים פתרונות.</div><div class="math-display">\[x\ge 4\;\text{םגו}\;2x-1\lt 3\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">21</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[x\gt 11\;\text{and}\;7\lt x-4\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">22</div>
+      <div class="exercise-body"><div class="instruction">פתרו ושרטטו על ציר המספרים.</div><div class="math-display">\[n+1\le -3\;\text{וא}\;-4n\lt -8\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">23</div>
+      <div class="exercise-body"><div class="instruction">פתרו ושרטטו על ציר המספרים.</div><div class="math-display">\[p+4\le 1\;\text{וא}\;p-1\ge 1\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">24</div>
+      <div class="exercise-body"><div class="instruction">פתרו ושרטטו על ציר המספרים.</div><div class="math-display">\[9+2b\lt 7\;\text{וא}\;7-5b\lt -8\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">25</div>
+      <div class="exercise-body"><div class="instruction">פתרו את האי־שוויון הכפול.</div><div class="math-display">\[-33\le -7n-12\lt -26\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">26</div>
+      <div class="exercise-body"><div class="instruction">פתרו את האי־שוויון הכפול.</div><div class="math-display">\[36\le 11-5x\le 66\]</div></div>
+    </article>
+</div>
+<div class="footer"><span>תרגול — רמות 2–3</span><span>9</span></div>
+</section>
+
+<section class="sheet">
+<h2>תרגול מדורג — המשך</h2>
+<div class="exercise-list">
+<article class="exercise level-3">
+      <div class="exercise-number">27</div>
+      <div class="exercise-body"><div class="instruction">פתרו את המערכת.</div><div class="math-display">\[-10-2v\lt 6\;\text{םגו}\;6v+12\lt -6\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">28</div>
+      <div class="exercise-body"><div class="instruction">פתרו את המערכת.</div><div class="math-display">\[9-12r\ge -99\;\text{םגו}\;-2r-4\lt -12\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">29</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[12+4n\gt 44\;\text{וא}\;10-12n\gt -38\]</div></div>
+    </article>
+<article class="exercise level-3">
+      <div class="exercise-number">30</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[-5b-8\le -68\;\text{וא}\;11b-12\lt -100\]</div></div>
+    </article>
+<article class="exercise level-4">
+      <div class="exercise-number">31</div>
+      <div class="exercise-body"><div class="instruction">פתרו.</div><div class="math-display">\[2x-3\lt 11\;\text{וא}\;-8x-10\lt -82\]</div></div>
+    </article>
+<article class="exercise level-4">
+      <div class="exercise-number">32</div>
+      <div class="exercise-body"><div class="instruction">פתרו את האי־שוויון התלת־אגפי.</div><div class="math-display">\[4b+18\le -12b-14\le 14-5b\]</div></div>
+    </article>
+<article class="exercise level-4">
+      <div class="exercise-number">33</div>
+      <div class="exercise-body"><div class="instruction">פתרו את האי־שוויון התלת־אגפי.</div><div class="math-display">\[5v+10\le -4v-17\lt 9-2v\]</div></div>
+    </article>
+<article class="exercise level-4">
+      <div class="exercise-number">34</div>
+      <div class="exercise-body"><div class="instruction">פתרו את המערכת.</div><div class="math-display">\[8p-13\le -2+7p\;\text{םגו}\;20+4p\lt 2p+14\]</div></div>
+    </article>
+<article class="exercise level-4">
+      <div class="exercise-number">35</div>
+      <div class="exercise-body"><div class="instruction">בדקו אם למערכת יש פתרון.</div><div class="math-display">\[4a+8\gt 11a+15\;\text{םגו}\;13-14a\le 13-3a\]</div></div>
+    </article>
+<article class="exercise level-4">
+      <div class="exercise-number">36</div>
+      <div class="exercise-body"><div class="instruction">פתרו; שימו לב לאי־שוויון שאינו תלוי בנעלם.</div><div class="math-display">\[14r+20\lt 14r+16\;\text{וא}\;8-10r\ge 15-9r\]</div></div>
+    </article>
+<article class="exercise level-4">
+      <div class="exercise-number">37</div>
+      <div class="exercise-body"><div class="instruction">פתרו; שימו לב לאי־שוויון שהוא תמיד נכון.</div><div class="math-display">\[x+18\ge 8x+4\;\text{וא}\;15x-15\le 15x+5\]</div></div>
+    </article>
+</div>
+<div class="footer"><span>תרגול — רמות 3–4</span><span>10</span></div>
+</section>
+
+<section class="sheet">
+<h2>תרגול גרפי במישור — רמה 5</h2>
+<div class="exercise-list">
+<article class="exercise level-5">
+      <div class="exercise-number">38</div>
+      <div class="exercise-body"><div class="instruction">שרטטו את כל התחום המקיים את המערכת ומצאו את קדקודי התחום.</div><div class="math-display">\[y\ge 3x+1,\quad y\le 5-x,\quad x\ge 0\]</div><div id="exercise-board-38" class="jxgbox exercise-board" aria-label="לוח גרפי לתרגיל 38" style="direction:ltr"></div></div>
+    </article>
+<article class="exercise level-5">
+      <div class="exercise-number">39</div>
+      <div class="exercise-body"><div class="instruction">שרטטו את כל התחום המקיים את המערכת ומצאו את קדקודי התחום.</div><div class="math-display">\[y\ge 2x-\frac12,\quad y\le \frac13x+2,\quad x\ge 0,\quad y\ge 0\]</div><div id="exercise-board-39" class="jxgbox exercise-board" aria-label="לוח גרפי לתרגיל 39" style="direction:ltr"></div></div>
+    </article>
+<article class="exercise level-5">
+      <div class="exercise-number">40</div>
+      <div class="exercise-body"><div class="instruction">שרטטו את איחוד התחומים ותארו את האזור שאינו נכלל בפתרון.</div><div class="math-display">\[y\ge 3x+1\;\text{or}\;y\le 5-x\]</div><div id="exercise-board-40" class="jxgbox exercise-board" aria-label="לוח גרפי לתרגיל 40" style="direction:ltr"></div></div>
+    </article>
+</div>
+<div class="footer"><span>תרגול גרפי</span><span>11</span></div>
+</section>
+
+<section class="sheet">
+<h2>8. מפתח תשובות קצר</h2>
+<p>המפתח מציג את קבוצת הפתרון הסופית. בתרגול בכיתה יש לדרוש גם דרך אלגברית ושרטוט.</p>
+<div class="answers">
+<div class="answer"><strong>1.</strong> \((0,2)\)</div>
+<div class="answer"><strong>2.</strong> \([-1,5)\)</div>
+<div class="answer"><strong>3.</strong> \((3,\infty)\)</div>
+<div class="answer"><strong>4.</strong> \((-\infty,1)\)</div>
+<div class="answer"><strong>5.</strong> \((-\infty,5)\)</div>
+<div class="answer"><strong>6.</strong> \((4,5)\)</div>
+<div class="answer"><strong>7.</strong> \(\mathbb{R}\)</div>
+<div class="answer"><strong>8.</strong> \((2,5)\)</div>
+<div class="answer"><strong>9.</strong> \((1,\infty)\)</div>
+<div class="answer"><strong>10.</strong> \((2,\infty)\)</div>
+<div class="answer"><strong>11.</strong> \((-4,\infty)\)</div>
+<div class="answer"><strong>12.</strong> \(\left(\frac12,\infty\right)\)</div>
+<div class="answer"><strong>13.</strong> \(\varnothing\)</div>
+<div class="answer"><strong>14.</strong> \((-\infty,1)\cup(2,\infty)\)</div>
+<div class="answer"><strong>15.</strong> \((1,3)\)</div>
+<div class="answer"><strong>16.</strong> \([0,5]\)</div>
+<div class="answer"><strong>17.</strong> \((2,4)\)</div>
+<div class="answer"><strong>18.</strong> \(\left(-\infty,\frac{16}{7}\right]\)</div>
+<div class="answer"><strong>19.</strong> \(\left(-\infty,\frac{35}{8}\right)\)</div>
+<div class="answer"><strong>20.</strong> \(\varnothing\)</div>
+<div class="answer"><strong>21.</strong> \((11,\infty)\)</div>
+<div class="answer"><strong>22.</strong> \((-\infty,-4]\cup(2,\infty)\)</div>
+<div class="answer"><strong>23.</strong> \((-\infty,-3]\cup[2,\infty)\)</div>
+<div class="answer"><strong>24.</strong> \((-\infty,-1)\cup(3,\infty)\)</div>
+<div class="answer"><strong>25.</strong> \((2,3]\)</div>
+<div class="answer"><strong>26.</strong> \([-11,-5]\)</div>
+<div class="answer"><strong>27.</strong> \((-8,-3)\)</div>
+<div class="answer"><strong>28.</strong> \((4,9]\)</div>
+<div class="answer"><strong>29.</strong> \((-\infty,4)\cup(8,\infty)\)</div>
+<div class="answer"><strong>30.</strong> \((-\infty,-8)\cup[12,\infty)\)</div>
+<div class="answer"><strong>31.</strong> \((-\infty,7)\cup(9,\infty)\)</div>
+<div class="answer"><strong>32.</strong> \([-4,-2]\)</div>
+<div class="answer"><strong>33.</strong> \((-13,-3]\)</div>
+<div class="answer"><strong>34.</strong> \((-\infty,-3)\)</div>
+<div class="answer"><strong>35.</strong> \(\varnothing\)</div>
+<div class="answer"><strong>36.</strong> \((-\infty,-7]\)</div>
+<div class="answer"><strong>37.</strong> \(\mathbb{R}\)</div>
+<div class="answer wide"><strong>38.</strong> קדקודים: \((0,1),(0,5),(1,4)\). התחום הוא המשולש הסגור שבין שלושת הישרים.</div>
+<div class="answer wide"><strong>39.</strong> קדקודים: \((0,0),(0,2),\left(\frac14,0\right),\left(\frac32,\frac52\right)\).</div>
+<div class="answer wide"><strong>40.</strong> האיחוד הוא \(\mathbb{R}^{2}\setminus\{(x,y):x\gt 1,\;5-x\lt y\lt 3x+1\}\).</div>
+</div>
+<!--
+<h3>מקורות ששולבו במסמך</h3>
+<ul class="source-list">
+<li><em>Compound Inequalities</em> — מערכות “and/or”, אי־שוויונים כפולים ושרטוט על ציר המספרים.</li>
+<li><em>Graphical Inequalities Fill in the Blanks Answers</em> — השוואת פונקציות והצללת תחומים במישור.</li>
+<li><em>אי שוויונים אלגבריים — חדו״א 1, פרק 37</em> — אי־שוויונים כפולים ומערכות “וגם/או”.</li>
+<li><em>אי שוויונים תרגילים — מלומד</em> — תרגילי חיתוך, איחוד, קבוצה ריקה וקבוצות סופיות.</li>
+<li><em>כיתה י — יחידה 4 — אי שוויון</em> — תרגול מדורג בעברית של מערכות “וגם” ו“או”.</li>
+<li><em>Solving Inequalities</em> — חיזוק מיומנויות הפתרון של אי־שוויון לינארי יחיד.</li>
+</ul>
+-->
+<div class="footer"><span>מפתח תשובות ומקורות</span><span>12</span></div>
+</section>
+</main>
+<script>
+(function(){
+  function waitForJSXGraph(callback){
+    if(window.JXG && JXG.JSXGraph){
+      if(JXG.Options && JXG.Options.text){ JXG.Options.text.useMathJax = true; }
+      callback();
+    }
+    else { setTimeout(function(){waitForJSXGraph(callback);}, 80); }
+  }
+
+  function lineBoard(id, min, max){
+    var b=JXG.JSXGraph.initBoard(id,{boundingbox:[min,1,max,-1],axis:false,showNavigation:false,showCopyright:false,pan:{enabled:false},zoom:{enabled:false},keepaspectratio:false});
+    b.create('arrow',[[min,0],[max,0]],{strokeColor:'#263746',strokeWidth:2,fixed:true});
+    for(var i=Math.ceil(min);i<=Math.floor(max);i++){
+      b.create('segment',[[i,-.08],[i,.08]],{strokeColor:'#263746',strokeWidth:1,fixed:true});
+      b.create('text',[i,-.3,String(i)],{fontSize:11,anchorX:'middle',fixed:true,useMathJax:true});
+    }
+    return b;
+  }
+  function endpoint(b,x,closed,color){
+    b.create('point',[x,0],{name:'',size:2,face:'o',strokeColor:color,strokeWidth:2,fillColor:closed?color:'#ffffff',fixed:true});
+  }
+  function intervalSegment(b,a,c,closedA,closedC,color){
+    b.create('segment',[[a,0],[c,0]],{strokeColor:color,strokeWidth:6,fixed:true}); endpoint(b,a,closedA,color); endpoint(b,c,closedC,color);
+  }
+  function rayLeft(b,x,closed,color,min){
+    b.create('arrow',[[x,0],[min+.15,0]],{strokeColor:color,strokeWidth:6,fixed:true}); endpoint(b,x,closed,color);
+  }
+  function rayRight(b,x,closed,color,max){
+    b.create('arrow',[[x,0],[max-.15,0]],{strokeColor:color,strokeWidth:6,fixed:true}); endpoint(b,x,closed,color);
+  }
+
+  function clip(poly,a,b,c){
+    var out=[];
+    for(var i=0;i<poly.length;i++){
+      var P=poly[i], Q=poly[(i+1)%poly.length];
+      var fP=a*P[0]+b*P[1]-c, fQ=a*Q[0]+b*Q[1]-c;
+      var inP=fP<=1e-9, inQ=fQ<=1e-9;
+      if(inP && inQ){ out.push(Q); }
+      else if(inP && !inQ){
+        var t=fP/(fP-fQ); out.push([P[0]+t*(Q[0]-P[0]),P[1]+t*(Q[1]-P[1])]);
+      } else if(!inP && inQ){
+        var t2=fP/(fP-fQ); out.push([P[0]+t2*(Q[0]-P[0]),P[1]+t2*(Q[1]-P[1])]); out.push(Q);
+      }
+    }
+    return out;
+  }
+  function shadePolygon(board,poly,color,opacity){
+    if(poly.length<3)return;
+    var pts=poly.map(function(p){return board.create('point',p,{visible:false,fixed:true,name:'',size:2});});
+    board.create('polygon',pts,{withLines:false,fillColor:color,fillOpacity:opacity,vertices:{visible:false},borders:{visible:false},fixed:true});
+  }
+  function planeBoard(id,bbox){
+    return JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showNavigation:false,showCopyright:false,pan:{enabled:false},zoom:{enabled:false},keepaspectratio:true,defaultAxes:{x:{name:'x',withLabel:true,label:{position:'rt',offset:[-10,12],useMathJax:true}},y:{name:'y',withLabel:true,label:{position:'rt',offset:[10,-10],useMathJax:true}}}});
+  }
+  function addLine(board,f,color,dash){
+    board.create('functiongraph',[f],{strokeColor:color,strokeWidth:2.5,dash:dash||0,fixed:true});
+  }
+  function blankExerciseBoard(id,bbox){
+    if(!document.getElementById(id))return;
+    JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showNavigation:false,showCopyright:false,pan:{enabled:false},zoom:{enabled:false},keepaspectratio:true});
+  }
+
+  waitForJSXGraph(function(){
+    var b1=lineBoard('and-line',-6,7); intervalSegment(b1,-2,3,false,true,'#235b8e');
+    var b2=lineBoard('or-line',-7,8); rayLeft(b2,-2,false,'#d46b2c',-7); rayRight(b2,4,true,'#d46b2c',8);
+    var b3=lineBoard('empty-line',-1,7); rayRight(b3,4,true,'#235b8e',7); rayLeft(b3,2,false,'#d46b2c',-1);
+    b3.create('text',[3,.55,'No overlap'],{anchorX:'middle',fontSize:12,color:'#7a3b1f',fixed:true,useMathJax:true});
+    var b4=lineBoard('all-line',-2,8); rayLeft(b4,5,false,'#235b8e',-2); rayRight(b4,4,false,'#d46b2c',8);
+
+    var p1=planeBoard('and-plane',[-2,7,6,-3]);
+    var rect=[[-2,-3],[6,-3],[6,7],[-2,7]];
+    var region=clip(rect,2,-1,1);       // y >= 2x-1
+    region=clip(region,1,1,5);          // y <= -x+5
+    region=clip(region,-1,0,0);         // x >= 0
+    shadePolygon(p1,region,'#2f7d4a',0.28);
+    addLine(p1,function(x){return 2*x-1;},'#235b8e',0);
+    addLine(p1,function(x){return -x+5;},'#d46b2c',0);
+    p1.create('line',[[0,0],[0,1]],{straightFirst:true,straightLast:true,strokeColor:'#187f7a',strokeWidth:2.5,fixed:true});
+    [[0,-1],[0,5],[2,3]].forEach(function(q){p1.create('point',q,{name:'('+q[0]+','+q[1]+')',size:2,fillColor:'#173b5d',strokeColor:'#173b5d',fixed:true,label:{useMathJax:true}});});
+
+    var p2=planeBoard('or-plane',[-2,9,5,-3]);
+    var rect2=[[-2,-3],[5,-3],[5,9],[-2,9]];
+    var upper=clip(rect2,3,-1,-1);      // y >= 3x+1
+    var lower=clip(rect2,1,1,5);        // y <= 5-x
+    shadePolygon(p2,upper,'#235b8e',0.20);
+    shadePolygon(p2,lower,'#d46b2c',0.20);
+    addLine(p2,function(x){return 3*x+1;},'#235b8e',0);
+    addLine(p2,function(x){return 5-x;},'#d46b2c',0);
+    p2.create('point',[1,4],{name:'(1,4)',size:2,fillColor:'#173b5d',strokeColor:'#173b5d',fixed:true,label:{useMathJax:true}});
+    p2.create('point',[2,4],{name:'Excluded',size:2,fillColor:'#ffffff',strokeColor:'#7a3b1f',fixed:true,label:{useMathJax:true}});
+
+    blankExerciseBoard('exercise-board-38',[-1,7,4,-1]);
+    blankExerciseBoard('exercise-board-39',[-1,4,3,-1]);
+    blankExerciseBoard('exercise-board-40',[-2,9,5,-3]);
+  });
+})();
+</script>
+</body>
+</html>

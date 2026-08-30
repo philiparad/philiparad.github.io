@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מערך שיעור — אי־שוויונים לינאריים: פתרון אלגברי וגרפי</title>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(','\\)']],
+        displayMath: [['\\[','\\]']],
+        packages: {'[+]': ['ams']}
+      },
+      chtml: { scale: 0.98 },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root{
+      --ink:#172033;
+      --muted:#526179;
+      --primary:#235b9b;
+      --primary-dark:#173f70;
+      --accent:#dcecff;
+      --accent-2:#edf5ff;
+      --warm:#fff4d8;
+      --success:#e8f5ec;
+      --danger:#fff0ef;
+      --line:#cbd6e4;
+      --paper:#ffffff;
+      --canvas:#eef2f7;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--canvas);color:var(--ink)}
+    body{
+      font-family:Arial,"Noto Sans Hebrew","Segoe UI",sans-serif;
+      line-height:1.55;
+      overflow-x:hidden;
+    }
+
+    .document{padding:14px 0 36px}
+    .page{
+      width:min(210mm, calc(100vw - 20px));
+      min-height:297mm;
+      margin:0 auto 16px;
+      padding:14mm 15mm 13mm;
+      background:var(--paper);
+      box-shadow:0 8px 28px rgba(27,43,67,.15);
+      position:relative;
+      break-after:page;
+      page-break-after:always;
+    }
+    .page:last-child{break-after:auto;page-break-after:auto}
+
+    h1,h2,h3,h4{margin:0 0 .5em;line-height:1.25;color:var(--primary-dark)}
+    h1{font-size:30px}
+    h2{font-size:23px;border-bottom:3px solid var(--accent);padding-bottom:7px}
+    h3{font-size:18px}
+    h4{font-size:15px}
+    p{margin:.45em 0}
+    ul,ol{margin:.45em 0;padding-right:1.35em}
+    li{margin:.18em 0}
+    a{color:var(--primary);text-decoration:none}
+    a:hover{text-decoration:underline}
+    strong{color:#102d52}
+
+    .eyebrow{
+      display:inline-block;
+      font-size:13px;
+      font-weight:bold;
+      letter-spacing:.02em;
+      color:var(--primary);
+      background:var(--accent-2);
+      border:1px solid #bdd8f8;
+      border-radius:999px;
+      padding:5px 12px;
+      margin-bottom:12px;
+    }
+    .hero{
+      min-height:238mm;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .hero-title{font-size:38px;max-width:720px}
+    .hero-subtitle{font-size:19px;color:var(--muted);margin:10px 0 26px}
+    .meta-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin:18px 0;
+    }
+    .meta-card{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      background:#fbfdff;
+    }
+    .meta-card b{display:block;color:var(--primary-dark);margin-bottom:3px}
+    .source-note{
+      margin-top:24px;
+      border-right:5px solid var(--primary);
+      background:var(--accent-2);
+      padding:12px 15px;
+      border-radius:8px;
+    }
+
+    .footer{
+      position:absolute;
+      right:15mm;
+      left:15mm;
+      bottom:7mm;
+      border-top:1px solid var(--line);
+      padding-top:5px;
+      display:flex;
+      justify-content:space-between;
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .card{
+      border:1px solid var(--line);
+      border-radius:11px;
+      padding:12px 14px;
+      background:#fff;
+      break-inside:avoid;
+    }
+    .card.blue{background:var(--accent-2);border-color:#b9d3f1}
+    .card.warm{background:var(--warm);border-color:#ead8a7}
+    .card.green{background:var(--success);border-color:#b9ddc3}
+    .card.red{background:var(--danger);border-color:#edc9c6}
+    .small{font-size:13px;color:var(--muted)}
+    .tiny{font-size:11.5px;color:var(--muted)}
+    .tag{
+      display:inline-block;
+      background:#e9eef6;
+      border-radius:999px;
+      padding:3px 9px;
+      font-size:11px;
+      font-weight:700;
+      margin:2px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin:10px 0;
+      font-size:13px;
+      break-inside:avoid;
+    }
+    th,td{border:1px solid var(--line);padding:7px 8px;vertical-align:top}
+    th{background:var(--primary-dark);color:#fff;font-weight:700}
+    tr:nth-child(even) td{background:#f8fafc}
+    .timeline td:first-child{white-space:nowrap;width:13%}
+    .timeline td:nth-child(2){width:19%;font-weight:700;color:var(--primary-dark)}
+
+    .math-block{
+      direction:ltr;
+      text-align:center;
+      margin:8px 0;
+      padding:8px;
+      border-radius:8px;
+      background:#f8fbff;
+      border:1px solid #d9e7f7;
+    }
+    .steps{
+      counter-reset:step;
+      list-style:none;
+      padding:0;
+    }
+    .steps li{
+      counter-increment:step;
+      position:relative;
+      padding:8px 46px 8px 10px;
+      margin:7px 0;
+      background:#f8fafc;
+      border-radius:8px;
+      border:1px solid #e0e7ef;
+    }
+    .steps li::before{
+      content:counter(step);
+      position:absolute;
+      right:9px;
+      top:8px;
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      background:var(--primary);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;
+    }
+
+    .rule{
+      border:2px solid var(--primary);
+      border-radius:12px;
+      background:var(--accent-2);
+      padding:12px 16px;
+      margin:12px 0;
+      font-weight:700;
+    }
+    .warning{
+      border-right:5px solid #c56a00;
+      background:#fff5e6;
+      padding:10px 13px;
+      border-radius:8px;
+      margin:10px 0;
+    }
+
+    .jxgbox{
+      width:100%;
+      height:270px;
+      border:1px solid #aabbd0;
+      border-radius:8px;
+      background:#fff;
+      direction:ltr;
+      overflow:hidden;
+    }
+    .jxgbox.numberline{height:115px}
+    .graph-caption{font-size:12px;color:var(--muted);margin-top:5px}
+
+    .teacher-script{
+      display:grid;
+      grid-template-columns:105px 1fr;
+      gap:6px 10px;
+      font-size:13px;
+      margin:8px 0;
+    }
+    .teacher-script b{
+      background:#edf3fa;
+      border-radius:6px;
+      padding:5px 7px;
+      align-self:start;
+    }
+
+    .checklist{
+      list-style:none;
+      padding:0;
+    }
+    .checklist li::before{
+      content:"□";
+      font-weight:900;
+      margin-left:8px;
+      color:var(--primary);
+    }
+
+    .exercise-list{
+      margin:0;
+      padding-right:1.2em;
+    }
+    .exercise-list li{margin:7px 0}
+    .source-box{
+      border:1px dashed #8ba6c4;
+      padding:10px 12px;
+      border-radius:8px;
+      background:#f8fbff;
+      margin:8px 0;
+    }
+
+    .answer-key{
+      columns:2;
+      column-gap:24px;
+      font-size:13px;
+    }
+    .answer-key p{
+      break-inside:avoid;
+      margin:.35em 0;
+    }
+
+    .ltr{direction:ltr;text-align:left}
+    .center{text-align:center}
+    .no-break{break-inside:avoid}
+    .page-break-before{break-before:page;page-break-before:always}
+
+
+    .exercise-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .exercise-card{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:9px 11px;
+      min-height:47mm;
+      background:#fff;
+      break-inside:avoid;
+      position:relative;
+    }
+    .exercise-card.graph-card{min-height:auto}
+    .exercise-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin-bottom:5px;
+    }
+    .exercise-number{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:28px;
+      height:28px;
+      border-radius:50%;
+      background:var(--primary);
+      color:#fff;
+      font-weight:bold;
+      font-size:13px;
+    }
+    .source-badge{
+      display:none;
+    }
+    .exercise-prompt{
+      font-size:13px;
+      margin:3px 0 4px;
+      color:var(--muted);
+    }
+    .exercise-math{
+      direction:ltr;
+      text-align:center;
+      font-size:17px;
+      min-height:31px;
+      margin:4px 0;
+    }
+    .work-lines{
+      height:39px;
+      margin-top:6px;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 17px,
+          #d9e1eb 18px,
+          transparent 19px
+        );
+    }
+    .level-banner{
+      border-right:6px solid var(--primary);
+      background:var(--accent-2);
+      border-radius:9px;
+      padding:9px 13px;
+      margin:8px 0 10px;
+    }
+    .graph-exercise{
+      border:1px solid var(--line);
+      border-radius:11px;
+      padding:10px 12px;
+      margin:10px 0;
+      break-inside:avoid;
+    }
+    .graph-exercise .jxgbox{height:215px}
+    .answer-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px 14px;
+      margin-top:10px;
+    }
+    .answer-item{
+      border-bottom:1px solid #e2e8f0;
+      padding:4px 2px;
+      font-size:12.5px;
+      break-inside:avoid;
+    }
+    .source-summary{
+      font-size:12px;
+      margin-top:11px;
+    }
+
+    @media print{
+      @page{size:A4;margin:0}
+      html,body{background:#fff}
+      .document{padding:0}
+      .page{
+        width:210mm;
+        min-height:297mm;
+        margin:0;
+        box-shadow:none;
+        overflow:hidden;
+      }
+      a{color:inherit;text-decoration:none}
+    }
+
+    @media (max-width:760px){
+      .grid-2,.grid-3,.meta-grid{grid-template-columns:1fr}
+      .hero-title{font-size:30px}
+      .page{padding:18px 16px;min-height:auto}
+      .footer{position:static;margin-top:20px}
+      .answer-key{columns:1}
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="document">
+
+    <!-- Page 1 -->
+    <section class="page">
+      <div class="hero">
+        <span class="eyebrow">מערך שיעור לכיתה י׳ · 5 יח״ל</span>
+        <h1 class="hero-title">אי־שוויונים לינאריים:<br>פתרון אלגברי ופתרון גרפי</h1>
+        <p class="hero-subtitle">
+          מעבר בין ייצוג אלגברי, גרפים של ישרים וציר המספרים — תוך הבנת משמעות קבוצת הפתרונות.
+        </p>
+
+        <div class="grid-2_">
+          <div class="card blue">
+            <h3>רעיון מרכזי</h3>
+            <p>
+              אי־שוויון אינו מבקש מספר יחיד אלא <strong>קבוצת ערכים</strong>. הפתרון האלגברי והפתרון הגרפי
+              מתארים אותה קבוצה בשתי שפות שונות.
+            </p>
+          </div>
+<div style="height:25px;"></div>
+          <div class="card green">
+            <h3>תוצרי למידה</h3>
+            <p>
+              נפתור אי־שוויון לינארי, נציג את הפתרון בשלושה ייצוגים ונסביר כיצד מיקום שני ישרים
+              קובע את תחום הפתרון.
+            </p>
+          </div>
+        </div>
+
+      </div>
+      <div class="footer"><span>מערך שיעור — אי־שוויונים לינאריים</span><span>1</span></div>
+    </section>
+
+    <!-- Page 2 -->
+    <section class="page">
+      <h2>מטרות, ידע קודם והערכה</h2>
+<div style="height:30px;"></div>
+      <div class="grid-2_">
+        <div class="card">
+          <h3>מטרות אופרטיביות</h3>
+          <ul>
+            <li>לזהות את ההבדל בין משוואה לבין אי־שוויון.</li>
+            <li>לבצע פעולות שקולות בשני אגפי אי־שוויון.</li>
+            <li>להסביר מדוע כפל או חילוק במספר שלילי הופכים את כיוון הסימן.</li>
+            <li>להציג פתרון באמצעות אי־שוויון, קטע וציר מספרים.</li>
+            <li>לפתור גרפית אי־שוויון מהצורה \(f(x)>g(x)\) כאשר שתי הפונקציות לינאריות.</li>
+            <li>לבדוק פתרון באמצעות הצבת ערך מבחן.</li>
+          </ul>
+        </div>
+<div style="height:30px;"></div>
+        <div class="card">
+          <h3>ידע קודם נדרש</h3>
+          <ul>
+            <li>פתרון משוואות לינאריות.</li>
+            <li>פתיחת סוגריים וכינוס איברים דומים.</li>
+            <li>משמעות השיפוע ונקודת החיתוך עם ציר \(y\).</li>
+            <li>שרטוט גרף של פונקציה לינארית.</li>
+            <li>סימון נקודה פתוחה וסגורה על ציר המספרים.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer"><span>מטרות והערכה</span><span>2</span></div>
+    </section>
+
+    <!-- Page 4 -->
+    <section class="page">
+      <h2>חלק א׳ — פתרון אלגברי</h2>
+
+      <div class="rule">
+        מותר להוסיף או להחסיר אותו ביטוי בשני האגפים. בכפל או בחילוק במספר חיובי כיוון הסימן נשמר;
+        בכפל או בחילוק במספר שלילי כיוון הסימן מתהפך.
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>דוגמה 1 — בידוד הנעלם</h3>
+          <div class="math-block">
+            \[
+            \begin{aligned}
+            3x-9 &< 12\\
+            3x &< 21\\
+            x &< 7
+            \end{aligned}
+            \]
+          </div>
+          <p><strong>שלוש הצגות:</strong></p>
+          <ul>
+            <li>אי־שוויון: \(x<7\)</li>
+            <li>קטע: \((-\infty,7)\)</li>
+            <li>ציר: נקודה פתוחה ב־\(7\) וחץ שמאלה.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>דוגמה 2 — חילוק במספר שלילי</h3>
+          <div class="math-block">
+            \[
+            \begin{aligned}
+            7-2x &\ge 15\\
+            -2x &\ge 8\\
+            x &\le -4
+            \end{aligned}
+            \]
+          </div>
+          <p>במעבר האחרון חילקנו ב־\(-2\), ולכן הסימן התהפך.</p>
+          <div id="numberLine1" class="jxgbox numberline" aria-label="ציר מספרים המציג x קטן או שווה למינוס ארבע" style="direction: ltr;"></div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:14px">אלגוריתם עבודה לתלמיד</h3>
+      <ol class="steps">
+        <li>פתחו סוגריים וכנסו איברים דומים בכל אגף.</li>
+        <li>העבירו את איברי \(x\) לאגף אחד ואת המספרים לאגף השני.</li>
+        <li>חלקו במקדם של \(x\); אם הוא שלילי — הפכו את הסימן.</li>
+        <li>כתבו את התחום והציגו אותו על ציר המספרים.</li>
+        <li>בדקו ערך אחד מתוך התחום וערך אחד מחוצה לו.</li>
+      </ol>
+
+      <div class="grid-2">
+        <div class="card warm">
+          <h3>מקרה מיוחד: כל המספרים</h3>
+          <div class="math-block">
+            \[
+            \begin{aligned}
+            2(x+3)&>2x+1\\
+            2x+6&>2x+1\\
+            6&>1
+            \end{aligned}
+            \]
+          </div>
+          <p>הטענה תמיד נכונה, ולכן קבוצת הפתרונות היא \(\mathbb{R}\).</p>
+        </div>
+        <div class="card red">
+          <h3>מקרה מיוחד: אין פתרון</h3>
+          <div class="math-block">
+            \[
+            \begin{aligned}
+            4x+5&<4x-2\\
+            5&<-2
+            \end{aligned}
+            \]
+          </div>
+          <p>הטענה אינה נכונה לעולם, ולכן קבוצת הפתרונות היא \(\varnothing\).</p>
+        </div>
+      </div>
+
+      <div class="footer"><span>פתרון אלגברי</span><span>4</span></div>
+    </section>
+
+    <!-- Page 5 -->
+    <section class="page">
+      <h2>חלק ב׳ — פתרון גרפי</h2>
+
+      <div class="card blue">
+        <h3>משמעות גרפית</h3>
+        <p>
+          כדי לפתור \(f(x)>g(x)\), מחפשים את ערכי \(x\) שבהם הגרף של \(f\) נמצא
+          <strong>מעל</strong> הגרף של \(g\). תחילה מוצאים את נקודת החיתוך, ולאחר מכן בודקים
+          באיזה צד נשמר הסדר המבוקש.
+        </p>
+      </div>
+
+      <div class="grid-2" style="margin-top:12px">
+        <div>
+          <h3>דוגמה מתוך דף Dr Austin</h3>
+          <div class="math-block">
+            \[
+            12-2x>\frac{1}{2}x+6
+            \]
+          </div>
+          <ol class="steps">
+            <li>משרטטים \(f(x)=12-2x\) ו־\(g(x)=\frac{1}{2}x+6\).</li>
+            <li>מוצאים את החיתוך באמצעות \(f(x)=g(x)\).</li>
+            <li>מתקבל \(x=\frac{12}{5}\).</li>
+            <li>משמאל לחיתוך \(f\) מעל \(g\).</li>
+            <li>האי־שוויון חד, לכן נקודת הגבול אינה נכללת.</li>
+          </ol>
+          <div class="math-block">\[x<\frac{12}{5}\]</div>
+        </div>
+
+        <div>
+          <div id="graphMain" class="jxgbox" aria-label="שני ישרים ותחום שבו הישר הראשון מעל הישר השני" style="direction: ltr;"></div>
+          <p class="graph-caption">
+            התחום המוצל מציין את ערכי \(x\) שבהם \(12-2x\) גדול מ־\(\frac12x+6\).
+          </p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:14px">מילון בין השפה האלגברית לשפה הגרפית</h3>
+      <table>
+        <thead><tr><th>אי־שוויון</th><th>קריאה גרפית</th><th>נקודת הגבול</th></tr></thead>
+        <tbody>
+          <tr><td>\(f(x)>g(x)\)</td><td>הגרף של \(f\) מעל הגרף של \(g\)</td><td>לא נכללת</td></tr>
+          <tr><td>\(f(x)<g(x)\)</td><td>הגרף של \(f\) מתחת לגרף של \(g\)</td><td>לא נכללת</td></tr>
+          <tr><td>\(f(x)\ge g(x)\)</td><td>מעל או באותו גובה</td><td>נכללת</td></tr>
+          <tr><td>\(f(x)\le g(x)\)</td><td>מתחת או באותו גובה</td><td>נכללת</td></tr>
+        </tbody>
+      </table>
+
+      <div class="warning">
+        <strong>טעות נפוצה:</strong> נקודת החיתוך אינה בהכרח הפתרון כולו. היא רק גבול אפשרי;
+        הפתרון הוא התחום שבו מתקיים היחס בין שני הגרפים.
+      </div>
+
+      <div class="footer"><span>פתרון גרפי</span><span>5</span></div>
+    </section>
+
+    <!-- Page 6 -->
+    <section class="page">
+      <h2>תרגול מודרך</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>תרגיל 1</h3>
+          <div class="math-block">\[5(x-2)-3\le 2x+9\]</div>
+          <div class="teacher-script">
+            <b>שאלת מורה</b><span>מהי הפעולה הראשונה שמפחיתה עומס?</span>
+            <b>תשובה מצופה</b><span>פתיחת סוגריים וכינוס איברים.</span>
+            <b>שאלת המשך</b><span>האם נידרש להפוך את סימן האי־שוויון?</span>
+            <b>הכרעה</b><span>לא, משום שבסוף נחלק ב־\(3\), שהוא חיובי.</span>
+          </div>
+          <div class="math-block">
+            \[
+            5x-13\le 2x+9
+            \quad\Longrightarrow\quad
+            x\le\frac{22}{3}
+            \]
+          </div>
+        </div>
+
+        <div class="card blue">
+          <h3>תרגיל 2</h3>
+          <div class="math-block">\[-2(x-3)\le 4x+6\]</div>
+          <ol>
+            <li>פתרו אלגברית.</li>
+            <li>הגדירו שני ישרים: אגף שמאל ואגף ימין.</li>
+            <li>נבאו באיזה צד של החיתוך מתקיים האי־שוויון.</li>
+            <li>בדקו ערך מבחן.</li>
+          </ol>
+          <p><strong>פתרון:</strong> \(x\ge0\).</p>
+        </div>
+      </div>
+<div style="height:25px;"></div>
+      <h3 style="margin-top:15px">שאלות המחייבות הסבר ולא רק חישוב</h3>
+      <div class="grid-3">
+        <div class="card warm">
+          <h4>נימוק</h4>
+          <p>מדוע מן הטענה \(3<5\) מתקבלת הטענה \(-3>-5\) לאחר כפל ב־\(-1\)?</p>
+        </div>
+        <div class="card green">
+          <h4>השוואת שיטות</h4>
+          <p>באיזה מצב פתרון גרפי עדיף, ובאיזה מצב פתרון אלגברי מדויק יותר?</p>
+        </div>
+        <div class="card red">
+          <h4>איתור טעות</h4>
+          <p>תלמיד כתב: \(-4x>12\Rightarrow x>-3\). הסבירו ותקנו.</p>
+        </div>
+      </div>
+<div style="height:25px;"></div>
+      <div class="card blue">
+        <h3>כרטיס יציאה</h3>
+        <ol>
+          <li>פתרו: \(-3(2x-1)>9\).</li>
+          <li>הסבירו במשפט אחד מתי הופכים את כיוון הסימן.</li>
+          <li>אם שני ישרים נחתכים ב־\(x=4\), והראשון נמצא מעל השני עבור \(x<4\), פתרו \(f(x)>g(x)\).</li>
+        </ol>
+      </div>
+
+      <div class="footer"><span>תרגול והתאמות</span><span>6</span></div>
+    </section>
+
+
+    <!-- Page 7 -->
+    <section class="page">
+      <h2>דף תרגול משולב — 44 תרגילים בסדר קושי עולה</h2>
+      <div class="level-banner">
+        <strong>רמה 1 — פעולות בסיסיות.</strong>
+        פתרו כל אי־שוויון, כתבו את קבוצת הפתרונות וסמנו אותה על ציר המספרים.
+      </div>
+
+      <div class="exercise-grid">
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">1</span><span class="source-badge">עברית · גיא קורן</span></div>
+          <div class="exercise-math">\[x+1>0\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">2</span><span class="source-badge">עברית · גיא קורן</span></div>
+          <div class="exercise-math">\[x+3<5\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">3</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[x+2>6\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">4</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[x-2>6\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">5</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[0>3x-3-6\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">6</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[4x+1-1\ge-8\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">7</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[-1\le 2x+4-5\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">8</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[0\le 2n+3n\]</div><div class="work-lines"></div>
+        </div>
+      </div>
+      <div class="footer"><span>תרגול — רמה 1</span><span>7</span></div>
+    </section>
+
+    <!-- Page 8 -->
+    <section class="page">
+      <h2>תרגול — רמה 2: מקדם שלילי ושתי פעולות</h2>
+      <div class="level-banner">
+        לפני חילוק, בדקו את סימן המקדם של הנעלם. בחילוק במספר שלילי יש להפוך את כיוון אי־השוויון.
+      </div>
+      <div class="exercise-grid">
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">9</span><span class="source-badge">עברית · גיא קורן</span></div>
+          <div class="exercise-math">\[10\lt x+4\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">10</span><span class="source-badge">עברית · גיא קורן</span></div>
+          <div class="exercise-math">\[4x<11\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">11</span><span class="source-badge">עברית · גיא קורן</span></div>
+          <div class="exercise-math">\[-5x<10\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">12</span><span class="source-badge">עברית · גיא קורן</span></div>
+          <div class="exercise-math">\[8-2x>0\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">13</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[2x+3>5\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">14</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[-3x>15\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">15</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[3-2x>-5\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">16</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[-2(b+1)+4<10\]</div><div class="work-lines"></div>
+        </div>
+      </div>
+      <div class="footer"><span>תרגול — רמה 2</span><span>8</span></div>
+    </section>
+
+    <!-- Page 9 -->
+    <section class="page">
+      <h2>תרגול — רמה 3: נעלם בשני האגפים</h2>
+      <div class="level-banner">
+        תחילה כנסו את איברי הנעלם באגף אחד ואת המספרים באגף השני. אל תהפכו את הסימן בעת חיבור או חיסור.
+      </div>
+      <div class="exercise-grid">
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">17</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[4x+2<3x+7\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">18</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[6x<5x+3\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">19</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[10x-6<9x\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">20</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[3x-7>2x+3\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">21</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[2x+1>x+10\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">22</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[3x-7>5-x\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">23</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[3x-2<5x+6\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">24</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[-2x>10+3x\]</div><div class="work-lines"></div>
+        </div>
+      </div>
+      <div class="footer"><span>תרגול — רמה 3</span><span>9</span></div>
+    </section>
+
+    <!-- Page 10 -->
+    <section class="page">
+      <h2>תרגול — רמה 4: סוגריים, שברים ומספרים עשרוניים</h2>
+      <div class="level-banner">
+        סדר עבודה מומלץ: פתיחת סוגריים, ביטול מכנים כשאפשר, כינוס איברים, בידוד הנעלם ובדיקה.
+      </div>
+      <div class="exercise-grid">
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">25</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[a-15>-4(-6+3a)\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">26</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[3(6b-1)>18-3b\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">27</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[3-2(n-4)>-1\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">28</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[-5(1-4a)>-5\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">29</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[6-(2-x)<2(x+1)\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">30</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[3x-(1-x)<3(x+2)\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">31</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[4(x-1)-2(x+2)>x+3\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">32</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[6-2x-3(7+x)>0\]</div><div class="work-lines"></div>
+        </div>
+      </div>
+      <div class="footer"><span>תרגול — רמה 4</span><span>10</span></div>
+    </section>
+
+    <!-- Page 11 -->
+    <section class="page">
+      <h2>תרגול — רמה 5: אתגר אלגברי ומקרים מיוחדים</h2>
+      <div class="exercise-grid">
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">33</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[0.2-0.03x<-0.01\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">34</span><span class="source-badge">עברית · גיא קורן</span></div>
+          <div class="exercise-math">\[\frac{x-2}{4}+\frac{-x-3}{3}>1\]</div><div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">35</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[x+6>x+4\]</div>
+          <p class="exercise-prompt">קבעו אם הפתרון הוא תחום, כל המספרים או שאין פתרון.</p>
+          <div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">36</span><span class="source-badge">עברית · שילובים</span></div>
+          <div class="exercise-math">\[x+4>x+6\]</div>
+          <p class="exercise-prompt">קבעו אם הפתרון הוא תחום, כל המספרים או שאין פתרון.</p>
+          <div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">37</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[2<2x<6\]</div>
+          <p class="exercise-prompt">פתרו את האי־שוויון הכפול וסמנו את הקטע.</p>
+          <div class="work-lines"></div>
+        </div>
+        <div class="exercise-card">
+          <div class="exercise-head"><span class="exercise-number">38</span><span class="source-badge">English · Kuta</span></div>
+          <div class="exercise-math">\[-33\le-7n-12<-26\]</div>
+          <p class="exercise-prompt">שימו לב להפיכת שני סימני אי־השוויון.</p>
+          <div class="work-lines"></div>
+        </div>
+      </div>
+<div style="height:25px;"></div>
+      <div class="card blue" style="margin-top:12px">
+        <h3>בדיקה עצמית</h3>
+        <ul class="checklist">
+          <li>כתבתי פתרון באמצעות סימן אי־שוויון.</li>
+          <li>סימנתי נקודת גבול פתוחה או סגורה בהתאם לסימן.</li>
+          <li>הפכתי סימן רק בכפל או בחילוק במספר שלילי.</li>
+          <li>בדקתי ערך מתוך התחום.</li>
+        </ul>
+      </div>
+      <div class="footer"><span>תרגול — רמה 5</span><span>11</span></div>
+    </section>
+
+    <!-- Page 12 -->
+    <section class="page">
+      <h2>תרגול — רמה 6: פתרון גרפי, חלק א׳</h2>
+      <p>היעזרו בגרף. מצאו תחילה את נקודת הגבול, ולאחר מכן קבעו באיזה צד מתקיים אי־השוויון.</p>
+
+      <div class="graph-exercise">
+        <div class="exercise-head"><span class="exercise-number">39</span><span class="source-badge">עברית · שילובים</span></div>
+        <div class="exercise-math">\[f(x)=x+5,\qquad f(x)>0\]</div>
+        <div id="graphEx39" class="jxgbox" aria-label="גרף של הפונקציה x ועוד 5" style="direction: ltr;"></div>
+        <div class="work-lines"></div>
+      </div>
+<div style="height:25px;"></div>
+      <div class="graph-exercise">
+        <div class="exercise-head"><span class="exercise-number">40</span><span class="source-badge">עברית · שילובים</span></div>
+        <div class="exercise-math">\[f(x)=x-4,\qquad g(x)=2x-6\]</div>
+        <p class="exercise-prompt">א. פתרו \(f(x)>0\). &nbsp;&nbsp; ב. פתרו \(g(x)>f(x)\).</p>
+        <div id="graphEx40" class="jxgbox" aria-label="גרפים של x פחות 4 ושל 2x פחות 6" style="direction: ltr;"></div>
+        <div class="work-lines"></div>
+      </div>
+      <div class="footer"><span>פתרון גרפי — חלק א׳</span><span>12</span></div>
+    </section>
+
+    <!-- Page 13 -->
+    <section class="page">
+      <h2>תרגול — רמה 6: פתרון גרפי, חלק ב׳</h2>
+
+      <div class="graph-exercise">
+        <div class="exercise-head"><span class="exercise-number">41</span><span class="source-badge">עברית · שילובים</span></div>
+        <div class="exercise-math">\[f(x)=3(x+1),\qquad g(x)=4x-5,\qquad g(x)>f(x)\]</div>
+        <div id="graphEx41" class="jxgbox" aria-label="שני ישרים לחישוב התחום שבו g גדול מ-f" style="direction: ltr;"></div>
+        <div class="work-lines"></div>
+      </div>
+<div style="height:25px;"></div>
+      <div class="graph-exercise">
+        <div class="exercise-head"><span class="exercise-number">42</span><span class="source-badge">English · Dr Austin</span></div>
+        <div class="exercise-math">\[12-2x>\frac12x+6\]</div>
+        <div id="graphEx42" class="jxgbox" aria-label="שני ישרים מהתרגיל הגרפי של Dr Austin" style="direction: ltr;"></div>
+        <div class="work-lines"></div>
+      </div>
+      <div class="footer"><span>פתרון גרפי — חלק ב׳</span><span>13</span></div>
+    </section>
+
+    <!-- Page 14 -->
+    <section class="page">
+      <h2>תרגול — רמה 6: פתרון גרפי, חלק ג׳</h2>
+
+      <div class="graph-exercise">
+        <div class="exercise-head"><span class="exercise-number">43</span><span class="source-badge">עברית · שילובים</span></div>
+        <div class="exercise-math">\[3x-7>2x+3\]</div>
+        <p class="exercise-prompt">שרטטו את שני האגפים כפונקציות ואמתו את הפתרון האלגברי.</p>
+        <div id="graphEx43" class="jxgbox" aria-label="שני ישרים המייצגים את אגפי אי השוויון" style="direction: ltr;"></div>
+        <div class="work-lines"></div>
+      </div>
+<div style="height:25px;"></div>
+      <div class="graph-exercise">
+        <div class="exercise-head"><span class="exercise-number">44</span><span class="source-badge">English · Kuta</span></div>
+        <div class="exercise-math">\[5x-(x+2)>-5(1+x)+3\]</div>
+        <p class="exercise-prompt">פשטו כל אגף לפונקציה לינארית, שרטטו וקראו את התחום מן הגרף.</p>
+        <div id="graphEx44" class="jxgbox" aria-label="שני ישרים לאחר פישוט שני אגפי אי השוויון" style="direction: ltr;"></div>
+        <div class="work-lines"></div>
+      </div>
+      <div class="footer"><span>פתרון גרפי — חלק ג׳</span><span>14</span></div>
+    </section>
+
+    <!-- Page 15 -->
+    <section class="page">
+      <h2>מפתח תשובות למורה — תרגילים 1–22</h2>
+      <div class="answer-grid">
+        <div class="answer-item"><strong>1.</strong> \(x>-1\)</div>
+        <div class="answer-item"><strong>2.</strong> \(x<2\)</div>
+        <div class="answer-item"><strong>3.</strong> \(x>4\)</div>
+        <div class="answer-item"><strong>4.</strong> \(x>8\)</div>
+        <div class="answer-item"><strong>5.</strong> \(x<3\)</div>
+        <div class="answer-item"><strong>6.</strong> \(x\ge-2\)</div>
+        <div class="answer-item"><strong>7.</strong> \(x\ge0\)</div>
+        <div class="answer-item"><strong>8.</strong> \(n\ge0\)</div>
+        <div class="answer-item"><strong>9.</strong> \(x>6\)</div>
+        <div class="answer-item"><strong>10.</strong> \(x<\frac{11}{4}\)</div>
+        <div class="answer-item"><strong>11.</strong> \(x>-2\)</div>
+        <div class="answer-item"><strong>12.</strong> \(x<4\)</div>
+        <div class="answer-item"><strong>13.</strong> \(x>1\)</div>
+        <div class="answer-item"><strong>14.</strong> \(x<-5\)</div>
+        <div class="answer-item"><strong>15.</strong> \(x<4\)</div>
+        <div class="answer-item"><strong>16.</strong> \(b>-4\)</div>
+        <div class="answer-item"><strong>17.</strong> \(x<5\)</div>
+        <div class="answer-item"><strong>18.</strong> \(x<3\)</div>
+        <div class="answer-item"><strong>19.</strong> \(x<6\)</div>
+        <div class="answer-item"><strong>20.</strong> \(x>10\)</div>
+        <div class="answer-item"><strong>21.</strong> \(x>9\)</div>
+        <div class="answer-item"><strong>22.</strong> \(x>3\)</div>
+      </div>
+
+      <div class="card blue" style="margin-top:18px">
+        <h3>פתרון לדוגמה — תרגיל 20</h3>
+        <div class="math-block">
+          \[
+          \begin{aligned}
+          3x-7&>2x+3\\
+          x-7&>3\\
+          x&>10
+          \end{aligned}
+          \]
+        </div>
+      </div>
+<div style="height:25px;"></div>
+      <div class="card warm">
+        <h3>נקודת מעקב</h3>
+        <p>בתרגילים 11, 12, 14–16 נדרשת תשומת לב מיוחדת למקדם שלילי.</p>
+      </div>
+      <div class="footer"><span>מפתח תשובות 1–22</span><span>15</span></div>
+    </section>
+
+    <!-- Page 16 -->
+    <section class="page">
+      <h2>מפתח תשובות למורה — תרגילים 23–44</h2>
+      <div class="answer-grid">
+        <div class="answer-item"><strong>23.</strong> \(x>-4\)</div>
+        <div class="answer-item"><strong>24.</strong> \(x<-2\)</div>
+        <div class="answer-item"><strong>25.</strong> \(a>3\)</div>
+        <div class="answer-item"><strong>26.</strong> \(b>1\)</div>
+        <div class="answer-item"><strong>27.</strong> \(n<6\)</div>
+        <div class="answer-item"><strong>28.</strong> \(a>0\)</div>
+        <div class="answer-item"><strong>29.</strong> \(x>2\)</div>
+        <div class="answer-item"><strong>30.</strong> \(x<7\)</div>
+        <div class="answer-item"><strong>31.</strong> \(x>11\)</div>
+        <div class="answer-item"><strong>32.</strong> \(x<-3\)</div>
+        <div class="answer-item"><strong>33.</strong> \(x>7\)</div>
+        <div class="answer-item"><strong>34.</strong> \(x<-30\)</div>
+        <div class="answer-item"><strong>35.</strong> \(\mathbb{R}\)</div>
+        <div class="answer-item"><strong>36.</strong> \(\varnothing\)</div>
+        <div class="answer-item"><strong>37.</strong> \(1\lt x \lt3\)</div>
+        <div class="answer-item"><strong>38.</strong> \(2\lt n\le3\)</div>
+        <div class="answer-item"><strong>39.</strong> \(x>-5\)</div>
+        <div class="answer-item"><strong>40א.</strong> \(x>4\)</div>
+        <div class="answer-item"><strong>40ב.</strong> \(x>2\)</div>
+        <div class="answer-item"><strong>41.</strong> \(x>8\)</div>
+        <div class="answer-item"><strong>42.</strong> \(x<\frac{12}{5}\)</div>
+        <div class="answer-item"><strong>43.</strong> \(x>10\)</div>
+        <div class="answer-item"><strong>44.</strong> \(x>0\)</div>
+      </div>
+
+      <div class="footer"><span>מפתח תשובות ומקורות</span><span>16</span></div>
+    </section>
+
+  </main>
+
+  <script>
+    window.addEventListener('load', function () {
+      function waitForJSXGraph(tries) {
+        if (window.JXG && JXG.JSXGraph) {
+          initBoards();
+          return;
+        }
+        if (tries < 80) {
+          setTimeout(function(){ waitForJSXGraph(tries + 1); }, 100);
+        }
+      }
+
+      function initBoards() {
+        // Global JSXGraph defaults requested for this document.
+        JXG.Options.text.useMathJax = true;
+        JXG.Options.point.size = 2;
+        // Number line: x <= -4
+        const n = JXG.JSXGraph.initBoard('numberLine1', {
+          boundingbox: [-8, 1.25, 2, -1.25],
+          axis: false,
+          showCopyright: false,
+          showNavigation: false,
+          pan: {enabled: false},
+          zoom: {enabled: false},
+          keepaspectratio: false
+        });
+        n.create('line', [[-7.7,0],[1.7,0]], {
+          straightFirst:false, straightLast:false,
+          firstArrow:true, lastArrow:true,
+          strokeColor:'#35445b', strokeWidth:2, fixed:true
+        });
+        for (let i=-7; i<=1; i++) {
+          n.create('segment', [[i,-0.10],[i,0.10]], {
+            strokeColor:'#35445b', strokeWidth:1, fixed:true
+          });
+          n.create('text', [i,-0.38,'\\(' + i + '\\)'], {
+            anchorX:'middle', anchorY:'top', fontSize:11, fixed:true
+          });
+        }
+        n.create('arrow', [[-4,0],[-7.55,0]], {
+          strokeColor:'#235b9b', strokeWidth:5, fixed:true
+        });
+        n.create('point', [-4,0], {
+          name:'', size:2, face:'o',
+          fillColor:'#235b9b', strokeColor:'#235b9b',
+          fixed:true
+        });
+        n.create('text', [-4,0.55,'\\(x \\le -4\\)'], {
+          anchorX:'middle', fontSize:15, color:'#173f70', fixed:true
+        });
+
+        // Graphical solution
+        const b = JXG.JSXGraph.initBoard('graphMain', {
+          boundingbox: [-6, 18, 8, -8],
+          axis: true,
+          showCopyright: false,
+          showNavigation: false,
+          pan: {enabled: false},
+          zoom: {enabled: false},
+          keepaspectratio: false,
+          defaultAxes: {
+            x: {name:'\\(x\\)', withLabel:true, label:{position:'rt', offset:[-12,15]}},
+            y: {name:'\\(y\\)', withLabel:true, label:{position:'rt', offset:[10,-10]}}
+          }
+        });
+
+        const boundary = 12/5;
+        const shade = b.create('polygon', [
+          [-6,-8],[boundary,-8],[boundary,18],[-6,18]
+        ], {
+          fillColor:'#dcecff',
+          fillOpacity:0.65,
+          borders:{strokeOpacity:0},
+          vertices:{visible:false},
+          fixed:true,
+          hasInnerPoints:false
+        });
+
+        b.create('functiongraph', [function(x){ return 12-2*x; }, -6, 8], {
+          strokeColor:'#6b45a8', strokeWidth:3, fixed:true
+        });
+        b.create('functiongraph', [function(x){ return 0.5*x+6; }, -6, 8], {
+          strokeColor:'#c94b38', strokeWidth:3, fixed:true
+        });
+        b.create('line', [[boundary,-8],[boundary,18]], {
+          straightFirst:false, straightLast:false,
+          dash:2, strokeColor:'#235b9b', strokeWidth:2, fixed:true
+        });
+        b.create('point', [boundary, 36/5], {
+          name:'\\(\\left(\\frac{12}{5},\\frac{36}{5}\\right)\\)', size:2,
+          fillColor:'#173f70', strokeColor:'#173f70',
+          label:{offset:[8,8], fontSize:12}, fixed:true
+        });
+        b.create('text', [-5.5,16.2,'\\(f(x)=12-2x\\)'], {
+          color:'#6b45a8', fontSize:13, fixed:true
+        });
+        b.create('text', [2.9,10.7,'\\(g(x)=\\frac{1}{2}x+6\\)'], {
+          color:'#c94b38', fontSize:13, fixed:true
+        });
+        b.create('text', [-4.8,-6.6,'\\(f(x) \\gt g(x)\\)'], {
+          color:'#173f70', fontSize:14, fixed:true
+        });
+
+        function compareBoard(id, box, f, g, fLabel, gLabel, pointXs) {
+          const board = JXG.JSXGraph.initBoard(id, {
+            boundingbox: box,
+            axis: true,
+            showCopyright: false,
+            showNavigation: false,
+            pan: {enabled: false},
+            zoom: {enabled: false},
+            keepaspectratio: false
+          });
+          board.create('functiongraph', [f, box[0], box[2]], {
+            strokeColor:'#6b45a8', strokeWidth:3, fixed:true
+          });
+          board.create('functiongraph', [g, box[0], box[2]], {
+            strokeColor:'#c94b38', strokeWidth:3, fixed:true
+          });
+          board.create('text', [box[0] + 0.6, box[1] - 2.0, '\\(' + fLabel + '\\)'], {
+            color:'#6b45a8', fontSize:12, fixed:true
+          });
+          board.create('text', [box[0] + 0.6, box[1] - 4.0, '\\(' + gLabel + '\\)'], {
+            color:'#c94b38', fontSize:12, fixed:true
+          });
+          (pointXs || []).forEach(function(xv) {
+            const yv = f(xv);
+            board.create('point', [xv, yv], {
+              name:'', size:2, fillColor:'#173f70', strokeColor:'#173f70', fixed:true
+            });
+            board.create('line', [[xv, box[3]], [xv, box[1]]], {
+              straightFirst:false, straightLast:false, dash:2,
+              strokeColor:'#235b9b', strokeWidth:1.5, fixed:true
+            });
+          });
+          return board;
+        }
+
+        compareBoard(
+          'graphEx39', [-8, 9, 6, -6],
+          function(x){ return x + 5; },
+          function(x){ return 0; },
+          'f(x)=x+5', 'y=0', [-5]
+        );
+
+        const ex40 = compareBoard(
+          'graphEx40', [-2, 10, 8, -8],
+          function(x){ return x - 4; },
+          function(x){ return 2*x - 6; },
+          'f(x)=x-4', 'g(x)=2x-6', [2]
+        );
+        ex40.create('point', [4,0], {
+          name:'', size:2, fillColor:'#173f70', strokeColor:'#173f70', fixed:true
+        });
+        ex40.create('line', [[4,-8],[4,10]], {
+          straightFirst:false, straightLast:false, dash:2,
+          strokeColor:'#235b9b', strokeWidth:1.5, fixed:true
+        });
+
+        compareBoard(
+          'graphEx41', [-2, 32, 12, -10],
+          function(x){ return 3*(x+1); },
+          function(x){ return 4*x - 5; },
+          'f(x)=3(x+1)', 'g(x)=4x-5', [8]
+        );
+
+        compareBoard(
+          'graphEx42', [-4, 18, 8, -6],
+          function(x){ return 12 - 2*x; },
+          function(x){ return 0.5*x + 6; },
+          'y=12-2x', 'y=\\frac{1}{2}x+6', [12/5]
+        );
+
+        compareBoard(
+          'graphEx43', [-4, 34, 15, -20],
+          function(x){ return 3*x - 7; },
+          function(x){ return 2*x + 3; },
+          'y=3x-7', 'y=2x+3', [10]
+        );
+
+        compareBoard(
+          'graphEx44', [-4, 20, 4, -20],
+          function(x){ return 4*x - 2; },
+          function(x){ return -5*x - 2; },
+          'y=4x-2', 'y=-5x-2', [0]
+        );
+
+      }
+
+      waitForJSXGraph(0);
+    });
+  </script>
+</body>
+</html>
