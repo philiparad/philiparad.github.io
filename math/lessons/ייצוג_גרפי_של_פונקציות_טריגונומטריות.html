@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>מערך שיעור - ייצוג גרפי וטרנספורמציות של פונקציות טריגונומטריות - 5 יחידות</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" rel="stylesheet"/>
+<script>
+window.MathJax={
+  tex: {inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]']]},
+  chtml: {scale: 0.98},
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+@page { size: A4; margin: 0; }
+*{box-sizing:border-box}
+:root{--ink:#122033;--muted:#607086;--line:#d9e2ec;--soft:#f4f7fb;--soft2:#edf3f8;--accent:#174a73;--accent2:#0c6b65;--warn:#7d4a12;}
+html,body{margin:0;padding:0;background:#e9eef4;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;direction:rtl;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-size:10.2pt;line-height:1.42}
+.a4-page{width:210mm;height:297mm;margin:8mm auto;background:white;padding:11.5mm 13.5mm 10.5mm;position:relative;overflow:hidden;page-break-after:always;break-after:page}
+.page-header{height:22mm;border-bottom:1px solid var(--line);position:relative;padding:0 0 4mm}
+.page-kicker{font-size:8.4pt;color:var(--muted);font-weight:700;letter-spacing:.02em}
+.page-no{position:absolute;left:0;top:0;width:10mm;height:10mm;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8pt;color:var(--muted)}
+h1{font-size:19pt;margin:2mm 0 0;line-height:1.15;color:#102a43}
+h2{font-size:16pt;margin:0 0 2mm}h3{font-size:11.4pt;margin:0 0 2mm;color:#153e5c}
+p{margin:1.2mm 0}ul,ol{margin:1.2mm 0 0;padding-right:5mm}li{margin:.7mm 0}
+.page-body{height:247mm;padding-top:5mm;overflow:hidden}
+.page-footer{position:absolute;bottom:4.5mm;right:13.5mm;left:13.5mm;border-top:1px solid var(--line);padding-top:2mm;display:flex;justify-content:space-between;color:#7b8794;font-size:7.5pt}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
+.card,.mini-card,.worked,.example,.teacher-tip,.scope-box,.model-box{border:1px solid var(--line);border-radius:3mm;padding:3.2mm;background:#fff}
+.card{min-height:28mm}.mini-card{min-height:18mm;text-align:center}.mini-card p{font-size:9pt}
+.compact .card{min-height:26mm;padding:2.8mm}.mt5{margin-top:3.2mm}.mt8{margin-top:5mm}
+.lesson-meta{display:none;gap:8mm;background:var(--soft);border-radius:2.5mm;padding:2.5mm 3mm;margin-bottom:3.5mm;color:#334e68;font-size:9pt}
+.graph-panel{border:1px solid #b9c8d6;border-radius:3mm;padding:2.5mm;background:#fbfdff;margin-top:3.5mm;direction:ltr}
+.graph-head{height:9mm;display:flex;align-items:center;justify-content:space-between;gap:4mm;direction:rtl}
+.graph-title{font-weight:700;color:#153e5c;font-size:10.5pt}
+.graph-template{font-weight:600;color:#516b80;font-size:8.8pt;margin-right:2mm;white-space:nowrap}
+.graph-controls{display:flex;gap:1.5mm;direction:ltr}
+.graph-controls button{border:1px solid #aebdca;background:white;border-radius:2mm;padding:1.1mm 2.2mm;min-width:8mm;font-size:8.3pt;cursor:pointer;color:#193b58}
+.graph-controls button:hover{background:#eef5fa}
+.jxgbox{width:100%;border:0!important;background:#fff;direction:ltr!important;touch-action:none}
+.graph-note{font-size:7.8pt;color:#5b6b7c;margin-top:1.5mm;border-top:1px dotted #ccd8e2;padding-top:1.2mm}
+.example,.worked{background:#f8fbfd}.teacher-tip{background:#fffaf1;border-color:#ead9b8}.model-box{background:#f4faf8;border-color:#c7dfd7}
+.rule-grid,.formula-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:2.5mm}
+.rule-grid>div,.formula-strip>span{border:1px solid var(--line);border-radius:2mm;padding:2.2mm;text-align:center;background:var(--soft)}
+.rule-grid b,.rule-grid span{display:block}.formula-strip span{display:block}
+.compare-table{border:1px solid var(--line);border-radius:2mm;overflow:hidden;font-size:8.6pt}.compare-table .tr{display:grid;grid-template-columns:.55fr 1.2fr 1.2fr;border-top:1px solid var(--line)}.compare-table .tr:first-child{border-top:0}.compare-table .tr>div{padding:1.8mm 2.2mm;border-left:1px solid var(--line)}.compare-table .tr>div:last-child{border-left:0}.compare-table .head{background:var(--soft2);font-weight:700}
+.algorithm{border:1px solid var(--line);border-radius:3mm;padding:2.8mm}.steps{display:grid;grid-template-columns:6mm 1fr 6mm 1fr 6mm 1fr 6mm 1fr 6mm 1fr;gap:1.3mm;align-items:center;font-size:8.3pt}.steps span{width:6mm;height:6mm;border-radius:50%;background:#dbeaf5;display:flex;align-items:center;justify-content:center;font-weight:700}.steps p{margin:0}
+.exercise-intro,.challenge-banner,.solution-lead,.sources-intro{background:var(--soft2);border-right:4px solid var(--accent);padding:3mm 4mm;border-radius:2mm;margin-bottom:4mm;font-weight:700}
+.exercise-list{display:grid;grid-template-columns:1fr;gap:3.2mm}.exercise-list.tight{gap:2mm}.q{display:grid;grid-template-columns:9mm 1fr;gap:2mm;border:1px solid var(--line);border-radius:2.5mm;padding:3mm;min-height:26mm;background:white;align-items:start}.q.hard{border-right:3px solid #9b6a22;background:#fffdf8}.qn{width:7mm;height:7mm;border-radius:50%;background:#e7f0f7;display:flex;align-items:center;justify-content:center;font-weight:700;color:#183b56}.check-strip{margin-top:5mm;padding:3mm;border:1px dashed #9fb3c4;border-radius:2mm;background:#fbfdff}
+.hero-grid{display:grid;grid-template-columns:1.45fr .85fr;gap:5mm}.hero-card{border:1px solid var(--line);border-radius:4mm;padding:5mm;background:#fff;min-height:46mm}.hero-card.primary{background:linear-gradient(135deg,#eff6fb,#f8fbfd);border-color:#bfd4e4}.hero-card p{font-size:10pt}.hero-label{font-size:8pt;color:#51748e;font-weight:700;margin-bottom:2mm}.flow{font-weight:700;line-height:2;color:#1f4d6b}.flow span{padding:0 2mm;color:#7c4f16}
+.scope-box{background:#fffaf0;border-color:#e9d8b4}
+.schedule{display:grid;grid-template-columns:repeat(2,1fr);gap:2mm}.schedule>div{display:flex;gap:3mm;border:1px solid var(--line);border-radius:2mm;padding:2mm 3mm;background:#fbfdff}.schedule b{min-width:18mm;color:#174a73}
+.source-list{display:grid;grid-template-columns:1fr 1fr;gap:3mm}.source{border:1px solid var(--line);border-radius:3mm;padding:3.2mm;min-height:41mm;background:#fff}.source p{font-size:8.6pt;color:#44576a}.source a{font-size:8pt;color:#135b8a;text-decoration:none;direction:ltr;display:inline-block}
+.solutions-list{display:grid;grid-template-columns:1fr;gap:4mm}.solutions-list>div{border:1px solid var(--line);border-radius:2.5mm;padding:3.4mm;background:#fbfdff;min-height:27mm}.solutions-list.cumulative-sol{gap:2.7mm}.solutions-list.cumulative-sol>div{min-height:31mm;padding:2.8mm}
+.final-box{border:1px solid #b8d9ce;background:#f3faf7;border-radius:3mm;padding:4mm}.cumulative .q{min-height:25mm}
+.math{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.mjx-container{direction:ltr!important;unicode-bidi:isolate}
+.lesson1-page .graph-panel{margin-top:2.2mm;padding:2mm}
+.lesson1-page .graph-head{height:7.5mm}
+.lesson1-page .graph-note{font-size:7.4pt;margin-top:1mm;padding-top:1mm}
+.lesson1-page .compare-table{font-size:8.2pt}
+.lesson1-page .compare-table .tr>div{padding:1.35mm 2mm}
+.lesson1-page .example,.lesson1-page .teacher-tip{padding:2.5mm}
+.lesson1-page .mt5{margin-top:2.2mm}
+@media print{body{background:white}.a4-page{margin:0;box-shadow:none}}
+@media screen{.a4-page{box-shadow:0 5px 25px rgba(22,43,68,.12)}}
+
+.lesson1-detail .page-body{padding-top:4mm}
+.lesson1-detail .graph-panel{margin-top:2.5mm;padding:2.2mm}
+.lesson1-detail .graph-head{height:8mm}
+.lesson1-detail .graph-note{font-size:7.7pt}
+.property-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2mm;margin-top:3mm}
+.property-grid>div{border:1px solid var(--line);border-radius:2.2mm;padding:2.2mm;background:var(--soft);min-height:18mm;text-align:center}
+.property-grid b{display:block;color:#153e5c;font-size:8.4pt;margin-bottom:.8mm}.property-grid span{font-size:8.5pt}
+.key-table{border:1px solid var(--line);border-radius:2.4mm;overflow:hidden;margin-top:3mm;font-size:8.3pt}
+.key-table .ktr{display:grid;grid-template-columns:28mm repeat(5,1fr);border-top:1px solid var(--line);direction:ltr}
+.key-table .ktr:first-child{border-top:0}.key-table .ktr>div{padding:1.8mm;text-align:center;border-right:1px solid var(--line)}
+.key-table .ktr>div:first-child{border-right:0;direction:rtl;font-weight:700;background:var(--soft2)}
+.discovery-strip{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm;margin-top:3mm}
+.discovery-strip>div{border-right:3px solid var(--accent);background:#f8fbfd;border-radius:2mm;padding:2.5mm 3mm;font-size:8.6pt}
+.compare-legend{display:flex;gap:7mm;align-items:center;justify-content:center;direction:rtl;font-size:9pt;margin:1mm 0}
+.legend-item{display:flex;align-items:center;gap:1.5mm}.legend-swatch{width:10mm;height:2.2mm;border-radius:2mm;display:inline-block}
+.compare-insight{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm;margin-top:2.7mm}
+.compare-insight>div{border:1px solid var(--line);border-radius:2.2mm;padding:2.6mm;background:#fff;font-size:8.7pt}
+.sources-page .source-list{gap:2.2mm}.sources-page .source{min-height:34mm;padding:2.7mm}.sources-page .source p{margin:.8mm 0;font-size:8.1pt;line-height:1.32}.sources-page .source a{font-size:7.5pt}
+</style>
+</head>
+<body>
+<section class="a4-page cover-page" data-page="1">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">01</div>
+<h1>מפת היחידה</h1>
+</header>
+<div class="page-body">
+<div class="hero-grid_">
+<div class="hero-card primary">
+<div class="hero-label">יחידת לימוד מלאה</div>
+<h2>גרפים וטרנספורמציות של פונקציות טריגונומטריות</h2>
+<p> מהקשר למעגל היחידה ועד בניית משוואה מתוך גרף ומידול מחזורי.</p>
+</div>
+</div>
+<div class="two-col_ mt8">
+<div class="card">
+<h3>מטרות היחידה</h3>
+<ul>
+<li>להבין את גרפי הסינוס, הקוסינוס והטנגנס ואת הקשר שלהם למעגל היחידה.</li>
+<li>לזהות תחום, טווח, מחזור, אפסים, סימטריה, סימן ונקודות קיצון מתוך הגרף.</li>
+<li>לחקור באופן דינמי מתיחה, כיווץ, שיקוף והזזה.</li>
+<li>לעבור ממשוואה לגרף ומגרף למשוואה ברמת 5 יחידות.</li>
+<li>לבנות מודל מחזורי מתוך נתונים והקשר מילולי.</li>
+</ul>
+</div>
+</div>
+<div style="height:20px;"></div>
+<div class="schedule mt8">
+<div><b>שיעור 1</b><span>ממעגל היחידה לגרפים</span></div>
+<div><b>שיעור 2</b><span>גרף הטנגנס</span></div>
+<div><b>שיעור 3</b><span>טרנספורמציות כלליות</span></div>
+<div><b>שיעור 4</b><span>משרעת והזזה אנכית</span></div>
+<div><b>שיעור 5</b><span>מחזור והזזה אופקית</span></div>
+<div><b>שיעור 6</b><span>טרנספורמציות של טנגנס</span></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page lesson1-detail lesson1-page" data-page="2">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ממעגל היחידה לגרף</div>
+<div class="page-no">02</div>
+<h1>שיעור 1 - גרף הסינוס</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>שיעור 1א:</b> גרף הסינוס</span><span><b>רעיון מרכזי:</b> הקואורדינטה האנכית במעגל היחידה הופכת לערך הפונקציה</span></div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">ממעגל היחידה אל \(y=\sin x\)<span class="graph-template">| תבנית כללית: \(y=A\sin(B(x-C))+D\)</span></div><div class="graph-controls" data-controls-for="board1sin">
+<button aria-label="הגדלה" onclick="zoomBoard('board1sin',0.80)" type="button">＋</button><button aria-label="הקטנה" onclick="zoomBoard('board1sin',1.25)" type="button">−</button><button onclick="centerBoard('board1sin')" type="button">מרכז</button><button onclick="resetBoard('board1sin')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board1sin" style="height:72mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">גררו את המחוון. אם <span class="math">\(P=(\cos\alpha,\sin\alpha)\)</span>, אז הגובה של <span class="math">\(P\)</span> הוא <span class="math">\(\sin\alpha\)</span>; אותו ערך מסומן בנקודה <span class="math">\((\alpha,\sin\alpha)\)</span> על הגרף.</div>
+</div>
+<div class="property-grid">
+<div><b>תחום</b><span class="math">\(x\in\mathbb{R}\)</span></div>
+<div><b>טווח</b><span class="math">\(-1\le \sin x\le1\)</span></div>
+<div><b>מחזור</b><span class="math">\(T=2\pi\)</span></div>
+<div><b>אפסים</b><span class="math">\(x=k\pi,\;k\in\mathbb{Z}\)</span></div>
+<div><b>סימטריה</b><span class="math">\(\sin(-x)=-\sin x\)</span></div>
+<div><b>קיצון במחזור</b><span>מקסימום <span class="math">\(1\)</span>, מינימום <span class="math">\(-1\)</span></span></div>
+</div>
+<div class="key-table">
+<div class="ktr"><div>\(x\)</div><div>\(0\)</div><div>\(\frac{\pi}{2}\)</div><div>\(\pi\)</div><div>\(\frac{3\pi}{2}\)</div><div>\(2\pi\)</div></div>
+<div class="ktr"><div>\(\sin x\)</div><div>\(0\)</div><div>\(1\)</div><div>\(0\)</div><div>\(-1\)</div><div>\(0\)</div></div>
+</div>
+<div class="discovery-strip"><div><b>למה הטווח מוגבל?</b> במעגל שרדיוסו <span class="math">\(1\)</span>, הקואורדינטה האנכית של כל נקודה נמצאת בין <span class="math">\(-1\)</span> ל־<span class="math">\(1\)</span>.</div><div><b>למה הגרף מחזורי?</b> לאחר סיבוב מלא של <span class="math">\(2\pi\)</span> חוזרים לאותה נקודה במעגל, ולכן <span class="math">\(\sin(x+2\pi)=\sin x\)</span>.</div></div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page lesson1-detail lesson1-page" data-page="3">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ממעגל היחידה לגרף</div>
+<div class="page-no">03</div>
+<h1>שיעור 1 - גרף הקוסינוס</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>שיעור 1ב:</b> גרף הקוסינוס</span><span><b>רעיון מרכזי:</b> הקואורדינטה האופקית במעגל היחידה הופכת לערך הפונקציה</span></div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">ממעגל היחידה אל \(y=\cos x\)<span class="graph-template">| תבנית כללית: \(y=A\cos(B(x-C))+D\)</span></div><div class="graph-controls" data-controls-for="board1cos">
+<button aria-label="הגדלה" onclick="zoomBoard('board1cos',0.80)" type="button">＋</button><button aria-label="הקטנה" onclick="zoomBoard('board1cos',1.25)" type="button">−</button><button onclick="centerBoard('board1cos')" type="button">מרכז</button><button onclick="resetBoard('board1cos')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board1cos" style="height:72mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">גררו את המחוון. אם <span class="math">\(P=(\cos\alpha,\sin\alpha)\)</span>, אז הקואורדינטה האופקית של <span class="math">\(P\)</span> היא <span class="math">\(\cos\alpha\)</span>. נקודת העזר <span class="math">\(R\)</span> מעבירה את אותו ערך אל <span class="math">\((\alpha,\cos\alpha)\)</span>.</div>
+</div>
+<div class="property-grid">
+<div><b>תחום</b><span class="math">\(x\in\mathbb{R}\)</span></div>
+<div><b>טווח</b><span class="math">\(-1\le \cos x\le1\)</span></div>
+<div><b>מחזור</b><span class="math">\(T=2\pi\)</span></div>
+<div><b>אפסים</b><span class="math">\(x=\frac{\pi}{2}+k\pi\)</span></div>
+<div><b>סימטריה</b><span class="math">\(\cos(-x)=\cos x\)</span></div>
+<div><b>קיצון במחזור</b><span>מקסימום <span class="math">\(1\)</span>, מינימום <span class="math">\(-1\)</span></span></div>
+</div>
+<div class="key-table">
+<div class="ktr"><div>\(x\)</div><div>\(0\)</div><div>\(\frac{\pi}{2}\)</div><div>\(\pi\)</div><div>\(\frac{3\pi}{2}\)</div><div>\(2\pi\)</div></div>
+<div class="ktr"><div>\(\cos x\)</div><div>\(1\)</div><div>\(0\)</div><div>\(-1\)</div><div>\(0\)</div><div>\(1\)</div></div>
+</div>
+<div class="discovery-strip"><div><b>נקודת פתיחה:</b> בזווית <span class="math">\(0\)</span> הנקודה במעגל היא <span class="math">\((1,0)\)</span>, ולכן גרף הקוסינוס מתחיל במחזור הסטנדרטי בערך <span class="math">\(1\)</span>.</div><div><b>סימטריה:</b> נקודות בזוויות <span class="math">\(x\)</span> ו־<span class="math">\(-x\)</span> הן תמונות מראה ביחס לציר האופקי ובעלות אותה קואורדינטת <span class="math">\(x\)</span>; לכן הקוסינוס זוגי.</div></div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page lesson1-detail lesson1-page comparison-page" data-page="4">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | השוואת פונקציות</div>
+<div class="page-no">04</div>
+<h1>שיעור 1 - השוואה בין סינוס לקוסינוס</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>שיעור 1ג:</b> השוואת סינוס וקוסינוס</span><span><b>מטרה:</b> לזהות דמיון, הבדלים וקשר של הזזה אופקית</span></div>
+<div class="compare-legend"><span class="legend-item"><span class="legend-swatch" style="background:#174a73"></span><span class="math">\(y=\sin x\)</span></span><span class="legend-item"><span class="legend-swatch" style="background:#0c6b65"></span><span class="math">\(y=\cos x\)</span></span></div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">שני הגרפים על אותה מערכת צירים</div><div class="graph-controls" data-controls-for="board1compare">
+<button aria-label="הגדלה" onclick="zoomBoard('board1compare',0.80)" type="button">＋</button><button aria-label="הקטנה" onclick="zoomBoard('board1compare',1.25)" type="button">−</button><button onclick="centerBoard('board1compare')" type="button">מרכז</button><button onclick="resetBoard('board1compare')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board1compare" style="height:70mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">שימו לב: הצורה והמחזור זהים, אך נקודות המפתח מוזזות אופקית. הנקודות השחורות מסמנות חיתוכים בין שני הגרפים.</div>
+</div>
+<div class="compare-table mt5">
+<div class="tr head"><div>מאפיין</div><div><span class="math">\(y=\sin x\)</span></div><div><span class="math">\(y=\cos x\)</span></div></div>
+<div class="tr"><div>תחום</div><div><span class="math">\(\mathbb{R}\)</span></div><div><span class="math">\(\mathbb{R}\)</span></div></div>
+<div class="tr"><div>טווח</div><div><span class="math">\([-1,1]\)</span></div><div><span class="math">\([-1,1]\)</span></div></div>
+<div class="tr"><div>מחזור</div><div><span class="math">\(2\pi\)</span></div><div><span class="math">\(2\pi\)</span></div></div>
+<div class="tr"><div>ערך ב־<span class="math">\(x=0\)</span></div><div><span class="math">\(0\)</span></div><div><span class="math">\(1\)</span></div></div>
+<div class="tr"><div>אפסים</div><div><span class="math">\(x=k\pi\)</span></div><div><span class="math">\(x=\frac{\pi}{2}+k\pi\)</span></div></div>
+<div class="tr"><div>סימטריה</div><div>אי־זוגית</div><div>זוגית</div></div>
+<div class="tr"><div>מקסימום ראשון ב־<span class="math">\([0,2\pi]\)</span></div><div><span class="math">\(x=\frac{\pi}{2}\)</span></div><div><span class="math">\(x=0\)</span></div></div>
+</div>
+<div class="compare-insight"><div><b>אותו גל - הזזה שונה:</b> <span class="math">\(\cos x=\sin\left(x+\frac{\pi}{2}\right)\)</span>. כלומר גרף הקוסינוס מתקבל מהזזת גרף הסינוס שמאלה ב־<span class="math">\(\frac{\pi}{2}\)</span>.</div><div><b>נקודות חיתוך:</b> כאשר <span class="math">\(\sin x=\cos x\)</span> מתקבל <span class="math">\(x=\frac{\pi}{4}+k\pi\)</span>. זהו דפוס שחוזר כל <span class="math">\(\pi\)</span>.</div></div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page exercise-page" data-page="5">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">05</div>
+<h1>תרגול שיעור 1</h1>
+</header>
+<div class="page-body">
+<div class="exercise-list">
+<div class="q"><span class="qn">1</span><div>השלימו ללא מחשבון את הערכים: <span class="math">\(\sin 0\)</span>, <span class="math">\(\sin(\pi/2)\)</span>, <span class="math">\(\sin \pi\)</span>, <span class="math">\(\sin(3\pi/2)\)</span>, <span class="math">\(\sin(2\pi)\)</span>.</div></div>
+<div class="q"><span class="qn">2</span><div>רשמו חמש נקודות מפתח במחזור אחד של <span class="math">\(y=\cos x\)</span> בתחום <span class="math">\(0\le x\le 2\pi\)</span>.</div></div>
+<div class="q"><span class="qn">3</span><div>קבעו את התחום והטווח של <span class="math">\(y=\sin x\)</span> ושל <span class="math">\(y=\cos x\)</span>.</div></div>
+<div class="q"><span class="qn">4</span><div>קבעו באילו תחומים במחזור <span class="math">\(0\le x\le 2\pi\)</span> הסינוס חיובי ובאילו הוא שלילי.</div></div>
+<div class="q"><span class="qn">5</span><div>הסבירו מתוך הגרף מדוע <span class="math">\(\sin(-x)=-\sin x\)</span> ומדוע <span class="math">\(\cos(-x)=\cos x\)</span>.</div></div>
+<div class="q"><span class="qn">6</span><div>נתון <span class="math">\(f(x)=\sin x\)</span>. בלי לפתור משוואה טריגונומטרית, רשמו את כל ערכי <span class="math">\(x\)</span> בתחום <span class="math">\(-2\pi\le x\le 2\pi\)</span> שבהם הגרף חוצה את ציר <span class="math">\(x\)</span>.</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page" data-page="6">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">06</div>
+<h1>שיעור 2 - גרף פונקציית הטנגנס</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>משך מומלץ:</b> 50 דקות</span><span><b>רעיון מרכזי:</b> <span class="math">\(\tan x=\frac{{\sin x}}{{\cos x}}\)</span></span></div>
+<div class="two-col compact">
+<div class="card"><h3>שאלת פתיחה</h3><p>מה קורה למנה כאשר <span class="math">\(\cos x=0\)</span>? מכאן ננבא היכן פונקציית הטנגנס אינה מוגדרת.</p></div>
+<div class="card"><h3>מטרות</h3><ul><li>למקם אפסים ואסימפטוטות אנכיות.</li><li>להבין שמחזור הטנגנס הוא <span class="math">\(\pi\)</span>.</li><li>לזהות זוגיות, סימן ותחומי עלייה מתוך הגרף.</li></ul></div>
+</div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">גרף הבסיס של הטנגנס</div><div class="graph-controls" data-controls-for="board2">
+<button aria-label="הגדלה" onclick="zoomBoard('board2',0.80)" type="button">＋</button>
+<button aria-label="הקטנה" onclick="zoomBoard('board2',1.25)" type="button">−</button>
+<button onclick="centerBoard('board2')" type="button">מרכז</button>
+<button onclick="resetBoard('board2')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board2" style="height:66mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">הקווים המקווקווים מסמנים ערכים שבהם המכנה של \(\tan x=\sin x/\cos x\) שווה לאפס.</div>
+</div>
+<div class="rule-grid mt5">
+<div><b>אפסים</b><span><span class="math">\(x=k\pi\)</span></span></div>
+<div><b>אסימפטוטות</b><span><span class="math">\(x=\frac{\pi}{2}+k\pi\)</span></span></div>
+<div><b>מחזור</b><span><span class="math">\(T=\pi\)</span></span></div>
+<div><b>סימטריה</b><span><span class="math">\(\tan(-x)=-\tan x\)</span></span></div>
+</div>
+<div class="example mt5"><b>דוגמה:</b> בתחום <span class="math">\(-\pi/2\lt x\lt \pi/2\)</span> הגרף עובר דרך <span class="math">\((0,0)\)</span>; כאשר מתקרבים לשני קצות התחום ערכי הפונקציה גדלים בערכם המוחלט, אך בנקודות הקצה עצמן הפונקציה אינה מוגדרת. הטווח של הטנגנס הוא כל המספרים הממשיים.</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page exercise-page" data-page="7">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">07</div>
+<h1>תרגול שיעור 2</h1>
+</header>
+<div class="page-body">
+<div class="exercise-list">
+<div class="q"><span class="qn">1</span><div>רשמו את שלושת האפסים של <span class="math">\(y=\tan x\)</span> בתחום <span class="math">\(-\pi\le x\le \pi\)</span>.</div></div>
+<div class="q"><span class="qn">2</span><div>רשמו את האסימפטוטות האנכיות של <span class="math">\(y=\tan x\)</span> בתחום <span class="math">\(-2\pi\le x\le 2\pi\)</span>.</div></div>
+<div class="q"><span class="qn">3</span><div>קבעו את סימן הטנגנס בכל אחד מארבעת התחומים שבין <span class="math">\(0,\;\pi/2,\;\pi,\;3\pi/2,\;2\pi\)</span>.</div></div>
+<div class="q"><span class="qn">4</span><div>הסבירו בעזרת הגרף מדוע הזזה אופקית של <span class="math">\(\pi\)</span> משאירה את גרף הטנגנס ללא שינוי.</div></div>
+<div class="q"><span class="qn">5</span><div>קבעו אם הנקודה <span class="math">\((3\pi/4,-1)\)</span> נמצאת על הגרף <span class="math">\(y=\tan x\)</span> והסבירו ללא מחשבון.</div></div>
+<div class="q"><span class="qn">6</span><div>נתון <span class="math">\(f(x)=\tan x\)</span>. מצאו בתחום <span class="math">\(-2\pi\lt x\lt2\pi\)</span> את כל הקטעים הרציפים של הגרף, ורשמו את גבולות כל קטע באמצעות האסימפטוטות.</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page" data-page="8">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">08</div>
+<h1>שיעור 3 - טרנספורמציות כלליות של גרף</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>משך מומלץ:</b> 60 דקות</span><span><b>מודל:</b> שינוי פרמטר אחד בכל פעם</span></div>
+<div class="two-col compact">
+<div class="card"><h3>ארבע משפחות שינוי</h3><p><span class="math">\(f(x)+D\)</span> - הזזה אנכית<br/><span class="math">\(f(x-C)\)</span> - הזזה אופקית<br/><span class="math">\(A\,f(x)\)</span> - שינוי אנכי ושיקוף<br/><span class="math">\(f(Bx)\)</span> - שינוי אופקי</p></div>
+<div class="card"><h3>שיטת חקר</h3><ol><li>קבעו שלושה פרמטרים.</li><li>שנו רק אחד.</li><li>תארו מה השתנה ומה נשמר.</li><li>נסחו כלל ורק אז בדקו ערך נוסף.</li></ol></div>
+</div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">מעבדת טרנספורמציות<span class="graph-template">| תבנית כללית: \(y=A\sin(B(x-C))+D\)</span></div><div class="graph-controls" data-controls-for="board3">
+<button aria-label="הגדלה" onclick="zoomBoard('board3',0.80)" type="button">＋</button>
+<button aria-label="הקטנה" onclick="zoomBoard('board3',1.25)" type="button">−</button>
+<button onclick="centerBoard('board3')" type="button">מרכז</button>
+<button onclick="resetBoard('board3')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board3" style="height:70mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">שנו את המחוונים A,B,C,D. המשוואה בראש הגרף מתעדכנת מיד לפי הערכים החדשים; נסו תחילה ערכים שלמים וחצאים.</div>
+</div>
+<div class="compare-table mt5">
+<div class="tr head"><div>פרמטר</div><div>מה משתנה?</div><div>מה נשמר?</div></div>
+<div class="tr"><div><span class="math">\(A\)</span></div><div>גובה, טווח ולעתים שיקוף</div><div>מחזור והזזה אופקית</div></div>
+<div class="tr"><div><span class="math">\(B\)</span></div><div>המחזור</div><div>קו האמצע והמשרעת</div></div>
+<div class="tr"><div><span class="math">\(C\)</span></div><div>המיקום האופקי</div><div>צורת הגל והמחזור</div></div>
+<div class="tr"><div><span class="math">\(D\)</span></div><div>קו האמצע והטווח</div><div>המחזור והמשרעת</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page exercise-page" data-page="9">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">09</div>
+<h1>תרגול שיעור 3</h1>
+</header>
+<div class="page-body">
+<div class="exercise-list">
+<div class="q"><span class="qn">1</span><div>תארו במילים כיצד מתקבל הגרף <span class="math">\(y=\sin x+2\)</span> מן הגרף <span class="math">\(y=\sin x\)</span>.</div></div>
+<div class="q"><span class="qn">2</span><div>תארו את השינוי בגרף <span class="math">\(y=-\cos x\)</span> ואת הסימטריה המתאימה.</div></div>
+<div class="q"><span class="qn">3</span><div>השוו בין <span class="math">\(y=\sin x\)</span> לבין <span class="math">\(y=\sin(2x)\)</span>: כמה מחזורים מופיעים בתחום <span class="math">\(0\le x\le2\pi\)</span>?</div></div>
+<div class="q"><span class="qn">4</span><div>איזו הזזה אופקית מעבירה את <span class="math">\(y=\cos x\)</span> אל <span class="math">\(y=\cos(x-\pi/3)\)</span>?</div></div>
+<div class="q"><span class="qn">5</span><div>סדרו את הטרנספורמציות הדרושות לקבלת <span class="math">\(y=-2\sin(3(x-\pi/6))+1\)</span> מן <span class="math">\(y=\sin x\)</span>.</div></div>
+<div class="q hard"><span class="qn">6</span><div>שתי פונקציות מתקבלות מאותו גרף בסיס: <span class="math">\(f(x)=2\sin x-1\)</span> ו־<span class="math">\(g(x)=2\sin(x-\pi)-1\)</span>. קבעו את הקשר הגרפי ביניהן והסבירו אם הן למעשה אותו גרף או גרפים שונים.</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page" data-page="10">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">10</div>
+<h1>שיעור 4 - משרעת, שיקוף והזזה אנכית</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>משך מומלץ:</b> 55 דקות</span><span><b>מוקד:</b> <span class="math">\(y=A\sin x+D\)</span> ו־<span class="math">\(y=A\cos x+D\)</span></span></div>
+<div class="two-col compact">
+<div class="card"><h3>מהי משרעת?</h3><p><b>משרעת</b> היא המרחק האנכי הגדול ביותר של גרף הפונקציה מקו האמצע שלו. במילים אחרות: היא מודדת את גובה ה״גל״ מעל קו האמצע - וגם את עומקו מתחתיו.</p><p>בפונקציות <span class="math">\(y=A\sin x+D\)</span> ו־<span class="math">\(y=A\cos x+D\)</span> המשרעת היא <span class="math">\(|A|\)</span>, ולכן היא תמיד מספר אי־שלילי. קו האמצע הוא <span class="math">\(y=D\)</span>.</p><p>אפשר למצוא אותה גם מן הגרף: <span class="math">\(\text{משרעת}=\frac{y_{\max}-y_{\min}}{2}\)</span>. לכן <span class="math">\(y_{\max}=D+|A|\)</span> ו־<span class="math">\(y_{\min}=D-|A|\)</span>.</p></div>
+<div class="card"><h3>שיקוף</h3><p>כאשר <span class="math">\(A\)</span> שלילי, הגרף משתקף ביחס לקו האמצע. המחזור אינו משתנה.</p></div>
+</div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">חקירת A ו-D בלבד<span class="graph-template">| תבנית כללית: \(y=A\sin(B(x-C))+D\)</span></div><div class="graph-controls" data-controls-for="board4">
+<button aria-label="הגדלה" onclick="zoomBoard('board4',0.80)" type="button">＋</button>
+<button aria-label="הקטנה" onclick="zoomBoard('board4',1.25)" type="button">−</button>
+<button onclick="centerBoard('board4')" type="button">מרכז</button>
+<button onclick="resetBoard('board4')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board4" style="height:68mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">הזיזו את A ואת D. המשוואה בראש הגרף מתעדכנת מיד; בדקו מה קורה לקו האמצע, לטווח ולנקודות המקסימום והמינימום.</div>
+</div>
+<div class="worked mt5">
+<h3>דוגמה מלאה</h3>
+<p>עבור <span class="math">\(f(x)=-3\cos x+2\)</span>: משרעת <span class="math">\(3\)</span>, קו אמצע <span class="math">\(y=2\)</span>, טווח <span class="math">\(-1\le f(x)\le5\)</span>, מחזור <span class="math">\(2\pi\)</span>. הסימן השלילי משקף את גרף הקוסינוס ביחס לקו האמצע.</p>
+<p><b>חמש נקודות מפתח:</b> מתחילים ב־<span class="math">\((0,-1)\)</span>, עוברים דרך קו האמצע ב־<span class="math">\((\pi/2,2)\)</span>, מגיעים ל־<span class="math">\((\pi,5)\)</span> וחוזרים באופן סימטרי.</p>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page exercise-page" data-page="11">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">11</div>
+<h1>תרגול שיעור 4</h1>
+</header>
+<div class="page-body">
+<div class="exercise-list">
+<div class="q"><span class="qn">1</span><div>עבור <span class="math">\(y=4\sin x\)</span> רשמו משרעת, קו אמצע וטווח.</div></div>
+<div class="q"><span class="qn">2</span><div>עבור <span class="math">\(y=\cos x-3\)</span> רשמו קו אמצע, מקסימום ומינימום.</div></div>
+<div class="q"><span class="qn">3</span><div>עבור <span class="math">\(y=-2\sin x+1\)</span> מצאו משרעת וטווח והסבירו את השיקוף.</div></div>
+<div class="q"><span class="qn">4</span><div>כתבו פונקציית סינוס שמשרעתה <span class="math">\(5\)</span>, קו האמצע שלה <span class="math">\(y=-2\)</span> ומחזור הבסיס שלה אינו משתנה.</div></div>
+<div class="q"><span class="qn">5</span><div>נתון שהטווח של פונקציה מהצורה <span class="math">\(y=A\cos x+D\)</span> הוא <span class="math">\(-1\le y\le7\)</span>. מצאו את <span class="math">\(|A|\)</span> ואת <span class="math">\(D\)</span>.</div></div>
+<div class="q hard"><span class="qn">6</span><div>גרף בעל מחזור <span class="math">\(2\pi\)</span> עובר דרך קו האמצע בנקודה <span class="math">\((0,3)\)</span> ועולה שם. ערכו המקסימלי <span class="math">\(8\)</span>. כתבו משוואה אפשרית אחת.</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page" data-page="12">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">12</div>
+<h1>שיעור 5 - שינוי מחזור והזזה אופקית</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>משך מומלץ:</b> 60 דקות</span><span><b>מוקד:</b> <span class="math">\(y=\sin(B(x-C))\)</span></span></div>
+<div class="two-col compact">
+<div class="card"><h3>שינוי מחזור</h3><p>בסינוס ובקוסינוס: <span class="math">\(T=\frac{{2\pi}}{{|B|}}\)</span>. כאשר <span class="math">\(|B|\)</span> גדל, אותו גל נדחס אופקית.</p></div>
+<div class="card"><h3>הזזה אופקית</h3><p>הצורה <span class="math">\(x-C\)</span> מזיזה את הגרף ימינה ב־<span class="math">\(C\)</span>. מומלץ תמיד לפרק את הביטוי הפנימי לצורה זו לפני שמסיקים הזזה.</p></div>
+</div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">חקירת B ו-C<span class="graph-template">| תבנית כללית: \(y=A\sin(B(x-C))+D\)</span></div><div class="graph-controls" data-controls-for="board5">
+<button aria-label="הגדלה" onclick="zoomBoard('board5',0.80)" type="button">＋</button>
+<button aria-label="הקטנה" onclick="zoomBoard('board5',1.25)" type="button">−</button>
+<button onclick="centerBoard('board5')" type="button">מרכז</button>
+<button onclick="resetBoard('board5')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board5" style="height:68mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">שנו B ו-C. המשוואה בראש הגרף מתעדכנת מיד; ספרו כמה מחזורים מופיעים בחלון ובדקו היכן מתחיל המחזור.</div>
+</div>
+<div class="worked mt5"><h3>דוגמה מלאה</h3><p>עבור <span class="math">\(y=\sin(2(x-\pi/4))\)</span>: המחזור הוא <span class="math">\(T=\pi\)</span>; ההזזה היא ימינה <span class="math">\(\pi/4\)</span>. רבע מחזור הוא <span class="math">\(\pi/4\)</span>, ולכן חמש נקודות המפתח מתקבלות ב־<span class="math">\(\pi/4,\;\pi/2,\;3\pi/4,\;\pi,\;5\pi/4\)</span>.</p></div>
+<div class="teacher-tip"><b>טעות נפוצה:</b> ב־<span class="math">\(\sin(2x-\pi/2)\)</span> ההזזה אינה <span class="math">\(\pi/2\)</span>. מפרקים: <span class="math">\(2x-\pi/2=2(x-\pi/4)\)</span>.</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page exercise-page" data-page="13">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">13</div>
+<h1>תרגול שיעור 5</h1>
+</header>
+<div class="page-body">
+<div class="exercise-list">
+<div class="q"><span class="qn">1</span><div>מצאו את המחזור של <span class="math">\(y=\sin(3x)\)</span>.</div></div>
+<div class="q"><span class="qn">2</span><div>מצאו את המחזור של <span class="math">\(y=\cos(x/2)\)</span>.</div></div>
+<div class="q"><span class="qn">3</span><div>קבעו את ההזזה האופקית של <span class="math">\(y=\sin(x-\pi/3)\)</span>.</div></div>
+<div class="q"><span class="qn">4</span><div>עבור <span class="math">\(y=\cos(2(x+\pi/6))\)</span> מצאו מחזור והזזה אופקית.</div></div>
+<div class="q"><span class="qn">5</span><div>כתבו את חמש נקודות המפתח של מחזור אחד עבור <span class="math">\(y=\sin(4(x-\pi/8))\)</span> החל מנקודת ההזזה.</div></div>
+<div class="q hard"><span class="qn">6</span><div>עבור <span class="math">\(y=\cos(3x-\pi)\)</span> מצאו מחזור, הזזה אופקית וחמש נקודות מפתח במחזור אחד. יש לפרק תחילה לצורה <span class="math">\(B(x-C)\)</span>.</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section>
+
+<section class="a4-page" data-page="16">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">16</div>
+<h1>שיעור 6 - טרנספורמציות של פונקציית הטנגנס</h1>
+</header>
+<div class="page-body">
+<div class="lesson-meta"><span><b>משך מומלץ:</b> 60 דקות</span><span><b>צורה כללית:</b> <span class="math">\(y=A\tan(B(x-C))+D\)</span></span></div>
+<div class="two-col compact">
+<div class="card"><h3>מה דומה לסינוס וקוסינוס?</h3><p><span class="math">\(C\)</span> מזיז אופקית, <span class="math">\(D\)</span> מזיז אנכית, ו־<span class="math">\(A\)</span> משנה את המתיחה האנכית ואת כיוון הענף.</p></div>
+<div class="card"><h3>מה שונה?</h3><p>אין משרעת. המחזור הוא <span class="math">\(T=\pi/|B|\)</span>. האסימפטוטות נעות יחד עם הגרף.</p></div>
+</div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">טרנספורמציות של טנגנס<span class="graph-template">| תבנית כללית: \(y=A\tan(B(x-C))+D\)</span></div><div class="graph-controls" data-controls-for="board7">
+<button aria-label="הגדלה" onclick="zoomBoard('board7',0.80)" type="button">＋</button>
+<button aria-label="הקטנה" onclick="zoomBoard('board7',1.25)" type="button">−</button>
+<button onclick="centerBoard('board7')" type="button">מרכז</button>
+<button onclick="resetBoard('board7')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="board7" style="height:70mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">שנו A,B,C,D. המשוואה בראש הגרף מתעדכנת מיד; עקבו במיוחד אחרי נקודת המרכז (C,D) ואחרי המרחק בין האסימפטוטות.</div>
+</div>
+<div class="formula-strip mt5"><span><b>מרכז ענף</b> <span class="math">\((C,D)\)</span></span><span><b>מחזור</b> <span class="math">\(T=\pi/|B|\)</span></span><span><b>אסימפטוטות סמוכות</b> <span class="math">\(x=C\pm T/2\)</span></span><span><b>טווח</b> כל המספרים הממשיים</span></div>
+<div class="example mt5"><b>דוגמה:</b> עבור <span class="math">\(y=2\tan(2(x-\pi/4))+1\)</span>, המחזור הוא <span class="math">\(\pi/2\)</span>; מרכז הענף הוא <span class="math">\((\pi/4,1)\)</span>; האסימפטוטות הסמוכות נמצאות ב־<span class="math">\(x=0\)</span> וב־<span class="math">\(x=\pi/2\)</span>.</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section>
+
+<section class="a4-page exercise-page" data-page="17">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">17</div>
+<h1>תרגול שיעור 6</h1>
+</header>
+<div class="page-body">
+<div class="exercise-list">
+<div class="q"><span class="qn">1</span><div>מצאו את המחזור של <span class="math">\(y=\tan(2x)\)</span>.</div></div>
+<div class="q"><span class="qn">2</span><div>עבור <span class="math">\(y=\tan(x-\pi/3)+2\)</span> מצאו את מרכז הענף הראשי.</div></div>
+<div class="q"><span class="qn">3</span><div>עבור <span class="math">\(y=3\tan(2x)\)</span> מצאו שתי אסימפטוטות סמוכות סביב <span class="math">\(x=0\)</span>.</div></div>
+<div class="q"><span class="qn">4</span><div>עבור <span class="math">\(y=-\tan(x+\pi/4)-1\)</span> תארו את כל הטרנספורמציות מן <span class="math">\(y=\tan x\)</span>.</div></div>
+<div class="q"><span class="qn">5</span><div>כתבו פונקציית טנגנס שמרכזה <span class="math">\((\pi/6,2)\)</span> ומחזורה <span class="math">\(\pi/3\)</span>.</div></div>
+<div class="q hard"><span class="qn">6</span><div>גרף של פונקציית טנגנס חותך את קו האמצע בנקודה <span class="math">\((\pi/8,-2)\)</span> והאסימפטוטה האנכית הקרובה מימין היא <span class="math">\(x=3\pi/8\)</span>. מצאו את המחזור וכתבו משוואה אפשרית.</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section>
+<!--
+<section class="a4-page sources-page" data-page="20">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">20</div>
+<h1>מקורות ועקרונות פדגוגיים</h1>
+</header>
+<div class="page-body">
+<div class="sources-intro">המערך משלב מקורות ממדינות ושפות שונות. בשיעור 1 אומצו במיוחד ארבעה עקרונות: מעבר קואורדינטה־לגרף ממעגל היחידה, חמש נקודות מפתח בכל מחזור, הסקת תחום/טווח/מחזוריות/סימטריה, והשוואת סינוס וקוסינוס באמצעות הזזה אופקית.</div>
+<div class="source-list">
+<div class="source"><b>משרד החינוך / Campus IL - 5 יחידות</b><p>חומר עברי על תכונות גרף הסינוס: מחזוריות, חיוביות ושליליות, אפסים ונקודות קיצון, בקישור ישיר לסיבובים במעגל.</p><a href="https://courses.campus.gov.il/assets/courseware/v1/03a066c91c43c72cee3dca08fba2af20/asset-v1%3AMoE%2BEDU_Matric_581MathMatriculation5_HE%2B2022_1%2Btype%40asset%2Bblock/trigo_unit4_part1.pdf">Campus IL - פונקציות טריגונומטריות</a></div>
+<div class="source"><b>OpenStax - Algebra and Trigonometry 2e</b><p>בניית גרפי סינוס וקוסינוס מערכי מעגל היחידה; תחום, טווח, מחזור וסימטריה; מעבר לטבלאות נקודות.</p><a href="https://openstax.org/books/algebra-and-trigonometry-2e/pages/8-1-graphs-of-the-sine-and-cosine-functions">OpenStax - Graphs of Sine and Cosine</a></div>
+<div class="source"><b>OpenStax - Modeling with Trigonometric Functions</b><p>שיטת חמש נקודות המפתח במרווחי רבע־מחזור: קו אמצע, מקסימום, קו אמצע, מינימום וחזרה.</p><a href="https://openstax.org/books/precalculus-2e/pages/7-6-modeling-with-trigonometric-functions">OpenStax - Five Key Points</a></div>
+<div class="source"><b>Illustrative Mathematics - Trig Functions and the Unit Circle</b><p>התאמה מפורשת בין הזווית במעגל לבין הנקודות <span class="math">\((x,\sin x)\)</span> ו־<span class="math">\((x,\cos x)\)</span> בגרפים.</p><a href="https://tasks.illustrativemathematics.org/content-standards/HSF/TF/A/2/tasks/1820">Illustrative Mathematics</a></div>
+<div class="source"><b>Illustrative Mathematics - Properties of Trigonometric Functions</b><p>הסבר מחזוריות וזוגיות/אי־זוגיות מתוך הסימטריות של מעגל היחידה, ולא כשינון נפרד של כללים.</p><a href="https://tasks.illustrativemathematics.org/content-standards/HSF/TF/A/4">IM - Symmetry and Periodicity</a></div>
+<div class="source"><b>GeoGebra - Graphing Sine and Cosine using the Unit Circle</b><p>חקירה דינמית שבה גוררים נקודה סביב המעגל, עוקבים אחר שני הגרפים, ואז שואלים כיצד הם קשורים זה לזה.</p><a href="https://www.geogebra.org/m/abxasz2r">GeoGebra - Unit Circle to Graph</a></div>
+<div class="source"><b>UNAM México - Funciones trigonométricas</b><p>הצגת המחזור כמשמעות של סיבוב מלא: לאחר <span class="math">\(2\pi\)</span> חוזרים לאותה קואורדינטה ולכן לערך פונקציה זהה.</p><a href="https://prometeo.matem.unam.mx/recursos/Bachillerato/DGEE_DGTIC_IMATE/recursos/2_181/index.html">UNAM - Periodo y frecuencia</a></div>
+<div class="source"><b>ZUM-Unterrichten - Trigonometrische Funktionen</b><p>מסלול חקר גרמני המדגיש שינוי ייצוגים, זיהוי תכונות מתוך גרף והמשך טבעי לטרנספורמציות.</p><a href="https://unterrichten.zum.de/wiki/Trigonometrische_Funktionen">ZUM-Unterrichten</a></div>
+<div class="source"><b>Fishtank Learning / College Board / TI</b><p>רצף הוראה שבו גרפי הבסיס קודמים לטרנספורמציות; ניבוי לפני שימוש בכלי דינמי ועבודה בין ייצוג גרפי, מספרי ואלגברי.</p><a href="https://www.fishtanklearning.org/curriculum/math/algebra-2/unit-circle-and-trigonometric-functions/">Fishtank Learning</a></div>
+</div>
+<div class="teacher-tip mt8"><b>יישום במסמך:</b> בכל אחד משני דפי הגרף התלמיד רואה קודם את הקשר למעגל, אחר כך את תכונות הפונקציה וחמש נקודות המפתח; רק בדף השלישי מופיעים שני הגרפים יחד, כדי שההשוואה תיבנה על הבנה של כל פונקציה בנפרד.</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section>
+-->
+<section class="a4-page solution-page" data-page="21">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">21</div>
+<h1>פתרונות - תרגול שיעור 1</h1>
+</header>
+<div class="page-body">
+<div class="solutions-list">
+<div><b>1.</b> <span class="math">\(0,\;1,\;0,\;-1,\;0\)</span>.</div>
+<div><b>2.</b> <span class="math">\((0,1),(\pi/2,0),(\pi,-1),(3\pi/2,0),(2\pi,1)\)</span>.</div>
+<div><b>3.</b> לשתיהן תחום כל המספרים הממשיים; טווח <span class="math">\(-1\le y\le1\)</span>.</div>
+<div><b>4.</b> חיובי ב־<span class="math">\(0\lt x\lt\pi\)</span>; שלילי ב־<span class="math">\(\pi\lt x\lt2\pi\)</span>; אפס בקצוות וב־<span class="math">\(x=\pi\)</span>.</div>
+<div><b>5.</b> גרף הסינוס סימטרי בסיבוב של 180° סביב הראשית ולכן הוא אי־זוגי; גרף הקוסינוס סימטרי ביחס לציר <span class="math">\(y\)</span> ולכן הוא זוגי.</div>
+<div><b>6.</b> אפסי הסינוס הם כפולות של <span class="math">\(\pi\)</span>: <span class="math">\(x=-2\pi,-\pi,0,\pi,2\pi\)</span>.</div>
+</div></div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page solution-page" data-page="22">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">22</div>
+<h1>פתרונות - תרגול שיעור 2</h1>
+</header>
+<div class="page-body">
+<div class="solutions-list">
+<div><b>1.</b> <span class="math">\(x=-\pi,0,\pi\)</span>.</div>
+<div><b>2.</b> <span class="math">\(x=-3\pi/2,-\pi/2,\pi/2,3\pi/2\)</span>.</div>
+<div><b>3.</b> חיובי ב־<span class="math">\((0,\pi/2)\)</span> וב־<span class="math">\((\pi,3\pi/2)\)</span>; שלילי ב־<span class="math">\((\pi/2,\pi)\)</span> וב־<span class="math">\((3\pi/2,2\pi)\)</span>.</div>
+<div><b>4.</b> אחרי תוספת <span class="math">\(\pi\)</span> מתקבלים אותם ערכי מנה של סינוס וקוסינוס, ולכן <span class="math">\(\tan(x+\pi)=\tan x\)</span>.</div>
+<div><b>5.</b> כן. <span class="math">\(\tan(3\pi/4)=-1\)</span>.</div>
+<div><b>6.</b> הקטעים הרציפים הם בין כל שתי אסימפטוטות סמוכות: <span class="math">\((-3\pi/2,-\pi/2),(-\pi/2,\pi/2),(\pi/2,3\pi/2)\)</span>, ובנוסף חלקי הקטע בקצוות התחום עד <span class="math">\(-2\pi\)</span> ו־<span class="math">\(2\pi\)</span>.</div>
+</div></div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page solution-page" data-page="23">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">23</div>
+<h1>פתרונות - תרגול שיעור 3</h1>
+</header>
+<div class="page-body">
+<div class="solutions-list">
+<div><b>1.</b> הזזה מעלה ב־2 יחידות.</div>
+<div><b>2.</b> שיקוף של גרף הקוסינוס ביחס לציר <span class="math">\(x\)</span>.</div>
+<div><b>3.</b> ל־<span class="math">\(\sin x\)</span> מחזור אחד; ל־<span class="math">\(\sin(2x)\)</span> שני מחזורים.</div>
+<div><b>4.</b> ימינה ב־<span class="math">\(\pi/3\)</span>.</div>
+<div><b>5.</b> כיווץ אופקי פי 3, הזזה ימינה <span class="math">\(\pi/6\)</span>, מתיחה אנכית פי 2 ושיקוף, ואז הזזה מעלה 1. הסדר בין שינויים אנכיים לאופקיים יכול להשתנות אם שומרים על הצורה האלגברית.</div>
+<div><b>6.</b> <span class="math">\(\sin(x-\pi)=-\sin x\)</span>, לכן <span class="math">\(g(x)=-2\sin x-1\)</span>; זה אינו אותו גרף של <span class="math">\(f\)</span>, אלא שיקוף ביחס לקו <span class="math">\(y=-1\)</span>.</div>
+</div></div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page solution-page" data-page="24">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">24</div>
+<h1>פתרונות - תרגול שיעור 4</h1>
+</header>
+<div class="page-body">
+<div class="solutions-list">
+<div><b>1.</b> משרעת <span class="math">\(4\)</span>, קו אמצע <span class="math">\(y=0\)</span>, טווח <span class="math">\(-4\le y\le4\)</span>.</div>
+<div><b>2.</b> קו אמצע <span class="math">\(y=-3\)</span>, מקסימום <span class="math">\(-2\)</span>, מינימום <span class="math">\(-4\)</span>.</div>
+<div><b>3.</b> משרעת <span class="math">\(2\)</span>, טווח <span class="math">\(-1\le y\le3\)</span>; הסימן השלילי יוצר שיקוף ביחס לקו האמצע <span class="math">\(y=1\)</span>.</div>
+<div><b>4.</b> למשל <span class="math">\(y=5\sin x-2\)</span>.</div>
+<div><b>5.</b> <span class="math">\(D=(7+(-1))/2=3\)</span>, <span class="math">\(|A|=(7-(-1))/2=4\)</span>.</div>
+<div><b>6.</b> למשל <span class="math">\(y=5\sin x+3\)</span>; היא עוברת בקו האמצע ב־<span class="math">\(x=0\)</span> ועולה, והמקסימום הוא <span class="math">\(8\)</span>.</div>
+</div></div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page solution-page" data-page="25">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">25</div>
+<h1>פתרונות - תרגול שיעור 5</h1>
+</header>
+<div class="page-body">
+<div class="solutions-list">
+<div><b>1.</b> <span class="math">\(T=2\pi/3\)</span>.</div>
+<div><b>2.</b> <span class="math">\(T=4\pi\)</span>.</div>
+<div><b>3.</b> ימינה <span class="math">\(\pi/3\)</span>.</div>
+<div><b>4.</b> מחזור <span class="math">\(\pi\)</span>; הזזה שמאלה <span class="math">\(\pi/6\)</span>.</div>
+<div><b>5.</b> <span class="math">\(T=\pi/2\)</span>, רבע מחזור <span class="math">\(\pi/8\)</span>; נקודות ה־<span class="math">\(x\)</span> הן <span class="math">\(\pi/8,\pi/4,3\pi/8,\pi/2,5\pi/8\)</span>.</div>
+<div><b>6.</b> <span class="math">\(3x-\pi=3(x-\pi/3)\)</span>; לכן <span class="math">\(T=2\pi/3\)</span>, הזזה ימינה <span class="math">\(\pi/3\)</span>, ורבע מחזור <span class="math">\(\pi/6\)</span>. נקודות ה־<span class="math">\(x\)</span>: <span class="math">\(\pi/3,\pi/2,2\pi/3,5\pi/6,\pi\)</span>.</div>
+</div></div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section>
+
+<section class="a4-page solution-page" data-page="27">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">27</div>
+<h1>פתרונות - תרגול שיעור 6</h1>
+</header>
+<div class="page-body">
+<div class="solutions-list">
+<div><b>1.</b> <span class="math">\(T=\pi/2\)</span>.</div>
+<div><b>2.</b> מרכז הענף <span class="math">\((\pi/3,2)\)</span>.</div>
+<div><b>3.</b> <span class="math">\(T=\pi/2\)</span>; האסימפטוטות הסמוכות: <span class="math">\(x=-\pi/4\)</span> ו־<span class="math">\(x=\pi/4\)</span>.</div>
+<div><b>4.</b> הזזה שמאלה <span class="math">\(\pi/4\)</span>, שיקוף ביחס לקו האמצע, הזזה מטה 1.</div>
+<div><b>5.</b> מחזור <span class="math">\(\pi/3\)</span> נותן <span class="math">\(|B|=3\)</span>; למשל <span class="math">\(y=\tan(3(x-\pi/6))+2\)</span>.</div>
+<div><b>6.</b> המרחק מן המרכז לאסימפטוטה הוא <span class="math">\(3\pi/8-\pi/8=\pi/4=T/2\)</span>, לכן <span class="math">\(T=\pi/2\)</span> ו־<span class="math">\(|B|=2\)</span>. למשל <span class="math">\(y=\tan(2(x-\pi/8))-2\)</span>.</div>
+</div></div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section>
+
+<section class="a4-page exercise-page cumulative-page" data-page="29">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">29</div>
+<h1>תרגילים מסכמים - רמת 5 יחידות</h1>
+</header>
+<div class="page-body">
+<div class="challenge-banner">תרגילים מסכמים - שילוב ניתוח גרף, טרנספורמציות, טנגנס ומידול. רמת הקושי גבוהה מתרגילי השיעורים.</div>
+<div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title">גרף לתרגיל 1</div><div class="graph-controls" data-controls-for="boardCum">
+<button aria-label="הגדלה" onclick="zoomBoard('boardCum',0.80)" type="button">＋</button>
+<button aria-label="הקטנה" onclick="zoomBoard('boardCum',1.25)" type="button">−</button>
+<button onclick="centerBoard('boardCum')" type="button">מרכז</button>
+<button onclick="resetBoard('boardCum')" type="button">איפוס</button>
+</div></div>
+<div class="jxgbox" id="boardCum" style="height:45mm; direction:ltr"></div>
+<div class="graph-note" dir="rtl">הגרף מוצג ללא משוואה. חלצו את כל הפרמטרים מן הנתונים הגרפיים.</div>
+</div>
+<div class="exercise-list cumulative tight">
+<div class="q hard"><span class="qn">1</span><div>מצאו משוואה מהצורה <span class="math">\(y=A\sin(B(x-C))+D\)</span> המתאימה לגרף. נמקו כיצד מצאתם כל פרמטר.</div></div>
+<div class="q hard"><span class="qn">2</span><div>נתון <span class="math">\(f(x)=3\cos(2(x-\pi/6))-1\)</span>. ללא שרטוט ממוחשב, מצאו את כל נקודות המקסימום והמינימום בתחום <span class="math">\(-\pi\le x\le2\pi\)</span>.</div></div>
+<div class="q hard"><span class="qn">3</span><div>פונקציית טנגנס בעלת מחזור <span class="math">\(\pi/4\)</span> וקו אמצע <span class="math">\(y=3\)</span>. אחת האסימפטוטות היא <span class="math">\(x=\pi/16\)</span>, והענף שמימינה יורד. כתבו משוואה אפשרית.</div></div>
+<div class="q hard"><span class="qn">4</span><div>שתי פונקציות <span class="math">\(f(x)=A\sin(Bx)+D\)</span> ו־<span class="math">\(g(x)=A\cos(B(x-C))+D\)</span> מתארות בדיוק אותו גרף. נתון <span class="math">\(A=2\)</span>, <span class="math">\(B=3\)</span>, <span class="math">\(D=-1\)</span>. מצאו ערך אפשרי ל־<span class="math">\(C\)</span>.</div></div>
+<div class="q hard"><span class="qn">5</span><div>טמפרטורה מחזורית נעה בין <span class="math">\(18\)</span> ל־<span class="math">\(30\)</span> מעלות במחזור של <span class="math">\(24\)</span> שעות. בשעה <span class="math">\(t=5\)</span> היא עוברת דרך קו האמצע ועולה. בנו פונקציה מתאימה.</div></div>
+<div class="q hard"><span class="qn">6</span><div>נתון גרף <span class="math">\(y=A\cos(B(x-C))+D\)</span> שמקסימום שלו <span class="math">\(10\)</span>, מינימום <span class="math">\(-2\)</span>, ומקסימום רצוף מתקבל בכל <span class="math">\(3\pi\)</span> יחידות. נקודת מינימום אחת היא ב־<span class="math">\(x=\pi\)</span>. כתבו שתי משוואות שונות המתארות אותו גרף - אחת בקוסינוס ואחת בסינוס.</div></div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section><section class="a4-page solution-page" data-page="30">
+<header class="page-header">
+<div class="page-kicker">מערך שיעור - 5 יחידות | ללא נגזרות</div>
+<div class="page-no">30</div>
+<h1>פתרונות - תרגילים מסכמים</h1>
+</header>
+<div class="page-body">
+<div class="solution-lead">פתרונות מלאים לתרגילים המסכמים</div>
+<div class="solutions-list cumulative-sol">
+<div><b>1.</b> מן הגרף: מקסימום <span class="math">\(6\)</span>, מינימום <span class="math">\(-2\)</span>, לכן <span class="math">\(D=2\)</span> ו־<span class="math">\(|A|=4\)</span>. המרחק בין שני מקסימום הוא <span class="math">\(\pi\)</span>, ולכן <span class="math">\(|B|=2\)</span>. הגרף חוצה את קו האמצע ב־<span class="math">\(x=-\pi/8\)</span> ועולה, לכן משוואה אפשרית: <span class="math">\(y=4\sin(2(x+\pi/8))+2\)</span>.</div>
+<div><b>2.</b> מקסימום כאשר הקוסינוס <span class="math">\(1\)</span>: <span class="math">\(2(x-\pi/6)=2k\pi\)</span>, לכן <span class="math">\(x=\pi/6+k\pi\)</span>. בתחום מתקבלים <span class="math">\(-5\pi/6,\pi/6,7\pi/6\)</span>, והערך <span class="math">\(2\)</span>. מינימום כאשר הקוסינוס <span class="math">\(-1\)</span>: <span class="math">\(x=2\pi/3+k\pi\)</span>; בתחום מתקבלים <span class="math">\(-\pi/3,2\pi/3,5\pi/3\)</span>, והערך <span class="math">\(-4\)</span>.</div>
+<div><b>3.</b> <span class="math">\(T=\pi/4\)</span> ולכן <span class="math">\(|B|=4\)</span>. מרכז ענף נמצא במרחק <span class="math">\(T/2=\pi/8\)</span> מן האסימפטוטה. מימין לאסימפטוטה <span class="math">\(x=\pi/16\)</span> מרכז הענף הוא <span class="math">\(C=3\pi/16\)</span>. כדי שהענף ירד נבחר <span class="math">\(A=-1\)</span>: <span class="math">\(y=-\tan(4(x-3\pi/16))+3\)</span>.</div>
+<div><b>4.</b> משתמשים בזהות <span class="math">\(\sin u=\cos(u-\pi/2)\)</span>. נדרוש <span class="math">\(3(x-C)=3x-\pi/2\)</span>, ולכן <span class="math">\(C=\pi/6\)</span>.</div>
+<div><b>5.</b> קו אמצע <span class="math">\(24\)</span>, משרעת <span class="math">\(6\)</span>, <span class="math">\(B=2\pi/24=\pi/12\)</span>. מאחר שב־<span class="math">\(t=5\)</span> חוצים את קו האמצע כלפי מעלה: <span class="math">\(T(t)=6\sin(\pi(t-5)/12)+24\)</span>.</div>
+<div><b>6.</b> <span class="math">\(D=4\)</span>, <span class="math">\(|A|=6\)</span>, <span class="math">\(T=3\pi\)</span> ולכן <span class="math">\(|B|=2/3\)</span>. מינימום ב־<span class="math">\(x=\pi\)</span>. בקוסינוס אפשר לבחור <span class="math">\(y=-6\cos((2/3)(x-\pi))+4\)</span>. מעבר לסינוס: <span class="math">\(-\cos u=\sin(u-\pi/2)\)</span>, ולכן אפשר לכתוב <span class="math">\(y=6\sin((2/3)(x-\pi)-\pi/2)+4\)</span>.</div>
+</div>
+</div>
+<footer class="page-footer"><span>ייצוג גרפי של פונקציות טריגונומטריות</span><span>5 יחידות - ללא נגזרות</span></footer>
+</section>
+<script>
+const BOARD_REGISTRY={};
+const GRAPH_INIT_ERRORS=[];
+function piLabels(board, xs) {
+  const vals = xs || [
+    [-2*Math.PI,'$-2\\pi$'],[-3*Math.PI/2,'$-\\frac{3\\pi}{2}$'],[-Math.PI,'$-\\pi$'],[-Math.PI/2,'$-\\frac{\\pi}{2}$'],
+    [0,'$0$'],[Math.PI/2,'$\\frac{\\pi}{2}$'],[Math.PI,'$\\pi$'],[3*Math.PI/2,'$\\frac{3\\pi}{2}$'],[2*Math.PI,'$2\\pi$']
+  ];
+  vals.forEach(([x,t])=>{ if(x>=board.getBoundingBox()[0] && x<=board.getBoundingBox()[2]) board.create('text',[x,-0.23,t],{useMathJax:true,fixed:true,anchorX:'middle',anchorY:'top',fontSize:10,highlight:false}); });
+}
+function commonBoard(id,bbox, opts={}) {
+  const b=JXG.JSXGraph.initBoard(id,{
+    boundingbox:bbox, axis:true, showCopyright:false, showNavigation:false,
+    pan:{enabled:true}, zoom:{enabled:true,wheel:true,needShift:false}, keepaspectratio:false,
+    defaultAxes:{x:{ticks:{drawLabels:false,majorHeight:7,minorTicks:0}},y:{ticks:{majorHeight:7,minorTicks:0}}}
+  });
+  BOARD_REGISTRY[id]={board:b,bbox:bbox.slice(),sliders:[],resetters:[]};
+  if(opts.pi!==false) piLabels(b,opts.piLabels);
+  return b;
+}
+function addSlider(id,b,p1,p2,range,name) {
+  const s=b.create('slider',[p1,p2,range],{name:name,snapWidth:0.25,baseline:{strokeColor:'#a7b7c5'},highline:{strokeColor:'#174a73'},point1:{size:2},point2:{size:2},label:{fontSize:9}});
+  BOARD_REGISTRY[id].sliders.push({s:s,start:range[1]});return s;
+}
+/* Dedicated angle slider for the unit-circle graphs.
+   A π/72 step gives fine motion while making 0, π/2, π, 3π/2 and 2π exact slider positions. */
+function addUnitCircleAngleSlider(id,b,p1,p2,start=Math.PI/2) {
+  const s=b.create('slider',[p1,p2,[0,start,2*Math.PI]],{
+    name:'α',
+    snapWidth:Math.PI/72,
+    baseline:{strokeColor:'#a7b7c5'},
+    highline:{strokeColor:'#174a73'},
+    point1:{size:2},point2:{size:2},
+    label:{fontSize:9}
+  });
+  BOARD_REGISTRY[id].sliders.push({s:s,start:start});
+  return s;
+}
+function addFormula(b,x,y,tex){ return b.create('text',[x,y,tex],{useMathJax:true,fixed:true,fontSize:11,highlight:false}); }
+function addDynamicFormula(b,x,y,texFn){ return b.create('text',[x,y,texFn],{useMathJax:true,fixed:true,fontSize:11,highlight:false}); }
+function texNum(v,digits=2){
+  if(Math.abs(v)<1e-10)return '0';
+  const p=Math.pow(10,digits), n=Math.round(v*p)/p;
+  return Number.isInteger(n)?String(n):String(n).replace(/(\.\d*?[1-9])0+$/,'$1').replace(/\.0+$/,'');
+}
+function texAngle(v){
+  if(Math.abs(v)<1e-10)return '0';
+  const denoms=[1,2,3,4,6,8,12];
+  for(const d of denoms){
+    const n=Math.round(v*d/Math.PI);
+    if(n!==0 && Math.abs(v-n*Math.PI/d)<1e-8){
+      const sign=n<0?'-':''; const m=Math.abs(n);
+      if(d===1)return sign+(m===1?'\\pi':m+'\\pi');
+      return sign+'\\frac{'+(m===1?'':m)+'\\pi}{'+d+'}';
+    }
+  }
+  return texNum(v,2);
+}
+function trigEquationTex(kind,A,B,C,D){
+  const a=A.Value(), b=B.Value(), c=C.Value(), d=D.Value();
+  const fn=kind==='tan'?'\\tan':'\\sin';
+  const coeff=Math.abs(a-1)<1e-10?'':(Math.abs(a+1)<1e-10?'-':texNum(a,2));
+  let inner;
+  if(Math.abs(c)<1e-10){
+    inner=Math.abs(b-1)<1e-10?'x':texNum(b,2)+'x';
+  }else{
+    const shift=(c>0?'-':'+')+texAngle(Math.abs(c));
+    const shifted='\\left(x'+shift+'\\right)';
+    inner=Math.abs(b-1)<1e-10?shifted:texNum(b,2)+shifted;
+  }
+  const dTerm=Math.abs(d)<1e-10?'':(d>0?'+'+texNum(d,2):'-'+texNum(Math.abs(d),2));
+  return '$y='+coeff+fn+'\\!\\left('+inner+'\\right)'+dTerm+'$';
+}
+function zoomBoard(id,factor){const r=BOARD_REGISTRY[id];if(!r)return;const box=r.board.getBoundingBox();const cx=(box[0]+box[2])/2,cy=(box[1]+box[3])/2;const hw=(box[2]-box[0])*factor/2,hh=(box[1]-box[3])*factor/2;r.board.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],false);}
+function centerBoard(id){const r=BOARD_REGISTRY[id];if(r)r.board.setBoundingBox(r.bbox,false);}
+function resetBoard(id){const r=BOARD_REGISTRY[id];if(!r)return;r.board.setBoundingBox(r.bbox,false);r.sliders.forEach(o=>o.s.setValue(o.start));r.resetters.forEach(fn=>fn());r.board.update();}
+function safeInit(id,fn){try{fn();}catch(e){GRAPH_INIT_ERRORS.push(id+': '+e.message);console.error('Graph init',id,e);}}
+function initGraphs(){
+ function unitCircleTrigBoard(id,mode){
+  /* Equal x/y scale is essential here: the unit circle must remain a true circle. */
+  const b=JXG.JSXGraph.initBoard(id,{
+    boundingbox:[-5.4,1.55,6.8,-1.55],axis:true,showCopyright:false,showNavigation:false,
+    pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false},keepaspectratio:true,
+    defaultAxes:{x:{ticks:{drawLabels:false,majorHeight:7,minorTicks:0}},y:{ticks:{majorHeight:7,minorTicks:0}}}
+  });
+  BOARD_REGISTRY[id]={board:b,bbox:b.getBoundingBox().slice(),sliders:[],resetters:[]};
+  const cx=-3.9,cy=0,r=1;
+  const isSin=mode==='sin';
+  const curveColor=isSin?'#174a73':'#0c6b65';
+  const guideColor='#63788a';
+
+  b.create('circle',[[cx,cy],r],{strokeColor:'#111',strokeWidth:2,fixed:true,highlight:false});
+  b.create('segment',[[cx-r,0],[cx+r,0]],{strokeColor:'#111',strokeWidth:1,fixed:true,highlight:false});
+  b.create('segment',[[cx,-r],[cx,r]],{strokeColor:'#111',strokeWidth:1,fixed:true,highlight:false});
+
+  const a=addUnitCircleAngleSlider(id,b,[-5.0,-1.36],[6.0,-1.36],Math.PI/2);
+  const P=b.create('point',[()=>cx+Math.cos(a.Value()),()=>Math.sin(a.Value())],{
+    name:'P',size:2,strokeColor:curveColor,fillColor:curveColor,highlight:false
+  });
+  b.create('segment',[[cx,cy],P],{strokeColor:'#111',strokeWidth:1.5,highlight:false});
+
+  if(isSin){
+    const foot=b.create('point',[()=>cx,()=>P.Y()],{name:'',size:0,visible:false,fixed:true});
+    const Q=b.create('point',[()=>a.Value(),()=>Math.sin(a.Value())],{
+      name:'',size:2,strokeColor:curveColor,fillColor:curveColor,highlight:false
+    });
+    b.create('segment',[P,Q],{dash:2,strokeColor:guideColor,strokeWidth:1.4,highlight:false});
+    b.create('functiongraph',[x=>Math.sin(x),0,2*Math.PI],{strokeColor:curveColor,strokeWidth:2.5,highlight:false});
+    addFormula(b,3.35,1.08,'$y=\\sin x$');
+    addDynamicFormula(b,2.55,0.72,()=>'$\\alpha='+texAngle(a.Value())+',\\quad \\sin\\alpha\\approx'+texNum(Math.sin(a.Value()),3)+'$');
+    addFormula(b,-5.18,-1.08,'$y_P=\\sin\\alpha$');
+  }else{
+    /* P is the standard point P=(cos α,sin α). Its x-coordinate is cos α. */
+    const xFoot=b.create('point',[()=>P.X(),0],{name:'',size:0,visible:false,fixed:true});
+    b.create('segment',[P,xFoot],{dash:2,strokeColor:guideColor,strokeWidth:1.2,highlight:false});
+    b.create('segment',[[cx,0],xFoot],{strokeColor:curveColor,strokeWidth:2.2,highlight:false});
+
+    /* R is an auxiliary point at the complementary angle: y_R=cos α.
+       It lets us transfer the cosine value horizontally to Q=(α,cos α). */
+    const R=b.create('point',[()=>cx+Math.sin(a.Value()),()=>Math.cos(a.Value())],{
+      name:'R',size:2,strokeColor:curveColor,fillColor:'#fff',highlight:false
+    });
+    const Q=b.create('point',[()=>a.Value(),()=>Math.cos(a.Value())],{
+      name:'',size:2,strokeColor:curveColor,fillColor:curveColor,highlight:false
+    });
+    b.create('segment',[R,Q],{dash:2,strokeColor:guideColor,strokeWidth:1.4,highlight:false});
+    b.create('functiongraph',[x=>Math.cos(x),0,2*Math.PI],{strokeColor:curveColor,strokeWidth:2.5,highlight:false});
+    addFormula(b,3.35,1.08,'$y=\\cos x$');
+    addDynamicFormula(b,2.55,0.72,()=>'$\\alpha='+texAngle(a.Value())+',\\quad \\cos\\alpha\\approx'+texNum(Math.cos(a.Value()),3)+'$');
+    addFormula(b,-5.18,-1.08,'$x_P=\\cos\\alpha$');
+  }
+
+  b.create('segment',[[-2.2,-1.18],[-2.2,1.18]],{dash:2,strokeColor:'#9aa9b5',highlight:false});
+  [[0,'$0$'],
+   [Math.PI/2,'$\\frac{\\pi}{2}$'],
+   [Math.PI,'$\\pi$'],
+   [3*Math.PI/2,'$\\frac{3\\pi}{2}$'],
+   [2*Math.PI,'$2\\pi$']]
+   .forEach(([x,t])=>b.create('text',[x,-1.07,t],{
+     useMathJax:true,fixed:true,anchorX:'middle',anchorY:'top',fontSize:10,highlight:false
+   }));
+  addFormula(b,-5.18,1.08,'$r=1$');
+ }
+ safeInit('board1sin',()=>unitCircleTrigBoard('board1sin','sin'));
+ safeInit('board1cos',()=>unitCircleTrigBoard('board1cos','cos'));
+ safeInit('board1compare',()=>{
+  const b=commonBoard('board1compare',[-2*Math.PI,1.55,2*Math.PI,-1.55]);
+  b.create('functiongraph',[x=>Math.sin(x),-2*Math.PI,2*Math.PI],{strokeColor:'#174a73',strokeWidth:2.6,highlight:false});
+  b.create('functiongraph',[x=>Math.cos(x),-2*Math.PI,2*Math.PI],{strokeColor:'#0c6b65',strokeWidth:2.6,highlight:false});
+  for(let k=-2;k<=1;k++){
+    const x=Math.PI/4+k*Math.PI;
+    if(x>=-2*Math.PI&&x<=2*Math.PI){
+      b.create('point',[x,Math.sin(x)],{name:'',size:2,strokeColor:'#111',fillColor:'#111',fixed:true,highlight:false});
+    }
+  }
+  addFormula(b,-5.95,1.18,'$y=\\sin x$');
+  addFormula(b,3.55,1.18,'$y=\\cos x$');
+ });
+ safeInit('board2',()=>{
+  const b=commonBoard('board2',[-2*Math.PI,4.2,2*Math.PI,-4.2]);
+  for(let k=-2;k<=2;k++){const a=Math.PI/2+k*Math.PI;if(a>-2*Math.PI&&a<2*Math.PI)b.create('line',[[a,-4],[a,4]],{straightFirst:false,straightLast:false,dash:2,strokeColor:'#8e9daa',strokeWidth:1});}
+  for(let k=-2;k<=2;k++){const l=-Math.PI/2+k*Math.PI+0.035,u=Math.PI/2+k*Math.PI-0.035;b.create('functiongraph',[x=>Math.tan(x),l,u],{strokeColor:'#174a73',strokeWidth:2.2});}
+  addFormula(b,-5.7,3.45,'$y=\\tan x$');
+ });
+ function sinusoidalBoard(id,mode){
+  const b=commonBoard(id,[-2*Math.PI,5.2,2*Math.PI,-5.2]);
+  let A0=2,B0=1,C0=0,D0=0; if(mode==='vertical'){A0=2;D0=1} if(mode==='period'){B0=2;C0=Math.PI/4}
+  const fixedParam=v=>({Value:()=>v});
+  let A,B,C,D;
+  if(mode==='all'){
+    /* Four sliders: two clearly separated rows at the bottom of the graph. */
+    A=addSlider(id,b,[-5.7,-4.20],[-1.7,-4.20],[-4,A0,4],'A');
+    B=addSlider(id,b,[0.3,-4.20],[4.3,-4.20],[0.5,B0,4],'B');
+    C=addSlider(id,b,[-5.7,-4.82],[-1.7,-4.82],[-Math.PI,C0,Math.PI],'C');
+    D=addSlider(id,b,[0.3,-4.82],[4.3,-4.82],[-3,D0,3],'D');
+  }else if(mode==='vertical'){
+    /* Only the two parameters under investigation are shown. */
+    A=addSlider(id,b,[-5.7,-4.58],[-1.7,-4.58],[-4,A0,4],'A');
+    D=addSlider(id,b,[0.3,-4.58],[4.3,-4.58],[-3,D0,3],'D');
+    B=fixedParam(1); C=fixedParam(0);
+  }else{
+    /* Period/phase page: two sliders in one bottom row. */
+    B=addSlider(id,b,[-5.7,-4.58],[-1.7,-4.58],[0.5,B0,4],'B');
+    C=addSlider(id,b,[0.3,-4.58],[4.3,-4.58],[-Math.PI,C0,Math.PI],'C');
+    A=fixedParam(1); D=fixedParam(0);
+  }
+  b.create('functiongraph',[x=>A.Value()*Math.sin(B.Value()*(x-C.Value()))+D.Value(),-2*Math.PI,2*Math.PI],{strokeColor:'#174a73',strokeWidth:2.4});
+  b.create('functiongraph',[x=>Math.sin(x),-2*Math.PI,2*Math.PI],{strokeColor:'#8e9daa',strokeWidth:1.2,dash:2});
+  b.create('line',[[0,()=>D.Value()],[1,()=>D.Value()]],{straightFirst:true,straightLast:true,dash:2,strokeColor:'#4d7c72',strokeWidth:1});
+  /* The displayed equation is generated from the current slider values and updates live. */
+  addDynamicFormula(b,-5.9,4.45,()=>trigEquationTex('sin',A,B,C,D));
+ }
+ safeInit('board3',()=>sinusoidalBoard('board3','all'));
+ safeInit('board4',()=>sinusoidalBoard('board4','vertical'));
+ safeInit('board5',()=>sinusoidalBoard('board5','period'));
+ safeInit('board6',()=>sinusoidalBoard('board6','all'));
+ safeInit('board7',()=>{
+  const b=commonBoard('board7',[-2*Math.PI,6,2*Math.PI,-6]);
+  /* Four sliders are arranged in two bottom rows. */
+  const A=addSlider('board7',b,[-5.7,-4.88],[-1.7,-4.88],[-3,1.5,3],'A');
+  const B=addSlider('board7',b,[0.3,-4.88],[4.3,-4.88],[0.5,1.5,3],'B');
+  const C=addSlider('board7',b,[-5.7,-5.52],[-1.7,-5.52],[-Math.PI,0,Math.PI],'C');
+  const D=addSlider('board7',b,[0.3,-5.52],[4.3,-5.52],[-3,0.5,3],'D');
+  b.create('functiongraph',[x=>{const z=B.Value()*(x-C.Value()); if(Math.abs(Math.cos(z))<0.06)return NaN; return A.Value()*Math.tan(z)+D.Value();},-2*Math.PI,2*Math.PI],{strokeColor:'#174a73',strokeWidth:2.2,numberPointsHigh:1200});
+  addDynamicFormula(b,-5.9,5.25,()=>trigEquationTex('tan',A,B,C,D));
+ });
+ function fixedSin(id,A,B,C,D,bbox=[-1,6.2,2*Math.PI+0.5,-3.5]){
+  const b=commonBoard(id,bbox,{pi:false});b.create('functiongraph',[x=>A*Math.cos(B*(x-C))+D,bbox[0],bbox[2]],{strokeColor:'#174a73',strokeWidth:2.4});b.create('line',[[0,D],[1,D]],{straightFirst:true,straightLast:true,dash:2,strokeColor:'#4d7c72'});[[0,'$0$'],[Math.PI/2,'$\\frac{\\pi}{2}$'],[Math.PI,'$\\pi$'],[3*Math.PI/2,'$\\frac{3\\pi}{2}$'],[2*Math.PI,'$2\\pi$']].forEach(([x,t])=>{if(x>=bbox[0]&&x<=bbox[2])b.create('text',[x,-0.22,t],{useMathJax:true,fixed:true,anchorX:'middle',anchorY:'top',fontSize:10,highlight:false})});return b;
+ }
+ safeInit('board8',()=>fixedSin('board8',3,2,Math.PI/4,2,[-0.4,6.2,2*Math.PI+0.3,-2.3]));
+ safeInit('board8ex',()=>fixedSin('board8ex',3,1,0,1,[-0.4,4.8,2*Math.PI+0.3,-3.1]));
+ safeInit('boardCum',()=>{const b=commonBoard('boardCum',[-1.2,7.0,2*Math.PI+0.5,-3.2],{pi:false});b.create('functiongraph',[x=>4*Math.sin(2*(x+Math.PI/8))+2,-1.2,2*Math.PI+0.5],{strokeColor:'#174a73',strokeWidth:2.4});b.create('line',[[0,2],[1,2]],{straightFirst:true,straightLast:true,dash:2,strokeColor:'#4d7c72'});[[0,'$0$'],[Math.PI/2,'$\\frac{\\pi}{2}$'],[Math.PI,'$\\pi$'],[3*Math.PI/2,'$\\frac{3\\pi}{2}$'],[2*Math.PI,'$2\\pi$']].forEach(([x,t])=>b.create('text',[x,-0.24,t],{useMathJax:true,fixed:true,anchorX:'middle',anchorY:'top',fontSize:10,highlight:false}));});
+}
+function runSelfTests(){
+ const results={invalidHTML:false,duplicateIDs:[],graphInitErrors:GRAPH_INIT_ERRORS.slice(),a4Overflow:[],missingTitles:[],missingGraphControls:[],geometryStyleViolations:[],mathJaxLoaded:!!window.MathJax,jsxGraphLoaded:typeof JXG!=='undefined',boards:Object.keys(BOARD_REGISTRY).length};
+ const ids=[...document.querySelectorAll('[id]')].map(e=>e.id); const seen=new Set(); ids.forEach(id=>{if(seen.has(id))results.duplicateIDs.push(id);seen.add(id);});
+ document.querySelectorAll('.a4-page').forEach((p,i)=>{const body=p.querySelector('.page-body');if(!p.querySelector('h1'))results.missingTitles.push(i+1);if(body && body.scrollHeight>body.clientHeight+2)results.a4Overflow.push({page:i+1,extra:body.scrollHeight-body.clientHeight});});
+ document.querySelectorAll('.jxgbox').forEach(g=>{const panel=g.closest('.graph-panel');if(!panel||!panel.querySelector(`[data-controls-for="${g.id}"]`))results.missingGraphControls.push(g.id);});
+ window.__DOC_TEST_RESULTS__=results; let out=document.getElementById('self-test-output'); if(!out){out=document.createElement('pre');out.id='self-test-output';out.style.display='none';document.body.appendChild(out);} out.textContent=JSON.stringify(results);
+ return results;
+}
+window.addEventListener('load',()=>{
+ if(typeof JXG==='undefined'){GRAPH_INIT_ERRORS.push('JXG library not loaded');} else {initGraphs();}
+ setTimeout(()=>{runSelfTests(); if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().then(()=>setTimeout(runSelfTests,300));},700);
+});
+</script>
+</body>
+</html>
