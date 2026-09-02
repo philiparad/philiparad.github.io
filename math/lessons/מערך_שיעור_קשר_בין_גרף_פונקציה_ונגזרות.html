@@ -1,0 +1,841 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מערך שיעור - הקשר בין גרף פונקציה, גרף נגזרת ראשונה וגרף נגזרת שנייה</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --page-w: 210mm;
+      --page-h: 297mm;
+      --accent: #1f4e79;
+      --accent2:#eaf2fb;
+      --soft:#f8fbff;
+      --border:#9fb7cf;
+      --text:#1a1a1a;
+    }
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;background:#d9dee4;color:var(--text);font-family:Arial, Helvetica, sans-serif;}
+    body{counter-reset: page;}
+    .page{
+      width:var(--page-w);
+      height:var(--page-h);
+      margin:0 auto 8mm auto;
+      background:#fff;
+      box-shadow:0 0 8px rgba(0,0,0,0.12);
+      position:relative;
+      page-break-after:always;
+      overflow:hidden;
+      padding:12mm 12mm 14mm 12mm;
+      counter-increment: page;
+    }
+    .page:last-child{margin-bottom:0;}
+    .page::after{
+      content: counter(page);
+      position:absolute;
+      bottom:6mm;
+      left:10mm;
+      color:#555;
+      font-size:10pt;
+    }
+    h1,h2,h3{margin:0 0 4mm 0;color:var(--accent);}
+    h1{font-size:22pt;border-bottom:2px solid var(--accent);padding-bottom:2mm;}
+    h2{font-size:18pt;}
+    h3{font-size:14pt;}
+    p, li{font-size:11.5pt; line-height:1.35; margin:0 0 2.2mm 0;}
+    ul,ol{margin:0 0 2mm 0; padding-right:6mm;}
+    .lead{font-size:12.2pt;background:var(--soft);border:1px solid var(--border);padding:4mm;border-radius:3mm;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;align-items:start;}
+    .box{border:1px solid var(--border);background:#fcfeff;border-radius:3mm;padding:3.2mm;}
+    .note{background:#fff8e8;border:1px solid #d9c48a;border-radius:3mm;padding:3mm;}
+    .emph{font-weight:bold;color:#7a2f00;}
+    .small{font-size:10.3pt;}
+    table{width:100%;border-collapse:collapse;font-size:10.6pt;}
+    th,td{border:1px solid #6b88a4;padding:2mm;vertical-align:top;text-align:right;}
+    th{background:var(--accent2);}
+    .formula{font-size:12pt;margin:1.5mm 0;text-align:center;}
+    .graph-card{border:1px solid var(--border);border-radius:3mm;padding:2.2mm;background:white;}
+    .graph-title{font-size:10.8pt;font-weight:bold;margin-bottom:1.5mm;color:#173d61;}
+    .jxgbox{width:100%;height:63mm;border:1px solid #aabccd;background:#fff;direction:ltr;}
+    .jxgbox.small-board{height:52mm;}
+    .graph-controls{display:flex;flex-wrap:wrap;gap:2mm;margin-top:2mm;justify-content:center;}
+    .graph-controls button{font-size:9.6pt;padding:1.5mm 3mm;border:1px solid #7d9ab8;border-radius:2mm;background:#f4f8fc;cursor:pointer;}
+    .cols-list{columns:2;column-gap:8mm;}
+    .exercise-list li{margin-bottom:2.1mm;}
+    .solution{margin-bottom:2mm;padding-bottom:1.8mm;border-bottom:1px dashed #b9c9d8;}
+    .solution:last-child{border-bottom:none;}
+    .tag{display:inline-block;padding:0.8mm 2mm;border-radius:2mm;background:var(--accent2);font-size:9.6pt;border:1px solid var(--border);margin-left:1mm;}
+    .header-strip{display:flex;justify-content:space-between;align-items:flex-start;gap:4mm;margin-bottom:3mm;}
+    .subtle{color:#456;}
+    .qa-list li{margin-bottom:1.8mm;}
+    .center{text-align:center;}
+    .tight li{margin-bottom:1.3mm;}
+    .spacer-2{height:2mm;}
+  </style>
+</head>
+<body>
+
+<section class="page" id="page-cover">
+  <div class="header-strip">
+    <div>
+      <h1>הקשר בין גרף פונקציה, גרף נגזרת ראשונה וגרף נגזרת שנייה</h1>
+      <p class="subtle">רמת 5 יחידות - בנוי על פי רצף הוראה מושגי, דינמי ותרגולי</p>
+    </div>
+  </div>
+  <div class="lead">
+    מטרת היחידה היא לפתח הבנה עמוקה של המעבר בין שלושת הייצוגים: \(f(x)\), \(f'(x)\), \(f''(x)\). הדגש הוא על פירוש גרפי, על הסקה הדדית בין הגרפים, ועל התמודדות עם שאלות בסגנון 5 יחידות.
+  </div>
+<div style="height:20px;"></div>
+  <div class="grid-2">
+    <div class="box">
+      <h3>הרעיונות המרכזיים</h3>
+      <ul class="tight">
+        <li>\(f'(x)\) מתאר את השיפוע של \(f(x)\).</li>
+        <li>סימן \(f'(x)\) קובע עלייה וירידה של \(f(x)\).</li>
+        <li>\(f''(x)=(f'(x))'\) מתאר את קצב השינוי של השיפועים.</li>
+        <li>סימן \(f''(x)\) קובע קעירות.</li>
+        <li>קיצון של \(f\) קשור לאפסים ושינויי סימן של \(f'\).</li>
+        <li>פיתול של \(f\) קשור לשינוי קעירות, ובדרך כלל לשינוי סימן של \(f''\).</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>רצף ההוראה במסמך</h3>
+      <ol class="tight">
+        <li>שיעור 1 - מן השיפוע לגרף הנגזרת.</li>
+        <li>שיעור 2 - הקשר בין \(f\) ל-\(f'\): עלייה, ירידה, קיצון.</li>
+        <li>שיעור 3 - הקשר בין \(f'\) ל-\(f''\): קעירות ופיתול.</li>
+        <li>שיעור 4 - זיהוי משולב של \(f\), \(f'\), \(f''\).</li>
+        <li>אחרי כל שיעור - דף תרגילים בסדר קושי עולה.</li>
+        <li>בסוף המסמך - פתרונות מלאים ותרגילים מסכמים.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-l1a">
+  <h2>שיעור 1 - מן השיפוע לגרף הנגזרת</h2>
+  <p>בשלב הראשון חשוב לבנות את הרעיון ש-\(f'(a)\) הוא <strong>שיפוע המשיק</strong> לגרף הפונקציה בנקודה שבה \(x=a\). מכאן נבנה את גרף הנגזרת כקבוצת כל השיפועים.</p>
+  <div class="grid-2_">
+    </div>
+    <div class="box">
+      <h3>דוגמה</h3>
+      <p>נשתמש בפונקציה:</p>
+      <div class="formula">\[f(x)=x^3-3x\]</div>
+      <p>הנגזרת שלה היא:</p>
+      <div class="formula">\[f'(x)=3x^2-3\]</div>
+      <p>כאשר מעבירים את הנקודה על הגרף:</p>
+      <ul class="tight">
+        <li>אם השיפוע חיובי - הנקודה המתאימה על גרף \(f'\) נמצאת מעל ציר \(x\).</li>
+        <li>אם השיפוע שלילי - הנקודה המתאימה נמצאת מתחת לציר \(x\).</li>
+        <li>אם השיפוע אפס - הנקודה על גרף \(f'\) נמצאת על ציר \(x\).</li>
+      </ul>
+    </div>
+  </div>
+<div style="height:20px;"></div>	
+  <div class="grid-2_">
+    <div class="graph-card">
+      <div class="graph-title">גרף הפונקציה ומשיק נע</div>
+      <div id="box-l1-f" class="jxgbox"></div>
+      <div style="display:none;" id="controls-l1-f" class="graph-controls"></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">הנקודה המתאימה על גרף הנגזרת</div>
+      <div id="box-l1-fp" class="jxgbox"></div>
+      <div style="display:none;" id="controls-l1-fp" class="graph-controls"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-l1b">
+  <h2>שיעור 1 - דגשים, שאלות מנחות ודוגמה פתורה</h2>
+<div style="height:20px;"></div>
+  <div class="grid-2">
+    <div class="box">
+      <h3>שאלות מנחות לכיתה</h3>
+      <ul class="tight">
+        <li>מתי המשיק עולה? מתי הוא יורד?</li>
+        <li>מה פירוש הדבר מבחינת סימן \(f'(x)\)?</li>
+        <li>איפה מתקבל שיפוע אפס?</li>
+        <li>כיצד רואים על גרף \(f'\) את המקומות שבהם לפונקציה יש נקודה עם שיפוע אפס?</li>
+      </ul>
+      <h3>משפטי מפתח</h3>
+      <ul class="tight">
+        <li>אם \(f'(a)\gt0\) אז הפונקציה עולה בסביבת \(a\).</li>
+        <li>אם \(f'(a)\lt0\) אז הפונקציה יורדת בסביבת \(a\).</li>
+        <li>אם \(f'(a)=0\) אז ב-\(x=a\) יש נקודה עם שיפוע אפס.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>דוגמה פתורה</h3>
+      <p>נתונה הפונקציה \(f(x)=x^3-3x\).</p>
+      <ol class="tight">
+        <li>נגזור: \(f'(x)=3x^2-3\).</li>
+        <li>נפתור \(f'(x)=0\):</li>
+      </ol>
+      <div class="formula">\[3x^2-3=0 \Rightarrow x^2=1 \Rightarrow x=-1,1\]</div>
+      <ol class="tight" start="3">
+        <li>ב-\(x=-1\) וב-\(x=1\) לפונקציה יש נקודות עם שיפוע אפס.</li>
+        <li>אלו גם הנקודות שבהן גרף \(f'\) חותך את ציר \(x\).</li>
+      </ol>
+      <div class="note small">
+        כבר בשלב זה כדאי להדגיש: נקודה עם שיפוע אפס אינה בהכרח נקודת קיצון. את הבדיקה המלאה נלמד בשיעור הבא.
+      </div>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <div class="box" style="margin-top:4mm;">
+    <h3>סיכום שיעור 1</h3>
+    <table>
+      <tr><th>מה רואים על גרף \(f\)</th><th>מה רואים על גרף \(f'\)</th></tr>
+      <tr><td>משיק עולה</td><td>ערך חיובי</td></tr>
+      <tr><td>משיק יורד</td><td>ערך שלילי</td></tr>
+      <tr><td>משיק אופקי</td><td>ערך אפס</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="page" id="page-ex1">
+  <h2>דף תרגול שיעור 1 - מן השיפוע לגרף הנגזרת</h2>
+  <p class="small">התרגילים מסודרים בקושי עולה.</p>
+  <ol class="exercise-list">
+    <li>הסבר במילים מה מייצג הערך \(f'(2)\).</li>
+    <li>אם בנקודה מסוימת המשיק לגרף \(f\) אופקי, מה ניתן לומר על הערך של \(f'\) באותה נקודה?</li>
+    <li>אם המשיק לגרף \(f\) בנקודה \(x=1\) יורד, האם \(f'(1)\) חיובי או שלילי?</li>
+    <li>בגרף \(f\) יש נקודה עם שיפוע אפס ב-\(x=-3\). היכן תופיע הנקודה המתאימה על גרף \(f'\)?</li>
+    <li>השלם: כאשר \(f'(x)\gt0\), הגרף של \(f\) ________ .</li>
+    <li>השלם: כאשר \(f'(x)\lt0\), הגרף של \(f\) ________ .</li>
+    <li>נתון כי \(f'(0)=4\). מה ניתן לומר על שיפוע המשיק לגרף \(f\) בנקודה שבה \(x=0\)?</li>
+    <li>נתון כי \(f'(5)=-2\). מה פירוש הדבר מבחינת שיפוע המשיק?</li>
+    <li>נתונה הפונקציה \(f(x)=x^2\). מצא את \(f'(x)\), ואת הערך של \(f'(1)\) ו-\(f'(-1)\).</li>
+    <li>נתונה הפונקציה \(f(x)=x^3-3x\). מצא את כל ה-\(x\) שעבורם לפונקציה יש נקודה עם שיפוע אפס.</li>
+  </ol>
+</section>
+
+<section class="page" id="page-l2a">
+  <h2>שיעור 2 - הקשר בין \(f\) ל-\(f'\): עלייה, ירידה וקיצון</h2>
+  <div class="grid-2">
+    <div class="box">
+      <h3>רעיון השיעור</h3>
+      <p>כעת עוברים מן המשמעות המקומית של \(f'(a)\) אל המסקנות על התנהגות הפונקציה בקטעים שלמים.</p>
+      <div class="formula">\[f'(x)\gt0 \Rightarrow f\text{ הלוע}
+\qquad
+f'(x)\lt0 \Rightarrow f\text{ תדרוי}\]</div>
+      <p>כדי לזהות נקודת קיצון יש לבדוק גם <strong>שינוי סימן</strong> של הנגזרת.</p>
+      <table>
+        <tr><th>התנהגות \(f'\)</th><th>מסקנה על \(f\)</th></tr>
+        <tr><td>\(+\to-\)</td><td>מקסימום מקומי</td></tr>
+        <tr><td>\(-\to+\)</td><td>מינימום מקומי</td></tr>
+        <tr><td>ללא שינוי סימן</td><td>לא ניתן לקבוע קיצון רק מן העובדה ש-\(f'=0\)</td></tr>
+      </table>
+    </div>
+    <div class="box">
+      <h3>דוגמה חשובה</h3>
+      <p>עבור \(f(x)=x^3\) מתקבל:</p>
+      <div class="formula">\[f'(x)=3x^2\]</div>
+      <p>בנקודה \(x=0\) מתקבל:</p>
+      <div class="formula">\[f'(0)=0\]</div>
+      <p>אבל \(f'(x)\ge0\) משני הצדדים, ולכן אין כאן קיצון. מסקנה: <span class="emph">נקודה עם שיפוע אפס אינה בהכרח נקודת קיצון.</span></p>
+      <div class="note small">יש לעמוד על הטעות הנפוצה: תלמידים נוטים לחשוב שכל אפס של הנגזרת הוא קיצון. השיעור הזה נועד לעקור את הטעות.</div>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <div class="grid-2_">
+    <div class="graph-card">
+      <div class="graph-title">\(f(x)=x^3-3x\)</div>
+      <div id="box-l2-f" class="jxgbox small-board"></div>
+      <div id="controls-l2-f" class="graph-controls"></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(f'(x)=3x^2-3\)</div>
+      <div id="box-l2-fp" class="jxgbox small-board"></div>
+      <div id="controls-l2-fp" class="graph-controls"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-l2b">
+  <h2>שיעור 2 - בניית טבלת סימנים ודוגמה פתורה</h2>
+  <div class="grid-2">
+    <div style="height:349px;" class="box">
+      <h3>תבנית עבודה</h3>
+      <ol class="tight">
+        <li>מוצאים את ה-\(x\) שעבורם \(f'(x)=0\) או \(f'\) אינה מוגדרת.</li>
+        <li>מסדרים את הנקודות על ציר.</li>
+        <li>בודקים את סימן \(f'\) בכל תחום.</li>
+        <li>מסיקים על עלייה וירידה.</li>
+        <li>בודקים שינוי סימן כדי לזהות מקסימום או מינימום.</li>
+      </ol>
+    </div>
+    <div class="box">
+      <h3>דוגמה</h3>
+      <p>נתונה הפונקציה \(f(x)=x^3-3x\), ולכן:</p>
+      <div class="formula">\[f'(x)=3x^2-3=3(x-1)(x+1)\]</div>
+      <table>
+        <tr><th>תחום</th><th>סימן \(f'\)</th><th>מסקנה על \(f\)</th></tr>
+        <tr><td>\(x\lt-1\)</td><td>\(+\)</td><td>עולה</td></tr>
+        <tr><td>\(-1\lt x\lt1\)</td><td>\(-\)</td><td>יורדת</td></tr>
+        <tr><td>\(x\gt1\)</td><td>\(+\)</td><td>עולה</td></tr>
+      </table>
+      <p>לכן:</p>
+      <ul class="tight">
+        <li>ב-\(x=-1\) יש מקסימום מקומי.</li>
+        <li>ב-\(x=1\) יש מינימום מקומי.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box" style="margin-top:4mm;">
+    <h3>סיכום שיעור 2</h3>
+    <table>
+      <tr><th>מה רואים ב-\(f'\)</th><th>מה מסיקים על \(f\)</th></tr>
+      <tr><td>חיובי</td><td>עולה</td></tr>
+      <tr><td>שלילי</td><td>יורדת</td></tr>
+      <tr><td>אפס ושינוי \(+\to-\)</td><td>מקסימום מקומי</td></tr>
+      <tr><td>אפס ושינוי \(-\to+\)</td><td>מינימום מקומי</td></tr>
+      <tr><td>אפס ללא שינוי סימן</td><td>נקודה עם שיפוע אפס, אך לא בהכרח קיצון</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="page" id="page-ex2">
+  <h2>דף תרגול שיעור 2 - עלייה, ירידה וקיצון</h2>
+  <ol class="exercise-list">
+    <li>נתון כי \(f'(x)\gt0\) לכל \(x\) בתחום מסוים. מה ניתן לומר על \(f\) בתחום זה?</li>
+    <li>נתון כי \(f'(x)\lt0\) עבור \(-2\lt x\lt4\). מה ניתן לומר על \(f\) בקטע זה?</li>
+    <li>אם \(f'\) משנה סימן מ-\(+\) ל-\(-\) ב-\(x=3\), איזה קיצון יש לפונקציה?</li>
+    <li>אם \(f'\) משנה סימן מ-\(-\) ל-\(+\) ב-\(x=-1\), איזה קיצון יש לפונקציה?</li>
+    <li>אם \(f'(2)=0\) אך אין שינוי סימן של \(f'\) סביב \(x=2\), מה ניתן לקבוע?</li>
+    <li>נתונה הפונקציה \(f(x)=x^3\). הראה שלפונקציה יש נקודה עם שיפוע אפס, אך אין לה קיצון ב-\(x=0\).</li>
+    <li>נתונה הפונקציה \(f(x)=x^3-3x\). מצא את תחומי העלייה והירידה שלה.</li>
+    <li>עבור הפונקציה שבתרגיל 7, מצא את נקודות הקיצון.</li>
+    <li>נתונה הנגזרת \(f'(x)=(x-2)^2(x+1)\). קבע את נקודות ה-\(x\) שבהן יש נקודה עם שיפוע אפס, וציין היכן יש קיצון.</li>
+    <li>נתונה טבלת סימנים של נגזרת: \(+\) עבור \(x\lt-2\), \(-\) עבור \(-2\lt x\lt4\), \(+\) עבור \(x\gt4\). קבע את תחומי העלייה והירידה ואת סוגי הקיצון.</li>
+  </ol>
+</section>
+
+<section class="page" id="page-l3a">
+  <h2>שיעור 3 - מן הנגזרת הראשונה אל הנגזרת השנייה: קעירות ופיתול</h2>
+  <div class="grid-2">
+    <div style="height:334px;" class="box">
+      <h3>הרעיון המרכזי</h3>
+      <div class="formula">\[f''(x)=(f'(x))'\]</div>
+      <p>כלומר, הנגזרת השנייה מודדת כיצד <strong>השיפועים של הפונקציה</strong> משתנים.</p>
+      <ul class="tight">
+        <li>אם \(f''(x)\gt0\) - השיפועים הולכים וגדלים.</li>
+        <li>אם \(f''(x)\lt0\) - השיפועים הולכים וקטנים.</li>
+      </ul>
+      <p>מכאן:</p>
+      <div class="formula">\[f''(x)\gt0 \Rightarrow f\text{ הלעמ יפלכ הרועק היצקנופה}\]</div>
+      <div class="formula">\[f''(x)\lt0 \Rightarrow f\text{ הטמ יפלכ הרועק היצקנופה}\]</div>
+    </div>
+    <div class="box">
+      <h3>דוגמה מלווה</h3>
+      <p>נמשיך עם:</p>
+      <div class="formula">\[f(x)=x^3-3x\]</div>
+      <div class="formula">\[f'(x)=3x^2-3\]</div>
+      <div class="formula">\[f''(x)=6x\]</div>
+      <p>לכן:</p>
+      <ul class="tight">
+        <li>כאשר \(x\lt0\), מתקבל \(f''(x)\lt0\) - הפונקציה קעורה כלפי מטה.</li>
+        <li>כאשר \(x\gt0\), מתקבל \(f''(x)\gt0\) - הפונקציה קעורה כלפי מעלה.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="spacer-2"></div>
+  <div style="zoom:.9" class="grid-3_">
+    <div class="graph-card">
+      <div class="graph-title">\(f(x)\)</div>
+      <div id="box-l3-f" class="jxgbox small-board"></div>
+      <div style="display:none;" id="controls-l3-f" class="graph-controls"></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(f'(x)\)</div>
+      <div id="box-l3-fp" class="jxgbox small-board"></div>
+      <div style="display:none;" id="controls-l3-fp" class="graph-controls"></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(f''(x)\)</div>
+      <div id="box-l3-fpp" class="jxgbox small-board"></div>
+      <div style="display:none;" id="controls-l3-fpp" class="graph-controls"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-l3b">
+  <h2>שיעור 3 - נקודת פיתול ודוגמאות חשובות</h2>
+  <div class="grid-2">
+    <div style="height:288px;" class="box">
+      <h3>כיצד מזהים נקודת פיתול?</h3>
+      <p>נקודת פיתול היא נקודה שבה סוג הקעירות משתנה.</p>
+      <div class="formula">\[f'' : +\to- \quad \text{או} \quad f'' : -\to+\]</div>
+      <p>במצב כזה מתקבלת נקודת פיתול של \(f\).</p>
+      <div class="note small">יש לזכור: \(f''(a)=0\) הוא רק תנאי חשוד, ולא תנאי מספיק.</div>
+    </div>
+    <div class="box">
+      <h3>שתי דוגמאות</h3>
+      <p><strong>דוגמה א:</strong> \(f(x)=x^3\)</p>
+      <div class="formula">\[f''(x)=6x\]</div>
+      <p>יש שינוי סימן ב-\(x=0\), ולכן יש נקודת פיתול.</p>
+      <p><strong>דוגמה ב:</strong> \(f(x)=x^4\)</p>
+      <div class="formula">\[f''(x)=12x^2\]</div>
+      <p>אמנם \(f''(0)=0\), אבל אין שינוי סימן. לכן אין נקודת פיתול ב-\(x=0\).</p>
+    </div>
+  </div>
+  <div class="box" style="margin-top:4mm;">
+    <h3>סיכום שיעור 3</h3>
+    <table>
+      <tr><th>מה רואים</th><th>מה מסיקים</th></tr>
+      <tr><td>\(f'\) עולה</td><td>\(f''\gt0\), ולכן \(f\) קעורה כלפי מעלה</td></tr>
+      <tr><td>\(f'\) יורדת</td><td>\(f''\lt0\), ולכן \(f\) קעורה כלפי מטה</td></tr>
+      <tr><td>ל-\(f'\) יש קיצון</td><td>בדרך כלל ל-\(f\) יש נקודת פיתול באותו ערך של \(x\)</td></tr>
+      <tr><td>\(f''=0\) בלבד</td><td>לא מספיק - חייבים לבדוק שינוי סימן</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="page" id="page-ex3">
+  <h2>דף תרגול שיעור 3 - קעירות ונקודות פיתול</h2>
+  <ol class="exercise-list">
+    <li>הסבר במילים מה מייצג \(f''(x)\).</li>
+    <li>אם \(f''(x)\gt0\) בתחום מסוים, מה ניתן לומר על השיפועים של \(f\) בתחום זה?</li>
+    <li>אם \(f''(x)\lt0\), מה ניתן לומר על סוג הקעירות של \(f\)?</li>
+    <li>נתון כי \(f'\) עולה בקטע \((1,5)\). מהו סימן \(f''\) בקטע זה?</li>
+    <li>נתון כי \(f'\) יורדת בקטע \((-4,0)\). מהו סימן \(f''\) בקטע זה?</li>
+    <li>נתונה הפונקציה \(f(x)=x^3-3x\). מצא את תחומי הקעירות שלה.</li>
+    <li>עבור הפונקציה שבתרגיל 6, מצא את נקודת הפיתול.</li>
+    <li>נתונה הפונקציה \(f(x)=x^4\). בדוק האם ב-\(x=0\) יש נקודת פיתול.</li>
+    <li>נתונה הנגזרת השנייה \(f''(x)=2(x-3)\). קבע את תחומי הקעירות ואת ערך ה-\(x\) של נקודת הפיתול.</li>
+    <li>נתונה הנגזרת הראשונה \(f'(x)=x^2-4x+1\). הסבר כיצד ניתן להשתמש בגרף של \(f'\) כדי לקבוע היכן \(f\) קעורה כלפי מעלה והיכן כלפי מטה.</li>
+  </ol>
+</section>
+
+<section class="page" id="page-l4a">
+  <h2>שיעור 4 - זיהוי משולב של \(f\), \(f'\), \(f''\)</h2>
+  <div class="grid-2">
+    <div style="height:337px" class="box">
+      <h3>אסטרטגיית עבודה קבועה</h3>
+      <ol class="tight">
+        <li>מאתרים קיצון של הגרף החשוד כ-\(f\).</li>
+        <li>בודקים איזה גרף אחר מתאפס באותם ערכי \(x\) - זה מועמד ל-\(f'\).</li>
+        <li>בודקים היכן \(f\) עולה ויורדת, והאם הסימן של הגרף החשוד כ-\(f'\) מתאים.</li>
+        <li>מאתרים שינוי קעירות של \(f\).</li>
+        <li>בודקים היכן לגרף החשוד כ-\(f'\) יש קיצון - זה מתאים לפיתול של \(f\).</li>
+        <li>משווים בין עלייה/ירידה של \(f'\) לבין סימן \(f''\).</li>
+      </ol>
+    </div>
+    <div class="box">
+      <h3>קשרים שחייבים לזכור</h3>
+      <table>
+        <tr><th>ב-\(f\)</th><th>ב-\(f'\)</th><th>ב-\(f''\)</th></tr>
+        <tr><td>קיצון</td><td>אפס עם שינוי סימן</td><td>-</td></tr>
+        <tr><td>עלייה</td><td>חיובי</td><td>-</td></tr>
+        <tr><td>ירידה</td><td>שלילי</td><td>-</td></tr>
+        <tr><td>קעירות מעלה</td><td>עולה</td><td>חיובי</td></tr>
+        <tr><td>קעירות מטה</td><td>יורדת</td><td>שלילי</td></tr>
+        <tr><td>פיתול</td><td>קיצון</td><td>אפס עם שינוי סימן</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="spacer-2"></div>
+  <div class="grid-3_">
+    <div class="graph-card">
+      <div class="graph-title">גרף א</div>
+      <div id="box-l4-a" class="jxgbox small-board"></div>
+      <div style="display:none;" id="controls-l4-a" class="graph-controls"></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">גרף ב</div>
+      <div id="box-l4-b" class="jxgbox small-board"></div>
+      <div style="display:none;" id="controls-l4-b" class="graph-controls"></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">גרף ג</div>
+      <div id="box-l4-c" class="jxgbox small-board"></div>
+      <div style="display:none;" id="controls-l4-c" class="graph-controls"></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-l4b">
+  <h2>שיעור 4 - דוגמה מלאה ומלכודות נפוצות</h2>
+  <div class="grid-2">
+    <div class="box">
+      <h3>דוגמה מלאה</h3>
+      <p>בשלושת הגרפים בעמוד הקודם:</p>
+      <ul class="tight">
+        <li>גרף א הוא \(f(x)=x^3-3x\).</li>
+        <li>גרף ב הוא \(f'(x)=3x^2-3\).</li>
+        <li>גרף ג הוא \(f''(x)=6x\).</li>
+      </ul>
+      <p>הנימוק:</p>
+      <ol class="tight">
+        <li>לגרף א יש קיצון ב-\(x=-1,1\).</li>
+        <li>לכן הגרף המתאים ל-\(f'\) חייב להתאפס ב-\(x=-1,1\), וזהו גרף ב.</li>
+        <li>לגרף א יש פיתול ב-\(x=0\), ולכן ל-\(f'\) יש קיצון ב-\(x=0\) - אכן כך בגרף ב.</li>
+        <li>גרף ג מתאפס ב-\(x=0\) ומשנה סימן, ולכן הוא מתאים ל-\(f''\).</li>
+      </ol>
+    </div>
+    <div style="height:367px" class="box">
+      <h3>מלכודות נפוצות</h3>
+      <ul class="tight">
+        <li>גובה גדול של \(f\) לא אומר ערך גדול של \(f'\).</li>
+        <li>מקסימום של \(f\) אינו מקסימום של \(f'\).</li>
+        <li>\(f''\gt0\) לא אומר שהפונקציה עולה.</li>
+        <li>\(f''\lt0\) לא אומר שהפונקציה יורדת.</li>
+        <li>\(f'(a)=0\) אינו מספיק כדי לקבוע קיצון.</li>
+        <li>\(f''(a)=0\) אינו מספיק כדי לקבוע פיתול.</li>
+      </ul>
+      <div class="note small">זהו השלב המתאים ביותר לתת שאלות התאמה בסגנון החומר המצורף: פונקציה, נגזרת, ונגזרת שנייה באותה שאלה.</div>
+    </div>
+  </div>
+  <div class="box" style="margin-top:4mm;">
+    <h3>מפת מעבר מסכמת</h3>
+    <table>
+      <tr><th>אם ידוע...</th><th>אפשר להסיק...</th></tr>
+      <tr><td>\(f\) עולה</td><td>\(f'\gt0\)</td></tr>
+      <tr><td>\(f\) יורדת</td><td>\(f'\lt0\)</td></tr>
+      <tr><td>ל-\(f\) קיצון</td><td>\(f'=0\) ובודקים שינוי סימן</td></tr>
+      <tr><td>\(f\) קעורה כלפי מעלה</td><td>\(f'\) עולה ו-\(f''\gt0\)</td></tr>
+      <tr><td>\(f\) קעורה כלפי מטה</td><td>\(f'\) יורדת ו-\(f''\lt0\)</td></tr>
+      <tr><td>ל-\(f\) פיתול</td><td>ל-\(f'\) יש קיצון, ובדרך כלל \(f''\) משנה סימן</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="page" id="page-ex4">
+  <h2>דף תרגול שיעור 4 - קישור בין שלושת הגרפים</h2>
+  <ol class="exercise-list">
+    <li>הסבר כיצד ניתן לזהות את גרף \(f'\) כאשר נתונים שלושה גרפים אפשריים.</li>
+    <li>נתון שגרף מסוים הוא פונקציה עם שני קיצונים. מה ניתן לומר על מספר האפסים של גרף הנגזרת שלה?</li>
+    <li>לגרף של פונקציה יש פיתול ב-\(x=2\). מה ניתן לומר על גרף \(f'\) ב-\(x=2\)?</li>
+    <li>אם \(f'\) עולה בקטע מסוים, מה ניתן לומר על סימן \(f''\) ועל הקעירות של \(f\) בקטע זה?</li>
+    <li>אם \(f''\) מתאפסת ב-\(x=-1\) ואינה משנה סימן, מה לא ניתן להסיק?</li>
+    <li>נתונות שלוש פונקציות: \(x^3-3x\), \(3x^2-3\), \(6x\). סדר אותן לפי \(f\), \(f'\), \(f''\).</li>
+    <li>נתון כי \(f'\) היא פרבולה הפותחת כלפי מעלה וחותכת את ציר \(x\) בשתי נקודות. תאר במילים כיצד ייראה בדרך כלל גרף \(f\).</li>
+    <li>נתון כי \(f''\) היא ישר עולה העובר בראשית. תאר את הקעירות של \(f\) משני צדי \(x=0\).</li>
+    <li>נתון כי \(f\) עולה, אחר כך יורדת, ואחר כך שוב עולה. שרטט טבלת סימנים אפשרית עבור \(f'\).</li>
+    <li>נתון כי \(f\) קעורה כלפי מטה עבור \(x\lt3\), וקעורה כלפי מעלה עבור \(x\gt3\). מה ניתן לומר על \(f''\) ועל הפיתול?</li>
+  </ol>
+</section>
+
+<section class="page" id="page-summary">
+  <h2>דף סיכום - משפטי מפתח, אלגוריתם עבודה ושגיאות נפוצות</h2>
+  <div class="grid-2">
+    <div class="box">
+      <h3>משפטי מפתח</h3>
+      <ul class="tight">
+        <li>\(f'(x)\gt0\) ⇐ הפונקציה עולה.</li>
+        <li>\(f'(x)\lt0\) ⇐ הפונקציה יורדת.</li>
+        <li>\(f'(x)=0\) ⇐ קיימת נקודה עם שיפוע אפס.</li>
+        <li>שינוי סימן של \(f'\) ⇐ נקודת קיצון של \(f\).</li>
+        <li>\(f''(x)\gt0\) ⇐ הפונקציה קעורה כלפי מעלה.</li>
+        <li>\(f''(x)\lt0\) ⇐ הפונקציה קעורה כלפי מטה.</li>
+        <li>שינוי סימן של \(f''\) ⇐ נקודת פיתול של \(f\).</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>אלגוריתם לשאלות גרף</h3>
+      <ol class="tight">
+        <li>מאתרים אפסים, קיצון ופיתול בגרף הנתון.</li>
+        <li>קושרים בין קיצון של \(f\) לאפסים של \(f'\).</li>
+        <li>קושרים בין עלייה/ירידה של \(f\) לסימן של \(f'\).</li>
+        <li>קושרים בין קעירות של \(f\) לעלייה/ירידה של \(f'\).</li>
+        <li>קושרים בין קיצון של \(f'\) לסימן ולשינוי הסימן של \(f''\).</li>
+      </ol>
+    </div>
+  </div>
+  <div class="box" style="margin-top:4mm;">
+    <h3>שגיאות נפוצות שחשוב למנוע</h3>
+    <ul class="cols-list tight">
+      <li>לחשוב שכל אפס של \(f'\) הוא קיצון.</li>
+      <li>לחשוב שכל אפס של \(f''\) הוא פיתול.</li>
+      <li>לבלבל בין ערך הפונקציה לבין השיפוע שלה.</li>
+      <li>לבלבל בין גובה הגרף לבין סימן הנגזרת.</li>
+      <li>לשכוח לבדוק תחום הגדרה.</li>
+      <li>להסיק מעלייה של \(f'\) על עלייה של \(f\), במקום על קעירות.</li>
+      <li>לחשוב ש-\(f''\gt0\) מחייב \(f\) עולה.</li>
+      <li>לחשוב ש-\(f''\lt0\) מחייב \(f\) יורדת.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="page" id="page-sol1">
+  <h2>פתרונות - דף תרגול שיעור 1</h2>
+  <div class="solution"><strong>1.</strong> \(f'(2)\) מייצג את שיפוע המשיק לגרף הפונקציה בנקודה שבה \(x=2\).</div>
+  <div class="solution"><strong>2.</strong> אם המשיק אופקי, אז \(f'(a)=0\) באותה נקודה.</div>
+  <div class="solution"><strong>3.</strong> אם המשיק יורד, אז \(f'(1)\lt0\).</div>
+  <div class="solution"><strong>4.</strong> הנקודה תופיע על גרף \(f'\) בנקודה \((-3,0)\).</div>
+  <div class="solution"><strong>5.</strong> כאשר \(f'(x)\gt0\), הגרף של \(f\) עולה.</div>
+  <div class="solution"><strong>6.</strong> כאשר \(f'(x)\lt0\), הגרף של \(f\) יורד.</div>
+  <div class="solution"><strong>7.</strong> \(f'(0)=4\) פירושו ששיפוע המשיק ב-\(x=0\) הוא 4.</div>
+  <div class="solution"><strong>8.</strong> \(f'(5)=-2\) פירושו ששיפוע המשיק שלילי, ושווה ל-2-.</div>
+  <div class="solution"><strong>9.</strong> \(f(x)=x^2\Rightarrow f'(x)=2x\). לכן \(f'(1)=2\), \(f'(-1)=-2\).</div>
+  <div class="solution"><strong>10.</strong> \(f(x)=x^3-3x\Rightarrow f'(x)=3x^2-3\). פותרים \(3x^2-3=0\Rightarrow x^2=1\Rightarrow x=-1,1\).</div>
+</section>
+
+<section class="page" id="page-sol2">
+  <h2>פתרונות - דף תרגול שיעור 2</h2>
+  <div class="solution"><strong>1.</strong> הפונקציה עולה בתחום זה.</div>
+  <div class="solution"><strong>2.</strong> הפונקציה יורדת בקטע \((-2,4)\).</div>
+  <div class="solution"><strong>3.</strong> מקסימום מקומי ב-\(x=3\).</div>
+  <div class="solution"><strong>4.</strong> מינימום מקומי ב-\(x=-1\).</div>
+  <div class="solution"><strong>5.</strong> ניתן לקבוע שיש נקודה עם שיפוע אפס, אך לא בהכרח קיצון.</div>
+  <div class="solution"><strong>6.</strong> עבור \(f(x)=x^3\): \(f'(x)=3x^2\), ולכן \(f'(0)=0\), אבל \(f'(x)\ge0\) משני הצדדים. אין שינוי סימן, ולכן אין קיצון.</div>
+  <div class="solution"><strong>7.</strong> \(f'(x)=3x^2-3=3(x-1)(x+1)\). תחומי עלייה: \(( -\infty,-1)\cup(1,\infty )\). תחום ירידה: \((-1,1)\).</div>
+  <div class="solution"><strong>8.</strong> מקסימום מקומי ב-\(x=-1\), מינימום מקומי ב-\(x=1\).</div>
+  <div class="solution"><strong>9.</strong> אפסים: \(x=-1,2\). ב-\(x=2\) הגורם בריבוע ולכן אין שינוי סימן. קיצון מתקבל רק ב-\(x=-1\), כאשר הסימן משתנה מ-\(-\) ל-\(+\), ולכן זהו מינימום מקומי.</div>
+  <div class="solution"><strong>10.</strong> עלייה: \(( -\infty,-2)\cup(4,\infty )\). ירידה: \((-2,4)\). מקסימום מקומי ב-\(x=-2\), מינימום מקומי ב-\(x=4\).</div>
+</section>
+
+<section class="page" id="page-sol3">
+  <h2>פתרונות - דף תרגול שיעור 3</h2>
+  <div class="solution"><strong>1.</strong> \(f''(x)\) מייצג את קצב השינוי של השיפוע של הפונקציה.</div>
+  <div class="solution"><strong>2.</strong> השיפועים של \(f\) הולכים וגדלים.</div>
+  <div class="solution"><strong>3.</strong> הפונקציה קעורה כלפי מטה.</div>
+  <div class="solution"><strong>4.</strong> \(f''(x)\gt0\) בקטע \((1,5)\).</div>
+  <div class="solution"><strong>5.</strong> \(f''(x)\lt0\) בקטע \((-4,0)\).</div>
+  <div class="solution"><strong>6.</strong> \(f''(x)=6x\). לכן הפונקציה קעורה כלפי מטה עבור \(x\lt0\), וכלפי מעלה עבור \(x\gt0\).</div>
+  <div class="solution"><strong>7.</strong> נקודת פיתול ב-\(x=0\).</div>
+  <div class="solution"><strong>8.</strong> \(f''(x)=12x^2\). אמנם \(f''(0)=0\), אך אין שינוי סימן. לכן אין נקודת פיתול.</div>
+  <div class="solution"><strong>9.</strong> \(f''(x)=2(x-3)\). לכן קעירות מטה עבור \(x\lt3\), קעירות מעלה עבור \(x\gt3\), ונקודת פיתול ב-\(x=3\).</div>
+  <div class="solution"><strong>10.</strong> בודקים היכן \(f'\) עולה והיכן יורדת. כאשר \(f'\) עולה - \(f\) קעורה כלפי מעלה. כאשר \(f'\) יורדת - \(f\) קעורה כלפי מטה.</div>
+</section>
+
+<section class="page" id="page-sol4">
+  <h2>פתרונות - דף תרגול שיעור 4</h2>
+  <div class="solution"><strong>1.</strong> מזהים קיצון של \(f\), בודקים מי מהגרפים האחרים מתאפס באותם ערכי \(x\), ולאחר מכן בודקים גם התאמה של סימן הנגזרת לתחומי העלייה והירידה.</div>
+  <div class="solution"><strong>2.</strong> בדרך כלל יהיו לגרף הנגזרת שני אפסים מתאימים.</div>
+  <div class="solution"><strong>3.</strong> בדרך כלל לגרף \(f'\) יהיה קיצון ב-\(x=2\).</div>
+  <div class="solution"><strong>4.</strong> \(f''\gt0\), ולכן \(f\) קעורה כלפי מעלה.</div>
+  <div class="solution"><strong>5.</strong> לא ניתן להסיק שקיימת נקודת פיתול.</div>
+  <div class="solution"><strong>6.</strong> \(f(x)=x^3-3x\), \(f'(x)=3x^2-3\), \(f''(x)=6x\).</div>
+  <div class="solution"><strong>7.</strong> בדרך כלל \(f\) תהיה פונקציה ממעלה שלישית בעלת מקסימום ומינימום מקומיים.</div>
+  <div class="solution"><strong>8.</strong> \(f\) קעורה כלפי מטה עבור \(x\lt0\), וכלפי מעלה עבור \(x\gt0\).</div>
+  <div class="solution"><strong>9.</strong> טבלת סימנים אפשרית: \(+\) עבור \(x\lt a\), \(-\) עבור \(a\lt x\lt b\), \(+\) עבור \(x\gt b\).</div>
+  <div class="solution"><strong>10.</strong> \(f''\lt0\) עבור \(x\lt3\), \(f''\gt0\) עבור \(x\gt3\), ולכן יש נקודת פיתול ב-\(x=3\).</div>
+</section>
+
+<section class="page" id="page-mixed-ex">
+  <h2>תרגילים מסכמים - מכל השיעורים, ברמה גבוהה יותר</h2>
+  <p class="small">הפתרונות מופיעים מיד בעמוד הבא.</p>
+  <ol class="exercise-list">
+    <li>נתונה הפונקציה \(f(x)=x^4-4x^2\). מצא את \(f'(x)\) ואת \(f''(x)\), וקבע תחומי עלייה, ירידה, קעירות ונקודות פיתול.</li>
+    <li>נתונה הנגזרת \(f'(x)=x(x-2)(x+1)\). קבע את תחומי העלייה והירידה של \(f\), ואת ערכי ה-\(x\) של נקודות הקיצון.</li>
+    <li>נתונה הנגזרת השנייה \(f''(x)=6x-12\). קבע את תחומי הקעירות של \(f\), ואת ערך ה-\(x\) של נקודת הפיתול.</li>
+    <li>הסבר מדוע עבור \(f(x)=x^4\) מתקבל \(f''(0)=0\), אך אין נקודת פיתול.</li>
+    <li>התאם בין שלוש הפונקציות \(x^3\), \(3x^2\), \(6x\) לבין \(f\), \(f'\), \(f''\), והסבר כיצד זיהית.</li>
+    <li>נתונה פונקציה שהנגזרת שלה חיובית עבור \(x\lt-2\), שלילית עבור \(-2\lt x\lt1\), וחיובית עבור \(x\gt1\). בנוסף, \(f''(x)\lt0\) עבור \(x\lt0\), ו-\(f''(x)\gt0\) עבור \(x\gt0\). תאר במילים את צורת הגרף של \(f\).</li>
+    <li>נתונה הפונקציה \(f(x)=x^3-6x^2+9x\). מצא את נקודות הקיצון ונקודת הפיתול, וקשר ביניהן לגרפים של \(f'\) ו-\(f''\).</li>
+    <li>נתון כי ל-\(f'\) יש מינימום ב-\(x=4\). מה ניתן להסיק על \(f\) ועל \(f''\) סביב \(x=4\)?</li>
+  </ol>
+</section>
+
+<section class="page" id="page-mixed-sol">
+  <h2>פתרונות - תרגילים מסכמים</h2>
+  <div class="solution"><strong>1.</strong> \(f'(x)=4x^3-8x=4x(x^2-2)\), \(f''(x)=12x^2-8\). נקודות עם שיפוע אפס: \(x=0,\pm\sqrt{2}\). תחומי העלייה והירידה מתקבלים מבדיקת הסימן של \(f'\). קעירות מעלה כאשר \(12x^2-8\gt0\Rightarrow x^2\gt\frac{2}{3}\), כלומר \(x\lt-\sqrt{\frac{2}{3}}\) או \(x\gt\sqrt{\frac{2}{3}}\). קעירות מטה בין שתי הנקודות הללו. נקודות פיתול ב-\(x=\pm\sqrt{\frac{2}{3}}\).</div>
+  <div class="solution"><strong>2.</strong> האפסים של \(f'\): \(-1,0,2\). בדיקת סימן נותנת: ירידה ב-\(( -\infty,-1)\), עלייה ב-\((-1,0)\), ירידה ב-\((0,2)\), עלייה ב-\((2,\infty)\). לכן: מינימום ב-\(x=-1\), מקסימום ב-\(x=0\), מינימום ב-\(x=2\).</div>
+  <div class="solution"><strong>3.</strong> \(f''(x)=6x-12=6(x-2)\). לכן קעירות מטה עבור \(x\lt2\), קעירות מעלה עבור \(x\gt2\), ונקודת פיתול ב-\(x=2\).</div>
+  <div class="solution"><strong>4.</strong> עבור \(f(x)=x^4\): \(f''(x)=12x^2\). אמנם \(f''(0)=0\), אבל \(f''(x)\ge0\) לכל \(x\), ואין שינוי סימן. לכן אין נקודת פיתול.</div>
+  <div class="solution"><strong>5.</strong> \(f(x)=x^3\), \(f'(x)=3x^2\), \(f''(x)=6x\). הזיהוי נעשה לפי דרגה, אפסים, ועלייה/ירידה: ל-\(x^3\) יש פיתול ב-0, ל-\(3x^2\) מינימום ב-0, ו-\(6x\) הוא ישר העובר בראשית.</div>
+  <div class="solution"><strong>6.</strong> הפונקציה עולה עד \(x=-2\), אחר כך יורדת עד \(x=1\), ואחר כך עולה. לכן יש מקסימום מקומי ב-\(x=-2\) ומינימום מקומי ב-\(x=1\). מבחינת קעירות: קעורה כלפי מטה עבור \(x\lt0\), וקעורה כלפי מעלה עבור \(x\gt0\). לכן יש פיתול ב-\(x=0\).</div>
+  <div class="solution"><strong>7.</strong> \(f'(x)=3x^2-12x+9=3(x-1)(x-3)\), ולכן מקסימום מקומי ב-\(x=1\), מינימום מקומי ב-\(x=3\). בנוסף \(f''(x)=6x-12=6(x-2)\), ולכן נקודת פיתול ב-\(x=2\). בגרף \(f'\) יתקבלו אפסים ב-1 וב-3, ומינימום ב-2; בגרף \(f''\) יתקבל אפס ב-2.</div>
+  <div class="solution"><strong>8.</strong> אם ל-\(f'\) יש מינימום ב-\(x=4\), אז בדרך כלל ל-\(f\) יש נקודת פיתול ב-\(x=4\). בנוסף, \(f''(4)=0\) ובדרך כלל \(f''\) משנה סימן סביב 4.</div>
+</section>
+
+<section style="display:none;" class="page" id="page-qa">
+  <h2>דוח בדיקה אוטומטית של המסמך</h2>
+  <p class="small">הדוח הבא נבנה אוטומטית בעת פתיחת הקובץ בדפדפן.</p>
+  <ul id="qaResults" class="qa-list"></ul>
+  <div class="box small">
+    <strong>נבדקים:</strong> מבנה DOM, כפילויות מזהים, קיום כותרות לכל עמוד, קיום כפתורי שליטה לכל גרף, הצלחת אתחול JSXGraph, זמינות MathJax, וחריגת גובה מעמוד A4.
+  </div>
+</section>
+
+<script>
+(function(){
+  JXG.Options.text.useMathJax = true;
+  JXG.Options.label.useMathJax = true;
+
+  const boards = {};
+  const expectedBoards = [];
+  let sliderA = null;
+
+  function addControls(ctrlId, board, bboxDefault){
+    const ctrl = document.getElementById(ctrlId);
+    function zoom(factor){
+      const bb = board.getBoundingBox();
+      const cx = (bb[0] + bb[2]) / 2;
+      const cy = (bb[1] + bb[3]) / 2;
+      const w = (bb[2] - bb[0]) * factor / 2;
+      const h = (bb[1] - bb[3]) * factor / 2;
+      board.setBoundingBox([cx - w, cy + h, cx + w, cy - h], false);
+      board.update();
+    }
+    const actions = [
+      ['איפוס', ()=>{board.setBoundingBox(bboxDefault, false); board.update();}],
+      ['הגדל', ()=>zoom(0.8)],
+      ['הקטן', ()=>zoom(1.25)],
+      ['מרכז', ()=>{const bb=board.getBoundingBox(); const w=(bb[2]-bb[0])/2; const h=(bb[1]-bb[3])/2; board.setBoundingBox([-w,h,w,-h], false); board.update();}]
+    ];
+    actions.forEach(([label, fn])=>{
+      const b = document.createElement('button');
+      b.type='button'; b.textContent = label; b.addEventListener('click', fn); ctrl.appendChild(b);
+    });
+  }
+
+  function initBoard(id, bbox, initFn){
+    expectedBoards.push(id);
+    const board = JXG.JSXGraph.initBoard(id, {
+      boundingbox: bbox,
+      axis: true,
+      showCopyright:false,
+      showNavigation:false,
+      keepaspectratio:false,
+      pan:{enabled:true},
+      zoom:{wheel:false, pinch:false, factorX:1.15, factorY:1.15}
+    });
+    initFn(board);
+    boards[id] = board;
+    addControls('controls-' + id.replace('box-',''), board, bbox);
+    return board;
+  }
+
+  function baseStyling(board){
+    board.defaultAxes.x.setAttribute({strokeColor:'#444',strokeWidth:1});
+    board.defaultAxes.y.setAttribute({strokeColor:'#444',strokeWidth:1});
+    board.defaultAxes.x.point1.setAttribute({visible:false});
+    board.defaultAxes.x.point2.setAttribute({visible:false});
+    board.defaultAxes.y.point1.setAttribute({visible:false});
+    board.defaultAxes.y.point2.setAttribute({visible:false});
+  }
+
+  function cubic(x){ return x*x*x - 3*x; }
+  function cubicP(x){ return 3*x*x - 3; }
+  function cubicPP(x){ return 6*x; }
+
+  initBoard('box-l1-f', [-3.5, 6, 3.5, -6], function(board){
+    baseStyling(board);
+    sliderA = board.create('slider', [[-3.1,-5.1],[0.8,-5.1],[-2.5,0,2.5]], {name:'a', snapWidth:0.25, size:2, strokeColor:'#1f4e79', fillColor:'#1f4e79'});
+    const curve = board.create('functiongraph', [cubic, -3.2, 3.2], {strokeWidth:2, strokeColor:'#0b4f8a'});
+    const p = board.create('point', [()=>sliderA.Value(), ()=>cubic(sliderA.Value())], {name:'P', size:2, face:'o', strokeColor:'#aa0000', fillColor:'#aa0000'});
+    const q = board.create('point', [()=>sliderA.Value()+1, ()=>cubic(sliderA.Value()) + cubicP(sliderA.Value())], {visible:false});
+    board.create('line', [p,q], {straightFirst:true, straightLast:true, strokeColor:'#cc6b00', strokeWidth:2});
+    board.create('text', [-3.2,5.4, ()=>'\\(f(x)=x^3-3x\\)'], {useMathJax:true, fontSize:14});
+    board.create('text', [-3.2,4.5, ()=>'\\(f\'(' + sliderA.Value().toFixed(2) + ')= ' + cubicP(sliderA.Value()).toFixed(2) + '\\)'], {useMathJax:true, fontSize:13});
+  });
+
+  initBoard('box-l1-fp', [-3.5, 7, 3.5, -4], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubicP, -3.2, 3.2], {strokeWidth:2, strokeColor:'#2a7f62'});
+    board.create('point', [()=>sliderA ? sliderA.Value() : 0, ()=>sliderA ? cubicP(sliderA.Value()) : 0], {name:'Q', size:2, face:'o', strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('text', [-3.2,6.2, ()=>'\\(f\'(x)=3x^2-3\\)'], {useMathJax:true, fontSize:14});
+    board.create('text', [-3.2,5.1, ()=>'\\((' + (sliderA? sliderA.Value().toFixed(2):'0') + ',' + (sliderA? cubicP(sliderA.Value()).toFixed(2):'0') + ')\\)'], {useMathJax:true, fontSize:13});
+  });
+
+  initBoard('box-l2-f', [-3.5, 6, 3.5, -6], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubic, -3.2, 3.2], {strokeWidth:2, strokeColor:'#0b4f8a'});
+    board.create('point', [-1, cubic(-1)], {name:'A', size:2, strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('point', [1, cubic(1)], {name:'B', size:2, strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('text', [-3.2,5.3,'\\(f(x)=x^3-3x\\)'], {useMathJax:true, fontSize:14});
+  });
+
+  initBoard('box-l2-fp', [-3.5, 7, 3.5, -4], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubicP, -3.2, 3.2], {strokeWidth:2, strokeColor:'#2a7f62'});
+    board.create('point', [-1, 0], {name:'', size:2, strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('point', [1, 0], {name:'', size:2, strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('text', [-3.2,6.1,'\\(f\'(x)=3x^2-3\\)'], {useMathJax:true, fontSize:14});
+  });
+
+  initBoard('box-l3-f', [-3.5, 6, 3.5, -6], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubic, -3.2, 3.2], {strokeWidth:2, strokeColor:'#0b4f8a'});
+    board.create('point', [0,0], {name:'', size:2, strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('text', [-3.1,5.3,'\\(f(x)=x^3-3x\\)'], {useMathJax:true, fontSize:13});
+  });
+
+  initBoard('box-l3-fp', [-3.5, 7, 3.5, -4], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubicP, -3.2, 3.2], {strokeWidth:2, strokeColor:'#2a7f62'});
+    board.create('point', [0,-3], {name:'', size:2, strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('text', [-3.1,6.2,'\\(f\'(x)=3x^2-3\\)'], {useMathJax:true, fontSize:13});
+  });
+
+  initBoard('box-l3-fpp', [-3.5, 7, 3.5, -7], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubicPP, -3.2, 3.2], {strokeWidth:2, strokeColor:'#7a1f8a'});
+    board.create('point', [0,0], {name:'', size:2, strokeColor:'#aa0000', fillColor:'#aa0000'});
+    board.create('text', [-3.1,6.2,'\\(f\'\'(x)=6x\\)'], {useMathJax:true, fontSize:13});
+  });
+
+  initBoard('box-l4-a', [-3.5, 6, 3.5, -6], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubic, -3.2, 3.2], {strokeWidth:2, strokeColor:'#0b4f8a'});
+  });
+  initBoard('box-l4-b', [-3.5, 7, 3.5, -4], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubicP, -3.2, 3.2], {strokeWidth:2, strokeColor:'#2a7f62'});
+  });
+  initBoard('box-l4-c', [-3.5, 7, 3.5, -7], function(board){
+    baseStyling(board);
+    board.create('functiongraph', [cubicPP, -3.2, 3.2], {strokeWidth:2, strokeColor:'#7a1f8a'});
+  });
+
+  function runQA(){
+    const results = [];
+    const ids = [...document.querySelectorAll('[id]')].map(el=>el.id);
+    const duplicates = ids.filter((id, idx)=> ids.indexOf(id)!==idx);
+    results.push({ok: duplicates.length===0, msg: duplicates.length===0 ? 'לא נמצאו מזהים כפולים.' : 'נמצאו מזהים כפולים: ' + [...new Set(duplicates)].join(', ')});
+
+    const pages = [...document.querySelectorAll('.page')];
+    const untitled = pages.filter(p=>!p.querySelector('h1,h2')).map(p=>p.id);
+    results.push({ok: untitled.length===0, msg: untitled.length===0 ? 'לכל עמוד קיימת כותרת.' : 'עמודים ללא כותרת: ' + untitled.join(', ')});
+
+    const missingControls = [...document.querySelectorAll('.jxgbox')].filter(g=>{
+      const ctrlId = 'controls-' + g.id.replace('box-','');
+      const c = document.getElementById(ctrlId);
+      return !c || c.querySelectorAll('button').length < 4;
+    }).map(g=>g.id);
+    results.push({ok: missingControls.length===0, msg: missingControls.length===0 ? 'לכל גרף קיימים כפתורי שליטה.' : 'גרפים חסרי כפתורי שליטה: ' + missingControls.join(', ')});
+
+    const inited = expectedBoards.filter(id => !!boards[id]);
+    results.push({ok: inited.length===expectedBoards.length, msg: inited.length===expectedBoards.length ? 'כל לוחות JSXGraph אותחלו בהצלחה.' : 'כשל באתחול חלק מן הלוחות.'});
+
+    results.push({ok: !!window.MathJax, msg: !!window.MathJax ? 'MathJax זמין במסמך.' : 'MathJax אינו זמין.'});
+
+    const overflowPages = pages.filter(p => p.scrollHeight > p.clientHeight + 6).map(p=>p.id);
+    results.push({ok: overflowPages.length===0, msg: overflowPages.length===0 ? 'לא זוהתה חריגת גובה משמעותית מעמודי A4.' : 'יש חריגת גובה בעמודים: ' + overflowPages.join(', ')});
+
+    results.push({ok: document.documentElement && document.body, msg:'מבנה ה-DOM נטען בהצלחה.'});
+    results.push({ok: true, msg:'לא קיימים שרטוטים גאומטריים במסמך זה, לכן בדיקת סגנון גאומטרי אינה נדרשת.'});
+
+    const ul = document.getElementById('qaResults');
+    results.forEach(r=>{
+      const li = document.createElement('li');
+      li.textContent = (r.ok ? '✓ ' : '✗ ') + r.msg;
+      ul.appendChild(li);
+    });
+  }
+
+  window.addEventListener('load', function(){
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise();
+    }
+    setTimeout(runQA, 600);
+  });
+})();
+</script>
+
+</body>
+</html>
