@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>סיכום שיעור - הקשר בין פונקציה לנגזרותיה</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]']]},
+      svg: {fontCache: 'global'},
+      startup: {typeset: true}
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{
+      --ink:#172033;
+      --muted:#5f6b7a;
+      --paper:#ffffff;
+      --screen:#eef2f7;
+      --primary:#244a7c;
+      --primary-soft:#eef5ff;
+      --accent:#a56100;
+      --accent-soft:#fff6e8;
+      --success:#2f6b4f;
+      --success-soft:#edf8f2;
+      --danger:#9b3a3a;
+      --danger-soft:#fff0f0;
+      --line:#d9e0e8;
+      --soft:#f7f9fc;
+      --function:#244a7c;
+      --first:#a56100;
+      --second:#2f6b4f;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--screen);color:var(--ink);font-family:"Arial","Noto Sans Hebrew",sans-serif}
+    body{padding:10mm 0}
+
+    .page{
+      width:210mm;
+      height:297mm;
+      margin:0 auto 10mm;
+      background:var(--paper);
+      padding:15mm 16mm 14mm;
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 6px 26px rgba(18,35,58,.10);
+      page-break-after:always;
+    }
+    .page:last-child{page-break-after:auto}
+
+    @page{size:A4;margin:0}
+    @media print{
+      html,body{background:#fff}
+      body{padding:0}
+      .page{margin:0;box-shadow:none}
+      .graph-controls{display:none!important}
+    }
+
+    h1,h2,h3{margin:0;color:var(--primary);line-height:1.18}
+    h1{font-size:28px;letter-spacing:-.2px}
+    h2{font-size:24px;margin-bottom:6mm;border-bottom:2px solid var(--line);padding-bottom:3mm}
+    h3{font-size:18px;margin-bottom:2.5mm}
+    p{margin:0 0 3.2mm;line-height:1.56;font-size:15px}
+    ul,ol{margin:1.5mm 0 3.5mm;padding-right:6mm}
+    li{margin-bottom:1.6mm;line-height:1.48;font-size:14.6px}
+    strong{color:#10192a}
+    mjx-container{direction:ltr!important}
+
+    .eyebrow{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.2px;margin-bottom:3mm}
+    .subtitle{font-size:18px;line-height:1.55;color:var(--muted);max-width:158mm;margin-top:5mm}
+    .lead{font-size:17px;line-height:1.58;color:#2d3b50}
+    .rule{height:3px;width:34mm;background:var(--accent);margin:5mm 0}
+    .small{font-size:13px;color:var(--muted);line-height:1.48}
+    .tight li{margin-bottom:1.1mm}
+    .mt{margin-top:5mm}
+    .mb{margin-bottom:5mm}
+    .center{text-align:center}
+    .ltr{direction:ltr;text-align:left}
+
+    .hero{
+      margin-top:14mm;
+      padding:10mm 10mm;
+      background:linear-gradient(135deg,var(--primary-soft),#fff 65%);
+      border:1px solid #cddcf0;
+      border-radius:5mm;
+    }
+    .hero-quote{font-size:23px;font-weight:700;line-height:1.45;color:var(--primary);margin:6mm 0}
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+    .card{border:1px solid var(--line);border-radius:4mm;padding:5mm;background:#fff}
+    .card.soft{background:var(--soft)}
+    .card.primary{background:var(--primary-soft);border-color:#cfdff3}
+    .card.accent{background:var(--accent-soft);border-color:#f1d5ab}
+    .card.success{background:var(--success-soft);border-color:#cfe8da}
+    .card.danger{background:var(--danger-soft);border-color:#efcccc}
+    .card p:last-child,.card ul:last-child{margin-bottom:0}
+
+    .label{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:1.5mm 3mm;margin-bottom:2mm}
+    .label.blue{background:#ddeaff;color:#244a7c}
+    .label.gold{background:#ffebc9;color:#80500b}
+    .label.green{background:#dff0e6;color:#285d45}
+    .label.red{background:#f7dede;color:#873434}
+    .label.gray{background:#e9edf2;color:#4f5b69}
+
+    .reference-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-top:6mm}
+    .ref-item{border-top:4px solid var(--primary);background:var(--soft);padding:4mm;border-radius:2mm}
+    .ref-item:nth-child(2){border-top-color:var(--success)}
+    .ref-item:nth-child(3){border-top-color:var(--accent)}
+    .ref-item:nth-child(4){border-top-color:var(--danger)}
+    .ref-item b{display:block;font-size:14.5px;margin-bottom:1.5mm}
+    .ref-item span{font-size:12.8px;line-height:1.35;color:var(--muted)}
+
+    .toc{margin-top:8mm;border:1px solid var(--line);border-radius:4mm;overflow:hidden}
+    .toc-row{display:grid;grid-template-columns:13mm 1fr;align-items:center;border-bottom:1px solid var(--line);padding:3mm 4mm}
+    .toc-row:last-child{border-bottom:0}
+    .toc-num{font-weight:700;color:var(--primary);font-size:16px}
+    .toc-title{font-size:14.5px}
+
+    .example-box{border-right:5px solid var(--primary);background:var(--primary-soft);padding:4mm 5mm;margin:4mm 0;border-radius:2mm}
+    .example-box strong{color:var(--primary)}
+
+    .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:2.4mm;margin:5mm 0}
+    .flow div{background:var(--soft);border:1px solid var(--line);padding:3.2mm;text-align:center;border-radius:3mm;font-size:12.8px;line-height:1.35;font-weight:700}
+    .flow .arrow{background:#fff;border:0;color:var(--accent);font-size:22px;padding-top:2mm}
+
+    .mini-table{width:100%;border-collapse:collapse;margin-top:3mm;font-size:13.3px}
+    .mini-table th,.mini-table td{border:1px solid var(--line);padding:2.5mm 3mm;vertical-align:middle;line-height:1.38}
+    .mini-table th{background:var(--soft);color:var(--primary);font-size:13px}
+    .mini-table td.math{direction:ltr;text-align:center;font-weight:700}
+    .mini-table tr.positive td:first-child{border-right:4px solid var(--success)}
+    .mini-table tr.negative td:first-child{border-right:4px solid var(--danger)}
+
+    .sign-chart{direction:ltr;display:grid;grid-template-columns:29mm repeat(5,1fr);border:1px solid var(--line);border-radius:3mm;overflow:hidden;margin:4mm 0;font-size:13px}
+    .sign-chart > div{min-height:12mm;display:flex;align-items:center;justify-content:center;border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:2mm;text-align:center}
+    .sign-chart > div:nth-last-child(-n+6){border-bottom:0}
+    .sign-chart .head{background:var(--soft);font-weight:700;color:var(--primary)}
+    .sign-chart .pos{background:var(--success-soft);color:var(--success);font-weight:700}
+    .sign-chart .neg{background:var(--danger-soft);color:var(--danger);font-weight:700}
+    .sign-chart .zero{background:var(--accent-soft);color:var(--accent);font-weight:700}
+
+    .formula-chain{direction:ltr;display:flex;align-items:center;justify-content:center;gap:5mm;margin:6mm 0}
+    .formula-node{min-width:42mm;text-align:center;padding:5mm 4mm;border-radius:4mm;border:2px solid var(--line);background:#fff;font-size:17px;font-weight:700}
+    .formula-node.f{border-color:var(--function);color:var(--function)}
+    .formula-node.fp{border-color:var(--first);color:var(--first)}
+    .formula-node.fpp{border-color:var(--second);color:var(--second)}
+    .formula-arrow{font-size:25px;color:var(--muted)}
+
+    .graph-stack{display:grid;grid-template-columns:1fr;gap:3mm;direction:ltr}
+    .graph-card{border:1px solid var(--line);border-radius:4mm;padding:3mm 4mm 2.5mm;background:#fff;direction:ltr}
+    .graph-head{display:flex;align-items:center;justify-content:space-between;gap:4mm;margin-bottom:2mm;direction:ltr}
+    .graph-title{font-size:14px;font-weight:700}
+    .graph-note{font-size:11.5px;color:var(--muted)}
+    .jxgbox{width:100%;height:46mm;border:1px solid #dce3eb;border-radius:2mm;background:#fff;direction:ltr}
+    .graph-controls{display:flex;gap:2mm;align-items:center;direction:ltr}
+    .graph-controls button{border:1px solid #c8d3df;background:#fff;color:var(--primary);border-radius:2mm;padding:1.1mm 2.4mm;font:700 12px Arial;cursor:pointer}
+    .graph-controls button:hover{background:var(--primary-soft)}
+    .legend{display:flex;gap:5mm;justify-content:center;align-items:center;direction:ltr;margin:2mm 0 0;font-size:12px}
+    .legend span{display:flex;align-items:center;gap:1.5mm}
+    .swatch{width:9mm;height:1.2mm;border-radius:2mm;display:inline-block}
+
+    .steps{counter-reset:step;display:grid;gap:3mm}
+    .step{counter-increment:step;display:grid;grid-template-columns:13mm 1fr;gap:3mm;align-items:start;border:1px solid var(--line);border-radius:3mm;padding:3mm;background:#fff}
+    .step::before{content:counter(step);width:10mm;height:10mm;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-weight:700;font-size:14px}
+    .step b{display:block;color:var(--primary);margin-bottom:1mm}
+    .step p{font-size:13.8px;margin:0}
+
+    .checklist{list-style:none;padding:0;margin:0}
+    .checklist li{position:relative;padding-right:7mm}
+    .checklist li::before{content:"✓";position:absolute;right:0;top:0;color:var(--success);font-weight:700}
+
+    .footer{position:absolute;right:16mm;left:16mm;bottom:7mm;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:2.5mm;color:#7b8795;font-size:11.5px}
+    .page-no{font-weight:700;color:var(--primary)}
+  </style>
+</head>
+<body>
+
+<section class="page" id="cover">
+  <div class="eyebrow">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div>
+  <h1>הקשר בין גרף הפונקציה, הנגזרת הראשונה והנגזרת השנייה</h1>
+  <div class="rule"></div>
+
+  <div class="hero">
+    <div class="label blue">הרעיון המרכזי</div>
+    <div class="hero-quote">כל גרף מספר לנו משהו אחר - אבל שלושת הגרפים מתארים את אותה פונקציה.</div>
+    <p class="lead">הנגזרת הראשונה מתארת את <strong>השיפוע</strong> של הפונקציה. הנגזרת השנייה מתארת אם ערכי הנגזרת הראשונה הולכים וגדלים או הולכים וקטנים.</p>
+  </div>
+
+  <div class="reference-strip">
+    <div class="ref-item"><b>האפסים של \(f\)</b><span>נקודות החיתוך של הפונקציה עם ציר \(x\).</span></div>
+    <div class="ref-item"><b>סימן \(f'\)</b><span>קובע היכן הפונקציה עולה או יורדת.</span></div>
+    <div class="ref-item"><b>האפסים של \(f'\)</b><span>מועמדים לנקודות קיצון של הפונקציה.</span></div>
+    <div class="ref-item"><b>סימן \(f''\)</b><span>קובע אם \(f'\) עולה או יורדת.</span></div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-row"><div class="toc-num">1</div><div class="toc-title">מפת הקשרים - מה מספר לנו כל גרף?</div></div>
+    <div class="toc-row"><div class="toc-num">2</div><div class="toc-title">הקשר בין \(f\) לבין \(f'\): עלייה, ירידה וקיצון</div></div>
+    <div class="toc-row"><div class="toc-num">3</div><div class="toc-title">הקשר בין \(f'\) לבין \(f''\): עלייה, ירידה וקיצון של הנגזרת הראשונה</div></div>
+    <div class="toc-row"><div class="toc-num">4</div><div class="toc-title">דוגמה מלאה בשלושה גרפים אינטראקטיביים</div></div>
+    <div class="toc-row"><div class="toc-num">5</div><div class="toc-title">שיטת זיהוי, טעויות נפוצות ובדיקה עצמית</div></div>
+  </div>
+
+  <div class="footer"><span>הקשר בין פונקציה לנגזרותיה</span><span class="page-no">1</span></div>
+</section>
+
+<section class="page" id="map">
+  <h2>1. מפת הקשרים - מה מספר לנו כל גרף?</h2>
+  <p class="lead">כאשר נתונים כמה גרפים, אין צורך לנחש לפי הצורה בלבד. בודקים <strong>התאמות</strong> באותו ערך של \(x\).</p>
+
+  <div class="formula-chain">
+    <div class="formula-node f">\(f(x)\)<br><span class="small">גובה הפונקציה</span></div>
+    <div class="formula-arrow">⟶</div>
+    <div class="formula-node fp">\(f'(x)\)<br><span class="small">שיפוע הפונקציה</span></div>
+    <div class="formula-arrow">⟶</div>
+    <div class="formula-node fpp">\(f''(x)\)<br><span class="small">הנגזרת של \(f'\)</span></div>
+  </div>
+
+  <table class="mini-table">
+    <thead>
+      <tr><th>מה בודקים?</th><th>מידע מן הגרף</th><th>המסקנה</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="math">\(f(x)=0\)</td><td>גרף \(f\) חותך את ציר \(x\)</td><td>זהו אפס של הפונקציה - לא בהכרח נקודת קיצון.</td></tr>
+      <tr><td class="math">\(f'(x)\gt 0\)</td><td>גרף \(f'\) מעל ציר \(x\)</td><td>הפונקציה \(f\) עולה.</td></tr>
+      <tr><td class="math">\(f'(x)\lt 0\)</td><td>גרף \(f'\) מתחת לציר \(x\)</td><td>הפונקציה \(f\) יורדת.</td></tr>
+      <tr><td class="math">\(f'(x)=0\)</td><td>גרף \(f'\) על ציר \(x\)</td><td>ל־\(f\) יש שיפוע אפס; בודקים שינוי סימן כדי לקבוע קיצון.</td></tr>
+      <tr><td class="math">\(f''(x)\gt 0\)</td><td>גרף \(f''\) מעל ציר \(x\)</td><td>הנגזרת הראשונה \(f'\) עולה.</td></tr>
+      <tr><td class="math">\(f''(x)\lt 0\)</td><td>גרף \(f''\) מתחת לציר \(x\)</td><td>הנגזרת הראשונה \(f'\) יורדת.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid-2 mt">
+    <div class="card primary">
+      <span class="label blue">שאלה מנחה</span>
+      <h3>כאשר מסתכלים על \(f'\)</h3>
+      <p>שואלים: האם הגרף מעל או מתחת לציר \(x\)? כך יודעים את כיוון התנועה של \(f\).</p>
+    </div>
+    <div class="card success">
+      <span class="label green">שאלה מנחה</span>
+      <h3>כאשר מסתכלים על \(f''\)</h3>
+      <p>שואלים: האם ערכי \(f'\) הולכים וגדלים או הולכים וקטנים?</p>
+    </div>
+  </div>
+
+  <div class="example-box mt">
+    <strong>הבחנה חשובה:</strong> ערך חיובי של \(f'(x)\) אינו אומר ש־\(f(x)\) חיובית. הוא אומר רק שהפונקציה <strong>עולה</strong> באותו \(x\).
+  </div>
+
+  <div class="footer"><span>מפת הקשרים</span><span class="page-no">2</span></div>
+</section>
+
+<section class="page" id="first-derivative">
+  <h2>2. מן הנגזרת הראשונה אל הפונקציה</h2>
+  <p class="lead">הנגזרת הראשונה \(f'(x)\) היא מד השיפוע של \(f(x)\). הסימן שלה קובע עלייה או ירידה, ושינוי הסימן שלה קובע את סוג נקודת הקיצון.</p>
+
+  <div class="grid-3">
+    <div class="card success center">
+      <span class="label green">שיפוע חיובי</span>
+      <h3>\(f'(x)\gt 0\)</h3>
+      <p>\(f\) עולה.</p>
+    </div>
+    <div class="card accent center">
+      <span class="label gold">שיפוע אפס</span>
+      <h3>\(f'(x)=0\)</h3>
+      <p>בודקים שינוי סימן.</p>
+    </div>
+    <div class="card danger center">
+      <span class="label red">שיפוע שלילי</span>
+      <h3>\(f'(x)\lt 0\)</h3>
+      <p>\(f\) יורדת.</p>
+    </div>
+  </div>
+
+  <h3 class="mt">כיצד מסווגים נקודת קיצון?</h3>
+  <table class="mini-table">
+    <thead><tr><th>שינוי הסימן של \(f'\)</th><th>התנהגות \(f\)</th><th>המסקנה</th></tr></thead>
+    <tbody>
+      <tr><td class="math">\(+\;\Rightarrow\;-\)</td><td>עלייה ואחריה ירידה</td><td><strong>מקסימום מקומי</strong></td></tr>
+      <tr><td class="math">\(-\;\Rightarrow\;+\)</td><td>ירידה ואחריה עלייה</td><td><strong>מינימום מקומי</strong></td></tr>
+      <tr><td class="math">\(+\;\Rightarrow\;+\)</td><td>עלייה משני הצדדים</td><td>אין קיצון</td></tr>
+      <tr><td class="math">\(-\;\Rightarrow\;-\)</td><td>ירידה משני הצדדים</td><td>אין קיצון</td></tr>
+    </tbody>
+  </table>
+<div style="height:20px;"></div>
+  <h3 class="mt">דוגמה: \(f(x)=x^3-3x\)</h3>
+  <p>נגזור: \(\;f'(x)=3x^2-3=3(x-1)(x+1)\). לכן נקודות שבהן הנגזרת שווה לאפס הן \(x=-1,1\).</p>
+
+  <div class="sign-chart" aria-label="טבלת סימנים של הנגזרת הראשונה">
+    <div class="head">\(x\)</div><div class="head">\(x\lt -1\)</div><div class="head">\(-1\)</div><div class="head">\(-1\lt x\lt 1\)</div><div class="head">\(1\)</div><div class="head">\(x\gt 1\)</div>
+    <div class="head">\(f'(x)\)</div><div class="pos">+</div><div class="zero">0</div><div class="neg">−</div><div class="zero">0</div><div class="pos">+</div>
+    <div class="head">\(f\)</div><div class="pos">עולה ↗</div><div class="zero">מקסימום</div><div class="neg">יורדת ↘</div><div class="zero">מינימום</div><div class="pos">עולה ↗</div>
+  </div>
+
+  <div class="grid-2 mt">
+    <div class="card accent">
+      <h3>מקסימום מקומי</h3>
+      <p>ב־\(x=-1\): הנגזרת משנה סימן מחיובי לשלילי. נקודת הקיצון היא \((-1,2)\).</p>
+    </div>
+    <div class="card primary">
+      <h3>מינימום מקומי</h3>
+      <p>ב־\(x=1\): הנגזרת משנה סימן משלילי לחיובי. נקודת הקיצון היא \((1,-2)\).</p>
+    </div>
+  </div>
+
+  <div class="footer"><span>עלייה, ירידה וקיצון</span><span class="page-no">3</span></div>
+</section>
+
+<section class="page" id="second-derivative">
+  <h2>3. מן הנגזרת השנייה אל הנגזרת הראשונה</h2>
+  <p class="lead">הנגזרת השנייה \(f''(x)\) היא הנגזרת של \(f'(x)\). לכן הסימן שלה קובע אם הנגזרת הראשונה עולה או יורדת.</p>
+
+  <div class="grid-2">
+    <div class="card success">
+      <span class="label green">הנגזרת הראשונה עולה</span>
+      <h3>\(f''(x)\gt 0\)</h3>
+      <ul class="tight">
+        <li>\(f'(x)\) עולה.</li>
+        <li>ערכי הנגזרת הראשונה הולכים וגדלים.</li>
+        <li>בגרף \(f'\) נעים כלפי מעלה משמאל לימין.</li>
+      </ul>
+    </div>
+    <div class="card danger">
+      <span class="label red">הנגזרת הראשונה יורדת</span>
+      <h3>\(f''(x)\lt 0\)</h3>
+      <ul class="tight">
+        <li>\(f'(x)\) יורדת.</li>
+        <li>ערכי הנגזרת הראשונה הולכים וקטנים.</li>
+        <li>בגרף \(f'\) נעים כלפי מטה משמאל לימין.</li>
+      </ul>
+    </div>
+  </div>
+<div style="height:20px;"></div>
+  <h3 class="mt">כיצד מזהים נקודת קיצון של \(f'\)?</h3>
+  <div class="flow" style="grid-template-columns:1fr 16mm 1fr 16mm 1fr">
+    <div>מוצאים מועמד:<br>\(f''(x)=0\)</div>
+    <div class="arrow">←</div>
+    <div>בודקים את סימן<br>\(f''\) משני הצדדים</div>
+    <div class="arrow">←</div>
+    <div>יש שינוי סימן?<br>מסווגים קיצון של \(f'\)</div>
+  </div>
+
+  <div class="card accent">
+    <span class="label gold">זהירות</span>
+    <p><strong>\(f''(x_0)=0\) לבדו אינו מוכיח נקודת קיצון של \(f'\).</strong> צריך לבדוק אם \(f''\) משנה סימן סביב \(x_0\).</p>
+  </div>
+
+  <h3 class="mt">בדוגמה \(f(x)=x^3-3x\)</h3>
+  <p>הנגזרת השנייה היא \(\;f''(x)=6x\). היא שלילית כאשר \(x\lt 0\), שווה לאפס ב־\(x=0\), וחיובית כאשר \(x\gt 0\).</p>
+
+  <div class="sign-chart" aria-label="טבלת סימנים של הנגזרת השנייה">
+    <div class="head">\(x\)</div><div class="head" style="grid-column:span 2">\(x\lt 0\)</div><div class="head">\(0\)</div><div class="head" style="grid-column:span 2">\(x\gt 0\)</div>
+    <div class="head">\(f''(x)\)</div><div class="neg" style="grid-column:span 2">−</div><div class="zero">0</div><div class="pos" style="grid-column:span 2">+</div>
+    <div class="head">התנהגות \(f'\)</div><div class="neg" style="grid-column:span 2">יורדת</div><div class="zero">מינימום</div><div class="pos" style="grid-column:span 2">עולה</div>
+  </div>
+
+  <div class="example-box mt">
+    <strong>מסקנה מן התמונה:</strong> ב־\(x=0\) הנגזרת השנייה משנה סימן משלילי לחיובי. לכן \(f'\) עוברת מירידה לעלייה, ויש לה מינימום בנקודה \((0,-3)\).
+  </div>
+
+  <div class="footer"><span>התנהגות הנגזרת הראשונה</span><span class="page-no">4</span></div>
+</section>
+
+<section class="page" id="graphs">
+  <h2>4. אותה דוגמה - שלושה גרפים</h2>
+  <p class="lead">השרטוט על הלוח הוא סכמטי. כאן מוצגת דוגמה מתמטית מדויקת בעלת אותו מבנה: \(f(x)=x^3-3x\).</p>
+
+  <div class="formula-chain" style="margin:3mm 0 4mm">
+    <div class="formula-node f">\(f=x^3-3x\)</div>
+    <div class="formula-arrow">⟶</div>
+    <div class="formula-node fp">\(f'=3x^2-3\)</div>
+    <div class="formula-arrow">⟶</div>
+    <div class="formula-node fpp">\(f''=6x\)</div>
+  </div>
+
+  <div class="graph-stack">
+    <div class="graph-card">
+      <div class="graph-head">
+        <div class="graph-title" style="color:var(--function)">\(f(x)=x^3-3x\) - הפונקציה</div>
+        <div class="graph-controls"><button type="button" data-action="out" data-board="board-f">−</button><button type="button" data-action="reset" data-board="board-f">מרכז</button><button type="button" data-action="in" data-board="board-f">+</button></div>
+      </div>
+      <div id="board-f" class="jxgbox"></div>
+    </div>
+
+    <div class="graph-card">
+      <div class="graph-head">
+        <div class="graph-title" style="color:var(--first)">\(f'(x)=3x^2-3\) - הנגזרת הראשונה</div>
+        <div class="graph-controls"><button type="button" data-action="out" data-board="board-fp">−</button><button type="button" data-action="reset" data-board="board-fp">מרכז</button><button type="button" data-action="in" data-board="board-fp">+</button></div>
+      </div>
+      <div id="board-fp" class="jxgbox"></div>
+    </div>
+
+    <div class="graph-card">
+      <div class="graph-head">
+        <div class="graph-title" style="color:var(--second)">\(f''(x)=6x\) - הנגזרת השנייה</div>
+        <div class="graph-controls"><button type="button" data-action="out" data-board="board-fpp">−</button><button type="button" data-action="reset" data-board="board-fpp">מרכז</button><button type="button" data-action="in" data-board="board-fpp">+</button></div>
+      </div>
+      <div id="board-fpp" class="jxgbox"></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--function)"></i>\(f\)</span>
+    <span><i class="swatch" style="background:var(--first)"></i>\(f'\)</span>
+    <span><i class="swatch" style="background:var(--second)"></i>\(f''\)</span>
+    <span class="graph-note">אפשר לגרור את הגרפים ולשנות קנה מידה באמצעות הכפתורים</span>
+  </div>
+
+  <div class="footer"><span>הדוגמה הגרפית</span><span class="page-no">5</span></div>
+</section>
+
+<section class="page" id="analysis">
+  <h2>5. ניתוח מלא של הדוגמה</h2>
+  <p class="lead">הטבלה מרכזת את כל המידע שאפשר לעבור ממנו בין שלושת הגרפים.</p>
+
+  <table class="mini-table">
+    <thead><tr><th>תחום / נקודה</th><th>\(f''\)</th><th>התנהגות \(f'\)</th><th>סימן \(f'\)</th><th>התנהגות \(f\)</th></tr></thead>
+    <tbody>
+      <tr><td class="math">\(x\lt -1\)</td><td>שלילי</td><td>יורדת</td><td>חיובי</td><td>עולה</td></tr>
+      <tr><td class="math">\(x=-1\)</td><td>שלילי</td><td>ממשיכה לרדת</td><td>אפס</td><td>מקסימום מקומי \((-1,2)\)</td></tr>
+      <tr><td class="math">\(-1\lt x\lt 0\)</td><td>שלילי</td><td>יורדת</td><td>שלילי</td><td>יורדת</td></tr>
+      <tr><td class="math">\(x=0\)</td><td>אפס ומחליף סימן</td><td>מינימום של \(f'\)</td><td>שלילי</td><td>ממשיכה לרדת</td></tr>
+      <tr><td class="math">\(0\lt x\lt 1\)</td><td>חיובי</td><td>עולה</td><td>שלילי</td><td>יורדת</td></tr>
+      <tr><td class="math">\(x=1\)</td><td>חיובי</td><td>ממשיכה לעלות</td><td>אפס</td><td>מינימום מקומי \((1,-2)\)</td></tr>
+      <tr><td class="math">\(x\gt 1\)</td><td>חיובי</td><td>עולה</td><td>חיובי</td><td>עולה</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid-3 mt">
+    <div class="card primary center">
+      <span class="label blue">האפסים של הפונקציה</span>
+      <p>\(x=-\sqrt{3},0,\sqrt{3}\)</p>
+      <p class="small">חיתוך \(f\) עם ציר \(x\)</p>
+    </div>
+    <div class="card accent center">
+      <span class="label gold">האפסים של הנגזרת הראשונה</span>
+      <p>\(x=-1,1\)</p>
+      <p class="small">שיפוע אפס וקיצון של \(f\)</p>
+    </div>
+    <div class="card success center">
+      <span class="label green">אפס הנגזרת השנייה</span>
+      <p>\(x=0\)</p>
+      <p class="small">מינימום של \(f'\)</p>
+    </div>
+  </div>
+
+  <div class="grid-2 mt">
+    <div class="card soft">
+      <h3>הקשר ההפוך</h3>
+      <p>אם בגרף \(f\) רואים מקסימום או מינימום חלק, מחפשים באותו ערך \(x\) אפס של \(f'\).</p>
+    </div>
+    <div class="card soft">
+      <h3>עוד קשר שימושי</h3>
+      <p>אם בגרף \(f'\) רואים נקודת קיצון, מחפשים באותו ערך \(x\) אפס של \(f''\).</p>
+    </div>
+  </div>
+
+  <div class="example-box mt">
+    <strong>עיקרון לבגרות:</strong> כאשר מסיקים מסקנה על \(f\) מגרף של נגזרת, תמיד מציינים <strong>מה בדקנו</strong> - סימן, אפס או שינוי סימן - ולא מסתפקים בצורה החזותית.
+  </div>
+
+  <div class="footer"><span>ניתוח מלא</span><span class="page-no">6</span></div>
+</section>
+
+<section class="page" id="method">
+  <h2>6. כיצד מזהים מי הוא \(f\), מי הוא \(f'\) ומי הוא \(f''\)?</h2>
+  <p class="lead">בשאלה שבה שלושת הגרפים מופיעים ללא שמות, עובדים לפי התאמות מקומיות. התאמה אחת אינה מספיקה - מחפשים לפחות שתי ראיות.</p>
+
+  <div class="steps">
+    <div class="step"><div><b>מאתרים נקודות קיצון של גרף מועמד ל־\(f\)</b><p>באותם ערכי \(x\), הגרף המועמד ל־\(f'\) צריך לחתוך או לגעת בציר \(x\).</p></div></div>
+    <div class="step"><div><b>בודקים סימן משני הצדדים</b><p>אם \(f\) עולה, \(f'\) חייב להיות חיובי. אם \(f\) יורדת, \(f'\) חייב להיות שלילי.</p></div></div>
+    <div class="step"><div><b>מאתרים נקודות קיצון של הגרף המועמד ל־\(f'\)</b><p>באותם ערכי \(x\), הגרף המועמד ל־\(f''\) צריך להיות שווה לאפס.</p></div></div>
+    <div class="step"><div><b>בודקים את השתנות \(f'\)</b><p>כאשר \(f''\) חיובית, \(f'\) עולה; כאשר \(f''\) שלילית, \(f'\) יורדת.</p></div></div>
+    <div class="step"><div><b>בודקים התאמה של דרגות וצורות</b><p>בפולינומים: גזירה מורידה את המעלה באחת. ממעלה שלישית מתקבלת ריבועית, וממנה ליניארית.</p></div></div>
+  </div>
+
+  <h3 class="mt">יישום מהיר על התמונה</h3>
+  <table class="mini-table">
+    <thead><tr><th>הגרף</th><th>הצורה</th><th>הראיה המרכזית</th></tr></thead>
+    <tbody>
+      <tr><td class="math">\(f\)</td><td>גרף ממעלה שלישית</td><td>יש בו מקסימום משמאל ומינימום מימין.</td></tr>
+      <tr><td class="math">\(f'\)</td><td>פרבולה הפונה כלפי מעלה</td><td>האפסים שלה מתאימים לערכי ה־\(x\) של נקודות הקיצון של \(f\).</td></tr>
+      <tr><td class="math">\(f''\)</td><td>ישר עולה</td><td>האפס שלו מתאים לנקודת המינימום של \(f'\).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid-2 mt">
+    <div class="card success">
+      <span class="label green">בדיקה עצמית</span>
+      <ul class="checklist tight">
+        <li>בדקתי התאמה באותם ערכי \(x\).</li>
+        <li>בדקתי גם אפסים וגם סימנים.</li>
+        <li>הפרדתי בין ערך הפונקציה לבין שיפועה.</li>
+        <li>הוכחתי שינוי סימן לפני שקבעתי נקודת קיצון.</li>
+      </ul>
+    </div>
+    <div class="card danger">
+      <span class="label red">טעויות נפוצות</span>
+      <ul class="tight">
+        <li>לקבוע ש־\(f\) חיובית משום ש־\(f'\) חיובית.</li>
+        <li>לקבוע קיצון רק מן השוויון \(f'(x)=0\).</li>
+        <li>לקבוע קיצון של \(f'\) רק מן השוויון \(f''(x)=0\).</li>
+        <li>לבלבל בין קיצון של \(f'\) לבין קיצון של \(f\).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer"><span>שיטת זיהוי</span><span class="page-no">7</span></div>
+</section>
+
+<section class="page" id="practice">
+  <h2>7. תרגול קצר ובדיקת הבנה</h2>
+  <p class="lead">היעזרו בדוגמה \(f(x)=x^3-3x\) ובגרפים שבעמוד 5.</p>
+
+  <div class="grid-2">
+    <div class="card soft">
+      <span class="label blue">תרגילים</span>
+      <ol>
+        <li>באילו תחומים הפונקציה \(f\) עולה?</li>
+        <li>באילו תחומים הפונקציה \(f\) יורדת?</li>
+        <li>קבעו את סוג נקודת הקיצון ב־\(x=-1\).</li>
+        <li>באיזה תחום הנגזרת הראשונה \(f'\) יורדת?</li>
+        <li>באיזה תחום הנגזרת הראשונה \(f'\) עולה?</li>
+        <li>הסבירו מדוע ל־\(f'\) יש מינימום ב־\(x=0\).</li>
+        <li>מה אפשר להסיק על \(f\) כאשר \(f'\) עולה אך עדיין שלילית?</li>
+        <li>אם גרף \(f'\) נוגע בציר \(x\) ואינו משנה סימן, האם ל־\(f\) יש בהכרח קיצון?</li>
+      </ol>
+    </div>
+    <div class="card primary">
+      <span class="label green">תשובות קצרות</span>
+      <ol>
+        <li>\(x\lt -1\) או \(x\gt 1\).</li>
+        <li>\(-1\lt x\lt 1\).</li>
+        <li>מקסימום מקומי, כי \(f'\) משתנה מחיובי לשלילי.</li>
+        <li>\(x\lt 0\), כי \(f''(x)\lt 0\).</li>
+        <li>\(x\gt 0\), כי \(f''(x)\gt 0\).</li>
+        <li>\(f''\) משתנה משלילי לחיובי ב־\(x=0\), ולכן \(f'\) עוברת מירידה לעלייה.</li>
+        <li>\(f\) יורדת, משום ש־\(f'\) עדיין שלילית.</li>
+        <li>לא. ללא שינוי סימן של \(f'\), אין קיצון.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3 class="mt">סיכום של שורה אחת לכל גרף</h3>
+  <div class="grid-3">
+    <div class="card primary center">
+      <h3>\(f\)</h3>
+      <p>איפה הגרף נמצא?</p>
+      <p class="small">ערכים, חיתוכים ונקודות קיצון</p>
+    </div>
+    <div class="card accent center">
+      <h3>\(f'\)</h3>
+      <p>לאן הגרף נע?</p>
+      <p class="small">שיפוע, עלייה, ירידה וקיצון</p>
+    </div>
+    <div class="card success center">
+      <h3>\(f''\)</h3>
+      <p>איך השיפוע משתנה?</p>
+      <p class="small">עלייה, ירידה וקיצון של \(f'\)</p>
+    </div>
+  </div>
+
+  <div class="hero" style="margin-top:7mm;padding:7mm 9mm">
+    <div class="label gold">משפט מפתח</div>
+    <div class="hero-quote" style="font-size:21px;margin:3mm 0">אפס של נגזרת הוא רק מועמד. שינוי הסימן הוא שמוכיח את השינוי בהתנהגות.</div>
+  </div>
+
+  <div class="footer"><span>תרגול וסיכום</span><span class="page-no">8</span></div>
+</section>
+
+<script>
+  (function(){
+    const defaults = {
+      axis: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: {enabled: true, needShift: false},
+      zoom: {enabled: true, wheel: true, needShift: false, factorX: 1.18, factorY: 1.18},
+      keepAspectRatio: false,
+      defaultAxes: {
+        x: {name: 'x', withLabel: true, label: {position: 'rt', offset: [-10, 12]}, ticks: {drawLabels: true, minorTicks: 0, ticksDistance: 1}},
+        y: {name: 'y', withLabel: true, label: {position: 'rt', offset: [10, -8]}, ticks: {drawLabels: true, minorTicks: 0, ticksDistance: 1}}
+      }
+    };
+
+    const configs = {
+      'board-f': {box: [-2.6, 4.2, 2.6, -4.2], color: '#244a7c', fn: x => x*x*x-3*x, points: [[-Math.sqrt(3),0,''],[-1,2,'max'],[0,0,''],[1,-2,'min'],[Math.sqrt(3),0,'']]},
+      'board-fp': {box: [-2.6, 5, 2.6, -4.2], color: '#a56100', fn: x => 3*x*x-3, points: [[-1,0,''],[0,-3,''],[1,0,'']]},
+      'board-fpp': {box: [-2.6, 7, 2.6, -7], color: '#2f6b4f', fn: x => 6*x, points: [[0,0,'']]}
+    };
+
+    const boards = {};
+    Object.keys(configs).forEach(id => {
+      const c = configs[id];
+      const board = JXG.JSXGraph.initBoard(id, Object.assign({}, defaults, {boundingbox: c.box}));
+      board.create('functiongraph', [c.fn], {strokeColor: c.color, strokeWidth: 3, highlight: false});
+      c.points.forEach(pt => board.create('point', [pt[0],pt[1]], {
+        name: pt[2], size: 2, fixed: true, strokeColor: c.color, fillColor: '#ffffff', label: {offset:[7,7], fontSize:11}, highlight:false
+      }));
+      boards[id] = {board, box: c.box.slice()};
+    });
+
+    function zoom(board, factor){
+      const bb = board.getBoundingBox();
+      const cx = (bb[0]+bb[2])/2, cy = (bb[1]+bb[3])/2;
+      const hw = (bb[0]-bb[2])*factor/2, hh = (bb[1]-bb[3])*factor/2;
+      board.setBoundingBox([cx+hw, cy+hh, cx-hw, cy-hh], false);
+    }
+
+    document.querySelectorAll('.graph-controls button').forEach(button => {
+      button.addEventListener('click', () => {
+        const entry = boards[button.dataset.board];
+        if(!entry) return;
+        if(button.dataset.action === 'reset') entry.board.setBoundingBox(entry.box, false);
+        if(button.dataset.action === 'in') zoom(entry.board, 0.82);
+        if(button.dataset.action === 'out') zoom(entry.board, 1.22);
+      });
+    });
+  })();
+</script>
+</body>
+</html>
