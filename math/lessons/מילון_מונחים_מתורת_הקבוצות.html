@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>מילון מונחים מתורת הקבוצות</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --ink: #17324d;
+      --muted: #587086;
+      --blue: #1769aa;
+      --blue-2: #0b88a8;
+      --pale: #eaf5fb;
+      --pale-2: #f4f9fc;
+      --gold: #d89a20;
+      --red: #c84b4b;
+      --green: #2b8a6e;
+      --line: #cbdce8;
+      --paper: #ffffff;
+      --shadow: 0 8px 28px rgba(23, 50, 77, .14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #dfeaf1;
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      font-size: 14px;
+      line-height: 1.44;
+    }
+
+    body { counter-reset: page; }
+
+    .page {
+      counter-increment: page;
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      margin: 10mm auto;
+      padding: 12mm 14mm 14mm;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .page:last-of-type {
+      break-after: auto;
+      page-break-after: auto;
+    }
+
+    .page::after {
+      content: counter(page);
+      position: absolute;
+      bottom: 6mm;
+      left: 14mm;
+      width: 9mm;
+      height: 9mm;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .page::before {
+      content: "מתמטיקה 5 יחידות • מילון מונחים מתורת הקבוצות";
+      position: absolute;
+      bottom: 7mm;
+      right: 14mm;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(255,255,255,.23) 0 7%, transparent 7.5%),
+        radial-gradient(circle at 85% 74%, rgba(255,255,255,.14) 0 12%, transparent 12.5%),
+        linear-gradient(145deg, #123e68 0%, #1769aa 55%, #0b88a8 100%);
+      color: #fff;
+    }
+
+    .cover::before { color: rgba(255,255,255,.82); }
+    .cover::after { background: #fff; color: var(--blue); }
+
+    .cover h1 {
+      margin: 0 0 6mm;
+      font-size: 45px;
+      line-height: 1.08;
+      letter-spacing: -.8px;
+    }
+
+    .cover .subtitle {
+      max-width: 155mm;
+      margin: 0 0 13mm;
+      font-size: 23px;
+      line-height: 1.35;
+      color: #e9f6ff;
+    }
+
+    .cover-card {
+      width: 100%;
+      padding: 7mm;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 5mm;
+      background: rgba(255,255,255,.13);
+      backdrop-filter: blur(2px);
+    }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4mm;
+      margin-top: 5mm;
+    }
+
+    .cover-chip {
+      min-height: 28mm;
+      padding: 4mm;
+      border-radius: 3mm;
+      background: rgba(255,255,255,.13);
+    }
+
+    .cover-chip strong { display: block; font-size: 16px; margin-bottom: 1mm; }
+
+    h2 {
+      margin: 0 0 5mm;
+      padding-bottom: 2.5mm;
+      border-bottom: 2px solid var(--line);
+      color: var(--blue);
+      font-size: 27px;
+      line-height: 1.15;
+    }
+
+    h3 {
+      margin: 4mm 0 2mm;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    p { margin: 0 0 3mm; }
+    ul, ol { margin: 1.5mm 0 3mm; padding-right: 6mm; }
+    li { margin: 1mm 0; }
+
+    .lead {
+      margin-bottom: 4mm;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .formula {
+      direction: ltr;
+      text-align: center;
+      margin: 3mm 0;
+      padding: 3mm 4mm;
+      border: 1px solid #b9d7e8;
+      border-radius: 3mm;
+      background: #f6fbfe;
+      font-size: 17px;
+    }
+
+    .math { direction: ltr; unicode-bidi: isolate; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+      align-items: start;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4mm;
+      align-items: start;
+    }
+
+    .card {
+      padding: 4mm;
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      background: var(--paper);
+    }
+
+    .card.soft { background: var(--pale-2); }
+    .card.blue { border-right: 4px solid var(--blue); }
+    .card.green { border-right: 4px solid var(--green); }
+    .card.red { border-right: 4px solid var(--red); }
+    .card.gold { border-right: 4px solid var(--gold); }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 2mm;
+      padding: .8mm 2.2mm;
+      border-radius: 99px;
+      background: var(--pale);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .example, .checkpoint, .warning {
+      margin: 3mm 0;
+      padding: 3.5mm 4mm;
+      border-radius: 3mm;
+    }
+
+    .example { border-right: 4px solid var(--green); background: #eff9f5; }
+    .checkpoint { border-right: 4px solid var(--blue); background: var(--pale); }
+    .warning { border-right: 4px solid var(--gold); background: #fff8e9; }
+
+    .example strong, .checkpoint strong, .warning strong {
+      display: inline-block;
+      margin-bottom: 1mm;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 3mm 0;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 2.2mm 2.5mm;
+      border: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th { background: #eaf4fa; color: var(--ink); }
+    td.math-cell, th.math-cell { direction: ltr; text-align: center; }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 2mm;
+      margin-top: 4mm;
+    }
+
+    .timeline div {
+      padding: 3mm 2mm;
+      border-radius: 2mm;
+      background: var(--pale);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .timeline strong { display: block; color: var(--blue); font-size: 14px; }
+
+    .jxgbox {
+      width: 100%;
+      height: 190px;
+      border: 1px solid #9fbfd2;
+      border-radius: 3mm;
+      background: #fff;
+      direction: ltr;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .jxgbox.tall { height: 235px; }
+    .jxgbox.small { height: 155px; }
+    .jxgbox.map { height: 220px; }
+
+    .graph-caption {
+      margin: 1.5mm 1mm 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .callout-number {
+      float: right;
+      width: 9mm;
+      height: 9mm;
+      margin-left: 2mm;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .exercise-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm 5mm;
+      margin-top: 3mm;
+    }
+
+    .exercise {
+      padding: 3mm;
+      border: 1px solid var(--line);
+      border-radius: 2.5mm;
+      background: #fbfdfe;
+    }
+
+    .exercise b {
+      display: inline-grid;
+      place-items: center;
+      width: 7mm;
+      height: 7mm;
+      margin-left: 1.5mm;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .answer {
+      margin-bottom: 2.5mm;
+      padding: 2.5mm 3mm;
+      border-right: 3px solid var(--green);
+      background: #f2faf7;
+    }
+
+    .source-list { font-size: 12px; }
+    .source-list li { margin-bottom: 2mm; }
+    a { color: #0d5f9d; overflow-wrap: anywhere; }
+
+    .mini-title {
+      margin-bottom: 2mm;
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .center { text-align: center; }
+    .ltr { direction: ltr; text-align: left; }
+    .tight p { margin-bottom: 1.7mm; }
+
+
+
+    .practice-page .lead {
+      margin-bottom: 2.5mm;
+      font-size: 14px;
+    }
+
+    .practice-page .exercise-list {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.7mm 3mm;
+      margin-top: 2mm;
+      align-items: stretch;
+    }
+
+    .practice-page .exercise {
+      padding: 1.7mm 2mm;
+      font-size: 12.1px;
+      line-height: 1.28;
+      min-height: 18.5mm;
+    }
+
+    .practice-page .exercise b {
+      width: 6mm;
+      height: 6mm;
+      margin-left: 1mm;
+      font-size: 10px;
+      vertical-align: middle;
+    }
+
+    .practice-page .level-strip {
+      display: flex;
+      gap: 2mm;
+      margin: 0 0 2mm;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .practice-page .level-strip span {
+      padding: .8mm 2mm;
+      border-radius: 99px;
+      background: var(--pale-2);
+      border: 1px solid var(--line);
+    }
+
+    @media print {
+      html, body { background: #fff; }
+      .page {
+        margin: 0;
+        box-shadow: none;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+
+    @page { size: A4; margin: 0; }
+  </style>
+</head>
+<body>
+
+
+  <section class="page">
+    <h2>1. מילון מונחים מתורת הקבוצות — יסודות</h2>
+    <p class="lead">לפני שמגדירים פונקציה, כדאי להכיר את שפת הקבוצות שבה משתמשים לאורך השיעור. כל שורה מסבירה כיצד קוראים את הסימון, מה משמעותו, ודוגמה פשוטה.</p>
+
+    <table>
+      <thead>
+        <tr><th style="width:20%">מונח / סימול</th><th style="width:31%">משמעות ברמת תלמיד תיכון</th><th>דוגמה</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>קבוצה</strong><br><span class="math">\(\{\,\cdots\,\}\)</span></td>
+          <td>אוסף של איברים. בדרך כלל כותבים את איברי הקבוצה בין סוגריים מסולסלים.</td>
+          <td class="math-cell">\(\{-2,-1,0,1,2\}\)<br><span style="direction:rtl;display:block">היא קבוצה המכילה חמישה מספרים.</span></td>
+        </tr>
+        <tr>
+          <td><strong>איבר בקבוצה</strong><br><span class="math">\(x\in A\)</span></td>
+          <td>הסימן \(\in\) נקרא “שייך ל־”. הוא אומר שהאיבר נמצא בתוך הקבוצה.</td>
+          <td class="math-cell">\(2\in\{-2,-1,0,1,2\}\)</td>
+        </tr>
+        <tr>
+          <td><strong>אינו שייך לקבוצה</strong><br><span class="math">\(x\notin A\)</span></td>
+          <td>הסימן \(\notin\) נקרא “אינו שייך ל־”. הוא אומר שהאיבר אינו נמצא בקבוצה.</td>
+          <td class="math-cell">\(5\notin\{1,2,3,4\}\)</td>
+        </tr>
+        <tr>
+          <td><strong>קבוצה ריקה</strong><br><span class="math">\(\varnothing\)</span></td>
+          <td>קבוצה שאין בה אף איבר. מסמנים אותה באמצעות \(\varnothing\).</td>
+          <td class="math-cell">\(\{x\in\mathbb{R}:x^2=-1\}=\varnothing\)<br><span style="direction:rtl;display:block">אין מספר ממשי שהריבוע שלו הוא \(-1\).</span></td>
+        </tr>
+        <tr>
+          <td><strong>שמות של קבוצות</strong><br><span class="math">\(A,B,D\)</span></td>
+          <td>אות גדולה יכולה לשמש שם של קבוצה. במסמך \(A\) ו-\(B\) משמשות, בין היתר, לתחום ולקבוצת היעד.</td>
+          <td class="math-cell">\(A=\{1,2,3\}\)</td>
+        </tr>
+        <tr>
+          <td><strong>המספרים הטבעיים</strong><br><span class="math">\(\mathbb{N}\)</span></td>
+          <td>קבוצת המספרים הטבעיים. במסמך זה נשתמש במוסכמה שבה אפס שייך לקבוצה: \(0,1,2,3,\ldots\). לעיתים קיימת גם מוסכמה שמתחילה ב־\(1\).</td>
+          <td class="math-cell">\(0,1,2,3,\ldots\in\mathbb{N}\)<br><span style="direction:rtl;display:block">לדוגמה: \(7\in\mathbb{N}\), אך \(-2\notin\mathbb{N}\).</span></td>
+        </tr>
+        <tr>
+          <td><strong>המספרים השלמים</strong><br><span class="math">\(\mathbb{Z}\)</span></td>
+          <td>קבוצת המספרים השלמים החיוביים, השליליים ואפס.</td>
+          <td class="math-cell">\(\ldots,-2,-1,0,1,2,\ldots\in\mathbb{Z}\)</td>
+        </tr>
+        <tr>
+          <td><strong>המספרים הרציונליים</strong><br><span class="math">\(\mathbb{Q}\)</span></td>
+          <td>כל מספר שאפשר לכתוב כמנה של שני מספרים שלמים, כאשר המכנה שונה מאפס.</td>
+          <td class="math-cell">\(\frac{3}{4},\ -2,\ 0.25\in\mathbb{Q}\)<br><span style="direction:rtl;display:block">למשל \(0.25=\frac14\).</span></td>
+        </tr>
+        <tr>
+          <td><strong>המספרים הממשיים</strong><br><span class="math">\(\mathbb{R}\)</span></td>
+          <td>קבוצת כל המספרים שעל ציר המספרים: שלמים, שברים, מספרים עשרוניים ומספרים אי־רציונליים.</td>
+          <td class="math-cell">\(-3,\ \frac12,\ \sqrt2,\ \pi\in\mathbb{R}\)</td>
+        </tr>
+        <tr>
+          <td><strong>הפרש קבוצות</strong><br><span class="math">\(A\setminus B\)</span></td>
+          <td>לוקחים את כל האיברים של \(A\), ומסירים מהם את האיברים שנמצאים ב-\(B\).</td>
+          <td class="math-cell">\(\mathbb{R}\setminus\{2\}\)<br><span style="direction:rtl;display:block">כל המספרים הממשיים חוץ מ־\(2\).</span></td>
+        </tr>
+        <tr>
+          <td><strong>זוג סדור</strong><br><span class="math">\((x,y)\)</span></td>
+          <td>זוג שבו לסדר יש חשיבות: הרכיב הראשון הוא \(x\), והשני הוא \(y\). נקודה בגרף נכתבת כזוג סדור.</td>
+          <td class="math-cell">\((3,7)\ne(7,3)\)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="checkpoint">
+      <strong>רעיון מרכזי</strong>
+      <p>בפונקציות עובדים כל הזמן עם קבוצות: קבוצה של קלטים, קבוצה אפשרית של פלטים, וקבוצה של הפלטים שמתקבלים בפועל.</p>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2>1. מילון מונחים מתורת הקבוצות — תחומים וסימונים פורמליים</h2>
+    <p class="lead">הסימונים הבאים מופיעים בהמשך כאשר מתארים תחומים, תמונות והגדרה פורמלית של פונקציה.</p>
+
+    <table>
+      <thead>
+        <tr><th style="width:20%">מונח / סימול</th><th style="width:31%">משמעות</th><th>דוגמה</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>קטע סגור</strong><br><span class="math">\([a,b]\)</span></td>
+          <td>כל המספרים מ-\(a\) עד \(b\), כולל שני הקצוות. הסוגריים המרובעים מציינים שהקצה שייך לקבוצה.<br><span class="math">\([a,b]\iff a\le x\le b\)</span></td>
+          <td class="math-cell">\([0,4]\iff 0\le x\le4\)<br><span style="direction:rtl;display:block">כלומר: כל המספרים מ-\(0\) עד \(4\), כולל הקצוות.</span></td>
+        </tr>
+        <tr>
+          <td><strong>קטע פתוח / חצי־פתוח</strong><br><span class="math">\((a,b),\ [a,b),\ (a,b]\)</span></td>
+          <td>סוגר עגול ליד קצה אומר שהקצה אינו נכלל; סוגר מרובע אומר שהוא כן נכלל.<br><span class="math">\((a,b)\iff a\lt x\lt b\)</span><br><span class="math">\([a,b)\iff a\le x\lt b\)</span><br><span class="math">\((a,b]\iff a\lt x\le b\)</span></td>
+          <td class="math-cell">\([1,4)\iff 1\le x\lt4\)<br><span style="direction:rtl;display:block">כולל \(1\), אך אינו כולל \(4\).</span></td>
+        </tr>
+        <tr>
+          <td><strong>אינסוף</strong><br><span class="math">\(\infty\)</span></td>
+          <td>אינו מספר ששייך לקבוצה, אלא סימון לכך שהקטע ממשיך ללא גבול. לכן ליד \(\infty\) משתמשים תמיד בסוגר עגול.</td>
+          <td class="math-cell">\([0,\infty)\iff x\ge0\)</td>
+        </tr>
+        <tr>
+          <td><strong>איחוד קבוצות</strong><br><span class="math">\(A\cup B\)</span></td>
+          <td>כל האיברים שנמצאים ב-\(A\), ב-\(B\), או בשתיהן.</td>
+          <td class="math-cell">\([1,4)\cup(4,\infty)\iff x\ge1,\ x\ne4\)<br><span style="direction:rtl;display:block">כל \(x\ge1\), חוץ מ-\(4\).</span></td>
+        </tr>
+        <tr>
+          <td><strong>חיתוך קבוצות</strong><br><span class="math">\(A\cap B\)</span></td>
+          <td>כל האיברים שנמצאים גם ב-\(A\) וגם ב-\(B\). כלומר, רק האיברים המשותפים לשתי הקבוצות.</td>
+          <td class="math-cell">\(A=\{1,2,3,4\},\ B=\{3,4,5\}\)<br>\(A\cap B=\{3,4\}\)<br><span style="direction:rtl;display:block">המספרים \(3\) ו-\(4\) שייכים לשתי הקבוצות.</span></td>
+        </tr>
+        <tr>
+          <td><strong>כתיבה לפי תנאי</strong><br><span class="math">\(\{x\in A:P(x)\}\)</span></td>
+          <td>דרך לתאר קבוצה באמצעות תכונה: “כל \(x\) ששייך ל-\(A\) ומקיים את התנאי שאחרי הנקודתיים”.</td>
+          <td class="math-cell">\(\{x\in\mathbb{R}:x\ge0\}\)<br><span style="direction:rtl;display:block">כל המספרים הממשיים שאינם שליליים.</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="page practice-page">
+    <h2>תרגול מסכם - תורת הקבוצות</h2>
+    <p class="lead">20 תרגילים ברמת 5 יחידות, בסדר קושי עולה. כתבו תשובות בסימון המתאים, ופשטו איחודים וחיתוכים ככל האפשר.</p>
+    <div class="level-strip">
+      <span>1-6: יסודות וסימונים</span>
+      <span>7-14: קטעים ופעולות</span>
+      <span>15-20: יישומים ואתגר</span>
+    </div>
+
+    <div class="exercise-list">
+      <div class="exercise"><b>1</b> נתונה הקבוצה \(A=\{-3,-1,0,2,5\}\). קבעו אילו מן הטענות נכונות: \(-1\in A\), \(4\in A\), \(3\notin A\), \(0\notin A\).</div>
+
+      <div class="exercise"><b>2</b> לכל מספר בחרו את <strong>הקבוצה הקטנה ביותר</strong> מבין \(\mathbb{N},\mathbb{Z},\mathbb{Q},\mathbb{R}\) שאליה הוא שייך: \(-4,\ 0,\ \frac35,\ \sqrt2,\ \sqrt{49},\ \pi\).</div>
+
+      <div class="exercise"><b>3</b> רשמו את איברי הקבוצה במפורש: \(A=\{x\in\mathbb{Z}:-3\le x\lt4\}\).</div>
+
+      <div class="exercise"><b>4</b> קבעו אילו קבוצות ריקות: \(A=\{x\in\mathbb{R}:x^2+1=0\}\), \(B=\{x\in\mathbb{Z}:2\lt x\lt3\}\), \(C=\{x\in\mathbb{Q}:x^2=4\}\).</div>
+
+      <div class="exercise"><b>5</b> נתונות \(A=\{1,2,3,4,6\}\), \(B=\{2,4,5,6,8\}\). מצאו: \(A\cup B\), \(A\cap B\), \(A\setminus B\), \(B\setminus A\).</div>
+
+      <div class="exercise"><b>6</b> כתבו כל קטע גם כאי-שוויון וגם בכתיבה לפי תנאי: \([-2,5)\), \((3,\infty)\), \(( -\infty,1]\).</div>
+
+      <div class="exercise"><b>7</b> כתבו בסימון קטעים את קבוצת כל המספרים הממשיים המקיימים \(x\le-1\) או \(2\lt x\le6\).</div>
+
+      <div class="exercise"><b>8</b> חשבו ופשטו: \([-4,3)\cap(-1,5]\).</div>
+
+      <div class="exercise"><b>9</b> חשבו ופשטו: \([-5,1)\cup[1,4]\).</div>
+
+      <div class="exercise"><b>10</b> חשבו ופשטו: \([-3,6]\setminus(1,4]\).</div>
+
+      <div class="exercise"><b>11</b> נתונה \(A=\{x\in\mathbb{Z}:x^2\le20\}\), ו-\(B\) היא קבוצת המספרים השלמים הזוגיים. מצאו את \(A\cap B\).</div>
+
+      <div class="exercise"><b>12</b> פתרו את \((x-2)(x+3)\le0\), וכתבו את קבוצת הפתרונות גם כקטע וגם בכתיבה לפי תנאי.</div>
+
+      <div class="exercise"><b>13</b> פתרו את \(|2x-3|\lt5\), וכתבו את קבוצת הפתרונות בסימון קטעים.</div>
+
+      <div class="exercise"><b>14</b> פתרו את \(\dfrac{x-1}{x+2}\ge0\), והציגו את קבוצת הפתרונות כאיחוד של קטעים. שימו לב לערך שאינו בתחום.</div>
+
+      <div class="exercise"><b>15</b> נתונות \(D_1=\mathbb{R}\setminus\{3\}\) ו-\(D_2=[-1,\infty)\). מצאו את \(D_1\cap D_2\) וכתבו את התוצאה כאיחוד קטעים.</div>
+
+      <div class="exercise"><b>16</b> מצאו את התחום הטבעי של \(f(x)=\dfrac{\sqrt{2x-1}}{x-3}\), והציגו אותו בסימון קטעים.</div>
+
+      <div class="exercise"><b>17</b> מצאו את התחום הטבעי של \(g(x)=\sqrt{\dfrac{x+2}{x-1}}\). כתבו את התוצאה כאיחוד של קטעים.</div>
+
+      <div class="exercise"><b>18</b> נתונות \(A=\{x\in\mathbb{R}:x^2-5x+6=0\}\) ו-\(B=\{x\in\mathbb{R}:|x-2|\le1\}\). מצאו את \(A\cap B\) ואת \(A\cup B\).</div>
+
+      <div class="exercise"><b>19</b> נתונות \(A=[-4,2]\), \(B=(0,5)\), \(C=[1,3]\). חשבו: \((A\cup B)\cap C\) וגם \((A\cap B)\setminus C\).</div>
+
+      <div class="exercise"><b>20</b> לכל \(a\in\mathbb{R}\) נגדיר \(A_a=[a-1,a+2]\) ו-\(B=[0,4]\). מצאו את כל ערכי \(a\) שעבורם \(A_a\cap B\) מכיל <strong>מספר ממשי אחד בלבד</strong>.</div>
+    </div>
+  </section>
+
+</body>
+</html>
