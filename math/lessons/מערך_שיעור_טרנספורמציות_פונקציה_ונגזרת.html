@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור - טרנספורמציות של פונקציה ונגזרת - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]']],processEscapes:true},svg:{fontCache:'global'}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#d9dde3;font-family:Arial,"Noto Sans Hebrew",sans-serif;direction:rtl;color:#1d2733}
+body{counter-reset:page}
+.page{width:210mm;height:297mm;margin:8mm auto;background:white;padding:11mm 13mm 10mm;position:relative;overflow:hidden;page-break-after:always;counter-increment:page;box-shadow:0 2px 14px #0002}
+.page header{border-bottom:2px solid #263c5a;padding-bottom:4mm;margin-bottom:5mm}
+.course{font-size:10.5pt;color:#52657d;font-weight:700;letter-spacing:.2px}
+h1{font-size:22pt;margin:1.5mm 0 0;color:#152a46;line-height:1.15}
+h2{font-size:15pt;color:#173d67;margin:3mm 0 2mm}
+h3{font-size:12.5pt;color:#234f7e;margin:1mm 0 2mm}
+p,li,td,th{font-size:10.6pt;line-height:1.45}
+ul{margin:1.5mm 0 2.5mm;padding-right:5mm}
+li{margin:.8mm 0}
+footer{position:absolute;bottom:5mm;right:13mm;left:13mm;border-top:1px solid #d6dde7;padding-top:2mm;display:flex;justify-content:space-between;font-size:9pt;color:#687487}
+.pnum:after{content:counter(page)}
+.hero{background:linear-gradient(135deg,#eef4fb,#f8fbff);border:1px solid #ccd9e8;border-radius:10px;padding:8mm;margin-top:4mm}
+.hero h2{font-size:21pt;margin-top:2mm;line-height:1.25}.hero p{font-size:12pt}.hero.compact{padding:7mm}
+.badge{display:inline-block;background:#183b64;color:white;padding:1.5mm 4mm;border-radius:99px;font-size:10pt;font-weight:700}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:6mm}
+.card,.callout,.note,.worked,.practice-note{border-radius:8px;padding:4mm 5mm;margin:3mm 0}
+.card{background:#f7f9fc;border:1px solid #d8e0ea}.callout{background:#eef6ef;border-right:4px solid #3b7b4c}.note{background:#fff8e8;border-right:4px solid #b9801f}.worked{background:#f3f6fb;border-right:4px solid #315f91}.practice-note{display:none;}
+.formula{direction:ltr;text-align:center;font-size:14pt}
+.rules{width:100%;border-collapse:collapse;margin:2mm 0 5mm}.rules th,.rules td{border:1px solid #cfd7e2;padding:2.2mm;text-align:center}.rules th{background:#e9eff6}
+.lesson-grid{grid-template-columns:1.2fr .8fr;gap:6mm;align-items:start}
+.graph-panel{direction:ltr;border:1px solid #ccd6e2;border-radius:10px;padding:3mm;background:#fbfcfe}
+.graph-title{direction:rtl;text-align:center;font-weight:700;color:#2a4a6d;margin-bottom:2mm}
+.jxgbox{width:100%;height:76mm;border:1px solid #d6dde7;background:white;direction:ltr;touch-action:none}
+.graph-controls{display:flex;justify-content:center;gap:2mm;flex-wrap:wrap;margin-top:2.5mm;direction:rtl}
+.graph-controls button{border:1px solid #8192a8;background:white;border-radius:6px;padding:1.6mm 3mm;font-size:9.5pt;cursor:pointer}.graph-controls button:hover{background:#eef3f8}
+.exercise-list,.solution-list{list-style:none;margin:0;padding:0}.exercise-list li,.solution-list li{display:flex;gap:2.5mm;border-bottom:1px solid #e5e9ef;padding:2mm 0}.exercise-list .num,.solution-list .num{min-width:7mm;font-weight:700;color:#244f7a}.practice .exercise-list li{font-size:10.3pt}.solutions .solution-list li{font-size:9.65pt;line-height:1.35;padding:1.5mm 0}.cumulative li{font-size:9.8pt}.cumulative-sol li{font-size:9.2pt;line-height:1.3}
+.sources{padding-right:5mm}.sources li{margin:2mm 0}.sources a{direction:ltr;display:inline-block;font-size:9pt;color:#245b91;word-break:break-all}
+.cover main{margin-top:7mm}
+.validation-badge{position:fixed;left:10px;bottom:10px;z-index:9999;background:#20344f;color:#fff;padding:7px 10px;border-radius:6px;font:12px Arial;direction:ltr;opacity:.92}.validation-badge.ok{background:#245f38}.validation-badge.err{background:#8a2c2c}
+@media print{html,body{background:white}.page{margin:0;box-shadow:none}.validation-badge{display:none}}
+</style>
+</head>
+<body>
+
+<section class="page "><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>שיעור 1 - הקשר הבסיסי בין פונקציה לנגזרת הראשונה</h1></header><main><div class="lesson-grid"><div>
+      <h2>העקרונות</h2>
+<div style="height:15px;"></div>
+<ul><li>אם $f'(x)\gt 0$ בתחום מסוים, אז $f$ עולה בתחום זה.</li><li>אם $f'(x)\lt 0$ בתחום מסוים, אז $f$ יורדת בתחום זה.</li><li>אם $f'(a)=0$, בנקודה $x=a$ יש שיפוע אפס. רק שינוי סימן של $f'$ קובע אם מדובר בקיצון פנימי.</li><li>מעבר $+\Rightarrow-$ של סימן הנגזרת יוצר מקסימום מקומי; מעבר $-\Rightarrow+$ יוצר מינימום מקומי.</li><li>אם הנגזרת מתאפסת אך אינה מחליפה סימן, אין הכרח שתהיה נקודת קיצון.</li></ul>
+<div style="height:20px;"></div>
+      <div class="worked"><h3>דוגמה מודרכת</h3><p>נתון $f'(x)=(x+2)(x-1)$. הנגזרת חיובית כאשר $x\lt-2$ וגם כאשר $x\gt1$, ושלילית כאשר $-2\lt x\lt1$. לכן $f$ עולה ב-$(-\infty,-2)$, כלומר $x\lt-2$, יורדת ב-$(-2,1)$, כלומר $-2\lt x\lt1$, ועולה ב-$(1,\infty)$, כלומר $x\gt1$. ב-$x=-2$ יש מקסימום מקומי וב-$x=1$ מינימום מקומי.</p></div>
+    </div><div class="graph-panel" dir="ltr">
+      <div class="graph-title">המחשה</div>
+      <div id="jxg_1" class="jxgbox" data-graph="basic"></div>
+      <div class="graph-controls" data-for="jxg_1">
+        <button type="button" data-act="zoom-in">+</button>
+        <button type="button" data-act="zoom-out">−</button>
+        <button type="button" data-act="center">מרכז</button>
+        <button type="button" data-act="reset">איפוס</button>
+      </div>
+    </div></div></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page practice"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>דף תרגול - שיעור 1</h1></header><main><div class="practice-note">10 תרגילים בסדר קושי עולה. יש לנמק מעבר מאפסי הנגזרת לקיצון באמצעות שינוי סימן.</div><ol class="exercise-list"><li><span class="num">1.</span><span>נתון $f'(x)=(x-2)(x+1)$. קבע את תחומי העלייה והירידה ואת סוגי הקיצון של $f$.</span></li><li><span class="num">2.</span><span>נתון $f'(x)=x(x-4)$. קבע באילו ערכי $x$ לפונקציה יש נקודות עם שיפוע אפס ומה סוג הקיצון בכל אחת.</span></li><li><span class="num">3.</span><span>נתון $f'(x)=-(x+3)(x-1)$. קבע תחומי עלייה וירידה.</span></li><li><span class="num">4.</span><span>נתון כי $f'(x)\gt0$ עבור $x\lt-2$, $f'(x)\lt0$ עבור $-2\lt x\lt5$, ו-$f'(x)\gt0$ עבור $x\gt5$. קבע את סוג הקיצון ב-$x=-2,5$.</span></li><li><span class="num">5.</span><span>נתון $f'(x)=(x-1)^2$. האם $x=1$ היא נקודת קיצון? נמק.</span></li><li><span class="num">6.</span><span>נתון $f'(x)=x^3$. קבע את התנהגות $f$ סביב $x=0$.</span></li><li><span class="num">7.</span><span>נתון $f'(x)=(x+2)^2(x-3)$. קבע אילו מאפסי הנגזרת יוצרים קיצון.</span></li><li><span class="num">8.</span><span>הנגזרת חיובית עבור $x\lt0$, מתאפסת ב-$x=0$, וחיובית גם עבור $x\gt0$. מה ניתן להסיק על $f$ ב-$x=0$?</span></li><li><span class="num">9.</span><span>נתון $f'(x)=-(x-4)^2(x+1)$. קבע את כל תחומי העלייה והירידה ואת נקודות הקיצון.</span></li><li><span class="num">10.</span><span>מצא ערך $a$ כך שלפונקציה שנגזרתה $f'(x)=(x-a)(x-6)$ יהיה מינימום ב-$x=6$ ומקסימום ב-$x=2$.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page "><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>שיעור 2 - הזזות של הפונקציה והשפעתן על הנגזרת</h1></header><main><div class="lesson-grid"><div>
+      <h2>העקרונות</h2>
+<div style="height:15px;"></div>
+<ul><li>אם $g(x)=f(x)+K$, אז $g'(x)=f'(x)$. כל השיפועים נשארים זהים.</li><li>אם $g(x)=f(x-h)$, אז $g'(x)=f'(x-h)$. גם הנגזרת נעה $h$ יחידות ימינה כאשר $h\gt0$.</li><li>הזזה אנכית משנה את ערכי ה-$y$ של נקודות הקיצון, אך לא את ערכי ה-$x$ שלהן ולא את סוג הקיצון.</li><li>הזזה אופקית משנה את ערכי ה-$x$ של הקיצון ושל תחומי העלייה והירידה באותו גודל ובאותו כיוון.</li></ul>
+<div style="height:20px;"></div>
+      <div class="worked"><h3>דוגמה מודרכת</h3><p>אם ל-$f$ מינימום ב-$(2,-3)$, אז ל-$g(x)=f(x-4)+5$ מינימום ב-$(6,2)$. אם $f$ עולה כאשר $x\gt2$, אז $g$ עולה כאשר $x\gt6$.</p></div>
+    </div><div class="graph-panel" dir="ltr">
+      <div class="graph-title">המחשה</div>
+      <div id="jxg_2" class="jxgbox" data-graph="translations"></div>
+      <div class="graph-controls" data-for="jxg_2">
+        <button type="button" data-act="zoom-in">+</button>
+        <button type="button" data-act="zoom-out">−</button>
+        <button type="button" data-act="center">מרכז</button>
+        <button type="button" data-act="reset">איפוס</button>
+      </div>
+    </div></div></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page practice"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>דף תרגול - שיעור 2</h1></header><main><div class="practice-note">10 תרגילים בסדר קושי עולה. יש לנמק מעבר מאפסי הנגזרת לקיצון באמצעות שינוי סימן.</div><ol class="exercise-list"><li><span class="num">1.</span><span>ל-$f$ מינימום בנקודה $(1,-2)$. מצא את נקודת המינימום של $g(x)=f(x)+5$.</span></li><li><span class="num">2.</span><span>ל-$f$ מקסימום ב-$x=-3$. מצא את ערך ה-$x$ של המקסימום של $g(x)=f(x-4)$.</span></li><li><span class="num">3.</span><span>אם $f$ עולה כאשר $x\gt2$, קבע מתי $g(x)=f(x-5)$ עולה.</span></li><li><span class="num">4.</span><span>אם $f$ יורדת כאשר $-1\lt x\lt4$, קבע את תחום הירידה של $g(x)=f(x+2)$.</span></li><li><span class="num">5.</span><span>ל-$f$ מינימום בנקודה $(3,7)$. מצא את המינימום של $g(x)=f(x-2)-6$.</span></li><li><span class="num">6.</span><span>כתוב את $g'(x)$ באמצעות $f'$ אם $g(x)=f(x+8)+3$.</span></li><li><span class="num">7.</span><span>נתון $f'(x)=(x-1)(x-5)$. קבע את נקודות הקיצון לפי ערכי $x$ של $g(x)=f(x-3)+10$.</span></li><li><span class="num">8.</span><span>אם $f$ עולה ב-$(0,4)$, כלומר $0\lt x\lt4$, ויורדת ב-$(4,9)$, כלומר $4\lt x\lt9$, קבע את התחומים המתאימים עבור $g(x)=f(x+1)-7$.</span></li><li><span class="num">9.</span><span>הסבר מדוע ל-$f(x)$ ול-$f(x)+1000$ יש אותם ערכי $x$ של נקודות הקיצון.</span></li><li><span class="num">10.</span><span>פונקציה $f$ בעלת מקסימום ב-$(a,b)$. מצא את נקודת המקסימום של $g(x)=f(x-h)+K$ במונחי $a,b,h,K$.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+
+<section class="page "><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>שיעור 3 - שיקופים והשפעתם על הנגזרת</h1></header><main><div class="lesson-grid"><div>
+      <h2>העקרונות</h2>
+<div style="height:15px;"></div>
+<ul><li>אם $g(x)=-f(x)$, אז $g'(x)=-f'(x)$. מקסימום הופך למינימום ולהפך.</li><li>אם $g(x)=f(-x)$, אז $g'(x)=-f'(-x)$.</li><li>בשיקוף אופקי ערכי ה-$x$ של נקודות מיוחדות מחליפים סימן, אך סוג הקיצון נשמר.</li><li>השיקוף האופקי של הפונקציה אינו יוצר רק שיקוף אופקי של הנגזרת: נדרש גם שינוי סימן בגלל כלל השרשרת.</li></ul>
+<div style="height:20px;"></div>
+      <div class="worked"><h3>דוגמה מודרכת</h3><p>אם ל-$f$ מינימום ב-$x=3$, אז ל-$f(-x)$ מינימום ב-$x=-3$. לעומת זאת ל-$-f(x)$ מקסימום ב-$x=3$.</p></div>
+    </div><div class="graph-panel" dir="ltr">
+      <div class="graph-title">המחשה</div>
+      <div id="jxg_4" class="jxgbox" data-graph="reflections"></div>
+      <div class="graph-controls" data-for="jxg_4">
+        <button type="button" data-act="zoom-in">+</button>
+        <button type="button" data-act="zoom-out">−</button>
+        <button type="button" data-act="center">מרכז</button>
+        <button type="button" data-act="reset">איפוס</button>
+      </div>
+    </div></div></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page practice"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>דף תרגול - שיעור 3</h1></header><main><div class="practice-note">10 תרגילים בסדר קושי עולה. יש לנמק מעבר מאפסי הנגזרת לקיצון באמצעות שינוי סימן.</div><ol class="exercise-list"><li><span class="num">1.</span><span>אם $g(x)=-f(x)$, כתוב את $g'(x)$.</span></li><li><span class="num">2.</span><span>אם $g(x)=f(-x)$, כתוב את $g'(x)$.</span></li><li><span class="num">3.</span><span>ל-$f$ מינימום ב-$x=4$. מה סוג הקיצון ובאיזה $x$ עבור $g(x)=-f(x)$?</span></li><li><span class="num">4.</span><span>ל-$f$ מקסימום ב-$x=-2$. מה סוג הקיצון ובאיזה $x$ עבור $g(x)=f(-x)$?</span></li><li><span class="num">5.</span><span>אם $f$ עולה כאשר $x\gt3$, קבע את ההתנהגות המתאימה של $g(x)=-f(x)$ באותו תחום.</span></li><li><span class="num">6.</span><span>אם $f$ עולה כאשר $1\lt x\lt5$, קבע את התנהגות $g(x)=f(-x)$ בתחום המתאים.</span></li><li><span class="num">7.</span><span>מצא $g'(x)$ אם $g(x)=-f(-x)$.</span></li><li><span class="num">8.</span><span>ל-$f$ מינימום בנקודה $(3,-4)$. מצא את הקיצון של $g(x)=-f(-x)$.</span></li><li><span class="num">9.</span><span>הסבר מדוע שיקוף $f$ ביחס לציר $y$ שומר על סוג הקיצון אך משנה את כיוון תחומי העלייה/ירידה על ציר $x$.</span></li><li><span class="num">10.</span><span>נתון $f'(x)=(x-2)(x+5)$. קבע את ערכי ה-$x$ של הקיצון וסוגיהם עבור $g(x)=f(-x)$.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+
+<section class="page "><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1 style="font-size: 19pt;">שיעור 4 - שאלות פרמטר: מספר נקודות קיצון ותחומי עלייה וירידה</h1></header><main><div class="lesson-grid"><div>
+      <h2>העקרונות</h2>
+<div style="height:15px;"></div>
+<ul>
+<li>כדי שפונקציה תהיה עולה לכל $x$, נדרש $g_k'(x)\ge0$ לכל $x$; כדי שתהיה יורדת לכל $x$, נדרש $g_k'(x)\le0$ לכל $x$.</li>
+<li>כאשר ריבועית, הדיסקרימיננטה מסייעת לספור אפסים  $f'$.</li>
+</ul>
+<div style="height:20px;"></div>
+      <div class="worked"><h3>דוגמה מודרכת</h3><p>עבור $g_k'(x)=x^2-6x+k$, הערך המינימלי של הנגזרת מתקבל ב-$x=3$ והוא $k-9$. לכן $g_k$ עולה לכל $x$ אם $k\ge9$. אם $k\lt9$, לנגזרת שני אפסים ושינויי סימן היוצרים מקסימום ומינימום.</p></div>
+    </div><div class="graph-panel" dir="ltr">
+      <div class="graph-title">המחשה</div>
+      <div id="jxg_9" class="jxgbox" data-graph="parameter"></div>
+      <div class="graph-controls" data-for="jxg_9">
+        <button type="button" data-act="zoom-in">+</button>
+        <button type="button" data-act="zoom-out">−</button>
+        <button type="button" data-act="center">מרכז</button>
+        <button type="button" data-act="reset">איפוס</button>
+      </div>
+    </div></div></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page practice"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div>
+<h1>דף תרגול - שיעור 4</h1></header><main><div class="practice-note">10 תרגילים בסדר קושי עולה. יש לנמק מעבר מאפסי הנגזרת לקיצון באמצעות שינוי סימן.</div><ol class="exercise-list"><li><span class="num">1.</span><span>נתון $g_k'(x)=x^2+k$. עבור אילו $k$ הפונקציה $g_k$ עולה לכל $x$?</span></li><li><span class="num">2.</span><span>נתון $g_k'(x)=x^2-4+k$. קבע את מספר נקודות הקיצון לפי $k$.</span></li><li><span class="num">3.</span><span>נתון $g_k'(x)=x^2-6x+k$. מצא את ערכי $k$ שעבורם $g_k$ עולה לכל $x$.</span></li><li><span class="num">4.</span><span>עבור $g_k'(x)=x^2-6x+k$, קבע את מספר נקודות הקיצון כאשר $k=5$.</span></li><li><span class="num">5.</span><span>נתון $g_k'(x)=-x^2+4x+k$. מצא את ערכי $k$ שעבורם $g_k$ יורדת לכל $x$.</span></li><li><span class="num">6.</span><span>נתון $g_k'(x)=x^2+2kx+1$. מצא תנאי על $k$ לכך שאין שינוי סימן של הנגזרת.</span></li><li><span class="num">7.</span><span>נתון $g_k'(x)=(x-2)^2+k-1$. קבע את מספר נקודות הקיצון לפי $k$.</span></li><li><span class="num">8.</span><span>לגרף $f'$ מינימום בגובה $-3$ ומקסימום בגובה $5$. כמה חיתוכים אפשריים עשויים להיות עם הישר $y=-k$ כאשר $-5\lt k\lt3$? הסבר לפי צורת הגרף הנתונה בשאלה ולא לפי נוסחה.</span></li><li><span class="num">9.</span><span>נתון $g_k'(x)=x^4-2x^2+k$. מצא תנאי על $k$ לכך ש-$g_k$ עולה לכל $x$.</span></li><li><span class="num">10.</span><span>נתון $g_k'(x)=x^2+(k-2)x+k$. מצא את ערכי $k$ שעבורם לנגזרת יש שני אפסים שונים, ולאחר מכן הסבר מה עוד יש לבדוק כדי להסיק שיש שתי נקודות קיצון.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page "><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>שיעור 5 - ערך מוחלט: השפעה על הפונקציה ועל הנגזרת הראשונה</h1></header><main><div class="lesson-grid"><div>
+      <h2>העקרונות</h2>
+<div style="height:15px;"></div>
+<ul>
+<li>אם $g(x)=|f(x)|$, כל חלק של גרף $f$ שנמצא מעל ציר $x$ נשאר ללא שינוי, וכל חלק שנמצא מתחת לציר $x$ משתקף כלפי מעלה.</li>
+<li>באופן אלגברי: כאשר $f(x)\ge0$ מתקיים $g(x)=f(x)$, וכאשר $f(x)\lt0$ מתקיים $g(x)=-f(x)$.</li>
+<li>בכל נקודה שבה $f(x)\ne0$: אם $f(x)\gt0$ אז $g'(x)=f'(x)$, ואם $f(x)\lt0$ אז $g'(x)=-f'(x)$.</li>
+<li>לכן בתחום שבו $f\gt0$ תחומי העלייה והירידה נשמרים, ובתחום שבו $f\lt0$ הם מתהפכים.</li>
+<li>אפסי $f$ נשארים אפסים של $|f|$, ולכן בכל אפס כזה ערך הפונקציה החדשה הוא $0$ - הערך הקטן ביותר האפשרי.</li>
+<li>אם $f(a)=0$ וגם $f'(a)\ne0$, אז $f$ חוצה את ציר $x$ בשיפוע שאינו אפס, ולאחר הפעלת ערך מוחלט מתקבלת נקודה חדה שאינה גזירה ב-$x=a$.</li>
+<li>אם $f(a)=0$ וגם $f'(a)=0$, אין להסיק אוטומטית שאין גזירות. יש לבדוק את התנהגות $f$ משני צדי הנקודה. לדוגמה, עבור $f(x)=(x-a)^2$ מתקיים $|f(x)|=f(x)$ והפונקציה גזירה ב-$x=a$.</li>
+<li>בנקודת קיצון שבה $f\gt0$ סוג הקיצון נשמר. בנקודת קיצון שבה $f\lt0$ השיקוף מחליף מקסימום במינימום ולהפך.</li>
+</ul>
+<div style="height:10px;"></div>
+      <div class="worked"><h3>דוגמה מודרכת</h3><p>אם $f(x)=x^2-1$, אז $f(x)\lt0$ כאשר $-1\lt x\lt1$. לכן בתחום זה $|f(x)|=1-x^2$, ואילו כאשר $x\le-1$ או $x\ge1$ מתקיים $|f(x)|=x^2-1$. בנקודות $x=-1,1$ מתקבלות נקודות מינימום שאינן גזירות, מפני ש-$f'(x)=2x$ אינו אפס שם. לעומת זאת, המינימום של $f$ ב-$x=0$ נמצא מתחת לציר $x$, ולכן לאחר השיקוף הוא הופך למקסימום של $|f|$.</p></div>
+    </div><div class="graph-panel" dir="ltr">
+      <div class="graph-title">המחשה</div>
+      <div id="jxg_10" class="jxgbox" data-graph="absolute"></div>
+      <div class="graph-controls" data-for="jxg_10">
+        <button type="button" data-act="zoom-in">+</button>
+        <button type="button" data-act="zoom-out">−</button>
+        <button type="button" data-act="center">מרכז</button>
+        <button type="button" data-act="reset">איפוס</button>
+      </div>
+    </div></div></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page practice"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>דף תרגול - שיעור 5</h1></header><main><div class="practice-note">10 תרגילים בסדר קושי עולה. בכל תרגיל יש להתחיל מבדיקת הסימן של $f$, ורק לאחר מכן להסיק על $|f|$ ועל נגזרתה.</div><ol class="exercise-list">
+<li><span class="num">1.</span><span>נתון $f(x)=x-2$. כתוב את $g(x)=|f(x)|$ בצורה מפורשת לפי תחומים וקבע היכן $g$ אינה גזירה.</span></li>
+<li><span class="num">2.</span><span>נתון $f(x)=x^2-1$. קבע באילו תחומים $|f(x)|=f(x)$ ובאילו תחומים $|f(x)|=-f(x)$.</span></li>
+<li><span class="num">3.</span><span>עבור $f(x)=x^2-1$ ו-$g(x)=|f(x)|$, כתוב את $g'(x)$ בכל תחום שבו הנגזרת קיימת וקבע את תחומי העלייה והירידה של $g$.</span></li>
+<li><span class="num">4.</span><span>נתון $f(a)=0$ ו-$f'(a)\ne0$. הסבר בעזרת הנגזרות החד-צדדיות מדוע $g(x)=|f(x)|$ אינה גזירה ב-$x=a$.</span></li>
+<li><span class="num">5.</span><span>נתון $f(x)=(x-1)^2$ ו-$g(x)=|f(x)|$. קבע האם הערך המוחלט משנה את הפונקציה, מצא את $g'(1)$ וקבע את סוג הקיצון ב-$x=1$.</span></li>
+<li><span class="num">6.</span><span>בתחום מסוים ידוע כי $f(x)\lt0$ וגם $f'(x)\gt0$. קבע את סימן $g'(x)$ ואת התנהגות $g(x)=|f(x)|$ בתחום זה. הסבר את התוצאה גם באופן גרפי.</span></li>
+<li><span class="num">7.</span><span>נתון $f(x)=x(x-2)$ ו-$g(x)=|f(x)|$. מצא את נקודות אי-הגזירות, את נקודות הקיצון ואת תחומי העלייה והירידה של $g$.</span></li>
+<li><span class="num">8.</span><span>נתון $f(x)=x^3-3x$. קבע את ערכי ה-$x$ של כל נקודות הקיצון של $|f(x)|$, תוך התייחסות גם לאפסי $f$ שבהם נוצרת אי-גזירות.</span></li>
+<li><span class="num">9.</span><span>נתון $f(x)=(x^2-1)(x^2-4)$ ו-$g(x)=|f(x)|$. מצא את כל הנקודות שבהן $g$ אינה גזירה. לאחר מכן כתוב כלל המאפשר לקבוע את סימן $g'$ בכל אחד מהתחומים שנוצרים.</span></li>
+<li><span class="num">10.</span><span>עבור הפרמטר $a$ נתונה $f(x)=x^2-a$ ומוגדרת $g(x)=|f(x)|$. דון בנפרד במקרים $a\lt0$, $a=0$, $a\gt0$: קבע נקודות אי-גזירות, נקודות קיצון ותחומי עלייה וירידה של $g$.</span></li>
+</ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer>
+</section>
+
+<section class="page solutions"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>פתרונות - שיעור 1</h1></header><main><ol class="solution-list"><li><span class="num">1.</span><span>אפסים: $x=-1,2$. סימן חיובי מחוץ לשורשים ושלילי ביניהם. לכן $f$ עולה כאשר $x\lt-1$ וכאשר $x\gt2$, יורדת כאשר $-1\lt x\lt2$. ב-$x=-1$ מקסימום, ב-$x=2$ מינימום.</span></li><li><span class="num">2.</span><span>אפסים: $x=0,4$. סימן חיובי כאשר $x\lt0$ או $x\gt4$ ושלילי כאשר $0\lt x\lt4$. לכן ב-$x=0$ מקסימום וב-$x=4$ מינימום.</span></li><li><span class="num">3.</span><span>אפסים $-3,1$. בגלל הסימן השלילי: $f'\lt0$ כאשר $x\lt-3$, $f'\gt0$ כאשר $-3\lt x\lt1$, ו-$f'\lt0$ כאשר $x\gt1$. לכן ירידה, עלייה, ירידה; מינימום ב-$-3$, מקסימום ב-$1$.</span></li><li><span class="num">4.</span><span>ב-$x=-2$ הסימן עובר $+\Rightarrow-$ ולכן מקסימום. ב-$x=5$ הסימן עובר $-\Rightarrow+$ ולכן מינימום.</span></li><li><span class="num">5.</span><span>לא. $(x-1)^2\ge0$ משני הצדדים ולכן אין שינוי סימן. זו נקודה עם שיפוע אפס ללא קיצון.</span></li><li><span class="num">6.</span><span>$x^3$ שלילי כאשר $x\lt0$ וחיובי כאשר $x\gt0$, לכן $f$ יורדת לפני $0$ ועולה אחריו; יש מינימום ב-$x=0$.</span></li><li><span class="num">7.</span><span>ב-$x=-2$ יש אפס ממעלה זוגית ולכן אין שינוי סימן. ב-$x=3$ יש שינוי משלילי לחיובי, לכן מינימום.</span></li><li><span class="num">8.</span><span>הפונקציה עולה משני צדי $0$. ב-$x=0$ יש שיפוע אפס אך אין קיצון.</span></li><li><span class="num">9.</span><span>האפס $x=4$ ממעלה זוגית ולכן אינו משנה סימן; $x=-1$ משנה סימן. בדיקה נותנת $f'\gt0$ כאשר $x\lt-1$ ו-$f'\lt0$ כאשר $x\gt-1$ פרט לאפס ב-$4$, ולכן מקסימום יחיד ב-$x=-1$.</span></li><li><span class="num">10.</span><span>כדי שהמקסימום יהיה ב-$x=2$, צריך שהאפס השני יהיה $a=2$. אז השורשים $2,6$ ובפרבולה הפותחת למעלה מתקבל מקסימום ב-$2$ ומינימום ב-$6$.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer>
+</section>
+
+<section class="page solutions"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>פתרונות - שיעור 2</h1></header><main><ol class="solution-list"><li><span class="num">1.</span><span>הזזה אנכית בלבד: $(1,3)$.</span></li><li><span class="num">2.</span><span>הזזה 4 ימינה: $x=1$.</span></li><li><span class="num">3.</span><span>$x-5\gt2$, ולכן $x\gt7$.</span></li><li><span class="num">4.</span><span>$-1\lt x+2\lt4$, ולכן $-3\lt x\lt2$.</span></li><li><span class="num">5.</span><span>הזזה 2 ימינה ו-6 מטה: $(5,1)$.</span></li><li><span class="num">6.</span><span>$g'(x)=f'(x+8)$.</span></li><li><span class="num">7.</span><span>אפסי $f'$ הם $1,5$, ולכן לאחר הזזה 3 ימינה: $x=4,8$.</span></li><li><span class="num">8.</span><span>מציבים $u=x+1$. עלייה: $0\lt u\lt4$ ולכן $-1\lt x\lt3$. ירידה: $4\lt u\lt9$ ולכן $3\lt x\lt8$.</span></li><li><span class="num">9.</span><span>כי נגזרת של קבוע היא אפס: $[f(x)+1000]'=f'(x)$, ולכן אפסי הנגזרת ושינויי הסימן נשארים זהים.</span></li><li><span class="num">10.</span><span>המקסימום עובר ל-$(a+h,b+K)$.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+
+<section class="page solutions"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>פתרונות - שיעור 3</h1></header><main><ol class="solution-list"><li><span class="num">1.</span><span>$g'(x)=-f'(x)$.</span></li><li><span class="num">2.</span><span>$g'(x)=-f'(-x)$.</span></li><li><span class="num">3.</span><span>ב-$x=4$ מתקבל מקסימום.</span></li><li><span class="num">4.</span><span>השיקוף האופקי מעביר $x=-2$ ל-$x=2$ ושומר סוג: מקסימום.</span></li><li><span class="num">5.</span><span>$g'=-f'$, לכן במקום שבו $f$ עולה, $g$ יורדת; עבור $x\gt3$ מתקבלת ירידה.</span></li><li><span class="num">6.</span><span>נסמן $u=-x$. התנאי $1\lt u\lt5$ נותן $-5\lt x\lt-1$. מאחר $g'=-f'(-x)$, סימן הנגזרת מתהפך ולכן $g$ יורדת בתחום זה.</span></li><li><span class="num">7.</span><span>$g'(x)=f'(-x)$.</span></li><li><span class="num">8.</span><span>שיקוף אופקי: $(3,-4)\to(-3,-4)$ מינימום. אחר כך שיקוף אנכי: $(-3,4)$ מקסימום.</span></li><li><span class="num">9.</span><span>השיקוף מחליף $x$ ב-$-x$, ולכן סדר התנועה על ציר $x$ מתהפך. סוג הקיצון נשמר כי אין שיקוף אנכי של ערכי $y$.</span></li><li><span class="num">10.</span><span>ל-$f$ מקסימום ב-$x=-5$ ומינימום ב-$x=2$. לאחר $x\to-x$: ל-$g$ מקסימום ב-$x=5$ ומינימום ב-$x=-2$.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+
+<section class="page solutions"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>פתרונות - שיעור 4</h1></header><main><ol class="solution-list"><li><span class="num">1.</span><span>$x^2+k\ge0$ לכל $x$ אם ורק אם $k\ge0$.</span></li><li><span class="num">2.</span><span>$g'=x^2+k-4$. אם $k\lt4$ שני אפסים ושתי נקודות קיצון; אם $k=4$ אפס כפול ללא שינוי סימן ולכן אין קיצון; אם $k\gt4$ אין אפסים והפונקציה עולה לכל $x$.</span></li><li><span class="num">3.</span><span>הפרבולה $x^2-6x+k=(x-3)^2+k-9$. נדרש מינימום אי-שלילי: $k\ge9$.</span></li><li><span class="num">4.</span><span>$g'=x^2-6x+5=(x-1)(x-5)$, ולכן שתי נקודות קיצון: מקסימום ב-$x=1$ ומינימום ב-$x=5$.</span></li><li><span class="num">5.</span><span>$-x^2+4x+k=-(x-2)^2+k+4$. כדי שהנגזרת תהיה אי-חיובית לכל $x$, המקסימום $k+4$ צריך להיות לכל היותר $0$, לכן $k\le-4$.</span></li><li><span class="num">6.</span><span>הדיסקרימיננטה היא $4k^2-4=4(k^2-1)$. כדי שלא יהיו שני אפסים חוצים, צריך $\Delta\le0$, ולכן $-1\le k\le1$. כאשר $\Delta=0$ מתקבל אפס כפול ללא שינוי סימן.</span></li><li><span class="num">7.</span><span>$g'=(x-2)^2+k-1$. אם $k\lt1$ שני אפסים ושתי נקודות קיצון; אם $k=1$ אפס כפול ללא קיצון; אם $k\gt1$ אין אפסים והפונקציה עולה.</span></li><li><span class="num">8.</span><span>ללא צורה מלאה של גרף $f'$ אי אפשר לקבוע מספר יחיד של חיתוכים רק מהגובה של מינימום ומקסימום. ניתן לקבוע שהישר $y=-k$ נמצא בין הגבהים $-3$ ו-$5$, ולכן קיימת אפשרות לחיתוכים; מספרם תלוי במבנה הגרף. זו בדיוק הסיבה שצריך להשתמש בגרף הנתון ולא רק בערכי הקיצון.</span></li><li><span class="num">9.</span><span>נסמן $t=x^2\ge0$. אז $x^4-2x^2+k=t^2-2t+k=(t-1)^2+k-1$. המינימום הוא $k-1$, ולכן כדי שהנגזרת תהיה אי-שלילית לכל $x$ נדרש $k\ge1$.</span></li><li><span class="num">10.</span><span>$\Delta=(k-2)^2-4k=k^2-8k+4$. נדרש $\Delta\gt0$, כלומר $k\lt4-2\sqrt3$ או $k\gt4+2\sqrt3$. לאחר מכן צריך לבדוק ששני האפסים אכן מלווים בשינוי סימן; בפרבולה עם שני שורשים שונים ומקדם מוביל חיובי אכן מתקבלים שני שינויי סימן ולכן שתי נקודות קיצון.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page solutions"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>פתרונות - שיעור 5</h1></header><main><ol class="solution-list">
+<li><span class="num">1.</span><span>$g(x)=|x-2|$. לכן $g(x)=2-x$ כאשר $x\lt2$, ו-$g(x)=x-2$ כאשר $x\ge2$. הנגזרת משמאל היא $-1$ ומימין $1$, ולכן $g$ אינה גזירה ב-$x=2$.</span></li>
+<li><span class="num">2.</span><span>$x^2-1\ge0$ כאשר $x\le-1$ או $x\ge1$, ולכן שם $|f|=f$. כאשר $-1\lt x\lt1$, מתקיים $f(x)\lt0$ ולכן $|f|=-f=1-x^2$.</span></li>
+<li><span class="num">3.</span><span>כאשר $x\lt-1$ או $x\gt1$, $g'(x)=2x$. כאשר $-1\lt x\lt1$, $g'(x)=-2x$. לכן $g$ יורדת עבור $x\lt-1$, עולה עבור $-1\lt x\lt0$, יורדת עבור $0\lt x\lt1$, ועולה עבור $x\gt1$. ב-$x=\pm1$ אין נגזרת.</span></li>
+<li><span class="num">4.</span><span>כאשר $f'(a)\ne0$, הפונקציה חוצה את ציר $x$ בסביבת $a$. בצד שבו $f\gt0$ מתקבל $g'=f'$, ובצד שבו $f\lt0$ מתקבל $g'=-f'$. לכן הנגזרות החד-צדדיות בנקודה הן בעלות סימנים מנוגדים ואינן שוות, ולכן $g$ אינה גזירה ב-$a$.</span></li>
+<li><span class="num">5.</span><span>מאחר $(x-1)^2\ge0$ לכל $x$, מתקיים $g(x)=f(x)=(x-1)^2$. לכן $g'(x)=2(x-1)$, ובפרט $g'(1)=0$. ב-$x=1$ יש מינימום, והערך המוחלט אינו משנה את הגרף.</span></li>
+<li><span class="num">6.</span><span>כאשר $f\lt0$, מתקיים $g=-f$, ולכן $g'=-f'$. מאחר $f'\gt0$, נקבל $g'\lt0$, ולכן $g$ יורדת. גרפית, חלק עולה של $f$ שנמצא מתחת לציר $x$ משתקף כלפי מעלה והופך לחלק יורד.</span></li>
+<li><span class="num">7.</span><span>$f(x)=x(x-2)$ מתאפסת ב-$x=0,2$ ושלילית כאשר $0\lt x\lt2$. לכן $g=f$ מחוץ לקטע ו-$g=-f=2x-x^2$ בתוכו. ב-$x=0,2$ אין גזירות והן נקודות מינימום. בתוך הקטע $g'=2-2x$, ולכן $g$ עולה ב-$(0,1)$ ויורדת ב-$(1,2)$, ויש מקסימום ב-$x=1$. מחוץ לקטע $g'=2x-2$, ולכן $g$ יורדת ב-$(-\infty,0)$ ועולה ב-$(2,\infty)$.</span></li>
+<li><span class="num">8.</span><span>אפסי $f$ הם $x=-\sqrt3,0,\sqrt3$. בכל שלוש הנקודות $f'(x)\ne0$, ולכן לאחר ערך מוחלט מתקבלות נקודות חדות שהן נקודות מינימום בערך $0$. בנוסף, ל-$f$ מקסימום ב-$x=-1$ שבו $f(-1)=2$, ולכן סוג הקיצון נשמר ומתקבל מקסימום של $|f|$. ל-$f$ מינימום ב-$x=1$ שבו $f(1)=-2$; באזור זה הגרף משתקף, ולכן מתקבל גם שם מקסימום של $|f|$. בסיכום: מינימום ב-$x=-\sqrt3,0,\sqrt3$ ומקסימום ב-$x=-1,1$.</span></li>
+<li><span class="num">9.</span><span>אפסי $f$ הם $x=-2,-1,1,2$. כל האפסים פשוטים, ולכן $f'(x)\ne0$ בכל אחד מהם ו-$g$ אינה גזירה בארבע הנקודות האלה. בכל תחום שבין האפסים קובעים תחילה את סימן $f$: אם $f\gt0$ אז $g'=f'$, ואם $f\lt0$ אז $g'=-f'$. כך אפשר לבנות טבלת סימנים מלאה של $g'$ בלי לגזור מחדש את הערך המוחלט בכל תחום.</span></li>
+<li><span class="num">10.</span><span>אם $a\lt0$, אז $x^2-a\gt0$ לכל $x$, ולכן $g=x^2-a$: הפונקציה גזירה בכל מקום, יורדת כאשר $x\lt0$, עולה כאשר $x\gt0$, ויש מינימום ב-$x=0$. אם $a=0$, מתקבל $g=x^2$, וגם כאן יש מינימום גזיר ב-$x=0$. אם $a\gt0$, האפסים הם $x=\pm\sqrt a$ ובהם $f'(x)=2x\ne0$, ולכן אלו נקודות מינימום שאינן גזירות. בין האפסים $g=a-x^2$, ומחוץ להם $g=x^2-a$. לכן: ירידה ב-$(-\infty,-\sqrt a)$, עלייה ב-$(-\sqrt a,0)$, ירידה ב-$(0,\sqrt a)$, עלייה ב-$(\sqrt a,\infty)$; וב-$x=0$ יש מקסימום שערכו $a$.</span></li>
+</ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page practice"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>תרגילים מסכמים - רמה גבוהה</h1></header><main><div class="practice-note">התרגילים הבאים משלבים כמה שיעורים יחד. בחלקם יש צורך לבחור בעצמך את הכלי המתאים.</div><ol class="exercise-list cumulative"><li><span class="num">1.</span><span>נתון $f'(x)=(x+2)(x-4)$ ומוגדרת $g(x)=-3f(2(x-1))+5$. קבע את ערכי ה-$x$ של נקודות הקיצון של $g$, סוג כל קיצון ותחומי העלייה והירידה.</span></li><li><span class="num">2.</span><span>ל-$f$ מקסימום ב-$(3,7)$ ומינימום ב-$(8,-1)$. מצא את שתי נקודות הקיצון של $g(x)=-2f(-4(x-2))+6$ וסוגיהן.</span></li><li><span class="num">3.</span><span>נתון $f'(x)=x^2-9$ ו-$g'(x)=2f'(3(x-1))+4$. קבע את מספר נקודות הקיצון של $g$ ואת ערכי ה-$x$ שלהן.</span></li><li><span class="num">4.</span><span>נתון $f'(x)=x^2-4x-5$. נגדיר $g_k'(x)=f'(x)+k$. מצא את כל $k$ שעבורם $g_k$ עולה לכל $x$, ואת כל $k$ שעבורם יש לה שתי נקודות קיצון.</span></li><li><span class="num">5.</span><span>נתון $f(x)=x^3-3x$. נגדיר $g(x)=2f(x-1)+4x$. מצא את $g'(x)$ ואת נקודות הקיצון של $g$.</span></li><li><span class="num">6.</span><span>נתון $g'(x)=-6f'(2(x+1))$. כתוב את $g$ באמצעות $f$. אם ל-$f$ מינימום ב-$(4,-2)$, מצא את הקיצון המתאים של $g$ במונחי $C$.</span></li><li><span class="num">7.</span><span>לגרף $f'$ מינימום בגובה $-4$ ומקסימום בגובה $6$. דון כיצד מספר האפסים של $g_k'(x)=f'(x)+k$ עשוי להשתנות כאשר $k$ עובר דרך הערכים $4$ ו-$-6$. התייחס גם לצורך בשינוי סימן.</span></li><li><span class="num">8.</span><span>נתון $f(x)=x^2-4$. נגדיר $g(x)=|f(2x-1)|$. מצא את כל נקודות אי-הגזירות של $g$ ואת תחומי העלייה והירידה.</span></li><li><span class="num">9.</span><span>נתון $f'(x)=x^4-5x^2+4$. נגדיר $g_k'(x)=f'(x)+k$. מצא את הערך המינימלי של $k$ שעבורו $g_k$ עולה לכל $x$.</span></li><li><span class="num">10.</span><span>נתון $f'(x)=3x^2-12x+9$ ו-$g'(x)=f'(x)+k$. מצא את $k$ שעבורו ל-$g$ יש נקודה יחידה עם שיפוע אפס, וקבע האם זו נקודת קיצון.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<section class="page solutions"><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>פתרונות לתרגילים המסכמים</h1></header><main><ol class="solution-list cumulative-sol"><li><span class="num">1.</span><span>$g'(x)=-6f'(2(x-1))$. אפסי $f'$ הם $-2,4$. לכן $2(x-1)=-2$ או $4$, כלומר $x=0,3$. ב-$f'$ הסימן חיובי מחוץ לשורשים ושלילי ביניהם; הכפל ב-$-6$ הופך סימן. לכן $g$ יורדת כאשר $x\lt0$, עולה כאשר $0\lt x\lt3$, ויורדת כאשר $x\gt3$. ב-$x=0$ מינימום, ב-$x=3$ מקסימום.</span></li><li><span class="num">2.</span><span>עבור נקודה עם ערך קלט $a$, פותרים $-4(x-2)=a$, כלומר $x=2-a/4$. עבור $a=3$: $x=5/4$, $y=-2\cdot7+6=-8$, והסימן $A=-2$ מחליף מקסימום למינימום. עבור $a=8$: $x=0$, $y=-2(-1)+6=8$, והמינימום הופך למקסימום.</span></li><li><span class="num">3.</span><span>$g'=2[(3(x-1))^2-9]+4=18(x-1)^2-14$. אפסים כאשר $(x-1)^2=7/9$, כלומר $x=1\pm\frac{\sqrt7}{3}$. הפרבולה של הנגזרת פותחת למעלה ולכן יש מקסימום בנקודה השמאלית ומינימום בימנית.</span></li><li><span class="num">4.</span><span>$f'=x^2-4x-5=(x-2)^2-9$. לכן $g_k'=(x-2)^2+k-9$. עולה לכל $x$ כאשר $k\ge9$. שתי נקודות קיצון כאשר $k\lt9$.</span></li><li><span class="num">5.</span><span>$f'(x)=3x^2-3$. לכן $g'(x)=2f'(x-1)+4=6(x-1)^2-2$. אפסים: $(x-1)^2=1/3$, ולכן $x=1\pm\frac1{\sqrt3}$. בגלל פרבולה פותחת למעלה: מקסימום בשמאל, מינימום בימין.</span></li><li><span class="num">6.</span><span>לפי הנוסחה $a=-6,b=2,h=-1$, לכן $g(x)=-3f(2(x+1))+C$. עבור קיצון של $f$ ב-$a=4$: $2(x+1)=4$, לכן $x=1$. ערך $y=-3(-2)+C=6+C$. בגלל המקדם השלילי, מינימום של $f$ הופך למקסימום של $g$.</span></li><li><span class="num">7.</span><span>אפסי $g_k'$ הם חיתוכי $f'$ עם $y=-k$. כאשר $k=4$, הישר הוא $y=-4$ ונוגע בגובה המינימום; ליד ערך זה עשוי להשתנות מספר החיתוכים. כאשר $k=-6$, הישר הוא $y=6$ ונוגע בגובה המקסימום; גם שם עשוי להשתנות מספר החיתוכים. נגיעה לבדה יוצרת אפס ללא שינוי סימן, ולכן אינה בהכרח יוצרת קיצון.</span></li><li><span class="num">8.</span><span>$f(2x-1)=(2x-1)^2-4$. אפסיו: $2x-1=\pm2$, ולכן $x=-\frac12,\frac32$. מאחר הנגזרת של הפונקציה הפנימית אינה אפס שם, אלו נקודות אי-גזירות של הערך המוחלט. לפני הערך המוחלט, $q'(x)=4(2x-1)=8x-4$, ולכן $q$ יורדת עד $x=1/2$ ועולה אחריו. עם הערך המוחלט יש להפוך סימן נגזרת במקום שבו $q\lt0$, כלומר כאשר $-1/2\lt x\lt3/2$. מכאן: ירידה כאשר $x\lt-1/2$, עלייה כאשר $-1/2\lt x\lt1/2$, ירידה כאשר $1/2\lt x\lt3/2$, ועלייה כאשר $x\gt3/2$.</span></li><li><span class="num">9.</span><span>נסמן $t=x^2\ge0$. אז $f'=t^2-5t+4=(t-\frac52)^2-\frac94$. המינימום הוא $-\frac94$. לכן $g_k'=f'+k\ge0$ לכל $x$ אם $k\ge\frac94$. הערך המינימלי הוא $k=\frac94$.</span></li><li><span class="num">10.</span><span>$f'=3(x-2)^2-3$. לכן $g'=3(x-2)^2+(k-3)$. נקודה יחידה עם שיפוע אפס מתקבלת כאשר $k=3$, ואז $g'=3(x-2)^2$. הסימן אינו משתנה ולכן זו אינה נקודת קיצון.</span></li></ol></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer></section>
+<!--
+<section class="page "><header><div class="course">מתמטיקה 5 יחידות - חשבון דיפרנציאלי</div><h1>מקורות ובקרת איכות</h1></header><main><div class="card"><h2>מקורות פדגוגיים מרכזיים ששימשו לבניית הרצף</h2><ul class="sources"><li><b>משימטיקה - התנהגות הפונקציה והתנהגות הנגזרת</b><br><a href="https://stwww1.weizmann.ac.il/mesimatika/mesimatika_case/%D7%94%D7%AA%D7%A0%D7%94%D7%92%D7%95%D7%AA-%D7%94%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94-%D7%95%D7%94%D7%AA%D7%A0%D7%94%D7%92%D7%95%D7%AA-%D7%94%D7%A0%D7%92%D7%96%D7%A8%D7%AA/">https://stwww1.weizmann.ac.il/mesimatika/mesimatika_case/%D7%94%D7%AA%D7%A0%D7%94%D7%92%D7%95%D7%AA-%D7%94%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94-%D7%95%D7%94%D7%AA%D7%A0%D7%94%D7%92%D7%95%D7%AA-%D7%94%D7%A0%D7%92%D7%96%D7%A8%D7%AA/</a></li><li><b>משימטיקה - מגרף הנגזרת לגרף הפונקציה</b><br><a href="https://stwww1.weizmann.ac.il/mesimatika/">https://stwww1.weizmann.ac.il/mesimatika/</a></li><li><b>GeoGebra Calculus - Derivatives and Graph Transformations</b><br><a href="https://webspace.ship.edu/msrenault/GeoGebraCalculus/derivative_graph_transformation.html">https://webspace.ship.edu/msrenault/GeoGebraCalculus/derivative_graph_transformation.html</a></li><li><b>OpenStax Calculus 1 - Derivatives and the Shape of a Graph</b><br><a href="https://openstax.org/books/calculus-volume-1/pages/4-5-derivatives-and-the-shape-of-a-graph">https://openstax.org/books/calculus-volume-1/pages/4-5-derivatives-and-the-shape-of-a-graph</a></li><li><b>המרכז הארצי למורים למתמטיקה בחינוך העל-יסודי</b><br><a href="https://newhighmath.haifa.ac.il/">https://newhighmath.haifa.ac.il/</a></li></ul></div>
+<div class="callout">התרגילים במסמך נכתבו במיוחד למערך זה. הם אינם העתקה של תרגילים חיצוניים.</div>
+<div class="card"><h3>בדיקות מובנות במסמך</h3><ul><li>בדיקת מזהי HTML כפולים</li><li>בדיקת כותרת לכל עמוד</li><li>בדיקת בקרות לכל גרף</li><li>בדיקת גלישת תוכן מגבולות A4</li><li>בדיקת זמינות MathJax ו-JSXGraph לאחר טעינה</li></ul></div></main><footer><span>טרנספורמציות של פונקציה ונגזרת</span><span class="pnum"></span></footer>
+</section>
+-->
+<script>
+(function(){
+  const defaultBox=[-6,6,6,-6];
+  const boards={};
+  const graphInitErrors=[];
+  function initBoard(el){
+    if(!window.JXG) return null;
+    const kind=el.dataset.graph;
+    const board=JXG.JSXGraph.initBoard(el.id,{boundingbox:defaultBox,axis:true,showCopyright:false,showNavigation:false,keepaspectratio:false,pan:{enabled:true},zoom:{enabled:true,wheel:true,factorX:1.25,factorY:1.25}});
+    boards[el.id]=board;
+    const f=x=>x*x*x/3-3*x;
+    const fp=x=>x*x-3;
+    const baseOpts={strokeWidth:2};
+    const derOpts={strokeWidth:2,dash:2};
+    if(kind==='basic'){
+      board.create('functiongraph',[f,-5,5],baseOpts); board.create('functiongraph',[fp,-5,5],derOpts);
+      board.create('text',[-5,5,'\\(f\\)'],{fontSize:14,useMathJax:true}); board.create('text',[-4,3.7,"\\(f'\\)"],{fontSize:14,useMathJax:true});
+    } else if(kind==='translations'){
+      board.create('functiongraph',[f,-5,5],baseOpts); board.create('functiongraph',[x=>f(x-1)+2,-4,6],{strokeWidth:2,dash:1}); board.create('functiongraph',[x=>fp(x-1),-4,6],derOpts);
+    } else if(kind==='scaling'){
+      board.create('functiongraph',[f,-5,5],baseOpts); board.create('functiongraph',[x=>2*f(2*x),-3,3],{strokeWidth:2,dash:1}); board.create('functiongraph',[x=>4*fp(2*x),-3,3],derOpts);
+    } else if(kind==='reflections'){
+      board.create('functiongraph',[f,-5,5],baseOpts); board.create('functiongraph',[x=>-f(x),-5,5],{strokeWidth:2,dash:1}); board.create('functiongraph',[x=>f(-x),-5,5],{strokeWidth:2,dash:3});
+    } else if(kind==='general'){
+      board.create('functiongraph',[f,-5,5],baseOpts); board.create('functiongraph',[x=>-1.2*f(1.5*(x-1))+2,-2.5,4.5],{strokeWidth:2,dash:1});
+    } else if(kind==='antiderivative'){
+      board.create('functiongraph',[fp,-5,5],derOpts); [-2,0,2].forEach(c=>board.create('functiongraph',[x=>f(x)+c,-5,5],{strokeWidth:1.6,dash:c===0?0:2}));
+    } else if(kind==='derivtransform'){
+      board.create('functiongraph',[fp,-5,5],derOpts); board.create('functiongraph',[x=>6*fp(2*(x-1)),-2,4],{strokeWidth:2,dash:1});
+    } else if(kind==='verticalderivative'){
+      board.create('functiongraph',[x=>x*x-4,-5,5],derOpts);
+      const s=board.create('slider',[[-4.5,5],[-.5,5],[-2,0,6]],{name:'k',snapWidth:.5});
+      board.create('functiongraph',[x=>x*x-4+s.Value(),-5,5],{strokeWidth:2});
+      board.create('functiongraph',[x=>-s.Value(),-5,5],{strokeWidth:1,dash:3});
+    } else if(kind==='parameter'){
+      const s=board.create('slider',[[-4.5,5],[-.5,5],[-2,5,12]],{name:'k',snapWidth:.5});
+      board.create('functiongraph',[x=>x*x-6*x+s.Value(),-2,8],{strokeWidth:2});
+    } else if(kind==='absolute'){
+      const q=x=>x*x-1; board.create('functiongraph',[q,-4,4],{strokeWidth:1.5,dash:2}); board.create('functiongraph',[x=>Math.abs(q(x)),-4,4],{strokeWidth:2});
+    }
+    return board;
+  }
+  function initAll(){
+    document.querySelectorAll('.jxgbox').forEach(el=>{
+      try{ const b=initBoard(el); if(!b) graphInitErrors.push(el.id+': JSXGraph unavailable'); }
+      catch(err){ graphInitErrors.push(el.id+': '+(err && err.message ? err.message : String(err))); }
+    });
+    document.querySelectorAll('.graph-controls').forEach(c=>{
+      c.addEventListener('click',e=>{
+        if(e.target.tagName!=='BUTTON') return; const b=boards[c.dataset.for]; if(!b) return;
+        const act=e.target.dataset.act;
+        if(act==='reset'||act==='center') b.setBoundingBox(defaultBox,true);
+        if(act==='zoom-in') b.zoomIn();
+        if(act==='zoom-out') b.zoomOut();
+      });
+    });
+  }
+  function validate(){
+    if(document.querySelector('.validation-badge')) return;
+    const errors=[...graphInitErrors];
+    const ids=[...document.querySelectorAll('[id]')].map(x=>x.id); const dup=ids.filter((x,i)=>ids.indexOf(x)!==i); if(dup.length) errors.push('duplicate IDs: '+[...new Set(dup)].join(','));
+    document.querySelectorAll('.page').forEach((p,i)=>{if(!p.querySelector('h1')) errors.push('missing title page '+(i+1)); if(p.scrollHeight>p.clientHeight+2) errors.push('A4 overflow page '+(i+1));});
+    document.querySelectorAll('.jxgbox').forEach(g=>{const ctr=document.querySelector('.graph-controls[data-for="'+g.id+'"]'); if(!ctr||ctr.querySelectorAll('button').length<4) errors.push('missing graph controls '+g.id);});
+    if(!window.MathJax) errors.push('MathJax unavailable');
+    if(document.querySelector('mjx-merror')) errors.push('broken MathJax expression');
+    if(!window.JXG) errors.push('JSXGraph unavailable');
+    document.querySelectorAll('.jxgbox').forEach(g=>{if(!boards[g.id]) errors.push('JSXGraph initialization failure '+g.id);});
+    //const badge=document.createElement('div'); badge.className='validation-badge '+(errors.length?'err':'ok'); badge.textContent=errors.length?('Checks: '+errors.join(' | ')):'Checks: OK'; document.body.appendChild(badge);
+    window.__DOC_VALIDATION__={ok:!errors.length,errors};
+  }
+  window.addEventListener('load',()=>{
+    initAll();
+    const ready=(window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) ? window.MathJax.startup.promise : Promise.resolve();
+    ready.then(()=>setTimeout(validate,120)).catch(err=>{graphInitErrors.push('MathJax startup: '+err); setTimeout(validate,120);});
+  });
+})();
+</script>
+</body></html>
