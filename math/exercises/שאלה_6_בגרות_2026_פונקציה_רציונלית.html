@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פתרון מפורט - פונקציה רציונלית, הזזה ומכפלת פונקציות</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.12.2/distrib/jsxgraph.css">
+  <style>
+    :root{
+      --ink:#172033;--muted:#5f6b7a;--paper:#ffffff;--screen:#eef2f7;
+      --primary:#244a7c;--primary-soft:#eef5ff;--accent:#a56100;--accent-soft:#fff6e8;
+      --success:#2f6b4f;--success-soft:#edf8f2;--danger:#9b3a3a;--danger-soft:#fff0f0;
+      --line:#d9e0e8;--soft:#f7f9fc;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--screen);color:var(--ink);font-family:"Arial","Noto Sans Hebrew",sans-serif;}
+    body{padding:10mm 0;}
+    .page{width:210mm;height:297mm;margin:0 auto 10mm;background:var(--paper);padding:14mm 16mm 14mm;position:relative;overflow:hidden;box-shadow:0 6px 26px rgba(18,35,58,.10);page-break-after:always;}
+    .page:last-child{page-break-after:auto}
+    @page{size:A4;margin:0}
+    @media print{html,body{background:#fff}body{padding:0}.page{margin:0;box-shadow:none}.no-print{display:none!important}}
+    h1,h2,h3{margin:0;color:var(--primary);line-height:1.18}
+    h1{font-size:28px;letter-spacing:-.2px}
+    h2{font-size:23px;margin-bottom:6mm;border-bottom:2px solid var(--line);padding-bottom:3mm}
+    h3{font-size:17px;margin-bottom:2.2mm}
+    p{margin:0 0 3mm;line-height:1.54;font-size:14.8px}
+    ul,ol{margin:1.5mm 0 3.5mm;padding-right:6mm}
+    li{margin-bottom:1.4mm;line-height:1.46;font-size:14.4px}
+    strong{color:#10192a}
+    .eyebrow{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.2px;margin-bottom:3mm}
+    .subtitle{font-size:17px;line-height:1.52;color:var(--muted);max-width:160mm;margin-top:4mm}
+    .lead{font-size:16.3px;line-height:1.55;color:#2d3b50}
+    .rule{height:3px;width:34mm;background:var(--accent);margin:5mm 0}
+    .hero{margin-top:8mm;padding:8mm;background:linear-gradient(135deg,var(--primary-soft),#fff 65%);border:1px solid #cddcf0;border-radius:5mm}
+    .hero-quote{font-size:20px;font-weight:700;line-height:1.42;color:var(--primary);margin:4mm 0}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:4.5mm}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5mm}
+    .card{border:1px solid var(--line);border-radius:4mm;padding:4.3mm;background:#fff}
+    .card.soft{background:var(--soft)}.card.primary{background:var(--primary-soft);border-color:#cfdff3}.card.accent{background:var(--accent-soft);border-color:#f1d5ab}.card.success{background:var(--success-soft);border-color:#cfe8da}.card.danger{background:var(--danger-soft);border-color:#efcccc}
+    .card p:last-child,.card ul:last-child{margin-bottom:0}
+    .label{display:inline-block;font-size:12.2px;font-weight:700;border-radius:999px;padding:1.3mm 3mm;margin-bottom:2mm}
+    .label.blue{background:#ddeaff;color:#244a7c}.label.gold{background:#ffebc9;color:#80500b}.label.green{background:#dff0e6;color:#285d45}.label.red{background:#f7dede;color:#873434}.label.gray{background:#e9edf2;color:#4f5b69}
+    .example-box{border-right:5px solid var(--primary);background:var(--primary-soft);padding:3.8mm 5mm;margin:4mm 0;border-radius:2mm}
+    .answer-box{border-right:5px solid var(--success);background:var(--success-soft);padding:3.8mm 5mm;margin:4mm 0;border-radius:2mm}
+    .warn-box{border-right:5px solid var(--danger);background:var(--danger-soft);padding:3.8mm 5mm;margin:4mm 0;border-radius:2mm}
+    .math-line{direction:ltr;unicode-bidi:isolate;text-align:center;font-size:16.6px;margin:2.2mm 0;line-height:1.4}
+    .math-inline{direction:ltr;unicode-bidi:isolate;display:inline-block}
+    .steps{display:grid;gap:2.1mm;margin-top:3mm}
+    .step{display:grid;grid-template-columns:10mm 1fr;gap:3mm;align-items:start;padding:2.6mm 0;border-bottom:1px solid var(--line)}
+    .step:last-child{border-bottom:0}.step-num{width:8mm;height:8mm;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-weight:700;font-size:12px;margin-top:.5mm}
+    .mini-table{width:100%;border-collapse:collapse;margin-top:3mm;font-size:13.3px;direction:rtl}
+    .mini-table th,.mini-table td{border:1px solid var(--line);padding:2.35mm 2.6mm;vertical-align:middle;line-height:1.35;text-align:center}
+    .mini-table th{background:var(--soft);color:var(--primary);font-size:12.8px}
+    .sign-pos{background:#edf8f2;font-weight:700;color:#285d45}.sign-neg{background:#fff0f0;font-weight:700;color:#873434}.sign-zero{background:#fff6e8;font-weight:700;color:#80500b}.sign-na{background:#eef2f7;color:#5f6b7a;font-weight:700}
+    .question{font-size:14.2px;line-height:1.48}.question p{font-size:14.2px;margin-bottom:2mm}
+    .graph-card{border:1px solid var(--line);border-radius:4mm;padding:3.8mm;background:#fff}
+    .graph-wrap{direction:ltr;width:100%;height:100mm;border:1px solid #b8c6d8;border-radius:3mm;overflow:hidden;background:#fff}
+    .graph-wrap.compact{height:72mm}.graph-wrap.medium{height:84mm}
+    .jxgbox{direction:ltr!important;width:100%;border:0!important}
+    .graph-toolbar{display:flex;flex-wrap:wrap;gap:2mm;justify-content:center;margin-top:3mm;direction:rtl}
+    .graph-toolbar button{font-family:inherit;font-size:12.3px;border:1px solid #b8c6d8;background:#fff;color:var(--primary);border-radius:999px;padding:1.5mm 3.4mm;cursor:pointer}
+    .graph-toolbar button:hover{background:var(--primary-soft)}
+    .slider-row{display:grid;grid-template-columns:25mm 1fr 16mm;gap:3mm;align-items:center;margin-top:3mm;direction:rtl;font-size:13px}.slider-row input{width:100%}
+    .live-equation{direction:ltr;unicode-bidi:isolate;text-align:center;background:var(--soft);border:1px solid var(--line);border-radius:3mm;padding:2.4mm;margin-top:2.5mm;font-size:14.8px}
+    .quick-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-top:5mm}
+    .quick-item{border-top:4px solid var(--primary);background:var(--soft);padding:3.3mm;border-radius:2mm;min-height:27mm}
+    .quick-item:nth-child(2){border-top-color:var(--success)}.quick-item:nth-child(3){border-top-color:var(--accent)}.quick-item:nth-child(4){border-top-color:var(--danger)}
+    .quick-item b{display:block;font-size:13.8px;margin-bottom:1mm}.quick-item span{font-size:12.5px;line-height:1.32;color:var(--muted)}
+    .footer{position:absolute;right:16mm;left:16mm;bottom:7mm;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:2.5mm;color:#7b8795;font-size:11.5px}
+    .page-no{font-weight:700;color:var(--primary)}
+    .small{font-size:12.8px;color:var(--muted);line-height:1.44}.tight li{margin-bottom:1mm}.mt{margin-top:4.2mm}.mb{margin-bottom:4.2mm}.center{text-align:center}
+    #self-test-badge{position:fixed;left:8px;bottom:8px;z-index:1000;background:#172033;color:#fff;padding:7px 10px;border-radius:10px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+    #self-test-badge.ok{background:#2f6b4f}#self-test-badge.fail{background:#9b3a3a}#self-test-badge.warn{background:#80500b}
+  </style>
+</head>
+<body>
+
+<section class="page" id="page-1">
+  <div class="eyebrow">פתרון מפורט - 5 יחידות</div>
+  <h1>פונקציה רציונלית, הזזה אנכית ומכפלת פונקציות</h1>
+  <div class="rule"></div>
+  <p class="subtitle">פתרון מלא לכל הסעיפים הנראים בתמונה, עם גזירה לפי כלל המנה, סקיצות לכל הפונקציות ופתרון סעיף ד לפי סימני שני הגורמים בלבד.</p>
+
+  <div class="hero">
+    <span class="label blue">נתון מרכזי</span>
+    <div class="hero-quote math-line">\(f(x)=\frac{ax}{(x-3)^2},\qquad a\gt 0,\qquad x\ne 3\)</div>
+    <p class="lead">נזהה את מבנה הגרף, נגזור לפי כלל המנה, נשתמש בהזזה האנכית למציאת הפרמטר, ולבסוף נקבע את סימן המכפלה <span class="math-inline">\(g(x)\cdot g'(x)\)</span>.</p>
+  </div>
+
+  <div class="card soft mt question">
+    <span class="label gray">נוסח התרגיל שבתמונה</span>
+    <p><strong>6.</strong> נתונה הפונקציה <span class="math-inline">\(f(x)=\frac{ax}{(x-3)^2}\)</span>, המוגדרת בתחום <span class="math-inline">\(x\ne 3\)</span>. <span class="math-inline">\(a\)</span> הוא פרמטר חיובי.</p>
+    <p><strong>א.</strong> ענו על תתי-הסעיפים (1)-(2). הביעו את התשובות באמצעות <span class="math-inline">\(a\)</span>, אם יש צורך.</p>
+    <ol>
+      <li>מצאו את משוואות האסימפטוטות המאונכות לצירים של הפונקציה <span class="math-inline">\(f(x)\)</span>.</li>
+      <li>מצאו את שיעורי נקודת הקיצון של הפונקציה <span class="math-inline">\(f(x)\)</span>, וקבעו את סוגה.</li>
+    </ol>
+    <p><strong>ב.</strong> סרטטו סקיצה של גרף הפונקציה <span class="math-inline">\(f(x)\)</span>.</p>
+    <p>נתונה הפונקציה <span class="math-inline">\(g(x)=f(x)+0.5\)</span>, המוגדרת בתחום <span class="math-inline">\(x\ne 3\)</span>. נתון כי לגרף הפונקציה <span class="math-inline">\(g(x)\)</span> יש בדיוק נקודה אחת משותפת עם ציר ה-<span class="math-inline">\(x\)</span>.</p>
+    <p><strong>ג.</strong> מצאו את הערך של <span class="math-inline">\(a\)</span>.</p>
+    <p>הציבו בפונקציה <span class="math-inline">\(g(x)\)</span> את הערך של <span class="math-inline">\(a\)</span> שמצאתם, וענו על סעיף ד.</p>
+    <p>נתונה הפונקציה <span class="math-inline">\(h(x)=g(x)\cdot g'(x)\)</span>, המוגדרת בתחום <span class="math-inline">\(x\ne 3\)</span>.</p>
+    <p><strong>ד(1).</strong> רשמו את תחומי החיוביות והשליליות של הפונקציה <span class="math-inline">\(h(x)\)</span>.</p>
+  </div>
+
+  <div class="quick-strip">
+    <div class="quick-item"><b>א. אסימפטוטות</b><span>בודקים את המכנה ואת התנהגות הפונקציה כאשר ערכי x גדולים מאוד בערכם המוחלט.</span></div>
+    <div class="quick-item"><b>א. קיצון</b><span>גוזרים לפי כלל המנה ומחפשים נקודה עם שיפוע אפס.</span></div>
+    <div class="quick-item"><b>ג. הפרמטר</b><span>חיתוך יחיד עם ציר ה-x ⇐ הגרף נוגע בציר בנקודת המינימום.</span></div>
+    <div class="quick-item"><b>ד. סימן מכפלה</b><span>מכפלה חיובית כאשר שני הגורמים בעלי אותו סימן.</span></div>
+  </div>
+
+  <div class="footer"><span>מפת התרגיל והנתונים</span><span class="page-no">1</span></div>
+</section>
+
+<section class="page" id="page-2">
+  <h2>א(1). אסימפטוטות וא(2) - גזירה לפי כלל המנה</h2>
+
+  <div class="grid-2">
+    <div class="card primary">
+      <span class="label blue">אסימפטוטה אנכית</span>
+      <p>המכנה מתאפס כאשר <span class="math-inline">\(x=3\)</span>. המונה בנקודה זו שווה <span class="math-inline">\(3a\)</span>, והוא אינו מתאפס משום ש-<span class="math-inline">\(a\gt 0\)</span>.</p>
+      <div class="math-line">\((x-3)^2=0\Rightarrow x=3\)</div>
+      <div class="answer-box"><strong>מסקנה:</strong> <span class="math-inline">\(x=3\)</span> היא אסימפטוטה אנכית.</div>
+    </div>
+
+    <div class="card primary">
+      <span class="label blue">אסימפטוטה אופקית</span>
+      <p>כאשר ערכו המוחלט של <span class="math-inline">\(x\)</span> גדל מאוד, המכנה הוא מסדר שני והמונה מסדר ראשון. לכן ערך השבר מתקרב ל-<span class="math-inline">\(0\)</span>.</p>
+      <div class="math-line">\(\frac{ax}{(x-3)^2}\rightarrow 0\)</div>
+      <div class="answer-box"><strong>מסקנה:</strong> <span class="math-inline">\(y=0\)</span> היא אסימפטוטה אופקית.</div>
+    </div>
+  </div>
+
+  <div class="card soft mt">
+    <span class="label gold">א(2) - כלל המנה</span>
+    <p>נזהה מנה של שתי פונקציות ונשתמש בכלל המנה:</p>
+    <div class="math-line">\(f(x)=\frac{u(x)}{v(x)},\qquad \left(\frac{u}{v}\right)'=\frac{u'v-uv'}{v^2}\)</div>
+    <div class="grid-2 mt">
+      <div class="card"><div class="math-line">\(u(x)=ax\)</div><div class="math-line">\(u'(x)=a\)</div></div>
+      <div class="card"><div class="math-line">\(v(x)=(x-3)^2\)</div><div class="math-line">\(v'(x)=2(x-3)\)</div></div>
+    </div>
+    <div class="math-line">\(f'(x)=\frac{a(x-3)^2-ax\cdot2(x-3)}{(x-3)^4}\)</div>
+    <div class="math-line">\(f'(x)=\frac{a(x-3)\left[(x-3)-2x\right]}{(x-3)^4}\)</div>
+    <div class="math-line">\(f'(x)=\frac{-a(x-3)(x+3)}{(x-3)^4}=\frac{-a(x+3)}{(x-3)^3},\qquad x\ne3\)</div>
+  </div>
+
+  <div class="steps mt">
+    <div class="step"><div class="step-num">1</div><div><h3>מחפשים נקודה עם שיפוע אפס</h3><div class="math-line">\(f'(x)=0\Rightarrow -a(x+3)=0\Rightarrow x=-3\)</div><p class="small">מותר לחלק ב-<span class="math-inline">\(a\)</span> משום ש-<span class="math-inline">\(a\gt 0\)</span>.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3>מוצאים את שיעור ה-y</h3><div class="math-line">\(f(-3)=\frac{-3a}{(-6)^2}=-\frac{a}{12}\)</div><p>נקודת הקיצון האפשרית היא <span class="math-inline">\(\left(-3,-\frac{a}{12}\right)\)</span>.</p></div></div>
+  </div>
+
+  <div class="footer"><span>סעיף א - אסימפטוטות וגזירה לפי כלל המנה</span><span class="page-no">2</span></div>
+</section>
+
+<section class="page" id="page-3">
+  <h2>א(2). קביעת סוג הקיצון באמצעות סימן הנגזרת</h2>
+
+  <div class="card accent">
+    <span class="label gold">הרעיון</span>
+    <p>מצאנו <span class="math-inline">\(f'(x)=\frac{-a(x+3)}{(x-3)^3}\)</span>. מאחר ש-<span class="math-inline">\(a\gt 0\)</span>, הגורם <span class="math-inline">\(a\)</span> אינו משנה את סימן הנגזרת.</p>
+    <p>הנקודות החשובות לבדיקת הסימן הן <span class="math-inline">\(x=-3\)</span>, שבה הנגזרת מתאפסת, ו-<span class="math-inline">\(x=3\)</span>, שאינה בתחום ההגדרה.</p>
+  </div>
+
+  <table class="mini-table mt" aria-label="טבלת סימני הנגזרת">
+    <thead><tr><th>תחום</th><th><span class="math-inline">\(x\lt -3\)</span></th><th><span class="math-inline">\(x=-3\)</span></th><th><span class="math-inline">\(-3\lt x\lt 3\)</span></th><th><span class="math-inline">\(x=3\)</span></th><th><span class="math-inline">\(x\gt 3\)</span></th></tr></thead>
+    <tbody>
+      <tr><th>סימן <span class="math-inline">\(f'(x)\)</span></th><td class="sign-neg">-</td><td class="sign-zero">0</td><td class="sign-pos">+</td><td class="sign-na">לא מוגדר</td><td class="sign-neg">-</td></tr>
+      <tr><th>התנהגות <span class="math-inline">\(f(x)\)</span></th><td>יורדת</td><td>מינימום</td><td>עולה</td><td>אסימפטוטה</td><td>יורדת</td></tr>
+    </tbody>
+  </table>
+
+  <div class="steps mt">
+    <div class="step"><div class="step-num">1</div><div><h3>כאשר <span class="math-inline">\(x\lt -3\)</span></h3><p>הנגזרת שלילית, ולכן הפונקציה יורדת.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3>כאשר <span class="math-inline">\(-3\lt x\lt 3\)</span></h3><p>הנגזרת חיובית, ולכן הפונקציה עולה.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3>שינוי הסימן</h3><p>הנגזרת עוברת משלילית לחיובית, ולכן הקיצון הוא מינימום.</p></div></div>
+  </div>
+
+  <div class="answer-box mt">
+    <h3>תשובת סעיף א</h3>
+    <p>האסימפטוטות המאונכות לצירים הן:</p>
+    <div class="math-line">\(x=3\qquad y=0\)</div>
+    <p>נקודת הקיצון היא נקודת מינימום:</p>
+    <div class="math-line">\(\left(-3,-\frac{a}{12}\right)\)</div>
+  </div>
+
+  <div class="example-box mt"><strong>בדיקה עצמית:</strong> אין להתייחס ל-<span class="math-inline">\(x=3\)</span> כנקודת קיצון, משום שהפונקציה אינה מוגדרת שם.</div>
+  <div class="footer"><span>סעיף א - סוג הקיצון</span><span class="page-no">3</span></div>
+</section>
+
+<section class="page" id="page-4">
+  <h2>ב. סקיצה של גרף הפונקציה f</h2>
+
+  <div class="grid-2 mb">
+    <div class="card success">
+      <span class="label green">מה חייב להופיע בסקיצה?</span>
+      <ul class="tight">
+        <li>אסימפטוטה אנכית: <span class="math-inline">\(x=3\)</span>.</li>
+        <li>אסימפטוטה אופקית: <span class="math-inline">\(y=0\)</span>.</li>
+        <li>חיתוך עם שני הצירים: <span class="math-inline">\((0,0)\)</span>.</li>
+        <li>מינימום: <span class="math-inline">\(\left(-3,-\frac{a}{12}\right)\)</span>.</li>
+      </ul>
+    </div>
+    <div class="card accent">
+      <span class="label gold">התנהגות הענפים</span>
+      <ul class="tight">
+        <li>כאשר <span class="math-inline">\(x\lt 0\)</span>, הפונקציה שלילית.</li>
+        <li>כאשר <span class="math-inline">\(x\gt 0\)</span> וגם <span class="math-inline">\(x\ne 3\)</span>, הפונקציה חיובית.</li>
+        <li>משני צדי <span class="math-inline">\(x=3\)</span> הגרף עולה ללא גבול.</li>
+        <li>רחוק מהראשית הגרף מתקרב אל <span class="math-inline">\(y=0\)</span>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="graph-card" data-graph-panel="f-board">
+    <div id="f-board" class="graph-wrap jxgbox" style="direction:ltr;" aria-label="גרף הפונקציה f"></div>
+    <div class="live-equation" id="f-live">\(f(x)=\frac{6x}{(x-3)^2}\)</div>
+    <div class="slider-row">
+      <label for="a-slider"><strong>פרמטר <span class="math-inline">\(a\)</span></strong></label>
+      <input id="a-slider" type="range" min="1" max="12" step="0.5" value="6">
+      <output id="a-value">6</output>
+    </div>
+    <div class="graph-toolbar" data-controls-for="f-board">
+      <button type="button" id="f-reset">איפוס</button><button type="button" id="f-zoom-in">הגדלה</button><button type="button" id="f-zoom-out">הקטנה</button><button type="button" id="f-center">מרכז</button>
+    </div>
+  </div>
+
+  <div class="example-box mt"><strong>איך להשתמש בגרף:</strong> שינוי <span class="math-inline">\(a\)</span> משנה את גובה נקודת המינימום, אך ערך ה-<span class="math-inline">\(x\)</span> שלה נשאר <span class="math-inline">\(-3\)</span>.</div>
+  <div class="footer"><span>סעיף ב - סקיצה אינטראקטיבית של f</span><span class="page-no">4</span></div>
+</section>
+
+<section class="page" id="page-5">
+  <h2>ג. מציאת הפרמטר לפי חיתוך יחיד עם ציר ה-x</h2>
+
+  <div class="card primary">
+    <span class="label blue">הפונקציה החדשה</span>
+    <div class="math-line">\(g(x)=f(x)+0.5=\frac{ax}{(x-3)^2}+\frac12\)</div>
+    <p>הוספת <span class="math-inline">\(0.5\)</span> מזיזה את כל גרף <span class="math-inline">\(f\)</span> כלפי מעלה ב-<span class="math-inline">\(0.5\)</span> יחידה. לכן ערך ה-<span class="math-inline">\(x\)</span> של נקודת המינימום נשאר <span class="math-inline">\(-3\)</span>.</p>
+  </div>
+
+  <div class="grid-2 mt">
+    <div class="card soft">
+      <span class="label gold">דרך אלגברית</span>
+      <p>נקודת חיתוך עם ציר ה-<span class="math-inline">\(x\)</span> מתקבלת כאשר <span class="math-inline">\(g(x)=0\)</span>.</p>
+      <div class="math-line">\(\frac{ax}{(x-3)^2}+\frac12=0\)</div>
+      <div class="math-line">\(2ax+(x-3)^2=0\)</div>
+      <div class="math-line">\(x^2+(2a-6)x+9=0\)</div>
+      <p>כדי שתהיה תשובה ממשית אחת בלבד, הדיסקרימיננטה צריכה להיות אפס:</p>
+      <div class="math-line">\(\Delta=(2a-6)^2-36=4a(a-6)\)</div>
+      <div class="math-line">\(\Delta=0\Rightarrow a=0\)</div>
+      <p class="center">או</p>
+      <div class="math-line">\(a=6\)</div>
+      <p><span class="math-inline">\(a=0\)</span> נפסל משום שנתון <span class="math-inline">\(a\gt 0\)</span>.</p>
+    </div>
+
+    <div class="card success">
+      <span class="label green">דרך גרפית - מומלצת</span>
+      <p>מינימום <span class="math-inline">\(f\)</span> מתקבל ב-<span class="math-inline">\(x=-3\)</span> וערכו <span class="math-inline">\(-\frac{a}{12}\)</span>.</p>
+      <p>לאחר ההזזה למעלה:</p>
+      <div class="math-line">\(g(-3)=\frac12-\frac{a}{12}\)</div>
+      <p>כדי שתהיה בדיוק נקודה אחת משותפת עם ציר ה-<span class="math-inline">\(x\)</span>, נקודת המינימום צריכה לגעת בציר:</p>
+      <div class="math-line">\(\frac12-\frac{a}{12}=0\Rightarrow a=6\)</div>
+      <div class="answer-box"><strong>תשובה:</strong> <span class="math-inline">\(a=6\)</span>.</div>
+    </div>
+  </div>
+
+  <div class="example-box mt"><strong>רעיון מרכזי:</strong> במקרה זה חיתוך יחיד נוצר כאשר הגרף נוגע בציר ה-<span class="math-inline">\(x\)</span> בנקודת המינימום.</div>
+  <div class="footer"><span>סעיף ג - מציאת הפרמטר</span><span class="page-no">5</span></div>
+</section>
+
+<section class="page" id="page-6">
+  <h2>לאחר a=6 - הפונקציה g והסקיצה שלה</h2>
+
+  <div class="grid-2 mb">
+    <div class="card soft">
+      <span class="label blue">פישוט אלגברי</span>
+      <div class="math-line">\(g(x)=\frac{6x}{(x-3)^2}+\frac12\)</div>
+      <div class="math-line">\(g(x)=\frac{12x+(x-3)^2}{2(x-3)^2}\)</div>
+      <div class="math-line">\(g(x)=\frac{(x+3)^2}{2(x-3)^2}\)</div>
+    </div>
+    <div class="card success">
+      <span class="label green">סימן g</span>
+      <p>המונה והמכנה הם ריבועים. לכן:</p>
+      <div class="math-line">\(g(x)\ge 0\)</div>
+      <p>בכל תחום ההגדרה, ו-<span class="math-inline">\(g(x)=0\)</span> רק כאשר <span class="math-inline">\(x=-3\)</span>.</p>
+    </div>
+  </div>
+
+  <div class="graph-card" data-graph-panel="g-board">
+    <div id="g-board" class="graph-wrap medium jxgbox" style="direction:ltr;" aria-label="גרף הפונקציה g"></div>
+    <div class="live-equation">\(g(x)=\frac{(x+3)^2}{2(x-3)^2}\)</div>
+    <div class="graph-toolbar" data-controls-for="g-board">
+      <button type="button" id="g-reset">איפוס</button><button type="button" id="g-zoom-in">הגדלה</button><button type="button" id="g-zoom-out">הקטנה</button><button type="button" id="g-center">מרכז</button>
+    </div>
+  </div>
+
+  <div class="answer-box mt"><strong>מה רואים בסקיצה?</strong> הגרף נוגע בציר ה-<span class="math-inline">\(x\)</span> בנקודה <span class="math-inline">\((-3,0)\)</span> בלבד. האסימפטוטה האופקית היא <span class="math-inline">\(y=\frac12\)</span>.</div>
+  <div class="footer"><span>סקיצה אינטראקטיבית של g</span><span class="page-no">6</span></div>
+</section>
+
+
+<section class="page" id="page-7">
+  <h2>ד(1). תחומי החיוביות והשליליות - לפי מכפלת שני ביטויים</h2>
+
+  <div class="card accent">
+    <span class="label gold">הכלל היחיד שצריך</span>
+    <p>נתון <span class="math-inline">\(h(x)=g(x)\cdot g'(x)\)</span>. אין צורך למצוא נוסחה מפורשת של <span class="math-inline">\(h\)</span>.</p>
+    <div class="grid-2 mt">
+      <div class="card success"><strong>מכפלה חיובית</strong><p>שני הגורמים חיוביים, או ששניהם שליליים.</p></div>
+      <div class="card danger"><strong>מכפלה שלילית</strong><p>גורם אחד חיובי והגורם השני שלילי.</p></div>
+    </div>
+  </div>
+
+  <div class="grid-2 mt">
+    <div class="card primary">
+      <span class="label blue">סימן g</span>
+      <p><span class="math-inline">\(g(x)\gt 0\)</span> כאשר <span class="math-inline">\(x\ne -3\)</span> וגם <span class="math-inline">\(x\ne 3\)</span>.</p>
+      <p><span class="math-inline">\(g(-3)=0\)</span>, וב-<span class="math-inline">\(x=3\)</span> הפונקציה אינה מוגדרת.</p>
+    </div>
+    <div class="card primary">
+      <span class="label blue">סימן 'g</span>
+      <p><span class="math-inline">\(g'(x)\lt 0\)</span> כאשר <span class="math-inline">\(x\lt -3\)</span> או <span class="math-inline">\(x\gt 3\)</span>.</p>
+      <p><span class="math-inline">\(g'(x)\gt 0\)</span> כאשר <span class="math-inline">\(-3\lt x\lt 3\)</span>.</p>
+    </div>
+  </div>
+
+  <table class="mini-table mt" aria-label="טבלת סימנים לפי מכפלת g ו-g prime">
+    <thead><tr><th>תחום</th><th><span class="math-inline">\(x\lt -3\)</span></th><th><span class="math-inline">\(x=-3\)</span></th><th><span class="math-inline">\(-3\lt x\lt 3\)</span></th><th><span class="math-inline">\(x=3\)</span></th><th><span class="math-inline">\(x\gt 3\)</span></th></tr></thead>
+    <tbody>
+      <tr><th><span class="math-inline">\(g(x)\)</span></th><td class="sign-pos">+</td><td class="sign-zero">0</td><td class="sign-pos">+</td><td class="sign-na">לא מוגדר</td><td class="sign-pos">+</td></tr>
+      <tr><th><span class="math-inline">\(g'(x)\)</span></th><td class="sign-neg">-</td><td class="sign-zero">0</td><td class="sign-pos">+</td><td class="sign-na">לא מוגדר</td><td class="sign-neg">-</td></tr>
+      <tr><th><span class="math-inline">\(h(x)=g(x)g'(x)\)</span></th><td class="sign-neg">-</td><td class="sign-zero">0</td><td class="sign-pos">+</td><td class="sign-na">לא מוגדר</td><td class="sign-neg">-</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example-box mt"><strong>הסקה ישירה:</strong> מאחר ש-<span class="math-inline">\(g\)</span> חיובית בכל התחומים הרלוונטיים פרט לנקודת האפס שלה, סימן המכפלה זהה לסימן <span class="math-inline">\(g'\)</span>.</div>
+
+  <div class="answer-box mt">
+    <h3>תשובה סופית</h3>
+    <div class="grid-2">
+      <div><p><strong>הפונקציה h חיובית כאשר:</strong></p><div class="math-line">\(-3\lt x\lt 3\)</div></div>
+      <div><p><strong>הפונקציה h שלילית כאשר:</strong></p><div class="math-line">\(x\lt -3\)</div><p class="center">או</p><div class="math-line">\(x\gt 3\)</div></div>
+    </div>
+    <p class="small">בנוסף, <span class="math-inline">\(h(-3)=0\)</span>, וב-<span class="math-inline">\(x=3\)</span> הפונקציה אינה מוגדרת.</p>
+  </div>
+
+  <div class="footer"><span>סעיף ד - פתרון לפי סימני שני גורמים</span><span class="page-no">7</span></div>
+</section>
+
+<div id="self-test-badge" class="no-print">בדיקות מסמך: ממתין...</div>
+
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]},
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.12.2/distrib/jsxgraphcore.js"></script>
+<script>
+(function(){
+  'use strict';
+  const boards = {};
+  const graphInitErrors = [];
+  let interactiveReady = false;
+  const initialBoxes = {
+    'f-board': [-12,6,12,-6],
+    'g-board': [-12,5.5,12,-1.8]
+  };
+
+  function zoomBoard(board,factor){
+    const b=board.getBoundingBox(),cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;
+    const hw=(b[2]-b[0])*factor/2,hh=(b[1]-b[3])*factor/2;
+    board.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],true);
+  }
+  function centerBoard(board,key){
+    const b=board.getBoundingBox(),ib=initialBoxes[key];
+    const cx=(ib[0]+ib[2])/2,cy=(ib[1]+ib[3])/2,hw=(b[2]-b[0])/2,hh=(b[1]-b[3])/2;
+    board.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],true);
+  }
+  function addMathText(board,x,y,latex){
+    return board.create('text',[x,y,latex],{fixed:true,highlight:false,useMathJax:true,fontSize:14,cssStyle:'direction:ltr; unicode-bidi:isolate;'});
+  }
+  function makeBoard(id){
+    const board=JXG.JSXGraph.initBoard(id,{boundingbox:initialBoxes[id],axis:true,grid:true,keepaspectratio:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true,pinchHorizontal:true,pinchVertical:true}});
+    boards[id]=board;
+    return board;
+  }
+  function addAsymptoteX(board,x,labelY){
+    board.create('line',[[x,0],[x,1]],{dash:2,strokeWidth:1.5,highlight:false,fixed:true});
+    addMathText(board,x+0.35,labelY,'\\(x=3\\)');
+  }
+  function bindControls(id,onReset){
+    const board=boards[id];
+    document.getElementById(id.replace('-board','-zoom-in')).addEventListener('click',()=>zoomBoard(board,0.8));
+    document.getElementById(id.replace('-board','-zoom-out')).addEventListener('click',()=>zoomBoard(board,1.25));
+    document.getElementById(id.replace('-board','-center')).addEventListener('click',()=>centerBoard(board,id));
+    document.getElementById(id.replace('-board','-reset')).addEventListener('click',()=>{
+      if(onReset) onReset();
+      board.setBoundingBox(initialBoxes[id],true);
+      board.update();
+    });
+  }
+
+  function initFBoard(){
+    try{
+      let a=6;
+      const board=makeBoard('f-board');
+      board.create('functiongraph',[x=>a*x/Math.pow(x-3,2),-12,2.94],{strokeWidth:2.4,highlight:false});
+      board.create('functiongraph',[x=>a*x/Math.pow(x-3,2),3.06,12],{strokeWidth:2.4,highlight:false});
+      addAsymptoteX(board,3,5.1);
+      board.create('point',[0,0],{name:'O',size:2,fixed:true,highlight:false});
+      board.create('point',[()=>-3,()=>-a/12],{name:'M',size:2,fixed:true,highlight:false});
+      addMathText(board,9.2,0.45,'\\(y=0\\)');
+      const slider=document.getElementById('a-slider'),out=document.getElementById('a-value'),live=document.getElementById('f-live');
+      const sync=()=>{
+        a=Number(slider.value);out.value=a.toFixed(a%1?1:0);
+        if(interactiveReady&&window.MathJax&&MathJax.typesetClear) MathJax.typesetClear([live]);
+        live.innerHTML=`\\(f(x)=\\frac{${a}x}{(x-3)^2}\\)`;
+        board.update();
+        if(interactiveReady&&window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([live]).catch(()=>{});
+      };
+      slider.addEventListener('input',sync);
+      bindControls('f-board',()=>{slider.value='6';sync();});
+      sync();
+    }catch(err){graphInitErrors.push('f-board: '+err.message);console.error(err);}
+  }
+
+  function initGBoard(){
+    try{
+      const board=makeBoard('g-board');
+      const g=x=>Math.pow(x+3,2)/(2*Math.pow(x-3,2));
+      board.create('functiongraph',[g,-12,2.94],{strokeWidth:2.4,highlight:false});
+      board.create('functiongraph',[g,3.06,12],{strokeWidth:2.4,highlight:false});
+      addAsymptoteX(board,3,4.7);
+      board.create('line',[[0,0.5],[1,0.5]],{dash:2,strokeWidth:1.5,highlight:false,fixed:true});
+      board.create('point',[-3,0],{name:'T',size:2,fixed:true,highlight:false});
+      addMathText(board,8.8,0.82,'\\(y=\\frac12\\)');
+      addMathText(board,-2.5,0.55,'\\((-3,0)\\)');
+      bindControls('g-board');
+    }catch(err){graphInitErrors.push('g-board: '+err.message);console.error(err);}
+  }
+
+  function runDocumentTests(){
+    const failures=[];
+    const allIds=Array.from(document.querySelectorAll('[id]')).map(el=>el.id);
+    const dupIds=[...new Set(allIds.filter((id,i)=>allIds.indexOf(id)!==i))];
+    if(dupIds.length) failures.push('duplicated IDs: '+dupIds.join(', '));
+
+    document.querySelectorAll('.page').forEach((page,i)=>{
+      if(!page.querySelector('h1,h2')) failures.push('missing title on page '+(i+1));
+      if(page.scrollHeight>page.clientHeight+2) failures.push('A4 overflow on page '+(i+1));
+    });
+
+    document.querySelectorAll('[data-graph-panel]').forEach(panel=>{
+      const boardId=panel.getAttribute('data-graph-panel');
+      const controls=panel.querySelector(`[data-controls-for="${boardId}"]`);
+      if(!controls) failures.push('missing graph controls for '+boardId);
+      else{
+        const labels=Array.from(controls.querySelectorAll('button')).map(b=>b.textContent.trim());
+        ['איפוס','הגדלה','הקטנה'].forEach(label=>{if(!labels.includes(label)) failures.push('missing '+label+' control for '+boardId);});
+      }
+      if(!boards[boardId]) failures.push('JSXGraph initialization failure for '+boardId);
+    });
+    graphInitErrors.forEach(e=>failures.push(e));
+
+    if(typeof JXG==='undefined') failures.push('JSXGraph library not loaded');
+    if(typeof MathJax==='undefined'||!MathJax.startup) failures.push('MathJax library not loaded');
+    else{
+      const rawMath=Array.from(document.querySelectorAll('.math-line,.math-inline,.live-equation')).filter(el=>/\\\(|\\\[/.test(el.textContent));
+      if(rawMath.length) failures.push('broken MathJax or unrendered expressions: '+rawMath.length);
+    }
+
+    const sectionNodes=Array.from(document.querySelectorAll('section.page'));
+    if(sectionNodes.length!==8||sectionNodes.some(sec=>sec.parentElement!==document.body)) failures.push('invalid HTML section structure');
+
+    const badge=document.getElementById('self-test-badge');
+    badge.classList.remove('ok','fail','warn');
+    if(failures.length===0){
+      badge.textContent='בדיקות מסמך: תקין';badge.classList.add('ok');console.info('DOCUMENT_TESTS_OK');
+    }else{
+      badge.textContent='בדיקות מסמך: נמצאו '+failures.length+' בעיות';badge.classList.add('fail');console.error('DOCUMENT_TESTS_FAILED',failures);
+    }
+    window.__documentTestResults={ok:failures.length===0,failures};
+  }
+
+  async function start(){
+    try{
+      if(typeof MathJax==='undefined'||!MathJax.startup){
+        graphInitErrors.push('MathJax library not loaded');
+      }else{
+        await MathJax.startup.promise;
+      }
+
+      if(typeof JXG==='undefined'){
+        graphInitErrors.push('JSXGraph library not loaded');
+      }else{
+        JXG.Options.text.useMathJax=true;
+        initFBoard();initGBoard();
+      }
+
+      if(window.MathJax&&MathJax.typesetPromise){
+        await MathJax.typesetPromise(Array.from(document.querySelectorAll('.math-line,.math-inline,.live-equation')));
+        interactiveReady=true;
+      }
+      if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    }catch(err){graphInitErrors.push('startup: '+err.message);console.error(err);}
+    runDocumentTests();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{start();},{once:true});
+  else start();
+})();
+</script>
+</body>
+</html>
