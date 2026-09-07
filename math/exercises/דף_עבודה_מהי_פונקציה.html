@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>דף תרגילים — מהי פונקציה? | 5 יחידות</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.12.2/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.12.2/distrib/jsxgraphcore.js"></script>
+  <style>
+    :root {
+      --ink:#17324d; --blue:#1769aa; --teal:#0b88a8; --green:#23846b;
+      --red:#c94a4a; --gold:#d99a1d; --pale:#eef7fc; --mint:#eef9f5;
+      --sand:#fff7e8; --line:#bdd8e8; --soft:#f8fbfd; --muted:#5f7891;
+    }
+    * { box-sizing:border-box; }
+    html, body { margin:0; padding:0; background:#dfe5eb; color:var(--ink); }
+    body {
+      font-family:Arial, "Noto Sans Hebrew", "DejaVu Sans", sans-serif;
+      font-size:14.2px; line-height:1.45; overflow-x:hidden;
+    }
+    .page {
+      position:relative; width:210mm; height:297mm; margin:10mm auto;
+      padding:13mm 14mm 14mm; background:white; overflow:hidden;
+      page-break-after:always; break-after:page;
+      box-shadow:0 2px 14px rgba(25,50,75,.16);
+    }
+    .page:last-of-type { page-break-after:auto; break-after:auto; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:36px; line-height:1.12; margin-bottom:10px; color:white; }
+    h2 {
+      font-size:25px; color:var(--blue); margin:0 0 10px;
+      padding-bottom:6px; border-bottom:2px solid var(--line);
+    }
+    h3 { font-size:17px; color:var(--teal); margin:8px 0 5px; }
+    p { margin-bottom:7px; }
+    ul, ol { margin:5px 0; padding-right:22px; }
+    li { margin:3px 0; }
+    .ltr { direction:ltr; unicode-bidi:embed; }
+    .math { direction:ltr; text-align:center; }
+    .cover {
+      padding:0; color:white; background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.18) 0 28px, transparent 29px),
+        radial-gradient(circle at 82% 74%, rgba(255,255,255,.12) 0 70px, transparent 71px),
+        linear-gradient(145deg,#154b7b,#0c87a6);
+    }
+    .cover-inner {
+      height:100%; padding:34mm 18mm 20mm; display:flex; flex-direction:column;
+      justify-content:center; align-items:stretch;
+    }
+    .kicker {
+      align-self:flex-start; background:#e8f5fb; color:#125f8f; border-radius:999px;
+      padding:5px 12px; font-weight:700; margin-bottom:14px;
+    }
+    .subtitle { font-size:19px; max-width:142mm; color:#eaf7fc; }
+    .cover-card {
+      margin-top:20px; background:rgba(255,255,255,.94); color:var(--ink);
+      border-radius:14px; padding:17px; box-shadow:0 8px 24px rgba(0,0,0,.12);
+    }
+    .cover-grid, .grid-2, .grid-3, .grid-6 { display:grid; gap:10px; }
+    .cover-grid { grid-template-columns:repeat(3,1fr); margin-top:12px; }
+    .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .grid-6 { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .pill, .card, .exercise, .answer, .note, .source-card {
+      border:1px solid var(--line); border-radius:10px; background:var(--soft);
+    }
+    .pill { padding:9px; text-align:center; font-weight:700; }
+    .card { padding:10px; }
+    .exercise { padding:9px 10px; margin:7px 0; background:white; border-right:4px solid var(--blue); }
+    .exercise.level-1 { border-right-color:var(--green); }
+    .exercise.level-2 { border-right-color:var(--teal); }
+    .exercise.level-3 { border-right-color:var(--gold); }
+    .exercise.level-4 { border-right-color:var(--red); }
+    .answer { padding:8px 10px; margin:5px 0; background:var(--mint); border-right:3px solid var(--green); }
+    .note { padding:10px; background:var(--sand); border-right:4px solid var(--gold); }
+    .source-tag {
+      display:inline-block; margin-top:4px; padding:2px 7px; border-radius:999px;
+      background:#edf4f8; color:var(--muted); font-size:10.5px;
+    }
+    .qnum {
+      display:inline-grid; place-items:center; min-width:24px; height:24px;
+      border-radius:50%; background:var(--ink); color:white; font-weight:700; margin-left:6px;
+    }
+    .tf {
+      display:inline-block; min-width:66px; border-bottom:1px solid #789;
+      margin-left:8px; color:var(--muted); text-align:center;
+    }
+    .jxgbox {
+      width:100%; height:190px; border:1px solid #9dc9e3; border-radius:9px;
+      background:white; overflow:hidden; touch-action:none;
+    }
+    .jxgbox.micro { height:145px; }
+    .jxgbox.short { height:165px; }
+    .jxgbox.tall { height:270px; }
+    .jxgbox.map { height:310px; }
+    .graph-card { padding:7px; border:1px solid var(--line); border-radius:10px; background:#fbfdff; }
+    .graph-title { font-weight:700; color:var(--blue); text-align:center; margin-bottom:4px; }
+    .graph-caption { font-size:11px; color:var(--muted); text-align:center; margin:4px 0 0; }
+    table { width:100%; border-collapse:collapse; margin:7px 0; direction:rtl; }
+    th, td { border:1px solid var(--line); padding:6px; text-align:center; vertical-align:middle; }
+    th { background:#eaf4fa; }
+    .compact { font-size:12.7px; line-height:1.36; }
+    .tight .exercise, .tight .answer { margin:4px 0; padding:6px 8px; }
+    .formula {
+      direction:ltr; text-align:center; background:#f5fafe; border:1px solid #b9d9eb;
+      border-radius:8px; padding:8px; margin:6px 0;
+    }
+    .writing-lines {
+      height:40px; margin-top:5px;
+      background:repeating-linear-gradient(to bottom,transparent 0 18px,#d9e4eb 19px 20px);
+    }
+    .writing-lines.large { height:78px; }
+    .page-no {
+      position:absolute; right:14mm; bottom:7mm; width:27px; height:27px;
+      display:grid; place-items:center; border-radius:50%; background:var(--ink);
+      color:white; font-size:12px; font-weight:700;
+    }
+    .footer {
+      position:absolute; left:14mm; bottom:8mm; color:#6b8398; font-size:10px;
+    }
+    .source-list { font-size:11.4px; line-height:1.3; }
+    .source-list a { color:#0d5f9d; overflow-wrap:anywhere; }
+    .source-card { padding:8px; margin:5px 0; background:#fbfdff; }
+    .split-list { columns:2; column-gap:20px; }
+    .split-list > * { break-inside:avoid; }
+    mjx-container { direction:ltr !important; }
+    @page { size:A4; margin:0; }
+    @media print {
+      html, body { background:white; }
+      .page { margin:0; box-shadow:none; width:210mm; height:297mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="page cover">
+    <div class="cover-inner">
+      <div class="kicker">מתמטיקה — 5 יחידות</div>
+      <h1>דף תרגילים: מהי פונקציה?</h1>
+      <div class="cover-card">
+        <div class="formula">\[f:A\to B,\qquad x\mapsto f(x)\]</div>
+        <h3>איך עובדים?</h3>
+        <p>פתרו לפי הסדר. בכל שאלה גרפית נמקו באמצעות קלט מסוים או מבחן הישר האנכי. הקפידו לכתוב תשובה מלאה וברורה. מפתח תשובות מרוכז בסוף.</p>
+      </div>
+      <div class="cover-grid" style="margin-top:16px">
+        <div class="pill" style="background:rgba(255,255,255,.16);color:white;border-color:rgba(255,255,255,.4)">בסיס — ירוק</div>
+        <div class="pill" style="background:rgba(255,255,255,.16);color:white;border-color:rgba(255,255,255,.4)">ביניים — כחול</div>
+        <div class="pill" style="background:rgba(255,255,255,.16);color:white;border-color:rgba(255,255,255,.4)">אתגר — אדום</div>
+      </div>
+    </div>
+    <span class="page-no">1</span>
+  </section>
+
+  <section class="page">
+    <h2>דרגה 1 — האם הגרף מתאר פונקציה?</h2>
+    <div class="exercise level-1">
+      <span class="qnum">1</span>
+      בכל אחד מן הסעיפים קבעו אם הציור מייצג גרף של פונקציה של \(x\). אם לא — ציינו קלט אחד שלו יותר מפלט אחד.
+      <span class="source-tag">עיבוד של תרגיל מצורף 1</span>
+    </div>
+    <div class="grid-6">
+      <div class="graph-card"><div class="graph-title">א</div><div id="graphA" class="jxgbox micro" aria-label="גרף א קו ישר"></div></div>
+      <div class="graph-card"><div class="graph-title">ב</div><div id="graphB" class="jxgbox micro" aria-label="גרף ב פרבולה אופקית"></div></div>
+      <div class="graph-card"><div class="graph-title">ג</div><div id="graphC" class="jxgbox micro" aria-label="גרף ג שני קווים אופקיים"></div></div>
+      <div class="graph-card"><div class="graph-title">ד</div><div id="graphD" class="jxgbox micro" aria-label="גרף ד אליפסה"></div></div>
+      <div class="graph-card"><div class="graph-title">ה</div><div id="graphE" class="jxgbox micro" aria-label="גרף ה קו אנכי"></div></div>
+      <div class="graph-card"><div class="graph-title">ו</div><div id="graphF" class="jxgbox micro" aria-label="גרף ו עקום פולינומי"></div></div>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <strong>נימוק חובה:</strong> “כן/לא” לבדו אינו מספיק. השתמשו במשפט: לכל ערך מותר של \(x\) חייב להיות ערך יחיד של \(y\).
+    </div>
+    <div class="writing-lines large"></div>
+    <span class="page-no">2</span>
+    <span class="footer">מהי פונקציה? • תרגול מדורג</span>
+  </section>
+
+  <section class="page">
+    <h2>דרגה 1 — דיאגרמת חצים: תחום, תמונה ומקורות</h2>
+    <div class="exercise level-1">
+      <span class="qnum">2</span>
+      בדיאגרמה נתונה פונקציה \(f:A\to B\). סמנו נכון או לא נכון ונמקו בקצרה.
+      <span class="source-tag">עיבוד של תרגיל מצורף 2</span>
+    </div>
+    <div id="mappingBoard" class="jxgbox map" aria-label="דיאגרמת חצים בין הקבוצות A ו B"></div>
+    <div class="grid-2 compact tight" style="margin-top:8px">
+      <div>
+        <div class="exercise"><b>א.</b> <span class="tf">נכון / לא</span> הקבוצה \(\{1,2,3,4,5,6\}\) היא תחום הפונקציה.</div>
+        <div class="exercise"><b>ב.</b> <span class="tf">נכון / לא</span> \(f(4)=35\).</div>
+        <div class="exercise"><b>ג.</b> <span class="tf">נכון / לא</span> \(f(25)=2\).</div>
+        <div class="exercise"><b>ד.</b> <span class="tf">נכון / לא</span> לכל איבר ב-\(B\) יש מקור.</div>
+        <div class="exercise"><b>ה.</b> <span class="tf">נכון / לא</span> \(f(6)=f(4)\).</div>
+      </div>
+      <div>
+        <div class="exercise"><b>ו.</b> <span class="tf">נכון / לא</span> התמונה של \(40\) היא \(5\).</div>
+        <div class="exercise"><b>ז.</b> <span class="tf">נכון / לא</span> ל-\(25\) יש שני מקורות.</div>
+        <div class="exercise"><b>ח.</b> <span class="tf">נכון / לא</span> \(45\) הוא תמונה של איבר בתחום.</div>
+        <div class="exercise"><b>ט.</b> <span class="tf">נכון / לא</span> \(B\) היא קבוצת התמונה של \(f\).</div>
+      </div>
+    </div>
+    <span class="page-no">3</span>
+    <span class="footer">מהי פונקציה? • תרגול מדורג</span>
+  </section>
+
+  <section class="page">
+    <h2>דרגה 1 — דיאגרמת החצים והבנת המושג</h2>
+    <div class="grid-2_ compact tight">
+      <div>
+        <h3>המשך שאלה 2</h3>
+        <div class="exercise"><b>י.</b> <span class="tf">נכון / לא</span> \(f(4)-f(2)=10\).</div>
+        <div class="exercise"><b>יא.</b> <span class="tf">נכון / לא</span> לכל איבר בתמונה יש לכל היותר מקור אחד.</div>
+        <div class="exercise"><b>יב.</b> <span class="tf">נכון / לא</span> ל-\(1\) ול-\(2\) אותה תמונה.</div>
+        <div class="exercise"><b>יג.</b> <span class="tf">נכון / לא</span> \(f(4)-f(3)=1\).</div>
+        <div class="exercise"><b>יד.</b> <span class="tf">נכון / לא</span> אם נהפוך את כל החצים נקבל פונקציה.</div>
+        <div class="exercise"><b>טו.</b> <span class="tf">נכון / לא</span> \(4\) הוא מקור של \(35\).</div>
+        <div class="exercise"><b>טז.</b> <span class="tf">נכון / לא</span> ל-\(45\) אין מקורות.</div>
+        <div class="exercise"><b>יז.</b> <span class="tf">נכון / לא</span> מספר איברי התמונה קטן ממספר איברי התחום.</div>
+        <div class="exercise"><b>יח.</b> <span class="tf">נכון / לא</span> בתמונה יש איבר בעל שלושה מקורות.</div>
+      </div>
+<div style="height:30px;"></div>
+      <div>
+        <h3><span class="qnum">3</span>נכון או לא נכון?</h3>
+        <div class="exercise level-1"><b>א.</b> מן הנתון \(f(4)=3\) אפשר להסיק שהנקודה \((4,3)\) נמצאת על הגרף.</div>
+        <div class="exercise level-1"><b>ב.</b> קיימת פונקציה של \(x\) שגרפה עובר בנקודות \((5,-2)\) וגם \((5,1)\).</div>
+        <div class="exercise level-1"><b>ג.</b> בנקודה שבה ערך הפונקציה הוא \(5\), שיעור ה-\(y\) הוא \(5\).</div>
+        <div class="exercise level-1"><b>ד.</b> אם \((6,5)\) נמצאת על גרף \(f\), אז \(f(x)=6\) בנקודה זו.</div>
+        <div class="exercise level-1"><b>ה.</b> “נקודות האפס” הן נקודות שבהן הגרף בהכרח חוצה את ציר \(x\).</div>
+        <div class="note"><strong>דיוק לשוני:</strong> הבחינו בין מספר \(x\), נקודה \((x,y)\), תמונה ומקור.</div>
+      </div>
+    </div>
+    <span class="page-no">4</span>
+    <span class="footer">מהי פונקציה? • תרגול מדורג</span>
+  </section>
+
+  <section class="page">
+    <h2>דרגה 1–2 — הצבה, סימון ונקודות על גרף</h2>
+    <div class="grid-2_">
+      <div>
+        <div class="exercise level-1">
+          <span class="qnum">4</span>
+          נתונה \(f(x)=3x^2-2x-1\). חשבו את \(f(2)\) ואת \(f(-1)\).
+          <div class="writing-lines"></div>
+        </div>
+        <div class="exercise level-1">
+          <span class="qnum">5</span>
+          נתונה \(f(x)=\dfrac{x^4}{4}-4x\). חשבו את \(f(-3)\) ואת \(f(-2)\).
+          <div class="writing-lines"></div>
+        </div>
+        <div class="exercise level-2">
+          <span class="qnum">6</span>
+          נתונה \(g(x)=2x^2-5x+1\).
+          <ol>
+            <li>חשבו את \(g(0)\) ואת \(g(3)\).</li>
+            <li>פתרו \(g(x)=1\).</li>
+            <li>פשטו את \(g(a+1)\).</li>
+          </ol>
+        </div>
+      </div>
+      <div>
+        <div class="exercise level-2">
+          <span class="qnum">7</span>
+          ידוע כי \(h(-2)=7\) ו-\(h(4)=-1\).
+          <ol>
+            <li>כתבו שתי נקודות הנמצאות על גרף \(h\).</li>
+            <li>מהו מקור הערך \(7\)?</li>
+            <li>האם אפשר להסיק שאלה המקורות היחידים של \(7\) ושל \(-1\)? נמקו.</li>
+          </ol>
+        </div>
+        <div class="exercise level-2">
+          <span class="qnum">8</span>
+          נתונה ההתאמה
+          \[
+            R=\{(-2,4),(-1,1),(0,0),(1,1),(2,4)\}.
+          \]
+          <ol>
+            <li>האם \(R\) מגדירה פונקציה?</li>
+            <li>כתבו את התחום ואת התמונה.</li>
+            <li>מצאו כלל אלגברי מתאים.</li>
+            <li>האם ההתאמה ההפוכה היא פונקציה?</li>
+          </ol>
+        </div>
+        <div class="note">
+          בהצבה של מספר שלילי הקפידו להשתמש בסוגריים.
+        </div>
+      </div>
+    </div>
+    <span class="page-no">5</span>
+    <span class="footer">מהי פונקציה? • תרגול מדורג</span>
+  </section>
+
+  <section class="page">
+    <h2>דרגה 2 — ארבעה ייצוגים של פונקציה</h2>
+    <div class="grid-2_">
+      <div class="compact">
+        <div class="exercise level-2">
+          <span class="qnum">9</span>
+          הטבלה מתארת התאמה:
+          <table>
+            <tr><th>\(x\)</th><td>\(-2\)</td><td>\(-1\)</td><td>\(0\)</td><td>\(1\)</td><td>\(2\)</td></tr>
+            <tr><th>\(y\)</th><td>\(4\)</td><td>\(1\)</td><td>\(0\)</td><td>\(1\)</td><td>\(4\)</td></tr>
+          </table>
+          <ol>
+            <li>האם זו פונקציה?</li><li>מצאו כלל מתאים.</li>
+            <li>כתבו תחום ותמונה.</li><li>האם הפונקציה חד-חד-ערכית?</li>
+          </ol>
+        </div>
+        <div class="exercise level-2">
+          <span class="qnum">10</span>
+          נתונה הפונקציה \(f(x)=2x+1\).
+          <ol>
+            <li>חשבו את \(f(-1)\), \(f(0)\) ו-\(f(2)\).</li>
+            <li>כתבו את שלוש הנקודות המתאימות על גרף הפונקציה.</li>
+          </ol>
+        </div>
+
+        <div class="exercise level-2">
+          <span class="qnum">11</span>
+          עיינו בגרף וענו:
+          <ol>
+            <li>כתבו את התחום ואת התמונה.</li>
+            <li>חשבו \(f(-3)\), \(f(-1)\), \(f(0)\), \(f(3)\).</li>
+            <li>מצאו את כל המקורות של \(2\).</li>
+            <li>באילו חלקים הפונקציה עולה ובאילו יורדת?</li>
+          </ol>
+        </div>
+        <div id="representationGraph" class="jxgbox tall" aria-label="גרף פונקציה המורכבת מקטעים"></div>
+        <p class="graph-caption">נקודה חלולה אינה שייכת לגרף; נקודה מלאה שייכת לגרף.</p>
+      </div>
+    </div>
+
+        <div class="exercise level-2">
+          <span class="qnum">12</span>
+          הטבלה מתארת התאמה:
+          <table>
+            <tr><th>\(x\)</th><td>\(-2\)</td><td>\(-1\)</td><td>\(0\)</td><td>\(1\)</td><td>\(2\)</td></tr>
+            <tr><th>\(f(x)\)</th><td>\(-1\)</td><td>\(0\)</td><td>\(1\)</td><td>\(2\)</td><td>\(3\)</td></tr>
+          </table>
+          <ol>
+            <li>האם ההתאמה מגדירה פונקציה?</li>
+            <li>כתבו את קבוצת הזוגות הסדורים.</li>
+            <li>מצאו כלל אלגברי מתאים.</li>
+          </ol>
+        </div>
+      </div>
+      <div>
+
+    <span class="page-no">6</span>
+    <span class="footer">מהי פונקציה? • תרגול מדורג</span>
+  </section>
+
+  <section class="page">
+    <h2>מפתח תשובות — שאלות 1–12</h2>
+    <div class="grid-2_ compact tight">
+      <div>
+        <div class="answer"><b>1.</b> א ו-ו פונקציות. ב, ג, ד, ה אינן פונקציות; ישר אנכי מתאים חותך כל אחד מהן ביותר מנקודה אחת.</div>
+        <div class="answer"><b>2א–ט.</b> א נכון; ב נכון; ג לא; ד לא — ל-\(45\) אין מקור; ה נכון; ו לא; ז נכון; ח לא; ט לא.</div>
+        <div class="answer"><b>2י–יח.</b> י נכון; יא לא; יב נכון; יג לא — ההפרש \(5\); יד לא; טו נכון; טז נכון; יז נכון; יח לא.</div>
+        <div class="answer"><b>3.</b> א נכון; ב לא; ג נכון; ד לא — \(f(6)=5\); ה לא: אפס הוא ערך \(x\) המקיים \(f(x)=0\), והגרף עשוי גם לגעת בציר.</div>
+        <div class="answer"><b>4.</b> \(f(2)=7\), \(f(-1)=4\).</div>
+        <div class="answer"><b>5.</b> \(f(-3)=\dfrac{129}{4}\), \(f(-2)=12\).</div>
+        <div class="answer"><b>6.</b> \(g(0)=1\), \(g(3)=4\); הפתרונות ל-\(g(x)=1\) הם \(x=0,\dfrac52\); וכן \(g(a+1)=2a^2-a-2\).</div>
+        <div class="answer"><b>7.</b> \((-2,7)\), \((4,-1)\); מקור \(7\) הוא \(-2\). אין די מידע לקבוע שאין מקורות נוספים.</div>
+      </div>
+      <div>
+        <div class="answer"><b>8.</b> כן. \(D=\{-2,-1,0,1,2\}\), \(\operatorname{Im}(R)=\{0,1,4\}\), כלל מתאים \(y=x^2\). היחס ההפוך אינו פונקציה.</div>
+        <div class="answer"><b>9.</b> פונקציה; הכלל \(y=x^2\) בתחום הנתון; התמונה \(\{0,1,4\}\); אינה חד-חד-ערכית.</div>
+        <div class="answer"><b>10.</b> \(f(-1)=-1\), \(f(0)=1\), \(f(2)=5\). הנקודות: \((-1,-1)\), \((0,1)\), \((2,5)\).</div>
+        <div class="answer"><b>11.</b> \(D=[-4,-1]\cup[0,4]\), \(\operatorname{Im}(f)=[0,3]\). \(f(-3)=1\), \(f(-1)=3\), \(f(0)=0\), \(f(3)=2\). מקורות \(2\): \(-2,3\). עולה ב-\([-4,-1]\) וב-\([2,3]\); יורדת ב-\((0,2]\) וב-\([3,4]\).</div>
+        <div class="answer"><b>12.</b> כן. הזוגות: \(\{(-2,-1),(-1,0),(0,1),(1,2),(2,3)\}\). כלל מתאים: \(f(x)=x+1\).</div>
+      </div>
+    </div>
+    <span class="page-no">9</span>
+    <span class="footer">מפתח תשובות</span>
+  </section>
+
+  <script>
+    window.addEventListener('load', function () {
+      if (!window.JXG) return;
+      JXG.Options.text.useMathJax = false;
+
+      const C = { blue:'#1769aa', teal:'#0b88a8', green:'#23846b', red:'#c94a4a', gold:'#d99a1d', ink:'#17324d', gray:'#607789' };
+
+      function board(id, box, axis, keepAspect) {
+        return JXG.JSXGraph.initBoard(id, {
+          boundingbox:box,
+          axis:axis !== false,
+          keepaspectratio:keepAspect !== false,
+          showNavigation:false,
+          showCopyright:false,
+          pan:{enabled:false},
+          zoom:{enabled:false},
+          defaultAxes:{
+            x:{name:'x',withLabel:true,ticks:{drawLabels:true,minorTicks:0}},
+            y:{name:'y',withLabel:true,ticks:{drawLabels:true,minorTicks:0}}
+          }
+        });
+      }
+      function pt(b,x,y,name,color,filled,size) {
+        return b.create('point',[x,y],{
+          name:name || '', fixed:true, highlight:false, size:size || 3,
+          strokeWidth:2, strokeColor:color || C.blue,
+          fillColor:filled === false ? '#ffffff' : (color || C.blue),
+          label:{fontSize:12,offset:[6,2]}
+        });
+      }
+      function seg(b,a,c,color,width,dash) {
+        return b.create('segment',[a,c],{
+          fixed:true,highlight:false,strokeColor:color || C.blue,
+          strokeWidth:width || 3,dash:dash || 0
+        });
+      }
+      function txt(b,x,y,s,color,size) {
+        return b.create('text',[x,y,s],{
+          fixed:true,highlight:false,strokeColor:color || C.ink,
+          fontSize:size || 14,anchorX:'middle',anchorY:'middle'
+        });
+      }
+      function ellipse(b,cx,cy,rx,ry,color) {
+        return b.create('curve',[
+          function(t){return cx+rx*Math.cos(t);},
+          function(t){return cy+ry*Math.sin(t);},
+          0,2*Math.PI
+        ],{strokeColor:color || C.blue,strokeWidth:3,highlight:false});
+      }
+
+      // Attached exercise 1: six graph types.
+      {
+        const b=board('graphA',[-3,3,3,-3],true,true);
+        b.create('functiongraph',[function(x){return -x+1;},-2.4,2.4],{strokeColor:C.blue,strokeWidth:3,highlight:false});
+      }
+      {
+        const b=board('graphB',[-1,3,4,-3],true,true);
+        b.create('curve',[function(t){return t*t;},function(t){return t;},-2.2,2.2],{strokeColor:C.red,strokeWidth:3,highlight:false});
+      }
+      {
+        const b=board('graphC',[-3,3,3,-3],true,true);
+        seg(b,[-2.5,1],[2.5,1],C.red,3); seg(b,[-2.5,-1],[2.5,-1],C.red,3);
+      }
+      {
+        const b=board('graphD',[-4,3,4,-3],true,true);
+        ellipse(b,0,0,3,1.8,C.red);
+      }
+      {
+        const b=board('graphE',[-3,3,3,-3],true,true);
+        seg(b,[1,-2.6],[1,2.6],C.red,3);
+      }
+      {
+        const b=board('graphF',[-3,4,3,-3],true,true);
+        b.create('functiongraph',[function(x){return 0.25*(x+2.2)*(x+0.4)*(x-0.8)*(x-2.1)+0.4;},-2.7,2.7],{strokeColor:C.green,strokeWidth:3,highlight:false});
+      }
+
+      // Attached mapping diagram.
+      {
+        const b=board('mappingBoard',[0,7,10,0],false,false);
+        ellipse(b,2.25,3.5,1.45,3,C.blue); ellipse(b,7.7,3.5,1.55,2.65,C.teal);
+        txt(b,2.25,6.75,'A',C.ink,18); txt(b,7.7,6.55,'B',C.ink,18);
+        const left=[[2,5.75,'1'],[2,4.85,'2'],[2,3.95,'3'],[2,3.05,'4'],[2,1.25,'5'],[2,2.15,'6']];
+        const right=[[7.5,5.4,'25'],[8.15,4.5,'30'],[7.25,3.25,'35'],[7.8,1.8,'40'],[8.15,2.65,'45']];
+        left.forEach(function(p){pt(b,p[0],p[1],p[2],C.ink,true,2.2);});
+        right.forEach(function(p){pt(b,p[0],p[1],p[2],C.ink,true,2.2);});
+        const arrows=[[[2.15,5.75],[7.35,5.4]],[[2.15,4.85],[7.35,5.4]],[[2.15,3.95],[8,4.5]],[[2.15,3.05],[7.1,3.25]],[[2.15,2.15],[7.1,3.25]],[[2.15,1.25],[7.65,1.8]]];
+        arrows.forEach(function(a){b.create('arrow',a,{strokeColor:C.gray,strokeWidth:2,fixed:true,highlight:false,lastArrow:true});});
+      }
+
+      // Representation graph.
+      {
+        const b=board('representationGraph',[-5,4.2,5,-1.2],true,true);
+        seg(b,[-4,0],[-1,3],C.blue,3); pt(b,-4,0,'',C.blue,true); pt(b,-1,3,'',C.blue,true);
+        pt(b,0,0,'',C.red,true); pt(b,0,2,'',C.green,false);
+        seg(b,[0,2],[2,0],C.green,3); pt(b,2,0,'',C.green,true);
+        seg(b,[2,0],[3,2],C.green,3); seg(b,[3,2],[4,1],C.green,3);
+        pt(b,3,2,'',C.green,true); pt(b,4,1,'',C.green,true);
+      }
+
+
+      // Vertical line test.
+      {
+        const b=board('circleBoard',[-4,4,4,-4],true,true); ellipse(b,0,0,3,3,C.red);
+      }
+      {
+        const b=board('semicircleBoard',[-4,4,4,-1],true,true);
+        b.create('functiongraph',[function(x){return Math.sqrt(Math.max(0,9-x*x));},-3,3],{strokeColor:C.green,strokeWidth:3,highlight:false});
+        pt(b,-3,0,'',C.green,true); pt(b,3,0,'',C.green,true);
+      }
+      {
+        const b=board('verticalBoard',[-3,4,3,-4],true,true); seg(b,[1,-3.3],[1,3.3],C.red,3);
+      }
+
+
+      // Blank construction board.
+      board('constructionBoard',[-3,5,4,-1],true,true);
+    });
+  </script>
+</body>
+</html>
