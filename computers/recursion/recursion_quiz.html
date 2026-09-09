@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>בוחן רקורסיה - C#</title>
+  <style>
+    :root {
+      --bg: #eef3f7;
+      --surface: #ffffff;
+      --surface-2: #f7fafc;
+      --ink: #172b3a;
+      --muted: #5d7180;
+      --line: #d7e1e8;
+      --primary: #176b87;
+      --primary-2: #0f8c83;
+      --primary-soft: #e8f5f8;
+      --good: #137a53;
+      --good-soft: #eaf7f1;
+      --bad: #b54b43;
+      --bad-soft: #fff0ee;
+      --warn: #9a6a08;
+      --warn-soft: #fff7df;
+      --shadow: 0 16px 44px rgba(28, 58, 78, .12);
+      --radius: 22px;
+      --code: #10283a;
+      --focus: 0 0 0 4px rgba(23, 107, 135, .16);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 100% 0, rgba(15,140,131,.10), transparent 30rem),
+        radial-gradient(circle at 0 20%, rgba(23,107,135,.09), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", "Segoe UI", sans-serif;
+      direction: rtl;
+      text-align: right;
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    code, pre, .ltr {
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: isolate;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .app-shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 24px 0 52px; }
+
+    .hero {
+      background: linear-gradient(135deg, #17394f, #176b87 55%, #0f8c83);
+      color: #fff;
+      border-radius: 28px;
+      padding: clamp(24px, 4vw, 42px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+    }
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      z-index: -1;
+    }
+    .hero::before { width: 280px; height: 280px; left: -100px; top: -130px; }
+    .hero::after { width: 220px; height: 220px; right: -70px; bottom: -120px; }
+    .hero-grid { display: grid; grid-template-columns: 1.5fr .8fr; gap: 26px; align-items: end; }
+    .eyebrow { display: inline-flex; gap: 8px; align-items: center; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.18); padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: .88rem; }
+    .hero h1 { margin: 12px 0 8px; font-size: clamp(2rem, 4vw, 3.45rem); line-height: 1.05; }
+    .hero p { margin: 0; max-width: 760px; color: rgba(255,255,255,.88); font-size: 1.03rem; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .hero-stat { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.16); border-radius: 18px; padding: 14px 10px; text-align: center; backdrop-filter: blur(5px); }
+    .hero-stat strong { display: block; font-size: 1.35rem; }
+    .hero-stat span { display: block; font-size: .78rem; color: rgba(255,255,255,.78); margin-top: 2px; }
+
+    .toolbar {
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      margin: 18px 0;
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(215,225,232,.9);
+      border-radius: 20px;
+      padding: 12px;
+      box-shadow: 0 8px 24px rgba(28,58,78,.08);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+    .progress-wrap { min-width: 0; }
+    .progress-meta { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: .9rem; margin-bottom: 7px; }
+    .progress-track { height: 10px; background: #e6edf2; border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--primary), var(--primary-2)); border-radius: inherit; transition: width .25s ease; }
+    .toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 13px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .14s ease, box-shadow .14s ease, background .14s ease, border-color .14s ease;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(28,58,78,.08); }
+    .btn:focus-visible, .option:focus-visible, .nav-chip:focus-visible { outline: none; box-shadow: var(--focus); }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: white; }
+    .btn.primary:hover { background: #125d76; }
+    .btn.soft { background: var(--primary-soft); border-color: #cbe5eb; color: #145f77; }
+    .btn.danger { color: #9a3f39; }
+    .btn:disabled { opacity: .48; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 28px rgba(28,58,78,.07); }
+    .question-panel { padding: clamp(18px, 3vw, 30px); min-height: 570px; }
+    .sidebar { padding: 16px; position: sticky; top: 104px; }
+    .sidebar h2 { font-size: 1rem; margin: 0 0 12px; }
+    .question-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+    .nav-chip { aspect-ratio: 1; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-2); cursor: pointer; font-weight: 800; color: var(--muted); }
+    .nav-chip.current { background: var(--primary); color: white; border-color: var(--primary); }
+    .nav-chip.answered:not(.current) { background: var(--primary-soft); color: #155f76; border-color: #c6e2e8; }
+    .nav-chip.correct:not(.current) { background: var(--good-soft); color: var(--good); border-color: #bfe4d4; }
+    .nav-chip.wrong:not(.current) { background: var(--bad-soft); color: var(--bad); border-color: #edc2bd; }
+    .legend { display: grid; gap: 8px; margin-top: 16px; font-size: .82rem; color: var(--muted); }
+    .legend-row { display: flex; align-items: center; gap: 8px; }
+    .dot { width: 11px; height: 11px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--line); }
+    .dot.answered { background: var(--primary-soft); border-color: #c6e2e8; }
+    .dot.correct { background: var(--good-soft); border-color: #bfe4d4; }
+    .dot.wrong { background: var(--bad-soft); border-color: #edc2bd; }
+
+    .question-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+    .question-kicker { color: var(--primary); font-weight: 800; font-size: .88rem; margin-bottom: 6px; }
+    .question-head h2 { margin: 0; font-size: clamp(1.35rem, 2.6vw, 1.9rem); line-height: 1.25; }
+    .level-badge { flex: 0 0 auto; background: var(--primary-soft); color: var(--primary); border: 1px solid #cce3e8; border-radius: 999px; padding: 6px 10px; font-size: .8rem; font-weight: 800; }
+    .prompt { font-size: 1.09rem; margin: 0 0 16px; }
+    .code-card { background: var(--code); color: #ecf7ff; border-radius: 16px; padding: 15px 17px; margin: 14px 0 20px; border: 1px solid #27475d; }
+    .code-card pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .92rem; line-height: 1.55; }
+
+    .options { display: grid; gap: 11px; }
+    .option {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: center;
+      text-align: right;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 13px 14px;
+      cursor: pointer;
+      color: var(--ink);
+      transition: border-color .15s ease, background .15s ease, transform .15s ease, box-shadow .15s ease;
+    }
+    .option:hover { border-color: #aac8d3; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(28,58,78,.06); }
+    .option.selected { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 2px rgba(23,107,135,.06); }
+    .option.correct { border-color: var(--good); background: var(--good-soft); }
+    .option.wrong { border-color: var(--bad); background: var(--bad-soft); }
+    .option-marker { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: #edf3f6; color: #466170; font-weight: 900; direction: ltr; }
+    .option.selected .option-marker { background: var(--primary); color: white; }
+    .option.correct .option-marker { background: var(--good); color: white; }
+    .option.wrong .option-marker { background: var(--bad); color: white; }
+    .option-text { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+    .feedback { display: none; margin-top: 16px; border-radius: 16px; padding: 14px 16px; border: 1px solid var(--line); }
+    .feedback.show { display: block; }
+    .feedback.good { background: var(--good-soft); border-color: #bfe4d4; color: #155f46; }
+    .feedback.bad { background: var(--bad-soft); border-color: #edc2bd; color: #8f4039; }
+    .feedback strong { display: block; margin-bottom: 3px; }
+
+    .question-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 22px; border-top: 1px solid var(--line); padding-top: 18px; }
+    .question-actions .group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .summary { display: none; padding: clamp(22px, 4vw, 38px); }
+    .summary.show { display: block; }
+    .summary-hero { text-align: center; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+    .score-ring { width: 132px; height: 132px; border-radius: 50%; margin: 0 auto 14px; display: grid; place-items: center; background: conic-gradient(var(--primary) var(--score-angle, 0deg), #e8eef2 0); position: relative; }
+    .score-ring::before { content: ""; position: absolute; inset: 11px; border-radius: 50%; background: white; }
+    .score-ring strong { position: relative; z-index: 1; font-size: 1.7rem; }
+    .summary h2 { margin: 0 0 6px; font-size: 1.7rem; }
+    .summary p { color: var(--muted); margin: 0; }
+    .summary-grid { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .summary-card { border: 1px solid var(--line); background: var(--surface-2); border-radius: 16px; padding: 14px; text-align: center; }
+    .summary-card strong { display: block; font-size: 1.35rem; }
+    .summary-card span { color: var(--muted); font-size: .83rem; }
+    .review-list { display: grid; gap: 10px; margin-top: 20px; }
+    .review-item { border: 1px solid var(--line); border-radius: 15px; padding: 13px 14px; background: white; }
+    .review-item.good { border-right: 4px solid var(--good); }
+    .review-item.bad { border-right: 4px solid var(--bad); }
+    .review-item.unanswered { border-right: 4px solid var(--warn); }
+    .review-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .review-top strong { font-size: .98rem; }
+    .review-status { font-size: .8rem; font-weight: 800; }
+    .review-item.good .review-status { color: var(--good); }
+    .review-item.bad .review-status { color: var(--bad); }
+    .review-item.unanswered .review-status { color: var(--warn); }
+    .review-answer { margin-top: 7px; color: var(--muted); font-size: .9rem; }
+
+    .note { margin-top: 16px; background: var(--warn-soft); border: 1px solid #eadca8; color: #735516; border-radius: 16px; padding: 12px 14px; font-size: .9rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-stats { max-width: 520px; }
+      .content-grid { grid-template-columns: 1fr; }
+      .sidebar { position: static; order: -1; }
+      .question-nav { grid-template-columns: repeat(9, 1fr); }
+      .toolbar { position: static; grid-template-columns: 1fr; }
+      .toolbar-actions { justify-content: flex-start; }
+    }
+
+    @media (max-width: 620px) {
+      .app-shell { width: min(100% - 18px, 1180px); padding-top: 9px; }
+      .hero { border-radius: 20px; }
+      .hero-stats { grid-template-columns: 1fr 1fr 1fr; }
+      .question-panel, .summary { border-radius: 18px; }
+      .sidebar { border-radius: 18px; }
+      .question-nav { grid-template-columns: repeat(7, 1fr); }
+      .question-head { flex-direction: column; }
+      .option { grid-template-columns: 34px 1fr; padding: 12px; }
+      .question-actions { flex-direction: column; }
+      .question-actions .group { width: 100%; }
+      .question-actions .btn { flex: 1; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .toolbar-actions .btn { flex: 1 1 auto; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .app-shell { width: 100%; padding: 0; }
+      .hero, .toolbar, .sidebar, .question-actions { display: none !important; }
+      .content-grid { display: block; }
+      .panel { box-shadow: none; border: 0; }
+      .question-panel { min-height: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero" aria-labelledby="main-title">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">מדעי המחשב · #C · רקורסיה</div>
+          <h1 id="main-title">בוחן רקורסיה אינטראקטיבי</h1>
+          <p>27 שאלות ברמת קושי עולה - ממקרה בסיס ומעקב אחר מחסנית הקריאות ועד מערכים, חיפוש, Subset Sum וחזרה לאחור במטריצה.</p>
+        </div>
+        <div class="hero-stats" aria-label="נתוני הבוחן">
+          <div class="hero-stat"><strong>27</strong><span>שאלות</span></div>
+          <div class="hero-stat"><strong>5</strong><span>רמות קושי</span></div>
+          <div class="hero-stat"><strong>#C</strong><span>שפת הקוד</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="מצב הבוחן">
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="progressText">שאלה 1 מתוך 27</span>
+          <span id="answeredText">נענו 0 מתוך 27</span>
+        </div>
+        <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+      <div class="toolbar-actions">
+        <button class="btn soft" id="checkBtnTop" type="button">בדיקת תשובה</button>
+        <button class="btn primary" id="finishBtn" type="button">סיום הבוחן</button>
+        <button class="btn danger" id="resetBtn" type="button">איפוס</button>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <div>
+        <article class="panel question-panel" id="questionPanel" aria-live="polite">
+          <div class="question-head">
+            <div>
+              <div class="question-kicker" id="questionKicker"></div>
+              <h2 id="questionTitle"></h2>
+            </div>
+            <span class="level-badge" id="levelBadge"></span>
+          </div>
+          <p class="prompt" id="questionPrompt"></p>
+          <div class="code-card" id="codeCard"><pre id="questionCode"></pre></div>
+          <div class="options" id="options" role="radiogroup" aria-labelledby="questionTitle"></div>
+          <div class="feedback" id="feedback" role="status"></div>
+          <div class="question-actions">
+            <div class="group">
+              <button class="btn" id="prevBtn" type="button">הקודמת</button>
+              <button class="btn" id="nextBtn" type="button">הבאה</button>
+            </div>
+            <div class="group">
+              <button class="btn soft" id="checkBtn" type="button">בדיקת תשובה</button>
+            </div>
+          </div>
+        </article>
+
+        <section class="panel summary" id="summary" aria-labelledby="summaryTitle">
+          <div class="summary-hero">
+            <div class="score-ring" id="scoreRing"><strong id="scorePercent">0%</strong></div>
+            <h2 id="summaryTitle">סיכום הבוחן</h2>
+            <p id="summaryMessage"></p>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-card"><strong id="correctCount">0</strong><span>תשובות נכונות</span></div>
+            <div class="summary-card"><strong id="wrongCount">0</strong><span>תשובות שגויות</span></div>
+            <div class="summary-card"><strong id="unansweredCount">0</strong><span>ללא תשובה</span></div>
+          </div>
+          <div class="note">הבוחן מניח קלט תקין לפי תנאי כל שאלה. אין שימוש ב-LINQ, בלולאות בתוך הפתרון הרקורסיבי, ב-string.IsNullOrEmpty או ב-ArgumentNullException.</div>
+          <div class="review-list" id="reviewList"></div>
+          <div class="question-actions">
+            <div class="group"><button class="btn" id="backToQuizBtn" type="button">חזרה לשאלות</button></div>
+            <div class="group"><button class="btn primary" id="restartBtn" type="button">התחלה מחדש</button></div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="panel sidebar" aria-label="ניווט בין שאלות">
+        <h2>ניווט מהיר</h2>
+        <div class="question-nav" id="questionNav"></div>
+        <div class="legend">
+          <div class="legend-row"><span class="dot"></span><span>טרם נענתה</span></div>
+          <div class="legend-row"><span class="dot answered"></span><span>נבחרה תשובה</span></div>
+          <div class="legend-row"><span class="dot correct"></span><span>נבדקה ונכונה</span></div>
+          <div class="legend-row"><span class="dot wrong"></span><span>נבדקה ושגויה</span></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const QUESTIONS = [{"id": 1, "level": 1, "topic": "הדפסה ומעקב", "title": "הדפסה בסדר יורד", "prompt": "מה יודפס בקריאה PrintNumbers(4), אם הפעולה מדפיסה את n ואז קוראת רקורסיבית ל-PrintNumbers(n - 1)?", "code": "public static void PrintNumbers(int n)\n{\n    if (n <= 0)\n        return;\n\n    Console.Write(n + \" \");\n    PrintNumbers(n - 1);\n}", "options": ["1 2 3 4", "4 3 2 1", "4 3 2 1 0", "1 2 3 4 0"], "answer": 1, "explanation": "ההדפסה מתבצעת לפני הקריאה הרקורסיבית. לכן בכל שלב מודפס הערך הנוכחי ורק אחר כך עוברים ל-n - 1."}, {"id": 2, "level": 1, "topic": "הדפסה ומעקב", "title": "הדפסה בסדר עולה", "prompt": "כדי להדפיס את המספרים מ-1 עד n בסדר עולה ללא לולאה, היכן צריכה להופיע פקודת ההדפסה ביחס לקריאה הרקורסיבית?", "code": "public static void PrintReverse(int n)\n{\n    if (n <= 0)\n        return;\n\n    // ?\n}", "options": ["לפני הקריאה PrintReverse(n - 1)", "אחרי הקריאה PrintReverse(n - 1)", "במקרה הבסיס בלבד", "אין דרך לעשות זאת ברקורסיה"], "answer": 1, "explanation": "כאשר ההדפסה מתבצעת לאחר הקריאה הרקורסיבית, המספרים מודפסים בזמן החזרה ממחסנית הקריאות: 1, 2, ..., n."}, {"id": 3, "level": 1, "topic": "מחרוזות", "title": "מעבר על תווי מחרוזת", "prompt": "מהו מקרה הבסיס המתאים לפעולה שמדפיסה את תווי str החל מהאינדקס index ועד סוף המחרוזת?", "code": "public static void PrintStringChars(string str, int index)", "options": ["index >= str.Length", "index == 0", "str.Length == 1", "index < str.Length"], "answer": 0, "explanation": "כאשר index מגיע לאורך המחרוזת אין עוד תו חוקי לעיבוד, ולכן זהו התנאי שבו עוצרים."}, {"id": 4, "level": 1, "topic": "הדפסה רקורסיבית", "title": "משולש כוכביות", "prompt": "מה יודפס בקריאה DrawTriangle(3), כאשר קודם קוראים ל-DrawTriangle(n - 1) ורק אחר כך מדפיסים n כוכביות?", "code": "DrawTriangle(3)", "options": ["***\n**\n*", "*\n**\n***", "***\n***\n***", "*\n*\n*"], "answer": 1, "explanation": "השורות מודפסות בזמן החזרה מהרקורסיה: תחילה שורה באורך 1, אחר כך 2 ולבסוף 3."}, {"id": 5, "level": 2, "topic": "מערכים", "title": "ספירת איברים", "prompt": "מה תחזיר הקריאה CountElements(new int[] { 7, 4, 9, 2 }, 2)?", "code": "return 1 + CountElements(arr, index + 1);", "options": ["2", "3", "4", "1"], "answer": 0, "explanation": "מאינדקס 2 ועד סוף המערך נמצאים שני איברים: arr[2] ו-arr[3]."}, {"id": 6, "level": 2, "topic": "מספרים", "title": "עצרת", "prompt": "מהו הערך של Factorial(5), כאשר 0! = 1 וכל קריאה מחזירה n * Factorial(n - 1)?", "code": "Factorial(5)", "options": ["25", "60", "120", "720"], "answer": 2, "explanation": "5! = 5·4·3·2·1 = 120."}, {"id": 7, "level": 2, "topic": "ספרות", "title": "סכום ספרות", "prompt": "מה תחזיר הקריאה SumDigits(407)?", "code": "return num % 10 + SumDigits(num / 10);", "options": ["7", "11", "47", "407"], "answer": 1, "explanation": "הספרות הן 4, 0 ו-7 ולכן הסכום הוא 4 + 0 + 7 = 11."}, {"id": 8, "level": 2, "topic": "ספרות", "title": "הדפסת ספרות", "prompt": "מהו סדר ההדפסה של PrintDigits(504), אם הקריאה הרקורסיבית מתבצעת לפני הדפסת num % 10?", "code": "PrintDigits(504)", "options": ["4, 0, 5", "5, 0, 4", "5, 4", "504"], "answer": 1, "explanation": "הרקורסיה מטפלת תחילה בחלק השמאלי של המספר, ולכן הספרות מודפסות משמאל לימין: 5, 0, 4."}, {"id": 9, "level": 2, "topic": "זוגיות", "title": "בדיקת זוגיות ללא %", "prompt": "מה תחזיר IsEven(-7) כאשר בכל קריאה שלילית מוסיפים 2 עד שמגיעים ל-0, 1 או -1?", "code": "IsEven(-7) -> IsEven(-5) -> IsEven(-3) -> IsEven(-1)", "options": ["true", "false", "0", "הפעולה אינה מסתיימת"], "answer": 1, "explanation": "המספר -7 מתקדם אל -1, שהוא מקרה בסיס אי-זוגי, ולכן מוחזר false."}, {"id": 10, "level": 2, "topic": "חזקה", "title": "חישוב חזקה", "prompt": "מה תחזיר Power(3, 4)?", "code": "Power(3, 4) = 3 * Power(3, 3)", "options": ["12", "27", "64", "81"], "answer": 3, "explanation": "3^4 = 3·3·3·3 = 81. מקרה הבסיס הוא exp == 0 שמחזיר 1."}, {"id": 11, "level": 2, "topic": "שתי קריאות", "title": "פיבונאצ'י", "prompt": "בהגדרה F(0)=0, F(1)=1 ו-F(n)=F(n-1)+F(n-2), מהו Fibonacci(6)?", "code": "0, 1, 1, 2, 3, 5, 8, ...", "options": ["5", "8", "13", "21"], "answer": 1, "explanation": "האיבר במקום 6 הוא 8: F(4)=3, F(5)=5 ולכן F(6)=8."}, {"id": 12, "level": 2, "topic": "ספרות", "title": "חיפוש ספרה במספר", "prompt": "מה תחזיר HasDigit(5082, 0)?", "code": "return num % 10 == digit || HasDigit(num / 10, digit);", "options": ["true", "false", "0", "תלוי במספר הספרות"], "answer": 0, "explanation": "הספרה 0 אכן מופיעה במספר 5082, ולכן באחת הקריאות התנאי num % 10 == digit מתקיים."}, {"id": 13, "level": 3, "topic": "מחרוזות", "title": "ספירת הופעות", "prompt": "מה תחזיר CountOccurrences(\"recursion\", 'r')?", "code": "CountOccurrences(\"recursion\", 'r')", "options": ["0", "1", "2", "3"], "answer": 2, "explanation": "התו r מופיע פעמיים במילה recursion: בתחילת המחרוזת ובמיקום החמישי."}, {"id": 14, "level": 3, "topic": "מחרוזות", "title": "ספירת תנועות", "prompt": "אם אותיות התנועה הן a, e, i, o, u ללא תלות ברישיות, מה תחזיר CountVowels(\"Education 5\")?", "code": "CountVowels(\"Education 5\")", "options": ["4", "5", "6", "7"], "answer": 1, "explanation": "ב-Education יש חמש תנועות: E, u, a, i, o. הרווח והספרה אינם נספרים."}, {"id": 15, "level": 3, "topic": "מחרוזות", "title": "הסרת תו", "prompt": "מה תחזיר RemoveChar(\"recursion\", 'r')?", "code": "RemoveChar(\"recursion\", 'r')", "options": ["recusion", "ecusion", "ecursio", "recursion"], "answer": 1, "explanation": "שתי ההופעות של r מוסרות, ושאר התווים נשמרים באותו סדר: ecusion."}, {"id": 16, "level": 3, "topic": "מחרוזות", "title": "היפוך מחרוזת", "prompt": "מה תחזיר ReverseString(\"abcde\")?", "code": "return ReverseString(str.Substring(1)) + str[0];", "options": ["abcde", "edcba", "bcdea", "eabcd"], "answer": 1, "explanation": "כל קריאה הופכת את שאר המחרוזת ומצרפת את התו הראשון לסוף, ולכן מתקבל edcba."}, {"id": 17, "level": 3, "topic": "פלינדרום", "title": "פלינדרום במחרוזת", "prompt": "מה תחזיר IsPalindromeString(\"level\")?", "code": "משווים תו ראשון לאחרון ומתקדמים פנימה.", "options": ["true", "false", "5", "הפעולה אינה מסתיימת"], "answer": 0, "explanation": "הזוגות l-l ו-e-e שווים, והתו האמצעי אינו דורש השוואה נוספת. לכן level היא פלינדרום."}, {"id": 18, "level": 4, "topic": "ספרות", "title": "ספרות בסדר עולה", "prompt": "איזו מן הקריאות הבאות תחזיר true עבור IsAscending, כאשר נדרש סדר עולה ממש משמאל לימין?", "code": "return leftDigit < rightDigit && IsAscending(num / 10);", "options": ["IsAscending(13379)", "IsAscending(97531)", "IsAscending(13579)", "IsAscending(12234)"], "answer": 2, "explanation": "רק 13579 עולה ממש בכל מעבר. במספרים 13379 ו-12234 יש ספרות שוות סמוכות, וב-97531 הסדר יורד."}, {"id": 19, "level": 4, "topic": "בסיסים", "title": "עשרוני לבינארי", "prompt": "מה תחזיר DecimalToBinary(13)?", "code": "return DecimalToBinary(num / 2) + (num % 2).ToString();", "options": ["1011", "1101", "1110", "1001"], "answer": 1, "explanation": "13 = 8 + 4 + 1, ולכן הייצוג הבינארי הוא 1101."}, {"id": 20, "level": 4, "topic": "אלגוריתם אוקלידס", "title": "GCD", "prompt": "מהו GCD(48, 18) לפי אלגוריתם אוקלידס?", "code": "GCD(48,18) -> GCD(18,12) -> GCD(12,6) -> GCD(6,0)", "options": ["2", "3", "6", "12"], "answer": 2, "explanation": "כאשר הפרמטר השני מגיע ל-0, מחזירים את הראשון. כאן מתקבל 6."}, {"id": 21, "level": 4, "topic": "פלינדרום מספרי", "title": "היפוך מספר רקורסיבי", "prompt": "מה תחזיר IsPalindrome(1331), כאשר משווים את המספר למספר ההפוך שנבנה רקורסיבית?", "code": "return num == ReverseNumber(num, 0);", "options": ["true", "false", "133", "1331 רק אם ממירים למחרוזת"], "answer": 0, "explanation": "היפוך הספרות של 1331 הוא 1331 עצמו, ולכן ההשוואה מחזירה true."}, {"id": 22, "level": 4, "topic": "מספרים ראשוניים", "title": "בדיקת ראשוניות", "prompt": "מה תחזיר IsPrime(35) כאשר נבדקים מחלקים עד השורש הריבועי?", "code": "35 % 5 == 0", "options": ["true", "false", "35", "הפעולה אינה יכולה לקבוע"], "answer": 1, "explanation": "35 מתחלק ב-5 ללא שארית, ולכן יש לו מחלק שאינו 1 או עצמו והוא אינו ראשוני."}, {"id": 23, "level": 5, "topic": "מערכים", "title": "חיפוש רקורסיבי", "prompt": "מה תחזיר RecursiveSearch(new int[] { 8, 3, 5, 3 }, 3), אם מוחזר האינדקס הראשון שבו נמצא היעד?", "code": "RecursiveSearch(new int[] { 8, 3, 5, 3 }, 3)", "options": ["0", "1", "3", "-1"], "answer": 1, "explanation": "הערך 3 מופיע לראשונה באינדקס 1. הקריאה נעצרת מיד כאשר נמצא היעד."}, {"id": 24, "level": 5, "topic": "מערכים", "title": "בדיקת מיון", "prompt": "מה תחזיר IsSorted(new int[] { 2, 4, 4, 9 }) כאשר מותר שוויון בין איברים סמוכים?", "code": "if (arr[index] > arr[index + 1]) return false;", "options": ["true", "false", "4", "תלוי באורך המערך"], "answer": 0, "explanation": "הסדרה אינה יורדת: 2 <= 4 <= 4 <= 9. שוויון אינו מפר את תנאי המיון."}, {"id": 25, "level": 5, "topic": "מערכים", "title": "GCD של מערך", "prompt": "מה תחזיר RecursiveGCD(new int[] { 48, 18, 30 })?", "code": "GCD(48,18)=6, ואז GCD(6,30)=6", "options": ["2", "3", "6", "18"], "answer": 2, "explanation": "ה-GCD של 48 ו-18 הוא 6, וגם ה-GCD של 6 ו-30 הוא 6."}, {"id": 26, "level": 5, "topic": "חזרה לאחור", "title": "Subset Sum", "prompt": "מה תחזיר SubsetSumExists(new int[] { 3, 7, 11, 14 }, 18)?", "code": "בכל איבר בודקים שני ענפים: לבחור בו או לדלג עליו.", "options": ["true, כי 7 + 11 = 18", "false, כי 18 אינו איבר במערך", "false, כי חייבים לבחור איברים סמוכים", "true, אבל רק אם משתמשים בלולאה"], "answer": 0, "explanation": "קיימת תת-קבוצה שסכומה 18: האיברים 7 ו-11. אין דרישה שהם יהיו סמוכים."}, {"id": 27, "level": 5, "topic": "חזרה לאחור", "title": "מסלול במטריצה", "prompt": "במטריצה שלמטה, האם FindPath(grid) תחזיר true אם מותר לנוע למעלה, למטה, ימינה ושמאלה, כאשר 0 הוא תא פנוי ו-1 הוא קיר?", "code": "int[,] grid = {\n    { 0, 1, 0, 0 },\n    { 0, 0, 0, 1 },\n    { 1, 1, 0, 0 }\n};", "options": ["true", "false", "רק אם מותר לנוע באלכסון", "לא ניתן לקבוע בלי לולאה"], "answer": 0, "explanation": "קיים מסלול מהפינה השמאלית-עליונה: למטה, ימינה, ימינה, למטה, ימינה - עד לתא היעד."}];
+    const STORAGE_KEY = 'recursion-quiz-csharp-v2';
+
+    const state = {
+      current: 0,
+      answers: Array(QUESTIONS.length).fill(null),
+      checked: Array(QUESTIONS.length).fill(false),
+      finished: false
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const optionLetters = ['A', 'B', 'C', 'D'];
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          current: state.current,
+          answers: state.answers,
+          checked: state.checked,
+          finished: state.finished
+        }));
+      } catch (error) {
+        console.warn('Could not save quiz state.', error);
+      }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        if (!saved || !Array.isArray(saved.answers) || saved.answers.length !== QUESTIONS.length) return;
+        state.current = Number.isInteger(saved.current) ? Math.min(Math.max(saved.current, 0), QUESTIONS.length - 1) : 0;
+        state.answers = saved.answers.map((value) => Number.isInteger(value) && value >= 0 && value < 4 ? value : null);
+        state.checked = Array.isArray(saved.checked) && saved.checked.length === QUESTIONS.length
+          ? saved.checked.map(Boolean)
+          : Array(QUESTIONS.length).fill(false);
+        state.finished = Boolean(saved.finished);
+      } catch (error) {
+        console.warn('Could not restore quiz state.', error);
+      }
+    }
+
+    function renderNav() {
+      const nav = $('questionNav');
+      nav.replaceChildren();
+      QUESTIONS.forEach((q, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'nav-chip';
+        button.textContent = q.id;
+        button.setAttribute('aria-label', `מעבר לשאלה ${q.id}`);
+        if (index === state.current && !state.finished) button.classList.add('current');
+        if (state.answers[index] !== null) button.classList.add('answered');
+        if (state.checked[index]) {
+          button.classList.add(state.answers[index] === q.answer ? 'correct' : 'wrong');
+        }
+        button.addEventListener('click', () => {
+          state.finished = false;
+          state.current = index;
+          saveState();
+          render();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        nav.appendChild(button);
+      });
+    }
+
+    function renderQuestion() {
+      const q = QUESTIONS[state.current];
+      $('questionKicker').textContent = `שאלה ${q.id} · ${q.topic}`;
+      $('questionTitle').textContent = q.title;
+      $('levelBadge').textContent = `רמה ${q.level}`;
+      $('questionPrompt').textContent = q.prompt;
+      $('questionCode').textContent = q.code || '';
+      $('codeCard').style.display = q.code ? 'block' : 'none';
+
+      const options = $('options');
+      options.replaceChildren();
+      q.options.forEach((label, optionIndex) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'option';
+        button.setAttribute('role', 'radio');
+        button.setAttribute('aria-checked', state.answers[state.current] === optionIndex ? 'true' : 'false');
+
+        const marker = document.createElement('span');
+        marker.className = 'option-marker';
+        marker.textContent = optionLetters[optionIndex];
+
+        const text = document.createElement('span');
+        text.className = 'option-text';
+        text.textContent = label;
+
+        button.append(marker, text);
+        if (state.answers[state.current] === optionIndex) button.classList.add('selected');
+
+        if (state.checked[state.current]) {
+          if (optionIndex === q.answer) button.classList.add('correct');
+          if (state.answers[state.current] === optionIndex && optionIndex !== q.answer) button.classList.add('wrong');
+        }
+
+        button.addEventListener('click', () => selectOption(optionIndex));
+        options.appendChild(button);
+      });
+
+      const feedback = $('feedback');
+      feedback.className = 'feedback';
+      feedback.replaceChildren();
+      if (state.checked[state.current]) {
+        const isCorrect = state.answers[state.current] === q.answer;
+        feedback.classList.add('show', isCorrect ? 'good' : 'bad');
+        const title = document.createElement('strong');
+        title.textContent = isCorrect ? 'תשובה נכונה' : 'כדאי לבדוק שוב';
+        const text = document.createElement('span');
+        text.textContent = q.explanation;
+        feedback.append(title, text);
+      }
+
+      $('prevBtn').disabled = state.current === 0;
+      $('nextBtn').disabled = state.current === QUESTIONS.length - 1;
+      $('checkBtn').disabled = state.answers[state.current] === null;
+      $('checkBtnTop').disabled = state.answers[state.current] === null;
+    }
+
+    function selectOption(optionIndex) {
+      state.answers[state.current] = optionIndex;
+      state.checked[state.current] = false;
+      state.finished = false;
+      saveState();
+      render();
+    }
+
+    function checkCurrent() {
+      if (state.answers[state.current] === null) return;
+      state.checked[state.current] = true;
+      saveState();
+      render();
+    }
+
+    function go(delta) {
+      const next = state.current + delta;
+      if (next < 0 || next >= QUESTIONS.length) return;
+      state.current = next;
+      state.finished = false;
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function finishQuiz() {
+      state.finished = true;
+      state.checked = state.answers.map((answer) => answer !== null);
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderSummary() {
+      let correct = 0;
+      let wrong = 0;
+      let unanswered = 0;
+      QUESTIONS.forEach((q, index) => {
+        if (state.answers[index] === null) unanswered++;
+        else if (state.answers[index] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const percent = Math.round((correct / QUESTIONS.length) * 100);
+      $('scorePercent').textContent = `${percent}%`;
+      $('scoreRing').style.setProperty('--score-angle', `${percent * 3.6}deg`);
+      $('correctCount').textContent = correct;
+      $('wrongCount').textContent = wrong;
+      $('unansweredCount').textContent = unanswered;
+
+      let message;
+      if (percent >= 90) message = 'שליטה מצוינת בעקרונות הרקורסיה ובמעקב אחר קריאות.';
+      else if (percent >= 75) message = 'שליטה טובה מאוד. מומלץ לעבור על השאלות שסומנו לשיפור.';
+      else if (percent >= 60) message = 'הבסיס קיים, אך כדאי לחזק מקרי בסיס, סדר פעולות ומעקב אחר החזרה מהרקורסיה.';
+      else message = 'מומלץ לחזור בהדרגה על מקרה בסיס, הקטנת הבעיה ומעקב אחר מחסנית הקריאות לפני הנושאים המתקדמים.';
+      $('summaryMessage').textContent = message;
+
+      const list = $('reviewList');
+      list.replaceChildren();
+      QUESTIONS.forEach((q, index) => {
+        const answer = state.answers[index];
+        const item = document.createElement('div');
+        const status = answer === null ? 'unanswered' : (answer === q.answer ? 'good' : 'bad');
+        item.className = `review-item ${status}`;
+
+        const top = document.createElement('div');
+        top.className = 'review-top';
+        const title = document.createElement('strong');
+        title.textContent = `${q.id}. ${q.title}`;
+        const badge = document.createElement('span');
+        badge.className = 'review-status';
+        badge.textContent = status === 'good' ? 'נכון' : status === 'bad' ? 'שגוי' : 'לא נענה';
+        top.append(title, badge);
+
+        const detail = document.createElement('div');
+        detail.className = 'review-answer';
+        if (answer === null) {
+          detail.textContent = `התשובה הנכונה: ${q.options[q.answer]}. ${q.explanation}`;
+        } else if (answer === q.answer) {
+          detail.textContent = q.explanation;
+        } else {
+          detail.textContent = `נבחר: ${q.options[answer]}. התשובה הנכונה: ${q.options[q.answer]}. ${q.explanation}`;
+        }
+        item.append(top, detail);
+        list.appendChild(item);
+      });
+    }
+
+    function updateProgress() {
+      const answered = state.answers.filter((value) => value !== null).length;
+      $('progressText').textContent = state.finished ? 'סיכום הבוחן' : `שאלה ${state.current + 1} מתוך ${QUESTIONS.length}`;
+      $('answeredText').textContent = `נענו ${answered} מתוך ${QUESTIONS.length}`;
+      $('progressBar').style.width = `${(answered / QUESTIONS.length) * 100}%`;
+    }
+
+    function render() {
+      updateProgress();
+      renderNav();
+      $('questionPanel').style.display = state.finished ? 'none' : 'block';
+      $('summary').classList.toggle('show', state.finished);
+      if (state.finished) renderSummary();
+      else renderQuestion();
+    }
+
+    function resetQuiz() {
+      const confirmed = window.confirm('לאפס את כל התשובות ולהתחיל מחדש?');
+      if (!confirmed) return;
+      state.current = 0;
+      state.answers = Array(QUESTIONS.length).fill(null);
+      state.checked = Array(QUESTIONS.length).fill(false);
+      state.finished = false;
+      try { localStorage.removeItem(STORAGE_KEY); } catch (error) { console.warn(error); }
+      render();
+    }
+
+    function validateApp() {
+      const ids = Array.from(document.querySelectorAll('[id]')).map((el) => el.id);
+      const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+      const dataIssues = QUESTIONS.filter((q, index) =>
+        q.id !== index + 1 || q.options.length !== 4 || q.answer < 0 || q.answer >= 4 || new Set(q.options).size !== 4
+      );
+      const ok = duplicateIds.length === 0 && dataIssues.length === 0 && QUESTIONS.length === 27;
+      console.info('Recursion quiz validation', {
+        valid: ok,
+        questions: QUESTIONS.length,
+        duplicateIds,
+        invalidQuestionIds: dataIssues.map((q) => q.id)
+      });
+    }
+
+    $('prevBtn').addEventListener('click', () => go(-1));
+    $('nextBtn').addEventListener('click', () => go(1));
+    $('checkBtn').addEventListener('click', checkCurrent);
+    $('checkBtnTop').addEventListener('click', checkCurrent);
+    $('finishBtn').addEventListener('click', finishQuiz);
+    $('resetBtn').addEventListener('click', resetQuiz);
+    $('restartBtn').addEventListener('click', resetQuiz);
+    $('backToQuizBtn').addEventListener('click', () => {
+      state.finished = false;
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (state.finished || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.key === 'ArrowLeft') go(1);
+      if (event.key === 'ArrowRight') go(-1);
+      if (['1', '2', '3', '4'].includes(event.key)) selectOption(Number(event.key) - 1);
+      if (event.key === 'Enter' && state.answers[state.current] !== null) checkCurrent();
+    });
+
+    loadState();
+    validateApp();
+    render();
+  </script>
+</body>
+</html>
