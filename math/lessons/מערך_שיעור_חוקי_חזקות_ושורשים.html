@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מערך שיעור - חוקי חזקות וחוקי שורשים - כיתה ט</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:#ececec; font-family: Arial, "Noto Sans Hebrew", sans-serif; color:#172033; }
+body { direction:rtl; }
+.page {
+  width:210mm; height:297mm; margin:8mm auto; background:#fff;
+  padding:13mm 14mm 12mm; position:relative; overflow:hidden;
+  box-shadow:0 1mm 5mm rgba(0,0,0,.12); page-break-after:always;
+  display:block;
+}
+.page header { display:flex; justify-content:space-between; gap:8mm; border-bottom:1px solid #b8c1d1; padding-bottom:3mm; margin-bottom:5mm; font-size:11.5px; color:#536176; }
+.page footer { position:absolute; right:14mm; left:14mm; bottom:6mm; border-top:1px solid #d6dbe5; padding-top:2mm; font-size:10.5px; color:#68758a; display:flex; justify-content:space-between; }
+.page footer::after { content:"עמוד " counter(page); }
+body { counter-reset:page; }
+.page { counter-increment:page; }
+h1 { font-size:25px; line-height:1.25; margin:0 0 5mm; color:#152a4a; }
+h2 { font-size:18px; margin:0 0 3mm; color:#244a75; }
+h3 { font-size:15px; margin:0 0 2mm; }
+p, li { font-size:14px; line-height:1.55; }
+ul { margin:0; padding-right:5mm; }
+.goal, .instructions, .self-check, .mini-check { background:#f3f6fb; border:2px solid #6c86a6; padding:3mm 4mm; border-radius:3mm; font-size:13.5px; line-height:1.5; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:7mm; align-items:start; }
+.formula { direction:ltr; text-align:center; margin:2.2mm 0; font-size:15px; }
+.callout { border:1px solid #cdd7e5; background:#f8fafc; border-radius:3mm; padding:3mm 4mm; margin-top:4mm; }
+.callout.warn { background:#fff8f3; border-color:#e7c7ae; }
+.lesson-page .mini-check { margin-top:4mm; }
+.exercise-list, .solution-list { columns:2; column-gap:10mm; margin-top:5mm; padding-right:7mm; }
+.exercise-list li, .solution-list li { break-inside:avoid; margin:0 0 4mm; padding-right:1mm; }
+.exercise-page .exercise-list li { min-height:18mm; }
+.solution-page .solution-list li { min-height:17mm; }
+.cover { display:flex; align-items:center; justify-content:center; text-align:center; }
+.cover-box { width:100%; border:2px solid #9cb0c9; border-radius:7mm; padding:15mm 12mm; background:linear-gradient(180deg,#f8fbff,#ffffff); }
+.cover h1 { font-size:38px; margin:4mm 0; }
+.cover h2 { font-size:20px; color:#405d7e; }
+.kicker { font-size:16px; letter-spacing:.5px; color:#657891; }
+.cover-grid { display:grid; grid-template-columns:1fr 1fr; gap:4mm; margin:10mm 0; }
+.cover-grid div { border:1px solid #d2dce8; padding:4mm; border-radius:3mm; display:flex; flex-direction:column; gap:1mm; }
+.cover-grid strong { font-size:15px; } .cover-grid span { font-size:13px; }
+.small { font-size:12px; color:#5d6878; }
+.roadmap-table { width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:5mm; }
+.roadmap-table th, .roadmap-table td { border:1px solid #d0d7e2; padding:2.4mm; text-align:right; }
+.roadmap-table th { background:#eef3f8; }
+.divider { display:flex; align-items:center; justify-content:center; text-align:center; }
+.divider-box { width:85%; padding:18mm; border:2px dashed #8ba0bb; border-radius:6mm; background:#f8fbff; }
+.final-exercise .exercise-list li { min-height:18mm; }
+.final-solution .solution-list li { min-height:18mm; }
+.source-list li { margin-bottom:4mm; }
+.graph-panel { direction:ltr; border:1px solid #cfd8e4; border-radius:3mm; padding:3mm; margin-top:4mm; background:#fbfcfe; }
+.graph-title { direction:rtl; text-align:center; font-weight:700; font-size:13px; margin-bottom:2mm; }
+.jxgbox { direction:ltr; width:100%; height:43mm; border:1px solid #b9c5d3; }
+.graph-controls { display:flex; justify-content:center; gap:2mm; margin-top:2mm; direction:rtl; }
+.graph-controls button { border:1px solid #95a7bb; background:white; padding:1.6mm 3mm; border-radius:2mm; font-size:11px; cursor:pointer; }
+@media print {
+  html, body { background:white; }
+  .page { margin:0; box-shadow:none; }
+}
+</style>
+</head>
+<body>
+
+<section class="page cover" id="cover">
+  <div class="cover-box">
+    <div class="kicker">מערך שיעור מלא - מתמטיקה כיתה ט</div>
+    <h1>חוקי חזקות וחוקי שורשים</h1>
+    <div class="cover-grid">
+      <div><strong>חלק א</strong><span>משמעות החזקה וחוקי חזקות</span></div>
+      <div><strong>חלק ב</strong><span>מעריך אפס ושלילי</span></div>
+      <div><strong>חלק ג</strong><span>כתיב מדעי</span></div>
+      <div><strong>חלק ד</strong><span>שורשים, אומדן וחוקי שורשים</span></div>
+    </div>
+  </div>
+  <footer></footer>
+</section>
+
+
+<section class="page roadmap" id="roadmap">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>מפת היחידה</span></header>
+  <h1>רצף ההוראה ומטרות היחידה</h1>
+  <table class="roadmap-table">
+    <thead><tr><th>שיעור</th><th>נושא</th><th>תוצר למידה</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>משמעות החזקה</td><td>חישוב, בסיס שלילי וסדר פעולות</td></tr>
+      <tr><td>2</td><td>כפל וחילוק בסיסים זהים</td><td>חיבור וחיסור מעריכים</td></tr>
+      <tr><td>3</td><td>חזקה של חזקה</td><td>כפל מעריכים</td></tr>
+      <tr><td>4</td><td>חזקה של מכפלה ומנה</td><td>פיזור החזקה על גורמים</td></tr>
+      <tr><td>5</td><td>מעריך אפס</td><td>פיתוח החוק מתוך חוק המנה</td></tr>
+      <tr><td>6</td><td>מעריך שלילי</td><td>מעבר להופכי ולמעריכים חיוביים</td></tr>
+      <tr><td>7</td><td>שילוב חוקים</td><td>פישוט, שקילות ומעריך חסר</td></tr>
+      <tr><td>8</td><td>כתיב מדעי</td><td>המרה ופעולות עם חזקות של 10</td></tr>
+      <tr><td>9</td><td>שורש ריבועי</td><td>הגדרה, שורש ראשי ומשוואה</td></tr>
+      <tr><td>10</td><td>אומדן ואי-רציונליים</td><td>מיקום וקירוב שורשים</td></tr>
+      <tr><td>11</td><td>חוקי שורשים</td><td>כפל, מנה והוצאת גורם</td></tr>
+      <tr><td>12</td><td>פעולות ושילוב</td><td>כינוס שורשים ויישומים</td></tr>
+    </tbody>
+  </table>
+  <footer></footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-1">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 1</span></header>
+  <h1>שיעור 1 - משמעות החזקה, בסיס שלילי וסדר פעולות</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> להבין חזקה ככפל חוזר, לזהות בסיס ומעריך, ולחשב נכון ביטויים הכוללים בסיס שלילי וסדר פעולות.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>עבור מעריך טבעי, החזקה היא כתיב מקוצר של כפל חוזר.</li><li>יש להבחין בין חזקה של מספר שלילי בתוך סוגריים לבין סימן מינוס הנמצא מחוץ לחזקה.</li><li>פעולת החזקה קודמת לכפל ולחילוק, ואלה קודמים לחיבור ולחיסור.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[(-3)^2+2\cdot 3^2=9+18=27\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[a^n=\underbrace{a\cdot a\cdot\ldots\cdot a}_{n}\]</div><div class="formula">\[(-2)^4=16\]</div><div class="formula">\[-2^4=-(2^4)=-16\]</div><div class="formula">\[2+3^2=11\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[(-4)^2=16 \qquad;\qquad -4^2=-16\]</div>
+      </div>
+    </div>
+  </div>
+  <div style="height:20px;"></div>
+  <div class="mini-check"> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-1">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 1</span></header>
+  <h1>דף תרגילים 1 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>חשב: \(3^4\).</li><li>כתוב כמכפלה וחשב: \(5^3\).</li><li>חשב: \((-2)^4\).</li><li>חשב: \((-2)^5\).</li><li>חשב: \(-3^2\).</li><li>חשב: \(2+3^2\cdot2\).</li><li>חשב: \((2+3)^2-2^4\).</li><li>חשב: \((-1)^{15}+(-1)^{16}\).</li><li>קבע איזה גדול יותר: \((-4)^2\) או \(-4^2\).</li><li>סדר מהקטן לגדול: \(-2^4,\ (-2)^3,\ 2^3,\ (-2)^4\).</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-2">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 2</span></header>
+  <h1>שיעור 2 - כפל וחילוק חזקות בעלות בסיס זהה</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> לפתח ולהשתמש בחוקי הכפל והחילוק של חזקות בעלות בסיס זהה.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>בכפל חזקות בעלות אותו בסיס מחברים מעריכים.</li><li>בחילוק חזקות בעלות אותו בסיס מחסרים מעריכים.</li><li>בחלוקה יש לוודא שהבסיס שונה מאפס.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\frac{2^8\cdot2^3}{2^5}=2^{8+3-5}=2^6=64\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[a^m\cdot a^n=a^{m+n}\]</div><div class="formula">\[\frac{a^m}{a^n}=a^{m-n}\quad(a\ne0)\]</div><div class="formula">\[x^4\cdot x^7=x^{11}\]</div><div class="formula">\[\frac{b^9}{b^3}=b^6\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[a^m+a^n\ne a^{m+n}\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-2">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 2</span></header>
+  <h1>דף תרגילים 2 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>פשט: \(a^3\cdot a^5\).</li><li>פשט: \(x^7\cdot x^2\).</li><li>פשט: \(\frac{b^9}{b^4}\).</li><li>פשט: \(\frac{m^{12}}{m^5}\), בהנחה \(m\ne0\).</li><li>פשט: \(2^4\cdot2^3\).</li><li>חשב: \(\frac{3^7}{3^5}\).</li><li>פשט: \(\frac{a^8\cdot a^3}{a^6}\), בהנחה \(a\ne0\).</li><li>מצא \(n\): \(5^n\cdot5^3=5^{11}\).</li><li>מצא \(k\): \(\frac{x^{14}}{x^k}=x^6\), בהנחה \(x\ne0\).</li><li>פשט: \(\frac{2^9\cdot2^4}{2^7}\) וחשב את הערך.</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-3">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 3</span></header>
+  <h1>שיעור 3 - חזקה של חזקה</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> להבין מדוע בחזקה של חזקה כופלים מעריכים וליישם את החוק בביטויים מספריים ואלגבריים.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>בחזקה של חזקה מכפילים את המעריכים.</li><li>ניתן להצדיק את החוק באמצעות כפל חוזר של אותו גורם.</li><li>יש להבחין בין חזקה של חזקה לבין כפל חזקות בעלות אותו בסיס.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\frac{(a^4)^3}{a^5}=a^{12-5}=a^7\quad(a\ne0)\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[(a^m)^n=a^{mn}\]</div><div class="formula">\[(x^3)^4=x^{12}\]</div><div class="formula">\[(2^2)^3=2^6=64\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[(a^m)^n\ne a^{m+n}\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-3">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 3</span></header>
+  <h1>דף תרגילים 3 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>פשט: \((a^2)^3\).</li><li>פשט: \((x^4)^2\).</li><li>חשב: \((2^3)^2\).</li><li>פשט: \((b^3)^5\).</li><li>פשט: \(\frac{(a^4)^3}{a^5}\), בהנחה \(a\ne0\).</li><li>פשט: \((x^2)^3\cdot x^4\).</li><li>פשט: \(\frac{(m^5)^2}{m^3}\), בהנחה \(m\ne0\).</li><li>מצא \(n\): \((3^2)^n=3^{10}\).</li><li>מצא \(p\): \((a^p)^3=a^{18}\).</li><li>פשט: \(\frac{(2^3)^4\cdot2^2}{2^8}\) וחשב.</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-4">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 4</span></header>
+  <h1>שיעור 4 - חזקה של מכפלה וחזקה של מנה</h1>
+<div style="height:20px;"></div>
+  <div class="goal"><strong>מטרת השיעור:</strong> להשתמש בחוקי חזקה של מכפלה ושל מנה, ולשלב אותם עם חוקי החזקות הקודמים.</div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>חזקה של מכפלה פועלת על כל אחד מהגורמים.</li><li>חזקה של מנה פועלת על המונה ועל המכנה.</li><li>במנה המכנה חייב להיות שונה מאפס.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\left(\frac{2a^2}{3b}\right)^2=\frac{4a^4}{9b^2}\quad(b\ne0)\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[(ab)^n=a^nb^n\]</div><div class="formula">\[\left(\frac{a}{b}\right)^n=\frac{a^n}{b^n}\quad(b\ne0)\]</div><div class="formula">\[(3x)^2=9x^2\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[(a+b)^n\ne a^n+b^n\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-4">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 4</span></header>
+  <h1>דף תרגילים 4 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>פתח: \((ab)^3\).</li><li>פשט: \((2x)^3\).</li><li>פשט: \((3a)^2\).</li><li>פשט: \(\left(\frac{x}{y}\right)^2\), בהנחה \(y\ne0\).</li><li>פשט: \(\left(\frac{2a}{3}\right)^2\).</li><li>פשט: \((2ab^2)^3\).</li><li>פשט: \(\left(\frac{3x^2}{2y}\right)^2\), בהנחה \(y\ne0\).</li><li>פשט: \((ab)^4\cdot a^2\).</li><li>פשט: \(\frac{(2x)^4}{x^2}\), בהנחה \(x\ne0\).</li><li>פשט: \(\frac{(3a^2b)^2}{9ab^2}\), בהנחה \(a\ne0,\ b\ne0\).</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-5">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 5</span></header>
+  <h1>שיעור 5 - מעריך אפס</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> לפתח את משמעות המעריך אפס מתוך חוק המנה ולהשתמש בה בביטויים.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>לכל בסיס שאינו אפס, חזקה שמעריכה אפס שווה ל-1.</li><li>החוק נובע מחלוקת חזקה בעצמה.</li><li>במסגרת היחידה לא מגדירים את הביטוי שבו גם הבסיס וגם המעריך הם אפס.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[3x^0+2^0=3\cdot1+1=4\quad(x\ne0)\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[\frac{a^m}{a^m}=a^{m-m}=a^0=1\quad(a\ne0)\]</div><div class="formula">\[7^0=1\]</div><div class="formula">\[(-5)^0=1\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[a^0\ne0\quad(a\ne0)\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-5">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 5</span></header>
+  <h1>דף תרגילים 5 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>חשב: \(7^0\).</li><li>חשב: \((-9)^0\).</li><li>פשט: \(a^0\), בהנחה \(a\ne0\).</li><li>חשב: \(3\cdot2^0+4\).</li><li>פשט: \(x^5\cdot x^0\), בהנחה \(x\ne0\).</li><li>פשט: \(\frac{a^7}{a^7}\), בהנחה \(a\ne0\).</li><li>פשט: \((5x)^0\), בהנחה \(x\ne0\).</li><li>מצא \(n\): \(4^n=1\).</li><li>פשט: \(\frac{b^9}{b^9}+2b^0\), בהנחה \(b\ne0\).</li><li>פשט: \(\frac{(a^3)^2}{a^6}+a^0\), בהנחה \(a\ne0\).</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-6">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 6</span></header>
+  <h1>שיעור 6 - מעריך שלילי</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> להבין מעריך שלילי כהופכי של חזקה בעלת מעריך חיובי ולהציג תשובות עם מעריכים חיוביים.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>מעריך שלילי אינו הופך את סימן המספר.</li><li>המעבר למעריך חיובי נעשה באמצעות כתיבת ההופכי.</li><li>בסיס של חזקה בעלת מעריך שלילי חייב להיות שונה מאפס.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\frac{x^{-2}}{x^{-5}}=x^3\quad(x\ne0)\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[a^{-n}=\frac{1}{a^n}\quad(a\ne0)\]</div><div class="formula">\[2^{-3}=\frac{1}{8}\]</div><div class="formula">\[\left(\frac{2}{3}\right)^{-2}=\left(\frac{3}{2}\right)^2=\frac{9}{4}\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[a^{-n}\ne-a^n\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-6">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 6</span></header>
+  <h1>דף תרגילים 6 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>כתוב עם מעריך חיובי: \(2^{-3}\).</li><li>כתוב עם מעריך חיובי: \(5^{-2}\).</li><li>פשט: \(x^{-4}\), בהנחה \(x\ne0\).</li><li>חשב: \(10^{-2}\).</li><li>חשב: \(\left(\frac{2}{3}\right)^{-2}\).</li><li>פשט: \(a^{-3}\cdot a^5\), בהנחה \(a\ne0\).</li><li>פשט: \(\frac{x^{-2}}{x^{-5}}\), בהנחה \(x\ne0\).</li><li>פשט עם מעריכים חיוביים: \(\frac{a^2}{a^7}\), בהנחה \(a\ne0\).</li><li>פשט עם מעריכים חיוביים: \((2x^{-1})^2\), בהנחה \(x\ne0\).</li><li>פשט עם מעריכים חיוביים: \(\frac{3a^{-2}b^4}{6ab^{-1}}\), בהנחה \(a\ne0,\ b\ne0\).</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-7">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 7</span></header>
+  <h1>שיעור 7 - שילוב חוקי חזקות, ביטויים שקולים ומעריך חסר</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> לשלב כמה חוקי חזקות באותו תרגיל, להשוות ביטויים ולמצוא מעריך חסר.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>עובדים לפי סדר: סוגריים וחזקה של חזקה, כפל וחילוק של בסיסים זהים, ולבסוף כתיבה עם מעריכים חיוביים.</li><li>מפרידים בין המקדם המספרי לבין החלק האלגברי.</li><li>כאשר הבסיסים זהים, שוויון בין חזקות מאפשר להשוות מעריכים.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\frac{6a^5b^2\cdot2a^{-2}b}{3a^2b}=4ab^2\quad(a\ne0,\ b\ne0)\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[\frac{(a^3)^2\cdot a^{-1}}{a^2}=a^3\quad(a\ne0)\]</div><div class="formula">\[2^x\cdot2^3=2^9\Rightarrow x=6\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[\frac{a^m}{b^m}\ne\left(\frac{a}{b}\right)^{m+1}\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-7">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 7</span></header>
+  <h1>דף תרגילים 7 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>פשט: \(\frac{(a^3)^2}{a^4}\), בהנחה \(a\ne0\).</li><li>פשט: \((x^2)^3\cdot x^{-4}\), בהנחה \(x\ne0\).</li><li>מצא \(n\): \(2^n\cdot2^5=2^{13}\).</li><li>מצא \(k\): \(\frac{3^{12}}{3^k}=3^7\).</li><li>מצא \(p\): \((5^p)^2=5^{14}\).</li><li>פשט: \(\frac{6a^5}{3a^2}\), בהנחה \(a\ne0\).</li><li>פשט: \(\frac{(2a^2b)^2}{4ab}\), בהנחה \(a\ne0,\ b\ne0\).</li><li>פשט עם מעריכים חיוביים: \(\frac{a^{-2}b^5}{a^3b^{-1}}\), בהנחה \(a\ne0,\ b\ne0\).</li><li>בדוק האם הביטויים שקולים: \((x^3)^2\) ו-\(x^5\cdot x\).</li><li>פשט: \(\frac{(3a^2)^3\cdot a^{-1}}{9a^2}\), בהנחה \(a\ne0\).</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-8">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 8</span></header>
+  <h1>שיעור 8 - חזקות של 10 וכתיב מדעי</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> להמיר בין כתיב רגיל לכתיב מדעי ולבצע כפל וחילוק במספרים הכתובים בכתיב מדעי.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>בכתיב מדעי כותבים מספר כמכפלה של מספר שערכו המוחלט לפחות 1 וקטן מ-10 בחזקה של 10.</li><li>מעריך חיובי מתאים בדרך כלל למספר גדול; מעריך שלילי מתאים למספר קטן בין 0 ל-1.</li><li>בכפל ובחילוק מטפלים במקדמים ובחזקות של 10 בנפרד, ואז מתקנים לכתיב מדעי תקין.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[(3\cdot10^5)(2\cdot10^{-3})=6\cdot10^2\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[N=a\cdot10^n,\qquad 1\le |a|\lt10\]</div><div class="formula">\[4.72\cdot10^5=472000\]</div><div class="formula">\[0.00063=6.3\cdot10^{-4}\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[35\cdot10^4=3.5\cdot10^5\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-8">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 8</span></header>
+  <h1>דף תרגילים 8 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>כתוב בכתיב מדעי: \(45000\).</li><li>כתוב בכתיב מדעי: \(0.0062\).</li><li>כתוב בכתיב רגיל: \(3.7\cdot10^4\).</li><li>כתוב בכתיב רגיל: \(8.1\cdot10^{-3}\).</li><li>חשב: \((2\cdot10^3)(4\cdot10^2)\).</li><li>חשב: \(\frac{6\cdot10^7}{3\cdot10^2}\).</li><li>כתוב בכתיב מדעי תקין: \(27\cdot10^5\).</li><li>חשב וכתוב בכתיב מדעי: \((3.5\cdot10^{-4})(2\cdot10^6)\).</li><li>חשב וכתוב בכתיב מדעי: \(\frac{9.6\cdot10^8}{3.2\cdot10^{-3}}\).</li><li>מסה היא \(6.0\cdot10^{24}\) ק\"ג וחלקיק הוא \(3.0\cdot10^{-26}\) ק\"ג. פי כמה גדולה המסה הראשונה מן השנייה?</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-9">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 9</span></header>
+  <h1>שיעור 9 - משמעות השורש הריבועי</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> להגדיר שורש ריבועי, להכיר ריבועים מושלמים ולהבחין בין ערך השורש לבין פתרונות משוואה ריבועית פשוטה.</div>
+<div style="height:20px;"></div> 
+ <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>הסימן של שורש ריבועי מציין את השורש הראשי הלא-שלילי.</li><li>במספרים ממשיים, שורש ריבועי של מספר שלילי אינו מוגדר.</li><li>יש להבחין בין חישוב שורש לבין פתרון משוואה מהצורה ריבוע שווה למספר.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\sqrt{81}+\sqrt{16}=9+4=13\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[\sqrt{a}=b\Rightarrow b\ge0,\quad b^2=a\]</div><div class="formula">\[\sqrt{49}=7\]</div><div class="formula">\[x^2=49\Rightarrow x=\pm7\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[\sqrt{25}=5\qquad;\qquad x^2=25\Rightarrow x=\pm5\]</div>
+        <p>במסמך עצמו ההסבר המילולי מופיע מחוץ לביטוי המתמטי כדי לשמור על כללי הכתיבה.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-9">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 9</span></header>
+  <h1>דף תרגילים 9 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>חשב: \(\sqrt{25}\).</li><li>חשב: \(\sqrt{121}\).</li><li>חשב: \(\sqrt{1}\).</li><li>חשב: \(\sqrt{0}\).</li><li>פתור: \(x^2=36\).</li><li>פתור: \(x^2=81\).</li><li>חשב: \(\sqrt{49}+\sqrt{16}\).</li><li>חשב: \(2\sqrt{9}-\sqrt{4}\).</li><li>קבע אם הביטוי מוגדר במספרים ממשיים: \(\sqrt{-9}\).</li><li>פתור: \(x^2=144\), והסבר מדוע לפתרון המשוואה יש שתי תשובות בעוד של-\(\sqrt{144}\) יש תשובה אחת.</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-10">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 10</span></header>
+  <h1>שיעור 10 - אומדן שורשים ומספרים אי-רציונליים</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> לאמוד שורשים שאינם של ריבועים מושלמים, למקם אותם על ישר המספרים ולהבחין בין ערך מדויק לקירוב.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>אם מספר נמצא בין שני ריבועים מושלמים, השורש שלו נמצא בין השורשים שלהם.</li><li>מספר אי-רציונלי אינו ניתן לכתיבה כמנה של שני מספרים שלמים.</li><li>בעת שימוש במחשבון יש להבחין בין הכתיב המדויק לבין קירוב עשרוני.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[49\lt53\lt64\Rightarrow7\lt\sqrt{53}\lt8\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[25\lt28\lt36\Rightarrow5\lt\sqrt{28}\lt6\]</div><div class="formula">\[\sqrt2\approx1.414\]</div><div class="formula">\[\sqrt2\notin\mathbb{Q}\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[\sqrt{10}\approx3.162\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+        <div class="graph-panel" id="panel-rootNumberLine">
+          <div class="graph-title">מיקום שורשים על ישר המספרים</div>
+          <div id="rootNumberLine" class="jxgbox" aria-label="ישר מספרים עם שורשים"></div>
+          <div class="graph-controls" data-controls-for="rootNumberLine">
+            <button type="button" onclick="zoomBoard('rootNumberLine',1.25)">הגדלה</button>
+            <button type="button" onclick="zoomBoard('rootNumberLine',0.8)">הקטנה</button>
+            <button type="button" onclick="resetBoard('rootNumberLine')">איפוס ומרכוז</button>
+          </div>
+        </div>
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-10">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 10</span></header>
+  <h1>דף תרגילים 10 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>בין אילו שני מספרים שלמים נמצא \(\sqrt{10}\)?</li><li>בין אילו שני מספרים שלמים נמצא \(\sqrt{20}\)?</li><li>בין אילו שני מספרים שלמים נמצא \(\sqrt{50}\)?</li><li>קבע איזה גדול יותר: \(\sqrt{15}\) או \(4\).</li><li>קבע איזה גדול יותר: \(\sqrt{30}\) או \(5\).</li><li>אמוד לעשירית: \(\sqrt{2}\).</li><li>אמוד לעשירית: \(\sqrt{28}\).</li><li>אמוד לעשירית: \(\sqrt{70}\).</li><li>קבע אם המספר רציונלי או אי-רציונלי: \(\sqrt{81}\), \(\sqrt{7}\), \(0.125\).</li><li>מצא שני מספרים עשרוניים עוקבים בדיוק של עשירית שביניהם נמצא \(\sqrt{53}\).</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-11">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 11</span></header>
+  <h1>שיעור 11 - חוקי שורשים והוצאת גורם מן השורש</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> להשתמש בחוקי הכפל והמנה של שורשים, לפשט שורשים ולהבין את התנאים הדרושים לחוקים.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>למספרים לא-שליליים ניתן לפרק שורש של מכפלה למכפלת שורשים.</li><li>במנה, המכנה חייב להיות חיובי.</li><li>הזהות של שורש ריבוע מחייבת ערך מוחלט כאשר הסימן של המשתנה אינו ידוע.</li><li>מוציאים מן השורש גורמים שהם ריבועים מושלמים.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\sqrt{48}=\sqrt{16\cdot3}=4\sqrt3\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[\sqrt{ab}=\sqrt a\sqrt b\quad(a\ge0,\ b\ge0)\]</div><div class="formula">\[\sqrt{\frac{a}{b}}=\frac{\sqrt a}{\sqrt b}\quad(a\ge0,\ b\gt0)\]</div><div class="formula">\[\sqrt{a^2}=|a|\]</div><div class="formula">\[\sqrt{72}=\sqrt{36\cdot2}=6\sqrt2\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[\sqrt{a+b}\ne\sqrt a+\sqrt b\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-11">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 11</span></header>
+  <h1>דף תרגילים 11 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>פשט: \(\sqrt{12}\).</li><li>פשט: \(\sqrt{18}\).</li><li>פשט: \(\sqrt{50}\).</li><li>פשט: \(\sqrt{72}\).</li><li>חשב: \(\sqrt8\cdot\sqrt2\).</li><li>חשב: \(\frac{\sqrt{75}}{\sqrt3}\).</li><li>פשט: \(\sqrt{98}\).</li><li>פשט: \(\sqrt{a^2}\).</li><li>פשט: \(\sqrt{36x^2}\).</li><li>בדוק באמצעות דוגמה מספרית האם \(\sqrt{a+b}=\sqrt a+\sqrt b\) נכון תמיד.</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page lesson-page" id="lesson-12">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>שיעור 12</span></header>
+  <h1>שיעור 12 - פעולות עם שורשים ושילוב חזקות ושורשים</h1>
+  <div class="goal"><strong>מטרת השיעור:</strong> לחבר, לחסר, לכפול ולחלק ביטויים עם שורשים לאחר פישוט, וליישם שורשים בבעיות גאומטריות.</div>
+<div style="height:20px;"></div>
+  <div class="two-col">
+    <div>
+      <h2>עקרונות מרכזיים</h2>
+      <ul><li>מחברים ומחסרים רק איברים בעלי אותו חלק שורשי, בדומה לכינוס איברים דומים.</li><li>לפני חיבור או חיסור רצוי לפשט כל שורש.</li><li>בכפל משתמשים בחוק השורש של מכפלה; בחילוק משתמשים בחוק השורש של מנה כאשר התנאים מתקיימים.</li><li>במשפט פיתגורס ניתן לקבל אורך מדויק בצורת שורש ולאחר מכן, לפי הצורך, קירוב עשרוני.</li></ul>
+      <div class="callout">
+        <h3>דוגמה מודרכת</h3>
+        <div class="formula">\[\sqrt{5^2+7^2}=\sqrt{74}\]</div>
+      </div>
+    </div>
+    <div>
+      <h2>כללים ונוסחאות</h2>
+      <div class="formula">\[3\sqrt2+5\sqrt2=8\sqrt2\]</div><div class="formula">\[\sqrt{12}+\sqrt{27}=2\sqrt3+3\sqrt3=5\sqrt3\]</div><div class="formula">\[\sqrt6\cdot\sqrt{24}=\sqrt{144}=12\]</div>
+      
+      <div class="callout warn">
+        <h3>טעות אופיינית</h3>
+        <div class="formula">\[\sqrt2+\sqrt3\ne\sqrt5\]</div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="mini-check"><strong>בדיקת הבנה:</strong> הסבר במילים איזה חוק מופעל בדוגמה המודרכת ומדוע מותר להשתמש בו.</div>
+  <footer>מערך שיעור - חוקי חזקות וחוקי שורשים</footer>
+</section>
+
+
+<section class="page exercise-page" id="exercise-12">
+  <header><span>מתמטיקה כיתה ט - חזקות ושורשים</span><span>תרגול אחרי שיעור 12</span></header>
+  <h1>דף תרגילים 12 - 10 תרגילים בסדר קושי עולה</h1>
+  <p class="instructions">פתרו ללא דילוג על שלבים. כאשר נדרשת הנחה על משתנה, היא מצוינת בתרגיל.</p>
+  <ol class="exercise-list"><li>פשט: \(2\sqrt3+5\sqrt3\).</li><li>פשט: \(7\sqrt2-3\sqrt2\).</li><li>פשט: \(\sqrt{12}+\sqrt{27}\).</li><li>פשט: \(2\sqrt8+\sqrt{18}\).</li><li>חשב: \(\sqrt6\cdot\sqrt{24}\).</li><li>חשב: \(\frac{\sqrt{48}}{\sqrt3}\).</li><li>פשט: \(3\sqrt{20}-2\sqrt{45}\).</li><li>חשב: \((\sqrt5)^4\).</li><li>במשולש ישר-זווית הניצבים הם \(4\) ו-\(7\). מצא את אורך היתר בצורה מדויקת.</li><li>מלבן שצלעותיו \(5\) ו-\(8\). מצא את אורך האלכסון בצורה מדויקת ובקירוב לעשירית.</li></ol>
+  <div class="self-check">לפני מעבר לשיעור הבא: סמנו ליד כל תרגיל את החוק המרכזי שבו השתמשתם.</div>
+  <footer>הפתרונות לכל דפי התרגול נמצאים בסוף המסמך</footer>
+</section>
+
+
+<section class="page divider" id="solutions-start">
+  <div class="divider-box">
+    <h1>פתרונות לכל דפי התרגול</h1>
+    <p>הפתרונות מסודרים לפי מספר השיעור. מומלץ לתלמיד להשוות תחילה את הדרך שלו לחוק המתאים ורק לאחר מכן לתוצאה.</p>
+  </div>
+  <footer>פתרונות - חזקות ושורשים</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-1">
+  <header><span>פתרונות</span><span>דף תרגילים 1</span></header>
+  <h1>פתרונות - דף תרגילים 1</h1>
+  <ol class="solution-list"><li>\(3^4=81\).</li><li>\(5^3=5\cdot5\cdot5=125\).</li><li>\((-2)^4=16\).</li><li>\((-2)^5=-32\).</li><li>\(-3^2=-(3^2)=-9\).</li><li>\(2+3^2\cdot2=2+18=20\).</li><li>\((2+3)^2-2^4=25-16=9\).</li><li>\((-1)^{15}+(-1)^{16}=-1+1=0\).</li><li>\((-4)^2=16\) גדול מ-\(-4^2=-16\).</li><li>\(-16\lt-8\lt8\lt16\), ולכן: \(-2^4,\ (-2)^3,\ 2^3,\ (-2)^4\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-2">
+  <header><span>פתרונות</span><span>דף תרגילים 2</span></header>
+  <h1>פתרונות - דף תרגילים 2</h1>
+  <ol class="solution-list"><li>\(a^8\).</li><li>\(x^9\).</li><li>\(b^5\).</li><li>\(m^7\).</li><li>\(2^7=128\).</li><li>\(3^2=9\).</li><li>\(a^{8+3-6}=a^5\).</li><li>\(n+3=11\Rightarrow n=8\).</li><li>\(14-k=6\Rightarrow k=8\).</li><li>\(2^{9+4-7}=2^6=64\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-3">
+  <header><span>פתרונות</span><span>דף תרגילים 3</span></header>
+  <h1>פתרונות - דף תרגילים 3</h1>
+  <ol class="solution-list"><li>\(a^6\).</li><li>\(x^8\).</li><li>\(2^6=64\).</li><li>\(b^{15}\).</li><li>\(a^{12-5}=a^7\).</li><li>\(x^6\cdot x^4=x^{10}\).</li><li>\(m^{10-3}=m^7\).</li><li>\(2n=10\Rightarrow n=5\).</li><li>\(3p=18\Rightarrow p=6\).</li><li>\(2^{12+2-8}=2^6=64\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-4">
+  <header><span>פתרונות</span><span>דף תרגילים 4</span></header>
+  <h1>פתרונות - דף תרגילים 4</h1>
+  <ol class="solution-list"><li>\(a^3b^3\).</li><li>\(8x^3\).</li><li>\(9a^2\).</li><li>\(\frac{x^2}{y^2}\).</li><li>\(\frac{4a^2}{9}\).</li><li>\(8a^3b^6\).</li><li>\(\frac{9x^4}{4y^2}\).</li><li>\(a^6b^4\).</li><li>\(\frac{16x^4}{x^2}=16x^2\).</li><li>\(\frac{9a^4b^2}{9ab^2}=a^3\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-5">
+  <header><span>פתרונות</span><span>דף תרגילים 5</span></header>
+  <h1>פתרונות - דף תרגילים 5</h1>
+  <ol class="solution-list"><li>\(1\).</li><li>\(1\).</li><li>\(1\).</li><li>\(3\cdot1+4=7\).</li><li>\(x^5\).</li><li>\(1\).</li><li>\(1\).</li><li>\(n=0\).</li><li>\(1+2=3\).</li><li>\(1+1=2\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-6">
+  <header><span>פתרונות</span><span>דף תרגילים 6</span></header>
+  <h1>פתרונות - דף תרגילים 6</h1>
+  <ol class="solution-list"><li>\(\frac18\).</li><li>\(\frac1{25}\).</li><li>\(\frac1{x^4}\).</li><li>\(\frac1{100}\).</li><li>\(\frac94\).</li><li>\(a^2\).</li><li>\(x^3\).</li><li>\(a^{-5}=\frac1{a^5}\).</li><li>\(\frac4{x^2}\).</li><li>\(\frac{3}{6}a^{-3}b^5=\frac{b^5}{2a^3}\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-7">
+  <header><span>פתרונות</span><span>דף תרגילים 7</span></header>
+  <h1>פתרונות - דף תרגילים 7</h1>
+  <ol class="solution-list"><li>\(a^{6-4}=a^2\).</li><li>\(x^{6-4}=x^2\).</li><li>\(n+5=13\Rightarrow n=8\).</li><li>\(12-k=7\Rightarrow k=5\).</li><li>\(2p=14\Rightarrow p=7\).</li><li>\(2a^3\).</li><li>\(\frac{4a^4b^2}{4ab}=a^3b\).</li><li>\(a^{-5}b^6=\frac{b^6}{a^5}\).</li><li>כן. \((x^3)^2=x^6\) וגם \(x^5\cdot x=x^6\).</li><li>\(\frac{27a^6\cdot a^{-1}}{9a^2}=3a^3\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-8">
+  <header><span>פתרונות</span><span>דף תרגילים 8</span></header>
+  <h1>פתרונות - דף תרגילים 8</h1>
+  <ol class="solution-list"><li>\(4.5\cdot10^4\).</li><li>\(6.2\cdot10^{-3}\).</li><li>\(37000\).</li><li>\(0.0081\).</li><li>\(8\cdot10^5\).</li><li>\(2\cdot10^5\).</li><li>\(2.7\cdot10^6\).</li><li>\(7\cdot10^2\).</li><li>\(3\cdot10^{11}\).</li><li>\(\frac{6.0\cdot10^{24}}{3.0\cdot10^{-26}}=2.0\cdot10^{50}\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-9">
+  <header><span>פתרונות</span><span>דף תרגילים 9</span></header>
+  <h1>פתרונות - דף תרגילים 9</h1>
+  <ol class="solution-list"><li>\(5\).</li><li>\(11\).</li><li>\(1\).</li><li>\(0\).</li><li>\(x=\pm6\).</li><li>\(x=\pm9\).</li><li>\(7+4=11\).</li><li>\(2\cdot3-2=4\).</li><li>אינו מוגדר במספרים ממשיים.</li><li>\(x=\pm12\). לעומת זאת \(\sqrt{144}=12\), משום שסימן השורש מציין את השורש הראשי הלא-שלילי.</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-10">
+  <header><span>פתרונות</span><span>דף תרגילים 10</span></header>
+  <h1>פתרונות - דף תרגילים 10</h1>
+  <ol class="solution-list"><li>\(3\lt\sqrt{10}\lt4\).</li><li>\(4\lt\sqrt{20}\lt5\).</li><li>\(7\lt\sqrt{50}\lt8\).</li><li>\(\sqrt{15}\lt4\), כי \(15\lt16\).</li><li>\(\sqrt{30}\gt5\), כי \(30\gt25\).</li><li>\(\sqrt2\approx1.4\).</li><li>\(\sqrt{28}\approx5.3\).</li><li>\(\sqrt{70}\approx8.4\).</li><li>\(\sqrt{81}=9\) רציונלי; \(\sqrt7\) אי-רציונלי; \(0.125\) רציונלי.</li><li>\(7.2\lt\sqrt{53}\lt7.3\), כי \(7.2^2=51.84\) ו-\(7.3^2=53.29\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-11">
+  <header><span>פתרונות</span><span>דף תרגילים 11</span></header>
+  <h1>פתרונות - דף תרגילים 11</h1>
+  <ol class="solution-list"><li>\(\sqrt{12}=2\sqrt3\).</li><li>\(\sqrt{18}=3\sqrt2\).</li><li>\(\sqrt{50}=5\sqrt2\).</li><li>\(\sqrt{72}=6\sqrt2\).</li><li>\(\sqrt{16}=4\).</li><li>\(\sqrt{25}=5\).</li><li>\(\sqrt{98}=7\sqrt2\).</li><li>\(\sqrt{a^2}=|a|\).</li><li>\(\sqrt{36x^2}=6|x|\).</li><li>לא. למשל \(a=b=1\): \(\sqrt2\ne2\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page solution-page" id="solution-12">
+  <header><span>פתרונות</span><span>דף תרגילים 12</span></header>
+  <h1>פתרונות - דף תרגילים 12</h1>
+  <ol class="solution-list"><li>\(7\sqrt3\).</li><li>\(4\sqrt2\).</li><li>\(2\sqrt3+3\sqrt3=5\sqrt3\).</li><li>\(2\cdot2\sqrt2+3\sqrt2=7\sqrt2\).</li><li>\(\sqrt{144}=12\).</li><li>\(\sqrt{16}=4\).</li><li>\(3\cdot2\sqrt5-2\cdot3\sqrt5=0\).</li><li>\((\sqrt5)^4=25\).</li><li>\(c=\sqrt{4^2+7^2}=\sqrt{65}\).</li><li>\(d=\sqrt{5^2+8^2}=\sqrt{89}\approx9.4\).</li></ol>
+  <footer>בדקו את הדרך, לא רק את התוצאה הסופית</footer>
+</section>
+
+
+<section class="page final-exercise" id="final-ex-1">
+  <header><span>תרגול מסכם</span><span>חלק 1 מתוך 2</span></header>
+  <h1>תרגילים מסכמים - רמה גבוהה</h1>
+  <p class="instructions">התרגילים משלבים כמה נושאים. כתבו בכל שלב את החוק שבו השתמשתם.</p>
+  <ol class="exercise-list" start="1"><li>פשט עם מעריכים חיוביים: \(\frac{(2^3)^4\cdot2^{-5}}{2^2}\).</li><li>פתור: \(3^{2x-1}=27\).</li><li>פשט: \(\frac{(3a^2b^{-1})^2}{9a^{-1}b^3}\), בהנחה \(a\ne0,\ b\ne0\).</li><li>מצא \(n\): \(\frac{5^{2n}\cdot5^3}{5^4}=5^{11}\).</li><li>חשב וכתוב בכתיב מדעי: \(\frac{(4\cdot10^7)(3\cdot10^{-5})}{6\cdot10^2}\).</li><li>קבע בלי מחשבון: האם \(2^{12}\) ו-\(4^6\) שווים?</li><li>פשט: \(\sqrt{180}\).</li><li>פשט: \(\sqrt{75}+\sqrt{12}-\sqrt{27}\).</li><li>חשב: \(\frac{\sqrt{72}}{\sqrt2}\).</li><li>פתור: \(x^2=50\) והצג תשובה מדויקת.</li></ol>
+  <footer>הפתרונות מופיעים מיד לאחר שני דפי התרגילים המסכמים</footer>
+</section>
+
+
+<section class="page final-exercise" id="final-ex-2">
+  <header><span>תרגול מסכם</span><span>חלק 2 מתוך 2</span></header>
+  <h1>תרגילים מסכמים - רמה גבוהה</h1>
+  <p class="instructions">התרגילים משלבים כמה נושאים. כתבו בכל שלב את החוק שבו השתמשתם.</p>
+  <ol class="exercise-list" start="11"><li>בין אילו שתי עשיריות עוקבות נמצא \(\sqrt{70}\)?</li><li>מצא דוגמה מספרית המפריכה את הטענה \(\sqrt{a+b}=\sqrt a+\sqrt b\).</li><li>חשב: \((\sqrt3)^6\).</li><li>פשט: \(\sqrt{12}\cdot\sqrt{27}\).</li><li>משולש ישר-זווית בעל ניצבים \(6\) ו-\(11\). מצא יתר מדויק וקירוב לעשירית.</li><li>אלכסון ריבוע הוא \(\sqrt{98}\). מצא את אורך צלע הריבוע.</li><li>פשט: \(2\sqrt{45}-\sqrt{80}+\sqrt5\).</li><li>מספר נכתב \(7.2\cdot10^{-6}\). כתוב אותו בכתיב רגיל ולאחר מכן כפל אותו ב-\(5\cdot10^8\) וכתוב את התוצאה בכתיב מדעי.</li><li>בדוק האם הביטויים \(\frac{a^7}{a^2}\) ו-\((a^5)^1\) שקולים עבור \(a\ne0\).</li><li>פשט: \(\frac{\sqrt{200}}{\sqrt8}+2^{-1}\).</li></ol>
+  <footer>הפתרונות מופיעים מיד לאחר שני דפי התרגילים המסכמים</footer>
+</section>
+
+
+<section class="page final-solution" id="final-sol-1">
+  <header><span>פתרונות לתרגול המסכם</span><span>חלק 1 מתוך 2</span></header>
+  <h1>פתרונות - תרגילים מסכמים</h1>
+  <ol class="solution-list" start="1"><li>\(\frac{2^{12}\cdot2^{-5}}{2^2}=2^5=32\).</li><li>\(27=3^3\Rightarrow2x-1=3\Rightarrow x=2\).</li><li>\(\frac{9a^4b^{-2}}{9a^{-1}b^3}=a^5b^{-5}=\frac{a^5}{b^5}\).</li><li>\(5^{2n+3-4}=5^{11}\Rightarrow2n-1=11\Rightarrow n=6\).</li><li>\(\frac{12\cdot10^2}{6\cdot10^2}=2=2\cdot10^0\).</li><li>כן. \(4^6=(2^2)^6=2^{12}\).</li><li>\(\sqrt{180}=\sqrt{36\cdot5}=6\sqrt5\).</li><li>\(5\sqrt3+2\sqrt3-3\sqrt3=4\sqrt3\).</li><li>\(\sqrt{36}=6\).</li><li>\(x=\pm\sqrt{50}=\pm5\sqrt2\).</li></ol>
+  <footer>סיום היחידה</footer>
+</section>
+
+
+<section class="page final-solution" id="final-sol-2">
+  <header><span>פתרונות לתרגול המסכם</span><span>חלק 2 מתוך 2</span></header>
+  <h1>פתרונות - תרגילים מסכמים</h1>
+  <ol class="solution-list" start="11"><li>\(8.3\lt\sqrt{70}\lt8.4\), כי \(8.3^2=68.89\) ו-\(8.4^2=70.56\).</li><li>למשל \(a=b=1\): \(\sqrt2\ne2\).</li><li>\((\sqrt3)^6=((\sqrt3)^2)^3=3^3=27\).</li><li>\(\sqrt{324}=18\).</li><li>\(c=\sqrt{36+121}=\sqrt{157}\approx12.5\).</li><li>אם צלע הריבוע היא \(s\), אז \(s\sqrt2=\sqrt{98}=7\sqrt2\), ולכן \(s=7\).</li><li>\(2\cdot3\sqrt5-4\sqrt5+\sqrt5=3\sqrt5\).</li><li>\(7.2\cdot10^{-6}=0.0000072\). המכפלה היא \(36\cdot10^2=3.6\cdot10^3\).</li><li>כן. \(\frac{a^7}{a^2}=a^5\) וגם \((a^5)^1=a^5\).</li><li>\(\frac{10\sqrt2}{2\sqrt2}+\frac12=5+\frac12=\frac{11}{2}\).</li></ol>
+  <footer>סיום היחידה</footer>
+</section>
+
+<!--
+<section class="page sources" id="sources">
+  <header><span>מקורות</span><span>בסיס פדגוגי ותוכני</span></header>
+  <h1>מקורות שעליהם מבוסס המבנה</h1>
+  <ul class="source-list">
+    <li><strong>חזקות א</strong> - דף עבודה לכיתה ט, רמה א: כתיב חזקות, כפל ופישוט, חוקים אלגבריים, השלמת מעריכים ותרגול מדורג.</li>
+    <li><strong>חזקות ב</strong> - דף עבודה לכיתה ט, רמה ב: שילוב חוקי חזקות, מעריך אפס ושלילי, השוואות, כתיב מדעי וביטויים מורכבים.</li>
+    <li><strong>דפי ארכימדס המצורפים</strong> - חזקות עם מעריך חיובי, ביטויים שקולים, מעריך חסר, מעבר בין בסיסים ופישוט.</li>
+    <li><strong>משרד החינוך - חזקות</strong>: https://pop.education.gov.il/tchumey_daat/matmatika/chativat-beynayim/noseem_nilmadim/hezkot/</li>
+    <li><strong>משרד החינוך - שורשים, חוקים ופעולות</strong>: https://pop.education.gov.il/tchumey_daat/matmatika/chativat-beynayim/noseem_nilmadim/roots-rules-actions/</li>
+    <li><strong>Illustrative Mathematics - Integer Exponents and Radicals</strong>: https://tasks.illustrativemathematics.org/content-standards/8/EE/A</li>
+  </ul>
+  <div class="callout">
+    <h3>גבולות היחידה</h3>
+    <p>המערך מתמקד בחזקות עם מעריכים שלמים, שורש ריבועי, אומדן, חוקי שורשים וכתיב מדעי. מעריכים רציונליים, שורשים מסדר גבוה ורציונליזציה מורכבת אינם חלק מליבת המערך.</p>
+  </div>
+  <footer>כל התרגילים במסמך נוסחו מחדש לצורך מערך זה</footer>
+</section>
+-->
+
+<script>
+const boards = {};
+const boardDefaults = {
+  axis:false, boundingbox:[0,2,4,-2], showCopyright:false, showNavigation:false,
+  pan:{enabled:true}, zoom:{wheel:true, needShift:false}, keepaspectratio:false
+};
+function initRootBoard() {
+  if (!window.JXG || !document.getElementById('rootNumberLine')) return;
+  const b = JXG.JSXGraph.initBoard('rootNumberLine', boardDefaults);
+  boards['rootNumberLine'] = b;
+  b.create('axis', [[0,0],[1,0]], {ticks:{drawLabels:true, ticksDistance:1, minorTicks:0}, fixed:true});
+  const vals = [
+    [Math.sqrt(2),'\\(\\sqrt{2}\\)'],
+    [Math.sqrt(5),'\\(\\sqrt{5}\\)'],
+    [Math.sqrt(10),'\\(\\sqrt{10}\\)']
+  ];
+  vals.forEach((v, idx) => {
+    b.create('point',[v[0],0],{name:v[1],size:2,fixed:true,useMathJax:true,label:{offset:[-8,14+idx*2]}});
+  });
+}
+function zoomBoard(id, factor) {
+  const b=boards[id]; if(!b) return;
+  b.zoomIn(factor);
+}
+function resetBoard(id) {
+  const b=boards[id]; if(!b) return;
+  b.setBoundingBox([0,2,4,-2],false);
+}
+window.addEventListener('load', () => {
+  let tries=0;
+  const timer=setInterval(() => {
+    tries++;
+    if (window.JXG) { clearInterval(timer); initRootBoard(); }
+    if (tries>40) clearInterval(timer);
+  },100);
+});
+</script>
+</body>
+</html>
