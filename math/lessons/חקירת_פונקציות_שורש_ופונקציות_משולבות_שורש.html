@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>חקירת פונקציות שורש - מערך שיעור מעודכן</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]},
+  chtml: {scale: 0.94},
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{--ink:#172033;--muted:#55647b;--blue:#215f9b;--blue2:#edf6ff;--green:#167055;--green2:#edf9f5;--amber:#98620a;--amber2:#fff7e8;--red:#a53b3b;--line:#d4dce7;--paper:#fff;--bg:#e9eef4}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;line-height:1.45}
+body{direction:rtl}
+.document{width:210mm;margin:0 auto}
+.a4-page{position:relative;width:210mm;height:297mm;margin:8mm auto;background:var(--paper);padding:11mm 12mm 13mm;overflow:hidden;page-break-after:always;break-after:page;box-shadow:0 8px 28px rgba(22,34,54,.12)}
+.a4-page:last-child{page-break-after:auto;break-after:auto}
+.page-content{height:100%;overflow:hidden}
+.page-number{position:absolute;bottom:4.5mm;left:12mm;font-size:9.5px;color:#77849a}
+h1,h2,h3{margin-top:0;color:#17385f;line-height:1.18}h1{font-size:28px;margin-bottom:10px}h2{font-size:21px;border-bottom:3px solid #91bce0;padding-bottom:6px;margin-bottom:10px}h3{font-size:16px;margin-bottom:7px}
+p{margin:5px 0}ul,ol{margin:5px 0;padding-right:22px}li{margin:3px 0}
+.hero{border:1px solid #abc7e0;background:linear-gradient(135deg,#f8fcff,#eaf4fd);padding:20px;border-radius:16px;margin-bottom:14px}.small-hero{padding:14px}.eyebrow{font-size:13px;font-weight:bold;color:#497195;margin-bottom:6px}.hero p{font-size:16px;color:#33485f}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:#fff;break-inside:avoid}.note{border:2px solid var(--blue);background:var(--blue2)}.success{border:2px solid var(--green);background:var(--green2)}.warning{border:2px solid var(--amber);background:var(--amber2)}
+.lesson-head{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;align-items:start;margin-bottom:8px}.lesson-head p{margin:2px 0;font-weight:700}.lesson-head ul{grid-column:2}.lesson-chip{display:inline-block;background:#17385f;color:#fff;border-radius:999px;padding:5px 10px;font-weight:bold;font-size:12px}
+.theory-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}.math-block,.expr{direction:ltr;text-align:center}.math-block{background:#f8fafc;border:1px solid #e1e7ef;border-radius:8px;padding:1px 6px;margin:6px 0}
+.graph-card{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-top:8px;background:#fff}.graph-title{direction:ltr;text-align:center;font-weight:700;min-height:24px}.graph-controls{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:4px 0 6px}.graph-controls button{border:1px solid #9fb1c7;background:#f8fbff;border-radius:7px;padding:4px 9px;font:inherit;font-size:11px;cursor:pointer}.graph-controls button:hover{background:#eaf3fb}.graph-help{text-align:center;color:var(--muted);font-size:10px;margin-top:3px}.jxgbox{width:100%;height:288px;border:1px solid #b9c7d8;border-radius:9px;direction:ltr;touch-action:none}
+.exercise-page .page-content,.solution-page .page-content{overflow:hidden}.page-lead{font-size:12.5px;color:var(--muted);margin-bottom:8px}.exercise-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.exercise{border:1px solid #cbd6e4;border-radius:10px;padding:7px 8px;display:grid;grid-template-columns:26px 1fr;gap:6px;min-height:105px;background:#fff}.ex-num,.summary-num,.sol-num{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#215f9b;color:#fff;font-weight:bold;font-size:12px}.compact-ex .expr{font-size:13px;min-height:35px}.compact-ex p{font-size:11.4px;line-height:1.32;margin:2px 0}
+.solution-grid{display:grid;gap:7px}.solution-item{border:1px solid #d6dee8;border-radius:9px;padding:7px;display:grid;grid-template-columns:28px 1fr;gap:7px;font-size:11.2px;line-height:1.35;min-height:80px;background:#fbfcfe}.sol-num{background:#167055}
+.steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.steps div{display:flex;align-items:center;gap:7px;border:1px solid #d7e3ec;border-radius:10px;padding:8px;background:#fff}.steps b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#215f9b;color:white}.course-map{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.course-map div{border:1px solid #d4dce7;border-radius:9px;padding:8px 10px;background:#fff;font-weight:700;color:#2f4c68}
+.checklist{list-style:none;padding-right:0}.checklist li:before{content:"□";margin-left:7px;color:#215f9b;font-weight:700}
+.summary-ex{border:1px solid #cad6e5;border-radius:11px;padding:10px 12px;margin:8px 0;display:grid;grid-template-columns:30px 1fr;column-gap:8px;background:#fff}.summary-ex .expr{grid-column:2;font-size:14px}.summary-ex p{grid-column:2;font-size:12.5px}.detailed-solution{border:1px solid #d3dce7;border-radius:11px;padding:11px 13px;margin:9px 0;background:#fbfcfe}.detailed-solution h3{margin-bottom:5px}.detailed-solution p{font-size:12.2px;line-height:1.46}
+@media screen and (max-width:850px){body{min-width:210mm}.a4-page{margin:3mm auto}}
+@media print{html,body{background:#fff}.document{width:210mm;margin:0}.a4-page{margin:0;box-shadow:none;width:210mm;height:297mm;padding:11mm 12mm 13mm;overflow:hidden}@page{size:A4;margin:0}}
+</style>
+</head>
+<body>
+<main class="document">
+
+<section class="a4-page cover-page"><div class="page-content">
+  <div class="hero">
+    <div class="eyebrow">מערך שיעור ללמידה עצמית - 5 יחידות</div>
+    <h1>חקירת פונקציות שורש ופונקציות משולבות שורש</h1>
+    <p>רצף מדורג: תחום הגדרה, תחום הנגזרת, נגזרת וקיצון, אסימפטוטות, פרמטרים, טרנספורמציות ופונקציה קדומה.</p>
+  </div>
+<div style="height:5px;"></div>
+  <div class="card success"><h3>אלגוריתם חקירה קבוע</h3>
+    <div class="steps">
+      <div><b>1</b><span>תחום הגדרה</span></div><div><b>2</b><span>חיתוכים ונקודות קצה</span></div><div><b>3</b><span>אסימפטוטות והתנהגות קצה</span></div><div><b>4</b><span>נגזרת ונקודות קיצון</span></div><div><b>5</b><span>תחומי עלייה וירידה</span></div><div><b>6</b><span>סקיצה ובדיקת עקביות</span></div>
+    </div>
+  </div>
+<div style="height:15px;"></div>
+  <div class="card warning"><strong>כלל חשוב:</strong> \(\sqrt{x^2}=|x|\). לכן יש לבדוק בנפרד התנהגות כאשר \(x⇒+\infty\) וכאשר \(x⇒-\infty\).</div>
+<div style="height:15px;"></div>
+  <div class="course-map">
+    <div>1. תחום וחיתוכים</div><div>2. תחום הנגזרת, נגזרת וקיצון</div><div>3. אסימפטוטות</div><div>4. פרמטרים וצמוד</div><div>5. טרנספורמציות</div><div>6. נגזרת נתונה ופונקציה קדומה</div>
+  </div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page "><div class="page-content"><h2>שיעור 1 - תחום הגדרה, נקודות קצה וחיתוכים</h2>
+    <div class="lesson-head"><span class="lesson-chip">שיעור 1</span><p>מטרות השיעור:</p><ul><li>לכתוב תחום הגדרה לפני כל פעולה אחרת.</li><li>להבחין בין שורש במונה לבין שורש במכנה.</li><li>לזהות נקודות קצה וחיתוכים עם הצירים רק מתוך התחום.</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>דוגמה מרכזית</h3>
+      <div class="math-block">\[f(x)=\sqrt{(x+2)(x-5)}\]</div>
+      <p><strong>תחום:</strong> הביטוי מתחת לשורש חייב להיות אי-שלילי.</p>
+      <div class="math-block">\[(x+2)(x-5)\ge 0\]</div>
+      <p>לכן התחום הוא \(x\le -2\) או \(x\ge 5\).</p>
+      <p><strong>חיתוך עם ציר \(x\):</strong> \((-2,0)\), \((5,0)\).</p>
+      <p><strong>חיתוך עם ציר \(y\):</strong> אין, מפני ש-\(x=0\) אינו בתחום.</p>
+    </div>
+      <div class="card note"><h3>עקרונות עבודה</h3><ul><li>בשורש שבמכנה דורשים שהביטוי מתחת לשורש יהיה חיובי ממש.</li><li>אפס של המכנה לעולם אינו שייך לתחום.</li><li>נקודת קצה נוצרת כאשר הביטוי מתחת לשורש מתאפס והנקודה שייכת לתחום.</li></ul></div>
+    </div>
+    
+    <div class="graph-card">
+      <div class="graph-controls" data-board="board1">
+        <button type="button" data-action="zoom-in">הגדלה</button>
+        <button type="button" data-action="zoom-out">הקטנה</button>
+        <button type="button" data-action="center">מרכוז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board1" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-help">אפשר לגרור את הגרף למרכוז ידני ולהשתמש בגלגלת העכבר לשינוי קנה המידה.</div>
+    </div>
+    </div><div class="page-number"></div></section>
+<section class="a4-page exercise-page"><div class="page-content"><h2>תרגול שיעור 1 - תחום הגדרה, נקודות קצה וחיתוכים</h2><p class="page-lead">10 תרגילים בסדר קושי עולה. יש לכתוב תחום לפני כל פעולה אחרת.</p><div class="exercise-grid"><div class="exercise compact-ex"><div class="ex-num">1</div><div><div class="expr">\[f(x)=\sqrt{x-3}\]</div><p>מצאו תחום הגדרה וחיתוכים עם הצירים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">2</div><div><div class="expr">\[f(x)=\sqrt{5-x}-1\]</div><p>מצאו תחום הגדרה וחיתוכים עם הצירים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">3</div><div><div class="expr">\[f(x)=\sqrt{(x-1)(x-4)}\]</div><p>מצאו תחום הגדרה, נקודות קצה וחיתוכים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">4</div><div><div class="expr">\[f(x)=\frac{1}{\sqrt{x+2}}\]</div><p>מצאו תחום הגדרה וחיתוכים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">5</div><div><div class="expr">\[f(x)=\sqrt{9-x^2}\]</div><p>מצאו תחום הגדרה ונקודות חיתוך עם הצירים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">6</div><div><div class="expr">\[f(x)=\sqrt{x^2-4}\]</div><p>מצאו תחום הגדרה ונקודות חיתוך עם הצירים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">7</div><div><div class="expr">\[f(x)=\frac{\sqrt{2x+6}}{x-1}\]</div><p>מצאו תחום הגדרה וחיתוכים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">8</div><div><div class="expr">\[f(x)=\frac{1}{(x+1)\sqrt{4-x}}\]</div><p>מצאו תחום הגדרה וחיתוך עם ציר \(y\), אם קיים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">9</div><div><div class="expr">\[f(x)=\sqrt{\frac{x+2}{x-1}}\]</div><p>מצאו תחום הגדרה וחיתוכים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">10</div><div><div class="expr">\[f(x)=\sqrt{(6-x)(x+1)}\]</div><p>מצאו תחום הגדרה, נקודות קצה וחיתוכים.</p></div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page "><div class="page-content"><h2>שיעור 2 - פונקציות שורש עם מכפלה</h2>
+    <div class="lesson-head"><span class="lesson-chip">שיעור 2</span><p>מטרות השיעור:</p><ul><li>להבחין בין תחום ההגדרה של פונקציית שורש לבין תחום ההגדרה של הנגזרת שלה.</li><li>לגזור פונקציות מכפלה הכוללות שורש.</li><li>למצוא נקודות שבהן הנגזרת מתאפסת ולבדוק שינוי סימן.</li><li>לשרטט סקיצה על סמך תחום, חיתוכים, קיצון ונקודות קצה.</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>דוגמה</h3>
+      <div class="math-block">\[f(x)=x^2\sqrt{10-2x}\]</div>
+      <p><strong>תחום:</strong> \(x\le 5\).</p>
+      <div class="math-block">\[f^{\prime}(x)=\frac{-5x(x-4)}{\sqrt{10-2x}}\]</div>
+      <p>בתוך התחום המכנה חיובי, ולכן סימן הנגזרת נקבע על ידי \(-x(x-4)\).</p>
+      <p>הפונקציה יורדת כאשר \(x\lt 0\), עולה כאשר \(0\lt x\lt 4\), ויורדת כאשר \(4\lt x\lt 5\).</p>
+      <p><strong>קיצון:</strong> מינימום \((0,0)\), מקסימום \((4,16\sqrt2)\). בנוסף, \((5,0)\) היא נקודת קצה.</p>
+    </div>
+      <div class="card note"><h3>עקרונות עבודה</h3><ul><li>נקודת קצה אינה חייבת להיות נקודת קיצון פנימית.</li><li>אם הנגזרת אינה מוגדרת בנקודת קצה, עדיין יש לסמן את נקודת הקצה בסקיצה.</li><li>כאשר הנגזרת מתאפסת בנקודה פנימית, נכתוב: נקודה עם שיפוע אפס.</li></ul></div>
+    </div>
+    
+    <div class="graph-card">
+      <div class="graph-controls" data-board="board2">
+        <button type="button" data-action="zoom-in">הגדלה</button>
+        <button type="button" data-action="zoom-out">הקטנה</button>
+        <button type="button" data-action="center">מרכוז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board2" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-help">אפשר לגרור את הגרף למרכוז ידני ולהשתמש בגלגלת העכבר לשינוי קנה המידה.</div>
+    </div>
+    </div><div class="page-number"></div></section>
+<section class="a4-page"><div class="page-content">
+  <h2>שיעור 2 - תחום פונקציית שורש לעומת תחום הנגזרת</h2>
+  <div class="hero small-hero">
+    <p><strong>הרעיון המרכזי:</strong> בפונקציית שורש מותר לביטוי שבתוך השורש להיות אפס, אך לאחר גזירה השורש מופיע בדרך כלל במכנה ולכן בנוסחת הנגזרת נדרש שהביטוי שבתוך השורש יהיה חיובי ממש.</p>
+  </div>
+  <div class="theory-grid">
+    <div class="card">
+      <h3>הכלל</h3>
+      <div class="math-block">\[f(x)=\sqrt{u(x)}\]</div>
+      <p><strong>תחום הפונקציה:</strong></p>
+      <div class="math-block">\[u(x)\ge0\]</div>
+      <p>כאשר גוזרים:</p>
+      <div class="math-block">\[f^{\prime}(x)=\frac{u^{\prime}(x)}{2\sqrt{u(x)}}\]</div>
+      <p><strong>תחום נוסחת הנגזרת:</strong></p>
+      <div class="math-block">\[u(x)\gt0\]</div>
+      <p>לכן נקודות שבהן \(u(x)=0\) עשויות להשתייך לפונקציה, אך אינן שייכות לתחום נוסחת הנגזרת.</p>
+    </div>
+    <div class="card note">
+      <h3>דוגמה פשוטה</h3>
+      <div class="math-block">\[f(x)=\sqrt{x-3}\]</div>
+      <p>תחום הפונקציה: \(x\ge3\).</p>
+      <div class="math-block">\[f^{\prime}(x)=\frac1{2\sqrt{x-3}}\]</div>
+      <p>תחום הנגזרת: \(x\gt3\).</p>
+      <p>הנקודה \(x=3\) שייכת לגרף הפונקציה, אך אינה שייכת לתחום הנגזרת.</p>
+    </div>
+  </div>
+  <div class="card success">
+    <h3>שתי דוגמאות נוספות</h3>
+    <p><strong>1.</strong> עבור \(f(x)=\sqrt{9-x^2}\): תחום הפונקציה הוא \(x\ge-3\) וגם \(x\le3\), ואילו תחום הנגזרת הוא \(x\gt-3\) וגם \(x\lt3\).</p>
+    <p><strong>2.</strong> עבור \(f(x)=x^2\sqrt{10-2x}\): תחום הפונקציה הוא \(x\le5\), ואילו בנוסחת הנגזרת
+    \(f^{\prime}(x)=\frac{-5x(x-4)}{\sqrt{10-2x}}\) התחום הוא \(x\lt5\).</p>
+  </div>
+  <div class="card warning">
+    <strong>סדר עבודה:</strong> תחילה מוצאים את תחום הפונקציה. לאחר הגזירה מוצאים מחדש את תחום הנגזרת לפי הביטוי שהתקבל, ולא מעתיקים אוטומטית את תחום הפונקציה.
+  </div>
+</div><div class="page-number"></div></section>
+<section class="a4-page exercise-page"><div class="page-content"><h2>תרגול שיעור 2 - פונקציות שורש עם מכפלה</h2><p class="page-lead">10 תרגילים בסדר קושי עולה. יש לכתוב תחום לפני כל פעולה אחרת.</p><div class="exercise-grid"><div class="exercise compact-ex"><div class="ex-num">1</div><div><div class="expr">\[f(x)=x\sqrt{4-x}\]</div><p>מצאו את תחום הפונקציה ואת תחום הנגזרת, חיתוכים, נקודת קיצון ותחומי עלייה וירידה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">2</div><div><div class="expr">\[f(x)=x^2\sqrt{10-2x}\]</div><p>בצעו חקירה מלאה, ציינו בנפרד את תחום הפונקציה ואת תחום הנגזרת, ושרטטו סקיצה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">3</div><div><div class="expr">\[f(x)=(x-2)\sqrt{x+1}\]</div><p>מצאו את תחום הפונקציה ואת תחום הנגזרת, קיצון, חיתוכים וסקיצה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">4</div><div><div class="expr">\[f(x)=\sqrt{9-x^2}-1\]</div><p>מצאו את תחום הפונקציה ואת תחום הנגזרת, קיצון, חיתוכים וסקיצה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">5</div><div><div class="expr">\[f(x)=x\sqrt{x+4}\]</div><p>מצאו את תחום הפונקציה ואת תחום הנגזרת, נקודת קיצון וחיתוכים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">6</div><div><div class="expr">\[f(x)=(x+1)\sqrt{5-x}\]</div><p>מצאו את תחום הפונקציה ואת תחום הנגזרת, נקודת קיצון וחיתוכים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">7</div><div><div class="expr">\[f(x)=x^2\sqrt{x+3}\]</div><p>מצאו את תחום הפונקציה, את תחום הנגזרת ואת כל נקודות הקיצון הפנימיות.</p></div></div><div class="exercise compact-ex"><div class="ex-num">8</div><div><div class="expr">\[f(x)=(x-1)\sqrt{2-x}\]</div><p>מצאו את תחום הפונקציה ואת תחום הנגזרת, נקודת קיצון וחיתוכים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">9</div><div><div class="expr">\[f(x)=(x-1)^2\sqrt{x+2}\]</div><p>מצאו את תחום הפונקציה, את תחום הנגזרת ואת ערכי \(x\) של נקודות הקיצון.</p></div></div><div class="exercise compact-ex"><div class="ex-num">10</div><div><div class="expr">\[f(x)=x\sqrt{6-2x}\]</div><p>מצאו את תחום הפונקציה ואת תחום הנגזרת, נקודת קיצון וחיתוכים.</p></div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page "><div class="page-content"><h2>שיעור 3 - פונקציות מנה עם שורש ואסימפטוטות</h2>
+    <div class="lesson-head"><span class="lesson-chip">שיעור 3</span><p>מטרות השיעור:</p><ul><li>לשלב תנאי שורש עם איסור אפס במכנה.</li><li>להבדיל בין אסימפטוטה אנכית, חור ונקודת קצה חסרה.</li><li>לחשב אסימפטוטות אופקיות כאשר מופיע \(\sqrt{x^2}\), ולבדוק בנפרד את ההתנהגות כאשר \(x⇒+\infty\) וכאשר \(x⇒-\infty\).</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>דוגמה</h3>
+      <div class="math-block">\[f(x)=\frac{\sqrt{1-2x}}{x^2-x}\]</div>
+      <p><strong>תחום:</strong> \(x\le 1/2\) וגם \(x\ne 0\).</p>
+      <div class="math-block">\[f(x)⇒_{x⇒0^-}+\infty,\qquad ⇒f(x)_{x⇒0^+}-\infty\]</div>
+      <p>לכן \(x=0\) אסימפטוטה אנכית.</p>
+      <div class="math-block">\[f(x)⇒_{x⇒-\infty}0 ⇒ y=0\]</div>
+      <p>הנקודה \(x=1\) אינה רלוונטית לאסימפטוטה, מפני שאין אפשרות להתקרב אליה מתוך תחום הפונקציה.</p>
+    </div>
+      <div class="card note"><h3>עקרונות עבודה</h3><ul><li>כאשר \(\sqrt{x^2}\) מופיע בחישוב גבול, יש להחליף אותו ב-\(|x|\).</li><li>אסימפטוטה אנכית קיימת רק אם אפשר להתקרב לערך מתוך תחום הפונקציה וערכי הפונקציה גדלים ללא גבול.</li><li>גבול סופי ליד נקודה חסרה אינו אסימפטוטה אנכית.</li></ul></div>
+    </div>
+    
+    <div class="graph-card">
+      <div class="graph-title">\(f(x)=\frac{\sqrt{1-2x}}{x^2-x}\)</div>
+      <div class="graph-controls" data-board="board3">
+        <button type="button" data-action="zoom-in">הגדלה</button>
+        <button type="button" data-action="zoom-out">הקטנה</button>
+        <button type="button" data-action="center">מרכוז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board3" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-help">אפשר לגרור את הגרף למרכוז ידני ולהשתמש בגלגלת העכבר לשינוי קנה המידה.</div>
+    </div>
+    </div><div class="page-number"></div></section>
+
+<section class="a4-page"><div class="page-content">
+  <h2>שיעור 3 - אסימפטוטות אופקיות שונות ב-\(+\infty\) וב-\(-\infty\)</h2>
+  <div class="card warning">
+    <h3>הכלל המרכזי</h3>
+    <p>בפונקציות שורש שבהן מופיע \(x^2\), אסור להחליף \(\sqrt{x^2}\) ב-\(x\). תמיד:</p>
+    <div class="math-block">\[\sqrt{x^2}=|x|=\begin{cases}x,&x\gt0\\-x,&x\lt0\end{cases}\]</div>
+    <p>לכן הביטוי \(\frac{|x|}{x}\) שואף ל-\(1\) כאשר \(x⇒+\infty\), ול-\(-1\) כאשר \(x⇒-\infty\). מכאן יכולות להתקבל שתי אסימפטוטות אופקיות שונות.</p>
+  </div>
+
+  <div class="card">
+    <h3>דוגמה 1</h3>
+    <div class="math-block">\[f(x)=\frac{\sqrt{x^2+1}}{x}\]</div>
+    <div class="math-block">\[\frac{\sqrt{x^2+1}}{x}=\frac{|x|}{x}\sqrt{1+\frac1{x^2}}\]</div>
+    <p>כאשר \(x⇒+\infty\): \(f(x)⇒1\), ולכן האסימפטוטה היא \(y=1\).</p>
+    <p>כאשר \(x⇒-\infty\): \(f(x)⇒-1\), ולכן האסימפטוטה היא \(y=-1\).</p>
+  </div>
+
+  <div class="graph-card">
+    <div class="graph-title">\(f(x)=\frac{\sqrt{x^2+1}}{x}\)</div>
+    <div class="graph-controls" data-board="board3diff1">
+      <button type="button" data-action="zoom-in">הגדלה</button><button type="button" data-action="zoom-out">הקטנה</button><button type="button" data-action="center">מרכוז</button><button type="button" data-action="reset">איפוס</button>
+    </div>
+    <div class="jxgbox" id="board3diff1" aria-label="גרף אסימפטוטות אופקיות שונות - דוגמה 1" style="height:76mm;"></div>
+    <div class="graph-help">הקווים המקווקווים מסמנים את האסימפטוטות \(y=1\), \(y=-1\), ו-\(x=0\).</div>
+  </div>
+
+  <div class="card note">
+    <strong>מסקנת ביניים:</strong> כאשר מתקבל גורם מן הצורה \(\frac{|x|}{x}\), אין להסתפק בבדיקה של צד אחד. יש לבדוק בנפרד את \(+\infty\) ואת \(-\infty\).
+  </div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page"><div class="page-content">
+  <h2>שיעור 3 - אסימפטוטות אופקיות שונות: המשך וגרפים</h2>
+  <div class="theory-grid">
+    <div class="card note"><h3>דוגמה 2</h3>
+      <div class="math-block">\[g(x)=\frac{\sqrt{4x^2+9}}{x}+1\]</div>
+      <div class="math-block">\[\frac{\sqrt{4x^2+9}}{x}=\frac{|x|}{x}\sqrt{4+\frac9{x^2}}\]</div>
+      <p>כאשר \(x⇒+\infty\): \(g(x)⇒3\), ולכן האסימפטוטה היא \(y=3\).</p>
+      <p>כאשר \(x⇒-\infty\): \(g(x)⇒-1\), ולכן האסימפטוטה היא \(y=-1\).</p>
+    </div>
+    <div class="card success"><h3>דוגמה 3</h3>
+      <div class="math-block">\[h(x)=\frac{3x}{\sqrt{x^2+4}}-2\]</div>
+      <div class="math-block">\[\frac{x}{\sqrt{x^2+4}}=\frac{x}{|x|\sqrt{1+\frac4{x^2}}}\]</div>
+      <p>כאשר \(x⇒+\infty\): \(h(x)⇒1\), ולכן האסימפטוטה היא \(y=1\).</p>
+      <p>כאשר \(x⇒-\infty\): \(h(x)⇒-5\), ולכן האסימפטוטה היא \(y=-5\).</p>
+    </div>
+  </div>
+
+  <div class="graph-card">
+    <div class="graph-title">\(g(x)=\frac{\sqrt{4x^2+9}}{x}+1\)</div>
+    <div class="graph-controls" data-board="board3diff2">
+      <button type="button" data-action="zoom-in">הגדלה</button><button type="button" data-action="zoom-out">הקטנה</button><button type="button" data-action="center">מרכוז</button><button type="button" data-action="reset">איפוס</button>
+    </div>
+    <div class="jxgbox" id="board3diff2" aria-label="גרף אסימפטוטות אופקיות שונות - דוגמה 2" style="height:55mm;"></div>
+    <div class="graph-help">הקווים המקווקווים מסמנים את האסימפטוטות \(y=3\), \(y=-1\), ו-\(x=0\).</div>
+  </div>
+
+  <div class="graph-card">
+    <div class="graph-title">\(h(x)=\frac{3x}{\sqrt{x^2+4}}-2\)</div>
+    <div class="graph-controls" data-board="board3diff3">
+      <button type="button" data-action="zoom-in">הגדלה</button><button type="button" data-action="zoom-out">הקטנה</button><button type="button" data-action="center">מרכוז</button><button type="button" data-action="reset">איפוס</button>
+    </div>
+    <div class="jxgbox" id="board3diff3" aria-label="גרף אסימפטוטות אופקיות שונות - דוגמה 3" style="height:55mm;"></div>
+    <div class="graph-help">הקווים המקווקווים מסמנים את האסימפטוטות \(y=1\) ו-\(y=-5\).</div>
+  </div>
+
+  <div class="card note">
+    <strong>מסקנה:</strong> בכל פונקציית שורש שבה לאחר הוצאת החזקה המובילה מתקבל \(|x|\), יש לבצע שתי בדיקות נפרדות: אחת עבור \(x⇒+\infty\) ואחת עבור \(x⇒-\infty\). אין להסיק אוטומטית שאותה אסימפטוטה מתקבלת בשני הכיוונים.
+  </div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page exercise-page"><div class="page-content"><h2>תרגול שיעור 3 - פונקציות מנה עם שורש ואסימפטוטות</h2><p class="page-lead">10 תרגילים בסדר קושי עולה. באסימפטוטות אופקיות יש לבדוק בנפרד את \(x⇒+\infty\) ואת \(x⇒-\infty\).</p><div class="exercise-grid"><div class="exercise compact-ex"><div class="ex-num">1</div><div><div class="expr">\[f(x)=\frac{\sqrt{x+1}}{x-2}\]</div><p>מצאו תחום, חיתוכים ואסימפטוטות.</p></div></div><div class="exercise compact-ex"><div class="ex-num">2</div><div><div class="expr">\[f(x)=\frac{1}{\sqrt{x-3}}\]</div><p>מצאו תחום ואסימפטוטות.</p></div></div><div class="exercise compact-ex"><div class="ex-num">3</div><div><div class="expr">\[f(x)=\frac{x}{\sqrt{x^2-4}}\]</div><p>מצאו תחום וכל האסימפטוטות.</p></div></div><div class="exercise compact-ex"><div class="ex-num">4</div><div><div class="expr">\[f(x)=\frac{\sqrt{x^2+1}}{x}\]</div><p>מצאו תחום וכל האסימפטוטות, ובדקו בנפרד את \(x⇒+\infty\) ואת \(x⇒-\infty\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">5</div><div><div class="expr">\[f(x)=\frac{\sqrt{4x^2+1}}{x}\]</div><p>מצאו תחום וכל האסימפטוטות, והסבירו מדוע האסימפטוטות האופקיות שונות בשני הכיוונים.</p></div></div><div class="exercise compact-ex"><div class="ex-num">6</div><div><div class="expr">\[f(x)=\frac{\sqrt{x^2-9}}{x-1}\]</div><p>מצאו תחום ואסימפטוטות. הסבירו מדוע \(x=1\) אינו אסימפטוטה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">7</div><div><div class="expr">\[f(x)=\frac{\sqrt{1-2x}}{x^2-x}\]</div><p>מצאו תחום ואסימפטוטות.</p></div></div><div class="exercise compact-ex"><div class="ex-num">8</div><div><div class="expr">\[f(x)=\frac{2x}{\sqrt{x^2+x}}\]</div><p>מצאו תחום ואסימפטוטות, ובדקו את הגבול כאשר \(x⇒0^+\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">9</div><div><div class="expr">\[f(x)=\frac{\sqrt{x^2-b^2}}{x},\quad b\gt0\]</div><p>מצאו תחום ואסימפטוטות באמצעות \(b\), ובדקו בנפרד את ההתנהגות בפלוס אינסוף ובמינוס אינסוף.</p></div></div><div class="exercise compact-ex"><div class="ex-num">10</div><div><div class="expr">\[f(x)=\frac{ax}{\sqrt{x^2-a^2}},\quad a\gt0\]</div><p>מצאו תחום ואסימפטוטות באמצעות \(a\).</p></div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page "><div class="page-content"><h2>שיעור 4 - פרמטרים, פישוט וצמוד</h2>
+    <div class="lesson-head"><span class="lesson-chip">שיעור 4</span><p>מטרות השיעור:</p><ul><li>לחקור פונקציה עם פרמטר לפני הצבה מספרית.</li><li>להשתמש בצמוד כדי לפשט גבולות וביטויי שורש.</li><li>להסיק ערך פרמטר מנתוני אסימפטוטות, משיקים או תנאי תחום.</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>טריק הצמוד</h3>
+      <div class="math-block">\[f(x)=x^2-\sqrt{x^4-1}\]</div>
+      <p>נכפיל ונחלק בצמוד:</p>
+      <div class="math-block">\[f(x)=\frac{x^4-(x^4-1)}{x^2+\sqrt{x^4-1}}=\frac{1}{x^2+\sqrt{x^4-1}}\]</div>
+      <p>כאשר \(|x|\) גדל, המכנה גדל ללא גבול.</p>
+      <div class="math-block">\[f(x)⇒_{x⇒\pm\infty}0 ⇒ y=0\]</div>
+    </div>
+      <div class="card note"><h3>עקרונות עבודה</h3><ul><li>בביטויים מן הצורה \(A-\sqrt{A^2-c}\) הצמוד עשוי להפוך הפרש קטן לשבר פשוט.</li><li>כאשר נתון מרחק בין שתי אסימפטוטות אופקיות, מחשבים את ההפרש בין ערכי ה-\(y\).</li><li>אם רוצים לבטל אסימפטוטה אנכית במנה, יש לבדוק האם המונה מתאפס באותה נקודה.</li></ul></div>
+    </div>
+    
+    <div class="graph-card">
+      <div class="graph-controls" data-board="board4">
+        <button type="button" data-action="zoom-in">הגדלה</button>
+        <button type="button" data-action="zoom-out">הקטנה</button>
+        <button type="button" data-action="center">מרכוז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board4" aria-label="גרף אינטראקטיבי" style="height:90mm;"></div>
+      <div class="graph-help">אפשר לגרור את הגרף למרכוז ידני ולהשתמש בגלגלת העכבר לשינוי קנה המידה.</div>
+    </div>
+    </div><div class="page-number"></div></section>
+
+<section class="a4-page"><div class="page-content">
+  <h2>שיעור 4 - פונקציות משולבות שורש עם פרמטרים: חקירה עם פרמטר</h2>
+  <div class="card"><h3>דוגמה 1 - חקירה באמצעות הפרמטר</h3>
+    <div class="math-block">\[f(x)=x\sqrt{a-x},\qquad a\gt0\]</div>
+    <p><strong>1. תחום הפונקציה:</strong> הביטוי שבתוך השורש חייב להיות אי-שלילי.</p>
+    <div class="math-block">\[a-x\ge0\quad⇒\quad x\le a\]</div>
+    <p>לכן נקודת הקצה של הגרף מתקבלת ב-\(x=a\), ובה \(f(a)=0\).</p>
+  </div>
+
+  <div class="card note"><h3>2. נגזרת ותחום הנגזרת</h3>
+    <div class="math-block">\[f^{\prime}(x)=\sqrt{a-x}-\frac{x}{2\sqrt{a-x}}=\frac{2a-3x}{2\sqrt{a-x}}\]</div>
+    <p>בנוסחת הנגזרת השורש נמצא במכנה, ולכן:</p>
+    <div class="math-block">\[x\lt a\]</div>
+    <p>כדי למצוא נקודה עם שיפוע אפס דורשים שהמונה יתאפס:</p>
+    <div class="math-block">\[2a-3x=0\quad⇒\quad x=\frac{2a}{3}\]</div>
+  </div>
+
+  <div class="card success"><h3>3. עלייה, ירידה וקיצון</h3>
+    <p>המכנה חיובי בכל תחום הנגזרת. לכן סימן הנגזרת נקבע לפי \(2a-3x\).</p>
+    <ul><li>הפונקציה עולה כאשר \(x\lt\frac{2a}{3}\).</li><li>הפונקציה יורדת כאשר \(\frac{2a}{3}\lt x\lt a\).</li></ul>
+    <p>לכן מתקבל מקסימום ב-\(x=\frac{2a}{3}\):</p>
+    <div class="math-block">\[f\left(\frac{2a}{3}\right)=\frac{2a}{3}\sqrt{\frac{a}{3}}=\frac{2a\sqrt{3a}}{9}\]</div>
+  </div>
+
+  <div class="card warning"><strong>מסקנה:</strong> בחקירה עם פרמטר אין צורך לבחור ערך מספרי ל-\(a\). כל הנתונים החשובים - התחום, נקודת הקצה ונקודת הקיצון - נכתבים באמצעות הפרמטר.</div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page"><div class="page-content">
+  <h2>שיעור 4 - מציאת פרמטר על סמך תחום הגדרה</h2>
+
+  <div class="card"><h3>דוגמה 2 - נתון תחום ההגדרה</h3>
+    <div class="math-block">\[f(x)=(x-1)\sqrt{ax+6},\qquad a\gt0\]</div>
+    <p>נתון שתחום ההגדרה של הפונקציה הוא:</p>
+    <div class="math-block">\[x\ge-2\]</div>
+    <p>מצאו את \(a\).</p>
+  </div>
+
+  <div class="card note"><h3>שלב 1 - כתיבת התחום באמצעות הפרמטר</h3>
+    <div class="math-block">\[ax+6\ge0\]</div>
+    <p>מכיוון ש-\(a\gt0\), אפשר לחלק ב-\(a\) בלי להפוך את סימן האי-שוויון:</p>
+    <div class="math-block">\[x\ge-\frac{6}{a}\]</div>
+  </div>
+
+  <div class="card success"><h3>שלב 2 - השוואה לתחום הנתון</h3>
+    <p>נקודת הגבול של התחום היא \(-\frac6a\), ובנתון נקודת הגבול היא \(-2\). לכן:</p>
+    <div class="math-block">\[-\frac6a=-2\quad⇒\quad a=3\]</div>
+    <p>הפונקציה היא:</p>
+    <div class="math-block">\[f(x)=(x-1)\sqrt{3x+6},\qquad x\ge-2\]</div>
+  </div>
+
+  <div class="card warning"><strong>בדיקת היגיון:</strong> לאחר שמצאנו \(a=3\), הביטוי שבתוך השורש הוא \(3x+6\), ולכן אכן \(3x+6\ge0 ⇒ x\ge-2\), בדיוק כפי שניתן בשאלה.</div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page"><div class="page-content">
+  <h2>שיעור 4 - מציאת פרמטרים מאסימפטוטות אופקיות</h2>
+
+  <div class="theory-grid">
+    <div class="card"><h3>דוגמה 3</h3>
+      <div class="math-block">\[g(x)=k\frac{\sqrt{4x^2+1}}{x}+c,\qquad k\gt0\]</div>
+      <p>נתון:</p>
+      <ul><li>כאשר \(x⇒+\infty\), האסימפטוטה האופקית היא \(y=5\).</li><li>כאשר \(x⇒-\infty\), האסימפטוטה האופקית היא \(y=-1\).</li></ul>
+    </div>
+    <div class="card note"><h3>הבסיס לחישוב</h3>
+      <div class="math-block">\[\frac{\sqrt{4x^2+1}}{x}=\frac{|x|}{x}\sqrt{4+\frac1{x^2}}\]</div>
+      <p>לכן:</p>
+      <div class="math-block">\[x⇒+\infty:\quad \frac{\sqrt{4x^2+1}}{x}⇒2\]</div>
+      <div class="math-block">\[x⇒-\infty:\quad \frac{\sqrt{4x^2+1}}{x}⇒-2\]</div>
+    </div>
+  </div>
+
+  <div class="card success"><h3>בניית מערכת המשוואות</h3>
+    <div class="math-block">\[2k+c=5\]</div>
+    <div class="math-block">\[-2k+c=-1\]</div>
+    <p>מחסרים את המשוואה השנייה מן הראשונה:</p>
+    <div class="math-block">\[4k=6\quad⇒\quad k=\frac32\]</div>
+    <p>מציבים באחת המשוואות:</p>
+    <div class="math-block">\[3+c=5\quad⇒\quad c=2\]</div>
+  </div>
+
+  <div class="graph-card">
+    <div style="position:absolute;top:825px;z-index:100;left:67px;" class="graph-title">\(g(x)=\frac32\frac{\sqrt{4x^2+1}}{x}+2\)</div>
+    <div class="jxgbox" id="board4paramAsym" aria-label="גרף פונקציית שורש עם פרמטרים לאחר מציאתם" style="height:64mm;"></div>
+    <div style="position:relative;top:-4px;" class="graph-help">הקווים המקווקווים מסמנים את \(y=5\), \(y=-1\), ואת האסימפטוטה האנכית \(x=0\).</div>
+  </div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page exercise-page"><div class="page-content"><h2>תרגול שיעור 4 - פרמטרים, פישוט וצמוד</h2><p class="page-lead">10 תרגילים בסדר קושי עולה. יש לכתוב תחום לפני כל פעולה אחרת.</p><div class="exercise-grid"><div class="exercise compact-ex"><div class="ex-num">1</div><div><div class="expr">\[f(x)=x^2-\sqrt{x^4-1}\]</div><p>מצאו תחום והוכיחו בעזרת הצמוד שהאסימפטוטה האופקית היא \(y=0\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">2</div><div><div class="expr">\[f(x)=\frac{\sqrt{x^2-b^2}}{x},\quad b\gt0\]</div><p>הראו שהאסימפטוטות האופקיות אינן תלויות ב-\(b\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">3</div><div><div class="expr">\[g(x)=k\frac{\sqrt{4x^2+1}}{x},\quad k\gt0\]</div><p>המרחק בין האסימפטוטות האופקיות הוא 10. מצאו \(k\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">4</div><div><div class="expr">\[f(x)=x^2\sqrt{4x+20},\qquad g(x)=f(x)+c\]</div><p>הישר \(y=12\) משיק לגרף \(g\). מצאו את כל ערכי \(c\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">5</div><div><div class="expr">\[f(x)=\frac{x}{\sqrt{2x-a}},\quad a\gt0\]</div><p>מצאו תחום ואת נקודת הקיצון באמצעות \(a\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">6</div><div><div class="expr">\[f(x)=\frac{\sqrt{36-ax^2}}{x},\quad a\gt0\]</div><p>המרחק בין שתי נקודות הקצה הוא 8. מצאו \(a\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">7</div><div><div class="expr">\[f(x)=\frac{\sqrt{x^2-b}}{x},\quad b\gt0\]</div><p>מצאו את נקודות הקצה ואת האסימפטוטות האופקיות.</p></div></div><div class="exercise compact-ex"><div class="ex-num">8</div><div><div class="expr">\[f(x)=\frac{(2x+a)\sqrt{25-x^2}}{x-3}\]</div><p>ידוע שאין אסימפטוטה אנכית ב-\(x=3\). מצאו \(a\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">9</div><div><div class="expr">\[f(x)=\sqrt{ax+6},\quad a\gt0\]</div><p>ידוע שתחום הפונקציה הוא \(x\ge-2\). מצאו \(a\), ולאחר מכן כתבו את תחום הנגזרת.</p></div></div><div class="exercise compact-ex"><div class="ex-num">10</div><div><div class="expr">\[f(x)=\frac{\sqrt{(x+1)(x-a)}}{x-2},\quad a\gt2\]</div><p>מצאו תחום ואת שתי האסימפטוטות האופקיות באמצעות \(a\).</p></div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page "><div class="page-content"><h2>שיעור 5 - טרנספורמציות: דוגמה 1 - ערך מוחלט</h2>
+    <div class="lesson-head"><span class="lesson-chip">שיעור 5</span><p>מטרות השיעור:</p><ul><li>לבצע הזזה אופקית ואנכית של גרף קיים.</li><li>לבנות גרף של \(|f(x)|\) מתוך גרף \(f(x)\).</li><li>לקבוע תחום חדש עבור \(\sqrt{f(x)}\) ועבור \(1/f(x)\).</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>דוגמה 1 - \(|f(x)|\)</h3>
+        <div class="math-block">\[f(x)=\sqrt{x}(x-2),\qquad g(x)=|f(x)|\]</div>
+        <p><strong>תחום \(f\):</strong> \(x\ge0\).</p>
+        <p>הפונקציה \(f\) שלילית כאשר \(0\lt x\lt2\), ולכן רק החלק הזה משתקף ביחס לציר \(x\).</p>
+        <p>כאשר \(x=0\) או \(x=2\), מתקבל \(f(x)=0\), ולכן נקודות החיתוך עם ציר \(x\) נשארות ללא שינוי.</p>
+        <div class="math-block">\[g(x)=\begin{cases}\sqrt{x}(2-x),&0\le x\le2\\[2mm]\sqrt{x}(x-2),&x\ge2\end{cases}\]</div>
+      </div>
+      <div class="card note"><h3>מה משתנה?</h3><ul><li>התחום אינו משתנה.</li><li>כל ערך שלילי של \(f\) הופך לערך חיובי.</li><li>נקודות שבהן \(f(x)=0\) נשארות באותו מקום.</li><li>החלקים שמעל ציר \(x\) אינם משתנים.</li></ul></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(f(x)=\sqrt{x}(x-2),\qquad g(x)=|f(x)|\)</div>
+      <div class="graph-controls" data-board="board5abs">
+        <button type="button" data-action="zoom-in">הגדלה</button><button type="button" data-action="zoom-out">הקטנה</button><button type="button" data-action="center">מרכוז</button><button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board5abs" aria-label="גרף ערך מוחלט"></div>
+      <div class="graph-help">הגרף המקווקו הוא \(f\); הגרף הרציף הוא \(|f|\).</div>
+    </div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page "><div class="page-content"><h2>שיעור 5 - טרנספורמציות: דוגמה 2 - שורש של פונקציה</h2>
+    <div class="lesson-head"><span class="lesson-chip">דוגמה 2</span><p>מעבר מ-\(f(x)\) אל \(\sqrt{f(x)}\):</p><ul><li>משאירים רק ערכי \(x\) שעבורם \(f(x)\ge0\).</li><li>לאחר קביעת התחום, מפעילים שורש על ערכי ה-\(y\).</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>דוגמה 2 - \(\sqrt{f(x)}\)</h3>
+        <div class="math-block">\[f(x)=5-x^2,\qquad g(x)=\sqrt{f(x)}\]</div>
+        <p>הפונקציה \(f\) היא פולינום ריבועי המוגדר לכל \(x\). כדי לבנות את \(g\), משאירים רק את ערכי \(x\) שעבורם \(f(x)\ge0\).</p>
+        <div class="math-block">\[5-x^2\ge0\quad\Longrightarrow\quad -\sqrt5\le x\le\sqrt5\]</div>
+        <p>לכן:</p>
+        <div class="math-block">\[g(x)=\sqrt{5-x^2},\qquad -\sqrt5\le x\le\sqrt5\]</div>
+        <p>החלקים של גרף \(f\) שמתחת לציר \(x\) אינם מופיעים בגרף החדש. לכל ערך מותר של \(x\), ערך ה-\(y\) החדש הוא השורש של ערך ה-\(y\) המקורי.</p>
+      </div>
+      <div class="card note"><h3>מה משתנה?</h3><ul><li>תחום \(f\) הוא כל המספרים הממשיים, ואילו תחום \(g\) מצטמצם ל-\(-\sqrt5\le x\le\sqrt5\).</li><li>אפסי \(f\), כלומר \(x=\pm\sqrt5\), נשארים אפסים של \(g\).</li><li>ערכי \(y\) של \(g\) אינם שליליים.</li><li>הנקודה הגבוהה ביותר של \(f\), \((0,5)\), עוברת לנקודה \((0,\sqrt5)\) בגרף של \(g\).</li></ul></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(f(x)=5-x^2,\qquad g(x)=\sqrt{5-x^2}\)</div>
+      <div class="graph-controls" data-board="board5sqrt">
+        <button type="button" data-action="zoom-in">הגדלה</button><button type="button" data-action="zoom-out">הקטנה</button><button type="button" data-action="center">מרכוז</button><button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board5sqrt" aria-label="גרף שורש של פונקציה"></div>
+      <div class="graph-help">הגרף המקווקו הוא \(f\); הגרף הרציף קיים רק במקום שבו \(f(x)\ge0\).</div>
+    </div>
+</div><div class="page-number"></div></section>
+
+<section class="a4-page "><div class="page-content"><h2>שיעור 5 - טרנספורמציות: דוגמה 3 - הפונקציה ההופכית</h2>
+    <div class="lesson-head"><span class="lesson-chip">דוגמה 3</span><p>מעבר מ-\(f(x)\) אל \(\frac1{f(x)}\):</p><ul><li>כל אפס של \(f\) מוצא מן התחום.</li><li>סימן הפונקציה נשמר, אך גודל ערכי ה-\(y\) משתנה לפי ההופכי.</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>דוגמה 3 - \(\frac1{f(x)}\)</h3>
+        <div class="math-block">\[f(x)=\sqrt{x}(x-2),\qquad h(x)=\frac1{f(x)}=\frac1{\sqrt{x}(x-2)}\]</div>
+        <p>תחום \(f\) הוא \(x\ge0\), אך ב-\(x=0\) וב-\(x=2\) המכנה מתאפס.</p>
+        <div class="math-block">\[\text{תחום }h:\qquad x\gt0\quad\text{וגם}\quad x\ne2\]</div>
+        <p>כאשר \(0\lt x\lt2\), הפונקציה \(h\) שלילית. כאשר \(x\gt2\), היא חיובית.</p>
+        <p>הישרים \(x=0\) ו-\(x=2\) הם אסימפטוטות אנכיות של \(h\).</p>
+      </div>
+      <div class="card note"><h3>מה משתנה?</h3><ul><li>אפסי \(f\) אינם שייכים לתחום של \(1/f\).</li><li>כאשר \(|f(x)|\) קטן מאוד, \(|1/f(x)|\) גדול מאוד.</li><li>כאשר \(|f(x)|\) גדול, \(|1/f(x)|\) קטן.</li><li>הסימן של \(1/f(x)\) זהה לסימן של \(f(x)\).</li></ul></div>
+    </div>
+    <div class="graph-card">
+      <div class="graph-title">\(f(x)=\sqrt{x}(x-2),\qquad h(x)=\frac1{f(x)}\)</div>
+      <div class="graph-controls" data-board="board5reciprocal">
+        <button type="button" data-action="zoom-in">הגדלה</button><button type="button" data-action="zoom-out">הקטנה</button><button type="button" data-action="center">מרכוז</button><button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board5reciprocal" aria-label="גרף פונקציה הופכית"></div>
+      <div class="graph-help">הקווים המקווקווים מסמנים את האסימפטוטות האנכיות \(x=0\) ו-\(x=2\).</div>
+    </div>
+</div><div class="page-number"></div></section>
+<section class="a4-page exercise-page"><div class="page-content"><h2>תרגול שיעור 5 - טרנספורמציות: הזזה, ערך מוחלט, שורש והופכי</h2><p class="page-lead">10 תרגילים בסדר קושי עולה. יש לכתוב תחום לפני כל פעולה אחרת.</p><div class="exercise-grid"><div class="exercise compact-ex"><div class="ex-num">1</div><div><div class="expr">\[f(x)=\sqrt{x}-2,\qquad g(x)=f(x)+3\]</div><p>כתבו ביטוי ל-\(g\), תחום וחיתוך עם ציר \(y\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">2</div><div><div class="expr">\[f(x)=\sqrt{x+1},\qquad g(x)=f(x-2)\]</div><p>כתבו ביטוי ל-\(g\) ותארו את ההזזה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">3</div><div><div class="expr">\[f(x)=\sqrt{x}(x-4),\qquad h(x)=|f(x)|\]</div><p>מצאו תחום ואפסים, וציינו איזה חלק של \(f\) משתקף.</p></div></div><div class="exercise compact-ex"><div class="ex-num">4</div><div><div class="expr">\[f(x)=\sqrt{9-x^2}-2,\qquad g(x)=\frac1{f(x)}\]</div><p>מצאו את תחום \(g\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">5</div><div><div class="expr">\[f(x)=x^2-4,\qquad g(x)=\sqrt{f(x)}\]</div><p>מצאו את תחום \(g\) וכתבו את הביטוי המפורש.</p></div></div><div class="exercise compact-ex"><div class="ex-num">6</div><div><div class="expr">\[f(x)=\sqrt{x+4}-1,\qquad g(x)=\frac1{f(x)}\]</div><p>מצאו את תחום \(g\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">7</div><div><div class="expr">\[f(x)=\sqrt{4-x},\qquad g(x)=f(x+1)+2\]</div><p>כתבו ביטוי ל-\(g\) ומצאו את תחומו.</p></div></div><div class="exercise compact-ex"><div class="ex-num">8</div><div><div class="expr">\[f(x)=\sqrt{x}(x-2),\qquad g(x)=|f(x-1)|\]</div><p>מצאו תחום ואפסים של \(g\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">9</div><div><div class="expr">\[f(x)=x^2-1,\qquad g(x)=\sqrt{f(x-2)}\]</div><p>מצאו תחום של \(g\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">10</div><div><div class="expr">\[f(x)=\frac{\sqrt{x^2+1}}{x},\qquad g(x)=f(x)-1\]</div><p>מצאו את האסימפטוטות של \(g\).</p></div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page "><div class="page-content"><h2>שיעור 6 - נגזרת נתונה ופונקציה קדומה</h2>
+    <div class="lesson-head"><span class="lesson-chip">שיעור 6</span><p>מטרות השיעור:</p><ul><li>להסיק על עלייה וירידה של פונקציה מתוך סימן הנגזרת הנתונה.</li><li>למצוא את תחום הנגזרת לפני ניתוח הסימן שלה.</li><li>להשתמש בתנאי ערך כדי לקבוע קבוע אינטגרציה.</li><li>לחזק את ההבחנה בין תחום פונקציית שורש לבין תחום הנגזרת שלה.</li></ul></div>
+    <div class="theory-grid">
+      <div class="card"><h3>דוגמה מרכזית</h3>
+      <div class="math-block">\[f^{\prime}(x)=\frac{x(x-3)}{\sqrt{x+1}},\qquad x\gt-1\]</div>
+      <p>המכנה חיובי בכל התחום, ולכן הסימן נקבע על ידי \(x(x-3)\).</p>
+      <p>הפונקציה עולה כאשר \(-1\lt x\lt0\), יורדת כאשר \(0\lt x\lt3\), ועולה כאשר \(x\gt3\).</p>
+      <p>לכן ב-\(x=0\) מתקבל מקסימום מקומי, וב-\(x=3\) מינימום מקומי.</p>
+    </div>
+      <div class="card note"><h3>עקרונות עבודה</h3><ul><li>כאשר נתונה \(f^{\prime}(x)\), אין צורך למצוא את \(f(x)\) כדי לקבוע תחומי עלייה וירידה.</li><li>לפני טבלת סימנים יש למצוא את תחום הנגזרת עצמה.</li><li>אם בנגזרת מופיע שורש במכנה, הביטוי שבתוך השורש חייב להיות חיובי ממש.</li><li>אם \(g^{\prime}(x)=f(x)\), אז סימן \(f\) קובע את תחומי העלייה והירידה של \(g\).</li></ul></div>
+    </div>
+    
+    <div class="graph-card">
+      <div class="graph-title">\(f\prime(x)=\frac{x(x-3)}{\sqrt{x+1}}\)</div>
+      <div class="graph-controls" data-board="board6">
+        <button type="button" data-action="zoom-in">הגדלה</button>
+        <button type="button" data-action="zoom-out">הקטנה</button>
+        <button type="button" data-action="center">מרכוז</button>
+        <button type="button" data-action="reset">איפוס</button>
+      </div>
+      <div class="jxgbox" id="board6" aria-label="גרף אינטראקטיבי"></div>
+      <div class="graph-help">אפשר לגרור את הגרף למרכוז ידני ולהשתמש בגלגלת העכבר לשינוי קנה המידה.</div>
+    </div>
+    </div><div class="page-number"></div></section>
+<section class="a4-page exercise-page"><div class="page-content"><h2>תרגול שיעור 6 - נגזרת נתונה ופונקציה קדומה</h2><p class="page-lead">10 תרגילים בסדר קושי עולה. יש לכתוב תחום לפני כל פעולה אחרת.</p><div class="exercise-grid"><div class="exercise compact-ex"><div class="ex-num">1</div><div><div class="expr">\[f^{\prime}(x)=\frac{4x-x^2}{\sqrt{10-2x}}\]</div><p>מצאו את תחום הנגזרת ואת תחומי העלייה והירידה של \(f\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">2</div><div><div class="expr">\[f^{\prime}(x)=\frac{3x}{2\sqrt{x+1}},\qquad f(0)=2\]</div><p>מצאו את נקודת הקיצון של \(f\) ואת סוגה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">3</div><div><div class="expr">\[f^{\prime}(x)=\frac{x-2}{\sqrt{x+3}}\]</div><p>מצאו את תחומי העלייה והירידה של \(f\) ואת ערך \(x\) של הקיצון.</p></div></div><div class="exercise compact-ex"><div class="ex-num">4</div><div><div class="expr">\[f^{\prime}(x)=\frac{6-3x}{\sqrt{6-2x}}\]</div><p>מצאו את תחום הנגזרת ואת ערך \(x\) של הקיצון של \(f\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">5</div><div><div class="expr">\[f(x)=4x,\qquad g^{\prime}(x)=f(x),\qquad g(0)=0\]</div><p>מצאו את \(g(x)\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">6</div><div><div class="expr">\[f(x)=\sqrt{12-3x}\]</div><p>מצאו את תחום הפונקציה, גזרו, וכתבו בנפרד את תחום הנגזרת.</p></div></div><div class="exercise compact-ex"><div class="ex-num">7</div><div><div class="expr">\[h(x)=\int_1^x\sqrt{t}\,dt\]</div><p>מצאו ביטוי מפורש ל-\(h(x)\) וקבעו היכן היא עולה.</p></div></div><div class="exercise compact-ex"><div class="ex-num">8</div><div><div class="expr">\[h(x)=\int_0^x t\sqrt{4-t}\,dt\]</div><p>בלי לחשב את האינטגרל, מצאו את ערך \(x\) של נקודת הקיצון של \(h\).</p></div></div><div class="exercise compact-ex"><div class="ex-num">9</div><div><div class="expr">\[f^{\prime}(x)=\frac{\sqrt{x+2}}{x-1}\]</div><p>מצאו את תחום הנגזרת ואת תחומי העלייה והירידה של \(f\) בכל רכיב תחום.</p></div></div><div class="exercise compact-ex"><div class="ex-num">10</div><div><div class="expr">\[f^{\prime}(x)=\frac{x(x-3)}{\sqrt{x+1}}\]</div><p>מצאו את ערכי \(x\) של נקודות הקיצון וקבעו את סוגן.</p></div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page "><div class="page-content"><h2>פתרונות דפי התרגול</h2>
+<div class="hero small-hero"><p>בחלק זה מרוכזים הפתרונות של כל ששת דפי התרגול. מומלץ לעבור אליהם רק לאחר ניסיון מלא של כל תרגיל.</p></div>
+<div class="card"><h3>מה צריך לבדוק בכל תשובה</h3><ul class="checklist">
+<li>התחום נכתב באמצעות אי-שוויונים ולא באמצעות סימון קטעים.</li>
+<li>כל נקודה שנמצאה נבדקה מול התחום.</li>
+<li>באסימפטוטות נבדק שאפשר להתקרב לערך מתוך התחום.</li>
+<li>בגבולות עם \(\sqrt{x^2}\) נעשה שימוש ב-\(|x|\).</li>
+<li>נקודת קצה מסומנת בנפרד מנקודת קיצון פנימית.</li>
+</ul></div>
+<div class="card note"><h3>מבנה הפתרונות</h3><p>הפתרונות כאן מקוצרים ומיועדים לבדיקה. סט התרגילים המסכם שבסוף המסמך כולל פתרונות מפורטים יותר מיד לאחר התרגילים.</p></div>
+</div><div class="page-number"></div></section>
+<section class="a4-page solution-page"><div class="page-content"><h2>פתרונות - שיעור 1</h2><p class="page-lead">פתרונות מקוצרים לבדיקת דרך העבודה. בסקיצה יש להשתמש גם במידע שנמצא בדרך הפתרון.</p><div class="solution-grid"><div class="solution-item"><span class="sol-num">1</span><div>תחום: \(x\ge 3\). חיתוך עם \(x\): \((3,0)\). אין חיתוך עם \(y\).</div></div><div class="solution-item"><span class="sol-num">2</span><div>תחום: \(x\le 5\). חיתוך עם \(x\): \((4,0)\). חיתוך עם \(y\): \((0,\sqrt5-1)\).</div></div><div class="solution-item"><span class="sol-num">3</span><div>תחום: \(x\le 1\) או \(x\ge 4\). נקודות קצה וחיתוך עם \(x\): \((1,0)\), \((4,0)\). חיתוך עם \(y\): \((0,2)\).</div></div><div class="solution-item"><span class="sol-num">4</span><div>תחום: \(x\gt -2\). אין חיתוך עם \(x\). חיתוך עם \(y\): \((0,1/\sqrt2)\).</div></div><div class="solution-item"><span class="sol-num">5</span><div>תחום: \(x\ge -3\) וגם \(x\le 3\). חיתוך עם \(x\): \((-3,0)\), \((3,0)\). חיתוך עם \(y\): \((0,3)\).</div></div><div class="solution-item"><span class="sol-num">6</span><div>תחום: \(x\le -2\) או \(x\ge 2\). חיתוך עם \(x\): \((-2,0)\), \((2,0)\). אין חיתוך עם \(y\).</div></div><div class="solution-item"><span class="sol-num">7</span><div>תחום: \(x\ge -3\) וגם \(x\ne 1\). חיתוך עם \(x\): \((-3,0)\). חיתוך עם \(y\): \((0,-\sqrt6)\).</div></div><div class="solution-item"><span class="sol-num">8</span><div>תחום: \(x\lt 4\) וגם \(x\ne -1\). אין חיתוך עם \(x\). חיתוך עם \(y\): \((0,1/2)\).</div></div><div class="solution-item"><span class="sol-num">9</span><div>תחום: \(x\le -2\) או \(x\gt 1\). חיתוך עם \(x\): \((-2,0)\). אין חיתוך עם \(y\).</div></div><div class="solution-item"><span class="sol-num">10</span><div>תחום: \(x\ge -1\) וגם \(x\le 6\). חיתוך עם \(x\): \((-1,0)\), \((6,0)\). חיתוך עם \(y\): \((0,\sqrt6)\).</div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page solution-page"><div class="page-content"><h2>פתרונות - שיעור 2</h2><p class="page-lead">פתרונות מקוצרים לבדיקת דרך העבודה. בסקיצה יש להשתמש גם במידע שנמצא בדרך הפתרון.</p><div class="solution-grid"><div class="solution-item"><span class="sol-num">1</span><div>תחום הפונקציה: \(x\le4\). תחום הנגזרת: \(x\lt4\). \(f^{\prime}(x)=\frac{8-3x}{2\sqrt{4-x}}\). מקסימום ב-\(x=8/3\), \(f(8/3)=\frac{8}{3}\sqrt{4/3}\). חיתוכים: \(x=0,4\).</div></div><div class="solution-item"><span class="sol-num">2</span><div>תחום הפונקציה: \(x\le5\). תחום הנגזרת: \(x\lt5\). \(f^{\prime}(x)=\frac{-5x(x-4)}{\sqrt{10-2x}}\). מינימום \((0,0)\), מקסימום \((4,16\sqrt2)\), נקודת קצה \((5,0)\).</div></div><div class="solution-item"><span class="sol-num">3</span><div>תחום הפונקציה: \(x\ge-1\). תחום הנגזרת: \(x\gt-1\). \(f^{\prime}(x)=\frac{3x}{2\sqrt{x+1}}\). מינימום \((0,-2)\). חיתוכים: \((-1,0)\), \((2,0)\).</div></div><div class="solution-item"><span class="sol-num">4</span><div>תחום הפונקציה: \(x\ge-3\) וגם \(x\le3\). תחום הנגזרת: \(x\gt-3\) וגם \(x\lt3\). \(f^{\prime}(x)=\frac{-x}{\sqrt{9-x^2}}\). מקסימום \((0,2)\). חיתוכי \(x\): \(x=\pm2\sqrt2\).</div></div><div class="solution-item"><span class="sol-num">5</span><div>תחום הפונקציה: \(x\ge-4\). תחום הנגזרת: \(x\gt-4\). \(f^{\prime}(x)=\frac{3x+8}{2\sqrt{x+4}}\). מינימום ב-\(x=-8/3\), ערך \(-16/(3\sqrt3)\). חיתוכים: \((-4,0)\), \((0,0)\).</div></div><div class="solution-item"><span class="sol-num">6</span><div>תחום הפונקציה: \(x\le5\). תחום הנגזרת: \(x\lt5\). \(f^{\prime}(x)=\frac{3(3-x)}{2\sqrt{5-x}}\). מקסימום \((3,4\sqrt2)\). חיתוכים: \((-1,0)\), \((5,0)\).</div></div><div class="solution-item"><span class="sol-num">7</span><div>תחום הפונקציה: \(x\ge-3\). תחום הנגזרת: \(x\gt-3\). \(f^{\prime}(x)=\frac{x(5x+12)}{2\sqrt{x+3}}\). ערכי \(x\): \(-12/5\), \(0\). הראשון מקסימום והשני מינימום.</div></div><div class="solution-item"><span class="sol-num">8</span><div>תחום הפונקציה: \(x\le2\). תחום הנגזרת: \(x\lt2\). \(f^{\prime}(x)=\frac{5-3x}{2\sqrt{2-x}}\). מקסימום ב-\(x=5/3\), ערך \(2/(3\sqrt3)\). חיתוכים: \((1,0)\), \((2,0)\).</div></div><div class="solution-item"><span class="sol-num">9</span><div>תחום הפונקציה: \(x\ge-2\). תחום הנגזרת: \(x\gt-2\). \(f^{\prime}(x)=\frac{(x-1)(5x+7)}{2\sqrt{x+2}}\). ערכי \(x\) של קיצון: \(-7/5\), \(1\).</div></div><div class="solution-item"><span class="sol-num">10</span><div>תחום הפונקציה: \(x\le3\). תחום הנגזרת: \(x\lt3\). \(f^{\prime}(x)=\frac{6-3x}{\sqrt{6-2x}}\). מקסימום \((2,2\sqrt2)\). חיתוכים: \((0,0)\), \((3,0)\).</div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page solution-page"><div class="page-content"><h2>פתרונות - שיעור 3</h2><p class="page-lead">פתרונות מקוצרים לבדיקת דרך העבודה. בסקיצה יש להשתמש גם במידע שנמצא בדרך הפתרון.</p><div class="solution-grid"><div class="solution-item"><span class="sol-num">1</span><div>תחום: \(x\ge -1\) וגם \(x\ne2\). אסימפטוטה אנכית: \(x=2\). אסימפטוטה אופקית: \(y=0\). חיתוך עם \(x\): \((-1,0)\).</div></div><div class="solution-item"><span class="sol-num">2</span><div>תחום: \(x\gt3\). אסימפטוטה אנכית: \(x=3\). אסימפטוטה אופקית: \(y=0\).</div></div><div class="solution-item"><span class="sol-num">3</span><div>תחום: \(x\lt-2\) או \(x\gt2\). אנכיות: \(x=-2\), \(x=2\). אופקיות: \(y=-1\) משמאל, \(y=1\) מימין.</div></div><div class="solution-item"><span class="sol-num">4</span><div>תחום: \(x\ne0\). אנכית: \(x=0\). אופקיות: \(y=-1\) משמאל, \(y=1\) מימין.</div></div><div class="solution-item"><span class="sol-num">5</span><div>תחום: \(x\ne0\). אנכית: \(x=0\). אופקיות: \(y=-2\) משמאל, \(y=2\) מימין.</div></div><div class="solution-item"><span class="sol-num">6</span><div>תחום: \(x\le-3\) או \(x\ge3\). אין אסימפטוטה אנכית ב-\(x=1\), כי אין נקודות תחום המתקרבות ל-1. אופקיות: \(y=-1\), \(y=1\).</div></div><div class="solution-item"><span class="sol-num">7</span><div>תחום: \(x\le1/2\) וגם \(x\ne0\). אנכית: \(x=0\). אופקית כאשר \(x⇒-\infty\): \(y=0\).</div></div><div class="solution-item"><span class="sol-num">8</span><div>תחום: \(x\lt-1\) או \(x\gt0\). אנכית: \(x=-1\). אופקיות: \(y=-2\), \(y=2\). כאשר \(x⇒0^+\), הגבול הוא \(0\), ולכן \(x=0\) אינה אסימפטוטה.</div></div><div class="solution-item"><span class="sol-num">9</span><div>תחום: \(x\le-b\) או \(x\ge b\). אופקיות: \(y=-1\) משמאל, \(y=1\) מימין. אין אסימפטוטה אנכית בנקודות הקצה.</div></div><div class="solution-item"><span class="sol-num">10</span><div>תחום: \(x\lt-a\) או \(x\gt a\). אנכיות: \(x=-a\), \(x=a\). אופקיות: \(y=-a\) משמאל, \(y=a\) מימין.</div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page solution-page"><div class="page-content"><h2>פתרונות - שיעור 4</h2><p class="page-lead">פתרונות מקוצרים לבדיקת דרך העבודה. בסקיצה יש להשתמש גם במידע שנמצא בדרך הפתרון.</p><div class="solution-grid"><div class="solution-item"><span class="sol-num">1</span><div>תחום: \(x\le-1\) או \(x\ge1\). לאחר כפל בצמוד: \(f(x)=\frac1{x^2+\sqrt{x^4-1}}\), ולכן \(y=0\).</div></div><div class="solution-item"><span class="sol-num">2</span><div>כאשר \(x⇒+\infty\), מתקבל \(1\); כאשר \(x⇒-\infty\), מתקבל \(-1\). לכן האסימפטוטות הן \(y=1\), \(y=-1\), ללא תלות ב-\(b\).</div></div><div class="solution-item"><span class="sol-num">3</span><div>האסימפטוטות של הביטוי ללא \(k\) הן \(y=2\), \(y=-2\). לאחר כפל ב-\(k\): \(y=2k\), \(y=-2k\). לכן \(4k=10 ⇒ k=5/2\).</div></div><div class="solution-item"><span class="sol-num">4</span><div>ל-\(f\) יש מקסימום \((-4,32)\) ומינימום \((0,0)\). עבור \(g\), ערכי הקיצון הם \(32+c\) ו-\(c\). לכן \(32+c=12\) או \(c=12\), ומתקבל \(c=-20\) או \(c=12\).</div></div><div class="solution-item"><span class="sol-num">5</span><div>תחום: \(x\gt a/2\). \(f^{\prime}(x)=\frac{x-a}{(2x-a)^{3/2}}\). מינימום ב-\(x=a\), והנקודה היא \((a,\sqrt a)\).</div></div><div class="solution-item"><span class="sol-num">6</span><div>נקודות הקצה מתקבלות כאשר \(36-ax^2=0\), כלומר \(x=\pm6/\sqrt a\). המרחק הוא \(12/\sqrt a=8 ⇒ a=9/4\).</div></div><div class="solution-item"><span class="sol-num">7</span><div>נקודות קצה: \(x=\pm\sqrt b\). אסימפטוטות אופקיות: \(y=-1\) משמאל, \(y=1\) מימין.</div></div><div class="solution-item"><span class="sol-num">8</span><div>כדי שלא תהיה אסימפטוטה ב-\(x=3\), גם המונה צריך להתאפס שם: \((6+a)\sqrt{16}=0 ⇒ a=-6\).</div></div><div class="solution-item"><span class="sol-num">9</span><div>כיוון ש-\(a\gt0\), תחום \(f(x)=\sqrt{ax+6}\) הוא \(x\ge-6/a\). מן הנתון \(x\ge-2\) מתקבל \(-6/a=-2 ⇒ a=3\). לכן \(f^{\prime}(x)=\frac{3}{2\sqrt{3x+6}}\), ותחום הנגזרת הוא \(x\gt-2\).</div></div><div class="solution-item"><span class="sol-num">10</span><div>תחום: \(x\le-1\) או \(x\ge a\). כאשר \(x⇒+\infty\), \(f(x)⇒1\); כאשר \(x⇒-\infty\), \(f(x)⇒-1\).</div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page solution-page"><div class="page-content"><h2>פתרונות - שיעור 5</h2><p class="page-lead">פתרונות מקוצרים לבדיקת דרך העבודה. בסקיצה יש להשתמש גם במידע שנמצא בדרך הפתרון.</p><div class="solution-grid"><div class="solution-item"><span class="sol-num">1</span><div>\(g(x)=\sqrt{x}+1\). תחום: \(x\ge0\). חיתוך עם \(y\): \((0,1)\).</div></div><div class="solution-item"><span class="sol-num">2</span><div>\(g(x)=\sqrt{x-1}\). זו הזזה של גרף \(f\) שתי יחידות ימינה. תחום: \(x\ge1\).</div></div><div class="solution-item"><span class="sol-num">3</span><div>תחום: \(x\ge0\). אפסים: \(x=0,4\). החלק שבו \(0\lt x\lt4\) נמצא מתחת לציר ולכן משתקף כלפי מעלה.</div></div><div class="solution-item"><span class="sol-num">4</span><div>תחום \(f\): \(x\ge-3\) וגם \(x\le3\). יש להוציא את פתרונות \(\sqrt{9-x^2}-2=0\), כלומר \(x=\pm\sqrt5\).</div></div><div class="solution-item"><span class="sol-num">5</span><div>\(g(x)=\sqrt{x^2-4}\). תחום: \(x\le-2\) או \(x\ge2\).</div></div><div class="solution-item"><span class="sol-num">6</span><div>תחום \(f\): \(x\ge-4\). יש להוציא \(x=-3\), כי שם \(f(x)=0\). לכן \(x\ge-4\) וגם \(x\ne-3\).</div></div><div class="solution-item"><span class="sol-num">7</span><div>\(g(x)=\sqrt{3-x}+2\). תחום: \(x\le3\).</div></div><div class="solution-item"><span class="sol-num">8</span><div>צריך \(x-1\ge0\), לכן \(x\ge1\). אפסים כאשר \(x-1=0\) או \(x-1=2\), לכן \(x=1,3\).</div></div><div class="solution-item"><span class="sol-num">9</span><div>\(g(x)=\sqrt{(x-2)^2-1}\). תחום: \(x\le1\) או \(x\ge3\).</div></div><div class="solution-item"><span class="sol-num">10</span><div>ל-\(f\) אסימפטוטה אנכית \(x=0\) ואופקיות \(y=-1\), \(y=1\). לאחר הזזה מטה: \(x=0\), \(y=-2\), \(y=0\).</div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page solution-page"><div class="page-content"><h2>פתרונות - שיעור 6</h2><p class="page-lead">פתרונות מקוצרים לבדיקת דרך העבודה. בסקיצה יש להשתמש גם במידע שנמצא בדרך הפתרון.</p><div class="solution-grid"><div class="solution-item"><span class="sol-num">1</span><div>תחום הנגזרת: \(x\lt5\). סימן המונה \(x(4-x)\): ירידה כאשר \(x\lt0\), עלייה כאשר \(0\lt x\lt4\), ירידה כאשר \(4\lt x\lt5\).</div></div><div class="solution-item"><span class="sol-num">2</span><div>תחום: \(x\gt-1\). הנגזרת שלילית כאשר \(-1\lt x\lt0\) וחיובית כאשר \(x\gt0\), ולכן מינימום ב-\((0,2)\).</div></div><div class="solution-item"><span class="sol-num">3</span><div>תחום: \(x\gt-3\). הנגזרת שלילית כאשר \(-3\lt x\lt2\), וחיובית כאשר \(x\gt2\). לכן מינימום ב-\(x=2\).</div></div><div class="solution-item"><span class="sol-num">4</span><div>תחום: \(x\lt3\). הנגזרת חיובית כאשר \(x\lt2\), ושלילית כאשר \(2\lt x\lt3\). לכן מקסימום ב-\(x=2\).</div></div><div class="solution-item"><span class="sol-num">5</span><div>\(g^{\prime}(x)=4x\), ולכן \(g(x)=2x^2+C\). מן התנאי \(g(0)=0\) מתקבל \(C=0\), ולכן \(g(x)=2x^2\).</div></div><div class="solution-item"><span class="sol-num">6</span><div>תחום הפונקציה: \(12-3x\ge0 ⇒ x\le4\). הנגזרת היא \(f^{\prime}(x)=\frac{-3}{2\sqrt{12-3x}}\), ולכן תחום הנגזרת: \(x\lt4\).</div></div><div class="solution-item"><span class="sol-num">7</span><div>\(h(x)=\frac23x^{3/2}-\frac23\), עבור \(x\ge0\). מאחר ש-\(h^{\prime}(x)=\sqrt x\ge0\), הפונקציה עולה עבור \(x\gt0\).</div></div><div class="solution-item"><span class="sol-num">8</span><div>לפי המשפט היסודי, \(h^{\prime}(x)=x\sqrt{4-x}\). בתחום \(x\le4\), הסימן משתנה משלילי לחיובי ב-\(x=0\), ולכן שם מינימום.</div></div><div class="solution-item"><span class="sol-num">9</span><div>תחום הנגזרת: \(x\ge-2\) וגם \(x\ne1\). היא שלילית כאשר \(-2\lt x\lt1\), וחיובית כאשר \(x\gt1\).</div></div><div class="solution-item"><span class="sol-num">10</span><div>תחום: \(x\gt-1\). הנגזרת חיובית כאשר \(-1\lt x\lt0\), שלילית כאשר \(0\lt x\lt3\), וחיובית כאשר \(x\gt3\). לכן מקסימום ב-\(x=0\), מינימום ב-\(x=3\).</div></div></div></div><div class="page-number"></div></section>
+<section class="a4-page summary-page"><div class="page-content"><h2>תרגילים מסכמים - חלק 1</h2><p class="page-lead">תרגילים משולבים ברמה גבוהה יותר.</p><div class="summary-ex"><div class="summary-num">1</div><div class="expr">\[f(x)=\frac{\sqrt{(x+1)(x-5)}}{x-2}\]</div><p>מצאו תחום, חיתוכים ואסימפטוטות. נמקו במיוחד מה קורה ב-\(x=2\).</p></div><div class="summary-ex"><div class="summary-num">2</div><div class="expr">\[f(x)=x^2\sqrt{10-2x}\]</div><p>בצעו חקירה מלאה: תחום, חיתוכים, קיצון, תחומי עלייה וירידה וסקיצה.</p></div><div class="summary-ex"><div class="summary-num">3</div><div class="expr">\[f(x)=\frac{2x}{\sqrt{x^2+x}}\]</div><p>מצאו תחום, אסימפטוטות והגבול כאשר \(x⇒0^+\).</p></div><div class="summary-ex"><div class="summary-num">4</div><div class="expr">\[g(x)=k\frac{\sqrt{4x^2+1}}{x},\quad k\gt0\]</div><p>המרחק בין האסימפטוטות האופקיות הוא 14. מצאו \(k\).</p></div><div class="summary-ex"><div class="summary-num">5</div><div class="expr">\[f(x)=x^2-\sqrt{x^4-1}\]</div><p>השתמשו בצמוד כדי למצוא תחום, סימן ואסימפטוטה אופקית.</p></div></div><div class="page-number"></div></section>
+<section class="a4-page summary-page"><div class="page-content"><h2>תרגילים מסכמים - חלק 2</h2><p class="page-lead">תרגילים משולבים ברמה גבוהה יותר.</p><div class="summary-ex"><div class="summary-num">6</div><div class="expr">\[f(x)=\sqrt{9-x^2}-2,\qquad g(x)=\frac1{f(x)}\]</div><p>מצאו את תחום \(g\), את האסימפטוטות האנכיות שלה ואת ערך \(g(0)\).</p></div><div class="summary-ex"><div class="summary-num">7</div><div class="expr">\[f^{\prime}(x)=\frac{x(x-3)}{\sqrt{x+1}},\qquad x\gt-1\]</div><p>מצאו את ערכי \(x\) של נקודות הקיצון וקבעו את סוגן.</p></div><div class="summary-ex"><div class="summary-num">8</div><div class="expr">\[f(x)=\sqrt{ax+12},\quad a\gt0\]</div><p>ידוע שתחום הנגזרת הוא \(x\gt-3\). מצאו \(a\), כתבו את תחום הפונקציה, ומצאו את \(f^{\prime}(x)\).</p></div><div class="summary-ex"><div class="summary-num">9</div><div class="expr">\[f(x)=\frac{(2x+a)\sqrt{25-x^2}}{x-3}\]</div><p>מצאו את \(a\) כך שלא תהיה אסימפטוטה אנכית ב-\(x=3\), וקבעו האם נשארת נקודה חסרה.</p></div><div class="summary-ex"><div class="summary-num">10</div><div class="expr">\[f(x)=\sqrt{x}(x-a)\]</div><p>גרף הנגזרת חותך את ציר \(x\) ב-\((2,0)\). מצאו \(a\), את הקיצון, ואת התחום שבו \(f(x)\lt0\) וגם \(f^{\prime}(x)\gt0\).</p></div></div><div class="page-number"></div></section>
+<section class="a4-page summary-solutions"><div class="page-content"><h2>פתרונות התרגילים המסכמים - חלק 1</h2><div class="detailed-solution"><h3>תרגיל 1</h3><p>תחום השורש מתקבל מ-\((x+1)(x-5)\ge0\), לכן \(x\le-1\) או \(x\ge5\). הערך \(x=2\) נמצא בין שני רכיבי התחום, ולכן אי אפשר להתקרב אליו מתוך התחום - אין שם אסימפטוטה. חיתוכי \(x\): \((-1,0)\), \((5,0)\). כאשר \(x⇒+\infty\), המנה שואפת ל-1; כאשר \(x⇒-\infty\), בגלל \(\sqrt{x^2}=|x|\), המנה שואפת ל--1. לכן האופקיות הן \(y=1\), \(y=-1\).</p></div><div class="detailed-solution"><h3>תרגיל 2</h3><p>תחום: \(x\le5\). חיתוכים: \((0,0)\), \((5,0)\). הנגזרת היא \(f^{\prime}(x)=\frac{-5x(x-4)}{\sqrt{10-2x}}\). לכן ירידה כאשר \(x\lt0\), עלייה כאשר \(0\lt x\lt4\), ירידה כאשר \(4\lt x\lt5\). מתקבלים מינימום \((0,0)\), מקסימום \((4,16\sqrt2)\), ונקודת קצה \((5,0)\).</p></div><div class="detailed-solution"><h3>תרגיל 3</h3><p>כדי שהמכנה יהיה מוגדר ושונה מאפס צריך \(x^2+x\gt0\), ולכן \(x\lt-1\) או \(x\gt0\). כאשר \(x⇒-1^-\), המכנה שואף ל-0 והמונה ל--2, ולכן \(x=-1\) אנכית. כאשר \(x⇒0^+\), \(\frac{2x}{\sqrt{x(x+1)}}=\frac{2\sqrt x}{\sqrt{x+1}}⇒0\), ולכן \(x=0\) אינה אנכית. האופקיות: \(y=-2\), \(y=2\).</p></div><div class="detailed-solution"><h3>תרגיל 4</h3><p>לפונקציה \(\frac{\sqrt{4x^2+1}}{x}\) יש אסימפטוטות \(y=-2\), \(y=2\). לאחר כפל ב-\(k\): \(y=-2k\), \(y=2k\). המרחק הוא \(4k\), ולכן \(4k=14 ⇒ k=7/2\).</p></div></div><div class="page-number"></div></section>
+<section class="a4-page summary-solutions"><div class="page-content"><h2>פתרונות התרגילים המסכמים - חלק 2</h2><div class="detailed-solution"><h3>תרגיל 5</h3><p>התחום הוא \(x\le-1\) או \(x\ge1\). כפל בצמוד נותן \(f(x)=\frac1{x^2+\sqrt{x^4-1}}\), ולכן \(f(x)\gt0\) בכל התחום. המכנה גדל ללא גבול כאשר \(|x|\) גדל, ולכן \(⇒_{x⇒\pm\infty}f(x)=0 ⇒ y=0\).</p></div><div class="detailed-solution"><h3>תרגיל 6</h3><p>תחום \(f\): \(-3\le x\le3\), כלומר \(x\ge-3\) וגם \(x\le3\). עבור \(g\) מוציאים את אפסי \(f\): \(\sqrt{9-x^2}=2 ⇒ x^2=5 ⇒ x=\pm\sqrt5\). לכן אלה אסימפטוטות אנכיות של \(g\). בנוסף \(g(0)=1/(3-2)=1\).</p></div><div class="detailed-solution"><h3>תרגיל 7</h3><p>המכנה חיובי בתחום, ולכן הסימן נקבע על ידי \(x(x-3)\). הנגזרת חיובית כאשר \(-1\lt x\lt0\), שלילית כאשר \(0\lt x\lt3\), וחיובית כאשר \(x\gt3\). לכן ב-\(x=0\) מקסימום מקומי, וב-\(x=3\) מינימום מקומי.</p></div></div><div class="page-number"></div></section>
+<section class="a4-page summary-solutions"><div class="page-content"><h2>פתרונות התרגילים המסכמים - חלק 3</h2><div class="detailed-solution"><h3>תרגיל 8</h3><p>עבור \(f(x)=\sqrt{ax+12}\) עם \(a\gt0\), תחום הפונקציה הוא \(x\ge-12/a\), ואילו תחום הנגזרת הוא \(x\gt-12/a\). מן הנתון \(x\gt-3\) מתקבל \(-12/a=-3 ⇒ a=4\). לכן תחום הפונקציה הוא \(x\ge-3\), והנגזרת היא \(f^{\prime}(x)=\frac{2}{\sqrt{4x+12}}\), בתחום \(x\gt-3\).</p></div><div class="detailed-solution"><h3>תרגיל 9</h3><p>ב-\(x=3\) המכנה מתאפס. כדי למנוע אסימפטוטה אנכית צריך שגם המונה יתאפס: \((6+a)\sqrt{16}=0 ⇒ a=-6\). לאחר ההצבה המונה מכיל גורם \(2(x-3)\), ולכן הגורם מצטמצם אלגברית, אך הפונקציה המקורית עדיין אינה מוגדרת ב-\(x=3\). לכן נשארת נקודה חסרה ולא אסימפטוטה אנכית.</p></div><div class="detailed-solution"><h3>תרגיל 10</h3><p>תחום הפונקציה הוא \(x\ge0\), ואילו תחום הנגזרת הוא \(x\gt0\). \(f(x)=x^{3/2}-ax^{1/2}\), ולכן עבור \(x\gt0\): \(f^{\prime}(x)=\frac{3x-a}{2\sqrt x}\). מאחר שאפס הנגזרת הוא \(x=2\), מתקבל \(6-a=0 ⇒ a=6\). לכן \(f^{\prime}(x)\lt0\) כאשר \(0\lt x\lt2\), ו-\(f^{\prime}(x)\gt0\) כאשר \(x\gt2\). מינימום ב-\(x=2\), והערך \(f(2)=-4\sqrt2\). כמו כן \(f(x)=\sqrt x(x-6)\), ולכן \(f(x)\lt0\) כאשר \(0\lt x\lt6\). שילוב התנאים נותן \(2\lt x\lt6\).</p></div></div><div class="page-number"></div></section>
+</main>
+<script>
+(function(){
+  const pages=[...document.querySelectorAll('main.document > section.a4-page')];
+  pages.forEach((p,i)=>{
+    p.setAttribute('aria-label','עמוד '+(i+1));
+    const n=p.querySelector('.page-number');
+    if(n)n.textContent='עמוד '+(i+1)+' מתוך '+pages.length;
+  });
+})();
+</script>
+<script>
+window.addEventListener('load', async function(){
+  try{if(window.MathJax&&MathJax.startup&&MathJax.startup.promise)await MathJax.startup.promise;}catch(e){console.error('MathJax startup',e);}
+  if(!window.JXG){console.error('JSXGraph unavailable');return;}
+  const boards={};
+  function axes(board){
+    board.create('axis',[[0,0],[1,0]],{name:'x',withLabel:true,strokeColor:'#64748b',fixed:true,highlight:false});
+    board.create('axis',[[0,0],[0,1]],{name:'y',withLabel:true,strokeColor:'#64748b',fixed:true,highlight:false});
+  }
+  function makeBoard(id,bbox){
+    const b=JXG.JSXGraph.initBoard(id,{boundingbox:bbox.slice(),axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true,needShift:false},zoom:{enabled:true,wheel:true,needShift:false,pinch:true}});
+    axes(b); b.__initialBBox=bbox.slice(); boards[id]=b; return b;
+  }
+  function mathText(board,x,y,text){board.create('text',[x,y,text],{fixed:true,useMathJax:true,fontSize:13,anchorX:'middle',highlight:false});}
+  try{
+    const b1=makeBoard('board1',[-7,8,9,-2]);
+    b1.create('functiongraph',[x=>((x<=-2||x>=5)?Math.sqrt((x+2)*(x-5)):NaN),-7,9],{strokeWidth:3,strokeColor:'#215f9b',highlight:false});
+    [[-2,0],[5,0]].forEach(p=>b1.create('point',p,{size:2,fixed:true,highlight:false,name:'('+p[0]+',0)'})); mathText(b1,1,7,'\\(f(x)=\\sqrt{(x+2)(x-5)}\\)');
+
+    const b2=makeBoard('board2',[-4,28,7,-6]);
+    b2.create('functiongraph',[x=>(x<=5?x*x*Math.sqrt(10-2*x):NaN),-4,5],{strokeWidth:3,strokeColor:'#167055',highlight:false});
+    [[0,0],[4,16*Math.sqrt(2)],[5,0]].forEach(p=>b2.create('point',p,{size:2,fixed:true,highlight:false,name:''})); mathText(b2,1.5,25,'\\(f(x)=x^2\\sqrt{10-2x}\\)');
+
+    const b3=makeBoard('board3',[-6,8,1,-8]);
+    b3.create('functiongraph',[x=>((x<=0.5&&Math.abs(x)>0.005)?Math.sqrt(1-2*x)/(x*x-x):NaN),-6,0.5],{strokeWidth:3,strokeColor:'#a05f08',highlight:false});
+    b3.create('line',[[0,0],[0,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false}); mathText(b3,-2.5,6.8,'\\(x=0\\)');
+
+    const b3diff1=makeBoard('board3diff1',[-6,4.2,6,-4.2]);
+    b3diff1.create('functiongraph',[x=>(Math.abs(x)>0.05?Math.sqrt(x*x+1)/x:NaN),-6,-0.05],{strokeWidth:3,strokeColor:'#215f9b',highlight:false});
+    b3diff1.create('functiongraph',[x=>(Math.abs(x)>0.05?Math.sqrt(x*x+1)/x:NaN),0.05,6],{strokeWidth:3,strokeColor:'#215f9b',highlight:false});
+    b3diff1.create('line',[[0,1],[1,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b3diff1.create('line',[[0,-1],[1,-1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b3diff1.create('line',[[0,0],[0,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    mathText(b3diff1,4.6,1.35,'\\(y=1\\)'); mathText(b3diff1,4.6,-0.65,'\\(y=-1\\)'); mathText(b3diff1,0.9,3.5,'\\(x=0\\)');
+
+    const b3diff2=makeBoard('board3diff2',[-6,5,6,-5]);
+    b3diff2.create('functiongraph',[x=>(Math.abs(x)>0.05?Math.sqrt(4*x*x+9)/x+1:NaN),-6,-0.05],{strokeWidth:3,strokeColor:'#167055',highlight:false});
+    b3diff2.create('functiongraph',[x=>(Math.abs(x)>0.05?Math.sqrt(4*x*x+9)/x+1:NaN),0.05,6],{strokeWidth:3,strokeColor:'#167055',highlight:false});
+    b3diff2.create('line',[[0,3],[1,3]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b3diff2.create('line',[[0,-1],[1,-1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b3diff2.create('line',[[0,0],[0,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    mathText(b3diff2,4.7,3.35,'\\(y=3\\)'); mathText(b3diff2,4.7,-0.65,'\\(y=-1\\)'); mathText(b3diff2,0.9,4.2,'\\(x=0\\)');
+
+    const b3diff3=makeBoard('board3diff3',[-6,3,6,-7]);
+    b3diff3.create('functiongraph',[x=>(3*x/Math.sqrt(x*x+4)-2),-6,6],{strokeWidth:3,strokeColor:'#a05f08',highlight:false});
+    b3diff3.create('line',[[0,1],[1,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b3diff3.create('line',[[0,-5],[1,-5]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    mathText(b3diff3,4.7,1.35,'\\(y=1\\)'); mathText(b3diff3,4.7,-4.65,'\\(y=-5\\)');
+
+    const b4=makeBoard('board4',[-4,2.2,4,-0.4]);
+    b4.create('functiongraph',[x=>(Math.abs(x)>=1?x*x-Math.sqrt(x*x*x*x-1):NaN),-4,4],{strokeWidth:3,strokeColor:'#a53b3b',highlight:false});
+    b4.create('line',[[0,0],[1,0]],{dash:2,strokeWidth:1,strokeColor:'#64748b',fixed:true,highlight:false}); mathText(b4,0,1.9,'\\(f(x)=x^2-\\sqrt{x^4-1}\\)');
+
+    const b4paramAsym=makeBoard('board4paramAsym',[-6,8,6,-4]);
+    b4paramAsym.create('functiongraph',[x=>(x<-0.05?1.5*Math.sqrt(4*x*x+1)/x+2:NaN),-6,-0.05],{strokeWidth:3,strokeColor:'#215f9b',highlight:false});
+    b4paramAsym.create('functiongraph',[x=>(x>0.05?1.5*Math.sqrt(4*x*x+1)/x+2:NaN),0.05,6],{strokeWidth:3,strokeColor:'#215f9b',highlight:false});
+    b4paramAsym.create('line',[[0,5],[1,5]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b4paramAsym.create('line',[[0,-1],[1,-1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b4paramAsym.create('line',[[0,0],[0,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    mathText(b4paramAsym,4.6,5.45,'\\(y=5\\)');
+    mathText(b4paramAsym,4.6,-0.55,'\\(y=-1\\)');
+    mathText(b4paramAsym,0.8,7.1,'\\(x=0\\)');
+
+    const b5abs=makeBoard('board5abs',[-1,5,5,-4]);
+    b5abs.create('functiongraph',[x=>(x>=0?Math.sqrt(x)*(x-2):NaN),0,5],{strokeWidth:2,strokeColor:'#64748b',dash:2,highlight:false});
+    b5abs.create('functiongraph',[x=>(x>=0?Math.abs(Math.sqrt(x)*(x-2)):NaN),0,5],{strokeWidth:3,strokeColor:'#167055',highlight:false});
+    [[0,0],[2,0]].forEach(p=>b5abs.create('point',p,{size:2,fixed:true,highlight:false,name:''}));
+    mathText(b5abs,2.8,4.4,'\\(g(x)=|f(x)|\\)');
+
+    const b5sqrt=makeBoard('board5sqrt',[-4,6,4,-5]);
+    b5sqrt.create('functiongraph',[x=>5-x*x,-4,4],{strokeWidth:2,strokeColor:'#64748b',dash:2,highlight:false});
+    b5sqrt.create('functiongraph',[x=>(Math.abs(x)<=Math.sqrt(5)?Math.sqrt(5-x*x):NaN),-Math.sqrt(5),Math.sqrt(5)],{strokeWidth:3,strokeColor:'#215f9b',highlight:false});
+    b5sqrt.create('point',[-Math.sqrt(5),0],{size:2,fixed:true,highlight:false,name:''});
+    b5sqrt.create('point',[Math.sqrt(5),0],{size:2,fixed:true,highlight:false,name:''});
+    b5sqrt.create('point',[0,Math.sqrt(5)],{size:2,fixed:true,highlight:false,name:''});
+    mathText(b5sqrt,0.35,2.75,'\\(g(x)=\\sqrt{5-x^2}\\)');
+
+    const b5rec=makeBoard('board5reciprocal',[-0.6,5,5,-5]);
+    b5rec.create('functiongraph',[x=>(x>=0?Math.sqrt(x)*(x-2):NaN),0,5],{strokeWidth:2,strokeColor:'#64748b',dash:2,highlight:false});
+    b5rec.create('functiongraph',[x=>(x>0&&x<1.97?1/(Math.sqrt(x)*(x-2)):NaN),0.03,1.97],{strokeWidth:3,strokeColor:'#a53b3b',highlight:false});
+    b5rec.create('functiongraph',[x=>(x>2.03?1/(Math.sqrt(x)*(x-2)):NaN),2.03,5],{strokeWidth:3,strokeColor:'#a53b3b',highlight:false});
+    b5rec.create('line',[[0,0],[0,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    b5rec.create('line',[[2,0],[2,1]],{dash:2,strokeWidth:1,strokeColor:'#a53b3b',fixed:true,highlight:false});
+    mathText(b5rec,3.4,3.8,'\\(h(x)=\\frac{1}{f(x)}\\)');
+
+    const b6=makeBoard('board6',[-1,8,7,-8]);
+    b6.create('functiongraph',[x=>(x>-1?x*(x-3)/Math.sqrt(x+1):NaN),-0.98,7],{strokeWidth:3,strokeColor:'#7a4eaa',highlight:false});
+    [[0,0],[3,0]].forEach(p=>b6.create('point',p,{size:2,fixed:true,highlight:false,name:'('+p[0]+',0)'})); mathText(b6,3.4,6.8,'\\(f\\prime(x)=\\frac{x(x-3)}{\\sqrt{x+1}}\\)');
+  }catch(e){console.error('JSXGraph initialization failure',e);}
+
+  function scaleBBox(b,factor){
+    const bb=b.getBoundingBox(), cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+    const hw=(bb[2]-bb[0])*factor/2, hh=(bb[1]-bb[3])*factor/2;
+    b.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],true);
+  }
+  document.querySelectorAll('.graph-controls').forEach(c=>{
+    c.addEventListener('click',ev=>{
+      const btn=ev.target.closest('button'); if(!btn)return;
+      const b=boards[c.dataset.board]; if(!b)return;
+      const action=btn.dataset.action;
+      if(action==='zoom-in')scaleBBox(b,0.8);
+      if(action==='zoom-out')scaleBBox(b,1.25);
+      if(action==='reset')b.setBoundingBox(b.__initialBBox.slice(),true);
+      if(action==='center'){
+        const bb=b.getBoundingBox(), hw=(bb[2]-bb[0])/2, hh=(bb[1]-bb[3])/2;
+        b.setBoundingBox([-hw,hh,hw,-hh],true);
+      }
+    });
+  });
+  window.__docReady=true;
+});
+</script>
+</body>
+</html>
