@@ -1,1122 +1,770 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+
+<html dir="rtl" lang="he">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>חקירת פונקציה רציונלית – 5 יחידות לימוד</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<title>חקירת פונקציה רציונלית - מערך שיעור מעודכן</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
 <script>
-window.MathJax = {
-  tex: {
-    inlineMath: [['\\(','\\)']],
-    displayMath: [['\\[','\\]']],
-    packages: {'[+]': ['ams']}
-  },
-  svg: { fontCache: 'global' },
-  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
-};
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],packages:{'[+]':['ams']}},svg:{fontCache:'global'},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
 </script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <style>
-  :root {
-    --ink:#152238; --muted:#516073; --paper:#ffffff; --bg:#e9eef5;
-    --line:#d7dfeb; --soft:#f4f7fb; --accent:#245ea8; --accent2:#7a3f9e;
-    --good:#1f6b50; --warn:#8a5a12; --bad:#8a2d2d;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;}
-  body{font-size:13.2px;line-height:1.42;}
-  .page{
-    width:210mm;height:297mm;margin:8mm auto;background:var(--paper);
-    padding:11mm 13mm 10mm;position:relative;overflow:hidden;
-    break-after:page;page-break-after:always;box-shadow:0 2mm 6mm rgba(20,40,70,.12);
-  }
-  .page:last-child{break-after:auto;page-break-after:auto}
-  .page-no{position:absolute;left:12mm;bottom:6mm;font-size:10.5px;color:#738096;direction:ltr}
-  .eyebrow{font-size:11px;letter-spacing:.04em;color:var(--accent);font-weight:700;margin-bottom:2mm}
-  h1{font-size:30px;line-height:1.15;margin:0 0 4mm;color:#12365f}
-  h2{font-size:21px;line-height:1.2;margin:0 0 3.5mm;color:#173f70;border-bottom:1px solid var(--line);padding-bottom:2mm}
-  h3{font-size:16px;margin:3mm 0 1.5mm;color:#214f83}
-  h4{font-size:13.5px;margin:2mm 0 1mm;color:#3d5270}
-  p{margin:1.5mm 0}
-  ul,ol{margin:1.5mm 0 2mm;padding-right:5.5mm}
-  li{margin:.7mm 0}
-  .lead{font-size:15.5px;line-height:1.55;color:#31455f}
-  .small{font-size:11.5px;color:var(--muted)}
-  .tiny{font-size:10.5px;color:var(--muted)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm}
-  .card{border:1px solid var(--line);background:var(--soft);border-radius:3mm;padding:3.2mm}
-  .card.white{background:#fff}
-  .callout{border-right:4px solid var(--accent);background:#eef5ff;padding:2.8mm 3.4mm;border-radius:2mm;margin:2mm 0}
-  .warning{border-right:4px solid #b56b15;background:#fff7e8;padding:2.8mm 3.4mm;border-radius:2mm;margin:2mm 0}
-  .success{border-right:4px solid var(--good);background:#edf8f3;padding:2.8mm 3.4mm;border-radius:2mm;margin:2mm 0}
-  .formula{direction:ltr;text-align:center;background:#fbfcfe;border:1px solid #e1e6ef;border-radius:2.5mm;padding:2mm 2.5mm;margin:2mm 0}
-  .rtlmath{direction:rtl}
-  table{width:100%;border-collapse:collapse;margin:2mm 0;font-size:12.1px}
-  th,td{border:1px solid #cfd8e5;padding:1.8mm 2mm;vertical-align:top}
-  th{background:#eef3f9;color:#24466d;font-weight:700}
-  .step{display:grid;grid-template-columns:10mm 1fr;gap:2.5mm;align-items:start;margin:1.2mm 0}
-  .step .n{width:8mm;height:8mm;border-radius:50%;background:#e5eef9;color:#174a82;display:flex;align-items:center;justify-content:center;font-weight:700}
-  .exercise{border:1px solid #ccd8e8;border-right:4px solid #6b84a8;border-radius:2.5mm;padding:2.5mm 3mm;margin:2mm 0;background:#fff}
-  .answer{background:#f5f8fc;border:1px dashed #bbc8d9;border-radius:2mm;padding:2mm 2.5mm;margin-top:1.5mm}
-  .tag{display:inline-block;border:1px solid #c8d4e5;background:#fff;border-radius:999px;padding:.5mm 2mm;margin-left:1mm;font-size:10.5px;color:#46617f}
-  .source-note{font-size:10.5px;color:#617089;border-top:1px solid #dce3ed;padding-top:1.8mm;margin-top:2.5mm}
-  .checklist{display:grid;grid-template-columns:1fr 1fr;gap:2mm}
-  .checkitem{border:1px solid var(--line);border-radius:2mm;padding:2mm 2.4mm;background:#fff}
-  .jxg-shell{border:1px solid #cdd7e5;border-radius:3mm;background:#fbfcfe;padding:2.2mm;margin:2mm 0;direction:ltr}
-  .jxgbox{width:100%;height:68mm;border-radius:2mm;border:1px solid #d6dee9;background:white}
-  .jxgbox.compact{height:55mm}
-  .jxgbox.sign-parabola{height:62mm}
-  .numberline-shell{border:1px solid #cdd7e5;border-radius:2.5mm;background:#fbfcfe;padding:1.2mm 2mm 1.4mm;margin:1.2mm 0 2mm;direction:ltr}
-  .numberline-caption{direction:rtl;text-align:right;font-size:10.5px;color:var(--muted);margin-bottom:.4mm}
-  .numberline-board{width:100%;height:20mm;border:0;background:#fff}
-  .graphbar{display:flex;gap:1.5mm;align-items:center;justify-content:flex-start;margin-top:1.5mm;direction:rtl;flex-wrap:wrap}
-  .graphbar button{border:1px solid #b9c8da;background:#fff;color:#24496f;border-radius:2mm;padding:1.2mm 2.5mm;cursor:pointer;font-size:11px}
-  .graphbar button:hover{background:#eef4fb}
-  .legend{display:flex;gap:3mm;flex-wrap:wrap;align-items:center;font-size:11px;direction:rtl;margin:1mm 0}
-  .sw{display:inline-block;width:12px;height:3px;border-radius:2px;margin-left:1mm;vertical-align:middle}
-  .blue{background:#245ea8}.purple{background:#7a3f9e}.green{background:#238060}.orange{background:#c77b24}.red{background:#b33b3b}
-  .toc{columns:2;column-gap:8mm;margin-top:5mm}
-  .toc div{break-inside:avoid;padding:1mm 0;border-bottom:1px dotted #d6dce6}
-  .hero-box{margin-top:8mm;padding:6mm;border:1px solid #d5e1f1;border-radius:4mm;background:linear-gradient(135deg,#f6f9fd,#eef5ff)}
-  .flow{display:flex;gap:1.5mm;align-items:center;justify-content:center;flex-wrap:wrap;margin:3mm 0;direction:rtl}
-  .flow span{border:1px solid #cbd8e7;background:#fff;border-radius:2mm;padding:1.4mm 2.2mm;font-size:11.5px}
-  .flow b{color:#75849a}
-  a{color:#245ea8;text-decoration:none;word-break:break-word}
-  .breakable{overflow-wrap:anywhere}
-  .two-col-list{columns:2;column-gap:7mm}
-  .two-col-list li{break-inside:avoid}
-  @media print{
-    html,body{background:#fff}
-    .page{margin:0;box-shadow:none;}
-    @page{size:A4;margin:0}
-  }
+:root{--ink:#14233a;--muted:#596a7d;--paper:#fff;--bg:#e9eef5;--line:#d5dfeb;--soft:#f5f8fc;--accent:#245ea8;--good:#1f6b50;--warn:#8a5a12;--bad:#8a2d2d}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}
+body{font-size:13px;line-height:1.42}
+.page{width:210mm;height:297mm;margin:8mm auto;background:var(--paper);padding:10mm 12mm 10mm;position:relative;overflow:hidden;break-after:page;page-break-after:always;box-shadow:0 2mm 6mm rgba(20,40,70,.12)}
+.page:last-of-type{break-after:auto;page-break-after:auto}
+.page-no{position:absolute;left:11mm;bottom:5mm;font-size:10px;color:#748196;direction:ltr}
+.eyebrow{font-size:11px;color:var(--accent);font-weight:700;margin-bottom:2mm}
+h1{font-size:29px;line-height:1.15;margin:0 0 4mm;color:#12365f}
+h2{font-size:20px;line-height:1.2;margin:0 0 3.2mm;color:#173f70;border-bottom:1px solid var(--line);padding-bottom:2mm}
+h3{font-size:15.5px;margin:2.8mm 0 1.4mm;color:#214f83}
+p{margin:1.4mm 0}.lead{font-size:15px;line-height:1.5;color:#31455f}.topgap{margin-top:4mm}
+ul,ol{margin:1.5mm 0 2mm;padding-right:6mm}li{margin:.75mm 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.card{border:1px solid var(--line);background:var(--soft);border-radius:3mm;padding:3mm}.card.white{background:#fff}
+.hero-box{margin-top:6mm;padding:5.5mm;border:1px solid #d5e1f1;border-radius:4mm;background:linear-gradient(135deg,#f7f9fd,#eef5ff)}
+.flow,.steps-row{zoom:1.2;display:flex;gap:1.5mm;align-items:center;justify-content:center;flex-wrap:wrap;margin:3mm 0;direction:rtl}.flow span,.steps-row span{border:1px solid #cbd8e7;background:#ffe082;border-radius:2mm;padding:1.4mm 2.2mm;font-size:11.5px}.flow b,.steps-row b{color:#75849a}
+.callout,.warning,.success{padding:2.7mm 3.2mm;border-radius:2mm;margin:2mm 0}.callout{border:2px solid var(--accent);background:#eef5ff}.warning{border:2px solid #b56b15;background:#fff7e8}.success{border:2px solid var(--good);background:#edf8f3}
+.formula{direction:ltr;text-align:center;background:#fbfcfe;border:1px solid #e1e6ef;border-radius:2.5mm;padding:1.7mm 2.2mm;margin:1.6mm 0}.formula.big{font-size:15px}
+table{width:100%;border-collapse:collapse;margin:2mm 0;font-size:11.8px}th,td{border:1px solid #cfd8e5;padding:1.6mm 1.8mm;vertical-align:top}th{background:#eef3f9;color:#24466d}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.3mm 5mm;margin-top:4mm}.toc-item{padding:2.2mm;border-bottom:1px dotted #d2dbe7;background:#fbfcfe;border-radius:1.5mm}
+.checklist{display:grid;gap:2mm}.checklist.single{grid-template-columns:1fr}.checklist.two{grid-template-columns:1fr 1fr}.checkitem{border:1px solid var(--line);border-radius:2mm;padding:2mm 2.3mm;background:#fff}
+.exercise-list,.solution-list{margin-top:2mm;padding-right:7mm}.exercise-list li{padding:3mm 2mm;margin:2mm 0;background:#fff;border:1px solid #ced9e7;border-radius:2mm}.solution-list li{padding:1.05mm 1.6mm;margin:.8mm 0;background:#f7f9fc;border:1px solid #d7e0ec;border-radius:2mm}.exercise-intro{color:var(--muted)}
+.jxg-shell{border:1px solid #cdd7e5;border-radius:3mm;background:#fbfcfe;padding:2.2mm;direction:ltr}.jxgbox{width:100%;height:58mm;border-radius:2mm;border:1px solid #d6dee9;background:#fff;direction:ltr}.jxgbox.tall{height:76mm}.jxgbox.transform{height:86mm}
+.graphbar{display:flex;gap:1.5mm;align-items:center;justify-content:flex-start;margin-top:1.5mm;direction:rtl;flex-wrap:wrap}.graphbar button{border:1px solid #b9c8da;background:#fff;color:#24496f;border-radius:2mm;padding:1.1mm 2.4mm;cursor:pointer;font-size:10.8px}.graphbar button:hover{background:#eef4fb}.graph-hint{direction:rtl;text-align:right;font-size:9.8px;color:var(--muted);margin-top:1mm}.legend{direction:rtl;display:flex;gap:3mm;flex-wrap:wrap;align-items:center;font-size:10.5px;margin-top:1mm}
+
+.app-panel{margin-top:2mm;padding:4mm;border:1px solid #c9d6e7;border-radius:4mm;background:linear-gradient(180deg,#f9fbfe,#eef4fb)}
+.app-title{display:flex;align-items:center;justify-content:space-between;gap:3mm;margin-bottom:2mm;color:#173f70;font-weight:700}
+.slider-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;margin:2mm 0}
+.range-card{border:1px solid #cdd9e8;border-radius:3mm;background:#fff;padding:2.2mm 2.5mm}
+.range-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#214f83;margin-bottom:1.2mm}
+.range-value{display:inline-block;min-width:18mm;padding:.4mm 1.4mm;border-radius:8px;background:#eef4fb;color:#173f70;text-align:center;font-weight:700;direction:ltr}
+.range-card input[type=range]{width:100%}
+.formula-display{direction:ltr;text-align:center;background:#fbfcfe;border:1px solid #d5deeb;border-radius:3mm;padding:2.2mm;margin:2.2mm 0;font-size:21px;min-height:19mm;display:flex;align-items:center;justify-content:center}
+.jxgbox.app-large{height:102mm}
+.jxgbox.lesson7graph{height:62mm}
+.jxgbox.lesson10graph{height:68mm}
+.app-caption{font-size:10.5px;color:#55677d;margin-top:1.2mm}
+.app-list{margin:1.2mm 0 0;padding-right:6mm}
+.app-list li{margin:.7mm 0}
+@media print{html,body{background:#fff}.page{margin:0;box-shadow:none}@page{size:A4;margin:0}}
+
+.solutions-pair h2{margin-bottom:2mm}
+.solutions-pair h3{}
+.solutions-pair .solution-list{font-size:14px;line-height:1.24;margin:.7mm 0 1.5mm;padding-right:5.5mm}
+.solutions-pair .solution-list li{padding:.45mm 1mm;margin:3mm 0;border-radius:1.4mm}
+
+.solutions-pair .solution-list li{break-inside:avoid;page-break-inside:avoid}
+
+.asym-cases{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5mm;margin:3.5mm 0;direction:rtl}
+.asym-case{border:1px solid #c9d8ea;border-radius:4mm;padding:3.4mm;background:#eef5ff;min-height:55mm;display:flex;flex-direction:column;justify-content:flex-start}
+.asym-case.warncase{background:#fff7e8;border-color:#edc98f}
+.asym-pill{display:inline-block;align-self:flex-start;padding:1mm 2.6mm;border-radius:999px;background:#dbeafe;color:#173f70;font-size:10.5px;font-weight:700;margin-bottom:2.2mm}
+.asym-case.warncase .asym-pill{background:#ffebc4;color:#8a5a12}
+.asym-case .formula{margin:1.8mm 0;font-size:14px;padding:2.3mm 1.4mm}
+.asym-result{margin-top:auto;padding:2mm;border-radius:2.5mm;background:#edf8f3;border:2px solid var(--good);text-align:center;font-weight:700;font-size:13.5px}
+.asym-case.warncase .asym-result{background:#fffaf0;border-right-color:#b56b15;color:#6e4c16;font-size:11.8px;line-height:1.45}
+.degree-table th,.degree-table td{text-align:center;vertical-align:middle;font-size:12px;padding:2.2mm}
+.degree-table td:first-child{font-weight:700;color:#173f70}
+.jxgbox.h-asym-graph{height:92mm}
+.graph-case{margin-top:3mm}
+.graph-case h3{margin-top:0}
 </style>
 </head>
 <body>
-
-<section class="page" id="p1">
-  <div class="eyebrow">מתמטיקה • 5 יחידות לימוד • אנליזה</div>
-  <h1>חקירת פונקציה רציונלית</h1>
-  <p class="lead">מערך שיעור מלא: קדם־אנליזה, כלל המנה בנגזרת, חקירה מלאה, משיקים, קיצון וטרנספורמציות לאחר החקירה.</p>
-  <div class="hero-box">
-    <h3>עקרון מארגן</h3>
-    <p>התלמיד אינו מתחיל בנגזרת. תחילה הוא לומד לקרוא את הביטוי האלגברי, לאתר תחום, חיתוכים ואסימפטוטות, ולבנות סקיצה ראשונית. רק אחר כך הנגזרת משלימה ומדייקת את התמונה.</p>
-    <div class="flow">
-      <span>מבנה אלגברי</span><b>←</b><span>קדם־אנליזה</span><b>←</b><span>כלל המנה</span><b>←</b><span>חקירה מלאה</span><b>←</b><span>סקיצה</span><b>←</b><span>טרנספורמציות</span>
-    </div>
-  </div>
-  <div class="grid2" style="margin-top:6mm">
-    <div class="card">
-      <h3>מטרות ידע</h3>
-      <ul>
-        <li>לזהות פונקציה רציונלית ולמצוא תחום הגדרה.</li>
-        <li>למצוא אסימפטוטות אנכיות ולנתח את התנהגות הפונקציה לידן.</li>
-        <li>לנתח התנהגות ליד נקודת אי־הגדרה ובאינסוף.</li>
-        <li>להשתמש בכלל המנה ולחקור עלייה, ירידה וקיצון.</li>
-        <li>להפיק מידע על פונקציה חדשה מתוך חקירה שכבר בוצעה.</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>מיומנויות 5 יח״ל</h3>
-      <ul>
-        <li>מעבר בין ייצוג אלגברי, טבלה וגרף.</li>
-        <li>נימוק ולא רק ביצוע אלגוריתם.</li>
-        <li>שאלות פרמטר, משיק וחקירה הפוכה.</li>
-        <li>שימוש בגרף לצורך בדיקה — לא כתחליף להוכחה.</li>
-      </ul>
-    </div>
-  </div>
-  <div class="page-no">1</div>
+<section class="page" id="cover">
+<div class="eyebrow">מתמטיקה • 5 יחידות לימוד • אנליזה</div>
+<h1>חקירת פונקציה רציונלית</h1>
+<div class="hero-box">
+<h3>עקרון מארגן</h3>
+<p>קוראים תחילה את המבנה האלגברי של הפונקציה: תחום הגדרה, פירוק, חיתוכים ואסימפטוטות. רק לאחר מכן משתמשים בנגזרת כדי להשלים את החקירה, למצוא נקודות קיצון ולבנות סקיצה מדויקת.</p>
+<div class="flow"><span>מבנה אלגברי</span><b>⇐</b><span>קדם-אנליזה</span><b>⇐</b><span>כלל המנה</span><b>⇐</b><span>חקירה מלאה</span><b>⇐</b><span>סקיצה</span><b>⇐</b><span>טרנספורמציות</span></div>
+</div>
+<div class="grid2 topgap">
+<div class="card"><h3>כללי עבודה</h3><ul><li>תחום ההגדרה נקבע מן הביטוי המקורי.</li><li>אסימפטוטה אנכית נקבעת רק לאחר בדיקת ההתנהגות ליד ערך שאינו בתחום.</li><li>בכל גרף אינטראקטיבי אפשר להגדיל, להקטין ולאפס ולמרכז.</li><li>כל התחומים נכתבים כאי-שוויונים ולא בסימון קטעים.</li></ul></div>
+<div class="card"><h3>מיומנויות מרכזיות</h3><ul><li>פירוק לגורמים וטבלת סימנים.</li><li>התנהגות חד-צדדית ואסימפטוטות.</li><li>כלל המנה ופישוט הנגזרת.</li><li>משיקים, נקודות עם שיפוע אפס ונקודות קיצון.</li><li>הסקת גרף חדש מתוך גרף שנחקר.</li></ul></div>
+</div>
+<div class="page-no">1</div>
+</section>
+<section class="page" id="lesson1">
+<h2>שיעור 1 - הפונקציה הרציונלית הבסיסית ומבנה כללי</h2>
+<p class="lead">פונקציה רציונלית היא מנה של שני פולינומים, כאשר המכנה אינו שווה לאפס.</p>
+<div class="formula">\[ f(x)=\frac{P(x)}{Q(x)},\qquad Q(x)\ne0 \]</div>
+<div class="grid2">
+<div>
+<div class="card white"><h3>הדגם הבסיסי</h3><div class="formula">\[ f(x)=\frac{1}{x} \]</div><p>תחום ההגדרה מתקבל מן התנאי:</p><div class="formula">\[ x\ne0 \]</div><p>אין חיתוך עם ציר \(x\), ואין חיתוך עם ציר \(y\).</p></div>
+<div class="card white topgap"><h3>אסימפטוטות</h3><div class="formula">\[ x=0,\qquad y=0 \]</div><p>כאשר \(x⇒0^+\), ערכי הפונקציה גדלים ללא גבול; כאשר \(x⇒0^-\), הם קטנים ללא גבול.</p><div class="formula">\[ x⇒0^+ ⇒ f(x)⇒+\infty \]</div><div class="formula">\[ x⇒0^- ⇒ f(x)⇒-\infty \]</div></div>
+</div>
+<div><div class="jxg-shell">
+<div class="jxgbox tall" id="boardBasic" style="direction:ltr"></div>
+<div class="legend"><span>הגרף: \(f(x)=1/x\)</span><span>אסימפטוטות: \(x=0\), \(y=0\)</span></div>
+<div class="graphbar" data-controls-for="boardBasic">
+<button data-action="zoom-in" onclick="zoomBoard('boardBasic',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardBasic',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardBasic')" type="button">איפוס ומרכוז</button>
+</div>
+</div></div>
+</div>
+<div class="callout"><b>קריאת סימן:</b> אם \(x\gt0\), אז \(f(x)\gt0\). אם \(x\lt0\), אז \(f(x)\lt0\).</div>
+<div class="page-no">2</div>
+</section><section class="page" id="exercise1">
+<h2>תרגול שיעור 1 - 10 תרגילים</h2>
+<p class="exercise-intro">התרגילים מסודרים מן הבסיסי למורכב.</p><ol class="exercise-list"><li>עבור \(f(x)=\frac{1}{x}\), כתבו את תחום ההגדרה ואת שתי האסימפטוטות המקבילות לצירים.</li><li>עבור \(f(x)=\frac{2}{x}\), קבעו את סימן הפונקציה כאשר \(x\gt0\) וכאשר \(x\lt0\).</li><li>עבור \(f(x)=\frac{1}{x-3}\), כתבו את תחום ההגדרה ואת האסימפטוטה האנכית.</li><li>עבור \(f(x)=\frac{4}{x+2}\), כתבו את תחום ההגדרה ואת האסימפטוטה האנכית.</li><li>קבעו אם \(f(x)=\frac{x+1}{x-5}\) היא פונקציה רציונלית, ונמקו באמצעות המונה והמכנה.</li><li>עבור \(f(x)=\frac{x^2+1}{x^2+4}\), קבעו אם יש ערכים שאינם בתחום ההגדרה.</li><li>עבור \(f(x)=\frac{3x}{x^2-9}\), מצאו את כל הערכים שאינם בתחום.</li><li>עבור \(f(x)=\frac{x+2}{(x-1)(x+4)}\), כתבו את תחום ההגדרה באמצעות תנאי אי-שוויון.</li><li>עבור \(f(x)=\frac{5}{x-2}+1\), קבעו את האסימפטוטה האנכית והאופקית.</li><li>עבור \(f(x)=\frac{-3}{x+1}-2\), קבעו תחום, אסימפטוטות וסימן הביטוי \(f(x)+2\) בכל אחד משני צדי האסימפטוטה האנכית.</li></ol>
+<div class="page-no">3</div>
+</section><section class="page" id="lesson2">
+<h2>שיעור 2 - תחום הגדרה ופירוק לגורמים</h2>
+<p class="lead">את תחום ההגדרה קובעים לפני כל צמצום. תחילה מאפסים את המכנה המקורי, ורק לאחר מכן מפשטים את הביטוי.</p>
+<div class="grid2">
+<div class="card white"><h3>דוגמה 1</h3><div class="formula">\[ f(x)=\frac{x+2}{x^2-3x+2} \]</div><div class="formula">\[ x^2-3x+2=(x-1)(x-2) \]</div><div class="formula">\[ x\ne1,\qquad x\ne2 \]</div><p>בשני הערכים המונה אינו מתאפס, ולכן יש לבדוק התנהגות בלתי חסומה ליד כל אחד מהם.</p></div>
+<div class="card white"><h3>דוגמה 2 - צמצום</h3><div class="formula">\[ g(x)=\frac{(x-3)(x+1)}{(x-3)(x-2)} \]</div><p>התחום נקבע מן הביטוי המקורי:</p><div class="formula">\[ x\ne3,\qquad x\ne2 \]</div><p>לאחר מכן אפשר לפשט עבור ערכים בתחום:</p><div class="formula">\[ g(x)=\frac{x+1}{x-2} \]</div><p>הערך \(x=3\) נשאר מחוץ לתחום גם לאחר הצמצום.</p></div>
+</div>
+<div class="warning"><b>בקרה:</b> אין להחזיר לתחום ערך שנפסל מן המכנה המקורי.</div>
+<h3>אלגוריתם קצר</h3>
+<div class="steps-row"><span>1. פירוק המכנה</span><b>⇐</b><span>2. מציאת אפסים</span><b>⇐</b><span>3. כתיבת תנאי התחום</span><b>⇐</b><span>4. צמצום אם אפשר</span></div>
+<div class="page-no">4</div>
+</section><section class="page" id="exercise2">
+<h2>תרגול שיעור 2 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>מצאו תחום הגדרה: \(f(x)=\frac{2x+1}{x-4}\).</li><li>מצאו תחום הגדרה: \(f(x)=\frac{x}{x^2-9}\).</li><li>מצאו תחום הגדרה לאחר פירוק: \(f(x)=\frac{x+5}{x^2-5x+6}\).</li><li>מצאו תחום הגדרה לאחר פירוק: \(f(x)=\frac{2x}{x^2+x-6}\).</li><li>עבור \(f(x)=\frac{x-2}{x^2-4}\), כתבו תחום הגדרה ופשטו את הביטוי עבור ערכים בתחום.</li><li>עבור \(f(x)=\frac{x^2-9}{x^2-x-6}\), כתבו תחום הגדרה ופשטו ככל האפשר.</li><li>עבור \(f(x)=\frac{x^2-1}{x^2-2x+1}\), מצאו תחום הגדרה ופשטו ככל האפשר.</li><li>עבור \(f(x)=\frac{x^2-4x+4}{x^2-4}\), מצאו תחום הגדרה ופשטו ככל האפשר.</li><li>עבור \(f(x)=\frac{(x-1)(x+2)}{(x-1)(x-3)(x+4)}\), מצאו תחום הגדרה ואת הביטוי המצומצם.</li><li>עבור \(f(x)=\frac{x^3-4x}{x^2-x-6}\), פרקו לחלוטין, מצאו תחום הגדרה ופשטו ככל האפשר.</li></ol>
+<div class="page-no">5</div>
+</section><section class="page" id="lesson3">
+<h2>שיעור 3 - חיתוכים, סימן וסימטריה</h2>
+<div class="grid2">
+<div class="card white"><h3>חיתוך עם ציר \(x\)</h3><p>מאפסים את המונה, ורק ערך ששייך לתחום יכול להיות נקודת חיתוך.</p><div class="formula">\[ f(x)=0 ⇒ P(x)=0 \]</div></div>
+<div class="card white"><h3>חיתוך עם ציר \(y\)</h3><p>מציבים \(x=0\), רק אם \(0\) שייך לתחום.</p><div class="formula">\[ y=f(0) \]</div></div>
+</div>
+<h3>דוגמה לטבלת סימנים</h3>
+<div class="formula">\[ f(x)=\frac{(x+2)(x-3)}{(x-1)(x+4)} \]</div>
+<table><tr><th>תחום</th><th>סימן המונה</th><th>סימן המכנה</th><th>סימן הפונקציה</th></tr>
+<tr><td>\(x\lt-4\)</td><td>+</td><td>+</td><td>+</td></tr>
+<tr><td>\(-4\lt x\lt-2\)</td><td>+</td><td>-</td><td>-</td></tr>
+<tr><td>\(-2\lt x\lt1\)</td><td>-</td><td>-</td><td>+</td></tr>
+<tr><td>\(1\lt x\lt3\)</td><td>-</td><td>+</td><td>-</td></tr>
+<tr><td>\(x\gt3\)</td><td>+</td><td>+</td><td>+</td></tr></table>
+<div class="grid2">
+<div class="callout"><b>פונקציה זוגית:</b><div class="formula">\[ f(-x)=f(x) \]</div><p>הגרף סימטרי לציר \(y\).</p></div>
+<div class="callout"><b>פונקציה אי-זוגית:</b><div class="formula">\[ f(-x)=-f(x) \]</div><p>הגרף סימטרי לראשית.</p></div>
+</div>
+<div class="page-no">6</div>
+</section><section class="page" id="exercise3">
+<h2>תרגול שיעור 3 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>מצאו את נקודת החיתוך עם ציר \(x\): \(f(x)=\frac{x-3}{x+1}\).</li><li>מצאו את נקודת החיתוך עם ציר \(y\): \(f(x)=\frac{2x+5}{x-4}\).</li><li>מצאו את כל החיתוכים עם הצירים: \(f(x)=\frac{x+2}{x^2+1}\).</li><li>מצאו את כל החיתוכים עם הצירים: \(f(x)=\frac{x^2-4}{x^2+4}\).</li><li>קבעו את סימן \(f(x)=\frac{x-1}{x+2}\) בכל אחד מהתחומים הנוצרים מן הערכים \(x=-2,1\).</li><li>קבעו היכן \(f(x)=\frac{x+3}{(x-1)(x+2)}\) חיובית.</li><li>קבעו היכן \(f(x)=\frac{x(x-4)}{x+1}\) שלילית.</li><li>קבעו אם \(f(x)=\frac{x^2+1}{x^2-4}\) זוגית, אי-זוגית או לא זו ולא זו.</li><li>קבעו אם \(f(x)=\frac{5x}{x^2-9}\) זוגית, אי-זוגית או לא זו ולא זו, ומצאו את חיתוכיה עם הצירים.</li><li>עבור \(f(x)=\frac{(x+2)(x-3)}{(x-1)(x+4)}\), כתבו את תחומי החיוביות והשליליות באמצעות אי-שוויונים.</li></ol>
+<div class="page-no">7</div>
+</section><section class="page" id="lesson4-vertical">
+<h2>שיעור 4 - אסימפטוטה אנכית</h2>
+<p class="lead">אסימפטוטה אנכית מתארת מצב שבו ערכי הפונקציה גדלים או קטנים ללא גבול כאשר מתקרבים לערך מסוים של \(x\), שאינו שייך לתחום ההגדרה.</p>
+<div class="grid2">
+<div>
+<div class="card white">
+<h3>איך בודקים?</h3>
+<ol>
+<li><b>מוצאים ערך שאינו בתחום</b> על ידי איפוס המכנה.</li>
+<li><b>בודקים שלא נוצר רק חור</b> בעקבות צמצום של גורם משותף.</li>
+<li><b>בודקים התנהגות משני הצדדים</b> של הערך החשוד.</li>
+</ol>
+<div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div>
+<div class="formula">\[ x=4 \]</div>
+<p>ליד \(x=4\), המונה קרוב ל-\(13\) ולכן הוא חיובי. סימן המכנה משתנה לפי הצד שממנו מתקרבים:</p>
+<div class="formula">\[ x⇒4^- ⇒ f(x)⇒-\infty \]</div>
+<div class="formula">\[ x⇒4^+ ⇒ f(x)⇒+\infty \]</div>
+<div class="success"><b>מסקנה:</b> \(x=4\) היא אסימפטוטה אנכית.</div>
+</div>
+</div>
+<div>
+<div class="jxg-shell">
+<div class="jxgbox tall" id="boardAsym" style="direction:ltr"></div>
+<div class="legend"><span>\(f(x)=(2x+5)/(x-4)\)</span><span>אסימפטוטה אנכית: \(x=4\)</span></div>
+<div class="graphbar" data-controls-for="boardAsym">
+<button data-action="zoom-in" onclick="zoomBoard('boardAsym',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardAsym',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardAsym')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+</div>
+</div>
+<div class="warning"><b>טעות נפוצה:</b> אפס של המכנה לבדו אינו מספיק. אם גורם משותף מתבטל, ייתכן שמתקבל חור. אסימפטוטה אנכית נקבעת רק כאשר ההתנהגות ליד הערך היא אינסוף (כלומר מספר חלקי אפס).</div>
+<div class="page-no">8</div>
+</section><section class="page" id="lesson4-horizontal">
+<h2>שיעור 4 - אסימפטוטה אופקית</h2>
+<p class="lead">כדי להבין את התנהגות הפונקציה כאשר \(|x|\) גדול, מתמקדים באיברים בעלי <b>החזקה הגדולה ביותר</b>. האיברים בעלי החזקות הנמוכות יותר נעשים זניחים ביחס אליהם.</p>
+<div class="asym-cases">
+<div class="asym-case">
+<span class="asym-pill">דרגות שוות</span>
+<div class="formula">\[ \frac{2x+\cdots}{3x+\cdots}\approx\frac{2x}{3x}=\frac23 \]</div>
+<div style="height:18mm;" class="asym-result">\[ y=\frac23 \]</div>
+</div>
+<div class="asym-case">
+<span class="asym-pill">מכנה בדרגה גבוהה יותר</span>
+<div class="formula">\[ \frac{3x+\cdots}{x^2+\cdots}\approx\frac{3x}{x^2}=\frac{3}{x}⇒0 \]</div>
+<div style="height:18mm;" class="asym-result">\[ y=0 \]</div>
+</div>
+<div class="asym-case warncase">
+<span class="asym-pill">מונה בדרגה גבוהה יותר</span>
+<div class="formula">\[ \frac{2x^3+\cdots}{3x^2+\cdots}\approx\frac{2x^3}{3x^2}=\frac23x \]</div>
+<div style="height:18mm;" class="asym-result">הביטוי אינו מתקרב למספר קבוע, ולכן אין אסימפטוטה אופקית.</div>
+</div>
+</div>
+<div class="card white">
+<h3>דוגמה - הערכים הזניחים והאיברים המובילים</h3>
+<div class="formula">\[ f(x)=\frac{5x^2+1}{x^2-9} \]</div>
+<p>כאשר \(x⇒\pm\infty\), האיברים \(5x^2\) ו-\(x^2\) גדלים הרבה יותר מן הקבועים \(1\) ו-\(-9\). לכן לצורך התנהגות הקצה:</p>
+<div class="formula big">\[ f(x)\approx\frac{5x^2}{x^2}=5 \]</div>
+<div class="formula">\[ x⇒\pm\infty ⇒ f(x)⇒5 \]</div>
+<p><b>מסקנה:</b> האסימפטוטה האופקית היא \(y=5\).</p>
+</div>
+<div class="card white topgap">
+<h3>דוגמה - דרגת המכנה גדולה מדרגת המונה</h3>
+<div class="formula">\[ f(x)=\frac{3x+2}{x^2+4} \]</div>
+<p>במונה החזקה הגדולה ביותר היא \(x^1\), ובמכנה החזקה הגדולה ביותר היא \(x^2\). כאשר \(x⇒\pm\infty\), מתמקדים באיברים המובילים:</p>
+<div class="formula big">\[ f(x)\approx\frac{3x}{x^2}=\frac{3}{x} \]</div>
+<p>ככל שגודל \(x\) גדל, הערך של \(\frac{3}{x}\) מתקרב ל-\(0\):</p>
+<div class="formula">\[ x⇒\pm\infty ⇒ f(x)⇒0 \]</div>
+<p><b>מסקנה:</b> כאשר דרגת המכנה גדולה מדרגת המונה, האסימפטוטה האופקית היא \(y=0\).</p>
+</div>
+<h3>כלל מהיר</h3>
+<table class="degree-table"><tr><th>השוואת דרגות</th><th>אסימפטוטה אופקית</th></tr>
+<tr><td>דרגת המונה קטנה מדרגת המכנה</td><td>\(y=0\)</td></tr>
+<tr><td>הדרגות שוות</td><td>יחס המקדמים של האיברים בעלי החזקה הגדולה ביותר</td></tr>
+<tr><td>דרגת המונה גדולה מדרגת המכנה</td><td>אין אסימפטוטה אופקית</td></tr></table>
+<div class="warning"><b>חשוב:</b> לא קובעים אסימפטוטה אופקית לפי הצבה של מספר גדול אחד בלבד. האיברים המובילים מסבירים את ההתנהגות כאשר גודל \(x\) נעשה גדול מאוד.</div>
+<div class="page-no">9</div>
+</section>
+<section class="page" id="lesson4-horizontal-case1">
+<h2>שיעור 4 - אסימפטוטה אופקית: שלושה מצבים</h2>
+<div class="card white">
+<h3>דוגמה 1 - דרגת המונה קטנה מדרגת המכנה</h3>
+<div class="formula big">\[ f(x)=\frac{3x+2}{x^2+4} \]</div>
+<p>החזקה הגדולה ביותר במונה היא \(x^1\), ואילו במכנה היא \(x^2\). לכן דרגת המונה קטנה מדרגת המכנה.</p>
+<div class="formula">\[ f(x)\approx\frac{3x}{x^2}=\frac{3}{x} \]</div>
+<div class="formula">\[ x⇒\pm\infty ⇒ \frac{3}{x}⇒0 \]</div>
+<div class="success"><b>מסקנה:</b> האסימפטוטה האופקית היא \(y=0\).</div>
+</div>
+<div class="card white topgap graph-case">
+<h3>שרטוט הדוגמה</h3>
+<div class="formula">\[ f(x)=\frac{3x+2}{x^2+4},\qquad y=0 \]</div>
+<div class="jxg-shell">
+<div class="jxgbox h-asym-graph" id="boardHCase1" style="direction:ltr"></div>
+<div class="legend"><span>הגרף של \(f\)</span><span>אסימפטוטה אופקית: \(y=0\)</span></div>
+<div class="graphbar" data-controls-for="boardHCase1">
+<button data-action="zoom-in" onclick="zoomBoard('boardHCase1',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardHCase1',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardHCase1')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+</div>
+<div class="page-no">10</div>
 </section>
 
-<section class="page" id="p1">
-  <h2>מפת היחידה ורצף הוראה</h2>
-  <div class="toc">
-    <div><b>מבוא.</b> הפונקציה הרציונלית הבסיסית \(F(x)=\frac{1}{x}\)</div>
-    <div><b>1.</b> הגדרה ומבנה של פונקציה רציונלית</div>
-    <div><b>2.</b> תחום הגדרה ופירוק לגורמים</div>
-    <div><b>3.</b> חיתוכים, סימן וזוגיות</div>
-    <div><b>4.</b> אסימפטוטה אנכית והתנהגות חד־צדדית</div>
-    <div><b>5.</b> אסימפטוטה אופקית והתנהגות באינסוף</div>
-    <div><b>6.</b> סקיצה ראשונית ללא נגזרת</div>
-    <div><b>7.</b> כלל המנה בנגזרת</div>
-    <div><b>8.</b> כלל המנה — דוגמאות מדורגות</div>
-    <div><b>9.</b> משיקים ושיפועים</div>
-    <div><b>10.</b> תבנית חקירה מלאה</div>
-    <div><b>11.</b> דוגמה מלאה</div>
-    <div><b>11א.</b> שיטת מונה הנגזרת — פרבולה וסימן</div>
-    <div><b>12.</b> התנהגות ליד האסימפטוטות</div>
-    <div><b>13.</b> חקירה הפוכה ושאלות פרמטר</div>
-    <div><b>14.</b> טרנספורמציות לאחר חקירה</div>
-    <div><b>15.</b> מעבדה אינטראקטיבית — משפחת ההזזות</div>
-    <div><b>16.</b> ערך מוחלט וריבוע</div>
-    <div><b>16א–16ב.</b> דוגמאות מלאות: ערך מוחלט וריבוע</div>
-    <div><b>17–20.</b> תרגול מדורג</div>
-    <div><b>21–23.</b> הערכה, טעויות נפוצות ומקורות</div>
-  </div>
-  <div class="grid2" style="margin-top:7mm">
-    <div class="card white">
-      <h3>הצעת זמן</h3>
-      <table>
-        <tr><th>שלב</th><th>שיעורים</th></tr>
-        <tr><td>קדם־אנליזה ואסימפטוטות</td><td>3–4</td></tr>
-        <tr><td>כלל המנה ומשיקים</td><td>2</td></tr>
-        <tr><td>חקירה מלאה</td><td>3–4</td></tr>
-        <tr><td>טרנספורמציות וחקירה הפוכה</td><td>2–3</td></tr>
-      </table>
-    </div>
-    <div class="card white">
-      <h3>עקרונות הוראה</h3>
-      <ol>
-        <li>בכל פונקציה מתחילים בתחום.</li>
-        <li>לפני גזירה ממצים את המידע האלגברי.</li>
-        <li>ליד כל אסימפטוטה אנכית בודקים שני צדדים.</li>
-        <li>לאחר גזירה מפשטים לפני טבלת סימנים.</li>
-        <li>בטרנספורמציה משתמשים בחקירה הקיימת ואינם מתחילים מחדש.</li>
-      </ol>
-    </div>
-  </div>
-  <div class="page-no">3</div>
+<section class="page" id="lesson4-horizontal-case2">
+<h2>שיעור 4 - אסימפטוטה אופקית: שלושה מצבים</h2>
+<div class="card white">
+<h3>דוגמה 2 - דרגת המונה שווה לדרגת המכנה</h3>
+<div class="formula big">\[ f(x)=\frac{4x^2-3x+1}{2x^2+5} \]</div>
+<p>בשני הפולינומים החזקה הגדולה ביותר היא \(x^2\). לכן מתייחסים רק לאיברים המובילים ולמקדמים שלהם.</p>
+<div class="formula">\[ f(x)\approx\frac{4x^2}{2x^2}=\frac42=2 \]</div>
+<div class="formula">\[ x⇒\pm\infty ⇒ f(x)⇒2 \]</div>
+<div class="success"><b>מסקנה:</b> האסימפטוטה האופקית היא \(y=2\).</div>
+</div>
+<div class="card white topgap graph-case">
+<h3>שרטוט הדוגמה</h3>
+<div class="formula">\[ f(x)=\frac{4x^2-3x+1}{2x^2+5},\qquad y=2 \]</div>
+<div class="jxg-shell">
+<div class="jxgbox h-asym-graph" id="boardHCase2" style="direction:ltr"></div>
+<div class="legend"><span>הגרף של \(f\)</span><span>אסימפטוטה אופקית: \(y=2\)</span></div>
+<div class="graphbar" data-controls-for="boardHCase2">
+<button data-action="zoom-in" onclick="zoomBoard('boardHCase2',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardHCase2',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardHCase2')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+</div>
+<div class="page-no">11</div>
 </section>
 
-<section class="page" id="p-basic-rational">
-  <h2>מבוא - הפונקציה הרציונלית הפשוטה ביותר</h2>
-  <p class="lead">לפני שחוקרים פונקציות רציונליות מורכבות, נתחיל בדוגמה הבסיסית ביותר - ללא שימוש בנגזרת.</p>
-  <div class="formula">\[ F(x)=\frac{1}{x} \]</div>
-  <div class="grid2">
-    <div>
-      <div class="card white">
-        <h3>1. תחום ההגדרה</h3>
-        <p>בפונקציה רציונלית אסור למכנה להיות שווה לאפס. כאן המכנה הוא \(x\), ולכן הערך \(x=0\) אינו מותר.</p>
-        <div class="formula">\[ x\ne0 \]</div>
-        <div class="formula">\[ D_F=\mathbb{R}\setminus\{0\} \]</div>
-        <div class="callout small"><b>משמעות:</b> אפשר להציב בפונקציה כל מספר ממשי, חיובי או שלילי, פרט ל־\(0\).</div>
-      </div>
-
-      <div class="card white" style="margin-top:3mm">
-        <h3>2. מדוע \(x=0\) היא אסימפטוטה אנכית?</h3>
-        <p>כאשר \(x\) מתקרב ל־\(0\), המכנה נעשה קטן מאוד בערכו המוחלט. לכן המנה \(\frac{1}{x}\) נעשית גדולה מאוד בערכה המוחלט.</p>
-        <div class="formula">\[ x\to0^+ \quad\Longrightarrow\quad F(x)\to+\infty \]</div>
-        <div class="formula">\[ x\to0^- \quad\Longrightarrow\quad F(x)\to-\infty \]</div>
-        <div class="success small"><b>מסקנה:</b> הישר \(x=0\) הוא אסימפטוטה אנכית, משום שכאשר מתקרבים אליו ערכי הפונקציה נעשים בלתי חסומים.</div>
-      </div>
-    </div>
-
-    <div>
-      <div class="jxg-shell">
-        <div id="boardBasicRational" class="jxgbox compact"></div>
-        <div class="legend">
-          <span><i class="sw blue"></i>\(F(x)=1/x\)</span>
-          <span><i class="sw red"></i>\(x=0\)</span>
-          <span><i class="sw green"></i>\(y=0\)</span>
-        </div>
-        <div class="graphbar">
-          <button onclick="zoomBoard('boardBasicRational',0.80)">הגדלה</button>
-          <button onclick="zoomBoard('boardBasicRational',1.25)">הקטנה</button>
-          <button onclick="resetBoard('boardBasicRational')">מרכוז</button>
-        </div>
-      </div>
-
-      <div class="card white" style="margin-top:3mm">
-        <h3>3. מהי אסימפטוטה אופקית?</h3>
-        <p>אסימפטוטה אופקית מתארת את התנהגות הגרף כאשר \(x\) הולך וגדל בערכו המוחלט. אם ערכי הפונקציה מתקרבים למספר קבוע \(L\), הישר \(y=L\) הוא אסימפטוטה אופקית.</p>
-        <p>בפונקציה שלנו, ככל ש־\(|x|\) גדול יותר, השבר \(\frac{1}{x}\) קטן יותר בערכו המוחלט ומתקרב ל־\(0\).</p>
-        <div class="formula">\[ x\to+\infty \quad\Longrightarrow\quad F(x)\to0^+ \]</div>
-        <div class="formula">\[ x\to-\infty \quad\Longrightarrow\quad F(x)\to0^- \]</div>
-        <div class="success small"><b>לכן:</b> האסימפטוטה האופקית היא \(y=0\).</div>
-      </div>
-    </div>
-  </div>
-  <h3>4. קוראים את הגרף ללא נגזרת</h3>
-  <table>
-    <tr><th>תחום</th><th>סימן \(F(x)\)</th><th>מיקום הגרף</th><th>התנהגות</th></tr>
-    <tr><td>\(x\gt0\)</td><td>חיובי</td><td>רביע ראשון</td><td>ליד \(0\) הערכים גדולים מאוד; כאשר \(x\) גדל, הערכים מתקרבים ל־\(0\).</td></tr>
-    <tr><td>\(x\lt0\)</td><td>שלילי</td><td>רביע שלישי</td><td>ליד \(0\) הערכים שליליים וגדולים בערכם המוחלט; כאשר \(x\) קטן ללא גבול, הערכים מתקרבים ל־\(0\).</td></tr>
-  </table>
-  <div class="callout"><b>שימו לב:</b> לפונקציה אין חיתוך עם ציר \(x\), משום ש־\(\frac{1}{x}\) לעולם אינה שווה ל־\(0\). אין גם חיתוך עם ציר \(y\), משום ש־\(x=0\) אינו בתחום ההגדרה.</div>
-  <div class="page-no">2</div>
+<section class="page" id="lesson4-horizontal-case3">
+<h2>שיעור 4 - אסימפטוטה אופקית: שלושה מצבים</h2>
+<div class="card white">
+<h3>דוגמה 3 - דרגת המונה גדולה מדרגת המכנה</h3>
+<div class="formula big">\[ f(x)=\frac{2x^3+x}{5x^2+1} \]</div>
+<p>החזקה הגדולה ביותר במונה היא \(x^3\), ואילו במכנה היא \(x^2\). לכן דרגת המונה גדולה מדרגת המכנה.</p>
+<div class="formula">\[ f(x)\approx\frac{2x^3}{5x^2}=\frac25x \]</div>
+<p>הביטוי \(\frac25x\) אינו מתקרב למספר קבוע כאשר \(x⇒\pm\infty\).</p>
+<div class="warning"><b>מסקנה:</b> אין לפונקציה אסימפטוטה אופקית.</div>
+</div>
+<div class="card white topgap graph-case">
+<h3>שרטוט הדוגמה</h3>
+<div class="formula">\[ f(x)=\frac{2x^3+x}{5x^2+1} \]</div>
+<div class="jxg-shell">
+<div class="jxgbox h-asym-graph" id="boardHCase3" style="direction:ltr"></div>
+<div class="legend"><span>הגרף של \(f\)</span><span>אין אסימפטוטה אופקית</span></div>
+<div class="graphbar" data-controls-for="boardHCase3">
+<button data-action="zoom-in" onclick="zoomBoard('boardHCase3',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardHCase3',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardHCase3')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+</div>
+<div class="callout"><b>זיכרון מהיר:</b> מונה בדרגה נמוכה יותר ⇐ \(y=0\) • דרגות שוות ⇐ יחס המקדמים המובילים • מונה בדרגה גבוהה יותר ⇐ אין אסימפטוטה אופקית.</div>
+<div class="page-no">12</div>
 </section>
-
-<section class="page" id="p3">
-  <h2>1. מהי פונקציה רציונלית?</h2>
-  <p>פונקציה רציונלית היא מנה של שני פולינומים. המכנה אינו רשאי להתאפס.</p>
-  <div class="formula">\[ f(x)=\frac{P(x)}{Q(x)},\qquad Q(x)\ne 0 \]</div>
-  <div class="grid2">
-    <div class="card">
-      <h3>דוגמאות</h3>
-      <div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div>
-      <div class="formula">\[ g(x)=\frac{x^2+4}{x^2-3x+2} \]</div>
-      <div class="formula">\[ h(x)=\frac{6x}{x^2-10x+9} \]</div>
-    </div>
-    <div class="card">
-      <h3>אינן דוגמאות</h3>
-      <div class="formula">\[ f(x)=\sqrt{x}+1 \]</div>
-      <div class="formula">\[ g(x)=2^x \]</div>
-      <div class="formula">\[ h(x)=|x| \]</div>
-    </div>
-  </div>
-  <h3>לפני כל חקירה: שלוש שאלות</h3>
-  <div class="step"><div class="n">1</div><div><b>האם אפשר לפרק לגורמים?</b> פירוק עשוי לחשוף ערכים אסורים, אסימפטוטות וצורת גרף.</div></div>
-  <div class="step"><div class="n">2</div><div><b>מה מאפס את המכנה המקורי?</b> ערכים אלה מוצאים מיד מתחום ההגדרה.</div></div>
-  <div class="step"><div class="n">3</div><div><b>איך הפירוק מסייע?</b> פירוק המכנה מאפשר לזהות את ערכי אי־ההגדרה ולארגן טבלת סימנים בצורה מדויקת.</div></div>
-  <div class="exercise">
-    <b>בדיקת פתיחה.</b> קבעו אילו מהביטויים הבאים מגדירים פונקציה רציונלית ומצאו את תחום ההגדרה כאשר אפשר:
-    <div class="formula">\[ \frac{x+2}{x^2-9},\qquad \frac{1}{x^2+1},\qquad \sqrt{\frac{x+1}{x-2}},\qquad \frac{x^3+2}{x^2-x} \]</div>
-  </div>
-  <div class="answer small"><b>מפתח:</b> הראשון, השני והרביעי רציונליים. ברביעי תחום ההגדרה מתקבל מאפסי המכנה: \(x\ne0,1\).</div>
-  <div class="page-no">4</div>
+<section class="page" id="exercise4">
+<h2>תרגול שיעור 4 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>מצאו את האסימפטוטה האנכית של \(f(x)=\frac{1}{x-2}\).</li><li>מצאו את האסימפטוטה האופקית של \(f(x)=\frac{3x+1}{x-4}\).</li><li>מצאו את כל האסימפטוטות המקבילות לצירים של \(f(x)=\frac{2x+5}{x-4}\).</li><li>עבור \(f(x)=\frac{3}{x+1}\), תארו את ההתנהגות כאשר \(x⇒-1^-\) וכאשר \(x⇒-1^+\).</li><li>עבור \(f(x)=\frac{x+2}{x-3}\), תארו את ההתנהגות משני צדי \(x=3\).</li><li>מצאו את האסימפטוטה האופקית של \(f(x)=\frac{5x^2+1}{x^2+4}\).</li><li>מצאו את האסימפטוטה האופקית של \(f(x)=\frac{2x^2-3x+1}{4x^2+7}\).</li><li>עבור \(f(x)=\frac{x^2+4}{(x-1)(x+2)}\), מצאו את האסימפטוטות האנכיות ותארו את ההתנהגות משני צדיהן.</li><li>עבור \(f(x)=\frac{3x}{x^2-4}\), מצאו את האסימפטוטות המקבילות לצירים ואת סימן הפונקציה כאשר \(x⇒+\infty\).</li><li>עבור \(f(x)=\frac{2x^2+3x+2}{x^2-x-6}\), מצאו תחום, אסימפטוטות אנכיות, אסימפטוטה אופקית והתנהגות חד-צדדית ליד כל אסימפטוטה אנכית.</li></ol>
+<div class="page-no">11</div>
+</section><section class="page" id="lesson5">
+<h2>שיעור 5 - סקיצה ראשונית ללא נגזרת</h2>
+<p class="lead">לפני הגזירה אוספים את כל המידע שכבר ניתן להפיק מן הביטוי.</p>
+<div class="card white">
+<h3>איך מגיעים לצורה \(2+\frac{13}{x-4}\)?</h3>
+<p>המטרה היא לכתוב את המונה בעזרת הביטוי שמופיע במכנה. במכנה מופיע \(x-4\), ובמונה המקדם של \(x\) הוא \(2\), לכן מתחילים מ-\(2(x-4)\).</p>
+<div class="formula">\[ 2(x-4)=2x-8 \]</div>
+<p>כדי לקבל את המונה המקורי \(2x+5\), צריך להוסיף \(13\):</p>
+<div class="formula">\[ 2x+5=2x-8+13=2(x-4)+13 \]</div>
+<p>כעת מחלקים כל חלק במכנה:</p>
+<div class="formula big">\[
+ f(x)=\frac{2(x-4)+13}{x-4}
+ =\frac{2(x-4)}{x-4}+\frac{13}{x-4}
+ =2+\frac{13}{x-4},\qquad x\ne4
+ \]</div>
+<p><b>הרעיון:</b> זוהי חלוקה עם שארית: \(2\) הוא המנה ו-\(13\) היא השארית.</p>
+</div>
+<div class="grid2 topgap">
+<div>
+<div class="checklist single">
+<div class="checkitem"><b>תחום:</b> \(x\ne4\)</div>
+<div class="checkitem"><b>חיתוך עם ציר \(x\):</b> \((-\frac52,0)\)</div>
+<div class="checkitem"><b>חיתוך עם ציר \(y\):</b> \((0,-\frac54)\)</div>
+<div class="checkitem"><b>אסימפטוטה אנכית:</b> \(x=4\)</div>
+<div class="checkitem"><b>אסימפטוטה אופקית:</b> \(y=2\)</div>
+</div>
+<div class="callout"><b>מיקום הענפים:</b> מן הצורה \(2+\frac{13}{x-4}\) מתקבל שכאשר \(x\lt4\), האיבר השברי שלילי; כאשר \(x\gt4\), הוא חיובי.</div>
+</div>
+<div><div class="jxg-shell">
+<div class="jxgbox tall" id="boardPre" style="direction:ltr"></div>
+<div class="graphbar" data-controls-for="boardPre">
+<button data-action="zoom-in" onclick="zoomBoard('boardPre',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardPre',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardPre')" type="button">איפוס ומרכוז</button>
+</div>
+</div></div>
+</div>
+<div class="success"><b>מטרה:</b> הסקיצה הראשונית אינה מחליפה את החקירה בעזרת נגזרת. היא יוצרת מסגרת שמאפשרת לבדוק אם התוצאות המאוחרות הגיוניות.</div>
+<div class="page-no">12</div>
+</section><section class="page" id="exercise5">
+<h2>תרגול שיעור 5 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>שרטטו סקיצה איכותנית של \(f(x)=\frac{1}{x}\) לפי תחום ואסימפטוטות בלבד.</li><li>שרטטו סקיצה איכותנית של \(f(x)=\frac{1}{x-2}\).</li><li>שרטטו סקיצה איכותנית של \(f(x)=\frac{1}{x}+3\).</li><li>שרטטו סקיצה איכותנית של \(f(x)=\frac{2}{x-1}-2\).</li><li>עבור \(f(x)=\frac{x+1}{x-2}\), מצאו תחום, חיתוכים ואסימפטוטות ובנו סקיצה ראשונית.</li><li>עבור \(f(x)=\frac{2x-3}{x+1}\), מצאו תחום, חיתוכים ואסימפטוטות ובנו סקיצה ראשונית.</li><li>עבור \(f(x)=\frac{x-4}{x+2}\), קבעו באיזה צד של האסימפטוטה האופקית נמצא כל ענף.</li><li>עבור \(f(x)=\frac{3x+2}{x-1}\), קבעו התנהגות משני צדי האסימפטוטה האנכית ובנו סקיצה.</li><li>עבור \(f(x)=\frac{x^2+1}{x^2-4}\), סמנו בסקיצה את שתי האסימפטוטות האנכיות ואת האסימפטוטה האופקית.</li><li>עבור \(f(x)=\frac{2x^2+1}{x^2-9}\), מצאו את כל נתוני קדם-האנליזה הדרושים ובנו סקיצה איכותנית מנומקת.</li></ol>
+<div class="page-no">13</div>
+</section><section class="page" id="family-app">
+<h2>יישומון מקדים לפני שיעור 6 - המשפחה הכללית</h2>
+<p class="lead">לפני שעוברים לנגזרת, כדאי לראות כיצד הפרמטרים במשפחה \(f(x)=\frac{a}{x-h}+k\) משפיעים על צורת הגרף, על מיקום האסימפטוטות ועל מיקום מרכז ההיפרבולה.</p>
+<div class="app-panel">
+<div class="app-title"><span>המשפחה הכללית \(f(x)=\frac{a}{x-h}+k\)</span><span>שנו את \(a,h,k\) וראו מיד את השפעתם</span></div>
+<div class="slider-grid">
+<div class="range-card">
+<div class="range-head"><span>פרמטר \(a\)</span><span class="range-value" id="famAVal">1</span></div>
+<input id="famA" max="10" min="-10" step="0.5" type="range" value="1"/>
+</div>
+<div class="range-card">
+<div class="range-head"><span>פרמטר \(h\)</span><span class="range-value" id="famHVal">0</span></div>
+<input id="famH" max="10" min="-10" step="0.5" type="range" value="0"/>
+</div>
+<div class="range-card">
+<div class="range-head"><span>פרמטר \(k\)</span><span class="range-value" id="famKVal">0</span></div>
+<input id="famK" max="10" min="-10" step="0.5" type="range" value="0"/>
+</div>
+</div>
+<div class="formula-display" id="familyFormula">\[ f(x)=\frac{1}{x} \]</div>
+<div class="jxg-shell">
+<div class="jxgbox app-large" id="boardFamilyApp" style="direction:ltr"></div>
+<div class="graphbar" data-controls-for="boardFamilyApp">
+<button data-action="zoom-in" onclick="zoomBoard('boardFamilyApp',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardFamilyApp',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardFamilyApp')" type="button">איפוס ומרכוז</button>
+</div>
+<div class="legend" id="familyLegend"><span>אסימפטוטה אנכית: \(x=0\)</span><span>אסימפטוטה אופקית: \(y=0\)</span><span>מרכז סימטריה: \((0,0)\)</span></div>
+<div class="app-caption">הנקודה הסגולה מסמנת את מרכז הסימטריה \((h,k)\). הקו המקווקו האנכי הוא \(x=h\), והקו המקווקו האופקי הוא \(y=k\).</div>
+</div>
+</div>
+<div class="grid2 topgap">
+<div class="card white">
+<h3>מה מראה כל פרמטר?</h3>
+<ul class="app-list">
+<li>\(a\) קובע את הכיוון ואת מידת המתיחה של ההיפרבולה.</li>
+<li>\(h\) מזיז את הגרף ימינה או שמאלה, ולכן גם את האסימפטוטה האנכית.</li>
+<li>\(k\) מזיז את הגרף למעלה או למטה, ולכן גם את האסימפטוטה האופקית.</li>
+</ul>
+</div>
+<div class="card white">
+<h3>כדאי לשים לב</h3>
+<ul class="app-list">
+<li>אם \(a\gt0\), מתקבל מבנה דומה ל-\(1/x\).</li>
+<li>אם \(a\lt0\), שני הענפים עוברים לשני הרבעים הנגדיים.</li>
+<li>מרכז הסימטריה של הגרף הוא תמיד \((h,k)\).</li>
+</ul>
+</div>
+</div>
+<div class="page-no">14</div>
+</section><section class="page" id="lesson6">
+<h2>שיעור 6 - כלל המנה וסימן הנגזרת</h2>
+<p class="lead">אם \(u\) ו-\(v\) גזירות ו-\(v(x)\ne0\), משתמשים בכלל המנה.</p>
+<div class="formula big">\[ \left(\frac{u(x)}{v(x)}\right)'=\frac{u'(x)v(x)-u(x)v'(x)}{[v(x)]^2} \]</div>
+<div class="grid2">
+<div>
+<div class="card white"><h3>דוגמה א</h3><div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div><div class="formula">\[ f'(x)=\frac{2(x-4)-(2x+5)}{(x-4)^2}=\frac{-13}{(x-4)^2} \]</div><p>המכנה בריבוע חיובי בכל נקודה בתחום, ולכן סימן הנגזרת נקבע מן המונה.</p></div>
+<div class="card white topgap"><h3>דוגמה ב</h3><div class="formula">\[ f(x)=\frac{6x}{x^2-5x+4} \]</div><div class="formula">\[ f'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2} \]</div><p>כדי לקבוע את סימן הנגזרת מספיק לנתח את הפרבולה \(4-x^2\), תוך זכירת הערכים שאינם בתחום.</p></div>
+</div>
+<div><div class="jxg-shell">
+<div class="jxgbox tall" id="boardDerivative" style="direction:ltr"></div>
+<div class="legend"><span>מונה הנגזרת: \(4-x^2\)</span><span>אפסים: \(x=-2,2\)</span></div>
+<div class="graphbar" data-controls-for="boardDerivative">
+<button data-action="zoom-in" onclick="zoomBoard('boardDerivative',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardDerivative',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardDerivative')" type="button">איפוס ומרכוז</button>
+</div>
+</div></div>
+</div>
+<div class="warning"><b>שלוש בדיקות:</b> הסדר במונה הוא \(u'v-uv'\); המכנה כולו בריבוע; מפשטים את הנגזרת לפני בניית טבלת סימנים.</div>
+<div class="page-no">15</div>
+</section><section class="page" id="exercise6">
+<h2>תרגול שיעור 6 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>גזרו ופשטו: \(f(x)=\frac{x+1}{x-2}\).</li><li>גזרו ופשטו: \(f(x)=\frac{2x-3}{x+4}\).</li><li>גזרו ופשטו: \(f(x)=\frac{x^2}{x+1}\).</li><li>גזרו ופשטו: \(f(x)=\frac{x^2+1}{x}\).</li><li>גזרו ופשטו: \(f(x)=\frac{3x}{x^2+1}\).</li><li>גזרו ופשטו: \(f(x)=\frac{x^2-3x}{x^2+3}\).</li><li>עבור \(f(x)=\frac{x^2}{x-1}\), מצאו את ערכי \(x\) שבהם \(f'(x)=0\).</li><li>עבור \(f(x)=\frac{3x}{x^2-4}\), קבעו את סימן הנגזרת בכל חלק של תחום ההגדרה.</li><li>עבור \(f(x)=\frac{6x}{x^2-5x+4}\), מצאו את נקודות הקיצון וסווגו אותן לפי שינוי סימן הנגזרת.</li><li>עבור \(f(x)=\frac{x^2-4x+5}{x-2}\), גזרו, מצאו את ערכי \(x\) שבהם השיפוע אפס, וקבעו את סוג נקודות הקיצון.</li></ol>
+<div class="page-no">16</div>
+</section><section class="page" id="lesson7">
+<h2>שיעור 7 - משיק, שיפוע ונקודה עם שיפוע אפס</h2>
+<p class="lead">הנגזרת בנקודה נותנת את שיפוע המשיק לגרף באותה נקודה.</p>
+<div class="formula">\[ m=f'(x_0) \]</div>
+<div class="formula">\[ y-f(x_0)=f'(x_0)(x-x_0) \]</div>
+<div class="grid2">
+<div class="card white">
+<h3>דוגמה - משיק בנקודה</h3>
+<div class="formula">\[ f(x)=\frac{x-1}{x+1},\qquad x_0=1 \]</div>
+<div class="formula">\[ f'(x)=\frac{2}{(x+1)^2} \]</div>
+<div class="formula">\[ f(1)=0,\qquad f'(1)=\frac12 \]</div>
+<div class="formula">\[ y=\frac12(x-1) \]</div>
+<div class="jxg-shell">
+<div class="jxgbox lesson7graph" id="boardTangent" style="direction:ltr"></div>
+<div class="legend"><span>הגרף \(f\)</span><span>נקודת ההשקה: \((1,0)\)</span><span>המשיק: \(y=\frac12(x-1)\)</span></div>
+<div class="graphbar" data-controls-for="boardTangent">
+<button data-action="zoom-in" onclick="zoomBoard('boardTangent',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardTangent',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardTangent')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+</div>
+<div class="card white">
+<h3>דוגמה - נקודה עם שיפוע אפס</h3>
+<div class="formula">\[ f(x)=\frac{x^2+1}{x},\qquad x\ne0 \]</div>
+<div class="formula">\[ f'(x)=1-\frac{1}{x^2} \]</div>
+<div class="formula">\[ f'(1)=0,\qquad f(1)=2 \]</div>
+<div class="formula">\[ y=2 \]</div>
+<p>בנקודה \((1,2)\) שיפוע המשיק הוא אפס, ולכן המשיק אופקי. כדי לקבוע אם זו נקודת קיצון בודקים את שינוי סימן הנגזרת משני צדי \(x=1\).</p>
+<div class="jxg-shell">
+<div class="jxgbox lesson7graph" id="boardZeroSlope" style="direction:ltr"></div>
+<div class="legend"><span>הגרף \(f\)</span><span>נקודה עם שיפוע אפס: \((1,2)\)</span><span>המשיק האופקי: \(y=2\)</span></div>
+<div class="graphbar" data-controls-for="boardZeroSlope">
+<button data-action="zoom-in" onclick="zoomBoard('boardZeroSlope',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardZeroSlope',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardZeroSlope')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+</div>
+</div>
+<div class="callout"><b>סדר עבודה:</b> נגזרת ⇐ מציאת \(x_0\) ⇐ חישוב \(f(x_0)\) ⇐ חישוב השיפוע ⇐ משוואת המשיק.</div>
+<div class="page-no">17</div>
+</section><section class="page" id="exercise7">
+<h2>תרגול שיעור 7 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>עבור \(f(x)=\frac{x-1}{x+1}\), מצאו את שיפוע המשיק בנקודה שבה \(x=1\).</li><li>עבור \(f(x)=\frac{2x+1}{x-1}\), מצאו את שיפוע המשיק בנקודה שבה \(x=0\).</li><li>עבור \(f(x)=\frac{x^2+1}{x}\), מצאו את משוואת המשיק בנקודה שבה \(x=1\).</li><li>עבור \(f(x)=\frac{x^2}{x+1}\), מצאו את משוואת המשיק בנקודה שבה \(x=1\).</li><li>עבור \(f(x)=\frac{x^2+3}{x}\), מצאו את כל הנקודות שבהן השיפוע אפס.</li><li>עבור \(f(x)=\frac{x^2}{x-1}\), מצאו את כל הנקודות שבהן השיפוע אפס.</li><li>עבור \(f(x)=\frac{x-2}{x+2}\), מצאו את כל הנקודות שבהן המשיק מקביל לישר \(y=x+5\), אם קיימות.</li><li>עבור \(f(x)=\frac{x^2+1}{x}\), מצאו נקודות שבהן המשיק מקביל לישר \(y=3x-4\).</li><li>עבור \(f(x)=\frac{x^2}{x+2}\), מצאו נקודות שבהן המשיק מאונך לישר \(y=-\frac13x+1\).</li><li>עבור \(f(x)=\frac{x^2+4}{x}\), מצאו את כל המשיקים ששיפועם \(m=2\).</li></ol>
+<div class="page-no">18</div>
+</section><section class="page" id="lesson8a">
+<h2>שיעור 8 - חקירה מלאה: תבנית עבודה</h2>
+<p class="lead">בחקירה מלאה מומלץ לעבוד תמיד באותו סדר.</p>
+<div class="checklist two">
+<div class="checkitem"><b>1. תחום הגדרה</b><br/>נקודת האפס של המכנה המקורי.</div>
+<div class="checkitem"><b>2. פירוק לגורמים</b><br/>הכנה לסימנים ולאסימפטוטות.</div>
+<div class="checkitem"><b>3. חיתוכים</b><br/>נקודת האפס של המונה ו-\(f(0)\).</div>
+<div class="checkitem"><b>4. סימן וסימטריה</b><br/>כאשר הם מסייעים.</div>
+<div class="checkitem"><b>5. אסימפטוטות אנכיות</b><br/>בדיקה ליד ערכים שאינם בתחום.</div>
+<div class="checkitem"><b>6. אסימפטוטה אופקית</b><br/>התנהגות כאשר \(x⇒\pm\infty\).</div>
+<div class="checkitem"><b>7. נגזרת ראשונה</b><br/>גזירה ופישוט.</div>
+<div class="checkitem"><b>8. נקודות עם שיפוע אפס</b><br/>פתרון \(f'(x)=0\).</div>
+<div class="checkitem"><b>9. נקודות קיצון</b><br/>סיווג באמצעות שינוי סימן.</div>
+<div class="checkitem"><b>10. עלייה וירידה</b><br/>קריאת סימן הנגזרת.</div>
+<div class="checkitem"><b>11. סקיצה סופית</b><br/>שילוב כל הנתונים.</div>
+<div class="checkitem"><b>12. בדיקת עקביות</b><br/>כל הנתונים חייבים להתאים זה לזה.</div>
+</div>
+<div class="callout"><b>כלל חשוב:</b> ערך שאינו בתחום יכול לפצל תחומי עלייה וירידה, אך הוא אינו נקודה על הגרף.</div>
+<div class="page-no">19</div>
+</section><section class="page" id="lesson8b">
+<h2>שיעור 8 - דוגמה מלאה ושיטת מונה הנגזרת</h2>
+<div class="formula">\[ f(x)=\frac{6x}{x^2-5x+4}=\frac{6x}{(x-1)(x-4)} \]</div>
+<div class="grid2">
+<div>
+<p><b>תחום:</b> \(x\ne1,4\)</p>
+<p><b>חיתוך עם הצירים:</b> \((0,0)\)</p>
+<p><b>אסימפטוטות אנכיות:</b> \(x=1\), \(x=4\)</p>
+<p><b>אסימפטוטה אופקית:</b> \(y=0\)</p>
+<div class="formula">\[ f'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2} \]</div>
+<p>נקודת האפס של הנגזרת:</p><div class="formula">\[ x=-2,\qquad x=2 \]</div>
+<div class="formula">\[ f(-2)=-\frac23,\qquad f(2)=-6 \]</div>
+<p><b>קיצון:</b> מינימום ב-\((-2,-\frac23)\), מקסימום ב-\((2,-6)\).</p>
+<p><b>עלייה:</b> \(-2\lt x\lt1\), \(1\lt x\lt2\).</p>
+<p><b>ירידה:</b> \(x\lt-2\), \(2\lt x\lt4\), \(x\gt4\).</p>
+</div>
+<div><div class="jxg-shell">
+<div class="jxgbox tall" id="boardFull" style="direction:ltr"></div>
+<div class="graphbar" data-controls-for="boardFull">
+<button data-action="zoom-in" onclick="zoomBoard('boardFull',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardFull',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardFull')" type="button">איפוס ומרכוז</button>
+</div>
+</div></div>
+</div>
+<div class="success"><b>שיטת מונה הנגזרת:</b> המכנה בריבוע וחיובי בכל נקודה בתחום, ולכן סימן \(f'\) נקבע רק מן \(4-x^2\).</div>
+<div class="page-no">20</div>
+</section><section class="page" id="exercise8">
+<h2>תרגול שיעור 8 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>חקרו את \(f(x)=\frac{x+1}{x-2}\): תחום, חיתוכים, אסימפטוטות, נגזרת, נקודות קיצון וסקיצה.</li><li>חקרו את \(f(x)=\frac{2x}{x^2+1}\) באופן מלא.</li><li>חקרו את \(f(x)=\frac{x^2}{x^2+1}\) באופן מלא.</li><li>חקרו את \(f(x)=\frac{x^2+1}{x}\) באופן מלא.</li><li>חקרו את \(f(x)=\frac{3x}{x^2-4}\) באופן מלא.</li><li>חקרו את \(f(x)=\frac{x^2-3x}{x^2+3}\) באופן מלא.</li><li>חקרו את \(f(x)=\frac{x^2-4}{x^2+1}\) באופן מלא.</li><li>חקרו את \(f(x)=\frac{6x}{x^2-5x+4}\) באופן מלא, כולל התנהגות חד-צדדית בכל אסימפטוטה אנכית.</li><li>חקרו את \(f(x)=\frac{x^2+1}{x^2-1}\) באופן מלא.</li><li>חקרו את \(f(x)=\frac{2x^2-8x+8}{x^2-5x+4}\) באופן מלא ובדקו שהסקיצה תואמת לכל הנתונים.</li></ol>
+<div class="page-no">21</div>
+</section><section class="page" id="lesson9">
+<h2>שיעור 9 - חקירה הפוכה ושאלות פרמטר</h2>
+<p class="lead">בחקירה הפוכה מתרגמים מידע גרפי לתנאי אלגברי.</p>
+<table><tr><th>מידע נתון</th><th>תרגום אלגברי</th></tr>
+<tr><td>אסימפטוטה אנכית ב-\(x=a\)</td><td>המכנה מתאפס ב-\(a\), ללא ביטול מלא.</td></tr>
+<tr><td>אפס ב-\(x=b\)</td><td>המונה מתאפס ב-\(b\).</td></tr>
+<tr><td>נקודת קיצון ב-\(x=c\)</td><td>תחילה מתקיים \(f'(c)=0\), ולאחר מכן בודקים שינוי סימן.</td></tr>
+<tr><td>משיק בשיפוע \(m\)</td><td>מתקיים \(f'(c)=m\).</td></tr>
+<tr><td>אסימפטוטה אופקית \(y=k\)</td><td>ערכי הפונקציה מתקרבים ל-\(k\) כאשר \(x⇒\pm\infty\).</td></tr></table>
+<div class="grid2 topgap">
+<div class="card white"><h3>דוגמה 1</h3><div class="formula">\[ f(x)=\frac{ax+2}{x-3} \]</div><p>אם האסימפטוטה האופקית היא \(y=5\), יחס המקדמים המובילים נותן:</p><div class="formula">\[ a=5 \]</div></div>
+<div class="card white"><h3>דוגמה 2</h3><div class="formula">\[ f(x)=\frac{x+k}{x-2} \]</div><p>אם הגרף חותך את ציר \(x\) בנקודה \((3,0)\), אז:</p><div class="formula">\[ 3+k=0 ⇒ k=-3 \]</div></div>
+</div>
+<div class="grid2 topgap">
+<div class="card white">
+<h3>דוגמה 3 - נקודה על הגרף</h3>
+<div class="formula">\[ f(x)=\frac{ax+2}{x+1} \]</div>
+<p>הגרף עובר בנקודה \((1,3)\), ולכן מציבים \(x=1\) ו-\(f(1)=3\):</p>
+<div class="formula">\[ \frac{a+2}{2}=3 \]</div>
+<div class="formula">\[ a+2=6 ⇒ a=4 \]</div>
+</div>
+<div class="card white">
+<h3>דוגמה 4 - נקודה עם שיפוע אפס</h3>
+<div class="formula">\[ f(x)=\frac{x^2+a}{x},\qquad x\ne0 \]</div>
+<p>ידוע שב-\(x=2\) יש נקודה עם שיפוע אפס. תחילה נכתוב:</p>
+<div class="formula">\[ f(x)=x+\frac{a}{x} \]</div>
+<div class="formula">\[ f'(x)=1-\frac{a}{x^2} \]</div>
+<p>כיוון ש-\(f'(2)=0\):</p>
+<div class="formula">\[ 1-\frac{a}{4}=0 ⇒ a=4 \]</div>
+</div>
+</div>
+<div class="callout"><b>אסטרטגיה:</b> בחרו תחילה את הנתון שמייצר משוואה אחת פשוטה בפרמטר. אם הנתון עוסק בשיפוע או בנקודה עם שיפוע אפס, יש לתרגם אותו לתנאי על הנגזרת.</div>
+<div class="page-no">22</div>
+</section><section class="page" id="exercise9">
+<h2>תרגול שיעור 9 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>נתונה \(f(x)=\frac{ax+1}{x-2}\). האסימפטוטה האופקית היא \(y=3\). מצאו את \(a\).</li><li>נתונה \(f(x)=\frac{x+k}{x-1}\). הגרף חותך את ציר \(x\) בנקודה \((4,0)\). מצאו את \(k\).</li><li>נתונה \(f(x)=\frac{x+a}{x-3}\). הגרף עובר בנקודה \((0,2)\). מצאו את \(a\).</li><li>נתונה \(f(x)=\frac{ax+2}{x+1}\). הגרף עובר בנקודה \((1,3)\). מצאו את \(a\).</li><li>נתונה \(f(x)=\frac{x^2+a}{x^2+1}\). הגרף עובר בנקודה \((1,2)\). מצאו את \(a\).</li><li>נתונה \(f(x)=\frac{ax+4}{x-2}\). ידוע ש-\((0,-2)\) היא נקודה על הגרף. מצאו את \(a\) או הסבירו מדוע הנתון אינו קובע אותו.</li><li>נתונה \(f(x)=\frac{x+k}{x-2}\). האסימפטוטה האנכית היא \(x=2\) והגרף חותך את ציר \(y\) בנקודה \((0,1)\). מצאו את \(k\).</li><li>נתונה \(f(x)=\frac{ax+b}{x-3}\). האסימפטוטה האופקית היא \(y=2\) והגרף עובר בנקודה \((0,-1)\). מצאו את \(a,b\).</li><li>נתונה \(f(x)=\frac{x^2+a}{x}\). ידוע שב-\(x=2\) יש נקודה עם שיפוע אפס. מצאו את \(a\).</li><li>נתונה \(f(x)=\frac{x^2+ax+1}{x}\). ידוע שהמשיק בנקודה שבה \(x=1\) אופקי. מצאו את \(a\), ואז מצאו את נקודת ההשקה.</li></ol>
+<div class="page-no">23</div>
+</section><section class="page" id="lesson10a">
+<h2>שיעור 10 - טרנספורמציות לאחר חקירה</h2>
+<p class="lead">כאשר \(f\) כבר נחקרה, אין צורך להתחיל חקירה חדשה לכל טרנספורמציה.</p>
+<table><tr><th>פונקציה חדשה</th><th>פעולה</th><th>השפעה עיקרית</th></tr>
+<tr><td>\(g(x)=f(x)+k\)</td><td>הזזה אנכית</td><td>כל ערכי \(y\) והאסימפטוטה האופקית זזים ב-\(k\).</td></tr>
+<tr><td>\(g(x)=f(x-h)\)</td><td>הזזה אופקית</td><td>כל ערכי \(x\) והאסימפטוטות האנכיות זזים ב-\(h\).</td></tr>
+<tr><td>\(g(x)=af(x)\)</td><td>מתיחה, כיווץ או שיקוף</td><td>כל ערכי \(y\) מוכפלים ב-\(a\).</td></tr>
+<tr><td>\(g(x)=-f(x)\)</td><td>שיקוף בציר \(x\)</td><td>ערכי \(y\) מחליפים סימן וסוגי קיצון מתחלפים.</td></tr></table>
+<div class="formula">\[ f(x)=\frac{a}{x-h}+k \]</div>
+<div class="jxg-shell">
+<div class="jxgbox transform" id="boardTransform" style="direction:ltr"></div>
+<div class="legend"><span>הסליידרים משנים את \(a,h,k\)</span></div>
+<div class="graphbar" data-controls-for="boardTransform">
+<button data-action="zoom-in" onclick="zoomBoard('boardTransform',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardTransform',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardTransform')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+<div class="page-no">24</div>
+</section><section class="page" id="lesson10b">
+<h2>שיעור 10 - ערך מוחלט</h2>
+<p class="lead">כאשר בונים את \(g(x)=|f(x)|\), ערך ה-\(x\) של כל נקודה נשאר ללא שינוי. רק ערך ה-\(y\) משתנה כאשר הוא שלילי.</p>
+<div class="formula big">\[ g(x)=|f(x)|=\begin{cases}f(x),&amp;f(x)\ge0\\-f(x),&amp;f(x)\lt0\end{cases} \]</div>
+<div class="grid2">
+<div class="card white">
+<h3>איך עוברים מן הגרף של \(f\) לגרף של \(|f|\)?</h3>
+<ol>
+<li>כל נקודה שבה \(f(x)\ge0\) נשארת במקומה.</li>
+<li>כל נקודה שבה \(f(x)\lt0\) משתקפת ביחס לציר \(x\).</li>
+<li>נקודות האפס אינן זזות, כי \(|0|=0\).</li>
+<li>תחום ההגדרה נשאר בדיוק אותו תחום.</li>
+</ol>
+</div>
+<div class="card white">
+<h3>מה אפשר להסיק מיד?</h3>
+<ul>
+<li>לכל \(x\) בתחום מתקיים \(g(x)\ge0\).</li>
+<li>אם \(f\) חיובית בתחום מסוים, הגרפים של \(f\) ושל \(g\) חופפים שם.</li>
+<li>אם \(f\) שלילית בתחום מסוים, אותו חלק משתקף מעל ציר \(x\).</li>
+<li>אסימפטוטות אנכיות נשארות באותם ערכי \(x\). אם \(f(x)⇒L\) באינסוף, אז \(g(x)⇒|L|\).</li>
+</ul>
+</div>
+</div>
+<h3>דוגמה מפורטת</h3>
+<div class="formula">\[ f(x)=\frac{x^2-1}{x^2+1} \]</div>
+<p>המכנה חיובי לכל \(x\), ולכן תחום ההגדרה הוא כל המספרים הממשיים. נקודות האפס מתקבלות מן \(x^2-1=0\), ולכן \(x=-1,1\). הפונקציה שלילית כאשר \(-1\lt x\lt1\), ולכן רק החלק הזה משתקף מעל ציר \(x\).</p>
+<div class="jxg-shell">
+<div class="jxgbox lesson10graph" id="boardAbs" style="direction:ltr"></div>
+<div class="legend"><span>\(f(x)=\frac{x^2-1}{x^2+1}\)</span><span>\(g(x)=|f(x)|\)</span><span>אפסים: \(x=-1,1\)</span></div>
+<div class="graphbar" data-controls-for="boardAbs">
+<button data-action="zoom-in" onclick="zoomBoard('boardAbs',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardAbs',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardAbs')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+<div class="callout"><b>נקודה חשובה:</b> בנקודות שבהן \(f\) חוצה את ציר \(x\), הגרף של \(|f|\) עשוי לקבל פינה. לכן לא מסיקים אוטומטית גזירות בנקודות האפס.</div>
+<div class="page-no">25</div>
+</section><section class="page" id="lesson10c">
+<h2>שיעור 10 - ריבוע של פונקציה</h2>
+<p class="lead">כאשר בונים את \(h(x)=[f(x)]^2\), משאירים את אותו ערך \(x\) ומחליפים כל ערך \(y=f(x)\) בערך \(y^2\). לכן הגרף החדש כולו נמצא על ציר \(x\) או מעליו.</p>
+<div class="formula big">\[ h(x)=[f(x)]^2 \]</div>
+<div class="grid2">
+<div class="card white">
+<h3>כללי מעבר מן הגרף של \(f\)</h3>
+<ol>
+<li>תחום ההגדרה נשאר ללא שינוי.</li>
+<li>אפסי \(f\) נשארים אפסים של \(h\).</li>
+<li>ערכים חיוביים ושליליים בעלי אותו גודל נותנים אותו ערך לאחר הריבוע.</li>
+<li>אם \(|f(x)|\gt1\), הריבוע מגדיל את המרחק מציר \(x\); אם \(0\lt|f(x)|\lt1\), הריבוע מקטין אותו.</li>
+</ol>
+</div>
+<div class="card white">
+<h3>מה אפשר להסיק מיד?</h3>
+<ul>
+<li>לכל \(x\) בתחום מתקיים \(h(x)\ge0\).</li>
+<li>אם \(f(x)=0\), אז \(h(x)=0\).</li>
+<li>אסימפטוטות אנכיות נשארות באותם ערכי \(x\), ובקרבתן \(h(x)⇒+\infty\) כאשר \(|f(x)|⇒\infty\).</li>
+<li>אם \(f(x)⇒L\) באינסוף, אז \(h(x)⇒L^2\).</li>
+</ul>
+</div>
+</div>
+<h3>דוגמה מפורטת</h3>
+<div class="formula">\[ f(x)=\frac{x^2-1}{x^2+1},\qquad h(x)=\left(\frac{x^2-1}{x^2+1}\right)^2 \]</div>
+<p>ל-\(f\) אפסים ב-\(x=-1,1\), ולכן גם ל-\(h\) אותם אפסים. מתקיים \(f(0)=-1\), ולכן \(h(0)=1\). בנוסף, כאשר \(x⇒\pm\infty\), מתקיים \(f(x)⇒1\), ולכן \(h(x)⇒1\).</p>
+<div class="jxg-shell">
+<div class="jxgbox lesson10graph" id="boardSquare" style="direction:ltr"></div>
+<div class="legend"><span>\(f(x)=\frac{x^2-1}{x^2+1}\)</span><span>\(h(x)=[f(x)]^2\)</span><span>אסימפטוטה אופקית: \(y=1\)</span></div>
+<div class="graphbar" data-controls-for="boardSquare">
+<button data-action="zoom-in" onclick="zoomBoard('boardSquare',0.80)" type="button">הגדלה</button>
+<button data-action="zoom-out" onclick="zoomBoard('boardSquare',1.25)" type="button">הקטנה</button>
+<button data-action="reset" onclick="resetBoard('boardSquare')" type="button">איפוס ומרכוז</button>
+</div>
+</div>
+<div class="callout"><b>השוואה לערך מוחלט:</b> שתי הטרנספורמציות מבטיחות ערכים לא-שליליים ושומרות על אפסי \(f\), אבל \(|f|\) הוא שיקוף של החלק השלילי ואילו \(f^2\) משנה את הגובה של כל נקודה לפי גודל \(|f(x)|\).</div>
+<div class="page-no">26</div>
+</section><section class="page" id="exercise10">
+<h2>תרגול שיעור 10 - 10 תרגילים</h2>
+<ol class="exercise-list"><li>אם ל-\(f\) אסימפטוטה אופקית \(y=2\), מהי האסימפטוטה האופקית של \(g(x)=f(x)+3\)?</li><li>אם ל-\(f\) אסימפטוטה אנכית \(x=4\), מהי האסימפטוטה האנכית של \(g(x)=f(x-2)\)?</li><li>אם הנקודה \((1,-3)\) נמצאת על \(f\), איזו נקודה מתאימה לה על \(g(x)=-f(x)\)?</li><li>אם הנקודה \((2,5)\) היא נקודת קיצון של \(f\), איזו נקודה מתקבלת ב-\(g(x)=2f(x)\), ומה קורה לסוג הקיצון?</li><li>עבור \(f(x)=\frac{1}{x}\), תארו את האסימפטוטות של \(g(x)=f(x-3)+2\).</li><li>עבור \(f(x)=\frac{2x+5}{x-4}\), קבעו את האסימפטוטות של \(g(x)=f(x)-6\).</li><li>עבור \(f(x)=\frac{x^2-1}{x^2+1}\), מצאו את נקודת האפס של \(g(x)=|f(x)|\).</li><li>עבור אותה \(f\), מצאו את נקודת האפס של \(h(x)=[f(x)]^2\) ואת ערך \(h(0)\).</li><li>עבור \(f(x)=\frac{1}{x-2}+1\), תארו את האסימפטוטות של \(g(x)=-2f(x)+3\).</li><li>נחקרה \(f(x)=\frac{2x+5}{x-4}\). תארו ללא גזירה מחדש את תחום ההגדרה, האסימפטוטות ומיקום הענפים של \(g(x)=-f(x)+6\).</li></ol>
+<div class="page-no">27</div>
+</section><section class="page solutions-pair" id="solutions1-2"><h2>פתרונות - שיעורים 1–2</h2><h3>פתרונות שיעור 1</h3><ol class="solution-list"><li>תחום: \(x\ne0\). אסימפטוטות: \(x=0\), \(y=0\).</li><li>כאשר \(x\gt0\), הפונקציה חיובית; כאשר \(x\lt0\), הפונקציה שלילית.</li><li>תחום: \(x\ne3\). אסימפטוטה אנכית: \(x=3\).</li><li>תחום: \(x\ne-2\). אסימפטוטה אנכית: \(x=-2\).</li><li>כן. המונה \(x+1\) והמכנה \(x-5\) הם פולינומים והמכנה אינו אפס בתחום.</li><li>אין ערכים אסורים, כי \(x^2+4\gt0\) לכל \(x\).</li><li>\(x\ne-3\) וגם \(x\ne3\).</li><li>\(x\ne1\) וגם \(x\ne-4\).</li><li>אסימפטוטה אנכית: \(x=2\). אסימפטוטה אופקית: \(y=1\).</li><li>תחום: \(x\ne-1\). אסימפטוטות: \(x=-1\), \(y=-2\). מתקיים \(f(x)+2\gt0\) כאשר \(x\lt-1\), ו-\(f(x)+2\lt0\) כאשר \(x\gt-1\).</li></ol><h3>פתרונות שיעור 2</h3><ol class="solution-list"><li>\(x\ne4\).</li><li>\(x\ne-3\) וגם \(x\ne3\).</li><li>\(x^2-5x+6=(x-2)(x-3)\), ולכן \(x\ne2,3\).</li><li>\(x^2+x-6=(x+3)(x-2)\), ולכן \(x\ne-3,2\).</li><li>\(x\ne-2,2\). עבור ערכים בתחום: \(f(x)=\frac1{x+2}\).</li><li>\(x^2-x-6=(x-3)(x+2)\), ולכן \(x\ne3,-2\). מצמצמים \(x-3\): \(f(x)=\frac{x+3}{x+2}\).</li><li>המכנה \((x-1)^2\), ולכן \(x\ne1\). לאחר צמצום: \(f(x)=\frac{x+1}{x-1}\).</li><li>תחום: \(x\ne-2,2\). לאחר צמצום \(x-2\): \(f(x)=\frac{x-2}{x+2}\).</li><li>תחום: \(x\ne1,3,-4\). לאחר צמצום: \(f(x)=\frac{x+2}{(x-3)(x+4)}\).</li><li>\(x^3-4x=x(x-2)(x+2)\), והמכנה \((x-3)(x+2)\). תחום: \(x\ne3,-2\). לאחר צמצום: \(f(x)=\frac{x(x-2)}{x-3}\).</li></ol><div class="page-no">28</div></section><section class="page solutions-pair" id="solutions3-4"><h2>פתרונות - שיעורים 3–4</h2><h3>פתרונות שיעור 3</h3><ol class="solution-list"><li>אפס המונה הוא \(x=3\), ולכן החיתוך הוא \((3,0)\).</li><li>\(f(0)=-\frac54\), ולכן החיתוך הוא \((0,-\frac54)\).</li><li>חיתוך עם \(x\): \((-2,0)\). חיתוך עם \(y\): \((0,2)\).</li><li>חיתוכי \(x\): \((-2,0),(2,0)\). חיתוך \(y\): \((0,-1)\).</li><li>חיובית כאשר \(x\lt-2\) או \(x\gt1\); שלילית כאשר \(-2\lt x\lt1\).</li><li>נקודות מפתח: \(x=-3,-2,1\). הפונקציה חיובית כאשר \(-3\lt x\lt-2\) או \(x\gt1\).</li><li>נקודות מפתח: \(x=-1,0,4\). הפונקציה שלילית כאשר \(x\lt-1\) או \(0\lt x\lt4\).</li><li>זוגית, כי החלפת \(x\) ב-\(-x\) אינה משנה את הביטוי.</li><li>אי-זוגית. החיתוך היחיד עם שני הצירים הוא \((0,0)\).</li><li>חיובית: \(x\lt-4\), \(-2\lt x\lt1\), \(x\gt3\). שלילית: \(-4\lt x\lt-2\), \(1\lt x\lt3\).</li></ol><h3>פתרונות שיעור 4</h3><ol class="solution-list"><li>\(x=2\).</li><li>\(y=3\).</li><li>\(x=4\), \(y=2\).</li><li>\(x⇒-1^- ⇒ f(x)⇒-\infty\); \(x⇒-1^+ ⇒ f(x)⇒+\infty\).</li><li>\(x⇒3^- ⇒ f(x)⇒-\infty\); \(x⇒3^+ ⇒ f(x)⇒+\infty\).</li><li>\(y=5\).</li><li>\(y=\frac12\).</li><li>אסימפטוטות: \(x=-2\), \(x=1\), \(y=1\). ליד \(x=-2\): משמאל \(+\infty\), מימין \(-\infty\). ליד \(x=1\): משמאל \(-\infty\), מימין \(+\infty\).</li><li>אסימפטוטות אנכיות: \(x=-2,2\); אופקית: \(y=0\). כאשר \(x⇒+\infty\), \(f(x)⇒0^+\).</li><li>המכנה \((x-3)(x+2)\), ולכן \(x\ne3,-2\). אסימפטוטות אנכיות: \(x=-2,3\); אופקית: \(y=2\). ליד \(x=-2\): משמאל \(+\infty\), מימין \(-\infty\). ליד \(x=3\): משמאל \(-\infty\), מימין \(+\infty\).</li></ol><div class="page-no">29</div></section><section class="page solutions-pair" id="solutions5-6"><h2>פתרונות - שיעורים 5–6</h2><h3>פתרונות שיעור 5</h3><ol class="solution-list"><li>שני ענפים ברביעים הראשון והשלישי; אסימפטוטות \(x=0\), \(y=0\).</li><li>הזזה של גרף \(1/x\) שתי יחידות ימינה; אסימפטוטות \(x=2\), \(y=0\).</li><li>הזזה של גרף \(1/x\) שלוש יחידות למעלה; אסימפטוטות \(x=0\), \(y=3\).</li><li>אסימפטוטות \(x=1\), \(y=-2\). הענף הימני מעל \(y=-2\), והשמאלי מתחתיה.</li><li>תחום \(x\ne2\); חיתוכים \((-1,0)\), \((0,-\frac12)\); אסימפטוטות \(x=2\), \(y=1\).</li><li>תחום \(x\ne-1\); חיתוכים \((\frac32,0)\), \((0,-3)\); אסימפטוטות \(x=-1\), \(y=2\).</li><li>\(f(x)=1-\frac6{x+2}\). כאשר \(x\gt-2\), הגרף מתחת ל-\(y=1\); כאשר \(x\lt-2\), מעליה.</li><li>\(f(x)=3+\frac5{x-1}\). כאשר \(x⇒1^-\), \(f⇒-\infty\); כאשר \(x⇒1^+\), \(f⇒+\infty\).</li><li>אסימפטוטות אנכיות \(x=-2,2\), אופקית \(y=1\); אין חיתוך עם ציר \(x\); חיתוך עם \(y\): \((0,-\frac14)\).</li><li>אסימפטוטות אנכיות \(x=-3,3\), אופקית \(y=2\); אין חיתוך עם ציר \(x\); חיתוך עם \(y\): \((0,-\frac19)\). הסקיצה חייבת לכבד את ההתנהגות משני צדי \(x=-3,3\).</li></ol><h3>פתרונות שיעור 6</h3><ol class="solution-list"><li>\(f'(x)=-\frac3{(x-2)^2}\).</li><li>\(f'(x)=\frac{11}{(x+4)^2}\).</li><li>\(f'(x)=\frac{x(x+2)}{(x+1)^2}\).</li><li>\(f'(x)=1-\frac1{x^2}=\frac{x^2-1}{x^2}\).</li><li>\(f'(x)=\frac{3(1-x^2)}{(x^2+1)^2}\).</li><li>\(f'(x)=\frac{3(x^2+2x-3)}{(x^2+3)^2}=\frac{3(x-1)(x+3)}{(x^2+3)^2}\).</li><li>\(f'(x)=\frac{x(x-2)}{(x-1)^2}\), ולכן \(x=0,2\).</li><li>\(f'(x)=-\frac{3(x^2+4)}{(x^2-4)^2}\lt0\) לכל \(x\ne-2,2\).</li><li>\(f'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2}\). מינימום ב-\((-2,-\frac23)\), מקסימום ב-\((2,-6)\).</li><li>\(f(x)=x-2+\frac1{x-2}\), ולכן \(f'(x)=1-\frac1{(x-2)^2}\). השיפוע אפס ב-\(x=1,3\). ב-\((1,-2)\) מקסימום, וב-\((3,2)\) מינימום.</li></ol><div class="page-no">30</div></section><section class="page solutions-pair" id="solutions7-8"><h2>פתרונות - שיעורים 7–8</h2><h3>פתרונות שיעור 7</h3><ol class="solution-list"><li>\(f'(1)=\frac12\).</li><li>\(f'(x)=-\frac3{(x-1)^2}\), ולכן \(f'(0)=-3\).</li><li>\(f(x)=x+\frac1x\), ולכן \(f(1)=2\), \(f'(1)=0\). המשיק: \(y=2\).</li><li>\(f'(x)=\frac{x(x+2)}{(x+1)^2}\). ב-\(x=1\): \(m=\frac34\), \(f(1)=\frac12\). המשיק: \(y-\frac12=\frac34(x-1)\).</li><li>\(f'(x)=1-\frac3{x^2}\). השיפוע אפס ב-\(x=\pm\sqrt3\). הנקודות: \((\sqrt3,2\sqrt3)\), \((-\sqrt3,-2\sqrt3)\).</li><li>\(f'(x)=\frac{x(x-2)}{(x-1)^2}\). השיפוע אפס ב-\(x=0,2\). הנקודות: \((0,0)\), \((2,4)\).</li><li>\(f'(x)=\frac4{(x+2)^2}\). משווים ל-1: \((x+2)^2=4\), ולכן \(x=0,-4\). הנקודות הן \((0,-1)\), \((-4,3)\).</li><li>\(f'(x)=1-\frac1{x^2}\). משווים ל-3: \(x^2=-\frac12\), ולכן אין פתרון ממשי.</li><li>שיפוע ישר הנתון הוא \(-\frac13\), ולכן שיפוע מאונך הוא 3. \(f'(x)=\frac{x(x+4)}{(x+2)^2}\). המשוואה \(f'(x)=3\) שקולה ל-\(x^2+4x+6=0\), ולכן אין פתרון ממשי.</li><li>\(f'(x)=1-\frac4{x^2}\). משווים ל-2 ומקבלים \(x^2=-4\), ולכן אין משיקים ממשיים בשיפוע 2.</li></ol><h3>פתרונות שיעור 8</h3><ol class="solution-list"><li>תחום \(x\ne2\); חיתוכים \((-1,0)\), \((0,-\frac12)\); אסימפטוטות \(x=2,y=1\); \(f'(x)=-\frac3{(x-2)^2}\lt0\), אין נקודות קיצון.</li><li>תחום כל הממשיים; חיתוך \((0,0)\); אסימפטוטה אופקית \(y=0\); \(f'(x)=\frac{2(1-x^2)}{(x^2+1)^2}\). מקסימום ב-\((1,1)\), מינימום ב-\((-1,-1)\).</li><li>תחום כל הממשיים; חיתוך \((0,0)\); \(y=1\) אסימפטוטה אופקית; \(f'(x)=\frac{2x}{(x^2+1)^2}\). מינימום ב-\((0,0)\).</li><li>תחום \(x\ne0\); אין חיתוך עם הצירים; \(f(x)=x+1/x\); \(f'(x)=1-1/x^2\). מקסימום ב-\((-1,-2)\), מינימום ב-\((1,2)\).</li><li>תחום \(x\ne-2,2\); אסימפטוטות \(x=-2,2,y=0\); חיתוך \((0,0)\); \(f'(x)=-\frac{3(x^2+4)}{(x^2-4)^2}\lt0\), אין קיצון.</li><li>תחום כל הממשיים; חיתוכים \((0,0),(3,0)\); \(y=1\) אסימפטוטה אופקית; \(f'(x)=\frac{3(x-1)(x+3)}{(x^2+3)^2}\). מקסימום מקומי ב-\((-3,\frac32)\), מינימום מקומי ב-\((1,-\frac12)\).</li><li>תחום כל הממשיים; חיתוכים \((-2,0),(2,0)\), \((0,-4)\); \(y=1\); \(f'(x)=\frac{10x}{(x^2+1)^2}\). מינימום ב-\((0,-4)\).</li><li>תחום \(x\ne1,4\); חיתוך \((0,0)\); אסימפטוטות \(x=1,4,y=0\); קיצון: מינימום \((-2,-\frac23)\), מקסימום \((2,-6)\). ההתנהגות החד-צדדית זהה לדוגמה בשיעור.</li><li>תחום \(x\ne-1,1\); אין חיתוך עם ציר \(x\); חיתוך עם ציר \(y\): \((0,-1)\). אסימפטוטות: \(x=-1,1\), \(y=1\). הנגזרת \(f'(x)=\frac{-4x}{(x^2-1)^2}\). מקסימום מקומי ב-\((0,-1)\).</li><li>תחום \(x\ne1,4\). חיתוכים: \((2,0)\), \((0,2)\). אסימפטוטות: \(x=1,4\), \(y=2\). הנגזרת היא \(f'(x)=\frac{-2(x-2)(x+2)}{(x-1)^2(x-4)^2}\). מינימום ב-\((-2,\frac{16}{9})\), מקסימום ב-\((2,0)\).</li></ol><div class="page-no">31</div></section><section class="page solutions-pair" id="solutions9-10"><h2>פתרונות - שיעורים 9–10</h2><h3>פתרונות שיעור 9</h3><ol class="solution-list"><li>יחס המקדמים המובילים הוא \(a\), ולכן \(a=3\).</li><li>אפס המונה ב-\(x=4\): \(4+k=0\), ולכן \(k=-4\).</li><li>\(f(0)=a/(-3)=2\), ולכן \(a=-6\).</li><li>\(f(1)=\frac{a+2}{2}=3\), ולכן \(a=4\).</li><li>\(f(1)=\frac{1+a}{2}=2\), ולכן \(a=3\).</li><li>\(f(0)=\frac4{-2}=-2\) לכל \(a\). הנתון אינו קובע את \(a\).</li><li>מן החיתוך עם ציר \(y\): \(\frac{k}{-2}=1\), ולכן \(k=-2\). אבל אז המונה הוא \(x-2\), הגורם מצטמצם עם המכנה, ולכן \(x=2\) אינה אסימפטוטה אנכית. לכן אין ערך \(k\) המקיים את שני הנתונים יחד.</li><li>אסימפטוטה אופקית \(y=2\) נותנת \(a=2\). מן \(f(0)=-1\) מתקבל \(b=3\).</li><li>\(f(x)=x+a/x\), ולכן \(f'(x)=1-a/x^2\). התנאי \(f'(2)=0\) נותן \(a=4\).</li><li>\(f(x)=x+a+1/x\), ולכן \(f'(x)=1-1/x^2\), שאינו תלוי ב-\(a\). ב-\(x=1\) הנגזרת אפס לכל \(a\), ולכן הנתון אינו קובע את \(a\). נקודת ההשקה היא \((1,a+2)\).</li></ol><h3>פתרונות שיעור 10</h3><ol class="solution-list"><li>\(y=5\).</li><li>\(x=6\).</li><li>\((1,3)\).</li><li>\((2,10)\). אם הכפלה ב-2 חיובית, סוג הקיצון נשמר.</li><li>\(x=3\), \(y=2\).</li><li>אסימפטוטה אנכית נשארת \(x=4\); האופקית עוברת מ-\(y=2\) ל-\(y=-4\).</li><li>נקודת האפס של \(f\) הם \(x=-1,1\), ולכן גם נקודת האפס של \(|f|\) הם \(x=-1,1\).</li><li>אפסים: \(x=-1,1\). \(h(0)=1\).</li><li>ל-\(f\) אסימפטוטות \(x=2,y=1\). הכפלה ב-\(-2\) והוספת 3 משאירות \(x=2\) ומשנות את האופקית ל-\(y=1\).</li><li>תחום: \(x\ne4\). האסימפטוטה האנכית נשארת \(x=4\). האופקית: \(y=4\), כי כאשר \(x⇒\pm\infty\) מתקיים \(f(x)⇒2\), ולכן \(g(x)⇒4\). כאשר \(x\lt4\), מתקיים \(g(x)\gt4\); כאשר \(x\gt4\), מתקיים \(g(x)\lt4\).</li></ol><div class="page-no">32</div></section><section class="page" id="cumulative">
+<h2>תרגילים מסכמים - רמת 5 יחידות, אתגר</h2>
+<p class="lead">התרגילים משלבים כמה רעיונות מכל היחידה. הפתרונות מופיעים מיד לאחר דף זה.</p><ol class="exercise-list"><li>חקרו באופן מלא את \(f(x)=\frac{x^2-1}{x^2-4}\), כולל התנהגות משני צדי כל אסימפטוטה אנכית וסקיצה.</li><li>חקרו באופן מלא את \(f(x)=\frac{4x}{x^2+4}\), ומצאו את משוואות המשיקים בנקודות הקיצון.</li><li>חקרו באופן מלא את \(f(x)=\frac{3x}{x^2+1}\), ומצאו את משוואת המשיק המקביל לישר \(y=3x+1\).</li><li>נתונה \(f(x)=\frac{ax+2}{x-1}\). האסימפטוטה האופקית היא \(y=4\). מצאו את \(a\), חקרו את הפונקציה ובנו סקיצה.</li><li>נתונה \(f(x)=\frac{x^2+a}{x}\). ידוע שקיימת נקודה עם שיפוע אפס ב-\(x=3\). מצאו את \(a\) ואת שתי נקודות הקיצון.</li><li>חקרו את \(f(x)=\frac{x^2+2}{x^2-4}\), ולאחר מכן תארו ללא גזירה מחדש את \(g(x)=-f(x)+4\).</li><li>חקרו את \(f(x)=\frac{2x}{x^2-1}\), ולאחר מכן קבעו את האסימפטוטות ואת נקודת האפס של \(g(x)=|f(x)|\).</li><li>חקרו את \(f(x)=\frac{x^2-4}{x^2+1}\), ולאחר מכן קבעו את נקודת האפס של  \(h(x)=[f(x)]^2\), את \(h(0)\) ואת האסימפטוטה האופקית.</li><li>נתונה \(f(x)=\frac{ax+b}{x-2}\). ידוע שהאסימפטוטה האופקית היא \(y=3\) והגרף עובר דרך \((0,-1)\). מצאו את \(a,b\), ואז את כל החיתוכים עם הצירים.</li><li>חקרו באופן מלא את \(f(x)=\frac{6x}{x^2-5x+4}\). לאחר מכן תארו ללא חקירה מחדש את תחום ההגדרה, האסימפטוטות ונקודות הקיצון של \(g(x)=-\frac12f(x)+3\).</li></ol>
+<div class="page-no">33</div>
+</section><section class="page" id="cumulative-sol">
+<h2>פתרונות לתרגילים המסכמים</h2>
+<ol class="solution-list"><li>תחום \(x\ne-2,2\); חיתוכים \((-1,0),(1,0),(0,\frac14)\); אסימפטוטות \(x=-2,2,y=1\). \(f'(x)=-\frac{6x}{(x^2-4)^2}\), ולכן מקסימום ב-\((0,\frac14)\). ליד \(x=-2\): משמאל \(f(x)⇒+\infty\), ומימין \(f(x)⇒-\infty\). ליד \(x=2\): משמאל \(f(x)⇒-\infty\), ומימין \(f(x)⇒+\infty\).</li><li>תחום כל הממשיים; חיתוך \((0,0)\); \(y=0\) אסימפטוטה אופקית. \(f'(x)=\frac{4(4-x^2)}{(x^2+4)^2}\). מינימום \((-2,-1)\), מקסימום \((2,1)\). בשתי נקודות הקיצון השיפוע אפס ולכן המשיקים הם \(y=-1\) ו-\(y=1\).</li><li>תחום כל הממשיים; חיתוך \((0,0)\); אסימפטוטה אופקית \(y=0\). \(f'(x)=\frac{3(1-x^2)}{(x^2+1)^2}\). מינימום ב-\((-1,-\frac32)\), מקסימום ב-\((1,\frac32)\). לשיפוע 3 מתקבל \(x=0\), ולכן המשיק הוא \(y=3x\).</li><li>\(a=4\). מתקבל \(f(x)=\frac{4x+2}{x-1}=4+\frac6{x-1}\). תחום \(x\ne1\); חיתוכים \((-\frac12,0),(0,-2)\); אסימפטוטות \(x=1,y=4\); \(f'(x)=-6/(x-1)^2\), ללא קיצון.</li><li>\(f(x)=x+a/x\), ולכן \(f'(x)=1-a/x^2\). מן \(f'(3)=0\) מתקבל \(a=9\). נקודות עם שיפוע אפס ב-\(x=\pm3\): \((-3,-6)\) מקסימום ו-\((3,6)\) מינימום.</li><li>ל-\(f\): תחום \(x\ne-2,2\); אין חיתוך עם ציר \(x\); חיתוך עם ציר \(y\): \((0,-\frac12)\); אסימפטוטות \(x=-2,2\), \(y=1\). הנגזרת \(f'(x)=\frac{-12x}{(x^2-4)^2}\), ולכן מקסימום מקומי ב-\((0,-\frac12)\). עבור \(g=-f+4\): התחום והאסימפטוטות האנכיות נשמרים, האסימפטוטה האופקית היא \(y=3\), ומתקבל מינימום מקומי ב-\((0,\frac92)\).</li><li>תחום \(x\ne-1,1\); אסימפטוטות \(x=-1,1,y=0\); אפס \(x=0\). ב-\(|f|\) התחום והאסימפטוטות נשמרים, ואפס הפונקציה נשאר \(x=0\).</li><li>ל-\(f\) אפסים \(x=-2,2\), ולכן גם ל-\(h=f^2\) אותם אפסים. \(h(0)=16\). מאחר ש-\(f(x)⇒1\), מתקבל \(h(x)⇒1\), ולכן \(y=1\) אסימפטוטה אופקית.</li><li>מן האסימפטוטה מתקבל \(a=3\). מן \(f(0)=-1\): \(b/(-2)=-1\), ולכן \(b=2\). הפונקציה \(f(x)=\frac{3x+2}{x-2}\). חיתוך עם \(x\): \((-\frac23,0)\); חיתוך עם \(y\): \((0,-1)\).</li><li>ל-\(f\): תחום \(x\ne1,4\), אסימפטוטות \(x=1,4,y=0\), מינימום \((-2,-\frac23)\), מקסימום \((2,-6)\). עבור \(g=-\frac12f+3\): התחום והאסימפטוטות האנכיות נשמרים; האופקית היא \(y=3\). נקודות הקיצון: \((-2,\frac{10}{3})\) מקסימום ו-\((2,6)\) מינימום.</li></ol>
+<div class="page-no">34</div>
 </section>
-
-<section class="page" id="p4">
-  <h2>2. תחום הגדרה ופירוק לגורמים</h2>
-  <h3>דוגמה מרכזית</h3>
-  <div class="formula">\[ f(x)=\frac{x+2}{x^2-3x+2} \]</div>
-  <p>כדי למצוא את תחום ההגדרה מפרקים את המכנה לגורמים:</p>
-  <div class="formula">\[ x^2-3x+2=(x-1)(x-2) \]</div>
-  <p>המכנה מתאפס עבור שני ערכים, ולכן:</p>
-  <div class="formula">\[ D_f=\mathbb{R}\setminus\{1,2\} \]</div>
-  <div class="grid2">
-    <div class="success">
-      <b>ב־\(x=1\):</b> המונה שווה \(3\), ולכן ערכי הפונקציה נעשים בלתי חסומים בסביבה של הנקודה. מתקבלת אסימפטוטה אנכית \(x=1\).
-    </div>
-    <div class="success">
-      <b>ב־\(x=2\):</b> המונה שווה \(4\), ולכן גם כאן ערכי הפונקציה נעשים בלתי חסומים בסביבה. מתקבלת אסימפטוטה אנכית \(x=2\).
-    </div>
-  </div>
-  <div class="callout"><b>מסקנה:</b> את תחום ההגדרה קובעים מאפסי המכנה. לאחר מכן בודקים את התנהגות הפונקציה ליד כל ערך שאינו בתחום כדי לקבוע אסימפטוטות אנכיות.</div>
-  <div class="exercise">
-    <b>תרגול.</b> עבור
-    <div class="formula">\[ f(x)=\frac{9x-18}{x^2-9x+18} \]</div>
-    מצאו תחום הגדרה, אסימפטוטות אנכיות ונקודות חיתוך עם הצירים.
-  </div>
-  <div class="answer small">רמז: פרקו את המכנה לפני כל צעד אחר.</div>
-  <div class="page-no">5</div>
-</section>
-
-<section class="page" id="p5">
-  <h2>3. חיתוכים, סימן וזוגיות</h2>
-  <div class="grid2">
-    <div class="card white">
-      <h3>חיתוך עם ציר \(x\)</h3>
-      <p>אפסי הפונקציה מתקבלים מאפסי המונה שאינם מבטלים גם את המכנה.</p>
-      <div class="formula">\[ f(x)=0\iff P(x)=0\quad\text{and}\quad Q(x)\ne 0 \]</div>
-    </div>
-    <div class="card white">
-      <h3>חיתוך עם ציר \(y\)</h3>
-      <p>מציבים \(x=0\), רק אם \(0\) שייך לתחום.</p>
-      <div class="formula">\[ y=f(0) \]</div>
-    </div>
-  </div>
-  <h3>טבלת סימנים</h3>
-  <p>מסמנים על ציר המספרים את אפסי המונה ואת ערכי אי־ההגדרה. בכל תחום פתוח בודקים את סימן המונה ואת סימן המכנה.</p>
-  <div class="formula">\[ f(x)=\frac{(x+2)(x-3)}{(x-1)(x+4)} \]</div>
-  <table>
-    <tr><th>תחום</th><th>סימן המונה</th><th>סימן המכנה</th><th>סימן הפונקציה</th></tr>
-    <tr><td>\(x\lt-4\)</td><td>+</td><td>+</td><td>+</td></tr>
-    <tr><td>\(-4\lt x\lt-2\)</td><td>+</td><td>−</td><td>−</td></tr>
-    <tr><td>\(-2\lt x\lt1\)</td><td>−</td><td>−</td><td>+</td></tr>
-    <tr><td>\(1\lt x\lt3\)</td><td>−</td><td>+</td><td>−</td></tr>
-    <tr><td>\(x\gt3\)</td><td>+</td><td>+</td><td>+</td></tr>
-  </table>
-  <div class="numberline-shell">
-    <div class="numberline-caption"><b>ציר מספרים תואם:</b> נקודה מלאה = אפס של הפונקציה; נקודה חלולה = ערך שאינו בתחום.</div>
-    <div id="numberLineFunctionSign" class="numberline-board"></div>
-  </div>
-  <h3>זוגיות ואי־זוגיות</h3>
-  <div class="grid2">
-    <div class="card"><div class="formula">\[ f(-x)=f(x) \]</div><p>פונקציה זוגית — סימטריה לציר \(y\).</p></div>
-    <div class="card"><div class="formula">\[ f(-x)=-f(x) \]</div><p>פונקציה אי־זוגית — סימטריה לראשית.</p></div>
-  </div>
-  <div class="exercise"><b>שאלה:</b> בלי לגזור, קבעו אם הפונקציה \(\frac{5x}{x^2-9}\) זוגית, אי־זוגית או לא זו ולא זו, ומצאו את תחומי החיוביות שלה.</div>
-  <div class="page-no">6</div>
-</section>
-
-<section class="page" id="p6">
-  <h2>4. אסימפטוטה אנכית והתנהגות חד־צדדית</h2>
-  <p>לא די לכתוב את משוואת האסימפטוטה. בחקירה מלאה יש לתאר מה קורה משני צדדיה.</p>
-  <div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div>
-  <p>הערך \(x=4\) אינו בתחום, ואין גורם משותף שמצטמצם. לכן:</p>
-  <div class="formula">\[ x=4 \]</div>
-  <p>הוא אסימפטוטה אנכית. כעת מנתחים סימן בסביבה של \(4\):</p>
-  <div class="grid2">
-    <div class="card">
-      <h3>משמאל</h3>
-      <div class="formula">\[ x\to4^-\quad\Longrightarrow\quad f(x)\to-\infty \]</div>
-      <p>המונה חיובי והמכנה שלילי וקרוב לאפס.</p>
-    </div>
-    <div class="card">
-      <h3>מימין</h3>
-      <div class="formula">\[ x\to4^+\quad\Longrightarrow\quad f(x)\to+\infty \]</div>
-      <p>המונה חיובי והמכנה חיובי וקרוב לאפס.</p>
-    </div>
-  </div>
-  <div class="warning"><b>טעות נפוצה:</b> להסתפק בכך שהמכנה מתאפס. לאחר מציאת ערך שאינו בתחום יש לבדוק את התנהגות הפונקציה משני צדדיו ולוודא שהיא נעשית בלתי חסומה.</div>
-  <h3>תרגול</h3>
-  <div class="exercise">
-    עבור
-    <div class="formula">\[ f(x)=\frac{3x}{x^2-2x-15} \]</div>
-    מצאו את האסימפטוטות האנכיות וכתבו עבור כל אחת את ארבעת הגבולות החד־צדדיים הרלוונטיים.
-  </div>
-  <div class="answer small">פרקו: \(x^2-2x-15=(x-5)(x+3)\). לאחר מכן בנו טבלת סימנים קצרה סביב \(-3\) ו־\(5\).</div>
-  <div class="page-no">7</div>
-</section>
-
-<section class="page" id="p7">
-  <h2>5. אסימפטוטה אופקית — גורמים ואיברים זניחים</h2>
-  <p>כאשר \(x\) שואף ל־\(+\infty\) או ל־\(-\infty\), הערך המוחלט של \(x\) נעשה גדול מאוד. לכן בפולינום, האיבר בעל החזקה הגבוהה ביותר משפיע הרבה יותר מן האיברים בעלי החזקות הנמוכות.</p>
-
-  <div class="callout">
-    <b>עקרון הגורמים הזניחים:</b> באינסוף לא מחפשים ערך מדויק של הפונקציה, אלא את ההתנהגות שלה. איברים קטנים מאוד ביחס לאיבר המוביל נעשים <b>זניחים</b> לצורך קביעת האסימפטוטה האופקית.
-  </div>
-
-  <h3>דוגמה מרכזית</h3>
-  <div class="formula">\[ f(x)=\frac{5x^2+1}{x^2-9} \]</div>
-
-  <div class="grid2">
-    <div class="card white">
-      <h4>כאשר \(x\to+\infty\)</h4>
-      <p>אז \(x^2\to+\infty\). לכן \(1\) זניח ביחס ל־\(5x^2\), וגם \(9\) זניח ביחס ל־\(x^2\).</p>
-      <div class="formula">\[ 5x^2+1\approx5x^2,\qquad x^2-9\approx x^2 \]</div>
-    </div>
-    <div class="card white">
-      <h4>כאשר \(x\to-\infty\)</h4>
-      <p>גם כאן \(x^2\to+\infty\). לכן אותם איברים נעשים זניחים, וההתנהגות באינסוף זהה.</p>
-      <div class="formula">\[ 5x^2+1\approx5x^2,\qquad x^2-9\approx x^2 \]</div>
-    </div>
-  </div>
-
-  <p>לכן, בשני הכיוונים, הפונקציה מתנהגת בקירוב כמו היחס בין האיברים המובילים:</p>
-  <div class="formula">\[ f(x)\approx\frac{5x^2}{x^2}=5 \]</div>
-
-  <p>אפשר להצדיק את הקירוב באופן מדויק יותר על ידי חלוקת המונה והמכנה ב־\(x^2\):</p>
-  <div class="formula">\[ f(x)=\frac{5+\frac{1}{x^2}}{1-\frac{9}{x^2}} \]</div>
-  <p>כאשר \(x\to+\infty\) וגם כאשר \(x\to-\infty\), מתקיים:</p>
-  <div class="formula">\[ \frac{1}{x^2}\to0,\qquad \frac{9}{x^2}\to0 \]</div>
-  <div class="formula">\[ \lim_{x\to+\infty}f(x)=5,\qquad \lim_{x\to-\infty}f(x)=5 \]</div>
-
-  <div class="success"><b>מסקנה:</b> בשני קצות הגרף ערכי הפונקציה מתקרבים ל־\(5\), ולכן האסימפטוטה האופקית היא \(y=5\).</div>
-  <div class="warning"><b>חשוב:</b> הסימן \(\approx\) מציין קירוב בלבד. איננו אומרים ש־\(5x^2+1=5x^2\); אנו אומרים שכאשר \(|x|\) גדול מאוד, התוספת \(1\) זניחה ביחס ל־\(5x^2\).</div>
-  <div class="page-no">8</div>
-</section>
-
-<section class="page" id="p8">
-  <h2>6. סקיצה ראשונית — לפני הנגזרת</h2>
-  <p>נשתמש בפונקציה שכבר הופיעה:</p>
-  <div class="formula">\[ f(x)=\frac{2x+5}{x-4}=2+\frac{13}{x-4} \]</div>
-  <div class="grid2_">
-    <div>
-      <div class="checkitem"><b>תחום:</b> \(x\ne4\)</div>
-      <div class="checkitem"><b>חיתוך עם \(x\):</b> \(x=-\frac52\)</div>
-      <div class="checkitem"><b>חיתוך עם \(y\):</b> \(y=-\frac54\)</div>
-      <div class="checkitem"><b>אסימפטוטה אנכית:</b> \(x=4\)</div>
-      <div class="checkitem"><b>אסימפטוטה אופקית:</b> \(y=2\)</div>
-      <div class="callout small">כבר עכשיו אפשר למקם את שני הענפים, את החיתוכים ואת התנהגות הגרף ליד האסימפטוטות. הנגזרת תוסיף מידע על כיוון התנועה.</div>
-    </div>
-    <div>
-      <div class="jxg-shell">
-        <div id="boardPre" class="jxgbox compact"></div>
-        <div class="graphbar">
-          <button onclick="zoomBoard('boardPre',0.80)">הגדלה</button>
-          <button onclick="zoomBoard('boardPre',1.25)">הקטנה</button>
-          <button onclick="resetBoard('boardPre')">מרכוז</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="exercise"><b>משימה:</b> הסבירו מדוע הענף שמשמאל ל־\(x=4\) נמצא מתחת ל־\(y=2\), והענף שמימין ל־\(x=4\) נמצא מעליה — בלי להשתמש בנגזרת.</div>
-  <div class="page-no">9</div>
-</section>
-
-<section class="page" id="p10">
-  <h2>7. כלל המנה בנגזרת</h2>
-  <p>אם המונה והמכנה הם פונקציות גזירות והמכנה אינו אפס, אז:</p>
-  <div class="formula">\[ \left(\frac{u(x)}{v(x)}\right)'=\frac{u'(x)v(x)-u(x)v'(x)}{[v(x)]^2} \]</div>
-  <div class="callout"><b>שימוש בכלל:</b> מזהים את המונה כ־\(u(x)\) ואת המכנה כ־\(v(x)\), גוזרים כל אחד בנפרד ומציבים בנוסחה. לאחר מכן מפשטים את המונה ככל האפשר.</div>
-  <div class="grid3">
-    <div class="warning"><b>טעות 1</b><div class="formula">\[ \left(\frac{u}{v}\right)'\ne\frac{u'}{v'} \]</div></div>
-    <div class="warning"><b>טעות 2</b><p>הסדר במונה חשוב:</p><div class="formula">\[ u'v-uv' \]</div></div>
-    <div class="warning"><b>טעות 3</b><p>המכנה כולו בריבוע:</p><div class="formula">\[ [v(x)]^2 \]</div></div>
-  </div>
-  <div class="callout"><b>אסטרטגיה:</b> כתבו בשורה נפרדת \(u,u',v,v'\), הציבו בנוסחה ורק לאחר מכן פשטו. בחקירת פונקציה, הפישוט הוא שלב מהותי משום שהוא מאפשר לקבוע את סימן הנגזרת.</div>
-  <div class="page-no">10</div>
-</section>
-
-<section class="page" id="p11">
-  <h2>8. כלל המנה — דוגמאות מדורגות</h2>
-  <h3>דוגמה א: מנה לינארית</h3>
-  <div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div>
-  <div class="formula">\[ f'(x)=\frac{2(x-4)-(2x+5)}{(x-4)^2}=\frac{-13}{(x-4)^2} \]</div>
-  <p>המכנה בריבוע חיובי בכל תחום ההגדרה, והמונה שלילי תמיד. לכן הפונקציה יורדת בכל אחד משני תחומי ההגדרה.</p>
-  <h3>דוגמה ב: מנה עם מכנה ריבועי</h3>
-  <div class="formula">\[ g(x)=\frac{6x}{x^2-5x+4} \]</div>
-  <div class="formula">\[ g'(x)=\frac{6(x^2-5x+4)-6x(2x-5)}{(x^2-5x+4)^2} \]</div>
-  <div class="formula">\[ g'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2} \]</div>
-  <p>כעת סימן הנגזרת נקבע רק מ־\(4-x^2\), תוך זכירת הערכים שאינם בתחום.</p>
-  <table>
-    <tr><th>תחום</th><th>סימן \(g'\)</th><th>מסקנה</th></tr>
-    <tr><td>\(x\lt-2\)</td><td>−</td><td>ירידה</td></tr>
-    <tr><td>\(-2\lt x\lt1\)</td><td>+</td><td>עלייה</td></tr>
-    <tr><td>\(1\lt x\lt2\)</td><td>+</td><td>עלייה</td></tr>
-    <tr><td>\(2\lt x\lt4\)</td><td>−</td><td>ירידה</td></tr>
-    <tr><td>\(x\gt4\)</td><td>−</td><td>ירידה</td></tr>
-  </table>
-  <div class="numberline-shell">
-    <div class="numberline-caption"><b>ציר מספרים תואם לסימן \(g'\):</b> נקודה מלאה = \(g'(x)=0\); נקודה חלולה = ערך שאינו בתחום.</div>
-    <div id="numberLineDerivativeSign" class="numberline-board"></div>
-  </div>
-  <div class="exercise"><b>תרגול:</b> גזרו ופשטו את \(\frac{3x^2}{2x^2-8}\), \(\frac{x^2-3x}{x^2+3}\), \(\frac{x^2-3x+2}{x^2-1}\).</div>
-  <div class="page-no">11</div>
-</section>
-
-<section class="page" id="p12">
-  <h2>9. משיק, שיפוע ושאלות הפוכות</h2>
-  <p>לאחר חישוב הנגזרת אפשר למצוא את שיפוע המשיק בנקודה ואת משוואת המשיק.</p>
-  <div class="formula">\[ m=f'(x_0) \]</div>
-  <div class="formula">\[ y-f(x_0)=f'(x_0)(x-x_0) \]</div>
-  <h3>דוגמה</h3>
-  <div class="formula">\[ f(x)=\frac{x-1}{x+1},\qquad x_0=1 \]</div>
-  <div class="formula">\[ f'(x)=\frac{(x+1)-(x-1)}{(x+1)^2}=\frac{2}{(x+1)^2} \]</div>
-  <div class="formula">\[ f(1)=0,\qquad f'(1)=\frac12 \]</div>
-  <div class="formula">\[ y=\frac12(x-1) \]</div>
-  <h3>סוגי שאלות ברמת 5 יח״ל</h3>
-  <div class="grid2">
-    <div class="card"><b>שיפוע נתון</b><p>פתרו \(f'(x)=m\) ומצאו את נקודת/נקודות ההשקה.</p></div>
-    <div class="card"><b>מקביל לישר</b><p>אם הישר הוא \(y=mx+b\), שיפוע המשיק חייב להיות \(m\).</p></div>
-    <div class="card"><b>מאונך לישר</b><p>לשיפועים מתקיים \(m_1m_2=-1\).</p></div>
-    <div class="card"><b>פרמטר</b><p>משתמשים בתנאי השיפוע כדי למצוא פרמטר בביטוי הפונקציה.</p></div>
-  </div>
-  <div class="exercise"><b>תרגול:</b> עבור \(f(x)=\frac{x^2+3}{x}\), מצאו את שיפוע המשיק בנקודה שבה \(x=1\). לאחר מכן מצאו את נקודות הגרף שבהן המשיק אופקי.</div>
-  <div class="page-no">12</div>
-</section>
-
-<section class="page" id="p13">
-  <h2>10. תבנית קבועה לחקירה מלאה</h2>
-  <p>מומלץ להשתמש באותו סדר בכל תרגיל. הסדר מפחית טעויות ומאפשר לתלמיד לבדוק את עצמו.</p>
-  <div class="checklist_">
-    <div class="checkitem"><b>1. תחום הגדרה</b><br>אפסי המכנה המקורי.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>2. פירוק לגורמים</b><br>זיהוי ערכי אי־הגדרה והכנה לניתוח סימנים.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>3. חיתוכים</b><br>אפסי המונה ו־\(f(0)\).</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>4. סימן / סימטריה</b><br>כאשר הדבר מסייע.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>5. אסימפטוטות אנכיות</b><br>ערכים אסורים שלא בוטלו.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>6. התנהגות חד־צדדית</b><br>מימין ומשמאל לכל אסימפטוטה.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>7. אסימפטוטה אופקית</b><br>התנהגות ב־\(\pm\infty\).</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>8. נגזרת ראשונה</b><br>גזירה ופישוט.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>9. נקודות קיצון</b><br>פתרון \(f'(x)=0\) וסיווג.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>10. עלייה וירידה</b><br>טבלת סימנים של הנגזרת.</div>
-<div style="height:10px;"></div>
-    <div class="checkitem"><b>11. סקיצה סופית</b><br>שילוב כל המידע.</div>
-<div style="height:10px;"></div>
-  </div>
-  <div class="callout"><b>בקרה עצמית:</b> גרף טוב חייב לכבד בו־זמנית את התחום, החיתוכים, האסימפטוטות, כיווני העלייה/ירידה והקיצון. אם נתון אחד סותר את הסקיצה — הסקיצה שגויה.</div>
-  <div class="exercise"><b>משימת הכנה:</b> העתיקו את התבנית למחברת והשאירו מקום של שורה אחת לכל סעיף. השתמשו בה בכל אחת מהחקירות בעמודים הבאים.</div>
-  <div class="page-no">13</div>
-</section>
-
-<section class="page" id="p14">
-  <h2>11. חקירה מלאה — דוגמה פתורה</h2>
-  <div class="formula">\[ f(x)=\frac{6x}{x^2-5x+4}=\frac{6x}{(x-1)(x-4)} \]</div>
-  <div class="grid2">
-    <div>
-      <p><b>תחום:</b> \(x\ne1,4\).</p>
-      <p><b>חיתוך עם הצירים:</b> \((0,0)\).</p>
-      <p><b>אסימפטוטות אנכיות:</b> \(x=1\), \(x=4\).</p>
-      <p><b>אסימפטוטה אופקית:</b> \(y=0\).</p>
-      <p><b>נגזרת:</b></p>
-      <div class="formula">\[ f'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2} \]</div>
-      <p><b>נקודות חשודות:</b> \(x=-2,2\).</p>
-      <div class="formula">\[ f(-2)=-\frac23,\qquad f(2)=-6 \]</div>
-      <p><b>סיווג:</b> מינימום ב־\((-2,-\frac23)\), מקסימום ב־\((2,-6)\).</p>
-      <div class="callout small"><b>שיטת הסימנים:</b> אין צורך לנתח את מכנה הנגזרת, מפני שהוא בריבוע וחיובי בכל נקודה בתחום. בעמוד הבא מנתחים רק את מונה הנגזרת כפרבולה וממנו קוראים את סימני \(f'\).</div>
-    </div>
-    <div class="jxg-shell">
-      <div id="boardFull" class="jxgbox"></div>
-      <div class="graphbar">
-        <button onclick="zoomBoard('boardFull',0.80)">הגדלה</button>
-        <button onclick="zoomBoard('boardFull',1.25)">הקטנה</button>
-        <button onclick="resetBoard('boardFull')">מרכוז</button>
-      </div>
-    </div>
-  </div>
-  <table>
-    <tr><th>תחום</th><th>התנהגות</th></tr>
-    <tr><td>\(( -\infty,-2 )\)</td><td>יורדת</td></tr>
-    <tr><td>\(( -2,1 )\)</td><td>עולה</td></tr>
-    <tr><td>\(( 1,2 )\)</td><td>עולה</td></tr>
-    <tr><td>\(( 2,4 )\)</td><td>יורדת</td></tr>
-    <tr><td>\(( 4,\infty )\)</td><td>יורדת</td></tr>
-  </table>
-  <div class="numberline-shell">
-    <div class="numberline-caption"><b>ציר מספרים תואם לתחומי העלייה והירידה:</b> נקודה מלאה = \(f'(x)=0\); נקודה חלולה = ערך שאינו בתחום הפונקציה.</div>
-    <div id="numberLinePage14" class="numberline-board"></div>
-  </div>
-  <div class="page-no">14</div>
-</section>
-
-<section class="page" id="p14-derivative-numerator">
-  <h2>11א. שיטת מונה הנגזרת — קוראים את הסימן מפרבולה</h2>
-  <p class="lead">בנגזרת של פונקציה רציונלית מתקבל לעיתים מכנה בריבוע. כאשר זה קורה, המכנה אינו קובע את סימן הנגזרת: הוא חיובי בכל נקודה שבה הפונקציה מוגדרת. לכן אפשר לנתח רק את המונה.</p>
-
-  <div class="formula">\[ f'(x)=\frac{6(4-x^2)}{(x^2-5x+4)^2} \]</div>
-
-  <div class="grid2">
-    <div>
-      <div class="step"><div class="n">1</div><div><b>מפרידים מונה ומכנה.</b><div class="formula">\[ N(x)=6(4-x^2),\qquad D(x)=(x^2-5x+4)^2 \]</div></div></div>
-      <div class="step"><div class="n">2</div><div><b>המכנה תמיד חיובי בתחום.</b> לכל \(x\ne1,4\):<div class="formula">\[ D(x)\gt0 \]</div>לכן:<div class="formula">\[ \operatorname{sign}(f'(x))=\operatorname{sign}(N(x)) \]</div></div></div>
-      <div class="step"><div class="n">3</div><div><b>המונה הוא פרבולה.</b> הגורם \(6\) חיובי ולכן אינו משנה סימן. מספיק לנתח:<div class="formula">\[ p(x)=4-x^2=-(x-2)(x+2) \]</div>זו פרבולה הפונה כלפי מטה, ושורשיה הם \(x=-2,2\).</div></div>
-      <div class="step"><div class="n">4</div><div><b>קוראים את סימן הנגזרת מן הפרבולה.</b> מעל ציר \(x\) מתקבל \(f'(x)\gt0\); מתחת לציר \(x\) מתקבל \(f'(x)\lt0\). אחר כך מחזירים את הערכים \(x=1,4\), שאינם בתחום ורק מפצלים את התחומים.</div></div>
-    </div>
-
-    <div class="jxg-shell">
-      <div id="boardDerivativeNumerator" class="jxgbox sign-parabola"></div>
-      <div class="legend">
-        <span><i class="sw blue"></i>\(p(x)=4-x^2\)</span>
-        <span><i class="sw red"></i>ערכים שאינם בתחום של \(f\)</span>
-      </div>
-      <div class="graphbar">
-        <button onclick="zoomBoard('boardDerivativeNumerator',0.80)">הגדלה</button>
-        <button onclick="zoomBoard('boardDerivativeNumerator',1.25)">הקטנה</button>
-        <button onclick="resetBoard('boardDerivativeNumerator')">מרכוז</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="numberline-shell">
-    <div class="numberline-caption"><b>ציר סימני \(f'\):</b> הנקודות \(-2,2\) הן אפסי הנגזרת; \(1,4\) אינן בתחום הפונקציה.</div>
-    <div id="numberLineFullDerivative" class="numberline-board"></div>
-  </div>
-
-  <div class="grid2">
-    <div class="success">
-      <b>תחומי עלייה וירידה</b>
-      <p><b>עולה:</b> \((-2,1)\), \((1,2)\).</p>
-      <p><b>יורדת:</b> \(( -\infty,-2 )\), \((2,4)\), \((4,\infty)\).</p>
-    </div>
-    <div class="success">
-      <b>נקודות קיצון</b>
-      <p>ב־\(x=-2\): הסימן משתנה מ־− ל־+ → מינימום \((-2,-\frac23)\).</p>
-      <p>ב־\(x=2\): הסימן משתנה מ־+ ל־− → מקסימום \((2,-6)\).</p>
-    </div>
-  </div>
-  <div class="page-no">15</div>
-</section>
-
-<section class="page" id="p15">
-  <h2>12. אותה דוגמה — התנהגות ליד האסימפטוטות</h2>
-  <p>כדי שהסקיצה תהיה שלמה, מוסיפים את המידע החד־צדדי:</p>
-  <table>
-    <tr><th>גבול</th><th>תוצאה</th><th>הסבר סימן</th></tr>
-    <tr><td>\(x\to1^-\)</td><td>\(f(x)\to+\infty\)</td><td>מונה חיובי; המכנה חיובי קטן.</td></tr>
-    <tr><td>\(x\to1^+\)</td><td>\(f(x)\to-\infty\)</td><td>מונה חיובי; המכנה שלילי קטן.</td></tr>
-    <tr><td>\(x\to4^-\)</td><td>\(f(x)\to-\infty\)</td><td>מונה חיובי; המכנה שלילי קטן.</td></tr>
-    <tr><td>\(x\to4^+\)</td><td>\(f(x)\to+\infty\)</td><td>מונה חיובי; המכנה חיובי קטן.</td></tr>
-    <tr><td>\(x\to-\infty\)</td><td>\(f(x)\to0^-\)</td><td>המונה שלילי והמכנה חיובי.</td></tr>
-    <tr><td>\(x\to+\infty\)</td><td>\(f(x)\to0^+\)</td><td>מונה ומכנה חיוביים.</td></tr>
-  </table>
-  <h3>בדיקת עקביות</h3>
-  <ul>
-    <li>בקטע \((1,4)\) שני הקצוות יורדים ל־\(-\infty\), ולכן הגיוני שתהיה נקודת מקסימום ביניהם.</li>
-    <li>בענף השמאלי יש מינימום, ולאחריו הפונקציה עולה עד \(+\infty\) כאשר מתקרבים ל־\(1\) משמאל.</li>
-    <li>בענף הימני הפונקציה יורדת מ־\(+\infty\) ומתקרבת ל־\(0\) מלמעלה.</li>
-  </ul>
-  <div class="exercise">
-    <b>תרגיל מלא:</b>
-    <div class="formula">\[ f(x)=\frac{9x-18}{x^2-9x+18} \]</div>
-    חקרו לפי 12 הסעיפים של התבנית. לאחר מכן השוו את הסקיצה לגרף דינמי בלבד לצורך בדיקה.
-  </div>
-  <div class="page-no">16</div>
-</section>
-
-
-<section class="page" id="p16">
-  <h2>13. חקירה הפוכה ושאלות פרמטר</h2>
-  <h3>מהגרף אל הביטוי</h3>
-  <p>בשאלה הפוכה נותנים תכונות של הגרף ומבקשים לזהות פונקציה או לקבוע פרמטר. עובדים מן התכונה אל התנאי האלגברי.</p>
-  <table>
-    <tr><th>מידע נתון</th><th>תרגום אלגברי</th></tr>
-    <tr><td>אסימפטוטה אנכית ב־\(x=a\)</td><td>המכנה מתאפס ב־\(a\), ללא ביטול מלא.</td></tr>
-    <tr><td>אפס ב־\(x=b\)</td><td>המונה מתאפס ב־\(b\).</td></tr>
-    <tr><td>נקודת קיצון ב־\(x=c\)</td><td>\(f'(c)=0\).</td></tr>
-    <tr><td>משיק בשיפוע \(m\)</td><td>\(f'(c)=m\).</td></tr>
-    <tr><td>אסימפטוטה אופקית \(y=k\)</td><td>\(f(x)\to k\) כאשר \(x\to\pm\infty\).</td></tr>
-  </table>
-  <h3>דוגמה עם פרמטר</h3>
-  <div class="formula">\[ f(x)=\frac{ax+2}{x-3} \]</div>
-  <p>אם האסימפטוטה האופקית היא \(y=5\), אז יחס המקדמים המובילים הוא \(5\), ולכן \(a=5\).</p>
-  <div class="exercise">
-    נתונה
-    <div class="formula">\[ f(x)=\frac{x+k}{x-2} \]</div>
-    וידוע שהגרף חותך את ציר \(x\) בנקודה \((3,0)\). מצאו את \(k\), ואז קבעו את האסימפטוטות ואת נקודת החיתוך עם ציר \(y\).
-  </div>
-  <div class="exercise">
-    נתונה
-    <div class="formula">\[ f(x)=\frac{x^2+a}{x^2+1} \]</div>
-    מצאו את \(a\) אם ידוע שהגרף עובר בנקודה \((1,2)\). לאחר מכן חקרו את התנהגות הפונקציה באינסוף.
-  </div>
-  <div class="page-no">17</div>
-</section>
-
-<section class="page" id="p17">
-  <h2>14. טרנספורמציות — לאחר החקירה</h2>
-  <p>לאחר ש־\(f\) נחקרה, משתמשים בנתונים הקיימים כדי לבנות את \(g\). המטרה היא להימנע מחקירה אלגברית חוזרת.</p>
-  <table>
-    <tr><th>פונקציה חדשה</th><th>פעולה גאומטרית</th><th>השפעה עיקרית</th></tr>
-    <tr><td>\(g(x)=f(x)+k\)</td><td>הזזה אנכית</td><td>כל ערכי \(y\) ואסימפטוטות אופקיות זזים ב־\(k\).</td></tr>
-    <tr><td>\(g(x)=f(x-h)\)</td><td>הזזה אופקית</td><td>כל ערכי \(x\) ואסימפטוטות אנכיות זזים ב־\(h\).</td></tr>
-    <tr><td>\(g(x)=af(x)\)</td><td>מתיחה/כיווץ ושיקוף</td><td>ערכי \(y\) מוכפלים ב־\(a\).</td></tr>
-    <tr><td>\(g(x)=f(bx)\)</td><td>שינוי אופקי</td><td>ערכי \(x\) מתחלקים ב־\(b\).</td></tr>
-    <tr><td>\(g(x)=-f(x)\)</td><td>שיקוף בציר \(x\)</td><td>מקסימום ומינימום מתחלפים.</td></tr>
-    <tr><td>\(g(x)=f(-x)\)</td><td>שיקוף בציר \(y\)</td><td>ערכי \(x\) מחליפים סימן.</td></tr>
-  </table>
-  <h3>דוגמה</h3>
-  <div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div>
-  <p>אם \(g(x)=f(x)-6\), אין צורך לגזור מחדש כדי לקבוע כיווני עלייה וירידה: הם נשארים זהים. האסימפטוטה האנכית נשארת \(x=4\), והאופקית זזה מ־\(y=2\) ל־\(y=-4\).</p>
-  <div class="exercise"><b>משימה:</b> קבעו ללא חקירה מלאה את האסימפטוטות ואת תחומי העלייה/ירידה של \(2f(x)-3\), \(-f(x)+6\) ו־\(f(x-2)\).</div>
-  <div class="page-no">18</div>
-</section>
-
-<section class="page" id="p18">
-  <h2>15. מעבדה אינטראקטיבית: משפחת ההזזות</h2>
-  <p>המשפחה הבסיסית מאפשרת לראות בו־זמנית הזזה, מתיחה ושיקוף:</p>
-  <div class="formula">\[ F(x)=\frac{a}{x-h}+k \]</div>
-  <div class="jxg-shell">
-    <div id="boardTransform" class="jxgbox"></div>
-    <div class="legend"><span><i class="sw blue"></i>הגרף המשתנה</span><span><i class="sw red"></i>אסימפטוטה אנכית</span><span><i class="sw green"></i>אסימפטוטה אופקית</span></div>
-    <div class="graphbar">
-      <button onclick="zoomBoard('boardTransform',0.80)">הגדלה</button>
-      <button onclick="zoomBoard('boardTransform',1.25)">הקטנה</button>
-      <button onclick="resetBoard('boardTransform')">מרכוז</button>
-    </div>
-  </div>
-  <div class="callout"><b>משימת חקר:</b> הזיזו את שלושת הסליידרים. נסחו במילים מה עושה כל אחד מן הפרמטרים \(a,h,k\). בפרט, בדקו מה קורה כאשר \(a\) מחליף סימן.</div>
-  <div class="grid3">
-    <div class="card"><b>\(h\)</b><p>קובע את מיקום האסימפטוטה האנכית.</p></div>
-    <div class="card"><b>\(k\)</b><p>קובע את מיקום האסימפטוטה האופקית.</p></div>
-    <div class="card"><b>\(a\)</b><p>קובע כיוון, מתיחה וכיווץ.</p></div>
-  </div>
-  <div class="page-no">19</div>
-</section>
-
-<section class="page" id="p19">
-  <h2>16. ערך מוחלט וריבוע</h2>
-  <div class="grid2">
-    <div class="card white">
-      <h3>ערך מוחלט</h3>
-      <div class="formula">\[ g(x)=|f(x)| \]</div>
-      <p>חלקי הגרף שמתחת לציר \(x\) משתקפים כלפי מעלה. התחום נשאר זהה.</p>
-    </div>
-    <div class="card white">
-      <h3>ריבוע</h3>
-      <div class="formula">\[ g(x)=[f(x)]^2 \]</div>
-      <p>כל ערכי \(y\) אינם שליליים. אפסים נשמרים, אך האסימפטוטה האופקית משתנה בהתאם לריבוע הערך.</p>
-    </div>
-  </div>
-  <h3>דוגמה להשוואה</h3>
-  <div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div>
-  <div class="jxg-shell">
-    <div id="boardAbsSq" class="jxgbox compact"></div>
-    <div class="legend"><span><i class="sw blue"></i>\(f\)</span><span><i class="sw green"></i>\(|f|\)</span><span><i class="sw purple"></i>\(f^2\)</span></div>
-    <div class="graphbar">
-      <button onclick="zoomBoard('boardAbsSq',0.80)">הגדלה</button>
-      <button onclick="zoomBoard('boardAbsSq',1.25)">הקטנה</button>
-      <button onclick="resetBoard('boardAbsSq')">מרכוז</button>
-    </div>
-  </div>
-  <div class="exercise"><b>שאלת חשיבה:</b> הסבירו ללא גזירה מה יקרה לנקודת מינימום שלילית של \(f\) כאשר עוברים ל־\(|f|\), ומה יקרה לה כאשר עוברים ל־\(f^2\).</div>
-  <div class="page-no">20</div>
-</section>
-
-
-<section class="page" id="p19-abs-example">
-  <h2>16א. דוגמה מלאה — ערך מוחלט \(g(x)=|f(x)|\)</h2>
-  <p class="lead">כאן אין צורך לגזור את ביטוי הערך המוחלט ישירות. מחלקים לפי הסימן של \(f\), ומשתמשים בנגזרת \(f'\) שכבר ידועה.</p>
-  <div class="formula">\[ f(x)=\frac{x^2-1}{x^2+1},\qquad f'(x)=\frac{4x}{(x^2+1)^2} \]</div>
-  <div class="grid2">
-    <div>
-      <div class="card white">
-        <h3>סימן הפונקציה המקורית</h3>
-        <div class="formula">\[ f(x)\gt0\quad\text{for}\quad x\lt-1\ \text{or}\ x\gt1 \]</div>
-        <div class="formula">\[ f(x)\lt0\quad\text{for}\quad -1\lt x\lt1 \]</div>
-        <p>לכן מחוץ לקטע \((-1,1)\) הגרף נשאר במקום, ובתוך הקטע החלק השלילי משתקף מעל ציר \(x\).</p>
-      </div>
-      <div class="formula">\[ g(x)=|f(x)|=\begin{cases} f(x),& f(x)\ge0\\ -f(x),& f(x)\lt0 \end{cases} \]</div>
-    </div>
-    <div class="jxg-shell">
-      <div id="boardAbsFull" class="jxgbox compact"></div>
-      <div class="legend"><span><i class="sw blue"></i>\(f\)</span><span><i class="sw green"></i>\(g=|f|\)</span></div>
-      <div class="graphbar">
-        <button onclick="zoomBoard('boardAbsFull',0.80)">הגדלה</button>
-        <button onclick="zoomBoard('boardAbsFull',1.25)">הקטנה</button>
-        <button onclick="resetBoard('boardAbsFull')">מרכוז</button>
-      </div>
-    </div>
-  </div>
-
-  <h3>הנגזרת מתוך \(f'\)</h3>
-  <div class="formula">\[ g'(x)=\begin{cases} f'(x),& f(x)\gt0\\ -f'(x),& f(x)\lt0 \end{cases}\qquad (x\ne-1,1) \]</div>
-  <table>
-    <tr><th>תחום</th><th>סימן \(f\)</th><th>סימן \(f'\)</th><th>סימן \(g'\)</th><th>מסקנה</th></tr>
-    <tr><td>\(x\lt-1\)</td><td>+</td><td>−</td><td>−</td><td>יורדת</td></tr>
-    <tr><td>\(-1\lt x\lt0\)</td><td>−</td><td>−</td><td>+</td><td>עולה</td></tr>
-    <tr><td>\(0\lt x\lt1\)</td><td>−</td><td>+</td><td>−</td><td>יורדת</td></tr>
-    <tr><td>\(x\gt1\)</td><td>+</td><td>+</td><td>+</td><td>עולה</td></tr>
-  </table>
-  <div class="numberline-shell">
-    <div class="numberline-caption"><b>ציר מספרים תואם לסימן \(g'\):</b> ב־\(x=\pm1\) הפונקציה \(g\) אינה גזירה; ב־\(x=0\) מתקיים \(g'(0)=0\).</div>
-    <div id="numberLinePage22" class="numberline-board"></div>
-  </div>
-  <div class="grid2">
-    <div class="success"><b>תחום, חיתוכים ואסימפטוטה:</b> התחום נשאר \(\mathbb{R}\); האפסים נשארים \((-1,0),(1,0)\); חיתוך עם \(y\) הופך ל־\((0,1)\); האסימפטוטה האופקית נשארת \(y=1\).</div>
-    <div class="success"><b>קיצון:</b> ב־\((-1,0)\) וב־\((1,0)\) מתקבלות נקודות מינימום חדות. המינימום השלילי \((0,-1)\) של \(f\) משתקף והופך למקסימום \((0,1)\).</div>
-  </div>
-  <div class="warning small"><b>נקודה חשובה:</b> ב־\(x=\pm1\) הפונקציה \(|f|\) רציפה אך אינה גזירה, משום ש־\(f\) חוצה שם את ציר \(x\) בשיפוע שאינו אפס.</div>
-  <div class="page-no">21</div>
-</section>
-
-<section class="page" id="p19-square-example">
-  <h2>16ב. דוגמה מלאה — ריבוע \(g(x)=[f(x)]^2\)</h2>
-  <p class="lead">גם כאן כל החקירה נגזרת מן המידע שכבר קיים: ערכי \(f\), סימן \(f\) וסימן \(f'\).</p>
-  <div class="formula">\[ f(x)=\frac{x^2-1}{x^2+1},\qquad f'(x)=\frac{4x}{(x^2+1)^2} \]</div>
-  <div class="grid2">
-    <div>
-      <div class="card white">
-        <h3>מה עובר מיד מן הפונקציה המקורית?</h3>
-        <p><b>תחום:</b> נשאר \(\mathbb{R}\). <b>אפסים:</b> נשארים \(x=-1,1\), כי \([f(x)]^2=0\iff f(x)=0\).</p>
-        <p><b>חיתוך עם \(y\):</b> \(g(0)=[-1]^2=1\). <b>אסימפטוטה אופקית:</b> אם \(f(x)\to1\), אז \([f(x)]^2\to1\).</p>
-        <p>כל ערכי \(g\) אינם שליליים, ולכן החלק השלילי של \(f\) אינו רק משתקף — גם גובהו משתנה לפי פעולת הריבוע.</p>
-      </div>
-      <div class="formula">\[ g(x)=[f(x)]^2 \]</div>
-    </div>
-    <div class="jxg-shell">
-      <div id="boardSquareFull" class="jxgbox compact"></div>
-      <div class="legend"><span><i class="sw blue"></i>\(f\)</span><span><i class="sw purple"></i>\(g=f^2\)</span></div>
-      <div class="graphbar">
-        <button onclick="zoomBoard('boardSquareFull',0.80)">הגדלה</button>
-        <button onclick="zoomBoard('boardSquareFull',1.25)">הקטנה</button>
-        <button onclick="resetBoard('boardSquareFull')">מרכוז</button>
-      </div>
-    </div>
-  </div>
-
-  <h3>הנגזרת — כלל השרשרת בלבד</h3>
-  <div class="formula">\[ g'(x)=2f(x)f'(x) \]</div>
-  <p>הגורם \(2\) חיובי, ולכן סימן \(g'\) נקבע מן המכפלה של סימני \(f\) ו־\(f'\). נקודות חשודות מתקבלות כאשר \(f(x)=0\) או כאשר \(f'(x)=0\).</p>
-  <table>
-    <tr><th>תחום</th><th>סימן \(f\)</th><th>סימן \(f'\)</th><th>סימן \(g'\)</th><th>מסקנה</th></tr>
-    <tr><td>\(x\lt-1\)</td><td>+</td><td>−</td><td>−</td><td>יורדת</td></tr>
-    <tr><td>\(-1\lt x\lt0\)</td><td>−</td><td>−</td><td>+</td><td>עולה</td></tr>
-    <tr><td>\(0\lt x\lt1\)</td><td>−</td><td>+</td><td>−</td><td>יורדת</td></tr>
-    <tr><td>\(x\gt1\)</td><td>+</td><td>+</td><td>+</td><td>עולה</td></tr>
-  </table>
-  <div class="numberline-shell">
-    <div class="numberline-caption"><b>ציר מספרים תואם לסימן \(g'\):</b> שלוש הנקודות \(x=-1,0,1\) הן אפסים של הנגזרת.</div>
-    <div id="numberLinePage23" class="numberline-board"></div>
-  </div>
-  <div class="grid2">
-    <div class="success"><b>נקודות קיצון:</b> \((-1,0)\) ו־\((1,0)\) הן נקודות מינימום; \((0,1)\) היא נקודת מקסימום מקומית.</div>
-    <div class="success"><b>הבדל לעומת ערך מוחלט:</b> כאן \(g\) גזירה גם ב־\(x=\pm1\), משום ש־\(g'=2ff'\) מתאפסת שם. לכן האפסים הם מינימום עם משיק אופקי, ולא נקודות חדות.</div>
-  </div>
-  <div class="page-no">22</div>
-</section>
-
-<section class="page" id="p20">
-  <h2>17. תרגול מדורג א — יסודות וקדם־אנליזה</h2>
-  <p><span class="tag">בסיס</span><span class="tag">ללא נגזרת</span></p>
-  <ol>
-    <li>מצאו תחום הגדרה של \(\frac{2x}{x-3}\), \(\frac{5x^2+1}{x^2-9}\), \(\frac{x^2+4}{x^2-3x+2}\).</li>
-    <li>עבור \(\frac{x^2+4}{x^2-3x+2}\), מצאו את האסימפטוטות האנכיות ותארו את ההתנהגות משני צדיהן.</li>
-    <li>מצאו את נקודות החיתוך עם הצירים של \(\frac{2x+5}{x-4}\).</li>
-    <li>קבעו את תחומי החיוביות של \(\frac{3x}{(x-5)(x+3)}\).</li>
-    <li>מצאו את כל האסימפטוטות המקבילות לצירים של \(\frac{5x^2+1}{x^2-9}\).</li>
-    <li>מצאו את כל האסימפטוטות המקבילות לצירים של \(\frac{2x^2-5x+2}{1+3x^2}\).</li>
-    <li>עבור \(\frac{9x-18}{x^2-9x+18}\), בצעו פירוק מלא, מצאו את תחום ההגדרה ואת האסימפטוטות האנכיות.</li>
-    <li>שרטטו סקיצה איכותנית של \(\frac{1}{x-2}+3\) בלי נגזרת.</li>
-  </ol>
-  <div class="warning"><b>הנחיה:</b> בכל סעיף כתבו נימוק קצר. תשובה כמו „לפי הכלל” אינה מספיקה כאשר ניתן להסביר באמצעות מבנה הפונקציה.</div>
-  <h3>בדיקת שליטה</h3>
-  <div class="checklist">
-    <div class="checkitem">אני זוכר שהתחום נקבע לפני צמצום.</div>
-    <div class="checkitem">אני יודע לזהות אסימפטוטה אנכית ולתאר התנהגות משני צדיה.</div>
-    <div class="checkitem">אני יודע לבנות טבלת סימנים.</div>
-    <div class="checkitem">אני יודע לתאר התנהגות משני צדי אסימפטוטה.</div>
-  </div>
-  <div class="page-no">23</div>
-</section>
-
-<section class="page" id="p21">
-  <h2>18. תרגול מדורג ב — נגזרת, קיצון ומשיקים</h2>
-  <p><span class="tag">בינוני</span><span class="tag">כלל המנה</span></p>
-  <ol>
-    <li>גזרו ופשטו: \(f(x)=\frac{2x+5}{x-4}\).</li>
-    <li>גזרו ופשטו: \(f(x)=\frac{6x}{x^2-10x+9}\).</li>
-    <li>מצאו נקודות קיצון ותחומי עלייה/ירידה של \(f(x)=\frac{6x}{x^2-5x+4}\).</li>
-    <li>מצאו את נקודות הקיצון של \(f(x)=\frac{3x^2}{2x^2-8}\).</li>
-    <li>מצאו את שיפוע המשיק ל־\(f(x)=\frac{x-1}{x+1}\) בנקודה שבה \(x=1\).</li>
-    <li>עבור \(f(x)=\frac{x^2+3}{x}\), מצאו את כל הנקודות שבהן המשיק אופקי.</li>
-    <li>עבור \(f(x)=\frac{x^2}{x-1}\), מצאו את משוואות המשיקים היוצרים זווית של \(108.43^\circ\) עם הכיוון החיובי של ציר \(x\).</li>
-    <li>עבור \(f(x)=\frac{x^2}{x+2}\), מצאו את המשיקים המקבילים לישר \(y+3x=10\).</li>
-  </ol>
-  <div class="page-no">24</div>
-</section>
-
-<section class="page" id="p22">
-  <h2>19. תרגול מדורג ג — חקירה מלאה</h2>
-  <p><span class="tag">מתקדם</span><span class="tag">5 יח״ל</span></p>
-  <p>חקרו כל פונקציה לפי התבנית המלאה: תחום, חיתוכים, אסימפטוטות, התנהגות לידן, נגזרת, קיצון, עלייה/ירידה וסקיצה.</p>
-  <div class="grid2">
-    <div class="exercise"><b>1.</b><div class="formula">\[ f(x)=\frac{x^2-3x}{x^2+3} \]</div></div>
-    <div class="exercise"><b>2.</b><div class="formula">\[ f(x)=\frac{x^2-3x+2}{x^2-9} \]</div></div>
-    <div class="exercise"><b>3.</b><div class="formula">\[ f(x)=\frac{3x^2}{2x^2-8} \]</div></div>
-    <div class="exercise"><b>4.</b><div class="formula">\[ f(x)=\frac{x^2-5x+6}{x^2+1} \]</div></div>
-    <div class="exercise"><b>5.</b><div class="formula">\[ f(x)=\frac{2x^2-8x+8}{x^2-5x+4} \]</div></div>
-    <div class="exercise"><b>6.</b><div class="formula">\[ f(x)=\frac{(x+4)^2}{3x-5} \]</div></div>
-  </div>
-  <div class="warning"><b>שימו לב:</b> התחילו תמיד בתחום ההגדרה, ורק אחר כך עברו לחיתוכים, אסימפטוטות ונגזרת.</div>
-  <div class="page-no">25</div>
-</section>
-
-<section class="page" id="p23">
-  <h2>20. תרגול מדורג ד — טרנספורמציות לאחר חקירה</h2>
-  <p>נניח שנחקרה הפונקציה:</p>
-  <div class="formula">\[ f(x)=\frac{2x+5}{x-4} \]</div>
-  <p>בלי לבצע חקירה מלאה מחדש, קבעו עבור כל פונקציה: תחום, אסימפטוטות, חיתוכים שניתן להסיק בקלות, וכיווני עלייה/ירידה.</p>
-  <div class="grid2">
-    <div class="exercise"><b>1.</b> \(g(x)=f(x)-6\)</div>
-    <div class="exercise"><b>2.</b> \(g(x)=6f(x)\)</div>
-    <div class="exercise"><b>3.</b> \(g(x)=-f(x)+6\)</div>
-    <div class="exercise"><b>4.</b> \(g(x)=f(x-2)\)</div>
-    <div class="exercise"><b>5.</b> \(g(x)=|f(x)|\)</div>
-    <div class="exercise"><b>6.</b> \(g(x)=[f(x)]^2\)</div>
-    <div class="exercise"><b>7.</b> \(g(x)=f(-x)\)</div>
-  </div>
-  <h3>שאלת בגרות</h3>
-  <div class="exercise">
-    ידועות נקודות הקיצון של \(f\), ונתונה \(g(x)=-\frac12 f(x)\). קבעו את שיעורי נקודות הקיצון של \(g\), את סוגן ואת תחומי העלייה/ירידה — ללא גזירה של \(g\).
-  </div>
-  <div class="answer small"><b>עיקרון:</b> הכפלה במספר שלילי הופכת סימן של ערכי \(y\) ומשקפת את הגרף בציר \(x\); לכן סוגי הקיצון מתחלפים וכיווני העלייה/ירידה מתחלפים.</div>
-  <div class="page-no">26</div>
-</section>
-
-<section class="page" id="p24">
-  <h2>21. הערכה מסכמת — משימת חקירה אחת מלאה</h2>
-  <p class="lead">חקרו את הפונקציה הבאה באופן מלא, ולאחר מכן בצעו טרנספורמציה על בסיס החקירה.</p>
-  <div class="formula">\[ f(x)=\frac{6x}{x^2-5x+4} \]</div>
-  <ol>
-    <li>מצאו את תחום ההגדרה.</li>
-    <li>מצאו את נקודות החיתוך עם הצירים.</li>
-    <li>מצאו את האסימפטוטות המקבילות לצירים.</li>
-    <li>תארו את התנהגות הפונקציה משני צדי כל אסימפטוטה אנכית.</li>
-    <li>מצאו את הנגזרת ופשטו אותה.</li>
-    <li>מצאו את נקודות הקיצון וקבעו את סוגן.</li>
-    <li>כתבו תחומי עלייה וירידה.</li>
-    <li>שרטטו סקיצה מנומקת.</li>
-    <li>נתונה \(g(x)=f(x)-2\). קבעו ללא חקירה מחדש את האסימפטוטות ואת נקודות הקיצון של \(g\).</li>
-    <li>נתונה \(h(x)=-f(x)\). קבעו את סוגי נקודות הקיצון ואת תחומי העלייה/ירידה של \(h\).</li>
-  </ol>
-  <h3>מחוון מוצע</h3>
-  <table>
-    <tr><th>מרכיב</th><th>אחוז</th></tr>
-    <tr><td>תחום, חיתוכים ואסימפטוטות</td><td>25%</td></tr>
-    <tr><td>נגזרת וחישוב נכון</td><td>20%</td></tr>
-    <tr><td>קיצון ועלייה/ירידה</td><td>25%</td></tr>
-    <tr><td>סקיצה עקבית</td><td>15%</td></tr>
-    <tr><td>טרנספורמציות מתוך החקירה</td><td>15%</td></tr>
-  </table>
-  <div class="page-no">27</div>
-</section>
-
-<section class="page" id="p25">
-  <h2>22. טעויות נפוצות — דף בקרה</h2>
-  <table>
-    <tr><th>טעות</th><th>כיצד מתקנים</th></tr>
-    <tr><td>קובעים תחום אחרי צמצום.</td><td>רושמים תחום מהביטוי המקורי ורק אחר כך מצמצמים.</td></tr>
-    <tr><td>קובעים אסימפטוטה אנכית רק מפני שהמכנה מתאפס.</td><td>בודקים את התנהגות הפונקציה משני צדי הערך ומוודאים שהיא נעשית בלתי חסומה.</td></tr>
-    <tr><td>כותבים רק \(x=a\) בלי התנהגות ליד האסימפטוטה.</td><td>בודקים בנפרד \(x\to a^-\) ו־\(x\to a^+\).</td></tr>
-    <tr><td>גוזרים מנה כמנה של נגזרות.</td><td>משתמשים ב־\(u'v-uv'\) חלקי \(v^2\).</td></tr>
-    <tr><td>לא מפשטים את הנגזרת.</td><td>מפשטים לפני פתרון \(f'(x)=0\) ולפני טבלת סימנים.</td></tr>
-    <tr><td>מכניסים ערך שאינו בתחום לטבלת הקיצון כנקודה.</td><td>ערך אסור מחלק תחומים אך אינו נקודת גרף.</td></tr>
-    <tr><td>מציירים ענף שחוצה אסימפטוטה אנכית.</td><td>אסימפטוטה אנכית נמצאת בערך שאינו בתחום.</td></tr>
-    <tr><td>חושבים שאסור לחצות אסימפטוטה אופקית.</td><td>אסימפטוטה אופקית מתארת התנהגות באינסוף; מותר לחצותה.</td></tr>
-    <tr><td>חוקרים מחדש אחרי הזזה.</td><td>מעבירים את הנתונים של \(f\) לפי חוק הטרנספורמציה.</td></tr>
-  </table>
-  <div class="success"><b>בדיקה לפני הגשה:</b> האם התחום נכון? האם כל האסימפטוטות מסומנות? האם הנגזרת מפושטת? האם נקודות הקיצון נמצאות בתחום? האם הסקיצה מתאימה לכל הנתונים?</div>
-  <div class="page-no">28</div>
-</section>
-
 <script>
-const boards = {};
-const initialBoxes = {};
-function rememberBoard(id, board, box){ boards[id]=board; initialBoxes[id]=box.slice(); }
-function zoomBoard(id, factor){
-  const b=boards[id]; if(!b) return;
-  const bb=b.getBoundingBox();
-  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
-  const w=(bb[2]-bb[0])*factor, h=(bb[1]-bb[3])*factor;
-  b.setBoundingBox([cx-w/2,cy+h/2,cx+w/2,cy-h/2],true);
+const boards = Object.create(null);
+const initialBoxes = Object.create(null);
+window.__graphInitErrors = [];
+function rememberBoard(id, board, box){boards[id]=board;initialBoxes[id]=box.slice();}
+function zoomBoard(id,factor){const b=boards[id];if(!b)return;const bb=b.getBoundingBox();const cx=(bb[0]+bb[2])/2,cy=(bb[1]+bb[3])/2;const w=(bb[2]-bb[0])*factor,h=(bb[1]-bb[3])*factor;b.setBoundingBox([cx-w/2,cy+h/2,cx+w/2,cy-h/2],true);}
+function resetBoard(id){const b=boards[id];if(b)b.setBoundingBox(initialBoxes[id],true);}
+function baseBoard(id,box){const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:true,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true},keepaspectratio:false,defaultAxes:{x:{ticks:{label:{fontSize:10}}},y:{ticks:{label:{fontSize:10}}}}});rememberBoard(id,b,box);return b;}
+function curve(b,fn,parts,attrs={}){for(const [a,c] of parts)b.create('functiongraph',[fn,a,c],Object.assign({strokeWidth:2.2,highlight:false},attrs));}
+function mathText(b,x,y,txt,attrs={}){return b.create('text',[x,y,txt],Object.assign({useMathJax:true,fixed:true,highlight:false,fontSize:11},attrs));}
+function initBasic(){const id='boardBasic',box=[-6,6,6,-6],b=baseBoard(id,box);curve(b,x=>1/x,[[-6,-0.08],[0.08,6]],{strokeColor:'#245ea8'});b.create('line',[[0,0],[0,1]],{strokeColor:'#b33b3b',dash:2,fixed:true,highlight:false});b.create('line',[[0,0],[1,0]],{strokeColor:'#238060',dash:2,fixed:true,highlight:false});[[1,1],[2,.5],[-1,-1],[-2,-.5]].forEach(p=>b.create('point',p,{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true,highlight:false}));mathText(b,3.8,1.1,'\\(f(x)=\\frac{1}{x}\\)');}
+function initAsym(){const id='boardAsym',box=[-8,9,10,-8],b=baseBoard(id,box),f=x=>(2*x+5)/(x-4);curve(b,f,[[-8,3.95],[4.05,10]],{strokeColor:'#245ea8'});b.create('line',[[4,0],[4,1]],{strokeColor:'#b33b3b',dash:2,fixed:true,highlight:false});b.create('point',[-2.5,0],{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true});b.create('point',[0,-1.25],{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true});mathText(b,4.25,7.5,'\\(x=4\\)');}
+function initPre(){const id='boardPre',box=[-8,8,10,-7],b=baseBoard(id,box),f=x=>(2*x+5)/(x-4);curve(b,f,[[-8,3.95],[4.05,10]],{strokeColor:'#245ea8'});b.create('line',[[4,0],[4,1]],{strokeColor:'#b33b3b',dash:2,fixed:true,highlight:false});b.create('line',[[0,2],[1,2]],{strokeColor:'#238060',dash:2,fixed:true,highlight:false});[[-2.5,0],[0,-1.25]].forEach(p=>b.create('point',p,{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true}));mathText(b,-5.5,6.5,'\\(f(x)=2+\\frac{13}{x-4}\\)');}
+function initHCase1(){const id='boardHCase1',box=[-10,2.5,10,-2.5],b=baseBoard(id,box),f=x=>(3*x+2)/(x*x+4);curve(b,f,[[-10,10]],{strokeColor:'#245ea8'});b.create('line',[[0,0],[1,0]],{strokeColor:'#238060',dash:2,fixed:true,highlight:false});b.create('point',[-2/3,0],{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true,highlight:false});b.create('point',[0,0.5],{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true,highlight:false});mathText(b,6,0.45,'\(y=0\)');}
+function initHCase2(){const id='boardHCase2',box=[-10,5.5,10,-0.5],b=baseBoard(id,box),f=x=>(4*x*x-3*x+1)/(2*x*x+5);curve(b,f,[[-10,10]],{strokeColor:'#245ea8'});b.create('line',[[0,2],[1,2]],{strokeColor:'#238060',dash:2,fixed:true,highlight:false});b.create('point',[0,0.2],{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true,highlight:false});mathText(b,6,2.35,'\(y=2\)');}
+function initHCase3(){const id='boardHCase3',box=[-10,5,10,-5],b=baseBoard(id,box),f=x=>(2*x*x*x+x)/(5*x*x+1);curve(b,f,[[-10,10]],{strokeColor:'#245ea8'});b.create('point',[0,0],{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true,highlight:false});mathText(b,2.2,3.7,'\(\text{תיקפא הטוטפמיסא ןיא}\)');}
+function initDerivative(){const id='boardDerivative',box=[-5,6,5,-14],b=baseBoard(id,box);curve(b,x=>4-x*x,[[-4.2,4.2]],{strokeColor:'#245ea8'});[-2,2].forEach(x=>b.create('point',[x,0],{name:'',size:2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true}));mathText(b,-1,4.9,'\\(y=4-x^2\\)');mathText(b,-4,-5.5,"\\(f'(x)\\lt0\\)");mathText(b,-1,2.8,"\\(f'(x)\\gt0\\)");mathText(b,2.6,-5.5,"\\(f'(x)\\lt0\\)");}
+function initTangent(){
+  const id='boardTangent',box=[-4,4.5,5,-4],b=baseBoard(id,box),f=x=>(x-1)/(x+1);
+  curve(b,f,[[-4,-1.05],[-0.95,5]],{strokeColor:'#245ea8'});
+  b.create('line',[[-4,-2.5],[5,2]],{strokeColor:'#b56b15',strokeWidth:2,straightFirst:false,straightLast:false,fixed:true,highlight:false});
+  b.create('line',[[-1,0],[-1,1]],{strokeColor:'#b33b3b',dash:2,fixed:true,highlight:false});
+  b.create('line',[[0,1],[1,1]],{strokeColor:'#238060',dash:2,fixed:true,highlight:false});
+  b.create('point',[1,0],{name:'',size:2,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,highlight:false});
+  mathText(b,1.25,.45,'\\((1,0)\\)');
+  mathText(b,2.1,1.75,'\\(y=\\frac12(x-1)\\)');
 }
-function resetBoard(id){ const b=boards[id]; if(b) b.setBoundingBox(initialBoxes[id],true); }
-function axes(board){
-  board.create('axis', [[0,0],[1,0]], {strokeColor:'#8a97a8',highlight:false,ticks:{drawLabels:true,label:{fontSize:10}}});
-  board.create('axis', [[0,0],[0,1]], {strokeColor:'#8a97a8',highlight:false,ticks:{drawLabels:true,label:{fontSize:10}}});
+function initZeroSlope(){
+  const id='boardZeroSlope',box=[-4,6,5,-6],b=baseBoard(id,box),f=x=>(x*x+1)/x;
+  curve(b,f,[[-4,-0.08],[0.08,5]],{strokeColor:'#245ea8'});
+  b.create('line',[[-4,2],[5,2]],{strokeColor:'#b56b15',strokeWidth:2,straightFirst:false,straightLast:false,fixed:true,highlight:false});
+  b.create('line',[[0,0],[0,1]],{strokeColor:'#b33b3b',dash:2,fixed:true,highlight:false});
+  b.create('point',[1,2],{name:'',size:2,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,highlight:false});
+  mathText(b,1.18,2.55,'\\((1,2)\\)');
+  mathText(b,2.8,2.45,'\\(y=2\\)');
 }
-function safeCurve(board, fn, segments, attrs){
-  segments.forEach(s=>board.create('functiongraph',[fn,s[0],s[1]],Object.assign({strokeWidth:2,highlight:false},attrs||{})));
+function initFull(){const id='boardFull',box=[-7,9,8,-10],b=baseBoard(id,box),f=x=>6*x/(x*x-5*x+4);curve(b,f,[[-7,.96],[1.04,3.96],[4.04,8]],{strokeColor:'#245ea8'});[1,4].forEach(x=>b.create('line',[[x,0],[x,1]],{strokeColor:'#b33b3b',dash:2,fixed:true,highlight:false}));b.create('line',[[0,0],[1,0]],{strokeColor:'#238060',dash:2,fixed:true,highlight:false});b.create('point',[-2,-2/3],{name:'',size:2,strokeColor:'#238060',fillColor:'#238060',fixed:true});b.create('point',[2,-6],{name:'',size:2,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true});mathText(b,-5,7.2,'\\(f(x)=\\frac{6x}{(x-1)(x-4)}\\)');}
+function initTransform(){const id='boardTransform',box=[-10,10,10,-10],b=baseBoard(id,box);const sa=b.create('slider',[[-8,8],[-2,8],[-4,1,4]],{name:'a',size:2,snapWidth:.25,precision:2,label:{fontSize:11}});const sh=b.create('slider',[[-8,7],[-2,7],[-5,0,5]],{name:'h',size:2,snapWidth:.25,precision:2,label:{fontSize:11}});const sk=b.create('slider',[[-8,6],[-2,6],[-5,0,5]],{name:'k',size:2,snapWidth:.25,precision:2,label:{fontSize:11}});const f=x=>sa.Value()/(x-sh.Value())+sk.Value();b.create('functiongraph',[f,-10,10],{strokeColor:'#245ea8',strokeWidth:2.1,highlight:false});b.create('line',[[()=>sh.Value(),0],[()=>sh.Value(),1]],{strokeColor:'#b33b3b',dash:2,highlight:false});b.create('line',[[0,()=>sk.Value()],[1,()=>sk.Value()]],{strokeColor:'#238060',dash:2,highlight:false});mathText(b,-8,4.5,()=>`\\(f(x)=\\frac{${sa.Value().toFixed(2)}}{x-${sh.Value().toFixed(2)}}+${sk.Value().toFixed(2)}\\)`);}
+function initAbs(){
+  const id='boardAbs',box=[-4,1.6,4,-1.6],b=baseBoard(id,box),f=x=>(x*x-1)/(x*x+1);
+  curve(b,f,[[-4,4]],{strokeColor:'#245ea8',strokeWidth:1.8});
+  curve(b,x=>Math.abs(f(x)),[[-4,4]],{strokeColor:'#238060',strokeWidth:2.4});
+  [-1,1].forEach(x=>b.create('point',[x,0],{name:'',size:2,strokeColor:'#238060',fillColor:'#238060',fixed:true,highlight:false}));
+  b.create('line',[[0,1],[1,1]],{strokeColor:'#8a5a12',dash:2,fixed:true,highlight:false});
+  mathText(b,-3.55,1.32,'\\(f(x),\\ |f(x)|\\)');
+  mathText(b,2.55,1.12,'\\(y=1\\)');
 }
-
-function initSignNumberLine(id, box, points, intervalSigns){
-  const b=JXG.JSXGraph.initBoard(id,{
-    boundingbox:box,axis:false,showCopyright:false,showNavigation:false,
-    pan:{enabled:false},zoom:{enabled:false},keepaspectratio:false
-  });
-  const xMin=box[0]+0.25, xMax=box[2]-0.25;
-  b.create('arrow',[[xMin,0],[xMax,0]],{strokeColor:'#44566c',strokeWidth:1.8,fixed:true,highlight:false});
-  points.forEach(p=>{
-    b.create('segment',[[p.x,-0.16],[p.x,0.16]],{strokeColor:'#44566c',strokeWidth:1.2,fixed:true,highlight:false});
-    b.create('text',[p.x,-0.47,String(p.x)],{anchorX:'middle',anchorY:'top',fontSize:11,fixed:true,highlight:false,cssStyle:'font-family:Arial,sans-serif;color:#25364a;'});
-    if(p.kind==='zero'){
-      b.create('point',[p.x,0],{name:'',size:2.8,face:'o',fillColor:'#245ea8',strokeColor:'#245ea8',strokeWidth:1.2,fixed:true,highlight:false});
-      b.create('text',[p.x,0.48,p.label||'0'],{anchorX:'middle',anchorY:'bottom',fontSize:10,fixed:true,highlight:false,cssStyle:'font-family:Arial,sans-serif;color:#245ea8;font-weight:700;'});
-    }else{
-      b.create('point',[p.x,0],{name:'',size:3.0,face:'o',fillColor:'#ffffff',strokeColor:'#b33b3b',strokeWidth:1.6,fixed:true,highlight:false});
-      b.create('text',[p.x,0.48,p.label||'לא מוגדר'],{anchorX:'middle',anchorY:'bottom',fontSize:9,fixed:true,highlight:false,cssStyle:'font-family:Arial,sans-serif;color:#8a2d2d;'});
-    }
-  });
-  intervalSigns.forEach(s=>{
-    b.create('text',[s.x,0.72,s.sign],{anchorX:'middle',anchorY:'middle',fontSize:15,fixed:true,highlight:false,cssStyle:'font-family:Arial,sans-serif;color:#173f70;font-weight:700;'});
-  });
-}
-function initFunctionSignNumberLine(){
-  initSignNumberLine('numberLineFunctionSign',[-5.8,1.15,4.8,-0.95],
-    [{x:-4,kind:'undefined'},{x:-2,kind:'zero'},{x:1,kind:'undefined'},{x:3,kind:'zero'}],
-    [{x:-4.9,sign:'+'},{x:-3,sign:'−'},{x:-0.5,sign:'+'},{x:2,sign:'−'},{x:3.9,sign:'+'}]);
-}
-function initDerivativeSignNumberLine(){
-  initSignNumberLine('numberLineDerivativeSign',[-3.6,1.15,5.2,-0.95],
-    [{x:-2,kind:'zero'},{x:1,kind:'undefined'},{x:2,kind:'zero'},{x:4,kind:'undefined'}],
-    [{x:-2.8,sign:'−'},{x:-0.5,sign:'+'},{x:1.5,sign:'+'},{x:3,sign:'−'},{x:4.6,sign:'−'}]);
-}
-function initFullDerivativeNumberLine(){
-  initSignNumberLine('numberLineFullDerivative',[-3.6,1.15,5.2,-0.95],
-    [{x:-2,kind:'zero'},{x:1,kind:'undefined'},{x:2,kind:'zero'},{x:4,kind:'undefined'}],
-    [{x:-2.8,sign:'−'},{x:-0.5,sign:'+'},{x:1.5,sign:'+'},{x:3,sign:'−'},{x:4.6,sign:'−'}]);
-}
-function initPage14NumberLine(){
-  initSignNumberLine('numberLinePage14',[-3.6,1.15,5.2,-0.95],
-    [{x:-2,kind:'zero'},{x:1,kind:'undefined',label:'לא בתחום'},{x:2,kind:'zero'},{x:4,kind:'undefined',label:'לא בתחום'}],
-    [{x:-2.8,sign:'−'},{x:-0.5,sign:'+'},{x:1.5,sign:'+'},{x:3,sign:'−'},{x:4.6,sign:'−'}]);
-}
-function initPage22NumberLine(){
-  initSignNumberLine('numberLinePage22',[-2.2,1.15,2.2,-0.95],
-    [{x:-1,kind:'undefined',label:"g′ לא מוגדרת"},{x:0,kind:'zero'},{x:1,kind:'undefined',label:"g′ לא מוגדרת"}],
-    [{x:-1.6,sign:'−'},{x:-0.5,sign:'+'},{x:0.5,sign:'−'},{x:1.6,sign:'+'}]);
-}
-function initPage23NumberLine(){
-  initSignNumberLine('numberLinePage23',[-2.2,1.15,2.2,-0.95],
-    [{x:-1,kind:'zero'},{x:0,kind:'zero'},{x:1,kind:'zero'}],
-    [{x:-1.6,sign:'−'},{x:-0.5,sign:'+'},{x:0.5,sign:'−'},{x:1.6,sign:'+'}]);
-}
-function initBasicRational(){
-  const id='boardBasicRational', box=[-6,6,6,-6];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  const f=x=>1/x;
-  safeCurve(b,f,[[-6,-0.08],[0.08,6]],{strokeColor:'#245ea8',strokeWidth:2.3});
-  b.create('line',[[0,0],[0,1]],{straightFirst:true,straightLast:true,strokeColor:'#b33b3b',dash:2,strokeWidth:1.5,fixed:true,highlight:false});
-  b.create('line',[[0,0],[1,0]],{straightFirst:true,straightLast:true,strokeColor:'#238060',dash:2,strokeWidth:1.5,fixed:true,highlight:false});
-  [[1,1],[2,0.5],[0.5,2],[-1,-1],[-2,-0.5],[-0.5,-2]].forEach(([x,y])=>{
-    b.create('point',[x,y],{name:'',size:2.2,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true,highlight:false});
-  });
-}
-function initPre(){
-  const id='boardPre', box=[-10,8,12,-8];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  safeCurve(b,x=>(2*x+5)/(x-4),[[-10,3.95],[4.05,12]],{strokeColor:'#245ea8'});
-  b.create('line',[[4,0],[4,1]],{straightFirst:true,straightLast:true,strokeColor:'#b33b3b',dash:2,strokeWidth:1.4,fixed:true,highlight:false});
-  b.create('line',[[0,2],[1,2]],{straightFirst:true,straightLast:true,strokeColor:'#238060',dash:2,strokeWidth:1.4,fixed:true,highlight:false});
-  b.create('point',[-2.5,0],{size:2.5,name:'',strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true});
-  b.create('point',[0,-1.25],{size:2.5,name:'',strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true});
-}
-function initDerivativeNumerator(){
-  const id='boardDerivativeNumerator', box=[-5,6,5,-14];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  safeCurve(b,x=>4-x*x,[[-4.2,4.2]],{strokeColor:'#245ea8',strokeWidth:2.4});
-  [-2,2].forEach(r=>b.create('point',[r,0],{name:'',size:3,strokeColor:'#245ea8',fillColor:'#245ea8',fixed:true,highlight:false}));
-  b.create('text',[-2,-1.2,'−2'],{anchorX:'middle',fontSize:11,fixed:true,highlight:false});
-  b.create('text',[2,-1.2,'2'],{anchorX:'middle',fontSize:11,fixed:true,highlight:false});
-  [1,4].forEach(a=>b.create('line',[[a,0],[a,1]],{straightFirst:true,straightLast:true,strokeColor:'#b33b3b',dash:2,strokeWidth:1.2,fixed:true,highlight:false}));
-  b.create('text',[1.05,5.0,'x=1'],{fontSize:10,fixed:true,highlight:false,cssStyle:'color:#8a2d2d;font-family:Arial,sans-serif;'});
-  b.create('text',[4.05,5.0,'x=4'],{fontSize:10,fixed:true,highlight:false,cssStyle:'color:#8a2d2d;font-family:Arial,sans-serif;'});
-  b.create('text',[-3.2,-5.5,"f′ &lt; 0"],{fontSize:12,fixed:true,highlight:false,cssStyle:'color:#173f70;font-family:Arial,sans-serif;font-weight:700;'});
-  b.create('text',[0,3.0,"f′ &gt; 0"],{anchorX:'middle',fontSize:12,fixed:true,highlight:false,cssStyle:'color:#173f70;font-family:Arial,sans-serif;font-weight:700;'});
-  b.create('text',[3.1,-5.5,"f′ &lt; 0"],{fontSize:12,fixed:true,highlight:false,cssStyle:'color:#173f70;font-family:Arial,sans-serif;font-weight:700;'});
-}
-function initFull(){
-  const id='boardFull', box=[-7,9,8,-10];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  const fn=x=>6*x/(x*x-5*x+4);
-  safeCurve(b,fn,[[-7,0.96],[1.04,3.96],[4.04,8]],{strokeColor:'#245ea8'});
-  [1,4].forEach(a=>b.create('line',[[a,0],[a,1]],{straightFirst:true,straightLast:true,strokeColor:'#b33b3b',dash:2,strokeWidth:1.2,fixed:true,highlight:false}));
-  b.create('point',[-2,-2/3],{name:'min',size:2.5,strokeColor:'#238060',fillColor:'#238060',fixed:true,label:{fontSize:10}});
-  b.create('point',[2,-6],{name:'max',size:2.5,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,label:{fontSize:10}});
-}
-function initTransform(){
-  const id='boardTransform', box=[-10,10,10,-10];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  const sa=b.create('slider',[[-8,8],[-2,8],[-4,1,4]],{name:'a',snapWidth:0.25,precision:2,label:{fontSize:11}});
-  const sh=b.create('slider',[[-8,7],[-2,7],[-5,0,5]],{name:'h',snapWidth:0.25,precision:2,label:{fontSize:11}});
-  const sk=b.create('slider',[[-8,6],[-2,6],[-5,0,5]],{name:'k',snapWidth:0.25,precision:2,label:{fontSize:11}});
-  const f=x=>sa.Value()/(x-sh.Value())+sk.Value();
-  b.create('functiongraph',[f,-10,10],{strokeColor:'#245ea8',strokeWidth:2,highlight:false});
-  b.create('line',[[()=>sh.Value(),0],[()=>sh.Value(),1]],{straightFirst:true,straightLast:true,strokeColor:'#b33b3b',dash:2,strokeWidth:1.3,highlight:false});
-  b.create('line',[[0,()=>sk.Value()],[1,()=>sk.Value()]],{straightFirst:true,straightLast:true,strokeColor:'#238060',dash:2,strokeWidth:1.3,highlight:false});
-  b.create('text',[-8,4.8,()=>`F(x) = ${sa.Value().toFixed(2)} / (x - ${sh.Value().toFixed(2)}) + ${sk.Value().toFixed(2)}`],{fontSize:12,fixed:true,highlight:false});
+function initSquare(){
+  const id='boardSquare',box=[-4,1.6,4,-0.25],b=baseBoard(id,box),f=x=>(x*x-1)/(x*x+1);
+  curve(b,f,[[-4,4]],{strokeColor:'#245ea8',strokeWidth:1.8});
+  curve(b,x=>f(x)*f(x),[[-4,4]],{strokeColor:'#7a3f9e',strokeWidth:2.4});
+  [-1,1].forEach(x=>b.create('point',[x,0],{name:'',size:2,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,highlight:false}));
+  b.create('point',[0,1],{name:'',size:2,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,highlight:false});
+  b.create('line',[[0,1],[1,1]],{strokeColor:'#8a5a12',dash:2,fixed:true,highlight:false});
+  mathText(b,-3.55,1.32,'\\(f(x),\\ [f(x)]^2\\)');
+  mathText(b,2.55,1.12,'\\(y=1\\)');
 }
 
-function initAbsFull(){
-  const id='boardAbsFull', box=[-4,1.6,4,-1.6];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  const f=x=>(x*x-1)/(x*x+1);
-  safeCurve(b,f,[[-4,4]],{strokeColor:'#245ea8',strokeWidth:2});
-  safeCurve(b,x=>Math.abs(f(x)),[[-4,4]],{strokeColor:'#238060',strokeWidth:2.2});
-  [-1,1].forEach(a=>b.create('point',[a,0],{name:'',size:2.8,strokeColor:'#238060',fillColor:'#238060',fixed:true,highlight:false}));
-  b.create('point',[0,1],{name:'',size:2.8,strokeColor:'#238060',fillColor:'#238060',fixed:true,highlight:false});
-  b.create('line',[[0,1],[1,1]],{straightFirst:true,straightLast:true,strokeColor:'#8a97a8',dash:2,strokeWidth:1,fixed:true,highlight:false});
+function prettyNum(v){const n=Math.abs(v)<1e-9?0:v;return Number.isInteger(n)?String(n):n.toFixed(2).replace(/\.00$/,'').replace(/(\.\d*[1-9])0+$/,'$1');}
+function familyDenominator(h){if(Math.abs(h)<1e-9)return 'x';return h>0?`x-${prettyNum(h)}`:`x+${prettyNum(-h)}`;}
+function familyFormulaText(a,h,k){const base=`\\frac{${prettyNum(a)}}{${familyDenominator(h)}}`;if(Math.abs(k)<1e-9)return `\\[ f(x)=${base} \\]`;return `\\[ f(x)=${base}${k>0?'+':'-'}${prettyNum(Math.abs(k))} \\]`;}
+function setMathContent(el, latex){if(!el)return;el.innerHTML=latex;if(window.MathJax&&MathJax.typesetPromise){MathJax.typesetPromise([el]).catch(console.error);}}
+function initFamilyApp(){
+  const id='boardFamilyApp',box=[-11,8,11,-8],b=baseBoard(id,box);
+  const aIn=document.getElementById('famA'),hIn=document.getElementById('famH'),kIn=document.getElementById('famK');
+  if(!aIn||!hIn||!kIn)return;
+  const aVal=document.getElementById('famAVal'),hVal=document.getElementById('famHVal'),kVal=document.getElementById('famKVal');
+  const formula=document.getElementById('familyFormula'),legend=document.getElementById('familyLegend');
+  const getA=()=>parseFloat(aIn.value), getH=()=>parseFloat(hIn.value), getK=()=>parseFloat(kIn.value);
+  const eps=0.08;
+  const f=x=>getA()/(x-getH())+getK();
+  b.create('functiongraph',[f,-11,()=>getH()-eps],{strokeColor:'#245ea8',strokeWidth:2.2,highlight:false});
+  b.create('functiongraph',[f,()=>getH()+eps,11],{strokeColor:'#245ea8',strokeWidth:2.2,highlight:false});
+  b.create('line',[[()=>getH(),0],[()=>getH(),1]],{strokeColor:'#b33b3b',dash:2,highlight:false,fixed:true});
+  b.create('line',[[0,()=>getK()],[1,()=>getK()]],{strokeColor:'#238060',dash:2,highlight:false,fixed:true});
+  b.create('point',[()=>getH(),()=>getK()],{name:'C',size:2,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,highlight:false,label:{offset:[6,6],fontSize:11}});
+  function sync(){
+    const a=getA(),h=getH(),k=getK();
+    aVal.textContent=prettyNum(a); hVal.textContent=prettyNum(h); kVal.textContent=prettyNum(k);
+    setMathContent(formula, familyFormulaText(a,h,k));
+    if(legend){legend.innerHTML=`<span>אסימפטוטה אנכית: \\(x=${prettyNum(h)}\\)</span><span>אסימפטוטה אופקית: \\(y=${prettyNum(k)}\\)</span><span>מרכז סימטריה: \\(${prettyNum(h)},${prettyNum(k)}\\)</span>`; if(window.MathJax&&MathJax.typesetPromise){MathJax.typesetPromise([legend]).catch(console.error);}}
+    b.update();
+  }
+  [aIn,hIn,kIn].forEach(inp=>inp.addEventListener('input',sync));
+  sync();
 }
-function initSquareFull(){
-  const id='boardSquareFull', box=[-4,1.6,4,-1.6];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  const f=x=>(x*x-1)/(x*x+1);
-  safeCurve(b,f,[[-4,4]],{strokeColor:'#245ea8',strokeWidth:2});
-  safeCurve(b,x=>{const y=f(x); return y*y;},[[-4,4]],{strokeColor:'#7a3f9e',strokeWidth:2.2});
-  [-1,1].forEach(a=>b.create('point',[a,0],{name:'',size:2.8,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,highlight:false}));
-  b.create('point',[0,1],{name:'',size:2.8,strokeColor:'#7a3f9e',fillColor:'#7a3f9e',fixed:true,highlight:false});
-  b.create('line',[[0,1],[1,1]],{straightFirst:true,straightLast:true,strokeColor:'#8a97a8',dash:2,strokeWidth:1,fixed:true,highlight:false});
-}
-function initAbsSq(){
-  const id='boardAbsSq', box=[-10,10,12,-6];
-  const b=JXG.JSXGraph.initBoard(id,{boundingbox:box,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true}}); rememberBoard(id,b,box); axes(b);
-  const f=x=>(2*x+5)/(x-4);
-  safeCurve(b,f,[[-10,3.95],[4.05,12]],{strokeColor:'#245ea8'});
-  safeCurve(b,x=>Math.abs(f(x)),[[-10,3.95],[4.05,12]],{strokeColor:'#238060',strokeWidth:1.8});
-  safeCurve(b,x=>f(x)*f(x),[[-10,3.7],[4.3,12]],{strokeColor:'#7a3f9e',strokeWidth:1.6});
-}
-window.addEventListener('load',()=>{
-  if(typeof JXG==='undefined') return;
-  initFunctionSignNumberLine(); initDerivativeSignNumberLine(); initFullDerivativeNumberLine();
-  initPage14NumberLine(); initPage22NumberLine(); initPage23NumberLine();
-  initBasicRational(); initPre(); initDerivativeNumerator(); initFull(); initTransform(); initAbsSq();
-  initAbsFull(); initSquareFull();
-});
+
+const initializers=[initBasic,initAsym,initPre,initHCase1,initHCase2,initHCase3,initFamilyApp,initDerivative,initTangent,initZeroSlope,initFull,initTransform,initAbs,initSquare];
+window.addEventListener('load',async()=>{document.querySelectorAll('.page-no').forEach((el,i)=>el.textContent=String(i+1));if(typeof JXG==='undefined'){window.__graphInitErrors.push('JXG unavailable');return;}for(const fn of initializers){try{fn();}catch(e){window.__graphInitErrors.push(fn.name+': '+e.message);console.error(e);}}try{if(window.MathJax&&MathJax.typesetPromise)await MathJax.typesetPromise();}catch(e){window.__graphInitErrors.push('MathJax after graphs: '+e.message);console.error(e);}});
 </script>
 </body>
 </html>
