@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>קשר בין פונקציה רציונלית לנגזרת - 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<style>
+:root{--ink:#18222f;--muted:#5f6b78;--line:#cbd5e1;--paper:#fff;--soft:#f6f8fb;--accent:#2457a6;--good:#217a4a;--warn:#9a5b00;--danger:#a73535}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e8edf3;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;direction:rtl}
+body{counter-reset:page}
+.page{width:210mm;height:297mm;max-height:297mm;margin:8mm auto;background:var(--paper);padding:12mm 14mm 11mm;overflow:hidden;position:relative;page-break-after:always;break-after:page;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+.page:after{counter-increment:page;content:counter(page);position:absolute;bottom:5mm;left:0;right:0;text-align:center;font-size:9pt;color:#7b8794}
+.page-header{border-bottom:2px solid var(--accent);padding-bottom:3mm;margin-bottom:4mm}
+.kicker{display:none;}
+h1{font-size:20pt;margin:0;line-height:1.15} h2{font-size:23pt;margin:.2em 0}.hero h2{font-size:26pt;color:#173e78}.hero p{font-size:13.5pt;line-height:1.55;margin:.5em 0 1em}
+h3{font-size:14.5pt;margin:.2em 0 .45em;color:#173e78}.page-body{font-size:11.4pt;line-height:1.45}.page-body p{margin:.35em 0 .65em}.small{font-size:9.6pt;color:var(--muted)}
+.hero{border:2px solid #b9c9e6;border-radius:14px;padding:7mm;background:linear-gradient(135deg,#f7fbff,#eef4ff);margin-bottom:5mm}.hero-badge{display:inline-block;border:2px solid #7fa0d5;border-radius:20px;padding:1.5mm 4mm;font-weight:700;color:#173e78;background:#fff}
+.grid{display:grid;gap:4mm}.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}.stack{display:grid;gap:3mm}.card{border:2px solid var(--line);border-radius:10px;padding:4mm;background:#fff}.theory{background:#fbfdff}.lesson-grid{align-items:start}
+.lesson-intro{border:2px solid #b8c6da;background:#f4f8ff;border-radius:9px;padding:3mm 4mm;margin-bottom:4mm;font-size:11.8pt}.note{border:2px solid #e0c88f;background:#fffaf0;border-radius:9px;padding:3mm 4mm;margin-top:3mm}.formula-box{direction:ltr;text-align:center;border:2px solid #dbe4f2;background:#f8fbff;border-radius:8px;padding:2mm 3mm;margin:2.5mm 0;font-size:12pt}.smallmath{font-size:10.8pt}
+ul,ol{margin:.25em 0;padding-right:1.2em}.compact-list li{margin:.22em 0}.numbered{padding-right:1.5em}.sources{margin-top:4mm;font-size:10.5pt}.checklist{margin-bottom:4mm}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;direction:rtl}.steps span{border:2px solid #d4deec;border-radius:8px;padding:2mm;text-align:center;background:#f8fbff;font-weight:700;font-size:10pt}
+.graph-panel{border:2px solid #cbd7e8;border-radius:10px;padding:2.2mm;background:#fcfdff;direction:rtl}.graph-title{font-weight:700;color:#173e78;text-align:center;margin-bottom:1.3mm;font-size:10.5pt}.jxgbox{height:132px;width:100%;border:2px solid #9fb1c8;background:#fff;direction:ltr!important;touch-action:none}.stack .jxgbox{height:128px}.graph-triple .jxgbox{height:156px}.finalgraphs .jxgbox{height:140px}.finalgraphs2 .jxgbox{height:128px}.graph-controls{display:flex;gap:1.2mm;justify-content:center;flex-wrap:wrap;margin-top:1.5mm}.graph-controls button{font-family:inherit;font-size:8.6pt;padding:1mm 2.4mm;border:2px solid #9eb2cf;border-radius:6px;background:#fff;color:#173e78;cursor:pointer}.graph-controls button:hover{background:#edf4ff}.graph-hint{font-size:7.4pt;color:#6b7786;text-align:center;margin-top:1mm}.graph-caption{font-size:8pt;color:#536171;text-align:center;margin-top:1mm}
+.ex-list{font-size:13pt;line-height:2;padding-right:1.5em;margin-top:1mm}.ex-list li{margin:0 0 2.3mm;padding-right:1mm;break-inside:avoid}.sol-list{font-size:10.6pt;line-height:1.36;padding-right:1.5em;margin-top:1mm}.sol-list li{margin:0 0 2.1mm;padding-right:1mm;break-inside:avoid}.finalgraphs{margin-bottom:3mm}.finalgraphs2{margin:3mm 0}.finalgraphs+.ex-list,.finalgraphs2+.ex-list{font-size:10.1pt}.finalgraphs2+.ex-list li{margin-bottom:1.5mm}
+.MathJax, mjx-container{direction:ltr!important}
+@media print{html,body{background:#fff}.page{margin:0;box-shadow:none;width:210mm;height:297mm;max-height:297mm;page-break-after:always;break-after:page}@page{size:A4;margin:0}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},chtml:{scale:1},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+</head>
+<body>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">עמוד פתיחה</div>
+      </header>
+      <div class="page-body">
+<div class="hero">
+  <div class="hero-badge">מתמטיקה - 5 יחידות לימוד</div>
+  <h2>קשר בין גרף פונקציה רציונלית לבין גרף הנגזרת שלה</h2>
+  <p>מערך שיעור מלא: תחום הגדרה, נקודות קיצון, אסימפטוטות, זיהוי בין גרף פונקציה לגרף הנגזרת, שרטוט נגזרת מתוך פונקציה ושרטוט פונקציה מתוך נגזרת עד כדי קבוע.</p>
+</div>
+<div class="grid two">
+  <div class="card">
+    <h3>רצף ההוראה</h3>
+    <ol class="compact-list">
+      <li>הנגזרת כפונקציה של שיפועי משיקים</li>
+      <li>עלייה, ירידה, קיצון ואפסי הנגזרת</li>
+      <li>תחום הגדרה, חורים ומגבלות תחום</li>
+      <li>אסימפטוטות אנכיות</li>
+      <li>אסימפטוטות אופקיות והתנהגות באינסוף</li>
+      <li>זיהוי בין \(f\) ל-\(f'\)</li>
+      <li>שרטוט \(f'\) מתוך \(f\)</li>
+      <li>שרטוט \(f\) מתוך \(f'\) עד כדי קבוע</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h3>עקרונות עבודה</h3>
+    <ul class="compact-list">
+      <li>בכל שלב בודקים תחום הגדרה לפני קריאת הגרף.</li>
+      <li>סימן הנגזרת קובע תחומי עלייה וירידה, וגודל הנגזרת מתאר תלילות.</li>
+      <li>אפס של נגזרת אינו מבטיח נקודת קיצון - נדרש לבדוק שינוי סימן.</li>
+      <li>בפונקציה רציונלית תחום הנגזרת נשאר תחום הפונקציה המקורית.</li>
+    </ul>
+  </div>
+</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 1</div>
+        <h1>שיעור 1 - הנגזרת כפונקציה של שיפועי משיקים</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> להבין שהנגזרת היא פונקציה חדשה: לכל ערך \(x\) שבו \(f\) גזירה מתאימים את שיפוע המשיק לגרף \(f\).</div>
+<div class="grid two_ lesson-grid">
+  <div class="card theory">
+    <h3>הרעיון המרכזי</h3>
+    <p>אם שיפוע המשיק לגרף \(f\) בנקודה שמעל \(x=a\) הוא \(m\), אז \(f'(a)=m\). לכן הנקודה \((a,m)\) נמצאת על גרף הנגזרת.</p>
+    <ul>
+      <li>משיק בעל שיפוע חיובי ⇐ גרף \(f'\) מעל ציר \(x\).</li>
+      <li>משיק בעל שיפוע שלילי ⇐ גרף \(f'\) מתחת לציר \(x\).</li>
+      <li>משיק אופקי ⇐ \(f'(x)=0\).</li>
+      <li>ככל שהגרף תלול יותר, הערך \(|f'(x)|\) גדול יותר.</li>
+    </ul>
+    <div class="formula-box">\[f(x)=\frac{{x^2-1}}{{x^2+1}},\qquad f'(x)=\frac{{4x}}{{(x^2+1)^2}}\]</div>
+    <p>ב-\(x=1\) מתקבל \(f(1)=0\) ו-\(f'(1)=1\), ולכן המשיק הוא \(y=x-1\).</p>
+  </div>
+  <div class="stack"><div class="graph-panel ">
+      <div class="graph-title">הפונקציה והמשיק ב-\(x=1\)</div>
+      <div id="l1f" class="jxgbox" aria-label="הפונקציה והמשיק ב-\(x=1\)" style="height:40mm;"></div>
+      <div class="graph-caption">המשיק מאפשר לקרוא ישירות ערך אחד של הנגזרת.</div>
+    </div><div class="graph-panel ">
+      <div class="graph-title">גרף הנגזרת \(f'(x)\)</div>
+      <div id="l1d" class="jxgbox" aria-label="גרף הנגזרת \(f&#x27;(x)\)" style="height:40mm;"></div>
+      <div class="graph-caption">כל נקודה בגרף מתארת שיפוע משיק של \(f\).</div>
+    </div></div>
+</div>
+<div class="note"><strong>חשוב:</strong> פונקציה רציונלית גזירה בכל נקודה שבה היא מוגדרת. לכן אין נקודה בתחום ההגדרה שבה יש "שבר" או משיק אנכי.</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 1 - שיפועים וגרף הנגזרת</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>עבור \(f(x)=\frac{x^2-1}{x^2+1}\) חשבו את \(f'(0)\), \(f'(1)\) ו-\(f'(-1)\).</li><li>באותה פונקציה חשבו את שיפוע המשיק כאשר \(x=2\).</li><li>ידוע כי שיפוע המשיק ל-\(f\) ב-\(x=-3\) שלילי. היכן נמצאת הנקודה המתאימה על גרף \(f'\) ביחס לציר \(x\)?</li><li>עבור \(f(x)=\frac{1}{x+1}\) מצאו את \(f'(x)\) וקבעו את סימנה בכל תחום ההגדרה.</li><li>עבור \(f(x)=\frac{x}{x-2}\) מצאו את \(f'(x)\) וקבעו אם יש ערך בתחום שבו שיפוע המשיק חיובי.</li><li>עבור \(f(x)=\frac{x^2+1}{x}\) מצאו את ערכי \(x\) שבהם מתקבלת נקודה עם שיפוע אפס.</li><li>נמדדו השיפועים: \(f'(-2)=-1\), \(f'(0)=0\), \(f'(2)=3\). רשמו שלוש נקודות השייכות לגרף הנגזרת.</li><li>גרף \(f\) נעשה כמעט אופקי כאשר \(x\Rightarrow\infty\). מה צפוי לקרות לערכי \(f'(x)\)?</li><li>האם בפונקציה רציונלית יכולה להיות נקודה בתחום ההגדרה שבה \(f'(x)\) אינו קיים? נמקו.</li><li>נתון \(f'(-3)=2\), \(f'(-1)=0\), \(f'(1)=-2\), \(f'(3)=0\), \(f'(5)=1\). תארו היכן גרף הנגזרת נמצא מעל, על ומתחת לציר לפי המידע הנתון בלבד.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 2</div>
+        <h1>שיעור 2 - עלייה, ירידה, קיצון ואפסי הנגזרת</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> לתרגם בין סימן הנגזרת לבין תחומי עלייה וירידה, ולהבחין בין אפס של נגזרת לבין נקודת קיצון.</div>
+<div class="grid two_ lesson-grid">
+  <div class="card theory">
+    <h3>סימן הנגזרת</h3>
+    <div class="formula-box">\[f'(x)\gt0\Rightarrow f\ \text{{הלוע}},\qquad f'(x)\lt0\Rightarrow f\ \text{{תדרוי}}\]</div>
+    <p>בטקסט רגיל: כאשר \(f'(x)\gt0\), הפונקציה עולה; כאשר \(f'(x)\lt0\), הפונקציה יורדת.</p>
+    <h3>אפס ושינוי סימן</h3>
+    <ul>
+      <li>\(+\) לפני האפס ו-\(-\) אחריו ⇐ נקודת מקסימום.</li>
+      <li>\(-\) לפני האפס ו-\(+\) אחריו ⇐ נקודת מינימום.</li>
+      <li>אין שינוי סימן ⇐ אין נקודת קיצון, גם אם \(f'(a)=0\).</li>
+    </ul>
+    <div class="formula-box">\[f(x)=\frac{x}{x^2+1},\qquad f'(x)=\frac{1-x^2}{(x^2+1)^2}\]</div>
+    <p>אפסי הנגזרת הם \(x=-1\) ו-\(x=1\). שינויי הסימן קובעים את סוג נקודות הקיצון.</p>
+  </div>
+  <div class="graph-panel ">
+      <div class="graph-title">\(f\) ו-\(f'\) באותה מערכת</div>
+      <div id="l2" class="jxgbox" aria-label="\(f\) ו-\(f&#x27;\) באותה מערכת" style="height:83mm;"></div>
+    </div>
+</div>
+<div class="note"><strong>נגד דוגמה חשובה:</strong> עבור \(f(x)=\frac{{x^3}}{{x^2+1}}\) מתקבל \(f'(0)=0\), אך הנגזרת אינה מחליפה סימן ולכן אין קיצון ב-\(x=0\).</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 2 - סימן הנגזרת וקיצון</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>עבור \(f(x)=\frac{x}{x^2+1}\) מצאו את אפסי \(f'\).</li><li>באותה פונקציה קבעו את סוג נקודות הקיצון ואת ערכי הפונקציה בהן.</li><li>עבור \(f(x)=\frac{1}{x-1}\) קבעו את סימן הנגזרת והסבירו מדוע אין נקודות קיצון.</li><li>עבור \(f(x)=\frac{x^3}{x^2+1}\) הראו כי \(f'(0)=0\) אך אין נקודת קיצון ב-\(x=0\).</li><li>נגזרת מחליפה סימן מ-\(+\) ל-\(-\) ב-\(x=a\) ומ-\(-\) ל-\(+\) ב-\(x=b\). קבעו את סוג הקיצון בכל נקודה.</li><li>נתון \(f'(x)=\frac{(x-2)(x+1)}{x^2+1}\). מצאו את נקודות הקיצון של \(f\) לפי סימן הנגזרת.</li><li>עבור \(f(x)=\frac{x^2+1}{x-1}\) מצאו את ערכי \(x\) שבהם יש נקודות קיצון וסווגו אותן.</li><li>ידוע כי \(f'(a)=0\) והנגזרת שלילית משני צדי \(a\). האם קיימת נקודת קיצון ב-\(x=a\)?</li><li>נסחו במילים את ההבדל בין תנאי \(f'(a)=0\) לבין התנאי לקיום נקודת קיצון.</li><li>נתון: \(f'(x)\lt0\) כאשר \(x\lt-2\); \(f'(x)\gt0\) כאשר \(-2\lt x\lt1\); \(x=1\) אינו בתחום; \(f'(x)\gt0\) כאשר \(1\lt x\lt3\); \(f'(x)\lt0\) כאשר \(x\gt3\). מצאו את נקודות הקיצון של \(f\) לפי ערכי \(x\) בלבד.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 3</div>
+        <h1>שיעור 3 - תחום הגדרה, חורים ומגבלות תחום</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> להבין שבפונקציה רציונלית הנגזרת אינה מחזירה לתחום נקודות שהוצאו מהפונקציה המקורית.</div>
+<div class="grid two lesson-grid">
+  <div class="card theory">
+    <h3>כלל התחום</h3>
+    <p>אם \(f\) פונקציה רציונלית, היא גזירה בכל נקודה שבה היא מוגדרת. לכן:</p>
+    <div class="formula-box" style="direction:rtl;">תחום ההגדרה של הנגזרת שווה לתחום ההגדרה של הפונקציה</div>
+    <p>גם כאשר מבצעים צמצום אלגברי, נקודה שהוצאה מהתחום נשארת מחוץ לתחום גם אחרי הגזירה.</p>
+    <h3>חור לעומת אסימפטוטה אנכית</h3>
+    <ul>
+      <li>גורם שמתבטל בין מונה למכנה יוצר חור, אם הוא היה במכנה המקורי.</li>
+      <li>גורם שנשאר במכנה לאחר צמצום עשוי ליצור אסימפטוטה אנכית.</li>
+    </ul>
+    <div class="formula-box">\[f(x)=\frac{{x^2-1}}{{x-1}}=x+1,\qquad x\ne1\]</div>
+    <p>לכן \(f'(x)=1\), אך עדיין \(x\ne1\). לגרף הנגזרת יש חור בנקודה \((1,1)\).</p>
+  </div>
+  <div class="stack"><div class="graph-panel ">
+      <div class="graph-title">חור בגרף \(f\)</div>
+      <div id="l3f" class="jxgbox" aria-label="חור בגרף \(f\)" style="height:60mm;"></div>
+      <div class="graph-caption">הפונקציה נראית כמו ישר, אך \(x=1\) אינו בתחום.</div>
+    </div><div class="graph-panel ">
+      <div class="graph-title">חור בגרף \(f'\)</div>
+      <div id="l3d" class="jxgbox" aria-label="חור בגרף \(f&#x27;\)"style="height:60mm;"></div>
+      <div class="graph-caption">גם אחרי הגזירה נשמרת מגבלת התחום המקורית.</div>
+    </div></div>
+</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 3 - תחום, חורים ואסימפטוטה אנכית</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>עבור \(f(x)=\frac{x^2-4}{x-2}\) מצאו את תחום \(f\), את \(f'\) ואת תחום \(f'\).</li><li>עבור \(f(x)=\frac{x^2-1}{x^2-1}\) תארו את גרף \(f\) ואת גרף \(f'\) כולל החורים.</li><li>עבור \(f(x)=\frac{x+1}{x^2-1}\) קבעו היכן יש חור והיכן אסימפטוטה אנכית, ולאחר מכן מצאו את תחום הנגזרת.</li><li>עבור \(f(x)=\frac{x^2+3x+2}{x+1}\) מצאו את ביטוי הנגזרת ואת הנקודה החסרה בגרף הנגזרת.</li><li>הסבירו מדוע לכל פונקציה רציונלית תחום ההגדרה של הנגזרת שווה לתחום ההגדרה של הפונקציה.</li><li>גורם במכנה הצטמצם לפני הגזירה. האם ערך האפס של הגורם חוזר אוטומטית לתחום הנגזרת? נמקו.</li><li>עבור \(f(x)=\frac{(x-3)^2}{(x-3)(x+2)}\) מצאו חור, אסימפטוטה אנכית, את \(f'\) ואת תחום הנגזרת.</li><li>לאחר פישוט התקבל \(f'(x)=2x\), אך בפונקציה המקורית \(x=4\) הוצא מהתחום. מהו תחום \(f'\)?</li><li>תארו מבחן גרפי שמבדיל בין חור לבין אסימפטוטה אנכית.</li><li>בנו דוגמה לפונקציה רציונלית שיש לה חור ב-\(x=2\) ואסימפטוטה אנכית ב-\(x=-1\).</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 4</div>
+        <h1>שיעור 4 - אסימפטוטות אנכיות של פונקציה ונגזרת</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> לקשור בין אסימפטוטה אנכית של פונקציה רציונלית לבין התנהגות הנגזרת באותה נקודת אי-הגדרה.</div>
+<div class="grid two_ lesson-grid">
+  <div class="card theory">
+    <h3>הכלל לפונקציה רציונלית</h3>
+    <p>אם לאחר צמצום נשאר במכנה גורם שיוצר אסימפטוטה אנכית \(x=a\), אז גם לנגזרת יש אסימפטוטה אנכית ב-\(x=a\).</p>
+    <p>אם ל-\(f\) יש קוטב מסדר \(m\), אז בדרך כלל לנגזרת יש קוטב מסדר \(m+1\).</p>
+    <div class="formula-box">\[f(x)=\frac{{x+1}}{{x-2}}=1+\frac{{3}}{{x-2}},\qquad f'(x)=-\frac{{3}}{{(x-2)^2}}\]</div>
+    <p>לשתי הפונקציות אסימפטוטה אנכית \(x=2\), אך ההתנהגות משני הצדדים שונה: \(f\) משנה סימן סביב האסימפטוטה ואילו \(f'\) שלילית משני הצדדים.</p>
+    <div class="note"><strong>זהירות:</strong> חור אינו אסימפטוטה אנכית. חור נשמר כחור גם בגרף הנגזרת, אם הביטוי של הנגזרת סופי שם אך הנקודה הוצאה מהתחום.</div>
+  </div>
+  <div class="graph-panel ">
+      <div class="graph-title">אסימפטוטה אנכית משותפת ל-\(f\) ול-\(f'\)</div>
+      <div id="l4" class="jxgbox" aria-label="אסימפטוטה אנכית משותפת ל-\(f\) ול-\(f&#x27;\)" style="height:100mm;"></div>
+      <div class="graph-caption">הקו המקווקו הוא \(x=2\).</div>
+    </div>
+</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 4 - אסימפטוטות אנכיות</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>עבור \(f(x)=\frac{x+1}{x-2}\) מצאו את האסימפטוטה האנכית של \(f\) ושל \(f'\).</li><li>עבור \(f(x)=\frac{1}{(x+3)^2}\) מצאו את הנגזרת וקבעו את האסימפטוטה האנכית שלה.</li><li>עבור \(f(x)=\frac{x-4}{(x+1)^3}\) מצאו את הנגזרת והראו כי סדר הקוטב גדל באחד.</li><li>נסחו את הקשר בין קוטב מסדר \(m\) של פונקציה רציונלית לבין קוטב הנגזרת.</li><li>האם \(f(x)=\frac{x^2-1}{x-1}\) יוצרת אסימפטוטה אנכית ב-\(x=1\)? מה קורה לגרף הנגזרת שם?</li><li>השוו את ההתנהגות של \(f(x)=\frac{1}{x-a}\) ושל \(f'(x)=-\frac{1}{(x-a)^2}\) משני צדי \(x=a\).</li><li>עבור \(f(x)=\frac{1}{(x-2)^2}\) קבעו את סימן \(f'\) משמאל ומימין ל-\(x=2\).</li><li>לפונקציה רציונלית יש אסימפטוטה אנכית \(x=5\). האם הנגזרת יכולה להישאר חסומה כאשר \(x\) מתקרב ל-\(5\)?</li><li>עבור \(f(x)=\frac{2x+1}{x^2-4}\) מצאו את כל האסימפטוטות האנכיות של \(f\) ושל \(f'\) בלי לחשב את כל ביטוי הנגזרת.</li><li>בנו פונקציה רציונלית עם אסימפטוטות אנכיות ב-\(x=1\) וב-\(x=-3\) וחור ב-\(x=2\).</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 5</div>
+        <h1>שיעור 5 - אסימפטוטות אופקיות והתנהגות באינסוף</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> להבין כיצד התקרבות של פונקציה רציונלית לישר אופקי מתורגמת לכך ששיפועיה מתקרבים לאפס.</div>
+<div class="grid two_ lesson-grid">
+  <div class="card theory">
+    <h3>אסימפטוטה אופקית</h3>
+    <p>אם לפונקציה רציונלית יש אסימפטוטה אופקית \(y=L\), אז כאשר \(x\Rightarrow\infty\) או \(x\Rightarrow-\infty\) הגרף נעשה קרוב יותר לישר אופקי, ולכן:</p>
+    <div class="formula-box">\[f(x)\Rightarrow L\quad\Rightarrow\quad f'(x)\Rightarrow0\]</div>
+    <p>כלומר לנגזרת יש אסימפטוטה אופקית \(y=0\).</p>
+    <div class="formula-box">\[f(x)=\frac{{2x+1}}{{x-1}}=2+\frac{{3}}{{x-1}},\qquad f'(x)=-\frac{{3}}{{(x-1)^2}}\]</div>
+  </div>
+  <div class="graph-panel ">
+      <div class="graph-title">אסימפטוטות: \(y=2\) ל-\(f\), \(y=0\) ל-\(f'\)</div>
+      <div id="l5" class="jxgbox" aria-label="אסימפטוטות: \(y=2\) ל-\(f\), \(y=0\) ל-\(f&#x27;\)" style="height:98mm;"></div>
+      <div class="graph-caption">הקו האנכי המקווקו הוא \(x=1\).</div>
+    </div>
+</div>
+<div class="note"><strong>אין להסיק את גובה האסימפטוטה של \(f\) מתוך \(f'\) בלבד:</strong> הוספת קבוע ל-\(f\) אינה משנה את הנגזרת.</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 5 - אסימפטוטות אופקיות</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>עבור \(f(x)=\frac{2x+1}{x-1}\) מצאו את האסימפטוטה האופקית של \(f\) ושל \(f'\).</li><li>עבור \(f(x)=\frac{3x^2+1}{x^2+4}\) מצאו את האסימפטוטה האופקית של \(f\), גזרו, וקבעו את האסימפטוטה האופקית של הנגזרת.</li><li>עבור \(f(x)=\frac{1}{x^2+1}\) קבעו את האסימפטוטות האופקיות של \(f\) ושל \(f'\).</li><li>עבור \(f(x)=\frac{x^2+1}{x+1}\) מצאו את האסימפטוטה המשופעת של \(f\) ואת האסימפטוטה האופקית של \(f'\).</li><li>לפונקציה רציונלית יש אסימפטוטה אופקית \(y=-4\). מהי האסימפטוטה האופקית של הנגזרת?</li><li>ידוע ש-\(f\) רציונלית וש-\(f'(x)\Rightarrow0\) כאשר \(x\Rightarrow\infty\). האם ניתן לקבוע את גובה האסימפטוטה האופקית של \(f\)?</li><li>ל-\(f\) אסימפטוטה משופעת וש-\(f'(x)\Rightarrow3\). מהו שיפוע האסימפטוטה המשופעת?</li><li>עבור \(f(x)=5+\frac{2}{(x-4)^3}\) מצאו את \(f'\) וקבעו את האסימפטוטות האופקיות של שתי הפונקציות.</li><li>האם העובדה ש-\(f'(x)\Rightarrow0\) קובעת מאיזה צד \(f\) מתקרבת לאסימפטוטה שלה? נמקו.</li><li>נתון \(f(x)=\frac{ax+2}{2x-3}\) והאסימפטוטה האופקית של \(f\) היא \(y=4\). מצאו את \(a\) וקבעו את האסימפטוטה האופקית של \(f'\).</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 6</div>
+        <h1>שיעור 6 - זיהוי בין גרף פונקציה לגרף הנגזרת</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> לזהות מי מהגרפים הוא \(f\) ומי הוא \(f'\) באמצעות כמה בדיקות בלתי תלויות.</div>
+<div class="card checklist">
+  <h3>סדר בדיקה מומלץ</h3>
+  <div class="steps"><span>1. תחום</span><span>2. אסימפטוטות</span><span>3. אפסי נגזרת</span><span>4. סימן</span><span>5. זוגיות</span><span>6. אינסוף</span></div>
+  <p>אין להסתמך על תכונה אחת בלבד. התאמה טובה בין פונקציה לנגזרתה צריכה לעמוד בכמה בדיקות בו זמנית.</p>
+  <div class="formula-box">\[f\ \text{{תיגוז}}\Rightarrow f'\ \text{{תיגוז-יא}},\qquad f\ \text{{תיגוז-יא}}\Rightarrow f'\ \text{{תיגוז}}\]</div>
+  <p>בטקסט רגיל: נגזרת של פונקציה זוגית היא אי-זוגית; נגזרת של פונקציה אי-זוגית היא זוגית.</p>
+</div>
+<div class="grid two graph-triple"><div class="graph-panel ">
+      <div class="graph-title">גרף A</div>
+      <div id="l7a" class="jxgbox" aria-label="גרף A"></div>
+    </div><div class="graph-panel ">
+      <div class="graph-title">גרף B</div>
+      <div id="l7b" class="jxgbox" aria-label="גרף B"></div>
+    </div></div>
+<div class="note">בדוגמה: אחד הגרפים הוא \(f(x)=\frac1{{x^2+1}}\) והשני הוא \(f'\). הזוגיות, אפס הנגזרת ב-\(x=0\), וההתאמה בין סימן הנגזרת לבין העלייה והירידה מאפשרים לזהות את הסדר.</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 6 - מי הפונקציה ומי הנגזרת?</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>אם \(f\) זוגית, מהי הזוגיות של \(f'\)?</li><li>אם \(f\) אי-זוגית, מהי הזוגיות של \(f'\)?</li><li>בזוג הגרפים של השיעור, השתמשו בזוגיות כדי לזהות איזה גרף יכול להיות \(f'\).</li><li>גרף B חוצה את ציר \(x\) בדיוק בערכי \(x\) שבהם לגרף A יש נקודות קיצון, וסימן B מתאים לעלייה ולירידה של A. מה הקשר הסביר בין A ל-B?</li><li>גרף B חיובי כאשר \(x\lt0\), אפס ב-\(x=0\) ושלילי כאשר \(x\gt0\). מה ניתן להסיק על גרף A אם B הוא הנגזרת שלו?</li><li>גרף A אינו מוגדר ב-\(x=2\), אך גרף B מוגדר לכל \(x\). האם B יכול להיות הנגזרת של A כאשר A רציונלית?</li><li>לגרף A אסימפטוטה אופקית \(y=4\) ולגרף B אסימפטוטה אופקית \(y=0\). איזה גרף סביר יותר להיות הנגזרת?</li><li>לשני גרפים אסימפטוטה אנכית \(x=-1\). גרף A מתנהג כמו \(\frac1{x+1}\) וגרף B שלילי משני צדי האסימפטוטה. איזה מהם מתאים להיות הנגזרת של האחר?</li><li>זהו את הסדר בין הביטויים \(A=\frac1{x^2+1}\), \(B=-\frac{2x}{(x^2+1)^2}\).</li><li>כתבו סדר בדיקה של לפחות חמישה מאפיינים שבהם תשתמשו כדי לזהות בין שני גרפים לא מסומנים מי הפונקציה ומי הנגזרת.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 7</div>
+        <h1>שיעור 7 - שרטוט גרף הנגזרת על פי גרף הפונקציה</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> לפתח אלגוריתם קבוע לשרטוט גרף נגזרת מתוך גרף פונקציה רציונלית.</div>
+<div class="grid two_ lesson-grid">
+  <div class="card theory">
+    <h3>אלגוריתם שרטוט</h3>
+    <ol class="compact-list numbered">
+      <li>רושמים את תחום ההגדרה ומעתיקים נקודות אי-הגדרה.</li>
+      <li>מסמנים ערכי \(x\) של נקודות עם שיפוע אפס.</li>
+      <li>קובעים סימן של \(f'\) לפי עלייה וירידה של \(f\).</li>
+      <li>מעריכים את \(|f'|\) לפי תלילות הגרף.</li>
+      <li>מטפלים באסימפטוטות אנכיות.</li>
+      <li>מתרגמים אסימפטוטה אופקית של \(f\) ל-\(y=0\) של \(f'\).</li>
+      <li>אם ל-\(f\) אסימפטוטה משופעת בשיפוע \(m\), אז \(f'\) מתקרבת ל-\(y=m\).</li>
+    </ol>
+    <div class="formula-box smallmath">\[f(x)=x-1+\frac1{x-1},\qquad f'(x)=1-\frac1{(x-1)^2}\]</div>
+    <p>ל-\(f\) אסימפטוטה משופעת \(y=x-1\), ולכן ל-\(f'\) אסימפטוטה אופקית \(y=1\). אפסי הנגזרת הם \(x=0,2\).</p>
+  </div>
+  <div class="stack"><div class="graph-panel ">
+      <div class="graph-title">הגרף הנתון: \(f\)</div>
+      <div id="l8f" class="jxgbox" aria-label="הגרף הנתון: \(f\)" style="height:45mm;"></div>
+      <div class="graph-caption">סמנו תחום, אסימפטוטות, קיצון ותלילות.</div>
+    </div><div class="graph-panel ">
+      <div class="graph-title">התוצאה: סקיצת \(f'\)</div>
+      <div id="l8d" class="jxgbox" aria-label="התוצאה: סקיצת \(f&#x27;\)" style="height:45mm;"></div>
+      <div class="graph-caption">האסימפטוטה האופקית היא \(y=1\).</div>
+    </div></div>
+</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 7 - שרטוט נגזרת מתוך פונקציה</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>עבור \(f(x)=x-1+\frac1{x-1}\) מצאו את \(f'\) ורשמו את כל המאפיינים הדרושים לסקיצה.</li><li>עבור \(f(x)=2+\frac3{x+2}\) שרטטו סקיצה איכותית של \(f'\) לפי מאפיינים, בלי להתחיל מטבלת ערכים.</li><li>עבור \(f(x)=x+\frac1x\) קבעו את האסימפטוטה האופקית של \(f'\), את אפסיה ואת האסימפטוטה האנכית.</li><li>עבור \(f(x)=x-\frac1x\) קבעו את סימן \(f'\) ואת האסימפטוטות שלה.</li><li>עבור \(f(x)=\frac1{x^2+1}\) שרטטו איכותית את \(f'\) תוך שימוש בזוגיות ובתחומי העלייה והירידה.</li><li>עבור \(f(x)=\frac{x}{x^2+4}\) מצאו את אפסי הנגזרת ואת סימנה ושרטטו סקיצה.</li><li>עבור \(f(x)=\frac{x^2-4}{x-2}\) שרטטו את גרף הנגזרת כולל מגבלת התחום.</li><li>עבור \(f(x)=\frac{x^2+1}{x-1}\) מצאו מאפיינים מלאים של \(f'\) והסבירו מדוע האסימפטוטה האופקית שלה היא \(y=1\).</li><li>לגרף \(f\) אסימפטוטה אנכית \(x=3\), אסימפטוטה משופעת בשיפוע \(-2\), ונקודות עם שיפוע אפס ב-\(x=0\) וב-\(x=4\). רשמו ארבעה מאפיינים הכרחיים של גרף \(f'\).</li><li>כתבו במילים אלגוריתם מלא לשרטוט \(f'\) מתוך גרף \(f\) והסבירו מדוע אין להתחיל מחיבור נקודות לפני בדיקת תחום ואסימפטוטות.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">שיעור משנה 8</div>
+        <h1>שיעור 8 - שרטוט גרף הפונקציה על פי גרף הנגזרת</h1>
+      </header>
+      <div class="page-body">
+<div class="lesson-intro"><strong>מטרה:</strong> לשחזר את צורת \(f\) מתוך \(f'\) בלי לדעת מראש את הקבוע האנכי.</div>
+<div class="grid two_ lesson-grid">
+  <div class="card theory">
+    <h3>מה הנגזרת כן קובעת?</h3>
+    <ul>
+      <li>תחומי עלייה וירידה.</li>
+      <li>נקודות קיצון, אם יש שינוי סימן.</li>
+      <li>תלילות יחסית.</li>
+      <li>במסגרת פונקציות רציונליות: נקודות אי-הגדרה ואופי אסימפטוטי.</li>
+    </ul>
+    <h3>מה הנגזרת אינה קובעת?</h3>
+    <div class="formula-box">\[f'(x)\ \text{{עובק}}\ f(x)\ \text{{דע}}\ C\]</div>
+    <p>בטקסט רגיל: אם \(F\) מתאימה לנגזרת, גם \(F+C\) מתאימה. לכן ניתן לשחזר את הגרף רק עד כדי הזזה אנכית, אלא אם ניתנת נקודה אחת של \(f\).</p>
+    <div class="formula-box smallmath">\[f'(x)=\frac{x^2-1}{(x^2+1)^2},\qquad f(x)=-\frac{x}{x^2+1}+C\]</div>
+    <p>אפסי הנגזרת הם \(x=-1,1\). סימן הנגזרת קובע מקסימום ב-\(x=-1\) ומינימום ב-\(x=1\).</p>
+  </div>
+  <div class="stack"><div class="graph-panel ">
+      <div class="graph-title">הגרף הנתון: \(f'\)</div>
+      <div id="l9d" class="jxgbox" aria-label="הגרף הנתון: \(f&#x27;\)"></div>
+      <div class="graph-caption">קודם קוראים סימן, אפסים וקיצונים.</div>
+    </div><div class="graph-panel ">
+      <div class="graph-title">שתי פונקציות אפשריות</div>
+      <div id="l9f" class="jxgbox" aria-label="שתי פונקציות אפשריות"></div>
+      <div class="graph-caption">שתי העקומות שונות בקבוע בלבד ולכן נגזרתן זהה.</div>
+    </div></div>
+</div>
+</div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">10 תרגילים - קושי עולה</div>
+        <h1>תרגול שיעור 8 - שרטוט פונקציה מתוך נגזרת</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>נתון \(f'(x)=1-\frac1{(x-1)^2}\). קבעו תחומי עלייה וירידה וערכי \(x\) של נקודות הקיצון של \(f\).</li><li>נתון \(f'(x)=-\frac3{(x+2)^2}\). תארו את צורת \(f\) בכל אחד מחלקי התחום וקבעו את האסימפטוטה האנכית.</li><li>נתון \(f'(x)=\frac{1-x^2}{(1+x^2)^2}\). קבעו את סוג נקודות הקיצון של \(f\) ואת האסימפטוטה האופקית האפשרית עד כדי קבוע.</li><li>נתון \(f'(x)=\frac{2x}{(x^2+1)^2}\). קבעו את סוג הקיצון ב-\(x=0\) ותארו את ההתנהגות באינסוף.</li><li>אם \(F\) היא פונקציה שמתאימה לגרף נגזרת נתון, האם \(F+5\) מתאימה גם היא? נמקו.</li><li>ידוע בנוסף כי \(f(0)=2\). הסבירו כיצד נתון כזה מסיר את חוסר הוודאות של הקבוע.</li><li>לגרף \(f'\) של פונקציה רציונלית יש אסימפטוטה אנכית \(x=3\). מה ניתן להסיק על תחום \(f\) ועל התנהגותה ליד \(x=3\)?</li><li>לגרף \(f'\) אסימפטוטה אופקית \(y=0\). האם ניתן לקבוע את גובה האסימפטוטה האופקית של \(f\)?</li><li>הנגזרת מחליפה סימן מחיובי לשלילי ב-\(x=a\), ומשלילי לחיובי ב-\(x=b\). קבעו את סוג נקודת הקיצון של \(f\) בכל אחד מערכי ה-\(x\).</li><li>נתון ש-\(f'\) חיובית כאשר \(x\lt-2\), שלילית כאשר \(-2\lt x\lt1\), וחיובית כאשר \(x\gt1\). שרטטו משפחה איכותית של גרפי \(f\) עד כדי קבוע וסמנו את סוגי נקודות הקיצון.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 1</div>
+        <h1>פתרונות - שיעור 1</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>\(f'(x)=\frac{4x}{(x^2+1)^2}\); לכן הערכים הם \(0,1,-1\) בהתאמה.</li><li>\(f'(2)=\frac{8}{25}\).</li><li>מתחת לציר \(x\), משום שערך הנגזרת שלילי.</li><li>\(f'(x)=-\frac1{(x+1)^2}\); הנגזרת שלילית לכל \(x
+e-1\).</li><li>\(f'(x)=-\frac2{(x-2)^2}\); אין ערך בתחום שבו השיפוע חיובי.</li><li>\(f'(x)=1-\frac1{x^2}\); אפסים ב-\(x=-1,1\).</li><li>הנקודות: \((-2,-1)\), \((0,0)\), \((2,3)\).</li><li>הערכים של \(f'\) מתקרבים ל-\(0\).</li><li>לא. פונקציה רציונלית גזירה בכל נקודה שבה המכנה אינו מתאפס.</li><li>בנקודות הנתונות בלבד: מעל הציר ב-\(x=-3,5\), על הציר ב-\(x=-1,3\), ומתחת לציר ב-\(x=1\). בלי מידע נוסף אין להסיק סימן בכל התחומים שבין הנקודות.</li></ol></div>
+<div style="height:40px;"></div>
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 2</div>
+        <h1>פתרונות - שיעור 2</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>\(x=-1,1\).</li><li>ב-\(x=-1\) מינימום עם \(f(-1)=-\frac12\); ב-\(x=1\) מקסימום עם \(f(1)=\frac12\).</li><li>\(f'(x)=-\frac1{(x-1)^2}\lt0\); לכן אין נקודת קיצון.</li><li>\(f'(x)=\frac{x^2(x^2+3)}{(x^2+1)^2}\ge0\); אין שינוי סימן סביב \(0\), ולכן אין קיצון.</li><li>ב-\(a\) מקסימום; ב-\(b\) מינימום.</li><li>אפסים ב-\(x=-1,2\); הסימן \(+,-,+\) ולכן מקסימום ב-\(-1\) ומינימום ב-\(2\).</li><li>\(f'(x)=\frac{x^2-2x-1}{(x-1)^2}\); אפסים \(x=1-\sqrt2,1+\sqrt2\). הראשון מקסימום והשני מינימום.</li><li>לא. אין שינוי סימן ולכן אין קיצון.</li><li>אפס הנגזרת הוא תנאי לשיפוע אפס; לקיצון פנימי גזיר נדרש גם שינוי סימן מתאים של הנגזרת.</li><li>מינימום ב-\(x=-2\); מקסימום ב-\(x=3\). הערך \(x=1\) אינו בתחום ואינו נקודת קיצון.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 3</div>
+        <h1>פתרונות - שיעור 3</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>תחום \(x
+e2\); \(f'(x)=1\) וגם תחום הנגזרת \(x
+e2\).</li><li>\(f(x)=1\) עבור \(x
+e-1,1\); \(f'(x)=0\) באותו תחום. יש חורים ב-\(x=-1,1\) בשני הגרפים.</li><li>לאחר צמצום \(f(x)=\frac1{x-1}\) אך התחום \(x
+e-1,1\). חור ב-\(x=-1\), אסימפטוטה אנכית ב-\(x=1\); תחום הנגזרת זהה.</li><li>\(f(x)=x+2\) עבור \(x
+e-1\); \(f'(x)=1\) עם חור ב-\((-1,1)\).</li><li>כי מנה של פולינומים גזירה בכל נקודה שבה המכנה אינו אפס, והגזירה אינה מוסיפה נקודות שהפונקציה המקורית לא הייתה מוגדרת בהן.</li><li>לא. הנקודה נשארת מחוץ לתחום הנגזרת.</li><li>לאחר צמצום \(f(x)=\frac{x-3}{x+2}\); חור ב-\(x=3\), אסימפטוטה אנכית ב-\(x=-2\); \(f'(x)=\frac5{(x+2)^2}\) והתחום \(x
+e3,-2\).</li><li>\(x
+e4\).</li><li>בחור ערכי הפונקציה מתקרבים לערך סופי; ליד אסימפטוטה אנכית גודל ערכי הפונקציה גדל ללא חסם.</li><li>דוגמה: \(f(x)=\frac{(x-2)(x+3)}{(x-2)(x+1)}\) עם תחום \(x
+e2,-1\).</li></ol></div>
+<div style="height:40px;"></div>
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 4</div>
+        <h1>פתרונות - שיעור 4</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>\(x=2\) בשתיהן.</li><li>\(f'(x)=-\frac2{(x+3)^3}\); אסימפטוטה אנכית \(x=-3\).</li><li>\(f'(x)=\frac{-2x+13}{(x+1)^4}\); סדר הקוטב עולה מ-3 ל-4.</li><li>קוטב מסדר \(m\) של פונקציה רציונלית הופך בדרך כלל לקוטב מסדר \(m+1\) בנגזרת.</li><li>לא. ב-\(x=1\) יש חור; גם הנגזרת שומרת את הנקודה מחוץ לתחום אך אין שם אסימפטוטה אנכית.</li><li>הפונקציה משנה סימן בין הצדדים; הנגזרת שלילית משני הצדדים ושואפת לערכים שליליים גדולים בגודלם.</li><li>\(f'(x)=-\frac2{(x-2)^3}\); משמאל \(f'(x)\gt0\) ומימין \(f'(x)\lt0\).</li><li>לא. בנגזרת מופיע קוטב חזק יותר ולכן גם היא אינה חסומה ליד אותה נקודה.</li><li>האסימפטוטות הן \(x=-2,2\) הן ל-\(f\) והן ל-\(f'\).</li><li>דוגמה: \(f(x)=\frac{(x-2)(x+4)}{(x-2)(x-1)(x+3)}\) עם תחום \(x
+e2,1,-3\).</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 5</div>
+        <h1>פתרונות - שיעור 5</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>ל-\(f\): \(y=2\); ל-\(f'\): \(y=0\).</li><li>ל-\(f\): \(y=3\); \(f'(x)=\frac{22x}{(x^2+4)^2}\) ולכן ל-\(f'\): \(y=0\).</li><li>בשתי הפונקציות האסימפטוטה האופקית היא \(y=0\).</li><li>\(f(x)=x-1+\frac2{x+1}\); האסימפטוטה המשופעת \(y=x-1\). \(f'(x)=1-\frac2{(x+1)^2}\) ולכן לנגזרת \(y=1\).</li><li>\(y=0\).</li><li>לא. הנגזרת קובעת את השיפוע באינסוף אך אינה קובעת את ההזזה האנכית של \(f\).</li><li>השיפוע הוא \(3\).</li><li>\(f'(x)=-\frac6{(x-4)^4}\); ל-\(f\) אסימפטוטה \(y=5\), ול-\(f'\) אסימפטוטה \(y=0\).</li><li>לא. צריך לדעת את סימן השגיאה \(f-L\) או מידע נוסף על הגרף.</li><li>\(\frac a2=4\) ולכן \(a=8\); לנגזרת אסימפטוטה \(y=0\).</li></ol></div>
+
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 6</div>
+        <h1>פתרונות - שיעור 6</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>אי-זוגית.</li><li>זוגית.</li><li>גרף B, משום ש-A זוגי ו-B אי-זוגי.</li><li>B מתאים להיות הנגזרת של A.</li><li>A עולה כאשר \(x\lt0\), מגיעה לקיצון ב-\(x=0\), ויורדת כאשר \(x\gt0\); לכן ב-\(x=0\) יש מקסימום.</li><li>לא. לפונקציה רציונלית ולנגזרת שלה אותו תחום הגדרה.</li><li>B סביר יותר להיות הנגזרת, משום שנגזרת של פונקציה המתקרבת לאסימפטוטה אופקית מתקרבת ל-\(0\).</li><li>B מתאים להיות נגזרת של A, בדומה לנגזרת של \(1/(x+1)\).</li><li>\(A=f\), \(B=f'\).</li><li>למשל: תחום, אסימפטוטות, אפסי הנגזרת מול נקודות קיצון, סימן הנגזרת מול עלייה וירידה, זוגיות והתנהגות באינסוף.</li></ol></div><div style="height:40px;"></div>
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 7</div>
+        <h1>פתרונות - שיעור 7</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>\(f'(x)=1-\frac1{(x-1)^2}\); תחום \(x
+e1\), אסימפטוטה אנכית \(x=1\), אפסים \(x=0,2\), אסימפטוטה אופקית \(y=1\).</li><li>\(f'(x)=-\frac3{(x+2)^2}\); שלילית בכל התחום, אסימפטוטה אנכית \(x=-2\) ואופקית \(y=0\).</li><li>\(f'(x)=1-\frac1{x^2}\); אנכית \(x=0\), אופקית \(y=1\), אפסים \(x=-1,1\).</li><li>\(f'(x)=1+\frac1{x^2}\gt0\); אנכית \(x=0\), אופקית \(y=1\), אין אפסים.</li><li>\(f'(x)=-\frac{2x}{(x^2+1)^2}\); חיובית כאשר \(x\lt0\), אפס ב-\(0\), שלילית כאשר \(x\gt0\).</li><li>\(f'(x)=\frac{4-x^2}{(x^2+4)^2}\); אפסים \(x=-2,2\); חיובית כאשר \(-2\lt x\lt2\) ושלילית מחוץ לכך.</li><li>\(f'(x)=1\) עם חור ב-\(x=2\).</li><li>\(f'(x)=1-\frac2{(x-1)^2}\); תחום \(x
+e1\), אנכית \(x=1\), אפסים \(x=1-\sqrt2,1+\sqrt2\), אופקית \(y=1\).</li><li>ל-\(f'\) אסימפטוטה אנכית \(x=3\), אסימפטוטה אופקית \(y=-2\), ואפסים ב-\(x=0,4\); הסימן סביב האפסים נקבע מסוג הקיצון של \(f\).</li><li>תחום ואסימפטוטות תחילה, אחר כך אפסי נגזרת, סימן, תלילות והתנהגות באינסוף; רק לאחר מכן מחברים לסקיצה רציפה בכל רכיב תחום.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">פתרונות 10 תרגילים - שיעור 8</div>
+        <h1>פתרונות - שיעור 8</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>אפסים ב-\(x=0,2\); \(f'\gt0\) כאשר \(x\lt0\) או \(x\gt2\), ו-\(f'\lt0\) כאשר \(0\lt x\lt1\) או \(1\lt x\lt2\). מקסימום ב-\(0\), מינימום ב-\(2\).</li><li>\(f'\lt0\) בכל התחום, לכן \(f\) יורדת בכל אחד מהתחומים \(x\lt-2\) ו-\(x\gt-2\); אסימפטוטה אנכית \(x=-2\).</li><li>מינימום ב-\(x=-1\), מקסימום ב-\(x=1\); אם \(f\) רציונלית מהצורה המתאימה, האסימפטוטה האופקית היא \(y=C\).</li><li>שלילית כאשר \(x\lt0\) וחיובית כאשר \(x\gt0\); לכן מינימום ב-\(0\). הפונקציה מתקרבת לערך קבוע בשני הכיוונים, שערכו תלוי ב-\(C\).</li><li>כן. הוספת קבוע אינה משנה נגזרת.</li><li>מציבים את הנקודה בפונקציה הקדומה האפשרית ומוצאים את \(C\).</li><li>\(x=3\) אינו בתחום של \(f\); במסגרת פונקציה רציונלית קוטב בנגזרת מעיד על קוטב של הפונקציה באותה נקודה.</li><li>לא. ניתן להזיז את \(f\) אנכית בלי לשנות את \(f'\).</li><li>ב-\(x=a\) מתקבל מקסימום, וב-\(x=b\) מתקבל מינימום.</li><li>\(f\) עולה כאשר \(x\lt-2\), יורדת כאשר \(-2\lt x\lt1\), ועולה כאשר \(x\gt1\); מקסימום ב-\(-2\) ומינימום ב-\(1\). כל הגרפים האפשריים הם הזזות אנכיות זה של זה.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">רמת 5 יחידות - אינטגרציה של כל הנושאים</div>
+        <h1>תרגילים מסכמים - חלק א</h1>
+      </header>
+      <div class="page-body"><ol class="ex-list"><li>נתונה \(f(x)=\frac{x^2+1}{x-1}\). חקרו את הקשר בין \(f\) ל-\(f'\): תחום, אסימפטוטות, אפסי נגזרת, סוגי קיצון והתנהגות באינסוף. שרטטו סקיצה איכותית של שתי הפונקציות.</li><li>נתון \(f'(x)=\frac{x(x-4)}{(x-2)^2}\) וידוע ש-\(f\) רציונלית. בנו סקיצה של \(f\) עד כדי קבוע, כולל קיצון ואסימפטוטות.</li><li>נתונים שני ביטויים: \(A=\frac{x^2-1}{x^2+1}\), \(B=\frac{4x}{(x^2+1)^2}\). קבעו מי הוא \(f\) ומי הוא \(f'\), והציגו לפחות שלוש הצדקות.</li><li>נתונה \(f(x)=\frac{x^2+ax+1}{x-1}\) ויש נקודה עם שיפוע אפס ב-\(x=3\). מצאו את \(a\), ואז מצאו את כל נקודות הקיצון של \(f\) לפי ערכי \(x\) וסוגן.</li><li>נתונה \(f(x)=\frac{(x-2)(x+1)}{(x-2)(x-3)}\) עם התחום המקורי. מצאו חור, אסימפטוטות של \(f\), את \(f'\), מגבלות התחום של הנגזרת ואת כל האסימפטוטות שלה.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">זיהוי גרפי ברמה גבוהה</div>
+        <h1>תרגילים מסכמים - חלק ב</h1>
+      </header>
+      <div class="page-body"><div class="grid two graph-triple finalgraphs"><div class="graph-panel ">
+      <div class="graph-title">A</div>
+      <div id="fa" class="jxgbox" aria-label="A"></div>
+      <div class="graph-controls" data-for="fa">
+        <button type="button" data-action="reset" onclick="graphAction('fa','reset')">איפוס</button>
+        <button type="button" data-action="zoomIn" onclick="graphAction('fa','zoomIn')">הגדלה</button>
+        <button type="button" data-action="zoomOut" onclick="graphAction('fa','zoomOut')">הקטנה</button>
+        <button type="button" data-action="center" onclick="graphAction('fa','center')">מרכוז</button>
+      </div>
+      <div class="graph-hint">אפשר לגרור את הלוח ולשנות קנה מידה בעזרת הכפתורים או גלגלת העכבר.</div>
+      
+    </div><div class="graph-panel ">
+      <div class="graph-title">B</div>
+      <div id="fb" class="jxgbox" aria-label="B"></div>
+      <div class="graph-controls" data-for="fb">
+        <button type="button" data-action="reset" onclick="graphAction('fb','reset')">איפוס</button>
+        <button type="button" data-action="zoomIn" onclick="graphAction('fb','zoomIn')">הגדלה</button>
+        <button type="button" data-action="zoomOut" onclick="graphAction('fb','zoomOut')">הקטנה</button>
+        <button type="button" data-action="center" onclick="graphAction('fb','center')">מרכוז</button>
+      </div>
+      <div class="graph-hint">אפשר לגרור את הלוח ולשנות קנה מידה בעזרת הכפתורים או גלגלת העכבר.</div>
+      
+    </div></div><div class="grid two finalgraphs2"><div class="graph-panel ">
+      <div class="graph-title">D</div>
+      <div id="fd" class="jxgbox" aria-label="D"></div>
+      <div class="graph-controls" data-for="fd">
+        <button type="button" data-action="reset" onclick="graphAction('fd','reset')">איפוס</button>
+        <button type="button" data-action="zoomIn" onclick="graphAction('fd','zoomIn')">הגדלה</button>
+        <button type="button" data-action="zoomOut" onclick="graphAction('fd','zoomOut')">הקטנה</button>
+        <button type="button" data-action="center" onclick="graphAction('fd','center')">מרכוז</button>
+      </div>
+      <div class="graph-hint">אפשר לגרור את הלוח ולשנות קנה מידה בעזרת הכפתורים או גלגלת העכבר.</div>
+      
+    </div><div class="graph-panel ">
+      <div class="graph-title">E</div>
+      <div id="fe" class="jxgbox" aria-label="E"></div>
+      <div class="graph-controls" data-for="fe">
+        <button type="button" data-action="reset" onclick="graphAction('fe','reset')">איפוס</button>
+        <button type="button" data-action="zoomIn" onclick="graphAction('fe','zoomIn')">הגדלה</button>
+        <button type="button" data-action="zoomOut" onclick="graphAction('fe','zoomOut')">הקטנה</button>
+        <button type="button" data-action="center" onclick="graphAction('fe','center')">מרכוז</button>
+      </div>
+      <div class="graph-hint">אפשר לגרור את הלוח ולשנות קנה מידה בעזרת הכפתורים או גלגלת העכבר.</div>
+      
+    </div></div><ol class="ex-list"><li>בשני הגרפים A ו-B שלמטה אחד הוא \(f\) ואחד הוא \(f'\). זהו את הסדר והציגו נימוק המבוסס על זוגיות, אפסים וסימן הנגזרת.</li><li>לאחר שזיהיתם את A ו-B, קבעו את ערך \(x\) של נקודת הקיצון של \(f\) ואת תחומי העלייה והירידה שלה.</li><li>בשני הגרפים D ו-E שלמטה אחד הוא \(g(x)=1/(x-1)\) והשני נגזרתו. זהו מי הוא מי והסבירו את התנהגות שני הגרפים משני צדי \(x=1\).</li><li>לגרפים D ו-E קבעו את תחום ההגדרה ואת האסימפטוטות האופקיות והאנכיות.</li><li>נניח שגרף B הוא גרף נגזרת של פונקציה אחרת \(h\). שרטטו שתי סקיצות אפשריות של \(h\) השונות זו מזו בקבוע בלבד, והסבירו אילו תכונות נשארות זהות בשתיהן.</li></ol></div>
+    </section>
+<section class="page">
+      <header class="page-header">
+        <div class="kicker">מיד אחרי התרגילים המסכמים</div>
+        <h1>פתרונות לתרגילים המסכמים - חלק א</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>\(f(x)=x+1+\frac2{x-1}\); תחום \(x
+e1\); אסימפטוטה אנכית \(x=1\) ומשופעת \(y=x+1\). \(f'(x)=1-\frac2{(x-1)^2}\); אסימפטוטה אנכית \(x=1\) ואופקית \(y=1\); אפסים \(x=1-\sqrt2,1+\sqrt2\); הראשון מקסימום והשני מינימום.</li><li>\(f'(x)=1-\frac4{(x-2)^2}\), ולכן אפשר לבחור \(f(x)=x-2+\frac4{x-2}+C\). תחום \(x
+e2\); אסימפטוטה אנכית \(x=2\); אפסי הנגזרת \(x=0,4\); מקסימום ב-\(0\) ומינימום ב-\(4\); האסימפטוטה המשופעת היא \(y=x-2+C\).</li><li>\(A=f\), \(B=f'\). A זוגית ו-B אי-זוגית; אפס B ב-\(x=0\) מתאים לנקודת הקיצון של A; סימן B מתאים לעלייה ולירידה של A.</li><li>\(f'(x)=\frac{x^2-2x-a-1}{(x-1)^2}\). הצבה \(x=3\) נותנת \(a=2\). אז המונה \((x-3)(x+1)\); מקסימום ב-\(x=-1\), מינימום ב-\(x=3\).</li><li>התחום \(x
+e2,3\); לאחר צמצום \(f(x)=\frac{x+1}{x-3}\) ולכן חור ב-\(x=2\), אסימפטוטה אנכית \(x=3\) ואופקית \(y=1\). \(f'(x)=-\frac4{(x-3)^2}\) אך התחום נשאר \(x
+e2,3\); חור ב-\(x=2\) עם ערך חסר \(-4\), אסימפטוטה אנכית \(x=3\) ואופקית \(y=0\).</li></ol></div>
+<div style="height:60px;"></div>
+      <header class="page-header">
+        <div class="kicker">העמוד האחרון במסמך</div>
+        <h1>פתרונות לתרגילים המסכמים - חלק ב</h1>
+      </header>
+      <div class="page-body"><ol class="sol-list"><li>בגרפים המסכמים: \(A=f\), \(B=f'\). A זוגית ו-B אי-זוגית; אפס B נמצא ב-\(x=0\), בדיוק בערך ה-\(x\) של נקודת הקיצון של A.</li><li>ל-\(f(x)=\frac{x^2-1}{x^2+1}\) יש מקסימום או מינימום לפי שינוי סימן הנגזרת: \(f'(x)=\frac{4x}{(x^2+1)^2}\), ולכן \(f\) יורדת כאשר \(x\lt0\), עולה כאשר \(x\gt0\), ויש מינימום ב-\(x=0\).</li><li>D הוא \(g(x)=\frac1{x-1}\) ו-E הוא \(g'(x)=-\frac1{(x-1)^2}\). D מחליף סימן בין הצדדים של \(x=1\); E שלילי משני הצדדים.</li><li>לשניהם תחום \(x\ne1\) ואסימפטוטה אנכית \(x=1\); לשניהם אסימפטוטה אופקית \(y=0\).</li><li>אם B הוא \(h'\), כל שתי פונקציות אפשריות הן \(H(x)+C_1\) ו-\(H(x)+C_2\). תחומי העלייה והירידה, ערכי ה-\(x\) של נקודות הקיצון והתלילות היחסית נשארים זהים; רק הגובה האנכי משתנה.</li></ol></div>
+    </section>
+<script>
+window.__boards={};
+function makeBoard(id,bbox){
+  const b=JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,keepaspectratio:false,pan:{enabled:true,needShift:false},zoom:{enabled:true,wheel:true,needShift:false,factorX:1.18,factorY:1.18}});
+  b.__initialBBox=bbox.slice(); window.__boards[id]=b; return b;
+}
+function graphAction(id,action){
+  const b=window.__boards[id]; if(!b) return;
+  const bb=(b.getBoundingBox?b.getBoundingBox():b.__initialBBox).slice();
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2, w=(bb[2]-bb[0]), h=(bb[1]-bb[3]);
+  let n=bb;
+  if(action==='reset') n=b.__initialBBox.slice();
+  if(action==='center') n=[-w/2,h/2,w/2,-h/2];
+  if(action==='zoomIn'){const s=.8;n=[cx-w*s/2,cy+h*s/2,cx+w*s/2,cy-h*s/2];}
+  if(action==='zoomOut'){const s=1.25;n=[cx-w*s/2,cy+h*s/2,cx+w*s/2,cy-h*s/2];}
+  if(b.setBoundingBox) b.setBoundingBox(n,true); if(b.fullUpdate) b.fullUpdate();
+}
+function curve(b,fn,a,c,color,width=2){return b.create('functiongraph',[fn,a,c],{strokeColor:color,strokeWidth:width,fixed:true,highlight:false});}
+function vline(b,x,color='#888'){return b.create('line',[[x,0],[x,1]],{strokeColor:color,strokeWidth:1.5,dash:2,fixed:true,highlight:false});}
+function hline(b,y,color='#888'){return b.create('line',[[0,y],[1,y]],{strokeColor:color,strokeWidth:1.5,dash:2,fixed:true,highlight:false});}
+function hole(b,x,y,color='#2457a6'){return b.create('point',[x,y],{name:'',size:4,face:'o',fillColor:'#fff',strokeColor:color,strokeWidth:2,fixed:true,highlight:false});}
+function pt(b,x,y,color='#a73535',name=''){return b.create('point',[x,y],{name:name,size:2,fillColor:color,strokeColor:color,fixed:true,highlight:false,label:{useMathJax:true}});}
+function label(b,x,y,tex,color='#18222f'){return b.create('text',[x,y,'\\('+tex+'\\)'],{useMathJax:true,fontSize:13,color:color,fixed:true,highlight:false});}
+function initGraphs(){
+  const blue='#2457a6', green='#217a4a', red='#a73535', orange='#9a5b00', purple='#6b46a3';
+  let b;
+  b=makeBoard('l1f',[-4,2.2,4,-2.2]); curve(b,x=>(x*x-1)/(x*x+1),-4,4,blue); curve(b,x=>x-1,-4,4,orange,1.8); pt(b,1,0,red); label(b,-3.5,1.45,'f(x)',blue); label(b,1.7,.45,'y=x-1',orange);
+  b=makeBoard('l1d',[-4,1.6,4,-1.6]); curve(b,x=>4*x/Math.pow(x*x+1,2),-4,4,green); pt(b,1,1,red); label(b,-3.4,1.1,"f'(x)",green);
+  b=makeBoard('l2',[-5,1.8,5,-1.8]); curve(b,x=>x/(x*x+1),-5,5,blue); curve(b,x=>(1-x*x)/Math.pow(x*x+1,2),-5,5,green); pt(b,-1,-.5,red); pt(b,1,.5,red); pt(b,-1,0,orange); pt(b,1,0,orange); label(b,2.7,.55,'f',blue); label(b,2.7,-.35,"f'",green);
+  b=makeBoard('l3f',[-4,6,4,-4]); curve(b,x=>x+1,-4,4,blue); hole(b,1,2,blue); label(b,-3.5,-2.1,'f(x)=x+1',blue);
+  b=makeBoard('l3d',[-4,3,4,-2]); curve(b,x=>1,-4,4,green); hole(b,1,1,green); label(b,-3.5,1.5,"f'(x)=1",green);
+  b=makeBoard('l4',[-6,6,6,-6]); curve(b,x=>(x+1)/(x-2),-6,1.92,blue); curve(b,x=>(x+1)/(x-2),2.08,6,blue); curve(b,x=>-3/Math.pow(x-2,2),-6,1.92,green); curve(b,x=>-3/Math.pow(x-2,2),2.08,6,green); vline(b,2); label(b,-5,4.7,'f',blue); label(b,-5,-3.7,"f'",green);
+  b=makeBoard('l5',[-6,6,6,-6]); curve(b,x=>(2*x+1)/(x-1),-6,.92,blue); curve(b,x=>(2*x+1)/(x-1),1.08,6,blue); curve(b,x=>-3/Math.pow(x-1,2),-6,.92,green); curve(b,x=>-3/Math.pow(x-1,2),1.08,6,green); vline(b,1); hline(b,2,orange); hline(b,0,'#999'); label(b,-5,3.2,'f',blue); label(b,-5,-3.5,"f'",green); label(b,3.2,2.35,'y=2',orange);
+
+  b=makeBoard('l7a',[-4,1.7,4,-1.3]); curve(b,x=>1/(x*x+1),-4,4,blue); label(b,-3.4,1.2,'A',blue);
+  b=makeBoard('l7b',[-4,1.7,4,-1.7]); curve(b,x=>-2*x/Math.pow(x*x+1,2),-4,4,green); label(b,-3.4,1.25,'B',green);
+
+  b=makeBoard('l8f',[-5,6,7,-6]); curve(b,x=>x-1+1/(x-1),-5,.92,blue); curve(b,x=>x-1+1/(x-1),1.08,7,blue); vline(b,1); curve(b,x=>x-1,-5,7,orange,1.3); pt(b,0,-2,red); pt(b,2,2,red); label(b,-4,4.7,'f',blue); label(b,3.5,2.1,'y=x-1',orange);
+  b=makeBoard('l8d',[-5,3,7,-6]); curve(b,x=>1-1/Math.pow(x-1,2),-5,.92,green); curve(b,x=>1-1/Math.pow(x-1,2),1.08,7,green); vline(b,1); hline(b,1,orange); pt(b,0,0,red); pt(b,2,0,red); label(b,-4,1.7,"f'",green);
+  b=makeBoard('l9d',[-5,1.4,5,-1.4]); curve(b,x=>(x*x-1)/Math.pow(x*x+1,2),-5,5,green); pt(b,-1,0,red); pt(b,1,0,red); label(b,-4,1,"f'",green);
+  b=makeBoard('l9f',[-5,3.2,5,-1.5]); curve(b,x=>-x/(x*x+1),-5,5,blue); curve(b,x=>-x/(x*x+1)+2,-5,5,purple); hline(b,0,'#aaa'); hline(b,2,'#aaa'); label(b,-4,.9,'F',blue); label(b,-4,2.7,'F+2',purple);
+  // final pair: f=(x^2-1)/(x^2+1)
+  b=makeBoard('fa',[-4,2,4,-2]); curve(b,x=>(x*x-1)/(x*x+1),-4,4,blue); label(b,-3.3,1.45,'A',blue);
+  b=makeBoard('fb',[-4,1.7,4,-1.7]); curve(b,x=>4*x/Math.pow(x*x+1,2),-4,4,green); label(b,-3.3,1.2,'B',green);
+
+  b=makeBoard('fd',[-5,6,5,-6]); curve(b,x=>1/(x-1),-5,.92,blue); curve(b,x=>1/(x-1),1.08,5,blue); vline(b,1); label(b,-4,4.7,'D',blue);
+  b=makeBoard('fe',[-5,3,5,-6]); curve(b,x=>-1/Math.pow(x-1,2),-5,.92,green); curve(b,x=>-1/Math.pow(x-1,2),1.08,5,green); vline(b,1); label(b,-4,2.1,'E',green);
+}
+window.addEventListener('load',()=>{try{initGraphs();}catch(err){console.error('JSXGraph initialization failure',err);}});
+</script>
+</body>
+</html>
