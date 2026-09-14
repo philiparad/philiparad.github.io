@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>חור או אסימפטוטה אנכית? - 3 דוגמאות</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root{
+      --ink:#102b44;
+      --blue:#0f4c81;
+      --graph:#0b7ac1;
+      --accent:#2f78aa;
+      --soft:#eef6fb;
+      --line:#c9d9e4;
+      --orange:#e07600;
+      --red:#c84b3a;
+      --muted:#546a7a;
+      --tab-bg:#f5f9fc;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;background:#fff;color:#111;font-family:Arial,"Noto Sans Hebrew",sans-serif}
+    body{min-height:100vh}
+
+    .page{
+      width:min(100%,1120px);
+      margin:0 auto;
+      padding:26px 62px 34px;
+      direction:rtl;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      direction:ltr;
+      color:#355268;
+      font-size:12px;
+      margin-bottom:18px;
+    }
+    .topbar .unit{direction:rtl;font-weight:600}
+    .rule{height:1px;background:#c7d6e1;margin-bottom:20px}
+
+    h1{
+      margin:0 0 20px;
+      color:var(--blue);
+      font-size:24px;
+      font-weight:800;
+      line-height:1.2;
+    }
+
+    .tabs{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-bottom:24px;
+    }
+    .tab-btn{
+      border:2px solid #c8dce9;
+      background:var(--tab-bg);
+      color:#254d69;
+      border-radius:12px;
+      padding:12px 10px;
+      font:inherit;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    .tab-btn:hover{background:#eaf4fa}
+    .tab-btn.active{
+      color:#fff;
+      background:var(--blue);
+      border-color:var(--blue);
+      box-shadow:0 3px 10px rgba(15,76,129,.18);
+    }
+
+    .example-heading{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:8px;
+    }
+    .example-heading h2{
+      margin:0;
+      color:#153f60;
+      font-size:21px;
+    }
+    .status-badge{
+      flex:0 0 auto;
+      border-radius:999px;
+      background:var(--soft);
+      color:#245678;
+      border:1px solid #c9e0ee;
+      padding:7px 12px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .formula-main{
+      text-align:center;
+      font-size:28px;
+      margin:10px 0 18px;
+      direction:ltr;
+    }
+
+    .explain{
+      text-align:right;
+      font-size:17px;
+      line-height:1.8;
+      margin:4px 0;
+    }
+    .mathline{
+      text-align:center;
+      direction:ltr;
+      font-size:19px;
+      margin:8px 0 12px;
+      min-height:30px;
+    }
+
+    .slider-row{
+      display:grid;
+      grid-template-columns:44px 1fr 34px;
+      align-items:center;
+      gap:18px;
+      margin:14px 0 24px;
+      direction:ltr;
+    }
+    .value-pill{
+      width:44px;
+      height:28px;
+      border-radius:12px;
+      background:var(--soft);
+      display:grid;
+      place-items:center;
+      color:#1a4464;
+      font-weight:700;
+      font-size:14px;
+    }
+    .slider-wrap{position:relative}
+    input[type="range"]{
+      width:100%;
+      accent-color:var(--accent);
+      cursor:pointer;
+    }
+    .slider-label{
+      direction:ltr;
+      font-family:Georgia,"Times New Roman",serif;
+      font-style:italic;
+      font-weight:700;
+      font-size:18px;
+    }
+
+    .graph-card{
+      border:2px solid #bfd7e7;
+      border-radius:16px;
+      padding:38px 18px 14px;
+      background:#fbfdfe;
+      overflow:hidden;
+    }
+
+    .graph-shell{
+      position:relative;
+      background:#fff;
+      height:470px;
+      border-radius:8px;
+      overflow:hidden;
+      direction:ltr;
+    }
+    #jxgbox{
+      width:100%;
+      height:100%;
+      border:0;
+      background:#fff;
+    }
+
+    .formula-overlay{
+      position:absolute;
+      z-index:10;
+      top:14px;
+      left:42px;
+      font-size:23px;
+      font-family:Georgia,"Times New Roman",serif;
+      color:#000;
+      pointer-events:none;
+      direction:ltr;
+      background:rgba(255,255,255,.88);
+      padding:2px 6px;
+      border-radius:4px;
+    }
+
+    .legend{
+      position:absolute;
+      z-index:10;
+      right:12px;
+      top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      background:rgba(255,255,255,.9);
+      border:1px solid #d9e4eb;
+      border-radius:8px;
+      padding:7px 9px;
+      font-size:11px;
+      direction:rtl;
+      pointer-events:none;
+    }
+    .legend-row{display:flex;align-items:center;gap:7px}
+    .swatch{width:18px;height:3px;border-radius:3px;background:var(--graph)}
+    .swatch.asym{background:var(--red);height:2px;border-top:1px dashed var(--red)}
+    .hole-icon{width:10px;height:10px;border:2px solid var(--orange);border-radius:50%;background:#fff}
+
+    .caption{
+      text-align:center;
+      color:#526f84;
+      font-size:12px;
+      margin-top:10px;
+      line-height:1.5;
+      min-height:20px;
+    }
+
+    @media (max-width:760px){
+      .page{padding:18px 18px 24px}
+      h1{font-size:25px}
+      .tabs{grid-template-columns:1fr;gap:7px}
+      .example-heading{align-items:flex-start;flex-direction:column}
+      .explain{font-size:16px}
+      .formula-main{font-size:24px}
+      .graph-shell{height:430px}
+      .slider-row{grid-template-columns:42px 1fr 28px;gap:10px}
+      .formula-overlay{left:14px;font-size:20px}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <h1>3. חור או אסימפטוטה אנכית?</h1>
+
+    <nav class="tabs" role="tablist" aria-label="דוגמאות">
+      <button class="tab-btn active" type="button" role="tab" aria-selected="true" data-example="0">דוגמה 1 - שני חורים</button>
+      <button class="tab-btn" type="button" role="tab" aria-selected="false" data-example="1">דוגמה 2 - חור ואסימפטוטה</button>
+      <button class="tab-btn" type="button" role="tab" aria-selected="false" data-example="2">דוגמה 3 - חור קבוע</button>
+    </nav>
+
+    <section id="examplePanel" aria-live="polite">
+      <div class="example-heading">
+        <h2 id="exampleTitle">דוגמה 1</h2>
+        <div class="status-badge" id="statusBadge"></div>
+      </div>
+
+      <div class="formula-main" id="formulaMain"></div>
+      <p class="explain" id="explain1"></p>
+      <div class="mathline" id="mathLine"></div>
+      <p class="explain" id="explain2"></p>
+
+      <div class="slider-row">
+        <div class="value-pill" id="valuePill">9</div>
+        <div class="slider-wrap">
+          <input id="aSlider" type="range" min="-10" max="18" step="1" value="9" aria-label="ערך הפרמטר a" />
+        </div>
+        <div class="slider-label">a</div>
+      </div>
+
+      <section class="graph-card">
+        <div class="graph-shell">
+          <div class="formula-overlay" id="formulaOverlay"></div>
+          <div class="legend" aria-hidden="true">
+            <div class="legend-row"><span class="swatch"></span><span>גרף הפונקציה</span></div>
+            <div class="legend-row"><span class="swatch asym"></span><span>אסימפטוטה אנכית</span></div>
+            <div class="legend-row"><span class="hole-icon"></span><span>חור</span></div>
+          </div>
+          <div id="jxgbox" class="jxgbox"></div>
+        </div>
+        <div class="caption" id="caption"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = [...document.querySelectorAll('.tab-btn')];
+      const slider = document.getElementById('aSlider');
+      const pill = document.getElementById('valuePill');
+      const title = document.getElementById('exampleTitle');
+      const statusBadge = document.getElementById('statusBadge');
+      const formulaMain = document.getElementById('formulaMain');
+      const explain1 = document.getElementById('explain1');
+      const explain2 = document.getElementById('explain2');
+      const mathLine = document.getElementById('mathLine');
+      const formulaOverlay = document.getElementById('formulaOverlay');
+      const caption = document.getElementById('caption');
+
+      const board = JXG.JSXGraph.initBoard('jxgbox', {
+        boundingbox: [-7, 5, 7, -5],
+        axis: false,
+        grid: true,
+        keepaspectratio: false,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled: false },
+        zoom: { enabled: false },
+        renderer: 'svg'
+      });
+
+      board.create('axis', [[0,0],[1,0]], {
+        ticks: {
+          majorHeight: 8,
+          minorTicks: 1,
+          insertTicks: false,
+          ticksDistance: 1,
+          drawLabels: true,
+          label: {fontSize: 13, offset:[-4,-12]},
+          strokeColor:'#999',
+          minorHeight:4
+        },
+        strokeColor:'#8a8a8a',
+        strokeWidth:1,
+        firstArrow:false,
+        lastArrow:{type:1,size:5}
+      });
+
+      board.create('axis', [[0,0],[0,1]], {
+        ticks: {
+          majorHeight: 8,
+          minorTicks: 0,
+          insertTicks: false,
+          ticksDistance: 1,
+          drawLabels: true,
+          label: {fontSize: 13, offset:[-20,0]},
+          strokeColor:'#999'
+        },
+        strokeColor:'#8a8a8a',
+        strokeWidth:1,
+        firstArrow:false,
+        lastArrow:{type:1,size:5}
+      });
+
+      const graphStyle = {
+        strokeColor:'#0b7ac1',
+        strokeWidth:2.6,
+        fixed:true,
+        highlight:false
+      };
+
+      let graphObjects = [];
+      let activeExample = 0;
+
+      function clearGraphObjects(){
+        graphObjects.forEach(obj => board.removeObject(obj));
+        graphObjects = [];
+      }
+
+      function addFunction(fn, from=-7, to=7){
+        graphObjects.push(board.create('functiongraph', [fn, from, to], graphStyle));
+      }
+
+      function addVerticalAsymptote(x){
+        graphObjects.push(board.create('line', [[x,0],[x,1]], {
+          straightFirst:true,
+          straightLast:true,
+          strokeColor:'#c84b3a',
+          dash:2,
+          strokeWidth:1.8,
+          fixed:true,
+          highlight:false
+        }));
+      }
+
+      function addHorizontalAsymptote(y){
+        graphObjects.push(board.create('line', [[0,y],[1,y]], {
+          straightFirst:true,
+          straightLast:true,
+          strokeColor:'#7a8790',
+          dash:2,
+          strokeWidth:1.2,
+          fixed:true,
+          highlight:false
+        }));
+      }
+
+      function addHole(x,y){
+        graphObjects.push(board.create('point', [x,y], {
+          name:'',
+          size:4,
+          face:'o',
+          fillColor:'#ffffff',
+          strokeColor:'#e07600',
+          strokeWidth:2.1,
+          fixed:true,
+          highlight:false
+        }));
+      }
+
+      function plotSplit(fn, asymptotes){
+        const eps = 0.025;
+        const cuts = asymptotes.slice().sort((a,b)=>a-b);
+        let left = -7;
+        cuts.forEach(x => {
+          if (x > -7 && x < 7) {
+            addFunction(fn, left, x-eps);
+            left = x+eps;
+          }
+        });
+        addFunction(fn, left, 7);
+      }
+
+      function texSignedConstant(a){
+        return a < 0 ? `+${Math.abs(a)}` : `-${a}`;
+      }
+
+      const examples = [
+        {
+          title:'דוגמה 1 - שני חורים או שתי אסימפטוטות אנכיות',
+          tabLabel:'דוגמה 1 - שני חורים',
+          min:-10,max:18,step:1,initial:9,
+          formula:'\\(f(x)=\\dfrac{x^2-a}{x^2-9}\\)',
+          explain1:'המכנה מתאפס ב-\\(x=-3\\) וב-\\(x=3\\). אם \\(a=9\\), המונה והמכנה מתאפסים באותן שתי נקודות ומתקבל גורם משותף מלא.',
+          mathLine:'\\(a=9\\Rightarrow f(x)=1,\\qquad x\\ne-3,3\\)',
+          explain2:'לכן \\(a=9\\) יוצר שני חורים. לכל \\(a\\ne9\\), שתי נקודות האיפוס של המכנה נשארות אסימפטוטות אנכיות.',
+          overlay:a => `\\(f(x)=\\frac{x^2${texSignedConstant(a)}}{x^2-9}\\)`,
+          draw(a){
+            if (a === 9) {
+              addFunction(() => 1);
+              addHole(-3,1); addHole(3,1);
+              statusBadge.textContent = 'שני חורים';
+              caption.innerHTML = 'כאשר \\(a=9\\), מתקבלים חורים ב-\\((-3,1)\\) וב-\\((3,1)\\).';
+            } else {
+              const f = x => (x*x-a)/(x*x-9);
+              plotSplit(f,[-3,3]);
+              addVerticalAsymptote(-3); addVerticalAsymptote(3);
+              addHorizontalAsymptote(1);
+              statusBadge.textContent = 'שתי אסימפטוטות אנכיות';
+              caption.innerHTML = `כאשר \\(a=${a}\\ne9\\), מתקבלות אסימפטוטות אנכיות ב-\\(x=-3\\) וב-\\(x=3\\).`;
+            }
+          }
+        },
+        {
+          title:'דוגמה 2 - חור אחד ואסימפטוטה אחת',
+          tabLabel:'דוגמה 2 - חור ואסימפטוטה',
+          min:-6,max:6,step:1,initial:2,
+          formula:'\\(f(x)=\\dfrac{x-a}{x^2-4}\\)',
+          explain1:'המכנה מתאפס ב-\\(x=-2\\) וב-\\(x=2\\). המונה יכול להתאפס רק באחת מהנקודות האלה בכל פעם.',
+          mathLine:'<div style="direction:rtl; line-height:1.9">כאשר \\(a=2\\): הגורם \\(x-2\\) מצטמצם ⇐ <strong>חור ב-\\(x=2\\)</strong> ואסימפטוטה אנכית ב-\\(x=-2\\).<br>כאשר \\(a=-2\\): הגורם \\(x+2\\) מצטמצם ⇐ <strong>חור ב-\\(x=-2\\)</strong> ואסימפטוטה אנכית ב-\\(x=2\\).</div>',
+          explain2:'כאשר \\(a=2\\) או \\(a=-2\\), גורם אחד מצטמצם ולכן מתקבל חור אחד ואסימפטוטה אנכית אחת. בכל ערך אחר מתקבלות שתי אסימפטוטות אנכיות.',
+          overlay:a => `\\(f(x)=\\frac{x${texSignedConstant(a)}}{x^2-4}\\)`,
+          draw(a){
+            addHorizontalAsymptote(0);
+            if (a === 2) {
+              const g = x => 1/(x+2);
+              plotSplit(g,[-2]);
+              addVerticalAsymptote(-2);
+              addHole(2,0.25);
+              statusBadge.textContent = 'חור ב-x=2, אסימפטוטה ב-x=-2';
+              caption.innerHTML = '\\(a=2\\): הגורם \\(x-2\\) מצטמצם, ולכן יש חור ב-\\((2,\\tfrac14)\\) ואסימפטוטה אנכית ב-\\(x=-2\\).';
+            } else if (a === -2) {
+              const g = x => 1/(x-2);
+              plotSplit(g,[2]);
+              addVerticalAsymptote(2);
+              addHole(-2,-0.25);
+              statusBadge.textContent = 'חור ב-x=-2, אסימפטוטה ב-x=2';
+              caption.innerHTML = '\\(a=-2\\): הגורם \\(x+2\\) מצטמצם, ולכן יש חור ב-\\((-2,-\\tfrac14)\\) ואסימפטוטה אנכית ב-\\(x=2\\).';
+            } else {
+              const f = x => (x-a)/(x*x-4);
+              plotSplit(f,[-2,2]);
+              addVerticalAsymptote(-2); addVerticalAsymptote(2);
+              statusBadge.textContent = 'שתי אסימפטוטות אנכיות';
+              caption.innerHTML = `\\(a=${a}\\): אין גורם משותף עם המכנה, ולכן \\(x=-2\\) ו-\\(x=2\\) הן אסימפטוטות אנכיות.`;
+            }
+          }
+        },
+        {
+          title:'דוגמה 3 - חור קבוע ואסימפטוטה שתלויה בפרמטר',
+          tabLabel:'דוגמה 3 - חור קבוע',
+          min:-5,max:6,step:1,initial:1,
+          formula:'\\(f(x)=\\dfrac{(x-a)(x+2)}{(x-1)(x+2)}\\)',
+          explain1:'הגורם \\(x+2\\) משותף תמיד, ולכן \\(x=-2\\) הוא תמיד חור. הנקודה \\(x=1\\) תלויה בערך הפרמטר \\(a\\).',
+          mathLine:'\\(f(x)=\\dfrac{x-a}{x-1},\\qquad x\\ne-2,1\\)',
+          explain2:'אם \\(a=1\\), גם \\(x-1\\) מצטמצם ומתקבל חור נוסף. אם \\(a\\ne1\\), ב-\\(x=1\\) מתקבלת אסימפטוטה אנכית.',
+          overlay:a => `\\(f(x)=\\frac{(x${texSignedConstant(a)})(x+2)}{(x-1)(x+2)}\\)`,
+          draw(a){
+            if (a === 1) {
+              addFunction(() => 1);
+              addHole(-2,1); addHole(1,1);
+              statusBadge.textContent = 'שני חורים';
+              caption.innerHTML = '\\(a=1\\): שני הגורמים מצטמצמים, ולכן מתקבלים חורים ב-\\(x=-2\\) וב-\\(x=1\\).';
+            } else {
+              const g = x => (x-a)/(x-1);
+              plotSplit(g,[1]);
+              addVerticalAsymptote(1);
+              addHorizontalAsymptote(1);
+              addHole(-2,(a+2)/3);
+              statusBadge.textContent = 'חור קבוע + אסימפטוטה אנכית';
+              caption.innerHTML = `\\(a=${a}\\): יש חור קבוע ב-\\(x=-2\\), ואסימפטוטה אנכית ב-\\(x=1\\).`;
+            }
+          }
+        }
+      ];
+
+      function safeMathJax(){
+        const targets = [title, formulaMain, explain1, mathLine, explain2, formulaOverlay, caption];
+        if (window.MathJax && MathJax.typesetPromise) {
+          if (MathJax.typesetClear) MathJax.typesetClear(targets);
+          MathJax.typesetPromise(targets).catch(()=>{});
+        }
+      }
+
+      function renderStatic(example){
+        title.textContent = example.title;
+        formulaMain.innerHTML = example.formula;
+        explain1.innerHTML = example.explain1;
+        mathLine.innerHTML = example.mathLine;
+        explain2.innerHTML = example.explain2;
+        slider.min = example.min;
+        slider.max = example.max;
+        slider.step = example.step;
+        slider.value = example.initial;
+        pill.textContent = example.initial;
+      }
+
+      function updateGraph(){
+        const example = examples[activeExample];
+        const a = Number(slider.value);
+        pill.textContent = a;
+        formulaOverlay.innerHTML = example.overlay(a);
+        clearGraphObjects();
+        example.draw(a);
+        board.update();
+        safeMathJax();
+      }
+
+      function selectTab(index){
+        activeExample = index;
+        tabs.forEach((btn,i) => {
+          const active = i === index;
+          btn.classList.toggle('active',active);
+          btn.setAttribute('aria-selected',String(active));
+        });
+        renderStatic(examples[index]);
+        updateGraph();
+      }
+
+      tabs.forEach((btn,index) => btn.addEventListener('click', () => selectTab(index)));
+      slider.addEventListener('input', updateGraph);
+
+      selectTab(0);
+      window.addEventListener('load', () => {
+        board.resizeContainer(document.getElementById('jxgbox').clientWidth, document.getElementById('jxgbox').clientHeight);
+        board.fullUpdate();
+        safeMathJax();
+      });
+    })();
+  </script>
+</body>
+</html>
