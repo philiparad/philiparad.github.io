@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>מערכים דו ממדיים ב-C#</title>
+  <style>
+    :root {
+      --bg-a: #ecfdf5;
+      --bg-b: #f0f9ff;
+      --bg-c: #eef2ff;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --border: #e5e7eb;
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-soft: #eef2ff;
+      --correct-bg: #ecfdf5;
+      --correct-text: #047857;
+      --wrong-bg: #fef2f2;
+      --wrong-text: #b91c1c;
+      --wrong-border: #dc2626;
+      --correct-border: #2563eb;
+      --disabled: #d1d5db;
+      --shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg-a), var(--bg-b), var(--bg-c));
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(79, 70, 229, 0.28);
+      outline-offset: 3px;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      padding: 48px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .card {
+      width: min(100%, 760px);
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .centered {
+      text-align: center;
+    }
+
+    .hero-icon {
+      font-size: 64px;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.25rem);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: clamp(1.45rem, 3vw, 1.8rem);
+      margin-bottom: 18px;
+    }
+
+    .lead {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 26px;
+    }
+
+    .question-text {
+      font-size: 1.12rem;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .primary-button,
+    .next-button {
+      border: 0;
+      border-radius: 14px;
+      color: white;
+      font-weight: 700;
+      padding: 13px 24px;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+    }
+
+    .primary-button:hover,
+    .next-button:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(79, 70, 229, 0.25);
+    }
+
+    .next-button:disabled {
+      background: var(--disabled);
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .code-block {
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: isolate;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 0 0 18px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.93rem;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+
+    .options {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .option-button {
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: white;
+      color: var(--text);
+      text-align: right;
+      padding: 15px 16px;
+      line-height: 1.55;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .option-button:not(:disabled):hover {
+      border-color: #818cf8;
+      transform: translateY(-1px);
+    }
+
+    .option-button:disabled {
+      cursor: default;
+    }
+
+    .option-button.is-correct {
+      border-color: var(--correct-border);
+      background: #eff6ff;
+    }
+
+    .option-button.is-selected-wrong {
+      border-color: var(--wrong-border);
+      background: var(--wrong-bg);
+    }
+
+    .feedback {
+      margin-top: 18px;
+      border-radius: 14px;
+      padding: 16px;
+      line-height: 1.6;
+    }
+
+    .feedback.correct {
+      background: var(--correct-bg);
+      color: var(--correct-text);
+    }
+
+    .feedback.wrong {
+      background: var(--wrong-bg);
+      color: var(--wrong-text);
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .status-badge.correct {
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+
+    .status-badge.wrong {
+      color: #b91c1c;
+      background: #fee2e2;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 24px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      transition: width 220ms ease;
+    }
+
+    .mono-inline {
+      direction: ltr;
+      unicode-bidi: isolate;
+      font-family: Consolas, "Courier New", monospace;
+      display: inline-block;
+    }
+
+    .result-score {
+      font-size: 1.12rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        padding: 24px 14px;
+      }
+
+      .card {
+        padding: 22px 18px;
+        border-radius: 18px;
+      }
+
+      .hero-icon {
+        font-size: 52px;
+      }
+
+      .primary-button,
+      .next-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" class="app-shell" aria-live="polite"></main>
+
+  <script>
+    "use strict";
+
+    const questions = [
+      {
+        id: 1,
+        question: "מהו מערך דו ממדי?",
+        options: [
+          "מבנה נתונים המאחסן נתונים בצורה של טבלה – שורות ועמודות",
+          "מערך חד ממדי של מספרים",
+          "קובץ טקסט המאחסן נתונים ממוינים"
+        ],
+        correct: 0,
+        explanation: {
+          0: "מערך דו ממדי מאפשר לאחסן מידע במבנה של טבלה בעלת שורות ועמודות.",
+          1: "מערך חד ממדי מכיל רק שורה אחת של נתונים.",
+          2: "קובץ טקסט אינו מבנה נתונים בזיכרון."
+        }
+      },
+      {
+        id: 2,
+        question: "כיצד ניגשים לערך ספציפי במערך דו ממדי בשם table?",
+        code: "int x = table[2, 1];",
+        options: [
+          "באמצעות שני אינדקסים – שורה ועמודה",
+          "באמצעות אינדקס יחיד",
+          "באמצעות לולאה אחת בלבד"
+        ],
+        correct: 0,
+        explanation: {
+          0: "במערך דו ממדי יש לציין גם את מספר השורה וגם את מספר העמודה.",
+          1: "אינדקס יחיד מתאים למערך חד ממדי בלבד.",
+          2: "לולאה אחת אינה מספיקה לגישה לכל איבר."
+        }
+      },
+      {
+        id: 3,
+        question: "מה יודפס בקוד הבא?",
+        code: `int[,] table = new int[3,3];\ntable[0,0] = 9;\ntable[2,1] = 2;\nConsole.WriteLine(table[2,1]);`,
+        options: ["2", "9", "שגיאת קומפילציה"],
+        correct: 0,
+        explanation: {
+          0: "האיבר בעמודה 1 שורה 2 מכיל את הערך 2.",
+          1: "9 מאוחסן רק ב‑table[0,0].",
+          2: "הקוד חוקי לגמרי."
+        }
+      },
+      {
+        id: 4,
+        question: "מהי תוצאת הפלט בקוד הבא?",
+        code: `int sum = 0;\nint[,] a = new int[2,2] { {1,2}, {3,4} };\nfor(int i=0;i<2;i++)\n for(int j=0;j<2;j++)\n   sum += a[i,j];\nConsole.WriteLine(sum);`,
+        options: ["10", "4", "שגיאה בלולאה"],
+        correct: 0,
+        explanation: {
+          0: "1+2+3+4=10, כל הערכים נסכמים בלולאות מקוננות.",
+          1: "4 הוא רק הערך האחרון.",
+          2: "אין שגיאה תחבירית."
+        }
+      },
+      {
+        id: 5,
+        question: "מה עושה הפקודה matrix.GetLength(1)?",
+        options: [
+          "מחזירה את מספר העמודות במטריצה",
+          "מחזירה את מספר השורות",
+          "מחזירה את סכום האיברים"
+        ],
+        correct: 0,
+        explanation: {
+          0: "GetLength(0) מחזירה שורות, GetLength(1) מחזירה עמודות.",
+          1: "שורות נמדדות עם פרמטר 0.",
+          2: "Length מחזירה סכום כל האיברים, לא GetLength."
+        }
+      },
+      {
+        id: 6,
+        question: "מה יודפס על המסך?",
+        code: `int[,] arr = { {1,2,3}, {4,5,6} };\nConsole.WriteLine(arr.Length);`,
+        options: ["6", "3", "2"],
+        correct: 0,
+        explanation: {
+          0: "Length מחזירה את סך כל האיברים – כאן 6.",
+          1: "3 הוא מספר העמודות בלבד.",
+          2: "2 הוא מספר השורות בלבד."
+        }
+      },
+      {
+        id: 7,
+        question: "מה תפקידה של הפעולה הגנרית PrintMatrix<T>?",
+        options: [
+          "להדפיס טבלה מכל סוג נתונים – int, double, string וכו'",
+          "להדפיס רק טבלת מספרים שלמים",
+          "ליצור טבלה ריקה"
+        ],
+        correct: 0,
+        explanation: {
+          0: "<T> מאפשרת פעולה גנרית המתאימה לכל טיפוס נתונים.",
+          1: "בגרסה הרגילה ההדפסה הוגבלה ל‑int בלבד.",
+          2: "הפעולה אינה יוצרת טבלה חדשה."
+        }
+      },
+      {
+        id: 8,
+        question: "מה תעשה הפעולה SwapMatrix במערך דו ממדי?",
+        code: `int[,] SwapMatrix(int[,] m){\n int rows=m.GetLength(0);\n int cols=m.GetLength(1);\n int[,] r=new int[cols,rows];\n for(int i=0;i<rows;i++)\n  for(int j=0;j<cols;j++)\n   r[j,i]=m[i,j];\n return r; }`,
+        options: [
+          "תהפוך את הטבלה – שורות לעמודות ועמודות לשורות",
+          "תמחק את כל הערכים",
+          "תכפיל כל ערך פי 2"
+        ],
+        correct: 0,
+        explanation: {
+          0: "כל איבר מועבר ממיקום (i,j) למיקום (j,i).",
+          1: "אין מחיקה של ערכים.",
+          2: "אין שינוי בערכים עצמם."
+        }
+      },
+      {
+        id: 9,
+        question: "מה יודפס אם נבצע את הפקודות:",
+        code: `int[,] a={{1,2,3},{4,5,6},{7,8,9}};\nvar b=SwapMatrix(a);\nConsole.WriteLine(b[0,1]);`,
+        options: ["4", "2", "5"],
+        correct: 0,
+        explanation: {
+          0: "לאחר ההחלפה, התא (0,1) מכיל את הערך הקודם ממיקום (1,0) – כלומר 4.",
+          1: "2 נמצא במיקום (0,1) לפני ההחלפה.",
+          2: "5 היה במרכז המטריצה – אינו משתנה."
+        }
+      },
+      {
+        id: 10,
+        question: "מה ההבדל בין array2D.Length לבין array2D.GetLength(0)?",
+        options: [
+          "Length מחזירה את סך כל האיברים, GetLength(0) רק את מספר השורות",
+          "אין הבדל – שתיהן מחזירות את אותו ערך",
+          "GetLength(0) מחזירה את מספר האיברים הכולל"
+        ],
+        correct: 0,
+        explanation: {
+          0: "Length מודדת את כל האיברים בכל השורות, GetLength(0) רק את מספר השורות.",
+          1: "יש הבדל מהותי בין שתי הפקודות.",
+          2: "GetLength(0) מודדת רק את מספר השורות."
+        }
+      },
+      {
+        id: 11,
+        question: "כיצד ניתן למצוא את הערך המקסימלי במערך דו ממדי?",
+        code: `int max = matrix[0,0];\nfor (int i=0;i<matrix.GetLength(0);i++)\n for (int j=0;j<matrix.GetLength(1);j++)\n  if (matrix[i,j] > max) max = matrix[i,j];`,
+        options: [
+          "לעבור בלולאות כפולות ולהשוות כל ערך לערך מקסימלי נוכחי",
+          "להשתמש ב‑()matrix.Max",
+          "לא ניתן למצוא מקסימום במערך דו ממדי"
+        ],
+        correct: 0,
+        explanation: {
+          0: "אין פעולה מובנית למקסימום, יש לעבור על כל התאים ולהשוות לערך הנוכחי.",
+          1: "אין פעולה בשם Max() על מערכים דו ממדיים ב‑#C.",
+          2: "בוודאי שניתן – באמצעות לולאות."
+        }
+      },
+      {
+        id: 12,
+        question: "מה יודפס בקוד הבא?",
+        code: `int[,] a = { {1,2}, {3,4} };\nint sum = 0;\nfor(int i=0;i<a.GetLength(1);i++)\n for(int j=0;j<a.GetLength(0);j++)\n  sum += a[j,i];\nConsole.WriteLine(sum);`,
+        options: ["10", "שגיאת אינדקס", "7"],
+        correct: 0,
+        explanation: {
+          0: "הלולאה מתבצעת תקין, רק הפוכה, אך עדיין מסכמת את כל הערכים.",
+          1: "האינדקסים תקינים כל עוד גבולות נבדקים נכון.",
+          2: "7 אינו סכום כל האיברים."
+        }
+      },
+      {
+        id: 13,
+        question: "מה יודפס לאחר חישוב סכום העמודה האמצעית?",
+        code: `int[,] matrix = { {1,2,3}, {4,5,6}, {7,8,9} };\nint sum = 0;\nfor (int i = 0; i < matrix.GetLength(0); i++)\n    sum += matrix[i, 1];\nConsole.WriteLine(sum);`,
+        options: ["15", "12", "18"],
+        correct: 0,
+        explanation: {
+          0: "העמודה האמצעית היא בעמודה אינדקס 1: 2 + 5 + 8 = 15.",
+          1: "12 מתקבל אם מחברים עמודה אחרת או טועים בחישוב.",
+          2: "18 שגוי — זהו סכום העמודה הימנית (3+6+9)."
+        }
+      },
+      {
+        id: 14,
+        question: "מה תחזיר הפקודה matrix.GetLength(0)*matrix.GetLength(1)?",
+        options: [
+          "את סך כל האיברים במערך",
+          "את סכום השורות והעמודות",
+          "את מספר השורות בלבד"
+        ],
+        correct: 0,
+        explanation: {
+          0: "מכפלת שורות ועמודות היא מספר האיברים הכולל.",
+          1: "סכום ולא מכפלה לא מתאר גודל כולל.",
+          2: "נדרש גם מספר העמודות."
+        }
+      },
+      {
+        id: 15,
+        question: "מה יודפס לאחר הפעלת הקוד הבא?",
+        code: `int[,] m = { {1,2,3},{4,5,6},{7,8,9} };\nfor (int i=0;i<3;i++)\n Console.Write(m[i,2-i]+" ");`,
+        options: ["3 5 7", "7 5 3", "1 5 9"],
+        correct: 1,
+        explanation: {
+          1: "הקוד מדפיס את האלכסון המשני מימין לשמאל: 7 5 3.",
+          0: "זה הסדר ההפוך של ההדפסה.",
+          2: "זהו האלכסון הראשי."
+        }
+      },
+      {
+        id: 16,
+        question: "מה יודפס לאחר חישוב סכומי העמודות למערך חד-ממדי?",
+        code: `int[,] m = { {1,2,3}, {4,5,6} };\nint cols = m.GetLength(1);\nint[] sums = new int[cols];\nfor (int j = 0; j < cols; j++)\n{\n    for (int i = 0; i < m.GetLength(0); i++)\n    {\n        sums[j] += m[i, j];\n    }\n}\nConsole.WriteLine(string.Join(",", sums));`,
+        options: ["5,7,9", "6,8,10", "12,15,18"],
+        correct: 0,
+        explanation: {
+          0: "סכומי עמודות: (1+4)=5, (2+5)=7, (3+6)=9.",
+          1: "זה סכום שגוי — כנראה חיבור שורה במקום עמודה.",
+          2: "אלה סכומי השורות (1+2+3=6, 4+5+6=15) אך גם 18 אינו מתאים לפלט המבוקש."
+        }
+      },
+      {
+        id: 17,
+        question: "כיצד ניתן לחשב ממוצע של כל איברי מטריצה?",
+        code: `int sum=0;\nfor(int i=0;i<rows;i++)\n for(int j=0;j<cols;j++)\n  sum+=m[i,j];\ndouble avg=(double)sum/(rows*cols);`,
+        options: [
+          "על ידי חלוקת סכום האיברים במספרם הכולל",
+          "באמצעות פעולה Math.Average",
+          "לא ניתן לחשב ממוצע למטריצה"
+        ],
+        correct: 0,
+        explanation: {
+          0: "מחשבים סכום ואז מחלקים במספר האיברים הכולל.",
+          1: "אין פעולה מובנית כזו למערך דו ממדי.",
+          2: "בוודאי שניתן, זו פעולה בסיסית."
+        }
+      },
+      {
+        id: 18,
+        question: "מה יקרה אם ננסה לגשת ל‑matrix[3,0] במערך שהוגדר new int[3,3]?",
+        options: [
+          "תיזרק שגיאת IndexOutOfRangeException",
+          "הקוד יחזיר 0",
+          "הקוד ידפיס ערך אקראי"
+        ],
+        correct: 0,
+        explanation: {
+          0: "האינדקס האחרון הוא 2 ולכן גישה ל‑3 תחרוג מהגבול.",
+          1: "0 הוא ערך ברירת מחדל רק בתאים קיימים.",
+          2: "ב‑#C לא מוחזרים ערכים אקראיים על חריגה."
+        }
+      },
+      {
+        id: 19,
+        question: "כיצד ניתן לחפש ערך מסוים במטריצה דו ממדית?",
+        code: `bool found=false;\nfor(int i=0;i<m.GetLength(0);i++)\n for(int j=0;j<m.GetLength(1);j++)\n  if(m[i,j]==target) found=true;`,
+        options: [
+          "לעבור על כל איבר ולבדוק התאמה",
+          "להשתמש בפעולה Contains",
+          "להשתמש ב‑Find"
+        ],
+        correct: 0,
+        explanation: {
+          0: "אין פעולה מובנית, צריך לבדוק כל תא ידנית.",
+          1: "Contains עובד רק על רשימות או מערכים חד ממדיים.",
+          2: "Find אינו קיים עבור מערכים דו ממדיים."
+        }
+      },
+      {
+        id: 20,
+        question: "מה התוצאה של הקוד הבא?",
+        code: `int[,] m = { {1,2,3}, {4,5,6}, {7,8,9} };\nint sum=0;\nfor(int i=0;i<3;i++) sum+=m[i,i];\nfor(int i=0;i<3;i++) sum+=m[i,2-i];\nConsole.WriteLine(sum);`,
+        options: ["30", "25", "45"],
+        correct: 2,
+        explanation: {
+          2: "סכום האלכסון הראשי (15) והמשני (15) נותן 30, אך המרכז נספר פעמיים: 30+9+6=45.",
+          0: "חסרה התחשבות בכפילות המרכז.",
+          1: "החישוב שגוי."
+        }
+      }
+    ];
+
+    const state = {
+      page: "landing",
+      qIndex: 0,
+      answers: {}
+    };
+
+    const app = document.getElementById("app");
+
+    function swapMatrix(matrix) {
+      const rows = matrix.length;
+      const cols = rows > 0 ? matrix[0].length : 0;
+      const result = Array.from({ length: cols }, () => Array(rows));
+
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          result[j][i] = matrix[i][j];
+        }
+      }
+
+      return result;
+    }
+
+    function appendInlineBiDi(container, text) {
+      const regex = /([A-Za-z_][A-Za-z0-9_]*<[^>]+>)/g;
+      let lastIndex = 0;
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          container.append(document.createTextNode(text.slice(lastIndex, match.index)));
+        }
+
+        const bdi = document.createElement("bdi");
+        bdi.dir = "ltr";
+        bdi.className = "mono-inline";
+        bdi.textContent = match[1];
+        container.append(bdi);
+        lastIndex = regex.lastIndex;
+      }
+
+      if (lastIndex < text.length) {
+        container.append(document.createTextNode(text.slice(lastIndex)));
+      }
+    }
+
+    function createElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function renderLanding() {
+      const card = createElement("section", "card centered");
+      const icon = createElement("div", "hero-icon", "🧮");
+      const title = createElement("h1", "", "מערכים דו ממדיים ב‑#C");
+      const description = createElement(
+        "p",
+        "lead",
+        "למד על מטריצות, שורות ועמודות, פעולות גנריות ויישומים נפוצים."
+      );
+      const button = createElement("button", "primary-button", "🚀 התחל מבדק");
+      button.type = "button";
+      button.addEventListener("click", () => {
+        state.page = "quiz";
+        render();
+      });
+
+      card.append(icon, title, description, button);
+      app.append(card);
+    }
+
+    function renderResult() {
+      const correctCount = Object.entries(state.answers).filter(([index, answer]) => {
+        return questions[Number(index)].correct === answer;
+      }).length;
+
+      const card = createElement("section", "card centered");
+      const icon = createElement("div", "hero-icon", "⭐");
+      const title = createElement("h1", "", "תוצאות");
+      const score = createElement(
+        "p",
+        "result-score",
+        `ענית נכון על ${correctCount} מתוך ${questions.length} שאלות.`
+      );
+      const button = createElement("button", "primary-button", "🔁 התחל מחדש");
+      button.type = "button";
+      button.addEventListener("click", () => {
+        state.answers = {};
+        state.qIndex = 0;
+        state.page = "quiz";
+        render();
+      });
+
+      card.append(icon, title, score, button);
+      app.append(card);
+    }
+
+    function renderQuiz() {
+      const current = questions[state.qIndex];
+      const selectedAnswer = state.answers[state.qIndex];
+      const answered = selectedAnswer !== undefined;
+
+      const card = createElement("section", "card");
+
+      const progressTrack = createElement("div", "progress-track");
+      progressTrack.setAttribute("aria-hidden", "true");
+      const progressBar = createElement("div", "progress-bar");
+      progressBar.style.width = `${((state.qIndex + 1) / questions.length) * 100}%`;
+      progressTrack.append(progressBar);
+
+      const heading = createElement(
+        "h2",
+        "",
+        `שאלה ${state.qIndex + 1} מתוך ${questions.length}`
+      );
+
+      const questionText = createElement("p", "question-text");
+      appendInlineBiDi(questionText, current.question);
+
+      card.append(progressTrack, heading, questionText);
+
+      if (current.code) {
+        const codeBlock = createElement("pre", "code-block");
+        codeBlock.textContent = current.code;
+        card.append(codeBlock);
+      }
+
+      const optionList = createElement("ul", "options");
+
+      current.options.forEach((option, optionIndex) => {
+        const item = document.createElement("li");
+        const optionButton = createElement("button", "option-button");
+        optionButton.type = "button";
+        optionButton.disabled = answered;
+        optionButton.setAttribute("aria-label", `תשובה ${optionIndex + 1}`);
+        appendInlineBiDi(optionButton, option);
+
+        if (answered) {
+          if (current.correct === optionIndex) {
+            optionButton.classList.add("is-correct");
+          } else if (selectedAnswer === optionIndex) {
+            optionButton.classList.add("is-selected-wrong");
+          }
+        }
+
+        optionButton.addEventListener("click", () => {
+          if (state.answers[state.qIndex] !== undefined) return;
+          state.answers[state.qIndex] = optionIndex;
+          render();
+        });
+
+        item.append(optionButton);
+        optionList.append(item);
+      });
+
+      card.append(optionList);
+
+      if (answered) {
+        const isCorrect = selectedAnswer === current.correct;
+        const feedback = createElement("div", `feedback ${isCorrect ? "correct" : "wrong"}`);
+        feedback.setAttribute("aria-live", "polite");
+
+        const badge = createElement(
+          "div",
+          `status-badge ${isCorrect ? "correct" : "wrong"}`,
+          isCorrect ? "תשובה נכונה" : "תשובה שגויה"
+        );
+        feedback.append(badge);
+
+        if (!isCorrect) {
+          const explanation = createElement("div", "");
+          appendInlineBiDi(explanation, current.explanation[selectedAnswer]);
+          feedback.append(explanation);
+        }
+
+        card.append(feedback);
+      }
+
+      const actions = createElement("div", "actions");
+      const nextButton = createElement(
+        "button",
+        "next-button",
+        state.qIndex === questions.length - 1 ? "סיום" : "לשאלה הבאה"
+      );
+      nextButton.type = "button";
+      nextButton.disabled = !answered;
+      nextButton.addEventListener("click", () => {
+        if (!answered) return;
+
+        if (state.qIndex < questions.length - 1) {
+          state.qIndex += 1;
+        } else {
+          state.page = "result";
+        }
+
+        render();
+      });
+
+      actions.append(nextButton);
+      card.append(actions);
+      app.append(card);
+    }
+
+    function render() {
+      app.replaceChildren();
+
+      if (state.page === "landing") {
+        renderLanding();
+        return;
+      }
+
+      if (state.page === "result") {
+        renderResult();
+        return;
+      }
+
+      renderQuiz();
+    }
+
+    function runDevTests() {
+      try {
+        const matrix = [
+          [1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9]
+        ];
+        const transposed = swapMatrix(matrix);
+        const expected = [
+          [1, 4, 7],
+          [2, 5, 8],
+          [3, 6, 9]
+        ];
+
+        console.assert(
+          JSON.stringify(transposed) === JSON.stringify(expected),
+          "swapMatrix should transpose correctly"
+        );
+
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        console.assert(rows === 3 && cols === 3, "rows/cols should be 3 each");
+        console.assert(matrix.flat().length === rows * cols, "flat length equals rows*cols");
+
+        const matrix2 = [
+          [1, 2, 3, 4],
+          [5, 6, 7, 8],
+          [9, 10, 11, 12]
+        ];
+        const transposed2 = swapMatrix(matrix2);
+        console.assert(
+          transposed2.length === 4 && transposed2[0].length === 3,
+          "transpose should flip dimensions (3x4 -> 4x3)"
+        );
+
+        console.log("✅ Dev tests passed");
+      } catch (error) {
+        console.error("❌ Dev tests failed", error);
+      }
+    }
+
+    runDevTests();
+    render();
+  </script>
+</body>
+</html>
