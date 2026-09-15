@@ -3,914 +3,405 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>בעיות מינימום ומקסימום - פונקציית מטרה רציונלית - 5 יחידות</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>בעיות מינימום ומקסימום - פונקציית מטרה רציונלית - מערך שיעור</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css" />
 <script>
-window.MathJax = {
-  tex: {
-    inlineMath: [['\\(','\\)']],
-    displayMath: [['\\[','\\]']],
-    packages: {'[+]': ['ams']}
-  },
-  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
-};
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],packages:{'[+]':['ams']}},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
 </script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
 <style>
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: #e9edf2; font-family: Arial, "Noto Sans Hebrew", sans-serif; color: #162033; }
-  body { direction: rtl; }
-  @page { size: A4; margin: 0; }
-  .page {
-    width: 210mm;
-    height: 297mm;
-    margin: 8mm auto;
-    background: #fff;
-    position: relative;
-    overflow: hidden;
-    break-after: page;
-    page-break-after: always;
-    padding: 13mm 14mm 12mm 14mm;
-    box-shadow: 0 3px 14px rgba(10, 25, 47, .12);
-  }
-  .page:last-child { break-after: auto; page-break-after: auto; }
-  .page::after {
-    content: attr(data-page);
-    position: absolute;
-    left: 12mm;
-    bottom: 6mm;
-    font-size: 10px;
-    color: #7a8495;
-    direction: ltr;
-  }
-  @media print {
-    html, body { background: #fff; }
-    .page { margin: 0; box-shadow: none; }
-    .screen-only { display: none !important; }
-  }
-  h1,h2,h3,h4,p { margin-top: 0; }
-  h1 { font-size: 30px; line-height: 1.18; margin-bottom: 8px; color: #103a66; }
-  h2 { font-size: 24px; line-height: 1.2; margin-bottom: 7px; color: #103a66; }
-  h3 { font-size: 18px; line-height: 1.25; margin-bottom: 5px; color: #18527e; }
-  p, li, td, th { font-size: 15.2px; line-height: 1.45; }
-  ul, ol { margin: 5px 0 8px; padding-right: 22px; }
-  li { margin: 3px 0; }
-  .subtitle { font-size: 18px; color: #4c5a6f; margin-bottom: 14px; }
-  .small { font-size: 12.5px; color: #5f6b7a; }
-  .micro { font-size: 11.5px; color: #647184; }
-  .tag { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #eef4fb; color: #1c5c8f; font-size: 11.5px; font-weight: 700; margin-left: 5px; }
-  .source-tag { background: #f2f3f5; color: #555f70; }
-  .hero {
-    border: 1px solid #d9e4ef;
-    border-radius: 18px;
-    padding: 20px;
-    background: linear-gradient(135deg, #f7fbff, #ffffff);
-  }
-  .hero-title { font-size: 34px; color: #0d3b66; font-weight: bold; line-height: 1.25; margin-bottom: 8px; }
-  .hero-sub { font-size: 20px; color: #35526e; line-height: 1.4; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
-  .card { border: 1px solid #dfe6ee; border-radius: 12px; padding: 10px 12px; background: #fbfdff; }
-  .card.tight { padding: 8px 10px; }
-  .accent { border-right: 5px solid #2d7bb7; }
-  .warn { border-right: 5px solid #d48d16; background: #fffaf0; }
-  .ok { border-right: 5px solid #27835e; background: #f3fbf7; }
-  .formula-box { direction: ltr; text-align: center; border: 1px solid #d7e2ee; border-radius: 10px; padding: 8px; background: #f8fbff; margin: 7px 0; font-size: 16px; }
-  .math-inline { direction: ltr; unicode-bidi: embed; display: inline-block; }
-  .steps { counter-reset: step; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-  .step { counter-increment: step; border: 1px solid #dce5ee; border-radius: 10px; padding: 8px 10px; background: #fff; }
-  .step::before { content: counter(step); float: right; width: 23px; height: 23px; border-radius: 50%; background: #1f6fa7; color: #fff; text-align: center; line-height: 23px; font-weight: 700; margin-left: 8px; }
-  table { width: 100%; border-collapse: collapse; margin: 7px 0; }
-  th, td { border: 1px solid #d9e0e8; padding: 6px 8px; vertical-align: top; }
-  th { background: #f1f5f9; color: #21435f; }
-  .graph-card { border: 1px solid #d9e2ec; border-radius: 12px; padding: 8px; background: #fff; direction: rtl; }
-  .graph-title { font-size: 13px; font-weight: 700; color: #334b61; margin: 0 0 5px; }
-  .jxgbox { width: 100%; height: 220px; border: 1px solid #cfd8e3; border-radius: 8px; direction: ltr; }
-  .jxgbox.small-board { height: 170px; }
-  .jxgbox.practice-board { height: 230px; }
-  .jxgbox.tall-board { height: 245px; }
-  .graph-controls { display: flex; gap: 5px; justify-content: center; margin-top: 6px; direction: rtl; }
-  .graph-controls button { border: 1px solid #b9c8d8; background: #f7fafc; border-radius: 7px; padding: 4px 10px; cursor: pointer; font-size: 12px; color: #24435e; }
-  .graph-controls button:hover { background: #eaf3fa; }
-  .lesson-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 12px; }
-  .lesson-chip { border-radius: 10px; padding: 9px; background: #eef5fb; text-align: center; font-weight: 700; color: #285778; font-size: 13px; }
-  .question { border: 1px solid #d8e1eb; border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; background: #fff; }
-  .question strong { color: #194f77; }
-  .teacher-note { border: 1px dashed #93a8bc; background: #f7f9fb; padding: 8px 10px; border-radius: 9px; font-size: 13px; }
-  .checklist { list-style: none; padding: 0; }
-  .checklist li::before { content: "□"; margin-left: 7px; color: #1f6fa7; font-weight: bold; }
-  .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; align-items: stretch; margin: 10px 0; }
-  .flow div { background: #f1f6fb; border: 1px solid #d7e4ef; border-radius: 9px; padding: 10px 6px; text-align: center; font-size: 13px; font-weight: 700; }
-  .footer-note { position: absolute; right: 14mm; bottom: 6mm; font-size: 10px; color: #8993a1; }
-  a { color: #1d5f91; text-decoration: none; }
-  .cover-ribbon { margin-top: 16px; padding: 10px 12px; border-right: 5px solid #1b6fa8; background: #f1f7fc; border-radius: 8px; font-size: 15px; }
-  .center { text-align: center; }
-  .ltr { direction: ltr; text-align: left; }
-  .rtl { direction: rtl; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9edf2;font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#162033}
+body{direction:rtl}
+@page{size:A4;margin:0}
+.page{width:210mm;height:297mm;margin:8mm auto;background:#fff;position:relative;overflow:hidden;break-after:page;page-break-after:always;padding:12mm 13mm 11mm;box-shadow:0 3px 14px rgba(10,25,47,.12)}
+.page:last-child{break-after:auto;page-break-after:auto}
+.page::after{content:attr(data-page);position:absolute;left:11mm;bottom:5mm;font-size:9.5px;color:#7a8495;direction:ltr}
+@media print{html,body{background:#fff}.page{margin:0;box-shadow:none}.graph-controls{display:none!important}}
+h1,h2,h3,p{margin-top:0} h1{font-size:27px;line-height:1.16;margin-bottom:7px;color:#103a66} h2{font-size:21px;line-height:1.2;margin:9px 0 6px;color:#103a66} h3{font-size:17px;line-height:1.22;margin-bottom:5px;color:#18527e}
+p,li,td,th{font-size:14px;line-height:1.38} ul,ol{margin:4px 0 7px;padding-right:21px} li{margin:2px 0}
+a{color:#1d5f91;text-decoration:none}.mt{margin-top:10px}.center{text-align:center}.small{font-size:11.8px;color:#5f6b7a}.subtitle{font-size:16px;color:#4c5a6f;margin-bottom:10px}.subtitle.compact{font-size:13.3px;margin-bottom:6px}
+.math-inline{direction:ltr;unicode-bidi:embed;display:inline-block}.formula-box{direction:ltr;text-align:center;border:1px solid #d7e2ee;border-radius:9px;background:#f8fbff;margin:5px 0;font-size:15px}
+.hero{border:2px solid #97b3cf;border-radius:16px;padding:18px;background:linear-gradient(135deg,#f7fbff,#fff)}.hero-title{font-size:32px;color:#0d3b66;font-weight:700;line-height:1.23;margin:7px 0}.hero-sub{font-size:18px;color:#35526e;line-height:1.36}.compact-hero{padding:12px}.compact-hero .hero-sub{font-size:16px}
+.tag{display:inline-block;padding:3px 8px;border-radius:999px;background:#eef4fb;color:#1c5c8f;font-size:11.5px;font-weight:700;margin-left:5px}.cover-ribbon{margin-top:13px;padding:9px 11px;border:2px solid #1b6fa8;background:#f1f7fc;border-radius:8px;font-size:14px}
+.grid-2{display:grid;gap:10px;align-items:start}.cover-grid{margin-top:14px}.card{border:2px solid #dfe6ee;border-radius:11px;padding:9px 11px;background:#fbfdff}.card.accent{border:2px solid #2d7bb7}.card.warn{border:2px solid #d48d16;background:#fffaf0}.card.ok{border:2px solid #27835e;background:#f3fbf7}.rule-box{border:2px solid #7f9db8;border-radius:10px;padding:8px 10px;background:#f7fafc;margin-top:8px;font-size:13.5px}.teacher-note{border:2px dashed #93a8bc;background:#f7f9fb;padding:7px 9px;border-radius:9px;font-size:12.5px;margin-top:7px}
+.lesson-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}.lesson-chip{border:2px solid #d7e4ef;border-radius:10px;padding:8px;background:#eef5fb;text-align:center;font-weight:700;color:#285778;font-size:12.5px}
+.tall-board{height:88mm;}
+.page-kicker{font-size:12px;font-weight:700;color:#4b6f8d;margin-bottom:4px}.question{border:2px solid #d8e1eb;border-radius:10px;padding:8px 10px;margin-bottom:7px;background:#fff;font-size:13.6px;line-height:1.4}.tight-list li{font-size:13.1px}.sources{border:2px solid #dfe6ee;border-radius:10px;padding:8px 10px;background:#fbfdff}.sources p{font-size:12px;margin:4px 0;direction:ltr;text-align:left}
+.graph-card{border:2px solid #d9e2ec;border-radius:11px;padding:7px;background:#fff;direction:rtl}.graph-title{font-size:12.6px;font-weight:700;color:#334b61;margin:0 0 5px}.jxgbox{width:100%;height:300px;border:1px solid #cfd8e3;border-radius:8px;direction:ltr}.geometry-board{height:255px}.graph-controls{display:none;gap:5px;justify-content:center;margin-top:5px;direction:rtl}.graph-controls button{border:1px solid #b9c8d8;background:#f7fafc;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:11.5px;color:#24435e}.graph-note{margin:5px 0 0}
+.exercise-grid{display:grid;gap:6px}.exercise-item{border:1px solid #d8e1eb;border-radius:8px;padding:6px 8px;background:#fff;font-size:15px;line-height:1.5;min-height:54px}.exercise-item strong{color:#194f77}.solution-list{display:grid;grid-template-columns:1fr;gap:7px}.solution-item{border:1px solid #d8e1eb;border-radius:9px;padding:7px 9px;background:#fff;font-size:13px;line-height:1.36}.solution-item p{font-size:13px;margin:0}.solution-item strong{color:#194f77;margin-left:6px}.final-list{display:grid;grid-template-columns:1fr;gap:8px}.final-item{border:2px solid #d8e1eb;border-radius:9px;padding:9px 11px;background:#fff;font-size:14px;line-height:1.42;min-height:102px}.final-item strong{color:#194f77}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:10px 0}.flow div{background:#f1f6fb;border:2px solid #d7e4ef;border-radius:9px;padding:10px 6px;text-align:center;font-size:12px;font-weight:700}.checklist{list-style:none;padding:0}.checklist li::before{content:"□";margin-left:7px;color:#1f6fa7;font-weight:700}
 </style>
 </head>
 <body>
+<section class="page " data-page="1">
 
-<section class="page" data-page="1">
-  <div class="hero">
-    <div class="tag">מתמטיקה - 5 יחידות</div>
-    <div class="tag">אופטימיזציה</div>
-    <div class="hero-title">בעיות מינימום ומקסימום שבהן פונקציית המטרה רציונלית</div>
-    <div class="hero-sub">מערך שיעור מלא - מידול, תחום, פונקציית מטרה, נגזרת, הוכחת קיצון ותרגול מדורג</div>
-  </div>
-  <div class="cover-ribbon">
-    הרעיון המרכזי: ברוב השאלות פונקציית המטרה אינה נתונה. התלמיד בונה אותה מתוך אילוץ, מצמצם למשתנה אחד, קובע תחום ורק לאחר מכן משתמש בנגזרת.
-  </div>
-  <h2 style="margin-top:18px">רצף ההוראה</h2>
-  <div class="lesson-strip">
-    <div class="lesson-chip">1. מידול והגדרת משתנים</div>
-    <div class="lesson-chip">2. אילוץ ופונקציית מטרה</div>
-    <div class="lesson-chip">3. מעבר למשתנה אחד</div>
-    <div class="lesson-chip">4. תחום אפשרי</div>
-    <div class="lesson-chip">5. נגזרת וסימנים</div>
-    <div class="lesson-chip">6. הוכחת מינימום או מקסימום</div>
-    <div class="lesson-chip">7. חזרה לנתוני הבעיה</div>
-    <div class="lesson-chip">8. תרגול מסכם</div>
-  </div>
-  <div class="grid-2_" style="margin-top:18px">
-    <div class="card accent">
-      <h3>משפחות מרכזיות</h3>
-      <ul>
-        <li>בעיות מספרים עם מכפלה קבועה</li>
-        <li>מלבנים, שוליים ומסגרות</li>
-        <li>חלונות ורשתות מוטות</li>
-        <li>תיבות וגופים במרחב</li>
-        <li>גלילים וקופסאות</li>
-        <li>מלבן הנוצר מנקודה על גרף רציונלי</li>
-      </ul>
-    </div>
-<div style="height:20px;"></div>
-    <div class="card ok">
-      <h3>תוצרי למידה</h3>
-      <ul>
-        <li>זיהוי הגודל שיש למקסם או למזער</li>
-        <li>בניית פונקציית מטרה נכונה</li>
-        <li>קביעת התחום מן המציאות ומהאלגברה</li>
-        <li>שימוש יעיל בנגזרת של פונקציה רציונלית</li>
-        <li>הצדקת קיצון בעזרת סימן הנגזרת</li>
-        <li>כתיבת תשובה מלאה עם יחידות</li>
-      </ul>
-    </div>
-  </div>
+<div class="hero">
+  <div><span class="tag">מתמטיקה - 5 יחידות</span><span class="tag">אופטימיזציה</span><span class="tag">פונקציית מטרה רציונלית</span></div>
+  <div class="hero-title">בעיות מינימום ומקסימום שבהן פונקציית המטרה רציונלית</div>
+  <div class="hero-sub">מערך שיעור מדורג: מידול ⇐ פונקציית מטרה ⇐ תחום ⇐ נגזרת ⇐ סימן הנגזרת ⇐ תשובה מלאה</div>
+</div>
+<div class="cover-ribbon">
+<strong>הרעיון המרכזי:</strong> פונקציית המטרה בדרך כלל אינה נתונה. בונים אותה מן האילוץ, מצמצמים למשתנה אחד, קובעים את התחום ורק אז משתמשים בנגזרת.
+</div>
+<div class="grid-2_ cover-grid">
+  <div class="card ok"><h3>תוצרי למידה</h3><ul><li>בניית מודל רציונלי מבעיה מילולית.</li><li>קביעת תחום פיזיקלי ואלגברי.</li><li>זיהוי נקודה עם שיפוע אפס ובדיקת סימן הנגזרת.</li><li>חזרה לנתוני הבעיה וכתיבת יחידות.</li></ul></div>
+</div>
 </section>
 
-<section class="page" data-page="2">
-  <h1>ידע מקדים ומטרות מדויקות</h1>
-  <div class="grid-2_">
-    <div class="card accent">
-      <h3>ידע מקדים הכרחי</h3>
-      <ul>
-        <li>פתרון משוואות אלגבריות והצבה.</li>
-        <li>חזקות ושברים אלגבריים.</li>
-        <li>תחום הגדרה של פונקציה רציונלית.</li>
-        <li>כללי גזירה, כולל חזקות שליליות וכלל המנה.</li>
-        <li>טבלת סימנים לנגזרת.</li>
-        <li>שטח והיקף מלבן, נפח ושטח פנים של תיבה וגליל.</li>
-      </ul>
-    </div>
-<div style="height:20px;"></div>
-    <div class="card ok">
-      <h3>בסוף היחידה התלמיד יוכל</h3>
-      <ul>
-        <li>להגדיר משתנה החלטה המתאים לשאלה.</li>
-        <li>לנסח אילוץ ופונקציית מטרה בנפרד.</li>
-        <li>להגיע לפונקציה במשתנה אחד בלבד.</li>
-        <li>למצוא תחום פיזיקלי, ולא רק תחום אלגברי.</li>
-        <li>לפתור קיצון מוחלט בתחום פתוח או סגור.</li>
-        <li>להסביר מדוע הפתרון שנמצא מתאים לסיפור.</li>
-      </ul>
-    </div>
+<section class="page " data-page="3">
+<div class="page-kicker">שיעור 1</div>
+<h1>מידול, אילוץ, פונקציית מטרה ותחום</h1>
+<div class="grid-2">
+  <div>
+    <h3>דוגמה - שני מספרים חיוביים</h3>
+    <div class="question">נתונים \(x\gt0\) ו-\(y\gt0\) המקיימים \(2x^2y=27\). מצאו את המספרים שעבורם הסכום \(x+y\) מינימלי.</div>
+    <div class="formula-box">\[2x^2y=27 \qquad ⇒ \qquad y=\frac{27}{2x^2}\]</div>
+    <div class="formula-box">\[S(x)=x+\frac{27}{2x^2},\qquad x\gt0\]</div>
+    <div class="formula-box">\[S'(x)=1-\frac{27}{x^3}=\frac{x^3-27}{x^3}\]</div>
+    <div class="formula-box">\[S'(x)=0\qquad ⇒ \qquad x=3\]</div>
+    <p>כאשר \(0\lt x\lt3\) הנגזרת שלילית, וכאשר \(x\gt3\) הנגזרת חיובית. לכן מתקבל מינימום ב-\(x=3\).</p>
+    <div class="formula-box">\[y=\frac{27}{2\cdot3^2}=\frac32\]</div>
+    <div class="card ok"><strong>תשובה:</strong> \(x=3\), \(y=\frac32\), והסכום המינימלי הוא \(\frac92\).</div>
   </div>
-  <h2 style="margin-top:13px">ארבעת המושגים שעליהם בנוי כל הפרק</h2>
-  <table>
-    <tr><th>מושג</th><th>שאלה שהתלמיד צריך לשאול</th><th>דוגמה</th></tr>
-    <tr><td>משתנה החלטה</td><td>מה אני רשאי לשנות?</td><td>רוחב דף, רדיוס גליל, אורך צלע</td></tr>
-    <tr><td>אילוץ</td><td>מה נשאר קבוע?</td><td>שטח, נפח, מכפלה, אורך כולל</td></tr>
-    <tr><td>פונקציית מטרה</td><td>מה רוצים שיהיה קטן או גדול ככל האפשר?</td><td>שטח הדפסה, שטח פנים, סכום, אורך מוטות</td></tr>
-    <tr><td>תחום אפשרי</td><td>אילו ערכים באמת אפשריים?</td><td>אורך חיובי, שוליים שאינם חופפים, מכנה שאינו אפס</td></tr>
-  </table>
-</section>
-
-<section class="page" data-page="3">
-  <h1>שיטת פתרון אחידה - 7 שלבים</h1>
-  <div class="steps">
-    <div class="step"><strong>הגדרת משתנה.</strong><br>בחר גודל גאומטרי או מספרי שקל לבטא באמצעותו את יתר הנתונים.</div>
-    <div class="step"><strong>כתיבת המטרה.</strong><br>נסח במילים מה בדיוק ממזערים או ממקסמים.</div>
-    <div class="step"><strong>כתיבת האילוץ.</strong><br>השתמש בנתון הקבוע: שטח, נפח, מכפלה, היקף וכדומה.</div>
-    <div class="step"><strong>צמצום למשתנה אחד.</strong><br>בטא משתנה שני באמצעות הראשון והצב בפונקציית המטרה.</div>
-    <div class="step"><strong>קביעת התחום.</strong><br>שלב תחום אלגברי עם תנאי המציאות.</div>
-    <div class="step"><strong>חקירת פונקציית המטרה.</strong><br>גזור, מצא נקודות חשודות ובדוק סימן נגזרת או נקודות קצה.</div>
-    <div class="step"><strong>תשובה לשאלה המקורית.</strong><br>חזור לכל המידות שהתבקשו והוסף יחידות.</div>
-  </div>
-  <h2 style="margin-top:13px">תבנית כתיבה לבגרות</h2>
-  <div class="card accent">
-    <p><strong>1.</strong> נסמן את הגודל הנבחר ב-
-      <span class="math-inline">\(x\)</span>.</p>
-    <p><strong>2.</strong> מן האילוץ מתקבל קשר בין המשתנים.</p>
-    <div class="formula-box">\[y=g(x)\]</div>
-    <p><strong>3.</strong> פונקציית המטרה היא:</p>
-    <div class="formula-box">\[F(x)=x\:\text{תועצמאב תאטובמ הרטמה תיצקנופ }\]</div>
-    <p><strong>4.</strong> התחום נקבע מן הנתונים ומן המכנה.</p>
-    <p><strong>5.</strong> פותרים את המשוואה <span class="math-inline">\(F'(x)=0\)</span> ובודקים את סימן הנגזרת.</p>
-    <p><strong>6.</strong> מחזירים את הערך לנתוני הבעיה.</p>
-  </div>
-  <div class="card warn" style="margin-top:10px">
-    <strong>כלל חשוב:</strong> אין משמעות לנקודת קיצון שמתקבלת מחוץ לתחום הפיזיקלי.
-  </div>
-</section>
-
-<section class="page" data-page="4">
-  <h1>דוגמה 1 - בעיית מספרים</h1>
-  <div class="question" style="margin-top:8px">
-    נתונים שני מספרים חיוביים <span class="math-inline">\(x\)</span> ו-
-    <span class="math-inline">\(y\)</span> המקיימים
-    <span class="math-inline">\(2x^2y=27\)</span>.
-    בטא את <span class="math-inline">\(y\)</span> באמצעות <span class="math-inline">\(x\)</span>, ומצא את המספרים שסכומם מינימלי.
-  </div>
-  <div class="grid-2">
-    <div>
-      <h3>שלב 1 - האילוץ</h3>
-      <div class="formula-box">\[2x^2y=27\qquad⇒\qquad y=\frac{27}{2x^2}\]</div>
-      <h3>שלב 2 - פונקציית המטרה</h3>
-      <div class="formula-box">\[S(x)=x+\frac{27}{2x^2},\qquad x\gt0\]</div>
-      <h3>שלב 3 - נגזרת</h3>
-      <div class="formula-box">\[S'(x)=1-\frac{27}{x^3}=\frac{x^3-27}{x^3}\]</div>
-      <div class="formula-box">\[S'(x)=0\qquad⇒\qquad x^3=27\qquad⇒\qquad x=3\]</div>
-      <h3>שלב 4 - החזרה לאילוץ</h3>
-      <div class="formula-box">\[y=\frac{27}{2\cdot 3^2}=\frac{3}{2}\]</div>
-      <div class="card ok"><strong>תשובה:</strong> המספרים הם <span class="math-inline">\(3\)</span> ו-
-      <span class="math-inline">\(\frac32\)</span>, והסכום המינימלי הוא <span class="math-inline">\(\frac92\)</span>.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">גרף פונקציית הסכום</div>
-      <div id="g071" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="g071">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
-      </div>
-      <p class="small center" style="margin-top:6px">הגרף יורד עד <span class="math-inline">\(x=3\)</span> ולאחר מכן עולה.</p>
-    </div>
-  </div>
-</section>
-
-<section class="page" data-page="6">
-  <h1>תחום אפשרי וקיצון מוחלט</h1>
-  <div class="grid-2">
-    <div class="card accent">
-      <h3>תחום אלגברי</h3>
-      <ul>
-        <li>מכנה שונה מאפס.</li>
-        <li>ביטויים תחת שורש, אם קיימים, חייבים להתאים לתחום.</li>
-      </ul>
-    </div>
-    <div class="card ok">
-      <h3>תחום פיזיקלי</h3>
-      <ul>
-        <li>אורך, שטח ונפח חייבים להיות חיוביים.</li>
-        <li>מידה פנימית לאחר הורדת שוליים חייבת להיות חיובית.</li>
-        <li>נקודה חייבת להישאר בתחום הגרף ובאזור המתואר.</li>
-      </ul>
-    </div>
-  </div>
-  <h2 style="margin-top:12px">תחום פתוח לעומת תחום סגור</h2>
-  <table>
-    <tr><th>מצב</th><th>מה חייבים לבדוק</th></tr>
-    <tr><td>תחום סגור <span class="math-inline">\([a,b]\)</span></td><td>נקודות חשודות בתוך התחום וגם שתי נקודות הקצה.</td></tr>
-    <tr><td>תחום פתוח <span class="math-inline">\((a,b)\)</span></td><td>נקודות חשודות והתנהגות כאשר מתקרבים לקצות התחום.</td></tr>
-    <tr><td>תחום <span class="math-inline">\((0,\infty)\)</span></td><td>התנהגות כאשר <span class="math-inline">\(x\to0^+\)</span> וכאשר <span class="math-inline">\(x\to\infty\)</span>.</td></tr>
-  </table>
-  <div class="formula-box">\[F(x)=ax+\frac{b}{x},\qquad a\gt0,\;b\gt0,\;x\gt0\]</div>
-  <p>במשפחה זו מתקיים בדרך כלל שהפונקציה גדלה מאוד הן ליד <span class="math-inline">\(x=0\)</span> והן כאשר <span class="math-inline">\(x\)</span> גדול מאוד. לכן נקודת המעבר מירידה לעלייה היא מועמדת טבעית למינימום מוחלט.</p>
-  <div class="card warn">
-    <strong>אין להסיק קיצון רק מן המשוואה</strong> <span class="math-inline">\(F'(x)=0\)</span>. יש לבדוק שינוי סימן, נקודות קצה או התנהגות בקצות התחום לפי סוג השאלה.
-  </div>
-</section>
-
-<section class="page" data-page="7">
-  <h1>שיטת מונה הנגזרת</h1>
-  <p>בבעיות רבות מתקבלת נגזרת רציונלית שהמכנה שלה חיובי בכל התחום הרלוונטי. במקרה כזה סימן הנגזרת נקבע רק על ידי המונה.</p>
-  <div class="formula-box">\[F'(x)=\frac{N(x)}{D(x)},\qquad D(x)\gt0\qquad⇒\qquad \operatorname{sign}(F')=\operatorname{sign}(N)\]</div>
-  <h3>דוגמה</h3>
-  <div class="formula-box">\[F(x)=4x+\frac{576}{x},\qquad x\gt0\]</div>
-  <div class="formula-box">\[F'(x)=4-\frac{576}{x^2}=\frac{4x^2-576}{x^2}=\frac{4(x-12)(x+12)}{x^2}\]</div>
-  <p>בתחום <span class="math-inline">\(x\gt0\)</span>, המכנה חיובי וגם <span class="math-inline">\(x+12\)</span> חיובי. לכן מספיק לעקוב אחר הסימן של <span class="math-inline">\(x-12\)</span>.</p>
   <div class="graph-card">
-    <div class="graph-title">ציר סימנים של הנגזרת</div>
-    <div id="sign117" class="jxgbox small-board"></div>
-    <div class="graph-controls" data-board="sign117">
-      <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
-    </div>
-  </div>
-  <div class="card ok" style="margin-top:8px">
-    בתחום <span class="math-inline">\(0\lt x\lt12\)</span> הנגזרת שלילית, ובתחום <span class="math-inline">\(x\gt12\)</span> היא חיובית. לכן <span class="math-inline">\(x=12\)</span> הוא מינימום.
-  </div>
-</section>
-
-<section class="page" data-page="8">
-  <h1>דוגמה 2 - עמוד מודפס ושוליים</h1>
-  <div class="question" style="margin-top:8px">
-    שטח כל עמוד הוא <span class="math-inline">\(600\)</span> סמ"ר. השוליים העליון והתחתון הם <span class="math-inline">\(8\)</span> ס"מ כל אחד, והשוליים הצדדיים הם <span class="math-inline">\(3\)</span> ס"מ כל אחד. מצא את מידות העמוד כך ששטח ההדפסה יהיה מקסימלי.
-  </div>
-  <div class="grid-2">
-    <div>
-      <h3>מידול</h3>
-      <p>נסמן את רוחב העמוד ב-
-      <span class="math-inline">\(x\)</span> ואת גובהו ב-
-      <span class="math-inline">\(y\)</span>.</p>
-      <div class="formula-box">\[xy=600\qquad⇒\qquad y=\frac{600}{x}\]</div>
-      <p>רוחב אזור ההדפסה הוא <span class="math-inline">\(x-6\)</span>, וגובהו הוא <span class="math-inline">\(\frac{600}{x}-16\)</span>.</p>
-      <div class="formula-box">\[A(x)=(x-6)\left(\frac{600}{x}-16\right)\]</div>
-      <h3>התחום</h3>
-      <div class="formula-box">\[x-6\gt0,\qquad \frac{600}{x}-16\gt0\]</div>
-      <div class="formula-box">\[6\lt x\lt37.5\]</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">דגם גאומטרי - גררו את P לאורך הקו המקווקו תוך שמירת שטח העמוד</div>
-      <div id="pageDiagram" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="pageDiagram">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
+      <div class="graph-title">גרף פונקציית המטרה</div>
+      <div id="g_l1" class="jxgbox tall-board"></div>
+      <div class="graph-controls" data-board="g_l1">
+        <button type="button" data-act="in">הגדלה +</button>
+        <button type="button" data-act="out">הקטנה -</button>
+        <button type="button" data-act="reset">מרכוז / איפוס</button>
       </div>
-      <p class="small center">הקו המקווקו מציג את מסלול P לפי האילוץ; התרשים מדגיש הורדה של שני שוליים מכל ממד.</p>
+      <p class="small center graph-note">הנקודה המסומנת היא נקודה עם שיפוע אפס בתחום \(x\gt0\).</p>
     </div>
-  </div>
-</section>
+</div>
+<div class="rule-box"><strong>כלל:</strong> תחום הבעיה נקבע גם מן האלגברה וגם מן המציאות. אורך, שטח, נפח ומספר המתואר כחיובי חייבים לעמוד בתנאים אלה.</div>
 
-<section class="page" data-page="9">
-  <h1>פתרון דוגמת העמוד</h1>
-  <div class="grid-2">
-    <div>
-      <h3>פישוט לפני גזירה</h3>
-      <div class="formula-box">\[A(x)=696-16x-\frac{3600}{x}\]</div>
-      <div class="formula-box">\[A'(x)=-16+\frac{3600}{x^2}=\frac{3600-16x^2}{x^2}\]</div>
-      <div class="formula-box">\[A'(x)=0\qquad⇒\qquad x^2=225\qquad⇒\qquad x=15\]</div>
-      <p>הפתרון <span class="math-inline">\(x=-15\)</span> אינו בתחום ולכן נפסל.</p>
-      <h3>גובה העמוד</h3>
-      <div class="formula-box">\[y=\frac{600}{15}=40\]</div>
-      <h3>שטח ההדפסה</h3>
-      <div class="formula-box">\[A(15)=(15-6)(40-16)=216\]</div>
-      <div class="card ok"><strong>תשובה:</strong> מידות העמוד הן <span class="math-inline">\(15\)</span> ס"מ על <span class="math-inline">\(40\)</span> ס"מ. שטח ההדפסה המקסימלי הוא <span class="math-inline">\(216\)</span> סמ"ר.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">פונקציית שטח ההדפסה בתחום האפשרי</div>
-      <div id="g1002" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="g1002">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
+</section>
+<section class="page exercise-page" data-page="4">
+<div class="page-kicker">שיעור 1 - דף תרגול</div>
+<h1>תרגול - מידול ותחום</h1>
+<p class="subtitle compact">בכל תרגיל: הגדירו משתנה, כתבו אילוץ, בנו פונקציית מטרה במשתנה אחד, קבעו תחום, גזרו והצדיקו את הקיצון בעזרת סימן הנגזרת.</p>
+<div class="exercise-grid"><div class="exercise-item"><strong>1.1</strong> נתונים שני מספרים חיוביים שמכפלתם \(36\). מצאו אותם כך שסכומם יהיה מינימלי.</div><div class="exercise-item"><strong>1.2</strong> נתונים \(x\gt0,y\gt0\) ו-\(x^2y=32\). מצאו את \(x,y\) כך ש-\(x+y\) מינימלי.</div><div class="exercise-item"><strong>1.3</strong> מלבן ששטחו \(144\) סמ"ר. מצאו את מידותיו כך שההיקף יהיה מינימלי.</div><div class="exercise-item"><strong>1.4</strong> מלבן ששטחו \(200\) סמ"ר. מצאו את מידותיו כך שהביטוי \(x+2y\) יהיה מינימלי.</div><div class="exercise-item"><strong>1.5</strong> נתונים \(x\gt0,y\gt0\), \(xy=75\). מצאו את הערכים כך ש-\(3x+y\) מינימלי.</div><div class="exercise-item"><strong>1.6</strong> נתונים \(x\gt0,y\gt0\), \(x^2y=128\). מצאו את הערכים כך ש-\(2x+y\) מינימלי.</div><div class="exercise-item"><strong>1.7</strong> מלבן ששטחו \(300\) סמ"ר. מצאו את מידותיו כך ש-\(2x+3y\) מינימלי.</div><div class="exercise-item"><strong>1.8</strong> נתונים \(x\gt0,y\gt0\), \(xy=64\). מצאו את הערכים כך ש-\(2x+y\) מינימלי.</div><div class="exercise-item"><strong>1.9</strong> נתונים \(x\gt0,y\gt0\), \(xy=108\). מצאו את הערכים כך ש-\(x+3y\) מינימלי.</div><div class="exercise-item"><strong>1.10</strong> נתונים \(x\gt0,y\gt0\), \(xy^2=32\). מצאו את הערכים כך ש-\(x+y\) מינימלי.</div></div>
+<div class="teacher-note"><strong>דרישת כתיבה:</strong> אין לדלג על התחום. תשובה מספרית ללא בניית פונקציית מטרה אינה פתרון מלא.</div>
+</section>
+<section class="page " data-page="5">
+
+<div class="page-kicker">שיעור 2</div>
+<h1>התבנית \(F(x)=ax+\frac{b}{x}\)</h1>
+<div class="grid-2">
+  <div>
+    <div class="rule-box"><strong>תבנית חשובה:</strong> כאשר \(a\gt0\), \(b\gt0\), \(x\gt0\):</div>
+    <div class="formula-box">\[F(x)=ax+\frac{b}{x}\]</div>
+    <div class="formula-box">\[F'(x)=a-\frac{b}{x^2}=\frac{ax^2-b}{x^2}\]</div>
+    <div class="formula-box">\[F'(x)=0\qquad ⇒ \qquad x=\sqrt{\frac{b}{a}}\]</div>
+    <p>המכנה \(x^2\) חיובי בתחום. לכן סימן הנגזרת נקבע מן המונה \(ax^2-b\).</p>
+    <h3>דוגמה - חלון ומוטות</h3>
+    <p>שטח חלון מלבני הוא \(192\) מ"ר. יש 4 מוטות אופקיים ו-3 אנכיים. אם רוחב החלון הוא \(x\), אז \(y=192/x\).</p>
+    <div class="formula-box">\[L(x)=4x+3y=4x+\frac{576}{x},\qquad x\gt0\]</div>
+    <div class="formula-box">\[L'(x)=4-\frac{576}{x^2}=0\qquad ⇒ \qquad x=12,\;y=16\]</div>
+  </div>
+  <div class="graph-card">
+      <div class="graph-title">אורך המוטות כתלות ברוחב</div>
+      <div id="g_l2" class="jxgbox tall-board"></div>
+      <div class="graph-controls" data-board="g_l2">
+        <button type="button" data-act="in">הגדלה +</button>
+        <button type="button" data-act="out">הקטנה -</button>
+        <button type="button" data-act="reset">מרכוז / איפוס</button>
       </div>
-      <p class="small center">המקסימום מתקבל בנקודת המעבר מעלייה לירידה.</p>
+      <p class="small center graph-note">ב-\(x=12\) מתקבל שינוי מסימן שלילי לחיובי בנגזרת.</p>
     </div>
-  </div>
-</section>
+</div>
 
-<section class="page" data-page="10">
-  <h1>דוגמה 3 - חלון המורכב ממוטות</h1>
-  <div class="question" style="margin-top:8px">
-    בחלון מלבני ששטחו הכולל <span class="math-inline">\(192\)</span> מ"ר יש 7 מוטות: 3 אנכיים ו-4 אופקיים. מצא את אורכי המוטות כך שסכום אורכיהם יהיה מינימלי.
+</section>
+<section class="page exercise-page" data-page="6">
+<div class="page-kicker">שיעור 2 - דף תרגול</div>
+<h1>תרגול - תבנית \(ax+b/x\)</h1>
+<p class="subtitle compact">בכל תרגיל: הגדירו משתנה, כתבו אילוץ, בנו פונקציית מטרה במשתנה אחד, קבעו תחום, גזרו והצדיקו את הקיצון בעזרת סימן הנגזרת.</p>
+<div class="exercise-grid"><div class="exercise-item"><strong>2.1</strong> מלבן ששטחו \(96\). מצאו \(x,y\) כך ש-\(2x+3y\) מינימלי.</div><div class="exercise-item"><strong>2.2</strong> מלבן ששטחו \(150\). מצאו \(x,y\) כך ש-\(3x+2y\) מינימלי.</div><div class="exercise-item"><strong>2.3</strong> מלבן ששטחו \(180\). מצאו \(x,y\) כך ש-\(5x+4y\) מינימלי.</div><div class="exercise-item"><strong>2.4</strong> מלבן ששטחו \(216\). מצאו \(x,y\) כך ש-\(6x+4y\) מינימלי.</div><div class="exercise-item"><strong>2.5</strong> מלבן ששטחו \(252\). מצאו \(x,y\) כך ש-\(7x+4y\) מינימלי.</div><div class="exercise-item"><strong>2.6</strong> חלון ששטחו \(300\). יש 5 מוטות אופקיים ו-3 אנכיים. מצאו את המידות המקטינות את אורך המוטות הכולל.</div><div class="exercise-item"><strong>2.7</strong> מסגרת מלבנית ששטחה \(128\). מחיר יחידת אורך אופקית כפול ממחיר יחידת אורך אנכית. מצאו את המידות המקטינות את העלות.</div><div class="exercise-item"><strong>2.8</strong> לוח מלבני ששטחו \(192\). העלות היחסית היא \(3x+8y\). מצאו את המידות המקטינות את העלות.</div><div class="exercise-item"><strong>2.9</strong> מלבן ששטחו \(200\). נדרש למזער \(8x+2y\). מצאו את המידות.</div><div class="exercise-item"><strong>2.10</strong> מלבן ששטחו \(288\). נדרש למזער \(2x+8y\). מצאו את המידות.</div></div>
+<div class="teacher-note"><strong>דרישת כתיבה:</strong> אין לדלג על התחום. תשובה מספרית ללא בניית פונקציית מטרה אינה פתרון מלא.</div>
+</section>
+<section class="page " data-page="7">
+
+<div class="page-kicker">שיעור 3</div>
+<h1>שוליים, מסגרות ושטח פנימי</h1>
+<div class="grid-2">
+  <div>
+    <div class="question">שטח עמוד הוא \(600\) סמ"ר. שוליים צדדיים: \(3\) ס"מ מכל צד. שוליים עליון ותחתון: \(8\) ס"מ כל אחד. מצאו את מידות העמוד כך ששטח ההדפסה יהיה מקסימלי.</div>
+    <div class="formula-box">\[xy=600\qquad ⇒ \qquad y=\frac{600}{x}\]</div>
+    <div class="formula-box">\[A(x)=(x-6)\left(\frac{600}{x}-16\right)\]</div>
+    <div class="formula-box">\[6\lt x\lt37.5\]</div>
+    <div class="formula-box">\[A(x)=696-16x-\frac{3600}{x}\]</div>
+    <div class="formula-box">\[A'(x)=-16+\frac{3600}{x^2}=0\qquad ⇒ \qquad x=15\]</div>
+    <p>בתחום \(6\lt x\lt15\) הנגזרת חיובית, ובתחום \(15\lt x\lt37.5\) היא שלילית. לכן זהו מקסימום.</p>
+    <div class="formula-box">\[y=\frac{600}{15}=40\]</div>
+    <div class="card ok"><strong>תשובה:</strong> \(15\) ס"מ על \(40\) ס"מ.</div>
   </div>
-  <div class="grid-2">
-    <div>
-      <p>נסמן רוחב ב-
-      <span class="math-inline">\(x\)</span> וגובה ב-
-      <span class="math-inline">\(y\)</span>.</p>
-      <div class="formula-box">\[xy=192\qquad⇒\qquad y=\frac{192}{x}\]</div>
-      <p>ארבעה מוטות אופקיים באורך <span class="math-inline">\(x\)</span> ושלושה אנכיים באורך <span class="math-inline">\(y\)</span> נותנים:</p>
-      <div class="formula-box">\[L(x)=4x+3y=4x+\frac{576}{x},\qquad x\gt0\]</div>
-      <div class="formula-box">\[L'(x)=4-\frac{576}{x^2}\]</div>
-      <div class="formula-box">\[L'(x)=0\qquad⇒\qquad x=12\]</div>
-      <div class="formula-box">\[y=\frac{192}{12}=16\]</div>
-      <div class="card ok"><strong>תשובה:</strong> כל מוט אופקי באורך <span class="math-inline">\(12\)</span> מ', וכל מוט אנכי באורך <span class="math-inline">\(16\)</span> מ'.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">המחשה של החלון - גררו את P תוך שמירת השטח</div>
-      <div id="window117" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="window117">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
+  <div class="graph-card">
+      <div class="graph-title">שטח ההדפסה בתחום האפשרי</div>
+      <div id="g_l3" class="jxgbox tall-board"></div>
+      <div class="graph-controls" data-board="g_l3">
+        <button type="button" data-act="in">הגדלה +</button>
+        <button type="button" data-act="out">הקטנה -</button>
+        <button type="button" data-act="reset">מרכוז / איפוס</button>
       </div>
+      <p class="small center graph-note">הגרף מוצג רק עבור \(6\lt x\lt37.5\).</p>
     </div>
-  </div>
+</div>
 </section>
 
-<section class="page" data-page="11">
-  <h1>דוגמה 4 - תיבה בעלת נפח קבוע</h1>
-  <div class="question" style="margin-top:8px">
-    נפח תיבה מלבנית הוא <span class="math-inline">\(288\)</span>. אורך הבסיס גדול פי 3 מרוחבו. נסמן את רוחב הבסיס ב-
-    <span class="math-inline">\(x\)</span> ואת הגובה ב-
-    <span class="math-inline">\(h\)</span>. מצא את המידות שעבורן שטח הפנים מינימלי.
+<section class="page exercise-page" data-page="8">
+<div class="page-kicker">שיעור 3 - דף תרגול</div>
+<h1>תרגול - שוליים ומסגרות</h1>
+<p class="subtitle compact">בכל תרגיל: הגדירו משתנה, כתבו אילוץ, בנו פונקציית מטרה במשתנה אחד, קבעו תחום, גזרו והצדיקו את הקיצון בעזרת סימן הנגזרת.</p>
+<div class="exercise-grid"><div class="exercise-item"><strong>3.1</strong> שטח דף \(288\) סמ"ר. שוליים צדדיים \(2\) ס"מ, ועליון ותחתון \(4\) ס"מ. מצאו מידות למקסימום שטח פנימי.</div><div class="exercise-item"><strong>3.2</strong> שטח דף \(450\) סמ"ר. שוליים צדדיים \(2\) ס"מ, ועליון ותחתון \(4\) ס"מ.</div><div class="exercise-item"><strong>3.3</strong> שטח דף \(768\) סמ"ר. שוליים צדדיים \(3\) ס"מ, ועליון ותחתון \(4\) ס"מ.</div><div class="exercise-item"><strong>3.4</strong> שטח דף \(900\) סמ"ר. שוליים צדדיים \(2\) ס"מ, ועליון ותחתון \(8\) ס"מ.</div><div class="exercise-item"><strong>3.5</strong> שטח כרזה \(675\) סמ"ר. שוליים צדדיים \(3\) ס"מ, ועליון ותחתון \(5\) ס"מ.</div><div class="exercise-item"><strong>3.6</strong> שטח צילום חיצוני \(800\) סמ"ר. מסגרת ברוחב \(4\) ס"מ בצדדים ו-\(5\) ס"מ למעלה ולמטה. מצאו מידות המגדילות את השטח הפנימי.</div><div class="exercise-item"><strong>3.7</strong> שטח לוח \(1152\) סמ"ר. שוליים צדדיים \(4\) ס"מ, ועליון ותחתון \(6\) ס"מ.</div><div class="exercise-item"><strong>3.8</strong> שטח דף \(1250\) סמ"ר. שוליים צדדיים \(5\) ס"מ, ועליון ותחתון \(4\) ס"מ.</div><div class="exercise-item"><strong>3.9</strong> שטח מסגרת חיצונית \(972\) סמ"ר. שוליים צדדיים \(3\) ס"מ, ועליון ותחתון \(9\) ס"מ.</div><div class="exercise-item"><strong>3.10</strong> שטח דף \(1470\) סמ"ר. שוליים צדדיים \(5\) ס"מ, ועליון ותחתון \(6\) ס"מ.</div></div>
+<div class="teacher-note"><strong>דרישת כתיבה:</strong> אין לדלג על התחום. תשובה מספרית ללא בניית פונקציית מטרה אינה פתרון מלא.</div>
+</section>
+<section class="page " data-page="9">
+
+<div class="page-kicker">שיעור 4</div>
+<h1>תיבות וגלילים - פונקציות מן הצורה \(ax^2+\frac{b}{x}\)</h1>
+<div class="grid-2">
+  <div>
+    <h3>דוגמה - תיבה סגורה</h3>
+    <p>נפח תיבה הוא \(288\). אורך הבסיס גדול פי 3 מרוחבו. נסמן רוחב ב-\(x\) וגובה ב-\(h\).</p>
+    <div class="formula-box">\[3x^2h=288\qquad ⇒ \qquad h=\frac{96}{x^2}\]</div>
+    <div class="formula-box">\[S(x)=6x^2+\frac{768}{x},\qquad x\gt0\]</div>
+    <div class="formula-box">\[S'(x)=12x-\frac{768}{x^2}=0\qquad ⇒ \qquad x=4\]</div>
+    <div class="formula-box">\[h=6\]</div>
+    <div class="card ok"><strong>תשובה:</strong> מידות התיבה הן \(12\times4\times6\).</div>
+    <h3 class="mt">דוגמה מקוצרת - גליל סגור</h3>
+    <p>אם \(V=128\pi\), אז \(h=128/r^2\), ושטח הפנים הוא \(S=2\pi r^2+256\pi/r\). מתקבל \(r=4\), \(h=8\).</p>
   </div>
-  <div class="grid-2">
-    <div>
-      <h3>אילוץ הנפח</h3>
-      <div class="formula-box">\[(3x)\cdot x\cdot h=288\]</div>
-      <div class="formula-box">\[h=\frac{96}{x^2}\]</div>
-      <h3>שטח הפנים</h3>
-      <div class="formula-box">\[S=2(3x^2+3xh+xh)\]</div>
-      <div class="formula-box">\[S(x)=6x^2+\frac{768}{x},\qquad x\gt0\]</div>
-      <div class="formula-box">\[S'(x)=12x-\frac{768}{x^2}\]</div>
-      <div class="formula-box">\[12x^3=768\qquad⇒\qquad x=4\]</div>
-      <div class="formula-box">\[h=\frac{96}{16}=6\]</div>
-      <div class="card ok"><strong>תשובה:</strong> מידות התיבה: <span class="math-inline">\(12\times4\times6\)</span>.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">גרף שטח הפנים</div>
-      <div id="g203" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="g203">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
+  <div class="graph-card">
+      <div class="graph-title">שטח הפנים של התיבה</div>
+      <div id="g_l4" class="jxgbox tall-board"></div>
+      <div class="graph-controls" data-board="g_l4">
+        <button type="button" data-act="in">הגדלה +</button>
+        <button type="button" data-act="out">הקטנה -</button>
+        <button type="button" data-act="reset">מרכוז / איפוס</button>
       </div>
-      <p class="small center">הגרף מציג מינימום יחיד בתחום <span class="math-inline">\(x\gt0\)</span>.</p>
+      <p class="small center graph-note">המינימום מתקבל ב-\(x=4\).</p>
     </div>
-  </div>
-</section>
+</div>
 
-<section class="page" data-page="12">
-  <h1>דוגמה 5 - גליל</h1>
-  <div class="question" style="margin-top:8px">
-    נתון גליל שרדיוסו <span class="math-inline">\(r\)</span> וגובהו <span class="math-inline">\(h\)</span>. ידוע כי <span class="math-inline">\(r^2h=128\)</span>. מצא את הרדיוס שעבורו שטח הפנים מינימלי, ואת נפח הגליל במקרה זה.
+</section>
+<section class="page exercise-page" data-page="10">
+<div class="page-kicker">שיעור 4 - דף תרגול</div>
+<h1>תרגול - תיבות וגלילים</h1>
+<p class="subtitle compact">בכל תרגיל: הגדירו משתנה, כתבו אילוץ, בנו פונקציית מטרה במשתנה אחד, קבעו תחום, גזרו והצדיקו את הקיצון בעזרת סימן הנגזרת.</p>
+<div class="exercise-grid"><div class="exercise-item"><strong>4.1</strong> תיבה סגורה בעלת בסיס ריבועי ונפח \(64\). מצאו את מידותיה כך ששטח הפנים מינימלי.</div><div class="exercise-item"><strong>4.2</strong> תיבה סגורה בעלת בסיס ריבועי ונפח \(125\). מצאו את המידות.</div><div class="exercise-item"><strong>4.3</strong> תיבה סגורה בעלת בסיס ריבועי ונפח \(216\). מצאו את המידות.</div><div class="exercise-item"><strong>4.4</strong> תיבה פתוחה מלמעלה בעלת בסיס ריבועי ונפח \(108\). מצאו את המידות המקטינות את שטח החומר.</div><div class="exercise-item"><strong>4.5</strong> תיבה פתוחה מלמעלה בעלת בסיס ריבועי ונפח \(256\). מצאו את המידות.</div><div class="exercise-item"><strong>4.6</strong> תיבה סגורה בנפח \(288\), כאשר אורך הבסיס פי 3 מרוחבו. מצאו את המידות.</div><div class="exercise-item"><strong>4.7</strong> גליל סגור שנפחו \(54\pi\). מצאו \(r,h\) כך ששטח הפנים מינימלי.</div><div class="exercise-item"><strong>4.8</strong> גליל סגור שנפחו \(250\pi\). מצאו \(r,h\).</div><div class="exercise-item"><strong>4.9</strong> גליל פתוח מלמעלה שנפחו \(64\pi\). מצאו \(r,h\) כך ששטח החומר מינימלי.</div><div class="exercise-item"><strong>4.10</strong> גליל פתוח מלמעלה שנפחו \(125\pi\). מצאו \(r,h\).</div></div>
+<div class="teacher-note"><strong>דרישת כתיבה:</strong> אין לדלג על התחום. תשובה מספרית ללא בניית פונקציית מטרה אינה פתרון מלא.</div>
+</section>
+<section class="page " data-page="11">
+
+<div class="page-kicker">שיעור 5</div>
+<h1>מלבן הנוצר מנקודה על גרף רציונלי</h1>
+<div class="grid-2">
+  <div>
+    <div class="question">הנקודה \(A\) ברביע הראשון נמצאת על \(f(x)=x+16/x^3\). מורידים ממנה אנכים לצירים. מצאו את \(A\) כך ששטח המלבן יהיה מינימלי.</div>
+    <p>אם \(A=(x,f(x))\), אז רוחב המלבן הוא \(x\) וגובהו \(f(x)\).</p>
+    <div class="formula-box">\[A(x)=x\cdot f(x)=x^2+\frac{16}{x^2},\qquad x\gt0\]</div>
+    <div class="formula-box">\[A'(x)=2x-\frac{32}{x^3}=0\qquad ⇒ \qquad x=2\]</div>
+    <div class="formula-box">\[f(2)=4\]</div>
+    <div class="card ok"><strong>תשובה:</strong> \(A=(2,4)\), והשטח המינימלי הוא \(8\).</div>
+    <div class="rule-box"><strong>חשוב:</strong> פונקציית המטרה היא שטח המלבן, לא הפונקציה \(f\) עצמה.</div>
   </div>
-  <div class="grid-2">
-    <div>
-      <div class="formula-box">\[h=\frac{128}{r^2}\]</div>
-      <p>שטח הפנים של גליל סגור:</p>
-      <div class="formula-box">\[S=2\pi r^2+2\pi rh\]</div>
-      <div class="formula-box">\[S(r)=2\pi r^2+\frac{256\pi}{r},\qquad r\gt0\]</div>
-      <div class="formula-box">\[S'(r)=4\pi r-\frac{256\pi}{r^2}\]</div>
-      <div class="formula-box">\[4r^3=256\qquad⇒\qquad r=4\]</div>
-      <div class="formula-box">\[h=\frac{128}{16}=8\]</div>
-      <div class="formula-box">\[V=\pi r^2h=128\pi\]</div>
-      <div class="card ok"><strong>תשובה:</strong> <span class="math-inline">\(r=4\)</span>, <span class="math-inline">\(h=8\)</span>, ונפח הגליל הוא <span class="math-inline">\(128\pi\)</span>.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">שטח הפנים כתלות ברדיוס</div>
-      <div id="g210" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="g210">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
+  <div class="graph-card">
+      <div class="graph-title">הגרף והמלבן המתאים</div>
+      <div id="g_l5" class="jxgbox tall-board"></div>
+      <div class="graph-controls" data-board="g_l5">
+        <button type="button" data-act="in">הגדלה +</button>
+        <button type="button" data-act="out">הקטנה -</button>
+        <button type="button" data-act="reset">מרכוז / איפוס</button>
       </div>
+      <p class="small center graph-note">המלבן המסומן מתאים לערך המינימלי.</p>
     </div>
-  </div>
-</section>
+</div>
 
-<section class="page" data-page="13">
-  <h1>דוגמה 6 - מלבן הנוצר מנקודה על גרף</h1>
-  <div class="question" style="margin-top:8px">
-    הנקודה <span class="math-inline">\(A\)</span> נמצאת ברביע הראשון על הגרף
-    <span class="math-inline">\(f(x)=x+\frac{16}{x^3}\)</span>. מורידים ממנה אנכים לצירים ונוצר מלבן. מצא את שיעורי <span class="math-inline">\(A\)</span> כך ששטח המלבן יהיה מינימלי.
+</section>
+<section class="page exercise-page" data-page="12">
+<div class="page-kicker">שיעור 5 - דף תרגול</div>
+<h1>תרגול - נקודה על גרף</h1>
+<p class="subtitle compact">בכל תרגיל: הגדירו משתנה, כתבו אילוץ, בנו פונקציית מטרה במשתנה אחד, קבעו תחום, גזרו והצדיקו את הקיצון בעזרת סימן הנגזרת.</p>
+<div class="exercise-grid"><div class="exercise-item"><strong>5.1</strong> \(f(x)=x+1/x^3\). נקודה ברביע הראשון יוצרת מלבן עם הצירים. מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.2</strong> \(f(x)=x+16/x^3\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.3</strong> \(f(x)=x+81/x^3\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.4</strong> \(f(x)=x+256/x^3\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.5</strong> \(f(x)=x+2/x^2\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.6</strong> \(f(x)=x+16/x^2\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.7</strong> \(f(x)=x+54/x^2\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.8</strong> \(f(x)=x+128/x^2\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.9</strong> \(f(x)=2x+32/x^3\). מצאו את הנקודה לשטח מינימלי.</div><div class="exercise-item"><strong>5.10</strong> \(f(x)=2x+162/x^3\). מצאו את הנקודה לשטח מינימלי.</div></div>
+<div class="teacher-note"><strong>דרישת כתיבה:</strong> אין לדלג על התחום. תשובה מספרית ללא בניית פונקציית מטרה אינה פתרון מלא.</div>
+</section>
+<section class="page " data-page="13">
+
+<div class="page-kicker">שיעור 6</div>
+<h1>דמיון משולשים שמוביל לפונקציה רציונלית</h1>
+<div class="grid-2">
+  <div>
+    <div class="question">במשולש ישר זווית חסום מלבן שרוחבו \(6\) וגובהו \(12\). מצאו את אורכי הניצבים כאשר שטח המשולש מינימלי.</div>
+    <p>נסמן את הניצב האנכי ב-\(x\) ואת האופקי ב-\(y\). מדמיון משולשים מתקבל:</p>
+    <div class="formula-box">\[\frac{x-12}{x}=\frac{6}{y}\qquad ⇒ \qquad y=\frac{6x}{x-12},\qquad x\gt12\]</div>
+    <div class="formula-box">\[T(x)=\frac12xy=\frac{3x^2}{x-12}\]</div>
+    <div class="formula-box">\[T'(x)=\frac{3x(x-24)}{(x-12)^2}\]</div>
+    <p>בתחום \(12\lt x\lt24\) הנגזרת שלילית, ובתחום \(x\gt24\) היא חיובית. לכן \(x=24\) נותן מינימום.</p>
+    <div class="formula-box">\[y=12\]</div>
+    <div class="card ok"><strong>תשובה:</strong> הניצבים הם \(24\) ו-\(12\).</div>
   </div>
-  <div class="grid-2">
-    <div>
-      <p>אם <span class="math-inline">\(A=(x,f(x))\)</span>, אז רוחב המלבן הוא <span class="math-inline">\(x\)</span> וגובהו <span class="math-inline">\(f(x)\)</span>.</p>
-      <div class="formula-box">\[A(x)=x\cdot f(x)=x^2+\frac{16}{x^2},\qquad x\gt0\]</div>
-      <div class="formula-box">\[A'(x)=2x-\frac{32}{x^3}\]</div>
-      <div class="formula-box">\[2x^4=32\qquad⇒\qquad x=2\]</div>
-      <div class="formula-box">\[f(2)=2+\frac{16}{8}=4\]</div>
-      <div class="formula-box">\[A_{\min}=2\cdot4=8\]</div>
-      <div class="card ok"><strong>תשובה:</strong> <span class="math-inline">\(A=(2,4)\)</span>, ושטח המלבן המינימלי הוא <span class="math-inline">\(8\)</span>.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">הפונקציה והמלבן - גררו את A לאורך הגרף</div>
-      <div id="g183" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="g183">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
+  <div class="graph-card">
+      <div class="graph-title">המשולש והמלבן החסום</div>
+      <div id="g_l6" class="jxgbox geometry-board"></div>
+      <div class="graph-controls" data-board="g_l6">
+        <button type="button" data-act="in">הגדלה +</button>
+        <button type="button" data-act="out">הקטנה -</button>
+        <button type="button" data-act="reset">מרכוז / איפוס</button>
       </div>
+      <p class="small center graph-note">בשרטוט הגאומטרי אין מערכת צירים; נקודות העזר אינן מסומנות.</p>
     </div>
-  </div>
+</div>
+<div class="rule-box"><strong>הכללה:</strong> אם למלבן החסום רוחב \(w\) וגובה \(h\), שטח המשולש מינימלי כאשר הניצבים הם \(2w\) ו-\(2h\).</div>
+
+</section>
+<section class="page exercise-page" data-page="14">
+<div class="page-kicker">שיעור 6 - דף תרגול</div>
+<h1>תרגול - דמיון משולשים ומנה</h1>
+<p class="subtitle compact">בכל תרגיל: הגדירו משתנה, כתבו אילוץ, בנו פונקציית מטרה במשתנה אחד, קבעו תחום, גזרו והצדיקו את הקיצון בעזרת סימן הנגזרת.</p>
+<div class="exercise-grid"><div class="exercise-item"><strong>6.1</strong> מלבן חסום במידות \(4\times7\) במשולש ישר זווית. מצאו את הניצבים לשטח משולש מינימלי.</div><div class="exercise-item"><strong>6.2</strong> מלבן חסום במידות \(5\times9\). מצאו את הניצבים.</div><div class="exercise-item"><strong>6.3</strong> מלבן חסום במידות \(6\times12\). מצאו את הניצבים.</div><div class="exercise-item"><strong>6.4</strong> מלבן חסום במידות \(8\times15\). מצאו את הניצבים.</div><div class="exercise-item"><strong>6.5</strong> מלבן חסום במידות \(10\times14\). מצאו את הניצבים.</div><div class="exercise-item"><strong>6.6</strong> מלבן חסום במידות \(3\times11\). מצאו את הניצבים ואת שטח המשולש המינימלי.</div><div class="exercise-item"><strong>6.7</strong> מלבן חסום במידות \(7\times13\). מצאו את הניצבים ואת השטח המינימלי.</div><div class="exercise-item"><strong>6.8</strong> מלבן חסום במידות \(9\times16\). מצאו את הניצבים ואת השטח המינימלי.</div><div class="exercise-item"><strong>6.9</strong> מלבן חסום במידות \(12\times20\). מצאו את הניצבים ואת השטח המינימלי.</div><div class="exercise-item"><strong>6.10</strong> למלבן חסום רוחב \(w\gt0\) וגובה \(h\gt0\). הוכיחו שהניצבים המתאימים לשטח מינימלי הם \(2w\) ו-\(2h\).</div></div>
+<div class="teacher-note"><strong>דרישת כתיבה:</strong> אין לדלג על התחום. תשובה מספרית ללא בניית פונקציית מטרה אינה פתרון מלא.</div>
 </section>
 
-<section class="page" data-page="14">
-  <h1>דוגמה 7 - פונקציה רציונלית אחרת, אותו עיקרון</h1>
-  <div class="question" style="margin-top:8px">
-    ברביע הראשון נתונה הפונקציה
-    <span class="math-inline">\(f(x)=x+\frac{16}{x^2}\)</span>. נקודה <span class="math-inline">\(A\)</span> על הגרף יוצרת עם הצירים מלבן. נסמן את שיעור ה-
-    <span class="math-inline">\(x\)</span> של <span class="math-inline">\(A\)</span> ב-
-    <span class="math-inline">\(t\)</span>. מצא את <span class="math-inline">\(t\)</span> שעבורו שטח המלבן מינימלי.
-  </div>
-  <div class="grid-2">
-    <div>
-      <div class="formula-box">\[y=t+\frac{16}{t^2}\]</div>
-      <div class="formula-box">\[A(t)=t\left(t+\frac{16}{t^2}\right)=t^2+\frac{16}{t},\qquad t\gt0\]</div>
-      <div class="formula-box">\[A'(t)=2t-\frac{16}{t^2}\]</div>
-      <div class="formula-box">\[2t^3=16\qquad⇒\qquad t=2\]</div>
-      <div class="formula-box">\[y=2+\frac{16}{4}=6\]</div>
-      <div class="formula-box">\[A_{\min}=12\]</div>
-      <div class="card ok"><strong>תשובה:</strong> <span class="math-inline">\(t=2\)</span>, נקודת המינימום המתאימה היא <span class="math-inline">\((2,6)\)</span>, ושטח המלבן המינימלי הוא <span class="math-inline">\(12\)</span>.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">הפונקציה והמלבן</div>
-      <div id="g198" class="jxgbox tall-board"></div>
-      <div class="graph-controls" data-board="g198">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
-      </div>
-    </div>
-  </div>
+<section class="page solution-page" data-page="16">
+<div class="page-kicker">פתרונות - שיעור 1</div>
+<h1>מידול ותחום</h1>
+<div class="solution-list"><div class="solution-item"><strong>1.1</strong><p>\(y=36/x\), ולכן \(S=x+36/x\), \(x\gt0\). מתקבל \(S' =1-36/x^2\), ולכן \(x=6\), \(y=6\). מינימום: הנגזרת שלילית לפני 6 וחיובית אחריו.</p></div><div class="solution-item"><strong>1.2</strong><p>\(y=32/x^2\), \(S=x+32/x^2\). מן \(S'=1-64/x^3=0\) מתקבל \(x=4\), ולכן \(y=2\).</p></div><div class="solution-item"><strong>1.3</strong><p>\(y=144/x\), \(P=2x+288/x\). מן \(P'=2-288/x^2=0\) מתקבל \(x=12\), \(y=12\).</p></div><div class="solution-item"><strong>1.4</strong><p>\(y=200/x\), \(F=x+400/x\). מן \(F'=1-400/x^2=0\) מתקבל \(x=20\), \(y=10\).</p></div><div class="solution-item"><strong>1.5</strong><p>\(y=75/x\), \(F=3x+75/x\). מן \(F'=3-75/x^2=0\) מתקבל \(x=5\), \(y=15\).</p></div><div class="solution-item"><strong>1.6</strong><p>\(y=128/x^2\), \(F=2x+128/x^2\). מן \(F'=2-256/x^3=0\) מתקבל \(x=8\), \(y=2\).</p></div><div class="solution-item"><strong>1.7</strong><p>\(y=300/x\), \(F=2x+900/x\). מן \(F'=2-900/x^2=0\): \(x=15\sqrt2\), \(y=10\sqrt2\).</p></div><div class="solution-item"><strong>1.8</strong><p>\(y=64/x\), \(F=2x+64/x\). מן \(F'=2-64/x^2=0\): \(x=4\sqrt2\), \(y=8\sqrt2\).</p></div><div class="solution-item"><strong>1.9</strong><p>\(y=108/x\), \(F=x+324/x\). מן \(F'=1-324/x^2=0\): \(x=18\), \(y=6\).</p></div><div class="solution-item"><strong>1.10</strong><p>נבחר \(y\). אז \(x=32/y^2\), ולכן \(F=32/y^2+y\). מן \(F'=1-64/y^3=0\): \(y=4\), \(x=2\).</p></div></div>
+</section>
+<section class="page solution-page" data-page="17">
+<div class="page-kicker">פתרונות - שיעור 2</div>
+<h1>תבנית \(ax+b/x\)</h1>
+<div class="solution-list"><div class="solution-item"><strong>2.1</strong><p>\(y=96/x\), \(F=2x+288/x\). \(x=\sqrt{288/2}=12\), ולכן \(y=8\).</p></div><div class="solution-item"><strong>2.2</strong><p>\(F=3x+300/x\). \(x=\sqrt{300/3}=10\), ולכן \(y=15\).</p></div><div class="solution-item"><strong>2.3</strong><p>\(F=5x+720/x\). \(x=\sqrt{720/5}=12\), ולכן \(y=15\).</p></div><div class="solution-item"><strong>2.4</strong><p>\(F=6x+864/x\). \(x=12\), ולכן \(y=18\).</p></div><div class="solution-item"><strong>2.5</strong><p>\(F=7x+1008/x\). \(x=12\), ולכן \(y=21\).</p></div><div class="solution-item"><strong>2.6</strong><p>\(y=300/x\), \(L=5x+900/x\). \(x=\sqrt{180}=6\sqrt5\), \(y=10\sqrt5\).</p></div><div class="solution-item"><strong>2.7</strong><p>ניקח עלות יחסית \(C=2x+y\). \(y=128/x\), ולכן \(C=2x+128/x\). מתקבל \(x=8\), \(y=16\).</p></div><div class="solution-item"><strong>2.8</strong><p>\(F=3x+1536/x\). מתקבל \(x=\sqrt{512}=16\sqrt2\), \(y=6\sqrt2\).</p></div><div class="solution-item"><strong>2.9</strong><p>\(F=8x+400/x\). מתקבל \(x=5\sqrt2\), \(y=20\sqrt2\).</p></div><div class="solution-item"><strong>2.10</strong><p>\(F=2x+2304/x\). מתקבל \(x=24\sqrt2\), \(y=6\sqrt2\).</p></div></div>
+</section>
+<section class="page solution-page" data-page="18">
+<div class="page-kicker">פתרונות - שיעור 3</div>
+<h1>שוליים ומסגרות</h1>
+<div class="solution-list"><div class="solution-item"><strong>3.1</strong><p>\(A=(x-4)(\frac{288}{x}-8)\), ולכן \(A'=-8+\frac{1152}{x^2}\). מתקבל \(x=12\), \(y=24\). השטח הפנימי המקסימלי: \(128\).</p></div><div class="solution-item"><strong>3.2</strong><p>\(A=(x-4)(\frac{450}{x}-8)\), ולכן \(A'=-8+\frac{1800}{x^2}\). מתקבל \(x=15\), \(y=30\). השטח הפנימי המקסימלי: \(242\).</p></div><div class="solution-item"><strong>3.3</strong><p>\(A=(x-6)(\frac{768}{x}-8)\), ולכן \(A'=-8+\frac{4608}{x^2}\). מתקבל \(x=24\), \(y=32\). השטח הפנימי המקסימלי: \(432\).</p></div><div class="solution-item"><strong>3.4</strong><p>\(A=(x-4)(\frac{900}{x}-16)\), ולכן \(A'=-16+\frac{3600}{x^2}\). מתקבל \(x=15\), \(y=60\). השטח הפנימי המקסימלי: \(484\).</p></div><div class="solution-item"><strong>3.5</strong><p>\(A=(x-6)(\frac{675}{x}-10)\), ולכן \(A'=-10+\frac{4050}{x^2}\). מתקבל \(x\approx20.12\), \(y\approx33.54\). השטח הפנימי המקסימלי: \(\approx 332.51\).</p></div><div class="solution-item"><strong>3.6</strong><p>\(A=(x-8)(\frac{800}{x}-10)\), ולכן \(A'=-10+\frac{6400}{x^2}\). מתקבל \(x\approx25.30\), \(y\approx31.62\). השטח הפנימי המקסימלי: \(\approx 374.04\).</p></div><div class="solution-item"><strong>3.7</strong><p>\(A=(x-8)(\frac{1152}{x}-12)\), ולכן \(A'=-12+\frac{9216}{x^2}\). מתקבל \(x\approx27.71\), \(y\approx41.57\). השטח הפנימי המקסימלי: \(\approx 582.89\).</p></div><div class="solution-item"><strong>3.8</strong><p>\(A=(x-10)(\frac{1250}{x}-8)\), ולכן \(A'=-8+\frac{12500}{x^2}\). מתקבל \(x\approx39.53\), \(y\approx31.62\). השטח הפנימי המקסימלי: \(\approx 697.54\).</p></div><div class="solution-item"><strong>3.9</strong><p>\(A=(x-6)(\frac{972}{x}-18)\), ולכן \(A'=-18+\frac{5832}{x^2}\). מתקבל \(x=18\), \(y=54\). השטח הפנימי המקסימלי: \(432\).</p></div><div class="solution-item"><strong>3.10</strong><p>\(A=(x-10)(\frac{1470}{x}-12)\), ולכן \(A'=-12+\frac{14700}{x^2}\). מתקבל \(x=35\), \(y=42\). השטח הפנימי המקסימלי: \(750\).</p></div></div>
+</section>
+<section class="page solution-page" data-page="19">
+<div class="page-kicker">פתרונות - שיעור 4</div>
+<h1>תיבות וגלילים</h1>
+<div class="solution-list"><div class="solution-item"><strong>4.1</strong><p>\(h=64/x^2\), \(S=2x^2+256/x\). מתקבל \(x^3=64\), ולכן \(x=4\), \(h=4\).</p></div><div class="solution-item"><strong>4.2</strong><p>\(S=2x^2+500/x\). מתקבל \(x^3=125\), ולכן \(x=5\), \(h=5\).</p></div><div class="solution-item"><strong>4.3</strong><p>\(S=2x^2+864/x\). מתקבל \(x^3=216\), ולכן \(x=6\), \(h=6\).</p></div><div class="solution-item"><strong>4.4</strong><p>\(h=108/x^2\), \(S=x^2+432/x\). מתקבל \(2x^3=432\), ולכן \(x=6\), \(h=3\).</p></div><div class="solution-item"><strong>4.5</strong><p>\(S=x^2+1024/x\). מתקבל \(2x^3=1024\), ולכן \(x=8\), \(h=4\).</p></div><div class="solution-item"><strong>4.6</strong><p>\(h=96/x^2\), \(S=6x^2+768/x\). מתקבל \(x=4\), ולכן המידות \(12\times4\times6\).</p></div><div class="solution-item"><strong>4.7</strong><p>\(h=54/r^2\), \(S=2\pi r^2+108\pi/r\). מתקבל \(2r^3=54\), ולכן \(r=3\), \(h=6\).</p></div><div class="solution-item"><strong>4.8</strong><p>\(h=250/r^2\), \(S=2\pi r^2+500\pi/r\). מתקבל \(r=5\), \(h=10\).</p></div><div class="solution-item"><strong>4.9</strong><p>\(h=64/r^2\), \(S=\pi r^2+128\pi/r\). מתקבל \(r^3=64\), ולכן \(r=4\), \(h=4\).</p></div><div class="solution-item"><strong>4.10</strong><p>\(S=\pi r^2+250\pi/r\). מתקבל \(r^3=125\), ולכן \(r=5\), \(h=5\).</p></div></div>
+</section>
+<section class="page solution-page" data-page="20">
+<div class="page-kicker">פתרונות - שיעור 5</div>
+<h1>נקודה על גרף</h1>
+<div class="solution-list"><div class="solution-item"><strong>5.1</strong><p>\(A=x^2+1/x^2\). מתקבל \(x^4=1\), ולכן \(x=1\), \(y=2\), שטח \(2\).</p></div><div class="solution-item"><strong>5.2</strong><p>\(A=x^2+16/x^2\). מתקבל \(x=2\), \(y=4\), שטח \(8\).</p></div><div class="solution-item"><strong>5.3</strong><p>\(A=x^2+81/x^2\). מתקבל \(x=3\), \(y=6\), שטח \(18\).</p></div><div class="solution-item"><strong>5.4</strong><p>\(A=x^2+256/x^2\). מתקבל \(x=4\), \(y=8\), שטח \(32\).</p></div><div class="solution-item"><strong>5.5</strong><p>\(A=x^2+2/x\). מתקבל \(2x^3=2\), ולכן \(x=1\), \(y=3\), שטח \(3\).</p></div><div class="solution-item"><strong>5.6</strong><p>\(A=x^2+16/x\). מתקבל \(2x^3=16\), ולכן \(x=2\), \(y=6\), שטח \(12\).</p></div><div class="solution-item"><strong>5.7</strong><p>\(A=x^2+54/x\). מתקבל \(x=3\), \(y=9\), שטח \(27\).</p></div><div class="solution-item"><strong>5.8</strong><p>\(A=x^2+128/x\). מתקבל \(x=4\), \(y=12\), שטח \(48\).</p></div><div class="solution-item"><strong>5.9</strong><p>\(A=2x^2+32/x^2\). מתקבל \(2x^4=32\), ולכן \(x=2\), \(y=8\), שטח \(16\).</p></div><div class="solution-item"><strong>5.10</strong><p>\(A=2x^2+162/x^2\). מתקבל \(2x^4=162\), ולכן \(x=3\), \(y=12\), שטח \(36\).</p></div></div>
+</section>
+<section class="page solution-page" data-page="21">
+<div class="page-kicker">פתרונות - שיעור 6</div>
+<h1>דמיון משולשים ומנה</h1>
+<div class="solution-list"><div class="solution-item"><strong>6.1</strong><p>מן הדמיון: \(y=4x/(x-7)\), \(x\gt7\). מתקבל מינימום ב-\(x=14\), ולכן \(y=8\). שטח מינימלי \(56\).</p></div><div class="solution-item"><strong>6.2</strong><p>מן הדמיון: \(y=5x/(x-9)\), \(x\gt9\). מתקבל מינימום ב-\(x=18\), ולכן \(y=10\). שטח מינימלי \(90\).</p></div><div class="solution-item"><strong>6.3</strong><p>מן הדמיון: \(y=6x/(x-12)\), \(x\gt12\). מתקבל מינימום ב-\(x=24\), ולכן \(y=12\). שטח מינימלי \(144\).</p></div><div class="solution-item"><strong>6.4</strong><p>מן הדמיון: \(y=8x/(x-15)\), \(x\gt15\). מתקבל מינימום ב-\(x=30\), ולכן \(y=16\). שטח מינימלי \(240\).</p></div><div class="solution-item"><strong>6.5</strong><p>מן הדמיון: \(y=10x/(x-14)\), \(x\gt14\). מתקבל מינימום ב-\(x=28\), ולכן \(y=20\). שטח מינימלי \(280\).</p></div><div class="solution-item"><strong>6.6</strong><p>מן הדמיון: \(y=3x/(x-11)\), \(x\gt11\). מתקבל מינימום ב-\(x=22\), ולכן \(y=6\). שטח מינימלי \(66\).</p></div><div class="solution-item"><strong>6.7</strong><p>מן הדמיון: \(y=7x/(x-13)\), \(x\gt13\). מתקבל מינימום ב-\(x=26\), ולכן \(y=14\). שטח מינימלי \(182\).</p></div><div class="solution-item"><strong>6.8</strong><p>מן הדמיון: \(y=9x/(x-16)\), \(x\gt16\). מתקבל מינימום ב-\(x=32\), ולכן \(y=18\). שטח מינימלי \(288\).</p></div><div class="solution-item"><strong>6.9</strong><p>מן הדמיון: \(y=12x/(x-20)\), \(x\gt20\). מתקבל מינימום ב-\(x=40\), ולכן \(y=24\). שטח מינימלי \(480\).</p></div><div class="solution-item"><strong>6.10</strong><p>מן הדמיון \(y=wx/(x-h)\), ולכן \(T=wx^2/[2(x-h)]\). הנגזרת היא \(T'=wx(x-2h)/[2(x-h)^2]\). בתחום \(x\gt h\) מתקבל מינימום ב-\(x=2h\), ואז \(y=2w\).</p></div></div>
+</section>
+<section class="page final-page" data-page="22">
+
+<div class="page-kicker">תרגול מסכם - רמה גבוהה</div>
+<h1>תרגילים מסכמים - חלק 1</h1>
+<p class="subtitle compact">התרגילים משלבים את כל סוגי המודלים שנלמדו. יש להציג פתרון מלא.</p>
+<div class="final-list"><div class="final-item"><strong>1.</strong> שטח עמוד הוא \(1200\) סמ"ר. שוליים צדדיים \(4\) ס"מ ושוליים עליון ותחתון \(3\) ס"מ. מצאו מידות שממקסמות את שטח ההדפסה.</div><div class="final-item"><strong>2.</strong> חלון מלבני ששטחו \(375\) מ"ר כולל 5 מוטות אופקיים ו-3 אנכיים. מצאו את מידות החלון שממזערות את אורך המוטות הכולל.</div><div class="final-item"><strong>3.</strong> תיבה פתוחה מלמעלה בעלת בסיס ריבועי ונפח \(500\). מצאו את המידות שממזערות את שטח החומר.</div><div class="final-item"><strong>4.</strong> גליל סגור שנפחו \(250\pi\). מצאו את הרדיוס והגובה שממזערים את שטח הפנים.</div><div class="final-item"><strong>5.</strong> נקודה ברביע הראשון על \(f(x)=x+81/x^3\) יוצרת מלבן עם הצירים. מצאו את הנקודה לשטח מינימלי.</div></div>
+
+</section>
+<section class="page final-page" data-page="23">
+
+<div class="page-kicker">תרגול מסכם - רמה גבוהה</div>
+<h1>תרגילים מסכמים - חלק 2</h1>
+<p class="subtitle compact">התרגילים משלבים את כל סוגי המודלים שנלמדו. יש להציג פתרון מלא.</p>
+<div class="final-list"><div class="final-item"><strong>6.</strong> נקודה ברביע הראשון על \(f(x)=2x+162/x^3\) יוצרת מלבן עם הצירים. מצאו את הנקודה לשטח מינימלי.</div><div class="final-item"><strong>7.</strong> במשולש ישר זווית חסום מלבן שמידותיו \(8\times15\). מצאו את אורכי הניצבים לשטח משולש מינימלי.</div><div class="final-item"><strong>8.</strong> נתונים \(x\gt0,y\gt0\) המקיימים \(x^2y=250\). מצאו את הערכים כך ש-\(x+2y\) מינימלי.</div><div class="final-item"><strong>9.</strong> שטח מלבן חיצוני הוא \(900\) סמ"ר. שוליים צדדיים \(3\) ס"מ ועליון ותחתון \(12\) ס"מ. מצאו את מידות המלבן המגדילות את השטח הפנימי.</div><div class="final-item"><strong>10.</strong> לוח מלבני ששטחו \(252\). עלות יחסית של צלע אופקית היא 7 ושל צלע אנכית היא 4. מצאו את המידות שממזערות את העלות הכוללת.</div></div>
+
+</section>
+<section class="page solution-page" data-page="24">
+
+<div class="page-kicker">פתרונות - תרגול מסכם</div>
+<h1>פתרונות לתרגילים המסכמים - חלק 1</h1>
+<div class="solution-list"><div class="solution-item"><strong>1.</strong><p>\(A=(x-8)(1200/x-6)\), תחום \(8\lt x\lt200\). \(A'= -6+9600/x^2=0\), ולכן \(x=40\), \(y=30\). השטח הפנימי: \(32\cdot24=768\).</p></div><div class="solution-item"><strong>2.</strong><p>\(y=375/x\), \(L=5x+1125/x\). מתקבל \(x=15\), \(y=25\).</p></div><div class="solution-item"><strong>3.</strong><p>\(h=500/x^2\), \(S=x^2+2000/x\). מתקבל \(2x^3=2000\), ולכן \(x=10\), \(h=5\).</p></div><div class="solution-item"><strong>4.</strong><p>\(h=250/r^2\), \(S=2\pi r^2+500\pi/r\). מתקבל \(r=5\), \(h=10\).</p></div><div class="solution-item"><strong>5.</strong><p>\(A=x^2+81/x^2\). מתקבל \(x=3\), \(y=6\), שטח מינימלי \(18\).</p></div></div>
+
+</section>
+<section class="page solution-page" data-page="25">
+
+<div class="page-kicker">פתרונות - תרגול מסכם</div>
+<h1>פתרונות לתרגילים המסכמים - חלק 2</h1>
+<div class="solution-list"><div class="solution-item"><strong>6.</strong><p>\(A=2x^2+162/x^2\). מתקבל \(x=3\), \(y=12\), שטח מינימלי \(36\).</p></div><div class="solution-item"><strong>7.</strong><p>למלבן רוחב \(8\) וגובה \(15\). בנקודת המינימום הניצבים הם פי 2: \(16\) ו-\(30\). שטח המשולש \(240\).</p></div><div class="solution-item"><strong>8.</strong><p>\(y=250/x^2\), \(F=x+500/x^2\). \(F'=1-1000/x^3=0\), ולכן \(x=10\), \(y=2.5\).</p></div><div class="solution-item"><strong>9.</strong><p>\(A=(x-6)(900/x-24)\). \(A'=-24+5400/x^2=0\), ולכן \(x=15\), \(y=60\). השטח הפנימי \(9\cdot36=324\).</p></div><div class="solution-item"><strong>10.</strong><p>\(y=252/x\), \(C=7x+1008/x\). מתקבל \(x=12\), \(y=21\).</p></div></div>
+
 </section>
 
-<section class="page" data-page="15">
-  <h1>דוגמה מתקדמת - אילוץ גאומטרי שמוביל למנה</h1>
-  <div class="question" style="margin-top:8px">
-    במשולש ישר זווית <span class="math-inline">\(ABC\)</span> חסום מלבן שמידותיו <span class="math-inline">\(DE=6\)</span> ו-
-    <span class="math-inline">\(EF=12\)</span>. נסמן <span class="math-inline">\(AB=x\)</span>. מצא את אורכי הניצבים כך ששטח המשולש יהיה מינימלי.
-  </div>
-  <div class="grid-2">
-    <div>
-      <p>נסמן <span class="math-inline">\(AB=x\)</span> ו-<span class="math-inline">\(BC=y\)</span>. במלבן החסום מתקיים <span class="math-inline">\(DE=6\)</span> ו-<span class="math-inline">\(EF=12\)</span>, ולכן <span class="math-inline">\(AD=x-12\)</span>.</p>
-      <p><strong>הקשר בין <span class="math-inline">\(x\)</span> ל-<span class="math-inline">\(y\)</span> בעזרת משפט תלס:</strong> מאחר ש-<span class="math-inline">\(DE\parallel BC\)</span>, המשולשים <span class="math-inline">\(ADE\)</span> ו-<span class="math-inline">\(ABC\)</span> דומים.</p>
-      <div class="formula-box">\[\frac{AD}{AB}=\frac{DE}{BC}\qquad⇒\qquad\frac{x-12}{x}=\frac{6}{y}\]</div>
-      <div class="formula-box">\[y(x-12)=6x\qquad⇒\qquad y=\frac{6x}{x-12},\qquad x\gt12\]</div>
-      <p>שטח המשולש:</p>
-      <div class="formula-box">\[T(x)=\frac12xy=\frac{3x^2}{x-12}\]</div>
-      <div class="formula-box">\[T'(x)=\frac{3x(x-24)}{(x-12)^2}\]</div>
-      <p>בתחום <span class="math-inline">\(x\gt12\)</span> מתקבל מינימום ב-
-      <span class="math-inline">\(x=24\)</span>.</p>
-      <div class="formula-box">\[y=\frac{6\cdot24}{24-12}=12\]</div>
-      <div class="card ok"><strong>תשובה:</strong> <span class="math-inline">\(AB=24\)</span> ו-
-      <span class="math-inline">\(BC=12\)</span>.</div>
-    </div>
-    <div class="graph-card">
-      <div class="graph-title">המשולש והמלבן החסום - גררו את P על הקו המקווקו</div>
-      <div id="tri171" class="jxgbox tall-board" style="height:285px"></div>
-      <div class="graph-controls" data-board="tri171">
-        <button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="page" data-page="17">
-  <h1>טעויות נפוצות - ואיך למנוע אותן</h1>
-  <table>
-    <tr><th>טעות</th><th>למה היא מתרחשת</th><th>תיקון מומלץ</th></tr>
-    <tr><td>גוזרים את האילוץ</td><td>התלמיד מזהה משוואה וניגש מיד לנגזרת</td><td>לכתוב קודם במילים מה המטרה.</td></tr>
-    <tr><td>נשארים עם שני משתנים</td><td>לא בוצעה הצבה</td><td>לא מתחילים נגזרת לפני שיש פונקציה במשתנה אחד.</td></tr>
-    <tr><td>שוכחים שני שוליים</td><td>מורידים רק פעם אחת</td><td>לסמן על השרטוט שוליים משני הצדדים.</td></tr>
-    <tr><td>לא קובעים תחום</td><td>מתייחסים לשאלה כחישוב אלגברי בלבד</td><td>לכתוב תחום מיד לאחר פונקציית המטרה.</td></tr>
-    <tr><td>מקבלים פתרון שלילי</td><td>פתרון משוואת הנגזרת ללא בדיקת מציאות</td><td>לסנן פתרונות לפי התחום.</td></tr>
-    <tr><td>קובעים קיצון מ-
-    <span class="math-inline">\(F'(x)=0\)</span></td><td>חסר שלב הוכחה</td><td>טבלת סימנים, נקודות קצה או התנהגות בקצות התחום.</td></tr>
-    <tr><td>עונים על ערך לא נכון</td><td>התלמיד מצא <span class="math-inline">\(x\)</span> אך השאלה ביקשה ממדים נוספים</td><td>לחזור לאילוץ ולקרוא שוב את נוסח השאלה.</td></tr>
-    <tr><td>כלל מנה מסורבל</td><td>גזירה לפני פישוט</td><td>לבדוק אם אפשר לפתוח סוגריים או להשתמש בחזקות שליליות.</td></tr>
-  </table>
-  <div class="card warn" style="margin-top:10px">
-    <h3>בדיקת 20 שניות לפני גזירה</h3>
-    <ul class="checklist">
-      <li>האם ברור מהו המשתנה?</li>
-      <li>האם יש לי פונקציית מטרה במשתנה אחד?</li>
-      <li>האם כתבתי תחום?</li>
-      <li>האם הפונקציה מתארת בדיוק את הגודל המבוקש?</li>
-    </ul>
-  </div>
-</section>
-
-<section class="page" data-page="18">
-  <h1>תרגול מודרך - רמה 1</h1>
-  <p class="subtitle">המטרה בשלב זה היא בניית פונקציית המטרה והתחום. אין למהר לנגזרת.</p>
-  <div class="grid-2">
-    <div class="card">
-      <h3 style="margin-top:6px">תרגיל א - מסגרת לתמונה</h3>
-      <p>שטח קרטון מלבני הוא <span class="math-inline">\(242\)</span> סמ"ר. משאירים שוליים של <span class="math-inline">\(1\)</span> ס"מ למעלה ולמטה ושל <span class="math-inline">\(2\)</span> ס"מ בכל צד. מצא את מידות הקרטון שעבורן שטח התמונה הפנימית יהיה מקסימלי.</p>
-      <div id="practice115" class="jxgbox practice-board"></div>
-      <div class="graph-controls" data-board="practice115"><button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button></div>
-    </div>
-    <div class="card">
-      <h3 style="margin-top:6px">תרגיל ב - שלושה מלבנים מסומנים</h3>
-      <p>שטח המלבן החיצוני הוא <span class="math-inline">\(1176\)</span> סמ"ר. רצועה ימנית ברוחב <span class="math-inline">\(2\)</span> ס"מ מחולקת כך שהחלק העליון והתחתון בגובה <span class="math-inline">\(6\)</span> ס"מ. שלושת האזורים המסומנים הם המרכזי משמאל ושני הקטעים שבקצות הרצועה. מצא את מידות המלבן כך שסכום השטחים המסומנים יהיה מקסימלי.</p>
-      <div id="practice129" class="jxgbox practice-board"></div>
-      <div class="graph-controls" data-board="practice129"><button data-act="in">הגדלה +</button><button data-act="out">הקטנה -</button><button data-act="reset">מרכוז</button></div>
-    </div>
-  </div>
-  <div class="card accent" style="margin-top:8px">
-    <strong>לפני גזירה:</strong> לכל תרגיל כתבו ארבע שורות בלבד - משתנה, אילוץ, פונקציית מטרה ותחום. לאחר בדיקת המודל המשיכו לחקירה.
-  </div>
-</section>
-
-<section class="page" data-page="19">
-  <h1>תרגול עצמאי - רמה 2 ו-3</h1>
-  <div class="question">
-    <strong>תרגיל 1 - תיבה</strong><br>
-    נפח תיבה הוא <span class="math-inline">\(288\)</span>, ואורך הבסיס גדול פי 3 מרוחבו. מצא את המידות שעבורן שטח הפנים מינימלי.
-  </div>
-  <div class="question">
-    <strong>תרגיל 2 - גליל</strong><br>
-    נפח קופסה בצורת גליל פתוח מלמעלה הוא <span class="math-inline">\(512\pi\)</span>. מצא את הרדיוס שעבורו שטח הפנים של הקופסה מינימלי, ואת שטח הפנים המינימלי.
-  </div>
-  <div class="question">
-    <strong>תרגיל 3 - נקודה על גרף</strong><br>
-    הנקודה <span class="math-inline">\(A\)</span> נמצאת ברביע הראשון על הגרף <span class="math-inline">\(f(x)=x+\frac{16}{x^3}\)</span>. היא יוצרת עם הצירים מלבן. מצא את שיעורי <span class="math-inline">\(A\)</span> כך ששטח המלבן יהיה מינימלי.
-  </div>
-  <div class="question">
-    <strong>תרגיל 4 - משולש ומלבן חסום</strong><br>
-    במשולש ישר זווית חסום מלבן שמידותיו <span class="math-inline">\(6\times12\)</span>. מצא את אורכי ניצבי המשולש כאשר שטחו מינימלי.
-  </div>
-  <div class="card warn">
-    <strong>דרישת פתרון:</strong> בכל תרגיל יש להציג משתנה, אילוץ, פונקציית מטרה, תחום, נגזרת, הוכחת סוג הקיצון ותשובה מלאה.
-  </div>
-</section>
-
-<section class="page" data-page="20">
-  <h1>כרטיס יציאה - בדיקת הבנה</h1>
-  <div class="question">
-    נתון מלבן ששטחו <span class="math-inline">\(K\)</span>, כאשר <span class="math-inline">\(K\gt0\)</span>, והשוליים מקיימים <span class="math-inline">\(a\gt0,\;b\gt0\)</span>. נסמן את רוחבו ב-
-    <span class="math-inline">\(x\)</span>. סביב מלבן פנימי משאירים שוליים של <span class="math-inline">\(a\)</span> מכל צד ושל <span class="math-inline">\(b\)</span> מלמעלה ומלמטה, כאשר המידות הפנימיות חיוביות.
-  </div>
-  <ol>
-    <li>בטא את גובה המלבן באמצעות <span class="math-inline">\(x\)</span>.</li>
-    <li>כתוב פונקציה לשטח המלבן הפנימי.</li>
-    <li>כתוב את התחום הפיזיקלי של <span class="math-inline">\(x\)</span>.</li>
-    <li>פשט את פונקציית המטרה לפני גזירה.</li>
-    <li>הסבר במילים כיצד תבדוק שהנקודה שמצאת היא מקסימום מוחלט.</li>
-  </ol>
-  <div class="formula-box">\[y=\frac{K}{x}\]</div>
-  <div class="formula-box">\[A(x)=(x-2a)\left(\frac{K}{x}-2b\right)\]</div>
-  <div class="formula-box">\[2a\lt x\lt\frac{K}{2b}\]</div>
-  <h2 style="margin-top:12px">מחוון קצר</h2>
-  <table>
-    <tr><th>רמה</th><th>מאפייני ביצוע</th></tr>
-    <tr><td>מלאה</td><td>מודל נכון, תחום נכון, חקירה מלאה והסבר מילולי של משמעות התוצאה.</td></tr>
-    <tr><td>טובה</td><td>מודל נכון ורוב החקירה נכונה, עם חוסר קטן בהצדקה או בתשובה הסופית.</td></tr>
-    <tr><td>חלקית</td><td>זיהוי נכון של המטרה אך טעות באילוץ, בתחום או בצמצום למשתנה אחד.</td></tr>
-    <tr><td>נדרשת השלמה</td><td>התחלה ישירה בנגזרת ללא בניית מודל.</td></tr>
-  </table>
-</section>
-<!--
-<section class="page" data-page="22">
-  <h1>דף סיכום לתלמיד</h1>
-  <div class="flow">
-    <div>מה משתנה?</div><div>מה קבוע?</div><div>מה ממזערים או ממקסמים?</div><div>מה התחום?</div><div>איך מוכיחים קיצון?</div>
-  </div>
-  <div class="card accent">
-    <h3>האלגוריתם</h3>
-    <ol>
-      <li>בחר משתנה.</li>
-      <li>כתוב אילוץ.</li>
-      <li>בטא את יתר המשתנים באמצעותו.</li>
-      <li>בנה פונקציית מטרה במשתנה אחד.</li>
-      <li>קבע תחום.</li>
-      <li>פשט אלגברית לפני גזירה.</li>
-      <li>מצא נקודות חשודות ובדוק סימן נגזרת או קצוות.</li>
-      <li>חזור לבעיה וכתוב תשובה מלאה.</li>
-    </ol>
-  </div>
-  <div class="grid-2" style="margin-top:9px">
-    <div class="card ok">
-      <h3>בדיקה עצמית</h3>
-      <ul class="checklist">
-        <li>יש לי משתנה אחד בפונקציית המטרה.</li>
-        <li>התחום שלי כולל תנאים מן המציאות.</li>
-        <li>פסלתי פתרונות שאינם בתחום.</li>
-        <li>הוכחתי מינימום או מקסימום.</li>
-        <li>עניתי בדיוק על מה שהתבקש.</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h3>מקורות שעליהם מבוסס רצף ההוראה</h3>
-      <ul class="small">
-        <li><a href="https://openstax.org/books/calculus-volume-1/pages/4-7-applied-optimization-problems">OpenStax - Applied Optimization Problems</a></li>
-        <li><a href="https://www.carolinum.net/224.html">Gymnasium Carolinum - Extremwertaufgaben</a></li>
-        <li><a href="https://revue.sesamath.net/spip.php?article699">Sésamath - dynamic optimization activities</a></li>
-        <li><a href="https://files.eric.ed.gov/fulltext/EJ1136053.pdf">Research on student difficulties in optimization</a></li>
-        <li><a href="https://www.ejmste.com/download/opportunity-to-learn-about-optimization-problems-provided-by-undergraduate-calculus-textbooks-a-case-13575.pdf">Optimization tasks and modeling opportunities</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="cover-ribbon" style="margin-top:10px">
-    העיקרון המסכם: פתרון נכון מתחיל בבניית מודל נכון. הנגזרת היא כלי למציאת הקיצון - היא אינה תחליף להבנת הבעיה.
-  </div>
-</section>
--->
 <script>
 (function(){
-  const registry = {};
-
-  function board(id, bbox, options={}) {
-    const b = JXG.JSXGraph.initBoard(id, Object.assign({
-      boundingbox: bbox,
-      axis: true,
-      showCopyright: false,
-      showNavigation: false,
-      pan: {enabled: true},
-      zoom: {enabled: true, wheel: true, needShift: false, factorX: 1.18, factorY: 1.18}
-    }, options));
-    registry[id] = {board:b, bbox:bbox.slice()};
+  'use strict';
+  const registry={};
+  function makeBoard(id,bbox,options={}){
+    const b=JXG.JSXGraph.initBoard(id,Object.assign({
+      boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,
+      pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false,factorX:1.18,factorY:1.18}
+    },options));
+    registry[id]={board:b,bbox:bbox.slice()};
     return b;
   }
+  function fg(b,fn,min,max,attrs={}){return b.create('functiongraph',[fn,min,max],Object.assign({strokeWidth:2.4,highlight:false},attrs));}
+  function mathText(b,x,y,tex,attrs={}){return b.create('text',[x,y,'\\('+tex+'\\)'],Object.assign({useMathJax:true,fixed:true,highlight:false,fontSize:13},attrs));}
+  function axisPoint(b,x,y,name=''){return b.create('point',[x,y],{name:name,size:2,fixed:true,highlight:false});}
+  function hiddenPoint(b,x,y){return b.create('point',[x,y],{name:'',size:0,fixed:true,visible:false,highlight:false});}
+  function seg(b,p1,p2,attrs={}){return b.create('segment',[p1,p2],Object.assign({fixed:true,highlight:false,strokeWidth:2},attrs));}
 
-  function fgraph(b, f, min, max, attrs={}) {
-    return b.create('functiongraph', [f, min, max], Object.assign({strokeWidth:2.4}, attrs));
-  }
+  document.addEventListener('DOMContentLoaded',function(){
+    let b,curve;
+    // Lesson 1
+    b=makeBoard('g_l1',[0,15,8,0]);
+    const f1=x=>x>0?x+27/(2*x*x):NaN;
+    curve=fg(b,f1,0.75,8);
+    axisPoint(b,3,f1(3),'M');
+    mathText(b,5.1,8.8,'S(x)=x+\\frac{27}{2x^2}');
 
-  function dot(b, x, y, labelText) {
-    return b.create('point', [x,y], {name:labelText || '', size:3.2, fixed:true, highlight:false});
-  }
+    // Lesson 2
+    b=makeBoard('g_l2',[0,200,28,0]);
+    const f2=x=>x>0?4*x+576/x:NaN;
+    curve=fg(b,f2,2,28);
+    axisPoint(b,12,f2(12),'M');
+    mathText(b,15.5,155,'L(x)=4x+\\frac{576}{x}');
 
-  function gliderOnFunction(b, curve, f, x0, labelText, attrs={}) {
-    return b.create('glider', [x0, f(x0), curve], Object.assign({
-      name: labelText || '',
-      size: 4,
-      fixed: false,
-      highlight: true,
-      showInfobox: true
-    }, attrs));
-  }
+    // Lesson 3
+    b=makeBoard('g_l3',[0,250,40,-15]);
+    const f3=x=>(x>6&&x<37.5)?(x-6)*(600/x-16):NaN;
+    curve=fg(b,f3,6.02,37.48);
+    axisPoint(b,15,f3(15),'M');
+    mathText(b,22,226,'A(x)=(x-6)(\\frac{600}{x}-16)');
 
-  function hiddenPoint(b, x, y) {
-    return b.create('point', [x,y], {name:'', visible:false, fixed:true, highlight:false});
-  }
+    // Lesson 4
+    b=makeBoard('g_l4',[0,700,10,0]);
+    const f4=x=>x>0?6*x*x+768/x:NaN;
+    curve=fg(b,f4,0.8,10);
+    axisPoint(b,4,f4(4),'M');
+    mathText(b,6.1,575,'S(x)=6x^2+\\frac{768}{x}');
 
-  function segment(b, p1, p2, attrs={}) {
-    return b.create('segment', [p1,p2], Object.assign({fixed:true, highlight:false, strokeWidth:2}, attrs));
-  }
+    // Lesson 5
+    b=makeBoard('g_l5',[-0.4,8.5,6.5,-0.7]);
+    const f5=x=>x>0?x+16/(x*x*x):NaN;
+    curve=fg(b,f5,1.15,6.4);
+    const A=axisPoint(b,2,4,'A');
+    const O=hiddenPoint(b,0,0), X=hiddenPoint(b,2,0), Y=hiddenPoint(b,0,4);
+    b.create('polygon',[O,X,A,Y],{withLines:true,fillOpacity:0.12,fixed:true,highlight:false,vertices:{visible:false,size:0}});
+    mathText(b,4.1,7.2,'f(x)=x+\\frac{16}{x^3}');
 
-  function dynamicSegment(b, x1, y1, x2, y2, attrs={}) {
-    return segment(b, hiddenPoint(b,x1,y1), hiddenPoint(b,x2,y2), attrs);
-  }
+    // Lesson 6 geometry, axis false, all helper points size 0
+    b=makeBoard('g_l6',[-2,27,18,-2],{axis:false});
+    const O6=hiddenPoint(b,0,0), B6=hiddenPoint(b,12,0), A6=hiddenPoint(b,0,24);
+    seg(b,O6,B6);seg(b,O6,A6);seg(b,A6,B6);
+    const R1=hiddenPoint(b,0,0),R2=hiddenPoint(b,6,0),R3=hiddenPoint(b,6,12),R4=hiddenPoint(b,0,12);
+    b.create('polygon',[R1,R2,R3,R4],{withLines:true,fillOpacity:0.18,fixed:true,highlight:false,vertices:{visible:false,size:0}});
+    mathText(b,7,-1,'12'); mathText(b,-1,13,'24'); mathText(b,3,12.8,'6'); mathText(b,6.8,6,'12');
 
-  function poly(b, pts, attrs={}) {
-    return b.create('polygon', pts, Object.assign({withLines:true, hasInnerPoints:false, fixed:true, highlight:false, fillOpacity:0.12}, attrs));
-  }
-
-  function dynamicPoly(b, coords, attrs={}) {
-    const pts = coords.map(([x,y]) => hiddenPoint(b,x,y));
-    return poly(b, pts, attrs);
-  }
-
-  function label(b, x,y,txt, attrs={}) {
-    return b.create('text',[x,y,txt],Object.assign({fixed:true, highlight:false, fontSize:13, anchorX:'middle'},attrs));
-  }
-
-  function fmt(v, digits=1) {
-    if (!Number.isFinite(v)) return '';
-    const rounded = Math.round(v * Math.pow(10,digits)) / Math.pow(10,digits);
-    return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(digits);
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    // 071 - the reference point is constrained to the objective-function curve.
-    let b = board('g071', [-0.5,8,8,-1]);
-    const S071 = x => x>0 ? x + 27/(2*x*x) : NaN;
-    let curve = fgraph(b, S071, 0.55, 8);
-    gliderOnFunction(b, curve, S071, 3, 'M');
-    label(b,4.3,6.8,'S(x)');
-
-    // sign chart 117 - this is a static sign chart, not a variable geometric model.
-    b = board('sign117', [-2,2.2,28,-2.2], {axis:false});
-    segment(b,[0,0],[26,0],{lastArrow:true});
-    dot(b,12,0,'12');
-    label(b,6,0.9,"F'(x) < 0");
-    label(b,19,0.9,"F'(x) > 0");
-    label(b,12,-0.6,'minimum');
-
-    // Page diagram: P is the upper-right corner. It may move only while xy=600.
-    // Vertical dimensions are displayed at half scale to keep the full model readable.
-    b = board('pageDiagram', [-3,55,42,-5], {axis:false});
-    const pageScaleY = 0.5;
-    const pageCurveFn = x => pageScaleY * 600/x;
-    // Dashed feasible curve showing the exact path along which P is constrained to move.
-    curve = fgraph(b, pageCurveFn, 6.01, 37.49, {
-      visible:true,
-      dash:2,
-      strokeWidth:2,
-      strokeOpacity:0.78,
-      highlight:false
-    });
-    const pageP = gliderOnFunction(b, curve, pageCurveFn, 15, 'P');
-    label(b, 27.5, 13.4, 'y = 600/x', {fontSize:12, anchorX:'left'});
-    dynamicPoly(b, [[0,0],[()=>pageP.X(),0],[()=>pageP.X(),()=>pageP.Y()],[0,()=>pageP.Y()]], {fillOpacity:0.04});
-    dynamicPoly(b, [[3,4],[()=>pageP.X()-3,4],[()=>pageP.X()-3,()=>pageP.Y()-4],[3,()=>pageP.Y()-4]], {fillOpacity:0.20});
-    label(b, ()=>pageP.X()/2, ()=>pageP.Y()+2.4, ()=>`page ${fmt(pageP.X())} × ${fmt(pageP.Y()/pageScaleY)}`);
-    label(b, ()=>pageP.X()/2, ()=>pageP.Y()/2, 'print area');
-    label(b,1.3,()=>pageP.Y()/2,'3');
-    label(b,()=>pageP.X()-1.3,()=>pageP.Y()/2,'3');
-    label(b,()=>pageP.X()/2,2,'8');
-    label(b,()=>pageP.X()/2,()=>pageP.Y()-2,'8');
-
-    // g1002 - the point moves only on the feasible objective-function curve.
-    b = board('g1002', [4,260,40,-30]);
-    const A1002 = x => (x>6 && x<37.5) ? (x-6)*(600/x-16) : NaN;
-    curve = fgraph(b, A1002, 6.02,37.48);
-    gliderOnFunction(b, curve, A1002, 15, 'M');
-    label(b,27,235,'A(x)');
-
-    // Window: P controls the upper-right corner while the area remains exactly 192.
-    b = board('window117', [-2,42,30,-3], {axis:false});
-    const winScaleY = 0.75;
-    const winCurveFn = x => winScaleY * 192/x;
-    // Dashed constraint curve: the real dimensions satisfy y = 192/x.
-    curve = fgraph(b, winCurveFn, 4.6, 29.5, {
-      visible:true,
-      dash:2,
-      strokeWidth:2.2,
-      strokeOpacity:0.78,
-      highlight:false,
-      fixed:true
-    });
-    const winP = gliderOnFunction(b, curve, winCurveFn, 12, 'P');
-    label(b,21,winCurveFn(21)+1.5,'y = 192/x',{fontSize:12});
-    dynamicPoly(b, [[0,0],[()=>winP.X(),0],[()=>winP.X(),()=>winP.Y()],[0,()=>winP.Y()]], {fillOpacity:0.04});
-    [0,1/3,2/3,1].forEach(k => dynamicSegment(b,0,()=>k*winP.Y(),()=>winP.X(),()=>k*winP.Y()));
-    [0,0.5,1].forEach(k => dynamicSegment(b,()=>k*winP.X(),0,()=>k*winP.X(),()=>winP.Y()));
-    label(b,()=>winP.X()/2,-1.3,()=>`x = ${fmt(winP.X())}`);
-    label(b,-1.2,()=>winP.Y()/2,()=>`y = ${fmt(winP.Y()/winScaleY)}`);
-
-    // g203 - movable point constrained to S(x).
-    b = board('g203', [0.3,700,10,-40]);
-    const S203 = x => x>0 ? 6*x*x + 768/x : NaN;
-    curve = fgraph(b, S203, .75,10);
-    gliderOnFunction(b, curve, S203, 4, 'M');
-    label(b,7.2,540,'S(x)');
-
-    // g210 - movable point constrained to S(r).
-    b = board('g210', [0.5,850,10,-60]);
-    const S210 = r => r>0 ? 2*Math.PI*r*r + 256*Math.PI/r : NaN;
-    curve = fgraph(b, S210, .8,10);
-    gliderOnFunction(b, curve, S210, 4, 'M');
-    label(b,7.3,690,'S(r)');
-
-    // g183 - A is a glider on f(x); the rectangle follows A continuously.
-    b = board('g183', [-0.5,9,7,-0.8]);
-    const F183 = x => x>0 ? x + 16/(x*x*x) : NaN;
-    curve = fgraph(b, F183, 1.15,6.7);
-    const A183 = gliderOnFunction(b, curve, F183, 2, 'A');
-    dynamicPoly(b, [[0,0],[()=>A183.X(),0],[()=>A183.X(),()=>A183.Y()],[0,()=>A183.Y()]], {fillOpacity:0.14});
-    label(b,4.8,7.4,'f(x)');
-    label(b,()=>A183.X()/2,()=>Math.max(0.35,A183.Y()/2),()=>`Area = ${fmt(A183.X()*A183.Y(),2)}`, {fontSize:11});
-
-    // g198 - A is a glider on f(x); the rectangle follows A continuously.
-    b = board('g198', [-0.5,10,7,-0.8]);
-    const F198 = x => x>0 ? x + 16/(x*x) : NaN;
-    curve = fgraph(b, F198, .95,6.8);
-    const A198 = gliderOnFunction(b, curve, F198, 2, 'A');
-    dynamicPoly(b, [[0,0],[()=>A198.X(),0],[()=>A198.X(),()=>A198.Y()],[0,()=>A198.Y()]], {fillOpacity:0.14});
-    label(b,5,8.1,'f(x)');
-    label(b,()=>A198.X()/2,()=>Math.max(0.35,A198.Y()/2),()=>`Area = ${fmt(A198.X()*A198.Y(),2)}`, {fontSize:11});
-
-    // Triangle: P is the endpoint of AB and may move only along the dashed vertical track, with AB>12.
-    // BC is recomputed so that the fixed point (6,12) remains on the hypotenuse.
-    // The board is slightly larger/tighter so the construction occupies more of the panel.
-    b = board('tri171', [-5,34,30,-2], {axis:false});
-    const triTrack = segment(b,[0,12.01],[0,34],{
-      visible:true,
-      dash:2,
-      strokeWidth:2.2,
-      strokeOpacity:0.78,
-      fixed:true,
-      highlight:false
-    });
-    const triP = b.create('glider',[0,24,triTrack],{name:'P',size:4,fixed:false,highlight:true,showInfobox:true});
-    const triX = () => triP.Y();                 // AB
-    const triY = () => 6*triX()/(triX()-12);    // BC from 6/BC + 12/AB = 1
-    dynamicPoly(b, [[0,0],[triY,0],[0,triX]], {fillOpacity:0.04});
-    // Use hidden polygon vertices so no corner dots appear on the fixed 6×12 rectangle.
-    dynamicPoly(b, [[0,0],[6,0],[6,12],[0,12]], {fillOpacity:0.18});
-    label(b,1.0,31,'AB = x,  x > 12',{fontSize:11,anchorX:'left'});
-    label(b,-1.1,()=>triX()/2,()=>`AB = ${fmt(triX())}`);
-    label(b,()=>triY()/2,-1.0,()=>`BC = ${fmt(triY())}`);
-    label(b,3,12.9,'6');
-    label(b,6.9,6,'12');
-
-    // Practice 115: P moves only along xy=242; margins stay fixed.
-    b = board('practice115', [-4,18,30,-4], {axis:false});
-    const p115Fn = x => 242/x;
-    curve = fgraph(b, p115Fn, 4.01, 120.99, {visible:false});
-    const p115 = gliderOnFunction(b, curve, p115Fn, 22, 'P');
-    dynamicPoly(b, [[0,0],[()=>p115.X(),0],[()=>p115.X(),()=>p115.Y()],[0,()=>p115.Y()]], {fillOpacity:0.04});
-    dynamicPoly(b, [[2,1],[()=>p115.X()-2,1],[()=>p115.X()-2,()=>p115.Y()-1],[2,()=>p115.Y()-1]], {fillOpacity:0.18});
-    label(b,1,()=>p115.Y()/2,'2',{fontSize:13});
-    label(b,()=>p115.X()-1,()=>p115.Y()/2,'2',{fontSize:13});
-    label(b,()=>p115.X()/2,.5,'1',{fontSize:13});
-    label(b,()=>p115.X()/2,()=>p115.Y()-.5,'1',{fontSize:13});
-    label(b,()=>p115.X()/2,()=>p115.Y()+2,()=>`${fmt(p115.X())} × ${fmt(p115.Y())}`, {fontSize:13});
-
-    // Practice 129: P moves only along xy=1176; the 2-cm strip and 6-cm end pieces remain fixed.
-    // Vertical dimension is shown at 1:5 scale so the geometry remains readable.
-    b = board('practice129', [-3,22,24,-3], {axis:false});
-    const p129ScaleY = 0.2;
-    const p129Fn = x => p129ScaleY * 1176/x;
-    curve = fgraph(b, p129Fn, 2.01, 97.99, {visible:false});
-    const p129 = gliderOnFunction(b, curve, p129Fn, 14, 'P');
-    const six = 6*p129ScaleY;
-    dynamicPoly(b, [[0,0],[()=>p129.X(),0],[()=>p129.X(),()=>p129.Y()],[0,()=>p129.Y()]], {fillOpacity:0.03});
-    dynamicSegment(b,()=>p129.X()-2,0,()=>p129.X()-2,()=>p129.Y());
-    dynamicSegment(b,0,six,()=>p129.X(),six);
-    dynamicSegment(b,0,()=>p129.Y()-six,()=>p129.X(),()=>p129.Y()-six);
-    dynamicPoly(b, [[0,six],[()=>p129.X()-2,six],[()=>p129.X()-2,()=>p129.Y()-six],[0,()=>p129.Y()-six]], {fillOpacity:0.18});
-    dynamicPoly(b, [[()=>p129.X()-2,()=>p129.Y()-six],[()=>p129.X(),()=>p129.Y()-six],[()=>p129.X(),()=>p129.Y()],[()=>p129.X()-2,()=>p129.Y()]], {fillOpacity:0.18});
-    dynamicPoly(b, [[()=>p129.X()-2,0],[()=>p129.X(),0],[()=>p129.X(),six],[()=>p129.X()-2,six]], {fillOpacity:0.18});
-    label(b,()=>p129.X()-1,()=>p129.Y()+1.6,'2',{fontSize:13});
-    label(b,()=>p129.X()+1.15,six/2,'6',{fontSize:13});
-    label(b,()=>p129.X()+1.15,()=>p129.Y()-six/2,'6',{fontSize:13});
-    label(b,()=>p129.X()/2,()=>p129.Y()+4,()=>`${fmt(p129.X())} × ${fmt(p129.Y()/p129ScaleY)}`, {fontSize:11});
-
-    document.querySelectorAll('.graph-controls').forEach(c => {
-      c.addEventListener('click', e => {
-        if (e.target.tagName !== 'BUTTON') return;
-        const id = c.getAttribute('data-board');
-        const item = registry[id];
-        if (!item) return;
-        const act = e.target.getAttribute('data-act');
-        if (act === 'in') item.board.zoomIn();
-        if (act === 'out') item.board.zoomOut();
-        if (act === 'reset') { item.board.setBoundingBox(item.bbox, false); item.board.fullUpdate(); }
+    document.querySelectorAll('.graph-controls').forEach(c=>{
+      c.addEventListener('click',e=>{
+        if(e.target.tagName!=='BUTTON')return;
+        const item=registry[c.getAttribute('data-board')]; if(!item)return;
+        const act=e.target.getAttribute('data-act');
+        if(act==='in')item.board.zoomIn();
+        if(act==='out')item.board.zoomOut();
+        if(act==='reset'){item.board.setBoundingBox(item.bbox,false);item.board.fullUpdate();}
       });
     });
   });
