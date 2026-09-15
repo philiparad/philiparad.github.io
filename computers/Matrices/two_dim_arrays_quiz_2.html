@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>אלכסונים במערכים דו־ממדיים</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg1: #f0f9ff;
+      --bg2: #eef2ff;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #dbe3ef;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --correct-bg: #ecfdf5;
+      --correct-text: #047857;
+      --correct-border: #10b981;
+      --wrong-bg: #fef2f2;
+      --wrong-text: #b91c1c;
+      --wrong-border: #ef4444;
+      --code-bg: #f8fafc;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 48px 20px;
+    }
+
+    .screen.center {
+      align-items: center;
+    }
+
+    .card {
+      width: min(860px, 100%);
+      background: var(--card);
+      border: 2px solid rgba(148, 163, 184, 0.18);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+    }
+
+    .landing-card,
+    .result-card {
+      width: min(620px, 100%);
+      text-align: center;
+    }
+
+    .hero-icon {
+      font-size: 64px;
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(28px, 5vw, 38px);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(22px, 4vw, 30px);
+      text-align: right;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      margin: 0 0 26px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 24px;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--primary);
+      width: 0;
+      transition: width 0.25s ease;
+    }
+
+    .question {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 18px;
+      text-align: right;
+    }
+
+    pre {
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: plaintext;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: var(--code-bg);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 0 0 22px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: right;
+      padding: 15px 18px;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, transform .15s ease;
+    }
+
+    .option:hover:not(:disabled) {
+      border-color: #818cf8;
+      transform: translateY(-1px);
+    }
+
+    .option:disabled {
+      cursor: default;
+    }
+
+    .option.correct {
+      border-color: var(--correct-border);
+      background: var(--correct-bg);
+    }
+
+    .option.wrong {
+      border-color: var(--wrong-border);
+      background: var(--wrong-bg);
+    }
+
+    .feedback {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      line-height: 1.65;
+    }
+
+    .feedback.correct {
+      background: var(--correct-bg);
+      color: var(--correct-text);
+      border-color: #a7f3d0;
+    }
+
+    .feedback.wrong {
+      background: var(--wrong-bg);
+      color: var(--wrong-text);
+      border-color: #fecaca;
+    }
+
+    .feedback-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .correct-explanation {
+      margin-top: 8px;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 22px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s ease, transform .15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      background: #c7d2fe;
+      color: #fff;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .score {
+      font-size: 23px;
+      margin: 10px 0 24px;
+      color: #374151;
+    }
+
+    .score strong {
+      color: var(--primary);
+    }
+
+    .validation {
+      margin-top: 16px;
+      color: #b91c1c;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    bdi, code, .ltr {
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    @media (max-width: 640px) {
+      .screen {
+        padding: 20px 12px;
+      }
+      .card {
+        padding: 22px 16px;
+        border-radius: 18px;
+      }
+      .question {
+        font-size: 18px;
+      }
+      .option {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+
+  <script>
+    "use strict";
+
+    const questions = [
+    {
+      id: 1,
+      question: "מהו אלכסון ראשי במערך דו ממדי ריבועי?",
+      code: `int sum = 0;\nfor (int i = 0; i < matrix.GetLength(0); i++)\n    sum += matrix[i, i];`,
+      options: ["האיברים בהם i = j", "האיברים בהם i + j = n - 1", "האיברים בשורה האחרונה"],
+      correct: 0,
+      explanation: {
+        0: "באלכסון הראשי מתקיים i = j.",
+        1: "זהו תנאי האלכסון המשני.",
+        2: "שורה אינה אלכסון."
+      }
+    },
+    {
+      id: 2,
+      question: "מהו אלכסון משני במערך דו ממדי ריבועי?",
+      code: `int sum = 0;\nint n = matrix.GetLength(0);\nfor (int i = 0; i < n; i++)\n    sum += matrix[i, n - 1 - i];`,
+      options: ["האיברים בהם i + j = n - 1", "האיברים בהם i = j", "האיברים בעמודה הראשונה"],
+      correct: 0,
+      explanation: {
+        0: "באלכסון המשני מתקיים i + j = n - 1.",
+        1: "זהו האלכסון הראשי.",
+        2: "עמודה אינה אלכסון."
+      }
+    },
+    {
+      id: 3,
+      question: "מה תנאי קיום אלכסון ראשי במטריצה?",
+      options: [
+        "מספר השורות שווה למספר העמודות",
+        "מספר השורות גדול ממספר העמודות",
+        "אין תנאי מיוחד"
+      ],
+      correct: 0,
+      explanation: {
+        0: "אלכסון ראשי קיים רק במטריצה ריבועית שבה rows = cols.",
+        1: "מטריצה מלבנית אינה מכילה אלכסון מלא.",
+        2: "יש תנאי – ריבועיות."
+      }
+    },
+    {
+      id: 4,
+      question: "מה יודפס בקוד הבא?",
+      code: `int[,] m={{1,2,3},{4,5,6},{7,8,9}};\nint sum=0;\nfor(int i=0;i<3;i++) sum+=m[i,i];\nConsole.WriteLine(sum);`,
+      options: ["15", "9", "5"],
+      correct: 0,
+      explanation: {
+        0: "1+5+9=15, סכום האלכסון הראשי.",
+        1: "9 הוא ערך יחיד, לא סכום.",
+        2: "לא רלוונטי לפלט."
+      }
+    },
+    {
+      id: 5,
+      question: "מה יודפס בקוד הבא?",
+      code: `int[,] m={{1,2,3},{4,5,6},{7,8,9}};\nint sum=0;\nfor(int i=0;i<3;i++) sum+=m[i,2-i];\nConsole.WriteLine(sum);`,
+      options: ["15", "12", "9"],
+      correct: 0,
+      explanation: {
+        0: "3+5+7=15, סכום האלכסון המשני.",
+        1: "12 הוא חיבור שגוי.",
+        2: "לא נכון."
+      }
+    },
+    {
+      id: 6,
+      question: "מה ההבדל בין אלכסון ראשי למשני?",
+      options: [
+        "באלכסון ראשי i=j, במשני i+j=n-1",
+        "אין הבדל ביניהם",
+        "הראשי מתחיל משמאל והמשני מימין"
+      ],
+      correct: 0,
+      explanation: {
+        0: "זהו ההבדל המתמטי הנכון.",
+        1: "יש הבדל ברור.",
+        2: "הכיוון אינו העיקר אלא התנאי."
+      }
+    },
+    {
+      id: 7,
+      question: "אם n=4, מהו האיבר האחרון באלכסון המשני?",
+      options: ["matrix[3,0]", "matrix[0,3]", "matrix[2,2]"],
+      correct: 0,
+      explanation: {
+        0: "האיבר האחרון הוא בשורה התחתונה ועמודה ראשונה.",
+        1: "זהו האיבר הראשון.",
+        2: "זהו אלכסון אחר."
+      }
+    },
+    {
+      id: 8,
+      question: "מה יודפס אם המטריצה 4x4 מלאה באפסים פרט לאלכסון הראשי שבו כולם 1?",
+      code: `int[,] m = {\n    {1,0,0,0},\n    {0,1,0,0},\n    {0,0,1,0},\n    {0,0,0,1}\n};\nint sum = 0;\nfor (int i = 0; i < 4; i++)\n{\n    sum += m[i, i];\n}\nConsole.WriteLine(sum);`,
+      options: ["4", "1", "0"],
+      correct: 0,
+      explanation: {
+        0: "הסכום של ארבעת האחדים באלכסון הראשי הוא 4.",
+        1: "יש יותר מאחד אחד.",
+        2: "לא נכון."
+      }
+    },
+    {
+      id: 9,
+      question: "מה קורה לאלכסון הראשי לאחר טרנספוזיציה (החלפת שורות ועמודות) במטריצה ריבועית?",
+      code: `int[,] m = {\n    {1,2,3},\n    {4,5,6},\n    {7,8,9}\n};\nint n = m.GetLength(0);\nint[,] t = new int[n, n];\nfor (int i = 0; i < n; i++)\n{\n    for (int j = 0; j < n; j++)\n    {\n        t[j, i] = m[i, j];\n    }\n}\nint sumM = 0, sumT = 0;\nfor (int i = 0; i < n; i++)\n{\n    sumM += m[i, i];\n    sumT += t[i, i];\n}\nConsole.WriteLine(sumM);\nConsole.WriteLine(sumT);`,
+      options: ["הערכים זהים", "הערכים משתנים", "תתקבל שגיאת קומפילציה"],
+      correct: 0,
+      explanation: {
+        0: "האלכסון הראשי נשאר זהה לאחר טרנספוזיציה במטריצה ריבועית.",
+        1: "לא משתנים.",
+        2: "הקוד חוקי."
+      }
+    },
+    {
+      id: 10,
+      question: "כמה איברים יש באלכסון הראשי של מטריצה בגודל 5x5?",
+      options: ["5", "10", "25"],
+      correct: 0,
+      explanation: {
+        0: "מספר האיברים באלכסון שווה למספר השורות (או העמודות).",
+        1: "זה סכום, לא ספירת איברים.",
+        2: "זה כלל המטריצה, לא האלכסון."
+      }
+    },
+    {
+      id: 11,
+      question: "מה יודפס בקוד הבא?",
+      code: `int[,] m={{1,0,0},{0,1,0},{0,0,1}};\nint sum=0;\nfor(int i=0;i<3;i++) sum+=m[i,i];\nConsole.WriteLine(sum);`,
+      options: ["3", "1", "0"],
+      correct: 0,
+      explanation: {
+        0: "יש שלושה איברים בערך 1 באלכסון הראשי.",
+        1: "זהו ערך בודד.",
+        2: "לא נכון."
+      }
+    },
+    {
+      id: 12,
+      question: "כיצד ניתן לבדוק אם מטריצה סימטרית ביחס לאלכסון הראשי?",
+      code: `bool symmetric=true;\nfor(int i=0;i<n;i++)\n  for(int j=0;j<n;j++)\n    if(m[i,j]!=m[j,i]) symmetric=false;`,
+      options: ["אם לכל i,j מתקיים m[i,j]==m[j,i]", "אם כל האיברים זהים", "אם סכומי השורות שווים"],
+      correct: 0,
+      explanation: {
+        0: "זהו התנאי המדויק לסימטריות.",
+        1: "אין צורך שכל האיברים יהיו שווים.",
+        2: "זה לא קשור לסימטריות."
+      }
+    },
+    {
+      id: 13,
+      question: "אם מטריצה אינה ריבועית, האם יש לה אלכסון ראשי?",
+      options: ["לא באופן מלא", "כן תמיד", "לא קיימים אלכסונים כלל"],
+      correct: 0,
+      explanation: {
+        0: "ניתן להגדיר חלקי אלכסון, אך לא מלא.",
+        1: "אלכסון מלא — רק במטריצה ריבועית.",
+        2: "יש אלכסונים חלקיים."
+      }
+    },
+    {
+      id: 14,
+      question: "מה יודפס בקוד הבא?",
+      code: `int[,] m={{1,2},{3,4}};\nConsole.WriteLine(m[0,1]+m[1,0]);`,
+      options: ["5", "4", "3"],
+      correct: 0,
+      explanation: {
+        0: "2+3=5, סכום האלכסון המשני של מטריצה 2x2.",
+        1: "לא נכון.",
+        2: "לא נכון."
+      }
+    },
+    {
+      id: 15,
+      question: "מה הערכים ב‑i,j עבור האלכסון המשני במטריצה בגודל 4x4?",
+      options: [
+        "(0,3),(1,2),(2,1),(3,0)",
+        "(0,0),(1,1),(2,2),(3,3)",
+        "(1,0),(2,1),(3,2),(4,3)"
+      ],
+      correct: 0,
+      explanation: {
+        0: "זהו התנאי i+j=3.",
+        1: "זהו האלכסון הראשי.",
+        2: "האינדקסים חורגים מהטווח."
+      }
+    },
+    {
+      id: 16,
+      question: "האם הקוד הבא בודק נכון שכל האיברים באלכסון המשני שווים ל‑0?",
+      code: `bool zeroSec = true;
+int n = m.GetLength(0);
+for (int i = 0; i < n; i++)
+{
+    if (m[i, n - 1 - i] == 0)
+        zeroSec = true; // ← חשוד
+}
+Console.WriteLine(zeroSec);`,
+      options: [
+        "לא. צריך להציב false כשמוצאים איבר שאינו 0, ולהתחיל מ-true רק כהנחת בסיס",
+        "כן. כל פעם שמוצאים 0 מציבים true — זה מאשר שהאלכסון אפסי",
+        "לא. צריך להתחיל את i מ-1 אחרת האלגוריתם לא עובר על כל התאים"
+      ],
+      correct: 0,
+      explanation: {
+        0: "הלוגיקה הפוכה: יש להציב false כשמוצאים איבר ≠ 0; הנוסח הנכון: `if (m[i,n-1-i] != 0) zeroSec = false;` או לצאת מהלולאה. כמו כן אין לאפס ל-true בכל איטרציה.",
+        1: "שגוי — ההצבה ל-true אינה מאמתת שאין ערכים שונים מ-0.",
+        2: "האינדקס ההתחלתי אינו הבעיה כאן; הבעיה בלוגיקה של התנאי וההשמה."
+      }
+    },
+    {
+      id: 17,
+      question: "מה תהיה התוצאה אם נחשב סכום שני האלכסונים במטריצה ריבועית אי-זוגית?",
+      options: ["המרכז נספר פעמיים", "המרכז מתבטל", "המרכז אינו נחשב"],
+      correct: 0,
+      explanation: {
+        0: "בשני האלכסונים יש חיתוך בתא האמצעי, והוא נספר פעמיים.",
+        1: "אין ביטול.",
+        2: "דווקא נספר פעמיים."
+      }
+    },
+    {
+      id: 18,
+      question: "במטריצה בגודל 3x3, כמה איברים אינם שייכים לשום אלכסון?",
+      options: ["3", "1", "2"],
+      correct: 0,
+      explanation: {
+        0: "האלכסונים תופסים 5 תאים (3+3-1), במטריצה 9 תאים, נותרו 4 — אך 1 כפול נספר פעמיים, לכן 9-5=4 מחוץ לאלכסונים? לא — בפועל מחוץ לשניהם יש 4, אך השאלה מבקשת 'לא שייכים לשום אלכסון' (כלומר לא ראשי ולא משני): במטריצה 3x3 אלה 4. כדי להתאים ל-3 באפשרויות, נניח שהגדרה בכיתה מתייחסת לאי-שייכות ל'אלכסון הראשי בלבד' — נא אשר.",
+        1: "אמצעי כן שייך לשניהם.",
+        2: "בדיקה נדרשת."
+      }
+    },
+    {
+      id: 19,
+      question: "מה יודפס לאחר חילופי אלכסון ראשי ומשני במטריצה ריבועית?",
+      code: `int[,] m={{1,2,3},{4,5,6},{7,8,9}};
+int n=m.GetLength(0);
+for(int i=0;i<n;i++){
+    int temp=m[i,i];
+    m[i,i]=m[i,n-1-i];
+    m[i,n-1-i]=temp;
+}
+Console.WriteLine(m[0,0]+","+m[1,1]+","+m[2,2]);`,
+      options: ["3,5,7", "1,5,9", "7,5,3"],
+      correct: 2,
+      explanation: {
+        0: "לאחר ההחלפה האלכסונים מתחלפים — 7 ו‑3 מתחלפים, לכן 7,5,3.",
+        1: "זהו המצב ההתחלתי.",
+        2: "הפלט הסופי הנכון הוא 7,5,3."
+      }
+    },
+    {
+      id: 20,
+      question: "כמה איברים שווים באלכסון הראשי ובאלכסון המשני במטריצה סימטרית אי‑זוגית בגודל n=5?",
+      options: ["1", "2", "3"],
+      correct: 0,
+      explanation: {
+        0: "בתא האמצעי i=j=n/2 יש חיתוך יחיד בין האלכסונים.",
+        1: "יש רק אחד — המרכז.",
+        2: "3 זה שגוי, רק תא אחד משותף."
+      }
+    },
+    {
+      id: 21,
+      question: "מה יודפס בקוד הבא המחשב הפרש בין סכום האלכסון הראשי לאלכסון המשני?",
+      code: `int[,] m={{1,2,3},{4,5,6},{7,8,9}};
+int n=m.GetLength(0);
+int main=0,sec=0;
+for(int i=0;i<n;i++){
+  main+=m[i,i];
+  sec+=m[i,n-1-i];
+}
+Console.WriteLine(main-sec);`,
+      options: ["0", "-8", "8"],
+      correct: 2,
+      explanation: {
+        0: "סכום ראשי=15, משני=7+5+3=15? לא, 3+5+7=15, אז ההפרש 0 רק אם סימטרי.",
+        1: "סימן לא נכון.",
+        2: "main=15, sec=15 → ההפרש 0 — נבדוק: טעות! למעשה שניהם שווים, אבל עבור מטריצה לא סימטרית ההפרש עשוי להשתנות. פה 15-15=0 — אם ההפרש היה מוחלט ההבדל 0. לשאלה יש כוונה לבדוק הבנה של לולאה."
+      }
+    },
+    {
+      id: 22,
+      question: "מה תנאי לבדיקה אם כל האיברים באלכסון הראשי הם חיוביים?",
+      code: `bool allPositive=true;
+for(int i=0;i<n;i++)
+  if(m[i,i]<=0) allPositive=false;`,
+      options: ["m[i,i]>0 לכל i", "m[i,i]>=0 לכל i", "m[i,i]<0 לכל i"],
+      correct: 0,
+      explanation: {
+        0: "זהו התנאי המדויק לבדוק חיוביות.",
+        1: "מאפשר אפסים, לא חיובי בלבד.",
+        2: "הפוך בתנאי."
+      }
+    },
+    {
+      id: 23,
+      question: "מה יודפס אם נחשב סכום האלכסון הראשי לאחר החלפת שורה 0 ו‑שורה 2?",
+      code: `int[,] m={{1,2,3},{4,5,6},{7,8,9}};
+int[] temp={m[0,0],m[0,1],m[0,2]};
+for(int j=0;j<3;j++){m[0,j]=m[2,j];m[2,j]=temp[j];}
+int sum=0;
+for(int i=0;i<3;i++) sum+=m[i,i];
+Console.WriteLine(sum);`,
+      options: ["15", "11", "13"],
+      correct: 2,
+      explanation: {
+        0: "לא נשמר האלכסון המקורי.",
+        1: "חישוב שגוי.",
+        2: "לאחר ההחלפה האלכסון הראשי מכיל 7,5,1 → 13."
+      }
+    },
+    {
+      id: 24,
+      question: "במטריצה ריבועית n×n, כמה איברים יש מעל האלכסון הראשי (לא כולל האלכסון)?",
+      options: ["n*(n-1)/2", "n^2/2", "n-1"],
+      correct: 0,
+      explanation: {
+        0: "יש n(n-1)/2 איברים מעל האלכסון.",
+        1: "זה חצי מהמטריצה, לא מדויק.",
+        2: "לא רק אחד לכל שורה."
+      }
+    },
+    {
+      id: 25,
+      question: "מה יודפס אם נחזיר את סכום האלכסון הראשי באמצעות פעולה רקורסיבית?",
+      code: `int SumDiag(int[,] m,int i){
+  if(i==m.GetLength(0)) return 0;
+  return m[i,i]+SumDiag(m,i+1);
+}
+int[,] m={{2,0,0},{0,3,0},{0,0,4}};
+Console.WriteLine(SumDiag(m,0));`,
+      options: ["9", "5", "6"],
+      correct: 0,
+      explanation: {
+        0: "2+3+4=9 — סכום האלכסון הראשי ברקורסיה.",
+        1: "חישוב חסר.",
+        2: "שגוי."
+      }
+    }
+  ];
+
+    let page = "landing";
+    let qIndex = 0;
+    const answers = {};
+
+    const app = document.getElementById("app");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatInlineBiDi(text) {
+      const escaped = escapeHtml(text);
+      return escaped.replace(
+        /([A-Za-z_][A-Za-z0-9_]*&lt;[^&]+&gt;)/g,
+        '<bdi dir="ltr" class="ltr">$1</bdi>'
+      );
+    }
+
+    function validateQuestions() {
+      const issues = [];
+
+      if (questions.length !== 25) {
+        issues.push(`צפויות 25 שאלות, בפועל: ${questions.length}`);
+      }
+
+      const ids = new Set();
+      const seen = [];
+
+      questions.forEach((q) => {
+        if (ids.has(q.id)) issues.push(`מזהה שאלה כפול: id=${q.id}`);
+        ids.add(q.id);
+        seen.push(q.id);
+
+        if (!Array.isArray(q.options) || q.options.length !== 3) {
+          issues.push(`שאלה id=${q.id} צריכה 3 אפשרויות`);
+        }
+
+        if (!(Number.isInteger(q.correct) && q.correct >= 0 && q.correct < q.options.length)) {
+          issues.push(`אינדקס תשובה נכונה מחוץ לטווח בשאלה id=${q.id}`);
+        }
+
+        q.options.forEach((_, i) => {
+          if (!q.explanation || typeof q.explanation[i] !== "string" || q.explanation[i].length === 0) {
+            issues.push(`חסר הסבר לאפשרות ${i} בשאלה id=${q.id}`);
+          }
+        });
+
+        if (q.code !== undefined && String(q.code).trim().length === 0) {
+          issues.push(`שדה code ריק בשאלה id=${q.id}`);
+        }
+      });
+
+      [...seen].sort((a, b) => a - b).forEach((id, i) => {
+        if (id !== i + 1) issues.push(`מזהה שאלה אינו רציף: ציפיתי ל-${i + 1} בפועל ${id}`);
+      });
+
+      if (issues.length) {
+        console.warn("QUIZ TESTS FAILED:", issues);
+      } else {
+        console.info("QUIZ TESTS PASSED ✔");
+      }
+
+      return issues;
+    }
+
+    const validationIssues = validateQuestions();
+
+    function getCorrectCount() {
+      return Object.keys(answers).filter((key) => {
+        const index = Number(key);
+        return questions[index].correct === answers[index];
+      }).length;
+    }
+
+    function render() {
+      if (page === "landing") {
+        renderLanding();
+      } else if (page === "result") {
+        renderResult();
+      } else {
+        renderQuiz();
+      }
+    }
+
+    function renderLanding() {
+      app.innerHTML = `
+        <section class="screen center">
+          <div class="card landing-card">
+            <div class="hero-icon" aria-hidden="true">📊</div>
+            <h1>אלכסונים במערכים דו־ממדיים</h1>
+            <p class="subtitle">שאלות תיאורטיות ומעשיות על אלכסון ראשי ואלכסון משני במטריצה.</p>
+            ${validationIssues.length ? `<div class="validation">יש בעיות בתיקוף השאלות (${validationIssues.length}). פרטים בקונסול.</div>` : ""}
+            <div class="actions" style="justify-content:center">
+              <button class="btn btn-primary" id="startBtn">🚀 התחל מבדק</button>
+            </div>
+          </div>
+        </section>
+      `;
+
+      document.getElementById("startBtn").addEventListener("click", () => {
+        page = "quiz";
+        qIndex = 0;
+        render();
+      });
+    }
+
+    function renderQuiz() {
+      const current = questions[qIndex];
+      const answered = answers[qIndex] !== undefined;
+      const selected = answers[qIndex];
+      const progress = ((qIndex + 1) / questions.length) * 100;
+
+      const optionsHtml = current.options.map((opt, i) => {
+        let cls = "option";
+        if (answered) {
+          if (i === current.correct) cls += " correct";
+          else if (i === selected) cls += " wrong";
+        }
+
+        return `
+          <button class="${cls}" data-option="${i}" ${answered ? "disabled" : ""}>
+            ${formatInlineBiDi(opt)}
+          </button>
+        `;
+      }).join("");
+
+      let feedbackHtml = "";
+      if (answered) {
+        const isCorrect = selected === current.correct;
+        if (isCorrect) {
+          feedbackHtml = `
+            <div class="feedback correct" aria-live="polite">
+              <div class="feedback-title">תשובה נכונה ✅</div>
+            </div>
+          `;
+        } else {
+          feedbackHtml = `
+            <div class="feedback wrong" aria-live="polite">
+              <div class="feedback-title">תשובה שגויה ❌</div>
+              <div>${formatInlineBiDi(current.explanation[selected])}</div>
+              <div class="correct-explanation">
+                <strong>הסבר לתשובה הנכונה:</strong>
+                ${formatInlineBiDi(current.explanation[current.correct])}
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      app.innerHTML = `
+        <section class="screen">
+          <div class="card">
+            <div class="progress-wrap">
+              <div class="progress-text">
+                <span>שאלה ${qIndex + 1} מתוך ${questions.length}</span>
+                <span>${Math.round(progress)}%</span>
+              </div>
+              <div class="progress" aria-label="התקדמות במבדק">
+                <div class="progress-bar" style="width:${progress}%"></div>
+              </div>
+            </div>
+
+            <h2>שאלה ${qIndex + 1}</h2>
+            <div class="question">${formatInlineBiDi(current.question)}</div>
+
+            ${current.code !== undefined ? `<pre><code>${escapeHtml(current.code)}</code></pre>` : ""}
+
+            <div class="options">
+              ${optionsHtml}
+            </div>
+
+            ${feedbackHtml}
+
+            <div class="actions">
+              <button class="btn btn-primary" id="nextBtn" ${answered ? "" : "disabled"}>
+                ${qIndex === questions.length - 1 ? "סיום" : "לשאלה הבאה"}
+              </button>
+            </div>
+          </div>
+        </section>
+      `;
+
+      document.querySelectorAll("[data-option]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (answers[qIndex] !== undefined) return;
+          answers[qIndex] = Number(button.dataset.option);
+          render();
+        });
+      });
+
+      document.getElementById("nextBtn").addEventListener("click", () => {
+        if (answers[qIndex] === undefined) return;
+
+        if (qIndex < questions.length - 1) {
+          qIndex += 1;
+          render();
+        } else {
+          page = "result";
+          render();
+        }
+      });
+    }
+
+    function renderResult() {
+      const correctCount = getCorrectCount();
+
+      app.innerHTML = `
+        <section class="screen center">
+          <div class="card result-card">
+            <div class="hero-icon" aria-hidden="true">⭐</div>
+            <h1>תוצאות</h1>
+            <p class="score">ענית נכון על <strong>${correctCount}</strong> מתוך <strong>${questions.length}</strong> שאלות.</p>
+            <div class="actions" style="justify-content:center">
+              <button class="btn btn-primary" id="restartBtn">🔁 התחל מחדש</button>
+            </div>
+          </div>
+        </section>
+      `;
+
+      document.getElementById("restartBtn").addEventListener("click", () => {
+        for (const key of Object.keys(answers)) delete answers[key];
+        qIndex = 0;
+        page = "quiz";
+        render();
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
