@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>מטריצת עצמים</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg1: #f0f9ff;
+      --bg2: #eef2ff;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #dbe3ef;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --correct-bg: #ecfdf5;
+      --correct-text: #047857;
+      --correct-border: #10b981;
+      --wrong-bg: #fef2f2;
+      --wrong-text: #b91c1c;
+      --wrong-border: #ef4444;
+      --code-bg: #f8fafc;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 48px 20px;
+    }
+
+    .screen.center {
+      align-items: center;
+    }
+
+    .card {
+      width: min(860px, 100%);
+      background: var(--card);
+      border: 2px solid rgba(148, 163, 184, 0.18);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+    }
+
+    .landing-card,
+    .result-card {
+      width: min(620px, 100%);
+      text-align: center;
+    }
+
+    .hero-icon {
+      font-size: 64px;
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(28px, 5vw, 38px);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(22px, 4vw, 30px);
+      text-align: right;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      margin: 0 0 26px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 24px;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--primary);
+      width: 0;
+      transition: width 0.25s ease;
+    }
+
+    .question {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 18px;
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    pre {
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: plaintext;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: var(--code-bg);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 0 0 22px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: right;
+      padding: 15px 18px;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, transform .15s ease;
+      line-height: 1.55;
+    }
+
+    .option:hover:not(:disabled) {
+      border-color: #818cf8;
+      transform: translateY(-1px);
+    }
+
+    .option:disabled {
+      cursor: default;
+    }
+
+    .option.correct {
+      border-color: var(--correct-border);
+      background: var(--correct-bg);
+    }
+
+    .option.wrong {
+      border-color: var(--wrong-border);
+      background: var(--wrong-bg);
+    }
+
+    .feedback {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      line-height: 1.65;
+    }
+
+    .feedback.correct {
+      background: var(--correct-bg);
+      color: var(--correct-text);
+      border-color: #a7f3d0;
+    }
+
+    .feedback.wrong {
+      background: var(--wrong-bg);
+      color: var(--wrong-text);
+      border-color: #fecaca;
+    }
+
+    .feedback-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .correct-explanation {
+      margin-top: 8px;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 22px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s ease, transform .15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      background: #c7d2fe;
+      color: #fff;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .score {
+      font-size: 23px;
+      margin: 10px 0 24px;
+      color: #374151;
+    }
+
+    .score strong {
+      color: var(--primary);
+    }
+
+    .validation {
+      margin-top: 16px;
+      color: #b91c1c;
+      font-size: 14px;
+    }
+
+    bdi, code, .ltr {
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    .force-ltr {
+      direction: ltr;
+      text-align: left;
+      unicode-bidi: isolate;
+    }
+
+    @media (max-width: 640px) {
+      .screen {
+        padding: 20px 12px;
+      }
+      .card {
+        padding: 22px 16px;
+        border-radius: 18px;
+      }
+      .question {
+        font-size: 18px;
+      }
+      .option {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+
+  <script>
+    "use strict";
+
+    const questions = [
+    {
+      id: 1,
+      question: `במטריצת עצמים, מהו יתרון מרכזי של שמירת אובייקטים מסוג Student בכל תא במקום לשמור מטריצות נפרדות לשמות/ציונים/נוכחות?`,
+      options: [
+        "ארגון מידע מרוכז – כל שדות התלמיד נשמרים יחד",
+        "הקוד רץ מהר יותר תמיד",
+        "אין צורך בבדיקות גבול אינדקסים"
+      ],
+      correct: 0,
+      explanation: {
+        0: "שמירת כל נתוני התלמיד באובייקט יחיד מצמצמת פיצול והצלבות שגויות.",
+        1: "ביצועים תלויים במימוש – לא מובטח שיפור מהירות.",
+        2: "עדיין חובה לבדוק גבולות אינדקסים."
+      }
+    },
+    {
+      id: 2,
+      question: `איזו סכנה מתרחשת כששומרים נתוני תלמידים במטריצות נפרדות (שמות/ציונים/ת"ז) ולא באמצעות [,]Student?`,
+      options: [
+        "חוסר סנכרון בין אינדקסים עלול לערבב נתונים",
+        "אי אפשר לבצע חיפוש",
+        "אי אפשר להדפיס נתונים למסך"
+      ],
+      correct: 0,
+      explanation: {
+        0: "החלפת שורה/עמודה במטריצה אחת בלבד תיצור שידוך שגוי בין שם לציון וכו'.",
+        1: "חיפוש אפשרי אך מסורבל יותר.",
+        2: "הדפסה תמיד אפשרית – הבעיה היא דיוק הנתונים."
+      }
+    },
+    {
+      id: 3,
+      question: `איזו פעולה מאפשרת להרחיב בקלות את מודל הנתונים בכיתה שבה כל תא במטריצה הוא Student?`,
+      options: [
+        "הוספת תכונה חדשה למחלקה Student (למשל מספר טלפון)",
+        "שכפול כל המטריצה עבור כל תכונה חדשה",
+        "המרת המטריצה למערך חד־ממדי של ערכים בלבד"
+      ],
+      correct: 0,
+      explanation: {
+        0: "הוספת שדה חדש במחלקה Student אינה דורשת שינוי במבנה המטריצה או באינדקסים.",
+        1: "שכפול מטריצה גורם לקוד מסובך וחוסר סנכרון.",
+        2: "מערך חד־ממדי מאבד את מבנה השורות והעמודות המקורי."
+      }
+    },
+    {
+      id: 4,
+      question: "נתון Student[,] classroom. מה בודק הקוד הבא?",
+      code: `int rows = classroom.GetLength(0);\nint cols = classroom.GetLength(1);\nint count = 0;\nfor (int i = 0; i < rows; i++)\n  for (int j = 0; j < cols; j++)\n    if (classroom[i,j] != null) count++;\nConsole.WriteLine(count);`,
+      options: [
+        "כמה מושבים מאוישים (לא null)",
+        "כמה תלמידים קיבלו ציון מעל 90",
+        "כמה שורות בכיתה"
+      ],
+      correct: 0,
+      explanation: {
+        0: "בדיקת null מזהה תאים מאוישים לעומת ריקים.",
+        1: "אין כאן בדיקה של ציון כלל.",
+        2: "rows כבר מכיל את מספר השורות – הקוד סופר תאים מאוישים."
+      }
+    },
+    {
+      id: 5,
+      question: "קולנוע מיוצג באמצעות Visitor[,] hall. מה עושה הפעולה?",
+      code: `bool ExistsId(Visitor[,] hall, string id){\n  for(int i=0;i<hall.GetLength(0);i++)\n    for(int j=0;j<hall.GetLength(1);j++)\n      if(hall[i,j]!=null && hall[i,j].Id==id) return true;\n  return false;\n}`,
+      options: [
+        "בודקת האם יש מבקר עם מזהה נתון באולם",
+        "מחשבת כמה שורות מלאות",
+        "מחליפה בין מושבים סמוכים"
+      ],
+      correct: 0,
+      explanation: {
+        0: "השוואת hall[i,j].Id ל-id מחזירה קיום.",
+        1: "אין כאן ספירת שורות מלאות.",
+        2: "אין כאן החלפות."
+      }
+    },
+    {
+      id: 6,
+      question:
+        "למה חשוב להשתמש ב-GetLength במקום לשמור משתני rows/cols קבועים מראש?",
+      options: [
+        "כדי להיות חסיני שינוי גודל המטריצה",
+        "כדי להאיץ את ריצת הקוד",
+        "כדי להימנע משימוש בלולאות"
+      ],
+      correct: 0,
+      explanation: {
+        0: "שינוי גודל בעתיד לא ישבור את הלוגיקה אם קוראים ל-GetLength בזמן ריצה.",
+        1: "לא בהכרח מהיר יותר.",
+        2: "עדיין משתמשים בלולאות."
+      }
+    },
+    {
+      id: 7,
+      question:
+        "הרצאה מיוצגת באמצעות Person[,] lecture. מה מחזירה הפעולה?",
+      code: `int CountAdults(Person[,] lecture){\n  int c=0;\n  for(int i=0;i<lecture.GetLength(0);i++)\n    for(int j=0;j<lecture.GetLength(1);j++)\n      if(lecture[i,j]!=null && lecture[i,j].Age>=18) c++;\n  return c;\n}`,
+      options: [
+        "מספר האנשים בני 18 ומעלה",
+        "מספר המושבים הריקים",
+        "מספר העמודות"
+      ],
+      correct: 0,
+      explanation: {
+        0: "בדיקת Age>=18 סופרת בגירים.",
+        1: "ריקים אינם נספרים כאן במפורש.",
+        2: "אין קשר לעמודות."
+      }
+    },
+    {
+      id: 8,
+      question: "מה יעשה הקוד הבא בכיתה Student[,] classroom?",
+      code: `for(int i=0;i<classroom.GetLength(0);i++)\n  for(int j=0;j<classroom.GetLength(1);j++)\n    if(classroom[i,j]!=null) classroom[i,j].Absences = 0;`,
+      options: [
+        "איפוס נוכחות לכל תלמיד קיים",
+        "מחיקת כל התלמידים",
+        "הזזת תלמידים עמודה אחת ימינה"
+      ],
+      correct: 0,
+      explanation: {
+        0: "השמה Absences=0 על תאים מאוישים.",
+        1: "אין הקצאת null.",
+        2: "אין שינוי מיקום."
+      }
+    },
+    {
+      id: 9,
+      question: "איזו בדיקת גבול נכונה לפני גישה ל-classroom[i,j]?",
+      options: ["0<=i<rows && 0<=j<cols", "i>=0 בלבד מספיק", "רק לבדוק j<cols"],
+      correct: 0,
+      explanation: {
+        0: "חובה לבדוק שני ממדים.",
+        1: "חסר בדיקת j וגג i.",
+        2: "חסר בדיקת i ותחתית j."
+      }
+    },
+    {
+      id: 10,
+      question: "מה חשוד בלוגיקה הבאה?",
+      code: `bool allSeated=true;\nfor(int i=0;i<rows;i++)\n  for(int j=0;j<cols;j++)\n    if(hall[i,j]==null) allSeated=true;`,
+      options: ["צריך להציב false אם מוצאים null", "צריך להתחיל את i מ-1", "יש להשתמש ב-do-while"],
+      correct: 0,
+      explanation: {
+        0: "המשמעות הפוכה; null מעיד שלא כולם יושבים.",
+        1: "האינדקס ההתחלתי אינו הבעיה.",
+        2: "סוג הלולאה לא פותר את הלוגיקה."
+      }
+    },
+    {
+      id: 11,
+      question: "מהי משמעות החלפת שני מושבים hall[i,j] ו-hall[i,j+1]?",
+      options: ["הזזת מבקר למקום סמוך בעמודה", "מחיקת מבקר", "הוספת עמודה חדשה"],
+      correct: 0,
+      explanation: {
+        0: "החלפה swap בין שני תאים שכנים.",
+        1: "לא מאפסים ל-null.",
+        2: "אין שינוי מבני במטריצה."
+      }
+    },
+    {
+      id: 12,
+      question:
+        "כדי למנוע ערבוב נתונים, איזה מזהה כדאי לשמור במחלקה Student?",
+      options: ["Id ייחודי לתלמיד", "שם פרטי בלבד", "ציון אחרון בלבד"],
+      correct: 0,
+      explanation: {
+        0: "Id מאפשר זיהוי חד-חד-ערכי.",
+        1: "שם אינו ייחודי בהכרח.",
+        2: "ציון אינו מזהה."
+      }
+    },
+    {
+      id: 13,
+      question: "מה עושה הקוד?",
+      code: `int FullRows(Student[,] cls){\n  int cnt=0;\n  for(int i=0;i<cls.GetLength(0);i++){\n    bool full=true;\n    for(int j=0;j<cls.GetLength(1);j++)\n      if(cls[i,j]==null) full=false;\n    if(full) cnt++;\n  }\n  return cnt;\n}`,
+      options: ["מספר השורות המלאות בתלמידים", "מספר התלמידים הכולל", "מספר העמודות הריקות"],
+      correct: 0,
+      explanation: {
+        0: "full מצביע שאין null בשורה.",
+        1: "זה נספר במקום אחר.",
+        2: "לא נספרות עמודות."
+      }
+    },
+    {
+      id: 14,
+      question: "כיצד תאתר את התלמיד בעל הציון הגבוה ביותר בכל שורה?",
+      options: [
+        "מעבר על כל תא בשורה ושמירת מקסימום לפי Student.Grade",
+        "לקרוא רק את האלכסון הראשי",
+        "לבחור תמיד את התא הראשון"
+      ],
+      correct: 0,
+      explanation: {
+        0: "אלגוריתם מקסימום לשורה.",
+        1: "אלכסון אינו מייצג את כל השורה.",
+        2: "בחירה קבועה אינה נכונה."
+      }
+    },
+    {
+      id: 15,
+      question: "בקולנוע, כיצד תבדוק אם קיימת עמודה ריקה לחלוטין?",
+      options: [
+        "לכל j לבדוק שכל hall[i,j]==null",
+        "לבדוק רק מושב עליון ותחתון",
+        "להשוות מספר שורות לעמודות"
+      ],
+      correct: 0,
+      explanation: {
+        0: "חובה לבדוק את כל i באותה עמודה.",
+        1: "לא מספיק.",
+        2: "לא קשור."
+      }
+    },
+    {
+      id: 16,
+      question:
+        "מה תהיה תוצאת הקוד ל'ספירת שכנים' חוקית (בתוך גבולות) סביב תא (i,j)?",
+      code: `int CountNeighbors(Person[,] a,int i,int j){\n  int rows=a.GetLength(0), cols=a.GetLength(1), c=0;\n  for(int di=-1;di<=1;di++)\n    for(int dj=-1;dj<=1;dj++){\n      if(di==0 && dj==0) continue;\n      int r=i+di, c2=j+dj;\n      if(0<=r && r<rows && 0<=c2 && c2<cols && a[r,c2]!=null) c++;\n    }\n  return c;\n}`,
+      options: [
+        "מספר התאים המאוכלסים מסביב ל-(i,j)",
+        "מספר העמודות הכולל",
+        "מספר המושבים הריקים בכל האולם"
+      ],
+      correct: 0,
+      explanation: {
+        0: "בדיקת שכנות 8 כיוונים עם גבולות.",
+        1: "לא רלוונטי.",
+        2: "לא נספר בכל האולם."
+      }
+    },
+    {
+      id: 17,
+      question:
+        "מדוע עדיף להחזיר מערך של Student מתוצאות חיפוש על פני [,]int של אינדקסים?",
+      options: [
+        "מפשט עבודה אובייקטית ומונע תלות במיקומים",
+        "כי מערך תמיד מהיר יותר",
+        "כדי לא להשתמש בלולאות כלל"
+      ],
+      correct: 0,
+      explanation: {
+        0: "החזרת האובייקטים עצמם מאפשרת עבודה ישירה בלי תקלות של אינדקסים ומקטינה שגיאות תחזוקה.",
+        1: "מהירות תלויה בתרחיש; לא בהכרח.",
+        2: "לולאות עדיין עשויות להידרש לחיפוש/סינון."
+      }
+    },
+    {
+      id: 18,
+      question:
+        "בכיתה, ברצונך 'לגלגל' תלמידים ימינה שדה אחד גלגול שבו הערך האחרון בשורה חוזר לתחילתה. מה חייבים לבדוק?",
+      options: [
+        "שימור סדר ועבודה לפי כל שורה עם משתנה זמני",
+        "שורות זוגיות בלבד",
+        "הגדלת המטריצה באחד"
+      ],
+      correct: 0,
+      explanation: {
+        0: "גלגול מחייב temp ושמירה על גבולות/עטיפה.",
+        1: "אין צורך בהבחנה זוגית/אי-זוגית.",
+        2: "אין שינוי בגודל."
+      }
+    },
+    {
+      id: 19,
+      question: "מה יתרון שימוש ב-null כ'סמן ריק' בתאי [,]Visitor?",
+      options: [
+        "פשטות לוגית בספירות והשמות",
+        "חוסך זיכרון משמעותית תמיד",
+        "מאפשר גישה מחוץ לגבולות"
+      ],
+      correct: 0,
+      explanation: {
+        0: "אפשר לבדוק במהירות אם תא פנוי.",
+        1: "חיסכון תלוי CLR/אובייקטים.",
+        2: "אין דבר כזה – חובה להישאר בגבולות."
+      }
+    },
+    {
+      id: 20,
+      question: "מה היתרון בשימוש בפעולה CloneMatrix(Student[,] src) שמחזירה העתק עצמאי של המטריצה?",
+      code: `Student[,] CloneMatrix(Student[,] src){
+  int rows = src.GetLength(0);
+  int cols = src.GetLength(1);
+  Student[,] copy = new Student[rows,cols];
+  for(int i=0;i<rows;i++)
+    for(int j=0;j<cols;j++)
+      if(src[i,j]!=null)
+        copy[i,j] = new Student(src[i,j]);
+  return copy;
+}`,
+      options: [
+        "שינויים בעותק לא משפיעים על המקור",
+        "העתקה מהירה יותר של הפניות",
+        "אין צורך בלולאות כלל בעת שכפול"
+      ],
+      correct: 0,
+      explanation: {
+        0: "יצירת אובייקטים חדשים מונעת שיתוף רפרנסים בין המקור לעותק.",
+        1: "זו העתקה שטחית – לא מונעת זליגת שינויים.",
+        2: "לולאות נדרשות להעתקה של כל תא במטריצה."
+      }
+    },
+    {
+      id: 21,
+      question: "איך סופרים תלמידים עם Grade>90 כאשר חלק מהתאים ריקים?",
+      code: `for(int i=0;i<a.GetLength(0);i++)
+  for(int j=0;j<a.GetLength(1);j++)
+    if (a[i,j] != null && a[i,j].Grade > 90) count++;`,
+      options: [
+        "לבצע בדיקת null מפורשת לפני כל גישה לשדה",
+        "להניח שכל התאים מאוכלסים כדי לחסוך בדיקות",
+        "לעטוף את הגישה ב-try/catch במקום בדיקת null"
+      ],
+      correct: 0,
+      explanation: {
+        0: "בדיקת null מפורשת מונעת ניסיון גישה לשדה על תא ריק.",
+        1: "הנחה כזו מסוכנת ועלולה לגרום לשגיאות בזמן ריצה.",
+        2: "טיפול בשגיאות יקר ומיותר כשהמניעה פשוטה עם בדיקת null."
+      }
+    },
+    {
+      id: 22,
+      question: "מהי דרך טובה לאתחול אולם ריק בגודל r×c?",
+      code: `Visitor[,] hall = new Visitor[r,c];`,
+      options: [
+        "כל התאים מאותחלים ל-null כברירת מחדל",
+        "יש למלא ידנית null בכל תא",
+        "יש ליצור רשימת רשימות"
+      ],
+      correct: 0,
+      explanation: {
+        0: "מטריצה של רפרנסים מאותחלת ל-null.",
+        1: "מיותר – CLR עושה זאת.",
+        2: "אפשרי אך לא מטריצה סטטית."
+      }
+    },
+    {
+      id: 23,
+      question: "מה עושה הקוד הבא?",
+      code: `bool AnyLate(Student[,] cls){\n  for(int i=0;i<cls.GetLength(0);i++)\n    for(int j=0;j<cls.GetLength(1);j++)\n      if(cls[i,j]?.Late == true) return true;\n  return false;\n}`,
+      options: ["בודק אם קיים תלמיד מאחר לפחות אחד", "סופר את כלל התלמידים", "מחשב ממוצע ציונים"],
+      correct: 0,
+      explanation: {
+        0: "ברגע שמוצאים Late==true מוחזרים true.",
+        1: "אין כאן ספירה.",
+        2: "אין חישוב ציונים."
+      }
+    },
+    {
+      id: 24,
+      question: "מה היתרון בשימוש בפעולה FindFirstEmpty(Student[,] cls) להחזרת מיקום פנוי?",
+      code: `int[] FindFirstEmpty(Student[,] cls){
+  for(int i=0;i<cls.GetLength(0);i++)
+    for(int j=0;j<cls.GetLength(1);j++)
+      if(cls[i,j]==null) return new int[]{i,j};
+  return null;
+}`,
+      options: [
+        "מאפשרת איתור מיקום זמין בצורה מרוכזת ונוחה לשימוש חוזר",
+        "תמיד מחזירה null ולכן בטוחה לשימוש",
+        "מונעת הקצאת זיכרון חדשה"
+      ],
+      correct: 0,
+      explanation: {
+        0: "הפעולה מרכזת את הלוגיקה ומאפשרת שימוש חוזר במציאת תא פנוי.",
+        1: "היא מחזירה null רק כשאין מקום פנוי, לא תמיד.",
+        2: "היא יוצרת מערך חדש של אינדקסים ולכן דווקא מקצה זיכרון קטן."
+      }
+    },
+    {
+      id: 25,
+      question:
+        "מהו כלל זהב בעבודה עם מטריצת עצמים ?",
+      options: [
+        "בדיקות גבול, null ויושרה בין שדות לפני כל גישה/החלפה",
+        "לסמוך על כך שהמידע תמיד עקבי",
+        "להימנע לחלוטין ממחלקות מורכבות"
+      ],
+      correct: 0,
+      explanation: {
+        0: "זה מיישם את שלושת העקרונות בתמונה: ארגון, מניעת טעויות, והרחבה קלה.",
+        1: "אסור להניח עקביות.",
+        2: "מחלקות מאפשרות הרחבה וניקיון."
+      }
+    }
+  ];
+
+    let page = "landing";
+    let qIndex = 0;
+    const answers = {};
+
+    const app = document.getElementById("app");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatInlineBiDi(text) {
+      const escaped = escapeHtml(text);
+
+      // Keep common programming/API fragments readable inside Hebrew text.
+      return escaped
+        .replace(/(\[[,\]]+Student|Student\[[,\]]+|Visitor\[[,\]]+|Person\[[,\]]+)/g, '<bdi dir="ltr">$1</bdi>')
+        .replace(/([A-Za-z_][A-Za-z0-9_.]*(?:&lt;|&gt;|==|!=|&gt;=|&lt;=)[A-Za-z0-9_.-]+)/g, '<bdi dir="ltr">$1</bdi>')
+        .replace(/([A-Za-z_][A-Za-z0-9_.]*\([^)]*\))/g, '<bdi dir="ltr">$1</bdi>');
+    }
+
+    function validateQuestions() {
+      const issues = [];
+
+      if (questions.length !== 25) {
+        issues.push(`צפויות 25 שאלות, בפועל: ${questions.length}`);
+      }
+
+      const ids = new Set();
+      const seen = [];
+
+      questions.forEach((q) => {
+        if (ids.has(q.id)) issues.push(`מזהה שאלה כפול: id=${q.id}`);
+        ids.add(q.id);
+        seen.push(q.id);
+
+        if (!Array.isArray(q.options) || q.options.length !== 3) {
+          issues.push(`שאלה id=${q.id} צריכה 3 אפשרויות`);
+        }
+
+        if (!(Number.isInteger(q.correct) && q.correct >= 0 && q.correct < q.options.length)) {
+          issues.push(`אינדקס תשובה נכונה מחוץ לטווח בשאלה id=${q.id}`);
+        }
+
+        q.options.forEach((_, i) => {
+          if (!q.explanation || typeof q.explanation[i] !== "string" || q.explanation[i].length === 0) {
+            issues.push(`חסר הסבר לאפשרות ${i} בשאלה id=${q.id}`);
+          }
+        });
+
+        if (q.code !== undefined && String(q.code).trim().length === 0) {
+          issues.push(`שדה code ריק בשאלה id=${q.id}`);
+        }
+      });
+
+      [...seen].sort((a, b) => a - b).forEach((id, i) => {
+        if (id !== i + 1) issues.push(`מזהה שאלה אינו רציף: ציפיתי ל-${i + 1} בפועל ${id}`);
+      });
+
+      if (issues.length) {
+        console.warn("QUIZ TESTS FAILED:", issues);
+      } else {
+        console.info("QUIZ TESTS PASSED ✔");
+      }
+
+      return issues;
+    }
+
+    const validationIssues = validateQuestions();
+
+    function getCorrectCount() {
+      return Object.keys(answers).filter((key) => {
+        const index = Number(key);
+        return questions[index].correct === answers[index];
+      }).length;
+    }
+
+    function render() {
+      if (page === "landing") renderLanding();
+      else if (page === "result") renderResult();
+      else renderQuiz();
+    }
+
+    function renderLanding() {
+      app.innerHTML = `
+        <section class="screen center">
+          <div class="card landing-card">
+            <div class="hero-icon" aria-hidden="true">📊</div>
+            <h1>מטריצת עצמים</h1>
+            <p class="subtitle">שאלות על מטריצות של עצמים: ארגון נתונים, חיפוש, ספירה ובדיקות גבול.</p>
+            ${validationIssues.length ? `<div class="validation">יש בעיות בתיקוף השאלות (${validationIssues.length}). פרטים בקונסול.</div>` : ""}
+            <div class="actions" style="justify-content:center">
+              <button class="btn btn-primary" id="startBtn">🚀 התחל מבדק</button>
+            </div>
+          </div>
+        </section>
+      `;
+
+      document.getElementById("startBtn").addEventListener("click", () => {
+        page = "quiz";
+        qIndex = 0;
+        render();
+      });
+    }
+
+    function renderQuiz() {
+      const current = questions[qIndex];
+      const answered = answers[qIndex] !== undefined;
+      const selected = answers[qIndex];
+      const progress = ((qIndex + 1) / questions.length) * 100;
+
+      const optionsHtml = current.options.map((opt, i) => {
+        let cls = "option";
+        if (answered) {
+          if (i === current.correct) cls += " correct";
+          else if (i === selected) cls += " wrong";
+        }
+
+        const forceLtr = current.id === 9 && i === 0;
+        return `
+          <button class="${cls} ${forceLtr ? "force-ltr" : ""}" data-option="${i}" ${answered ? "disabled" : ""}>
+            ${formatInlineBiDi(opt)}
+          </button>
+        `;
+      }).join("");
+
+      let feedbackHtml = "";
+      if (answered) {
+        const isCorrect = selected === current.correct;
+        if (isCorrect) {
+          feedbackHtml = `
+            <div class="feedback correct" aria-live="polite">
+              <div class="feedback-title">תשובה נכונה ✅</div>
+            </div>
+          `;
+        } else {
+          feedbackHtml = `
+            <div class="feedback wrong" aria-live="polite">
+              <div class="feedback-title">תשובה שגויה ❌</div>
+              <div>${formatInlineBiDi(current.explanation[selected])}</div>
+              <div class="correct-explanation">
+                <strong>הסבר לתשובה הנכונה:</strong>
+                ${formatInlineBiDi(current.explanation[current.correct])}
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      app.innerHTML = `
+        <section class="screen">
+          <div class="card">
+            <div class="progress-wrap">
+              <div class="progress-text">
+                <span>שאלה ${qIndex + 1} מתוך ${questions.length}</span>
+                <span>${Math.round(progress)}%</span>
+              </div>
+              <div class="progress" aria-label="התקדמות במבדק">
+                <div class="progress-bar" style="width:${progress}%"></div>
+              </div>
+            </div>
+
+            <h2>שאלה ${qIndex + 1}</h2>
+            <div class="question">${formatInlineBiDi(current.question)}</div>
+
+            ${current.code !== undefined ? `<pre><code>${escapeHtml(current.code)}</code></pre>` : ""}
+
+            <div class="options">
+              ${optionsHtml}
+            </div>
+
+            ${feedbackHtml}
+
+            <div class="actions">
+              <button class="btn btn-primary" id="nextBtn" ${answered ? "" : "disabled"}>
+                ${qIndex === questions.length - 1 ? "סיום" : "לשאלה הבאה"}
+              </button>
+            </div>
+          </div>
+        </section>
+      `;
+
+      document.querySelectorAll("[data-option]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (answers[qIndex] !== undefined) return;
+          answers[qIndex] = Number(button.dataset.option);
+          render();
+        });
+      });
+
+      document.getElementById("nextBtn").addEventListener("click", () => {
+        if (answers[qIndex] === undefined) return;
+
+        if (qIndex < questions.length - 1) {
+          qIndex += 1;
+          render();
+        } else {
+          page = "result";
+          render();
+        }
+      });
+    }
+
+    function renderResult() {
+      const correctCount = getCorrectCount();
+
+      app.innerHTML = `
+        <section class="screen center">
+          <div class="card result-card">
+            <div class="hero-icon" aria-hidden="true">⭐</div>
+            <h1>תוצאות</h1>
+            <p class="score">ענית נכון על <strong>${correctCount}</strong> מתוך <strong>${questions.length}</strong> שאלות.</p>
+            <div class="actions" style="justify-content:center">
+              <button class="btn btn-primary" id="restartBtn">🔁 התחל מחדש</button>
+            </div>
+          </div>
+        </section>
+      `;
+
+      document.getElementById("restartBtn").addEventListener("click", () => {
+        for (const key of Object.keys(answers)) delete answers[key];
+        qIndex = 0;
+        page = "quiz";
+        render();
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
