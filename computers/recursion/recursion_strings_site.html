@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>רקורסיה עם מחרוזות - סביבת תרגול אינטראקטיבית</title>
+<style>
+:root{--bg:#f3f6fb;--panel:#fff;--ink:#172033;--muted:#667085;--line:#d9e1ee;--brand:#163a70;--brand2:#2463b5;--soft:#edf4ff;--good:#137a4b;--goodbg:#edf9f2;--warn:#9b5b00;--warnbg:#fff6e7;--bad:#aa3344;--badbg:#fff0f2;--shadow:0 12px 34px rgba(33,55,90,.09);}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;direction:rtl;min-height:100vh}
+button,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #8eb9ff;outline-offset:2px}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(243,246,251,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1180px;margin:auto;padding:14px 20px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand h1{font-size:1.2rem;margin:0;color:var(--brand)}
+.brand p{font-size:.88rem;margin:3px 0 0;color:var(--muted)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:9px 13px;font-weight:700;transition:.15s transform,.15s border-color,.15s background}
+.btn:hover{transform:translateY(-1px);border-color:#afbdd4}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.soft{background:var(--soft);border-color:#c8dcff;color:var(--brand)}
+.btn.good{background:var(--goodbg);border-color:#b9e3ca;color:var(--good)}
+.btn.warn{background:var(--warnbg);border-color:#ead2a9;color:var(--warn)}
+.btn.bad{background:var(--badbg);border-color:#f0bec6;color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.container{max-width:1180px;margin:0 auto;padding:22px 20px 110px}
+.progress-shell{background:#dfe7f3;border-radius:999px;height:10px;overflow:hidden;margin:4px 0 18px}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--brand2),#5d8fd2);transition:width .25s ease}
+.meta-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;font-size:.88rem;color:#445066}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:18px;align-items:start;direction:ltr}
+.main{min-width:0;direction:rtl}
+.sidebar{direction:rtl;position:sticky;top:92px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:24px}
+.question-head{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.qnum{width:48px;height:48px;border-radius:16px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:1.2rem;font-weight:800;flex:0 0 auto}
+.question-title{display:flex;gap:12px;align-items:center;min-width:0}
+.question-title h2{font-size:1.5rem;margin:0;color:#102a56;line-height:1.25}
+.level{border:1px solid #cad6e7;border-radius:999px;padding:6px 10px;background:#fafcff;font-size:.85rem;font-weight:700;color:#4b5b72}
+.description{font-size:1.06rem;line-height:1.7;margin:18px 0}
+.signature{direction:ltr;text-align:left;background:#f6f8fb;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-family:Consolas,"Courier New",monospace;font-size:.95rem;overflow-wrap:anywhere}
+.section-title{font-size:1.04rem;margin:22px 0 10px;color:#213d6a}
+.prompt-box{background:#fbfcff;border:1px solid var(--line);border-radius:16px;padding:16px}
+.prompt-box ul{margin:0;padding-right:20px;line-height:1.7;color:#3f4d63}
+textarea{width:100%;min-height:92px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;color:var(--ink);line-height:1.55}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.hint{display:none;margin-top:14px;background:var(--warnbg);border:1px solid #ebd1a4;border-radius:14px;padding:14px;line-height:1.6}
+.solution{display:none;margin-top:18px;border-top:1px solid var(--line);padding-top:18px}
+.solution.open,.hint.open{display:block}
+.solution-note{background:var(--goodbg);border:1px solid #bfe2cd;border-radius:12px;padding:12px 14px;margin-bottom:12px;line-height:1.6}
+.code-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 7px;flex-wrap:wrap}
+.code-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.language-toggle{display:inline-flex;direction:ltr;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.language-toggle .lang-btn{border:0;border-radius:0;background:#fff;color:#46546a;padding:8px 12px;font-weight:800;cursor:pointer}
+.language-toggle .lang-btn+ .lang-btn{border-left:1px solid var(--line)}
+.language-toggle .lang-btn.active{background:var(--brand);color:#fff}
+.language-toggle .lang-btn:focus-visible{outline:3px solid #8eb9ff;outline-offset:-3px}
+.code{direction:ltr;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;background:#111827;color:#f6f8fc;border-radius:14px;border:1px solid #26334a;padding:18px;font-family:Consolas,"Courier New",monospace;font-size:.92rem;line-height:1.45}
+.explain-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.explain{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}
+.explain h4{margin:0 0 7px;color:#1b477e;font-size:.96rem}
+.explain p{margin:0;color:#414e63;line-height:1.6;font-size:.94rem}
+.self-check{margin-top:16px;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px}
+.check-row{display:grid;gap:8px;margin-top:10px}
+.check-row label{display:flex;align-items:flex-start;gap:9px;line-height:1.5;color:#39475c}
+.check-row input{margin-top:4px;accent-color:var(--good)}
+.rating{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.side-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.side-card h3{font-size:1rem;margin:0 0 12px;color:#17345f}
+select{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;color:var(--ink)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;background:#fbfcff}
+.stat strong{display:block;font-size:1.25rem;color:var(--brand)}
+.stat span{font-size:.78rem;color:var(--muted)}
+.review-list{display:grid;gap:7px}
+.review-item{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px;text-align:right;color:#39475d}
+.review-item:hover{background:#f6f9ff}
+.empty{color:var(--muted);font-size:.88rem;line-height:1.5}
+.bottom-nav{position:fixed;z-index:25;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+.bottom-inner{max-width:1180px;margin:auto;padding:10px 20px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.bottom-inner .next{justify-self:start}
+.bottom-inner .prev{justify-self:end}
+.nav-center{font-weight:800;color:#46546a;white-space:nowrap}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.48);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-panel{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;border:1px solid var(--line);box-shadow:0 25px 70px rgba(0,0,0,.2);padding:22px}
+.modal-panel h2{margin:0;color:#17345f}
+.research{display:grid;gap:10px;margin-top:15px}
+.research article{border:1px solid var(--line);border-radius:14px;padding:14px}
+.research h3{margin:0 0 6px;font-size:1rem;color:#1e4a82}
+.research p{margin:0;line-height:1.6;color:#435066}
+.research a{display:inline-block;margin-top:8px;color:#145bb0;word-break:break-all}
+.small{font-size:.84rem;color:var(--muted);line-height:1.5}
+.status-dot{width:9px;height:9px;border-radius:50%;background:#aab5c5;display:inline-block}
+.status-dot.good{background:var(--good)}.status-dot.warn{background:#d68b1d}.status-dot.bad{background:var(--bad)}
+.toast{position:fixed;bottom:86px;right:20px;z-index:60;background:#182438;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}
+.toast.show{opacity:1;transform:none}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static}.side-card.review-box{display:none}}
+@media(max-width:640px){.container{padding:14px 12px 105px}.topbar-inner{padding:11px 12px}.card{padding:18px;border-radius:16px}.question-title h2{font-size:1.25rem}.explain-grid{grid-template-columns:1fr}.bottom-inner{padding:9px 12px}.nav-center{font-size:.86rem}.btn{padding:8px 10px}.brand p{display:none}}
+@media print{.topbar,.sidebar,.bottom-nav,.actions,.self-check,.prompt-box,.progress-shell,.meta-row{display:none!important}body{background:#fff}.container{padding:0}.layout{display:block}.card{box-shadow:none;border:0}.solution{display:block!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <h1>רקורסיה עם מחרוזות - סביבת תרגול</h1>
+    </div>
+    <div class="toolbar">
+      <button class="btn soft" id="researchBtn">למה האתר בנוי כך?</button>
+      <button class="btn" id="reviewModeBtn">תרגול חוזר</button>
+      <button class="btn" id="resetBtn">איפוס התקדמות</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="meta-row">
+    <span class="pill" id="progressText">שאלה 1 מתוך 30</span>
+    <span class="pill"><span class="status-dot" id="currentStatusDot"></span><span id="currentStatusText">טרם סומן</span></span>
+    <span class="pill" id="modeLabel">מצב: סדר רגיל</span>
+  </div>
+  <div class="progress-shell" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="layout">
+    <section class="main">
+      <article class="card" id="questionCard" aria-live="polite">
+        <div class="question-head">
+          <div class="question-title"><div class="qnum" id="qnum">1</div><h2 id="qtitle"></h2></div>
+          <span class="level" id="qlevel"></span>
+        </div>
+        <p class="description" id="qdescription"></p>
+        <div class="signature" id="qsignature"></div>
+
+        <h3 class="section-title">לפני שמגלים את הפתרון</h3>
+        <div class="prompt-box">
+          <ul>
+            <li>מהו תנאי העצירה?</li>
+            <li>איזה פרמטר משתנה בכל קריאה רקורסיבית?</li>
+            <li>מה הפעולה צריכה להחזיר או לבצע אחרי הקריאה?</li>
+          </ul>
+          <label for="studentNotes" class="small">כתוב לעצמך כיוון, פסאודו-קוד או הסבר קצר. הטקסט נשמר רק בדפדפן שלך.</label>
+          <textarea id="studentNotes" placeholder="הכיוון שלי לפתרון..."></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="btn warn" id="hintBtn">הצג רמז</button>
+          <button class="btn primary" id="solutionBtn">ניסיתי - הצג פתרון מלא</button>
+        </div>
+        <div class="hint" id="hintBox"></div>
+
+        <section class="solution" id="solutionPanel">
+          <div class="solution-note" id="solutionNote"></div>
+          <div class="code-head">
+            <strong id="codeTitle">פתרון C#</strong>
+            <div class="code-tools">
+              <div class="language-toggle" role="group" aria-label="בחירת שפת קוד">
+                <button class="lang-btn active" id="csharpBtn" type="button" aria-pressed="true">C#</button>
+                <button class="lang-btn" id="javaBtn" type="button" aria-pressed="false">Java</button>
+              </div>
+              <button class="btn" id="copyBtn" type="button">העתק קוד</button>
+            </div>
+          </div>
+          <pre class="code"><code id="solutionCode"></code></pre>
+          <div class="explain-grid">
+            <div class="explain"><h4>הרעיון</h4><p id="expIdea"></p></div>
+            <div class="explain"><h4>תנאי העצירה</h4><p id="expBase"></p></div>
+            <div class="explain"><h4>הצעד הרקורסיבי</h4><p id="expStep"></p></div>
+            <div class="explain"><h4>למה זה עובד?</h4><p id="expWhy"></p></div>
+            <div class="explain"><h4>סיבוכיות</h4><p id="expComplexity"></p></div>
+          </div>
+
+          <div class="self-check">
+            <strong>בדיקה עצמית קצרה</strong>
+            <div class="check-row">
+              <label><input type="checkbox" data-check="base"> אני יכול להסביר את תנאי העצירה בלי להסתכל בקוד.</label>
+              <label><input type="checkbox" data-check="step"> אני יכול להסביר מה משתנה בכל קריאה.</label>
+              <label><input type="checkbox" data-check="why"> אני יכול להסביר למה הפתרון מכסה את כל המקרים הדרושים.</label>
+            </div>
+            <div class="rating">
+              <button class="btn good" data-rate="good">הבנתי</button>
+              <button class="btn warn" data-rate="warn">צריך עוד תרגול</button>
+              <button class="btn bad" data-rate="bad">עדיין לא ברור</button>
+            </div>
+          </div>
+        </section>
+      </article>
+    </section>
+
+    <aside class="sidebar">
+      <div class="side-card">
+        <h3>מעבר לשאלה</h3>
+        <select id="questionSelect" aria-label="בחירת שאלה"></select>
+      </div>
+      <div class="side-card">
+        <h3>התקדמות אישית</h3>
+        <div class="stats">
+          <div class="stat"><strong id="goodCount">0</strong><span>הבנתי</span></div>
+          <div class="stat"><strong id="reviewCount">0</strong><span>לתרגול חוזר</span></div>
+        </div>
+        <p class="small">ההתקדמות נשמרת ב-localStorage של הדפדפן ואינה נשלחת לשום שרת.</p>
+      </div>
+      <div class="side-card review-box">
+        <h3>שאלות לחזרה</h3>
+        <div class="review-list" id="reviewList"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<nav class="bottom-nav" aria-label="ניווט בין שאלות">
+  <div class="bottom-inner">
+    <button class="btn primary next" id="nextBtn">הבא ←</button>
+    <div class="nav-center" id="navCenter">1 / 30</div>
+    <button class="btn prev" id="prevBtn">→ הקודם</button>
+  </div>
+</nav>
+
+<div class="modal" id="researchModal" role="dialog" aria-modal="true" aria-labelledby="researchTitle">
+  <div class="modal-panel">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+      <h2 id="researchTitle">העקרונות הפדגוגיים שמאחורי האתר</h2>
+      <button class="btn" id="closeResearchBtn">סגור</button>
+    </div>
+    <div class="research">
+      <article><h3>1. קודם מנסים, אחר כך חושפים פתרון</h3><p>האתר מציג את השאלה לפני הפתרון ומעודד ניסיון עצמאי. זה מיישם Retrieval Practice במצב ללא ציון, לפני קבלת המשוב.</p><a href="https://www.retrievalpractice.org/strategies/2019/10/28/database-of-retrieval-practice-research" target="_blank" rel="noopener">סקירה של מחקרי Retrieval Practice בכיתות</a></article>
+      <article><h3>2. פתרון מלא כ-Worked Example</h3><p>לאחר הניסיון מוצג קוד מלא יחד עם פירוק לרעיון, תנאי עצירה, צעד רקורסיבי והסבר למה האלגוריתם עובד. מחקרים בקרב תלמידי חינוך על-יסודי מצאו יתרון לדוגמאות פתורות אצל מתחילים.</p><a href="https://www.sciencedirect.com/science/article/pii/S0361476X1000055X" target="_blank" rel="noopener">Worked examples בקרב תלמידי חינוך על-יסודי</a></article>
+      <article><h3>3. Self-Explanation בתכנות</h3><p>לפני ואחרי הפתרון התלמיד מתבקש להסביר לעצמו את תנאי העצירה ואת התהליך. מחקרים בתכנות בחטיבה/תיכון מצאו שיפור בכישורי תכנות וחשיבה חישובית עם prompts להסבר עצמי.</p><a href="https://eric.ed.gov/?id=EJ1133008" target="_blank" rel="noopener">מחקר בתכנות עם תלמידי תיכון</a><br><a href="https://doi.org/10.1111/jcal.70116" target="_blank" rel="noopener">מחקר Self-Explanation בתכנות בחינוך העל-יסודי</a></article>
+      <article><h3>4. משוב ומעקב אחר שליטה</h3><p>הסבר מלא, בדיקה עצמית וסימון “הבנתי / צריך עוד תרגול” עוזרים להפוך את הפתרון למשוב שניתן לפעול לפיו. האתר שומר רשימת שאלות לחזרה כדי לתמוך בתרגול ממוקד.</p><a href="https://educationendowmentfoundation.org.uk/education-evidence/teaching-learning-toolkit/feedback" target="_blank" rel="noopener">EEF - Feedback</a><br><a href="https://educationendowmentfoundation.org.uk/education-evidence/teaching-learning-toolkit/mastery-learning" target="_blank" rel="noopener">EEF - Mastery Learning</a></article>
+    </div>
+    <p class="small">המחקרים אינם מבטיחים שכל רכיב יעבוד באותה מידה בכל כיתה; האתר משתמש בעקרונות אלה בצורה קלה, ללא שרת וללא איסוף מידע אישי.</p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const QUESTIONS = [{"id":1,"title":"הדפסת תווים לפי הסדר","description":"כתבו פעולה רקורסיבית שמדפיסה את תווי המחרוזת משמאל לימין, החל מאינדקס נתון. אין להשתמש בלולאה. לדוגמה: \"cat\" יודפס c a t.","level":"בסיסי","signature":"PrintChars(string s, int index) / printChars(String s, int index)","goal":"בכל קריאה מטפלים בתו אחד ומתקדמים באינדקס ב-1.","code":"public static void PrintChars(string s, int index)\n{\n    if (index >= s.Length) return;\n    Console.Write(s[index] + \" \");\n    PrintChars(s, index + 1);\n}","javaCode":"public static void printChars(String s, int index)\n{\n    if (index >= s.length()) return;\n    System.out.print(s.charAt(index) + \" \");\n    printChars(s, index + 1);\n}","note":"ההדפסה מתבצעת לפני הקריאה הרקורסיבית, ולכן הסדר נשמר.","idea":"מתייחסים למחרוזת כרצף תווים. בכל שלב מדפיסים את התו הנוכחי ומעבירים לרקורסיה את האחריות על שאר התווים.","base":"כאשר index מגיע לאורך המחרוזת אין עוד תווים לעבד.","step":"מדפיסים את התו באינדקס index וקוראים שוב עם index + 1.","why":"כל אינדקס מטופל פעם אחת ובסדר עולה, ולכן כל התווים מודפסים משמאל לימין.","complexity":"זמן: O(n). עומק מחסנית: O(n)."},{"id":2,"title":"הדפסת תווים בסדר הפוך","description":"כתבו פעולה רקורסיבית שמדפיסה את המחרוזת מהתו האחרון לראשון, בלי לשנות את המחרוזת. לדוגמה: \"cat\" יודפס t a c.","level":"בסיסי","signature":"PrintReverse(string s, int index) / printReverse(String s, int index)","goal":"הקריאה הרקורסיבית מתבצעת לפני ההדפסה.","code":"public static void PrintReverse(string s, int index)\n{\n    if (index >= s.Length) return;\n    PrintReverse(s, index + 1);\n    Console.Write(s[index] + \" \");\n}","javaCode":"public static void printReverse(String s, int index)\n{\n    if (index >= s.length()) return;\n    printReverse(s, index + 1);\n    System.out.print(s.charAt(index) + \" \");\n}","note":"כאן הפעולה החשובה מתבצעת בזמן החזרה מהקריאות.","idea":"יורדים עד סוף המחרוזת בלי להדפיס, ואז מדפיסים בזמן שהמחסנית חוזרת לאחור.","base":"כאשר index מגיע לאורך המחרוזת עוצרים.","step":"קוראים קודם עם index + 1, ורק לאחר החזרה מדפיסים את s[index].","why":"הקריאה העמוקה ביותר חוזרת ראשונה, ולכן התווים מודפסים מהסוף להתחלה.","complexity":"זמן: O(n). עומק מחסנית: O(n)."},{"id":3,"title":"אורך מחרוזת בצורה רקורסיבית","description":"כתבו פעולה שמחזירה רקורסיבית כמה תווים יש במחרוזת, החל מאינדקס נתון. אין להשתמש בלולאה.","level":"בסיסי","signature":"RecursiveLength(string s, int index) / recursiveLength(String s, int index)","goal":"כל תו תורם 1 לאורך של הסיומת שמימינו.","code":"public static int RecursiveLength(string s, int index)\n{\n    if (index >= s.Length) return 0;\n    return 1 + RecursiveLength(s, index + 1);\n}","javaCode":"public static int recursiveLength(String s, int index)\n{\n    if (index >= s.length()) return 0;\n    return 1 + recursiveLength(s, index + 1);\n}","note":"","idea":"מפרקים את האורך ל-1 עבור התו הנוכחי ועוד האורך של שאר המחרוזת.","base":"אחרי סוף המחרוזת נותרו 0 תווים.","step":"מחזירים 1 + התוצאה עבור index + 1.","why":"כל קריאה סופרת בדיוק תו אחד ולכן סכום ה-1 הוא מספר התווים.","complexity":"זמן: O(n). עומק מחסנית: O(n)."},{"id":4,"title":"האם תו נמצא במחרוזת","description":"כתבו פעולה רקורסיבית שמחזירה true אם התו ch מופיע לפחות פעם אחת במחרוזת.","level":"בסיסי","signature":"ContainsChar(string s, int index, char ch) / containsChar(String s, int index, char ch)","goal":"עוצרים מיד כאשר מוצאים מופע מתאים.","code":"public static bool ContainsChar(string s, int index, char ch)\n{\n    if (index >= s.Length) return false;\n    if (s[index] == ch) return true;\n    return ContainsChar(s, index + 1, ch);\n}","javaCode":"public static boolean containsChar(String s, int index, char ch)\n{\n    if (index >= s.length()) return false;\n    if (s.charAt(index) == ch) return true;\n    return containsChar(s, index + 1, ch);\n}","note":"","idea":"מחפשים משמאל לימין. ברגע שנמצא התו אין צורך לבדוק את ההמשך.","base":"אם הגענו לסוף בלי למצוא את ch מחזירים false.","step":"אם התו הנוכחי שווה ל-ch מחזירים true; אחרת ממשיכים.","why":"כל תו נבדק לכל היותר פעם אחת, וכל מופע שקיים יגיע בסופו של דבר לבדיקה.","complexity":"זמן: O(n) במקרה הגרוע. עומק מחסנית: O(n)."},{"id":5,"title":"ספירת מופעים של תו","description":"כתבו פעולה רקורסיבית שמחזירה כמה פעמים התו ch מופיע במחרוזת. לדוגמה: ב-\"banana\" האות a מופיעה 3 פעמים.","level":"בסיסי","signature":"CountChar(string s, int index, char ch) / countChar(String s, int index, char ch)","goal":"כל תו תורם 1 אם הוא מתאים, אחרת 0.","code":"public static int CountChar(string s, int index, char ch)\n{\n    if (index >= s.Length) return 0;\n    int add = s[index] == ch ? 1 : 0;\n    return add + CountChar(s, index + 1, ch);\n}","javaCode":"public static int countChar(String s, int index, char ch)\n{\n    if (index >= s.length()) return 0;\n    int add = s.charAt(index) == ch ? 1 : 0;\n    return add + countChar(s, index + 1, ch);\n}","note":"","idea":"מחשבים תרומה מקומית של 0 או 1 ומוסיפים אותה לתוצאה של שאר המחרוזת.","base":"בסוף המחרוזת מחזירים 0.","step":"מוסיפים 1 כאשר s[index] == ch וממשיכים ל-index + 1.","why":"כל מופע מוסיף בדיוק 1 ולכן הסכום הסופי הוא מספר המופעים.","complexity":"זמן: O(n). עומק מחסנית: O(n)."},{"id":6,"title":"החלפת תו בתו אחר","description":"כתבו פעולה רקורסיבית שמחזירה מחרוזת חדשה שבה כל מופע של oldChar מוחלף ב-newChar. אין להשתמש ב-Replace.","level":"בסיסי+","signature":"ReplaceChar(string s, int index, char oldChar, char newChar) / replaceChar(...)","goal":"בונים את מחרוזת התוצאה תו אחר תו בזמן החזרה.","code":"public static string ReplaceChar(string s, int index, char oldChar, char newChar)\n{\n    if (index >= s.Length) return \"\";\n    char current = s[index] == oldChar ? newChar : s[index];\n    return current + ReplaceChar(s, index + 1, oldChar, newChar);\n}","javaCode":"public static String replaceChar(String s, int index, char oldChar, char newChar)\n{\n    if (index >= s.length()) return \"\";\n    char current = s.charAt(index) == oldChar ? newChar : s.charAt(index);\n    return current + replaceChar(s, index + 1, oldChar, newChar);\n}","note":"","idea":"בכל קריאה קובעים מה יהיה התו המתאים בתוצאה ומחברים אותו לפתרון של שאר המחרוזת.","base":"בסוף המחרוזת מחזירים מחרוזת ריקה.","step":"בוחרים current מתאים ומחזירים אותו לפני תוצאת הקריאה הבאה.","why":"כל תו מקור מעובד פעם אחת ובאותו מיקום יחסי, ולכן מתקבלת החלפה מלאה.","complexity":"זמן לוגי: O(n); בגלל שמחרוזות immutable, שרשור חוזר עשוי לעלות עד O(n²). עומק: O(n)."},{"id":7,"title":"מחיקת כל המופעים של תו","description":"כתבו פעולה רקורסיבית שמחזירה מחרוזת חדשה ללא אף מופע של התו ch. לדוגמה: RemoveChar(\"banana\", 'a') מחזירה \"bnn\".","level":"בסיסי+","signature":"RemoveChar(string s, int index, char ch) / removeChar(String s, int index, char ch)","goal":"כאשר התו מתאים פשוט מדלגים עליו.","code":"public static string RemoveChar(string s, int index, char ch)\n{\n    if (index >= s.Length) return \"\";\n    if (s[index] == ch)\n        return RemoveChar(s, index + 1, ch);\n    return s[index] + RemoveChar(s, index + 1, ch);\n}","javaCode":"public static String removeChar(String s, int index, char ch)\n{\n    if (index >= s.length()) return \"\";\n    if (s.charAt(index) == ch)\n        return removeChar(s, index + 1, ch);\n    return s.charAt(index) + removeChar(s, index + 1, ch);\n}","note":"","idea":"הבחירה בכל שלב היא האם להכניס את התו הנוכחי לתוצאה או לדלג עליו.","base":"בסוף המחרוזת מחזירים \"\".","step":"אם התו שווה ל-ch לא מצרפים אותו; אחרת מצרפים אותו לפני שאר התוצאה.","why":"כל תו שאינו ch נשמר בדיוק פעם אחת וכל ch מושמט.","complexity":"זמן לוגי: O(n); עם שרשור immutable עלול להיות O(n²). עומק: O(n)."},{"id":8,"title":"החלפת רווחים בקו תחתון","description":"כתבו פעולה רקורסיבית שמחזירה מחרוזת שבה כל רווח הוחלף ב-underscore. לדוגמה: \"hello world\" יהפוך ל-\"hello_world\".","level":"בסיסי+","signature":"SpacesToUnderscores(string s, int index) / spacesToUnderscores(String s, int index)","goal":"זהו תרגיל טרנספורמציה פשוט שמחזק בניית מחרוזת רקורסיבית.","code":"public static string SpacesToUnderscores(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    char current = s[index] == ' ' ? '_' : s[index];\n    return current + SpacesToUnderscores(s, index + 1);\n}","javaCode":"public static String spacesToUnderscores(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    char current = s.charAt(index) == ' ' ? '_' : s.charAt(index);\n    return current + spacesToUnderscores(s, index + 1);\n}","note":"","idea":"מעבדים כל תו באופן עצמאי ומרכיבים את התוצאה באותו סדר.","base":"בסיום מחזירים מחרוזת ריקה.","step":"מחליפים רק את התו המקומי אם הוא רווח וממשיכים.","why":"כל מיקום בתוצאה מתאים בדיוק למיקום במקור, פרט לרווחים שהוחלפו.","complexity":"זמן לוגי: O(n); עם שרשור חוזר ייתכן O(n²). עומק: O(n)."},{"id":9,"title":"היפוך מחרוזת","description":"כתבו פעולה רקורסיבית שמחזירה מחרוזת הפוכה. לדוגמה: \"abcd\" תחזיר \"dcba\". אין להשתמש ב-Reverse.","level":"בינוני","signature":"ReverseString(string s, int index) / reverseString(String s, int index)","goal":"צרפו את התו הנוכחי אחרי הפתרון הרקורסיבי, לא לפניו.","code":"public static string ReverseString(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    return ReverseString(s, index + 1) + s[index];\n}","javaCode":"public static String reverseString(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    return reverseString(s, index + 1) + s.charAt(index);\n}","note":"המיקום של פעולת השרשור ביחס לקריאה הרקורסיבית הוא לב התרגיל.","idea":"נותנים לרקורסיה להפוך את הסיומת, ואז מוסיפים את התו הנוכחי לסוף.","base":"בסוף המחרוזת מחזירים \"\".","step":"מחזירים ReverseString(index + 1) ואז את s[index].","why":"התו הראשון מתווסף אחרון, התו השני לפניו, וכך מתקבל בדיוק סדר הפוך.","complexity":"זמן לוגי: O(n); עם שרשור immutable לרוב O(n²). עומק: O(n)."},{"id":10,"title":"מחיקת כל התנועות","description":"כתבו פעולה רקורסיבית שמחזירה את המחרוזת ללא התנועות a,e,i,o,u (בלי תלות באות גדולה/קטנה). לדוגמה: \"Education\" תחזיר \"dctn\".","level":"בינוני","signature":"RemoveVowels(string s, int index) / removeVowels(String s, int index)","goal":"השתמשו בפעולת עזר קטנה שבודקת האם תו הוא vowel.","code":"public static string RemoveVowels(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    char c = s[index];\n    if (IsVowel(c)) return RemoveVowels(s, index + 1);\n    return c + RemoveVowels(s, index + 1);\n}\n\nprivate static bool IsVowel(char c)\n{\n    c = char.ToLower(c);\n    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n}","javaCode":"public static String removeVowels(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    char c = s.charAt(index);\n    if (isVowel(c)) return removeVowels(s, index + 1);\n    return c + removeVowels(s, index + 1);\n}\n\nprivate static boolean isVowel(char c)\n{\n    c = Character.toLowerCase(c);\n    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n}","note":"","idea":"מפרידים בין הבעיה הרקורסיבית לבין בדיקה מקומית פשוטה של סוג התו.","base":"בסוף המחרוזת מחזירים \"\".","step":"אם c הוא vowel מדלגים עליו; אחרת מצרפים אותו לתוצאה.","why":"כל תו מסווג פעם אחת, ורק תווים שאינם vowels נשמרים.","complexity":"זמן לוגי: O(n); שרשור יכול להוביל ל-O(n²). עומק: O(n)."},{"id":11,"title":"ספירת תנועות במחרוזת","description":"כתבו פעולה רקורסיבית שמחזירה את מספר התנועות a,e,i,o,u במחרוזת, ללא תלות באות גדולה/קטנה.","level":"בינוני","signature":"CountVowels(string s, int index) / countVowels(String s, int index)","goal":"שלבו פונקציית עזר IsVowel עם תבנית של ספירה.","code":"public static int CountVowels(string s, int index)\n{\n    if (index >= s.Length) return 0;\n    int add = IsVowel(s[index]) ? 1 : 0;\n    return add + CountVowels(s, index + 1);\n}\n\nprivate static bool IsVowel(char c)\n{\n    c = char.ToLower(c);\n    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n}","javaCode":"public static int countVowels(String s, int index)\n{\n    if (index >= s.length()) return 0;\n    int add = isVowel(s.charAt(index)) ? 1 : 0;\n    return add + countVowels(s, index + 1);\n}\n\nprivate static boolean isVowel(char c)\n{\n    c = Character.toLowerCase(c);\n    return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';\n}","note":"","idea":"זהו שילוב בין בדיקה מקומית לבין צבירת תוצאה מספרית.","base":"בסוף המחרוזת מחזירים 0.","step":"מוסיפים 1 עבור vowel ו-0 עבור תו אחר.","why":"כל vowel תורם בדיוק 1 ולכן הסכום הוא מספר התנועות.","complexity":"זמן: O(n). עומק מחסנית: O(n)."},{"id":12,"title":"הכנסת כוכבית בין כל שני תווים","description":"כתבו פעולה רקורסיבית שמחזירה מחרוזת ובה * בין כל שני תווים סמוכים. לדוגמה: \"abc\" יהפוך ל-\"a*b*c\".","level":"בינוני","signature":"AddStars(string s, int index) / addStars(String s, int index)","goal":"אל תוסיפו כוכבית אחרי התו האחרון.","code":"public static string AddStars(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    if (index == s.Length - 1) return s[index].ToString();\n    return s[index] + \"*\" + AddStars(s, index + 1);\n}","javaCode":"public static String addStars(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    if (index == s.length() - 1) return String.valueOf(s.charAt(index));\n    return s.charAt(index) + \"*\" + addStars(s, index + 1);\n}","note":"","idea":"התנאי המיוחד לתו האחרון מונע כוכבית מיותרת בסוף.","base":"מחרוזת ריקה מחזירה \"\"; בתו האחרון מחזירים רק אותו.","step":"לכל תו שאינו האחרון מחברים את התו, כוכבית, ותוצאת הסיומת.","why":"יש בדיוק n-1 רווחים בין n תווים, ובכל אחד מהם מוכנסת כוכבית אחת.","complexity":"זמן לוגי: O(n); שרשור עשוי לעלות O(n²). עומק: O(n)."},{"id":13,"title":"בדיקת פלינדרום","description":"כתבו פעולה רקורסיבית שבודקת האם מחרוזת היא פלינדרום. לדוגמה: \"radar\" מחזירה true ו-\"robot\" מחזירה false.","level":"בינוני","signature":"IsPalindrome(string s, int left, int right) / isPalindrome(String s, int left, int right)","goal":"השוו את שני הקצוות והתקדמו פנימה.","code":"public static bool IsPalindrome(string s, int left, int right)\n{\n    if (left >= right) return true;\n    if (s[left] != s[right]) return false;\n    return IsPalindrome(s, left + 1, right - 1);\n}","javaCode":"public static boolean isPalindrome(String s, int left, int right)\n{\n    if (left >= right) return true;\n    if (s.charAt(left) != s.charAt(right)) return false;\n    return isPalindrome(s, left + 1, right - 1);\n}","note":"","idea":"במקום לעבור בכיוון אחד, משתמשים בשני אינדקסים שמתקרבים זה לזה.","base":"כאשר left >= right כל הזוגות כבר נבדקו.","step":"אם הקצוות שונים מחזירים false; אחרת ממשיכים פנימה.","why":"פלינדרום דורש שכל זוג סימטרי יהיה שווה, והפעולה בודקת בדיוק את כל הזוגות האלה.","complexity":"זמן: O(n). עומק מחסנית: O(n)."},{"id":14,"title":"המיקום הראשון של תו","description":"כתבו פעולה רקורסיבית שמחזירה את האינדקס הראשון שבו מופיע ch. אם התו אינו מופיע, החזירו -1.","level":"בינוני","signature":"FirstIndexOf(string s, int index, char ch) / firstIndexOf(String s, int index, char ch)","goal":"החזירו את האינדקס הנוכחי מיד כאשר נמצא התאמה.","code":"public static int FirstIndexOf(string s, int index, char ch)\n{\n    if (index >= s.Length) return -1;\n    if (s[index] == ch) return index;\n    return FirstIndexOf(s, index + 1, ch);\n}","javaCode":"public static int firstIndexOf(String s, int index, char ch)\n{\n    if (index >= s.length()) return -1;\n    if (s.charAt(index) == ch) return index;\n    return firstIndexOf(s, index + 1, ch);\n}","note":"","idea":"החיפוש מתקדם משמאל לימין ולכן ההתאמה הראשונה היא גם האינדקס הקטן ביותר.","base":"בסוף המחרוזת מחזירים -1.","step":"אם s[index] == ch מחזירים index; אחרת ממשיכים.","why":"מאחר שהאינדקסים נבדקים בסדר עולה, עצירה בהתאמה הראשונה מחזירה את המיקום הראשון.","complexity":"זמן: O(n) במקרה הגרוע. עומק: O(n)."},{"id":15,"title":"Trim רקורסיבי","description":"כתבו פעולה שמסירה רק רווחים מתחילת המחרוזת ומסופה, בלי להשתמש ב-Trim. רווחים שנמצאים באמצע נשארים.","level":"בינוני","signature":"TrimRecursive(string s, int left, int right) / trimRecursive(String s, int left, int right)","goal":"הקטינו את התחום מהצד שבו נמצא רווח חיצוני.","code":"public static string TrimRecursive(string s, int left, int right)\n{\n    if (left > right) return \"\";\n    if (s[left] == ' ') return TrimRecursive(s, left + 1, right);\n    if (s[right] == ' ') return TrimRecursive(s, left, right - 1);\n    return s.Substring(left, right - left + 1);\n}","javaCode":"public static String trimRecursive(String s, int left, int right)\n{\n    if (left > right) return \"\";\n    if (s.charAt(left) == ' ') return trimRecursive(s, left + 1, right);\n    if (s.charAt(right) == ' ') return trimRecursive(s, left, right - 1);\n    return s.substring(left, right + 1);\n}","note":"","idea":"זו רקורסיה שיכולה להקטין פעם את הקצה השמאלי ופעם את הימני.","base":"אם left > right המחרוזת הייתה ריקה או כולה רווחים.","step":"מדלגים על רווח בקצה; ברגע ששני הקצוות אינם רווחים מחזירים את הקטע ביניהם.","why":"כל רווח חיצוני מוסר, וברגע שמגיעים לתווים אמיתיים אין סיבה לשנות את פנים המחרוזת.","complexity":"זמן: O(n). עומק: O(n) במקרה של הרבה רווחים חיצוניים."},{"id":16,"title":"יצירת מחרוזת מראה","description":"כתבו פעולה רקורסיבית שמקבלת \"abc\" ומחזירה \"abccba\". אין להשתמש בפעולת Reverse.","level":"בינוני","signature":"Mirror(string s, int index) / mirror(String s, int index)","goal":"התו הנוכחי צריך להופיע גם לפני וגם אחרי הפתרון הרקורסיבי.","code":"public static string Mirror(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    return s[index] + Mirror(s, index + 1) + s[index];\n}","javaCode":"public static String mirror(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    return s.charAt(index) + mirror(s, index + 1) + s.charAt(index);\n}","note":"","idea":"כל שכבת רקורסיה עוטפת את התוצאה של השכבה הפנימית באותו תו משני הצדדים.","base":"בסוף מחזירים \"\".","step":"מחברים s[index], אחריו את המראה של הסיומת, ואז שוב s[index].","why":"החלק השמאלי נבנה בסדר המקורי והחלק הימני בזמן החזרה, בסדר הפוך.","complexity":"זמן לוגי: O(n); בגלל שרשורים מרובים עשוי להיות O(n²). עומק: O(n)."},{"id":17,"title":"כוכבית בין תווים זהים סמוכים","description":"כתבו פעולה שמכניסה * רק בין שני תווים סמוכים שווים. לדוגמה: \"hello\" יהפוך ל-\"hel*lo\" ו-\"aaa\" ל-\"a*a*a\".","level":"בינוני+","signature":"PairStar(string s, int index) / pairStar(String s, int index)","goal":"בכל שלב צריך להסתכל גם על התו הבא.","code":"public static string PairStar(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    if (index == s.Length - 1) return s[index].ToString();\n    string between = s[index] == s[index + 1] ? \"*\" : \"\";\n    return s[index] + between + PairStar(s, index + 1);\n}","javaCode":"public static String pairStar(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    if (index == s.length() - 1) return String.valueOf(s.charAt(index));\n    String between = s.charAt(index) == s.charAt(index + 1) ? \"*\" : \"\";\n    return s.charAt(index) + between + pairStar(s, index + 1);\n}","note":"","idea":"ההחלטה המקומית תלויה בזוג תווים ולא בתו בודד.","base":"בתו האחרון אין זוג נוסף לבדיקה.","step":"בודקים s[index] מול s[index+1], מוסיפים * אם צריך וממשיכים באינדקס הבא.","why":"כל זוג סמוך נבדק פעם אחת בדיוק ולכן מוכנסת כוכבית בכל ורק במקומות הנכונים.","complexity":"זמן לוגי: O(n); שרשור עלול לעלות O(n²). עומק: O(n)."},{"id":18,"title":"כיווץ רצפים של תווים זהים","description":"כתבו פעולה רקורסיבית שמכווצת כל רצף של תווים זהים לתו אחד. לדוגמה: \"aaabbccccdaa\" יהפוך ל-\"abcda\".","level":"בינוני+","signature":"StringClean(string s, int index) / stringClean(String s, int index)","goal":"אם התו הנוכחי זהה לבא אחריו, אפשר לדלג עליו.","code":"public static string StringClean(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    if (index + 1 < s.Length && s[index] == s[index + 1])\n        return StringClean(s, index + 1);\n    return s[index] + StringClean(s, index + 1);\n}","javaCode":"public static String stringClean(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    if (index + 1 < s.length() && s.charAt(index) == s.charAt(index + 1))\n        return stringClean(s, index + 1);\n    return s.charAt(index) + stringClean(s, index + 1);\n}","note":"","idea":"משאירים רק את התו האחרון מכל רצף זהה; כל הקודמים מדולגים.","base":"בסוף מחזירים \"\".","step":"אם current == next לא מוסיפים current. אחרת מוסיפים אותו וממשיכים.","why":"בכל רצף, כל תו פרט לאחרון נופל בגלל השוואה לשכן הבא, ולכן נשאר נציג אחד בלבד.","complexity":"זמן לוגי: O(n); עם שרשור immutable ייתכן O(n²). עומק: O(n)."},{"id":19,"title":"העברת כל x לסוף","description":"כתבו פעולה רקורסיבית שמעבירה את כל התווים x לסוף המחרוזת, תוך שמירת סדר שאר התווים. לדוגמה: \"xxrecox\" יהפוך ל-\"recoxxx\".","level":"בינוני+","signature":"EndX(string s, int index) / endX(String s, int index)","goal":"עבדו קודם רקורסיבית על ההמשך, ואז החליטו אם x נכנס לפניו או אחריו.","code":"public static string EndX(string s, int index)\n{\n    if (index >= s.Length) return \"\";\n    string rest = EndX(s, index + 1);\n    if (s[index] == 'x') return rest + \"x\";\n    return s[index] + rest;\n}","javaCode":"public static String endX(String s, int index)\n{\n    if (index >= s.length()) return \"\";\n    String rest = endX(s, index + 1);\n    if (s.charAt(index) == 'x') return rest + \"x\";\n    return s.charAt(index) + rest;\n}","note":"התרגיל מדגים כיצד שינוי מיקום השרשור סביב הקריאה הרקורסיבית משנה את מיקום התו בתוצאה.","idea":"מייצרים קודם את התוצאה עבור הסיומת. לאחר מכן x מתווסף לסוף, וכל תו אחר לתחילת התוצאה.","base":"בסוף המחרוזת מחזירים \"\".","step":"שומרים rest. אם התו הוא x מחזירים rest + x; אחרת current + rest.","why":"תווים שאינם x נשמרים בסדר המקורי, וכל x נדחף ימינה בזמן החזרה.","complexity":"זמן לוגי: O(n); שרשור עשוי לעלות O(n²). עומק: O(n)."},{"id":20,"title":"ספירת תת-מחרוזת ללא חפיפה","description":"כתבו פעולה שמחזירה כמה פעמים word מופיעה בתוך text, ללא חפיפה בין מופעים. הניחו ש-word אינה ריקה. לדוגמה: \"catcatcat\" עם \"cat\" מחזיר 3.","level":"מתקדם","signature":"CountSubstring(string text, string word, int index) / countSubstring(...)","goal":"כאשר נמצאה התאמה מלאה, קפצו קדימה באורך word.","code":"public static int CountSubstring(string text, string word, int index)\n{\n    if (index > text.Length - word.Length) return 0;\n    if (StartsAt(text, word, index))\n        return 1 + CountSubstring(text, word, index + word.Length);\n    return CountSubstring(text, word, index + 1);\n}\n\nprivate static bool StartsAt(string text, string word, int index)\n{\n    return text.Substring(index, word.Length) == word;\n}","javaCode":"public static int countSubstring(String text, String word, int index)\n{\n    if (index > text.length() - word.length()) return 0;\n    if (startsAt(text, word, index))\n        return 1 + countSubstring(text, word, index + word.length());\n    return countSubstring(text, word, index + 1);\n}\n\nprivate static boolean startsAt(String text, String word, int index)\n{\n    return text.substring(index, index + word.length()).equals(word);\n}","note":"","idea":"כאן תת-הבעיה יכולה להצטמצם ביותר מתו אחד כאשר כבר נמצא מופע.","base":"כאשר אין מספיק תווים כדי להכיל word מחזירים 0.","step":"אם word מתחילה ב-index מוסיפים 1 ומדלגים באורך word; אחרת מתקדמים בתו אחד.","why":"הדילוג לאחר התאמה מונע שימוש חוזר בתווים שכבר שייכים למופע שנמצא.","complexity":"בהנחת השוואת מחרוזות באורך m: זמן עד O(n·m). עומק עד O(n)."},{"id":21,"title":"ספירת תת-מחרוזת עם חפיפה","description":"כתבו פעולה שסופרת כמה פעמים word מופיעה בתוך text כאשר חפיפה מותרת. לדוגמה: \"aaaa\" עם \"aa\" מחזיר 3.","level":"מתקדם","signature":"CountSubstringOverlap(string text, string word, int index) / countSubstringOverlap(...)","goal":"גם אחרי התאמה מתקדמים רק בתו אחד.","code":"public static int CountSubstringOverlap(string text, string word, int index)\n{\n    if (index > text.Length - word.Length) return 0;\n    int add = text.Substring(index, word.Length) == word ? 1 : 0;\n    return add + CountSubstringOverlap(text, word, index + 1);\n}","javaCode":"public static int countSubstringOverlap(String text, String word, int index)\n{\n    if (index > text.length() - word.length()) return 0;\n    int add = text.substring(index, index + word.length()).equals(word) ? 1 : 0;\n    return add + countSubstringOverlap(text, word, index + 1);\n}","note":"","idea":"ההבדל מהתרגיל הקודם קטן בקוד אבל מהותי באלגוריתם.","base":"כאשר לא נשאר מספיק מקום ל-word מחזירים 0.","step":"בודקים התאמה ב-index הנוכחי ובכל מקרה ממשיכים ל-index + 1.","why":"כך כל נקודת התחלה אפשרית נבדקת, ולכן גם מופעים חופפים נספרים.","complexity":"זמן עד O(n·m). עומק מחסנית: O(n)."},{"id":22,"title":"ספירת abc או aba","description":"כתבו פעולה רקורסיבית שסופרת כמה פעמים מופיעה במחרוזת התבנית \"abc\" או \"aba\". לדוגמה: \"abcxxaba\" מחזיר 2.","level":"מתקדם","signature":"CountAbcOrAba(string s, int index) / countAbcOrAba(String s, int index)","goal":"בכל אינדקס בודקים חלון באורך 3.","code":"public static int CountAbcOrAba(string s, int index)\n{\n    if (index > s.Length - 3) return 0;\n    string part = s.Substring(index, 3);\n    int add = (part == \"abc\" || part == \"aba\") ? 1 : 0;\n    return add + CountAbcOrAba(s, index + 1);\n}","javaCode":"public static int countAbcOrAba(String s, int index)\n{\n    if (index > s.length() - 3) return 0;\n    String part = s.substring(index, index + 3);\n    int add = (part.equals(\"abc\") || part.equals(\"aba\")) ? 1 : 0;\n    return add + countAbcOrAba(s, index + 1);\n}","note":"","idea":"הבעיה מדגימה חיפוש של כמה דפוסים קבועים במקביל.","base":"כאשר נשארו פחות מ-3 תווים אין עוד חלון אפשרי.","step":"בודקים את שלושת התווים שמתחילים ב-index וממשיכים בתו אחד.","why":"כל חלון אפשרי באורך 3 נבדק בדיוק פעם אחת.","complexity":"זמן: O(n). עומק: O(n)."},{"id":23,"title":"ספירת זוגות מהצורה A?A","description":"כתבו פעולה שסופרת כמה פעמים תו מסוים שווה לתו שנמצא שני מקומות אחריו. לדוגמה: \"axaxa\" מכילה 3 זוגות כאלה: a-a, x-x, a-a.","level":"מתקדם","signature":"CountPairs(string s, int index) / countPairs(String s, int index)","goal":"השוו את index עם index + 2.","code":"public static int CountPairs(string s, int index)\n{\n    if (index + 2 >= s.Length) return 0;\n    int add = s[index] == s[index + 2] ? 1 : 0;\n    return add + CountPairs(s, index + 1);\n}","javaCode":"public static int countPairs(String s, int index)\n{\n    if (index + 2 >= s.length()) return 0;\n    int add = s.charAt(index) == s.charAt(index + 2) ? 1 : 0;\n    return add + countPairs(s, index + 1);\n}","note":"","idea":"בכל שלב בודקים תבנית מקומית באורך 3 אך בלי צורך ליצור substring.","base":"אם אין תו במרחק 2 קדימה, אין עוד זוג לבדוק.","step":"מוסיפים 1 כאשר התו הראשון והשלישי בחלון שווים ומתקדמים באינדקס אחד.","why":"כל שלישייה אפשרית נבדקת פעם אחת, ולכן כל זוג A?A נספר.","complexity":"זמן: O(n). עומק: O(n)."},{"id":24,"title":"חילוץ הטקסט שבין הסוגריים הראשונים","description":"נתונה מחרוזת שמכילה לפחות זוג אחד של סוגריים. החזירו רק את הקטע מהסוגר הפותח הראשון עד הסוגר הסוגר האחרון. לדוגמה: \"xyz(abc)123\" מחזירה \"(abc)\".","level":"מתקדם","signature":"ParenBit(string s) / parenBit(String s)","goal":"אם הקצה השמאלי עדיין אינו (, חתכו אותו; אחרת חתכו מהקצה הימני עד שהוא ).","code":"public static string ParenBit(string s)\n{\n    if (s[0] != '(')\n        return ParenBit(s.Substring(1));\n    if (s[s.Length - 1] != ')')\n        return ParenBit(s.Substring(0, s.Length - 1));\n    return s;\n}","javaCode":"public static String parenBit(String s)\n{\n    if (s.charAt(0) != '(')\n        return parenBit(s.substring(1));\n    if (s.charAt(s.length() - 1) != ')')\n        return parenBit(s.substring(0, s.length() - 1));\n    return s;\n}","note":"הניחו שקיים לפחות זוג סוגריים ולכן הקריאות יגיעו למצב תקין.","idea":"מקטינים את המחרוזת מבחוץ עד ששני הקצוות הם הסוגריים הרצויים.","base":"כאשר התו הראשון הוא ( והאחרון הוא ) מחזירים את המחרוזת כפי שהיא.","step":"כל עוד אחד הקצוות אינו מתאים, מסירים תו רק מאותו קצה.","why":"לעולם לא מסירים תו מתוך הקטע הרצוי אחרי ששני גבולותיו נמצאו.","complexity":"מספר קריאות O(n); יצירת substrings יכולה להעלות את זמן/זיכרון העבודה הכולל ל-O(n²)."},{"id":25,"title":"בדיקת סוגריים מקוננים","description":"כתבו פעולה רקורסיבית שבודקת האם המחרוזת בנויה רק מזוגות סוגריים מקוננים, למשל \"((()))\" או \"()\". המחרוזת הריקה נחשבת תקינה.","level":"מתקדם","signature":"NestParen(string s) / nestParen(String s)","goal":"בכל קריאה הסירו זוג חיצוני אחד בלבד.","code":"public static bool NestParen(string s)\n{\n    if (s.Length == 0) return true;\n    if (s.Length < 2) return false;\n    if (s[0] != '(' || s[s.Length - 1] != ')') return false;\n    return NestParen(s.Substring(1, s.Length - 2));\n}","javaCode":"public static boolean nestParen(String s)\n{\n    if (s.length() == 0) return true;\n    if (s.length() < 2) return false;\n    if (s.charAt(0) != '(' || s.charAt(s.length() - 1) != ')') return false;\n    return nestParen(s.substring(1, s.length() - 1));\n}","note":"","idea":"מחרוזת מקוננת תקינה חייבת להיות עטופה בזוג סוגריים, וגם התוכן הפנימי צריך להיות תקין.","base":"המחרוזת הריקה היא מקרה תקין; אורך 1 אינו תקין.","step":"בודקים את שני הקצוות וממשיכים על החלק הפנימי בלבד.","why":"אם בכל שכבה קיימים ( משמאל ו-) מימין, כל הזוגות מקוננים כראוי.","complexity":"O(n) קריאות; עקב יצירת substring העלות הכוללת עשויה להיות O(n²)."},{"id":26,"title":"שזירת שתי מחרוזות","description":"כתבו פעולה רקורסיבית שמערבבת שתי מחרוזות לסירוגין. לדוגמה: \"abc\" ו-\"XYZ\" מחזירות \"aXbYcZ\". אם אחת ארוכה יותר, יש לצרף את השארית שלה בסוף.","level":"מתקדם+","signature":"Weave(string a, string b, int i, int j) / weave(String a, String b, int i, int j)","goal":"בכל קריאה צורכים תו אחד מכל מחרוזת, כל עוד שתיהן לא הסתיימו.","code":"public static string Weave(string a, string b, int i, int j)\n{\n    if (i >= a.Length) return b.Substring(j);\n    if (j >= b.Length) return a.Substring(i);\n    return a[i] + b[j].ToString() + Weave(a, b, i + 1, j + 1);\n}","javaCode":"public static String weave(String a, String b, int i, int j)\n{\n    if (i >= a.length()) return b.substring(j);\n    if (j >= b.length()) return a.substring(i);\n    return \"\" + a.charAt(i) + b.charAt(j) + weave(a, b, i + 1, j + 1);\n}","note":"","idea":"זהו מעבר מרקורסיה על מחרוזת אחת לרקורסיה מקבילית על שתי מחרוזות.","base":"כאשר אחת המחרוזות מסתיימת מחזירים את השארית של האחרת.","step":"מצרפים תו מ-a, אחריו תו מ-b, ואז מתקדמים בשני האינדקסים.","why":"כל זוג מיקומים נצרך יחד; ברגע שמחרוזת אחת נגמרת, השארית השנייה נשמרת ללא שינוי.","complexity":"O(n+m) קריאות; השרשור עלול להעלות את הזמן הכולל ל-O((n+m)²)."},{"id":27,"title":"מספר ההבדלים בין שתי מחרוזות","description":"כתבו פעולה רקורסיבית שמחזירה בכמה מיקומים שתי מחרוזות שונות. תווים עודפים במחרוזת הארוכה נחשבים גם הם כהבדלים. לדוגמה: \"cat\" ו-\"cut\" מחזירות 1.","level":"מתקדם+","signature":"NumDiff(string a, string b, int index) / numDiff(String a, String b, int index)","goal":"כאשר אחת המחרוזות נגמרת, כל התווים שנותרו בשנייה הם הבדלים.","code":"public static int NumDiff(string a, string b, int index)\n{\n    if (index >= a.Length && index >= b.Length) return 0;\n    if (index >= a.Length) return b.Length - index;\n    if (index >= b.Length) return a.Length - index;\n    int add = a[index] == b[index] ? 0 : 1;\n    return add + NumDiff(a, b, index + 1);\n}","javaCode":"public static int numDiff(String a, String b, int index)\n{\n    if (index >= a.length() && index >= b.length()) return 0;\n    if (index >= a.length()) return b.length() - index;\n    if (index >= b.length()) return a.length() - index;\n    int add = a.charAt(index) == b.charAt(index) ? 0 : 1;\n    return add + numDiff(a, b, index + 1);\n}","note":"","idea":"משווים שני רצפים באותו אינדקס ומטפלים בנפרד במקרה של אורכים שונים.","base":"אם שתיהן הסתיימו מחזירים 0; אם רק אחת הסתיימה מחזירים את מספר התווים שנותרו בשנייה.","step":"מוסיפים 1 כאשר שני התווים שונים וממשיכים לאינדקס הבא.","why":"כל מיקום משותף נבדק פעם אחת וכל תו עודף נספר אוטומטית בסוף.","complexity":"זמן: O(max(n,m)). עומק: O(min(n,m)) עד O(max(n,m))."},{"id":28,"title":"השוואה לקסיקוגרפית רקורסיבית","description":"כתבו פעולה שמחזירה ‎-1 אם a קודמת ל-b בסדר לקסיקוגרפי, 0 אם הן שוות, ו-1 אם a באה אחרי b. אין להשתמש ב-CompareTo.","level":"מתקדם+","signature":"CompareLex(string a, string b, int index) / compareLex(String a, String b, int index)","goal":"ההחלטה נקבעת בהבדל הראשון; רק אם כל הקידומת שווה צריך לבדוק אורך.","code":"public static int CompareLex(string a, string b, int index)\n{\n    if (index >= a.Length && index >= b.Length) return 0;\n    if (index >= a.Length) return -1;\n    if (index >= b.Length) return 1;\n    if (a[index] < b[index]) return -1;\n    if (a[index] > b[index]) return 1;\n    return CompareLex(a, b, index + 1);\n}","javaCode":"public static int compareLex(String a, String b, int index)\n{\n    if (index >= a.length() && index >= b.length()) return 0;\n    if (index >= a.length()) return -1;\n    if (index >= b.length()) return 1;\n    if (a.charAt(index) < b.charAt(index)) return -1;\n    if (a.charAt(index) > b.charAt(index)) return 1;\n    return compareLex(a, b, index + 1);\n}","note":"","idea":"השוואה מילונית נעצרת ברגע שנמצא זוג תווים שונה.","base":"אם שתי המחרוזות הסתיימו יחד הן שוות; אם רק אחת הסתיימה היא הקצרה ולכן קודמת.","step":"כאשר התווים שווים ממשיכים. כאשר הם שונים מחזירים את תוצאת הסדר מיד.","why":"כל הקידומות השוות אינן משנות את הסדר; ההבדל הראשון קובע, ואם אין הבדל - האורך קובע.","complexity":"זמן: O(min(n,m)) במקרה הרגיל, עד O(max(n,m)) במחרוזות דומות. עומק: O(min(n,m))."},{"id":29,"title":"Almost Palindrome - מחיקת תו אחד","description":"כתבו פעולה שבודקת האם המחרוזת היא פלינדרום, או שניתן להפוך אותה לפלינדרום על ידי מחיקה של לכל היותר תו אחד. לדוגמה: \"abca\" מחזירה true.","level":"אתגר","signature":"AlmostPalindrome(string s) / almostPalindrome(String s)","goal":"באי-התאמה הראשונה נסו שתי אפשרויות: למחוק את השמאלי או את הימני.","code":"public static bool AlmostPalindrome(string s)\n{\n    return Check(s, 0, s.Length - 1, true);\n}\n\nprivate static bool Check(string s, int left, int right, bool canDelete)\n{\n    if (left >= right) return true;\n    if (s[left] == s[right])\n        return Check(s, left + 1, right - 1, canDelete);\n    if (!canDelete) return false;\n    return Check(s, left + 1, right, false) ||\n           Check(s, left, right - 1, false);\n}","javaCode":"public static boolean almostPalindrome(String s)\n{\n    return check(s, 0, s.length() - 1, true);\n}\n\nprivate static boolean check(String s, int left, int right, boolean canDelete)\n{\n    if (left >= right) return true;\n    if (s.charAt(left) == s.charAt(right))\n        return check(s, left + 1, right - 1, canDelete);\n    if (!canDelete) return false;\n    return check(s, left + 1, right, false) ||\n           check(s, left, right - 1, false);\n}","note":"זהו התרגיל הראשון שבו אי-התאמה יוצרת שני ענפים רקורסיביים אמיתיים.","idea":"כל עוד הקצוות שווים מתנהגים כמו בדיקת פלינדרום רגילה. כאשר הם שונים ויש עדיין מחיקה זמינה, בודקים שתי מחיקות אפשריות.","base":"left >= right הוא הצלחה. אי-התאמה לאחר שכבר השתמשנו במחיקה היא כשל.","step":"במקרה של אי-התאמה קוראים פעם בלי התו השמאלי ופעם בלי הימני, כאשר canDelete=false.","why":"אם קיימת דרך חוקית למחוק לכל היותר תו אחד, אחד משני הענפים המתאימים יחזיר true.","complexity":"זמן: O(n), כי ההסתעפות מתרחשת לכל היותר פעם אחת; עומק: O(n)."},{"id":30,"title":"כל התמורות של מחרוזת","description":"נתונה מחרוזת שכל תוויה שונים. כתבו פעולה רקורסיבית שמדפיסה את כל התמורות האפשריות שלה. לדוגמה, עבור \"abc\" יודפסו 6 סדרים שונים.","level":"אתגר - Backtracking","signature":"PrintPermutations(string remaining, string prefix) / printPermutations(String remaining, String prefix)","goal":"בחרו בכל שלב תו אחד, הוסיפו אותו ל-prefix והמשיכו עם שאר התווים.","code":"public static void PrintPermutations(string remaining, string prefix)\n{\n    if (remaining.Length == 0)\n    {\n        Console.WriteLine(prefix);\n        return;\n    }\n\n    for (int i = 0; i < remaining.Length; i++)\n    {\n        char chosen = remaining[i];\n        string next = remaining.Remove(i, 1);\n        PrintPermutations(next, prefix + chosen);\n    }\n}","javaCode":"public static void printPermutations(String remaining, String prefix)\n{\n    if (remaining.length() == 0)\n    {\n        System.out.println(prefix);\n        return;\n    }\n\n    for (int i = 0; i < remaining.length(); i++)\n    {\n        char chosen = remaining.charAt(i);\n        String next = remaining.substring(0, i) + remaining.substring(i + 1);\n        printPermutations(next, prefix + chosen);\n    }\n}","note":"זהו Backtracking: כל קריאה בוחרת תו אחר להיות הבא בתמורה. הניחו שכל התווים שונים כדי להימנע מכפילויות.","idea":"prefix מייצג את הבחירות שכבר נעשו; remaining מכילה רק את האפשרויות שעדיין לא נוצלו.","base":"כאשר remaining ריקה, prefix היא תמורה מלאה ולכן מדפיסים אותה.","step":"עבור כל תו אפשרי יוצרים remaining חדש בלעדיו וקוראים רקורסיבית עם prefix מורחב.","why":"בכל רמה נבחר תו אחד מכל האפשרויות שנותרו, ולכן כל סדר אפשרי נוצר בדיוק פעם אחת כאשר התווים שונים.","complexity":"מספר התמורות הוא n!. כולל בניית/הדפסת מחרוזות: O(n·n!). עומק מחסנית: O(n)."}];
+const STORAGE_KEY = 'recursion-strings-student-site-v1';
+let state = loadState();
+let currentIndex = Math.min(Math.max(state.currentIndex || 0, 0), QUESTIONS.length - 1);
+let reviewMode = false;
+let codeLanguage = state.codeLanguage || 'csharp';
+
+const $ = id => document.getElementById(id);
+const els = {
+  qnum:$('qnum'), qtitle:$('qtitle'), qlevel:$('qlevel'), qdescription:$('qdescription'), qsignature:$('qsignature'),
+  hintBtn:$('hintBtn'), hintBox:$('hintBox'), solutionBtn:$('solutionBtn'), solutionPanel:$('solutionPanel'),
+  solutionNote:$('solutionNote'), solutionCode:$('solutionCode'), codeTitle:$('codeTitle'), csharpBtn:$('csharpBtn'), javaBtn:$('javaBtn'), expIdea:$('expIdea'), expBase:$('expBase'), expStep:$('expStep'), expWhy:$('expWhy'), expComplexity:$('expComplexity'),
+  prevBtn:$('prevBtn'), nextBtn:$('nextBtn'), navCenter:$('navCenter'), progressText:$('progressText'), progressFill:$('progressFill'),
+  questionSelect:$('questionSelect'), studentNotes:$('studentNotes'), goodCount:$('goodCount'), reviewCount:$('reviewCount'), reviewList:$('reviewList'),
+  currentStatusDot:$('currentStatusDot'), currentStatusText:$('currentStatusText'), modeLabel:$('modeLabel'), reviewModeBtn:$('reviewModeBtn'),
+  researchModal:$('researchModal'), toast:$('toast')
+};
+
+function defaultState() { return {currentIndex:0, status:{}, notes:{}, checks:{}, solutionViewed:{}, codeLanguage:'csharp'}; }
+function loadState() {
+  try { return Object.assign(defaultState(), JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); }
+  catch { return defaultState(); }
+}
+function saveState() { state.currentIndex=currentIndex; state.codeLanguage=codeLanguage; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function qid(q) { return String(q.id); }
+function showToast(msg) { els.toast.textContent=msg; els.toast.classList.add('show'); setTimeout(()=>els.toast.classList.remove('show'),1600); }
+function escapeLabel(q) { return `שאלה ${q.id} - ${q.title}`; }
+
+function csharpToJava(code) {
+  let java = code;
+  java = java.replace(/\bint\s*\[,\s*\]/g, 'int[][]');
+  java = java.replace(/\bbool\b/g, 'boolean');
+  java = java.replace(/\.Length\b/g, '.length');
+  java = java.replace(/Math\.Max\b/g, 'Math.max');
+  java = java.replace(/Math\.Abs\b/g, 'Math.abs');
+  java = java.replace(/Array\.Fill\b/g, 'java.util.Arrays.fill');
+  java = java.replace(/Console\.WriteLine\(string\.Join\(" ",\s*(\w+)\)\);/g,
+    'System.out.println(java.util.Arrays.toString($1));');
+  java = java.replace(/Console\.WriteLine\(/g, 'System.out.println(');
+  java = java.replace(/Console\.Write\(/g, 'System.out.print(');
+  java = java.replace(/(\b\w+)\.GetLength\(0\)/g, '$1.length');
+  java = java.replace(/(\b\w+)\.GetLength\(1\)/g, '$1[0].length');
+  java = java.replace(/\b(grid|maze)\[([^,\]\n]+),\s*([^\]\n]+)\]/g, '$1[$2][$3]');
+  return java;
+}
+
+function getCode(q) {
+  if (codeLanguage === 'java') {
+    if (!q.javaCode) q.javaCode = csharpToJava(q.code);
+    return q.javaCode;
+  }
+  return q.code;
+}
+
+function renderCode(q) {
+  const isJava = codeLanguage === 'java';
+  els.solutionCode.textContent = getCode(q);
+  els.codeTitle.textContent = isJava ? 'פתרון Java' : 'פתרון C#';
+  els.csharpBtn.classList.toggle('active', !isJava);
+  els.javaBtn.classList.toggle('active', isJava);
+  els.csharpBtn.setAttribute('aria-pressed', String(!isJava));
+  els.javaBtn.setAttribute('aria-pressed', String(isJava));
+}
+
+function setCodeLanguage(language) {
+  codeLanguage = language;
+  renderCode(QUESTIONS[currentIndex]);
+  saveState();
+}
+
+function populateSelect() {
+  els.questionSelect.innerHTML='';
+  QUESTIONS.forEach((q,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i; opt.textContent=escapeLabel(q); els.questionSelect.appendChild(opt);
+  });
+}
+
+function reviewIndices() {
+  return QUESTIONS.map((q,i)=>({i,s:state.status[qid(q)]})).filter(x=>x.s==='warn'||x.s==='bad').map(x=>x.i);
+}
+
+function nextIndex(direction) {
+  if (!reviewMode) return currentIndex + direction;
+  const list=reviewIndices();
+  if (!list.length) return currentIndex;
+  const pos=list.indexOf(currentIndex);
+  if (pos===-1) return direction>0 ? list[0] : list[list.length-1];
+  return list[pos+direction] ?? currentIndex;
+}
+
+function statusText(s) { return s==='good'?'הבנתי':s==='warn'?'צריך עוד תרגול':s==='bad'?'עדיין לא ברור':'טרם סומן'; }
+
+function render() {
+  const q=QUESTIONS[currentIndex], id=qid(q);
+  els.qnum.textContent=q.id;
+  els.qtitle.textContent=q.title;
+  els.qlevel.textContent=q.level;
+  els.qdescription.textContent=q.description;
+  els.qsignature.textContent=q.signature;
+  els.hintBox.textContent='רמז: '+q.goal;
+  els.hintBox.classList.remove('open');
+  els.hintBtn.textContent='הצג רמז';
+  els.solutionPanel.classList.remove('open');
+  els.solutionBtn.textContent=state.solutionViewed[id]?'הצג שוב את הפתרון':'ניסיתי - הצג פתרון מלא';
+  els.solutionNote.textContent=q.note || 'השווה בין הקוד לבין הכיוון שכתבת: האם זיהית נכון את תנאי העצירה ואת השינוי בפרמטרים?';
+  renderCode(q);
+  els.expIdea.textContent=q.idea; els.expBase.textContent=q.base; els.expStep.textContent=q.step; els.expWhy.textContent=q.why; els.expComplexity.textContent=q.complexity;
+  els.studentNotes.value=state.notes[id] || '';
+  document.querySelectorAll('[data-check]').forEach(cb=>cb.checked=!!(state.checks[id]||{})[cb.dataset.check]);
+  document.querySelectorAll('[data-rate]').forEach(b=>{ b.style.boxShadow = state.status[id]===b.dataset.rate ? '0 0 0 3px rgba(30,91,155,.22)' : 'none'; });
+  els.questionSelect.value=currentIndex;
+  els.progressText.textContent=`שאלה ${q.id} מתוך ${QUESTIONS.length}`;
+  els.progressFill.style.width=`${(q.id/QUESTIONS.length)*100}%`;
+  els.navCenter.textContent=`${q.id} / ${QUESTIONS.length}`;
+  const s=state.status[id];
+  els.currentStatusText.textContent=statusText(s);
+  els.currentStatusDot.className='status-dot'+(s?' '+s:'');
+  els.modeLabel.textContent=reviewMode?'מצב: תרגול חוזר':'מצב: סדר רגיל';
+  const p=nextIndex(-1), n=nextIndex(1);
+  els.prevBtn.disabled=(!reviewMode && currentIndex===0) || (reviewMode && p===currentIndex);
+  els.nextBtn.disabled=(!reviewMode && currentIndex===QUESTIONS.length-1) || (reviewMode && n===currentIndex);
+  updateStats();
+  saveState();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateStats() {
+  const values=Object.values(state.status);
+  els.goodCount.textContent=values.filter(x=>x==='good').length;
+  const review=reviewIndices();
+  els.reviewCount.textContent=review.length;
+  els.reviewList.innerHTML='';
+  if (!review.length) { els.reviewList.innerHTML='<div class="empty">אין כרגע שאלות שסומנו לחזרה.</div>'; }
+  else review.forEach(i=>{
+    const q=QUESTIONS[i]; const b=document.createElement('button'); b.className='review-item';
+    b.innerHTML=`<span class="status-dot ${state.status[qid(q)]}"></span> שאלה ${q.id} - ${q.title}`;
+    b.addEventListener('click',()=>{currentIndex=i;render();}); els.reviewList.appendChild(b);
+  });
+}
+
+els.hintBtn.addEventListener('click',()=>{
+  const open=els.hintBox.classList.toggle('open'); els.hintBtn.textContent=open?'הסתר רמז':'הצג רמז';
+});
+els.solutionBtn.addEventListener('click',()=>{
+  const id=qid(QUESTIONS[currentIndex]);
+  state.solutionViewed[id]=true;
+  const open=els.solutionPanel.classList.toggle('open');
+  els.solutionBtn.textContent=open?'הסתר פתרון':'הצג שוב את הפתרון';
+  saveState();
+  if(open) setTimeout(()=>els.solutionPanel.scrollIntoView({behavior:'smooth',block:'start'}),50);
+});
+els.studentNotes.addEventListener('input',()=>{ state.notes[qid(QUESTIONS[currentIndex])]=els.studentNotes.value; saveState(); });
+document.querySelectorAll('[data-check]').forEach(cb=>cb.addEventListener('change',()=>{
+  const id=qid(QUESTIONS[currentIndex]); state.checks[id]=state.checks[id]||{}; state.checks[id][cb.dataset.check]=cb.checked; saveState();
+}));
+document.querySelectorAll('[data-rate]').forEach(btn=>btn.addEventListener('click',()=>{
+  const id=qid(QUESTIONS[currentIndex]); state.status[id]=btn.dataset.rate; saveState(); render();
+}));
+els.copyBtn=$('copyBtn');
+els.csharpBtn.addEventListener('click',()=>setCodeLanguage('csharp'));
+els.javaBtn.addEventListener('click',()=>setCodeLanguage('java'));
+els.copyBtn.addEventListener('click',async()=>{
+  try {
+    await navigator.clipboard.writeText(getCode(QUESTIONS[currentIndex]));
+    showToast(codeLanguage==='java'?'קוד Java הועתק':'קוד C# הועתק');
+  }
+  catch { showToast('לא ניתן להעתיק אוטומטית בדפדפן זה'); }
+});
+els.prevBtn.addEventListener('click',()=>{ const i=nextIndex(-1); if(i!==currentIndex){currentIndex=i;render();} });
+els.nextBtn.addEventListener('click',()=>{ const i=nextIndex(1); if(i!==currentIndex){currentIndex=i;render();} });
+els.questionSelect.addEventListener('change',e=>{currentIndex=Number(e.target.value);reviewMode=false;render();});
+els.reviewModeBtn.addEventListener('click',()=>{
+  const list=reviewIndices();
+  if(!reviewMode && !list.length){showToast('אין עדיין שאלות שסומנו לחזרה');return;}
+  reviewMode=!reviewMode; els.reviewModeBtn.textContent=reviewMode?'חזרה לסדר רגיל':'תרגול חוזר';
+  if(reviewMode && !list.includes(currentIndex)) currentIndex=list[0];
+  render();
+});
+$('resetBtn').addEventListener('click',()=>{
+  if(confirm('לאפס את ההתקדמות, ההערות והסימונים שנשמרו בדפדפן?')){ state=defaultState(); currentIndex=0; reviewMode=false; saveState(); render(); }
+});
+$('researchBtn').addEventListener('click',()=>els.researchModal.classList.add('open'));
+$('closeResearchBtn').addEventListener('click',()=>els.researchModal.classList.remove('open'));
+els.researchModal.addEventListener('click',e=>{if(e.target===els.researchModal)els.researchModal.classList.remove('open')});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') els.researchModal.classList.remove('open');
+  if(document.activeElement.tagName==='TEXTAREA'||document.activeElement.tagName==='SELECT') return;
+  if(e.key==='ArrowLeft') els.nextBtn.click();
+  if(e.key==='ArrowRight') els.prevBtn.click();
+});
+
+populateSelect();
+render();
+</script>
+</body>
+</html>
