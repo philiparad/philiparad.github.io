@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>פונקצית שורש ומנה עם פרמטר</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      chtml: { scale: 0.96 },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --ink: #162033;
+      --muted: #5a677b;
+      --navy: #173a63;
+      --blue: #1b6ca8;
+      --soft-blue: #eef6fc;
+      --green: #1f7a4d;
+      --soft-green: #edf8f2;
+      --orange: #a85713;
+      --soft-orange: #fff5e9;
+      --red: #a83232;
+      --soft-red: #fff0f0;
+      --line: #ced8e5;
+      --paper: #ffffff;
+      --screen: #e8edf3;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--screen);
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      line-height: 1.48;
+    }
+
+    body { padding: 10mm 0; }
+
+    section.page {
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto 10mm auto;
+      padding: 13mm 15mm 12mm 15mm;
+      background: var(--paper);
+      overflow: hidden;
+      position: relative;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    section.page.compact-page .step-box,
+    section.page.compact-page .key-box { padding: 4mm; margin-bottom: 3mm; }
+    section.page.compact-page table th,
+    section.page.compact-page table td { padding: 2.4mm 2mm; }
+    section.page.compact-page h2 { margin-bottom: 4mm; }
+
+    section.page:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 25pt; line-height: 1.2; color: var(--navy); margin-bottom: 5mm; }
+    h2 { font-size: 19pt; line-height: 1.25; color: var(--navy); margin-bottom: 5mm; }
+    h3 { font-size: 14.5pt; color: var(--blue); margin-bottom: 2.5mm; }
+    p, li, td, th { font-size: 12.2pt; }
+
+    .subtitle {
+      font-size: 14pt;
+      color: var(--muted);
+      margin-bottom: 6mm;
+    }
+
+    .question-box,
+    .idea-box,
+    .step-box,
+    .key-box,
+    .note-box,
+    .warning-box,
+    .summary-box,
+    .graph-panel {
+      border: 2px solid var(--line);
+      border-radius: 4mm;
+      padding: 2mm;
+      margin-bottom: 5mm;
+      background: #fff;
+    }
+
+    .question-box { border-color: #8eb6d5; background: var(--soft-blue); }
+    .idea-box { border-color: #e0b374; background: var(--soft-orange); }
+    .key-box { border-color: #70b48f; background: var(--soft-green); }
+    .warning-box { border-color: #d89494; background: var(--soft-red); }
+    .summary-box { border-color: #9bb1c8; background: #f7fafc; }
+
+    .step-number {
+      display: inline-flex;
+      width: 9mm;
+      height: 9mm;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+      color: white;
+      font-weight: 700;
+      margin-left: 2mm;
+    }
+
+    .math-block {
+      direction: ltr;
+      text-align: center;
+      margin: 3mm 0;
+      font-size: 12pt;
+    }
+
+    .math-large { font-size: 15pt; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+      margin-bottom: 5mm;
+    }
+
+    .mini {
+      border: 2px solid var(--line);
+      border-radius: 3mm;
+      padding: 4mm;
+      min-height: 34mm;
+      background: #fff;
+    }
+
+    .accent {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .danger {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    ul, ol { margin: 2mm 0 0 0; padding-right: 6mm; }
+    li { margin-bottom: 2mm; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin-top: 3mm;
+      direction: rtl;
+    }
+
+    th, td {
+      border: 2px solid #aebdce;
+      padding: 3.2mm 2mm;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th { background: #edf3f9; color: var(--navy); }
+    .positive { color: var(--green); font-weight: 700; }
+    .negative { color: var(--red); font-weight: 700; }
+    .zero { color: var(--navy); font-weight: 700; }
+
+    .graph-panel {
+      padding: 4mm;
+      background: #fbfdff;
+      margin-bottom: 4mm;
+    }
+
+    .graph-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2mm;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 3mm;
+      direction: rtl;
+    }
+
+    .graph-toolbar button {
+      border: 2px solid #9db0c6;
+      background: white;
+      color: var(--navy);
+      border-radius: 2.2mm;
+      padding: 1.8mm 3mm;
+      font-size: 10.5pt;
+      cursor: pointer;
+    }
+
+    .graph-toolbar button:hover { background: #eef4f9; }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 3mm;
+      margin-bottom: 3mm;
+      direction: rtl;
+      font-size: 11.5pt;
+    }
+
+    .slider-row input { width: 100%; }
+
+    .jxgbox {
+      width: 100%;
+      height: 125mm;
+      border: 2px solid #aebdce;
+      border-radius: 3mm;
+      background: white;
+      direction: ltr;
+      overflow: hidden;
+    }
+
+    .jxgbox-numerator {
+      width: 100%;
+      height: 100mm;
+      border: 2px solid #aebdce;
+      border-radius: 3mm;
+      background: white;
+      direction: ltr;
+      overflow: hidden;
+    }
+
+    .graph-caption {
+      font-size: 10.8pt;
+      color: var(--muted);
+      margin: 2mm 0 0 0;
+      text-align: center;
+    }
+
+    .takeaway {
+      font-size: 15pt;
+      font-weight: 700;
+      text-align: center;
+      color: var(--navy);
+      margin: 4mm 0;
+    }
+
+    .page-footer {
+      position: absolute;
+      bottom: 7mm;
+      right: 15mm;
+      left: 15mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 2px solid #e2e7ed;
+      padding-top: 2mm;
+      font-size: 9.5pt;
+      color: #6e7989;
+    }
+
+    .small { font-size: 10.8pt; }
+    .tight p { margin-bottom: 2.5mm; }
+    .center { text-align: center; }
+
+    @media print {
+      @page { size: A4; margin: 0; }
+      html, body { background: white; }
+      body { padding: 0; }
+      section.page { margin: 0; box-shadow: none; }
+      .graph-toolbar button { background: white; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="page" id="page-1">
+  <h1>פונקצית שורש ומנה עם פרמטר</h1>
+  <p class="subtitle">דף לימוד: תחום הגדרה, נגזרת, הוכחת יחידות, סוג הקיצון וחיבור לגרף</p>
+
+  <div class="question-box">
+    <h3>השאלה</h3>
+    <p>נתונה הפונקציה:</p>
+    <div class="math-block math-large">\[f(x)=\frac{\sqrt{x}}{x^2+3a^2},\qquad a\gt0\]</div>
+    <p><strong>א.</strong> מהו תחום ההגדרה של הפונקציה?</p>
+    <p><strong>ב.</strong> הוכיחו כי לכל ערך של \(a\gt0\) יש לפונקציה נקודת קיצון אחת בדיוק בתחום \(x\gt0\), וקבעו את סוגה.</p>
+  </div>
+
+  <div class="idea-box">
+    <h3>הרעיון המרכזי</h3>
+    <p>לא מספיק לפתור את המשוואה \(f'(x)=0\). כדי להוכיח שיש <strong>בדיוק</strong> נקודת קיצון אחת, צריך:</p>
+    <ol>
+      <li>לקבוע את תחום ההגדרה.</li>
+      <li>לגזור ולפשט את הנגזרת עד שאפשר לראות מה קובע את הסימן שלה.</li>
+      <li>להראות שלנגזרת יש אפס יחיד בתחום \(x\gt0\).</li>
+      <li>לבדוק את סימן הנגזרת משני צדי האפס ולקבוע את סוג הקיצון.</li>
+    </ol>
+  </div>
+
+  <div class="flow">
+    <div class="mini">
+      <h3><span class="step-number">1</span> מוצאים מועמד לקיצון</h3>
+      <div class="math-block">\[f'(x)=0\]</div>
+      <p class="center">נגיע אל \(x=a\).</p>
+    </div>
+    <div class="mini">
+      <h3><span class="step-number">2</span> מוכיחים שהוא היחיד</h3>
+      <p>נראה שבתחום \(x\gt0\) כל גורמי הנגזרת חיוביים, חוץ מהגורם \(a-x\).</p>
+    </div>
+  </div>
+
+  <div class="key-box">
+    <h3>מה חשוב ללמוד מהשאלה?</h3>
+    <p class="takeaway">כאשר יש פרמטר, פירוק נכון של הנגזרת יכול להפוך הוכחה ארוכה לטבלת סימנים קצרה וברורה.</p>
+  </div>
+
+  <div class="page-footer"><span>דף לימוד - שאלה 22</span><span>1 / 5</span></div>
+</section>
+
+<section class="page" id="page-2">
+  <h2>שלב 1 - תחום ההגדרה ושלב 2 - גזירה מסודרת</h2>
+
+  <div class="step-box tight">
+    <h3><span class="step-number">1</span> תחום ההגדרה</h3>
+    <p>מהשורש נדרש:</p>
+    <div class="math-block">\[x\ge0\]</div>
+    <p>בנוסף, מאחר ש-\(a\gt0\), מתקיים:</p>
+    <div class="math-block">\[a^2\gt0\qquad\Rightarrow\qquad x^2+3a^2\gt0\]</div>
+    <p>לכן המכנה אינו מתאפס, ותחום ההגדרה הוא:</p>
+    <div class="math-block math-large">\[\boxed{x\ge0}\]</div>
+    <p class="small">בסעיף ב עובדים בתחום \(x\gt0\), ולכן גם \(\sqrt{x}\gt0\).</p>
+  </div>
+
+  <div class="step-box tight">
+    <h3><span class="step-number">2</span> גזירה לפי כלל המנה</h3>
+    <p>נשתמש בנגזרת של השורש ובכלל המנה:</p>
+    <div class="math-block">\[\left(\sqrt{x}\right)'=\frac{1}{2\sqrt{x}}\]</div>
+    <div class="math-block">\[
+      f'(x)=
+      \frac{
+        \frac{1}{2\sqrt{x}}\left(x^2+3a^2\right)-\sqrt{x}\cdot2x
+      }{
+        \left(x^2+3a^2\right)^2
+      }
+    \]</div>
+  </div>
+
+  <div class="idea-box tight">
+    <p>נביא את שני האיברים במונה למכנה משותף:</p>
+    <div class="math-block">\[
+      2x\sqrt{x}=\frac{4x^2}{2\sqrt{x}}
+    \]</div>
+    <div class="math-block">\[
+      f'(x)=
+      \frac{x^2+3a^2-4x^2}
+      {2\sqrt{x}\left(x^2+3a^2\right)^2}
+    \]</div>
+    <div class="math-block">\[
+      f'(x)=
+      \frac{3\left(a^2-x^2\right)}
+      {2\sqrt{x}\left(x^2+3a^2\right)^2}
+    \]</div>
+    <div class="math-block math-large">\[
+      \boxed{
+      f'(x)=
+      \frac{3(a-x)(a+x)}
+      {2\sqrt{x}\left(x^2+3a^2\right)^2}
+      }
+    \]</div>
+  </div>
+
+  <div class="page-footer"><span>דף לימוד - שאלה 22</span><span>2 / 5</span></div>
+</section>
+
+<section class="page compact-page" id="page-3">
+  <h2>שלב 3 - מה קובע את סימן הנגזרת?</h2>
+
+  <div class="key-box">
+    <h3>עבור \(x\gt0\) וגם \(a\gt0\)</h3>
+    <div class="math-block">\[
+      3\gt0,\qquad a+x\gt0,\qquad 2\sqrt{x}\gt0,\qquad \left(x^2+3a^2\right)^2\gt0
+    \]</div>
+    <p class="takeaway">לכן הגורם היחיד שיכול לשנות את סימן הנגזרת הוא \(a-x\).</p>
+  </div>
+
+  <div class="step-box">
+    <h3><span class="step-number">3</span> אפס יחיד של הנגזרת</h3>
+    <p>מאחר שכל שאר הגורמים אינם מתאפסים בתחום \(x\gt0\):</p>
+    <div class="math-block">\[
+      f'(x)=0
+      \qquad\Rightarrow\qquad
+      a-x=0
+      \qquad\Rightarrow\qquad
+      \boxed{x=a}
+    \]</div>
+    <p>בנוסף, הנגזרת קיימת לכל \(x\gt0\). לכן אין בתחום זה מועמד נוסף לנקודת קיצון.</p>
+  </div>
+
+  <div class="step-box">
+    <h3><span class="step-number">4</span> טבלת סימנים</h3>
+    <table aria-label="טבלת סימני הנגזרת">
+      <thead>
+        <tr>
+          <th>תחום / נקודה</th>
+          <th>\(0\lt x\lt a\)</th>
+          <th>\(x=a\)</th>
+          <th>\(x\gt a\)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>\(a-x\)</th>
+          <td class="positive">\(+\)</td>
+          <td class="zero">\(0\)</td>
+          <td class="negative">\(-\)</td>
+        </tr>
+        <tr>
+          <th>\(f'(x)\)</th>
+          <td class="positive">\(+\)</td>
+          <td class="zero">\(0\)</td>
+          <td class="negative">\(-\)</td>
+        </tr>
+        <tr>
+          <th>התנהגות \(f\)</th>
+          <td>עולה</td>
+          <td><strong>קיצון</strong></td>
+          <td>יורדת</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key-box tight">
+    <h3>מסקנה</h3>
+    <p>הנגזרת משנה סימן מחיובי לשלילי ב-\(x=a\), ולכן זו נקודת <strong>מקסימום</strong>.</p>
+    <p>ערך הפונקציה בנקודה:</p>
+    <div class="math-block">\[
+      f(a)=\frac{\sqrt{a}}{a^2+3a^2}
+      =\frac{\sqrt{a}}{4a^2}
+      =\boxed{\frac{1}{4a^{3/2}}}
+    \]</div>
+    <div class="math-block math-large">\[
+      \boxed{\left(a,\frac{1}{4a^{3/2}}\right)}
+    \]</div>
+    <p class="center"><strong>זוהי נקודת המקסימום היחידה בתחום \(x\gt0\).</strong></p>
+  </div>
+
+  <div class="page-footer"><span>דף לימוד - שאלה 22</span><span>3 / 5</span></div>
+</section>
+
+
+<section class="page" id="page-4">
+  <h2>שלב 4 - גרף מונה הנגזרת הראשונה</h2>
+  <p class="subtitle">
+    לאחר הפישוט, מונה הנגזרת הוא פרבולה הפוכה. הגרף מאפשר לראות מיד היכן הנגזרת חיובית והיכן היא שלילית.
+  </p>
+
+  <div class="key-box tight">
+    <h3>מונה הנגזרת</h3>
+    <div class="math-block math-large">\[
+      N(x)=3\left(a^2-x^2\right)=-3x^2+3a^2
+    \]</div>
+    <p>
+      זהו גרף של פרבולה הפוכה, החותכת את ציר \(x\) בנקודות \(x=-a\) ו-\(x=a\).
+      מאחר שבסעיף ב עובדים רק בתחום \(x\gt0\), האפס הרלוונטי לנגזרת הוא \(x=a\).
+    </p>
+  </div>
+
+  <div class="graph-panel" id="graph-panel-numerator">
+    <div class="slider-row">
+      <label for="a-num-slider"><strong>ערך הפרמטר \(a\):</strong></label>
+      <input id="a-num-slider" type="range" min="0.5" max="3" step="0.05" value="1.5" aria-label="שינוי ערך הפרמטר a בגרף מונה הנגזרת">
+      <output id="a-num-output" for="a-num-slider">1.50</output>
+    </div>
+
+    <div id="jxg-numerator" class="jxgbox-numerator" style="direction: ltr;" aria-label="גרף הפרבולה ההפוכה המתארת את מונה הנגזרת הראשונה"></div>
+    <p class="graph-caption">
+      מימין לציר \(y\): עבור \(0\lt x\lt a\) המונה חיובי, ב-\(x=a\) הוא אפס, ועבור \(x\gt a\) הוא שלילי.
+    </p>
+  </div>
+
+  <div class="summary-box tight">
+    <h3>הקשר לסימן הנגזרת</h3>
+    <div class="math-block">\[
+      0\lt x\lt a \Rightarrow N(x)\gt0,\qquad
+      x=a \Rightarrow N(x)=0,\qquad
+      x\gt a \Rightarrow N(x)\lt0
+    \]</div>
+    <p class="center">
+      מאחר שמכנה הנגזרת חיובי לכל \(x\gt0\), סימן \(f'(x)\) הוא בדיוק סימן הפרבולה \(N(x)\).
+    </p>
+  </div>
+
+  <div class="page-footer"><span>דף לימוד - שאלה 22</span><span>4 / 5</span></div>
+</section>
+
+<section class="page" id="page-5">
+  <h2>שלב 5 - רואים את הפרמטר על הגרף</h2>
+  <p class="subtitle">שנו את \(a\) ובדקו כיצד נקודת המקסימום נעה. בכל מצב, שיעור ה-\(x\) של המקסימום הוא בדיוק \(a\).</p>
+
+  <div class="graph-panel" id="graph-panel-main">
+    <div class="slider-row">
+      <label for="a-slider"><strong>ערך הפרמטר \(a\):</strong></label>
+      <input id="a-slider" type="range" min="0.5" max="3" step="0.05" value="1.5" aria-label="שינוי ערך הפרמטר a">
+      <output id="a-output" for="a-slider">1.50</output>
+    </div>
+
+    <div class="graph-toolbar" aria-label="בקרי גרף">
+      <button type="button" id="btn-reset">איפוס</button>
+      <button type="button" id="btn-zoom-in">הגדלה</button>
+      <button type="button" id="btn-zoom-out">הקטנה</button>
+      <button type="button" id="btn-center">מרכז</button>
+      <button type="button" id="btn-x-wide">הרחב X</button>
+      <button type="button" id="btn-x-narrow">כווץ X</button>
+      <button type="button" id="btn-y-wide">הרחב Y</button>
+      <button type="button" id="btn-y-narrow">כווץ Y</button>
+    </div>
+
+    <div id="jxg-main" class="jxgbox" style="direction: ltr;" aria-label="גרף אינטראקטיבי של הפונקציה"></div>
+    <p class="graph-caption">אפשר גם לגרור את הגרף בעכבר. נקודת המקסימום מסומנת על העקומה.</p>
+  </div>
+
+  <div class="key-box tight">
+    <h3>מה לחפש בזמן שינוי הסליידר?</h3>
+    <ul>
+      <li>כאשר \(a\) משתנה, נקודת המקסימום זזה.</li>
+      <li>בכל מצב מתקיים \(x_{\mathrm{max}}=a\).</li>
+      <li>גובה המקסימום הוא \(\frac{1}{4a^{3/2}}\).</li>
+      <li>הגרף מחזק את התוצאה האלגברית - אך ההוכחה עצמה מבוססת על הנגזרת וטבלת הסימנים.</li>
+    </ul>
+  </div>
+
+  <div class="page-footer"><span>דף לימוד - שאלה 22</span><span>5 / 5</span></div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  const NUM_INITIAL_BB = [-3.8, 8.5, 3.8, -8.5];
+  let numA = 1.5;
+  let numBoard = null;
+
+  function numeratorValue(x) {
+    return 3 * (numA * numA - x * x);
+  }
+
+  function initNumeratorGraph() {
+    if (!window.JXG || !document.getElementById('jxg-numerator')) {
+      return;
+    }
+
+    numBoard = JXG.JSXGraph.initBoard('jxg-numerator', {
+      boundingbox: NUM_INITIAL_BB,
+      axis: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: { enabled: true },
+      zoom: { enabled: true, wheel: true, needShift: false }
+    });
+
+    numBoard.create('functiongraph', [numeratorValue, -4, 4], {
+      strokeWidth: 3,
+      highlight: false
+    });
+
+    numBoard.create('point', [
+      function () { return -numA; },
+      0
+    ], {
+      name: '-a',
+      size: 2,
+      fixed: true,
+      highlight: false,
+      label: { offset: [-18, -18] }
+    });
+
+    numBoard.create('point', [
+      function () { return numA; },
+      0
+    ], {
+      name: 'a',
+      size: 2,
+      fixed: true,
+      highlight: false,
+      label: { offset: [8, -18] }
+    });
+
+    numBoard.create('point', [
+      0,
+      function () { return 3 * numA * numA; }
+    ], {
+      name: '',
+      size: 2,
+      fixed: true,
+      highlight: false
+    });
+
+    numBoard.create('text', [-3.55, 7.4, '\\(N(x)=3(a^2-x^2)\\)'], {
+      useMathJax: true,
+      fixed: true,
+      fontSize: 16,
+      highlight: false
+    });
+
+    numBoard.create('text', [
+      function () { return numA * 0.42; },
+      function () { return Math.max(1.0, 0.46 * 3 * numA * numA); },
+      '\\(+\\)'
+    ], {
+      useMathJax: true,
+      fixed: true,
+      fontSize: 22,
+      highlight: false
+    });
+
+    numBoard.create('text', [
+      function () { return Math.min(3.15, numA + 0.75); },
+      -1.3,
+      '\\(-\\)'
+    ], {
+      useMathJax: true,
+      fixed: true,
+      fontSize: 22,
+      highlight: false
+    });
+
+    numBoard.create('text', [
+      function () { return -Math.min(3.15, numA + 1.05); },
+      -1.3,
+      '\\(-\\)'
+    ], {
+      useMathJax: true,
+      fixed: true,
+      fontSize: 22,
+      highlight: false
+    });
+
+    // Mark the positive-x domain relevant to the derivative.
+    numBoard.create('segment', [
+      [0, 0],
+      [function () { return numA; }, 0]
+    ], {
+      strokeWidth: 5,
+      fixed: true,
+      highlight: false
+    });
+
+    numBoard.update();
+  }
+
+  function numScaleBoth(factor) {
+    if (!numBoard) return;
+    const bb = numBoard.getBoundingBox();
+    const cx = (bb[0] + bb[2]) / 2;
+    const cy = (bb[1] + bb[3]) / 2;
+    const halfW = (bb[2] - bb[0]) * factor / 2;
+    const halfH = (bb[1] - bb[3]) * factor / 2;
+    numBoard.setBoundingBox(
+      [cx - halfW, cy + halfH, cx + halfW, cy - halfH],
+      true
+    );
+  }
+
+  function resetNumeratorGraph() {
+    numA = 1.5;
+    const slider = document.getElementById('a-num-slider');
+    const output = document.getElementById('a-num-output');
+    if (slider) slider.value = '1.5';
+    if (output) output.textContent = '1.50';
+    if (numBoard) {
+      numBoard.setBoundingBox(NUM_INITIAL_BB, true);
+      numBoard.update();
+    }
+  }
+
+  function bindNumeratorControls() {
+    const slider = document.getElementById('a-num-slider');
+    const output = document.getElementById('a-num-output');
+
+    if (slider) {
+      slider.addEventListener('input', function () {
+        numA = Number(slider.value);
+        if (output) output.textContent = numA.toFixed(2);
+        if (numBoard) numBoard.update();
+      });
+    }
+
+    const resetButton = document.getElementById('btn-num-reset');
+    const zoomInButton = document.getElementById('btn-num-zoom-in');
+    const zoomOutButton = document.getElementById('btn-num-zoom-out');
+
+    if (resetButton) resetButton.addEventListener('click', resetNumeratorGraph);
+    if (zoomInButton) zoomInButton.addEventListener('click', function () { numScaleBoth(0.80); });
+    if (zoomOutButton) zoomOutButton.addEventListener('click', function () { numScaleBoth(1.25); });
+  }
+
+  function startNumeratorGraph() {
+    bindNumeratorControls();
+    initNumeratorGraph();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startNumeratorGraph);
+  } else {
+    startNumeratorGraph();
+  }
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  const INITIAL_BB = [-0.45, 0.86, 6.15, -0.10];
+  let currentA = 1.5;
+  let board = null;
+
+  function fValue(x) {
+    if (x < 0) return NaN;
+    return Math.sqrt(x) / (x * x + 3 * currentA * currentA);
+  }
+
+  function maxY() {
+    return 1 / (4 * Math.pow(currentA, 1.5));
+  }
+
+  function initGraph() {
+    if (!window.JXG || !document.getElementById('jxg-main')) {
+      return;
+    }
+
+    board = JXG.JSXGraph.initBoard('jxg-main', {
+      boundingbox: INITIAL_BB,
+      axis: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: { enabled: true },
+      zoom: { enabled: true, wheel: true, needShift: false }
+    });
+
+    board.create('functiongraph', [fValue, 0, 6], {
+      strokeWidth: 3,
+      highlight: false
+    });
+
+    const maxPoint = board.create('point', [
+      function () { return currentA; },
+      function () { return maxY(); }
+    ], {
+      name: 'M',
+      size: 2,
+      fixed: true,
+      highlight: false,
+      label: { offset: [8, 8] }
+    });
+
+    const basePoint = board.create('point', [
+      function () { return currentA; },
+      0
+    ], {
+      visible: false,
+      size: 2,
+      fixed: true
+    });
+
+    board.create('segment', [basePoint, maxPoint], {
+      dash: 2,
+      strokeWidth: 2,
+      fixed: true,
+      highlight: false
+    });
+
+    board.create('text', [3.75, 0.77, '\\(f(x)=\\frac{\\sqrt{x}}{x^2+3a^2}\\)'], {
+      useMathJax: true,
+      fixed: true,
+      fontSize: 16,
+      highlight: false
+    });
+
+    board.create('text', [3.75, 0.69, function () {
+      return '\\(x_{\\mathrm{max}}=a=' + currentA.toFixed(2) + '\\)';
+    }], {
+      useMathJax: true,
+      fixed: true,
+      fontSize: 15,
+      highlight: false
+    });
+
+    board.create('text', [3.75, 0.61, function () {
+      return '\\(f(a)=' + maxY().toFixed(3) + '\\)';
+    }], {
+      useMathJax: true,
+      fixed: true,
+      fontSize: 15,
+      highlight: false
+    });
+
+    board.update();
+  }
+
+  function getBB() {
+    return board ? board.getBoundingBox() : INITIAL_BB.slice();
+  }
+
+  function setBB(bb) {
+    if (board) board.setBoundingBox(bb, true);
+  }
+
+  function scaleBoth(factor) {
+    const bb = getBB();
+    const cx = (bb[0] + bb[2]) / 2;
+    const cy = (bb[1] + bb[3]) / 2;
+    const halfW = (bb[2] - bb[0]) * factor / 2;
+    const halfH = (bb[1] - bb[3]) * factor / 2;
+    setBB([cx - halfW, cy + halfH, cx + halfW, cy - halfH]);
+  }
+
+  function scaleX(factor) {
+    const bb = getBB();
+    const cx = (bb[0] + bb[2]) / 2;
+    const halfW = (bb[2] - bb[0]) * factor / 2;
+    setBB([cx - halfW, bb[1], cx + halfW, bb[3]]);
+  }
+
+  function scaleY(factor) {
+    const bb = getBB();
+    const cy = (bb[1] + bb[3]) / 2;
+    const halfH = (bb[1] - bb[3]) * factor / 2;
+    setBB([bb[0], cy + halfH, bb[2], cy - halfH]);
+  }
+
+  function centerGraph() {
+    if (!board) return;
+    const bb = getBB();
+    const width = bb[2] - bb[0];
+    const height = bb[1] - bb[3];
+    const cx = 2.85;
+    const cy = 0.35;
+    setBB([cx - width / 2, cy + height / 2, cx + width / 2, cy - height / 2]);
+  }
+
+  function resetGraph() {
+    currentA = 1.5;
+    const slider = document.getElementById('a-slider');
+    const output = document.getElementById('a-output');
+    if (slider) slider.value = '1.5';
+    if (output) output.textContent = '1.50';
+    if (board) {
+      board.setBoundingBox(INITIAL_BB, true);
+      board.update();
+    }
+  }
+
+  function bindControls() {
+    const slider = document.getElementById('a-slider');
+    const output = document.getElementById('a-output');
+
+    if (slider) {
+      slider.addEventListener('input', function () {
+        currentA = Number(slider.value);
+        if (output) output.textContent = currentA.toFixed(2);
+        if (board) board.update();
+      });
+    }
+
+    const bindings = [
+      ['btn-reset', resetGraph],
+      ['btn-zoom-in', function () { scaleBoth(0.80); }],
+      ['btn-zoom-out', function () { scaleBoth(1.25); }],
+      ['btn-center', centerGraph],
+      ['btn-x-wide', function () { scaleX(1.25); }],
+      ['btn-x-narrow', function () { scaleX(0.80); }],
+      ['btn-y-wide', function () { scaleY(1.25); }],
+      ['btn-y-narrow', function () { scaleY(0.80); }]
+    ];
+
+    bindings.forEach(function (entry) {
+      const el = document.getElementById(entry[0]);
+      if (el) el.addEventListener('click', entry[1]);
+    });
+  }
+
+  function start() {
+    bindControls();
+    initGraph();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
+</script>
+
+</body>
+</html>
