@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>חורים ואי-רציפות סליקה בפונקציות שורש - מערך שיעורים 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script>
+window.MathJax={
+  tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9edf2;font-family:Arial,"Noto Sans Hebrew",sans-serif;color:#17202a}
+body{direction:rtl}
+.a4-page{width:210mm;height:297mm;margin:8mm auto;background:#fff;padding:10mm 12mm 10mm;position:relative;overflow:hidden;break-after:page;page-break-after:always}
+.page-header{height:8mm;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #d5dce5;padding-bottom:2mm;margin-bottom:3mm;color:#566573;font-size:9.5pt}
+.page-no{direction:ltr;font-weight:700}
+h1{font-size:20pt;margin:0 0 4mm;color:#123a63;line-height:1.15}
+h2{font-size:13.2pt;color:#185c91;margin:2.5mm 0 1.5mm}
+p,li,td,th{font-size:10.1pt;line-height:1.36}p{margin:1.6mm 0}ul,ol{margin:1.8mm 0;padding-right:6mm}li{margin-bottom:1mm}
+footer{position:absolute;bottom:4mm;left:12mm;right:12mm;border-top:1px solid #e3e7eb;padding-top:1.5mm;color:#7b8794;font-size:8pt;text-align:center}
+.page-content{height:244mm;overflow:hidden}
+.cover{background:linear-gradient(145deg,#f7fbff,#eef5fb)}.cover h1{font-size:27pt;margin-top:8mm}.cover-grid{display:grid;gap:10mm;align-items:center;min-height:175mm}.big-subtitle{font-size:18pt;color:#266b9e;font-weight:700;margin-bottom:4mm}.lead{font-size:12.5pt;line-height:1.55}.cover-math{font-size:27pt;text-align:center;padding:14mm 4mm;background:#fff;border-radius:6mm;border:3px solid #2e86c1}
+.card{border:1px solid #d8e1ea;background:#f8fafc;border-radius:3mm;padding:3mm 3.5mm;margin:3mm 0}
+.card1{border:2px solid #70a6dc;background:#f8fafc;border-radius:3mm;padding:3mm 3.5mm;margin:3mm 0}
+.card.accent{border:2px solid #2e86c1;background:#f3f9fd}.card.warning{border:2px solid #b9770e;background:#fff9ec}.card.small{font-size:9.4pt}
+.chips{display:flex;gap:2mm;flex-wrap:wrap;margin-top:4mm}.chips span{background:#e8f2fa;border:1px solid #cbddeb;color:#1b5d8c;border-radius:999px;padding:1.3mm 2.8mm;font-size:8.8pt}
+.two-col1{display:grid;gap:6mm;align-items:start}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6mm;align-items:start}.two-col.wide-right{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}.three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3mm;align-items:stretch}
+.lesson-goals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3mm;margin:2.5mm 0}.lesson-goals>div{border:1px solid #d8e1ea;border-radius:3mm;padding:2.5mm 3mm;background:#fbfdff;font-size:9.7pt;line-height:1.35}
+.rule-table{width:100%;border-collapse:collapse;margin:2.5mm 0 4mm}.rule-table th,.rule-table td{border:1px solid #cfd7df;padding:2.2mm 2.6mm;vertical-align:top}.rule-table th{background:#edf4f9;color:#174b71}.compact-table td,.compact-table th{font-size:9.3pt}
+.source-links{display:grid;gap:1.5mm;margin:3mm 0}.source-links a{direction:ltr;text-align:left;color:#1b5d8c;font-size:9pt;word-break:break-all}
+.worked{border:2px solid #7fb3d5;border-radius:2mm;padding:2mm 3.5mm;margin:2.5mm 0;background:#fbfdff}
+.graph-panel{min-width:0;border:1px solid #ccd6df;border-radius:3mm;padding:2.5mm;background:#fff;direction:ltr}.graph-toolbar{display:flex;gap:1.5mm;justify-content:flex-start;margin-bottom:1.5mm;direction:ltr}.graph-toolbar button{border:1px solid #9fb4c6;background:#f4f8fb;border-radius:2mm;padding:1.2mm 2.6mm;font-size:8.7pt;cursor:pointer}.jxgbox{width:100%;height:88mm;border:none!important;direction:ltr}.jxgbox.short{height:65mm}.graph-caption{direction:rtl;text-align:center;font-size:8.8pt;margin-top:1.5mm}
+.exercise-list{padding-right:7mm;margin-top:2mm}.exercise-list li{margin-bottom:2.2mm;font-size:11.3pt;line-height:1.55}.exercise-note{border:1px solid #cbddeb;background:#f3f9fd;border-radius:2mm;padding:2mm 3mm;font-size:9.5pt}.summary-ex li{margin-bottom:4mm;font-size:11.8pt}
+.solution-list{padding-right:7mm}.solution-list li{margin-bottom:2.25mm;font-size:9.7pt;line-height:1.4}.summary-sol li{margin-bottom:5mm;font-size:10.3pt}
+@media print{html,body{background:#fff}.a4-page{margin:0}.graph-toolbar{display:flex}}
+</style>
+</head>
+<body>
+<section class="a4-page cover">
+<header class="page-header"><div class="unit-tag">פונקציות שורש - 5 יחידות</div><div class="page-no">1</div></header>
+<h1>חורים ואי-רציפות סליקה בפונקציות שורש</h1>
+<div class="page-content">
+<div class="cover-grid">
+  <div>
+    <div class="big-subtitle">מערך שיעורים מלא - 5 יחידות</div>
+    <p class="lead">זיהוי חור, שמירת תחום ההגדרה המקורי, כפל בצמוד, בדיקת ההתנהגות כאשר \(x\) שואף לערך מסוים, הבחנה מאסימפטוטה אנכית, שורש במונה, שורש של מנה, פרמטרים, מספר חורים ובנייה הפוכה.</p>
+  </div>
+  <div class="cover-math">\[f(x)=\dfrac{x-a}{\sqrt{x}-\sqrt a}\]</div>
+  <div class="card accent"><b>עקרון מרכזי:</b> צמצום משנה את צורת הביטוי אך אינו מחזיר לתחום נקודה שנאסרה בפונקציה המקורית.</div>
+</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section>
+
+<section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 1</div><div class="page-no">3</div></header>
+<h1>מהו חור ומה נשאר מן התחום המקורי?</h1>
+<div class="page-content">
+<div class="lesson-goals"><div><b>מטרות</b><br>להגדיר חור כאי-רציפות סליקה, לשמור את התחום המקורי ולזהות את הנקודה החסרה.</div><div><b>ידע קודם</b><br>תחום הגדרה של שורש, פירוק לגורמים ומשמעות של מצב שבו \(f(x)\) שואף לערך סופי.</div></div>
+<div class="two-col wide-right">
+<div>
+<h2>הגדרה</h2>
+<p><b>חור בנקודה \(x=a\)</b> מתקבל כאשר למונה ולמכנה יש גורם משותף שמתאפס ב-\(x=a\), ולאחר צמצום הגורם הזה מתקבלת פונקציה שמוגדרת ב-\(x=a\).</p>
+<h2>דוגמה מרכזית</h2>
+\[f(x)=\dfrac{x-1}{\sqrt{x}-1}\]
+<p>התחום המקורי:</p>
+\[x\ge0,\qquad x\ne1\]
+<p>עבור \(x\ne1\):</p>
+\[x-1=(\sqrt{x}-1)(\sqrt{x}+1)\]
+\[f(x)=\sqrt{x}+1\]
+\[x=1,\qquad f(x)=2\quad⇒\quad (1,2)\]
+<div style="position: relative;top: 17px;width: 702px;" class="card warning"><b>חשוב:</b> הפונקציה המקורית והביטוי המצומצם מקבלים אותם ערכים לכל \(x\) המותר בפונקציה המקורית, אך תחומי ההגדרה שלהם אינם זהים.</div>
+</div>
+<div class="graph-panel">
+<div class="jxgbox" id="g1"></div>
+<div class="graph-caption">הגרף \(y=\sqrt{x}+1\) עם הנקודה החסרה \((1,2)\).</div>
+</div>
+</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 1 - תרגול</div><div class="page-no">4</div></header>
+<h1>תרגילים - הגדרה, תחום וחור</h1>
+<div class="page-content"><div class="exercise-note">בכל תרגיל כתוב תחילה את התחום המקורי.</div><ol class="exercise-list"><li>מצא את תחום ההגדרה, פשט ומצא את החור: \(f(x)=\dfrac{x-1}{\sqrt{x}-1}\).</li><li>מצא את תחום ההגדרה, פשט ומצא את החור: \(f(x)=\dfrac{x-4}{\sqrt{x}-2}\).</li><li>מצא את החור: \(f(x)=\dfrac{x-9}{\sqrt{x}-3}\).</li><li>מצא את החור: \(f(x)=\dfrac{x-16}{\sqrt{x}-4}\).</li><li>עבור \(a\gt0\), מצא את החור של \(f(x)=\dfrac{x-a}{\sqrt{x}-\sqrt a}\).</li><li>מצא תחום וחור: \(h(x)=\dfrac{x-4}{\sqrt{x+5}-3}\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{x+1}{\sqrt{x+2}-1}\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{x-5}{\sqrt{x+4}-3}\).</li><li>מצא את החור: \(f(x)=\dfrac{2x-8}{\sqrt{x}-2}\).</li><li>מצא את החור והסבר מדוע הצמצום אינו משנה את התחום המקורי: \(f(x)=\dfrac{3x-27}{\sqrt{x}-3}\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 2</div><div class="page-no">5</div></header>
+<h1>כפל בצמוד - מן הצורה \(\dfrac{0}{0}\) אל החור</h1>
+<div class="page-content">
+<div class="lesson-goals"><div><b>מטרות</b><br>להשתמש בכפל בצמוד באופן שיטתי ולזהות את הגורם שיוצר את החור.</div><div><b>רעיון</b><br>כאשר מתקבל \(\dfrac{0}{0}\), זו צורת אי-ודאות. צריך לפשט לפני שמסיקים מסקנה.</div></div>
+<h2>הזהות המרכזית</h2>
+\[(\sqrt{x}-\sqrt a)(\sqrt{x}+\sqrt a)=x-a\]
+
+<div class="worked"><b>דוגמה כללית - כל שלבי הכפל בצמוד:</b>
+\[f(x)=\dfrac{x-a}{\sqrt{x}-\sqrt a},\qquad a\gt0\]
+<p>עבור \(x\ne a\), כופלים את המונה ואת המכנה בצמוד של המכנה:</p>
+\[
+f(x)=
+\dfrac{x-a}{\sqrt{x}-\sqrt a}\cdot
+\dfrac{\sqrt{x}+\sqrt a}{\sqrt{x}+\sqrt a}
+\]
+<p>מחשבים את המכנה בעזרת נוסחת הכפל המקוצר:</p>
+\[
+f(x)=
+\dfrac{(x-a)(\sqrt{x}+\sqrt a)}
+{(\sqrt{x}-\sqrt a)(\sqrt{x}+\sqrt a)}
+=
+\dfrac{(x-a)(\sqrt{x}+\sqrt a)}{x-a}
+\]
+<p>מצמצמים את הגורם המשותף \(x-a\), ורק משום ש-\(x\ne a\):</p>
+\[
+f(x)=\sqrt{x}+\sqrt a
+\]
+\[
+x⇒a,\qquad f(x)⇒2\sqrt a
+\quad⇒\quad
+(a,2\sqrt a)
+\]
+</div>
+
+<div class="card accent"><b>סדר עבודה:</b> תחום מקורי ⇐ הצבה בערך החשוד ⇐ כתיבת הצמוד ⇐ כפל מונה ומכנה בצמוד ⇐ חישוב המכנה ⇐ צמצום הגורם המשותף ⇐ בדיקה למה \(f(x)\) שואף ⇐ סימון החור.</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section>
+<section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 2 - דוגמאות נוספות</div><div class="page-no">6</div></header>
+<h1>כפל בצמוד - דוגמאות נוספות</h1>
+<div class="page-content">
+<div class="two-col1">
+<div class="card"><b>דוגמה עם הזזה - פירוט מלא</b>
+\[
+f(x)=\dfrac{x-3}{\sqrt{x+1}-2},
+\qquad x\ge-1,\ x\ne3
+\]
+\[
+f(x)=
+\dfrac{x-3}{\sqrt{x+1}-2}\cdot
+\dfrac{\sqrt{x+1}+2}{\sqrt{x+1}+2}
+\]
+\[
+=
+\dfrac{(x-3)(\sqrt{x+1}+2)}
+{(x+1)-4}
+=
+\dfrac{(x-3)(\sqrt{x+1}+2)}{x-3}
+\]
+\[
+=\sqrt{x+1}+2
+\quad⇒\quad
+(3,4)
+\]
+</div>
+
+<div class="card"><b>דוגמה עם גורם נוסף</b>
+\[
+f(x)=\dfrac{x^2-16}{\sqrt{x}-2}
+\]
+\[
+f(x)=
+\dfrac{(x-4)(x+4)}{\sqrt{x}-2}\cdot
+\dfrac{\sqrt{x}+2}{\sqrt{x}+2}
+\]
+\[
+=
+\dfrac{(x-4)(x+4)(\sqrt{x}+2)}{x-4}
+\]
+\[
+=(x+4)(\sqrt{x}+2),\qquad x\ne4
+\]
+\[
+(4,32)
+\]
+</div>
+</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 2 - תרגול</div><div class="page-no">7</div></header>
+<h1>תרגילים - כפל בצמוד</h1>
+<div class="page-content"><ol class="exercise-list"><li>פשט ומצא את החור: \(f(x)=\dfrac{x-4}{\sqrt{x}-2}\).</li><li>פשט ומצא את החור: \(f(x)=\dfrac{x-25}{\sqrt{x}-5}\).</li><li>עבור \(a\gt0\), הראה כי החור של \(f(x)=\dfrac{x-a}{\sqrt{x}-\sqrt a}\) הוא \(\left(a,2\sqrt a\right)\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{x-3}{\sqrt{x+1}-2}\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{2x-6}{\sqrt{x+1}-2}\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{x+2}{\sqrt{x+6}-2}\).</li><li>עבור \(a+c\gt0\), מצא את החור של \(f(x)=\dfrac{x-a}{\sqrt{x+c}-\sqrt{a+c}}\).</li><li>מצא את החור: \(f(x)=\dfrac{x^2-16}{\sqrt{x}-2}\).</li><li>מצא את החור: \(f(x)=\dfrac{(x-4)(x+1)}{\sqrt{x}-2}\).</li><li>נתונה \(f(x)=\dfrac{x-a}{\sqrt{x+4}-3}\). מצא את \(a\) כך שלפונקציה יהיה חור, ומצא את נקודת החור.</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 3</div><div class="page-no">8</div></header>
+<h1>כאשר השורש נמצא במונה</h1>
+<div class="page-content">
+<div class="lesson-goals"><div><b>מטרות</b><br>לטפל בשורש הנמצא במונה ולראות כי אותו רעיון פועל בכיוון ההפוך.</div><div><b>דגש</b><br>גם כאן קובעים תחום לפני הצמצום.</div></div>
+<div class="two-col wide-right">
+<div>
+<h2>דוגמה</h2>
+\[f(x)=\dfrac{\sqrt{x}-2}{x-4}\]
+\[x\ge0,\qquad x\ne4\]
+<p>מפרקים את המכנה:</p>
+\[x-4=(\sqrt{x}-2)(\sqrt{x}+2)\]
+<p>ולכן, עבור \(x\ne4\):</p>
+\[f(x)=\dfrac{1}{\sqrt{x}+2}\]
+\[x=4,\qquad f(x)=\dfrac14\quad⇒\quad \left(4,\dfrac14\right)\]
+<h2>צורה כללית</h2>
+\[f(x)=\dfrac{\sqrt{x}-\sqrt a}{x-a},\qquad a\gt0\]
+\[f(x)=\dfrac{1}{\sqrt{x}+\sqrt a},\qquad x\ne a\]
+\[\left(a,\dfrac{1}{2\sqrt a}\right)\]
+</div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g3')">+</button><button onclick="zoomOut('g3')">-</button><button onclick="resetBoard('g3')">איפוס</button><button onclick="centerBoard('g3')">מרכז</button></div>
+<div class="jxgbox" id="g3"></div>
+<div class="graph-caption">הגרף \(y=1/(\sqrt{x}+2)\) עם חור ב-\(x=4\).</div>
+</div>
+</div>
+<div class="card accent"><b>השוואה שימושית:</b> החלפת המונה והמכנה בדוגמה הבסיסית משנה את ערך ה-\(y\) של החור, אך לא את ערך ה-\(x\) שבו נוצרה נקודת אי-ההגדרה.</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 3 - תרגול</div><div class="page-no">9</div></header>
+<h1>תרגילים - שורש במונה</h1>
+<div class="page-content"><ol class="exercise-list"><li>מצא תחום וחור: \(f(x)=\dfrac{\sqrt{x}-1}{x-1}\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{\sqrt{x}-2}{x-4}\).</li><li>מצא את החור: \(f(x)=\dfrac{\sqrt{x}-3}{x-9}\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{\sqrt{x+1}-2}{x-3}\).</li><li>מצא תחום וחור: \(f(x)=\dfrac{\sqrt{x+5}-3}{x-4}\).</li><li>מצא את החור: \(f(x)=\dfrac{2(\sqrt{x}-2)}{x-4}\).</li><li>עבור \(a\gt0\), מצא את החור של \(f(x)=\dfrac{\sqrt{x}-\sqrt a}{x-a}\).</li><li>עבור \(a+c\gt0\), מצא את החור של \(f(x)=\dfrac{\sqrt{x+c}-\sqrt{a+c}}{x-a}\).</li><li>השווה את נקודות החור של \(f(x)=\dfrac{x-4}{\sqrt{x}-2}\) ושל \(g(x)=\dfrac{\sqrt{x}-2}{x-4}\).</li><li>בפונקציה \(f(x)=\dfrac{\sqrt{x}-\sqrt a}{x-a}\), נתון ששיעור ה-\(y\) של החור הוא \(\dfrac18\). מצא את \(a\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 4</div><div class="page-no">10</div></header>
+<h1>חור, אסימפטוטה או נקודת קצה?</h1>
+<div class="page-content">
+<div class="lesson-goals"><div><b>מטרות</b><br>להבדיל בין חור, אסימפטוטה אנכית ונקודת קצה חסרה הניתנת להשלמה.</div><div><b>כלל</b><br>\(\dfrac{0}{0}\) אינו תשובה אלא סימן לכך שנדרש פישוט נוסף.</div></div>
+<div class="three-col">
+<div class="card1"><b>חור</b>
+\[\dfrac{x-4}{\sqrt{x}-2}=\sqrt{x}+2\]
+\[x⇒4,\qquad f(x)⇒4\]
+<p>כאשר \(x\) שואף ל-\(4\), \(f(x)\) שואף ל-\(4\), ערך סופי בנקודה פנימית של תחום ההתקרבות.</p></div>
+<div class="card warning"><b>אסימפטוטה</b>
+\[f(x)=\dfrac{\sqrt{x}}{x}=\dfrac1{\sqrt{x}}\]
+\[x⇒0^+,\qquad f(x)⇒+\infty\]
+<p>כאן \(x=0\) אסימפטוטה אנכית מימין.</p></div>
+<div class="card1"><b>קצה תחום</b>
+\[f(x)=\dfrac{x}{\sqrt{x}}=\sqrt{x},x\gt0\]
+\[x⇒0^+,\qquad f(x)⇒0\]
+<p>זו נקודת קצה חסרה שניתן להשלים מימין; אינה חור פנימי רגיל.</p></div>
+</div>
+<div style="height:20px;"></div>
+<div class="graph-panel graph-wide">
+<div class="graph-toolbar"><button onclick="zoomIn('g4')">+</button><button onclick="zoomOut('g4')">-</button><button onclick="resetBoard('g4')">איפוס</button><button onclick="centerBoard('g4')">מרכז</button></div>
+<div class="jxgbox short" id="g4" style="height:350px;"></div>
+<div class="graph-caption">כחול: חור ב-\((4,4)\). אדום: \(1/\sqrt{x}\), המתבדרת כאשר \(x⇒0^+\).</div>
+</div>
+<div class="card accent"><b>מבחן אבחון:</b> פשט את הביטוי, שמור את התחום המקורי, ואז בדוק למה \(f(x)\) שואף כאשר \(x\) שואף לערך החשוד. אם \(f(x)\) שואף לערך סופי ⇐ ניתן להשלים נקודה. אם \(f(x)\) שואף לערכים ללא חסם ⇐ אסימפטוטה אנכית.</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 4 - תרגול</div><div class="page-no">11</div></header>
+<h1>תרגילים - אבחון סוג אי-ההגדרה</h1>
+<div class="page-content"><div class="exercise-note">בכל תרגיל נמק באמצעות פישוט ובדיקה למה \(f(x)\) שואף כאשר \(x\) שואף לערך החשוד.</div><ol class="exercise-list"><li>סווג את ההתנהגות בנקודה החשודה: \(f(x)=\dfrac{x-1}{\sqrt{x}-1}\).</li><li>סווג ב-\(x=0\): \(f(x)=\dfrac{\sqrt{x}}{x}\).</li><li>סווג ב-\(x=4\): \(f(x)=\dfrac{\sqrt{x}-2}{x-4}\).</li><li>סווג ב-\(x=4\): \(f(x)=\dfrac{1}{\sqrt{x}-2}\).</li><li>סווג ב-\(x=4\): \(f(x)=\dfrac{x-4}{(\sqrt{x}-2)^2}\).</li><li>סווג ב-\(x=4\): \(f(x)=\dfrac{(x-4)^2}{\sqrt{x}-2}\).</li><li>סווג ב-\(x=0\): \(f(x)=\dfrac{x}{\sqrt{x}}\).</li><li>סווג ב-\(x=-1\): \(f(x)=\dfrac{x+1}{\sqrt{x+1}}\).</li><li>סווג ב-\(x=-1\): \(f(x)=\dfrac1{\sqrt{x+1}}\).</li><li>סווג ב-\(x=1\): \(f(x)=\dfrac{\sqrt{x}-1}{(x-1)^2}\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 5</div><div class="page-no">12</div></header>
+<h1>שורש של מנה ופרמטרים</h1>
+<div class="page-content">
+<div class="lesson-goals"><div><b>מטרות</b><br>לחקור שורש של מנה ולשלב פרמטרים עם תחום וחור.</div><div><b>דגש</b><br>כאשר מצמצמים בתוך השורש, האיסור מן המכנה המקורי נשאר בתוקף.</div></div>
+<div class="worked"><b>דוגמה:</b>
+\[f(x)=\sqrt{\dfrac{x^2-4}{x-2}}\]
+<p>עבור \(x\ne2\):</p>
+\[\dfrac{x^2-4}{x-2}=x+2\]
+<p>התחום המקורי שקול לתנאים:</p>
+\[x\ge-2,\qquad x\ne2\]
+<p>ולכן:</p>
+\[f(x)=\sqrt{x+2},\qquad x\ne2\]
+\[x⇒2,\qquad f(x)⇒2\quad⇒\quad (2,2)\]
+</div>
+<div class="two-col">
+<div class="card1"><b>פרמטר</b>
+\[f(x)=\sqrt{\dfrac{(x-a)(x+3)}{x-a}}\]
+<p>אם \(a\gt-3\), אז לאחר הצמצום התחום הוא \(x\ge-3\) וגם \(x\ne a\), ולכן:</p>
+\[\left(a,\sqrt{a+3}\right)\]
+</div>
+<div style="height: 247px;" class="card warning"><b>מתי אין חור נראה?</b>
+<p>אם הערך שנמחק נמצא מחוץ לתחום שהשורש מאפשר גם לאחר הצמצום, הוא אינו יוצר נקודה חסרה בגרף.</p>
+\[\sqrt{\dfrac{(x-1)(x-4)}{x-1}}=\sqrt{x-4},\qquad x\ge4\]
+<p>הערך \(x=1\) אינו נקודת חור בגרף.</p>
+</div>
+</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 5 - תרגול</div><div class="page-no">13</div></header>
+<h1>תרגילים - שורש של מנה ופרמטרים</h1>
+<div class="page-content"><ol class="exercise-list"><li>מצא תחום וחור: \(f(x)=\sqrt{\dfrac{x^2-4}{x-2}}\).</li><li>מצא תחום וחור: \(f(x)=\sqrt{\dfrac{x^2-9}{x-3}}\).</li><li>מצא תחום וחור: \(f(x)=\sqrt{\dfrac{x^2-1}{x-1}}\).</li><li>מצא תחום וחור: \(f(x)=\sqrt{\dfrac{(x-4)(x+5)}{x-4}}\).</li><li>עבור \(a\gt-3\), מצא את החור של \(f(x)=\sqrt{\dfrac{(x-a)(x+3)}{x-a}}\).</li><li>בפונקציה הקודמת נתון ששיעור ה-\(y\) של החור הוא \(4\). מצא את \(a\).</li><li>עבור \(a\gt-\dfrac12\), מצא את החור של \(f(x)=\sqrt{\dfrac{(x-a)(2x+1)}{x-a}}\).</li><li>מצא את \(a\) כך של-\(f(x)=\sqrt{\dfrac{(x-a)(x+5)}{x-a}}\) יהיה חור ב-\(x=4\), ומצא את שיעור ה-\(y\).</li><li>בדוק האם קיים חור: \(f(x)=\sqrt{\dfrac{(x-1)(x-4)}{x-1}}\). נמק באמצעות התחום.</li><li>מצא תחום וחור: \(f(x)=\sqrt{\dfrac{(x-4)(x+1)}{x-4}}\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 6</div><div class="page-no">14</div></header>
+<h1>מספר חורים ובנייה של פונקציה</h1>
+<div class="page-content">
+<div class="two-col wide-right">
+<div>
+<h2>שני חורים</h2>
+\[f(x)=\dfrac{(x-1)(x-4)}{(\sqrt{x}-1)(\sqrt{x}-2)}\]
+<p>עבור \(x\ne1,4\):</p>
+\[f(x)=(\sqrt{x}+1)(\sqrt{x}+2)\]
+\[(1,6),\qquad (4,12)\]
+<h2>בנייה הפוכה</h2>
+<p>כדי לבנות פונקציה עם חור ב-\((a,b)\), כאשר \(a\gt0\), אפשר לבחור:</p>
+\[f(x)=\dfrac{(x-a)(\sqrt{x}+b-\sqrt a)}{x-a}\]
+<p>התחום המקורי כולל \(x\ge0\) וגם \(x\ne a\), ולאחר הצמצום, כאשר \(x\) שואף ל-\(a\), \(f(x)\) שואף ל-\(b\).</p>
+</div>
+<div class="graph-panel">
+<div class="graph-toolbar"><button onclick="zoomIn('g6')">+</button><button onclick="zoomOut('g6')">-</button><button onclick="resetBoard('g6')">איפוס</button><button onclick="centerBoard('g6')">מרכז</button></div>
+<div class="jxgbox" id="g6"></div>
+<div class="graph-caption">שני חורים באותו גרף: \((1,6)\) ו-\((4,12)\).</div>
+</div>
+</div>
+<div class="card warning"><b>שילוב עם אסימפטוטה:</b> לאחר צמצום כל הגורמים היוצרים חורים, אם נשאר גורם מאפס במכנה, הוא עשוי ליצור אסימפטוטה אנכית.</div>
+</div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">שיעור 6 - תרגול</div><div class="page-no">15</div></header>
+<h1>תרגילים - מספר חורים ובנייה של פונקציה</h1>
+<div class="page-content"><ol class="exercise-list"><li>מצא את כל החורים: \(f(x)=\dfrac{(x-1)(x-4)}{(\sqrt{x}-1)(\sqrt{x}-2)}\).</li><li>מצא את כל החורים: \(f(x)=\dfrac{(x-1)(x-9)}{(\sqrt{x}-1)(\sqrt{x}-3)}\).</li><li>מצא את כל החורים: \(f(x)=\dfrac{(\sqrt{x}-1)(\sqrt{x}-2)}{(x-1)(x-4)}\).</li><li>מצא את כל החורים: \(f(x)=\dfrac{(x-1)(x-4)}{(\sqrt{x}-1)(x-4)}\).</li><li>עבור \(a\gt0\), מצא את החור של \(f(x)=\dfrac{(x-a)(\sqrt{x}+k)}{x-a}\).</li><li>בנה פונקציה הכוללת שורש שיש לה חור ב-\((4,7)\).</li><li>בנה פונקציה הכוללת שורש שיש לה שני חורים ב-\((1,2)\) וב-\((4,3)\).</li><li>מצא את \(k\) כך של-\(f(x)=\dfrac{(x-9)(\sqrt{x}+k)}{x-9}\) יהיה חור ששיעור ה-\(y\) שלו הוא \(10\).</li><li>מצא את \(a\) ואת \(b\) כך של-\(f(x)=\dfrac{(x-a)(\sqrt{x}+b)}{x-a}\) יהיה חור ב-\((9,8)\).</li><li>מצא את כל החורים ואת האסימפטוטה האנכית של \(f(x)=\dfrac{(x-1)(x-4)}{(\sqrt{x}-1)(\sqrt{x}-2)(x-9)}\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות שיעור 1</div><div class="page-no">16</div></header>
+<h1>פתרונות - הגדרה, תחום וחור</h1>
+<div class="page-content"><ol class="solution-list"><li>\(x\ge0,\ x\ne1\). עבור \(x\ne1\): \(f(x)=\sqrt{x}+1\). החור: \((1,2)\).</li><li>\(x\ge0,\ x\ne4\). \(f(x)=\sqrt{x}+2\). החור: \((4,4)\).</li><li>\(x\ge0,\ x\ne9\). \(f(x)=\sqrt{x}+3\). החור: \((9,6)\).</li><li>\(x\ge0,\ x\ne16\). \(f(x)=\sqrt{x}+4\). החור: \((16,8)\).</li><li>\(x\ge0,\ x\ne a\). \(f(x)=\sqrt{x}+\sqrt a\). החור: \(\left(a,2\sqrt a\right)\).</li><li>\(x\ge-5,\ x\ne4\). \(h(x)=\sqrt{x+5}+3\). החור: \((4,6)\).</li><li>\(x\ge-2,\ x\ne-1\). \(f(x)=\sqrt{x+2}+1\). החור: \((-1,2)\).</li><li>\(x\ge-4,\ x\ne5\). \(f(x)=\sqrt{x+4}+3\). החור: \((5,6)\).</li><li>\(f(x)=2(\sqrt{x}+2)\), \(x\ne4\). החור: \((4,8)\).</li><li>\(f(x)=3(\sqrt{x}+3)\), \(x\ne9\). החור: \((9,18)\). האיסור \(x\ne9\) הגיע מן המכנה המקורי ולכן נשאר.</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות שיעור 2</div><div class="page-no">17</div></header>
+<h1>פתרונות - כפל בצמוד</h1>
+<div class="page-content"><ol class="solution-list"><li>\(f(x)=\sqrt{x}+2\), \(x\ne4\) ⇐ החור \((4,4)\).</li><li>\(f(x)=\sqrt{x}+5\), \(x\ne25\) ⇐ החור \((25,10)\).</li><li>כפל בצמוד נותן \(f(x)=\sqrt{x}+\sqrt a\) עבור \(x\ne a\), ולכן החור \(\left(a,2\sqrt a\right)\).</li><li>\(x\ge-1,\ x\ne3\). \(f(x)=\sqrt{x+1}+2\) ⇐ \((3,4)\).</li><li>\(f(x)=2(\sqrt{x+1}+2)\), \(x\ne3\) ⇐ \((3,8)\).</li><li>\(x\ge-6,\ x\ne-2\). \(f(x)=\sqrt{x+6}+2\) ⇐ \((-2,4)\).</li><li>\(f(x)=\sqrt{x+c}+\sqrt{a+c}\), \(x\ne a\) ⇐ החור \(\left(a,2\sqrt{a+c}\right)\).</li><li>\(x^2-16=(x-4)(x+4)\), ולכן \(f(x)=(x+4)(\sqrt{x}+2)\) עבור \(x\ne4\). החור \((4,32)\).</li><li>\(f(x)=(x+1)(\sqrt{x}+2)\), \(x\ne4\). החור \((4,20)\).</li><li>המכנה מתאפס ב-\(x=5\), לכן כדי לקבל \(\dfrac{0}{0}\) נדרש \(a=5\). אז \(f(x)=\sqrt{x+4}+3\), והחור \((5,6)\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות שיעור 3</div><div class="page-no">18</div></header>
+<h1>פתרונות - שורש במונה</h1>
+<div class="page-content"><ol class="solution-list"><li>\(x\ge0,\ x\ne1\). \(f(x)=1/(\sqrt{x}+1)\). החור \(\left(1,\dfrac12\right)\).</li><li>\(x\ge0,\ x\ne4\). \(f(x)=1/(\sqrt{x}+2)\). החור \(\left(4,\dfrac14\right)\).</li><li>\(f(x)=1/(\sqrt{x}+3)\), \(x\ne9\). החור \(\left(9,\dfrac16\right)\).</li><li>\(x\ge-1,\ x\ne3\). \(f(x)=1/(\sqrt{x+1}+2)\). החור \(\left(3,\dfrac14\right)\).</li><li>\(x\ge-5,\ x\ne4\). \(f(x)=1/(\sqrt{x+5}+3)\). החור \(\left(4,\dfrac16\right)\).</li><li>\(f(x)=2/(\sqrt{x}+2)\), \(x\ne4\). החור \(\left(4,\dfrac12\right)\).</li><li>\(f(x)=1/(\sqrt{x}+\sqrt a)\), ולכן החור \(\left(a,\dfrac{1}{2\sqrt a}\right)\).</li><li>\(f(x)=1/(\sqrt{x+c}+\sqrt{a+c})\), ולכן החור \(\left(a,\dfrac{1}{2\sqrt{a+c}}\right)\).</li><li>בפונקציה הראשונה החור \((4,4)\); בשנייה \(\left(4,\dfrac14\right)\). אותו \(x\), ערך \(y\) שונה.</li><li>\(1/(2\sqrt a)=1/8\) ⇐ \(2\sqrt a=8\) ⇐ \(a=16\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות שיעור 4</div><div class="page-no">19</div></header>
+<h1>פתרונות - אבחון סוג אי-ההגדרה</h1>
+<div class="page-content"><ol class="solution-list"><li>חור ב-\((1,2)\): לאחר צמצום מתקבל \(\sqrt{x}+1\), וכאשר \(x\) שואף ל-\(1\), \(f(x)\) שואף ל-\(2\).</li><li>אסימפטוטה אנכית \(x=0\) מימין: \(f(x)=1/\sqrt{x}\), וכאשר \(x⇒0^+\), מתקבל \(f(x)⇒+\infty\).</li><li>חור ב-\(\left(4,\dfrac14\right)\).</li><li>אסימפטוטה אנכית \(x=4\): אין צמצום של הגורם המאפס במכנה.</li><li>\(f(x)=(\sqrt{x}+2)/(\sqrt{x}-2)\) עבור \(x\ne4\), ולכן נשאר מכנה מאפס ⇐ אסימפטוטה אנכית \(x=4\).</li><li>\(f(x)=(x-4)(\sqrt{x}+2)\) עבור \(x\ne4\), ולכן כאשר \(x\) שואף ל-\(4\), \(f(x)\) שואף ל-\(0\) ⇐ חור \((4,0)\).</li><li>\(f(x)=\sqrt{x}\) עבור \(x\gt0\), וכאשר \(x⇒0^+\), מתקבל \(f(x)⇒0\). זו נקודת קצה חסרה הניתנת להשלמה מימין.</li><li>\(f(x)=\sqrt{x+1}\) עבור \(x\gt-1\); כאשר \(x\) שואף ל-\(-1\) מימין, \(f(x)\) שואף ל-\(0\). נקודת קצה חסרה הניתנת להשלמה.</li><li>אסימפטוטה אנכית \(x=-1\) מימין, כי \(1/\sqrt{x+1}\) גדלה ללא חסם.</li><li>לאחר צמצום גורם אחד נשאר גורם \(\sqrt{x}-1\) במכנה, ולכן \(x=1\) אסימפטוטה אנכית.</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות שיעור 5</div><div class="page-no">20</div></header>
+<h1>פתרונות - שורש של מנה ופרמטרים</h1>
+<div class="page-content"><ol class="solution-list"><li>עבור \(x\ne2\), הביטוי תחת השורש הוא \(x+2\). התחום \(x\ge-2,\ x\ne2\). החור \((2,2)\).</li><li>תחום \(x\ge-3,\ x\ne3\). הפונקציה המצומצמת \(\sqrt{x+3}\). החור \(\left(3,\sqrt6\right)\).</li><li>תחום \(x\ge-1,\ x\ne1\). החור \(\left(1,\sqrt2\right)\).</li><li>תחום \(x\ge-5,\ x\ne4\). הפונקציה המצומצמת \(\sqrt{x+5}\). החור \((4,3)\).</li><li>עבור \(a\gt-3\): התחום \(x\ge-3,\ x\ne a\), והחור \(\left(a,\sqrt{a+3}\right)\).</li><li>\(\sqrt{a+3}=4\) ⇐ \(a+3=16\) ⇐ \(a=13\).</li><li>לאחר צמצום \(f(x)=\sqrt{2x+1}\), ולכן החור \(\left(a,\sqrt{2a+1}\right)\).</li><li>החור נמצא ב-\(x=a\), לכן \(a=4\). שיעור ה-\(y\): \(\sqrt{4+5}=3\).</li><li>לאחר צמצום מתקבל \(\sqrt{x-4}\), שהתחום שלו \(x\ge4\). הערך \(x=1\) מחוץ לתחום גם לאחר הצמצום, ולכן אין חור בגרף.</li><li>תחום \(x\ge-1,\ x\ne4\). הפונקציה המצומצמת \(\sqrt{x+1}\). החור \(\left(4,\sqrt5\right)\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות שיעור 6</div><div class="page-no">21</div></header>
+<h1>פתרונות - מספר חורים ובנייה של פונקציה</h1>
+<div class="page-content"><ol class="solution-list"><li>לאחר צמצום: \((\sqrt{x}+1)(\sqrt{x}+2)\). החורים \((1,6)\) ו-\((4,12)\).</li><li>לאחר צמצום: \((\sqrt{x}+1)(\sqrt{x}+3)\). החורים \((1,8)\) ו-\((9,24)\).</li><li>לאחר צמצום: \(1/((\sqrt{x}+1)(\sqrt{x}+2))\). החורים \(\left(1,\dfrac16\right)\) ו-\(\left(4,\dfrac1{12}\right)\).</li><li>לאחר צמצום: \(\sqrt{x}+1\), אך התחום המקורי אוסר \(x=1\) וגם \(x=4\). החורים \((1,2)\) ו-\((4,3)\).</li><li>לאחר צמצום \(f(x)=\sqrt{x}+k\). החור \(\left(a,\sqrt a+k\right)\).</li><li>דוגמה: \(f(x)=\dfrac{(x-4)(\sqrt{x}+5)}{x-4}\). התחום \(x\ge0,\ x\ne4\), והחור \((4,7)\).</li><li>דוגמה: \(f(x)=\dfrac{(x-1)(x-4)(\sqrt{x}+1)}{(x-1)(x-4)}\). לאחר צמצום \(\sqrt{x}+1\); החורים \((1,2)\), \((4,3)\).</li><li>\(3+k=10\) ⇐ \(k=7\).</li><li>שיעור ה-\(x\) של החור נותן \(a=9\). לאחר צמצום, כאשר \(x\) שואף ל-\(9\), \(f(x)\) שואף ל-\(3+b=8\), ולכן \(b=5\).</li><li>לאחר צמצום \(f(x)=((\sqrt{x}+1)(\sqrt{x}+2))/(x-9)\). החורים: \(\left(1,-\dfrac34\right)\), \(\left(4,-\dfrac{12}{5}\right)\). נשאר מכנה מאפס ב-\(x=9\), ולכן זו אסימפטוטה אנכית.</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">תרגול מסכם</div><div class="page-no">22</div></header>
+<h1>תרגילים מסכמים - חלק א</h1>
+<div class="page-content"><div class="card accent"><b>הנחיה:</b> בכל שאלה כתוב תחום מקורי, בצע פישוט רק לאחר מכן, וסווג כל נקודת אי-הגדרה.</div><ol class="exercise-list summary-ex"><li>חקור את נקודת אי-ההגדרה של \(f(x)=\dfrac{(x-4)^2}{\sqrt{x}-2}\): תחום, סוג הנקודה וקואורדינטות אם קיימות.</li><li>חקור את \(x=4\) עבור \(f(x)=\dfrac{x-4}{(\sqrt{x}-2)^2}\).</li><li>מצא תחום וחור של \(f(x)=\sqrt{\dfrac{x^2-9}{x-3}}\).</li><li>בדוק אם קיים חור ב-\(f(x)=\sqrt{\dfrac{(x-1)(x-4)}{x-1}}\).</li><li>מצא את החור של \(f(x)=\dfrac{\sqrt{x+5}-3}{x-4}\).</li><li>בפונקציה \(f(x)=\dfrac{\sqrt{x}-\sqrt a}{x-a}\), שיעור ה-\(y\) של החור הוא \(\dfrac1{10}\). מצא את \(a\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">תרגול מסכם</div><div class="page-no">23</div></header>
+<h1>תרגילים מסכמים - חלק ב</h1>
+<div class="page-content"><ol class="exercise-list summary-ex" start="7"><li>בפונקציה \(f(x)=\sqrt{\dfrac{(x-a)(x+7)}{x-a}}\), שיעור ה-\(y\) של החור הוא \(4\). מצא את \(a\).</li><li>מצא את שני החורים של \(f(x)=\dfrac{(x-1)(x-9)}{(\sqrt{x}-1)(\sqrt{x}-3)}\).</li><li>מצא את כל נקודות אי-ההגדרה וסווג אותן: \(f(x)=\dfrac{(x-1)(x-4)}{(\sqrt{x}-1)(\sqrt{x}-2)(x-9)}\).</li><li>בנה פונקציה הכוללת שורש שיש לה חור ב-\((16,9)\).</li><li>הסבר את ההבדל בין \(f(x)=\dfrac{x-4}{\sqrt{x}-2}\) לבין \(g(x)=\sqrt{x}+2\), מבחינת תחום וגרף.</li><li>נתונה \(f(x)=\sqrt{\dfrac{(x-a)(2x+b)}{x-a}}\). ידוע שיש חור ב-\((3,4)\). מצא את \(a\) ואת \(b\).</li></ol><div class="card warning"><b>בדיקת איכות:</b> אם צמצמת גורם, בדוק תמיד האם הערך שנאסר בפונקציה המקורית נמצא בכלל בתחום המתקבל לאחר הפישוט.</div></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות מסכמים</div><div class="page-no">24</div></header>
+<h1>פתרונות לתרגילים מסכמים - חלק א</h1>
+<div class="page-content"><ol class="solution-list summary-sol"><li>\((x-4)^2/(\sqrt{x}-2)=(x-4)(\sqrt{x}+2)\) עבור \(x\ne4\). כאשר \(x\) שואף ל-\(4\), \(f(x)\) שואף ל-\(0\), ולכן חור \((4,0)\).</li><li>\((x-4)/(\sqrt{x}-2)^2=(\sqrt{x}+2)/(\sqrt{x}-2)\). נשאר מכנה מאפס, ולכן \(x=4\) אסימפטוטה אנכית.</li><li>תחום \(x\ge-3,\ x\ne3\). לאחר צמצום: \(\sqrt{x+3}\). החור \(\left(3,\sqrt6\right)\).</li><li>לאחר צמצום מתקבל \(\sqrt{x-4}\), ולכן התחום \(x\ge4\). הערך \(x=1\) אינו בתחום גם לאחר הפישוט, ולכן אין חור.</li><li>עבור \(x\ne4\): \(f(x)=1/(\sqrt{x+5}+3)\). החור \(\left(4,\dfrac16\right)\).</li><li>\(1/(2\sqrt a)=1/10\) ⇐ \(2\sqrt a=10\) ⇐ \(a=25\).</li></ol></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section><section class="a4-page ">
+<header class="page-header"><div class="unit-tag">פתרונות מסכמים</div><div class="page-no">25</div></header>
+<h1>פתרונות לתרגילים מסכמים - חלק ב</h1>
+<div class="page-content"><ol class="solution-list summary-sol" start="7"><li>לאחר צמצום: \(f(x)=\sqrt{x+7}\). לכן \(\sqrt{a+7}=4\) ⇐ \(a=9\).</li><li>לאחר צמצום: \((\sqrt{x}+1)(\sqrt{x}+3)\). החורים \((1,8)\), \((9,24)\).</li><li>לאחר צמצום: \(f(x)=((\sqrt{x}+1)(\sqrt{x}+2))/(x-9)\). חורים: \(\left(1,-\dfrac34\right)\), \(\left(4,-\dfrac{12}{5}\right)\). אסימפטוטה אנכית: \(x=9\).</li><li>דוגמה: \(f(x)=\dfrac{(x-16)(\sqrt{x}+5)}{x-16}\). לאחר צמצום, כאשר \(x\) שואף ל-\(16\), \(f(x)\) שואף ל-\(4+5=9\).</li><li>ל-\(f\) התחום \(x\ge0,\ x\ne4\); ל-\(g\) התחום \(x\ge0\). הגרפים חופפים בכל נקודה מותרת של \(f\), אך ב-\((4,4)\) ל-\(f\) יש חור ול-\(g\) הנקודה קיימת.</li><li>החור נמצא ב-\(x=a\), לכן \(a=3\). לאחר הצמצום, כאשר \(x\) שואף ל-\(3\), \(f(x)\) שואף ל-\(\sqrt{2\cdot3+b}=4\), ולכן \(6+b=16\) ⇐ \(b=10\).</li></ol><div class="card accent"><b>סיכום:</b> חור נקבע על ידי התחום המקורי ועל ידי הערך שאליו \(f(x)\) שואף כאשר \(x\) שואף לנקודה החשודה. צמצום הוא כלי לחישוב ההתנהגות, לא כלי לשינוי התחום המקורי.</div></div>
+<footer>חורים ואי-רציפות סליקה בפונקציות שורש - 5 יחידות</footer>
+</section>
+<script>
+const boards={}, defaults={};
+function safeFn(fn){return function(x){try{const y=fn(x);return Number.isFinite(y)?y:NaN}catch(e){return NaN}}}
+function initBoard(id,bbox){
+ if(!document.getElementById(id)) throw new Error('Missing JSXGraph container: '+id);
+ const b=JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,keepaspectratio:false,pan:{enabled:true},zoom:{enabled:true,wheel:true,needshift:false}});
+ boards[id]=b;defaults[id]=bbox.slice();return b;
+}
+function resetBoard(id){if(boards[id])boards[id].setBoundingBox(defaults[id],true)}
+function zoomIn(id){if(boards[id])boards[id].zoomIn()}
+function zoomOut(id){if(boards[id])boards[id].zoomOut()}
+function centerBoard(id){
+ const b=boards[id]; if(!b)return; const bb=b.getBoundingBox(); const d=defaults[id];
+ const w=bb[2]-bb[0], h=bb[1]-bb[3], cx=(d[0]+d[2])/2, cy=(d[1]+d[3])/2;
+ b.setBoundingBox([cx-w/2,cy+h/2,cx+w/2,cy-h/2],true);
+}
+window.addEventListener('load',function(){
+ if(typeof JXG==='undefined'){console.error('JSXGraph not loaded');return}
+ JXG.Options.text.useMathJax=true;
+ let b=initBoard('g1',[-1,6,9,-1]);
+ b.create('functiongraph',[safeFn(x=>x>=0?Math.sqrt(x)+1:NaN),0,9],{strokeWidth:3,strokeColor:'#1f77b4'});
+ b.create('point',[1,2],{name:'\(1,2\)',size:3,face:'o',fillColor:'white',fillOpacity:1,fixed:true,strokeColor:'#1f77b4'});
+ b=initBoard('g3',[-1,1.1,10,-0.1]);
+ b.create('functiongraph',[safeFn(x=>x>=0?1/(Math.sqrt(x)+2):NaN),0,10],{strokeWidth:3,strokeColor:'#1f77b4'});
+ b.create('point',[4,0.25],{name:'\(4,1/4\)',size:2,face:'o',fillColor:'white',fillOpacity:1,fixed:true,strokeColor:'#1f77b4'});
+ b=initBoard('g4',[-1,6,10,-1]);
+ b.create('functiongraph',[safeFn(x=>x>=0?Math.sqrt(x)+2:NaN),0,10],{strokeWidth:3,strokeColor:'#1f77b4'});
+ b.create('point',[4,4],{name:'\(4,4\)',size:2,face:'o',fillColor:'white',fillOpacity:1,fixed:true,strokeColor:'#1f77b4'});
+ b.create('functiongraph',[safeFn(x=>x>0?1/Math.sqrt(x):NaN),0.03,10],{strokeWidth:2,strokeColor:'#d62728'});
+ b=initBoard('g6',[-1,16,9,-1]);
+ b.create('functiongraph',[safeFn(x=>x>=0?(Math.sqrt(x)+1)*(Math.sqrt(x)+2):NaN),0,9],{strokeWidth:3,strokeColor:'#1f77b4'});
+ b.create('point',[1,6],{name:'\(1,6\)',size:2,face:'o',fillColor:'white',fillOpacity:1,fixed:true,strokeColor:'#1f77b4'});
+ b.create('point',[4,12],{name:'\(4,12\)',size:2,face:'o',fillColor:'white',fillOpacity:1,fixed:true,strokeColor:'#1f77b4'});
+});
+</script>
+</body>
+</html>
