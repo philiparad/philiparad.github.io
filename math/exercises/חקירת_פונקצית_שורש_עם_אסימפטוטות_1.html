@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>חקירת הפונקציה sqrt(x^2+1)/x - מערך שיעור 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    packages: {'[+]': ['ams']}
+  },
+  options: {skipHtmlTags: ['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#eef2f7;font-family:"Arial","Noto Sans Hebrew",sans-serif;color:#14213d}
+body{direction:rtl;line-height:1.45}
+.page{width:210mm;height:297mm;min-height:297mm;max-height:297mm;margin:10mm auto;background:#fff;padding:10mm 12mm 12mm;position:relative;overflow:hidden;break-after:page;page-break-after:always;box-shadow:0 3px 18px rgba(0,0,0,.12)}
+.page:last-child{break-after:auto;page-break-after:auto}
+.page-head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #d9e2ec;padding-bottom:3mm;margin-bottom:4mm;font-size:10pt;color:#486581}
+.tag{font-weight:700}.page-no{direction:rtl}
+h1{font-size:20pt;margin:0 0 5mm;color:#102a43;line-height:1.15}
+h2{font-size:14.5pt;margin:0 0 2.5mm;color:#243b53}
+p{font-size:11.3pt;margin:1.8mm 0}
+main{height:245mm;overflow:hidden}
+footer{position:absolute;bottom:5mm;right:12mm;left:12mm;border-top:1px solid #d9e2ec;padding-top:2mm;font-size:8.5pt;color:#829ab1;text-align:center}
+.card{border:2px solid #d9e2ec;border-radius:10px;padding:4mm;margin-bottom:3.5mm;background:#fbfdff}
+.warn{background:#fffaf0;border:2px solid #f0c36d}
+.tip{border:2px solid #9fb3c8;border-radius:8px;padding:3mm 4mm;background:#f0f4f8;font-size:10.7pt;margin-top:3mm}
+.answer{font-weight:700;background:#e8f5e9;border:2px solid #a5d6a7;border-radius:8px;padding:2.5mm 3mm}
+.hero{border:2px solid #9fb3c8;border-radius:12px;padding:6mm;background:linear-gradient(135deg,#f8fbff,#eef6ff);margin-bottom:5mm}.hero.small{padding:4mm}
+.hero-formula{font-size:22pt;text-align:center;direction:ltr}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.grid2.compact{gap:3mm}
+.mathbox{direction:ltr;text-align:center;background:#f7f9fc;border:2px solid #d9e2ec;border-radius:8px;padding:1.5mm 2mm;margin:2mm 0}.mathbox.big{font-size:10.5pt}
+table{width:100%;border-collapse:collapse;margin-top:2mm;font-size:10.8pt}th,td{border:2px solid #bcccdc;padding:2mm;text-align:center}th{background:#eef2f7}
+.check{columns:1;margin:0;padding-right:5mm}.check li{margin:1.5mm 0;font-size:11pt}
+.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;margin-top:5mm}.roadmap span{border:2px solid #bcccdc;border-radius:8px;padding:4mm 2mm;text-align:center;font-weight:700;background:#fff}
+.instructions{border:2px solid #bcccdc;border-radius:8px;padding:3mm;background:#f8fafc;font-weight:700;margin-bottom:4mm}
+.exercise-list{list-style:none;padding:0;margin:0;counter-reset:none;display:grid;grid-template-columns:1fr 1fr;gap:2.5mm 6mm}
+.exercise-list li{min-height:16.5mm;border:2px solid #d9e2ec;border-radius:8px;padding:2.5mm 3mm;font-size:11pt;background:#fff;display:flex;gap:2mm;align-items:flex-start}.qnum{font-weight:700;color:#334e68;min-width:6mm}
+.exercise-page main{height:247mm}
+.summary-page .exercise-list{grid-template-columns:1fr;gap:1.5mm}
+.summary-page .exercise-list li{font-size:9.8pt;min-height:auto;padding:1.8mm 2.5mm}
+.summary-page mjx-container{font-size:94% !important}
+.solution{border:2px solid #d9e2ec;border-radius:9px;padding:3mm 3.5mm;margin-bottom:3mm;background:#fcfdff;font-size:10.4pt}.solution p{font-size:10.4pt}.sol-title{font-size:12.2pt;font-weight:700;color:#243b53;margin-bottom:1.2mm}
+.solutions-page h1{font-size:20pt}.solutions-page main{height:249mm}
+.summary-strip{display:flex;flex-wrap:wrap;gap:2mm;margin-bottom:3mm}.summary-strip span{border:2px solid #bcccdc;background:#f8fafc;border-radius:999px;padding:1.5mm 3mm;font-size:9.5pt;font-weight:700}
+.graph-panel{border:2px solid #bcccdc;border-radius:10px;padding:3mm;background:#fff;margin-bottom:3mm;direction:ltr}
+.jxgbox{width:100%;height:118mm;border:2px solid #d9e2ec;border-radius:6px;direction:ltr}
+.graph-controls{display:flex;justify-content:center;gap:2mm;flex-wrap:wrap;margin-top:2mm}.graph-controls button{border:2px solid #9fb3c8;border-radius:7px;background:#f8fafc;padding:1.5mm 4mm;font-size:9.5pt;cursor:pointer}.graph-controls button:hover{background:#eaf0f6}
+@media print{html,body{background:#fff}.page{margin:0;box-shadow:none}.graph-controls button{background:#fff}}
+@media screen and (max-width:900px){.page{transform-origin:top center;margin:8px auto}}
+</style>
+</head>
+<body>
+<section class="page " data-page="1">
+      <header class="page-head"><div class="tag">מתמטיקה - 5 יחידות</div><div class="page-no">עמוד 1</div></header>
+      <h1>חקירת הפונקציה - מפת הדרך</h1>
+      <main>
+<div class="hero">
+  <div class="hero-formula">\[f(x)=\frac{\sqrt{x^2+1}}{x}\]</div>
+</div>
+<div class="grid2">
+  <div class="card"><h2>מה נחקור?</h2><ul class="check"><li>תחום הגדרה</li><li>חיתוך עם הצירים</li><li>אסימפטוטות מאונכות לצירים</li><li>נגזרת וסימנה</li><li>נקודות קיצון</li><li>תחומי עליה וירידה</li><li>סימטריה ובדיקות עקביות</li><li>סקיצה סופית</li></ul></div>
+  <div class="card warn"><h2>טעות נפוצה שכדאי למנוע</h2><p>באינסוף אין להחליף אוטומטית \(\sqrt{x^2}\) ב-\(x\).</p><div class="mathbox">\[\sqrt{x^2}=|x|\]</div><p>לכן ההתנהגות כאשר \(x\to+\infty\) שונה מן ההתנהגות כאשר \(x\to-\infty\).</p></div>
+</div>
+<div class="roadmap"><span>1. תחום וסימטריה</span><span>2. חיתוכים ואסימפטוטות</span><span>3. נגזרת וקיצון</span><span>4. סקיצה ובקרה</span></div>
+</main>
+      <footer>חקירת פונקציה עם שורש ומנה</footer>
+    </section>
+<section class="page " data-page="2">
+      <header class="page-head"><div class="tag">מתמטיקה - 5 יחידות</div><div class="page-no">עמוד 2</div></header>
+      <h1>תחום הגדרה וסימטריה</h1>
+      <main>
+<div class="card"><h2>א. תחום ההגדרה</h2><p>במונה מופיע שורש:</p><div class="mathbox">\[x^2+1\gt0\quad\text{לכל }x\]</div><p>לכן השורש עצמו אינו מגביל את התחום. המכנה מחייב:</p><div class="mathbox">\[x\ne0\]</div><p class="answer">תחום ההגדרה: \(x\lt0\) או \(x\gt0\).</p></div>
+<div class="card"><h2>ב. סימן הפונקציה</h2><p>המונה \(\sqrt{x^2+1}\) חיובי תמיד. לכן סימן הפונקציה נקבע רק לפי סימן המכנה:</p><table><tr><th>תנאי</th><th>סימן \(f(x)\)</th></tr><tr><td>\(x\gt0\)</td><td>חיובי</td></tr><tr><td>\(x\lt0\)</td><td>שלילי</td></tr></table></div>
+<div class="card"><h2>ג. סימטריה</h2><div class="mathbox">\[f(-x)=\frac{\sqrt{(-x)^2+1}}{-x}=-\frac{\sqrt{x^2+1}}x=-f(x)\]</div><p class="answer">הפונקציה אי-זוגית. הגרף סימטרי בסיבוב של \(180^\circ\) סביב ראשית הצירים.</p></div>
+<div class="tip">בדיקת הסימטריה אינה מחליפה חקירה, אבל היא כלי בקרה מצוין לסקיצה הסופית.</div>
+</main>
+      <footer>חקירת פונקציה עם שורש ומנה</footer>
+    </section>
+
+<section class="page " data-page="4">
+      <header class="page-head"><div class="tag">מתמטיקה - 5 יחידות</div><div class="page-no">עמוד 4</div></header>
+      <h1>חיתוך עם הצירים ואסימפטוטה אנכית</h1>
+      <main>
+<div class="grid2">
+<div class="card"><h2>א. חיתוך עם ציר \(x\)</h2><p>כדי לחתוך את ציר \(x\) צריך \(f(x)=0\), ולכן המונה צריך להיות אפס:</p><div class="mathbox">\[\sqrt{x^2+1}=0\Rightarrow x^2+1=0\]</div><p class="answer">אין פתרון ממשי, ולכן אין חיתוך עם ציר \(x\).</p></div>
+<div class="card"><h2>ב. חיתוך עם ציר \(y\)</h2><p>חיתוך עם ציר \(y\) דורש \(x=0\), אך \(x=0\) אינו בתחום ההגדרה.</p><p class="answer">אין חיתוך עם ציר \(y\).</p></div>
+</div>
+<div class="card"><h2>ג. אסימפטוטה אנכית</h2><p>כאשר מציבים \(x=0\) בפונקציה, מקבלים:</p><div class="mathbox">\[f(0)=\frac{\sqrt{0^2+1}}{0}=\frac{1}{0}\]</div><p>הביטוי \(\frac{1}{0}\) אינו מוגדר, ולכן נבדוק את ההתנהגות משני צדי \(x=0\):</p><div class="mathbox">\[x\to0^+\Rightarrow f(x)\to+\infty\qquad x\to0^-\Rightarrow f(x)\to-\infty\]</div><p class="answer">לכן \(x=0\) אסימפטוטה אנכית.</p></div>
+
+</main>
+      <footer>חקירת פונקציה עם שורש ומנה</footer>
+    </section>
+<section class="page " data-page="5">
+      <header class="page-head"><div class="tag">מתמטיקה - 5 יחידות</div><div class="page-no">עמוד 5</div></header>
+      <h1>אסימפטוטות אופקיות - גורם דומיננטי וגורמים זניחים</h1>
+      <main>
+<div class="card"><h2>ד. אסימפטוטות אופקיות - גורם דומיננטי וגורמים זניחים</h2><p><b>הרעיון:</b> כאשר \(|x|\) גדול מאוד, האיברים בעלי הגודל הגדול ביותר קובעים את התנהגות הפונקציה. איברים שקטנים מהם בהרבה נקראים כאן <b>זניחים ביחס לאיבר הדומיננטי</b>.</p><table><tr><th>חלק בביטוי</th><th>האיבר הדומיננטי</th><th>האיבר הזניח</th></tr><tr><td>בתוך השורש \(x^2+1\)</td><td>\(x^2\)</td><td>\(1\)</td></tr><tr><td>המכנה \(x\)</td><td>\(x\)</td><td>אין איבר נוסף</td></tr></table><p>חשוב: האיבר \(1\) אינו "נעלם" ואינו שווה לאפס. הוא רק זניח <b>ביחס ל-\(x^2\)</b>.</p><div class="mathbox">\[f(x)=\frac{\sqrt{x^2+1}}{x}\approx\frac{\sqrt{x^2}}{x}=\frac{|x|}{x}\]</div><div class="grid2 compact"><div><b>כאשר \(x\to+\infty\):</b> \[\frac{|x|}{x}=1\Rightarrow f(x)\to1\]</div><div><b>כאשר \(x\to-\infty\):</b> \[\frac{|x|}{x}=-1\Rightarrow f(x)\to-1\]</div></div><p class="answer">לכן האסימפטוטות האופקיות הן \(y=1\) מימין ו-\(y=-1\) משמאל.</p></div>
+</main>
+      <footer>חקירת פונקציה עם שורש ומנה</footer>
+    </section>
+<section class="page " data-page="6">
+      <header class="page-head"><div class="tag">מתמטיקה - 5 יחידות</div><div class="page-no">עמוד 6</div></header>
+      <h1>נגזרת, תחומי עליה וירידה ונקודות קיצון</h1>
+      <main>
+<div class="card"><h2>א. גזירה בעזרת כלל המנה</h2><p>נסמן במונה \(u(x)=\sqrt{x^2+1}\) ובמכנה \(v(x)=x\).</p><div class="mathbox">\[u'(x)=\frac{x}{\sqrt{x^2+1}},\qquad v'(x)=1\]</div><div class="mathbox big">\[
+f'(x)=\frac{x\cdot\frac{x}{\sqrt{x^2+1}}-\sqrt{x^2+1}}{x^2}
+=\frac{x^2-(x^2+1)}{x^2\sqrt{x^2+1}}
+=-\frac1{x^2\sqrt{x^2+1}}
+\]</div></div>
+<div class="card"><h2>ב. סימן הנגזרת</h2><p>בכל תחום ההגדרה מתקיים \(x^2\gt0\) וגם \(\sqrt{x^2+1}\gt0\), ולכן:</p><div class="mathbox">\[f'(x)\lt0\qquad (x\ne0)\]</div><table><tr><th>תחום</th><th>סימן \(f'(x)\)</th><th>התנהגות</th></tr><tr><td>\(x\lt0\)</td><td>שלילי</td><td>יורדת</td></tr><tr><td>\(x\gt0\)</td><td>שלילי</td><td>יורדת</td></tr></table></div>
+<div class="card"><h2>ג. נקודות קיצון</h2><p>כדי לקבל מועמד לנקודה עם שיפוע אפס נפתור \(f'(x)=0\). כאן המונה של הנגזרת הוא \(-1\), ולכן אינו מתאפס.</p><p>הנקודה \(x=0\) אינה בתחום ההגדרה, ולכן גם היא אינה יכולה להיות נקודת קיצון.</p><p class="answer">אין נקודות קיצון.</p></div>
+</main>
+      <footer>חקירת פונקציה עם שורש ומנה</footer>
+    </section>
+
+<section class="page " data-page="8">
+      <header class="page-head"><div class="tag">מתמטיקה - 5 יחידות</div><div class="page-no">עמוד 8</div></header>
+      <h1>שילוב הנתונים וסקיצה סופית</h1>
+      <main>
+<div class="summary-strip"><span>תחום: \(x\lt0\) או \(x\gt0\)</span><span>אין חיתוך עם הצירים</span><span>\(x=0\)</span><span>\(y=1\), \(y=-1\)</span><span>\(f'(x)\lt0\)</span><span>אין קיצון</span></div>
+<div class="graph-panel" style="direction:ltr;">
+  <div id="mainGraph" class="jxgbox" aria-label="גרף הפונקציה"></div>
+  <div class="graph-controls" style="direction:rtl;">
+    <button type="button" onclick="resetMainGraph()">איפוס</button>
+    <button type="button" onclick="zoomMainGraph(0.8)">התקרבות</button>
+    <button type="button" onclick="zoomMainGraph(1.25)">התרחקות</button>
+    <button type="button" onclick="centerMainGraph()">מרכוז</button>
+  </div>
+</div>
+</main>
+      <footer>חקירת פונקציה עם שורש ומנה</footer>
+    </section>
+
+<script>
+let mainBoard = null;
+const MAIN_BBOX = [-6, 6, 6, -6];
+
+function initMainGraph(){
+  if (typeof JXG === 'undefined' || !document.getElementById('mainGraph')) return;
+  mainBoard = JXG.JSXGraph.initBoard('mainGraph', {
+    boundingbox: MAIN_BBOX,
+    axis: true,
+    showCopyright: false,
+    showNavigation: false,
+    keepaspectratio: true,
+    pan: {enabled: true},
+    zoom: {enabled: true, wheel: true, pinchHorizontal: true, pinchVertical: true}
+  });
+  const fixedLine = {fixed:true, highlight:false, strokeWidth:2, dash:2};
+  mainBoard.create('line', [[0,0],[0,1]], {...fixedLine, strokeOpacity:0.65});
+  mainBoard.create('line', [[0,1],[1,1]], {...fixedLine, strokeOpacity:0.65});
+  mainBoard.create('line', [[0,-1],[1,-1]], {...fixedLine, strokeOpacity:0.65});
+  const f = x => Math.sqrt(x*x+1)/x;
+  mainBoard.create('functiongraph', [f, 0.06, 8], {strokeWidth:3, highlight:false});
+  mainBoard.create('functiongraph', [f, -8, -0.06], {strokeWidth:3, highlight:false});
+}
+
+function setMainBox(box){
+  if (!mainBoard) return;
+  mainBoard.setBoundingBox(box, true);
+  mainBoard.fullUpdate();
+}
+function resetMainGraph(){ setMainBox(MAIN_BBOX.slice()); }
+function zoomMainGraph(factor){
+  if (!mainBoard) return;
+  const b = mainBoard.getBoundingBox();
+  const cx=(b[0]+b[2])/2, cy=(b[1]+b[3])/2;
+  const hw=(b[2]-b[0])*factor/2, hh=(b[1]-b[3])*factor/2;
+  setMainBox([cx-hw, cy+hh, cx+hw, cy-hh]);
+}
+function centerMainGraph(){
+  if (!mainBoard) return;
+  const b=mainBoard.getBoundingBox();
+  const hw=(b[2]-b[0])/2, hh=(b[1]-b[3])/2;
+  setMainBox([-hw, hh, hw, -hh]);
+}
+window.addEventListener('load', initMainGraph);
+</script>
+</body>
+</html>
