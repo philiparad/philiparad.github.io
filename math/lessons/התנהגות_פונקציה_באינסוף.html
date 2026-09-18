@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>התנהגות פונקציה באינסוף - גורם דומיננטי וגורמים זניחים</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    processEscapes: true
+  },
+  chtml: { scale: 0.95 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root{
+    --ink:#16324f;
+    --blue:#eaf3ff;
+    --blue2:#dbeafe;
+    --green:#eaf8f1;
+    --orange:#fff5e6;
+    --red:#fff0f0;
+    --line:#bfd2e8;
+    --muted:#5a6b7a;
+    --paper:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e9eef4;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.45}
+  body{direction:rtl}
+  @page{size:A4;margin:0}
+  .page{
+    width:210mm;
+    height:297mm;
+    margin:0 auto 10mm;
+    background:var(--paper);
+    padding:14mm 14mm 12mm;
+    position:relative;
+    overflow:hidden;
+    page-break-after:always;
+    break-after:page;
+  }
+  .page:last-of-type{page-break-after:auto;break-after:auto}
+  h1,h2,h3{margin:0 0 7mm;color:#0d3b66}
+  h1{font-size:27px;border-bottom:2px solid #dce8f5;padding-bottom:4mm}
+  h2{font-size:22px}
+  h3{font-size:18px}
+  p{font-size:16px;margin:0 0 4mm}
+  .lead{font-size:18px;line-height:1.6}
+  .rule{border:2px solid #7db3e8;background:var(--blue);border-radius:14px;padding:5mm 6mm;margin:5mm 0}
+  .warning{border:2px solid #e5a94f;background:var(--orange);border-radius:14px;padding:5mm 6mm;margin:5mm 0}
+  .good{border:2px solid #4aa57b;background:var(--green);border-radius:14px;padding:5mm 6mm;margin:5mm 0}
+  .bad{border:2px solid #d97979;background:var(--red);border-radius:14px;padding:5mm 6mm;margin:5mm 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+  .card{border:2px solid #d4dfec;border-radius:12px;padding:4.5mm;background:#fbfdff}
+  .card h3{margin-bottom:3mm}
+  .mathbox{direction:ltr;text-align:center;border:2px solid #d4dfec;background:#fbfdff;border-radius:10px;padding:4mm;margin:3mm 0;font-size:19px}
+  .em{font-weight:700;color:#0a4b82}
+  .small{font-size:14px;color:var(--muted)}
+  ul,ol{font-size:16px;margin:2mm 0 0;padding-right:7mm}
+  li{margin:2mm 0}
+  table{width:100%;border-collapse:collapse;font-size:15px;margin-top:4mm}
+  th,td{border:1.5px solid #c7d6e6;padding:2.4mm;text-align:center}
+  th{background:#eef5fd}
+  .nowrap{white-space:nowrap}
+  .teacher{border:2px dashed #8aa8c4;border-radius:12px;padding:4mm 5mm;background:#f8fbff}
+  .quote{font-size:18px;font-weight:700;color:#114b7a;text-align:center;padding:4mm}
+  .graph-panel{border:2px solid #c8d8ea;border-radius:14px;padding:4mm;background:#fbfdff;margin:4mm 0}
+  .jxgbox{width:100%;height:106mm;direction:ltr;border:1px solid #b8c7d8;border-radius:8px;background:white}
+  .jxgbox.compact{height:91mm}
+  .controls{display:flex;flex-wrap:wrap;gap:2mm;justify-content:center;margin-top:3mm;direction:rtl}
+  .controls button{border:1.5px solid #7aa7d4;background:#eef6ff;color:#173b5f;border-radius:8px;padding:2mm 4mm;font-size:14px;cursor:pointer}
+  .controls button:hover{background:#dfeeff}
+  .num{direction:ltr;unicode-bidi:embed}
+  .step{display:flex;gap:4mm;align-items:flex-start;margin:4mm 0}
+  .step-badge{min-width:10mm;height:10mm;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#dbeafe;border:2px solid #7eafe0;font-weight:700;direction:ltr}
+  .step-body{flex:1}
+  .footer{position:absolute;right:14mm;left:14mm;bottom:7mm;display:flex;justify-content:space-between;font-size:12px;color:#6f8090}
+  .test-status{font-weight:700}
+  .tight p{margin-bottom:2.5mm}
+  .tight-page .step{margin:2.4mm 0}
+  .tight-page .mathbox{padding:2.8mm;margin:2mm 0}
+  .tight-page p{margin-bottom:2.5mm}
+  .tight-page h1{margin-bottom:5mm}
+  .compact-page table{font-size:14px;margin-top:3mm}
+  .compact-page th,.compact-page td{padding:1.6mm}
+  .compact-page .mathbox{padding:3mm;margin:2mm 0}
+  .compact-page p{margin-bottom:2.5mm}
+  .exercise{border-bottom:1px solid #dde6ef;padding:2.2mm 0;font-size:15px}
+  .answer{color:#245c88;font-weight:700}
+  mjx-container{direction:ltr !important}
+  @media print{
+    html,body{background:white}
+    .page{margin:0;width:210mm;height:297mm;box-shadow:none}
+    .controls{display:none}
+  }
+</style>
+</head>
+<body>
+
+<section class="page" id="page-1">
+  <h1>התנהגות פונקציה באינסוף - מה באמת "נעלם"?</h1>
+  <p class="lead">הקושי העיקרי נובע ממשפטים כמו "אפשר לבטל את האיברים הקטנים". זה ניסוח מטעה. <span class="em">לא מבטלים שום איבר בפונקציה.</span> בודקים אילו איברים משפיעים יותר ויותר על ערך הפונקציה כאשר \(\lvert x\rvert\) גדל מאוד.</p>
+
+  <div class="warning">
+    <p class="quote">לא מוחקים איברים. משווים את הגודל שלהם.</p>
+    <p>אם איבר מסוים קטן מאוד <strong>ביחס</strong> לאיבר אחר, אז לצורך הבנת ההתנהגות באינסוף אפשר להתייחס להשפעתו כזניחה.</p>
+  </div>
+
+  <div class="card">
+    <h3>דוגמה פשוטה: \(x^2+1\)</h3>
+    <p>כאשר \(x=10\), נקבל \(101\); כאשר \(x=100\), נקבל \(10001\). האיבר \(1\) עדיין קיים, אבל השפעתו היחסית קטנה.</p>
+    <div class="mathbox">\[x\Rightarrow\pm\infty\quad\Rightarrow\quad\frac{1}{x^2}\Rightarrow0\]</div>
+    <p><strong>אסור לומר:</strong> \(1=0\) או שהאיבר "נמחק". <strong>נכון לומר:</strong> \(1\) נעשה זניח ביחס ל-\(x^2\).</p>
+  </div>
+
+  <div class="good">
+    <p>"אנחנו לא מחפשים ערך בנקודה אחת, אלא את הכיוון הכללי כאשר \(x\) נעשה גדול מאוד. לכן משווים את סדרי הגודל של האיברים."</p>
+    <p class="small"><strong>דימוי:</strong> תיק של \(1\) ק"ג בתוך משאית של \(10000\) ק"ג לא נעלם, אבל השפעתו היחסית זניחה.</p>
+  </div>
+  <div class="footer"><span>עמוד 1</span><span>רעיון יסוד: זניח אינו שווה לאפס</span></div>
+</section>
+
+<section class="page compact-page" id="page-2">
+  <h1>מה פירוש "קירוב"?</h1>
+  <p class="lead">קירוב בהקשר הזה אינו אומר ששני ביטויים שווים. הוא אומר שההבדל ביניהם קטן <strong>ביחס לגודל העיקרי</strong>.</p>
+
+  <div class="rule">
+    <h3>הדרך המדויקת למדוד קירוב</h3>
+    <p>במקום להסתכל רק על ההפרש, מסתכלים על היחס:</p>
+    <div class="mathbox">\[\frac{x^2+1}{x^2}=1+\frac{1}{x^2}\]</div>
+    <p>כאשר \(x\Rightarrow\pm\infty\), מתקיים \(\frac{1}{x^2}\Rightarrow 0\), ולכן היחס מתקרב ל-\(1\).</p>
+  </div>
+
+  <table aria-label="טבלת קירוב של x בריבוע ועוד 1 ל-x בריבוע">
+    <thead><tr><th>\(x\)</th><th>\(x^2\)</th><th>\(x^2+1\)</th><th>\(\frac{x^2+1}{x^2}\)</th><th>השפעת \(1\) באחוזים</th></tr></thead>
+    <tbody>
+      <tr><td class="num">10</td><td class="num">100</td><td class="num">101</td><td class="num">1.01</td><td class="num">1%</td></tr>
+      <tr><td class="num">100</td><td class="num">10000</td><td class="num">10001</td><td class="num">1.0001</td><td class="num">0.01%</td></tr>
+      <tr><td class="num">1000</td><td class="num">1000000</td><td class="num">1000001</td><td class="num">1.000001</td><td class="num">0.0001%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid2" style="margin-top:5mm">
+    <div class="good">
+      <h3>לכן מותר לכתוב בקירוב</h3>
+      <div class="mathbox">\[x^2+1\approx x^2\]</div>
+      <p class="small">רק כשמדברים על התנהגות עבור \(\lvert x\rvert\) גדול מאוד.</p>
+    </div>
+    <div class="bad">
+      <h3>אבל אסור לכתוב כשוויון</h3>
+      <div class="mathbox">\[x^2+1=x^2\]</div>
+      <p class="small">זה שקר לכל \(x\).</p>
+    </div>
+  </div>
+
+  <p class="quote" style="margin-top:4mm">קירוב באינסוף הוא טענה על יחס גדלים, לא על מחיקה של איברים.</p>
+  <div class="footer"><span>עמוד 2</span><span>קירוב = יחס שמתקרב ל-1</span></div>
+</section>
+
+<section class="page" id="page-3">
+  <h1>לראות את הקירוב על גרף</h1>
+  <p>נבדוק את היחס \(\frac{x^2+1}{x^2}=1+\frac{1}{x^2}\). אם היחס מתקרב ל-\(1\), פירוש הדבר ש-\(x^2+1\) ו-\(x^2\) כמעט זהים מבחינה יחסית.</p>
+  <div class="graph-panel" data-graph-panel="ratio">
+    <div id="graph-ratio" class="jxgbox compact" aria-label="גרף היחס בין x בריבוע ועוד 1 לבין x בריבוע"></div>
+    <div class="controls" aria-label="פקדי גרף היחס">
+      <button type="button" data-action="reset" data-board="ratio">איפוס</button>
+      <button type="button" data-action="zoom-in" data-board="ratio">הגדלה</button>
+      <button type="button" data-action="zoom-out" data-board="ratio">הקטנה</button>
+      <button type="button" data-action="fit" data-board="ratio">התאם לגודל</button>
+      <button type="button" data-action="center" data-board="ratio">מרכז</button>
+    </div>
+  </div>
+
+  <div class="rule tight">
+    <h3>מה רואים?</h3>
+    <p>הקו האופקי הוא \(y=1\).</p>
+    <p>הגרף של \(1+\frac{1}{x^2}\) מתקרב יותר ויותר ל-\(1\) ככל ש-\(\lvert x\rvert\) גדל.</p>
+    <p>לכן מבחינה יחסית, התוספת \(1\) נעשית זניחה ביחס ל-\(x^2\).</p>
+  </div>
+  <div class="footer"><span>עמוד 3</span><span>המחשה גרפית של יחס הגדלים</span></div>
+</section>
+
+<section class="page tight-page" id="page-4">
+  <h1>הדרך הנכונה בפונקציה רציונלית: לא לבטל - לחלק</h1>
+  <p class="lead">ניקח את הדוגמה:</p>
+  <div class="mathbox">\[f(x)=\frac{5x^2+1}{x^2-9}\]</div>
+
+  <div class="step">
+    <div class="step-badge">1</div>
+    <div class="step-body">
+      <h3>מזהים את החזקה הגבוהה ביותר</h3>
+      <p>גם במונה וגם במכנה החזקה הגבוהה היא \(x^2\). לכן היא קובעת את סדר הגודל.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-badge">2</div>
+    <div class="step-body">
+      <h3>מחלקים את כל האיברים ב-\(x^2\)</h3>
+      <div class="mathbox">\[\frac{5x^2+1}{x^2-9}=\frac{5+\frac{1}{x^2}}{1-\frac{9}{x^2}}\]</div>
+      <p>זו פעולה אלגברית מדויקת. לא מחקנו שום דבר.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-badge">3</div>
+    <div class="step-body">
+      <h3>עכשיו בודקים מה קורה כש-\(\lvert x\rvert\) גדל מאוד</h3>
+      <div class="mathbox">\[x\Rightarrow\pm\infty\quad\Rightarrow\quad\frac{1}{x^2}\Rightarrow0,\quad\frac{9}{x^2}\Rightarrow0\]</div>
+      <div class="mathbox">\[f(x)\approx\frac{5+0}{1-0}=5\]</div>
+    </div>
+  </div>
+
+  <p class="quote" style="margin-top:1mm;padding:2mm">מכאן \(f(x)\Rightarrow5\), ולכן האסימפטוטה האופקית היא \(y=5\). כל המעברים עד שלב הקירוב היו שוויונות מדויקים.</p>
+  <div class="footer"><span>עמוד 4</span><span>הוכחה אלגברית במקום "ביטול"</span></div>
+</section>
+
+<section class="page" id="page-5">
+  <h1>לראות את האסימפטוטה האופקית</h1>
+  <p>הגרף של \(f(x)=\frac{5x^2+1}{x^2-9}\) אינו שווה ל-\(5\), אבל רחוק מהמרכז הוא מתקרב לישר \(y=5\).</p>
+  <div class="graph-panel" data-graph-panel="rational">
+    <div id="graph-rational" class="jxgbox" aria-label="גרף הפונקציה הרציונלית והאסימפטוטה y שווה 5"></div>
+    <div class="controls" aria-label="פקדי גרף הפונקציה הרציונלית">
+      <button type="button" data-action="reset" data-board="rational">איפוס</button>
+      <button type="button" data-action="zoom-in" data-board="rational">הגדלה</button>
+      <button type="button" data-action="zoom-out" data-board="rational">הקטנה</button>
+      <button type="button" data-action="fit" data-board="rational">התאם לגודל</button>
+      <button type="button" data-action="center" data-board="rational">מרכז</button>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card tight">
+      <h3>קרוב ל-\(x=\pm3\)</h3>
+      <p>המכנה קרוב ל-\(0\), ולכן הערכים יכולים להיות גדולים מאוד.</p>
+    </div>
+    <div class="card tight">
+      <h3>כאשר \(\lvert x\rvert\) גדול</h3>
+      <p>האיברים \(\frac{1}{x^2}\) ו-\(\frac{9}{x^2}\) קטנים מאוד, ולכן \(f(x)\) קרובה ל-\(5\).</p>
+    </div>
+  </div>
+  <div class="footer"><span>עמוד 5</span><span>הגרף מאשר את החישוב</span></div>
+</section>
+
+<section class="page" id="page-6">
+  <h1>למה החזקה הגבוהה ביותר היא הדומיננטית?</h1>
+  <p class="lead">בפולינום, החזקה הגבוהה גדלה מהר יותר מכל חזקה נמוכה ממנה.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <h3>מול קבוע</h3>
+      <div class="mathbox">\[\frac{7}{x^3}\Rightarrow0\]</div>
+      <p>לכן \(7\) זניח ביחס ל-\(x^3\).</p>
+    </div>
+    <div class="card">
+      <h3>מול חזקה נמוכה</h3>
+      <div class="mathbox">\[\frac{x^2}{x^3}=\frac{1}{x}\Rightarrow0\]</div>
+      <p>לכן \(x^2\) זניח ביחס ל-\(x^3\).</p>
+    </div>
+    <div class="card">
+      <h3>מול חזקה זהה</h3>
+      <div class="mathbox">\[\frac{3x^3}{2x^3}=\frac{3}{2}\]</div>
+      <p>כאן שני האיברים באותו סדר גודל.</p>
+    </div>
+  </div>
+
+  <div class="rule" style="margin-top:7mm">
+    <h3>כלל שימושי</h3>
+    <p>אם \(m\lt n\), אז:</p>
+    <div class="mathbox">\[x\Rightarrow\pm\infty\quad\Rightarrow\quad\frac{x^m}{x^n}=\frac{1}{x^{n-m}}\Rightarrow0\]</div>
+    <p>זו הסיבה המתמטית לכך שהאיברים בעלי החזקות הנמוכות הופכים זניחים ביחס לאיבר בעל החזקה הגבוהה ביותר.</p>
+  </div>
+
+  <p class="small" style="margin-top:4mm"><strong>בדיקה נוספת:</strong> \(\frac{100x^3}{x^4}=\frac{100}{x}\Rightarrow0\), ולכן גם מקדם גדול כמו \(100\) אינו משנה את העובדה ש-\(x^4\) דומיננטי בסופו של דבר.</p>
+  <div class="footer"><span>עמוד 6</span><span>הוכחת הדומיננטיות באמצעות יחס</span></div>
+</section>
+
+<section class="page" id="page-7">
+  <h1>שלושת המצבים בפונקציה רציונלית</h1>
+  <p>נניח שהמונה והמכנה הם פולינומים. משווים את החזקות הגבוהות ביותר.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <h3>דרגת המונה נמוכה יותר</h3>
+      <div class="mathbox">\[\frac{3x+1}{x^2+4}\]</div>
+      <div class="mathbox">\[\frac{\frac{3}{x}+\frac{1}{x^2}}{1+\frac{4}{x^2}}\Rightarrow0\]</div>
+      <p><strong>אסימפטוטה אופקית:</strong> \(y=0\).</p>
+    </div>
+    <div class="card">
+      <h3>דרגות שוות</h3>
+      <div class="mathbox">\[\frac{2x^2+1}{3x^2-5}\]</div>
+      <div class="mathbox">\[\frac{2+\frac{1}{x^2}}{3-\frac{5}{x^2}}\Rightarrow\frac{2}{3}\]</div>
+      <p><strong>אסימפטוטה אופקית:</strong> \(y=\frac{2}{3}\).</p>
+    </div>
+    <div class="card">
+      <h3>דרגת המונה גבוהה יותר</h3>
+      <div class="mathbox">\[\frac{2x^3+1}{3x^2-5}\]</div>
+      <div class="mathbox">\[\frac{2x+\frac{1}{x^2}}{3-\frac{5}{x^2}}\approx\frac{2}{3}x\]</div>
+      <p>הביטוי אינו מתקרב למספר קבוע, ולכן אין אסימפטוטה אופקית.</p>
+    </div>
+  </div>
+
+  <div class="good" style="margin-top:7mm">
+    <h3>ניסוח קצר שאפשר ללמד</h3>
+    <ol>
+      <li>מוצאים את החזקה הגבוהה ביותר במונה ובמכנה.</li>
+      <li>מחלקים את כל האיברים בחזקה המתאימה.</li>
+      <li>רק עכשיו בודקים אילו שברים נעשים קטנים מאוד.</li>
+      <li>מסיקים את התנהגות הפונקציה.</li>
+    </ol>
+  </div>
+
+  <div class="footer"><span>עמוד 7</span><span>הכלל נובע מהחלוקה - לא משינון</span></div>
+</section>
+
+<section class="page" id="page-8">
+  <h1>תרגול קצר + שפה מומלצת למורה</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>תרגילים</h3>
+      <div class="exercise">1. הסבר מדוע \(5\) זניח ביחס ל-\(x^2\).</div>
+      <div class="exercise">2. חשב את \(\frac{x^3+2x}{x^3}\) ופשט.</div>
+      <div class="exercise">3. קבע את ההתנהגות של \(\frac{4x^2+3}{2x^2-7}\) באינסוף.</div>
+      <div class="exercise">4. קבע את ההתנהגות של \(\frac{6x+1}{x^2+2}\) באינסוף.</div>
+      <div class="exercise">5. הסבר מדוע \(100x^2\) זניח ביחס ל-\(x^3\) כאשר \(\lvert x\rvert\) גדול מאוד.</div>
+      <div class="exercise">6. האם מותר לכתוב \(x^4+1=x^4\)? נמק.</div>
+    </div>
+    <div class="card">
+      <h3>תשובות קצרות</h3>
+      <div class="exercise answer">1. כי \(\frac{5}{x^2}\Rightarrow0\).</div>
+      <div class="exercise answer">2. \(1+\frac{2}{x^2}\Rightarrow1\).</div>
+      <div class="exercise answer">3. \(\frac{4+\frac{3}{x^2}}{2-\frac{7}{x^2}}\Rightarrow2\), ולכן \(y=2\).</div>
+      <div class="exercise answer">4. החלוקה ב-\(x^2\) נותנת ערך שמתקרב ל-\(0\), ולכן \(y=0\).</div>
+      <div class="exercise answer">5. כי \(\frac{100x^2}{x^3}=\frac{100}{x}\Rightarrow0\).</div>
+      <div class="exercise answer">6. לא. זה אינו שוויון. מותר להשתמש ב-\(\approx\) רק בהקשר של \(\lvert x\rvert\) גדול מאוד.</div>
+    </div>
+  </div>
+
+  <div class="teacher" style="margin-top:7mm">
+    <h3>סיכום</h3>
+    <ul>
+      <li>"האיבר לא נעלם; ההשפעה היחסית שלו נעשית קטנה."</li>
+      <li>"אנחנו לא מציבים אינסוף. אנחנו בודקים מה קורה כאשר \(x\) נעשה גדול יותר ויותר."</li>
+      <li>"הגורם הדומיננטי הוא זה שגדל מהר יותר מן האחרים."</li>
+      <li>"אם אינך בטוח מה זניח, חלק את האיבר הקטן באיבר הגדול ובדוק אם היחס מתקרב ל-\(0\)."</li>
+    </ul>
+  </div>
+
+  <div class="rule" style="margin-top:6mm">
+    <p class="quote">באינסוף לא מוחקים איברים. בודקים אילו איברים שולטים בגודל הביטוי, ומוכיחים זאת בעזרת יחס או חלוקה בחזקה הגבוהה ביותר.</p>
+  </div>
+  <div class="footer"><span>עמוד 8</span><span id="test-status" class="test-status">בדיקות מסמך: ממתין</span></div>
+</section>
+
+<script>
+(function(){
+  'use strict';
+  const boards = {};
+  const defaults = {
+    ratio: [-1.5, 2.2, 21, 0.85],
+    rational: [-12, 15, 12, -10]
+  };
+
+  function safeInit(id, box){
+    if(!window.JXG || !JXG.JSXGraph) throw new Error('JSXGraph library not loaded');
+    return JXG.JSXGraph.initBoard(id, {
+      boundingbox: box,
+      axis: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: {enabled:true},
+      zoom: {wheel:true, pinchHorizontal:true, pinchVertical:true, pinchSensitivity:7},
+      keepaspectratio: false,
+      renderer: 'svg'
+    });
+  }
+
+  function initGraphs(){
+    const br = safeInit('graph-ratio', defaults.ratio);
+    boards.ratio = br;
+    br.create('functiongraph', [function(x){ return 1 + 1/(x*x); }, 0.6, 21], {strokeWidth:3});
+    br.create('line', [[0,1],[1,1]], {straightFirst:true,straightLast:true,strokeWidth:2,dash:2,fixed:true});
+    const s = br.create('slider', [[3,1.95],[14,1.95],[1,4,20]], {name:'x', snapWidth:1, size:2});
+    if(s){
+      br.create('point', [function(){return s.Value();}, function(){const x=s.Value(); return 1+1/(x*x);}], {size:2,name:'',fixed:true});
+      br.create('text', [3,1.72,function(){ const x=s.Value(); return '\\(\\frac{x^2+1}{x^2}='+ (1+1/(x*x)).toFixed(4) +'\\)'; }], {useMathJax:true,fontSize:17,fixed:true});
+    }
+
+    const bf = safeInit('graph-rational', defaults.rational);
+    boards.rational = bf;
+    const f = x => (5*x*x+1)/(x*x-9);
+    bf.create('functiongraph',[f,-12,-3.08],{strokeWidth:3});
+    bf.create('functiongraph',[f,-2.92,2.92],{strokeWidth:3});
+    bf.create('functiongraph',[f,3.08,12],{strokeWidth:3});
+    bf.create('line',[[0,5],[1,5]],{strokeWidth:2,dash:2,fixed:true});
+    bf.create('line',[[-3,0],[-3,1]],{strokeWidth:1.5,dash:2,fixed:true});
+    bf.create('line',[[3,0],[3,1]],{strokeWidth:1.5,dash:2,fixed:true});
+    bf.create('text',[7.3,5.8,'\\(y=5\\)'],{useMathJax:true,fontSize:17,fixed:true});
+    bf.create('text',[-5.1,13.1,'\\(x=-3\\)'],{useMathJax:true,fontSize:15,fixed:true});
+    bf.create('text',[3.4,13.1,'\\(x=3\\)'],{useMathJax:true,fontSize:15,fixed:true});
+  }
+
+  function controlBoard(name, action){
+    const b = boards[name];
+    if(!b) return;
+    if(action==='reset' || action==='fit'){
+      b.setBoundingBox(defaults[name], false);
+    } else if(action==='zoom-in'){
+      b.zoomIn();
+    } else if(action==='zoom-out'){
+      b.zoomOut();
+    } else if(action==='center'){
+      const bb=b.getBoundingBox();
+      const w=bb[2]-bb[0], h=bb[1]-bb[3];
+      b.setBoundingBox([-w/2,h/2,w/2,-h/2], false);
+    }
+    b.fullUpdate();
+  }
+
+  function wireControls(){
+    document.querySelectorAll('.controls button').forEach(btn=>{
+      btn.addEventListener('click',()=>controlBoard(btn.dataset.board,btn.dataset.action));
+    });
+  }
+
+  function runTests(){
+    const errors=[];
+    if(!document.documentElement || !document.head || !document.body || !document.title){
+      errors.push('invalid HTML structure');
+    }
+    if(window.__initError) errors.push('initialization error: '+window.__initError);
+    if(!window.MathJax || typeof MathJax.typesetPromise!=='function' || document.querySelectorAll('mjx-container').length===0){
+      errors.push('broken MathJax');
+    }
+    const ids=[...document.querySelectorAll('[id]')].map(el=>el.id);
+    const dups=ids.filter((id,i)=>ids.indexOf(id)!==i);
+    if(dups.length) errors.push('duplicated IDs: '+[...new Set(dups)].join(', '));
+
+    document.querySelectorAll('.page').forEach((p,i)=>{
+      if(!p.querySelector('h1,h2')) errors.push('missing title on page '+(i+1));
+      if(p.scrollHeight>p.clientHeight+2) errors.push('A4 overflow on page '+(i+1));
+    });
+
+    document.querySelectorAll('[data-graph-panel]').forEach(panel=>{
+      const actions=[...panel.querySelectorAll('button[data-action]')].map(b=>b.dataset.action);
+      ['reset','zoom-in','zoom-out','fit','center'].forEach(a=>{if(!actions.includes(a)) errors.push('missing graph control '+a);});
+    });
+
+    ['ratio','rational'].forEach(k=>{if(!boards[k]) errors.push('JSXGraph initialization failure: '+k);});
+
+    const status=document.getElementById('test-status');
+    if(errors.length){
+      if(status) status.textContent='בדיקות מסמך: נמצאו '+errors.length+' בעיות';
+      console.error('[Document tests]', errors);
+    } else {
+      if(status) status.textContent='';
+      console.info('[Document tests] PASS');
+    }
+    window.__documentTestErrors = errors;
+  }
+
+  window.addEventListener('load', async function(){
+    try{
+      initGraphs();
+      wireControls();
+      if(window.MathJax && MathJax.typesetPromise){
+        await MathJax.typesetPromise();
+      } else {
+        throw new Error('MathJax not loaded');
+      }
+    }catch(err){
+      console.error(err);
+      window.__initError=String(err);
+    }
+    setTimeout(runTests,350);
+  });
+})();
+</script>
+</body>
+</html>
