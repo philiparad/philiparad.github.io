@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<title>מעבדת אסימפטוטות אופקיות - שלוש דוגמאות</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph@1.13.3/distrib/jsxgraph.css" rel="stylesheet"/>
+<script>
+window.MathJax={
+  tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],packages:{'[+]':['ams']}},
+  svg:{fontCache:'global'},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.13.3/distrib/jsxgraphcore.js"></script>
+<style>
+:root{
+  --bg:#edf3f8;
+  --surface:#ffffff;
+  --surface-2:#f7fafd;
+  --text:#152536;
+  --muted:#607286;
+  --line:#d8e2ec;
+  --primary:#1e5e91;
+  --primary-dark:#16466c;
+  --primary-soft:#edf6fd;
+  --success:#357653;
+  --success-soft:#f0faf4;
+  --shadow:0 14px 34px rgba(32,62,91,.09);
+  --shadow-soft:0 6px 18px rgba(32,62,91,.07);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;min-height:100%;background:var(--bg);font-family:Arial,"Noto Sans Hebrew",sans-serif;color:var(--text)}
+body{direction:rtl}
+button,input{font:inherit}
+button{color:inherit}
+.app-main{max-width:1760px;margin:0 auto;padding:22px 34px 72px}
+.app-main>h1{font-size:clamp(26px,2.4vw,38px);letter-spacing:-.03em;padding:0;margin:0 0 4px;color:var(--primary-dark)}
+.app-main>h1::after{content:"חקור כיצד הפרמטרים משפיעים על האסימפטוטות";display:block;margin-top:7px;font-size:14px;font-weight:400;letter-spacing:0;color:var(--muted)}
+
+/* Tabs */
+.tabs-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:stretch;margin:22px 0 18px;padding:8px;background:rgba(224,234,243,.82);border:1px solid #d1dfe9;border-radius:19px;position:sticky;top:12px;z-index:20;box-shadow:var(--shadow-soft);backdrop-filter:blur(12px)}
+.tab-button{flex:1 1 280px;border:1px solid transparent;background:transparent;border-radius:13px;padding:13px 17px;cursor:pointer;text-align:right;transition:.18s ease;min-height:72px;color:var(--primary-dark)}
+.tab-button:hover{background:rgba(255,255,255,.7);transform:translateY(-1px)}
+.tab-button.active{background:#fff;border-color:#9eb8cf;box-shadow:0 5px 16px rgba(37,55,78,.1);position:relative}
+.tab-button.active::before{content:"";position:absolute;right:0;top:12px;bottom:12px;width:4px;border-radius:4px;background:var(--primary)}
+.tab-button strong{display:block;font-size:15px;margin-bottom:5px}
+.tab-button span{display:block;font-size:12.5px;color:black;direction:ltr;text-align:right;unicode-bidi:isolate}
+.tab-button .tab-math{text-align:center;font-size:14px;line-height:1.45;overflow:visible}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.workspace-layout{display:grid;grid-template-columns:minmax(276px,315px) minmax(0,1fr);gap:24px;align-items:start;direction:ltr}
+.workspace-layout>*{direction:rtl}
+.intro-rail{background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:17px;position:sticky;top:108px}
+.intro-rail-heading{padding:2px 2px 4px}
+.intro-rail-heading h2{font-size:21px;margin:0 0 6px}
+.intro-rail-heading p{margin:0}
+.card,.note,.formula-card,.graph-panel,.control-box{border:1px solid var(--line);border-radius:var(--radius);padding:15px;background:#fff}
+.note{background:var(--surface-2)}
+.formula-card{background:#f8fbff;text-align:center}
+.accent{border:1px solid #a9c4dc;background:linear-gradient(135deg,#f3f9ff,#eaf4fc)}
+.good{border:1px solid #8ab198;background:var(--success-soft)}
+h1,h2,h3{line-height:1.25}h1{margin:0;font-size:20px;padding-right:5px;}h2{margin:0;color:var(--primary-dark)}h3{margin:0 0 10px;font-size:17px;color:#294860}
+p{font-size:15px;line-height:1.65;margin:10px 0}
+.small{font-size:13.5px;line-height:1.55}.mini{font-size:12.5px;line-height:1.5;color:var(--muted)}
+.kpi{padding:13px;border:1px solid #d7e3ed;border-radius:13px;text-align:center;background:#fbfdff}
+.kpi strong{display:block;font-size:19px;margin-top:4px;direction:ltr}
+.intro-param-stack{display:flex;flex-direction:column;gap:10px}
+.intro-param-stack .card{padding:12px}
+.intro-param-stack h3{font-size:15px;margin-bottom:4px}
+.intro-param-stack p{margin:3px 0}
+
+.lab-section{margin:0;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow)}
+.section-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:11px}
+.lab-formula-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 20px;align-items:stretch}
+.lab-formula-row .formula-card{display:flex;flex-direction:column;justify-content:center;min-height:112px;margin:0}
+.formula-caption{font-size:12.5px;color:var(--muted);margin-bottom:3px}
+.mathline{direction:ltr;text-align:center;font-size:18px;margin:10px 0;overflow-x:auto;overflow-y:hidden}
+
+.lab-layout{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(300px,.72fr);gap:20px;align-items:start;direction:ltr}
+.lab-layout>*{direction:rtl}
+.graph-panel{padding:14px;background:#f8fbfe;position:sticky;top:108px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.graph-wrap,.jxgbox{width:100%!important;height:clamp(420px,58vh,590px)!important;min-height:420px!important;direction:ltr!important;border:0!important;display:block}
+.graph-wrap{border:1px solid #b9c5d1!important;border-radius:13px;overflow:hidden;background:#fff;box-shadow:0 3px 10px rgba(32,62,91,.05)}
+.controls{display:flex;flex-direction:column;gap:12px}
+.control-box{padding:16px;box-shadow:var(--shadow-soft)}
+.control-row{border:1px solid #d1dce5;border-radius:11px;padding:12px;background:#fbfdff}
+.control-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;margin-bottom:7px}
+.control-head b{direction:ltr;unicode-bidi:isolate;font-size:16px}
+input[type=range]{width:100%;direction:ltr;accent-color:var(--primary)}
+.value{font-family:Consolas,monospace;direction:ltr;unicode-bidi:isolate;min-width:58px;text-align:left;font-weight:700}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:#445567}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-left:5px}.dot-f{background:#1f5f9f}.dot-h{background:#2f855a}.dot-v{background:#b33a3a}
+.graph-error .graph-wrap{display:flex;align-items:center;justify-content:center;text-align:center;padding:28px;font-size:15px}
+
+@media (max-width:1250px){
+  .workspace-layout{grid-template-columns:250px minmax(0,1fr);gap:16px}
+  .intro-rail{padding:16px}
+}
+@media (max-width:980px){
+  .app-main{padding:18px 16px 50px}
+  .tabs-bar{position:relative;top:auto}
+  .workspace-layout{grid-template-columns:1fr}
+  .intro-rail{position:relative;top:auto;order:2}
+  .lab-section{order:1}
+  .intro-param-stack{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lab-layout{grid-template-columns:1fr}
+  .graph-panel{position:relative;top:auto}
+  .controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .graph-wrap,.jxgbox{height:500px!important}
+}
+@media (max-width:820px){
+  .lab-formula-row{grid-template-columns:1fr}
+  .lab-section{padding:18px;border-radius:17px}
+  .intro-param-stack,.controls{grid-template-columns:1fr}
+  .graph-wrap,.jxgbox{height:450px!important;min-height:380px!important}
+}
+@media (max-width:520px){
+  .app-main{padding:12px 10px 40px}
+  .app-main>h1::after{font-size:12px}
+  .tabs-bar{padding:6px;gap:6px;margin-top:16px}
+  .tab-button{flex-basis:100%;min-height:auto;padding:9px 11px}
+  .lab-section{padding:14px}
+  .card,.note,.formula-card,.graph-panel,.control-box{padding:13px}
+  .graph-wrap,.jxgbox{height:390px!important;min-height:340px!important}
+  h1{font-size:25px}
+}
+</style>
+</head>
+<body>
+<main class="app-main">
+  <h1>מעבדת אסימפטוטות אופקיות</h1>
+  <div class="tabs-bar" role="tablist" aria-label="דוגמאות לפונקציות שורש ומנה">
+    <button class="tab-button active" id="tab-ex1" role="tab" aria-selected="true" aria-controls="ex1" data-tab="ex1">
+      <strong>דוגמה 1 - הפונקציה המקורית</strong>
+      <span class="tab-math">\(f(x)=a\frac{\sqrt{x^2+1}}{x-h}+k\)</span>
+    </button>
+    <button class="tab-button" id="tab-ex2" role="tab" aria-selected="false" aria-controls="ex2" data-tab="ex2">
+      <strong>דוגמה 2 - פרמטר בתוך השורש</strong>
+      <span class="tab-math">\(g(x)=\frac{\sqrt{b x^2+1}}{x-h}+k\)</span>
+    </button>
+    <button class="tab-button" id="tab-ex3" role="tab" aria-selected="false" aria-controls="ex3" data-tab="ex3">
+      <strong>דוגמה 3 - השורש במכנה</strong>
+      <span class="tab-math">\(p(x)=\frac{ax+1}{\sqrt{x^2+c}}+k\)</span>
+    </button>
+  </div>
+
+  <!-- Example 1 -->
+  <div class="tab-panel active" id="ex1" role="tabpanel" aria-labelledby="tab-ex1">
+    <div class="workspace-layout">
+      <aside class="intro-rail">
+        <div class="intro-rail-heading">
+          <h2>הפונקציה המקורית</h2>
+          <p class="small">כאשר \( |x| \) גדול מאוד, \(x-h\) מתנהג כמעט כמו \(x\), ולכן קל לראות את השפעתם של הפרמטרים.</p>
+        </div>
+        <div class="card">
+          <h3>התוצאה החשובה</h3>
+          <div class="kpi">כאשר \(x⇒+\infty\)<strong>\(y=k+a\)</strong></div>
+          <div style="height:10px"></div>
+          <div class="kpi">כאשר \(x⇒-\infty\)<strong>\(y=k-a\)</strong></div>
+        </div>
+        <div class="note good">
+          <h3>רק שלושה פרמטרים</h3>
+          <p><b>\(a\)</b> משנה את המרחק בין האסימפטוטות האופקיות. <b>\(k\)</b> מזיז את שתיהן. <b>\(h\)</b> מזיז את האסימפטוטה האנכית בלבד.</p>
+          <p class="small">תחום ההגדרה: \(x\ne h\).</p>
+        </div>
+        <div class="intro-param-stack">
+          <div class="card"><h3>פרמטר \(a\)</h3><p class="small">קובע כמה רחוק כל אסימפטוטה נמצאת מן הקו \(y=k\).</p></div>
+          <div class="card"><h3>פרמטר \(k\)</h3><p class="small">מזיז את שתי האסימפטוטות האופקיות יחד.</p></div>
+          <div class="card"><h3>פרמטר \(h\)</h3><p class="small">מזיז את האסימפטוטה האנכית \(x=h\), בלי לשנות את האופקיות.</p></div>
+        </div>
+      </aside>
+
+      <section class="lab-section">
+        <div class="lab-formula-row">
+          <div class="formula-card accent"><div class="mathline" id="ex1-current">\[f(x)=2\frac{\sqrt{x^2+1}}{x-1}+1\]</div></div>
+          <div class="formula-card accent"><div class="mathline">\[f(x)=a\frac{\sqrt{x^2+1}}{x-h}+k\]</div></div>
+        </div>
+        <div class="lab-layout">
+          <div class="graph-panel" data-graph-panel="ex1"><div class="graph-wrap jxgbox" id="board-ex1"></div><div class="legend"><span><span class="dot dot-f"></span>הפונקציה</span><span><span class="dot dot-h"></span>אסימפטוטות אופקיות</span><span><span class="dot dot-v"></span>אסימפטוטה אנכית</span></div></div>
+          <div class="controls">
+            <div class="control-box good"><h3>1. המרחק בין האסימפטוטות</h3><div class="control-row"><div class="control-head"><b>a</b><span class="value" id="ex1-va">2.00</span></div><input id="ex1-sa" max="4" min="0.5" step="0.1" type="range" value="2"/></div><p class="mini">נסה להגדיל את \(a\). שתי האסימפטוטות מתרחקות מן הקו \(y=k\).</p></div>
+            <div class="control-box good"><h3>2. הזזה אנכית</h3><div class="control-row"><div class="control-head"><b>k</b><span class="value" id="ex1-vk">1.00</span></div><input id="ex1-sk" max="4" min="-4" step="0.1" type="range" value="1"/></div><p class="mini">נסה להגדיל את \(k\). שתי האסימפטוטות עולות יחד.</p></div>
+            <div class="control-box"><h3>3. שינוי שאינו מזיז אופקיות</h3><div class="control-row"><div class="control-head"><b>h</b><span class="value" id="ex1-vh">1.00</span></div><input id="ex1-sh" max="4" min="-4" step="0.1" type="range" value="1"/></div><p class="mini">\(h\) מזיז את האסימפטוטה האנכית \(x=h\), אך לא את האסימפטוטות האופקיות.</p></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Example 2 -->
+  <div class="tab-panel" id="ex2" role="tabpanel" aria-labelledby="tab-ex2">
+    <div class="workspace-layout">
+      <aside class="intro-rail">
+        <div class="intro-rail-heading">
+          <h2>פרמטר בתוך השורש</h2>
+          <p class="small">כאן הפרמטר \(b\) נמצא ליד \(x^2\), ולכן הוא חלק מן הגורם הדומיננטי ואינו נעשה זניח.</p>
+        </div>
+        <div class="card">
+          <h3>התוצאה החשובה</h3>
+          <div class="kpi">כאשר \(x⇒+\infty\)<strong>\(y=k+\sqrt{b}\)</strong></div>
+          <div style="height:10px"></div>
+          <div class="kpi">כאשר \(x⇒-\infty\)<strong>\(y=k-\sqrt{b}\)</strong></div>
+        </div>
+        <div class="note good">
+          <h3>מה לומדים כאן?</h3>
+          <p>כאשר \(|x|\) גדול מאוד, מתקבל \(\sqrt{bx^2+1}\approx\sqrt{b}|x|\). לכן \(b\) נשאר ומשפיע על האסימפטוטות.</p>
+          <p class="small">תחום ההגדרה: \(b\gt0\) ו-\(x\ne h\).</p>
+        </div>
+        <div class="intro-param-stack">
+          <div class="card"><h3>פרמטר \(b\)</h3><p class="small">קובע את המרחק מן הקו \(y=k\): המרחק הוא \(\sqrt b\).</p></div>
+          <div class="card"><h3>פרמטר \(k\)</h3><p class="small">מזיז את שתי האסימפטוטות האופקיות יחד.</p></div>
+          <div class="card"><h3>פרמטר \(h\)</h3><p class="small">מזיז את האסימפטוטה האנכית בלבד ואינו משנה את האופקיות.</p></div>
+        </div>
+      </aside>
+
+      <section class="lab-section">
+        <div class="lab-formula-row">
+          <div class="formula-card accent"><div class="mathline" id="ex2-current">\[g(x)=\frac{\sqrt{4x^2+1}}{x-1}+1\]</div></div>
+          <div class="formula-card accent"><div class="mathline">\[g(x)=\frac{\sqrt{bx^2+1}}{x-h}+k\]</div></div>
+        </div>
+        <div class="lab-layout">
+          <div class="graph-panel" data-graph-panel="ex2"><div class="graph-wrap jxgbox" id="board-ex2"></div><div class="legend"><span><span class="dot dot-f"></span>הפונקציה</span><span><span class="dot dot-h"></span>אסימפטוטות אופקיות</span><span><span class="dot dot-v"></span>אסימפטוטה אנכית</span></div></div>
+          <div class="controls">
+            <div class="control-box good"><h3>1. המקדם בתוך השורש</h3><div class="control-row"><div class="control-head"><b>b</b><span class="value" id="ex2-vb">4.00</span></div><input id="ex2-sb" max="9" min="0.25" step="0.25" type="range" value="4"/></div><p class="mini">נסה לשנות את \(b\). האסימפטוטות נמצאות במרחק \(\sqrt b\) מן הקו \(y=k\).</p></div>
+            <div class="control-box good"><h3>2. הזזה אנכית</h3><div class="control-row"><div class="control-head"><b>k</b><span class="value" id="ex2-vk">1.00</span></div><input id="ex2-sk" max="4" min="-4" step="0.1" type="range" value="1"/></div><p class="mini">\(k\) מזיז את שתי האסימפטוטות יחד למעלה או למטה.</p></div>
+            <div class="control-box"><h3>3. שינוי שאינו מזיז אופקיות</h3><div class="control-row"><div class="control-head"><b>h</b><span class="value" id="ex2-vh">1.00</span></div><input id="ex2-sh" max="4" min="-4" step="0.1" type="range" value="1"/></div><p class="mini">\(h\) משנה את מיקום \(x=h\), אך אינו מופיע בתוצאות \(k\pm\sqrt b\).</p></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Example 3 -->
+  <div class="tab-panel" id="ex3" role="tabpanel" aria-labelledby="tab-ex3">
+    <div class="workspace-layout">
+      <aside class="intro-rail">
+        <div class="intro-rail-heading">
+          <h2>השורש במכנה</h2>
+          <p class="small">הפעם השורש נמצא במכנה. כאשר \(|x|\) גדול מאוד, \(\sqrt{x^2+c}\approx|x|\).</p>
+        </div>
+        <div class="card">
+          <h3>התוצאה החשובה</h3>
+          <div class="kpi">כאשר \(x⇒+\infty\)<strong>\(y=k+a\)</strong></div>
+          <div style="height:10px"></div>
+          <div class="kpi">כאשר \(x⇒-\infty\)<strong>\(y=k-a\)</strong></div>
+        </div>
+        <div class="note good">
+          <h3>מה לומדים כאן?</h3>
+          <p>האיבר \(c\) נמצא ליד \(x^2\), אך ביחס ל-\(x^2\) הוא נעשה זניח כאשר \(|x|\) גדול מאוד.</p>
+          <p class="small">כאשר \(c\gt0\), תחום ההגדרה הוא כל המספרים הממשיים ואין אסימפטוטה אנכית.</p>
+        </div>
+        <div class="intro-param-stack">
+          <div class="card"><h3>פרמטר \(a\)</h3><p class="small">קובע את המרחק של האסימפטוטות מן הקו \(y=k\).</p></div>
+          <div class="card"><h3>פרמטר \(k\)</h3><p class="small">מזיז את שתי האסימפטוטות האופקיות יחד.</p></div>
+          <div class="card"><h3>פרמטר \(c\)</h3><p class="small">משנה את צורת הגרף ליד המרכז, אך אינו משנה את האסימפטוטות האופקיות.</p></div>
+        </div>
+      </aside>
+
+      <section class="lab-section">
+        <div class="lab-formula-row">
+          <div class="formula-card accent"><div class="mathline" id="ex3-current">\[p(x)=\frac{2x+1}{\sqrt{x^2+1}}+1\]</div></div>
+          <div class="formula-card accent"><div class="mathline">\[p(x)=\frac{ax+1}{\sqrt{x^2+c}}+k\]</div></div>
+        </div>
+        <div class="lab-layout">
+          <div class="graph-panel" data-graph-panel="ex3"><div class="graph-wrap jxgbox" id="board-ex3"></div><div class="legend"><span><span class="dot dot-f"></span>הפונקציה</span><span><span class="dot dot-h"></span>אסימפטוטות אופקיות</span></div></div>
+          <div class="controls">
+            <div class="control-box good"><h3>1. המרחק בין האסימפטוטות</h3><div class="control-row"><div class="control-head"><b>a</b><span class="value" id="ex3-va">2.00</span></div><input id="ex3-sa" max="4" min="0.5" step="0.1" type="range" value="2"/></div><p class="mini">\(a\) קובע את האסימפטוטות \(y=k+a\) ו-\(y=k-a\).</p></div>
+            <div class="control-box good"><h3>2. הזזה אנכית</h3><div class="control-row"><div class="control-head"><b>k</b><span class="value" id="ex3-vk">1.00</span></div><input id="ex3-sk" max="4" min="-4" step="0.1" type="range" value="1"/></div><p class="mini">נסה להגדיל את \(k\). שתי האסימפטוטות עולות יחד.</p></div>
+            <div class="control-box"><h3>3. שינוי שאינו מזיז אופקיות</h3><div class="control-row"><div class="control-head"><b>c</b><span class="value" id="ex3-vc">1.00</span></div><input id="ex3-sc" max="9" min="0.25" step="0.25" type="range" value="1"/></div><p class="mini">\(c\) משנה את המכנה ליד מרכז הגרף, אבל באינסוף \(\sqrt{x^2+c}\approx|x|\).</p></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+'use strict';
+
+const configs={
+  ex1:{
+    defaults:{a:2,h:1,k:1},
+    state:{a:2,h:1,k:1},
+    boardId:'board-ex1',
+    currentId:'ex1-current',
+    inputs:{a:'ex1-sa',h:'ex1-sh',k:'ex1-sk'},
+    values:{a:'ex1-va',h:'ex1-vh',k:'ex1-vk'},
+    fn(x,s){const den=x-s.h;return Math.abs(den)<1e-7?NaN:s.a*Math.sqrt(x*x+1)/den+s.k;},
+    right(s){return s.k+s.a;},
+    left(s){return s.k-s.a;},
+    vertical(s){return s.h;},
+    latex(s){return `\\[f(x)=${fmt(s.a)}\\frac{\\sqrt{x^2+1}}{${signedTerm(s.h,'x')}}${signedConstant(s.k)}\\]`;}
+  },
+  ex2:{
+    defaults:{b:4,h:1,k:1},
+    state:{b:4,h:1,k:1},
+    boardId:'board-ex2',
+    currentId:'ex2-current',
+    inputs:{b:'ex2-sb',h:'ex2-sh',k:'ex2-sk'},
+    values:{b:'ex2-vb',h:'ex2-vh',k:'ex2-vk'},
+    fn(x,s){const den=x-s.h;return Math.abs(den)<1e-7?NaN:Math.sqrt(s.b*x*x+1)/den+s.k;},
+    right(s){return s.k+Math.sqrt(s.b);},
+    left(s){return s.k-Math.sqrt(s.b);},
+    vertical(s){return s.h;},
+    latex(s){return `\\[g(x)=\\frac{\\sqrt{${fmt(s.b)}x^2+1}}{${signedTerm(s.h,'x')}}${signedConstant(s.k)}\\]`;}
+  },
+  ex3:{
+    defaults:{a:2,k:1,c:1},
+    state:{a:2,k:1,c:1},
+    boardId:'board-ex3',
+    currentId:'ex3-current',
+    inputs:{a:'ex3-sa',k:'ex3-sk',c:'ex3-sc'},
+    values:{a:'ex3-va',k:'ex3-vk',c:'ex3-vc'},
+    fn(x,s){return (s.a*x+1)/Math.sqrt(x*x+s.c)+s.k;},
+    right(s){return s.k+s.a;},
+    left(s){return s.k-s.a;},
+    vertical(){return null;},
+    latex(s){return `\\[p(x)=\\frac{${fmt(s.a)}x+1}{\\sqrt{x^2+${fmt(s.c)}}}${signedConstant(s.k)}\\]`;}
+  }
+};
+
+const boards={};
+function byId(id){return document.getElementById(id);}
+function fmt(x,n=2){return Number(x).toFixed(n);}
+function signedTerm(value,variable){if(Math.abs(value)<1e-12)return variable;return value>0?`${variable}-${fmt(value)}`:`${variable}+${fmt(Math.abs(value))}`;}
+function signedConstant(value){if(Math.abs(value)<1e-12)return '';return value>0?`+${fmt(value)}`:`-${fmt(Math.abs(value))}`;}
+function typeset(node){if(window.MathJax&&MathJax.typesetPromise){MathJax.typesetPromise(node?[node]:undefined).catch(function(){});}}
+
+function sync(id){
+  const c=configs[id],s=c.state;
+  Object.keys(c.inputs).forEach(key=>{
+    s[key]=parseFloat(byId(c.inputs[key]).value);
+    byId(c.values[key]).textContent=fmt(s[key]);
+  });
+  const formula=byId(c.currentId);
+  formula.textContent=c.latex(s);
+  if(boards[id])boards[id].update();
+  typeset(formula);
+}
+
+function initBoard(id){
+  if(boards[id]||typeof JXG==='undefined')return;
+  const c=configs[id];
+  const board=JXG.JSXGraph.initBoard(c.boardId,{boundingbox:[-10,9,10,-9],axis:true,showNavigation:false,showCopyright:false,pan:{enabled:true},zoom:{wheel:true,needShift:false},keepaspectratio:false});
+  board.create('functiongraph',[x=>c.fn(x,c.state),-60,60],{strokeWidth:2.5,strokeColor:'#1f5f9f',highlight:false});
+  board.create('functiongraph',[()=>c.right(c.state),-60,60],{strokeWidth:2,dash:2,strokeColor:'#2f855a',highlight:false});
+  board.create('functiongraph',[()=>c.left(c.state),-60,60],{strokeWidth:2,dash:3,strokeColor:'#2f855a',highlight:false});
+  if(c.vertical(c.state)!==null){
+    board.create('line',[[()=>c.vertical(c.state),0],[()=>c.vertical(c.state),1]],{straightFirst:true,straightLast:true,dash:2,strokeWidth:1.8,strokeColor:'#b33a3a',highlight:false});
+    board.create('text',[()=>c.vertical(c.state)+0.25,7.8,()=>`\\(x=${fmt(c.vertical(c.state))}\\)`],{useMathJax:true,fixed:true,fontSize:12});
+  }
+  board.create('text',[-9.2,()=>c.right(c.state)+0.35,()=>`\\(y=${fmt(c.right(c.state))}\\)`],{useMathJax:true,fixed:true,fontSize:13});
+  board.create('text',[-9.2,()=>c.left(c.state)-0.45,()=>`\\(y=${fmt(c.left(c.state))}\\)`],{useMathJax:true,fixed:true,fontSize:13});
+  boards[id]=board;
+  sync(id);
+}
+
+function resizeBoard(id){
+  const board=boards[id];if(!board)return;
+  const el=byId(configs[id].boardId);
+  board.resizeContainer(el.clientWidth,el.clientHeight,true);
+  board.fullUpdate();
+}
+
+function activateTab(id){
+  document.querySelectorAll('.tab-button').forEach(btn=>{
+    const active=btn.dataset.tab===id;
+    btn.classList.toggle('active',active);
+    btn.setAttribute('aria-selected',active?'true':'false');
+  });
+  document.querySelectorAll('.tab-panel').forEach(panel=>panel.classList.toggle('active',panel.id===id));
+  requestAnimationFrame(()=>{
+    initBoard(id);
+    resizeBoard(id);
+    typeset(byId(id));
+  });
+}
+
+function showGraphError(id,msg){
+  const el=byId(configs[id].boardId);if(!el)return;
+  el.closest('.graph-panel').classList.add('graph-error');
+  if(!el.querySelector('svg,canvas'))el.textContent='לא ניתן לטעון את הגרף. יש לפתוח את הקובץ עם חיבור לאינטרנט. '+msg;
+}
+
+async function boot(){
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){try{await MathJax.startup.promise;}catch(e){}}
+  if(typeof JXG==='undefined')throw new Error('JSXGraph לא נטען');
+  Object.keys(configs).forEach(id=>{
+    const c=configs[id];
+    Object.values(c.inputs).forEach(inputId=>byId(inputId).addEventListener('input',()=>sync(id)));
+  });
+  document.querySelectorAll('.tab-button').forEach(btn=>btn.addEventListener('click',()=>activateTab(btn.dataset.tab)));
+  initBoard('ex1');
+  sync('ex1');sync('ex2');sync('ex3');
+  typeset();
+}
+
+window.addEventListener('load',function(){
+  boot().catch(function(err){console.error(err);showGraphError('ex1',err.message||'');});
+  window.addEventListener('resize',function(){Object.keys(boards).forEach(resizeBoard);});
+});
+})();
+</script>
+</body>
+</html>
