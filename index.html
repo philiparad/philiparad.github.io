@@ -1,852 +1,812 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recursive Stack Frames: PreOrder, InOrder, PostOrder</title>
-  <style>
-    :root{
-      --bg:#020617;
-      --bg2:#0f172a;
-      --panel:#111827;
-      --text:#e5e7eb;
-      --muted:#94a3b8;
-      --call:#ef4444;
-      --return:#22c55e;
-      --active:#f59e0b;
-      --visit:#60a5fa;
-      --null:#f8fafc;
-      --tree-node:#dbeafe;
-      --tree-stroke:#334155;
-      --border:rgba(255,255,255,.08);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:linear-gradient(180deg,var(--bg),var(--bg2));
-      color:var(--text);
-    }
-    .wrap{max-width:2100px;margin:0 auto;padding:18px}
-    h1{margin:0 0 8px;font-size:2rem}
-    .lead{margin:0 0 18px;color:var(--muted);line-height:1.6}
-    .triple{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:18px;
-      align-items:start;
-    }
-    .panel{
-      background:rgba(17,24,39,.96);
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 12px 30px rgba(0,0,0,.22);
-      overflow:hidden;
-    }
-    .panel h2{
-      margin:0 0 10px;
-      font-size:1.25rem;
-    }
-    .toolbar{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-bottom:12px;
-    }
-    button{
-      border:none;border-radius:12px;padding:9px 13px;font:inherit;cursor:pointer;
-      background:#2563eb;color:#fff;font-weight:700;
-    }
-    button.secondary{background:#334155}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .badge{
-      background:#1e293b;border:1px solid var(--border);
-      color:#cbd5e1;padding:8px 12px;border-radius:999px;font-size:.95rem
-    }
-    svg.stack-svg{
-      width:100%;
-      height:auto;
-      display:block;
-      background:#f4f4f5;
-      border-radius:14px;
-      margin-bottom:12px;
-    }
-    .legend{
-      display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;margin-bottom:12px
-    }
-    .legend-item{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:.9rem}
-    .dot{width:14px;height:14px;border-radius:50%}
-    .subgrid{
-      display:grid;
-      gap:12px;
-    }
-    .subpanel{
-      background:#0b1220;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:12px;
-    }
-    .subpanel h3{
-      margin:0 0 8px;
-      font-size:1rem;
-      color:#dbeafe;
-    }
-    .mono{
-      font-family:Consolas, monospace;
-      background:#020617;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:10px;
-      line-height:1.55;
-      white-space:pre-wrap;
-      color:#dbeafe;
-      overflow:auto;
-    }
-    .tree-wrap{
-      background:#f4f4f5;
-      border-radius:12px;
-      padding:10px;
-      min-height:240px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
-    .tree-wrap svg{display:block;width:100%;height:auto}
-    .code-tabs{display:flex;gap:8px;margin-bottom:10px}
-    .tab-btn{background:#334155}
-    .tab-btn.active{background:#2563eb}
-    .code-panel{min-height:136px}
-    .small{font-size:.95rem;color:var(--muted);line-height:1.55}
-    .note{color:#cbd5e1;line-height:1.6}
-    .tree-default .nodeLabel,
-    .tree-stack .nodeLabel,
-    .tree-visit .nodeLabel,
-    .tree-active .nodeLabel{
-      color:#111827 !important;
-      fill:#111827 !important;
-      font-weight:700 !important;
-    }
-    .tree-default ellipse,
-    .tree-default circle,
-    .tree-default rect,
-    .tree-default polygon,
-    .tree-default path{
-      fill:var(--tree-node) !important;
-      stroke:var(--tree-stroke) !important;
-      stroke-width:2px !important;
-    }
-    .tree-stack ellipse,
-    .tree-stack circle,
-    .tree-stack rect,
-    .tree-stack polygon,
-    .tree-stack path{
-      fill:#ffffff !important;
-      stroke:#64748b !important;
-      stroke-width:4px !important;
-    }
-    .tree-visit ellipse,
-    .tree-visit circle,
-    .tree-visit rect,
-    .tree-visit polygon,
-    .tree-visit path{
-      fill:#dbeafe !important;
-      stroke:#2563eb !important;
-      stroke-width:4px !important;
-    }
-    .tree-active ellipse,
-    .tree-active circle,
-    .tree-active rect,
-    .tree-active polygon,
-    .tree-active path{
-      fill:#ffedd5 !important;
-      stroke:var(--active) !important;
-      stroke-width:5px !important;
-    }
-    .tree-edge path{
-      stroke:#334155 !important;
-      stroke-width:2.4px !important;
-    }
-    @media (max-width:1700px){
-      .triple{grid-template-columns:1fr}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Browse every learning resource in Philip Arad's mathematics and computer science collection.">
+<title>Philip Arad · Learning Library</title>
+<link rel="icon" href="img/favicon.png">
+<style>
+@font-face{font-family:Roboto;src:url('fonts/roboto-regular-webfont.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:Roboto;src:url('fonts/Roboto-Bold-webfont.woff') format('woff');font-weight:700;font-display:swap}
+:root{--ink:#172128;--muted:#66747c;--paper:#f5f2eb;--card:#fffdf8;--line:#d9d5ca;--teal:#126b68;--orange:#e46f3d;--yellow:#e9b949}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Roboto,Arial,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;background-image:radial-gradient(#a9a499 0.6px,transparent .7px);background-size:7px 7px;z-index:-1}
+a{color:inherit}
+.site-header{padding:20px clamp(20px,5vw,72px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:12px;align-items:center;text-decoration:none;font-weight:700;letter-spacing:.02em}.brand-mark{display:grid;place-items:center;width:38px;height:38px;background:var(--ink);color:white;border-radius:50%;font-family:Georgia,serif;font-size:21px}
+.header-link{font-size:.9rem;color:var(--muted);text-underline-offset:4px}
+main{width:min(1240px,calc(100% - 40px));margin:auto}
+.hero{padding:clamp(64px,10vw,120px) 0 56px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);gap:56px;align-items:end}
+.eyebrow{margin:0 0 18px;color:var(--teal);font-size:.8rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+h1{margin:0;max-width:850px;font-family:Georgia,'Times New Roman',serif;font-size:clamp(3.3rem,8vw,7rem);font-weight:400;letter-spacing:-.055em;line-height:.88}
+h1 em{color:var(--orange);font-weight:400}.intro{margin:0 0 10px;color:var(--muted);font-size:clamp(1rem,1.5vw,1.2rem);line-height:1.65}
+.search-wrap{position:sticky;top:14px;z-index:5;margin-bottom:74px;filter:drop-shadow(0 9px 20px rgba(23,33,40,.09))}
+.search-wrap label{position:absolute;left:21px;top:50%;translate:0 -50%;font-size:1.3rem;color:var(--teal)}
+#search{width:100%;padding:19px 118px 19px 56px;border:1px solid var(--line);border-radius:5px;background:rgba(255,253,248,.96);font:inherit;font-size:1rem;color:var(--ink);outline:none}
+#search:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(18,107,104,.15)}.result-count{position:absolute;right:18px;top:50%;translate:0 -50%;font-size:.82rem;color:var(--muted)}
+.collection{display:grid;grid-template-columns:220px 1fr;gap:42px;padding:0 0 76px;margin-bottom:76px;border-bottom:1px solid var(--line)}
+.section-heading{display:flex;gap:14px;align-items:flex-start;position:sticky;top:100px;align-self:start}.section-icon{display:grid;place-items:center;flex:0 0 42px;height:42px;border:1px solid var(--ink);border-radius:50%;font:1.25rem Georgia}
+h2{font:400 1.45rem/1.15 Georgia;margin:2px 0 7px}.section-heading p{margin:0;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}
+.resource-grid{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.resource a{min-height:92px;display:flex;gap:14px;align-items:center;padding:16px;border:1px solid var(--line);background:rgba(255,253,248,.65);text-decoration:none;transition:.2s ease}
+.resource a:hover,.resource a:focus-visible{background:var(--card);border-color:var(--teal);transform:translateY(-2px);box-shadow:0 8px 24px rgba(23,33,40,.07);outline:none}
+.file-type{flex:0 0 42px;text-align:center;color:var(--orange);font-size:.66rem;font-weight:700;letter-spacing:.08em}.resource-copy{min-width:0;display:grid;gap:7px}.resource strong{font-size:.95rem;line-height:1.3;font-weight:700}.resource small{color:var(--muted);font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:left}.arrow{margin-left:auto;color:var(--teal);font-size:1.15rem}
+.empty{display:none;text-align:center;padding:40px;border:1px dashed var(--line);color:var(--muted);margin-bottom:80px}footer{padding:28px clamp(20px,5vw,72px) 50px;color:var(--muted);font-size:.82rem}
+[hidden]{display:none!important}
+@media(max-width:800px){.hero{grid-template-columns:1fr;gap:24px}.collection{grid-template-columns:1fr;gap:22px}.section-heading{position:static}.resource-grid{grid-template-columns:1fr}h1{font-size:clamp(3rem,16vw,5rem)}}
+@media(max-width:480px){main{width:min(100% - 28px,1240px)}.site-header{padding:16px}.header-link{display:none}#search{padding-right:20px}.result-count{display:none}.resource a{padding:13px 12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.resource a{transition:none}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Recursive Stack Frame Diagram for Tree Traversals</h1>
-    <div class="triple">
-      <section class="panel traversal-panel" data-type="preorder">
-        <h2>PreOrder Traversal</h2>
-        <div class="toolbar">
-          <button class="prevBtn secondary">Previous</button>
-          <button class="nextBtn">Next</button>
-          <button class="playBtn secondary">Play</button>
-          <button class="resetBtn secondary">Reset</button>
-          <span class="badge">Step: <span class="stepLabel">1</span> / <span class="stepTotal">1</span></span>
-        </div>
-        <svg class="stack-svg diagramSvg" viewBox="0 0 1200 760"></svg>
-        <div class="legend">
-          <div class="legend-item"><span class="dot" style="background:#f59e0b"></span>Current frame</div>
-          <div class="legend-item"><span class="dot" style="background:#60a5fa"></span>Visit action</div>
-          <div class="legend-item"><span class="dot" style="background:#ef4444"></span>Call arrow</div>
-          <div class="legend-item"><span class="dot" style="background:#22c55e"></span>Return arrow</div>
-          <div class="legend-item"><span class="dot" style="background:#f8fafc;border:1px solid #111827"></span>Null frame</div>
-        </div>
-        <div class="subgrid">
-          <div class="subpanel">
-            <h3>Binary Tree</h3>
-            <div class="tree-wrap"><div class="treeMermaid"></div></div>
-          </div>
-          <div class="subpanel">
-            <h3>Printed Output</h3>
-            <div class="mono outputBox"></div>
-          </div>
-          <div class="subpanel">
-            <h3>Code</h3>
-            <div class="code-tabs">
-              <button class="tab-btn active" data-lang="csharp">C#</button>
-              <button class="tab-btn" data-lang="java">Java</button>
-            </div>
-            <div class="mono code-panel codeCSharp"></div>
-            <div class="mono code-panel codeJava" style="display:none"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel traversal-panel" data-type="inorder">
-        <h2>InOrder Traversal</h2>
-        <div class="toolbar">
-          <button class="prevBtn secondary">Previous</button>
-          <button class="nextBtn">Next</button>
-          <button class="playBtn secondary">Play</button>
-          <button class="resetBtn secondary">Reset</button>
-          <span class="badge">Step: <span class="stepLabel">1</span> / <span class="stepTotal">1</span></span>
-        </div>
-        <svg class="stack-svg diagramSvg" viewBox="0 0 1200 760"></svg>
-        <div class="legend">
-          <div class="legend-item"><span class="dot" style="background:#f59e0b"></span>Current frame</div>
-          <div class="legend-item"><span class="dot" style="background:#60a5fa"></span>Visit action</div>
-          <div class="legend-item"><span class="dot" style="background:#ef4444"></span>Call arrow</div>
-          <div class="legend-item"><span class="dot" style="background:#22c55e"></span>Return arrow</div>
-          <div class="legend-item"><span class="dot" style="background:#f8fafc;border:1px solid #111827"></span>Null frame</div>
-        </div>
-        <div class="subgrid">
-          <div class="subpanel">
-            <h3>Binary Tree</h3>
-            <div class="tree-wrap"><div class="treeMermaid"></div></div>
-          </div>
-          <div class="subpanel">
-            <h3>Printed Output</h3>
-            <div class="mono outputBox"></div>
-          </div>
-          <div class="subpanel">
-            <h3>Code</h3>
-            <div class="code-tabs">
-              <button class="tab-btn active" data-lang="csharp">C#</button>
-              <button class="tab-btn" data-lang="java">Java</button>
-            </div>
-            <div class="mono code-panel codeCSharp"></div>
-            <div class="mono code-panel codeJava" style="display:none"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel traversal-panel" data-type="postorder">
-        <h2>PostOrder Traversal</h2>
-        <div class="toolbar">
-          <button class="prevBtn secondary">Previous</button>
-          <button class="nextBtn">Next</button>
-          <button class="playBtn secondary">Play</button>
-          <button class="resetBtn secondary">Reset</button>
-          <span class="badge">Step: <span class="stepLabel">1</span> / <span class="stepTotal">1</span></span>
-        </div>
-        <svg class="stack-svg diagramSvg" viewBox="0 0 1200 760"></svg>
-        <div class="legend">
-          <div class="legend-item"><span class="dot" style="background:#f59e0b"></span>Current frame</div>
-          <div class="legend-item"><span class="dot" style="background:#60a5fa"></span>Visit action</div>
-          <div class="legend-item"><span class="dot" style="background:#ef4444"></span>Call arrow</div>
-          <div class="legend-item"><span class="dot" style="background:#22c55e"></span>Return arrow</div>
-          <div class="legend-item"><span class="dot" style="background:#f8fafc;border:1px solid #111827"></span>Null frame</div>
-        </div>
-        <div class="subgrid">
-          <div class="subpanel">
-            <h3>Binary Tree</h3>
-            <div class="tree-wrap"><div class="treeMermaid"></div></div>
-          </div>
-          <div class="subpanel">
-            <h3>Printed Output</h3>
-            <div class="mono outputBox"></div>
-          </div>
-          <div class="subpanel">
-            <h3>Code</h3>
-            <div class="code-tabs">
-              <button class="tab-btn active" data-lang="csharp">C#</button>
-              <button class="tab-btn" data-lang="java">Java</button>
-            </div>
-            <div class="mono code-panel codeCSharp"></div>
-            <div class="mono code-panel codeJava" style="display:none"></div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-
-    const tree = {
-      value: 1,
-      left: {
-        value: 2,
-        left: { value: 4, left: null, right: null },
-        right: { value: 5, left: null, right: null }
-      },
-      right: { value: 3, left: null, right: null }
-    };
-
-    const treeMermaidCode = `flowchart TD
-    n1((1)) --> n2((2))
-    n1 --> n3((3))
-    n2 --> n4((4))
-    n2 --> n5((5))`;
-
-    const codeMap = {
-      preorder: {
-        csharp: `public static void PreOrder<T>(BinNode<T> node)
-{
-    if (node == null) return;
-
-    Console.Write(node.GetValue() + " ");
-    PreOrder(node.GetLeft());
-    PreOrder(node.GetRight());
-}`,
-        java: `public static <T> void preOrder(BinNode<T> node)
-{
-    if (node == null) return;
-
-    System.out.print(node.getValue() + " ");
-    preOrder(node.getLeft());
-    preOrder(node.getRight());
-}`
-      },
-      inorder: {
-        csharp: `public static void InOrder<T>(BinNode<T> node)
-{
-    if (node == null) return;
-
-    InOrder(node.GetLeft());
-    Console.Write(node.GetValue() + " ");
-    InOrder(node.GetRight());
-}`,
-        java: `public static <T> void inOrder(BinNode<T> node)
-{
-    if (node == null) return;
-
-    inOrder(node.getLeft());
-    System.out.print(node.getValue() + " ");
-    inOrder(node.getRight());
-}`
-      },
-      postorder: {
-        csharp: `public static void PostOrder<T>(BinNode<T> node)
-{
-    if (node == null) return;
-
-    PostOrder(node.GetLeft());
-    PostOrder(node.GetRight());
-    Console.Write(node.GetValue() + " ");
-}`,
-        java: `public static <T> void postOrder(BinNode<T> node)
-{
-    if (node == null) return;
-
-    postOrder(node.getLeft());
-    postOrder(node.getRight());
-    System.out.print(node.getValue() + " ");
-}`
-      }
-    };
-
-    const framePos = {
-      1: {x:520, y:60},
-      2: {x:280, y:230},
-      3: {x:760, y:230},
-      4: {x:140, y:430},
-      5: {x:420, y:430},
-      "4-left-null": {x:20, y:600},
-      "4-right-null": {x:200, y:600},
-      "5-left-null": {x:340, y:600},
-      "5-right-null": {x:520, y:600},
-      "3-left-null": {x:680, y:600},
-      "3-right-null": {x:860, y:600}
-    };
-
-    const FRAME_W = 160;
-    const FRAME_H = 90;
-    const NULL_R = 34;
-    const RETURN_OFFSET = 14;
-
-    function createSvg(tag, attrs = {}) {
-      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
-      Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
-      return el;
-    }
-
-    function defs() {
-      const d = createSvg("defs");
-      const callMarker = createSvg("marker", {
-        id:"arrowCall", markerWidth:"8.8", markerHeight:"8.8",
-        refX:"8.8", refY:"4.4", orient:"auto", markerUnits:"userSpaceOnUse"
-      });
-      callMarker.appendChild(createSvg("path",{d:"M0,0 L8.8,4.4 L0,8.8 Z", fill:"#ef4444"}));
-      const retMarker = createSvg("marker", {
-        id:"arrowReturn", markerWidth:"8.8", markerHeight:"8.8",
-        refX:"8.8", refY:"4.4", orient:"auto", markerUnits:"userSpaceOnUse"
-      });
-      retMarker.appendChild(createSvg("path",{d:"M0,0 L8.8,4.4 L0,8.8 Z", fill:"#22c55e"}));
-      d.appendChild(callMarker);
-      d.appendChild(retMarker);
-      return d;
-    }
-
-    function frameRect(x, y, label, active=false, visit=false, isNull=false) {
-      const g = createSvg("g");
-      if (isNull) {
-        const circle = createSvg("circle", {
-          cx: x + NULL_R, cy: y + NULL_R, r: NULL_R,
-          fill: "#f8fafc",
-          stroke: active ? "#f59e0b" : "#cbd5e1",
-          "stroke-width": active ? "4" : "2"
-        });
-        const text = createSvg("text", {
-          x: x + NULL_R, y: y + NULL_R + 7,
-          "text-anchor": "middle", "font-size": "16",
-          "font-family": "Consolas, monospace", fill: "#111827", "font-weight": "700"
-        });
-        text.textContent = "p(null)";
-        g.append(circle, text);
-        return g;
-      }
-      const rect = createSvg("rect", {
-        x, y, width:FRAME_W, height:FRAME_H, rx:10, ry:10,
-        fill: visit ? "#dbeafe" : "#ffffff",
-        stroke: active ? "#f59e0b" : "#cbd5e1",
-        "stroke-width": active ? "4" : "2"
-      });
-      const text1 = createSvg("text", {
-        x:x+FRAME_W/2, y:y+36, "text-anchor":"middle", "font-size":"24",
-        "font-family":"Consolas, monospace", fill:"#111827", "font-weight":"700"
-      });
-      text1.textContent = `p(${label.value ?? label})`;
-      const text2 = createSvg("text", {
-        x:x+FRAME_W/2, y:y+58, "text-anchor":"middle", "font-size":"14",
-        "font-family":"Arial", fill:"#334155", "font-weight":"700"
-      });
-      text2.textContent = "printed:";
-      const text3 = createSvg("text", {
-        x:x+FRAME_W/2, y:y+78, "text-anchor":"middle", "font-size":"14",
-        "font-family":"Consolas, monospace", fill:"#0f172a"
-      });
-      text3.textContent = label.printedText || "∅";
-      g.append(rect, text1, text2, text3);
-      return g;
-    }
-
-    function buildNodeMap(node, map = new Map()) {
-      if (!node) return map;
-      map.set(node.value, node);
-      buildNodeMap(node.left, map);
-      buildNodeMap(node.right, map);
-      return map;
-    }
-
-    function findParent(root, targetValue, parent = null) {
-      if (!root) return null;
-      if (root.value === targetValue) return parent;
-      return findParent(root.left, targetValue, root) || findParent(root.right, targetValue, root);
-    }
-
-    function traversalOrder(node, type, list = []) {
-      if (!node) return list;
-      if (type === "preorder") list.push(node.value);
-      traversalOrder(node.left, type, list);
-      if (type === "inorder") list.push(node.value);
-      traversalOrder(node.right, type, list);
-      if (type === "postorder") list.push(node.value);
-      return list;
-    }
-
-    function stepsFromOrder(order, type, tree) {
-      const nodeMap = buildNodeMap(tree);
-      return order.map((value, idx) => ({
-        current: value,
-        action: "visit",
-        output: order.slice(0, idx + 1),
-        phase: type,
-        left: !!nodeMap.get(value).left,
-        right: !!nodeMap.get(value).right
-      }));
-    }
-
-    function pathTo(tree, nodeMap, value) {
-      const path = [];
-      let cur = nodeMap.get(value);
-      while (cur) {
-        path.push(cur.value);
-        cur = findParent(tree, cur.value);
-      }
-      return path.reverse();
-    }
-
-    function nodeActionSequence(tree, type) {
-      const order = traversalOrder(tree, type, []);
-      const sequence = [];
-      const stack = [];
-      const output = [];
-
-      function nullKeyFor(parentNode, side) {
-        return `${parentNode}-${side}-null`;
-      }
-
-      function addNullRoundTrip(parentNode, side) {
-        const nullKey = nullKeyFor(parentNode, side);
-        sequence.push({
-          type: "call-null",
-          from: parentNode,
-          to: nullKey,
-          side,
-          nullKey,
-          stack: [...stack, nullKey],
-          output: [...output]
-        });
-        sequence.push({
-          type: "return-null",
-          from: nullKey,
-          to: parentNode,
-          side,
-          nullKey,
-          stack: [...stack],
-          output: [...output]
-        });
-      }
-
-      function walk(node) {
-        if (!node) return;
-
-        stack.push(node.value);
-        sequence.push({ type: "enter", node: node.value, stack: [...stack], output: [...output] });
-
-        if (type === "preorder") {
-          output.push(node.value);
-          sequence.push({ type: "visit", node: node.value, stack: [...stack], output: [...output] });
-        }
-
-        if (node.left) {
-          sequence.push({
-            type: "go-left",
-            from: node.value,
-            to: node.left.value,
-            stack: [...stack],
-            output: [...output]
-          });
-          walk(node.left);
-        } else {
-          addNullRoundTrip(node.value, "left");
-        }
-
-        if (type === "inorder") {
-          output.push(node.value);
-          sequence.push({ type: "visit", node: node.value, stack: [...stack], output: [...output] });
-        }
-
-        if (node.right) {
-          sequence.push({
-            type: "go-right",
-            from: node.value,
-            to: node.right.value,
-            stack: [...stack],
-            output: [...output]
-          });
-          walk(node.right);
-        } else {
-          addNullRoundTrip(node.value, "right");
-        }
-
-        if (type === "postorder") {
-          output.push(node.value);
-          sequence.push({ type: "visit", node: node.value, stack: [...stack], output: [...output] });
-        }
-
-        sequence.push({ type: "return", node: node.value, stack: [...stack], output: [...output] });
-        stack.pop();
-      }
-
-      walk(tree);
-      return { order, sequence };
-    }
-
-    function getFrameCenter(key) {
-      const pos = framePos[key];
-      if (String(key).includes("-null")) return { x: pos.x + NULL_R, y: pos.y + NULL_R };
-      return { x: pos.x + FRAME_W / 2, y: pos.y + FRAME_H / 2 };
-    }
-
-    function lineCircleIntersection(cx, cy, tx, ty, circleCx, circleCy, r) {
-      const dx = tx - cx, dy = ty - cy;
-      const len = Math.sqrt(dx * dx + dy * dy) || 1;
-      return { x: circleCx + (dx / len) * r, y: circleCy + (dy / len) * r };
-    }
-
-    function lineRectIntersection(cx, cy, tx, ty, rectX, rectY, rectW, rectH) {
-      const dx = tx - cx, dy = ty - cy;
-      const candidates = [];
-      if (dx !== 0) {
-        let t = (rectX - cx) / dx; let y = cy + t * dy;
-        if (t > 0 && y >= rectY && y <= rectY + rectH) candidates.push({ t, x: rectX, y });
-        t = (rectX + rectW - cx) / dx; y = cy + t * dy;
-        if (t > 0 && y >= rectY && y <= rectY + rectH) candidates.push({ t, x: rectX + rectW, y });
-      }
-      if (dy !== 0) {
-        let t = (rectY - cy) / dy; let x = cx + t * dx;
-        if (t > 0 && x >= rectX && x <= rectX + rectW) candidates.push({ t, x, y: rectY });
-        t = (rectY + rectH - cy) / dy; x = cx + t * dx;
-        if (t > 0 && x >= rectX && x <= rectX + rectW) candidates.push({ t, x, y: rectY + rectH });
-      }
-      candidates.sort((a, b) => a.t - b.t);
-      return candidates[0] || { x: cx, y: cy };
-    }
-
-    function getDockPoints(fromKey, toKey) {
-      const fromPos = framePos[fromKey], toPos = framePos[toKey];
-      const fromCenter = getFrameCenter(fromKey), toCenter = getFrameCenter(toKey);
-      const fromIsNull = String(fromKey).includes("-null");
-      const toIsNull = String(toKey).includes("-null");
-      const start = fromIsNull
-        ? lineCircleIntersection(fromCenter.x, fromCenter.y, toCenter.x, toCenter.y, fromCenter.x, fromCenter.y, NULL_R)
-        : lineRectIntersection(fromCenter.x, fromCenter.y, toCenter.x, toCenter.y, fromPos.x, fromPos.y, FRAME_W, FRAME_H);
-      const end = toIsNull
-        ? lineCircleIntersection(toCenter.x, toCenter.y, fromCenter.x, fromCenter.y, toCenter.x, toCenter.y, NULL_R)
-        : lineRectIntersection(toCenter.x, toCenter.y, fromCenter.x, fromCenter.y, toPos.x, toPos.y, FRAME_W, FRAME_H);
-      return { start, end };
-    }
-
-    function arrow(fromKey, toKey, color, kind, dashed=false, offset=0) {
-      const g = createSvg("g");
-      const { start, end } = getDockPoints(fromKey, toKey);
-      const rawDx = end.x - start.x, rawDy = end.y - start.y;
-      const len = Math.sqrt(rawDx * rawDx + rawDy * rawDy) || 1;
-      const nx = -rawDy / len, ny = rawDx / len;
-      const shiftX = nx * offset, shiftY = ny * offset;
-      const sx = start.x + shiftX, sy = start.y + shiftY;
-      const trim = 8;
-      const ex = end.x + shiftX - (rawDx / len) * trim;
-      const ey = end.y + shiftY - (rawDy / len) * trim;
-      const dx = ex - sx, dy = ey - sy;
-      const c1x = sx + dx * 0.35, c1y = sy;
-      const c2x = sx + dx * 0.65, c2y = ey;
-      const path = createSvg("path", {
-        d: `M ${sx} ${sy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${ex} ${ey}`,
-        fill:"none", stroke:color, "stroke-width":"4",
-        "marker-end": kind === "call" ? "url(#arrowCall)" : "url(#arrowReturn)",
-        "stroke-dasharray": dashed ? "10 7" : ""
-      });
-      g.appendChild(path);
-      return g;
-    }
-
-    function getSyncState(ev) {
-      const activeNode =
-        ev.type === "enter" || ev.type === "visit" || ev.type === "return" ? ev.node :
-        ev.type === "go-left" || ev.type === "go-right" || ev.type === "call-null" ? ev.from :
-        ev.type === "return-null" ? ev.to : null;
-      const visitNode = ev.type === "visit" ? ev.node : null;
-      const stackNodes = (ev.stack || []).filter(v => v !== null && !String(v).includes("-null"));
-      return { activeNode, visitNode, stackNodes };
-    }
-
-    function classForNode(nodeValue, sync) {
-      if (sync.visitNode === nodeValue) return "tree-visit";
-      if (sync.activeNode === nodeValue) return "tree-active";
-      if (sync.stackNodes.includes(nodeValue)) return "tree-stack";
-      return "tree-default";
-    }
-
-    async function renderMermaidInto(host) {
-      const id = "mermaid-" + Math.random().toString(36).slice(2);
-      const { svg } = await mermaid.render(id, treeMermaidCode);
-      host.innerHTML = svg;
-    }
-
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: "base",
-      securityLevel: "loose",
-      flowchart: { useMaxWidth: true, htmlLabels: true }
-    });
-
-    const traversalData = {
-      preorder: nodeActionSequence(tree, "preorder"),
-      inorder: nodeActionSequence(tree, "inorder"),
-      postorder: nodeActionSequence(tree, "postorder")
-    };
-
-    class TraversalPanel {
-      constructor(root) {
-        this.root = root;
-        this.type = root.dataset.type;
-        this.data = traversalData[this.type];
-        this.sequence = this.data.sequence;
-        this.currentIndex = 0;
-        this.timer = null;
-
-        this.svg = root.querySelector(".diagramSvg");
-        this.stepLabel = root.querySelector(".stepLabel");
-        this.stepTotal = root.querySelector(".stepTotal");
-        this.outputBox = root.querySelector(".outputBox");
-        this.treeMermaid = root.querySelector(".treeMermaid");
-        this.prevBtn = root.querySelector(".prevBtn");
-        this.nextBtn = root.querySelector(".nextBtn");
-        this.playBtn = root.querySelector(".playBtn");
-        this.resetBtn = root.querySelector(".resetBtn");
-        this.codeCSharp = root.querySelector(".codeCSharp");
-        this.codeJava = root.querySelector(".codeJava");
-        this.tabButtons = root.querySelectorAll(".tab-btn");
-
-        this.codeCSharp.textContent = codeMap[this.type].csharp;
-        this.codeJava.textContent = codeMap[this.type].java;
-
-        this.prevBtn.addEventListener("click", () => {
-          if (this.currentIndex > 0) { this.currentIndex--; this.update(); }
-        });
-        this.nextBtn.addEventListener("click", () => {
-          if (this.currentIndex < this.sequence.length - 1) { this.currentIndex++; this.update(); }
-        });
-        this.resetBtn.addEventListener("click", () => {
-          this.currentIndex = 0;
-          this.stopPlay();
-          this.update();
-        });
-        this.playBtn.addEventListener("click", () => {
-          if (this.timer) {
-            this.stopPlay();
-            return;
-          }
-          this.playBtn.textContent = "Stop";
-          this.timer = setInterval(() => {
-            if (this.currentIndex >= this.sequence.length - 1) {
-              this.stopPlay();
-              return;
-            }
-            this.currentIndex++;
-            this.update();
-          }, 1300);
-        });
-
-        this.tabButtons.forEach(btn => {
-          btn.addEventListener("click", () => {
-            const isCSharp = btn.dataset.lang === "csharp";
-            this.codeCSharp.style.display = isCSharp ? "block" : "none";
-            this.codeJava.style.display = isCSharp ? "none" : "block";
-            this.tabButtons.forEach(b => b.classList.toggle("active", b === btn));
-          });
-        });
-      }
-
-      stopPlay() {
-        if (this.timer) {
-          clearInterval(this.timer);
-          this.timer = null;
-        }
-        this.playBtn.textContent = "Play";
-      }
-
-      drawBaseFrames(ev) {
-        this.svg.innerHTML = "";
-        this.svg.appendChild(defs());
-
-        const activeNode =
-          ev.type === "enter" || ev.type === "visit" || ev.type === "return" ? ev.node :
-          ev.type === "go-left" || ev.type === "go-right" || ev.type === "call-null" ? ev.from :
-          ev.type === "return-null" ? ev.to : null;
-
-        const printedText = (ev.output && ev.output.length) ? ev.output.join(" ") : "∅";
-
-        [1,2,4,5,3].forEach(n => {
-          const pos = framePos[n];
-          const isVisit = ev.type === "visit" && ev.node === n;
-          const isActive = activeNode === n;
-          this.svg.appendChild(frameRect(pos.x, pos.y, { value:n, printedText }, isActive, isVisit, false));
-        });
-
-        ["4-left-null", "4-right-null", "5-left-null", "5-right-null", "3-left-null", "3-right-null"].forEach(nullKey => {
-          const np = framePos[nullKey];
-          const activeNull = (ev.type === "call-null" || ev.type === "return-null") && ev.nullKey === nullKey;
-          this.svg.appendChild(frameRect(np.x, np.y, nullKey, activeNull, false, true));
-        });
-      }
-
-      drawArrowForEvent(ev) {
-        if (ev.type === "go-left" || ev.type === "go-right") {
-          this.svg.appendChild(arrow(ev.from, ev.to, "#ef4444", "call", false, 0));
-        } else if (ev.type === "call-null") {
-          this.svg.appendChild(arrow(ev.from, ev.nullKey, "#ef4444", "call", true, 0));
-        } else if (ev.type === "return-null") {
-          this.svg.appendChild(arrow(ev.nullKey, ev.to, "#22c55e", "return", true, RETURN_OFFSET));
-        } else if (ev.type === "return") {
-          const parent = findParent(tree, ev.node);
-          if (parent) this.svg.appendChild(arrow(ev.node, parent.value, "#22c55e", "return", false, RETURN_OFFSET));
-        }
-      }
-
-      syncMermaidTree(ev) {
-        const root = this.treeMermaid.querySelector("svg");
-        if (!root) return;
-        root.querySelectorAll(".node").forEach(node => {
-          node.classList.remove("tree-default", "tree-stack", "tree-visit", "tree-active");
-        });
-        root.querySelectorAll(".edgePath").forEach(edge => edge.classList.add("tree-edge"));
-        const sync = getSyncState(ev);
-        root.querySelectorAll(".node").forEach(node => {
-          const label = node.querySelector(".nodeLabel");
-          if (!label) return;
-          const value = Number(label.textContent.trim());
-          if (Number.isNaN(value)) return;
-          node.classList.add(classForNode(value, sync));
-        });
-      }
-
-      update() {
-        const ev = this.sequence[this.currentIndex];
-        this.drawBaseFrames(ev);
-
-        const arrowHistory = this.sequence.slice(0, this.currentIndex + 1).filter(e =>
-          e.type === "go-left" || e.type === "go-right" || e.type === "call-null" || e.type === "return-null" || e.type === "return"
-        );
-
-        const returnArrows = arrowHistory.filter(e => e.type === "return" || e.type === "return-null");
-        const callArrows = arrowHistory.filter(e => e.type === "go-left" || e.type === "go-right" || e.type === "call-null");
-
-        returnArrows.forEach(e => this.drawArrowForEvent(e));
-        callArrows.forEach(e => this.drawArrowForEvent(e));
-
-        this.outputBox.textContent = (ev.output && ev.output.length) ? ev.output.join(" ") : "∅";
-        this.stepLabel.textContent = this.currentIndex + 1;
-        this.stepTotal.textContent = this.sequence.length;
-        this.prevBtn.disabled = this.currentIndex === 0;
-        this.nextBtn.disabled = this.currentIndex === this.sequence.length - 1;
-        this.syncMermaidTree(ev);
-      }
-
-      async init() {
-        await renderMermaidInto(this.treeMermaid);
-        this.update();
-      }
-    }
-
-    const panels = [...document.querySelectorAll(".traversal-panel")].map(el => new TraversalPanel(el));
-    await Promise.all(panels.map(p => p.init()));
-  </script>
-</body>
-</html>
+<header class="site-header"><a class="brand" href="https://philiparad.github.io/"><span class="brand-mark">P</span><span>Philip Arad</span></a><a class="header-link" href="#library">Browse all resources ↓</a></header>
+<main>
+<section class="hero"><div><p class="eyebrow">Open learning archive · 2026</p><h1>Ideas made<br><em>interactive.</em></h1></div><p class="intro">A complete library of mathematics and computer science lessons, exercises, labs, and interactive explorations.</p></section>
+<div class="search-wrap" id="library"><label for="search" aria-hidden="true">⌕</label><input id="search" type="search" placeholder="Search by title, topic, or path…" autocomplete="off"><span class="result-count" aria-live="polite"><b id="count">146</b> files</span></div>
+<div id="collections"><section class="collection" data-group>
+<div class="section-heading"><span class="section-icon" aria-hidden="true">⌘</span><div><h2>Computer Science</h2><p><span data-visible>22</span> resources</p></div></div>
+<ul class="resource-grid"><li class="resource" data-search="דף עזר לבגרות — פעולות עזר למחרוזות c# — גרסת עמודה אחת computers/371/stringcs.html">
+<a href="https://philiparad.github.io/computers/371/stringCS.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עזר לבגרות — פעולות עזר למחרוזות C# — גרסת עמודה אחת</strong><small>computers/371/stringCS.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עזר לבגרות — פעולות עזר למחרוזות java — גרסת עמודה אחת computers/371/stringjava.html">
+<a href="https://philiparad.github.io/computers/371/stringJava.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עזר לבגרות — פעולות עזר למחרוזות Java — גרסת עמודה אחת</strong><small>computers/371/stringJava.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="trackit - לימוד הצבת משתנים computers/loops/trackit_variable_assignment.html">
+<a href="https://philiparad.github.io/computers/Loops/trackit_variable_assignment.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>TrackIt - לימוד הצבת משתנים</strong><small>computers/Loops/trackit_variable_assignment.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="matrix // blackout — מחזירים את האור computers/matrices/matrix_blackout_game.html">
+<a href="https://philiparad.github.io/computers/Matrices/Matrix_Blackout_game.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Matrix // Blackout — מחזירים את האור</strong><small>computers/Matrices/Matrix_Blackout_game.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערכים דו־ממדיים (מטריצות) - סביבת תרגול אינטראקטיבית computers/matrices/matrices_2d_practice_site.html">
+<a href="https://philiparad.github.io/computers/Matrices/matrices_2d_practice_site.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערכים דו־ממדיים (מטריצות) - סביבת תרגול אינטראקטיבית</strong><small>computers/Matrices/matrices_2d_practice_site.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מעבדת המטריצות | לומדים צעד אחר צעד computers/matrices/matrices_lab_site.html">
+<a href="https://philiparad.github.io/computers/Matrices/matrices_lab_site.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מעבדת המטריצות | לומדים צעד אחר צעד</strong><small>computers/Matrices/matrices_lab_site.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערכים דו ממדיים ב-c# computers/matrices/two_dim_arrays_quiz_1.html">
+<a href="https://philiparad.github.io/computers/Matrices/two_dim_arrays_quiz_1.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערכים דו ממדיים ב-C#</strong><small>computers/Matrices/two_dim_arrays_quiz_1.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="אלכסונים במערכים דו־ממדיים computers/matrices/two_dim_arrays_quiz_2.html">
+<a href="https://philiparad.github.io/computers/Matrices/two_dim_arrays_quiz_2.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>אלכסונים במערכים דו־ממדיים</strong><small>computers/Matrices/two_dim_arrays_quiz_2.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מטריצת עצמים computers/matrices/two_dim_arrays_quiz_3.html">
+<a href="https://philiparad.github.io/computers/Matrices/two_dim_arrays_quiz_3.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מטריצת עצמים</strong><small>computers/Matrices/two_dim_arrays_quiz_3.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="perfect binary tree – printtree visualization computers/binarytrees/printtree.html">
+<a href="https://philiparad.github.io/computers/binaryTrees/PrintTree.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Perfect Binary Tree – PrintTree Visualization</strong><small>computers/binaryTrees/PrintTree.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="recursive stack frame diagram + mermaid tree + code tabs computers/binarytrees/inordertreetraversal.html">
+<a href="https://philiparad.github.io/computers/binaryTrees/inOrderTreeTraversal.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Recursive Stack Frame Diagram + Mermaid Tree + Code Tabs</strong><small>computers/binaryTrees/inOrderTreeTraversal.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="interactive perfect binary tree builder computers/binarytrees/perfectbinarytreebuilder.html">
+<a href="https://philiparad.github.io/computers/binaryTrees/perfectBinaryTreeBuilder.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Interactive Perfect Binary Tree Builder</strong><small>computers/binaryTrees/perfectBinaryTreeBuilder.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="postorder traversal stack frame diagram + mermaid tree + code tabs computers/binarytrees/postordertreetraversal.html">
+<a href="https://philiparad.github.io/computers/binaryTrees/postOrderTreeTraversal.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Postorder Traversal Stack Frame Diagram + Mermaid Tree + Code Tabs</strong><small>computers/binaryTrees/postOrderTreeTraversal.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="preorder stack frame diagram + mermaid tree + code tabs computers/binarytrees/preordertreetraversal.html">
+<a href="https://philiparad.github.io/computers/binaryTrees/preOrderTreeTraversal.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Preorder Stack Frame Diagram + Mermaid Tree + Code Tabs</strong><small>computers/binaryTrees/preOrderTreeTraversal.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="recursive stack frames: preorder, inorder, postorder computers/binarytrees/treetraversalsthreepanels.html">
+<a href="https://philiparad.github.io/computers/binaryTrees/treeTraversalsThreePanels.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Recursive Stack Frames: PreOrder, InOrder, PostOrder</strong><small>computers/binaryTrees/treeTraversalsThreePanels.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="fibonacci lab — see recursion unfold computers/recursion/fibonacci_recursion.html">
+<a href="https://philiparad.github.io/computers/recursion/Fibonacci_Recursion.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Fibonacci Lab — See recursion unfold</strong><small>computers/recursion/Fibonacci_Recursion.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מעבדת רקורסיה | הדפסת מערך לפי הסדר computers/recursion/printarrayinorder_lab.html">
+<a href="https://philiparad.github.io/computers/recursion/PrintArrayInOrder_Lab.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מעבדת רקורסיה | הדפסת מערך לפי הסדר</strong><small>computers/recursion/PrintArrayInOrder_Lab.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מעבדת רקורסיה | הדפסת מערך בסדר הפוך computers/recursion/printarrayinreverse_lab.html">
+<a href="https://philiparad.github.io/computers/recursion/PrintArrayInReverse_Lab.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מעבדת רקורסיה | הדפסת מערך בסדר הפוך</strong><small>computers/recursion/PrintArrayInReverse_Lab.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="רקורסיה עם מערכים - סביבת תרגול אינטראקטיבית computers/recursion/recursion_arrays_site.html">
+<a href="https://philiparad.github.io/computers/recursion/recursion_arrays_site.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>רקורסיה עם מערכים - סביבת תרגול אינטראקטיבית</strong><small>computers/recursion/recursion_arrays_site.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="בוחן רקורסיה - c# computers/recursion/recursion_quiz.html">
+<a href="https://philiparad.github.io/computers/recursion/recursion_quiz.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>בוחן רקורסיה - C#</strong><small>computers/recursion/recursion_quiz.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="רקורסיה עם מחרוזות - סביבת תרגול אינטראקטיבית computers/recursion/recursion_strings_site.html">
+<a href="https://philiparad.github.io/computers/recursion/recursion_strings_site.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>רקורסיה עם מחרוזות - סביבת תרגול אינטראקטיבית</strong><small>computers/recursion/recursion_strings_site.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="recursive treasure hunt · recursion lab computers/recursion/recursive_treasure_hunt.html">
+<a href="https://philiparad.github.io/computers/recursion/recursive_treasure_hunt.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Recursive Treasure Hunt · Recursion Lab</strong><small>computers/recursion/recursive_treasure_hunt.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li></ul>
+</section><section class="collection" data-group>
+<div class="section-heading"><span class="section-icon" aria-hidden="true">∑</span><div><h2>Math Lessons</h2><p><span data-visible>61</span> resources</p></div></div>
+<ul class="resource-grid"><li class="resource" data-search="מערך שיעור - אי-שוויונים לביטויים רציונליים math/lessons/אי_שוויונים_לביטויים_רציונליים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%9C%D7%91%D7%99%D7%98%D7%95%D7%99%D7%99%D7%9D_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - אי-שוויונים לביטויים רציונליים</strong><small>math/lessons/אי_שוויונים_לביטויים_רציונליים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - אי-שוויונים פולינומיים ונקודות חיתוך של פונקציות פולינומיות math/lessons/אי_שוויונים_פולינומיים_ונקודות_חיתוך_של_פונקציות_פולינומיות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%99%D7%9D_%D7%95%D7%A0%D7%A7%D7%95%D7%93%D7%95%D7%AA_%D7%97%D7%99%D7%AA%D7%95%D7%9A_%D7%A9%D7%9C_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - אי-שוויונים פולינומיים ונקודות חיתוך של פונקציות פולינומיות</strong><small>math/lessons/אי_שוויונים_פולינומיים_ונקודות_חיתוך_של_פונקציות_פולינומיות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — אי־שוויונים ריבועיים math/lessons/אי_שוויונים_ריבועיים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%A8%D7%99%D7%91%D7%95%D7%A2%D7%99%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — אי־שוויונים ריבועיים</strong><small>math/lessons/אי_שוויונים_ריבועיים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="בעיות מינימום ומקסימום - פונקציית מטרה רציונלית - מערך שיעור math/lessons/בעיות_מינימום_ומקסימום_פונקציית_מטרה_רציונלית.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%91%D7%A2%D7%99%D7%95%D7%AA_%D7%9E%D7%99%D7%A0%D7%99%D7%9E%D7%95%D7%9D_%D7%95%D7%9E%D7%A7%D7%A1%D7%99%D7%9E%D7%95%D7%9D_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%99%D7%AA_%D7%9E%D7%98%D7%A8%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>בעיות מינימום ומקסימום - פונקציית מטרה רציונלית - מערך שיעור</strong><small>math/lessons/בעיות_מינימום_ומקסימום_פונקציית_מטרה_רציונלית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - הגדרת הפונקציות הטריגונומטריות במשולש ישר-זווית - 5 יחידות math/lessons/הגדרת_הפונקציות_הטריגונומטריות_במשולש_ישר_זווית.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%94%D7%92%D7%93%D7%A8%D7%AA_%D7%94%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%94%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA_%D7%91%D7%9E%D7%A9%D7%95%D7%9C%D7%A9_%D7%99%D7%A9%D7%A8_%D7%96%D7%95%D7%95%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - הגדרת הפונקציות הטריגונומטריות במשולש ישר-זווית - 5 יחידות</strong><small>math/lessons/הגדרת_הפונקציות_הטריגונומטריות_במשולש_ישר_זווית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="הוכחת זהויות טריגונומטריות בעזרת מעגל היחידה math/lessons/הוכחת_זהויות_טריגונומטריות_בעזרת_מעגל_היחידה.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%94%D7%95%D7%9B%D7%97%D7%AA_%D7%96%D7%94%D7%95%D7%99%D7%95%D7%AA_%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA_%D7%91%D7%A2%D7%96%D7%A8%D7%AA_%D7%9E%D7%A2%D7%92%D7%9C_%D7%94%D7%99%D7%97%D7%99%D7%93%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>הוכחת זהויות טריגונומטריות בעזרת מעגל היחידה</strong><small>math/lessons/הוכחת_זהויות_טריגונומטריות_בעזרת_מעגל_היחידה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="הוכחת זהויות טריגונומטריות על סמך דף הנוסחאות החדש math/lessons/הוכחת_זהויות_טריגונומטריות_מדף_נוסחאות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%94%D7%95%D7%9B%D7%97%D7%AA_%D7%96%D7%94%D7%95%D7%99%D7%95%D7%AA_%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA_%D7%9E%D7%93%D7%A3_%D7%A0%D7%95%D7%A1%D7%97%D7%90%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>הוכחת זהויות טריגונומטריות על סמך דף הנוסחאות החדש</strong><small>math/lessons/הוכחת_זהויות_טריגונומטריות_מדף_נוסחאות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="התנהגות פונקציה באינסוף - גורם דומיננטי וגורמים זניחים math/lessons/התנהגות_פונקציה_באינסוף.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%94%D7%AA%D7%A0%D7%94%D7%92%D7%95%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%91%D7%90%D7%99%D7%A0%D7%A1%D7%95%D7%A3.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>התנהגות פונקציה באינסוף - גורם דומיננטי וגורמים זניחים</strong><small>math/lessons/התנהגות_פונקציה_באינסוף.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חורים ואי-רציפות סליקה בפונקציות שורש - מערך שיעורים 5 יחידות math/lessons/חורים_ואי_רציפות_סליקה_בפונקציות_שורש.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%95%D7%A8%D7%99%D7%9D_%D7%95%D7%90%D7%99_%D7%A8%D7%A6%D7%99%D7%A4%D7%95%D7%AA_%D7%A1%D7%9C%D7%99%D7%A7%D7%94_%D7%91%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חורים ואי-רציפות סליקה בפונקציות שורש - מערך שיעורים 5 יחידות</strong><small>math/lessons/חורים_ואי_רציפות_סליקה_בפונקציות_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חורים ונקודות אי רציפות בפונקציות שורש - 5 יחידות math/lessons/חורים_ונקודות_אי_רציפות_בפונקציות_אי_רציונליות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%95%D7%A8%D7%99%D7%9D_%D7%95%D7%A0%D7%A7%D7%95%D7%93%D7%95%D7%AA_%D7%90%D7%99_%D7%A8%D7%A6%D7%99%D7%A4%D7%95%D7%AA_%D7%91%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%90%D7%99_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חורים ונקודות אי רציפות בפונקציות שורש - 5 יחידות</strong><small>math/lessons/חורים_ונקודות_אי_רציפות_בפונקציות_אי_רציונליות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חורים ונקודות אי רציפות סליקה - מערך שיעור מלא math/lessons/חורים_ונקודות_אי_רציפות_סליקה.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%95%D7%A8%D7%99%D7%9D_%D7%95%D7%A0%D7%A7%D7%95%D7%93%D7%95%D7%AA_%D7%90%D7%99_%D7%A8%D7%A6%D7%99%D7%A4%D7%95%D7%AA_%D7%A1%D7%9C%D7%99%D7%A7%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חורים ונקודות אי רציפות סליקה - מערך שיעור מלא</strong><small>math/lessons/חורים_ונקודות_אי_רציפות_סליקה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת פונקציה רציונלית - מערך שיעור מעודכן math/lessons/חקירת_פונקציה_רציונלית.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת פונקציה רציונלית - מערך שיעור מעודכן</strong><small>math/lessons/חקירת_פונקציה_רציונלית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות math/lessons/חקירת_פונקציה_רציונלית_עם_פרמטרים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA_%D7%A2%D7%9D_%D7%A4%D7%A8%D7%9E%D7%98%D7%A8%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת פונקציה רציונלית עם פרמטרים - 5 יחידות</strong><small>math/lessons/חקירת_פונקציה_רציונלית_עם_פרמטרים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת פונקציות שורש - מערך שיעור מעודכן math/lessons/חקירת_פונקציות_שורש_ופונקציות_משולבות_שורש.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_%D7%95%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%9E%D7%A9%D7%95%D7%9C%D7%91%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת פונקציות שורש - מערך שיעור מעודכן</strong><small>math/lessons/חקירת_פונקציות_שורש_ופונקציות_משולבות_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פונקציית שורש - מערך שיעורים מופרד - 5 יחידות math/lessons/חקירת_פונקציית_שורש.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%99%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פונקציית שורש - מערך שיעורים מופרד - 5 יחידות</strong><small>math/lessons/חקירת_פונקציית_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת פונקציית שורש עם פרמטר math/lessons/חקירת_פונקציית_שורש_עם_פרמטר.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%99%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_%D7%A2%D7%9D_%D7%A4%D7%A8%D7%9E%D7%98%D7%A8.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת פונקציית שורש עם פרמטר</strong><small>math/lessons/חקירת_פונקציית_שורש_עם_פרמטר.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="טבלת שימור תכונות בטרנספורמציות של גרפים math/lessons/טבלת_שימור_תכונות_בטרנספורמציות_של_גרפים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%98%D7%91%D7%9C%D7%AA_%D7%A9%D7%99%D7%9E%D7%95%D7%A8_%D7%AA%D7%9B%D7%95%D7%A0%D7%95%D7%AA_%D7%91%D7%98%D7%A8%D7%A0%D7%A1%D7%A4%D7%95%D7%A8%D7%9E%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%9C_%D7%92%D7%A8%D7%A4%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>טבלת שימור תכונות בטרנספורמציות של גרפים</strong><small>math/lessons/טבלת_שימור_תכונות_בטרנספורמציות_של_גרפים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - טריגונומטריה במשולש כללי - 5 יחידות math/lessons/טריגונומטריה_במשולש_כללי.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%94_%D7%91%D7%9E%D7%A9%D7%95%D7%9C%D7%A9_%D7%9B%D7%9C%D7%9C%D7%99.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - טריגונומטריה במשולש כללי - 5 יחידות</strong><small>math/lessons/טריגונומטריה_במשולש_כללי.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — טרנספורמציות וחקירת גרפים עם פולינומים ממעלה 3 ו־4 math/lessons/טרנספורמציות_סימטריה_וחקירת_גרפים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%98%D7%A8%D7%A0%D7%A1%D7%A4%D7%95%D7%A8%D7%9E%D7%A6%D7%99%D7%95%D7%AA_%D7%A1%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94_%D7%95%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%92%D7%A8%D7%A4%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — טרנספורמציות וחקירת גרפים עם פולינומים ממעלה 3 ו־4</strong><small>math/lessons/טרנספורמציות_סימטריה_וחקירת_גרפים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="טרנספורמציות של פונקציות רציונליות - מערך שיעור מלא עם תרגול ופתרונות math/lessons/טרנספורמציות_של_פונקציות_רציונליות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%98%D7%A8%D7%A0%D7%A1%D7%A4%D7%95%D7%A8%D7%9E%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%9C_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>טרנספורמציות של פונקציות רציונליות - מערך שיעור מלא עם תרגול ופתרונות</strong><small>math/lessons/טרנספורמציות_של_פונקציות_רציונליות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - ייצוג גרפי וטרנספורמציות של פונקציות טריגונומטריות - 5 יחידות math/lessons/ייצוג_גרפי_של_פונקציות_טריגונומטריות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%99%D7%99%D7%A6%D7%95%D7%92_%D7%92%D7%A8%D7%A4%D7%99_%D7%A9%D7%9C_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - ייצוג גרפי וטרנספורמציות של פונקציות טריגונומטריות - 5 יחידות</strong><small>math/lessons/ייצוג_גרפי_של_פונקציות_טריגונומטריות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מילון מונחים מתורת הקבוצות math/lessons/מילון_מונחים_מתורת_הקבוצות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%99%D7%9C%D7%95%D7%9F_%D7%9E%D7%95%D7%A0%D7%97%D7%99%D7%9D_%D7%9E%D7%AA%D7%95%D7%A8%D7%AA_%D7%94%D7%A7%D7%91%D7%95%D7%A6%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מילון מונחים מתורת הקבוצות</strong><small>math/lessons/מילון_מונחים_מתורת_הקבוצות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="בניית פולינום לפי נתונים — חוברת למידה עצמית math/lessons/מערך_שיעור_בניית_פולינום.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%91%D7%A0%D7%99%D7%99%D7%AA_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>בניית פולינום לפי נתונים — חוברת למידה עצמית</strong><small>math/lessons/מערך_שיעור_בניית_פולינום.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="בעיות מינימום ומקסימום בפונקציות אי רציונליות - 5 יחידות math/lessons/מערך_שיעור_בעיות_מינימום_מקסימום_פונקציות_שורש.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%91%D7%A2%D7%99%D7%95%D7%AA_%D7%9E%D7%99%D7%A0%D7%99%D7%9E%D7%95%D7%9D_%D7%9E%D7%A7%D7%A1%D7%99%D7%9E%D7%95%D7%9D_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>בעיות מינימום ומקסימום בפונקציות אי רציונליות - 5 יחידות</strong><small>math/lessons/מערך_שיעור_בעיות_מינימום_מקסימום_פונקציות_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — בעיות קיצון של פונקציות פולינום | 5 יחידות math/lessons/מערך_שיעור_בעיות_קיצון_פולינום.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%91%D7%A2%D7%99%D7%95%D7%AA_%D7%A7%D7%99%D7%A6%D7%95%D7%9F_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — בעיות קיצון של פונקציות פולינום | 5 יחידות</strong><small>math/lessons/מערך_שיעור_בעיות_קיצון_פולינום.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="גאומטריה אנליטית בסיסית — מערך שיעור מלא ל־5 יחידות math/lessons/מערך_שיעור_גאומטריה_אנליטית_קו_ישר.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%92%D7%90%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%94_%D7%90%D7%A0%D7%9C%D7%99%D7%98%D7%99%D7%AA_%D7%A7%D7%95_%D7%99%D7%A9%D7%A8.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>גאומטריה אנליטית בסיסית — מערך שיעור מלא ל־5 יחידות</strong><small>math/lessons/מערך_שיעור_גאומטריה_אנליטית_קו_ישר.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - זהויות טריגונומטריות - 5 יחידות math/lessons/מערך_שיעור_זהויות_טריגונומטריות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%96%D7%94%D7%95%D7%99%D7%95%D7%AA_%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - זהויות טריגונומטריות - 5 יחידות</strong><small>math/lessons/מערך_שיעור_זהויות_טריגונומטריות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - חוקי חזקות וחוקי שורשים - כיתה ט math/lessons/מערך_שיעור_חוקי_חזקות_ושורשים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%97%D7%95%D7%A7%D7%99_%D7%97%D7%96%D7%A7%D7%95%D7%AA_%D7%95%D7%A9%D7%95%D7%A8%D7%A9%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - חוקי חזקות וחוקי שורשים - כיתה ט</strong><small>math/lessons/מערך_שיעור_חוקי_חזקות_ושורשים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — חזקה של פונקציה [f(x)]^n — 5 יחידות math/lessons/מערך_שיעור_חזקה_של_פונקציה.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%97%D7%96%D7%A7%D7%94_%D7%A9%D7%9C_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — חזקה של פונקציה [f(x)]^n — 5 יחידות</strong><small>math/lessons/מערך_שיעור_חזקה_של_פונקציה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירה מלאה של פונקציית ערך מוחלט - 5 יחידות math/lessons/מערך_שיעור_חקירה_מלאה_פונקציית_ערך_מוחלט.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%97%D7%A7%D7%99%D7%A8%D7%94_%D7%9E%D7%9C%D7%90%D7%94_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%99%D7%AA_%D7%A2%D7%A8%D7%9A_%D7%9E%D7%95%D7%97%D7%9C%D7%98.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירה מלאה של פונקציית ערך מוחלט - 5 יחידות</strong><small>math/lessons/מערך_שיעור_חקירה_מלאה_פונקציית_ערך_מוחלט.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת משפחות של פונקציות פולינומיות עם פרמטרים - 5 יחידות math/lessons/מערך_שיעור_חקירת_משפחות_פונקציות_פולינומיות_עם_פרמטרים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%9E%D7%A9%D7%A4%D7%97%D7%95%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%95%D7%AA_%D7%A2%D7%9D_%D7%A4%D7%A8%D7%9E%D7%98%D7%A8%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת משפחות של פונקציות פולינומיות עם פרמטרים - 5 יחידות</strong><small>math/lessons/מערך_שיעור_חקירת_משפחות_פונקציות_פולינומיות_עם_פרמטרים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - טרנספורמציות של פונקציה ונגזרת - 5 יחידות math/lessons/מערך_שיעור_טרנספורמציות_פונקציה_ונגזרת.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%98%D7%A8%D7%A0%D7%A1%D7%A4%D7%95%D7%A8%D7%9E%D7%A6%D7%99%D7%95%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%95%D7%A0%D7%92%D7%96%D7%A8%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - טרנספורמציות של פונקציה ונגזרת - 5 יחידות</strong><small>math/lessons/מערך_שיעור_טרנספורמציות_פונקציה_ונגזרת.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - טרנפורמציות של פונקציית שורש - 5 יחידות math/lessons/מערך_שיעור_טרנפורמציות_פונקציית_שורש.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%98%D7%A8%D7%A0%D7%A4%D7%95%D7%A8%D7%9E%D7%A6%D7%99%D7%95%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%99%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - טרנפורמציות של פונקציית שורש - 5 יחידות</strong><small>math/lessons/מערך_שיעור_טרנפורמציות_פונקציית_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור עצמי — מבוא לפולינומים, 5 יח״ל math/lessons/מערך_שיעור_מבוא_לפולינומים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%9E%D7%91%D7%95%D7%90_%D7%9C%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור עצמי — מבוא לפולינומים, 5 יח״ל</strong><small>math/lessons/מערך_שיעור_מבוא_לפולינומים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מהי פונקציה? — מערך שיעור ל־5 יחידות math/lessons/מערך_שיעור_מהי_פונקציה.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%9E%D7%94%D7%99_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מהי פונקציה? — מערך שיעור ל־5 יחידות</strong><small>math/lessons/מערך_שיעור_מהי_פונקציה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור כולל – פתרון משוואות טריגונומטריות math/lessons/מערך_שיעור_משוואות_טריגונומטריות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%9E%D7%A9%D7%95%D7%95%D7%90%D7%95%D7%AA_%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור כולל – פתרון משוואות טריגונומטריות</strong><small>math/lessons/מערך_שיעור_משוואות_טריגונומטריות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — נגזרת מכפלה ופונקציה מורכבת math/lessons/מערך_שיעור_נגזרת_מכפלה_ופונקציה_מורכבת.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%9E%D7%9B%D7%A4%D7%9C%D7%94_%D7%95%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%9E%D7%95%D7%A8%D7%9B%D7%91%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — נגזרת מכפלה ופונקציה מורכבת</strong><small>math/lessons/מערך_שיעור_נגזרת_מכפלה_ופונקציה_מורכבת.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — נגזרת של פולינום — 5 יחידות math/lessons/מערך_שיעור_נגזרת_של_פולינום.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A9%D7%9C_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — נגזרת של פולינום — 5 יחידות</strong><small>math/lessons/מערך_שיעור_נגזרת_של_פולינום.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעורים - נגזרת שנייה, קעירות ונקודות פיתול - 70 תרגילים math/lessons/מערך_שיעור_נגזרת_שנייה_קעירות_נקודות_פיתול.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A9%D7%A0%D7%99%D7%99%D7%94_%D7%A7%D7%A2%D7%99%D7%A8%D7%95%D7%AA_%D7%A0%D7%A7%D7%95%D7%93%D7%95%D7%AA_%D7%A4%D7%99%D7%AA%D7%95%D7%9C.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעורים - נגזרת שנייה, קעירות ונקודות פיתול - 70 תרגילים</strong><small>math/lessons/מערך_שיעור_נגזרת_שנייה_קעירות_נקודות_פיתול.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - פונקציה זוגית ופונקציה אי־זוגית | 5 יח״ל math/lessons/מערך_שיעור_פונקציה_זוגית_ופונקציה_אי_זוגית.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%96%D7%95%D7%92%D7%99%D7%AA_%D7%95%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%90%D7%99_%D7%96%D7%95%D7%92%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - פונקציה זוגית ופונקציה אי־זוגית | 5 יח״ל</strong><small>math/lessons/מערך_שיעור_פונקציה_זוגית_ופונקציה_אי_זוגית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - פונקציה ריבועית - 5 יחידות math/lessons/מערך_שיעור_פונקציה_ריבועית.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%99%D7%91%D7%95%D7%A2%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - פונקציה ריבועית - 5 יחידות</strong><small>math/lessons/מערך_שיעור_פונקציה_ריבועית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - פונקציות וחקירה גרפית, 5 יח״ל math/lessons/מערך_שיעור_פונקציות_וחקירה_גרפית.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%95%D7%97%D7%A7%D7%99%D7%A8%D7%94_%D7%92%D7%A8%D7%A4%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - פונקציות וחקירה גרפית, 5 יח״ל</strong><small>math/lessons/מערך_שיעור_פונקציות_וחקירה_גרפית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - פונקציות חזקה | 5 יח״ל math/lessons/מערך_שיעור_פונקציות_חזקה.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%97%D7%96%D7%A7%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - פונקציות חזקה | 5 יח״ל</strong><small>math/lessons/מערך_שיעור_פונקציות_חזקה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — פונקציית ערך מוחלט — 5 יחידות math/lessons/מערך_שיעור_פונקציית_ערך_מוחלט.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%99%D7%AA_%D7%A2%D7%A8%D7%9A_%D7%9E%D7%95%D7%97%D7%9C%D7%98.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — פונקציית ערך מוחלט — 5 יחידות</strong><small>math/lessons/מערך_שיעור_פונקציית_ערך_מוחלט.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — קיצון בתחום סגור | 5 יחידות math/lessons/מערך_שיעור_קיצון_בתחום_סגור.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A7%D7%99%D7%A6%D7%95%D7%9F_%D7%91%D7%AA%D7%97%D7%95%D7%9D_%D7%A1%D7%92%D7%95%D7%A8.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — קיצון בתחום סגור | 5 יחידות</strong><small>math/lessons/מערך_שיעור_קיצון_בתחום_סגור.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — קיצון וחקירת פולינום, 5 יחידות math/lessons/מערך_שיעור_קיצון_וחקירת_פולינום.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A7%D7%99%D7%A6%D7%95%D7%9F_%D7%95%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — קיצון וחקירת פולינום, 5 יחידות</strong><small>math/lessons/מערך_שיעור_קיצון_וחקירת_פולינום.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור — קצב שינוי ממוצע ושיפוע משיק math/lessons/מערך_שיעור_קצב_שינוי_ממוצע_ושיפוע_משיק.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A7%D7%A6%D7%91_%D7%A9%D7%99%D7%A0%D7%95%D7%99_%D7%9E%D7%9E%D7%95%D7%A6%D7%A2_%D7%95%D7%A9%D7%99%D7%A4%D7%95%D7%A2_%D7%9E%D7%A9%D7%99%D7%A7.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — קצב שינוי ממוצע ושיפוע משיק</strong><small>math/lessons/מערך_שיעור_קצב_שינוי_ממוצע_ושיפוע_משיק.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="קשר בין גרף הפונקציה לגרף הנגזרת - 5 יחידות math/lessons/מערך_שיעור_קשר_בין_גרף_הפונקציה_לגרף_הנגזרת.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A7%D7%A9%D7%A8_%D7%91%D7%99%D7%9F_%D7%92%D7%A8%D7%A3_%D7%94%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%9C%D7%92%D7%A8%D7%A3_%D7%94%D7%A0%D7%92%D7%96%D7%A8%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>קשר בין גרף הפונקציה לגרף הנגזרת - 5 יחידות</strong><small>math/lessons/מערך_שיעור_קשר_בין_גרף_הפונקציה_לגרף_הנגזרת.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - הקשר בין גרף פונקציה, גרף נגזרת ראשונה וגרף נגזרת שנייה math/lessons/מערך_שיעור_קשר_בין_גרף_פונקציה_ונגזרות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A7%D7%A9%D7%A8_%D7%91%D7%99%D7%9F_%D7%92%D7%A8%D7%A3_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%95%D7%A0%D7%92%D7%96%D7%A8%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - הקשר בין גרף פונקציה, גרף נגזרת ראשונה וגרף נגזרת שנייה</strong><small>math/lessons/מערך_שיעור_קשר_בין_גרף_פונקציה_ונגזרות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="קשר פונקציה-נגזרת בפונקציות רציונליות - 5 יחידות math/lessons/מערך_שיעור_קשר_פונקציה_נגזרת_פונקציות_רציונליות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A7%D7%A9%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>קשר פונקציה-נגזרת בפונקציות רציונליות - 5 יחידות</strong><small>math/lessons/מערך_שיעור_קשר_פונקציה_נגזרת_פונקציות_רציונליות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור ללמידה עצמית — שורשים וריבוי שורש math/lessons/מערך_שיעור_שורשים_וריבוי_שורש.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A9%D7%95%D7%A8%D7%A9%D7%99%D7%9D_%D7%95%D7%A8%D7%99%D7%91%D7%95%D7%99_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור ללמידה עצמית — שורשים וריבוי שורש</strong><small>math/lessons/מערך_שיעור_שורשים_וריבוי_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - שורשים וריבוי שורש | 5 יחידות math/lessons/מערך_שיעור_שורשים_וריבוי_שורש_2.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A9%D7%95%D7%A8%D7%A9%D7%99%D7%9D_%D7%95%D7%A8%D7%99%D7%91%D7%95%D7%99_%D7%A9%D7%95%D7%A8%D7%A9_2.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - שורשים וריבוי שורש | 5 יחידות</strong><small>math/lessons/מערך_שיעור_שורשים_וריבוי_שורש_2.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - מערכות אי-שוויונים ריבועיים math/lessons/מערכות_אי_שוויונים_ריבועיים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9B%D7%95%D7%AA_%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%A8%D7%99%D7%91%D7%95%D7%A2%D7%99%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - מערכות אי-שוויונים ריבועיים</strong><small>math/lessons/מערכות_אי_שוויונים_ריבועיים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - מערכות אי־שוויונים ריבועיים ולינאריים משולבים math/lessons/מערכות_אי_שוויונים_ריבועיים_ולינאריים_משולבים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%9E%D7%A2%D7%A8%D7%9B%D7%95%D7%AA_%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%A8%D7%99%D7%91%D7%95%D7%A2%D7%99%D7%99%D7%9D_%D7%95%D7%9C%D7%99%D7%A0%D7%90%D7%A8%D7%99%D7%99%D7%9D_%D7%9E%D7%A9%D7%95%D7%9C%D7%91%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - מערכות אי־שוויונים ריבועיים ולינאריים משולבים</strong><small>math/lessons/מערכות_אי_שוויונים_ריבועיים_ולינאריים_משולבים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת פונקציה רציונלית - סיכום שיעור math/lessons/סיכום_שיעור_פונקציה_רציונלית.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%A1%D7%99%D7%9B%D7%95%D7%9D_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת פונקציה רציונלית - סיכום שיעור</strong><small>math/lessons/סיכום_שיעור_פונקציה_רציונלית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="סיכום שיעור - הקשר בין פונקציה לנגזרותיה math/lessons/סיכום_שיעור_קשר_בין_פונקציה_ונגזרות.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%A1%D7%99%D7%9B%D7%95%D7%9D_%D7%A9%D7%99%D7%A2%D7%95%D7%A8_%D7%A7%D7%A9%D7%A8_%D7%91%D7%99%D7%9F_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%95%D7%A0%D7%92%D7%96%D7%A8%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>סיכום שיעור - הקשר בין פונקציה לנגזרותיה</strong><small>math/lessons/סיכום_שיעור_קשר_בין_פונקציה_ונגזרות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פונקציה המתקבלת כמנה של שני פולינומים - מערך שיעור מעודכן math/lessons/פונקציה_המתקבלת_כמנה_של_שני_פולינומים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%94%D7%9E%D7%AA%D7%A7%D7%91%D7%9C%D7%AA_%D7%9B%D7%9E%D7%A0%D7%94_%D7%A9%D7%9C_%D7%A9%D7%A0%D7%99_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פונקציה המתקבלת כמנה של שני פולינומים - מערך שיעור מעודכן</strong><small>math/lessons/פונקציה_המתקבלת_כמנה_של_שני_פולינומים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פירוק לגורמים ויישומים אלגבריים - 5 יחידות math/lessons/פירוק_לגורמים_ויישומים_אלגבריים.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%A4%D7%99%D7%A8%D7%95%D7%A7_%D7%9C%D7%92%D7%95%D7%A8%D7%9E%D7%99%D7%9D_%D7%95%D7%99%D7%99%D7%A9%D7%95%D7%9E%D7%99%D7%9D_%D7%90%D7%9C%D7%92%D7%91%D7%A8%D7%99%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פירוק לגורמים ויישומים אלגבריים - 5 יחידות</strong><small>math/lessons/פירוק_לגורמים_ויישומים_אלגבריים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש - 5 יחידות math/lessons/קשר_גרף_נגזרת_פונקצית_שורש.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%A7%D7%A9%D7%A8_%D7%92%D7%A8%D7%A3_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>קשר בין גרף פונקציה לגרף נגזרת - פונקציות שורש - 5 יחידות</strong><small>math/lessons/קשר_גרף_נגזרת_פונקצית_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="קשר בין פונקציה רציונלית לנגזרת - 5 יחידות math/lessons/קשר_פונקציה_רציונלית_ונגזרת_כולל_נגזרת_שניה_ופיתול.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%A7%D7%A9%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA_%D7%95%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%9B%D7%95%D7%9C%D7%9C_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A9%D7%A0%D7%99%D7%94_%D7%95%D7%A4%D7%99%D7%AA%D7%95%D7%9C.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>קשר בין פונקציה רציונלית לנגזרת - 5 יחידות</strong><small>math/lessons/קשר_פונקציה_רציונלית_ונגזרת_כולל_נגזרת_שניה_ופיתול.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="קשר בין פונקציה רציונלית לנגזרת - 5 יחידות math/lessons/קשר_פונקציה_רציונלית_ונגזרת_ללא_נגזרת_שנייה_ופיתול.html">
+<a href="https://philiparad.github.io/math/lessons/%D7%A7%D7%A9%D7%A8_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA_%D7%95%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%9C%D7%9C%D7%90_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A9%D7%A0%D7%99%D7%99%D7%94_%D7%95%D7%A4%D7%99%D7%AA%D7%95%D7%9C.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>קשר בין פונקציה רציונלית לנגזרת - 5 יחידות</strong><small>math/lessons/קשר_פונקציה_רציונלית_ונגזרת_ללא_נגזרת_שנייה_ופיתול.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li></ul>
+</section><section class="collection" data-group>
+<div class="section-heading"><span class="section-icon" aria-hidden="true">✎</span><div><h2>Math Exercises</h2><p><span data-visible>37</span> resources</p></div></div>
+<ul class="resource-grid"><li class="resource" data-search="מערך שיעור — אי־שוויונים לינאריים: פתרון אלגברי וגרפי math/exercises/אי_שוויונים_לינאריים.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%9C%D7%99%D7%A0%D7%90%D7%A8%D7%99%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור — אי־שוויונים לינאריים: פתרון אלגברי וגרפי</strong><small>math/exercises/אי_שוויונים_לינאריים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="אי שוויונים של פונקציות רציונליות - תרגול מדורג math/exercises/אי_שוויונים_של_פונקציות_רציונליות.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%A9%D7%9C_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>אי שוויונים של פונקציות רציונליות - תרגול מדורג</strong><small>math/exercises/אי_שוויונים_של_פונקציות_רציונליות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="גאומטריה אנליטית – דף אתגר מתקדם, 5 יח״ל math/exercises/גאומטריה_אנליטית_דף_מתקדם.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%92%D7%90%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%94_%D7%90%D7%A0%D7%9C%D7%99%D7%98%D7%99%D7%AA_%D7%93%D7%A3_%D7%9E%D7%AA%D7%A7%D7%93%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>גאומטריה אנליטית – דף אתגר מתקדם, 5 יח״ל</strong><small>math/exercises/גאומטריה_אנליטית_דף_מתקדם.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="אי שוויון עם ערך מוחלט math/exercises/דף_עבודה_אי_שוויון_ערך_מוחלט.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%9F_%D7%A2%D7%A8%D7%9A_%D7%9E%D7%95%D7%97%D7%9C%D7%98.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>אי שוויון עם ערך מוחלט</strong><small>math/exercises/דף_עבודה_אי_שוויון_ערך_מוחלט.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="טרנספורמציות של ערך מוחלט - שאלות לתרגול math/exercises/דף_עבודה_טרנספורמציות_של_ערך_מוחלט.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%98%D7%A8%D7%A0%D7%A1%D7%A4%D7%95%D7%A8%D7%9E%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%9C_%D7%A2%D7%A8%D7%9A_%D7%9E%D7%95%D7%97%D7%9C%D7%98.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>טרנספורמציות של ערך מוחלט - שאלות לתרגול</strong><small>math/exercises/דף_עבודה_טרנספורמציות_של_ערך_מוחלט.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף תרגילים — מהי פונקציה? | 5 יחידות math/exercises/דף_עבודה_מהי_פונקציה.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%9E%D7%94%D7%99_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף תרגילים — מהי פונקציה? | 5 יחידות</strong><small>math/exercises/דף_עבודה_מהי_פונקציה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה — נגזרת של פולינום — כיתה י׳ 5 יחידות math/exercises/דף_עבודה_נגזרת_פולינום.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה — נגזרת של פולינום — כיתה י׳ 5 יחידות</strong><small>math/exercises/דף_עבודה_נגזרת_פולינום.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פונקציה רציונלית עם חור ואסימפטוטה - מסמך מאוחד 001 + 002 math/exercises/דף_עבודה_פונקציה_רציונלית_עם_חור_ואסימפטוטה.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA_%D7%A2%D7%9D_%D7%97%D7%95%D7%A8_%D7%95%D7%90%D7%A1%D7%99%D7%9E%D7%A4%D7%98%D7%95%D7%98%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פונקציה רציונלית עם חור ואסימפטוטה - מסמך מאוחד 001 + 002</strong><small>math/exercises/דף_עבודה_פונקציה_רציונלית_עם_חור_ואסימפטוטה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור - פונקציות רציונליות ונקודות אי-רציפות - 5 יחידות ומעלה math/exercises/דף_עבודה_פונקציה_רציונלית_עם_חור_ואסימפטוטה_מתקדם.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA_%D7%A2%D7%9D_%D7%97%D7%95%D7%A8_%D7%95%D7%90%D7%A1%D7%99%D7%9E%D7%A4%D7%98%D7%95%D7%98%D7%94_%D7%9E%D7%AA%D7%A7%D7%93%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור - פונקציות רציונליות ונקודות אי-רציפות - 5 יחידות ומעלה</strong><small>math/exercises/דף_עבודה_פונקציה_רציונלית_עם_חור_ואסימפטוטה_מתקדם.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה - קשר גרף פונקציה לגרף נגזרת בפונקציות שורש - 5 יחידות - פריסה רציפה math/exercises/דף_עבודה_קשר_גרף_נגזרת_שורש.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%A7%D7%A9%D7%A8_%D7%92%D7%A8%D7%A3_%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה - קשר גרף פונקציה לגרף נגזרת בפונקציות שורש - 5 יחידות - פריסה רציפה</strong><small>math/exercises/דף_עבודה_קשר_גרף_נגזרת_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה — שרטוט גרפים של פולינומים math/exercises/דף_עבודה_שרטוט_גרפים_של_פולינומים.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%A2%D7%91%D7%95%D7%93%D7%94_%D7%A9%D7%A8%D7%98%D7%95%D7%98_%D7%92%D7%A8%D7%A4%D7%99%D7%9D_%D7%A9%D7%9C_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה — שרטוט גרפים של פולינומים</strong><small>math/exercises/דף_עבודה_שרטוט_גרפים_של_פולינומים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף תרגילים - בעיות קיצון עם פונקציית מטרה ריבועית - ללא נגזרת math/exercises/דף_תרגילים_בעיות_קיצון_פונקציה_ריבועית_ללא_נגזרת.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99%D7%9D_%D7%91%D7%A2%D7%99%D7%95%D7%AA_%D7%A7%D7%99%D7%A6%D7%95%D7%9F_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%99%D7%91%D7%95%D7%A2%D7%99%D7%AA_%D7%9C%D7%9C%D7%90_%D7%A0%D7%92%D7%96%D7%A8%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף תרגילים - בעיות קיצון עם פונקציית מטרה ריבועית - ללא נגזרת</strong><small>math/exercises/דף_תרגילים_בעיות_קיצון_פונקציה_ריבועית_ללא_נגזרת.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף תרגילים מסכם – גאומטריה אנליטית, 5 יח״ל math/exercises/דף_תרגילים_מסכם_גאומטריה_אנליטית.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99%D7%9D_%D7%9E%D7%A1%D7%9B%D7%9D_%D7%92%D7%90%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%94_%D7%90%D7%A0%D7%9C%D7%99%D7%98%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף תרגילים מסכם – גאומטריה אנליטית, 5 יח״ל</strong><small>math/exercises/דף_תרגילים_מסכם_גאומטריה_אנליטית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף תרגילים - מפות סימנים, פולינומים ופונקציות רציונליות - 5 יחידות math/exercises/דף_תרגילים_מפות_סימנים_פולינומים_ופונקציות_רציונליות.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%93%D7%A3_%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99%D7%9D_%D7%9E%D7%A4%D7%95%D7%AA_%D7%A1%D7%99%D7%9E%D7%A0%D7%99%D7%9D_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%9D_%D7%95%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף תרגילים - מפות סימנים, פולינומים ופונקציות רציונליות - 5 יחידות</strong><small>math/exercises/דף_תרגילים_מפות_סימנים_פולינומים_ופונקציות_רציונליות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה - חקירת פונקציות ונקודות קיצון math/exercises/חקירת_פונקציות_ונקודות_קיצון_001.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%95%D7%A0%D7%A7%D7%95%D7%93%D7%95%D7%AA_%D7%A7%D7%99%D7%A6%D7%95%D7%9F_001.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה - חקירת פונקציות ונקודות קיצון</strong><small>math/exercises/חקירת_פונקציות_ונקודות_קיצון_001.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת הפונקציה sqrt(x^2+1)/x - מערך שיעור 5 יחידות math/exercises/חקירת_פונקצית_שורש_עם_אסימפטוטות_1.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_%D7%A2%D7%9D_%D7%90%D7%A1%D7%99%D7%9E%D7%A4%D7%98%D7%95%D7%98%D7%95%D7%AA_1.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת הפונקציה sqrt(x^2+1)/x - מערך שיעור 5 יחידות</strong><small>math/exercises/חקירת_פונקצית_שורש_עם_אסימפטוטות_1.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חקירת הפונקציה h(x)=3x/sqrt(x^2+4)-2 - מערך שיעור 5 יחידות math/exercises/חקירת_פונקצית_שורש_עם_אסימפטוטות_2.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%97%D7%A7%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_%D7%A2%D7%9D_%D7%90%D7%A1%D7%99%D7%9E%D7%A4%D7%98%D7%95%D7%98%D7%95%D7%AA_2.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חקירת הפונקציה h(x)=3x/sqrt(x^2+4)-2 - מערך שיעור 5 יחידות</strong><small>math/exercises/חקירת_פונקצית_שורש_עם_אסימפטוטות_2.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="טרנספורמציות - רשימה רציפה של שאלות ופתרונות math/exercises/מערך_תרגילים_טרנספורמציות_פונקציה_נגזרת.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%9E%D7%A2%D7%A8%D7%9A_%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99%D7%9D_%D7%98%D7%A8%D7%A0%D7%A1%D7%A4%D7%95%D7%A8%D7%9E%D7%A6%D7%99%D7%95%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A0%D7%92%D7%96%D7%A8%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>טרנספורמציות - רשימה רציפה של שאלות ופתרונות</strong><small>math/exercises/מערך_תרגילים_טרנספורמציות_פונקציה_נגזרת.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור: מערכות אי־שוויונים לינאריים — וגם / או math/exercises/מערכות_אי_שוויונים_לינאריים.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%9E%D7%A2%D7%A8%D7%9B%D7%95%D7%AA_%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%9C%D7%99%D7%A0%D7%90%D7%A8%D7%99%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור: מערכות אי־שוויונים לינאריים — וגם / או</strong><small>math/exercises/מערכות_אי_שוויונים_לינאריים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="משוואות ואי-שוויונים עם שורשים - מעודכן math/exercises/משוואות_ואי_שוויונים_עם_שורשים.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%9E%D7%A9%D7%95%D7%95%D7%90%D7%95%D7%AA_%D7%95%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%A2%D7%9D_%D7%A9%D7%95%D7%A8%D7%A9%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>משוואות ואי-שוויונים עם שורשים - מעודכן</strong><small>math/exercises/משוואות_ואי_שוויונים_עם_שורשים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="משיקים לגרפים של פונקציות עם פרמטר math/exercises/משיקים_לגרפים_של_פונקציות_עם_פרמטר_003.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%9E%D7%A9%D7%99%D7%A7%D7%99%D7%9D_%D7%9C%D7%92%D7%A8%D7%A4%D7%99%D7%9D_%D7%A9%D7%9C_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A2%D7%9D_%D7%A4%D7%A8%D7%9E%D7%98%D7%A8_003.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>משיקים לגרפים של פונקציות עם פרמטר</strong><small>math/exercises/משיקים_לגרפים_של_פונקציות_עם_פרמטר_003.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה - נגזרת לפי כלל השרשרת math/exercises/נגזרת_לפי_כלל_השרשרת_003.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%9C%D7%A4%D7%99_%D7%9B%D7%9C%D7%9C_%D7%94%D7%A9%D7%A8%D7%A9%D7%A8%D7%AA_003.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה - נגזרת לפי כלל השרשרת</strong><small>math/exercises/נגזרת_לפי_כלל_השרשרת_003.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף תרגילים - גזירת פונקציות מכפלה math/exercises/נגזרת_מכפלה_001.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%9E%D7%9B%D7%A4%D7%9C%D7%94_001.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף תרגילים - גזירת פונקציות מכפלה</strong><small>math/exercises/נגזרת_מכפלה_001.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דפי תרגול — נגזרת מכפלה ופונקציה מורכבת — 42 תרגילים math/exercises/נגזרת_מכפלה_ופונקציה_מורכבת_004.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%9E%D7%9B%D7%A4%D7%9C%D7%94_%D7%95%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%9E%D7%95%D7%A8%D7%9B%D7%91%D7%AA_004.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דפי תרגול — נגזרת מכפלה ופונקציה מורכבת — 42 תרגילים</strong><small>math/exercises/נגזרת_מכפלה_ופונקציה_מורכבת_004.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף תרגילים - פונקציה מורכבת math/exercises/נגזרת_פונקציה_מורכבת_002.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A0%D7%92%D7%96%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%9E%D7%95%D7%A8%D7%9B%D7%91%D7%AA_002.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף תרגילים - פונקציה מורכבת</strong><small>math/exercises/נגזרת_פונקציה_מורכבת_002.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פתרונות מאוחדים - נגזרות, קיצון ועלייה וירידה math/exercises/פונקציה_עם_פרמטרים_פולינומים_002.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A2%D7%9D_%D7%A4%D7%A8%D7%9E%D7%98%D7%A8%D7%99%D7%9D_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%9D_002.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פתרונות מאוחדים - נגזרות, קיצון ועלייה וירידה</strong><small>math/exercises/פונקציה_עם_פרמטרים_פולינומים_002.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="נגזרות, קיצון, עלייה וירידה ומשיקים - 5 יחידות math/exercises/פונקציות_פולינומיות_005.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%95%D7%AA_005.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>נגזרות, קיצון, עלייה וירידה ומשיקים - 5 יחידות</strong><small>math/exercises/פונקציות_פולינומיות_005.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פונקצית שורש ומנה עם פרמטר math/exercises/פונקצית_שורש_ומנה_עם_פרמטר.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_%D7%95%D7%9E%D7%A0%D7%94_%D7%A2%D7%9D_%D7%A4%D7%A8%D7%9E%D7%98%D7%A8.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פונקצית שורש ומנה עם פרמטר</strong><small>math/exercises/פונקצית_שורש_ומנה_עם_פרמטר.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פתרון מפורט - פונקציה רציונלית, הזזה ומכפלת פונקציות math/exercises/שאלה_6_בגרות_2026_פונקציה_רציונלית.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%A9%D7%90%D7%9C%D7%94_6_%D7%91%D7%92%D7%A8%D7%95%D7%AA_2026_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%94_%D7%A8%D7%A6%D7%99%D7%95%D7%A0%D7%9C%D7%99%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פתרון מפורט - פונקציה רציונלית, הזזה ומכפלת פונקציות</strong><small>math/exercises/שאלה_6_בגרות_2026_פונקציה_רציונלית.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="תרגול גזירת פונקציות שורש math/exercises/תרגול_גזירת_פונקציות_שורש_001.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%95%D7%9C_%D7%92%D7%96%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_001.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>תרגול גזירת פונקציות שורש</strong><small>math/exercises/תרגול_גזירת_פונקציות_שורש_001.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף תרגילים — פונקצית שורש math/exercises/תרגול_גזירת_פונקציות_שורש_002.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%95%D7%9C_%D7%92%D7%96%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_002.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף תרגילים — פונקצית שורש</strong><small>math/exercises/תרגול_גזירת_פונקציות_שורש_002.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה - נגזרות של פונקציות שורש math/exercises/תרגול_גזירת_פונקציות_שורש_003.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%95%D7%9C_%D7%92%D7%96%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_003.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה - נגזרות של פונקציות שורש</strong><small>math/exercises/תרגול_גזירת_פונקציות_שורש_003.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה - חקירה מלאה של פונקציות אי־רציונליות math/exercises/תרגול_גזירת_פונקציות_שורש_004.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%95%D7%9C_%D7%92%D7%96%D7%99%D7%A8%D7%AA_%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_004.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה - חקירה מלאה של פונקציות אי־רציונליות</strong><small>math/exercises/תרגול_גזירת_פונקציות_שורש_004.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מאגר תרגילי זהויות טריגונומטריות - מסמך מאוחד math/exercises/תרגילי_זהויות_טריגונומטריות.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99_%D7%96%D7%94%D7%95%D7%99%D7%95%D7%AA_%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מאגר תרגילי זהויות טריגונומטריות - מסמך מאוחד</strong><small>math/exercises/תרגילי_זהויות_טריגונומטריות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="דף עבודה - חורים ונקודות אי רציפות בפונקציות שורש - 5 יחידות math/exercises/תרגילים_חורים_ונקודות_אי_רציפות.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99%D7%9D_%D7%97%D7%95%D7%A8%D7%99%D7%9D_%D7%95%D7%A0%D7%A7%D7%95%D7%93%D7%95%D7%AA_%D7%90%D7%99_%D7%A8%D7%A6%D7%99%D7%A4%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>דף עבודה - חורים ונקודות אי רציפות בפונקציות שורש - 5 יחידות</strong><small>math/exercises/תרגילים_חורים_ונקודות_אי_רציפות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור עצמי - משוואות ואי־שוויונים פולינומיים - ללא יחידות 12-16 math/exercises/תרגילים_משוואות_ואי_שוויונים_פולינומיים.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99%D7%9D_%D7%9E%D7%A9%D7%95%D7%95%D7%90%D7%95%D7%AA_%D7%95%D7%90%D7%99_%D7%A9%D7%95%D7%95%D7%99%D7%95%D7%A0%D7%99%D7%9D_%D7%A4%D7%95%D7%9C%D7%99%D7%A0%D7%95%D7%9E%D7%99%D7%99%D7%9D.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור עצמי - משוואות ואי־שוויונים פולינומיים - ללא יחידות 12-16</strong><small>math/exercises/תרגילים_משוואות_ואי_שוויונים_פולינומיים.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="משוואות — אוסף תרגילים math/exercises/תרגילים_משוואות_טריגונומטריות.html">
+<a href="https://philiparad.github.io/math/exercises/%D7%AA%D7%A8%D7%92%D7%99%D7%9C%D7%99%D7%9D_%D7%9E%D7%A9%D7%95%D7%95%D7%90%D7%95%D7%AA_%D7%98%D7%A8%D7%99%D7%92%D7%95%D7%A0%D7%95%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%AA.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>משוואות — אוסף תרגילים</strong><small>math/exercises/תרגילים_משוואות_טריגונומטריות.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li></ul>
+</section><section class="collection" data-group>
+<div class="section-heading"><span class="section-icon" aria-hidden="true">↗</span><div><h2>Math Labs & Resources</h2><p><span data-visible>13</span> resources</p></div></div>
+<ul class="resource-grid"><li class="resource" data-search="571tips math/571tips.pdf">
+<a href="https://philiparad.github.io/math/571tips.pdf">
+<span class="file-type">PDF</span>
+<span class="resource-copy"><strong>571tips</strong><small>math/571tips.pdf</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="פתרון מלא - שאלה 7, בגרות 5 יחידות, קיץ תשפ&quot;ג math/bagrut/5/571_sum_2023_7.html">
+<a href="https://philiparad.github.io/math/bagrut/5/571_SUM_2023_7.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>פתרון מלא - שאלה 7, בגרות 5 יחידות, קיץ תשפ&quot;ג</strong><small>math/bagrut/5/571_SUM_2023_7.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="casio fx-991es plus — high-fidelity clone math/casio-fx991es.html">
+<a href="https://philiparad.github.io/math/casio-fx991es.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Casio fx-991ES PLUS — High-Fidelity Clone</strong><small>math/casio-fx991es.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מעבדת הגבול | הנגזרת של פונקציה מעריכית math/exponential_limit_lab.html">
+<a href="https://philiparad.github.io/math/exponential_limit_lab.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מעבדת הגבול | הנגזרת של פונקציה מעריכית</strong><small>math/exponential_limit_lab.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="טרנספורמציות של פונקציות math/function-transformer-lab.html">
+<a href="https://philiparad.github.io/math/function-transformer-lab.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>טרנספורמציות של פונקציות</strong><small>math/function-transformer-lab.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מדריך אינטראקטיבי - casio fx-991es plus math/fx-991es_plus_אתר_לימודי_אינטראקטיבי.html">
+<a href="https://philiparad.github.io/math/fx-991ES_PLUS_%D7%90%D7%AA%D7%A8_%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99_%D7%90%D7%99%D7%A0%D7%98%D7%A8%D7%90%D7%A7%D7%98%D7%99%D7%91%D7%99.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מדריך אינטראקטיבי - CASIO fx-991ES PLUS</strong><small>math/fx-991ES_PLUS_אתר_לימודי_אינטראקטיבי.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="חור או אסימפטוטה אנכית? - 3 דוגמאות math/hole_or_vertical_asymptote.html">
+<a href="https://philiparad.github.io/math/hole_or_vertical_asymptote.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>חור או אסימפטוטה אנכית? - 3 דוגמאות</strong><small>math/hole_or_vertical_asymptote.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מערך שיעור: רגרסיה לינארית ומתאם math/linear_regression_lesson_interactive.html">
+<a href="https://philiparad.github.io/math/linear_regression_lesson_interactive.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מערך שיעור: רגרסיה לינארית ומתאם</strong><small>math/linear_regression_lesson_interactive.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מעבדת פולינומים – גרף, אפסים ופירוק לגורמים math/polynomial_factory_lab.html">
+<a href="https://philiparad.github.io/math/polynomial_factory_lab.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מעבדת פולינומים – גרף, אפסים ופירוק לגורמים</strong><small>math/polynomial_factory_lab.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="יישומון אינטראקטיבי — משפחות של פונקציות רציונליות math/rational_function_families.html">
+<a href="https://philiparad.github.io/math/rational_function_families.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>יישומון אינטראקטיבי — משפחות של פונקציות רציונליות</strong><small>math/rational_function_families.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="interactive unit circle math/trigo/unit_circle.html">
+<a href="https://philiparad.github.io/math/trigo/unit_circle.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>Interactive Unit Circle</strong><small>math/trigo/unit_circle.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מעבדת אסימפטוטות אופקיות - שלוש דוגמאות math/מעבדת_אסימפטוטות_אופקיות_שורש_מנה.html">
+<a href="https://philiparad.github.io/math/%D7%9E%D7%A2%D7%91%D7%93%D7%AA_%D7%90%D7%A1%D7%99%D7%9E%D7%A4%D7%98%D7%95%D7%98%D7%95%D7%AA_%D7%90%D7%95%D7%A4%D7%A7%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9_%D7%9E%D7%A0%D7%94.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מעבדת אסימפטוטות אופקיות - שלוש דוגמאות</strong><small>math/מעבדת_אסימפטוטות_אופקיות_שורש_מנה.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="מעבדת החורים והאי-רציפויות - native js math/מעבדת_חורים_ואי_רציפויות_בפונקציות_שורש.html">
+<a href="https://philiparad.github.io/math/%D7%9E%D7%A2%D7%91%D7%93%D7%AA_%D7%97%D7%95%D7%A8%D7%99%D7%9D_%D7%95%D7%90%D7%99_%D7%A8%D7%A6%D7%99%D7%A4%D7%95%D7%99%D7%95%D7%AA_%D7%91%D7%A4%D7%95%D7%A0%D7%A7%D7%A6%D7%99%D7%95%D7%AA_%D7%A9%D7%95%D7%A8%D7%A9.html">
+<span class="file-type">HTML</span>
+<span class="resource-copy"><strong>מעבדת החורים והאי-רציפויות - Native JS</strong><small>math/מעבדת_חורים_ואי_רציפויות_בפונקציות_שורש.html</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li></ul>
+</section><section class="collection" data-group>
+<div class="section-heading"><span class="section-icon" aria-hidden="true">◇</span><div><h2>Project Files</h2><p><span data-visible>13</span> resources</p></div></div>
+<ul class="resource-grid"><li class="resource" data-search="readme readme.md">
+<a href="https://philiparad.github.io/README.md">
+<span class="file-type">MD</span>
+<span class="resource-copy"><strong>README</strong><small>README.md</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto bold webfont fonts/roboto-bold-webfont.eot">
+<a href="https://philiparad.github.io/fonts/Roboto-Bold-webfont.eot">
+<span class="file-type">EOT</span>
+<span class="resource-copy"><strong>Roboto Bold webfont</strong><small>fonts/Roboto-Bold-webfont.eot</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto bold webfont fonts/roboto-bold-webfont.ttf">
+<a href="https://philiparad.github.io/fonts/Roboto-Bold-webfont.ttf">
+<span class="file-type">TTF</span>
+<span class="resource-copy"><strong>Roboto Bold webfont</strong><small>fonts/Roboto-Bold-webfont.ttf</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto bold webfont fonts/roboto-bold-webfont.woff">
+<a href="https://philiparad.github.io/fonts/Roboto-Bold-webfont.woff">
+<span class="file-type">WOFF</span>
+<span class="resource-copy"><strong>Roboto Bold webfont</strong><small>fonts/Roboto-Bold-webfont.woff</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto medium webfont fonts/roboto-medium-webfont.eot">
+<a href="https://philiparad.github.io/fonts/Roboto-Medium-webfont.eot">
+<span class="file-type">EOT</span>
+<span class="resource-copy"><strong>Roboto Medium webfont</strong><small>fonts/Roboto-Medium-webfont.eot</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto medium webfont fonts/roboto-medium-webfont.ttf">
+<a href="https://philiparad.github.io/fonts/Roboto-Medium-webfont.ttf">
+<span class="file-type">TTF</span>
+<span class="resource-copy"><strong>Roboto Medium webfont</strong><small>fonts/Roboto-Medium-webfont.ttf</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto medium webfont fonts/roboto-medium-webfont.woff">
+<a href="https://philiparad.github.io/fonts/Roboto-Medium-webfont.woff">
+<span class="file-type">WOFF</span>
+<span class="resource-copy"><strong>Roboto Medium webfont</strong><small>fonts/Roboto-Medium-webfont.woff</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto regular webfont fonts/roboto-regular-webfont.eot">
+<a href="https://philiparad.github.io/fonts/roboto-regular-webfont.eot">
+<span class="file-type">EOT</span>
+<span class="resource-copy"><strong>roboto regular webfont</strong><small>fonts/roboto-regular-webfont.eot</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto regular webfont fonts/roboto-regular-webfont.svg">
+<a href="https://philiparad.github.io/fonts/roboto-regular-webfont.svg">
+<span class="file-type">SVG</span>
+<span class="resource-copy"><strong>roboto regular webfont</strong><small>fonts/roboto-regular-webfont.svg</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto regular webfont fonts/roboto-regular-webfont.ttf">
+<a href="https://philiparad.github.io/fonts/roboto-regular-webfont.ttf">
+<span class="file-type">TTF</span>
+<span class="resource-copy"><strong>roboto regular webfont</strong><small>fonts/roboto-regular-webfont.ttf</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto regular webfont fonts/roboto-regular-webfont.woff">
+<a href="https://philiparad.github.io/fonts/roboto-regular-webfont.woff">
+<span class="file-type">WOFF</span>
+<span class="resource-copy"><strong>roboto regular webfont</strong><small>fonts/roboto-regular-webfont.woff</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="roboto regular webfont fonts/roboto-regular-webfont.woff2">
+<a href="https://philiparad.github.io/fonts/roboto-regular-webfont.woff2">
+<span class="file-type">WOFF2</span>
+<span class="resource-copy"><strong>roboto regular webfont</strong><small>fonts/roboto-regular-webfont.woff2</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li><li class="resource" data-search="favicon img/favicon.png">
+<a href="https://philiparad.github.io/img/favicon.png">
+<span class="file-type">PNG</span>
+<span class="resource-copy"><strong>favicon</strong><small>img/favicon.png</small></span>
+<span class="arrow" aria-hidden="true">↗</span>
+</a></li></ul>
+</section></div><p class="empty" id="empty">No resources match your search. Try another keyword.</p>
+</main>
+<footer>© 2026 Philip Arad · <span>146 files, one searchable library.</span></footer>
+<script>
+const search=document.querySelector('#search');
+const resources=[...document.querySelectorAll('.resource')];
+const count=document.querySelector('#count');
+const empty=document.querySelector('#empty');
+function filterResources(){
+ const terms=search.value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+ let total=0;
+ resources.forEach(item=>{const show=terms.every(term=>item.dataset.search.includes(term));item.hidden=!show;if(show)total++;});
+ document.querySelectorAll('[data-group]').forEach(group=>{const visible=group.querySelectorAll('.resource:not([hidden])').length;group.hidden=visible===0;group.querySelector('[data-visible]').textContent=visible;});
+ count.textContent=total;empty.style.display=total?'none':'block';
+}
+search.addEventListener('input',filterResources);
+document.addEventListener('keydown',event=>{if(event.key==='/'&&document.activeElement!==search){event.preventDefault();search.focus();}});
+</script>
+</body></html>
