@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>יחסים טריגונומטריים במשולשים ישרי־זווית דומים</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root {
+      --ink: #18212f;
+      --muted: #5b6678;
+      --line: #dce3ec;
+      --surface: #ffffff;
+      --surface-soft: #f6f8fb;
+      --green: #3f7fbd;
+      --green-soft: #eef7ff;
+      --blue: #3157d5;
+      --blue-soft: #edf1ff;
+      --rose: #d84662;
+      --rose-soft: #fff0f3;
+      --magenta: #c327c9;
+      --magenta-soft: #fff0ff;
+      --focus: #224fd6;
+      --shadow: 0 10px 30px rgba(26, 40, 66, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #eef2f6;
+      color: var(--ink);
+      font-family: Arial, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input { font: inherit; }
+
+    /* ממשק בעברית: טקסט RTL, מתמטיקה ומחוונים מספריים נשארים LTR */
+    .ratio-formula, .ratio-name, #triangleBoard, input[type="range"], .range-scale {
+      direction: ltr;
+    }
+
+    .hero, .panel, .goal-card, .instruction, .takeaway, .answer-box {
+      text-align: right;
+    }
+
+    .app-shell {
+      width: min(1480px, calc(100% - 28px));
+      margin: 14px auto 28px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #eaf6ff 0%, #f7fbff 100%);
+      border: 2px solid #c8e1f5;
+      border-radius: var(--radius);
+      padding: 3px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+    }
+
+    .hero p {
+      margin: 6px 0 0;
+      max-width: 920px;
+      font-size: clamp(1rem, 1vw, 1rem);
+      color: #334155;
+    }
+
+    .goal-card {
+      background: rgba(255,255,255,0.72);
+      border: 2px solid rgba(24,121,78,0.2);
+      border-radius: 10px;
+      padding: 3px 24px;
+    }
+
+    .goal-card strong { color: var(--green); }
+    .goal-card p { margin: 7px 0 0; font-size: 0.98rem; }
+
+    .learning-flow {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .step-chip {
+      border: 2px solid #cdd7e4;
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-weight: 750;
+      color: #344054;
+      font-size: 0.88rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 350px) minmax(0, 1fr);
+      gap: 9px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      position: sticky;
+      top: 12px;
+      padding: 20px;
+    }
+
+    .section-kicker {
+      margin: 0 0 3px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      letter-spacing: 0;
+      color: var(--green);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .control-group {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 2px solid #edf0f4;
+    }
+
+    .control-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 9px;
+    }
+
+    .control-head label {
+      font-weight: bold;
+      color: #293345;
+    }
+
+    .value-badge {
+      min-width: 74px;
+      text-align: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      border: 2px solid #c7e0f4;
+      color: var(--green);
+      font-weight: bold;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .range-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .instruction {
+      margin: 14px 0 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--surface-soft);
+      border: 2px solid #e3e8ef;
+      color: #475467;
+      font-size: 0.92rem;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 2px solid #ced6e2;
+      background: #fff;
+      color: #344054;
+      border-radius: 11px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .btn:hover { border-color: #a8b6ca; background: #f8fafc; }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { border-color: #b7d6ef; background: var(--green-soft); color: var(--green); }
+
+    .legend {
+      margin-top: 16px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #475467;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .content-stack {
+      display: grid;
+      gap: 9px;
+    }
+
+    .ratio-panel { padding: 10px 20px; }
+    .ratio-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .ratio-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .constant-badge {
+      white-space: nowrap;
+      border: 2px solid #c7e0f4;
+      background: var(--green-soft);
+      color: var(--green);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-weight: bold;
+    }
+
+    .ratio-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .ratio-card {
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 0 16px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .ratio-card h3 {
+      margin: 0 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      direction: rtl;
+      justify-content: flex-start;
+    }
+
+    .ratio-name {
+      font-weight: 900;
+      font-size: 1.25rem;
+    }
+
+    .ratio-formula {
+      min-height: 90px;
+      display: grid;
+      align-items: center;
+      font-size: clamp(0.88rem, 1.25vw, 1.08rem);
+      overflow-x: auto;
+      padding-bottom: 3px;
+    }
+
+    .ratio-equal {
+      color: #071e45;
+      text-align: center;
+    }
+
+    .diagram-panel { padding: 14px 16px; }
+    .diagram-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .diagram-head p { margin: 4px 0 0; color: var(--muted); }
+
+    #triangleBoard {
+      width: 100%;
+      height: clamp(300px, 30vw, 400px);
+      border: 2px solid #dce3ec;
+      border-radius: 16px;
+      background: #fff;
+      overflow: hidden;
+      direction: ltr;
+    }
+
+    .takeaway {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 2px solid #cbdff0;
+      background: #f4f9fd;
+      border-radius: 14px;
+      color: #355b7d;
+    }
+
+    .takeaway-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #e5f2fc;
+      color: var(--green);
+      font-weight: 950;
+    }
+
+    .takeaway strong { display: block; color: #2f628f; margin-bottom: 2px; }
+
+    .self-check {
+      display:none;	
+    }
+
+    .self-check p { margin: 5px 0 0; color: var(--muted); }
+
+    .answer-box {
+      border: 2px dashed #bdc9d9;
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfcfe;
+      min-height: 74px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #465468;
+      font-weight: 750;
+    }
+
+    .answer-box.revealed {
+      border-style: solid;
+      border-color: #c7e0f4;
+      background: var(--green-soft);
+      color: #2f628f;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      text-align: center;
+      color: #667085;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 720px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .controls { position: static; }
+      .hero-grid { grid-template-columns: 1fr; gap: 16px; }
+      .ratio-cards { grid-template-columns: 1fr; }
+      .ratio-card { display: grid; grid-template-columns: 150px 1fr; column-gap: 12px; align-items: center; }
+      .ratio-card h3 { margin: 0; }
+      .ratio-equal { margin-top: 0; }
+    }
+
+    @media (max-width: 360px) {
+      .app-shell { width: min(100% - 16px, 1480px); margin-top: 8px; }
+      .hero, .controls, .ratio-panel, .diagram-panel, .self-check { padding: 16px; }
+      .ratio-card { display: block; }
+      .ratio-card h3 { margin-bottom: 10px; }
+      .self-check { grid-template-columns: 1fr; }
+      .ratio-header, .diagram-head { align-items: start; flex-direction: column; }
+      #triangleBoard { height: 320px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; transition: none !important; }
+    }
+
+    .jxgbox { touch-action: pan-y; }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <p>מעבדת טריגונומטריה אינטראקטיבית</p>
+          <h1>יחסים טריגונומטריים במשולשים ישרי־זווית דומים</h1>
+          <p>
+            השוו בין שלושה משולשים ישרי־זווית בעלי אותה זווית חדה. שנו את הזווית או את גודל כל המשולשים,
+            ובדקו מה משתנה - ומה נשאר אותו הדבר.
+              </p>
+        </div>
+        <aside class="goal-card">
+          <strong>מטרת הלמידה</strong>
+          <p>להבין מדוע <em>sin</em>, <em>cos</em> ו-<em>tan</em> תלויים בזווית - ולא בגודלו הכולל של המשולש ישר־הזווית.</p>
+        </aside>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <aside class="panel controls" aria-label="בקרות">
+        <div class="control-group">
+          <div class="control-head">
+            <label for="angleSlider">הזווית החדה \(\alpha\)</label>
+            <span id="angleValue" class="value-badge">60°</span>
+          </div>
+          <input id="angleSlider" type="range" min="20" max="80" step="1" value="60" aria-label="זווית חדה במעלות" />
+          <div class="range-scale"><span>20°</span><span>50°</span><span>80°</span></div>
+          <p class="instruction">שינוי \(\alpha\) משנה את צורת כל המשולשים - ולכן גם היחסים הטריגונומטריים משתנים.</p>
+        </div>
+
+        <div class="control-group">
+          <div class="control-head">
+            <label for="sizeSlider">גודל המשולשים</label>
+            <span id="sizeValue" class="value-badge">100%</span>
+          </div>
+          <input id="sizeSlider" type="range" min="70" max="130" step="1" value="100" aria-label="הגודל הכולל של המשולשים" />
+          <div class="range-scale"><span>70%</span><span>100%</span><span>130%</span></div>
+          <p class="instruction">שינוי הגודל בלבד שומר על דמיון המשולשים. אורכי הצלעות משתנים, אך כל יחס נשאר קבוע.</p>
+        </div>
+
+        <div class="button-row">
+          <button id="resetBtn" class="btn primary" type="button">איפוס</button>
+          <button id="toggleLabelsBtn" class="btn" type="button" aria-pressed="true">הסתר שמות צלעות</button>
+        </div>
+
+        <div class="legend" aria-label="מקרא צבעי המשולשים">
+          <div class="legend-item"><span class="dot" style="background: var(--blue)"></span>משולש קטן</div>
+          <div class="legend-item"><span class="dot" style="background: var(--rose)"></span>משולש בינוני</div>
+          <div class="legend-item"><span class="dot" style="background: var(--magenta)"></span>משולש גדול</div>
+        </div>
+      </aside>
+
+      <div class="content-stack">
+        <section class="panel ratio-panel">
+          <div class="ratio-header">
+            <div>
+              <h2>אורכי צלעות שונים - אותו יחס</h2>
+	            </div>
+            <div class="constant-badge">אותה זווית ⇐ אותם יחסים</div>
+          </div>
+
+          <div class="ratio-cards">
+            <article class="ratio-card">
+              <div id="sinFormula" class="ratio-formula" aria-live="polite"></div>
+              <div id="sinValue" class="ratio-equal"></div>
+            </article>
+
+            <article class="ratio-card">
+              <div id="cosFormula" class="ratio-formula" aria-live="polite"></div>
+              <div id="cosValue" class="ratio-equal"></div>
+            </article>
+
+            <article class="ratio-card">
+              <div id="tanFormula" class="ratio-formula" aria-live="polite"></div>
+              <div id="tanValue" class="ratio-equal"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel diagram-panel">
+          <div id="triangleBoard" class="jxgbox" aria-label="שלושה משולשים ישרי זווית דומים ואינטראקטיביים"></div>
+        </section>
+
+        <section class="panel self-check">
+          <div>
+            <p class="section-kicker">בדיקה עצמית</p>
+            <h2>נבאו לפני הצגת התשובה</h2>
+            <p>אם שומרים את \(\alpha\) קבועה ומגדילים כל משולש ב-30%, מה יקרה ל-\(\sin(\alpha)\), ל-\(\cos(\alpha)\) ול-\(\tan(\alpha)\)?</p>
+            <div class="button-row" style="max-width: 310px; margin-top: 14px;">
+              <button id="revealBtn" class="btn primary" type="button">הצג תשובה</button>
+              <button id="newAngleBtn" class="btn" type="button">נסה זווית אחרת</button>
+            </div>
+          </div>
+          <div id="answerBox" class="answer-box">נבאו תחילה, ואז הציגו את התשובה.</div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const COLORS = {
+        blue: '#3157d5',
+        rose: '#d84662',
+        magenta: '#c327c9',
+        green: '#3f7fbd',
+        muted: '#667085',
+        black: '#111827'
+      };
+
+      const state = {
+        angle: 60,
+        sizePercent: 100,
+        showSideNames: true
+      };
+
+      const angleSlider = document.getElementById('angleSlider');
+      const sizeSlider = document.getElementById('sizeSlider');
+      const angleValue = document.getElementById('angleValue');
+      const sizeValue = document.getElementById('sizeValue');
+      const toggleLabelsBtn = document.getElementById('toggleLabelsBtn');
+      const answerBox = document.getElementById('answerBox');
+
+      const board = JXG.JSXGraph.initBoard('triangleBoard', {
+        boundingbox: [0, 7.4, 24, -0.6],
+        axis: false,
+        grid: false,
+        showCopyright: false,
+        showNavigation: false,
+        pan: { enabled: false },
+        zoom: { enabled: false },
+        keepaspectratio: true
+      });
+
+      const triangleDefs = [
+        { x: 0.8, multiplier: 0.74, color: COLORS.blue, fill: '#e9edff', label: 'קטן' },
+        { x: 8.35, multiplier: 1.00, color: COLORS.rose, fill: '#fff0f3', label: 'בינוני' },
+        { x: 16.35, multiplier: 1.27, color: COLORS.magenta, fill: '#fff0ff', label: 'גדול' }
+      ];
+
+      const triangles = triangleDefs.map((def) => createTriangle(def));
+
+      function degToRad(deg) {
+        return deg * Math.PI / 180;
+      }
+
+      function geometryFor(def) {
+        const theta = degToRad(state.angle);
+        const sizeFactor = state.sizePercent / 100;
+        const hyp = 4.6 * def.multiplier * sizeFactor;
+        const adj = hyp * Math.cos(theta);
+        const opp = hyp * Math.sin(theta);
+        return { theta, hyp, adj, opp };
+      }
+
+      function createTriangle(def) {
+        const A = board.create('point', [() => def.x, () => 0], {
+          name: '', fixed: true, size: 0, strokeColor: '#24324a', fillColor: '#24324a', highlight: false
+        });
+        const B = board.create('point', [() => def.x + geometryFor(def).adj, () => 0], {
+          name: '', fixed: true, size: 0, strokeColor: '#24324a', fillColor: '#24324a', highlight: false
+        });
+        const C = board.create('point', [() => def.x + geometryFor(def).adj, () => geometryFor(def).opp], {
+          name: '', fixed: true, size: 0, strokeColor: '#24324a', fillColor: '#24324a', highlight: false
+        });
+
+        const poly = board.create('polygon', [A, B, C], {
+          borders: { strokeColor: def.color, strokeWidth: 3, highlight: false },
+          fillColor: def.fill,
+          fillOpacity: 0.75,
+          vertices: { visible: false },
+          highlight: false,
+          hasInnerPoints: false
+        });
+
+        const rightMarker = board.create('polygon', [
+          [() => B.X() - 0.34, () => 0],
+          [() => B.X() - 0.34, () => 0.34],
+          [() => B.X(), () => 0.34],
+          [() => B.X(), () => 0]
+        ], {
+          borders: { strokeColor: COLORS.green, strokeWidth: 1.5, highlight: false },
+          fillColor: '#eef7ff',
+          fillOpacity: 0.95,
+          vertices: { visible: false },
+          highlight: false,
+          fixed: true
+        });
+
+        // Hidden helper points for the angle arc. Explicitly setting size: 0
+        // prevents JSXGraph from showing its default orange helper points.
+        const angleArcStart = board.create('point', [
+          () => A.X() + 0.75,
+          () => A.Y()
+        ], {
+          name: '', fixed: true, size: 0, visible: false, highlight: false
+        });
+
+        const angleArcEnd = board.create('point', [
+          () => A.X() + 0.75 * Math.cos(degToRad(state.angle)),
+          () => A.Y() + 0.75 * Math.sin(degToRad(state.angle))
+        ], {
+          name: '', fixed: true, size: 0, visible: false, highlight: false
+        });
+
+        const angleArc = board.create('arc', [A, angleArcStart, angleArcEnd], {
+          strokeColor: COLORS.green,
+          strokeWidth: 2,
+          highlight: false,
+          fixed: true
+        });
+
+        const angleText = board.create('text', [
+          () => A.X() + 0.84 * Math.cos(degToRad(state.angle / 2)),
+          () => A.Y() + 0.84 * Math.sin(degToRad(state.angle / 2)),
+          () => `${state.angle}°`
+        ], {
+          fontSize: 13,
+          color: COLORS.green,
+          fixed: true,
+          highlight: false,
+          anchorX: 'middle',
+          anchorY: 'middle'
+        });
+
+        const topAngle = board.create('text', [
+          () => C.X() - 0.35,
+          () => C.Y() - 0.45,
+          () => `${90 - state.angle}°`
+        ], {
+          fontSize: 12,
+          color: COLORS.green,
+          fixed: true,
+          highlight: false,
+          anchorX: 'right',
+          anchorY: 'top',
+          cssStyle: 'direction:rtl; unicode-bidi:plaintext;'
+        });
+
+        const baseLabel = board.create('text', [
+          () => (A.X() + B.X()) / 2,
+          () => -0.28,
+          () => state.showSideNames ? `ניצב ליד = ${formatNumber(geometryFor(def).adj)}` : formatNumber(geometryFor(def).adj)
+        ], {
+          fontSize: 13,
+          color: def.color,
+          fixed: true,
+          highlight: false,
+          anchorX: 'middle',
+          anchorY: 'top',
+          cssStyle: 'direction:rtl; unicode-bidi:plaintext;'
+        });
+
+        const oppLabel = board.create('text', [
+          () => B.X() + 0.16,
+          () => C.Y() / 2,
+          () => state.showSideNames ? `ניצב מול = ${formatNumber(geometryFor(def).opp)}` : formatNumber(geometryFor(def).opp)
+        ], {
+          fontSize: 13,
+          color: def.color,
+          fixed: true,
+          highlight: false,
+          anchorX: 'left',
+          anchorY: 'middle',
+          rotate: 90,
+          cssStyle: 'direction:rtl; unicode-bidi:plaintext;'
+        });
+
+        const hypLabel = board.create('text', [
+          () => (A.X() + C.X()) / 2 - 0.18,
+          () => C.Y() / 2 + 0.16,
+          () => state.showSideNames ? `יתר = ${formatNumber(geometryFor(def).hyp)}` : formatNumber(geometryFor(def).hyp)
+        ], {
+          fontSize: 13,
+          color: def.color,
+          fixed: true,
+          highlight: false,
+          anchorX: 'right',
+          anchorY: 'bottom',
+          rotate: () => state.angle,
+          cssStyle: 'direction:rtl; unicode-bidi:plaintext;'
+        });
+
+        const title = board.create('text', [
+          () => def.x + 0.1,
+          () => 6.82,
+          () => `משולש ${def.label}`
+        ], {
+          fontSize: 14,
+          color: def.color,
+          cssStyle: 'font-weight:bold; direction:rtl; unicode-bidi:plaintext;',
+          fixed: true,
+          highlight: false,
+          anchorX: 'left',
+          anchorY: 'middle'
+        });
+
+        return { def, A, B, C, poly, rightMarker, angleArc, angleText, topAngle, baseLabel, oppLabel, hypLabel, title };
+      }
+
+      function formatNumber(value) {
+        if (Math.abs(value) >= 10) return value.toFixed(1).replace(/\.0$/, '');
+        return value.toFixed(2).replace(/0$/, '').replace(/\.0$/, '');
+      }
+
+      function ratioValue(name) {
+        const rad = degToRad(state.angle);
+        if (name === 'sin') return Math.sin(rad);
+        if (name === 'cos') return Math.cos(rad);
+        return Math.tan(rad);
+      }
+
+      function colorFrac(numerator, denominator, color) {
+        return `\\color{${color}}{\\frac{${numerator}}{${denominator}}}`;
+      }
+
+      function updateRatioCards() {
+        const g = triangleDefs.map(geometryFor);
+        const angle = state.angle;
+
+        const sinParts = g.map((x, i) => colorFrac(formatNumber(x.opp), formatNumber(x.hyp), triangleDefs[i].color));
+        const cosParts = g.map((x, i) => colorFrac(formatNumber(x.adj), formatNumber(x.hyp), triangleDefs[i].color));
+        const tanParts = g.map((x, i) => colorFrac(formatNumber(x.opp), formatNumber(x.adj), triangleDefs[i].color));
+
+        document.getElementById('sinFormula').innerHTML = `\\[\\sin(${angle}^\\circ)=${sinParts.join('=')}\\]`;
+        document.getElementById('cosFormula').innerHTML = `\\[\\cos(${angle}^\\circ)=${cosParts.join('=')}\\]`;
+        document.getElementById('tanFormula').innerHTML = `\\[\\tan(${angle}^\\circ)=${tanParts.join('=')}\\]`;
+
+        document.getElementById('sinValue').innerHTML = `\\(${ratioValue('sin').toFixed(4)}\\)`;
+        document.getElementById('cosValue').innerHTML = `\\(${ratioValue('cos').toFixed(4)}\\)`;
+        document.getElementById('tanValue').innerHTML = `\\(${ratioValue('tan').toFixed(4)}\\)`;
+
+        if (window.MathJax?.typesetPromise) {
+          const mathTargets = [
+            document.getElementById('sinFormula'),
+            document.getElementById('cosFormula'),
+            document.getElementById('tanFormula'),
+            document.getElementById('sinValue'),
+            document.getElementById('cosValue'),
+            document.getElementById('tanValue')
+          ];
+          MathJax.typesetClear?.(mathTargets);
+          MathJax.typesetPromise(mathTargets).catch(() => {});
+        }
+      }
+
+      function updateUI() {
+        angleValue.textContent = `${state.angle}°`;
+        sizeValue.textContent = `${state.sizePercent}%`;
+        board.update();
+        updateRatioCards();
+      }
+
+      angleSlider.addEventListener('input', () => {
+        state.angle = Number(angleSlider.value);
+        answerBox.classList.remove('revealed');
+        answerBox.textContent = 'נבאו תחילה, ואז הציגו את התשובה.';
+        updateUI();
+      });
+
+      sizeSlider.addEventListener('input', () => {
+        state.sizePercent = Number(sizeSlider.value);
+        updateUI();
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        state.angle = 60;
+        state.sizePercent = 100;
+        state.showSideNames = true;
+        angleSlider.value = '60';
+        sizeSlider.value = '100';
+        toggleLabelsBtn.textContent = 'הסתר שמות צלעות';
+        toggleLabelsBtn.setAttribute('aria-pressed', 'true');
+        answerBox.classList.remove('revealed');
+        answerBox.textContent = 'נבאו תחילה, ואז הציגו את התשובה.';
+        updateUI();
+      });
+
+      toggleLabelsBtn.addEventListener('click', () => {
+        state.showSideNames = !state.showSideNames;
+        toggleLabelsBtn.textContent = state.showSideNames ? 'הסתר שמות צלעות' : 'הצג שמות צלעות';
+        toggleLabelsBtn.setAttribute('aria-pressed', String(state.showSideNames));
+        board.update();
+      });
+
+      document.getElementById('revealBtn').addEventListener('click', () => {
+        answerBox.classList.add('revealed');
+        answerBox.innerHTML = 'היחסים <strong>אינם משתנים</strong>. כל אורכי הצלעות המתאימות מוכפלים באותו גורם, ולכן כל מנה נשארת זהה.';
+      });
+
+      document.getElementById('newAngleBtn').addEventListener('click', () => {
+        const choices = [25, 30, 35, 40, 45, 50, 55, 65, 70, 75];
+        let next = choices[Math.floor(Math.random() * choices.length)];
+        if (next === state.angle) next = next === 75 ? 25 : next + 5;
+        state.angle = next;
+        angleSlider.value = String(next);
+        answerBox.classList.remove('revealed');
+        answerBox.textContent = 'נבאו תחילה, ואז הציגו את התשובה.';
+        updateUI();
+      });
+
+      // MathJax may finish loading after the first render.
+      window.addEventListener('load', () => {
+        updateUI();
+        setTimeout(updateRatioCards, 250);
+      });
+
+      updateUI();
+    })();
+  </script>
+</body>
+</html>
