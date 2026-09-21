@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>דף עזר לבגרות — לולאות מקוננות C# — גרסת עמודה אחת</title>
+<style>
+@page {
+  size: A4;
+  margin: 10mm 10mm 12mm 10mm;
+  @bottom-center {
+    content: "עמוד " counter(page);
+    font-family: "Noto Sans Hebrew", "Arial", sans-serif;
+    font-size: 10.5px;
+    color: #506f94;
+  }
+}
+:root{
+  --blue:#1459d9;
+  --blue2:#2f7df6;
+  --light:#eaf4ff;
+  --light2:#f6fbff;
+  --ink:#1b2430;
+  --muted:#526171;
+  --line:#b6d2ff;
+  --warn:#fff7df;
+  --ok:#edf9f0;
+  --bad:#fff0f0;
+  --purple:#f1edff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #eef3fb; }
+body {
+  font-family: "Noto Sans Hebrew", "Arial", sans-serif;
+  color: var(--ink);
+  direction: rtl;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.doc {
+  width: 190mm;
+  max-width: calc(100vw - 24px);
+  margin: 0 auto;
+  padding: 10mm 0 12mm;
+  background: #fff;
+}
+header.hero{
+  border:2px solid var(--blue);
+  border-radius:16px;
+  overflow:hidden;
+  margin:0 0 11px;
+  background:linear-gradient(135deg, #dbeaff 0%, #f8fbff 100%);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.hero-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  background:#cfe3ff;
+  border-bottom:1px solid var(--line);
+}
+.title{ font-size:21px; font-weight:900; color:#123d91; margin:0; line-height:1.2; }
+.subtitle{ font-size:12.5px; color:#274368; margin-top:3px; line-height:1.35; }
+.badge{ direction:ltr; font-size:27px; font-weight:900; color:white; background:var(--blue); padding:8px 14px; border-radius:14px; letter-spacing:.5px; flex:0 0 auto; }
+.hero-body{ padding:9px 14px 12px; align-items:center; }
+.formula-card{ background:#fff; border:1.1px solid var(--line); border-radius:12px; padding:7px 10px; font-weight:700; color:#24415f; font-size:13px; line-height:1.4; margin-bottom:6px; }
+.note{ background:var(--warn); border:1.1px solid #f2d37a; border-radius:12px; padding:7px 10px; font-size:12.5px; line-height:1.42; }
+.sectionTitle{
+  margin: 14px 0 7px;
+  color:#114aa9;
+  font-size:18px;
+  border-right:4px solid var(--blue);
+  padding-right:8px;
+  line-height:1.2;
+  break-after:avoid;
+  page-break-after:avoid;
+}
+h3{ margin:0 0 5px; color:#123d91; font-size:15px; line-height:1.24; }
+p{ margin:3px 0 6px; line-height:1.36; font-size:12.8px; }
+.small{ font-size:11.5px; color:var(--muted); }
+.grid2, .grid3, .two-col-code{
+  display:block !important;
+  width:100%;
+  margin:0 0 7px;
+}
+.card{
+  width:100%;
+  border:1.1px solid var(--line);
+  border-radius:11px;
+  padding:8px 9px 7px;
+  background:var(--light2);
+  overflow:visible;
+  margin:0 0 7px;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.card.white{ background:#fff; }
+.card.ok{ background:var(--ok); border-color:#b9dfc1; }
+.card.warn{ background:var(--warn); border-color:#efd07c; }
+.card.bad{ background:var(--bad); border-color:#e7b0b0; }
+.card.purple{ background:var(--purple); border-color:#d5ccff; }
+.tight{ margin-top:7px; }
+table{ width:100%; border-collapse:separate; border-spacing:0; overflow:visible; border:1px solid var(--line); border-radius:11px; background:white; margin:0 0 7px; break-inside:avoid; page-break-inside:avoid; }
+th,td{ border-bottom:1px solid var(--line); padding:6px 8px; vertical-align:top; font-size:12.8px; line-height:1.32; }
+th{ background:#d8e9ff; color:#123d91; font-weight:900; }
+tr:last-child td{ border-bottom:0; }
+.op{ direction:ltr; text-align:left; font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; font-size:11.4px; font-weight:700; color:#0756c8; }
+.ltr, .signature, pre, code { direction:ltr; unicode-bidi:embed; text-align:left; }
+.signature{ font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#114aa9; font-weight:900; font-size:10.6px; margin:0 0 3px; white-space:pre-wrap; }
+pre, .code{
+  direction:ltr;
+  text-align:left;
+  unicode-bidi:embed;
+  white-space:pre-wrap;
+  overflow:visible;
+  margin:5px 0 0;
+  padding:7px 8px;
+  border-radius:10px;
+  background:#0f172a;
+  color:#e7eefc;
+  border:1px solid #263857;
+  font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace;
+  font-size:10.85px;
+  line-height:1.18;
+}
+.mini-code{ font-size:9.75px; line-height:1.15; }
+code{ font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#0a54c7; font-weight:700; font-size:.96em; }
+pre code, .code code { color:inherit; font-weight:inherit; }
+.pill{ display:inline-block; background:#e8f1ff; border:1px solid var(--line); color:#0f56c7; border-radius:999px; padding:2px 8px; font-weight:800; font-size:11px; margin:1px 0; }
+.rule{ display:flex; align-items:flex-start; gap:7px; margin:4px 0; font-size:12.5px; line-height:1.3; }
+.num{ min-width:21px; height:21px; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; background:var(--blue); color:white; font-weight:900; direction:ltr; flex:0 0 auto; }
+.compact li{ margin-bottom:3px; }
+.avoid{ display:block !important; margin-top:5px; }
+.avoid span{ display:block; width:100%; background:#fff; border:1px dashed #df9c9c; border-radius:8px; padding:4px 6px; direction:ltr; text-align:left; font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#b22020; font-size:10.5px; font-weight:700; margin:0 0 3px; }
+.map td:first-child{ width:27%; font-weight:800; color:#123d91; }
+.foot{ margin-top:7px; padding:7px 9px; background:#eef6ff; border:1px solid var(--line); border-radius:11px; font-size:12px; line-height:1.35; break-inside:avoid; page-break-inside:avoid; }
+.example{ margin:4px 0 0; padding:4px 6px; background:#eef6ff; border:1px solid var(--line); border-radius:8px; font-size:10.3px; line-height:1.22; }
+.example code{ color:#0a54c7; }
+.formula{ direction:ltr; unicode-bidi:isolate; font-family:"DejaVu Serif", serif; font-style:italic; color:#17365d; }
+.kbd{ direction:ltr; unicode-bidi:isolate; display:inline-block; padding:1px 5px; border-radius:5px; border:1px solid var(--line); background:#fff; font-family:"DejaVu Sans Mono", Consolas, monospace; font-size:11px; color:#0a54c7; font-weight:800; }
+.sources a{ color:#0f56c7; text-decoration:none; font-weight:800; }
+.pagebreak{ break-before: page; page-break-before: always; }
+@media print{
+  html, body{ background:white; }
+  .doc{ width:190mm; max-width:none; padding:0; margin:0 auto; }
+  a{ color:inherit; text-decoration:none; }
+}
+</style>
+</head><body><main class="doc">
+<header class="hero">
+<div class="hero-top">
+<div>
+<h1 class="title">דף עזר לבחינת הבגרות — לולאות מקוננות ב־#C</h1>
+<div class="subtitle">פירוק הנושא למרכיבים: לולאה חיצונית, לולאה פנימית, תבניות שימושיות, אלגוריתמים וקשרים בין המונים</div>
+</div>
+<div class="badge">C#</div>
+</div>
+<div class="hero-body">
+<div class="formula-card">
+לולאה מקוננת היא לולאה שנמצאת בתוך לולאה אחרת. בדרך כלל הלולאה החיצונית מייצגת <span class="formula">rows / groups</span>, והלולאה הפנימית מייצגת <span class="formula">columns / items</span>. בכל ריצה אחת של החיצונית, הפנימית מתחילה מחדש ומבצעת את כל הריצות שלה.
+</div>
+<div class="note">
+הדגש במסמך זה: לא רק לוח כפל וריבוע כוכביות, אלא בעיקר תבניות שבהן טווח הלולאה הפנימית תלוי במונה החיצוני: משולשים, אלכסונים, זוגות ייחודיים, צוברים לפי שורה וקלט בכמות משתנה.
+</div>
+</div>
+</header>
+
+<h2 class="sectionTitle">1. מפת הנושא — ממה בנויה לולאה מקוננת?</h2>
+<table class="map">
+<thead><tr><th>מרכיב</th><th>תפקיד</th><th>תבנית חשיבה</th></tr></thead>
+<tbody>
+<tr><td>לולאה חיצונית</td><td>קובעת את מספר הקבוצות, השורות, התלמידים, הימים או החנויות.</td><td class="op">for (int i = 1; i <= rows; i++)</td></tr>
+<tr><td>לולאה פנימית</td><td>מתבצעת מחדש עבור כל ערך של החיצונית. בדרך כלל עוברת על עמודות, פריטים או ציונים.</td><td class="op">for (int j = 1; j <= cols; j++)</td></tr>
+<tr><td>גוף הלולאה הפנימית</td><td>הפעולה שחוזרת הכי הרבה פעמים: הדפסה, קליטה, חישוב, צבירה או בדיקה.</td><td class="op">work(i, j)</td></tr>
+<tr><td>מעבר שורה</td><td>נמצא אחרי הפנימית, אבל עדיין בתוך החיצונית. מתאים להדפסת טבלאות ותבניות.</td><td class="op">Console.WriteLine();</td></tr>
+<tr><td>קשר בין המונים</td><td>כאשר <span class="formula">j</span> תלוי ב־<span class="formula">i</span>, מקבלים משולשים, אלכסונים וזוגות ללא כפילויות.</td><td class="op">for (int j = 1; j <= i; j++)</td></tr>
+</tbody>
+</table>
+<div class="card ok">
+<h3>כלל מרכזי לזכירה</h3>
+<div class="rule"><span class="num">1</span><span>החיצונית נכנסת פעם אחת לשורה או לקבוצה.</span></div>
+<div class="rule"><span class="num">2</span><span>הפנימית מסיימת את כל הריצות שלה לפני שהחיצונית מתקדמת לערך הבא.</span></div>
+<div class="rule"><span class="num">3</span><span>אם הפנימית היא <code>while</code>, חובה לאתחל ולקדם את המונה הפנימי בכל ריצה של החיצונית.</span></div>
+</div>
+<div class="card white"><h3>תבנית בסיסית: שתי לולאות for קבועות</h3><pre class="code " dir="ltr">static void PrintTable(int rows, int cols)
+{
+    for (int i = 1; i &lt;= rows; i++)      // outer: rows
+    {
+        for (int j = 1; j &lt;= cols; j++)  // inner: columns
+        {
+            Console.Write(i + &quot;,&quot; + j + &quot;	&quot;);
+        }
+        Console.WriteLine();             // end of current row
+    }
+}</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>PrintTable(3, 4);</code></span></div></div><div class="card warn"><h3>תבנית for + while: כאשר מספר הריצות ידוע אבל רוצים לולאת תנאי</h3><pre class="code " dir="ltr">static void PrintTableForWhile(int rows, int cols)
+{
+    for (int i = 1; i &lt;= rows; i++)
+    {
+        int j = 1;                       // reset inner counter
+        while (j &lt;= cols)
+        {
+            Console.Write((i * j) + &quot;	&quot;);
+            j++;                         // progress inner loop
+        }
+        Console.WriteLine();
+    }
+}</pre><p class="small">טעות נפוצה: אם שוכחים את <code>j++</code>, הלולאה הפנימית לא תסתיים.</p></div>
+<h2 class="sectionTitle">2. מתי בוחרים for ומתי while?</h2>
+<table>
+<thead><tr><th>מצב</th><th>בחירה מומלצת</th><th>סיבה</th></tr></thead>
+<tbody>
+<tr><td>ידוע מראש כמה פעמים לחזור</td><td class="op">for</td><td>האתחול, תנאי העצירה וקידום המונה נמצאים באותה שורה.</td></tr>
+<tr><td>עוברים על שורות ועמודות קבועות</td><td class="op">for + for</td><td>מתאים לטבלה, מטריצה, לוח כפל, ריבוע כוכבים.</td></tr>
+<tr><td>קולטים עד סימן סיום</td><td class="op">while</td><td>מספר הריצות אינו ידוע מראש, לדוגמה קליטת ציונים עד <code>-1</code>.</td></tr>
+<tr><td>לכל קבוצה מספר פריטים אחר</td><td class="op">for + while</td><td>החיצונית עוברת על הקבוצות, הפנימית נעצרת לפי תנאי משתנה.</td></tr>
+</tbody>
+</table>
+
+<h2 class="sectionTitle">3. תבניות הדפסה דו־ממדיות</h2>
+<div class="card white"><h3>לוח כפל</h3><pre class="code " dir="ltr">static void PrintMultiplicationTable(int size)
+{
+    for (int i = 1; i &lt;= size; i++)
+    {
+        for (int j = 1; j &lt;= size; j++)
+        {
+            Console.Write((i * j) + &quot;	&quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><p class="small">החיצונית היא השורה. הפנימית מדפיסה את כל העמודות באותה שורה.</p></div><div class="card ok"><h3>ריבוע כוכביות בגודל n על n</h3><pre class="code " dir="ltr">static void PrintSquare(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = 1; j &lt;= n; j++)
+        {
+            Console.Write(&quot;*&quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><p class="small">מספר הכוכבים הכולל הוא <span class="formula">n * n</span>.</p></div><div class="card purple"><h3>לוח כפל עם תנאי פנימי — BOOM במקום מספר שמתחלק ב־7</h3><pre class="code " dir="ltr">static void PrintBoomTable(int size)
+{
+    for (int i = 1; i &lt;= size; i++)
+    {
+        for (int j = 1; j &lt;= size; j++)
+        {
+            int value = i * j;
+            if (value % 7 == 0)
+                Console.Write(&quot;BOOM	&quot;);
+            else
+                Console.Write(value + &quot;	&quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre></div>
+<h2 class="sectionTitle">4. כאשר הלולאה הפנימית קשורה ללולאה החיצונית</h2>
+<div class="card warn"><h3>הרעיון</h3>
+<p>כאשר הגבול של <code>j</code> תלוי ב־<code>i</code>, מספר הריצות של הלולאה הפנימית משתנה משורה לשורה. זו התבנית החשובה ביותר למשולשים, אלכסונים וזוגות ייחודיים.</p>
+</div>
+<div class="card ok"><h3>משולש שמאלי עולה: בכל שורה יש i כוכבים</h3><pre class="code " dir="ltr">static void PrintLeftTriangle(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = 1; j &lt;= i; j++)
+        {
+            Console.Write(&quot;*&quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><div class="example"><strong>פלט עבור 5:</strong><br/><span class="ltr" dir="ltr"><code>*<br/>**<br/>***<br/>****<br/>*****</code></span></div></div><div class="card white"><h3>משולש יורד: בכל שורה יש n - i + 1 כוכבים</h3><pre class="code " dir="ltr">static void PrintDownTriangle(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = 1; j &lt;= n - i + 1; j++)
+        {
+            Console.Write(&quot;*&quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><p class="small">בשורה הראשונה מודפסים <span class="formula">n</span> כוכבים, ובשורה האחרונה כוכב אחד.</p></div><div class="card purple"><h3>משולש ימני: רווחים ואז כוכבים</h3><pre class="code " dir="ltr">static void PrintRightTriangle(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int spaces = 1; spaces &lt;= n - i; spaces++)
+        {
+            Console.Write(&quot; &quot;);
+        }
+        for (int stars = 1; stars &lt;= i; stars++)
+        {
+            Console.Write(&quot;*&quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><p class="small">כאן יש שתי לולאות פנימיות באותה שורה: אחת לרווחים ואחת לכוכבים.</p></div>
+<h2 class="sectionTitle">5. אלכסונים ותנאים לפי i ו־j</h2>
+<div class="card white"><h3>אלכסון ראשי ואלכסון משני</h3><pre class="code " dir="ltr">static void PrintDiagonals(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = 1; j &lt;= n; j++)
+        {
+            if (i == j || i + j == n + 1)
+                Console.Write(&quot;* &quot;);
+            else
+                Console.Write(&quot;. &quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><table><tr><th>תנאי</th><th>משמעות</th></tr><tr><td class="op">i == j</td><td>אלכסון ראשי</td></tr><tr><td class="op">i + j == n + 1</td><td>אלכסון משני</td></tr><tr><td class="op">i < j</td><td>מעל האלכסון הראשי</td></tr><tr><td class="op">i > j</td><td>מתחת לאלכסון הראשי</td></tr></table></div><div class="card ok"><h3>תבנית שחמט</h3><pre class="code " dir="ltr">static void PrintCheckerBoard(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = 1; j &lt;= n; j++)
+        {
+            if ((i + j) % 2 == 0)
+                Console.Write(&quot;X &quot;);
+            else
+                Console.Write(&quot;O &quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><p class="small">שימושי כשצריך לצבוע או לסמן תאים לסירוגין לפי מיקום.</p></div><div class="card purple"><h3>מטריצה שבה הערך תלוי בשני האינדקסים</h3><pre class="code " dir="ltr">static void PrintSumMatrix(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = 1; j &lt;= n; j++)
+        {
+            Console.Write((i + j - 1) + &quot;	&quot;);
+        }
+        Console.WriteLine();
+    }
+}</pre><p class="small">כאשר <code>n = 8</code>, בכל אלכסון משני מתקבל ערך קבוע.</p></div>
+<h2 class="sectionTitle">6. יצירת זוגות — כל האפשרויות, בלי כפילויות</h2>
+<div class="card white"><h3>כל הזוגות האפשריים</h3><pre class="code " dir="ltr">static void PrintAllPairs(int n)
+{
+    for (int x = 1; x &lt;= n; x++)
+    {
+        for (int y = 1; y &lt;= n; y++)
+        {
+            Console.WriteLine(&quot;(&quot; + x + &quot;, &quot; + y + &quot;)&quot;);
+        }
+    }
+}</pre><p class="small">כמות הזוגות: <span class="formula">n * n</span>.</p></div><div class="card ok"><h3>זוגות ללא כפילות וללא זוג עם עצמו</h3><pre class="code " dir="ltr">static void PrintUniquePairs(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = i + 1; j &lt;= n; j++)
+        {
+            Console.WriteLine(i + &quot; - &quot; + j);
+        }
+    }
+}</pre><p class="small">הקשר החשוב: הפנימית מתחילה ב־<code>i + 1</code>. כך לא נקבל גם <code>2 - 5</code> וגם <code>5 - 2</code>.</p></div><div class="card purple"><h3>זוגות עם עצמו, אבל בלי כפילות סימטרית</h3><pre class="code " dir="ltr">static void PrintPairsWithSelf(int n)
+{
+    for (int i = 1; i &lt;= n; i++)
+    {
+        for (int j = i; j &lt;= n; j++)
+        {
+            Console.WriteLine(i + &quot; - &quot; + j);
+        }
+    }
+}</pre><p class="small">מתאים למצבים שבהם מותר לבחור אותו איבר פעמיים.</p></div>
+<h2 class="sectionTitle">7. צוברים בלולאות מקוננות</h2>
+<div class="card warn"><h3>איפה מאתחלים את הצובר?</h3>
+<div class="rule"><span class="num">1</span><span>צובר של שורה מאתחלים בתחילת כל ריצה של הלולאה החיצונית.</span></div>
+<div class="rule"><span class="num">2</span><span>צובר כללי מאתחלים לפני שתי הלולאות.</span></div>
+<div class="rule"><span class="num">3</span><span>את הצובר הכללי מעדכנים אחרי שסיימנו שורה או בתוך הפנימית, לפי מטרת האלגוריתם.</span></div>
+</div>
+<div class="card white"><h3>סכום שורה וסכום כללי</h3><pre class="code " dir="ltr">static void PrintRowSumsAndTotal(int rows, int cols)
+{
+    int totalSum = 0;
+
+    for (int i = 1; i &lt;= rows; i++)
+    {
+        int rowSum = 0;                  // reset for current row
+
+        for (int j = 1; j &lt;= cols; j++)
+        {
+            int value = i * j;
+            rowSum = rowSum + value;
+            Console.Write(value + &quot;	&quot;);
+        }
+
+        totalSum = totalSum + rowSum;
+        Console.WriteLine(&quot;| &quot; + rowSum);
+    }
+
+    Console.WriteLine(&quot;Total = &quot; + totalSum);
+}</pre><p class="small"><code>rowSum</code> מתאפס בכל שורה. <code>totalSum</code> אינו מתאפס בתוך החיצונית.</p></div><div class="card ok"><h3>ממוצע לכל קבוצה</h3><pre class="code " dir="ltr">static void PrintAveragePerGroup(int groups, int valuesInGroup)
+{
+    for (int i = 1; i &lt;= groups; i++)
+    {
+        int sum = 0;
+
+        for (int j = 1; j &lt;= valuesInGroup; j++)
+        {
+            Console.Write(&quot;Enter value &quot; + j + &quot; for group &quot; + i + &quot;: &quot;);
+            int value = int.Parse(Console.ReadLine());
+            sum = sum + value;
+        }
+
+        double avg = (double)sum / valuesInGroup;
+        Console.WriteLine(&quot;Average for group &quot; + i + &quot; = &quot; + avg);
+    }
+}</pre></div>
+<h2 class="sectionTitle">8. קלט מרובד: לכל תלמיד מספר אחר של ציונים</h2>
+<p>כאן החיצונית עוברת על התלמידים, אך הפנימית אינה יודעת מראש כמה ציונים יהיו. לכן משתמשים ב־<code>while</code> עם סימן סיום.</p>
+<div class="card purple"><h3>תבנית for + while עם זקיף</h3><pre class="code " dir="ltr">static void ReadGradesUntilMinusOne()
+{
+    int excellentCount = 0;
+
+    for (int student = 1; student &lt;= 40; student++)
+    {
+        int sum = 0;
+        int count = 0;
+
+        Console.Write(&quot;Enter grade for student &quot; + student + &quot;: &quot;);
+        int grade = int.Parse(Console.ReadLine());
+
+        while (grade != -1)
+        {
+            sum = sum + grade;
+            count++;
+
+            Console.Write(&quot;Enter grade for student &quot; + student + &quot;: &quot;);
+            grade = int.Parse(Console.ReadLine());
+        }
+
+        if (count &gt; 0)
+        {
+            double avg = (double)sum / count;
+            Console.WriteLine(&quot;Average = &quot; + avg);
+
+            if (avg &gt;= 90)
+                excellentCount++;
+        }
+        else
+        {
+            Console.WriteLine(&quot;No grades&quot;);
+        }
+    }
+
+    Console.WriteLine(&quot;Excellent students = &quot; + excellentCount);
+}</pre><p class="small">הציון הראשון נקלט לפני ה־<code>while</code>, ובסוף כל סיבוב קולטים שוב. כך התנאי מתעדכן.</p></div>
+<h2 class="sectionTitle">9. ספירה וחיפוש בתוך טבלה</h2>
+<div class="card white"><h3>ספירת תאים שעומדים בתנאי</h3><pre class="code " dir="ltr">static int CountMultiplesInTable(int rows, int cols, int divisor)
+{
+    int count = 0;
+
+    for (int i = 1; i &lt;= rows; i++)
+    {
+        for (int j = 1; j &lt;= cols; j++)
+        {
+            int value = i * j;
+            if (value % divisor == 0)
+                count++;
+        }
+    }
+
+    return count;
+}</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountMultiplesInTable(10, 10, 7));</code></span></div></div><div class="card ok"><h3>חיפוש בלי break</h3><pre class="code " dir="ltr">static bool ExistsProduct(int size, int target)
+{
+    bool found = false;
+
+    for (int i = 1; i &lt;= size; i++)
+    {
+        for (int j = 1; j &lt;= size; j++)
+        {
+            if (i * j == target)
+                found = true;
+        }
+    }
+
+    return found;
+}</pre><p class="small">אפשר להוסיף לתנאי הלולאות <code>&amp;&amp; !found</code> כדי לחסוך בדיקות, אך כאן נשמרת תבנית פשוטה וברורה.</p></div><div class="card warn"><h3>מציאת מקסימום בקלט מרובד</h3><pre class="code " dir="ltr">static int FindMaxValue(int groups, int valuesInGroup)
+{
+    Console.Write(&quot;Enter first value: &quot;);
+    int max = int.Parse(Console.ReadLine());
+
+    for (int i = 1; i &lt;= groups; i++)
+    {
+        for (int j = 1; j &lt;= valuesInGroup; j++)
+        {
+            Console.Write(&quot;Enter value: &quot;);
+            int value = int.Parse(Console.ReadLine());
+
+            if (value &gt; max)
+                max = value;
+        }
+    }
+
+    return max;
+}</pre><p class="small">כאשר מאתחלים מקסימום מתוך הקלט, חשוב לא לקלוט בטעות ערך אחד יותר מדי. לחלופין אפשר להשתמש בדגל <code>first</code>.</p></div>
+<h2 class="sectionTitle">10. ניתוח מספר הריצות</h2>
+<table>
+<thead><tr><th>תבנית</th><th>כמה פעמים הפנימית רצה?</th><th>כמות כוללת</th><th>משמעות מעשית</th></tr></thead>
+<tbody>
+<tr><td class="op">for i=1..n; for j=1..m</td><td>תמיד <span class="formula">m</span></td><td class="formula">n * m</td><td>טבלה מלבנית</td></tr>
+<tr><td class="op">for i=1..n; for j=1..n</td><td>תמיד <span class="formula">n</span></td><td class="formula">n²</td><td>ריבוע / לוח כפל</td></tr>
+<tr><td class="op">for i=1..n; for j=1..i</td><td>משתנה לפי <span class="formula">i</span></td><td class="formula">1+2+...+n</td><td>משולש עולה</td></tr>
+<tr><td class="op">for i=1..n; for j=i+1..n</td><td>הולך וקטן</td><td class="formula">(n-1)+...+1</td><td>זוגות ייחודיים</td></tr>
+<tr><td class="op">for i=1..40; while grade!=-1</td><td>לא ידוע מראש</td><td>תלוי בקלט</td><td>קלט עד זקיף</td></tr>
+</tbody>
+</table>
+<div class="card purple"><h3>כלל ניתוח מהיר</h3>
+<p>סופרים את מספר הפעמים שהפקודה הפנימית ביותר מתבצעת. אם לכל שורה יש מספר קבוע של עמודות — מכפילים. אם מספר העמודות תלוי בשורה — מחברים את מספר הריצות בכל שורה.</p>
+</div>
+
+<h2 class="sectionTitle">11. טבלת מעקב מקוצרת</h2>
+<p>לטבלת מעקב רושמים בכל שורה את מצב המונים ואת הפלט. בדוגמה הבאה הפנימית רצה פעמיים עבור כל ערך של החיצונית.</p>
+<div class="card white"><h3>קוד למעקב</h3><pre class="code " dir="ltr">for (int i = 1; i &lt;= 3; i++)
+{
+    for (int j = 1; j &lt;= 2; j++)
+    {
+        Console.Write((i * j) + &quot;	&quot;);
+    }
+    Console.WriteLine();
+}</pre></div>
+<table>
+<thead><tr><th>צעד</th><th class="op">i</th><th class="op">j</th><th>פלט</th><th>הסבר</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="op">1</td><td class="op">1</td><td class="op">1</td><td>התחלת שורה ראשונה</td></tr>
+<tr><td>2</td><td class="op">1</td><td class="op">2</td><td class="op">2</td><td>עדיין באותה שורה</td></tr>
+<tr><td>3</td><td class="op">1</td><td class="op">3</td><td>מעבר שורה</td><td>התנאי של הפנימית נכשל</td></tr>
+<tr><td>4</td><td class="op">2</td><td class="op">1</td><td class="op">2</td><td>החיצונית התקדמה, הפנימית התחילה מחדש</td></tr>
+<tr><td>5</td><td class="op">2</td><td class="op">2</td><td class="op">4</td><td>סיום שורה שנייה</td></tr>
+</tbody>
+</table>
+
+<h2 class="sectionTitle">12. טעויות נפוצות ותיקון מהיר</h2>
+<div class="grid2" data-layout="one-column">
+<div class="card bad"><h3>טעויות שכדאי למנוע</h3>
+<div class="avoid" data-layout="one-column">
+<span>שימוש באותו מונה לשתי הלולאות: for (int i...) בתוך for (int i...)</span>
+<span>שכחת Console.WriteLine() אחרי הלולאה הפנימית</span>
+<span>אתחול rowSum מחוץ ללולאה החיצונית</span>
+<span>שכחת קידום מונה בלולאת while פנימית</span>
+<span>כתיבת j <= n במקום j <= i בתבנית משולש</span>
+<span>התחלת זוגות ייחודיים מ־1 במקום מ־i + 1</span>
+</div>
+</div>
+<div class="card ok"><h3>בדיקת קוד לפני הגשה</h3>
+<div class="rule"><span class="num">1</span><span>האם לכל לולאה יש מונה שונה וברור?</span></div>
+<div class="rule"><span class="num">2</span><span>האם הלולאה הפנימית מתחילה מחדש בכל שורה?</span></div>
+<div class="rule"><span class="num">3</span><span>האם הצוברים מאותחלים במקום הנכון?</span></div>
+<div class="rule"><span class="num">4</span><span>האם תנאי העצירה של <code>j</code> מתאים לצורה המבוקשת?</span></div>
+<div class="rule"><span class="num">5</span><span>האם יש מעבר שורה במקום הנכון?</span></div>
+</div>
+</div>
+
+<h2 class="sectionTitle">13. מקורות עזר ששולבו בהכנת הדף</h2>
+<div class="card sources">
+<p>המסמך מבוסס על המצגת המצורפת בנושא לולאות מקוננות, ובנוסף נעזר במקורות כלליים להרחבת התבניות:</p>
+<div class="rule"><span class="num">1</span><span><a href="https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/tutorials/branches-and-loops">Microsoft Learn — Branches and loops</a>: קִנון לולאות ויצירת מבנה שורות ועמודות.</span></div>
+<div class="rule"><span class="num">2</span><span><a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/iteration-statements">Microsoft Learn — C# iteration statements</a>: מבנה לולאות <span class="formula">for</span>, <span class="formula">while</span> ו־<span class="formula">do</span>.</span></div>
+<div class="rule"><span class="num">3</span><span><a href="https://www.geeksforgeeks.org/dsa/how-to-analyse-loops-for-complexity-analysis-of-algorithms/">GeeksforGeeks — Analysis of Loops</a>: ניתוח מספר ריצות ומורכבות זמן של לולאות.</span></div>
+<div class="rule"><span class="num">4</span><span><a href="https://www.comp.nus.edu.sg/~nityalak/CS1010S/Loop/Nesting/">NUS CS1010S — Nested Loop</a>: תבניות ציור בסיסיות כגון ריבוע ומשולשים.</span></div>
+</div>
+<div class="foot"><strong>כלל עבודה מומלץ:</strong> לפני כתיבת הקוד ציירו טבלה קטנה של <span class="formula">i</span> ו־<span class="formula">j</span>. אם הלולאה הפנימית תלויה בחיצונית, כתבו ליד כל שורה כמה פעמים <span class="formula">j</span> ירוץ.</div>
+</main></body></html>

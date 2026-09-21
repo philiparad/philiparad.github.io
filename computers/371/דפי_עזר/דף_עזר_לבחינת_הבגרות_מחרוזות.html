@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>דף עזר לבגרות — פעולות עזר למחרוזות C# — גרסת עמודה אחת</title>
+<style>
+@page {
+  size: A4;
+  margin: 10mm 10mm 12mm 10mm;
+  @bottom-center {
+    content: "עמוד " counter(page);
+    font-family: "Noto Sans Hebrew", "Arial", sans-serif;
+    font-size: 10.5px;
+    color: #506f94;
+  }
+}
+:root{
+  --blue:#1459d9;
+  --blue2:#2f7df6;
+  --light:#eaf4ff;
+  --light2:#f6fbff;
+  --ink:#1b2430;
+  --muted:#526171;
+  --line:#b6d2ff;
+  --warn:#fff7df;
+  --ok:#edf9f0;
+  --bad:#fff0f0;
+  --purple:#f1edff;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #eef3fb; }
+body {
+  font-family: "Noto Sans Hebrew", "Arial", sans-serif;
+  color: var(--ink);
+  direction: rtl;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.doc {
+  width: 190mm;
+  max-width: calc(100vw - 24px);
+  margin: 0 auto;
+  padding: 10mm 0 12mm;
+  background: #fff;
+}
+header.hero{
+  border:2px solid var(--blue);
+  border-radius:16px;
+  overflow:hidden;
+  margin:0 0 11px;
+  background:linear-gradient(135deg, #dbeaff 0%, #f8fbff 100%);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.hero-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  background:#cfe3ff;
+  border-bottom:1px solid var(--line);
+}
+.title{ font-size:21px; font-weight:900; color:#123d91; margin:0; line-height:1.2; }
+.subtitle{ font-size:12.5px; color:#274368; margin-top:3px; line-height:1.35; }
+.badge{ direction:ltr; font-size:27px; font-weight:900; color:white; background:var(--blue); padding:8px 14px; border-radius:14px; letter-spacing:.5px; flex:0 0 auto; }
+.hero-body{ padding:9px 14px 12px; align-items:center; }
+.formula-card{ background:#fff; border:1.1px solid var(--line); border-radius:12px; padding:7px 10px; font-weight:700; color:#24415f; font-size:13px; line-height:1.4; margin-bottom:6px; }
+.note{ background:var(--warn); border:1.1px solid #f2d37a; border-radius:12px; padding:7px 10px; font-size:12.5px; line-height:1.42; }
+.sectionTitle{
+  margin: 14px 0 7px;
+  color:#114aa9;
+  font-size:18px;
+  border-right:4px solid var(--blue);
+  padding-right:8px;
+  line-height:1.2;
+  break-after:avoid;
+  page-break-after:avoid;
+}
+h3{ margin:0 0 5px; color:#123d91; font-size:15px; line-height:1.24; }
+p{ margin:3px 0 6px; line-height:1.36; font-size:12.8px; }
+.small{ font-size:11.5px; color:var(--muted); }
+.grid2, .grid3, .two-col-code{
+  display:block !important;
+  width:100%;
+  margin:0 0 7px;
+}
+.card{
+  width:100%;
+  border:1.1px solid var(--line);
+  border-radius:11px;
+  padding:8px 9px 7px;
+  background:var(--light2);
+  overflow:visible;
+  margin:0 0 7px;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.card.white{ background:#fff; }
+.card.ok{ background:var(--ok); border-color:#b9dfc1; }
+.card.warn{ background:var(--warn); border-color:#efd07c; }
+.card.bad{ background:var(--bad); border-color:#e7b0b0; }
+.card.purple{ background:var(--purple); border-color:#d5ccff; }
+.tight{ margin-top:7px; }
+table{ width:100%; border-collapse:separate; border-spacing:0; overflow:visible; border:1px solid var(--line); border-radius:11px; background:white; margin:0 0 7px; break-inside:avoid; page-break-inside:avoid; }
+th,td{ border-bottom:1px solid var(--line); padding:6px 8px; vertical-align:top; font-size:12.8px; line-height:1.32; }
+th{ background:#d8e9ff; color:#123d91; font-weight:900; }
+tr:last-child td{ border-bottom:0; }
+.op{ direction:ltr; text-align:left; font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; font-size:11.4px; font-weight:700; color:#0756c8; }
+.ltr, .signature, pre, code { direction:ltr; unicode-bidi:embed; text-align:left; }
+.signature{ font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#114aa9; font-weight:900; font-size:10.6px; margin:0 0 3px; white-space:pre-wrap; }
+pre, .code{
+  direction:ltr;
+  text-align:left;
+  unicode-bidi:embed;
+  white-space:pre-wrap;
+  overflow:visible;
+  margin:5px 0 0;
+  padding:7px 8px;
+  border-radius:10px;
+  background:#0f172a;
+  color:#e7eefc;
+  border:1px solid #263857;
+  font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace;
+  font-size:11.8px;
+  line-height:1.20;
+}
+.mini-code{ font-size:10.1px; line-height:1.16; }
+code{ font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#0a54c7; font-weight:700; font-size:.96em; }
+pre code, .code code { color:inherit; font-weight:inherit; }
+.pill{ display:inline-block; background:#e8f1ff; border:1px solid var(--line); color:#0f56c7; border-radius:999px; padding:2px 8px; font-weight:800; font-size:11px; margin:1px 0; }
+.rule{ display:flex; align-items:flex-start; gap:7px; margin:4px 0; font-size:12.5px; line-height:1.3; }
+.num{ min-width:21px; height:21px; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; background:var(--blue); color:white; font-weight:900; direction:ltr; flex:0 0 auto; }
+.compact li{ margin-bottom:3px; }
+.avoid{ display:block !important; margin-top:5px; }
+.avoid span{ display:block; width:100%; background:#fff; border:1px dashed #df9c9c; border-radius:8px; padding:4px 6px; direction:ltr; text-align:left; font-family:"DejaVu Sans Mono", Consolas, "Courier New", monospace; color:#b22020; font-size:10.5px; font-weight:700; margin:0 0 3px; }
+.map td:first-child{ width:26%; font-weight:800; color:#123d91; }
+.foot{ margin-top:7px; padding:7px 9px; background:#eef6ff; border:1px solid var(--line); border-radius:11px; font-size:12px; line-height:1.35; break-inside:avoid; page-break-inside:avoid; }
+.example{ margin:4px 0 0; padding:4px 6px; background:#eef6ff; border:1px solid var(--line); border-radius:8px; font-size:10.3px; line-height:1.22; }
+.example code{ color:#0a54c7; }
+.formula{ direction:ltr; unicode-bidi:isolate; font-family:"DejaVu Serif", serif; font-style:italic; color:#17365d; }
+@media print{
+  html, body{ background:white; }
+  .doc{ width:190mm; max-width:none; padding:0; margin:0 auto; }
+  a{ color:inherit; text-decoration:none; }
+}
+</style>
+</head><body><main class="doc"><header class="hero">
+<div class="hero-top">
+<div>
+<h1 class="title">דף עזר לבחינת הבגרות — מחרוזות ב־#C</h1>
+<div class="subtitle">פעולות מותרות + פעולות עזר שאפשר לבנות לבד בלי להשתמש בפעולות string נוספות</div>
+</div>
+<div class="badge">C#</div>
+</div>
+<div class="hero-body">
+<div class="formula-card">
+        כלל אינדקסים מרכזי: אם <span class="formula">n = str.Length</span>, אז האינדקסים החוקיים הם <span class="formula">0 ≤ i &lt; n</span>. 
+        האינדקס האחרון הוא <span class="formula">n - 1</span>, ולכן אסור לכתוב <code>str[str.Length]</code>.
+      </div>
+<div class="note">
+        בדף זה לא משתמשים בפעולות נוספות של <code>string</code>, כגון <code>Substring</code>, <code>Replace</code>, <code>Trim</code>, <code>Split</code>, <code>StartsWith</code>, <code>EndsWith</code>, <code>CompareTo</code>.
+      </div>
+</div>
+</header><h2 class="sectionTitle">1. הפעולות המותרות לפי הטבלה</h2><table>
+<thead>
+<tr><th>פעולה</th><th>מה מקבלים?</th><th>דוגמה קצרה</th></tr>
+</thead>
+<tbody>
+<tr>
+<td class="op" dir="ltr">str[i]</td>
+<td>תו בודד מהמחרוזת. התוצאה היא <code>char</code>.</td>
+<td class="ltr" dir="ltr"><code>string str = "hello"; char c = str[1]; // 'e'</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.Length</td>
+<td>מספר התווים במחרוזת. זו תכונה, לא פעולה.</td>
+<td class="ltr" dir="ltr"><code>int len = str.Length;</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str1 + str2</td>
+<td>שרשור: יצירת מחרוזת חדשה משתי מחרוזות.</td>
+<td class="ltr" dir="ltr"><code>string s = "Good " + "Morning";</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.Contains(value)</td>
+<td>האם תת־מחרוזת קיימת בתוך המחרוזת. התוצאה היא <code>bool</code>.</td>
+<td class="ltr" dir="ltr"><code>bool ok = str.Contains("ab");</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.IndexOf(value)</td>
+<td>מיקום ההופעה הראשונה של תת־מחרוזת. אם לא נמצא — מתקבל <code>-1</code>.</td>
+<td class="ltr" dir="ltr"><code>int p = "banana".IndexOf("na"); // 2</code></td>
+</tr>
+<tr>
+<td class="op" dir="ltr">str.IndexOf(ch)</td>
+<td>מיקום ההופעה הראשונה של תו. אם לא נמצא — מתקבל <code>-1</code>.</td>
+<td class="ltr" dir="ltr"><code>int p = "hello".IndexOf('l'); // 2</code></td>
+</tr>
+</tbody>
+</table><div class="grid2 tight" data-layout="one-column">
+<div class="card ok">
+<h3>תבנית מעבר על מחרוזת</h3>
+<p>עוברים על כל התווים לפי אינדקסים.</p>
+<pre class="code" dir="ltr">for (int i = 0; i &lt; str.Length; i++)
+{
+    char ch = str[i];
+}</pre>
+</div>
+<div class="card purple">
+<h3>תבנית בניית מחרוזת חדשה</h3>
+<p>מחרוזת אינה משתנה במקום; בונים תוצאה חדשה.</p>
+<pre class="code" dir="ltr">string result = "";
+for (int i = 0; i &lt; str.Length; i++)
+{
+    result = result + str[i];
+}</pre>
+</div>
+</div><div class="grid2 tight" data-layout="one-column">
+<div class="card warn">
+<h3>כללי זהירות לבחינה</h3>
+<div class="rule"><span class="num">1</span><span><code>Length</code> נכתב בלי סוגריים: <code>str.Length</code>.</span></div>
+<div class="rule"><span class="num">2</span><span><code>IndexOf</code> מחזיר <code>-1</code> כאשר לא מצא.</span></div>
+<div class="rule"><span class="num">3</span><span><code>str[i]</code> מחזיר <code>char</code>, לא <code>string</code>.</span></div>
+<div class="rule"><span class="num">4</span><span>במחרוזת ריקה אין אינדקס חוקי.</span></div>
+</div>
+<div class="card bad">
+<h3>פעולות string שלא להשתמש בהן אם אינן מותרות</h3>
+<div class="avoid" data-layout="one-column">
+<span>Substring</span><span>Remove</span><span>Insert</span><span>Replace</span>
+<span>Trim</span><span>Split</span><span>ToLower</span><span>ToUpper</span>
+<span>StartsWith</span><span>EndsWith</span><span>CompareTo</span><span>ToCharArray</span>
+</div>
+<p class="small">במקומן משתמשים בפעולות העזר שבעמודים הבאים.</p>
+</div>
+</div><h2 class="sectionTitle">3. פעולות עזר בסיסיות לבדיקה ולחיפוש</h2><div class="grid2" data-layout="one-column">
+<div class="card white">
+<h3>בדיקת אינדקס חוקי</h3>
+<div class="signature" dir="ltr">static bool IsValidIndex(string str, int i)</div>
+<pre class="code" dir="ltr">static bool IsValidIndex(string str, int i)
+{
+    return i &gt;= 0 &amp;&amp; i &lt; str.Length;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsValidIndex("hello", 1)); // True</code></span></div>
+</div>
+<div class="card white">
+<h3>ספירת תו</h3>
+<div class="signature" dir="ltr">static int CountChar(string str, char ch)</div>
+<pre class="code" dir="ltr">static int CountChar(string str, char ch)
+{
+    int count = 0;
+    for (int i = 0; i &lt; str.Length; i++)
+    {
+        if (str[i] == ch)
+            count++;
+    }
+    return count;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountChar("banana", 'a')); // 3</code></span></div>
+</div>
+<div class="card white">
+<h3>מציאת הופעה אחרונה של תו</h3>
+<div class="signature" dir="ltr">static int LastIndexOfChar(string str, char ch)</div>
+<pre class="code" dir="ltr">static int LastIndexOfChar(string str, char ch)
+{
+    int index = -1;
+    for (int i = 0; i &lt; str.Length; i++)
+    {
+        if (str[i] == ch)
+            index = i;
+    }
+    return index;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(LastIndexOfChar("banana", 'a')); // 5</code></span></div>
+</div>
+</div><div class="grid2 tight" data-layout="one-column">
+<div class="card ok">
+<h3>בדיקה אם תו הוא ספרה</h3>
+<div class="signature" dir="ltr">static bool IsDigit(char ch)</div>
+<pre class="code" dir="ltr">static bool IsDigit(char ch)
+{
+    return ch &gt;= '0' &amp;&amp; ch &lt;= '9';
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsDigit('7')); // True</code></span></div>
+</div>
+<div class="card ok">
+<h3>בדיקה אם תו הוא אות באנגלית</h3>
+<div class="signature" dir="ltr">static bool IsLetter(char ch)</div>
+<pre class="code" dir="ltr">static bool IsLetter(char ch)
+{
+    bool small = ch &gt;= 'a' &amp;&amp; ch &lt;= 'z';
+    bool big = ch &gt;= 'A' &amp;&amp; ch &lt;= 'Z';
+    return small || big;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsLetter('G')); // True</code></span></div>
+</div>
+</div><h2 class="sectionTitle tight">4. בדיקת התאמה של תת־מחרוזת בלי Substring</h2><p>הרעיון: בודקים תו־תו האם <code>value</code> מתחילה במקום <code>index</code> בתוך <code>str</code>.</p><div class="grid2" data-layout="one-column">
+<div class="card purple">
+<h3>האם יש התאמה במקום מסוים?</h3>
+<div class="signature" dir="ltr">static bool IsMatchAt(string str, string value, int index)</div>
+<pre class="code" dir="ltr">static bool IsMatchAt(string str, string value, int index)
+{
+    if (index &lt; 0 || index + value.Length &gt; str.Length)
+        return false;
+
+    bool ok = true;
+    for (int j = 0; j &lt; value.Length; j++)
+    {
+        if (str[index + j] != value[j])
+            ok = false;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsMatchAt("banana", "na", 2)); // True</code></span></div>
+</div>
+<div class="card purple">
+<h3>מציאת תת־מחרוזת בצורה ידנית</h3>
+<div class="signature" dir="ltr">static int IndexOfText(string str, string value)</div>
+<pre class="code" dir="ltr">static int IndexOfText(string str, string value)
+{
+    if (value.Length == 0)
+        return 0;
+
+    int index = -1;
+    for (int i = 0; i &lt;= str.Length - value.Length &amp;&amp; index == -1; i++)
+    {
+        if (IsMatchAt(str, value, i))
+            index = i;
+    }
+    return index;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IndexOfText("banana", "na")); // 2</code></span></div>
+</div>
+</div><div class="grid2 tight" data-layout="one-column">
+<div class="card white">
+<h3>ספירת תת־מחרוזת</h3>
+<p class="small">הקוד סופר גם הופעות חופפות. לדוגמה: ב־<code>"aaaa"</code>, המחרוזת <code>"aa"</code> נספרת 3 פעמים.</p>
+<div class="signature" dir="ltr">static int CountText(string str, string value)</div>
+<pre class="code" dir="ltr">static int CountText(string str, string value)
+{
+    if (value.Length == 0)
+        return 0;
+
+    int count = 0;
+    for (int i = 0; i &lt;= str.Length - value.Length; i++)
+    {
+        if (IsMatchAt(str, value, i))
+            count++;
+    }
+    return count;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountText("aaaa", "aa")); // 3</code></span></div>
+</div>
+<div class="card white">
+<h3>האם כל התווים שונים?</h3>
+<div class="signature" dir="ltr">static bool AllDifferentChars(string str)</div>
+<pre class="code" dir="ltr">static bool AllDifferentChars(string str)
+{
+    bool ok = true;
+    for (int i = 0; i &lt; str.Length; i++)
+    {
+        for (int j = i + 1; j &lt; str.Length; j++)
+        {
+            if (str[i] == str[j])
+                ok = false;
+        }
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(AllDifferentChars("abcd")); // True</code></span></div>
+</div>
+</div><h2 class="sectionTitle">5. התחלה, סוף וגזירה ידנית של מחרוזת</h2><div class="grid2" data-layout="one-column">
+<div class="card white">
+<h3>בדיקה אם מחרוזת מתחילה בערך מסוים</h3>
+<div class="signature" dir="ltr">static bool StartsWithText(string str, string prefix)</div>
+<pre class="code" dir="ltr">static bool StartsWithText(string str, string prefix)
+{
+    if (prefix.Length &gt; str.Length)
+        return false;
+
+    bool ok = true;
+    for (int i = 0; i &lt; prefix.Length; i++)
+    {
+        if (str[i] != prefix[i])
+            ok = false;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(StartsWithText("computer", "com")); // True</code></span></div>
+</div>
+<div class="card white">
+<h3>בדיקה אם מחרוזת מסתיימת בערך מסוים</h3>
+<div class="signature" dir="ltr">static bool EndsWithText(string str, string suffix)</div>
+<pre class="code" dir="ltr">static bool EndsWithText(string str, string suffix)
+{
+    if (suffix.Length &gt; str.Length)
+        return false;
+
+    int start = str.Length - suffix.Length;
+    bool ok = true;
+    for (int i = 0; i &lt; suffix.Length; i++)
+    {
+        if (str[start + i] != suffix[i])
+            ok = false;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(EndsWithText("computer", "ter")); // True</code></span></div>
+</div>
+</div><div class="card purple tight">
+<h3>יצירת חלק ממחרוזת בלי Substring</h3>
+<p>הפעולה מחזירה מחרוזת באורך <code>length</code>, שמתחילה במקום <code>start</code>. אם הנתונים לא חוקיים — מוחזרת מחרוזת ריקה.</p>
+<div class="signature" dir="ltr">static string MySubstring(string str, int start, int length)</div>
+<pre class="code" dir="ltr">static string MySubstring(string str, int start, int length)
+{
+    string result = "";
+
+    if (start &lt; 0 || length &lt; 0 || start + length &gt; str.Length)
+        return result;
+
+    for (int i = start; i &lt; start + length; i++)
+    {
+        result = result + str[i];
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(MySubstring("computer", 3, 4)); // pute</code></span></div>
+</div><h2 class="sectionTitle tight">6. יצירת מחרוזות חדשות</h2><div class="grid2" data-layout="one-column">
+<div class="card ok">
+<h3>היפוך מחרוזת</h3>
+<div class="signature" dir="ltr">static string Reverse(string str)</div>
+<pre class="code" dir="ltr">static string Reverse(string str)
+{
+    string result = "";
+    for (int i = str.Length - 1; i &gt;= 0; i--)
+    {
+        result = result + str[i];
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(Reverse("abc")); // cba</code></span></div>
+</div>
+<div class="card ok">
+<h3>מחיקת כל ההופעות של תו</h3>
+<div class="signature" dir="ltr">static string RemoveChar(string str, char ch)</div>
+<pre class="code" dir="ltr">static string RemoveChar(string str, char ch)
+{
+    string result = "";
+    for (int i = 0; i &lt; str.Length; i++)
+    {
+        if (str[i] != ch)
+            result = result + str[i];
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(RemoveChar("banana", 'a')); // bnn</code></span></div>
+</div>
+<div class="card ok">
+<h3>החלפת תו בתו אחר</h3>
+<pre class="code" dir="ltr">static string ReplaceChar(string str, char oldCh, char newCh)
+{
+    string result = "";
+    for (int i = 0; i &lt; str.Length; i++)
+    {
+        if (str[i] == oldCh)
+            result = result + newCh;
+        else
+            result = result + str[i];
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(ReplaceChar("banana", 'a', 'o')); // bonono</code></span></div>
+</div>
+<div class="card ok">
+<h3>מחיקת תו במקום מסוים</h3>
+<pre class="code" dir="ltr">static string DeleteAt(string str, int index)
+{
+    if (index &lt; 0 || index &gt;= str.Length)
+        return str;
+
+    string result = "";
+    for (int i = 0; i &lt; str.Length; i++)
+    {
+        if (i != index)
+            result = result + str[i];
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(DeleteAt("hello", 1)); // hllo</code></span></div>
+</div>
+</div><div class="card white tight">
+<h3>הוספת מחרוזת במקום מסוים</h3>
+<pre class="code" dir="ltr">static string InsertAt(string str, string value, int index)
+{
+    if (index &lt; 0 || index &gt; str.Length)
+        return str;
+
+    string result = "";
+    for (int i = 0; i &lt; index; i++)
+        result = result + str[i];
+
+    result = result + value;
+
+    for (int i = index; i &lt; str.Length; i++)
+        result = result + str[i];
+
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(InsertAt("helo", "l", 3)); // hello</code></span></div>
+</div><h2 class="sectionTitle">7. פעולות בדיקה נפוצות</h2><div class="grid2" data-layout="one-column">
+<div class="card white">
+<h3>בדיקת פלינדרום</h3>
+<p class="small">פלינדרום הוא מחרוזת שנקראת אותו הדבר משני הכיוונים.</p>
+<div class="signature" dir="ltr">static bool IsPalindrome(string str)</div>
+<pre class="code" dir="ltr">static bool IsPalindrome(string str)
+{
+    bool ok = true;
+    int left = 0;
+    int right = str.Length - 1;
+
+    while (left &lt; right)
+    {
+        if (str[left] != str[right])
+            ok = false;
+
+        left++;
+        right--;
+    }
+    return ok;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsPalindrome("level")); // True</code></span></div>
+</div>
+<div class="card white">
+<h3>ספירת מילים לפי רווחים</h3>
+<p class="small">מתאים למילים שמופרדות ברווח אחד או יותר. אין צורך ב־<code>Trim</code>.</p>
+<div class="signature" dir="ltr">static int CountWords(string str)</div>
+<pre class="code" dir="ltr">static int CountWords(string str)
+{
+    int count = 0;
+    bool insideWord = false;
+
+    for (int i = 0; i &lt; str.Length; i++)
+    {
+        if (str[i] != ' ' &amp;&amp; !insideWord)
+        {
+            count++;
+            insideWord = true;
+        }
+        else if (str[i] == ' ')
+        {
+            insideWord = false;
+        }
+    }
+    return count;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountWords("one two  three")); // 3</code></span></div>
+</div>
+</div><div class="grid2 tight" data-layout="one-column">
+<div class="card purple">
+<h3>השוואה מילונית בלי CompareTo</h3>
+<p class="small"><code>-1</code> אם <code>a</code> לפני <code>b</code>, <code>1</code> אם אחרי, <code>0</code> אם שוות.</p>
+<div class="signature" dir="ltr">static int CompareStrings(string a, string b)</div>
+<pre class="code" dir="ltr">static int CompareStrings(string a, string b)
+{
+    int i = 0;
+    int result = 0;
+
+    while (i &lt; a.Length &amp;&amp; i &lt; b.Length &amp;&amp; result == 0)
+    {
+        if (a[i] &lt; b[i])
+            result = -1;
+        else if (a[i] &gt; b[i])
+            result = 1;
+
+        i++;
+    }
+
+    if (result == 0)
+    {
+        if (a.Length &lt; b.Length)
+            result = -1;
+        else if (a.Length &gt; b.Length)
+            result = 1;
+    }
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CompareStrings("abc", "abd")); // -1</code></span></div>
+</div>
+<div class="card purple">
+<h3>המרת אות גדולה לקטנה בלי ToLower</h3>
+<p class="small">הפעולה מטפלת באותיות באנגלית בלבד. כל תו אחר נשאר כפי שהוא.</p>
+<div class="signature" dir="ltr">static char ToLowerChar(char ch)</div>
+<pre class="code" dir="ltr">static char ToLowerChar(char ch)
+{
+    if (ch &gt;= 'A' &amp;&amp; ch &lt;= 'Z')
+        return (char)(ch + ('a' - 'A'));
+
+    return ch;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(ToLowerChar('G')); // g</code></span></div>
+<div class="signature tight" dir="ltr">static string ToLowerText(string str)</div>
+<pre class="code mini-code" dir="ltr">static string ToLowerText(string str)
+{
+    string result = "";
+    for (int i = 0; i &lt; str.Length; i++)
+        result = result + ToLowerChar(str[i]);
+    return result;
+}</pre>
+<div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(ToLowerText("AbC!")); // abc!</code></span></div>
+</div>
+</div><div class="foot">
+<strong>כלל עבודה מומלץ:</strong> לפני כתיבת הקוד סמנו את הטווח המדויק של הלולאה. כמעט כל טעות במחרוזות נובעת מאינדקס התחלה שגוי, אינדקס סוף שגוי, או שכחה שהתו האחרון נמצא במקום <span class="formula">n - 1</span>.
+  </div></main></body></html>
