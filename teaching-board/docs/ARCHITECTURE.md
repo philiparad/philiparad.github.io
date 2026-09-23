@@ -1,27 +1,26 @@
 # Architecture
 
-## Modules
+The app is vanilla JavaScript ES modules, rendered with DOM APIs and SVG, hosted as static files on GitHub Pages.
 
 | Module | Responsibility |
 | --- | --- |
-| `js/app.js` | DOM application shell, routes, dashboard, canvas shell, UI errors |
-| `js/model.js` | Document schema version, factory, validation, JSON backup envelope |
-| `js/storage.js` | IndexedDB database migration, boards and assets, atomic revision checks |
-| `js/save-queue.js` | One active write, latest pending snapshot, retryable failures |
-| `js/history.js` | Bounded document-only undo/redo snapshots |
-| `js/viewport.js` | World/screen transforms and zoom anchor math |
-| `tests/` | Dependency-free browser test harness |
+| app.js | Routes, dashboard, folder/search/sort, trash/restore, backup import |
+| editor.js | Tool state machine, scene commands, selection, editing, timer, presentation |
+| scene.js | SVG rendering, bounds and background patterns |
+| model.js | Versioned document validation and self-contained backups |
+| storage.js | IndexedDB migration and atomic optimistic revision checks |
+| save-queue.js | Serialized/coalesced writes with error retention and retry |
+| history.js | Bounded document history, separate from storage revisions |
+| viewport.js | World/screen coordinates and anchored zoom |
+| expression.js | Restricted mathematical grammar; no eval |
+| media.js | On-demand libraries, math previews, image/PDF rasterization |
+| export.js | Backup, SVG, PNG, A4 print/PDF output |
+| ui.js | Accessible dialogs, controls, downloads and messages |
 
-## Data contract
+Document schema remains version 1, preserving Stage 1 boards. Item geometry is local to each item; the SVG group applies world translation and rotation. Media payloads are embedded raster data URLs, allowing portable backups without remote references. Equations/graphs also retain source and graph bounds for editing. Unsafe imported URLs/colors/types are rejected. DOM text uses textContent; imported HTML/SVG markup is not injected.
 
-A board has `schemaVersion`, `id`, `title`, `folder`, `createdAt`, `updatedAt`, `revision`, `deleted`, `viewport`, `background`, and `items`. Each item has a unique `id`, supported `type`, and finite `x`/`y` coordinates. Stage 2 must extend validation with per-tool geometry and payload checks before enabling those tools. Document schema upgrades must preserve existing boards; increment the IndexedDB version only when object stores or indexes change.
+The asset object store from Stage 1 remains available for future larger-file storage, but current media is embedded to ensure complete portable backups. Any future storage format must include migrations and an asset-inclusive backup contract.
 
-Assets are separate Blob records referenced by IDs. They must be embedded in backups or exported as an archive before media tools are released. Backups must never rely on temporary Blob URLs. Do not render imported HTML or arbitrary SVG using innerHTML. Text content uses DOM textContent; future graph evaluation must use a math parser, never eval.
+Saves compare revisions atomically inside an IndexedDB read/write transaction. Another tab's stale revision fails visibly. The pending snapshot remains available for retry or backup. Reopen a lesson to resolve a conflict; export a backup first if keeping the unsaved changes. Undo history contains only scene content and background, not storage revisions.
 
-The repository adapter saves in one read/write transaction and compares the supplied revision with the stored revision before writing. Revisions belong to persistence, not the undo stack. Stale writes fail visibly rather than silently replacing another tab's edits.
-
-A future sync adapter must implement equivalent get/list/save and asset operations. GitHub Pages cannot execute a private database API. Google OAuth and any cross-device storage need a separately configured service and access policy. Client code must contain no credentials or private keys.
-
-## Stage boundary
-
-Stage 1 intentionally renders only the canvas grid and navigation controls. It reserves document types for Stage 2, but does not pretend to render imported drawing objects yet. Complete rendering, object editing, accessibility and end-to-end teaching workflows belong to Stage 2.
+Authentication and shared cloud storage are separate future services. They cannot be implemented privately using GitHub Pages alone; no secrets or access tokens belong in this repository.

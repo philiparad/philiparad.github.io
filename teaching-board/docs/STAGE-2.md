@@ -1,39 +1,16 @@
-# Stage 2 — complete the personal teaching application
+# Stage 2 delivery
 
-Start only after Stage 1 infrastructure is committed to the target repository. Keep Stage 2 changes in a separate commit series.
+Stage 1 was committed as `784c7d03d894988cbf2a2f71242d6338b4d0cbe4` before these feature changes.
 
-## Drawing and editing
+Implemented:
+- SVG renderer; freehand/highlighter/eraser/laser; line/arrow/rectangle/ellipse/triangle/polygon.
+- Selection/marquee, movement, corner resize, numeric size, rotation, duplication, deletion, layers and locks.
+- Stroke/fill/opacity/width, undo/redo, keyboard shortcuts, text/notes and Hebrew text.
+- MathJax equations, JSXGraph functions, editable mathematical source and safe expression parsing.
+- Image/PDF page import with locked PDF backgrounds and size limits.
+- Grid/dots/ruled/plain/dark paper; presentation and timer.
+- Folders, search, sorting, board duplication, trash/restore.
+- Embedded-media backups, validated non-destructive import, SVG/PNG output and A4 print/PDF.
+- Save status, retry, optimistic cross-tab conflict detection.
 
-- [ ] SVG scene renderer with document hydration and safe typed item validation.
-- [ ] Pointer/stylus freehand pen, highlighter, eraser and laser pointer.
-- [ ] Line, arrow, rectangle, ellipse, triangle and polygon tools.
-- [ ] Select, marquee, move, resize, rotate, duplicate, delete and layer order.
-- [ ] Per-object color, fill, opacity and line width; locked objects.
-- [ ] Connect bounded undo/redo to document commands and shortcuts.
-- [ ] Text and sticky notes with Hebrew/RTL support.
-
-## Teaching tools
-
-- [ ] MathJax equation editor, presets and editable saved source.
-- [ ] JSXGraph function plots with safe expression parsing and editable source.
-- [ ] Images and PDF page import, with size limits and recoverable failures.
-- [ ] Grid, dots, ruled, plain and dark backgrounds.
-- [ ] Presentation mode and lesson timer.
-
-## Board management and export
-
-- [ ] Folders, sorting, duplication, trash and restore.
-- [ ] Asset-inclusive editable backups and validated import.
-- [ ] SVG/PNG exports and PDF export or verified print-to-PDF workflow.
-- [ ] Explicit saved/error/retry states for every modifying command.
-
-## Acceptance gates
-
-- [ ] Create a lesson, draw, undo/redo, reload and reopen without data loss.
-- [ ] Validate math/graphs, Hebrew text, image/PDF import, export and reimport.
-- [ ] Conflict handling across two tabs; quota/storage failures retain work.
-- [ ] Keyboard, touch and narrow-screen checks.
-- [ ] Verify deployed Pages URL and refresh/navigation behavior.
-- [ ] Document supported features and remaining differences from iDroo honestly.
-
-This is a personal teaching application. Live multi-user collaboration, conferencing, Google authentication and cross-device synchronization require additional service infrastructure and are not implemented by GitHub Pages itself.
+Release evidence and any testing limitations are in VALIDATION.md. Service features (real-time collaboration, conferencing, Google authentication, automatic cloud sync) are outside this personal static application; they require a separately configured backend.
