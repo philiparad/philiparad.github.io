@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html dir="rtl" lang="he">
 <head>
 <meta charset="utf-8"/>
@@ -147,10 +148,42 @@ pre code, .code code { color:inherit; font-weight:inherit; }
   a{ color:inherit; text-decoration:none; }
 }
 </style>
-</head>
+<style id="a4-layout">/* One section is one physical A4 sheet. Content is never clipped or scrolled. */
+@page { size: A4 portrait; margin: 0; @bottom-center { content: none; } }
+html, body { margin: 0; padding: 0; background: #e8edf4; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+main.doc { width: 210mm; max-width: none; margin: 0 auto; padding: 0; background: transparent; }
+section.a4-page {
+  box-sizing: border-box; position: relative; display: block;
+  width: 210mm; height: 297mm; min-height: 297mm;
+  padding: 12mm 12mm 16mm; margin: 8mm 0;
+  background: white; box-shadow: 0 3px 18px #21334d20;
+  break-after: page; page-break-after: always; break-inside: avoid;
+  overflow: visible;
+}
+section.a4-page:last-child { break-after: auto; page-break-after: auto; }
+.a4-content { display: flow-root; width: 100%; height: 269mm; }
+.a4-content > :first-child { margin-top: 0; }
+.a4-content h1, .a4-content h2, .a4-content h3 { line-height: 1.5; }
+.a4-content .inline-expression { direction: ltr; unicode-bidi: isolate; white-space: normal; overflow-wrap: anywhere; }
+.a4-content * { min-width: 0; max-width: 100%; }
+.a4-content pre { white-space: pre-wrap !important; overflow-wrap: anywhere; overflow: visible !important; max-height: none !important; }
+.a4-content table { table-layout: fixed; width: 100%; }
+.a4-content td, .a4-content th { overflow-wrap: anywhere; }
+.a4-content img, .a4-content svg { max-width: 100%; height: auto; }
+.a4-content .grid2, .a4-content .grid3, .a4-content .twoCols,
+.a4-content .oneCol, .a4-content .fourTips, .a4-content .sortCompare { display: block !important; }
+.a4-content .card { margin-bottom: 8px; }
+.a4-page-footer { position: absolute; bottom: 7mm; left: 12mm; right: 12mm; border-top: 1px solid #ccd8e8; padding-top: 2mm; font: 10px Arial, sans-serif; color: #506581; display: flex; justify-content: space-between; direction: rtl; }
+.a4-page-footer span:last-child { direction: ltr; unicode-bidi: isolate; }
+@media print {
+  html, body { background: white; }
+  main.doc { width: 210mm; margin: 0; }
+  section.a4-page { margin: 0; box-shadow: none; }
+}
+</style></head>
 <body>
-<main class="doc">
-<header class="hero">
+<main class="doc"><section aria-label="עמוד 1" class="a4-page"><div class="a4-content"><header class="hero">
 <div class="hero-top">
 <div>
 <h1 class="title">דף עזר לבחינת הבגרות — מחלקות ואובייקטים ב־Java</h1>
@@ -166,9 +199,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 בדף זה משתמשים במערכים רגילים בלבד. לא משתמשים ב־<code>ArrayList</code>, לא בירושה ולא בפולימורפיזם. כל פעולה על תא במערך אובייקטים חייבת לבדוק קודם שהתא אינו <code>null</code>.
 </div>
 </div>
-</header>
-<h2 class="sectionTitle">1. פירוק הנושא למרכיבים</h2>
-<table>
+</header><h2 class="sectionTitle">1. פירוק הנושא למרכיבים</h2><table>
 <thead><tr><th>מרכיב</th><th>מה צריך לדעת?</th><th>תבנית חשיבה</th></tr></thead>
 <tbody>
 <tr><td>מחלקה</td><td>שדות, פעולה בונה, פעולות גישה, פעולות שינוי ו־<code>toString</code>.</td><td>מה הנתונים של האובייקט ומה הפעולות הטבעיות שלו?</td></tr>
@@ -180,13 +211,10 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td>מערך אובייקטים</td><td>מערך של הפניות. יצירת המערך אינה יוצרת אובייקטים בתאים.</td><td>בכל סריקה: <code>if (arr[i] != null)</code>.</td></tr>
 <tr><td>הכלה</td><td>מחלקה שמחזיקה בתוכה מערך אובייקטים של מחלקה אחרת.</td><td>לדוגמה: <code>Course</code> שמכילה <code>Student[]</code>.</td></tr>
 </tbody>
-</table>
-<div class="card warn">
+</table><div class="card warn">
 <h3>כלל חשוב למערך אובייקטים</h3>
 <p>כאשר כותבים <code>Student[] arr = new Student[30];</code> נוצר מערך בגודל 30, אבל בכל תא יש <code>null</code>. כדי שיהיה תלמיד בתא מסוים צריך לכתוב <code>arr[i] = new Student(...);</code>.</p>
-</div>
-<h2 class="sectionTitle">2. תבנית מחלקה בסיסית</h2>
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>1 / 14</span></footer></section><section aria-label="עמוד 2" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">2. תבנית מחלקה בסיסית</h2><div class="card white">
 <h3>מחלקת Student עם שדות, פעולה בונה, פעולות גישה ו־toString</h3>
 <pre class="code" dir="ltr">class Student
 {
@@ -224,16 +252,13 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 
     public String toString()
     {
-        return &quot;Student: &quot; + name + &quot;, id: &quot; + id + &quot;, grade: &quot; + grade;
+        return "Student: " + name + ", id: " + id + ", grade: " + grade;
     }
 }</pre>
-</div>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div><div class="card ok">
 <h3>למה משתמשים ב־this?</h3>
 <p><code>this</code> מציין את האובייקט הנוכחי. כאשר שם הפרמטר זהה לשם השדה, משתמשים ב־<code>this.name</code> כדי להבהיר שמתכוונים לשדה של האובייקט.</p>
-</div>
-<div class="card bad">
+</div><div class="card bad">
 <h3>טעות נפוצה</h3>
 <pre class="code" dir="ltr">public Student(String name, int id, int grade)
 {
@@ -241,11 +266,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
     id = id;         // שגוי
     grade = grade;   // שגוי
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">3. פעולה בונה ופעולה בונה מעתיקה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>2 / 14</span></footer></section><section aria-label="עמוד 3" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">3. פעולה בונה ופעולה בונה מעתיקה</h2><div class="card white">
 <h3>פעולה בונה רגילה</h3>
 <div class="signature" dir="ltr">public Student(String name, int id, int grade)</div><pre class="code" dir="ltr">public Student(String name, int id, int grade)
 {
@@ -253,8 +274,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
     this.id = id;
     this.grade = grade;
 }</pre><p>משתמשים בה כאשר יוצרים אובייקט חדש מנתונים רגילים.</p>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>פעולה בונה מעתיקה</h3>
 <div class="signature" dir="ltr">public Student(Student other)</div><pre class="code" dir="ltr">public Student(Student other)
 {
@@ -262,24 +282,18 @@ pre code, .code code { color:inherit; font-weight:inherit; }
     this.id = other.id;
     this.grade = other.grade;
 }</pre><p>משתמשים בה כאשר רוצים ליצור אובייקט חדש בעל אותם ערכים, אך עם הפניה אחרת בזיכרון.</p>
-</div>
-</div>
-<div class="card warn">
+</div><div class="card warn">
 <h3>הבדל בין העתקת הפניה לבין העתקת אובייקט</h3>
-<pre class="code" dir="ltr">Student a = new Student(&quot;Dana&quot;, 123, 90);
+<pre class="code" dir="ltr">Student a = new Student("Dana", 123, 90);
 Student b = a;              // b ו-a מצביעים לאותו אובייקט
 Student c = new Student(a);  // c הוא אובייקט חדש עם אותם ערכים</pre>
-</div>
-<h2 class="sectionTitle">4. פעולות פנימיות בתוך המחלקה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div><h2 class="sectionTitle">4. פעולות פנימיות בתוך המחלקה</h2><div class="card ok">
 <h3>בדיקת תנאי על אובייקט אחד</h3>
 <div class="signature" dir="ltr">public boolean isPassing()</div><pre class="code" dir="ltr">public boolean isPassing()
 {
     return grade &gt;= 55;
 }</pre><p>הפעולה פנימית כי היא בודקת את מצבו של התלמיד הנוכחי.</p>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>שינוי מצב פנימי של אובייקט</h3>
 <div class="signature" dir="ltr">public void addBonus(int points)</div><pre class="code" dir="ltr">public void addBonus(int points)
 {
@@ -287,8 +301,7 @@ Student c = new Student(a);  // c הוא אובייקט חדש עם אותם ע�
     if (grade &gt; 100)
         grade = 100;
 }</pre><p>פעולה פנימית יכולה לשנות שדות של האובייקט.</p>
-</div>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>3 / 14</span></footer></section><section aria-label="עמוד 4" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>תבנית פעולה פנימית שמקבלת אובייקט אחר</h3>
 <div class="signature" dir="ltr">public boolean hasSameGrade(Student other)</div><pre class="code" dir="ltr">public boolean hasSameGrade(Student other)
 {
@@ -297,20 +310,14 @@ Student c = new Student(a);  // c הוא אובייקט חדש עם אותם ע�
 
     return this.grade == other.grade;
 }</pre><p>כאשר מקבלים אובייקט כפרמטר, בודקים תחילה שאינו <code>null</code>.</p>
-</div>
-</div>
-<h2 class="sectionTitle">5. פעולות חיצוניות על אובייקטים</h2>
-<p>פעולה חיצונית נמצאת במחלקה אחרת, בדרך כלל במחלקת <code>Main</code>, ומקבלת אובייקטים כפרמטרים.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">5. פעולות חיצוניות על אובייקטים</h2><p>פעולה חיצונית נמצאת במחלקה אחרת, בדרך כלל במחלקת <code>Main</code>, ומקבלת אובייקטים כפרמטרים.</p><div class="card white">
 <h3>הדפסת אובייקט מבחוץ</h3>
 <div class="signature" dir="ltr">static void printStudent(Student s)</div><pre class="code" dir="ltr">static void printStudent(Student s)
 {
     if (s != null)
         System.out.println(s);
 }</pre><p>אין צורך לקרוא במפורש ל־<code>toString()</code> בהדפסה.</p>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>השוואה חיצונית בין שני אובייקטים</h3>
 <div class="signature" dir="ltr">static Student betterStudent(Student a, Student b)</div><pre class="code" dir="ltr">static Student betterStudent(Student a, Student b)
 {
@@ -323,20 +330,15 @@ Student c = new Student(a);  // c הוא אובייקט חדש עם אותם ע�
         return a;
     return b;
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">6. יצירת מערך של אובייקטים ובדיקת null</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card warn">
+</div><h2 class="sectionTitle">6. יצירת מערך של אובייקטים ובדיקת null</h2><div class="card warn">
 <h3>יצירת מערך אינה יוצרת את האובייקטים שבתוכו</h3>
 <pre class="code" dir="ltr">Student[] students = new Student[5];
 
 // students[0] == null
-students[0] = new Student(&quot;Noa&quot;, 101, 88);
+students[0] = new Student("Noa", 101, 88);
 
 // עכשיו רק בתא 0 יש אובייקט אמיתי</pre>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>4 / 14</span></footer></section><section aria-label="עמוד 5" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>תבנית סריקה בטוחה</h3>
 <pre class="code" dir="ltr">for (int i = 0; i &lt; students.length; i++)
 {
@@ -345,19 +347,14 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
         System.out.println(students[i]);
     }
 }</pre>
-</div>
-<div class="card bad">
+</div><div class="card bad">
 <h3>טעות נפוצה: הפעלה על null</h3>
 <pre class="code" dir="ltr">for (int i = 0; i &lt; students.length; i++)
 {
     // שגיאה אם students[i] הוא null
     System.out.println(students[i].getGrade());
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">7. תבניות בסיסיות במערך אובייקטים</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">7. תבניות בסיסיות במערך אובייקטים</h2><div class="card white">
 <h3>ספירת אובייקטים קיימים</h3>
 <div class="signature" dir="ltr">static int countExisting(Student[] arr)</div><pre class="code" dir="ltr">static int countExisting(Student[] arr)
 {
@@ -369,8 +366,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return count;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>מציאת מקום פנוי ראשון</h3>
 <div class="signature" dir="ltr">static int firstEmpty(Student[] arr)</div><pre class="code" dir="ltr">static int firstEmpty(Student[] arr)
 {
@@ -382,8 +378,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return index;
 }</pre>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>הוספה למקום פנוי ראשון</h3>
 <div class="signature" dir="ltr">static boolean addStudent(Student[] arr, Student s)</div><pre class="code" dir="ltr">static boolean addStudent(Student[] arr, Student s)
 {
@@ -394,8 +389,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     arr[index] = s;
     return true;
 }</pre>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>5 / 14</span></footer></section><section aria-label="עמוד 6" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>חיפוש לפי מזהה</h3>
 <div class="signature" dir="ltr">static Student findById(Student[] arr, int id)</div><pre class="code" dir="ltr">static Student findById(Student[] arr, int id)
 {
@@ -407,11 +401,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return found;
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">8. צוברים, ממוצעים ותנאים במערך אובייקטים</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">8. צוברים, ממוצעים ותנאים במערך אובייקטים</h2><div class="card white">
 <h3>ספירת תלמידים עוברים</h3>
 <div class="signature" dir="ltr">static int countPassing(Student[] arr)</div><pre class="code" dir="ltr">static int countPassing(Student[] arr)
 {
@@ -423,8 +413,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return count;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>ממוצע ציונים של אובייקטים קיימים</h3>
 <div class="signature" dir="ltr">static double averageGrade(Student[] arr)</div><pre class="code" dir="ltr">static double averageGrade(Student[] arr)
 {
@@ -445,8 +434,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
 
     return (double)sum / count;
 }</pre>
-</div>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>6 / 14</span></footer></section><section aria-label="עמוד 7" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>מציאת האובייקט בעל הערך הגדול ביותר</h3>
 <div class="signature" dir="ltr">static Student bestStudent(Student[] arr)</div><pre class="code" dir="ltr">static Student bestStudent(Student[] arr)
 {
@@ -462,11 +450,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return best;
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">9. מניפולציות על מערך אובייקטים</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">9. מניפולציות על מערך אובייקטים</h2><div class="card white">
 <h3>עדכון אובייקט לפי מזהה</h3>
 <div class="signature" dir="ltr">static boolean updateGrade(Student[] arr, int id, int newGrade)</div><pre class="code" dir="ltr">static boolean updateGrade(Student[] arr, int id, int newGrade)
 {
@@ -477,8 +461,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     s.setGrade(newGrade);
     return true;
 }</pre>
-</div>
-<div class="card warn">
+</div><div class="card warn">
 <h3>מחיקה פשוטה — הצבת null</h3>
 <div class="signature" dir="ltr">static boolean deleteById(Student[] arr, int id)</div><pre class="code" dir="ltr">static boolean deleteById(Student[] arr, int id)
 {
@@ -492,8 +475,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return false;
 }</pre>
-</div>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>7 / 14</span></footer></section><section aria-label="עמוד 8" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>כיווץ מערך: הזזת כל ה־null לסוף</h3>
 <div class="signature" dir="ltr">static void compress(Student[] arr)</div><pre class="code" dir="ltr">static void compress(Student[] arr)
 {
@@ -510,8 +492,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
         }
     }
 }</pre>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>מחיקה עם הזזה שמאלה</h3>
 <div class="signature" dir="ltr">static boolean deleteAndShift(Student[] arr, int id)</div><pre class="code" dir="ltr">static boolean deleteAndShift(Student[] arr, int id)
 {
@@ -528,8 +509,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return false;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>החלפה בין שני תאים</h3>
 <div class="signature" dir="ltr">static void swap(Student[] arr, int i, int j)</div><pre class="code" dir="ltr">static void swap(Student[] arr, int i, int j)
 {
@@ -537,8 +517,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     arr[i] = arr[j];
     arr[j] = temp;
 }</pre>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>8 / 14</span></footer></section><section aria-label="עמוד 9" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>מיון לפי ציון — מהגבוה לנמוך</h3>
 <div class="signature" dir="ltr">static void sortByGradeDescending(Student[] arr)</div><pre class="code" dir="ltr">static void sortByGradeDescending(Student[] arr)
 {
@@ -556,12 +535,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
         }
     }
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">10. הוספה והזזה לפי count</h2>
-<p>כאשר משתמשים במשתנה <code>count</code>, החלק הפעיל של המערך הוא רק <span class="formula">0 ≤ i &lt; count</span>. התאים מ־<code>count</code> והלאה אינם חלק מהרשימה הפעילה.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div><h2 class="sectionTitle">10. הוספה והזזה לפי count</h2><p>כאשר משתמשים במשתנה <code>count</code>, החלק הפעיל של המערך הוא רק <span class="formula">0 ≤ i &lt; count</span>. התאים מ־<code>count</code> והלאה אינם חלק מהרשימה הפעילה.</p><div class="card ok">
 <h3>הוספה לסוף האזור הפעיל</h3>
 <div class="signature" dir="ltr">static int addAtEnd(Student[] arr, int count, Student s)</div><pre class="code" dir="ltr">static int addAtEnd(Student[] arr, int count, Student s)
 {
@@ -572,8 +546,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return count;
 }</pre>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>הכנסה למקום מסוים עם הזזה ימינה</h3>
 <div class="signature" dir="ltr">static int insertAt(Student[] arr, int count, Student s, int index)</div><pre class="code" dir="ltr">static int insertAt(Student[] arr, int count, Student s, int index)
 {
@@ -587,19 +560,13 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     count++;
     return count;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>סריקה נכונה כאשר יש count</h3>
 <pre class="code" dir="ltr">for (int i = 0; i &lt; count; i++)
 {
     System.out.println(arr[i]);
 }</pre><p>אם כל האובייקטים נשמרים ברצף בתחילת המערך, אין צורך לבדוק <code>null</code> בתוך האזור הפעיל.</p>
-</div>
-</div>
-<h2 class="sectionTitle">11. לולאות מקוננות במערך אובייקטים</h2>
-<p>לולאות מקוננות שימושיות כאשר צריך לבדוק זוגות של אובייקטים: כפילויות, זוגות בעלי תכונה משותפת, או השוואה של כל אובייקט לכל אובייקט אחר.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card warn">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>9 / 14</span></footer></section><section aria-label="עמוד 10" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">11. לולאות מקוננות במערך אובייקטים</h2><p>לולאות מקוננות שימושיות כאשר צריך לבדוק זוגות של אובייקטים: כפילויות, זוגות בעלי תכונה משותפת, או השוואה של כל אובייקט לכל אובייקט אחר.</p><div class="card warn">
 <h3>בדיקת כפילות מזהים</h3>
 <div class="signature" dir="ltr">static boolean hasDuplicateIds(Student[] arr)</div><pre class="code" dir="ltr">static boolean hasDuplicateIds(Student[] arr)
 {
@@ -616,8 +583,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return false;
 }</pre>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>ספירת זוגות עם אותו ציון</h3>
 <div class="signature" dir="ltr">static int countSameGradePairs(Student[] arr)</div><pre class="code" dir="ltr">static int countSameGradePairs(Student[] arr)
 {
@@ -636,11 +602,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return count;
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">12. העתקת מערך אובייקטים: העתקה רדודה מול עמוקה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card warn">
+</div><h2 class="sectionTitle">12. העתקת מערך אובייקטים: העתקה רדודה מול עמוקה</h2><div class="card warn">
 <h3>העתקה רדודה — מעתיקה הפניות</h3>
 <div class="signature" dir="ltr">static Student[] shallowCopy(Student[] arr)</div><pre class="code" dir="ltr">static Student[] shallowCopy(Student[] arr)
 {
@@ -651,8 +613,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
 
     return copy;
 }</pre><p>שינוי באובייקט דרך אחד המערכים יורגש גם במערך השני.</p>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>10 / 14</span></footer></section><section aria-label="עמוד 11" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>העתקה עמוקה — יוצרת אובייקטים חדשים</h3>
 <div class="signature" dir="ltr">static Student[] deepCopy(Student[] arr)</div><pre class="code" dir="ltr">static Student[] deepCopy(Student[] arr)
 {
@@ -665,10 +626,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return copy;
 }</pre><p>כל תא שאינו <code>null</code> מקבל אובייקט חדש בעזרת פעולה בונה מעתיקה.</p>
-</div>
-</div>
-<h2 class="sectionTitle">13. הכלת מערך אובייקטים בתוך מחלקה</h2>
-<div class="card white">
+</div><h2 class="sectionTitle">13. הכלת מערך אובייקטים בתוך מחלקה</h2><div class="card white">
 <h3>מחלקת Course שמכילה מערך תלמידים</h3>
 <pre class="code" dir="ltr">class Course
 {
@@ -698,9 +656,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
         return count;
     }
 }</pre>
-</div>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div><div class="card ok">
 <h3>פעולה פנימית שסורקת את המערך שבתוך המחלקה</h3>
 <div class="signature" dir="ltr">public double averageGrade()</div><pre class="code" dir="ltr">public double averageGrade()
 {
@@ -714,8 +670,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
 
     return (double)sum / count;
 }</pre>
-</div>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>11 / 14</span></footer></section><section aria-label="עמוד 12" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>פעולה פנימית שמחזירה עותק, לא הפניה ישירה</h3>
 <div class="signature" dir="ltr">public Student[] getStudentsCopy()</div><pre class="code" dir="ltr">public Student[] getStudentsCopy()
 {
@@ -726,11 +681,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
 
     return copy;
 }</pre><p>כך שומרים על המערך הפנימי של המחלקה מפני שינוי ישיר מבחוץ.</p>
-</div>
-</div>
-<h2 class="sectionTitle">14. פעולות פנימיות לניהול מערך בתוך מחלקה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">14. פעולות פנימיות לניהול מערך בתוך מחלקה</h2><div class="card white">
 <h3>מציאת תלמיד לפי מזהה בתוך הקורס</h3>
 <div class="signature" dir="ltr">public Student findById(int id)</div><pre class="code" dir="ltr">public Student findById(int id)
 {
@@ -741,8 +692,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return null;
 }</pre>
-</div>
-<div class="card warn">
+</div><div class="card warn">
 <h3>מחיקה לפי מזהה מתוך הקורס</h3>
 <div class="signature" dir="ltr">public boolean removeById(int id)</div><pre class="code" dir="ltr">public boolean removeById(int id)
 {
@@ -760,8 +710,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
     }
     return false;
 }</pre>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>12 / 14</span></footer></section><section aria-label="עמוד 13" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>מיון המערך הפנימי לפי ציון</h3>
 <div class="signature" dir="ltr">public void sortByGradeDescending()</div><pre class="code" dir="ltr">public void sortByGradeDescending()
 {
@@ -778,10 +727,7 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
         }
     }
 }</pre>
-</div>
-</div>
-<h2 class="sectionTitle">15. תבניות מניפולציה נפוצות — סיכום מהיר</h2>
-<table>
+</div><h2 class="sectionTitle">15. תבניות מניפולציה נפוצות — סיכום מהיר</h2><table>
 <thead><tr><th>מטרה</th><th>תבנית</th><th>דגש לבחינה</th></tr></thead>
 <tbody>
 <tr><td>סריקה בטוחה</td><td class="op" dir="ltr">if (arr[i] != null)</td><td>חובה לפני כל <code>arr[i].get...</code> כאשר אין <code>count</code>.</td></tr>
@@ -791,25 +737,23 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
 <tr><td>עותק</td><td>העתקה רדודה או עמוקה.</td><td>עותק עמוק דורש פעולה בונה מעתיקה.</td></tr>
 <tr><td>הכלה</td><td>מחלקה מחזיקה מערך של אובייקטים.</td><td>המערך הפנימי הוא חלק ממצב המחלקה.</td></tr>
 </tbody>
-</table>
-<h2 class="sectionTitle">16. דוגמת שימוש מלאה</h2>
-<div class="card white">
+</table><h2 class="sectionTitle">16. דוגמת שימוש מלאה</h2><div class="card white">
 <h3>יצירת קורס, הוספת תלמידים, מיון והדפסה</h3>
 <pre class="code" dir="ltr">public class Main
 {
     public static void main(String[] args)
     {
-        Course course = new Course(&quot;Computer Science&quot;, 5);
+        Course course = new Course("Computer Science", 5);
 
-        course.addStudent(new Student(&quot;Noa&quot;, 101, 92));
-        course.addStudent(new Student(&quot;Dan&quot;, 102, 76));
-        course.addStudent(new Student(&quot;Maya&quot;, 103, 88));
+        course.addStudent(new Student("Noa", 101, 92));
+        course.addStudent(new Student("Dan", 102, 76));
+        course.addStudent(new Student("Maya", 103, 88));
 
-        System.out.println(&quot;Average: &quot; + course.averageGrade());
+        System.out.println("Average: " + course.averageGrade());
 
         Student s = course.findById(102);
         if (s != null)
-            System.out.println(&quot;Found: &quot; + s);
+            System.out.println("Found: " + s);
 
         course.sortByGradeDescending();
         Student[] copy = course.getStudentsCopy();
@@ -818,33 +762,25 @@ students[0] = new Student(&quot;Noa&quot;, 101, 88);
             System.out.println(copy[i]);
     }
 }</pre>
-</div>
-<div class="card warn">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>13 / 14</span></footer></section><section aria-label="עמוד 14" class="a4-page"><div class="a4-content"><div class="card warn">
 <h3>הערה חשובה על קובצי Java</h3>
 <p>בתרגיל מלא אפשר לשמור את המחלקות בקבצים נפרדים: <code>Student.java</code>, <code>Course.java</code>, <code>Main.java</code>. אם כותבים הכל בקובץ אחד, רק המחלקה <code>Main</code> תהיה <code>public</code>.</p>
-</div>
-<h2 class="sectionTitle">17. שגיאות נפוצות בבחינה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card bad">
+</div><h2 class="sectionTitle">17. שגיאות נפוצות בבחינה</h2><div class="card bad">
 <h3>שגיאות שכדאי לזהות מיד</h3>
 <div class="rule"><span class="num">1</span><span>שכחה לכתוב <code>new</code> בעת יצירת אובייקט.</span></div>
 <div class="rule"><span class="num">2</span><span>יצירת מערך אובייקטים וחשיבה שהתאים כבר מלאים.</span></div>
 <div class="rule"><span class="num">3</span><span>קריאה ל־<code>arr[i].getGrade()</code> בלי לבדוק <code>arr[i] != null</code>.</span></div>
 <div class="rule"><span class="num">4</span><span>שכחה לעדכן <code>count</code> אחרי הוספה או מחיקה.</span></div>
 <div class="rule"><span class="num">5</span><span>העתקת מערך אובייקטים בצורה רדודה כאשר נדרש עותק עמוק.</span></div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>בדיקות קצה מומלצות</h3>
 <div class="rule"><span class="num">1</span><span>מערך ריק לחלוטין.</span></div>
 <div class="rule"><span class="num">2</span><span>מערך מלא ללא מקום פנוי.</span></div>
 <div class="rule"><span class="num">3</span><span>חיפוש מזהה שלא קיים.</span></div>
 <div class="rule"><span class="num">4</span><span>מחיקה של האיבר הראשון, האחרון והיחיד.</span></div>
 <div class="rule"><span class="num">5</span><span>מיון כאשר יש ציונים שווים.</span></div>
-</div>
-</div>
-<div class="foot">
+</div><div class="foot">
 <strong>כלל עבודה מומלץ:</strong> לפני כתיבת פעולה על מערך אובייקטים החליטו האם עובדים עם <code>count</code> או עם בדיקות <code>null</code>. ערבוב בין שתי הגישות בלי תכנון הוא המקור הנפוץ ביותר לשגיאות.
-</div>
-</main>
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־Java</span><span>14 / 14</span></footer></section></main>
 </body>
 </html>

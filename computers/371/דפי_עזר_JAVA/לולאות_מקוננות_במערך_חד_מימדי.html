@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html dir="rtl" lang="he"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</title>
 <style>
@@ -140,8 +141,40 @@ pre code, .code code { color:inherit; font-weight:inherit; }
   a{ color:inherit; text-decoration:none; }
 }
 </style>
-</head><body><main class="doc">
-<header class="hero">
+<style id="a4-layout">/* One section is one physical A4 sheet. Content is never clipped or scrolled. */
+@page { size: A4 portrait; margin: 0; @bottom-center { content: none; } }
+html, body { margin: 0; padding: 0; background: #e8edf4; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+main.doc { width: 210mm; max-width: none; margin: 0 auto; padding: 0; background: transparent; }
+section.a4-page {
+  box-sizing: border-box; position: relative; display: block;
+  width: 210mm; height: 297mm; min-height: 297mm;
+  padding: 12mm 12mm 16mm; margin: 8mm 0;
+  background: white; box-shadow: 0 3px 18px #21334d20;
+  break-after: page; page-break-after: always; break-inside: avoid;
+  overflow: visible;
+}
+section.a4-page:last-child { break-after: auto; page-break-after: auto; }
+.a4-content { display: flow-root; width: 100%; height: 269mm; }
+.a4-content > :first-child { margin-top: 0; }
+.a4-content h1, .a4-content h2, .a4-content h3 { line-height: 1.5; }
+.a4-content .inline-expression { direction: ltr; unicode-bidi: isolate; white-space: normal; overflow-wrap: anywhere; }
+.a4-content * { min-width: 0; max-width: 100%; }
+.a4-content pre { white-space: pre-wrap !important; overflow-wrap: anywhere; overflow: visible !important; max-height: none !important; }
+.a4-content table { table-layout: fixed; width: 100%; }
+.a4-content td, .a4-content th { overflow-wrap: anywhere; }
+.a4-content img, .a4-content svg { max-width: 100%; height: auto; }
+.a4-content .grid2, .a4-content .grid3, .a4-content .twoCols,
+.a4-content .oneCol, .a4-content .fourTips, .a4-content .sortCompare { display: block !important; }
+.a4-content .card { margin-bottom: 8px; }
+.a4-page-footer { position: absolute; bottom: 7mm; left: 12mm; right: 12mm; border-top: 1px solid #ccd8e8; padding-top: 2mm; font: 10px Arial, sans-serif; color: #506581; display: flex; justify-content: space-between; direction: rtl; }
+.a4-page-footer span:last-child { direction: ltr; unicode-bidi: isolate; }
+@media print {
+  html, body { background: white; }
+  main.doc { width: 210mm; margin: 0; }
+  section.a4-page { margin: 0; box-shadow: none; }
+}
+</style></head><body><main class="doc"><section aria-label="עמוד 1" class="a4-page"><div class="a4-content"><header class="hero">
 <div class="hero-top">
 <div>
 <h1 class="title">דף עזר לבחינת הבגרות — לולאות מקוננות במערך חד־ממדי ב־Java</h1>
@@ -160,10 +193,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         במסמך זה עוסקים רק במערך חד־ממדי. הרעיון המרכזי: הלולאה החיצונית בוחרת איבר, התחלה של תחום, או איבר ראשון בזוג; הלולאה הפנימית עוברת על איברים הקשורים אליו. כאשר <code>j</code> מתחילה מ־<code>i + 1</code>, <code>i</code>, או <code>0</code> עד <code>i</code>, הלולאה הפנימית תלויה בלולאה החיצונית.
 </div>
 </div>
-</header>
-
-<h2 class="sectionTitle">1. מפת התבניות במערך חד־ממדי</h2>
-<table class="map">
+</header><h2 class="sectionTitle">1. מפת התבניות במערך חד־ממדי</h2><table class="map">
 <thead><tr><th>מצב</th><th>תבנית מתאימה</th><th>מתי משתמשים?</th></tr></thead>
 <tbody>
 <tr><td>כל זוג איברים פעם אחת</td><td class="op">for i → 0..n-1, for j → i+1..n-1</td><td>כפילויות, זוג שסכומו נתון, הפרש בין שני איברים, השוואת כל זוג בלי חזרה.</td></tr>
@@ -175,17 +205,13 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td>מיון</td><td class="op">for i → 0..n-2, for j → range related to i</td><td>Selection Sort, Bubble Sort, השוואות והחלפות.</td></tr>
 <tr><td>השוואת שני מערכים</td><td class="op">for i over a, for j over b</td><td>חיתוך, הכלה, האם איבר ממערך אחד מופיע במערך אחר.</td></tr>
 </tbody>
-</table>
-
-<div class="grid2 tight" data-layout="one-column">
-<div class="card ok">
+</table><div class="card ok">
 <h3>כללי עבודה קבועים</h3>
 <div class="rule"><span class="num">1</span><span>בכל תבנית כתבו מראש מה מייצג <code>i</code> ומה מייצג <code>j</code>.</span></div>
 <div class="rule"><span class="num">2</span><span>כאשר בודקים זוגות ללא כפילות, מתחילים את <code>j</code> מ־<code>i + 1</code>.</span></div>
 <div class="rule"><span class="num">3</span><span>כאשר בודקים הופעה קודמת, מריצים את <code>j</code> מ־<code>0</code> עד <code>i - 1</code>.</span></div>
 <div class="rule"><span class="num">4</span><span>כאשר הצובר שייך לכל איבר בנפרד, מאתחלים אותו בתוך הלולאה החיצונית.</span></div>
-</div>
-<div class="card bad">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>1 / 15</span></footer></section><section aria-label="עמוד 2" class="a4-page"><div class="a4-content"><div class="card bad">
 <h3>טעויות נפוצות</h3>
 <div class="avoid" data-layout="one-column">
 <span>for (int i = 0; i &lt;= arr.length; i++)</span>
@@ -194,32 +220,25 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <span>if (arr[i] == arr[j]) // but i and j can be equal</span>
 </div>
 <p class="small">הטעות הנפוצה ביותר היא לבדוק איבר עם עצמו או לבדוק אותו זוג פעמיים.</p>
-</div>
-</div>
-
-<h2 class="sectionTitle">2. תבנית כל הזוגות במערך</h2>
-<div class="card white"><h3>כל זוג איברים פעם אחת — בלי חזרות</h3><p>הפעולה מדפיסה כל זוג אינדקסים פעם אחת בלבד. <code>j</code> תלויה ב־<code>i</code> ומתחילה מ־<code>i + 1</code>.</p><pre class="code " dir="ltr">static void printAllPairs(int[] arr)
+</div><h2 class="sectionTitle">2. תבנית כל הזוגות במערך</h2><div class="card white"><h3>כל זוג איברים פעם אחת — בלי חזרות</h3><p>הפעולה מדפיסה כל זוג אינדקסים פעם אחת בלבד. <code>j</code> תלויה ב־<code>i</code> ומתחילה מ־<code>i + 1</code>.</p><pre class="code" dir="ltr">static void printAllPairs(int[] arr)
 {
     for (int i = 0; i &lt; arr.length; i++)
     {
         for (int j = i + 1; j &lt; arr.length; j++)
         {
-            System.out.println(arr[i] + &quot; , &quot; + arr[j]);
+            System.out.println(arr[i] + " , " + arr[j]);
         }
     }
-}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{4, 7, 2}</code> יודפסו הזוגות: <code>4,7</code>, <code>4,2</code>, <code>7,2</code>.</div></div>
-<div class="card warn"><h3>כל זוגות האינדקסים — כאשר הסדר חשוב</h3><p>כאן בודקים גם <code>(i, j)</code> וגם <code>(j, i)</code>. מתאים רק כאשר הסדר באמת חשוב.</p><pre class="code " dir="ltr">static void printOrderedPairs(int[] arr)
+}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{4, 7, 2}</code> יודפסו הזוגות: <code>4,7</code>, <code>4,2</code>, <code>7,2</code>.</div></div><div class="card warn"><h3>כל זוגות האינדקסים — כאשר הסדר חשוב</h3><p>כאן בודקים גם <code>(i, j)</code> וגם <code>(j, i)</code>. מתאים רק כאשר הסדר באמת חשוב.</p><pre class="code" dir="ltr">static void printOrderedPairs(int[] arr)
 {
     for (int i = 0; i &lt; arr.length; i++)
     {
         for (int j = 0; j &lt; arr.length; j++)
         {
-            System.out.println(&quot;(&quot; + i + &quot;, &quot; + j + &quot;)&quot;);
+            System.out.println("(" + i + ", " + j + ")");
         }
     }
-}</pre><div class="example"><strong>זהירות:</strong> תבנית זו כוללת גם זוגות שבהם <code>i == j</code>.</div></div>
-<h2 class="sectionTitle">3. כפילויות והופעות חוזרות</h2>
-<div class="card ok"><h3>האם קיימת כפילות במערך?</h3><p>בודקים כל זוג איברים שונה. אם שני ערכים שווים — נמצאה כפילות.</p><pre class="code " dir="ltr">static boolean hasDuplicate(int[] arr)
+}</pre><div class="example"><strong>זהירות:</strong> תבנית זו כוללת גם זוגות שבהם <code>i == j</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>2 / 15</span></footer></section><section aria-label="עמוד 3" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">3. כפילויות והופעות חוזרות</h2><div class="card ok"><h3>האם קיימת כפילות במערך?</h3><p>בודקים כל זוג איברים שונה. אם שני ערכים שווים — נמצאה כפילות.</p><pre class="code" dir="ltr">static boolean hasDuplicate(int[] arr)
 {
     boolean found = false;
 
@@ -232,8 +251,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> <code>{5, 2, 8, 2}</code> מחזיר <code>true</code>.</div></div>
-<div class="card purple"><h3>האם כל האיברים שונים?</h3><p>זו אותה תבנית כמו כפילויות, אך הפלט הלוגי הפוך.</p><pre class="code " dir="ltr">static boolean allDifferent(int[] arr)
+}</pre><div class="example"><strong>דוגמה:</strong> <code>{5, 2, 8, 2}</code> מחזיר <code>true</code>.</div></div><div class="card purple"><h3>האם כל האיברים שונים?</h3><p>זו אותה תבנית כמו כפילויות, אך הפלט הלוגי הפוך.</p><pre class="code" dir="ltr">static boolean allDifferent(int[] arr)
 {
     boolean ok = true;
 
@@ -246,8 +264,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return ok;
-}</pre><div class="example"><strong>תבנית חשובה:</strong> מתחילים מ־<code>true</code>, ומבטלים כאשר מוצאים דוגמה נגדית.</div></div>
-<div class="card white"><h3>הדפסת כל ערך רק בפעם הראשונה שהוא מופיע</h3><p>לכל איבר בודקים האם אותו ערך הופיע לפניו. אם לא — מדפיסים.</p><pre class="code " dir="ltr">static void printOnlyFirstAppearances(int[] arr)
+}</pre><div class="example"><strong>תבנית חשובה:</strong> מתחילים מ־<code>true</code>, ומבטלים כאשר מוצאים דוגמה נגדית.</div></div><div class="card white"><h3>הדפסת כל ערך רק בפעם הראשונה שהוא מופיע</h3><p>לכל איבר בודקים האם אותו ערך הופיע לפניו. אם לא — מדפיסים.</p><pre class="code" dir="ltr">static void printOnlyFirstAppearances(int[] arr)
 {
     for (int i = 0; i &lt; arr.length; i++)
     {
@@ -262,9 +279,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         if (!appearedBefore)
             System.out.println(arr[i]);
     }
-}</pre><div class="example"><strong>קשר בין הלולאות:</strong> הלולאה הפנימית רצה רק על האזור שלפני <code>i</code>.</div></div>
-<h2 class="sectionTitle">4. זוגות עם תנאי</h2>
-<div class="card ok"><h3>האם יש זוג שסכומו שווה ליעד?</h3><p>בודקים כל זוג פעם אחת. אין צורך לבדוק את אותו זוג בסדר הפוך.</p><pre class="code " dir="ltr">static boolean hasPairWithSum(int[] arr, int target)
+}</pre><div class="example"><strong>קשר בין הלולאות:</strong> הלולאה הפנימית רצה רק על האזור שלפני <code>i</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>3 / 15</span></footer></section><section aria-label="עמוד 4" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">4. זוגות עם תנאי</h2><div class="card ok"><h3>האם יש זוג שסכומו שווה ליעד?</h3><p>בודקים כל זוג פעם אחת. אין צורך לבדוק את אותו זוג בסדר הפוך.</p><pre class="code" dir="ltr">static boolean hasPairWithSum(int[] arr, int target)
 {
     boolean found = false;
 
@@ -277,8 +292,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> במערך <code>{3, 8, 4, 6}</code>, עבור יעד <code>10</code> יש זוג: <code>4 + 6</code>.</div></div>
-<div class="card white"><h3>מספר הזוגות שסכומם זוגי</h3><p>במקום להחזיר אמת/שקר, משתמשים בצובר ספירה.</p><pre class="code " dir="ltr">static int countPairsWithEvenSum(int[] arr)
+}</pre><div class="example"><strong>דוגמה:</strong> במערך <code>{3, 8, 4, 6}</code>, עבור יעד <code>10</code> יש זוג: <code>4 + 6</code>.</div></div><div class="card white"><h3>מספר הזוגות שסכומם זוגי</h3><p>במקום להחזיר אמת/שקר, משתמשים בצובר ספירה.</p><pre class="code" dir="ltr">static int countPairsWithEvenSum(int[] arr)
 {
     int count = 0;
 
@@ -291,8 +305,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return count;
-}</pre><div class="example"><strong>תבנית:</strong> כל זוג + תנאי + צובר.</div></div>
-<div class="card purple"><h3>הפרש מקסימלי בין שני איברים</h3><p>בודקים כל זוג ומעדכנים מקסימום. מתאים כאשר רוצים להשוות יחסים בין כל זוג איברים.</p><pre class="code " dir="ltr">static int maxPairDifference(int[] arr)
+}</pre><div class="example"><strong>תבנית:</strong> כל זוג + תנאי + צובר.</div></div><div class="card purple"><h3>הפרש מקסימלי בין שני איברים</h3><p>בודקים כל זוג ומעדכנים מקסימום. מתאים כאשר רוצים להשוות יחסים בין כל זוג איברים.</p><pre class="code" dir="ltr">static int maxPairDifference(int[] arr)
 {
     int maxDiff = 0;
 
@@ -306,9 +319,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return maxDiff;
-}</pre><div class="example"><strong>הערה:</strong> אם המערך ריק או באורך 1, אין זוגות, ולכן מוחזר <code>0</code>.</div></div>
-<h2 class="sectionTitle">5. ספירה לכל איבר — הלולאה הפנימית תלויה בחיצונית</h2>
-<div class="card ok"><h3>כמה איברים לפני המקום i קטנים ממנו?</h3><p>לכל איבר משווים רק לאיברים שלפניו.</p><pre class="code " dir="ltr">static void printHowManyPreviousSmaller(int[] arr)
+}</pre><div class="example"><strong>הערה:</strong> אם המערך ריק או באורך 1, אין זוגות, ולכן מוחזר <code>0</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>4 / 15</span></footer></section><section aria-label="עמוד 5" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">5. ספירה לכל איבר — הלולאה הפנימית תלויה בחיצונית</h2><div class="card ok"><h3>כמה איברים לפני המקום i קטנים ממנו?</h3><p>לכל איבר משווים רק לאיברים שלפניו.</p><pre class="code" dir="ltr">static void printHowManyPreviousSmaller(int[] arr)
 {
     for (int i = 0; i &lt; arr.length; i++)
     {
@@ -320,10 +331,9 @@ pre code, .code code { color:inherit; font-weight:inherit; }
                 count++;
         }
 
-        System.out.println(arr[i] + &quot;: &quot; + count);
+        System.out.println(arr[i] + ": " + count);
     }
-}</pre><div class="example"><strong>דוגמה:</strong> שימושי לשאלות של דירוג, מיקום יחסי, או בדיקת איברים קודמים.</div></div>
-<div class="card white"><h3>כמה פעמים כל ערך מופיע במערך?</h3><p>לכל איבר סופרים את מספר ההופעות שלו בכל המערך. כדי לא להדפיס אותו ערך כמה פעמים, בודקים אם הופיע קודם.</p><pre class="code mini-code" dir="ltr">static void printFrequencyOfValues(int[] arr)
+}</pre><div class="example"><strong>דוגמה:</strong> שימושי לשאלות של דירוג, מיקום יחסי, או בדיקת איברים קודמים.</div></div><div class="card white"><h3>כמה פעמים כל ערך מופיע במערך?</h3><p>לכל איבר סופרים את מספר ההופעות שלו בכל המערך. כדי לא להדפיס אותו ערך כמה פעמים, בודקים אם הופיע קודם.</p><pre class="code mini-code" dir="ltr">static void printFrequencyOfValues(int[] arr)
 {
     for (int i = 0; i &lt; arr.length; i++)
     {
@@ -342,12 +352,10 @@ pre code, .code code { color:inherit; font-weight:inherit; }
                 if (arr[j] == arr[i])
                     count++;
             }
-            System.out.println(arr[i] + &quot; appears &quot; + count + &quot; times&quot;);
+            System.out.println(arr[i] + " appears " + count + " times");
         }
     }
-}</pre><div class="example"><strong>מבנה:</strong> לולאה חיצונית לערך נוכחי + לולאה לזיהוי הופעה קודמת + לולאה לספירה.</div></div>
-<h2 class="sectionTitle">6. מציאת הערך השכיח ביותר בלי HashMap</h2>
-<div class="card purple"><h3>הערך שמופיע הכי הרבה פעמים</h3><p>לכל איבר סופרים כמה פעמים הוא מופיע, ומעדכנים את המקסימום.</p><pre class="code " dir="ltr">static int mostFrequentValue(int[] arr)
+}</pre><div class="example"><strong>מבנה:</strong> לולאה חיצונית לערך נוכחי + לולאה לזיהוי הופעה קודמת + לולאה לספירה.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>5 / 15</span></footer></section><section aria-label="עמוד 6" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">6. מציאת הערך השכיח ביותר בלי HashMap</h2><div class="card purple"><h3>הערך שמופיע הכי הרבה פעמים</h3><p>לכל איבר סופרים כמה פעמים הוא מופיע, ומעדכנים את המקסימום.</p><pre class="code" dir="ltr">static int mostFrequentValue(int[] arr)
 {
     int bestValue = arr[0];
     int bestCount = 0;
@@ -369,8 +377,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return bestValue;
-}</pre><div class="example"><strong>הנחה:</strong> המערך אינו ריק. אם יש כמה ערכים שכיחים באותה מידה, מוחזר הראשון שנמצא.</div></div>
-<div class="card ok"><h3>כמה ערכים שונים יש במערך?</h3><p>סופרים רק ערכים שלא הופיעו לפני המקום הנוכחי.</p><pre class="code " dir="ltr">static int countDifferentValues(int[] arr)
+}</pre><div class="example"><strong>הנחה:</strong> המערך אינו ריק. אם יש כמה ערכים שכיחים באותה מידה, מוחזר הראשון שנמצא.</div></div><div class="card ok"><h3>כמה ערכים שונים יש במערך?</h3><p>סופרים רק ערכים שלא הופיעו לפני המקום הנוכחי.</p><pre class="code" dir="ltr">static int countDifferentValues(int[] arr)
 {
     int countDifferent = 0;
 
@@ -388,26 +395,23 @@ pre code, .code code { color:inherit; font-weight:inherit; }
             countDifferent++;
     }
     return countDifferent;
-}</pre><div class="example"><strong>תבנית:</strong> הופעה ראשונה בלבד.</div></div>
-<h2 class="sectionTitle">7. תתי־מערכים רציפים</h2>
-<div class="card warn"><h3>הדפסת כל תת־מערך רציף</h3><p>הלולאה החיצונית בוחרת התחלה, והפנימית בוחרת סוף. בכל צעד מדפיסים את האיבר שמאריך את התחום.</p><pre class="code mini-code" dir="ltr">static void printAllSubArrays(int[] arr)
+}</pre><div class="example"><strong>תבנית:</strong> הופעה ראשונה בלבד.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>6 / 15</span></footer></section><section aria-label="עמוד 7" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">7. תתי־מערכים רציפים</h2><div class="card warn"><h3>הדפסת כל תת־מערך רציף</h3><p>הלולאה החיצונית בוחרת התחלה, והפנימית בוחרת סוף. בכל צעד מדפיסים את האיבר שמאריך את התחום.</p><pre class="code mini-code" dir="ltr">static void printAllSubArrays(int[] arr)
 {
     for (int start = 0; start &lt; arr.length; start++)
     {
         for (int end = start; end &lt; arr.length; end++)
         {
-            System.out.print(&quot;[&quot;);
+            System.out.print("[");
             for (int k = start; k &lt;= end; k++)
             {
                 System.out.print(arr[k]);
                 if (k &lt; end)
-                    System.out.print(&quot;, &quot;);
+                    System.out.print(", ");
             }
-            System.out.println(&quot;]&quot;);
+            System.out.println("]");
         }
     }
-}</pre><div class="example"><strong>מבנה:</strong> התחלה + סוף + מעבר על התוכן של התחום.</div></div>
-<div class="card ok"><h3>סכום מקסימלי של תת־מערך רציף</h3><p>שומרים סכום מצטבר לכל התחלה. אין צורך לחשב מחדש את כל התחום בכל פעם.</p><pre class="code " dir="ltr">static int maxSubArraySumNested(int[] arr)
+}</pre><div class="example"><strong>מבנה:</strong> התחלה + סוף + מעבר על התוכן של התחום.</div></div><div class="card ok"><h3>סכום מקסימלי של תת־מערך רציף</h3><p>שומרים סכום מצטבר לכל התחלה. אין צורך לחשב מחדש את כל התחום בכל פעם.</p><pre class="code" dir="ltr">static int maxSubArraySumNested(int[] arr)
 {
     int maxSum = arr[0];
 
@@ -423,8 +427,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return maxSum;
-}</pre><div class="example"><strong>קשר בין הלולאות:</strong> <code>end</code> תמיד מתחיל מ־<code>start</code>.</div></div>
-<div class="card white"><h3>האם קיים תת־מערך שסכומו שווה ליעד?</h3><p>אותה תבנית, אך במקום מקסימום בודקים שוויון ליעד.</p><pre class="code " dir="ltr">static boolean hasSubArrayWithSum(int[] arr, int target)
+}</pre><div class="example"><strong>קשר בין הלולאות:</strong> <code>end</code> תמיד מתחיל מ־<code>start</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>7 / 15</span></footer></section><section aria-label="עמוד 8" class="a4-page"><div class="a4-content"><div class="card white"><h3>האם קיים תת־מערך שסכומו שווה ליעד?</h3><p>אותה תבנית, אך במקום מקסימום בודקים שוויון ליעד.</p><pre class="code" dir="ltr">static boolean hasSubArrayWithSum(int[] arr, int target)
 {
     boolean found = false;
 
@@ -440,9 +443,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return found;
-}</pre><div class="example"><strong>מתאים ל:</strong> שאלות על רצף של איברים סמוכים במערך.</div></div>
-<h2 class="sectionTitle">8. חלונות באורך קבוע</h2>
-<div class="card purple"><h3>סכום כל רצף באורך k</h3><p>עבור כל התחלה, הלולאה הפנימית עוברת על <code>k</code> איברים בלבד.</p><pre class="code " dir="ltr">static void printWindowSums(int[] arr, int k)
+}</pre><div class="example"><strong>מתאים ל:</strong> שאלות על רצף של איברים סמוכים במערך.</div></div><h2 class="sectionTitle">8. חלונות באורך קבוע</h2><div class="card purple"><h3>סכום כל רצף באורך k</h3><p>עבור כל התחלה, הלולאה הפנימית עוברת על <code>k</code> איברים בלבד.</p><pre class="code" dir="ltr">static void printWindowSums(int[] arr, int k)
 {
     for (int start = 0; start &lt;= arr.length - k; start++)
     {
@@ -453,10 +454,9 @@ pre code, .code code { color:inherit; font-weight:inherit; }
             sum += arr[j];
         }
 
-        System.out.println(&quot;start &quot; + start + &quot;: &quot; + sum);
+        System.out.println("start " + start + ": " + sum);
     }
-}</pre><div class="example"><strong>דוגמה:</strong> אם <code>k = 3</code>, נבדקים כל הרצפים באורך 3.</div></div>
-<div class="card ok"><h3>ממוצע מקסימלי של חלון באורך k</h3><p>מחשבים סכום לכל חלון, ואז משווים למקסימום.</p><pre class="code " dir="ltr">static double maxWindowAverage(int[] arr, int k)
+}</pre><div class="example"><strong>דוגמה:</strong> אם <code>k = 3</code>, נבדקים כל הרצפים באורך 3.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>8 / 15</span></footer></section><section aria-label="עמוד 9" class="a4-page"><div class="a4-content"><div class="card ok"><h3>ממוצע מקסימלי של חלון באורך k</h3><p>מחשבים סכום לכל חלון, ואז משווים למקסימום.</p><pre class="code" dir="ltr">static double maxWindowAverage(int[] arr, int k)
 {
     int bestSum = 0;
     boolean first = true;
@@ -474,9 +474,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return (double)bestSum / k;
-}</pre><div class="example"><strong>הנחה:</strong> <code>1 ≤ k ≤ arr.length</code>.</div></div>
-<h2 class="sectionTitle">9. מיון בעזרת לולאות מקוננות</h2>
-<div class="card ok"><h3>Selection Sort — בחירת הקטן בכל סיבוב</h3><p>בכל סיבוב הלולאה החיצונית קובעת את המקום הבא למילוי. הפנימית מחפשת את האיבר הקטן ביותר מימין.</p><pre class="code " dir="ltr">static void selectionSort(int[] arr)
+}</pre><div class="example"><strong>הנחה:</strong> <code>1 ≤ k ≤ arr.length</code>.</div></div><h2 class="sectionTitle">9. מיון בעזרת לולאות מקוננות</h2><div class="card ok"><h3>Selection Sort — בחירת הקטן בכל סיבוב</h3><p>בכל סיבוב הלולאה החיצונית קובעת את המקום הבא למילוי. הפנימית מחפשת את האיבר הקטן ביותר מימין.</p><pre class="code" dir="ltr">static void selectionSort(int[] arr)
 {
     for (int i = 0; i &lt; arr.length - 1; i++)
     {
@@ -492,8 +490,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         arr[i] = arr[minIndex];
         arr[minIndex] = temp;
     }
-}</pre><div class="example"><strong>תבנית:</strong> <code>i</code> = המקום שמסדרים, <code>j</code> = חיפוש בתחום הלא־מסודר.</div></div>
-<div class="card purple"><h3>Bubble Sort — החלפת שכנים</h3><p>בכל מעבר מעבירים ערך גדול ימינה באמצעות השוואת שכנים.</p><pre class="code " dir="ltr">static void bubbleSort(int[] arr)
+}</pre><div class="example"><strong>תבנית:</strong> <code>i</code> = המקום שמסדרים, <code>j</code> = חיפוש בתחום הלא־מסודר.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>9 / 15</span></footer></section><section aria-label="עמוד 10" class="a4-page"><div class="a4-content"><div class="card purple"><h3>Bubble Sort — החלפת שכנים</h3><p>בכל מעבר מעבירים ערך גדול ימינה באמצעות השוואת שכנים.</p><pre class="code" dir="ltr">static void bubbleSort(int[] arr)
 {
     for (int i = 0; i &lt; arr.length - 1; i++)
     {
@@ -507,8 +504,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
             }
         }
     }
-}</pre><div class="example"><strong>קשר בין הלולאות:</strong> בכל סיבוב חיצוני התחום של <code>j</code> מתקצר, כי הסוף כבר מסודר.</div></div>
-<div class="card white"><h3>בדיקה אם המערך ממוין באמצעות כל זוג</h3><p>בודקים שכל איבר מוקדם אינו גדול מאיבר מאוחר. זו תבנית זוגות, לא הדרך הקצרה ביותר, אך היא מדגימה קשר בין כל זוגות האינדקסים.</p><pre class="code " dir="ltr">static boolean isSortedByPairs(int[] arr)
+}</pre><div class="example"><strong>קשר בין הלולאות:</strong> בכל סיבוב חיצוני התחום של <code>j</code> מתקצר, כי הסוף כבר מסודר.</div></div><div class="card white"><h3>בדיקה אם המערך ממוין באמצעות כל זוג</h3><p>בודקים שכל איבר מוקדם אינו גדול מאיבר מאוחר. זו תבנית זוגות, לא הדרך הקצרה ביותר, אך היא מדגימה קשר בין כל זוגות האינדקסים.</p><pre class="code" dir="ltr">static boolean isSortedByPairs(int[] arr)
 {
     boolean sorted = true;
 
@@ -521,9 +517,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return sorted;
-}</pre><div class="example"><strong>הבנה:</strong> אם קיים זוג שבו מוקדם גדול ממאוחר, המערך אינו ממוין.</div></div>
-<h2 class="sectionTitle">10. השוואת שני מערכים חד־ממדיים</h2>
-<div class="card ok"><h3>האם קיים איבר משותף לשני מערכים?</h3><p>הלולאה החיצונית בוחרת איבר מהמערך הראשון, והפנימית מחפשת אותו בשני.</p><pre class="code " dir="ltr">static boolean hasCommonValue(int[] a, int[] b)
+}</pre><div class="example"><strong>הבנה:</strong> אם קיים זוג שבו מוקדם גדול ממאוחר, המערך אינו ממוין.</div></div><h2 class="sectionTitle">10. השוואת שני מערכים חד־ממדיים</h2><div class="card ok"><h3>האם קיים איבר משותף לשני מערכים?</h3><p>הלולאה החיצונית בוחרת איבר מהמערך הראשון, והפנימית מחפשת אותו בשני.</p><pre class="code" dir="ltr">static boolean hasCommonValue(int[] a, int[] b)
 {
     boolean found = false;
 
@@ -536,8 +530,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> <code>{2, 5, 8}</code> ו־<code>{1, 8, 9}</code> מחזירים <code>true</code>.</div></div>
-<div class="card white"><h3>האם כל איברי a קיימים בתוך b?</h3><p>לכל איבר ב־<code>a</code> מחפשים הופעה ב־<code>b</code>. אם איבר אחד לא נמצא — התוצאה הכללית שקרית.</p><pre class="code " dir="ltr">static boolean allValuesOfAInB(int[] a, int[] b)
+}</pre><div class="example"><strong>דוגמה:</strong> <code>{2, 5, 8}</code> ו־<code>{1, 8, 9}</code> מחזירים <code>true</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>10 / 15</span></footer></section><section aria-label="עמוד 11" class="a4-page"><div class="a4-content"><div class="card white"><h3>האם כל איברי a קיימים בתוך b?</h3><p>לכל איבר ב־<code>a</code> מחפשים הופעה ב־<code>b</code>. אם איבר אחד לא נמצא — התוצאה הכללית שקרית.</p><pre class="code" dir="ltr">static boolean allValuesOfAInB(int[] a, int[] b)
 {
     boolean allFound = true;
 
@@ -555,8 +548,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
             allFound = false;
     }
     return allFound;
-}</pre><div class="example"><strong>תבנית:</strong> אמת כללית + בדיקת אמת מקומית לכל איבר.</div></div>
-<div class="card warn"><h3>הדפסת ערכים משותפים ללא כפילות</h3><p>מדפיסים ערך מהמערך הראשון רק אם הוא מופיע בשני וגם לא הופיע קודם בראשון.</p><pre class="code mini-code" dir="ltr">static void printCommonValuesOnce(int[] a, int[] b)
+}</pre><div class="example"><strong>תבנית:</strong> אמת כללית + בדיקת אמת מקומית לכל איבר.</div></div><div class="card warn"><h3>הדפסת ערכים משותפים ללא כפילות</h3><p>מדפיסים ערך מהמערך הראשון רק אם הוא מופיע בשני וגם לא הופיע קודם בראשון.</p><pre class="code mini-code" dir="ltr">static void printCommonValuesOnce(int[] a, int[] b)
 {
     for (int i = 0; i &lt; a.length; i++)
     {
@@ -577,9 +569,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         if (!appearedBefore &amp;&amp; appearsInB)
             System.out.println(a[i]);
     }
-}</pre><div class="example"><strong>מבנה:</strong> בדיקת כפילות במערך אחד + חיפוש במערך אחר.</div></div>
-<h2 class="sectionTitle">11. שכנים וסביבה במערך חד־ממדי</h2>
-<div class="card purple"><h3>סכום שכנים בטווח k סביב כל איבר</h3><p>לכל מקום <code>i</code> עוברים על תחום קטן סביבו. הגבולות תלויים ב־<code>i</code>.</p><pre class="code mini-code" dir="ltr">static void printNeighborSums(int[] arr, int k)
+}</pre><div class="example"><strong>מבנה:</strong> בדיקת כפילות במערך אחד + חיפוש במערך אחר.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>11 / 15</span></footer></section><section aria-label="עמוד 12" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">11. שכנים וסביבה במערך חד־ממדי</h2><div class="card purple"><h3>סכום שכנים בטווח k סביב כל איבר</h3><p>לכל מקום <code>i</code> עוברים על תחום קטן סביבו. הגבולות תלויים ב־<code>i</code>.</p><pre class="code mini-code" dir="ltr">static void printNeighborSums(int[] arr, int k)
 {
     for (int i = 0; i &lt; arr.length; i++)
     {
@@ -598,10 +588,9 @@ pre code, .code code { color:inherit; font-weight:inherit; }
                 sum += arr[j];
         }
 
-        System.out.println(&quot;index &quot; + i + &quot;: &quot; + sum);
+        System.out.println("index " + i + ": " + sum);
     }
-}</pre><div class="example"><strong>שימוש:</strong> שאלות על שכנים, מרחקים, וסביבה מקומית במערך.</div></div>
-<div class="card ok"><h3>האם כל איבר גדול מכל הקודמים לו?</h3><p>לכל <code>i</code> בודקים את כל המקומות שלפניו. אם אחד מהם גדול או שווה — התנאי נכשל.</p><pre class="code " dir="ltr">static boolean eachValueGreaterThanAllPrevious(int[] arr)
+}</pre><div class="example"><strong>שימוש:</strong> שאלות על שכנים, מרחקים, וסביבה מקומית במערך.</div></div><div class="card ok"><h3>האם כל איבר גדול מכל הקודמים לו?</h3><p>לכל <code>i</code> בודקים את כל המקומות שלפניו. אם אחד מהם גדול או שווה — התנאי נכשל.</p><pre class="code" dir="ltr">static boolean eachValueGreaterThanAllPrevious(int[] arr)
 {
     boolean ok = true;
 
@@ -614,23 +603,20 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return ok;
-}</pre><div class="example"><strong>הערה:</strong> זה תנאי חזק שמוביל למערך עולה ממש.</div></div>
-<h2 class="sectionTitle">12. לולאה פנימית לפי ערך האיבר</h2>
-<div class="card white"><h3>הדפסת עמודות כוכבים לפי ערכי המערך</h3><p>כאן מספר הריצות של הלולאה הפנימית נקבע לפי <code>arr[i]</code>, ולא לפי אורך המערך.</p><pre class="code " dir="ltr">static void printBars(int[] arr)
+}</pre><div class="example"><strong>הערה:</strong> זה תנאי חזק שמוביל למערך עולה ממש.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>12 / 15</span></footer></section><section aria-label="עמוד 13" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">12. לולאה פנימית לפי ערך האיבר</h2><div class="card white"><h3>הדפסת עמודות כוכבים לפי ערכי המערך</h3><p>כאן מספר הריצות של הלולאה הפנימית נקבע לפי <code>arr[i]</code>, ולא לפי אורך המערך.</p><pre class="code" dir="ltr">static void printBars(int[] arr)
 {
     for (int i = 0; i &lt; arr.length; i++)
     {
-        System.out.print(i + &quot;: &quot;);
+        System.out.print(i + ": ");
 
         for (int j = 0; j &lt; arr[i]; j++)
         {
-            System.out.print(&quot;*&quot;);
+            System.out.print("*");
         }
 
         System.out.println();
     }
-}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{3, 1, 4}</code> יודפסו 3 כוכבים, אחר כך 1, אחר כך 4.</div></div>
-<div class="card warn"><h3>סכום חוזר לפי ערכי המערך</h3><p>לפעמים האיבר עצמו מגדיר כמה פעמים לבצע פעולה.</p><pre class="code " dir="ltr">static int sumRepeatedIndexes(int[] arr)
+}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{3, 1, 4}</code> יודפסו 3 כוכבים, אחר כך 1, אחר כך 4.</div></div><div class="card warn"><h3>סכום חוזר לפי ערכי המערך</h3><p>לפעמים האיבר עצמו מגדיר כמה פעמים לבצע פעולה.</p><pre class="code" dir="ltr">static int sumRepeatedIndexes(int[] arr)
 {
     int total = 0;
 
@@ -642,9 +628,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return total;
-}</pre><div class="example"><strong>תבנית:</strong> <code>j &lt; arr[i]</code> — תלות בערך ולא רק באינדקס.</div></div>
-<h2 class="sectionTitle">13. שלשות איברים</h2>
-<div class="card purple"><h3>האם יש שלשה שסכומה שווה ליעד?</h3><p>כאשר צריך לבדוק שלושה איברים שונים, משתמשים בשלוש לולאות. כל לולאה מתחילה אחרי הקודמת כדי למנוע חזרות.</p><pre class="code mini-code" dir="ltr">static boolean hasTripletWithSum(int[] arr, int target)
+}</pre><div class="example"><strong>תבנית:</strong> <code>j &lt; arr[i]</code> — תלות בערך ולא רק באינדקס.</div></div><h2 class="sectionTitle">13. שלשות איברים</h2><div class="card purple"><h3>האם יש שלשה שסכומה שווה ליעד?</h3><p>כאשר צריך לבדוק שלושה איברים שונים, משתמשים בשלוש לולאות. כל לולאה מתחילה אחרי הקודמת כדי למנוע חזרות.</p><pre class="code mini-code" dir="ltr">static boolean hasTripletWithSum(int[] arr, int target)
 {
     boolean found = false;
 
@@ -660,9 +644,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return found;
-}</pre><div class="example"><strong>כלל:</strong> <code>i &lt; j &lt; k</code> מבטיח שכל שלשה תיבדק פעם אחת בלבד.</div></div>
-<h2 class="sectionTitle">14. תבניות צוברים ומונים</h2>
-<table>
+}</pre><div class="example"><strong>כלל:</strong> <code>i &lt; j &lt; k</code> מבטיח שכל שלשה תיבדק פעם אחת בלבד.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>13 / 15</span></footer></section><section aria-label="עמוד 14" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">14. תבניות צוברים ומונים</h2><table>
 <thead><tr><th>מטרה</th><th>איפה מאתחלים?</th><th>מדוע?</th></tr></thead>
 <tbody>
 <tr><td>סכום לכל איבר ביחס לאחרים</td><td class="op">inside outer loop</td><td>כל איבר צריך סכום חדש משלו.</td></tr>
@@ -671,8 +653,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td>מקסימום כללי</td><td class="op">before both loops</td><td>המקסימום צריך להישמר לאורך כל הבדיקות.</td></tr>
 <tr><td>בדיקת תנאי מקומי</td><td class="op">inside outer loop</td><td>לדוגמה: האם האיבר הנוכחי הופיע קודם.</td></tr>
 </tbody>
-</table>
-<div class="card ok"><h3>דוגמה: סכום כל הזוגות שבהם האיבר הראשון קטן מהשני</h3><p>זה צובר כללי ולכן מאתחלים אותו לפני שתי הלולאות.</p><pre class="code " dir="ltr">static int sumPairsWhereFirstSmaller(int[] arr)
+</table><div class="card ok"><h3>דוגמה: סכום כל הזוגות שבהם האיבר הראשון קטן מהשני</h3><p>זה צובר כללי ולכן מאתחלים אותו לפני שתי הלולאות.</p><pre class="code" dir="ltr">static int sumPairsWhereFirstSmaller(int[] arr)
 {
     int sum = 0;
 
@@ -685,9 +666,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         }
     }
     return sum;
-}</pre><div class="example"><strong>תבנית:</strong> זוגות + תנאי + צובר כללי.</div></div>
-<h2 class="sectionTitle">15. טבלת מעקב קצרה</h2>
-<div class="card white"><h3>מעקב אחר התבנית j = i + 1</h3><p>במערך באורך 5, אלה ערכי <code>j</code> עבור כל <code>i</code>:</p><table>
+}</pre><div class="example"><strong>תבנית:</strong> זוגות + תנאי + צובר כללי.</div></div><h2 class="sectionTitle">15. טבלת מעקב קצרה</h2><div class="card white"><h3>מעקב אחר התבנית j = i + 1</h3><p>במערך באורך 5, אלה ערכי <code>j</code> עבור כל <code>i</code>:</p><table>
 <thead><tr><th>i</th><th>ערכי j</th><th>זוגות אינדקסים</th></tr></thead>
 <tbody>
 <tr><td class="op">0</td><td class="op">1, 2, 3, 4</td><td class="op">(0,1), (0,2), (0,3), (0,4)</td></tr>
@@ -696,8 +675,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td class="op">3</td><td class="op">4</td><td class="op">(3,4)</td></tr>
 <tr><td class="op">4</td><td class="op">none</td><td>אין זוגות נוספים</td></tr>
 </tbody>
-</table></div>
-<table>
+</table></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>14 / 15</span></footer></section><section aria-label="עמוד 15" class="a4-page"><div class="a4-content"><table>
 <thead><tr><th>תבנית</th><th>מספר בדיקות בקירוב</th><th>משמעות</th></tr></thead>
 <tbody>
 <tr><td class="op">for i=0..n-1, for j=0..n-1</td><td class="op">n * n</td><td>כל הזוגות כאשר הסדר חשוב.</td></tr>
@@ -706,9 +684,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td class="op">for start=0..n-1, for end=start..n-1</td><td class="op">n(n+1)/2</td><td>כל התחומים הרציפים לפי התחלה וסוף.</td></tr>
 <tr><td class="op">3 nested loops</td><td class="op">about n * n * n</td><td>בדיקת שלשות או תחום עם מעבר פנימי נוסף.</td></tr>
 </tbody>
-</table>
-<h2 class="sectionTitle">16. דף החלטה מהיר</h2>
-<table>
+</table><h2 class="sectionTitle">16. דף החלטה מהיר</h2><table>
 <thead><tr><th>השאלה מבקשת...</th><th>מה בוחרת הלולאה החיצונית?</th><th>מה עושה הפנימית?</th></tr></thead>
 <tbody>
 <tr><td>כל זוג איברים</td><td>האיבר הראשון בזוג</td><td>האיברים שאחריו בלבד</td></tr>
@@ -722,8 +698,6 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td>השוואת שני מערכים</td><td>איבר מהמערך הראשון</td><td>חיפוש במערך השני</td></tr>
 <tr><td>שלשות</td><td>איבר ראשון</td><td>איבר שני ואז איבר שלישי אחריו</td></tr>
 </tbody>
-</table>
-<div class="foot">
+</table><div class="foot">
 <strong>כלל עבודה מומלץ:</strong> שאלו את עצמכם: האם <code>j</code> צריך לרוץ על כל המערך, רק לפני <code>i</code>, רק אחרי <code>i</code>, או בתחום שמתחיל ב־<code>i</code>? התשובה קובעת כמעט תמיד את גבולות הלולאה הפנימית.
-</div>
-</main></body></html>
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערך חד־ממדי Java</span><span>15 / 15</span></footer></section></main></body></html>
