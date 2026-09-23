@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html dir="rtl" lang="he"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>דף עזר לבגרות — מחלקות שירות C# — גרסת עמודה אחת</title>
 <style>
@@ -144,7 +145,40 @@ pre code, .code code { color:inherit; font-weight:inherit; }
   a{ color:inherit; text-decoration:none; }
 }
 </style>
-</head><body><main class="doc"><header class="hero">
+<style id="a4-layout">/* One section is one physical A4 sheet. Content is never clipped or scrolled. */
+@page { size: A4 portrait; margin: 0; @bottom-center { content: none; } }
+html, body { margin: 0; padding: 0; background: #e8edf4; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+main.doc { width: 210mm; max-width: none; margin: 0 auto; padding: 0; background: transparent; }
+section.a4-page {
+  box-sizing: border-box; position: relative; display: block;
+  width: 210mm; height: 297mm; min-height: 297mm;
+  padding: 12mm 12mm 16mm; margin: 8mm 0;
+  background: white; box-shadow: 0 3px 18px #21334d20;
+  break-after: page; page-break-after: always; break-inside: avoid;
+  overflow: visible;
+}
+section.a4-page:last-child { break-after: auto; page-break-after: auto; }
+.a4-content { display: flow-root; width: 100%; height: 269mm; }
+.a4-content > :first-child { margin-top: 0; }
+.a4-content h1, .a4-content h2, .a4-content h3 { line-height: 1.5; }
+.a4-content .inline-expression { direction: ltr; unicode-bidi: isolate; white-space: normal; overflow-wrap: anywhere; }
+.a4-content * { min-width: 0; max-width: 100%; }
+.a4-content pre { white-space: pre-wrap !important; overflow-wrap: anywhere; overflow: visible !important; max-height: none !important; }
+.a4-content table { table-layout: fixed; width: 100%; }
+.a4-content td, .a4-content th { overflow-wrap: anywhere; }
+.a4-content img, .a4-content svg { max-width: 100%; height: auto; }
+.a4-content .grid2, .a4-content .grid3, .a4-content .twoCols,
+.a4-content .oneCol, .a4-content .fourTips, .a4-content .sortCompare { display: block !important; }
+.a4-content .card { margin-bottom: 8px; }
+.a4-page-footer { position: absolute; bottom: 7mm; left: 12mm; right: 12mm; border-top: 1px solid #ccd8e8; padding-top: 2mm; font: 10px Arial, sans-serif; color: #506581; display: flex; justify-content: space-between; direction: rtl; }
+.a4-page-footer span:last-child { direction: ltr; unicode-bidi: isolate; }
+@media print {
+  html, body { background: white; }
+  main.doc { width: 210mm; margin: 0; }
+  section.a4-page { margin: 0; box-shadow: none; }
+}
+</style></head><body><main class="doc"><section aria-label="עמוד 1" class="a4-page"><div class="a4-content"><header class="hero">
 <div class="hero-top">
 <div>
 <h1 class="title">דף עזר לבחינת הבגרות — מחלקות שירות ב־#C</h1>
@@ -160,10 +194,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 במצגת מופיעים שני סוגי שירות מרכזיים: <code>Math</code> היא מחלקת שירות סטטית מובנית; <code>Random</code> היא מחלקה שממנה יוצרים עצם אחד, ואז מפיקים בעזרתו מספרים אקראיים. הכלל החשוב: <code>rnd.Next(a, b)</code> מחזיר ערך בתחום <span class="formula">a ≤ x &lt; b</span>, כלומר הגבול העליון אינו נכלל.
 </div>
 </div>
-</header>
-
-<h2 class="sectionTitle">1. פירוק הנושא למרכיבים</h2>
-<table class="map">
+</header><h2 class="sectionTitle">1. פירוק הנושא למרכיבים</h2><table class="map">
 <thead><tr><th>מרכיב</th><th>תפקיד</th><th>תבנית שימוש</th></tr></thead>
 <tbody>
 <tr><td>מחלקת שירות</td><td>אוסף פעולות עזר שניתן להשתמש בהן ממקומות שונים בתוכנית.</td><td class="op">ServiceClass.Action(...)</td></tr>
@@ -172,16 +203,13 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td><span class="ltr" dir="ltr">Random</span></td><td>מחלקה להגרלת מספרים. יוצרים עצם פעם אחת ומשתמשים בו שוב ושוב.</td><td class="op">Random rnd = new Random();</td></tr>
 <tr><td>אלגוריתם</td><td>רצף שלבים: קלט, חישוב, שימוש בפעולות שירות, פלט.</td><td class="op">input → calculate → output</td></tr>
 </tbody>
-</table>
-<div class="grid2 tight" data-layout="one-column">
-<div class="card ok">
+</table><div class="card ok">
 <h3>למה משתמשים במחלקת שירות?</h3>
 <div class="rule"><span class="num">1</span><span>חוסכת כתיבה חוזרת של אותו קוד בכמה מחלקות.</span></div>
 <div class="rule"><span class="num">2</span><span>מאפשרת להשתמש בקוד שכבר נבדק ועובד.</span></div>
 <div class="rule"><span class="num">3</span><span>מפרידה בין הלוגיקה הכללית לבין תוכנית הקלט והפלט.</span></div>
 <div class="rule"><span class="num">4</span><span>מייצרת קוד קריא: שם המחלקה מספר לאיזה תחום שייכות הפעולות.</span></div>
-</div>
-<div class="card warn">
+</div><div class="card warn">
 <h3>כלל בחינה חשוב</h3>
 <p>פעולת שירות טובה צריכה לקבל נתונים כפרמטרים ולהחזיר תוצאה. בדרך כלל אין צורך להדפיס מתוך פעולת השירות. ההדפסה תישאר ב־<code>Main</code>.</p>
 <pre class="code" dir="ltr">// Recommended: return the result
@@ -189,11 +217,7 @@ static double CircleArea(double r)
 {
     return Math.PI * r * r;
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">2. תבנית לבניית מחלקת שירות משלנו</h2>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>1 / 9</span></footer></section><section aria-label="עמוד 2" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">2. תבנית לבניית מחלקת שירות משלנו</h2><div class="card purple">
 <h3>שלד בסיסי</h3>
 <p>כאשר כל הפעולות במחלקה הן פעולות עזר, נוח להגדיר את המחלקה כ־<code>static</code>.</p>
 <pre class="code" dir="ltr">public static class NumberService
@@ -209,9 +233,7 @@ static double CircleArea(double r)
     }
 }</pre>
 <div class="example"><strong>שימוש:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(NumberService.IsEven(24)); // True</code></span></div>
-</div>
-<div class="grid2 tight" data-layout="one-column">
-<div class="card white">
+</div><div class="card white">
 <h3>תבנית פעולה שמחזירה ערך</h3>
 <div class="signature" dir="ltr">public static returnType ActionName(parameters)</div>
 <pre class="code" dir="ltr">public static double Average(double a, double b)
@@ -219,8 +241,7 @@ static double CircleArea(double r)
     return (a + b) / 2;
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>double avg = NumberService.Average(10, 16); // 13</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>תבנית פעולה בוליאנית</h3>
 <div class="signature" dir="ltr">public static bool IsSomething(parameters)</div>
 <pre class="code" dir="ltr">public static bool IsPositive(double x)
@@ -228,9 +249,7 @@ static double CircleArea(double r)
     return x &gt; 0;
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(NumberService.IsPositive(-3)); // False</code></span></div>
-</div>
-</div>
-<div class="card bad tight">
+</div><div class="card bad tight">
 <h3>טעויות נפוצות בבניית מחלקת שירות</h3>
 <div class="avoid" data-layout="one-column">
 <span>להדפיס בתוך פעולה שאמורה רק לחשב</span>
@@ -238,10 +257,7 @@ static double CircleArea(double r)
 <span>לשכוח ש־rnd.Next(a, b) לא כולל את b</span>
 <span>לשמור תוצאה של Math.Sqrt בתוך int בלי המרה מפורשת</span>
 </div>
-</div>
-
-<h2 class="sectionTitle">3. פעולות מרכזיות במחלקה Math</h2>
-<table>
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>2 / 9</span></footer></section><section aria-label="עמוד 3" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">3. פעולות מרכזיות במחלקה Math</h2><table>
 <thead><tr><th>פעולה</th><th>מה מקבלים?</th><th>דוגמה קצרה</th></tr></thead>
 <tbody>
 <tr><td class="op">Math.Abs(x)</td><td>ערך מוחלט. אם הקלט שלם — התוצאה שלמה; אם הקלט ממשי — התוצאה ממשית.</td><td class="ltr" dir="ltr"><code>int a = Math.Abs(-4); // 4</code></td></tr>
@@ -252,16 +268,12 @@ static double CircleArea(double r)
 <tr><td class="op">Math.Max(a, b)</td><td>הגדול מבין שני ערכים.</td><td class="ltr" dir="ltr"><code>int m = Math.Max(8, 3); // 8</code></td></tr>
 <tr><td class="op">Math.Min(a, b)</td><td>הקטן מבין שני ערכים.</td><td class="ltr" dir="ltr"><code>int m = Math.Min(8, 3); // 3</code></td></tr>
 </tbody>
-</table>
-<div class="card warn tight">
+</table><div class="card warn tight">
 <h3>המרות טיפוסים עם Math</h3>
 <p>פעולות כמו <code>Math.Sqrt</code> ו־<code>Math.Pow</code> מחזירות בדרך כלל <code>double</code>. אם רוצים לשמור ב־<code>int</code>, חייבים לבצע המרה, אך החלק השבור נחתך.</p>
 <pre class="code" dir="ltr">double x = Math.Sqrt(45);     // 6.708...
 int y = (int)Math.Sqrt(45);   // 6</pre>
-</div>
-
-<h2 class="sectionTitle">4. תבניות אלגוריתמיות עם Math</h2>
-<div class="card white">
+</div><h2 class="sectionTitle">4. תבניות אלגוריתמיות עם Math</h2><div class="card white">
 <h3>חישוב יתר במשולש ישר זווית</h3>
 <div class="signature" dir="ltr">static double Hypotenuse(double a, double b)</div>
 <pre class="code" dir="ltr">static double Hypotenuse(double a, double b)
@@ -269,8 +281,7 @@ int y = (int)Math.Sqrt(45);   // 6</pre>
     return Math.Sqrt(Math.Pow(a, 2) + Math.Pow(b, 2));
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(Hypotenuse(3, 4)); // 5</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>שטח והיקף משולש ישר זווית</h3>
 <div class="signature" dir="ltr">static double RightTriangleArea(double a, double b)</div>
 <pre class="code" dir="ltr">static double RightTriangleArea(double a, double b)
@@ -284,8 +295,7 @@ static double RightTrianglePerimeter(double a, double b)
     return a + b + c;
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(RightTrianglePerimeter(3, 4)); // 12</code></span></div>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>3 / 9</span></footer></section><section aria-label="עמוד 4" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>נוסחת הרון לשטח משולש כללי</h3>
 <p>קלט: שלוש צלעות <span class="formula">a, b, c</span>. מחשבים חצי היקף <span class="formula">p</span>, ואז שטח.</p>
 <div class="signature" dir="ltr">static double HeronArea(double a, double b, double c)</div>
@@ -295,8 +305,7 @@ static double RightTrianglePerimeter(double a, double b)
     return Math.Sqrt(p * (p - a) * (p - b) * (p - c));
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(HeronArea(3, 4, 5)); // 6</code></span></div>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>אורך תיכון לצלע במשולש</h3>
 <p>תבנית שימושית כאשר נתונות שלוש צלעות ורוצים לחשב תיכון לצלע <span class="formula">a</span>.</p>
 <div class="signature" dir="ltr">static double MedianToA(double a, double b, double c)</div>
@@ -305,8 +314,7 @@ static double RightTrianglePerimeter(double a, double b)
     return Math.Sqrt((2 * b * b + 2 * c * c - a * a) / 4);
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(MedianToA(6, 5, 5));</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>הפרדת חלק שלם וחלק עשרוני</h3>
 <p>משמש בתרגילים שבהם קולטים מספר ממשי ורוצים להדפיס את שני המרכיבים שלו.</p>
 <pre class="code" dir="ltr">static int WholePart(double x)
@@ -320,10 +328,7 @@ static double FractionPart(double x)
     return Math.Abs(x - whole);
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(FractionPart(12.75)); // 0.75</code></span></div>
-</div>
-
-<h2 class="sectionTitle">5. אלגוריתם מלא: קלט, חישוב, פלט</h2>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>4 / 9</span></footer></section><section aria-label="עמוד 5" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">5. אלגוריתם מלא: קלט, חישוב, פלט</h2><div class="card purple">
 <h3>תוכנית לדוגמה — משולש ישר זווית</h3>
 <p>הפעולות נמצאות במחלקת שירות, ו־<code>Main</code> אחראית על הקלט והפלט.</p>
 <pre class="code" dir="ltr">using System;
@@ -366,10 +371,7 @@ public class Program
         Console.WriteLine("Perimeter = " + perimeter);
     }
 }</pre>
-</div>
-
-<h2 class="sectionTitle">6. פעולות מרכזיות במחלקה Random</h2>
-<table>
+</div><h2 class="sectionTitle">6. פעולות מרכזיות במחלקה Random</h2><table>
 <thead><tr><th>פעולה</th><th>תחום התוצאה</th><th>דוגמה</th></tr></thead>
 <tbody>
 <tr><td class="op">new Random()</td><td>יוצר עצם שבעזרתו מגרילים מספרים.</td><td class="ltr" dir="ltr"><code>Random rnd = new Random();</code></td></tr>
@@ -377,25 +379,18 @@ public class Program
 <tr><td class="op">rnd.Next(n)</td><td><span class="formula">0 ≤ x &lt; n</span></td><td class="ltr" dir="ltr"><code>int x = rnd.Next(10); // 0..9</code></td></tr>
 <tr><td class="op">rnd.Next(a, b)</td><td><span class="formula">a ≤ x &lt; b</span></td><td class="ltr" dir="ltr"><code>int x = rnd.Next(1, 7); // 1..6</code></td></tr>
 </tbody>
-</table>
-<div class="grid2 tight" data-layout="one-column">
-<div class="card ok">
+</table></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>5 / 9</span></footer></section><section aria-label="עמוד 6" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>תבנית להגרלת מספר בתחום כולל</h3>
 <p>כדי להגריל מספר שלם מ־<span class="formula">min</span> עד <span class="formula">max</span> כולל שניהם, מוסיפים 1 לגבול העליון.</p>
 <pre class="code" dir="ltr">int x = rnd.Next(min, max + 1);</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>int die = rnd.Next(1, 7); // 1..6</code></span></div>
-</div>
-<div class="card warn">
+</div><div class="card warn">
 <h3>כלל שימוש ב־Random</h3>
 <p>יוצרים את העצם פעם אחת בלבד בתחילת התוכנית או בתחילת הפעולה הראשית, ולא בכל הגרלה.</p>
 <pre class="code" dir="ltr">Random rnd = new Random();
 int a = rnd.Next(1, 7);
 int b = rnd.Next(1, 7);</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">7. תבניות אלגוריתמיות עם Random</h2>
-<div class="card white">
+</div><h2 class="sectionTitle">7. תבניות אלגוריתמיות עם Random</h2><div class="card white">
 <h3>הטלת קובייה אחת</h3>
 <div class="signature" dir="ltr">static int RollDie(Random rnd)</div>
 <pre class="code" dir="ltr">static int RollDie(Random rnd)
@@ -403,8 +398,7 @@ int b = rnd.Next(1, 7);</pre>
     return rnd.Next(1, 7);
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(RollDie(rnd)); // 1..6</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>הטלת שתי קוביות וחישוב סכום</h3>
 <div class="signature" dir="ltr">static int SumTwoDice(Random rnd)</div>
 <pre class="code" dir="ltr">static int SumTwoDice(Random rnd)
@@ -414,8 +408,7 @@ int b = rnd.Next(1, 7);</pre>
     return d1 + d2;
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(SumTwoDice(rnd)); // 2..12</code></span></div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>הגרלת מספר ממשי עם שתי ספרות אחרי הנקודה</h3>
 <p>מגרילים מספר שלם, מחלקים ב־100.0, ואז אפשר לעגל לפי הצורך.</p>
 <div class="signature" dir="ltr">static double RandomTwoDecimals(Random rnd, int min, int max)</div>
@@ -425,8 +418,7 @@ int b = rnd.Next(1, 7);</pre>
     return value / 100.0;
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>double x = RandomTwoDecimals(rnd, 1, 10); // 1.00..10.00</code></span></div>
-</div>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>6 / 9</span></footer></section><section aria-label="עמוד 7" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>הגרלת מטבע וספירת מספר הפעמים שיצא עץ</h3>
 <div class="signature" dir="ltr">static int CountHeads(Random rnd, int times)</div>
 <pre class="code" dir="ltr">static int CountHeads(Random rnd, int times)
@@ -441,8 +433,7 @@ int b = rnd.Next(1, 7);</pre>
     return count;
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountHeads(rnd, 4));</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>משחק ניחוש במספר אחד</h3>
 <p>הפעולה מחזירה הודעה קצרה לפי הניחוש. את הקלט וההדפסה מבצעים ב־<code>Main</code>.</p>
 <div class="signature" dir="ltr">static string CheckGuess(int secret, int guess)</div>
@@ -456,10 +447,7 @@ int b = rnd.Next(1, 7);</pre>
 
     return "Too high";
 }</pre>
-</div>
-
-<h2 class="sectionTitle">8. יצירת מחלקת שירות להגרלות</h2>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>7 / 9</span></footer></section><section aria-label="עמוד 8" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">8. יצירת מחלקת שירות להגרלות</h2><div class="card purple">
 <h3>מחלקת שירות RandomService</h3>
 <p>המחלקה מקבלת את העצם <code>Random</code> כפרמטר. כך לא יוצרים אותו מחדש בכל פעולה.</p>
 <pre class="code" dir="ltr">public static class RandomService
@@ -486,13 +474,12 @@ int b = rnd.Next(1, 7);</pre>
 
     public static char RandomSpecial(Random rnd)
     {
-        string symbols = "!@#$%^&*";
+        string symbols = "!@#$%^&amp;*";
         int index = rnd.Next(symbols.Length);
         return symbols[index];
     }
 }</pre>
-</div>
-<div class="card ok tight">
+</div><div class="card ok tight">
 <h3>אלגוריתם סיסמה לפי מבנה קבוע</h3>
 <p>מבנה לדוגמה: 2 אותיות גדולות, 2 ספרות, 2 תווים מיוחדים, 6 אותיות קטנות.</p>
 <pre class="code" dir="ltr">static string BuildPassword(Random rnd)
@@ -514,10 +501,7 @@ int b = rnd.Next(1, 7);</pre>
     return password;
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(BuildPassword(rnd));</code></span></div>
-</div>
-
-<h2 class="sectionTitle">9. מפת בחירה מהירה: איזו תבנית לבחור?</h2>
-<table class="map">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>8 / 9</span></footer></section><section aria-label="עמוד 9" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">9. מפת בחירה מהירה: איזו תבנית לבחור?</h2><table class="map">
 <thead><tr><th>ניסוח בשאלה</th><th>התבנית המתאימה</th><th>פעולות שימושיות</th></tr></thead>
 <tbody>
 <tr><td>חשב שורש / יתר / מרחק</td><td>חישוב מתמטי עם שורש.</td><td class="op">Math.Sqrt</td></tr>
@@ -529,8 +513,6 @@ int b = rnd.Next(1, 7);</pre>
 <tr><td>בנה סיסמה / בחר תו</td><td>הגרלת קוד ASCII והמרה ל־char.</td><td class="op">(char)rnd.Next('A', 'Z' + 1)</td></tr>
 <tr><td>אותה פעולה חוזרת בכמה תוכניות</td><td>להעביר למחלקת שירות משלך.</td><td class="op">public static class ...</td></tr>
 </tbody>
-</table>
-<div class="foot">
+</table><div class="foot">
 <strong>כלל עבודה מומלץ:</strong> בכל שאלה סמנו קודם האם הפעולה היא חישובית, אקראית, או פעולת עזר כללית. חישוב מתמטי מתאים ל־<code>Math</code>; הגרלה מתאימה ל־<code>Random</code>; קוד שחוזר על עצמו מתאים למחלקת שירות משלכם.
-</div>
-</main></body></html>
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות שירות C#</span><span>9 / 9</span></footer></section></main></body></html>

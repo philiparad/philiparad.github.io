@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html dir="rtl" lang="he">
 <head>
 <meta charset="utf-8"/>
@@ -147,10 +148,42 @@ pre code, .code code { color:inherit; font-weight:inherit; }
   a{ color:inherit; text-decoration:none; }
 }
 </style>
-</head>
+<style id="a4-layout">/* One section is one physical A4 sheet. Content is never clipped or scrolled. */
+@page { size: A4 portrait; margin: 0; @bottom-center { content: none; } }
+html, body { margin: 0; padding: 0; background: #e8edf4; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+main.doc { width: 210mm; max-width: none; margin: 0 auto; padding: 0; background: transparent; }
+section.a4-page {
+  box-sizing: border-box; position: relative; display: block;
+  width: 210mm; height: 297mm; min-height: 297mm;
+  padding: 12mm 12mm 16mm; margin: 8mm 0;
+  background: white; box-shadow: 0 3px 18px #21334d20;
+  break-after: page; page-break-after: always; break-inside: avoid;
+  overflow: visible;
+}
+section.a4-page:last-child { break-after: auto; page-break-after: auto; }
+.a4-content { display: flow-root; width: 100%; height: 269mm; }
+.a4-content > :first-child { margin-top: 0; }
+.a4-content h1, .a4-content h2, .a4-content h3 { line-height: 1.5; }
+.a4-content .inline-expression { direction: ltr; unicode-bidi: isolate; white-space: normal; overflow-wrap: anywhere; }
+.a4-content * { min-width: 0; max-width: 100%; }
+.a4-content pre { white-space: pre-wrap !important; overflow-wrap: anywhere; overflow: visible !important; max-height: none !important; }
+.a4-content table { table-layout: fixed; width: 100%; }
+.a4-content td, .a4-content th { overflow-wrap: anywhere; }
+.a4-content img, .a4-content svg { max-width: 100%; height: auto; }
+.a4-content .grid2, .a4-content .grid3, .a4-content .twoCols,
+.a4-content .oneCol, .a4-content .fourTips, .a4-content .sortCompare { display: block !important; }
+.a4-content .card { margin-bottom: 8px; }
+.a4-page-footer { position: absolute; bottom: 7mm; left: 12mm; right: 12mm; border-top: 1px solid #ccd8e8; padding-top: 2mm; font: 10px Arial, sans-serif; color: #506581; display: flex; justify-content: space-between; direction: rtl; }
+.a4-page-footer span:last-child { direction: ltr; unicode-bidi: isolate; }
+@media print {
+  html, body { background: white; }
+  main.doc { width: 210mm; margin: 0; }
+  section.a4-page { margin: 0; box-shadow: none; }
+}
+</style></head>
 <body>
-<main class="doc">
-<header class="hero">
+<main class="doc"><section aria-label="עמוד 1" class="a4-page"><div class="a4-content"><header class="hero">
 <div class="hero-top">
 <div>
 <h1 class="title">דף עזר לבחינת הבגרות — מחלקות ואובייקטים ב־C#</h1>
@@ -166,10 +199,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         בדף זה לא עוסקים בירושה, פולימורפיזם, <code>abstract</code>, <code>virtual</code> או <code>override</code> למעט <code>ToString</code>. הדגש הוא על מחלקה רגילה, אובייקטים, פעולה בונה, פעולה בונה מעתיקה ומערך אובייקטים.
       </div>
 </div>
-</header>
-
-<h2 class="sectionTitle">1. פירוק הנושא למרכיבים</h2>
-<table class="map">
+</header><h2 class="sectionTitle">1. פירוק הנושא למרכיבים</h2><table class="map">
 <thead><tr><th>מרכיב</th><th>משמעות</th><th>תבנית קצרה</th></tr></thead>
 <tbody>
 <tr><td>מחלקה</td><td>תיאור של סוג עצמים: אילו שדות יש ומה הפעולות שאפשר לבצע.</td><td class="op">class Student { ... }</td></tr>
@@ -182,20 +212,13 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td>הכלת מערך אובייקטים</td><td>מחלקה שמחזיקה בתוכה מערך של אובייקטים, למשל כיתה שמכילה תלמידים.</td><td class="op">private Student[] students;</td></tr>
 <tr><td><code>null</code></td><td>תא שאין בו אובייקט. אסור להפעיל עליו פעולות לפני בדיקה.</td><td class="op">if (arr[i] != null)</td></tr>
 </tbody>
-</table>
-
-<div class="grid2 tight" data-layout="one-column">
-<div class="card warn">
+</table><div class="card warn">
 <h3>כלל חשוב למערך אובייקטים</h3>
 <div class="rule"><span class="num">1</span><span><code>new Student[30]</code> יוצר 30 תאים, אך לא יוצר 30 תלמידים.</span></div>
 <div class="rule"><span class="num">2</span><span>כל תא במערך מתחיל כ־<code>null</code>.</span></div>
 <div class="rule"><span class="num">3</span><span>לפני כתיבה כמו <code>arr[i].GetGrade()</code> חייבים לוודא ש־<code>arr[i] != null</code>.</span></div>
 <div class="rule"><span class="num">4</span><span>אם מנהלים מערך בתוך מחלקה, מומלץ להחזיק גם משתנה <code>count</code> שמייצג כמה אובייקטים קיימים בפועל.</span></div>
-</div>
-</div>
-
-<h2 class="sectionTitle">2. תבנית מחלקה בסיסית</h2>
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>1 / 14</span></footer></section><section aria-label="עמוד 2" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">2. תבנית מחלקה בסיסית</h2><div class="card white">
 <h3>מחלקת <span class="ltr">Student</span> עם שדות, פעולה בונה, פעולות גישה ו־<span class="ltr">ToString</span></h3>
 <pre class="code" dir="ltr">public class Student
 {
@@ -236,30 +259,21 @@ pre code, .code code { color:inherit; font-weight:inherit; }
     }
 }</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Student s = new Student("Dana", 123, 90); Console.WriteLine(s);</code></span></div>
-</div>
-
-<div class="grid2 tight" data-layout="one-column">
-<div class="card ok">
+</div><div class="card ok">
 <h3>למה משתמשים ב־<span class="ltr">this</span>?</h3>
 <p>כאשר שם הפרמטר זהה לשם השדה, <code>this.grade</code> מתייחס לשדה של האובייקט, ו־<code>grade</code> מתייחס לפרמטר.</p>
 <pre class="code mini-code" dir="ltr">public void SetGrade(int grade)
 {
     this.grade = grade;
 }</pre>
-</div>
-<div class="card bad">
+</div><div class="card bad">
 <h3>טעות נפוצה</h3>
 <p>הקוד הבא לא משנה את השדה, כי הוא מציב את הפרמטר לתוך עצמו.</p>
 <pre class="code mini-code" dir="ltr">public void SetGrade(int grade)
 {
     grade = grade;   // Wrong
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">3. פעולה בונה ופעולה בונה מעתיקה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>2 / 14</span></footer></section><section aria-label="עמוד 3" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">3. פעולה בונה ופעולה בונה מעתיקה</h2><div class="card white">
 <h3>פעולה בונה רגילה</h3>
 <p>משתמשים בה כאשר יוצרים אובייקט חדש מנתונים רגילים.</p>
 <div class="signature" dir="ltr">public Student(string name, int id, int grade)</div>
@@ -269,8 +283,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
     this.id = id;
     this.grade = grade;
 }</pre>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>פעולה בונה מעתיקה</h3>
 <p>יוצרת אובייקט חדש עם אותם ערכים של אובייקט קיים. האובייקט החדש אינו אותה הפניה.</p>
 <div class="signature" dir="ltr">public Student(Student other)</div>
@@ -281,10 +294,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
     this.grade = other.grade;
 }</pre>
 <div class="example"><span class="ltr" dir="ltr"><code>Student copy = new Student(original);</code></span></div>
-</div>
-</div>
-
-<div class="card warn tight">
+</div><div class="card warn tight">
 <h3>הבדל בין העתקת הפניה לבין העתקת אובייקט</h3>
 <pre class="code" dir="ltr">Student a = new Student("Noa", 111, 95);
 Student b = a;              // Same object, same reference
@@ -295,45 +305,32 @@ Console.WriteLine(a.GetGrade()); // 70, because a and b point to the same object
 
 c.SetGrade(100);
 Console.WriteLine(a.GetGrade()); // 70, c is a separate object</pre>
-</div>
-
-<h2 class="sectionTitle">4. פעולות פנימיות בתוך המחלקה</h2>
-<p>פעולה פנימית היא פעולה שמוגדרת בתוך המחלקה ולכן יש לה גישה ישירה לשדות הפרטיים של אותו אובייקט.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div><h2 class="sectionTitle">4. פעולות פנימיות בתוך המחלקה</h2><p>פעולה פנימית היא פעולה שמוגדרת בתוך המחלקה ולכן יש לה גישה ישירה לשדות הפרטיים של אותו אובייקט.</p><div class="card ok">
 <h3>בדיקת תנאי על אובייקט אחד</h3>
 <div class="signature" dir="ltr">public bool IsPassing()</div>
 <pre class="code" dir="ltr">public bool IsPassing()
 {
-    return grade >= 55;
+    return grade &gt;= 55;
 }</pre>
 <div class="example"><span class="ltr" dir="ltr"><code>if (s.IsPassing()) Console.WriteLine(s);</code></span></div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>שינוי מצב פנימי של אובייקט</h3>
 <div class="signature" dir="ltr">public void AddBonus(int points)</div>
 <pre class="code" dir="ltr">public void AddBonus(int points)
 {
     grade = grade + points;
-    if (grade > 100)
+    if (grade &gt; 100)
         grade = 100;
 }</pre>
-</div>
-</div>
-<div class="card white tight">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>3 / 14</span></footer></section><section aria-label="עמוד 4" class="a4-page"><div class="a4-content"><div class="card white tight">
 <h3>תבנית פעולה פנימית שמקבלת אובייקט אחר</h3>
 <p>הפעולה נמצאת בתוך המחלקה, אבל משווה בין האובייקט הנוכחי לבין אובייקט נוסף.</p>
 <div class="signature" dir="ltr">public bool HasHigherGradeThan(Student other)</div>
 <pre class="code" dir="ltr">public bool HasHigherGradeThan(Student other)
 {
-    return this.grade > other.grade;
+    return this.grade &gt; other.grade;
 }</pre>
-</div>
-
-<h2 class="sectionTitle">5. פעולות חיצוניות על אובייקטים</h2>
-<p>פעולה חיצונית אינה נמצאת בתוך מחלקת האובייקט. לכן היא משתמשת בפעולות ציבוריות כמו <code>GetGrade</code> ולא בשדות הפרטיים.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card purple">
+</div><h2 class="sectionTitle">5. פעולות חיצוניות על אובייקטים</h2><p>פעולה חיצונית אינה נמצאת בתוך מחלקת האובייקט. לכן היא משתמשת בפעולות ציבוריות כמו <code>GetGrade</code> ולא בשדות הפרטיים.</p><div class="card purple">
 <h3>הדפסת אובייקט מבחוץ</h3>
 <div class="signature" dir="ltr">static void PrintStudent(Student s)</div>
 <pre class="code" dir="ltr">static void PrintStudent(Student s)
@@ -341,8 +338,7 @@ Console.WriteLine(a.GetGrade()); // 70, c is a separate object</pre>
     if (s != null)
         Console.WriteLine(s);
 }</pre>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>השוואה חיצונית בין שני אובייקטים</h3>
 <div class="signature" dir="ltr">static Student BetterStudent(Student a, Student b)</div>
 <pre class="code" dir="ltr">static Student BetterStudent(Student a, Student b)
@@ -352,24 +348,18 @@ Console.WriteLine(a.GetGrade()); // 70, c is a separate object</pre>
     if (b == null)
         return a;
 
-    if (a.GetGrade() >= b.GetGrade())
+    if (a.GetGrade() &gt;= b.GetGrade())
         return a;
 
     return b;
 }</pre>
-</div>
-</div>
-
-<table class="tight">
+</div><table class="tight">
 <thead><tr><th>סוג פעולה</th><th>איפה היא נמצאת?</th><th>גישה לשדות פרטיים</th><th>מתי נשתמש?</th></tr></thead>
 <tbody>
 <tr><td>פעולה פנימית</td><td>בתוך המחלקה</td><td>כן</td><td>כאשר הפעולה שייכת טבעית לאובייקט עצמו.</td></tr>
 <tr><td>פעולה חיצונית</td><td>ב־<code>Program</code> או במחלקת שירות</td><td>לא</td><td>כאשר הפעולה עובדת על כמה אובייקטים, על מערך אובייקטים, או אינה חלק טבעי מהאובייקט.</td></tr>
 </tbody>
-</table>
-
-<h2 class="sectionTitle">6. יצירת מערך של אובייקטים ובדיקת <span class="ltr">null</span></h2>
-<div class="card bad">
+</table><h2 class="sectionTitle">6. יצירת מערך של אובייקטים ובדיקת <span class="ltr">null</span></h2><div class="card bad">
 <h3>יצירת מערך אינה יוצרת את האובייקטים שבתוכו</h3>
 <pre class="code" dir="ltr">Student[] arr = new Student[5];
 
@@ -380,61 +370,49 @@ Console.WriteLine(a.GetGrade()); // 70, c is a separate object</pre>
 
 arr[0] = new Student("Dana", 101, 90);
 arr[1] = new Student("Avi", 102, 78);</pre>
-</div>
-<div class="grid2 tight" data-layout="one-column">
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>4 / 14</span></footer></section><section aria-label="עמוד 5" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>תבנית סריקה בטוחה</h3>
 <div class="signature" dir="ltr">for + null check</div>
-<pre class="code" dir="ltr">for (int i = 0; i < arr.Length; i++)
+<pre class="code" dir="ltr">for (int i = 0; i &lt; arr.Length; i++)
 {
     if (arr[i] != null)
     {
         Console.WriteLine(arr[i]);
     }
 }</pre>
-</div>
-<div class="card bad">
+</div><div class="card bad">
 <h3>טעות נפוצה: הפעלה על <span class="ltr">null</span></h3>
-<pre class="code" dir="ltr">for (int i = 0; i < arr.Length; i++)
+<pre class="code" dir="ltr">for (int i = 0; i &lt; arr.Length; i++)
 {
     Console.WriteLine(arr[i].GetName()); // May crash if arr[i] is null
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">7. תבניות בסיסיות במערך אובייקטים</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">7. תבניות בסיסיות במערך אובייקטים</h2><div class="card white">
 <h3>ספירת אובייקטים קיימים</h3>
 <div class="signature" dir="ltr">static int CountNotNull(Student[] arr)</div>
 <pre class="code" dir="ltr">static int CountNotNull(Student[] arr)
 {
     int count = 0;
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
         if (arr[i] != null)
             count++;
     }
     return count;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>מציאת מקום פנוי ראשון</h3>
 <div class="signature" dir="ltr">static int FirstNullIndex(Student[] arr)</div>
 <pre class="code" dir="ltr">static int FirstNullIndex(Student[] arr)
 {
     int index = -1;
-    for (int i = 0; i < arr.Length && index == -1; i++)
+    for (int i = 0; i &lt; arr.Length &amp;&amp; index == -1; i++)
     {
         if (arr[i] == null)
             index = i;
     }
     return index;
 }</pre>
-</div>
-</div>
-<div class="grid2 tight" data-layout="one-column">
-<div class="card white">
+</div><div class="card white">
 <h3>הוספה למקום פנוי ראשון</h3>
 <div class="signature" dir="ltr">static bool AddStudent(Student[] arr, Student s)</div>
 <pre class="code" dir="ltr">static bool AddStudent(Student[] arr, Student s)
@@ -446,40 +424,33 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     arr[index] = s;
     return true;
 }</pre>
-</div>
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>5 / 14</span></footer></section><section aria-label="עמוד 6" class="a4-page"><div class="a4-content"><div class="card white">
 <h3>חיפוש לפי מזהה</h3>
 <div class="signature" dir="ltr">static int FindById(Student[] arr, int id)</div>
 <pre class="code" dir="ltr">static int FindById(Student[] arr, int id)
 {
     int index = -1;
-    for (int i = 0; i < arr.Length && index == -1; i++)
+    for (int i = 0; i &lt; arr.Length &amp;&amp; index == -1; i++)
     {
-        if (arr[i] != null && arr[i].GetId() == id)
+        if (arr[i] != null &amp;&amp; arr[i].GetId() == id)
             index = i;
     }
     return index;
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">8. צוברים, ממוצעים ותנאים במערך אובייקטים</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div><h2 class="sectionTitle">8. צוברים, ממוצעים ותנאים במערך אובייקטים</h2><div class="card ok">
 <h3>ספירת תלמידים עוברים</h3>
 <div class="signature" dir="ltr">static int CountPassing(Student[] arr)</div>
 <pre class="code" dir="ltr">static int CountPassing(Student[] arr)
 {
     int count = 0;
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
-        if (arr[i] != null && arr[i].IsPassing())
+        if (arr[i] != null &amp;&amp; arr[i].IsPassing())
             count++;
     }
     return count;
 }</pre>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>ממוצע ציונים של אובייקטים קיימים</h3>
 <div class="signature" dir="ltr">static double AverageGrade(Student[] arr)</div>
 <pre class="code" dir="ltr">static double AverageGrade(Student[] arr)
@@ -487,7 +458,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     int sum = 0;
     int count = 0;
 
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
         if (arr[i] != null)
         {
@@ -501,21 +472,18 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 
     return (double)sum / count;
 }</pre>
-</div>
-</div>
-
-<div class="card purple tight">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>6 / 14</span></footer></section><section aria-label="עמוד 7" class="a4-page"><div class="a4-content"><div class="card purple tight">
 <h3>מציאת האובייקט בעל הערך הגדול ביותר</h3>
 <div class="signature" dir="ltr">static Student BestStudent(Student[] arr)</div>
 <pre class="code" dir="ltr">static Student BestStudent(Student[] arr)
 {
     Student best = null;
 
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
         if (arr[i] != null)
         {
-            if (best == null || arr[i].GetGrade() > best.GetGrade())
+            if (best == null || arr[i].GetGrade() &gt; best.GetGrade())
                 best = arr[i];
         }
     }
@@ -523,11 +491,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     return best;
 }</pre>
 <div class="example"><strong>הערה:</strong> אם אין אף תלמיד במערך, הפעולה מחזירה <span class="ltr" dir="ltr"><code>null</code></span>.</div>
-</div>
-
-<h2 class="sectionTitle">9. מניפולציות על מערך אובייקטים</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">9. מניפולציות על מערך אובייקטים</h2><div class="card white">
 <h3>עדכון אובייקט לפי מזהה</h3>
 <div class="signature" dir="ltr">static bool UpdateGrade(Student[] arr, int id, int newGrade)</div>
 <pre class="code" dir="ltr">static bool UpdateGrade(Student[] arr, int id, int newGrade)
@@ -539,8 +503,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     arr[index].SetGrade(newGrade);
     return true;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>מחיקה פשוטה — הצבת <span class="ltr">null</span></h3>
 <div class="signature" dir="ltr">static bool DeleteById(Student[] arr, int id)</div>
 <pre class="code" dir="ltr">static bool DeleteById(Student[] arr, int id)
@@ -552,18 +515,14 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     arr[index] = null;
     return true;
 }</pre>
-</div>
-</div>
-
-<div class="grid2 tight" data-layout="one-column">
-<div class="card warn">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>7 / 14</span></footer></section><section aria-label="עמוד 8" class="a4-page"><div class="a4-content"><div class="card warn">
 <h3>כיווץ מערך: הזזת כל ה־<span class="ltr">null</span> לסוף</h3>
 <div class="signature" dir="ltr">static void Compact(Student[] arr)</div>
 <pre class="code" dir="ltr">static void Compact(Student[] arr)
 {
     int write = 0;
 
-    for (int read = 0; read < arr.Length; read++)
+    for (int read = 0; read &lt; arr.Length; read++)
     {
         if (arr[read] != null)
         {
@@ -572,21 +531,20 @@ arr[1] = new Student("Avi", 102, 78);</pre>
         }
     }
 
-    for (int i = write; i < arr.Length; i++)
+    for (int i = write; i &lt; arr.Length; i++)
     {
         arr[i] = null;
     }
 }</pre>
-</div>
-<div class="card warn">
+</div><div class="card warn">
 <h3>מחיקה עם הזזה שמאלה</h3>
 <div class="signature" dir="ltr">static bool RemoveAt(Student[] arr, int index)</div>
 <pre class="code" dir="ltr">static bool RemoveAt(Student[] arr, int index)
 {
-    if (index < 0 || index >= arr.Length || arr[index] == null)
+    if (index &lt; 0 || index &gt;= arr.Length || arr[index] == null)
         return false;
 
-    for (int i = index; i < arr.Length - 1; i++)
+    for (int i = index; i &lt; arr.Length - 1; i++)
     {
         arr[i] = arr[i + 1];
     }
@@ -594,11 +552,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     arr[arr.Length - 1] = null;
     return true;
 }</pre>
-</div>
-</div>
-
-<div class="grid2 tight" data-layout="one-column">
-<div class="card white">
+</div><div class="card white">
 <h3>החלפה בין שני תאים</h3>
 <div class="signature" dir="ltr">static void Swap(Student[] arr, int i, int j)</div>
 <pre class="code" dir="ltr">static void Swap(Student[] arr, int i, int j)
@@ -607,31 +561,24 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     arr[i] = arr[j];
     arr[j] = temp;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>מיון לפי ציון — מהגבוה לנמוך</h3>
 <div class="signature" dir="ltr">static void SortByGradeDescending(Student[] arr)</div>
 <pre class="code" dir="ltr">static void SortByGradeDescending(Student[] arr)
 {
-    for (int i = 0; i < arr.Length - 1; i++)
+    for (int i = 0; i &lt; arr.Length - 1; i++)
     {
-        for (int j = i + 1; j < arr.Length; j++)
+        for (int j = i + 1; j &lt; arr.Length; j++)
         {
             bool needSwap = arr[i] == null ||
-                            (arr[j] != null && arr[j].GetGrade() > arr[i].GetGrade());
+                            (arr[j] != null &amp;&amp; arr[j].GetGrade() &gt; arr[i].GetGrade());
 
             if (needSwap)
                 Swap(arr, i, j);
         }
     }
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">10. הוספה והזזה לפי <span class="ltr">count</span></h2>
-<p>כאשר מנהלים מערך צפוף, כלומר כל האובייקטים נמצאים מתחילת המערך ברצף, נשתמש במשתנה <code>count</code>. הערכים החוקיים נמצאים בטווח <span class="formula">0 ≤ i &lt; count</span>.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>8 / 14</span></footer></section><section aria-label="עמוד 9" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">10. הוספה והזזה לפי <span class="ltr">count</span></h2><p>כאשר מנהלים מערך צפוף, כלומר כל האובייקטים נמצאים מתחילת המערך ברצף, נשתמש במשתנה <code>count</code>. הערכים החוקיים נמצאים בטווח <span class="formula">0 ≤ i &lt; count</span>.</p><div class="card ok">
 <h3>הוספה לסוף האזור הפעיל</h3>
 <div class="signature" dir="ltr">static bool AddWithCount(Student[] arr, ref int count, Student s)</div>
 <pre class="code" dir="ltr">static bool AddWithCount(Student[] arr, ref int count, Student s)
@@ -643,16 +590,15 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     count++;
     return true;
 }</pre>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>הכנסה למקום מסוים עם הזזה ימינה</h3>
 <div class="signature" dir="ltr">static bool InsertAt(Student[] arr, ref int count, int index, Student s)</div>
 <pre class="code" dir="ltr">static bool InsertAt(Student[] arr, ref int count, int index, Student s)
 {
-    if (count == arr.Length || index < 0 || index > count)
+    if (count == arr.Length || index &lt; 0 || index &gt; count)
         return false;
 
-    for (int i = count; i > index; i--)
+    for (int i = count; i &gt; index; i--)
     {
         arr[i] = arr[i - 1];
     }
@@ -661,32 +607,25 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     count++;
     return true;
 }</pre>
-</div>
-</div>
-<div class="card bad tight">
+</div><div class="card bad tight">
 <h3>סריקה נכונה כאשר יש <span class="ltr">count</span></h3>
 <p>כאשר יש <code>count</code>, אין צורך לסרוק עד <code>arr.Length</code> אם כל האובייקטים מרוכזים בתחילת המערך.</p>
-<pre class="code" dir="ltr">for (int i = 0; i < count; i++)
+<pre class="code" dir="ltr">for (int i = 0; i &lt; count; i++)
 {
     Console.WriteLine(arr[i]);
 }</pre>
-</div>
-
-<h2 class="sectionTitle">11. לולאות מקוננות במערך אובייקטים</h2>
-<p>לולאות מקוננות דרושות כאשר בודקים קשר בין זוגות אובייקטים: כפילויות, תלמידים עם אותו ציון, זוגות שעונים על תנאי או השוואות בין כל שני אובייקטים.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card purple">
+</div><h2 class="sectionTitle">11. לולאות מקוננות במערך אובייקטים</h2><p>לולאות מקוננות דרושות כאשר בודקים קשר בין זוגות אובייקטים: כפילויות, תלמידים עם אותו ציון, זוגות שעונים על תנאי או השוואות בין כל שני אובייקטים.</p></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>9 / 14</span></footer></section><section aria-label="עמוד 10" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>בדיקת כפילות מזהים</h3>
 <div class="signature" dir="ltr">static bool HasDuplicateIds(Student[] arr)</div>
 <pre class="code" dir="ltr">static bool HasDuplicateIds(Student[] arr)
 {
     bool found = false;
 
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
-        for (int j = i + 1; j < arr.Length; j++)
+        for (int j = i + 1; j &lt; arr.Length; j++)
         {
-            if (arr[i] != null && arr[j] != null &&
+            if (arr[i] != null &amp;&amp; arr[j] != null &amp;&amp;
                 arr[i].GetId() == arr[j].GetId())
             {
                 found = true;
@@ -696,19 +635,18 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 
     return found;
 }</pre>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>ספירת זוגות עם אותו ציון</h3>
 <div class="signature" dir="ltr">static int CountSameGradePairs(Student[] arr)</div>
 <pre class="code" dir="ltr">static int CountSameGradePairs(Student[] arr)
 {
     int count = 0;
 
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
-        for (int j = i + 1; j < arr.Length; j++)
+        for (int j = i + 1; j &lt; arr.Length; j++)
         {
-            if (arr[i] != null && arr[j] != null &&
+            if (arr[i] != null &amp;&amp; arr[j] != null &amp;&amp;
                 arr[i].GetGrade() == arr[j].GetGrade())
             {
                 count++;
@@ -718,34 +656,28 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 
     return count;
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">12. העתקת מערך אובייקטים: העתקה רדודה מול עמוקה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card bad">
+</div><h2 class="sectionTitle">12. העתקת מערך אובייקטים: העתקה רדודה מול עמוקה</h2><div class="card bad">
 <h3>העתקה רדודה — מעתיקה הפניות</h3>
 <p>כל תא במערך החדש מצביע לאותו אובייקט כמו במערך המקורי.</p>
 <pre class="code" dir="ltr">static Student[] ShallowCopy(Student[] arr)
 {
     Student[] copy = new Student[arr.Length];
 
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
         copy[i] = arr[i];
     }
 
     return copy;
 }</pre>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>10 / 14</span></footer></section><section aria-label="עמוד 11" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>העתקה עמוקה — יוצרת אובייקטים חדשים</h3>
 <p>משתמשים בפעולה הבונה המעתיקה של <code>Student</code>.</p>
 <pre class="code" dir="ltr">static Student[] DeepCopy(Student[] arr)
 {
     Student[] copy = new Student[arr.Length];
 
-    for (int i = 0; i < arr.Length; i++)
+    for (int i = 0; i &lt; arr.Length; i++)
     {
         if (arr[i] != null)
             copy[i] = new Student(arr[i]);
@@ -753,11 +685,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 
     return copy;
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">13. הכלת מערך אובייקטים בתוך מחלקה</h2>
-<div class="card white">
+</div><h2 class="sectionTitle">13. הכלת מערך אובייקטים בתוך מחלקה</h2><div class="card white">
 <h3>מחלקת <span class="ltr">Course</span> שמכילה מערך תלמידים</h3>
 <p>זוהי דוגמה למחלקה שמחזיקה בתוכה מערך אובייקטים ומנהלת אותו בעזרת פעולות פנימיות.</p>
 <pre class="code" dir="ltr">public class Course
@@ -779,7 +707,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
         this.students = new Student[other.students.Length];
         this.count = other.count;
 
-        for (int i = 0; i < other.students.Length; i++)
+        for (int i = 0; i &lt; other.students.Length; i++)
         {
             if (other.students[i] != null)
                 this.students[i] = new Student(other.students[i]);
@@ -801,17 +729,14 @@ arr[1] = new Student("Avi", 102, 78);</pre>
         return count;
     }
 }</pre>
-</div>
-
-<div class="grid2 tight" data-layout="one-column">
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>11 / 14</span></footer></section><section aria-label="עמוד 12" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>פעולה פנימית שסורקת את המערך שבתוך המחלקה</h3>
 <div class="signature" dir="ltr">public int CountPassing()</div>
 <pre class="code" dir="ltr">public int CountPassing()
 {
     int total = 0;
 
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i &lt; count; i++)
     {
         if (students[i].IsPassing())
             total++;
@@ -819,30 +744,24 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 
     return total;
 }</pre>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>פעולה פנימית שמחזירה עותק, לא הפניה ישירה</h3>
 <div class="signature" dir="ltr">public Student GetStudent(int index)</div>
 <pre class="code" dir="ltr">public Student GetStudent(int index)
 {
-    if (index < 0 || index >= count)
+    if (index &lt; 0 || index &gt;= count)
         return null;
 
     return new Student(students[index]);
 }</pre>
-</div>
-</div>
-
-<h2 class="sectionTitle">14. פעולות פנימיות לניהול מערך בתוך מחלקה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">14. פעולות פנימיות לניהול מערך בתוך מחלקה</h2><div class="card white">
 <h3>מציאת תלמיד לפי מזהה בתוך הקורס</h3>
 <div class="signature" dir="ltr">private int FindIndexById(int id)</div>
 <pre class="code" dir="ltr">private int FindIndexById(int id)
 {
     int index = -1;
 
-    for (int i = 0; i < count && index == -1; i++)
+    for (int i = 0; i &lt; count &amp;&amp; index == -1; i++)
     {
         if (students[i].GetId() == id)
             index = i;
@@ -850,8 +769,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 
     return index;
 }</pre>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>מחיקה לפי מזהה מתוך הקורס</h3>
 <div class="signature" dir="ltr">public bool RemoveById(int id)</div>
 <pre class="code" dir="ltr">public bool RemoveById(int id)
@@ -860,7 +778,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     if (index == -1)
         return false;
 
-    for (int i = index; i < count - 1; i++)
+    for (int i = index; i &lt; count - 1; i++)
     {
         students[i] = students[i + 1];
     }
@@ -869,21 +787,18 @@ arr[1] = new Student("Avi", 102, 78);</pre>
     count--;
     return true;
 }</pre>
-</div>
-</div>
-
-<div class="card purple tight">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>12 / 14</span></footer></section><section aria-label="עמוד 13" class="a4-page"><div class="a4-content"><div class="card purple tight">
 <h3>מיון המערך הפנימי לפי ציון</h3>
 <div class="signature" dir="ltr">public void SortByGradeDescending()</div>
 <pre class="code" dir="ltr">public void SortByGradeDescending()
 {
-    for (int i = 0; i < count - 1; i++)
+    for (int i = 0; i &lt; count - 1; i++)
     {
         int maxIndex = i;
 
-        for (int j = i + 1; j < count; j++)
+        for (int j = i + 1; j &lt; count; j++)
         {
-            if (students[j].GetGrade() > students[maxIndex].GetGrade())
+            if (students[j].GetGrade() &gt; students[maxIndex].GetGrade())
                 maxIndex = j;
         }
 
@@ -892,10 +807,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
         students[maxIndex] = temp;
     }
 }</pre>
-</div>
-
-<h2 class="sectionTitle">15. תבניות מניפולציה נפוצות — סיכום מהיר</h2>
-<table>
+</div><h2 class="sectionTitle">15. תבניות מניפולציה נפוצות — סיכום מהיר</h2><table>
 <thead><tr><th>משימה</th><th>רעיון אלגוריתמי</th><th>דגש</th></tr></thead>
 <tbody>
 <tr><td>סריקה והדפסה</td><td>לולאה אחת על כל התאים.</td><td>אם אין <code>count</code>, לבדוק <code>null</code>.</td></tr>
@@ -909,10 +821,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 <tr><td>כפילויות</td><td>שתי לולאות: <code>j = i + 1</code>.</td><td>בודקים כל זוג פעם אחת בלבד.</td></tr>
 <tr><td>העתקה</td><td>העתקה רדודה או עמוקה.</td><td>למערך אובייקטים בדרך כלל עדיף deep copy.</td></tr>
 </tbody>
-</table>
-
-<h2 class="sectionTitle">16. דוגמת שימוש מלאה</h2>
-<div class="card white">
+</table></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>13 / 14</span></footer></section><section aria-label="עמוד 14" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">16. דוגמת שימוש מלאה</h2><div class="card white">
 <h3>יצירת קורס, הוספת תלמידים, מיון והדפסה</h3>
 <pre class="code" dir="ltr">public class Program
 {
@@ -937,11 +846,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
         Console.WriteLine("After remove: " + c.GetCount());
     }
 }</pre>
-</div>
-
-<h2 class="sectionTitle">17. שגיאות נפוצות בבחינה</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card bad">
+</div><h2 class="sectionTitle">17. שגיאות נפוצות בבחינה</h2><div class="card bad">
 <h3>שגיאות שכדאי לזהות מיד</h3>
 <div class="avoid" data-layout="one-column">
 <span>arr[i].GetName() בלי בדיקת arr[i] != null</span>
@@ -951,8 +856,7 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 <span>השוואת אובייקטים בעזרת == במקום השוואת שדה כמו id</span>
 <span>שימוש באותו מונה בשתי לולאות מקוננות</span>
 </div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>בדיקות קצה מומלצות</h3>
 <div class="rule"><span class="num">1</span><span>מערך ריק לחלוטין.</span></div>
 <div class="rule"><span class="num">2</span><span>מערך מלא לחלוטין.</span></div>
@@ -960,13 +864,8 @@ arr[1] = new Student("Avi", 102, 78);</pre>
 <div class="rule"><span class="num">4</span><span>מחיקה מהתחלה, מהאמצע ומהסוף.</span></div>
 <div class="rule"><span class="num">5</span><span>מערך שיש בו <code>null</code> באמצע.</span></div>
 <div class="rule"><span class="num">6</span><span>שני אובייקטים עם אותו מזהה.</span></div>
-</div>
-</div>
-
-<div class="foot">
+</div><div class="foot">
 <strong>כלל עבודה מומלץ:</strong> לפני כתיבת פעולה על מערך אובייקטים, החליטו האם המערך צפוף ומנוהל עם <code>count</code>, או שהוא מערך רגיל שבו ייתכנו תאי <code>null</code> בכל מקום. ההחלטה הזו קובעת את גבולות הלולאה ואת הצורך בבדיקת <code>null</code>.
-</div>
-
-</main>
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — מחלקות ואובייקטים ב־C#</span><span>14 / 14</span></footer></section></main>
 </body>
 </html>

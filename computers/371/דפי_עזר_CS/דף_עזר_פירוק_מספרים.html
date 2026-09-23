@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html dir="rtl" lang="he"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>דף עזר לבגרות — פירוק מספרים C# — גרסת עמודה אחת</title>
 <style>
@@ -143,8 +144,40 @@ pre code, .code code { color:inherit; font-weight:inherit; }
   a{ color:inherit; text-decoration:none; }
 }
 </style>
-</head><body><main class="doc">
-<header class="hero">
+<style id="a4-layout">/* One section is one physical A4 sheet. Content is never clipped or scrolled. */
+@page { size: A4 portrait; margin: 0; @bottom-center { content: none; } }
+html, body { margin: 0; padding: 0; background: #e8edf4; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+main.doc { width: 210mm; max-width: none; margin: 0 auto; padding: 0; background: transparent; }
+section.a4-page {
+  box-sizing: border-box; position: relative; display: block;
+  width: 210mm; height: 297mm; min-height: 297mm;
+  padding: 12mm 12mm 16mm; margin: 8mm 0;
+  background: white; box-shadow: 0 3px 18px #21334d20;
+  break-after: page; page-break-after: always; break-inside: avoid;
+  overflow: visible;
+}
+section.a4-page:last-child { break-after: auto; page-break-after: auto; }
+.a4-content { display: flow-root; width: 100%; height: 269mm; }
+.a4-content > :first-child { margin-top: 0; }
+.a4-content h1, .a4-content h2, .a4-content h3 { line-height: 1.5; }
+.a4-content .inline-expression { direction: ltr; unicode-bidi: isolate; white-space: normal; overflow-wrap: anywhere; }
+.a4-content * { min-width: 0; max-width: 100%; }
+.a4-content pre { white-space: pre-wrap !important; overflow-wrap: anywhere; overflow: visible !important; max-height: none !important; }
+.a4-content table { table-layout: fixed; width: 100%; }
+.a4-content td, .a4-content th { overflow-wrap: anywhere; }
+.a4-content img, .a4-content svg { max-width: 100%; height: auto; }
+.a4-content .grid2, .a4-content .grid3, .a4-content .twoCols,
+.a4-content .oneCol, .a4-content .fourTips, .a4-content .sortCompare { display: block !important; }
+.a4-content .card { margin-bottom: 8px; }
+.a4-page-footer { position: absolute; bottom: 7mm; left: 12mm; right: 12mm; border-top: 1px solid #ccd8e8; padding-top: 2mm; font: 10px Arial, sans-serif; color: #506581; display: flex; justify-content: space-between; direction: rtl; }
+.a4-page-footer span:last-child { direction: ltr; unicode-bidi: isolate; }
+@media print {
+  html, body { background: white; }
+  main.doc { width: 210mm; margin: 0; }
+  section.a4-page { margin: 0; box-shadow: none; }
+}
+</style></head><body><main class="doc"><section aria-label="עמוד 1" class="a4-page"><div class="a4-content"><header class="hero">
 <div class="hero-top">
 <div>
 <h1 class="title">דף עזר לבחינת הבגרות — פירוק מספרים ב־#C</h1>
@@ -160,10 +193,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         בדף זה לא ממירים מספר למחרוזת ולא משתמשים במערכים או ברשימות. המטרה היא לשלוט בתבניות הקלאסיות של פירוק מספרים בעזרת חילוק שלם ושארית.
       </div>
 </div>
-</header>
-
-<h2 class="sectionTitle">1. פעולות חשבוניות בסיסיות לפירוק מספר</h2>
-<table>
+</header><h2 class="sectionTitle">1. פעולות חשבוניות בסיסיות לפירוק מספר</h2><table>
 <thead><tr><th>פעולה</th><th>מה מקבלים?</th><th>דוגמה קצרה</th></tr></thead>
 <tbody>
 <tr><td class="op" dir="ltr">num % 10</td><td>ספרת האחדות של המספר.</td><td class="ltr" dir="ltr"><code>472 % 10 == 2</code></td></tr>
@@ -171,27 +201,19 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td class="op" dir="ltr">num % d</td><td>שארית חלוקה ב־<code>d</code>. שימושי לבדיקת זוגיות, חלוקה, וספרה אחרונה בבסיסים שונים.</td><td class="ltr" dir="ltr"><code>num % 2 == 0</code></td></tr>
 <tr><td class="op" dir="ltr">while (num &gt; 0)</td><td>לולאה טיפוסית שעובדת עד שכל הספרות פורקו.</td><td class="ltr" dir="ltr"><code>while (n &gt; 0) { ... }</code></td></tr>
 </tbody>
-</table>
-<div class="grid2 tight" data-layout="one-column">
-<div class="card warn">
+</table><div class="card warn">
 <h3>כללי זהירות לבחינה</h3>
 <div class="rule"><span class="num">1</span><span>כאשר מפרקים מימין לשמאל, הספרות מתקבלות מהאחדות אל הספרה השמאלית ביותר.</span></div>
 <div class="rule"><span class="num">2</span><span>המספר <code>0</code> דורש טיפול מיוחד, כי התנאי <code>while (n &gt; 0)</code> לא נכנס ללולאה.</span></div>
 <div class="rule"><span class="num">3</span><span>במספר שלילי קודם עובדים עם הערך החיובי שלו, ואחר כך מחליטים אם לשמור את הסימן.</span></div>
 <div class="rule"><span class="num">4</span><span>כאשר בונים מספר חדש: <code>result = result * 10 + digit</code>.</span></div>
-</div>
-<div class="card bad">
+</div><div class="card bad">
 <h3>מה לא להשתמש בו בתרגול פירוק מספרים</h3>
 <div class="avoid" data-layout="one-column">
 <span>num.ToString()</span><span>int.Parse(...)</span><span>Convert.ToInt32(...)</span><span>Array / List</span><span>LINQ</span><span>Math.Abs, אם רוצים לתרגל פעולה ידנית</span>
 </div>
 <p class="small">המטרה היא להבין את המבנה העשרוני של המספר, לא לעקוף אותו דרך מחרוזות.</p>
-</div>
-</div>
-
-<h2 class="sectionTitle">2. תבניות מעבר על ספרות המספר</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>1 / 11</span></footer></section><section aria-label="עמוד 2" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">2. תבניות מעבר על ספרות המספר</h2><div class="card ok">
 <h3>תבנית פירוק מימין לשמאל</h3>
 <p>מתאימה לסכום ספרות, ספירה, בדיקת קיום ספרה, היפוך מספר ועוד.</p>
 <pre class="code" dir="ltr">int n = num;
@@ -211,8 +233,7 @@ while (n &gt; 0)
 
     n = n / 10;         // מחיקת הספרה
 }</pre>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>תבנית מעבר משמאל לימין</h3>
 <p>מתאימה כאשר חייבים לשמור את סדר הספרות המקורי, למשל מחיקת ספרה או החלפת ספרה.</p>
 <pre class="code" dir="ltr">int n = num;
@@ -232,9 +253,7 @@ while (power &gt; 0)
     n = n % power;          // מחיקת הספרה משמאל
     power = power / 10;
 }</pre>
-</div>
-</div>
-<div class="card white tight">
+</div><div class="card white tight">
 <h3>תבנית בניית מספר חדש מספרה אחר ספרה</h3>
 <p>בכל פעם שמחליטים להכניס ספרה לתוצאה, דוחפים את התוצאה מקום אחד שמאלה ומוסיפים את הספרה.</p>
 <pre class="code" dir="ltr">int result = 0;
@@ -242,11 +261,7 @@ while (power &gt; 0)
 // digit חייב להיות בין 0 ל־9
 result = result * 10 + digit;</pre>
 <div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>0 → 4 → 47 → 472</code></span></div>
-</div>
-
-<h2 class="sectionTitle">3. פעולות עזר בסיסיות</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>2 / 11</span></footer></section><section aria-label="עמוד 3" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">3. פעולות עזר בסיסיות</h2><div class="card white">
 <h3>ערך חיובי של מספר</h3>
 <div class="signature" dir="ltr">static int AbsNumber(int num)</div><pre class="code" dir="ltr">static int AbsNumber(int num)
 {
@@ -255,8 +270,7 @@ result = result * 10 + digit;</pre>
 
     return num;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(AbsNumber(-37)); // 37</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>ספירת ספרות</h3>
 <div class="signature" dir="ltr">static int CountDigits(int num)</div><pre class="code" dir="ltr">static int CountDigits(int num)
 {
@@ -273,8 +287,7 @@ result = result * 10 + digit;</pre>
     }
     return count;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountDigits(4702)); // 4</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>סכום ספרות</h3>
 <div class="signature" dir="ltr">static int SumDigits(int num)</div><pre class="code" dir="ltr">static int SumDigits(int num)
 {
@@ -289,8 +302,7 @@ result = result * 10 + digit;</pre>
     }
     return sum;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(SumDigits(472)); // 13</code></span></div>
-</div>
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>3 / 11</span></footer></section><section aria-label="עמוד 4" class="a4-page"><div class="a4-content"><div class="card white">
 <h3>מכפלת ספרות</h3>
 <p class="small">במספר <code>0</code> המכפלה היא <code>0</code>, כי יש בו ספרה אחת: 0.</p>
 <div class="signature" dir="ltr">static int ProductDigits(int num)</div><pre class="code" dir="ltr">static int ProductDigits(int num)
@@ -309,19 +321,13 @@ result = result * 10 + digit;</pre>
     }
     return product;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(ProductDigits(234)); // 24</code></span></div>
-</div>
-</div>
-
-<h2 class="sectionTitle">4. חיפוש וספירה של ספרות</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div><h2 class="sectionTitle">4. חיפוש וספירה של ספרות</h2><div class="card ok">
 <h3>בדיקה אם ספרה חוקית</h3>
 <div class="signature" dir="ltr">static bool IsDigitValue(int digit)</div><pre class="code" dir="ltr">static bool IsDigitValue(int digit)
 {
     return digit &gt;= 0 &amp;&amp; digit &lt;= 9;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsDigitValue(8)); // True</code></span></div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>ספירת הופעות של ספרה במספר</h3>
 <div class="signature" dir="ltr">static int CountDigit(int num, int digit)</div><pre class="code" dir="ltr">static int CountDigit(int num, int digit)
 {
@@ -346,15 +352,13 @@ result = result * 10 + digit;</pre>
     }
     return count;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountDigit(10020, 0)); // 3</code></span></div>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>4 / 11</span></footer></section><section aria-label="עמוד 5" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>בדיקה אם ספרה קיימת במספר</h3>
 <div class="signature" dir="ltr">static bool ContainsDigit(int num, int digit)</div><pre class="code" dir="ltr">static bool ContainsDigit(int num, int digit)
 {
     return CountDigit(num, digit) &gt; 0;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(ContainsDigit(472, 7)); // True</code></span></div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>הספרה הראשונה והספרה האחרונה</h3>
 <div class="signature" dir="ltr">static int LastDigit(int num)</div><pre class="code mini-code" dir="ltr">static int LastDigit(int num)
 {
@@ -369,12 +373,7 @@ result = result * 10 + digit;</pre>
 
     return n;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(FirstDigit(472)); // 4</code></span></div>
-</div>
-</div>
-
-<h2 class="sectionTitle">5. יצירת מספרים חדשים מתוך הספרות</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card purple">
+</div><h2 class="sectionTitle">5. יצירת מספרים חדשים מתוך הספרות</h2><div class="card purple">
 <h3>היפוך מספר</h3>
 <div class="signature" dir="ltr">static int ReverseNumber(int num)</div><pre class="code" dir="ltr">static int ReverseNumber(int num)
 {
@@ -393,8 +392,7 @@ result = result * 10 + digit;</pre>
 
     return result;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(ReverseNumber(472)); // 274</code></span></div>
-</div>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>5 / 11</span></footer></section><section aria-label="עמוד 6" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>מחיקת כל ההופעות של ספרה</h3>
 <p class="small">כדי לשמור את הסדר המקורי עוברים משמאל לימין.</p>
 <div class="signature" dir="ltr">static int RemoveDigit(int num, int digitToRemove)</div><pre class="code" dir="ltr">static int RemoveDigit(int num, int digitToRemove)
@@ -424,8 +422,7 @@ result = result * 10 + digit;</pre>
 
     return result;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(RemoveDigit(40720, 0)); // 472</code></span></div>
-</div>
-<div class="card purple">
+</div><div class="card purple">
 <h3>החלפת ספרה בספרה אחרת</h3>
 <div class="signature" dir="ltr">static int ReplaceDigit(int num, int oldDigit, int newDigit)</div><pre class="code" dir="ltr">static int ReplaceDigit(int num, int oldDigit, int newDigit)
 {
@@ -455,8 +452,7 @@ result = result * 10 + digit;</pre>
 
     return result;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(ReplaceDigit(1012, 1, 9)); // 9092</code></span></div>
-</div>
-<div class="card purple">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>6 / 11</span></footer></section><section aria-label="עמוד 7" class="a4-page"><div class="a4-content"><div class="card purple">
 <h3>שמירת ספרות זוגיות בלבד</h3>
 <div class="signature" dir="ltr">static int KeepEvenDigits(int num)</div><pre class="code" dir="ltr">static int KeepEvenDigits(int num)
 {
@@ -482,12 +478,7 @@ result = result * 10 + digit;</pre>
 
     return result;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(KeepEvenDigits(123456)); // 246</code></span></div>
-</div>
-</div>
-
-<h2 class="sectionTitle">6. בדיקות נפוצות על מספר לפי ספרות</h2>
-<div class="grid2" data-layout="one-column">
-<div class="card white">
+</div><h2 class="sectionTitle">6. בדיקות נפוצות על מספר לפי ספרות</h2><div class="card white">
 <h3>בדיקה אם כל הספרות זוגיות</h3>
 <div class="signature" dir="ltr">static bool AllDigitsEven(int num)</div><pre class="code" dir="ltr">static bool AllDigitsEven(int num)
 {
@@ -507,8 +498,7 @@ result = result * 10 + digit;</pre>
     }
     return ok;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(AllDigitsEven(2480)); // True</code></span></div>
-</div>
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>7 / 11</span></footer></section><section aria-label="עמוד 8" class="a4-page"><div class="a4-content"><div class="card white">
 <h3>בדיקת פלינדרום מספרי</h3>
 <p class="small">מספר פלינדרומי נשאר זהה לאחר היפוך ספרותיו.</p>
 <div class="signature" dir="ltr">static bool IsNumberPalindrome(int num)</div><pre class="code" dir="ltr">static bool IsNumberPalindrome(int num)
@@ -516,8 +506,7 @@ result = result * 10 + digit;</pre>
     int n = AbsNumber(num);
     return n == ReverseNumber(n);
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsNumberPalindrome(12321)); // True</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>בדיקה אם הספרות בסדר עולה משמאל לימין</h3>
 <div class="signature" dir="ltr">static bool DigitsIncreasing(int num)</div><pre class="code" dir="ltr">static bool DigitsIncreasing(int num)
 {
@@ -547,8 +536,7 @@ result = result * 10 + digit;</pre>
     }
     return ok;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(DigitsIncreasing(1479)); // True</code></span></div>
-</div>
-<div class="card white">
+</div><div class="card white">
 <h3>בדיקה אם כל הספרות שונות</h3>
 <p class="small">אין שימוש במערך: בודקים לכל ספרה מ־0 עד 9 כמה פעמים היא מופיעה.</p>
 <div class="signature" dir="ltr">static bool AllDigitsDifferent(int num)</div><pre class="code" dir="ltr">static bool AllDigitsDifferent(int num)
@@ -562,13 +550,7 @@ result = result * 10 + digit;</pre>
     }
     return ok;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(AllDigitsDifferent(4702)); // True</code></span></div>
-</div>
-</div>
-
-<h2 class="sectionTitle">7. פירוק לגורמים ולמחלקים</h2>
-<p>לפעמים “מרכיבי המספר” הם לא הספרות אלא המחלקים או הגורמים הראשוניים שלו. כאן משתמשים בחילוק ושארית, לא בפירוק ספרות.</p>
-<div class="grid2" data-layout="one-column">
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>8 / 11</span></footer></section><section aria-label="עמוד 9" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">7. פירוק לגורמים ולמחלקים</h2><p>לפעמים “מרכיבי המספר” הם לא הספרות אלא המחלקים או הגורמים הראשוניים שלו. כאן משתמשים בחילוק ושארית, לא בפירוק ספרות.</p><div class="card ok">
 <h3>בדיקה אם מספר ראשוני</h3>
 <div class="signature" dir="ltr">static bool IsPrime(int num)</div><pre class="code" dir="ltr">static bool IsPrime(int num)
 {
@@ -583,8 +565,7 @@ result = result * 10 + digit;</pre>
     }
     return prime;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(IsPrime(29)); // True</code></span></div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>ספירת מחלקים</h3>
 <div class="signature" dir="ltr">static int CountDivisors(int num)</div><pre class="code" dir="ltr">static int CountDivisors(int num)
 {
@@ -601,8 +582,7 @@ result = result * 10 + digit;</pre>
     }
     return count;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(CountDivisors(12)); // 6</code></span></div>
-</div>
-<div class="card ok">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>9 / 11</span></footer></section><section aria-label="עמוד 10" class="a4-page"><div class="a4-content"><div class="card ok">
 <h3>האם כל הגורמים הראשוניים שונים?</h3>
 <p class="small">בכל פעם שמוצאים גורם, סופרים כמה פעמים הוא מחלק את המספר.</p>
 <div class="signature" dir="ltr">static bool HasNoRepeatedPrimeFactor(int num)</div><pre class="code" dir="ltr">static bool HasNoRepeatedPrimeFactor(int num)
@@ -624,8 +604,7 @@ result = result * 10 + digit;</pre>
     }
     return ok;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(HasNoRepeatedPrimeFactor(30)); // True</code></span></div>
-</div>
-<div class="card ok">
+</div><div class="card ok">
 <h3>סכום הגורמים הראשוניים, כולל חזרות</h3>
 <div class="signature" dir="ltr">static int SumPrimeFactors(int num)</div><pre class="code" dir="ltr">static int SumPrimeFactors(int num)
 {
@@ -646,11 +625,7 @@ result = result * 10 + digit;</pre>
 
     return sum;
 }</pre><div class="example"><strong>דוגמה:</strong> <span class="ltr" dir="ltr"><code>Console.WriteLine(SumPrimeFactors(12)); // 7  כי 2+2+3</code></span></div>
-</div>
-</div>
-
-<h2 class="sectionTitle">8. מפת בחירה מהירה: איזו תבנית לבחור?</h2>
-<table class="map">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>10 / 11</span></footer></section><section aria-label="עמוד 11" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">8. מפת בחירה מהירה: איזו תבנית לבחור?</h2><table class="map">
 <thead><tr><th>סוג משימה</th><th>התבנית המתאימה</th><th>דוגמה</th></tr></thead>
 <tbody>
 <tr><td>חישוב לפי כל ספרה</td><td>פירוק מימין לשמאל עם <code>% 10</code> ו־<code>/ 10</code></td><td>סכום ספרות, מכפלת ספרות, ספירת ספרות</td></tr>
@@ -659,8 +634,6 @@ result = result * 10 + digit;</pre>
 <tr><td>בדיקת תכונה של כל הספרות</td><td>משתנה <code>bool ok = true</code> שמתעדכן כאשר יש הפרה</td><td>כל הספרות זוגיות, כל הספרות שונות</td></tr>
 <tr><td>פירוק לגורמים</td><td>לולאת מחלקים עם <code>num % d == 0</code></td><td>ראשוניות, מחלקים, גורמים ראשוניים</td></tr>
 </tbody>
-</table>
-<div class="foot">
+</table><div class="foot">
 <strong>כלל עבודה מומלץ:</strong> לפני כתיבת הקוד החליטו האם הסדר חשוב. אם הסדר לא חשוב — פירוק מימין לשמאל הוא הקצר ביותר. אם הסדר חשוב — עברו משמאל לימין או הפכו פעמיים בזהירות.
-</div>
-</main></body></html>
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — פירוק מספרים C#</span><span>11 / 11</span></footer></section></main></body></html>

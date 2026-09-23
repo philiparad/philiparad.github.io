@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html dir="rtl" lang="he"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>דף עזר לבגרות — לולאות מקוננות במערכים C# — גרסת עמודה אחת</title>
 <style>
@@ -140,8 +141,40 @@ pre code, .code code { color:inherit; font-weight:inherit; }
   a{ color:inherit; text-decoration:none; }
 }
 </style>
-</head><body><main class="doc">
-<header class="hero">
+<style id="a4-layout">/* One section is one physical A4 sheet. Content is never clipped or scrolled. */
+@page { size: A4 portrait; margin: 0; @bottom-center { content: none; } }
+html, body { margin: 0; padding: 0; background: #e8edf4; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+main.doc { width: 210mm; max-width: none; margin: 0 auto; padding: 0; background: transparent; }
+section.a4-page {
+  box-sizing: border-box; position: relative; display: block;
+  width: 210mm; height: 297mm; min-height: 297mm;
+  padding: 12mm 12mm 16mm; margin: 8mm 0;
+  background: white; box-shadow: 0 3px 18px #21334d20;
+  break-after: page; page-break-after: always; break-inside: avoid;
+  overflow: visible;
+}
+section.a4-page:last-child { break-after: auto; page-break-after: auto; }
+.a4-content { display: flow-root; width: 100%; height: 269mm; }
+.a4-content > :first-child { margin-top: 0; }
+.a4-content h1, .a4-content h2, .a4-content h3 { line-height: 1.5; }
+.a4-content .inline-expression { direction: ltr; unicode-bidi: isolate; white-space: normal; overflow-wrap: anywhere; }
+.a4-content * { min-width: 0; max-width: 100%; }
+.a4-content pre { white-space: pre-wrap !important; overflow-wrap: anywhere; overflow: visible !important; max-height: none !important; }
+.a4-content table { table-layout: fixed; width: 100%; }
+.a4-content td, .a4-content th { overflow-wrap: anywhere; }
+.a4-content img, .a4-content svg { max-width: 100%; height: auto; }
+.a4-content .grid2, .a4-content .grid3, .a4-content .twoCols,
+.a4-content .oneCol, .a4-content .fourTips, .a4-content .sortCompare { display: block !important; }
+.a4-content .card { margin-bottom: 8px; }
+.a4-page-footer { position: absolute; bottom: 7mm; left: 12mm; right: 12mm; border-top: 1px solid #ccd8e8; padding-top: 2mm; font: 10px Arial, sans-serif; color: #506581; display: flex; justify-content: space-between; direction: rtl; }
+.a4-page-footer span:last-child { direction: ltr; unicode-bidi: isolate; }
+@media print {
+  html, body { background: white; }
+  main.doc { width: 210mm; margin: 0; }
+  section.a4-page { margin: 0; box-shadow: none; }
+}
+</style></head><body><main class="doc"><section aria-label="עמוד 1" class="a4-page"><div class="a4-content"><header class="hero">
 <div class="hero-top">
 <div>
 <h1 class="title">דף עזר לבחינת הבגרות — לולאות מקוננות במערכים ב־C#</h1>
@@ -157,10 +190,7 @@ pre code, .code code { color:inherit; font-weight:inherit; }
         הרעיון המרכזי: הלולאה החיצונית בוחרת איבר, שורה, עמודה או התחלה של תחום; הלולאה הפנימית עוברת על איברים קשורים אליו. כאשר <code>j</code> מתחילה מ־<code>i + 1</code>, <code>i</code>, או <code>0</code> עד <code>i</code>, הלולאה הפנימית תלויה בלולאה החיצונית.
 </div>
 </div>
-</header>
-
-<h2 class="sectionTitle">1. מפת התבניות</h2>
-<table class="map">
+</header><h2 class="sectionTitle">1. מפת התבניות</h2><table class="map">
 <thead><tr><th>מצב</th><th>תבנית מתאימה</th><th>מתי משתמשים?</th></tr></thead>
 <tbody>
 <tr><td>כל התאים במטריצה</td><td class="op">for i → rows, for j → cols</td><td>הדפסה, קלט, סכום, חיפוש, ספירה, שינוי ערכים.</td></tr>
@@ -172,17 +202,13 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <tr><td>השוואת שני מערכים</td><td class="op">for i over a, for j over b</td><td>חיתוך, הכלה, האם איבר מופיע במערך אחר.</td></tr>
 <tr><td>שכנים בגריד</td><td class="op">for dr = -1..1, for dc = -1..1</td><td>ספירת שכנים, לוחות משחק, מטריצות סביב תא.</td></tr>
 </tbody>
-</table>
-
-<div class="grid2 tight" data-layout="one-column">
-<div class="card ok">
+</table><div class="card ok">
 <h3>כללי עבודה קבועים</h3>
 <div class="rule"><span class="num">1</span><span>תמיד לתת שמות שונים למונים: <code>i</code> לשורות או לאיבר ראשון, <code>j</code> לעמודות או לאיבר שני.</span></div>
 <div class="rule"><span class="num">2</span><span>לאתחל צובר פנימי בתוך הלולאה החיצונית כאשר רוצים סכום לכל שורה או לכל איבר.</span></div>
 <div class="rule"><span class="num">3</span><span>כאשר בודקים זוגות, בדרך־כלל <code>j = i + 1</code>, כדי לא להשוות איבר עם עצמו ולא לבדוק אותו זוג פעמיים.</span></div>
 <div class="rule"><span class="num">4</span><span>במטריצה ריבועית בלבד אפשר לדבר על אלכסונים ראשיים ומשניים.</span></div>
-</div>
-<div class="card bad">
+</div><div class="card bad">
 <h3>טעויות נפוצות</h3>
 <div class="avoid" data-layout="one-column">
 <span>for (int i = 0; i &lt;= arr.Length; i++)</span>
@@ -191,32 +217,26 @@ pre code, .code code { color:inherit; font-weight:inherit; }
 <span>if (mat[i, j] == mat[j, i]) without checking square matrix</span>
 </div>
 <p class="small">הטעות הנפוצה ביותר היא חריגה מגבולות המערך: האינדקס האחרון הוא תמיד אורך פחות 1.</p>
-</div>
-</div>
-
-<h2 class="sectionTitle">2. תבניות בסיסיות למטריצה דו־ממדית</h2>
-<div class="card white"><h3>מעבר מלא על כל תאי המטריצה</h3><p>הלולאה החיצונית עוברת על שורות, והפנימית על עמודות באותה שורה.</p><pre class="code " dir="ltr">int rows = mat.GetLength(0);
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>1 / 17</span></footer></section><section aria-label="עמוד 2" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">2. תבניות בסיסיות למטריצה דו־ממדית</h2><div class="card white"><h3>מעבר מלא על כל תאי המטריצה</h3><p>הלולאה החיצונית עוברת על שורות, והפנימית על עמודות באותה שורה.</p><pre class="code" dir="ltr">int rows = mat.GetLength(0);
 int cols = mat.GetLength(1);
 
 for (int i = 0; i &lt; rows; i++)
 {
     for (int j = 0; j &lt; cols; j++)
     {
-        Console.Write(mat[i, j] + &quot;	&quot;);
+        Console.Write(mat[i, j] + "	");
     }
     Console.WriteLine();
-}</pre><div class="example"><strong>שימושים:</strong> הדפסה, חיפוש, ספירה, סכום, שינוי כל תא.</div></div>
-<div class="card purple"><h3>קלט או אתחול מטריצה</h3><p>אותה תבנית כמו מעבר מלא, אך בתוך הלולאה הפנימית מכניסים ערך לתא.</p><pre class="code " dir="ltr">int[,] mat = new int[3, 4];
+}</pre><div class="example"><strong>שימושים:</strong> הדפסה, חיפוש, ספירה, סכום, שינוי כל תא.</div></div><div class="card purple"><h3>קלט או אתחול מטריצה</h3><p>אותה תבנית כמו מעבר מלא, אך בתוך הלולאה הפנימית מכניסים ערך לתא.</p><pre class="code" dir="ltr">int[,] mat = new int[3, 4];
 
 for (int i = 0; i &lt; mat.GetLength(0); i++)
 {
     for (int j = 0; j &lt; mat.GetLength(1); j++)
     {
-        Console.Write(&quot;Enter value: &quot;);
+        Console.Write("Enter value: ");
         mat[i, j] = int.Parse(Console.ReadLine());
     }
-}</pre><div class="example"><strong>דוגמה:</strong> מטריצה בגודל 3x4 מכילה 12 תאים.</div></div>
-<div class="card ok"><h3>אתחול רנדומלי של מטריצה</h3><p>שימושי ליצירת דוגמאות מהירות ולבדיקת אלגוריתמים.</p><pre class="code " dir="ltr">Random rnd = new Random();
+}</pre><div class="example"><strong>דוגמה:</strong> מטריצה בגודל 3x4 מכילה 12 תאים.</div></div><div class="card ok"><h3>אתחול רנדומלי של מטריצה</h3><p>שימושי ליצירת דוגמאות מהירות ולבדיקת אלגוריתמים.</p><pre class="code" dir="ltr">Random rnd = new Random();
 int[,] mat = new int[4, 5];
 
 for (int i = 0; i &lt; mat.GetLength(0); i++)
@@ -225,9 +245,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
     {
         mat[i, j] = rnd.Next(1, 101); // 1..100
     }
-}</pre><div class="example"><strong>דוגמה:</strong> כל תא מקבל מספר שלם בין 1 ל־100.</div></div>
-<h2 class="sectionTitle">3. צוברים וספירות במטריצות</h2>
-<div class="card white"><h3>סכום כל התאים</h3><p>צובר כללי מאותחל לפני שתי הלולאות, כי הוא שייך לכל המטריצה.</p><pre class="code " dir="ltr">static int SumMatrix(int[,] mat)
+}</pre><div class="example"><strong>דוגמה:</strong> כל תא מקבל מספר שלם בין 1 ל־100.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>2 / 17</span></footer></section><section aria-label="עמוד 3" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">3. צוברים וספירות במטריצות</h2><div class="card white"><h3>סכום כל התאים</h3><p>צובר כללי מאותחל לפני שתי הלולאות, כי הוא שייך לכל המטריצה.</p><pre class="code" dir="ltr">static int SumMatrix(int[,] mat)
 {
     int sum = 0;
 
@@ -239,8 +257,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return sum;
-}</pre><div class="example"><strong>דוגמה:</strong> אם המטריצה היא <code>{{1,2},{3,4}}</code>, הסכום הוא <code>10</code>.</div></div>
-<div class="card ok"><h3>סכום כל שורה</h3><p>צובר שורה מאותחל מחדש בתחילת כל שורה, בתוך הלולאה החיצונית.</p><pre class="code " dir="ltr">static void PrintRowSums(int[,] mat)
+}</pre><div class="example"><strong>דוגמה:</strong> אם המטריצה היא <code>{{1,2},{3,4}}</code>, הסכום הוא <code>10</code>.</div></div><div class="card ok"><h3>סכום כל שורה</h3><p>צובר שורה מאותחל מחדש בתחילת כל שורה, בתוך הלולאה החיצונית.</p><pre class="code" dir="ltr">static void PrintRowSums(int[,] mat)
 {
     for (int i = 0; i &lt; mat.GetLength(0); i++)
     {
@@ -251,10 +268,9 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
             rowSum += mat[i, j];
         }
 
-        Console.WriteLine(&quot;row &quot; + i + &quot;: &quot; + rowSum);
+        Console.WriteLine("row " + i + ": " + rowSum);
     }
-}</pre><div class="example"><strong>רעיון:</strong> <code>i</code> קובע את השורה, <code>j</code> רץ על כל העמודות.</div></div>
-<div class="card purple"><h3>סכום כל עמודה</h3><p>כאשר רוצים תוצאה לכל עמודה, נוח שהלולאה החיצונית תהיה על העמודות.</p><pre class="code " dir="ltr">static void PrintColumnSums(int[,] mat)
+}</pre><div class="example"><strong>רעיון:</strong> <code>i</code> קובע את השורה, <code>j</code> רץ על כל העמודות.</div></div><div class="card purple"><h3>סכום כל עמודה</h3><p>כאשר רוצים תוצאה לכל עמודה, נוח שהלולאה החיצונית תהיה על העמודות.</p><pre class="code" dir="ltr">static void PrintColumnSums(int[,] mat)
 {
     for (int j = 0; j &lt; mat.GetLength(1); j++)
     {
@@ -265,10 +281,9 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
             colSum += mat[i, j];
         }
 
-        Console.WriteLine(&quot;col &quot; + j + &quot;: &quot; + colSum);
+        Console.WriteLine("col " + j + ": " + colSum);
     }
-}</pre><div class="example"><strong>שימו לב:</strong> כאן <code>j</code> חיצוני ו־<code>i</code> פנימי.</div></div>
-<div class="card white"><h3>ספירת תאים לפי תנאי</h3><p>התבנית זהה לסכום, אך במקום להוסיף ערך מוסיפים 1 כאשר התנאי מתקיים.</p><pre class="code " dir="ltr">static int CountEven(int[,] mat)
+}</pre><div class="example"><strong>שימו לב:</strong> כאן <code>j</code> חיצוני ו־<code>i</code> פנימי.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>3 / 17</span></footer></section><section aria-label="עמוד 4" class="a4-page"><div class="a4-content"><div class="card white"><h3>ספירת תאים לפי תנאי</h3><p>התבנית זהה לסכום, אך במקום להוסיף ערך מוסיפים 1 כאשר התנאי מתקיים.</p><pre class="code" dir="ltr">static int CountEven(int[,] mat)
 {
     int count = 0;
 
@@ -281,9 +296,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return count;
-}</pre><div class="example"><strong>אפשר להחליף תנאי:</strong> חיובי, שלילי, גדול מ־100, מתחלק ב־7.</div></div>
-<h2 class="sectionTitle">4. חיפוש, מקסימום ומיקום במטריצה</h2>
-<div class="card white"><h3>בדיקה האם ערך קיים במטריצה</h3><p>עוברים על כל התאים. משתמשים בדגל בוליאני כדי לזכור אם הערך נמצא.</p><pre class="code " dir="ltr">static bool ContainsValue(int[,] mat, int value)
+}</pre><div class="example"><strong>אפשר להחליף תנאי:</strong> חיובי, שלילי, גדול מ־100, מתחלק ב־7.</div></div><h2 class="sectionTitle">4. חיפוש, מקסימום ומיקום במטריצה</h2><div class="card white"><h3>בדיקה האם ערך קיים במטריצה</h3><p>עוברים על כל התאים. משתמשים בדגל בוליאני כדי לזכור אם הערך נמצא.</p><pre class="code" dir="ltr">static bool ContainsValue(int[,] mat, int value)
 {
     bool found = false;
 
@@ -296,8 +309,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> <code>ContainsValue(mat, 7)</code> מחזיר האם 7 מופיע במטריצה.</div></div>
-<div class="card ok"><h3>מציאת מקסימום ומיקומו</h3><p>שומרים גם את הערך המקסימלי וגם את מיקומו: שורה ועמודה.</p><pre class="code mini-code" dir="ltr">static void PrintMaxLocation(int[,] mat)
+}</pre><div class="example"><strong>דוגמה:</strong> <code>ContainsValue(mat, 7)</code> מחזיר האם 7 מופיע במטריצה.</div></div><div class="card ok"><h3>מציאת מקסימום ומיקומו</h3><p>שומרים גם את הערך המקסימלי וגם את מיקומו: שורה ועמודה.</p><pre class="code mini-code" dir="ltr">static void PrintMaxLocation(int[,] mat)
 {
     int max = mat[0, 0];
     int maxRow = 0;
@@ -316,9 +328,8 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
 
-    Console.WriteLine(&quot;max = &quot; + max + &quot; at (&quot; + maxRow + &quot;, &quot; + maxCol + &quot;)&quot;);
-}</pre><div class="example"><strong>שימו לב:</strong> מתחילים מ־<code>mat[0,0]</code>, ולכן המטריצה חייבת להיות לא ריקה.</div></div>
-<div class="card purple"><h3>שורה עם הסכום הגדול ביותר</h3><p>לולאה פנימית מחשבת סכום של שורה אחת; אחרי שהיא מסתיימת משווים לסכום הטוב ביותר.</p><pre class="code mini-code" dir="ltr">static int RowWithMaxSum(int[,] mat)
+    Console.WriteLine("max = " + max + " at (" + maxRow + ", " + maxCol + ")");
+}</pre><div class="example"><strong>שימו לב:</strong> מתחילים מ־<code>mat[0,0]</code>, ולכן המטריצה חייבת להיות לא ריקה.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>4 / 17</span></footer></section><section aria-label="עמוד 5" class="a4-page"><div class="a4-content"><div class="card purple"><h3>שורה עם הסכום הגדול ביותר</h3><p>לולאה פנימית מחשבת סכום של שורה אחת; אחרי שהיא מסתיימת משווים לסכום הטוב ביותר.</p><pre class="code mini-code" dir="ltr">static int RowWithMaxSum(int[,] mat)
 {
     int bestRow = 0;
     int bestSum = 0;
@@ -340,9 +351,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return bestRow;
-}</pre><div class="example"><strong>תבנית חשובה:</strong> חישוב פנימי לכל שורה + החלטה חיצונית אחרי סיום השורה.</div></div>
-<h2 class="sectionTitle">5. לולאה פנימית שתלויה בלולאה החיצונית</h2>
-<div class="card white"><h3>אלכסון ראשי במטריצה ריבועית</h3><p>באלכסון הראשי מתקיים <code>i == j</code>. אין צורך בלולאה פנימית, אך אפשר לשלב בדיקה בתוך מעבר מלא.</p><pre class="code " dir="ltr">static int MainDiagonalSum(int[,] mat)
+}</pre><div class="example"><strong>תבנית חשובה:</strong> חישוב פנימי לכל שורה + החלטה חיצונית אחרי סיום השורה.</div></div><h2 class="sectionTitle">5. לולאה פנימית שתלויה בלולאה החיצונית</h2><div class="card white"><h3>אלכסון ראשי במטריצה ריבועית</h3><p>באלכסון הראשי מתקיים <code>i == j</code>. אין צורך בלולאה פנימית, אך אפשר לשלב בדיקה בתוך מעבר מלא.</p><pre class="code" dir="ltr">static int MainDiagonalSum(int[,] mat)
 {
     int sum = 0;
     int n = mat.GetLength(0);
@@ -352,8 +361,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         sum += mat[i, i];
     }
     return sum;
-}</pre><div class="example"><strong>תנאי:</strong> מתאים למטריצה ריבועית בלבד.</div></div>
-<div class="card purple"><h3>אלכסון משני</h3><p>באלכסון המשני מתקיים <code>j = n - 1 - i</code>.</p><pre class="code " dir="ltr">static int SecondaryDiagonalSum(int[,] mat)
+}</pre><div class="example"><strong>תנאי:</strong> מתאים למטריצה ריבועית בלבד.</div></div><div class="card purple"><h3>אלכסון משני</h3><p>באלכסון המשני מתקיים <code>j = n - 1 - i</code>.</p><pre class="code" dir="ltr">static int SecondaryDiagonalSum(int[,] mat)
 {
     int sum = 0;
     int n = mat.GetLength(0);
@@ -364,8 +372,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         sum += mat[i, j];
     }
     return sum;
-}</pre><div class="example"><strong>דוגמה:</strong> בשורה 0 העמודה היא <code>n - 1</code>, בשורה האחרונה העמודה היא 0.</div></div>
-<div class="card ok"><h3>חצי תחתון של מטריצה: <span class="ltr" dir="ltr">j &lt;= i</span></h3><p>כאן גבול הלולאה הפנימית תלוי ב־<code>i</code>. בכל שורה מדפיסים יותר עמודות.</p><pre class="code " dir="ltr">static void PrintLowerTriangle(int[,] mat)
+}</pre><div class="example"><strong>דוגמה:</strong> בשורה 0 העמודה היא <code>n - 1</code>, בשורה האחרונה העמודה היא 0.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>5 / 17</span></footer></section><section aria-label="עמוד 6" class="a4-page"><div class="a4-content"><div class="card ok"><h3>חצי תחתון של מטריצה: <span class="ltr" dir="ltr">j &lt;= i</span></h3><p>כאן גבול הלולאה הפנימית תלוי ב־<code>i</code>. בכל שורה מדפיסים יותר עמודות.</p><pre class="code" dir="ltr">static void PrintLowerTriangle(int[,] mat)
 {
     int n = mat.GetLength(0);
 
@@ -373,12 +380,11 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
     {
         for (int j = 0; j &lt;= i; j++)
         {
-            Console.Write(mat[i, j] + &quot;	&quot;);
+            Console.Write(mat[i, j] + "	");
         }
         Console.WriteLine();
     }
-}</pre><div class="example"><strong>מספר ריצות:</strong> <span class="formula">1 + 2 + ... + n</span>.</div></div>
-<div class="card white"><h3>חצי עליון של מטריצה: <span class="ltr" dir="ltr">j &gt;= i</span></h3><p>הלולאה הפנימית מתחילה ב־<code>i</code>, ולכן בכל שורה מדפיסים פחות עמודות.</p><pre class="code " dir="ltr">static void PrintUpperTriangle(int[,] mat)
+}</pre><div class="example"><strong>מספר ריצות:</strong> <span class="formula">1 + 2 + ... + n</span>.</div></div><div class="card white"><h3>חצי עליון של מטריצה: <span class="ltr" dir="ltr">j &gt;= i</span></h3><p>הלולאה הפנימית מתחילה ב־<code>i</code>, ולכן בכל שורה מדפיסים פחות עמודות.</p><pre class="code" dir="ltr">static void PrintUpperTriangle(int[,] mat)
 {
     int n = mat.GetLength(0);
 
@@ -386,12 +392,11 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
     {
         for (int j = i; j &lt; n; j++)
         {
-            Console.Write(mat[i, j] + &quot;	&quot;);
+            Console.Write(mat[i, j] + "	");
         }
         Console.WriteLine();
     }
-}</pre><div class="example"><strong>שימוש:</strong> בדיקות סימטריה, השוואת זוגות תאים בלי כפילות.</div></div>
-<div class="card purple"><h3>בדיקת סימטריה במטריצה ריבועית</h3><p>בודקים רק צד אחד של האלכסון. אין צורך לבדוק גם את התא ההפוך שוב.</p><pre class="code " dir="ltr">static bool IsSymmetric(int[,] mat)
+}</pre><div class="example"><strong>שימוש:</strong> בדיקות סימטריה, השוואת זוגות תאים בלי כפילות.</div></div><div class="card purple"><h3>בדיקת סימטריה במטריצה ריבועית</h3><p>בודקים רק צד אחד של האלכסון. אין צורך לבדוק גם את התא ההפוך שוב.</p><pre class="code" dir="ltr">static bool IsSymmetric(int[,] mat)
 {
     int n = mat.GetLength(0);
     bool ok = true;
@@ -405,9 +410,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return ok;
-}</pre><div class="example"><strong>הלולאה הפנימית תלויה בחיצונית:</strong> <code>j = i + 1</code>.</div></div>
-<h2 class="sectionTitle">6. תבניות מיוחדות במטריצות</h2>
-<div class="card white"><h3>מסגרת המטריצה בלבד</h3><p>תא נמצא במסגרת אם הוא בשורה ראשונה, שורה אחרונה, עמודה ראשונה או עמודה אחרונה.</p><pre class="code mini-code" dir="ltr">static int SumBorder(int[,] mat)
+}</pre><div class="example"><strong>הלולאה הפנימית תלויה בחיצונית:</strong> <code>j = i + 1</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>6 / 17</span></footer></section><section aria-label="עמוד 7" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">6. תבניות מיוחדות במטריצות</h2><div class="card white"><h3>מסגרת המטריצה בלבד</h3><p>תא נמצא במסגרת אם הוא בשורה ראשונה, שורה אחרונה, עמודה ראשונה או עמודה אחרונה.</p><pre class="code mini-code" dir="ltr">static int SumBorder(int[,] mat)
 {
     int sum = 0;
     int rows = mat.GetLength(0);
@@ -422,8 +425,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return sum;
-}</pre><div class="example"><strong>שימוש:</strong> גבולות לוח משחק או מסגרת של תמונה.</div></div>
-<div class="card ok"><h3>שחלוף מטריצה</h3><p>במטריצה משוחלפת השורות והעמודות מתחלפות: <code>result[j, i] = mat[i, j]</code>.</p><pre class="code " dir="ltr">static int[,] Transpose(int[,] mat)
+}</pre><div class="example"><strong>שימוש:</strong> גבולות לוח משחק או מסגרת של תמונה.</div></div><div class="card ok"><h3>שחלוף מטריצה</h3><p>במטריצה משוחלפת השורות והעמודות מתחלפות: <code>result[j, i] = mat[i, j]</code>.</p><pre class="code" dir="ltr">static int[,] Transpose(int[,] mat)
 {
     int rows = mat.GetLength(0);
     int cols = mat.GetLength(1);
@@ -437,8 +439,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return result;
-}</pre><div class="example"><strong>דוגמה:</strong> מטריצה 2x3 הופכת למטריצה 3x2.</div></div>
-<div class="card purple"><h3>השוואת שתי מטריצות באותו גודל</h3><p>עוברים על אותם מיקומים בשתי המטריצות. אם יש הבדל אחד, המטריצות אינן שוות.</p><pre class="code mini-code" dir="ltr">static bool EqualMatrices(int[,] a, int[,] b)
+}</pre><div class="example"><strong>דוגמה:</strong> מטריצה 2x3 הופכת למטריצה 3x2.</div></div><div class="card purple"><h3>השוואת שתי מטריצות באותו גודל</h3><p>עוברים על אותם מיקומים בשתי המטריצות. אם יש הבדל אחד, המטריצות אינן שוות.</p><pre class="code mini-code" dir="ltr">static bool EqualMatrices(int[,] a, int[,] b)
 {
     if (a.GetLength(0) != b.GetLength(0) || a.GetLength(1) != b.GetLength(1))
         return false;
@@ -454,8 +455,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return equal;
-}</pre><div class="example"><strong>שימוש:</strong> בדיקת תוצאות, השוואת לוחות, בדיקת שינוי בין מצבים.</div></div>
-<div class="card warn"><h3>כפל מטריצות — שלוש לולאות</h3><p>לכל תא בתוצאה מחשבים סכום של מכפלות. זו תבנית קלאסית של לולאה מקוננת בתוך לולאה מקוננת.</p><pre class="code mini-code" dir="ltr">static int[,] MultiplyMatrices(int[,] a, int[,] b)
+}</pre><div class="example"><strong>שימוש:</strong> בדיקת תוצאות, השוואת לוחות, בדיקת שינוי בין מצבים.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>7 / 17</span></footer></section><section aria-label="עמוד 8" class="a4-page"><div class="a4-content"><div class="card warn"><h3>כפל מטריצות — שלוש לולאות</h3><p>לכל תא בתוצאה מחשבים סכום של מכפלות. זו תבנית קלאסית של לולאה מקוננת בתוך לולאה מקוננת.</p><pre class="code mini-code" dir="ltr">static int[,] MultiplyMatrices(int[,] a, int[,] b)
 {
     int rowsA = a.GetLength(0);
     int colsA = a.GetLength(1);
@@ -475,14 +475,11 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return result;
-}</pre><div class="example"><strong>תנאי:</strong> מספר העמודות של <code>a</code> חייב להיות שווה למספר השורות של <code>b</code>.</div></div>
-<h2 class="sectionTitle">7. תבניות שכנים סביב תא במטריצה</h2>
-<div class="card ok"><h3>בדיקת גבולות לפני גישה לתא</h3><p>לפני שניגשים ל־<code>mat[r, c]</code>, בודקים שהשורה והעמודה חוקיות.</p><pre class="code " dir="ltr">static bool IsInside(int[,] mat, int r, int c)
+}</pre><div class="example"><strong>תנאי:</strong> מספר העמודות של <code>a</code> חייב להיות שווה למספר השורות של <code>b</code>.</div></div><h2 class="sectionTitle">7. תבניות שכנים סביב תא במטריצה</h2><div class="card ok"><h3>בדיקת גבולות לפני גישה לתא</h3><p>לפני שניגשים ל־<code>mat[r, c]</code>, בודקים שהשורה והעמודה חוקיות.</p><pre class="code" dir="ltr">static bool IsInside(int[,] mat, int r, int c)
 {
     return r &gt;= 0 &amp;&amp; r &lt; mat.GetLength(0) &amp;&amp;
            c &gt;= 0 &amp;&amp; c &lt; mat.GetLength(1);
-}</pre><div class="example"><strong>חשוב:</strong> תבנית זו מונעת חריגה מגבולות המערך.</div></div>
-<div class="card white"><h3>ספירת שכנים חיוביים סביב תא</h3><p>שתי לולאות קטנות עוברות על שינוי שורה ושינוי עמודה: <code>-1, 0, 1</code>.</p><pre class="code mini-code" dir="ltr">static int CountPositiveNeighbors(int[,] mat, int row, int col)
+}</pre><div class="example"><strong>חשוב:</strong> תבנית זו מונעת חריגה מגבולות המערך.</div></div><div class="card white"><h3>ספירת שכנים חיוביים סביב תא</h3><p>שתי לולאות קטנות עוברות על שינוי שורה ושינוי עמודה: <code>-1, 0, 1</code>.</p><pre class="code mini-code" dir="ltr">static int CountPositiveNeighbors(int[,] mat, int row, int col)
 {
     int count = 0;
 
@@ -501,28 +498,24 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return count;
-}</pre><div class="example"><strong>שימושים:</strong> לוח מוקשים, משחק החיים, בדיקת סביבת תא.</div></div>
-<div class="card purple"><h3>חלון 3x3 סביב כל תא</h3><p>החיצוניות עוברות על כל תא, והפנימיות מחשבות סביבו שכנים. זו תבנית חזקה לעיבוד גרידים.</p><pre class="code " dir="ltr">static void PrintNeighborCounts(int[,] mat)
+}</pre><div class="example"><strong>שימושים:</strong> לוח מוקשים, משחק החיים, בדיקת סביבת תא.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>8 / 17</span></footer></section><section aria-label="עמוד 9" class="a4-page"><div class="a4-content"><div class="card purple"><h3>חלון 3x3 סביב כל תא</h3><p>החיצוניות עוברות על כל תא, והפנימיות מחשבות סביבו שכנים. זו תבנית חזקה לעיבוד גרידים.</p><pre class="code" dir="ltr">static void PrintNeighborCounts(int[,] mat)
 {
     for (int i = 0; i &lt; mat.GetLength(0); i++)
     {
         for (int j = 0; j &lt; mat.GetLength(1); j++)
         {
             int count = CountPositiveNeighbors(mat, i, j);
-            Console.Write(count + &quot;	&quot;);
+            Console.Write(count + "	");
         }
         Console.WriteLine();
     }
-}</pre><div class="example"><strong>רעיון:</strong> לכל תא מחשבים ערך חדש לפי התאים סביבו.</div></div>
-<h2 class="sectionTitle">8. לולאות מקוננות במערך חד־ממדי</h2>
-<div class="card white"><h3>כל זוג איברים פעם אחת</h3><p>החיצונית בוחרת איבר ראשון. הפנימית מתחילה אחרי האיבר הראשון כדי לא לחזור על זוגות.</p><pre class="code " dir="ltr">for (int i = 0; i &lt; arr.Length; i++)
+}</pre><div class="example"><strong>רעיון:</strong> לכל תא מחשבים ערך חדש לפי התאים סביבו.</div></div><h2 class="sectionTitle">8. לולאות מקוננות במערך חד־ממדי</h2><div class="card white"><h3>כל זוג איברים פעם אחת</h3><p>החיצונית בוחרת איבר ראשון. הפנימית מתחילה אחרי האיבר הראשון כדי לא לחזור על זוגות.</p><pre class="code" dir="ltr">for (int i = 0; i &lt; arr.Length; i++)
 {
     for (int j = i + 1; j &lt; arr.Length; j++)
     {
-        Console.WriteLine(arr[i] + &quot; , &quot; + arr[j]);
+        Console.WriteLine(arr[i] + " , " + arr[j]);
     }
-}</pre><div class="example"><strong>מספר זוגות:</strong> <span class="formula">n(n - 1) / 2</span>.</div></div>
-<div class="card ok"><h3>בדיקת כפילויות במערך</h3><p>משווים כל זוג איברים. אם שני איברים שווים במקומות שונים, קיימת כפילות.</p><pre class="code " dir="ltr">static bool HasDuplicates(int[] arr)
+}</pre><div class="example"><strong>מספר זוגות:</strong> <span class="formula">n(n - 1) / 2</span>.</div></div><div class="card ok"><h3>בדיקת כפילויות במערך</h3><p>משווים כל זוג איברים. אם שני איברים שווים במקומות שונים, קיימת כפילות.</p><pre class="code" dir="ltr">static bool HasDuplicates(int[] arr)
 {
     bool found = false;
 
@@ -535,8 +528,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{4, 2, 4}</code> הפעולה תחזיר <code>true</code>.</div></div>
-<div class="card purple"><h3>זוג שסכומו שווה לערך נתון</h3><p>משתמשים באותה תבנית של זוגות, ובודקים תנאי על שני האיברים.</p><pre class="code " dir="ltr">static bool HasPairWithSum(int[] arr, int target)
+}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{4, 2, 4}</code> הפעולה תחזיר <code>true</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>9 / 17</span></footer></section><section aria-label="עמוד 10" class="a4-page"><div class="a4-content"><div class="card purple"><h3>זוג שסכומו שווה לערך נתון</h3><p>משתמשים באותה תבנית של זוגות, ובודקים תנאי על שני האיברים.</p><pre class="code" dir="ltr">static bool HasPairWithSum(int[] arr, int target)
 {
     bool found = false;
 
@@ -549,8 +541,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> במערך <code>{3,7,4}</code> קיים זוג שסכומו 10.</div></div>
-<div class="card white"><h3>ספירת מופעים לכל איבר</h3><p>עבור כל איבר חיצוני סופרים כמה פעמים הוא מופיע בכל המערך.</p><pre class="code " dir="ltr">static void PrintCounts(int[] arr)
+}</pre><div class="example"><strong>דוגמה:</strong> במערך <code>{3,7,4}</code> קיים זוג שסכומו 10.</div></div><div class="card white"><h3>ספירת מופעים לכל איבר</h3><p>עבור כל איבר חיצוני סופרים כמה פעמים הוא מופיע בכל המערך.</p><pre class="code" dir="ltr">static void PrintCounts(int[] arr)
 {
     for (int i = 0; i &lt; arr.Length; i++)
     {
@@ -562,10 +553,9 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
                 count++;
         }
 
-        Console.WriteLine(arr[i] + &quot; appears &quot; + count + &quot; times&quot;);
+        Console.WriteLine(arr[i] + " appears " + count + " times");
     }
-}</pre><div class="example"><strong>ללא Dictionary:</strong> מתאים לבגרות כאשר לא משתמשים במבני נתונים נוספים.</div></div>
-<div class="card ok"><h3>האיבר השכיח ביותר</h3><p>אותה תבנית כמו ספירת מופעים, אך שומרים את הספירה הגבוהה ביותר.</p><pre class="code mini-code" dir="ltr">static int MostFrequent(int[] arr)
+}</pre><div class="example"><strong>ללא Dictionary:</strong> מתאים לבגרות כאשר לא משתמשים במבני נתונים נוספים.</div></div><div class="card ok"><h3>האיבר השכיח ביותר</h3><p>אותה תבנית כמו ספירת מופעים, אך שומרים את הספירה הגבוהה ביותר.</p><pre class="code mini-code" dir="ltr">static int MostFrequent(int[] arr)
 {
     int bestValue = arr[0];
     int bestCount = 0;
@@ -586,9 +576,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return bestValue;
-}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{5,2,5,7,5}</code> יוחזר <code>5</code>.</div></div>
-<h2 class="sectionTitle">9. מיון בעזרת לולאות מקוננות</h2>
-<div class="card purple"><h3>מיון בחירה — Selection Sort</h3><p>בכל סיבוב מחפשים את המקום של הערך הקטן ביותר בחלק שלא מוין, ומחליפים.</p><pre class="code " dir="ltr">static void SelectionSort(int[] arr)
+}</pre><div class="example"><strong>דוגמה:</strong> עבור <code>{5,2,5,7,5}</code> יוחזר <code>5</code>.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>10 / 17</span></footer></section><section aria-label="עמוד 11" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">9. מיון בעזרת לולאות מקוננות</h2><div class="card purple"><h3>מיון בחירה — Selection Sort</h3><p>בכל סיבוב מחפשים את המקום של הערך הקטן ביותר בחלק שלא מוין, ומחליפים.</p><pre class="code" dir="ltr">static void SelectionSort(int[] arr)
 {
     for (int i = 0; i &lt; arr.Length - 1; i++)
     {
@@ -604,8 +592,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         arr[i] = arr[minIndex];
         arr[minIndex] = temp;
     }
-}</pre><div class="example"><strong>הלולאה הפנימית תלויה בחיצונית:</strong> <code>j = i + 1</code>.</div></div>
-<div class="card ok"><h3>מיון בועות — Bubble Sort</h3><p>בכל מעבר משווים איברים סמוכים. הערך הגדול מתקדם לקצה המערך.</p><pre class="code " dir="ltr">static void BubbleSort(int[] arr)
+}</pre><div class="example"><strong>הלולאה הפנימית תלויה בחיצונית:</strong> <code>j = i + 1</code>.</div></div><div class="card ok"><h3>מיון בועות — Bubble Sort</h3><p>בכל מעבר משווים איברים סמוכים. הערך הגדול מתקדם לקצה המערך.</p><pre class="code" dir="ltr">static void BubbleSort(int[] arr)
 {
     for (int pass = 0; pass &lt; arr.Length - 1; pass++)
     {
@@ -619,21 +606,18 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
             }
         }
     }
-}</pre><div class="example"><strong>תלות:</strong> בכל מעבר פנימי יש פחות השוואות, כי הקצה כבר מסודר.</div></div>
-<h2 class="sectionTitle">10. תתי־מערכים וטווחים רצופים</h2>
-<div class="card white"><h3>כל תת־מערך רציף לפי התחלה וסוף</h3><p>החיצונית בוחרת התחלה, הפנימית בוחרת סוף. הסוף תמיד מתחיל מההתחלה.</p><pre class="code mini-code" dir="ltr">for (int start = 0; start &lt; arr.Length; start++)
+}</pre><div class="example"><strong>תלות:</strong> בכל מעבר פנימי יש פחות השוואות, כי הקצה כבר מסודר.</div></div><h2 class="sectionTitle">10. תתי־מערכים וטווחים רצופים</h2><div class="card white"><h3>כל תת־מערך רציף לפי התחלה וסוף</h3><p>החיצונית בוחרת התחלה, הפנימית בוחרת סוף. הסוף תמיד מתחיל מההתחלה.</p><pre class="code mini-code" dir="ltr">for (int start = 0; start &lt; arr.Length; start++)
 {
     for (int end = start; end &lt; arr.Length; end++)
     {
-        Console.Write(&quot;range &quot; + start + &quot;..&quot; + end + &quot;: &quot;);
+        Console.Write("range " + start + ".." + end + ": ");
 
         for (int k = start; k &lt;= end; k++)
-            Console.Write(arr[k] + &quot; &quot;);
+            Console.Write(arr[k] + " ");
 
         Console.WriteLine();
     }
-}</pre><div class="example"><strong>שימוש:</strong> בדיקת כל הרצפים האפשריים במערך.</div></div>
-<div class="card purple"><h3>סכום מקסימלי של תת־מערך רציף</h3><p>לכל התחלה מחשבים סכומים מצטברים עד כל סוף אפשרי.</p><pre class="code " dir="ltr">static int MaxSubArraySumSimple(int[] arr)
+}</pre><div class="example"><strong>שימוש:</strong> בדיקת כל הרצפים האפשריים במערך.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>11 / 17</span></footer></section><section aria-label="עמוד 12" class="a4-page"><div class="a4-content"><div class="card purple"><h3>סכום מקסימלי של תת־מערך רציף</h3><p>לכל התחלה מחשבים סכומים מצטברים עד כל סוף אפשרי.</p><pre class="code" dir="ltr">static int MaxSubArraySumSimple(int[] arr)
 {
     int best = arr[0];
 
@@ -650,9 +634,7 @@ for (int i = 0; i &lt; mat.GetLength(0); i++)
         }
     }
     return best;
-}</pre><div class="example"><strong>היתרון:</strong> לא מחשבים מחדש את כל הטווח, אלא מוסיפים את האיבר הבא.</div></div>
-<h2 class="sectionTitle">11. לולאות מקוננות עם שני מערכים</h2>
-<div class="card white"><h3>האם איבר ממערך אחד מופיע במערך אחר</h3><p>עבור כל איבר במערך הראשון, עוברים על כל איברי המערך השני.</p><pre class="code mini-code" dir="ltr">static bool ContainsInArray(int[] arr, int value)
+}</pre><div class="example"><strong>היתרון:</strong> לא מחשבים מחדש את כל הטווח, אלא מוסיפים את האיבר הבא.</div></div><h2 class="sectionTitle">11. לולאות מקוננות עם שני מערכים</h2><div class="card white"><h3>האם איבר ממערך אחד מופיע במערך אחר</h3><p>עבור כל איבר במערך הראשון, עוברים על כל איברי המערך השני.</p><pre class="code mini-code" dir="ltr">static bool ContainsInArray(int[] arr, int value)
 {
     bool found = false;
     for (int i = 0; i &lt; arr.Length; i++)
@@ -670,8 +652,7 @@ static void PrintCommonValues(int[] a, int[] b)
         if (ContainsInArray(b, a[i]))
             Console.WriteLine(a[i]);
     }
-}</pre><div class="example"><strong>רעיון:</strong> אפשר לממש את החיפוש בלולאה פנימית ישירה או בפעולת עזר.</div></div>
-<div class="card ok"><h3>האם כל איברי מערך אחד קיימים בשני</h3><p>לולאה חיצונית עוברת על המערך הראשון; לכל איבר מחפשים התאמה במערך השני.</p><pre class="code " dir="ltr">static bool IsSubset(int[] small, int[] big)
+}</pre><div class="example"><strong>רעיון:</strong> אפשר לממש את החיפוש בלולאה פנימית ישירה או בפעולת עזר.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>12 / 17</span></footer></section><section aria-label="עמוד 13" class="a4-page"><div class="a4-content"><div class="card ok"><h3>האם כל איברי מערך אחד קיימים בשני</h3><p>לולאה חיצונית עוברת על המערך הראשון; לכל איבר מחפשים התאמה במערך השני.</p><pre class="code" dir="ltr">static bool IsSubset(int[] small, int[] big)
 {
     bool allFound = true;
 
@@ -689,8 +670,7 @@ static void PrintCommonValues(int[] a, int[] b)
             allFound = false;
     }
     return allFound;
-}</pre><div class="example"><strong>חשוב:</strong> <code>found</code> מאותחל מחדש לכל איבר של <code>small</code>.</div></div>
-<div class="card purple"><h3>זוג אחד מכל מערך שסכומו נתון</h3><p>כאן כל זוג נוצר מאיבר אחד במערך הראשון ואיבר אחד במערך השני.</p><pre class="code " dir="ltr">static bool HasCrossPairSum(int[] a, int[] b, int target)
+}</pre><div class="example"><strong>חשוב:</strong> <code>found</code> מאותחל מחדש לכל איבר של <code>small</code>.</div></div><div class="card purple"><h3>זוג אחד מכל מערך שסכומו נתון</h3><p>כאן כל זוג נוצר מאיבר אחד במערך הראשון ואיבר אחד במערך השני.</p><pre class="code" dir="ltr">static bool HasCrossPairSum(int[] a, int[] b, int target)
 {
     bool found = false;
 
@@ -703,9 +683,7 @@ static void PrintCommonValues(int[] a, int[] b)
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> מחפשים מספר מ־<code>a</code> ומספר מ־<code>b</code> שסכומם 20.</div></div>
-<h2 class="sectionTitle">12. מערך מדורג — כאשר אורך השורה משתנה</h2>
-<div class="card warn"><h3>מעבר על מערך של מערכים</h3><p>במערך מדורג לכל שורה יכול להיות אורך אחר. לכן הלולאה הפנימית תלויה ב־<code>jagged[i].Length</code>.</p><pre class="code " dir="ltr">int[][] jagged = new int[3][];
+}</pre><div class="example"><strong>דוגמה:</strong> מחפשים מספר מ־<code>a</code> ומספר מ־<code>b</code> שסכומם 20.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>13 / 17</span></footer></section><section aria-label="עמוד 14" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">12. מערך מדורג — כאשר אורך השורה משתנה</h2><div class="card warn"><h3>מעבר על מערך של מערכים</h3><p>במערך מדורג לכל שורה יכול להיות אורך אחר. לכן הלולאה הפנימית תלויה ב־<code>jagged[i].Length</code>.</p><pre class="code" dir="ltr">int[][] jagged = new int[3][];
 jagged[0] = new int[] { 1, 2 };
 jagged[1] = new int[] { 3, 4, 5 };
 jagged[2] = new int[] { 6 };
@@ -714,12 +692,10 @@ for (int i = 0; i &lt; jagged.Length; i++)
 {
     for (int j = 0; j &lt; jagged[i].Length; j++)
     {
-        Console.Write(jagged[i][j] + &quot; &quot;);
+        Console.Write(jagged[i][j] + " ");
     }
     Console.WriteLine();
-}</pre><div class="example"><strong>הבדל חשוב:</strong> במטריצה משתמשים ב־<code>mat[i, j]</code>; במערך מדורג משתמשים ב־<code>jagged[i][j]</code>.</div></div>
-<h2 class="sectionTitle">13. ספירת ריצות וטבלת מעקב</h2>
-<table>
+}</pre><div class="example"><strong>הבדל חשוב:</strong> במטריצה משתמשים ב־<code>mat[i, j]</code>; במערך מדורג משתמשים ב־<code>jagged[i][j]</code>.</div></div><h2 class="sectionTitle">13. ספירת ריצות וטבלת מעקב</h2><table>
 <thead><tr><th>תבנית</th><th>מספר ריצות פנימיות בקירוב</th><th>הסבר</th></tr></thead>
 <tbody>
 <tr><td class="op">for i=0..n-1, for j=0..m-1</td><td class="op">n * m</td><td>מעבר מלא על מטריצה או על כל זוג בין שני מערכים.</td></tr>
@@ -727,8 +703,7 @@ for (int i = 0; i &lt; jagged.Length; i++)
 <tr><td class="op">for i=0..n-1, for j=0..i</td><td class="op">n(n+1)/2</td><td>חצי תחתון כולל אלכסון או תבנית משולש.</td></tr>
 <tr><td class="op">3 nested loops</td><td class="op">n * m * k</td><td>לדוגמה כפל מטריצות או שכנים לכל תא.</td></tr>
 </tbody>
-</table>
-<div class="card white"><h3>טבלת מעקב קצרה לזוגות במערך</h3><p>במערך באורך 4, התבנית <code>j = i + 1</code> מייצרת את הזוגות הבאים:</p><table>
+</table><div class="card white"><h3>טבלת מעקב קצרה לזוגות במערך</h3><p>במערך באורך 4, התבנית <code>j = i + 1</code> מייצרת את הזוגות הבאים:</p><table>
 <thead><tr><th>i</th><th>ערכי j</th><th>זוגות אינדקסים</th></tr></thead>
 <tbody>
 <tr><td class="op">0</td><td class="op">1,2,3</td><td class="op">(0,1), (0,2), (0,3)</td></tr>
@@ -736,11 +711,9 @@ for (int i = 0; i &lt; jagged.Length; i++)
 <tr><td class="op">2</td><td class="op">3</td><td class="op">(2,3)</td></tr>
 <tr><td class="op">3</td><td class="op">none</td><td>אין זוגות נוספים</td></tr>
 </tbody>
-</table></div>
-<h2 class="sectionTitle">14. תרגילי דגם מלאים</h2>
-<div class="card ok"><h3>תרגיל 1 — סכום שורות ועמודות במטריצה</h3><p><strong>משימה:</strong> קבלו מטריצה והדפיסו סכום לכל שורה ואחר כך סכום לכל עמודה.</p><pre class="code mini-code" dir="ltr">static void PrintRowAndColumnSums(int[,] mat)
+</table></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>14 / 17</span></footer></section><section aria-label="עמוד 15" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">14. תרגילי דגם מלאים</h2><div class="card ok"><h3>תרגיל 1 — סכום שורות ועמודות במטריצה</h3><p><strong>משימה:</strong> קבלו מטריצה והדפיסו סכום לכל שורה ואחר כך סכום לכל עמודה.</p><pre class="code mini-code" dir="ltr">static void PrintRowAndColumnSums(int[,] mat)
 {
-    Console.WriteLine(&quot;Row sums:&quot;);
+    Console.WriteLine("Row sums:");
     for (int i = 0; i &lt; mat.GetLength(0); i++)
     {
         int sum = 0;
@@ -749,7 +722,7 @@ for (int i = 0; i &lt; jagged.Length; i++)
         Console.WriteLine(sum);
     }
 
-    Console.WriteLine(&quot;Column sums:&quot;);
+    Console.WriteLine("Column sums:");
     for (int j = 0; j &lt; mat.GetLength(1); j++)
     {
         int sum = 0;
@@ -757,8 +730,7 @@ for (int i = 0; i &lt; jagged.Length; i++)
             sum += mat[i, j];
         Console.WriteLine(sum);
     }
-}</pre><div class="example"><strong>שאלה להבנה:</strong> מדוע פעם <code>i</code> חיצוני ופעם <code>j</code> חיצוני?</div></div>
-<div class="card purple"><h3>תרגיל 2 — האם כל שורה ממוינת בסדר עולה</h3><p>בודקים בכל שורה זוגות סמוכים. אם נמצאה ירידה, השורה אינה ממוינת.</p><pre class="code " dir="ltr">static bool AllRowsSorted(int[,] mat)
+}</pre><div class="example"><strong>שאלה להבנה:</strong> מדוע פעם <code>i</code> חיצוני ופעם <code>j</code> חיצוני?</div></div><div class="card purple"><h3>תרגיל 2 — האם כל שורה ממוינת בסדר עולה</h3><p>בודקים בכל שורה זוגות סמוכים. אם נמצאה ירידה, השורה אינה ממוינת.</p><pre class="code" dir="ltr">static bool AllRowsSorted(int[,] mat)
 {
     bool allSorted = true;
 
@@ -776,8 +748,7 @@ for (int i = 0; i &lt; jagged.Length; i++)
             allSorted = false;
     }
     return allSorted;
-}</pre><div class="example"><strong>תבנית:</strong> בדיקה פנימית לשורה אחת + החלטה כללית.</div></div>
-<div class="card white"><h3>תרגיל 3 — האם יש במערך שני איברים שווים במרחק קבוע</h3><p>בודקים כל זוג אינדקסים במערך, אבל התנאי כולל גם את המרחק בין האינדקסים.</p><pre class="code " dir="ltr">static bool HasEqualDistancePair(int[] arr, int distance)
+}</pre><div class="example"><strong>תבנית:</strong> בדיקה פנימית לשורה אחת + החלטה כללית.</div></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>15 / 17</span></footer></section><section aria-label="עמוד 16" class="a4-page"><div class="a4-content"><div class="card white"><h3>תרגיל 3 — האם יש במערך שני איברים שווים במרחק קבוע</h3><p>בודקים כל זוג אינדקסים במערך, אבל התנאי כולל גם את המרחק בין האינדקסים.</p><pre class="code" dir="ltr">static bool HasEqualDistancePair(int[] arr, int distance)
 {
     bool found = false;
 
@@ -790,9 +761,7 @@ for (int i = 0; i &lt; jagged.Length; i++)
         }
     }
     return found;
-}</pre><div class="example"><strong>דוגמה:</strong> מתאים לשאלות שבהן צריך לקשור בין ערכים לבין מיקומים.</div></div>
-<h2 class="sectionTitle">15. דף החלטה מהיר</h2>
-<table>
+}</pre><div class="example"><strong>דוגמה:</strong> מתאים לשאלות שבהן צריך לקשור בין ערכים לבין מיקומים.</div></div><h2 class="sectionTitle">15. דף החלטה מהיר</h2><table>
 <thead><tr><th>השאלה מבקשת...</th><th>מה בוחרת הלולאה החיצונית?</th><th>מה עושה הפנימית?</th></tr></thead>
 <tbody>
 <tr><td>לעבור על כל המטריצה</td><td>שורה</td><td>כל העמודות באותה שורה</td></tr>
@@ -804,13 +773,9 @@ for (int i = 0; i &lt; jagged.Length; i++)
 <tr><td>אלכסון</td><td>שורה</td><td>עמודה מחושבת לפי השורה</td></tr>
 <tr><td>שכנים</td><td>תא מרכזי</td><td>הזזות סביב התא</td></tr>
 </tbody>
-</table>
-<div class="foot">
+</table><div class="foot">
 <strong>כלל עבודה מומלץ:</strong> לפני כתיבת הקוד הגדירו במילים מה מייצג כל מונה. לדוגמה: <code>i</code> = שורה, <code>j</code> = עמודה; או <code>i</code> = איבר ראשון בזוג, <code>j</code> = איבר שני בזוג. לאחר מכן קבעו האם <code>j</code> רץ על כל הטווח או מתחיל/מסתיים לפי <code>i</code>.
-</div>
-
-<h2 class="sectionTitle">16. תרגול קצר לפי תבניות</h2>
-<div class="card white">
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>16 / 17</span></footer></section><section aria-label="עמוד 17" class="a4-page"><div class="a4-content"><h2 class="sectionTitle">16. תרגול קצר לפי תבניות</h2><div class="card white">
 <h3>תרגילים לביסוס התבניות</h3>
 <table>
 <thead><tr><th>מספר</th><th>משימה</th><th>תבנית מומלצת</th></tr></thead>
@@ -823,6 +788,4 @@ for (int i = 0; i &lt; jagged.Length; i++)
 <tr><td class="op">6</td><td>עבור כל תא במטריצה, הדפיסו כמה שכנים חיוביים יש לו.</td><td class="op">i, j, dr, dc + IsInside</td></tr>
 </tbody>
 </table>
-</div>
-
-</main></body></html>
+</div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — לולאות מקוננות במערכים C#</span><span>17 / 17</span></footer></section></main></body></html>

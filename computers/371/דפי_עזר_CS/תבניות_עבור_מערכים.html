@@ -5,7 +5,6 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>דף עזר לבגרות — תבניות עבור מערכים ב־C# — גרסת עמודה אחת</title>
-
 <style>
 @page {
   size: A4;
@@ -225,9 +224,41 @@ body {
   html, body { background: #fff; }
   .doc { width: auto; max-width: none; margin: 0; padding: 0; box-shadow: none; }
 }
+</style><style id="a4-layout">/* One section is one physical A4 sheet. Content is never clipped or scrolled. */
+@page { size: A4 portrait; margin: 0; @bottom-center { content: none; } }
+html, body { margin: 0; padding: 0; background: #e8edf4; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+main.doc { width: 210mm; max-width: none; margin: 0 auto; padding: 0; background: transparent; }
+section.a4-page {
+  box-sizing: border-box; position: relative; display: block;
+  width: 210mm; height: 297mm; min-height: 297mm;
+  padding: 12mm 12mm 16mm; margin: 8mm 0;
+  background: white; box-shadow: 0 3px 18px #21334d20;
+  break-after: page; page-break-after: always; break-inside: avoid;
+  overflow: visible;
+}
+section.a4-page:last-child { break-after: auto; page-break-after: auto; }
+.a4-content { display: flow-root; width: 100%; height: 269mm; }
+.a4-content > :first-child { margin-top: 0; }
+.a4-content h1, .a4-content h2, .a4-content h3 { line-height: 1.5; }
+.a4-content .inline-expression { direction: ltr; unicode-bidi: isolate; white-space: normal; overflow-wrap: anywhere; }
+.a4-content * { min-width: 0; max-width: 100%; }
+.a4-content pre { white-space: pre-wrap !important; overflow-wrap: anywhere; overflow: visible !important; max-height: none !important; }
+.a4-content table { table-layout: fixed; width: 100%; }
+.a4-content td, .a4-content th { overflow-wrap: anywhere; }
+.a4-content img, .a4-content svg { max-width: 100%; height: auto; }
+.a4-content .grid2, .a4-content .grid3, .a4-content .twoCols,
+.a4-content .oneCol, .a4-content .fourTips, .a4-content .sortCompare { display: block !important; }
+.a4-content .card { margin-bottom: 8px; }
+.a4-page-footer { position: absolute; bottom: 7mm; left: 12mm; right: 12mm; border-top: 1px solid #ccd8e8; padding-top: 2mm; font: 10px Arial, sans-serif; color: #506581; display: flex; justify-content: space-between; direction: rtl; }
+.a4-page-footer span:last-child { direction: ltr; unicode-bidi: isolate; }
+@media print {
+  html, body { background: white; }
+  main.doc { width: 210mm; margin: 0; }
+  section.a4-page { margin: 0; box-shadow: none; }
+}
 </style></head>
-<body><main class="doc">
-<header class="hero" dir="rtl">
+<body><main class="doc"><section aria-label="עמוד 1" class="a4-page"><div class="a4-content"><header class="hero" dir="rtl">
 <div class="badge" dir="ltr">C#<br/><span>[]</span></div>
 <div class="heroText">
 <h1>דף עזר לבחינת הבגרות — תבניות עבור מערכים ב־<span class="ltr">C#</span></h1>
@@ -236,14 +267,7 @@ body {
 <div class="miniWarn">בדף זה כל מערך הוא <b>[]int</b>, אך רוב התבניות מתאימות גם לטיפוסים אחרים.</div>
 <div class="miniRule">כלל אינדקסים מרכזי: אם <span class="math-inline" dir="ltr">n = arr.Length</span>, אז האינדקסים החוקיים הם <span class="math-inline" dir="ltr">0 ≤ i &lt; n</span>. האינדקס האחרון הוא <span class="math-inline" dir="ltr">n-1</span>.</div>
 </div>
-</header>
-<h2 class="sectionTitle"><span>1.</span>כללי יסוד ותבניות מעבר</h2>
-<div class="twoCols" data-layout="one-column">
-<section class="card note blue" dir="rtl"><h3>מבנה מערך ואינדקסים</h3><div class="desc"><div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">דוגמה: arr</div><div class="arrayCells"><div class="cell"><b>7</b><span>0</span></div><div class="cell"><b>4</b><span>1</span></div><div class="cell"><b>9</b><span>2</span></div><div class="cell"><b>2</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div><p>הגישה לאיבר מתבצעת בעזרת <b>arr[i]</b>. אסור לגשת אל <b>arr[arr.Length]</b>, כי זה מקום אחד אחרי סוף המערך.</p></div></section>
-<section class="card note yellow" dir="rtl"><h3>תבנית חשיבה לפני כתיבת קוד</h3><div class="desc"><ol><li>מה טווח הלולאה?</li><li>האם צריך לעבור על כל האיברים או עד שנמצא תנאי?</li><li>האם הפעולה משנה את המערך הקיים או מחזירה מערך חדש?</li><li>האם צריך לטפל במערך ריק?</li></ol></div></section>
-</div>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card green" dir="rtl">
+</header><h2 class="sectionTitle"><span>1.</span>כללי יסוד ותבניות מעבר</h2><section class="card note blue" dir="rtl"><h3>מבנה מערך ואינדקסים</h3><div class="desc"><div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">דוגמה: arr</div><div class="arrayCells"><div class="cell"><b>7</b><span>0</span></div><div class="cell"><b>4</b><span>1</span></div><div class="cell"><b>9</b><span>2</span></div><div class="cell"><b>2</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div><p>הגישה לאיבר מתבצעת בעזרת <b>arr[i]</b>. אסור לגשת אל <b>arr[arr.Length]</b>, כי זה מקום אחד אחרי סוף המערך.</p></div></section><section class="card note yellow" dir="rtl"><h3>תבנית חשיבה לפני כתיבת קוד</h3><div class="desc"><ol><li>מה טווח הלולאה?</li><li>האם צריך לעבור על כל האיברים או עד שנמצא תנאי?</li><li>האם הפעולה משנה את המערך הקיים או מחזירה מערך חדש?</li><li>האם צריך לטפל במערך ריק?</li></ol></div></section><section class="card green" dir="rtl">
 <h3>מעבר רגיל על מערך</h3>
 <div class="desc">משתמשים כאשר רוצים לעבור מהאיבר הראשון לאחרון.</div>
 <div class="signature" dir="ltr">for (int i = 0; i &lt; arr.Length; i++)</div>
@@ -251,8 +275,7 @@ body {
 {
     // טיפול באיבר arr[i]
 }</code></pre>
-</section>
-<section class="card purple" dir="rtl">
+</section><section class="card purple" dir="rtl">
 <h3>מעבר בסדר הפוך</h3>
 <div class="desc">משתמשים כאשר רוצים להתחיל מהאיבר האחרון.</div>
 <div class="signature" dir="ltr">for (int i = arr.Length - 1; i &gt;= 0; i--)</div>
@@ -260,11 +283,7 @@ body {
 {
     // טיפול באיבר arr[i]
 }</code></pre>
-</section>
-</div>
-<h2 class="sectionTitle"><span>2.</span>פעולות הדפסה בסיסיות</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card blue" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>1 / 14</span></footer></section><section aria-label="עמוד 2" class="a4-page"><div class="a4-content"><h2 class="sectionTitle"><span>2.</span>פעולות הדפסה בסיסיות</h2><section class="card blue" dir="rtl">
 <h3>הדפסת מערך</h3>
 <div class="signature" dir="ltr">public static void Print(int[] arr)</div>
 <pre class="code" dir="ltr"><code>public static void Print(int[] arr)
@@ -277,8 +296,7 @@ body {
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 3, 5, 8 };
 Print(a);      // 3, 5, 8,</div>
-</section>
-<section class="card blue" dir="rtl">
+</section><section class="card blue" dir="rtl">
 <h3>הדפסה בסדר הפוך</h3>
 <div class="signature" dir="ltr">public static void PrintRev(int[] arr)</div>
 <pre class="code" dir="ltr"><code>public static void PrintRev(int[] arr)
@@ -291,12 +309,7 @@ Print(a);      // 3, 5, 8,</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 3, 5, 8 };
 PrintRev(a);   // 8, 5, 3,</div>
-</section>
-</div>
-
-<h2 class="sectionTitle"><span>2.</span>המשך פעולות הדפסה וחישוב</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card green" dir="rtl">
+</section><h2 class="sectionTitle"><span>2.</span>המשך פעולות הדפסה וחישוב</h2><section class="card green" dir="rtl">
 <h3>הדפסת מיקומים זוגיים או אי־זוגיים</h3>
 <div class="desc">כאשר <b>mod = 0</b> מדפיסים מיקומים זוגיים. כאשר <b>mod = 1</b> מדפיסים מיקומים אי־זוגיים. הקפיצה היא <span class="math-inline" dir="ltr">i = i + 2</span>.</div>
 <div class="signature" dir="ltr">public static void PrintEvenOrOdd(int[] arr, int mod)</div>
@@ -311,8 +324,7 @@ PrintRev(a);   // 8, 5, 3,</div>
 <div class="example" dir="ltr">int[] a = { 10, 20, 30, 40, 50 };
 PrintEvenOrOdd(a, 0); // 10 30 50
 PrintEvenOrOdd(a, 1); // 20 40</div>
-</section>
-<section class="card purple" dir="rtl">
+</section><section class="card purple" dir="rtl">
 <h3>סכום איברי המערך</h3>
 <div class="desc">תבנית צבירה: מתחילים מ־0 ומוסיפים כל איבר למשתנה sum.</div>
 <div class="signature" dir="ltr">public static int Sum(int[] arr)</div>
@@ -327,10 +339,7 @@ PrintEvenOrOdd(a, 1); // 20 40</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 2, 4, 6 };
 Console.WriteLine(Sum(a)); // 12</div>
-</section>
-</div>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card yellow" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>2 / 14</span></footer></section><section aria-label="עמוד 3" class="a4-page"><div class="a4-content"><section class="card yellow" dir="rtl">
 <h3>ספירת מופעים של ערך</h3>
 <div class="desc">תבנית מנייה בתנאי: מגדילים count רק כאשר התנאי מתקיים.</div>
 <div class="signature" dir="ltr">public static int Count(int[] arr, int num)</div>
@@ -348,12 +357,7 @@ Console.WriteLine(Sum(a)); // 12</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 5, 1, 5, 2, 5 };
 Console.WriteLine(Count(a, 5)); // 3</div>
-</section>
-<section class="card note red" dir="rtl"><h3>תבנית צבירה מול תבנית מנייה</h3><div class="desc"><table class="smallTable"><tr><th>מטרה</th><th>משתנה</th><th>עדכון</th></tr><tr><td>סכום</td><td>sum</td><td>sum = sum + arr[i]</td></tr><tr><td>ספירה</td><td>count</td><td>count++ רק אם התנאי נכון</td></tr></table></div></section>
-</div>
-<h2 class="sectionTitle"><span>3.</span>פעולות הממלאות ובונות מערך</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card blue" dir="rtl">
+</section><section class="card note red" dir="rtl"><h3>תבנית צבירה מול תבנית מנייה</h3><div class="desc"><table class="smallTable"><tbody><tr><th>מטרה</th><th>משתנה</th><th>עדכון</th></tr><tr><td>סכום</td><td>sum</td><td>sum = sum + arr[i]</td></tr><tr><td>ספירה</td><td>count</td><td>count++ רק אם התנאי נכון</td></tr></tbody></table></div></section><h2 class="sectionTitle"><span>3.</span>פעולות הממלאות ובונות מערך</h2><section class="card blue" dir="rtl">
 <h3>קליטת ערכים לתוך מערך קיים</h3>
 <div class="desc">הפעולה אינה יוצרת מערך חדש; היא משנה את המערך שהתקבל כפרמטר.</div>
 <div class="signature" dir="ltr">public static void Read(int[] arr)</div>
@@ -367,8 +371,7 @@ Console.WriteLine(Count(a, 5)); // 3</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = new int[3];
 Read(a);</div>
-</section>
-<section class="card blue" dir="rtl">
+</section><section class="card blue" dir="rtl">
 <h3>בניית מערך לפי קלט</h3>
 <div class="desc">הפעולה קולטת גודל, יוצרת מערך, ממלאת אותו ומחזירה אותו.</div>
 <div class="signature" dir="ltr">public static int[] Build()</div>
@@ -382,12 +385,7 @@ Read(a);</div>
     return arr;
 }</code></pre>
 <div class="example" dir="ltr">int[] a = Build();</div>
-</section>
-</div>
-
-<h2 class="sectionTitle"><span>3.</span>המשך מילוי ובנייה</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card green" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>3 / 14</span></footer></section><section aria-label="עמוד 4" class="a4-page"><div class="a4-content"><h2 class="sectionTitle"><span>3.</span>המשך מילוי ובנייה</h2><section class="card green" dir="rtl">
 <h3>מילוי מערך בערך קבוע</h3>
 <div class="desc">כל תא מקבל את אותו הערך.</div>
 <div class="signature" dir="ltr">public static void Fill(int[] arr, int num)</div>
@@ -400,8 +398,7 @@ Read(a);</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = new int[4];
 Fill(a, 7);    // { 7, 7, 7, 7 }</div>
-</section>
-<section class="card green" dir="rtl">
+</section><section class="card green" dir="rtl">
 <h3>מילוי בערכים אקראיים בטווח</h3>
 <div class="desc">ב־<span class="ltr">C#</span> הגבול <b>min</b> כלול, והגבול <b>max</b> אינו כלול.</div>
 <div class="signature" dir="ltr">public static void FillRnd(int[] arr, int min, int max)</div>
@@ -416,10 +413,7 @@ public static void FillRnd(int[] arr, int min, int max)
 }</code></pre>
 <div class="example" dir="ltr">int[] a = new int[5];
 FillRnd(a, 10, 100);</div>
-</section>
-</div>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card purple" dir="rtl">
+</section><section class="card purple" dir="rtl">
 <h3>שינוי אורך מערך על ידי יצירת מערך חדש</h3>
 <div class="desc">מערך ב־<span class="ltr">C#</span> אינו גדל במקום. יוצרים מערך חדש ומעתיקים אליו את הערכים האפשריים.</div>
 <div class="signature" dir="ltr">public static int[] Resize(int[] arr, int size)</div>
@@ -435,19 +429,13 @@ FillRnd(a, 10, 100);</div>
     return newArr;
 }</code></pre>
 <div class="example" dir="ltr">int[] b = Resize(a, 3);</div>
-</section>
-<section class="card note yellow" dir="rtl"><h3>חשוב בבגרות</h3><div class="desc"><p>כאשר פעולה מחזירה מערך חדש, צריך לשמור את התוצאה:</p><pre class="miniCode" dir="ltr">arr = Resize(arr, 6);</pre><p>אם לא שומרים, המערך המקורי נשאר כפי שהיה.</p></div></section>
-</div>
-<h2 class="sectionTitle"><span>4.</span>הזזה מעגלית של מערך</h2>
-<div class="shiftPanel" data-layout="one-column" dir="rtl">
+</section><section class="card note yellow" dir="rtl"><h3>חשוב בבגרות</h3><div class="desc"><p>כאשר פעולה מחזירה מערך חדש, צריך לשמור את התוצאה:</p><pre class="miniCode" dir="ltr">arr = Resize(arr, 6);</pre><p>אם לא שומרים, המערך המקורי נשאר כפי שהיה.</p></div></section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>4 / 14</span></footer></section><section aria-label="עמוד 5" class="a4-page"><div class="a4-content"><h2 class="sectionTitle"><span>4.</span>הזזה מעגלית של מערך</h2><div class="shiftPanel" data-layout="one-column" dir="rtl">
 <div><b>לפני:</b><div class="arrayWrap" dir="ltr"><div class="arrayCells"><div class="cell"><b>1</b><span>0</span></div><div class="cell"><b>2</b><span>1</span></div><div class="cell"><b>3</b><span>2</span></div><div class="cell"><b>4</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div></div>
 <div class="arrow">⇐ שמאלה</div>
 <div><b>אחרי:</b><div class="arrayWrap" dir="ltr"><div class="arrayCells"><div class="cell"><b>2</b><span>0</span></div><div class="cell"><b>3</b><span>1</span></div><div class="cell"><b>4</b><span>2</span></div><div class="cell"><b>1</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div></div>
 <div class="arrow">ימינה ⇒</div>
 <div><b>אחרי:</b><div class="arrayWrap" dir="ltr"><div class="arrayCells"><div class="cell"><b>4</b><span>0</span></div><div class="cell"><b>1</b><span>1</span></div><div class="cell"><b>2</b><span>2</span></div><div class="cell"><b>3</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div></div>
-</div>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card blue" dir="rtl">
+</div><section class="card blue" dir="rtl">
 <h3>הזזה מעגלית שמאלה</h3>
 <div class="desc">האיבר הראשון נשמר זמנית, כל איבר זז מקום אחד שמאלה, והראשון עובר לסוף.</div>
 <div class="signature" dir="ltr">public static void CircleLeft(int[] arr)</div>
@@ -465,8 +453,7 @@ FillRnd(a, 10, 100);</div>
     }
     arr[arr.Length - 1] = tmp;
 }</code></pre>
-</section>
-<section class="card blue" dir="rtl">
+</section><section class="card blue" dir="rtl">
 <h3>הזזה מעגלית ימינה</h3>
 <div class="desc">האיבר האחרון נשמר זמנית, כל איבר זז מקום אחד ימינה, והאחרון עובר להתחלה.</div>
 <div class="signature" dir="ltr">public static void CircleRight(int[] arr)</div>
@@ -484,12 +471,7 @@ FillRnd(a, 10, 100);</div>
     }
     arr[0] = tmp;
 }</code></pre>
-</section>
-</div>
-
-<h2 class="sectionTitle"><span>5.</span>פעולות בדיקת תנאי וחיפוש</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card green" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>5 / 14</span></footer></section><section aria-label="עמוד 6" class="a4-page"><div class="a4-content"><h2 class="sectionTitle"><span>5.</span>פעולות בדיקת תנאי וחיפוש</h2><section class="card green" dir="rtl">
 <h3>בדיקה אם ערך נמצא במערך</h3>
 <div class="desc">עוצרים מוקדם כאשר הערך נמצא. התנאי בלולאה הוא <b>&amp;&amp; found!</b>.</div>
 <div class="signature" dir="ltr">public static bool IsExist(int[] arr, int num)</div>
@@ -507,8 +489,7 @@ FillRnd(a, 10, 100);</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 4, 9, 1 };
 Console.WriteLine(IsExist(a, 9)); // True</div>
-</section>
-<section class="card green" dir="rtl">
+</section><section class="card green" dir="rtl">
 <h3>החזרת המיקום הראשון של ערך</h3>
 <div class="desc">אם הערך לא נמצא, מוחזר <b>1-</b>.</div>
 <div class="signature" dir="ltr">public static int Position(int[] arr, int num)</div>
@@ -526,10 +507,7 @@ Console.WriteLine(IsExist(a, 9)); // True</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 4, 9, 1, 9 };
 Console.WriteLine(Position(a, 9)); // 1</div>
-</section>
-</div>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card purple" dir="rtl">
+</section><section class="card purple" dir="rtl">
 <h3>בדיקה אם המערך מסודר בסדר עולה</h3>
 <div class="desc">בודקים כל זוג סמוך: אם נמצא זוג שבו <b>arr[i] &gt; arr[i+1]</b>, המערך אינו עולה.</div>
 <div class="signature" dir="ltr">public static bool IsOle(int[] arr)</div>
@@ -547,8 +525,7 @@ Console.WriteLine(Position(a, 9)); // 1</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 1, 2, 2, 5 };
 Console.WriteLine(IsOle(a)); // True</div>
-</section>
-<section class="card yellow" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>6 / 14</span></footer></section><section aria-label="עמוד 7" class="a4-page"><div class="a4-content"><section class="card yellow" dir="rtl">
 <h3>בדיקה אם כל האיברים כפולות של 3</h3>
 <div class="desc">תבנית “הכל מקיים”: מתחילים ב־true ומחפשים דוגמה נגדית.</div>
 <div class="signature" dir="ltr">public static bool IsAllTrio(int[] arr)</div>
@@ -566,11 +543,7 @@ Console.WriteLine(IsOle(a)); // True</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 6, 12, 15 };
 Console.WriteLine(IsAllTrio(a)); // True</div>
-</section>
-</div>
-<h2 class="sectionTitle"><span>6.</span>תבניות פעולה על שני מערכים</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card blue" dir="rtl">
+</section><h2 class="sectionTitle"><span>6.</span>תבניות פעולה על שני מערכים</h2><section class="card blue" dir="rtl">
 <h3>איברים משותפים לשני מערכים</h3>
 <div class="desc">מחזירים כל ערך פעם אחת בלבד. הפעולה משתמשת ב־IsExist וב־Resize.</div>
 <div class="signature" dir="ltr">public static int[] CommonValues(int[] arr1, int[] arr2)</div>
@@ -592,8 +565,7 @@ Console.WriteLine(IsAllTrio(a)); // True</div>
 <div class="example" dir="ltr">int[] a = { 1, 2, 2, 4 };
 int[] b = { 2, 3, 4 };
 // result: { 2, 4 }</div>
-</section>
-<section class="card blue" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>7 / 14</span></footer></section><section aria-label="עמוד 8" class="a4-page"><div class="a4-content"><section class="card blue" dir="rtl">
 <h3>איברים שונים בין שני מערכים</h3>
 <div class="desc">מחזירים ערכים שמופיעים רק באחד משני המערכים, בלי כפילויות.</div>
 <div class="signature" dir="ltr">public static int[] UnCommonValues(int[] arr1, int[] arr2)</div>
@@ -624,12 +596,7 @@ int[] b = { 2, 3, 4 };
 <div class="example" dir="ltr">int[] a = { 1, 2, 4 };
 int[] b = { 2, 3, 4 };
 // result: { 1, 3 }</div>
-</section>
-</div>
-
-<h2 class="sectionTitle"><span>7.</span>ערך מקסימלי ומיקום מקסימלי</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card green" dir="rtl">
+</section><h2 class="sectionTitle"><span>7.</span>ערך מקסימלי ומיקום מקסימלי</h2><section class="card green" dir="rtl">
 <h3>החזרת הערך המקסימלי</h3>
 <div class="desc">מתחילים מהאיבר הראשון, ולכן הפעולה מניחה שהמערך אינו ריק.</div>
 <div class="signature" dir="ltr">public static int Max(int[] arr)</div>
@@ -647,8 +614,7 @@ int[] b = { 2, 3, 4 };
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 7, 4, 12, 9 };
 Console.WriteLine(Max(a)); // 12</div>
-</section>
-<section class="card green" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>8 / 14</span></footer></section><section aria-label="עמוד 9" class="a4-page"><div class="a4-content"><section class="card green" dir="rtl">
 <h3>החזרת מיקום הערך המקסימלי</h3>
 <div class="desc">שומרים אינדקס של המקסימום, לא רק את הערך עצמו.</div>
 <div class="signature" dir="ltr">public static int IMax(int[] arr)</div>
@@ -666,11 +632,7 @@ Console.WriteLine(Max(a)); // 12</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 7, 4, 12, 9 };
 Console.WriteLine(IMax(a)); // 2</div>
-</section>
-</div>
-<h2 class="sectionTitle"><span>8.</span>פעולות עבור רצפים</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card purple" dir="rtl">
+</section><h2 class="sectionTitle"><span>8.</span>פעולות עבור רצפים</h2><section class="card purple" dir="rtl">
 <h3>אורך הרצף המקסימלי</h3>
 <div class="desc">רצף הוא קבוצת איברים סמוכים בעלי אותו ערך. בכל שינוי ערך סוגרים רצף ומתחילים רצף חדש.</div>
 <div class="signature" dir="ltr">public static int MaxSequence(int[] arr)</div>
@@ -700,11 +662,7 @@ Console.WriteLine(IMax(a)); // 2</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 5, 5, 2, 2, 2, 8 };
 Console.WriteLine(MaxSequence(a)); // 3</div>
-</section>
-<section class="card note yellow" dir="rtl"><h3>איור רצפים</h3><div class="desc"><div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">הרצף הארוך ביותר מסומן לפי ערך 2</div><div class="arrayCells"><div class="cell"><b>5</b><span>0</span></div><div class="cell"><b>5</b><span>1</span></div><div class="cell"><b>2</b><span>2</span></div><div class="cell"><b>2</b><span>3</span></div><div class="cell"><b>2</b><span>4</span></div><div class="cell"><b>8</b><span>5</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div><p>הרצף <b>2, 2, 2</b> באורך 3 ולכן זו התוצאה בדוגמה.</p></div></section>
-</div>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card blue" dir="rtl">
+</section><section class="card note yellow" dir="rtl"><h3>איור רצפים</h3><div class="desc"><div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">הרצף הארוך ביותר מסומן לפי ערך 2</div><div class="arrayCells"><div class="cell"><b>5</b><span>0</span></div><div class="cell"><b>5</b><span>1</span></div><div class="cell"><b>2</b><span>2</span></div><div class="cell"><b>2</b><span>3</span></div><div class="cell"><b>2</b><span>4</span></div><div class="cell"><b>8</b><span>5</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div><p>הרצף <b>2, 2, 2</b> באורך 3 ולכן זו התוצאה בדוגמה.</p></div></section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>9 / 14</span></footer></section><section aria-label="עמוד 10" class="a4-page"><div class="a4-content"><section class="card blue" dir="rtl">
 <h3>מציאת ערך החל ממיקום מסוים</h3>
 <div class="desc">פעולת עזר עבור סידור רצפים. מתחילים לחפש מהמקום start.</div>
 <div class="signature" dir="ltr">public static int FindValue(int[] arr, int value, int start)</div>
@@ -721,13 +679,7 @@ Console.WriteLine(MaxSequence(a)); // 3</div>
     return pos;
 }</code></pre>
 <div class="example" dir="ltr">int p = FindValue(a, 7, 3);</div>
-</section>
-<section class="card note red" dir="rtl"><h3>מתי משתמשים בפעולת עזר?</h3><div class="desc"><p>כאשר פעולה ראשית נעשית ארוכה או חוזרת על אותו קוד, מפרידים חלק קטן לפעולת עזר. כך הקוד בבגרות קריא יותר ופחות מועד לטעויות.</p></div></section>
-</div>
-
-<h2 class="sectionTitle"><span>8.</span>סידור מערך לפי רצפים</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card blue" dir="rtl">
+</section><section class="card note red" dir="rtl"><h3>מתי משתמשים בפעולת עזר?</h3><div class="desc"><p>כאשר פעולה ראשית נעשית ארוכה או חוזרת על אותו קוד, מפרידים חלק קטן לפעולת עזר. כך הקוד בבגרות קריא יותר ופחות מועד לטעויות.</p></div></section><h2 class="sectionTitle"><span>8.</span>סידור מערך לפי רצפים</h2><section class="card blue" dir="rtl">
 <h3>סידור רצפים - גרסה עם פעולת עזר</h3>
 <div class="desc">אם נמצא בהמשך המערך ערך זהה ל־arr[i], מקרבים אותו למקום i+1.</div>
 <div class="signature" dir="ltr">public static void SequenceOrder(int[] arr)</div>
@@ -744,8 +696,7 @@ Console.WriteLine(MaxSequence(a)); // 3</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 1, 2, 1, 3, 2 };
 SequenceOrder(a);</div>
-</section>
-<section class="card blue" dir="rtl">
+</section><section class="card blue" dir="rtl">
 <h3>סידור רצפים - גרסה עם לולאה מקוננת</h3>
 <div class="desc">אותו רעיון, אך בלי FindValue: מחפשים התאמה בעזרת לולאה פנימית.</div>
 <div class="signature" dir="ltr">public static void SequenceOrder2(int[] arr)</div>
@@ -765,16 +716,11 @@ SequenceOrder(a);</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 1, 2, 1, 3, 2 };
 SequenceOrder2(a);</div>
-</section>
-</div>
-<h2 class="sectionTitle"><span>9.</span>כיווץ ופרישה של מערך</h2>
-<div class="zipPanel" data-layout="one-column" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>10 / 14</span></footer></section><section aria-label="עמוד 11" class="a4-page"><div class="a4-content"><h2 class="sectionTitle"><span>9.</span>כיווץ ופרישה של מערך</h2><div class="zipPanel" data-layout="one-column" dir="rtl">
 <div><b>מערך רגיל:</b><div class="arrayWrap" dir="ltr"><div class="arrayCells"><div class="cell"><b>4</b></div><div class="cell"><b>4</b></div><div class="cell"><b>4</b></div><div class="cell"><b>7</b></div><div class="cell"><b>7</b></div><div class="cell"><b>2</b></div></div></div></div>
 <div class="zipArrow">⇐ Zip</div>
 <div><b>מערך מכווץ: זוגות של ערך וכמות</b><div class="arrayWrap" dir="ltr"><div class="arrayCells"><div class="cell"><b>4</b></div><div class="cell"><b>3</b></div><div class="cell"><b>7</b></div><div class="cell"><b>2</b></div><div class="cell"><b>2</b></div><div class="cell"><b>1</b></div></div></div></div>
-</div>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card green" dir="rtl">
+</div><section class="card green" dir="rtl">
 <h3>כיווץ מערך לפי רצפים</h3>
 <div class="desc">כל רצף נשמר כזוג: ערך, כמות.</div>
 <div class="signature" dir="ltr">public static int[] Zip(int[] arr)</div>
@@ -812,8 +758,7 @@ SequenceOrder2(a);</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 4, 4, 4, 7, 7, 2 };
 // Zip(a) -&gt; { 4, 3, 7, 2, 2, 1 }</div>
-</section>
-<section class="card purple" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>11 / 14</span></footer></section><section aria-label="עמוד 12" class="a4-page"><div class="a4-content"><section class="card purple" dir="rtl">
 <h3>פרישת מערך מכווץ</h3>
 <div class="desc">קוראים כל זוג במערך המכווץ וממלאים את הערך לפי הכמות.</div>
 <div class="signature" dir="ltr">public static int[] UnZip(int[] arr)</div>
@@ -837,12 +782,7 @@ SequenceOrder2(a);</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] z = { 4, 3, 7, 2, 2, 1 };
 // UnZip(z) -&gt; { 4,4,4,7,7,2 }</div>
-</section>
-</div>
-
-<h2 class="sectionTitle"><span>9.</span>פעולת עזר לכיווץ</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card yellow" dir="rtl">
+</section><h2 class="sectionTitle"><span>9.</span>פעולת עזר לכיווץ</h2><section class="card yellow" dir="rtl">
 <h3>סכום ערכים במקומות האי־זוגיים</h3>
 <div class="desc">במערך מכווץ, המקומות האי־זוגיים שומרים כמויות. הסכום שלהם הוא גודל המערך הפרוש.</div>
 <div class="signature" dir="ltr">public static int SumOdd(int[] arr)</div>
@@ -857,12 +797,7 @@ SequenceOrder2(a);</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] z = { 4, 3, 7, 2, 2, 1 };
 Console.WriteLine(SumOdd(z)); // 6</div>
-</section>
-<section class="card note green" dir="rtl"><h3>תבנית עבודה עם מערך מכווץ</h3><div class="desc"><ol><li>המקומות הזוגיים: ערכים.</li><li>המקומות האי־זוגיים: כמויות.</li><li>הלולאה מתקדמת בקפיצות של 2.</li><li>תמיד בודקים שהמערך המכווץ באורך זוגי.</li></ol></div></section>
-</div>
-<h2 class="sectionTitle"><span>10.</span>פעולות עזר למיונים</h2>
-<div class="twoCols compact" data-layout="one-column">
-<section class="card blue" dir="rtl">
+</section><section class="card note green" dir="rtl"><h3>תבנית עבודה עם מערך מכווץ</h3><div class="desc"><ol><li>המקומות הזוגיים: ערכים.</li><li>המקומות האי־זוגיים: כמויות.</li><li>הלולאה מתקדמת בקפיצות של 2.</li><li>תמיד בודקים שהמערך המכווץ באורך זוגי.</li></ol></div></section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>12 / 14</span></footer></section><section aria-label="עמוד 13" class="a4-page"><div class="a4-content"><h2 class="sectionTitle"><span>10.</span>פעולות עזר למיונים</h2><section class="card blue" dir="rtl">
 <h3>החלפת שני איברים</h3>
 <div class="desc">פעולת עזר מרכזית לכל מיון שמשנה מקומות במערך.</div>
 <div class="signature" dir="ltr">private static void Swap(int[] arr, int index1, int index2)</div>
@@ -873,8 +808,7 @@ Console.WriteLine(SumOdd(z)); // 6</div>
     arr[index2] = tmp;
 }</code></pre>
 <div class="example" dir="ltr">Swap(arr, 0, 3);</div>
-</section>
-<section class="card blue" dir="rtl">
+</section><section class="card blue" dir="rtl">
 <h3>מיקום מקסימום החל ממיקום נתון</h3>
 <div class="desc">משמש במיון בחירה: בכל פעם מחפשים מקסימום רק בחלק שעדיין לא סודר.</div>
 <div class="signature" dir="ltr">public static int IMax(int[] arr, int start)</div>
@@ -891,11 +825,7 @@ Console.WriteLine(SumOdd(z)); // 6</div>
     return imax;
 }</code></pre>
 <div class="example" dir="ltr">int p = IMax(arr, 2);</div>
-</section>
-</div>
-<h2 class="sectionTitle"><span>11.</span>מיון בחירה</h2>
-<div class="oneCol" data-layout="one-column">
-<section class="card purple wide" dir="rtl">
+</section><h2 class="sectionTitle"><span>11.</span>מיון בחירה</h2><section class="card purple wide" dir="rtl">
 <h3>SelectionSort - מיון בחירה בסדר יורד</h3>
 <div class="desc">בכל סיבוב מוצאים את הערך הגדול ביותר בחלק שעדיין לא סודר ומחליפים אותו עם המקום הנוכחי.</div>
 <div class="signature" dir="ltr">public static void SelectionSort(int[] arr)</div>
@@ -909,12 +839,7 @@ Console.WriteLine(SumOdd(z)); // 6</div>
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 4, 9, 1, 7 };
 SelectionSort(a); // { 9, 7, 4, 1 }</div>
-</section>
-</div>
-
-<h2 class="sectionTitle"><span>12.</span>מיון בועות</h2>
-<div class="oneCol" data-layout="one-column">
-<section class="card green wide" dir="rtl">
+</section></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>13 / 14</span></footer></section><section aria-label="עמוד 14" class="a4-page"><div class="a4-content"><h2 class="sectionTitle"><span>12.</span>מיון בועות</h2><section class="card green wide" dir="rtl">
 <h3>BubbleSort - מיון בועות בסדר עולה</h3>
 <div class="desc">בכל מעבר בודקים זוגות סמוכים. אם זוג אינו מסודר, מחליפים אותו. בסוף כל מעבר, הערך הגדול ביותר בחלק הנבדק מגיע לסופו.</div>
 <div class="signature" dir="ltr">public static void BubbleSort(int[] arr)</div>
@@ -938,28 +863,15 @@ private static void BubblePass(int[] arr, int end)
 }</code></pre>
 <div class="example" dir="ltr">int[] a = { 4, 9, 1, 7 };
 BubbleSort(a); // { 1, 4, 7, 9 }</div>
-</section>
-</div>
-<div class="sortCompare" data-layout="one-column" dir="rtl">
-<div class="sortCard">
+</section><div class="sortCard">
 <h3>מיון בחירה</h3>
 <p>מחפש בכל פעם את המקסימום וממקם אותו במקום הנכון.</p>
 <div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">לפני</div><div class="arrayCells"><div class="cell"><b>4</b><span>0</span></div><div class="cell"><b>9</b><span>1</span></div><div class="cell"><b>1</b><span>2</span></div><div class="cell"><b>7</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div>
 <div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">אחרי - יורד</div><div class="arrayCells"><div class="cell"><b>9</b><span>0</span></div><div class="cell"><b>7</b><span>1</span></div><div class="cell"><b>4</b><span>2</span></div><div class="cell"><b>1</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div>
-</div>
-<div class="sortCard">
+</div><div class="sortCard">
 <h3>מיון בועות</h3>
 <p>בודק זוגות סמוכים ומחליף כאשר הסדר שגוי.</p>
 <div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">לפני</div><div class="arrayCells"><div class="cell"><b>4</b><span>0</span></div><div class="cell"><b>9</b><span>1</span></div><div class="cell"><b>1</b><span>2</span></div><div class="cell"><b>7</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div>
 <div class="arrayWrap" dir="ltr"><div class="arrayTitle" dir="rtl">אחרי - עולה</div><div class="arrayCells"><div class="cell"><b>1</b><span>0</span></div><div class="cell"><b>4</b><span>1</span></div><div class="cell"><b>7</b><span>2</span></div><div class="cell"><b>9</b><span>3</span></div></div><div class="indexLabel" dir="rtl">האינדקסים מופיעים מתחת לתאים</div></div>
-</div>
-</div>
-<h2 class="sectionTitle"><span>13.</span>כללי זהירות אחרונים לבחינה</h2>
-<div class="fourTips" data-layout="one-column" dir="rtl">
-<div><b>1</b><span>לפני כל לולאה סמנו התחלה, סוף וקפיצה.</span></div>
-<div><b>2</b><span>בפעולות מקסימום אין להתחיל מ־0 אם הערכים יכולים להיות שליליים; מתחילים מ־arr[0].</span></div>
-<div><b>3</b><span>כאשר מחזירים מערך חדש, שמרו את הערך המוחזר במשתנה.</span></div>
-<div><b>4</b><span>בפעולות “הכל מקיים”, התחילו מ־true וחפשו דוגמה נגדית.</span></div>
-</div>
-</main></body>
+</div><h2 class="sectionTitle"><span>13.</span>כללי זהירות אחרונים לבחינה</h2><div><b>1</b><span>לפני כל לולאה סמנו התחלה, סוף וקפיצה.</span></div><div><b>2</b><span>בפעולות מקסימום אין להתחיל מ־0 אם הערכים יכולים להיות שליליים; מתחילים מ־arr[0].</span></div><div><b>3</b><span>כאשר מחזירים מערך חדש, שמרו את הערך המוחזר במשתנה.</span></div><div><b>4</b><span>בפעולות “הכל מקיים”, התחילו מ־true וחפשו דוגמה נגדית.</span></div></div><footer class="a4-page-footer"><span>דף עזר לבגרות — תבניות עבור מערכים ב־C#</span><span>14 / 14</span></footer></section></main></body>
 </html>
