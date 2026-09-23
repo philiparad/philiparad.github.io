@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<title>אינטגרלים ושטחים - חקירה אינטראקטיבית</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+    :root {
+      --bg: #f5f9fd;
+      --panel: #ffffff;
+      --ink: #17324d;
+      --muted: #5d7287;
+      --border: #cfe0ee;
+      --accent: #2b7bbb;
+      --accent-soft: #e8f3fb;
+      --good: #2f8f6b;
+      --good-soft: #e9f7f1;
+      --warn: #b06a00;
+      --warn-soft: #fff5e6;
+      --danger: #b54747;
+      --danger-soft: #fff0f0;
+      --shadow: 0 8px 24px rgba(27, 70, 110, .08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      line-height: 1.55;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #ffffff, #edf7ff);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 5px 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 3vw, 2.7rem); }
+    .hero p { margin: 0; color: var(--muted); font-size: 1.08rem; }
+    .progress {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .step-tab {
+      border: 2px solid var(--border);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: right;
+      transition: .2s ease;
+    }
+    .step-tab:hover { border-color: #98bfdc; }
+    .step-tab.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .step-tab small { display: block; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+    .step-tab strong { display: block; font-size: 1rem; }
+    .lesson { display: none; }
+    .lesson.active { display: block; }
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(300px, .85fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+    .lesson-grid > .card {
+      height: 100%;
+    }
+    .card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card h2, .card h3 { margin-top: 0; }
+    .graph-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--accent-soft);
+      color: #145f97;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+    .jxgbox {
+      width: 100%;
+      height: 470px;
+      border: 2px solid var(--border) !important;
+      border-radius: 14px;
+      background: white;
+      direction: ltr;
+      overflow: hidden;
+    }
+    .controls {
+      display: grid;
+      gap: 14px;
+    }
+    .control {
+      display: grid;
+      gap: 6px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e7eef4;
+    }
+    .control:last-child { border-bottom: 0; padding-bottom: 0; }
+    .control label { font-weight: 700; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    select, input[type="number"] {
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: white;
+      color: var(--ink);
+    }
+    .math-select { position: relative; }
+    .math-select-trigger {
+      width: 100%;
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      background: white;
+      color: var(--ink);
+      text-align: right;
+    }
+    .math-select-trigger:hover, .math-select-trigger:focus-visible { border-color: #98bfdc; }
+    .math-select-trigger .math-value {
+      flex: 1;
+      min-width: 0;
+      direction: ltr;
+      text-align: center;
+      font-size: 1.06rem;
+    }
+    .math-select-arrow { font-size: 1.05rem; color: var(--muted); transition: transform .15s ease; }
+    .math-select.open .math-select-arrow { transform: rotate(180deg); }
+    .math-select-menu {
+      position: absolute;
+      z-index: 30;
+      top: calc(100% + 6px);
+      right: 0;
+      left: 0;
+      display: grid;
+      gap: 4px;
+      padding: 6px;
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+    .math-select-menu[hidden] { display: none; }
+    .math-select-option {
+      width: 100%;
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      padding: 8px 10px;
+      direction: ltr;
+      text-align: center;
+    }
+    .math-select-option:hover, .math-select-option:focus-visible { background: var(--accent-soft); }
+    .math-select-option[aria-selected="true"] {
+      background: var(--accent-soft);
+      outline: 2px solid #b9d8ee;
+    }
+    .value-pill {
+      min-width: 64px;
+      text-align: center;
+      background: #f0f6fb;
+      border: 1px solid var(--border);
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      direction: ltr;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .metric {
+      border: 2px solid var(--border);
+      background: #fbfdff;
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .metric span { display: block; color: var(--muted); font-size: .9rem; }
+    .metric strong { display: block; margin-top: 2px; font-size: 1.2rem; direction: ltr; text-align: right; }
+    .stage2-areas { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .area-negative { border-color: #e6aaaa; background: #fff8f8; }
+    .area-positive { border-color: #a9d8bd; background: #f7fcf9; }
+    .integral-calculation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: #ffffff;
+    }
+    .full-width-calc {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 18px;
+      padding: 18px 20px;
+    }
+    .calc-title { font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+    .calc-math {
+      direction: ltr;
+      text-align: center;
+      overflow-x: auto;
+      padding: 4px 0;
+      font-size: 1.04rem;
+    }
+    .calc-result {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 10px;
+    }
+    .calc-result span { color: var(--muted); }
+    .calc-result strong { direction:ltr; font-size:1.3rem; }
+    @media (max-width: 680px) { .stage2-areas { grid-template-columns: 1fr; } }
+    .callout {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 14px;
+      background: #fbfdff;
+    }
+    .callout.try { background: var(--warn-soft); border-color: #f1d3a2; }
+    .callout.conclusion { background: var(--good-soft); border-color: #bde5d5; }
+    .callout.warn { background: var(--danger-soft); border-color: #efc3c3; }
+    .callout h3 { margin: 0 0 8px; font-size: 1.05rem; }
+    .callout p, .callout ul { margin: 0; }
+    .callout ul { padding-right: 20px; }
+    .formula {
+      direction: ltr;
+      text-align: center;
+      font-size: 1.06rem;
+      border-radius: 12px;
+      background: #f7fbfe;
+      border: 1px solid var(--border);
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: .92rem;
+      color: var(--muted);
+      margin: 10px 0 0;
+    }
+    .legend-item { display: inline-flex; gap: 6px; align-items: center; }
+    .swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(0,0,0,.12); }
+    .nav {
+      margin-top: 18px;
+      display: none;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .nav button {
+      border: 2px solid var(--accent);
+      background: white;
+      color: var(--accent);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 700;
+    }
+    .nav button.primary { background: var(--accent); color: white; }
+    .nav button:disabled { opacity: .45; cursor: not-allowed; }
+    .tiny { color: var(--muted); font-size: .88rem; }
+    .split-info {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .split-box {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fbfdff;
+      text-align: center;
+    }
+    .split-box span { display: block; font-size: .83rem; color: var(--muted); }
+    .split-box strong { direction:ltr; display:block; margin-top:2px; }
+
+    .stage4-summary-panel {
+      margin-top: 6px;
+      padding: 14px;
+    }
+    .stage4-summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .stage4-summary-row .metric,
+    .stage4-summary-row .split-box {
+      margin: 0;
+      min-width: 0;
+      text-align: center;
+    }
+    .stage4-summary-row .metric strong { text-align: center; }
+    .stage4-summary-row.summary-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stage4-summary-row.summary-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    @media (max-width: 860px) {
+      .lesson-grid { grid-template-columns: 1fr; }
+      .progress { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .jxgbox { height: 390px; }
+    }
+    @media (max-width: 520px) {
+      .app { padding: 14px 10px 32px; }
+      .hero { padding: 18px; border-radius: 16px; }
+      .progress { grid-template-columns: 1fr; }
+      .metrics, .split-info,
+      .stage4-summary-row,
+      .stage4-summary-row.summary-two,
+      .stage4-summary-row.summary-three { grid-template-columns: 1fr; }
+      .jxgbox { height: 330px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+<section class="hero">
+<h1>אינטגרלים ושטחים - חקירה אינטראקטיבית</h1>
+</section>
+<nav aria-label="שלבי הלימוד" class="progress">
+<button class="step-tab active" data-step="0"><strong>מלבנים ושטח</strong></button>
+<button class="step-tab" data-step="1"><strong>שטח מכוון</strong></button>
+<button class="step-tab" data-step="3"><strong>כשהגרפים נחתכים</strong></button>
+</nav>
+<main>
+<section class="lesson active" data-lesson="0">
+<div class="lesson-grid">
+<article class="card">
+<div class="graph-title">
+<div>
+<span class="badge">מטרה: להבין מאיפה מגיע האינטגרל</span>
+<h2>מקרבים שטח בעזרת מלבנים</h2>
+</div>
+</div>
+<div aria-label="גרף של פונקציה ומלבני קירוב" class="jxgbox" id="board1"></div>
+<div class="legend">
+<span class="legend-item"><span class="swatch" style="background:#d9ebf8"></span> מלבני קירוב</span>
+<span class="legend-item"><span class="swatch" style="background:#2b7bbb"></span> גרף הפונקציה</span>
+</div>
+</article>
+<aside class="card controls">
+<div class="control">
+<label id="func1Label">פונקציה</label>
+<div class="math-select" id="func1Picker">
+<button aria-controls="func1Menu" aria-expanded="false" aria-haspopup="listbox" aria-labelledby="func1Label func1Current" class="math-select-trigger" id="func1Trigger" type="button">
+<span class="math-value" id="func1Current">\(f(x)=4-0.35(x-1)^2\)</span>
+<span aria-hidden="true" class="math-select-arrow">⌄</span>
+</button>
+<div aria-labelledby="func1Label" class="math-select-menu" hidden id="func1Menu" role="listbox">
+<button aria-selected="true" class="math-select-option" data-latex="f(x)=4-0.35(x-1)^2" data-value="quad" role="option" type="button">\(f(x)=4-0.35(x-1)^2\)</button>
+<button aria-selected="false" class="math-select-option" data-latex="f(x)=0.7x+2.5" data-value="line" role="option" type="button">\(f(x)=0.7x+2.5\)</button>
+<button aria-selected="false" class="math-select-option" data-latex="f(x)=2.4+0.8\sin(x)" data-value="wave" role="option" type="button">\(f(x)=2.4+0.8\sin(x)\)</button>
+</div>
+<input id="func1" type="hidden" value="quad"/>
+</div>
+</div>
+<div class="control">
+<label for="n1">מספר המלבנים \(n\)</label>
+<div class="row"><input id="n1" max="60" min="2" step="1" type="range" value="6"/><span class="value-pill" id="n1v">6</span></div>
+</div>
+<div style="display:none;" class="control">
+<label for="method1">איך בוחרים את גובה המלבן?</label>
+<select id="method1">
+<option value="left">קצה שמאלי</option>
+<option selected="" value="mid">אמצע הקטע</option>
+<option value="right">קצה ימני</option>
+</select>
+</div>
+<div class="control">
+<label for="a1">גבול שמאלי \(a\)</label>
+<div class="row"><input id="a1" max="2" min="-3" step="0.1" type="range" value="-1"/><span class="value-pill" id="a1v">-1.0</span></div>
+</div>
+<div class="control">
+<label for="b1">גבול ימני \(b\)</label>
+<div class="row"><input id="b1" max="5" min="0" step="0.1" type="range" value="4"/><span class="value-pill" id="b1v">4.0</span></div>
+</div>
+
+<div class="callout conclusion">
+<h3>המסקנה החשובה</h3>
+<p>ככל שהמלבנים דקים יותר, סכום השטחים מתקרב לשטח שמתחת לגרף.</p>
+<div class="formula">\[\int_a^b f(x)\,dx\]</div>
+</div>
+</aside>
+</div>
+<div class="card stage4-summary-panel" aria-label="סיכום ערכי קירוב השטח">
+<div class="stage4-summary-row summary-two">
+<div class="metric"><span>סכום שטחי המלבנים</span><strong id="sum1">0</strong></div>
+<div class="metric"><span>השטח המדויק בקירוב מספרי</span><strong id="exact1">0</strong></div>
+</div>
+</div>
+</section>
+<section class="lesson" data-lesson="1">
+<div class="lesson-grid">
+<article class="card">
+<span class="badge">מטרה: להבין שאינטגרל הוא שטח מכוון</span>
+<h2>מה קורה כשהגרף יורד מתחת לציר \(x\)?</h2>
+<div aria-label="גרף שחוצה את ציר איקס ואזורים חיוביים ושליליים" class="jxgbox" id="board2"></div>
+<div class="legend">
+<span class="legend-item"><span class="swatch" style="background:#cfeedd"></span> מעל ציר \(x\): תרומה חיובית</span>
+<span class="legend-item"><span class="swatch" style="background:#f7cccc"></span> מתחת לציר \(x\): תרומה שלילית</span>
+</div>
+</article>
+<aside class="card controls">
+<div class="formula">\[f(x)=x-1\]</div>
+<div class="control">
+<label for="a2">גבול שמאלי \(a\)</label>
+<div class="row"><input id="a2" max="1" min="-3" step="0.1" type="range" value="-2"/><span class="value-pill" id="a2v">-2.0</span></div>
+</div>
+<div class="control">
+<label for="b2">גבול ימני \(b\)</label>
+<div class="row"><input id="b2" max="4" min="1.2" step="0.1" type="range" value="3"/><span class="value-pill" id="b2v">3.0</span></div>
+</div>
+
+<div class="callout conclusion">
+<h3>אינטגרל ≠ תמיד שטח גאומטרי</h3>
+<div class="formula">\[\int_a^b f(x)\,dx=A_{+}-A_{-}\]</div>
+<p class="tiny">כאן \(A_{-}\) מייצג את גודל השטח שנמצא מתחת לציר.</p>
+</div>
+</aside>
+</div>
+<div class="card stage4-summary-panel" aria-label="סיכום השטחים">
+<div class="stage4-summary-row summary-three">
+<div class="metric area-metric area-negative"><span>השטח הוורוד \(A_-\)</span><strong id="pink2">0</strong></div>
+<div class="metric area-metric area-positive"><span>השטח הירוק \(A_+\)</span><strong id="green2">0</strong></div>
+<div class="metric"><span>השטח הגאומטרי הכולל</span><strong id="geom2">0</strong></div>
+</div>
+</div>
+<div class="integral-calculation full-width-calc" aria-live="polite">
+<div class="calc-title">חישוב מלא של האינטגרל - שטח מכוון</div>
+<div class="calc-math" id="calc2"></div>
+<div class="calc-result"><span>ערך האינטגרל</span><strong id="signed2">0</strong></div>
+</div>
+</section>
+
+<section class="lesson" data-lesson="2">
+<div class="lesson-grid">
+<article class="card">
+<span class="badge">מטרה: להבין למה מחשבים "עליונה פחות תחתונה"</span>
+<h2>שלב XX - שטח בין שתי פונקציות</h2>
+<div aria-label="שתי פונקציות ופס אנכי דק ביניהן" class="jxgbox" id="board3"></div>
+<div class="legend">
+<span class="legend-item"><span class="swatch" style="background:#d9ebf8"></span> האזור בין הגרפים</span>
+<span class="legend-item"><span class="swatch" style="background:#f5d7a5"></span> פס דק \(\Delta A\)</span>
+</div>
+<div class="metrics">
+<div class="metric"><span>גובה הפס בנקודה שנבחרה</span><strong id="height3">0</strong></div>
+<div class="metric"><span>שטח האזור בין הגרפים</span><strong id="area3">0</strong></div>
+</div>
+</article>
+<aside class="card controls">
+<h3>שתי הפונקציות</h3>
+<div class="formula">\[f(x)=4-0.25(x-1)^2\]</div>
+<div class="formula">\[g(x)=0.5x-1\]</div>
+<div class="control">
+<label for="x3">הזז את הפס הדק לאורך התחום</label>
+<div class="row"><input id="x3" max="4" min="-1" step="0.05" type="range" value="1.5"/><span class="value-pill" id="x3v">1.50</span></div>
+</div>
+<div class="control">
+<label for="dx3">רוחב הפס \(\Delta x\)</label>
+<div class="row"><input id="dx3" max="0.8" min="0.05" step="0.05" type="range" value="0.25"/><span class="value-pill" id="dx3v">0.25</span></div>
+</div>
+
+<div class="callout conclusion">
+<h3>מכאן מגיעה הנוסחה</h3>
+<div class="formula">\[A=\int_a^b\bigl(f(x)-g(x)\bigr)\,dx\]</div>
+<p>כלומר: <strong>פונקציה עליונה פחות פונקציה תחתונה</strong>.</p>
+</div>
+</aside>
+</div>
+</section>
+
+<section class="lesson" data-lesson="3">
+<div class="lesson-grid">
+<article class="card">
+<span class="badge">מטרה: להבין מתי חייבים לפצל את החישוב</span>
+<h2>שלב 3 - מה קורה כשהפונקציות מחליפות מי למעלה?</h2>
+<div aria-label="שתי פונקציות שנחתכות ומחליפות מיקום" class="jxgbox" id="board4"></div>
+<div class="legend">
+<span class="legend-item"><span class="swatch" style="background:#d8edf8"></span> \(f(x)&gt;g(x)\)</span>
+<span class="legend-item"><span class="swatch" style="background:#f6d9d9"></span> \(g(x)&gt;f(x)\)</span>
+</div>
+</article>
+<aside class="card controls">
+<div class="formula">\[f(x)=x+2\]</div>
+<div class="formula">\[g(x)=x^2\]</div>
+<div class="control">
+<label for="a4">גבול שמאלי \(a\)</label>
+<div class="row"><input id="a4" max="-1" min="-2.5" step="0.1" type="range" value="-2"/><span class="value-pill" id="a4v">-2.0</span></div>
+</div>
+<div class="control">
+<label for="b4">גבול ימני \(b\)</label>
+<div class="row"><input id="b4" max="3" min="2" step="0.1" type="range" value="2.7"/><span class="value-pill" id="b4v">2.7</span></div>
+</div>
+
+<div class="callout conclusion">
+<h3>הפתרון</h3>
+<p>מפצלים את התחום בנקודות החיתוך, ובכל חלק מחשבים עליונה פחות תחתונה.</p>
+<div class="formula">\[A=\int |f(x)-g(x)|\,dx\]</div>
+<p class="tiny">בתרגיל מעשי כותבים את האינטגרל כסכום של כמה אינטגרלים לפי נקודות החיתוך.</p>
+</div>
+</aside>
+</div>
+<div class="card stage4-summary-panel" aria-label="סיכום ערכים ונקודות חיתוך">
+<div class="stage4-summary-row">
+<div class="metric"><span>אינטגרל מכוון של \(f-g\)</span><strong id="signed4">0</strong></div>
+<div class="metric"><span>שטח גאומטרי כולל</span><strong id="geom4">0</strong></div>
+<div class="split-box"><span>נקודת חיתוך 1</span><strong>x=-1</strong></div>
+<div class="split-box"><span>נקודת חיתוך 2</span><strong>x=2</strong></div>
+</div>
+</div>
+</section>
+</main>
+<div class="nav">
+<button disabled="" id="prevBtn" type="button">השלב הקודם</button>
+<button class="primary" id="nextBtn" type="button">השלב הבא</button>
+</div>
+</div>
+<script>
+(function(){
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (x, d=3) => Number.isFinite(x) ? x.toFixed(d).replace(/\.000$/, '') : '—';
+  const clampInterval = (a, b, minGap=0.2) => a < b - minGap ? [a,b] : [a, a+minGap];
+
+  function integrate(fn, a, b, n=1600) {
+    if (b < a) [a,b] = [b,a];
+    if (n % 2) n++;
+    const h = (b-a)/n;
+    let s = fn(a)+fn(b);
+    for (let i=1;i<n;i++) {
+      const x=a+i*h;
+      s += fn(x)*(i%2 ? 4 : 2);
+    }
+    return s*h/3;
+  }
+
+  function integrateAbs(fn, a, b, n=2000) {
+    return integrate((x)=>Math.abs(fn(x)), a, b, n);
+  }
+
+  function initBoard(id, box=[-4,6,6,-4]) {
+    return JXG.JSXGraph.initBoard(id, {
+      boundingbox: box,
+      axis: true,
+      showCopyright: false,
+      showNavigation: false,
+      keepaspectratio: false,
+      pan: {enabled:false},
+      zoom: {enabled:false},
+      defaultAxes: {
+        x: {withLabel:true, name:'x', label:{position:'rt', offset:[-10,12]}},
+        y: {withLabel:true, name:'y', label:{position:'rt', offset:[10,-12]}}
+      }
+    });
+  }
+
+  function poly(board, pts, attrs={}) {
+    const {borders={}, vertices={}, ...rest} = attrs;
+    const points = pts.map(p => board.create('point', p, {
+      visible:false,
+      fixed:true,
+      name:'',
+      withLabel:false
+    }));
+    return board.create('polygon', points, {
+      ...rest,
+      borders:{visible:false,withLabel:false,...borders},
+      vertices:{visible:false,withLabel:false,...vertices}
+    });
+  }
+
+  let board1, board2, board3, board4;
+
+  const funcs1 = {
+    quad: x => 4 - 0.35*(x-1)*(x-1),
+    line: x => 0.7*x + 2.5,
+    wave: x => 2.4 + 0.8*Math.sin(x)
+  };
+
+  function draw1(){
+    if (board1) JXG.JSXGraph.freeBoard(board1);
+    board1 = initBoard('board1',[-4,6,6,-1.5]);
+    const fn = funcs1[$('func1').value];
+    let a = parseFloat($('a1').value), b = parseFloat($('b1').value);
+    [a,b]=clampInterval(a,b,0.3);
+    const n = parseInt($('n1').value,10);
+    const method = $('method1').value;
+    board1.create('functiongraph',[fn,-4,6],{strokeColor:'#2b7bbb',strokeWidth:3});
+    const dx=(b-a)/n;
+    let sum=0;
+    for(let i=0;i<n;i++){
+      const x0=a+i*dx, x1=x0+dx;
+      const sx = method==='left' ? x0 : method==='right' ? x1 : (x0+x1)/2;
+      const h=fn(sx);
+      sum += h*dx;
+      poly(board1, [[x0,0],[x1,0],[x1,h],[x0,h]], {
+        fillColor:'#d9ebf8',
+        fillOpacity:.8,
+        borders:{visible:true,strokeColor:'#7f9db5',strokeWidth:0.9,withLabel:false}
+      });
+    }
+    board1.create('line',[[a,-1.5],[a,6]],{straightFirst:false,straightLast:false,strokeColor:'#6b8196',dash:2,strokeWidth:1.5});
+    board1.create('line',[[b,-1.5],[b,6]],{straightFirst:false,straightLast:false,strokeColor:'#6b8196',dash:2,strokeWidth:1.5});
+    $('sum1').textContent=fmt(sum);
+    $('exact1').textContent=fmt(integrate(fn,a,b));
+    $('n1v').textContent=n;
+    $('a1v').textContent=a.toFixed(1);
+    $('b1v').textContent=b.toFixed(1);
+  }
+
+  function draw2(){
+    if (board2) JXG.JSXGraph.freeBoard(board2);
+    board2 = initBoard('board2',[-3.5,5,4.5,-4.5]);
+    const fn = x => x-1;
+    let a=parseFloat($('a2').value), b=parseFloat($('b2').value);
+    [a,b]=clampInterval(a,b,0.3);
+    board2.create('functiongraph',[fn,-3.5,4.5],{strokeColor:'#2b7bbb',strokeWidth:3});
+    const step=(b-a)/160;
+    for(let i=0;i<160;i++){
+      const x0=a+i*step, x1=x0+step, xm=(x0+x1)/2, y0=fn(x0), y1=fn(x1);
+      const positive=fn(xm)>=0;
+      poly(board2,[[x0,0],[x1,0],[x1,y1],[x0,y0]],{
+        fillColor: positive ? '#cfeedd' : '#f7cccc', fillOpacity:.85
+      });
+    }
+
+    const crossing=1;
+    const pinkArea = integrateAbs(fn, a, Math.min(crossing,b));
+    const greenArea = integrateAbs(fn, Math.max(crossing,a), b);
+    const signed = integrate(fn,a,b);
+    const geom = pinkArea + greenArea;
+
+    board2.create('point',[1,0],{name:'x=1',size:2,strokeColor:'#17324d',fillColor:'#17324d',fixed:true});
+
+    if (a < crossing) {
+      const xp=(a+crossing)/2, yp=fn(xp)/2;
+      board2.create('text',[xp,yp,()=>`A₋ = ${fmt(pinkArea)}`],{
+        anchorX:'middle',anchorY:'middle',fixed:true,fontSize:15,
+        cssStyle:'background:rgba(255,255,255,.88);padding:2px 6px;border-radius:6px;color:#8e4545;font-weight:700;direction:ltr;'
+      });
+    }
+    if (b > crossing) {
+      const xg=(crossing+b)/2, yg=fn(xg)/2;
+      board2.create('text',[xg,yg,()=>`A₊ = ${fmt(greenArea)}`],{
+        anchorX:'middle',anchorY:'middle',fixed:true,fontSize:15,
+        cssStyle:'background:rgba(255,255,255,.88);padding:2px 6px;border-radius:6px;color:#36724d;font-weight:700;direction:ltr;'
+      });
+    }
+
+    $('pink2').textContent=fmt(pinkArea);
+    $('green2').textContent=fmt(greenArea);
+    $('signed2').textContent=fmt(signed);
+    $('geom2').textContent=fmt(geom);
+    $('a2v').textContent=a.toFixed(1); $('b2v').textContent=b.toFixed(1);
+
+    const F = x => x*x/2-x;
+    const Fa=F(a), Fb=F(b);
+    const latex = String.raw`\[
+      \int_{${a.toFixed(1)}}^{${b.toFixed(1)}} (x-1)\,dx
+      =\left[\frac{x^2}{2}-x\right]_{${a.toFixed(1)}}^{${b.toFixed(1)}}
+      =\left(\frac{(${b.toFixed(1)})^2}{2}-${b.toFixed(1)}\right)
+      -\left(\frac{(${a.toFixed(1)})^2}{2}-(${a.toFixed(1)})\right)
+      =${fmt(Fb)}-(${fmt(Fa)})=${fmt(signed)}
+      =A_{+}-A_{-}=${fmt(greenArea)}-${fmt(pinkArea)}=${fmt(signed)}
+    \]`;
+    const calc=$('calc2');
+    if (window.MathJax?.typesetClear) MathJax.typesetClear([calc]);
+    calc.innerHTML=latex;
+    typeset([calc]);
+  }
+
+  function f3(x){ return 4 - 0.25*(x-1)*(x-1); }
+  function g3(x){ return 0.5*x - 1; }
+  function draw3(){
+    if (board3) JXG.JSXGraph.freeBoard(board3);
+    board3 = initBoard('board3',[-2,5.5,5,-2.5]);
+    const a=-1,b=4;
+    board3.create('functiongraph',[f3,-2,5],{strokeColor:'#2b7bbb',strokeWidth:3});
+    board3.create('functiongraph',[g3,-2,5],{strokeColor:'#7d5ba6',strokeWidth:3});
+    const step=(b-a)/180;
+    for(let i=0;i<180;i++){
+      const x0=a+i*step, x1=x0+step;
+      poly(board3,[[x0,g3(x0)],[x1,g3(x1)],[x1,f3(x1)],[x0,f3(x0)]],{fillColor:'#d9ebf8',fillOpacity:.56});
+    }
+    const x=parseFloat($('x3').value), dx=parseFloat($('dx3').value);
+    const x0=Math.max(a,x-dx/2), x1=Math.min(b,x+dx/2);
+    poly(board3,[[x0,g3(x0)],[x1,g3(x1)],[x1,f3(x1)],[x0,f3(x0)]],{fillColor:'#f5d7a5',fillOpacity:.95});
+    board3.create('line',[[x,g3(x)],[x,f3(x)]],{straightFirst:false,straightLast:false,strokeColor:'#b06a00',strokeWidth:3});
+    $('height3').textContent=fmt(f3(x)-g3(x));
+    $('area3').textContent=fmt(integrate((t)=>f3(t)-g3(t),a,b));
+    $('x3v').textContent=x.toFixed(2); $('dx3v').textContent=dx.toFixed(2);
+  }
+
+  function f4(x){ return x+2; }
+  function g4(x){ return x*x; }
+  function draw4(){
+    if (board4) JXG.JSXGraph.freeBoard(board4);
+    board4 = initBoard('board4',[-3.2,7,3.5,-2]);
+    let a=parseFloat($('a4').value), b=parseFloat($('b4').value);
+    [a,b]=clampInterval(a,b,0.4);
+    board4.create('functiongraph',[f4,-3.2,3.5],{strokeColor:'#2b7bbb',strokeWidth:3});
+    board4.create('functiongraph',[g4,-3.2,3.5],{strokeColor:'#7d5ba6',strokeWidth:3});
+    const step=(b-a)/220;
+    for(let i=0;i<220;i++){
+      const x0=a+i*step, x1=x0+step, xm=(x0+x1)/2;
+      const top = f4(xm)>=g4(xm) ? f4 : g4;
+      const bot = f4(xm)>=g4(xm) ? g4 : f4;
+      poly(board4,[[x0,bot(x0)],[x1,bot(x1)],[x1,top(x1)],[x0,top(x0)]],{
+        fillColor: f4(xm)>=g4(xm) ? '#d8edf8' : '#f6d9d9', fillOpacity:.72
+      });
+    }
+    [-1,2].forEach(x=>board4.create('point',[x,f4(x)],{name:'',size:3,strokeColor:'#17324d',fillColor:'#ffffff',strokeWidth:2,fixed:true}));
+    const diff=x=>f4(x)-g4(x);
+    $('signed4').textContent=fmt(integrate(diff,a,b));
+    $('geom4').textContent=fmt(integrateAbs(diff,a,b));
+    $('a4v').textContent=a.toFixed(1); $('b4v').textContent=b.toFixed(1);
+  }
+
+  function typeset(targets){
+    if(!window.MathJax?.typesetPromise) return;
+    const nodes = Array.isArray(targets) ? targets : undefined;
+    MathJax.typesetPromise(nodes).catch(()=>{});
+  }
+
+  function initMathFunctionSelect(){
+    const picker=$('func1Picker'), trigger=$('func1Trigger'), menu=$('func1Menu');
+    const current=$('func1Current'), hidden=$('func1');
+    const options=[...menu.querySelectorAll('.math-select-option')];
+    const setOpen=(open)=>{
+      picker.classList.toggle('open',open);
+      menu.hidden=!open;
+      trigger.setAttribute('aria-expanded',String(open));
+    };
+    trigger.addEventListener('click',()=>setOpen(menu.hidden));
+    options.forEach(option=>option.addEventListener('click',()=>{
+      hidden.value=option.dataset.value;
+      current.textContent=`\\(${option.dataset.latex}\\)`;
+      options.forEach(o=>o.setAttribute('aria-selected',String(o===option)));
+      setOpen(false);
+      typeset([current]);
+      hidden.dispatchEvent(new Event('input',{bubbles:true}));
+      trigger.focus();
+    }));
+    document.addEventListener('click',(event)=>{
+      if(!picker.contains(event.target)) setOpen(false);
+    });
+    picker.addEventListener('keydown',(event)=>{
+      if(event.key==='Escape'){ setOpen(false); trigger.focus(); }
+    });
+  }
+
+  initMathFunctionSelect();
+  ['func1','n1','method1','a1','b1'].forEach(id=>$(id).addEventListener('input',draw1));
+  ['a2','b2'].forEach(id=>$(id).addEventListener('input',draw2));
+  ['x3','dx3'].forEach(id=>$(id).addEventListener('input',draw3));
+  ['a4','b4'].forEach(id=>$(id).addEventListener('input',draw4));
+
+  let current=0;
+  const tabs=[...document.querySelectorAll('.step-tab')];
+  const lessons=[...document.querySelectorAll('.lesson')];
+  function showStep(i){
+    current=Math.max(0,Math.min(lessons.length-1,i));
+    tabs.forEach((t,k)=>t.classList.toggle('active',k===current));
+    lessons.forEach((l,k)=>l.classList.toggle('active',k===current));
+    $('prevBtn').disabled=current===0;
+    $('nextBtn').disabled=current===lessons.length-1;
+    $('nextBtn').textContent=current===lessons.length-1 ? 'סיימנו' : 'השלב הבא';
+    if(current===0) draw1();
+    if(current===1) draw2();
+    if(current===2) draw3();
+    if(current===3) draw4();
+    typeset();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  tabs.forEach((t)=>t.addEventListener('click',()=>showStep(Number(t.dataset.step))));
+  $('prevBtn').addEventListener('click',()=>showStep(current-1));
+  $('nextBtn').addEventListener('click',()=>showStep(current+1));
+
+  draw1();
+  typeset();
+})();
+</script>
+</body>
+</html>
