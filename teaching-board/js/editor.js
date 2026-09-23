@@ -1,11 +1,11 @@
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js';
-import { svgEl, drawItem, background, bounds, union } from './scene.js';
-import { toWorld, zoomAt } from './viewport.js';
-import { History } from './history.js';
-import { SaveQueue } from './save-queue.js';
-import { equation, graph, importImage, importPDF } from './media.js';
-import { exportBoard, backup } from './export.js';
-import { validateBoard } from './model.js';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20260923-2';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20260923-2';
+import { toWorld, zoomAt } from './viewport.js?v=20260923-2';
+import { History } from './history.js?v=20260923-2';
+import { SaveQueue } from './save-queue.js?v=20260923-2';
+import { equation, graph, importImage, importPDF } from './media.js?v=20260923-2';
+import { exportBoard, backup } from './export.js?v=20260923-2';
+import { validateBoard } from './model.js?v=20260923-2';
 
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {

@@ -1,7 +1,7 @@
-import { sceneSVG } from './scene.js';
-import { loadImage } from './media.js';
-import { serializeBackup } from './model.js';
-import { download, filename } from './ui.js';
+import { sceneSVG } from './scene.js?v=20260923-2';
+import { loadImage } from './media.js?v=20260923-2';
+import { serializeBackup } from './model.js?v=20260923-2';
+import { download, filename } from './ui.js?v=20260923-2';
 export function backup(board){download(new Blob([serializeBackup(board)],{type:'application/json'}),filename(board.title)+'.json');}
 export async function exportBoard(board,format){if(format==='json'){backup(board);return;}const svg=sceneSVG(board),source=new XMLSerializer().serializeToString(svg);if(format==='svg'){download(new Blob([source],{type:'image/svg+xml'}),filename(board.title)+'.svg');return;}
  const url=URL.createObjectURL(new Blob([source],{type:'image/svg+xml'}));try{const img=await loadImage(url),scale=Math.min(2,8000/Math.max(img.width,img.height),Math.sqrt(24000000/(img.width*img.height))),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);if(format==='png'){const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('Could not create PNG.');download(blob,filename(board.title)+'.png');}else{
