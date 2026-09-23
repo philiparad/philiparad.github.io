@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Teaching Board infrastructure tests</title><link rel="stylesheet" href="../styles.css"><main><h1>Infrastructure tests</h1><pre id="results" role="status">Running…</pre><script type="module">
+import { runTests } from './core.js';
+import { BoardRepository, ConflictError } from '../js/storage.js';
+import { createBoard } from '../js/model.js';
+const output = document.querySelector('#results'); output.textContent = '';
+const log = text => { output.textContent += text + '\n'; };
+const name = 'teaching-board-test-' + crypto.randomUUID();
+const repo = new BoardRepository(name);
+try {
+  let count = await runTests(log);
+  let board = await repo.save(createBoard('Persistence test'));
+  repo.close();
+  if ((await repo.get(board.id)).title !== board.title) throw new Error('Persistence failed');
+  log('PASS IndexedDB persists after reconnect'); count++;
+  const stale = structuredClone(board);
+  board = await repo.save({ ...board, title: 'Updated' });
+  let rejected = false; try { await repo.save(stale); } catch (error) { rejected = error instanceof ConflictError; }
+  if (!rejected) throw new Error('Stale write accepted');
+  log('PASS Stale revision rejected'); count++;
+  const id = await repo.putAsset(new Blob(['test'], { type: 'text/plain' }));
+  if (await (await repo.getAsset(id)).text() !== 'test') throw new Error('Asset persistence failed');
+  log('PASS Asset persistence'); count++;
+  log(`\n${count} tests passed`);
+} catch (error) { log(`FAIL ${error.stack}`); document.title = 'FAIL: infrastructure tests'; }
+finally { repo.close(); indexedDB.deleteDatabase(name); }
+</script></main></html>
