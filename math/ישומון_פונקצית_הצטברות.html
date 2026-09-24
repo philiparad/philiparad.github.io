@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>פונקציית הצטברות</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraphcore.js"></script>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #eef7fb;
+      --panel: #ffffff;
+      --panel-soft: #f7fbfe;
+      --line: #c7d9e5;
+      --text: #18364a;
+      --muted: #5f7686;
+      --blue: #1f6fb2;
+      --blue-dark: #164e7a;
+      --pink: #e85d8e;
+      --green: #34a878;
+      --orange: #e99a32;
+      --shadow: 0 10px 30px rgba(35, 74, 99, .10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #f6fbfe 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+    }
+    .app {
+      width: min(1600px, calc(100% - 28px));
+      margin: 18px auto 34px;
+    }
+    .hero {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 18px 22px;
+      margin-bottom: 14px;
+    }
+    .hero h1 { margin: 0 0 6px; font-size: clamp(20px, 2.5vw, 32px); }
+    .hero p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.55; }
+
+    .function-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .tab {
+      border: 2px solid var(--line);
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      transition: .18s ease;
+    }
+    .tab:hover { transform: translateY(-1px); border-color: #9dbbd0; }
+    .tab.active { background: #e8f4ff; border-color: #5aa2d8; color: var(--blue-dark); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      direction: ltr;
+    }
+    .graph-card {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      direction: rtl;
+    }
+    .graph-head {
+      padding: 13px 16px 9px;
+      border-bottom: 2px solid #e6eef3;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .graph-head h2 { margin: 0; font-size: 20px; }
+    .math-line { font-size: 17px; color: var(--blue-dark); }
+    .jxgbox {
+      width: 100%;
+      height: 470px;
+      border: 0;
+      border-radius: 0;
+      direction: ltr;
+      background: #fff;
+    }
+    .controls {
+      display: flex;
+      gap: 7px;
+      padding: 10px 12px 12px;
+      justify-content: center;
+      border-top: 2px solid #edf2f6;
+    }
+    .controls button {
+      border: 2px solid #bfd2df;
+      background: #fff;
+      color: var(--text);
+      border-radius: 10px;
+      min-width: 88px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .controls button:hover { background: #f0f8fd; }
+
+
+    .limits-panel {
+      margin: 14px 0;
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 15px 18px;
+    }
+    .limits-panel h3 { margin: 0 0 12px; font-size: 20px; }
+    .limit-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      direction: ltr;
+    }
+    .limit-control {
+      border: 2px solid #d5e3ec;
+      border-radius: 14px;
+      background: var(--panel-soft);
+      padding: 12px 14px;
+      direction: rtl;
+    }
+    .limit-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .limit-symbol {
+      direction: ltr;
+      font-size: 20px;
+      color: var(--blue-dark);
+      min-width: 72px;
+      text-align: left;
+    }
+    .limit-control input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+      cursor: pointer;
+      direction: ltr;
+    }
+    .limit-note {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .info-grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+    }
+    .panel h3 { margin: 0 0 10px; font-size: 20px; }
+    .live-values {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+    }
+    .value-box {
+      border: 2px solid #d5e3ec;
+      border-radius: 13px;
+      background: var(--panel-soft);
+      padding: 12px;
+      text-align: center;
+    }
+    .value-box .label { color: var(--muted); font-size: 14px; margin-bottom: 7px; }
+    .value-box .value { font-size: 22px; font-weight: 800; color: var(--blue-dark); direction: ltr; }
+    .formula-box {
+      margin-top: 12px;
+      border: 2px solid #cfe1ec;
+      border-radius: 13px;
+      background: #fbfdff;
+      padding: 12px 14px;
+      font-size: 20px;
+      text-align: center;
+      direction: ltr;
+      min-height: 54px;
+    }
+    .insight {
+      min-height: 52px;
+      border: 2px solid #d6e4ec;
+      background: #f7fbfe;
+      border-radius: 13px;
+      padding: 12px 14px;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .dot { display:inline-block; width:11px; height:11px; border-radius:50%; margin-left:5px; vertical-align:middle; }
+    .dot.blue { background:var(--blue); }
+    .dot.pink { background:var(--pink); }
+    .dot.green { background:var(--green); }
+
+    .study-strip {
+      margin-top: 14px;
+      background: #fff9ed;
+      border: 2px solid #ecd8ae;
+      border-radius: 16px;
+      padding: 14px 16px;
+      line-height: 1.65;
+    }
+    .study-strip strong { color: #8a5c14; }
+
+    @media (max-width: 980px) {
+      .workspace, .info-grid, .limit-controls { grid-template-columns: 1fr; }
+      .function-tabs { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .jxgbox { height: 410px; }
+    }
+    @media (max-width: 560px) {
+      .function-tabs, .live-values { grid-template-columns: 1fr; }
+      .app { width: min(100% - 14px, 1600px); }
+      .jxgbox { height: 360px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <h1>פונקציית הצטברות</h1>
+      <p>
+        בחרו את הגבול התחתון \(a\) ואת הגבול העליון \(b\) בעזרת הסליידרים. הגבול \(a\) מגדיר תמיד \(F(a)=0\).
+        כאשר מזיזים את \(b\), השטח החתום בין גרף \(f\) לציר \(x\) נצבר מן \(a\) עד \(b\), ובמקביל נבנה באופן דינמי גרף \(F(x)=\int_a^x f(t)\,dt\) מן \(a\) ועד \(b\).
+      </p>
+    </section>
+
+    <nav class="function-tabs" aria-label="בחירת פונקציה">
+      <button class="tab active" data-case="0">1 · פונקציה חיובית</button>
+      <button class="tab" data-case="1">2 · מעבר משלילי לחיובי</button>
+      <button class="tab" data-case="2">3 · שני אפסים</button>
+      <button class="tab" data-case="3">4 · שינויי סימן מחזוריים</button>
+    </nav>
+
+    <section class="limits-panel" aria-label="בחירת גבולות האינטגרל">
+      <div class="limit-controls">
+        <label class="limit-control" for="aSlider">
+          <span class="limit-head"><span>הגבול התחתון</span><span id="aSliderValue" class="limit-symbol">a = 0</span></span>
+          <input id="aSlider" type="range" step="0.02" aria-label="שינוי הגבול התחתון a">
+        </label>
+        <label class="limit-control" for="bSlider">
+          <span class="limit-head"><span>הגבול העליון</span><span id="bSliderValue" class="limit-symbol">b = 0</span></span>
+          <input id="bSlider" type="range" step="0.02" aria-label="שינוי הגבול העליון b">
+        </label>
+      </div>
+      <div class="limit-note">\(a\) קובע את נקודת האפס של פונקציית ההצטברות: \(F(a)=0\). הזזת \(b\) חושפת את גרף \(F\) עד הנקודה \((b,F(b))\).</div>
+    </section>
+
+    <section class="workspace">
+      <article class="graph-card">
+        <div class="graph-head">
+          <h2>הפונקציה \(f\) והשטח המצטבר</h2>
+          <div id="fxFormula" class="math-line"></div>
+        </div>
+        <div id="sourceBoard" class="jxgbox"></div>
+        <div class="controls">
+          <button id="srcZoomIn">הגדלה +</button>
+          <button id="srcZoomOut">הקטנה −</button>
+          <button id="srcReset">איפוס</button>
+        </div>
+      </article>
+
+      <article class="graph-card">
+        <div class="graph-head">
+          <h2>פונקציית ההצטברות \(F\)</h2>
+          <div class="math-line">\(F(x)=\int_a^x f(t)\,dt,\quad F(a)=0\)</div>
+        </div>
+        <div id="accBoard" class="jxgbox"></div>
+        <div class="controls">
+          <button id="accZoomIn">הגדלה +</button>
+          <button id="accZoomOut">הקטנה −</button>
+          <button id="accReset">איפוס</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="info-grid">
+      <article class="panel">
+        <h3>ערכים בזמן אמת</h3>
+        <div class="live-values">
+          <div class="value-box">
+            <div class="label">נקודת ההתחלה</div>
+            <div id="aValue" class="value">0</div>
+          </div>
+          <div class="value-box">
+            <div class="label">הגבול העליון</div>
+            <div id="bValue" class="value">0</div>
+          </div>
+          <div class="value-box">
+            <div class="label">\(F(a)\)</div>
+            <div class="value">0</div>
+          </div>
+          <div class="value-box">
+            <div class="label">\(F(b)\)</div>
+            <div id="fAccumValue" class="value">0</div>
+          </div>
+        </div>
+        <div id="integralFormula" class="formula-box"></div>
+        <div class="legend">
+          <span><i class="dot blue"></i>גרף הפונקציה</span>
+          <span><i class="dot pink"></i>שטח חיובי</span>
+          <span><i class="dot green"></i>שטח שלילי</span>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h3>מה לומדים מן התנועה?</h3>
+        <div id="insight" class="insight"></div>
+        <div class="study-strip">
+          <strong>בדיקת הבנה:</strong> לפני שאתם מזיזים את \(b\), נסו לנבא אם \(F\) תעלה או תרד. אחר כך בדקו את הניבוי בגרף הימני.
+        </div>
+      </article>
+    </section>
+  </main>
+
+<script>
+(() => {
+  const cases = [
+    {
+      title: 'פונקציה חיובית',
+      fn: x => 0.3 * (x*x*x - 6*x*x + 9*x) + 1,
+      tex: 'f(x)=0.3(x^3-6x^2+9x)+1',
+      a: 0, b: 5,
+      xmin: -0.5, xmax: 5.5,
+      ymin: -1.5, ymax: 8.5,
+      accY: [-2, 13],
+      note: 'כאשר \(f(x)>0\), כל תוספת קטנה לתחום מ־\(a\) ועד \(b\) מוסיפה שטח חיובי. לכן גרף \(F\) עולה.'
+    },
+    {
+      title: 'מעבר משלילי לחיובי',
+      fn: x => x - 2,
+      tex: 'f(x)=x-2',
+      a: 0, b: 4.5,
+      xmin: -0.5, xmax: 5.5,
+      ymin: -3.5, ymax: 4.5,
+      accY: [-3.5, 4.5],
+      note: 'כאשר \(f(x)<0\), ההצטברות החתומה קטנה; כאשר \(f(x)>0\), היא גדלה. הזזת \(b\) חושפת את השינוי הזה ישירות בגרף \(F\).'
+    },
+    {
+      title: 'שני אפסים',
+      fn: x => 0.55 * (x - 1) * (x - 4),
+      tex: 'f(x)=0.55(x-1)(x-4)',
+      a: 0, b: 5,
+      xmin: -0.5, xmax: 5.5,
+      ymin: -3, ymax: 5.5,
+      accY: [-5, 5],
+      note: 'ל־\(f\) שני אפסים. בכל פעם ש־\(f\) מחליפה סימן, גם כיוון השינוי של \(F\) מתחלף.'
+    },
+    {
+      title: 'שינויי סימן מחזוריים',
+      fn: x => 2 * Math.sin(x),
+      tex: 'f(x)=2\\sin(x)',
+      a: 0, b: 5.4,
+      xmin: -0.4, xmax: 6.7,
+      ymin: -3, ymax: 3,
+      accY: [-1, 5],
+      note: 'הסימן של \(f\) משתנה במחזוריות. לכן \(F\) עולה כאשר \(f>0\), יורדת כאשר \(f<0\), ומשנה כיוון כאשר \(f=0\).'
+    }
+  ];
+
+  let current = 0;
+  let sourceBoard, accBoard;
+  let sourceInitialBox, accInitialBox;
+  let sourceDynamic = [];
+  let accDynamic = [];
+  let state = { a: 0, b: 0 };
+
+  const el = id => document.getElementById(id);
+  const fmt = n => {
+    if (Math.abs(n) < 0.0005) n = 0;
+    return (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, '');
+  };
+
+  function integrate(fn, a, b) {
+    if (Math.abs(a - b) < 1e-12) return 0;
+    const sign = b >= a ? 1 : -1;
+    const left = Math.min(a, b), right = Math.max(a, b);
+    let n = 420;
+    if (n % 2) n++;
+    const h = (right - left) / n;
+    let sum = fn(left) + fn(right);
+    for (let i = 1; i < n; i++) {
+      const x = left + i * h;
+      sum += (i % 2 ? 4 : 2) * fn(x);
+    }
+    return sign * sum * h / 3;
+  }
+
+  function texTypeset(nodes) {
+    if (!window.MathJax?.typesetPromise) return;
+    if (nodes && window.MathJax.typesetClear) MathJax.typesetClear(nodes);
+    MathJax.typesetPromise(nodes || undefined);
+  }
+
+  function createControls(board, prefix, initBox) {
+    el(prefix+'ZoomIn').onclick = () => board.zoomIn();
+    el(prefix+'ZoomOut').onclick = () => board.zoomOut();
+    el(prefix+'Reset').onclick = () => board.setBoundingBox(initBox, true);
+  }
+
+  function removeObjects(board, list) {
+    list.forEach(obj => {
+      try { board.removeObject(obj); } catch (_) {}
+    });
+    list.length = 0;
+  }
+
+  function addArea(board, fn, a, b, list) {
+    const left = Math.min(a, b), right = Math.max(a, b);
+    if (Math.abs(right-left) < 1e-6) return;
+    const N = 90;
+    const pos = [], neg = [];
+    let curPos = [], curNeg = [];
+
+    for (let i=0; i<=N; i++) {
+      const xx = left + (right-left)*i/N;
+      const yy = fn(xx);
+      const p = [xx, yy];
+      if (yy >= 0) {
+        if (curNeg.length) { neg.push(curNeg); curNeg=[]; }
+        curPos.push(p);
+      } else {
+        if (curPos.length) { pos.push(curPos); curPos=[]; }
+        curNeg.push(p);
+      }
+    }
+    if (curPos.length) pos.push(curPos);
+    if (curNeg.length) neg.push(curNeg);
+
+    const drawSegments = (segments, color) => {
+      segments.forEach(seg => {
+        if (seg.length < 2) return;
+        const pts = [[seg[0][0],0], ...seg, [seg[seg.length-1][0],0]];
+        const poly = board.create('polygon', pts, {
+          fillColor: color, fillOpacity: .22,
+          borders: {visible:false}, vertices:{visible:false},
+          fixed:true, highlight:false
+        });
+        list.push(poly);
+      });
+    };
+    drawSegments(pos, '#e85d8e');
+    drawSegments(neg, '#34a878');
+  }
+
+  function setupSliders(c) {
+    const aSlider = el('aSlider');
+    const bSlider = el('bSlider');
+    const step = 0.02;
+    aSlider.min = c.xmin;
+    aSlider.max = Math.max(c.xmin, state.b - step);
+    aSlider.step = step;
+    bSlider.min = Math.min(c.xmax, state.a + step);
+    bSlider.max = c.xmax;
+    bSlider.step = step;
+    aSlider.value = state.a;
+    bSlider.value = state.b;
+
+    aSlider.oninput = () => {
+      let a = Number(aSlider.value);
+      if (a >= state.b) {
+        a = Math.max(c.xmin, state.b - step);
+        aSlider.value = a;
+      }
+      state.a = a;
+      bSlider.min = Math.min(c.xmax, state.a + step);
+      if (state.b < Number(bSlider.min)) {
+        state.b = Number(bSlider.min);
+        bSlider.value = state.b;
+      }
+      renderDynamic();
+    };
+
+    bSlider.oninput = () => {
+      let b = Number(bSlider.value);
+      if (b <= state.a) {
+        b = Math.min(c.xmax, state.a + step);
+        bSlider.value = b;
+      }
+      state.b = b;
+      aSlider.max = Math.max(c.xmin, state.b - step);
+      if (state.a > Number(aSlider.max)) {
+        state.a = Number(aSlider.max);
+        aSlider.value = state.a;
+      }
+      renderDynamic();
+    };
+  }
+
+  function renderDynamic() {
+    const c = cases[current];
+    const a = state.a;
+    const b = state.b;
+    const accFn = x => integrate(c.fn, a, x);
+    const Fb = accFn(b);
+
+    removeObjects(sourceBoard, sourceDynamic);
+    removeObjects(accBoard, accDynamic);
+
+    addArea(sourceBoard, c.fn, a, b, sourceDynamic);
+
+    const aLine = sourceBoard.create('line', [[a, c.ymin], [a, c.ymax]], {
+      straightFirst:false, straightLast:false, dash:2,
+      strokeColor:'#c83f55', strokeWidth:1.8,
+      point1:{visible:false}, point2:{visible:false}, fixed:true, highlight:false
+    });
+    const bLine = sourceBoard.create('line', [[b, c.ymin], [b, c.ymax]], {
+      straightFirst:false, straightLast:false, dash:2,
+      strokeColor:'#8a5b18', strokeWidth:1.8,
+      point1:{visible:false}, point2:{visible:false}, fixed:true, highlight:false
+    });
+    const aPoint = sourceBoard.create('point', [a, 0], {
+      name:'a', size:2, fillColor:'#c83f55', strokeColor:'#c83f55', fixed:true,
+      label:{fontSize:18, offset:[-7,-24]}
+    });
+    const bPoint = sourceBoard.create('point', [b, 0], {
+      name:'b', size:2, fillColor:'#8a5b18', strokeColor:'#8a5b18', fixed:true,
+      label:{fontSize:18, offset:[-7,-24]}
+    });
+    sourceDynamic.push(aLine, bLine, aPoint, bPoint);
+
+    const accGraph = accBoard.create('functiongraph', [accFn, a, b], {
+      strokeColor:'#7b5bc7', strokeWidth:3, highlight:false, fixed:true
+    });
+    const accStart = accBoard.create('point', [a, 0], {
+      name:'F(a)=0', size:2, fillColor:'#c83f55', strokeColor:'#c83f55', fixed:true,
+      label:{fontSize:16, offset:[8,-20]}
+    });
+    const accEnd = accBoard.create('point', [b, Fb], {
+      name:'', size:2, fillColor:'#7b5bc7', strokeColor:'#7b5bc7', fixed:true
+    });
+    const bAccLine = accBoard.create('line', [[b, c.accY[0]], [b, c.accY[1]]], {
+      straightFirst:false, straightLast:false, dash:2,
+      strokeColor:'#9a86cf', strokeWidth:1.5,
+      point1:{visible:false}, point2:{visible:false}, fixed:true, highlight:false
+    });
+    accDynamic.push(accGraph, accStart, accEnd, bAccLine);
+
+    sourceBoard.update();
+    accBoard.update();
+
+    el('aSliderValue').textContent = `a = ${fmt(a)}`;
+    el('bSliderValue').textContent = `b = ${fmt(b)}`;
+    el('aValue').textContent = fmt(a);
+    el('bValue').textContent = fmt(b);
+    el('fAccumValue').textContent = fmt(Fb);
+    el('integralFormula').innerHTML = `\\(F(${fmt(b)})=\\int_{${fmt(a)}}^{${fmt(b)}} f(t)\\,dt\\approx ${fmt(Fb)},\\qquad F(${fmt(a)})=0\\)`;
+    texTypeset([el('integralFormula')]);
+  }
+
+  function build() {
+    if (sourceBoard) JXG.JSXGraph.freeBoard(sourceBoard);
+    if (accBoard) JXG.JSXGraph.freeBoard(accBoard);
+    sourceDynamic = [];
+    accDynamic = [];
+
+    const c = cases[current];
+    state = { a: c.a, b: c.b };
+    sourceInitialBox = [c.xmin, c.ymax, c.xmax, c.ymin];
+    accInitialBox = [c.xmin, c.accY[1], c.xmax, c.accY[0]];
+
+    sourceBoard = JXG.JSXGraph.initBoard('sourceBoard', {
+      boundingbox: sourceInitialBox,
+      axis:true,
+      showCopyright:false,
+      showNavigation:false,
+      pan:{enabled:true},
+      zoom:{wheel:true, pinch:true, needShift:false},
+      keepaspectratio:false,
+      defaultAxes: {
+        x: {ticks:{minorTicks:1, drawZero:true}},
+        y: {ticks:{minorTicks:1, drawZero:true}}
+      }
+    });
+
+    sourceBoard.create('functiongraph', [c.fn, c.xmin, c.xmax], {
+      strokeColor:'#1f6fb2', strokeWidth:3, highlight:false, fixed:true
+    });
+
+    accBoard = JXG.JSXGraph.initBoard('accBoard', {
+      boundingbox: accInitialBox,
+      axis:true,
+      showCopyright:false,
+      showNavigation:false,
+      pan:{enabled:true},
+      zoom:{wheel:true, pinch:true, needShift:false},
+      keepaspectratio:false,
+      defaultAxes: {
+        x: {ticks:{minorTicks:1, drawZero:true}},
+        y: {ticks:{minorTicks:1, drawZero:true}}
+      }
+    });
+
+    el('fxFormula').innerHTML = `\\(${c.tex}\\)`;
+    el('insight').innerHTML = c.note;
+    setupSliders(c);
+    createControls(sourceBoard, 'src', sourceInitialBox);
+    createControls(accBoard, 'acc', accInitialBox);
+    renderDynamic();
+    texTypeset([el('fxFormula'), el('insight')]);
+  }
+
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      current = Number(btn.dataset.case);
+      document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === btn));
+      build();
+    });
+  });
+
+  window.addEventListener('load', build);
+})();
+</script>
+
+</body>
+</html>
