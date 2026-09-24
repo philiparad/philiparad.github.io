@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<title>מערך שיעור - אינטגרל מצטבר ואינטגרל צובר שטח</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(','\\)']],
+        displayMath: [['\\[','\\]']],
+        processEscapes: true
+      },
+      chtml: { scale: 0.96 },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+    :root {
+      --ink: #17324d;
+      --blue: #3679bd;
+      --blue-dark: #24598c;
+      --blue-soft: #eaf3fb;
+      --cyan-soft: #eef9fb;
+      --gold: #c08a24;
+      --gold-soft: #fff7df;
+      --green: #2d7b65;
+      --green-soft: #eaf7f2;
+      --red: #b84a4a;
+      --red-soft: #fff0f0;
+      --paper: #ffffff;
+      --line: #579dde;
+      --muted: #5e7182;
+      --shadow: 0 4px 18px rgba(23, 50, 77, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: #edf2f6; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #edf2f6;
+      font-family: "Arial", "Noto Sans Hebrew", sans-serif;
+      line-height: 1.55;
+      font-size: 15px;
+      overflow-x: hidden;
+    }
+
+    .document {
+      width: 210mm;
+      max-width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12mm;
+      padding: 8mm 0 12mm;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .page {
+      position: relative;
+      height: 297mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      overflow: hidden;
+      padding: 15mm 15mm 17mm;
+      background: var(--paper);
+      break-after: page;
+      page-break-after: always;
+      box-shadow: var(--shadow);
+    }
+
+    .page:last-child { break-after: auto; page-break-after: auto; }
+
+    .page::after {
+      content: "אינטגרל מצטבר • פונקציית הצטברות • שאלון 571";
+      position: absolute;
+      left: 15mm;
+      right: 15mm;
+      bottom: 7mm;
+      padding-top: 2.5mm;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .cover {
+      display: flex;
+      min-height: 265mm;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(54,121,189,.13), transparent 30%),
+        radial-gradient(circle at 85% 75%, rgba(45,123,101,.10), transparent 32%),
+        linear-gradient(180deg, #ffffff, #f8fbfe);
+    }
+
+    .cover-mark {
+      width: 25mm;
+      height: 25mm;
+      margin: 0 auto 8mm;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: white;
+      font-size: 30px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(54,121,189,.28);
+    }
+
+    h1, h2, h3, h4 { margin: 0 0 .55em; line-height: 1.22; }
+    h1 { font-size: 31px; color: var(--blue-dark); }
+    h2 {
+      font-size: 23px;
+      color: var(--blue-dark);
+      padding-bottom: 2.5mm;
+      border-bottom: 2px solid var(--blue);
+      margin-bottom: 5mm;
+    }
+    h3 { font-size: 18px; color: var(--blue-dark); margin-top: 5mm; }
+    h4 { font-size: 15.5px; color: var(--green); margin-top: 3mm; }
+    p { margin: .35em 0 .8em; }
+
+    .subtitle { font-size: 20px; color: var(--green); font-weight: 700; }
+    .cover-meta { margin-top: 10mm; color: var(--muted); font-size: 14px; }
+    .cover-strip {
+      margin: 13mm auto 0;
+      width: 150mm;
+      max-width: 90%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3mm;
+    }
+    .cover-chip {
+      padding: 4mm 2mm;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #bbd1f0cf;
+      font-weight: 700;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(1, minmax(0,1fr)); gap: 5mm; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 4mm; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 3mm; }
+    .span-2 { grid-column: span 2; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 4.5mm;
+      background: aliceblue;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .card.blue { background: var(--blue-soft); border-color: #bad3e9; }
+    .card.green { background: var(--green-soft); border-color: #b8decf; }
+    .card.gold { background: var(--gold-soft); border-color: #ead7a2; }
+    .card.red { background: var(--red-soft); border-color: #e8bcbc; }
+    .card + .card { margin-top: 0mm; }
+
+    .callout {
+      border: 2px solid var(--blue);
+      padding: 3.5mm 4mm;
+      margin: 4mm 0;
+      background: var(--blue-soft);
+      border-radius: 8px;
+      break-inside: avoid;
+    }
+    .callout.blue { border-color: var(--blue); background: var(--blue-soft); }
+    .callout.green { border-color: var(--green); background: var(--green-soft); }
+    .callout.gold { border-color: var(--gold); background: var(--gold-soft); }
+    .callout.red { border-color: var(--red); background: var(--red-soft); }
+
+    .badge {
+      display: inline-block;
+      padding: 1mm 2.5mm;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      vertical-align: middle;
+      margin-left: 1.5mm;
+      background: var(--blue);
+      color: #fff;
+    }
+    .badge.he { background: var(--green); }
+    .badge.en { background: var(--blue-dark); }
+    .badge.easy { background: #2c8a63; }
+    .badge.medium { background: #b37715; }
+    .badge.hard { background: #a54141; }
+
+    ul, ol { margin: .3em 0 .8em; padding-right: 6mm; }
+    li { margin: .22em 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 3mm 0 5mm;
+      font-size: 14px;
+      break-inside: avoid;
+    }
+    th, td { border: 1px solid var(--line); padding: 2.4mm; vertical-align: top; }
+    th { background: var(--blue-soft); color: var(--blue-dark); }
+    .compact th, .compact td { padding: 1.7mm; text-align: center; }
+
+    .formula-box {
+      direction: ltr;
+      text-align: center;
+      background: #f8fbfd;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 3.5mm;
+      margin: 3mm 0;
+      break-inside: avoid;
+    }
+
+
+
+    .graph-shell {
+      position: relative;
+      width: 100%;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      direction: ltr;
+    }
+    .graph-controls {
+      position: absolute;
+      z-index: 12;
+      left: 7px;
+      top: 7px;
+      display: none;
+      gap: 4px;
+      direction: ltr;
+      background: rgba(255,255,255,.90);
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 3px;
+      box-shadow: 0 2px 7px rgba(23,50,77,.10);
+    }
+    .graph-controls button {
+      min-width: 28px;
+      height: 26px;
+      padding: 0 7px;
+      border: 2px solid #b9c9d8;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--blue-dark);
+      font: 700 12px Arial, sans-serif;
+      cursor: pointer;
+      line-height: 20px;
+    }
+    .graph-controls button:hover { background: var(--blue-soft); }
+    .graph-controls button:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .graph-controls .graph-center { min-width: 48px; }
+    .graph-controls .graph-reset { min-width: 46px; }
+
+    .jxgbox {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #a9bfd4;
+      border-radius: 10px;
+      background: #fff;
+      direction: ltr;
+      margin: 3mm 0 4mm;
+      break-inside: avoid;
+    }
+    .jxgbox.tall { height: 280px; }
+    .jxgbox.tall1 { height: 400px; }
+    .jxgbox.tall2 { height: 348px; }
+    .jxgbox.short { height: 185px; }
+    .jxgbox.short1 { height: 291px; }
+    .jxgbox.short2 { height: 362px; }
+    .jxgbox.short3 { height: 325px; }
+    .jxgbox.short4 { height: 425px; }
+
+    .legend {
+      display: flex;
+      gap: 4mm;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+      margin: -1mm 0 3mm;
+    }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-left: 1.5mm;
+      border-radius: 2px;
+      background: var(--blue);
+    }
+    .legend .neg::before { background: #d78a8a; }
+    .legend .acc::before { background: var(--green); }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: 23mm 1fr;
+      gap: 2mm 4mm;
+      margin: 3mm 0;
+    }
+    .time {
+      color: #fff;
+      background: var(--blue);
+      border-radius: 8px;
+      padding: 2mm;
+      text-align: center;
+      font-weight: 700;
+    }
+    .step {
+      border-bottom: 1px dashed var(--line);
+      padding: 1.5mm 0 3mm;
+    }
+
+    .exercise-section { counter-reset: exercise var(--start, 0); }
+    .exercise {
+      counter-increment: exercise;
+      position: relative;
+      padding: 4mm 5mm 4mm 13mm;
+      margin: 3.2mm 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .exercise::before {
+      content: counter(exercise);
+      position: absolute;
+      right: 4mm;
+      top: 4mm;
+      width: 7mm;
+      height: 7mm;
+      line-height: 7mm;
+      border-radius: 50%;
+      text-align: center;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .exercise.easy::before { background: #2c8a63; }
+    .exercise.medium::before { background: #b37715; }
+    .exercise.hard::before { background: #a54141; }
+    .exercise-title { font-weight: 700; color: var(--blue-dark); padding-right: 30px;}
+    .source-note { font-size: 10.5px; color: var(--muted); margin-top: 2mm; }
+
+    .checklist { list-style: none; padding-right: 0; }
+    .checklist li::before { content: "✓"; color: var(--green); font-weight: 700; margin-left: 2mm; }
+
+    .misconception {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+      margin: 2mm 0;
+    }
+    .misconception > div { padding: 3mm; border-radius: 8px; border: 1px solid var(--line); }
+    .wrong { background: var(--red-soft); }
+    .right { background: var(--green-soft); }
+
+    .source-list li { margin-bottom: 2mm; }
+    .small { font-size: 12px; color: var(--muted); }
+    .center { text-align: center; }
+    .ltr { direction: ltr; text-align: left; }
+    .nowrap { white-space: nowrap; }
+
+    .print-button {
+      position: fixed;
+      left: 14px;
+      bottom: 14px;
+      z-index: 20;
+      border: 0;
+      border-radius: 999px;
+      background: var(--blue-dark);
+      color: #fff;
+      padding: 10px 17px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-weight: 700;
+    }
+
+    @media (max-width: 850px) {
+      .document { width: 100%; }
+      .page { padding: 18px 16px 48px; height: auto; min-height: auto; max-height: none; overflow: visible; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .span-2 { grid-column: auto; }
+      .cover-strip { grid-template-columns: repeat(2, 1fr); }
+      .misconception { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 0; }
+      html, body { background: #fff; }
+      body { font-size: 13.5px; }
+      .document {
+        width: 210mm;
+        gap: 0;
+        padding: 0;
+        background: #fff;
+        box-shadow: none;
+      }
+      .page {
+        height: 297mm;
+        min-height: 297mm;
+        max-height: 297mm;
+        overflow: hidden;
+        padding: 13mm 14mm 16mm;
+        margin: 0;
+        box-shadow: none;
+      }
+      .print-button { display: none; }
+      .card, .exercise, .callout, table, .formula-box, .jxgbox { break-inside: avoid; page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  
+@media print { .chapter-question-page .exercise { margin: 2.4mm 0; padding-top: 3.2mm; padding-bottom: 3.2mm; } }
+
+/* איחוד כל עמודי "שאלות לפרק 3 · המשך" לשני עמודי A4 */
+.chapter3-continued-compact { padding: 9mm 11mm 15mm; }
+.chapter3-continued-compact h2 { font-size: 19px; margin-bottom: 2mm; padding-bottom: 1.6mm; }
+.chapter3-continued-compact h3 { font-size: 14.5px; margin-top: 1.5mm; margin-bottom: 1mm; }
+.chapter3-continued-compact .exercise { margin: 1.15mm 0; padding: 1.8mm 3.5mm 1.8mm 10.5mm; border-radius: 7px; font-size: 15px; line-height: 2; }
+.chapter3-continued-compact .exercise::before { right: 2.7mm; top: 2mm; width: 5.5mm; height: 5.5mm; line-height: 5.5mm; font-size: 15px; }
+.chapter3-continued-compact .exercise-title { padding-right: 22px; font-size: 12.2px; margin-bottom: .3mm; }
+.chapter3-continued-compact .formula-box { padding: 1mm 1.5mm; margin: .8mm 0; border-radius: 6px; }
+.chapter3-continued-compact table { margin: 1mm 0 1.2mm; font-size: 14px; line-height: 2; }
+.chapter3-continued-compact .compact th, .chapter3-continued-compact .compact td { padding: .65mm .55mm; }
+.chapter3-continued-compact .jxgbox { height: 190px; margin: 1mm 0; }
+.chapter3-continued-compact .small { font-size: 9.8px; margin: .3mm 0 .8mm; line-height: 1.2; }
+.chapter3-continued-compact .graph-shell { margin: 0; }
+.chapter3-continued-compact mjx-container[display="true"] { margin: .25em 0 !important; }
+@media print {
+  .chapter3-continued-compact { padding: 9mm 11mm 15mm; }
+  .chapter3-continued-compact .exercise { margin: 1mm 0; padding-top: 1.6mm; padding-bottom: 1.6mm; }
+}
+
+/* תיקוני גלישה ממוקדים לעמודי A4 */
+.shifted-graphs-page { padding-top: 11mm; padding-bottom: 15mm; }
+.shifted-graphs-page h2 { font-size: 21px; margin-bottom: 3mm; }
+.shifted-graphs-page h3 { margin-top: 2.5mm; margin-bottom: 1.5mm; }
+.shifted-graphs-page .jxgbox.short2 { height: 330px; margin-top: 1.5mm; margin-bottom: 2mm; }
+.shifted-graphs-page .small { margin: 0 0 1mm; line-height: 1.25; }
+
+.chapter3-part-1 { padding-top: 8mm; padding-bottom: 14mm; }
+.chapter3-part-1 h2 { margin-bottom: 1.5mm; }
+.chapter3-part-1 h3 { margin-top: 1mm; margin-bottom: .7mm; }
+.chapter3-part-1 .jxgbox { height: 165px; margin: .7mm 0; }
+.chapter3-part-1 .small { margin: .2mm 0 .5mm; line-height: 1.15; }
+.chapter3-part-1 .exercise { margin: .7mm 0; padding-top: 1.2mm; padding-bottom: 1.2mm; font-size: 12.8px; line-height: 1.45; }
+.chapter3-part-1 .exercise-title { font-size: 12px; margin-bottom: .15mm; }
+.chapter3-part-1 table { font-size: 11.5px; line-height: 1.35; margin: .5mm 0 .7mm; }
+.chapter3-part-1 .compact th, .chapter3-part-1 .compact td { padding: .45mm .4mm; }
+
+@media print {
+  .shifted-graphs-page { padding-top: 10mm; padding-bottom: 14mm; }
+  .shifted-graphs-page .jxgbox.short2 { height: 325px; }
+  .chapter3-part-1 { padding-top: 7mm; padding-bottom: 13mm; }
+  .chapter3-part-1 .jxgbox { height: 160px; }
+}
+
+
+/* פתרונות קצרים */
+.solution-page { padding: 11mm 13mm 16mm; }
+.solution-page h2 { font-size: 20px; margin-bottom: 2.5mm; padding-bottom: 1.8mm; }
+.solution-list { display: grid; grid-template-columns: 1fr; gap: 1.35mm; }
+.solution-item { border: 1px solid #b9cfe2; border-radius: 7px; background: #f9fcff; padding: 1.7mm 2.4mm; font-size: 12.4px; line-height: 1.38; break-inside: avoid; page-break-inside: avoid; }
+.solution-item strong { color: var(--blue-dark); }
+.solution-item .sol-title { font-weight: 700; color: var(--green); }
+.solution-item mjx-container[display="true"] { margin: .25em 0 !important; }
+.solution-note { font-size: 11px; color: var(--muted); margin: 0 0 2mm; }
+@media print { .solution-page { padding: 10mm 12mm 15mm; } .solution-item { font-size: 11.8px; line-height: 1.32; padding: 1.45mm 2.1mm; } }
+
+</style>
+</head>
+<body>
+<button class="print-button" onclick="window.print()">הדפסה / שמירה כ־PDF</button>
+<div class="document">
+<section class="page cover">
+<div class="cover-mark">∫</div>
+<h1>מערך שיעור: אינטגרל מצטבר<br/>ואינטגרל צובר שטח</h1>
+<div class="subtitle">מהקשר של קצב וכמות מצטברת ועד תרגול אינטגרל מצטבר</div>
+<div class="cover-strip">
+<div class="cover-chip">משמעות גרפית</div>
+<div class="cover-chip">שטח מכוון</div>
+<div class="cover-chip">קשר לנגזרת</div>
+</div>
+</section>
+<section class="page"><h2>1 רצף המושגים</h2><h3>רצף המושגים</h3>
+<table>
+<thead><tr><th>שלב</th><th>רעיון</th><th>שאלה מנחה</th><th>ייצוג מרכזי</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>קצב קבוע</td><td>כיצד מהירות יוצרת מרחק?</td><td>מלבן: גובה כפול רוחב</td></tr>
+<tr><td>2</td><td>קצב משתנה במקטעים שונים</td><td>כיצד מחברים תרומות ממקטעים?</td><td>סכום שטחי מלבנים וטרפזים</td></tr>
+<tr><td>3</td><td>שטח מכוון</td><td>מה קורה כאשר הקצב שלילי?</td><td>שטח מעל הציר חיובי ומתחתיו שלילי</td></tr>
+<tr><td>4</td><td>פונקציית הצטברות</td><td>מה קורה כאשר הגבול העליון משתנה?</td><td>\(F(x)=\int_a^x f(t)\,dt\)</td></tr>
+<tr><td>5</td><td>קשר לנגזרת</td><td>מהו קצב השינוי של הכמות המצטברת?</td><td>\(F'(x)=f(x)\)</td></tr>
+<tr><td>6</td><td>התנהגות גרפית</td><td>כיצד גרף \(f\) קובע את צורת \(F\)?</td><td>סימן, מגמה, קיצון וקעירות</td></tr>
+</tbody>
+</table>
+</section>
+<section class="page">
+<h2>2. פתיחה: מקצב קבוע לכמות מצטברת</h2>
+<div class="grid-2">
+<div>
+<h3>משימת פתיחה</h3>
+<p>רוכב אופניים נע במהירות קבועה של 25 קמ״ש. גררו את המחוון בגרף ובדקו כיצד משתנים הזמן, השטח והמרחק.</p>
+<div class="formula-box">\[D(x)=25x=\int_0^x 25\,dt\]</div>
+<ul>
+<li>גובה המלבן מייצג את המהירות.</li>
+<li>רוחב המלבן מייצג את משך הזמן.</li>
+<li>שטח המלבן מייצג את המרחק המצטבר.</li>
+<li>שיפוע גרף המרחק שווה למהירות.</li>
+</ul>
+</div>
+<div>
+<div class="graph-shell" data-graph-id="board-constant"><div aria-label="גרף מהירות קבועה ושטח מצטבר" class="jxgbox tall1" id="board-constant"></div>
+</div>
+</div>
+</div>
+<div class="callout green">
+<strong>שאלת מפתח:</strong> מדוע אותו חישוב מתאר גם שטח וגם כמות מצטברת? משום שבשני המקרים מכפילים קצב קבוע במשך הזמן שבו הקצב פעל.
+    </div>
+</section>
+<section class="page chapter-question-page">
+<h2>שאלות לפרק 2</h2>
+<div class="exercise-section" style="--start:0">
+<div class="exercise easy">
+<div class="exercise-title">רוכב במהירות קבועה</div>
+        רוכב אופניים נע במהירות קבועה של 25 קמ״ש. השלימו את המרחקים לאחר \(0,1,2,3,5.5,7\) שעות. סרטטו את גרף המהירות ואת גרף המרחק, והסבירו מדוע השטח שמתחת לגרף המהירות שווה למרחק המצטבר.
+</div>
+<div class="exercise easy">
+<div class="exercise-title">פונקציה קבועה</div>
+        נתונה \(f(x)=3\) ומוגדרת \(S(b)=\int_0^b f(x)\,dx\). חשבו את \(S(b)\) עבור \(b=0,1,2,3,4,5,6\), מצאו נוסחה ל־\(S\), וסרטטו את הגרף.
+</div>
+
+<div class="exercise easy"><div class="exercise-title">קצב קבוע של 4 יחידות</div>נתונה \(f(x)=4\) ומוגדרת \(F(x)=\int_0^x f(t)\,dt\). חשבו את \(F(2),F(4),F(7)\), ומצאו נוסחה ל־\(F(x)\).</div><div class="exercise easy"><div class="exercise-title">קצב קבוע שלילי</div>נתונה \(f(x)=-3\) ומוגדרת \(A(x)=\int_0^x f(t)\,dt\). חשבו את \(A(1),A(3),A(5)\), והסבירו מדוע פונקציית ההצטברות יורדת.</div><div class="exercise medium"><div class="exercise-title">מציאת הקצב מן ההצטברות</div>ידוע שהקצב קבוע וש־\(F(x)=\int_0^x c\,dt\). אם \(F(6)=42\), מצאו את \(c\) ואת \(F(10)\).</div>
+<div class="exercise medium">
+<div class="exercise-title">מתי מגיעים לכמות נתונה</div>קצב הייצור במפעל קבוע ושווה ל־\(8\) יחידות לשעה. הגדירו \(P(x)=\int_0^x 8\,dt\). מצאו לאחר כמה שעות ייצברו \(60\) יחידות.</div>
+<div class="exercise medium">
+<div class="exercise-title">השוואת שני קצבים קבועים</div>נתונות \(f(x)=3\) ו־\(g(x)=5\), עם \(F(x)=\int_0^x f(t)\,dt\) ו־\(G(x)=\int_0^x g(t)\,dt\). השוו בין \(F(4)\) ל־\(G(4)\), ובין שיפועי הגרפים של \(F\) ו־\(G\).</div>
+<div class="exercise medium">
+<div class="exercise-title">שטח מלבן מתוך גרף קבוע</div>גרף של פונקציה קבועה נמצא בגובה \(6\) מעל ציר \(x\) בתחום \(0\le x\le9\). חשבו את האינטגרל \(\int_0^9 6\,dx\) בשתי דרכים: כשטח מלבן ובאמצעות פונקציה קדומה.</div>
+</div>
+</section>
+
+<section class="page">
+<h2>2.1 דוגמה נוספת: רכב הנוסע בתאוצה קבועה</h2>
+<p>
+      רכב מתחיל לנוע במהירות של 10 מטר לשנייה ומאיץ בתאוצה קבועה של
+      2 מטר לשנייה בריבוע. לכן המהירות אינה קבועה: בכל שנייה היא גדלה ב־2 מטר לשנייה.
+    </p>
+<div class="formula-box">
+      \[
+      a(t)=2,\qquad v(t)=10+2t,\qquad
+      S(t)=\int_0^t (10+2u)\,du=10t+t^2
+      \]
+    </div>
+<div class="grid-2">
+<div>
+<h3>גרף מהירות-זמן</h3>
+<div class="graph-shell" data-graph-id="board-car-velocity"><div aria-label="גרף מהירות של רכב בתאוצה קבועה" class="jxgbox short1" id="board-car-velocity"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div>
+<p class="small">
+          גררו את המחוון. השטח שמתחת לגרף המהירות עד הזמן שנבחר מייצג את המרחק שהרכב עבר.
+        </p>
+</div>
+<div>
+<h3>גרף מרחק-זמן</h3>
+<div class="graph-shell" data-graph-id="board-car-distance"><div aria-label="גרף מרחק של רכב בתאוצה קבועה" class="jxgbox short1" id="board-car-distance"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div>
+<p class="small">
+          גרף המרחק הוא פרבולה. שיפוע המשיק בכל רגע שווה למהירות הרכב באותו רגע.
+        </p>
+</div>
+</div>
+</section>
+<section class="page">
+<h3>חישוב לאחר 5 שניות</h3>
+<div class="grid-2">
+<div class="card blue">
+<h4>באמצעות אינטגרל</h4>
+<div class="formula-box">
+          \[
+          S(5)=\int_0^5 (10+2t)\,dt
+          =\left[10t+t^2\right]_0^5
+          =50+25=75
+          \]
+        </div>
+<p>הרכב עבר 75 מטר בחמש השניות הראשונות.</p>
+</div>
+<div class="card gold">
+<h4>באמצעות שטח גיאומטרי</h4>
+<div class="formula-box">
+          \[
+          10\cdot5+\frac{1}{2}\cdot5\cdot(20-10)
+          =50+25=75
+          \]
+        </div>
+<p>השטח מורכב ממלבן ומשולש, או לחלופין משטח של טרפז.</p>
+</div>
+</div>
+<table class="compact">
+<thead>
+<tr><th>זמן בשניות</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+</thead>
+<tbody>
+<tr><th>מהירות במטר לשנייה</th><td>10</td><td>12</td><td>14</td><td>16</td><td>18</td><td>20</td></tr>
+<tr><th>מרחק מצטבר במטרים</th><td>0</td><td>11</td><td>24</td><td>39</td><td>56</td><td>75</td></tr>
+</tbody>
+</table>
+<div class="callout green">
+<strong>המסקנה:</strong> תאוצה קבועה יוצרת גרף מהירות ליניארי, והצטברות המהירות יוצרת גרף מרחק ריבועי.
+      מתקיימים הקשרים \(S'(t)=v(t)\) ו־\(S''(t)=a(t)\).
+    </div>
+</section><section class="page chapter-question-page"><h2>שאלות לפרק 2.1</h2><div class="exercise-section" style="--start:0"><div class="exercise easy">
+<div class="exercise-title">פונקציה ליניארית</div>
+        נתונה \(g(x)=2x\) ומוגדרת \(G(b)=\int_0^b g(x)\,dx\). חשבו עבור \(b=0,1,2,3,4\), מצאו נוסחה ל־\(G\), והשוו בין צורת הגרף של \(g\) לצורת הגרף של \(G\).
+</div><div class="exercise medium"><div class="exercise-title">צבירה עבור \(f(x)=x-3\)</div>בתחום \(0\le x\le6\) נגדיר \(S(x)=\int_0^x(t-3)\,dt\). מצאו נוסחה ל־\(S\), נקודת מינימום, תחומי חיוביות ושליליות, ושרטטו סקיצה של \(S\).</div><div class="exercise medium"><div class="exercise-title">צבירה עבור \(f(x)=1-x\)</div>בתחום \(0\le x\le6\) נגדיר \(T(x)=\int_0^x(1-t)\,dt\). מצאו את נקודות האפס של \(T\), את הקיצון ואת תחומי העלייה והירידה.</div><div class="exercise medium"><div class="exercise-title">התאמה בין קצב לצבירה</div>התאימו לכל פונקציה את פונקציית ההצטברות המתאימה, כאשר הגבול התחתון הוא 0:
+        <div class="formula-box">\[f_1(x)=x-3,\quad f_2(x)=x-1,\quad f_3(x)=1-x,\quad f_4(x)=-x\]</div>
+<div class="formula-box">\[A(x)=\tfrac12x^2-3x,\quad B(x)=\tfrac12x^2-x,\quad C(x)=x-\tfrac12x^2,\quad D(x)=-\tfrac12x^2\]</div>
+        לאחר ההתאמה קבעו אילו גרפים קעורים כלפי מעלה ואילו כלפי מטה.
+</div></div></section><section class="page chapter-question-page"><h2>שאלות לפרק 2.1 · המשך</h2><div class="exercise-section" style="--start:4"><div class="exercise easy"><div class="exercise-title">קצב ליניארי עולה</div>נתונה \(f(x)=2x+1\) בתחום \(0\le x\le4\), ומוגדרת \(F(x)=\int_0^x f(t)\,dt\). מצאו נוסחה ל־\(F\) וחשבו את \(F(2)\) ואת \(F(4)\).</div><div class="exercise medium"><div class="exercise-title">קצב ליניארי יורד</div>נתונה \(f(x)=6-x\) בתחום \(0\le x\le8\). נגדיר \(F(x)=\int_0^x f(t)\,dt\). מצאו מתי \(F\) עולה ומתי היא יורדת, ומצאו את נקודת המקסימום שלה.</div><div class="exercise medium"><div class="exercise-title">מהירות ותאוצה קבועה</div>מהירות רכב היא \(v(t)=8+3t\) מטר לשנייה. כתבו פונקציית מרחק מצטבר \(S(t)=\int_0^t v(u)\,du\), וחשבו את המרחק לאחר \(4\) שניות.</div>
+<div class="exercise medium"><div class="exercise-title">קצב החוצה את הציר</div>נתונה \(f(x)=3x-6\), ומוגדרת \(F(x)=\int_0^x f(t)\,dt\). מצאו את נקודת הקיצון של \(F\) וקבעו את סוגה.</div><div class="exercise hard"><div class="exercise-title">השוואת שתי פונקציות הצטברות</div>נתונות \(f(x)=x+2\) ו־\(g(x)=2x\). הגדירו \(F(x)=\int_0^x f(t)\,dt\) ו־\(G(x)=\int_0^x g(t)\,dt\). מצאו את ערכי \(x\) שעבורם \(F(x)=G(x)\).</div><div class="exercise hard"><div class="exercise-title">שחזור פונקציית הקצב</div>ידוע ש־\(F(x)=x^2-4x\) היא פונקציית הצטברות מהצורה \(F(x)=\int_0^x f(t)\,dt\). מצאו את \(f(x)\), וקבעו באילו תחומים \(F\) עולה ויורדת.</div>
+</div>
+</section>
+
+<section class="page">
+<h2>2.2 דוגמה: אינטגרל מצטבר שמתחיל בנקודה שאינה \(x=0\)</h2>
+<p>
+      פונקציית הצטברות אינה חייבת להתחיל בראשית הצירים. אפשר לבחור כל נקודת התחלה
+      \(x=a\) על ציר ה־\(x\). נקודה זו נקראת <strong>הגבול התחתון הקבוע</strong>.
+    </p>
+<div class="formula-box">
+      \[
+      F(x)=\int_a^x f(t)\,dt
+      \]
+    </div>
+<div class="callout green">
+<strong>ערך פונקציית ההצטברות בנקודת ההתחלה:</strong>
+      כאשר מציבים \(x=a\), שני גבולות האינטגרל שווים ולכן התחום שרוחבו אפס אינו צובר שטח:
+      \[
+      F(a)=\int_a^a f(t)\,dt=0.
+      \]
+      לכן גרף פונקציית ההצטברות עובר תמיד בנקודה \((a,0)\).
+    </div>
+<h3>דוגמה מספרית</h3>
+<p>
+      נתונה פונקציית הקצב
+      \[
+      f(x)=x+1
+      \]
+      ומגדירים פונקציית הצטברות שמתחילה ב־\(x=2\):
+    </p>
+<div class="formula-box">
+      \[
+      F(x)=\int_2^x (t+1)\,dt.
+      \]
+    </div>
+<p>נחשב את הפונקציה:</p>
+<div class="formula-box">
+      \[
+      F(x)=\left[\frac{t^2}{2}+t\right]_2^x
+      =\frac{x^2}{2}+x-4.
+      \]
+    </div>
+<table class="compact">
+<thead>
+<tr>
+<th>\(x\)</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>\(F(x)\)</th>
+<td>0</td>
+<td>\(3.5\)</td>
+<td>8</td>
+<td>\(13.5\)</td>
+</tr>
+</tbody>
+</table>
+</section><section class="page shifted-graphs-page">
+<h2>2.2 המחשה גרפית לאינטגרל מצטבר שמתחיל בנקודה שאינה \(x=0\)</h2>
+<div class="grid-2">
+<div>
+<h3>גרף פונקציית הקצב</h3>
+<div class="graph-shell" data-graph-id="board-shifted-rate"><div aria-label="גרף פונקציית קצב עם הצטברות המתחילה בנקודה x שווה 2" class="jxgbox short2" id="board-shifted-rate"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div>
+<p class="small">
+          הסליידר \(a\) משנה את הגבול התחתון, והסליידר \(x\) משנה את הגבול העליון. השטח הצבוע מתעדכן בין שני הגבולות.
+        </p>
+</div>
+<div>
+<h3>גרף פונקציית ההצטברות</h3>
+<div class="graph-shell" data-graph-id="board-shifted-accumulation"><div aria-label="גרף פונקציית הצטברות המתחילה בנקודה x שווה 2" class="jxgbox short2" id="board-shifted-accumulation"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div>
+<p class="small">
+          כאשר הגבול התחתון משתנה, גרף פונקציית ההצטברות משתנה בהתאם ותמיד עובר בנקודה \((a,0)\).
+        </p>
+</div>
+</div>
+</section><section class="page chapter-question-page"><h2>שאלות לפרק 2.2</h2><div class="exercise-section" style="--start:0;position: relative;top: -10px;">
+<div class="exercise easy"><div class="exercise-title">נגזרת ישירה</div>אם \(F(x)=\int_2^x(3t^2+4t)\,dt\), מצאו את \(F'(x)\).</div>
+<div class="exercise easy"><div class="exercise-title">שתי נגזרות קצרות</div>מצאו את הנגזרות של \(A(x)=\int_0^x5\,dt\) ושל \(B(x)=\int_1^x(t^2+2t-3)\,dt\).</div>
+<div class="exercise easy"><div class="exercise-title">גבול תחתון קבוע שאינו אפס</div>אם \(F(x)=\int_3^x(t^2-4t+3)\,dt\), מצאו את \(F'(x)\) והסבירו מדוע \(F(3)=0\).</div>
+<div class="exercise medium"><div class="exercise-title">עלייה וירידה</div>נתונה \(F(x)=\int_1^x(t-4)\,dt\). קבעו באילו תחומים \(F\) עולה ובאילו היא יורדת, ומצאו את נקודת הקיצון.</div>
+<div class="exercise medium"><div class="exercise-title">גבול תחתון שלילי</div>נתונה \(F(x)=\int_{-2}^x(t^2-1)\,dt\). מצאו את \(F'(x)\) ואת ערכי \(x\) שבהם \(F'(x)=0\).</div>
+<div class="exercise medium"><div class="exercise-title">חישוב ערך של פונקציית הצטברות</div>נתונה \(F(x)=\int_2^x(t^2-2t+3)\,dt\). חשבו את \(F(2)\) ואת \(F(4)\).</div>
+<div class="exercise medium"><div class="exercise-title">שתי נקודות התחלה קבועות</div>הגדירו \(F(x)=\int_1^x(t+2)\,dt\) ו־\(G(x)=\int_3^x(t+2)\,dt\). הראו כי \(F'(x)=G'(x)\), ומצאו את הקבוע \(F(x)-G(x)\).</div>
+<div class="exercise medium"><div class="exercise-title">קיצון מתוך פונקציית הקצב</div>נתונה \(F(x)=\int_0^x(t^2-4t+3)\,dt\). מצאו את נקודות הקיצון של \(F\) וקבעו את סוגן בעזרת סימן \(F'(x)\).</div>
+<div class="exercise medium"><div class="exercise-title">שחזור פונקציית הקצב</div>ידוע כי \(F(x)=\int_2^x f(t)\,dt\) וכי \(F'(x)=2x^2-6x+4\). מצאו את \(f(x)\) ואת \(f(3)\).</div>
+<div class="exercise hard"><div class="exercise-title">ניתוח פונקציית הצטברות</div>נתונה \(H(x)=\int_{-1}^x(t-1)(t-3)\,dt\), כאשר \(-1\lt x\lt5\). מצאו את תחומי העלייה והירידה של \(H\), ואת נקודות הקיצון המקומיות שלה.</div>
+</div></section><section class="page"><h2>2.3 שטח מצטבר לעומת כמות התחלתית</h2><div class="card gold">
+<h3>הבחנה חשובה: שטח מצטבר לעומת כמות התחלתית</h3>
+<p>
+        פונקציית האינטגרל
+        \[
+        F(x)=\int_a^x f(t)\,dt
+        \]
+        מודדת רק את <strong>השינוי שהצטבר החל מן הנקודה \(a\)</strong>, ולכן \(F(a)=0\).
+      </p>
+<p>
+        כאשר לכמות עצמה יש ערך התחלתי שאינו אפס, למשל במכל יש בתחילת המדידה
+        100 ליטר מים, יש להוסיף את הכמות ההתחלתית:
+      </p>
+<div class="formula-box">
+        \[
+        Q(x)=Q_0+\int_a^x f(t)\,dt.
+        \]
+      </div>
+<p>
+        במקרה זה:
+        \[
+        Q(a)=Q_0,
+        \]
+        משום שהאינטגרל עצמו עדיין שווה לאפס בנקודת ההתחלה.
+      </p>
+</div><div class="callout blue">
+<strong>סיכום:</strong>
+      הגבול התחתון מבטיח כי בנקודת ההתחלה מתקיים \(F(a)=0\). ייתכן שלפונקציית ההצטברות יהיו נקודות אפס נוספות.
+      שינוי הגבול התחתון משנה את ערכי הפונקציה בקבוע, אך אינו משנה את הנגזרת שלה:
+      \[
+      F'(x)=f(x).
+      \]
+    </div></section>
+<section class="page">
+<h2>2.3 · דוגמה: מכל מים — שטח מצטבר לעומת כמות התחלתית</h2>
+<p>
+  בתחילת המדידה, בזמן \(t=0\), יש במכל <strong>100 ליטר מים</strong>.
+  קצב כניסת המים למכל משתנה לפי
+  \[
+  f(t)=6+2t\qquad \text{(ליטר לדקה)}.
+  \]
+  נבחין בין <strong>השינוי שהצטבר</strong> לבין <strong>כמות המים בפועל</strong>.
+</p>
+<div class="grid-2">
+<div class="card blue">
+<h3>א. השינוי המצטבר</h3>
+<div class="formula-box">
+      \[
+      A(t)=\int_0^t (6+2u)\,du=6t+t^2
+      \]
+    </div>
+<p>פונקציה זו מודדת רק כמה ליטרים נוספו מאז תחילת המדידה, ולכן \(A(0)=0\).</p>
+</div>
+<div class="card green">
+<h3>ב. הכמות במכל</h3>
+<div class="formula-box">
+      \[
+      Q(t)=100+A(t)=100+6t+t^2
+      \]
+    </div>
+<p>כאן מוסיפים את הכמות ההתחלתית, ולכן \(Q(0)=100\).</p>
+</div>
+</div>
+<h3>לאחר 4 דקות</h3>
+<div class="formula-box">
+  \[
+  A(4)=\int_0^4(6+2t)\,dt=\left[6t+t^2\right]_0^4=24+16=40
+  \]
+  \[
+  Q(4)=100+40=140\ \text{רטיל}.
+  \]
+</div>
+</section>
+<section class="page"><h2>2.3 · דוגמה: מכל מים — המחשה גרפית</h2><div>
+<h3>קצב הזרימה והשטח המצטבר</h3>
+<div class="graph-shell" data-graph-id="board-initial-rate">
+<div aria-label="גרף קצב כניסת מים והשטח המצטבר בארבע הדקות הראשונות" class="jxgbox short3" id="board-initial-rate"></div>
+</div>
+<p class="small">השטח שמתחת לגרף הקצב בין \(0\) ל־\(4\) הוא \(40\) ליטר — זהו <strong>השינוי המצטבר</strong>.</p>
+</div>
+<div>
+<h3>שינוי מצטבר מול כמות בפועל</h3>
+<div class="graph-shell" data-graph-id="board-initial-quantity">
+<div aria-label="השוואה בין גרף השינוי המצטבר לגרף כמות המים בפועל" class="jxgbox short3" id="board-initial-quantity"></div>
+</div>
+<div class="legend"><span>\(A(t)\) — שינוי מצטבר</span><span class="acc">\(Q(t)\) — כמות בפועל</span></div>
+</div>
+<div class="callout green">
+<strong>המסקנה:</strong> האינטגרל מתחיל מאפס ומודד את השינוי שנצבר. הכמות בפועל מתקבלת רק לאחר שמוסיפים את הערך ההתחלתי. לכן הגרפים של \(A\) ושל \(Q\) בעלי אותה צורה, אך גרף \(Q\) נמצא 100 יחידות מעל גרף \(A\).
+</div></section><section class="page chapter-question-page"><h2>שאלות לפרק 2.3</h2><div class="exercise-section" style="--start:0"><div class="exercise easy">
+<div class="exercise-title">תזרים מזומנים יומי</div>
+        הרווח או ההפסד היומי של חברה, באלפי שקלים, במשך עשרה ימים הוא:
+        <div class="formula-box">\[2,\ 2,\ 0,\ -1,\ -4,\ -3,\ 1,\ 1,\ 1,\ 5\]</div>
+        היתרה בתחילת היום הראשון היא אפס. מצאו את היתרה לאחר 3, 5, 6 ו־10 ימים, וקבעו באילו ימים היתרה הייתה שלילית.
+</div></div><h3>גרף גשם לשאלה</h3><div class="graph-shell" data-graph-id="board-rain"><div aria-label="קצב ירידת גשם" class="jxgbox short" id="board-rain"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div><p class="small">הגרף מתאר את קצב ירידת הגשם המשמש בשאלה הבאה.</p><div class="exercise-section" style="--start:1"><div class="exercise medium"><div class="exercise-title">סערת גשם</div>קצב ירידת הגשם, במ״מ לשעה, במשך 12 שעות נתון על ידי הפונקציה הפולינומית
+        <div class="formula-box">\[
+        r(t)=-\frac{3}{4}t^2+9t,\qquad 0\le t\le12,
+        \qquad R(x)=\int_0^x r(t)\,dt
+        \]</div>
+        א. חשבו את \(R(4)\) והסבירו את משמעות התוצאה. ב. חשבו את \(R(12)\). ג. מה מייצגת \(R(x)\)? ד. באיזה זמן \(R\) משתנה בקצב המהיר ביותר? נמקו באמצעות גרף \(r\).
+</div></div></section><section class="page chapter-question-page"><h2>שאלות לפרק 2.3 · המשך</h2><div class="exercise-section" style="--start:2"><div class="exercise hard"><div class="exercise-title">שריפת אנרגיה</div>קצב שריפת הקלוריות של מתאמן נתון על ידי
+        <div class="formula-box">\[
+        b(x)=\begin{cases}
+        1.2x^2+7,&amp;0\le x\le5\\
+        37,&amp;5\le x\le25\\
+        -0.1(x-25)^2+37,&amp;25\le x\le40
+        \end{cases}
+        \]</div>
+        תארו במילים את השינוי בקצב השריפה, חשבו את מספר הקלוריות הכולל במשך 40 דקות, וקבעו באילו תחומים פונקציית הקלוריות המצטברת קעורה כלפי מעלה ובאילו תחומים היא קעורה כלפי מטה.
+</div></div><h3>גרף קצב כניסה לקניון</h3><div class="graph-shell" data-graph-id="board-mall"><div aria-label="קצב כניסת אנשים לקניון" class="jxgbox short" id="board-mall"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div><p class="small">הגרף משמש לשאלה על קצב הכניסה ומספר הנכנסים המצטבר לקניון.</p><div class="exercise-section" style="--start:3"><div class="exercise hard"><div class="exercise-title">כניסה לקניון</div>הגרף מתאר את קצב כניסת האנשים לקניון, במספר אנשים לדקה, במשך שלוש שעות מן הפתיחה. נסמן את קצב הכניסה ב־\(r(t)\) ונגדיר \(N(x)=\int_0^x r(t)\,dt\). א. חשבו את מספר האנשים שנכנסו לקניון עד תום 180 דקות. ב. הסבירו מה מייצגת \(N(x)\). ג. קבעו באיזה פרק זמן קצב הכניסה לקניון הוא המרבי.</div></div></section>
+<section class="page">
+<h2>2.4 מעבר לקצב משתנה במקטעים שונים</h2>
+<p>כאשר הקצב משתנה ממקטע למקטע, מחשבים את התרומה של כל מקטע ומחברים.</p>
+<div class="callout blue">
+<strong>דוגמה קצרה:</strong> נניח שהקצב הוא 1 יחידה לזמן בין 0 ל־2, 3 יחידות לזמן בין 2 ל־5, ו־\(-2\) יחידות לזמן בין 5 ל־8. לכן הכמות המצטברת היא סכום התרומות של שלושת המקטעים:
+<div class="formula-box">
+\[
+1\cdot2+3\cdot3+(-2)\cdot3=2+9-6=5
+\]
+</div>
+כלומר, לאחר שלושת המקטעים נצברו בסך הכול <strong>5 יחידות</strong>.
+</div>
+<div class="graph-shell" data-graph-id="board-piecewise"><div aria-label="קצב משתנה במקטעים שונים" class="jxgbox tall1" id="board-piecewise"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div>
+<div class="grid-3">
+<div class="card"><strong>מקטע ראשון:</strong> קצב נמוך ותרומה חיובית.</div>
+<div class="card"><strong>מקטע שני:</strong> קצב גבוה יותר וצבירה מהירה יותר.</div>
+<div class="card"><strong>מקטע שלישי:</strong> קצב שלילי ולכן הכמות המצטברת קטנה.</div>
+</div>
+</section><section class="page chapter-question-page"><h2>שאלות לפרק 2.4</h2><div class="exercise-section" style="--start:0"><div class="exercise easy">
+<div class="exercise-title">אימון בשלושה מקטעים</div>
+        במשך 60 דקות רוכב מתאמן במהירויות: 100 מטר לדקה ב־20 הדקות הראשונות, 200 מטר לדקה ב־20 הדקות הבאות ו־300 מטר לדקה ב־20 הדקות האחרונות. חשבו את המרחק המצטבר לאחר 20, 40 ו־60 דקות, ובנו טבלת הצטברות.
+</div><div class="exercise easy"><div class="exercise-title">קריאת נגזרת מגרף</div>הגרף בתרגיל מתאר פונקציה המקבלת את הערך 2 בתחום \(0\le x\le2\), יורדת בקו ישר עד הערך \(-2\) ב־\(x=4\), ולאחר מכן נשארת \(-2\) עד \(x=6\). אם \(h(x)=\int_0^x f(t)\,dt\), מצאו את \(h'(3)\) ואת \(h'(5)\).</div></div></section><section class="page chapter-question-page"><h2>שאלות לפרק 2.4 · המשך</h2><h3>גרף הצטברות שלג</h3><div class="graph-shell" data-graph-id="board-snow"><div aria-label="קצב הצטברות שלג" class="jxgbox short4" id="board-snow"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div><p class="small">הגרף והפונקציה המקטעית משמשים לשאלה הבאה.</p><div class="exercise-section" style="--start:2"><div class="exercise hard"><div class="exercise-title">הצטברות שלג</div>הפונקציה הבאה מתארת קצב ירידת שלג במטרים מעוקבים לדקה, כאשר \(x\) בדקות:
+        <div class="formula-box">\[
+        f(x)=\begin{cases}
+        -0.1(x-30)^2+90,&amp;0\le x\le30\\
+        3x,&amp;30\le x\le60\\
+        -0.1(x-60)^2+180,&amp;60\le x\le90\\
+        -0.05(x-90)^2+90,&amp;90\lt x\le120
+        \end{cases}
+        \]</div>
+        א. קבעו היכן פונקציית ההצטברות עולה או יורדת. ב. קבעו תחומי קעירות. ג. חשבו את כמות השלג שהצטברה במשך שעתיים. ד. כתבו פונקציית הצטברות מפורשת לכל אחד מארבעת התחומים, עם ערכים מתואמים בנקודות החיבור.
+</div></div></section><section class="page chapter-question-page"><h2>שאלות לפרק 2.4 · המשך</h2><h3>גרף מהירות לאורך זמן</h3><div class="graph-shell" data-graph-id="board-bike"><div aria-label="מהירות אופניים לאורך זמן" class="jxgbox short4" id="board-bike"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div><p class="small">הגרף משמש לשאלה על העתק לעומת דרך.</p><div class="exercise-section" style="--start:3"><div class="exercise hard"><div class="exercise-title">טיול אופניים - העתק לעומת דרך</div>הגרף מתאר מהירות במטרים לדקה במשך 12 דקות. א. חשבו את ההעתק הכולל. ב. חשבו את הדרך הכוללת. ג. קבעו באילו זמנים הרוכב משנה כיוון. ד. קבעו מתי מרחקו מנקודת המוצא מקסימלי. ה. הסבירו את ההבדל בין \(\int_0^{12}v(t)\,dt\) לבין \(\int_0^{12}|v(t)|\,dt\).</div></div><div class="exercise-section" style="--start:4"><div class="exercise medium"><div class="exercise-title">פונקציית הצטברות מקצב מקטעי</div>נתונה הפונקציה
+<div class="formula-box">\[
+f(x)=\begin{cases}
+2,&amp;0\le x\le2\\
+4-x,&amp;2\lt x\le6
+\end{cases}
+\qquad g(x)=\int_0^x f(t)\,dt
+\]</div>
+א. מצאו את \(g'(1)\), \(g'(3)\) ו־\(g'(5)\). ב. קבעו באילו תחומים \(g\) עולה ובאילו היא יורדת. ג. מצאו את ערך ה־\(x\) שבו ל־\(g\) יש מקסימום מקומי ונמקו בעזרת סימן \(f\).
+</div></div></section><section class="page chapter-question-page"><h2>שאלות לפרק 2.4 · המשך</h2><div class="exercise-section" style="--start:5"><div class="exercise easy"><div class="exercise-title">קצב קבוע במקטעים</div>נתון קצב של \(2\) יחידות לזמן בתחום \(0\le x\le3\), ולאחר מכן \(5\) יחידות לזמן בתחום \(3\le x\le7\). חשבו את הכמות המצטברת ב־\(x=3\) וב־\(x=7\).</div><div class="exercise medium"><div class="exercise-title">מקטע חיובי ומקטע שלילי</div>נתון \(f(x)=4\) בתחום \(0\le x\le2\), ו־\(f(x)=-2\) בתחום \(2\le x\le6\). נגדיר \(F(x)=\int_0^x f(t)\,dt\). מצאו את \(F(2),F(4),F(6)\) ואת הערך המקסימלי של \(F\).</div><div class="exercise medium"><div class="exercise-title">קצב ליניארי בשני מקטעים</div>נתונה פונקציית קצב: \(f(x)=x+1\) עבור \(0\le x\le2\), ו־\(f(x)=5-x\) עבור \(2\le x\le5\). חשבו את \(\int_0^5 f(x)\,dx\).</div><div class="exercise hard"><div class="exercise-title">בניית פונקציית הצטברות מקטעית</div>נתונה \(f(x)=2x\) עבור \(0\le x\le2\), ו־\(f(x)=8-2x\) עבור \(2\le x\le4\). הגדירו \(F(x)=\int_0^x f(t)\,dt\) וכתבו נוסחה מפורשת ל־\(F\) בכל מקטע, תוך התאמת הערכים בנקודת החיבור.</div><div class="exercise hard"><div class="exercise-title">פולינום במקטעים ושטח מכוון</div>נתונה \(f(x)=x^2-4x+3\) בתחום \(0\le x\le4\). חלקו את התחום לפי נקודות האפס, וחשבו בנפרד את התרומות החיוביות והשליליות לאינטגרל \(\int_0^4 f(x)\,dx\).</div></div></section>
+<section class="page">
+<h2>3. הגדרת פונקציית ההצטברות ושטח מכוון</h2>
+<div class="formula-box">
+      \[
+      F(x)=\int_a^x f(t)\,dt
+      \]
+    </div>
+<div class="grid-2">
+<div class="card blue">
+<h3>פירוש הסימון</h3>
+<ul>
+<li>\(f(t)\) היא פונקציית קצב השינוי.</li>
+<li>\(a\) הוא הגבול התחתון הקבוע ונקודת תחילת הצבירה.</li>
+<li>\(x\) הוא גבול עליון משתנה.</li>
+<li>\(F(x)\) היא הכמות המצטברת מ־\(a\) עד \(x\).</li>
+<li>תמיד מתקיים \(F(a)=0\).</li>
+</ul>
+</div>
+<div class="card gold">
+<h3>שטח מכוון</h3>
+<ul>
+<li>שטח מעל ציר \(x\) נצבר כחיובי.</li>
+<li>שטח מתחת לציר \(x\) נצבר כשלילי.</li>
+<li>פונקציית ההצטברות יכולה להיות חיובית גם כאשר \(f(x)\lt 0\), אם נצבר קודם שטח חיובי גדול יותר.</li>
+<li>אין לבלבל בין שטח גיאומטרי כולל לבין אינטגרל מסוים.</li>
+</ul>
+</div>
+</div>
+<div class="graph-shell" data-graph-id="board-signed"><div aria-label="שטחים חיוביים ושליליים" class="jxgbox tall2" id="board-signed"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div>
+<div class="legend"><span>תרומה חיובית</span><span class="neg">תרומה שלילית</span></div>
+</section><section class="page chapter-question-page"><h2>שאלות לפרק 3</h2><h3>גרף משותף לשאלות 1–6 בפרק 3</h3><div class="graph-shell" data-graph-id="board-ex-a"><div aria-label="גרף משותף לתרגילים קלים" class="jxgbox" id="board-ex-a"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div><p class="small">בתרגילים אלה נתונה פונקציית הצטברות מן הצורה \(F(x)=\int_0^x f(t)\,dt\).</p><div class="exercise-section" style="--start:0"><div class="exercise easy"><div class="exercise-title">ערכים ראשונים</div>חשבו באמצעות שטחים גיאומטריים את \(F(0),F(1),F(2),F(-1)\).</div><div class="exercise easy"><div class="exercise-title">הפרש ערכים</div>הצלילו בדמיון את התחום המתאים וחשבו את \(F(3)-F(1)\). הסבירו מה מייצגת התוצאה.</div><div class="exercise easy"><div class="exercise-title">השוואת ערכים</div>קבעו מה גדול יותר: \(F(3)\) או \(F(4)\); וכן \(F(5)\) או \(F(6)\). נמקו ללא חישוב מלא.</div><div class="exercise easy"><div class="exercise-title">תחומי עלייה וירידה</div>מצאו את התחומים הפתוחים שבהם \(F\) עולה ואת התחומים שבהם היא יורדת. נמקו באמצעות סימן \(f\).</div><div class="exercise easy"><div class="exercise-title">קיצון מקומי</div>מצאו את ערכי \(x\) שבהם יש ל־\(F\) קיצון מקומי וסווגו כל קיצון.</div><div class="exercise easy"><div class="exercise-title">קצב הצטברות מרבי</div>באיזה קטע בתחום המוצג \(F\) עולה בקצב המהיר ביותר? הסבירו באמצעות \(F'(x)=f(x)\).</div></div></section><section class="page chapter-question-page chapter3-continued-compact chapter3-part-1"><h2>שאלות לפרק 3 · המשך</h2><div class="exercise-section" style="--start:6"><div class="exercise medium"><div class="exercise-title">שני שטחים מכוונים</div>גרף \(f\) יוצר שטח חיובי \(S_1=4\) בין \(x=0\) ל־\(x=2\), ושטח שלילי שגודלו \(S_2=7\) בין \(x=2\) ל־\(x=5\). נגדיר \(F(x)=\int_0^x f(t)\,dt\). חשבו \(F(2),F(5)\), קבעו אם \(F(5)\gt 0\), והסבירו מדוע אין להסיק את סימן \(F\) רק מסימן \(f\) בנקודה אחת.</div></div>
+<h3>גרף משותף לשאלות גיאומטריות</h3>
+<div class="graph-shell" data-graph-id="board-ex-c"><div aria-label="גרף קטעים וחצי עיגול" class="jxgbox" id="board-ex-c"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div><p class="small">הגרף מורכב מחצי עיגול תחתון ומשולשים. נגדיר \(G(x)=\int_4^x g(t)\,dt\).</p><div class="exercise-section" style="--start:7"><div class="exercise medium"><div class="exercise-title">ערכי הצטברות גיאומטריים</div>חשבו את \(G(4),G(10),G(12),G(0)\) באמצעות שטחי חצי עיגול ומשולשים.</div><div class="exercise medium"><div class="exercise-title">עלייה, ירידה וקיצון</div>מצאו את תחומי העלייה והירידה של \(G\), ואת נקודות הקיצון המקומיות שלה כאשר \(0\le x\le12\).</div><div class="exercise medium"><div class="exercise-title">מספרים קריטיים וקצב מרבי</div>מצאו את המספרים הקריטיים של \(G\), וקבעו היכן \(G\) עולה בקצב המהיר ביותר.</div></div><div class="exercise-section" style="--start:10"><div class="exercise medium"><div class="exercise-title">ניתוח מלא מתוך גרף קצב</div>לגרף \(f\) המופיע בגרף המשותף בפרק 3 נגדיר \(F(x)=\int_a^x f(t)\,dt\). מצאו: תחומי עלייה וירידה, נקודות קיצון, תחומי קעירות, נקודות פיתול והנקודות שבהן \(F\) עולה בקצב המהיר ביותר. ציינו אילו מסקנות אינן תלויות בערך \(a\).</div><div class="exercise hard"><div class="exercise-title">טבלת סימנים משולבת</div>הפונקציה \(f\) רציפה כאשר \(1\le x\le5\) וגזירה פעמיים פרט ל־\(x=3\). נתונים:
+        <table class="compact ltr">
+<tr><th>תחום / נקודה</th><th>1</th><th>\(1\lt x\lt2\)</th><th>2</th><th>\(2\lt x\lt3\)</th><th>3</th><th>\(3\lt x\lt4\)</th><th>4</th><th>\(4\lt x\lt5\)</th></tr>
+<tr><th>\(f\)</th><td>2</td><td>חיובי</td><td>0</td><td>שלילי</td><td>-3</td><td>שלילי</td><td>0</td><td>חיובי</td></tr>
+<tr><th>\(f'\)</th><td>-1</td><td>שלילי</td><td>0</td><td>שלילי</td><td>לא מוגדר</td><td>חיובי</td><td>0</td><td>חיובי</td></tr>
+<tr><th>\(f''\)</th><td>1</td><td>חיובי</td><td>0</td><td>שלילי</td><td>לא מוגדר</td><td>שלילי</td><td>0</td><td>חיובי</td></tr>
+</table>
+        נגדיר \(g(x)=\int_2^x f(t)\,dt\). מצאו את כל הנקודות הקריטיות של \(g\), סווגו אותן, ומצאו את נקודות הפיתול של \(g\). נמקו בכל סעיף באמצעות שינויי סימן.
+</div></div></section><section class="page chapter-question-page chapter3-continued-compact chapter3-part-2"><h2>שאלות לפרק 3 · המשך</h2><div class="exercise-section" style="--start:12"><div class="exercise hard"><div class="exercise-title">פונקציית הצטברות עם פולינום ממעלה שלישית</div>נתונה
+        <div class="formula-box">\[p(x)=\int_{-2}^{x}(t+1)(t-1)(t-3)\,dt,\qquad -2\lt x\lt 4\]</div>
+        מצאו את כל ערכי \(x\) שבהם \(p\) מקבלת מקסימום מקומי. יש לנתח את שינויי הסימן של \(p'(x)\), ולא להסתפק בפתרון המשוואה \(p'(x)=0\).
+</div><div class="exercise hard"><div class="exercise-title">פונקציית הצטברות עם פולינום ריבועי</div>נתונה
+        <div class="formula-box">\[h(x)=\int_{-1}^{x}(t-1)(t-3)\,dt,\qquad -1\lt x\lt 5\]</div>
+        מצאו את כל ערכי \(x\) שבהם \(h\) מקבלת מינימום מקומי. נמקו באמצעות סימן הנגזרת.
+</div></div><div class="exercise-section" style="--start:14"><div class="exercise medium"><div class="exercise-title">קיצון מתוך גרף הקצב</div>לגרף \(f\) שבגרף המשותף בפרק 3 נגדיר \(q(x)=\int_0^x f(t)\,dt\). מצאו את ערכי \(x\) שבהם ל־\(q\) יש קיצון מקומי, וסווגו כל קיצון לפי שינוי הסימן של \(f\).
+</div><div class="exercise medium"><div class="exercise-title">קצב שינוי של פונקציית הצטברות</div>נתונה
+        <div class="formula-box">\[A(x)=\int_0^x(t^2-2t+3)\,dt\]</div>
+        מצאו את \(A'(x)\), חשבו את \(A'(3)\), והסבירו במילים מה מייצג הערך שקיבלתם.
+</div></div><h3>גרף לשאלת הסינתזה</h3><div class="graph-shell" data-graph-id="board-final"><div aria-label="גרף סינתזה" class="jxgbox short" id="board-final"></div><div aria-label="בקרות גרף" class="graph-controls"><button aria-label="הגדלה" class="graph-zoom-in" title="הגדלה" type="button">+</button><button aria-label="הקטנה" class="graph-zoom-out" title="הקטנה" type="button">−</button><button aria-label="מרכוז" class="graph-center" title="מרכוז" type="button">מרכז</button><button aria-label="איפוס" class="graph-reset" title="איפוס" type="button">איפוס</button></div></div><p class="small">הגרף משמש לשאלת הסינתזה האחרונה של פרק 3.</p><div class="exercise-section" style="--start:16"><div class="exercise hard"><div class="exercise-title">שאלת סינתזה: השוואת \(h,h',h''\)</div>הגרף מציג פונקציה גזירה \(g\), ונגדיר \(h(x)=\int_0^x g(t)\,dt\). ב־\(x=4\) הגרף חוצה את הציר כלפי מעלה. סדרו מהקטן לגדול את \(h(4),h'(4),h''(4)\), ונמקו כל השוואה באמצעות שטח, ערך ושיפוע.</div></div></section><section class="page chapter-question-page"><h2>שאלות מסכמות</h2><p><span class="badge hard">מסכם</span> השאלות משלבות בין כמה מן הרעיונות שנלמדו בפרקים 2–3.</p><div class="exercise-section" style="--start:0"><div class="exercise hard"><div class="exercise-title">קצב קבוע וכמות מצטברת</div>בריכה מתמלאת בקצב קבוע של \(18\) ליטר לדקה במשך \(12\) דקות. חשבו את הכמות שנוספה לאחר \(3,7,12\) דקות, וכתבו פונקציית הצטברות מתאימה.</div><div class="exercise hard"><div class="exercise-title">קצב ליניארי</div>קצב מילוי מכל הוא \(f(t)=4+2t\) ליטר לדקה. חשבו את הכמות שנוספה בין \(t=1\) ל־\(t=5\), והציגו את החישוב גם כאינטגרל וגם כשטח גיאומטרי.</div><div class="exercise hard"><div class="exercise-title">גבול תחתון שאינו אפס</div>נתונה \(f(x)=2x+1\) ומוגדרת \(F(x)=\int_3^x f(t)\,dt\). חשבו את \(F(3),F(5)\), והסבירו מדוע \(F(3)=0\).</div><div class="exercise hard"><div class="exercise-title">שינוי הגבול התחתון</div>נתונה \(f(x)=2x+1\). משווים בין \(F(x)=\int_1^x f(t)\,dt\) לבין \(G(x)=\int_4^x f(t)\,dt\). הסבירו במילים מה ההבדל בין שתי פונקציות ההצטברות ומה נשאר זהה.</div><div class="exercise hard"><div class="exercise-title">כמות התחלתית</div>במכל יש בתחילה \(80\) ליטר מים. קצב השינוי הוא \(f(t)=5-t\) ליטר לדקה. כתבו ביטוי לכמות המים \(Q(x)\) בעזרת אינטגרל, וחשבו את \(Q(3)\).</div></div></section><section class="page chapter-question-page"><h2>שאלות מסכמות · המשך</h2><p><span class="badge hard">מסכם</span> השאלות משלבות בין כמה מן הרעיונות שנלמדו בפרקים 2–3.</p><div class="exercise-section" style="--start:5"><div class="exercise hard"><div class="exercise-title">קצב במקטעים</div>קצב הייצור הוא \(3\) יחידות לשעה במשך שעתיים, אחר כך \(6\) יחידות לשעה במשך שלוש שעות, ולבסוף \(-2\) יחידות לשעה במשך שעה. חשבו את השינוי המצטבר הכולל.</div><div class="exercise hard"><div class="exercise-title">שטח מכוון</div>בין \(x=0\) ל־\(x=2\) נצבר שטח חיובי בגודל \(7\), ובין \(x=2\) ל־\(x=5\) נצבר שטח שלילי בגודל \(4\). אם \(F(x)=\int_0^x f(t)\,dt\), חשבו את \(F(2)\) ואת \(F(5)\).</div><div class="exercise hard"><div class="exercise-title">שטח גיאומטרי לעומת אינטגרל</div>גרף פונקציה יוצר מעל הציר שטח בגודל \(9\) ומתחת לציר שטח בגודל \(6\). מצאו את ערך האינטגרל המסוים ואת השטח הגיאומטרי הכולל, והסבירו מדוע הם שונים.</div><div class="exercise hard"><div class="exercise-title">שילוב ערך התחלתי ושטח מכוון</div>חשבון בנק מתחיל ביתרה של \(250\) שקלים. במהלך שלושה ימים השינויים הם \(+120,-200,+70\) שקלים. תארו את השינוי המצטבר ואת היתרה בפועל לאחר כל יום.</div><div class="exercise hard"><div class="exercise-title">שאלת סינתזה</div>נתון קצב משתנה במקטעים: \(2\) בין \(0\) ל־\(2\), אחר כך \(-3\) בין \(2\) ל־\(4\), ואחר כך \(4\) בין \(4\) ל־\(6\). הכמות ההתחלתית היא \(10\). בנו טבלת ערכים של השינוי המצטבר ושל הכמות בפועל בזמנים \(0,2,4,6\), וקבעו באיזה שלב הכמות בפועל היא הקטנה ביותר.</div></div>
+</section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 2</h2><p class="solution-note">הפתרונות נכתבו בקיצור ומתאימים למספור השאלות בפרק.</p><div class="solution-list">
+<div class="solution-item"><strong>1.</strong> <span class="sol-title">רוכב במהירות קבועה</span><br/>\(D(t)=25t\). לכן המרחקים הם \(0,25,50,75,137.5,175\) ק״מ. גרף המהירות הוא \(v=25\), וגרף המרחק הוא הישר \(D=25t\). שטח המלבן \(25t\) שווה למרחק.</div>
+<div class="solution-item"><strong>2.</strong> <span class="sol-title">פונקציה קבועה</span><br/>\(S(b)=3b\). עבור \(b=0,1,2,3,4,5,6\): \(0,3,6,9,12,15,18\). הגרף הוא הישר \(S=3b\).</div>
+<div class="solution-item"><strong>3.</strong> <span class="sol-title">קצב קבוע של 4 יחידות</span><br/>\(F(x)=4x\). לכן \(F(2)=8,\ F(4)=16,\ F(7)=28\).</div>
+<div class="solution-item"><strong>4.</strong> <span class="sol-title">קצב קבוע שלילי</span><br/>\(A(x)=-3x\). לכן \(A(1)=-3,\ A(3)=-9,\ A(5)=-15\). הפונקציה יורדת כי \(A'(x)=-3&lt;0\).</div>
+<div class="solution-item"><strong>5.</strong> <span class="sol-title">מציאת הקצב מן ההצטברות</span><br/>\(F(x)=cx\), ולכן \(6c=42\Rightarrow c=7\). מכאן \(F(10)=70\).</div>
+<div class="solution-item"><strong>6.</strong> <span class="sol-title">מתי מגיעים לכמות נתונה</span><br/>\(P(x)=8x\). פותרים \(8x=60\), ולכן \(x=7.5\) שעות.</div>
+<div class="solution-item"><strong>7.</strong> <span class="sol-title">השוואת שני קצבים קבועים</span><br/>\(F(x)=3x,\ G(x)=5x\). לכן \(F(4)=12&lt;G(4)=20\). השיפועים הם \(3\) ו־\(5\), ולכן \(G\) תלולה יותר.</div>
+<div class="solution-item"><strong>8.</strong> <span class="sol-title">שטח מלבן מתוך גרף קבוע</span><br/>שטח המלבן: \(6\cdot9=54\). גם \(\int_0^9 6\,dx=[6x]_0^9=54\).</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 2.1</h2><p class="solution-note">שאלות 1–5.</p><div class="solution-list">
+<div class="solution-item"><strong>1.</strong> <span class="sol-title">פונקציה ליניארית</span><br/>\(G(b)=\int_0^b2x\,dx=b^2\). הערכים: \(0,1,4,9,16\). \(g\) ישר עולה ואילו \(G\) פרבולה הפונה כלפי מעלה.</div>
+<div class="solution-item"><strong>2.</strong> <span class="sol-title">צבירה עבור \(f(x)=x-3\)</span><br/>\(S(x)=\frac{x^2}{2}-3x\). מינימום ב־\(x=3\): \(S(3)=-\frac92\). בתחום \(0&lt;x&lt;6\) מתקיים \(S&lt;0\); ב־\(x=0,6\), \(S=0\).</div>
+<div class="solution-item"><strong>3.</strong> <span class="sol-title">צבירה עבור \(f(x)=1-x\)</span><br/>\(T(x)=x-\frac{x^2}{2}\). אפסים: \(x=0,2\). מקסימום ב־\(x=1\), \(T(1)=\frac12\). עולה ב־\(0&lt;x&lt;1\), יורדת ב־\(1&lt;x&lt;6\).</div>
+<div class="solution-item"><strong>4.</strong> <span class="sol-title">התאמה בין קצב לצבירה</span><br/>\(f_1\to A,\ f_2\to B,\ f_3\to C,\ f_4\to D\). \(A,B\) קעורות כלפי מעלה; \(C,D\) קעורות כלפי מטה.</div>
+<div class="solution-item"><strong>5.</strong> <span class="sol-title">קצב ליניארי עולה</span><br/>\(F(x)=x^2+x\). לכן \(F(2)=6\), \(F(4)=20\).</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 2.1 · המשך</h2><p class="solution-note">שאלות 6–10.</p><div class="solution-list">
+<div class="solution-item"><strong>6.</strong> <span class="sol-title">קצב ליניארי יורד</span><br/>\(F'(x)=6-x\). לכן \(F\) עולה ב־\(0&lt;x&lt;6\), יורדת ב־\(6&lt;x&lt;8\), ומקסימום ב־\(x=6\): \(F(6)=18\).</div>
+<div class="solution-item"><strong>7.</strong> <span class="sol-title">מהירות ותאוצה קבועה</span><br/>\(S(t)=8t+\frac32t^2\). לכן \(S(4)=32+24=56\) מטר.</div>
+<div class="solution-item"><strong>8.</strong> <span class="sol-title">קצב החוצה את הציר</span><br/>\(F'(x)=3x-6\). הסימן משתנה משלילי לחיובי ב־\(x=2\), ולכן מינימום: \(F(2)=-6\).</div>
+<div class="solution-item"><strong>9.</strong> <span class="sol-title">השוואת שתי פונקציות הצטברות</span><br/>\(F=\frac12x^2+2x\), \(G=x^2\). מתקבל \(x=0\) או \(x=4\).</div>
+<div class="solution-item"><strong>10.</strong> <span class="sol-title">שחזור פונקציית הקצב</span><br/>\(f(x)=F'(x)=2x-4\). \(F\) יורדת כאשר \(x&lt;2\) ועולה כאשר \(x&gt;2\).</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 2.2</h2><p class="solution-note">שאלות 1–10.</p><div class="solution-list">
+<div class="solution-item"><strong>1.</strong> <span class="sol-title">נגזרת ישירה</span><br/>\(F'(x)=3x^2+4x\).</div>
+<div class="solution-item"><strong>2.</strong> <span class="sol-title">שתי נגזרות קצרות</span><br/>\(A'(x)=5\), \(B'(x)=x^2+2x-3\).</div>
+<div class="solution-item"><strong>3.</strong> <span class="sol-title">גבול תחתון קבוע שאינו אפס</span><br/>\(F'(x)=x^2-4x+3\). כמו כן \(F(3)=\int_3^3\cdots=0\).</div>
+<div class="solution-item"><strong>4.</strong> <span class="sol-title">עלייה וירידה</span><br/>\(F'(x)=x-4\). לכן \(F\) יורדת כאשר \(x&lt;4\), עולה כאשר \(x&gt;4\), ומינימום ב־\(x=4\): \(F(4)=-\frac92\).</div>
+<div class="solution-item"><strong>5.</strong> <span class="sol-title">גבול תחתון שלילי</span><br/>\(F'(x)=x^2-1\). לכן \(F'(x)=0\) ב־\(x=-1,1\).</div>
+<div class="solution-item"><strong>6.</strong> <span class="sol-title">חישוב ערך של פונקציית הצטברות</span><br/>\(F(2)=0\), \(F(4)=\int_2^4(t^2-2t+3)\,dt=\frac{38}{3}\).</div>
+<div class="solution-item"><strong>7.</strong> <span class="sol-title">שתי נקודות התחלה קבועות</span><br/>\(F'(x)=G'(x)=x+2\). כמו כן \(F(x)-G(x)=\int_1^3(t+2)\,dt=8\).</div>
+<div class="solution-item"><strong>8.</strong> <span class="sol-title">קיצון מתוך פונקציית הקצב</span><br/>\(F'(x)=(x-1)(x-3)\). מקסימום ב־\(x=1\), \(F(1)=\frac43\); מינימום ב־\(x=3\), \(F(3)=0\).</div>
+<div class="solution-item"><strong>9.</strong> <span class="sol-title">שחזור פונקציית הקצב</span><br/>\(f(x)=F'(x)=2x^2-6x+4\), ולכן \(f(3)=4\).</div>
+<div class="solution-item"><strong>10.</strong> <span class="sol-title">ניתוח פונקציית הצטברות</span><br/>\(H'(x)=(x-1)(x-3)\). עולה ב־\(-1&lt;x&lt;1\) וב־\(3&lt;x&lt;5\), יורדת ב־\(1&lt;x&lt;3\). מקסימום מקומי: \((1,\frac{20}{3})\); מינימום מקומי: \((3,\frac{16}{3})\).</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 2.3</h2><p class="solution-note">שאלות 1–4.</p><div class="solution-list">
+<div class="solution-item"><strong>1.</strong> <span class="sol-title">תזרים מזומנים יומי</span><br/>יתרות בסוף ימים 3,5,6,10: \(4,-1,-4,4\) אלפי ש״ח. היתרה שלילית בסוף הימים \(5,6,7,8,9\).</div>
+<div class="solution-item"><strong>2.</strong> <span class="sol-title">סערת גשם</span><br/>\(R(x)=-\frac14x^3+\frac92x^2\). לכן \(R(4)=56\) מ״מ ו־\(R(12)=216\) מ״מ. \(R(x)\) היא כמות הגשם המצטברת. הקצב המרבי ב־\(t=6\) שעות.</div>
+<div class="solution-item"><strong>3.</strong> <span class="sol-title">שריפת אנרגיה</span><br/>הקצב עולה ב־\(0&lt;x&lt;5\), קבוע ב־\(5&lt;x&lt;25\), ויורד ב־\(25&lt;x&lt;40\). סך הכול: \(85+740+\frac{885}{2}=\frac{2535}{2}=1267.5\) קלוריות. פונקציית ההצטברות קעורה מעלה ב־\(0&lt;x&lt;5\), ליניארית ב־\(5&lt;x&lt;25\), וקעורה מטה ב־\(25&lt;x&lt;40\).</div>
+<div class="solution-item"><strong>4.</strong> <span class="sol-title">כניסה לקניון</span><br/>סכום השטחים בגרף: \(900+900+600+300+375=3075\) אנשים. \(N(x)\) הוא מספר האנשים שנכנסו עד הזמן \(x\). קצב הכניסה מרבי, \(30\) אנשים לדקה, בין \(60\) ל־\(90\) דקות.</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 2.4</h2><p class="solution-note">שאלות 1–5.</p><div class="solution-list">
+<div class="solution-item"><strong>1.</strong> <span class="sol-title">אימון בשלושה מקטעים</span><br/>לאחר 20 דקות: \(2000\) מ׳; לאחר 40 דקות: \(6000\) מ׳; לאחר 60 דקות: \(12000\) מ׳.</div>
+<div class="solution-item"><strong>2.</strong> <span class="sol-title">קריאת נגזרת מגרף</span><br/>\(h'(x)=f(x)\). ב־\(x=3\) ערך הקו הוא \(0\), ולכן \(h'(3)=0\). ב־\(x=5\), \(f=-2\), ולכן \(h'(5)=-2\).</div>
+<div class="solution-item"><strong>3.</strong> <span class="sol-title">הצטברות שלג</span><br/>הקצב אינו שלילי, לכן פונקציית ההצטברות עולה בכל \(0\le x\le120\). היא קעורה מעלה ב־\(0&lt;x&lt;60\) וקעורה מטה ב־\(60&lt;x&lt;120\). הכמות הכוללת: \(12600\).
+\[
+A(x)=\begin{cases}
+-\frac{x^3}{30}+3x^2,&amp;0\le x\le30\\
+\frac32x^2+450,&amp;30\le x\le60\\
+-\frac{x^3}{30}+6x^2-180x+2250,&amp;60\le x\le90\\
+-\frac{x^3}{60}+\frac92x^2-315x+14400,&amp;90&lt;x\le120
+\end{cases}
+\]</div>
+<div class="solution-item"><strong>4.</strong> <span class="sol-title">טיול אופניים – העתק לעומת דרך</span><br/>העתק כולל: \(96\) מ׳. דרך כוללת: \(\frac{1616}{15}\approx107.73\) מ׳. שינויי כיוון ב־\(t=\frac{16}{5}\) וב־\(t=\frac{14}{3}\) דקות. המרחק מנקודת המוצא מרבי ב־\(t=12\): \(96\) מ׳. \(\int v\) נותן העתק; \(\int|v|\) נותן דרך.</div>
+<div class="solution-item"><strong>5.</strong> <span class="sol-title">פונקציית הצטברות מקצב מקטעי</span><br/>\(g'(1)=2,\ g'(3)=1,\ g'(5)=-1\). \(g\) עולה ב־\(0&lt;x&lt;4\), יורדת ב־\(4&lt;x&lt;6\), ולכן מקסימום מקומי ב־\(x=4\).</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 2.4 · המשך</h2><p class="solution-note">שאלות 6–10.</p><div class="solution-list">
+<div class="solution-item"><strong>6.</strong> <span class="sol-title">קצב קבוע במקטעים</span><br/>ב־\(x=3\): \(2\cdot3=6\). ב־\(x=7\): \(6+5\cdot4=26\).</div>
+<div class="solution-item"><strong>7.</strong> <span class="sol-title">מקטע חיובי ומקטע שלילי</span><br/>\(F(2)=8\), \(F(4)=4\), \(F(6)=0\). הערך המקסימלי הוא \(8\), ב־\(x=2\).</div>
+<div class="solution-item"><strong>8.</strong> <span class="sol-title">קצב ליניארי בשני מקטעים</span><br/>\(\int_0^2(x+1)dx=4\), \(\int_2^5(5-x)dx=\frac92\). לכן \(\int_0^5f(x)dx=\frac{17}{2}=8.5\).</div>
+<div class="solution-item"><strong>9.</strong> <span class="sol-title">בניית פונקציית הצטברות מקטעית</span><br/>\[F(x)=\begin{cases}x^2,&amp;0\le x\le2\\8x-x^2-8,&amp;2\le x\le4\end{cases}\] שתי הנוסחאות נותנות \(F(2)=4\).</div>
+<div class="solution-item"><strong>10.</strong> <span class="sol-title">פולינום במקטעים ושטח מכוון</span><br/>אפסים: \(x=1,3\). התרומות: \([0,1]:\frac43\), \([1,3]:-\frac43\), \([3,4]:\frac43\). סך התרומות החיוביות \(\frac83\), השלילית \(-\frac43\), ולכן האינטגרל \(\frac43\).</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 3</h2><p class="solution-note">שאלות 1–7.</p><div class="solution-list">
+<div class="solution-item"><strong>1.</strong> <span class="sol-title">ערכים ראשונים</span><br/>מהגרף: \(F(0)=0\), \(F(1)=\frac54\), \(F(2)=3\), \(F(-1)=-1\).</div>
+<div class="solution-item"><strong>2.</strong> <span class="sol-title">הפרש ערכים</span><br/>\(F(3)-F(1)=\int_1^3f(t)dt=\frac{15}{4}\). זהו השטח המכוון בין הגרף לציר מ־\(1\) עד \(3\).</div>
+<div class="solution-item"><strong>3.</strong> <span class="sol-title">השוואת ערכים</span><br/>בין \(3\) ל־\(4\), \(f&gt;0\), ולכן \(F(4)&gt;F(3)\). בין \(5\) ל־\(6\), \(f&lt;0\), ולכן \(F(5)&gt;F(6)\).</div>
+<div class="solution-item"><strong>4.</strong> <span class="sol-title">תחומי עלייה וירידה</span><br/>\(F\) עולה ב־\(-1&lt;x&lt;5\) ויורדת ב־\(5&lt;x&lt;7\), כי \(F'=f\).</div>
+<div class="solution-item"><strong>5.</strong> <span class="sol-title">קיצון מקומי</span><br/>ב־\(x=5\) הסימן של \(f\) משתנה מחיובי לשלילי, ולכן ל־\(F\) מקסימום מקומי.</div>
+<div class="solution-item"><strong>6.</strong> <span class="sol-title">קצב הצטברות מרבי</span><br/>\(F'=f\). הערך המרבי של \(f\) הוא \(2\), והוא מתקבל לאורך \(2\le x\le4\); שם \(F\) עולה בקצב המרבי.</div>
+<div class="solution-item"><strong>7.</strong> <span class="sol-title">שני שטחים מכוונים</span><br/>\(F(2)=4\), \(F(5)=4-7=-3\), ולכן \(F(5)\not&gt;0\). סימן \(F\) נקבע לפי כל השטח המכוון שהצטבר, לא לפי \(f\) בנקודה יחידה.</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 3 · המשך</h2><p class="solution-note">שאלות 8–12.</p><div class="solution-list">
+<div class="solution-item"><strong>8.</strong> <span class="sol-title">ערכי הצטברות גיאומטריים</span><br/>\(G(4)=0\). המשולשים מ־4 עד 10 נותנים \(G(10)=8+4=12\). לכן \(G(12)=12-4=8\). חצי העיגול התחתון רדיוסו \(2\), ולכן \(G(0)=2\pi\).</div>
+<div class="solution-item"><strong>9.</strong> <span class="sol-title">עלייה, ירידה וקיצון</span><br/>\(G\) יורדת ב־\(0&lt;x&lt;4\), עולה ב־\(4&lt;x&lt;10\), ויורדת ב־\(10&lt;x&lt;12\). מינימום מקומי: \((4,0)\); מקסימום מקומי: \((10,12)\).</div>
+<div class="solution-item"><strong>10.</strong> <span class="sol-title">מספרים קריטיים וקצב מרבי</span><br/>\(G'=g\), ולכן המספרים הקריטיים הם \(x=4,10\). קצב העלייה המרבי מתקבל ב־\(x=8\), שם \(g(8)=4\).</div>
+<div class="solution-item"><strong>11.</strong> <span class="sol-title">ניתוח מלא מתוך גרף קצב</span><br/>עולה ב־\(-1&lt;x&lt;5\), יורדת ב־\(5&lt;x&lt;7\); מקסימום ב־\(x=5\). קעורה מעלה ב־\(0&lt;x&lt;2\), קעורה מטה ב־\(4&lt;x&lt;6\); בין \(2\) ל־\(4\) הגרף של \(F\) ליניארי, ולכן אין נקודת פיתול יחידה. קצב העלייה מרבי ב־\(2\le x\le4\). כל המסקנות על עלייה, קיצון, קעירות וקצב אינן תלויות ב־\(a\); רק ערכי \(F\) משתנים בקבוע.</div>
+<div class="solution-item"><strong>12.</strong> <span class="sol-title">טבלת סימנים משולבת</span><br/>\(g'=f\). נקודות קריטיות: \(x=2,4\). ב־\(x=2\): חיובי→שלילי, ולכן מקסימום. ב־\(x=4\): שלילי→חיובי, ולכן מינימום. \(g''=f'\); ב־\(x=3\) הסימן משתנה משלילי לחיובי, ולכן זו נקודת פיתול.</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · פרק 3 · המשך</h2><p class="solution-note">שאלות 13–17.</p><div class="solution-list">
+<div class="solution-item"><strong>13.</strong> <span class="sol-title">פונקציית הצטברות עם פולינום ממעלה שלישית</span><br/>\(p'(x)=(x+1)(x-1)(x-3)\). הסימנים: \(-,+,-,+\). רק ב־\(x=1\) יש מעבר מחיובי לשלילי, ולכן שם מקסימום מקומי.</div>
+<div class="solution-item"><strong>14.</strong> <span class="sol-title">פונקציית הצטברות עם פולינום ריבועי</span><br/>\(h'(x)=(x-1)(x-3)\). הסימנים: \(+,-,+\), ולכן מינימום מקומי ב־\(x=3\).</div>
+<div class="solution-item"><strong>15.</strong> <span class="sol-title">קיצון מתוך גרף הקצב</span><br/>בגרף המשותף \(f\) משנה סימן מחיובי לשלילי רק ב־\(x=5\). לכן ל־\(q\) מקסימום מקומי ב־\(x=5\).</div>
+<div class="solution-item"><strong>16.</strong> <span class="sol-title">קצב שינוי של פונקציית הצטברות</span><br/>\(A'(x)=x^2-2x+3\). לכן \(A'(3)=6\). המשמעות: ברגע \(x=3\), הכמות המצטברת גדלה בקצב של \(6\) יחידות ליחידת \(x\).</div>
+<div class="solution-item"><strong>17.</strong> <span class="sol-title">שאלת סינתזה: השוואת \(h,h',h''\)</span><br/>עד \(x=4\) הגרף של \(g\) מתחת לציר, ולכן \(h(4)&lt;0\). מאחר ש־\(g(4)=0\), \(h'(4)=0\). הגרף חוצה כלפי מעלה, ולכן \(g'(4)&gt;0\) ומכאן \(h''(4)&gt;0\). לכן \(h(4)&lt;h'(4)&lt;h''(4)\).</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · שאלות מסכמות</h2><p class="solution-note">שאלות 1–5.</p><div class="solution-list">
+<div class="solution-item"><strong>1.</strong> <span class="sol-title">קצב קבוע וכמות מצטברת</span><br/>\(F(t)=18t\). לאחר \(3,7,12\) דקות: \(54,126,216\) ליטר.</div>
+<div class="solution-item"><strong>2.</strong> <span class="sol-title">קצב ליניארי</span><br/>\(\int_1^5(4+2t)dt=40\) ליטר. גיאומטרית: טרפז ברוחב \(4\), עם גבהים \(6,14\): \(\frac{6+14}{2}\cdot4=40\).</div>
+<div class="solution-item"><strong>3.</strong> <span class="sol-title">גבול תחתון שאינו אפס</span><br/>\(F(3)=0\). \(F(5)=\int_3^5(2t+1)dt=18\). הערך הראשון אפס כי שני גבולות האינטגרל שווים.</div>
+<div class="solution-item"><strong>4.</strong> <span class="sol-title">שינוי הגבול התחתון</span><br/>לשתי הפונקציות אותה נגזרת \(2x+1\), ולכן אותה צורה ושיפועים. הן שונות בקבוע: \(F(x)-G(x)=\int_1^4(2t+1)dt=18\).</div>
+<div class="solution-item"><strong>5.</strong> <span class="sol-title">כמות התחלתית</span><br/>\(Q(x)=80+\int_0^x(5-t)dt=80+5x-\frac{x^2}{2}\). לכן \(Q(3)=\frac{181}{2}=90.5\) ליטר.</div>
+</div></section>
+
+<section class="page solution-page">
+<h2>פתרונות · שאלות מסכמות · המשך</h2><p class="solution-note">שאלות 6–10.</p><div class="solution-list">
+<div class="solution-item"><strong>6.</strong> <span class="sol-title">קצב במקטעים</span><br/>\(3\cdot2+6\cdot3-2\cdot1=22\) יחידות.</div>
+<div class="solution-item"><strong>7.</strong> <span class="sol-title">שטח מכוון</span><br/>\(F(2)=7\), \(F(5)=7-4=3\).</div>
+<div class="solution-item"><strong>8.</strong> <span class="sol-title">שטח גיאומטרי לעומת אינטגרל</span><br/>האינטגרל המסוים: \(9-6=3\). השטח הגיאומטרי הכולל: \(9+6=15\). השטח שמתחת לציר נכנס לאינטגרל בסימן שלילי.</div>
+<div class="solution-item"><strong>9.</strong> <span class="sol-title">שילוב ערך התחלתי ושטח מכוון</span><br/>שינוי מצטבר לאחר כל יום: \(120,-80,-10\) ש״ח. היתרה בפועל: \(370,170,240\) ש״ח.</div>
+<div class="solution-item"><strong>10.</strong> <span class="sol-title">שאלת סינתזה</span><br/>השינוי המצטבר בזמנים \(0,2,4,6\): \(0,4,-2,6\). הכמות בפועל: \(10,14,8,16\). הכמות הקטנה ביותר היא \(8\), ב־\(x=4\), בסוף המקטע השני.</div>
+</div></section>
+
+</div>
+<script>
+(function () {
+  'use strict';
+
+  const C = {
+    blue: '#3679bd',
+    dark: '#24598c',
+    green: '#2d7b65',
+    red: '#b84a4a',
+    gold: '#c08a24',
+    lightBlue: '#b9d7ef',
+    lightRed: '#e8b6b6',
+    grid: '#d8e2eb'
+  };
+
+  const boardRegistry = new Map();
+
+  function board(id, bbox, options = {}) {
+    const initialBBox = bbox.slice();
+    const b = JXG.JSXGraph.initBoard(id, Object.assign({
+      boundingbox: initialBBox,
+      axis: true,
+      grid: true,
+      showCopyright: false,
+      showNavigation: false,
+      pan: { enabled: false },
+      zoom: { enabled: false },
+      keepaspectratio: false,
+      defaultAxes: {
+        x: { name: 'x', withLabel: true, label: { position: 'rt', offset: [-10, 12] }, ticks: { drawLabels: true } },
+        y: { name: 'y', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { drawLabels: true } }
+      }
+    }, options));
+    boardRegistry.set(id, { board: b, initialBBox });
+    return b;
+  }
+
+  function setCenteredScale(b, initialBBox, factor, recenter) {
+    const current = b.getBoundingBox();
+    const source = recenter ? initialBBox : current;
+    const cx = (source[0] + source[2]) / 2;
+    const cy = (source[1] + source[3]) / 2;
+    const width = Math.abs(current[2] - current[0]) * factor;
+    const height = Math.abs(current[1] - current[3]) * factor;
+    b.setBoundingBox([cx - width/2, cy + height/2, cx + width/2, cy - height/2], false);
+    b.fullUpdate();
+  }
+
+  function addGraphControls(id, b, initialBBox) {
+    const box = document.getElementById(id);
+    if (!box) return;
+    let shell = box.parentElement;
+    if (!shell || !shell.classList.contains('graph-shell')) {
+      shell = document.createElement('div');
+      shell.className = 'graph-shell';
+      box.parentNode.insertBefore(shell, box);
+      shell.appendChild(box);
+    }
+    let controls = shell.querySelector('.graph-controls');
+    if (!controls) {
+      controls = document.createElement('div');
+      controls.className = 'graph-controls';
+      controls.setAttribute('aria-label', 'בקרות גרף');
+      controls.innerHTML =
+        '<button type="button" class="graph-zoom-in" title="הגדלה" aria-label="הגדלה">+</button>' +
+        '<button type="button" class="graph-zoom-out" title="הקטנה" aria-label="הקטנה">−</button>' +
+        '<button type="button" class="graph-center" title="מרכוז" aria-label="מרכוז">מרכז</button>' +
+        '<button type="button" class="graph-reset" title="איפוס" aria-label="איפוס">איפוס</button>';
+      shell.appendChild(controls);
+    }
+    if (controls.dataset.bound === '1') return;
+    controls.dataset.bound = '1';
+
+    controls.querySelector('.graph-zoom-in').addEventListener('click', () => setCenteredScale(b, initialBBox, 0.82, false));
+    controls.querySelector('.graph-zoom-out').addEventListener('click', () => setCenteredScale(b, initialBBox, 1.22, false));
+    controls.querySelector('.graph-center').addEventListener('click', () => setCenteredScale(b, initialBBox, 1, true));
+    controls.querySelector('.graph-reset').addEventListener('click', () => {
+      b.setBoundingBox(initialBBox.slice(), false);
+      b.fullUpdate();
+    });
+  }
+
+  function seg(b, p1, p2, attrs = {}) {
+    return b.create('segment', [p1, p2], Object.assign({ strokeColor: C.blue, strokeWidth: 3, fixed: true }, attrs));
+  }
+
+  function point(b, p, attrs = {}) {
+    return b.create('point', p, Object.assign({ size: 2, fillColor: C.dark, strokeColor: C.dark, fixed: true, name: '' }, attrs));
+  }
+
+  function polygonFill(b, coords, fillColor, opacity = 0.35) {
+    const pts = coords.map(c => b.create('point', c, { visible: false, fixed: true }));
+    return b.create('polygon', pts, {
+      fillColor: fillColor,
+      fillOpacity: opacity,
+      borders: { visible: false },
+      vertices: { visible: false },
+      fixed: true
+    });
+  }
+
+  function sampledArea(b, fn, a, z, fillColor, n = 70) {
+    const coords = [[a,0]];
+    for (let i = 0; i <= n; i++) {
+      const x = a + (z-a)*i/n;
+      coords.push([x, fn(x)]);
+    }
+    coords.push([z,0]);
+    return polygonFill(b, coords, fillColor, 0.38);
+  }
+
+  function initConstant() {
+    const b = board('board-constant', [-0.7, 32, 7.8, -9], {
+      defaultAxes: {
+        x: { name: 't', withLabel: true, label: { position: 'rt', offset: [-8, 12] }, ticks: { ticksDistance: 1 } },
+        y: { name: 'v', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { ticksDistance: 5 } }
+      }
+    });
+    b.create('functiongraph', [() => 25, 0, 7], { strokeColor: C.blue, strokeWidth: 3, fixed: true });
+    const s = b.create('slider', [[0.4,-5.7],[6.7,-5.7],[0,3,7]], { name: 'x', snapWidth: 0.5, size: 5, strokeColor: C.green, fillColor: C.green, baseline: { strokeColor: '#94a8ba' }, highline: { strokeColor: C.green } });
+    const p1 = b.create('point', [0,0], { visible:false });
+    const p2 = b.create('point', [() => s.Value(),0], { visible:false });
+    const p3 = b.create('point', [() => s.Value(),25], { visible:false });
+    const p4 = b.create('point', [0,25], { visible:false });
+    b.create('polygon', [p1,p2,p3,p4], { fillColor: C.lightBlue, fillOpacity: 0.55, borders: { strokeColor: C.blue, strokeWidth: 1 }, vertices: { visible: false } });
+    b.create('text', [0.5,29, () => '\\(D=25\\cdot ' + s.Value().toFixed(1) + '=' + (25*s.Value()).toFixed(1) + '\\)'], {useMathJax: true,  fontSize: 15, color: C.dark, fixed: true });
+    b.create('text', [4.8,26.7,'\\(v=25\\)'], {useMathJax: true,  fontSize: 14, color: C.blue, fixed: true });
+  }
+
+  function carV(t) {
+    return 10 + 2*t;
+  }
+
+  function carS(t) {
+    return 10*t + t*t;
+  }
+
+  function initCarAcceleration() {
+    const bv = board('board-car-velocity', [-0.7, 30, 8.7, -6], {
+      defaultAxes: {
+        x: { name: 't', withLabel: true, label: { position: 'rt', offset: [-8, 12] }, ticks: { ticksDistance: 1 } },
+        y: { name: 'v', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { ticksDistance: 5 } }
+      }
+    });
+
+    bv.create('functiongraph', [carV, 0, 8], {
+      strokeColor: C.blue,
+      strokeWidth: 3,
+      fixed: true
+    });
+
+    const timeSlider = bv.create('slider', [[0.5,-4.1],[7.6,-4.1],[0,5,8]], {
+      name: 't',
+      snapWidth: 0.5,
+      size: 5,
+      strokeColor: C.green,
+      fillColor: C.green,
+      baseline: { strokeColor: '#94a8ba' },
+      highline: { strokeColor: C.green }
+    });
+
+    const q1 = bv.create('point', [0,0], { visible:false });
+    const q2 = bv.create('point', [() => timeSlider.Value(),0], { visible:false });
+    const q3 = bv.create('point', [() => timeSlider.Value(),() => carV(timeSlider.Value())], { visible:false });
+    const q4 = bv.create('point', [0,carV(0)], { visible:false });
+
+    bv.create('polygon', [q1,q2,q3,q4], {
+      fillColor: C.lightBlue,
+      fillOpacity: 0.52,
+      borders: { strokeColor: C.blue, strokeWidth: 1 },
+      vertices: { visible: false }
+    });
+
+    bv.create('text', [0.35,27.5,'\\(v(t)=10+2t\\)'], {useMathJax: true, 
+      fontSize: 13,
+      color: C.dark,
+      fixed: true
+    });
+    bv.create('text', [4.25,24.7,() => '\\(S=' + carS(timeSlider.Value()).toFixed(1) + '\\,m\\)'], {useMathJax: true, 
+      fontSize: 12,
+      color: C.green,
+      fixed: true
+    });
+
+    const bs = board('board-car-distance', [-0.7, 155, 8.7, -15], {
+      defaultAxes: {
+        x: { name: 't', withLabel: true, label: { position: 'rt', offset: [-8, 12] }, ticks: { ticksDistance: 1 } },
+        y: { name: 'S', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { ticksDistance: 25 } }
+      }
+    });
+
+    bs.create('functiongraph', [carS, 0, 8], {
+      strokeColor: C.green,
+      strokeWidth: 3,
+      fixed: true
+    });
+
+    bs.create('segment', [
+      [() => timeSlider.Value()-0.8,
+       () => carS(timeSlider.Value())-0.8*carV(timeSlider.Value())],
+      [() => timeSlider.Value()+0.8,
+       () => carS(timeSlider.Value())+0.8*carV(timeSlider.Value())]
+    ], {
+      strokeColor: C.gold,
+      strokeWidth: 2,
+      dash: 2,
+      fixed: true
+    });
+
+    bs.create('point', [
+      () => timeSlider.Value(),
+      () => carS(timeSlider.Value())
+    ], {
+      size: 2,
+      fillColor: C.red,
+      strokeColor: C.red,
+      name: '',
+      fixed: true
+    });
+
+    bs.create('text', [0.35,143,'\\(S(t)=10t+t^2\\)'], {useMathJax: true, 
+      fontSize: 13,
+      color: C.dark,
+      fixed: true
+    });
+    bs.create('text', [4.0,128,() => '\\(m=' + carV(timeSlider.Value()).toFixed(1) + '\\,m/s\\)'], {useMathJax: true, 
+      fontSize: 12,
+      color: C.gold,
+      fixed: true
+    });
+
+    const refreshDistanceBoard = () => bs.update();
+    timeSlider.on('drag', refreshDistanceBoard);
+    timeSlider.on('up', refreshDistanceBoard);
+  }
+
+  function shiftedRate(x) {
+    return x + 1;
+  }
+
+  function shiftedPrimitive(x) {
+    return 0.5*x*x + x;
+  }
+
+  function shiftedAccumulationFrom(a, x) {
+    return shiftedPrimitive(x) - shiftedPrimitive(a);
+  }
+
+  function initShiftedAccumulation() {
+    const br = board('board-shifted-rate', [-0.5, 8.5, 6.5, -3.2], {
+      defaultAxes: {
+        x: { name: 'x', withLabel: true, label: { position: 'rt', offset: [-8, 12] }, ticks: { ticksDistance: 1 } },
+        y: { name: 'f', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { ticksDistance: 1 } }
+      }
+    });
+
+    br.create('functiongraph', [shiftedRate, 0, 6], {
+      strokeColor: C.blue,
+      strokeWidth: 3,
+      fixed: true
+    });
+
+    const aSlider = br.create('slider', [[0.5,-2.35],[5.8,-2.35],[0,2,5]], {
+      name: 'a',
+      snapWidth: 0.5,
+      size: 5,
+      strokeColor: C.red,
+      fillColor: C.red,
+      baseline: { strokeColor: '#94a8ba' },
+      highline: { strokeColor: C.red }
+    });
+
+    const xSlider = br.create('slider', [[0.5,-1.15],[5.8,-1.15],[0,4,6]], {
+      name: 'x',
+      snapWidth: 0.5,
+      size: 5,
+      strokeColor: C.green,
+      fillColor: C.green,
+      baseline: { strokeColor: '#94a8ba' },
+      highline: { strokeColor: C.green }
+    });
+
+    br.create('line', [
+      [() => aSlider.Value(), -3.2],
+      [() => aSlider.Value(), 8.5]
+    ], {
+      straightFirst: false,
+      straightLast: false,
+      strokeColor: C.red,
+      strokeWidth: 2,
+      dash: 2,
+      fixed: true
+    });
+
+    const p1 = br.create('point', [() => aSlider.Value(), 0], { visible:false });
+    const p2 = br.create('point', [() => xSlider.Value(), 0], { visible:false });
+    const p3 = br.create('point', [() => xSlider.Value(), () => shiftedRate(xSlider.Value())], { visible:false });
+    const p4 = br.create('point', [() => aSlider.Value(), () => shiftedRate(aSlider.Value())], { visible:false });
+
+    br.create('polygon', [p1,p2,p3,p4], {
+      fillColor: C.lightBlue,
+      fillOpacity: 0.52,
+      borders: { strokeColor: C.blue, strokeWidth: 1 },
+      vertices: { visible: false }
+    });
+
+    br.create('text', [0.35,7.7,'\\(f(x)=x+1\\)'], {useMathJax: true,
+      fontSize: 13,
+      color: C.dark,
+      fixed: true
+    });
+
+    br.create('text', [2.55,6.7,() => {
+      const a = aSlider.Value();
+      const x = xSlider.Value();
+      const value = shiftedAccumulationFrom(a, x);
+      return '\\(F_a(' + x.toFixed(1) + ')=\\int_{' + a.toFixed(1) + '}^{' + x.toFixed(1) + '}(t+1)\\,dt=' + value.toFixed(2) + '\\)';
+    }], {useMathJax: true,
+      fontSize: 11,
+      color: C.green,
+      fixed: true
+    });
+
+    const ba = board('board-shifted-accumulation', [-0.5, 26, 6.5, -20], {
+      defaultAxes: {
+        x: { name: 'x', withLabel: true, label: { position: 'rt', offset: [-8, 12] }, ticks: { ticksDistance: 1 } },
+        y: { name: 'F', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { ticksDistance: 5 } }
+      }
+    });
+
+    ba.create('functiongraph', [
+      x => shiftedAccumulationFrom(aSlider.Value(), x),
+      0,
+      6
+    ], {
+      strokeColor: C.green,
+      strokeWidth: 3,
+      fixed: true
+    });
+
+    ba.create('point', [() => aSlider.Value(), 0], {
+      name: () => '(' + aSlider.Value().toFixed(1) + ', 0)',
+      size: 2,
+      fillColor: C.red,
+      strokeColor: C.red,
+      fixed: true,
+      label: { offset: [8, -12] }
+    });
+
+    ba.create('point', [
+      () => xSlider.Value(),
+      () => shiftedAccumulationFrom(aSlider.Value(), xSlider.Value())
+    ], {
+      name: '',
+      size: 2,
+      fillColor: C.blue,
+      strokeColor: C.blue,
+      fixed: true
+    });
+
+    ba.create('text', [0.35,23.5,() => {
+      const a = aSlider.Value();
+      const c = shiftedPrimitive(a);
+      return '\\(F_a(x)=\\frac{x^2}{2}+x-' + c.toFixed(2) + '\\)';
+    }], {useMathJax: true,
+      fontSize: 12,
+      color: C.dark,
+      fixed: true
+    });
+
+    const refreshShiftedBoards = () => {
+      br.update();
+      ba.update();
+    };
+    aSlider.on('drag', refreshShiftedBoards);
+    aSlider.on('up', refreshShiftedBoards);
+    xSlider.on('drag', refreshShiftedBoards);
+    xSlider.on('up', refreshShiftedBoards);
+  }
+
+  function initialRate(t) {
+    return 6 + 2*t;
+  }
+
+  function initialAccumulation(t) {
+    return 6*t + t*t;
+  }
+
+  function initialQuantity(t) {
+    return 100 + initialAccumulation(t);
+  }
+
+  function initInitialQuantityExample() {
+    const br = board('board-initial-rate', [-0.5, 18, 5.5, -3], {
+      defaultAxes: {
+        x: { name: 't', withLabel: true, label: { position: 'rt', offset: [-8, 12] }, ticks: { ticksDistance: 1 } },
+        y: { name: 'f', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { ticksDistance: 2 } }
+      }
+    });
+
+    br.create('functiongraph', [initialRate, 0, 5], {
+      strokeColor: C.blue,
+      strokeWidth: 3,
+      fixed: true
+    });
+    polygonFill(br, [[0,0],[0,6],[4,14],[4,0]], C.lightBlue, .52);
+    point(br, [4, initialRate(4)], { fillColor: C.red, strokeColor: C.red, size: 2 });
+    br.create('text', [0.35,16.4,'\\(f(t)=6+2t\\)'], { useMathJax: true, fontSize: 12, color: C.dark, fixed: true });
+    br.create('text', [2.2,5.2,'\\(\\int_0^4 f(t)\\,dt=40\\)'], { useMathJax: true, fontSize: 12, color: C.green, fixed: true });
+
+    const bq = board('board-initial-quantity', [-0.5, 165, 5.5, -15], {
+      defaultAxes: {
+        x: { name: 't', withLabel: true, label: { position: 'rt', offset: [-8, 12] }, ticks: { ticksDistance: 1 } },
+        y: { name: 'Q', withLabel: true, label: { position: 'rt', offset: [10, -8] }, ticks: { ticksDistance: 20 } }
+      }
+    });
+
+    bq.create('functiongraph', [initialAccumulation, 0, 5], {
+      strokeColor: C.blue,
+      strokeWidth: 3,
+      fixed: true
+    });
+    bq.create('functiongraph', [initialQuantity, 0, 5], {
+      strokeColor: C.green,
+      strokeWidth: 3,
+      fixed: true
+    });
+    bq.create('line', [[0,100],[5,100]], {
+      straightFirst: false,
+      straightLast: false,
+      strokeColor: C.gold,
+      strokeWidth: 1.5,
+      dash: 2,
+      fixed: true
+    });
+    point(bq, [0,0], { fillColor: C.blue, strokeColor: C.blue, size: 2 });
+    point(bq, [0,100], { fillColor: C.green, strokeColor: C.green, size: 2 });
+    point(bq, [4,40], { fillColor: C.blue, strokeColor: C.blue, size: 2 });
+    point(bq, [4,140], { fillColor: C.green, strokeColor: C.green, size: 2 });
+    bq.create('text', [3.45,47,'\\(A(4)=40\\)'], { useMathJax: true, fontSize: 11, color: C.blue, fixed: true });
+    bq.create('text', [3.25,151,'\\(Q(4)=140\\)'], { useMathJax: true, fontSize: 11, color: C.green, fixed: true });
+    bq.create('text', [0.25,105,'\\(Q_0=100\\)'], { useMathJax: true, fontSize: 11, color: C.gold, fixed: true });
+  }
+
+  function initPiecewise() {
+    const b = board('board-piecewise', [-0.5, 5, 8.5, -3.5]);
+    polygonFill(b, [[0,0],[0,1],[2,1],[2,0]], C.lightBlue, .5);
+    polygonFill(b, [[2,0],[2,3],[5,3],[5,0]], C.lightBlue, .5);
+    polygonFill(b, [[5,0],[5,-2],[8,-2],[8,0]], C.lightRed, .55);
+    seg(b,[0,1],[2,1]); seg(b,[2,3],[5,3]); seg(b,[5,-2],[8,-2],{strokeColor:C.red});
+    [0,2,5,8].forEach(x => seg(b,[x,-0.08],[x,0.08],{strokeColor:C.dark,strokeWidth:1}));
+    b.create('text',[.55,1.5,'תרומה חיובית'],{useMathJax: true, fontSize:12,color:C.dark,fixed:true});
+    b.create('text',[3.0,3.5,'צבירה מהירה יותר'],{useMathJax: true, fontSize:12,color:C.dark,fixed:true});
+    b.create('text',[6.1,-2.7,'תרומה שלילית'],{useMathJax: true, fontSize:12,color:C.red,fixed:true});
+  }
+
+  function signedFn(x) {
+    if (x < 2) return 1.5 + 0.5*x;
+    if (x < 4) return 2.5 - 1.25*(x-2);
+    if (x < 6) return -1.2*(x-4);
+    return -2.4 + 1.2*(x-6);
+  }
+
+  function initSigned() {
+    const b = board('board-signed', [-0.5, 4, 8.5, -3.5]);
+    sampledArea(b, signedFn, 0, 4, C.lightBlue);
+    sampledArea(b, signedFn, 4, 8, C.lightRed);
+    b.create('functiongraph',[signedFn,0,18],{strokeColor:C.dark,strokeWidth:3,fixed:true});
+    seg(b,[4,-.12],[4,.12],{strokeColor:C.red,strokeWidth:2});
+    b.create('text',[1.2,2.7,'שטח חיובי'],{useMathJax: true, fontSize:13,color:C.blue,fixed:true});
+    b.create('text',[5.4,-2.8,'שטח שלילי'],{useMathJax: true, fontSize:13,color:C.red,fixed:true});
+  }
+
+
+  function exAFn(x) {
+    if (x <= 0) return 1;
+    if (x <= 2) return 1 + 0.5*x;
+    if (x <= 4) return 2;
+    if (x <= 5) return 2 - 2*(x-4);
+    if (x <= 6) return -(x-5);
+    return -1;
+  }
+
+  function initExA() {
+    const b = board('board-ex-a', [-1.7,3.2,7.6,-2.2]);
+    b.create('functiongraph',[exAFn,-1,7],{strokeColor:C.dark,strokeWidth:3,fixed:true});
+    [-1,0,2,4,5,6,7].forEach(x => point(b,[x,exAFn(x)],{size:2}));
+    b.create('text',[.35,1.45,'f'],{useMathJax: true, fontSize:16,color:C.dark,fixed:true});
+  }
+
+  function semiFn(x) { return -Math.sqrt(Math.max(0,4-(x-2)*(x-2))); }
+  function initExC() {
+    const b = board('board-ex-c', [-0.8,5,12.8,-5]);
+    b.create('functiongraph',[semiFn,0,4],{strokeColor:C.dark,strokeWidth:3,fixed:true});
+    seg(b,[4,0],[8,4],{strokeColor:C.dark});
+    seg(b,[8,4],[10,0],{strokeColor:C.dark});
+    seg(b,[10,0],[12,-4],{strokeColor:C.dark});
+    sampledArea(b, semiFn, 0, 4, C.lightRed);
+    polygonFill(b,[[4,0],[8,4],[10,0]],C.lightBlue,.45);
+    polygonFill(b,[[10,0],[12,-4],[12,0]],C.lightRed,.5);
+    [0,4,8,10,12].forEach(x => point(b,[x, x===8?4:(x===12?-4:0)],{size:2}));
+    b.create('text',[7.5,4.4,'g'],{useMathJax: true, fontSize:16,color:C.dark,fixed:true});
+  }
+
+  function rain(t) {
+    return -0.75*t*t + 9*t;
+  }
+  function initRain() {
+    const b = board('board-rain', [-0.6,31,12.6,-3], {
+      defaultAxes: {
+        x: { name: 't', withLabel: true, ticks: { ticksDistance: 1 } },
+        y: { name: 'r', withLabel: true, ticks: { ticksDistance: 5 } }
+      }
+    });
+    b.create('functiongraph',[rain,0,12],{strokeColor:C.blue,strokeWidth:3,fixed:true});
+    point(b,[6,rain(6)],{fillColor:C.red,strokeColor:C.red,size:2});
+    b.create('text',[6.25,28.4,'קצב מרבי'],{useMathJax: true, fontSize:11,color:C.red,fixed:true});
+  }
+
+  function snow(x) {
+    if (x <= 30) return -0.1*(x-30)*(x-30)+90;
+    if (x <= 60) return 3*x;
+    if (x <= 90) return -0.1*(x-60)*(x-60)+180;
+    return -0.05*(x-90)*(x-90)+90;
+  }
+  function initSnow() {
+    const b = board('board-snow', [-5,205,125,-10], {
+      defaultAxes: { x: { name:'t',withLabel:true,ticks:{ticksDistance:15}}, y:{name:'f',withLabel:true,ticks:{ticksDistance:30}} }
+    });
+    b.create('functiongraph',[snow,0,120],{strokeColor:C.blue,strokeWidth:3,fixed:true});
+    [0,30,60,90,120].forEach(x => point(b,[x,snow(x)],{size:2}));
+  }
+
+  function energy(x) {
+    if (x <= 5) return 1.2*x*x+7;
+    if (x <= 25) return 37;
+    return -0.1*(x-25)*(x-25)+37;
+  }
+
+  function mall(x) {
+    if (x <= 60) return .5*x;
+    if (x <= 90) return 30;
+    if (x <= 120) return 30 - (2/3)*(x-90);
+    if (x <= 150) return 10;
+    return 10 + (1/6)*(x-150);
+  }
+  function initMall() {
+    const b = board('board-mall', [-8,36,188,-4], {
+      defaultAxes: { x:{name:'t',withLabel:true,ticks:{ticksDistance:30}}, y:{name:'r',withLabel:true,ticks:{ticksDistance:5}} }
+    });
+    b.create('functiongraph',[mall,0,180],{strokeColor:C.green,strokeWidth:3,fixed:true});
+    [0,60,90,120,150,180].forEach(x => point(b,[x,mall(x)],{size:2}));
+  }
+
+  function bike(x) {
+    if (x <= 2) return 6*x;
+    if (x <= 4) return 12-10*(x-2);
+    if (x <= 6) return -8+12*(x-4);
+    if (x <= 7) return 16;
+    if (x <= 8) return 16-4*(x-7);
+    if (x <= 11) return 12;
+    return 12-12*(x-11);
+  }
+  function initBike() {
+    const b = board('board-bike', [-.6,19,12.7,-11], {
+      defaultAxes: { x:{name:'t',withLabel:true,ticks:{ticksDistance:1}}, y:{name:'v',withLabel:true,ticks:{ticksDistance:4}} }
+    });
+    b.create('functiongraph',[bike,0,12],{strokeColor:C.dark,strokeWidth:3,fixed:true});
+    [0,2,4,6,7,8,11,12].forEach(x => point(b,[x,bike(x)],{size:2}));
+    sampledArea(b,bike,0,12,C.lightBlue,120);
+  }
+
+  function finalFn(x) {
+    if (x <= 4) return -5 + 0.5*x + 0.1875*x*x;
+    const u = x - 4;
+    return u * (2 - (4/7)*u);
+  }
+
+  function initFinal() {
+    const b = board('board-final', [-.5,2.2,8.5,-5.8]);
+    b.create('functiongraph',[finalFn,0,8],{strokeColor:C.dark,strokeWidth:3,fixed:true});
+    point(b,[4,0],{fillColor:C.red,strokeColor:C.red,size:2});
+    b.create('text',[5.25,1.85,'g'],{useMathJax: true, fontSize:16,color:C.dark,fixed:true});
+  }
+
+  function initAll() {
+    if (!window.JXG || !JXG.JSXGraph) return;
+    if (JXG.Options && JXG.Options.text) JXG.Options.text.useMathJax = true;
+    initConstant();
+    initCarAcceleration();
+    initShiftedAccumulation();
+    initInitialQuantityExample();
+    initPiecewise();
+    initSigned();
+    initExA();
+    initExC();
+    initRain();
+    initSnow();
+    initMall();
+    initBike();
+    initFinal();
+    boardRegistry.forEach(({ board: b, initialBBox }, id) => addGraphControls(id, b, initialBBox));
+  }
+
+  window.addEventListener('load', initAll);
+})();
+</script>
+</body>
+</html>
