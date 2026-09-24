@@ -1,10 +1,15 @@
+import { strokePathD } from './ink.js?v=20260924-1';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}
 export function union(items){if(!items.length)return {x:0,y:0,w:1000,h:700};const b=items.map(bounds),x=Math.min(...b.map(i=>i.x)),y=Math.min(...b.map(i=>i.y));return {x,y,w:Math.max(...b.map(i=>i.x+i.w))-x,h:Math.max(...b.map(i=>i.y+i.h))-y};}
 export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{'data-id':item.id,transform:`translate(${item.x} ${item.y}) rotate(${item.rotation||0} ${w/2} ${h/2})`,opacity:item.opacity??1});
  const style={stroke:item.stroke||'#203954','stroke-width':item.lineWidth||2,fill:item.fill||'none','stroke-linecap':'round','stroke-linejoin':'round'};let shape;
- if(item.type==='path'){shape=svgEl('polyline',{...style,fill:'none',points:(item.points||[]).map(p=>p.join(',')).join(' ')});}
+ if(item.type==='path'){
+  const points=item.points||[];
+  if((item.smoothing||0)>0 && points.length>2) shape=svgEl('path',{...style,fill:'none',d:strokePathD(points)});
+  else shape=svgEl('polyline',{...style,fill:'none',points:points.map(p=>p.join(',')).join(' ')});
+ }
  else if(item.type==='line'||item.type==='arrow'){const [a,b]=item.points||[[0,0],[w,h]];shape=svgEl('line',{...style,x1:a[0],y1:a[1],x2:b[0],y2:b[1]});if(item.type==='arrow'){const angle=Math.atan2(b[1]-a[1],b[0]-a[0]),len=12+(item.lineWidth||2)*2;g.append(svgEl('path',{d:`M${b[0]-len*Math.cos(angle-.45)} ${b[1]-len*Math.sin(angle-.45)} L${b} L${b[0]-len*Math.cos(angle+.45)} ${b[1]-len*Math.sin(angle+.45)}`,...style,fill:'none'}));}}
  else if(item.type==='rectangle'||item.type==='note')shape=svgEl('rect',{...style,width:w,height:h,rx:item.type==='note'?7:0,fill:item.type==='note'?(item.fill==='none'?'#fff1a8':item.fill):style.fill});
  else if(item.type==='ellipse')shape=svgEl('ellipse',{...style,cx:w/2,cy:h/2,rx:w/2,ry:h/2});
