@@ -48,7 +48,7 @@
     .app {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 24px 18px 48px;
+      padding: 12px 18px 48px;
     }
     .hero {
       background: linear-gradient(135deg, #ffffff, #edf7ff);
@@ -62,7 +62,7 @@
     .hero p { margin: 0; color: var(--muted); font-size: 1.08rem; }
     .progress {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
+      grid-template-columns: repeat(4, minmax(0,1fr));
       gap: 10px;
       margin: 10px 0;
     }
@@ -231,8 +231,8 @@
     .metric {
       border: 2px solid var(--border);
       background: #fbfdff;
-      border-radius: 14px;
-      padding: 12px;
+      border-radius: 10px;
+      padding: 4px;
     }
     .metric span { display: block; color: var(--muted); font-size: .9rem; }
     .metric strong { display: block; margin-top: 2px; font-size: 1.2rem; direction: ltr; text-align: right; }
@@ -356,6 +356,48 @@
     .stage4-summary-row.summary-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .stage4-summary-row.summary-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
+
+    .mc-actions {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 8px;
+    }
+    .mc-action {
+      min-height: 44px;
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      background: white;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .mc-action.primary { background: var(--accent); color: white; }
+    .mc-action:focus-visible { outline: 3px solid #b9d8ee; outline-offset: 2px; }
+    .mc-summary-row {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .mc-summary-row .metric { min-width: 0; text-align: center; }
+    .mc-summary-row .metric strong { text-align: center; }
+    .mc-note { margin-top: 8px; color: var(--muted); font-size: .86rem; }
+    .mc-bottom-panels { margin-top: 14px; display: grid; gap: 12px; }
+    .mc-bottom-panels .stage4-summary-panel,
+    .mc-bottom-panels .integral-calculation { margin: 0; }
+    .mc-bottom-panels .mc-summary-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mc-live-calc {
+      direction: ltr;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    @media (max-width: 900px) { .mc-summary-row { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 680px) {
+      .mc-actions { grid-template-columns: 1fr; }
+      .mc-summary-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     @media (max-width: 860px) {
       .lesson-grid { grid-template-columns: 1fr; }
       .progress { grid-template-columns: repeat(2, minmax(0,1fr)); }
@@ -382,6 +424,7 @@
 <button class="step-tab active" data-step="0"><strong>מלבנים ושטח</strong></button>
 <button class="step-tab" data-step="1"><strong>שטח מכוון</strong></button>
 <button class="step-tab" data-step="3"><strong>כשהגרפים נחתכים</strong></button>
+<button class="step-tab" data-step="4"><strong>מונטה קרלו</strong></button>
 </nav>
 <main>
 <section class="lesson active" data-lesson="0">
@@ -570,6 +613,75 @@
 </div>
 </div>
 </section>
+
+<section class="lesson" data-lesson="4">
+<div class="lesson-grid">
+<article class="card">
+<span class="badge">מטרה: להבין אינטגרל דרך דגימה אקראית</span>
+<h2>אינטגרציה בשיטת מונטה קרלו</h2>
+<div aria-label="נקודות אקראיות בתוך מלבן דגימה סביב גרף פונקציה" class="jxgbox" id="board5"></div>
+<div class="legend">
+<span class="legend-item"><span class="swatch" style="background:#cfeedd"></span> נקודה מתחת לגרף - הצלחה</span>
+<span class="legend-item"><span class="swatch" style="background:#f7cccc"></span> נקודה מעל לגרף - החטאה</span>
+<span class="legend-item"><span class="swatch" style="background:#eef4f8"></span> מלבן הדגימה</span>
+</div>
+<div class="mc-bottom-panels">
+<div class="card stage4-summary-panel" aria-label="סיכום מונטה קרלו">
+<div class="mc-summary-row">
+<div class="metric"><span>נקודות שנזרקו</span><strong id="mcTotal">0</strong></div>
+<div class="metric area-positive"><span>מתחת לגרף</span><strong id="mcHits">0</strong></div>
+<div class="metric"><span>אחוז הצלחות</span><strong id="mcRatio">0%</strong></div>
+<div class="metric"><span>הערכת מונטה קרלו</span><strong id="mcEstimate">—</strong></div>
+<div class="metric"><span>ערך מספרי להשוואה</span><strong id="mcExact">—</strong></div>
+<div class="metric"><span>שגיאה מוחלטת</span><strong id="mcError">—</strong></div>
+</div>
+</div>
+<div class="integral-calculation" aria-live="polite">
+<div class="calc-title">חישוב בזמן אמת</div>
+<div class="mc-live-calc" id="mcLiveCalc">A(rectangle) × hits / N = —</div>
+</div>
+</div>
+</article>
+<aside class="card controls">
+<div class="control">
+<label for="mcFunc">פונקציה</label>
+<select id="mcFunc">
+<option value="quad">פרבולה</option>
+<option value="line">פונקציה קווית</option>
+<option value="wave">פונקציה מחזורית</option>
+</select>
+<div class="formula" id="mcFormula">\[f(x)=4-0.35(x-1)^2\]</div>
+</div>
+<div class="control">
+<label for="mcN">מספר הנקודות הכולל \(N\)</label>
+<div class="row"><input id="mcN" max="8" min="0" step="1" type="range" value="4"/><span class="value-pill" id="mcNv">1000</span></div>
+</div>
+<div style="display:none;" class="control">
+<label for="mcSpeed">מהירות האנימציה - נקודות בכל פריים</label>
+<div class="row"><input id="mcSpeed" max="8" min="0" step="1" type="range" value="4"/><span class="value-pill" id="mcSpeedv">25</span></div>
+</div>
+<div class="control">
+<label for="mcA">גבול שמאלי \(a\)</label>
+<div class="row"><input id="mcA" max="2.5" min="-1" step="0.1" type="range" value="-1"/><span class="value-pill" id="mcAv">-1.0</span></div>
+</div>
+<div class="control">
+<label for="mcB">גבול ימני \(b\)</label>
+<div class="row"><input id="mcB" max="4" min="0" step="0.1" type="range" value="4"/><span class="value-pill" id="mcBv">4.0</span></div>
+</div>
+<div class="mc-actions">
+<button class="mc-action primary" id="mcPlay" type="button">הפעל</button>
+<button class="mc-action" id="mcStep" type="button">נקודה אחת</button>
+<button class="mc-action" id="mcReset" type="button">הגרלה חדשה</button>
+</div>
+<div class="callout conclusion">
+<h3>הרעיון</h3>
+<p>זורקים נקודות באופן אחיד בתוך מלבן. היחס בין מספר הנקודות שמתחת לגרף לבין מספר הנקודות הכולל מתקרב ליחס בין השטח המבוקש לבין שטח המלבן.</p>
+<div class="formula">\[\int_a^b f(x)\,dx\approx A_{\text{ןבלמ}}\cdot\frac{N_{\text{ףרגל תחתמ}}}{N}\]</div>
+</div>
+</aside>
+</div>
+</section>
+
 </main>
 <div class="nav">
 <button disabled="" id="prevBtn" type="button">השלב הקודם</button>
@@ -631,7 +743,7 @@
     });
   }
 
-  let board1, board2, board3, board4;
+  let board1, board2, board3, board4, board5;
 
   const funcs1 = {
     quad: x => 4 - 0.35*(x-1)*(x-1),
@@ -778,6 +890,151 @@
     $('a4v').textContent=a.toFixed(1); $('b4v').textContent=b.toFixed(1);
   }
 
+  const mcTargets = [50,100,250,500,1000,2000,5000,10000,20000];
+  const mcSpeeds = [1,2,5,10,25,50,100,250,500];
+  const mcFuncs = {
+    quad: { fn: x => 4 - 0.35*(x-1)*(x-1), latex: 'f(x)=4-0.35(x-1)^2' },
+    line: { fn: x => 0.7*x + 2.5, latex: 'f(x)=0.7x+2.5' },
+    wave: { fn: x => 2.4 + 0.8*Math.sin(x), latex: 'f(x)=2.4+0.8\\sin(x)' }
+  };
+
+  const mcState = {
+    ready:false, running:false, raf:null, total:0, hits:0, shown:0,
+    target:1000, speed:25, fn:null, a:-1, b:4, yTop:5, rectArea:25, exact:0,
+  };
+
+
+  function mcEstimateValue(){
+    return mcState.total ? mcState.rectArea * mcState.hits / mcState.total : NaN;
+  }
+
+  function stopMC(){
+    mcState.running=false;
+    if(mcState.raf){ cancelAnimationFrame(mcState.raf); mcState.raf=null; }
+    if($('mcPlay')) $('mcPlay').textContent='הפעל';
+  }
+
+  function updateMCFormula(){
+    const cfg=mcFuncs[$('mcFunc').value];
+    const node=$('mcFormula');
+    if(window.MathJax?.typesetClear) MathJax.typesetClear([node]);
+    node.innerHTML=`\\[${cfg.latex}\\]`;
+    typeset([node]);
+  }
+
+  function setupMCBoards(){
+    if(board5) JXG.JSXGraph.freeBoard(board5);
+
+    const cfg=mcFuncs[$('mcFunc').value];
+    let a=parseFloat($('mcA').value), b=parseFloat($('mcB').value);
+    if(a>b-0.3){
+      if(document.activeElement===$('mcA')) a=b-0.3;
+      else b=a+0.3;
+    }
+    a=Math.max(-1,Math.min(2.5,a));
+    b=Math.max(0,Math.min(4,b));
+    if(a>b-0.3) a=b-0.3;
+    $('mcA').value=a; $('mcB').value=b;
+
+    let maxY=0;
+    for(let i=0;i<=600;i++){
+      const x=a+(b-a)*i/600;
+      maxY=Math.max(maxY,cfg.fn(x));
+    }
+    const yTop=Math.max(0.5,maxY*1.08);
+    const target=mcTargets[parseInt($('mcN').value,10)];
+
+    mcState.fn=cfg.fn; mcState.a=a; mcState.b=b; mcState.yTop=yTop;
+    mcState.target=target; mcState.speed=mcSpeeds[parseInt($('mcSpeed').value,10)];
+    mcState.rectArea=(b-a)*yTop;
+    mcState.exact=integrate(cfg.fn,a,b,2400);
+
+    const pad=(b-a)*0.08;
+    board5=initBoard('board5',[a-pad,yTop*1.12,b+pad,-yTop*0.12]);
+    poly(board5,[[a,0],[b,0],[b,yTop],[a,yTop]],{
+      fillColor:'#eef4f8',fillOpacity:.16,
+      borders:{visible:true,strokeColor:'#8ea7ba',strokeWidth:1.5,dash:2,withLabel:false}
+    });
+    board5.create('functiongraph',[cfg.fn,a,b],{strokeColor:'#2b7bbb',strokeWidth:3});
+
+
+    $('mcAv').textContent=a.toFixed(1);
+    $('mcBv').textContent=b.toFixed(1);
+    $('mcNv').textContent=String(target);
+    $('mcSpeedv').textContent=String(mcState.speed);
+    $('mcExact').textContent=fmt(mcState.exact);
+    updateMCFormula();
+  }
+
+  function updateMCMetrics(){
+    const est=mcEstimateValue();
+    $('mcTotal').textContent=String(mcState.total);
+    $('mcHits').textContent=String(mcState.hits);
+    $('mcRatio').textContent=mcState.total ? `${(100*mcState.hits/mcState.total).toFixed(1)}%` : '0%';
+    $('mcEstimate').textContent=Number.isFinite(est)?fmt(est):'—';
+    $('mcExact').textContent=fmt(mcState.exact);
+    $('mcError').textContent=Number.isFinite(est)?fmt(Math.abs(est-mcState.exact)):'—';
+    $('mcLiveCalc').textContent=mcState.total
+      ? `${fmt(mcState.rectArea)} × ${mcState.hits} / ${mcState.total} = ${fmt(est)}`
+      : `${fmt(mcState.rectArea)} × hits / N = —`;
+  }
+
+  function resetMC(autoStart=false){
+    stopMC();
+    mcState.total=0; mcState.hits=0; mcState.shown=0;
+    setupMCBoards();
+    updateMCMetrics();
+    mcState.ready=true;
+    if(autoStart) startMC();
+  }
+
+  function addMCSamples(count){
+    if(!mcState.ready) resetMC(false);
+    const remaining=mcState.target-mcState.total;
+    const todo=Math.max(0,Math.min(count,remaining));
+    for(let i=0;i<todo;i++){
+      const x=mcState.a+Math.random()*(mcState.b-mcState.a);
+      const y=Math.random()*mcState.yTop;
+      const hit=y<=mcState.fn(x);
+      mcState.total++;
+      if(hit) mcState.hits++;
+
+      if(mcState.shown<5000){
+        board5.create('point',[x,y],{
+          name:'',size:2,strokeWidth:0,
+          strokeColor:hit?'#4d9b76':'#d27a7a',
+          fillColor:hit?'#4d9b76':'#d27a7a',
+          fillOpacity:.72,fixed:true,withLabel:false,highlight:false
+        });
+        mcState.shown++;
+      }
+
+    }
+    board5.update();
+    updateMCMetrics();
+    if(mcState.total>=mcState.target) stopMC();
+  }
+
+  function animateMC(){
+    if(!mcState.running) return;
+    addMCSamples(mcState.speed);
+    if(mcState.running) mcState.raf=requestAnimationFrame(animateMC);
+  }
+
+  function startMC(){
+    if(!mcState.ready) resetMC(false);
+    if(mcState.total>=mcState.target) resetMC(false);
+    if(mcState.running) return;
+    mcState.running=true;
+    $('mcPlay').textContent='השהה';
+    mcState.raf=requestAnimationFrame(animateMC);
+  }
+
+  function toggleMC(){
+    if(mcState.running) stopMC();
+    else startMC();
+  }
+
   function typeset(targets){
     if(!window.MathJax?.typesetPromise) return;
     const nodes = Array.isArray(targets) ? targets : undefined;
@@ -817,12 +1074,31 @@
   ['x3','dx3'].forEach(id=>$(id).addEventListener('input',draw3));
   ['a4','b4'].forEach(id=>$(id).addEventListener('input',draw4));
 
+  ['mcFunc','mcN','mcA','mcB'].forEach(id=>$(id).addEventListener('input',()=>{
+    if(mcState.ready) resetMC(false);
+    else {
+      $('mcNv').textContent=String(mcTargets[parseInt($('mcN').value,10)]);
+      $('mcAv').textContent=parseFloat($('mcA').value).toFixed(1);
+      $('mcBv').textContent=parseFloat($('mcB').value).toFixed(1);
+      updateMCFormula();
+    }
+  }));
+  $('mcSpeed').addEventListener('input',()=>{
+    mcState.speed=mcSpeeds[parseInt($('mcSpeed').value,10)];
+    $('mcSpeedv').textContent=String(mcState.speed);
+  });
+  $('mcPlay').addEventListener('click',toggleMC);
+  $('mcStep').addEventListener('click',()=>{ stopMC(); addMCSamples(1); });
+  $('mcReset').addEventListener('click',()=>resetMC(false));
+
   let current=0;
   const tabs=[...document.querySelectorAll('.step-tab')];
   const lessons=[...document.querySelectorAll('.lesson')];
   function showStep(i){
-    current=Math.max(0,Math.min(lessons.length-1,i));
-    tabs.forEach((t,k)=>t.classList.toggle('active',k===current));
+    const next=Math.max(0,Math.min(lessons.length-1,i));
+    if(current===4 && next!==4) stopMC();
+    current=next;
+    tabs.forEach((t)=>t.classList.toggle('active',Number(t.dataset.step)===current));
     lessons.forEach((l,k)=>l.classList.toggle('active',k===current));
     $('prevBtn').disabled=current===0;
     $('nextBtn').disabled=current===lessons.length-1;
@@ -831,6 +1107,10 @@
     if(current===1) draw2();
     if(current===2) draw3();
     if(current===3) draw4();
+    if(current===4){
+      if(!mcState.ready) resetMC(true);
+      else { board5?.update(); }
+    }
     typeset();
     window.scrollTo({top:0,behavior:'smooth'});
   }
@@ -838,6 +1118,9 @@
   $('prevBtn').addEventListener('click',()=>showStep(current-1));
   $('nextBtn').addEventListener('click',()=>showStep(current+1));
 
+  $('mcNv').textContent=String(mcTargets[parseInt($('mcN').value,10)]);
+  $('mcSpeedv').textContent=String(mcSpeeds[parseInt($('mcSpeed').value,10)]);
+  updateMCFormula();
   draw1();
   typeset();
 })();
