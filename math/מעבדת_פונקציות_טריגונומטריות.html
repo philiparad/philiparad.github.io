@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>מעבדת פונקציות טריגונומטריות — 5 יחידות</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+<script>
+window.MathJax={
+  tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]']]},
+  chtml:{scale:0.96},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+
+:root{
+  --ink:#13253a; --muted:#66788b; --line:#c8d6e2; --soft:#edf7ff; --soft2:#f5f9fc;
+  --accent:#1769aa; --accent2:#087f72; --tan:#a85808; --danger:#a83e32; --ok:#16734b;
+  --panel:#ffffff; --bg:#eef3f7; --focus:#fff7dc;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}
+body{min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1500px;margin:0 auto;padding:18px}
+.topbar{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.title h1{font-size:clamp(24px,3vw,38px);margin:0 0 6px;color:#0f2940}
+.title p{margin:0;color:var(--muted);font-size:16px}
+.progress-motto{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.step-pill{border:2px solid #bad2e4;background:#f7fbfe;border-radius:999px;padding:7px 12px;font-weight:700;color:#254760}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.nav button{border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:10px 15px;font-weight:700;min-height:44px}
+.nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.memory-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
+.memory-strip.is-hidden{display:none!important}
+.memory{background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;min-width:0}
+.memory b{font-size:22px;color:var(--accent);min-width:22px;text-align:center}
+.memory span{font-size:13px;color:var(--muted);line-height:1.25}
+.panel{display:none}
+.panel.active{display:block}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;align-items:start}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:14px}
+.card h2,.card h3{margin-top:0;color:#14344e}
+.graph-card{padding:12px}
+.graph-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.eq{font-size:20px;font-weight:700;direction:ltr;text-align:left;min-height:32px}
+.graph-actions{display:flex;gap:6px;flex-wrap:wrap}
+.small-btn{border:2px solid #b9c9d6;background:#fff;border-radius:10px;padding:7px 10px;min-height:38px;color:#274459}
+.small-btn:hover{background:#f1f7fb}
+.jxgbox{width:100%;height:500px;border:2px solid #b7c8d6!important;border-radius:12px;background:#fff;direction:ltr!important;touch-action:none}
+.properties{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.prop{border:2px solid #d1dde6;border-radius:11px;padding:9px;background:var(--soft2);text-align:center;min-height:66px;display:flex;flex-direction:column;justify-content:center}
+.prop b{font-size:12px;color:var(--muted);margin-bottom:3px}
+.prop strong{font-size:16px;color:#173e5b;direction:ltr;unicode-bidi:isolate}
+.control-block{margin-bottom:12px}
+.label-line{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:5px}
+.label-line b{font-size:16px}
+.value-badge{border:2px solid #c5d6e3;background:#f8fbfd;border-radius:9px;padding:3px 8px;min-width:78px;text-align:center;font-weight:700;direction:ltr}
+.range-row{display:grid;grid-template-columns:40px minmax(0,1fr) 40px;gap:8px;align-items:center}
+.range-row button{width:40px;height:40px;border-radius:10px;border:2px solid #b9cbd8;background:#fff;font-weight:700}
+input[type="range"]{width:100%;accent-color:var(--accent);min-height:32px}
+.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.segmented button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:9px;font-weight:700;direction:ltr}
+.segmented button.active{background:#e8f3fb;border-color:var(--accent);color:#0e5388}
+.general-form{border:2px solid #bdd2e1;background:#f5fbff;border-radius:12px;padding:11px 12px;margin:0 0 12px}
+.general-form .gf-title{font-weight:800;color:#14344e;margin-bottom:4px}
+.general-form .gf-eq{font-size:20px;font-weight:700;direction:ltr;unicode-bidi:isolate;text-align:center;min-height:34px}
+.general-form .gf-note{font-size:13px;color:var(--muted);line-height:1.4;margin-top:4px;text-align:center}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:13px;margin-top:7px}
+.legend i{display:inline-block;width:24px;height:4px;border-radius:4px;vertical-align:middle;margin-left:5px}
+.legend .main{background:var(--accent)} .legend .base{background:#8c99a5} .legend .target{background:#374956}
+.note{border:2px solid #c7d9e5;background:#f4faff;border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.5}
+.preset-row{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0 3px}
+.preset-row button{border:2px solid #c3d2de;background:#fff;border-radius:10px;padding:7px 10px}
+.relations-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:14px;align-items:start}
+.relation-cards{display:grid;gap:9px}
+.relation-card{border:2px solid var(--line);border-radius:13px;padding:12px;background:#fff}
+.relation-card h3{margin:0 0 7px;font-size:17px}
+.math-line{direction:ltr;unicode-bidi:isolate;text-align:center;font-size:18px;margin:7px 0}
+.live-values{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.live-value{padding:9px;border:2px solid var(--line);border-radius:10px;text-align:center;background:var(--soft2)}
+.live-value strong{display:block;font-size:18px;direction:ltr}
+.checks{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
+.checks label{display:flex;gap:6px;align-items:center;font-weight:700}
+.x-control{margin-top:11px;border-top:2px solid #dbe5ec;padding-top:10px}
+.challenge-layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;align-items:start}
+.challenge-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.level{font-size:13px;border:2px solid #d5e0e8;border-radius:999px;padding:5px 9px;background:#f7fafc}
+.feedback{min-height:66px;border:2px solid #d2dfe7;border-radius:12px;padding:10px;background:#f8fbfd;line-height:1.5;margin-top:10px}
+.feedback.good{border-color:#8fceb0;background:#f0fbf5;color:#145a3b}
+.feedback.try{border-color:#e2c17a;background:#fffaf0;color:#76500c}
+.hint-box{border:2px solid #d0dbe4;background:#fff;border-radius:12px;padding:10px;margin-top:9px;min-height:48px}
+.challenge-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+.primary{border:2px solid var(--accent);background:var(--accent);color:#fff;border-radius:11px;padding:10px 12px;font-weight:700;min-height:44px}
+.secondary{border:2px solid #b9cbd8;background:#fff;color:#1c3a50;border-radius:11px;padding:10px 12px;font-weight:700;min-height:44px}
+.guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.guide-step{border:2px solid var(--line);border-radius:14px;background:#fff;padding:14px;min-height:160px}
+.guide-step .num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e5f1fa;color:#0f5b91;font-weight:800;margin-bottom:8px}
+.guide-step h3{margin:0 0 7px}
+.guide-step p{margin:0;color:#526a7c;line-height:1.5}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{border:2px solid #d5e0e8;padding:9px;text-align:center}
+th{background:#edf5fa}
+.footer-note{margin-top:14px;text-align:center;color:#6b7c8b;font-size:13px}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:1050px){.workspace,.challenge-layout,.relations-layout{grid-template-columns:1fr}.controls-card{order:-1}.jxgbox{height:450px}}
+@media(max-width:720px){.app{padding:8px}.topbar{grid-template-columns:1fr;padding:14px}.progress-motto{justify-content:flex-start}.memory-strip{grid-template-columns:repeat(2,1fr)}.properties{grid-template-columns:repeat(2,1fr)}.guide-grid{grid-template-columns:1fr}.jxgbox{height:390px}.live-values{grid-template-columns:1fr}.challenge-actions{grid-template-columns:1fr}.nav{display:grid;grid-template-columns:1fr 1fr}}
+
+/* Extra controls retained from the newer version */
+.extra-transforms{margin-top:12px;border-top:2px solid #dbe5ec;padding-top:12px}
+.extra-transforms-title{font-weight:800;color:#14344e;margin-bottom:8px}
+.transform-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:9px}
+.transform-toggle{border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 10px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;font-weight:700;min-height:44px;line-height:1.2}
+.transform-toggle:hover{background:#f1f7fb}
+.transform-toggle.active{background:#e8f3fb;border-color:var(--accent);color:#0e5388}
+.transform-toggle .formula{direction:ltr;unicode-bidi:isolate;font-size:16px;font-weight:700}
+.power-controls{margin:0 0 9px}
+.power-controls[hidden]{display:none}
+.power-controls .value-badge{min-width:78px}
+.extra-transforms .note{margin-top:0}
+
+/* קשרים בין שלוש הפונקציות */
+.relation-legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:7px 0 10px;color:var(--muted);font-size:13px}
+.relation-legend span{display:flex;align-items:center;gap:6px}
+.relation-legend i{display:inline-block;width:24px;height:4px;border-radius:4px}
+.relation-legend .sin-line{background:var(--accent)}
+.relation-legend .cos-line{background:var(--accent2)}
+.relation-legend .tan-line{background:var(--tan)}
+.special-angles{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 4px;padding:9px 10px;border:2px solid #d5e0e8;border-radius:12px;background:#f8fbfd}
+.special-angles b{margin-left:4px;color:#29485f}
+.special-angles button{border:2px solid #c4d4df;background:#fff;border-radius:9px;padding:6px 9px;min-width:46px;font-weight:700;direction:ltr}
+.special-angles button:hover,.special-angles button.active{background:#e8f3fb;border-color:var(--accent);color:#0e5388}
+.relation-live-formula{margin-top:9px;border:2px solid #b9d4e4;background:#f2f9fd;border-radius:12px;padding:10px 12px;text-align:center;min-height:54px;font-size:18px;direction:ltr;unicode-bidi:isolate}
+.relation-insight{margin-top:9px;border:2px solid #d1dde6;background:#fffaf0;border-radius:12px;padding:9px 11px;line-height:1.45;color:#5f4a18}
+.sign-panel{margin-top:10px;border:2px solid #d3dee6;border-radius:12px;padding:10px;background:#fbfdfe}
+.sign-panel-title{font-weight:800;color:#29485f;margin-bottom:8px}
+.quadrant-signs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.quadrant-sign{border:2px solid #d7e1e8;border-radius:10px;padding:8px 6px;text-align:center;background:#fff;transition:.15s}
+.quadrant-sign.active{border-color:var(--accent);background:#edf7ff;box-shadow:0 0 0 2px rgba(23,105,170,.08) inset}
+.quadrant-sign b{display:block;margin-bottom:5px}
+.sign-row{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;direction:ltr}
+.sign-chip{display:inline-block;border:1px solid #cbd8e1;border-radius:999px;padding:2px 6px;font-size:12px;font-weight:700;background:#f8fbfd}
+.sign-chip.pos{color:#116341;background:#effaf4;border-color:#b9dfca}
+.sign-chip.neg{color:#8b3a32;background:#fff3f1;border-color:#e8c5c0}
+.current-sign-note{margin-top:7px;text-align:center;color:#526a7c;min-height:22px;font-size:13px}
+.relation-card.emphasis{background:#f7fbfe;border-color:#bdd4e4}
+.graph-tip{margin-top:7px;color:#607587;font-size:12px;line-height:1.4}
+@media(max-width:720px){.quadrant-signs{grid-template-columns:repeat(2,1fr)}.special-angles{align-items:stretch}.special-angles b{width:100%}}
+
+
+/* פתרון משוואה טריגונומטרית באמצעות חיתוך גרפים */
+.solver-layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:14px;align-items:start}
+.solver-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.solver-mode button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:9px 10px;font-weight:800;min-height:44px}
+.solver-mode button.active{background:#e8f3fb;border-color:var(--accent);color:#0e5388}
+.solver-source-box{border:2px solid #d0dde6;background:#f8fbfd;border-radius:12px;padding:10px 11px;margin-bottom:12px;line-height:1.45;color:#4e6678}
+.solver-source-box .primary{width:100%;margin-bottom:8px}
+.solver-cycle-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.solver-cycle-item{border:2px solid #d1dde6;border-radius:11px;background:#f8fbfd;padding:9px 10px;text-align:center;min-height:64px;display:flex;flex-direction:column;justify-content:center}
+.solver-cycle-item b{font-size:12px;color:var(--muted);margin-bottom:4px}
+.solver-cycle-item div{font-size:16px;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.solver-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.solver-result-card{border:2px solid #cbd9e3;border-radius:13px;background:#fff;padding:12px;min-height:142px}
+.solver-result-card h3{font-size:17px;margin:0 0 8px;color:#14344e}
+.solver-result-line{border-top:1px solid #e0e8ee;padding-top:7px;margin-top:7px;line-height:1.55}
+.solver-result-line:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.solver-result-label{font-weight:800;color:#526a7c;font-size:13px;margin-bottom:3px}
+.solver-math{direction:ltr;unicode-bidi:isolate;text-align:center;min-height:28px;font-size:17px}
+.solver-normalized{margin-top:10px;border:2px solid #d6e0e8;background:#fffaf0;border-radius:12px;padding:9px 11px;text-align:center;line-height:1.45}
+.legend .solver-curve{background:var(--accent)}
+.legend .solver-line{background:var(--danger)}
+.legend i.solver-point{width:12px;height:12px;border-radius:50%;background:#d97706}
+@media(max-width:1050px){.solver-layout{grid-template-columns:1fr}}
+@media(max-width:720px){.solver-results,.solver-cycle-strip{grid-template-columns:1fr}.solver-mode{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="title">
+      <h1>מעבדת פונקציות טריגונומטריות</h1>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="מצבי לימוד">
+    <button class="active" data-tab="lab">חקירה וטרנספורמציות</button>
+    <button data-tab="relations">הקשרים בין הפונקציות</button>
+    <button data-tab="challenge">אתגר: מגרף למשוואה</button>
+    <button data-tab="equations">פתרון משוואה גרפית</button>
+    <!--<button data-tab="guide">שיטת עבודה עצמאית</button>-->
+  </nav>
+
+  <section class="memory-strip" aria-label="זיכרון מהיר">
+    <div class="memory"><b>A</b><span>מתיחה אנכית וכיוון; בסינוס/קוסינוס גם משרעת</span></div>
+    <div class="memory"><b>B</b><span>קובע את המחזור והכיווץ האופקי</span></div>
+    <div class="memory"><b>C</b><span>הזזה אופקית של הגרף</span></div>
+    <div class="memory"><b>D</b><span>קו האמצע / הזזה אנכית</span></div>
+  </section>
+
+  <main>
+    <section id="tab-lab" class="panel active">
+      <div class="workspace">
+        <div class="card graph-card">
+          <div class="graph-head">
+            <div>
+              <div id="labEquation" class="eq" aria-live="polite"></div>
+              <div id="labMeaning" style="color:var(--muted);font-size:14px"></div>
+            </div>
+            <div class="graph-actions">
+              <button class="small-btn" data-action="lab-zoom-in">＋</button>
+              <button class="small-btn" data-action="lab-zoom-out">−</button>
+              <button class="small-btn" data-action="lab-center">מרכז</button>
+              <button class="small-btn" data-action="lab-reset">איפוס</button>
+            </div>
+          </div>
+          <div id="labBoard" class="jxgbox" aria-label="גרף אינטראקטיבי של פונקציה טריגונומטרית"></div>
+          <div class="legend">
+            <span><i class="main"></i>הפונקציה הנחקרת</span>
+            <span><i class="base"></i><span id="baseLegendText">פונקציית הבסיס</span></span>
+            <span id="asymLegend">קווים מקווקווים: קו אמצע / אסימפטוטות לפי הצורך</span>
+          </div>
+          <div id="labProperties" class="properties"></div>
+        </div>
+
+        <aside class="card controls-card">
+          <h2>שנו את הפרמטרים</h2>
+          <div class="segmented" aria-label="בחירת פונקציה">
+            <button class="active" data-kind="sin">sin</button>
+            <button data-kind="cos">cos</button>
+            <button data-kind="tan">tan</button>
+          </div>
+
+          <div class="general-form" aria-label="הצורה הכללית של הפונקציה">
+            <div class="gf-title">הצורה הכללית</div>
+            <div id="generalEquation" class="gf-eq">\(f(x)=A\sin(B(x-C))+D\)</div>
+          </div>
+
+          <div class="parameter" data-param="A">
+            <div class="label-line"><b>A — מתיחה / שיקוף</b><span id="vA" class="value-badge">1</span></div>
+            <div class="range-row"><button data-step="A" data-delta="-0.25">−</button><input id="pA" type="range" min="-4" max="4" value="1" step="0.25" aria-label="A"><button data-step="A" data-delta="0.25">＋</button></div>
+          </div>
+          <div class="parameter" data-param="B">
+            <div class="label-line"><b>B — מחזור</b><span id="vB" class="value-badge">1</span></div>
+            <div class="range-row"><button data-step="B" data-delta="-0.25">−</button><input id="pB" type="range" min="-4" max="4" value="1" step="0.25" aria-label="B"><button data-step="B" data-delta="0.25">＋</button></div>
+          </div>
+          <div class="parameter" data-param="C">
+            <div class="label-line"><b>C — הזזה אופקית</b><span id="vC" class="value-badge">0</span></div>
+            <div class="range-row"><button data-step="C" data-delta="-0.0833333333">−</button><input id="pC" type="range" min="-1" max="1" value="0" step="0.0833333333" aria-label="C במכפלות פאי"><button data-step="C" data-delta="0.0833333333">＋</button></div>
+          </div>
+          <div class="parameter" data-param="D">
+            <div class="label-line"><b>D — הזזה אנכית</b><span id="vD" class="value-badge">0</span></div>
+            <div class="range-row"><button data-step="D" data-delta="-0.25">−</button><input id="pD" type="range" min="-4" max="4" value="0" step="0.25" aria-label="D"><button data-step="D" data-delta="0.25">＋</button></div>
+          </div>
+
+          <div class="preset-row">
+            <button data-preset="stretch">מתיחה</button>
+            <button data-preset="reflect">שיקוף</button>
+            <button data-preset="period">מחזור קצר</button>
+            <button data-preset="shift">הזזה</button>
+          </div>
+
+          <div class="extra-transforms">
+            <div class="transform-options" aria-label="בחירת טרנספורמציה נוספת">
+              <button id="togglePower" class="transform-toggle" type="button" aria-pressed="false">
+                <span>חזקה טבעית</span><span class="formula">\([f(x)]^n\)</span>
+              </button>
+              <button id="toggleAbs" class="transform-toggle" type="button" aria-pressed="false">
+                <span>ערך מוחלט</span><span class="formula">\(|f(x)|\)</span>
+              </button>
+            </div>
+            <div id="powerControls" class="power-controls parameter" hidden>
+              <div class="label-line"><b>n — החזקה</b><span id="powerNValue" class="value-badge">2</span></div>
+              <div class="range-row">
+                <button type="button" data-power-step="-1" aria-label="הקטנת החזקה">−</button>
+                <input id="powerN" type="range" min="2" max="6" value="2" step="1" aria-label="חזקה טבעית n">
+                <button type="button" data-power-step="1" aria-label="הגדלת החזקה">＋</button>
+              </div>
+            </div>
+            <div id="labPrompt" class="note">אפשר להפעיל כל טרנספורמציה בנפרד או את שתיהן יחד.</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tab-relations" class="panel">
+      <div class="relations-layout">
+        <div class="card graph-card">
+          <div class="graph-head">
+            <div>
+              <h2 style="margin:0">שלוש הפונקציות על אותה מערכת צירים</h2>
+              <div style="color:var(--muted);font-size:14px">הזיזו את \(\alpha\) והשוו באותה זווית את \(\sin\alpha\), \(\cos\alpha\) ו־\(\tan\alpha\).</div>
+            </div>
+            <div class="graph-actions"><button class="small-btn" data-action="rel-reset">איפוס</button></div>
+          </div>
+
+          <div class="checks">
+            <label><input id="showSin" type="checkbox" checked> sin</label>
+            <label><input id="showCos" type="checkbox" checked> cos</label>
+            <label><input id="showTan" type="checkbox" checked> tan</label>
+          </div>
+          <div class="relation-legend" aria-label="מקרא צבעים">
+            <span><i class="sin-line"></i>sin</span>
+            <span><i class="cos-line"></i>cos</span>
+            <span><i class="tan-line"></i>tan</span>
+          </div>
+
+          <div id="relationsBoard" class="jxgbox" aria-label="השוואה בין סינוס קוסינוס וטנגנס"></div>
+          <div class="graph-tip">הקו האנכי מסמן את \(\alpha\). הנקודות שעל שלושת הגרפים שייכות לאותו ערך של \(x\). העיגולים שעל ציר \(x\) מדגישים אפסים משותפים ואפסי קוסינוס הקשורים לאסימפטוטות של הטנגנס.</div>
+
+          <div class="special-angles" aria-label="זוויות מיוחדות">
+            <b>קפיצה לזווית מיוחדת:</b>
+            <button type="button" data-rel-angle="0">\(0\)</button>
+            <button type="button" data-rel-angle="0.1666666667">\(\frac{\pi}{6}\)</button>
+            <button type="button" data-rel-angle="0.25">\(\frac{\pi}{4}\)</button>
+            <button type="button" data-rel-angle="0.3333333333">\(\frac{\pi}{3}\)</button>
+            <button type="button" data-rel-angle="0.5">\(\frac{\pi}{2}\)</button>
+            <button type="button" data-rel-angle="1">\(\pi\)</button>
+            <button type="button" data-rel-angle="1.5">\(\frac{3\pi}{2}\)</button>
+          </div>
+
+          <div class="x-control">
+            <div class="label-line"><b>בחרו \(\alpha\)</b><span id="relXValue" class="value-badge">α = π/4</span></div>
+            <input id="relX" type="range" min="-2" max="2" value="0.25" step="0.0416666667" aria-label="אלפא במכפלות פאי">
+          </div>
+
+          <div class="live-values">
+            <div class="live-value"><span>\(\sin\alpha\)</span><strong id="relSin">—</strong></div>
+            <div class="live-value"><span>\(\cos\alpha\)</span><strong id="relCos">—</strong></div>
+            <div class="live-value"><span>\(\tan\alpha\)</span><strong id="relTan">—</strong></div>
+          </div>
+
+          <div id="liveRatioFormula" class="relation-live-formula" aria-live="polite"></div>
+          <div id="relationInsight" class="relation-insight" aria-live="polite"></div>
+
+        </div>
+
+        <div class="relation-cards">
+          <div class="relation-card emphasis">
+            <h3>1. סינוס וקוסינוס — אותו גל בהזזה</h3>
+            <div class="math-line">\(\cos x=\sin\left(x+\frac{\pi}{2}\right)\)</div>
+            <p>החץ שמופיע מעל הגרפים מסמן מרחק אופקי של \(\frac{\pi}{2}\) בין מקסימום של קוסינוס למקסימום המתאים של סינוס.</p>
+          </div>
+          <div class="relation-card emphasis">
+            <h3>2. טנגנס נבנה מסינוס וקוסינוס</h3>
+            <div class="math-line">\(\tan\alpha=\frac{\sin\alpha}{\cos\alpha}\)</div>
+            <div id="ratioCheck" class="note">בחרו \(\alpha\) כדי לראות את הבדיקה המספרית.</div>
+          </div>
+          <div class="relation-card">
+            <h3>3. אפסים ואסימפטוטות</h3>
+            <div class="math-line">\(\sin\alpha=0\Rightarrow\tan\alpha=0\)</div>
+            <div class="math-line">\(\cos\alpha=0\Rightarrow\tan\alpha\text{ רדגומ אל}\)</div>
+          </div>
+          <div class="relation-card">
+            <h3>4. זהות משותפת חשובה</h3>
+            <div class="math-line">\(\sin^2\alpha+\cos^2\alpha=1\)</div>
+            <div id="identityCheck" class="note">הערכים בנקודה שבחרתם יאמתו את הזהות.</div>
+          </div>
+          <div class="relation-card">
+            <h3>5. מה דומה ומה שונה?</h3>
+            <div class="table-wrap"><table>
+              <thead><tr><th>מאפיין</th><th>sin</th><th>cos</th><th>tan</th></tr></thead>
+              <tbody>
+                <tr><td>מחזור בסיסי</td><td>\(2\pi\)</td><td>\(2\pi\)</td><td>\(\pi\)</td></tr>
+                <tr><td>סימטריה</td><td>אי־זוגית</td><td>זוגית</td><td>אי־זוגית</td></tr>
+                <tr><td>טווח</td><td>\(-1\le y\le1\)</td><td>\(-1\le y\le1\)</td><td>כל המספרים</td></tr>
+                <tr><td>אסימפטוטות</td><td>אין</td><td>אין</td><td>יש</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+          <div class="sign-panel">
+            <div class="sign-panel-title">סימני הפונקציות לפי רבעים</div>
+            <div class="quadrant-signs">
+              <div class="quadrant-sign" data-quadrant="1">
+                <b>רבע I</b>
+                <div class="sign-row"><span class="sign-chip pos">sin +</span><span class="sign-chip pos">cos +</span><span class="sign-chip pos">tan +</span></div>
+              </div>
+              <div class="quadrant-sign" data-quadrant="2">
+                <b>רבע II</b>
+                <div class="sign-row"><span class="sign-chip pos">sin +</span><span class="sign-chip neg">cos −</span><span class="sign-chip neg">tan −</span></div>
+              </div>
+              <div class="quadrant-sign" data-quadrant="3">
+                <b>רבע III</b>
+                <div class="sign-row"><span class="sign-chip neg">sin −</span><span class="sign-chip neg">cos −</span><span class="sign-chip pos">tan +</span></div>
+              </div>
+              <div class="quadrant-sign" data-quadrant="4">
+                <b>רבע IV</b>
+                <div class="sign-row"><span class="sign-chip neg">sin −</span><span class="sign-chip pos">cos +</span><span class="sign-chip neg">tan −</span></div>
+              </div>
+            </div>
+            <div id="currentSignNote" class="current-sign-note"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-challenge" class="panel">
+      <div class="challenge-layout">
+        <div class="card graph-card">
+          <div class="challenge-title">
+            <div><h2 style="margin:0">התאימו את המשוואה לגרף המטרה</h2><div style="color:var(--muted);font-size:14px">הגרף הכהה הוא המטרה. הגרף הכחול הוא הניחוש שלכם.</div></div>
+            <span id="challengeLevel" class="level">אתגר 1 מתוך 6</span>
+          </div>
+          <div id="challengeBoard" class="jxgbox" aria-label="אתגר התאמת משוואה לגרף"></div>
+          <div class="legend"><span><i class="target"></i>גרף המטרה</span><span><i class="main"></i>הניחוש שלכם</span></div>
+          <div id="challengeFeedback" class="feedback">התחילו מהסדר: קו אמצע ← גובה/כיוון ← מחזור ← הזזה.</div>
+        </div>
+
+        <aside class="card controls-card">
+          <h2>בנו את הניחוש</h2>
+          <div class="segmented" aria-label="בחירת משפחת פונקציה באתגר">
+            <button class="active" data-ch-kind="sin">sin</button>
+            <button data-ch-kind="cos">cos</button>
+            <button data-ch-kind="tan">tan</button>
+          </div>
+
+          <div class="general-form" aria-label="הצורה הכללית של הפונקציה באתגר">
+            <div class="gf-title">הצורה הכללית</div>
+            <div id="challengeGeneralEquation" class="gf-eq">\(f(x)=A\sin(B(x-C))+D\)</div>
+          </div>
+
+          <div id="challengeEquation" class="eq" style="font-size:17px;margin-bottom:9px"></div>
+          <div class="control-block"><div class="label-line"><b>A</b><span id="cvA" class="value-badge">1</span></div><input id="cA" type="range" min="-4" max="4" value="1" step="0.25"></div>
+          <div class="control-block"><div class="label-line"><b>B</b><span id="cvB" class="value-badge">1</span></div><input id="cB" type="range" min="-4" max="4" value="1" step="0.25"></div>
+          <div class="control-block"><div class="label-line"><b>C</b><span id="cvC" class="value-badge">0</span></div><input id="cC" type="range" min="-1" max="1" value="0" step="0.0833333333"></div>
+          <div class="control-block"><div class="label-line"><b>D</b><span id="cvD" class="value-badge">0</span></div><input id="cD" type="range" min="-4" max="4" value="0" step="0.25"></div>
+          <div class="challenge-actions"><button id="checkChallenge" class="primary">בדיקה</button><button id="nextChallenge" class="secondary">אתגר הבא</button></div>
+          <div class="challenge-actions"><button id="hintChallenge" class="secondary">רמז מדורג</button><button id="showSolution" class="secondary">הצג פתרון</button></div>
+          <div id="challengeHint" class="hint-box">הרמזים יופיעו כאן רק כשתבקשו.</div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tab-equations" class="panel">
+      <div class="solver-layout">
+        <div class="card graph-card">
+          <div class="graph-head">
+            <div>
+              <h2 style="margin:0">פתרון משוואה טריגונומטרית באמצעות חיתוך גרפים</h2>
+              <div id="solverEquationDisplay" class="eq" style="font-size:19px;margin-top:5px"></div>
+            </div>
+            <div class="graph-actions">
+              <button class="small-btn" data-action="solver-zoom-in">＋</button>
+              <button class="small-btn" data-action="solver-zoom-out">−</button>
+              <button class="small-btn" data-action="solver-center">מרכז</button>
+              <button class="small-btn" data-action="solver-reset">איפוס</button>
+            </div>
+          </div>
+
+          <div id="solverBoard" class="jxgbox" aria-label="פתרון משוואה טריגונומטרית על ידי חיתוך גרף עם ישר אופקי"></div>
+          <div class="legend">
+            <span><i class="solver-curve"></i>גרף הפונקציה הטריגונומטרית</span>
+            <span><i class="solver-line"></i>הישר המקביל לציר X</span>
+            <span><i class="solver-point"></i>נקודות החיתוך — הפתרונות</span>
+          </div>
+
+          <div class="solver-cycle-strip">
+            <div class="solver-cycle-item"><b>מחזור הפונקציה</b><div id="solverPeriodInfo"></div></div>
+            <div class="solver-cycle-item"><b>המחזור שבו מוצגים הפתרונות</b><div id="solverCycleInfo"></div></div>
+          </div>
+
+          <div id="solverNormalized" class="solver-normalized"></div>
+
+          <div class="solver-results">
+            <div class="solver-result-card">
+              <h3>פתרונות במחזור אחד</h3>
+              <div class="solver-result-line">
+                <div class="solver-result-label">ברדיאנים</div>
+                <div id="solverCycleSolutionsRad" class="solver-math"></div>
+              </div>
+              <div class="solver-result-line">
+                <div class="solver-result-label">במעלות</div>
+                <div id="solverCycleSolutionsDeg" class="solver-math"></div>
+              </div>
+            </div>
+            <div class="solver-result-card">
+              <h3>פתרון כללי</h3>
+              <div class="solver-result-line">
+                <div class="solver-result-label">ברדיאנים</div>
+                <div id="solverGeneralSolutionsRad" class="solver-math"></div>
+              </div>
+              <div class="solver-result-line">
+                <div class="solver-result-label">במעלות</div>
+                <div id="solverGeneralSolutionsDeg" class="solver-math"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="card controls-card solver-controls">
+          <h2>יצירת המשוואה</h2>
+          <div class="solver-mode" aria-label="אופן יצירת המשוואה">
+            <button class="active" type="button" data-solver-mode="random">משוואה אקראית</button>
+            <button type="button" data-solver-mode="manual">בנייה ידנית</button>
+          </div>
+
+          <div id="solverRandomBox" class="solver-source-box">
+            <button id="randomSolverEquation" class="primary" type="button">צור משוואה אקראית</button>
+            לאחר יצירת המשוואה אפשר לשנות כל אחד מהפרמטרים ואת גובה הישר.
+          </div>
+          <div id="solverManualBox" class="solver-source-box" hidden>
+            בחרו פונקציה, בנו אותה באמצעות הפרמטרים \(A,B,C,D\), ולאחר מכן מקמו את הישר האופקי באמצעות הערך \(K\).
+          </div>
+
+          <div class="segmented" aria-label="בחירת משפחת פונקציה לפתרון משוואה">
+            <button class="active" type="button" data-solver-kind="sin">sin</button>
+            <button type="button" data-solver-kind="cos">cos</button>
+            <button type="button" data-solver-kind="tan">tan</button>
+          </div>
+
+          <div class="general-form" aria-label="הצורה הכללית של המשוואה הטריגונומטרית">
+            <div class="gf-title">הצורה הכללית</div>
+            <div id="solverGeneralEquation" class="gf-eq">\(A\sin(B(x-C))+D=K\)</div>
+          </div>
+
+          <div class="control-block"><div class="label-line"><b>A — מתיחה / שיקוף</b><span id="svA" class="value-badge">1</span></div><input id="sA" type="range" min="-4" max="4" value="1" step="0.5"></div>
+          <div class="control-block"><div class="label-line"><b>B — מחזור</b><span id="svB" class="value-badge">1</span></div><input id="sB" type="range" min="0.5" max="3" value="1" step="0.5"></div>
+          <div class="control-block"><div class="label-line"><b>C — הזזה אופקית</b><span id="svC" class="value-badge">0</span></div><input id="sC" type="range" min="-1" max="1" value="0" step="0.0833333333"></div>
+          <div class="control-block"><div class="label-line"><b>D — הזזה אנכית</b><span id="svD" class="value-badge">0</span></div><input id="sD" type="range" min="-4" max="4" value="0" step="0.5"></div>
+          <div class="control-block"><div class="label-line"><b>K — גובה הישר \(y=K\)</b><span id="svK" class="value-badge">0.5</span></div><input id="sK" type="range" min="-6" max="6" value="0.5" step="0.5"></div>
+          <div class="note">נקודות החיתוך בין גרף הפונקציה לבין הישר \(y=K\) הן פתרונות המשוואה.</div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tab-guide" class="panel">
+      <div class="card">
+        <h2>שיטת עבודה קבועה — כדי לא “לנחש” משוואה</h2>
+        <div class="guide-grid">
+          <div class="guide-step"><div class="num">1</div><h3>זהו את המשפחה</h3><p>גל חסום וחוצה קו אמצע מתאים לרוב לסינוס; גל חסום שמתחיל בקיצון מתאים לעיתים לקוסינוס; ענפים עם אסימפטוטות מתאימים לטנגנס.</p></div>
+          <div class="guide-step"><div class="num">2</div><h3>מצאו את D</h3><p>בסינוס ובקוסינוס: ממוצע בין המקסימום והמינימום. בטנגנס: ערך ה־y של מרכז הענף.</p></div>
+          <div class="guide-step"><div class="num">3</div><h3>מצאו את A</h3><p>בסינוס ובקוסינוס: חצי ההפרש בין מקסימום למינימום, ואז בדקו כיוון. בטנגנס אין “משרעת”; הסימן של A קובע אם הענף עולה או יורד.</p></div>
+          <div class="guide-step"><div class="num">4</div><h3>מצאו את B מן המחזור</h3><p>בסינוס/קוסינוס: \(T=\frac{2\pi}{|B|}\). בטנגנס: \(T=\frac{\pi}{|B|}\).</p></div>
+          <div class="guide-step"><div class="num">5</div><h3>מצאו את C</h3><p>חפשו נקודת ייחוס ברורה: חציית קו האמצע בסינוס, קיצון בקוסינוס, או מרכז ענף בטנגנס.</p></div>
+          <div class="guide-step"><div class="num">6</div><h3>בדקו — לא רק הציבו</h3><p>השוו מחזור, קו אמצע, נקודות מפתח וכיוון. בטנגנס בדקו גם שהאסימפטוטות נמצאות במקום הנכון.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+'use strict';
+const PI=Math.PI;
+const colors={sin:'#1769aa',cos:'#087f72',tan:'#a85808',base:'#8c99a5',target:'#374956',guide:'#8797a5'};
+const state={kind:'sin',A:1,B:1,C:0,D:0,powerEnabled:false,powerN:2,absEnabled:false,labBox:[-2*PI,5,2*PI,-5],relX:PI/4,challengeIndex:0,chKind:'sin',cA:1,cB:1,cC:0,cD:0,hintLevel:0,solverMode:'random',solverKind:'sin',sA:1,sB:1,sC:0,sD:0,sK:0.5};
+let labBoard=null, relBoard=null, challengeBoard=null, solverBoard=null;
+let labObjects=[], relObjects=[], challengeObjects=[], solverObjects=[];
+let labInitialBox=state.labBox.slice();
+
+const challenges=[
+  {kind:'sin',A:2,B:1,C:0,D:1,hints:['קו האמצע הוא y=1.','המרחק מקו האמצע לקיצון הוא 2.','המחזור הוא 2π ואין הזזה אופקית.']},
+  {kind:'cos',A:-2,B:1,C:0,D:1,hints:['קו האמצע הוא y=1.','ב־x=0 מתקבל מינימום — לכן בדקו את סימן A בקוסינוס.','המחזור הוא 2π.']},
+  {kind:'sin',A:1,B:2,C:PI/4,D:-1,hints:['קו האמצע הוא y=-1.','בקטע באורך 2π מופיעים שני מחזורים.','חציית קו האמצע בכיוון עולה מתרחשת ב־x=π/4.']},
+  {kind:'cos',A:3,B:0.5,C:-PI/2,D:1,hints:['קו האמצע הוא y=1 והמשרעת 3.','המחזור הוא 4π, ולכן B=1/2.','מקסימום מתאים מתקבל ב־x=-π/2.']},
+  {kind:'tan',A:1,B:2,C:PI/4,D:1,hints:['מרכז ענף הוא (π/4,1).','המרחק בין אסימפטוטות סמוכות הוא π/2.','הענפים עולים — A חיובי.']},
+  {kind:'tan',A:-1,B:0.5,C:-PI/2,D:-2,hints:['מרכז ענף הוא (-π/2,-2).','המחזור הוא 2π, ולכן B=1/2.','הענפים יורדים — A שלילי.']}
+];
+
+function q(s,root=document){return root.querySelector(s)}
+function qa(s,root=document){return Array.from(root.querySelectorAll(s))}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function near(a,b,t=1e-8){return Math.abs(a-b)<t}
+function num(v,d=2){if(Math.abs(v)<1e-10)return '0';const n=Math.round(v*10**d)/10**d;return Number.isInteger(n)?String(n):String(n).replace(/0+$/,'').replace(/\.$/,'')}
+function frac(n,d){const g=(a,b)=>b?g(b,a%b):Math.abs(a);const z=g(n,d);return [n/z,d/z]}
+function piText(v){
+  if(Math.abs(v)<1e-8)return '0';
+  const r=v/PI; const denoms=[1,2,3,4,6,8,12];
+  for(const d of denoms){const n=Math.round(r*d);if(Math.abs(r-n/d)<1e-6){const [nn,dd]=frac(n,d);const sign=nn<0?'-':'';const a=Math.abs(nn);if(dd===1)return sign+(a===1?'π':a+'π');return sign+(a===1?'':a)+'π/'+dd;}}
+  return num(v,2);
+}
+function piTex(v){
+  if(Math.abs(v)<1e-8)return '0';
+  const r=v/PI; const denoms=[1,2,3,4,6,8,12];
+  for(const d of denoms){const n=Math.round(r*d);if(Math.abs(r-n/d)<1e-6){const [nn,dd]=frac(n,d);const sign=nn<0?'-':'';const a=Math.abs(nn);if(dd===1)return sign+(a===1?'\\pi':a+'\\pi');return sign+'\\frac{'+(a===1?'':a)+'\\pi}{'+dd+'}';}}
+  return num(v,2);
+}
+
+function degreeValue(v){return v*180/PI}
+function degreeText(v){return num(degreeValue(v),2)+'°'}
+function degreeTex(v){return num(degreeValue(v),2)+'^{\\circ}'}
+function solverGeneralEquationTex(kind){return '\\(A'+kindTex(kind)+'\\!\\left(B(x-C)\\right)+D=K\\)'}
+function kindTex(kind){return kind==='sin'?'\\sin':kind==='cos'?'\\cos':'\\tan'}
+function generalEquationTex(kind){return '\\(f(x)=A'+kindTex(kind)+'\\!\\left(B(x-C)\\right)+D\\)'}
+function equationTex(kind,A,B,C,D){
+  const a=near(A,1)?'':near(A,-1)?'-':num(A,2);
+  let inner='';
+  const shift=near(C,0)?'x':'\\left(x'+(C>0?'-':'+')+piTex(Math.abs(C))+'\\right)';
+  inner=near(B,1)?shift:num(B,2)+shift;
+  const d=near(D,0)?'':(D>0?'+':'-')+num(Math.abs(D),2);
+  return '\\(y='+a+kindTex(kind)+'\\!\\left('+inner+'\\right)'+d+'\\)';
+}
+function equationBodyTex(kind,A,B,C,D){
+  return equationTex(kind,A,B,C,D).replace(/^\\\(y=/,'').replace(/\\\)$/,'');
+}
+function labEquationTex(){
+  let expr=equationBodyTex(state.kind,state.A,state.B,state.C,state.D);
+  if(state.powerEnabled)expr='\\left['+expr+'\\right]^{'+state.powerN+'}';
+  if(state.absEnabled)expr='\\left|'+expr+'\\right|';
+  return '\\(y='+expr+'\\)';
+}
+function applyExtraTransforms(y){
+  if(!Number.isFinite(y))return y;
+  let out=y;
+  if(state.powerEnabled)out=Math.pow(out,state.powerN);
+  if(state.absEnabled)out=Math.abs(out);
+  return Number.isFinite(out)&&Math.abs(out)<1e6?out:NaN;
+}
+function fn(kind,A,B,C,D,x){
+  const u=B*(x-C);
+  if(kind==='sin')return A*Math.sin(u)+D;
+  if(kind==='cos')return A*Math.cos(u)+D;
+  const c=Math.cos(u); if(Math.abs(c)<0.018)return NaN; return A*Math.tan(u)+D;
+}
+function safeTypeset(nodes){if(window.MathJax?.typesetPromise)window.MathJax.typesetPromise(nodes).catch(()=>{});}
+function setMath(el,html){el.innerHTML=html; safeTypeset([el]);}
+
+function createBoard(id,bbox){
+  return JXG.JSXGraph.initBoard(id,{boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,keepaspectratio:false,
+    pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false},
+    defaultAxes:{x:{ticks:{drawLabels:false,majorHeight:7,minorTicks:0}},y:{ticks:{majorHeight:7,minorTicks:0}}}});
+}
+function addPiLabels(board,y=-0.22){
+  const vals=[[-2*PI,'$-2\\pi$'],[-3*PI/2,'$-\\frac{3\\pi}{2}$'],[-PI,'$-\\pi$'],[-PI/2,'$-\\frac{\\pi}{2}$'],[0,'$0$'],[PI/2,'$\\frac{\\pi}{2}$'],[PI,'$\\pi$'],[3*PI/2,'$\\frac{3\\pi}{2}$'],[2*PI,'$2\\pi$']];
+  vals.forEach(([x,t])=>board.create('text',[x,y,t],{useMathJax:true,fixed:true,anchorX:'middle',anchorY:'top',fontSize:11,highlight:false}));
+}
+function clearObjects(board,arr){arr.forEach(o=>{try{board.removeObject(o)}catch(e){}});arr.length=0}
+function push(arr,obj){arr.push(obj);return obj}
+function addVLine(board,arr,x,style={}){return push(arr,board.create('line',[[x,0],[x,1]],Object.assign({straightFirst:true,straightLast:true,fixed:true,highlight:false,strokeWidth:1.2,dash:2,strokeColor:'#9aa8b3'},style)))}
+function addHLine(board,arr,y,style={}){return push(arr,board.create('line',[[0,y],[1,y]],Object.assign({straightFirst:true,straightLast:true,fixed:true,highlight:false,strokeWidth:1.2,dash:2,strokeColor:'#9aa8b3'},style)))}
+function drawFunction(board,arr,kind,A,B,C,D,style={}){
+  const f=x=>fn(kind,A,B,C,D,x);
+  return push(arr,board.create('functiongraph',[f,-2.3*PI,2.3*PI],Object.assign({strokeWidth:3,strokeColor:colors[kind],highlight:false},style)));
+}
+function drawAsymptotes(board,arr,B,C,style={}){
+  const b=Math.abs(B); if(b<0.05)return; const T=PI/b;
+  for(let k=-12;k<=12;k++){const x=C+T/2+k*T;if(x>-2.4*PI&&x<2.4*PI)addVLine(board,arr,x,Object.assign({strokeColor:'#b87c42'},style));}
+}
+function initLab(){
+  if(labBoard)return;
+  labBoard=createBoard('labBoard',state.labBox); labInitialBox=labBoard.getBoundingBox().slice(); addPiLabels(labBoard);
+  renderLab();
+}
+function renderLab(){
+  if(!labBoard)return; clearObjects(labBoard,labObjects);
+  if(state.powerEnabled||state.absEnabled){
+    drawFunction(labBoard,labObjects,state.kind,state.A,state.B,state.C,state.D,{strokeColor:colors.base,strokeWidth:2,dash:2});
+  }else{
+    drawFunction(labBoard,labObjects,state.kind,1,1,0,0,{strokeColor:colors.base,strokeWidth:2,dash:2});
+  }
+  if(state.kind==='tan')drawAsymptotes(labBoard,labObjects,state.B,state.C);
+  addHLine(labBoard,labObjects,state.D,{strokeColor:'#7e8e9c'});
+  if(state.powerEnabled||state.absEnabled){
+    push(labObjects,labBoard.create('functiongraph',[x=>applyExtraTransforms(fn(state.kind,state.A,state.B,state.C,state.D,x)),-2.3*PI,2.3*PI],{strokeWidth:3.5,strokeColor:colors[state.kind],highlight:false}));
+  }else{
+    drawFunction(labBoard,labObjects,state.kind,state.A,state.B,state.C,state.D,{strokeColor:colors[state.kind],strokeWidth:3.5});
+  }
+  labBoard.update(); updateLabUI();
+}
+function transformedRange(lo,hi){
+  let a=lo,b=hi;
+  if(state.powerEnabled){
+    const n=state.powerN;
+    if(n%2===0){
+      const hiAbs=Math.max(Math.abs(a),Math.abs(b));
+      const loAbs=(a<=0&&b>=0)?0:Math.min(Math.abs(a),Math.abs(b));
+      a=Math.pow(loAbs,n); b=Math.pow(hiAbs,n);
+    }else{
+      a=Math.pow(a,n); b=Math.pow(b,n);
+    }
+  }
+  if(state.absEnabled){
+    const hiAbs=Math.max(Math.abs(a),Math.abs(b));
+    const loAbs=(a<=0&&b>=0)?0:Math.min(Math.abs(a),Math.abs(b));
+    a=loAbs; b=hiAbs;
+  }
+  return [a,b];
+}
+function transformLabel(){
+  if(state.powerEnabled&&state.absEnabled)return '|[f(x)]^'+state.powerN+'|';
+  if(state.powerEnabled)return '[f(x)]^'+state.powerN;
+  if(state.absEnabled)return '|f(x)|';
+  return 'ללא';
+}
+function updateLabUI(){
+  setMath(q('#generalEquation'),generalEquationTex(state.kind));
+  setMath(q('#labEquation'),labEquationTex());
+  q('#vA').textContent=num(state.A); q('#vB').textContent=num(state.B); q('#vC').textContent=piText(state.C); q('#vD').textContent=num(state.D);
+  q('#togglePower').classList.toggle('active',state.powerEnabled); q('#togglePower').setAttribute('aria-pressed',String(state.powerEnabled));
+  q('#toggleAbs').classList.toggle('active',state.absEnabled); q('#toggleAbs').setAttribute('aria-pressed',String(state.absEnabled));
+  q('#powerControls').hidden=!state.powerEnabled; q('#powerN').value=state.powerN; q('#powerNValue').textContent=state.powerN;
+  const kindName=state.kind==='sin'?'סינוס':state.kind==='cos'?'קוסינוס':'טנגנס';
+  const extraNames=[];
+  if(state.powerEnabled)extraNames.push('חזקה טבעית n='+state.powerN);
+  if(state.absEnabled)extraNames.push('ערך מוחלט');
+  const extraActive=extraNames.length>0;
+  q('#labMeaning').textContent='פונקציה: '+kindName+(extraActive?' · הגרף המקווקו הוא f(x) לפני הטרנספורמציה':' · גרף בסיס מקווקו להשוואה')+(extraActive?' · '+extraNames.join(' + '):'');
+  q('#baseLegendText').textContent=extraActive?'f(x) לפני הטרנספורמציה':'פונקציית הבסיס';
+  const props=[];
+  if(state.kind==='tan'){
+    const T=PI/Math.abs(state.B);
+    if(extraActive){
+      const nonNegative=state.absEnabled||(state.powerEnabled&&state.powerN%2===0);
+      props.push(['טרנספורמציה',transformLabel()],['מחזור',piText(T)],['אסימפטוטות סמוכות','x='+piText(state.C-T/2)+' , '+piText(state.C+T/2)],['טווח',nonNegative?'0 ≤ y':'כל המספרים']);
+      q('#asymLegend').textContent='קווים מקווקווים: קו האמצע של f והאסימפטוטות';
+    }else{
+      props.push(['מרכז ענף','('+piText(state.C)+', '+num(state.D)+')'],['מחזור',piText(T)],['אסימפטוטות סמוכות','x='+piText(state.C-T/2)+' , '+piText(state.C+T/2)],['טווח','כל המספרים']);
+      q('#asymLegend').textContent='קווים מקווקווים: קו האמצע והאסימפטוטות';
+    }
+  }else{
+    const T=2*PI/Math.abs(state.B), amp=Math.abs(state.A);
+    if(extraActive){
+      const [lo,hi]=transformedRange(state.D-amp,state.D+amp);
+      const signInsensitive=state.absEnabled||(state.powerEnabled&&state.powerN%2===0);
+      const resultT=near(state.D,0)&&signInsensitive?T/2:T;
+      props.push(['טרנספורמציה',transformLabel()],['מחזור',piText(resultT)],['טווח',num(lo)+' ≤ y ≤ '+num(hi)],['קו אמצע של f','y='+num(state.D)]);
+      q('#asymLegend').textContent='קו מקווקו אופקי: קו האמצע של f לפני הטרנספורמציה';
+    }else{
+      props.push(['משרעת',num(amp)],['קו אמצע','y='+num(state.D)],['מחזור',piText(T)],['טווח',num(state.D-amp)+' ≤ y ≤ '+num(state.D+amp)]);
+      q('#asymLegend').textContent='קו מקווקו אופקי: קו האמצע';
+    }
+  }
+  q('#labProperties').innerHTML=props.map(([a,b])=>'<div class="prop"><b>'+a+'</b><strong>'+b+'</strong></div>').join('');
+  if(state.powerEnabled||state.absEnabled){
+    const parts=[];
+    if(state.powerEnabled)parts.push('מפעילים חזקה טבעית n='+state.powerN+' על ערכי f(x)');
+    if(state.absEnabled)parts.push('הערך המוחלט מקפל כל חלק שלילי כלפי מעלה');
+    q('#labPrompt').textContent=parts.join(' · ')+'.';
+  }else{
+    q('#labPrompt').textContent=state.kind==='tan' ? 'עקבו אחרי מרכז הענף, המחזור והאסימפטוטות בזמן השינוי.' : 'עקבו אחרי המשרעת, קו האמצע, המחזור וההזזה בזמן השינוי.';
+  }
+}
+function readLabInputs(){
+  state.A=+q('#pA').value; let b=+q('#pB').value;if(Math.abs(b)<0.24){b=b<0?-0.25:0.25;q('#pB').value=b}state.B=b;state.C=+q('#pC').value*PI;state.D=+q('#pD').value;
+}
+function syncLabInputs(){q('#pA').value=state.A;q('#pB').value=state.B;q('#pC').value=state.C/PI;q('#pD').value=state.D;}
+function resetLab(){state.A=1;state.B=1;state.C=0;state.D=0;state.powerEnabled=false;state.powerN=2;state.absEnabled=false;syncLabInputs();labBoard.setBoundingBox(labInitialBox,false);renderLab();}
+function zoom(board,factor){const b=board.getBoundingBox();const cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2,hw=(b[2]-b[0])*factor/2,hh=(b[1]-b[3])*factor/2;board.setBoundingBox([cx-hw,cy+hh,cx+hw,cy-hh],false)}
+
+function initRelations(){
+  if(relBoard)return;
+  relBoard=createBoard('relationsBoard',[-2*PI,4,2*PI,-4]);
+  addPiLabels(relBoard);
+  renderRelations();
+}
+
+function relationPointLabel(kind,value){
+  const tex=kind==='sin'?'\\sin':kind==='cos'?'\\cos':'\\tan';
+  return '\\('+tex+'\\alpha='+num(value,3)+'\\)';
+}
+
+function relationQuadrant(x){
+  const eps=1e-6;
+  let a=((x%(2*PI))+(2*PI))%(2*PI);
+  if(near(a,0,eps)||near(a,PI/2,eps)||near(a,PI,eps)||near(a,3*PI/2,eps)||near(a,2*PI,eps))return 0;
+  if(a<PI/2)return 1;
+  if(a<PI)return 2;
+  if(a<3*PI/2)return 3;
+  return 4;
+}
+
+function renderRelations(){
+  if(!relBoard)return;
+  clearObjects(relBoard,relObjects);
+
+  const showSin=q('#showSin').checked;
+  const showCos=q('#showCos').checked;
+  const showTan=q('#showTan').checked;
+
+  if(showSin)drawFunction(relBoard,relObjects,'sin',1,1,0,0,{strokeColor:colors.sin,strokeWidth:2.8});
+  if(showCos)drawFunction(relBoard,relObjects,'cos',1,1,0,0,{strokeColor:colors.cos,strokeWidth:2.8});
+  if(showTan){
+    drawAsymptotes(relBoard,relObjects,1,0,{strokeColor:'#caa47c'});
+    drawFunction(relBoard,relObjects,'tan',1,1,0,0,{strokeColor:colors.tan,strokeWidth:2.4});
+  }
+
+  /* אפסים משותפים של sin ו-tan */
+  if(showSin&&showTan){
+    for(let k=-2;k<=2;k++){
+      const x=k*PI;
+      push(relObjects,relBoard.create('point',[x,0],{
+        name:'',size:2,strokeWidth:3,strokeColor:colors.sin,fillColor:colors.tan,
+        fixed:true,highlight:false
+      }));
+    }
+  }
+
+  /* אפסי cos נמצאים בדיוק באסימפטוטות של tan */
+  if(showCos&&showTan){
+    for(let k=-2;k<=1;k++){
+      const x=PI/2+k*PI;
+      push(relObjects,relBoard.create('point',[x,0],{
+        name:'',size:2,strokeWidth:3,strokeColor:colors.cos,fillColor:'#fff',
+        fixed:true,highlight:false
+      }));
+    }
+  }
+
+  /* מרחק אופקי π/2 בין מקסימום של cos למקסימום של sin */
+  if(showSin&&showCos){
+    push(relObjects,relBoard.create('point',[0,1],{
+      name:'',size:2,strokeColor:colors.cos,fillColor:colors.cos,fixed:true,highlight:false
+    }));
+    push(relObjects,relBoard.create('point',[PI/2,1],{
+      name:'',size:2,strokeColor:colors.sin,fillColor:colors.sin,fixed:true,highlight:false
+    }));
+    push(relObjects,relBoard.create('arrow',[[0,1.48],[PI/2,1.48]],{
+      strokeColor:'#5f7080',strokeWidth:2,fixed:true,highlight:false
+    }));
+    push(relObjects,relBoard.create('text',[PI/4,1.72,'$\\frac{\\pi}{2}$'],{
+      useMathJax:true,fixed:true,highlight:false,anchorX:'middle',fontSize:13,color:'#43596b'
+    }));
+  }
+
+  /* הקו הנע x=α */
+  addVLine(relBoard,relObjects,state.relX,{strokeColor:'#4e5f6c',strokeWidth:2,dash:1});
+  push(relObjects,relBoard.create('text',[state.relX,3.62,'$\\alpha$'],{
+    useMathJax:true,fixed:true,highlight:false,anchorX:'middle',fontSize:15,color:'#344a5c'
+  }));
+
+  const s=Math.sin(state.relX);
+  const c=Math.cos(state.relX);
+  const t=Math.abs(c)<.025?NaN:s/c;
+  const vals=[
+    ['sin',s,showSin,0.23],
+    ['cos',c,showCos,-0.30],
+    ['tan',t,showTan,0.38]
+  ];
+
+  vals.forEach(([k,v,visible,dy])=>{
+    if(visible&&Number.isFinite(v)&&Math.abs(v)<3.55){
+      push(relObjects,relBoard.create('point',[state.relX,v],{
+        name:relationPointLabel(k,v),size:2,strokeWidth:2,strokeColor:colors[k],fillColor:colors[k],
+        highlight:false,fixed:true,withLabel:true,
+        label:{useMathJax:true,offset:[8,dy>0?12:-18],fontSize:12,color:colors[k]}
+      }));
+    }
+  });
+
+  relBoard.update();
+  updateRelationUI();
+}
+
+function updateRelationUI(){
+  const x=state.relX;
+  const s=Math.sin(x),c=Math.cos(x);
+  const exactCosZero=Math.abs(c)<1e-6;
+  const exactSinZero=Math.abs(s)<1e-6;
+  const t=exactCosZero?NaN:s/c;
+
+  q('#relXValue').textContent='α = '+piText(x);
+  q('#relSin').textContent=num(s,3);
+  q('#relCos').textContent=num(c,3);
+  q('#relTan').textContent=Number.isFinite(t)?num(t,3):'לא מוגדר';
+
+  if(Number.isFinite(t)){
+    setMath(q('#liveRatioFormula'),
+      '\\(\\tan\\alpha=\\frac{\\sin\\alpha}{\\cos\\alpha}='+
+      '\\frac{'+num(s,3)+'}{'+num(c,3)+'}='+num(t,3)+'\\)'
+    );
+    setMath(q('#ratioCheck'),
+      'בזווית שנבחרה: \\(\\frac{'+num(s,3)+'}{'+num(c,3)+'}='+num(t,3)+'\\).'
+    );
+  }else{
+    setMath(q('#liveRatioFormula'),'\\(\\cos\\alpha=0\\) ולכן \\(\\tan\\alpha\\) לא מוגדר.');
+    setMath(q('#ratioCheck'),'\\(\\cos\\alpha=0\\), ולכן אי אפשר לחלק ב־0. באותו ערך של \\(x\\) מופיעה אסימפטוטה של הטנגנס.');
+  }
+
+  setMath(q('#identityCheck'),
+    '\\(('+num(s,3)+')^2+('+num(c,3)+')^2='+num(s*s+c*c,3)+'\\)'
+  );
+
+  if(exactCosZero){
+    setMath(q('#relationInsight'),
+      '<b>קשר בולט:</b> כאן \\(\\cos\\alpha=0\\). לכן \\(\\tan\\alpha\\) לא מוגדר, והקו המקווקו של הטנגנס הוא אסימפטוטה.'
+    );
+  }else if(exactSinZero){
+    setMath(q('#relationInsight'),
+      '<b>קשר בולט:</b> כאן \\(\\sin\\alpha=0\\), ולכן גם \\(\\tan\\alpha=0\\). שתי הפונקציות חותכות את ציר \\(x\\) באותו מקום.'
+    );
+  }else if(Math.abs(c)<0.18){
+    setMath(q('#relationInsight'),
+      '<b>התקרבות לאסימפטוטה:</b> \\(|\\cos\\alpha|\\) קטן מאוד, ולכן הערך המוחלט של \\(\\tan\\alpha=\\frac{\\sin\\alpha}{\\cos\\alpha}\\) גדל במהירות.'
+    );
+  }else{
+    const sameSign=(s>0&&c>0)||(s<0&&c<0);
+    setMath(q('#relationInsight'),
+      '<b>סימן הטנגנס:</b> לסינוס ולקוסינוס '+(sameSign?'אותו סימן':'סימנים שונים')+
+      ', ולכן \\(\\tan\\alpha\\) '+(sameSign?'חיובי':'שלילי')+'.'
+    );
+  }
+
+  const quad=relationQuadrant(x);
+  qa('.quadrant-sign').forEach(el=>el.classList.toggle('active',+el.dataset.quadrant===quad));
+  if(quad){
+    const signText={
+      1:'ברבע I שלוש הפונקציות חיוביות.',
+      2:'ברבע II הסינוס חיובי; הקוסינוס והטנגנס שליליים.',
+      3:'ברבע III הסינוס והקוסינוס שליליים; הטנגנס חיובי.',
+      4:'ברבע IV הסינוס והטנגנס שליליים; הקוסינוס חיובי.'
+    };
+    q('#currentSignNote').textContent=signText[quad];
+  }else{
+    q('#currentSignNote').textContent='הזווית נמצאת על אחד הצירים; לפחות אחת מהפונקציות שווה ל־0 או שהטנגנס אינו מוגדר.';
+  }
+
+  qa('[data-rel-angle]').forEach(btn=>{
+    btn.classList.toggle('active',near(+btn.dataset.relAngle,x/PI,1e-5));
+  });
+}
+
+function initChallenge(){
+  if(challengeBoard)return;challengeBoard=createBoard('challengeBoard',[-2*PI,5,2*PI,-5]);addPiLabels(challengeBoard);loadChallenge(0);
+}
+function currentChallenge(){return challenges[state.challengeIndex]}
+function loadChallenge(i){
+  state.challengeIndex=(i+challenges.length)%challenges.length;state.hintLevel=0;state.chKind='sin';state.cA=1;state.cB=1;state.cC=0;state.cD=0;
+  q('#cA').value=1;q('#cB').value=1;q('#cC').value=0;q('#cD').value=0;
+  qa('[data-ch-kind]').forEach(b=>b.classList.toggle('active',b.dataset.chKind==='sin'));
+  q('#challengeHint').textContent='הרמזים יופיעו כאן רק כשתבקשו.';q('#challengeFeedback').className='feedback';q('#challengeFeedback').textContent='התחילו מהסדר: קו אמצע ← גובה/כיוון ← מחזור ← הזזה.';
+  q('#challengeLevel').textContent='אתגר '+(state.challengeIndex+1)+' מתוך '+challenges.length;renderChallenge();
+}
+function readChallengeInputs(){state.cA=+q('#cA').value;let b=+q('#cB').value;if(Math.abs(b)<.24){b=b<0?-0.25:0.25;q('#cB').value=b}state.cB=b;state.cC=+q('#cC').value*PI;state.cD=+q('#cD').value;}
+function renderChallenge(){
+  if(!challengeBoard)return;clearObjects(challengeBoard,challengeObjects);const t=currentChallenge();
+  if(t.kind==='tan')drawAsymptotes(challengeBoard,challengeObjects,t.B,t.C,{strokeColor:'#8e969d',dash:2});
+  drawFunction(challengeBoard,challengeObjects,t.kind,t.A,t.B,t.C,t.D,{strokeColor:colors.target,strokeWidth:4,dash:2});
+  if(state.chKind==='tan')drawAsymptotes(challengeBoard,challengeObjects,state.cB,state.cC,{strokeColor:'#b8c1c8',dash:1});
+  drawFunction(challengeBoard,challengeObjects,state.chKind,state.cA,state.cB,state.cC,state.cD,{strokeColor:colors[state.chKind],strokeWidth:3});
+  challengeBoard.update();
+  q('#cvA').textContent=num(state.cA);q('#cvB').textContent=num(state.cB);q('#cvC').textContent=piText(state.cC);q('#cvD').textContent=num(state.cD);
+  setMath(q('#challengeGeneralEquation'),generalEquationTex(state.chKind));
+  setMath(q('#challengeEquation'),equationTex(state.chKind,state.cA,state.cB,state.cC,state.cD));
+}
+function curveError(){
+  const t=currentChallenge();let sum=0,n=0,max=0;
+  for(let i=0;i<=240;i++){
+    const x=-2*PI+4*PI*i/240;const y1=fn(t.kind,t.A,t.B,t.C,t.D,x),y2=fn(state.chKind,state.cA,state.cB,state.cC,state.cD,x);
+    if(Number.isFinite(y1)&&Number.isFinite(y2)&&Math.abs(y1)<8&&Math.abs(y2)<8){const e=Math.abs(y1-y2);sum+=e;n++;max=Math.max(max,e)}
+  }
+  return {mean:n?sum/n:99,max};
+}
+function checkChallenge(){
+  const e=curveError(),box=q('#challengeFeedback');
+  if(e.mean<0.035&&e.max<0.18){box.className='feedback good';box.innerHTML='<b>מצוין — הגרפים חופפים.</b> עכשיו נסו להסביר במילים כיצד קבעתם את D, אחר כך A, אחר כך B ולבסוף C.';return;}
+  const t=currentChallenge(); const msgs=[];
+  const userT=state.chKind==='tan'?PI/Math.abs(state.cB):2*PI/Math.abs(state.cB);const targetT=t.kind==='tan'?PI/Math.abs(t.B):2*PI/Math.abs(t.B);
+  if(Math.abs(state.cD-t.D)>.2)msgs.push('בדקו קודם את <b>D</b>: קו האמצע/מרכז הענף עדיין אינו במקום הנכון.');
+  else if(Math.abs(userT-targetT)>.08)msgs.push('קו האמצע נראה טוב. עכשיו בדקו את <b>המחזור</b> ולכן את B.');
+  else if(t.kind!=='tan'&&Math.abs(Math.abs(state.cA)-Math.abs(t.A))>.2)msgs.push('המחזור מתאים בקירוב. בדקו את <b>|A|</b> לפי המרחק מקו האמצע לקיצון.');
+  else msgs.push('רוב המבנה מתאים. התמקדו כעת ב<b>כיוון</b> ובה<b>זזה האופקית C</b>.');
+  box.className='feedback try';box.innerHTML=msgs.join(' ');
+}
+function showHint(){const t=currentChallenge();state.hintLevel=Math.min(state.hintLevel+1,t.hints.length);q('#challengeHint').innerHTML='<b>רמז '+state.hintLevel+':</b> '+t.hints[state.hintLevel-1];}
+function showSolution(){const t=currentChallenge();setMath(q('#challengeHint'),'<b>פתרון אפשרי:</b> '+equationTex(t.kind,t.A,t.B,t.C,t.D));}
+
+
+function solverPeriod(){return state.solverKind==='tan'?PI/state.sB:2*PI/state.sB}
+function solverViewBox(){
+  const T=solverPeriod();
+  const left=state.sC-0.18*T, right=state.sC+1.18*T;
+  let low,high;
+  if(state.solverKind==='tan'){
+    low=Math.min(state.sD-4,state.sK-1.5);high=Math.max(state.sD+4,state.sK+1.5);
+  }else{
+    const amp=Math.abs(state.sA);
+    low=Math.min(state.sD-amp,state.sK)-1.25;high=Math.max(state.sD+amp,state.sK)+1.25;
+  }
+  if(high-low<5){const mid=(high+low)/2;low=mid-2.5;high=mid+2.5}
+  low=Math.min(low,-0.8);
+  high=Math.max(high,0.8);
+  return [left,high,right,low];
+}
+function solverRootsInPeriod(){
+  const kind=state.solverKind,A=state.sA,B=state.sB,C=state.sC,D=state.sD,K=state.sK;
+  const T=kind==='tan'?PI/B:2*PI/B;
+  const lo=C,hi=C+T,eps=1e-7;
+  if(Math.abs(A)<eps||Math.abs(B)<eps)return {T,roots:[],ratio:NaN,degenerate:true};
+  const ratio=(K-D)/A;
+  const us=[];
+  if(kind==='sin'){
+    if(ratio>1+eps||ratio<-1-eps)return {T,roots:[],ratio,degenerate:false};
+    const a=Math.asin(clamp(ratio,-1,1));
+    for(let n=-12;n<=12;n++){us.push(a+2*PI*n,PI-a+2*PI*n)}
+  }else if(kind==='cos'){
+    if(ratio>1+eps||ratio<-1-eps)return {T,roots:[],ratio,degenerate:false};
+    const a=Math.acos(clamp(ratio,-1,1));
+    for(let n=-12;n<=12;n++){us.push(a+2*PI*n,-a+2*PI*n)}
+  }else{
+    const a=Math.atan(ratio);
+    for(let n=-16;n<=16;n++)us.push(a+PI*n);
+  }
+  const roots=[];
+  us.forEach(u=>{
+    const x=C+u/B;
+    if(x>=lo-eps&&x<hi-eps&&!roots.some(r=>Math.abs(r-x)<1e-6))roots.push(x);
+  });
+  roots.sort((a,b)=>a-b);
+  return {T,roots,ratio,degenerate:false};
+}
+function solverPiTex(v){
+  if(Math.abs(v)<1e-10)return '0';
+  const r=v/PI;
+  let bestN=0,bestD=1,bestErr=Infinity;
+  for(let d=1;d<=48;d++){
+    const n=Math.round(r*d),err=Math.abs(r-n/d);
+    if(err<bestErr){bestErr=err;bestN=n;bestD=d;}
+  }
+  if(bestErr<1e-6){
+    const [n,d]=frac(bestN,bestD),sign=n<0?'-':'',a=Math.abs(n);
+    if(d===1)return sign+(a===1?'\\pi':a+'\\pi');
+    return sign+'\\frac{'+(a===1?'':a)+'\\pi}{'+d+'}';
+  }
+  const coeff=num(r,4);
+  if(coeff==='1')return '\\pi';
+  if(coeff==='-1')return '-\\pi';
+  return coeff+'\\pi';
+}
+function solverEquationTex(){return '\\('+equationBodyTex(state.solverKind,state.sA,state.sB,state.sC,state.sD)+'='+num(state.sK,2)+'\\)'}
+function solverCycleTex(C,T){return '\\('+solverPiTex(C)+'\\le x<'+solverPiTex(C+T)+'\\)'}
+function solverCycleDegTex(C,T){return '\\('+degreeTex(C)+'\\le x<'+degreeTex(C+T)+'\\)'}
+function solverRootListTex(roots,unit){
+  if(!roots.length)return '';
+  return '\\('+roots.map((x,i)=>'x_{'+(i+1)+'}='+(unit==='rad'?solverPiTex(x):degreeTex(x))).join('\\qquad ')+'\\)';
+}
+function solverGeneralListTex(roots,T,unit){
+  if(!roots.length)return '';
+  const period=unit==='rad'?solverPiTex(T):degreeTex(T);
+  const lines=roots.map(x=>{
+    const base=unit==='rad'?solverPiTex(x):degreeTex(x);
+    return 'x='+base+'+k\\cdot '+period;
+  });
+  return '\\('+lines.join('\\qquad ')+'\\qquad k\\in\\mathbb{Z}\\)';
+}
+function syncSolverInputs(){
+  q('#sA').value=state.sA;q('#sB').value=state.sB;q('#sC').value=state.sC/PI;q('#sD').value=state.sD;q('#sK').value=state.sK;
+  qa('[data-solver-kind]').forEach(b=>b.classList.toggle('active',b.dataset.solverKind===state.solverKind));
+}
+function readSolverInputs(){
+  let a=+q('#sA').value;if(Math.abs(a)<0.25){a=0.5;q('#sA').value=a}state.sA=a;
+  state.sB=Math.max(0.5,+q('#sB').value);state.sC=+q('#sC').value*PI;state.sD=+q('#sD').value;state.sK=+q('#sK').value;
+}
+function setSolverMode(mode){
+  state.solverMode=mode;
+  qa('[data-solver-mode]').forEach(b=>b.classList.toggle('active',b.dataset.solverMode===mode));
+  q('#solverRandomBox').hidden=mode!=='random';q('#solverManualBox').hidden=mode!=='manual';
+}
+function resetSolver(){
+  state.solverMode='random';state.solverKind='sin';state.sA=1;state.sB=1;state.sC=0;state.sD=0;state.sK=.5;
+  setSolverMode('random');syncSolverInputs();renderSolver();
+}
+function randomSolverEquation(){
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  state.solverKind=pick(['sin','cos','tan']);
+  state.sA=pick([-3,-2,-1,1,2,3]);
+  state.sB=pick([.5,1,1.5,2]);
+  state.sC=pick([-PI/2,-PI/3,-PI/4,-PI/6,0,PI/6,PI/4,PI/3,PI/2]);
+  state.sD=pick([-2,-1,0,1,2]);
+  const ratio=state.solverKind==='tan'?pick([-1,0,1]):pick([-1,-.5,0,.5,1]);
+  state.sK=state.sD+state.sA*ratio;
+  setSolverMode('random');syncSolverInputs();renderSolver();
+}
+function initSolver(){
+  if(solverBoard)return;
+  solverBoard=createBoard('solverBoard',[-PI,4,3*PI,-4]);
+  renderSolver();
+}
+function renderSolver(){
+  if(!solverBoard)return;
+  clearObjects(solverBoard,solverObjects);
+  const result=solverRootsInPeriod(),T=result.T,C=state.sC;
+  const box=solverViewBox(),left=box[0],top=box[1],right=box[2],bottom=box[3];
+  solverBoard.setBoundingBox(box,false);
+
+  push(solverObjects,solverBoard.create('polygon',[[C,bottom],[C+T,bottom],[C+T,top],[C,top]],{
+    fillColor:'#d9ecf8',fillOpacity:.20,highlight:false,fixed:true,
+    borders:{strokeColor:'#c1d7e6',strokeWidth:1,dash:2},vertices:{visible:false}
+  }));
+
+  if(state.solverKind==='tan'){
+    for(let k=-3;k<=3;k++){
+      const ax=C+T/2+k*T;
+      if(ax>left&&ax<right)addVLine(solverBoard,solverObjects,ax,{strokeColor:'#b87c42',strokeWidth:1.3,dash:2});
+    }
+  }
+
+  push(solverObjects,solverBoard.create('functiongraph',[x=>fn(state.solverKind,state.sA,state.sB,state.sC,state.sD,x),left,right],{
+    strokeWidth:3.5,strokeColor:colors[state.solverKind],highlight:false
+  }));
+  addHLine(solverBoard,solverObjects,state.sK,{strokeColor:'#a83e32',strokeWidth:2.6,dash:0});
+  addVLine(solverBoard,solverObjects,C,{strokeColor:'#6f8798',strokeWidth:1.4,dash:2});
+  addVLine(solverBoard,solverObjects,C+T,{strokeColor:'#6f8798',strokeWidth:1.4,dash:2});
+
+  const axisLabelY=-(top-bottom)*.06;
+  result.roots.forEach((x,i)=>{
+    push(solverObjects,solverBoard.create('segment',[[x,0],[x,state.sK]],{
+      strokeColor:'#b63b2f',strokeWidth:2,dash:2,fixed:true,highlight:false
+    }));
+    push(solverObjects,solverBoard.create('point',[x,state.sK],{
+      name:'\\(x_{'+(i+1)+'}\\)',size:2,strokeWidth:2,strokeColor:'#d97706',fillColor:'#d97706',
+      fixed:true,highlight:false,withLabel:true,label:{useMathJax:true,offset:[7,10],fontSize:13,color:'#9a5305'}
+    }));
+    push(solverObjects,solverBoard.create('text',[x,axisLabelY,'$'+solverPiTex(x)+'$'],{
+      useMathJax:true,fixed:true,highlight:false,anchorX:'middle',anchorY:'top',fontSize:13,color:'#111111'
+    }));
+  });
+
+  const labelY=top-(top-bottom)*.08;
+  push(solverObjects,solverBoard.create('text',[C,labelY,'$'+piTex(C)+'$'],{useMathJax:true,fixed:true,highlight:false,anchorX:'middle',fontSize:12,color:'#526a7c'}));
+  push(solverObjects,solverBoard.create('text',[C+T,labelY,'$'+piTex(C+T)+'$'],{useMathJax:true,fixed:true,highlight:false,anchorX:'middle',fontSize:12,color:'#526a7c'}));
+  push(solverObjects,solverBoard.create('text',[right-(right-left)*.06,state.sK,'$y='+num(state.sK,2)+'$'],{useMathJax:true,fixed:true,highlight:false,anchorX:'right',anchorY:'bottom',fontSize:12,color:'#8d352c'}));
+
+  solverBoard.update();updateSolverUI(result);
+}
+function updateSolverUI(result){
+  q('#svA').textContent=num(state.sA);q('#svB').textContent=num(state.sB);q('#svC').textContent=piText(state.sC);q('#svD').textContent=num(state.sD);q('#svK').textContent=num(state.sK);
+  setMath(q('#solverGeneralEquation'),solverGeneralEquationTex(state.solverKind));
+  setMath(q('#solverEquationDisplay'),solverEquationTex());
+  setMath(q('#solverPeriodInfo'),'\\(T='+solverPiTex(result.T)+'='+degreeTex(result.T)+'\\)');
+  setMath(q('#solverCycleInfo'),solverCycleTex(state.sC,result.T)+'<br>'+solverCycleDegTex(state.sC,result.T));
+
+  if(result.degenerate){
+    q('#solverCycleSolutionsRad').textContent='אין פתרון במסגרת הפונקציה שנבחרה.';
+    q('#solverCycleSolutionsDeg').textContent='אין פתרון במסגרת הפונקציה שנבחרה.';
+    q('#solverGeneralSolutionsRad').textContent='אין פתרון.';
+    q('#solverGeneralSolutionsDeg').textContent='אין פתרון.';
+    q('#solverNormalized').textContent='בחרו ערך A שונה מאפס.';
+    return;
+  }
+
+  const normalized='\\('+kindTex(state.solverKind)+'\\!\\left('+num(state.sB,2)+'(x'+(state.sC>0?'-':state.sC<0?'+':'')+(near(state.sC,0)?'':piTex(Math.abs(state.sC)))+')\\right)='+num(result.ratio,3)+'\\)';
+  setMath(q('#solverNormalized'),'<b>לאחר העברת D וחלוקה ב־A:</b> '+normalized);
+
+  if(!result.roots.length){
+    q('#solverCycleSolutionsRad').textContent='אין נקודות חיתוך במחזור זה.';
+    q('#solverCycleSolutionsDeg').textContent='אין נקודות חיתוך במחזור זה.';
+    q('#solverGeneralSolutionsRad').textContent='אין פתרון.';
+    q('#solverGeneralSolutionsDeg').textContent='אין פתרון.';
+    return;
+  }
+  setMath(q('#solverCycleSolutionsRad'),solverRootListTex(result.roots,'rad'));
+  setMath(q('#solverCycleSolutionsDeg'),solverRootListTex(result.roots,'deg'));
+  setMath(q('#solverGeneralSolutionsRad'),solverGeneralListTex(result.roots,result.T,'rad'));
+  setMath(q('#solverGeneralSolutionsDeg'),solverGeneralListTex(result.roots,result.T,'deg'));
+}
+
+function activateTab(name){
+  qa('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));qa('.panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
+  const memoryStrip=q('.memory-strip');
+  if(memoryStrip){
+    const hideMemoryStrip=(name==='relations');
+    memoryStrip.classList.toggle('is-hidden',hideMemoryStrip);
+    memoryStrip.style.display=hideMemoryStrip?'none':'';
+    memoryStrip.setAttribute('aria-hidden',String(hideMemoryStrip));
+  }
+  requestAnimationFrame(()=>{if(name==='lab'){initLab();labBoard.resizeContainer(q('#labBoard').clientWidth,q('#labBoard').clientHeight);labBoard.fullUpdate()}if(name==='relations'){initRelations();relBoard.resizeContainer(q('#relationsBoard').clientWidth,q('#relationsBoard').clientHeight);relBoard.fullUpdate()}if(name==='challenge'){initChallenge();challengeBoard.resizeContainer(q('#challengeBoard').clientWidth,q('#challengeBoard').clientHeight);challengeBoard.fullUpdate()}if(name==='equations'){initSolver();solverBoard.resizeContainer(q('#solverBoard').clientWidth,q('#solverBoard').clientHeight);solverBoard.fullUpdate()}safeTypeset([q('#tab-'+name)])});
+}
+function initEvents(){
+  qa('.nav button').forEach(b=>b.addEventListener('click',()=>activateTab(b.dataset.tab)));
+  qa('[data-kind]').forEach(b=>b.addEventListener('click',()=>{state.kind=b.dataset.kind;qa('[data-kind]').forEach(x=>x.classList.toggle('active',x===b));renderLab()}));
+  ['pA','pB','pC','pD'].forEach(id=>q('#'+id).addEventListener('input',()=>{readLabInputs();renderLab()}));
+  qa('[data-step]').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.step,delta=+b.dataset.delta;const el=q('#p'+p);let v=+el.value+delta;v=clamp(v,+el.min,+el.max);if(p==='B'&&Math.abs(v)<.24)v=delta>0?.25:-.25;el.value=v;readLabInputs();renderLab()}));
+  qa('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.preset;if(p==='base'){state.A=1;state.B=1;state.C=0;state.D=0}if(p==='stretch'){state.A=3;state.B=1;state.C=0;state.D=0}if(p==='reflect'){state.A=-1;state.B=1;state.C=0;state.D=0}if(p==='period'){state.A=1;state.B=2;state.C=0;state.D=0}if(p==='shift'){state.A=1;state.B=1;state.C=PI/3;state.D=2}syncLabInputs();renderLab()}));
+  q('#togglePower').addEventListener('click',()=>{state.powerEnabled=!state.powerEnabled;renderLab()});
+  q('#powerN').addEventListener('input',()=>{state.powerN=+q('#powerN').value;renderLab()});
+  qa('[data-power-step]').forEach(b=>b.addEventListener('click',()=>{const el=q('#powerN');const v=clamp(+el.value + +b.dataset.powerStep,+el.min,+el.max);el.value=v;state.powerN=v;renderLab()}));
+  q('#toggleAbs').addEventListener('click',()=>{state.absEnabled=!state.absEnabled;renderLab()});
+  q('[data-action="lab-reset"]').addEventListener('click',resetLab);q('[data-action="lab-zoom-in"]').addEventListener('click',()=>zoom(labBoard,.8));q('[data-action="lab-zoom-out"]').addEventListener('click',()=>zoom(labBoard,1.25));q('[data-action="lab-center"]').addEventListener('click',()=>labBoard.setBoundingBox(labInitialBox,false));
+  ['showSin','showCos','showTan'].forEach(id=>q('#'+id).addEventListener('change',renderRelations));
+  q('#relX').addEventListener('input',()=>{
+    state.relX=+q('#relX').value*PI;
+    renderRelations();
+  });
+  qa('[data-rel-angle]').forEach(btn=>btn.addEventListener('click',()=>{
+    state.relX=+btn.dataset.relAngle*PI;
+    q('#relX').value=btn.dataset.relAngle;
+    renderRelations();
+  }));
+  q('[data-action="rel-reset"]').addEventListener('click',()=>{
+    state.relX=PI/4;
+    q('#relX').value=.25;
+    q('#showSin').checked=q('#showCos').checked=q('#showTan').checked=true;
+    renderRelations();
+  });
+  qa('[data-ch-kind]').forEach(b=>b.addEventListener('click',()=>{state.chKind=b.dataset.chKind;qa('[data-ch-kind]').forEach(x=>x.classList.toggle('active',x===b));renderChallenge()}));
+  ['cA','cB','cC','cD'].forEach(id=>q('#'+id).addEventListener('input',()=>{readChallengeInputs();renderChallenge()}));
+  q('#checkChallenge').addEventListener('click',checkChallenge);q('#nextChallenge').addEventListener('click',()=>loadChallenge(state.challengeIndex+1));q('#hintChallenge').addEventListener('click',showHint);q('#showSolution').addEventListener('click',showSolution);
+  qa('[data-solver-mode]').forEach(b=>b.addEventListener('click',()=>setSolverMode(b.dataset.solverMode)));
+  qa('[data-solver-kind]').forEach(b=>b.addEventListener('click',()=>{state.solverKind=b.dataset.solverKind;qa('[data-solver-kind]').forEach(x=>x.classList.toggle('active',x===b));renderSolver()}));
+  ['sA','sB','sC','sD','sK'].forEach(id=>q('#'+id).addEventListener('input',()=>{readSolverInputs();renderSolver()}));
+  q('#randomSolverEquation').addEventListener('click',randomSolverEquation);
+  q('[data-action="solver-reset"]').addEventListener('click',resetSolver);
+  q('[data-action="solver-zoom-in"]').addEventListener('click',()=>zoom(solverBoard,.8));
+  q('[data-action="solver-zoom-out"]').addEventListener('click',()=>zoom(solverBoard,1.25));
+  q('[data-action="solver-center"]').addEventListener('click',()=>solverBoard.setBoundingBox(solverViewBox(),false));
+  window.addEventListener('resize',()=>{if(labBoard&&q('#tab-lab').classList.contains('active'))labBoard.resizeContainer(q('#labBoard').clientWidth,q('#labBoard').clientHeight);if(relBoard&&q('#tab-relations').classList.contains('active'))relBoard.resizeContainer(q('#relationsBoard').clientWidth,q('#relationsBoard').clientHeight);if(challengeBoard&&q('#tab-challenge').classList.contains('active'))challengeBoard.resizeContainer(q('#challengeBoard').clientWidth,q('#challengeBoard').clientHeight);if(solverBoard&&q('#tab-equations').classList.contains('active'))solverBoard.resizeContainer(q('#solverBoard').clientWidth,q('#solverBoard').clientHeight)});
+}
+function boot(){
+  if(!window.JXG){setTimeout(boot,80);return}initEvents();initLab();safeTypeset([document.body]);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+</body>
+</html>
