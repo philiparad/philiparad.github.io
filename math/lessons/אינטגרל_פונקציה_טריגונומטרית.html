@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="philip_favicon.png"/>
+  <title>מערך שיעור - אינטגרל של פונקציה טריגונומטרית</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+  <style>
+    :root{
+      --page-w: 210mm;
+      --page-h: 297mm;
+      --ink:#18324b;
+      --soft:#f7fbff;
+      --line:#294b6f;
+      --accent:#cfe8ff;
+      --accent2:#eaf5ff;
+      --ok:#edf8ed;
+      --warn:#fff6df;
+      --exercise:#f9fcff;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: Arial, "Noto Sans Hebrew", sans-serif;
+      background:#d9d9d9;
+      color:#111;
+      line-height:1.35;
+    }
+    main{padding:8mm 0 20mm;}
+    section.page{
+      width:var(--page-w);
+      min-height:var(--page-h);
+      margin:0 auto 8mm auto;
+      padding:11mm 12mm;
+      background:#fff;
+      position:relative;
+      overflow:hidden;
+      page-break-after:always;
+      box-shadow:0 0 6px rgba(0,0,0,.12);
+    }
+    h1,h2,h3{margin:0 0 4mm 0;color:var(--ink);}
+    h1{font-size:26px;text-align:center;}
+    h2{font-size:21px;border-bottom:2px solid var(--line);padding-bottom:2mm;}
+    h3{font-size:17px;margin-top:3mm;}
+    p,li{font-size:15px;margin:0 0 2.2mm 0;}
+    ul,ol{margin:1mm 0 2mm 0;padding-right:5mm;}
+    .small{font-size:12px;}
+    .muted{color:#4b5563;}
+    .hero{
+      background:linear-gradient(180deg,#f8fbff 0%, #eef6ff 100%);
+      border:2px solid #9dc4e8;
+      border-radius:8px;
+      padding:6mm;
+      margin-bottom:4mm;
+    }
+    .grid-2{grid-template-columns:1fr 1fr;gap:4mm;align-items:start;}
+    .card{
+      border:2px solid #9ab5d0;
+      border-radius:8px;
+      padding:3mm 4mm;
+      background:var(--soft);
+    }
+    .info,.tip,.exercise-box,.sol-box,.diag-box{
+      border:2px solid #9ab5d0;
+      border-radius:8px;
+      padding:3mm 4mm;
+      background:#fbfdff;
+      margin:3mm 0;
+    }
+    .tip{background:var(--warn);}
+    .exercise-box{background:var(--exercise);}
+    .sol-box{background:var(--ok);}
+    .diag-box{background:#f8fbff;display:none;}
+    .lesson-tag{
+      display:inline-block;
+      padding:1.2mm 3mm;
+      border:2px solid var(--line);
+      border-radius:999px;
+      background:var(--accent2);
+      font-weight:bold;
+      margin-bottom:2mm;
+      font-size:13px;
+    }
+    .cols{grid-template-columns:1.05fr .95fr;gap:4mm;}
+    .board-wrap{border:2px solid #8ea7bf;border-radius:8px;padding:3mm;background:#fcfeff;}
+    .jxgbox{width:100%;height:170px;border:2px solid #9aa9b6;background:#fff;direction:ltr;}
+    .controls{display:flex;flex-wrap:wrap;gap:2mm;margin-top:2mm;justify-content:flex-start;direction:ltr;}
+    .controls button{
+      border:2px solid #5d7ea3;background:#eef6ff;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12px;
+    }
+    table.summary{width:100%;border-collapse:collapse;margin-top:3mm;}
+    table.summary th, table.summary td{border:2px solid #6f8ea9;padding:2mm;vertical-align:top;font-size:14px;}
+    table.summary th{background:#eaf4ff;}
+    .exercise-list li{margin-bottom:3mm;}
+    .solutions-3{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;align-items:start;}
+    .solutions-3 .sol-box{margin:0;padding:3mm;}
+    .solutions-3 .exercise-list{padding-right:5mm;}
+    .solutions-3 .exercise-list li{font-size:12.5px;margin-bottom:1.4mm;}
+    .foot{
+      position:absolute;left:12mm;right:12mm;bottom:7mm;font-size:11px;color:#555;display:flex;justify-content:space-between;
+    }
+    .page-number{font-weight:bold;}
+    .center{text-align:center;}
+    .rtl-tight li{margin-bottom:1.6mm;}
+    .equation{margin:2mm 0;padding:2mm 3mm;border:2px solid #d4e2f0;border-radius:6px;background:#fbfdff;text-align:center;}
+    .seq li{margin-bottom:1.4mm;}
+    .nowrap{white-space:nowrap;}
+    @media print{
+      body{background:#fff;}
+      main{padding:0;}
+      section.page{margin:0;box-shadow:none;border:2px solid #444;}
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [['\\(','\\)'], ['$', '$']], displayMath: [['\\[','\\]']]},
+      svg: {fontCache: 'global'}
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+</head>
+<body>
+<main>
+
+<section class="page" id="page-1">
+  <div class="hero">
+    <h1>מערך שיעור - אינטגרל של פונקציה טריגונומטרית</h1>
+    <p class="center"><strong>יחידת לימוד מדורגת</strong> - משיעורי בסיס עד שאלות משולבות ברמה גבוהה</p>
+    <p class="center small muted">כולל שיעורי משנה, דפי תרגול, פתרונות בסוף, ותרגילים מסכמים עם פתרונות מיידיים</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>מטרות היחידה</h3>
+      <ul class="rtl-tight">
+        <li>לזהות מתי יש לעבוד עם פונקציה קדומה, ומתי עם משמעות גאומטרית של אינטגרל.</li>
+        <li>לחשב אינטגרלים של פונקציות טריגונומטריות בסיסיות ומעובדות.</li>
+        <li>להשתמש בזהויות, בסימטריה ובמחזוריות כדי לפשט חישוב.</li>
+        <li>לפתור בעיות שטח, פרמטרים ופונקציית הצטברות.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="diag-box" id="diagnostics-panel">
+    <h3>בדיקות אוטומטיות למסמך</h3>
+    <ul id="diagnostics-list" class="rtl-tight small">
+      <li>הבדיקות יופיעו כאן לאחר טעינת המסמך.</li>
+    </ul>
+  </div>
+  <div class="info">
+    <h3>מפת רצף ההוראה</h3>
+    <ol class="seq">
+      <li>פונקציה קדומה וקדומות בסיסיות.</li>
+      <li>האינטגרל המסוים והמשפט היסודי.</li>
+      <li>שטח מול אינטגרל מכוון.</li>
+      <li>סימטריה, מחזוריות והזזות.</li>
+      <li>זהויות טריגונומטריות והורדת חזקות לפני אינטגרציה.</li>
+      <li>פונקציית הצטברות.</li>
+      <li>אינטגרלים עם ערך מוחלט.</li>
+      <li>מציאת פרמטרים באמצעות אינטגרל.</li>
+    </ol>
+  </div>
+  <div class="foot"><span>אינטגרל של פונקציה טריגונומטרית</span><span class="page-number">1</span></div>
+</section>
+
+<section class="page" id="page-2">
+  <h2>מפת יחידת הלימוד</h2>
+  <table class="summary">
+    <thead>
+      <tr>
+        <th>שיעור</th>
+        <th>רעיונות מרכזיים</th>
+        <th>מיומנויות</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1. פונקציה קדומה</td>
+        <td>קדומות של \(\sin x\), \(\cos x\), תנאי התחלה, קבוע אינטגרציה.</td>
+        <td>למצוא פונקציה קדומה, לבדוק בעזרת גזירה.</td>
+      </tr>
+      <tr>
+        <td>2. אינטגרל מסוים</td>
+        <td>הקשר בין אינטגרל מסוים לפונקציה קדומה ולשטח מכוון.</td>
+        <td>לחשב \(\int_a^b f(x)\,dx\).</td>
+      </tr>
+      <tr>
+        <td>3. שטחים</td>
+        <td>הבחנה בין שטח לאינטגרל, עבודה עם החלפת סימן.</td>
+        <td>לפרק תחום, לחשב שטח כולל.</td>
+      </tr>
+      <tr>
+        <td>4. סימטריה ומחזוריות</td>
+        <td>פונקציה זוגית, אי זוגית, תחום סימטרי, מחזור שלם.</td>
+        <td>להשוות אינטגרלים בלי חישוב מלא.</td>
+      </tr>
+      <tr>
+        <td>5. זהויות והורדת חזקות</td>
+        <td>זהויות טריגונומטריות, הפחתת חזקה, הכנה לאינטגרציה של חזקות.</td>
+        <td>לפשט ביטוי ואז לאינטגרל.</td>
+      </tr>
+      <tr>
+        <td>6. פונקציית הצטברות</td>
+        <td>\(F(x)=\int_a^x f(t)\,dt\), ערכי פונקציה ושינוי מצטבר.</td>
+        <td>לבנות ולחשב פונקציית הצטברות.</td>
+      </tr>
+      <tr>
+        <td>7. ערך מוחלט</td>
+        <td>אינטגרל של \(|f(x)|\), פירוק לפי נקודות אפס וחישוב שטח כולל.</td>
+        <td>לזהות החלפת סימן ולחשב שטח ללא קיזוז.</td>
+      </tr>
+      <tr>
+        <td>8. פרמטרים</td>
+        <td>אינטגרל הכולל פרמטר והמרתו למשוואה.</td>
+        <td>לחשב אינטגרל ולפתור עבור הפרמטר.</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="tip">
+    <strong>הערת הוראה:</strong> לפני כל חישוב שואלים: האם נוח יותר לעבוד דרך פונקציה קדומה, דרך זהות טריגונומטרית, או דרך משמעות גאומטרית של אינטגרל?
+  </div>
+  <div class="equation">\[\int_a^b f(x)\,dx = F(b)-F(a)\]</div>
+  <div class="foot"><span>מפת תוכן ורצף</span><span class="page-number">2</span></div>
+</section>
+
+<section class="page" id="page-3">
+  <span class="lesson-tag">שיעור 1</span>
+  <h2>פונקציה קדומה של פונקציה טריגונומטרית</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>רעיון מרכזי</h3>
+        <p>מחפשים פונקציה \(F\) כך שיתקיים \(F'(x)=f(x)\).</p>
+        <div class="equation">\[\int \cos x\,dx = \sin x + C\qquad \int \sin x\,dx = -\cos x + C\]</div>
+        <p>כאשר נתון תנאי, למשל \(F(0)=2\), מציבים בתוצאה ומוצאים את \(C\).</p>
+      </div>
+      <div class="tip">
+        <h3>צעדי עבודה</h3>
+        <ol class="rtl-tight">
+          <li>מזהים את הפונקציה.</li>
+          <li>רושמים פונקציה קדומה כללית.</li>
+          <li>אם יש תנאי, מציבים ומוצאים את הקבוע.</li>
+          <li>בודקים על ידי גזירה.</li>
+        </ol>
+      </div>
+      <div class="info">
+        <h3>דוגמה קצרה</h3>
+        <p>נתון \(F'(x)=\cos x\) ו-\(F(0)=3\).</p>
+        <p>נקבל \(F(x)=\sin x + C\). מציבים \(x=0\) ומקבלים \(0+C=3\), לכן \(C=3\).</p>
+        <div class="equation">\[F(x)=\sin x+3\]</div>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <div id="board1" class="jxgbox" style="height: 240px;"></div>
+        <div style="display:none;" class="controls" id="controls1"></div>
+        <p class="small muted">מופיעים הגרפים של \(\sin x\) ושל \(\cos x\) כדי להזכיר את הקשר בין פונקציה לבין פונקציה קדומה ונגזרת.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 1</span><span class="page-number">3</span></div>
+</section>
+
+<section class="page" id="page-4">
+  <span class="lesson-tag">דף תרגילים - שיעור 1</span>
+  <h2>תרגול: פונקציה קדומה</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>מצא פונקציה קדומה של \(f(x)=\cos x\).</li>
+      <li>מצא פונקציה קדומה של \(f(x)=\sin x\).</li>
+      <li>מצא פונקציה קדומה של \(f(x)=3\cos x\).</li>
+      <li>מצא פונקציה קדומה של \(f(x)=-2\sin x\).</li>
+      <li>מצא פונקציה קדומה של \(f(x)=\cos x-\sin x\).</li>
+      <li>נתון \(F'(x)=\cos x\) ו-\(F(0)=1\). מצא את \(F(x)\).</li>
+      <li>נתון \(F'(x)=2\sin x\) ו-\(F\left(\frac{\pi}{2}\right)=0\). מצא את \(F(x)\).</li>
+      <li>בדוק האם \(F(x)=-\cos x+4\) היא פונקציה קדומה של \(f(x)=\sin x\).</li>
+      <li>מצא פונקציה קדומה של \(f(x)=2\cos x-3\sin x\).</li>
+      <li>מצא פונקציה קדומה \(F\) כך ש-\(F'(x)=\cos x+2\sin x\) ו-\(F(0)=5\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 1</span><span class="page-number">4</span></div>
+</section>
+
+<section class="page" id="page-5">
+  <span class="lesson-tag">שיעור 2</span>
+  <h2>האינטגרל המסוים והמשפט היסודי</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>רעיון מרכזי</h3>
+        <p>אם \(F'(x)=f(x)\), אז:</p>
+        <div class="equation">\[\int_a^b f(x)\,dx = F(b)-F(a)\]</div>
+        <p>זוהי דרך מעבר מפונקציה קדומה לחישוב אינטגרל מסוים.</p>
+      </div>
+      <div class="tip">
+        <h3>דוגמה</h3>
+        <p>נחשב:</p>
+        <div class="equation">\[\int_0^{\pi} \sin x\,dx\]</div>
+        <p>פונקציה קדומה: \(-\cos x\). לכן:</p>
+        <div class="equation">\[-\cos(\pi)-(-\cos(0)) = 1-(-1)=2\]</div>
+      </div>
+      <div class="info">
+        <h3>הבחנה חשובה</h3>
+        <p>ערך האינטגרל הוא <strong>שטח מכוון</strong>. מעל ציר \(x\) מתקבל ערך חיובי, ומתחת לציר \(x\) מתקבל ערך שלילי.</p>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <div id="board2" class="jxgbox" style="height: 240px;"></div>
+        <div style="display:none;" class="controls" id="controls2"></div>
+        <p style="position: relative;top: 10px;" class="small muted">השטח המוצל מייצג את \(\int_0^{\pi} \sin x\,dx\).</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 2</span><span class="page-number">5</span></div>
+</section>
+
+<section class="page" id="page-6">
+  <span class="lesson-tag">דף תרגילים - שיעור 2</span>
+  <h2>תרגול: אינטגרל מסוים</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>חשב \(\int_0^{\frac{\pi}{2}} \cos x\,dx\).</li>
+      <li>חשב \(\int_0^{\pi} \sin x\,dx\).</li>
+      <li>חשב \(\int_0^{\pi} \cos x\,dx\).</li>
+      <li>חשב \(\int_0^{\frac{\pi}{2}} 2\sin x\,dx\).</li>
+      <li>חשב \(\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos x\,dx\).</li>
+      <li>חשב \(\int_0^{\pi} (\sin x + \cos x)\,dx\).</li>
+      <li>חשב \(\int_{\frac{\pi}{2}}^{\pi} \sin x\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi} \sin x\,dx\).</li>
+      <li>נתון \(F'(x)=\cos x\). חשב \(\int_0^{\pi} F'(x)\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi} (2\cos x-\sin x)\,dx\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 2</span><span class="page-number">6</span></div>
+</section>
+
+<section class="page" id="page-7">
+  <span class="lesson-tag">שיעור 3</span>
+  <h2>שטח בין גרף פונקציה טריגונומטרית לציר \(x\)</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>רעיון מרכזי</h3>
+        <p>אינטגרל מסוים אינו תמיד שווה לשטח. כאשר הפונקציה מחליפה סימן, יש לפרק את התחום.</p>
+        <div class="equation">\[\text{חטש} = \int_a^c f(x)\,dx - \int_c^b f(x)\,dx\]</div>
+        <p>כאשר \(c\) היא נקודת חיתוך עם ציר \(x\) בתוך התחום ו-\(f(x)\lt 0\) בקטע השני.</p>
+      </div>
+      <div class="tip">
+        <h3>דוגמה</h3>
+        <p>לחשב את השטח הכלוא בין הגרף \(y=\sin x\) לציר \(x\) בתחום \(0 \le x \le 2\pi\).</p>
+        <p>מפרקים לשני חלקים: \(0 \le x \le \pi\) ו-\(\pi \le x \le 2\pi\).</p>
+        <div class="equation">\[\text{חטש} = \int_0^{\pi}\sin x\,dx - \int_{\pi}^{2\pi}\sin x\,dx = 2-(-2)=4\]</div>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <div id="board3" class="jxgbox" style="height: 350px;"></div>
+        <div style="display:none;" class="controls" id="controls3"></div>
+        <p style="position: relative;top: 10px;" class="small muted">האזור הכחול מעל הציר והאזור הוורוד מתחת לציר מחושבים בנפרד.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 3</span><span class="page-number">7</span></div>
+</section>
+
+<section class="page" id="page-8">
+  <span class="lesson-tag">דף תרגילים - שיעור 3</span>
+  <h2>תרגול: שטח ואינטגרל</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>חשב את השטח בין \(y=\sin x\) לציר \(x\) בתחום \(0 \le x \le \pi\).</li>
+      <li>חשב את השטח בין \(y=\cos x\) לציר \(x\) בתחום \(0 \le x \le \frac{\pi}{2}\).</li>
+      <li>חשב את השטח בין \(y=\sin x\) לציר \(x\) בתחום \(0 \le x \le 2\pi\).</li>
+      <li>חשב את האינטגרל \(\int_0^{2\pi} \sin x\,dx\), והשווה לשטח מהסעיף הקודם.</li>
+      <li>חשב את השטח בין \(y=\cos x\) לציר \(x\) בתחום \(0 \le x \le \pi\).</li>
+      <li>חשב את השטח בין \(y=2\sin x\) לציר \(x\) בתחום \(0 \le x \le \pi\).</li>
+      <li>חשב את השטח בין \(y=\sin x\) לציר \(x\) בתחום \(\frac{\pi}{2} \le x \le \frac{3\pi}{2}\).</li>
+      <li>מצא את נקודות האפס של \(\sin x\) בתחום \(0 \le x \le 2\pi\), והסבר למה צריך לפרק את החישוב.</li>
+      <li>חשב את השטח בין \(y=\cos x\) לציר \(x\) בתחום \(-\frac{\pi}{2} \le x \le \frac{\pi}{2}\).</li>
+      <li>חשב את השטח בין \(y=\sin x+1\) לציר \(x\) בתחום \(0 \le x \le \pi\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 3</span><span class="page-number">8</span></div>
+</section>
+
+<section class="page" id="page-9">
+  <span class="lesson-tag">שיעור 4</span>
+  <h2>סימטריה, מחזוריות והזזות</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>כלים חשובים</h3>
+        <ul class="rtl-tight">
+          <li>אם \(f\) אי זוגית, אז \(\int_{-a}^{a} f(x)\,dx = 0\).</li>
+          <li>אם \(f\) זוגית, אז \(\int_{-a}^{a} f(x)\,dx = 2\int_0^a f(x)\,dx\).</li>
+          <li>אם ל-\(f\) מחזור \(T\), אז תחומים באורך מחזור שלם נוחים לחישוב.</li>
+        </ul>
+      </div>
+      <div class="tip">
+        <h3>דוגמה 1 · סימטריה של פונקציה אי־זוגית</h3>
+        <div class="equation">\[\int_{-\pi}^{\pi} \sin x\,dx = 0\]</div>
+        <p>השטח המכוון משמאל לציר \(y\) מבטל את השטח המכוון שמימין לו.</p>
+      </div>
+      <div class="info">
+        <h3>שיקול הוראה</h3>
+        <p>לפני חישוב טכני, כדאי לבדוק האם הסימטריה או המחזוריות חוסכות עבודה.</p>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <h3>גרף לדוגמה 1</h3>
+        <div id="board4" class="jxgbox" style="height: 330px;"></div>
+        <div style="display:none;" class="controls" id="controls4"></div>
+        <p style="position: relative;top: 10px;" class="small muted">השטחים הסימטריים בתחום \(-\pi \le x \le \pi\) מאזנים זה את זה.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 4</span><span class="page-number">9</span></div>
+</section>
+
+<section class="page" id="page-10">
+  <span class="lesson-tag">שיעור 4 · המשך</span>
+  <h2>סימטריה, מחזוריות והזזות — דוגמאות נוספות</h2>
+
+  <div class="cols">
+    <div>
+      <div class="tip">
+        <h3>דוגמה 2 · סימטריה של פונקציה זוגית</h3>
+        <div class="equation">\[\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos x\,dx = 2\int_0^{\frac{\pi}{2}} \cos x\,dx\]</div>
+        <p>שני חצאי התחום נותנים שטחים שווים, ולכן מספיק לחשב חצי אחד ולהכפיל ב־2.</p>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <h3>גרף לדוגמה 2</h3>
+        <div id="board6" class="jxgbox" style="height: 210px;"></div>
+        <div style="display:none;" class="controls" id="controls6"></div>
+        <p style="position: relative;top: 10px;" class="small muted">הגרף של \(\cos x\) סימטרי ביחס לציר \(y\).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cols" style="margin-top:5mm;">
+    <div>
+      <div class="tip">
+        <h3>דוגמה 3 · מחזור שלם</h3>
+        <div class="equation">\[\int_0^{2\pi} \sin x\,dx = 0\]</div>
+        <p>במחזור שלם, השטח המכוון החיובי והשטח המכוון השלילי שווים בגודלם ומבטלים זה את זה.</p>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <h3>גרף לדוגמה 3</h3>
+        <div id="board7" class="jxgbox" style="height: 210px;"></div>
+        <div style="display:none;" class="controls" id="controls7"></div>
+        <p style="position: relative;top: 10px;" class="small muted">התחום \(0 \le x \le 2\pi\) הוא מחזור מלא של \(\sin x\).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>שיעור 4 · המשך</span><span class="page-number">10</span></div>
+</section>
+
+<section class="page" id="page-11">
+  <span class="lesson-tag">דף תרגילים - שיעור 4</span>
+  <h2>תרגול: סימטריה ומחזוריות</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>חשב \(\int_{-\pi}^{\pi} \sin x\,dx\).</li>
+      <li>חשב \(\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos x\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi} \sin x\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi} \cos x\,dx\).</li>
+      <li>הסבר מדוע \(\int_{-a}^{a} \sin x\,dx=0\) לכל \(a\gt 0\).</li>
+      <li>חשב \(\int_{-\pi}^{\pi} (\sin x+\cos x)\,dx\).</li>
+      <li>חשב \(\int_{-\pi}^{\pi} \cos x\,dx\).</li>
+      <li>חשב \(\int_0^{4\pi} \sin x\,dx\).</li>
+      <li>השווה בין \(\int_0^{\pi} \sin x\,dx\) לבין \(\int_{2\pi}^{3\pi} \sin x\,dx\).</li>
+      <li>חשב \(\int_{-\pi}^{\pi} \cos^2 x\,dx\) לאחר שימוש בזהות מתאימה.</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 4</span><span class="page-number">11</span></div>
+</section>
+
+<section class="page" id="page-12">
+  <span class="lesson-tag">שיעור 5</span>
+  <h2>זהויות טריגונומטריות והורדת חזקות לפני אינטגרציה</h2>
+  <div class="info">
+    <p>כאשר מופיעה חזקה של פונקציה טריגונומטרית, לא תמיד כדאי לנסות לאינטגרל ישירות. תחילה מפשטים בעזרת זהויות.</p>
+    <div class="equation">\[\cos^2 x = \frac{1+\cos 2x}{2}\qquad \sin^2 x = \frac{1-\cos 2x}{2}\]</div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>דוגמה לאינטגרציה</h3>
+      <p>נחשב:</p>
+      <div class="equation">\[\int \sin^2 x\,dx = \int \frac{1-\cos 2x}{2}\,dx\]</div>
+      <div class="equation">\[= \frac{x}{2} - \frac{\sin 2x}{4} + C\]</div>
+      <p>כך עוברים מחזקה לזהות, ורק אז מבצעים אינטגרציה.</p>
+    </div>
+<div style="height:20px"></div>
+    <div class="card">
+      <h3>דוגמה נוספת: \(\cos^3 x\)</h3>
+      <p>כותבים את \(\cos^3 x\) בעזרת זהות הורדת חזקה:</p>
+      <div class="equation">\[\cos^3 x = \cos x\cdot\cos^2 x = \cos x\cdot\frac{1+\cos 2x}{2}\]</div>
+      <p>את האינטגרציה המלאה נבצע בעמוד הבא.</p>
+    </div>
+
+  </div>
+
+  <div class="foot"><span>שיעור 5</span><span class="page-number">12</span></div>
+</section>
+
+
+<section class="page" id="page-13">
+  <span class="lesson-tag">שיעור 5 · המשך</span>
+  <h2>אינטגרציה של \(\cos^3 x\)</h2>
+
+  <div class="info">
+    <h3>שלב 1 · הורדת חזקה</h3>
+    <p>מתחילים מהזהות שהופיעה בעמוד הקודם:</p>
+    <div class="equation">\[\cos^3 x=\cos x\cdot\cos^2 x=\cos x\cdot\frac{1+\cos 2x}{2}\]</div>
+    <div class="equation">\[\int\cos^3 x\,dx=\frac12\int\cos x\,dx+\frac12\int\cos x\cos 2x\,dx\]</div>
+  </div>
+
+  <div class="card">
+    <h3>שלב 2 · הפיכת המכפלה לסכום</h3>
+    <p>נשתמש בזהות:</p>
+    <div class="equation">\[\cos x\cos 2x=\frac12\left(\cos 3x+\cos x\right)\]</div>
+    <p>ולכן:</p>
+    <div class="equation">\[\int\cos^3 x\,dx=\frac12\int\cos x\,dx+\frac14\int\left(\cos 3x+\cos x\right)\,dx\]</div>
+  </div>
+
+  <div class="card" style="margin-top:3mm;">
+    <h3>שלב 3 · אינטגרציה</h3>
+    <div class="equation">\[\int\cos^3 x\,dx=\frac12\sin x+\frac14\left(\frac{\sin 3x}{3}+\sin x\right)+C\]</div>
+    <div class="equation">\[\boxed{\int\cos^3 x\,dx=\frac34\sin x+\frac1{12}\sin 3x+C}\]</div>
+  </div>
+
+  <div class="foot"><span>שיעור 5 · המשך</span><span class="page-number">13</span></div>
+</section>
+
+<section class="page" id="page-14">
+  <span class="lesson-tag">דף תרגילים - שיעור 5</span>
+  <h2>תרגול: זהויות והורדת חזקות</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>כתוב את \(\sin^2 x\) בעזרת \(\cos 2x\).</li>
+      <li>כתוב את \(\cos^2 x\) בעזרת \(\cos 2x\).</li>
+      <li>חשב \(\int \sin^2 x\,dx\).</li>
+      <li>חשב \(\int \cos^2 x\,dx\).</li>
+      <li>כתוב את \(\cos^3 x\) בצורה \(\cos x\cdot(\dots)\).</li>
+      <li>כתוב את \(\sin^4 x\) ללא חזקה רביעית מלאה, באמצעות \(\sin^2 x\) ואז זהות הורדת חזקה.</li>
+      <li>חשב \(\int_0^{\pi} \sin^2 x\,dx\).</li>
+      <li>חשב \(\int_0^{\pi} \cos^2 x\,dx\).</li>
+      <li>פשט את \(\sin^2 x + \cos^2 x\), ואז חשב את האינטגרל שלו בתחום \(0 \le x \le \pi\).</li>
+      <li>חשב \(\int_0^{2\pi} \sin^2 x\,dx\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 5</span><span class="page-number">14</span></div>
+</section>
+
+<section class="page" id="page-15">
+  <span class="lesson-tag">שיעור 6</span>
+  <h2>פונקציית הצטברות</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>רעיון מרכזי</h3>
+        <p>פונקציית הצטברות מתארת את הערך המכוון שנצבר מן הגבול התחתון הקבוע \(a\) ועד \(x\):</p>
+        <div class="equation">\[F(x)=\int_a^x f(t)\,dt\]</div>
+        <p>תמיד מתקיים \(F(a)=0\). כאשר \(f\) חיובית, ההצטברות גדלה; כאשר \(f\) שלילית, ההצטברות קטנה.</p>
+      </div>
+      <div class="tip">
+        <h3>דוגמה 1</h3>
+        <p>נתון:</p>
+        <div class="equation">\[F(x)=\int_0^x\sin t\,dt\]</div>
+        <div class="equation">\[F(x)=[-\cos t]_0^x=1-\cos x\]</div>
+        <p>ולכן \(F\left(\frac{\pi}{2}\right)=1\).</p>
+      </div>
+      <div class="info">
+        <h3>דוגמה 2</h3>
+        <div class="equation">\[G(x)=\int_0^x\cos t\,dt=[\sin t]_0^x=\sin x\]</div>
+        <p>למשל \(G(\pi)=0\).</p>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <h3>הצטברות של \(\sin x\)</h3>
+        <div id="board5" class="jxgbox" style="height: 300px;"></div>
+        <div style="display:none;" class="controls" id="controls5"></div>
+        <p style="position: relative;top: 10px;" class="small muted">מוצגים יחד \(f(x)=\sin x\) ו-\(F(x)=1-\cos x\).</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 6 · פונקציית הצטברות</span><span class="page-number">15</span></div>
+</section>
+
+<section class="page" id="page-16">
+  <span class="lesson-tag">דף תרגילים - שיעור 6</span>
+  <h2>תרגול: פונקציית הצטברות</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>נתון \(F(x)=\int_0^x\sin t\,dt\). חשב \(F\left(\frac{\pi}{2}\right)\).</li>
+      <li>מצא נוסחה ל-\(F(x)=\int_0^x\cos t\,dt\).</li>
+      <li>חשב \(F(\pi)\) עבור \(F(x)=\int_0^x\sin t\,dt\).</li>
+      <li>חשב \(F(2\pi)\) עבור \(F(x)=\int_0^x\sin t\,dt\).</li>
+      <li>מצא נוסחה ל-\(G(x)=\int_{\frac{\pi}{2}}^x\cos t\,dt\).</li>
+      <li>מצא נוסחה ל-\(H(x)=\int_0^x(\sin t+\cos t)\,dt\).</li>
+      <li>מצא \(x\) בתחום \(0\le x\le\pi\) אם \(\int_0^x\sin t\,dt=1\).</li>
+      <li>חשב \(F(\pi)-F\left(\frac{\pi}{2}\right)\) כאשר \(F(x)=\int_0^x\sin t\,dt\).</li>
+      <li>נתון \(K(x)=\int_0^x2\cos t\,dt\). חשב \(K\left(\frac{\pi}{6}\right)\).</li>
+      <li>נתון \(A(x)=\int_0^x(\sin t+1)\,dt\). חשב \(A(\pi)\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 6</span><span class="page-number">16</span></div>
+</section>
+
+<section class="page" id="page-17">
+  <span class="lesson-tag">שיעור 7</span>
+  <h2>אינטגרל עם ערך מוחלט</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>רעיון מרכזי</h3>
+        <p>כאשר מחשבים \(\int_a^b |f(x)|\,dx\), כל חלק של \(f(x)\) שנמצא מתחת לציר \(x\) נספר כחיובי. לכן האינטגרל של הערך המוחלט מייצג <strong>שטח כולל</strong> ללא קיזוז.</p>
+        <p>הגרף של \(|f(x)|\) מתקבל משיקוף כל החלקים השליליים של \(f(x)\) כלפי מעלה.</p>
+      </div>
+      <div class="tip">
+        <h3>צעדי עבודה</h3>
+        <ol class="rtl-tight">
+          <li>מוצאים את נקודות האפס בתחום.</li>
+          <li>בודקים באילו קטעים \(f(x)\) חיובית ובאילו שלילית.</li>
+          <li>כותבים את האינטגרל כסכום שטחים חיוביים, או עובדים ישירות עם \(|f(x)|\).</li>
+          <li>מחשבים כל חלק ומחברים.</li>
+        </ol>
+      </div>
+      <div class="info">
+        <h3>דוגמה 1</h3>
+        <p>עבור \(y=|\sin x|\) בתחום \(0\le x\le 2\pi\), כל ה"גבעות" נמצאות מעל הציר ולכן השטח המוצל שווה לאינטגרל:</p>
+        <div class="equation">\[\int_0^{2\pi}|\sin x|\,dx=\int_0^\pi\sin x\,dx-\int_\pi^{2\pi}\sin x\,dx\]</div>
+        <div class="equation">\[=2-(-2)=4\]</div>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <h3>גרף של \(y=|\sin x|\)</h3>
+        <div id="board8" class="jxgbox" style="height: 290px;"></div>
+        <div style="display:none;" class="controls" id="controls8"></div>
+        <p style="position: relative;top: 10px;" class="small muted">השטח הצבוע הוא בדיוק \(\int_0^{2\pi}|\sin x|\,dx\).</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 7 · ערך מוחלט</span><span class="page-number">17</span></div>
+</section>
+
+<section class="page" id="page-18">
+  <span class="lesson-tag">שיעור 7 · המשך</span>
+  <h2>אינטגרל עם ערך מוחלט — דוגמה נוספת</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>שיקוף חלק שלילי</h3>
+        <p>בפונקציה \(\cos x\) בתחום \(0\le x\le\pi\), החלק מימין ל-\(\frac{\pi}{2}\) שלילי. כאשר עוברים ל-\(|\cos x|\), החלק הזה משתקף כלפי מעלה, ולכן כל השטח נספר כחיובי.</p>
+      </div>
+      <div class="tip">
+        <h3>דוגמה 2</h3>
+        <div class="equation">\[\int_0^\pi|\cos x|\,dx=\int_0^{\frac{\pi}{2}}\cos x\,dx-\int_{\frac{\pi}{2}}^\pi\cos x\,dx\]</div>
+        <div class="equation">\[=1-(-1)=2\]</div>
+      </div>
+      <div class="info">
+        <h3>מסקנה</h3>
+        <p>כאשר מציירים את \(|f(x)|\), אפשר לקרוא מהגרף את השטח הכולל ישירות: כל השטח נמצא מעל ציר \(x\), ולכן אין קיזוז בין חלקים חיוביים לשליליים.</p>
+      </div>
+    </div>
+    <div>
+      <div class="board-wrap">
+        <h3>גרף של \(y=|\cos x|\)</h3>
+        <div id="board9" class="jxgbox" style="height: 290px;"></div>
+        <div style="display:none;" class="controls" id="controls9"></div>
+        <p style="position: relative;top: 10px;" class="small muted">השטח הצבוע הוא בדיוק \(\int_0^{\pi}|\cos x|\,dx\).</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 7 · המשך</span><span class="page-number">18</span></div>
+</section>
+
+<section class="page" id="page-19">
+  <span class="lesson-tag">דף תרגילים - שיעור 7</span>
+  <h2>תרגול: ערך מוחלט</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>חשב \(\int_0^\pi|\sin x|\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi}|\sin x|\,dx\).</li>
+      <li>חשב \(\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}|\cos x|\,dx\).</li>
+      <li>חשב \(\int_0^\pi|\cos x|\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi}|\cos x|\,dx\).</li>
+      <li>חשב \(\int_{-\pi}^{\pi}|\sin x|\,dx\).</li>
+      <li>חשב \(\int_0^\pi|2\sin x|\,dx\).</li>
+      <li>חשב \(\int_0^\pi|\sin 2x|\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi}|\sin x+1|\,dx\).</li>
+      <li>חשב את השטח הכולל בין \(y=\sin x\) לציר \(x\) בתחום \(-\pi\le x\le2\pi\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 7</span><span class="page-number">19</span></div>
+</section>
+
+<section class="page" id="page-20">
+  <span class="lesson-tag">שיעור 8</span>
+  <h2>מציאת פרמטרים באמצעות אינטגרל</h2>
+  <div class="cols">
+    <div>
+      <div class="info">
+        <h3>רעיון מרכזי</h3>
+        <p>כאשר באינטגרל מופיע פרמטר, מחשבים את האינטגרל כרגיל ומשתמשים בערך הנתון כדי לקבל משוואה בפרמטר.</p>
+        <div class="equation">\[\int_a^b\bigl(f(x)+k\bigr)\,dx=\int_a^b f(x)\,dx+k(b-a)\]</div>
+      </div>
+      <div class="tip">
+        <h3>צעדי עבודה</h3>
+        <ol class="rtl-tight">
+          <li>מפרידים בין האיברים באינטגרל.</li>
+          <li>מחשבים כל אינטגרל.</li>
+          <li>משווים לערך הנתון.</li>
+          <li>פותרים את המשוואה שהתקבלה.</li>
+        </ol>
+      </div>
+    </div>
+    <div>
+      <div class="info">
+        <h3>דוגמה 1</h3>
+        <div class="equation">\[\int_0^\pi(\sin x+k)\,dx=\pi\]</div>
+        <div class="equation">\[2+k\pi=\pi\Rightarrow \boxed{k=1-\frac{2}{\pi}}\]</div>
+      </div>
+      <div class="tip">
+        <h3>דוגמה 2</h3>
+        <div class="equation">\[\int_0^{\frac{\pi}{2}}(k\cos x+1)\,dx=3\]</div>
+        <div class="equation">\[k+\frac{\pi}{2}=3\Rightarrow \boxed{k=3-\frac{\pi}{2}}\]</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>שיעור 8 · פרמטרים</span><span class="page-number">20</span></div>
+</section>
+
+<section class="page" id="page-21">
+  <span class="lesson-tag">דף תרגילים - שיעור 8</span>
+  <h2>תרגול: פרמטרים</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>מצא את \(k\) אם \(\int_0^\pi(\sin x+k)\,dx=\pi\).</li>
+      <li>מצא את \(k\) אם \(\int_0^\pi(\cos x+k)\,dx=2\pi\).</li>
+      <li>מצא את \(k\) אם \(\int_0^{\frac{\pi}{2}}k\cos x\,dx=3\).</li>
+      <li>מצא את \(k\) אם \(\int_0^{\frac{\pi}{2}}(\sin x+k)\,dx=2\).</li>
+      <li>מצא את \(k\) אם \(\int_0^\pi k\sin x\,dx=6\).</li>
+      <li>מצא את \(k\) אם \(\int_0^{2\pi}(\cos x+k)\,dx=4\pi\).</li>
+      <li>מצא את כל ערכי \(k\) המקיימים \(\int_0^\pi(\sin x+k\cos x)\,dx=2\).</li>
+      <li>מצא את \(k\) אם \(\int_0^{\frac{\pi}{2}}(k\sin x+2\cos x)\,dx=5\).</li>
+      <li>מצא את \(k\) אם \(\int_0^\pi(k\sin x+k)\,dx=2\pi\).</li>
+      <li>מצא את \(k\) אם \(\int_0^\pi(\sin x+k)\,dx=0\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגול שיעור 8</span><span class="page-number">21</span></div>
+</section>
+
+<section class="page" id="page-22">
+  <h2>פתרונות - שיעור 1</h2>
+  <div class="sol-box">
+    <ol class="exercise-list">
+      <li>\(\sin x + C\)</li>
+      <li>\(-\cos x + C\)</li>
+      <li>\(3\sin x + C\)</li>
+      <li>\(2\cos x + C\)</li>
+      <li>\(\sin x + \cos x + C\)</li>
+      <li>\(F(x)=\sin x +1\)</li>
+      <li>\(F(x)=-2\cos x\)</li>
+      <li>כן, כי \(F'(x)=\sin x\)</li>
+      <li>\(2\sin x +3\cos x + C\)</li>
+      <li>\(F(x)=\sin x -2\cos x +7\)</li>
+    </ol>
+  </div>
+  <h2>פתרונות - שיעור 2</h2>
+  <div class="sol-box">
+    <ol class="exercise-list">
+      <li>\(1\)</li>
+      <li>\(2\)</li>
+      <li>\(0\)</li>
+      <li>\(2\)</li>
+      <li>\(2\)</li>
+      <li>\(2\)</li>
+      <li>\(1\)</li>
+      <li>\(0\)</li>
+      <li>\(0\)</li>
+      <li>\(0\)</li>
+    </ol>
+  </div>
+  <div class="foot"><span>פתרונות 1-2</span><span class="page-number">22</span></div>
+</section>
+
+<section class="page" id="page-23">
+  <h2>פתרונות - שיעור 3</h2>
+  <div class="sol-box">
+    <ol class="exercise-list">
+      <li>\(2\)</li>
+      <li>\(1\)</li>
+      <li>\(4\)</li>
+      <li>האינטגרל שווה \(0\), ואילו השטח שווה \(4\).</li>
+      <li>\(2\)</li>
+      <li>\(4\)</li>
+      <li>\(2\)</li>
+      <li>נקודות האפס: \(x=0,\pi,2\pi\). צריך פירוק כי הסימן משתנה ב-\(x=\pi\).</li>
+      <li>\(2\)</li>
+      <li>\(\pi+2\)</li>
+    </ol>
+  </div>
+  <h2>פתרונות - שיעור 4</h2>
+  <div class="sol-box">
+    <ol class="exercise-list">
+      <li>\(0\)</li>
+      <li>\(2\)</li>
+      <li>\(0\)</li>
+      <li>\(0\)</li>
+      <li>כי \(\sin x\) אי זוגית והתחום סימטרי.</li>
+      <li>\(0\)</li>
+      <li>\(0\)</li>
+      <li>\(0\)</li>
+      <li>שווים, כי זו אותה פונקציה על תחומים הנבדלים במחזור שלם.</li>
+      <li>\(\pi\)</li>
+    </ol>
+  </div>
+  <div class="foot"><span>פתרונות 3-4</span><span class="page-number">23</span></div>
+</section>
+
+<section class="page" id="page-24">
+  <h2>פתרונות - שיעור 5</h2>
+  <div class="sol-box">
+    <ol class="exercise-list">
+      <li>\(\sin^2 x=\frac{1-\cos 2x}{2}\)</li>
+      <li>\(\cos^2 x=\frac{1+\cos 2x}{2}\)</li>
+      <li>\(\frac{x}{2}-\frac{\sin 2x}{4}+C\)</li>
+      <li>\(\frac{x}{2}+\frac{\sin 2x}{4}+C\)</li>
+      <li>\(\cos^3 x=\cos x\cdot\cos^2 x\)</li>
+      <li>אפשר לכתוב \(\sin^4 x=(\sin^2 x)^2=\left(\frac{1-\cos 2x}{2}\right)^2\)</li>
+      <li>\(\frac{\pi}{2}\)</li>
+      <li>\(\frac{\pi}{2}\)</li>
+      <li>מתקבל \(1\), ולכן האינטגרל שווה \(\pi\).</li>
+      <li>\(\pi\)</li>
+    </ol>
+  </div>
+  <div class="foot"><span>פתרונות שיעור 5</span><span class="page-number">24</span></div>
+</section>
+
+<section class="page" id="page-25">
+  <h2>פתרונות - שיעורים 6, 7, 8</h2>
+
+  <div class="solutions-3">
+    <div class="sol-box">
+      <h3>6 · פונקציית הצטברות</h3>
+      <ol class="exercise-list">
+        <li>\(1\)</li>
+        <li>\(F(x)=\sin x\)</li>
+        <li>\(2\)</li>
+        <li>\(0\)</li>
+        <li>\(G(x)=\sin x-1\)</li>
+        <li>\(H(x)=1-\cos x+\sin x\)</li>
+        <li>\(x=\frac{\pi}{2}\)</li>
+        <li>\(1\)</li>
+        <li>\(1\)</li>
+        <li>\(\pi+2\)</li>
+      </ol>
+    </div>
+
+    <div class="sol-box">
+      <h3>7 · ערך מוחלט</h3>
+      <ol class="exercise-list">
+        <li>\(2\)</li>
+        <li>\(4\)</li>
+        <li>\(2\)</li>
+        <li>\(2\)</li>
+        <li>\(4\)</li>
+        <li>\(4\)</li>
+        <li>\(4\)</li>
+        <li>\(2\)</li>
+        <li>\(2\pi\)</li>
+        <li>\(6\)</li>
+      </ol>
+    </div>
+
+    <div class="sol-box">
+      <h3>8 · פרמטרים</h3>
+      <ol class="exercise-list">
+        <li>\(k=1-\frac{2}{\pi}\)</li>
+        <li>\(k=2\)</li>
+        <li>\(k=3\)</li>
+        <li>\(k=\frac{2}{\pi}\)</li>
+        <li>\(k=3\)</li>
+        <li>\(k=2\)</li>
+        <li>כל ערך ממשי של \(k\).</li>
+        <li>\(k=3\)</li>
+        <li>\(k=\frac{2\pi}{\pi+2}\)</li>
+        <li>\(k=-\frac{2}{\pi}\)</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="foot"><span>פתרונות שיעורים 6–8</span><span class="page-number">25</span></div>
+</section>
+
+<section class="page" id="page-26">
+  <span class="lesson-tag">תרגילים מסכמים</span>
+  <h2>תרגילים מסכמים מכל השיעורים</h2>
+  <div class="exercise-box">
+    <ol class="exercise-list">
+      <li>חשב \(\int_0^{\pi} (\sin x + \cos x)\,dx\).</li>
+      <li>חשב את השטח בין \(y=\cos x\) לציר \(x\) בתחום \(0 \le x \le 2\pi\).</li>
+      <li>חשב \(\int_{-\pi}^{\pi} (\sin x + 2\cos x)\,dx\).</li>
+      <li>השתמש בזהות הורדת חזקה כדי לחשב \(\int_0^{\pi} \sin^2 x\,dx\).</li>
+      <li>מצא \(k\) אם \(\int_0^{\pi}(2\sin x+k)\,dx=4\).</li>
+      <li>נתון \(F(x)=\int_0^x \cos t\,dt\). מצא את \(F(\pi)\).</li>
+      <li>חשב \(\int_0^{2\pi}|\cos x|\,dx\).</li>
+      <li>חשב \(\int_0^{2\pi}(\sin^2 x+\cos^2 x)\,dx\).</li>
+      <li>מצא את השטח בין \(y=\sin x\) ובין \(y=0\) בתחום \(-\pi \le x \le \pi\).</li>
+      <li>מצא את \(x\) בתחום \(0 \le x \le \pi\) שעבורו \(\int_0^x \sin t\,dt = \frac{1}{2}\).</li>
+    </ol>
+  </div>
+  <div class="foot"><span>תרגילים מסכמים</span><span class="page-number">26</span></div>
+</section>
+
+<section class="page" id="page-27">
+  <span class="lesson-tag">פתרונות מיידיים</span>
+  <h2>פתרונות לתרגילים המסכמים</h2>
+  <div class="sol-box">
+    <ol class="exercise-list">
+      <li>
+        \[\int_0^{\pi}(\sin x+\cos x)\,dx = \left[-\cos x + \sin x\right]_0^{\pi}=2\]
+      </li>
+      <li>
+        האפסים של \(\cos x\) בתחום הם \(\frac{\pi}{2},\frac{3\pi}{2}\). לכן:
+        \[\text{חטש}=\int_0^{\frac{\pi}{2}}\cos x\,dx-\int_{\frac{\pi}{2}}^{\frac{3\pi}{2}}\cos x\,dx+\int_{\frac{3\pi}{2}}^{2\pi}\cos x\,dx=4\]
+      </li>
+      <li>
+        האיבר של \(\sin x\) מתאפס בסימטריה, והאיבר של \(\cos x\) נותן \(0\). לכן הערך הוא \(0\).</li>
+      <li>
+        \[\int_0^{\pi}\sin^2 x\,dx=\int_0^{\pi}\frac{1-\cos 2x}{2}\,dx=\left[\frac{x}{2}-\frac{\sin 2x}{4}\right]_0^{\pi}=\frac{\pi}{2}\]
+      </li>
+      <li>
+        \[\int_0^{\pi}(2\sin x+k)\,dx = 4+k\pi = 4\Rightarrow k=0\]
+      </li>
+      <li>
+        \[F(x)=\sin x\Rightarrow F(\pi)=0\]
+      </li>
+      <li>
+        בכל מחצית רבעון מתקבל שטח \(1\), ובסך הכל \(4\).</li>
+      <li>
+        \(\sin^2 x+\cos^2 x=1\), לכן:
+        \[\int_0^{2\pi}1\,dx=2\pi\]
+      </li>
+      <li>
+        זהו שטח כולל סימטרי, לכן:
+        \[2\int_0^{\pi}\sin x\,dx = 2\cdot 2 = 4\]
+      </li>
+      <li>
+        \[\int_0^x \sin t\,dt = 1-\cos x = \frac{1}{2}\Rightarrow \cos x=\frac{1}{2}\Rightarrow x=\frac{\pi}{3}\]
+      </li>
+    </ol>
+  </div>
+  <div class="foot"><span>פתרונות מסכמים</span><span class="page-number">27</span></div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  const boards = {};
+
+  function addControls(board, hostId, bbox){
+    const host = document.getElementById(hostId);
+    const mk = (label, fn) => {
+      const b = document.createElement('button');
+      b.type='button';
+      b.textContent = label;
+      b.addEventListener('click', fn);
+      host.appendChild(b);
+    };
+    mk('+', ()=>board.zoomIn());
+    mk('-', ()=>board.zoomOut());
+    mk('reset', ()=>board.setBoundingBox(bbox, true));
+    mk('center', ()=>board.setBoundingBox(bbox, true));
+  }
+
+  function initBoards(){
+    try {
+      boards.b1 = JXG.JSXGraph.initBoard('board1', {
+        boundingbox:[-1,1.6,7,-1.6], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b1, 'controls1', [-1,1.6,7,-1.6]);
+      boards.b1.create('functiongraph',[x=>Math.sin(x),0,2*Math.PI],{strokeWidth:2, strokeColor:'#1f77b4'});
+      boards.b1.create('functiongraph',[x=>Math.cos(x),0,2*Math.PI],{strokeWidth:2, strokeColor:'#d62728'});
+      boards.b1.create('text',[4.9,1.25,String.raw`\(y=\sin x\)`],{useMathJax:true, fixed:true});
+      boards.b1.create('text',[4.9,0.95,String.raw`\(y=\cos x\)`],{useMathJax:true, fixed:true});
+
+      boards.b2 = JXG.JSXGraph.initBoard('board2', {
+        boundingbox:[-0.6,1.6,4,-0.4], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b2, 'controls2', [-0.6,1.6,4,-0.4]);
+      boards.b2.create('functiongraph',[x=>Math.sin(x),0,Math.PI],{strokeWidth:2, strokeColor:'#0e7490'});
+      const xs2 = []; for(let i=0;i<=80;i++){ xs2.push(i*Math.PI/80); }
+      const data2 = xs2.map(x=>[x,Math.sin(x)]);
+      boards.b2.create('curve',[data2.map(p=>p[0]), data2.map(p=>p[1])],{strokeWidth:0, fillColor:'#9bd7f3', fillOpacity:0.5});
+      boards.b2.create('point',[0,0],{size:2,name:'',fixed:true});
+      boards.b2.create('point',[Math.PI,0],{size:2,name:'',fixed:true});
+      boards.b2.create('text',[1.1,1.18,String.raw`\(\displaystyle \int_0^{\pi} \sin x\,dx\)`],{useMathJax:true, fixed:true});
+
+      boards.b3 = JXG.JSXGraph.initBoard('board3', {
+        boundingbox:[-0.6,1.6,7,-1.6], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b3, 'controls3', [-0.6,1.6,7,-1.6]);
+      boards.b3.create('functiongraph',[x=>Math.sin(x),0,2*Math.PI],{strokeWidth:2, strokeColor:'#2563eb'});
+      const xs31=[], xs32=[];
+      for(let i=0;i<=60;i++) xs31.push(i*Math.PI/60);
+      for(let i=0;i<=60;i++) xs32.push(Math.PI + i*Math.PI/60);
+      boards.b3.create('curve',[xs31, xs31.map(x=>Math.sin(x))],{strokeWidth:0, fillColor:'#93c5fd', fillOpacity:0.6});
+      boards.b3.create('curve',[xs32, xs32.map(x=>Math.sin(x))],{strokeWidth:0, fillColor:'#f9a8d4', fillOpacity:0.6});
+      boards.b3.create('text',[1.2,1.15,String.raw`\(f(x)=\sin x\)`],{useMathJax:true, fixed:true});
+
+      boards.b4 = JXG.JSXGraph.initBoard('board4', {
+        boundingbox:[-4,1.6,4,-1.6], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b4, 'controls4', [-4,1.6,4,-1.6]);
+      boards.b4.create('functiongraph',[x=>Math.sin(x),-Math.PI,Math.PI],{strokeWidth:2, strokeColor:'#7c3aed'});
+
+      // Color the two symmetric areas between y = sin(x) and the x-axis.
+      const xs41 = [], xs42 = [];
+      for(let i=0;i<=100;i++) xs41.push(-Math.PI + i*Math.PI/100);
+      for(let i=0;i<=100;i++) xs42.push(i*Math.PI/100);
+      boards.b4.create('curve',[xs41, xs41.map(x=>Math.sin(x))],{
+        strokeWidth:0,
+        fillColor:'#c4b5fd',
+        fillOpacity:0.55,
+        highlight:false
+      });
+      boards.b4.create('curve',[xs42, xs42.map(x=>Math.sin(x))],{
+        strokeWidth:0,
+        fillColor:'#c4b5fd',
+        fillOpacity:0.55,
+        highlight:false
+      });
+
+      boards.b4.create('line',[[0,-1.4],[0,1.4]],{straightFirst:false, straightLast:false, dash:2, strokeColor:'#64748b'});
+      boards.b4.create('text',[-2.9,1.15,String.raw`\(\sin(-x)=-\sin x\)`],{useMathJax:true, fixed:true});
+
+
+      boards.b6 = JXG.JSXGraph.initBoard('board6', {
+        boundingbox:[-2,1.4,2,-0.35], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b6, 'controls6', [-2,1.4,2,-0.35]);
+      boards.b6.create('functiongraph',[x=>Math.cos(x),-Math.PI/2,Math.PI/2],{strokeWidth:2, strokeColor:'#0f766e'});
+      const xs6 = [];
+      for(let i=0;i<=100;i++) xs6.push(-Math.PI/2 + i*Math.PI/100);
+      boards.b6.create('curve',[xs6, xs6.map(x=>Math.cos(x))],{strokeWidth:0, fillColor:'#99f6e4', fillOpacity:0.45});
+      boards.b6.create('line',[[0,-0.25],[0,1.25]],{straightFirst:false, straightLast:false, dash:2, strokeColor:'#64748b'});
+      boards.b6.create('text',[-1.55,1.15,String.raw`\(y=\cos x\)`],{useMathJax:true, fixed:true});
+
+      boards.b7 = JXG.JSXGraph.initBoard('board7', {
+        boundingbox:[-0.5,1.45,6.8,-1.45], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b7, 'controls7', [-0.5,1.45,6.8,-1.45]);
+      boards.b7.create('functiongraph',[x=>Math.sin(x),0,2*Math.PI],{strokeWidth:2, strokeColor:'#b45309'});
+      const xs71 = [], xs72 = [];
+      for(let i=0;i<=80;i++) xs71.push(i*Math.PI/80);
+      for(let i=0;i<=80;i++) xs72.push(Math.PI + i*Math.PI/80);
+      boards.b7.create('curve',[xs71, xs71.map(x=>Math.sin(x))],{strokeWidth:0, fillColor:'#fde68a', fillOpacity:0.55});
+      boards.b7.create('curve',[xs72, xs72.map(x=>Math.sin(x))],{strokeWidth:0, fillColor:'#fdba74', fillOpacity:0.45});
+      boards.b7.create('text',[4.75,1.12,String.raw`\(y=\sin x\)`],{useMathJax:true, fixed:true});
+
+      boards.b5 = JXG.JSXGraph.initBoard('board5', {
+        boundingbox:[-0.6,2.4,7,-1.4], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b5, 'controls5', [-0.6,2.4,7,-1.4]);
+      boards.b5.create('functiongraph',[x=>Math.sin(x),0,2*Math.PI],{strokeWidth:2, strokeColor:'#0284c7'});
+      boards.b5.create('functiongraph',[x=>1-Math.cos(x),0,2*Math.PI],{strokeWidth:2, strokeColor:'#dc2626'});
+      boards.b5.create('text',[4.6,2.0,String.raw`\(F(x)=1-\cos x\)`],{useMathJax:true, fixed:true});
+      boards.b5.create('text',[4.8,0.8,String.raw`\(f(x)=\sin x\)`],{useMathJax:true, fixed:true});
+
+      boards.b8 = JXG.JSXGraph.initBoard('board8', {
+        boundingbox:[-0.5,1.35,6.8,-0.25], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b8, 'controls8', [-0.5,1.35,6.8,-0.25]);
+      boards.b8.create('functiongraph',[x=>Math.abs(Math.sin(x)),0,2*Math.PI],{strokeWidth:2, strokeColor:'#7c3aed'});
+      const xs8 = [];
+      for(let i=0;i<=160;i++) xs8.push(i*2*Math.PI/160);
+      const ys8 = xs8.map(x=>Math.abs(Math.sin(x)));
+      boards.b8.create('curve',[
+        xs8.concat([...xs8].reverse()),
+        ys8.concat(new Array(xs8.length).fill(0))
+      ],{strokeWidth:0, fillColor:'#d8b4fe', fillOpacity:0.55, highlight:false});
+      boards.b8.create('point',[0,0],{size:2,name:'',fixed:true});
+      boards.b8.create('point',[Math.PI,0],{size:2,name:'',fixed:true});
+      boards.b8.create('point',[2*Math.PI,0],{size:2,name:'',fixed:true});
+      boards.b8.create('text',[4.35,1.14,String.raw`\(y=|\sin x|\)`],{useMathJax:true, fixed:true});
+      boards.b8.create('text',[1.7,1.0,String.raw`\(\int_0^{2\pi}|\sin x|\,dx\)`],{useMathJax:true, fixed:true});
+
+      boards.b9 = JXG.JSXGraph.initBoard('board9', {
+        boundingbox:[-0.35,1.35,3.5,-0.25], axis:true, showCopyright:false,
+        showNavigation:false, keepaspectratio:false
+      });
+      addControls(boards.b9, 'controls9', [-0.35,1.35,3.5,-0.25]);
+      boards.b9.create('functiongraph',[x=>Math.abs(Math.cos(x)),0,Math.PI],{strokeWidth:2, strokeColor:'#0f766e'});
+      const xs9 = [];
+      for(let i=0;i<=120;i++) xs9.push(i*Math.PI/120);
+      const ys9 = xs9.map(x=>Math.abs(Math.cos(x)));
+      boards.b9.create('curve',[
+        xs9.concat([...xs9].reverse()),
+        ys9.concat(new Array(xs9.length).fill(0))
+      ],{strokeWidth:0, fillColor:'#99f6e4', fillOpacity:0.55, highlight:false});
+      boards.b9.create('line',[[Math.PI/2,-0.12],[Math.PI/2,1.15]],{straightFirst:false, straightLast:false, dash:2, strokeColor:'#64748b'});
+      boards.b9.create('point',[0,1],{size:2,name:'',fixed:true});
+      boards.b9.create('point',[Math.PI/2,0],{size:2,name:'',fixed:true});
+      boards.b9.create('point',[Math.PI,1],{size:2,name:'',fixed:true});
+      boards.b9.create('text',[2.1,1.14,String.raw`\(y=|\cos x|\)`],{useMathJax:true, fixed:true});
+      boards.b9.create('text',[0.82,1.0,String.raw`\(\int_0^{\pi}|\cos x|\,dx\)`],{useMathJax:true, fixed:true});
+
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise([
+          document.getElementById('board1'),
+          document.getElementById('board2'),
+          document.getElementById('board3'),
+          document.getElementById('board4'),
+          document.getElementById('board5'),
+          document.getElementById('board6'),
+          document.getElementById('board7'),
+          document.getElementById('board8'),
+          document.getElementById('board9')
+        ]).then(function(){
+          Object.values(boards).forEach(function(board){ board.fullUpdate(); });
+        }).catch(function(err){
+          console.error('MathJax typesetting in JSXGraph failed:', err);
+        });
+      }
+    } catch(err){
+      console.error('JSXGraph initialization failed:', err);
+    }
+  }
+
+  function runDiagnostics(){
+    const list = document.getElementById('diagnostics-list');
+    const items = [];
+
+    // duplicate ids
+    const ids = [...document.querySelectorAll('[id]')].map(el=>el.id);
+    const dups = ids.filter((id, idx)=>ids.indexOf(id)!==idx);
+    items.push(dups.length ? 'אזהרה: נמצאו מזהים כפולים: ' + [...new Set(dups)].join(', ') : 'תקין: לא נמצאו מזהים כפולים.');
+
+    // titles
+    const untitled = [...document.querySelectorAll('section.page')].filter(sec=>!sec.querySelector('h1,h2'));
+    items.push(untitled.length ? 'אזהרה: יש עמודים ללא כותרת.' : 'תקין: לכל עמוד יש כותרת.');
+
+    // graph controls
+    const controlsOk = ['controls1','controls2','controls3','controls4','controls5','controls6','controls7','controls8','controls9'].every(id=>{
+      const el = document.getElementById(id); return el && el.querySelectorAll('button').length >= 4;
+    });
+    items.push(controlsOk ? 'תקין: לכל גרף נוספו כפתורי שליטה.' : 'אזהרה: חסרים כפתורי שליטה בחלק מן הגרפים.');
+
+    // MathJax
+    items.push(window.MathJax ? 'תקין: MathJax נטען.' : 'אזהרה: MathJax לא נטען.');
+
+    // JSXGraph
+    items.push(Object.keys(boards).length === 7 ? 'תקין: כל לוחות JSXGraph אותחלו.' : 'אזהרה: חלק מלוחות JSXGraph לא אותחלו.');
+
+    // A4 overflow approximation
+    const over = [...document.querySelectorAll('section.page')].filter(sec=>sec.scrollHeight > sec.clientHeight + 6);
+    items.push(over.length ? 'אזהרה: ייתכן גלישה בעמודים: ' + over.map(x=>x.id).join(', ') : 'תקין: לא זוהתה גלישה ביחס לגובה העמוד.');
+
+    // invalid HTML cannot be fully checked in browser
+    items.push('הערה: תקינות HTML מלאה נבדקת ברמת הדפדפן; המסמך נבנה במבנה תקני ועם תגיות סגורות.');
+
+    list.innerHTML='';
+    items.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; list.appendChild(li); });
+  }
+
+  window.addEventListener('load', function(){
+    initBoards();
+    setTimeout(runDiagnostics, 800);
+  });
+})();
+</script>
+</body>
+</html>
