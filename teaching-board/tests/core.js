@@ -1,10 +1,11 @@
-import '../js/editor.js?v=20260923-2';
-import { compileExpression } from '../js/expression.js?v=20260923-2';
-import { bounds } from '../js/scene.js?v=20260923-2';
-import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260923-2';
-import { History } from '../js/history.js?v=20260923-2';
-import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260923-2';
-import { SaveQueue } from '../js/save-queue.js?v=20260923-2';
+import '../js/editor.js?v=20260927-feature1';
+import { compileExpression } from '../js/expression.js?v=20260927-feature1';
+import { bounds } from '../js/scene.js?v=20260927-feature1';
+import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260927-feature1';
+import { History } from '../js/history.js?v=20260927-feature1';
+import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260927-feature1';
+import { SaveQueue } from '../js/save-queue.js?v=20260927-feature1';
+import { smoothInk, strokePathD } from '../js/ink.js?v=20260927-feature1';
 export async function runTests(log = console.log) {
   let count = 0;
   function assert(value, message) { if (!value) throw new Error(message); count++; log(`PASS ${message}`); }
@@ -42,5 +43,11 @@ export async function runTests(log = console.log) {
   assert(Math.abs(b.w-50)<1e-9 && Math.abs(b.h-100)<1e-9, 'Rotated selection bounds');
   const media = {...item,type:'image',src:'data:image/png;base64,YQ=='};
   assert(parseBackup(serializeBackup({...board,items:[media]})).items[0].src===media.src, 'Embedded media survives backup');
+  const rawInk = [[0,0],[10,5],[20,-2],[30,8],[40,0]];
+  const smoothedInk = smoothInk(rawInk,.65);
+  assert(smoothedInk.length===rawInk.length && smoothedInk[0][0]===0 && smoothedInk.at(-1)[0]===40, 'Ink smoothing preserves stroke samples and endpoints');
+  assert(strokePathD(smoothedInk).startsWith('M0 0 C'), 'Smoothed ink renders as a Bézier path');
+  const inkItem = {...board,items:[{id:'ink',type:'path',x:0,y:0,w:40,h:10,points:smoothedInk,rawPoints:rawInk,smoothing:.65}]};
+  assert(parseBackup(serializeBackup(inkItem)).items[0].rawPoints.length===rawInk.length, 'Raw ink survives editable backup');
   return count;
 }

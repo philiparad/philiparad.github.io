@@ -1,5 +1,5 @@
 export const SCHEMA_VERSION = 1;
-export const ITEM_TYPES = new Set(['path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
+export const ITEM_TYPES = new Set(['arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
   const now = new Date().toISOString();
   return { schemaVersion: SCHEMA_VERSION, id: crypto.randomUUID(), title: title.trim() || 'Untitled lesson', folder: '', createdAt: now, updatedAt: now, revision: 0, deleted: false, viewport: { x: 0, y: 0, zoom: 1 }, background: 'grid', items: [] };
@@ -20,10 +20,13 @@ export function validateBoard(value) {
     ids.add(item.id);
     if (![item.x, item.y].every(n => Number.isFinite(n) && Math.abs(n) < 1e7)) throw new Error('Invalid object position.');
     for (const key of ['w', 'h', 'lineWidth', 'fontSize']) if (item[key] !== undefined && (!Number.isFinite(item[key]) || item[key] <= 0 || item[key] > 100000)) throw new Error('Invalid object size.');
+    if(item.type==='arc'&&(![item.startAngle,item.sweepAngle,item.w,item.h].every(Number.isFinite)||!item.sweepAngle||Math.abs(item.sweepAngle)>360||typeof item.showRadii!=='boolean'))throw new Error('Invalid arc.');
     if (item.rotation !== undefined && !Number.isFinite(item.rotation)) throw new Error('Invalid rotation.');
     if (item.opacity !== undefined && (!Number.isFinite(item.opacity) || item.opacity < 0 || item.opacity > 1)) throw new Error('Invalid opacity.');
+    if (item.smoothing !== undefined && (!Number.isFinite(item.smoothing) || item.smoothing < 0 || item.smoothing > 1)) throw new Error('Invalid ink smoothing.');
     for (const key of ['stroke','fill']) if (item[key] !== undefined && !/^(#[0-9a-f]{6}|none)$/i.test(item[key])) throw new Error('Invalid color.');
     if (['path','polygon','line','arrow'].includes(item.type) && (!Array.isArray(item.points) || item.points.length > 50000 || item.points.some(p => !Array.isArray(p) || p.length !== 2 || !p.every(n => Number.isFinite(n) && Math.abs(n) < 1e7)))) throw new Error('Invalid path.');
+    if (item.rawPoints !== undefined && (item.type !== 'path' || !Array.isArray(item.rawPoints) || item.rawPoints.length > 50000 || item.rawPoints.some(p => !Array.isArray(p) || p.length !== 2 || !p.every(n => Number.isFinite(n) && Math.abs(n) < 1e7)))) throw new Error('Invalid raw ink path.');
     if (['text','note'].includes(item.type) && (typeof item.text !== 'string' || item.text.length > 10000)) throw new Error('Invalid text.');
     if (['image','equation','graph'].includes(item.type) && (typeof item.src !== 'string' || !/^data:image\/(png|jpeg|webp);base64,[a-zA-Z0-9+/=]+$/.test(item.src))) throw new Error('Unsupported image content.');
     if (['equation','graph'].includes(item.type) && (typeof item.source !== 'string' || item.source.length > 2000)) throw new Error('Invalid mathematical source.');

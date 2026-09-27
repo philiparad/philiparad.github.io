@@ -1,5 +1,6 @@
 // Inline SVG keeps toolbar icons consistent across devices.
 const paths={
+ arc:'M4 18a8 8 0 0116 0 M12 18L6 8 M12 18h8',
  select:'M5 3l14 10-7 1-3 7z',pan:'M8 11V5a1.5 1.5 0 013 0v5-7a1.5 1.5 0 013 0v7-5a1.5 1.5 0 013 0v7-3a1.5 1.5 0 013 0v6c0 5-3 7-7 7-3 0-5-2-7-5l-3-4a2 2 0 013-2l2 2',
  pen:'M4 20l2-6L17 3l4 4L10 18z M6 14l4 4',highlighter:'M4 16l9-11 6 5-9 10z M3 21h10',eraser:'M3 14L14 3l7 7-11 11H8z M7 10l7 7 M10 21h11',
  line:'M4 20L20 4',arrow:'M4 20L20 4 M10 4h10v10',rectangle:'M3 4h18v16H3z',ellipse:'M21 12a9 8 0 11-18 0 9 8 0 0118 0',triangle:'M12 3l10 18H2z',polygon:'M12 2l10 8-4 12H6L2 10z',
