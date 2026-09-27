@@ -11,6 +11,7 @@ export function validateBoard(value) {
   if (!Number.isInteger(value.revision) || value.revision < 0 || typeof value.deleted !== 'boolean') throw new Error('Invalid board revision.');
   if (!Number.isFinite(Date.parse(value.createdAt)) || !Number.isFinite(Date.parse(value.updatedAt))) throw new Error('Invalid board dates.');
   if (!['grid', 'dots', 'plain', 'ruled', 'dark'].includes(value.background)) throw new Error('Invalid background.');
+  if(value.snapMode!==undefined&&!['off','grid','objects','both'].includes(value.snapMode))throw new Error('Invalid snapping mode.');
   const v = value.viewport;
   if (!v || ![v.x, v.y, v.zoom].every(Number.isFinite) || v.zoom < .1 || v.zoom > 8) throw new Error('Invalid viewport.');
   if (!Array.isArray(value.items) || value.items.length > 20000) throw new Error('Invalid item collection.');

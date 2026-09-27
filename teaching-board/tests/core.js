@@ -1,11 +1,11 @@
-import '../js/editor.js?v=20260927-feature2';
-import { compileExpression } from '../js/expression.js?v=20260927-feature2';
-import { bounds } from '../js/scene.js?v=20260927-feature2';
-import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260927-feature2';
-import { History } from '../js/history.js?v=20260927-feature2';
-import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260927-feature2';
-import { SaveQueue } from '../js/save-queue.js?v=20260927-feature2';
-import { smoothInk, strokePathD } from '../js/ink.js?v=20260927-feature2';
+import '../js/editor.js?v=20260927-feature3';
+import { compileExpression } from '../js/expression.js?v=20260927-feature3';
+import { bounds } from '../js/scene.js?v=20260927-feature3';
+import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260927-feature3';
+import { History } from '../js/history.js?v=20260927-feature3';
+import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260927-feature3';
+import { SaveQueue } from '../js/save-queue.js?v=20260927-feature3';
+import { smoothInk, strokePathD } from '../js/ink.js?v=20260927-feature3';
 export async function runTests(log = console.log) {
   let count = 0;
   function assert(value, message) { if (!value) throw new Error(message); count++; log(`PASS ${message}`); }
