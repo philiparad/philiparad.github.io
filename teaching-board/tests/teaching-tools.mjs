@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js';
+import { validCrop } from '../js/crop-editor.js';
+import { deletePage, pageRect } from '../js/pages.js';
+import { History } from '../js/history.js';
+const board=createBoard('Teaching tools regression');board.layout='a4';board.pageCount=3;
+board.items=[{id:'a',type:'image',x:10,y:10,w:100,h:80,src:'data:image/png;base64,AAAA',crop:{x:.2,y:.1,w:.5,h:.8}},{id:'b',type:'rectangle',x:10,y:pageRect(1).y+10,w:100,h:100,locked:true},{id:'c',type:'rectangle',x:10,y:pageRect(2).y+10,w:100,h:100}];
+assert(validCrop(board.items[0].crop));assert(!validCrop({x:.9,y:0,w:.2,h:1}));assert(!validCrop({x:0,y:0,w:0,h:1}));
+assert.deepEqual(parseBackup(serializeBackup(board)),board);
+const history=new History(board);deletePage(board,1);history.commit(board);
+assert.equal(board.pageCount,2);assert.deepEqual(board.items.map(i=>i.id),['a','c']);assert.equal(board.items[1].y,pageRect(1).y+10);
+assert.equal(history.undo().pageCount,3);assert.equal(history.redo().pageCount,2);
+assert.throws(()=>validateBoard({...board,pageCount:0}));assert.throws(()=>validateBoard({...board,items:[{...board.items[0],crop:{x:-1,y:0,w:1,h:1}}]}));
+console.log('11 teaching-tool regression checks passed');

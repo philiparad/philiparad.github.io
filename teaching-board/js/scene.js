@@ -1,5 +1,5 @@
-import { strokePathD } from './ink.js?v=20260928-feature6';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20260928-feature6';
+import { strokePathD } from './ink.js?v=20260928-feature7';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20260928-feature7';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}

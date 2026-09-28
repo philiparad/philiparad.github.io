@@ -1,10 +1,16 @@
-import { sceneSVG } from './scene.js?v=20260928-feature6';
-import { loadImage } from './media.js?v=20260928-feature6';
-import { serializeBackup } from './model.js?v=20260928-feature6';
-import { download, filename } from './ui.js?v=20260928-feature6';
+import { pageSVG } from './pages.js?v=20260928-feature7';
+import { sceneSVG } from './scene.js?v=20260928-feature7';
+import { loadImage } from './media.js?v=20260928-feature7';
+import { serializeBackup } from './model.js?v=20260928-feature7';
+import { download, filename } from './ui.js?v=20260928-feature7';
 export function backup(board){download(new Blob([serializeBackup(board)],{type:'application/json'}),filename(board.title)+'.json');}
-export async function exportBoard(board,format){if(format==='json'){backup(board);return;}const svg=sceneSVG(board),source=new XMLSerializer().serializeToString(svg);if(format==='svg'){download(new Blob([source],{type:'image/svg+xml'}),filename(board.title)+'.svg');return;}
+export async function exportBoard(board,format){if(format==='json'){backup(board);return;}if(format==='pdf'&&board.layout==='a4'){await printPages(board);return;}const svg=sceneSVG(board),source=new XMLSerializer().serializeToString(svg);if(format==='svg'){download(new Blob([source],{type:'image/svg+xml'}),filename(board.title)+'.svg');return;}
  const url=URL.createObjectURL(new Blob([source],{type:'image/svg+xml'}));try{const img=await loadImage(url),scale=Math.min(2,8000/Math.max(img.width,img.height),Math.sqrt(24000000/(img.width*img.height))),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);if(format==='png'){const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('Could not create PNG.');download(blob,filename(board.title)+'.png');}else{
  // Print from a same-origin iframe. Browser's Save as PDF supports every rendered object.
  const frame=document.createElement('iframe');frame.title='Printable lesson';frame.style.cssText='position:fixed;width:1px;height:1px;right:0;bottom:0;border:0';document.body.append(frame);const doc=frame.contentDocument;doc.open();doc.write('<!doctype html><html><head><title></title><style>@page{size:A4 landscape;margin:10mm}body{margin:0}img{width:100%;height:185mm;object-fit:contain}h1{font:16px Arial;margin:0 0 4mm}</style></head><body></body></html>');doc.close();doc.title=board.title;const title=doc.createElement('h1');title.textContent=board.title;const image=doc.createElement('img');image.alt=board.title;image.src=canvas.toDataURL('image/png');doc.body.append(title,image);await image.decode();frame.contentWindow.focus();frame.contentWindow.print();setTimeout(()=>frame.remove(),120000);}
  }finally{URL.revokeObjectURL(url);}}
+
+async function printPages(board){
+ const frame=document.createElement('iframe');frame.title='Printable A4 lesson';frame.style.cssText='position:fixed;width:1px;height:1px;border:0';document.body.append(frame);
+ try{const doc=frame.contentDocument;doc.open();doc.write('<!doctype html><html><head><title></title><style>@page{size:A4 portrait;margin:0}html,body{margin:0}section{width:210mm;height:297mm;break-after:page;overflow:hidden}section:last-child{break-after:auto}svg{display:block;width:100%;height:100%}</style></head><body></body></html>');doc.close();doc.title=board.title;for(let n=0;n<(board.pageCount||1);n++){const section=doc.createElement('section');section.append(doc.importNode(pageSVG(board,n),true));doc.body.append(section);}await Promise.all([...doc.querySelectorAll('image')].map(node=>loadImage(node.getAttribute('href'))));frame.contentWindow.focus();frame.contentWindow.print();setTimeout(()=>frame.remove(),120000);}catch(error){frame.remove();throw error;}
+}

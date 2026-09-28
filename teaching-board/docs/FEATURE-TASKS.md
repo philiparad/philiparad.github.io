@@ -8,6 +8,6 @@ Work sequentially; validate and publish each task before starting the next.
 4. **Visual equation editing — completed:** editable visual math field, symbol/templates palette, LaTeX fallback and preview.
 5. **Multi-function graphs — completed:** multiple expressions, per-curve colors, common axes, live preview and editing.
 6. **Image cropping — completed:** visual crop selection, apply/cancel/reset, original-image preservation.
-7. **A4 document pages — in progress:** page mode, add/delete/navigate, page boundaries, multipage printing/PDF.
+7. **A4 document pages — completed:** page mode, add/delete/navigate, page boundaries, multipage printing/PDF.
 
 Existing lesson backups must remain compatible. Use only browser HTML/CSS/JavaScript/SVG and appropriate browser libraries.

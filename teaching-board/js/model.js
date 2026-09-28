@@ -1,4 +1,4 @@
-import { validCrop } from './crop-editor.js?v=20260928-feature6';
+import { validCrop } from './crop-editor.js?v=20260928-feature7';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -13,6 +13,8 @@ export function validateBoard(value) {
   if (!Number.isFinite(Date.parse(value.createdAt)) || !Number.isFinite(Date.parse(value.updatedAt))) throw new Error('Invalid board dates.');
   if (!['grid', 'dots', 'plain', 'ruled', 'dark'].includes(value.background)) throw new Error('Invalid background.');
   if(value.snapMode!==undefined&&!['off','grid','objects','both'].includes(value.snapMode))throw new Error('Invalid snapping mode.');
+  if(value.layout!==undefined&&!['infinite','a4'].includes(value.layout))throw new Error('Invalid canvas layout.');
+  if(value.pageCount!==undefined&&(!Number.isInteger(value.pageCount)||value.pageCount<1||value.pageCount>100))throw new Error('Invalid page count.');
   const v = value.viewport;
   if (!v || ![v.x, v.y, v.zoom].every(Number.isFinite) || v.zoom < .1 || v.zoom > 8) throw new Error('Invalid viewport.');
   if (!Array.isArray(value.items) || value.items.length > 20000) throw new Error('Invalid item collection.');
