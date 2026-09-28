@@ -31,7 +31,8 @@ export function validateBoard(value) {
     if (item.rawPoints !== undefined && (item.type !== 'path' || !Array.isArray(item.rawPoints) || item.rawPoints.length > 50000 || item.rawPoints.some(p => !Array.isArray(p) || p.length !== 2 || !p.every(n => Number.isFinite(n) && Math.abs(n) < 1e7)))) throw new Error('Invalid raw ink path.');
     if (['text','note'].includes(item.type) && (typeof item.text !== 'string' || item.text.length > 10000)) throw new Error('Invalid text.');
     if (['image','equation','graph'].includes(item.type) && (typeof item.src !== 'string' || !/^data:image\/(png|jpeg|webp);base64,[a-zA-Z0-9+/=]+$/.test(item.src))) throw new Error('Unsupported image content.');
-    if (['equation','graph'].includes(item.type) && (typeof item.source !== 'string' || item.source.length > 2000)) throw new Error('Invalid mathematical source.');
+    if (['equation','graph'].includes(item.type) && (typeof item.source !== 'string' || item.source.length > (item.type==='graph'?4000:2000))) throw new Error('Invalid mathematical source.');
+    if(item.series!==undefined&&(item.type!=='graph'||!Array.isArray(item.series)||!item.series.length||item.series.length>8||item.series.some(r=>typeof r.source!=='string'||r.source.length>400||!/^#[0-9a-f]{6}$/i.test(r.color)||typeof r.visible!=='boolean')))throw new Error('Invalid graph series.');
     if (item.type === 'graph' && (!Array.isArray(item.range) || item.range.length !== 4 || !item.range.every(Number.isFinite))) throw new Error('Invalid graph range.');
   }
   if (JSON.stringify(value).length > 25_000_000) throw new Error('Board exceeds the 25 MB limit.');
