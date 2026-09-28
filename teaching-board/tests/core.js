@@ -1,11 +1,11 @@
-import '../js/editor.js?v=20260928-graphfix';
-import { compileExpression } from '../js/expression.js?v=20260928-graphfix';
-import { bounds } from '../js/scene.js?v=20260928-graphfix';
-import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260928-graphfix';
-import { History } from '../js/history.js?v=20260928-graphfix';
-import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260928-graphfix';
-import { SaveQueue } from '../js/save-queue.js?v=20260928-graphfix';
-import { smoothInk, strokePathD } from '../js/ink.js?v=20260928-graphfix';
+import '../js/editor.js?v=20260928-cropfix';
+import { compileExpression } from '../js/expression.js?v=20260928-cropfix';
+import { bounds } from '../js/scene.js?v=20260928-cropfix';
+import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260928-cropfix';
+import { History } from '../js/history.js?v=20260928-cropfix';
+import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260928-cropfix';
+import { SaveQueue } from '../js/save-queue.js?v=20260928-cropfix';
+import { smoothInk, strokePathD } from '../js/ink.js?v=20260928-cropfix';
 export async function runTests(log = console.log) {
   let count = 0;
   function assert(value, message) { if (!value) throw new Error(message); count++; log(`PASS ${message}`); }
