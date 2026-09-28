@@ -1,5 +1,5 @@
-import { strokePathD } from './ink.js?v=20260927-feature5';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20260927-feature5';
+import { strokePathD } from './ink.js?v=20260928-feature6';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20260928-feature6';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}
@@ -18,7 +18,7 @@ export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{
  else if(item.type==='ellipse')shape=svgEl('ellipse',{...style,cx:w/2,cy:h/2,rx:w/2,ry:h/2});
  else if(item.type==='triangle')shape=svgEl('polygon',{...style,points:`${w/2},0 ${w},${h} 0,${h}`});
  else if(item.type==='polygon')shape=svgEl('polygon',{...style,points:(item.points||[]).map(p=>p.join(',')).join(' ')});
- else if(['image','equation','graph'].includes(item.type)){g.append(svgEl('rect',{width:w,height:h,fill:'#fff',rx:2}));shape=svgEl('image',{href:item.src,width:w,height:h,preserveAspectRatio:'none'});}
+ else if(['image','equation','graph'].includes(item.type)){g.append(svgEl('rect',{width:w,height:h,fill:'#fff',rx:2}));if(item.type==='image'&&item.crop){const c=item.crop;shape=svgEl('svg',{width:w,height:h,viewBox:`${c.x} ${c.y} ${c.w} ${c.h}`,preserveAspectRatio:'none',overflow:'hidden'});shape.append(svgEl('image',{href:item.src,width:1,height:1,preserveAspectRatio:'none'}));}else shape=svgEl('image',{href:item.src,width:w,height:h,preserveAspectRatio:'none'});}
  if(shape)g.append(shape);
  if(item.type==='text'||item.type==='note'){const font=item.fontSize||24,pad=item.type==='note'?14:0,rtl=/[\u0590-\u08ff]/.test(item.text||'');const text=svgEl('text',{x:rtl?w-pad:pad,y:pad+font,fill:item.stroke||'#203954','font-size':font,'font-family':'Arial, sans-serif',direction:rtl?'rtl':'ltr','text-anchor':'start','unicode-bidi':'plaintext'});const max=Math.max(2,Math.floor((w-pad*2)/(font*.55)));const lines=[];for(const line of (item.text||'').split('\n')){let current='';for(const word of line.split(' ')){if(current.length+word.length>max&&current){lines.push(current);current='';}current+=(current?' ':'')+word;}lines.push(current);}lines.forEach((line,i)=>{const span=svgEl('tspan',{x:rtl?w-pad:pad,dy:i?font*1.3:0});span.textContent=line;text.append(span);});g.append(text);}
  return g;
