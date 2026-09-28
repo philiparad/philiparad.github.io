@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { LINE_STYLES,dashArray,wavePath } from '../js/line-style.js';
+import { createBoard,validateBoard,serializeBackup,parseBackup } from '../js/model.js';
+import { History } from '../js/history.js';
+const board=createBoard('Line styles');board.items=LINE_STYLES.map(([lineStyle],n)=>({id:'line-'+n,type:'line',x:0,y:n*50,w:200,h:1,points:[[0,0],[200,0]],lineWidth:3,lineStyle}));
+assert.deepEqual(parseBackup(serializeBackup(board)),board);
+const old=structuredClone(board);delete old.items[0].lineStyle;assert.doesNotThrow(()=>validateBoard(old));
+const bad=structuredClone(board);bad.items[0].lineStyle='unknown';assert.throws(()=>validateBoard(bad),/line style/);
+assert.equal(dashArray('dotted',3),'0 7.5');assert.equal(dashArray('dashed',2),'10 6');assert.equal(dashArray('dash-dot-dot',2),'10 5 0 5 0 5');assert.equal(dashArray('solid'),null);
+const wave=wavePath(100,d=>({x:d,y:0}),3);assert(wave.startsWith('M0.000,0.000'));assert(wave.endsWith('100.000,-0.000')||wave.endsWith('100.000,0.000'));assert.match(wave,/,-?[1-9]/);assert.equal(wavePath(0,()=>({x:0,y:0}),3),'');
+const history=new History(board);board.items[0].lineStyle='dotted';history.commit(board);assert.equal(history.undo().items[0].lineStyle,'solid');assert.equal(history.redo().items[0].lineStyle,'dotted');
+console.log('13 line-style regression checks passed');

@@ -1,5 +1,7 @@
 # Teaching tools
 
+- Line styles: open the line sample in the upper toolbar and choose Solid, Wavy, Dotted, Dashed, Dash-dot, or Dash-dot-dot. Choose before drawing, or select existing drawing objects to change their strokes. Locked objects stay unchanged. Undo, backups, and image/PDF exports preserve styles. Arrowheads stay solid for clarity.
+
 - Compass: click the center, radius/start, then end of an arc. Select it to adjust handles or use Edit content for numeric angles and radii.
 - Curves: click anchors and press Enter to finish. Selected curves expose anchors and insertion midpoints. Double-click an anchor to remove it.
 - Snapping: choose grid, objects, both, or off in the header. Angle constraints use Shift.

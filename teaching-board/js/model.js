@@ -1,4 +1,5 @@
-import { validCrop } from './crop-editor.js?v=20260928-cropfix';
+import { LINE_STYLES } from './line-style.js?v=20260929-lines';
+import { validCrop } from './crop-editor.js?v=20260929-lines';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -26,6 +27,7 @@ export function validateBoard(value) {
     for (const key of ['w', 'h', 'lineWidth', 'fontSize']) if (item[key] !== undefined && (!Number.isFinite(item[key]) || item[key] <= 0 || item[key] > 100000)) throw new Error('Invalid object size.');
     if(item.type==='arc'&&(![item.startAngle,item.sweepAngle,item.w,item.h].every(Number.isFinite)||!item.sweepAngle||Math.abs(item.sweepAngle)>360||typeof item.showRadii!=='boolean'))throw new Error('Invalid arc.');
     if(item.crop!==undefined&&(item.type!=='image'||!validCrop(item.crop)))throw new Error('Invalid image crop.');
+    if(item.lineStyle!==undefined&&!LINE_STYLES.some(([key])=>key===item.lineStyle))throw new Error('Invalid line style.');
     if (item.rotation !== undefined && !Number.isFinite(item.rotation)) throw new Error('Invalid rotation.');
     if (item.opacity !== undefined && (!Number.isFinite(item.opacity) || item.opacity < 0 || item.opacity > 1)) throw new Error('Invalid opacity.');
     if (item.smoothing !== undefined && (!Number.isFinite(item.smoothing) || item.smoothing < 0 || item.smoothing > 1)) throw new Error('Invalid ink smoothing.');
