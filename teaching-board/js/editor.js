@@ -1,23 +1,23 @@
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20260929-paste';
-import { LineStyleMenu } from './line-style-menu.js?v=20260929-paste';
-import { Pages } from './pages.js?v=20260929-paste';
-import { cropDialog } from './crop-editor.js?v=20260929-paste';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20260929-paste';
-import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20260929-paste';
-import { toWorld, zoomAt } from './viewport.js?v=20260929-paste';
-import { History } from './history.js?v=20260929-paste';
-import { SaveQueue } from './save-queue.js?v=20260929-paste';
-import { equation, graph, importImage, importPDF } from './media.js?v=20260929-paste';
-import { exportBoard, backup } from './export.js?v=20260929-paste';
-import { validateBoard } from './model.js?v=20260929-paste';
-import { smoothInk } from './ink.js?v=20260929-paste';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20260929-taps';
+import { LineStyleMenu } from './line-style-menu.js?v=20260929-taps';
+import { Pages } from './pages.js?v=20260929-taps';
+import { cropDialog } from './crop-editor.js?v=20260929-taps';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20260929-taps';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20260929-taps';
+import { toWorld, zoomAt } from './viewport.js?v=20260929-taps';
+import { History } from './history.js?v=20260929-taps';
+import { SaveQueue } from './save-queue.js?v=20260929-taps';
+import { equation, graph, importImage, importPDF } from './media.js?v=20260929-taps';
+import { exportBoard, backup } from './export.js?v=20260929-taps';
+import { validateBoard } from './model.js?v=20260929-taps';
+import { smoothInk } from './ink.js?v=20260929-taps';
 
-import { toolIcon } from './tool-icons.js?v=20260929-paste';
+import { toolIcon } from './tool-icons.js?v=20260929-taps';
 
-import { Geometry } from './geometry.js?v=20260929-paste';
-import { snapPoint, snapAngle } from './snapping.js?v=20260929-paste';
-import { equationDialog } from './equation-editor.js?v=20260929-paste';
-import { graphDialog } from './graph-editor.js?v=20260929-paste';
+import { Geometry } from './geometry.js?v=20260929-taps';
+import { snapPoint, snapAngle } from './snapping.js?v=20260929-taps';
+import { equationDialog } from './equation-editor.js?v=20260929-taps';
+import { graphDialog } from './graph-editor.js?v=20260929-taps';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
  constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.selected=new Set();this.tool='select';this.stroke='#243c59';this.fill='none';this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.inkSmoothing=.65;this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.build();this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
