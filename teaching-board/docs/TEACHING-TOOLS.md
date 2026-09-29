@@ -1,5 +1,7 @@
 # Teaching tools
 
+- Paste images: copy a picture or image file, click the canvas, and press Ctrl+V (Mac: Command+V). Supported images are inserted at the visible canvas center, selected, saved, and undoable. Multiple image files paste together. Copy/paste between board objects still works. Text fields and equation editors keep their normal paste behavior. If the browser does not expose files copied from a folder, open the image and copy its pixels, or use the Image tool.
+
 - Line styles: open the line sample in the upper toolbar and choose Solid, Wavy, Dotted, Dashed, Dash-dot, or Dash-dot-dot. Choose before drawing, or select existing drawing objects to change their strokes. Locked objects stay unchanged. Undo, backups, and image/PDF exports preserve styles. Arrowheads stay solid for clarity.
 
 - Compass: click the center, radius/start, then end of an arc. Select it to adjust handles or use Edit content for numeric angles and radii.
