@@ -1,5 +1,5 @@
-import { el, btn } from './ui.js?v=20260929-taps';
-import { script, equation } from './media.js?v=20260929-taps';
+import { el, btn } from './ui.js?v=20260929-fill';
+import { script, equation } from './media.js?v=20260929-fill';
 export const EQUATION_TEMPLATES=[['Fraction','\\frac{#0}{#?}'],['Square root','\\sqrt{#0}'],['Power','{#0}^{#?}'],['Subscript','{#0}_{#?}'],['Integral','\\int_{#?}^{#?} #0\\,dx'],['Sum','\\sum_{#?}^{#?} #0'],['Matrix','\\begin{pmatrix}#? & #? \\\\ #? & #?\\end{pmatrix}'],['Brackets','\\left(#0\\right)'],['π','\\pi'],['θ','\\theta'],['≤','\\le'],['≥','\\ge'],['±','\\pm'],['∞','\\infty']];
 export function equationDialog(source='y=\\frac{1}{2}x^2'){
  const d=el('dialog',null,'form-dialog math-dialog'),heading=el('h2','Visual equation editor'),palette=el('div',null,'math-palette'),host=el('div'),details=el('details'),summary=el('summary','LaTeX source'),input=el('textarea'),preview=el('img'),status=el('p','Loading visual editor…','muted'),actions=el('div',null,'actions');input.value=source;input.setAttribute('aria-label','LaTeX source');preview.alt='Equation preview';preview.className='equation-preview';details.append(summary,input);let mf=null,closed=false,timer,serial=0;

@@ -1,5 +1,7 @@
 # Teaching tools
 
+- Fill palette: use Fill in the upper toolbar. Preset swatches apply immediately; adjust the spectrum, Hue/Saturation/Brightness, hex color and Fill opacity, then choose Apply fill. Choose No fill for a transparent interior. Selected unlocked shapes are updated; otherwise the fill is used for new shapes. Favorites are saved on this device. Fill opacity leaves outlines and text unchanged and is preserved in backups and exports.
+
 - Paste images: copy a picture or image file, click the canvas, and press Ctrl+V (Mac: Command+V). Supported images are inserted at the visible canvas center, selected, saved, and undoable. Multiple image files paste together. Copy/paste between board objects still works. Text fields and equation editors keep their normal paste behavior. If the browser does not expose files copied from a folder, open the image and copy its pixels, or use the Image tool.
 
 - Line styles: open the line sample in the upper toolbar and choose Solid, Wavy, Dotted, Dashed, Dash-dot, or Dash-dot-dot. Choose before drawing, or select existing drawing objects to change their strokes. Locked objects stay unchanged. Undo, backups, and image/PDF exports preserve styles. Arrowheads stay solid for clarity.
