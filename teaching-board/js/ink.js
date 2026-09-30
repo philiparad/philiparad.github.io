@@ -62,3 +62,27 @@ export function strokePathD(points) {
   }
   return d;
 }
+
+// Empty coalesced batches occur in some browsers; always retain the dispatch sample.
+export function pointerSamples(event) {
+  const batch = event.getCoalescedEvents?.() || [];
+  return batch.length ? [...batch, event] : [event];
+}
+
+// Speed-adaptive low-pass filter in screen pixels: steady slow writing, responsive fast strokes.
+export class AdaptiveInk {
+  constructor(point, time, strength=.65, zoom=1) {
+    this.raw=[...point]; this.value=[...point]; this.time=time;
+    this.strength=strength; this.zoom=zoom; this.speed=0;
+  }
+  add(point,time) {
+    const dt=Math.max(1/240,Math.min(.05,((time-this.time)||8)/1000));
+    const speed=Math.hypot(point[0]-this.raw[0],point[1]-this.raw[1])*this.zoom/dt;
+    this.speed+=.4*(speed-this.speed);
+    const cutoff=3+(1-this.strength)*18+this.speed*.09;
+    const alpha=this.strength<=0?1:1-Math.exp(-2*Math.PI*cutoff*dt);
+    this.value=this.value.map((v,i)=>v+alpha*(point[i]-v));
+    this.raw=[...point];this.time=time;
+    return [...this.value];
+  }
+}
