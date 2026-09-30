@@ -1,11 +1,11 @@
-import '../js/editor.js?v=20260930-natural';
-import { compileExpression } from '../js/expression.js?v=20260930-natural';
-import { bounds } from '../js/scene.js?v=20260930-natural';
-import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260930-natural';
-import { History } from '../js/history.js?v=20260930-natural';
-import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260930-natural';
-import { SaveQueue } from '../js/save-queue.js?v=20260930-natural';
-import { smoothInk, strokePathD } from '../js/ink.js?v=20260930-natural';
+import '../js/editor.js?v=20260930-shapes';
+import { compileExpression } from '../js/expression.js?v=20260930-shapes';
+import { bounds } from '../js/scene.js?v=20260930-shapes';
+import { createBoard, validateBoard, parseBackup, serializeBackup } from '../js/model.js?v=20260930-shapes';
+import { History } from '../js/history.js?v=20260930-shapes';
+import { toWorld, toScreen, zoomAt } from '../js/viewport.js?v=20260930-shapes';
+import { SaveQueue } from '../js/save-queue.js?v=20260930-shapes';
+import { smoothInk, strokePathD } from '../js/ink.js?v=20260930-shapes';
 export async function runTests(log = console.log) {
   let count = 0;
   function assert(value, message) { if (!value) throw new Error(message); count++; log(`PASS ${message}`); }

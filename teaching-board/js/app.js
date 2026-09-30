@@ -1,9 +1,9 @@
-import { createBoard, parseBackup } from './model.js?v=20260930-natural';
-import { BoardRepository } from './storage.js?v=20260930-natural';
-import { Editor } from './editor.js?v=20260930-natural';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20260930-natural';
-import { backup } from './export.js?v=20260930-natural';
-import { drawItem, svgEl, union } from './scene.js?v=20260930-natural';
+import { createBoard, parseBackup } from './model.js?v=20260930-shapes';
+import { BoardRepository } from './storage.js?v=20260930-shapes';
+import { Editor } from './editor.js?v=20260930-shapes';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20260930-shapes';
+import { backup } from './export.js?v=20260930-shapes';
+import { drawItem, svgEl, union } from './scene.js?v=20260930-shapes';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

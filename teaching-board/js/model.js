@@ -1,7 +1,8 @@
-import { LINE_STYLES } from './line-style.js?v=20260930-natural';
-import { validCrop } from './crop-editor.js?v=20260930-natural';
+import { SHAPES } from './shapes.js?v=20260930-shapes';
+import { LINE_STYLES } from './line-style.js?v=20260930-shapes';
+import { validCrop } from './crop-editor.js?v=20260930-shapes';
 export const SCHEMA_VERSION = 1;
-export const ITEM_TYPES = new Set(['curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
+export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
   const now = new Date().toISOString();
   return { schemaVersion: SCHEMA_VERSION, id: crypto.randomUUID(), title: title.trim() || 'Untitled lesson', folder: '', createdAt: now, updatedAt: now, revision: 0, deleted: false, viewport: { x: 0, y: 0, zoom: 1 }, background: 'grid', items: [] };
@@ -23,6 +24,7 @@ export function validateBoard(value) {
   for (const item of value.items) {
     if (!item || typeof item.id !== 'string' || ids.has(item.id) || !ITEM_TYPES.has(item.type)) throw new Error('Invalid or duplicate board object.');
     ids.add(item.id);
+    if(item.type==='shape'&&!SHAPES.has(item.shape))throw new Error('Unknown shape preset.');
     if (![item.x, item.y].every(n => Number.isFinite(n) && Math.abs(n) < 1e7)) throw new Error('Invalid object position.');
     for (const key of ['w', 'h', 'lineWidth', 'fontSize']) if (item[key] !== undefined && (!Number.isFinite(item[key]) || item[key] <= 0 || item[key] > 100000)) throw new Error('Invalid object size.');
     if(item.type==='arc'&&(![item.startAngle,item.sweepAngle,item.w,item.h].every(Number.isFinite)||!item.sweepAngle||Math.abs(item.sweepAngle)>360||typeof item.showRadii!=='boolean'))throw new Error('Invalid arc.');

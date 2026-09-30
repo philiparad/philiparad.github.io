@@ -1,12 +1,14 @@
-import { styleStroke, STROKED_TYPES } from './line-style.js?v=20260930-natural';
-import { strokePathD, naturalPathD } from './ink.js?v=20260930-natural';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20260930-natural';
+import { drawPreset } from './shapes.js?v=20260930-shapes';
+import { styleStroke, STROKED_TYPES } from './line-style.js?v=20260930-shapes';
+import { strokePathD, naturalPathD } from './ink.js?v=20260930-shapes';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20260930-shapes';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}
 export function union(items){if(!items.length)return {x:0,y:0,w:1000,h:700};const b=items.map(bounds),x=Math.min(...b.map(i=>i.x)),y=Math.min(...b.map(i=>i.y));return {x,y,w:Math.max(...b.map(i=>i.x+i.w))-x,h:Math.max(...b.map(i=>i.y+i.h))-y};}
 export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{'data-id':item.id,transform:`translate(${item.x} ${item.y}) rotate(${item.rotation||0} ${w/2} ${h/2})`,opacity:item.opacity??1});
  const style={stroke:item.stroke||'#203954','stroke-width':item.lineWidth||2,'stroke-opacity':item.strokeOpacity??1,fill:item.fill||'none','fill-opacity':item.fillOpacity??1,'stroke-linecap':'round','stroke-linejoin':'round'};let shape;
+ if(item.type==='shape'){g.append(drawPreset(item));return g;}
  if(item.type==='curve')shape=svgEl('path',{...style,fill:'none',d:curvePath(item.points)});
  else if(item.type==='arc'){shape=svgEl('path',{...style,fill:'none',d:arcPath(item)});if(item.showRadii){const a=arcPoint(item,item.startAngle),b=arcPoint(item,item.startAngle+item.sweepAngle);g.append(svgEl('path',{...style,fill:'none',d:`M${a} L${w/2},${h/2} L${b}`}));}}
  else if(item.type==='path'){

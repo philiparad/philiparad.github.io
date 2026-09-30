@@ -1,27 +1,28 @@
-import { FillPalette } from './fill-palette.js?v=20260930-natural';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20260930-natural';
-import { LineStyleMenu } from './line-style-menu.js?v=20260930-natural';
-import { Pages } from './pages.js?v=20260930-natural';
-import { cropDialog } from './crop-editor.js?v=20260930-natural';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20260930-natural';
-import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20260930-natural';
-import { toWorld, zoomAt } from './viewport.js?v=20260930-natural';
-import { History } from './history.js?v=20260930-natural';
-import { SaveQueue } from './save-queue.js?v=20260930-natural';
-import { equation, graph, importImage, importPDF } from './media.js?v=20260930-natural';
-import { exportBoard, backup } from './export.js?v=20260930-natural';
-import { validateBoard } from './model.js?v=20260930-natural';
-import { refineInk, AdaptiveInk, pointerSamples } from './ink.js?v=20260930-natural';
+import { ShapeGallery } from './shape-gallery.js?v=20260930-shapes';
+import { FillPalette } from './fill-palette.js?v=20260930-shapes';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20260930-shapes';
+import { LineStyleMenu } from './line-style-menu.js?v=20260930-shapes';
+import { Pages } from './pages.js?v=20260930-shapes';
+import { cropDialog } from './crop-editor.js?v=20260930-shapes';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20260930-shapes';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20260930-shapes';
+import { toWorld, zoomAt } from './viewport.js?v=20260930-shapes';
+import { History } from './history.js?v=20260930-shapes';
+import { SaveQueue } from './save-queue.js?v=20260930-shapes';
+import { equation, graph, importImage, importPDF } from './media.js?v=20260930-shapes';
+import { exportBoard, backup } from './export.js?v=20260930-shapes';
+import { validateBoard } from './model.js?v=20260930-shapes';
+import { refineInk, AdaptiveInk, pointerSamples } from './ink.js?v=20260930-shapes';
 
-import { toolIcon } from './tool-icons.js?v=20260930-natural';
+import { toolIcon } from './tool-icons.js?v=20260930-shapes';
 
-import { Geometry } from './geometry.js?v=20260930-natural';
-import { snapPoint, snapAngle } from './snapping.js?v=20260930-natural';
-import { equationDialog } from './equation-editor.js?v=20260930-natural';
-import { graphDialog } from './graph-editor.js?v=20260930-natural';
+import { Geometry } from './geometry.js?v=20260930-shapes';
+import { snapPoint, snapAngle } from './snapping.js?v=20260930-shapes';
+import { equationDialog } from './equation-editor.js?v=20260930-shapes';
+import { graphDialog } from './graph-editor.js?v=20260930-shapes';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
- constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.selected=new Set();this.tool='select';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.build();this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
+ constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.build();this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
  document(){return structuredClone({items:this.board.items,background:this.board.background,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
  async flush(){await this.queue.flush();}
  dispose(){this.disposed=true;window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
@@ -32,7 +33,7 @@ export class Editor {
  this.saveState=el('span','Saved on this device','save-state');this.retry=btn('Retry save',()=>this.flush());this.retry.hidden=true;
  const exports=el('select');exports.setAttribute('aria-label','Export lesson');for(const [v,t] of [['','Export…'],['json','Editable backup'],['svg','SVG image'],['png','PNG image'],['pdf','Print / Save as PDF']]){const o=el('option',t);o.value=v;exports.append(o);}exports.onchange=()=>{const format=exports.value;exports.value='';if(format)this.action(()=>exportBoard(this.board,format));};
  top.append(logo,back,this.title,this.saveState,this.retry,exports,btn('Present',()=>{document.body.classList.toggle('presenting');}),btn('Help',()=>this.help()));
- const bar=el('div',null,'tools');this.toolButtons=new Map();for(const [id,icon,label] of TOOLS){const b=btn(icon,()=>this.setTool(id),'tool');b.title=label;b.setAttribute('aria-label',label);b.replaceChildren(toolIcon(id));if(['pen','line','text','image'].includes(id))b.classList.add('group-start');this.toolButtons.set(id,b);bar.append(b);}this.undoButton=btn('↶',()=>this.undo());this.undoButton.title='Undo (Ctrl+Z)';this.undoButton.setAttribute('aria-label','Undo');this.redoButton=btn('↷',()=>this.redo());this.redoButton.title='Redo (Ctrl+Shift+Z)';this.redoButton.setAttribute('aria-label','Redo');const history=el('div',null,'history-tools');history.append(this.undoButton,this.redoButton);top.insertBefore(history,back);
+ const bar=el('div',null,'tools');this.toolButtons=new Map();this.shapeGallery=new ShapeGallery(this);for(const [id,icon,label] of TOOLS){if(id==='rectangle')bar.append(this.shapeGallery.root);if(['rectangle','ellipse','triangle'].includes(id))continue;const b=btn(icon,()=>this.setTool(id),'tool');b.title=label;b.setAttribute('aria-label',label);b.replaceChildren(toolIcon(id));if(['pen','line','text','image'].includes(id))b.classList.add('group-start');this.toolButtons.set(id,b);bar.append(b);}this.undoButton=btn('↶',()=>this.undo());this.undoButton.title='Undo (Ctrl+Z)';this.undoButton.setAttribute('aria-label','Undo');this.redoButton=btn('↷',()=>this.redo());this.redoButton.title='Redo (Ctrl+Shift+Z)';this.redoButton.setAttribute('aria-label','Redo');const history=el('div',null,'history-tools');history.append(this.undoButton,this.redoButton);top.insertBefore(history,back);
  const snap=el('select');snap.setAttribute('aria-label','Snapping');for(const [value,label] of [['off','Snap: Off'],['grid','Snap: Grid'],['objects','Snap: Objects'],['both','Snap: Both']]){const o=el('option',label);o.value=value;snap.append(o);}snap.value=this.board.snapMode||'off';snap.onchange=()=>{this.board.snapMode=snap.value;this.guides=[];this.save();this.paint();};top.append(snap);
  const properties=el('div',null,'properties');
  const width=el('select');width.setAttribute('aria-label','Line width');for(const n of [1,2,3,5,8,12,20]){const o=el('option',n+' px');o.value=n;width.append(o);}width.value=3;width.onchange=()=>{this.lineWidth=+width.value;this.modify({lineWidth:+width.value});};
@@ -52,7 +53,7 @@ export class Editor {
  point(e){const p=toWorld(this.screen(e),this.board.viewport);if(!this.drag&&['arc','curve','line','arrow','rectangle','ellipse','triangle','polygon','text','note'].includes(this.tool)&&!e.altKey){const q=snapPoint(p,this.board,this.selected,this.board.snapMode||'off');this.guides=q.guides;return q;}return p;}
  center(){return toWorld({x:this.area.clientWidth/2,y:this.area.clientHeight/2},this.board.viewport);}
  base(type,p){return {id:crypto.randomUUID(),type,x:p.x,y:p.y,w:1,h:1,stroke:this.stroke,strokeOpacity:this.strokeOpacity,fill:this.fill,fillOpacity:this.fillOpacity,lineWidth:this.lineWidth,lineStyle:this.lineStyle,opacity:this.opacity,rotation:0,locked:false};}
- paint(){this.strokePalette.update();this.fillPalette.update();this.lineStyleMenu.update();this.pages.update();this.svg.replaceChildren();background(this.svg,this.board.background,this.board.viewport);const v=this.board.viewport,scene=svgEl('g',{transform:`translate(${v.x} ${v.y}) scale(${v.zoom})`});this.pages.paint(scene);this.board.items.forEach(i=>scene.append(drawItem(i)));if(this.draft)scene.append(drawItem(this.draft));
+ paint(){this.shapeGallery.update();this.strokePalette.update();this.fillPalette.update();this.lineStyleMenu.update();this.pages.update();this.svg.replaceChildren();background(this.svg,this.board.background,this.board.viewport);const v=this.board.viewport,scene=svgEl('g',{transform:`translate(${v.x} ${v.y}) scale(${v.zoom})`});this.pages.paint(scene);this.board.items.forEach(i=>scene.append(drawItem(i)));if(this.draft)scene.append(drawItem(this.draft));
  for(const i of this.board.items){if(this.selected.has(i.id)){const b=bounds(i);scene.append(svgEl('rect',{x:b.x-3,y:b.y-3,width:b.w+6,height:b.h+6,fill:'none',stroke:i.locked?'#d59a30':'#168fa5','stroke-width':1.5/v.zoom,'stroke-dasharray':`${5/v.zoom} ${3/v.zoom}`,'pointer-events':'none'}));}}
  const selected=this.board.items.filter(i=>this.selected.has(i.id)&&!i.locked);if(selected.length&&this.tool==='select'){const b=union(selected);scene.append(svgEl('rect',{x:b.x+b.w-5/v.zoom,y:b.y+b.h-5/v.zoom,width:10/v.zoom,height:10/v.zoom,fill:'#147d92',stroke:'#fff','stroke-width':1/v.zoom,'data-resize':'true',cursor:'nwse-resize'}));}
  if(this.marquee)scene.append(svgEl('rect',{...this.marquee,fill:'#147d9215',stroke:'#147d92','stroke-width':1/v.zoom,'pointer-events':'none'}));
@@ -69,7 +70,7 @@ export class Editor {
  else{if(!e.shiftKey)this.selected.clear();this.drag={kind:'marquee',start:p};}this.paint();return;}
  if(['text','note'].includes(this.tool)){this.action(()=>this.insertText(this.tool,p));return;}
  if(this.tool==='polygon'){this.polygon.push([p.x,p.y]);this.updatePolygon();return;}
- const type=['pen','highlighter'].includes(this.tool)?'path':this.tool;this.draft=this.base(type,p);if(this.tool==='highlighter'){this.draft.opacity=.3;this.draft.lineWidth=Math.max(14,this.lineWidth*4);}if(type==='path'){this.draft.smoothing=this.inkSmoothing;this.draft.inkVersion=2;this.draft.inkZoom=this.board.viewport.zoom;this.draft.points=[[0,0]];this.draft.rawPoints=[[0,0]];}else this.draft.points=[[0,0],[.1,.1]];this.drag={kind:'draw',start:p,lastRaw:[0,0],lastSmooth:[0,0],ink:new AdaptiveInk([0,0],e.timeStamp,this.inkSmoothing,this.board.viewport.zoom)};this.paint();}
+ const type=['pen','highlighter'].includes(this.tool)?'path':this.tool;this.draft=this.base(type,p);if(type==='shape')this.draft.shape=this.shapePreset;if(this.tool==='highlighter'){this.draft.opacity=.3;this.draft.lineWidth=Math.max(14,this.lineWidth*4);}if(type==='path'){this.draft.smoothing=this.inkSmoothing;this.draft.inkVersion=2;this.draft.inkZoom=this.board.viewport.zoom;this.draft.points=[[0,0]];this.draft.rawPoints=[[0,0]];}else this.draft.points=[[0,0],[.1,.1]];this.drag={kind:'draw',start:p,lastRaw:[0,0],lastSmooth:[0,0],ink:new AdaptiveInk([0,0],e.timeStamp,this.inkSmoothing,this.board.viewport.zoom)};this.paint();}
  pointerMove(e){let p=this.point(e);if(!this.drag&&this.geometry.move(e,p))return;if(!this.drag)return;const d=this.drag;this.guides=[];
  if(d.kind==='draw'&&!['pen','highlighter'].includes(this.tool)){if(!e.altKey){const q=snapPoint(p,this.board,new Set(),this.board.snapMode||'off');this.guides=q.guides;p=q;}if(e.shiftKey&&['line','arrow'].includes(this.tool))p=snapAngle(d.start,p);}
  if(d.kind==='move'&&!e.altKey){const b=union(d.items),q=snapPoint({x:b.x+p.x-d.start.x,y:b.y+p.y-d.start.y},this.board,new Set(d.items.map(i=>i.id)),this.board.snapMode||'off',{x:[0,b.w/2,b.w],y:[0,b.h/2,b.h]});p={x:d.start.x+q.x-b.x,y:d.start.y+q.y-b.y};this.guides=q.guides;}

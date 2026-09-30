@@ -21,3 +21,6 @@ Use **Stroke** in the upper toolbar to choose preset or custom ink colors, no st
 
 ### Natural handwriting
 Open **Ink & style → Natural handwriting**. Choose Off, Light, Medium (default), or Strong. Your preference is saved on this device. Select existing pen/highlighter strokes to apply correction; locked strokes are unchanged. Off restores the stored original samples. Adaptive filtering reduces slow tremor while tracking fast movement; final curve refinement preserves endpoints and limits movement around small letters and corners. This is stroke smoothing, not handwriting recognition. Actual feel depends on the mouse/stylus and browser. Undo reverses corrections, and editable backups preserve raw samples.
+
+### Shape gallery
+Open the shape gallery beside the line/arrow tools. Choose basic or regular polygons, rounded shapes, a 3D solid, or a preset curve; drag on the canvas to size it. Hold Shift for equal width and height. Solids are editable 2D diagrams with dashed hidden edges. All presets support selection, resize, rotation, duplication, stroke/fill controls, undo, backups and image export. Preset curves resize as shapes; use Editable curve for individually movable anchors.

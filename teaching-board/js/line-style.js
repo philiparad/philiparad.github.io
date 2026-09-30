@@ -1,5 +1,5 @@
 export const LINE_STYLES=[['solid','Solid'],['wavy','Wavy'],['dotted','Dotted'],['dashed','Dashed'],['dash-dot','Dash-dot'],['dash-dot-dot','Dash-dot-dot']];
-export const STROKED_TYPES=new Set(['path','line','arrow','curve','arc','rectangle','ellipse','triangle','polygon','note']);
+export const STROKED_TYPES=new Set(['shape','path','line','arrow','curve','arc','rectangle','ellipse','triangle','polygon','note']);
 export function dashArray(style,width=3){const patterns={dotted:[0,2.5],dashed:[5,3],'dash-dot':[5,2.5,0,2.5],'dash-dot-dot':[5,2.5,0,2.5,0,2.5]};return patterns[style]?.map(n=>n*width).join(' ')||null;}
 // Sample along the actual outline, so waves follow curves as well as straight lines.
 export function wavePath(length,pointAt,width){if(!Number.isFinite(length)||length<=0)return '';const cycles=Math.max(1,Math.round(length/Math.max(16,width*8))),steps=Math.min(2400,Math.max(8,cycles*16)),amplitude=Math.min(width*1.3,length/8);let path='';for(let n=0;n<=steps;n++){const t=n/steps,d=t*length,p=pointAt(d),a=pointAt(Math.max(0,d-.25)),b=pointAt(Math.min(length,d+.25)),dx=b.x-a.x,dy=b.y-a.y,norm=Math.hypot(dx,dy)||1,offset=Math.sin(t*cycles*Math.PI*2)*amplitude;path+=(n?'L':'M')+(p.x-dy/norm*offset).toFixed(3)+','+(p.y+dx/norm*offset).toFixed(3);}return path;}
