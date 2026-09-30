@@ -1,5 +1,5 @@
 import { styleStroke, STROKED_TYPES } from './line-style.js?v=20260930-stroke';
-import { strokePathD } from './ink.js?v=20260930-stroke';
+import { strokePathD, naturalPathD } from './ink.js?v=20260930-stroke';
 import { arcPath, arcPoint, curvePath } from './geometry.js?v=20260930-stroke';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
@@ -11,7 +11,7 @@ export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{
  else if(item.type==='arc'){shape=svgEl('path',{...style,fill:'none',d:arcPath(item)});if(item.showRadii){const a=arcPoint(item,item.startAngle),b=arcPoint(item,item.startAngle+item.sweepAngle);g.append(svgEl('path',{...style,fill:'none',d:`M${a} L${w/2},${h/2} L${b}`}));}}
  else if(item.type==='path'){
   const points=item.points||[];
-  if((item.smoothing||0)>0 && points.length>2) shape=svgEl('path',{...style,fill:'none',d:strokePathD(points)});
+  if((item.smoothing||0)>0 && points.length>2) shape=svgEl('path',{...style,fill:'none',d:item.inkVersion===2?naturalPathD(points):strokePathD(points)});
   else shape=svgEl('polyline',{...style,fill:'none',points:points.map(p=>p.join(',')).join(' ')});
  }
  else if(item.type==='line'||item.type==='arrow'){const [a,b]=item.points||[[0,0],[w,h]];shape=svgEl('line',{...style,x1:a[0],y1:a[1],x2:b[0],y2:b[1]});if(item.type==='arrow'){const angle=Math.atan2(b[1]-a[1],b[0]-a[0]),len=12+(item.lineWidth||2)*2;g.append(svgEl('path',{d:`M${b[0]-len*Math.cos(angle-.45)} ${b[1]-len*Math.sin(angle-.45)} L${b} L${b[0]-len*Math.cos(angle+.45)} ${b[1]-len*Math.sin(angle+.45)}`,...style,fill:'none'}));}}

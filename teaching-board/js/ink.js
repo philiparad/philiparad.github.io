@@ -86,3 +86,40 @@ export class AdaptiveInk {
     return [...this.value];
   }
 }
+
+// Uniform arc-length samples prevent browser event frequency from changing the result.
+export function refineInk(points,strength=.65,zoom=1) {
+  const src=(points||[]).filter((p,i,a)=>!i||Math.hypot(p[0]-a[i-1][0],p[1]-a[i-1][1])>1e-6).map(p=>[...p]);
+  if(strength<=0||src.length<3)return src;
+  const step=1.25/zoom, samples=[src[0]];let remaining=step;
+  for(let i=1;i<src.length;i++){
+    let a=src[i-1],b=src[i],len=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    while(len>=remaining){const t=remaining/len;a=[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])];samples.push(a);len-=remaining;remaining=step;}
+    remaining-=len;
+  }
+  const last=src[src.length-1];if(Math.hypot(last[0]-samples.at(-1)[0],last[1]-samples.at(-1)[1])>1e-6)samples.push(last);
+  const radius=2+Math.round(strength*2),limit=(.35+strength*.9)/zoom;
+  return samples.map((p,i)=>{
+    if(!i||i===samples.length-1)return p;
+    const a=samples[Math.max(0,i-2)],b=samples[Math.min(samples.length-1,i+2)];
+    const ux=p[0]-a[0],uy=p[1]-a[1],vx=b[0]-p[0],vy=b[1]-p[1];
+    const cos=(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1);
+    // Keep sharp reversals and corners; reduce correction on tight letter loops.
+    const blend=strength*.8*Math.max(0,Math.min(1,(cos-.25)/.65));
+    let x=0,y=0,w=0;for(let j=Math.max(0,i-radius);j<=Math.min(samples.length-1,i+radius);j++){const k=radius+1-Math.abs(j-i);x+=samples[j][0]*k;y+=samples[j][1]*k;w+=k;}
+    let dx=(x/w-p[0])*blend,dy=(y/w-p[1])*blend;const length=Math.hypot(dx,dy);if(length>limit){dx*=limit/length;dy*=limit/length;}
+    return [p[0]+dx,p[1]+dy];
+  });
+}
+
+// Local control handles are clamped to each segment's box to prevent curve overshoot.
+export function naturalPathD(points) {
+  if(points.length<3)return strokePathD(points);
+  let d=`M${points[0][0]} ${points[0][1]}`;
+  for(let i=0;i<points.length-1;i++){
+    const a=points[i-1]||points[i],b=points[i],c=points[i+1],e=points[i+2]||c;
+    const clamp=(v,k)=>Math.max(Math.min(b[k],c[k]),Math.min(Math.max(b[k],c[k]),v));
+    const h1=b.map((v,k)=>clamp(v+(c[k]-a[k])/6,k)),h2=c.map((v,k)=>clamp(v-(e[k]-b[k])/6,k));
+    d+=` C${h1} ${h2} ${c}`;
+  }return d;
+}

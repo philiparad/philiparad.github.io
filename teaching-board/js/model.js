@@ -29,6 +29,8 @@ export function validateBoard(value) {
     if(item.crop!==undefined&&(item.type!=='image'||!validCrop(item.crop)))throw new Error('Invalid image crop.');
     if(item.lineStyle!==undefined&&!LINE_STYLES.some(([key])=>key===item.lineStyle))throw new Error('Invalid line style.');
     if (item.rotation !== undefined && !Number.isFinite(item.rotation)) throw new Error('Invalid rotation.');
+    if(item.inkVersion!==undefined&&item.inkVersion!==2)throw new Error('Invalid ink version.');
+    if(item.inkZoom!==undefined&&(!Number.isFinite(item.inkZoom)||item.inkZoom<.1||item.inkZoom>10))throw new Error('Invalid ink scale.');
     if(item.strokeOpacity!==undefined&&(!Number.isFinite(item.strokeOpacity)||item.strokeOpacity<0||item.strokeOpacity>1))throw new Error('Invalid stroke opacity.');
     if(item.fillOpacity!==undefined&&(!Number.isFinite(item.fillOpacity)||item.fillOpacity<0||item.fillOpacity>1))throw new Error('Invalid fill opacity.');
     if (item.opacity !== undefined && (!Number.isFinite(item.opacity) || item.opacity < 0 || item.opacity > 1)) throw new Error('Invalid opacity.');
