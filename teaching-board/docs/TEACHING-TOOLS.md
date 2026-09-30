@@ -18,3 +18,6 @@
 Boards are saved locally on the current device. Export a JSON backup to transfer or preserve editable lessons. Visual equations and graphs require their external libraries to load.
 
 Use **Stroke** in the upper toolbar to choose preset or custom ink colors, no stroke, and independent stroke opacity. Select objects to recolor them, or choose a color before drawing. Custom colors support hex input and spectrum controls. Stroke favorites are saved separately on this device. Use Apply stroke for custom changes; swatches apply immediately. Undo restores selected objects.
+
+### Natural handwriting
+Open **Ink & style → Natural handwriting**. Choose Off, Light, Medium (default), or Strong. Your preference is saved on this device. Select existing pen/highlighter strokes to apply correction; locked strokes are unchanged. Off restores the stored original samples. Adaptive filtering reduces slow tremor while tracking fast movement; final curve refinement preserves endpoints and limits movement around small letters and corners. This is stroke smoothing, not handwriting recognition. Actual feel depends on the mouse/stylus and browser. Undo reverses corrections, and editable backups preserve raw samples.

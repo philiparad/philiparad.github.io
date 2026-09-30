@@ -1,5 +1,5 @@
-import { LINE_STYLES } from './line-style.js?v=20260930-stroke';
-import { validCrop } from './crop-editor.js?v=20260930-stroke';
+import { LINE_STYLES } from './line-style.js?v=20260930-natural';
+import { validCrop } from './crop-editor.js?v=20260930-natural';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
