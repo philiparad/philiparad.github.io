@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<link href="philip_favicon.png" rel="icon" type="image/png"/>
+<title>מעבדת הסתברות - שתי קוביות</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(','\\)']],
+        displayMath: [['\\[','\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --ink:#172033;
+      --muted:#667085;
+      --line:#cfd6e4;
+      --accent:#315efb;
+      --accent-soft:#eaf0ff;
+      --a:#dfe8ff;
+      --a-border:#5a77df;
+      --b:#fff1cc;
+      --b-border:#c78d13;
+      --both:#e8dcff;
+      --both-border:#835ac8;
+      --good:#e9f8ef;
+      --good-border:#278a50;
+      --warn:#fff5e6;
+      --warn-border:#b56b08;
+      --bad:#fdeaea;
+      --bad-border:#b53b3b;
+      --shadow:0 8px 24px rgba(23,32,51,.08);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:Arial,"Noto Sans Hebrew",sans-serif;
+      line-height:1.55;
+    }
+
+    button,select,input{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,select:focus-visible{
+      outline:3px solid rgba(49,94,251,.28);
+      outline-offset:2px;
+    }
+
+    .app-shell{
+      width:min(1180px,calc(100% - 24px));
+      margin:18px auto 40px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#ffffff 0%,#eef3ff 100%);
+      border:2px solid var(--line);
+      border-radius:20px;
+      padding:12px 24px;
+      box-shadow:var(--shadow);
+    }
+    .hero h1{
+      margin:0;
+      font-size:clamp(1rem,2vw,2rem);
+    }
+    .hero p{margin:0;color:var(--muted)}
+    .hero .memory-strip{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+    }
+    .memory-chip{
+      border:2px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:10px 12px;
+      text-align:center;
+      font-weight:700;
+    }
+
+    .tabs{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px;
+      margin:8px 0;
+    }
+    .tab{
+      min-height:54px;
+      border:2px solid var(--line);
+      border-radius:14px;
+      background:var(--card);
+      color:var(--ink);
+      padding:8px 10px;
+      font-weight:700;
+    }
+    .tab.active{
+      border-color:var(--accent);
+      background:var(--accent-soft);
+      color:#173aa7;
+    }
+
+    .panel{
+      display:none;
+      background:var(--card);
+      border:2px solid var(--line);
+      border-radius:20px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .panel.active{display:block}
+
+    .panel-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .panel-header h2{margin:0;font-size:1.35rem}
+    .panel-header p{margin:4px 0 0;color:var(--muted);max-width:780px}
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:end;
+      gap:10px;
+      margin:12px 0 16px;
+    }
+    .control{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      min-width:190px;
+      flex:1 1 220px;
+    }
+    .control label{font-weight:700;font-size:.94rem}
+    select{
+      min-height:46px;
+      padding:8px 10px;
+      border:2px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      color:var(--ink);
+    }
+
+    .btn{
+      min-height:44px;
+      padding:8px 13px;
+      border:2px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      color:var(--ink);
+      font-weight:700;
+    }
+    .btn.primary{
+      border-color:var(--accent);
+      background:var(--accent);
+      color:white;
+    }
+    .btn.soft{
+      border-color:var(--accent);
+      background:var(--accent-soft);
+      color:#173aa7;
+    }
+
+    .learning-note{
+      border:2px solid var(--line);
+      border-radius:14px;
+      padding:12px 14px;
+      background:#fbfcfe;
+      margin:12px 0;
+    }
+    .learning-note strong{display:block;margin-bottom:3px}
+.board-stage{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      min-height:360px;
+      padding:10px 0 4px;
+      overflow:visible;
+    }
+    .board-transform{
+      transform-origin:top center;
+      transition:transform .18s ease;
+    }
+
+    .sample-table{
+      width:min(760px,100%);
+      table-layout:fixed;
+      border-collapse:separate;
+      border-spacing:4px;
+      direction:ltr;
+    }
+    .sample-table th{
+      height:42px;
+      border:2px solid var(--line);
+      border-radius:10px;
+      background:#f3f5f9;
+      color:#384252;
+      font-weight:700;
+      padding:4px;
+    }
+    .sample-table td{
+      height:58px;
+      border:2px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      text-align:center;
+      vertical-align:middle;
+      font-weight:700;
+      position:relative;
+      transition:opacity .15s,transform .15s,background .15s,border-color .15s;
+    }
+    .sample-table td small{
+      display:block;
+      color:var(--muted);
+      font-size:.72rem;
+      font-weight:400;
+    }
+    .sample-table td.a{
+      background:var(--a);
+      border-color:var(--a-border);
+    }
+    .sample-table td.b{
+      box-shadow:inset 0 0 0 3px var(--b-border);
+      background:#fffaf0;
+    }
+    .sample-table td.both{
+      background:var(--both);
+      border-color:var(--both-border);
+      box-shadow:inset 0 0 0 2px var(--both-border);
+    }
+    .sample-table td.dim{
+      opacity:.18;
+    }
+    .sample-table td.current{
+      outline:4px solid var(--accent);
+      outline-offset:-5px;
+      transform:scale(.96);
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin:8px 0 2px;
+      color:#465064;
+      font-size:.93rem;
+    }
+    .legend-item{display:flex;align-items:center;gap:6px}
+    .swatch{
+      width:18px;height:18px;border-radius:5px;border:2px solid var(--line);display:inline-block
+    }
+    .swatch.a{background:var(--a);border-color:var(--a-border)}
+    .swatch.b{background:#fffaf0;border-color:var(--b-border)}
+    .swatch.both{background:var(--both);border-color:var(--both-border)}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:14px;
+    }
+    .stat{
+      border:2px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fbfcfe;
+    }
+    .stat .label{color:var(--muted);font-size:.9rem}
+    .stat .value{font-size:1.15rem;font-weight:800;margin-top:4px;direction:ltr;text-align:center}
+
+    .formula-box{
+      border:2px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      padding:14px;
+      margin:12px 0;
+      text-align:center;
+      font-size:1.08rem;
+    }
+
+    .decision{
+      border:2px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      margin-top:12px;
+      font-weight:700;
+    }
+    .decision.good{background:var(--good);border-color:var(--good-border)}
+    .decision.warn{background:var(--warn);border-color:var(--warn-border)}
+    .decision.bad{background:var(--bad);border-color:var(--bad-border)}
+
+    .two-way{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+    }
+    .two-way th,.two-way td{
+      border:2px solid var(--line);
+      padding:12px 8px;
+      text-align:center;
+    }
+    .two-way th{background:#f4f6fa}
+    .two-way .grand{font-weight:800;background:#eef3ff}
+
+    .sim-row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin:12px 0;
+    }
+    .die{
+      width:64px;height:64px;
+      display:grid;
+      place-items:center;
+      border:2px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      font-size:1.8rem;
+      font-weight:800;
+      box-shadow:var(--shadow);
+    }
+
+    .mc-lab{
+      display:grid;
+      grid-template-columns:minmax(260px,330px) minmax(0,1fr);
+      gap:16px;
+      direction:ltr;
+      align-items:stretch;
+    }
+    .mc-controls,.mc-visual{
+      border:2px solid var(--line);
+      border-radius:18px;
+      background:#fff;
+      padding:16px;
+      direction:rtl;
+    }
+    .mc-controls{background:#fbfcfe}
+    .mc-title{font-weight:800;margin:0 0 10px}
+    .mc-control{margin-bottom:14px}
+    .mc-control label{display:block;font-weight:700;margin-bottom:6px}
+    .mc-control select{width:100%}
+    .mc-range-row{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;direction:ltr}
+    .mc-range-row input[type=range]{width:100%;accent-color:var(--accent)}
+    .mc-number{
+      border:2px solid var(--line);
+      border-radius:999px;
+      padding:6px 8px;
+      text-align:center;
+      font-weight:800;
+      background:#f7fbff;
+    }
+    .mc-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .mc-actions .primary{grid-column:1/-1}
+    .mc-mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+    .mc-mini{border:2px solid var(--line);border-radius:12px;padding:9px;background:#fff;text-align:center}
+    .mc-mini .label{color:var(--muted);font-size:.82rem}
+    .mc-mini .value{font-weight:800;font-size:1rem;margin-top:2px;direction:ltr}
+    .mc-visual{min-height:500px}
+    .mc-badge{
+      display:inline-block;
+      background:#eaf6ff;
+      color:#075f9f;
+      border-radius:999px;
+      padding:7px 12px;
+      font-weight:800;
+      font-size:.9rem;
+      margin-bottom:8px;
+    }
+    .mc-chart-wrap{border:2px solid #cfe0ef;border-radius:16px;background:#fff;overflow:hidden;margin-top:10px}
+    #mc-chart{display:block;width:100%;height:380px}
+    .mc-legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:flex-start;margin-top:10px;color:var(--muted);font-size:.9rem}
+    .mc-key{display:inline-flex;align-items:center;gap:6px}
+    .mc-line{width:26px;height:0;border-top:3px solid var(--accent)}
+    .mc-line.theory{border-top-style:dashed;border-top-color:#b04b4b}
+    .mc-last{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;
+      border-top:1px solid #e7ebf2;padding-top:12px
+    }
+    .mc-last strong{margin-left:4px}
+    .mc-status{margin-right:auto;color:var(--muted);font-size:.9rem}
+
+
+    .mc-progress-wrap{margin-top:12px}
+    .mc-progress-head{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:.86rem;margin-bottom:6px}
+    .mc-progress{height:12px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:#f3f6fa}
+    .mc-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#315efb,#55a7ff);transition:width .12s linear}
+    .mc-progress-bar.running{animation:mcGlow 1s ease-in-out infinite alternate}
+    @keyframes mcGlow{from{filter:brightness(.95)}to{filter:brightness(1.18)}}
+    .die.rolling{animation:mcDiceRoll .34s ease-in-out infinite;box-shadow:0 10px 24px rgba(49,94,251,.22)}
+    @keyframes mcDiceRoll{0%{transform:rotate(-7deg) scale(.98)}50%{transform:rotate(8deg) scale(1.08)}100%{transform:rotate(-7deg) scale(.98)}}
+    .die.hit{animation:mcHit .48s ease;background:#e9f8ef;border-color:#278a50}
+    .die.miss{animation:mcMiss .48s ease;background:#fdeaea;border-color:#b53b3b}
+    @keyframes mcHit{0%{transform:scale(.9)}55%{transform:scale(1.14)}100%{transform:scale(1)}}
+    @keyframes mcMiss{0%{transform:scale(.9)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+    .mc-mini.bump{animation:mcBump .34s ease}
+    @keyframes mcBump{0%{transform:scale(.98)}50%{transform:scale(1.035);box-shadow:0 8px 18px rgba(49,94,251,.12)}100%{transform:scale(1)}}
+    .mc-status.live{font-weight:800;color:#315efb}
+    .mc-chart-wrap.running{box-shadow:0 0 0 4px rgba(49,94,251,.08) inset}
+    @media (prefers-reduced-motion:reduce){.die.rolling,.die.hit,.die.miss,.mc-mini.bump,.mc-progress-bar.running{animation:none}.mc-progress-bar{transition:none}}
+
+    @media (max-width:900px){
+      .mc-lab{grid-template-columns:1fr}
+      .mc-controls{order:2}
+      .mc-visual{order:1}
+    }
+
+    .practice{
+      border:2px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      margin-top:16px;
+      margin-left:0;
+      margin-right:auto;
+      width:min(52%, 620px);
+      background:#fcfdff;
+    }
+    .practice h3{margin:0 0 8px;font-size:1.05rem}
+    .practice-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .feedback{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:2px solid var(--line);
+      display:none;
+    }
+    .feedback.show{display:block}
+
+    .footer-checks{
+      margin-top:16px;
+      border:2px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:14px;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+    .check-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px;
+      margin-top:8px;
+    }
+    .check-item{
+      border:2px solid var(--line);
+      border-radius:10px;
+      padding:8px;
+      text-align:center;
+      background:#fbfcfe;
+    }
+
+    @media (max-width:900px){
+      .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .hero .memory-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width:620px){
+      .app-shell{width:min(100% - 12px,1180px);margin-top:8px}
+      .hero,.panel{padding:14px;border-radius:16px}
+      .tabs{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr}
+      .practice{width:100%}
+      .hero .memory-strip{grid-template-columns:1fr}
+      .sample-table{border-spacing:2px;font-size:.78rem}
+      .sample-table th{height:36px;border-radius:7px}
+      .sample-table td{height:46px;border-radius:8px}
+      .sample-table td small{display:none}
+      .board-stage{min-height:300px}
+      .check-grid{grid-template-columns:1fr}
+    }
+
+    @media print{
+      body{background:#fff}
+      .app-shell{width:100%;margin:0}
+      .hero,.panel{box-shadow:none;break-inside:avoid}
+      .tabs{display:none}
+      .panel{display:block;page-break-after:always}
+      .practice-actions,.sim-row button{display:none}
+    }
+  
+    .main-with-left-summary{
+      display:grid;
+      grid-template-columns:minmax(240px,300px) minmax(0,1fr);
+      gap:16px;
+      align-items:start;
+      direction:ltr;
+      margin-top:12px;
+    }
+    .main-with-left-summary > .left-summary,
+    .main-with-left-summary > .main-content{
+      min-width:0;
+    }
+    .main-with-left-summary > .left-summary{
+      direction:rtl;
+    }
+    .main-with-left-summary > .main-content{
+      direction:rtl;
+    }
+    .main-with-left-summary .left-summary .stats{
+      grid-template-columns:1fr;
+      margin-top:0;
+    }
+    .main-with-left-summary .left-summary .practice{
+      width:100%;
+      margin:12px 0 0;
+    }
+    .main-with-left-summary .main-content .board-stage{
+      padding-top:0;
+    }
+
+    @media (max-width:900px){
+      .main-with-left-summary{
+        grid-template-columns:1fr;
+        direction:rtl;
+      }
+      .main-with-left-summary > .left-summary{
+        order:2;
+      }
+      .main-with-left-summary > .main-content{
+        order:1;
+      }
+      .main-with-left-summary .left-summary .stats{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:620px){
+      .main-with-left-summary .left-summary .stats{
+        grid-template-columns:1fr;
+      }
+    }
+</style>
+</head>
+<body>
+<main class="app-shell" id="app">
+<section aria-labelledby="page-title" class="hero">
+<h1 id="page-title">מעבדת הסתברות - שתי קוביות</h1>
+<p>לומדים את כל הנושאים על אותו מרחב מדגם של 36 תוצאות. בוחרים מאורעות, רואים אותם מיד בטבלה, ומקשרים בין ציור, ספירה ונוסחה.</p>
+</section>
+<nav aria-label="נושאי הלמידה" class="tabs">
+<button class="tab active" data-tab="sample" type="button">1. מרחב מדגם</button>
+<button class="tab" data-tab="compound" type="button">2. או וגם</button>
+<button class="tab" data-tab="conditional" type="button">4. הסתברות מותנית</button>
+<button class="tab" data-tab="multiplication" type="button">5. כפל הסתברויות</button>
+<button class="tab" data-tab="exclusive" type="button">6. מאורעות זרים</button>
+<button class="tab" data-tab="independent" type="button">7. מאורעות בלתי תלויים</button>
+<button class="tab" data-tab="twoway" type="button">8. טבלה דו-ממדית</button>
+<button class="tab" data-tab="simulation" type="button">9. סימולציה</button>
+</nav>
+<section aria-labelledby="title-sample" class="panel active" data-panel="sample" id="panel-sample">
+<div class="panel-header">
+<div>
+<h2 id="title-sample">מרחב המדגם של הטלת שתי קוביות</h2>
+<p>כל תא מייצג זוג סדור: המספר הראשון הוא תוצאת קובייה 1 והמספר השני הוא תוצאת קובייה 2.</p>
+</div>
+</div>
+<div class="learning-note">
+<strong>מה חשוב לזכור?</strong>
+      שתי קוביות יוצרות \(6\cdot 6=36\) תוצאות אפשריות. אם הקוביות הוגנות, לכל זוג סדור אותה הסתברות: \(\frac{1}{36}\).
+    </div>
+<div class="main-with-left-summary"><div class="left-summary">
+<div class="learning-note" id="sample-random-event-box">
+<strong>מחולל מאורע פשוט</strong>
+<div id="sample-random-event-name" style="margin-top:6px;font-weight:800;">לחצו על הכפתור כדי לקבל מאורע</div>
+<div class="practice-actions" style="margin-top:12px;">
+<button class="btn primary" id="sample-random-generate" type="button">הגרל מאורע</button>
+<button class="btn" id="sample-random-reset" type="button">איפוס</button>
+</div>
+</div>
+<div class="stats">
+<div class="stat"><div class="label">מספר תוצאות אפשריות במרחב המדגם</div><div class="value">36</div></div>
+<div class="stat"><div class="label">מספר האפשרויות במאורע</div><div class="value" id="sample-random-count">-</div></div>
+<div class="stat"><div class="label">הסתברות המאורע</div><div class="value" id="sample-random-prob">-</div></div>
+</div>
+</div>
+<div class="main-content"><div class="board-stage">
+<div class="board-transform" data-scale="1" id="sample-board">
+<table aria-label="מרחב המדגם של שתי קוביות" class="sample-table" id="grid-sample"></table>
+</div>
+</div></div></div>
+
+
+</section>
+<section aria-labelledby="title-compound" class="panel" data-panel="compound" id="panel-compound">
+<div class="panel-header">
+<div>
+<h2 id="title-compound">מאורעות מורכבים - או וגם</h2>
+<p>בחרו שני מאורעות. הצביעה מראה אילו תוצאות שייכות ל-A, ל-B ולשניהם.</p>
+</div>
+</div>
+<div class="controls">
+<div class="control">
+<label for="compound-a">מאורע A</label>
+<select id="compound-a"></select>
+</div>
+<div class="control">
+<label for="compound-b">מאורע B</label>
+<select id="compound-b"></select>
+</div>
+</div>
+<div class="main-with-left-summary"><div class="left-summary"><div class="stats">
+<div class="stat"><div class="label">\(P(A)\)</div><div class="value" id="compound-pa"></div></div>
+<div class="stat"><div class="label">\(P(B)\)</div><div class="value" id="compound-pb"></div></div>
+<div class="stat"><div class="label">\(P(A\,\text{םגו}\,B)\)</div><div class="value" id="compound-pboth"></div></div>
+<div class="stat"><div class="label">\(P(A\,\text{וא}\,B)\)</div><div class="value" id="compound-peither"></div></div>
+</div></div><div class="main-content"><div class="legend">
+<span class="legend-item"><i class="swatch a"></i>A</span>
+<span class="legend-item"><i class="swatch b"></i>B</span>
+<span class="legend-item"><i class="swatch both"></i>A וגם B</span>
+</div><div class="board-stage">
+<div class="board-transform" data-scale="1" id="compound-board">
+<table aria-label="מאורעות מורכבים" class="sample-table" id="grid-compound"></table>
+</div>
+</div></div></div>
+
+
+</section>
+<section aria-labelledby="title-addition" class="panel" data-panel="addition" id="panel-addition">
+<div class="panel-header">
+<div>
+<h2 id="title-addition">כלל החיבור</h2>
+<p>כאשר מחברים את \(P(A)\) ואת \(P(B)\), התוצאות המשותפות נספרות פעמיים. לכן מחסירים אותן פעם אחת.</p>
+</div>
+</div>
+<div class="formula-box" id="addition-formula"></div>
+<div class="learning-note">
+<strong>כלל קצר לזכירה</strong>
+      או ⇐ מחברים את שתי ההסתברויות ומחסירים פעם אחת את החלק המשותף.
+    </div>
+<div class="stats">
+<div class="stat"><div class="label">תוצאות ב-A</div><div class="value" id="addition-a-count"></div></div>
+<div class="stat"><div class="label">תוצאות ב-B</div><div class="value" id="addition-b-count"></div></div>
+<div class="stat"><div class="label">תוצאות משותפות</div><div class="value" id="addition-both-count"></div></div>
+<div class="stat"><div class="label">תוצאות ב-A או B</div><div class="value" id="addition-either-count"></div></div>
+</div>
+</section>
+<section aria-labelledby="title-conditional" class="panel" data-panel="conditional" id="panel-conditional">
+<div class="panel-header">
+<div>
+<h2 id="title-conditional">הסתברות מותנית - שינוי מרחב המדגם</h2>
+<p>ברגע שידוע ש-B התרחש, כל התוצאות שמחוץ ל-B אינן רלוונטיות. B הופך למרחב המדגם החדש.</p>
+</div>
+</div>
+<div class="controls">
+<div class="control">
+<label for="conditional-a">המאורע המבוקש A</label>
+<select id="conditional-a"></select>
+</div>
+<div class="control">
+<label for="conditional-b">נתון ש-B התרחש</label>
+<select id="conditional-b"></select>
+</div>
+</div>
+<div class="main-with-left-summary"><div class="left-summary"><div class="formula-box" id="conditional-formula"></div><div class="stats">
+<div class="stat"><div class="label">גודל מרחב המדגם החדש</div><div class="value" id="conditional-den"></div></div>
+<div class="stat"><div class="label">תוצאות רצויות בתוך B</div><div class="value" id="conditional-num"></div></div>
+<div class="stat"><div class="label">\(P(A\,\mid\,B)\)</div><div class="value" id="conditional-prob"></div></div>
+<div class="stat"><div class="label">רעיון</div><div class="value">מונה / מרחב חדש</div></div>
+</div></div><div class="main-content"><div class="board-stage">
+<div class="board-transform" data-scale="1" id="conditional-board">
+<table aria-label="הסתברות מותנית" class="sample-table" id="grid-conditional"></table>
+</div>
+</div></div></div>
+
+
+</section>
+<section aria-labelledby="title-multiplication" class="panel" data-panel="multiplication" id="panel-multiplication">
+<div class="panel-header">
+<div>
+<h2 id="title-multiplication">כפל הסתברויות - שתי קוביות</h2>
+<p>כאשר מאורע אחד מתייחס לקובייה הראשונה ומאורע אחר לקובייה השנייה, אפשר לראות את המכפלה ישירות כשורות כפול עמודות.</p>
+</div>
+</div>
+<div class="controls">
+<div class="control">
+<label for="mult-a">מאורע בקובייה 1</label>
+<select id="mult-a"></select>
+</div>
+<div class="control">
+<label for="mult-b">מאורע בקובייה 2</label>
+<select id="mult-b"></select>
+</div>
+</div>
+<div class="formula-box" id="multiplication-formula"></div>
+<div class="learning-note">
+<strong>חיבור בין ציור לנוסחה</strong>
+      אם יש \(r\) שורות מתאימות ו-\(c\) עמודות מתאימות, מספר התאים המשותפים הוא \(r\cdot c\).
+    </div>
+</section>
+<section aria-labelledby="title-exclusive" class="panel" data-panel="exclusive" id="panel-exclusive">
+<div class="panel-header">
+<div>
+<h2 id="title-exclusive">מאורעות זרים</h2>
+<p>מאורעות זרים אינם יכולים להתרחש יחד. לכן אין תוצאה ששייכת גם ל-A וגם ל-B.</p>
+</div>
+</div>
+<div class="controls">
+<div class="control">
+<label for="exclusive-a">מאורע A</label>
+<select id="exclusive-a"></select>
+</div>
+<div class="control">
+<label for="exclusive-b">מאורע B</label>
+<select id="exclusive-b"></select>
+</div>
+</div>
+<div class="main-with-left-summary">
+<div class="left-summary">
+<div class="formula-box">\(A\,\text{םגו}\,B=\text{ןורתפ ןיא}\)</div>
+<div class="decision" id="exclusive-decision"></div>
+</div>
+<div class="main-content">
+<div class="board-stage">
+<div class="board-transform" data-scale="1" id="exclusive-board">
+<table aria-label="בדיקת מאורעות זרים" class="sample-table" id="grid-exclusive"></table>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section aria-labelledby="title-independent" class="panel" data-panel="independent" id="panel-independent">
+<div class="panel-header">
+<div>
+<h2 id="title-independent">מאורעות בלתי תלויים</h2>
+<p>מאורעות בלתי תלויים כאשר הידיעה שאחד מהם התרחש אינה משנה את ההסתברות של האחר.</p>
+</div>
+</div>
+<div class="controls">
+<div class="control">
+<label for="independent-a">מאורע A</label>
+<select id="independent-a"></select>
+</div>
+<div class="control">
+<label for="independent-b">מאורע B</label>
+<select id="independent-b"></select>
+</div>
+</div>
+<div class="main-with-left-summary"><div class="left-summary"><div class="stats">
+<div class="stat"><div class="label">\(P(A)\)</div><div class="value" id="independent-pa"></div></div>
+<div class="stat"><div class="label">\(P(B)\)</div><div class="value" id="independent-pb"></div></div>
+<div class="stat"><div class="label">\(P(A\,\text{םגו}\,B)\)</div><div class="value" id="independent-pboth"></div></div>
+<div class="stat"><div class="label">\(P(A)\cdot P(B)\)</div><div class="value" id="independent-product"></div></div>
+</div><div class="formula-box" id="independent-formula"></div><div class="decision" id="independent-decision"></div></div><div class="main-content"><div class="board-stage">
+<div class="board-transform" data-scale="1" id="independent-board">
+<table aria-label="בדיקת אי תלות" class="sample-table" id="grid-independent"></table>
+</div>
+</div></div></div>
+
+
+
+</section>
+<section aria-labelledby="title-twoway" class="panel" data-panel="twoway" id="panel-twoway">
+<div class="panel-header">
+<div>
+<h2 id="title-twoway">טבלה דו-ממדית</h2>
+<p>מסכמים את אותן 36 תוצאות לפי שני מאפיינים. שולי הטבלה מציגים את הסכומים הכוללים.</p>
+</div>
+</div>
+<div class="controls">
+<div class="control">
+<label for="twoway-row">מאפיין של קובייה 1</label>
+<select id="twoway-row"></select>
+</div>
+<div class="control">
+<label for="twoway-col">מאפיין של קובייה 2</label>
+<select id="twoway-col"></select>
+</div>
+<button class="btn soft" id="twoway-toggle" type="button">הצג כהסתברויות</button>
+</div>
+<table aria-label="טבלה דו ממדית" class="two-way" id="twoway-table"></table>
+<div class="learning-note">
+<strong>איך עוברים משכיחות להסתברות?</strong>
+      מחלקים כל תא ב-36. לדוגמה, אם בתא יש 6 תוצאות, ההסתברות שלו היא \(\frac{6}{36}=\frac{1}{6}\).
+    </div>
+</section>
+<section aria-labelledby="title-simulation" class="panel" data-panel="simulation" id="panel-simulation">
+<div class="panel-header">
+<div>
+<h2 id="title-simulation">סימולציית מונטה קרלו - שתי קוביות</h2>
+<p>מריצים שוב ושוב ניסוי אקראי, מחשבים את השכיחות היחסית של המאורע ורואים כיצד האומדן מתקרב להסתברות התאורטית.</p>
+</div>
+</div>
+<div class="mc-lab">
+  <aside class="mc-controls" aria-label="בקרי סימולציית מונטה קרלו">
+    <h3 class="mc-title">הגדרות הסימולציה</h3>
+    <div class="mc-control">
+      <label for="simulation-event">מאורע</label>
+      <select id="simulation-event"></select>
+    </div>
+    <div class="mc-control">
+      <label for="mc-trials">מספר ההגרלות הכולל \(N\)</label>
+      <div class="mc-range-row">
+        <output class="mc-number" id="mc-trials-value" for="mc-trials">1000</output>
+        <input id="mc-trials" type="range" min="10" max="10000" step="10" value="1000"/>
+      </div>
+    </div>
+    <div class="mc-actions">
+      <button class="btn primary" id="mc-run" type="button">הפעל סימולציה</button>
+      <button class="btn" id="mc-one" type="button">הגרלה אחת</button>
+      <button class="btn" id="sim-reset" type="button">איפוס</button>
+    </div>
+
+    <div class="mc-progress-wrap" aria-live="polite">
+      <div class="mc-progress-head"><span id="mc-progress-label">מוכן להפעלה</span><span id="mc-progress-pct">0%</span></div>
+      <div class="mc-progress"><div class="mc-progress-bar" id="mc-progress-bar"></div></div>
+    </div>
+    <div class="mc-mini-stats">
+      <div class="mc-mini"><div class="label">מספר הגרלות</div><div class="value" id="sim-n">0</div></div>
+      <div class="mc-mini"><div class="label">הצלחות</div><div class="value" id="sim-hits">0</div></div>
+      <div class="mc-mini"><div class="label">הסתברות מונטה קרלו</div><div class="value" id="sim-exp">-</div></div>
+      <div class="mc-mini"><div class="label">הסתברות תאורטית</div><div class="value" id="sim-theory">-</div></div>
+      
+    </div>
+  </aside>
+  <div class="mc-visual">
+    <div class="mc-badge">מטרה: לראות התכנסות של אומדן מונטה קרלו</div>
+    <h3 class="mc-title">הסתברות ניסויית לאורך ההגרלות</h3>
+    <div class="mc-chart-wrap">
+      <svg id="mc-chart" viewBox="0 0 760 380" role="img" aria-label="גרף התכנסות הסתברות מונטה קרלו"></svg>
+    </div>
+    <div class="mc-legend">
+      <span class="mc-key"><i class="mc-line"></i>הסתברות מונטה קרלו</span>
+      <span class="mc-key"><i class="mc-line theory"></i>הסתברות תאורטית</span>
+    </div>
+    <div class="mc-last" aria-label="תוצאת ההגרלה האחרונה">
+      <strong>הגרלה אחרונה:</strong>
+      <div class="die" id="die-one">-</div>
+      <div class="die" id="die-two">-</div>
+      <span class="mc-status" id="mc-last-status">טרם בוצעה הגרלה</span>
+    </div>
+  </div>
+</div>
+</section>
+</main>
+<script>
+(function(){
+  "use strict";
+
+  const outcomes=[];
+  for(let d1=1;d1<=6;d1++){
+    for(let d2=1;d2<=6;d2++){
+      outcomes.push({d1:d1,d2:d2,sum:d1+d2});
+    }
+  }
+
+  const events={
+    even1:{name:"קובייה 1 זוגית", fn:o=>o.d1%2===0},
+    odd1:{name:"קובייה 1 אי-זוגית", fn:o=>o.d1%2===1},
+    even2:{name:"קובייה 2 זוגית", fn:o=>o.d2%2===0},
+    odd2:{name:"קובייה 2 אי-זוגית", fn:o=>o.d2%2===1},
+    first2:{name:"קובייה 1 שווה 2", fn:o=>o.d1===2},
+    second6:{name:"קובייה 2 שווה 6", fn:o=>o.d2===6},
+    gt4second:{name:"קובייה 2 גדולה מ-4", fn:o=>o.d2>4},
+    sum7:{name:"סכום 7", fn:o=>o.sum===7},
+    sum8:{name:"סכום 8", fn:o=>o.sum===8},
+    sumLe5:{name:"סכום קטן או שווה ל-5", fn:o=>o.sum<=5},
+    sumGe9:{name:"סכום גדול או שווה ל-9", fn:o=>o.sum>=9},
+    double:{name:"דאבל", fn:o=>o.d1===o.d2},
+    atleast6:{name:"לפחות קובייה אחת שווה 6", fn:o=>o.d1===6||o.d2===6}
+  };
+
+  const simpleEventBank=[
+    {name:"סכום שתי הקוביות הוא 2", fn:o=>o.sum===2},
+    {name:"סכום שתי הקוביות הוא 3", fn:o=>o.sum===3},
+    {name:"סכום שתי הקוביות הוא 4", fn:o=>o.sum===4},
+    {name:"סכום שתי הקוביות הוא 5", fn:o=>o.sum===5},
+    {name:"סכום שתי הקוביות הוא 6", fn:o=>o.sum===6},
+    {name:"סכום שתי הקוביות הוא 7", fn:o=>o.sum===7},
+    {name:"סכום שתי הקוביות הוא 8", fn:o=>o.sum===8},
+    {name:"סכום שתי הקוביות הוא 9", fn:o=>o.sum===9},
+    {name:"סכום שתי הקוביות הוא 10", fn:o=>o.sum===10},
+    {name:"סכום שתי הקוביות הוא 11", fn:o=>o.sum===11},
+    {name:"סכום שתי הקוביות הוא 12", fn:o=>o.sum===12},
+    {name:"בקובייה 1 התקבל 1", fn:o=>o.d1===1},
+    {name:"בקובייה 1 התקבל 2", fn:o=>o.d1===2},
+    {name:"בקובייה 1 התקבל 3", fn:o=>o.d1===3},
+    {name:"בקובייה 1 התקבל 4", fn:o=>o.d1===4},
+    {name:"בקובייה 1 התקבל 5", fn:o=>o.d1===5},
+    {name:"בקובייה 1 התקבל 6", fn:o=>o.d1===6},
+    {name:"בקובייה 2 התקבל 1", fn:o=>o.d2===1},
+    {name:"בקובייה 2 התקבל 2", fn:o=>o.d2===2},
+    {name:"בקובייה 2 התקבל 3", fn:o=>o.d2===3},
+    {name:"בקובייה 2 התקבל 4", fn:o=>o.d2===4},
+    {name:"בקובייה 2 התקבל 5", fn:o=>o.d2===5},
+    {name:"בקובייה 2 התקבל 6", fn:o=>o.d2===6},
+    {name:"התקבל דאבל", fn:o=>o.d1===o.d2},
+    {name:"שתי הקוביות זוגיות", fn:o=>o.d1%2===0&&o.d2%2===0},
+    {name:"שתי הקוביות אי-זוגיות", fn:o=>o.d1%2===1&&o.d2%2===1},
+    {name:"הקוביות בעלות אותה זוגיות", fn:o=>o.d1%2===o.d2%2},
+    {name:"הקוביות בעלות זוגיות שונה", fn:o=>o.d1%2!==o.d2%2},
+    {name:"תוצאת קובייה 1 גדולה מתוצאת קובייה 2", fn:o=>o.d1>o.d2},
+    {name:"תוצאת קובייה 1 קטנה מתוצאת קובייה 2", fn:o=>o.d1<o.d2},
+    {name:"לפחות קובייה אחת שווה 6", fn:o=>o.d1===6||o.d2===6},
+    {name:"לפחות קובייה אחת שווה 1", fn:o=>o.d1===1||o.d2===1},
+    {name:"סכום שתי הקוביות זוגי", fn:o=>o.sum%2===0},
+    {name:"סכום שתי הקוביות אי-זוגי", fn:o=>o.sum%2===1},
+    {name:"מכפלת שתי הקוביות זוגית", fn:o=>(o.d1*o.d2)%2===0},
+    {name:"מכפלת שתי הקוביות אי-זוגית", fn:o=>(o.d1*o.d2)%2===1},
+    {name:"הסכום קטן או שווה ל-5", fn:o=>o.sum<=5},
+    {name:"הסכום גדול או שווה ל-9", fn:o=>o.sum>=9},
+    {name:"ההפרש המוחלט בין הקוביות הוא 1", fn:o=>Math.abs(o.d1-o.d2)===1},
+    {name:"ההפרש המוחלט בין הקוביות הוא 2", fn:o=>Math.abs(o.d1-o.d2)===2}
+  ];
+
+  let currentSimpleEventIndex=-1;
+
+  function updateSimpleEventDisplay(index){
+    currentSimpleEventIndex=index;
+    const nameEl=document.getElementById("sample-random-event-name");
+    const countEl=document.getElementById("sample-random-count");
+    const probEl=document.getElementById("sample-random-prob");
+    const cells=document.querySelectorAll("#grid-sample td");
+
+    cells.forEach(td=>td.classList.remove("a"));
+
+    if(index<0){
+      nameEl.textContent="לחצו על הכפתור כדי לקבל מאורע";
+      countEl.textContent="-";
+      probEl.textContent="-";
+      return;
+    }
+
+    const ev=simpleEventBank[index];
+    let count=0;
+    cells.forEach(td=>{
+      const o={d1:Number(td.dataset.d1),d2:Number(td.dataset.d2)};
+      o.sum=o.d1+o.d2;
+      if(ev.fn(o)){
+        td.classList.add("a");
+        count++;
+      }
+    });
+
+    nameEl.textContent=ev.name;
+    countEl.textContent=String(count);
+    probEl.innerHTML="\\("+texFraction(count,36)+"\\)";
+    queueTypeset();
+  }
+
+  function generateSimpleEvent(){
+    let next=Math.floor(Math.random()*simpleEventBank.length);
+    if(simpleEventBank.length>1 && next===currentSimpleEventIndex){
+      next=(next+1+Math.floor(Math.random()*(simpleEventBank.length-1)))%simpleEventBank.length;
+    }
+    updateSimpleEventDisplay(next);
+  }
+
+  const rowEvents=["even1","odd1","first2"];
+  const colEvents=["even2","odd2","second6","gt4second"];
+
+  function gcd(a,b){
+    a=Math.abs(a); b=Math.abs(b);
+    while(b){const t=b;b=a%b;a=t;}
+    return a||1;
+  }
+
+  function fraction(n,d){
+    if(d===0) return "לא מוגדר";
+    if(n===0) return "0";
+    const g=gcd(n,d);
+    return (n/g)+"/"+(d/g);
+  }
+
+  function texFraction(n,d){
+    if(d===0) return "\\text{רדגומ אל}";
+    if(n===0) return "0";
+    const g=gcd(n,d);
+    return "\\frac{"+(n/g)+"}{"+(d/g)+"}";
+  }
+
+  function countEvent(key){
+    return outcomes.filter(events[key].fn).length;
+  }
+
+  function countBoth(a,b){
+    return outcomes.filter(o=>events[a].fn(o)&&events[b].fn(o)).length;
+  }
+
+  function countEither(a,b){
+    return outcomes.filter(o=>events[a].fn(o)||events[b].fn(o)).length;
+  }
+
+  function fillSelect(id,keys){
+    const el=document.getElementById(id);
+    el.innerHTML="";
+    keys.forEach(key=>{
+      const option=document.createElement("option");
+      option.value=key;
+      option.textContent=events[key].name;
+      el.appendChild(option);
+    });
+  }
+
+  function buildGrid(tableId,aKey,bKey,mode){
+    const table=document.getElementById(tableId);
+    table.innerHTML="";
+    const header=document.createElement("tr");
+    const corner=document.createElement("th");
+    corner.textContent="קובייה 1 ↓ / קובייה 2 →";
+    header.appendChild(corner);
+    for(let d2=1;d2<=6;d2++){
+      const th=document.createElement("th");
+      th.textContent=d2;
+      header.appendChild(th);
+    }
+    table.appendChild(header);
+
+    for(let d1=1;d1<=6;d1++){
+      const tr=document.createElement("tr");
+      const rowHead=document.createElement("th");
+      rowHead.textContent=d1;
+      tr.appendChild(rowHead);
+
+      for(let d2=1;d2<=6;d2++){
+        const o={d1:d1,d2:d2,sum:d1+d2};
+        const td=document.createElement("td");
+        td.dataset.d1=String(d1);
+        td.dataset.d2=String(d2);
+        td.innerHTML="<span>("+d1+","+d2+")</span><small>סכום "+(d1+d2)+"</small>";
+
+        const inA=aKey ? events[aKey].fn(o) : false;
+        const inB=bKey ? events[bKey].fn(o) : false;
+
+        if(mode==="conditional" && bKey && !inB){
+          td.classList.add("dim");
+        }
+
+        if(inA && inB) td.classList.add("both");
+        else if(inA) td.classList.add("a");
+        else if(inB) td.classList.add("b");
+
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+  }
+
+  function queueTypeset(){
+    if(window.MathJax && window.MathJax.typesetPromise){
+      window.MathJax.typesetClear && window.MathJax.typesetClear();
+      window.MathJax.typesetPromise().catch(()=>{});
+    }
+  }
+
+  function initTabs(){
+    document.querySelectorAll(".tab").forEach(button=>{
+      button.addEventListener("click",()=>{
+        document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+        button.classList.add("active");
+        const panel=document.querySelector('[data-panel="'+button.dataset.tab+'"]');
+        if(panel) panel.classList.add("active");
+      });
+    });
+  }
+
+  function updateCompound(){
+    const a=document.getElementById("compound-a").value;
+    const b=document.getElementById("compound-b").value;
+    buildGrid("grid-compound",a,b,"normal");
+    const ca=countEvent(a), cb=countEvent(b), both=countBoth(a,b), either=countEither(a,b);
+    document.getElementById("compound-pa").textContent=fraction(ca,36);
+    document.getElementById("compound-pb").textContent=fraction(cb,36);
+    document.getElementById("compound-pboth").textContent=fraction(both,36);
+    document.getElementById("compound-peither").textContent=fraction(either,36);
+
+    document.getElementById("addition-a-count").textContent=ca;
+    document.getElementById("addition-b-count").textContent=cb;
+    document.getElementById("addition-both-count").textContent=both;
+    document.getElementById("addition-either-count").textContent=either;
+
+    document.getElementById("addition-formula").innerHTML=
+      "\\["+
+      "P(A\\,\\text{וא}\\,B)=P(A)+P(B)-P(A\\,\\text{םגו}\\,B)"+
+      "\\]"+
+      "\\["+
+      "="+texFraction(ca,36)+"+"+texFraction(cb,36)+"-"+texFraction(both,36)+
+      "="+texFraction(either,36)+
+      "\\]";
+    queueTypeset();
+  }
+
+  function updateConditional(){
+    const a=document.getElementById("conditional-a").value;
+    const b=document.getElementById("conditional-b").value;
+    buildGrid("grid-conditional",a,b,"conditional");
+    const den=countEvent(b);
+    const num=countBoth(a,b);
+
+    document.getElementById("conditional-den").textContent=den;
+    document.getElementById("conditional-num").textContent=num;
+    document.getElementById("conditional-prob").textContent=fraction(num,den);
+
+    document.getElementById("conditional-formula").innerHTML=
+      "\\["+
+      "P(A\\,\\mid\\,B)=\\frac{P(A\\,\\text{םגו}\\,B)}{P(B)}"+
+      "="+texFraction(num,den)+
+      "\\]";
+    queueTypeset();
+  }
+
+  function updateMultiplication(){
+    const a=document.getElementById("mult-a").value;
+    const b=document.getElementById("mult-b").value;
+    const ca=countEvent(a);
+    const cb=countEvent(b);
+    const both=countBoth(a,b);
+    document.getElementById("multiplication-formula").innerHTML=
+      "\\["+
+      "P(A\\,\\text{םגו}\\,B)=P(A)\\cdot P(B)"+
+      "\\]"+
+      "\\["+
+      "="+texFraction(ca,36)+"\\cdot "+texFraction(cb,36)+
+      "="+texFraction(both,36)+
+      "\\]";
+    queueTypeset();
+  }
+
+  function updateExclusive(){
+    const a=document.getElementById("exclusive-a").value;
+    const b=document.getElementById("exclusive-b").value;
+    buildGrid("grid-exclusive",a,b,"normal");
+    const both=countBoth(a,b);
+    const box=document.getElementById("exclusive-decision");
+    box.className="decision "+(both===0?"good":"bad");
+    box.textContent=both===0
+      ? "כן. אין תוצאה משותפת לשני המאורעות, ולכן הם מאורעות זרים."
+      : "לא. קיימות "+both+" תוצאות משותפות, ולכן המאורעות אינם זרים.";
+  }
+
+  function updateIndependent(){
+    const a=document.getElementById("independent-a").value;
+    const b=document.getElementById("independent-b").value;
+    buildGrid("grid-independent",a,b,"normal");
+
+    const ca=countEvent(a), cb=countEvent(b), both=countBoth(a,b);
+    const independent=(both*36===ca*cb);
+
+    document.getElementById("independent-pa").textContent=fraction(ca,36);
+    document.getElementById("independent-pb").textContent=fraction(cb,36);
+    document.getElementById("independent-pboth").textContent=fraction(both,36);
+    document.getElementById("independent-product").textContent=
+      fraction(ca,36)+" · "+fraction(cb,36);
+
+    document.getElementById("independent-formula").innerHTML=
+      "\\["+
+      "P(A\\,\\text{םגו}\\,B)"+
+      (independent?"=":"\\ne")+
+      "P(A)\\cdot P(B)"+
+      "\\]";
+    const box=document.getElementById("independent-decision");
+    box.className="decision "+(independent?"good":"warn");
+    box.textContent=independent
+      ? "המאורעות בלתי תלויים: הידיעה שאחד התרחש אינה משנה את ההסתברות של האחר."
+      : "המאורעות תלויים: הידיעה שאחד התרחש משנה את ההסתברות של האחר.";
+    queueTypeset();
+  }
+
+  let twoWayProb=false;
+  function updateTwoWay(){
+    const rowKey=document.getElementById("twoway-row").value;
+    const colKey=document.getElementById("twoway-col").value;
+    const R=events[rowKey].fn, C=events[colKey].fn;
+    let yy=0,yn=0,ny=0,nn=0;
+
+    outcomes.forEach(o=>{
+      const r=R(o),c=C(o);
+      if(r&&c) yy++;
+      else if(r&&!c) yn++;
+      else if(!r&&c) ny++;
+      else nn++;
+    });
+
+    function show(n){return twoWayProb ? fraction(n,36) : String(n);}
+    const table=document.getElementById("twoway-table");
+    table.innerHTML=
+      "<tr><th></th><th>"+events[colKey].name+"</th><th>לא "+events[colKey].name+"</th><th>סה״כ</th></tr>"+
+      "<tr><th>"+events[rowKey].name+"</th><td>"+show(yy)+"</td><td>"+show(yn)+"</td><td>"+show(yy+yn)+"</td></tr>"+
+      "<tr><th>לא "+events[rowKey].name+"</th><td>"+show(ny)+"</td><td>"+show(nn)+"</td><td>"+show(ny+nn)+"</td></tr>"+
+      "<tr class='grand'><th>סה״כ</th><td>"+show(yy+ny)+"</td><td>"+show(yn+nn)+"</td><td>"+(twoWayProb?"1":"36")+"</td></tr>";
+
+    document.getElementById("twoway-toggle").textContent=
+      twoWayProb ? "הצג כשכיחויות" : "הצג כהסתברויות";
+  }
+
+  let simN=0,simHits=0;
+  let simHistory=[];
+
+  function simulationTheory(){
+    const key=document.getElementById("simulation-event").value;
+    return countEvent(key)/36;
+  }
+
+  function svgEl(name,attrs){
+    const el=document.createElementNS("http://www.w3.org/2000/svg",name);
+    Object.entries(attrs||{}).forEach(([k,v])=>el.setAttribute(k,String(v)));
+    return el;
+  }
+
+  function drawMonteCarloChart(){
+    const svg=document.getElementById("mc-chart");
+    if(!svg) return;
+    svg.innerHTML="";
+    const W=760,H=380,L=58,R=18,T=18,B=42;
+    const pw=W-L-R, ph=H-T-B;
+    const maxX=Math.max(10,simN);
+    const theory=simulationTheory();
+
+    for(let i=0;i<=5;i++){
+      const y=T+ph*i/5;
+      const p=1-i/5;
+      svg.appendChild(svgEl("line",{x1:L,y1:y,x2:W-R,y2:y,stroke:"#e4e9f1","stroke-width":1}));
+      const tx=svgEl("text",{x:L-10,y:y+4,"text-anchor":"end",fill:"#667085","font-size":12});
+      tx.textContent=p.toFixed(1); svg.appendChild(tx);
+    }
+    for(let i=0;i<=5;i++){
+      const x=L+pw*i/5;
+      svg.appendChild(svgEl("line",{x1:x,y1:T,x2:x,y2:H-B,stroke:"#eef1f5","stroke-width":1}));
+      const tx=svgEl("text",{x:x,y:H-16,"text-anchor":"middle",fill:"#667085","font-size":12});
+      tx.textContent=Math.round(maxX*i/5); svg.appendChild(tx);
+    }
+    svg.appendChild(svgEl("line",{x1:L,y1:H-B,x2:W-R,y2:H-B,stroke:"#7c8799","stroke-width":1.5}));
+    svg.appendChild(svgEl("line",{x1:L,y1:T,x2:L,y2:H-B,stroke:"#7c8799","stroke-width":1.5}));
+
+    const theoryY=T+(1-theory)*ph;
+    svg.appendChild(svgEl("line",{x1:L,y1:theoryY,x2:W-R,y2:theoryY,stroke:"#b04b4b","stroke-width":2.5,"stroke-dasharray":"8 7"}));
+    const theoryText=svgEl("text",{x:W-R-10,y:Math.max(T+16,theoryY-8),"text-anchor":"end",fill:"#973c3c","font-size":13,"font-weight":700,direction:"ltr",style:"unicode-bidi:bidi-override"});
+    theoryText.textContent="P = "+theory.toFixed(3); svg.appendChild(theoryText);
+
+    if(simHistory.length){
+      const sampled=simHistory.length>1200 ? simHistory.filter((_,i)=>i%Math.ceil(simHistory.length/1200)===0 || i===simHistory.length-1) : simHistory;
+      const points=sampled.map(pt=>{
+        const x=L+(pt.n/maxX)*pw;
+        const y=T+(1-pt.p)*ph;
+        return x.toFixed(1)+","+y.toFixed(1);
+      }).join(" ");
+      svg.appendChild(svgEl("polyline",{points,fill:"none",stroke:"#315efb","stroke-width":3,"stroke-linejoin":"round","stroke-linecap":"round"}));
+
+      // Tooltip markers are shown only at intervals, not on every simulated point.
+      // Aim for about 10 tooltip points across the full run, always including the last point.
+      const tooltipStep=Math.max(1,Math.ceil(simHistory.length/10));
+      const tooltipPoints=simHistory.filter((_,i)=>
+        i===simHistory.length-1 || i%tooltipStep===0
+      );
+
+      tooltipPoints.forEach(pt=>{
+        const cx=L+(pt.n/maxX)*pw;
+        const cy=T+(1-pt.p)*ph;
+        const hits=Math.round(pt.p*pt.n);
+
+        const marker=svgEl("circle",{
+          cx,cy,r:4.5,
+          fill:"#315efb",
+          stroke:"white",
+          "stroke-width":2,
+          style:"cursor:help"
+        });
+
+        const title=svgEl("title");
+        title.textContent=
+          "מספר הגרלות: "+pt.n+
+          "\nמספר הצלחות: "+hits+
+          "\nהסתברות: "+hits+"/"+pt.n+" = "+pt.p.toFixed(4);
+        marker.appendChild(title);
+        svg.appendChild(marker);
+      });
+
+      const last=simHistory[simHistory.length-1];
+      const cx=L+(last.n/maxX)*pw, cy=T+(1-last.p)*ph;
+      svg.appendChild(svgEl("circle",{cx,cy,r:5,fill:"#315efb",stroke:"white","stroke-width":2}));
+    }else{
+      const msg=svgEl("text",{x:L+pw/2,y:T+ph/2,"text-anchor":"middle",fill:"#8791a3","font-size":17});
+      msg.textContent="בחרו מאורע ולחצו על הפעל סימולציה"; svg.appendChild(msg);
+    }
+
+    const xl=svgEl("text",{x:L+pw/2,y:H-2,"text-anchor":"middle",fill:"#384252","font-size":13,"font-weight":700});
+    xl.textContent="מספר ההגרלות"; svg.appendChild(xl);
+    const yl=svgEl("text",{x:16,y:T+ph/2,"text-anchor":"middle",fill:"#384252","font-size":13,"font-weight":700,transform:"rotate(-90 16 "+(T+ph/2)+")"});
+    yl.textContent="הסתברות ניסויית"; svg.appendChild(yl);
+  }
+
+  function updateSimulationDisplay(){
+    const theory=simulationTheory();
+    const estimate=simN ? simHits/simN : null;
+    document.getElementById("sim-n").textContent=simN;
+    document.getElementById("sim-hits").textContent=simHits;
+    document.getElementById("sim-exp").innerHTML=estimate===null
+      ? "-"
+      : "\\(\\frac{"+simHits+"}{"+simN+"}="+estimate.toFixed(4)+"\\)";
+    document.getElementById("sim-theory").textContent=fraction(Math.round(theory*36),36)+" ≈ "+theory.toFixed(4);
+    queueTypeset();
+    drawMonteCarloChart();
+  }
+
+  let simulationRunning=false;
+  let simulationToken=0;
+
+  function setSimulationControlsRunning(running){
+    simulationRunning=running;
+    ["mc-run","mc-one","simulation-event","mc-trials"].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.disabled=running;
+    });
+    const bar=document.getElementById("mc-progress-bar");
+    const wrap=document.querySelector(".mc-chart-wrap");
+    if(bar) bar.classList.toggle("running",running);
+    if(wrap) wrap.classList.toggle("running",running);
+  }
+
+  function setProgress(done,total,label){
+    const pct=total ? Math.min(100,Math.round(done/total*100)) : 0;
+    document.getElementById("mc-progress-bar").style.width=pct+"%";
+    document.getElementById("mc-progress-pct").textContent=pct+"%";
+    document.getElementById("mc-progress-label").textContent=label || (done+" מתוך "+total+" הגרלות");
+  }
+
+  function pulseStats(){
+    document.querySelectorAll(".mc-mini").forEach(el=>{
+      el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
+    });
+  }
+
+  function animateDiceState(d1,d2,hit,rolling){
+    const one=document.getElementById("die-one"), two=document.getElementById("die-two");
+    one.textContent=d1; two.textContent=d2;
+    [one,two].forEach(el=>{
+      el.classList.remove("rolling","hit","miss");
+      if(rolling) el.classList.add("rolling");
+      else el.classList.add(hit?"hit":"miss");
+    });
+  }
+
+  function resetSimulation(){
+    simulationToken++;
+    setSimulationControlsRunning(false);
+    simN=0; simHits=0; simHistory=[];
+    const one=document.getElementById("die-one"),two=document.getElementById("die-two");
+    one.textContent="-"; two.textContent="-";
+    one.classList.remove("rolling","hit","miss"); two.classList.remove("rolling","hit","miss");
+    const status=document.getElementById("mc-last-status");
+    status.textContent="טרם בוצעה הגרלה"; status.className="mc-status"; status.style.color="";
+    setProgress(0,1,"מוכן להפעלה");
+    updateSimulationDisplay();
+  }
+
+  function runOneTrial(key,recordHistory=true){
+    const d1=Math.floor(Math.random()*6)+1;
+    const d2=Math.floor(Math.random()*6)+1;
+    const o={d1,d2,sum:d1+d2};
+    simN++;
+    const hit=events[key].fn(o);
+    if(hit) simHits++;
+    if(recordHistory) simHistory.push({n:simN,p:simHits/simN});
+    return {d1,d2,hit};
+  }
+
+  function finishAnimatedSimulation(last){
+    setSimulationControlsRunning(false);
+    animateDiceState(last.d1,last.d2,last.hit,false);
+    const status=document.getElementById("mc-last-status");
+    status.className="mc-status";
+    status.textContent=last.hit ? "ההגרלה האחרונה שייכת למאורע" : "ההגרלה האחרונה אינה שייכת למאורע";
+    status.style.color=last.hit ? "#278a50" : "#b53b3b";
+    setProgress(1,1,"הסימולציה הושלמה");
+    updateSimulationDisplay();
+    pulseStats();
+  }
+
+  function simulateAnimated(total,fromScratch){
+    if(simulationRunning) return;
+    if(fromScratch){
+      simN=0; simHits=0; simHistory=[];
+      updateSimulationDisplay();
+    }
+    const token=++simulationToken;
+    const key=document.getElementById("simulation-event").value;
+    setSimulationControlsRunning(true);
+    setProgress(0,total,"הסימולציה רצה...");
+    const status=document.getElementById("mc-last-status");
+    status.className="mc-status live";
+    status.textContent="מבצע הגרלות אקראיות...";
+    const targetDuration=12000;
+    const started=performance.now();
+    let done=0, last={d1:1,d2:1,hit:false};
+    const maxFrames=150;
+    const baseChunk=Math.max(1,Math.ceil(total/maxFrames));
+
+    function frame(now){
+      if(token!==simulationToken) return;
+      const elapsed=now-started;
+      const desired=Math.min(total, Math.max(done+baseChunk, Math.floor(total*Math.min(1,elapsed/targetDuration))));
+      while(done<desired){
+        const record = total<=1200 || done%Math.ceil(total/1200)===0 || done===total-1;
+        last=runOneTrial(key,record);
+        done++;
+      }
+      animateDiceState(Math.floor(Math.random()*6)+1,Math.floor(Math.random()*6)+1,false,true);
+      setProgress(done,total);
+      updateSimulationDisplay();
+      if(done<total){
+        requestAnimationFrame(frame);
+      }else{
+        finishAnimatedSimulation(last);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function simulateOneAnimated(){
+    if(simulationRunning) return;
+    const token=++simulationToken;
+    const key=document.getElementById("simulation-event").value;
+    setSimulationControlsRunning(true);
+    setProgress(0,1,"מגריל...");
+    const status=document.getElementById("mc-last-status");
+    status.className="mc-status live"; status.textContent="הקוביות מתגלגלות...";
+    let ticks=0;
+    const timer=setInterval(()=>{
+      if(token!==simulationToken){clearInterval(timer);return;}
+      ticks++;
+      animateDiceState(Math.floor(Math.random()*6)+1,Math.floor(Math.random()*6)+1,false,true);
+      document.getElementById("mc-progress-bar").style.width=Math.min(90,ticks*15)+"%";
+      document.getElementById("mc-progress-pct").textContent=Math.min(90,ticks*15)+"%";
+      if(ticks>=14){
+        clearInterval(timer);
+        const last=runOneTrial(key,true);
+        finishAnimatedSimulation(last);
+      }
+    },200);
+  }
+
+  function initPractice(){
+    document.querySelectorAll("[data-feedback]").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const target=document.getElementById(btn.dataset.feedback);
+        const correct=btn.dataset.answer==="correct";
+        target.className="feedback show";
+        target.style.background=correct?"var(--good)":"var(--warn)";
+        target.style.borderColor=correct?"var(--good-border)":"var(--warn-border)";
+        target.textContent=correct
+          ? "נכון. סכום 8 מתקבל ב-5 זוגות: (2,6), (3,5), (4,4), (5,3), (6,2)."
+          : "בדוק שוב בטבלה: עקוב אחרי כל התאים שבהם סכום שתי הקוביות הוא 8.";
+      });
+    });
+  }
+
+  function init(){
+    initTabs();
+
+    const allKeys=Object.keys(events);
+    ["compound-a","compound-b","conditional-a","conditional-b",
+     "exclusive-a","exclusive-b","independent-a","independent-b",
+     "simulation-event"].forEach(id=>fillSelect(id,allKeys));
+
+    fillSelect("mult-a",rowEvents);
+    fillSelect("mult-b",colEvents);
+    fillSelect("twoway-row",rowEvents);
+    fillSelect("twoway-col",colEvents);
+
+    document.getElementById("compound-a").value="sum7";
+    document.getElementById("compound-b").value="even1";
+    document.getElementById("conditional-a").value="first2";
+    document.getElementById("conditional-b").value="sumLe5";
+    document.getElementById("mult-a").value="even1";
+    document.getElementById("mult-b").value="gt4second";
+    document.getElementById("exclusive-a").value="odd1";
+    document.getElementById("exclusive-b").value="even1";
+    document.getElementById("independent-a").value="even1";
+    document.getElementById("independent-b").value="gt4second";
+    document.getElementById("twoway-row").value="even1";
+    document.getElementById("twoway-col").value="gt4second";
+    document.getElementById("simulation-event").value="sum7";
+
+    buildGrid("grid-sample",null,null,"normal");
+    updateSimpleEventDisplay(-1);
+    document.getElementById("sample-random-generate").addEventListener("click",generateSimpleEvent);
+    document.getElementById("sample-random-reset").addEventListener("click",()=>updateSimpleEventDisplay(-1));
+
+    ["compound-a","compound-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateCompound));
+    ["conditional-a","conditional-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateConditional));
+    ["mult-a","mult-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateMultiplication));
+    ["exclusive-a","exclusive-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateExclusive));
+    ["independent-a","independent-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateIndependent));
+    ["twoway-row","twoway-col"].forEach(id=>document.getElementById(id).addEventListener("change",updateTwoWay));
+
+    document.getElementById("twoway-toggle").addEventListener("click",()=>{
+      twoWayProb=!twoWayProb;
+      updateTwoWay();
+    });
+
+    const mcTrials=document.getElementById("mc-trials");
+    const mcTrialsValue=document.getElementById("mc-trials-value");
+    mcTrials.addEventListener("input",()=>{mcTrialsValue.textContent=mcTrials.value;});
+    document.getElementById("mc-run").addEventListener("click",()=>simulateAnimated(Number(mcTrials.value),true));
+    document.getElementById("mc-one").addEventListener("click",simulateOneAnimated);
+    document.getElementById("sim-reset").addEventListener("click",resetSimulation);
+    document.getElementById("simulation-event").addEventListener("change",resetSimulation);
+
+    initPractice();
+
+    updateCompound();
+    updateConditional();
+    updateMultiplication();
+    updateExclusive();
+    updateIndependent();
+    updateTwoWay();
+    updateSimulationDisplay();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
