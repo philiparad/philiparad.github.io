@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="icon" type="image/png" href="philip_favicon.png"/>
+  <title>תרגיל 6 - פונקציה עם שורש במכנה והזזה</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+
+  <style>
+    :root {
+      --ink:#1f2937;
+      --muted:#5f6b7a;
+      --paper:#ffffff;
+      --soft:#f6f8fb;
+      --accent:#2855b8;
+      --accent2:#a53d2a;
+      --good:#246b45;
+      --bad:#8f2d2d;
+      --line:#d7dde7;
+      --shadow:0 2px 10px rgba(20,35,60,.08);
+    }
+    * { box-sizing:border-box; }
+    html, body { margin:0; padding:0; background:#e9edf3; color:var(--ink); font-family:Arial,"Noto Sans Hebrew",sans-serif; }
+    body { overflow-x:hidden; }
+    @page { size:A4 portrait; margin:0; }
+
+    section.page {
+      width:210mm;
+      height:297mm;
+      margin:8mm auto;
+      padding:12mm 13mm;
+      background:var(--paper);
+      overflow:hidden;
+      position:relative;
+      box-shadow:var(--shadow);
+      page-break-after:always;
+      break-after:page;
+    }
+    section.page:last-child { page-break-after:auto; break-after:auto; }
+    @media print {
+      html, body { background:#fff; }
+      section.page { margin:0; box-shadow:none; }
+    }
+
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:25px; margin-bottom:6px; }
+    h2 { font-size:20px; margin-bottom:8px; }
+    h3 { font-size:16px; margin-bottom:5px; }
+    p, li, td, th { font-size:15px; line-height:1.42; }
+    .subtitle { color:var(--muted); font-size:14px; margin-bottom:12px; }
+    .eyebrow { font-size:12px; font-weight:700; color:var(--accent); letter-spacing:.02em; margin-bottom:4px; }
+
+    .hero {
+      border:2px solid var(--line);
+      border-radius:12px;
+      padding:11px 13px;
+      background:linear-gradient(180deg,#fbfcff 0%,#f6f8fc 100%);
+      margin-bottom:10px;
+    }
+    .formula-main { font-size:22px; text-align:center; padding:8px 4px; direction:ltr; }
+    .card {
+      border:2px solid var(--line);
+      border-radius:10px;
+      padding:9px 11px;
+      background:#fff;
+    }
+    .card.soft { background:var(--soft); }
+    .card.accent { border-color:#b9c8ee; background:#f7f9ff; }
+    .card.good { border-color:#b8d5c6; background:#f7fbf8; }
+    .card.warn { border-color:#e7c8bd; background:#fff9f6; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+    .stack { display:grid; gap:8px; }
+    .task-list { margin:0; padding-right:21px; }
+    .task-list li { margin:5px 0; }
+    .step {
+      display:grid;
+      grid-template-columns:32px 1fr;
+      gap:8px;
+      align-items:start;
+      margin:6px 0;
+    }
+    .num {
+      width:28px; height:28px; border-radius:50%;
+      display:grid; place-items:center;
+      border:2px solid #b9c8ee;
+      color:var(--accent); font-weight:700; background:#fff;
+    }
+    .mathbox {
+      direction:ltr;
+      text-align:center;
+      padding:0px;
+      background:#fff;
+      border:2px solid var(--line);
+      border-radius:8px;
+      margin:5px 0;
+      font-size:17px;
+    }
+    .keyline { display:flex; gap:7px; align-items:flex-start; margin:5px 0; }
+    .keyline .tag {
+      flex:0 0 auto; border:2px solid #cfd7e4; border-radius:999px; padding:2px 8px;
+      font-size:12px; font-weight:700; background:#fff;
+    }
+    .mini { font-size:13px; color:var(--muted); line-height:1.4; }
+    .result { color:var(--good); font-weight:700; }
+    .note { color:var(--accent2); font-weight:700; }
+    .ltr { direction:ltr; }
+
+    table { width:100%; border-collapse:collapse; }
+    th, td { border:2px solid var(--line); padding:6px 7px; text-align:center; vertical-align:middle; }
+    th { background:#f3f6fb; }
+
+    .graph-panel {
+      border:2px solid var(--line);
+      border-radius:10px;
+      padding:8px;
+      background:#fff;
+    }
+    .graph-title { font-size:15px; font-weight:700; margin-bottom:5px; }
+    .jxgbox { width:100%; height:245px; direction:ltr; border:2px solid #d9dee7; border-radius:7px; }
+    .jxgbox.small { height:220px; }
+    .graph-controls {
+      direction:rtl;
+      display:flex;
+      flex-wrap:wrap;
+      gap:5px;
+      margin-top:7px;
+      justify-content:center;
+    }
+    .graph-controls button {
+      appearance:none; border:2px solid #ccd4e1; background:#fff; color:var(--ink);
+      border-radius:7px; padding:5px 9px; font-size:12px; cursor:pointer;
+    }
+    .graph-controls button:hover { background:#f4f7fb; }
+
+    .summary-strip {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:8px;
+    }
+    .summary-strip .cell { border:2px solid var(--line); border-radius:8px; padding:6px; text-align:center; background:#fafbfc; font-size:12px; }
+    .footer { position:absolute; bottom:6mm; left:13mm; right:13mm; display:flex; justify-content:space-between; color:#8a94a3; font-size:11px; }
+    .page-no { font-weight:700; direction:ltr; unicode-bidi:isolate; }
+  </style>
+</head>
+<body>
+
+<section class="page" id="page-1">
+  <div class="eyebrow">תרגיל 6</div>
+  <h1>פונקציה עם שורש במכנה והזזה אופקית</h1>
+  <p class="subtitle">נוסח התרגיל מסודר מחדש ללמידה עצמאית. הסעיפים מתמקדים בתחום, חיתוכים, אסימפטוטות, תחומי עלייה וירידה, סימן הפרבולה וסקיצה.</p>
+
+  <div class="hero">
+    <h2>נתונה הפונקציה</h2>
+    <div class="formula-main">\[f(x)=\frac{x-5}{\sqrt{x^2-10x+24}}\]</div>
+  </div>
+
+  <div class="card accent" style="margin-bottom:9px;">
+    <h2>א. חקירת הפונקציה \(f\)</h2>
+    <ol class="task-list">
+      <li>מצא את תחום ההגדרה של הפונקציה.</li>
+      <li>מצא את נקודות החיתוך של גרף הפונקציה עם הצירים, אם קיימות.</li>
+      <li>מצא את האסימפטוטות של גרף הפונקציה המאונכות לצירים.</li>
+      <li>מצא תחומי עלייה וירידה של הפונקציה \(f(x)\).</li>
+      <li>שרטט סקיצה של גרף הפונקציה.</li>
+    </ol>
+  </div>
+
+  <div class="card good" style="margin-bottom:9px;">
+    <h2>ב. פונקציה מוזזת</h2>
+    <p>נתונה הפונקציה \(g(x)\) המקיימת:</p>
+    <div class="mathbox">\[g(x)=f(x+5)\]</div>
+    <ol class="task-list">
+      <li>הוכח ש-\(g(x)\) היא פונקציה אי-זוגית.</li>
+      <li>שרטט סקיצה של גרף הפונקציה \(g(x)\).</li>
+    </ol>
+  </div>
+
+  <div class="grid2">
+    <div class="card soft">
+      <h3>סדר עבודה מומלץ</h3>
+      <div class="keyline"><span class="tag">1</span><span>פרק את הביטוי שמתחת לשורש.</span></div>
+      <div class="keyline"><span class="tag">2</span><span>זכור: שורש במכנה חייב להיות חיובי ממש.</span></div>
+      <div class="keyline"><span class="tag">3</span><span>נעזר בגרף של הפרבולה כדי לראות מתי הביטוי חיובי.</span></div>
+      <div class="keyline"><span class="tag">4</span><span>לאחר ההזזה, פשט את \(g(x)\) לפני הוכחת הסימטריה.</span></div>
+    </div>
+    <div class="card soft">
+      <h3>בדיקת הבנה מהירה</h3>
+      <p class="mini">לפני הפתרון, נסה להסביר לעצמך מדוע במשוואה \(f(x)=0\) לא מספיק לאפס את המונה בלבד.</p>
+      <p class="mini">רמז: כל ערך שמתקבל חייב לעבור גם את בדיקת תחום ההגדרה.</p>
+    </div>
+  </div>
+
+  <div class="footer"><span>HTML + MathJax + JSXGraph</span><span class="page-no">1 / 5</span></div>
+</section>
+
+<section class="page" id="page-2">
+  <div class="eyebrow">פתרון - חלק א</div>
+  <h1>תחום ההגדרה והפרבולה המתאימה</h1>
+
+  <div class="grid2" style="margin-bottom:8px; align-items:start;">
+    <div class="card">
+      <h2>1. התנאי על המכנה</h2>
+      <p>כיוון שהשורש נמצא במכנה, הביטוי שמתחת לשורש חייב להיות חיובי ממש.</p>
+      <div class="mathbox">\[x^2-10x+24\gt0\]</div>
+      <div class="mathbox">\[x^2-10x+24=(x-4)(x-6)\]</div>
+      <p>לכן נחקור את סימן הפרבולה:</p>
+      <div class="mathbox">\[y=x^2-10x+24\]</div>
+    </div>
+
+    <div class="card good">
+      <h2>2. מתי הפרבולה חיובית?</h2>
+      <div class="mathbox">\[(x-4)(x-6)\gt0\]</div>
+      <p>שורשי הפרבולה הם \(x=4\) ו-\(x=6\). מאחר שמקדם \(x^2\) חיובי, זרועות הפרבולה פונות כלפי מעלה.</p>
+      <p class="result">לכן הפרבולה חיובית מחוץ לשורשים:</p>
+      <div class="mathbox">\[x\lt4\;\text{וא}\;x\gt6\]</div>
+      <p class="mini">בין השורשים, כלומר כאשר \(4\lt x\lt6\), הפרבולה שלילית.</p>
+    </div>
+  </div>
+
+  <div class="graph-panel" style="margin-bottom:8px;">
+    <div class="graph-title">3. גרף הפרבולה \(y=x^2-10x+24\) והסימן שלה</div>
+    <div id="board-q" class="jxgbox small" aria-label="גרף הפרבולה"></div>
+    <div class="graph-controls" aria-label="בקרי גרף הפרבולה">
+      <button type="button" data-board="q" data-action="zoom-in">הגדל</button>
+      <button type="button" data-board="q" data-action="zoom-out">הקטן</button>
+      <button type="button" data-board="q" data-action="center">מרכז</button>
+      <button type="button" data-board="q" data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card soft">
+      <h3>קריאה מהגרף</h3>
+      <p class="mini">הגרף חוצה את ציר \(x\) בנקודות \(x=4\) ו-\(x=6\). משמאל ל-4 ומימין ל-6 הוא מעל ציר \(x\), ולכן חיובי.</p>
+    </div>
+    <div class="card soft">
+      <h3>מסקנה לתחום ההגדרה</h3>
+      <p class="mini">כיוון שהמכנה הוא \(\sqrt{x^2-10x+24}\), נשתמש רק בערכים שבהם הפרבולה חיובית ממש:</p>
+      <div class="mathbox">\[x\lt4\;\text{וא}\;x\gt6\]</div>
+    </div>
+  </div>
+
+  <div class="footer"><span>פתרון חלק א - תחום ופרבולה</span><span class="page-no">2 / 5</span></div>
+</section>
+
+<section class="page" id="page-3">
+  <div class="eyebrow">פתרון - המשך חלק א</div>
+  <h1>חיתוכים, אסימפטוטות ותחומי עלייה וירידה של \(f(x)\)</h1>
+
+  <div class="grid2" style="margin-bottom:8px;">
+    <div class="card">
+      <h2>2. חיתוך עם הצירים</h2>
+      <h3>חיתוך עם ציר \(x\)</h3>
+      <div class="mathbox">\[x-5=0\Rightarrow x=5\]</div>
+      <p>אבל \(x=5\) אינו בתחום ההגדרה, ולכן:</p>
+      <div class="mathbox">\[\text{ןורתפ ןיא}\]</div>
+
+      <h3 style="margin-top:7px;">חיתוך עם ציר \(y\)</h3>
+      <div class="mathbox">\[f(0)=\frac{-5}{\sqrt{24}}\]</div>
+      <p class="result">נקודת החיתוך: \(\left(0,-\frac{5}{\sqrt{24}}\right)\).</p>
+    </div>
+
+    <div class="card accent">
+      <h2>3. אסימפטוטות</h2>
+      <h3>אנכיות</h3>
+      <p>גבולות תחום ההגדרה שבהם המכנה שואף ל-0 הם:</p>
+      <div class="mathbox">\[x=4,\qquad x=6\]</div>
+      <h3>אופקיות</h3>
+      <p>נשתמש באיברים הדומיננטיים:</p>
+      <div class="mathbox">\[f(x)\approx\frac{x}{\sqrt{x^2}}=\frac{x}{|x|}\]</div>
+      <div class="mathbox">\[x\Rightarrow\infty:\;y=1\qquad x\Rightarrow-\infty:\;y=-1\]</div>
+    </div>
+  </div>
+
+  <div class="card good">
+    <h2>4. תחומי עלייה וירידה</h2>
+    <p>נגזור ישירות לפי כלל המנה, בלי לשנות את צורת הפונקציה:</p>
+    <div class="mathbox">\[
+      f'(x)=\frac{
+      1\cdot\sqrt{x^2-10x+24}
+      -(x-5)\cdot\frac{2x-10}{2\sqrt{x^2-10x+24}}
+      }{\left(\sqrt{x^2-10x+24}\right)^2}
+    \]</div>
+    <div class="mathbox">\[\begin{aligned}
+      f'(x)&=\frac{
+      \sqrt{x^2-10x+24}-\frac{(x-5)^2}{\sqrt{x^2-10x+24}}
+      }{x^2-10x+24}\\
+      &=\frac{x^2-10x+24-(x-5)^2}
+      {\left(x^2-10x+24\right)\sqrt{x^2-10x+24}}\\
+      &=-\frac{1}{\left(x^2-10x+24\right)\sqrt{x^2-10x+24}}
+    \end{aligned}\]</div>
+    <p>בכל תחום ההגדרה המכנה חיובי, ולכן:</p>
+    <div class="mathbox">\[f'(x)\lt0\]</div>
+    <p class="result">הפונקציה יורדת כאשר \(x\lt4\), וכן כאשר \(x\gt6\). אין תחומי עלייה.</p>
+  </div>
+
+  <div class="footer"><span>פתרון חלק א - חיתוכים, אסימפטוטות ותחומי עלייה וירידה</span><span class="page-no">3 / 5</span></div>
+</section>
+
+<section class="page" id="page-4">
+  <div class="eyebrow">פתרון - המשך חלק א</div>
+  <h1>סקיצה של \(f(x)\)</h1>
+
+  <div class="graph-panel" style="margin-bottom:8px;">
+    <div class="graph-title">5. סקיצה של \(f(x)\)</div>
+    <div id="board-f" class="jxgbox" aria-label="גרף הפונקציה f"></div>
+    <div class="graph-controls" aria-label="בקרי גרף f">
+      <button type="button" data-board="f" data-action="zoom-in">הגדל</button>
+      <button type="button" data-board="f" data-action="zoom-out">הקטן</button>
+      <button type="button" data-board="f" data-action="center">מרכז</button>
+      <button type="button" data-board="f" data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="summary-strip" style="grid-template-columns:repeat(5,1fr);">
+    <div class="cell"><strong>תחום</strong><br>\(x\lt4\) או \(x\gt6\)</div>
+    <div class="cell"><strong>חיתוך עם \(x\)</strong><br>אין</div>
+    <div class="cell"><strong>אנכיות</strong><br>\(x=4,\;x=6\)</div>
+    <div class="cell"><strong>אופקיות</strong><br>\(y=-1,\;y=1\)</div>
+    <div class="cell"><strong>תחומי עלייה וירידה</strong><br>יורדת כאשר \(x\lt4\) וכן כאשר \(x\gt6\)</div>
+  </div>
+
+  <div class="card soft" style="margin-top:8px;">
+    <h3>כיצד המידע קובע את צורת הגרף?</h3>
+    <p class="mini">בענף השמאלי הפונקציה יורדת מן האסימפטוטה האופקית \(y=-1\) לעבר ערכים שליליים ללא חסם כאשר \(x\) שואף ל-4 משמאל. בענף הימני היא יורדת מערכים חיוביים ללא חסם כאשר \(x\) שואף ל-6 מימין, ומתקרבת אל \(y=1\) כאשר \(x\) שואף ל-\(+\infty\).</p>
+  </div>
+
+  <div class="footer"><span>פתרון חלק א - סקיצה</span><span class="page-no">4 / 5</span></div>
+</section>
+
+<section class="page" id="page-5">
+  <div class="eyebrow">פתרון - חלק ב</div>
+  <h1>הפונקציה \(g(x)=f(x+5)\)</h1>
+
+  <div class="grid2" style="margin-bottom:8px;">
+    <div class="card">
+      <h2>1. פישוט הביטוי</h2>
+      <div class="mathbox">\[
+        g(x)=\frac{(x+5)-5}{\sqrt{(x+5)^2-10(x+5)+24}}
+      \]</div>
+      <div class="mathbox">\[
+        g(x)=\frac{x}{\sqrt{x^2-1}}
+      \]</div>
+      <p>תחום ההגדרה מתקבל מן התנאי \(x^2-1\gt0\):</p>
+      <div class="mathbox">\[x\lt-1\;\text{וא}\;x\gt1\]</div>
+      <p class="mini">התחום סימטרי ביחס ל-0, תנאי חשוב לפני בדיקת אי-זוגיות.</p>
+    </div>
+
+    <div class="card good">
+      <h2>2. הוכחת אי-זוגיות</h2>
+      <div class="mathbox">\[
+        g(-x)=\frac{-x}{\sqrt{(-x)^2-1}}
+      \]</div>
+      <div class="mathbox">\[
+        g(-x)=\frac{-x}{\sqrt{x^2-1}}=-g(x)
+      \]</div>
+      <p class="result">לכן \(g(x)\) היא פונקציה אי-זוגית.</p>
+      <p class="mini">משמעות גרפית: הגרף סימטרי ביחס לראשית הצירים.</p>
+    </div>
+  </div>
+
+  <div class="graph-panel" style="margin-bottom:8px;">
+    <div class="graph-title">3. סקיצה של \(g(x)\)</div>
+    <div id="board-g" class="jxgbox" aria-label="גרף הפונקציה g"></div>
+    <div class="graph-controls" aria-label="בקרי גרף g">
+      <button type="button" data-board="g" data-action="zoom-in">הגדל</button>
+      <button type="button" data-board="g" data-action="zoom-out">הקטן</button>
+      <button type="button" data-board="g" data-action="center">מרכז</button>
+      <button type="button" data-board="g" data-action="reset">איפוס</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card soft">
+      <h3>מה רואים בגרף?</h3>
+      <p class="mini">אסימפטוטות אנכיות: \(x=-1\), \(x=1\). אסימפטוטה אופקית מימין: \(y=1\). אסימפטוטה אופקית משמאל: \(y=-1\).</p>
+    </div>
+    <div class="card soft">
+      <h3>קשר להזזה</h3>
+      <p class="mini">הביטוי \(g(x)=f(x+5)\) מזיז את גרף \(f\) חמש יחידות שמאלה. לכן האסימפטוטות \(x=4\) ו-\(x=6\) עוברות ל-\(x=-1\) ו-\(x=1\).</p>
+    </div>
+  </div>
+
+  <div class="footer"><span>פתרון חלק ב</span><span class="page-no">5 / 5</span></div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  const state = {};
+
+  function addMathLabel(board, x, y, latex, anchorX, anchorY) {
+    return board.create('text', [x, y, '\\(' + latex + '\\)'], {
+      useMathJax: true,
+      fixed: true,
+      highlight: false,
+      anchorX: anchorX || 'left',
+      anchorY: anchorY || 'middle',
+      fontSize: 14,
+      cssStyle: 'direction:ltr;'
+    });
+  }
+
+  function addAsymptote(board, p1, p2, labelX, labelY, label) {
+    board.create('line', [p1, p2], {
+      straightFirst: true,
+      straightLast: true,
+      dash: 2,
+      strokeWidth: 1.5,
+      strokeColor: '#7b8798',
+      fixed: true,
+      highlight: false
+    });
+    addMathLabel(board, labelX, labelY, label);
+  }
+
+  function initQ() {
+    const bbox = [-1, 18, 11, -8];
+    const board = JXG.JSXGraph.initBoard('board-q', {
+      boundingbox: bbox,
+      axis: true,
+      grid: false,
+      showNavigation: false,
+      showCopyright: false,
+      keepAspectRatio: false,
+      pan: { enabled: true },
+      zoom: { wheel: true, needShift: false }
+    });
+
+    const q = function (x) { return x * x - 10 * x + 24; };
+    board.create('functiongraph', [q, -1, 11], {
+      strokeWidth: 2.4,
+      strokeColor: '#2855b8',
+      highlight: false
+    });
+    board.create('functiongraph', [q, -1, 4], {
+      strokeWidth: 4,
+      strokeColor: '#246b45',
+      highlight: false
+    });
+    board.create('functiongraph', [q, 4, 6], {
+      strokeWidth: 4,
+      strokeColor: '#8f2d2d',
+      highlight: false
+    });
+    board.create('functiongraph', [q, 6, 11], {
+      strokeWidth: 4,
+      strokeColor: '#246b45',
+      highlight: false
+    });
+
+    board.create('point', [4, 0], {
+      name: '', size: 2, fixed: true, strokeColor: '#a53d2a', fillColor: '#a53d2a', highlight: false
+    });
+    board.create('point', [6, 0], {
+      name: '', size: 2, fixed: true, strokeColor: '#a53d2a', fillColor: '#a53d2a', highlight: false
+    });
+    board.create('point', [5, -1], {
+      name: '', size: 2, fixed: true, strokeColor: '#555', fillColor: '#555', highlight: false
+    });
+
+    addMathLabel(board, 4.1, 1.2, 'x=4');
+    addMathLabel(board, 6.1, 1.2, 'x=6');
+    addMathLabel(board, 5.2, -1.4, '(5,-1)');
+    addMathLabel(board, 0.0, 15.5, 'y=x^2-10x+24');
+    addMathLabel(board, 0.2, 11.8, 'q(x)>0', 'left', 'middle');
+    addMathLabel(board, 8.2, 11.8, 'q(x)>0', 'left', 'middle');
+    addMathLabel(board, 4.28, -4.0, 'q(x)<0', 'left', 'middle');
+
+    state.q = { board, bbox, center:[5, 4] };
+  }
+
+  function initF() {
+    const bbox = [-10, 8, 12, -8];
+    const board = JXG.JSXGraph.initBoard('board-f', {
+      boundingbox: bbox,
+      axis: true,
+      grid: false,
+      showNavigation: false,
+      showCopyright: false,
+      keepAspectRatio: false,
+      pan: { enabled: true },
+      zoom: { wheel: true, needShift: false }
+    });
+
+    const f = function (x) {
+      const q = x * x - 10 * x + 24;
+      if (q <= 0) return NaN;
+      return (x - 5) / Math.sqrt(q);
+    };
+
+    board.create('functiongraph', [f, -10, 3.995], {
+      strokeWidth: 2.5, strokeColor: '#2855b8', highlight: false
+    });
+    board.create('functiongraph', [f, 6.005, 12], {
+      strokeWidth: 2.5, strokeColor: '#2855b8', highlight: false
+    });
+
+    board.create('point', [0, -5 / Math.sqrt(24)], {
+      name: '', size: 2, fixed: true, strokeColor: '#a53d2a', fillColor: '#a53d2a', highlight: false
+    });
+    addMathLabel(board, 0.4, -1.35, '\\left(0,-\\frac{5}{\\sqrt{24}}\\right)');
+
+    addAsymptote(board, [4, 0], [4, 1], 4.15, 6.7, 'x=4');
+    addAsymptote(board, [6, 0], [6, 1], 6.15, 6.7, 'x=6');
+    addAsymptote(board, [0, 1], [1, 1], 9.0, 1.35, 'y=1');
+    addAsymptote(board, [0, -1], [1, -1], -8.8, -1.35, 'y=-1');
+
+    addMathLabel(board, -8.7, 6.5, 'f(x)=\\frac{x-5}{\\sqrt{x^2-10x+24}}');
+    state.f = { board, bbox, center:[1,0] };
+  }
+
+  function initG() {
+    const bbox = [-8, 7, 8, -7];
+    const board = JXG.JSXGraph.initBoard('board-g', {
+      boundingbox: bbox,
+      axis: true,
+      grid: false,
+      showNavigation: false,
+      showCopyright: false,
+      keepAspectRatio: false,
+      pan: { enabled: true },
+      zoom: { wheel: true, needShift: false }
+    });
+
+    const g = function (x) {
+      const q = x * x - 1;
+      if (q <= 0) return NaN;
+      return x / Math.sqrt(q);
+    };
+
+    board.create('functiongraph', [g, -8, -1.005], {
+      strokeWidth: 2.5, strokeColor: '#2855b8', highlight: false
+    });
+    board.create('functiongraph', [g, 1.005, 8], {
+      strokeWidth: 2.5, strokeColor: '#2855b8', highlight: false
+    });
+
+    addAsymptote(board, [-1, 0], [-1, 1], -0.85, 5.9, 'x=-1');
+    addAsymptote(board, [1, 0], [1, 1], 1.15, 5.9, 'x=1');
+    addAsymptote(board, [0, 1], [1, 1], 6.1, 1.35, 'y=1');
+    addAsymptote(board, [0, -1], [1, -1], -7.2, -1.35, 'y=-1');
+    addMathLabel(board, -7.1, 5.8, 'g(x)=\\frac{x}{\\sqrt{x^2-1}}');
+
+    state.g = { board, bbox, center:[0,0] };
+  }
+
+  function centerBoard(item) {
+    const bb = item.board.getBoundingBox();
+    const width = bb[2] - bb[0];
+    const height = bb[1] - bb[3];
+    const cx = item.center[0];
+    const cy = item.center[1];
+    item.board.setBoundingBox([cx - width / 2, cy + height / 2, cx + width / 2, cy - height / 2], true);
+    item.board.fullUpdate();
+  }
+
+  function attachControls() {
+    document.querySelectorAll('.graph-controls button').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const key = button.getAttribute('data-board');
+        const action = button.getAttribute('data-action');
+        const item = state[key];
+        if (!item) return;
+        if (action === 'zoom-in') item.board.zoomIn();
+        if (action === 'zoom-out') item.board.zoomOut();
+        if (action === 'center') centerBoard(item);
+        if (action === 'reset') {
+          item.board.setBoundingBox(item.bbox, true);
+          item.board.fullUpdate();
+        }
+      });
+    });
+  }
+
+  function initAll() {
+    initQ();
+    initF();
+    initG();
+    attachControls();
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise().catch(function () {});
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+})();
+</script>
+</body>
+</html>
