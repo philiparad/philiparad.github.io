@@ -1,6 +1,6 @@
 import { createBoard, parseBackup } from './model.js?v=20260930-shapes';
 import { BoardRepository } from './storage.js?v=20260930-shapes';
-import { Editor } from './editor.js?v=20260930-shapes';
+import { Editor } from './editor.js?v=20261001-draft-layer';
 import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20260930-shapes';
 import { backup } from './export.js?v=20260930-shapes';
 import { drawItem, svgEl, union } from './scene.js?v=20260930-shapes';
