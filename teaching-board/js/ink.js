@@ -98,18 +98,54 @@ export function refineInk(points,strength=.65,zoom=1) {
     remaining-=len;
   }
   const last=src[src.length-1];if(Math.hypot(last[0]-samples.at(-1)[0],last[1]-samples.at(-1)[1])>1e-6)samples.push(last);
+  return samples.map((_,i)=>correctSample(samples,i,strength,zoom));
+}
+
+function correctSample(samples,i,strength,zoom){
+  const p=samples[i];
+  if(!i||i===samples.length-1)return [...p];
   const radius=2+Math.round(strength*2),limit=(.35+strength*.9)/zoom;
-  return samples.map((p,i)=>{
-    if(!i||i===samples.length-1)return p;
-    const a=samples[Math.max(0,i-2)],b=samples[Math.min(samples.length-1,i+2)];
-    const ux=p[0]-a[0],uy=p[1]-a[1],vx=b[0]-p[0],vy=b[1]-p[1];
-    const cos=(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1);
-    // Keep sharp reversals and corners; reduce correction on tight letter loops.
-    const blend=strength*.8*Math.max(0,Math.min(1,(cos-.25)/.65));
-    let x=0,y=0,w=0;for(let j=Math.max(0,i-radius);j<=Math.min(samples.length-1,i+radius);j++){const k=radius+1-Math.abs(j-i);x+=samples[j][0]*k;y+=samples[j][1]*k;w+=k;}
-    let dx=(x/w-p[0])*blend,dy=(y/w-p[1])*blend;const length=Math.hypot(dx,dy);if(length>limit){dx*=limit/length;dy*=limit/length;}
-    return [p[0]+dx,p[1]+dy];
-  });
+  const a=samples[Math.max(0,i-2)],b=samples[Math.min(samples.length-1,i+2)];
+  const ux=p[0]-a[0],uy=p[1]-a[1],vx=b[0]-p[0],vy=b[1]-p[1];
+  const cos=(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1);
+  const blend=strength*.8*Math.max(0,Math.min(1,(cos-.25)/.65));
+  let x=0,y=0,w=0;
+  for(let j=Math.max(0,i-radius);j<=Math.min(samples.length-1,i+radius);j++){
+    const k=radius+1-Math.abs(j-i);x+=samples[j][0]*k;y+=samples[j][1]*k;w+=k;
+  }
+  let dx=(x/w-p[0])*blend,dy=(y/w-p[1])*blend;
+  const length=Math.hypot(dx,dy);if(length>limit){dx*=limit/length;dy*=limit/length;}
+  return [p[0]+dx,p[1]+dy];
+}
+
+// Uniform sampling and bounded local correction while the pen is still down.
+// Only the recent tail needs future samples; earlier points remain fixed.
+// The endpoint stays at the pointer and finish never refits the whole stroke.
+export class IncrementalInk {
+  constructor(point,strength=.65,zoom=1){
+    this.strength=strength;this.zoom=zoom;this.step=1.25/zoom;
+    this.remaining=this.step;this.last=[...point];this.samples=[[...point]];
+    this.points=[[...point]];this.radius=2+Math.round(strength*2);
+  }
+  add(point){
+    let a=this.last,b=[...point],length=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    if(length<=1e-6)return this.points;
+    if(this.strength<=0){this.points.push(b);this.last=b;return this.points;}
+    const from=Math.max(0,this.samples.length-this.radius-2);
+    while(length>=this.remaining){
+      const t=this.remaining/length;
+      a=[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])];
+      this.samples.push(a);length-=this.remaining;this.remaining=this.step;
+    }
+    this.remaining-=length;this.last=b;
+    const tail=this.samples.at(-1),extra=Math.hypot(b[0]-tail[0],b[1]-tail[1])>1e-6;
+    if(extra)this.samples.push(b);
+    this.points.length=this.samples.length;
+    for(let i=from;i<this.samples.length;i++)this.points[i]=correctSample(this.samples,i,this.strength,this.zoom);
+    if(extra)this.samples.pop();
+    return this.points;
+  }
+  finish(){return this.points.map(p=>[...p]);}
 }
 
 // Local control handles are clamped to each segment's box to prevent curve overshoot.

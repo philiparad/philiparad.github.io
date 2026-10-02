@@ -88,3 +88,14 @@ test('full redraw supersedes draft requests and canceled/disposed work cannot re
  e.requestPaint(true);e.disposed=true;nextFrame();assert.equal(draft,0);
  e.requestPaint();assert.equal(frames.size,0);
 });
+test('finishing ink preserves the live stroke in board coordinates and keeps raw samples',()=>{
+ const e=fixture();e.pointerDown(pointer(e,100,100));
+ for(let x=101;x<=160;x++)e.pointerMove(pointer(e,x,110+Math.sin(x)*3));
+ nextFrame();const live=e.draft.points.map(([x,y])=>[x+e.draft.x,y+e.draft.y]);
+ const raw=structuredClone(e.draft.rawPoints);e.pointerUp(pointer(e,160,110+Math.sin(160)*3));
+ const item=e.board.items.at(-1),saved=item.points.map(([x,y])=>[x+item.x,y+item.y]);
+ assert.equal(saved.length,live.length);
+ saved.forEach((p,i)=>p.forEach((v,k)=>assert.ok(Math.abs(v-live[i][k])<1e-8)));
+ assert.equal(item.rawPoints.length,raw.length);validateBoard(e.board);
+ e.undo();e.redo();assert.deepEqual(e.board.items.at(-1),item);
+});
