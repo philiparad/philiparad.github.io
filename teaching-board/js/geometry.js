@@ -20,16 +20,16 @@ export class Geometry {
   e.paint();return true;
  }
  move(event,p){const e=this.e;
-  if(this.edit){const {item,handle}=this.edit,q=localPoint(item,p);if(handle.startsWith('point:')){item.points[+handle.split(':')[1]]=[q.x,q.y];e.paint();return true;}const a=degrees(Math.atan2((q.y-item.h/2)/(item.h/2),(q.x-item.w/2)/(item.w/2))),angle=event.shiftKey?Math.round(a/15)*15:a;
+  if(this.edit){const {item,handle}=this.edit,q=localPoint(item,p);if(handle.startsWith('point:')){item.points[+handle.split(':')[1]]=[q.x,q.y];e.requestPaint();return true;}const a=degrees(Math.atan2((q.y-item.h/2)/(item.h/2),(q.x-item.w/2)/(item.w/2))),angle=event.shiftKey?Math.round(a/15)*15:a;
    if(handle==='start')item.startAngle=angle;
    if(handle==='end')item.sweepAngle=((angle-item.startAngle)%360+360)%360||360;
    if(handle==='radius'){const r=Math.max(2,Math.hypot(q.x-item.w/2,q.y-item.h/2)),cx=item.x+item.w/2,cy=item.y+item.h/2;item.w=item.h=2*r;item.x=cx-r;item.y=cy-r;}
-   e.paint();return true;}
+   e.requestPaint();return true;}
   if(!this.stage||e.tool!=='arc'||!e.draft)return false;
   const i=e.draft,c=this.stage.center;let a=degrees(Math.atan2(p.y-c.y,p.x-c.x));if(event.shiftKey)a=Math.round(a/15)*15;
   if(this.stage.step===1){const r=Math.max(2,Math.hypot(p.x-c.x,p.y-c.y));Object.assign(i,{x:c.x-r,y:c.y-r,w:2*r,h:2*r,startAngle:a});}
   else i.sweepAngle=((a-i.startAngle)%360+360)%360||360;
-  e.paint();return true;
+  e.requestPaint();return true;
  }
  up(){if(!this.edit)return false;if(this.edit.item.type==='curve')normalizeCurve(this.edit.item);this.edit=null;this.e.commit();return true;}
  paint(scene){const e=this.e;if(e.tool!=='select'||e.selected.size!==1)return;const i=e.board.items.find(i=>e.selected.has(i.id));if(!i||i.locked||!['arc','curve'].includes(i.type))return;
