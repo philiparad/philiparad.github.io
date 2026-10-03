@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link rel="icon" type="image/png" href="philip_favicon.png"/>
+<title>בניית טבלת שכיחויות — שלב אחר שלב</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2/dist/svg.min.js"></script>
+<style>
+  :root{
+    --bg:#F6F8FB;
+    --card:#FFFFFF;
+    --ink:#172033;
+    --muted:#64748B;
+    --line:#CBD5E1;
+    --line2:#D8E1EC;
+    --head:#F1F5F9;
+    --accent:#2563EB;
+    --accent-hover:#1D4ED8;
+    --accent-soft:#EAF2FF;
+    --calc-soft:#DBEAFE;
+    --purple:#7C3AED;
+    --inactive:#F1F5F9;
+    --sum:#FFF7E6;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family:Arial,"Noto Sans Hebrew",sans-serif;
+    color:var(--ink);
+  }
+  .app{
+    width:min(1500px,98vw);
+    margin:24px auto 36px;
+  }
+  .hero{
+    background:var(--card);
+    border:2px solid var(--line2);
+    border-radius:12px;
+    padding:22px 26px 18px;
+    box-shadow:0 3px 12px rgba(15,23,42,.045);
+  }
+  h1{margin:0 0 8px;font-size:clamp(24px,3vw,36px)}
+  .subtitle{margin:0;color:var(--muted);font-size:18px}
+
+
+  .hero-top{
+    display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  }
+  .hero-title{min-width:280px;flex:1 1 420px}
+  .hero-title h1{margin-bottom:6px}
+  .hero-top .example-controls{margin-top:0;flex:0 1 auto}
+  .table-actions{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+    margin:0 0 12px;padding:10px;background:#F8FAFC;border:1px solid var(--line2);border-radius:10px;
+  }
+  .table-actions-label{font-size:14px;font-weight:800;color:var(--muted);margin-inline-end:2px}
+
+  .example-controls{
+    margin-top:18px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    padding:12px;
+    background:#f8fafc;
+    border:1px solid var(--line2);
+    border-radius:12px;
+  }
+  .example-controls label{font-weight:800;color:#334155}
+  .example-controls select{
+    min-width:220px;
+    padding:10px 12px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    background:white;
+    font-size:16px;
+    font-weight:700;
+    color:#172033;
+  }
+  .random-example-btn{
+    background:#EAF2FF;
+    color:#1D4ED8;
+    border-radius:10px;
+    padding:10px 14px;
+  }
+  .example-nav{background:#e2e8f0;color:#172033}
+
+  .controls{
+    margin-top:12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  button{
+    border:0;
+    border-radius:11px;
+    padding:11px 16px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.18s ease;
+  }
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .primary{background:var(--accent);color:white}
+  .secondary{background:#EAF2FF;color:#1D4ED8}
+  .play{background:var(--accent);color:white}
+  .reset{background:var(--inactive);color:#334155}
+  .convert{background:var(--accent);color:white}
+  .convert.prob{background:var(--accent)}
+  button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(.97)}
+  .step-counter{
+    margin-inline-start:auto;
+    color:#475569;
+    font-weight:700;
+    background:#f8fafc;
+    border:1px solid var(--line2);
+    border-radius:10px;
+    padding:9px 12px;
+  }
+
+  .workspace{
+    display:grid;
+    grid-template-columns:minmax(0, 3fr) minmax(0, 2fr);
+    gap:18px;
+    margin-top:18px;
+    width:100%;
+    align-items:stretch;
+  }
+  .panel{
+    background:var(--card);
+    border:2px solid var(--line2);
+    border-radius:12px;
+    padding:18px;
+    height:470px;
+    min-width:0;
+  }
+  .panel h2{margin:0 0 12px;font-size:21px}
+
+  .given-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .given{
+    background:#f8fafc;
+    border:1px solid var(--line2);
+    border-radius:12px;
+    padding:12px 10px;
+    text-align:center;
+  }
+  .given b{display:block;font-size:24px;margin-top:4px}
+
+  .explain{
+    position:relative;
+    min-height:270px;
+    border:1px solid var(--line2);
+    border-radius:12px;
+    padding:16px 18px;
+    overflow:hidden;
+    background:linear-gradient(180deg,#ffffff,#fbfdff);
+  }
+  .step-title{font-size:21px;font-weight:800;margin-bottom:8px}
+  .step-text{font-size:18px;line-height:1.7}
+  .formula{
+    direction:ltr;
+    text-align:center;
+    margin:14px 0 4px;
+    padding:12px;
+    border-radius:12px;
+    background:var(--accent-soft);
+    border:1px solid #bfdbfe;
+    font-size:clamp(17px,1.45vw,22px);
+    max-width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+  }
+  .formula mjx-container{
+    max-width:100%;
+    margin-inline:auto !important;
+  }
+  .formula mjx-container svg{
+    max-width:100%;
+    height:auto;
+  }
+  .data-sequence{
+    direction:rtl;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:18px;
+    flex-wrap:wrap;
+    width:100%;
+    font-family:Arial,"Noto Sans Hebrew",sans-serif;
+    font-size:22px;
+  }
+  .data-sequence span{white-space:nowrap}
+  .data-sequence span:not(:last-child)::after{content:","; margin-inline-start:2px}
+
+  .hint{margin-top:10px;color:var(--muted);font-size:15px}
+
+  svg#flow{
+    display: none;
+    width:100%;
+    height:98px;
+    margin-top:10px;
+    direction:ltr;
+  }
+
+  .table-wrap{margin-top:8px; overflow-x:auto}
+  table{
+    width:100%;
+    min-width:0;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-size:17px;
+  }
+  th,td{
+    border:2px solid #cfd9e5;
+    text-align:center;
+    vertical-align:middle;
+    height:58px;
+    padding:7px;
+    white-space:normal;
+    word-break:keep-all;
+  }
+  th{background:var(--head);font-weight:800}
+  .event-symbol{display:inline-block;direction:ltr;margin-inline-start:5px;font-weight:800}
+  th.row{background:#f8fafc;width:24%; min-width:140px}
+  td.sum{background:var(--sum);font-weight:800}
+  .cell{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:42px;
+    min-height:30px;
+    border-radius:8px;
+    transition:all .35s ease;
+  }
+  .hidden-cell{
+    color:transparent;
+    background:repeating-linear-gradient(135deg,#f8fafc,#f8fafc 7px,#eef2f7 7px,#eef2f7 14px);
+    border:1px dashed #cbd5e1;
+  }
+  .revealed{
+    color:#111827;
+    background:var(--ok-soft);
+    border:2px solid #93c5fd;
+    animation:pop .42s ease;
+    font-weight:800;
+  }
+  .given-cell{
+    background:#eff6ff;
+    border:2px solid #93c5fd;
+    color:#1e3a8a;
+    font-weight:800;
+  }
+  .focus-row td,.focus-row th.row{box-shadow:inset 0 0 0 3px rgba(107,169,246,.8)}
+  @keyframes pop{0%{transform:scale(.7);opacity:.2}100%{transform:scale(1);opacity:1}}
+
+  .legend{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+    font-size:14px;
+    color:#475569;
+  }
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .cell-click-note{
+    margin-top:12px;
+    padding:10px 12px;
+    border:1px solid #bfdbfe;
+    border-radius:10px;
+    background:#eff6ff;
+    color:#1e3a8a;
+    font-size:15px;
+    font-weight:700;
+    line-height:1.6;
+  }
+  .box{width:18px;height:18px;border-radius:5px;border:2px solid #cbd5e1}
+  .box.given{background:#eff6ff;border-color:#93c5fd}
+  .box.calc{background:var(--ok-soft);border-color:#93c5fd}
+  .box.wait{background:repeating-linear-gradient(135deg,#f8fafc,#f8fafc 5px,#eef2f7 5px,#eef2f7 10px)}
+
+  .done-banner{
+    display:none;
+    margin-top:14px;
+    background:#ecfdf5;
+    border:2px solid #86efac;
+    border-radius:12px;
+    padding:12px;
+    color:#166534;
+    font-weight:800;
+    text-align:center;
+  }
+  .done-banner.show{display:block}
+
+  /* Interactive cell explanation */
+  .cell{cursor:pointer}
+  .cell.selected-cell{
+    outline:3px solid #2563eb;
+    outline-offset:3px;
+    box-shadow:0 0 0 6px rgba(37,99,235,.12);
+  }
+  .cell-explainer{
+    position:fixed;
+    z-index:9999;
+    width:min(390px,calc(100vw - 28px));
+    background:#fff;
+    border:2px solid #93c5fd;
+    border-radius:14px;
+    box-shadow:0 18px 48px rgba(15,23,42,.20);
+    padding:14px 16px 15px;
+    display:none;
+    direction:rtl;
+  }
+  .cell-explainer.show{display:block}
+  .cell-explainer-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .cell-explainer-title{font-size:18px;font-weight:900;color:#1e3a8a}
+  .cell-explainer-close{
+    width:32px;height:32px;padding:0;border-radius:9px;
+    background:#eff6ff;color:#1e3a8a;font-size:20px;line-height:1;
+  }
+  .cell-explainer-text{font-size:16px;line-height:1.55;color:#334155;margin-bottom:8px}
+  .cell-explainer-formula{
+    direction:ltr;text-align:center;background:#eff6ff;border:1px solid #bfdbfe;
+    border-radius:10px;padding:10px;font-size:19px;margin-top:7px;
+  }
+  .cell-explainer-hint{font-size:13px;color:#64748b;margin-top:8px;text-align:center}
+
+
+  /* Semantic table ↔ Venn colors */
+  #gStud.selected-cell{outline-color:#1D4ED8;background:#DBEAFE}
+  #gNot.selected-cell{outline-color:#60A5FA;background:#EAF2FF}
+  #bStud.selected-cell{outline-color:#7C3AED;background:#F3E8FF}
+  #bNot.selected-cell{outline-color:#64748B;background:#F1F5F9}
+
+  /* Table ↔ Venn connection */
+  .venn-toggle{background:var(--purple);color:#fff}
+  .venn-panel{
+    display:none;
+    margin-top:18px;
+    background:var(--card);
+    border:2px solid var(--line2);
+    border-radius:12px;
+    padding:18px;
+    box-shadow:0 3px 12px rgba(15,23,42,.04);
+  }
+  .venn-panel.show{display:block}
+  .venn-head{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .venn-head h2{margin:0;font-size:21px}
+  .venn-description{margin:4px 0 0;color:var(--muted);font-size:15px;line-height:1.5}
+  .venn-close{background:#f1f5f9;color:#334155;padding:8px 12px}
+  #vennDiagram{
+    width:100%;height:430px;direction:rtl;
+    border:1px solid var(--line2);border-radius:12px;overflow:hidden;
+    background:#F8FAFC;
+  }
+  .venn-legend{
+    margin-top:10px;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;
+    font-size:15px;color:#475569;
+  }
+  .venn-legend b{color:#1e3a8a}
+
+  @media (max-width:1100px){
+    .workspace{grid-template-columns:1fr}
+    .hero-top{align-items:flex-start}
+    .hero-top .example-controls{width:100%}
+    .given-grid{grid-template-columns:repeat(2,1fr)}
+    .step-counter{margin-inline-start:0}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <div class="hero-top">
+      <div class="hero-title">
+        <h1>בניית טבלת שכיחויות — שלב אחר שלב</h1>
+        <p class="subtitle">נלמד כיצד להשלים טבלה דו־ממדית מתוך ארבעה נתונים התחלתיים.</p>
+      </div>
+      <div class="example-controls">
+        <select id="exampleSelect" aria-label="בחירת דוגמה"></select>
+        <button id="randomExampleBtn" class="random-example-btn" type="button">🎲 צור דוגמה אקראית</button>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="prevBtn" class="secondary">השלב הקודם</button>
+      <button id="nextBtn" class="primary">השלב הבא</button>
+      <button id="playBtn" class="play">▶ הפעלה</button>
+      <button id="resetBtn" class="reset">איפוס</button>
+      <div class="step-counter" id="stepCounter">שלב 0 מתוך 6</div>
+    </div>
+  </section>
+
+  <div class="workspace">
+
+    <section class="panel">
+      <h2 id="tableTitle">טבלה בסיסית — שכיחויות</h2>
+      <div class="table-actions" aria-label="פעולות על הטבלה">
+        <span class="table-actions-label">תצוגת הטבלה:</span>
+        <button id="freqBtn" class="convert" disabled>שכיחויות</button>
+        <button id="percentBtn" class="convert" disabled>אחוזים</button>
+        <button id="probBtn" class="convert prob" disabled>הסתברויות</button>
+        <button id="vennBtn" class="venn-toggle" disabled>הצג דיאגרמת ון</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th id="col1Head">למדו למבחן</th>
+              <th id="col2Head">לא למדו למבחן</th>
+              <th>סה״כ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="rowGirls">
+              <th class="row" id="row1Head">בנות</th>
+              <td><span id="gStud" class="cell given-cell" data-frequency="30">30</span></td>
+              <td><span id="gNot" class="cell hidden-cell" data-frequency="30">30</span></td>
+              <td><span id="gTotal" class="cell given-cell" data-frequency="60">60</span></td>
+            </tr>
+            <tr id="rowBoys">
+              <th class="row" id="row2Head">בנים</th>
+              <td><span id="bStud" class="cell hidden-cell" data-frequency="15">15</span></td>
+              <td><span id="bNot" class="cell hidden-cell" data-frequency="25">25</span></td>
+              <td><span id="bTotal" class="cell hidden-cell" data-frequency="40">40</span></td>
+            </tr>
+            <tr id="rowTotal">
+              <th class="row">סה״כ</th>
+              <td><span id="tStud" class="cell given-cell" data-frequency="45">45</span></td>
+              <td><span id="tNot" class="cell hidden-cell" data-frequency="55">55</span></td>
+              <td class="sum"><span id="tTotal" class="cell given-cell" data-frequency="100">100</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><i class="box given"></i> נתון שניתן בשאלה</span>
+        <span><i class="box calc"></i> ערך שחושב</span>
+        <span><i class="box wait"></i> עדיין לא חושב</span>
+      </div>
+      <div class="cell-click-note">💡 אפשר ללחוץ על כל תא בטבלה ולקבל מידע מלא על הנתון שבתא, כולל משמעותו, שכיחותו, ההסתברות והאחוז המתאימים לו.</div>
+      <div id="doneBanner" class="done-banner">הטבלה הושלמה. כל סכומי השורות והעמודות תואמים.</div>
+    </section>
+
+    <section class="panel">
+      <h2>מה ידוע לנו?</h2>
+      <div class="given-grid">
+        <div class="given"><span id="given1Label">סה״כ תלמידים</span><b id="given1Value">100</b></div>
+        <div class="given"><span id="given2Label">בנות</span><b id="given2Value">60</b></div>
+        <div class="given"><span id="given3Label">למדו למבחן</span><b id="given3Value">45</b></div>
+        <div class="given"><span id="given4Label">בנות שלמדו</span><b id="given4Value">30</b></div>
+      </div>
+
+      <div class="explain">
+        <div class="step-title" id="stepTitle">מוכנים להתחיל</div>
+        <div class="step-text" id="stepText">לחצו על <b>השלב הבא</b> כדי להתחיל להשלים את הטבלה, או על <b>הפעלה</b> להצגה אוטומטית ואיטית.</div>
+        <div class="formula" id="formula">\(\text{נתונים התחלתיים}\)</div>
+        <svg id="flow" viewBox="0 0 720 100" aria-label="תרשים זרימה">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"></path>
+            </marker>
+          </defs>
+          <rect x="20" y="24" rx="12" ry="12" width="200" height="52" fill="#eef3f8" stroke="#94a3b8" stroke-width="2"></rect>
+          <text x="120" y="55" text-anchor="middle" font-size="17" fill="#334155">נתונים ידועים</text>
+          <line x1="225" y1="50" x2="490" y2="50" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)"></line>
+          <rect x="500" y="24" rx="12" ry="12" width="200" height="52" fill="#dcfce7" stroke="#86efac" stroke-width="2"></rect>
+          <text id="flowText" x="600" y="55" text-anchor="middle" font-size="17" fill="#166534">מחשבים תא חדש</text>
+        </svg>
+        <div class="hint">טיפ: בכל שלב משתמשים בסכום של שורה או עמודה שכבר ידוע לנו.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <section id="vennPanel" class="venn-panel" aria-label="דיאגרמת ון המקושרת לטבלה">
+    <div class="venn-head">
+      <div>
+        <h2>אותם נתונים — דיאגרמת ון</h2>
+        <p class="venn-description">לחצו על אזור בדיאגרמה כדי להדגיש את התא המתאים בטבלה. לחיצה על אחד מארבעת התאים הפנימיים בטבלה תדגיש את האזור המתאים בדיאגרמה.</p>
+      </div>
+      <button id="vennCloseBtn" class="venn-close">הסתר דיאגרמה</button>
+    </div>
+    <div id="vennDiagram"></div>
+    <div class="venn-legend">
+      <span id="vennALabel"><b>A</b></span>
+      <span id="vennBLabel"><b>B</b></span>
+    </div>
+  </section>
+</div>
+
+<div id="cellExplainer" class="cell-explainer" role="dialog" aria-live="polite" aria-label="פירוש התא">
+  <div class="cell-explainer-head">
+    <div id="cellExplainerTitle" class="cell-explainer-title">פירוש התא</div>
+    <button id="cellExplainerClose" class="cell-explainer-close" aria-label="סגירה">×</button>
+  </div>
+  <div id="cellExplainerText" class="cell-explainer-text"></div>
+  <div id="cellExplainerFormula" class="cell-explainer-formula"></div>
+  <div class="cell-explainer-hint">לחצו על תא אחר כדי לראות מה הוא מייצג.</div>
+</div>
+
+<script>
+const examples = [
+  {
+    name:'דוגמה 1 — תלמידים ולמידה למבחן',
+    given:[
+      ['סה״כ תלמידים',100],
+      ['בנות',60],
+      ['למדו למבחן',45],
+      ['בנות שלמדו',30]
+    ],
+    rows:['בנות','בנים'],
+    cols:['למדו למבחן','לא למדו למבחן'],
+    values:{gStud:30,gNot:30,gTotal:60,bStud:15,bNot:25,bTotal:40,tStud:45,tNot:55,tTotal:100},
+    givenCells:['gStud','gTotal','tStud','tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'ארבעת הנתונים הכחולים כבר ידועים. כעת נשלים בכל פעם תא אחד בלבד.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ תלמידים 100</span><span>בנות 60</span><span>למדו למבחן 45</span><span>בנות שלמדו 30</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — כמה בנים למדו למבחן?',text:'בעמודת "למדו למבחן" יש בסך הכול 45 תלמידים. מתוכם 30 הן בנות, לכן השאר הם בנים.',formula:'\\(45-30=15\\)',reveal:['bStud'],row:'rowBoys',flow:'בנים שלמדו = 15'},
+      {title:'שלב 2 — כמה בנים יש בסך הכול?',text:'מתוך 100 תלמידים, 60 הן בנות. לכן מספר הבנים הוא ההפרש.',formula:'\\(100-60=40\\)',reveal:['bStud','bTotal'],row:'rowBoys',flow:'סה״כ בנים = 40'},
+      {title:'שלב 3 — כמה בנים לא למדו?',text:'מתוך 40 בנים, 15 למדו למבחן. לכן מספר הבנים שלא למדו הוא ההפרש.',formula:'\\(40-15=25\\)',reveal:['bStud','bTotal','bNot'],row:'rowBoys',flow:'בנים שלא למדו = 25'},
+      {title:'שלב 4 — כמה בנות לא למדו?',text:'מתוך 60 בנות, 30 למדו למבחן. לכן 30 בנות לא למדו.',formula:'\\(60-30=30\\)',reveal:['bStud','bTotal','bNot','gNot'],row:'rowGirls',flow:'בנות שלא למדו = 30'},
+      {title:'שלב 5 — כמה תלמידים לא למדו בסך הכול?',text:'אפשר לחשב לפי כלל התלמידים: 100 תלמידים פחות 45 שלמדו. מתקבלים 55 שלא למדו.',formula:'\\(100-45=55\\)',reveal:['bStud','bTotal','bNot','gNot','tNot'],row:'rowTotal',flow:'סה״כ לא למדו = 55'},
+      {title:'שלב 6 — בדיקה',text:'בודקים שסכומי כל שורה וכל עמודה מתאימים: 30+15=45, 30+25=55, 60+40=100.',formula:'\\(30+15=45,\\qquad 30+25=55,\\qquad 60+40=100\\)',reveal:['bStud','bTotal','bNot','gNot','tNot'],row:null,flow:'הטבלה הושלמה ✓'}
+    ]
+  },
+  {
+    name:'דוגמה 2 — קבוצות A ו־B',
+    given:[
+      ['סה״כ פריטים',200],
+      ['בקבוצה A',120],
+      ['בקבוצה B',90],
+      ['בשתי הקבוצות',60]
+    ],
+    rows:['בקבוצה A','לא בקבוצה A'],
+    cols:['בקבוצה B','לא בקבוצה B'],
+    values:{gStud:60,gNot:60,gTotal:120,bStud:30,bNot:50,bTotal:80,tStud:90,tNot:110,tTotal:200},
+    givenCells:['gStud','gTotal','tStud','tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'באוכלוסייה יש 200 פריטים. 120 בקבוצה A, 90 בקבוצה B, ו־60 נמצאים בשתי הקבוצות.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ פריטים 200</span><span>בקבוצה <bdi dir="ltr">A</bdi> 120</span><span>בקבוצה <bdi dir="ltr">B</bdi> 90</span><span>בשתי הקבוצות 60</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — כמה בקבוצה A אך לא בקבוצה B?',text:'בקבוצה A יש 120 פריטים, ומתוכם 60 נמצאים גם בקבוצה B. לכן 60 נמצאים ב־A בלבד.',formula:'\\(120-60=60\\)',reveal:['gNot'],row:'rowGirls',flow:'A ולא B = 60'},
+      {title:'שלב 2 — כמה בקבוצה B אך לא בקבוצה A?',text:'בקבוצה B יש 90 פריטים, ומתוכם 60 נמצאים גם בקבוצה A. לכן 30 נמצאים ב־B בלבד.',formula:'\\(90-60=30\\)',reveal:['gNot','bStud'],row:'rowBoys',flow:'B ולא A = 30'},
+      {title:'שלב 3 — כמה אינם בקבוצה A?',text:'מתוך 200 פריטים, 120 נמצאים בקבוצה A. לכן 80 אינם בקבוצה A.',formula:'\\(200-120=80\\)',reveal:['gNot','bStud','bTotal'],row:'rowBoys',flow:'לא A = 80'},
+      {title:'שלב 4 — כמה אינם ב־A וגם אינם ב־B?',text:'מבין 80 הפריטים שאינם בקבוצה A, 30 נמצאים בקבוצה B. לכן 50 אינם באף אחת משתי הקבוצות.',formula:'\\(80-30=50\\)',reveal:['gNot','bStud','bTotal','bNot'],row:'rowBoys',flow:'לא A ולא B = 50'},
+      {title:'שלב 5 — כמה אינם בקבוצה B?',text:'מתוך 200 פריטים, 90 נמצאים בקבוצה B. לכן 110 אינם בקבוצה B.',formula:'\\(200-90=110\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:'rowTotal',flow:'לא B = 110'},
+      {title:'שלב 6 — בדיקה',text:'בודקים: 60+60=120, 30+50=80, 60+30=90, 60+50=110, ולבסוף 120+80=200.',formula:'\\(60+60=120,\\qquad 30+50=80,\\qquad 60+30=90,\\qquad 60+50=110\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:null,flow:'הטבלה הושלמה ✓'}
+    ]
+  },
+  {
+    name:'דוגמה 3 — עבודה מרחוק',
+    given:[
+      ['סה״כ עובדים',400],
+      ['נשים',240],
+      ['עובדים מרחוק',180],
+      ['נשים שעובדות מרחוק',120]
+    ],
+    rows:['נשים','גברים'],
+    cols:['עובדים מרחוק','לא עובדים מרחוק'],
+    values:{gStud:120,gNot:120,gTotal:240,bStud:60,bNot:100,bTotal:160,tStud:180,tNot:220,tTotal:400},
+    givenCells:['gStud','gTotal','tStud','tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'במפעל יש 400 עובדים, 240 נשים, 180 עובדים מרחוק, ו־120 נשים שעובדות מרחוק.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ עובדים 400</span><span>נשים 240</span><span>עובדים מרחוק 180</span><span>נשים שעובדות מרחוק 120</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — כמה גברים עובדים מרחוק?',text:'מתוך 180 העובדים מרחוק, 120 הן נשים. לכן מספר הגברים שעובדים מרחוק הוא ההפרש.',formula:'\\(180-120=60\\)',reveal:['bStud'],row:'rowBoys',flow:'גברים מרחוק = 60'},
+      {title:'שלב 2 — כמה גברים יש בסך הכול?',text:'מתוך 400 עובדים, 240 הן נשים. לכן מספר הגברים הוא 160.',formula:'\\(400-240=160\\)',reveal:['bStud','bTotal'],row:'rowBoys',flow:'סה״כ גברים = 160'},
+      {title:'שלב 3 — כמה גברים אינם עובדים מרחוק?',text:'מתוך 160 גברים, 60 עובדים מרחוק. לכן 100 אינם עובדים מרחוק.',formula:'\\(160-60=100\\)',reveal:['bStud','bTotal','bNot'],row:'rowBoys',flow:'גברים לא מרחוק = 100'},
+      {title:'שלב 4 — כמה נשים אינן עובדות מרחוק?',text:'מתוך 240 נשים, 120 עובדות מרחוק. לכן 120 אינן עובדות מרחוק.',formula:'\\(240-120=120\\)',reveal:['bStud','bTotal','bNot','gNot'],row:'rowGirls',flow:'נשים לא מרחוק = 120'},
+      {title:'שלב 5 — כמה עובדים אינם עובדים מרחוק?',text:'מתוך 400 עובדים, 180 עובדים מרחוק. לכן 220 אינם עובדים מרחוק.',formula:'\\(400-180=220\\)',reveal:['bStud','bTotal','bNot','gNot','tNot'],row:'rowTotal',flow:'סה״כ לא מרחוק = 220'},
+      {title:'שלב 6 — מסקנה',text:'מספר הגברים שעובדים מרחוק הוא 60. שיעור הנשים מבין העובדים מרחוק הוא 120 מתוך 180.',formula:'\\(\\frac{120}{180}=\\frac{2}{3}\\approx 66.7\\%\\)',reveal:['bStud','bTotal','bNot','gNot','tNot'],row:null,flow:'הטבלה הושלמה ✓'}
+    ]
+  },
+  {
+    name:'דוגמה 4 — חברי מועדון',
+    given:[
+      ['סה״כ לקוחות',300],
+      ['קנו באתר',180],
+      ['חברי מועדון',75],
+      ['גם באתר וגם מועדון',45]
+    ],
+    rows:['קנו באתר','לא קנו באתר'],
+    cols:['חברי מועדון','לא חברי מועדון'],
+    values:{gStud:45,gNot:135,gTotal:180,bStud:30,bNot:90,bTotal:120,tStud:75,tNot:225,tTotal:300},
+    givenCells:['gStud','gTotal','tStud','tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'יש 300 לקוחות. 180 קנו באתר, 75 חברי מועדון, ו־45 גם קנו באתר וגם חברי מועדון.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ לקוחות 300</span><span>קנו באתר 180</span><span>חברי מועדון 75</span><span>גם וגם 45</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — קנו באתר ואינם חברי מועדון',text:'מתוך 180 שקנו באתר, 45 הם חברי מועדון. לכן 135 אינם חברי מועדון.',formula:'\\(180-45=135\\)',reveal:['gNot'],row:'rowGirls',flow:'אתר ולא מועדון = 135'},
+      {title:'שלב 2 — חברי מועדון שלא קנו באתר',text:'מתוך 75 חברי מועדון, 45 קנו באתר. לכן 30 לא קנו באתר.',formula:'\\(75-45=30\\)',reveal:['gNot','bStud'],row:'rowBoys',flow:'מועדון ולא אתר = 30'},
+      {title:'שלב 3 — לא קנו באתר',text:'מתוך 300 לקוחות, 180 קנו באתר. לכן 120 לא קנו באתר.',formula:'\\(300-180=120\\)',reveal:['gNot','bStud','bTotal'],row:'rowBoys',flow:'לא קנו באתר = 120'},
+      {title:'שלב 4 — לא אתר ולא מועדון',text:'מבין 120 שלא קנו באתר, 30 הם חברי מועדון. לכן 90 אינם באף אחת משתי הקבוצות.',formula:'\\(120-30=90\\)',reveal:['gNot','bStud','bTotal','bNot'],row:'rowBoys',flow:'לא אתר ולא מועדון = 90'},
+      {title:'שלב 5 — אינם חברי מועדון',text:'מתוך 300 לקוחות, 75 חברי מועדון. לכן 225 אינם חברי מועדון.',formula:'\\(300-75=225\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:'rowTotal',flow:'לא חברי מועדון = 225'},
+      {title:'שלב 6 — הסתברות של איחוד',text:'מספר הלקוחות שקנו באתר או חברי מועדון הוא 180+75-45=210.',formula:'\\(P(A\\cup B)=\\frac{210}{300}=0.7=70\\%\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:null,flow:'הטבלה הושלמה ✓'}
+    ]
+  },
+  {
+    name:'דוגמה 5 — שני מבחנים',
+    given:[
+      ['סה״כ נבחנים',500],
+      ['עברו מבחן ראשון',320],
+      ['עברו מבחן שני',280],
+      ['עברו את שניהם',210]
+    ],
+    rows:['עברו מבחן ראשון','לא עברו מבחן ראשון'],
+    cols:['עברו מבחן שני','לא עברו מבחן שני'],
+    values:{gStud:210,gNot:110,gTotal:320,bStud:70,bNot:110,bTotal:180,tStud:280,tNot:220,tTotal:500},
+    givenCells:['gStud','gTotal','tStud','tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'יש 500 נבחנים. 320 עברו מבחן ראשון, 280 עברו מבחן שני, ו־210 עברו את שניהם.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ 500</span><span>עברו ראשון 320</span><span>עברו שני 280</span><span>עברו שניהם 210</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — עברו ראשון בלבד',text:'מתוך 320 שעברו את המבחן הראשון, 210 עברו גם את השני.',formula:'\\(320-210=110\\)',reveal:['gNot'],row:'rowGirls',flow:'ראשון בלבד = 110'},
+      {title:'שלב 2 — עברו שני בלבד',text:'מתוך 280 שעברו את המבחן השני, 210 עברו גם את הראשון.',formula:'\\(280-210=70\\)',reveal:['gNot','bStud'],row:'rowBoys',flow:'שני בלבד = 70'},
+      {title:'שלב 3 — לא עברו מבחן ראשון',text:'מתוך 500 נבחנים, 320 עברו את הראשון. לכן 180 לא עברו אותו.',formula:'\\(500-320=180\\)',reveal:['gNot','bStud','bTotal'],row:'rowBoys',flow:'לא עברו ראשון = 180'},
+      {title:'שלב 4 — לא עברו אף מבחן',text:'מבין 180 שלא עברו את הראשון, 70 עברו את השני. לכן 110 לא עברו אף מבחן.',formula:'\\(180-70=110\\)',reveal:['gNot','bStud','bTotal','bNot'],row:'rowBoys',flow:'לא עברו אף אחד = 110'},
+      {title:'שלב 5 — לא עברו מבחן שני',text:'מתוך 500 נבחנים, 280 עברו את השני. לכן 220 לא עברו אותו.',formula:'\\(500-280=220\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:'rowTotal',flow:'לא עברו שני = 220'},
+      {title:'שלב 6 — מסקנה',text:'עברו לפחות מבחן אחד: 500 פחות 110 שלא עברו אף מבחן.',formula:'\\(500-110=390\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:null,flow:'לפחות אחד = 390 ✓'}
+    ]
+  },
+  {
+    name:'דוגמה 6 — מכשירים',
+    given:[
+      ['סה״כ מכשירים',120],
+      ['פגומים',30],
+      ['יוצרו בקו A',50],
+      ['קו A וגם פגומים',12]
+    ],
+    rows:['יוצרו בקו A','לא יוצרו בקו A'],
+    cols:['פגומים','תקינים'],
+    values:{gStud:12,gNot:38,gTotal:50,bStud:18,bNot:52,bTotal:70,tStud:30,tNot:90,tTotal:120},
+    givenCells:['gStud','gTotal','tStud','tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'יש 120 מכשירים. 30 פגומים, 50 יוצרו בקו A, ו־12 הם גם מקו A וגם פגומים.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ 120</span><span>פגומים 30</span><span>קו A 50</span><span>קו A וגם פגומים 12</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — תקינים מקו A',text:'מתוך 50 מכשירים שיוצרו בקו A, 12 פגומים. לכן 38 תקינים.',formula:'\\(50-12=38\\)',reveal:['gNot'],row:'rowGirls',flow:'קו A ותקינים = 38'},
+      {title:'שלב 2 — פגומים שלא מקו A',text:'בסך הכול 30 פגומים, ומתוכם 12 מקו A. לכן 18 אינם מקו A.',formula:'\\(30-12=18\\)',reveal:['gNot','bStud'],row:'rowBoys',flow:'לא A ופגומים = 18'},
+      {title:'שלב 3 — לא יוצרו בקו A',text:'מתוך 120 מכשירים, 50 יוצרו בקו A. לכן 70 לא יוצרו בקו A.',formula:'\\(120-50=70\\)',reveal:['gNot','bStud','bTotal'],row:'rowBoys',flow:'לא קו A = 70'},
+      {title:'שלב 4 — תקינים שלא מקו A',text:'מתוך 70 שאינם מקו A, 18 פגומים. לכן 52 תקינים.',formula:'\\(70-18=52\\)',reveal:['gNot','bStud','bTotal','bNot'],row:'rowBoys',flow:'לא A ותקינים = 52'},
+      {title:'שלב 5 — סה״כ תקינים',text:'מתוך 120 מכשירים, 30 פגומים. לכן 90 תקינים.',formula:'\\(120-30=90\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:'rowTotal',flow:'סה״כ תקינים = 90'},
+      {title:'שלב 6 — שיעורים מותנים',text:'שיעור הפגומים מתוך קו A הוא 12 מתוך 50. שיעור קו A מתוך הפגומים הוא 12 מתוך 30.',formula:'\\(\\frac{12}{50}=24\\%\\qquad \\frac{12}{30}=40\\%\\)',reveal:['gNot','bStud','bTotal','bNot','tNot'],row:null,flow:'הטבלה הושלמה ✓'}
+    ]
+  },
+  {
+    name:'דוגמה 7 — שתי תכונות',
+    given:[
+      ['סה״כ פריטים',200],
+      ['בעלי תכונה A',110],
+      ['בעלי תכונה B',90],
+      ['אינם בעלי אף תכונה',50]
+    ],
+    rows:['בעלי תכונה A','ללא תכונה A'],
+    cols:['בעלי תכונה B','ללא תכונה B'],
+    values:{gStud:50,gNot:60,gTotal:110,bStud:40,bNot:50,bTotal:90,tStud:90,tNot:110,tTotal:200},
+    givenCells:['gTotal','tStud','bNot','tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'יש 200 פריטים. 110 בעלי תכונה A, 90 בעלי תכונה B, ו־50 אינם בעלי אף תכונה.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ 200</span><span>תכונה A 110</span><span>תכונה B 90</span><span>אף תכונה 50</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — כמה חסרי תכונה A?',text:'מתוך 200 פריטים, 110 בעלי תכונה A. לכן 90 אינם בעלי A.',formula:'\\(200-110=90\\)',reveal:['bTotal'],row:'rowBoys',flow:'ללא A = 90'},
+      {title:'שלב 2 — בעלי B בלבד',text:'מבין 90 שאינם בעלי A, 50 אינם בעלי אף תכונה. לכן 40 בעלי B בלבד.',formula:'\\(90-50=40\\)',reveal:['bTotal','bStud'],row:'rowBoys',flow:'B בלבד = 40'},
+      {title:'שלב 3 — בעלי שתי התכונות',text:'בסך הכול 90 בעלי תכונה B. 40 מהם אינם בעלי A, לכן 50 בעלי שתי התכונות.',formula:'\\(90-40=50\\)',reveal:['bTotal','bStud','gStud'],row:'rowGirls',flow:'A וגם B = 50'},
+      {title:'שלב 4 — בעלי A בלבד',text:'מתוך 110 בעלי תכונה A, 50 בעלי גם B. לכן 60 בעלי A בלבד.',formula:'\\(110-50=60\\)',reveal:['bTotal','bStud','gStud','gNot'],row:'rowGirls',flow:'A בלבד = 60'},
+      {title:'שלב 5 — ללא תכונה B',text:'מתוך 200 פריטים, 90 בעלי B. לכן 110 אינם בעלי B.',formula:'\\(200-90=110\\)',reveal:['bTotal','bStud','gStud','gNot','tNot'],row:'rowTotal',flow:'ללא B = 110'},
+      {title:'שלב 6 — מסקנה',text:'תחילה מחשבים את מספר הפריטים שנמצאים לפחות באחת משתי התכונות: 200 פחות 50 שאינם בעלי אף תכונה, ולכן באיחוד יש 150 פריטים. כעת משתמשים בכלל החיבור כדי למצוא את החיתוך.',formula:'\\(|A\cup B|=200-50=150\\)<br>\\(|A\cap B|=110+90-150=50\\)',reveal:['bTotal','bStud','gStud','gNot','tNot'],row:null,flow:'A וגם B = 50 ✓'}
+    ]
+  },
+  {
+    name:'דוגמה 8 — קבוצות באחוזים',
+    given:[
+      ['סה״כ פריטים',1000],
+      ['בקבוצה A','40%'],
+      ['בקבוצה B','30%'],
+      ['מחברי B שנמצאים גם ב־A','50%']
+    ],
+    rows:['בקבוצה A','לא בקבוצה A'],
+    cols:['בקבוצה B','לא בקבוצה B'],
+    values:{gStud:150,gNot:250,gTotal:400,bStud:150,bNot:450,bTotal:600,tStud:300,tNot:700,tTotal:1000},
+    givenCells:['tTotal'],
+    steps:[
+      {title:'מוכנים להתחיל',text:'באוכלוסייה יש 1000 פריטים. 40% בקבוצה A, 30% בקבוצה B, ו־50% מחברי B נמצאים גם ב־A.',formula:'<span class="data-sequence" dir="rtl"><span>סה״כ 1000</span><span>A = 40%</span><span>B = 30%</span><span>50% מ־B גם ב־A</span></span>',reveal:[],row:null,flow:'מתחילים מהנתונים'},
+      {title:'שלב 1 — ממירים אחוזים למספרים',text:'40% מתוך 1000 הם 400 בקבוצה A, ו־30% מתוך 1000 הם 300 בקבוצה B.',formula:'\\(0.4\\cdot1000=400,\\qquad 0.3\\cdot1000=300\\)',reveal:['gTotal','tStud'],row:null,flow:'A = 400, B = 300'},
+      {title:'שלב 2 — כמה נמצאים גם ב־A וגם ב־B?',text:'50% מחברי B נמצאים גם ב־A. בקבוצה B יש 300 פריטים.',formula:'\\(0.5\\cdot300=150\\)',reveal:['gTotal','tStud','gStud'],row:'rowGirls',flow:'A וגם B = 150'},
+      {title:'שלב 3 — A בלבד',text:'מתוך 400 חברי A, 150 נמצאים גם ב־B. לכן 250 נמצאים רק ב־A.',formula:'\\(400-150=250\\)',reveal:['gTotal','tStud','gStud','gNot'],row:'rowGirls',flow:'A בלבד = 250'},
+      {title:'שלב 4 — B בלבד',text:'מתוך 300 חברי B, 150 נמצאים גם ב־A. לכן 150 נמצאים רק ב־B.',formula:'\\(300-150=150\\)',reveal:['gTotal','tStud','gStud','gNot','bStud'],row:'rowBoys',flow:'B בלבד = 150'},
+      {title:'שלב 5 — לא A ולא B',text:'באיחוד הקבוצות נמצאים 400+300-150=550 פריטים. לכן 450 אינם באף קבוצה.',formula:'\\(1000-550=450\\)',reveal:['gTotal','tStud','gStud','gNot','bStud','bNot','bTotal','tNot'],row:'rowBoys',flow:'לא A ולא B = 450'},
+      {title:'שלב 6 — בדיקה',text:'בודקים שסכומי השורות והעמודות נכונים: 150+250=400, 150+450=600, 150+150=300.',formula:'\\(150+250=400,\\qquad 150+450=600,\\qquad 150+150=300\\)',reveal:['gTotal','tStud','gStud','gNot','bStud','bNot','bTotal','tNot'],row:null,flow:'הטבלה הושלמה ✓'}
+    ]
+  }
+
+];
+
+
+// Random examples are generated independently from the prepared examples above.
+// A context is composed at run time from separate pools, so the generator can
+// create many new combinations rather than selecting a ready-made example.
+const randomContextPools = [
+  {
+    population:'משתתפים בסקר',
+    entityLabel:'משתתפים',
+    dimensions:[
+      {yes:'מבצעים פעילות גופנית בקביעות', no:'לא מבצעים פעילות גופנית בקביעות'},
+      {yes:'שותים קפה מדי יום', no:'לא שותים קפה מדי יום'},
+      {yes:'קוראים ספר לפחות פעם בשבוע', no:'לא קוראים ספר לפחות פעם בשבוע'},
+      {yes:'משתמשים בתחבורה ציבורית', no:'לא משתמשים בתחבורה ציבורית'},
+      {yes:'מבקרים בחוג שבועי', no:'לא מבקרים בחוג שבועי'},
+      {yes:'צפו בסרט בחודש האחרון', no:'לא צפו בסרט בחודש האחרון'},
+      {yes:'מטיילים בארץ לפחות פעם בחודש', no:'לא מטיילים בארץ לפחות פעם בחודש'},
+      {yes:'משתמשים באפליקציית ניווט', no:'לא משתמשים באפליקציית ניווט'}
+    ]
+  },
+  {
+    population:'ספרים במדף הספרייה',
+    entityLabel:'ספרים',
+    dimensions:[
+      {yes:'ספרי עיון', no:'אינם ספרי עיון'},
+      {yes:'נכתבו בעברית', no:'לא נכתבו בעברית'},
+      {yes:'יצאו בעשור האחרון', no:'לא יצאו בעשור האחרון'},
+      {yes:'בעלי כריכה קשה', no:'ללא כריכה קשה'},
+      {yes:'כוללים איורים', no:'אינם כוללים איורים'}
+    ]
+  },
+  {
+    population:'דירות בפרויקט מגורים',
+    entityLabel:'דירות',
+    dimensions:[
+      {yes:'כוללות מרפסת', no:'אינן כוללות מרפסת'},
+      {yes:'כוללות חניה', no:'אינן כוללות חניה'},
+      {yes:'פונות לכיוון דרום', no:'אינן פונות לכיוון דרום'},
+      {yes:'נמצאות בקומה גבוהה', no:'אינן נמצאות בקומה גבוהה'},
+      {yes:'כוללות מחסן', no:'אינן כוללות מחסן'}
+    ]
+  },
+  {
+    population:'צמחים בחממה',
+    entityLabel:'צמחים',
+    dimensions:[
+      {yes:'פורחים כעת', no:'אינם פורחים כעת'},
+      {yes:'גבוהים מ־50 ס״מ', no:'אינם גבוהים מ־50 ס״מ'},
+      {yes:'זקוקים להשקיה יומית', no:'אינם זקוקים להשקיה יומית'},
+      {yes:'נמצאים בשמש ישירה', no:'אינם נמצאים בשמש ישירה'},
+      {yes:'בעלי פרחים לבנים', no:'אינם בעלי פרחים לבנים'}
+    ]
+  },
+  {
+    population:'סרטים במאגר צפייה',
+    entityLabel:'סרטים',
+    dimensions:[
+      {yes:'נוצרו בישראל', no:'לא נוצרו בישראל'},
+      {yes:'אורכם מעל שעה', no:'אורכם אינו מעל שעה'},
+      {yes:'קיבלו דירוג גבוה', no:'לא קיבלו דירוג גבוה'},
+      {yes:'נוספו בשנה האחרונה', no:'לא נוספו בשנה האחרונה'},
+      {yes:'כוללים כתוביות', no:'אינם כוללים כתוביות'}
+    ]
+  },
+  {
+    population:'שירים ברשימת השמעה',
+    entityLabel:'שירים',
+    dimensions:[
+      {yes:'נוצרו בישראל', no:'לא נוצרו בישראל'},
+      {yes:'אורכם מעל 4 דקות', no:'אורכם אינו מעל 4 דקות'},
+      {yes:'קיבלו דירוג גבוה', no:'לא קיבלו דירוג גבוה'},
+      {yes:'נוספו בשנה האחרונה', no:'לא נוספו בשנה האחרונה'},
+      {yes:'כוללים מילים בעברית', no:'אינם כוללים מילים בעברית'}
+    ]
+  },
+  {
+    population:'פרקים בסדרת תוכן',
+    entityLabel:'פרקים',
+    dimensions:[
+      {yes:'נוצרו בישראל', no:'לא נוצרו בישראל'},
+      {yes:'אורכם מעל 40 דקות', no:'אורכם אינו מעל 40 דקות'},
+      {yes:'קיבלו דירוג גבוה', no:'לא קיבלו דירוג גבוה'},
+      {yes:'נוספו בשנה האחרונה', no:'לא נוספו בשנה האחרונה'},
+      {yes:'כוללים כתוביות', no:'אינם כוללים כתוביות'}
+    ]
+  }
+];
+
+function createRandomContext(){
+  const context = choice(randomContextPools);
+  const firstIndex = Math.floor(Math.random()*context.dimensions.length);
+  let secondIndex = Math.floor(Math.random()*context.dimensions.length);
+  while(secondIndex === firstIndex){
+    secondIndex = Math.floor(Math.random()*context.dimensions.length);
+  }
+  return {
+    population: context.population,
+    entityLabel: context.entityLabel,
+    eventA: context.dimensions[firstIndex],
+    eventB: context.dimensions[secondIndex]
+  };
+}
+
+function choice(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function randomIntStep(min,max,step=5){
+  const count = Math.floor((max-min)/step);
+  return min + step * Math.floor(Math.random()*(count+1));
+}
+
+function buildDataSequence(items){
+  return `<span class="data-sequence" dir="rtl">${items.map(item=>`<span>${item}</span>`).join('')}</span>`;
+}
+
+function buildStandardStepsForExample(ex){
+  const v = ex.values;
+  const [rowA,rowB] = ex.rows;
+  const [colA,colB] = ex.cols;
+  const entity = ex.entityLabel || 'פריטים';
+  const readyItems = [
+    `סה״כ ${entity} ${v.tTotal}`,
+    `${rowA} (A) ${v.gTotal}`,
+    `${colA} (B) ${v.tStud}`,
+    `${ex.pairLabel || `${rowA} ו${colA}`} (A∩B) ${v.gStud}`
+  ];
+  return [
+    {
+      title:'מוכנים להתחיל',
+      text:`קיבלנו ארבעה נתונים התחלתיים: בסך הכול ${v.tTotal} ${entity}; ${v.gTotal} מקיימים את המאורע ${rowA} (A), ${v.tStud} מקיימים את המאורע ${colA} (B), ו־${v.gStud} מקיימים את שני המאורעות \\(A\\cap B\\). כעת נשלים את הטבלה צעד אחר צעד.`,
+      formula:buildDataSequence(readyItems),
+      reveal:[],
+      row:null,
+      flow:'מתחילים מהנתונים'
+    },
+    {
+      title:`שלב 1 — כמה הם ${rowB} וגם ${colA}?`,
+      text:`בעמודת "${colA}" \\((B)\\) יש בסך הכול ${v.tStud} ${entity}. מתוכם ${v.gStud} מקיימים גם את "${rowA}" \\((A)\\). לכן השאר מקיימים \\(\\overline{A}\\cap B\\).`,
+      formula:`\\(${v.tStud}-${v.gStud}=${v.bStud}\\)`,
+      reveal:['bStud'],
+      row:'rowBoys',
+      flow:`${rowB} וגם ${colA} = ${v.bStud}`
+    },
+    {
+      title:`שלב 2 — כמה הם ${rowB} בסך הכול?`,
+      text:`מתוך ${v.tTotal} ${entity}, ${v.gTotal} מקיימים את "${rowA}" \\((A)\\). לכן מספר אלה שאינם מקיימים את A, כלומר \\(\\overline{A}\\), הוא ההפרש.`,
+      formula:`\\(${v.tTotal}-${v.gTotal}=${v.bTotal}\\)`,
+      reveal:['bStud','bTotal'],
+      row:'rowBoys',
+      flow:`סה״כ ${rowB} = ${v.bTotal}`
+    },
+    {
+      title:`שלב 3 — כמה הם ${rowB} וגם ${colB}?`,
+      text:`בשורה של "${rowB}" יש ${v.bTotal} ${entity}. מתוכם ${v.bStud} מקיימים גם את "${colA}". לכן השאר מקיימים \\(\\overline{A}\\cap\\overline{B}\\).`,
+      formula:`\\(${v.bTotal}-${v.bStud}=${v.bNot}\\)`,
+      reveal:['bStud','bTotal','bNot'],
+      row:'rowBoys',
+      flow:`${rowB} וגם ${colB} = ${v.bNot}`
+    },
+    {
+      title:`שלב 4 — כמה הם ${rowA} וגם ${colB}?`,
+      text:`בשורה של "${rowA}" יש ${v.gTotal} ${entity}. מתוכם ${v.gStud} מקיימים גם את "${colA}". לכן השאר מקיימים \\(A\\cap\\overline{B}\\).`,
+      formula:`\\(${v.gTotal}-${v.gStud}=${v.gNot}\\)`,
+      reveal:['bStud','bTotal','bNot','gNot'],
+      row:'rowGirls',
+      flow:`${rowA} וגם ${colB} = ${v.gNot}`
+    },
+    {
+      title:`שלב 5 — כמה הם ${colB} בסך הכול?`,
+      text:`מתוך ${v.tTotal} ${entity}, ${v.tStud} מקיימים את "${colA}" \\((B)\\). לכן מספר אלה שאינם מקיימים את B, כלומר \\(\\overline{B}\\), הוא ההפרש.`,
+      formula:`\\(${v.tTotal}-${v.tStud}=${v.tNot}\\)`,
+      reveal:['bStud','bTotal','bNot','gNot','tNot'],
+      row:'rowTotal',
+      flow:`סה״כ ${colB} = ${v.tNot}`
+    },
+    {
+      title:'שלב 6 — בדיקה',
+      text:'בודקים שסכומי השורות והעמודות תואמים. אם כל סכום מתאים — הטבלה הושלמה נכון.',
+      formula:`\\(${v.gStud}+${v.bStud}=${v.tStud},\\qquad ${v.gNot}+${v.bNot}=${v.tNot},\\qquad ${v.gTotal}+${v.bTotal}=${v.tTotal}\\)`,
+      reveal:['bStud','bTotal','bNot','gNot','tNot'],
+      row:null,
+      flow:'הטבלה הושלמה ✓'
+    }
+  ];
+}
+
+function createRandomExample(serial){
+  const context = createRandomContext();
+  const values = {
+    gStud: randomIntStep(10,60,5),
+    gNot: randomIntStep(10,60,5),
+    bStud: randomIntStep(10,60,5),
+    bNot: randomIntStep(10,60,5)
+  };
+  values.gTotal = values.gStud + values.gNot;
+  values.bTotal = values.bStud + values.bNot;
+  values.tStud = values.gStud + values.bStud;
+  values.tNot = values.gNot + values.bNot;
+  values.tTotal = values.gTotal + values.bTotal;
+
+  const ex = {
+    name:`דוגמה אקראית ${serial} — ${context.population}`,
+    entityLabel: context.entityLabel,
+    given:[
+      [`סה״כ ${context.population}`, values.tTotal],
+      [`${context.eventA.yes} (A)`, values.gTotal],
+      [`${context.eventB.yes} (B)`, values.tStud],
+      [`גם ${context.eventA.yes} וגם ${context.eventB.yes} (A∩B)`, values.gStud]
+    ],
+    rows:[context.eventA.yes, context.eventA.no],
+    cols:[context.eventB.yes, context.eventB.no],
+    values,
+    givenCells:['gStud','gTotal','tStud','tTotal'],
+    pairLabel:`גם ${context.eventA.yes} וגם ${context.eventB.yes}`
+  };
+  ex.steps = buildStandardStepsForExample(ex);
+  return ex;
+}
+
+let randomExampleIndex = null;
+let randomExampleCounter = 0;
+
+function upsertRandomExampleInSelect(index){
+  const select = document.getElementById('exampleSelect');
+  const existing = select.querySelector(`option[value="${index}"]`);
+  if(existing){
+    existing.textContent = examples[index].name;
+    return;
+  }
+  const opt=document.createElement('option');
+  opt.value=String(index);
+  opt.textContent=examples[index].name;
+  select.appendChild(opt);
+}
+
+function generateRandomExample(){
+  randomExampleCounter += 1;
+  const ex = createRandomExample(randomExampleCounter);
+  if(randomExampleIndex === null){
+    randomExampleIndex = examples.length;
+    examples.push(ex);
+  }else{
+    examples[randomExampleIndex] = ex;
+  }
+  upsertRandomExampleInSelect(randomExampleIndex);
+  loadExample(randomExampleIndex);
+}
+
+
+let exampleIndex = 0;
+let current = 0;
+let timer = null;
+let tableMode = 'frequency';
+const tableCellIds = ['gStud','gNot','gTotal','bStud','bNot','bTotal','tStud','tNot','tTotal'];
+
+function example(){ return examples[exampleIndex]; }
+function steps(){ return example().steps; }
+
+function setCellVisualState(id, state){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('given-cell','revealed','hidden-cell');
+  if(state === 'given') el.classList.add('given-cell');
+  else if(state === 'calculated') el.classList.add('revealed');
+  else el.classList.add('hidden-cell');
+}
+
+function updateCellStates(step){
+  const given = new Set(example().givenCells || []);
+  const revealed = new Set(step.reveal || []);
+  tableCellIds.forEach(id=>{
+    if(given.has(id)) setCellVisualState(id,'given');
+    else if(revealed.has(id)) setCellVisualState(id,'calculated');
+    else setCellVisualState(id,'hidden');
+  });
+}
+
+function formatProbability(value,total){
+  const p=value/total;
+  return Number(p.toFixed(3)).toString();
+}
+function formatPercent(value,total){
+  const pct=value/total*100;
+  return `${Number(pct.toFixed(1))}%`;
+}
+
+function setTableMode(mode){
+  if(current !== steps().length-1) return;
+  tableMode = mode;
+  const title = document.getElementById('tableTitle');
+  const total = example().values.tTotal;
+  tableCellIds.forEach(id => {
+    const value = Number(document.getElementById(id).dataset.frequency);
+    document.getElementById(id).textContent = mode === 'percent' ? formatPercent(value,total) : mode === 'probability' ? formatProbability(value,total) : String(value);
+  });
+  title.textContent = mode === 'percent' ? 'טבלת אחוזים' : mode === 'probability' ? 'טבלת הסתברויות' : 'טבלה בסיסית — שכיחויות';
+  updateVennValues();
+}
+
+function restoreFrequencyTable(){
+  tableMode = 'frequency';
+  document.getElementById('tableTitle').textContent = 'טבלה בסיסית — שכיחויות';
+  tableCellIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = el.dataset.frequency;
+  });
+  updateVennValues();
+}
+
+let vennDraw = null;
+let vennRegions = {};
+let vennValueTexts = {};
+let vennOpen = false;
+
+const vennAtomicMap = {
+  gStud:['gStud'],
+  gNot:['gNot'],
+  bStud:['bStud'],
+  bNot:['bNot'],
+  gTotal:['gStud','gNot'],
+  bTotal:['bStud','bNot'],
+  tStud:['gStud','bStud'],
+  tNot:['gNot','bNot'],
+  tTotal:['gStud','gNot','bStud','bNot']
+};
+
+function vennDisplayValue(id){
+  const value = Number(example().values[id]);
+  const total = Number(example().values.tTotal);
+  if(tableMode === 'percent') return formatPercent(value,total);
+  if(tableMode === 'probability') return formatProbability(value,total);
+  return String(value);
+}
+
+function setVennRegionStyle(id, active){
+  const region = vennRegions[id];
+  if(!region) return;
+  region.attr({
+    'fill-opacity': active ? 0.20 : 0.001,
+    'stroke-opacity': active ? 0.95 : 0
+  });
+}
+
+function highlightVennByCell(id){
+  if(!vennOpen || !vennDraw) return;
+  const selected = new Set(vennAtomicMap[id] || []);
+  ['gStud','gNot','bStud','bNot'].forEach(key=>setVennRegionStyle(key,selected.has(key)));
+}
+
+function clearVennHighlight(){
+  ['gStud','gNot','bStud','bNot'].forEach(key=>setVennRegionStyle(key,false));
+}
+
+function updateVennValues(){
+  if(!vennDraw) return;
+  Object.entries(vennValueTexts).forEach(([id,textNode])=>{
+    textNode.text(vennDisplayValue(id));
+  });
+}
+
+function addVennValue(id, x, y, title){
+  const g = vennDraw.group().css('cursor','pointer');
+  const isLongTitle = title.length > 7;
+  const boxWidth = isLongTitle ? 92 : 78;
+  const boxHeight = 42;
+  const bg = g.rect(boxWidth,boxHeight).radius(10).center(x,y).fill('#ffffff').stroke({color:'#cbd5e1',width:1.5});
+  const value = g.text(vennDisplayValue(id)).font({family:'Arial, sans-serif',size:17,weight:800}).fill('#132033').center(x,y-5);
+  const cap = g.text(title).font({family:'Arial, sans-serif',size:10,weight:700}).fill('#64748b').center(x,y+11);
+  vennValueTexts[id]=value;
+  g.on('click',()=>{
+    highlightVennByCell(id);
+    explainCell(id);
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  g.on('mouseenter',()=>highlightVennByCell(id));
+  g.on('mouseleave',()=>{
+    const selected=document.querySelector('.cell.selected-cell');
+    if(selected) highlightVennByCell(selected.id); else clearVennHighlight();
+  });
+  return {g,bg,value,cap};
+}
+
+function buildVennDiagram(){
+  const host=document.getElementById('vennDiagram');
+  if(!host || typeof SVG==='undefined') return;
+  host.innerHTML='';
+  vennDraw=SVG().addTo(host).size('100%','100%').viewbox(0,0,860,430);
+  vennRegions={};
+  vennValueTexts={};
+
+  const cxA=335, cxB=525, cy=220, r=145;
+
+  vennDraw.rect(820,390).move(20,20).radius(14).fill('#ffffff').stroke({color:'#94a3b8',width:2});
+  vennDraw.text('Ω').font({family:'Arial, sans-serif',size:24,weight:800}).fill('#475569').move(45,38);
+
+  vennDraw.circle(r*2).center(cxA,cy).fill({color:'#DBEAFE',opacity:.55}).stroke({color:'#2563EB',width:3});
+  vennDraw.circle(r*2).center(cxB,cy).fill({color:'#F3E8FF',opacity:.55}).stroke({color:'#7C3AED',width:3});
+  const labelA=vennDraw.text(add=>{
+    add.tspan('A').font({size:26,weight:900});
+    add.tspan(example().rows[0]).newLine().font({size:17,weight:700});
+  }).font({family:'Arial, sans-serif'}).fill('#1d4ed8').leading(1.25)
+    .attr({'direction':'rtl','unicode-bidi':'plaintext','text-anchor':'middle'})
+    .center(cxA-62,112);
+
+  const labelB=vennDraw.text(add=>{
+    add.tspan('B').font({size:26,weight:900});
+    add.tspan(example().cols[0]).newLine().font({size:17,weight:700});
+  }).font({family:'Arial, sans-serif'}).fill('#6d28d9').leading(1.25)
+    .attr({'direction':'rtl','unicode-bidi':'plaintext','text-anchor':'middle'})
+    .center(cxB+62,112);
+
+  // A only: A masked by the complement of B.
+  const maskAOnly=vennDraw.mask();
+  maskAOnly.add(vennDraw.rect(860,430).fill('#fff'));
+  maskAOnly.add(vennDraw.circle(r*2).center(cxB,cy).fill('#000'));
+  vennRegions.gNot=vennDraw.circle(r*2).center(cxA,cy)
+    .fill('#60A5FA').attr({'fill-opacity':0.001})
+    .stroke({color:'#60A5FA',width:4}).attr({'stroke-opacity':0})
+    .maskWith(maskAOnly).css('cursor','pointer');
+
+  // B only: B masked by the complement of A.
+  const maskBOnly=vennDraw.mask();
+  maskBOnly.add(vennDraw.rect(860,430).fill('#fff'));
+  maskBOnly.add(vennDraw.circle(r*2).center(cxA,cy).fill('#000'));
+  vennRegions.bStud=vennDraw.circle(r*2).center(cxB,cy)
+    .fill('#A78BFA').attr({'fill-opacity':0.001})
+    .stroke({color:'#7C3AED',width:4}).attr({'stroke-opacity':0})
+    .maskWith(maskBOnly).css('cursor','pointer');
+
+  // Intersection: A clipped to B.
+  const clipB=vennDraw.clip();
+  clipB.add(vennDraw.circle(r*2).center(cxB,cy));
+  vennRegions.gStud=vennDraw.circle(r*2).center(cxA,cy)
+    .fill('#2563EB').attr({'fill-opacity':0.001})
+    .stroke({color:'#1D4ED8',width:4}).attr({'stroke-opacity':0})
+    .clipWith(clipB).css('cursor','pointer');
+
+  // Neither A nor B: universe masked by both circles.
+  const maskNeither=vennDraw.mask();
+  maskNeither.add(vennDraw.rect(860,430).fill('#fff'));
+  maskNeither.add(vennDraw.circle(r*2).center(cxA,cy).fill('#000'));
+  maskNeither.add(vennDraw.circle(r*2).center(cxB,cy).fill('#000'));
+  vennRegions.bNot=vennDraw.rect(820,390).move(20,20).radius(14)
+    .fill('#64748B').attr({'fill-opacity':0.001})
+    .stroke({color:'#64748B',width:4}).attr({'stroke-opacity':0})
+    .maskWith(maskNeither).css('cursor','pointer');
+
+  Object.entries(vennRegions).forEach(([id,region])=>{
+    region.on('click',()=>{ highlightVennByCell(id); explainCell(id); });
+    region.on('mouseenter',()=>highlightVennByCell(id));
+    region.on('mouseleave',()=>{
+      const selected=document.querySelector('.cell.selected-cell');
+      if(selected) highlightVennByCell(selected.id); else clearVennHighlight();
+    });
+  });
+
+  // Region labels. These groups are also clickable and make the four areas unambiguous.
+  addVennValue('gNot',285,220,'A בלבד');
+  addVennValue('gStud',430,220,'A ∩ B');
+  addVennValue('bStud',575,220,'B בלבד');
+  addVennValue('bNot',720,350,'לא A ולא B');
+
+  updateVennValues();
+  const selected=document.querySelector('.cell.selected-cell');
+  if(selected) highlightVennByCell(selected.id);
+}
+
+function showVenn(){
+  if(current !== steps().length-1) return;
+  vennOpen=true;
+  document.getElementById('vennPanel').classList.add('show');
+  document.getElementById('doneBanner').classList.remove('show');
+  document.getElementById('vennBtn').textContent='הסתר דיאגרמת ון';
+  document.getElementById('vennALabel').innerHTML=`<b>A</b> — ${example().rows[0]}`;
+  document.getElementById('vennBLabel').innerHTML=`<b>B</b> — ${example().cols[0]}`;
+  buildVennDiagram();
+}
+
+function hideVenn(){
+  vennOpen=false;
+  document.getElementById('vennPanel').classList.remove('show');
+  const completed = current === steps().length-1;
+  document.getElementById('doneBanner').classList.toggle('show', completed);
+  document.getElementById('vennBtn').textContent='הצג דיאגרמת ון';
+}
+
+function toggleVenn(){ vennOpen ? hideVenn() : showVenn(); }
+
+function eventInfoForCell(id){
+  const ex = example();
+  const rowA = ex.rows[0], rowB = ex.rows[1];
+  const colA = ex.cols[0], colB = ex.cols[1];
+  const map = {
+    gStud:{label:`${rowA} (A) וגם ${colA} (B)`, symbol:'A\\cap B'},
+    gNot:{label:`${rowA} (A) וגם ${colB} (B משלים)`, symbol:'A\\cap \\overline{B}'},
+    gTotal:{label:`סה״כ ${rowA} (A)`, symbol:'A'},
+    bStud:{label:`${rowB} (A משלים) וגם ${colA} (B)`, symbol:'\\overline{A}\\cap B'},
+    bNot:{label:`${rowB} (A משלים) וגם ${colB} (B משלים)`, symbol:'\\overline{A}\\cap \\overline{B}'},
+    bTotal:{label:`סה״כ ${rowB} (A משלים)`, symbol:'\\overline{A}'},
+    tStud:{label:`סה״כ ${colA} (B)`, symbol:'B'},
+    tNot:{label:`סה״כ ${colB} (B משלים)`, symbol:'\\overline{B}'},
+    tTotal:{label:'כל האוכלוסייה', symbol:'\\Omega'}
+  };
+  return map[id];
+}
+
+function closeCellExplainer(){
+  document.getElementById('cellExplainer').classList.remove('show');
+  document.querySelectorAll('.cell.selected-cell').forEach(el=>el.classList.remove('selected-cell'));
+}
+
+function placeCellExplainer(anchor){
+  const pop = document.getElementById('cellExplainer');
+  const r = anchor.getBoundingClientRect();
+  const margin = 12;
+  const w = Math.min(390, window.innerWidth - 28);
+  pop.style.width = `${w}px`;
+  let left = r.left + r.width/2 - w/2;
+  left = Math.max(14, Math.min(left, window.innerWidth - w - 14));
+  pop.style.left = `${left}px`;
+  pop.style.top = `${Math.min(r.bottom + margin, window.innerHeight - 220)}px`;
+}
+
+function explainCell(id){
+  const el = document.getElementById(id);
+  if(!el || el.classList.contains('hidden-cell')) return;
+  const info = eventInfoForCell(id);
+  const value = Number(el.dataset.frequency);
+  const total = Number(example().values.tTotal);
+  const probability = value / total;
+  const percent = probability * 100;
+
+  document.querySelectorAll('.cell.selected-cell').forEach(x=>x.classList.remove('selected-cell'));
+  el.classList.add('selected-cell');
+  highlightVennByCell(id);
+
+  document.getElementById('cellExplainerTitle').textContent = info.label;
+  document.getElementById('cellExplainerText').textContent =
+    id === 'tTotal'
+      ? `התא מייצג את כל האוכלוסייה: ${value}.`
+      : `בתא זה נמצאים ${value} מתוך ${total} פריטים באוכלוסייה.`;
+
+  const probText = Number(probability.toFixed(3));
+  const pctText = Number(percent.toFixed(1));
+  document.getElementById('cellExplainerFormula').innerHTML =
+    id === 'tTotal'
+      ? `\\(n(${info.symbol})=${value},\\qquad P(${info.symbol})=1=100\\%\\)`
+      : `\\(n(${info.symbol})=${value}\\) <br> \\(P(${info.symbol})=\\frac{${value}}{${total}}=${probText}=${pctText}\\%\\)`;
+
+  const pop = document.getElementById('cellExplainer');
+  pop.classList.add('show');
+  placeCellExplainer(el);
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetClear([document.getElementById('cellExplainerFormula')]);
+    MathJax.typesetPromise([document.getElementById('cellExplainerFormula')]);
+  }
+}
+
+function loadExample(index){
+  closeCellExplainer();
+  hideVenn();
+  stopPlay();
+  exampleIndex = (index + examples.length) % examples.length;
+  current = 0;
+  tableMode = 'frequency';
+  const ex = example();
+
+  document.getElementById('exampleSelect').value = String(exampleIndex);
+
+  ex.given.forEach((item,i)=>{
+    document.getElementById(`given${i+1}Label`).textContent = item[0];
+    document.getElementById(`given${i+1}Value`).textContent = item[1];
+  });
+  document.getElementById('row1Head').innerHTML = `${ex.rows[0]} <span class="event-symbol">\\(A\\)</span>`;
+  document.getElementById('row2Head').innerHTML = `${ex.rows[1]} <span class="event-symbol">\\(\\overline{A}\\)</span>`;
+  document.getElementById('col1Head').innerHTML = `${ex.cols[0]} <span class="event-symbol">\\(B\\)</span>`;
+  document.getElementById('col2Head').innerHTML = `${ex.cols[1]} <span class="event-symbol">\\(\\overline{B}\\)</span>`;
+
+  tableCellIds.forEach(id=>{
+    const el=document.getElementById(id);
+    el.dataset.frequency=ex.values[id];
+    el.textContent=ex.values[id];
+  });
+  render();
+  if(window.MathJax && MathJax.typesetPromise){
+    const heads=['row1Head','row2Head','col1Head','col2Head'].map(id=>document.getElementById(id));
+    MathJax.typesetClear(heads);
+    MathJax.typesetPromise(heads);
+  }
+}
+
+function render(){
+  const s = steps()[current];
+  document.getElementById('stepTitle').textContent = s.title;
+  document.getElementById('stepText').innerHTML = s.text;
+  document.getElementById('formula').innerHTML = s.formula;
+  document.getElementById('flowText').textContent = s.flow;
+  document.getElementById('stepCounter').textContent = `שלב ${current} מתוך ${steps().length-1}`;
+
+  updateCellStates(s);
+  ['rowGirls','rowBoys','rowTotal'].forEach(id => document.getElementById(id).classList.remove('focus-row'));
+  if(s.row) document.getElementById(s.row).classList.add('focus-row');
+
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === steps().length-1;
+  const completed = current === steps().length-1;
+  document.getElementById('doneBanner').classList.toggle('show', completed);
+  document.getElementById('percentBtn').disabled = !completed;
+  document.getElementById('probBtn').disabled = !completed;
+  document.getElementById('freqBtn').disabled = !completed;
+  document.getElementById('vennBtn').disabled = !completed;
+  if(!completed && vennOpen) hideVenn();
+  if(!completed && tableMode !== 'frequency') restoreFrequencyTable();
+
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetClear([document.getElementById('formula')]);
+    MathJax.typesetPromise([document.getElementById('formula')]);
+  }
+}
+
+function next(){
+  if(current < steps().length-1){ current++; render(); }
+  if(current === steps().length-1 && timer){ stopPlay(); }
+}
+function prev(){ if(current > 0){ current--; render(); } }
+function startPlay(){
+  if(current === steps().length-1) current = 0;
+  document.getElementById('playBtn').textContent = '⏸ עצירה';
+  timer = setInterval(next, 2300);
+  next();
+}
+function stopPlay(){
+  if(timer) clearInterval(timer);
+  timer = null;
+  const b=document.getElementById('playBtn');
+  if(b) b.textContent = '▶ הפעלה';
+}
+function togglePlay(){ timer ? stopPlay() : startPlay(); }
+function reset(){ stopPlay(); hideVenn(); current = 0; restoreFrequencyTable(); render(); }
+
+function changeExample(delta){ loadExample(exampleIndex + delta); }
+
+document.getElementById('nextBtn').addEventListener('click',next);
+document.getElementById('prevBtn').addEventListener('click',prev);
+document.getElementById('playBtn').addEventListener('click',togglePlay);
+document.getElementById('resetBtn').addEventListener('click',reset);
+document.getElementById('percentBtn').addEventListener('click',()=>setTableMode('percent'));
+document.getElementById('probBtn').addEventListener('click',()=>setTableMode('probability'));
+document.getElementById('freqBtn').addEventListener('click',()=>setTableMode('frequency'));
+document.getElementById('vennBtn').addEventListener('click',toggleVenn);
+document.getElementById('vennCloseBtn').addEventListener('click',hideVenn);
+const exampleSelect = document.getElementById('exampleSelect');
+examples.forEach((ex,i)=>{
+  const opt=document.createElement('option');
+  opt.value=String(i);
+  opt.textContent=ex.name;
+  exampleSelect.appendChild(opt);
+});
+exampleSelect.addEventListener('change',e=>loadExample(Number(e.target.value)));
+document.getElementById('randomExampleBtn').addEventListener('click',generateRandomExample);
+
+tableCellIds.forEach(id=>{
+  const el=document.getElementById(id);
+  el.setAttribute('tabindex','0');
+  el.setAttribute('role','button');
+  el.setAttribute('aria-label','לחצו לקבלת פירוש התא');
+  el.addEventListener('click',()=>explainCell(id));
+  el.addEventListener('keydown',e=>{
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); explainCell(id); }
+  });
+});
+document.getElementById('cellExplainerClose').addEventListener('click',closeCellExplainer);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeCellExplainer(); });
+window.addEventListener('resize',()=>{
+  const selected=document.querySelector('.cell.selected-cell');
+  if(selected && document.getElementById('cellExplainer').classList.contains('show')) placeCellExplainer(selected);
+});
+
+loadExample(0);
+</script>
+</body>
+</html>
