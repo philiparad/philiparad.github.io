@@ -385,6 +385,38 @@
   }
   .venn-legend b{color:#1e3a8a}
 
+
+
+  /* Conditional probability explorer */
+  .conditional-toggle{background:#0F766E;color:#fff}
+  .conditional-panel{
+    display:none;margin-top:18px;background:var(--card);border:2px solid var(--line2);
+    border-radius:12px;padding:18px;box-shadow:0 3px 12px rgba(15,23,42,.04);
+  }
+  .conditional-panel.show{display:block}
+  .conditional-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .conditional-head h2{margin:0;font-size:22px}
+  .conditional-description{margin:5px 0 0;color:var(--muted);font-size:15px;line-height:1.55}
+  .conditional-close{background:#f1f5f9;color:#334155;padding:8px 12px}
+  .conditional-grid{display:grid;grid-template-columns:minmax(250px,.8fr) minmax(0,1.7fr);gap:16px;align-items:stretch}
+  .conditional-controls,.conditional-visual{border:1px solid var(--line2);border-radius:12px;padding:16px;background:#F8FAFC}
+  .conditional-controls h3,.conditional-visual h3{margin:0 0 12px;font-size:18px}
+  .conditional-choice{display:grid;gap:8px;margin-bottom:14px}
+  .conditional-choice label{font-weight:800;color:#334155}
+  .conditional-choice select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;font-size:16px;font-weight:700;color:#172033}
+  .conditional-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .conditional-actions button{background:#CCFBF1;color:#115E59}
+  .conditional-actions button.primary-cond{background:#0F766E;color:#fff}
+  .conditional-message{min-height:58px;padding:12px 14px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;font-size:17px;line-height:1.6}
+  .conditional-formula{margin-top:12px;direction:ltr;text-align:center;padding:14px;border-radius:12px;background:#F0FDFA;border:2px solid #99F6E4;font-size:21px;min-height:56px}
+  .conditional-general{margin-top:10px;padding:10px 12px;border-radius:10px;background:#ECFEFF;border:1px solid #A5F3FC;text-align:center;direction:ltr;font-size:18px}
+  .conditional-note{margin-top:10px;color:#64748b;font-size:14px;line-height:1.5}
+  .cond-dim{opacity:.16;filter:grayscale(.7);transition:.25s ease}
+  .cond-space{box-shadow:inset 0 0 0 4px rgba(20,184,166,.58);background:#F0FDFA !important;transition:.25s ease}
+  .cond-target{outline:4px solid #F59E0B !important;outline-offset:-4px;background:#FEF3C7 !important;opacity:1 !important;filter:none !important;position:relative;z-index:2}
+  .cond-denominator{outline:3px solid #14B8A6;outline-offset:2px}
+  @media (max-width:900px){.conditional-grid{grid-template-columns:1fr}}
+
   @media (max-width:1100px){
     .workspace{grid-template-columns:1fr}
     .hero-top{align-items:flex-start}
@@ -426,6 +458,7 @@
         <button id="percentBtn" class="convert" disabled>אחוזים</button>
         <button id="probBtn" class="convert prob" disabled>הסתברויות</button>
         <button id="vennBtn" class="venn-toggle" disabled>הצג דיאגרמת ון</button>
+        <button id="conditionalBtn" class="conditional-toggle" disabled>הצג הסתברות מותנית</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -513,6 +546,41 @@
       <span id="vennBLabel"><b>B</b></span>
     </div>
   </section>
+
+  <section id="conditionalPanel" class="conditional-panel" aria-label="מעבדת הסתברות מותנית">
+    <div class="conditional-head">
+      <div>
+        <h2>הסתברות מותנית — מצמצמים את מרחב המדגם</h2>
+        <p class="conditional-description">בוחרים מה ידוע, ואז בוחרים מה רוצים לבדוק. האפליקציה משאירה במוקד רק את מרחב המדגם החדש ומדגישה בתוכו את המאורע המבוקש.</p>
+      </div>
+      <button id="conditionalCloseBtn" class="conditional-close">הסתר</button>
+    </div>
+    <div class="conditional-grid">
+      <div class="conditional-controls">
+        <h3>בחרו שאלה</h3>
+        <div class="conditional-choice">
+          <label for="conditionSelect">ידוע ש...</label>
+          <select id="conditionSelect"></select>
+        </div>
+        <div class="conditional-choice">
+          <label for="targetSelect">מה ההסתברות ש...</label>
+          <select id="targetSelect"></select>
+        </div>
+        <div class="conditional-actions">
+          <button id="condCalcBtn" class="primary-cond">חישוב</button>
+          <button id="condResetBtn">איפוס</button>
+        </div>
+        <div class="conditional-note">צבע טורקיז = מרחב המדגם החדש (המכנה). צבע כתום = המקרים הרצויים בתוך התנאי (המונה).</div>
+      </div>
+      <div class="conditional-visual">
+        <h3 id="conditionalQuestion">שאלת הסתברות מותנית</h3>
+        <div id="conditionalMessage" class="conditional-message">בחרו תנאי ומאורע ולחצו על „חישוב”.</div>
+        <div id="conditionalFormula" class="conditional-formula">\(P(B\mid A)\)</div>
+        <div id="conditionalGeneral" class="conditional-general">\(P(B\mid A)=\frac{P(A\cap B)}{P(A)}\)</div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <div id="cellExplainer" class="cell-explainer" role="dialog" aria-live="polite" aria-label="פירוש התא">
@@ -1264,9 +1332,142 @@ function explainCell(id){
   }
 }
 
+
+
+let conditionalOpen = false;
+let conditionalStage = 1;
+
+const conditionalEvents = {
+  A:{symbol:'A', axis:'row', totalId:'gTotal', cells:['gStud','gNot']},
+  notA:{symbol:'\\overline{A}', axis:'row', totalId:'bTotal', cells:['bStud','bNot']},
+  B:{symbol:'B', axis:'col', totalId:'tStud', cells:['gStud','bStud']},
+  notB:{symbol:'\\overline{B}', axis:'col', totalId:'tNot', cells:['gNot','bNot']}
+};
+
+function conditionalLabels(){
+  const ex=example();
+  return {
+    A:ex.rows[0], notA:ex.rows[1], B:ex.cols[0], notB:ex.cols[1]
+  };
+}
+
+function populateConditionalSelectors(){
+  const labels=conditionalLabels();
+  const condition=document.getElementById('conditionSelect');
+  const target=document.getElementById('targetSelect');
+  const previousCondition=condition.value || 'A';
+  const previousTarget=target.value || 'B';
+  const entries=[['A',`A — ${labels.A}`],['notA',`A משלים — ${labels.notA}`],['B',`B — ${labels.B}`],['notB',`B משלים — ${labels.notB}`]];
+  condition.innerHTML=entries.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+  target.innerHTML=entries.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+  condition.value=entries.some(e=>e[0]===previousCondition)?previousCondition:'A';
+  target.value=entries.some(e=>e[0]===previousTarget)?previousTarget:'B';
+}
+
+function conditionalIntersectionCells(conditionKey,targetKey){
+  const c=new Set(conditionalEvents[conditionKey].cells);
+  return conditionalEvents[targetKey].cells.filter(id=>c.has(id));
+}
+
+function clearConditionalHighlight(){
+  tableCellIds.forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('cond-dim','cond-space','cond-target','cond-denominator');
+  });
+  ['rowGirls','rowBoys','rowTotal'].forEach(id=>document.getElementById(id)?.classList.remove('cond-space','cond-dim'));
+  ['row1Head','row2Head','col1Head','col2Head'].forEach(id=>document.getElementById(id)?.classList.remove('cond-space','cond-dim'));
+}
+
+function conditionalEventName(key){ return conditionalLabels()[key]; }
+
+function conditionalSymbol(key){ return conditionalEvents[key].symbol; }
+
+function renderConditional(){
+  if(!conditionalOpen) return;
+  clearConditionalHighlight();
+  const conditionKey=document.getElementById('conditionSelect').value;
+  const targetKey=document.getElementById('targetSelect').value;
+  const condition=conditionalEvents[conditionKey];
+  const target=conditionalEvents[targetKey];
+  const intersection=conditionalIntersectionCells(conditionKey,targetKey);
+  const v=example().values;
+  const denominator=Number(v[condition.totalId]);
+  const numerator=intersection.reduce((sum,id)=>sum+Number(v[id]),0);
+  const p=denominator ? numerator/denominator : 0;
+  const pct=Number((p*100).toFixed(1));
+  const decimal=Number(p.toFixed(3));
+  const cName=conditionalEventName(conditionKey);
+  const tName=conditionalEventName(targetKey);
+
+  document.getElementById('conditionalQuestion').textContent=`ידוע ש${cName}. מה ההסתברות ש${tName}?`;
+  if(conditionalStage>=2){
+    const keep=new Set([...condition.cells,condition.totalId]);
+    tableCellIds.forEach(id=>document.getElementById(id).classList.toggle('cond-dim',!keep.has(id)));
+    condition.cells.forEach(id=>document.getElementById(id).classList.add('cond-space'));
+    document.getElementById(condition.totalId).classList.add('cond-space','cond-denominator');
+    if(condition.axis==='row'){
+      const rowId=conditionKey==='A'?'rowGirls':'rowBoys';
+      document.getElementById(rowId).querySelector('th.row')?.classList.add('cond-space');
+      document.getElementById(conditionKey==='A'?'row2Head':'row1Head')?.classList.add('cond-dim');
+    }else{
+      document.getElementById(conditionKey==='B'?'col1Head':'col2Head')?.classList.add('cond-space');
+      document.getElementById(conditionKey==='B'?'col2Head':'col1Head')?.classList.add('cond-dim');
+    }
+  }
+  if(conditionalStage===3){
+    intersection.forEach(id=>document.getElementById(id).classList.add('cond-target'));
+  }
+
+  let message='';
+  let formula='';
+  if(conditionalStage===1){
+    message=`התנאי הוא „${cName}”. בשלב הבא נצמצם את מרחב המדגם ונשאיר רק את המקרים שמקיימים תנאי זה.`;
+    formula=`\\(\ ${conditionalSymbol(conditionKey)}\\)`;
+  }else if(conditionalStage===2){
+    message=`מרחב המדגם החדש מכיל רק ${denominator} מקרים: כל המקרים שבהם מתקיים „${cName}”. לכן ${denominator} יהיה המכנה.`;
+    formula=`\\(n(${conditionalSymbol(conditionKey)})=${denominator}\\)`;
+  }else{
+    message=`דרך החישוב: מצמצמים את מרחב המדגם ל־${denominator} המקרים שבהם מתקיים „${cName}”. מתוכם ${numerator} מקיימים גם את „${tName}”. לכן מחלקים ${numerator} ב־${denominator}.`;
+    formula=`\\(P(${conditionalSymbol(targetKey)}\\mid ${conditionalSymbol(conditionKey)})=\\frac{${numerator}}{${denominator}}=${decimal}=${pct}\\%\\)`;
+  }
+  document.getElementById('conditionalMessage').textContent=message;
+  document.getElementById('conditionalFormula').innerHTML=formula;
+  document.getElementById('conditionalGeneral').innerHTML=`\\(P(${conditionalSymbol(targetKey)}\\mid ${conditionalSymbol(conditionKey)})=\\frac{P(${conditionalSymbol(targetKey)}\\cap ${conditionalSymbol(conditionKey)})}{P(${conditionalSymbol(conditionKey)})}\\)`;
+  if(window.MathJax && MathJax.typesetPromise){
+    const nodes=['conditionalFormula','conditionalGeneral'].map(id=>document.getElementById(id));
+    MathJax.typesetClear(nodes); MathJax.typesetPromise(nodes);
+  }
+}
+
+function showConditional(){
+  if(current !== steps().length-1) return;
+  conditionalOpen=true;
+  conditionalStage=1;
+  closeCellExplainer();
+  populateConditionalSelectors();
+  document.getElementById('doneBanner').classList.remove('show');
+  document.getElementById('conditionalPanel').classList.add('show');
+  document.getElementById('conditionalBtn').textContent='הסתר הסתברות מותנית';
+  renderConditional();
+  document.getElementById('conditionalPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function hideConditional(){
+  conditionalOpen=false;
+  clearConditionalHighlight();
+  document.getElementById('conditionalPanel').classList.remove('show');
+  document.getElementById('conditionalBtn').textContent='הצג הסתברות מותנית';
+  const completed = current === steps().length - 1;
+  document.getElementById('doneBanner').classList.toggle('show', completed);
+}
+
+function toggleConditional(){ conditionalOpen ? hideConditional() : showConditional(); }
+
+
 function loadExample(index){
   closeCellExplainer();
   hideVenn();
+  hideConditional();
   stopPlay();
   exampleIndex = (index + examples.length) % examples.length;
   current = 0;
@@ -1317,7 +1518,9 @@ function render(){
   document.getElementById('probBtn').disabled = !completed;
   document.getElementById('freqBtn').disabled = !completed;
   document.getElementById('vennBtn').disabled = !completed;
+  document.getElementById('conditionalBtn').disabled = !completed;
   if(!completed && vennOpen) hideVenn();
+  if(!completed && conditionalOpen) hideConditional();
   if(!completed && tableMode !== 'frequency') restoreFrequencyTable();
 
   if(window.MathJax && MathJax.typesetPromise){
@@ -1344,7 +1547,7 @@ function stopPlay(){
   if(b) b.textContent = '▶ הפעלה';
 }
 function togglePlay(){ timer ? stopPlay() : startPlay(); }
-function reset(){ stopPlay(); hideVenn(); current = 0; restoreFrequencyTable(); render(); }
+function reset(){ stopPlay(); hideVenn(); hideConditional(); current = 0; restoreFrequencyTable(); render(); }
 
 function changeExample(delta){ loadExample(exampleIndex + delta); }
 
@@ -1357,6 +1560,13 @@ document.getElementById('probBtn').addEventListener('click',()=>setTableMode('pr
 document.getElementById('freqBtn').addEventListener('click',()=>setTableMode('frequency'));
 document.getElementById('vennBtn').addEventListener('click',toggleVenn);
 document.getElementById('vennCloseBtn').addEventListener('click',hideVenn);
+document.getElementById('conditionalBtn').addEventListener('click',toggleConditional);
+document.getElementById('conditionalCloseBtn').addEventListener('click',hideConditional);
+document.getElementById('conditionSelect').addEventListener('change',()=>{conditionalStage=1;renderConditional();});
+document.getElementById('targetSelect').addEventListener('change',()=>{conditionalStage=1;renderConditional();});
+document.getElementById('condCalcBtn').addEventListener('click',()=>{conditionalStage=3;renderConditional();});
+document.getElementById('condResetBtn').addEventListener('click',()=>{conditionalStage=1;document.getElementById('conditionSelect').value='A';document.getElementById('targetSelect').value='B';renderConditional();});
+
 const exampleSelect = document.getElementById('exampleSelect');
 examples.forEach((ex,i)=>{
   const opt=document.createElement('option');
