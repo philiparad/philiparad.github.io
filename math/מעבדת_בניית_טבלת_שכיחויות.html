@@ -62,7 +62,7 @@
   .hero-title h1{margin-bottom:6px}
   .hero-top .example-controls{margin-top:0;flex:0 1 auto}
   .table-actions{
-    display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+    display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-start;
     margin:0 0 12px;padding:10px;background:#F8FAFC;border:1px solid var(--line2);border-radius:10px;
   }
   .table-actions-label{font-size:14px;font-weight:800;color:var(--muted);margin-inline-end:2px}
@@ -106,8 +106,8 @@
   }
   button{
     border:0;
-    border-radius:11px;
-    padding:11px 16px;
+    border-radius:8px;
+    padding:9px 14px;
     font-size:16px;
     font-weight:700;
     cursor:pointer;
@@ -415,6 +415,30 @@
   .cond-space{box-shadow:inset 0 0 0 4px rgba(20,184,166,.58);background:#F0FDFA !important;transition:.25s ease}
   .cond-target{outline:4px solid #F59E0B !important;outline-offset:-4px;background:#FEF3C7 !important;opacity:1 !important;filter:none !important;position:relative;z-index:2}
   .cond-denominator{outline:3px solid #14B8A6;outline-offset:2px}
+  /* Probability tree connection */
+  .tree-toggle{background:#B45309;color:#fff}
+  .tree-panel{
+    display:none;margin-top:18px;background:var(--card);border:2px solid var(--line2);
+    border-radius:12px;padding:18px;box-shadow:0 3px 12px rgba(15,23,42,.04);
+  }
+  .tree-panel.show{display:block}
+  .tree-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+  .tree-head h2{margin:0;font-size:22px}
+  .tree-description{margin:5px 0 0;color:var(--muted);font-size:15px;line-height:1.55}
+  .tree-close{background:#f1f5f9;color:#334155;padding:8px 12px}
+  .tree-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px}
+  .tree-toolbar strong{color:#92400E}
+  .tree-order-btn{background:#FEF3C7;color:#92400E;border:1px solid #F59E0B}
+  .tree-order-btn.active{background:#B45309;color:#fff;border-color:#B45309}
+  #treeDiagram{width:100%;height:500px;direction:ltr;border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:#FCFCFD}
+  .tree-legend{margin-top:10px;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;font-size:14px;color:#475569}
+  .tree-legend span{display:inline-flex;align-items:center;gap:7px}
+  .tree-swatch{width:22px;height:4px;border-radius:3px;background:#B45309;display:inline-block}
+  .tree-swatch.second{background:#2563EB}
+  .tree-linked{outline:4px solid #F59E0B !important;outline-offset:-4px;background:#FEF3C7 !important;position:relative;z-index:3}
+  .tree-related{box-shadow:inset 0 0 0 4px rgba(245,158,11,.38)}
+  @media (max-width:900px){#treeDiagram{height:560px}.tree-toolbar{align-items:stretch}}
+
   @media (max-width:900px){.conditional-grid{grid-template-columns:1fr}}
 
   @media (max-width:1100px){
@@ -453,12 +477,12 @@
     <section class="panel">
       <h2 id="tableTitle">טבלה בסיסית — שכיחויות</h2>
       <div class="table-actions" aria-label="פעולות על הטבלה">
-        <span class="table-actions-label">תצוגת הטבלה:</span>
         <button id="freqBtn" class="convert" disabled>שכיחויות</button>
         <button id="percentBtn" class="convert" disabled>אחוזים</button>
         <button id="probBtn" class="convert prob" disabled>הסתברויות</button>
         <button id="vennBtn" class="venn-toggle" disabled>הצג דיאגרמת ון</button>
         <button id="conditionalBtn" class="conditional-toggle" disabled>הצג הסתברות מותנית</button>
+        <button id="treeBtn" class="tree-toggle" disabled>הצג עץ הסתברויות</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -578,6 +602,28 @@
         <div id="conditionalFormula" class="conditional-formula">\(P(B\mid A)\)</div>
         <div id="conditionalGeneral" class="conditional-general">\(P(B\mid A)=\frac{P(A\cap B)}{P(A)}\)</div>
       </div>
+    </div>
+  </section>
+
+  <section id="treePanel" class="tree-panel" aria-label="עץ הסתברויות המקושר לטבלה">
+    <div class="tree-head">
+      <div>
+        <h2>אותם נתונים — עץ הסתברויות</h2>
+        <p class="tree-description">אותה טבלה נבנית כעץ. אפשר להתחיל ב־A או ב־B; שינוי סדר הפיצול משנה את ההסתברויות המותנות שעל הענפים, אך ארבעת העלים הסופיים נשארים אותם ארבעת תאי החיתוך.</p>
+      </div>
+      <button id="treeCloseBtn" class="tree-close">הסתר עץ</button>
+    </div>
+    <div class="tree-toolbar" aria-label="בחירת סדר עץ">
+      <strong>סדר הפיצול:</strong>
+      <button id="treeAFirstBtn" class="tree-order-btn active" type="button">תחילה A, אחר כך B</button>
+      <button id="treeBFirstBtn" class="tree-order-btn" type="button">תחילה B, אחר כך A</button>
+      <span id="treeOrderExplanation">הפיצול הראשון משתמש בהסתברויות של A ו־Ā; הפיצול השני משתמש בהסתברויות מותנות של B.</span>
+    </div>
+    <div id="treeDiagram"></div>
+    <div class="tree-legend">
+      <span><i class="tree-swatch"></i> ענף ראשון: הסתברות מתוך כל האוכלוסייה</span>
+      <span><i class="tree-swatch second"></i> ענף שני: הסתברות מותנית</span>
+      <span>💡 לחצו על ענף או עלה כדי להדגיש את התא/ים המקבילים בטבלה.</span>
     </div>
   </section>
 
@@ -1071,6 +1117,7 @@ function setTableMode(mode){
   });
   title.textContent = mode === 'percent' ? 'טבלת אחוזים' : mode === 'probability' ? 'טבלת הסתברויות' : 'טבלה בסיסית — שכיחויות';
   updateVennValues();
+  if(treeOpen) buildProbabilityTree();
 }
 
 function restoreFrequencyTable(){
@@ -1081,6 +1128,7 @@ function restoreFrequencyTable(){
     el.textContent = el.dataset.frequency;
   });
   updateVennValues();
+  if(treeOpen) buildProbabilityTree();
 }
 
 let vennDraw = null;
@@ -1309,6 +1357,7 @@ function explainCell(id){
   document.querySelectorAll('.cell.selected-cell').forEach(x=>x.classList.remove('selected-cell'));
   el.classList.add('selected-cell');
   highlightVennByCell(id);
+  highlightTreeByCell(id);
 
   document.getElementById('cellExplainerTitle').textContent = info.label;
   document.getElementById('cellExplainerText').textContent =
@@ -1463,11 +1512,179 @@ function hideConditional(){
 
 function toggleConditional(){ conditionalOpen ? hideConditional() : showConditional(); }
 
+let treeOpen=false;
+let treeOrder='A';
+let treeDraw=null;
+let treeVisuals={};
+
+function clearTreeTableHighlight(){
+  tableCellIds.forEach(id=>document.getElementById(id)?.classList.remove('tree-linked','tree-related'));
+}
+
+function treeDisplayCount(id){ return Number(example().values[id]); }
+function treeFrac(num,den){
+  if(!den) return '0';
+  const d=Number((num/den).toFixed(3));
+  return `${num}/${den} = ${d}`;
+}
+
+function treeIdsForSelection(id){ return vennAtomicMap[id] || [id]; }
+
+function setTreeVisualActive(id,active,strong=false){
+  const arr=treeVisuals[id] || [];
+  arr.forEach(v=>{
+    if(v.line) v.line.stroke({color:active ? (strong?'#D97706':'#F59E0B') : v.baseColor,width:active ? 7 : v.baseWidth});
+    if(v.node) v.node.stroke({color:active?'#D97706':v.baseColor,width:active?4:2});
+    if(v.group) v.group.opacity(active?1:.9);
+  });
+}
+
+function clearTreeVisualHighlight(){
+  Object.keys(treeVisuals).forEach(id=>setTreeVisualActive(id,false));
+  clearTreeTableHighlight();
+}
+
+function highlightTreeByCell(id){
+  if(!treeOpen || !treeDraw) return;
+  clearTreeVisualHighlight();
+  const atomic=new Set(treeIdsForSelection(id));
+  atomic.forEach(a=>setTreeVisualActive(a,true,true));
+  // Highlight the matching first-level branch when the selected table cell is a marginal.
+  if(treeOrder==='A' && ['gTotal','bTotal'].includes(id)) setTreeVisualActive(id,true,true);
+  if(treeOrder==='B' && ['tStud','tNot'].includes(id)) setTreeVisualActive(id,true,true);
+}
+
+function highlightTableFromTree(id){
+  clearTreeTableHighlight();
+  const atoms=treeIdsForSelection(id);
+  atoms.forEach(a=>document.getElementById(a)?.classList.add(atoms.length===1?'tree-linked':'tree-related'));
+  if(['gTotal','bTotal','tStud','tNot','tTotal'].includes(id)) document.getElementById(id)?.classList.add('tree-linked');
+}
+
+function registerTreeVisual(id,obj){
+  if(!treeVisuals[id]) treeVisuals[id]=[];
+  treeVisuals[id].push(obj);
+}
+
+function addTreeBranch(x1,y1,x2,y2,id,label,probText,level){
+  const baseColor=level===1?'#B45309':'#2563EB';
+  const strokeWidth=4;
+  const line=treeDraw.line(x1,y1,x2,y2).stroke({color:baseColor,width:strokeWidth,linecap:'round',linejoin:'round'}).css('cursor','pointer');
+  const mx=(x1+x2)/2, my=(y1+y2)/2;
+  const nx=y2-y1, ny=-(x2-x1);
+  const len=Math.hypot(nx,ny) || 1;
+  const labelOffset=30;
+  const labelX=mx + (nx/len)*labelOffset;
+  const labelY=my + (ny/len)*labelOffset;
+  const g=treeDraw.group().css('cursor','pointer');
+  const box=g.rect(174,48).radius(9).center(labelX,labelY).fill('#fff').stroke({color:'#CBD5E1',width:1.5});
+  g.text(label).font({family:'Arial, sans-serif',size:14,weight:800}).fill('#172033').center(labelX,labelY-8);
+  g.text(probText).font({family:'Arial, sans-serif',size:12,weight:700}).fill('#475569').center(labelX,labelY+10);
+  const act=()=>{highlightTableFromTree(id); clearTreeVisualHighlight(); highlightTableFromTree(id); setTreeVisualActive(id,true,true);};
+  line.on('mouseenter',act); g.on('mouseenter',act);
+  const leave=()=>{clearTreeVisualHighlight(); const selected=document.querySelector('.cell.selected-cell'); if(selected) highlightTreeByCell(selected.id);};
+  line.on('mouseleave',leave); g.on('mouseleave',leave);
+  const click=()=>{highlightTableFromTree(id); setTreeVisualActive(id,true,true); if(document.getElementById(id) && !document.getElementById(id).classList.contains('hidden-cell')) explainCell(id);};
+  line.on('click',click); g.on('click',click);
+  registerTreeVisual(id,{line,group:g,baseColor,baseWidth:strokeWidth});
+}
+
+function addTreeLeaf(x,y,id,title){
+  const g=treeDraw.group().css('cursor','pointer');
+  const leafWidth=164, leafHeight=60;
+  const rect=g.rect(leafWidth,leafHeight).radius(11).center(x,y).fill('#fff').stroke({color:'#94A3B8',width:2});
+  g.text(title).font({family:'Arial, sans-serif',size:13,weight:800}).fill('#334155').center(x,y-12);
+  g.text(String(treeDisplayCount(id))).font({family:'Arial, sans-serif',size:19,weight:900}).fill('#111827').center(x,y+12);
+  const act=()=>{clearTreeVisualHighlight(); highlightTableFromTree(id); setTreeVisualActive(id,true,true);};
+  g.on('mouseenter',act);
+  g.on('mouseleave',()=>{clearTreeVisualHighlight(); const selected=document.querySelector('.cell.selected-cell'); if(selected) highlightTreeByCell(selected.id);});
+  g.on('click',()=>{act(); explainCell(id); document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'center'});});
+  registerTreeVisual(id,{node:rect,group:g,baseColor:'#94A3B8'});
+  return {left:x-leafWidth/2,right:x+leafWidth/2,top:y-leafHeight/2,bottom:y+leafHeight/2};
+}
+
+function buildProbabilityTree(){
+  const host=document.getElementById('treeDiagram');
+  if(!host || typeof SVG==='undefined') return;
+  host.innerHTML=''; treeVisuals={};
+  treeDraw=SVG().addTo(host).size('100%','100%').viewbox(0,0,1080,500);
+  const v=example().values, total=Number(v.tTotal);
+  const rootX=70, rootY=250, firstX=390, leafX=880;
+  const rootRadius=18, firstRadius=14, leafLeft=leafX-82;
+  let firstNode1Y, firstNode2Y;
+
+  treeDraw.text(`Ω = ${total}`).font({family:'Arial, sans-serif',size:16,weight:900}).fill('#172033').move(28,215);
+
+  if(treeOrder==='A'){
+    const yA=135,yNotA=365;
+    firstNode1Y = yA; firstNode2Y = yNotA;
+    addTreeBranch(rootX,rootY,firstX,yA,'gTotal',`A — ${example().rows[0]}`,treeFrac(v.gTotal,total),1);
+    addTreeBranch(rootX,rootY,firstX,yNotA,'bTotal',`Ā — ${example().rows[1]}`,treeFrac(v.bTotal,total),1);
+    addTreeBranch(firstX,yA,leafLeft,70,'gStud',`B — ${example().cols[0]}`,treeFrac(v.gStud,v.gTotal),2);
+    addTreeBranch(firstX,yA,leafLeft,200,'gNot',`B̄ — ${example().cols[1]}`,treeFrac(v.gNot,v.gTotal),2);
+    addTreeBranch(firstX,yNotA,leafLeft,300,'bStud',`B — ${example().cols[0]}`,treeFrac(v.bStud,v.bTotal),2);
+    addTreeBranch(firstX,yNotA,leafLeft,430,'bNot',`B̄ — ${example().cols[1]}`,treeFrac(v.bNot,v.bTotal),2);
+    addTreeLeaf(leafX,70,'gStud','A ∩ B');
+    addTreeLeaf(leafX,200,'gNot','A ∩ B̄');
+    addTreeLeaf(leafX,300,'bStud','Ā ∩ B');
+    addTreeLeaf(leafX,430,'bNot','Ā ∩ B̄');
+  }else{
+    const yB=135,yNotB=365;
+    firstNode1Y = yB; firstNode2Y = yNotB;
+    addTreeBranch(rootX,rootY,firstX,yB,'tStud',`B — ${example().cols[0]}`,treeFrac(v.tStud,total),1);
+    addTreeBranch(rootX,rootY,firstX,yNotB,'tNot',`B̄ — ${example().cols[1]}`,treeFrac(v.tNot,total),1);
+    addTreeBranch(firstX,yB,leafLeft,70,'gStud',`A — ${example().rows[0]}`,treeFrac(v.gStud,v.tStud),2);
+    addTreeBranch(firstX,yB,leafLeft,200,'bStud',`Ā — ${example().rows[1]}`,treeFrac(v.bStud,v.tStud),2);
+    addTreeBranch(firstX,yNotB,leafLeft,300,'gNot',`A — ${example().rows[0]}`,treeFrac(v.gNot,v.tNot),2);
+    addTreeBranch(firstX,yNotB,leafLeft,430,'bNot',`Ā — ${example().rows[1]}`,treeFrac(v.bNot,v.tNot),2);
+    addTreeLeaf(leafX,70,'gStud','A ∩ B');
+    addTreeLeaf(leafX,200,'bStud','Ā ∩ B');
+    addTreeLeaf(leafX,300,'gNot','A ∩ B̄');
+    addTreeLeaf(leafX,430,'bNot','Ā ∩ B̄');
+  }
+
+  treeDraw.circle(firstRadius*2).center(firstX,firstNode1Y).fill('#B45309').front();
+  treeDraw.circle(firstRadius*2).center(firstX,firstNode2Y).fill('#B45309').front();
+  treeDraw.circle(rootRadius*2).center(rootX,rootY).fill('#172033').front();
+
+  const selected=document.querySelector('.cell.selected-cell');
+  if(selected) highlightTreeByCell(selected.id);
+}
+
+function setTreeOrder(order){
+  treeOrder=order;
+  document.getElementById('treeAFirstBtn').classList.toggle('active',order==='A');
+  document.getElementById('treeBFirstBtn').classList.toggle('active',order==='B');
+  document.getElementById('treeOrderExplanation').textContent=order==='A'
+    ? 'הפיצול הראשון משתמש בהסתברויות של A ו־Ā; הפיצול השני משתמש בהסתברויות המותנות של B בתוך כל ענף.'
+    : 'הפיצול הראשון משתמש בהסתברויות של B ו־B̄; הפיצול השני משתמש בהסתברויות המותנות של A בתוך כל ענף.';
+  if(treeOpen) buildProbabilityTree();
+}
+
+function showTree(){
+  if(current!==steps().length-1) return;
+  treeOpen=true; closeCellExplainer();
+  document.getElementById('doneBanner').classList.remove('show');
+  document.getElementById('treePanel').classList.add('show');
+  document.getElementById('treeBtn').textContent='הסתר עץ הסתברויות';
+  setTreeOrder(treeOrder);
+  document.getElementById('treePanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function hideTree(){
+  treeOpen=false; clearTreeVisualHighlight();
+  document.getElementById('treePanel').classList.remove('show');
+  document.getElementById('treeBtn').textContent='הצג עץ הסתברויות';
+  const completed=current===steps().length-1;
+  document.getElementById('doneBanner').classList.toggle('show',completed);
+}
+function toggleTree(){treeOpen?hideTree():showTree();}
+
 
 function loadExample(index){
   closeCellExplainer();
   hideVenn();
   hideConditional();
+  hideTree();
   stopPlay();
   exampleIndex = (index + examples.length) % examples.length;
   current = 0;
@@ -1519,8 +1736,10 @@ function render(){
   document.getElementById('freqBtn').disabled = !completed;
   document.getElementById('vennBtn').disabled = !completed;
   document.getElementById('conditionalBtn').disabled = !completed;
+  document.getElementById('treeBtn').disabled = !completed;
   if(!completed && vennOpen) hideVenn();
   if(!completed && conditionalOpen) hideConditional();
+  if(!completed && treeOpen) hideTree();
   if(!completed && tableMode !== 'frequency') restoreFrequencyTable();
 
   if(window.MathJax && MathJax.typesetPromise){
@@ -1547,7 +1766,7 @@ function stopPlay(){
   if(b) b.textContent = '▶ הפעלה';
 }
 function togglePlay(){ timer ? stopPlay() : startPlay(); }
-function reset(){ stopPlay(); hideVenn(); hideConditional(); current = 0; restoreFrequencyTable(); render(); }
+function reset(){ stopPlay(); hideVenn(); hideConditional(); hideTree(); current = 0; restoreFrequencyTable(); render(); }
 
 function changeExample(delta){ loadExample(exampleIndex + delta); }
 
@@ -1562,6 +1781,10 @@ document.getElementById('vennBtn').addEventListener('click',toggleVenn);
 document.getElementById('vennCloseBtn').addEventListener('click',hideVenn);
 document.getElementById('conditionalBtn').addEventListener('click',toggleConditional);
 document.getElementById('conditionalCloseBtn').addEventListener('click',hideConditional);
+document.getElementById('treeBtn').addEventListener('click',toggleTree);
+document.getElementById('treeCloseBtn').addEventListener('click',hideTree);
+document.getElementById('treeAFirstBtn').addEventListener('click',()=>setTreeOrder('A'));
+document.getElementById('treeBFirstBtn').addEventListener('click',()=>setTreeOrder('B'));
 document.getElementById('conditionSelect').addEventListener('change',()=>{conditionalStage=1;renderConditional();});
 document.getElementById('targetSelect').addEventListener('change',()=>{conditionalStage=1;renderConditional();});
 document.getElementById('condCalcBtn').addEventListener('click',()=>{conditionalStage=3;renderConditional();});
