@@ -1,4 +1,4 @@
-import { el,btn } from './ui.js?v=20261005-speed';
+import { el,btn } from './ui.js?v=20261005-cache';
 export const FILL_TYPES=new Set(['shape','rectangle','ellipse','triangle','polygon','note']);
 export function hsvHex(h,s,v){const f=n=>{const k=(n+h/60)%6;return Math.round(255*(v-v*s*Math.max(0,Math.min(k,4-k,1)))).toString(16).padStart(2,'0');};return '#'+f(5)+f(3)+f(1);}
 export function hexHsv(hex){const [r,g,b]=hex.slice(1).match(/../g).map(x=>parseInt(x,16)/255),max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;let h=!d?0:max===r?60*(((g-b)/d)%6):max===g?60*((b-r)/d+2):60*((r-g)/d+4);return [(h+360)%360,max?d/max:0,max];}

@@ -167,3 +167,36 @@ test('speed mode supports mouse, touch and stylus taps but excludes patterned in
   assert.equal(e.board.items.at(-1).pressures,undefined);
  }
 });
+
+test('full redraw reuses 1,000 unchanged object nodes during pan, zoom and selection',()=>{
+ const e=fixture(1000),before=e.board.items.map(i=>object(e,i.id));
+ e.board.viewport={x:-150,y:30,zoom:2};e.selected.add('object-2');e.paint();
+ e.board.items.forEach((i,k)=>assert.equal(object(e,i.id),before[k]));
+ assert.equal(e.renderCache.entries.size,1000);
+ const changed=e.board.items[2];changed.stroke='#ff0000';e.paint();
+ assert.notEqual(object(e,changed.id),before[2]);
+ assert.equal(object(e,'object-3'),before[3]);
+ const moved=object(e,changed.id),child=moved.children[0];changed.x=88;changed.rotation=30;changed.opacity=.4;e.paint();
+ assert.equal(object(e,changed.id),moved);assert.equal(moved.children[0],child);
+ assert.equal(moved.getAttribute('transform'),'translate(88 20) rotate(30 25 20)');
+ assert.equal(moved.getAttribute('opacity'),'0.4');
+});
+test('cached rendering detects in-place geometry edits and keeps export independent',()=>{
+ const e=fixture(0),curve={id:'curve-cache',type:'curve',x:0,y:0,w:100,h:100,points:[[0,0],[50,100],[100,0]],stroke:'#123456',lineWidth:3};
+ e.board.items=[curve];e.paint();const original=object(e,curve.id),d=original.children[0].getAttribute('d');
+ curve.points[1][1]=40;e.paint();const edited=object(e,curve.id);
+ assert.notEqual(edited,original);assert.notEqual(edited.children[0].getAttribute('d'),d);
+ const exported=walk(sceneSVG(e.board)).find(n=>n.getAttribute('data-id')===curve.id);
+ assert.notEqual(exported,edited);assert.equal(exported.children[0].getAttribute('d'),edited.children[0].getAttribute('d'));
+ e.commit();e.board.items=[];e.commit();assert.equal(e.renderCache.entries.size,0);
+ e.undo();assert.ok(object(e,curve.id));e.redo();assert.equal(e.renderCache.entries.size,0);
+});
+test('cache avoids repeated pressure geometry generation and preserves stacking order',async()=>{
+ const {RenderCache}=await import('../js/render-cache.js');const {drawItem}=await import('../js/scene.js');
+ let calls=0;const cache=new RenderCache(item=>{calls++;return drawItem(item);});
+ const item={id:'ink-cache',type:'path',x:0,y:0,w:100,h:10,points:[[0,0],[100,10]],pressures:[.2,.8],rawPoints:[[0,0],[100,10]],rawPressures:[.2,.8],lineWidth:8};
+ const node=cache.draw(item);for(let k=0;k<50;k++){item.x=k;assert.equal(cache.draw(item),node);}assert.equal(calls,1);
+ item.pressures[1]=.4;assert.notEqual(cache.draw(item),node);assert.equal(calls,2);
+ const e=fixture(3);e.board.items.reverse();e.paint();assert.deepEqual(walk(e.svg).filter(n=>n.hasAttribute('data-id')).map(n=>n.getAttribute('data-id')),['object-2','object-1','object-0']);
+ cache.clear();assert.equal(cache.entries.size,0);
+});
