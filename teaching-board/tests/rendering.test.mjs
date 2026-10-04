@@ -99,3 +99,40 @@ test('finishing ink preserves the live stroke in board coordinates and keeps raw
  assert.equal(item.rawPoints.length,raw.length);validateBoard(e.board);
  e.undo();e.redo();assert.deepEqual(e.board.items.at(-1),item);
 });
+
+test('stylus pressure survives smoothing, history, duplication and export',async()=>{
+ const {resmoothPressure}=await import('../js/pressure.js');
+ const e=fixture();e.penDynamics='pressure';
+ const pen=(x,y,p)=>({...pointer(e,x,y),pointerType:'pen',pressure:p});
+ e.pointerDown(pen(100,100,.1));
+ for(let x=101;x<=180;x++)e.pointerMove(pen(x,110+Math.sin(x/8)*15,(x-100)/80));
+ e.pointerUp(pen(185,120,0));
+ const item=e.board.items.at(-1);
+ assert.equal(item.rawPressures.at(-1),1);assert.equal(item.rawPressures[0],.1);
+ assert.equal(item.pressures.length,item.points.length);assert.equal(item.rawPressures.length,item.rawPoints.length);
+ assert.ok(Math.max(...item.pressures)-Math.min(...item.pressures)>.8);validateBoard(e.board);
+ const exported=walk(sceneSVG(e.board)).find(n=>n.hasAttribute('data-pressure-ink'));
+ assert.ok(exported);assert.equal(exported.getAttribute('fill-rule'),'nonzero');
+ assert.ok(!/NaN|Infinity/.test(exported.getAttribute('d')));
+ e.undo();e.redo();assert.deepEqual(e.board.items.at(-1),item);
+ e.selected=new Set([item.id]);e.duplicate();assert.deepEqual(e.board.items.at(-1).pressures,item.pressures);
+ for(const strength of [0,.35,.65,.85]){resmoothPressure(item,strength);validateBoard(e.board);assert.equal(item.points.length,item.pressures.length);}
+ const copy=JSON.parse(JSON.stringify(e.board));validateBoard(copy);
+ copy.items.at(-1).pressures.pop();assert.throws(()=>validateBoard(copy),/pressure/);
+});
+test('pressure is opt-in for solid stylus ink, including taps',()=>{
+ for(const [dynamics,pointerType,tool,lineStyle]of [['fixed','pen','pen','solid'],['pressure','mouse','pen','solid'],['pressure','touch','pen','solid'],['pressure','pen','highlighter','solid'],['pressure','pen','pen','dashed'],['pressure','pen','pen','solid']]){
+  const e=fixture();e.penDynamics=dynamics;e.tool=tool;e.lineStyle=lineStyle;
+  const event={...pointer(e,20,20),pointerType,pressure:.8};e.pointerDown(event);e.pointerUp({...event,pressure:0});
+  const item=e.board.items.at(-1),enabled=dynamics==='pressure'&&pointerType==='pen'&&tool==='pen'&&lineStyle==='solid';
+  assert.equal(!!item.pressures,enabled);assert.equal(walk(sceneSVG(e.board)).some(n=>n.hasAttribute('data-pressure-ink')),enabled);
+  if(enabled){assert.deepEqual(item.pressures,[.8]);validateBoard(e.board);}
+ }
+});
+test('pressure geometry handles coincident points and reversals without invalid paths',async()=>{
+ const {pressurePathD,pressureRadius,penPressure}=await import('../js/pressure.js');
+ assert.equal(pressureRadius(4,.5),2);assert.ok(pressureRadius(4,1)>pressureRadius(4,.1));
+ assert.equal(penPressure({pressure:0},.7),.7);
+ const d=pressurePathD([[0,0],[0,0],[1,0],[0,0],[0,50]],[0,1,.5,.8,.1],20);
+ assert.ok(d.length>0);assert.ok(!/NaN|Infinity/.test(d));
+});

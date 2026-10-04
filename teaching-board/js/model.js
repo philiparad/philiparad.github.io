@@ -1,6 +1,6 @@
-import { SHAPES } from './shapes.js?v=20260930-shapes';
-import { LINE_STYLES } from './line-style.js?v=20260930-shapes';
-import { validCrop } from './crop-editor.js?v=20260930-shapes';
+import { SHAPES } from './shapes.js?v=20261005-pressure';
+import { LINE_STYLES } from './line-style.js?v=20261005-pressure';
+import { validCrop } from './crop-editor.js?v=20261005-pressure';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -41,6 +41,11 @@ export function validateBoard(value) {
     if (['curve','path','polygon','line','arrow'].includes(item.type) && (!Array.isArray(item.points) || item.points.length > 50000 || item.points.some(p => !Array.isArray(p) || p.length !== 2 || !p.every(n => Number.isFinite(n) && Math.abs(n) < 1e7)))) throw new Error('Invalid path.');
     if(item.type==='curve'&&item.points.length<2)throw new Error('A curve needs two anchors.');
     if (item.rawPoints !== undefined && (item.type !== 'path' || !Array.isArray(item.rawPoints) || item.rawPoints.length > 50000 || item.rawPoints.some(p => !Array.isArray(p) || p.length !== 2 || !p.every(n => Number.isFinite(n) && Math.abs(n) < 1e7)))) throw new Error('Invalid raw ink path.');
+    if(item.pressures!==undefined||item.rawPressures!==undefined){
+      for(const [key,points]of [['pressures',item.points],['rawPressures',item.rawPoints]]){
+        if(item.type!=='path'||!Array.isArray(points)||!points.length||!Array.isArray(item[key])||item[key].length!==points.length||item[key].some(p=>!Number.isFinite(p)||p<0||p>1))throw new Error('Invalid pen pressure.');
+      }
+    }
     if (['text','note'].includes(item.type) && (typeof item.text !== 'string' || item.text.length > 10000)) throw new Error('Invalid text.');
     if (['image','equation','graph'].includes(item.type) && (typeof item.src !== 'string' || !/^data:image\/(png|jpeg|webp);base64,[a-zA-Z0-9+/=]+$/.test(item.src))) throw new Error('Unsupported image content.');
     if (['equation','graph'].includes(item.type) && (typeof item.source !== 'string' || item.source.length > (item.type==='graph'?4000:2000))) throw new Error('Invalid mathematical source.');

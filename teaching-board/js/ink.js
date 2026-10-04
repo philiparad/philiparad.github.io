@@ -122,27 +122,29 @@ function correctSample(samples,i,strength,zoom){
 // Only the recent tail needs future samples; earlier points remain fixed.
 // The endpoint stays at the pointer and finish never refits the whole stroke.
 export class IncrementalInk {
-  constructor(point,strength=.65,zoom=1){
+  constructor(point,strength=.65,zoom=1,pressure){
     this.strength=strength;this.zoom=zoom;this.step=1.25/zoom;
     this.remaining=this.step;this.last=[...point];this.samples=[[...point]];
+    this.pressures=pressure===undefined?null:[pressure];this.samplePressures=pressure===undefined?null:[pressure];this.lastPressure=pressure;
     this.points=[[...point]];this.radius=2+Math.round(strength*2);
   }
-  add(point){
+  add(point,pressure=this.lastPressure){
+    let ap=this.lastPressure,bp=pressure;
     let a=this.last,b=[...point],length=Math.hypot(b[0]-a[0],b[1]-a[1]);
     if(length<=1e-6)return this.points;
-    if(this.strength<=0){this.points.push(b);this.last=b;return this.points;}
+    if(this.strength<=0){this.points.push(b);if(this.pressures)this.pressures.push(bp);this.lastPressure=bp;this.last=b;return this.points;}
     const from=Math.max(0,this.samples.length-this.radius-2);
     while(length>=this.remaining){
       const t=this.remaining/length;
       a=[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])];
-      this.samples.push(a);length-=this.remaining;this.remaining=this.step;
+      this.samples.push(a);if(this.samplePressures){ap+=t*(bp-ap);this.samplePressures.push(ap);}length-=this.remaining;this.remaining=this.step;
     }
-    this.remaining-=length;this.last=b;
+    this.remaining-=length;this.last=b;this.lastPressure=bp;
     const tail=this.samples.at(-1),extra=Math.hypot(b[0]-tail[0],b[1]-tail[1])>1e-6;
-    if(extra)this.samples.push(b);
-    this.points.length=this.samples.length;
-    for(let i=from;i<this.samples.length;i++)this.points[i]=correctSample(this.samples,i,this.strength,this.zoom);
-    if(extra)this.samples.pop();
+    if(extra){this.samples.push(b);if(this.samplePressures)this.samplePressures.push(bp);}
+    this.points.length=this.samples.length;if(this.pressures)this.pressures.length=this.samples.length;
+    for(let i=from;i<this.samples.length;i++){this.points[i]=correctSample(this.samples,i,this.strength,this.zoom);if(this.pressures)this.pressures[i]=this.samplePressures[i];}
+    if(extra){this.samples.pop();this.samplePressures?.pop();}
     return this.points;
   }
   finish(){return this.points.map(p=>[...p]);}

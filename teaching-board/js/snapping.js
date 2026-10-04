@@ -1,4 +1,4 @@
-import { bounds } from './scene.js?v=20260930-shapes';
+import { bounds } from './scene.js?v=20261005-pressure';
 export function snapPoint(point,board,exclude=new Set(),mode='both',anchors=null){
  if(mode==='off')return {...point,guides:[]};
  const tolerance=7/board.viewport.zoom,targets={x:[],y:[]};
