@@ -1,6 +1,6 @@
-import { SHAPES } from './shapes.js?v=20261005-pressure';
-import { LINE_STYLES } from './line-style.js?v=20261005-pressure';
-import { validCrop } from './crop-editor.js?v=20261005-pressure';
+import { SHAPES } from './shapes.js?v=20261005-speed';
+import { LINE_STYLES } from './line-style.js?v=20261005-speed';
+import { validCrop } from './crop-editor.js?v=20261005-speed';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {

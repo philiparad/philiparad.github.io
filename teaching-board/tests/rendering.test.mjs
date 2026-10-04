@@ -136,3 +136,34 @@ test('pressure geometry handles coincident points and reversals without invalid 
  const d=pressurePathD([[0,0],[0,0],[1,0],[0,0],[0,50]],[0,1,.5,.8,.1],20);
  assert.ok(d.length>0);assert.ok(!/NaN|Infinity/.test(d));
 });
+
+test('speed ink integrates with coalesced input, resmoothing, backups and history',async()=>{
+ const {serializeBackup,parseBackup}=await import('../js/model.js');
+ const {resmoothPressure}=await import('../js/pressure.js');
+ const e=fixture();e.penDynamics='speed';
+ const event=(x,t)=>({...pointer(e,x,100),timeStamp:t,pointerType:'mouse',pressure:.5});
+ e.pointerDown(event(100,0));
+ const samples=[];
+ for(let k=1;k<=20;k++)samples.push(event(100+k,k*20));
+ for(let k=1;k<=20;k++)samples.push(event(120+k*20,400+k*10));
+ e.pointerMove({...samples.at(-1),getCoalescedEvents:()=>samples});
+ const live=[...e.draft.pressures];e.pointerUp(event(520,600));
+ const item=e.board.items.at(-1);assert.deepEqual(item.pressures,live);
+ assert.ok(item.rawPressures[20]>item.rawPressures.at(-1)+.2);
+ assert.equal(item.rawPoints.length,41);validateBoard(e.board);
+ e.undo();e.redo();assert.deepEqual(e.board.items.at(-1),item);
+ const restored=parseBackup(serializeBackup(e.board));assert.deepEqual(restored.items.at(-1).pressures,item.pressures);
+ for(const strength of [0,.35,.85]){resmoothPressure(item,strength);validateBoard({...e.board,items:[item]});}
+ assert.ok(walk(sceneSVG({...e.board,items:[item]})).some(n=>n.hasAttribute('data-pressure-ink')));
+});
+test('speed mode supports mouse, touch and stylus taps but excludes patterned ink and highlighter',()=>{
+ for(const pointerType of ['mouse','touch','pen']){
+  const e=fixture();e.penDynamics='speed';const event={...pointer(e,20,20),pointerType};
+  e.pointerDown(event);e.pointerUp(event);assert.deepEqual(e.board.items.at(-1).pressures,[.5]);
+ }
+ for(const [tool,lineStyle]of [['highlighter','solid'],['pen','dashed']]){
+  const e=fixture();e.penDynamics='speed';e.tool=tool;e.lineStyle=lineStyle;
+  e.pointerDown(pointer(e,20,20));e.pointerMove(pointer(e,100,50));e.pointerUp(pointer(e,100,50));
+  assert.equal(e.board.items.at(-1).pressures,undefined);
+ }
+});
