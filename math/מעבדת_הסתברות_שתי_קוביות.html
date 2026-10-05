@@ -779,6 +779,7 @@
 <button class="tab" data-tab="conditional" type="button">הסתברות מותנית</button>
 <button class="tab" data-tab="exclusive" type="button">מאורעות זרים</button>
 <button class="tab" data-tab="multiplication" type="button">כפל הסתברויות</button>
+<button class="tab" data-tab="addition" type="button">חיבור הסתברויות</button>
 <button class="tab" data-tab="twoway" type="button">טבלה דו-ממדית</button>
 <button class="tab" data-tab="simulation" type="button">סימולציה</button>
 </nav>
@@ -854,20 +855,52 @@
 <section aria-labelledby="title-addition" class="panel" data-panel="addition" id="panel-addition">
 <div class="panel-header">
 <div>
-<h2 id="title-addition">כלל החיבור</h2>
-<p>כאשר מחברים את \(P(A)\) ואת \(P(B)\), התוצאות המשותפות נספרות פעמיים. לכן מחסירים אותן פעם אחת.</p>
+<h2 id="title-addition">חיבור הסתברויות - שתי קוביות</h2>
 </div>
 </div>
-<div class="formula-box" id="addition-formula"></div>
+<div class="controls">
+<div class="control">
+<label for="addition-a">מאורע A</label>
+<select id="addition-a"></select>
+</div>
+<div class="control">
+<label for="addition-b">מאורע B</label>
+<select id="addition-b"></select>
+</div>
+</div>
 <div class="learning-note">
-<strong>כלל קצר לזכירה</strong>
-      או ⇐ מחברים את שתי ההסתברויות ומחסירים פעם אחת את החלק המשותף.
-    </div>
-<div class="stats">
-<div class="stat"><div class="label">תוצאות ב-A</div><div class="value" id="addition-a-count"></div></div>
-<div class="stat"><div class="label">תוצאות ב-B</div><div class="value" id="addition-b-count"></div></div>
-<div class="stat"><div class="label">תוצאות משותפות</div><div class="value" id="addition-both-count"></div></div>
+<strong>אותו רעיון — פעם בספירה ופעם בהסתברות</strong>
+      מחברים את מספר התוצאות של A ושל B. אם יש תוצאות משותפות, הן נספרו פעמיים — ולכן מחסירים את החיתוך פעם אחת.
+</div>
+<div class="multiplication-layout">
+<div class="multiplication-top-row">
+<div class="stats multiplication-stats">
+<div class="stat stat-a"><div class="label">תוצאות במאורע A</div><div class="value" id="addition-a-count"></div></div>
+<div class="stat stat-b"><div class="label">תוצאות במאורע B</div><div class="value" id="addition-b-count"></div></div>
+<div class="stat stat-both"><div class="label">תוצאות משותפות A וגם B</div><div class="value" id="addition-both-count"></div></div>
 <div class="stat"><div class="label">תוצאות ב-A או B</div><div class="value" id="addition-either-count"></div></div>
+</div>
+<div class="multiplication-main">
+<div class="legend" aria-label="מקרא צבעים">
+<span class="legend-item"><i class="swatch a"></i>A בלבד</span>
+<span class="legend-item"><i class="swatch b"></i>B בלבד</span>
+<span class="legend-item"><i class="swatch both"></i>A וגם B — נספר פעמיים בחיבור הראשוני</span>
+</div>
+<div class="board-stage">
+<div class="board-transform" data-scale="1" id="addition-board">
+<table aria-label="חיבור הסתברויות" class="sample-table" id="grid-addition"></table>
+</div>
+</div>
+</div>
+</div>
+<div class="multiplication-panels-row">
+<div class="formula-box multiplication-panel" id="addition-count-formula"></div>
+<div class="formula-box multiplication-panel" id="addition-formula"></div>
+<div class="learning-note multiplication-panel" id="addition-idea-box">
+<strong>מסקנה חזותית</strong>
+<div id="addition-idea-text"></div>
+</div>
+</div>
 </div>
 </section>
 <section aria-labelledby="title-conditional" class="panel" data-panel="conditional" id="panel-conditional">
@@ -1372,20 +1405,70 @@
     document.getElementById("compound-pb").textContent=fraction(cb,36);
     document.getElementById("compound-pboth").textContent=fraction(both,36);
     document.getElementById("compound-peither").textContent=fraction(either,36);
+    queueTypeset();
+  }
 
-    document.getElementById("addition-a-count").textContent=ca;
-    document.getElementById("addition-b-count").textContent=cb;
-    document.getElementById("addition-both-count").textContent=both;
-    document.getElementById("addition-either-count").textContent=either;
+  function updateAddition(){
+    const a=document.getElementById("addition-a").value;
+    const b=document.getElementById("addition-b").value;
+    const ca=countEvent(a), cb=countEvent(b), both=countBoth(a,b), either=countEither(a,b);
+
+    buildGrid("grid-addition",a,b,"normal");
+
+    document.getElementById("addition-a-count").textContent=String(ca);
+    document.getElementById("addition-b-count").textContent=String(cb);
+    document.getElementById("addition-both-count").textContent=String(both);
+    document.getElementById("addition-either-count").textContent=String(either);
+
+    const rawA="\\frac{"+ca+"}{36}";
+    const rawB="\\frac{"+cb+"}{36}";
+    const rawBoth="\\frac{"+both+"}{36}";
+    const rawEither="\\frac{"+either+"}{36}";
+
+    document.getElementById("addition-count-formula").innerHTML=
+      '<div class="multiplication-step-title">בספירה</div>'+ 
+      '<div class="multiplication-equation">'+
+        '<span class="part-a">\\('+ca+'\\)</span>'+ 
+        '<span class="op">+</span>'+ 
+        '<span class="part-b">\\('+cb+'\\)</span>'+ 
+        '<span class="op">−</span>'+ 
+        '<span class="part-both">\\('+both+'\\)</span>'+ 
+        '<span class="op">=</span>'+ 
+        '<span class="part-neutral">\\('+either+'\\)</span>'+ 
+      '</div>'+ 
+      '<div class="multiplication-subline">מחסירים את החיתוך פעם אחת, כי הוא נספר גם בתוך A וגם בתוך B.</div>'+ 
+      '<div class="multiplication-divider"></div>'+ 
+      '<div class="multiplication-step-title">התאמה להסתברות</div>'+ 
+      '<div class="multiplication-equation">'+
+        '<span class="part-a">\\('+rawA+'\\)</span>'+ 
+        '<span class="op">+</span>'+ 
+        '<span class="part-b">\\('+rawB+'\\)</span>'+ 
+        '<span class="op">−</span>'+ 
+        '<span class="part-both">\\('+rawBoth+'\\)</span>'+ 
+        '<span class="op">=</span>'+ 
+        '<span class="part-neutral">\\('+rawEither+'\\)</span>'+ 
+      '</div>'+ 
+      '<div class="multiplication-caption">אותם מספרים עוברים מהספירה ישירות לחישוב ההסתברות.</div>';
 
     document.getElementById("addition-formula").innerHTML=
-      "\\["+
-      "P(A\\,\\text{וא}\\,B)=P(A)+P(B)-P(A\\,\\text{םגו}\\,B)"+
-      "\\]"+
-      "\\["+
-      "="+texFraction(ca,36)+"+"+texFraction(cb,36)+"-"+texFraction(both,36)+
-      "="+texFraction(either,36)+
-      "\\]";
+      '<div class="multiplication-step-title">נוסחת החיבור</div>'+ 
+      '<div class="multiplication-equation"><span class="part-neutral">\\(P(A\\,\\text{וא}\\,B)=P(A)+P(B)-P(A\\,\\text{םגו}\\,B)\\)</span></div>'+ 
+      '<div class="multiplication-equation">'+
+        '<span class="part-neutral">\\(=\\)</span>'+ 
+        '<span class="part-a">\\('+rawA+'\\)</span>'+ 
+        '<span class="op">+</span>'+ 
+        '<span class="part-b">\\('+rawB+'\\)</span>'+ 
+        '<span class="op">−</span>'+ 
+        '<span class="part-both">\\('+rawBoth+'\\)</span>'+ 
+        '<span class="op">=</span>'+ 
+        '<span class="part-neutral">\\('+rawEither+'='+texFraction(either,36)+'\\)</span>'+ 
+      '</div>';
+
+    document.getElementById("addition-idea-text").innerHTML=
+      'כחול — A בלבד, כתום — B בלבד, סגול — החיתוך. '+
+      'אם מחברים '+ca+' ו-'+cb+', התאים הסגולים נספרים פעמיים. לכן מחסירים '+both+
+      ' פעם אחת ומקבלים '+either+' תוצאות שונות מתוך 36.';
+
     queueTypeset();
   }
 
@@ -1912,6 +1995,7 @@
 
     const allKeys=Object.keys(events);
     ["compound-a","compound-b","conditional-a","conditional-b",
+     "addition-a","addition-b",
      "exclusive-a","exclusive-b",
      "simulation-event"].forEach(id=>fillSelect(id,allKeys));
 
@@ -1926,6 +2010,8 @@
     document.getElementById("conditional-b").value="sumLe5";
     document.getElementById("mult-a").value="even1";
     document.getElementById("mult-b").value="gt4second";
+    document.getElementById("addition-a").value="sum7";
+    document.getElementById("addition-b").value="even1";
     document.getElementById("exclusive-a").value="odd1";
     document.getElementById("exclusive-b").value="even1";
     document.getElementById("twoway-row").value="even1";
@@ -1940,6 +2026,7 @@
     ["compound-a","compound-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateCompound));
     ["conditional-a","conditional-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateConditional));
     ["mult-a","mult-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateMultiplication));
+    ["addition-a","addition-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateAddition));
     ["exclusive-a","exclusive-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateExclusive));
     ["twoway-row","twoway-col"].forEach(id=>document.getElementById(id).addEventListener("change",updateTwoWay));
 
@@ -1963,6 +2050,7 @@
     updateCompound();
     updateConditional();
     updateMultiplication();
+    updateAddition();
     updateExclusive();
     updateTwoWay();
     updateSimulationDisplay();
