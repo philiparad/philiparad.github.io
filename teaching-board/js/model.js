@@ -1,6 +1,6 @@
-import { SHAPES } from './shapes.js?v=20261005-groups';
-import { LINE_STYLES } from './line-style.js?v=20261005-groups';
-import { validCrop } from './crop-editor.js?v=20261005-groups';
+import { SHAPES } from './shapes.js?v=20261005-connectors';
+import { LINE_STYLES } from './line-style.js?v=20261005-connectors';
+import { validCrop } from './crop-editor.js?v=20261005-connectors';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -20,10 +20,16 @@ export function validateBoard(value) {
   const v = value.viewport;
   if (!v || ![v.x, v.y, v.zoom].every(Number.isFinite) || v.zoom < .1 || v.zoom > 8) throw new Error('Invalid viewport.');
   if (!Array.isArray(value.items) || value.items.length > 20000) throw new Error('Invalid item collection.');
+  const targets=new Map(value.items.map(i=>[i?.id,i]));
   const ids = new Set();
   for (const item of value.items) {
     if (!item || typeof item.id !== 'string' || ids.has(item.id) || !ITEM_TYPES.has(item.type)) throw new Error('Invalid or duplicate board object.');
     ids.add(item.id);
+    if(item.links!==undefined){
+      if(!['line','arrow'].includes(item.type)||!item.links||typeof item.links!=='object'||Array.isArray(item.links)||!Array.isArray(item.points)||item.points.length!==2||item.rotation)throw new Error('Invalid connector.');
+      for(const end of ['start','end']){const id=item.links[end],target=targets.get(id);if(id!==null&&(typeof id!=='string'||!id.length||id.length>256||id===item.id||target&&['line','arrow'].includes(target.type)))throw new Error('Invalid connector target.');}
+      if(!item.links.start&&!item.links.end||item.links.start&&item.links.start===item.links.end)throw new Error('Invalid connector targets.');
+    }
     if(item.type==='shape'&&!SHAPES.has(item.shape))throw new Error('Unknown shape preset.');
     if (![item.x, item.y].every(n => Number.isFinite(n) && Math.abs(n) < 1e7)) throw new Error('Invalid object position.');
     for (const key of ['w', 'h', 'lineWidth', 'fontSize']) if (item[key] !== undefined && (!Number.isFinite(item[key]) || item[key] <= 0 || item[key] > 100000)) throw new Error('Invalid object size.');

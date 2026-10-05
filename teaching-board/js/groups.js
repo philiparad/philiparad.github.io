@@ -5,8 +5,9 @@ export function expandGroups(items,selected){
 }
 export function groupLocked(items,item){return !!item.locked||!!item.groupId&&items.some(i=>i.groupId===item.groupId&&i.locked);}
 export function copiedItems(items){
- const groups=new Map();return structuredClone(items).map(i=>{
+ const groups=new Map(),ids=new Map(items.map(i=>[i.id,crypto.randomUUID()]));return structuredClone(items).map(i=>{
+  if(i.links){i.links={start:ids.get(i.links.start)||null,end:ids.get(i.links.end)||null};if(!i.links.start&&!i.links.end)delete i.links;}
   if(i.groupId){if(!groups.has(i.groupId))groups.set(i.groupId,crypto.randomUUID());i.groupId=groups.get(i.groupId);}
-  return {...i,id:crypto.randomUUID(),x:i.x+30,y:i.y+30,locked:false};
+  return {...i,id:ids.get(i.id),x:i.x+30,y:i.y+30,locked:false};
  });
 }

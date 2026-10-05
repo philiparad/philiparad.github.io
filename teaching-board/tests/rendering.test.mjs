@@ -267,3 +267,27 @@ test('group rotation uses a shared center and sizing preserves relative position
  e.undo();e.selected=new Set(e.board.items.map(i=>i.id));e.scaleSelection(2,2,{x:0,y:20});
  assert.equal(e.board.items[0].w,100);assert.equal(e.board.items[1].x,36);
 });
+
+test('attached arrows update during object drag, restore through history and export',async()=>{
+ const {parseBackup,serializeBackup}=await import('../js/model.js');
+ const e=fixture(2);e.tool='select';e.board.items[1].x=300;e.selected=new Set(e.board.items.map(i=>i.id));e.connectSelection();
+ const id=e.board.items.at(-1).id,before=structuredClone(e.board.items.at(-1));assert.equal(before.links.start,'object-0');
+ e.selected.clear();e.paint();e.pointerDown({...pointer(e,10,30),target:object(e,'object-0')});e.pointerMove(pointer(e,110,80));nextFrame();
+ assert.notDeepEqual(e.board.items.at(-1).points,before.points);e.pointerUp(pointer(e,110,80));const moved=structuredClone(e.board.items.at(-1));
+ validateBoard(e.board);e.undo();assert.deepEqual(e.board.items.at(-1),before);e.redo();assert.deepEqual(e.board.items.at(-1),moved);
+ assert.deepEqual(parseBackup(serializeBackup(e.board)).items.at(-1).links,moved.links);
+ assert.ok(walk(sceneSVG(e.board)).some(n=>n.getAttribute('data-id')===id));
+ e.selected=new Set([id]);e.detachSelection();assert.equal(e.board.items.at(-1).links,undefined);e.undo();assert.deepEqual(e.board.items.at(-1).links,moved.links);
+});
+test('connector target deletion and undo preserve the relation; invalid links are rejected',()=>{
+ const e=fixture(2);e.board.items[1].x=300;e.selected=new Set(e.board.items.map(i=>i.id));e.connectSelection();
+ e.selected=new Set(['object-0']);e.remove();assert.equal(e.board.items.at(-1).links.start,null);e.undo();assert.equal(e.board.items.at(-1).links.start,'object-0');
+ const bad=structuredClone(e.board);bad.items.at(-1).links.start=bad.items.at(-1).id;assert.throws(()=>validateBoard(bad),/connector/);
+ bad.items.at(-1).links={start:'object-0',end:'object-0'};assert.throws(()=>validateBoard(bad),/connector/);
+});
+test('group transforms move targets and keep the included connector attached',()=>{
+ const e=fixture(2);e.board.items[1].x=300;e.selected=new Set(e.board.items.map(i=>i.id));e.connectSelection();
+ e.selected=new Set(e.board.items.map(i=>i.id));e.groupSelection();e.rotateSelection(90);validateBoard(e.board);
+ const c=e.board.items.at(-1);assert.equal(c.rotation,0);assert.ok(Math.abs(c.points[0][0]-c.points[1][0])<1e-8);assert.ok(c.links);
+ e.duplicate();const copies=e.board.items.slice(3);assert.equal(copies[2].links.start,copies[0].id);assert.equal(copies[2].links.end,copies[1].id);
+});
