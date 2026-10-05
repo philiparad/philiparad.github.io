@@ -223,3 +223,47 @@ test('offscreen edits, selection, resize and history restore the right visible o
  e.board.items[1].x=100;e.commit();assert.ok(object(e,'object-1'));
  e.undo();assert.equal(object(e,'object-1'),undefined);e.redo();assert.ok(object(e,'object-1'));
 });
+
+test('group click, drag, shift-toggle and marquee select all members',()=>{
+ const e=fixture(3);e.tool='select';e.selected=new Set(['object-0','object-1']);e.groupSelection();
+ const group=e.board.items[0].groupId;assert.ok(group);assert.equal(e.board.items[1].groupId,group);
+ e.selected.clear();e.paint();const hit={...pointer(e,10,25),target:object(e,'object-0')};
+ e.pointerDown(hit);assert.deepEqual([...e.selected],['object-0','object-1']);
+ e.pointerMove(pointer(e,50,65));e.pointerUp(pointer(e,50,65));
+ assert.equal(e.board.items[0].x,40);assert.equal(e.board.items[1].x,58);assert.equal(e.board.items[2].x,36);
+ e.pointerDown({...pointer(e,50,65),target:object(e,'object-0'),shiftKey:true});e.pointerUp(pointer(e,50,65));assert.equal(e.selected.size,0);
+ e.pointerDown(pointer(e,35,55));e.pointerMove(pointer(e,95,105));e.pointerUp(pointer(e,95,105));
+ assert.ok(e.selected.has('object-0')&&e.selected.has('object-1'));
+});
+test('group duplication, backup, ungrouping and undo preserve independent groups',async()=>{
+ const {serializeBackup,parseBackup}=await import('../js/model.js');
+ const e=fixture(2);e.selected=new Set(e.board.items.map(i=>i.id));e.groupSelection();const id=e.board.items[0].groupId;
+ e.duplicate();assert.equal(e.board.items.length,4);const copy=structuredClone(e.board.items.slice(2));
+ assert.equal(copy[0].groupId,copy[1].groupId);assert.notEqual(copy[0].groupId,id);
+ assert.equal(parseBackup(serializeBackup(e.board)).items[0].groupId,id);
+ e.ungroupSelection();assert.equal(e.board.items[2].groupId,undefined);assert.equal(e.board.items[0].groupId,id);
+ e.undo();assert.equal(e.board.items[2].groupId,copy[0].groupId);e.redo();assert.equal(e.board.items[2].groupId,undefined);
+ const bad=structuredClone(e.board);bad.items[0].groupId={};assert.throws(()=>validateBoard(bad),/group/);
+});
+test('group resize, delete and erase apply to all members and retain undo',()=>{
+ const e=fixture(2);e.tool='select';e.selected=new Set(e.board.items.map(i=>i.id));e.groupSelection();
+ const handle=walk(e.svg).find(n=>n.hasAttribute('data-resize'));
+ e.pointerDown({...pointer(e,68,60),target:handle});e.pointerMove(pointer(e,136,100));e.pointerUp(pointer(e,136,100));
+ assert.equal(e.board.items[0].w,100);assert.equal(e.board.items[1].x,36);assert.equal(e.board.items[0].h,80);
+ e.remove();assert.equal(e.board.items.length,0);e.undo();assert.equal(e.board.items.length,2);
+ e.eraseAt({x:10,y:30});e.commit();assert.equal(e.board.items.length,0);e.undo();assert.equal(e.board.items.length,2);
+});
+test('one locked member protects the complete group from move, deletion and erasing',()=>{
+ const e=fixture(2);e.tool='select';e.selected=new Set(e.board.items.map(i=>i.id));e.groupSelection();e.board.items[0].locked=true;e.commit();
+ const before=e.board.items.map(i=>i.x);
+ e.pointerDown({...pointer(e,20,30),target:object(e,'object-1')});e.pointerMove(pointer(e,80,90));e.pointerUp(pointer(e,80,90));
+ assert.deepEqual(e.board.items.map(i=>i.x),before);e.remove();assert.equal(e.board.items.length,2);
+ e.eraseAt({x:30,y:30});assert.equal(e.board.items.length,2);
+});
+
+test('group rotation uses a shared center and sizing preserves relative positions',()=>{
+ const e=fixture(2);e.selected=new Set(e.board.items.map(i=>i.id));e.groupSelection();
+ e.rotateSelection(180);assert.ok(Math.abs(e.board.items[0].x-18)<1e-8);assert.ok(Math.abs(e.board.items[1].x)<1e-8);assert.equal(e.board.items[0].rotation,180);
+ e.undo();e.selected=new Set(e.board.items.map(i=>i.id));e.scaleSelection(2,2,{x:0,y:20});
+ assert.equal(e.board.items[0].w,100);assert.equal(e.board.items[1].x,36);
+});
