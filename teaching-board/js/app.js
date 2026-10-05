@@ -1,9 +1,9 @@
-import { createBoard, parseBackup } from './model.js?v=20261005-connectors';
-import { BoardRepository } from './storage.js?v=20261005-connectors';
-import { Editor } from './editor.js?v=20261005-connectors';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261005-connectors';
-import { backup } from './export.js?v=20261005-connectors';
-import { drawItem, svgEl, union } from './scene.js?v=20261005-connectors';
+import { createBoard, parseBackup } from './model.js?v=20261006-inline-text';
+import { BoardRepository } from './storage.js?v=20261006-inline-text';
+import { Editor } from './editor.js?v=20261006-inline-text';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261006-inline-text';
+import { backup } from './export.js?v=20261006-inline-text';
+import { drawItem, svgEl, union } from './scene.js?v=20261006-inline-text';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';
@@ -24,5 +24,5 @@ async function dashboard(token){const boards=await repository.list();if(token!==
  search.oninput=()=>{searchText=search.value;draw();};folders.onchange=()=>{folderFilter=folders.value;draw();};sort.onchange=()=>{sortBy=sort.value;draw();};draw();
  const footer=el('p','Saved on this device. Use editable backups to move lessons between computers or protect them before clearing browser data.','storage-note');app.append(heading,controls,cards,footer);}
 async function renderRoute(){const token=++generation;try{if(editor){await editor.flush();if(token!==generation)return;editor.dispose();editor=null;}app.setAttribute('aria-busy','true');const match=location.hash.match(/^#\/board\/([a-zA-Z0-9-]+)$/);if(match){const board=await repository.get(match[1]);if(token!==generation)return;if(!board||board.deleted)throw new Error('Lesson not found. Return to Lessons using the logo.');editor=new Editor(app,board,repository);}else await dashboard(token);}catch(error){notify(error.message);if(!editor)app.replaceChildren(el('p',error.message));}finally{app.setAttribute('aria-busy','false');}}
-window.addEventListener('hashchange',renderRoute);window.addEventListener('beforeunload',e=>{if(editor?.queue.dirty || editor?.drag){e.preventDefault();e.returnValue='';}});
+window.addEventListener('hashchange',renderRoute);window.addEventListener('beforeunload',e=>{if(editor?.queue.dirty || editor?.drag || editor?.inlineText){e.preventDefault();e.returnValue='';}});
 renderRoute();

@@ -1,4 +1,4 @@
-import { validateBoard } from './model.js?v=20261005-connectors';
+import { validateBoard } from './model.js?v=20261006-inline-text';
 export class ConflictError extends Error {
   constructor() { super('This board changed in another tab. Reopen it before editing.'); this.name = 'ConflictError'; }
 }

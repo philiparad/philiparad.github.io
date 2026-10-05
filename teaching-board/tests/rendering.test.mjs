@@ -291,3 +291,17 @@ test('group transforms move targets and keep the included connector attached',()
  const c=e.board.items.at(-1);assert.equal(c.rotation,0);assert.ok(Math.abs(c.points[0][0]-c.points[1][0])<1e-8);assert.ok(c.links);
  e.duplicate();const copies=e.board.items.slice(3);assert.equal(copies[2].links.start,copies[0].id);assert.equal(copies[2].links.end,copies[1].id);
 });
+
+test('inline text commits one undo step and retains connectors, copies and export',()=>{
+ const e=fixture(1);e.fontSize=26;
+ const item={id:'text',type:'text',x:200,y:100,w:360,h:130,fontSize:26,text:''};
+ e.applyText(item,'First line\nשלום',160,false);assert.equal(e.history.past.length,1);assert.equal(e.board.items.length,2);
+ e.selected=new Set(['object-0','text']);e.connectSelection();const arrow=e.board.items.at(-1),before=structuredClone(arrow.points);
+ e.applyText(e.board.items.find(i=>i.id==='text'),'Updated\nMultiple\nLines',260,true);
+ assert.notDeepEqual(arrow.points,before);assert.equal(e.board.items.find(i=>i.id==='text').h,260);
+ e.undo();assert.equal(e.board.items.find(i=>i.id==='text').text,'First line\nשלום');
+ e.redo();assert.equal(e.board.items.find(i=>i.id==='text').text,'Updated\nMultiple\nLines');
+ e.selected=new Set(['text']);e.duplicate();assert.equal(e.board.items.at(-1).text,'Updated\nMultiple\nLines');
+ assert.ok(walk(sceneSVG(e.board)).some(n=>n.tagName==='tspan'&&n.textContent==='Updated'));validateBoard(e.board);
+ const count=e.history.past.length;e.applyText(e.board.items.at(-1),e.board.items.at(-1).text,500,true);assert.equal(e.history.past.length,count);
+});

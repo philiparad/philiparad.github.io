@@ -1,5 +1,5 @@
-import { el,btn } from './ui.js?v=20261005-connectors';
-import { SHAPE_GROUPS,SHAPES,drawPreset } from './shapes.js?v=20261005-connectors';
+import { el,btn } from './ui.js?v=20261006-inline-text';
+import { SHAPE_GROUPS,SHAPES,drawPreset } from './shapes.js?v=20261006-inline-text';
 export class ShapeGallery{
  constructor(editor){this.e=editor;this.root=el('details',null,'shape-gallery');const summary=el('summary','▱ ▾');summary.setAttribute('aria-label','Shape gallery');summary.title='Shapes, solids and curves';this.summary=summary;const panel=el('div',null,'shape-panel');panel.setAttribute('aria-label','Shape presets');
  for(const [name,items]of SHAPE_GROUPS){panel.append(el('h3',name));const grid=el('div',null,'shape-grid');for(const [id,label]of items){const button=btn('',()=>{editor.shapePreset=id;this.root.open=false;editor.setTool('shape');summary.focus();});button.title=label;button.setAttribute('aria-label',label);button.dataset.shape=id;const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','-4 -4 108 108');svg.setAttribute('aria-hidden','true');svg.append(drawPreset({shape:id,w:100,h:100,lineWidth:4,stroke:'#607e9d',fill:'none'}));button.append(svg);grid.append(button);}panel.append(grid);}

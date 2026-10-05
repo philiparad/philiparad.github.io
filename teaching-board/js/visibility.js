@@ -1,4 +1,4 @@
-import { SHAPES } from './shapes.js?v=20261005-connectors';
+import { SHAPES } from './shapes.js?v=20261006-inline-text';
 
 // Conservative geometry bounds, independent of the DOM. Text can overflow its
 // nominal box (long words, RTL and font metrics), so keep text/notes mounted.
