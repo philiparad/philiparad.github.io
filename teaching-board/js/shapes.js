@@ -1,4 +1,4 @@
-import { styleStroke } from './line-style.js?v=20261005-cache';
+import { styleStroke } from './line-style.js?v=20261005-viewport';
 const path=(d,closed=false,hidden=false)=>({d,closed,hidden});
 const polygon=points=>path('M'+points.map(p=>p.join(' ')).join(' L')+' Z',true);
 const regular=(n,inner=1)=>polygon(Array.from({length:n},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n,r=i%2?inner:1;return [50+48*r*Math.cos(a),50+48*r*Math.sin(a)];}));

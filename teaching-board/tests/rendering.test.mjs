@@ -25,7 +25,7 @@ const {createBoard,validateBoard}=await import('../js/model.js');
 const {sceneSVG}=await import('../js/scene.js');
 function fixture(count=1){
  frames.clear();const e=Object.create(Editor.prototype);e.board=createBoard('Rendering regression');
- e.board.items=Array.from({length:count},(_,k)=>({id:'object-'+k,type:'rectangle',x:k*3,y:20,w:50,h:40,lineWidth:3,stroke:'#123456',fill:'none'}));
+ e.board.items=Array.from({length:count},(_,k)=>({id:'object-'+k,type:'rectangle',x:(k%50)*18,y:20+Math.floor(k/50)*25,w:50,h:40,lineWidth:3,stroke:'#123456',fill:'none'}));
  e.svg=new Element('svg');e.svg.root=true;e.area={clientWidth:1000,clientHeight:700};
  e.selected=new Set();e.tool='pen';e.stroke='#123456';e.strokeOpacity=1;e.fill='none';e.fillOpacity=1;e.lineWidth=3;e.lineStyle='solid';e.opacity=1;e.inkSmoothing=.65;e.guides=[];
  for(const key of ['shapeGallery','strokePalette','fillPalette','lineStyleMenu'])e[key]={update(){}};
@@ -170,7 +170,7 @@ test('speed mode supports mouse, touch and stylus taps but excludes patterned in
 
 test('full redraw reuses 1,000 unchanged object nodes during pan, zoom and selection',()=>{
  const e=fixture(1000),before=e.board.items.map(i=>object(e,i.id));
- e.board.viewport={x:-150,y:30,zoom:2};e.selected.add('object-2');e.paint();
+ e.area={clientWidth:4000,clientHeight:2000};e.board.viewport={x:150,y:30,zoom:2};e.selected.add('object-2');e.paint();
  e.board.items.forEach((i,k)=>assert.equal(object(e,i.id),before[k]));
  assert.equal(e.renderCache.entries.size,1000);
  const changed=e.board.items[2];changed.stroke='#ff0000';e.paint();
@@ -199,4 +199,27 @@ test('cache avoids repeated pressure geometry generation and preserves stacking 
  item.pressures[1]=.4;assert.notEqual(cache.draw(item),node);assert.equal(calls,2);
  const e=fixture(3);e.board.items.reverse();e.paint();assert.deepEqual(walk(e.svg).filter(n=>n.hasAttribute('data-id')).map(n=>n.getAttribute('data-id')),['object-2','object-1','object-0']);
  cache.clear();assert.equal(cache.entries.size,0);
+});
+
+test('viewport filtering omits offscreen SVG objects but preserves model and complete exports',async()=>{
+ const {pageSVG}=await import('../js/pages.js');
+ const e=fixture(1000);for(let k=1;k<1000;k++)e.board.items[k].x+=10000;
+ e.paint();assert.equal(walk(e.svg).filter(n=>n.hasAttribute('data-id')).length,1);
+ assert.equal(e.renderCache.entries.size,1);assert.equal(e.board.items.length,1000);
+ assert.equal(walk(sceneSVG(e.board)).filter(n=>n.hasAttribute('data-id')).length,1000);
+ assert.equal(walk(pageSVG(e.board,0)).filter(n=>n.hasAttribute('data-id')).length,1000);
+ e.board.viewport.x=-10000;e.paint();assert.equal(walk(e.svg).filter(n=>n.hasAttribute('data-id')).length,999);
+ assert.equal(e.renderCache.entries.size,999);assert.equal(object(e,'object-0'),undefined);
+ e.board.viewport.x=0;e.paint();assert.ok(object(e,'object-0'));assert.equal(e.renderCache.entries.size,1);
+});
+test('offscreen edits, selection, resize and history restore the right visible objects',()=>{
+ const e=fixture(2);e.board.items[1].x=1500;e.commit();assert.equal(object(e,'object-1'),undefined);
+ e.selected.add('object-1');e.paint();assert.ok(object(e,'object-1'));
+ e.selected.clear();e.board.items[1].stroke='#ff0000';e.commit();assert.equal(object(e,'object-1'),undefined);
+ e.area.clientWidth=1800;e.paint();assert.equal(object(e,'object-1').children[0].getAttribute('stroke'),'#ff0000');
+ e.undo();assert.equal(object(e,'object-1').children[0].getAttribute('stroke'),'#123456');
+ e.redo();assert.equal(object(e,'object-1').children[0].getAttribute('stroke'),'#ff0000');
+ e.area.clientWidth=1000;e.paint();assert.equal(object(e,'object-1'),undefined);
+ e.board.items[1].x=100;e.commit();assert.ok(object(e,'object-1'));
+ e.undo();assert.equal(object(e,'object-1'),undefined);e.redo();assert.ok(object(e,'object-1'));
 });
