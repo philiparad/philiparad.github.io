@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<link rel="icon" type="image/png" href="philip_favicon.png"/>
+<title>מעבדת הסתברות — שלוש ו־n קוביות</title>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#172033;--muted:#2854b2;--line:#cfd6e4;--accent:#315efb;--accent-soft:#eaf0ff;--a:#dfe8ff;--a-border:#5a77df;--b:#fff1cc;--b-border:#c78d13;--both:#e8dcff;--both-border:#835ac8;--good:#e9f8ef;--good-border:#278a50;--warn:#fff5e6;--warn-border:#b56b08;--bad:#fdeaea;--bad-border:#b53b3b;--shadow:0 8px 24px rgba(23,32,51,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.55}button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid rgba(49,94,251,.28);outline-offset:2px}.app-shell{width:min(1280px,calc(100% - 24px));margin:18px auto 40px}.hero{position:relative;background:linear-gradient(135deg,#fff 0%,#eef3ff 100%);border:2px solid var(--line);border-radius:20px;padding:16px 24px;box-shadow:var(--shadow)}.hero h1{margin:0;font-size:clamp(1.2rem,2.4vw,2rem)}.hero p{margin:3px 0 0;color:var(--muted)}.app-switch{position:absolute;top:12px;left:12px;z-index:10;display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:8px 14px;border:2px solid var(--accent);border-radius:12px;background:#fff;color:#173aa7;font-weight:800;text-decoration:none;box-shadow:var(--shadow)}
+.experiment-bar{margin-top:14px;display:grid;grid-template-columns:auto auto minmax(220px,1fr) auto;gap:10px;align-items:center;border:2px solid #d9e2f3;background:#fff;border-radius:16px;padding:10px 12px}.experiment-bar strong{white-space:nowrap}.mode-group{display:flex;gap:6px}.mode-btn,.btn{min-height:42px;padding:7px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:800}.mode-btn.active,.btn.primary,.btn.active{border-color:var(--accent);background:var(--accent);color:#fff}.btn.soft{border-color:var(--accent);background:var(--accent-soft);color:#173aa7}.n-control{display:grid;grid-template-columns:50px 1fr;gap:10px;align-items:center;direction:ltr}.n-pill{border:2px solid var(--line);border-radius:999px;text-align:center;padding:5px 7px;background:#f7fbff;font-weight:800}.n-control input{width:100%;accent-color:var(--accent)}.space-pill{border:2px solid var(--accent);border-radius:999px;padding:6px 12px;background:var(--accent-soft);font-weight:800;white-space:nowrap}.tabs{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px;margin:8px 0}.tab{min-height:52px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:7px;font-weight:800}.tab.active{border-color:var(--accent);background:var(--accent-soft);color:#173aa7}.panel{display:none;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}.panel.active{display:block}.panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}.panel-header h2{margin:0;font-size:1.35rem}.panel-header p{margin:4px 0 0;color:var(--muted)}.learning-note,.formula-box,.stat,.mini-card,.inner-card{border:2px solid var(--line);border-radius:14px;padding:12px;background:#fbfcfe}.learning-note{background:aliceblue;margin:10px 0}.learning-note strong{display:block;margin-bottom:3px}.formula-box{text-align:center;background:aliceblue;font-size:1.05rem}.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:10px 0 14px}.control{display:flex;flex-direction:column;gap:5px;min-width:200px;flex:1 1 220px}.control label{font-weight:800}.control select{min-height:44px;padding:7px 10px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.stat .label{color:var(--muted);font-size:.88rem}.stat .value{font-size:1.12rem;font-weight:800;margin-top:3px;direction:ltr;text-align:center}.two-col{display:grid;grid-template-columns:minmax(240px,300px) minmax(0,1fr);gap:16px;direction:ltr;align-items:start}.two-col>*{direction:rtl}.legend{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0;color:#465064;font-size:.9rem}.legend-item{display:flex;align-items:center;gap:6px}.swatch{width:18px;height:18px;border-radius:5px;border:2px solid var(--line);display:inline-block}.swatch.a{background:var(--a);border-color:var(--a-border)}.swatch.b{background:#fffaf0;border-color:var(--b-border)}.swatch.both{background:var(--both);border-color:var(--both-border)}.swatch.dim{opacity:.25}.decision{border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;font-weight:800}.decision.good{background:var(--good);border-color:var(--good-border)}.decision.bad{background:var(--bad);border-color:var(--bad-border)}
+.layer-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:10px 0}.layer-btn{min-width:44px;min-height:40px;border:2px solid var(--line);border-radius:10px;background:#fff;font-weight:800}.layer-btn.active{border-color:var(--accent);background:var(--accent);color:#fff}.view-toggle{display:flex;gap:6px;margin-right:auto}.layers-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;direction:ltr}.die-layer{border:2px solid var(--line);border-radius:16px;background:#fff;padding:10px;direction:rtl;min-width:0}.die-layer.focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(49,94,251,.08)}.layer-title{font-weight:800;text-align:center;margin-bottom:6px;color:#26324a}.sample-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:3px;direction:ltr;font-size:.78rem}.sample-table th{height:30px;border:2px solid var(--line);border-radius:8px;background:#f3f5f9;color:#384252;font-weight:800;padding:2px;direction:rtl}.sample-table td{height:38px;border:2px solid var(--line);border-radius:8px;background:#fff;text-align:center;vertical-align:middle;font-weight:800;position:relative;transition:.12s}.sample-table td.hit{background:var(--a);border-color:var(--a-border)}.sample-table td.bonly{background:#fffaf0;border-color:var(--b-border)}.sample-table td.both{background:var(--both);border-color:var(--both-border)}.sample-table td.dim{opacity:.14}.sample-table td:hover{transform:scale(1.04);z-index:2}.sample-table td small{display:block;font-size:.67rem;color:var(--muted);font-weight:400}.single-layer-wrap{max-width:760px;margin:auto}.single-layer-wrap .sample-table td{height:58px;font-size:.95rem}.single-layer-wrap .sample-table th{height:38px}.sample-table .selected-cell{outline:4px solid var(--accent);outline-offset:-4px}.event-visual{margin-top:14px;border-top:2px dashed #d8dfeb;padding-top:12px}.event-visual-title{font-weight:800;margin-bottom:8px;color:#26324a}.event-visual-note{border:2px solid var(--line);border-radius:14px;background:#f7faff;padding:12px}.event-layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;direction:ltr}.event-layers .die-layer{padding:7px}.event-layers .sample-table td{height:31px;font-size:.68rem}.event-layers .sample-table th{height:27px;font-size:.7rem}@media(max-width:900px){.event-layers{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.event-layers{grid-template-columns:1fr}}.outcome-readout{margin-top:10px;border:2px solid #d9e2f3;border-radius:14px;padding:10px;background:#f7faff;text-align:center;font-weight:800}.n-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.growth-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.growth-step{border:2px solid var(--line);border-radius:12px;padding:10px;background:#fff;text-align:center}.growth-step strong{display:block;font-size:1.1rem}.bridge-equation{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:12px}.bridge-arrow{font-size:1.7rem;color:var(--accent);font-weight:900}.multiplication-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.die-condition{border:2px solid var(--line);border-radius:14px;padding:10px;background:#fff}.die-condition label{display:block;font-weight:800;margin-bottom:6px}.die-condition select{width:100%;min-height:42px;border:2px solid var(--line);border-radius:10px;padding:6px}.factor-strip{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;direction:ltr;font-size:1.15rem;font-weight:800}.factor{border:2px solid var(--line);border-radius:10px;padding:7px 9px;background:#fff}.factor.a{background:var(--a);border-color:var(--a-border)}.factor.b{background:#fffaf0;border-color:var(--b-border)}.factor.c{background:var(--both);border-color:var(--both-border)}.two-way-layout{display:grid;grid-template-columns:minmax(220px,260px) minmax(350px,.9fr) minmax(420px,1.1fr);gap:14px;direction:ltr;align-items:stretch}.two-way-layout>*{direction:rtl}.two-way{width:100%;border-collapse:collapse;font-size:.92rem}.two-way th,.two-way td{border:2px solid var(--line);padding:10px 7px;text-align:center}.two-way th{background:#f4f6fa}.two-way td{cursor:pointer;font-weight:800}.two-way td.yy{background:#e8dcff;border-color:#835ac8}.two-way td.yn{background:#dfe8ff;border-color:#5a77df}.two-way td.ny{background:#fff1cc;border-color:#c78d13}.two-way td.nn{background:#edf0f4;border-color:#9aa4b2}.two-way td.sel{box-shadow:inset 0 0 0 3px var(--accent)}.explain-box{background:var(--accent-soft)}.mode-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.distribution-layout{display:grid;grid-template-columns:minmax(240px,300px) minmax(0,1fr);gap:16px;direction:ltr}.distribution-layout>*{direction:rtl}.chart-wrap{border:2px solid #cfe0ef;border-radius:16px;background:#fff;overflow:hidden}.chart-wrap svg{display:block;width:100%;height:400px}.chart-legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.9rem;margin-top:8px}.bar-detail{margin-top:10px;min-height:50px}.sim-layout{display:grid;grid-template-columns:minmax(260px,330px) minmax(0,1fr);gap:16px;direction:ltr}.sim-layout>*{direction:rtl}.sim-dice{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.die{width:52px;height:52px;display:grid;place-items:center;border:2px solid var(--line);border-radius:12px;background:#fff;font-size:1.35rem;font-weight:800}.progress{height:12px;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:#f3f6fa;margin-top:8px}.progress>div{height:100%;width:0;background:linear-gradient(90deg,#315efb,#55a7ff)}.mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.mini-card{text-align:center}.mini-card .label{font-size:.82rem;color:var(--muted)}.mini-card .value{font-weight:800;direction:ltr}.hidden{display:none!important}
+@media(max-width:1100px){.tabs{grid-template-columns:repeat(4,1fr)}.two-way-layout{grid-template-columns:1fr 1fr}.two-way-layout .tw-sample{grid-column:1/-1}.layers-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:850px){.experiment-bar{grid-template-columns:1fr 1fr}.experiment-bar .n-control{grid-column:1/-1}.two-col,.distribution-layout,.sim-layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.multiplication-row,.n-summary{grid-template-columns:1fr}.two-way-layout{grid-template-columns:1fr}.two-way-layout .tw-sample{grid-column:auto}.layers-grid{grid-template-columns:1fr}.growth-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.app-shell{width:min(100% - 10px,1280px);margin-top:6px}.hero,.panel{padding:12px;border-radius:16px}.app-switch{position:static;margin-bottom:10px}.tabs{grid-template-columns:repeat(2,1fr)}.stats,.mini-grid,.growth-list{grid-template-columns:1fr}.experiment-bar{grid-template-columns:1fr}.mode-group{justify-content:center}.space-pill{text-align:center}.bridge-equation{grid-template-columns:1fr}.bridge-arrow{transform:rotate(90deg);text-align:center}.sample-table{font-size:.7rem}.sample-table td{height:34px}.view-toggle{margin-right:0;width:100%}}@media print{body{background:#fff}.app-shell{width:100%;margin:0}.hero,.panel{box-shadow:none}.tabs,.experiment-bar,.app-switch{display:none}.panel{display:block;page-break-after:always}}
+</style>
+</head>
+<body>
+<main class="app-shell" id="app">
+<section class="hero" aria-labelledby="page-title">
+<a class="app-switch" href="מעבדת_הסתברות_שתי_קוביות.html#sample">🎲 למעבדת שתי קוביות</a>
+<h1 id="page-title">מעבדת הסתברות — שלוש ו־n קוביות</h1>
+<p>אותו רעיון בשלוש רמות: תוצאות מסודרות, ספירה מדויקת והכללה ל־\(n\) קוביות.</p>
+<div class="experiment-bar">
+<strong>מספר קוביות</strong>
+<div class="mode-group" aria-label="מצב מספר קוביות">
+<button class="mode-btn active" id="mode-three" type="button">3 קוביות</button>
+<button class="mode-btn" id="mode-n" type="button">n קוביות</button>
+</div>
+<div class="n-control" id="n-control-wrap">
+<output class="n-pill" id="n-value">3</output>
+<input id="n-slider" type="range" min="3" max="20" step="1" value="3" aria-label="מספר הקוביות"/>
+</div>
+<div class="space-pill" id="space-size-pill">\(|\\Omega|=6^3=216\)</div>
+</div>
+</section>
+<nav class="tabs" aria-label="נושאי הלמידה">
+<button class="tab active" data-tab="sample" type="button">מרחב מדגם</button>
+<button class="tab" data-tab="compound" type="button">או וגם</button>
+<button class="tab" data-tab="conditional" type="button">הסתברות מותנית</button>
+<button class="tab" data-tab="exclusive" type="button">מאורעות זרים</button>
+<button class="tab" data-tab="multiplication" type="button">כפל הסתברויות</button>
+<button class="tab" data-tab="twoway" type="button">טבלה דו־ממדית</button>
+<button class="tab" data-tab="distribution" type="button">התפלגות סכום</button>
+<button class="tab" data-tab="simulation" type="button">סימולציה</button>
+</nav>
+
+<section class="panel active" data-panel="sample" id="panel-sample">
+<div class="panel-header"><div><h2>מרחב המדגם</h2><p id="sample-subtitle">כל תוצאה היא שלישייה סדורה \((d_1,d_2,d_3)\).</p></div></div>
+<div class="learning-note" id="sample-learning"></div>
+<div id="sample-three-area">
+<div class="layer-toolbar">
+<strong>קובייה 3 — שכבה:</strong>
+<div id="layer-buttons"></div>
+<div class="view-toggle"><button class="btn active" id="view-single" type="button">שכבה אחת</button><button class="btn" id="view-all" type="button">כל 6 השכבות</button></div>
+</div>
+<div id="single-layer-host" class="single-layer-wrap"></div>
+<div id="all-layers-host" class="layers-grid hidden"></div>
+<div class="outcome-readout" id="outcome-readout">לחצו על תא כדי לקרוא את השלישייה הסדורה.</div>
+</div>
+<div id="sample-n-area" class="hidden">
+<div class="n-summary">
+<div class="inner-card"><strong>מבנה התוצאה</strong><div id="n-tuple-formula" class="formula-box" style="margin-top:8px"></div></div>
+<div class="inner-card"><strong>גודל מרחב המדגם</strong><div id="n-space-formula" class="formula-box" style="margin-top:8px"></div></div>
+<div class="inner-card"><strong>למה לא מציירים הכול?</strong><p id="n-visual-note"></p></div>
+</div>
+<div class="learning-note"><strong>הכללה מדורגת</strong><div class="growth-list" id="growth-list"></div></div>
+<div class="formula-box" id="projection-note"></div>
+</div>
+</section>
+
+<section class="panel" data-panel="compound" id="panel-compound">
+<div class="panel-header"><div><h2>מאורעות מורכבים — או וגם</h2><p>בחרו שני מאורעות. החישוב נעשה בדיוק גם כאשר מספר הקוביות גדול.</p></div></div>
+<div class="controls"><div class="control"><label for="compound-a">מאורע A</label><select id="compound-a"></select></div><div class="control"><label for="compound-b">מאורע B</label><select id="compound-b"></select></div></div>
+<div class="stats"><div class="stat"><div class="label">\(P(A)\)</div><div class="value" id="compound-pa"></div></div><div class="stat"><div class="label">\(P(B)\)</div><div class="value" id="compound-pb"></div></div><div class="stat"><div class="label">\(P(A\,\\text{םגו}\,B)\)</div><div class="value" id="compound-both"></div></div><div class="stat"><div class="label">\(P(A\,\\text{וא}\,B)\)</div><div class="value" id="compound-either"></div></div></div>
+<div class="bridge-equation"><div class="formula-box" id="compound-count-box"></div><div class="bridge-arrow">⇄</div><div class="formula-box" id="compound-prob-box"></div></div><div id="compound-visual" class="event-visual"></div>
+</section>
+
+<section class="panel" data-panel="conditional" id="panel-conditional">
+<div class="panel-header"><div><h2>הסתברות מותנית — שינוי מרחב המדגם</h2><p>כאשר ידוע ש־B התרחש, רק התוצאות שב־B נשארות רלוונטיות.</p></div></div>
+<div class="controls"><div class="control"><label for="conditional-a">המאורע המבוקש A</label><select id="conditional-a"></select></div><div class="control"><label for="conditional-b">נתון ש־B התרחש</label><select id="conditional-b"></select></div></div>
+<div class="two-col"><div><div class="formula-box" id="conditional-formula"></div><div class="stats" style="grid-template-columns:1fr;margin-top:10px"><div class="stat"><div class="label">גודל מרחב המדגם המקורי</div><div class="value" id="conditional-all"></div></div><div class="stat"><div class="label">גודל מרחב המדגם החדש B</div><div class="value" id="conditional-den"></div></div><div class="stat"><div class="label">תוצאות רצויות בתוך B</div><div class="value" id="conditional-num"></div></div></div></div><div><div class="learning-note"><strong>אותו רעיון בכל מספר קוביות</strong>לא משנים את הנוסחה — משנים רק את מרחב המדגם החדש.</div><div class="formula-box" id="conditional-meaning"></div></div></div><div id="conditional-visual" class="event-visual"></div>
+</section>
+
+<section class="panel" data-panel="exclusive" id="panel-exclusive">
+<div class="panel-header"><div><h2>מאורעות זרים</h2><p>בודקים האם קיימת לפחות תוצאה אחת השייכת לשני המאורעות.</p></div></div>
+<div class="controls"><div class="control"><label for="exclusive-a">מאורע A</label><select id="exclusive-a"></select></div><div class="control"><label for="exclusive-b">מאורע B</label><select id="exclusive-b"></select></div></div>
+<div class="stats"><div class="stat"><div class="label">מספר תוצאות ב־A</div><div class="value" id="exclusive-ca"></div></div><div class="stat"><div class="label">מספר תוצאות ב־B</div><div class="value" id="exclusive-cb"></div></div><div class="stat"><div class="label">תוצאות משותפות</div><div class="value" id="exclusive-cboth"></div></div><div class="stat"><div class="label">גודל מרחב המדגם</div><div class="value" id="exclusive-space"></div></div></div>
+<div class="decision" id="exclusive-decision"></div><div id="exclusive-visual" class="event-visual"></div>
+</section>
+
+<section class="panel" data-panel="multiplication" id="panel-multiplication">
+<div class="panel-header"><div><h2>כפל הסתברויות — מספירה לנוסחה</h2><p>בשלוש קוביות בוחרים תנאי שונה לכל קובייה; ב־n קוביות מכלילים לאותו תנאי בכל ההטלות.</p></div></div>
+<div id="mult-three-controls" class="multiplication-row"></div>
+<div id="mult-n-controls" class="controls hidden"><div class="control"><label for="mult-common">תנאי בכל קובייה</label><select id="mult-common"></select></div></div>
+<div class="learning-note"><strong>אותו רעיון — פעם בספירה ופעם בהסתברות</strong><span id="mult-learning-text"></span></div>
+<div class="bridge-equation"><div class="formula-box" id="mult-count-formula"></div><div class="bridge-arrow">⇄</div><div class="formula-box" id="mult-prob-formula"></div></div>
+<div class="learning-note"><strong>מסקנה חזותית</strong><div id="mult-conclusion"></div></div><div id="mult-visual" class="event-visual"></div>
+</section>
+
+<section class="panel" data-panel="twoway" id="panel-twoway">
+<div class="panel-header"><div><h2>טבלה דו־ממדית — שני מאפיינים, לא שתי קוביות</h2><p>גם כאשר יש 3 או n קוביות, הטבלה נשארת 2×2 כי היא משווה בין שני מאורעות A ו־B.</p></div></div>
+<div class="controls"><div class="control"><label for="twoway-a">מאורע A</label><select id="twoway-a"></select></div><div class="control"><label for="twoway-b">מאורע B</label><select id="twoway-b"></select></div><div class="mode-buttons"><button class="btn active" data-twmode="count" type="button">שכיחות</button><button class="btn" data-twmode="fraction" type="button">שבר</button><button class="btn" data-twmode="percent" type="button">אחוזים</button></div></div>
+<div class="two-way-layout"><aside class="inner-card explain-box"><h3 style="margin-top:0">מה אומר התא?</h3><div id="tw-explain"></div></aside><section class="inner-card"><table class="two-way" id="tw-table"></table></section><section class="inner-card tw-sample"><h3 style="margin-top:0">קשר למרחב המדגם</h3><div id="tw-link-text"></div><div id="tw-visual" style="margin-top:10px"></div><div class="stats" style="grid-template-columns:repeat(2,1fr)"><div class="stat"><div class="label">A וגם B</div><div class="value" id="tw-yy-stat"></div></div><div class="stat"><div class="label">לא A ולא B</div><div class="value" id="tw-nn-stat"></div></div></div></section></div>
+</section>
+
+<section class="panel" data-panel="distribution" id="panel-distribution">
+<div class="panel-header"><div><h2>התפלגות סכום הקוביות</h2><p>במקום להציג את כל \(6^n\) התוצאות, מקבצים אותן לפי הסכום.</p></div></div>
+<div class="distribution-layout"><aside class="inner-card"><div class="stats" style="grid-template-columns:1fr"><div class="stat"><div class="label">סכום מינימלי</div><div class="value" id="dist-min"></div></div><div class="stat"><div class="label">סכום מקסימלי</div><div class="value" id="dist-max"></div></div><div class="stat"><div class="label">תוחלת הסכום</div><div class="value" id="dist-mean"></div></div><div class="stat"><div class="label">הסכום/ים השכיח/ים ביותר</div><div class="value" id="dist-mode"></div></div></div><div class="learning-note"><strong>מה רואים?</strong><span id="dist-note"></span></div></aside><div><div class="chart-wrap"><svg id="dist-chart" viewBox="0 0 900 400" role="img" aria-label="התפלגות סכום הקוביות"></svg></div><div class="bar-detail learning-note" id="dist-detail">עברו עם העכבר מעל עמודה כדי לראות מספר תוצאות והסתברות.</div></div></div>
+</section>
+
+<section class="panel" data-panel="simulation" id="panel-simulation">
+<div class="panel-header"><div><h2>סימולציית מונטה קרלו</h2><p>משווים שכיחות יחסית להסתברות התאורטית עבור 3 או n קוביות.</p></div></div>
+<div class="sim-layout"><aside class="inner-card"><div class="control"><label for="sim-event">מאורע</label><select id="sim-event"></select></div><div class="control" style="margin-top:10px"><label for="sim-trials">מספר הגרלות N</label><div class="n-control"><output class="n-pill" id="sim-trials-value">1000</output><input id="sim-trials" type="range" min="50" max="10000" step="50" value="1000"/></div></div><div class="controls"><button class="btn primary" id="sim-run" type="button">הפעל סימולציה</button><button class="btn" id="sim-one" type="button">הגרלה אחת</button><button class="btn" id="sim-reset" type="button">איפוס</button></div><div class="progress"><div id="sim-progress"></div></div><div class="mini-grid"><div class="mini-card"><div class="label">הגרלות</div><div class="value" id="sim-n">0</div></div><div class="mini-card"><div class="label">הצלחות</div><div class="value" id="sim-hits">0</div></div><div class="mini-card"><div class="label">ניסויית</div><div class="value" id="sim-exp">-</div></div><div class="mini-card"><div class="label">תאורטית</div><div class="value" id="sim-theory">-</div></div></div></aside><div><div class="chart-wrap"><svg id="sim-chart" viewBox="0 0 900 400" role="img" aria-label="התכנסות הסתברות ניסויית"></svg></div><div class="learning-note"><strong>הגרלה אחרונה</strong><div class="sim-dice" id="sim-dice"></div><div id="sim-last-summary" style="margin-top:8px;font-weight:800"></div></div></div></div>
+</section>
+</main>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+let n=3, mode='three', layer=1, layerView='single', twMode='count', twSelected='yy';
+const stateCache=new Map(), sumCache=new Map();
+function qTypeset(){if(window.MathJax&&MathJax.typesetPromise){MathJax.typesetPromise().catch(()=>{});}}
+function gcd(a,b){while(b){[a,b]=[b,a%b]}return a}
+function fmtInt(x){return Math.round(x).toLocaleString('en-US')}
+function frac(a,b){if(!b)return 'לא מוגדר'; const g=gcd(Math.round(a),Math.round(b)); return (a/g)+'/'+(b/g)}
+function texFrac(a,b){if(!b)return '\\text{רדגומ אל}';const g=gcd(Math.round(a),Math.round(b));return '\\frac{'+(a/g)+'}{'+(b/g)+'}'}
+function pct(a,b){return (a/b*100).toFixed(a===0||a===b?0:2).replace(/\.00$/,'')+'%'}
+function total(){return Math.pow(6,n)}
+function tupleText(arr){return '('+arr.join(',')+')'}
+
+const events={
+ atleastOne6:{name:'לפחות קובייה אחת שווה 6',test:s=>s.c6>=1},
+ no6:{name:'אף קובייה אינה 6',test:s=>s.c6===0},
+ exactlyOne6:{name:'בדיוק קובייה אחת שווה 6',test:s=>s.c6===1},
+ exactlyTwo6:{name:'בדיוק שתי קוביות שוות 6',test:s=>s.c6===2},
+ allEven:{name:'כל הקוביות זוגיות',test:s=>s.ce===n},
+ allOdd:{name:'כל הקוביות אי־זוגיות',test:s=>s.ce===0},
+ atLeastOneEven:{name:'לפחות קובייה אחת זוגית',test:s=>s.ce>=1},
+ majorityEven:{name:'לפחות מחצית מהקוביות זוגיות',test:s=>s.ce>=Math.ceil(n/2)},
+ sumEven:{name:'סכום הקוביות זוגי',test:s=>s.parity===0},
+ sumOdd:{name:'סכום הקוביות אי־זוגי',test:s=>s.parity===1},
+ firstEven:{name:'קובייה 1 זוגית',test:s=>s.first%2===0},
+ first6:{name:'קובייה 1 שווה 6',test:s=>s.first===6},
+ allSame:{name:'כל הקוביות שוות',test:s=>s.same===1}
+};
+function stateDistribution(nn=n){
+ if(stateCache.has(nn)) return stateCache.get(nn);
+ let m=new Map();
+ for(let v=1;v<=6;v++){const k=[v,v===6?1:0,v%2===0?1:0,v%2,1].join('|');m.set(k,1)}
+ for(let i=2;i<=nn;i++){
+  const next=new Map();
+  for(const [k,c] of m){const [first,c6,ce,parity,same]=k.split('|').map(Number);for(let v=1;v<=6;v++){
+   const nk=[first,c6+(v===6),ce+(v%2===0),(parity+v)%2,(same&&v===first)?1:0].join('|');next.set(nk,(next.get(nk)||0)+c);
+  }}m=next;
+ }
+ const arr=[];for(const [k,count] of m){const [first,c6,ce,parity,same]=k.split('|').map(Number);arr.push({first,c6,ce,parity,same,count})}
+ stateCache.set(nn,arr);return arr;
+}
+function countEvent(key){let c=0;for(const s of stateDistribution()){if(events[key].test(s))c+=s.count}return c}
+function countBoth(a,b){let c=0;for(const s of stateDistribution()){if(events[a].test(s)&&events[b].test(s))c+=s.count}return c}
+function sumDistribution(nn=n){
+ if(sumCache.has(nn))return sumCache.get(nn);
+ let dp=[1];
+ for(let i=0;i<nn;i++){const nd=Array(dp.length+6).fill(0);for(let s=0;s<dp.length;s++)if(dp[s])for(let v=1;v<=6;v++)nd[s+v]+=dp[s];dp=nd}
+ const out=[];for(let s=nn;s<=6*nn;s++)out.push({sum:s,count:dp[s]||0});sumCache.set(nn,out);return out;
+}
+function eventOnRoll(key,arr){const s={first:arr[0],c6:arr.filter(v=>v===6).length,ce:arr.filter(v=>v%2===0).length,parity:arr.reduce((a,b)=>a+b,0)%2,same:arr.every(v=>v===arr[0])?1:0};return events[key].test(s)}
+function randomRoll(){return Array.from({length:n},()=>1+Math.floor(Math.random()*6))}
+function populateEventSelect(id,preferred){const el=$(id);el.innerHTML='';Object.entries(events).forEach(([k,e])=>{const o=document.createElement('option');o.value=k;o.textContent=e.name;el.appendChild(o)});if(preferred&&events[preferred])el.value=preferred}
+
+function setN(nn,source){n=Math.max(3,Math.min(20,Number(nn)||3));mode=n===3&&source!=='slider-force-n'?'three':'n';$('n-slider').value=n;$('n-value').textContent=n;$('mode-three').classList.toggle('active',mode==='three');$('mode-n').classList.toggle('active',mode==='n');$('space-size-pill').innerHTML='\\(|\\Omega|=6^{'+n+'}='+fmtInt(total())+'\\)';refreshAll();}
+$('mode-three').addEventListener('click',()=>{n=3;mode='three';$('n-slider').value=3;$('n-value').textContent='3';refreshAll()});
+$('mode-n').addEventListener('click',()=>{mode='n';if(n===3)n=4;$('n-slider').value=n;$('n-value').textContent=n;refreshAll()});
+$('n-slider').addEventListener('input',e=>{n=Number(e.target.value);mode=n===3?'three':'n';$('n-value').textContent=n;refreshAll()});
+
+function initTabs(){document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>activateTab(b.dataset.tab,true)));const h=location.hash.replace('#','');if(h)activateTab(h,false);}
+function activateTab(name,hash){const b=document.querySelector('.tab[data-tab="'+name+'"]'),p=document.querySelector('.panel[data-panel="'+name+'"]');if(!b||!p)return;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');p.classList.add('active');if(hash)history.pushState(null,'','#'+name);if(name==='distribution')drawDistribution();if(name==='simulation')drawSimChart();}
+window.addEventListener('hashchange',()=>activateTab(location.hash.replace('#',''),false));
+
+function makeLayerTable(d3,compact){const table=document.createElement('table');table.className='sample-table';const hr=document.createElement('tr');const c=document.createElement('th');c.textContent='קובייה 2 → / קובייה 1 ↓';hr.appendChild(c);for(let d2=1;d2<=6;d2++){const th=document.createElement('th');th.textContent=d2;hr.appendChild(th)}table.appendChild(hr);for(let d1=1;d1<=6;d1++){const tr=document.createElement('tr');const rh=document.createElement('th');rh.textContent=d1;tr.appendChild(rh);for(let d2=1;d2<=6;d2++){const td=document.createElement('td');td.dataset.d1=d1;td.dataset.d2=d2;td.dataset.d3=d3;td.innerHTML=compact?'<span>'+d1+','+d2+'</span>':'<span>('+d1+','+d2+','+d3+')</span><small>סכום '+(d1+d2+d3)+'</small>';td.addEventListener('click',()=>{document.querySelectorAll('.selected-cell').forEach(x=>x.classList.remove('selected-cell'));td.classList.add('selected-cell');$('outcome-readout').innerHTML='התוצאה שנבחרה: <b>'+tupleText([d1,d2,d3])+'</b> · סכום: <b>'+(d1+d2+d3)+'</b> · הסתברות לתוצאה זו: <b>1/216</b>';});tr.appendChild(td)}table.appendChild(tr)}return table}
+function buildLayers(){
+ const btns=$('layer-buttons');btns.innerHTML='';for(let i=1;i<=6;i++){const b=document.createElement('button');b.className='layer-btn'+(i===layer?' active':'');b.textContent=i;b.type='button';b.addEventListener('click',()=>{layer=i;buildLayers()});btns.appendChild(b)}
+ $('single-layer-host').innerHTML='';const wrap=document.createElement('div');wrap.className='die-layer focus';wrap.innerHTML='<div class="layer-title">קובייה 3 = '+layer+' · 36 תוצאות בשכבה</div>';wrap.appendChild(makeLayerTable(layer,false));$('single-layer-host').appendChild(wrap);
+ $('all-layers-host').innerHTML='';for(let i=1;i<=6;i++){const w=document.createElement('div');w.className='die-layer'+(i===layer?' focus':'');w.innerHTML='<div class="layer-title">קובייה 3 = '+i+'</div>';w.appendChild(makeLayerTable(i,true));$('all-layers-host').appendChild(w)}
+ $('single-layer-host').classList.toggle('hidden',layerView!=='single');$('all-layers-host').classList.toggle('hidden',layerView!=='all');$('view-single').classList.toggle('active',layerView==='single');$('view-all').classList.toggle('active',layerView==='all');
+}
+$('view-single').addEventListener('click',()=>{layerView='single';buildLayers()});$('view-all').addEventListener('click',()=>{layerView='all';buildLayers()});
+function updateSample(){
+ const three=mode==='three';$('sample-three-area').classList.toggle('hidden',!three);$('sample-n-area').classList.toggle('hidden',three);
+ if(three){$('sample-subtitle').innerHTML='כל תוצאה היא שלישייה סדורה \\((d_1,d_2,d_3)\\).';$('sample-learning').innerHTML='<strong>מה חשוב לזכור?</strong>כל זוג ערכים של קוביות 1 ו־2 מופיע בכל אחת מ־6 השכבות של קובייה 3. לכן \\(6\\cdot6\\cdot6=216\\) תוצאות אפשריות, ולכל שלישייה הסתברות \\(\\frac{1}{216}\\).';buildLayers();}
+ else{$('sample-subtitle').innerHTML='כל תוצאה היא \\(n\\)-ייה סדורה: \\((d_1,d_2,\\ldots,d_n)\\).';$('sample-learning').innerHTML='<strong>המעבר ל־n קוביות</strong>כל קובייה מוסיפה 6 אפשרויות לכל תוצאה שכבר קיימת. לכן גודל מרחב המדגם מוכפל ב־6 בכל שלב.';$('n-tuple-formula').innerHTML='\\[(d_1,d_2,\\ldots,d_{'+n+'})\\]';$('n-space-formula').innerHTML='\\[6^{'+n+'}='+fmtInt(total())+'\\]';$('n-visual-note').textContent='הצגה מפורשת של '+fmtInt(total())+' תוצאות תעמיס על המסך. לכן עוברים מספירת תוצאות בודדות להתפלגות, נוסחאות וסימולציה.';const g=$('growth-list');g.innerHTML='';for(let k=1;k<=Math.min(n,8);k++){const d=document.createElement('div');d.className='growth-step';d.innerHTML='<span>'+k+' קוביות</span><strong>6<sup>'+k+'</sup></strong><span>'+fmtInt(Math.pow(6,k))+' תוצאות</span>';g.appendChild(d)}$('projection-note').innerHTML='\\[|\\Omega_n|=6^n\\qquad\\text{ו־}\\qquad P(\\text{תוצאה מסוימת})=\\frac{1}{6^n}\\]';}
+ qTypeset();
+}
+
+
+function classForPair(aHit,bHit,kind){
+ if(kind==='conditional'){
+  if(!bHit)return 'dim';
+  if(aHit&&bHit)return 'both';
+  return 'bonly';
+ }
+ if(aHit&&bHit)return 'both';
+ if(aHit)return 'hit';
+ if(bHit)return 'bonly';
+ return '';
+}
+function makeEventTable(d3,a,b,kind,zoneFocus){
+ const table=document.createElement('table');table.className='sample-table';
+ const hr=document.createElement('tr');const c=document.createElement('th');c.textContent='2→ / 1↓';hr.appendChild(c);for(let d2=1;d2<=6;d2++){const th=document.createElement('th');th.textContent=d2;hr.appendChild(th)}table.appendChild(hr);
+ for(let d1=1;d1<=6;d1++){const tr=document.createElement('tr');const rh=document.createElement('th');rh.textContent=d1;tr.appendChild(rh);for(let d2=1;d2<=6;d2++){const arr=[d1,d2,d3],ah=eventOnRoll(a,arr),bh=eventOnRoll(b,arr);const td=document.createElement('td');td.className=classForPair(ah,bh,kind);if(zoneFocus){const z=ah?(bh?'yy':'yn'):(bh?'ny':'nn');if(zoneFocus!=='all'&&z!==zoneFocus)td.classList.add('dim');else if(zoneFocus==='all'){}else td.classList.add('selected-cell')}td.textContent=d1+','+d2;tr.appendChild(td)}table.appendChild(tr)}return table;
+}
+function renderEventVisual(hostId,a,b,kind,title,zoneFocus){
+ const host=$(hostId);if(!host)return;
+ if(mode!=='three'){host.innerHTML='<div class="event-visual-note"><strong>במצב n קוביות</strong><br>לא מציירים מרחב מדגם n־ממדי. הספירה שמעל היא מדויקת עבור כל '+n+' הקוביות, והייצוג החזותי עובר לטבלה מסכמת, להתפלגות ולסימולציה.</div>';return}
+ host.innerHTML='<div class="event-visual-title">'+title+' — כל 6 השכבות של קובייה 3</div><div class="legend"><span class="legend-item"><i class="swatch a"></i>A</span><span class="legend-item"><i class="swatch b"></i>B</span><span class="legend-item"><i class="swatch both"></i>A וגם B</span></div>';
+ const grid=document.createElement('div');grid.className='event-layers';for(let d3=1;d3<=6;d3++){const w=document.createElement('div');w.className='die-layer';w.innerHTML='<div class="layer-title">קובייה 3 = '+d3+'</div>';w.appendChild(makeEventTable(d3,a,b,kind,zoneFocus));grid.appendChild(w)}host.appendChild(grid);
+}
+function updateCompound(){const a=$('compound-a').value,b=$('compound-b').value,ca=countEvent(a),cb=countEvent(b),both=countBoth(a,b),either=ca+cb-both,T=total();$('compound-pa').textContent=frac(ca,T);$('compound-pb').textContent=frac(cb,T);$('compound-both').textContent=frac(both,T);$('compound-either').textContent=frac(either,T);$('compound-count-box').innerHTML='<b>בספירה</b><br>'+fmtInt(ca)+' + '+fmtInt(cb)+' − '+fmtInt(both)+' = <b>'+fmtInt(either)+'</b>';$('compound-prob-box').innerHTML='\\[P(A\\,\\text{וא}\\,B)=P(A)+P(B)-P(A\\,\\text{םגו}\\,B)\\]\\[='+texFrac(either,T)+'\\]';renderEventVisual('compound-visual',a,b,'normal','היכן נמצאות התוצאות של A ושל B');qTypeset()}
+function updateConditional(){const a=$('conditional-a').value,b=$('conditional-b').value,T=total(),den=countEvent(b),num=countBoth(a,b);$('conditional-all').textContent=fmtInt(T);$('conditional-den').textContent=fmtInt(den);$('conditional-num').textContent=fmtInt(num);$('conditional-formula').innerHTML='\\[P(A\\mid B)=\\frac{P(A\\,\\text{םגו}\\,B)}{P(B)}='+texFrac(num,den)+'\\]';$('conditional-meaning').innerHTML='מתוך <b>'+fmtInt(den)+'</b> התוצאות שבהן B התרחש, <b>'+fmtInt(num)+'</b> מקיימות גם את A.';renderEventVisual('conditional-visual',a,b,'conditional','B הוא מרחב המדגם החדש');qTypeset()}
+function updateExclusive(){const a=$('exclusive-a').value,b=$('exclusive-b').value,ca=countEvent(a),cb=countEvent(b),both=countBoth(a,b);$('exclusive-ca').textContent=fmtInt(ca);$('exclusive-cb').textContent=fmtInt(cb);$('exclusive-cboth').textContent=fmtInt(both);$('exclusive-space').textContent=fmtInt(total());const box=$('exclusive-decision');box.className='decision '+(both===0?'good':'bad');box.textContent=both===0?'כן. אין אף תוצאה משותפת ולכן המאורעות זרים.':'לא. קיימות '+fmtInt(both)+' תוצאות משותפות ולכן המאורעות אינם זרים.';renderEventVisual('exclusive-visual',a,b,'normal','בדיקה חזותית של החיתוך')}
+
+const dieConditions={any:{name:'כל תוצאה',count:6},even:{name:'זוגי',count:3},odd:{name:'אי־זוגי',count:3},gt4:{name:'גדול מ־4',count:2},six:{name:'שווה 6',count:1},le3:{name:'קטן או שווה 3',count:3}};
+function condSelect(id,idx){const d=document.createElement('div');d.className='die-condition';d.innerHTML='<label for="'+id+'">קובייה '+idx+'</label><select id="'+id+'"></select>';const s=d.querySelector('select');Object.entries(dieConditions).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.name;s.appendChild(o)});return d}
+function initMultiplication(){const host=$('mult-three-controls');host.innerHTML='';['mult-d1','mult-d2','mult-d3'].forEach((id,i)=>host.appendChild(condSelect(id,i+1)));['mult-d1','mult-d2','mult-d3'].forEach((id,i)=>{const s=$(id);s.value=['even','gt4','six'][i];s.addEventListener('change',updateMultiplication)});const common=$('mult-common');Object.entries(dieConditions).filter(([k])=>k!=='any').forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.name;common.appendChild(o)});common.value='even';common.addEventListener('change',updateMultiplication)}
+
+function condTest(k,v){if(k==='any')return true;if(k==='even')return v%2===0;if(k==='odd')return v%2===1;if(k==='gt4')return v>4;if(k==='six')return v===6;if(k==='le3')return v<=3;return false}
+function renderMultiplicationVisual(){const host=$('mult-visual');if(mode!=='three'){host.innerHTML='<div class="event-visual-note">ב־n קוביות כל תא חזותי היה מייצג רק חתך קטן מתוך מרחב בעל '+fmtInt(total())+' תוצאות. לכן ההמחשה עוברת למכפלה החוזרת ולחזקה.</div>';return}const ks=['mult-d1','mult-d2','mult-d3'].map(id=>$(id).value);host.innerHTML='<div class="event-visual-title">תוצאות המקיימות את שלושת התנאים — לפי 6 שכבות</div>';const grid=document.createElement('div');grid.className='event-layers';for(let d3=1;d3<=6;d3++){const w=document.createElement('div');w.className='die-layer';w.innerHTML='<div class="layer-title">קובייה 3 = '+d3+'</div>';const table=document.createElement('table');table.className='sample-table';let hr=document.createElement('tr');let c=document.createElement('th');c.textContent='2→ / 1↓';hr.appendChild(c);for(let d2=1;d2<=6;d2++){let th=document.createElement('th');th.textContent=d2;hr.appendChild(th)}table.appendChild(hr);for(let d1=1;d1<=6;d1++){let tr=document.createElement('tr'),rh=document.createElement('th');rh.textContent=d1;tr.appendChild(rh);for(let d2=1;d2<=6;d2++){let td=document.createElement('td');const m1=condTest(ks[0],d1),m2=condTest(ks[1],d2),m3=condTest(ks[2],d3),m=m1+m2+m3;if(m===3)td.className='both';else if(m===2)td.className='hit';else if(m===1)td.className='bonly';td.textContent=d1+','+d2;tr.appendChild(td)}table.appendChild(tr)}w.appendChild(table);grid.appendChild(w)}host.appendChild(grid)}
+function updateMultiplication(){
+ const three=mode==='three';$('mult-three-controls').classList.toggle('hidden',!three);$('mult-n-controls').classList.toggle('hidden',three);
+ if(three){const ks=['mult-d1','mult-d2','mult-d3'].map(id=>$(id).value),cs=ks.map(k=>dieConditions[k].count),prod=cs.reduce((a,b)=>a*b,1);$('mult-learning-text').textContent=' סופרים '+cs.join(', ')+' אפשרויות מתאימות בכל קובייה, ולכן מספר השלישיות המתאימות הוא מכפלת המספרים.';$('mult-count-formula').innerHTML='<b>בספירה</b><div class="factor-strip">'+cs.map((c,i)=>'<span class="factor '+['a','b','c'][i]+'">'+c+'</span>').join('<span>×</span>')+'<span>=</span><span class="factor">'+prod+'</span></div><div style="margin-top:8px">מרחב המדגם: 6×6×6=216</div>';$('mult-prob-formula').innerHTML='\\['+cs.map(c=>'\\frac{'+c+'}{6}').join('\\cdot')+'=\\frac{'+prod+'}{216}='+texFrac(prod,216)+'\\]';$('mult-conclusion').innerHTML='אותו מלבן/תיבה של אפשרויות נספר פעם אחת כמכפלת מספר האפשרויות ופעם שנייה כמכפלת ההסתברויות.';}
+ else{const k=$('mult-common').value,c=dieConditions[k].count,good=Math.pow(c,n),T=total();$('mult-learning-text').textContent=' בכל אחת מ־'+n+' הקוביות יש '+c+' תוצאות מתאימות מתוך 6. לכן חוזרים על אותו גורם '+n+' פעמים.';$('mult-count-formula').innerHTML='<b>בספירה</b><div class="factor-strip"><span class="factor a">'+c+'<sup>'+n+'</sup></span><span>=</span><span class="factor">'+fmtInt(good)+'</span></div><div style="margin-top:8px">מתוך 6<sup>'+n+'</sup>='+fmtInt(T)+'</div>';$('mult-prob-formula').innerHTML='\\[\\left(\\frac{'+c+'}{6}\\right)^{'+n+'}=\\frac{'+fmtInt(good)+'}{'+fmtInt(T)+'}='+texFrac(good,T)+'\\]';$('mult-conclusion').innerHTML='המעבר מ־3 ל־n אינו רעיון חדש: פשוט ממשיכים לכפול גורם זהה. לכן מכפלה חוזרת הופכת לחזקה.';}
+ renderMultiplicationVisual();qTypeset();
+}
+
+function twDisplay(x){if(twMode==='fraction')return frac(x,total());if(twMode==='percent')return pct(x,total());return fmtInt(x)}
+function updateTwoWay(){const a=$('twoway-a').value,b=$('twoway-b').value,T=total(),ca=countEvent(a),cb=countEvent(b),yy=countBoth(a,b),yn=ca-yy,ny=cb-yy,nn=T-yy-yn-ny;const table=$('tw-table');table.innerHTML='<tr><th></th><th>'+events[b].name+'</th><th>לא '+events[b].name+'</th><th>סה״כ</th></tr><tr><th>'+events[a].name+'</th><td class="yy" data-zone="yy">'+twDisplay(yy)+'</td><td class="yn" data-zone="yn">'+twDisplay(yn)+'</td><td data-zone="rowY">'+twDisplay(ca)+'</td></tr><tr><th>לא '+events[a].name+'</th><td class="ny" data-zone="ny">'+twDisplay(ny)+'</td><td class="nn" data-zone="nn">'+twDisplay(nn)+'</td><td data-zone="rowN">'+twDisplay(T-ca)+'</td></tr><tr><th>סה״כ</th><td data-zone="colY">'+twDisplay(cb)+'</td><td data-zone="colN">'+twDisplay(T-cb)+'</td><td data-zone="all">'+(twMode==='count'?fmtInt(T):twMode==='fraction'?'1':'100%')+'</td></tr>';$('tw-yy-stat').textContent=fmtInt(yy);$('tw-nn-stat').textContent=fmtInt(nn);$('tw-link-text').innerHTML='הטבלה ממיינת את כל <b>'+fmtInt(T)+'</b> התוצאות לפי שתי שאלות בלבד: האם A התרחש? האם B התרחש? לכן מספר הקוביות אינו משנה את מבנה 2×2.';const data={yy,yn,ny,nn,rowY:ca,rowN:T-ca,colY:cb,colN:T-cb,all:T};table.querySelectorAll('td[data-zone]').forEach(td=>{td.addEventListener('click',()=>{twSelected=td.dataset.zone;focusTw(data,a,b)});});focusTw(data,a,b)}
+function focusTw(data,a,b){document.querySelectorAll('#tw-table td').forEach(td=>td.classList.toggle('sel',td.dataset.zone===twSelected));const m={yy:'A וגם B',yn:'A ולא B',ny:'לא A וגם B',nn:'לא A ולא B',rowY:'סה״כ A',rowN:'סה״כ לא A',colY:'סה״כ B',colN:'סה״כ לא B',all:'כל מרחב המדגם'};const c=data[twSelected]??data.yy;$('tw-explain').innerHTML='<b>'+m[twSelected]+'</b><p>התא כולל <b>'+fmtInt(c)+'</b> תוצאות מתוך <b>'+fmtInt(total())+'</b>.</p><div class="formula-box">\\['+texFrac(c,total())+'\\]</div>';renderEventVisual('tw-visual',a,b,'normal','התוצאות השייכות לתא שנבחר',twSelected);qTypeset()}
+document.querySelectorAll('[data-twmode]').forEach(b=>b.addEventListener('click',()=>{twMode=b.dataset.twmode;document.querySelectorAll('[data-twmode]').forEach(x=>x.classList.toggle('active',x===b));updateTwoWay()}));
+
+function svgEl(name,attrs){const e=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));return e}
+function drawDistribution(){const svg=$('dist-chart');if(!svg)return;svg.innerHTML='';const data=sumDistribution(),W=900,H=400,L=55,R=20,Tp=24,B=55,w=W-L-R,h=H-Tp-B,max=Math.max(...data.map(d=>d.count));const axis=svgEl('path',{d:`M${L},${Tp} V${Tp+h} H${L+w}`,fill:'none',stroke:'#7d8798','stroke-width':2});svg.appendChild(axis);const bw=w/data.length;data.forEach((d,i)=>{const bh=d.count/max*(h-10),x=L+i*bw+1,y=Tp+h-bh;const r=svgEl('rect',{x,y,width:Math.max(2,bw-2),height:bh,rx:3,fill:'#6d8cff'});r.addEventListener('mouseenter',()=>{$('dist-detail').innerHTML='<strong>סכום '+d.sum+'</strong>: '+fmtInt(d.count)+' תוצאות מתוך '+fmtInt(total())+' · הסתברות '+frac(d.count,total())+' ≈ '+pct(d.count,total());});svg.appendChild(r);if(data.length<=26||i%Math.ceil(data.length/18)===0){const tx=svgEl('text',{x:x+bw/2,y:H-30,'text-anchor':'middle','font-size':11,fill:'#465064'});tx.textContent=d.sum;svg.appendChild(tx)}});const ylab=svgEl('text',{x:12,y:18,'font-size':12,fill:'#465064'});ylab.textContent='מספר תוצאות';svg.appendChild(ylab);$('dist-min').textContent=n;$('dist-max').textContent=6*n;$('dist-mean').textContent=(3.5*n).toFixed(n%2?1:0);const modes=data.filter(d=>d.count===max).map(d=>d.sum);$('dist-mode').textContent=modes.join(', ');$('dist-note').textContent=n===3?' עבור 3 קוביות המרכז גבוה בהרבה מהקצוות: סכומים 10 ו־11 מתקבלים במספר הרב ביותר של שלישיות.':' ככל שמספר הקוביות גדל, יותר ויותר מהתוצאות מתרכזות סביב הסכום הממוצע '+(3.5*n)+'.';}
+
+let simN=0,simHits=0,simHistory=[];
+function resetSim(){simN=0;simHits=0;simHistory=[];$('sim-n').textContent='0';$('sim-hits').textContent='0';$('sim-exp').textContent='-';$('sim-progress').style.width='0%';$('sim-dice').innerHTML='';$('sim-last-summary').textContent='טרם בוצעה הגרלה';updateSimTheory();drawSimChart()}
+function updateSimTheory(){const key=$('sim-event').value,c=countEvent(key);$('sim-theory').textContent=frac(c,total())+' ≈ '+pct(c,total())}
+function recordRoll(arr){const hit=eventOnRoll($('sim-event').value,arr);simN++;if(hit)simHits++;if(simN<=250||simN%Math.max(1,Math.floor(simN/250))===0)simHistory.push({n:simN,p:simHits/simN});$('sim-n').textContent=fmtInt(simN);$('sim-hits').textContent=fmtInt(simHits);$('sim-exp').textContent=(simHits/simN).toFixed(4);$('sim-dice').innerHTML='';const shown=arr.slice(0,12);shown.forEach(v=>{const d=document.createElement('div');d.className='die';d.textContent=v;$('sim-dice').appendChild(d)});if(arr.length>12){const d=document.createElement('div');d.className='die';d.textContent='…';$('sim-dice').appendChild(d)}$('sim-last-summary').textContent='סכום: '+arr.reduce((a,b)=>a+b,0)+' · מספר שישיות: '+arr.filter(v=>v===6).length+' · '+(hit?'המאורע התרחש':'המאורע לא התרחש');}
+function runSimulation(trials,animate){const chunk=animate?Math.max(10,Math.floor(trials/60)):trials;let done=0;function step(){const end=Math.min(trials,done+chunk);for(;done<end;done++)recordRoll(randomRoll());$('sim-progress').style.width=(done/trials*100)+'%';drawSimChart();if(done<trials)requestAnimationFrame(step)}step()}
+function drawSimChart(){const svg=$('sim-chart');if(!svg)return;svg.innerHTML='';const W=900,H=400,L=55,R=20,Tp=25,B=45,w=W-L-R,h=H-Tp-B;svg.appendChild(svgEl('path',{d:`M${L},${Tp} V${Tp+h} H${L+w}`,fill:'none',stroke:'#7d8798','stroke-width':2}));const th=countEvent($('sim-event').value)/total();const ty=Tp+h-th*h;svg.appendChild(svgEl('line',{x1:L,x2:L+w,y1:ty,y2:ty,stroke:'#b04b4b','stroke-width':2,'stroke-dasharray':'7 5'}));if(simHistory.length>1){let d='';simHistory.forEach((p,i)=>{const x=L+(p.n/simN)*w,y=Tp+h-p.p*h;d+=(i?'L':'M')+x+','+y});svg.appendChild(svgEl('path',{d,fill:'none',stroke:'#315efb','stroke-width':3}))}const t=svgEl('text',{x:L+8,y:Math.max(16,ty-7),'font-size':12,fill:'#8a3434'});t.textContent='תאורטית '+th.toFixed(4);svg.appendChild(t)}
+$('sim-trials').addEventListener('input',e=>$('sim-trials-value').textContent=e.target.value);$('sim-run').addEventListener('click',()=>{resetSim();runSimulation(Number($('sim-trials').value),true)});$('sim-one').addEventListener('click',()=>{recordRoll(randomRoll());$('sim-progress').style.width='100%';drawSimChart()});$('sim-reset').addEventListener('click',resetSim);$('sim-event').addEventListener('change',()=>{resetSim()});
+
+function refreshAll(){
+ $('mode-three').classList.toggle('active',mode==='three');$('mode-n').classList.toggle('active',mode==='n');$('n-slider').value=n;$('n-value').textContent=n;$('space-size-pill').innerHTML='\\(|\\Omega|=6^{'+n+'}='+fmtInt(total())+'\\)';
+ updateSample();updateCompound();updateConditional();updateExclusive();updateMultiplication();updateTwoWay();drawDistribution();resetSim();qTypeset();
+}
+function init(){
+ ['compound-a','compound-b','conditional-a','conditional-b','exclusive-a','exclusive-b','twoway-a','twoway-b','sim-event'].forEach((id,i)=>populateEventSelect(id,['atleastOne6','allEven','exactlyOne6','no6','allEven','allOdd','atleastOne6','allEven','atleastOne6'][i]));
+ ['compound-a','compound-b'].forEach(id=>$(id).addEventListener('change',updateCompound));['conditional-a','conditional-b'].forEach(id=>$(id).addEventListener('change',updateConditional));['exclusive-a','exclusive-b'].forEach(id=>$(id).addEventListener('change',updateExclusive));['twoway-a','twoway-b'].forEach(id=>$(id).addEventListener('change',updateTwoWay));
+ initMultiplication();initTabs();refreshAll();
+}
+document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+</body>
+</html>
