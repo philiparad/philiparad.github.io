@@ -1,9 +1,9 @@
-import { createBoard, parseBackup } from './model.js?v=20261006-text-taps';
-import { BoardRepository } from './storage.js?v=20261006-text-taps';
-import { Editor } from './editor.js?v=20261006-text-taps';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261006-text-taps';
-import { backup } from './export.js?v=20261006-text-taps';
-import { drawItem, svgEl, union } from './scene.js?v=20261006-text-taps';
+import { createBoard, parseBackup } from './model.js?v=20261006-snippets';
+import { BoardRepository } from './storage.js?v=20261006-snippets';
+import { Editor } from './editor.js?v=20261006-snippets';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261006-snippets';
+import { backup } from './export.js?v=20261006-snippets';
+import { drawItem, svgEl, union } from './scene.js?v=20261006-snippets';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

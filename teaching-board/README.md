@@ -15,6 +15,7 @@ A personal teaching whiteboard built with HTML, CSS and JavaScript. Stage 2 adds
 - Editable LaTeX equations using MathJax.
 - Editable function graphs using JSXGraph and a restricted expression parser (no eval).
 - PNG/JPEG/WebP/GIF image import; PDF page import with locked page backgrounds.
+- Reusable teaching snippets: save selections, search, preview, insert into another lesson, rename, trash/restore and export/import.
 - Lesson timer and presentation mode.
 - SVG/PNG exports; A4 landscape printing / Save as PDF.
 - Self-contained editable JSON backups, including images and imported PDF pages.
@@ -27,6 +28,12 @@ Create a lesson, choose a tool, and draw on the canvas. Click the lesson title t
 Polygon: click each vertex, then press Enter. Use `*` for multiplication in graphs: `2*x^2-3`, `sin(x)`, `sqrt(x)`. Trigonometric arguments are radians.
 
 Use Export → Editable backup before clearing browser data, or to transfer a lesson. Import creates a new lesson without replacing the original. Print / Save as PDF fits the full board onto one A4 landscape page; very large boards may print small.
+
+## Reusable snippets
+
+Select objects, open Selection tools, and choose **Save selection as snippet**. Open **Saved snippets** in any lesson to insert a copy at the current view center. Each copy is independent, unlocked, and keeps groups and connections between included objects. Connections to objects outside the selection detach. Insertions support normal undo/redo and become part of lesson backups.
+
+Snippets are stored separately on this device; lesson backups do not contain the saved snippet collection. Use each snippet’s **Export** action and **Import snippet** to move or back up saved snippets. Removing a snippet moves it to recoverable Trash and does not affect copies already inserted into lessons. A snippet supports up to 1,000 objects and 5 MB.
 
 ## Keyboard
 

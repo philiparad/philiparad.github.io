@@ -313,3 +313,15 @@ test('two text pointer clicks reopen editing despite redraws; dragging does not'
  e.pointerDown(tap(100));e.pointerUp(tap(120));e.pointerDown(tap(250));assert.equal(edits,1);assert.equal(e.drag,null);
  e.pointerDown(tap(1000));e.pointerMove({...pointer(e,70,80),timeStamp:1100});e.pointerUp(pointer(e,70,80));e.pointerDown(tap(1200));assert.equal(edits,1);
 });
+
+test('snippet insertion is one undoable change with fresh groups and editable connections',async()=>{
+ const {createSnippet}=await import('../js/snippet-model.js');
+ const e=fixture(2);e.center=()=>({x:500,y:350});e.setTool=tool=>{e.tool=tool;};
+ e.selected=new Set(e.board.items.map(i=>i.id));e.connectSelection();e.selected=new Set(e.board.items.map(i=>i.id));e.groupSelection();
+ const value=createSnippet('Reusable diagram',e.board.items),count=e.board.items.length,steps=e.history.past.length;
+ e.insertSnippet(value);assert.equal(e.board.items.length,count*2);assert.equal(e.history.past.length,steps+1);assert.equal(e.selected.size,3);
+ const inserted=e.board.items.slice(count);assert.equal(inserted[2].links.start,inserted[0].id);assert.notEqual(inserted[0].groupId,e.board.items[0].groupId);
+ e.undo();assert.equal(e.board.items.length,count);e.redo();assert.equal(e.board.items.length,count*2);
+ const {serializeBackup,parseBackup}=await import('../js/model.js');assert.equal(parseBackup(serializeBackup(e.board)).items.length,count*2);assert.equal(walk(sceneSVG(e.board)).filter(n=>n.hasAttribute('data-id')).length,count*2);
+ const invalid=structuredClone(value);invalid.items[0].x=NaN;assert.throws(()=>e.insertSnippet(invalid));assert.equal(e.board.items.length,count*2);
+});
