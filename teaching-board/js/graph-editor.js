@@ -1,4 +1,4 @@
-import { ParameterPlayback } from './parameter-playback.js?v=20261006-animation';
+import { ParameterPlayback } from './parameter-playback.js?v=20261006-animation-bounds';
 import { el, btn, field } from './ui.js?v=20261006-animation';
 import { validateParameters } from './graph-series.js?v=20261006-animation';
 import { graph } from './media.js?v=20261006-animation';

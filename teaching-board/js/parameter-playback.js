@@ -12,5 +12,5 @@ export class ParameterPlayback {
 export function advanceParameter(p,direction){
  const step=(p.max-p.min)/80;let value=p.value+direction*step;
  if(value>=p.max){value=p.max;direction=-1;}else if(value<=p.min){value=p.min;direction=1;}
- return {value:Number(value.toPrecision(12)),direction};
+ return {value:Math.max(p.min,Math.min(p.max,Number(value.toPrecision(12)))),direction};
 }

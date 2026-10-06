@@ -19,3 +19,5 @@ test('switching parameters cancels old queued frames; rendering failure stops pl
  playback.start(a,()=>{});await settle();const old=queued.shift(),value=a.value;playback.start(b,()=>{});await settle();await old();assert.equal(a.value,value);assert.equal(playback.active,b);
  ok=false;await queued.pop()();assert.equal(playback.active,null);
 });
+
+test('rounding cannot push values outside irrational bounds',()=>{const p={value:Math.PI,min:-Math.PI,max:Math.PI};assert.equal(advanceParameter(p,1).value,Math.PI);p.value=-Math.PI;assert.equal(advanceParameter(p,-1).value,-Math.PI);});
