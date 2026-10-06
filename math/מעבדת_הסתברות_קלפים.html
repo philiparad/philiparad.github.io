@@ -98,7 +98,7 @@
 
     .tabs{
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(5,minmax(0,1fr));
       gap:8px;
       margin:8px 0;
     }
@@ -666,6 +666,7 @@
 <button class="tab" data-tab="exclusive" type="button">מאורעות זרים</button>
 <button class="tab" data-tab="multiplication" type="button">כפל הסתברויות</button>
 <button class="tab" data-tab="addition" type="button">חיבור הסתברויות</button>
+<button class="tab" data-tab="atleastone" type="button">לפחות 1</button>
 <button class="tab" data-tab="twoway" type="button">טבלה דו-ממדית</button>
 <button class="tab" data-tab="simulation" type="button">סימולציה</button>
 </nav>
@@ -789,6 +790,77 @@
 </div>
 </div>
 </section>
+
+<section aria-labelledby="title-atleastone" class="panel" data-panel="atleastone" id="panel-atleastone">
+<div class="panel-header">
+<div>
+<h2 id="title-atleastone">לפחות 1 — קלפים</h2>
+<p>הביטוי „לפחות אחד” פירושו: המאורע הראשון מתרחש, או המאורע השני מתרחש, או ששניהם מתרחשים יחד.</p>
+</div>
+</div>
+
+<div class="controls">
+<div class="control">
+<label for="atleastone-example">בחרו דוגמה</label>
+<select id="atleastone-example">
+<option value="redOrAce">לפחות אחד: קלף אדום או אס</option>
+<option value="heartOrKing">לפחות אחד: לב או מלך</option>
+<option value="blackOrFace">לפחות אחד: קלף שחור או קלף תמונה</option>
+<option value="diamondOrHigh">לפחות אחד: יהלום או דרגה 10 ומעלה</option>
+</select>
+</div>
+</div>
+
+<div class="learning-note">
+<strong>איך מתרגמים את המשפט למאורעות?</strong>
+<div id="atleastone-learning-text"></div>
+</div>
+
+<div class="multiplication-layout">
+<div class="multiplication-top-row">
+<div class="stats multiplication-stats">
+<div class="stat stat-a"><div class="label" id="atleastone-a-label"></div><div class="value" id="atleastone-a-count"></div></div>
+<div class="stat stat-b"><div class="label" id="atleastone-b-label"></div><div class="value" id="atleastone-b-count"></div></div>
+<div class="stat stat-both"><div class="label">קלפים משותפים לשני המאורעות</div><div class="value" id="atleastone-both-count"></div></div>
+<div class="stat"><div class="label">קלפים שונים ב־A או B</div><div class="value" id="atleastone-either-count"></div></div>
+</div>
+
+<div class="multiplication-main">
+<div class="legend compact" aria-label="מקרא צבעים">
+<span class="legend-item"><i class="swatch a"></i><span id="atleastone-legend-a"></span></span>
+<span class="legend-item"><i class="swatch b"></i><span id="atleastone-legend-b"></span></span>
+<span class="legend-item"><i class="swatch both"></i><span id="atleastone-legend-both"></span></span>
+</div>
+<div class="board-stage">
+<div class="board-transform" data-scale="1" id="atleastone-board">
+<table aria-label="לפחות אחד — קלפים" class="sample-table card-grid" id="grid-atleastone"></table>
+</div>
+</div>
+</div>
+</div>
+
+<div class="multiplication-panels-row">
+<div class="formula-box multiplication-panel">
+<div class="multiplication-step-title">דרך 1 — ספירה</div>
+<div class="multiplication-equation" id="atleastone-count-formula"></div>
+<div class="multiplication-subline" id="atleastone-count-note"></div>
+</div>
+
+<div class="formula-box multiplication-panel">
+<div class="multiplication-step-title">דרך 2 — חיבור הסתברויות</div>
+<div class="multiplication-equation" id="atleastone-prob-formula"></div>
+<div class="multiplication-subline">מחברים את שתי ההסתברויות ומחסירים את החיתוך, כדי לא לספור אותו פעמיים.</div>
+</div>
+
+<div class="learning-note multiplication-panel">
+<strong>בדיקה בדרך נוספת — המאורע המשלים</strong>
+<div class="multiplication-equation" id="atleastone-complement-formula"></div>
+<div class="multiplication-subline" id="atleastone-complement-note"></div>
+</div>
+</div>
+</div>
+</section>
+
 <section aria-labelledby="title-conditional" class="panel" data-panel="conditional" id="panel-conditional">
 <div class="panel-header">
 <div>
@@ -984,6 +1056,119 @@
     evenRank:{name:"דרגה זוגית (2,4,6,8,10,Q)",fn:o=>o.value%2===0},
     oddRank:{name:"דרגה אי-זוגית (A,3,5,7,9,J,K)",fn:o=>o.value%2===1}
   };
+
+
+  const atleastOneExamples={
+    redOrAce:{
+      title:"קלף אדום או אס",
+      aName:"קלף אדום",
+      bName:"אס",
+      aFn:o=>o.color==="red",
+      bFn:o=>o.rank==="ace",
+      compText:"קלף שחור שאינו אס"
+    },
+    heartOrKing:{
+      title:"לב או מלך",
+      aName:"לב",
+      bName:"מלך",
+      aFn:o=>o.suit==="hearts",
+      bFn:o=>o.rank==="king",
+      compText:"קלף שאינו לב ואינו מלך"
+    },
+    blackOrFace:{
+      title:"קלף שחור או קלף תמונה",
+      aName:"קלף שחור",
+      bName:"קלף תמונה",
+      aFn:o=>o.color==="black",
+      bFn:o=>faceRanks.has(o.rank),
+      compText:"קלף אדום שאינו קלף תמונה"
+    },
+    diamondOrHigh:{
+      title:"יהלום או דרגה 10 ומעלה",
+      aName:"יהלום",
+      bName:"דרגה 10 ומעלה",
+      aFn:o=>o.suit==="diamonds",
+      bFn:o=>o.value>=10,
+      compText:"קלף שאינו יהלום ודרגתו נמוכה מ־10"
+    }
+  };
+
+  function renderAtLeastOne(){
+    const ex=atleastOneExamples[document.getElementById("atleastone-example").value];
+    const aSet=outcomes.filter(ex.aFn);
+    const bSet=outcomes.filter(ex.bFn);
+    const bothSet=outcomes.filter(o=>ex.aFn(o)&&ex.bFn(o));
+    const eitherSet=outcomes.filter(o=>ex.aFn(o)||ex.bFn(o));
+    const compSet=outcomes.filter(o=>!ex.aFn(o)&&!ex.bFn(o));
+
+    document.getElementById("atleastone-learning-text").innerHTML =
+      `נגדיר \\(A\\): „${ex.aName}”, ו-\\(B\\): „${ex.bName}”. לכן „לפחות אחד” הוא \\(A\\,\\text{וא}\\,B\\).`;
+
+    document.getElementById("atleastone-a-label").textContent=`קלפים במאורע A — ${ex.aName}`;
+    document.getElementById("atleastone-b-label").textContent=`קלפים במאורע B — ${ex.bName}`;
+    document.getElementById("atleastone-a-count").textContent=aSet.length;
+    document.getElementById("atleastone-b-count").textContent=bSet.length;
+    document.getElementById("atleastone-both-count").textContent=bothSet.length;
+    document.getElementById("atleastone-either-count").textContent=eitherSet.length;
+
+    document.getElementById("atleastone-legend-a").textContent=`A בלבד — ${ex.aName}`;
+    document.getElementById("atleastone-legend-b").textContent=`B בלבד — ${ex.bName}`;
+    document.getElementById("atleastone-legend-both").textContent="A וגם B — החיתוך";
+
+    const table=document.getElementById("grid-atleastone");
+    table.innerHTML="";
+    const trh=document.createElement("tr");
+    const corner=document.createElement("th");
+    corner.textContent="סדרה \\ דרגה";
+    trh.appendChild(corner);
+    ranks.forEach(r=>{
+      const th=document.createElement("th");
+      th.textContent=r.label;
+      trh.appendChild(th);
+    });
+    table.appendChild(trh);
+
+    suits.forEach(s=>{
+      const tr=document.createElement("tr");
+      const th=document.createElement("th");
+      th.textContent=s.symbol+" "+s.name;
+      tr.appendChild(th);
+      ranks.forEach(r=>{
+        const o=outcomes.find(x=>x.suit===s.key&&x.rank===r.key);
+        const td=document.createElement("td");
+        const img=document.createElement("img");
+        img.className="card-thumb";
+        img.src=o.image;
+        img.alt=`${r.name} ${s.name}`;
+        td.appendChild(img);
+
+        const ina=ex.aFn(o), inb=ex.bFn(o);
+        if(ina&&inb) td.classList.add("both");
+        else if(ina) td.classList.add("a");
+        else if(inb) td.classList.add("b");
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    });
+
+    const a=aSet.length,b=bSet.length,both=bothSet.length,either=eitherSet.length,comp=compSet.length;
+    document.getElementById("atleastone-count-formula").innerHTML =
+      `\\(${a}+${b}-${both}=${either}\\)`;
+    document.getElementById("atleastone-count-note").textContent =
+      `${both} קלפים משותפים נספרו פעמיים, ולכן מחסירים אותם פעם אחת.`;
+
+    document.getElementById("atleastone-prob-formula").innerHTML =
+      `\\(P(A\\,\\text{וא}\\,B)=\\frac{${a}}{52}+\\frac{${b}}{52}-\\frac{${both}}{52}=\\frac{${either}}{52}=${texFraction(either,52)}\\)`;
+
+    document.getElementById("atleastone-complement-formula").innerHTML =
+      `\\(1-\\frac{${comp}}{52}=\\frac{${either}}{52}=${texFraction(either,52)}\\)`;
+    document.getElementById("atleastone-complement-note").textContent =
+      `המאורע המשלים הוא: „${ex.compText}”.`;
+
+    if(window.MathJax && MathJax.typesetPromise){
+      MathJax.typesetPromise([document.getElementById("panel-atleastone")]);
+    }
+  }
 
   const simpleEventBank=[
     ...suits.map(s=>({name:"הקלף הוא מסדרת "+s.name,fn:o=>o.suit===s.key})),
@@ -1224,8 +1409,9 @@
     document.getElementById("compound-a").value="red";document.getElementById("compound-b").value="face";document.getElementById("addition-a").value="red";document.getElementById("addition-b").value="face";document.getElementById("conditional-a").value="king";document.getElementById("conditional-b").value="red";document.getElementById("mult-a").value="face";document.getElementById("mult-b").value="hearts";document.getElementById("exclusive-a").value="red";document.getElementById("exclusive-b").value="black";document.getElementById("twoway-row").value="face";document.getElementById("twoway-col").value="red";document.getElementById("simulation-event").value="hearts";
     buildGrid("grid-sample",null,null,"normal");updateSimpleEventDisplay(-1);document.getElementById("sample-random-generate").addEventListener("click",generateSimpleEvent);document.getElementById("sample-random-reset").addEventListener("click",()=>updateSimpleEventDisplay(-1));
     ["compound-a","compound-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateCompound));["addition-a","addition-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateAddition));["conditional-a","conditional-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateConditional));["mult-a","mult-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateMultiplication));["exclusive-a","exclusive-b"].forEach(id=>document.getElementById(id).addEventListener("change",updateExclusive));["twoway-row","twoway-col"].forEach(id=>document.getElementById(id).addEventListener("change",updateTwoWay));document.querySelectorAll("[data-twoway-mode]").forEach(btn=>btn.addEventListener("click",()=>{twoWayMode=btn.dataset.twowayMode;updateTwoWay();}));
+    document.getElementById("atleastone-example").addEventListener("change",renderAtLeastOne);
     const mcTrials=document.getElementById("mc-trials"),mcTrialsValue=document.getElementById("mc-trials-value");mcTrials.addEventListener("input",()=>{mcTrialsValue.textContent=mcTrials.value;});document.getElementById("mc-run").addEventListener("click",()=>simulateAnimated(Number(mcTrials.value),true));document.getElementById("mc-one").addEventListener("click",simulateOneAnimated);document.getElementById("sim-reset").addEventListener("click",resetSimulation);document.getElementById("simulation-event").addEventListener("change",resetSimulation);
-    initPractice();updateCompound();updateAddition();updateConditional();updateMultiplication();updateExclusive();updateTwoWay();updateSimulationDisplay();
+    initPractice();updateCompound();updateAddition();renderAtLeastOne();updateConditional();updateMultiplication();updateExclusive();updateTwoWay();updateSimulationDisplay();
   }
   init();
 })();

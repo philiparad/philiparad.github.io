@@ -98,7 +98,7 @@
 
     .tabs{
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(5,minmax(0,1fr));
       gap:8px;
       margin:8px 0;
     }
@@ -780,6 +780,7 @@
 <button class="tab" data-tab="exclusive" type="button">מאורעות זרים</button>
 <button class="tab" data-tab="multiplication" type="button">כפל הסתברויות</button>
 <button class="tab" data-tab="addition" type="button">חיבור הסתברויות</button>
+<button class="tab" data-tab="atleastone" type="button">לפחות 1</button>
 <button class="tab" data-tab="twoway" type="button">טבלה דו-ממדית</button>
 <button class="tab" data-tab="simulation" type="button">סימולציה</button>
 </nav>
@@ -903,6 +904,77 @@
 </div>
 </div>
 </section>
+
+<section aria-labelledby="title-atleastone" class="panel" data-panel="atleastone" id="panel-atleastone">
+<div class="panel-header">
+<div>
+<h2 id="title-atleastone">לפחות אחת — שתי קוביות</h2>
+<p id="atleastone-subtitle">הביטוי „לפחות אחת” מתאר איחוד של שני מאורעות: המאורע יכול להתרחש בקובייה 1, בקובייה 2, או בשתיהן.</p>
+</div>
+</div>
+
+<div class="controls">
+<div class="control">
+<label for="atleastone-example">בחרו דוגמה</label>
+<select id="atleastone-example">
+<option value="six">לפחות קובייה אחת מראה 6</option>
+<option value="five">לפחות קובייה אחת מראה 5</option>
+<option value="even">לפחות קובייה אחת זוגית</option>
+<option value="gt4">לפחות קובייה אחת גדולה מ־4</option>
+</select>
+</div>
+</div>
+
+<div class="learning-note" id="atleastone-learning-note">
+<strong>איך מתרגמים את המשפט למאורעות?</strong>
+<div id="atleastone-learning-text"></div>
+</div>
+
+<div class="multiplication-layout">
+<div class="multiplication-top-row">
+<div class="stats multiplication-stats">
+<div class="stat stat-a"><div class="label" id="atleastone-a-label"></div><div class="value" id="atleastone-a-count"></div></div>
+<div class="stat stat-b"><div class="label" id="atleastone-b-label"></div><div class="value" id="atleastone-b-count"></div></div>
+<div class="stat stat-both"><div class="label" id="atleastone-both-label"></div><div class="value" id="atleastone-both-count"></div></div>
+<div class="stat"><div class="label">מספר התוצאות השונות</div><div class="value" id="atleastone-either-count"></div></div>
+</div>
+
+<div class="multiplication-main">
+<div class="legend" aria-label="מקרא צבעים">
+<span class="legend-item"><i class="swatch a"></i><span id="atleastone-legend-a"></span></span>
+<span class="legend-item"><i class="swatch b"></i><span id="atleastone-legend-b"></span></span>
+<span class="legend-item"><i class="swatch both"></i><span id="atleastone-legend-both"></span></span>
+</div>
+<div class="board-stage">
+<div class="board-transform" data-scale="1" id="atleastone-board">
+<table aria-label="לפחות קובייה אחת מראה 6" class="sample-table" id="grid-atleastone"></table>
+</div>
+</div>
+</div>
+</div>
+
+<div class="multiplication-panels-row">
+<div class="formula-box multiplication-panel">
+<div class="multiplication-step-title">דרך 1 — ספירה</div>
+<div class="multiplication-equation" id="atleastone-count-formula"></div>
+<div class="multiplication-subline" id="atleastone-count-note"></div>
+</div>
+
+<div class="formula-box multiplication-panel">
+<div class="multiplication-step-title">דרך 2 — חיבור הסתברויות</div>
+<div class="multiplication-equation" id="atleastone-prob-formula"></div>
+<div class="multiplication-subline">אותו רעיון בדיוק: מחברים את שתי ההסתברויות ומחסירים את החיתוך.</div>
+</div>
+
+<div class="learning-note multiplication-panel">
+<strong>בדיקה בדרך נוספת — המאורע המשלים</strong>
+<div class="multiplication-equation" id="atleastone-complement-formula"></div>
+<div class="multiplication-subline" id="atleastone-complement-note"></div>
+</div>
+</div>
+</div>
+</section>
+
 <section aria-labelledby="title-conditional" class="panel" data-panel="conditional" id="panel-conditional">
 <div class="panel-header">
 <div>
@@ -1157,8 +1229,124 @@
     sumLe5:{name:"סכום קטן או שווה ל-5", fn:o=>o.sum<=5},
     sumGe9:{name:"סכום גדול או שווה ל-9", fn:o=>o.sum>=9},
     double:{name:"דאבל", fn:o=>o.d1===o.d2},
-    atleast6:{name:"לפחות קובייה אחת שווה 6", fn:o=>o.d1===6||o.d2===6}
+    atleast6:{name:"לפחות קובייה אחת שווה 6", fn:o=>o.d1===6||o.d2===6},
+    first6:{name:"קובייה 1 שווה 6", fn:o=>o.d1===6}
   };
+
+
+  const atleastOneExamples={
+    six:{
+      title:"לפחות קובייה אחת מראה 6",
+      aName:"קובייה א מראה 6",
+      bName:"קובייה ב מראה 6",
+      aFn:o=>o.d1===6,
+      bFn:o=>o.d2===6,
+      compFn:o=>o.d1!==6 && o.d2!==6,
+      compText:"בשתי הקוביות אין 6"
+    },
+    five:{
+      title:"לפחות קובייה אחת מראה 5",
+      aName:"קובייה א מראה 5",
+      bName:"קובייה ב מראה 5",
+      aFn:o=>o.d1===5,
+      bFn:o=>o.d2===5,
+      compFn:o=>o.d1!==5 && o.d2!==5,
+      compText:"בשתי הקוביות אין 5"
+    },
+    even:{
+      title:"לפחות קובייה אחת זוגית",
+      aName:"קובייה א זוגית",
+      bName:"קובייה ב זוגית",
+      aFn:o=>o.d1%2===0,
+      bFn:o=>o.d2%2===0,
+      compFn:o=>o.d1%2===1 && o.d2%2===1,
+      compText:"שתי הקוביות אי־זוגיות"
+    },
+    gt4:{
+      title:"לפחות קובייה אחת גדולה מ־4",
+      aName:"קובייה א גדולה מ־4",
+      bName:"קובייה ב גדולה מ־4",
+      aFn:o=>o.d1>4,
+      bFn:o=>o.d2>4,
+      compFn:o=>o.d1<=4 && o.d2<=4,
+      compText:"שתי הקוביות קטנות או שוות ל־4"
+    }
+  };
+
+  function fractionLatex(n,d){
+    const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+    const g=gcd(n,d);
+    return `\\frac{${n/g}}{${d/g}}`;
+  }
+
+  function renderAtLeastOne(){
+    const key=document.getElementById("atleastone-example").value;
+    const ex=atleastOneExamples[key];
+
+    const aSet=outcomes.filter(ex.aFn);
+    const bSet=outcomes.filter(ex.bFn);
+    const bothSet=outcomes.filter(o=>ex.aFn(o)&&ex.bFn(o));
+    const eitherSet=outcomes.filter(o=>ex.aFn(o)||ex.bFn(o));
+    const compSet=outcomes.filter(ex.compFn);
+
+    document.getElementById("atleastone-learning-text").innerHTML =
+      `נגדיר \\(E\\): „${ex.aName}”, ו-\\(F\\): „${ex.bName}”. לכן „${ex.title}” הוא \\(E\\,\\text{וא}\\,F\\).`;
+
+    document.getElementById("atleastone-a-label").textContent=`תוצאות שבהן ${ex.aName}`;
+    document.getElementById("atleastone-b-label").textContent=`תוצאות שבהן ${ex.bName}`;
+    document.getElementById("atleastone-both-label").textContent=`תוצאות משותפות לשני המאורעות`;
+    document.getElementById("atleastone-a-count").textContent=aSet.length;
+    document.getElementById("atleastone-b-count").textContent=bSet.length;
+    document.getElementById("atleastone-both-count").textContent=bothSet.length;
+    document.getElementById("atleastone-either-count").textContent=eitherSet.length;
+
+    document.getElementById("atleastone-legend-a").textContent=ex.aName;
+    document.getElementById("atleastone-legend-b").textContent=ex.bName;
+    document.getElementById("atleastone-legend-both").textContent="שייך לשני המאורעות — החיתוך";
+
+    const table=document.getElementById("grid-atleastone");
+    table.innerHTML="";
+    const trh=document.createElement("tr");
+    const corner=document.createElement("th");
+    corner.textContent="א \\ ב";
+    trh.appendChild(corner);
+    for(let d2=1;d2<=6;d2++){ const th=document.createElement("th"); th.textContent=d2; trh.appendChild(th); }
+    table.appendChild(trh);
+    for(let d1=1;d1<=6;d1++){
+      const tr=document.createElement("tr");
+      const th=document.createElement("th"); th.textContent=d1; tr.appendChild(th);
+      for(let d2=1;d2<=6;d2++){
+        const o={d1,d2,sum:d1+d2};
+        const td=document.createElement("td");
+        td.textContent=`(${d1},${d2})`;
+        const ina=ex.aFn(o), inb=ex.bFn(o);
+        if(ina&&inb) td.classList.add("both");
+        else if(ina) td.classList.add("a");
+        else if(inb) td.classList.add("b");
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+
+    const a=aSet.length, b=bSet.length, both=bothSet.length, either=eitherSet.length, comp=compSet.length;
+    document.getElementById("atleastone-count-formula").innerHTML =
+      `\\(${a}+${b}-${both}=${either}\\)`;
+    document.getElementById("atleastone-count-note").textContent =
+      both===1 ? "התוצאה המשותפת נספרה פעמיים, ולכן מחסירים אותה פעם אחת." :
+      `${both} תוצאות משותפות נספרו פעמיים, ולכן מחסירים אותן פעם אחת.`;
+
+    document.getElementById("atleastone-prob-formula").innerHTML =
+      `\\(P(E\\,\\text{וא}\\,F)=\\frac{${a}}{36}+\\frac{${b}}{36}-\\frac{${both}}{36}=\\frac{${either}}{36}=${fractionLatex(either,36)}\\)`;
+
+    document.getElementById("atleastone-complement-formula").innerHTML =
+      `\\(1-\\frac{${comp}}{36}=\\frac{${either}}{36}=${fractionLatex(either,36)}\\)`;
+    document.getElementById("atleastone-complement-note").textContent =
+      `„${ex.title}” משלים ל„${ex.compText}”.`;
+
+    if(window.MathJax && MathJax.typesetPromise){
+      MathJax.typesetPromise([document.getElementById("panel-atleastone")]);
+    }
+  }
 
   const simpleEventBank=[
     {name:"סכום שתי הקוביות הוא 2", fn:o=>o.sum===2},
@@ -2049,6 +2237,8 @@
 
     updateCompound();
     updateConditional();
+    document.getElementById("atleastone-example").addEventListener("change",renderAtLeastOne);
+    renderAtLeastOne();
     updateMultiplication();
     updateAddition();
     updateExclusive();
