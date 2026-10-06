@@ -1,4 +1,4 @@
-import { drawItem } from './scene.js?v=20261006-snippets';
+import { drawItem } from './scene.js?v=20261006-parametric';
 
 // Editor-only cache: exports always render the complete model independently.
 // Comparing serialized visual data also detects in-place curve/crop edits and
