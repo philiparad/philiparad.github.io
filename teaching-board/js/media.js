@@ -1,5 +1,5 @@
-import { graphSeries, compileSeries, seriesLabels } from './graph-series.js?v=20261006-animation';
-export { graphSeries } from './graph-series.js?v=20261006-animation';
+import { graphSeries, compileSeries, seriesLabels } from './graph-series.js?v=20261006-text-align';
+export { graphSeries } from './graph-series.js?v=20261006-text-align';
 const loaders=new Map();
 export function script(url){if(!loaders.has(url))loaders.set(url,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.onload=resolve;s.onerror=()=>{s.remove();loaders.delete(url);reject(new Error('Could not load the teaching library. Check your internet connection and retry.'));};document.head.append(s);}));return loaders.get(url);}
 export function dataURL(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(blob);});}

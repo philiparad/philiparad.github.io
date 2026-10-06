@@ -1,7 +1,7 @@
-import { validateSeries, validateParameters } from './graph-series.js?v=20261006-animation';
-import { SHAPES } from './shapes.js?v=20261006-animation';
-import { LINE_STYLES } from './line-style.js?v=20261006-animation';
-import { validCrop } from './crop-editor.js?v=20261006-animation';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261006-text-align';
+import { SHAPES } from './shapes.js?v=20261006-text-align';
+import { LINE_STYLES } from './line-style.js?v=20261006-text-align';
+import { validCrop } from './crop-editor.js?v=20261006-text-align';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -36,6 +36,7 @@ export function validateBoard(value) {
     for (const key of ['w', 'h', 'lineWidth', 'fontSize']) if (item[key] !== undefined && (!Number.isFinite(item[key]) || item[key] <= 0 || item[key] > 100000)) throw new Error('Invalid object size.');
     if(item.type==='arc'&&(![item.startAngle,item.sweepAngle,item.w,item.h].every(Number.isFinite)||!item.sweepAngle||Math.abs(item.sweepAngle)>360||typeof item.showRadii!=='boolean'))throw new Error('Invalid arc.');
     if(item.groupId!==undefined&&(typeof item.groupId!=='string'||!item.groupId.length||item.groupId.length>100))throw new Error('Invalid object group.');
+    if(item.textAlign!==undefined&&(!['text','note'].includes(item.type)||!['auto','left','center','right'].includes(item.textAlign)))throw new Error('Invalid text alignment.');
     if(item.crop!==undefined&&(item.type!=='image'||!validCrop(item.crop)))throw new Error('Invalid image crop.');
     if(item.lineStyle!==undefined&&!LINE_STYLES.some(([key])=>key===item.lineStyle))throw new Error('Invalid line style.');
     if (item.rotation !== undefined && !Number.isFinite(item.rotation)) throw new Error('Invalid rotation.');

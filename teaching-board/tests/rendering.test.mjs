@@ -325,3 +325,21 @@ test('snippet insertion is one undoable change with fresh groups and editable co
  const {serializeBackup,parseBackup}=await import('../js/model.js');assert.equal(parseBackup(serializeBackup(e.board)).items.length,count*2);assert.equal(walk(sceneSVG(e.board)).filter(n=>n.hasAttribute('data-id')).length,count*2);
  const invalid=structuredClone(value);invalid.items[0].x=NaN;assert.throws(()=>e.insertSnippet(invalid));assert.equal(e.board.items.length,count*2);
 });
+
+test('text alignment respects physical left/right, RTL, note padding and exports',async()=>{
+ const {drawItem}=await import('../js/scene.js');
+ for(const rtl of [false,true])for(const type of ['text','note'])for(const align of ['auto','left','center','right']){
+  const pad=type==='note'?14:0,item={id:'aligned',type,x:0,y:0,w:300,h:100,text:rtl?'שלום עולם':'hello world',fontSize:24,textAlign:align};
+  const text=drawItem(item).children.find(n=>n.tagName==='text');
+  const x=align==='center'?150:align==='left'?pad:align==='right'?300-pad:rtl?300-pad:pad;
+  assert.equal(+text.attributes.x,x);assert.equal(+text.children[0].attributes.x,x);
+  assert.equal(text.attributes['text-anchor'],align==='center'?'middle':align==='left'?(rtl?'end':'start'):align==='right'?(rtl?'start':'end'):'start');
+ }
+});
+test('alignment only changes unlocked text and notes and supports undo and backups',async()=>{
+ const {serializeBackup,parseBackup}=await import('../js/model.js');const e=fixture(3);
+ Object.assign(e.board.items[0],{type:'text',text:'Title'});Object.assign(e.board.items[1],{type:'note',text:'Locked note',locked:true});e.selected=new Set(e.board.items.map(i=>i.id));e.history=new History(e.document());
+ e.alignText('center');assert.equal(e.board.items[0].textAlign,'center');assert.equal(e.board.items[1].textAlign,undefined);assert.equal(e.board.items[2].textAlign,undefined);
+ assert.equal(parseBackup(serializeBackup(e.board)).items[0].textAlign,'center');e.undo();assert.equal(e.board.items[0].textAlign,undefined);e.redo();assert.equal(e.board.items[0].textAlign,'center');
+ e.board.items[0].textAlign='invalid';assert.throws(()=>validateBoard(e.board));
+});

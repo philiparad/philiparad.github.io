@@ -1,8 +1,8 @@
-import { pressurePathD } from './pressure.js?v=20261006-animation';
-import { drawPreset } from './shapes.js?v=20261006-animation';
-import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261006-animation';
-import { strokePathD, naturalPathD } from './ink.js?v=20261006-animation';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261006-animation';
+import { pressurePathD } from './pressure.js?v=20261006-text-align';
+import { drawPreset } from './shapes.js?v=20261006-text-align';
+import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261006-text-align';
+import { strokePathD, naturalPathD } from './ink.js?v=20261006-text-align';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261006-text-align';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}
@@ -29,7 +29,7 @@ export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{
  const dot=item.type==='path'&&item.points?.length&&item.points.every(p=>p[0]===item.points[0][0]&&p[1]===item.points[0][1]);
  if(dot){const [cx,cy]=item.points[0];g.append(svgEl('circle',{cx,cy,r:(item.lineWidth||2)/2,fill:item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,stroke:'none'}));}
  else if(shape)g.append(STROKED_TYPES.has(item.type)?styleStroke(shape,item):shape);
- if(item.type==='text'||item.type==='note'){const font=item.fontSize||24,pad=item.type==='note'?14:0,rtl=/[\u0590-\u08ff]/.test(item.text||'');const text=svgEl('text',{x:rtl?w-pad:pad,y:pad+font,fill:item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,'font-size':font,'font-family':'Arial, sans-serif',direction:rtl?'rtl':'ltr','text-anchor':'start','unicode-bidi':'plaintext'});const max=Math.max(2,Math.floor((w-pad*2)/(font*.55)));const lines=[];for(const line of (item.text||'').split('\n')){let current='';for(const word of line.split(' ')){if(current.length+word.length>max&&current){lines.push(current);current='';}current+=(current?' ':'')+word;}lines.push(current);}lines.forEach((line,i)=>{const span=svgEl('tspan',{x:rtl?w-pad:pad,dy:i?font*1.3:0});span.textContent=line;text.append(span);});g.append(text);}
+ if(item.type==='text'||item.type==='note'){const font=item.fontSize||24,pad=item.type==='note'?14:0,rtl=/[\u0590-\u08ff]/.test(item.text||'');const align=item.textAlign||'auto',x=align==='center'?w/2:align==='left'?pad:align==='right'?w-pad:rtl?w-pad:pad,anchor=align==='center'?'middle':align==='left'?(rtl?'end':'start'):align==='right'?(rtl?'start':'end'):'start';const text=svgEl('text',{x,y:pad+font,fill:item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,'font-size':font,'font-family':'Arial, sans-serif',direction:rtl?'rtl':'ltr','text-anchor':anchor,'unicode-bidi':'plaintext'});const max=Math.max(2,Math.floor((w-pad*2)/(font*.55)));const lines=[];for(const line of (item.text||'').split('\n')){let current='';for(const word of line.split(' ')){if(current.length+word.length>max&&current){lines.push(current);current='';}current+=(current?' ':'')+word;}lines.push(current);}lines.forEach((line,i)=>{const span=svgEl('tspan',{x,dy:i?font*1.3:0});span.textContent=line;text.append(span);});g.append(text);}
  return g;
 }
 export function background(svg,kind,viewport={x:0,y:0,zoom:1},id='paper'){const defs=svgEl('defs'),pattern=svgEl('pattern',{id,width:32,height:32,patternUnits:'userSpaceOnUse',patternTransform:`translate(${viewport.x} ${viewport.y}) scale(${viewport.zoom})`});if(kind==='dots')pattern.append(svgEl('circle',{cx:1,cy:1,r:1,fill:'#bbc8d5'}));else pattern.append(svgEl('path',{d:kind==='ruled'?'M0 32H32':'M32 0H0V32',fill:'none',stroke:kind==='dark'?'#344359':'#e4e9ef','stroke-width':1}));defs.append(pattern);svg.append(defs,svgEl('rect',{x:0,y:0,width:'100%',height:'100%',fill:kind==='dark'?'#1d293b':'#fff'}));if(kind!=='plain')svg.append(svgEl('rect',{x:0,y:0,width:'100%',height:'100%',fill:`url(#${id})`}));}

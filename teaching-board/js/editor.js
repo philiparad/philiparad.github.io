@@ -1,36 +1,36 @@
-import { Snippets, snippetCopies } from './snippets.js?v=20261006-animation';
-import { InlineText } from './inline-text.js?v=20261006-animation';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261006-animation';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261006-animation';
-import { visibleItems } from './visibility.js?v=20261006-animation';
-import { RenderCache } from './render-cache.js?v=20261006-animation';
-import { SpeedInk } from './speed-ink.js?v=20261006-animation';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261006-animation';
-import { ShapeGallery } from './shape-gallery.js?v=20261006-animation';
-import { FillPalette } from './fill-palette.js?v=20261006-animation';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261006-animation';
-import { LineStyleMenu } from './line-style-menu.js?v=20261006-animation';
-import { Pages } from './pages.js?v=20261006-animation';
-import { cropDialog } from './crop-editor.js?v=20261006-animation';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261006-animation';
-import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261006-animation';
-import { toWorld, zoomAt } from './viewport.js?v=20261006-animation';
-import { History } from './history.js?v=20261006-animation';
-import { SaveQueue } from './save-queue.js?v=20261006-animation';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261006-animation';
-import { exportBoard, backup } from './export.js?v=20261006-animation';
-import { validateBoard } from './model.js?v=20261006-animation';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261006-animation';
+import { Snippets, snippetCopies } from './snippets.js?v=20261006-text-align';
+import { InlineText } from './inline-text.js?v=20261006-text-align';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261006-text-align';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261006-text-align';
+import { visibleItems } from './visibility.js?v=20261006-text-align';
+import { RenderCache } from './render-cache.js?v=20261006-text-align';
+import { SpeedInk } from './speed-ink.js?v=20261006-text-align';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261006-text-align';
+import { ShapeGallery } from './shape-gallery.js?v=20261006-text-align';
+import { FillPalette } from './fill-palette.js?v=20261006-text-align';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261006-text-align';
+import { LineStyleMenu } from './line-style-menu.js?v=20261006-text-align';
+import { Pages } from './pages.js?v=20261006-text-align';
+import { cropDialog } from './crop-editor.js?v=20261006-text-align';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261006-text-align';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261006-text-align';
+import { toWorld, zoomAt } from './viewport.js?v=20261006-text-align';
+import { History } from './history.js?v=20261006-text-align';
+import { SaveQueue } from './save-queue.js?v=20261006-text-align';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261006-text-align';
+import { exportBoard, backup } from './export.js?v=20261006-text-align';
+import { validateBoard } from './model.js?v=20261006-text-align';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261006-text-align';
 
-import { toolIcon } from './tool-icons.js?v=20261006-animation';
+import { toolIcon } from './tool-icons.js?v=20261006-text-align';
 
-import { Geometry } from './geometry.js?v=20261006-animation';
-import { snapPoint, snapAngle } from './snapping.js?v=20261006-animation';
-import { equationDialog } from './equation-editor.js?v=20261006-animation';
-import { graphDialog } from './graph-editor.js?v=20261006-animation';
+import { Geometry } from './geometry.js?v=20261006-text-align';
+import { snapPoint, snapAngle } from './snapping.js?v=20261006-text-align';
+import { equationDialog } from './equation-editor.js?v=20261006-text-align';
+import { graphDialog } from './graph-editor.js?v=20261006-text-align';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
- constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
+ constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
  document(){return structuredClone({items:this.board.items,background:this.board.background,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
  async flush(){this.inlineText?.finish(true,false);await this.queue.flush();}
  dispose(){this.disposed=true;this.snippets?.dispose();this.inlineText?.finish(false,false);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
@@ -47,12 +47,13 @@ export class Editor {
  const width=el('select');width.setAttribute('aria-label','Line width');for(const n of [1,2,3,5,8,12,20]){const o=el('option',n+' px');o.value=n;width.append(o);}width.value=3;width.onchange=()=>{this.lineWidth=+width.value;this.modify({lineWidth:+width.value});};
  const opacity=el('input');opacity.type='range';opacity.min=.1;opacity.max=1;opacity.step=.1;opacity.value=1;opacity.title='Opacity';opacity.setAttribute('aria-label','Opacity');opacity.onchange=()=>{this.opacity=+opacity.value;this.modify({opacity:+opacity.value});};
  const font=el('select');font.setAttribute('aria-label','Text size');for(const n of [16,20,26,32,40,56,72]){const o=el('option',n+' pt');o.value=n;font.append(o);}font.value=26;font.onchange=()=>{this.fontSize=+font.value;this.modify({fontSize:+font.value});};
+ const alignment=el('select');alignment.setAttribute('aria-label','Text alignment');for(const [key,label]of [['auto','Align: Auto'],['left','Align: Left'],['center','Align: Center'],['right','Align: Right']]){const option=el('option',label);option.value=key;alignment.append(option);}alignment.onchange=()=>this.alignText(alignment.value);this.alignmentSelect=alignment;
  const paper=el('select');paper.setAttribute('aria-label','Board background');for(const type of ['grid','dots','ruled','plain','dark']){const o=el('option',type[0].toUpperCase()+type.slice(1));o.value=type;paper.append(o);}paper.value=this.board.background;paper.onchange=()=>{this.board.background=paper.value;this.commit();};this.paper=paper;
  const smoothing=el('select');smoothing.setAttribute('aria-label','Natural handwriting');smoothing.title='Reduces tremor while preserving corners. Applies to new ink and selected unlocked strokes.';for(const [value,label] of [[0,'Natural handwriting: Off'],[.35,'Natural handwriting: Light'],[.65,'Natural handwriting: Medium'],[.85,'Natural handwriting: Strong']]){const o=el('option',label);o.value=value;smoothing.append(o);}smoothing.value=this.inkSmoothing;smoothing.onchange=()=>{this.inkSmoothing=+smoothing.value;try{localStorage.setItem('teaching-board-natural-ink',String(this.inkSmoothing));}catch{}let changed=false;for(const item of this.board.items)if(this.selected.has(item.id)&&item.type==='path'&&!this.isLocked(item)){if(!item.rawPoints)item.rawPoints=item.points.map(p=>[...p]);item.inkVersion=2;item.inkZoom=item.inkZoom||this.board.viewport.zoom;if(item.rawPressures)resmoothPressure(item,this.inkSmoothing);else item.points=refineInk(item.rawPoints,this.inkSmoothing,item.inkZoom);item.smoothing=this.inkSmoothing;changed=true;}if(changed)this.commit();};this.smoothingSelect=smoothing;
  const dynamics=el('select');dynamics.setAttribute('aria-label','Pen dynamics');dynamics.title='Solid pen: stylus pressure, or writing speed (slow is thicker, fast is thinner). Highlighter and patterned lines keep fixed width.';
  for(const [value,label]of [['fixed','Pen: Fixed width'],['pressure','Pen: Stylus pressure'],['speed','Pen: Writing speed']]){const o=el('option',label);o.value=value;dynamics.append(o);}dynamics.value=this.penDynamics;
  dynamics.onchange=()=>{this.penDynamics=dynamics.value;try{localStorage.setItem('teaching-board-pen-dynamics',this.penDynamics);}catch{}};
- properties.append(width,font,el('span','Opacity'),opacity,el('span','Ink'),smoothing,dynamics,paper);const deck=el('div',null,'command-deck');const propertyMenu=el('details',null,'property-menu');const propertySummary=el('summary','⚙ Ink & style');propertySummary.title='Drawing properties and handwriting smoothing';propertyMenu.append(propertySummary,properties);this.lineStyleMenu=new LineStyleMenu(this);this.fillPalette=new FillPalette(this);this.strokePalette=new FillPalette(this,'stroke');deck.append(bar,this.strokePalette.root,this.lineStyleMenu.root,this.fillPalette.root,propertyMenu);
+ properties.append(width,font,alignment,el('span','Opacity'),opacity,el('span','Ink'),smoothing,dynamics,paper);const deck=el('div',null,'command-deck');const propertyMenu=el('details',null,'property-menu');const propertySummary=el('summary','⚙ Ink & style');propertySummary.title='Drawing properties and handwriting smoothing';propertyMenu.append(propertySummary,properties);this.lineStyleMenu=new LineStyleMenu(this);this.fillPalette=new FillPalette(this);this.strokePalette=new FillPalette(this,'stroke');deck.append(bar,this.strokePalette.root,this.lineStyleMenu.root,this.fillPalette.root,propertyMenu);
  const layout=el('div',null,'editor-layout');this.area=el('div',null,'board');this.svg=svgEl('svg',{'aria-label':'Teaching canvas',tabindex:0});this.area.append(this.svg);
  this.zoomLabel=el('span');const zoom=el('div',null,'zoom');zoom.append(btn('−',()=>this.zoom(1/1.2)),this.zoomLabel,btn('+',()=>this.zoom(1.2)),btn('Fit',()=>this.fit()),btn('100%',()=>{this.board.viewport={x:0,y:0,zoom:1};this.paint();this.save();}));this.area.append(zoom,this.pages.controls());
  this.exitPresent=btn('Exit presentation',()=>document.body.classList.remove('presenting'),'exit-present');this.area.append(this.exitPresent);
@@ -68,7 +69,7 @@ export class Editor {
  for(const i of this.board.items){if(this.selected.has(i.id)){const b=bounds(i);scene.append(svgEl('rect',{x:b.x-3,y:b.y-3,width:b.w+6,height:b.h+6,fill:'none',stroke:i.locked?'#d59a30':'#168fa5','stroke-width':1.5/v.zoom,'stroke-dasharray':`${5/v.zoom} ${3/v.zoom}`,'pointer-events':'none'}));}}
  const selected=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(selected.length&&this.tool==='select'){const b=union(selected);scene.append(svgEl('rect',{x:b.x+b.w-5/v.zoom,y:b.y+b.h-5/v.zoom,width:10/v.zoom,height:10/v.zoom,fill:'#147d92',stroke:'#fff','stroke-width':1/v.zoom,'data-resize':'true',cursor:'nwse-resize'}));}
  if(this.marquee)scene.append(svgEl('rect',{...this.marquee,fill:'#147d9215',stroke:'#147d92','stroke-width':1/v.zoom,'pointer-events':'none'}));
- this.guideLayer=svgEl('g',{'data-layer':'guides','pointer-events':'none'});scene.append(this.guideLayer);this.paintGuides();this.geometry.paint(scene);this.svg.append(scene);this.zoomLabel.textContent=Math.round(v.zoom*100)+'%';if(this.saveSnippetButton)this.saveSnippetButton.disabled=!this.selected.size;this.selectionLabel.textContent=this.selected.size?`${this.selected.size} selected · ${this.board.items.length} objects`:`${this.board.items.length} objects`;this.undoButton.disabled=!this.history.past.length;this.redoButton.disabled=!this.history.future.length;this.paper.value=this.board.background;if(this.connectButton)this.connectButton.disabled=this.board.items.filter(i=>this.selected.has(i.id)&&connectorTarget(i)).length!==2||this.selected.size!==2;if(this.detachButton)this.detachButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.links&&!this.isLocked(i));if(this.groupButton)this.groupButton.disabled=this.selected.size<2;if(this.ungroupButton)this.ungroupButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.groupId);const path=this.board.items.find(i=>this.selected.has(i.id)&&i.type==='path');this.smoothingSelect.value=String(path?.smoothing??this.inkSmoothing);}
+ this.guideLayer=svgEl('g',{'data-layer':'guides','pointer-events':'none'});scene.append(this.guideLayer);this.paintGuides();this.geometry.paint(scene);this.svg.append(scene);this.zoomLabel.textContent=Math.round(v.zoom*100)+'%';if(this.saveSnippetButton)this.saveSnippetButton.disabled=!this.selected.size;this.selectionLabel.textContent=this.selected.size?`${this.selected.size} selected · ${this.board.items.length} objects`:`${this.board.items.length} objects`;this.undoButton.disabled=!this.history.past.length;this.redoButton.disabled=!this.history.future.length;this.paper.value=this.board.background;if(this.connectButton)this.connectButton.disabled=this.board.items.filter(i=>this.selected.has(i.id)&&connectorTarget(i)).length!==2||this.selected.size!==2;if(this.detachButton)this.detachButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.links&&!this.isLocked(i));if(this.groupButton)this.groupButton.disabled=this.selected.size<2;if(this.ungroupButton)this.ungroupButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.groupId);const path=this.board.items.find(i=>this.selected.has(i.id)&&i.type==='path');this.smoothingSelect.value=String(path?.smoothing??this.inkSmoothing);if(this.alignmentSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const alignments=new Set(texts.map(i=>i.textAlign||'auto'));this.alignmentSelect.value=alignments.size>1?'':texts[0]?.textAlign||'auto';if(!texts.length)this.alignmentSelect.value=this.textAlign;}}
  // Input updates the model immediately; rendering is batched independently.
  // A full update always takes precedence over a pending draft-only update.
  requestPaint(draftOnly=false){
@@ -163,6 +164,7 @@ export class Editor {
   if(items.some(i=>this.isLocked(i))){notify('Unlock the selected objects before ungrouping.');return;}
   let changed=false;for(const i of items)if(i.groupId){delete i.groupId;changed=true;}if(changed)this.commit();
  }
+ alignText(value){if(!['auto','left','center','right'].includes(value))return;this.textAlign=value;let changed=false;for(const item of this.board.items)if(this.selected.has(item.id)&&['text','note'].includes(item.type)&&!this.isLocked(item)&&(item.textAlign||'auto')!==value){item.textAlign=value;changed=true;}if(changed)this.commit();}
  modify(props){let changed=false;for(const item of this.board.items)if(this.selected.has(item.id)&&!this.isLocked(item)){if(props.rotation!==undefined&&item.links)continue;Object.assign(item,props);changed=true;}if(changed)this.commit();}
  remove(){this.board.items=this.board.items.filter(i=>!this.selected.has(i.id)||this.isLocked(i));this.selected.clear();this.commit();}
  duplicate(){const items=this.board.items.filter(i=>this.selected.has(i.id));this.paste(items);}
@@ -182,7 +184,7 @@ export class Editor {
  insertText(type,p=this.center(),existing=null){
   if(existing&&(this.isLocked(existing)||existing.groupId))return;
   this.inlineText?.finish(true,false);
-  const item=existing||{...this.base(type,p),w:type==='note'?260:360,h:130,fontSize:this.fontSize,fill:type==='note'?'#fff1a8':'none',text:''};
+  const item=existing||{...this.base(type,p),w:type==='note'?260:360,h:130,fontSize:this.fontSize,textAlign:this.textAlign,fill:type==='note'?'#fff1a8':'none',text:''};
   this.selected=existing?new Set([existing.id]):new Set();this.setTool('select');
   this.inlineText=new InlineText(this,item,!!existing);this.paint();
  }

@@ -63,3 +63,6 @@ In the graph editor, choose **+ Add parameter** to define `a`, `b` or `c` with a
 
 ### Parameter animation
 Each shared graph parameter has **Play / Pause** controls. Playback previews one parameter at a time, reversing at its bounds. Editing a formula, slider, value or range stops playback; **Insert graph** stops playback and saves the current values. Closing the editor cancels playback. Graphs on the canvas remain static until edited again.
+
+### Text alignment
+Select text or sticky notes, then open **Ink & style → Text alignment** to choose Auto, Left, Center or Right. Auto follows the text direction (including Hebrew). The setting also applies to new text and notes. Locked objects are preserved; alignment supports undo, editable backups and image/PDF export through the shared SVG renderer.

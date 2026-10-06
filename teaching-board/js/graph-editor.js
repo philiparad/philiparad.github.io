@@ -1,7 +1,7 @@
-import { ParameterPlayback } from './parameter-playback.js?v=20261006-animation-bounds';
-import { el, btn, field } from './ui.js?v=20261006-animation';
-import { validateParameters } from './graph-series.js?v=20261006-animation';
-import { graph } from './media.js?v=20261006-animation';
+import { ParameterPlayback } from './parameter-playback.js?v=20261006-text-align-bounds';
+import { el, btn, field } from './ui.js?v=20261006-text-align';
+import { validateParameters } from './graph-series.js?v=20261006-text-align';
+import { graph } from './media.js?v=20261006-text-align';
 export const GRAPH_COLORS=['#147d92','#c44861','#7c50b0','#dc8a21','#398148','#3765c2','#925830','#414d62'];
 export function graphDialog(existing){const d=el('dialog',null,'form-dialog graph-dialog'),rows=el('div'),ranges=el('div',null,'graph-ranges'),preview=el('img'),error=el('p',null,'error'),actions=el('div',null,'actions');preview.className='graph-preview';preview.alt='Function, parametric and polar graph preview';let values=(existing?.series||[{source:existing?.source||'x^2',color:GRAPH_COLORS[0],visible:true}]).map(x=>({...x})),closed=false,timer,serial=0;const inputs={},parameters=structuredClone(existing?.parameters||[]),parameterPanel=el('div',null,'graph-parameters');
  for(const [key,label,value]of [['xmin','x minimum',existing?.range?.[0]??-5],['xmax','x maximum',existing?.range?.[2]??5],['ymin','y minimum',existing?.range?.[3]??-5],['ymax','y maximum',existing?.range?.[1]??5]]){const f=field(label,value,'number');f.input.step='any';inputs[key]=f.input;f.input.oninput=schedule;ranges.append(f.wrap);}
