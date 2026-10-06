@@ -1,4 +1,4 @@
-import { IncrementalInk } from './ink.js?v=20261006-inline-text-fix';
+import { IncrementalInk } from './ink.js?v=20261006-text-taps';
 
 // Missing pressure is neutral; pointerup often reports zero after contact ends.
 export function penPressure(event,fallback=.5){

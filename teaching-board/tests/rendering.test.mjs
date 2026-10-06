@@ -305,3 +305,11 @@ test('inline text commits one undo step and retains connectors, copies and expor
  assert.ok(walk(sceneSVG(e.board)).some(n=>n.tagName==='tspan'&&n.textContent==='Updated'));validateBoard(e.board);
  const count=e.history.past.length;e.applyText(e.board.items.at(-1),e.board.items.at(-1).text,500,true);assert.equal(e.history.past.length,count);
 });
+
+test('two text pointer clicks reopen editing despite redraws; dragging does not',()=>{
+ const e=fixture(0);e.tool='select';e.board.items=[{id:'text-tap',type:'text',x:20,y:20,w:360,h:130,fontSize:26,text:'Edit me'}];e.paint();
+ let edits=0;e.insertText=()=>{edits++;};
+ const tap=(time)=>({...pointer(e,30,30),timeStamp:time,target:object(e,'text-tap')});
+ e.pointerDown(tap(100));e.pointerUp(tap(120));e.pointerDown(tap(250));assert.equal(edits,1);assert.equal(e.drag,null);
+ e.pointerDown(tap(1000));e.pointerMove({...pointer(e,70,80),timeStamp:1100});e.pointerUp(pointer(e,70,80));e.pointerDown(tap(1200));assert.equal(edits,1);
+});
