@@ -54,3 +54,6 @@ No application server, package installation or build step. Serve the repository 
 `tests/index.html` runs pure logic and isolated IndexedDB tests. See `docs/VALIDATION.md` for release validation and `docs/ARCHITECTURE.md` for module responsibilities.
 
 The folder uses relative URLs and hash routing. It is deployed through the existing repository's GitHub Pages workflow. Existing teaching materials and the homepage are preserved.
+
+### Polar curves
+Open **Function graph** and choose **Polar: r(t)**. Enter a radius formula using `t` as the angle in radians, and set the angle minimum and maximum. Negative radii are supported. For example, `2*(1+cos(t))` from 0 to 6.283185307179586 draws a cardioid. Mix polar, parametric and ordinary functions on shared axes (up to eight curves). Select a saved graph and choose **Edit content** to revise its formulas; editable backups and snippets preserve the curve settings.
