@@ -57,3 +57,6 @@ The folder uses relative URLs and hash routing. It is deployed through the exist
 
 ### Polar curves
 Open **Function graph** and choose **Polar: r(t)**. Enter a radius formula using `t` as the angle in radians, and set the angle minimum and maximum. Negative radii are supported. For example, `2*(1+cos(t))` from 0 to 6.283185307179586 draws a cardioid. Mix polar, parametric and ordinary functions on shared axes (up to eight curves). Select a saved graph and choose **Edit content** to revise its formulas; editable backups and snippets preserve the curve settings.
+
+### Adjustable graph parameters
+In the graph editor, choose **+ Add parameter** to define `a`, `b` or `c` with a value and bounds. Use these shared values in any function, parametric or polar formula, for example `a*x^2`. Move the slider or type a value to update the preview. **Insert graph** saves a static graph at that value, with all parameter settings retained for later editing, backups and snippets. Cancel discards changes.

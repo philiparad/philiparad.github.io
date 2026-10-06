@@ -1,7 +1,7 @@
-import { validateSeries } from './graph-series.js?v=20261006-polar';
-import { SHAPES } from './shapes.js?v=20261006-polar';
-import { LINE_STYLES } from './line-style.js?v=20261006-polar';
-import { validCrop } from './crop-editor.js?v=20261006-polar';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261006-parameters';
+import { SHAPES } from './shapes.js?v=20261006-parameters';
+import { LINE_STYLES } from './line-style.js?v=20261006-parameters';
+import { validCrop } from './crop-editor.js?v=20261006-parameters';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -57,6 +57,7 @@ export function validateBoard(value) {
     if (['text','note'].includes(item.type) && (typeof item.text !== 'string' || item.text.length > 10000)) throw new Error('Invalid text.');
     if (['image','equation','graph'].includes(item.type) && (typeof item.src !== 'string' || !/^data:image\/(png|jpeg|webp);base64,[a-zA-Z0-9+/=]+$/.test(item.src))) throw new Error('Unsupported image content.');
     if (['equation','graph'].includes(item.type) && (typeof item.source !== 'string' || item.source.length > (item.type==='graph'?4000:2000))) throw new Error('Invalid mathematical source.');
+    if(item.parameters!==undefined){if(item.type!=='graph')throw new Error('Invalid graph parameters.');validateParameters(item.parameters);}
     if(item.series!==undefined){if(item.type!=='graph')throw new Error('Invalid graph series.');validateSeries(item.series);}
     if (item.type === 'graph' && (!Array.isArray(item.range) || item.range.length !== 4 || !item.range.every(Number.isFinite))) throw new Error('Invalid graph range.');
   }
