@@ -1,4 +1,4 @@
-import { el, btn } from './ui.js?v=20261006-parameters';
+import { el, btn } from './ui.js?v=20261006-animation';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {

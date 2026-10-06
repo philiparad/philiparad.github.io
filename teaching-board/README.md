@@ -60,3 +60,6 @@ Open **Function graph** and choose **Polar: r(t)**. Enter a radius formula using
 
 ### Adjustable graph parameters
 In the graph editor, choose **+ Add parameter** to define `a`, `b` or `c` with a value and bounds. Use these shared values in any function, parametric or polar formula, for example `a*x^2`. Move the slider or type a value to update the preview. **Insert graph** saves a static graph at that value, with all parameter settings retained for later editing, backups and snippets. Cancel discards changes.
+
+### Parameter animation
+Each shared graph parameter has **Play / Pause** controls. Playback previews one parameter at a time, reversing at its bounds. Editing a formula, slider, value or range stops playback; **Insert graph** stops playback and saves the current values. Closing the editor cancels playback. Graphs on the canvas remain static until edited again.

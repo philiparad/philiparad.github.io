@@ -1,7 +1,7 @@
-import { validateSeries, validateParameters } from './graph-series.js?v=20261006-parameters';
-import { SHAPES } from './shapes.js?v=20261006-parameters';
-import { LINE_STYLES } from './line-style.js?v=20261006-parameters';
-import { validCrop } from './crop-editor.js?v=20261006-parameters';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261006-animation';
+import { SHAPES } from './shapes.js?v=20261006-animation';
+import { LINE_STYLES } from './line-style.js?v=20261006-animation';
+import { validCrop } from './crop-editor.js?v=20261006-animation';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {

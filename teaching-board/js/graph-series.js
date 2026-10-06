@@ -1,4 +1,4 @@
-import { compileExpression } from './expression.js?v=20261006-parameters';
+import { compileExpression } from './expression.js?v=20261006-animation';
 export function validateSeries(rows){
  if(!Array.isArray(rows)||!rows.length||rows.length>8)throw new Error('Use 1–8 graph curves.');
  for(const row of rows){
