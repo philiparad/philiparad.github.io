@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<link href="philip_favicon.png" rel="icon" type="image/png"/>
+<title>חקירת פונקציה עם פרמטר - פתרון מלא</title>
+<link href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" rel="stylesheet"/>
+<script>
+window.MathJax={
+  tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},
+  options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},
+  svg:{fontCache:'global'}
+};
+</script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+<style>
+:root{--ink:#182433;--muted:#5d6b79;--blue:#174f78;--soft:#f6f9fc;--line:#cbd7e3;--good:#1f6d46;--goodbg:#eff9f3;--warn:#9a6517;--warnbg:#fff8e9;--accent:#2855b8;--red:#9f3434;--paper:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9edf2;color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}
+body{direction:rtl;line-height:1.48;overflow-x:hidden}
+@page{size:A4 portrait;margin:0}
+section.page{width:210mm;height:297mm;min-height:297mm;max-height:297mm;margin:10mm auto 12mm;background:var(--paper);padding:10mm 13mm 16mm;overflow:hidden;position:relative;break-after:page;page-break-after:always;border:2px solid #d7dee7}
+section.page:last-child{break-after:auto;page-break-after:auto}
+@media print{html,body{background:#fff}.page{margin:0;border:0}.graph-controls{display:none!important}}
+.page-head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #d9e2ec;padding-bottom:2.5mm;margin-bottom:4mm;font-size:10pt;color:#526477}
+.page-no{font-weight:700}.tag{font-weight:700;color:#264d70}
+h1{font-size:23px;line-height:1.2;margin:0 0 5mm;color:#102f4b;text-align:center}
+h2{font-size:19px;margin:0 0 3mm;color:#174f78;border-bottom:2px solid #dbe6ef;padding-bottom:2mm}
+h3{font-size:16px;margin:3mm 0 1.5mm;color:#2d5f7d}
+p,li{font-size:14.5px;margin:1.4mm 0}
+ul{margin:1.5mm 0;padding-right:6mm}
+.question,.box,.step,.answer,.note,.summary{border:2px solid #a9bdcf;border-radius:10px;padding:8px 11px;margin:6px 0;background:#f9fcff}
+.answer{background:var(--goodbg);border-color:#8fbca0}.note{background:var(--warnbg);border-color:#d7ba77}.summary{background:#f7f4ff;border-color:#b8a8d8}.step{background:#f7fafc}
+.formula{direction:ltr;text-align:center;margin:4px 0;font-size:15px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:stretch}.grid2>*{height:100%}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:stretch}.grid3>*{height:100%}
+.compact p{margin:.8mm 0}.compact .formula{margin:2px 0}
+.label{display:inline-block;background:#eaf2f8;border:2px solid #bdd0df;border-radius:999px;padding:1px 8px;font-weight:700;color:#234f70}
+.key{font-weight:700;color:#173f5f}
+.sign-table{width:100%;border-collapse:collapse;margin:3mm 0;direction:rtl;font-size:13px}.sign-table th,.sign-table td{border:2px solid #c7d5e0;padding:5px;text-align:center}.sign-table th{background:#edf4f8}.pos{color:#1f6d46;font-weight:700}.neg{color:#9f3434;font-weight:700}
+.graph-panel{border:2px solid #a9bdcf;border-radius:10px;padding:7px;background:#fbfdff;margin:5px 0}.jxgbox{width:100%;height:340px;direction:ltr!important;border:2px solid #cbd7e3;border-radius:8px;background:#fff}.jxgbox.small{height:300px}
+.graph-controls{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px;direction:rtl}.graph-controls button{border:2px solid #9eb6ca;background:#fff;border-radius:7px;padding:5px 10px;cursor:pointer;font:inherit}.graph-controls button:hover{background:#eef6fc}
+.legend{font-size:12.5px;color:#4f6070;text-align:center;margin-top:4px}.swatch{display:inline-block;width:18px;height:3px;vertical-align:middle;margin:0 4px;background:#333}.blue{background:#1f5aa6}.red{background:#a63a3a}.green{background:#2c7a52}
+.mini{font-size:12.5px;color:var(--muted)}
+.check{display:grid;grid-template-columns:1fr 1fr;gap:5px}.check div{border:2px solid #d4dee7;border-radius:8px;padding:6px;background:#fafcfe}
+footer{display:none;position:absolute;bottom:6mm;left:13mm;right:13mm;border-top:2px solid #e1e7ed;padding-top:2mm;font-size:9.5pt;color:#708090;text-align:center}
+
+#page5 .step{padding:6px 9px;margin:4px 0}
+#page5 p{margin:.7mm 0}
+#page5 .formula{margin:1px 0}
+#page6 .sign-table{margin:2mm 0}
+#page6 .answer,#page6 .note{margin:4px 0;padding:6px 9px}
+#page7 .answer,#page7 .note{margin:5px 0;padding:7px 10px}
+#page7 .formula{margin:2px 0}
+
+#page13 .equations-top{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:5px}
+#page13 .equation-card{border:2px solid #c7d5e0;border-radius:10px;padding:7px 10px;background:#f9fcff;text-align:center}
+#page13 .equation-card h3{margin:0 0 2px}
+#page13 .parameter-control{border:2px solid #a9bdcf;border-radius:10px;padding:8px 11px;margin:6px 0;background:#f7fafc}
+#page13 .slider-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;direction:rtl}
+#page13 input[type=range]{width:100%;accent-color:#174f78}
+#page13 .a-value{min-width:62px;text-align:center;border:2px solid #bdd0df;border-radius:8px;background:#fff;padding:4px 7px;font-weight:700;color:#174f78}
+#page13 .selected-equations{margin-top:6px;text-align:center;font-size:14px}
+#page13 .selected-equations .formula{margin:2px 0}
+#page13 .jxgbox{height:400px}
+</style>
+</head>
+<body>
+<section class="page" id="page1">
+<div class="page-head"><span class="tag">פתרון מלא - 5 יחידות</span><span class="page-no">עמוד 1</span></div>
+<h1>חקירת פונקציה עם פרמטר ופונקציה הופכית</h1>
+<div class="question compact">
+<h2>השאלה</h2>
+<p>נתונה הפונקציה</p>
+<div class="formula">\[f(x)=\frac{\sqrt{3x^2-4a}}{x^3},\qquad a\gt0\]</div>
+<p>בסעיפים א-ה, בטא את תשובותיך באמצעות \(a\), לפי הצורך.</p>
+<p><b>א.</b> מהו תחום ההגדרה של הפונקציה \(f(x)\)?</p>
+<p><b>ב.</b> הוכח שהפונקציה \(f(x)\) אי-זוגית.</p>
+<p><b>ג.</b> (1) מה הם שיעורי נקודות החיתוך של גרף הפונקציה \(f(x)\) עם הצירים?</p>
+<p>(2) מצא את שיעורי נקודות הקיצון של הפונקציה \(f(x)\), וקבע את סוגן.</p>
+<p><b>ד.</b> סרטט סקיצה של גרף הפונקציה \(f(x)\).</p>
+<p>נתונה גם הפונקציה: \(g(x)=\dfrac{1}{f(x)}\).</p>
+<p><b>ה.</b> (1) מהו תחום ההגדרה של הפונקציה \(g(x)\)?</p>
+<p>(2) מה הן משוואות האסימפטוטות המאונכות לצירים של הפונקציה \(g(x)\), אם יש כאלה?</p>
+<p>ידוע כי באחת מנקודות הקיצון הפנימיות של הפונקציות \(f(x)\) ו-\(g(x)\), יש לגרף של \(f(x)\) ולגרף של \(g(x)\) משיק משותף.</p>
+<p><b>ו.</b> (1) הוסף לסרטוט שבמחברתך סקיצה של גרף הפונקציה \(g(x)\). פרט את שיקוליך.</p>
+<p>(2) מהו הערך של \(a\)? נמק את תשובתך.</p>
+</div>
+<div class="grid3">
+<div class="step"><span class="label">1</span><h3>תחום וסימטריה</h3><p>מתחילים מהשורש ומהמכנה, ורק אחר כך בודקים אי-זוגיות.</p></div>
+<div class="step"><span class="label">2</span><h3>חיתוכים וקיצון</h3><p>נגזור לפי כלל המנה, נבדוק את סימן הנגזרת ונחשב ערכי \(y\).</p></div>
+<div class="step"><span class="label">3</span><h3>הפונקציה \(g\)</h3><p>נשתמש ב-\(g=1/f\), באסימפטוטות ובתנאי למשיק משותף.</p></div>
+</div>
+<div style="height:20px"></div>
+<div class="note"> בגלל \(a\gt0\), כל הביטויים \(\sqrt a\), \(\sqrt{2a}\) ו-\(\sqrt{\frac{4a}{3}}\) מוגדרים וחיוביים.</div>
+<footer>כל עמוד הוא section בגודל A4, ללא גלילה פנימית.</footer>
+</section>
+<section class="page" id="page2">
+<div class="page-head"><span class="tag">א-ג(1) - תחום, סימטריה וחיתוכים</span><span class="page-no">עמוד 2</span></div>
+<h2>א. תחום ההגדרה של \(f(x)\)</h2>
+<div class="grid2">
+<div class="step compact">
+<h3>1. תנאי השורש</h3>
+<div class="formula">\[3x^2-4a\ge0\]</div>
+<div class="formula">\[3x^2\ge4a\]</div>
+<div class="formula">\[x^2\ge\frac{4a}{3}\]</div>
+<div class="formula">\[x\le-\frac{2\sqrt a}{\sqrt3}\quad\text{וא}\quad x\ge\frac{2\sqrt a}{\sqrt3}\]</div>
+</div>
+<div class="step compact">
+<h3>2. תנאי המכנה</h3>
+<div class="formula">\[x^3\ne0\Rightarrow x\ne0\]</div>
+<p>אבל \(x=0\) כבר אינו נמצא בתחום שמתקבל מתנאי השורש, כי \(a\gt0\).</p>
+<div class="answer"><b>תחום ההגדרה:</b><div class="formula">\[\boxed{x\le-\frac{2\sqrt a}{\sqrt3}\quad\text{וא}\quad x\ge\frac{2\sqrt a}{\sqrt3}}\]</div></div>
+</div>
+</div>
+<div style="height:60px"></div>
+<h2>ב. הוכחה ש-\(f(x)\) אי-זוגית</h2>
+<div class="step compact">
+<p>התחום סימטרי ביחס ל-0. לכל \(x\) בתחום:</p>
+<div class="formula">\[
+\begin{aligned}
+f(-x)&amp;=\frac{\sqrt{3(-x)^2-4a}}{(-x)^3}\\
+&amp;=\frac{\sqrt{3x^2-4a}}{-x^3}\\
+&amp;=-f(x)
+\end{aligned}
+\]</div>
+<div class="answer"><b>מסקנה:</b> \(\boxed{f(-x)=-f(x)}\), ולכן הפונקציה אי-זוגית.</div>
+</div>
+<footer>תחום ההגדרה והאי-זוגיות הושלמו בעמוד זה.</footer>
+</section><section class="page" id="page3"><div class="page-head"><span class="tag">ג(1) - נקודות חיתוך</span><span class="page-no">עמוד 3</span></div><h2>ג(1). נקודות החיתוך עם הצירים</h2>
+<div class="grid2">
+<div class="step compact"><h3>חיתוך עם ציר \(x\)</h3><p>נדרוש \(f(x)=0\). במנה, המונה צריך להיות 0:</p><div class="formula">\[\sqrt{3x^2-4a}=0\Rightarrow3x^2-4a=0\]</div><div class="formula">\[x=\pm\frac{2\sqrt a}{\sqrt3}\]</div></div>
+<div class="step compact"><h3>חיתוך עם ציר \(y\)</h3><p>כדי לחתוך את ציר \(y\) צריך \(x=0\).</p><p>אבל \(x=0\) אינו בתחום ההגדרה.</p><div class="answer"><b>לכן:</b> אין חיתוך עם ציר \(y\).</div></div>
+</div>
+<div style="height:20px"></div>
+<div class="answer"><b>נקודות החיתוך עם ציר \(x\):</b><div class="formula">\[\boxed{\left(-\frac{2\sqrt a}{\sqrt3},0\right),\quad\left(\frac{2\sqrt a}{\sqrt3},0\right)}\]</div></div>
+<footer>נקודות החיתוך נבדקות לפי תנאי המונה ותחום ההגדרה.</footer></section>
+<section class="page" id="page4">
+<div class="page-head"><span class="tag">ג(2) - קיצון</span><span class="page-no">עמוד 4</span></div>
+<h2>ג(2). מציאת נקודות הקיצון של \(f(x)\)</h2>
+<div style="height:10px"></div>
+<div class="note"><b>מאחר ש-\(f\) היא פונקציית מנה, נגזור לפי כלל המנה.</b></div>
+<div style="height:20px"></div>
+<div class="step compact">
+<h3>1. גזירה לפי כלל המנה</h3>
+<p>נסמן:</p>
+<div class="formula">\[u(x)=\sqrt{3x^2-4a},\qquad v(x)=x^3\]</div>
+<div class="formula">\[u'(x)=\frac{6x}{2\sqrt{3x^2-4a}}=\frac{3x}{\sqrt{3x^2-4a}},\qquad v'(x)=3x^2\]</div>
+<div class="formula">\[
+f'(x)=\frac{u'v-uv'}{v^2}
+\]</div>
+<div class="formula">\[
+f'(x)=\frac{\frac{3x}{\sqrt{3x^2-4a}}\cdot x^3-\sqrt{3x^2-4a}\cdot3x^2}{x^6}
+\]</div>
+<div class="formula">\[
+f'(x)=\frac{3x^4-3x^2(3x^2-4a)}{x^6\sqrt{3x^2-4a}}
+=\frac{6(2a-x^2)}{x^4\sqrt{3x^2-4a}}
+\]</div>
+</div>
+<footer>בעמוד הבא נשתמש בנגזרת כדי לקבוע את סוג נקודות הקיצון.</footer>
+</section><section class="page" id="page5"><div class="page-head"><span class="tag">ג(2) - קיצון וסוג הקיצון</span><span class="page-no">עמוד 5</span></div><h2>ג(2). השלמת נקודות הקיצון של \(f(x)\)</h2><div class="grid2">
+<div class="step compact">
+<h3>2. נקודות עם שיפוע אפס</h3>
+<p>בתוך תחום ההגדרה, המכנה של \(f'(x)\) חיובי. לכן:</p>
+<div class="formula">\[f'(x)=0\Rightarrow2a-x^2=0\]</div>
+<div class="formula">\[x=\pm\sqrt{2a}\]</div>
+<p>שתי הנקודות נמצאות בתוך שני ענפי התחום. נבדוק זאת <b>חישובית</b>:</p>
+<div class="formula">\[\sqrt{2a}\gt\frac{2\sqrt a}{\sqrt3}\]</div>
+<p>מאחר ש-\(a\gt0\), מתקיים \(\sqrt a\gt0\), ולכן מותר לחלק את שני האגפים ב-\(\sqrt a\):</p>
+<div class="formula">\[\sqrt2\gt\frac2{\sqrt3}\]</div>
+<p>שני האגפים חיוביים, ולכן אפשר להעלות בריבוע בלי לשנות את כיוון אי-השוויון:</p>
+<div class="formula">\[2\gt\frac43\qquad\Longleftrightarrow\qquad6\gt4\]</div>
+<div class="answer"><b>לכן:</b> \(\sqrt{2a}\gt\frac{2\sqrt a}{\sqrt3}\), ולכן \(x=\pm\sqrt{2a}\) אכן נמצאות בתוך ענפי תחום ההגדרה.</div>
+</div>
+<div class="step compact">
+<h3>3. ערכי הפונקציה</h3>
+<div class="formula">\[
+f(\sqrt{2a})=\frac{\sqrt{6a-4a}}{(\sqrt{2a})^3}=\frac{1}{2a}
+\]</div>
+<div class="formula">\[
+f(-\sqrt{2a})=-\frac{1}{2a}
+\]</div>
+</div>
+</div>
+<div style="height:20px"></div>
+<div class="note compact"><b>מסקנה:</b> שתי הנקודות \(x=\pm\sqrt{2a}\) נמצאות בתוך תחום ההגדרה, ולכן אפשר לבדוק בהן קיצון פנימי.</div>
+<footer>הבדיקה החישובית מאשרת ששתי הנקודות עם שיפוע אפס נמצאות בתחום.</footer>
+</section>
+<section class="page" id="page6">
+<div class="page-head"><span class="tag">ג(2) - סימן הנגזרת וסוג הקיצון</span><span class="page-no">עמוד 6</span></div>
+<h2>ג(2). קביעת סוג נקודות הקיצון</h2>
+<div class="step compact">
+<p>בתוך תחום ההגדרה המכנה של \(f'(x)\) חיובי, ולכן סימן הנגזרת נקבע על ידי:</p>
+<div class="formula">\[2a-x^2\]</div>
+<p>נשתמש בסימן הביטוי משני צדי \(x=\pm\sqrt{2a}\).</p>
+</div>
+<h2>ציור מונה הנגזרת</h2>
+<div class="step compact">
+<p>מצאנו:</p>
+<div class="formula">\[f'(x)=\frac{6(2a-x^2)}{x^4\sqrt{3x^2-4a}}\]</div>
+<p>בכל נקודה פנימית בתחום ההגדרה המכנה חיובי, ולכן <b>סימן הנגזרת נקבע רק על ידי המונה</b>:</p>
+<div class="formula">\[N(x)=6(2a-x^2)=12a-6x^2\]</div>
+<p>זהו גרף של פרבולה הפוכה: המקדם של \(x^2\) שלילי. נקודות האפס שלה הן \(x=\pm\sqrt{2a}\).</p>
+</div>
+<div class="graph-panel">
+<div class="jxgbox small" id="boardNumerator"></div>
+<div class="graph-controls" data-board="boardNumerator">
+<button data-action="zoomIn" type="button">הגדלה</button><button data-action="zoomOut" type="button">הקטנה</button><button data-action="center" type="button">מרכוז</button><button data-action="fit" type="button">התאם לחלון</button><button data-action="reset" type="button">איפוס</button>
+</div>
+<div class="legend">הציור מוצג עבור \(a=1\) לצורך המחשה. השורשים הם \(x=\pm\sqrt2\), והמבנה זהה לכל \(a\gt0\).</div>
+</div>
+
+<table class="sign-table">
+<tr><th>תחום</th><th>\(x\lt-\sqrt{2a}\)</th><th>\(-\sqrt{2a}\lt x\le-\frac{2\sqrt a}{\sqrt3}\)</th><th>\(\frac{2\sqrt a}{\sqrt3}\le x\lt\sqrt{2a}\)</th><th>\(x\gt\sqrt{2a}\)</th></tr>
+<tr><th>סימן \(f'(x)\)</th><td class="neg">-</td><td class="pos">+</td><td class="pos">+</td><td class="neg">-</td></tr>
+<tr><th>התנהגות</th><td>יורדת</td><td>עולה</td><td>עולה</td><td>יורדת</td></tr>
+</table>
+
+<footer>הפרבולה של מונה הנגזרת וטבלת הסימנים מראות היכן הפונקציה עולה ויורדת.</footer>
+</section>
+<section class="page" id="page7">
+<div class="page-head"><span class="tag">ג(2) - מסקנות הקיצון</span><span class="page-no">עמוד 7</span></div>
+<h2>ג(2). מסקנות מטבלת הסימנים</h2>
+<div class="grid2">
+<div class="answer compact">
+<h3>בנקודה \(x=-\sqrt{2a}\)</h3>
+<p>משמאל לשורש הפרבולה מתחת לציר \(x\), ולכן \(f'(x)\lt0\).</p>
+<p>מימין לשורש הפרבולה מעל לציר \(x\), ולכן \(f'(x)\gt0\).</p>
+<div class="formula">\[-\;\longrightarrow\;+\]</div>
+<p><b>הפונקציה עוברת מירידה לעלייה — מינימום.</b></p>
+</div>
+<div class="answer compact">
+<h3>בנקודה \(x=\sqrt{2a}\)</h3>
+<p>משמאל לשורש הפרבולה מעל לציר \(x\), ולכן \(f'(x)\gt0\).</p>
+<p>מימין לשורש הפרבולה מתחת לציר \(x\), ולכן \(f'(x)\lt0\).</p>
+<div class="formula">\[+\;\longrightarrow\;-\]</div>
+<p><b>הפונקציה עוברת מעלייה לירידה — מקסימום.</b></p>
+</div>
+</div>
+
+<div style="height:20px"></div>
+<div class="answer compact">
+<p><b>נקודות הקיצון הפנימיות:</b></p>
+<div class="formula">\[\boxed{\left(-\sqrt{2a},-\frac1{2a}\right)}\]</div><p>סוג: מינימום פנימי.</p>
+<div class="formula">\[\boxed{\left(\sqrt{2a},\frac1{2a}\right)}\]</div><p>סוג: מקסימום פנימי.</p>
+</div>
+
+<div style="height:20px"></div>
+<div class="note compact"><b>הערה על קצות התחום:</b> אם כוללים גם קיצון בקצה תחום, אז \(\left(-\frac{2\sqrt a}{\sqrt3},0\right)\) היא נקודת מקסימום בקצה, ו-\(\left(\frac{2\sqrt a}{\sqrt3},0\right)\) היא נקודת מינימום בקצה. בהמשך השאלה נאמר במפורש "נקודות הקיצון הפנימיות", ולכן המשיק המשותף מתייחס לשתי הנקודות שמצאנו באמצעות \(f'(x)=0\).
+</div>
+<footer>סוג הקיצון נקבע לפי מעבר הסימן של הנגזרת.</footer>
+</section>
+<section class="page" id="page8">
+<div class="page-head"><span class="tag">ד - סקיצה של \(f\)</span><span class="page-no">עמוד 8</span></div>
+<h2>ד. סקיצה של גרף \(f(x)\)</h2>
+<div class="grid2">
+<div class="box compact">
+<h3>הנתונים שמכתיבים את הסקיצה</h3>
+<ul>
+<li>התחום: \(x\le-\frac{2\sqrt a}{\sqrt3}\) וגם \(x\ge\frac{2\sqrt a}{\sqrt3}\).</li>
+<li>הפונקציה אי-זוגית, ולכן קיימת סימטריה לסיבוב של \(180^\circ\) סביב ראשית הצירים.</li>
+<li>נקודות האפס של \(f\): \(x=\pm\frac{2\sqrt a}{\sqrt3}\).</li>
+<li>מינימום פנימי: \(\left(-\sqrt{2a},-\frac1{2a}\right)\).</li>
+<li>מקסימום פנימי: \(\left(\sqrt{2a},\frac1{2a}\right)\).</li>
+</ul>
+</div>
+<div class="box compact">
+<h3>התנהגות בקצוות הרחוקים</h3>
+<p>כאשר \(|x|\) גדול מאוד, האיבר \(-4a\) זניח ביחס ל-\(3x^2\). לכן:</p>
+<div class="formula">\[
+f(x)=\frac{\sqrt{3x^2-4a}}{x^3}
+\approx\frac{\sqrt{3x^2}}{x^3}
+=\frac{\sqrt3\,|x|}{x^3}
+\]</div>
+<p>עבור \(x\to+\infty\):</p>
+<div class="formula">\[\frac{\sqrt3\,|x|}{x^3}=\frac{\sqrt3}{x^2}\to0\]</div>
+<p>ועבור \(x\to-\infty\):</p>
+<div class="formula">\[\frac{\sqrt3\,|x|}{x^3}=-\frac{\sqrt3}{x^2}\to0\]</div>
+<div class="answer"><b>לכן האסימפטוטה האופקית היא:</b> \(\boxed{y=0}\).</div>
+</div>
+</div>
+<div style="height:20px"></div>
+<div class="graph-panel">
+<div class="jxgbox" id="boardF"></div>
+<div class="graph-controls" data-board="boardF">
+<button data-action="zoomIn" type="button">הגדלה</button><button data-action="zoomOut" type="button">הקטנה</button><button data-action="center" type="button">מרכוז</button><button data-action="fit" type="button">התאם לחלון</button><button data-action="reset" type="button">איפוס</button>
+</div>
+<div class="legend">הגרף מוצג עבור \(a=1\) לצורך המחשה. המבנה נשמר לכל \(a\gt0\).</div>
+</div>
+<div class="note"><b>אין אסימפטוטה אנכית ל-\(f\):</b> סביב \(x=0\) אין בכלל נקודות מן התחום; אי אפשר להתקרב ל-0 מתוך תחום הפונקציה.</div>
+<footer>הגרף אינטראקטיבי: ניתן לגרור, להגדיל, להקטין, למרכז ולהתאים לחלון.</footer>
+</section>
+<section class="page" id="page9">
+<div class="page-head"><span class="tag">ה - תחום ואסימפטוטות של \(g\)</span><span class="page-no">עמוד 9</span></div>
+<h2>ה(1). תחום ההגדרה של \(g(x)=\dfrac1{f(x)}\)</h2>
+<div class="step compact">
+<div class="formula">\[
+g(x)=\frac{1}{f(x)}=\frac{x^3}{\sqrt{3x^2-4a}}
+\]</div>
+<p>כדי ש-\(g\) תהיה מוגדרת, צריך ש-\(f\) תהיה מוגדרת וגם \(f(x)\ne0\). לכן יש להוציא את שתי נקודות האפס של \(f\).</p>
+<div class="formula">\[\boxed{x\lt-\frac{2\sqrt a}{\sqrt3}\quad\text{וא}\quad x\gt\frac{2\sqrt a}{\sqrt3}}\]</div>
+</div>
+<h2>ה(2). אסימפטוטות המאונכות לצירים</h2>
+<div class="grid2">
+<div class="step compact">
+<h3>אסימפטוטות אנכיות - עם נימוק</h3>
+<p>כאשר מתקרבים לקצות התחום, המכנה של \(g\) שואף ל-0 בעוד המונה אינו שואף ל-0:</p>
+<div class="formula">\[x\to\left(\frac{2\sqrt a}{\sqrt3}\right)^+\Rightarrow\sqrt{3x^2-4a}\to0^+\]</div>
+<div class="formula">\[x\to\left(-\frac{2\sqrt a}{\sqrt3}\right)^-\Rightarrow\sqrt{3x^2-4a}\to0^+\]</div>
+<div class="answer"><div class="formula">\[\boxed{x=-\frac{2\sqrt a}{\sqrt3}},\qquad\boxed{x=\frac{2\sqrt a}{\sqrt3}}\]</div></div>
+</div>
+<div class="step compact">
+<h3>בדיקת אסימפטוטה אופקית</h3>
+<p>כאשר \(|x|\) גדול מאוד, האיבר \(-4a\) זניח ביחס ל-\(3x^2\). לכן:</p>
+<div class="formula">\[
+g(x)=\frac{x^3}{\sqrt{3x^2-4a}}
+\approx\frac{x^3}{\sqrt{3x^2}}
+=\frac{x^3}{\sqrt3\,|x|}
+\]</div>
+<p>עבור \(x\to+\infty\):</p>
+<div class="formula">\[\frac{x^3}{\sqrt3\,|x|}=\frac{x^2}{\sqrt3}\to+\infty\]</div>
+<p>ועבור \(x\to-\infty\):</p>
+<div class="formula">\[\frac{x^3}{\sqrt3\,|x|}=-\frac{x^2}{\sqrt3}\to-\infty\]</div>
+<div class="answer"><b>לכן אין אסימפטוטה אופקית.</b></div>
+</div>
+</div>
+<footer>ל-\(g\) שתי אסימפטוטות אנכיות ואין אסימפטוטה אופקית.</footer>
+</section>
+<section class="page" id="page10">
+<div class="page-head"><span class="tag">ה - מידע נוסף לסקיצה של \(g\)</span><span class="page-no">עמוד 10</span></div>
+<h2>מידע נוסף שיסייע בסקיצה של \(g\)</h2>
+<div class="grid2">
+<div class="box compact"><h3>סימטריה</h3><div class="formula">\[g(-x)=\frac{(-x)^3}{\sqrt{3(-x)^2-4a}}=-g(x)\]</div><p>גם \(g\) אי-זוגית.</p></div>
+<div class="box compact"><h3>קשר לנגזרת של \(f\)</h3><div class="formula">\[g'(x)=-\frac{f'(x)}{[f(x)]^2}\]</div><p>לכן \(g'(x)=0\) בדיוק באותם ערכי \(x\) פנימיים שבהם \(f'(x)=0\):</p><div class="formula">\[x=\pm\sqrt{2a}\]</div></div>
+</div>
+<div style="height:20px"></div>
+<div class="answer compact"><p>בנקודות אלה:</p><div class="formula">\[g(\sqrt{2a})=2a,\qquad g(-\sqrt{2a})=-2a\]</div></div>
+<footer>מידע נוסף לסקיצה של \(g\): סימטריה, קשר לנגזרת ונקודות קיצון.</footer>
+</section>
+<section class="page" id="page11">
+<div class="page-head"><span class="tag">ו - משיק משותף ומציאת \(a\)</span><span class="page-no">עמוד 11</span></div>
+<h2>ו(1). כיצד מוסיפים את גרף \(g\) לסקיצה?</h2>
+<div class="grid2">
+<div class="box compact">
+<ul>
+<li>\(g\) אי-זוגית.</li>
+<li>תחומה: \(x\lt-\frac{2\sqrt a}{\sqrt3}\) וגם \(x\gt\frac{2\sqrt a}{\sqrt3}\).</li>
+<li>יש אסימפטוטות אנכיות בשני קצות התחום.</li>
+<li>בענף הימני \(g\) חיובית; בענף השמאלי \(g\) שלילית.</li>
+<li>נקודות הקיצון הפנימיות של \(g\) נמצאות ב-\(x=\pm\sqrt{2a}\).</li>
+<li>\(g(\sqrt{2a})=2a\), \(g(-\sqrt{2a})=-2a\).</li>
+</ul>
+</div>
+<div class="step compact">
+<h3>סוג הקיצון של \(g\)</h3>
+<p>מאחר ש-\([f(x)]^2\gt0\), סימן \(g'\) הפוך לסימן \(f'\).</p>
+<p>לכן:</p>
+<div class="formula">\[\left(-\sqrt{2a},-2a\right)\]</div><p>סוג: מקסימום פנימי.</p>
+<div class="formula">\[\left(\sqrt{2a},2a\right)\]</div><p>סוג: מינימום פנימי.</p>
+</div>
+</div>
+<div style="height:40px"></div>
+<h2>ו(2). תנאי המשיק המשותף</h2>
+<div class="step compact">
+<p>בנקודות הקיצון הפנימיות מתקיים:</p>
+<div class="formula">\[f'(\pm\sqrt{2a})=0,\qquad g'(\pm\sqrt{2a})=0\]</div>
+<p>כלומר, לשני הגרפים יש שם משיקים אופקיים. כדי שהמשיק יהיה <b>אותו משיק</b>, גם ערכי ה-\(y\) צריכים להיות שווים.</p>
+<div class="formula">\[
+f(\sqrt{2a})=g(\sqrt{2a})
+\]</div>
+<div class="formula">\[
+\frac{1}{2a}=2a
+\]</div>
+<div class="formula">\[1=4a^2\]</div>
+<div class="formula">\[a=\frac12\]</div><p>בחרנו בשורש החיובי משום ש-\(a\gt0\).</p>
+<div class="answer"><div class="formula">\[\boxed{a=\frac12}\]</div></div>
+</div>
+<div class="note compact"><b>בדיקה:</b> עבור \(a=\frac12\), בנקודה \(x=1\) מתקיים \(f(1)=g(1)=1\), ולכן המשיק המשותף הוא \(y=1\). לפי האי-זוגיות, גם ב-\(x=-1\) מתקיים \(f(-1)=g(-1)=-1\), ושם המשיק המשותף הוא \(y=-1\).</div>
+<footer>תנאי המשיק המשותף: אותו שיפוע ואותה נקודת השקה.</footer>
+</section>
+<section class="page" id="page12">
+<div class="page-head"><span class="tag">סקיצה מסכמת עבור \(a=\frac12\)</span><span class="page-no">עמוד 12</span></div>
+<h2>הגרפים \(f\) ו-\(g\) יחד</h2>
+<div class="graph-panel">
+<div class="jxgbox" id="boardFG"></div>
+<div class="graph-controls" data-board="boardFG">
+<button data-action="zoomIn" type="button">הגדלה</button><button data-action="zoomOut" type="button">הקטנה</button><button data-action="center" type="button">מרכוז</button><button data-action="fit" type="button">התאם לחלון</button><button data-action="reset" type="button">איפוס</button>
+</div>
+<div class="legend"><span class="swatch blue"></span> \(f(x)\)    <span class="swatch red"></span> \(g(x)\)    <span class="swatch green"></span> המשיקים המשותפים \(y=1\), \(y=-1\)</div>
+</div>
+<div class="grid2">
+<div class="summary compact">
+<h3>עבור \(a=\frac12\)</h3>
+<div class="formula">\[f(x)=\frac{\sqrt{3x^2-2}}{x^3}\]</div>
+<div class="formula">\[g(x)=\frac{x^3}{\sqrt{3x^2-2}}\]</div>
+<p>קצות התחום:</p><div class="formula">\[x=\pm\sqrt{\frac23}\]</div>
+</div>
+<div class="summary compact">
+<h3>נקודות מפתח</h3>
+<div class="formula">\[f(1)=g(1)=1\]</div>
+<div class="formula">\[f(-1)=g(-1)=-1\]</div>
+<p>בשתי הנקודות השיפוע הוא 0, ולכן המשיקים המשותפים אופקיים.</p>
+</div>
+</div>
+<div style="height:20px"></div>
+<div class="check">
+<div><b>תחום \(f\):</b> \(x\le-\sqrt{\frac23}\) וגם \(x\ge\sqrt{\frac23}\).</div>
+<div><b>תחום \(g\):</b> \(x\lt-\sqrt{\frac23}\) וגם \(x\gt\sqrt{\frac23}\).</div>
+<div><b>אסימפטוטות \(g\):</b> \(x=\pm\sqrt{\frac23}\).</div>
+<div><b>תשובה סופית:</b> \(\boxed{a=\frac12}\).</div>
+</div>
+<footer>הסקיצה מאשרת חזותית את כל תוצאות החישוב.</footer>
+</section>
+<section class="page" id="page13">
+<div class="page-head"><span class="tag">השוואה דינמית בין \(f\) ו-\(g\)</span><span class="page-no">עמוד 13</span></div>
+<h2>הגרפים \(f(x)\) ו-\(g(x)\) עבור ערכים שונים של \(a\)</h2>
+<div class="equations-top">
+  <div class="equation-card">
+    <h3>הפונקציה \(f\) — נוסחה כללית</h3>
+    <div class="formula">\[f(x)=\frac{\sqrt{3x^2-4a}}{x^3}\]</div>
+  </div>
+  <div class="equation-card">
+    <h3>הפונקציה \(g\) — נוסחה כללית</h3>
+    <div class="formula">\[g(x)=\frac{x^3}{\sqrt{3x^2-4a}}\]</div>
+  </div>
+</div>
+<div class="parameter-control">
+  <div class="slider-row">
+    <label for="aSlider"><b>שנה את ערך הפרמטר \(a\):</b></label>
+    <input id="aSlider" type="range" min="0" max="10" step="0.1" value="0.5" aria-label="ערך הפרמטר a בין 0 ל-10">
+    <div class="a-value" id="aValue">a = 0.5</div>
+  </div>
+  <div class="selected-equations" id="selectedEquations" aria-live="polite">
+    <div class="formula" id="selectedF">\[f(x)=\frac{\sqrt{3x^2-2}}{x^3}\]</div>
+    <div class="formula" id="selectedG">\[g(x)=\frac{x^3}{\sqrt{3x^2-2}}\]</div>
+  </div>
+</div>
+<div class="graph-panel">
+  <div class="jxgbox" id="boardFGSlider"></div>
+  <div class="graph-controls" data-board="boardFGSlider">
+    <button data-action="zoomIn" type="button">הגדלה</button><button data-action="zoomOut" type="button">הקטנה</button><button data-action="center" type="button">מרכוז</button><button data-action="fit" type="button">התאם לחלון</button><button data-action="reset" type="button">איפוס</button>
+  </div>
+  <div class="legend"><span class="swatch blue"></span> \(f(x)\) &nbsp;&nbsp; <span class="swatch red"></span> \(g(x)\)</div>
+</div>
+<div class="note compact"><b>שימו לב:</b> שינוי \(a\) מזיז את קצות התחום \(x=\pm\frac{2\sqrt a}{\sqrt3}\). עבור \(a=0\), שתי הפונקציות אינן מוגדרות ב-\(x=0\).</div>
+<footer>המחוון מאפשר להשוות באופן דינמי בין שני הגרפים עבור \(0\le a\le10\).</footer>
+</section>
+
+<script>
+(function(){
+  const boards={};
+  function makeAxes(board){
+    board.create('axis',[[0,0],[1,0]],{strokeColor:'#6f7f8f',strokeWidth:1.2,ticks:{drawLabels:true,label:{fontSize:11}}});
+    board.create('axis',[[0,0],[0,1]],{strokeColor:'#6f7f8f',strokeWidth:1.2,ticks:{drawLabels:true,label:{fontSize:11}}});
+  }
+  function addMathText(board,x,y,latex,opts={}){
+    return board.create('text',[x,y,'\\('+latex+'\\)'],Object.assign({useMathJax:true,fixed:true,anchorX:'middle',anchorY:'middle',fontSize:13},opts));
+  }
+  function initNumerator(){
+    const a=1, root=Math.sqrt(2*a), edge=2*Math.sqrt(a)/Math.sqrt(3);
+    const b=JXG.JSXGraph.initBoard('boardNumerator',{boundingbox:[-3.1,14,3.1,-8],axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false}});
+    makeAxes(b);
+    const N=x=>6*(2*a-x*x);
+    b.create('functiongraph',[N,-3.1,3.1],{strokeColor:'#1f5aa6',strokeWidth:3});
+    b.create('point',[-root,0],{size:2,name:'',strokeColor:'#9f3434',fillColor:'#9f3434'});
+    b.create('point',[root,0],{size:2,name:'',strokeColor:'#9f3434',fillColor:'#9f3434'});
+    b.create('line',[[-edge,-8],[-edge,14]],{straightFirst:false,straightLast:false,strokeColor:'#7b8794',dash:2,strokeWidth:1.2,fixed:true});
+    b.create('line',[[edge,-8],[edge,14]],{straightFirst:false,straightLast:false,strokeColor:'#7b8794',dash:2,strokeWidth:1.2,fixed:true});
+    addMathText(b,-root,-1.5,'-\\sqrt{2a}',{color:'#9f3434'});
+    addMathText(b,root,-1.5,'\\sqrt{2a}',{color:'#9f3434'});
+    addMathText(b,-edge,12.5,'-\\frac{2\\sqrt a}{\\sqrt3}',{color:'#526477',fontSize:11});
+    addMathText(b,edge,12.5,'\\frac{2\\sqrt a}{\\sqrt3}',{color:'#526477',fontSize:11});
+    addMathText(b,0,12.7,'N(x)=6(2a-x^2)',{color:'#1f5aa6'});
+    boards.boardNumerator={board:b,initial:[-3.1,14,3.1,-8],fit:[-3.1,14,3.1,-8]};
+  }
+  function initF(){
+    const a=1, edge=2*Math.sqrt(a)/Math.sqrt(3);
+    const b=JXG.JSXGraph.initBoard('boardF',{boundingbox:[-5,2.4,5,-2.4],axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false}});
+    makeAxes(b);
+    const f=x=>Math.sqrt(Math.max(0,3*x*x-4*a))/(x*x*x);
+    b.create('functiongraph',[f,-5,-edge],{strokeColor:'#1f5aa6',strokeWidth:3});
+    b.create('functiongraph',[f,edge,5],{strokeColor:'#1f5aa6',strokeWidth:3});
+    b.create('point',[-edge,0],{size:2,name:'',strokeColor:'#1f5aa6',fillColor:'#1f5aa6'});
+    b.create('point',[edge,0],{size:2,name:'',strokeColor:'#1f5aa6',fillColor:'#1f5aa6'});
+    const ex=Math.sqrt(2*a), ey=1/(2*a);
+    b.create('point',[-ex,-ey],{size:2,name:'',strokeColor:'#1f5aa6',fillColor:'#1f5aa6'});
+    b.create('point',[ex,ey],{size:2,name:'',strokeColor:'#1f5aa6',fillColor:'#1f5aa6'});
+    b.create('line',[[0,0],[1,0]],{straightFirst:true,straightLast:true,strokeColor:'#2c7a52',dash:2,strokeWidth:1.5,fixed:true});
+    addMathText(b,3.9,.26,'y=0',{color:'#2c7a52'});
+    boards.boardF={board:b,initial:[-5,2.4,5,-2.4],fit:[-5,2.4,5,-2.4]};
+  }
+  function initFG(){
+    const a=.5, edge=Math.sqrt(2/3);
+    const b=JXG.JSXGraph.initBoard('boardFG',{boundingbox:[-3.2,4.2,3.2,-4.2],axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false}});
+    makeAxes(b);
+    const f=x=>Math.sqrt(Math.max(0,3*x*x-2))/(x*x*x);
+    const g=x=>(x*x*x)/Math.sqrt(3*x*x-2);
+    b.create('functiongraph',[f,-3.2,-edge],{strokeColor:'#1f5aa6',strokeWidth:3});
+    b.create('functiongraph',[f,edge,3.2],{strokeColor:'#1f5aa6',strokeWidth:3});
+    b.create('functiongraph',[g,-3.2,-edge-0.003],{strokeColor:'#a63a3a',strokeWidth:3});
+    b.create('functiongraph',[g,edge+0.003,3.2],{strokeColor:'#a63a3a',strokeWidth:3});
+    b.create('line',[[-edge,0],[-edge,1]],{strokeColor:'#a63a3a',dash:2,strokeWidth:1.5,fixed:true});
+    b.create('line',[[edge,0],[edge,1]],{strokeColor:'#a63a3a',dash:2,strokeWidth:1.5,fixed:true});
+    b.create('line',[[0,1],[1,1]],{strokeColor:'#2c7a52',dash:2,strokeWidth:2,fixed:true});
+    b.create('line',[[0,-1],[1,-1]],{strokeColor:'#2c7a52',dash:2,strokeWidth:2,fixed:true});
+    b.create('point',[1,1],{size:2,name:'',strokeColor:'#2c7a52',fillColor:'#2c7a52'});
+    b.create('point',[-1,-1],{size:2,name:'',strokeColor:'#2c7a52',fillColor:'#2c7a52'});
+    addMathText(b,1.65,1.25,'y=1',{color:'#2c7a52'}); addMathText(b,-1.65,-1.25,'y=-1',{color:'#2c7a52'});
+    boards.boardFG={board:b,initial:[-3.2,4.2,3.2,-4.2],fit:[-3.2,4.2,3.2,-4.2]};
+  }
+
+  function initFGSlider(){
+    const slider=document.getElementById('aSlider');
+    const valueBox=document.getElementById('aValue');
+    const selectedF=document.getElementById('selectedF');
+    const selectedG=document.getElementById('selectedG');
+    let a=parseFloat(slider.value);
+    const initial=[-8,12,8,-12];
+    const b=JXG.JSXGraph.initBoard('boardFGSlider',{boundingbox:initial,axis:false,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{enabled:true,wheel:true,needShift:false}});
+    makeAxes(b);
+    const validRadicand=x=>3*x*x-4*a;
+    const f=x=>{
+      const r=validRadicand(x);
+      if(r<0 || Math.abs(x)<1e-7) return NaN;
+      return Math.sqrt(r)/(x*x*x);
+    };
+    const g=x=>{
+      const r=validRadicand(x);
+      if(r<=0 || Math.abs(x)<1e-7) return NaN;
+      return (x*x*x)/Math.sqrt(r);
+    };
+    b.create('functiongraph',[f],{strokeColor:'#1f5aa6',strokeWidth:3});
+    b.create('functiongraph',[g],{strokeColor:'#a63a3a',strokeWidth:3});
+    boards.boardFGSlider={board:b,initial:initial.slice(),fit:initial.slice()};
+
+    function clean(n){
+      const v=Math.round(n*1000000)/1000000;
+      return Number.isInteger(v)?String(v):String(v).replace(/0+$/,'').replace(/\.$/,'');
+    }
+    function latexRadicand(){
+      const c=4*a;
+      return Math.abs(c)<1e-10?'3x^2':`3x^2-${clean(c)}`;
+    }
+    function updateEquations(){
+      const rad=latexRadicand();
+      valueBox.textContent=`a = ${clean(a)}`;
+      if(window.MathJax && MathJax.typesetClear){
+        MathJax.typesetClear([selectedF,selectedG]);
+      }
+      selectedF.textContent=`\\[a=${clean(a)}:\\qquad f(x)=\\frac{\\sqrt{${rad}}}{x^3}\\]`;
+      selectedG.textContent=`\\[a=${clean(a)}:\\qquad g(x)=\\frac{x^3}{\\sqrt{${rad}}}\\]`;
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise([selectedF,selectedG]);
+      }
+    }
+    slider.addEventListener('input',()=>{
+      a=parseFloat(slider.value);
+      updateEquations();
+      b.fullUpdate();
+    });
+    updateEquations();
+  }
+
+  function setBox(rec,box){rec.board.setBoundingBox(box,false);rec.board.fullUpdate();}
+  function setupControls(){
+    document.querySelectorAll('.graph-controls').forEach(ctrl=>{
+      ctrl.addEventListener('click',e=>{
+        const btn=e.target.closest('button'); if(!btn)return;
+        const rec=boards[ctrl.dataset.board]; if(!rec)return;
+        const act=btn.dataset.action;
+        if(act==='zoomIn')rec.board.zoomIn();
+        if(act==='zoomOut')rec.board.zoomOut();
+        if(act==='reset'||act==='center'||act==='fit')setBox(rec,act==='fit'?rec.fit:rec.initial);
+      });
+    });
+  }
+  window.addEventListener('load',()=>{initNumerator();initF();initFG();initFGSlider();setupControls();});
+})();
+</script>
+</body>
+</html>
