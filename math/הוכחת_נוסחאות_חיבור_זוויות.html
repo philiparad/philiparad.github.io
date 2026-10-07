@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>הוכחת נוסחאות חיבור זוויות — אינטראקטיבי</title>
+<link rel="icon" type="image/png" href="philip_favicon.png"/>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --bg:#f6f8fc; --card:#fff; --text:#172033; --muted:#667085; --border:#dbe2ea;
+  --accent:#315efb; --accent-bg:#eef2ff; --term1:#0f766e; --term2:#c2410c;
+  --result:#7c3aed; --ok:#15803d; --bad:#b91c1c; --soft:#f8fafc;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans Hebrew",sans-serif;line-height:1.55}
+button,input,select{font:inherit}
+.app{max-width:1400px;margin:auto;padding:18px}
+.hero{background:linear-gradient(135deg,#ffffff,#f3f6ff);border:2px solid var(--border);border-radius:22px;padding:18px 20px;margin-bottom:14px}
+.hero h1{margin:0 0 8px;font-size:clamp(24px,3vw,38px)}
+.hero p{margin:4px 0;color:var(--muted)}
+.formulas{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;direction:ltr}
+.formula-pill{background:#b4dcff96;border:2px solid #8fb8e6;border-radius:14px;padding:10px 14px;font-size:18px}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.nav button{border:2px solid var(--border);background:#fff;border-radius:12px;padding:9px 13px;cursor:pointer;font-weight:700}
+.nav button.active{border-color:var(--accent);background:var(--accent-bg);color:#1836a5}
+.layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(400px,1fr);gap:14px;align-items:start}
+@media(max-width:1180px){.layout{grid-template-columns:minmax(0,1fr) minmax(380px,.95fr)}.claim-reason .claim{font-size:15px}.claim-reason tr.result-row .claim{font-size:14px}}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.claim-reason .claim{font-size:16px}.claim-reason tr.result-row .claim{font-size:15px}}
+.card{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:16px;min-width:0}
+.card h2,.card h3{margin-top:0}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+@media(max-width:650px){.controls{grid-template-columns:1fr}}
+.slider-box{background:var(--soft);border:2px solid var(--border);border-radius:14px;padding:12px}
+.slider-line{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.slider-line strong{font-size:18px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.quick{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.quick button{border:1px solid var(--border);background:#fff;border-radius:10px;padding:5px 9px;cursor:pointer}
+.svg-wrap{background:#fff;border:2px solid var(--border);border-radius:16px;padding:8px;overflow:auto;position:relative}
+.graph-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:0 0 8px;direction:rtl}
+.graph-toolbar button{border:2px solid var(--border);background:#fff;border-radius:10px;padding:7px 11px;cursor:pointer;font-weight:700;min-width:42px}
+.graph-toolbar button:hover{border-color:var(--accent);background:var(--accent-bg)}
+.graph-toolbar .move-hint{font-size:13px;color:var(--muted);margin-inline-start:auto}
+#mainSvg{width:100%;min-width:620px;height:auto;display:block;direction:ltr;cursor:grab;touch-action:none;user-select:none}
+#mainSvg.panning{cursor:grabbing}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.stepbox{border:2px solid var(--border);border-radius:16px;padding:14px;background:#fff}
+.stephead{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.stepnav{display:flex;gap:8px;flex-wrap:wrap;margin-top: 10px;}
+.stepnav button,.primary,.secondary{border-radius:11px;padding:9px 13px;cursor:pointer;font-weight:700}
+.primary{border:2px solid var(--accent);background:var(--accent);color:white}
+.secondary,.stepnav button{background:#b4dcff96;border:2px solid #8fb8e6;color:var(--text)}
+.progress{height:8px;background:#edf1f5;border-radius:999px;overflow:hidden;margin:10px 0 14px;display:none;}.progress>div{height:100%;background:var(--accent);width:0;transition:width .25s ease}
+.explain{background:var(--soft);border:2px solid var(--border);border-radius:14px;padding:13px}.explain p{margin:0 0 9px}.explain p:last-child{margin-bottom:0}.proof-link{border:2px solid var(--border);border-radius:14px;padding:12px;margin:12px 0;background:#fff}.proof-link h3{font-size:16px;margin:0 0 8px}.proof-chip{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:10px;margin:6px 0;background:var(--soft)}.proof-chip i{width:28px;height:4px;border-radius:999px;display:inline-block;flex:0 0 auto}.proof-chip strong{direction:ltr}.focus-note{border:2px solid #cbd5e1;background:#f8fafc;border-radius:12px;padding:10px 11px;margin-top:10px}.focus-note b{color:#1d4ed8}.step-label{font-size:14px;color:var(--muted);font-weight:700;margin:0 0 6px}.chart-link{font-size:13px;color:var(--muted);margin-top:8px}
+.mathline{direction:ltr;text-align:center;font-size:19px;margin:12px 0}
+.term1{color:var(--term1);font-weight:800}.term2{color:var(--term2);font-weight:800}.term-result{color:var(--result);font-weight:800}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 12px;direction:rtl}.stepper .step-dot{border:2px solid var(--border);background:#fff;border-radius:12px;padding:7px 6px;text-align:center;font-size:13px;font-weight:800;color:var(--muted)}.stepper .step-dot.done{border-color:#bbf7d0;background:#f0fdf4;color:#166534}.stepper .step-dot.active{border-color:var(--accent);background:var(--accent-bg);color:#1836a5;box-shadow:0 0 0 2px rgba(49,94,251,.08) inset}.claim-reason tr.term1-row td{background:#f0fdfa}.claim-reason tr.term2-row td{background:#fff7ed}.claim-reason tr.result-row td{background:#f5f3ff}.claim-reason tr.term1-row .claim{color:var(--term1);font-weight:800}.claim-reason tr.term2-row .claim{color:var(--term2);font-weight:800}.claim-reason tr.result-row .claim{color:var(--result);font-weight:800}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:650px){.check-grid{grid-template-columns:1fr}}
+.value-card{border:2px solid var(--border);border-radius:13px;padding:10px;background:var(--soft)}
+.value-card .v{font-size:22px;font-weight:800;direction:ltr;text-align:center}
+.status{margin-top:10px;border-radius:12px;padding:10px 12px;font-weight:700}.status.ok{background:#ecfdf3;color:var(--ok);border:2px solid #bbf7d0}.status.bad{background:#fef2f2;color:var(--bad);border:2px solid #fecaca}
+.question{border:2px solid var(--border);border-radius:14px;padding:12px;margin-top:12px;background:#fff}.options{display:grid;gap:8px;margin-top:10px}.options button{border:2px solid var(--border);border-radius:10px;background:#fff;padding:10px;text-align:right;cursor:pointer}.options button.good{border-color:#22c55e;background:#f0fdf4}.options button.wrong{border-color:#ef4444;background:#fef2f2}
+.callout{border:2px solid #c7d2fe;background:#eef2ff;border-radius:14px;padding:12px;margin:10px 0}.warning{border-color:#fed7aa;background:#fff7ed}
+.hidden{display:none!important}.mini-title{font-size:14px;color:var(--muted);font-weight:700;margin-bottom:4px}.equation-stack{display:grid;gap:8px;direction:ltr}.equation-stack>div{border:2px solid var(--border);border-radius:12px;padding:8px 10px;background:#fff;text-align:center}.claim-reason{width:100%;max-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;overflow:hidden;border:2px solid var(--border);border-radius:12px;background:#fff;margin:8px 0}.claim-reason th,.claim-reason td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;min-width:0}.claim-reason tr:last-child td{border-bottom:0}.claim-reason th{background:var(--soft);font-weight:800}.claim-reason th:first-child,.claim-reason td:first-child{border-left:1px solid var(--border);width:44%}.claim-reason th:last-child,.claim-reason td:last-child{width:56%}.claim-reason .claim{direction:ltr;text-align:center;font-size:16px;white-space:normal;overflow-wrap:anywhere}.claim-reason .reason{text-align:right;direction:rtl;overflow-wrap:anywhere}.claim-reason mjx-container{max-width:100%!important;margin-left:auto!important;margin-right:auto!important}.claim-reason mjx-container svg{max-width:100%!important;height:auto!important}.claim-reason tr.result-row .claim{font-size:15px}.stepbox{min-width:0}.explain{min-width:0;overflow:hidden}
+.mode-note{font-size:14px;color:var(--muted);margin-top:8px}.footer-note{color:var(--muted);font-size:13px;margin:16px 0 4px;text-align:center}
+.kbd{font-family:monospace;border:1px solid var(--border);border-bottom-width:3px;border-radius:6px;padding:1px 5px;background:#fff}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <section class="hero">
+    <h1>הוכחת נוסחאות חיבור זוויות — מעבדה אינטראקטיבית</h1>
+    <div class="formulas">
+      <div class="formula-pill">\(\sin(\alpha+\beta)=\sin(\alpha)\cos(\beta)+\cos(\alpha)\sin(\beta)\)</div>
+      <div class="formula-pill">\(\begin{aligned}\cos(\alpha+\beta)&=\cos(\alpha)\cos(\beta)-\sin(\alpha)\sin(\beta)\end{aligned}\)</div>
+    </div>
+  </section>
+
+  <nav class="nav" aria-label="ניווט בין חלקי המעבדה">
+    <button data-mode="intro" class="active">1. למה צריך נוסחה?</button>
+    <button data-mode="sinproof">2. הוכחת sin</button>
+    <button data-mode="cosproof">3. הוכחת cos</button>
+  </nav>
+
+  <div class="layout">
+    <main class="card">
+      <div class="controls">
+        <div class="slider-box">
+          <div class="slider-line"><strong>זווית α</strong><span id="aLabel">30°</span></div>
+          <input id="aSlider" type="range" min="1" max="89" step="1" value="30" aria-label="זווית α">
+          <div class="quick"><button data-target="A" data-v="30">30°</button><button data-target="A" data-v="45">45°</button><button data-target="A" data-v="60">60°</button></div>
+        </div>
+        <div class="slider-box">
+          <div class="slider-line"><strong>זווית β</strong><span id="bLabel">25°</span></div>
+          <input id="bSlider" type="range" min="1" max="89" step="1" value="25" aria-label="זווית β">
+          <div class="quick"><button data-target="B" data-v="30">30°</button><button data-target="B" data-v="45">45°</button><button data-target="B" data-v="60">60°</button></div>
+        </div>
+      </div>
+
+      <div class="svg-wrap">
+        <div class="graph-toolbar" aria-label="בקרי תצוגת הגרף">
+          <button id="zoomInBtn" type="button" title="הגדלה">＋</button>
+          <button id="zoomOutBtn" type="button" title="הקטנה">−</button>
+          <button id="resetViewBtn" type="button" title="איפוס התצוגה">איפוס תצוגה</button>
+        </div>
+        <svg id="mainSvg" viewBox="0 0 760 560" role="img" aria-label="שרטוט אינטראקטיבי של זוויות α ו־β על מעגל היחידה">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#667085"/></marker>
+          </defs>
+          <rect x="0" y="0" width="760" height="560" fill="#fff" rx="12"/>
+          <line x1="45" y1="280" x2="715" y2="280" stroke="#98a2b3" stroke-width="1.4" marker-end="url(#arrow)"/>
+          <line x1="380" y1="530" x2="380" y2="30" stroke="#98a2b3" stroke-width="1.4" marker-end="url(#arrow)"/>
+          <text x="720" y="274" font-size="16" fill="#667085">x</text><text x="389" y="27" font-size="16" fill="#667085">y</text>
+          <circle cx="380" cy="280" r="220" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+          <g id="dynamic"></g>
+        </svg>
+      </div>
+    </main>
+
+    <aside class="card">
+      <div id="content"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const app = document.getElementById('app');
+const aSlider = document.getElementById('aSlider');
+const bSlider = document.getElementById('bSlider');
+const aLabel = document.getElementById('aLabel');
+const bLabel = document.getElementById('bLabel');
+const dynamic = document.getElementById('dynamic');
+const content = document.getElementById('content');
+const navButtons = [...document.querySelectorAll('.nav button')];
+let mode = 'intro';
+let step = 0;
+const NS='http://www.w3.org/2000/svg';
+const mainSvg = document.getElementById('mainSvg');
+const zoomInBtn = document.getElementById('zoomInBtn');
+const zoomOutBtn = document.getElementById('zoomOutBtn');
+const resetViewBtn = document.getElementById('resetViewBtn');
+
+const initialView = {x:0,y:0,w:760,h:560};
+let view = {...initialView};
+let isPanning = false;
+let panStart = null;
+let viewStart = null;
+
+function applyView(){
+  mainSvg.setAttribute('viewBox',`${view.x} ${view.y} ${view.w} ${view.h}`);
+}
+function zoomView(factor,cx=view.x+view.w/2,cy=view.y+view.h/2){
+  const minW=260,maxW=1520;
+  const newW=Math.max(minW,Math.min(maxW,view.w*factor));
+  const actualFactor=newW/view.w;
+  const newH=view.h*actualFactor;
+  const rx=(cx-view.x)/view.w, ry=(cy-view.y)/view.h;
+  view={x:cx-rx*newW,y:cy-ry*newH,w:newW,h:newH};
+  applyView();
+}
+function resetGraphView(){ view={...initialView}; applyView(); }
+function svgPointFromClient(clientX,clientY){
+  const r=mainSvg.getBoundingClientRect();
+  return {x:view.x+(clientX-r.left)/r.width*view.w, y:view.y+(clientY-r.top)/r.height*view.h};
+}
+zoomInBtn.addEventListener('click',()=>zoomView(0.8));
+zoomOutBtn.addEventListener('click',()=>zoomView(1.25));
+resetViewBtn.addEventListener('click',resetGraphView);
+mainSvg.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const p=svgPointFromClient(e.clientX,e.clientY);
+  zoomView(e.deltaY<0?0.88:1.14,p.x,p.y);
+},{passive:false});
+mainSvg.addEventListener('pointerdown',e=>{
+  if(e.button!==0) return;
+  isPanning=true; mainSvg.classList.add('panning');
+  mainSvg.setPointerCapture(e.pointerId);
+  panStart={x:e.clientX,y:e.clientY}; viewStart={...view};
+});
+mainSvg.addEventListener('pointermove',e=>{
+  if(!isPanning) return;
+  const r=mainSvg.getBoundingClientRect();
+  const dx=(e.clientX-panStart.x)/r.width*viewStart.w;
+  const dy=(e.clientY-panStart.y)/r.height*viewStart.h;
+  view={...viewStart,x:viewStart.x-dx,y:viewStart.y-dy};
+  applyView();
+});
+function endPan(e){
+  if(!isPanning) return;
+  isPanning=false; mainSvg.classList.remove('panning');
+  if(e?.pointerId!==undefined && mainSvg.hasPointerCapture(e.pointerId)) mainSvg.releasePointerCapture(e.pointerId);
+}
+mainSvg.addEventListener('pointerup',endPan);
+mainSvg.addEventListener('pointercancel',endPan);
+mainSvg.addEventListener('dblclick',resetGraphView);
+
+
+const deg = d => d*Math.PI/180;
+const clean = x => Math.abs(x)<1e-10 ? 0 : x;
+const fmt = x => clean(x).toFixed(4).replace(/-0\.0000/,'0.0000');
+const val = () => ({A:+aSlider.value, B:+bSlider.value});
+const pt = (ang,r=220) => ({x:380+r*Math.cos(deg(ang)), y:280-r*Math.sin(deg(ang))});
+const svgEl=(tag,attrs={})=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;};
+const add=(tag,attrs={})=>{const e=svgEl(tag,attrs);dynamic.appendChild(e);return e;};
+const text=(x,y,t,attrs={})=>{const e=add('text',{x,y,'font-size':16,fill:'#172033',...attrs});e.textContent=t;return e;};
+const line=(x1,y1,x2,y2,stroke,width=2,dash='',opacity=1)=>add('line',{x1,y1,x2,y2,stroke,'stroke-width':width,'stroke-dasharray':dash,opacity});
+const circle=(cx,cy,r,fill,stroke='#fff',sw=2)=>add('circle',{cx,cy,r,fill,stroke,'stroke-width':sw});
+const polygon=(pts,fill,stroke='none',sw=0,opacity=1)=>add('polygon',{points:pts.map(p=>`${p.x},${p.y}`).join(' '),fill,stroke,'stroke-width':sw,opacity});
+
+function arcPath(startDeg,endDeg,r,color,label){
+  const s=pt(startDeg,r), e=pt(endDeg,r); const delta=((endDeg-startDeg)%360+360)%360; const large=delta>180?1:0;
+  add('path',{d:`M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 0 ${e.x} ${e.y}`,fill:'none',stroke:color,'stroke-width':3,'stroke-linecap':'round'});
+  const mid=startDeg+(endDeg-startDeg)/2, m=pt(mid,r+18); text(m.x,m.y,label,{fill:color,'font-weight':'700','text-anchor':'middle'});
+}
+
+function renderSvg(){
+  dynamic.replaceChildren();
+  const {A,B}=val(); const C=A+B;
+  const pA=pt(A), pC=pt(C);
+  const isProof=['sinproof','cosproof'].includes(mode);
+  const baseOpacity=isProof ? 0.35 : 1;
+
+  // בסיס: שני הרדיוסים והזוויות
+  line(380,280,pA.x,pA.y,'#315efb',2,'',baseOpacity);
+  line(380,280,pC.x,pC.y,'#7c3aed',2.2,'',1);
+  circle(380,280,4,'#111827');
+  text(390,272,'O',{fill:'#111827','font-weight':'700','font-size':14});
+  if(!isProof){
+    circle(pA.x,pA.y,4.5,'#315efb');
+    text(pA.x+9,pA.y-7,'P_α',{fill:'#315efb','font-weight':'700','font-size':14});
+  }
+  circle(pC.x,pC.y,5,'#7c3aed');
+  text(pC.x+9,pC.y-7,isProof?'P':'P_{α+β}',{fill:'#7c3aed','font-weight':'700','font-size':14});
+  if(Math.abs(A)>1) arcPath(0,A,48,'#315efb','α');
+  if(Math.abs(B)>1) arcPath(A,C,75,'#7c3aed','β');
+
+  // היטלים של הנקודה הסופית
+  line(pC.x,pC.y,pC.x,280,'#94a3b8',1.35,'5 5',mode==='cosproof'?1:.7);
+  line(pC.x,pC.y,380,pC.y,'#94a3b8',1.35,'5 5',mode==='sinproof'?1:.7);
+  circle(pC.x,280,3.2,'#fff','#64748b',1.5);
+  circle(380,pC.y,3.2,'#fff','#64748b',1.5);
+  text(pC.x+7,274,'T',{fill:'#475467','font-weight':'700','font-size':13});
+  text(388,pC.y+5,'U',{fill:'#475467','font-weight':'700','font-size':13});
+
+  if(isProof){
+    // u_α הוא וקטור יחידה בכיוון A; v_α מאונך לו.
+    const u={x:Math.cos(deg(A)),y:-Math.sin(deg(A))};
+    const v={x:-Math.sin(deg(A)),y:-Math.cos(deg(A))};
+    const R=220;
+    const comp1={x:380+R*Math.cos(deg(B))*u.x,y:280+R*Math.cos(deg(B))*u.y};
+    const end={x:comp1.x+R*Math.sin(deg(B))*v.x,y:comp1.y+R*Math.sin(deg(B))*v.y};
+
+    // Highlight the triangle used in the current proof step.
+    if(step===0){ polygon([{x:380,y:280},comp1,end],'#eef2ff','#7c3aed',1.2,.42); }
+    if(step===1){ polygon([{x:380,y:280},{x:comp1.x,y:280},comp1],'#ccfbf1','#0f766e',1.2,.50); }
+    if(step===2){ polygon([comp1,{x:end.x,y:comp1.y},end],'#ffedd5','#c2410c',1.2,.50); }
+
+    const active1 = true;
+    const active2 = true;
+    line(380,280,comp1.x,comp1.y,'#0f766e',active1?3:1.6,'',active1?1:.25);
+    line(comp1.x,comp1.y,end.x,end.y,'#c2410c',active2?3:1.6,'',active2?1:.25);
+    circle(comp1.x,comp1.y,4,'#111827');
+    text(comp1.x+8,comp1.y-8,'Q',{fill:'#111827','font-weight':'700','font-size':14});
+
+    text((380+comp1.x)/2,(280+comp1.y)/2-10,'cos β',{fill:'#0f766e','font-size':14,'font-weight':'700','text-anchor':'middle'});
+    text((comp1.x+end.x)/2+8,(comp1.y+end.y)/2,'sin β',{fill:'#c2410c','font-size':14,'font-weight':'700'});
+
+    if(mode==='sinproof'){
+      const show1=step>=1, show2=step>=2;
+      if(show1){
+        line(comp1.x,280,comp1.x,comp1.y,'#0f766e',2,'4 4');
+        circle(comp1.x,280,3.2,'#fff','#0f766e',1.5);
+        text(comp1.x+7,274,'R',{fill:'#0f766e','font-weight':'700','font-size':13});
+        text(comp1.x+7,(280+comp1.y)/2,'sin α · cos β',{fill:'#0f766e','font-size':13,'font-weight':'700'});
+      }
+      if(show2){
+        line(comp1.x,comp1.y,end.x,end.y,'#c2410c',3);
+        line(comp1.x,comp1.y,end.x,comp1.y,'#f59e0b',2,'4 4');
+        line(end.x,comp1.y,end.x,end.y,'#c2410c',2,'4 4');
+        circle(end.x,comp1.y,3.2,'#fff','#c2410c',1.5);
+        text(end.x+7,comp1.y-7,'S',{fill:'#c2410c','font-weight':'700','font-size':13});
+        text(end.x-10,(comp1.y+end.y)/2,'cos α · sin β',{fill:'#c2410c','font-size':13,'font-weight':'700','text-anchor':'end'});
+      }
+    }
+    if(mode==='cosproof'){
+      const show1=step>=1, show2=step>=2, show3=step>=3;
+      if(show1){
+        // R is the vertical projection of Q onto the x-axis; OR is the first horizontal contribution.
+        line(comp1.x,280,comp1.x,comp1.y,'#0f766e',2,'4 4');
+        circle(comp1.x,280,3.2,'#fff','#0f766e',1.5);
+        text(comp1.x+7,274,'R',{fill:'#0f766e','font-weight':'700','font-size':13});
+        line(380,280,comp1.x,280,'#0f766e',2.2,'','1');
+        text((380+comp1.x)/2,267,'cos α · cos β',{fill:'#0f766e','font-size':13,'font-weight':'700','text-anchor':'middle'});
+      }
+      if(show2){
+        // Auxiliary construction: SQ ∥ OR. P is end; S has P's x-coordinate and Q's y-coordinate.
+        line(comp1.x,comp1.y,end.x,comp1.y,'#c2410c',2,'4 4');
+        circle(end.x,comp1.y,3.2,'#fff','#c2410c',1.5);
+        text(end.x+7,comp1.y-7,'S',{fill:'#c2410c','font-weight':'700','font-size':13});
+        text((comp1.x+end.x)/2,comp1.y+22,'sin α · sin β',{fill:'#c2410c','font-size':13,'font-weight':'700','text-anchor':'middle'});
+      }
+      if(show3){
+        // Keep PT (the projection of P to the x-axis) dotted, as requested.
+        line(pC.x,pC.y,pC.x,280,'#94a3b8',1.35,'5 5');
+        // Highlight OT and RT without changing PT.
+        line(380,280,pC.x,280,'#7c3aed',2.2);
+        line(pC.x,280,comp1.x,280,'#c2410c',2.2);
+      }
+    }
+  }
+}
+const stepsSin=[
+  ['1. מוצאים את אורכי PQ ו־OQ',String.raw`<table class="claim-reason" aria-label="טענה ונימוק במשולש POQ"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(\sin(\beta)=\dfrac{PQ}{PO}\)</td><td class="reason">הגדרת סינוס במשולש ישר־הזווית \(POQ\): ניצב מול הזווית \(\beta\) חלקי היתר.</td></tr><tr><td class="claim">\(\sin(\beta)=\dfrac{PQ}{1}\)</td><td class="reason">\(PO=1\), משום ש־\(PO\) הוא רדיוס במעגל היחידה.</td></tr><tr><td class="claim">\(PQ=\sin(\beta)\)</td><td class="reason">חלוקה ב־1 אינה משנה את הערך, ולכן \(\dfrac{PQ}{1}=PQ\).</td></tr><tr><td class="claim">\(\cos(\beta)=\dfrac{OQ}{PO}\)</td><td class="reason">הגדרת קוסינוס במשולש ישר־הזווית \(POQ\): ניצב ליד הזווית \(\beta\) חלקי היתר.</td></tr><tr><td class="claim">\(\cos(\beta)=\dfrac{OQ}{1}\)</td><td class="reason">\(PO=1\), משום ש־\(PO\) הוא רדיוס במעגל היחידה.</td></tr><tr><td class="claim">\(OQ=\cos(\beta)\)</td><td class="reason">חלוקה ב־1 אינה משנה את הערך, ולכן \(\dfrac{OQ}{1}=OQ\).</td></tr></tbody></table>`],
+  ['2. מוצאים את התרומה הירוקה לגובה',String.raw`<table class="claim-reason" aria-label="טענה ונימוק במשולש OQR"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(\sin(\alpha)=\dfrac{QR}{OQ}\)</td><td class="reason">הגדרת סינוס במשולש ישר־הזווית \(OQR\): ניצב מול הזווית \(\alpha\) חלקי היתר.</td></tr><tr><td class="claim">\(\sin(\alpha)=\dfrac{QR}{\cos(\beta)}\)</td><td class="reason">מֵחלק 1 קיבלנו \(OQ=\cos(\beta)\).</td></tr><tr class="term1-row"><td class="claim">\(QR=\sin(\alpha)\cos(\beta)\)</td><td class="reason">כופלים את שני אגפי המשוואה ב־\(\cos(\beta)\).</td></tr></tbody></table>`],
+  ['3. מוצאים את התרומה הכתומה לגובה',String.raw`<table class="claim-reason" aria-label="טענה ונימוק במשולש PQS"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(SQ\parallel OR\)</td><td class="reason">בניית עזר: מחברים את הנקודות \(Q\) ו־\(S\) כך שהקטע \(SQ\) מקביל ל־\(OR\).</td></tr><tr><td class="claim">\(\angle SPQ=\alpha\)</td><td class="reason">\(QP\perp OQ\) כי המשולש \(POQ\) ישר־זווית ב־\(Q\). בנוסף, \(OR\) נמצא על ציר \(x\), והקטע \(PT\) — ולכן גם \(PS\) — מאונך לציר \(x\). לכן \(PS\perp OR\), ומכאן שהזווית בין \(QP\) ל־\(PS\) שווה לזווית בין \(OQ\) ל־\(OR\), כלומר \(\alpha\).</td></tr><tr><td class="claim">\(\cos(\alpha)=\dfrac{PS}{PQ}\)</td><td class="reason">הגדרת קוסינוס במשולש ישר־הזווית \(PQS\): ניצב ליד הזווית \(\alpha\) חלקי היתר.</td></tr><tr><td class="claim">\(\cos(\alpha)=\dfrac{PS}{\sin(\beta)}\)</td><td class="reason">מֵחלק 1 קיבלנו \(PQ=\sin(\beta)\).</td></tr><tr class="term2-row"><td class="claim">\(PS=\cos(\alpha)\sin(\beta)\)</td><td class="reason">כופלים את שני אגפי המשוואה ב־\(\sin(\beta)\).</td></tr></tbody></table><div class="focus-note"><b>בשרטוט:</b> הקטע האופקי \(SQ\) הוא בניית עזר, והקטע האנכי \(PS\) הוא התרומה הכתומה לגובה.</div>`],
+  ['4. מחברים את שני חלקי הגובה',String.raw`<table class="claim-reason" aria-label="טענה ונימוק בחיבור הגבהים"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(PT=PS+ST\)</td><td class="reason">הקטע \(PT\) מורכב משני קטעים עוקבים על אותו קו אנכי: \(PS\) ו־\(ST\).</td></tr><tr><td class="claim">\(ST=QR\)</td><td class="reason">\(SQRT\) הוא מלבן, ובמלבן צלעות נגדיות שוות.</td></tr><tr class="result-row"><td class="claim">\(\begin{aligned}PT&=\cos(\alpha)\sin(\beta)\\&\quad+\sin(\alpha)\cos(\beta)\end{aligned}\)</td><td class="reason">מחלק 3: \(PS=\cos(\alpha)\sin(\beta)\). כמו כן \(ST=QR\), ומחלק 2: \(QR=\sin(\alpha)\cos(\beta)\).</td></tr><tr class="result-row"><td class="claim">\(\begin{aligned}\sin(\alpha+\beta)&=\cos(\alpha)\sin(\beta)\\&\quad+\sin(\alpha)\cos(\beta)\end{aligned}\)</td><td class="reason">הגובה של הנקודה \(P\) מעל ציר \(x\) הוא \(PT\), ובמעגל היחידה גובה נקודה בזווית \(\alpha+\beta\) שווה ל־\(\sin(\alpha+\beta)\).</td></tr></tbody></table>`]
+];
+const stepsCos=[
+  ['1. מוצאים את אורכי PQ ו־OQ',String.raw`<table class="claim-reason" aria-label="טענה ונימוק במשולש POQ"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(\sin(\beta)=\dfrac{PQ}{PO}\)</td><td class="reason">הגדרת סינוס במשולש ישר־הזווית \(POQ\): ניצב מול הזווית \(\beta\) חלקי היתר.</td></tr><tr><td class="claim">\(\sin(\beta)=\dfrac{PQ}{1}\)</td><td class="reason">\(PO=1\), משום ש־\(PO\) הוא רדיוס במעגל היחידה.</td></tr><tr><td class="claim">\(PQ=\sin(\beta)\)</td><td class="reason">חלוקה ב־1 אינה משנה את הערך, ולכן \(\dfrac{PQ}{1}=PQ\).</td></tr><tr><td class="claim">\(\cos(\beta)=\dfrac{OQ}{PO}\)</td><td class="reason">הגדרת קוסינוס במשולש ישר־הזווית \(POQ\): ניצב ליד הזווית \(\beta\) חלקי היתר.</td></tr><tr><td class="claim">\(\cos(\beta)=\dfrac{OQ}{1}\)</td><td class="reason">\(PO=1\), משום ש־\(PO\) הוא רדיוס במעגל היחידה.</td></tr><tr><td class="claim">\(OQ=\cos(\beta)\)</td><td class="reason">חלוקה ב־1 אינה משנה את הערך, ולכן \(\dfrac{OQ}{1}=OQ\).</td></tr></tbody></table>`],
+  ['2. מוצאים את הקטע OR',String.raw`<table class="claim-reason" aria-label="טענה ונימוק במשולש OQR"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(\cos(\alpha)=\dfrac{OR}{OQ}\)</td><td class="reason">הגדרת קוסינוס במשולש ישר־הזווית \(OQR\): ניצב ליד הזווית \(\alpha\) חלקי היתר.</td></tr><tr><td class="claim">\(\cos(\alpha)=\dfrac{OR}{\cos(\beta)}\)</td><td class="reason">מחלק 1 קיבלנו \(OQ=\cos(\beta)\).</td></tr><tr class="term1-row"><td class="claim">\(OR=\cos(\alpha)\cos(\beta)\)</td><td class="reason">כופלים את שני אגפי המשוואה ב־\(\cos(\beta)\).</td></tr></tbody></table>`],
+  ['3. מוצאים את הקטע SQ',String.raw`<table class="claim-reason" aria-label="טענה ונימוק במשולש PQS"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(SQ\parallel OR\)</td><td class="reason">בניית עזר: מחברים את הנקודות \(S\) ו־\(Q\) כך שהקטע \(SQ\) מקביל ל־\(OR\).</td></tr><tr><td class="claim">\(\angle SPQ=\alpha\)</td><td class="reason">\(QP\perp OQ\) וגם \(PS\perp OR\). זוויות הנוצרות על־ידי זוגות של ישרים מאונכים שוות, ולכן \(\angle SPQ=\angle QOR=\alpha\).</td></tr><tr><td class="claim">\(\sin(\alpha)=\dfrac{SQ}{PQ}\)</td><td class="reason">הגדרת סינוס במשולש ישר־הזווית \(PQS\): ניצב מול הזווית \(\alpha\) חלקי היתר.</td></tr><tr><td class="claim">\(\sin(\alpha)=\dfrac{SQ}{\sin(\beta)}\)</td><td class="reason">מחלק 1 קיבלנו \(PQ=\sin(\beta)\).</td></tr><tr class="term2-row"><td class="claim">\(SQ=\sin(\alpha)\sin(\beta)\)</td><td class="reason">כופלים את שני אגפי המשוואה ב־\(\sin(\beta)\).</td></tr></tbody></table>`],
+  ['4. מוצאים את הקואורדינטה האופקית OT',String.raw`<table class="claim-reason" aria-label="טענה ונימוק בחישוב הקואורדינטה האופקית"><thead><tr><th>טענה</th><th>נימוק</th></tr></thead><tbody><tr><td class="claim">\(RT=SQ\)</td><td class="reason">המרובע \(QRST\) הוא מלבן: \(QR\parallel ST\) ו־\(QS\parallel RT\). במלבן צלעות נגדיות שוות.</td></tr><tr><td class="claim">\(OT=OR-RT\)</td><td class="reason">על ציר \(x\), הנקודה \(T\) נמצאת על הקטע \(OR\); במקרה הקצה \(\alpha+\beta=90^\circ\) מתקבל \(T=O\). לכן \(OR=OT+RT\).</td></tr><tr class="result-row"><td class="claim">\(\begin{aligned}OT&=\cos(\alpha)\cos(\beta)\\&\quad-\sin(\alpha)\sin(\beta)\end{aligned}\)</td><td class="reason">מחלק 2: \(OR=\cos(\alpha)\cos(\beta)\), ומחלק 3: \(RT=SQ=\sin(\alpha)\sin(\beta)\).</td></tr><tr class="result-row"><td class="claim">\(\begin{aligned}\cos(\alpha+\beta)&=\cos(\alpha)\cos(\beta)\\&\quad-\sin(\alpha)\sin(\beta)\end{aligned}\)</td><td class="reason">הקואורדינטה האופקית של הנקודה \(P\) היא \(OT\), ובמעגל היחידה היא שווה ל־\(\cos(\alpha+\beta)\).</td></tr></tbody></table>`]
+];
+
+function renderIntro(){
+ const {A,B}=val(); const lhs=Math.sin(deg(A+B)); const wrong=Math.sin(deg(A))+Math.sin(deg(B));
+ content.innerHTML=String.raw`<h2>למה בכלל צריך נוסחה?</h2>
+ <p>טעות נפוצה היא לחשוב ש־\(\sin(\alpha+\beta)=\sin(\alpha)+\sin(\beta)\). נבדוק זאת על הזוויות שבחרת.</p>
+ <div class="check-grid"><div class="value-card"><div class="mini-title">הערך הנכון</div><div class="v">sin(${A+B}°) = ${fmt(lhs)}</div></div><div class="value-card"><div class="mini-title">הניסיון השגוי</div><div class="v">sin(${A}°)+sin(${B}°) = ${fmt(wrong)}</div></div></div>
+ <div class="status ${Math.abs(lhs-wrong)<1e-6?'ok':'bad'}">${Math.abs(lhs-wrong)<1e-6?'במקרה הזה יצא אותו ערך, אבל זו אינה זהות כללית. נסה זוויות אחרות.':'הערכים שונים. לכן חייבת להיות נוסחה אחרת לחיבור זוויות.'}</div>
+ <div class="callout"><strong>המטרה:</strong> למצוא כיצד הקואורדינטות של נקודה משתנות כאשר מבצעים שני סיבובים זה אחר זה.</div>`;
+}
+
+function proofHtml(title,steps){
+ const s=steps[step];
+ return String.raw`<h2>${title}</h2><div class="callout warning"><strong>הערה:</strong> ההוכחה מוצגת עבור זוויות חדות \(\alpha,\beta\), כאשר \(\alpha+\beta\le 90^\circ\).</div><div class="stepbox"><div class="stepper">${['1. POQ','2. OQR','3. PQS','4. חיבור'].map((label,i)=>`<div class=\"step-dot ${i<step?'done':i===step?'active':''}\">${i<step?'✓ ':''}${label}</div>`).join('')}</div><div class="stephead"><strong>${s[0]}</strong><span>שלב ${step+1} מתוך ${steps.length}</span></div>
+ <div class="progress"><div style="width:${((step+1)/steps.length)*100}%"></div></div>
+ <div class="explain">${s[1]}</div>
+ <div class="stepnav"><button id="prevStep" ${step===0?'disabled':''}>הקודם</button><button id="nextStep" class="primary" ${step===steps.length-1?'disabled':''}>הבא</button><button id="resetStep" class="secondary">מהתחלה</button></div></div>`;
+}
+
+function renderProof(which){
+ const steps=which==='sin'?stepsSin:stepsCos; content.innerHTML=proofHtml(which==='sin'?'הוכחת נוסחת הסינוס':'הוכחת נוסחת הקוסינוס',steps);
+ const prev=document.getElementById('prevStep'), next=document.getElementById('nextStep'), reset=document.getElementById('resetStep');
+ if(prev) prev.addEventListener('click',()=>{if(step>0){step--;render();}});
+ if(next) next.addEventListener('click',()=>{if(step<steps.length-1){step++;render();}});
+ if(reset) reset.addEventListener('click',()=>{step=0;render();});
+}
+
+
+function typeset(){ if(window.MathJax?.typesetPromise) MathJax.typesetPromise([content]).catch(()=>{}); }
+function render(){
+ const {A,B}=val(); aLabel.textContent=`${A}°`; bLabel.textContent=`${B}°`;
+ navButtons.forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+ renderSvg();
+ if(mode==='intro') renderIntro();
+ else if(mode==='sinproof') renderProof('sin');
+ else if(mode==='cosproof') renderProof('cos');
+ typeset();
+}
+
+function syncAngleLimits(changed=null){
+  let A=+aSlider.value, B=+bSlider.value;
+  if(A+B>90){
+    if(changed===aSlider) bSlider.value=Math.max(0,90-A);
+    else if(changed===bSlider) aSlider.value=Math.max(0,90-B);
+    else bSlider.value=Math.max(0,90-A);
+    A=+aSlider.value; B=+bSlider.value;
+  }
+  aSlider.max=String(90-B);
+  bSlider.max=String(90-A);
+  document.querySelectorAll('.quick button').forEach(btn=>{
+    const v=+btn.dataset.v;
+    const allowed=btn.dataset.target==='A' ? v+B<=90 : A+v<=90;
+    btn.disabled=!allowed;
+    btn.title=allowed?'':`לא ניתן לבחור ${v}° כי הסכום α+β חייב להיות לכל היותר 90°`;
+  });
+}
+[aSlider,bSlider].forEach(sl=>sl.addEventListener('input',()=>{syncAngleLimits(sl);render();}));
+document.querySelectorAll('.quick button').forEach(b=>b.addEventListener('click',()=>{
+  const target=b.dataset.target==='A'?aSlider:bSlider;
+  target.value=b.dataset.v;
+  syncAngleLimits(target);
+  render();
+}));
+navButtons.forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;step=0;render();}));
+app.addEventListener('keydown',e=>{
+ if(['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement.tagName)) return;
+ if(e.key==='ArrowLeft' && (mode==='sinproof'||mode==='cosproof')){const max=(mode==='sinproof'?stepsSin:stepsCos).length-1;if(step<max){step++;render();}}
+ if(e.key==='ArrowRight' && (mode==='sinproof'||mode==='cosproof')){if(step>0){step--;render();}}
+});
+syncAngleLimits();
+render();
+})();
+</script>
+</body>
+</html>
