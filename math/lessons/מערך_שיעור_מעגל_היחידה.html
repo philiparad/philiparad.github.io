@@ -51,9 +51,30 @@ function centerBoard(id){const b=window.graphBoards[id],bb=window.graphInitial[i
 function resetBoard(id){centerBoard(id);}
 function mk(id,bbox,opts={}){const b=JXG.JSXGraph.initBoard(id,Object.assign({boundingbox:bbox,axis:true,showCopyright:false,showNavigation:false,pan:{enabled:true},zoom:{wheel:true,needshift:false}},opts));regBoard(id,b,bbox);return b;}
 function pointOnCircle(b,a,color='#111'){return b.create('point',[()=>Math.cos(a.Value()),()=>Math.sin(a.Value())],{name:'P',size:2,fixed:true,strokeColor:color,fillColor:color});}
+window.lesson7AngleUnit='rad';
+function toggleLesson7AngleUnit(){
+ window.lesson7AngleUnit=window.lesson7AngleUnit==='rad'?'deg':'rad';
+ const button=document.getElementById('lesson7-unit-toggle');
+ if(button){button.textContent=window.lesson7AngleUnit==='rad'?'הצג במעלות':'הצג ברדיאנים';
+ button.setAttribute('aria-pressed',String(window.lesson7AngleUnit==='deg'));}
+ const board=window.graphBoards.board7;
+ if(board)board.update();
+}
 function initGraphs(){if(!window.JXG||!JXG.JSXGraph)return;
- // 1
- {let b=mk('board1',[-1.55,1.45,1.65,-1.55]);b.create('circle',[[0,0],1],{strokeColor:'#111',strokeWidth:2});let a=b.create('slider',[[-1.15,-1.28],[1.05,-1.28],[-2*Math.PI,Math.PI/3,2*Math.PI]],{name:'',withLabel:false,snapWidth:Math.PI/12});let P=pointOnCircle(b,a);b.create('segment',[[0,0],P],{strokeColor:'#174a73',strokeWidth:2});b.create('text',[-1.42,1.2,()=>{const piMultiple=(a.Value()/Math.PI).toFixed(2);const degrees=Math.round(a.Value()*180/Math.PI);return `\\(\\alpha=${piMultiple}\\pi=${degrees}^{\\circ}\\)`;}],{useMathJax:true,fontSize:14});b.create('text',[-1.15,-1.43,()=>{const piMultiple=(a.Value()/Math.PI).toFixed(2);const degrees=Math.round(a.Value()*180/Math.PI);return `\\(\\alpha=${piMultiple}\\pi=${degrees}^{\\circ}\\)`;}],{useMathJax:true,fontSize:13});}
+ // 1 — the angle is measured from the positive x-axis to the moving radius.
+ {let b=mk('board1',[-1.55,1.45,1.65,-1.55]);
+  b.create('circle',[[0,0],1],{strokeColor:'#111',strokeWidth:2,fixed:true,highlight:false});
+  let a=b.create('slider',[[-1.15,-1.28],[1.05,-1.28],[-2*Math.PI,Math.PI/3,2*Math.PI]],{name:'',withLabel:false,snapWidth:Math.PI/12});
+  // Fixed initial ray: positive direction of the x-axis.
+  b.create('segment',[[0,0],[1.16,0]],{strokeColor:'#0d6b73',strokeWidth:3,fixed:true,highlight:false});
+  let P=pointOnCircle(b,a);
+  b.create('segment',[[0,0],P],{strokeColor:'#174a73',strokeWidth:2.5,fixed:true,highlight:false});
+  // Signed angular arc: positive is counterclockwise, negative clockwise.
+  b.create('curve',[t=>0.34*Math.cos(t),t=>0.34*Math.sin(t),0,()=>a.Value()],{strokeColor:'#b16c12',strokeWidth:3,fixed:true,highlight:false});
+  b.create('text',[()=>0.49*Math.cos(a.Value()/2),()=>0.49*Math.sin(a.Value()/2),()=>Math.abs(a.Value())<0.05?'':'\\(\\alpha\\)'],{useMathJax:true,fontSize:17,strokeColor:'#8a5a12',anchorX:'middle',anchorY:'middle',fixed:true,highlight:false});
+  b.create('text',[-1.42,1.2,()=>{const piMultiple=(a.Value()/Math.PI).toFixed(2);const degrees=Math.round(a.Value()*180/Math.PI);return `\\(\\alpha=${piMultiple}\\pi=${degrees}^{\\circ}\\)`;}],{useMathJax:true,fontSize:14});
+  b.create('text',[-1.15,-1.43,()=>{const piMultiple=(a.Value()/Math.PI).toFixed(2);const degrees=Math.round(a.Value()*180/Math.PI);return `\\(\\alpha=${piMultiple}\\pi=${degrees}^{\\circ}\\)`;}],{useMathJax:true,fontSize:13});
+ }
  // 2
  {let b=mk('board2',[-1.55,1.45,1.65,-1.55]);
   b.create('circle',[[0,0],1],{strokeColor:'#111',strokeWidth:2});
@@ -205,77 +226,83 @@ function initGraphs(){if(!window.JXG||!JXG.JSXGraph)return;
   b.create('text',[0.56,-0.86,'\\(\\cos\\alpha>0\\)'],Object.assign({},signStyle,{strokeColor:'#0d6b73'}));
   b.create('text',[0.56,-1.00,'\\(\\tan\\alpha<0\\)'],Object.assign({},signStyle,{strokeColor:'#8a5a12'}));
  }
- //6 symmetry
+ //6 symmetry - switchable angular units
  {let b=mk('board6',[-1.35,1.35,1.35,-1.35]);
-  b.create('circle',[[0,0],1],{strokeColor:'#111',strokeWidth:2});
-  let a=Math.PI/5;
-  const symmetryPoints=[
-   {t:a,           n:'P', color:'#1565c0', rad:'\\alpha',          deg:'',                     r:0.22, start:0, end:a,           labelT:a/2,               degShift:[0,0]},
-   {t:Math.PI-a,   n:'R', color:'#2e7d32', rad:'\\pi-\\alpha',     deg:'180^\\circ-\\alpha',   r:0.33, start:0, end:Math.PI-a,   labelT:(Math.PI-a)/2,     degShift:[0,-0.09]},
-   {t:Math.PI+a,   n:'S', color:'#c62828', rad:'\\pi+\\alpha',     deg:'180^\\circ+\\alpha',   r:0.44, start:0, end:Math.PI+a,   labelT:(Math.PI+a)/2,     degShift:[0,-0.09]},
-   {t:2*Math.PI-a, n:'Q', color:'#8e24aa', rad:'-\\alpha',          deg:'',                     r:0.31, start:0, end:-a,          labelT:-a/2,              degShift:[0,0]}
-  ];
-
-  symmetryPoints.forEach(({t,n,color,rad,deg,r,start,end,labelT,degShift})=>{
-   const x=Math.cos(t), y=Math.sin(t);
-   let P=b.create('point',[x,y],{
-    name:`\\(${n}\\)`,size:2,fixed:true,
-    strokeColor:color,fillColor:color,
-    label:{useMathJax:true,offset:[7,7]}
-   });
-   b.create('segment',[[0,0],P],{strokeColor:color,strokeWidth:2,fixed:true,highlight:false});
-   b.create('curve',[
-    u=>r*Math.cos(u),
-    u=>r*Math.sin(u),
-    start,end
-   ],{strokeColor:color,strokeWidth:3,fixed:true,highlight:false});
-   const baseX=(r+0.12)*Math.cos(labelT), baseY=(r+0.12)*Math.sin(labelT);
-   b.create('text',[
-    baseX,
-    baseY,
-    `\\(${rad}\\)`
-   ],{useMathJax:true,fontSize:15,strokeColor:color,fixed:true,highlight:false,anchorX:'middle',anchorY:'middle'});
-   if(deg){
-    b.create('text',[
-     baseX+degShift[0],
-     baseY+degShift[1],
-     `\\(${deg}\\)`
-    ],{useMathJax:true,fontSize:13,strokeColor:color,fixed:true,highlight:false,anchorX:'middle',anchorY:'middle'});
+  window.symmetryAngleUnit='rad';
+  window.toggleSymmetryAngleUnit=function(){
+   window.symmetryAngleUnit=window.symmetryAngleUnit==='rad'?'deg':'rad';
+   const button=document.getElementById('symmetry-unit-toggle');
+   if(button){
+    button.textContent=window.symmetryAngleUnit==='rad'?'הצג במעלות':'הצג ברדיאנים';
+    button.setAttribute('aria-pressed',String(window.symmetryAngleUnit==='deg'));
    }
+   b.update();
+  };
+  const angle=(rad,deg)=>window.symmetryAngleUnit==='rad'?rad:deg;
+  const isDeg=()=>window.symmetryAngleUnit==='deg';
+  b.create('circle',[[0,0],1],{strokeColor:'#111',strokeWidth:2});
+  const a=Math.PI/5;
+  const symmetryPoints=[
+   {t:a,n:'P',color:'#1565c0',rad:'\\alpha',deg:'\\alpha',r:0.22,start:0,end:a,labelT:a/2},
+   {t:Math.PI-a,n:'R',color:'#2e7d32',rad:'\\pi-\\alpha',deg:'180^\\circ-\\alpha',r:0.33,start:0,end:Math.PI-a,labelT:(Math.PI-a)/2},
+   {t:Math.PI+a,n:'S',color:'#c62828',rad:'\\pi+\\alpha',deg:'180^\\circ+\\alpha',r:0.44,start:0,end:Math.PI+a,labelT:(Math.PI+a)/2},
+   {t:2*Math.PI-a,n:'Q',color:'#8e24aa',rad:'-\\alpha',deg:'-\\alpha',r:0.31,start:0,end:-a,labelT:-a/2}
+  ];
+  symmetryPoints.forEach(({t,n,color,rad,deg,r,start,end,labelT})=>{
+   const x=Math.cos(t),y=Math.sin(t);
+   const P=b.create('point',[x,y],{name:`\\(${n}\\)`,size:2,fixed:true,strokeColor:color,fillColor:color,label:{useMathJax:true,offset:[7,7]}});
+   b.create('segment',[[0,0],P],{strokeColor:color,strokeWidth:2,fixed:true,highlight:false});
+   b.create('curve',[u=>r*Math.cos(u),u=>r*Math.sin(u),start,end],{strokeColor:color,strokeWidth:3,fixed:true,highlight:false});
+   const labelX=(r+0.12)*Math.cos(labelT),labelY=(r+0.12)*Math.sin(labelT);
+   b.create('text',[labelX,labelY,()=>`\\(${angle(rad,deg)}\\)`],{useMathJax:true,fontSize:15,strokeColor:color,fixed:true,highlight:false,anchorX:'middle',anchorY:'middle'});
   });
-
   const quadStyle={useMathJax:true,fontSize:16,fixed:true,highlight:false};
-  b.create('text',[0.45,1.22,
-   'I<br>\\(\\sin(\\alpha)=\\sin\\alpha\\)<br>\\(\\cos(\\alpha)=\\cos\\alpha\\)<br>\\(\\tan(\\alpha)=\\tan\\alpha\\)'
-  ],Object.assign({},quadStyle,{strokeColor:'#1565c0'}));
-  b.create('text',[-1.30,1.22,
-   'II<br>\\(\\sin(\\pi-\\alpha)=\\sin\\alpha\\)<br>\\(\\cos(\\pi-\\alpha)=-\\cos\\alpha\\)<br>\\(\\tan(\\pi-\\alpha)=-\\tan\\alpha\\)'
-  ],Object.assign({},quadStyle,{strokeColor:'#2e7d32'}));
-  b.create('text',[-1.30,-0.73,
-   'III<br>\\(\\sin(\\pi+\\alpha)=-\\sin\\alpha\\)<br>\\(\\cos(\\pi+\\alpha)=-\\cos\\alpha\\)<br>\\(\\tan(\\pi+\\alpha)=\\tan\\alpha\\)'
-  ],Object.assign({},quadStyle,{strokeColor:'#c62828'}));
-  b.create('text',[0.38,-0.73,
-   'IV<br>\\(\\sin(-\\alpha)=-\\sin\\alpha\\)<br>\\(\\cos(-\\alpha)=\\cos\\alpha\\)<br>\\(\\tan(-\\alpha)=-\\tan\\alpha\\)'
-  ],Object.assign({},quadStyle,{strokeColor:'#8e24aa'}));
+  const renderIdentity=(roman,sinArg,cosArg,tanArg,sinResult,cosResult,tanResult)=>
+   `${roman}<br>\\(\\sin(${sinArg})=${sinResult}\\)<br>\\(\\cos(${cosArg})=${cosResult}\\)<br>\\(\\tan(${tanArg})=${tanResult}\\)`;
+  b.create('text',[0.45,1.22,()=>renderIdentity('I','\\alpha','\\alpha','\\alpha','\\sin\\alpha','\\cos\\alpha','\\tan\\alpha')],Object.assign({},quadStyle,{strokeColor:'#1565c0'}));
+  b.create('text',[-1.30,1.22,()=>{
+   const t=angle('\\pi-\\alpha','180^\\circ-\\alpha');
+   return renderIdentity('II',t,t,t,'\\sin\\alpha','-\\cos\\alpha','-\\tan\\alpha');
+  }],Object.assign({},quadStyle,{strokeColor:'#2e7d32'}));
+  b.create('text',[-1.30,-0.73,()=>{
+   const t=angle('\\pi+\\alpha','180^\\circ+\\alpha');
+   return renderIdentity('III',t,t,t,'-\\sin\\alpha','-\\cos\\alpha','\\tan\\alpha');
+  }],Object.assign({},quadStyle,{strokeColor:'#c62828'}));
+  b.create('text',[0.38,-0.73,()=>renderIdentity('IV','-\\alpha','-\\alpha','-\\alpha','-\\sin\\alpha','\\cos\\alpha','-\\tan\\alpha')],Object.assign({},quadStyle,{strokeColor:'#8e24aa'}));
  }
  //7 periodicity - unit circle only
+ // Toggle the units only in Lesson 7; the underlying circle and slider stay in radians.
+
  {let b=mk('board7',[-1.55,1.55,1.55,-1.55]);
   b.create('circle',[[0,0],1],{strokeColor:'#111',strokeWidth:2,fixed:true,highlight:false});
   let a=b.create('slider',[[-1.10,-1.28],[1.10,-1.28],[-2*Math.PI,Math.PI/3,2*Math.PI]],{name:'',withLabel:false,snapWidth:Math.PI/36});
   const x=()=>Math.cos(a.Value()), y=()=>Math.sin(a.Value());
   const xo=()=>-Math.cos(a.Value()), yo=()=>-Math.sin(a.Value());
 
+  const isDeg=()=>window.lesson7AngleUnit==='deg';
+  const angleText=(v)=>{
+   if(isDeg()) return `${Math.round(v*180/Math.PI)}^{\\circ}`;
+   const n=Math.round(v/(Math.PI/36));
+   if(n===0) return '0';
+   const gcd=(a,b)=>b?gcd(b,a%b):a;
+   const d=gcd(Math.abs(n),36),num=n/d,den=36/d;
+   const sign=num<0?'-':'';
+   const abs=Math.abs(num),top=abs===1?'\\pi':`${abs}\\pi`;
+   return den===1?sign+top:sign+`\\frac{${top}}{${den}}`;
+  };
   let P=b.create('point',[()=>x(),()=>y()],{
-   name:'\\(P_{\\alpha}=P_{\\alpha+2\\pi}\\)',size:2,fixed:true,
+   name:'',size:2,fixed:true,
    strokeColor:'#1565c0',fillColor:'#1565c0',
    label:{useMathJax:true,offset:[8,8]}
   });
   let Q=b.create('point',[()=>xo(),()=>yo()],{
-   name:'\\(Q_{\\alpha+\\pi}\\)',size:2,fixed:true,
+   name:'',size:2,fixed:true,
    strokeColor:'#c62828',fillColor:'#c62828',
    label:{useMathJax:true,offset:[8,8]}
   });
 
+  b.create('text',[()=>x()+0.06,()=>y()+0.10,()=>isDeg()?'\\(P_{\\alpha}=P_{\\alpha+360^\\circ}\\)':'\\(P_{\\alpha}=P_{\\alpha+2\\pi}\\)'],{useMathJax:true,fontSize:12,fixed:true,highlight:false,strokeColor:'#1565c0'});
+  b.create('text',[()=>xo()+0.06,()=>yo()+0.10,()=>isDeg()?'\\(Q_{\\alpha+180^\\circ}\\)':'\\(Q_{\\alpha+\\pi}\\)'],{useMathJax:true,fontSize:12,fixed:true,highlight:false,strokeColor:'#c62828'});
   b.create('segment',[[0,0],P],{strokeColor:'#1565c0',strokeWidth:2,fixed:true,highlight:false});
   b.create('segment',[[0,0],Q],{strokeColor:'#c62828',strokeWidth:2,dash:2,fixed:true,highlight:false});
   b.create('segment',[P,[()=>x(),0]],{dash:2,strokeColor:'#1565c0',fixed:true,highlight:false});
@@ -286,15 +313,13 @@ function initGraphs(){if(!window.JXG||!JXG.JSXGraph)return;
   b.create('curve',[t=>0.24*Math.cos(t),t=>0.24*Math.sin(t),0,()=>a.Value()],{strokeColor:'#1565c0',strokeWidth:2,fixed:true,highlight:false});
   b.create('curve',[t=>0.34*Math.cos(t),t=>0.34*Math.sin(t),0,()=>a.Value()+Math.PI],{strokeColor:'#c62828',strokeWidth:2,dash:2,fixed:true,highlight:false});
 
-  b.create('text',[-1.43,1.34,()=>{
-   const deg=Math.round(a.Value()*180/Math.PI);
-   return `\\(\\alpha=${deg}^{\\circ}\\)`;
-  }],{useMathJax:true,fontSize:14,fixed:true,highlight:false});
+  b.create('text',[-1.43,1.34,()=>`\\(\\alpha=${angleText(a.Value())}\\)`],{useMathJax:true,fontSize:14,fixed:true,highlight:false});
   b.create('text',[-1.43,1.13,()=>`\\(P=(x,y)=(${x().toFixed(2)},\\ ${y().toFixed(2)})\\)`],{useMathJax:true,fontSize:13,strokeColor:'#1565c0',fixed:true,highlight:false});
   b.create('text',[-1.43,0.92,()=>`\\(Q=(-x,-y)=(${xo().toFixed(2)},\\ ${yo().toFixed(2)})\\)`],{useMathJax:true,fontSize:13,strokeColor:'#c62828',fixed:true,highlight:false});
   b.create('text',[-1.43,-1.45,()=>{
-   const deg=Math.round(a.Value()*180/Math.PI);
-   return `\\(\\alpha=${deg}^{\\circ},\\quad \\alpha+2\\pi=${deg+360}^{\\circ},\\quad \\alpha+\\pi=${deg+180}^{\\circ}\\)`;
+   const full=isDeg()?'360^{\\circ}':'2\\pi';
+   const half=isDeg()?'180^{\\circ}':'\\pi';
+   return `\\(\\alpha=${angleText(a.Value())},\\quad \\alpha+${full}=${angleText(a.Value()+2*Math.PI)},\\quad \\alpha+${half}=${angleText(a.Value()+Math.PI)}\\)`;
   }],{useMathJax:true,fontSize:12,fixed:true,highlight:false});
  }
 }
@@ -406,15 +431,15 @@ document.addEventListener('DOMContentLoaded',()=>{try{initGraphs();}catch(e){con
 </section>
 <section class="a4 lesson-page" data-page="9"><header><div class="kicker">מעגל היחידה - ערכים מדויקים</div><div class="page-no">09</div><h1>שיעור 4 - טבלת ערכים של זוויות מיוחדות</h1></header><div class="page-body">
 <div class="hero-note">הטבלה מרכזת את הערכים המדויקים של <span class="math">\(\sin\)</span>, <span class="math">\(\cos\)</span> ו־<span class="math">\(\tan\)</span> עבור זוויות מיוחדות חיוביות, ולצדן דוגמאות שליליות המתקבלות מסיבוב עם כיוון השעון.</div>
-<table class="math-table"><tr><th>זווית</th><th>sin</th><th>cos</th><th>tan</th></tr>
-<tr><td><span class="math">\(0\)</span></td><td><span class="math">\(0\)</span></td><td><span class="math">\(1\)</span></td><td><span class="math">\(0\)</span></td></tr>
-<tr><td><span class="math">\(\frac{\pi}{6}\)</span></td><td><span class="math">\(\frac12\)</span></td><td><span class="math">\(\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(\frac{\sqrt3}{3}\)</span></td></tr>
-<tr><td><span class="math">\(\frac{\pi}{4}\)</span></td><td><span class="math">\(\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(1\)</span></td></tr>
-<tr><td><span class="math">\(\frac{\pi}{3}\)</span></td><td><span class="math">\(\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(\frac12\)</span></td><td><span class="math">\(\sqrt3\)</span></td></tr>
-<tr><td><span class="math">\(-\frac{\pi}{6}\)</span></td><td><span class="math">\(-\frac12\)</span></td><td><span class="math">\(\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(-\frac{\sqrt3}{3}\)</span></td></tr>
-<tr><td><span class="math">\(-\frac{\pi}{4}\)</span></td><td><span class="math">\(-\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(-1\)</span></td></tr>
-<tr><td><span class="math">\(-\frac{\pi}{3}\)</span></td><td><span class="math">\(-\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(\frac12\)</span></td><td><span class="math">\(-\sqrt3\)</span></td></tr>
-<tr><td><span class="math">\(\frac{\pi}{2}\)</span></td><td><span class="math">\(1\)</span></td><td><span class="math">\(0\)</span></td><td>לא מוגדר</td></tr></table>
+<table class="math-table"><tr><th>רדיאנים</th><th>מעלות</th><th>sin</th><th>cos</th><th>tan</th></tr>
+<tr><td><span class="math">\(0\)</span></td><td><span class="math">\(0^{\circ}\)</span></td><td><span class="math">\(0\)</span></td><td><span class="math">\(1\)</span></td><td><span class="math">\(0\)</span></td></tr>
+<tr><td><span class="math">\(\frac{\pi}{6}\)</span></td><td><span class="math">\(30^{\circ}\)</span></td><td><span class="math">\(\frac12\)</span></td><td><span class="math">\(\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(\frac{\sqrt3}{3}\)</span></td></tr>
+<tr><td><span class="math">\(\frac{\pi}{4}\)</span></td><td><span class="math">\(45^{\circ}\)</span></td><td><span class="math">\(\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(1\)</span></td></tr>
+<tr><td><span class="math">\(\frac{\pi}{3}\)</span></td><td><span class="math">\(60^{\circ}\)</span></td><td><span class="math">\(\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(\frac12\)</span></td><td><span class="math">\(\sqrt3\)</span></td></tr>
+<tr><td><span class="math">\(-\frac{\pi}{6}\)</span></td><td><span class="math">\(-30^{\circ}\)</span></td><td><span class="math">\(-\frac12\)</span></td><td><span class="math">\(\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(-\frac{\sqrt3}{3}\)</span></td></tr>
+<tr><td><span class="math">\(-\frac{\pi}{4}\)</span></td><td><span class="math">\(-45^{\circ}\)</span></td><td><span class="math">\(-\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(\frac{\sqrt2}{2}\)</span></td><td><span class="math">\(-1\)</span></td></tr>
+<tr><td><span class="math">\(-\frac{\pi}{3}\)</span></td><td><span class="math">\(-60^{\circ}\)</span></td><td><span class="math">\(-\frac{\sqrt3}{2}\)</span></td><td><span class="math">\(\frac12\)</span></td><td><span class="math">\(-\sqrt3\)</span></td></tr>
+<tr><td><span class="math">\(\frac{\pi}{2}\)</span></td><td><span class="math">\(90^{\circ}\)</span></td><td><span class="math">\(1\)</span></td><td><span class="math">\(0\)</span></td><td>לא מוגדר</td></tr></table>
 </div><div class="footer"><span>מעגל היחידה וטריגונומטריה</span><span>5 יחידות</span></div>
 </section>
 <section class="a4 exercise-page" data-page="10"><header><div class="kicker">שיעור 4 - ערכים של זוויות מיוחדות - תרגול</div><div class="page-no">10</div><h1>תרגול שיעור 4</h1></header><div class="page-body"><div class="exercise-note">10 תרגילים בסדר קושי עולה. מומלץ לפתור ללא מחשבון כאשר ניתן.</div><div class="exercise-grid"><div class="q"><span class="qnum">1</span><div>חשבו \(\sin30^\circ\).</div></div><div class="q"><span class="qnum">2</span><div>חשבו \(\cos60^\circ\).</div></div><div class="q"><span class="qnum">3</span><div>חשבו \(\tan45^\circ\).</div></div><div class="q"><span class="qnum">4</span><div>חשבו \(\sin\frac{\pi}{3}\).</div></div><div class="q"><span class="qnum">5</span><div>חשבו \(\cos\frac{\pi}{4}\).</div></div><div class="q"><span class="qnum">6</span><div>חשבו \(\tan\frac{\pi}{6}\).</div></div><div class="q"><span class="qnum">7</span><div>כתבו את הנקודה על מעגל היחידה המתאימה ל־\(60^\circ\).</div></div><div class="q"><span class="qnum">8</span><div>כתבו את הנקודה המתאימה ל־\(45^\circ\).</div></div><div class="q"><span class="qnum">9</span><div>הסבירו מדוע \(\tan\frac{\pi}{2}\) אינו מוגדר.</div></div><div class="q"><span class="qnum">10</span><div>חשבו בדיוק \(\sin30^\circ+\cos60^\circ+\tan45^\circ\).</div></div></div></div><div class="footer"><span>מעגל היחידה וטריגונומטריה</span><span>5 יחידות</span></div>
@@ -453,6 +478,7 @@ document.addEventListener('DOMContentLoaded',()=>{try{initGraphs();}catch(e){con
 <div class="graph-panel" style="direction:ltr">
 <div class="graph-head"><div class="graph-title" dir="rtl">סימטריות של נקודות על מעגל היחידה</div>
 <div class="graph-controls" data-controls-for="board6">
+<button id="symmetry-unit-toggle" type="button" aria-label="החלפת יחידות זווית" aria-pressed="false" onclick="toggleSymmetryAngleUnit()">הצג במעלות</button>
 <button aria-label="הגדלה" onclick="zoomBoard('board6',0.82)" type="button">＋</button>
 <button aria-label="הקטנה" onclick="zoomBoard('board6',1.22)" type="button">−</button>
 <button onclick="centerBoard('board6')" type="button">מרכז</button>
@@ -475,6 +501,8 @@ document.addEventListener('DOMContentLoaded',()=>{try{initGraphs();}catch(e){con
 <div class="card"><p>קוסינוס הוא שיעור ה־<span class="math">\(x\)</span> של הנקודה, וסינוס הוא שיעור ה־<span class="math">\(y\)</span>. אם הנקודה לא השתנתה, גם שני הערכים לא השתנו.</p><div class="formula"><span class="math">\(\cos(\alpha+2\pi)=\cos\alpha\)</span></div><div class="formula"><span class="math">\(\sin(\alpha+2\pi)=\sin\alpha\)</span></div></div>
 </div>
 <div class="graph-panel" style="direction:ltr">
+<div class="graph-head"><div class="graph-title" dir="rtl">מחזוריות במעגל היחידה — זוויות ברדיאנים ובמעלות</div>
+<div class="graph-controls"><button type="button" id="lesson7-unit-toggle" onclick="toggleLesson7AngleUnit()" aria-pressed="false">הצג במעלות</button></div></div>
 <div class="jxgbox" id="board7" style="height:176mm; direction:ltr"></div>
 </div>
 </div><div class="footer"><span>מעגל היחידה וטריגונומטריה</span><span>5 יחידות</span></div>
