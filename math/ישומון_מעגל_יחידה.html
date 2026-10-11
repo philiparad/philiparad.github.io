@@ -530,6 +530,33 @@
       .compact-link { font-size: .84rem; }
     }
 
+
+    /* Independent function selection: the unit circle is always visible. */
+    .function-selector { display:flex; flex-wrap:wrap; align-items:center; gap:9px; padding:8px 12px; margin-bottom:12px; border:2px solid var(--line); border-radius:14px; background:#f8faff; }
+    .function-selector strong { margin-inline-end:8px; }
+    .function-selector button { cursor:pointer; border:2px solid #bcc8df; border-radius:11px; background:white; color:var(--ink); font-weight:800; padding:4px 24px; min-width:75px; }
+    .function-selector button[aria-pressed="true"] { color:white; background:var(--primary); border-color:var(--primary); }
+    .function-selector button[data-function="sin"][aria-pressed="true"] { background:#17735c; border-color:#17735c; }
+    .function-selector button[data-function="cos"][aria-pressed="true"] { background:#3157d5; border-color:#3157d5; }
+    .function-selector button[data-function="tan"][aria-pressed="true"] { background:#b24a24; border-color:#b24a24; }
+    .function-selector button:focus-visible { outline:3px solid #91a4e7; outline-offset:2px; }
+    .sync-stage[data-visible-count="1"] { grid-template-columns:minmax(0,1fr); }
+    .sync-stage[data-visible-count="2"] { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .sync-stage[data-visible-count="3"] { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .sync-stage[data-visible-count="4"] { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    /* Keep the unit-circle board at its normal height in circle-only mode. */
+    .sync-stage[data-visible-count="1"] .unit-panel { width:min(100%, 380px); }
+    [hidden] { display:none !important; }
+    @media (max-width:980px) {
+        .sync-stage[data-visible-count="3"], .sync-stage[data-visible-count="4"] { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:760px) {
+        .sync-stage[data-visible-count] { grid-template-columns:minmax(0,1fr); }
+        .function-selector { gap:6px; }
+        .function-selector strong { width:100%; }
+        .function-selector button { flex:1; min-width:60px; padding:8px 6px; }
+        /* Mobile uses the same unit-board dimensions for every selection. */
+    }
   </style>
 </head>
 <body>
@@ -539,7 +566,7 @@
       <div class="panel-head sync-main-head">
         <div>
           <h2 id="lab-title">המעבדה האינטראקטיבית - מעגל היחידה</h2>
-          <p class="sync-subtitle">גררו את הנקודה \(P\) על מעגל היחידה,	או שנו את \(\theta\).כל ארבעת השרטוטים מתעדכנים בו-זמנית.</p>
+          <p class="sync-subtitle">גררו את הנקודה \(P\) על מעגל היחידה, או שנו את \(\theta\). הגרפים שבחרתם מתעדכנים בו-זמנית.</p>
         </div>
         <span class="chip">0° עד 360°</span>
       </div>
@@ -590,6 +617,13 @@
           <div class="flow-arrow" aria-hidden="true">⇐</div>
           <div class="connection-step"><div class="step-title">מסמנים בגרף</div><div class="step-value" id="connection-graph"></div></div>
         </div>
+      </div>
+
+      <div class="function-selector" role="group" aria-label="בחירת הגרפים להצגה">
+        <strong>בחירת פונקציות להצגה:</strong>
+        <button type="button" data-function="sin" aria-pressed="true">sin</button>
+        <button type="button" data-function="cos" aria-pressed="true">cos</button>
+        <button type="button" data-function="tan" aria-pressed="true">tan</button>
       </div>
 
       <div class="sync-stage" id="graphs" aria-labelledby="graphs-title">
@@ -674,6 +708,42 @@
     const sinGraphLink = document.getElementById('sin-graph-link');
     const cosGraphLink = document.getElementById('cos-graph-link');
     const tanGraphLink = document.getElementById('tan-graph-link');
+
+    const visibleFunctions = { sin: true, cos: true, tan: true };
+    const selector = document.querySelector('.function-selector');
+    const stage = document.getElementById('graphs');
+
+    function refreshFunctionVisibility() {
+      const selectedCount = Object.values(visibleFunctions).filter(Boolean).length;
+      ['sin', 'cos', 'tan'].forEach(kind => {
+        const shown = visibleFunctions[kind];
+        document.querySelector(`.${kind}-panel`).hidden = !shown;
+        document.querySelector(`.${kind}-map`).hidden = !shown;
+        document.querySelector(`.${kind}-value-card`).hidden = !shown;
+        document.querySelector(`.${kind}-key`).hidden = !shown;
+        selector.querySelector(`[data-function="${kind}"]`).setAttribute('aria-pressed', String(shown));
+      });
+      stage.dataset.visibleCount = String(selectedCount + 1);
+      // JSXGraph uses its container dimensions; recalculate after CSS grid reflow.
+      requestAnimationFrame(() => {
+        Object.entries(boards).forEach(([id, board]) => {
+          const el = document.getElementById(id);
+          if (el.closest('[hidden]')) return;
+          board.resizeContainer(el.clientWidth, el.clientHeight);
+          board.update();
+        });
+      });
+    }
+
+    function initFunctionSelector() {
+      selector.addEventListener('click', event => {
+        const button = event.target.closest('button[data-function]');
+        if (!button) return;
+        const kind = button.dataset.function;
+        visibleFunctions[kind] = !visibleFunctions[kind];
+        refreshFunctionVisibility();
+      });
+    }
 
     const state = { deg: Number(slider.value) };
     const boards = {};
@@ -1032,6 +1102,7 @@
       const mathDelimiters = document.body.innerHTML.includes('\\(') || document.body.innerHTML.includes('\\[');
       const connectionReady = Boolean(unitPointP && connectionCircle && sinGraphLink && cosGraphLink && tanGraphLink);
 
+      runtimeTest.dataset.selection = selector.querySelectorAll('button[data-function]').length === 3 && stage.dataset.visibleCount === '4' ? 'pass' : 'fail';
       runtimeTest.dataset.connection = connectionReady ? 'pass' : 'fail';
       runtimeTest.dataset.jsxgraph = initialized ? 'pass' : 'fail';
       runtimeTest.dataset.titles = titles ? 'pass' : 'fail';
@@ -1045,12 +1116,14 @@
       try {
         JXG.Options.text.useMathJax = true;
         makeAngleButtons();
+        initFunctionSelector();
         createUnitBoard();
         createTrigBoard('sin-board', 'sin');
         createTrigBoard('cos-board', 'cos');
         createTrigBoard('tan-board', 'tan');
         slider.addEventListener('input', updateAll);
         updateAll();
+        refreshFunctionVisibility();
         setTimeout(runRuntimeTests, 800);
       } catch (err) {
         console.error('Initialization failure:', err);
