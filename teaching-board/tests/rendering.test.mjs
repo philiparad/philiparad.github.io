@@ -343,3 +343,24 @@ test('alignment only changes unlocked text and notes and supports undo and backu
  assert.equal(parseBackup(serializeBackup(e.board)).items[0].textAlign,'center');e.undo();assert.equal(e.board.items[0].textAlign,undefined);e.redo();assert.equal(e.board.items[0].textAlign,'center');
  e.board.items[0].textAlign='invalid';assert.throws(()=>validateBoard(e.board));
 });
+
+test('text emphasis renders consistently in English and Hebrew SVG exports',async()=>{
+ const {drawItem}=await import('../js/scene.js');
+ for(const type of ['text','note'])for(const text of ['Hello','שלום'])for(const textStyle of [undefined,'normal','bold','italic','bold-italic']){
+  const item={id:'styled',type,x:0,y:0,w:300,h:100,text,fontSize:24,textStyle};
+  const node=drawItem(item).children.find(n=>n.tagName==='text');
+  assert.equal(node.attributes['font-weight'],(textStyle||'').includes('bold')?'700':'400');
+  assert.equal(node.attributes['font-style'],(textStyle||'').includes('italic')?'italic':'normal');
+ }
+});
+test('text emphasis preserves locks, history, copies, snippets and backups',async()=>{
+ const {serializeBackup,parseBackup}=await import('../js/model.js');const {createSnippet}=await import('../js/snippet-model.js');const e=fixture(3);
+ Object.assign(e.board.items[0],{type:'text',text:'Title',textAlign:'center'});Object.assign(e.board.items[1],{type:'note',text:'Locked',locked:true});e.selected=new Set(e.board.items.map(i=>i.id));e.history=new History(e.document());
+ e.styleText('bold-italic');assert.equal(e.history.past.length,1);assert.equal(e.board.items[0].textStyle,'bold-italic');assert.equal(e.board.items[1].textStyle,undefined);assert.equal(e.board.items[2].textStyle,undefined);
+ e.styleText('bold-italic');assert.equal(e.history.past.length,1);e.styleText('invalid');assert.equal(e.history.past.length,1);
+ e.undo();assert.equal(e.board.items[0].textStyle,undefined);e.redo();assert.equal(e.board.items[0].textAlign,'center');
+ assert.equal(parseBackup(serializeBackup(e.board)).items[0].textStyle,'bold-italic');assert.equal(createSnippet('Styled',[e.board.items[0]]).items[0].textStyle,'bold-italic');
+ e.selected=new Set([e.board.items[0].id]);e.duplicate();assert.equal(e.board.items.at(-1).textStyle,'bold-italic');
+ e.styleText('normal');assert.equal(e.board.items.at(-1).textStyle,'normal');
+ e.board.items[0].textStyle='invalid';assert.throws(()=>validateBoard(e.board));e.board.items[0].textStyle='bold';e.board.items[2].textStyle='bold';assert.throws(()=>validateBoard(e.board));
+});

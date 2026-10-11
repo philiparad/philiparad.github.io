@@ -66,3 +66,6 @@ Each shared graph parameter has **Play / Pause** controls. Playback previews one
 
 ### Text alignment
 Select text or sticky notes, then open **Ink & style → Text alignment** to choose Auto, Left, Center or Right. Auto follows the text direction (including Hebrew). The setting also applies to new text and notes. Locked objects are preserved; alignment supports undo, editable backups and image/PDF export through the shared SVG renderer.
+
+### Text emphasis
+Select text or sticky notes and open **Ink & style → Text style** for Regular, Bold, Italic or Bold italic. Formatting applies to the whole text object and becomes the default for new text and notes. It is preserved in inline editing, undo/redo, copies, snippets, backups and exports. Locked objects remain unchanged.
