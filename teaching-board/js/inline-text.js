@@ -1,4 +1,4 @@
-import { el, btn } from './ui.js?v=20261011-curve-styles';
+import { el, btn } from './ui.js?v=20261011-curve-styles2';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {

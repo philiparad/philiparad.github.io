@@ -5,10 +5,10 @@ import {createBoard,serializeBackup,parseBackup,validateBoard} from '../js/model
 import {createSnippet,snippetCopies} from '../js/snippet-model.js';
 const base={source:'x^2',color:'#147d92',visible:true};
 test('graph styles support all curve types and preserve legacy defaults',()=>{
- assert.deepEqual(curveAppearance(graphSeries('x^2')[0]),{strokeColor:'#147d92',strokeWidth:3,dash:0});
+ assert.deepEqual(curveAppearance(graphSeries('x^2')[0]),{strokeColor:'#147d92',strokeWidth:3,dash:0,lineCap:'butt'});
  for(const kind of ['function','parametric','polar'])for(const lineStyle of Object.keys(CURVE_STYLES))for(const lineWidth of CURVE_WIDTHS){
   const row={...base,kind,source:kind==='function'?'x^2':'sin(t)',xSource:'cos(t)',tmin:0,tmax:6.28,lineStyle,lineWidth};
-  const copy=graphSeries([row])[0];assert.deepEqual(curveAppearance(copy),{strokeColor:base.color,strokeWidth:lineWidth,dash:CURVE_STYLES[lineStyle].dash});assert.deepEqual(row,copy);
+  const copy=graphSeries([row])[0];assert.deepEqual(curveAppearance(copy),{strokeColor:base.color,strokeWidth:lineWidth,dash:CURVE_STYLES[lineStyle].dash,lineCap:'butt'});assert.deepEqual(row,copy);
  }
 });
 test('invalid graph styles and widths are rejected, including hidden curves',()=>{
