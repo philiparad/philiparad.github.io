@@ -69,3 +69,6 @@ Select text or sticky notes, then open **Ink & style → Text alignment** to cho
 
 ### Text emphasis
 Select text or sticky notes and open **Ink & style → Text style** for Regular, Bold, Italic or Bold italic. Formatting applies to the whole text object and becomes the default for new text and notes. It is preserved in inline editing, undo/redo, copies, snippets, backups and exports. Locked objects remain unchanged.
+
+### Individual graph curve styles
+Each curve in the graph editor has **Line pattern** (Solid, Dotted, Dashed, Long dashed) and **Line thickness** (1–8 px presets). Styles work with ordinary, parametric and polar curves, including parameter playback. Styled curves have matching line samples in the graph legend. Inserted graphs keep these settings when edited, copied, saved as snippets or backed up. Existing graphs default to solid, 3 px lines.

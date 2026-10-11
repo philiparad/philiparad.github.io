@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261011-text-style';
-import { SnippetRepository } from './snippet-storage.js?v=20261011-text-style';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261011-text-style';
-import { drawItem, svgEl, union } from './scene.js?v=20261011-text-style';
-import { expandGroups } from './groups.js?v=20261011-text-style';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261011-curve-styles';
+import { SnippetRepository } from './snippet-storage.js?v=20261011-curve-styles';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261011-curve-styles';
+import { drawItem, svgEl, union } from './scene.js?v=20261011-curve-styles';
+import { expandGroups } from './groups.js?v=20261011-curve-styles';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

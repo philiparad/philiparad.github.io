@@ -1,8 +1,13 @@
-import { compileExpression } from './expression.js?v=20261011-text-style';
+import { compileExpression } from './expression.js?v=20261011-curve-styles';
+export const CURVE_STYLES=Object.freeze({solid:{label:'Solid',dash:0,pattern:''},dotted:{label:'Dotted',dash:1,pattern:'2 2'},dashed:{label:'Dashed',dash:3,pattern:'10 10'},'long-dashed':{label:'Long dashed',dash:4,pattern:'20 20'}});
+export const CURVE_WIDTHS=Object.freeze([1,2,3,4,6,8]);
+export function curveAppearance(row){return {strokeColor:row.color,strokeWidth:row.lineWidth??3,dash:CURVE_STYLES[row.lineStyle||'solid'].dash};}
 export function validateSeries(rows){
  if(!Array.isArray(rows)||!rows.length||rows.length>8)throw new Error('Use 1–8 graph curves.');
  for(const row of rows){
   if(!row||typeof row.source!=='string'||row.source.length>400||!/^#[0-9a-f]{6}$/i.test(row.color)||typeof row.visible!=='boolean')throw new Error('Invalid graph expression, color or visibility.');
+  if(row.lineStyle!==undefined&&(typeof row.lineStyle!=='string'||!Object.hasOwn(CURVE_STYLES,row.lineStyle)))throw new Error('Invalid graph line style.');
+  if(row.lineWidth!==undefined&&!CURVE_WIDTHS.includes(row.lineWidth))throw new Error('Use a graph line width of 1, 2, 3, 4, 6 or 8 pixels.');
   if(row.kind!==undefined&&!['function','parametric','polar'].includes(row.kind))throw new Error('Unknown graph curve type.');
   if(row.kind==='polar'&&(![row.tmin,row.tmax].every(Number.isFinite)||row.tmin>=row.tmax||Math.abs(row.tmin)>100000||Math.abs(row.tmax)>100000))throw new Error('Use valid angle bounds: minimum smaller than maximum.');
   if(row.kind==='parametric'&&(typeof row.xSource!=='string'||row.xSource.length>400||![row.tmin,row.tmax].every(Number.isFinite)||row.tmin>=row.tmax||Math.abs(row.tmin)>100000||Math.abs(row.tmax)>100000))throw new Error('Use x(t), y(t) and valid t bounds: minimum smaller than maximum.');
