@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261012-pdf-previews';
-import { SnippetRepository } from './snippet-storage.js?v=20261012-pdf-previews';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261012-pdf-previews';
-import { drawItem, svgEl, union } from './scene.js?v=20261012-pdf-previews';
-import { expandGroups } from './groups.js?v=20261012-pdf-previews';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261012-pdf-layouts';
+import { SnippetRepository } from './snippet-storage.js?v=20261012-pdf-layouts';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261012-pdf-layouts';
+import { drawItem, svgEl, union } from './scene.js?v=20261012-pdf-layouts';
+import { expandGroups } from './groups.js?v=20261012-pdf-layouts';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

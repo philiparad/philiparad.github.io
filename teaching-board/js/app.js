@@ -1,9 +1,9 @@
-import { createBoard, parseBackup } from './model.js?v=20261012-pdf-previews';
-import { BoardRepository } from './storage.js?v=20261012-pdf-previews';
-import { Editor } from './editor.js?v=20261012-pdf-previews';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261012-pdf-previews';
-import { backup } from './export.js?v=20261012-pdf-previews';
-import { drawItem, svgEl, union } from './scene.js?v=20261012-pdf-previews';
+import { createBoard, parseBackup } from './model.js?v=20261012-pdf-layouts';
+import { BoardRepository } from './storage.js?v=20261012-pdf-layouts';
+import { Editor } from './editor.js?v=20261012-pdf-layouts';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261012-pdf-layouts';
+import { backup } from './export.js?v=20261012-pdf-layouts';
+import { drawItem, svgEl, union } from './scene.js?v=20261012-pdf-layouts';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

@@ -1,4 +1,4 @@
-import { el, btn, field } from './ui.js?v=20261012-pdf-previews';
+import { el, btn, field } from './ui.js?v=20261012-pdf-layouts';
 
 export function parsePDFPages(value,total){
  if(!Number.isSafeInteger(total)||total<1)throw new Error('This PDF has no readable pages.');
@@ -13,6 +13,16 @@ export function parsePDFPages(value,total){
   for(let n=first;n<=last;n++){pages.add(n);if(pages.size>30)throw new Error('Select up to 30 unique pages per import.');}
  }
  return [...pages].sort((a,b)=>a-b);
+}
+
+export function layoutPDFPages(pages,layout='vertical'){
+ if(!['vertical','horizontal','grid'].includes(layout))throw new Error('Choose a valid PDF page layout.');
+ if(!Array.isArray(pages)||pages.some(p=>![p.w,p.h].every(v=>Number.isFinite(v)&&v>0)))throw new Error('Invalid PDF page dimensions.');
+ const gap=35,columns=layout==='grid'?2:layout==='horizontal'?Math.max(1,pages.length):1;
+ const widths=Array.from({length:columns},(_,column)=>Math.max(0,...pages.filter((_,i)=>i%columns===column).map(p=>p.w)));
+ let y=0;const result=[];
+ for(let row=0;row<pages.length;row+=columns){let x=0,height=0;for(let column=0;column<columns&&row+column<pages.length;column++){const page=pages[row+column];result.push({...page,x,y});x+=widths[column]+gap;height=Math.max(height,page.h);}y+=height+gap;}
+ return result;
 }
 
 /** Serial, bounded preview rendering; closing waits for the current page to finish. */
@@ -32,9 +42,9 @@ export function choosePDFPages(pdf){
  function draw(){grid.replaceChildren();checks.clear();const numbers=Array.from({length:Math.min(6,total-start+1)},(_,k)=>start+k),images=new Map();for(const number of numbers){const card=el('label',null,'pdf-preview-card'),image=el('img'),check=el('input'),caption=el('span',`Page ${number}`);image.alt=`Preview of PDF page ${number}`;check.type='checkbox';check.setAttribute('aria-label',`Import PDF page ${number}`);check.onchange=()=>{const pages=selectedSafe();if(!pages){check.checked=false;return;}const next=new Set(pages);if(check.checked)next.add(number);else next.delete(number);if(next.size>30){check.checked=false;error.textContent='Select up to 30 unique pages per import.';return;}range.input.value=[...next].sort((a,b)=>a-b).join(', ');sync();};card.append(image,check,caption);grid.append(card);checks.set(number,check);images.set(number,{image,caption});}previous.disabled=start===1;next.disabled=start+6>total;label.textContent=`Pages ${start}–${Math.min(start+5,total)} of ${total}`;sync();previews.show(numbers,(number,src,failure)=>{if(closed)return;const entry=images.get(number);if(src)entry.image.src=src;else entry.caption.textContent=`Page ${number} (preview unavailable)`;});}
  function selectedSafe(){try{return selected();}catch(e){error.textContent=e.message;return null;}}
  const previous=el('button','Previous previews'),next=el('button','Next previews'),label=el('span');previous.type=next.type='button';previous.onclick=()=>{start=Math.max(1,start-6);draw();};next.onclick=()=>{if(start+6<=total){start+=6;draw();}};navigation.append(previous,label,next);
- range.input.oninput=sync;
- actions.append(btn('Clear selection',()=>{range.input.value='';sync();}),btn('Cancel',()=>d.close()),btn('Import selected pages',()=>{try{result=parsePDFPages(range.input.value,total);d.close();}catch(e){error.textContent=e.message;}},'primary'));
- d.append(el('h2','Choose PDF pages'),el('p',`Select thumbnails or enter page numbers and ranges, such as 1, 3-5. Up to 30 unique pages are imported in document order and locked for annotation.${total>30?' The first 30 pages are selected initially.':''}`,'muted'),range.wrap,count,navigation,grid,error,actions);document.body.append(d);
+ const placementLabel=el('label','Page layout'),placement=el('select');placement.setAttribute('aria-label','PDF page layout');for(const [value,label]of [['vertical','Vertical stack'],['horizontal','Horizontal row'],['grid','Two-column grid']]){const option=el('option',label);option.value=value;placement.append(option);}placementLabel.append(placement);range.input.oninput=sync;
+ actions.append(btn('Clear selection',()=>{range.input.value='';sync();}),btn('Cancel',()=>d.close()),btn('Import selected pages',()=>{try{result={pages:parsePDFPages(range.input.value,total),layout:placement.value};d.close();}catch(e){error.textContent=e.message;}},'primary'));
+ d.append(el('h2','Choose PDF pages'),el('p',`Select thumbnails or enter page numbers and ranges, such as 1, 3-5. Up to 30 unique pages are imported in document order and locked for annotation.${total>30?' The first 30 pages are selected initially.':''}`,'muted'),range.wrap,placementLabel,count,navigation,grid,error,actions);document.body.append(d);
  return new Promise(resolve=>{d.onclose=async()=>{closed=true;d.remove();await previews.stop();resolve(result);};d.showModal();draw();range.input.focus();});
 }
 

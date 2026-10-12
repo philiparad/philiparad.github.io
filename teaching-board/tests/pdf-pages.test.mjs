@@ -42,3 +42,13 @@ test('PDF preview failures do not stop later previews',async()=>{
  const previews=new PDFPreviews({},async(_,n)=>{if(n===1)throw new Error('Broken page');return 'page-2';});
  await previews.show([1,2],(...args)=>shown.push(args));assert.equal(shown[0][2].message,'Broken page');assert.equal(shown[1][1],'page-2');
 });
+
+test('PDF layouts preserve page order and avoid overlap for mixed sizes',async()=>{
+ const {layoutPDFPages}=await import('../js/pdf-pages.js');const pages=[{w:800,h:500,src:'a'},{w:600,h:1100,src:'b'},{w:900,h:700,src:'c'},{w:500,h:400,src:'d'},{w:400,h:200,src:'e'}],before=structuredClone(pages);
+ for(const layout of ['vertical','horizontal','grid']){
+  const placed=layoutPDFPages(pages,layout);assert.deepEqual(placed.map(p=>p.src),pages.map(p=>p.src));
+  for(let i=0;i<placed.length;i++)for(let j=i+1;j<placed.length;j++){const a=placed[i],b=placed[j];assert.ok(a.x+a.w+35<=b.x||b.x+b.w+35<=a.x||a.y+a.h+35<=b.y||b.y+b.h+35<=a.y);}
+ }
+ assert.deepEqual(pages,before);assert.equal(layoutPDFPages(pages,'grid')[2].y,1135);assert.equal(layoutPDFPages(pages,'grid')[1].x,935);assert.equal(layoutPDFPages(pages,'horizontal')[1].x,835);
+ assert.deepEqual(layoutPDFPages([]),[]);assert.throws(()=>layoutPDFPages(pages,'invalid'));assert.throws(()=>layoutPDFPages([{w:0,h:50}]));
+});

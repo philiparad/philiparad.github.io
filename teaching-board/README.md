@@ -78,3 +78,6 @@ Choose **PDF pages**, select a file, then enter page numbers or ranges (for exam
 
 ### PDF page previews
 The PDF import dialog shows six page thumbnails at a time. Use **Previous previews / Next previews**, tick the pages you need, or edit the page-range field; both selection methods stay synchronized. **Clear selection** starts an empty selection. Previews are generated only for the displayed group. Cancel leaves the lesson unchanged.
+
+### PDF import layouts
+In **Choose PDF pages**, use **Page layout** to choose a Vertical stack, Horizontal row or Two-column grid. Pages keep document order and their aspect ratios. Spacing accounts for mixed page sizes. The new pages start at the current view center; existing objects are preserved. The complete import remains a single undoable change.
