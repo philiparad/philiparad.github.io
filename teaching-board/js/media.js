@@ -1,6 +1,6 @@
-import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261013-transparent-png';
-import { graphSeries, compileSeries, seriesLabels, curveAppearance, CURVE_STYLES } from './graph-series.js?v=20261013-transparent-png';
-export { graphSeries } from './graph-series.js?v=20261013-transparent-png';
+import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261013-export-size';
+import { graphSeries, compileSeries, seriesLabels, curveAppearance, CURVE_STYLES } from './graph-series.js?v=20261013-export-size';
+export { graphSeries } from './graph-series.js?v=20261013-export-size';
 const loaders=new Map();
 export function script(url){if(!loaders.has(url))loaders.set(url,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.onload=resolve;s.onerror=()=>{s.remove();loaders.delete(url);reject(new Error('Could not load the teaching library. Check your internet connection and retry.'));};document.head.append(s);}));return loaders.get(url);}
 export function dataURL(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(blob);});}

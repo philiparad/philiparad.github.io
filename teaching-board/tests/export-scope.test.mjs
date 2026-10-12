@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {resolveExport,viewRegion,validRegion,exportScopeDialog} from '../js/export-scope.js';
+import {resolveExport,viewRegion,validRegion,exportScopeDialog,exportPadding,rasterSize} from '../js/export-scope.js';
 import {sceneSVG} from '../js/scene.js';
 class Element{constructor(tag){this.tagName=tag;this.children=[];this.attributes={};}set value(v){this._value=String(v);}get value(){return this._value;}setAttribute(k,v){this.attributes[k]=String(v);}append(...nodes){this.children.push(...nodes);}focus(){}showModal(){}close(){this.onclose();}remove(){}}
 globalThis.document={createElementNS:(_,tag)=>new Element(tag),createElement:tag=>new Element(tag),body:new Element('body')};
@@ -40,5 +40,27 @@ test('PNG transparency is opt-in and stays unavailable for SVG and PDF',async()=
   const pending=exportScopeDialog(e,format),nodes=walk(document.body.children.at(-1)),paper=nodes.find(n=>n.attributes['aria-label']==='PNG background'),scope=nodes.find(n=>n.attributes['aria-label']==='Export area');
   assert.equal(nodes.find(n=>n.children.includes(paper)).hidden,format!=='png');assert.equal(paper.children[0].value,'board');
   scope.value='selection';paper.value='transparent';await nodes.find(n=>n.textContent==='Export'&&n.tagName==='button').onclick();const result=await pending;assert.equal(result.transparent,format==='png');assert.equal(result.scope,'selection');
+ }
+});
+
+test('padding changes selection bounds symmetrically and retains exact crop bounds',()=>{
+ const zero=resolveExport(board,{scope:'selection',ids:['keep'],padding:0}),padded=resolveExport(board,{scope:'selection',ids:['keep'],padding:50});
+ assert.equal(padded.region.x,zero.region.x-50);assert.equal(padded.region.y,zero.region.y-50);assert.equal(padded.region.w,zero.region.w+100);assert.equal(padded.region.h,zero.region.h+100);
+ const region={x:10,y:20,w:300,h:200};assert.deepEqual(resolveExport(board,{scope:'region',region,padding:50}).region,region);
+ for(const n of [-1,1001,NaN,Infinity])assert.throws(()=>exportPadding(n),/padding/);assert.equal(exportPadding(),30);
+});
+test('PNG size controls preserve resolution choices while enforcing both memory limits',()=>{
+ for(const scale of [1,2,3,4])assert.deepEqual(rasterSize(400,200,scale),{width:400*scale,height:200*scale,limited:false});
+ for(const [w,h]of [[10000,10000],[100000,1],[1,100000],[9000,3000]]){const size=rasterSize(w,h,4);assert.ok(size.width<=8000&&size.height<=8000);assert.ok(size.width*size.height<=24000000);assert.equal(size.limited,true);}
+ assert.throws(()=>rasterSize(400,200,0),/resolution/);assert.throws(()=>rasterSize(400,200,Infinity),/resolution/);
+});
+test('export dialog updates dimensions and hides padding for exact crops and A4 printing',async()=>{
+ const e={board:{...board,viewport:{x:0,y:0,zoom:1}},selected:new Set(['keep']),area:{clientWidth:800,clientHeight:600}};
+ for(const format of ['png','pdf']){
+  const pending=exportScopeDialog(e,format),nodes=walk(document.body.children.at(-1)),scope=nodes.find(n=>n.attributes['aria-label']==='Export area'),resolution=nodes.find(n=>n.attributes['aria-label']==='PNG resolution'),paddingLabel=nodes.find(n=>n.textContent==='Padding (canvas units)');
+  assert.equal(paddingLabel.hidden,format==='pdf');scope.value='view';scope.onchange();assert.equal(paddingLabel.hidden,true);
+  if(format==='png'){resolution.value='3';resolution.onchange();assert.ok(nodes.some(n=>n.textContent==='PNG: 2400 × 1800 pixels'));}
+  scope.value='selection';scope.onchange();assert.equal(paddingLabel.hidden,false);paddingLabel.children[0].value='75';paddingLabel.children[0].oninput();
+  await nodes.find(n=>n.textContent==='Export'&&n.tagName==='button').onclick();const result=await pending;assert.equal(result.padding,75);assert.equal(result.scale,format==='png'?3:2);
  }
 });

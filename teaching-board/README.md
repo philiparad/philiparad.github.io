@@ -93,3 +93,6 @@ Choose **Export → SVG image / PNG image / Print / Save as PDF**, then choose *
 
 ### Transparent PNG export
 Choose **Export → PNG image → PNG background → Transparent**. This removes the canvas paper (including grids, dots and ruling) for the entire lesson, selected objects, current view or custom rectangle. The downloaded PNG retains object opacity and transparent space around drawings. Object fills and backgrounds embedded in imported images/PDF pages remain. **Board paper** is the default; SVG, PDF and editable backups retain their existing behavior.
+
+### Export padding and PNG resolution
+The export dialog offers **Padding (canvas units)** from 0 to 1,000 for whole-lesson and selected-object images, and single-page PDF exports. Current-view/custom-rectangle exports keep their exact crop; whole A4 PDFs keep their page layout. For PNG, select **PNG resolution → 1× / 2× / 3× / 4×** and see the resulting pixel dimensions before exporting. Large images are proportionally reduced to stay within 8,000 pixels per side and 24 megapixels. Defaults remain 30 units of padding and 2× PNG resolution. Transparent PNG export supports these controls.
