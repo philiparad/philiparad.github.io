@@ -90,3 +90,6 @@ Choose **PDF pages → Page layout → A4 document pages**. Each selected PDF pa
 
 ### Export selected objects or a canvas region
 Choose **Export → SVG image / PNG image / Print / Save as PDF**, then choose **Export area**: Entire lesson, Selected objects, Current canvas view, or Custom rectangle. Select objects before opening export; locked selections are included. View export follows the current pan and zoom. A custom rectangle uses canvas coordinates (left, top, width, height) initialized from the current view; it clips objects at its edges. Selection export includes only selected objects with a small margin. Cancel does not change the lesson. Editable backups always contain the complete lesson; whole A4 PDF export still prints one sheet per page.
+
+### Transparent PNG export
+Choose **Export → PNG image → PNG background → Transparent**. This removes the canvas paper (including grids, dots and ruling) for the entire lesson, selected objects, current view or custom rectangle. The downloaded PNG retains object opacity and transparent space around drawings. Object fills and backgrounds embedded in imported images/PDF pages remain. **Board paper** is the default; SVG, PDF and editable backups retain their existing behavior.

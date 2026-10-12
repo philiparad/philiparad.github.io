@@ -26,3 +26,19 @@ test('export dialog cancel and invalid rectangle do not change lesson or selecti
  scope.value='region';scope.onchange();const width=nodes.filter(n=>n.tagName==='input')[2];width.value='';await nodes.find(n=>n.textContent==='Export'&&n.tagName==='button').onclick();assert.match(nodes.find(n=>n.className==='error').textContent,/finite/);
  await nodes.find(n=>n.textContent==='Cancel').onclick();assert.equal(await pending,null);assert.deepEqual(e.board,before);assert.equal(e.selected.size,0);
 });
+test('transparent scene omits paper for every background but preserves object fills and opacity',()=>{
+ for(const background of ['grid','plain','dark','ruled','dots']){
+  const b={...board,background,items:[{...board.items[0],fill:'#00ff00',opacity:.5}]},before=structuredClone(b);
+  const svg=sceneSVG(b,30,null,{transparent:true});assert.equal(svg.children.length,1);assert.equal(svg.children[0].tagName,'g');
+  const object=walk(svg).find(n=>n.attributes['data-id']==='keep');assert.equal(object.attributes.opacity,'0.5');assert.equal(object.children[0].attributes.fill,'#00ff00');assert.deepEqual(b,before);
+  assert.ok(sceneSVG(b).children.some(n=>n.tagName==='defs'));
+ }
+});
+test('PNG transparency is opt-in and stays unavailable for SVG and PDF',async()=>{
+ const e={board:{...board,viewport:{x:0,y:0,zoom:1}},selected:new Set(['keep']),area:{clientWidth:800,clientHeight:600}};
+ for(const format of ['png','svg','pdf']){
+  const pending=exportScopeDialog(e,format),nodes=walk(document.body.children.at(-1)),paper=nodes.find(n=>n.attributes['aria-label']==='PNG background'),scope=nodes.find(n=>n.attributes['aria-label']==='Export area');
+  assert.equal(nodes.find(n=>n.children.includes(paper)).hidden,format!=='png');assert.equal(paper.children[0].value,'board');
+  scope.value='selection';paper.value='transparent';await nodes.find(n=>n.textContent==='Export'&&n.tagName==='button').onclick();const result=await pending;assert.equal(result.transparent,format==='png');assert.equal(result.scope,'selection');
+ }
+});
