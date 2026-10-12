@@ -27,3 +27,18 @@ test('PDF rendering cleans up on failure and validates before work starts',async
  f=fixture({large:true});await assert.rejects(renderPDFPages(f.pdf,[1]),/too large/);assert.deepEqual(f.cleaned,[1]);
  f=fixture();await assert.rejects(renderPDFPages(f.pdf,[41]));assert.deepEqual(f.requested,[]);
 });
+
+test('PDF previews cancel stale groups and finish in-flight work before closing',async()=>{
+ const {PDFPreviews}=await import('../js/pdf-pages.js');let release;const calls=[],shown=[];
+ const previews=new PDFPreviews({},async(_,number)=>{calls.push(number);if(number===1)await new Promise(resolve=>release=resolve);return 'page-'+number;});
+ previews.show([1,2,3],(...args)=>shown.push(args));await Promise.resolve();
+ previews.show([7,8],(...args)=>shown.push(args));release();await previews.pending;
+ assert.deepEqual(calls,[1,7,8]);assert.deepEqual(shown.map(x=>x[0]),[7,8]);
+ const closing=new PDFPreviews({},async()=>{await new Promise(resolve=>release=resolve);return 'done';});
+ closing.show([1,2],()=>assert.fail('Closed preview must not update UI'));await Promise.resolve();let stopped=false;const stop=closing.stop().then(()=>stopped=true);await Promise.resolve();assert.equal(stopped,false);release();await stop;assert.equal(stopped,true);
+});
+test('PDF preview failures do not stop later previews',async()=>{
+ const {PDFPreviews}=await import('../js/pdf-pages.js');const shown=[];
+ const previews=new PDFPreviews({},async(_,n)=>{if(n===1)throw new Error('Broken page');return 'page-2';});
+ await previews.show([1,2],(...args)=>shown.push(args));assert.equal(shown[0][2].message,'Broken page');assert.equal(shown[1][1],'page-2');
+});

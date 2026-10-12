@@ -75,3 +75,6 @@ Each curve in the graph editor has **Line pattern** (Solid, Dotted, Dashed, Long
 
 ### Selective PDF import
 Choose **PDF pages**, select a file, then enter page numbers or ranges (for example **1, 3-5**). Up to 30 unique pages are imported in document order; repeated page numbers are ignored. PDFs with more than 30 pages are supported by selecting a subset. Cancel leaves the lesson unchanged. Imported pages remain locked for annotation, and the entire import is one undoable change.
+
+### PDF page previews
+The PDF import dialog shows six page thumbnails at a time. Use **Previous previews / Next previews**, tick the pages you need, or edit the page-range field; both selection methods stay synchronized. **Clear selection** starts an empty selection. Previews are generated only for the displayed group. Cancel leaves the lesson unchanged.
