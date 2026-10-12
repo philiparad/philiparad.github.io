@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261011-curve-styles2';
-import { SnippetRepository } from './snippet-storage.js?v=20261011-curve-styles2';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261011-curve-styles2';
-import { drawItem, svgEl, union } from './scene.js?v=20261011-curve-styles2';
-import { expandGroups } from './groups.js?v=20261011-curve-styles2';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261011-pdf-pages';
+import { SnippetRepository } from './snippet-storage.js?v=20261011-pdf-pages';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261011-pdf-pages';
+import { drawItem, svgEl, union } from './scene.js?v=20261011-pdf-pages';
+import { expandGroups } from './groups.js?v=20261011-pdf-pages';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

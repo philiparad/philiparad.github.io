@@ -45,7 +45,7 @@ Boards stay in IndexedDB in the current browser profile. They are not uploaded t
 
 This is a personal, device-local application. Google login, live multi-user collaboration, video calls and automatic cross-device cloud synchronization are not included. GitHub Pages provides static hosting, not a private database service. This is independently implemented software, not a pixel-identical or service-compatible copy of iDroo.
 
-A board/backup is limited to 25 MB. Images: 15 MB input, resized to at most 2,200 pixels. PDFs: 30 MB and 30 pages, subject to the board size limit. Equations and graphs keep their editable source plus raster previews; they remain visible when reopened without loading their libraries. MathJax, JSXGraph and PDF.js load from pinned jsDelivr URLs when needed, so creating/editing those objects requires internet access. No lesson content is sent to those libraries' servers.
+A board/backup is limited to 25 MB. Images: 15 MB input, resized to at most 2,200 pixels. PDFs: 30 MB input and up to 30 selected pages per import, subject to the board size limit. Equations and graphs keep their editable source plus raster previews; they remain visible when reopened without loading their libraries. MathJax, JSXGraph and PDF.js load from pinned jsDelivr URLs when needed, so creating/editing those objects requires internet access. No lesson content is sent to those libraries' servers.
 
 ## Development and tests
 
@@ -72,3 +72,6 @@ Select text or sticky notes and open **Ink & style → Text style** for Regular,
 
 ### Individual graph curve styles
 Each curve in the graph editor has **Line pattern** (Solid, Dotted, Dashed, Long dashed) and **Line thickness** (1–8 px presets). Styles work with ordinary, parametric and polar curves, including parameter playback. Styled curves have matching line samples in the graph legend. Inserted graphs keep these settings when edited, copied, saved as snippets or backed up. Existing graphs default to solid, 3 px lines.
+
+### Selective PDF import
+Choose **PDF pages**, select a file, then enter page numbers or ranges (for example **1, 3-5**). Up to 30 unique pages are imported in document order; repeated page numbers are ignored. PDFs with more than 30 pages are supported by selecting a subset. Cancel leaves the lesson unchanged. Imported pages remain locked for annotation, and the entire import is one undoable change.

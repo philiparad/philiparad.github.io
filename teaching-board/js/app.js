@@ -1,9 +1,9 @@
-import { createBoard, parseBackup } from './model.js?v=20261011-curve-styles2';
-import { BoardRepository } from './storage.js?v=20261011-curve-styles2';
-import { Editor } from './editor.js?v=20261011-curve-styles2';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261011-curve-styles2';
-import { backup } from './export.js?v=20261011-curve-styles2';
-import { drawItem, svgEl, union } from './scene.js?v=20261011-curve-styles2';
+import { createBoard, parseBackup } from './model.js?v=20261011-pdf-pages';
+import { BoardRepository } from './storage.js?v=20261011-pdf-pages';
+import { Editor } from './editor.js?v=20261011-pdf-pages';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261011-pdf-pages';
+import { backup } from './export.js?v=20261011-pdf-pages';
+import { drawItem, svgEl, union } from './scene.js?v=20261011-pdf-pages';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';
