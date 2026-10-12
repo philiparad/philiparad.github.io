@@ -1,34 +1,35 @@
-import { planA4Import } from './pdf-a4.js?v=20261012-pdf-a4';
-import { Snippets, snippetCopies } from './snippets.js?v=20261012-pdf-a4';
-import { InlineText } from './inline-text.js?v=20261012-pdf-a4';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261012-pdf-a4';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261012-pdf-a4';
-import { visibleItems } from './visibility.js?v=20261012-pdf-a4';
-import { RenderCache } from './render-cache.js?v=20261012-pdf-a4';
-import { SpeedInk } from './speed-ink.js?v=20261012-pdf-a4';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261012-pdf-a4';
-import { ShapeGallery } from './shape-gallery.js?v=20261012-pdf-a4';
-import { FillPalette } from './fill-palette.js?v=20261012-pdf-a4';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261012-pdf-a4';
-import { LineStyleMenu } from './line-style-menu.js?v=20261012-pdf-a4';
-import { Pages } from './pages.js?v=20261012-pdf-a4';
-import { cropDialog } from './crop-editor.js?v=20261012-pdf-a4';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261012-pdf-a4';
-import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261012-pdf-a4';
-import { toWorld, zoomAt } from './viewport.js?v=20261012-pdf-a4';
-import { History } from './history.js?v=20261012-pdf-a4';
-import { SaveQueue } from './save-queue.js?v=20261012-pdf-a4';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261012-pdf-a4';
-import { exportBoard, backup } from './export.js?v=20261012-pdf-a4';
-import { validateBoard } from './model.js?v=20261012-pdf-a4';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261012-pdf-a4';
+import { exportScopeDialog } from './export-scope.js?v=20261013-export-scope';
+import { planA4Import } from './pdf-a4.js?v=20261013-export-scope';
+import { Snippets, snippetCopies } from './snippets.js?v=20261013-export-scope';
+import { InlineText } from './inline-text.js?v=20261013-export-scope';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261013-export-scope';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261013-export-scope';
+import { visibleItems } from './visibility.js?v=20261013-export-scope';
+import { RenderCache } from './render-cache.js?v=20261013-export-scope';
+import { SpeedInk } from './speed-ink.js?v=20261013-export-scope';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261013-export-scope';
+import { ShapeGallery } from './shape-gallery.js?v=20261013-export-scope';
+import { FillPalette } from './fill-palette.js?v=20261013-export-scope';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261013-export-scope';
+import { LineStyleMenu } from './line-style-menu.js?v=20261013-export-scope';
+import { Pages } from './pages.js?v=20261013-export-scope';
+import { cropDialog } from './crop-editor.js?v=20261013-export-scope';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261013-export-scope';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261013-export-scope';
+import { toWorld, zoomAt } from './viewport.js?v=20261013-export-scope';
+import { History } from './history.js?v=20261013-export-scope';
+import { SaveQueue } from './save-queue.js?v=20261013-export-scope';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261013-export-scope';
+import { exportBoard, backup } from './export.js?v=20261013-export-scope';
+import { validateBoard } from './model.js?v=20261013-export-scope';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261013-export-scope';
 
-import { toolIcon } from './tool-icons.js?v=20261012-pdf-a4';
+import { toolIcon } from './tool-icons.js?v=20261013-export-scope';
 
-import { Geometry } from './geometry.js?v=20261012-pdf-a4';
-import { snapPoint, snapAngle } from './snapping.js?v=20261012-pdf-a4';
-import { equationDialog } from './equation-editor.js?v=20261012-pdf-a4';
-import { graphDialog } from './graph-editor.js?v=20261012-pdf-a4';
+import { Geometry } from './geometry.js?v=20261013-export-scope';
+import { snapPoint, snapAngle } from './snapping.js?v=20261013-export-scope';
+import { equationDialog } from './equation-editor.js?v=20261013-export-scope';
+import { graphDialog } from './graph-editor.js?v=20261013-export-scope';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
  constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
@@ -40,7 +41,7 @@ export class Editor {
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
  build(){document.body.classList.add('board-open');this.root.className='editor';this.root.replaceChildren();const top=el('div',null,'editor-top');top.setAttribute('role','toolbar');top.setAttribute('aria-label','Teaching board toolbar');const logo=el('a','Teaching Board','editor-brand');logo.href='#/';logo.title='Return to lessons';const back=el('a','☰','button');back.href='#/';back.title='Lessons';back.setAttribute('aria-label','Lessons');this.title=btn(this.board.title,async()=>{const r=await formDialog('Lesson settings',[['title','Title',this.board.title],['folder','Folder',this.board.folder]],{validate:v=>{if(!v.title.trim()||v.title.length>200||v.folder.length>200)throw new Error('Use a title and folder under 200 characters.');return v;}});if(r){Object.assign(this.board,r);this.title.textContent=r.title;this.save();}},'lesson-title');this.title.dir='auto';
  this.saveState=el('span','Saved on this device','save-state');this.retry=btn('Retry save',()=>this.flush());this.retry.hidden=true;
- const exports=el('select');exports.setAttribute('aria-label','Export lesson');for(const [v,t] of [['','Export…'],['json','Editable backup'],['svg','SVG image'],['png','PNG image'],['pdf','Print / Save as PDF']]){const o=el('option',t);o.value=v;exports.append(o);}exports.onchange=()=>{const format=exports.value;exports.value='';if(format)this.action(()=>exportBoard(this.board,format));};
+ const exports=el('select');exports.setAttribute('aria-label','Export lesson');for(const [v,t] of [['','Export…'],['json','Editable backup'],['svg','SVG image'],['png','PNG image'],['pdf','Print / Save as PDF']]){const o=el('option',t);o.value=v;exports.append(o);}exports.onchange=()=>{const format=exports.value;exports.value='';if(format)this.action(async()=>{const options=format==='json'?{scope:'all'}:await exportScopeDialog(this,format);if(options&&!this.disposed)await exportBoard(this.board,format,options);});};
  top.append(logo,back,this.title,this.saveState,this.retry,exports,btn('Present',()=>{document.body.classList.toggle('presenting');}),btn('Help',()=>this.help()));
  const bar=el('div',null,'tools');this.toolButtons=new Map();this.shapeGallery=new ShapeGallery(this);for(const [id,icon,label] of TOOLS){if(id==='rectangle')bar.append(this.shapeGallery.root);if(['rectangle','ellipse','triangle'].includes(id))continue;const b=btn(icon,()=>this.setTool(id),'tool');b.title=label;b.setAttribute('aria-label',label);b.replaceChildren(toolIcon(id));if(['pen','line','text','image'].includes(id))b.classList.add('group-start');this.toolButtons.set(id,b);bar.append(b);}this.undoButton=btn('↶',()=>this.undo());this.undoButton.title='Undo (Ctrl+Z)';this.undoButton.setAttribute('aria-label','Undo');this.redoButton=btn('↷',()=>this.redo());this.redoButton.title='Redo (Ctrl+Shift+Z)';this.redoButton.setAttribute('aria-label','Redo');const history=el('div',null,'history-tools');history.append(this.undoButton,this.redoButton);top.insertBefore(history,back);
  const snap=el('select');snap.setAttribute('aria-label','Snapping');for(const [value,label] of [['off','Snap: Off'],['grid','Snap: Grid'],['objects','Snap: Objects'],['both','Snap: Both']]){const o=el('option',label);o.value=value;snap.append(o);}snap.value=this.board.snapMode||'off';snap.onchange=()=>{this.board.snapMode=snap.value;this.guides=[];this.save();this.paint();};top.append(snap);

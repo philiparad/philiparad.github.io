@@ -1,8 +1,8 @@
-import { pressurePathD } from './pressure.js?v=20261012-pdf-a4';
-import { drawPreset } from './shapes.js?v=20261012-pdf-a4';
-import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261012-pdf-a4';
-import { strokePathD, naturalPathD } from './ink.js?v=20261012-pdf-a4';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261012-pdf-a4';
+import { pressurePathD } from './pressure.js?v=20261013-export-scope';
+import { drawPreset } from './shapes.js?v=20261013-export-scope';
+import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261013-export-scope';
+import { strokePathD, naturalPathD } from './ink.js?v=20261013-export-scope';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261013-export-scope';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}
@@ -33,4 +33,4 @@ export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{
  return g;
 }
 export function background(svg,kind,viewport={x:0,y:0,zoom:1},id='paper'){const defs=svgEl('defs'),pattern=svgEl('pattern',{id,width:32,height:32,patternUnits:'userSpaceOnUse',patternTransform:`translate(${viewport.x} ${viewport.y}) scale(${viewport.zoom})`});if(kind==='dots')pattern.append(svgEl('circle',{cx:1,cy:1,r:1,fill:'#bbc8d5'}));else pattern.append(svgEl('path',{d:kind==='ruled'?'M0 32H32':'M32 0H0V32',fill:'none',stroke:kind==='dark'?'#344359':'#e4e9ef','stroke-width':1}));defs.append(pattern);svg.append(defs,svgEl('rect',{x:0,y:0,width:'100%',height:'100%',fill:kind==='dark'?'#1d293b':'#fff'}));if(kind!=='plain')svg.append(svgEl('rect',{x:0,y:0,width:'100%',height:'100%',fill:`url(#${id})`}));}
-export function sceneSVG(board,padding=30){const b=union(board.items);b.x-=padding;b.y-=padding;b.w+=padding*2;b.h+=padding*2;const svg=svgEl('svg',{xmlns:ns,width:Math.ceil(b.w),height:Math.ceil(b.h),viewBox:`0 0 ${b.w} ${b.h}`});background(svg,board.background,{x:-b.x,y:-b.y,zoom:1},'export-paper');const scene=svgEl('g',{transform:`translate(${-b.x} ${-b.y})`});board.items.forEach(item=>scene.append(drawItem(item)));svg.append(scene);return svg;}
+export function sceneSVG(board,padding=30,region=null){const b=region?{...region}:union(board.items);if(!region){b.x-=padding;b.y-=padding;b.w+=padding*2;b.h+=padding*2;}const svg=svgEl('svg',{xmlns:ns,overflow:'hidden',width:Math.ceil(b.w),height:Math.ceil(b.h),viewBox:`0 0 ${b.w} ${b.h}`});background(svg,board.background,{x:-b.x,y:-b.y,zoom:1},'export-paper');const scene=svgEl('g',{transform:`translate(${-b.x} ${-b.y})`});board.items.forEach(item=>scene.append(drawItem(item)));svg.append(scene);return svg;}

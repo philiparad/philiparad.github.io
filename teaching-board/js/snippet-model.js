@@ -1,7 +1,7 @@
-import { createBoard, validateBoard } from './model.js?v=20261012-pdf-a4';
-import { copiedItems } from './groups.js?v=20261012-pdf-a4';
-import { syncConnectors } from './connectors.js?v=20261012-pdf-a4';
-import { union } from './scene.js?v=20261012-pdf-a4';
+import { createBoard, validateBoard } from './model.js?v=20261013-export-scope';
+import { copiedItems } from './groups.js?v=20261013-export-scope';
+import { syncConnectors } from './connectors.js?v=20261013-export-scope';
+import { union } from './scene.js?v=20261013-export-scope';
 const LIMIT=5_000_000;
 export function validateSnippet(value){
  if(!value||value.version!==1||typeof value.id!=='string'||!/^[a-zA-Z0-9-]{1,80}$/.test(value.id))throw new Error('Unsupported snippet format.');
