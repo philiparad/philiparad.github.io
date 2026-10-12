@@ -84,3 +84,6 @@ In **Choose PDF pages**, use **Page layout** to choose a Vertical stack, Horizon
 
 ### A4 page navigation
 Switch **Canvas layout** to **A4 pages**, then use the **Go to A4 page** selector to jump directly to any page. The page indicator follows the page at the center of the view while panning and after reopening a lesson. Page options update after adding, deleting, undoing or redoing pages. Navigation changes the view without adding an undo step.
+
+### PDF pages as an A4 document
+Choose **PDF pages → Page layout → A4 document pages**. Each selected PDF page is proportionally fitted and centered inside a portrait A4 sheet with a 24-pixel margin, then locked for annotation. A new or single empty A4 lesson uses its first sheet; existing A4 documents append after their last page. The view jumps to the first imported sheet. A nonempty infinite canvas must first be explicitly switched to A4. Imports respect the 100-sheet limit and can be undone/redone as one change, including the layout and page count. **Export → Print / Save as PDF** uses the existing one-sheet-per-page A4 print layout.

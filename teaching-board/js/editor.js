@@ -1,33 +1,34 @@
-import { Snippets, snippetCopies } from './snippets.js?v=20261012-page-navigation';
-import { InlineText } from './inline-text.js?v=20261012-page-navigation';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261012-page-navigation';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261012-page-navigation';
-import { visibleItems } from './visibility.js?v=20261012-page-navigation';
-import { RenderCache } from './render-cache.js?v=20261012-page-navigation';
-import { SpeedInk } from './speed-ink.js?v=20261012-page-navigation';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261012-page-navigation';
-import { ShapeGallery } from './shape-gallery.js?v=20261012-page-navigation';
-import { FillPalette } from './fill-palette.js?v=20261012-page-navigation';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261012-page-navigation';
-import { LineStyleMenu } from './line-style-menu.js?v=20261012-page-navigation';
-import { Pages } from './pages.js?v=20261012-page-navigation';
-import { cropDialog } from './crop-editor.js?v=20261012-page-navigation';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261012-page-navigation';
-import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261012-page-navigation';
-import { toWorld, zoomAt } from './viewport.js?v=20261012-page-navigation';
-import { History } from './history.js?v=20261012-page-navigation';
-import { SaveQueue } from './save-queue.js?v=20261012-page-navigation';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261012-page-navigation';
-import { exportBoard, backup } from './export.js?v=20261012-page-navigation';
-import { validateBoard } from './model.js?v=20261012-page-navigation';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261012-page-navigation';
+import { planA4Import } from './pdf-a4.js?v=20261012-pdf-a4';
+import { Snippets, snippetCopies } from './snippets.js?v=20261012-pdf-a4';
+import { InlineText } from './inline-text.js?v=20261012-pdf-a4';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261012-pdf-a4';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261012-pdf-a4';
+import { visibleItems } from './visibility.js?v=20261012-pdf-a4';
+import { RenderCache } from './render-cache.js?v=20261012-pdf-a4';
+import { SpeedInk } from './speed-ink.js?v=20261012-pdf-a4';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261012-pdf-a4';
+import { ShapeGallery } from './shape-gallery.js?v=20261012-pdf-a4';
+import { FillPalette } from './fill-palette.js?v=20261012-pdf-a4';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261012-pdf-a4';
+import { LineStyleMenu } from './line-style-menu.js?v=20261012-pdf-a4';
+import { Pages } from './pages.js?v=20261012-pdf-a4';
+import { cropDialog } from './crop-editor.js?v=20261012-pdf-a4';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261012-pdf-a4';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261012-pdf-a4';
+import { toWorld, zoomAt } from './viewport.js?v=20261012-pdf-a4';
+import { History } from './history.js?v=20261012-pdf-a4';
+import { SaveQueue } from './save-queue.js?v=20261012-pdf-a4';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261012-pdf-a4';
+import { exportBoard, backup } from './export.js?v=20261012-pdf-a4';
+import { validateBoard } from './model.js?v=20261012-pdf-a4';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261012-pdf-a4';
 
-import { toolIcon } from './tool-icons.js?v=20261012-page-navigation';
+import { toolIcon } from './tool-icons.js?v=20261012-pdf-a4';
 
-import { Geometry } from './geometry.js?v=20261012-page-navigation';
-import { snapPoint, snapAngle } from './snapping.js?v=20261012-page-navigation';
-import { equationDialog } from './equation-editor.js?v=20261012-page-navigation';
-import { graphDialog } from './graph-editor.js?v=20261012-page-navigation';
+import { Geometry } from './geometry.js?v=20261012-pdf-a4';
+import { snapPoint, snapAngle } from './snapping.js?v=20261012-pdf-a4';
+import { equationDialog } from './equation-editor.js?v=20261012-pdf-a4';
+import { graphDialog } from './graph-editor.js?v=20261012-pdf-a4';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
  constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
@@ -202,7 +203,19 @@ export class Editor {
  async insertMath(type,existing=null){if(type==='graph'){const value=await graphDialog(existing);if(!value||this.disposed)return;const item=existing||this.base(type,this.center());Object.assign(item,value);if(!existing)this.board.items.push(item);this.selected=new Set([item.id]);this.setTool('select');this.commit();return;}if(type==='equation'){const value=await equationDialog(existing?.source);if(!value||this.disposed)return;const item=existing||this.base(type,this.center());Object.assign(item,value);if(!existing)this.board.items.push(item);this.selected=new Set([item.id]);this.setTool('select');this.commit();return;}const fields=type==='equation'?[['source','LaTeX',existing?.source||'y=\\frac{1}{2}x^2']]:[['source','f(x) =',existing?.source||'x^2'],['xmin','x minimum',existing?.range?.[0]??-5,'number'],['xmax','x maximum',existing?.range?.[2]??5,'number'],['ymin','y minimum',existing?.range?.[3]??-5,'number'],['ymax','y maximum',existing?.range?.[1]??5,'number']];
  const value=await formDialog(type==='equation'?'Insert equation':'Function graph',fields,{note:type==='graph'?'Use x, + − * / ^, sin, cos, tan, sqrt, abs, pi. Angles are radians. Example: sin(x) or 2*x^2-3.':'Examples: \\frac{a}{b}, \\sqrt{x}, \\int_0^1 x^2\\,dx',submit:'Render and insert',validate:async v=>type==='equation'?equation(v.source):graph(v.source,[+v.xmin,+v.ymax,+v.xmax,+v.ymin])});if(!value||this.disposed)return;const item=existing||this.base(type,this.center());const old=existing?{w:existing.w,h:existing.h}:{};Object.assign(item,value,old);if(!existing)this.board.items.push(item);this.selected=new Set([item.id]);this.setTool('select');this.commit();}
  async editSelected(){const selected=this.board.items.filter(i=>this.selected.has(i.id));if(selected.length!==1){notify('Select one object to edit. Ungroup grouped objects first.');return;}const i=selected[0];if(this.isLocked(i)){notify('Unlock this object first.');return;}if(i.links){notify('This connector follows its attached objects. Use Detach connector to move it independently.');return;}if(i.type==='image'){const data=await cropDialog(i);if(data&&!this.disposed){Object.assign(i,data);this.commit();}return;}if(i.type==='curve'){notify('Drag pink anchors; drag a pale midpoint to add an anchor; double-click an anchor to remove it.');return;}if(i.type==='arc'){await this.geometry.editArc(i);return;}if(['text','note'].includes(i.type))await this.insertText(i.type,{x:i.x,y:i.y},i);else if(['equation','graph'].includes(i.type))await this.insertMath(i.type,i);else notify('Use the color, size, rotation, and layer controls to edit this object.');}
- async insertMedia(type){const files=await chooseFile(type==='pdf'?'.pdf,application/pdf':'image/png,image/jpeg,image/webp,image/gif',type==='image');if(!files.length||this.disposed)return;notify('Preparing media…');const items=[];let p=this.center();for(const file of files){const images=type==='pdf'?await importPDF(file,notify):[await importImage(file)];for(const image of images){const {x=0,y=0,...data}=image;items.push({...this.base('image',{x:p.x+x,y:p.y+y}),...data,locked:type==='pdf'});if(type!=='pdf')p={x:p.x,y:p.y+data.h+35};}}if(this.disposed||!items.length)return;validateBoard({...this.board,items:[...this.board.items,...items]});this.board.items.push(...items);this.selected=new Set(items.map(i=>i.id));this.setTool('select');this.commit();this.fit();notify(type==='pdf'?'PDF pages imported and locked. Draw on top, or unlock to move.':'Images inserted.');}
+ async insertMedia(type){
+  const files=await chooseFile(type==='pdf'?'.pdf,application/pdf':'image/png,image/jpeg,image/webp,image/gif',type==='image');if(!files.length||this.disposed)return;notify('Preparing media…');
+  let images=[],layout='vertical';for(const file of files){if(type==='pdf'){const result=await importPDF(file,notify);if(!result)return;images=result.images;layout=result.layout;}else images.push(await importImage(file));}
+  if(this.disposed||!images.length)return;this.insertMediaItems(images,type,layout);notify(type==='pdf'?'PDF pages imported and locked. Draw on top, or unlock to move.':'Images inserted.');
+ }
+ insertMediaItems(images,type,layout='vertical'){
+  if(!images.length)return;
+  const a4=type==='pdf'&&layout==='a4'?planA4Import(this.board,images):null;
+  const items=[];let p=a4?{x:0,y:0}:this.center();
+  for(const image of a4?.images||images){const {x=0,y=0,...data}=image;items.push({...this.base('image',{x:p.x+x,y:p.y+y}),...data,locked:type==='pdf'});if(type!=='pdf')p={x:p.x,y:p.y+data.h+35};}
+  const document=a4?{layout:'a4',pageCount:a4.pageCount}:{};
+  validateBoard({...this.board,...document,items:[...this.board.items,...items]});Object.assign(this.board,document);this.board.items.push(...items);this.selected=new Set(items.map(i=>i.id));this.setTool('select');this.commit();if(a4)this.pages.go(a4.start);else this.fit();
+ }
  onCopy(e){if(this.disposed||editingText(e.target)||document.querySelector('dialog[open]')||!e.clipboardData)return;const items=this.board.items.filter(i=>this.selected.has(i.id));if(!items.length)return;e.preventDefault();this.clipboard=structuredClone(items);e.clipboardData.setData(BOARD_CLIPBOARD,JSON.stringify(items));e.clipboardData.setData('text/plain','Teaching Board objects');}
  onPaste(e){if(this.disposed||editingText(e.target)||document.querySelector('dialog[open]')||!e.clipboardData)return;const images=clipboardImages(e.clipboardData);if(images.length){e.preventDefault();this.action(()=>this.pasteImages(images));return;}const content=e.clipboardData.getData(BOARD_CLIPBOARD);if(content){e.preventDefault();this.action(()=>{if(content.length>25000000)throw new Error('Copied objects exceed the board size limit.');const items=JSON.parse(content);validateBoard({...this.board,items});this.clipboard=items;this.paste();});return;}if(e.clipboardData.files.length){e.preventDefault();notify('The clipboard did not provide a supported image. Open the picture and copy it, or use the Image tool.');}}
  async pasteImages(files){const position=this.center(),items=[];for(const file of files){const image=await importImage(file);items.push({...this.base('image',{x:position.x-image.w/2+items.length*24,y:position.y-image.h/2+items.length*24}),...image});}if(this.disposed||!items.length)return;validateBoard({...this.board,items:[...this.board.items,...items]});this.board.items.push(...items);this.selected=new Set(items.map(i=>i.id));this.setTool('select');this.commit();notify(items.length===1?'Image pasted.':'Images pasted.');}

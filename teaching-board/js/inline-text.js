@@ -1,4 +1,4 @@
-import { el, btn } from './ui.js?v=20261012-page-navigation';
+import { el, btn } from './ui.js?v=20261012-pdf-a4';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
