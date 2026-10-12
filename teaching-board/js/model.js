@@ -1,7 +1,7 @@
-import { validateSeries, validateParameters } from './graph-series.js?v=20261012-pdf-layouts';
-import { SHAPES } from './shapes.js?v=20261012-pdf-layouts';
-import { LINE_STYLES } from './line-style.js?v=20261012-pdf-layouts';
-import { validCrop } from './crop-editor.js?v=20261012-pdf-layouts';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261012-page-navigation';
+import { SHAPES } from './shapes.js?v=20261012-page-navigation';
+import { LINE_STYLES } from './line-style.js?v=20261012-page-navigation';
+import { validCrop } from './crop-editor.js?v=20261012-page-navigation';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {

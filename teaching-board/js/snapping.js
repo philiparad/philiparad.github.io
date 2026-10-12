@@ -1,4 +1,4 @@
-import { bounds } from './scene.js?v=20261012-pdf-layouts';
+import { bounds } from './scene.js?v=20261012-page-navigation';
 export function snapPoint(point,board,exclude=new Set(),mode='both',anchors=null){
  if(mode==='off')return {...point,guides:[]};
  const tolerance=7/board.viewport.zoom,targets={x:[],y:[]};

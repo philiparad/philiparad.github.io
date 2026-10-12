@@ -81,3 +81,6 @@ The PDF import dialog shows six page thumbnails at a time. Use **Previous previe
 
 ### PDF import layouts
 In **Choose PDF pages**, use **Page layout** to choose a Vertical stack, Horizontal row or Two-column grid. Pages keep document order and their aspect ratios. Spacing accounts for mixed page sizes. The new pages start at the current view center; existing objects are preserved. The complete import remains a single undoable change.
+
+### A4 page navigation
+Switch **Canvas layout** to **A4 pages**, then use the **Go to A4 page** selector to jump directly to any page. The page indicator follows the page at the center of the view while panning and after reopening a lesson. Page options update after adding, deleting, undoing or redoing pages. Navigation changes the view without adding an undo step.
