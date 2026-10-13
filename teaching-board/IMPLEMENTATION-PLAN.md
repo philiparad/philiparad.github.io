@@ -5,8 +5,8 @@ Tablet/stylus and cloud work were removed at the user's request.
 
 1. Graph examples gallery — complete — deployed f968ec2; examples, persistence, editing and cancellation verified.
 2. Independent function domain limits — complete; deployed dd516c4 and verified rendering, rejection and reload.
-3. Piecewise function expressions and intervals — implemented; live verification pending.
-4. Open and closed endpoints.
+3. Piecewise function expressions and intervals — complete; deployed 59956c3, live overlap/cancellation/persistence/rendering verified.
+4. Open and closed endpoints — implemented; live verification pending.
 5. Named custom functions with undefined/circular-reference validation.
 6. Axis bounds, ticks, labels, grid and equal-scale controls.
 7. Mixed inline text formatting.

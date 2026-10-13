@@ -1,4 +1,4 @@
-import { el, btn } from './ui.js?v=20261013-piecewise';
+import { el, btn } from './ui.js?v=20261013-endpoints';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {

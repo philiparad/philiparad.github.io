@@ -107,4 +107,6 @@ Graph examples: open Function graph, expand Graph examples, choose a starter and
 
 Function domains: each y = f(x) curve has optional Domain minimum x and Domain maximum x fields. Leave either blank for no bound on that side. These restrict the function independently of the shared axis window; the legend records the restriction. Parametric/polar curves retain their separate t bounds.
 
-Piecewise functions: select Piecewise function as a curve type. Add up to eight branches with separate expressions and x bounds. Branches share the curve color and style and may use shared parameters. Blank bounds are unbounded; gaps are allowed and overlapping intervals are rejected. Each branch includes its lower bound and excludes its upper bound.
+Piecewise functions: select Piecewise function as a curve type. Add up to eight branches with separate expressions and x bounds. Branches share the curve color and style and may use shared parameters. Blank bounds are unbounded; gaps are allowed and overlapping intervals are rejected. By default, each branch includes its lower bound and excludes its upper bound. Endpoint controls can change either choice.
+
+Endpoint controls: choose Open (excluded) or Closed (included) at each finite function or branch bound. Hollow/filled markers and inequality legends reflect the choice. Undefined or offscreen endpoint values have no marker; unbounded sides have no endpoint. Adjacent piecewise branches cannot both include their shared boundary.

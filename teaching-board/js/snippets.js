@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261013-piecewise';
-import { SnippetRepository } from './snippet-storage.js?v=20261013-piecewise';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261013-piecewise';
-import { drawItem, svgEl, union } from './scene.js?v=20261013-piecewise';
-import { expandGroups } from './groups.js?v=20261013-piecewise';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261013-endpoints';
+import { SnippetRepository } from './snippet-storage.js?v=20261013-endpoints';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261013-endpoints';
+import { drawItem, svgEl, union } from './scene.js?v=20261013-endpoints';
+import { expandGroups } from './groups.js?v=20261013-endpoints';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}
