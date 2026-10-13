@@ -1,9 +1,10 @@
-import { createBoard, parseBackup } from './model.js?v=20261013-a4-export-2';
-import { BoardRepository } from './storage.js?v=20261013-a4-export-2';
-import { Editor } from './editor.js?v=20261013-a4-export-2';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261013-a4-export-2';
-import { backup } from './export.js?v=20261013-a4-export-2';
-import { drawItem, svgEl, union } from './scene.js?v=20261013-a4-export-2';
+import { showRecovery } from './recovery.js?v=20261013-recovery';
+import { createBoard, parseBackup } from './model.js?v=20261013-recovery';
+import { BoardRepository } from './storage.js?v=20261013-recovery';
+import { Editor } from './editor.js?v=20261013-recovery';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261013-recovery';
+import { backup } from './export.js?v=20261013-recovery';
+import { drawItem, svgEl, union } from './scene.js?v=20261013-recovery';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';
@@ -12,7 +13,7 @@ function thumbnail(board){const svg=svgEl('svg',{'aria-hidden':'true',class:'thu
 async function importBackup(){const [file]=await chooseFile('.json,application/json');if(!file)return;if(file.size>25_000_000)throw new Error('Backup exceeds the 25 MB limit.');const board=parseBackup(await file.text());board.id=crypto.randomUUID();board.revision=0;board.deleted=false;board.title=board.title.slice(0,188)+' (imported)';await repository.save(board);location.hash=`/board/${board.id}`;}
 async function dashboard(token){const boards=await repository.list();if(token!==generation)return;app.className='dashboard';app.replaceChildren();
  const heading=el('div',null,'heading'),intro=el('div');intro.append(el('p','PERSONAL TEACHING WORKSPACE','eyebrow'),el('h1',viewTrash?'Recently deleted':'Your lessons, all in one place'),el('p','Draw an idea. Explore a function. Make the explanation clear.','muted'));
- const actions=el('div',null,'actions');actions.append(btn('Import backup',importBackup),btn('+ New lesson',()=>settings(null),'primary'));heading.append(intro,actions);
+ const actions=el('div',null,'actions');actions.append(btn('Recovery snapshots',()=>showRecovery(repository)),btn('Import backup',importBackup),btn('+ New lesson',()=>settings(null),'primary'));heading.append(intro,actions);
  const controls=el('div',null,'dashboard-controls'),search=el('input',null,'search');search.type='search';search.placeholder='Search lessons…';search.setAttribute('aria-label','Search lessons');search.value=searchText;
  const folders=el('select');folders.setAttribute('aria-label','Filter by folder');for(const name of ['',...new Set(boards.filter(b=>!b.deleted).map(b=>b.folder).filter(Boolean))].sort()){const o=el('option',name||'All folders');o.value=name;folders.append(o);}folders.value=folderFilter;
  const sort=el('select');sort.setAttribute('aria-label','Sort lessons');for(const [value,label] of [['recent','Recently edited'],['title','Title A–Z'],['oldest','Oldest first']]){const o=el('option',label);o.value=value;sort.append(o);}sort.value=sortBy;
