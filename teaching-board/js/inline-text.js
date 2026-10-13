@@ -1,4 +1,4 @@
-import { el, btn } from './ui.js?v=20261013-recovery';
+import { el, btn } from './ui.js?v=20261013-gallery';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
