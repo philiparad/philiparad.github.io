@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261013-axes';
-import { createBoard, parseBackup } from './model.js?v=20261013-axes';
-import { BoardRepository } from './storage.js?v=20261013-axes';
-import { Editor } from './editor.js?v=20261013-axes';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261013-axes';
-import { backup } from './export.js?v=20261013-axes';
-import { drawItem, svgEl, union } from './scene.js?v=20261013-axes';
+import { showRecovery } from './recovery.js?v=20261013-axes2';
+import { createBoard, parseBackup } from './model.js?v=20261013-axes2';
+import { BoardRepository } from './storage.js?v=20261013-axes2';
+import { Editor } from './editor.js?v=20261013-axes2';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261013-axes2';
+import { backup } from './export.js?v=20261013-axes2';
+import { drawItem, svgEl, union } from './scene.js?v=20261013-axes2';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

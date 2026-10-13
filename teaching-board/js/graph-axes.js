@@ -1,4 +1,4 @@
-import {el,field} from './ui.js?v=20261013-axes';
+import {el,field} from './ui.js?v=20261013-axes2';
 export function validateAxes(axes={}) {
  if(!axes||typeof axes!=='object'||Array.isArray(axes))throw new Error('Invalid graph axis settings.');
  for(const key of ['grid','tickLabels','equalScale'])if(axes[key]!==undefined&&typeof axes[key]!=='boolean')throw new Error('Invalid graph axis setting.');
@@ -11,7 +11,7 @@ export function graphAxisOptions(range,axes={}) {
  if(!Array.isArray(range)||range.length!==4||!range.every(Number.isFinite)||range[0]>=range[2]||range[3]>=range[1]||range.some(x=>Math.abs(x)>100000))throw new Error('Use valid graph bounds: minimum smaller than maximum.');
  const box=[...range];
  if(axes.equalScale){const width=box[2]-box[0],height=box[1]-box[3],ratio=640/440;if(width/height<ratio){const extra=(height*ratio-width)/2;box[0]-=extra;box[2]+=extra;}else{const extra=(width/ratio-height)/2;box[1]+=extra;box[3]-=extra;}}
- const axis=key=>{const step=axes[key+'Tick'],span=key==='x'?box[2]-box[0]:box[1]-box[3];if(step!==undefined&&span/step>200)throw new Error('Tick spacing is too small for these bounds. Use at most 200 intervals per axis.');return {ticks:{label:{display:'internal'},drawLabels:axes.tickLabels!==false,...(step===undefined?{}:{ticksDistance:step,insertTicks:false,minorTicks:0})}};};
+ const axis=key=>{const step=axes[key+'Tick'],span=key==='x'?box[2]-box[0]:box[1]-box[3];if(step!==undefined&&span/step>200)throw new Error('Tick spacing is too small for these bounds. Use at most 200 intervals per axis.');return {ticks:{majorHeight:axes.grid===false?10:-1,minorHeight:axes.grid===false?4:-1,label:{display:'internal'},drawLabels:axes.tickLabels!==false,...(step===undefined?{}:{ticksDistance:step,insertTicks:false,minorTicks:0})}};};
  return {boundingbox:box,axis:true,grid:axes.grid!==false,showCopyright:false,showNavigation:false,keepaspectratio:false,defaultAxes:{x:axis('x'),y:axis('y')}};
 }
 export function axisControls(axes,schedule){

@@ -1,9 +1,9 @@
-import {graphAxisOptions} from './graph-axes.js?v=20261013-axes';
-import {compileFunctions} from './named-functions.js?v=20261013-axes';
-import { validateSeries, validateParameters } from './graph-series.js?v=20261013-axes';
-import { SHAPES } from './shapes.js?v=20261013-axes';
-import { LINE_STYLES } from './line-style.js?v=20261013-axes';
-import { validCrop } from './crop-editor.js?v=20261013-axes';
+import {graphAxisOptions} from './graph-axes.js?v=20261013-axes2';
+import {compileFunctions} from './named-functions.js?v=20261013-axes2';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261013-axes2';
+import { SHAPES } from './shapes.js?v=20261013-axes2';
+import { LINE_STYLES } from './line-style.js?v=20261013-axes2';
+import { validCrop } from './crop-editor.js?v=20261013-axes2';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {

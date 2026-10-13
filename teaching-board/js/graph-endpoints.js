@@ -1,5 +1,5 @@
-import {compileExpression} from './expression.js?v=20261013-axes';
-import {el} from './ui.js?v=20261013-axes';
+import {compileExpression} from './expression.js?v=20261013-axes2';
+import {el} from './ui.js?v=20261013-axes2';
 export function domainContains(row,x){return x>=(row.domainMin??-Infinity)&&x<=(row.domainMax??Infinity)&&!(row.domainMinOpen&&x===row.domainMin)&&!(row.domainMaxOpen&&x===row.domainMax);}
 export function endpointMarkers(row,parameters={},range,functions={}){
  const f=compileExpression(row.source,'x',parameters,functions),markers=[];
