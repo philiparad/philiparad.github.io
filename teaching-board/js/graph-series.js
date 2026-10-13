@@ -1,5 +1,6 @@
-import {domainContains} from './graph-endpoints.js?v=20261013-endpoints';
-import { compileExpression } from './expression.js?v=20261013-endpoints';
+import {compileFunctions} from './named-functions.js?v=20261013-named';
+import {domainContains} from './graph-endpoints.js?v=20261013-named';
+import { compileExpression } from './expression.js?v=20261013-named';
 export const CURVE_STYLES=Object.freeze({solid:{label:'Solid',dash:0,pattern:''},dotted:{label:'Dotted',dash:1,pattern:'2 2'},dashed:{label:'Dashed',dash:3,pattern:'10 10'},'long-dashed':{label:'Long dashed',dash:4,pattern:'20 20'}});
 export const CURVE_WIDTHS=Object.freeze([1,2,3,4,6,8]);
 export function curveAppearance(row){return {strokeColor:row.color,strokeWidth:row.lineWidth??3,dash:CURVE_STYLES[row.lineStyle||'solid'].dash,lineCap:'butt'};}
@@ -24,16 +25,16 @@ export function validateSeries(rows){
  }
  return rows;
 }
-export function graphSeries(source,parameters=[]){
+export function graphSeries(source,parameters=[],definitions=[]){
  validateParameters(parameters);const constants=Object.fromEntries(parameters.map(p=>[p.name,p.value]));
  const rows=typeof source==='string'?[{source,color:'#147d92',visible:true}]:structuredClone(source);
- validateSeries(rows);for(const row of rows)compileSeries(row,constants);
+ const functions=compileFunctions(definitions,constants);validateSeries(rows);for(const row of rows)compileSeries(row,constants,functions);
  if(!rows.some(r=>r.visible))throw new Error('Show at least one curve.');return rows;
 }
-export function compileSeries(row,parameters={}){
- if(row.kind==='piecewise'){const pieces=piecewiseRows(row).map(r=>({row:r,fn:compileSeries(r,parameters)}));const point=x=>{const piece=pieces.find(p=>domainContains(p.row,x));return piece?[piece.fn.x(x),piece.fn.y(x)]:[NaN,NaN];};return {x:t=>point(t)[0],y:t=>point(t)[1]};}
- if(row.kind==='polar'){const radius=compileExpression(row.source,'t',parameters);const coordinate=(t,trig)=>{const r=radius(t);return Number.isFinite(r)?r*trig(t):NaN;};return {x:t=>coordinate(t,Math.cos),y:t=>coordinate(t,Math.sin)};}
- const variable=row.kind==='parametric'?'t':'x',y=compileExpression(row.source,variable,parameters),x=row.kind==='parametric'?compileExpression(row.xSource,'t',parameters):t=>t;
+export function compileSeries(row,parameters={},functions={}){
+ if(row.kind==='piecewise'){const pieces=piecewiseRows(row).map(r=>({row:r,fn:compileSeries(r,parameters,functions)}));const point=x=>{const piece=pieces.find(p=>domainContains(p.row,x));return piece?[piece.fn.x(x),piece.fn.y(x)]:[NaN,NaN];};return {x:t=>point(t)[0],y:t=>point(t)[1]};}
+ if(row.kind==='polar'){const radius=compileExpression(row.source,'t',parameters,functions);const coordinate=(t,trig)=>{const r=radius(t);return Number.isFinite(r)?r*trig(t):NaN;};return {x:t=>coordinate(t,Math.cos),y:t=>coordinate(t,Math.sin)};}
+ const variable=row.kind==='parametric'?'t':'x',y=compileExpression(row.source,variable,parameters,functions),x=row.kind==='parametric'?compileExpression(row.xSource,'t',parameters,functions):t=>t;
  const point=t=>{if(!domainContains(row,t))return [NaN,NaN];const a=x(t),b=y(t);return Number.isFinite(a)&&Number.isFinite(b)?[a,b]:[NaN,NaN];};
  return {x:t=>point(t)[0],y:t=>point(t)[1]};
 }
