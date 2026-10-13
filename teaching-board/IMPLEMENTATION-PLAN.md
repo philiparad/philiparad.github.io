@@ -3,8 +3,8 @@
 Complete, test, commit, deploy and live-verify each task before starting the next.
 Tablet/stylus and cloud work were removed at the user's request.
 
-1. Graph examples gallery — implemented; live verification pending.
-2. Independent function domain limits.
+1. Graph examples gallery — complete — deployed f968ec2; examples, persistence, editing and cancellation verified.
+2. Independent function domain limits — implemented; live verification pending.
 3. Piecewise function expressions and intervals.
 4. Open and closed endpoints.
 5. Named custom functions with undefined/circular-reference validation.
