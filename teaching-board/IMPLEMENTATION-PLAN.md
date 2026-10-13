@@ -4,8 +4,8 @@ Complete, test, commit, deploy and live-verify each task before starting the nex
 Tablet/stylus and cloud work were removed at the user's request.
 
 1. Graph examples gallery — complete — deployed f968ec2; examples, persistence, editing and cancellation verified.
-2. Independent function domain limits — implemented; live verification pending.
-3. Piecewise function expressions and intervals.
+2. Independent function domain limits — complete; deployed dd516c4 and verified rendering, rejection and reload.
+3. Piecewise function expressions and intervals — implemented; live verification pending.
 4. Open and closed endpoints.
 5. Named custom functions with undefined/circular-reference validation.
 6. Axis bounds, ticks, labels, grid and equal-scale controls.

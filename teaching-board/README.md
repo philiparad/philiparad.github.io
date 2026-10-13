@@ -106,3 +106,5 @@ Open **Selection tools and lesson timer → Recovery** to **Create snapshot** or
 Graph examples: open Function graph, expand Graph examples, choose a starter and click Load example. The example replaces the dialog's curves, shared parameters and bounds; edit it before inserting. Cancel preserves an existing graph. Eight starters cover algebra, trigonometry, adjustable parameters, parametric and polar curves.
 
 Function domains: each y = f(x) curve has optional Domain minimum x and Domain maximum x fields. Leave either blank for no bound on that side. These restrict the function independently of the shared axis window; the legend records the restriction. Parametric/polar curves retain their separate t bounds.
+
+Piecewise functions: select Piecewise function as a curve type. Add up to eight branches with separate expressions and x bounds. Branches share the curve color and style and may use shared parameters. Blank bounds are unbounded; gaps are allowed and overlapping intervals are rejected. Each branch includes its lower bound and excludes its upper bound.
