@@ -96,3 +96,6 @@ Choose **Export → PNG image → PNG background → Transparent**. This removes
 
 ### Export padding and PNG resolution
 The export dialog offers **Padding (canvas units)** from 0 to 1,000 for whole-lesson and selected-object images, and single-page PDF exports. Current-view/custom-rectangle exports keep their exact crop; whole A4 PDFs keep their page layout. For PNG, select **PNG resolution → 1× / 2× / 3× / 4×** and see the resulting pixel dimensions before exporting. Large images are proportionally reduced to stay within 8,000 pixels per side and 24 megapixels. Defaults remain 30 units of padding and 2× PNG resolution. Transparent PNG export supports these controls.
+
+### Export selected A4 pages
+In an A4 lesson choose **Export → Print / Save as PDF → Export area → Selected A4 pages**. Enter page numbers and increasing ranges such as **1, 3-5**. Duplicates are removed and pages print in document order, one portrait A4 sheet per selected page. The dialog shows the selected count and rejects empty or out-of-range selections. **Entire lesson** still prints every A4 page. Selection affects only the export; the lesson and undo history are unchanged.

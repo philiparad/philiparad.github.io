@@ -64,3 +64,10 @@ test('export dialog updates dimensions and hides padding for exact crops and A4 
   await nodes.find(n=>n.textContent==='Export'&&n.tagName==='button').onclick();const result=await pending;assert.equal(result.padding,75);assert.equal(result.scale,format==='png'?3:2);
  }
 });
+test('A4 PDF dialog validates page selection while image export has no page-range option',async()=>{
+ const e={board:{...board,viewport:{x:0,y:0,zoom:1}},selected:new Set(),area:{clientWidth:800,clientHeight:600}};
+ let pending=exportScopeDialog(e,'pdf'),nodes=walk(document.body.children.at(-1)),scope=nodes.find(n=>n.attributes['aria-label']==='Export area'),range=nodes.find(n=>n.textContent==='A4 pages to export').children[0];
+ assert.ok(scope.children.some(n=>n.value==='pages'));scope.value='pages';scope.onchange();range.value='3';await nodes.find(n=>n.textContent==='Export'&&n.tagName==='button').onclick();assert.match(nodes.find(n=>n.className==='error').textContent,/1 to 2/);
+ range.value='2,2';range.oninput();assert.ok(nodes.some(n=>n.textContent==='1 of 2 A4 pages. Exported once each in document order.'));await nodes.find(n=>n.textContent==='Export'&&n.tagName==='button').onclick();assert.deepEqual(resolveExport(e.board,await pending).pages,[1]);
+ pending=exportScopeDialog(e,'png');nodes=walk(document.body.children.at(-1));scope=nodes.find(n=>n.attributes['aria-label']==='Export area');assert.equal(scope.children.some(n=>n.value==='pages'),false);await nodes.find(n=>n.textContent==='Cancel').onclick();assert.equal(await pending,null);
+});
