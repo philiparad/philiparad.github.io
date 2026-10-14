@@ -50,7 +50,7 @@ button{cursor:pointer}
 .card h2,.card h3{margin-top:0;color:#14344e}
 .graph-card{padding:12px}
 .graph-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
-.eq{font-size:20px;font-weight:700;direction:ltr;text-align:left;min-height:32px}
+.equivalent-eq{margin:7px 0 10px;padding:9px 12px;border:2px solid #c0ded7;border-radius:11px;background:#f2fbf8;font-size:16px;line-height:1.7;direction:rtl}.equivalent-eq .math-line{font-size:17px;margin:3px 0}.equivalent-eq b{color:#176456}.eq{font-size:20px;font-weight:700;direction:ltr;text-align:left;min-height:32px}
 .graph-actions{display:flex;gap:6px;flex-wrap:wrap}
 .small-btn{border:2px solid #b9c9d6;background:#fff;border-radius:10px;padding:7px 10px;min-height:38px;color:#274459}
 .small-btn:hover{background:#f1f7fb}
@@ -213,7 +213,8 @@ th{background:#edf5fa}
           <div class="graph-head">
             <div>
               <div id="labEquation" class="eq" aria-live="polite"></div>
-              <div id="labMeaning" style="color:var(--muted);font-size:14px"></div>
+              <div id="labEquivalent" class="equivalent-eq" aria-live="polite"></div>
+               <div id="labMeaning" style="color:var(--muted);font-size:14px"></div>
             </div>
             <div class="graph-actions">
               <button class="small-btn" data-action="lab-zoom-in">＋</button>
@@ -347,6 +348,7 @@ th{background:#edf5fa}
           <div class="relation-card emphasis">
             <h3>1. סינוס וקוסינוס — אותו גל בהזזה</h3>
             <div class="math-line">\(\cos x=\sin\left(x+\frac{\pi}{2}\right)\)</div>
+             <div class="math-line">\(\sin x=\cos\left(x-\frac{\pi}{2}\right)\)</div>
             <p>החץ שמופיע מעל הגרפים מסמן מרחק אופקי של \(\frac{\pi}{2}\) בין מקסימום של קוסינוס למקסימום המתאים של סינוס.</p>
           </div>
           <div class="relation-card emphasis">
@@ -428,6 +430,7 @@ th{background:#edf5fa}
           </div>
 
           <div id="challengeEquation" class="eq" style="font-size:17px;margin-bottom:9px"></div>
+           <div id="challengeEquivalent" class="equivalent-eq" aria-live="polite"></div>
           <div class="control-block"><div class="label-line"><b>A</b><span id="cvA" class="value-badge">1</span></div><input id="cA" type="range" min="-4" max="4" value="1" step="0.25"></div>
           <div class="control-block"><div class="label-line"><b>B</b><span id="cvB" class="value-badge">1</span></div><input id="cB" type="range" min="-4" max="4" value="1" step="0.25"></div>
           <div class="control-block"><div class="label-line"><b>C</b><span id="cvC" class="value-badge">0</span></div><input id="cC" type="range" min="-1" max="1" value="0" step="0.0833333333"></div>
@@ -446,6 +449,7 @@ th{background:#edf5fa}
             <div>
               <h2 style="margin:0">פתרון משוואה טריגונומטרית באמצעות חיתוך גרפים</h2>
               <div id="solverEquationDisplay" class="eq" style="font-size:19px;margin-top:5px"></div>
+               <div id="solverEquivalent" class="equivalent-eq" aria-live="polite"></div>
             </div>
             <div class="graph-actions">
               <button class="small-btn" data-action="solver-zoom-in">＋</button>
@@ -608,6 +612,28 @@ function labEquationTex(){
   if(state.absEnabled)expr='\\left|'+expr+'\\right|';
   return '\\(y='+expr+'\\)';
 }
+// An exactly equal representation, using a quarter-cycle phase shift.
+// Keeping the phase inside the argument also works when B = 0 or B < 0.
+function pairedBodyTex(kind,A,B,C,D){
+  if(kind==='tan')return null;
+  const other=kind==='sin'?'cos':'sin';
+  const a=near(A,1)?'':near(A,-1)?'-':num(A,2);
+  const shift=near(C,0)?'x':'\\left(x'+(C>0?'-':'+')+piTex(Math.abs(C))+'\\right)';
+  const inner=near(B,1)?shift:num(B,2)+shift;
+  const phase=kind==='sin'?'-\\frac{\\pi}{2}':'+\\frac{\\pi}{2}';
+  const d=near(D,0)?'':(D>0?'+':'-')+num(Math.abs(D),2);
+  return a+kindTex(other)+'\\!\\left('+inner+phase+'\\right)'+d;
+}
+function pairedDisplay(kind,A,B,C,D,opts={}){
+  const body=pairedBodyTex(kind,A,B,C,D);
+  if(body===null)return '';
+  let expr=body;
+  if(opts.powerEnabled)expr='\\left['+expr+'\\right]^{'+opts.powerN+'}';
+  if(opts.absEnabled)expr='\\left|'+expr+'\\right|';
+  const rhs=opts.rhs===undefined?'': '='+num(opts.rhs,2);
+  const lhs=opts.rhs===undefined?'y=':'';
+  return '<b>ייצוג שקול באמצעות '+(kind==='sin'?'קוסינוס':'סינוס')+':</b><div class="math-line">\\('+lhs+expr+rhs+'\\)</div>';
+}
 function applyExtraTransforms(y){
   if(!Number.isFinite(y))return y;
   let out=y;
@@ -694,6 +720,8 @@ function transformLabel(){
 function updateLabUI(){
   setMath(q('#generalEquation'),generalEquationTex(state.kind));
   setMath(q('#labEquation'),labEquationTex());
+   q('#labEquivalent').hidden=state.kind==='tan';
+   if(state.kind!=='tan')setMath(q('#labEquivalent'),pairedDisplay(state.kind,state.A,state.B,state.C,state.D,{powerEnabled:state.powerEnabled,powerN:state.powerN,absEnabled:state.absEnabled}));
   q('#vA').textContent=num(state.A); q('#vB').textContent=num(state.B); q('#vC').textContent=piText(state.C); q('#vD').textContent=num(state.D);
   q('#togglePower').classList.toggle('active',state.powerEnabled); q('#togglePower').setAttribute('aria-pressed',String(state.powerEnabled));
   q('#toggleAbs').classList.toggle('active',state.absEnabled); q('#toggleAbs').setAttribute('aria-pressed',String(state.absEnabled));
@@ -940,6 +968,8 @@ function renderChallenge(){
   q('#cvA').textContent=num(state.cA);q('#cvB').textContent=num(state.cB);q('#cvC').textContent=piText(state.cC);q('#cvD').textContent=num(state.cD);
   setMath(q('#challengeGeneralEquation'),generalEquationTex(state.chKind));
   setMath(q('#challengeEquation'),equationTex(state.chKind,state.cA,state.cB,state.cC,state.cD));
+  q('#challengeEquivalent').hidden=state.chKind==='tan';
+  if(state.chKind!=='tan')setMath(q('#challengeEquivalent'),pairedDisplay(state.chKind,state.cA,state.cB,state.cC,state.cD));
 }
 function curveError(){
   const t=currentChallenge();let sum=0,n=0,max=0;
@@ -961,7 +991,7 @@ function checkChallenge(){
   box.className='feedback try';box.innerHTML=msgs.join(' ');
 }
 function showHint(){const t=currentChallenge();state.hintLevel=Math.min(state.hintLevel+1,t.hints.length);q('#challengeHint').innerHTML='<b>רמז '+state.hintLevel+':</b> '+t.hints[state.hintLevel-1];}
-function showSolution(){const t=currentChallenge();setMath(q('#challengeHint'),'<b>פתרון אפשרי:</b> '+equationTex(t.kind,t.A,t.B,t.C,t.D));}
+function showSolution(){const t=currentChallenge();setMath(q('#challengeHint'),'<b>פתרון אפשרי:</b> '+equationTex(t.kind,t.A,t.B,t.C,t.D)+(t.kind==='tan'?'':'<div style="margin-top:8px">'+pairedDisplay(t.kind,t.A,t.B,t.C,t.D)+'</div>'));}
 
 
 function solverPeriod(){return state.solverKind==='tan'?PI/state.sB:2*PI/state.sB}
@@ -1125,6 +1155,8 @@ function updateSolverUI(result){
   q('#svA').textContent=num(state.sA);q('#svB').textContent=num(state.sB);q('#svC').textContent=piText(state.sC);q('#svD').textContent=num(state.sD);q('#svK').textContent=num(state.sK);
   setMath(q('#solverGeneralEquation'),solverGeneralEquationTex(state.solverKind));
   setMath(q('#solverEquationDisplay'),solverEquationTex());
+  q('#solverEquivalent').hidden=state.solverKind==='tan';
+  if(state.solverKind!=='tan')setMath(q('#solverEquivalent'),pairedDisplay(state.solverKind,state.sA,state.sB,state.sC,state.sD,{rhs:state.sK}));
   setMath(q('#solverPeriodInfo'),'\\(T='+solverPiTex(result.T)+'='+degreeTex(result.T)+'\\)');
   setMath(q('#solverCycleInfo'),solverCycleTex(state.sC,result.T)+'<br>'+solverCycleDegTex(state.sC,result.T));
 
