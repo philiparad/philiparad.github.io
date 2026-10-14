@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261014-paragraphs';
-import { createBoard, parseBackup } from './model.js?v=20261014-paragraphs';
-import { BoardRepository } from './storage.js?v=20261014-paragraphs';
-import { Editor } from './editor.js?v=20261014-paragraphs';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261014-paragraphs';
-import { backup } from './export.js?v=20261014-paragraphs';
-import { drawItem, svgEl, union } from './scene.js?v=20261014-paragraphs';
+import { showRecovery } from './recovery.js?v=20261014-inlineeq';
+import { createBoard, parseBackup } from './model.js?v=20261014-inlineeq';
+import { BoardRepository } from './storage.js?v=20261014-inlineeq';
+import { Editor } from './editor.js?v=20261014-inlineeq';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261014-inlineeq';
+import { backup } from './export.js?v=20261014-inlineeq';
+import { drawItem, svgEl, union } from './scene.js?v=20261014-inlineeq';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

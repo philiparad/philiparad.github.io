@@ -1,4 +1,4 @@
-import { validateBoard } from './model.js?v=20261014-paragraphs';
+import { validateBoard } from './model.js?v=20261014-inlineeq';
 export const RECOVERY_INTERVAL=5*60*1000;
 export function snapshotContent(board){return JSON.stringify([board.title,board.folder,board.background,board.layout||'infinite',board.pageCount||1,board.items]);}
 export function recoveryCopy(board,now=new Date().toISOString()){

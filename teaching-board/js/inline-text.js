@@ -1,5 +1,7 @@
-import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261014-paragraphs';
-import { el, btn } from './ui.js?v=20261014-paragraphs';
+import {equationDialog} from './equation-editor.js?v=20261014-inlineeq';
+import {equationNode} from './inline-equation.js?v=20261014-inlineeq';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261014-inlineeq';
+import { el, btn } from './ui.js?v=20261014-inlineeq';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
@@ -19,14 +21,21 @@ export class InlineText {
   this.input.oninput=()=>this.resize();
   this.input.onpaste=e=>{e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain').slice(0,10000));this.resize();};
   this.input.ondrop=e=>e.preventDefault();
+  this.input.ondblclick=e=>{const node=e.target.closest('.inline-equation');if(node){e.preventDefault();this.editEquation(node);}};
   this.input.onkeydown=e=>{if(e.isComposing)return;if(e.key==='Escape'||e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();this.finish(e.key!=='Escape');}};
-  this.outside=e=>{if(!this.root.contains(e.target)&&!this.controls.contains(e.target))this.finish(true,false);};
+  this.outside=e=>{if(this.suspended)return;if(!this.root.contains(e.target)&&!this.controls.contains(e.target))this.finish(true,false);};
   document.addEventListener('pointerdown',this.outside,true);document.addEventListener('focusin',this.outside,true);
   this.resize();this.input.focus();const selection=window.getSelection(),range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);selection.removeAllRanges();selection.addRange(range);
+ }
+ async editEquation(node=null){
+  const selection=window.getSelection();let range=selection.rangeCount?selection.getRangeAt(0).cloneRange():null;if(range&&!this.input.contains(range.commonAncestorContainer))range=null;
+  this.suspended=true;
+  try{const value=await equationDialog(node?JSON.parse(node.dataset.equation).source:'x^2');if(this.closed||!value)return;const replacement=equationNode(value,this.item.fontSize||24);if(node&&this.input.contains(node))node.replaceWith(replacement);else{if(!range){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}range.deleteContents();range.insertNode(replacement);}range=document.createRange();range.setStartAfter(replacement);range.collapse(true);this.input.focus();selection.removeAllRanges();selection.addRange(range);this.resize();}finally{this.suspended=false;if(!this.closed)this.input.focus();}
  }
  addFormatting(){
   const command=(name,value)=>{this.input.focus();if(this.savedRange){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(this.savedRange);}document.execCommand(name,false,value);this.savedRange=null;this.resize();};
   for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);}
+  const math=btn('Inline equation',()=>this.editEquation());math.onpointerdown=e=>e.preventDefault();this.controls.append(math);
   const colors=el('select');colors.setAttribute('aria-label','Selected text color');for(const [value,label]of [['','Text color…'],['#203954','Dark blue'],['#b42318','Red'],['#147d92','Teal'],['#7c50b0','Purple'],['#000000','Black']]){const option=el('option',label);option.value=value;colors.append(option);}
   const capture=()=>{const selection=window.getSelection();if(selection.rangeCount&&this.input.contains(selection.anchorNode)&&this.input.contains(selection.focusNode))this.savedRange=selection.getRangeAt(0).cloneRange();};colors.onpointerdown=capture;colors.onfocus=capture;colors.onchange=()=>{if(colors.value)command('foreColor',colors.value);colors.value='';};this.controls.append(colors);
  }
