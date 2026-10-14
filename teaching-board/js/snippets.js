@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261014-inlineeq';
-import { SnippetRepository } from './snippet-storage.js?v=20261014-inlineeq';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261014-inlineeq';
-import { drawItem, svgEl, union } from './scene.js?v=20261014-inlineeq';
-import { expandGroups } from './groups.js?v=20261014-inlineeq';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261014-rich-export';
+import { SnippetRepository } from './snippet-storage.js?v=20261014-rich-export';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261014-rich-export';
+import { drawItem, svgEl, union } from './scene.js?v=20261014-rich-export';
+import { expandGroups } from './groups.js?v=20261014-rich-export';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

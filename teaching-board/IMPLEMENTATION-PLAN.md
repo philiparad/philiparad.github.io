@@ -11,8 +11,8 @@ Tablet/stylus and cloud work were removed at the user's request.
 6. Axis bounds, ticks, labels, grid and equal-scale controls — complete; deployed cb4877a, grid rendering, labels, validation and reload verified.
 7. Mixed inline text formatting — complete; deployed efb1ee5, selection styling, reload and cancellation verified.
 8. Paragraph alignment and lists — complete; deployed 18f94bf, centered heading, bullets, numbered continuation, inline styles and reload verified.
-9. Inline equations in text — implemented; verification pending.
-10. Rich-text/equation persistence, snippets and exports.
+9. Inline equations in text — complete; deployed 4c64684, insertion, source editing, rendering and reload verified.
+10. Rich-text/equation persistence, snippets and exports — implemented; verification pending.
 11. Graph link controls and membership.
 12. Linked horizontal navigation ranges.
 13. Shared x-position marker and values.

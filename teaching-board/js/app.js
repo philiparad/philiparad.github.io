@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261014-inlineeq';
-import { createBoard, parseBackup } from './model.js?v=20261014-inlineeq';
-import { BoardRepository } from './storage.js?v=20261014-inlineeq';
-import { Editor } from './editor.js?v=20261014-inlineeq';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261014-inlineeq';
-import { backup } from './export.js?v=20261014-inlineeq';
-import { drawItem, svgEl, union } from './scene.js?v=20261014-inlineeq';
+import { showRecovery } from './recovery.js?v=20261014-rich-export';
+import { createBoard, parseBackup } from './model.js?v=20261014-rich-export';
+import { BoardRepository } from './storage.js?v=20261014-rich-export';
+import { Editor } from './editor.js?v=20261014-rich-export';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261014-rich-export';
+import { backup } from './export.js?v=20261014-rich-export';
+import { drawItem, svgEl, union } from './scene.js?v=20261014-rich-export';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

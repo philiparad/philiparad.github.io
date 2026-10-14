@@ -1,10 +1,10 @@
-import {validateRuns,validateParagraphs} from './rich-text.js?v=20261014-inlineeq';
-import {graphAxisOptions} from './graph-axes.js?v=20261014-inlineeq';
-import {compileFunctions} from './named-functions.js?v=20261014-inlineeq';
-import { validateSeries, validateParameters } from './graph-series.js?v=20261014-inlineeq';
-import { SHAPES } from './shapes.js?v=20261014-inlineeq';
-import { LINE_STYLES } from './line-style.js?v=20261014-inlineeq';
-import { validCrop } from './crop-editor.js?v=20261014-inlineeq';
+import {validateRuns,validateParagraphs} from './rich-text.js?v=20261014-rich-export';
+import {graphAxisOptions} from './graph-axes.js?v=20261014-rich-export';
+import {compileFunctions} from './named-functions.js?v=20261014-rich-export';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261014-rich-export';
+import { SHAPES } from './shapes.js?v=20261014-rich-export';
+import { LINE_STYLES } from './line-style.js?v=20261014-rich-export';
+import { validCrop } from './crop-editor.js?v=20261014-rich-export';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -60,6 +60,8 @@ export function validateBoard(value) {
       }
     }
     if (['text','note'].includes(item.type) && (typeof item.text !== 'string' || item.text.length > 10000)) throw new Error('Invalid text.');
+    if(item.runs!==undefined){if(!['text','note'].includes(item.type))throw new Error('Invalid formatted text object.');validateRuns(item.runs,item.text);}
+    if(item.paragraphs!==undefined){if(!['text','note'].includes(item.type))throw new Error('Invalid paragraph object.');validateParagraphs(item.paragraphs,item.text);}
     if (['image','equation','graph'].includes(item.type) && (typeof item.src !== 'string' || !/^data:image\/(png|jpeg|webp);base64,[a-zA-Z0-9+/=]+$/.test(item.src))) throw new Error('Unsupported image content.');
     if (['equation','graph'].includes(item.type) && (typeof item.source !== 'string' || item.source.length > (item.type==='graph'?4000:2000))) throw new Error('Invalid mathematical source.');
     if(item.parameters!==undefined){if(item.type!=='graph')throw new Error('Invalid graph parameters.');validateParameters(item.parameters);}
