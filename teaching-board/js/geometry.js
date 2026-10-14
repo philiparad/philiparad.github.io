@@ -1,5 +1,5 @@
-import { svgEl } from './scene.js?v=20261013-richtext';
-import { formDialog, notify } from './ui.js?v=20261013-richtext';
+import { svgEl } from './scene.js?v=20261014-paragraphs';
+import { formDialog, notify } from './ui.js?v=20261014-paragraphs';
 export const radians=degrees=>degrees*Math.PI/180;
 export const degrees=radians=>radians*180/Math.PI;
 export function arcPoint(item,angle){return [item.w/2+item.w/2*Math.cos(radians(angle)),item.h/2+item.h/2*Math.sin(radians(angle))];}

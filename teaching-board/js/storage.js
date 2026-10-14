@@ -1,4 +1,4 @@
-import { validateBoard } from './model.js?v=20261013-richtext';
+import { validateBoard } from './model.js?v=20261014-paragraphs';
 export class ConflictError extends Error {
   constructor() { super('This board changed in another tab. Reopen it before editing.'); this.name = 'ConflictError'; }
 }

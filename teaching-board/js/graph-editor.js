@@ -1,12 +1,12 @@
-import {axisControls} from './graph-axes.js?v=20261013-richtext';
-import {drawFunctionDefinitions} from './named-function-editor.js?v=20261013-richtext';
-import {endpointControls} from './graph-endpoints.js?v=20261013-richtext';
-import {piecewiseControls} from './piecewise-editor.js?v=20261013-richtext';
-import { GRAPH_EXAMPLES, graphExample } from './graph-examples.js?v=20261013-richtext';
-import { ParameterPlayback } from './parameter-playback.js?v=20261013-richtext';
-import { el, btn, field } from './ui.js?v=20261013-richtext';
-import { validateParameters, CURVE_STYLES, CURVE_WIDTHS } from './graph-series.js?v=20261013-richtext';
-import { graph } from './media.js?v=20261013-richtext';
+import {axisControls} from './graph-axes.js?v=20261014-paragraphs';
+import {drawFunctionDefinitions} from './named-function-editor.js?v=20261014-paragraphs';
+import {endpointControls} from './graph-endpoints.js?v=20261014-paragraphs';
+import {piecewiseControls} from './piecewise-editor.js?v=20261014-paragraphs';
+import { GRAPH_EXAMPLES, graphExample } from './graph-examples.js?v=20261014-paragraphs';
+import { ParameterPlayback } from './parameter-playback.js?v=20261014-paragraphs';
+import { el, btn, field } from './ui.js?v=20261014-paragraphs';
+import { validateParameters, CURVE_STYLES, CURVE_WIDTHS } from './graph-series.js?v=20261014-paragraphs';
+import { graph } from './media.js?v=20261014-paragraphs';
 export const GRAPH_COLORS=['#147d92','#c44861','#7c50b0','#dc8a21','#398148','#3765c2','#925830','#414d62'];
 export function graphDialog(existing){const d=el('dialog',null,'form-dialog graph-dialog'),rows=el('div'),ranges=el('div',null,'graph-ranges'),preview=el('img'),error=el('p',null,'error'),actions=el('div',null,'actions');preview.className='graph-preview';preview.alt='Function, parametric and polar graph preview';let values=(existing?.series||[{source:existing?.source||'x^2',color:GRAPH_COLORS[0],visible:true}]).map(x=>structuredClone(x)),closed=false,timer,serial=0;const axes=structuredClone(existing?.axes||{});const definitions=structuredClone(existing?.definitions||[]),definitionPanel=el('div');const inputs={},parameters=structuredClone(existing?.parameters||[]),parameterPanel=el('div',null,'graph-parameters');
  for(const [key,label,value]of [['xmin','x minimum',existing?.range?.[0]??-5],['xmax','x maximum',existing?.range?.[2]??5],['ymin','y minimum',existing?.range?.[3]??-5],['ymax','y maximum',existing?.range?.[1]??5]]){const f=field(label,value,'number');f.input.step='any';inputs[key]=f.input;f.input.oninput=schedule;ranges.append(f.wrap);}

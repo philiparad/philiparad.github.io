@@ -1,7 +1,7 @@
-import { printPageIndexes } from './print-page-selection.js?v=20261013-richtext';
-import { el, btn, field } from './ui.js?v=20261013-richtext';
-import { bounds, union } from './scene.js?v=20261013-richtext';
-import { visualBounds } from './visibility.js?v=20261013-richtext';
+import { printPageIndexes } from './print-page-selection.js?v=20261014-paragraphs';
+import { el, btn, field } from './ui.js?v=20261014-paragraphs';
+import { bounds, union } from './scene.js?v=20261014-paragraphs';
+import { visualBounds } from './visibility.js?v=20261014-paragraphs';
 
 export function viewRegion(viewport,width,height){
  return {x:-viewport.x/viewport.zoom,y:-viewport.y/viewport.zoom,w:width/viewport.zoom,h:height/viewport.zoom};

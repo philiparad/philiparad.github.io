@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261013-richtext';
-import { createBoard, parseBackup } from './model.js?v=20261013-richtext';
-import { BoardRepository } from './storage.js?v=20261013-richtext';
-import { Editor } from './editor.js?v=20261013-richtext';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261013-richtext';
-import { backup } from './export.js?v=20261013-richtext';
-import { drawItem, svgEl, union } from './scene.js?v=20261013-richtext';
+import { showRecovery } from './recovery.js?v=20261014-paragraphs';
+import { createBoard, parseBackup } from './model.js?v=20261014-paragraphs';
+import { BoardRepository } from './storage.js?v=20261014-paragraphs';
+import { Editor } from './editor.js?v=20261014-paragraphs';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261014-paragraphs';
+import { backup } from './export.js?v=20261014-paragraphs';
+import { drawItem, svgEl, union } from './scene.js?v=20261014-paragraphs';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

@@ -1,5 +1,5 @@
-import {readRuns,writeRuns,validateRuns} from './rich-text.js?v=20261013-richtext';
-import { el, btn } from './ui.js?v=20261013-richtext';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261014-paragraphs';
+import { el, btn } from './ui.js?v=20261014-paragraphs';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
@@ -26,7 +26,7 @@ export class InlineText {
  }
  addFormatting(){
   const command=(name,value)=>{this.input.focus();if(this.savedRange){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(this.savedRange);}document.execCommand(name,false,value);this.savedRange=null;this.resize();};
-  for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);}
+  for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);}
   const colors=el('select');colors.setAttribute('aria-label','Selected text color');for(const [value,label]of [['','Text color…'],['#203954','Dark blue'],['#b42318','Red'],['#147d92','Teal'],['#7c50b0','Purple'],['#000000','Black']]){const option=el('option',label);option.value=value;colors.append(option);}
   const capture=()=>{const selection=window.getSelection();if(selection.rangeCount&&this.input.contains(selection.anchorNode)&&this.input.contains(selection.focusNode))this.savedRange=selection.getRangeAt(0).cloneRange();};colors.onpointerdown=capture;colors.onfocus=capture;colors.onchange=()=>{if(colors.value)command('foreColor',colors.value);colors.value='';};this.controls.append(colors);
  }
@@ -37,8 +37,8 @@ export class InlineText {
   this.root.style.left=`${v.x+i.x*v.zoom+(v.zoom-1)*i.w/2}px`;
   this.root.style.top=`${v.y+i.y*v.zoom+(v.zoom-1)*i.h/2}px`;
  }
- finish(save,focus=true){if(this.closed)return;const runs=readRuns(this.input,this.item),text=runs.map(r=>r.text).join('');if(save){try{validateRuns(runs,text);}catch(e){this.controls.append(el('span',e.message,'error'));return;}}this.closed=true;document.removeEventListener('pointerdown',this.outside,true);document.removeEventListener('focusin',this.outside,true);this.root.remove();this.controls.remove();this.editor.inlineText=null;
-  if(save&&text.trim()){this.item.runs=runs;this.editor.applyText(this.item,text,this.height,this.existing);}
+ finish(save,focus=true){if(this.closed)return;const {runs,paragraphs}=readRichDocument(this.input,this.item),text=runs.map(r=>r.text).join('');if(save){try{validateRuns(runs,text);validateParagraphs(paragraphs,text);}catch(e){this.controls.append(el('span',e.message,'error'));return;}}this.closed=true;document.removeEventListener('pointerdown',this.outside,true);document.removeEventListener('focusin',this.outside,true);this.root.remove();this.controls.remove();this.editor.inlineText=null;
+  if(save&&text.trim()){this.item.runs=runs;this.item.paragraphs=paragraphs;this.editor.applyText(this.item,text,this.height,this.existing);}
   else this.editor.paint();
   if(focus&&!this.editor.disposed)this.editor.svg.focus();
  }
