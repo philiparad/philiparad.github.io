@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261013-axes2';
-import { SnippetRepository } from './snippet-storage.js?v=20261013-axes2';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261013-axes2';
-import { drawItem, svgEl, union } from './scene.js?v=20261013-axes2';
-import { expandGroups } from './groups.js?v=20261013-axes2';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261013-richtext';
+import { SnippetRepository } from './snippet-storage.js?v=20261013-richtext';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261013-richtext';
+import { drawItem, svgEl, union } from './scene.js?v=20261013-richtext';
+import { expandGroups } from './groups.js?v=20261013-richtext';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

@@ -8,8 +8,8 @@ Tablet/stylus and cloud work were removed at the user's request.
 3. Piecewise function expressions and intervals — complete; deployed 59956c3, live overlap/cancellation/persistence/rendering verified.
 4. Open and closed endpoints — complete; deployed bb5a90d4 and live markers, boundaries and reload verified.
 5. Named custom functions with undefined/circular-reference validation — complete; deployed 0c2288c and live references, rejection and reload verified.
-6. Axis bounds, ticks, labels, grid and equal-scale controls — implemented; verification pending.
-7. Mixed inline text formatting.
+6. Axis bounds, ticks, labels, grid and equal-scale controls — complete; deployed cb4877a, grid rendering, labels, validation and reload verified.
+7. Mixed inline text formatting — implemented; verification pending.
 8. Paragraph alignment and lists.
 9. Inline equations in text.
 10. Rich-text/equation persistence, snippets and exports.
