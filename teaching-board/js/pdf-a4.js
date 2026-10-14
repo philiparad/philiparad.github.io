@@ -1,4 +1,4 @@
-import { A4, pageRect } from './pages.js?v=20261014-graph-links';
+import { A4, pageRect } from './pages.js?v=20261014-linked-ranges';
 
 /** Prepare the entire import without changing the document. */
 export function planA4Import(board,pages){

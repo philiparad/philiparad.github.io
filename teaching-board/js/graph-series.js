@@ -1,6 +1,6 @@
-import {compileFunctions} from './named-functions.js?v=20261014-graph-links';
-import {domainContains} from './graph-endpoints.js?v=20261014-graph-links';
-import { compileExpression } from './expression.js?v=20261014-graph-links';
+import {compileFunctions} from './named-functions.js?v=20261014-linked-ranges';
+import {domainContains} from './graph-endpoints.js?v=20261014-linked-ranges';
+import { compileExpression } from './expression.js?v=20261014-linked-ranges';
 export const CURVE_STYLES=Object.freeze({solid:{label:'Solid',dash:0,pattern:''},dotted:{label:'Dotted',dash:1,pattern:'2 2'},dashed:{label:'Dashed',dash:3,pattern:'10 10'},'long-dashed':{label:'Long dashed',dash:4,pattern:'20 20'}});
 export const CURVE_WIDTHS=Object.freeze([1,2,3,4,6,8]);
 export function curveAppearance(row){return {strokeColor:row.color,strokeWidth:row.lineWidth??3,dash:CURVE_STYLES[row.lineStyle||'solid'].dash,lineCap:'butt'};}

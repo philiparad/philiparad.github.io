@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261014-graph-links';
-import { createBoard, parseBackup } from './model.js?v=20261014-graph-links';
-import { BoardRepository } from './storage.js?v=20261014-graph-links';
-import { Editor } from './editor.js?v=20261014-graph-links';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261014-graph-links';
-import { backup } from './export.js?v=20261014-graph-links';
-import { drawItem, svgEl, union } from './scene.js?v=20261014-graph-links';
+import { showRecovery } from './recovery.js?v=20261014-linked-ranges';
+import { createBoard, parseBackup } from './model.js?v=20261014-linked-ranges';
+import { BoardRepository } from './storage.js?v=20261014-linked-ranges';
+import { Editor } from './editor.js?v=20261014-linked-ranges';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261014-linked-ranges';
+import { backup } from './export.js?v=20261014-linked-ranges';
+import { drawItem, svgEl, union } from './scene.js?v=20261014-linked-ranges';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

@@ -1,5 +1,5 @@
-import { RecoveryRepository } from './recovery-storage.js?v=20261014-graph-links';
-import { el, btn, notify } from './ui.js?v=20261014-graph-links';
+import { RecoveryRepository } from './recovery-storage.js?v=20261014-linked-ranges';
+import { el, btn, notify } from './ui.js?v=20261014-linked-ranges';
 const snapshots=new RecoveryRepository();
 export async function showRecovery(repository,boardId,beforeRestore=async()=>{}){
  const values=await snapshots.list(boardId),d=el('dialog',null,'form-dialog');
