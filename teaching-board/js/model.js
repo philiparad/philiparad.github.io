@@ -1,10 +1,10 @@
-import {validateRuns,validateParagraphs} from './rich-text.js?v=20261014-rich-export';
-import {graphAxisOptions} from './graph-axes.js?v=20261014-rich-export';
-import {compileFunctions} from './named-functions.js?v=20261014-rich-export';
-import { validateSeries, validateParameters } from './graph-series.js?v=20261014-rich-export';
-import { SHAPES } from './shapes.js?v=20261014-rich-export';
-import { LINE_STYLES } from './line-style.js?v=20261014-rich-export';
-import { validCrop } from './crop-editor.js?v=20261014-rich-export';
+import {validateRuns,validateParagraphs} from './rich-text.js?v=20261014-graph-links';
+import {graphAxisOptions} from './graph-axes.js?v=20261014-graph-links';
+import {compileFunctions} from './named-functions.js?v=20261014-graph-links';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261014-graph-links';
+import { SHAPES } from './shapes.js?v=20261014-graph-links';
+import { LINE_STYLES } from './line-style.js?v=20261014-graph-links';
+import { validCrop } from './crop-editor.js?v=20261014-graph-links';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -38,6 +38,7 @@ export function validateBoard(value) {
     if (![item.x, item.y].every(n => Number.isFinite(n) && Math.abs(n) < 1e7)) throw new Error('Invalid object position.');
     for (const key of ['w', 'h', 'lineWidth', 'fontSize']) if (item[key] !== undefined && (!Number.isFinite(item[key]) || item[key] <= 0 || item[key] > 100000)) throw new Error('Invalid object size.');
     if(item.type==='arc'&&(![item.startAngle,item.sweepAngle,item.w,item.h].every(Number.isFinite)||!item.sweepAngle||Math.abs(item.sweepAngle)>360||typeof item.showRadii!=='boolean'))throw new Error('Invalid arc.');
+    if(item.graphLinkId!==undefined&&(item.type!=='graph'||typeof item.graphLinkId!=='string'||!/^[a-zA-Z0-9-]{1,80}$/.test(item.graphLinkId)))throw new Error('Invalid graph link.');
     if(item.groupId!==undefined&&(typeof item.groupId!=='string'||!item.groupId.length||item.groupId.length>100))throw new Error('Invalid object group.');
     if(item.textStyle!==undefined&&(!['text','note'].includes(item.type)||!['normal','bold','italic','bold-italic'].includes(item.textStyle)))throw new Error('Invalid text style.');
     if(item.textAlign!==undefined&&(!['text','note'].includes(item.type)||!['auto','left','center','right'].includes(item.textAlign)))throw new Error('Invalid text alignment.');
