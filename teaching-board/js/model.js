@@ -1,10 +1,11 @@
-import {validateRuns,validateParagraphs} from './rich-text.js?v=20261015-marker';
-import {graphAxisOptions} from './graph-axes.js?v=20261015-marker';
-import {compileFunctions} from './named-functions.js?v=20261015-marker';
-import { validateSeries, validateParameters } from './graph-series.js?v=20261015-marker';
-import { SHAPES } from './shapes.js?v=20261015-marker';
-import { LINE_STYLES } from './line-style.js?v=20261015-marker';
-import { validCrop } from './crop-editor.js?v=20261015-marker';
+import {normalizeGraphLinks} from './graph-links.js?v=20261015-lifecycle';
+import {validateRuns,validateParagraphs} from './rich-text.js?v=20261015-lifecycle';
+import {graphAxisOptions} from './graph-axes.js?v=20261015-lifecycle';
+import {compileFunctions} from './named-functions.js?v=20261015-lifecycle';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261015-lifecycle';
+import { SHAPES } from './shapes.js?v=20261015-lifecycle';
+import { LINE_STYLES } from './line-style.js?v=20261015-lifecycle';
+import { validCrop } from './crop-editor.js?v=20261015-lifecycle';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -73,7 +74,7 @@ export function validateBoard(value) {
     if (item.type === 'graph' && (!Array.isArray(item.range) || item.range.length !== 4 || !item.range.every(Number.isFinite))) throw new Error('Invalid graph range.');
   }
   if (JSON.stringify(value).length > 25_000_000) throw new Error('Board exceeds the 25 MB limit.');
-  return structuredClone(value);
+  const copy=structuredClone(value);normalizeGraphLinks(copy.items);return copy;
 }
 export function parseBackup(text) {
   if (text.length > 25_000_000) throw new Error('Backup exceeds the 25 MB limit.');

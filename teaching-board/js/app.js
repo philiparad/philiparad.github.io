@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261015-marker';
-import { createBoard, parseBackup } from './model.js?v=20261015-marker';
-import { BoardRepository } from './storage.js?v=20261015-marker';
-import { Editor } from './editor.js?v=20261015-marker';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261015-marker';
-import { backup } from './export.js?v=20261015-marker';
-import { drawItem, svgEl, union } from './scene.js?v=20261015-marker';
+import { showRecovery } from './recovery.js?v=20261015-lifecycle';
+import { createBoard, parseBackup } from './model.js?v=20261015-lifecycle';
+import { BoardRepository } from './storage.js?v=20261015-lifecycle';
+import { Editor } from './editor.js?v=20261015-lifecycle';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261015-lifecycle';
+import { backup } from './export.js?v=20261015-lifecycle';
+import { drawItem, svgEl, union } from './scene.js?v=20261015-lifecycle';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';
