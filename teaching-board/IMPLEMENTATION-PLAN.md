@@ -16,7 +16,7 @@ Tablet/stylus and cloud work were removed at the user's request.
 11. Graph link controls and membership — complete; deployed 6f50fdf, 131 tests, live linking, undo/redo and reload verified.
 12. Linked horizontal navigation ranges — complete; deployed 705e711 via successful Pages run 38689086375; live shared bounds, zoom, independent y ranges, reload and backup verified.
 13. Shared x-position marker and values — complete; deployed dc41c2e, 137 tests, live values, clear/undo and reload verified.
-14. Unlinking and link lifecycle/persistence checks — implemented; verification pending.
+14. Unlinking and link lifecycle/persistence checks — complete; deployed b455343, 140 tests, live unlink/undo, duplicate isolation and reload/backup verified.
 15. Collapsible minimap with viewport.
 16. Minimap click and drag navigation.
 17. Large-board minimap performance and A4 boundaries.
