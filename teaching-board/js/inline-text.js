@@ -1,7 +1,7 @@
-import {equationDialog} from './equation-editor.js?v=20261015-lifecycle';
-import {equationNode} from './inline-equation.js?v=20261015-lifecycle';
-import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261015-lifecycle';
-import { el, btn } from './ui.js?v=20261015-lifecycle';
+import {equationDialog} from './equation-editor.js?v=20261015-minimap';
+import {equationNode} from './inline-equation.js?v=20261015-minimap';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261015-minimap';
+import { el, btn } from './ui.js?v=20261015-minimap';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {

@@ -1,11 +1,11 @@
-import {drawGraphMarker} from './graph-marker.js?v=20261015-lifecycle';
-import {drawEquationText} from './inline-equation.js?v=20261015-lifecycle';
-import {textRuns,runLines,paragraphRuns} from './rich-text.js?v=20261015-lifecycle';
-import { pressurePathD } from './pressure.js?v=20261015-lifecycle';
-import { drawPreset } from './shapes.js?v=20261015-lifecycle';
-import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261015-lifecycle';
-import { strokePathD, naturalPathD } from './ink.js?v=20261015-lifecycle';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261015-lifecycle';
+import {drawGraphMarker} from './graph-marker.js?v=20261015-minimap';
+import {drawEquationText} from './inline-equation.js?v=20261015-minimap';
+import {textRuns,runLines,paragraphRuns} from './rich-text.js?v=20261015-minimap';
+import { pressurePathD } from './pressure.js?v=20261015-minimap';
+import { drawPreset } from './shapes.js?v=20261015-minimap';
+import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261015-minimap';
+import { strokePathD, naturalPathD } from './ink.js?v=20261015-minimap';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261015-minimap';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}

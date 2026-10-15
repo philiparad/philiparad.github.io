@@ -1,4 +1,4 @@
-import {validateInlineEquation,equationNode} from './inline-equation.js?v=20261015-lifecycle';
+import {validateInlineEquation,equationNode} from './inline-equation.js?v=20261015-minimap';
 /** Plain data only: no HTML is stored in lessons or exports. */
 export function textRuns(item){return item.runs||[{text:item.text||'',bold:(item.textStyle||'').includes('bold'),italic:(item.textStyle||'').includes('italic'),underline:false}];}
 export function validateRuns(runs,text){

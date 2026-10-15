@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261015-lifecycle';
-import { SnippetRepository } from './snippet-storage.js?v=20261015-lifecycle';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261015-lifecycle';
-import { drawItem, svgEl, union } from './scene.js?v=20261015-lifecycle';
-import { expandGroups } from './groups.js?v=20261015-lifecycle';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261015-minimap';
+import { SnippetRepository } from './snippet-storage.js?v=20261015-minimap';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261015-minimap';
+import { drawItem, svgEl, union } from './scene.js?v=20261015-minimap';
+import { expandGroups } from './groups.js?v=20261015-minimap';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

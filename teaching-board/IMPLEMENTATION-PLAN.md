@@ -17,7 +17,7 @@ Tablet/stylus and cloud work were removed at the user's request.
 12. Linked horizontal navigation ranges — complete; deployed 705e711 via successful Pages run 38689086375; live shared bounds, zoom, independent y ranges, reload and backup verified.
 13. Shared x-position marker and values — complete; deployed dc41c2e, 137 tests, live values, clear/undo and reload verified.
 14. Unlinking and link lifecycle/persistence checks — complete; deployed b455343, 140 tests, live unlink/undo, duplicate isolation and reload/backup verified.
-15. Collapsible minimap with viewport.
+15. Collapsible minimap with viewport — implemented; 142 tests pass; deployment/live verification pending.
 16. Minimap click and drag navigation.
 17. Large-board minimap performance and A4 boundaries.
 18. Plain, dotted, squared and ruled backgrounds.

@@ -1,4 +1,4 @@
-import { validateSnippet } from './snippet-model.js?v=20261015-lifecycle';
+import { validateSnippet } from './snippet-model.js?v=20261015-minimap';
 /** Separate storage leaves the existing lesson database and its version intact. */
 export class SnippetRepository {
  constructor(name='philip-teaching-snippets'){this.name=name;}
