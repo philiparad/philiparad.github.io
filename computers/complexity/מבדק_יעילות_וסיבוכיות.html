@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="philip_favicon.png">
+    <title>מבדק יעילות וסיבוכיות — 25 שאלות</title>
+    <style>
+        :root { color-scheme: light; --ink:#1b3149; --soft:#64748b; --line:#dce5ee; --blue:#1763a6; --bg:#f1f5f9; --good:#087d56; --bad:#be3743; }
+        *{box-sizing:border-box}
+        body{margin:0;font:17px/1.65 Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+        header{background:linear-gradient(115deg,#153a61,#176da0);color:white;padding:30px 20px}
+        .wrap{max-width:920px;margin:auto}
+        h1{font-size:clamp(26px,3.2vw,38px);margin:0 0 8px} h2{font-size:25px;margin:0 0 8px}
+        .subtitle{margin:0;color:#dcebf7}
+        main{padding:22px 16px 60px}
+        .card{background:white;border:2px solid var(--line);border-radius:16px;padding:26px;margin:0 0 16px;box-shadow:0 8px 30px #153a6110}
+        .meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
+        .pill{background:#e6f2fa;color:#14527f;border-radius:99px;padding:4px 12px;font-size:14px;font-weight:700}
+        .muted{color:var(--soft);font-size:15px}
+        .progress{height:10px;border-radius:99px;background:#dae4ee;overflow:hidden;margin:15px 0 20px}
+        .fill{height:100%;width:0%;background:#2391b5;transition:width .2s}
+        .option{display:flex;gap:12px;align-items:flex-start;width:100%;padding:13px 15px;text-align:right;border:2px solid #d9e4ed;background:white;color:var(--ink);border-radius:11px;margin:9px 0;cursor:pointer;font:inherit;transition:background .12s,border-color .12s}
+        .option:hover:not(:disabled){background:#f0f7ff;border-color:#80abd5}
+        .option:disabled{cursor:default}
+        .letter{display:grid;place-items:center;border-radius:50%;background:#eaf0f6;min-width:30px;height:30px;font-weight:700}
+        .option.correct{border-color:#18936a;background:#e9f9f1}.option.wrong{border-color:#ce4d5b;background:#fff0f1}
+        .feedback{margin-top:16px;padding:14px 16px;border-radius:12px;border:2px solid #e2e8f0}
+        .feedback.good{border-color:#8ad3b3;background:#edfff5}.feedback.bad{border-color:#f2b4bc;background:#fff4f5}
+        .buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-top:20px}
+        button.action{border:0;border-radius:10px;background:var(--blue);color:#fff;padding:11px 22px;font:700 16px Arial;cursor:pointer}
+        button.action.secondary{background:#e6edf4;color:#26415b}
+        button.action:disabled{opacity:.4;cursor:not-allowed}
+        pre{direction:ltr;text-align:left;overflow-x:auto;background:#142539;color:#edf6ff;border-radius:12px;padding:17px;font:15px/1.65 Consolas,'Courier New',monospace;unicode-bidi:plaintext}
+        .score{font-size:52px;font-weight:800;color:var(--blue)}
+        .review{border-top:1px solid var(--line);padding:14px 0}
+        .review strong{display:block}
+        .hide{display:none!important}
+        .topstats{display:flex;gap:16px;flex-wrap:wrap;font-weight:700}
+        @media print{body{background:white} header{padding:12px} .buttons,.option{break-inside:avoid} .card{box-shadow:none} }
+        @media(max-width:600px){.card{padding:17px}h2{font-size:21px}.option{padding:11px}}
+    </style>
+</head>
+<body>
+<header><div class="wrap"><h1>מבדק יעילות וסיבוכיות</h1><p class="subtitle">מדעי המחשב · C# · 25 שאלות אמריקאיות · ללא סיבוכיות לוגריתמית</p></div></header>
+<main class="wrap">
+    <section id="quiz" class="card" aria-live="polite">
+        <div class="meta"><span id="counter" class="pill"></span><span id="category" class="muted"></span></div>
+        <div class="topstats"><span id="correctCount"></span><span id="answeredCount"></span></div>
+        <div class="progress" role="progressbar" aria-label="התקדמות במבדק"><div class="fill" id="fill"></div></div>
+        <h2 id="question"></h2>
+        <pre id="code" class="hide"></pre>
+        <div id="options"></div>
+        <div id="feedback" class="feedback hide" role="status"></div>
+        <div class="buttons"><button id="prev" class="action secondary">← לשאלה הקודמת</button><button id="next" class="action" disabled>לשאלה הבאה ←</button></div>
+    </section>
+    <section id="summary" class="card hide" aria-live="polite">
+        <h2>תוצאות המבדק</h2><div class="score" id="finalScore"></div><p id="finalInfo"></p>
+        <h3>סקירת התשובות</h3><div id="review"></div>
+        <div class="buttons"><button id="restart" class="action">התחל מבדק מחדש</button><button id="print" class="action secondary">הדפס תוצאות</button></div>
+    </section>
+    <p class="muted">הערה: השאלות עוסקות בזמן ריצה ובסדרי גודל. כל קטעי הקוד מניחים ש־n הוא מספר שלם אי־שלילי, אלא אם נאמר אחרת.</p>
+</main>
+<script>
+const questions = [{"category": "מושגי יסוד", "question": "מהי המטרה המרכזית של ניתוח יעילות אלגוריתמים?", "options": ["למדוד תמיד זמן מדויק בשניות", "להעריך את קצב הגידול של מספר הפעולות ביחס לגודל הקלט", "לקבוע באיזו שפת תכנות להשתמש", "לחשב כמה שורות קוד נכתבו"], "correct": 1, "explanation": "ניתוח סיבוכיות מתמקד בקצב גידול העבודה עם גודל הקלט, ולא בזמן מדויק במחשב מסוים.", "code": ""}, {"category": "מושגי יסוד", "question": "מה מייצג בדרך כלל n בניתוח סיבוכיות?", "options": ["גודל הקלט", "מספר המשתנים בקוד", "מספר המעבדים", "כמות הזיכרון הפנוי"], "correct": 0, "explanation": "n הוא פרמטר לגודל הבעיה, למשל מספר האיברים במערך.", "code": ""}, {"category": "מושגי יסוד", "question": "איזו פעולה היא דוגמה לפעולת יסוד?", "options": ["מיון מערך שלם", "הפעלת שתי לולאות מקוננות", "השמת ערך למשתנה", "חיפוש בכל הרשימה"], "correct": 2, "explanation": "השמה בודדת היא פעולה בסיסית שניתן למנות בניתוח האלגוריתם.", "code": ""}, {"category": "מושגי יסוד", "question": "מה מתאר הסימון O(1)?", "options": ["מספר פעולות שגדל עם n", "סיבוכיות קבועה", "סיבוכיות ריבועית", "סיבוכיות מעריכית"], "correct": 1, "explanation": "מספר הפעולות חסום בקבוע שאינו תלוי ב־n.", "code": ""}, {"category": "מושגי יסוד", "question": "מה מתאר הסימון O(n)?", "options": ["גידול לינארי של מספר הפעולות", "מספר פעולות קבוע", "גידול ריבועי", "גידול מעריכי"], "correct": 0, "explanation": "בפעולה לינארית כמות העבודה גדלה בקירוב ביחס ישר לגודל הקלט.", "code": ""}, {"category": "מושגי יסוד", "question": "איזו פעולה מבין הבאות מתבצעת בדרך כלל בזמן O(1)?", "options": ["איתור ערך לא ידוע במערך לא ממוין", "מציאת המקסימום במערך", "גישה ל־arr[5] במערך", "הדפסת כל איברי המערך"], "correct": 2, "explanation": "גישה לאיבר במערך לפי אינדקס תקין אינה מחייבת מעבר על האיברים האחרים.", "code": ""}, {"category": "מושגי יסוד", "question": "מהי סיבוכיות הזמן במקרה הגרוע של חיפוש סידרתי במערך בגודל n?", "options": ["O(n²)", "O(1)", "O(2ⁿ)", "O(n)"], "correct": 3, "explanation": "ייתכן שהאיבר נמצא בסוף המערך או אינו נמצא כלל, ולכן נבדקים עד n איברים.", "code": ""}, {"category": "מושגי יסוד", "question": "מהי סיבוכיות הזמן של מציאת הערך הגדול ביותר במערך לא ממוין?", "options": ["O(n)", "O(n²)", "O(1)", "O(n³)"], "correct": 0, "explanation": "יש לבדוק את האיברים במערך כדי להבטיח שמצאנו את המקסימום.", "code": ""}, {"category": "מושגי יסוד", "question": "מה מתאר הביטוי ״המקרה הגרוע ביותר״ בניתוח זמן ריצה?", "options": ["הקלט הקצר ביותר", "המצב שבו האלגוריתם טועה", "מספר הפעולות המרבי האפשרי עבור קלט בגודל נתון", "מצב שבו המחשב איטי במיוחד"], "correct": 2, "explanation": "בוחנים את מספר הפעולות המרבי מבין הקלטים האפשריים בגודל נתון.", "code": ""}, {"category": "מושגי יסוד", "question": "מה היתרון של ניתוח המקרה הגרוע ביותר?", "options": ["הוא נותן חסם עליון למספר הפעולות עבור גודל קלט נתון", "הוא מוכיח שהאלגוריתם תמיד משתמש בפחות זיכרון", "הוא מחזיר תמיד זמן בשניות", "הוא מבטל את הצורך לבדוק את הקוד"], "correct": 0, "explanation": "ניתוח המקרה הגרוע מאפשר לתאר גבול עליון לעבודה שהאלגוריתם מבצע.", "code": ""}, {"category": "השוואת סדרי גודל", "question": "האם O(2n) ו־O(n) נחשבות לאותה מחלקת סיבוכיות?", "options": ["לא, כי 2n גדול מ־n", "כן, כי מתעלמים מגורם כפל קבוע", "כן, כי מתעלמים מהמשתנה n", "רק אם n זוגי"], "correct": 1, "explanation": "בניתוח אסימפטוטי גורמי כפל קבועים אינם משנים את סדר הגודל.", "code": ""}, {"category": "השוואת סדרי גודל", "question": "מהי הסיבוכיות של 4n² + 7n + 100?", "options": ["O(n)", "O(1)", "O(n²)", "O(n³)"], "correct": 2, "explanation": "האיבר בעל קצב הגידול הגבוה ביותר הוא n²; מתעלמים ממקדמים ומאיברים מסדר נמוך.", "code": ""}, {"category": "השוואת סדרי גודל", "question": "סדר את הסיבוכיות מהיעילה ביותר לפחות יעילה כאשר n גדל מאוד.", "options": ["O(1), O(n), O(n²), O(n³)", "O(n³), O(n²), O(n), O(1)", "O(n), O(1), O(n³), O(n²)", "O(1), O(n²), O(n), O(n³)"], "correct": 0, "explanation": "עבור n גדול קבוע גדל לאט מלינארי, אחריו ריבועי ואחריו מעוקב.", "code": ""}, {"category": "השוואת סדרי גודל", "question": "מה מייצגת בדרך כלל סיבוכיות O(n + m)?", "options": ["מכפלה של שני גדלי קלט", "שני מעברים, אחד על קלט בגודל n ואחד על קלט בגודל m", "שלוש לולאות מקוננות", "סיבוכיות קבועה"], "correct": 1, "explanation": "כאשר קיימים שני גדלי קלט עצמאיים, סורקים כל אחד פעם אחת ולכן הסכום הוא n+m.", "code": ""}, {"category": "השוואת סדרי גודל", "question": "אם מכפילים את n פי 2, כיצד משתנה בקירוב מספר הפעולות של אלגוריתם שעבודתו פרופורציונית ל־n²?", "options": ["לא משתנה", "מוכפל פי 2", "מוכפל פי 4", "מוכפל פי 8"], "correct": 2, "explanation": "(2n)² = 4n², ולכן מספר הפעולות מוכפל בערך פי ארבעה.", "code": ""}, {"category": "ניתוח קוד", "question": "מהי סיבוכיות הזמן של הקוד?", "options": ["O(1)", "O(n)", "O(n²)", "O(n³)"], "correct": 1, "explanation": "הלולאה מבצעת n איטרציות, ובכל אחת פעולה קבועה.", "code": "for (int i = 0; i < n; i++) {\n    Console.WriteLine(i);\n}"}, {"category": "ניתוח קוד", "question": "מהי סיבוכיות הזמן של הקוד?", "options": ["O(n)", "O(n³)", "O(1)", "O(n²)"], "correct": 2, "explanation": "יש מספר קבוע של פעולות שאינו תלוי בגודל n.", "code": "int a = n + 2;\nint b = a * 3;\nConsole.WriteLine(b);"}, {"category": "ניתוח קוד", "question": "מהי סיבוכיות הזמן של הקוד?", "options": ["O(n²)", "O(n)", "O(1)", "O(n³)"], "correct": 0, "explanation": "שתי לולאות שמבצעות n איטרציות כל אחת יוצרות n·n פעולות.", "code": "for (int i = 0; i < n; i++) {\n    for (int j = 0; j < n; j++) {\n        Console.WriteLine(i + j);\n    }\n}"}, {"category": "ניתוח קוד", "question": "מהי סיבוכיות הזמן של הקוד?", "options": ["O(n²)", "O(n)", "O(n³)", "O(1)"], "correct": 1, "explanation": "שתי הלולאות מתבצעות זו אחר זו: n+n=2n, ולכן O(n).", "code": "for (int i = 0; i < n; i++)\n    Console.WriteLine(i);\nfor (int j = 0; j < n; j++)\n    Console.WriteLine(j);"}, {"category": "ניתוח קוד", "question": "מהי סיבוכיות הזמן של הקוד?", "options": ["O(n)", "O(n²)", "O(n³)", "O(1)"], "correct": 2, "explanation": "כל אחת משלוש הלולאות מבצעת n איטרציות, ולכן יחד n³.", "code": "for (int i = 0; i < n; i++)\n    for (int j = 0; j < n; j++)\n        for (int k = 0; k < n; k++)\n            Console.WriteLine(k);"}, {"category": "ניתוח קוד", "question": "מהי סיבוכיות הזמן של הקוד?", "options": ["O(n²)", "O(n)", "O(1)", "O(n³)"], "correct": 0, "explanation": "הסכום 1+2+...+n הוא n(n+1)/2, כלומר סדר גודל ריבועי.", "code": "for (int i = 0; i < n; i++) {\n    for (int j = 0; j <= i; j++) {\n        Console.WriteLine(j);\n    }\n}"}, {"category": "ניתוח קוד", "question": "מהי סיבוכיות הזמן של הקוד?", "options": ["O(n²)", "O(n³)", "O(n)", "O(1)"], "correct": 2, "explanation": "הלולאה הפנימית מבצעת בדיוק 5 איטרציות; בסך הכול 5n פעולות.", "code": "for (int i = 0; i < n; i++) {\n    for (int j = 0; j < 5; j++) {\n        Console.WriteLine(j);\n    }\n}"}, {"category": "יישום", "question": "מהי בדרך כלל סיבוכיות הזמן של הוספת איבר בתחילת מערך כאשר צריך להזיז את כל האיברים הקיימים?", "options": ["O(n)", "O(1)", "O(n³)", "O(2ⁿ)"], "correct": 0, "explanation": "כדי לפנות מקום בתחילת המערך ייתכן שיש להזיז n איברים.", "code": ""}, {"category": "יישום", "question": "מהי הסיבוכיות במקרה הגרוע של מיון בועות רגיל במערך של n איברים?", "options": ["O(1)", "O(n)", "O(n³)", "O(n²)"], "correct": 3, "explanation": "מיון בועות רגיל מבצע עד סדר גודל של n² השוואות והחלפות.", "code": ""}, {"category": "יישום", "question": "איזה תיאור מתאים לסיבוכיות O(2ⁿ)?", "options": ["העבודה גדלה בקצב קבוע", "העבודה גדלה ביחס ישר ל־n", "העבודה עשויה להכפיל את עצמה בכל תוספת של יחידה לגודל הקלט", "העבודה גדלה כמו n²"], "correct": 2, "explanation": "זו סיבוכיות מעריכית: הכפלת ערך הפונקציה כשמוסיפים 1 ל־n.", "code": ""}];
+let answers = Array(questions.length).fill(null);
+let current=0;
+const $=id=>document.getElementById(id);
+const letters=['א','ב','ג','ד'];
+function render(){
+    const q=questions[current];const ans=answers[current];
+    $('quiz').classList.remove('hide');$('summary').classList.add('hide');
+    $('counter').textContent=`שאלה ${current+1} מתוך ${questions.length}`;
+    $('category').textContent=q.category;
+    $('correctCount').textContent=`תשובות נכונות: ${answers.filter((x,i)=>x!==null&&x===questions[i].correct).length}`;
+    $('answeredCount').textContent=`נענו: ${answers.filter(x=>x!==null).length} מתוך ${questions.length}`;
+    $('fill').style.width=`${answers.filter(x=>x!==null).length/questions.length*100}%`;
+    $('question').textContent=q.question;
+    $('code').textContent=q.code;$('code').classList.toggle('hide',!q.code);
+    $('options').replaceChildren();
+    q.options.forEach((opt,i)=>{
+        const b=document.createElement('button');b.className='option';b.type='button';
+        const l=document.createElement('span');l.className='letter';l.textContent=letters[i];
+        const t=document.createElement('span');t.textContent=opt;b.append(l,t);
+        if(ans!==null){b.disabled=true;if(i===q.correct)b.classList.add('correct');else if(i===ans)b.classList.add('wrong');}
+        b.addEventListener('click',()=>{if(answers[current]!==null)return;answers[current]=i;render();});
+        $('options').append(b);
+    });
+    $('feedback').classList.toggle('hide',ans===null);
+    if(ans!==null){const good=ans===q.correct;$('feedback').className='feedback '+(good?'good':'bad');$('feedback').textContent=(good?'✓ תשובה נכונה. ':'✗ תשובה שגויה. התשובה הנכונה: '+letters[q.correct]+' — '+q.options[q.correct]+'. ')+q.explanation;}
+    $('prev').disabled=current===0;
+    $('next').disabled=ans===null;
+    $('next').textContent=current===questions.length-1?'הצג תוצאות':'לשאלה הבאה ←';
+}
+function results(){
+    $('quiz').classList.add('hide');$('summary').classList.remove('hide');
+    const correct=answers.filter((a,i)=>a===questions[i].correct).length;
+    $('finalScore').textContent=`${correct} / ${questions.length}`;
+    $('finalInfo').textContent=`ציון: ${Math.round(correct/questions.length*100)} · תשובות נכונות: ${correct} · שגויות: ${questions.length-correct}`;
+    $('review').replaceChildren();
+    questions.forEach((q,i)=>{
+       const d=document.createElement('div');d.className='review';
+       const head=document.createElement('strong');head.textContent=`${i+1}. ${answers[i]===q.correct?'✓':'✗'} ${q.question}`;
+       const detail=document.createElement('div');detail.textContent=`תשובתך: ${q.options[answers[i]]} | תשובה נכונה: ${q.options[q.correct]}. ${q.explanation}`;
+       d.append(head,detail);$('review').append(d);
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+$('next').addEventListener('click',()=>{if(answers[current]===null)return;if(current===questions.length-1)results();else{current++;render();}});
+$('prev').addEventListener('click',()=>{if(current>0){current--;render();}});
+$('restart').addEventListener('click',()=>{answers=Array(questions.length).fill(null);current=0;render();window.scrollTo({top:0,behavior:'smooth'});});
+$('print').addEventListener('click',()=>window.print());
+render();
+</script>
+</body></html>
