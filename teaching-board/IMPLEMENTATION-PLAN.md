@@ -19,9 +19,9 @@ Tablet/stylus and cloud work were removed at the user's request.
 14. Unlinking and link lifecycle/persistence checks — complete; deployed b455343, 140 tests, live unlink/undo, duplicate isolation and reload/backup verified.
 15. Collapsible minimap with viewport — complete; deployed 9245b90; 142 tests pass; live overview, expand/collapse and saved zoom verified.
 16. Minimap click and drag navigation — complete; 144 tests pass; live click, drag, keyboard and reload verified.
-17. Large-board minimap performance and A4 boundaries — implemented; verification pending.
-18. Plain, dotted, squared and ruled backgrounds.
-19. Background color, spacing and line colors.
+17. Large-board minimap performance and A4 boundaries — complete; 146 tests pass; live 400-object overview and three A4 page boundaries verified.
+18. Plain, dotted, squared and ruled backgrounds — complete; existing presets verified live.
+19. Background color, spacing and line colors — implemented; verification pending.
 20. Background consistency in A4, backups and exports.
 21. Fading laser-pointer trail.
 22. Laser trail appearance and viewport behavior.

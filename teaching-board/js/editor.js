@@ -1,43 +1,44 @@
-import { Minimap } from './minimap.js?v=20261016-overview';
-import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261016-overview';
-import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261016-overview';
-import { Recovery } from './recovery.js?v=20261016-overview';
-import { exportScopeDialog } from './export-scope.js?v=20261016-overview';
-import { planA4Import } from './pdf-a4.js?v=20261016-overview';
-import { Snippets, snippetCopies } from './snippets.js?v=20261016-overview';
-import { InlineText } from './inline-text.js?v=20261016-overview';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261016-overview';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261016-overview';
-import { visibleItems } from './visibility.js?v=20261016-overview';
-import { RenderCache } from './render-cache.js?v=20261016-overview';
-import { SpeedInk } from './speed-ink.js?v=20261016-overview';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261016-overview';
-import { ShapeGallery } from './shape-gallery.js?v=20261016-overview';
-import { FillPalette } from './fill-palette.js?v=20261016-overview';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261016-overview';
-import { LineStyleMenu } from './line-style-menu.js?v=20261016-overview';
-import { Pages } from './pages.js?v=20261016-overview';
-import { cropDialog } from './crop-editor.js?v=20261016-overview';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261016-overview';
-import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261016-overview';
-import { toWorld, zoomAt } from './viewport.js?v=20261016-overview';
-import { History } from './history.js?v=20261016-overview';
-import { SaveQueue } from './save-queue.js?v=20261016-overview';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261016-overview';
-import { exportBoard, backup } from './export.js?v=20261016-overview';
-import { validateBoard } from './model.js?v=20261016-overview';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261016-overview';
+import { backgroundOptions } from './background-options.js?v=20261016-paper';
+import { Minimap } from './minimap.js?v=20261016-paper';
+import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261016-paper';
+import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261016-paper';
+import { Recovery } from './recovery.js?v=20261016-paper';
+import { exportScopeDialog } from './export-scope.js?v=20261016-paper';
+import { planA4Import } from './pdf-a4.js?v=20261016-paper';
+import { Snippets, snippetCopies } from './snippets.js?v=20261016-paper';
+import { InlineText } from './inline-text.js?v=20261016-paper';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261016-paper';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261016-paper';
+import { visibleItems } from './visibility.js?v=20261016-paper';
+import { RenderCache } from './render-cache.js?v=20261016-paper';
+import { SpeedInk } from './speed-ink.js?v=20261016-paper';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261016-paper';
+import { ShapeGallery } from './shape-gallery.js?v=20261016-paper';
+import { FillPalette } from './fill-palette.js?v=20261016-paper';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261016-paper';
+import { LineStyleMenu } from './line-style-menu.js?v=20261016-paper';
+import { Pages } from './pages.js?v=20261016-paper';
+import { cropDialog } from './crop-editor.js?v=20261016-paper';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261016-paper';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261016-paper';
+import { toWorld, zoomAt } from './viewport.js?v=20261016-paper';
+import { History } from './history.js?v=20261016-paper';
+import { SaveQueue } from './save-queue.js?v=20261016-paper';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261016-paper';
+import { exportBoard, backup } from './export.js?v=20261016-paper';
+import { validateBoard } from './model.js?v=20261016-paper';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261016-paper';
 
-import { toolIcon } from './tool-icons.js?v=20261016-overview';
+import { toolIcon } from './tool-icons.js?v=20261016-paper';
 
-import { Geometry } from './geometry.js?v=20261016-overview';
-import { snapPoint, snapAngle } from './snapping.js?v=20261016-overview';
-import { equationDialog } from './equation-editor.js?v=20261016-overview';
-import { graphDialog } from './graph-editor.js?v=20261016-overview';
+import { Geometry } from './geometry.js?v=20261016-paper';
+import { snapPoint, snapAngle } from './snapping.js?v=20261016-paper';
+import { equationDialog } from './equation-editor.js?v=20261016-paper';
+import { graphDialog } from './graph-editor.js?v=20261016-paper';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
  constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.recovery.auto(board);this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
- document(){return structuredClone({items:this.board.items,background:this.board.background,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
+ document(){return structuredClone({items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
  async flush(){this.inlineText?.finish(true,false);await this.queue.flush();}
  dispose(){this.disposed=true;this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
  save(){this.queue.enqueue(this.board).catch(()=>{});}
@@ -60,7 +61,8 @@ export class Editor {
  const dynamics=el('select');dynamics.setAttribute('aria-label','Pen dynamics');dynamics.title='Solid pen: stylus pressure, or writing speed (slow is thicker, fast is thinner). Highlighter and patterned lines keep fixed width.';
  for(const [value,label]of [['fixed','Pen: Fixed width'],['pressure','Pen: Stylus pressure'],['speed','Pen: Writing speed']]){const o=el('option',label);o.value=value;dynamics.append(o);}dynamics.value=this.penDynamics;
  dynamics.onchange=()=>{this.penDynamics=dynamics.value;try{localStorage.setItem('teaching-board-pen-dynamics',this.penDynamics);}catch{}};
- properties.append(width,font,alignment,textStyle,el('span','Opacity'),opacity,el('span','Ink'),smoothing,dynamics,paper);const deck=el('div',null,'command-deck');const propertyMenu=el('details',null,'property-menu');const propertySummary=el('summary','⚙ Ink & style');propertySummary.title='Drawing properties and handwriting smoothing';propertyMenu.append(propertySummary,properties);this.lineStyleMenu=new LineStyleMenu(this);this.fillPalette=new FillPalette(this);this.strokePalette=new FillPalette(this,'stroke');deck.append(bar,this.strokePalette.root,this.lineStyleMenu.root,this.fillPalette.root,propertyMenu);
+ const paperSettings=btn('Background settings',async()=>{const current=backgroundOptions(this.board.background,this.board.backgroundOptions);const result=await formDialog('Background settings',[['color','Paper color',current.color,'color'],['lineColor','Line color',current.lineColor,'color'],['spacing','Spacing (8–256)',current.spacing,'number']],{validate:v=>backgroundOptions(this.board.background,{...v,spacing:Number(v.spacing)})});if(result){this.board.backgroundOptions=result;this.commit();}});
+ properties.append(paperSettings,width,font,alignment,textStyle,el('span','Opacity'),opacity,el('span','Ink'),smoothing,dynamics,paper);const deck=el('div',null,'command-deck');const propertyMenu=el('details',null,'property-menu');const propertySummary=el('summary','⚙ Ink & style');propertySummary.title='Drawing properties and handwriting smoothing';propertyMenu.append(propertySummary,properties);this.lineStyleMenu=new LineStyleMenu(this);this.fillPalette=new FillPalette(this);this.strokePalette=new FillPalette(this,'stroke');deck.append(bar,this.strokePalette.root,this.lineStyleMenu.root,this.fillPalette.root,propertyMenu);
  const layout=el('div',null,'editor-layout');this.area=el('div',null,'board');this.svg=svgEl('svg',{'aria-label':'Teaching canvas',tabindex:0});this.area.append(this.svg);
  this.zoomLabel=el('span');const zoom=el('div',null,'zoom');zoom.append(btn('−',()=>this.zoom(1/1.2)),this.zoomLabel,btn('+',()=>this.zoom(1.2)),btn('Fit',()=>this.fit()),btn('100%',()=>{this.board.viewport={x:0,y:0,zoom:1};this.paint();this.save();}));this.area.append(zoom,this.pages.controls());this.minimap=new Minimap(this);this.area.append(this.minimap.root);
  this.exitPresent=btn('Exit presentation',()=>document.body.classList.remove('presenting'),'exit-present');this.area.append(this.exitPresent);
@@ -72,7 +74,7 @@ export class Editor {
  point(e){const p=toWorld(this.screen(e),this.board.viewport);if(!this.drag&&['arc','curve','line','arrow','rectangle','ellipse','triangle','polygon','text','note'].includes(this.tool)&&!e.altKey){const q=snapPoint(p,this.board,this.selected,this.board.snapMode||'off');this.guides=q.guides;return q;}return p;}
  center(){return toWorld({x:this.area.clientWidth/2,y:this.area.clientHeight/2},this.board.viewport);}
  base(type,p){return {id:crypto.randomUUID(),type,x:p.x,y:p.y,w:1,h:1,stroke:this.stroke,strokeOpacity:this.strokeOpacity,fill:this.fill,fillOpacity:this.fillOpacity,lineWidth:this.lineWidth,lineStyle:this.lineStyle,opacity:this.opacity,rotation:0,locked:false};}
- paint(){this.cancelPaint();if(this.disposed)return;syncConnectors(this.board.items);this.selected=expandGroups(this.board.items,this.selected);this.shapeGallery.update();this.strokePalette.update();this.fillPalette.update();this.lineStyleMenu.update();this.pages.update();this.svg.replaceChildren();background(this.svg,this.board.background,this.board.viewport);const v=this.board.viewport,scene=svgEl('g',{transform:`translate(${v.x} ${v.y}) scale(${v.zoom})`});this.pages.paint(scene);this.renderCache??=new RenderCache();const visible=visibleItems(this.board.items,v,this.area.clientWidth,this.area.clientHeight,this.selected);this.renderCache.retain(visible);visible.forEach(i=>{const node=this.renderCache.draw(i);node.style.visibility=this.inlineText?.item.id===i.id?'hidden':'';scene.append(node);});this.inlineText?.update();this.draftLayer=svgEl('g',{'data-layer':'draft'});scene.append(this.draftLayer);if(this.draft)this.draftLayer.append(drawItem(this.draft));
+ paint(){this.cancelPaint();if(this.disposed)return;syncConnectors(this.board.items);this.selected=expandGroups(this.board.items,this.selected);this.shapeGallery.update();this.strokePalette.update();this.fillPalette.update();this.lineStyleMenu.update();this.pages.update();this.svg.replaceChildren();background(this.svg,this.board.background,this.board.viewport,'paper',this.board.backgroundOptions);const v=this.board.viewport,scene=svgEl('g',{transform:`translate(${v.x} ${v.y}) scale(${v.zoom})`});this.pages.paint(scene);this.renderCache??=new RenderCache();const visible=visibleItems(this.board.items,v,this.area.clientWidth,this.area.clientHeight,this.selected);this.renderCache.retain(visible);visible.forEach(i=>{const node=this.renderCache.draw(i);node.style.visibility=this.inlineText?.item.id===i.id?'hidden':'';scene.append(node);});this.inlineText?.update();this.draftLayer=svgEl('g',{'data-layer':'draft'});scene.append(this.draftLayer);if(this.draft)this.draftLayer.append(drawItem(this.draft));
  for(const i of this.board.items){if(this.selected.has(i.id)){const b=bounds(i);scene.append(svgEl('rect',{x:b.x-3,y:b.y-3,width:b.w+6,height:b.h+6,fill:'none',stroke:i.locked?'#d59a30':'#168fa5','stroke-width':1.5/v.zoom,'stroke-dasharray':`${5/v.zoom} ${3/v.zoom}`,'pointer-events':'none'}));}}
  const selected=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(selected.length&&this.tool==='select'){const b=union(selected);scene.append(svgEl('rect',{x:b.x+b.w-5/v.zoom,y:b.y+b.h-5/v.zoom,width:10/v.zoom,height:10/v.zoom,fill:'#147d92',stroke:'#fff','stroke-width':1/v.zoom,'data-resize':'true',cursor:'nwse-resize'}));}
  if(this.marquee)scene.append(svgEl('rect',{...this.marquee,fill:'#147d9215',stroke:'#147d92','stroke-width':1/v.zoom,'pointer-events':'none'}));

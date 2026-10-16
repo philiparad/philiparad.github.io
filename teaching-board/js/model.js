@@ -1,11 +1,12 @@
-import {normalizeGraphLinks} from './graph-links.js?v=20261016-overview';
-import {validateRuns,validateParagraphs} from './rich-text.js?v=20261016-overview';
-import {graphAxisOptions} from './graph-axes.js?v=20261016-overview';
-import {compileFunctions} from './named-functions.js?v=20261016-overview';
-import { validateSeries, validateParameters } from './graph-series.js?v=20261016-overview';
-import { SHAPES } from './shapes.js?v=20261016-overview';
-import { LINE_STYLES } from './line-style.js?v=20261016-overview';
-import { validCrop } from './crop-editor.js?v=20261016-overview';
+import { backgroundOptions } from './background-options.js?v=20261016-paper';
+import {normalizeGraphLinks} from './graph-links.js?v=20261016-paper';
+import {validateRuns,validateParagraphs} from './rich-text.js?v=20261016-paper';
+import {graphAxisOptions} from './graph-axes.js?v=20261016-paper';
+import {compileFunctions} from './named-functions.js?v=20261016-paper';
+import { validateSeries, validateParameters } from './graph-series.js?v=20261016-paper';
+import { SHAPES } from './shapes.js?v=20261016-paper';
+import { LINE_STYLES } from './line-style.js?v=20261016-paper';
+import { validCrop } from './crop-editor.js?v=20261016-paper';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -19,6 +20,7 @@ export function validateBoard(value) {
   if (!Number.isInteger(value.revision) || value.revision < 0 || typeof value.deleted !== 'boolean') throw new Error('Invalid board revision.');
   if (!Number.isFinite(Date.parse(value.createdAt)) || !Number.isFinite(Date.parse(value.updatedAt))) throw new Error('Invalid board dates.');
   if (!['grid', 'dots', 'plain', 'ruled', 'dark'].includes(value.background)) throw new Error('Invalid background.');
+  if(value.backgroundOptions!==undefined)backgroundOptions(value.background,value.backgroundOptions);
   if(value.snapMode!==undefined&&!['off','grid','objects','both'].includes(value.snapMode))throw new Error('Invalid snapping mode.');
   if(value.layout!==undefined&&!['infinite','a4'].includes(value.layout))throw new Error('Invalid canvas layout.');
   if(value.pageCount!==undefined&&(!Number.isInteger(value.pageCount)||value.pageCount<1||value.pageCount>100))throw new Error('Invalid page count.');

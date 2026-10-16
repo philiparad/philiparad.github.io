@@ -1,7 +1,7 @@
-import { svgEl, union, bounds } from './scene.js?v=20261016-overview';
-import { pageRect } from './pages.js?v=20261016-overview';
-import { el, btn } from './ui.js?v=20261016-overview';
-import { RenderCache } from './render-cache.js?v=20261016-overview';
+import { svgEl, union, bounds } from './scene.js?v=20261016-paper';
+import { pageRect } from './pages.js?v=20261016-paper';
+import { el, btn } from './ui.js?v=20261016-paper';
+import { RenderCache } from './render-cache.js?v=20261016-paper';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};
