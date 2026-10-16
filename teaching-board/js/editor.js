@@ -1,4 +1,4 @@
-import { Minimap } from './minimap.js?v=20261015-minimap';
+import { Minimap } from './minimap.js?v=20261016-navigation';
 import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261015-minimap';
 import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261015-minimap';
 import { Recovery } from './recovery.js?v=20261015-minimap';
