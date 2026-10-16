@@ -22,8 +22,8 @@ Tablet/stylus and cloud work were removed at the user's request.
 17. Large-board minimap performance and A4 boundaries — complete; 146 tests pass; live 400-object overview and three A4 page boundaries verified.
 18. Plain, dotted, squared and ruled backgrounds — complete; existing presets verified live.
 19. Background color, spacing and line colors — complete; 149 tests pass; live settings, undo/redo and reload verified.
-20. Background consistency in A4, backups and exports — implemented; verification pending.
-21. Fading laser-pointer trail.
+20. Background consistency in A4, backups and exports — complete; 150 tests pass; live A4 and downloaded SVG colors/spacing verified.
+21. Fading laser-pointer trail — implemented; verification pending.
 22. Laser trail appearance and viewport behavior.
 23. History memory measurements and regression checks.
 24. Incremental history for common actions.

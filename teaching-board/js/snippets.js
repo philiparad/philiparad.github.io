@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261016-paper-export';
-import { SnippetRepository } from './snippet-storage.js?v=20261016-paper-export';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261016-paper-export';
-import { drawItem, svgEl, union } from './scene.js?v=20261016-paper-export';
-import { expandGroups } from './groups.js?v=20261016-paper-export';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261017-trail';
+import { SnippetRepository } from './snippet-storage.js?v=20261017-trail';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261017-trail';
+import { drawItem, svgEl, union } from './scene.js?v=20261017-trail';
+import { expandGroups } from './groups.js?v=20261017-trail';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

@@ -1,46 +1,47 @@
-import { backgroundOptions } from './background-options.js?v=20261016-paper-export';
-import { Minimap } from './minimap.js?v=20261016-paper-export';
-import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261016-paper-export';
-import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261016-paper-export';
-import { Recovery } from './recovery.js?v=20261016-paper-export';
-import { exportScopeDialog } from './export-scope.js?v=20261016-paper-export';
-import { planA4Import } from './pdf-a4.js?v=20261016-paper-export';
-import { Snippets, snippetCopies } from './snippets.js?v=20261016-paper-export';
-import { InlineText } from './inline-text.js?v=20261016-paper-export';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261016-paper-export';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261016-paper-export';
-import { visibleItems } from './visibility.js?v=20261016-paper-export';
-import { RenderCache } from './render-cache.js?v=20261016-paper-export';
-import { SpeedInk } from './speed-ink.js?v=20261016-paper-export';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261016-paper-export';
-import { ShapeGallery } from './shape-gallery.js?v=20261016-paper-export';
-import { FillPalette } from './fill-palette.js?v=20261016-paper-export';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261016-paper-export';
-import { LineStyleMenu } from './line-style-menu.js?v=20261016-paper-export';
-import { Pages } from './pages.js?v=20261016-paper-export';
-import { cropDialog } from './crop-editor.js?v=20261016-paper-export';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261016-paper-export';
-import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261016-paper-export';
-import { toWorld, zoomAt } from './viewport.js?v=20261016-paper-export';
-import { History } from './history.js?v=20261016-paper-export';
-import { SaveQueue } from './save-queue.js?v=20261016-paper-export';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261016-paper-export';
-import { exportBoard, backup } from './export.js?v=20261016-paper-export';
-import { validateBoard } from './model.js?v=20261016-paper-export';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261016-paper-export';
+import { LaserTrail } from './laser-trail.js?v=20261017-trail';
+import { backgroundOptions } from './background-options.js?v=20261017-trail';
+import { Minimap } from './minimap.js?v=20261017-trail';
+import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261017-trail';
+import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261017-trail';
+import { Recovery } from './recovery.js?v=20261017-trail';
+import { exportScopeDialog } from './export-scope.js?v=20261017-trail';
+import { planA4Import } from './pdf-a4.js?v=20261017-trail';
+import { Snippets, snippetCopies } from './snippets.js?v=20261017-trail';
+import { InlineText } from './inline-text.js?v=20261017-trail';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261017-trail';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261017-trail';
+import { visibleItems } from './visibility.js?v=20261017-trail';
+import { RenderCache } from './render-cache.js?v=20261017-trail';
+import { SpeedInk } from './speed-ink.js?v=20261017-trail';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261017-trail';
+import { ShapeGallery } from './shape-gallery.js?v=20261017-trail';
+import { FillPalette } from './fill-palette.js?v=20261017-trail';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261017-trail';
+import { LineStyleMenu } from './line-style-menu.js?v=20261017-trail';
+import { Pages } from './pages.js?v=20261017-trail';
+import { cropDialog } from './crop-editor.js?v=20261017-trail';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261017-trail';
+import { svgEl, drawItem, background, bounds, union } from './scene.js?v=20261017-trail';
+import { toWorld, zoomAt } from './viewport.js?v=20261017-trail';
+import { History } from './history.js?v=20261017-trail';
+import { SaveQueue } from './save-queue.js?v=20261017-trail';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261017-trail';
+import { exportBoard, backup } from './export.js?v=20261017-trail';
+import { validateBoard } from './model.js?v=20261017-trail';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-trail';
 
-import { toolIcon } from './tool-icons.js?v=20261016-paper-export';
+import { toolIcon } from './tool-icons.js?v=20261017-trail';
 
-import { Geometry } from './geometry.js?v=20261016-paper-export';
-import { snapPoint, snapAngle } from './snapping.js?v=20261016-paper-export';
-import { equationDialog } from './equation-editor.js?v=20261016-paper-export';
-import { graphDialog } from './graph-editor.js?v=20261016-paper-export';
+import { Geometry } from './geometry.js?v=20261017-trail';
+import { snapPoint, snapAngle } from './snapping.js?v=20261017-trail';
+import { equationDialog } from './equation-editor.js?v=20261017-trail';
+import { graphDialog } from './graph-editor.js?v=20261017-trail';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
- constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.recovery.auto(board);this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
+ constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.laserTrail=new LaserTrail(this);this.recovery.auto(board);this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
  document(){return structuredClone({items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
  async flush(){this.inlineText?.finish(true,false);await this.queue.flush();}
- dispose(){this.disposed=true;this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
+ dispose(){this.disposed=true;this.laserTrail?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
  save(){this.queue.enqueue(this.board).catch(()=>{});}
  commit(){try{normalizeGraphLinks(this.board.items);syncConnectors(this.board.items);validateBoard(this.board);this.history.commit(this.document());this.save();this.paint();}catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
@@ -78,7 +79,7 @@ export class Editor {
  for(const i of this.board.items){if(this.selected.has(i.id)){const b=bounds(i);scene.append(svgEl('rect',{x:b.x-3,y:b.y-3,width:b.w+6,height:b.h+6,fill:'none',stroke:i.locked?'#d59a30':'#168fa5','stroke-width':1.5/v.zoom,'stroke-dasharray':`${5/v.zoom} ${3/v.zoom}`,'pointer-events':'none'}));}}
  const selected=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(selected.length&&this.tool==='select'){const b=union(selected);scene.append(svgEl('rect',{x:b.x+b.w-5/v.zoom,y:b.y+b.h-5/v.zoom,width:10/v.zoom,height:10/v.zoom,fill:'#147d92',stroke:'#fff','stroke-width':1/v.zoom,'data-resize':'true',cursor:'nwse-resize'}));}
  if(this.marquee)scene.append(svgEl('rect',{...this.marquee,fill:'#147d9215',stroke:'#147d92','stroke-width':1/v.zoom,'pointer-events':'none'}));
- this.guideLayer=svgEl('g',{'data-layer':'guides','pointer-events':'none'});scene.append(this.guideLayer);this.paintGuides();this.geometry.paint(scene);this.svg.append(scene);this.zoomLabel.textContent=Math.round(v.zoom*100)+'%';this.minimap?.update();if(this.linkGraphsButton){const chosen=this.board.items.filter(i=>this.selected.has(i.id)),members=linkedGraphs(this.board.items,this.selected),sets=new Set(members.filter(i=>i.graphLinkId).map(i=>i.graphLinkId));this.linkGraphsButton.disabled=chosen.length<2||chosen.some(i=>i.type!=='graph')||members.some(i=>this.isLocked(i))||sets.size===1&&members.every(i=>i.graphLinkId);this.selectLinkedButton.disabled=!sets.size;this.unlinkGraphsButton.disabled=!sets.size||members.some(i=>this.isLocked(i));for(const b of this.graphRangeButtons||[])b.disabled=this.graphRangeBusy||sets.size!==1||chosen.some(i=>i.type!=='graph'||!i.graphLinkId)||members.some(i=>this.isLocked(i));this.graphLinkLabel.textContent=sets.size?`${sets.size} linked set(s) · ${members.filter(i=>i.graphLinkId).length} linked graphs`:'Select two or more graphs to create a linked set. Existing sets are merged.';}if(this.saveSnippetButton)this.saveSnippetButton.disabled=!this.selected.size;this.selectionLabel.textContent=this.selected.size?`${this.selected.size} selected · ${this.board.items.length} objects`:`${this.board.items.length} objects`;this.undoButton.disabled=!this.history.past.length;this.redoButton.disabled=!this.history.future.length;this.paper.value=this.board.background;if(this.connectButton)this.connectButton.disabled=this.board.items.filter(i=>this.selected.has(i.id)&&connectorTarget(i)).length!==2||this.selected.size!==2;if(this.detachButton)this.detachButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.links&&!this.isLocked(i));if(this.groupButton)this.groupButton.disabled=this.selected.size<2;if(this.ungroupButton)this.ungroupButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.groupId);const path=this.board.items.find(i=>this.selected.has(i.id)&&i.type==='path');this.smoothingSelect.value=String(path?.smoothing??this.inkSmoothing);if(this.textStyleSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const styles=new Set(texts.map(i=>i.textStyle||'normal'));this.textStyleSelect.value=styles.size>1?'':texts.length?(texts[0].textStyle||'normal'):(this.textStyle||'normal');}if(this.alignmentSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const alignments=new Set(texts.map(i=>i.textAlign||'auto'));this.alignmentSelect.value=alignments.size>1?'':texts[0]?.textAlign||'auto';if(!texts.length)this.alignmentSelect.value=this.textAlign;}}
+ this.guideLayer=svgEl('g',{'data-layer':'guides','pointer-events':'none'});scene.append(this.guideLayer);this.paintGuides();this.geometry.paint(scene);this.svg.append(scene);this.zoomLabel.textContent=Math.round(v.zoom*100)+'%';this.minimap?.update();this.laserTrail?.render();if(this.linkGraphsButton){const chosen=this.board.items.filter(i=>this.selected.has(i.id)),members=linkedGraphs(this.board.items,this.selected),sets=new Set(members.filter(i=>i.graphLinkId).map(i=>i.graphLinkId));this.linkGraphsButton.disabled=chosen.length<2||chosen.some(i=>i.type!=='graph')||members.some(i=>this.isLocked(i))||sets.size===1&&members.every(i=>i.graphLinkId);this.selectLinkedButton.disabled=!sets.size;this.unlinkGraphsButton.disabled=!sets.size||members.some(i=>this.isLocked(i));for(const b of this.graphRangeButtons||[])b.disabled=this.graphRangeBusy||sets.size!==1||chosen.some(i=>i.type!=='graph'||!i.graphLinkId)||members.some(i=>this.isLocked(i));this.graphLinkLabel.textContent=sets.size?`${sets.size} linked set(s) · ${members.filter(i=>i.graphLinkId).length} linked graphs`:'Select two or more graphs to create a linked set. Existing sets are merged.';}if(this.saveSnippetButton)this.saveSnippetButton.disabled=!this.selected.size;this.selectionLabel.textContent=this.selected.size?`${this.selected.size} selected · ${this.board.items.length} objects`:`${this.board.items.length} objects`;this.undoButton.disabled=!this.history.past.length;this.redoButton.disabled=!this.history.future.length;this.paper.value=this.board.background;if(this.connectButton)this.connectButton.disabled=this.board.items.filter(i=>this.selected.has(i.id)&&connectorTarget(i)).length!==2||this.selected.size!==2;if(this.detachButton)this.detachButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.links&&!this.isLocked(i));if(this.groupButton)this.groupButton.disabled=this.selected.size<2;if(this.ungroupButton)this.ungroupButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.groupId);const path=this.board.items.find(i=>this.selected.has(i.id)&&i.type==='path');this.smoothingSelect.value=String(path?.smoothing??this.inkSmoothing);if(this.textStyleSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const styles=new Set(texts.map(i=>i.textStyle||'normal'));this.textStyleSelect.value=styles.size>1?'':texts.length?(texts[0].textStyle||'normal'):(this.textStyle||'normal');}if(this.alignmentSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const alignments=new Set(texts.map(i=>i.textAlign||'auto'));this.alignmentSelect.value=alignments.size>1?'':texts[0]?.textAlign||'auto';if(!texts.length)this.alignmentSelect.value=this.textAlign;}}
  // Input updates the model immediately; rendering is batched independently.
  // A full update always takes precedence over a pending draft-only update.
  requestPaint(draftOnly=false){
@@ -115,7 +116,7 @@ export class Editor {
  pointerDown(e){if(e.button!==0&&e.button!==1)return;if(this.drag)return;e.preventDefault();this.svg.focus();const p=this.point(e),screen=this.screen(e);this.svg.setPointerCapture(e.pointerId);
  if(this.space||this.tool==='pan'||e.button===1){this.drag={kind:'pan',screen,v:{...this.board.viewport}};return;}
  if(this.geometry.down(e,p))return;
- if(this.tool==='laser'){this.drag={kind:'laser'};this.laser(p);return;}
+ if(this.tool==='laser'){this.drag={kind:'laser'};this.laserTrail.add(p,true);return;}
  const id=e.target.closest('[data-id]')?.getAttribute('data-id'),item=this.board.items.find(i=>i.id===id);
  if(this.tool==='eraser'){this.drag={kind:'erase'};this.eraseAt(p);return;}
  if(this.tool==='select'){
@@ -132,7 +133,7 @@ export class Editor {
  if(d.kind==='draw'&&!['pen','highlighter'].includes(this.tool)){if(!e.altKey){const q=snapPoint(p,this.board,new Set(),this.board.snapMode||'off');this.guides=q.guides;p=q;}if(e.shiftKey&&['line','arrow'].includes(this.tool))p=snapAngle(d.start,p);}
  if(d.kind==='move'&&!e.altKey){const b=union(d.items),q=snapPoint({x:b.x+p.x-d.start.x,y:b.y+p.y-d.start.y},this.board,new Set(d.items.map(i=>i.id)),this.board.snapMode||'off',{x:[0,b.w/2,b.w],y:[0,b.h/2,b.h]});p={x:d.start.x+q.x-b.x,y:d.start.y+q.y-b.y};this.guides=q.guides;}
  if(d.kind==='pan'){const s=this.screen(e);this.board.viewport={...d.v,x:d.v.x+s.x-d.screen.x,y:d.v.y+s.y-d.screen.y};}
- if(d.kind==='laser'){this.laser(p);return;}
+ if(d.kind==='laser'){this.laserTrail.add(p);return;}
  if(d.kind==='erase'){this.eraseAt(p);return;}
  if(d.kind==='move'){for(const old of d.items){const item=this.board.items.find(i=>i.id===old.id);item.x=old.x+p.x-d.start.x;item.y=old.y+p.y-d.start.y;}}
  if(d.kind==='resize'){const sx=Math.max(.05,(p.x-d.b.x)/Math.max(1,d.b.w)),sy=Math.max(.05,(p.y-d.b.y)/Math.max(1,d.b.h));for(const old of d.items){const i=this.board.items.find(i=>i.id===old.id);i.x=d.b.x+(old.x-d.b.x)*sx;i.y=d.b.y+(old.y-d.b.y)*sy;i.w=Math.max(1,old.w*sx);i.h=Math.max(1,old.h*sy);if(old.points)i.points=old.points.map(([x,y])=>[x*sx,y*sy]);if(old.rawPoints)i.rawPoints=old.rawPoints.map(([x,y])=>[x*sx,y*sy]);if(['text','note'].includes(i.type))i.fontSize=(old.fontSize||26)*Math.min(sx,sy);}}
@@ -143,7 +144,7 @@ export class Editor {
  if(d.kind==='marquee'&&this.marquee){const m=this.marquee;for(const i of this.board.items){const b=bounds(i);if(b.x>=m.x&&b.y>=m.y&&b.x+b.w<=m.x+m.width&&b.y+b.h<=m.y+m.height)this.selected.add(i.id);}this.marquee=null;}
  if(['draw','move','resize','erase'].includes(d.kind))this.action(()=>this.commit());else if(d.kind==='pan')this.save();this.paint();}
  eraseAt(p){const i=[...this.board.items].reverse().find(i=>{const b=bounds(i);return !this.isLocked(i)&&p.x>=b.x-4&&p.x<=b.x+b.w+4&&p.y>=b.y-4&&p.y<=b.y+b.h+4;});if(i){const ids=expandGroups(this.board.items,new Set([i.id]));this.board.items=this.board.items.filter(v=>!ids.has(v.id));for(const id of ids)this.selected.delete(id);this.paint();}}
- laser(p){this.svg.querySelector('.laser')?.remove();const s=svgEl('circle',{cx:p.x*this.board.viewport.zoom+this.board.viewport.x,cy:p.y*this.board.viewport.zoom+this.board.viewport.y,r:7,fill:'#f34c5e','pointer-events':'none',class:'laser'});this.svg.append(s);clearTimeout(this.laserTimer);this.laserTimer=setTimeout(()=>s.remove(),500);}
+
  updatePolygon(){if(!this.polygon.length)return;const x=Math.min(...this.polygon.map(p=>p[0])),y=Math.min(...this.polygon.map(p=>p[1]));this.draft={...this.base('polygon',{x,y}),points:this.polygon.map(p=>[p[0]-x,p[1]-y]),w:Math.max(1,Math.max(...this.polygon.map(p=>p[0]))-x),h:Math.max(1,Math.max(...this.polygon.map(p=>p[1]))-y)};this.paint();}
  finishPolygon(){if(this.polygon.length<3){notify('Choose at least three vertices.');return;}this.board.items.push(this.draft);this.draft=null;this.polygon=[];this.commit();}
  connectSelection(){

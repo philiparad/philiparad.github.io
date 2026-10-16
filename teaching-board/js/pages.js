@@ -1,6 +1,6 @@
-import { backgroundOptions } from './background-options.js?v=20261016-paper-export';
-import { el, notify, confirmDialog } from './ui.js?v=20261016-paper-export';
-import { svgEl, drawItem, background } from './scene.js?v=20261016-paper-export';
+import { backgroundOptions } from './background-options.js?v=20261017-trail';
+import { el, notify, confirmDialog } from './ui.js?v=20261017-trail';
+import { svgEl, drawItem, background } from './scene.js?v=20261017-trail';
 export const A4={w:794,h:1123,gap:32};
 export const pageRect=index=>({x:0,y:index*(A4.h+A4.gap),w:A4.w,h:A4.h});
 export function deletePage(board,index){const top=pageRect(index).y,bottom=top+A4.h+A4.gap;board.items=board.items.filter(i=>{const center=i.y+(i.h||1)/2;return !(center>=top&&center<bottom&&i.x+(i.w||1)/2>=0&&i.x+(i.w||1)/2<=A4.w);}).map(i=>i.y>=bottom?{...i,y:i.y-A4.h-A4.gap}:i);board.pageCount--;}

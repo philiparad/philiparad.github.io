@@ -1,4 +1,4 @@
-import { drawItem } from './scene.js?v=20261016-paper-export';
+import { drawItem } from './scene.js?v=20261017-trail';
 
 // Editor-only cache: exports always render the complete model independently.
 // Comparing serialized visual data also detects in-place curve/crop edits and

@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261016-paper-export';
-import { createBoard, parseBackup } from './model.js?v=20261016-paper-export';
-import { BoardRepository } from './storage.js?v=20261016-paper-export';
-import { Editor } from './editor.js?v=20261016-paper-export';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261016-paper-export';
-import { backup } from './export.js?v=20261016-paper-export';
-import { drawItem, svgEl, union } from './scene.js?v=20261016-paper-export';
+import { showRecovery } from './recovery.js?v=20261017-trail';
+import { createBoard, parseBackup } from './model.js?v=20261017-trail';
+import { BoardRepository } from './storage.js?v=20261017-trail';
+import { Editor } from './editor.js?v=20261017-trail';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261017-trail';
+import { backup } from './export.js?v=20261017-trail';
+import { drawItem, svgEl, union } from './scene.js?v=20261017-trail';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';
