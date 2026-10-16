@@ -1,8 +1,8 @@
-import { backgroundOptions } from './background-options.js?v=20261017-laser-settings';
-import { svgEl, union, bounds } from './scene.js?v=20261017-laser-settings';
-import { pageRect } from './pages.js?v=20261017-laser-settings';
-import { el, btn } from './ui.js?v=20261017-laser-settings';
-import { RenderCache } from './render-cache.js?v=20261017-laser-settings';
+import { backgroundOptions } from './background-options.js?v=20261017-history-metrics';
+import { svgEl, union, bounds } from './scene.js?v=20261017-history-metrics';
+import { pageRect } from './pages.js?v=20261017-history-metrics';
+import { el, btn } from './ui.js?v=20261017-history-metrics';
+import { RenderCache } from './render-cache.js?v=20261017-history-metrics';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};

@@ -1,4 +1,4 @@
-import {validateInlineEquation,equationNode} from './inline-equation.js?v=20261017-laser-settings';
+import {validateInlineEquation,equationNode} from './inline-equation.js?v=20261017-history-metrics';
 /** Plain data only: no HTML is stored in lessons or exports. */
 export function textRuns(item){return item.runs||[{text:item.text||'',bold:(item.textStyle||'').includes('bold'),italic:(item.textStyle||'').includes('italic'),underline:false}];}
 export function validateRuns(runs,text){

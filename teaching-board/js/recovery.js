@@ -1,5 +1,5 @@
-import { RecoveryRepository } from './recovery-storage.js?v=20261017-laser-settings';
-import { el, btn, notify } from './ui.js?v=20261017-laser-settings';
+import { RecoveryRepository } from './recovery-storage.js?v=20261017-history-metrics';
+import { el, btn, notify } from './ui.js?v=20261017-history-metrics';
 const snapshots=new RecoveryRepository();
 export async function showRecovery(repository,boardId,beforeRestore=async()=>{}){
  const values=await snapshots.list(boardId),d=el('dialog',null,'form-dialog');

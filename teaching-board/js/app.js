@@ -1,10 +1,10 @@
-import { showRecovery } from './recovery.js?v=20261017-laser-settings';
-import { createBoard, parseBackup } from './model.js?v=20261017-laser-settings';
-import { BoardRepository } from './storage.js?v=20261017-laser-settings';
-import { Editor } from './editor.js?v=20261017-laser-settings';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261017-laser-settings';
-import { backup } from './export.js?v=20261017-laser-settings';
-import { drawItem, svgEl, union } from './scene.js?v=20261017-laser-settings';
+import { showRecovery } from './recovery.js?v=20261017-history-metrics';
+import { createBoard, parseBackup } from './model.js?v=20261017-history-metrics';
+import { BoardRepository } from './storage.js?v=20261017-history-metrics';
+import { Editor } from './editor.js?v=20261017-history-metrics';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261017-history-metrics';
+import { backup } from './export.js?v=20261017-history-metrics';
+import { drawItem, svgEl, union } from './scene.js?v=20261017-history-metrics';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

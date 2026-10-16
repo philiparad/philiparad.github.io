@@ -24,7 +24,7 @@ Tablet/stylus and cloud work were removed at the user's request.
 19. Background color, spacing and line colors — complete; 149 tests pass; live settings, undo/redo and reload verified.
 20. Background consistency in A4, backups and exports — complete; 150 tests pass; live A4 and downloaded SVG colors/spacing verified.
 21. Fading laser-pointer trail — complete; 152 tests pass; live trail, fade and unchanged undo history verified.
-22. Laser trail appearance and viewport behavior — implemented; verification pending.
-23. History memory measurements and regression checks.
+22. Laser trail appearance and viewport behavior — complete; 153 tests pass; live custom color/width, zoom and preference reload verified.
+23. History memory measurements and regression checks — implemented; 155 tests pass; baseline recorded in HISTORY-MEMORY.md; deployment verification pending.
 24. Incremental history for common actions.
 25. Shared large history assets and memory budget.
