@@ -1,7 +1,8 @@
-import { svgEl, union, bounds } from './scene.js?v=20261016-paper';
-import { pageRect } from './pages.js?v=20261016-paper';
-import { el, btn } from './ui.js?v=20261016-paper';
-import { RenderCache } from './render-cache.js?v=20261016-paper';
+import { backgroundOptions } from './background-options.js?v=20261016-paper-export';
+import { svgEl, union, bounds } from './scene.js?v=20261016-paper-export';
+import { pageRect } from './pages.js?v=20261016-paper-export';
+import { el, btn } from './ui.js?v=20261016-paper-export';
+import { RenderCache } from './render-cache.js?v=20261016-paper-export';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};
@@ -69,7 +70,7 @@ export class Minimap {
    const pages=e.board.layout==='a4'?Array.from({length:e.board.pageCount||1},(_,i)=>pageRect(i)):[];
    this.overviewBounds=[...e.board.items,...pages].length?[union([...e.board.items,...pages])]:[];
    this.content.replaceChildren();
-   for(const p of pages)this.content.append(svgEl('rect',{x:p.x,y:p.y,width:p.w,height:p.h,fill:'#fff',stroke:'#8b9bab','stroke-width':1,'vector-effect':'non-scaling-stroke'}));
+   for(const p of pages)this.content.append(svgEl('rect',{x:p.x,y:p.y,width:p.w,height:p.h,fill:backgroundOptions(e.board.background,e.board.backgroundOptions).color,stroke:'#8b9bab','stroke-width':1,'vector-effect':'non-scaling-stroke'}));
    if(e.board.items.length>300){
     this.cache.clear();this.content.append(svgEl('path',{d:overviewPath(e.board.items),fill:'#63758a44',stroke:'#63758a','stroke-width':.5,'vector-effect':'non-scaling-stroke','data-simplified-overview':'true'}));
    }else{this.cache.retain(e.board.items);for(const item of e.board.items)this.content.append(this.cache.draw(item));}

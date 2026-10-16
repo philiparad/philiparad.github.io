@@ -1,6 +1,6 @@
-import {graphSeries,compileSeries,seriesLabels} from './graph-series.js?v=20261016-paper';
-import {compileFunctions} from './named-functions.js?v=20261016-paper';
-import {graphAxisOptions} from './graph-axes.js?v=20261016-paper';
+import {graphSeries,compileSeries,seriesLabels} from './graph-series.js?v=20261016-paper-export';
+import {compileFunctions} from './named-functions.js?v=20261016-paper-export';
+import {graphAxisOptions} from './graph-axes.js?v=20261016-paper-export';
 export function markerValues(item,x){
  const rows=graphSeries(item.series||item.source,item.parameters||[],item.definitions||[]),constants=Object.fromEntries((item.parameters||[]).map(p=>[p.name,p.value])),functions=compileFunctions(item.definitions||[],constants);
  return rows.filter(r=>r.visible!==false).map((row,index)=>{const supported=!['parametric','polar'].includes(row.kind),value=supported?compileSeries(row,constants,functions).y(x):NaN;return {index:index+1,color:row.color,value:Number.isFinite(value)?value:null,status:!supported?'not single-valued in x':Number.isFinite(value)?'value':'undefined'};});
