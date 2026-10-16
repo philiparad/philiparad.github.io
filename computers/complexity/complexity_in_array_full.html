@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <link rel="icon" type="image/png" href="philip_favicon.png"/>
+        <title>סיבוכיות במערך חד־ממדי | 5 יחידות | 15 שאלות</title>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <style>
+            :root { --ink:#153047; --muted:#526779; --blue:#155a94; --teal:#087f83; --paper:#fff; --line:#cddce6; --soft:#eef5fa; --green:#146c48; --red:#a83236; }
+            * { box-sizing:border-box; }
+            html { scroll-behavior:smooth; }
+            body { margin:0; background:#e7edf3; color:var(--ink); font:15px/1.5 Arial,"Noto Sans Hebrew",sans-serif; }
+            .toolbar { position:sticky; top:0; z-index:5; display:flex; flex-wrap:wrap; justify-content:center; gap:8px; padding:10px; background:#10314d; }
+            .toolbar a,.toolbar button { color:white; background:#275978; border:1px solid #7fa9c1; border-radius:8px; padding:6px 12px; font:inherit; text-decoration:none; cursor:pointer; }
+            main { padding:18px 0 35px; }
+            .page { width:210mm; min-height:297mm; margin:0 auto 18px; padding:15mm 17mm 18mm; background:var(--paper); box-shadow:0 5px 18px #092a4430; position:relative; break-after:page; }
+            .page::after { content:attr(data-page); position:absolute; bottom:7mm; left:17mm; color:#718396; font-size:11px; }
+            .eyebrow { color:var(--teal); font-weight:700; font-size:12px; margin-bottom:7px; }
+            h2 { font-size:21px; color:#103e62; margin:0 0 13px; border-bottom:2px solid #94bace; padding-bottom:7px; }
+            h3 { color:#115c7e; font-size:16px; margin:0 0 6px; }
+            p { margin:7px 0 10px; }
+            li { margin-bottom:6px; }
+            .cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0; }
+            .card,.note,.example,.question,.viz { border:2px solid var(--line); border-radius:11px; background:white; padding:12px 14px; break-inside:avoid; }
+            .note { background:var(--soft); border-color:#a9cbdc; margin:11px 0; }
+            .warning { background:#fff8ec; border-color:#e5c58b; }
+            .example { margin:10px 0; border-color:#bbd8d2; }
+            .formula { text-align:center; direction:ltr; unicode-bidi:isolate; background:#eef6fb; border:1px solid #c3ddea; padding:7px; border-radius:8px; font-size:17px; margin:7px 0; }
+            pre,code { direction:ltr; text-align:left; font-family:Consolas,"Courier New",monospace; }
+            pre { background:#132c40; color:#e9f4ff; padding:9px 12px; border-radius:8px; white-space:pre-wrap; font-size:12px; line-height:1.38; margin:6px 0; }
+            .table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13.5px; }
+            .table th,.table td { border:1px solid var(--line); padding:8px; text-align:right; }
+            .table th { background:#e8f2f8; }
+            .strip { display:flex; flex-wrap:wrap; gap:5px; justify-content:center; direction:ltr; margin:14px 0; }
+            .cell { width:43px; height:42px; border:1px solid #8daebf; border-radius:6px; display:grid; place-items:center; background:#e7f1f7; font-weight:700; }
+            .cell.active { background:#7ac9bd; border-color:#127b75; }
+            .controls { display:flex; flex-wrap:wrap; align-items:center; gap:15px; margin:12px 0; }
+            select,input[type=range] { accent-color:#087f83; }
+            select { border:1px solid #91adbe; padding:7px; border-radius:7px; }
+            .output { background:#eaf5f6; padding:12px; border-radius:8px; font-weight:bold; text-align:center; }
+            .question { margin:9px 0; padding:10px 12px; border-color:#c4dce8; }
+            .question p { margin:0 0 6px; font-size:13.7px; font-weight:bold; }
+            .choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 13px; }
+            .choice { display:flex; gap:6px; align-items:baseline; cursor:pointer; font-size:13px; }
+            .choice input { accent-color:#156d97; }
+            .feedback { display:none; font-size:12px; border-radius:6px; padding:6px; margin-top:7px; }
+            .feedback.correct { display:block; background:#e4f5ec; color:var(--green); }
+            .feedback.incorrect { display:block; background:#fff0ee; color:var(--red); }
+            .summary { border:2px solid #b9d2e2; background:#eaf3f9; padding:13px; border-radius:10px; margin:12px 0; }
+            @page { size:A4; margin:0; }
+            @media(max-width:830px) { .page { width:100%; min-height:auto; padding:24px 20px 38px; } main { padding:0; } .cards { grid-template-columns:1fr; } }
+            @media print { body { background:white; } .toolbar { display:none; } main { padding:0; } .page { width:210mm; min-height:297mm; margin:0; box-shadow:none; break-after:page; } .page:last-child { break-after:auto; } }
+        </style>
+    </head>
+    <body>
+        <nav class="toolbar" aria-label="ניווט במסמך">
+            <a href="#intro">מבוא</a>
+            <a href="#families">סוגי סיבוכיות</a>
+            <a href="#simple">דוגמאות בסיס</a>
+            <a href="#advanced">דוגמאות מתקדמות</a>
+            <a href="#viz">מעבדה אינטראקטיבית</a>
+            <a href="#quiz">מבדק 15 שאלות</a>
+            <button type="button" onclick="window.print()">הדפסה</button>
+        </nav>
+        <main>
+            <section class="page" id="intro" data-page="1">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>1. הגדרת גודל הקלט במערך חד־ממדי</h2>
+                <p>מערך חד־ממדי הוא רצף של תאים. נסמן <strong>n</strong> — מספר האיברים במערך (<code>arr.Length</code> ב־C#).</p>
+                <div class="strip" aria-label="מערך לדוגמה בן שמונה איברים">
+                    <div class="cell">4</div><div class="cell">9</div><div class="cell">1</div><div class="cell">7</div><div class="cell">2</div><div class="cell">6</div><div class="cell">3</div><div class="cell">8</div>
+                </div>
+                <div class="formula">n = 8</div>
+                <div class="note"><strong>עיקרון:</strong> גודל הקלט הוא מספר האיברים, אך הסיבוכיות מתארת את מספר הפעולות שהאלגוריתם מבצע כתלות ב־n. עצם השימוש במערך אינו קובע את הסיבוכיות.</div>
+                <h3>איך מחשבים סיבוכיות?</h3>
+                <ol>
+                    <li>מגדירים במפורש את <strong>n</strong>.</li>
+                    <li>בוחרים פעולה בסיסית לספירה (השוואה, הדפסה, החלפה וכדומה).</li>
+                    <li>מונים חזרות, כולל תלות בין לולאות ותנאי עצירה.</li>
+                    <li>כותבים <span dir="ltr">T(n)</span> ומפשטים לסדר הגודל האסימפטוטי.</li>
+                </ol>
+                <div class="note warning"><strong>דיוק חשוב:</strong> ‏O הוא חסם עליון. בדוגמאות להלן מוצגת משפחת הגידול המקובלת; כאשר יש חסם הדוק אפשר לסמן גם Θ. לרוב בשאלות לימוד מציינים O של זמן הריצה במקרה הגרוע.</div>
+            </section>
+            <section class="page" id="families" data-page="2">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>2. משפחות סיבוכיות נפוצות</h2>
+                <table class="table">
+                    <thead><tr><th>סיבוכיות</th><th>כיצד נוצרה</th><th>דוגמה במערך</th></tr></thead>
+                    <tbody>
+                        <tr><td dir="ltr">O(1)</td><td>מספר פעולות קבוע</td><td>גישה ל־<code>arr[k]</code></td></tr>
+                        <tr><td dir="ltr">O(log n)</td><td>הקטנת תחום בחצי</td><td>חיפוש בינארי במערך ממוין</td></tr>
+                        <tr><td dir="ltr">O(√n)</td><td>עיבוד של כ־√n איברים</td><td>מעבר על קידומת באורך √n</td></tr>
+                        <tr><td dir="ltr">O(n)</td><td>מעבר יחיד על כל האיברים</td><td>סכימה או מציאת מקסימום</td></tr>
+                        <tr><td dir="ltr">O(n log n)</td><td>כ־log n רמות עם עבודה n בכל רמה</td><td>מיון מיזוג</td></tr>
+                        <tr><td dir="ltr">O(n²)</td><td>שתי לולאות עד n</td><td>השוואת כל זוג איברים</td></tr>
+                        <tr><td dir="ltr">O(n³)</td><td>שלוש לולאות עד n</td><td>בדיקת כל שלשת אינדקסים</td></tr>
+                        <tr><td dir="ltr">O(2ⁿ)</td><td>שתי בחירות לכל איבר</td><td>יצירת כל תתי־הקבוצות</td></tr>
+                        <tr><td dir="ltr">O(n!)</td><td>כל סדרי האיברים</td><td>יצירת כל התמורות</td></tr>
+                    </tbody>
+                </table>
+                <div class="note">הרשימה מציגה משפחות מרכזיות ולא את כל הפונקציות המתמטיות האפשריות. חלק מן הדוגמאות המתקדמות הן להעשרה מעבר לבסיס הנדרש.</div>
+            </section>
+            <section class="page" id="simple" data-page="3">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>3. זמן קבוע וליניארי</h2>
+                <article class="example">
+                    <h3>דוגמה 1 — גישה לתא יחיד</h3>
+                    <pre><code>int x = arr[3];</code></pre>
+                    <p>פעולת גישה אחת למיקום תקין, ללא תלות במספר התאים.</p>
+                    <div class="formula">\(T(n)=1 \Rightarrow O(1)\)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 2 — מציאת סכום האיברים</h3>
+                    <pre><code>int sum = 0;
+for (int i = 0; i &lt; arr.Length; i++)
+{
+    sum += arr[i];
+}</code></pre>
+                    <p>יש n חזרות; בכל חזרה עבודה קבועה.</p>
+                    <div class="formula">\(T(n)=an+b \Rightarrow O(n)\)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 3 — שתי לולאות עוקבות</h3>
+                    <pre><code>for (int i = 0; i &lt; n; i++) Print(arr[i]);
+for (int j = 0; j &lt; n; j++) Print(arr[j]);</code></pre>
+                    <p>יש 2n פעולות הדפסה ולא n², כי הלולאות אינן מקוננות.</p>
+                    <div class="formula">\(T(n)=2n \Rightarrow O(n)\)</div>
+                </article>
+            </section>
+            <section class="page" id="log" data-page="4">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>4. זמן לוגריתמי ושורשי</h2>
+                <article class="example">
+                    <h3>דוגמה 4 — חיפוש בינארי (מערך ממוין)</h3>
+                    <pre><code>int left = 0, right = arr.Length - 1;
+while (left &lt;= right)
+{
+    int mid = left + (right - left) / 2;
+    if (arr[mid] == target) break;
+    if (arr[mid] &lt; target) left = mid + 1;
+    else right = mid - 1;
+}</code></pre>
+                    <p>בכל איטרציה תחום החיפוש מצטמצם בקירוב לחצי. במקרה הגרוע מספר הצעדים לוגריתמי; במקרה המיטבי ניתן למצוא במעבר הראשון.</p>
+                    <div class="formula">\(O(\log n) \text{ במקרה הגרוע}\)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 5 — מעבר על קידומת באורך שורש n</h3>
+                    <pre><code>for (int i = 0; i * i &lt; n; i++)
+{
+    Print(arr[i]);
+}</code></pre>
+                    <p>הערכים i המקיימים i²&lt;n הם בערך √n ערכים (בהנחה n>0).</p>
+                    <div class="formula">\(O(\sqrt{n})\)</div>
+                </article>
+            </section>
+            <section class="page" id="quadratic" data-page="5">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>5. סיבוכיות ריבועית וקובייתית</h2>
+                <article class="example">
+                    <h3>דוגמה 6 — כל זוג אינדקסים</h3>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+{
+    for (int j = 0; j &lt; n; j++)
+        Compare(arr[i], arr[j]);
+}</code></pre>
+                    <p>עבור כל אחד מ־n איברים מבוצעות n השוואות.</p>
+                    <div class="formula">\(T(n)=n\cdot n=n^2 \Rightarrow O(n^2)\)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 7 — רק זוגות שבהם j גדול מ־i</h3>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+{
+    for (int j = i + 1; j &lt; n; j++)
+        Compare(arr[i], arr[j]);
+}</code></pre>
+                    <p>מספר ההשוואות הוא (n−1)+(n−2)+…+1.</p>
+                    <div class="formula">\(T(n)=\frac{n(n-1)}{2} \Rightarrow O(n^2)\)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 8 — שלוש לולאות מקוננות</h3>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+    for (int j = 0; j &lt; n; j++)
+        for (int k = 0; k &lt; n; k++)
+            Count++;</code></pre>
+                    <p>שלושה אינדקסים עצמאיים, כל אחד מקבל n ערכים.</p>
+                    <div class="formula">\(T(n)=n^3 \Rightarrow O(n^3)\)</div>
+                </article>
+            </section>
+            <section class="page" id="nlogn" data-page="6">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>6. סיבוכיות n log n והבדלים חשובים</h2>
+                <article class="example">
+                    <h3>דוגמה 9 — n פעולות בכל רמת חלוקה</h3>
+                    <pre><code>for (int step = 1; step &lt; n; step *= 2)
+{
+    for (int i = 0; i &lt; n; i++)
+        Work(arr[i]);
+}</code></pre>
+                    <p>מספר ערכי step הוא בערך log₂n, ובכל ערך מתבצעות n פעולות.</p>
+                    <div class="formula">\(T(n) = n\lceil\log_2 n\rceil \Rightarrow O(n\log n)\)</div>
+                </article>
+                <div class="note"><strong>קשר למיון מיזוג:</strong> חלוקת המערך לשניים יוצרת כ־log n רמות; בכל רמה פעולת המיזוג על כלל האיברים עולה O(n), ולכן זמן הריצה O(n log n).</div>
+                <div class="note warning"><strong>לא כל לולאה בתוך לולאה היא O(n²):</strong> אם הלולאה הפנימית מבצעת רק log n פעולות, נקבל O(n log n). אם היא נעצרת במהירות כתלות בנתונים, יש לבחון את המקרה הנבדק.</div>
+            </section>
+            <section class="page" id="exponential" data-page="7">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>7. סיבוכיות מעריכית ועצרתית — להעשרה</h2>
+                <article class="example">
+                    <h3>דוגמה 10 — כל תתי־הקבוצות (n קטן)</h3>
+                    <pre><code>for (long mask = 0; mask &lt; (1L &lt;&lt; n); mask++)
+{
+    ProcessSubset(mask);
+}</code></pre>
+                    <p>לכל איבר שתי אפשרויות: להיכלל או לא להיכלל. יש 2ⁿ מסכות. הקוד תקף רק ל־n קטן דיו כדי שההזזה והטווח יהיו תקינים, ונניח שעיבוד המסכה קבוע.</p>
+                    <div class="formula">\(O(2^n)\)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 11 — כל התמורות</h3>
+                    <pre><code>GenerateAllPermutations(arr);</code></pre>
+                    <p>באופן מושגי, יש n! סידורים אפשריים. אם מבקרים בכל תמורה בעבודה קבועה, מספר הביקורים Θ(n!). אם גם מדפיסים n איברים בכל תמורה, הזמן Θ(n·n!).</p>
+                    <div class="formula">\(\Theta(n!) \text{ ביקורים};\quad \Theta(n\cdot n!) \text{ להדפסה}\)</div>
+                </article>
+                <div class="note warning">הבחנה: אלה סיבוכיות של <strong>אלגוריתמים מסוימים</strong> הפועלים על מערך; אין להסיק שמערך חד־ממדי עצמו מחייב זמן מעריכי או עצרתי.</div>
+            </section>
+            <section class="page" id="cases" data-page="8">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>8. מקרה מיטבי, גרוע וממוצע</h2>
+                <article class="example">
+                    <h3>דוגמה 12 — חיפוש סדרתי</h3>
+                    <pre><code>int index = -1;
+for (int i = 0; i &lt; n; i++)
+{
+    if (arr[i] == target)
+    {
+        index = i;
+        break;
+    }
+}</code></pre>
+                    <p>אם האיבר הראשון מתאים — השוואה אחת. אם אינו נמצא — n השוואות. תחת הנחה שמיקום האיבר המבוקש אחיד — מספר השוואות ממוצע פרופורציונלי ל־n.</p>
+                    <div class="formula">\(\text{מיטבי } O(1);\quad \text{גרוע } O(n);\quad \text{ממוצע } O(n)\)</div>
+                </article>
+                <table class="table"><thead><tr><th>בעיה</th><th>מקרה מיטבי</th><th>מקרה גרוע</th></tr></thead><tbody><tr><td>חיפוש סדרתי</td><td dir="ltr">O(1)</td><td dir="ltr">O(n)</td></tr><tr><td>חיפוש בינארי במערך ממוין</td><td dir="ltr">O(1)</td><td dir="ltr">O(log n)</td></tr><tr><td>סכימת כל האיברים</td><td dir="ltr">Θ(n)</td><td dir="ltr">Θ(n)</td></tr></tbody></table>
+                <div class="note">הערה: ניתוח מקרה ממוצע מחייב הנחה לגבי התפלגות הקלט. אין לקבוע סיבוכיות ממוצעת ללא הגדרה כזאת.</div>
+            </section>
+            <section class="page" id="viz" data-page="9">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>9. מעבדה אינטראקטיבית — השוואת גדילה</h2>
+                <p>שנו את מספר איברי המערך ובחרו משפחת סיבוכיות. ההדמיה מציגה מספר פעולות <strong>מודליות</strong> (ולא מדידת זמן בפועל).</p>
+                <div class="viz">
+                    <div class="controls">
+                        <label for="sizeSlider">מספר האיברים: <strong id="sizeValue">8</strong></label>
+                        <input type="range" id="sizeSlider" min="2" max="20" value="8">
+                        <label for="family">סוג סיבוכיות:</label>
+                        <select id="family"><option value="constant">O(1)</option><option value="log">O(log n)</option><option value="root">O(√n)</option><option value="linear" selected>O(n)</option><option value="nlog">O(n log n)</option><option value="square">O(n²)</option><option value="cube">O(n³)</option><option value="exp">O(2ⁿ)</option><option value="fact">O(n!)</option></select>
+                    </div>
+                    <div class="strip" id="arrayStrip" aria-label="תאי מערך"></div>
+                    <div class="output" id="operationOutput" aria-live="polite"></div>
+                    <p id="vizExplanation"></p>
+                </div>
+                <div class="note">לצורך השוואה נבחרו פונקציות מייצגות: 1, ⌈log₂n⌉, ⌈√n⌉, n, n·⌈log₂n⌉, n², n³, 2ⁿ, n!. במימוש אמיתי מספר הפעולות עשוי להיות שונה בקבועים ובאיברים מסדר נמוך.</div>
+            </section>
+            <section class="page" id="pitfalls" data-page="10">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>10. כללי עבודה וטעויות נפוצות</h2>
+                <div class="card"><h3>טעות: שתי לולאות תמיד יוצרות O(n²)</h3><p>בלולאות עוקבות מחברים: n+n=2n ולכן O(n). בלולאות מקוננות יש לבחון את גבולות הלולאה הפנימית.</p></div>
+                <div class="card" style="margin-top:12px"><h3>טעות: חיפוש במערך תמיד O(n)</h3><p>חיפוש סדרתי הוא O(n) במקרה הגרוע; חיפוש בינארי במערך <strong>ממוין</strong> הוא O(log n) במקרה הגרוע.</p></div>
+                <div class="card" style="margin-top:12px"><h3>טעות: מעבר על חצי מערך הוא O(1)</h3><p>אם עוברים על n/2 איברים, מספר הפעולות גדל עם n ולכן O(n).</p></div>
+                <div class="card" style="margin-top:12px"><h3>טעות: O(2n) שונה אסימפטוטית מ־O(n)</h3><p>מתעלמים מגורמים קבועים: O(2n)=O(n). לעומת זאת O(2ⁿ) היא משפחה מעריכית.</p></div>
+                <div class="note warning"><strong>שיטת פתרון:</strong> (1) להגדיר n; (2) לספור ביצועים; (3) לבדוק תלות בין הלולאות; (4) להבחין בין מקרים; (5) לרשום O מתאים ולנמק.</div>
+            </section>
+            <section class="page" id="quiz" data-page="11">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>11. מבדק עצמי — שאלות 1–5 מתוך 15</h2>
+                <article class="question" data-question="0" data-correct="1" data-explain="גישה ישירה לתא יחיד היא פעולה בזמן קבוע.">
+                    <p>1. מהי סיבוכיות הגישה ל־arr[5] כאשר האינדקס תקין?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q0" value="0"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q0" value="1"><span dir="ltr">O(1)</span></label>
+                            <label class="choice"><input type="radio" name="q0" value="2"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q0" value="3"><span dir="ltr">O(log n)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="1" data-correct="0" data-explain="מבצעים פעולה קבועה n פעמים.">
+                    <p>2. מהי סיבוכיות סכימת כל איברי מערך בן n תאים?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q1" value="0"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q1" value="1"><span dir="ltr">O(1)</span></label>
+                            <label class="choice"><input type="radio" name="q1" value="2"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q1" value="3"><span dir="ltr">O(2ⁿ)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="2" data-correct="2" data-explain="מספר החזרות 2n ולכן O(n).">
+                    <p>3. שתי לולאות עוקבות, כל אחת n חזרות: מהי הסיבוכיות?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q2" value="0"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q2" value="1"><span dir="ltr">O(2ⁿ)</span></label>
+                            <label class="choice"><input type="radio" name="q2" value="2"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q2" value="3"><span dir="ltr">O(1)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="3" data-correct="0" data-explain="מספר החזרות הוא n·n.">
+                    <p>4. מהי סיבוכיות שתי לולאות מקוננות, שכל אחת רצה n פעמים?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q3" value="0"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q3" value="1"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q3" value="2"><span dir="ltr">O(log n)</span></label>
+                            <label class="choice"><input type="radio" name="q3" value="3"><span dir="ltr">O(1)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="4" data-correct="1" data-explain="מקדם קבוע 1/2 אינו משנה את סדר הגודל.">
+                    <p>5. מהי סיבוכיות מעבר על n/2 איברים?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q4" value="0"><span dir="ltr">O(1)</span></label>
+                            <label class="choice"><input type="radio" name="q4" value="1"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q4" value="2"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q4" value="3"><span dir="ltr">O(log n)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+            </section>
+            <section class="page" id="quiz2" data-page="12">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>11. מבדק עצמי — שאלות 6–10 מתוך 15</h2>
+                <article class="question" data-question="5" data-correct="1" data-explain="נדרשת סדרה ממוינת בסדר ידוע.">
+                    <p>6. מהו התנאי הנדרש להפעלת חיפוש בינארי רגיל?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q5" value="0"><span dir="ltr">מספר איברים זוגי</span></label>
+                            <label class="choice"><input type="radio" name="q5" value="1"><span dir="ltr">המערך ממוין</span></label>
+                            <label class="choice"><input type="radio" name="q5" value="2"><span dir="ltr">אין כפילויות</span></label>
+                            <label class="choice"><input type="radio" name="q5" value="3"><span dir="ltr">כל האיברים חיוביים</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="6" data-correct="2" data-explain="בכל שלב תחום החיפוש קטן בערך פי שניים.">
+                    <p>7. בחיפוש בינארי, מהי הסיבוכיות במקרה הגרוע?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q6" value="0"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q6" value="1"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q6" value="2"><span dir="ltr">O(log n)</span></label>
+                            <label class="choice"><input type="radio" name="q6" value="3"><span dir="ltr">O(1)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="7" data-correct="0" data-explain="אם האיבר הראשון מתאים מתבצעת השוואה אחת.">
+                    <p>8. בחיפוש סדרתי עם עצירה במציאת האיבר הראשון, מהו המקרה המיטבי?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q7" value="0"><span dir="ltr">O(1)</span></label>
+                            <label class="choice"><input type="radio" name="q7" value="1"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q7" value="2"><span dir="ltr">O(n log n)</span></label>
+                            <label class="choice"><input type="radio" name="q7" value="3"><span dir="ltr">O(n²)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="8" data-correct="2" data-explain="מספר ההכפלות עד n הוא לוגריתמי.">
+                    <p>9. מהי סיבוכיות לולאה שבה i מתחיל ב־1 ומוכפל ב־2 עד n?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q8" value="0"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q8" value="1"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q8" value="2"><span dir="ltr">O(log n)</span></label>
+                            <label class="choice"><input type="radio" name="q8" value="3"><span dir="ltr">O(2ⁿ)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="9" data-correct="1" data-explain="מכפילים מספר רמות בעבודה בכל רמה.">
+                    <p>10. אם מבצעים n פעולות בכל אחת מכ־log n רמות, מהי הסיבוכיות?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q9" value="0"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q9" value="1"><span dir="ltr">O(n log n)</span></label>
+                            <label class="choice"><input type="radio" name="q9" value="2"><span dir="ltr">O(log n)</span></label>
+                            <label class="choice"><input type="radio" name="q9" value="3"><span dir="ltr">O(n)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+            </section>
+            <section class="page" id="quiz3" data-page="13">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>11. מבדק עצמי — שאלות 11–15 מתוך 15</h2>
+                <article class="question" data-question="10" data-correct="1" data-explain="סכום החזרות n(n−1)/2.">
+                    <p>11. מהי סיבוכיות לולאה פנימית j=i+1..n-1 בתוך i=0..n-1?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q10" value="0"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q10" value="1"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q10" value="2"><span dir="ltr">O(1)</span></label>
+                            <label class="choice"><input type="radio" name="q10" value="3"><span dir="ltr">O(2ⁿ)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="11" data-correct="2" data-explain="המכפלה היא n·n·n.">
+                    <p>12. מהי סיבוכיות שלוש לולאות מקוננות שכל אחת n פעמים?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q11" value="0"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q11" value="1"><span dir="ltr">O(3n)</span></label>
+                            <label class="choice"><input type="radio" name="q11" value="2"><span dir="ltr">O(n³)</span></label>
+                            <label class="choice"><input type="radio" name="q11" value="3"><span dir="ltr">O(n!)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="12" data-correct="0" data-explain="מספר ערכי i הוא בערך שורש n.">
+                    <p>13. לולאה שרצה כל עוד i*i&lt;n ומקדמת i ב־1 — מה הסיבוכיות?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q12" value="0"><span dir="ltr">O(√n)</span></label>
+                            <label class="choice"><input type="radio" name="q12" value="1"><span dir="ltr">O(log n)</span></label>
+                            <label class="choice"><input type="radio" name="q12" value="2"><span dir="ltr">O(n)</span></label>
+                            <label class="choice"><input type="radio" name="q12" value="3"><span dir="ltr">O(n²)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="13" data-correct="3" data-explain="לכל איבר יש שתי אפשרויות, ולכן 2ⁿ תתי־קבוצות.">
+                    <p>14. כמה תתי־קבוצות קיימות למערך בעל n איברים מובחנים?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q13" value="0"><span dir="ltr">n²</span></label>
+                            <label class="choice"><input type="radio" name="q13" value="1"><span dir="ltr">2n</span></label>
+                            <label class="choice"><input type="radio" name="q13" value="2"><span dir="ltr">n!</span></label>
+                            <label class="choice"><input type="radio" name="q13" value="3"><span dir="ltr">2ⁿ</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+                <article class="question" data-question="14" data-correct="1" data-explain="קיימות n! תמורות והדפסת כל אחת עולה Θ(n).">
+                    <p>15. אלגוריתם מדפיס את כל n! התמורות של n איברים, n איברים בכל תמורה. מה זמן הריצה?</p>
+                    <div class="choices">
+                            <label class="choice"><input type="radio" name="q14" value="0"><span dir="ltr">O(n!)</span></label>
+                            <label class="choice"><input type="radio" name="q14" value="1"><span dir="ltr">O(n·n!)</span></label>
+                            <label class="choice"><input type="radio" name="q14" value="2"><span dir="ltr">O(n²)</span></label>
+                            <label class="choice"><input type="radio" name="q14" value="3"><span dir="ltr">O(2ⁿ)</span></label>
+                    </div>
+                    <div class="feedback" aria-live="polite"></div>
+                </article>
+            </section>
+            <section class="page" id="results" data-page="14">
+                <div class="eyebrow">מדעי המחשב • 5 יחידות • מערך חד־ממדי</div>
+                <h2>12. סיכום המבדק והמשך למידה</h2>
+                <p>בכל שאלה ניתן לבחור תשובה ולקבל <strong>משוב מיידי</strong>, כולל הסבר לתשובה הנכונה. התוצאה הכוללת מתעדכנת אוטומטית.</p>
+                <div class="summary" id="quizSummary" aria-live="polite">נענו 0 מתוך 15 שאלות. תשובות נכונות: 0.</div>
+                <p><button type="button" id="resetQuiz" style="padding:10px 17px;border:2px solid #196389;border-radius:8px;background:#e8f3fa;cursor:pointer;font:inherit">איפוס המבדק</button></p>
+                <h3>מפת מושגים לזכירה</h3>
+                <table class="table"><thead><tr><th>דפוס פעולה</th><th>זמן אופייני</th></tr></thead><tbody><tr><td>גישה בודדת</td><td dir="ltr">O(1)</td></tr><tr><td>הקטנה חוזרת בחצי</td><td dir="ltr">O(log n)</td></tr><tr><td>סריקה מלאה</td><td dir="ltr">O(n)</td></tr><tr><td>עבודה ליניארית בכל רמת חלוקה</td><td dir="ltr">O(n log n)</td></tr><tr><td>כל זוגות האינדקסים</td><td dir="ltr">O(n²)</td></tr><tr><td>כל השלשות</td><td dir="ltr">O(n³)</td></tr><tr><td>כל תתי־הקבוצות</td><td dir="ltr">O(2ⁿ)</td></tr></tbody></table>
+                <div class="note"><strong>לזכור:</strong> תמיד מציינים איזו פעולה נספרת, מהי הנחת הקלט ומהו המקרה המנותח. כתיבה של נוסחת סיבוכיות בלבד אינה מהווה נימוק.</div>
+            </section>
+        </main>
+        <script>
+            "use strict";
+            const slider = document.getElementById("sizeSlider");
+            const family = document.getElementById("family");
+            const strip = document.getElementById("arrayStrip");
+            const output = document.getElementById("operationOutput");
+            const explanations = {
+                constant: "גישה לתא אחד אינה תלויה בגודל המערך.",
+                log: "בכל שלב מצטמצם תחום החיפוש לכמחצית.",
+                root: "נסרקת קידומת שאורכה בערך שורש מספר האיברים.",
+                linear: "כל איבר נבדק פעם אחת.",
+                nlog: "יש מספר לוגריתמי של רמות, ובכל אחת עבודה ליניארית.",
+                square: "כל אחד מ־n האיברים נבדק מול n איברים.",
+                cube: "שלושה אינדקסים עצמאיים יוצרים n³ צירופים.",
+                exp: "לכל איבר שתי אפשרויות: נבחר או לא נבחר.",
+                fact: "מונים את כל הסידורים האפשריים של האיברים."
+            };
+            function factorial(n) {
+                let x = 1n;
+                for (let i = 2; i <= n; i++) x *= BigInt(i);
+                return x.toString();
+            }
+            function renderViz() {
+                const n = Number(slider.value);
+                const kind = family.value;
+                document.getElementById("sizeValue").textContent = n;
+                strip.replaceChildren();
+                for (let i = 0; i < n; i++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell" + (kind === "constant" ? (i===0 ? " active" : "") : " active");
+                    cell.textContent = i;
+                    strip.appendChild(cell);
+                }
+                const log = Math.ceil(Math.log2(n));
+                const values = {constant: 1, log: log, root: Math.ceil(Math.sqrt(n)), linear: n, nlog: n*log, square: n*n, cube: n*n*n, exp: 2**n, fact: factorial(n)};
+                output.textContent = "מספר פעולות מודלי: " + (kind === "fact" ? BigInt(values[kind]).toLocaleString("en-US") : Number(values[kind]).toLocaleString("en-US"));
+                document.getElementById("vizExplanation").textContent = explanations[kind];
+            }
+            slider.addEventListener("input", renderViz);
+            family.addEventListener("change", renderViz);
+            renderViz();
+            const allQuestions = Array.from(document.querySelectorAll(".question"));
+            function updateQuiz() {
+                let answered=0, correct=0;
+                for (const question of allQuestions) {
+                    const selected=question.querySelector("input:checked");
+                    const fb=question.querySelector(".feedback");
+                    if (!selected) { fb.className="feedback"; fb.textContent=""; continue; }
+                    answered++;
+                    const good=Number(selected.value)===Number(question.dataset.correct);
+                    if (good) correct++;
+                    fb.className="feedback " + (good ? "correct" : "incorrect");
+                    const right=question.querySelector('input[value="'+question.dataset.correct+'"]').parentElement.textContent.trim();
+                    fb.textContent=(good ? "✓ נכון. " : "✗ לא נכון. התשובה: " + right + ". ")+question.dataset.explain;
+                }
+                document.getElementById("quizSummary").textContent="נענו " + answered + " מתוך 15 שאלות. תשובות נכונות: " + correct + ".";
+            }
+            for (const question of allQuestions) question.addEventListener("change", updateQuiz);
+            document.getElementById("resetQuiz").addEventListener("click", () => {
+                for (const input of document.querySelectorAll('.question input[type="radio"]')) input.checked=false;
+                updateQuiz();
+                location.hash="quiz";
+            });
+        </script>
+    </body>
+</html>
