@@ -1,6 +1,6 @@
-import { svgEl, union } from './scene.js?v=20261015-minimap';
-import { el, btn } from './ui.js?v=20261015-minimap';
-import { RenderCache } from './render-cache.js?v=20261015-minimap';
+import { svgEl, union } from './scene.js?v=20261016-navigation';
+import { el, btn } from './ui.js?v=20261016-navigation';
+import { RenderCache } from './render-cache.js?v=20261016-navigation';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};

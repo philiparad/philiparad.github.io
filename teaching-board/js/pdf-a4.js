@@ -1,4 +1,4 @@
-import { A4, pageRect } from './pages.js?v=20261015-minimap';
+import { A4, pageRect } from './pages.js?v=20261016-navigation';
 
 /** Prepare the entire import without changing the document. */
 export function planA4Import(board,pages){

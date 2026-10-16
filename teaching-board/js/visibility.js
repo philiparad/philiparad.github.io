@@ -1,4 +1,4 @@
-import { SHAPES } from './shapes.js?v=20261015-minimap';
+import { SHAPES } from './shapes.js?v=20261016-navigation';
 
 // Conservative geometry bounds, independent of the DOM. Text can overflow its
 // nominal box (long words, RTL and font metrics), so keep text/notes mounted.
