@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <link rel="icon" type="image/png" href="philip_favicon.png"/>
+        <title>גודל הקלט וסיבוכיות במערך דו־ממדי | 5 יחידות</title>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <style>
+            :root { color-scheme:light; --ink:#153047; --muted:#526779; --blue:#155a94; --teal:#087f83; --paper:#fff; --line:#cddce6; --soft:#eef5fa; --green:#146c48; --red:#a83236; }
+            * { box-sizing:border-box; }
+            html { scroll-behavior:smooth; }
+            body { margin:0; background:#e7edf3; font-family:Arial,"Noto Sans Hebrew",sans-serif; color:var(--ink); line-height:1.55; }
+            a { color:var(--blue); }
+            .toolbar { position:sticky; top:0; z-index:5; display:flex; justify-content:center; flex-wrap:wrap; gap:10px; padding:10px; background:#10314d; color:white; }
+            .toolbar a,.toolbar button { color:white; background:#275978; border:1px solid #7fa9c1; border-radius:8px; padding:6px 13px; font:inherit; text-decoration:none; cursor:pointer; }
+            main { padding:18px 0 35px; }
+            .page { width:210mm; min-height:297mm; height:auto; margin:0 auto 18px; padding:16mm 17mm 18mm; background:var(--paper); box-shadow:0 5px 18px #092a4430; position:relative; break-after:page; overflow:visible; }
+            .page::after { content:attr(data-page); position:absolute; bottom:7mm; left:17mm; color:#718396; font-size:11px; }
+            .eyebrow { font-size:12px; color:var(--teal); font-weight:700; letter-spacing:.2px; }
+            h1 { font-size:27px; line-height:1.3; margin:12px 0 16px; color:#103e62; }
+            h2 { font-size:21px; margin:0 0 13px; color:#103e62; border-bottom:2px solid #94bace; padding-bottom:8px; }
+            h3 { font-size:16px; margin:15px 0 6px; color:#115c7e; }
+            p { margin:7px 0 11px; } ul,ol { padding-right:23px; } li { margin-bottom:5px; }
+            .cards { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:13px 0; }
+            .card,.note,.example,.question,.viz { border:2px solid var(--line); border-radius:11px; padding:13px 15px; background:white; break-inside:avoid; }
+            .note { background:var(--soft); border-color:#a9cbdc; }
+            .warning { background:#fff8ec; border-color:#e5c58b; }
+            .example { margin:12px 0; border-color:#bbd8d2; }
+            .example h3 { margin-top:0; }
+            .formula { direction:ltr; unicode-bidi:isolate; text-align:center; padding:8px; background:#eef6fb; border:1px solid #c3ddea; border-radius:8px; font-size:18px; margin:10px 0; }
+            code,pre { direction:ltr; text-align:left; font-family:Consolas,"Courier New",monospace; }
+            pre { background:#132c40; color:#e9f4ff; padding:11px 13px; border-radius:8px; white-space:pre-wrap; font-size:12.7px; line-height:1.48; margin:7px 0; }
+            .table { width:100%; border-collapse:collapse; margin:12px 0; font-size:14px; }
+            .table th,.table td { border:1px solid var(--line); padding:9px; text-align:right; }
+            .table th { background:#e8f2f8; }
+            .matrix { display:grid; gap:4px; direction:ltr; width:max-content; max-width:100%; margin:15px auto; }
+            .cell { border:1px solid #8daebf; background:#ddecf7; border-radius:5px; display:grid; place-items:center; width:48px; height:43px; font-weight:bold; }
+            .viz-controls { display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+            .viz-controls label { display:flex; gap:7px; align-items:center; }
+            input[type=range] { width:110px; }
+            select { padding:6px; border-radius:7px; border:1px solid #91adbe; background:white; }
+            .output { text-align:center; background:#eaf5f6; border-radius:8px; padding:9px; font-weight:bold; }
+            .question { margin:9px 0; padding:11px 13px; border-color:#c4dce8; }
+            .question p { font-weight:bold; margin:0 0 6px; font-size:13.5px; }
+            .choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 14px; }
+            .choice { display:flex; gap:6px; align-items:baseline; cursor:pointer; font-size:13px; }
+            .choice input { accent-color:#156d97; }
+            .feedback { display:none; font-size:12.5px; margin:7px 0 0; border-radius:6px; padding:6px; }
+            .feedback.correct { display:block; color:var(--green); background:#e4f5ec; }
+            .feedback.incorrect { display:block; color:var(--red); background:#fff0ee; }
+            .summary { background:#eaf3f9; border:2px solid #b9d2e2; padding:12px; border-radius:10px; font-weight:bold; margin:12px 0; }
+            @page { size:A4; margin:0; }
+            @media(max-width:830px) { .page { width:100%; min-height:auto; padding:24px 20px 35px; } main { padding:0; } .cards { grid-template-columns:1fr; } }
+            @media print { html,body { background:white; } .toolbar { display:none; } main { padding:0; } .page { width:210mm; min-height:297mm; margin:0; box-shadow:none; page-break-after:always; break-after:page; } .page:last-child { break-after:auto; } .question { break-inside:avoid; } }
+        </style>
+    </head>
+    <body>
+        <nav class="toolbar" aria-label="ניווט במסמך">
+            <a href="#intro">מבוא</a>
+            <a href="#cases">כללים</a>
+            <a href="#examples">דוגמאות</a>
+            <a href="#viz">המחשה</a>
+            <a href="#quiz">תרגול 15 שאלות</a>
+            <button type="button" onclick="window.print()">הדפסה / PDF</button>
+        </nav>
+        <main>
+            <section class="page" id="intro" data-page="1">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>1. הגדרת גודל הקלט במערך דו־ממדי</h2>
+                <p>מערך דו־ממדי מורכב משורות ומעמודות. נגדיר <strong>n</strong> כמספר השורות ו־<strong>m</strong> כמספר העמודות. מספר התאים הכולל הוא <strong>n·m</strong>.</p>
+                <div class="matrix" style="grid-template-columns:repeat(4,48px)" aria-label="מערך של שלוש שורות וארבע עמודות">
+                    <div class="cell">2</div>
+                    <div class="cell">5</div>
+                    <div class="cell">7</div>
+                    <div class="cell">1</div>
+                    <div class="cell">8</div>
+                    <div class="cell">3</div>
+                    <div class="cell">4</div>
+                    <div class="cell">6</div>
+                    <div class="cell">9</div>
+                    <div class="cell">0</div>
+                    <div class="cell">5</div>
+                    <div class="cell">2</div>
+                </div>
+                <div class="note"><strong>דוגמה:</strong> 3 שורות × 4 עמודות = 12 תאים.</div>
+                <div class="cards">
+                    <div class="card"><h3>מערך ריבועי</h3><p>n=m ולכן מספר התאים n².</p><div class="formula">n × n = n²</div></div>
+                    <div class="card"><h3>מערך מלבני</h3><p>מספר השורות והעמודות עשוי להיות שונה.</p><div class="formula">n × m = nm</div></div>
+                </div>
+                <p><strong>הבחנה חשובה:</strong> אפשר להגדיר גם N=nm כמספר התאים הכולל. סריקה מלאה היא O(N), או O(nm) אם מנתחים לפי שני הממדים. במערך ריבועי היא O(n²) כש־n מציין את אורך הצלע.</p>
+            </section>
+            <section class="page" id="cases" data-page="2">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>2. סיבוכיות לפי הפעולה המתבצעת</h2>
+                <table class="table"><thead><tr><th>פעולה</th><th>מספר פעולות</th><th>סיבוכיות</th></tr></thead><tbody>
+                    <tr><td>גישה לתא אחד</td><td dir="ltr">1</td><td dir="ltr">O(1)</td></tr>
+                    <tr><td>מעבר על שורה אחת</td><td dir="ltr">m</td><td dir="ltr">O(m)</td></tr>
+                    <tr><td>מעבר על עמודה אחת</td><td dir="ltr">n</td><td dir="ltr">O(n)</td></tr>
+                    <tr><td>מעבר על כל התאים</td><td dir="ltr">n·m</td><td dir="ltr">O(nm)</td></tr>
+                    <tr><td>סריקה מלאה בריבוע n×n</td><td dir="ltr">n²</td><td dir="ltr">O(n²)</td></tr>
+                    <tr><td>אלכסון ראשי בריבוע</td><td dir="ltr">n</td><td dir="ltr">O(n)</td></tr>
+                </tbody></table>
+                <div class="note"><strong>כלל:</strong> לולאות עוקבות — מחברים את מספר הפעולות. לולאות מקוננות — כאשר מספר חזרות הלולאה הפנימית אינו תלוי באינדקס החיצוני, מכפילים את מספרי החזרות.</div>
+                <div class="cards">
+                    <div class="card"><h3>n×5</h3><p>מספר העמודות קבוע: סריקה מלאה O(n).</p></div>
+                    <div class="card"><h3>3×m</h3><p>מספר השורות קבוע: סריקה מלאה O(m).</p></div>
+                    <div class="card"><h3>n×n²</h3><p>מספר התאים n³: סריקה מלאה O(n³).</p></div>
+                    <div class="card"><h3>סריקה של מחצית המערך</h3><p>אם נסרק שיעור קבוע של n² התאים: O(n²).</p></div>
+                </div>
+            </section>
+            <section class="page" id="examples" data-page="3">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>3. דוגמאות קוד — גישה, שורה, עמודה</h2>
+                <article class="example">
+                    <h3>דוגמה 1 — גישה לתא</h3>
+                    <p>הפעולה אינה תלויה בממדי המערך.</p>
+                    <pre><code>int x = arr[2, 3];</code></pre>
+                    <div class="formula">O(1)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 2 — מעבר על שורה אחת</h3>
+                    <p>בשורה יש m תאים.</p>
+                    <pre><code>for (int j = 0; j &lt; m; j++)
+{
+    Console.WriteLine(arr[0, j]);
+}</code></pre>
+                    <div class="formula">O(m)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 3 — מעבר על עמודה אחת</h3>
+                    <p>בעמודה יש n תאים.</p>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+{
+    Console.WriteLine(arr[i, 0]);
+}</code></pre>
+                    <div class="formula">O(n)</div>
+                </article>
+            </section>
+            <section class="page" id="full" data-page="4">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>4. סריקה מלאה ולולאות עוקבות</h2>
+                <article class="example">
+                    <h3>דוגמה 4 — שתי לולאות מקוננות</h3>
+                    <p>n חזרות חיצוניות, ובכל אחת m חזרות פנימיות.</p>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+{
+    for (int j = 0; j &lt; m; j++)
+    {
+        Console.WriteLine(arr[i, j]);
+    }
+}</code></pre>
+                    <div class="formula">T(n,m)=nm ⇒ O(nm)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 5 — שתי לולאות עוקבות</h3>
+                    <p>הראשונה רצה n פעמים והשנייה m פעמים.</p>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+    Console.WriteLine(arr[i, 0]);
+
+for (int j = 0; j &lt; m; j++)
+    Console.WriteLine(arr[0, j]);</code></pre>
+                    <div class="formula">T(n,m)=n+m ⇒ O(n+m)</div>
+                </article>
+            </section>
+            <section class="page" id="triangular" data-page="5">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>5. אלכסון וסריקה משולשת</h2>
+                <article class="example">
+                    <h3>דוגמה 6 — אלכסון ראשי</h3>
+                    <p>סורקים n תאים בלבד מתוך n².</p>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+{
+    Console.WriteLine(arr[i, i]);
+}</code></pre>
+                    <div class="formula">T(n)=n ⇒ O(n)</div>
+                </article>
+                <article class="example">
+                    <h3>דוגמה 7 — מספר החזרות תלוי ב־i</h3>
+                    <p>בסיבוב i מבוצעות i+1 פעולות; סוכמים 1+2+...+n.</p>
+                    <pre><code>for (int i = 0; i &lt; n; i++)
+{
+    for (int j = 0; j &lt;= i; j++)
+    {
+        Console.WriteLine(arr[i, j]);
+    }
+}</code></pre>
+                    <div class="formula">T(n)=n(n+1)/2 ⇒ O(n²)</div>
+                </article>
+                <div class="note warning"><strong>זהירות:</strong> גם אם לא נסרקים כל התאים, הסיבוכיות יכולה להישאר ריבועית. בדקו את מספר הפעולות ולא רק את חלק המערך שנסרק.</div>
+            </section>
+            <section class="page" id="viz" data-page="6">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>6. המחשה אינטראקטיבית — ממדים ומסלול הסריקה</h2>
+                <p>שנו את מספר השורות והעמודות, ובחרו איזה חלק של המערך נסרק. התאים הכחולים הם התאים שבהם מתבצעת פעולה.</p>
+                <div class="viz">
+                    <div class="viz-controls">
+                        <label for="rows">שורות n: <input id="rows" type="range" min="2" max="8" value="4"><output id="rowsValue">4</output></label>
+                        <label for="cols">עמודות m: <input id="cols" type="range" min="2" max="8" value="4"><output id="colsValue">4</output></label>
+                        <label for="scan">סריקה: <select id="scan"><option value="all">כל התאים</option><option value="row">שורה ראשונה</option><option value="column">עמודה ראשונה</option><option value="diag">אלכסון ראשי</option><option value="triangle">המשולש התחתון (ללא תנאי לכל תא)</option></select></label>
+                    </div>
+                    <div id="interactiveMatrix" class="matrix" aria-label="המחשת המערך"></div>
+                    <div class="output" id="vizResult" aria-live="polite"></div>
+                </div>
+                <div class="note">באלכסון של מערך מלבני יש min(n,m) תאים. בסריקה משולשת, אם שתי המידות שונות, מספר התאים הנסרקים תלוי בשתיהן. במערך ריבועי מתקבל O(n²).</div>
+            </section>
+            <section class="page" id="pitfalls" data-page="7">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>7. טעויות נפוצות ושיטת פתרון</h2>
+                <div class="note warning" style="margin-bottom:9px"><strong>טעות:</strong> כל מערך דו־ממדי מחייב O(n²).<br><strong>תיקון:</strong> שגוי: גישה לתא בודד היא O(1), שורה אחת O(m).</div>
+                <div class="note warning" style="margin-bottom:9px"><strong>טעות:</strong> שתי לולאות תמיד נותנות O(n²).<br><strong>תיקון:</strong> שגוי: יש להבחין בין עוקבות למקוננות, ובין n לבין m.</div>
+                <div class="note warning" style="margin-bottom:9px"><strong>טעות:</strong> סריקה של מערך n×m היא בהכרח O(n²).<br><strong>תיקון:</strong> שגוי: בסריקה מלאה O(nm); בריבוע n×n מתקבל O(n²).</div>
+                <div class="note warning" style="margin-bottom:9px"><strong>טעות:</strong> אם פעולה מתבצעת רק בחלק מהתאים, סופרים רק את הפעולות שבוצעו.<br><strong>תיקון:</strong> לא תמיד: אם בכל תא נבדק תנאי, גם בדיקות התנאי נחשבות.</div>
+                <h3>חמישה שלבים לפתרון שאלה</h3>
+                <ol>
+                    <li>הגדירו n כמספר השורות ו־m כמספר העמודות.</li>
+                    <li>זהו מה בדיוק מתבצע בכל איטרציה.</li>
+                    <li>מנו את מספר החזרות בכל לולאה, לרבות בדיקות תנאי.</li>
+                    <li>כתבו פונקציה למספר הפעולות T(n,m).</li>
+                    <li>פשטו וקבעו חסם אסימפטוטי באמצעות O.</li>
+                </ol>
+            </section>
+            <section class="page" id="quiz" data-page="8">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>8. תרגול עצמי — קביעת סיבוכיות (1–5 מתוך 15)</h2>
+                <p>בחרו תשובה אחת לכל שאלה. מיד לאחר הבחירה יופיע משוב עם הסבר. ניתן לשנות את התשובה בכל עת.</p>
+                <article class="question" data-question="0" data-correct="1">
+                    <p>1. מהי הסיבוכיות של סריקת כל התאים במערך n×m?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q0" value="0"><span dir="auto">O(n+m)</span></label>
+                        <label class="choice"><input type="radio" name="q0" value="1"><span dir="auto">O(nm)</span></label>
+                        <label class="choice"><input type="radio" name="q0" value="2"><span dir="auto">O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q0" value="3"><span dir="auto">O(1)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback0" aria-live="polite" data-explanation="הלולאה החיצונית חוזרת n פעמים והפנימית m פעמים בכל סיבוב."></div>
+                </article>
+                <article class="question" data-question="1" data-correct="2">
+                    <p>2. מהי הסיבוכיות של גישה יחידה ל־arr[2,3]?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q1" value="0"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q1" value="1"><span dir="auto">O(m)</span></label>
+                        <label class="choice"><input type="radio" name="q1" value="2"><span dir="auto">O(1)</span></label>
+                        <label class="choice"><input type="radio" name="q1" value="3"><span dir="auto">O(nm)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback1" aria-live="polite" data-explanation="גישה לתא נתון אינה מחייבת סריקה."></div>
+                </article>
+                <article class="question" data-question="2" data-correct="1">
+                    <p>3. מהי הסיבוכיות של מעבר על שורה אחת במערך n×m?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q2" value="0"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q2" value="1"><span dir="auto">O(m)</span></label>
+                        <label class="choice"><input type="radio" name="q2" value="2"><span dir="auto">O(nm)</span></label>
+                        <label class="choice"><input type="radio" name="q2" value="3"><span dir="auto">O(1)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback2" aria-live="polite" data-explanation="בשורה אחת יש m תאים."></div>
+                </article>
+                <article class="question" data-question="3" data-correct="0">
+                    <p>4. מהי הסיבוכיות של מעבר על עמודה אחת במערך n×m?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q3" value="0"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q3" value="1"><span dir="auto">O(m)</span></label>
+                        <label class="choice"><input type="radio" name="q3" value="2"><span dir="auto">O(nm)</span></label>
+                        <label class="choice"><input type="radio" name="q3" value="3"><span dir="auto">O(n²)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback3" aria-live="polite" data-explanation="בעמודה אחת יש n תאים."></div>
+                </article>
+                <article class="question" data-question="4" data-correct="1">
+                    <p>5. מהי הסיבוכיות של סריקת האלכסון הראשי במערך n×n?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q4" value="0"><span dir="auto">O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q4" value="1"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q4" value="2"><span dir="auto">O(1)</span></label>
+                        <label class="choice"><input type="radio" name="q4" value="3"><span dir="auto">O(n³)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback4" aria-live="polite" data-explanation="באלכסון n תאים."></div>
+                </article>
+                <div class="summary" id="progress0">מענה בדף זה: 0 מתוך 5</div>
+            </section>
+            <section class="page" id="quiz2" data-page="9">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>8. תרגול עצמי — קביעת סיבוכיות (6–10 מתוך 15)</h2>
+                <p>בחרו תשובה אחת לכל שאלה. מיד לאחר הבחירה יופיע משוב עם הסבר. ניתן לשנות את התשובה בכל עת.</p>
+                <article class="question" data-question="5" data-correct="1">
+                    <p>6. שתי לולאות עוקבות: אחת רצה n פעמים והשנייה m פעמים. מה הסיבוכיות?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q5" value="0"><span dir="auto">O(nm)</span></label>
+                        <label class="choice"><input type="radio" name="q5" value="1"><span dir="auto">O(n+m)</span></label>
+                        <label class="choice"><input type="radio" name="q5" value="2"><span dir="auto">O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q5" value="3"><span dir="auto">O(1)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback5" aria-live="polite" data-explanation="מחברים את מספר הפעולות של לולאות עוקבות."></div>
+                </article>
+                <article class="question" data-question="6" data-correct="1">
+                    <p>7. מהי הסיבוכיות של סריקה מלאה במערך n×5?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q6" value="0"><span dir="auto">O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q6" value="1"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q6" value="2"><span dir="auto">O(1)</span></label>
+                        <label class="choice"><input type="radio" name="q6" value="3"><span dir="auto">O(n³)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback6" aria-live="polite" data-explanation="5 הוא קבוע, ולכן 5n הוא O(n)."></div>
+                </article>
+                <article class="question" data-question="7" data-correct="2">
+                    <p>8. מהי הסיבוכיות של סריקה מלאה במערך 3×m?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q7" value="0"><span dir="auto">O(nm)</span></label>
+                        <label class="choice"><input type="radio" name="q7" value="1"><span dir="auto">O(m²)</span></label>
+                        <label class="choice"><input type="radio" name="q7" value="2"><span dir="auto">O(m)</span></label>
+                        <label class="choice"><input type="radio" name="q7" value="3"><span dir="auto">O(1)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback7" aria-live="polite" data-explanation="מספר השורות קבוע: 3m פעולות."></div>
+                </article>
+                <article class="question" data-question="8" data-correct="1">
+                    <p>9. במערך n×n מבצעים פעולה רק כאשר j≤i. מהי הסיבוכיות?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q8" value="0"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q8" value="1"><span dir="auto">O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q8" value="2"><span dir="auto">O(1)</span></label>
+                        <label class="choice"><input type="radio" name="q8" value="3"><span dir="auto">O(n³)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback8" aria-live="polite" data-explanation="סכום החזרות 1+2+...+n=n(n+1)/2."></div>
+                </article>
+                <article class="question" data-question="9" data-correct="2">
+                    <p>10. במערך n×n מתבצעת לולאה חיצונית n פעמים ובכל פעם הלולאה הפנימית רצה 4 פעמים. מהי הסיבוכיות?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q9" value="0"><span dir="auto">O(1)</span></label>
+                        <label class="choice"><input type="radio" name="q9" value="1"><span dir="auto">O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q9" value="2"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q9" value="3"><span dir="auto">O(n³)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback9" aria-live="polite" data-explanation="4n פעולות ולכן O(n)."></div>
+                </article>
+                <div class="summary" id="progress1">מענה בדף זה: 0 מתוך 5</div>
+            </section>
+            <section class="page" id="quiz3" data-page="10">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>8. תרגול עצמי — קביעת סיבוכיות (11–15 מתוך 15)</h2>
+                <p>בחרו תשובה אחת לכל שאלה. מיד לאחר הבחירה יופיע משוב עם הסבר. ניתן לשנות את התשובה בכל עת.</p>
+                <article class="question" data-question="10" data-correct="1">
+                    <p>11. כמה תאים יש במערך n×n² ומהי סיבוכיות סריקתו?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q10" value="0"><span dir="auto">n² תאים, O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q10" value="1"><span dir="auto">n³ תאים, O(n³)</span></label>
+                        <label class="choice"><input type="radio" name="q10" value="2"><span dir="auto">2n תאים, O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q10" value="3"><span dir="auto">n תאים, O(n)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback10" aria-live="polite" data-explanation="n כפול n² הוא n³."></div>
+                </article>
+                <article class="question" data-question="11" data-correct="2">
+                    <p>12. במערך n×m עוברים על כל השורות אך מבצעים פעולה רק בעמודה הראשונה. מהי הסיבוכיות אם בודקים את התנאי בכל תא?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q11" value="0"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q11" value="1"><span dir="auto">O(m)</span></label>
+                        <label class="choice"><input type="radio" name="q11" value="2"><span dir="auto">O(nm)</span></label>
+                        <label class="choice"><input type="radio" name="q11" value="3"><span dir="auto">O(1)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback11" aria-live="polite" data-explanation="בדיקת התנאי עצמה מתבצעת בכל n·m התאים."></div>
+                </article>
+                <article class="question" data-question="12" data-correct="2">
+                    <p>13. במערך n×n עוברים על כל התאים פעמיים בשתי סריקות מלאות עוקבות. מה הסיבוכיות?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q12" value="0"><span dir="auto">O(n⁴)</span></label>
+                        <label class="choice"><input type="radio" name="q12" value="1"><span dir="auto">O(2n²)</span></label>
+                        <label class="choice"><input type="radio" name="q12" value="2"><span dir="auto">O(n²)</span></label>
+                        <label class="choice"><input type="radio" name="q12" value="3"><span dir="auto">O(n)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback12" aria-live="polite" data-explanation="2n² פעולות: משמיטים גורם קבוע."></div>
+                </article>
+                <article class="question" data-question="13" data-correct="1">
+                    <p>14. מהי הסיבוכיות של הקוד: for(i=0;i&lt;n;i++) for(j=0;j&lt;m;j+=2) פעולה;</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q13" value="0"><span dir="auto">O(n+m)</span></label>
+                        <label class="choice"><input type="radio" name="q13" value="1"><span dir="auto">O(nm)</span></label>
+                        <label class="choice"><input type="radio" name="q13" value="2"><span dir="auto">O(n)</span></label>
+                        <label class="choice"><input type="radio" name="q13" value="3"><span dir="auto">O(m)</span></label>
+                    </div>
+                    <div class="feedback" id="feedback13" aria-live="polite" data-explanation="בערך m/2 חזרות לכל שורה, כלומר O(nm)."></div>
+                </article>
+                <article class="question" data-question="14" data-correct="1">
+                    <p>15. מסריקה של n×m עוברים לסריקה של n×n. באיזה תנאי מותר לרשום O(n²)?</p>
+                    <div class="choices">
+                        <label class="choice"><input type="radio" name="q14" value="0"><span dir="auto">תמיד, כי המערך דו־ממדי</span></label>
+                        <label class="choice"><input type="radio" name="q14" value="1"><span dir="auto">רק כאשר m=n (או ידוע ש־m=O(n))</span></label>
+                        <label class="choice"><input type="radio" name="q14" value="2"><span dir="auto">רק כאשר n זוגי</span></label>
+                        <label class="choice"><input type="radio" name="q14" value="3"><span dir="auto">לעולם לא</span></label>
+                    </div>
+                    <div class="feedback" id="feedback14" aria-live="polite" data-explanation="למערך ריבועי m=n. גם חסם m=O(n) נותן חסם עליון O(n²), אך לא בהכרח חסם הדוק."></div>
+                </article>
+                <div class="summary" id="progress2">מענה בדף זה: 0 מתוך 5</div>
+            </section>
+            <section class="page" id="results" data-page="11">
+                <div class="eyebrow">מדעי המחשב · 5 יחידות · מערכים דו־ממדיים</div>
+                <h2>9. משוב מסכם</h2>
+                <p>המשוב מופיע באופן מיידי בכל שאלה. ניתן לחזור לכל אחד משלושת דפי התרגול ולשפר את התוצאה.</p>
+                <div class="summary" id="finalScore" aria-live="polite">טרם נענו שאלות.</div>
+                <button type="button" id="resetQuiz" style="font:inherit;border:2px solid #8ab3c9;background:#e5f3fa;padding:10px 18px;border-radius:9px;cursor:pointer">איפוס כל 15 התשובות</button>
+                <div class="note"><strong>סיכום:</strong> השאלה המרכזית בכל תרגיל היא כמה פעולות מתבצעות כפונקציה של n ו־m. מערך דו־ממדי אינו קובע לבדו את סיבוכיות האלגוריתם.</div>
+            </section>
+        </main>
+        <script>
+            "use strict";
+            const rowsEl = document.getElementById("rows");
+            const colsEl = document.getElementById("cols");
+            const scanEl = document.getElementById("scan");
+            function renderMatrix() {
+                const n = Number(rowsEl.value);
+                const m = Number(colsEl.value);
+                const mode = scanEl.value;
+                document.getElementById("rowsValue").textContent = n;
+                document.getElementById("colsValue").textContent = m;
+                const area = document.getElementById("interactiveMatrix");
+                area.style.gridTemplateColumns = `repeat(${m}, 40px)`;
+                area.replaceChildren();
+                let visited = 0;
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < m; j++) {
+                        const selected = mode === "all" || (mode === "row" && i === 0) || (mode === "column" && j === 0) || (mode === "diag" && i === j) || (mode === "triangle" && j <= i);
+                        const cell = document.createElement("div");
+                        cell.className = "cell";
+                        cell.style.width = "40px";
+                        cell.style.height = "35px";
+                        cell.style.background = selected ? "#a6d8e7" : "#f2f5f7";
+                        cell.textContent = String(i * m + j + 1);
+                        if (selected) visited++;
+                        area.appendChild(cell);
+                    }
+                }
+                let complexity = mode === "all" ? "O(nm)" : mode === "row" ? "O(m)" : mode === "column" ? "O(n)" : mode === "diag" ? "O(min(n,m))" : "O(n²) במערך ריבועי";
+                if (mode === "triangle" && n !== m) complexity = "תלוי ב־n וב־m (לא בהכרח O(n²))";
+                document.getElementById("vizResult").textContent = `${visited} תאים נסרקים מתוך ${n * m} | סיבוכיות: ${complexity}`;
+            }
+            [rowsEl, colsEl, scanEl].forEach(element => element.addEventListener("input", renderMatrix));
+            renderMatrix();
+            const answers = new Map();
+            function updateQuiz() {
+                document.querySelectorAll(".question").forEach(question => {
+                    const index = Number(question.dataset.question);
+                    const selected = question.querySelector("input:checked");
+                    const feedback = question.querySelector(".feedback");
+                    if (!selected) {
+                        feedback.className = "feedback";
+                        feedback.textContent = "";
+                        return;
+                    }
+                    const correct = Number(selected.value) === Number(question.dataset.correct);
+                    const rightOption = question.querySelector(`input[value="${question.dataset.correct}"]`).nextElementSibling.textContent;
+                    feedback.className = "feedback " + (correct ? "correct" : "incorrect");
+                    feedback.textContent = `${correct ? "✓ נכון!" : "✗ לא נכון. תשובה נכונה: " + rightOption} ${feedback.dataset.explanation}`;
+                });
+                let totalCorrect = 0;
+                for (const [index, value] of answers) {
+                    const q = document.querySelector(`[data-question="${index}"]`);
+                    if (Number(q.dataset.correct) === value) totalCorrect++;
+                }
+                for (let page = 0; page < 3; page++) {
+                    let answered = 0;
+                    let correct = 0;
+                    for (let i = page * 5; i < (page + 1) * 5; i++) {
+                        if (answers.has(i)) {
+                            answered++;
+                            if (answers.get(i) === Number(document.querySelector(`[data-question="${i}"]`).dataset.correct)) correct++;
+                        }
+                    }
+                    document.getElementById(`progress${page}`).textContent = `נענו ${answered} מתוך 5 | נכונות: ${correct}`;
+                }
+                document.getElementById("finalScore").textContent = `עניתם על ${answers.size} מתוך 15 שאלות | תשובות נכונות: ${totalCorrect} מתוך 15`;
+            }
+            document.querySelectorAll(".question input[type=radio]").forEach(input => {
+                input.addEventListener("change", () => {
+                    answers.set(Number(input.closest(".question").dataset.question), Number(input.value));
+                    updateQuiz();
+                });
+            });
+            document.getElementById("resetQuiz").addEventListener("click", () => {
+                answers.clear();
+                document.querySelectorAll(".question input[type=radio]").forEach(input => input.checked = false);
+                updateQuiz();
+            });
+            updateQuiz();
+        </script>
+    </body>
+</html>
