@@ -1,4 +1,4 @@
-import {el,field} from './ui.js?v=20261017-trail';
+import {el,field} from './ui.js?v=20261017-laser-settings';
 export function validateAxes(axes={}) {
  if(!axes||typeof axes!=='object'||Array.isArray(axes))throw new Error('Invalid graph axis settings.');
  for(const key of ['grid','tickLabels','equalScale'])if(axes[key]!==undefined&&typeof axes[key]!=='boolean')throw new Error('Invalid graph axis setting.');

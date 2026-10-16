@@ -1,4 +1,4 @@
-import { A4, pageRect } from './pages.js?v=20261017-trail';
+import { A4, pageRect } from './pages.js?v=20261017-laser-settings';
 
 /** Prepare the entire import without changing the document. */
 export function planA4Import(board,pages){

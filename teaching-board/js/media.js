@@ -1,9 +1,9 @@
-import {graphAxisOptions,appendAxisLabels} from './graph-axes.js?v=20261017-trail';
-import {compileFunctions} from './named-functions.js?v=20261017-trail';
-import {endpointMarkers} from './graph-endpoints.js?v=20261017-trail';
-import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261017-trail';
-import { graphSeries, piecewiseRows, functionPlotBounds, compileSeries, seriesLabels, curveAppearance, CURVE_STYLES } from './graph-series.js?v=20261017-trail';
-export { graphSeries } from './graph-series.js?v=20261017-trail';
+import {graphAxisOptions,appendAxisLabels} from './graph-axes.js?v=20261017-laser-settings';
+import {compileFunctions} from './named-functions.js?v=20261017-laser-settings';
+import {endpointMarkers} from './graph-endpoints.js?v=20261017-laser-settings';
+import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261017-laser-settings';
+import { graphSeries, piecewiseRows, functionPlotBounds, compileSeries, seriesLabels, curveAppearance, CURVE_STYLES } from './graph-series.js?v=20261017-laser-settings';
+export { graphSeries } from './graph-series.js?v=20261017-laser-settings';
 const loaders=new Map();
 export function script(url){if(!loaders.has(url))loaders.set(url,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.onload=resolve;s.onerror=()=>{s.remove();loaders.delete(url);reject(new Error('Could not load the teaching library. Check your internet connection and retry.'));};document.head.append(s);}));return loaders.get(url);}
 export function dataURL(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(blob);});}

@@ -1,7 +1,7 @@
-import {equationDialog} from './equation-editor.js?v=20261017-trail';
-import {equationNode} from './inline-equation.js?v=20261017-trail';
-import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261017-trail';
-import { el, btn } from './ui.js?v=20261017-trail';
+import {equationDialog} from './equation-editor.js?v=20261017-laser-settings';
+import {equationNode} from './inline-equation.js?v=20261017-laser-settings';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261017-laser-settings';
+import { el, btn } from './ui.js?v=20261017-laser-settings';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
