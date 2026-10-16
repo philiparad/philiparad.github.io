@@ -1,6 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { minimapFrame, centeredViewport, Minimap } from '../js/minimap.js';
+import { minimapFrame, centeredViewport, Minimap, overviewPath } from '../js/minimap.js';
+test('minimap includes blank A4 pages and rotated large-board content',()=>{
+ const pages=[{x:0,y:0,w:794,h:1123},{x:0,y:1155,w:794,h:1123}];
+ const {frame}=minimapFrame([],{x:0,y:0,zoom:1},800,600,pages);
+ assert.ok(frame.y+frame.h>2278);
+ const items=Array.from({length:1000},(_,n)=>({x:n*10,y:-n,w:20,h:30,rotation:45}));
+ const path=overviewPath(items);assert.equal((path.match(/M/g)||[]).length,1000);assert.ok(!/NaN|Infinity/.test(path));
+});
+test('large overview keeps one content path and does not rebuild on viewport navigation',()=>{
+ const make=()=>({style:{},children:[],attrs:{},setAttribute(k,v){this.attrs[k]=v;},append(...nodes){this.children.push(...nodes);},replaceChildren(...nodes){this.children=nodes;}});
+ const old=globalThis.document;globalThis.document={createElement:make,createElementNS:make};
+ try{
+  const e={history:{current:{}},board:{items:Array.from({length:400},(_,n)=>({id:String(n),x:n,y:n,w:20,h:30})),viewport:{x:0,y:0,zoom:1},layout:'a4',pageCount:2},area:{clientWidth:800,clientHeight:600}};
+  const m=new Minimap(e);m.open=true;m.update();assert.equal(m.content.children.length,3);
+  const path=m.content.children[2];e.board.viewport.x=100;m.update();assert.equal(m.content.children[2],path);
+  e.history.current={};e.board.items[0].x=-500;m.update();assert.notEqual(m.content.children[2],path);
+ }finally{globalThis.document=old;}
+});
 test('minimap navigation centers negative world coordinates without changing zoom',()=>{
  const v={x:20,y:30,zoom:2};
  assert.deepEqual(centeredViewport(v,{x:-300,y:500},800,600),{x:1000,y:-700,zoom:2});

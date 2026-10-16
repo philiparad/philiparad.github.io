@@ -1,5 +1,5 @@
-import {endpointControls} from './graph-endpoints.js?v=20261016-navigation';
-import {el,btn,field} from './ui.js?v=20261016-navigation';
+import {endpointControls} from './graph-endpoints.js?v=20261016-overview';
+import {el,btn,field} from './ui.js?v=20261016-overview';
 export function piecewiseControls(row,index,redraw,schedule){
  const root=el('div',null,'piecewise-controls');
  root.append(el('p','Choose which endpoints each branch includes. Blank bounds are unbounded; branches must not overlap.','muted'));

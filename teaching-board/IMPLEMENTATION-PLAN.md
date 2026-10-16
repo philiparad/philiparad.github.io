@@ -18,8 +18,8 @@ Tablet/stylus and cloud work were removed at the user's request.
 13. Shared x-position marker and values — complete; deployed dc41c2e, 137 tests, live values, clear/undo and reload verified.
 14. Unlinking and link lifecycle/persistence checks — complete; deployed b455343, 140 tests, live unlink/undo, duplicate isolation and reload/backup verified.
 15. Collapsible minimap with viewport — complete; deployed 9245b90; 142 tests pass; live overview, expand/collapse and saved zoom verified.
-16. Minimap click and drag navigation — implemented; 144 tests pass; live verification pending.
-17. Large-board minimap performance and A4 boundaries.
+16. Minimap click and drag navigation — complete; 144 tests pass; live click, drag, keyboard and reload verified.
+17. Large-board minimap performance and A4 boundaries — implemented; verification pending.
 18. Plain, dotted, squared and ruled backgrounds.
 19. Background color, spacing and line colors.
 20. Background consistency in A4, backups and exports.

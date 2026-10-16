@@ -1,4 +1,4 @@
-import {graphAxisOptions} from './graph-axes.js?v=20261016-navigation';
+import {graphAxisOptions} from './graph-axes.js?v=20261016-overview';
 export function rangeMembers(items,selected){
  const chosen=items.filter(i=>selected.has(i.id)),id=chosen[0]?.graphLinkId;
  if(!id||chosen.some(i=>i.type!=='graph'||i.graphLinkId!==id))throw new Error('Select graphs from one linked set.');
