@@ -26,5 +26,5 @@ Tablet/stylus and cloud work were removed at the user's request.
 21. Fading laser-pointer trail — complete; 152 tests pass; live trail, fade and unchanged undo history verified.
 22. Laser trail appearance and viewport behavior — complete; 153 tests pass; live custom color/width, zoom and preference reload verified.
 23. History memory measurements and regression checks — complete; baseline recorded in HISTORY-MEMORY.md; deployment and live undo/redo verified.
-24. Incremental history for common actions — implemented; 166 checks pass; 97.4% lower benchmark payload; live verification pending.
-25. Shared large history assets and memory budget.
+24. Incremental history for common actions — complete; 166 checks and 21 core checks pass; 97.4% lower benchmark payload; live draw/undo/redo verified.
+25. Shared large history assets and memory budget — implemented; 170 checks and 21 core checks pass; live verification pending.

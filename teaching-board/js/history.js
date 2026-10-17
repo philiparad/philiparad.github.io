@@ -2,6 +2,36 @@
 export const serializedBytes=value=>new TextEncoder().encode(JSON.stringify(value)).byteLength;
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const object=value=>value!==null&&typeof value==='object';
+const ASSET_THRESHOLD=4096;
+class AssetRef{constructor(id){this.id=id;}}
+// Count shared large strings once. This remains a payload estimate, not heap size.
+function retainedBytes(value,seen=new Set()){
+ if(value===undefined)return 0;
+ if(typeof value==='string'&&value.length>=ASSET_THRESHOLD){if(seen.has(value))return 0;seen.add(value);}
+ if(!object(value))return serializedBytes(value);
+ if(Array.isArray(value))return 2+Math.max(0,value.length-1)+value.reduce((sum,item)=>sum+retainedBytes(item,seen),0);
+ const entries=Object.entries(value).filter(([,v])=>v!==undefined);
+ return 2+Math.max(0,entries.length-1)+entries.reduce((sum,[key,item])=>sum+serializedBytes(key)+1+retainedBytes(item,seen),0);
+}
+class AssetPool{
+ constructor(){this.values=new Map();this.ids=new Map();this.next=0;}
+ encode(value){
+  if(typeof value==='string'&&value.length>=ASSET_THRESHOLD){let id=this.ids.get(value);if(id===undefined){id=++this.next;this.ids.set(value,id);this.values.set(id,value);}return new AssetRef(id);}
+  if(Array.isArray(value))return value.map(v=>this.encode(v));
+  if(object(value))return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,this.encode(v)]));
+  return value;
+ }
+ decode(value){
+  if(value instanceof AssetRef){if(!this.values.has(value.id))throw new Error('Missing history asset.');return this.values.get(value.id);}
+  if(Array.isArray(value))return value.map(v=>this.decode(v));
+  if(object(value))return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,this.decode(v)]));
+  return value;
+ }
+ collect(patches){
+  const used=new Set();const visit=v=>{if(v instanceof AssetRef)used.add(v.id);else if(object(v))Object.values(v).forEach(visit);};visit(patches);
+  for(const [id,value]of this.values)if(!used.has(id)){this.values.delete(id);this.ids.delete(value);}
+ }
+}
 function diff(before,after,path=[],out=[]){
  if(Object.is(before,after))return out;
  if(Array.isArray(before)&&Array.isArray(after)){
@@ -39,14 +69,24 @@ function apply(document,patch,forward){
  return result;
 }
 export class History {
-  constructor(initial, limit = 80) { this.limit = limit; this.past = []; this.future = []; this.current = structuredClone(initial); }
+  constructor(initial, limit = 80, {maxBytes=32*1024*1024}={}) {
+    if(!Number.isInteger(limit)||limit<0||!Number.isFinite(maxBytes)||maxBytes<=0)throw new Error('Invalid history limits.');
+    this.limit=limit;this.maxBytes=maxBytes;this.assets=new AssetPool();this.past=[];this.future=[];this.current=structuredClone(initial);
+  }
   commit(next) {
     const patch=diff(this.current,next);if(!patch.length)return false;
-    this.past.push(patch);
+    this.past.push(this.assets.encode(patch));
     if (this.past.length > this.limit) this.past.shift();
-    this.current = structuredClone(next); this.future = []; return true;
+    this.current = structuredClone(next); this.future = [];this.enforceBudget();return true;
   }
-  undo() { if (!this.past.length) return null; const patch=this.past.pop();this.current=apply(this.current,patch,false);this.future.push(patch);return structuredClone(this.current); }
-  redo() { if (!this.future.length) return null; const patch=this.future.pop();this.current=apply(this.current,patch,true);this.past.push(patch);return structuredClone(this.current); }
-  stats(){return {undoEntries:this.past.length,redoEntries:this.future.length,estimatedBytes:serializedBytes({current:this.current,past:this.past,future:this.future})};}
+  undo() { if (!this.past.length) return null; const patch=this.past.pop();this.current=apply(this.current,this.assets.decode(patch),false);this.future.push(patch);this.enforceBudget();return structuredClone(this.current); }
+  redo() { if (!this.future.length) return null; const patch=this.future.pop();this.current=apply(this.current,this.assets.decode(patch),true);this.past.push(patch);this.enforceBudget();return structuredClone(this.current); }
+  enforceBudget(){
+    this.assets.collect([this.past,this.future]);
+    while(this.stats().estimatedBytes>this.maxBytes&&(this.past.length||this.future.length)){
+      if(this.past.length)this.past.shift();else this.future.shift();
+      this.assets.collect([this.past,this.future]);
+    }
+  }
+  stats(){const estimatedBytes=retainedBytes({current:this.current,past:this.past,future:this.future,assets:[...this.assets.values]});return {undoEntries:this.past.length,redoEntries:this.future.length,estimatedBytes,maxBytes:this.maxBytes,sharedAssets:this.assets.values.size,overBudget:estimatedBytes>this.maxBytes};}
 }

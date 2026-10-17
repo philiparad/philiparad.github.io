@@ -1,4 +1,4 @@
-import {svgEl} from './scene.js?v=20261017-history-patches';
+import {svgEl} from './scene.js?v=20261017-history-budget';
 
 export function laserOptions(value={}){
  const o={color:'#f34c5e',width:5,duration:700,...value};

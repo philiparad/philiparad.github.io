@@ -1,8 +1,8 @@
-import { backgroundOptions } from './background-options.js?v=20261017-history-patches';
-import { svgEl, union, bounds } from './scene.js?v=20261017-history-patches';
-import { pageRect } from './pages.js?v=20261017-history-patches';
-import { el, btn } from './ui.js?v=20261017-history-patches';
-import { RenderCache } from './render-cache.js?v=20261017-history-patches';
+import { backgroundOptions } from './background-options.js?v=20261017-history-budget';
+import { svgEl, union, bounds } from './scene.js?v=20261017-history-budget';
+import { pageRect } from './pages.js?v=20261017-history-budget';
+import { el, btn } from './ui.js?v=20261017-history-budget';
+import { RenderCache } from './render-cache.js?v=20261017-history-budget';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};

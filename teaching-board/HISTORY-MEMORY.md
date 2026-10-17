@@ -13,3 +13,5 @@ Baseline, full snapshots: 1,000 rectangles, followed by 40 moves of one rectangl
 Regression checks cover entry limits, no-op edits, redo preservation, Unicode sizing, and isolation of returned documents. Later storage changes must retain undo/redo correctness while lowering this payload.
 
 Incremental patches: the same 40-move fixture retains 82,574 bytes (about 97.4% less than the full-snapshot baseline). Unchanged large image fields are excluded from movement patches.
+
+Final storage policy: patches intern strings of 4,096 characters or more into shared assets. The payload estimate counts each large string once, including copies in the current document. The default budget is 32 MiB and the entry limit remains 80. Oldest undo entries, then farthest redo entries, are pruned until the budget is met. Unreferenced assets are released after commits and navigation. The current lesson is never discarded: if it alone exceeds the budget, history is emptied and stats report overBudget. This is not a limit on lesson size or an exact JavaScript heap cap.

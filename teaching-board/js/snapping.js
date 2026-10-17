@@ -1,4 +1,4 @@
-import { bounds } from './scene.js?v=20261017-history-patches';
+import { bounds } from './scene.js?v=20261017-history-budget';
 export function snapPoint(point,board,exclude=new Set(),mode='both',anchors=null){
  if(mode==='off')return {...point,guides:[]};
  const tolerance=7/board.viewport.zoom,targets={x:[],y:[]};
