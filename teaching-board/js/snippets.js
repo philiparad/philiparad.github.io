@@ -1,8 +1,8 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261017-history-metrics';
-import { SnippetRepository } from './snippet-storage.js?v=20261017-history-metrics';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261017-history-metrics';
-import { drawItem, svgEl, union } from './scene.js?v=20261017-history-metrics';
-import { expandGroups } from './groups.js?v=20261017-history-metrics';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261017-history-patches';
+import { SnippetRepository } from './snippet-storage.js?v=20261017-history-patches';
+import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261017-history-patches';
+import { drawItem, svgEl, union } from './scene.js?v=20261017-history-patches';
+import { expandGroups } from './groups.js?v=20261017-history-patches';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

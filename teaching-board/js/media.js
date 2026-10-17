@@ -1,9 +1,9 @@
-import {graphAxisOptions,appendAxisLabels} from './graph-axes.js?v=20261017-history-metrics';
-import {compileFunctions} from './named-functions.js?v=20261017-history-metrics';
-import {endpointMarkers} from './graph-endpoints.js?v=20261017-history-metrics';
-import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261017-history-metrics';
-import { graphSeries, piecewiseRows, functionPlotBounds, compileSeries, seriesLabels, curveAppearance, CURVE_STYLES } from './graph-series.js?v=20261017-history-metrics';
-export { graphSeries } from './graph-series.js?v=20261017-history-metrics';
+import {graphAxisOptions,appendAxisLabels} from './graph-axes.js?v=20261017-history-patches';
+import {compileFunctions} from './named-functions.js?v=20261017-history-patches';
+import {endpointMarkers} from './graph-endpoints.js?v=20261017-history-patches';
+import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261017-history-patches';
+import { graphSeries, piecewiseRows, functionPlotBounds, compileSeries, seriesLabels, curveAppearance, CURVE_STYLES } from './graph-series.js?v=20261017-history-patches';
+export { graphSeries } from './graph-series.js?v=20261017-history-patches';
 const loaders=new Map();
 export function script(url){if(!loaders.has(url))loaders.set(url,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.onload=resolve;s.onerror=()=>{s.remove();loaders.delete(url);reject(new Error('Could not load the teaching library. Check your internet connection and retry.'));};document.head.append(s);}));return loaders.get(url);}
 export function dataURL(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(blob);});}

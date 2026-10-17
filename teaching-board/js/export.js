@@ -1,10 +1,10 @@
-import { printPageIndexes } from './print-page-selection.js?v=20261017-history-metrics';
-import { resolveExport, exportPadding, rasterSize } from './export-scope.js?v=20261017-history-metrics';
-import { pageSVG } from './pages.js?v=20261017-history-metrics';
-import { sceneSVG } from './scene.js?v=20261017-history-metrics';
-import { loadImage } from './media.js?v=20261017-history-metrics';
-import { serializeBackup } from './model.js?v=20261017-history-metrics';
-import { download, filename } from './ui.js?v=20261017-history-metrics';
+import { printPageIndexes } from './print-page-selection.js?v=20261017-history-patches';
+import { resolveExport, exportPadding, rasterSize } from './export-scope.js?v=20261017-history-patches';
+import { pageSVG } from './pages.js?v=20261017-history-patches';
+import { sceneSVG } from './scene.js?v=20261017-history-patches';
+import { loadImage } from './media.js?v=20261017-history-patches';
+import { serializeBackup } from './model.js?v=20261017-history-patches';
+import { download, filename } from './ui.js?v=20261017-history-patches';
 export function backup(board){download(new Blob([serializeBackup(board)],{type:'application/json'}),filename(board.title)+'.json');}
 export async function exportBoard(board,format,options={scope:'all'}){if(format==='json'){backup(board);return;}const resolved=resolveExport(board,options);board=structuredClone(resolved.board);if(format==='pdf'&&board.layout==='a4'&&['all','pages'].includes(options.scope||'all')){await printPages(board,resolved.pages);return;}const transparent=format==='png'&&options.transparent===true,svg=sceneSVG(board,exportPadding(options.padding),resolved.region,{transparent}),source=new XMLSerializer().serializeToString(svg);if(format==='svg'){download(new Blob([source],{type:'image/svg+xml'}),filename(board.title)+'.svg');return;}
  const url=URL.createObjectURL(new Blob([source],{type:'image/svg+xml'}));try{const img=await loadImage(url),size=rasterSize(img.width,img.height,format==='png'?(options.scale??2):2),canvas=document.createElement('canvas');canvas.width=size.width;canvas.height=size.height;const ctx=canvas.getContext('2d');if(!transparent){ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);}ctx.drawImage(img,0,0,canvas.width,canvas.height);if(format==='png'){const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('Could not create PNG.');download(blob,filename(board.title)+'.png');}else{

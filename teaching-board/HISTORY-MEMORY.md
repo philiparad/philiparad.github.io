@@ -11,3 +11,5 @@ Baseline, full snapshots: 1,000 rectangles, followed by 40 moves of one rectangl
 | Retained payload after 40 moves | 3,226,854 |
 
 Regression checks cover entry limits, no-op edits, redo preservation, Unicode sizing, and isolation of returned documents. Later storage changes must retain undo/redo correctness while lowering this payload.
+
+Incremental patches: the same 40-move fixture retains 82,574 bytes (about 97.4% less than the full-snapshot baseline). Unchanged large image fields are excluded from movement patches.
