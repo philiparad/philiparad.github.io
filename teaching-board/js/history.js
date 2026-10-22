@@ -73,9 +73,9 @@ export class History {
     if(!Number.isInteger(limit)||limit<0||!Number.isFinite(maxBytes)||maxBytes<=0)throw new Error('Invalid history limits.');
     this.limit=limit;this.maxBytes=maxBytes;this.assets=new AssetPool();this.past=[];this.future=[];this.current=structuredClone(initial);
   }
-  commit(next) {
+  commit(next,{retainLatest=false}={}) {
     const patch=diff(this.current,next);if(!patch.length)return false;
-    this.past.push(this.assets.encode(patch));
+    const encoded=this.assets.encode(patch);encoded.retainForUndo=retainLatest;this.past.push(encoded);
     if (this.past.length > this.limit) this.past.shift();
     this.current = structuredClone(next); this.future = [];this.enforceBudget();return true;
   }
@@ -84,6 +84,8 @@ export class History {
   enforceBudget(){
     this.assets.collect([this.past,this.future]);
     while(this.stats().estimatedBytes>this.maxBytes&&(this.past.length||this.future.length)){
+      // Explicit whole-board clears must remain undoable even for large lessons.
+      if(this.past.length+this.future.length===1&&(this.past[0]||this.future[0]).retainForUndo)break;
       if(this.past.length)this.past.shift();else this.future.shift();
       this.assets.collect([this.past,this.future]);
     }

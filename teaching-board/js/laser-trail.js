@@ -37,5 +37,6 @@ export class LaserTrail{
   }
   this.editor.svg.append(this.layer);
  }
- dispose(){this.disposed=true;if(this.frame!==null)cancelAnimationFrame(this.frame);this.frame=null;this.points=[];this.layer?.remove();}
+ clear(){if(this.frame!==null)cancelAnimationFrame(this.frame);this.frame=null;this.points=[];this.layer?.remove();}
+ dispose(){this.disposed=true;this.clear();}
 }
