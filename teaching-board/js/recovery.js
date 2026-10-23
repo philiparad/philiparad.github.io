@@ -1,4 +1,4 @@
-import { RecoveryRepository } from './recovery-storage.js?v=20261017-history-budget';
+import { RecoveryRepository } from './recovery-storage.js?v=20261023-image-handles';
 import { el, btn, notify } from './ui.js?v=20261017-history-budget';
 const snapshots=new RecoveryRepository();
 export async function showRecovery(repository,boardId,beforeRestore=async()=>{}){

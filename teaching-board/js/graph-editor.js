@@ -1,7 +1,7 @@
 import {axisControls} from './graph-axes.js?v=20261017-history-budget';
-import {drawFunctionDefinitions} from './named-function-editor.js?v=20261017-history-budget';
+import {drawFunctionDefinitions} from './named-function-editor.js?v=20261023-image-handles';
 import {endpointControls} from './graph-endpoints.js?v=20261017-history-budget';
-import {piecewiseControls} from './piecewise-editor.js?v=20261017-history-budget';
+import {piecewiseControls} from './piecewise-editor.js?v=20261023-image-handles';
 import { GRAPH_EXAMPLES, graphExample } from './graph-examples.js?v=20261017-history-budget';
 import { ParameterPlayback } from './parameter-playback.js?v=20261017-history-budget';
 import { el, btn, field } from './ui.js?v=20261017-history-budget';

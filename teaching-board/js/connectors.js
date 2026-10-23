@@ -1,8 +1,10 @@
+import {imageAxes} from './image-geometry.js?v=20261023-image-handles';
 export const connectorTarget=item=>!!item&&!['line','arrow'].includes(item.type);
 const center=item=>[item.x+(item.w||1)/2,item.y+(item.h||1)/2];
 // Intersect a center-to-center ray with the rotated object's frame. Ellipses
 // use their curved edge; other objects use their rectangular bounding frame.
 export function connectionAnchor(item,toward,direction=1){
+ if(item.type==='image'&&item.imageBasis){const [cx,cy]=center(item),[a,b,c,d]=imageAxes(item),det=a*d-b*c,dx=toward[0]-cx,dy=toward[1]-cy;let x=(d*dx-c*dy)/det,y=(-b*dx+a*dy)/det;if(Math.hypot(x,y)<1e-8){x=direction;y=0;}const k=1/Math.max(Math.abs(x)/(item.w/2),Math.abs(y)/(item.h/2));x*=k;y*=k;return [cx+a*x+c*y,cy+b*x+d*y];}
  const [cx,cy]=center(item),a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);
  const dx=toward[0]-cx,dy=toward[1]-cy;
  let x=dx*c+dy*s,y=-dx*s+dy*c;if(Math.hypot(x,y)<1e-8){x=direction;y=0;}

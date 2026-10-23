@@ -1,4 +1,4 @@
-import { A4, pageRect } from './pages.js?v=20261017-history-budget';
+import { A4, pageRect } from './pages.js?v=20261023-image-handles';
 
 /** Prepare the entire import without changing the document. */
 export function planA4Import(board,pages){

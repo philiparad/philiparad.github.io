@@ -1,4 +1,4 @@
-import {equationDialog} from './equation-editor.js?v=20261017-history-budget';
+import {equationDialog} from './equation-editor.js?v=20261023-image-handles';
 import {equationNode} from './inline-equation.js?v=20261017-history-budget';
 import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261017-history-budget';
 import { el, btn } from './ui.js?v=20261017-history-budget';

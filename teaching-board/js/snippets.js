@@ -1,7 +1,7 @@
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261017-history-budget';
-import { SnippetRepository } from './snippet-storage.js?v=20261017-history-budget';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261023-image-handles';
+import { SnippetRepository } from './snippet-storage.js?v=20261023-image-handles';
 import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261017-history-budget';
-import { drawItem, svgEl, union } from './scene.js?v=20261017-history-budget';
+import { drawItem, svgEl, union } from './scene.js?v=20261023-image-handles';
 import { expandGroups } from './groups.js?v=20261017-history-budget';
 
 export class Snippets {

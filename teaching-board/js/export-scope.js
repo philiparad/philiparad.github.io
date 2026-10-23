@@ -1,6 +1,6 @@
 import { printPageIndexes } from './print-page-selection.js?v=20261017-history-budget';
 import { el, btn, field } from './ui.js?v=20261017-history-budget';
-import { bounds, union } from './scene.js?v=20261017-history-budget';
+import { bounds, union } from './scene.js?v=20261023-image-handles';
 import { visualBounds } from './visibility.js?v=20261017-history-budget';
 
 export function viewRegion(viewport,width,height){

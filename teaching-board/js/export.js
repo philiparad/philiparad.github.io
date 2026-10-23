@@ -1,9 +1,9 @@
 import { printPageIndexes } from './print-page-selection.js?v=20261017-history-budget';
-import { resolveExport, exportPadding, rasterSize } from './export-scope.js?v=20261017-history-budget';
-import { pageSVG } from './pages.js?v=20261017-history-budget';
-import { sceneSVG } from './scene.js?v=20261017-history-budget';
+import { resolveExport, exportPadding, rasterSize } from './export-scope.js?v=20261023-image-handles';
+import { pageSVG } from './pages.js?v=20261023-image-handles';
+import { sceneSVG } from './scene.js?v=20261023-image-handles';
 import { loadImage } from './media.js?v=20261017-history-budget';
-import { serializeBackup } from './model.js?v=20261017-history-budget';
+import { serializeBackup } from './model.js?v=20261023-image-handles';
 import { download, filename } from './ui.js?v=20261017-history-budget';
 export function backup(board){download(new Blob([serializeBackup(board)],{type:'application/json'}),filename(board.title)+'.json');}
 export async function exportBoard(board,format,options={scope:'all'}){if(format==='json'){backup(board);return;}const resolved=resolveExport(board,options);board=structuredClone(resolved.board);if(format==='pdf'&&board.layout==='a4'&&['all','pages'].includes(options.scope||'all')){await printPages(board,resolved.pages);return;}const transparent=format==='png'&&options.transparent===true,svg=sceneSVG(board,exportPadding(options.padding),resolved.region,{transparent}),source=new XMLSerializer().serializeToString(svg);if(format==='svg'){download(new Blob([source],{type:'image/svg+xml'}),filename(board.title)+'.svg');return;}

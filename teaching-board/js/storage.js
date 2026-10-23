@@ -1,4 +1,4 @@
-import { validateBoard } from './model.js?v=20261017-history-budget';
+import { validateBoard } from './model.js?v=20261023-image-handles';
 export class ConflictError extends Error {
   constructor() { super('This board changed in another tab. Reopen it before editing.'); this.name = 'ConflictError'; }
 }

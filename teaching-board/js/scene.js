@@ -1,3 +1,4 @@
+import {imageCorners,imageSVGTransform} from './image-geometry.js?v=20261023-image-handles';
 import { backgroundOptions } from './background-options.js?v=20261017-history-budget';
 import {drawGraphMarker} from './graph-marker.js?v=20261017-history-budget';
 import {drawEquationText} from './inline-equation.js?v=20261017-history-budget';
@@ -6,12 +7,12 @@ import { pressurePathD } from './pressure.js?v=20261017-history-budget';
 import { drawPreset } from './shapes.js?v=20261017-history-budget';
 import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261017-history-budget';
 import { strokePathD, naturalPathD } from './ink.js?v=20261017-history-budget';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261017-history-budget';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261023-image-handles';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
-export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}
+export function bounds(item){const w=item.w||1,h=item.h||1,a=(item.rotation||0)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),cx=item.x+w/2,cy=item.y+h/2;const p=item.type==='image'?imageCorners(item):[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]].map(([x,y])=>({x:cx+x*c-y*s,y:cy+x*s+y*c}));return {x:Math.min(...p.map(p=>p.x)),y:Math.min(...p.map(p=>p.y)),w:Math.max(...p.map(p=>p.x))-Math.min(...p.map(p=>p.x)),h:Math.max(...p.map(p=>p.y))-Math.min(...p.map(p=>p.y))};}
 export function union(items){if(!items.length)return {x:0,y:0,w:1000,h:700};const b=items.map(bounds),x=Math.min(...b.map(i=>i.x)),y=Math.min(...b.map(i=>i.y));return {x,y,w:Math.max(...b.map(i=>i.x+i.w))-x,h:Math.max(...b.map(i=>i.y+i.h))-y};}
-export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{'data-id':item.id,transform:`translate(${item.x} ${item.y}) rotate(${item.rotation||0} ${w/2} ${h/2})`,opacity:item.opacity??1});
+export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{'data-id':item.id,transform:item.type==='image'?imageSVGTransform(item):`translate(${item.x} ${item.y}) rotate(${item.rotation||0} ${w/2} ${h/2})`,opacity:item.opacity??1});
  if(item.type==='path'&&item.pressures?.length===item.points?.length&&item.points.length&&(item.lineStyle||'solid')==='solid'){g.append(svgEl('path',{d:pressurePathD(item.points,item.pressures,item.lineWidth||2),fill:item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,'fill-rule':'nonzero',stroke:'none','data-pressure-ink':'true'}));return g;}
  const style={stroke:item.stroke||'#203954','stroke-width':item.lineWidth||2,'stroke-opacity':item.strokeOpacity??1,fill:item.fill||'none','fill-opacity':item.fillOpacity??1,'stroke-linecap':'round','stroke-linejoin':'round'};let shape;
  if(item.type==='shape'){g.append(drawPreset(item));return g;}

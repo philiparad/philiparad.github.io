@@ -1,7 +1,7 @@
 import {graphAxisOptions,appendAxisLabels} from './graph-axes.js?v=20261017-history-budget';
 import {compileFunctions} from './named-functions.js?v=20261017-history-budget';
 import {endpointMarkers} from './graph-endpoints.js?v=20261017-history-budget';
-import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261017-history-budget';
+import { choosePDFPages, renderPDFPages, layoutPDFPages } from './pdf-pages.js?v=20261023-image-handles';
 import { graphSeries, piecewiseRows, functionPlotBounds, compileSeries, seriesLabels, curveAppearance, CURVE_STYLES } from './graph-series.js?v=20261017-history-budget';
 export { graphSeries } from './graph-series.js?v=20261017-history-budget';
 const loaders=new Map();

@@ -247,7 +247,7 @@ test('group duplication, backup, ungrouping and undo preserve independent groups
 });
 test('group resize, delete and erase apply to all members and retain undo',()=>{
  const e=fixture(2);e.tool='select';e.selected=new Set(e.board.items.map(i=>i.id));e.groupSelection();
- const handle=walk(e.svg).find(n=>n.hasAttribute('data-resize'));
+ const handle=walk(e.svg).find(n=>n.getAttribute('data-resize')==='se');
  e.pointerDown({...pointer(e,68,60),target:handle});e.pointerMove(pointer(e,136,100));e.pointerUp(pointer(e,136,100));
  assert.equal(e.board.items[0].w,100);assert.equal(e.board.items[1].x,36);assert.equal(e.board.items[0].h,80);
  e.remove();assert.equal(e.board.items.length,0);e.undo();assert.equal(e.board.items.length,2);
@@ -363,4 +363,18 @@ test('text emphasis preserves locks, history, copies, snippets and backups',asyn
  e.selected=new Set([e.board.items[0].id]);e.duplicate();assert.equal(e.board.items.at(-1).textStyle,'bold-italic');
  e.styleText('normal');assert.equal(e.board.items.at(-1).textStyle,'normal');
  e.board.items[0].textStyle='invalid';assert.throws(()=>validateBoard(e.board));e.board.items[0].textStyle='bold';e.board.items[2].textStyle='bold';assert.throws(()=>validateBoard(e.board));
+});
+
+test('image controls retain screen size, commit once, undo/redo, save and export affine transforms',()=>{
+ const e=fixture();e.board.items=[{id:'image',type:'image',x:100,y:100,w:200,h:100,rotation:30,src:'data:image/png;base64,AAAA',crop:{x:.1,y:.2,w:.8,h:.7}}];e.history=new History(e.document());e.selected=new Set(['image']);e.tool='select';e.paint();
+ assert.equal(walk(e.svg).filter(n=>n.hasAttribute('data-resize')).length,8);
+ const original=structuredClone(e.board.items[0]),handle=walk(e.svg).find(n=>n.getAttribute('data-resize')==='e');
+ e.pointerDown({...pointer(e,0,0),target:handle});e.pointerMove(pointer(e,30,0));e.pointerUp(pointer(e,80,0));
+ assert.equal(e.history.past.length,1);const stretched=structuredClone(e.board.items[0]);assert.ok(stretched.imageBasis);validateBoard(e.board);
+ const transform=object(e,'image').getAttribute('transform');assert.ok(transform.startsWith('matrix('));assert.equal(walk(sceneSVG(e.board)).find(n=>n.getAttribute('data-id')==='image').getAttribute('transform'),transform);
+ e.undo();assert.deepEqual(e.board.items[0],original);e.redo();assert.deepEqual(e.board.items[0],stretched);
+ e.selected=new Set(['image']);e.paint();const rotation=walk(e.svg).find(n=>n.hasAttribute('data-rotate')),x=+rotation.getAttribute('cx'),y=+rotation.getAttribute('cy');
+ e.pointerDown({...pointer(e,x,y),target:rotation});e.pointerMove(pointer(e,x+100,y+100));nextFrame();assert.ok(walk(e.svg).some(n=>n.hasAttribute('data-angle-guide')));e.pointerUp(pointer(e,x+100,y+100));assert.equal(e.history.past.length,2);assert.ok(e.board.items[0].rotation);e.undo();assert.deepEqual(e.board.items[0],stretched);
+ e.selected=new Set(['image']);e.board.viewport.zoom=2;e.paint();assert.equal(+walk(e.svg).find(n=>n.hasAttribute('data-resize')).getAttribute('width')*2,10);
+ e.board.items[0].locked=true;e.paint();assert.equal(walk(e.svg).filter(n=>n.hasAttribute('data-resize')||n.hasAttribute('data-rotate')).length,0);
 });
