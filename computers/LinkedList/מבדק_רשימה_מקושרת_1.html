@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="philip_favicon.png">
+    <title>מבדק שרשרת חוליות | מבדק 1</title>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']], packages: {'[+]': ['textmacros']} },
+            options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+            startup: { typeset: false }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        :root {font-family:Arial,'Segoe UI',sans-serif;color:#193151;background:#edf5ff}
+        * {box-sizing:border-box}
+        body {margin:0;min-height:100vh;background:linear-gradient(140deg,#eaf7ff,#f0f1ff);line-height:1.7}
+        .shell {max-width:870px;margin:35px auto;padding:0 18px}
+        .card {background:white;border:2px solid #dce7fc;border-radius:22px;padding:clamp(20px,4vw,38px);box-shadow:0 12px 40px #253c7614}
+        h1 {font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.4;margin:0 0 16px}
+        h2 {font-size:1.4rem;margin:0 0 18px}
+        .sub {color:#55718d;font-size:1.04rem}
+        .big-icon {font-size:3.5rem}
+        .center {text-align:center}
+        button {font:inherit;cursor:pointer}
+        button:focus-visible {outline:3px solid #fb923c;outline-offset:3px}
+        .primary {padding:12px 26px;background:#354ecb;color:white;border:2px solid #354ecb;border-radius:13px;font-weight:700}
+        .primary:hover:not(:disabled){background:#293da4}
+        button:disabled {cursor:not-allowed;opacity:.48}
+        .muted {color:#5e7291}
+        .progress-head {display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+        .progress {width:100%;height:12px;border-radius:20px;background:#e5edff;overflow:hidden;margin:12px 0 22px}
+        .bar {height:100%;width:0;background:#536ddd;transition:width .2s}
+        .question {font-size:1.24rem;font-weight:700;margin:14px 0 22px;overflow-wrap:anywhere}
+        .options {display:grid;gap:11px}
+        .option {width:100%;text-align:right;border:2px solid #dbe4f5;background:white;border-radius:13px;padding:13px 16px;min-height:58px;font-size:1.08rem;color:inherit;overflow-wrap:anywhere}
+        .option:hover:not(:disabled) {border-color:#546ce0;background:#f7f9ff}
+        .option.correct {border-color:#16835d;background:#e9faf1;opacity:1}
+        .option.incorrect {border-color:#cb4444;background:#fff0ef;opacity:1}
+        .option:disabled:not(.correct):not(.incorrect) {opacity:.8}
+        .feedback {margin-top:20px;padding:17px;border-radius:12px;border:2px solid #b8e7ca;background:#edfbf2}
+        .feedback.bad {background:#fff6f3;border-color:#f6c6b7}
+        .footer {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:25px}
+        .codeblock {direction:ltr;text-align:left;unicode-bidi:isolate;white-space:pre-wrap;overflow-x:auto;overflow-wrap:anywhere;background:#13233c;color:#eef7ff;border:2px solid #263f61;border-radius:12px;padding:15px;font:1rem/1.65 Consolas,'Courier New',monospace;margin:12px 0 22px}
+        .inline-code {direction:ltr;unicode-bidi:isolate;display:inline-block;vertical-align:baseline;white-space:nowrap}
+        .inline-code mjx-container {margin:0!important}
+        .result {font-size:1.25rem;margin:18px 0}
+        .score {font-size:3.7rem;color:#354ecb;font-weight:800}
+        .note {font-size:.95rem;color:#536b89;margin:14px 0}
+        [hidden] {display:none!important}
+        @media(max-width:540px){.shell{margin:10px auto;padding:0 9px}.card{border-radius:16px}.question{font-size:1.14rem}.option{font-size:1rem}.footer{flex-wrap:wrap}}
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <section id="landing" class="card center">
+            <div class="big-icon" aria-hidden="true">🔗</div>
+            <h1>מבדק 1 — שרשרת חוליות ב־C#</h1>
+            <p class="sub">מבדק על החומר בעמודים 1–16: מחלקת החוליה, קישור חוליות, בניית שרשרת, סריקה, הדפסה והעברת הפניות לפעולות.</p>
+            <p id="totalLabel" class="note"></p>
+            <button id="startBtn" class="primary">🚀 התחלת המבדק</button>
+        </section>
+        <section id="quiz" class="card" hidden>
+            <div class="progress-head"><strong id="counter"></strong><span class="muted" id="answeredCount"></span></div>
+            <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+            <div id="question" class="question"></div>
+            <pre id="code" class="codeblock" hidden></pre>
+            <div id="options" class="options" role="group" aria-label="אפשרויות תשובה"></div>
+            <div id="feedback" class="feedback" aria-live="polite" hidden></div>
+            <div class="footer"><span class="muted">יש לענות לפני המעבר לשאלה הבאה.</span><button id="nextBtn" class="primary" disabled>לשאלה הבאה ←</button></div>
+        </section>
+        <section id="result" class="card center" hidden>
+            <div class="big-icon" aria-hidden="true">⭐</div>
+            <h1>תוצאות המבדק</h1>
+            <div id="score" class="score"></div>
+            <p id="resultText" class="result"></p>
+            <button id="restartBtn" class="primary">🔁 מבדק נוסף</button>
+        </section>
+    </main>
+    <script>
+        'use strict';
+        const QUESTIONS = [
+  {
+    "id": 1,
+    "question": "מהו מבנה נתונים מקושר?",
+    "options": [
+      "אוסף חוליות שכל אחת מצביעָה לבאה אחריה",
+      "מערך בגודל קבוע",
+      "טבלת גיבוב"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "מבנה מקושר מורכב מצמתים שמצביעים זה לזה בצורה דינמית.",
+      "1": "מערך אינו מקושר וגודלו קבוע.",
+      "2": "טבלת גיבוב אינה מבנה מקושר."
+    }
+  },
+  {
+    "id": 2,
+    "question": "מה כולל כל אובייקט מסוג Node במחלקה?",
+    "options": [
+      "ערך ומצביע לחוליה הבאה",
+      "ערך בלבד",
+      "רשימת מצביעים מרובים"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "כל Node מכיל value ו-next.",
+      "1": "נדרש גם מצביע.",
+      "2": "רק עץ או גרף מכילים מצביעים מרובים."
+    }
+  },
+  {
+    "id": 3,
+    "question": "מה הערך ההתחלתי של next בבנאי הראשון של Node?",
+    "options": [
+      "null",
+      "ערך ברירת מחדל של T",
+      "חוליה חדשה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הבנאי הראשון מגדיר next = null.",
+      "1": "value קשור לסוג T, לא next.",
+      "2": "אין יצירת חוליה נוספת."
+    }
+  },
+  {
+    "id": 4,
+    "question": "מהו היתרון של מחלקה גנרית כמו Node<T>?",
+    "options": [
+      "ניתן להשתמש בה עם כל סוג נתונים",
+      "היא מהירה יותר ממחלקה רגילה",
+      "היא מקבלת רק טיפוסים מספריים"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "מחלקה גנרית מאפשרת שימוש באותו קוד עם סוגי נתונים שונים.",
+      "1": "אין הבטחה למהירות גבוהה יותר.",
+      "2": "אין מגבלה לטיפוסים מספריים בלבד."
+    }
+  },
+  {
+    "id": 5,
+    "question": "מה מחזירה הפעולה HasNext?",
+    "options": [
+      "ערך בוליאני האם יש חוליה הבאה",
+      "את הערך הבא בשרשרת",
+      "את מספר החוליות שנותרו"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "HasNext בודקת אם next != null.",
+      "1": "GetNext מחזירה את החוליה הבאה.",
+      "2": "אין פעולה שמחזירה את מספר החוליות."
+    }
+  },
+  {
+    "id": 6,
+    "question": "מה תפקיד הפעולה GetValue?",
+    "options": [
+      "להחזיר את ערך ה-value בחוליה",
+      "לאתחל את value",
+      "למחוק את החוליה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "GetValue היא פעולה מאחזרת שמחזירה את הערך בחוליה.",
+      "1": "SetValue מאתחלת את הערך.",
+      "2": "לא מתבצעת מחיקה."
+    }
+  },
+  {
+    "id": 7,
+    "question": "מה מייצג head ברשימה מקושרת?",
+    "options": [
+      "מצביע לחוליה הראשונה",
+      "מספר החוליות",
+      "תכונת עזר לניווט"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "head הוא הכניסה לשרשרת ומצביע לחוליה הראשונה.",
+      "1": "מספר החוליות אינו נשמר בשדה head.",
+      "2": "head אינו רק תכונת עזר אלא חלק מהמבנה."
+    }
+  },
+  {
+    "id": 8,
+    "question": "כיצד מסתיימת רשימה מקושרת?",
+    "options": [
+      "חוליה שה-next שלה הוא null",
+      "חוליה בלי ערך",
+      "חוליה שמצביעה לעצמה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "החוליה האחרונה מצביעה ל-null.",
+      "1": "ערך החוליה יכול להיות כל דבר.",
+      "2": "חוליה שמצביעה לעצמה יוצרת לולאה, לא סוף רשימה."
+    }
+  },
+  {
+    "id": 9,
+    "question": "מהו סדר הגישה לאיברים בשרשרת חוליות?",
+    "options": [
+      "רציף מהראש לאורך החוליות",
+      "אקראי באמצעות אינדקס",
+      "מהסוף להתחלה בלבד"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הגישה היא סדרתית, חוליה-חוליה מה-head עד הסוף.",
+      "1": "אין אינדקסים כמו במערך.",
+      "2": "גישה מהסוף דורשת מבנה אחר כמו רשימה כפולה."
+    }
+  },
+  {
+    "id": 10,
+    "question": "מה עושה הפעולה SetNext?",
+    "options": [
+      "קובעת את החוליה הבאה בהתאם למצביע",
+      "מוחקת את החוליה הבאה",
+      "מוסיפה חוליה חדשה לסוף השרשרת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "SetNext מציבה מצביע חדש ב-next.",
+      "1": "אין כאן מחיקה.",
+      "2": "הוספה לסוף דורשת מעבר עד החוליה האחרונה."
+    }
+  },
+  {
+    "id": 11,
+    "question": "מה יודפס ברשימה בעת הדפסה באמצעות PrintLinkedList?",
+    "options": [
+      "הערכים בכל חוליה והחץ --> עד null",
+      "המצביעים בזיכרון",
+      "רק מספר החוליות"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הפורמט הוא value --> value --> ... --> null.",
+      "1": "לא מודפסות כתובות זיכרון.",
+      "2": "מספר החוליות אינו יודפס לבד."
+    }
+  },
+  {
+    "id": 12,
+    "question": "מה יקרה אם head == null בעת הדפסה?",
+    "options": [
+      "לא יודפס דבר פרט ל-null",
+      "יתרחש קריסה",
+      "יודפס הערך הראשון"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "רשימה ריקה תודפס כ-null בלבד.",
+      "1": "הלולאה לא נכנסת ולכן אין קריסה.",
+      "2": "אין ערך ראשון כאשר head הוא null."
+    }
+  },
+  {
+    "id": 13,
+    "question": "מהי הדרך הנכונה ליצור שרשרת חוליות עם SetNext?",
+    "options": [
+      "יצירת head ואז שימוש ב-SetNext כדי לקשר כל חוליה לבאה אחריה",
+      "יצירת מערך והמרתו לשרשרת",
+      "שימוש ב-PrintLinkedList ליצירת חוליות"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "בדוגמה יוצרים head ולאחר מכן מקשרים חוליות בעזרת SetNext.",
+      "1": "מערך אינו יוצר שרשרת מקושרת.",
+      "2": "PrintLinkedList רק מדפיסה ואינה בונה שרשרת."
+    }
+  },
+  {
+    "id": 14,
+    "question": "מה מייצג הערך null?",
+    "options": [
+      "סיום השרשרת – החוליה האחרונה מצביעה ל-null",
+      "חוליה ריקה שניתן להמשיך ממנה",
+      "שגיאה במבנה השרשרת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "null מסמן את סוף השרשרת.",
+      "1": "null אינו חוליה אלא היעדר חוליה.",
+      "2": "null אינו מצביע על שגיאה אלא על סוף טבעי."
+    }
+  },
+  {
+    "id": 15,
+    "question": "מהי המשמעות של מחלקה גנרית Node<T> בקוד?",
+    "options": [
+      "החוליה יכולה להכיל כל טיפוס",
+      "T חייב להיות מספר",
+      "T מייצג טיפוס קבוע מראש"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "Node<T> יכולה להכיל כל סוג נתון שנבחר בזמן ההגדרה.",
+      "1": "אין מגבלה על טיפוסים מספריים בלבד.",
+      "2": "T אינו טיפוס קבוע אלא פרמטר גנרי."
+    }
+  },
+  {
+    "id": 16,
+    "question": "מה ההבדל בין SetValue ל-SetNext?",
+    "options": [
+      "SetValue מעדכן את הערך ו-SetNext מעדכן מצביע",
+      "אין הבדל",
+      "SetNext משנה את הערך"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "Value הוא נתון, Next הוא מצביע לחוליה הבאה.",
+      "1": "יש תפקידים שונים לכל פעולה.",
+      "2": "SetNext אינו משנה את הערך."
+    }
+  },
+  {
+    "id": 17,
+    "question": "כיצד מתקדם המשתנה current בלולאת הדפסה?",
+    "options": [
+      "באמצעות current = current.GetNext()",
+      "על ידי הגדלת אינדקס",
+      "על ידי שיבוץ ידני"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "המעבר בין החוליות נעשה באמצעות current = current.GetNext().",
+      "1": "אין אינדקסים במבנה זה.",
+      "2": "אין שיבוץ ידני של חוליות בלולאה."
+    }
+  },
+  {
+    "id": 18,
+    "question": "מה קורה כאשר חוליה מצביעה לעצמה?",
+    "options": [
+      "נוצרת לולאה אינסופית",
+      "נוצר סוף רשימה",
+      "הרשימה נמחקת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "מעבר על הרשימה לא יסתיים כי חוזרים שוב לאותה חוליה.",
+      "1": "סוף רשימה מסומן על ידי null.",
+      "2": "לא מתבצעת מחיקה."
+    }
+  },
+  {
+    "id": 19,
+    "question": "מהו tail ברשימה מקושרת?",
+    "options": [
+      "החוליה האחרונה שה-next שלה null",
+      "החוליה הראשונה",
+      "חוליה אקראית"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "tail היא החוליה האחרונה בשרשרת.",
+      "1": "החוליה הראשונה היא head.",
+      "2": "tail אינה חוליה אקראית."
+    }
+  },
+  {
+    "id": 20,
+    "question": "מה היתרון בזיכרון דינמי בשרשרת חוליות?",
+    "options": [
+      "ניתן להוסיף או להסיר חוליות בזמן ריצה",
+      "גודל קבוע מראש",
+      "אין צורך במצביעים"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "השרשרת גדלה או מתכווצת לפי הצורך.",
+      "1": "גודל קבוע שייך למערכים.",
+      "2": "השרשרת דווקא מבוססת על מצביעים."
+    }
+  },
+  {
+    "id": 21,
+    "question": "כיצד ניגשים לאיבר באמצע שרשרת?",
+    "options": [
+      "עוברים חוליה-חוליה מה-head",
+      "באמצעות אינדקס ישיר",
+      "על ידי קפיצה בין כתובות בזיכרון"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "אין קפיצה למיקום, אלא מעבר סדרתי.",
+      "1": "אין אינדקסים.",
+      "2": "התוכנית אינה קופצת לכתובות באופן ידני."
+    }
+  },
+  {
+    "id": 22,
+    "question": "מה תפקידו של הבנאי השני Node(T value, Node<T> next)?",
+    "options": [
+      "לאתחל ערך וגם מצביע הבא",
+      "לאתחל value בלבד",
+      "למחוק חוליה קיימת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הבנאי מקבל גם ערך וגם חוליה שאליה מצביעים.",
+      "1": "זה תפקיד הבנאי הפשוט יותר.",
+      "2": "אין כאן מחיקה של חוליות."
+    }
+  },
+  {
+    "id": 23,
+    "question": "מה תוצאת הפעולה ToString של Node?",
+    "options": [
+      "המרת הערך של החוליה למחרוזת",
+      "הדפסת המבנה כולו",
+      "המרת ה-next למחרוזת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "ToString מחזירה value.ToString().",
+      "1": "הדפסת כל הרשימה דורשת לולאה חיצונית.",
+      "2": "next אינו מומר למחרוזת."
+    }
+  },
+  {
+    "id": 24,
+    "question": "מה קורה אם נעדכן את head בתוך פעולה פנימית באמצעות השמה head = head.GetNext()?",
+    "options": [
+      "השינוי לא משפיע על השרשרת מחוץ לפעולה",
+      "השרשרת כולה תימחק",
+      "head ישתנה בכל התוכנית"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הפרמטר עובר by value ולכן שינוי ההפניה פנימה לא משפיע החוצה.",
+      "1": "לא מתבצעת מחיקה של הרשימה.",
+      "2": "ההפניה הגלובלית ל-head לא משתנה."
+    }
+  },
+  {
+    "id": 25,
+    "question": "מה ההבדל בין שינוי head עצמו לבין שינוי החוליה ש-head מצביע עליה?",
+    "options": [
+      "שינוי תכונות החוליה משפיע חיצונית, שינוי head עצמו לא",
+      "אין הבדל",
+      "שינוי head מוחק את השרשרת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "האובייקט שאליו head מצביע משותף, אך ההפניה עצמה מקומית לפעולה.",
+      "1": "יש הבדל ברור בין ההפניה לבין תוכן האובייקט.",
+      "2": "שינוי head אינו מוחק את הרשימה."
+    }
+  },
+  {
+    "id": 26,
+    "question": "מה קורה בלולאת while בפעולה PrintLinkedList כאשר current הופך ל-null?",
+    "options": [
+      "הלולאה נעצרת והודפסו כל החוליות",
+      "נזרקת חריגה",
+      "מודפס null כחוליה נוספת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "כאשר current == null התנאי נכשל והלולאה מסתיימת.",
+      "1": "אין חריגה, זהו סיום תקין.",
+      "2": "null מודפס רק בסוף באמצעות Console.WriteLine(\"null\")."
+    }
+  },
+  {
+    "id": 27,
+    "question": "מדוע PrintLinkedList מוגדרת כפעולה גנרית <T>?",
+    "options": [
+      "כדי שתוכל להדפיס רשימה מכל סוג ערכים",
+      "כדי לעבוד רק עם int",
+      "כדי לשנות את הטיפוס של Node תוך כדי ריצה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הפעולה עובדת עם Node<T> ולכן מתאימה לכל סוג T.",
+      "1": "אין הגבלה ל-int.",
+      "2": "הטיפוס נקבע בזמן קומפילציה, לא בזמן ריצה."
+    }
+  },
+  {
+    "id": 28,
+    "question": " אם הפרמטר head עובר by value, מה כן יכול להשתנות מחוץ לפעולה?",
+    "options": [
+      "התוכן של החוליות שה-head מצביע עליהן",
+      "עצם ההפניה head עצמה",
+      "מספר הפרמטרים לפעולה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "שינוי השדות של האובייקט שאליו מצביע head נראה גם מחוץ לפעולה.",
+      "1": "ההפניה עצמה מקומית לפעולה.",
+      "2": "מספר הפרמטרים קבוע לפי ההגדרה."
+    }
+  },
+  {
+    "id": 29,
+    "question": "מה החשיבות של השורה current = current.GetNext() בלולאת ההדפסה של הרשימה?",
+    "options": [
+      "היא מקדמת את החוליה הנוכחית לבאה אחריה ומונעת לולאה אינסופית",
+      "היא מאפסת את head כדי לסמן סוף הרשימה",
+      "היא מדלגת על כל חוליה שנייה ברשימה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "בלולאה מדפיסים את החוליה ולאחר מכן מעדכנים current לחוליה הבאה כדי להתקדם ולהפסיק כשהוא null.",
+      "1": "head אינו מתעדכן בתוך לולאת ההדפסה, אלא current.",
+      "2": "השורה אינה מדלגת על חוליות, אלא עוברת אחת-אחת."
+    }
+  },
+  {
+    "id": 30,
+    "question": "מהי המשמעות של המשפט 'ראש החוליה head מייצג את השרשרת עצמה'?",
+    "options": [
+      "כל הפעולות על הרשימה מתחילות מה-head",
+      "head מכיל את כל הערכים של הרשימה",
+      "head מסמן את מספר החוליות"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "כדי לעבוד עם הרשימה יש להתחיל מה-head ולעבור דרך next.",
+      "1": "head מצביע רק לחוליה הראשונה, לא לכל הערכים.",
+      "2": "מספר החוליות אינו נשמר ב-head."
+    }
+  },
+  {
+    "id": 31,
+    "question": "במחלקה Node<T>, מה המשמעות המעשית של השורה ;this.next = null בבנאי הראשון?",
+    "options": [
+      "החוליה שנוצרת היא אחרונה כרגע בשרשרת ולכן אינה מצביעָה לחוליה נוספת",
+      "החוליה לא יכולה לעולם לקבל קישור לחוליה אחרת",
+      "החוליה תמיד תיחשב כחוליה ראשונה בשרשרת"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "בבנאי הראשון לא מקבלים חוליה הבאה, ולכן next מאותחל ל-null ומייצג קצה שרשרת זמני.",
+      "1": "ניתן מאוחר יותר להגדיר next בעזרת SetNext או הבנאי השני.",
+      "2": "השדה next אינו קובע אם החוליה היא ראשונה, אלא מי מצביע עליה (head)."
+    }
+  },
+  {
+    "id": 32,
+    "question": "לאחר ההוראות הבאות, מה מבטיחה העובדה ש-n3 נבנה עם n4 בבנאי השני?",
+    "code": [
+      "Node<int> n4 = new Node<int>(4);",
+      "Node<int> n3 = new Node<int>(3, n4);"
+    ],
+    "options": [
+      "שהחוליה n3 מצביעה כבר בעת האתחול על n4 כחוליה הבאה",
+      "שהערך של n4 ישוכפל לתוך n3",
+      "ש-n4 לא יוכל להיות מחובר לשום חוליה אחרת מלבד n3"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הבנאי Node(T value, Node<T> next) מחבר את n3 ל-n4 בזמן יצירת n3.",
+      "1": "הערך של n4 אינו משוכפל, אלא מצביעים אליו.",
+      "2": "אותה חוליה יכולה תאורטית להיות מקושרת על ידי כמה מצביעים שונים."
+    }
+  },
+  {
+    "id": 33,
+    "question": "בהגדרת המחלקה Node<T>, למה value ו-next מוגדרים כשדות private?",
+    "options": [
+      "כדי לחייב שימוש בפעולות Get ו-Set לשמירה על אינקפסולציה",
+      "כדי למנוע יצירת חוליות חדשות מחוץ למחלקה",
+      "כדי לאפשר גישה חופשית לשדות מכל מקום בקוד"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "שדות private מגינים על המידע ומכריחים שימוש בפעולות קובעות/מאחזרות.",
+      "1": "הגבלת יצירת אובייקטים נעשית דרך הבנאים, לא דרך private לשדות.",
+      "2": "private דווקא מונע גישה חופשית לשדות."
+    }
+  },
+  {
+    "id": 34,
+    "question": "במימוש HasNext, איזו בדיקה מתאימה יותר לרוח הקוד בדוגמה?",
+    "options": [
+      ";return this.next != null",
+      ";return this.value != null",
+      ";()return this.HasNext"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "האם יש חוליה הבאה נקבע לפי האם next מצביע לחוליה אחרת.",
+      "1": "ערך null ב-value לא מעיד על קיום חוליה הבאה.",
+      "2": "קריאה רקורסיבית ל-HasNext ללא תנאי תיצור לולאה אינסופית."
+    }
+  },
+  {
+    "id": 35,
+    "question": "בקטע קוד שבונה שרשרת חוליות, לאחר השורות שלפניך, מה יקרה אם נשנה את head בהמשך?",
+    "code": [
+      "Node<int> n4 = new Node<int>(4);",
+      "Node<int> n3 = new Node<int>(3, n4);",
+      "Node<int> n2 = new Node<int>(2, n3);",
+      "Node<int> n1 = new Node<int>(1, n2);",
+      "Node<int> head = n1;",
+      "head = n2; // בתוך Main"
+    ],
+    "options": [
+      "head יצביע מעכשיו לחוליה השנייה, אך השרשרת המקורית עדיין קיימת בזיכרון",
+      "החוליה הראשונה תימחק מהזיכרון מיד",
+      "כל השרשרת תתאפס ותהפוך לריקה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "משנים רק את המצביע head, האובייקטים עצמם נשארים בזיכרון כל עוד יש אליהם מצביעים.",
+      "1": "מחיקת אובייקטים מנוהלת ע\"י ה-GC ולא מתרחשת מיידית בגלל שינוי מצביע.",
+      "2": "שינוי head אינו מאפס את כל המצבים של שאר החוליות."
+    }
+  },
+  {
+    "id": 36,
+    "question": "ברשימה שנבנתה לפי הקטע הבא, מה הערך של החוליה האחרונה בשרשרת?",
+    "code": [
+      "Node<int> head = new Node<int>(1);",
+      "head.SetNext(new Node<int>(2));",
+      "head.GetNext().SetNext(new Node<int>(3));"
+    ],
+    "options": [
+      "3",
+      "2",
+      "null"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "נוצרות שלוש חוליות עם הערכים 1 → 2 → 3.",
+      "1": "2 היא האמצעית, לא האחרונה.",
+      "2": "null הוא קצה השרשרת שאליו מצביע ה-next של האחרונה, לא ערך בחוליה."
+    }
+  },
+  {
+    "id": 37,
+    "question": "בפעולה PrintLinkedList<T>, מה יקרה אם נשכח את השורה ;()current = current.GetNext בתוך הלולאה?",
+    "options": [
+      "תיווצר לולאת while אינסופית שהחוליה הראשונה תודפס שוב ושוב",
+      "הרשימה תודפס פעמיים בלבד ואז תיעצר",
+      "הפעולה תדפיס רק את null"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "ללא קידום current, התנאי current != null נשאר נכון לנצח.",
+      "1": "אין שום מנגנון שעוצר אחרי שתי איטרציות.",
+      "2": "null מודפס רק אחרי הלולאה; בלי יציאה מהלולאה לא מגיעים לשורה הזו."
+    }
+  },
+  {
+    "id": 38,
+    "question": "בתוכנית שבונה head וקוראת לפעולה PrintLinkedList, מה יקרה אם נחליף את הקריאה כך שהסריקה תתחיל מהחוליה השנייה?",
+    "code": [
+      "PrintLinkedList(head);",
+      "// מוחלף בקריאה הבאה:",
+      "PrintLinkedList(head.GetNext());"
+    ],
+    "options": [
+      "ההדפסה תתחיל מהחוליה השנייה ותדלג על הראשונה",
+      "הפעולה לא תדפיס דבר כי head.GetNext() הוא תמיד null",
+      "הפעולה תדפיס את הרשימה בסדר הפוך"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "מעבירים כ-head החדש את החוליה השנייה, ולכן הסריקה מתחילה ממנה.",
+      "1": "head.GetNext() הוא null רק אם הרשימה בגודל 1.",
+      "2": "PrintLinkedList עוברת קדימה בלבד, אין היפוך סדר."
+    }
+  },
+  {
+    "id": 39,
+    "question": "מדוע הפעולה PrintLinkedList<T> מוגדרת כפעולה גנרית (עם <T>) ולא רק עבור int?",
+    "options": [
+      "כדי שניתן יהיה להדפיס רשימות של int, string ו-bool באותו קוד",
+      "כדי להפוך את הרשימה למהירה יותר בזמן ריצה",
+      "כדי למנוע שימוש ב-Node<int> בקוד"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הגדרת T מאפשרת לרשימה להכיל כל סוג נתון כפי שמודגם בדוגמאות Node<int>, Node<string> ו-Node<bool>.",
+      "1": "הגנריות לא מבטיחה שיפור ביצועים, אלא גמישות טיפוסים.",
+      "2": "להפך, הקוד תומך גם ב-Node<int> וגם בסוגים נוספים."
+    }
+  },
+  {
+    "id": 40,
+    "question": "אם הרשימה ריקה (head == null) ונקרא ל-PrintLinkedList(head), מה מודגש בשקף לגבי התוצאה?",
+    "options": [
+      "תודפס רק המחרוזת המייצגת null בסוף, ללא חיצים",
+      "הפעולה תיזרוק חריגה בגלל גישה ל-()current.GetValue",
+      "הפעולה לא תרוץ כלל משום שאי אפשר לקרוא לה עם head == null"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "השקף שואל במפורש מה יקרה אם הרשימה ריקה ומדגיש שראש השרשרת null מייצג רשימה ריקה.",
+      "1": "הלולאה while לא נכנסת בכלל כי current התחלתית היא null.",
+      "2": "אין מניעה לקרוא לפעולה עם head == null; זה חלק מהמקרה הריק."
+    }
+  },
+  {
+    "id": 41,
+    "question": "בשרשרת הבאה, מה הערך של next בחוליה עם הערך 3?",
+    "code": [
+      "new Node<int>(1, new Node<int>(2, new Node<int>(3, new Node<int>(4))));"
+    ],
+    "options": [
+      "מצביע לחוליה עם הערך 4",
+      "null, כי 3 היא החוליה האחרונה",
+      "מצביע לחוליה עם הערך 2"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הבנאי הפנימי new Node<int>(3, new Node<int>(4)) מחבר את 3 ל-4.",
+      "1": "החוליה האחרונה היא זו עם הערך 4.",
+      "2": "החוליה עם 2 מצביעה קדימה ל-3, לא להפך."
+    }
+  },
+  {
+    "id": 42,
+    "question": "בדיאגרמות השרשרת, מה המשמעות של החץ מ-next של החוליה האחרונה ל-null?",
+    "options": [
+      "סימון גבול הרשימה – אין חוליה נוספת אחרי האחרונה",
+      "החוליה האחרונה יכולה לבחור חוליה אחרת בזמן ריצה",
+      "החוליה האחרונה מחזירה את ערכה ל-null"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "החץ ל-null הוא דרך גרפית לציין שאין חוליה נוספת.",
+      "1": "הקישור ל-null אינו באמצע בין שתי חוליות, אלא סוף מוחלט.",
+      "2": "ערך החוליה נשאר value, null הוא רק ב-next."
+    }
+  },
+  {
+    "id": 43,
+    "question": "בדוגמת Node<string>, נוצרות החוליות: \"Hello\" ו-\"World\" כש-\"Hello\" מצביע ל-\"World\". מה תדפיס PrintLinkedList אם head הוא החוליה עם \"Hello\"?",
+    "options": [
+      "Hello-->World-->null",
+      "World-->Hello-->null",
+      "Hello-->null בלבד"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הסריקה מתחילה ב-head וממשיכה לפי הקישורים: Hello ואז World ואז null.",
+      "1": "אין מנגנון ההופך את הסדר.",
+      "2": "יש חוליה שנייה ולכן לא נעצרים אחרי Hello."
+    }
+  },
+  {
+    "id": 44,
+    "question": "לפי ההסבר על מבנה נתונים מקושר, מה היתרון העיקרי של שרשרת חוליות לעומת מערך בגודל קבוע?",
+    "options": [
+      "ניתן להוסיף או למחוק חוליות באופן דינמי מבלי להקצות מראש מקום לכל האיברים",
+      "הגישה לכל איבר היא בזמן קבוע O(1) באמצעות אינדקס",
+      "לא נדרש כלל זיכרון כדי לשמור את האיברים"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "המצגת מדגישה שהקצאת הזיכרון דינמית ואינה קבועה מראש.",
+      "1": "גישה אקראית מהירה מאפיינת מערכים, לא רשימות מקושרות.",
+      "2": "כל מבנה נתונים דורש זיכרון; היתרון הוא בגמישות, לא באי צורך בזיכרון."
+    }
+  },
+  {
+    "id": 45,
+    "question": "בתרגיל המחשבתי על PrintLinkedList, מה ההבדל בין \"השמה פנימית של head\" לבין \"שינוי מאפיין של head\"?",
+    "options": [
+      "השמה פנימית של head משנה רק את ההפניה המקומית, שינוי מאפיין משנה את האובייקט המשותף",
+      "השמה פנימית של head מוחקת את כל הרשימה, שינוי מאפיין לא עושה דבר",
+      "אין הבדל: כל שינוי ב-head תמיד מתבטא באותה צורה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "המצגת מדגישה שהפרמטר head עובר by value, אך האובייקט שהוא מצביע עליו משותף.",
+      "1": "לא נאמר ששינוי head מוחק את הרשימה.",
+      "2": "יש הבדל ברור בין שינוי ההפניה לבין שינוי תוכן האובייקט."
+    }
+  },
+  {
+    "id": 46,
+    "question": "לפי התרשימים, מהו התנאי ההכרחי כדי שראש שרשרת (head) ייצג רשימה תקינה של לפחות חוליה אחת?",
+    "options": [
+      "head חייב להצביע לחוליה שאינה null",
+      "head יכול להיות null, וזה עדיין מייצג רשימה עם חוליה אחת",
+      "head חייב להצביע תמיד לחוליה האחרונה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "רשימה ריקה מיוצגת על ידי head == null; רשימה בעלת חוליות דורשת head != null.",
+      "1": "head == null מוגדר כרשימה ריקה.",
+      "2": "head מצביע לראשית השרשרת, לא לסופה."
+    }
+  },
+  {
+    "id": 47,
+    "question": "בדיאגרמת Node הבודד, למה חשוב לייצג גם את value וגם את next בתוך אותה תיבה לוגית?",
+    "options": [
+      "כדי להדגיש שחוליה אחת מחזיקה גם נתון וגם קישור, ומהווה יחידה אטומית במבנה",
+      "כדי להראות ששני השדות תמיד מכילים אותו ערך",
+      "כדי לצמצם את מספר החוליות הנדרשות במבנה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "הגדרה זו מאפשרת להרכיב מבנים מורכבים מרכיבי בסיס אחידים.",
+      "1": "value ו-next מייצגים דברים שונים לחלוטין.",
+      "2": "הייצוג הגרפי לא משנה את מספר החוליות במבנה."
+    }
+  },
+  {
+    "id": 48,
+    "question": "אם ברשימה מסוימת יש חוליה אחת בלבד, מה מחזירה הפעולה HasNext עבור אותה חוליה לפי ההגדרה בקוד?",
+    "options": [
+      "false, כי next של החוליה היחידה הוא null",
+      "true, כי תמיד יש ראש וtail באותה רשימה",
+      "ערך שאינו מוגדר כי אי אפשר לקרוא HasNext על חוליה יחידה"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "בחוליה יחידה next מאותחל ל-null, ולכן HasNext מחזירה false.",
+      "1": "העובדה ש-head ו-tail זהים אינה משנה את הערך של next.",
+      "2": "ניתן לקרוא HasNext על כל חוליה, גם אם היא יחידה."
+    }
+  },
+  {
+    "id": 49,
+    "question": "בשקף על שרשרת חוליות מודגש שהגישה לאיברי השרשרת היא רק דרך תחילת השרשרת. מה המשמעות המעשית של משפט זה?",
+    "options": [
+      "כדי להגיע לאיבר באמצע, חייבים לעבור דרך כל החוליות הקודמות בשרשרת",
+      "ניתן לגשת לכל איבר על-ידי חישוב אינדקס וגישה ישירה",
+      "לא ניתן לגשת לערכים של החוליות כלל, רק למצביעים"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "המצגת מדגישה מעבר חוליה-חוליה מה-head, בניגוד למערך.",
+      "1": "גישה באמצעות אינדקס אינה אפשרית ברשימה מקושרת רגילה.",
+      "2": "אפשר לגשת לערכים בעזרת GetValue בכל חוליה."
+    }
+  },
+  {
+    "id": 50,
+    "question": "מדוע בדוגמאות Node<bool> מצוינים ערכים true ו-false המחוברים בשרשרת?",
+    "options": [
+      "כדי להדגים שהמחלקה הגנרית Node<T> תומכת גם בטיפוסי בוליאן ולא רק במספרים ומחרוזות",
+      "כדי להחליף את הצורך במחלקה Node<int>",
+      "כדי להראות שחובה שכל ערכי הרשימה יהיו זהים"
+    ],
+    "correct": 0,
+    "explanation": {
+      "0": "המצגת מדגימה שימוש בגנריות עם כמה טיפוסים: int, string ו-bool.",
+      "1": "הדוגמאות אינן מבטלות את השימוש ב-<Node<int.",
+      "2": "אין דרישה שכל הערכים בשרשרת יהיו זהים; הם פשוט מאותו טיפוס T."
+    }
+  }
+];
+        const $ = (id) => document.getElementById(id);
+        let index = 0;
+        let correctCount = 0;
+        let answered = false;
+        let order = [];
+        let currentOptions = [];
+        let mathVersion = 0;
+
+        // Match individual English/code terms without changing neighboring Hebrew text.
+        const CODE_TERMS = /(?:Node<[^<>]+>|PrintLinkedList<[^<>]+>|GetNext\(\)|GetValue\(\)|SetNext\(\)|SetValue\(\)|HasNext\(\)|ToString\(\)|current\s*=\s*current\.GetNext\(\)|head\s*==\s*null|head\s*!=\s*null|next\s*!=\s*null|this\.[a-zA-Z]+\s*=\s*null|[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*(?:\([^()]*\))?|\bnull\b|\btrue\b|\bfalse\b)/g;
+        function texEscape(s) {
+            return s.replace(/\\/g, '\\\\').replace(/([{}%$#&_])/g, '\\$1');
+        }
+        function addMixedText(el, value) {
+            const text = String(value);
+            CODE_TERMS.lastIndex = 0;
+            let cursor = 0;
+            for (const match of text.matchAll(CODE_TERMS)) {
+                if (match.index > cursor) el.appendChild(document.createTextNode(text.slice(cursor, match.index)));
+                const span = document.createElement('span');
+                span.className = 'inline-code';
+                span.dir = 'ltr';
+                span.textContent = '\\(\\text{' + texEscape(match[0]) + '}\\)';
+                el.appendChild(span);
+                cursor = match.index + match[0].length;
+            }
+            if (cursor < text.length) el.appendChild(document.createTextNode(text.slice(cursor)));
+        }
+        // Dynamic question content is typeset only after the MathJax library is ready.
+        function mathRender() {
+            const version = ++mathVersion;
+            if (!window.MathJax || !window.MathJax.startup) return;
+            window.MathJax.startup.promise.then(() => {
+                if (version !== mathVersion || !window.MathJax.typesetPromise) return;
+                return window.MathJax.typesetPromise([$('quiz')]);
+            }).catch(err => console.warn('MathJax:', err));
+        }
+        function clearMath() {
+            if (window.MathJax && window.MathJax.typesetClear) {
+                window.MathJax.typesetClear([$('quiz')]);
+            }
+        }
+        function shuffle(a) {
+            const copy = a.slice();
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+        function screen(name) {
+            ['landing', 'quiz', 'result'].forEach(id => $(id).hidden = id !== name);
+            window.scrollTo(0, 0);
+        }
+        function begin() {
+            index = 0;
+            correctCount = 0;
+            order = shuffle(QUESTIONS.map((_, i) => i));
+            screen('quiz');
+            showQuestion();
+        }
+        function showQuestion() {
+            clearMath();
+            answered = false;
+            const q = QUESTIONS[order[index]];
+            $('counter').textContent = `שאלה ${index + 1} מתוך ${QUESTIONS.length}`;
+            $('answeredCount').textContent = `${index} שאלות הושלמו`;
+            $('bar').style.width = `${100 * index / QUESTIONS.length}%`;
+            $('question').replaceChildren();
+            addMixedText($('question'), q.question);
+            const code = $('code');
+            if (Array.isArray(q.code) && q.code.length > 1) {
+                code.hidden = false;
+                code.textContent = q.code.join('\n');
+            } else if (Array.isArray(q.code) && q.code.length === 1) {
+                code.hidden = true;
+                // One-line code belongs in a separate inline/compact snippet.
+                const line = document.createElement('span');
+                line.className = 'inline-code';
+                addMixedText(line, q.code[0]);
+                $('question').appendChild(document.createTextNode(' '));
+                $('question').appendChild(line);
+            } else { code.hidden = true; code.textContent = ''; }
+            $('options').replaceChildren();
+            currentOptions = shuffle(q.options.map((text, originalIndex) => ({text, originalIndex})));
+            currentOptions.forEach((option, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option';
+                btn.type = 'button';
+                btn.dataset.original = option.originalIndex;
+                addMixedText(btn, option.text);
+                btn.addEventListener('click', () => select(i));
+                $('options').appendChild(btn);
+            });
+            $('feedback').hidden = true;
+            $('feedback').replaceChildren();
+            $('feedback').classList.remove('bad');
+            $('nextBtn').disabled = true;
+            $('nextBtn').textContent = index === QUESTIONS.length - 1 ? 'סיום והצגת הציון' : 'לשאלה הבאה ←';
+            mathRender();
+        }
+        function select(pickedIndex) {
+            if (answered) return;
+            answered = true;
+            const q = QUESTIONS[order[index]];
+            const picked = currentOptions[pickedIndex].originalIndex;
+            const isCorrect = picked === q.correct;
+            if (isCorrect) correctCount++;
+            [...$('options').children].forEach((btn, i) => {
+                btn.disabled = true;
+                if (currentOptions[i].originalIndex === q.correct) btn.classList.add('correct');
+                if (i === pickedIndex && !isCorrect) btn.classList.add('incorrect');
+            });
+            const fb = $('feedback');
+            fb.hidden = false;
+            fb.classList.toggle('bad', !isCorrect);
+            const heading = document.createElement('strong');
+            heading.textContent = isCorrect ? '✅ תשובה נכונה' : '❌ תשובה שגויה';
+            fb.appendChild(heading);
+            const explanation = document.createElement('div');
+            explanation.style.marginTop = '6px';
+            addMixedText(explanation, q.explanation[picked] || '');
+            fb.appendChild(explanation);
+            if (!isCorrect) {
+                const correctExplain = document.createElement('div');
+                correctExplain.style.marginTop = '8px';
+                const b = document.createElement('strong');
+                b.textContent = 'הסבר לתשובה הנכונה: ';
+                correctExplain.appendChild(b);
+                addMixedText(correctExplain, q.explanation[q.correct] || '');
+                fb.appendChild(correctExplain);
+            }
+            $('nextBtn').disabled = false;
+            mathRender();
+        }
+        function next() {
+            if (!answered) return;
+            if (++index < QUESTIONS.length) return showQuestion();
+            screen('result');
+            const pct = Math.round(100 * correctCount / QUESTIONS.length);
+            $('score').textContent = pct + '%';
+            $('resultText').textContent = `ענית נכון על ${correctCount} מתוך ${QUESTIONS.length} שאלות.`;
+        }
+        $('totalLabel').textContent = `${QUESTIONS.length} שאלות, 3 אפשרויות בכל שאלה, משוב והסבר אחרי כל תשובה.`;
+        $('startBtn').addEventListener('click', begin);
+        $('restartBtn').addEventListener('click', begin);
+        $('nextBtn').addEventListener('click', next);
+    </script>
+</body>
+</html>
