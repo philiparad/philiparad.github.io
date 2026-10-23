@@ -19,7 +19,9 @@
    - [x] Locked selections have no transform controls.
    - [x] 181 automated checks and 21 core checks pass.
    - [x] Browser corner resize, side resize, rotation and undo/redo verified.
-5. [ ] Publish and verify the live deployment.
+5. [x] Publish and verify the live deployment.
+   - [x] GitHub Pages deployment succeeded; eight handles, live side stretch and rotation verified.
+   - [x] Local save/reload preserves image transforms.
 
 ## Reference analysis (23 October 2026)
 
