@@ -1,9 +1,9 @@
 import { showRecovery } from './recovery.js?v=20261023-image-handles';
 import { createBoard, parseBackup } from './model.js?v=20261023-image-handles';
 import { BoardRepository } from './storage.js?v=20261023-image-handles';
-import { Editor } from './editor.js?v=20261024-undo-key';
+import { Editor } from './editor.js?v=20261024-export-name';
 import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261017-history-budget';
-import { backup } from './export.js?v=20261023-image-handles';
+import { backup } from './export.js?v=20261024-export-name';
 import { drawItem, svgEl, union } from './scene.js?v=20261023-image-handles';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');

@@ -1,6 +1,7 @@
+import {exportFilename} from './export-filename.js?v=20261024-export-name';
 import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261023-image-handles';
 import { SnippetRepository } from './snippet-storage.js?v=20261023-image-handles';
-import { el, btn, formDialog, notify, chooseFile, download, filename } from './ui.js?v=20261017-history-budget';
+import { el, btn, formDialog, notify, chooseFile, download } from './ui.js?v=20261017-history-budget';
 import { drawItem, svgEl, union } from './scene.js?v=20261023-image-handles';
 import { expandGroups } from './groups.js?v=20261017-history-budget';
 
@@ -34,7 +35,7 @@ export class Snippets {
     const actions=el('div',null,'snippet-card-actions');
     if(trash)actions.append(btn('Restore',async()=>{await this.repo.update(value.id,{deleted:false});await refresh();}));
     else actions.append(btn('Insert',()=>{this.editor.insertSnippet(value);d.close();},'primary'),btn('Rename',async()=>{const r=await formDialog('Rename snippet',[['title','Snippet name',value.title]],{validate:v=>{createSnippet(v.title,value.items);return v;}});if(r){await this.repo.update(value.id,{title:r.title});await refresh();}}),btn('Move to trash',async()=>{await this.repo.update(value.id,{deleted:true});await refresh();}));
-    actions.append(btn('Export',()=>download(new Blob([serializeSnippet(value)],{type:'application/json'}),filename(value.title)+'.snippet.json')));
+    actions.append(btn('Export',()=>download(new Blob([serializeSnippet(value)],{type:'application/json'}),exportFilename()+'.snippet.json')));
     card.append(preview(value),title,el('p',`${value.items.length} objects`,'muted'),actions);grid.append(card);
    }
    if(matches.length>limit)grid.append(btn('Show more',()=>{limit+=12;draw();}));

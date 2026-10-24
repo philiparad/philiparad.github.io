@@ -8,7 +8,7 @@ import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-
 import { Recovery, showRecovery } from './recovery.js?v=20261023-image-handles';
 import { exportScopeDialog } from './export-scope.js?v=20261023-image-handles';
 import { planA4Import } from './pdf-a4.js?v=20261023-image-handles';
-import { Snippets, snippetCopies } from './snippets.js?v=20261023-image-handles';
+import { Snippets, snippetCopies } from './snippets.js?v=20261024-export-name';
 import { InlineText } from './inline-text.js?v=20261017-history-budget';
 import { connectorTarget, syncConnectors } from './connectors.js?v=20261023-image-handles';
 import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261017-history-budget';
@@ -28,7 +28,7 @@ import { toWorld, zoomAt } from './viewport.js?v=20261017-history-budget';
 import { History } from './history.js?v=20261022-clear-board';
 import { SaveQueue } from './save-queue.js?v=20261017-history-budget';
 import { equation, graph, importImage, importPDF } from './media.js?v=20261017-history-budget';
-import { exportBoard, backup } from './export.js?v=20261023-image-handles';
+import { exportBoard, backup } from './export.js?v=20261024-export-name';
 import { validateBoard } from './model.js?v=20261023-image-handles';
 import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-history-budget';
 
