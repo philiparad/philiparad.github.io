@@ -1,5 +1,5 @@
 import {imageSVGTransform} from './image-geometry.js?v=20261023-image-handles';
-import { drawItem } from './scene.js?v=20261023-image-handles';
+import { drawItem } from './scene.js?v=20261024-image-actions';
 
 // Editor-only cache: exports always render the complete model independently.
 // Comparing serialized visual data also detects in-place curve/crop edits and

@@ -1,4 +1,4 @@
-import {svgEl,union} from './scene.js?v=20261023-image-handles';
+import {svgEl,union} from './scene.js?v=20261024-image-actions';
 import {stretchImage} from './image-geometry.js?v=20261023-image-handles';
 export const resizeHandles={nw:[0,0],n:[.5,0],ne:[1,0],e:[1,.5],se:[1,1],s:[.5,1],sw:[0,1],w:[0,.5]};
 export function drawResizeHandles(scene,items,zoom){

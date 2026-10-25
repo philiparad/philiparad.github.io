@@ -10,6 +10,6 @@ export function copiedItems(items){
   if(i.graphLinkId){if(!graphGroups.has(i.graphLinkId))graphGroups.set(i.graphLinkId,crypto.randomUUID());i.graphLinkId=graphGroups.get(i.graphLinkId);}
   if(i.links){i.links={start:ids.get(i.links.start)||null,end:ids.get(i.links.end)||null};if(!i.links.start&&!i.links.end)delete i.links;}
   if(i.groupId){if(!groups.has(i.groupId))groups.set(i.groupId,crypto.randomUUID());i.groupId=groups.get(i.groupId);}
-  return {...i,id:ids.get(i.id),x:i.x+30,y:i.y+30,locked:false};
+  return {...i,id:ids.get(i.id),x:i.x+30,y:i.y+30,locked:false,backgroundLocked:false};
  }));
 }

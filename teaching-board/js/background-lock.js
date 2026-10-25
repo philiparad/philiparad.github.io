@@ -1,0 +1,2 @@
+export function backgroundLocked(items,item){return !!item.backgroundLocked||!!item.groupId&&items.some(i=>i.groupId===item.groupId&&i.backgroundLocked);}
+export function backgroundOrder(items){const ids=new Set(items.filter(i=>i.backgroundLocked).map(i=>i.groupId).filter(Boolean));const locked=i=>i.backgroundLocked||ids.has(i.groupId);return [...items.filter(locked),...items.filter(i=>!locked(i))];}

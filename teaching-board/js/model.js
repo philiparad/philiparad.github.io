@@ -6,7 +6,7 @@ import {compileFunctions} from './named-functions.js?v=20261017-history-budget';
 import { validateSeries, validateParameters } from './graph-series.js?v=20261017-history-budget';
 import { SHAPES } from './shapes.js?v=20261017-history-budget';
 import { LINE_STYLES } from './line-style.js?v=20261017-history-budget';
-import { validCrop } from './crop-editor.js?v=20261023-image-handles';
+import { validCrop } from './crop-editor.js?v=20261024-image-actions';
 export const SCHEMA_VERSION = 1;
 export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image']);
 export function createBoard(title = 'Untitled lesson') {
@@ -48,6 +48,9 @@ export function validateBoard(value) {
     if(item.textAlign!==undefined&&(!['text','note'].includes(item.type)||!['auto','left','center','right'].includes(item.textAlign)))throw new Error('Invalid text alignment.');
     if(item.crop!==undefined&&(item.type!=='image'||!validCrop(item.crop)))throw new Error('Invalid image crop.');
     if(item.lineStyle!==undefined&&!LINE_STYLES.some(([key])=>key===item.lineStyle))throw new Error('Invalid line style.');
+    if(item.backgroundLocked!==undefined&&typeof item.backgroundLocked!=='boolean')throw new Error('Invalid background lock.');
+    if(item.imageBorder!==undefined&&(item.type!=='image'||!(/^(none|#[0-9a-f]{6})$/i.test(item.imageBorder))))throw new Error('Invalid image border.');
+    if(item.imageBorderWidth!==undefined&&(item.type!=='image'||!Number.isFinite(item.imageBorderWidth)||item.imageBorderWidth<1||item.imageBorderWidth>30))throw new Error('Invalid image border width.');
     if(item.imageBasis!==undefined&&(item.type!=='image'||!Array.isArray(item.imageBasis)||item.imageBasis.length!==4||!item.imageBasis.every(Number.isFinite)||Math.abs(item.imageBasis[0]*item.imageBasis[3]-item.imageBasis[1]*item.imageBasis[2])<1e-12))throw new Error('Invalid image transform.');
     if (item.rotation !== undefined && !Number.isFinite(item.rotation)) throw new Error('Invalid rotation.');
     if(item.inkVersion!==undefined&&item.inkVersion!==2)throw new Error('Invalid ink version.');

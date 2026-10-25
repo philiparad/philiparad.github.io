@@ -1,8 +1,10 @@
+import {bounds} from './scene.js?v=20261024-image-actions';
 import { SHAPES } from './shapes.js?v=20261017-history-budget';
 
 // Conservative geometry bounds, independent of the DOM. Text can overflow its
 // nominal box (long words, RTL and font metrics), so keep text/notes mounted.
 export function visualBounds(item){
+ if(item.type==='image'){const b=bounds(item),pad=(item.imageBorder&&item.imageBorder!=='none'?(item.imageBorderWidth||2)/2:0)+2;return {x:b.x-pad,y:b.y-pad,w:b.w+pad*2,h:b.h+pad*2};}
  const w=item.w||1,h=item.h||1;
  let left=0,top=0,right=w,bottom=h;
  if(['text','note'].includes(item.type))return null;

@@ -1,8 +1,8 @@
 import { backgroundOptions } from './background-options.js?v=20261017-history-budget';
-import { svgEl, union, bounds } from './scene.js?v=20261023-image-handles';
-import { pageRect } from './pages.js?v=20261023-image-handles';
+import { svgEl, union, bounds } from './scene.js?v=20261024-image-actions';
+import { pageRect } from './pages.js?v=20261024-image-actions';
 import { el, btn } from './ui.js?v=20261017-history-budget';
-import { RenderCache } from './render-cache.js?v=20261023-image-handles';
+import { RenderCache } from './render-cache.js?v=20261024-image-actions';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};

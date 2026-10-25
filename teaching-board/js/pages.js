@@ -1,10 +1,11 @@
+import {backgroundOrder} from './background-lock.js?v=20261024-image-actions';
 import { backgroundOptions } from './background-options.js?v=20261017-history-budget';
 import { el, notify, confirmDialog } from './ui.js?v=20261017-history-budget';
-import { svgEl, drawItem, background } from './scene.js?v=20261023-image-handles';
+import { svgEl, drawItem, background } from './scene.js?v=20261024-image-actions';
 export const A4={w:794,h:1123,gap:32};
 export const pageRect=index=>({x:0,y:index*(A4.h+A4.gap),w:A4.w,h:A4.h});
 export function deletePage(board,index){const top=pageRect(index).y,bottom=top+A4.h+A4.gap;board.items=board.items.filter(i=>{const center=i.y+(i.h||1)/2;return !(center>=top&&center<bottom&&i.x+(i.w||1)/2>=0&&i.x+(i.w||1)/2<=A4.w);}).map(i=>i.y>=bottom?{...i,y:i.y-A4.h-A4.gap}:i);board.pageCount--;}
-export function pageSVG(board,index){const r=pageRect(index),s=svgEl('svg',{xmlns:'http://www.w3.org/2000/svg',width:r.w,height:r.h,viewBox:`0 0 ${r.w} ${r.h}`});background(s,board.background,{x:0,y:-r.y,zoom:1},'page-paper-'+index,board.backgroundOptions);const g=svgEl('g',{transform:`translate(0 ${-r.y})`});board.items.forEach(i=>g.append(drawItem(i)));s.append(g);return s;}
+export function pageSVG(board,index){const r=pageRect(index),s=svgEl('svg',{xmlns:'http://www.w3.org/2000/svg',width:r.w,height:r.h,viewBox:`0 0 ${r.w} ${r.h}`});background(s,board.background,{x:0,y:-r.y,zoom:1},'page-paper-'+index,board.backgroundOptions);const g=svgEl('g',{transform:`translate(0 ${-r.y})`});backgroundOrder(board.items).forEach(i=>g.append(drawItem(i)));s.append(g);return s;}
 export function visiblePage(viewport,height,count){const center=(height/2-viewport.y)/viewport.zoom;return Math.max(0,Math.min((count||1)-1,Math.floor(center/(A4.h+A4.gap))));}
 export class Pages{
  constructor(editor){this.e=editor;this.index=0;}

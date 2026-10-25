@@ -378,3 +378,14 @@ test('image controls retain screen size, commit once, undo/redo, save and export
  e.selected=new Set(['image']);e.board.viewport.zoom=2;e.paint();assert.equal(+walk(e.svg).find(n=>n.hasAttribute('data-resize')).getAttribute('width')*2,10);
  e.board.items[0].locked=true;e.paint();assert.equal(walk(e.svg).filter(n=>n.hasAttribute('data-resize')||n.hasAttribute('data-rotate')).length,0);
 });
+
+test('background lock ignores normal clicks and erasing, accepts Ctrl-click and stays behind foreground objects',()=>{
+ const e=fixture(2);e.tool='select';e.selected=new Set(['object-1']);e.lockSelectionToBackground();assert.equal(e.board.items[0].id,'object-1');assert.equal(e.board.items[0].backgroundLocked,true);assert.equal(e.selected.size,0);
+ const locked=object(e,'object-1');e.pointerDown({...pointer(e,30,30),target:locked});e.pointerUp(pointer(e,30,30));assert.equal(e.selected.size,0);
+ e.eraseAt({x:65,y:30});assert.ok(e.board.items.some(i=>i.id==='object-1'));
+ e.pointerDown({...pointer(e,30,30),target:object(e,'object-1'),ctrlKey:true});e.pointerUp(pointer(e,30,30));assert.ok(e.selected.has('object-1'));assert.ok(walk(e.svg).some(n=>n.hasAttribute('data-resize')));
+ e.layer(true);assert.equal(e.board.items[0].id,'object-1');e.lockSelectionToBackground();assert.ok(!e.board.items[0].backgroundLocked);e.undo();assert.equal(e.board.items[0].backgroundLocked,true);validateBoard(e.board);
+});
+test('image border renders in live and exported content without changing the image source',()=>{
+ const e=fixture();e.board.items=[{id:'image',type:'image',x:50,y:50,w:100,h:100,src:'data:image/png;base64,AAAA',imageBorder:'#ff0000',imageBorderWidth:5}];e.paint();const live=object(e,'image');assert.ok(live.children.some(n=>n.getAttribute('stroke')==='#ff0000'));assert.ok(walk(sceneSVG(e.board)).some(n=>n.getAttribute('stroke')==='#ff0000'));validateBoard(e.board);
+});

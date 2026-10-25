@@ -1,4 +1,4 @@
-import { svgEl } from './scene.js?v=20261023-image-handles';
+import { svgEl } from './scene.js?v=20261024-image-actions';
 import { formDialog, notify } from './ui.js?v=20261017-history-budget';
 export const radians=degrees=>degrees*Math.PI/180;
 export const degrees=radians=>radians*180/Math.PI;
