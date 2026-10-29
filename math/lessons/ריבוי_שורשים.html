@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+  <meta content="no-cache" http-equiv="Pragma"/>
+  <meta content="0" http-equiv="Expires"/>
+  <link href="philip_favicon.png" rel="icon" type="image/png"/>
+  <title>
+   ריבוי שורשים של פולינום - הסבר מהבסיס
+  </title>
+  <link href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" rel="stylesheet"/>
+  <script>
+   window.MathJax = {tex:{inlineMath:[["\\(","\\)"],["$","$"]],displayMath:[["\\[","\\]"]]},options:{skipHtmlTags:["script","style","noscript","textarea","pre","code"]}};
+  </script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+  </script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js">
+  </script>
+  <style>
+   :root { --navy:#153752; --teal:#087b79; --pale:#eff9f8; --line:#c6d7de; --ink:#233747; }
+        * { box-sizing:border-box; }
+        html,body { padding:0; margin:0; background:#dce7eb; color:var(--ink); font-family:Arial,"Segoe UI",sans-serif; line-height:1.48; }
+        #book { display:grid; justify-content:center; gap:9mm; padding:9mm 0; }
+        .page { position:relative; width:210mm; height:297mm; background:#fff; padding:13mm 14mm 14mm; overflow:hidden; break-after:page; box-shadow:0 6px 20px #2342; }
+        .page:last-child { break-after:auto; }
+        .head { display:flex; align-items:center; gap:5mm; margin:0 0 6mm; border-bottom:2px solid var(--teal); padding-bottom:3mm; }
+        .head h2 { color:var(--navy); font-size:19pt; line-height:1.24; margin:0; }
+        .chapter { min-width:14mm; height:14mm; border-radius:50%; border:2px solid var(--teal); color:var(--teal); display:grid; place-items:center; font-weight:800; font-size:13pt; }
+        .subtitle { margin:1mm 0 0; font-size:10.5pt; color:#647780; }
+        .hero { background:linear-gradient(135deg,#e7f5f4,#eff3ff); border:2px solid #c8e0e4; padding:8mm; border-radius:4mm; margin-bottom:6mm; }
+        .hero h1 { margin:1mm 0 4mm; color:var(--navy); font-size:24pt; line-height:1.22; }
+        .hero p { font-size:12pt; margin:2mm 0; }
+        .eyebrow { font-weight:700; color:var(--teal); }
+        .toc { display:grid; grid-template-columns:1fr 1fr; gap:3mm; margin:5mm 0; }
+        .toc a { color:#145c73; text-decoration:none; border:2px solid #d8e6e9; border-radius:2mm; padding:3mm; font-weight:600; font-size:10pt; }
+        .card { border:2px solid var(--line); padding:3.5mm 4mm; border-radius:3mm; margin:4mm 0; background:#fff; }
+        .card.info { background:var(--pale); border-color:#bddad6; }
+        .card.warn { background:#fff7e7; border-color:#ebd6a8; }
+        .card.soft { background:#f4f7fc; border-color:#d8deed; }
+        h3 { font-size:12pt; color:#124c65; margin:0 0 2mm; }
+        p { margin:1.5mm 0; font-size:11pt; }
+        .callout { padding:4mm 5mm; border:2px solid #8abcb8; background:#eaf7f6; border-radius:3mm; font-size:11pt; margin-top:5mm; }
+        .three { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:3mm; align-items:stretch; }
+        .tile { border:2px solid #cbdcde; border-radius:3mm; text-align:center; padding:5mm 2mm; min-height:34mm; background:#fafdfd; }
+        .tile b { color:var(--teal); font-size:12pt; }
+        .tile p { font-size:10pt; }
+        .steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:3mm; align-items:stretch; }
+        .steps>div { padding:3mm; border:2px solid #d0dde1; border-radius:3mm; min-height:25mm; }
+        .steps b { color:#fff; background:var(--teal); border-radius:50%; padding:1mm 2.3mm; }
+        .graph-unit { margin:4mm 0 2mm; }
+        .graph-label { text-align:center; font-weight:bold; font-size:12pt; margin-bottom:2mm; }
+        .graph { width:100%; border:2px solid #b9d1d6; border-radius:2mm; background:white; touch-action:none; }
+        .controls { display:none; justify-content:center; gap:2mm; flex-wrap:wrap; margin-top:2mm; }
+        .controls button { border:2px solid #a8c3cb; background:white; border-radius:2mm; cursor:pointer; padding:1mm 3mm; font-size:9pt; color:var(--navy); }
+        .hint { display:none; }
+        .values { width:100%; border-collapse:collapse; table-layout:fixed; text-align:center; margin:4mm 0; }
+        .values th,.values td { border:2px solid #c8d9de; padding:2mm; font-size:10pt; }
+        .values th { background:#e7f3f3; color:#164c60; }
+        .center { text-align:center; font-size:13pt; }
+        .lead { font-size:10pt; }
+        .exercises { display:grid; grid-template-columns:1fr 1fr; gap:2.4mm; align-items:stretch; }
+        .exercise { border:2px solid #cbdadd; border-radius:3mm; padding:3mm; display:flex; align-items:flex-start; gap:2mm; min-height:36mm; }
+        .exercise b { font-size:11pt; color:var(--teal); }
+        .exercise p { margin:0; font-size:10pt; }
+        .answer-grid { display:grid; gap:4mm; }
+        .answer { border:2px solid #cbdadd; border-radius:3mm; padding:4mm; min-height:29mm; }
+        .answer h3 { color:var(--teal); }
+        .footer { position:absolute; bottom:5mm; right:14mm; left:14mm; font-size:8pt; text-align:center; color:#71828b; border-top:1px solid #e2e8ed; padding-top:1mm; }
+        mjx-container { direction:ltr!important; unicode-bidi:isolate; }
+        mjx-container[display="true"] { margin:.3em 0!important; }
+        @media print { @page { size:A4; margin:0; } html,body { background:white; } #book { display:block; padding:0; } .page { box-shadow:none; margin:0; print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+  </style>
+  <style>
+   :root{--navy:#17345b;--teal:#087b79;--blue:#1667aa;--green:#16754e;--orange:#a85a10;--pink:#a34375}
+html{scroll-behavior:smooth} body{font-size:17px;line-height:1.58}#book{gap:8mm}
+.page{padding:13mm 14mm 14mm} .head h2{font-size:22pt}.hero h1{font-size:27pt}
+p,.card p,.hero p,.callout{font-size:13pt;line-height:1.55}
+h3{font-size:15pt}.subtitle{font-size:12pt}.lead{font-size:12.5pt}
+.card{padding:4mm 5mm;margin:3mm 0}.callout{margin-top:4mm;padding:3mm 4mm}
+.tile p,.exercise p,.answer p{font-size:12pt}.tile b,.exercise b{font-size:14pt}
+.values th,.values td{font-size:12pt;padding:2mm}.toc a{font-size:12pt;padding:3mm}
+.step-line{display:flex;gap:3mm;align-items:start;padding:2mm 0;border-bottom:1px dashed #d4dfe8;font-size:13pt}
+.step-line:last-child{border:0}.step-n{display:inline-grid;place-items:center;flex:none;width:9mm;height:9mm;border-radius:50%;color:white;background:#1767ab;font-weight:bold}
+.example{background:#f0f7ff;border:2px solid #a2c9e9;border-radius:3mm;padding:3mm 5mm;margin:3mm 0}
+.ok{background:#ecf9f0;border:2px solid #9acfae;border-radius:3mm;padding:3mm 5mm;margin:3mm 0}
+.warning{background:#fff6e7;border:2px solid #ecc37a;border-radius:3mm;padding:3mm 5mm;margin:3mm 0}
+.practice-question{border:2px solid #d0dfea;border-radius:3mm;padding:3mm 4mm;margin:3mm 0;font-size:12pt}
+.reveal{color:#124e7b;background:#e7f2ff;border:2px solid #a3c6e7;border-radius:2mm;padding:2mm 4mm;font-weight:700;cursor:pointer;font-size:11pt}
+.reveal-content{display:none;color:#196044;font-weight:600;padding:2mm 0}.revealed .reveal-content{display:block}
+.graph{touch-action:pan-y}.graph-label{font-size:14pt}.controls{display:flex}.controls button{font-size:11pt;padding:1.5mm 3mm}
+.hint{display:block;font-size:11pt;color:#455f70}
+.iconic{font-size:20pt;font-weight:700}.arrow-up{color:#16754e}.arrow-down{color:#b4514a}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm}.mini-grid>*{min-width:0}
+.exercise{min-height:29mm}.exercise p{font-size:11.5pt}.answer{min-height:0;padding:3mm}.answer p{font-size:11.5pt}
+@media print{.controls,.reveal{display:none!important}.reveal-content{display:block!important}.page{break-inside:avoid}.graph{touch-action:auto}}
+@media screen and (max-width:850px){#book{display:block;padding:8px}.page{width:100%;height:auto;min-height:0;overflow:visible;margin-bottom:12px;padding:22px;box-shadow:0 2px 12px #1233}.mini-grid,.toc,.exercises{grid-template-columns:1fr}.three,.steps{grid-template-columns:1fr 1fr}.graph{max-width:100%}}
+  </style>
+ </head>
+ <body>
+  <main id="book">
+   <section class="page" data-page="1" id="contents">
+    <header class="head">
+     <span class="chapter">
+      01
+     </span>
+     <div>
+      <h2>
+       ריבוי שורשים של פולינום
+      </h2>
+     </div>
+    </header>
+    <div class="hero">
+     <h1>
+      מדוע גרף לפעמים חוצה את הציר ולפעמים רק נוגע בו?
+     </h1>
+     <p>
+      מהי נקודת אפס? מדוע לפעמים הגרף חוצה ולפעמים נוגע? נלמד עם תמונות, הצבות מספריות, שלושה צעדים קבועים ותרגול.
+     </p>
+    </div>
+    <div class="card info">
+     <h3>
+      מה כבר צריך לדעת?
+     </h3>
+     <p>
+      לפתור משוואה פשוטה, לזהות נקודת חיתוך עם ציר
+      <span dir="ltr">
+       x
+      </span>
+      , ולהשתמש בכלל: מכפלה שווה לאפס כאשר לפחות אחד הגורמים שווה לאפס.
+     </p>
+    </div>
+    <nav class="toc">
+     <a href="#start">
+      1. מהי נקודת אפס?
+     </a>
+     <a href="#count">
+      2. מה זה ריבוי של שורש?
+     </a>
+     <a href="#even">
+      3. למה חזקה זוגית יוצרת נגיעה?
+     </a>
+     <a href="#odd">
+      4. למה חזקה אי-זוגית יוצרת חצייה?
+     </a>
+     <a href="#crossing">
+      4א. חצייה רגילה לעומת שטוחה
+     </a>
+     <a href="#combined">
+      5. כמה שורשים באותה פונקציה
+     </a>
+     <a href="#build">
+      6. בונים פולינום בעצמנו
+     </a>
+     <a href="#practice">
+      7. עשרת תרגילי המקור
+     </a>
+     <a href="#solutions1">
+      8. פתרונות מפורטים
+     </a>
+     <a href="#solutions2">
+      9. פתרונות - המשך
+     </a>
+     <a href="#foundation">
+      הכנה: מעל ומתחת לציר
+     </a>
+     <a href="#experiment">
+      ניסוי עם חזקות 2 ו־3
+     </a>
+     <a href="#decision">
+      שיטת שלוש השאלות
+     </a>
+     <a href="#practice-more">
+      תרגול &mdash; שלב ב׳
+     </a>
+    </nav>
+    <div class="callout">
+     <strong>
+      הריבוי הוא מספר הפעמים שבהן אותו גורם מופיע במכפלה
+     </strong>
+     . השאלה אם המספר זוגי או אי-זוגי קובעת אם הגרף נוגע בציר או חוצה אותו.
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 1
+    </footer>
+   </section>
+   <section class="page" data-page="2" id="foundation">
+    <header class="head">
+     <span class="chapter">
+      &starf;
+     </span>
+     <div>
+      <h2>
+       לפני שמתחילים: מה רואים בגרף?
+      </h2>
+      <p class="subtitle">
+       שיעור הכנה &middot; בלי מילים מסובכות
+      </p>
+     </div>
+    </header>
+    <div class="example">
+     <h3>
+      🔎 ציר x הוא קו הגובה אפס
+     </h3>
+     <p>
+      נקודה
+      <strong>
+       מעל
+      </strong>
+      הציר: ערך הפונקציה חיובי. נקודה
+      <strong>
+       מתחת
+      </strong>
+      לציר: ערך הפונקציה שלילי. נקודה
+      <strong>
+       על
+      </strong>
+      הציר: ערך הפונקציה הוא אפס.
+     </p>
+    </div>
+    <div class="mini-grid">
+     <div class="ok">
+      <div class="iconic arrow-up">
+       &uarr; מעל הציר
+      </div>
+      <p>
+       למשל: \(f(x)=3\) &mdash; הגובה חיובי.
+      </p>
+     </div>
+     <div class="warning">
+      <div class="iconic arrow-down">
+       &darr; מתחת לציר
+      </div>
+      <p>
+       למשל: \(f(x)=-3\) &mdash; הגובה שלילי.
+      </p>
+     </div>
+    </div>
+    <div class="card info">
+     <h3>
+      👆 שתי התנהגויות ליד נקודת אפס
+     </h3>
+     <p>
+      <strong>
+       חצייה:
+      </strong>
+      הגרף עובר מצד אחד של הציר לצד השני.
+     </p>
+     <p>
+      <strong>
+       נגיעה:
+      </strong>
+      הגרף מגיע לציר ואז חוזר לאותו צד.
+     </p>
+    </div>
+    <div class="graph-unit">
+     <div class="graph-label">
+      🟦 חוצה: \(y=x\) &nbsp; 🟣 נוגע: \(y=x^2\)
+     </div>
+     <div class="jxgbox graph" id="gIntro" style="height:75mm;direction:ltr">
+     </div>
+    </div>
+    <div class="practice-question">
+     <strong>
+      ✅ בדיקת הבנה:
+     </strong>
+     אם הגרף נמצא מתחת לציר \(x\), האם \(f(x)\) חיובית או שלילית?
+     <div>
+      <button class="reveal" type="button">
+       הצגת התשובה
+      </button>
+      <div class="reveal-content">
+       שלילית. מתחת לציר פירושו גובה קטן מאפס.
+      </div>
+     </div>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 2
+    </footer>
+   </section>
+   <section class="page" data-page="3" id="start">
+    <header class="head">
+     <span class="chapter">
+      02
+     </span>
+     <div>
+      <h2>
+       1. קודם כול: מהי נקודת אפס?
+      </h2>
+      <p class="subtitle">
+       מתחילים ממה שמוכר: חיתוך עם ציר x
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      הגדרה פשוטה
+     </h3>
+     <p>
+      <strong>
+       נקודת אפס
+      </strong>
+      היא מקום שבו ערך הפונקציה שווה ל-0. בגרף זו נקודה על ציר x. מחפשים את ערך x באמצעות המשוואה \(f(x)=0\).
+     </p>
+    </div>
+    <div class="steps">
+     <div>
+      <b>
+       1
+      </b>
+      <p>
+       נתונה \(f(x)=x-2\)
+      </p>
+     </div>
+     <div>
+      <b>
+       2
+      </b>
+      <p>
+       נשווה ל-0: \(x-2=0\)
+      </p>
+     </div>
+     <div>
+      <b>
+       3
+      </b>
+      <p>
+       נקבל \(x=2\), ולכן נקודת האפס בגרף היא \((2,0)\).
+      </p>
+     </div>
+    </div>
+    <div class="graph-unit">
+     <div class="graph-label">
+      \(f(x)=x-2\)
+     </div>
+     <div class="jxgbox graph" id="gStart" style="height:83mm;direction:ltr">
+     </div>
+     <div class="controls">
+      <button data-act="reset" data-board="gStart" type="button">
+       איפוס
+      </button>
+      <button data-act="in" data-board="gStart" type="button">
+       הגדלה +
+      </button>
+      <button data-act="out" data-board="gStart" type="button">
+       הקטנה -
+      </button>
+      <button data-act="center" data-board="gStart" type="button">
+       מרכוז
+      </button>
+     </div>
+     <p class="hint">
+      הנקודה המסומנת היא \((2,0)\). הקו עובר מצד אחד של הציר לצד השני. ניתן גם לגרור את הגרף ולשנות את קנה המידה.
+     </p>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 3
+    </footer>
+   </section>
+   <section class="page" data-page="4" id="count">
+    <header class="head">
+     <span class="chapter">
+      03
+     </span>
+     <div>
+      <h2>
+       2. מה פירוש ריבוי של שורש?
+      </h2>
+      <p class="subtitle">
+       כמו לספור כמה פעמים גורם חוזר
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      הדוגמה הכי פשוטה
+     </h3>
+     <p>
+      אם \(f(x)=(x-2)(x-2)\), אותו גורם \((x-2)\) מופיע
+      <strong>
+       פעמיים
+      </strong>
+      . נכתוב בקיצור \(f(x)=(x-2)^2\). לכן השורש \(x=2\) הוא
+      <strong>
+       מריבוי 2
+      </strong>
+      .
+     </p>
+    </div>
+    <div class="three">
+     <div class="tile">
+      <b>
+       ריבוי 1
+      </b>
+      <p>
+       \(x-2\)
+      </p>
+      <p>
+       הגורם מופיע פעם אחת.
+      </p>
+     </div>
+     <div class="tile">
+      <b>
+       ריבוי 2
+      </b>
+      <p>
+       \((x-2)^2\)
+      </p>
+      <p>
+       אותו גורם מופיע פעמיים.
+      </p>
+     </div>
+     <div class="tile">
+      <b>
+       ריבוי 3
+      </b>
+      <p>
+       \((x-2)^3\)
+      </p>
+      <p>
+       אותו גורם מופיע שלוש פעמים.
+      </p>
+     </div>
+    </div>
+    <div class="card info">
+     <h3>
+      איך קוראים את השורש מתוך הסוגריים?
+     </h3>
+     <p>
+      \((x-5)^3\) &larr; השורש הוא \(5\) והריבוי הוא \(3\).
+     </p>
+     <p>
+      \((x+4)^2=(x-(-4))^2\) &larr; השורש הוא \(-4\) והריבוי הוא \(2\).
+     </p>
+     <p>
+      \(x^4=(x-0)^4\) &larr; השורש הוא \(0\) והריבוי הוא \(4\).
+     </p>
+    </div>
+    <div class="callout">
+     <strong>
+      אין כאן כמה נקודות שונות!
+     </strong>
+     שורש מריבוי 3 הוא עדיין ערך x אחד ונקודת אפס אחת בגרף. הריבוי מתאר את הופעת הגורם, לא את מספר הנקודות.
+    </div>
+    <div class="card soft">
+     <h3>
+      בדיקה עצמית
+     </h3>
+     <p>
+      בפולינום \(f(x)=(x+1)^2(x-4)\), השורש \(-1\) מריבוי \(2\), והשורש \(4\) מריבוי \(1\). המעלה היא \(2+1=3\).
+     </p>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 4
+    </footer>
+   </section>
+   <section class="page" data-page="5" id="experiment">
+    <header class="head">
+     <span class="chapter">
+      ✦
+     </span>
+     <div>
+      <h2>
+       מגלים לבד: מה עושה החזקה?
+      </h2>
+      <p class="subtitle">
+       במקום לשנן כלל &mdash; נחשב שלושה מספרים פשוטים
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      🧮 בודקים את המספרים \(-1,0,1\)
+     </h3>
+     <p>
+      נשווה בין ריבוע לחזקה שלישית. נשים לב לסימן התוצאה משני צידי האפס.
+     </p>
+    </div>
+    <table class="values" dir="ltr">
+     <thead>
+      <tr>
+       <th>
+        \(x\)
+       </th>
+       <th>
+        \(x^2\)
+       </th>
+       <th>
+        \(x^3\)
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td>
+        -1
+       </td>
+       <td style="background:#e7f6ed">
+        +1
+       </td>
+       <td style="background:#ffe7e7">
+        -1
+       </td>
+      </tr>
+      <tr>
+       <td>
+        0
+       </td>
+       <td>
+        0
+       </td>
+       <td>
+        0
+       </td>
+      </tr>
+      <tr>
+       <td>
+        1
+       </td>
+       <td style="background:#e7f6ed">
+        +1
+       </td>
+       <td style="background:#e7f6ed">
+        +1
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="mini-grid">
+     <div class="ok">
+      <h3>
+       🟢 \(x^2\): אותו סימן
+      </h3>
+      <p>
+       משמאל ומימין לאפס התוצאה חיובית. לכן הגרף נשאר באותו צד ונוגע.
+      </p>
+     </div>
+     <div class="example">
+      <h3>
+       🔵 \(x^3\): סימן מתחלף
+      </h3>
+      <p>
+       משמאל התוצאה שלילית ומימין חיובית. לכן הגרף חוצה.
+      </p>
+     </div>
+    </div>
+    <div class="graph-unit">
+     <div class="graph-label">
+      השוואת שתי החזקות באותו ציור
+     </div>
+     <div class="jxgbox graph" id="gPowers" style="height:75mm;direction:ltr">
+     </div>
+    </div>
+    <div class="practice-question">
+     <strong>
+      ✍️ נסו לבד:
+     </strong>
+     מה יקרה ב־\(x^4\)?
+     <div>
+      <button class="reveal" type="button">
+       בדיקת התשובה
+      </button>
+      <div class="reveal-content">
+       נגיעה &mdash; גם \((-1)^4=1\) וגם \(1^4=1\). החזקה זוגית.
+      </div>
+     </div>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 5
+    </footer>
+   </section>
+   <section class="page" data-page="6" id="even">
+    <header class="head">
+     <span class="chapter">
+      04
+     </span>
+     <div>
+      <h2>
+       3. ריבוי זוגי: למה יש נגיעה?
+      </h2>
+      <p class="subtitle">
+       מסתכלים על המספרים משני צידי נקודת האפס
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      הביטוי \(f(x)=(x-2)^2\)
+     </h3>
+     <p>
+      כאשר x קטן מ-2, הביטוי בתוך הסוגריים שלילי. כאשר x גדול מ-2, הוא חיובי. אבל
+      <strong>
+       ריבוע של מספר שלילי הוא חיובי
+      </strong>
+      וגם ריבוע של מספר חיובי הוא חיובי.
+     </p>
+    </div>
+    <table class="values">
+     <thead>
+      <tr>
+       <th>
+        \(x\)
+       </th>
+       <th>
+        \(x-2\)
+       </th>
+       <th>
+        \((x-2)^2\)
+       </th>
+       <th>
+        מיקום ביחס לציר
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td>
+        1
+       </td>
+       <td>
+        1-
+       </td>
+       <td>
+        1
+       </td>
+       <td>
+        מעל
+       </td>
+      </tr>
+      <tr>
+       <td>
+        2
+       </td>
+       <td>
+        0
+       </td>
+       <td>
+        0
+       </td>
+       <td>
+        על הציר
+       </td>
+      </tr>
+      <tr>
+       <td>
+        3
+       </td>
+       <td>
+        1
+       </td>
+       <td>
+        1
+       </td>
+       <td>
+        מעל
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="graph-unit">
+     <div class="graph-label">
+      \(f(x)=(x-2)^2\)
+     </div>
+     <div class="jxgbox graph" id="gEven" style="height:79mm;direction:ltr">
+     </div>
+     <div class="controls">
+      <button data-act="reset" data-board="gEven" type="button">
+       איפוס
+      </button>
+      <button data-act="in" data-board="gEven" type="button">
+       הגדלה +
+      </button>
+      <button data-act="out" data-board="gEven" type="button">
+       הקטנה -
+      </button>
+      <button data-act="center" data-board="gEven" type="button">
+       מרכוז
+      </button>
+     </div>
+     <p class="hint">
+      מימין ומשמאל ל-2 הגרף נמצא מעל הציר. לכן הוא נוגע בו וחוזר. ניתן גם לגרור את הגרף ולשנות את קנה המידה.
+     </p>
+    </div>
+    <div class="callout">
+     כאשר הריבוי
+     <strong>
+      זוגי
+     </strong>
+     (2, 4, 6, ...), סימן הפונקציה אינו מתחלף ממש ליד השורש &larr; הגרף
+     <strong>
+      נוגע בציר וחוזר לאותו צד
+     </strong>
+     .
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 6
+    </footer>
+   </section>
+   <section class="page" data-page="7" id="odd">
+    <header class="head">
+     <span class="chapter">
+      05
+     </span>
+     <div>
+      <h2>
+       4. ריבוי אי-זוגי: למה יש חצייה?
+      </h2>
+      <p class="subtitle">
+       הפעם סימן הפונקציה משתנה משני צידי השורש
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      הביטוי \(f(x)=(x-2)^3\)
+     </h3>
+     <p>
+      חזקה שלישית שומרת על סימן המספר: שלילי בחזקה שלישית נשאר שלילי; חיובי בחזקה שלישית נשאר חיובי.
+     </p>
+    </div>
+    <table class="values">
+     <thead>
+      <tr>
+       <th>
+        \(x\)
+       </th>
+       <th>
+        \(x-2\)
+       </th>
+       <th>
+        \((x-2)^3\)
+       </th>
+       <th>
+        מיקום ביחס לציר
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td>
+        1
+       </td>
+       <td>
+        1-
+       </td>
+       <td>
+        1-
+       </td>
+       <td>
+        מתחת
+       </td>
+      </tr>
+      <tr>
+       <td>
+        2
+       </td>
+       <td>
+        0
+       </td>
+       <td>
+        0
+       </td>
+       <td>
+        על הציר
+       </td>
+      </tr>
+      <tr>
+       <td>
+        3
+       </td>
+       <td>
+        1
+       </td>
+       <td>
+        1
+       </td>
+       <td>
+        מעל
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="graph-unit">
+     <div class="graph-label">
+      \(f(x)=(x-2)^3\)
+     </div>
+     <div class="jxgbox graph" id="gOdd" style="height:79mm;direction:ltr">
+     </div>
+     <div class="controls">
+      <button data-act="reset" data-board="gOdd" type="button">
+       איפוס
+      </button>
+      <button data-act="in" data-board="gOdd" type="button">
+       הגדלה +
+      </button>
+      <button data-act="out" data-board="gOdd" type="button">
+       הקטנה -
+      </button>
+      <button data-act="center" data-board="gOdd" type="button">
+       מרכוז
+      </button>
+     </div>
+     <p class="hint">
+      הגרף עובר מתחת לציר אל מעליו. זו חצייה של הציר. ניתן גם לגרור את הגרף ולשנות את קנה המידה.
+     </p>
+    </div>
+    <div class="callout">
+     כאשר הריבוי
+     <strong>
+      אי-זוגי
+     </strong>
+     (1, 3, 5, ...), סימן הפונקציה מתחלף ליד השורש &larr; הגרף
+     <strong>
+      חוצה את הציר
+     </strong>
+     .
+     <strong>
+      אבל לא כל חצייה נראית אותו דבר:
+     </strong>
+     בריבוי 1 החצייה רגילה; בריבוי 3, 5, 7 וכן הלאה החצייה שטוחה.
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 7
+    </footer>
+   </section>
+   <section class="page" data-page="8" id="crossing">
+    <header class="head">
+     <span class="chapter">
+      06
+     </span>
+     <div>
+      <h2>
+       4א. חצייה רגילה או חצייה שטוחה?
+      </h2>
+      <p class="subtitle">
+       שתיהן חוצות את הציר &mdash; ההבדל הוא איך הגרף עובר בנקודת האפס
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      חצייה רגילה &mdash; ריבוי 1
+     </h3>
+     <p>
+      למשל \(f(x)=x-2\). הגרף עובר מצד אחד של ציר \(x\) אל הצד השני
+      <strong>
+       בלי להשתטח בנקודת החצייה
+      </strong>
+      . ממש ליד הנקודה \((2,0)\) הגרף עדיין נטוי, כמו קו ישר אלכסוני.
+     </p>
+    </div>
+    <div class="card soft">
+     <h3>
+      חצייה שטוחה &mdash; ריבוי אי־זוגי הגדול מ־1
+     </h3>
+     <p>
+      למשל \(g(x)=(x-2)^3\). הגרף עובר מצד אחד של הציר אל הצד השני,
+      <strong>
+       אבל קרוב מאוד לנקודת האפס הוא נעשה כמעט אופקי
+      </strong>
+      ; ברגע החצייה השיפוע שלו אפס. לאחר מכן הוא מתרחק מן הציר.
+     </p>
+    </div>
+    <div class="graph-unit">
+     <div class="graph-label">
+      השוואה ליד אותה נקודת אפס: \((2,0)\)
+     </div>
+     <div class="jxgbox graph" id="gCrossing" style="height:77mm;direction:ltr">
+     </div>
+     <p style="font-size:10pt;text-align:center">
+      <span style="color:#087b79">
+       <strong>
+        ■ חצייה רגילה:
+       </strong>
+       \(y=x-2\)
+      </span>
+      &nbsp;
+      <span style="color:#a14c8c">
+       <strong>
+        ■ חצייה שטוחה:
+       </strong>
+       \(y=(x-2)^3\)
+      </span>
+     </p>
+    </div>
+    <div class="callout">
+     <strong>
+      לזכור:
+     </strong>
+     ריבוי
+     <strong>
+      1
+     </strong>
+     &larr; חצייה רגילה; ריבוי
+     <strong>
+      3, 5, 7, ...
+     </strong>
+     &larr; חצייה שטוחה; ריבוי
+     <strong>
+      זוגי
+     </strong>
+     &larr; נגיעה ללא חצייה.
+     <strong>
+      שימו לב:
+     </strong>
+     העובדה שהגרף חוצה נקבעת לפי שינוי הסימן; השטיחות נקבעת לפי הריבוי.
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 8
+    </footer>
+   </section>
+   <section class="page" data-page="9" id="decision">
+    <header class="head">
+     <span class="chapter">
+      &checkmark;
+     </span>
+     <div>
+      <h2>
+       שיטת 3 השאלות &mdash; בכל תרגיל
+      </h2>
+      <p class="subtitle">
+       לא צריך לפתוח סוגריים ולא צריך נגזרת
+      </p>
+     </div>
+    </header>
+    <div class="example">
+     <h3>
+      דוגמה: \(f(x)=(x+3)^4\)
+     </h3>
+     <div class="step-line">
+      <span class="step-n">
+       1
+      </span>
+      <span>
+       <strong>
+        איפה האפס?
+       </strong>
+       \(x+3=0\), ולכן \(x=-3\).
+      </span>
+     </div>
+     <div class="step-line">
+      <span class="step-n">
+       2
+      </span>
+      <span>
+       <strong>
+        מה הריבוי?
+       </strong>
+       החזקה שעל הסוגריים היא \(4\).
+      </span>
+     </div>
+     <div class="step-line">
+      <span class="step-n">
+       3
+      </span>
+      <span>
+       <strong>
+        זוגי או אי־זוגי?
+       </strong>
+       \(4\) זוגי, לכן הגרף
+       <strong>
+        נוגע
+       </strong>
+       .
+      </span>
+     </div>
+    </div>
+    <div class="card info">
+     <h3>
+      🧠 כרטיס זיכרון
+     </h3>
+     <div class="three">
+      <div class="tile">
+       <b>
+        2, 4, 6
+       </b>
+       <p>
+        זוגי
+       </p>
+       <p>
+        🟢 נגיעה
+       </p>
+      </div>
+      <div class="tile">
+       <b>
+        1
+       </b>
+       <p>
+        אי־זוגי
+       </p>
+       <p>
+        🔵 חצייה רגילה
+       </p>
+      </div>
+      <div class="tile">
+       <b>
+        3, 5, 7
+       </b>
+       <p>
+        אי־זוגי
+       </p>
+       <p>
+        🟣 חצייה שטוחה
+       </p>
+      </div>
+     </div>
+    </div>
+    <div class="card warn">
+     <h3>
+      ⚠️ סימן חשוב בסוגריים
+     </h3>
+     <p>
+      ב־\((x-5)^2\) השורש הוא
+      <strong>
+       5
+      </strong>
+      , אבל ב־\((x+5)^2\) השורש הוא
+      <strong>
+       &lrm;&minus;5
+      </strong>
+      . תמיד משווים את הסוגריים לאפס.
+     </p>
+    </div>
+    <div class="practice-question">
+     <strong>
+      א.
+     </strong>
+     \((x-1)^2\): מה השורש ומה סוג המפגש?
+     <div>
+      <button class="reveal" type="button">
+       תשובה
+      </button>
+      <div class="reveal-content">
+       \(x=1\), ריבוי 2, נגיעה.
+      </div>
+     </div>
+    </div>
+    <div class="practice-question">
+     <strong>
+      ב.
+     </strong>
+     \((x+2)^3\): מה השורש ומה סוג המפגש?
+     <div>
+      <button class="reveal" type="button">
+       תשובה
+      </button>
+      <div class="reveal-content">
+       \(x=-2\), ריבוי 3, חצייה שטוחה.
+      </div>
+     </div>
+    </div>
+    <div class="practice-question">
+     <strong>
+      ג.
+     </strong>
+     \(x(x-4)^2\): כמה נקודות אפס יש?
+     <div>
+      <button class="reveal" type="button">
+       תשובה
+      </button>
+      <div class="reveal-content">
+       שתיים: \(x=0\) בחצייה ו־\(x=4\) בנגיעה.
+      </div>
+     </div>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 9
+    </footer>
+   </section>
+   <section class="page" data-page="10" id="combined">
+    <header class="head">
+     <span class="chapter">
+      07
+     </span>
+     <div>
+      <h2>
+       5. כמה שורשים באותו פולינום
+      </h2>
+      <p class="subtitle">
+       מיישמים את הכלל על כל גורם בנפרד
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      דוגמה ממערך השיעור
+     </h3>
+     <p>
+      \(f(x)=(x+1)^2(x-2)^3\)
+     </p>
+     <p>
+      הגורם \((x+1)^2\) נותן שורש \(-1\) מריבוי 2 &larr;
+      <strong>
+       נגיעה
+      </strong>
+      . הגורם \((x-2)^3\) נותן שורש \(2\) מריבוי 3 &larr;
+      <strong>
+       חצייה שטוחה
+      </strong>
+      .
+     </p>
+     <p>
+      יש שתי נקודות אפס שונות: \((-1,0)\) ו-\((2,0)\). המעלה היא \(2+3=5\).
+     </p>
+    </div>
+    <div class="graph-unit">
+     <div class="graph-label">
+      \(f(x)=(x+1)^2(x-2)^3\)
+     </div>
+     <div class="jxgbox graph" id="gMix" style="height:95mm;direction:ltr">
+     </div>
+     <div class="controls">
+      <button data-act="reset" data-board="gMix" type="button">
+       איפוס
+      </button>
+      <button data-act="in" data-board="gMix" type="button">
+       הגדלה +
+      </button>
+      <button data-act="out" data-board="gMix" type="button">
+       הקטנה -
+      </button>
+      <button data-act="center" data-board="gMix" type="button">
+       מרכוז
+      </button>
+     </div>
+     <p class="hint">
+      שימו לב: צורת הגרף מושפעת מכל הגורמים, אך החצייה או הנגיעה בנקודת האפס נקבעות לפי זוגיות ריבוי השורש. ניתן גם לגרור את הגרף ולשנות את קנה המידה.
+     </p>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 10
+    </footer>
+   </section>
+   <section class="page" data-page="11" id="build">
+    <header class="head">
+     <span class="chapter">
+      08
+     </span>
+     <div>
+      <h2>
+       6. בונים פולינום לפי הגרף
+      </h2>
+      <p class="subtitle">
+       מהתנהגות הציר אל ביטוי אלגברי
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      מתכון בארבעה שלבים
+     </h3>
+     <p>
+      <strong>
+       1.
+      </strong>
+      נגיעה ב-\(x=a\) &larr; בוחרים גורם \((x-a)^2\).
+     </p>
+     <p>
+      <strong>
+       2.
+      </strong>
+      חצייה רגילה ב-\(x=b\) &larr; בוחרים \((x-b)\).
+     </p>
+     <p>
+      <strong>
+       3.
+      </strong>
+      חצייה שטוחה ב-\(x=c\) &larr; בוחרים \((x-c)^3\).
+     </p>
+     <p>
+      <strong>
+       4.
+      </strong>
+      מכפילים את הגורמים. אפשר להוסיף מקדם קבוע שונה מאפס; מקדם חיובי שומר על סימני המכפלה, ומקדם שלילי הופך אותם.
+     </p>
+    </div>
+    <div class="card soft">
+     <h3>
+      דוגמה: נגיעה ב-\(-2\) וחצייה ב-\(1\)
+     </h3>
+     <p>
+      נבחר \((x+2)^2\) עבור נגיעה ב-\(-2\), ואת \((x-1)\) עבור חצייה ב-\(1\). לכן פולינום מתאים ממעלה מינימלית הוא:
+     </p>
+     <p class="center">
+      \(f(x)=(x+2)^2(x-1)\)
+     </p>
+     <p>
+      מעלה \(2+1=3\).
+     </p>
+    </div>
+    <div class="graph-unit">
+     <div class="graph-label">
+      \(f(x)=(x+2)^2(x-1)\)
+     </div>
+     <div class="jxgbox graph" id="gBuild" style="height:74mm;direction:ltr">
+     </div>
+     <div class="controls">
+      <button data-act="reset" data-board="gBuild" type="button">
+       איפוס
+      </button>
+      <button data-act="in" data-board="gBuild" type="button">
+       הגדלה +
+      </button>
+      <button data-act="out" data-board="gBuild" type="button">
+       הקטנה -
+      </button>
+      <button data-act="center" data-board="gBuild" type="button">
+       מרכוז
+      </button>
+     </div>
+     <p class="hint">
+      נגיעה ב-\((-2,0)\); חצייה ב-\((1,0)\). ניתן גם לגרור את הגרף ולשנות את קנה המידה.
+     </p>
+    </div>
+    <div class="callout">
+     השוואת ריבויים:
+     <strong>
+      2
+     </strong>
+     ו-
+     <strong>
+      4
+     </strong>
+     שניהם יוצרים נגיעה;
+     <strong>
+      1
+     </strong>
+     יוצר חצייה רגילה, ואילו
+     <strong>
+      3
+     </strong>
+     (וגם 5, 7, ...) יוצר חצייה שטוחה. בריבוי גבוה יותר הגרף נעשה שטוח יותר סמוך לשורש (באותו קנה מידה מקומי).
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 11
+    </footer>
+   </section>
+   <section class="page" data-page="12" id="practice">
+    <header class="head">
+     <span class="chapter">
+      09
+     </span>
+     <div>
+      <h2>
+       מתרגלים &mdash; שלב א׳
+      </h2>
+      <p class="subtitle">
+       תרגילים 1&ndash;5 &middot; מתחילים בקל ומשתפרים
+      </p>
+     </div>
+    </header>
+    <p class="lead">
+     קראו כל תרגיל ונסו לפתור לפני המעבר לפתרונות.
+    </p>
+    <div class="exercises">
+     <div class="exercise">
+      <b>
+       01
+      </b>
+      <p>
+       קבע חצייה או נגיעה: \(f(x)=(x-1)^2\).
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       02
+      </b>
+      <p>
+       קבע חצייה או נגיעה: \(f(x)=(x+2)^3\).
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       03
+      </b>
+      <p>
+       מהו הריבוי של השורש \(x=0\) ב-\(f(x)=x^4\)?
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       04
+      </b>
+      <p>
+       נתון \(f(x)=x(x-3)^2\). קבע את התנהגות הגרף בכל נקודת אפס.
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       05
+      </b>
+      <p>
+       נתון \(f(x)=(x+1)^2(x-4)\). מה המעלה?
+      </p>
+     </div>
+    </div>
+    <div class="callout">
+     לפני כל פתרון שאלו: מהו השורש? כמה פעמים מופיע הגורם שלו? האם הריבוי זוגי או אי-זוגי?
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 12
+    </footer>
+   </section>
+   <section class="page" data-page="13" id="practice-more">
+    <header class="head">
+     <span class="chapter">
+      ✎
+     </span>
+     <div>
+      <h2>
+       מתרגלים &mdash; שלב ב׳
+      </h2>
+      <p class="subtitle">
+       תרגילים 6&ndash;10 &middot; פתרונות בסיום המסמך
+      </p>
+     </div>
+    </header>
+    <div class="card info">
+     <h3>
+      איך עובדים?
+     </h3>
+     <p>
+      קודם מוצאים את השורש, אחר כך את הריבוי, ולבסוף בודקים האם יש נגיעה או חצייה.
+     </p>
+    </div>
+    <div class="exercises">
+     <div class="exercise">
+      <b>
+       06
+      </b>
+      <p>
+       נתון \(f(x)=-2(x+3)^2x(x-1)^4\). מנה את השורשים ואת הריבויים שלהם.
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       07
+      </b>
+      <p>
+       כתוב פולינום ממעלה מינימלית שנוגע בציר ב-\(x=-2\) וחוצה ב-\(x=1\).
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       08
+      </b>
+      <p>
+       כתוב פולינום ממעלה מינימלית שנוגע בציר ב-\(x=0\) וחוצה באופן שטוח ב-\(x=2\).
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       09
+      </b>
+      <p>
+       נתון \(f(x)=a(x+1)^4(x-2)^3\), כאשר \(a\ne 0\). האם הסימן מתחלף ליד כל שורש?
+      </p>
+     </div>
+     <div class="exercise">
+      <b>
+       10
+      </b>
+      <p>
+       כתוב פולינום בעל מקדם מוביל חיובי, שנוגע בציר ב-\(x=-2\) וחוצה באופן שטוח ב-\(x=1\), במעלה מינימלית.
+      </p>
+     </div>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 13
+    </footer>
+   </section>
+   <section class="page" data-page="14" id="solutions1">
+    <header class="head">
+     <span class="chapter">
+      10
+     </span>
+     <div>
+      <h2>
+       8. פתרונות מפורטים
+      </h2>
+      <p class="subtitle">
+       מזהים גורם, ריבוי והתנהגות ליד הציר
+      </p>
+     </div>
+    </header>
+    <div class="answer-grid">
+     <div class="answer">
+      <h3>
+       תרגיל 1
+      </h3>
+      <p>
+       השורש \(x=1\) מריבוי 2. לכן
+       <strong>
+        נגיעה
+       </strong>
+       ב-\((1,0)\).
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 2
+      </h3>
+      <p>
+       השורש \(x=-2\) מריבוי 3. לכן
+       <strong>
+        חצייה שטוחה
+       </strong>
+       ב-\((-2,0)\).
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 3
+      </h3>
+      <p>
+       \(x^4=(x-0)^4\). השורש 0 מריבוי
+       <strong>
+        4
+       </strong>
+       ; יש נגיעה ב-\((0,0)\).
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 4
+      </h3>
+      <p>
+       \(x=(x-0)\) נותן שורש 0 מריבוי 1 &larr; חצייה. \((x-3)^2\) נותן שורש 3 מריבוי 2 &larr; נגיעה.
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 5
+      </h3>
+      <p>
+       מעלת המכפלה היא סכום המעלות של הגורמים: \(2+1=3\).
+      </p>
+     </div>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 14
+    </footer>
+   </section>
+   <section class="page" data-page="15" id="solutions2">
+    <header class="head">
+     <span class="chapter">
+      11
+     </span>
+     <div>
+      <h2>
+       8. פתרונות מפורטים - המשך
+      </h2>
+      <p class="subtitle">
+       מזהים גורם, ריבוי והתנהגות ליד הציר
+      </p>
+     </div>
+    </header>
+    <div class="answer-grid">
+     <div class="answer">
+      <h3>
+       תרגיל 6
+      </h3>
+      <p>
+       השורשים: \(-3\) מריבוי 2 (נגיעה), \(0\) מריבוי 1 (חצייה), \(1\) מריבוי 4 (נגיעה). המקדם \(-2\) אינו משנה את הריבויים.
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 7
+      </h3>
+      <p>
+       \(f(x)=(x+2)^2(x-1)\). המעלה המינימלית \(3\). אפשר גם להכפיל בכל מספר שונה מאפס.
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 8
+      </h3>
+      <p>
+       \(f(x)=x^2(x-2)^3\). נגיעה: ריבוי 2; חצייה שטוחה: ריבוי 3. המעלה המינימלית \(5\).
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 9
+      </h3>
+      <p>
+       ב-\(x=-1\) הריבוי 4 זוגי &larr; הסימן
+       <strong>
+        אינו
+       </strong>
+       מתחלף. ב-\(x=2\) הריבוי 3 אי-זוגי &larr; הסימן
+       <strong>
+        מתחלף
+       </strong>
+       , לכל \(a\ne 0\).
+      </p>
+     </div>
+     <div class="answer">
+      <h3>
+       תרגיל 10
+      </h3>
+      <p>
+       \(f(x)=(x+2)^2(x-1)^3\). המקדם המוביל \(1\) חיובי; המעלה המינימלית \(5\).
+      </p>
+     </div>
+    </div>
+    <div class="card soft">
+     <h3>
+      סיכום מהיר
+     </h3>
+     <table class="values">
+      <thead>
+       <tr>
+        <th>
+         ריבוי
+        </th>
+        <th>
+         סוג
+        </th>
+        <th>
+         התנהגות הגרף
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td>
+         1
+        </td>
+        <td>
+         אי-זוגי
+        </td>
+        <td>
+         חצייה רגילה
+        </td>
+       </tr>
+       <tr>
+        <td>
+         3, 5, 7, ...
+        </td>
+        <td>
+         אי-זוגי
+        </td>
+        <td>
+         חצייה שטוחה
+        </td>
+       </tr>
+       <tr>
+        <td>
+         2, 4, 6, ...
+        </td>
+        <td>
+         זוגי
+        </td>
+        <td>
+         נוגע בציר וחוזר
+        </td>
+       </tr>
+      </tbody>
+     </table>
+     <p>
+      ריבוי גבוה יותר גורם להשתטחות מקומית סמוך לנקודת האפס (בהשוואה מקומית לפולינומים בעלי אותו גורם נוסף).
+     </p>
+    </div>
+    <footer class="footer">
+     ריבוי שורשים &middot; למידה עצמית | עמוד 15
+    </footer>
+   </section>
+  </main>
+  <script>
+   const boards = {};
+        const graphs = [
+            ['gStart', x=>x-2, [-4,5,6,-5], [[2,0,'(2,0)']]],
+            ['gEven', x=>(x-2)**2, [-1,6,5,-2.5], [[2,0,'(2,0)']]],
+            ['gOdd', x=>(x-2)**3, [-1,8,5,-8], [[2,0,'(2,0)']]],
+            ['gMix', x=>(x+1)**2*(x-2)**3, [-3.5,9,4,-9], [[-1,0,'(-1,0)'],[2,0,'(2,0)']]],
+            ['gBuild', x=>(x+2)**2*(x-1), [-4.5,8,3.5,-8], [[-2,0,'(-2,0)'],[1,0,'(1,0)']]]
+        ];
+        function makeCrossingComparison() {
+            const id='gCrossing';
+            if (!window.JXG || !document.getElementById(id)) return;
+            const b=JXG.JSXGraph.initBoard(id, {
+                boundingbox:[0.3,2,3.7,-2],axis:false,showNavigation:false,
+                showCopyright:false,keepaspectratio:false,pan:{enabled:false},zoom:{enabled:false}
+            });
+            b.create('grid',[],{majorStep:[0.5,0.5],strokeColor:'#e2eaee',strokeWidth:1,highlight:false});
+            const axis={strokeColor:'#42576a',strokeWidth:1.4,fixed:true,highlight:false};
+            b.create('axis',[[0,0],[1,0]],{...axis,ticks:{ticksDistance:0.5,minorTicks:0,drawLabels:true,label:{fontSize:11}}});
+            b.create('axis',[[0,0],[0,1]],{...axis,ticks:{ticksDistance:0.5,minorTicks:0,drawLabels:true,label:{fontSize:11}}});
+            b.create('functiongraph',[x=>x-2,0.3,3.7],{strokeColor:'#087b79',strokeWidth:3.5,highlight:false});
+            b.create('functiongraph',[x=>(x-2)**3,0.3,3.7],{strokeColor:'#a14c8c',strokeWidth:3.5,highlight:false});
+            b.create('point',[2,0],{name:'',size:2,fixed:true,highlight:false,fillColor:'#bd6c19',strokeColor:'#bd6c19'});
+            b.create('text',[2.12,0.3,'(2,0)'],{fontSize:13,color:'#974f13',fixed:true,highlight:false});
+        }
+        function makeGraph(id, fn, bounds, roots) {
+            const el=document.getElementById(id);
+            if(!el || !window.JXG) return;
+            const board=JXG.JSXGraph.initBoard(id, {boundingbox:bounds,axis:false,showNavigation:false,showCopyright:false,keepaspectratio:false,pan:{enabled:true,needShift:false},zoom:{wheel:true,needShift:false}});
+            boards[id]={board, bounds, roots};
+            board.create('grid',[],{majorStep:[1,1],strokeColor:'#e2eaee',strokeWidth:1,highlight:false});
+            const ax={strokeColor:'#42576a',strokeWidth:1.5,highlight:false,firstArrow:false,lastArrow:true,fixed:true};
+            board.create('axis',[[0,0],[1,0]],{...ax,ticks:{ticksDistance:1,minorTicks:0,drawLabels:true,label:{fontSize:11,offset:[-3,-14]}}});
+            board.create('axis',[[0,0],[0,1]],{...ax,ticks:{ticksDistance:1,minorTicks:0,drawLabels:true,label:{fontSize:11,offset:[-18,0]}}});
+            board.create('functiongraph',[fn],{strokeColor:'#087b79',strokeWidth:3.5,highlight:false});
+            roots.forEach(([x,y,label],i)=>{
+                board.create('point',[x,y],{name:'',size:2,strokeColor:'#bd6c19',fillColor:'#bd6c19',fixed:true,highlight:false});
+                board.create('text',[x+0.17,y+(i%2?0.85:1.15),label],{fontSize:13,color:'#974f13',fixed:true,highlight:false,anchorX:'left'});
+            });
+            board.update();
+        }
+        function initialize() {
+            if(!window.JXG){console.error('JSXGraph did not load');return;}
+            graphs.forEach(args=>makeGraph(...args));
+            makeCrossingComparison();
+            document.querySelectorAll('.controls button').forEach(btn=>btn.addEventListener('click',()=>{
+                const rec=boards[btn.dataset.board];if(!rec)return;
+                const b=rec.board,a=btn.dataset.act;
+                if(a==='reset'){b.setBoundingBox(rec.bounds,false);}
+                if(a==='in'){b.zoomIn();}
+                if(a==='out'){b.zoomOut();}
+                if(a==='center'){
+                    const box=b.getBoundingBox(), w=box[2]-box[0],h=box[1]-box[3];
+                    const xc=rec.roots.reduce((s,r)=>s+r[0],0)/rec.roots.length;
+                    b.setBoundingBox([xc-w/2,h/2,xc+w/2,-h/2],false);
+                }
+                b.update();
+            }));
+            if(window.MathJax?.typesetPromise) window.MathJax.typesetPromise().catch(console.error);
+        }
+        window.addEventListener('load',initialize);
+  </script>
+  <script>
+   document.addEventListener('click',function(e){if(e.target.classList.contains('reveal')){let box=e.target.parentElement;box.classList.toggle('revealed');e.target.textContent=box.classList.contains('revealed')?'הסתרת התשובה':'הצגת התשובה';}});
+window.addEventListener('load',function(){if(!window.JXG)return;[['gIntro',[x=>x,x=>x*x],['#1667aa','#9a4a9e'],[-3,5,3,-3]],['gPowers',[x=>x*x,x=>x*x*x],['#16754e','#9a4a9e'],[-2,4,2,-4]]].forEach(function(rec){try{let b=JXG.JSXGraph.initBoard(rec[0],{boundingbox:rec[3],axis:true,showNavigation:false,showCopyright:false,pan:{enabled:false},zoom:{enabled:false}});rec[1].forEach((f,i)=>b.create('functiongraph',[f],{strokeColor:rec[2][i],strokeWidth:3.5,highlight:false}));}catch(e){console.error(e);}});});
+  </script>
+ </body>
+</html>
