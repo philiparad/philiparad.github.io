@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <link rel="icon" type="image/png" href="philip_favicon.png">
+        <title>מתי מותר לחלק משוואה טריגונומטרית בקוסינוס?</title>
+        <script>
+            window.MathJax = {
+                tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+                svg: { fontCache: 'global' }
+            };
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+        <style>
+            :root { --dark:#193451; --blue:#2467af; --mint:#087d73; --red:#b24742; --gold:#915b13; --line:#d4e3f0; }
+            * { box-sizing:border-box; }
+            html { scroll-behavior:smooth; }
+            body { margin:0; background:#e8f0f8; color:#22344a; font:16px/1.5 Arial,sans-serif; }
+            .page { width:210mm; height:297mm; overflow:hidden; background:white; margin:12px auto; padding:15mm 16mm 13mm; position:relative; break-after:page; box-shadow:0 3px 18px #19345122; }
+            .page:before { content:""; height:6px; position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg,#31b4a2,#4685d7,#a78bfa); }
+            h1 { font-size:27px; line-height:1.2; margin:7px 0; color:var(--dark); }
+            h2 { color:var(--dark); font-size:21px; margin:0 0 9px; }
+            h3 { margin:0 0 6px; font-size:17px; color:var(--dark); }
+            p { margin:5px 0 8px; }
+            .eyebrow { font-size:12px; font-weight:bold; color:var(--blue); }
+            .sub { font-size:14px; color:#586d82; }
+            .box { border:2px solid var(--line); border-radius:12px; padding:10px 13px; margin:18px 0; background:#f9fcff; break-inside:avoid; }
+            .blue { border-color:#bbd9f8; background:#eef6ff; }
+            .green { border-color:#b6e5d7; background:#effaf5; }
+            .red { border-color:#efc6c3; background:#fff2f1; }
+            .yellow { border-color:#f1dba9; background:#fff9ea; }
+            .math { direction:ltr; text-align:center; margin:6px 0; font-size:17px; }
+            .grid { display:grid; grid-template-columns:1fr 1fr; gap:11px; align-items:stretch; margin:9px 0; }
+            .grid>.box { height:100%; margin:0; }
+            .steps { margin:5px 0; padding-right:20px; }
+            .steps li { margin:6px 0; }
+            .small { font-size:14px; }
+            nav { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0; font-size:13px; }
+            nav a { padding:5px 10px; background:#eaf3ff; border:1px solid #c3d9f0; border-radius:8px; color:#1c5b9a; text-decoration:none; font-weight:bold; }
+            .pill { display:inline-block; border-radius:20px; background:#d8f5e9; padding:3px 9px; color:#08664d; font-weight:bold; font-size:12px; }
+            .foot { position:absolute; bottom:7mm; left:16mm; right:16mm; display:flex; justify-content:space-between; color:#718299; font-size:11px; }
+            .answer { border-bottom:1px solid #cbd8e5; padding:5px 0; }
+            .answer:last-child { border:0; }
+            mjx-container { max-width:100%; }
+            @page { size:A4; margin:0; }
+            @media print {
+                html, body { width:210mm; margin:0 !important; padding:0 !important; background:#fff; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+                /* Allow for Chromium's fractional millimetre / pixel rounding at A4 boundaries. */
+                .page {
+                    width:210mm !important;
+                    height:296mm !important;
+                    min-height:0 !important;
+                    margin:0 !important;
+                    padding:15mm 16mm 13mm;
+                    box-shadow:none !important;
+                    overflow:hidden !important;
+                    break-before:auto;
+                    break-after:page;
+                    page-break-after:always;
+                    break-inside:avoid;
+                    page-break-inside:avoid;
+                }
+                .page:last-child { break-after:auto !important; page-break-after:auto !important; }
+                .box, .grid { break-inside:avoid; page-break-inside:avoid; }
+            }
+            @media (max-width:800px) { body { overflow-x:auto; } .page { margin:10px auto; } }
+        </style>
+    </head>
+    <body>
+        <section class="page" id="lesson">
+            <div class="eyebrow">מתמטיקה • הסבר בסיסי • לימוד עצמי</div>
+            <h1>🧩 מתי מותר לחלק בקוסינוס?</h1>
+            <p class="sub">המטרה: לפתור משוואות טריגונומטריות בלי לאבד פתרונות.</p>
+            <nav aria-label="תוכן עניינים">
+                <a href="#lesson">📘 ההסבר</a>
+                <a href="#examples">🔍 דוגמאות</a>
+                <a href="#example-3">🔄 סינוס וקוסינוס</a>
+                <a href="#practice">✏️ תרגול ותשובות</a>
+            </nav>
+            <div class="box blue">
+                <h3>💡 נתחיל ממשהו שמכירים</h3>
+                <p>מותר לחלק שני אגפים של משוואה באותו מספר, <strong>רק אם הוא שונה מאפס</strong>.</p>
+                <div class="math">\[6=2\cdot3\quad\Rightarrow\quad \frac{6}{2}=3\]</div>
+                <p>אבל <strong>אסור לחלק באפס</strong>. אותו כלל נכון גם כאשר המחלק הוא \(\cos x\).</p>
+            </div>
+            <div class="box yellow">
+                <h3>⚠️ הבעיה: לא תמיד יודעים אם הקוסינוס שווה לאפס</h3>
+                <div class="math">\[\cos x=0 \quad\Rightarrow\quad x=\frac{\pi}{2}+\pi k\]</div>
+                <p class="small">כאן \(k\) הוא כל מספר שלם. בזוויות האלה <strong>אסור לחלק ב־\(\cos x\)</strong>.</p>
+            </div>
+            <div class="grid">
+                <div class="box green">
+                    <h3>✅ מתי מותר?</h3>
+                    <p>כשאנחנו יודעים ש־\(\cos x\ne0\).</p>
+                    <p class="small">למשל, אם בשאלה נתון שהזווית בתחום:</p>
+                    <div class="math">\[0\lt x\lt\frac{\pi}{2}\]</div>
+                    <p class="small">בתחום הזה הקוסינוס שונה מאפס.</p>
+                </div>
+                <div class="box red">
+                    <h3>⛔ מתי לא מחלקים מיד?</h3>
+                    <p>כשלא ידוע אם \(\cos x=0\).</p>
+                    <p class="small">אם נחלק מיד, אנו עלולים למחוק פתרונות נכונים של המשוואה.</p>
+                </div>
+            </div>
+            <div class="box blue">
+                <h3>🧭 מה עושים במקום לחלק?</h3>
+                <ol class="steps">
+                    <li>מעבירים את כל הביטויים לאגף אחד.</li>
+                    <li>מוציאים גורם משותף, אם אפשר.</li>
+                    <li>משווים <strong>כל גורם בנפרד</strong> לאפס.</li>
+                </ol>
+                <div class="math">\[A\cdot B=0\quad\Rightarrow\quad A=0\ \text{וא}\ B=0\]</div>
+                <p class="small">מספיק שאחד הגורמים יהיה אפס, ולכן בודקים כל אפשרות בנפרד.</p>
+            </div>
+            <div class="foot"><span>הכלל החשוב: לא מחלקים בגורם שעלול להיות אפס</span><span>1 / 5</span></div>
+        </section>
+        <section class="page" id="examples">
+            <div class="eyebrow">דוגמאות פתורות • ברדיאנים</div>
+            <h2>🔍 בואו נראה מה קורה בפועל</h2>
+            <div class="box red">
+                <h3>דוגמה 1 - חלוקה שמוחקת פתרונות ❌</h3>
+                <p>פתרו את המשוואה:</p>
+                <div class="math">\[\sin x\cos x=\cos x\]</div>
+                <p>אם נחלק ב־\(\cos x\), נקבל:</p>
+                <div class="math">\[\sin x=1\]</div>
+                <p>אבל מה עם הזוויות שבהן \(\cos x=0\)? גם הן מקיימות את המשוואה המקורית!</p>
+            </div>
+            <div class="box green">
+                <h3>✅ הפתרון הנכון - מוציאים גורם משותף</h3>
+                <div class="math">\[\sin x\cos x-\cos x=0\]</div>
+                <div class="math">\[\cos x(\sin x-1)=0\]</div>
+                <p>לכן נפתור <strong>שתי אפשרויות</strong>:</p>
+                <div class="math">\[\cos x=0\quad\text{וא}\quad\sin x-1=0\]</div>
+                <div class="math">\[x=\frac{\pi}{2}+\pi k\quad\text{וא}\quad x=\frac{\pi}{2}+2\pi k\]</div>
+                <p class="small">האפשרות השנייה כבר כלולה בראשונה. לכן התשובה הסופית היא:</p>
+                <div class="math">\[\boxed{x=\frac{\pi}{2}+\pi k}\]</div>
+                <p class="small">בכל הנוסחאות כאן \(k\) הוא מספר שלם.</p>
+            </div>
+            <div class="foot"><span>בוחנים את שני המקרים ולא מאבדים פתרונות</span><span>2 / 5</span></div>
+        </section>
+        <section class="page" id="example-2">
+            <div class="eyebrow">דוגמאות פתורות • ברדיאנים</div>
+            <div class="box blue">
+                <h3>דוגמה 2 - מותר לחלק לאחר בדיקה ✅</h3>
+                <p>פתרו את המשוואה:</p>
+                <div class="math">\[2\sin x\cos x=\cos x\]</div>
+                <p>ראשית בודקים מה קורה כאשר \(\cos x=0\): שני האגפים שווים לאפס, ולכן <strong>אלה פתרונות</strong>.</p>
+                <p>עכשיו נבדוק את שאר הזוויות, שבהן \(\cos x\ne0\). שם מותר לחלק:</p>
+                <div class="math">\[2\sin x=1\quad\Rightarrow\quad\sin x=\frac12\]</div>
+                <p>נקבל:</p>
+                <div class="math">\[x=\frac{\pi}{6}+2\pi k\quad\text{וא}\quad x=\frac{5\pi}{6}+2\pi k\]</div>
+                <p class="small">יחד עם הפתרונות \(x=\frac{\pi}{2}+\pi k\) שמצאנו בתחילה.</p>
+            </div>
+            <div class="box yellow">
+                <h3>🎯 משפט שכדאי לזכור</h3>
+                <p><strong>לפני שמחלקים ב־\(\cos x\), בודקים בנפרד את המקרה \(\cos x=0\).</strong> רק אחר כך מחלקים במקרה שבו \(\cos x\ne0\).</p>
+            </div>
+            <div class="foot"><span>בוחנים את שני המקרים ולא מאבדים פתרונות</span><span>3 / 5</span></div>
+        </section>
+        <section class="page" id="example-3">
+            <div class="eyebrow">דוגמה פתורה • שתי דרכי פתרון • ברדיאנים</div>
+            <h2>🔄 דוגמה 3 - מסינוס וקוסינוס לטנגנס</h2>
+            <div class="box blue">
+                <h3>🧩 המשוואה</h3>
+                <p>פתרו את המשוואה:</p>
+                <div class="math">\[\sin x=\cos x\]</div>
+                <p>נראה שתי דרכים שמובילות לאותה תשובה.</p>
+            </div>
+            <div class="box green">
+                <h3>✅ דרך א - בדיקה, חלוקה והמרה לטנגנס</h3>
+                <p><strong>שלב 1:</strong> בודקים את האפשרות \(\cos x=0\).</p>
+                <p>בזוויות האלה \(\sin x=1\) או \(\sin x=-1\), ולכן השוויון \(\sin x=\cos x\) אינו מתקיים. <strong>לא מפסידים פתרונות.</strong></p>
+                <p><strong>שלב 2:</strong> עכשיו מותר לחלק ב־\(\cos x\):</p>
+                <div class="math">\[\frac{\sin x}{\cos x}=1\quad\Rightarrow\quad\tan x=1\]</div>
+                <div class="math">\[\boxed{x=\frac{\pi}{4}+\pi k}\]</div>
+            </div>
+            <div class="box blue">
+                <h3>💡 דרך ב - ללא חלוקה בקוסינוס</h3>
+                <p><strong>שלב 1:</strong> הופכים את הקוסינוס לסינוס בעזרת הזהות:</p>
+                <div class="math">\[\cos x=\sin\left(\frac{\pi}{2}-x\right)\]</div>
+                <p><strong>שלב 2:</strong> מציבים במשוואה המקורית:</p>
+                <div class="math">\[\sin x=\sin\left(\frac{\pi}{2}-x\right)\]</div>
+                <p><strong>שלב 3:</strong> כאשר שני סינוסים שווים, בודקים שתי אפשרויות:</p>
+                <div class="math">\[x=\frac{\pi}{2}-x+2\pi k\]</div>
+                <div class="math">\[2x=\frac{\pi}{2}+2\pi k\quad\Rightarrow\quad x=\frac{\pi}{4}+\pi k\]</div>
+                <p class="small">באפשרות השנייה מתקבל \(x=\pi-\left(\frac{\pi}{2}-x\right)+2\pi k\), כלומר \(0=\frac{\pi}{2}+2\pi k\). אין מספר שלם \(k\) שמקיים זאת, ולכן אין ממנה פתרונות.</p>
+            </div>
+            <div class="foot"><span>שתי דרכים • אותה קבוצת פתרונות</span><span>4 / 5</span></div>
+        </section>
+        <section class="page" id="practice">
+            <div class="eyebrow">בודקים שהבנו</div>
+            <h2>✏️ תרגול קצר עם תשובות</h2>
+            <div class="box blue">
+                <h3>לפני שמתחילים</h3>
+                <p>בכל שאלה שאלו את עצמכם: <strong>האם ייתכן ש־\(\cos x=0\)?</strong> אם כן, אל תחלקו מיד.</p>
+            </div>
+            <div class="box">
+                <h3>שאלה 1 - נכון או לא נכון?</h3>
+                <p>מהמשוואה הבאה מותר תמיד לחלק ב־\(\cos x\):</p>
+                <div class="math">\[\sin x\cos x=2\cos x\]</div>
+            </div>
+            <div class="box">
+                <h3>שאלה 2 - פתרו</h3>
+                <div class="math">\[\cos x(\sin x+1)=0\]</div>
+            </div>
+            <div class="box">
+                <h3>שאלה 3 - פתרו</h3>
+                <div class="math">\[\sin x\cos x=0\]</div>
+            </div>
+            <div class="box green">
+                <h3>🔎 תשובות והסברים</h3>
+                <div class="answer"><strong>1.</strong> לא נכון. אם \(\cos x=0\), שני האגפים שווים לאפס. חלוקה הייתה מאבדת את הפתרונות האלה. למעשה רק הם פתרונות למשוואה הזאת.</div>
+                <div class="answer"><strong>2.</strong> \(\cos x=0\) או \(\sin x=-1\). האפשרות השנייה כלולה בראשונה. לכן: <span dir="ltr">\(x=\frac{\pi}{2}+\pi k\)</span>.</div>
+                <div class="answer"><strong>3.</strong> \(\sin x=0\) או \(\cos x=0\). לכן: <span dir="ltr">\(x=\pi k\)</span> או <span dir="ltr">\(x=\frac{\pi}{2}+\pi k\)</span>.</div>
+                <p class="small">בכל התשובות \(k\) הוא מספר שלם.</p>
+            </div>
+            <div class="box yellow">
+                <h3>⭐ סיכום במשפט אחד</h3>
+                <p>חלוקה ב־\(\cos x\) מותרת <strong>רק כאשר הוא שונה מאפס</strong>. אחרת בודקים קודם את המקרה שבו הוא שווה לאפס, ורק אז מחלקים.</p>
+            </div>
+            <div class="foot"><span>אפשר ללמוד שוב דרך הקישורים בעמוד הראשון</span><span>5 / 5</span></div>
+        </section>
+    </body>
+</html>
