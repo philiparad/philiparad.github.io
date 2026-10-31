@@ -1,7 +1,7 @@
 import { showRecovery } from './recovery.js?v=20261024-image-actions';
 import { createBoard, parseBackup } from './model.js?v=20261024-image-actions';
 import { BoardRepository } from './storage.js?v=20261024-image-actions';
-import { Editor } from './editor.js?v=20261025-brand-icon';
+import { Editor } from './editor.js?v=20261031-export-layout';
 import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261017-history-budget';
 import { backup } from './export.js?v=20261024-image-actions';
 import { drawItem, svgEl, union } from './scene.js?v=20261024-image-actions';
