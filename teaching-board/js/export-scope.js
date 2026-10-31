@@ -31,7 +31,7 @@ export function resolveExport(board,options={scope:'all'}){
  throw new Error('Choose a valid export area.');
 }
 export function exportScopeDialog(editor,format,initialScope='all'){
- const d=el('dialog',null,'form-dialog'),scope=el('select'),label=el('label','Export area'),error=el('p',null,'error'),actions=el('div',null,'actions'),custom=el('div');
+ const d=el('dialog',null,'form-dialog export-dialog'),scope=el('select'),label=el('label','Export area'),error=el('p',null,'error'),actions=el('div',null,'actions'),custom=el('div');
  const paper=el('select'),paperLabel=el('label','PNG background');paper.setAttribute('aria-label','PNG background');for(const [value,text]of [['board','Board paper'],['transparent','Transparent']]){const option=el('option',text);option.value=value;paper.append(option);}paperLabel.append(paper);paperLabel.hidden=format!=='png';
  const paddingField=field('Padding (canvas units)',30,'number');paddingField.input.min=0;paddingField.input.max=1000;const resolution=el('select'),resolutionLabel=el('label','PNG resolution'),sizeLabel=el('p',null,'muted');resolution.setAttribute('aria-label','PNG resolution');for(const value of [1,2,3,4]){const option=el('option',`${value}×`);option.value=value;resolution.append(option);}resolution.value='2';resolutionLabel.append(resolution);resolutionLabel.hidden=format!=='png';
  const pageRange=field('A4 pages to export',editor.board.pageCount>1?`1-${editor.board.pageCount}`:'1'),pageHint=el('p',null,'muted');pageRange.input.placeholder='1, 3-5';
@@ -45,6 +45,17 @@ export function exportScopeDialog(editor,format,initialScope='all'){
  pageRange.input.oninput=update;scope.onchange=update;resolution.onchange=update;paddingField.input.oninput=update;for(const input of Object.values(inputs))input.oninput=update;label.append(scope);
  actions.append(btn('Cancel',()=>d.close()),btn('Export',()=>{try{const value=choice();resolveExport(editor.board,value);if(format==='png')rasterSize(1,1,value.scale);result=value;d.close();}catch(e){error.textContent=e.message;}},'primary'));
  scope.value=initialScope==='selection'&&ids.length?'selection':'all';update();
- d.append(el('h2',`Export ${format==='pdf'?'PDF':format.toUpperCase()}`),label,pageRange.wrap,pageHint,custom,paddingField.wrap,resolutionLabel,sizeLabel,paperLabel,...(format==='png'?[el('p','Transparent removes the canvas paper and grid. Object fills and backgrounds inside imported images or PDF pages remain.','muted')]:[]),el('p','Selection export includes only selected objects. View and rectangle exports crop all objects to the chosen area. Whole A4 lessons print one sheet per page; other areas print on one landscape page.','muted'),error,actions);document.body.append(d);
+ const heading=el('header',null,'export-dialog-heading'),title=el('h2',`Export ${format==='pdf'?'PDF':format.toUpperCase()}`),subtitle=el('p','Choose what to export and adjust the settings below.','muted');
+ heading.append(title,subtitle);
+ const settings=el('div',null,'export-dialog-settings');
+ const scopeGroup=el('section',null,'export-field-group'),rangeGroup=el('section',null,'export-field-group'),paddingGroup=el('section',null,'export-field-group'),resolutionGroup=el('section',null,'export-field-group'),backgroundGroup=el('section',null,'export-field-group');
+ scopeGroup.append(label);rangeGroup.append(pageRange.wrap,pageHint,custom);paddingGroup.append(paddingField.wrap);resolutionGroup.append(resolutionLabel,sizeLabel);backgroundGroup.append(paperLabel);
+ settings.append(scopeGroup,rangeGroup,paddingGroup,resolutionGroup,backgroundGroup);
+ const help=el('details',null,'export-help'),helpSummary=el('summary','About export areas and formats'),helpContent=el('div',null,'export-help-content');
+ if(format==='png')helpContent.append(el('p','Transparent removes the canvas paper and grid. Object fills and backgrounds inside imported images or PDF pages remain.'));
+ helpContent.append(el('p','Selection export includes only selected objects. View and rectangle exports crop all objects to the chosen area. Whole A4 lessons print one sheet per page; other areas print on one landscape page.'));
+ help.append(helpSummary,helpContent);
+ const footer=el('footer',null,'export-dialog-footer');footer.append(error,actions);
+ d.append(heading,settings,help,footer);document.body.append(d);
  return new Promise(resolve=>{d.onclose=()=>{d.remove();resolve(result);};d.showModal();scope.focus();});
 }
