@@ -1,4 +1,4 @@
-name: Cross-browser acceptance — M41
+name: Cross-browser acceptance — M42
 on:
   workflow_dispatch:
   push:
@@ -45,6 +45,16 @@ jobs:
       - name: Verify release report module unit tests
         if: always()
         run: python -m unittest discover -s tools/tests -v
+      - name: Create a portable GitHub Actions evidence bundle
+        if: always()
+        run: |
+          mkdir -p browser-evidence release-evidence artifact-upload
+          zip -q -r artifact-upload/actions-evidence.zip browser-evidence release-evidence
+      - name: Inspect the portable evidence bundle (diagnostic, never an approval)
+        if: always()
+        continue-on-error: true
+        run: |
+          python tools/actions_artifact_inspector.py artifact-upload/actions-evidence.zip --out release-evidence/artifact-inspection.json
       - name: Upload browser run evidence, even when blocked or failed
         if: always()
         uses: actions/upload-artifact@v4
