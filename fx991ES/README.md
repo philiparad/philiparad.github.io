@@ -78,3 +78,8 @@ The local build can pass 474 calculator checks and all offline gate tests while
 remaining *unqualified* for browser or physical-calculator compatibility.
 Run `python tools/release_gate.py verify` to audit packaged files; see
 `docs/release-gate-m39.md`.
+
+
+## Milestone 40 — Human-readable release qualification
+
+The new `tools/release_report.py` generates an escaped, offline HTML release-decision report and JSON summary. Reports are uploaded by CI even when the browser suite is blocked. Source integrity and real 18/18 Chromium, Firefox and WebKit captures are both mandatory. A missing browser matrix produces `BLOCKED`, not a simulated pass. See `docs/release-decision-m40.md`.
