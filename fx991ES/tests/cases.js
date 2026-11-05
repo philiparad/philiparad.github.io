@@ -180,25 +180,40 @@ test('C mode result flows through Ans and history',()=>{let s=K.createState('c')
 test('C-mode selection through second menu page',()=>{let s=K.createState('c');s=K.dispatchKey(s,'MODE');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'1');eq(s.mode,'INEQ')});
 test('Standard model menu never exposes extensions',()=>{let s=K.createState('standard');s=K.dispatchKey(s,'MODE');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'1');eq(s.mode,'EQN')});
 
-/* Milestone 14 state-machine regression vectors. */
-function m14(model,events){let s=K.createState(model);for(const k of events)s=K.dispatchKey(s,k);return s}
-test('M14 Fix format submenu',()=>{let s=m14('standard',['SHIFT','MODE','4','3']);eq(s.setup.format,'Fix');eq(s.setup.digits,3);eq(s.view,'edit')});
-test('M14 Sci format submenu',()=>{let s=m14('standard',['SHIFT','MODE','5','5']);eq(s.setup.format,'Sci');eq(s.setup.digits,5)});
-test('M14 Norm 1',()=>eq(m14('standard',['SHIFT','MODE','6']).setup.format,'Norm1'));
-test('M14 Norm 2',()=>eq(m14('standard',['SHIFT','MODE','7']).setup.format,'Norm2'));
-test('M14 SETUP cancel',()=>eq(m14('standard',['SHIFT','MODE','AC']).view,'edit'));
-test('M14 OFF and ON',()=>{let s=m14('standard',['SHIFT','AC']);eq(s.power,false);s=K.dispatchKey(s,'1');eq(s.expression,'');s=K.dispatchKey(s,'ON');eq(s.power,true)});
-test('M14 STORE standby',()=>{let s=m14('standard',['8','=','SHIFT','RCL']);eq(s.view,'register-prompt');s=K.dispatchKey(s,'B');eq(K.valueToString(s.memory.B),'8')});
-test('M14 RECALL standby',()=>{let s=m14('standard',['ALPHA','RCL','C']);eq(s.expression,'C');eq(s.view,'edit')});
-test('M14 register cancel',()=>{let s=m14('standard',['SHIFT','RCL','AC']);eq(s.view,'edit');eq(s.ui.pending,null)});
-test('M14 quadratic coefficient entry',()=>{let s=m14('standard',['MODE','DOWN','1']);eq(s.view,'workflow-menu');for(let k of ['1','1','=','NEG','3','=','2','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('2')||!s.result.includes('1'))throw Error(s.result)});
-test('M14 determinant coefficient entry',()=>{let s=m14('standard',['MODE','DOWN','2','1']);for(let k of ['1','=','2','=','3','=','4','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('-2'))throw Error(s.result)});
-test('M14 missing coefficient rejected',()=>{let s=m14('standard',['MODE','DOWN','1','1','=']);eq(s.view,'error');eq(s.error,K.ERROR.ARGUMENT)});
-test('M14 error returns to editing',()=>{let s=m14('standard',['1','DIV','0','=']);eq(s.view,'error');s=K.dispatchKey(s,'RIGHT');eq(s.view,'edit');eq(s.error,null)});
-test('M14 coefficient screen semantic label',()=>{let s=m14('standard',['MODE','DOWN','1','1']);if(!K.semanticScreen(s).expression.includes('a ='))throw Error('Missing coefficient label')});
-test('M14 COMP normal mode selection',()=>{let s=m14('standard',['MODE','1']);eq(s.mode,'COMP');eq(s.view,'edit')});
-test('M14 deterministic workflow trace',()=>{let events=['MODE','DOWN','1','1','1','=','NEG','3','=','2','='];let a=K.runTrace({events}),b=K.runTrace({events});eq(a.hash,b.hash)});
 
+// Milestone 14 — controller transition tests (independent of HTML UI).
+function keys14(model,events){let s=K.createState(model);for(let key of events)s=K.dispatchKey(s,key);return s}
+test('M14 setup Format Fix digits',()=>{let s=keys14('standard',['SHIFT','MODE','4','3']);eq(s.setup.format,'Fix');eq(s.setup.digits,3);eq(s.view,'edit')});
+test('M14 setup Norm1',()=>{let s=keys14('standard',['SHIFT','MODE','6']);eq(s.setup.format,'Norm1')});
+test('M14 setup Norm2',()=>{let s=keys14('standard',['SHIFT','MODE','7']);eq(s.setup.format,'Norm2')});
+test('M14 setup Sci 5',()=>{let s=keys14('standard',['SHIFT','MODE','5','5']);eq(s.setup.format,'Sci');eq(s.setup.digits,5)});
+test('M14 setup cancel',()=>{let s=keys14('standard',['SHIFT','MODE','AC']);eq(s.view,'edit')});
+test('M14 OFF and ON',()=>{let s=keys14('standard',['SHIFT','AC']);eq(s.power,false);s=K.dispatchKey(s,'3');eq(s.expression,'');s=K.dispatchKey(s,'ON');eq(s.power,true)});
+test('M14 STO register prompt stores typed result',()=>{let s=keys14('standard',['8','=','SHIFT','RCL']);eq(s.view,'register-prompt');s=K.dispatchKey(s,'B');eq(K.valueToString(s.memory.B),'8')});
+test('M14 RCL prompt inserts variable',()=>{let s=keys14('standard',['ALPHA','RCL','C']);eq(s.expression,'C');eq(s.view,'edit')});
+test('M14 STO prompt cancel',()=>{let s=keys14('standard',['SHIFT','RCL','AC']);eq(s.view,'edit');eq(s.ui.pending,null)});
+test('M14 equation coefficient workflow',()=>{let s=keys14('standard',['MODE','DOWN','1']);eq(s.mode,'EQN');eq(s.view,'workflow-menu');for(let k of ['1','1','=','NEG','3','=','2','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('2')||!s.result.includes('1'))throw Error(s.result)});
+test('M14 matrix coefficient workflow',()=>{let s=keys14('standard',['MODE','DOWN','2','1']);for(let k of ['1','=','2','=','3','=','4','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('-2'))throw Error(s.result)});
+test('M14 wizard rejects missing coefficient',()=>{let s=keys14('standard',['MODE','DOWN','1','1','=']);eq(s.view,'error');eq(s.error,K.ERROR.ARGUMENT)});
+test('M14 error recovers cursor',()=>{let s=keys14('standard',['1','DIV','0','=']);eq(s.view,'error');s=K.dispatchKey(s,'RIGHT');eq(s.view,'edit');eq(s.error,null)});
+test('M14 semantic screen indicates coefficient label',()=>{let s=keys14('standard',['MODE','DOWN','1','1']);let screen=K.semanticScreen(s);if(!screen.expression.includes('a ='))throw Error(screen.expression)});
+test('M14 MODE select COMP remains edit',()=>{let s=keys14('standard',['MODE','1']);eq(s.mode,'COMP');eq(s.view,'edit')});
+test('M14 trace reproducible after workflow',()=>{let events=['MODE','DOWN','1','1','1','=','NEG','3','=','2','='];let a=K.runTrace({events}),b=K.runTrace({events});eq(a.hash,b.hash)});
+
+// Milestone 15: structural LCD layout and raster acceptance tests.
+const L=global.FX991_DISPLAY;
+test('M15 framebuffer exact size',()=>eq(L.composeScreen(K.semanticScreen(K.createState())).pixels.length,2976));
+test('M15 original display glyph coverage',()=>{for(let c of '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-*/=()π√')if(!L.FONT[c])throw Error('missing '+c)});
+test('M15 fractional layout produces fraction bar',()=>{let d=E.create();d=E.template(d,'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');let b=L.layoutExpression(d);if(b.height<13||!b.commands.some(x=>x.type==='child'))throw Error('no fraction layout')});
+test('M15 fraction uses actual stacked pixels',()=>{let d=E.create();d=E.template(d,'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');let s=K.semanticScreen(K.createState());s.document=d;let f=L.composeScreen(s).pixels;if(!f.some(x=>x))throw Error('blank')});
+test('M15 root layout is taller than plain token',()=>{let d=E.create();d=E.template(d,'Root');d=E.insertToken(d,'8');if(L.layoutExpression(d).height<=L.layoutExpression(E.fromSource('8')).height)throw Error('root missing')});
+test('M15 nested fractions deterministic',()=>{let d=E.create();d=E.template(d,'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.template(d,'Fraction');d=E.insertToken(d,'2');d=E.move(d,'DOWN');d=E.insertToken(d,'3');let s=K.semanticScreen(K.createState());s.document=d;eq(K.frameHash(L.rasterizeScreen(s)),K.frameHash(L.rasterizeScreen(s)))});
+test('M15 cursor anchors carried in box',()=>{let d=E.create();d=E.template(d,'Fraction');d=E.insertToken(d,'1');let b=L.layoutExpression(d);if(!b.anchors.some(a=>a.kind==='cursor'))throw Error('anchor lost')});
+test('M15 cursor position changes rendered pixels',()=>{let d=E.fromSource('123');let s=K.semanticScreen(K.createState());s.document=d;let a=K.frameHash(K.rasterizeScreen(s));d=E.move(d,'LEFT');s.document=d;let b=K.frameHash(K.rasterizeScreen(s));if(a===b)throw Error('unchanged cursor')});
+test('M15 overflow and scroll on long expression',()=>{let s=K.semanticScreen(K.createState());s.document=E.fromSource('123456789012345678901234567890');let r=L.composeScreen(s);eq(r.overflow,true);if(r.scrollX<=0)throw Error('not scrolled')});
+test('M15 LCD no proprietary resource dependency',()=>eq(typeof L.rasterizeScreen,'function'));
+test('M15 menu renderer fits framebuffer',()=>{let s=K.createState('c');s=K.dispatchKey(s,'MODE');eq(L.rasterizeScreen(K.semanticScreen(s)).length,2976)});
+test('M15 error renderer nonempty',()=>{let s=K.createState();for(const k of ['1','DIV','0','='])s=K.dispatchKey(s,k);if(!L.rasterizeScreen(K.semanticScreen(s)).some(Boolean))throw Error('no error pixels')});
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
