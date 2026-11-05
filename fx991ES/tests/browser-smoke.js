@@ -15,10 +15,10 @@ function run(){
  check('Mode selector changes state',()=>{const picker=doc.getElementById('mode-picker');picker.value='STAT';picker.dispatchEvent(new win.Event('change',{bubbles:true}));return doc.getElementById('semantic').textContent.includes('Mode: STAT')});
  check('Model change enables C modes',()=>{const picker=doc.getElementById('model');picker.value='c';picker.dispatchEvent(new win.Event('change',{bubbles:true}));return !doc.querySelector('#mode-picker option[value="INEQ"]').disabled});
  check('Opt-in recovery not automatically enabled by tests',()=>!!doc.getElementById('session-recovery'));
- check('Regression suite executes in browser',()=>{const report=win.FX991_TESTS.run();return report.failed===0&&report.total>=438});
+ check('Regression suite executes in browser',()=>{const report=win.FX991_TESTS.run();return report.failed===0&&report.total>=458});
  for(const c of cases){const p=document.createElement('p');p.textContent=(c.ok?'PASS':'FAIL')+' — '+c.name+(c.error?': '+c.error:'');p.className=c.ok?'pass':'fail';results.append(p)}
  const pass=cases.filter(x=>x.ok).length;summary.textContent=pass+'/'+cases.length+' browser smoke checks passed';summary.dataset.status=pass===cases.length?'passed':'failed';document.body.dataset.smoke=summary.dataset.status;completed=true;
 }
-frame.addEventListener('load',run);document.getElementById('rerun').addEventListener('click',()=>{completed=false;frame.src='../index.html?smoke=1&run='+Date.now()});
+frame.addEventListener('load',run);document.getElementById('rerun').addEventListener('click',()=>{completed=false;frame.src='../index.html?smoke='+Date.now()});
 setTimeout(()=>{if(!completed){summary.textContent='Browser smoke test timed out';summary.dataset.status='timeout';document.body.dataset.smoke='timeout'}},15000);
 })();
