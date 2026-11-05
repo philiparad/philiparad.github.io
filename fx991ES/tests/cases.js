@@ -254,22 +254,22 @@ test('M17 frame hash deterministic through state traces',()=>{let a=DIFF.replay(
 
 // Milestone 18 — release hardening and export safety.
 const REL=global.FX991_RELEASE;
-test('M18 asset inventory local',()=>{if(REL.EXPECTED_ASSETS.length<15||REL.EXPECTED_ASSETS.some(x=>x.includes('://')))throw Error('external dependency')});
-test('M18 normal expression allowed',()=>eq(REL.inspectInput('sqrt(8)+1/3').ok,true));
-test('M18 reject invalid input type',()=>eq(REL.inspectInput(8).reason,'not-a-string'));
-test('M18 reject control chars',()=>eq(REL.inspectInput('1\u0000+2').reason,'control-character'));
-test('M18 reject oversized input',()=>eq(REL.inspectInput('x'.repeat(100001)).reason,'too-long'));
-test('M18 length limit inclusive',()=>eq(REL.inspectInput('x'.repeat(100000)).ok,true));
-test('M18 CSV protect equals',()=>{if(!REL.csvSafe('=1+1').startsWith("'"))throw Error('formula')});
-test('M18 CSV protect plus',()=>eq(REL.csvSafe('+1+2'),"'+1+2"));
-test('M18 CSV protect @',()=>eq(REL.csvSafe('@SUM(A1:A3)'),"'@SUM(A1:A3)"));
-test('M18 CSV delimiter',()=>eq(REL.csvSafe('a,b'),'"a,b"'));
-test('M18 CSV quote',()=>eq(REL.csvSafe('x"y'),'"x""y"'));
-test('M18 leading whitespace formula',()=>{if(!REL.csvSafe('  =1+1').startsWith("'"))throw Error('formula')});
-test('M18 differential CSV protects formula',()=>{let data=DIFF.toCSV({results:[{passed:false,caseId:'=1+1',sourceKind:'manual',firstDivergence:{step:1,failures:[{field:'result',expected:'@foo',actual:'bar'}]}}]});if(!data.includes("'=1+1")||!data.includes("'@foo"))throw Error('CSV unsafe')});
-test('M18 API frozen',()=>eq(Object.isFrozen(REL),true));
-test('M18 COMP regression',()=>{let s=K.createState();for(let key of ['2','ADD','3','='])s=K.dispatchKey(s,key);eq(s.result,'5')});
-test('M18 LCD 2976 pixels',()=>eq(K.rasterizeScreen(K.semanticScreen(K.createState())).length,2976));
+test('M18 no-external-network asset list',()=>{if(REL.EXPECTED_ASSETS.length<15||REL.EXPECTED_ASSETS.some(x=>x.includes('://')))throw Error('external dependency')});
+test('M18 accept ordinary expression',()=>eq(REL.inspectInput('sqrt(8)+1/3').ok,true));
+test('M18 reject non-string input',()=>eq(REL.inspectInput(8).reason,'not-a-string'));
+test('M18 reject control characters',()=>eq(REL.inspectInput('1\u0000+2').reason,'control-character'));
+test('M18 reject unbounded input',()=>eq(REL.inspectInput('x'.repeat(100001)).reason,'too-long'));
+test('M18 accept bounded input',()=>eq(REL.inspectInput('x'.repeat(100000)).ok,true));
+test('M18 CSV formula neutralization equals',()=>eq(REL.csvSafe('=HYPERLINK("https://example.test")'),"'=HYPERLINK(\"https://example.test\")".replaceAll('"','""').replace(/^/, '"').concat('"')));
+test('M18 CSV formula neutralization plus',()=>eq(REL.csvSafe('+1+2'),"'+1+2"));
+test('M18 CSV formula neutralization @',()=>eq(REL.csvSafe('@SUM(A1:A3)'),"'@SUM(A1:A3)"));
+test('M18 CSV escape embedded delimiters',()=>eq(REL.csvSafe('a,b'), '"a,b"'));
+test('M18 CSV escape embedded quotes',()=>eq(REL.csvSafe('x"y'), '"x""y"'));
+test('M18 CSV escape leading whitespace formula',()=>{if(!REL.csvSafe('  =1+1').startsWith("'"))throw Error('formula unsafe')});
+test('M18 differential CSV formula neutralization',()=>{let data=DIFF.toCSV({results:[{passed:false,caseId:'=1+1',sourceKind:'manual',firstDivergence:{step:1,failures:[{field:'result',expected:'@foo',actual:'bar'}]}}]});if(!data.includes("'=1+1")||!data.includes("'@foo"))throw Error('unsafe exported CSV')});
+test('M18 security API is frozen',()=>eq(Object.isFrozen(REL),true));
+test('M18 offline math engine unaffected',()=>{let s=K.createState();for(let key of ['2','ADD','3','='])s=K.dispatchKey(s,key);eq(s.result,'5')});
+test('M18 framebuffer still 2976 pixels',()=>eq(K.rasterizeScreen(K.semanticScreen(K.createState())).length,2976));
 
 // Milestone 19 — release candidate evidence gate (no pre-certified observations).
 const RC=global.FX991_RC;
@@ -286,6 +286,27 @@ test('M19 observation records cannot be labeled manual',()=>{try{RC.addObservati
 test('M19 evidence JSON roundtrip',()=>{let e=RC.fresh();eq(JSON.stringify(RC.validateEvidence(JSON.parse(JSON.stringify(e)))),JSON.stringify(e))});
 test('M19 model coverage recorded separately',()=>{let e=RC.addObservation(RC.fresh(),{model:'standard',kind:'physical',device:'real calculator',observedAt:'2026-11-05',caseId:'a',result:'pass'});let r=RC.assess(e,{total:239,passed:239,failed:0,runtimePassed:true,pagesVerified:true});if(!r.blockers.some(x=>x.includes('c model')))throw Error('C missing')});
 test('M19 readiness not inferred from tests alone',()=>{let r=RC.assess(RC.fresh(),{total:1000,passed:1000,failed:0,runtimePassed:true,pagesVerified:true});eq(r.releaseReady,false)});
+
+
+// Milestone 20 — no synthetic physical/emulator observations; evidence comparison and triage.
+const DEV=global.FX991_DEVICE;
+test('M20 starts with zero device observations',()=>eq(DEV.empty().records.length,0));
+test('M20 physical evidence requires actual device identity',()=>{try{DEV.validate({id:'x',model:'standard',kind:'physical',device:'',observedAt:'2026-11-05',keys:['1'],observed:{result:'1'},notes:''});throw Error('accepted')}catch(e){if(!e.message.includes('device'))throw e}});
+test('M20 rejects manual examples as physical evidence',()=>{let c={id:'x',model:'standard',kind:'manual',device:'manual',observedAt:'2026-11-05',keys:['1'],observed:{result:'1'},notes:''};try{DEV.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('observed reference'))throw e}});
+test('M20 rejects missing observed values',()=>{let c={id:'x',model:'standard',kind:'physical',device:'physical unit',observedAt:'2026-11-05',keys:['1'],observed:{},notes:''};try{DEV.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('observed fields'))throw e}});
+test('M20 manual presets carry no observation provenance',()=>{if(DEV.PRESETS.some(x=>x.kind==='physical'||x.kind==='official-emulator'))throw Error('bad preset')});
+test('M20 preset deterministic',()=>{let a=DEV.scenario('arith-precedence'),b=DEV.scenario('arith-precedence');eq(JSON.stringify(a),JSON.stringify(b))});
+const DEVICE_SAMPLE=()=>({id:'sample-01',model:'standard',kind:'physical',device:'test fixture device (synthetic; unit tests only)',observedAt:'2026-11-05',keys:['2','ADD','3','='],observed:{result:'5'},notes:'Unit-test fixture; never bundled as observation'});
+test('M20 passing fixture compares to numeric engine',()=>eq(DEV.compare(DEVICE_SAMPLE()).passed,true));
+test('M20 deliberate mismatch is found',()=>{let c=DEVICE_SAMPLE();c.observed.result='6';let r=DEV.compare(c);eq(r.passed,false);eq(r.issues[0].category,'numeric-or-format')});
+test('M20 mismatch locates first divergence',()=>{let c=DEVICE_SAMPLE();c.observed.result='6';eq(DEV.compare(c).firstDivergence,4)});
+test('M20 observed C profile separated',()=>{let c={...DEVICE_SAMPLE(),id:'c-sample',model:'c'};let r=DEV.review({schema:'fx991-device-evidence-v1',records:[c]});eq(r.coverage.c,1);eq(r.coverage.standard,0)});
+test('M20 duplicate observed IDs refused',()=>{let c=DEVICE_SAMPLE();try{DEV.importEvidence({schema:'fx991-device-evidence-v1',records:[c,c]});throw Error('accepted')}catch(e){if(!e.message.includes('duplicate ID'))throw e}});
+test('M20 JSON import/export stable',()=>{let a=DEV.add(DEV.empty(),DEVICE_SAMPLE());eq(JSON.stringify(DEV.importEvidence(JSON.stringify(a))),JSON.stringify(a))});
+test('M20 gap report categories counted',()=>{let c=DEVICE_SAMPLE();c.observed.result='6';let a=DEV.review(DEV.add(DEV.empty(),c));eq(a.byCategory['numeric-or-format'],1);eq(a.totals.failed,1)});
+test('M20 cannot certify from fixture comparisons',()=>{let a=DEV.review(DEV.add(DEV.empty(),DEVICE_SAMPLE()));eq(a.certified,false)});
+test('M20 invalid imported schema rejected',()=>{try{DEV.importEvidence({schema:'bad',records:[]});throw Error('accepted')}catch(e){if(!e.message.includes('schema'))throw e}});
+test('M20 unsafe oversized key list rejected',()=>{let c=DEVICE_SAMPLE();c.keys=Array(501).fill('1');try{DEV.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('keys'))throw e}});
 
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
