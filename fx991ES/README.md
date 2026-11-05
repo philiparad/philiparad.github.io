@@ -1,4 +1,4 @@
-# Milestone 23 — Deep LCD Layout and Structural Navigation
+# Milestone 24 — Deep LCD Layout and Structural Navigation
 
 Independent educational browser simulator of fx-991ES PLUS / C behavior, with no CASIO firmware or proprietary assets. Not affiliated with or endorsed by CASIO. Plain HTML/CSS/JavaScript; no Node or React required in the browser.
 
@@ -45,7 +45,7 @@ See `docs/compatibility-corrections.md` for a behavior-by-behavior change log an
 
 These behaviors are implemented compatibility candidates, **not** empirically confirmed against a physical device. The LCD vertical overflow and precise Casio cursor blink/placement remain unresolved.
 
-## Milestone 23 — deep mathematical layout
+## Milestone 24 — deep mathematical layout
 
 - The LCD layout uses baseline-aware boxes for tokens, fractions, superscripts, roots, functions and nested expressions. Exponents are raised relative to the base text baseline.
 - The 96×31 framebuffer clips expression drawing to rows 7–21; status and result regions remain isolated.
@@ -55,3 +55,8 @@ These behaviors are implemented compatibility candidates, **not** empirically co
 - **318/318** internal JavaScript regression tests pass; Chromium browser navigation remains blocked by this environment, and physical device parity has not been measured.
 
 See `docs/lcd-navigation.md` for the layout contract and gaps.
+
+
+## Milestone 24 — Keypad compatibility
+
+Added src/keymap.js, structural forward deletion, token overwrite, SHIFT+DEL insertion mode, supported one-shot ALPHA legends, OVR status, and deterministic editing tests. This is an independent educational implementation; real-device key parity remains unverified.
