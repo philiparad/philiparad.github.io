@@ -1,4 +1,4 @@
-# Milestone 22 — Structural Editor and Error-Cursor Compatibility
+# Milestone 23 — Deep LCD Layout and Structural Navigation
 
 Independent educational browser simulator of fx-991ES PLUS / C behavior, with no CASIO firmware or proprietary assets. Not affiliated with or endorsed by CASIO. Plain HTML/CSS/JavaScript; no Node or React required in the browser.
 
@@ -14,7 +14,7 @@ Independent educational browser simulator of fx-991ES PLUS / C behavior, with no
 
 ## Current readiness
 
-- **284/284** local JavaScript tests passed at build time (268 prior tests + 16 new syntax/precedence checks).
+- **318/318** local JavaScript tests passed (303 previous + 15 new baseline, clipping, vertical scroll and navigation tests).
 - **0 bundled physical-device/emulator observations**. Hardware compatibility is NOT certified.
 - Browser QA evidence is not bundled or presumed. Chromium checks, where performed locally, are development checks—not manual accessibility or cross-browser certification.
 - See `docs/release-candidate.md`, `docs/release.md`, and `docs/compatibility.md` for precise gaps and requirements.
@@ -44,3 +44,14 @@ See `docs/compatibility-corrections.md` for a behavior-by-behavior change log an
 - Regression cases cover Fix/Sci rounding carry, Norm thresholds, S⇔D value identity, nested structural editing, and error recovery.
 
 These behaviors are implemented compatibility candidates, **not** empirically confirmed against a physical device. The LCD vertical overflow and precise Casio cursor blink/placement remain unresolved.
+
+## Milestone 23 — deep mathematical layout
+
+- The LCD layout uses baseline-aware boxes for tokens, fractions, superscripts, roots, functions and nested expressions. Exponents are raised relative to the base text baseline.
+- The 96×31 framebuffer clips expression drawing to rows 7–21; status and result regions remain isolated.
+- Tall expressions scroll vertically toward the active structural cursor; top/bottom arrows indicate offscreen material. Horizontal scrolling is retained. Layout output includes `scrollX`, `scrollY`, and viewport metadata.
+- UP/DOWN navigation finds the nearest enclosing mathematical template with an adjacent slot, allowing movement from a nested numerator function to a fraction denominator.
+- The renderer is an independently developed approximation; its glyphs and layout are not pixel-identical to any CASIO product. The display has only fifteen logical rows for mathematical input, so tall expressions are **scrolled, not all visible simultaneously**.
+- **318/318** internal JavaScript regression tests pass; Chromium browser navigation remains blocked by this environment, and physical device parity has not been measured.
+
+See `docs/lcd-navigation.md` for the layout contract and gaps.
