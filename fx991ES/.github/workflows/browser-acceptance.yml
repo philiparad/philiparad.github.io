@@ -49,12 +49,9 @@ jobs:
           fi
       - name: Validate release candidate source inventory
         run: python tools/release_gate.py verify
-      - name: Run actual browser matrix
+      - name: Run all 72 browser checks against one shared origin
         if: always()
-        run: python tools/browser_matrix.py --out browser-evidence
-      - name: Run native end-to-end interactions in Chromium Firefox WebKit
-        if: always()
-        run: python tools/browser_interaction_probe.py --out browser-evidence
+        run: python tools/shared_browser_session.py --out browser-evidence
       - name: Render browser matrix status for GitHub Actions summary
         if: always()
         continue-on-error: true
