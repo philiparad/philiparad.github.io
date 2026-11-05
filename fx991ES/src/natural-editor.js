@@ -59,6 +59,32 @@ function inspect(doc){
  return {nodes,slots:slotsCount,duplicate,anchorValid:!!locate(doc.root,doc.anchor.sequenceId)};
 }
 function fromSource(text){let d=create();d.root.children=[...String(text)].map(token);d.anchor.offset=d.root.children.length;return d}
+// Locate the closest valid structural cursor anchor for a parser source offset.
+// All candidate positions are derived from the actual document tree, not from
+// OCR, formatted HTML, or the calculator LCD's abbreviated display text.
+function seekSource(original,position){
+ const d=clone(original),source=serialize(d),target=Math.max(0,Math.min(source.length,Number.isFinite(position)?Math.floor(position):0));
+ let best={sequenceId:d.root.id,offset:0},bestDistance=Infinity,bestDepth=-1;
+ function walk(s,depth){
+  for(let offset=0;offset<=s.children.length;offset++){
+   d.anchor={sequenceId:s.id,offset};let mapped=sourceCursor(d),dist=Math.abs(target-mapped);
+   if(dist<bestDistance||(dist===bestDistance&&depth>bestDepth)){
+    best={sequenceId:s.id,offset};bestDistance=dist;bestDepth=depth;
+   }
+  }
+  for(const node of s.children)for(const [,sub] of slots(node))walk(sub,depth+1);
+ }
+ walk(d.root,0);d.anchor=best;return normalize(d);
+}
+// The first incomplete template slot is an editable cursor location, not a
+// textual pointer to the end of the expression.
+function firstMissingAnchor(original){
+ const missing=invalidSlots(original)[0];if(!missing)return null;
+ const d=clone(original);let found=null;
+ function visit(s){for(const node of s.children){if(node.id===missing.nodeId){found=slots(node).find(([name])=>name===missing.slot)?.[1];if(found)return}for(const [,sub] of slots(node)){visit(sub);if(found)return}}}
+ visit(d.root);if(!found)return null;d.anchor={sequenceId:found.id,offset:0};return d;
+}
+
 function invalidSlots(doc){let missing=[];function walk(s){for(let ch of s.children){if(ch.kind==='Token')continue;for(let [name,sub] of slots(ch)){if(!sub.children.length)missing.push({nodeId:ch.id,slot:name});walk(sub)}}}walk(doc.root);return missing}
 function renderHTML(doc){let cursor=doc.anchor;const e=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function renderSeq(s){let result='';for(let i=0;i<=s.children.length;i++){if(s.id===cursor.sequenceId&&i===cursor.offset)result+='<span class="nd-caret" aria-hidden="true"></span>';if(i<s.children.length)result+=renderNode(s.children[i])}return result||'<span class="nd-empty">□</span>'}
@@ -68,5 +94,5 @@ function screenText(doc){function rec(n){if(n.kind==='Sequence')return n.childre
 function sourceCursor(doc){let position=0,found=null;
  function visit(node){if(node.kind==='Token'){position+=node.value.length;return}if(node.kind==='Sequence'){for(let i=0;i<=node.children.length;i++){if(node.id===doc.anchor.sequenceId&&i===doc.anchor.offset)found=position;if(i<node.children.length)visit(node.children[i])}return}if(node.kind==='Fraction'){position++;visit(node.numerator);position+=3;visit(node.denominator);position++;return}if(node.kind==='Power'){position+=2;visit(node.exponent);position++;return}if(node.kind==='Root'){if(node.degree){position++;visit(node.radicand);position+=5;visit(node.degree);position+=2}else{position+=5;visit(node.radicand);position++}return}if(node.kind==='Function'){position+=node.name.length+1;visit(node.argument);position++;return}if(node.kind==='Group'){position++;visit(node.body);position++;return}}
  visit(doc.root);return found??position}
-const api={create,clone,fromSource,insertToken,template,move,del,serialize,serializeNode,renderHTML,screenText,sourceCursor,invalidSlots,locate,normalize,exitSlot,inspect};global.FX991_EDITOR=Object.freeze(api);
+const api={create,clone,fromSource,seekSource,firstMissingAnchor,insertToken,template,move,del,serialize,serializeNode,renderHTML,screenText,sourceCursor,invalidSlots,locate,normalize,exitSlot,inspect};global.FX991_EDITOR=Object.freeze(api);
 })(typeof window!=='undefined'?window:globalThis);
