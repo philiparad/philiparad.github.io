@@ -17,16 +17,33 @@ const tests=[
    const pixels=c.getContext('2d').getImageData(0,0,96,31).data;expect(pixels.length===96*31*4,'LCD framebuffer');
  }],
  ['Physical-key clicks calculate 2+3=5',async x=>{
-   for(const key of ['2','ADD','3','='])clickKey(x.doc,key);
+   for(const key of ['2','ADD','3'])clickKey(x.doc,key);
+   expect(x.doc.querySelector('#expression').value==='2+3','keypad did not build 2+3');
+   clickKey(x.doc,'=');
    expect(x.doc.querySelector('#semantic').textContent.includes('Result: 5'),'incorrect keypad result');
+   clickKey(x.doc,'AC');
+   expect(x.doc.querySelector('#expression').value==='','AC did not clear expression');
+   for(const key of ['4','MUL','5','='])clickKey(x.doc,key);
+   expect(x.doc.querySelector('#semantic').textContent.includes('Result: 20'),'keypad did not calculate after AC');
  }],
  ['Typing in the input field calculates implicit multiplication',async x=>{
    const input=x.doc.querySelector('#expression');input.value='2(3+4)';input.dispatchEvent(new x.win.Event('input',{bubbles:true}));
    x.doc.querySelector('#calculate').click();expect(x.doc.querySelector('#semantic').textContent.includes('Result: 14'),'incorrect result');
  }],
  ['Document keyboard shortcuts evaluate input',async x=>{
-   x.doc.body.focus();for(const k of ['7','+','8','Enter'])x.doc.dispatchEvent(new x.win.KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));
-   expect(x.doc.querySelector('#semantic').textContent.includes('Result: 15'),'keyboard shortcuts failed');
+   for(const k of ['7','+','8','Enter']){
+     const event=new x.win.KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true});
+     x.doc.dispatchEvent(event);
+     expect(event.defaultPrevented,'calculator keyboard shortcut was not handled: '+k);
+   }
+   const screen=x.doc.querySelector('#semantic');
+   expect(screen.textContent.includes('Result: 15'),'keyboard shortcuts failed');
+   const before=screen.textContent;
+   const input=x.doc.querySelector('#expression');input.focus();
+   const textKey=new x.win.KeyboardEvent('keydown',{key:'9',bubbles:true,cancelable:true});
+   input.dispatchEvent(textKey);
+   expect(!textKey.defaultPrevented,'text entry hijacked while input is focused');
+   expect(screen.textContent===before,'calculator changed while text input had keyboard focus');
  }],
  ['Both calculator editions switch without resetting into an invalid mode',async x=>{
    const model=x.doc.querySelector('#model');model.value='c';model.dispatchEvent(new x.win.Event('change',{bubbles:true}));
@@ -40,8 +57,12 @@ const tests=[
    expect(a.value==='RAD'&&f.value==='Fix','select controls');expect(x.errors.length===0,'script exception');
  }],
  ['Natural display editor preserves structural templates',async x=>{
-   clickKey(x.doc,'FRAC');clickKey(x.doc,'1');clickKey(x.doc,'RIGHT');clickKey(x.doc,'2');
-   expect(x.doc.querySelector('#natural-preview').textContent.length>0,'missing preview');
+   clickKey(x.doc,'FRAC');
+   expect(x.doc.querySelector('#natural-preview').classList.contains('invalid'),'empty fraction not marked incomplete');
+   clickKey(x.doc,'1');clickKey(x.doc,'RIGHT');clickKey(x.doc,'2');
+   const preview=x.doc.querySelector('#natural-preview');
+   expect(preview.textContent.includes('1')&&preview.textContent.includes('2'),'fraction fields not rendered');
+   expect(!preview.classList.contains('invalid'),'completed fraction still marked incomplete');
    expect(x.doc.querySelector('#semantic').textContent.includes('Expression:'),'missing semantic display');
  }],
  ['Session v2 serializes structured cursor and imports safely',async x=>{
@@ -74,8 +95,23 @@ const tests=[
  ['Session export/import retains a nontrivial matrix register',async x=>{
    const K=x.win.FX991,S=x.win.FX991_SESSION;let st=K.createState();
    st.ui.modeMemory.matrix.A=[[1,2],[3,4]];
-   const restored=S.importJSON(S.exportJSON(st));
-   expect(JSON.stringify(restored.ui.modeMemory.matrix.A||[])===JSON.stringify([[1,2],[3,4]]),'matrix register lost');
+   for(const key of ['2','ADD','3'])st=K.dispatchKey(st,key);
+   const recovery=x.doc.querySelector('#session-recovery');
+   expect(!recovery.checked,'recovery must start disabled');
+   recovery.checked=true;recovery.dispatchEvent(new x.win.Event('change',{bubbles:true}));
+   expect(S.enabled(x.win.localStorage),'recovery opt-in did not persist');
+   const input=x.doc.querySelector('#session-import');
+   const data=new x.win.DataTransfer();
+   data.items.add(new x.win.File([S.exportJSON(st)],'fixture-session.json',{type:'application/json'}));
+   input.files=data.files;input.dispatchEvent(new x.win.Event('change',{bubbles:true}));
+   await waitFor(()=>x.doc.querySelector('#session-status').textContent.startsWith('Session restored'),x.win,3000);
+   expect(x.doc.querySelector('#expression').value==='2+3','UI session import did not restore expression');
+   const saved=x.win.localStorage.getItem(S.KEY);
+   expect(!!saved,'opt-in recovery did not store imported session');
+   const restored=S.importJSON(saved);
+   expect(JSON.stringify(restored.ui.modeMemory.matrix.A||[])===JSON.stringify([[1,2],[3,4]]),'matrix register was lost by UI import/recovery');
+   recovery.checked=false;recovery.dispatchEvent(new x.win.Event('change',{bubbles:true}));
+   expect(!S.enabled(x.win.localStorage)&&!x.win.localStorage.getItem(S.KEY),'disabling recovery did not clear storage');
  }],
  ['Focus indicator CSS is present for keyboard access',async x=>{
    const a=x.doc.querySelector('#keypad button');const css=[...x.doc.styleSheets].filter(sh=>{try{return !!sh.cssRules}catch(_){return false}}).map(sh=>[...sh.cssRules].map(r=>r.cssText).join(' ')).join(' ');
@@ -90,6 +126,13 @@ const tests=[
  }]
 ];
 function expect(ok,msg){if(!ok)throw Error(msg)}
+async function waitFor(predicate,win,timeoutMs){
+  const start=win.performance.now();
+  while(!predicate()){
+    if(win.performance.now()-start>timeoutMs)throw Error('session UI import timed out');
+    await new Promise(resolve=>win.setTimeout(resolve,15));
+  }
+}
 function clickKey(doc,key){const el=[...doc.querySelectorAll('#keypad button')].find(b=>b.getAttribute('aria-label')===key+' calculator key');expect(el,'missing '+key+' key');el.click()}
 const entries=[];let running=false;
 function render(){const counts={passed:entries.filter(e=>e.status==='PASS').length,failed:entries.filter(e=>e.status==='FAIL').length,skipped:entries.filter(e=>e.status==='BLOCKED').length};
@@ -117,17 +160,19 @@ async function run(){if(running)return;running=true;$('run').disabled=true;entri
    // A navigation error is observable from the iframe's document; no fake pass.
    expect(x.doc&&x.win.FX991&&x.doc.getElementById('lcd'),'calculator did not initialize');
    await fn(x);
+   await new Promise(resolve=>setTimeout(resolve,0));
+   expect(x.errors.length===0,'calculator JavaScript errors during interaction: '+x.errors.join('; '));
  }catch(error){status=/timed out|did not initialize/.test(String(error.message))?'BLOCKED':'FAIL';message=String(error.message)}
  entries.push({name,status,message});render()}
  running=false;$('run').disabled=false;
 }
 $('run').onclick=run;
 $('download').onclick=()=>{
- const artifact={schema:'fx991-browser-acceptance',milestone:33,generatedAt:new Date().toISOString(),
+ const artifact={schema:'fx991-browser-acceptance',milestone:49,generatedAt:new Date().toISOString(),
  userAgent:navigator.userAgent,location:location.href,summary:$('summary').textContent,
  results:entries.map(x=>({...x}))};
  const u=URL.createObjectURL(new Blob([JSON.stringify(artifact,null,2)],{type:'application/json'}));
- const a=document.createElement('a');a.download='fx991-browser-evidence-m33.json';a.href=u;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);
+ const a=document.createElement('a');a.download='fx991-browser-evidence-m49.json';a.href=u;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);
 };
 run();
 })();
