@@ -53,13 +53,42 @@ class Server(socketserver.ThreadingTCPServer):
     daemon_threads = True
 
 
+def browser_source_files(root=ROOT):
+    """Enumerate the complete browser runtime and browser-test source surface.
+
+    Evidence must not survive changes in a module that the page can load. This
+    includes files added *after* the original M33 eight-file fingerprint.
+    Generated reports and the release manifest are excluded to avoid cycles.
+    """
+    root = Path(root)
+    required = ('index.html', 'styles.css', 'tests/browser-acceptance.html',
+                'tests/browser-acceptance.js', 'src/app.js', 'src/kernel.js')
+    for name in required:
+        if not (root / name).is_file() or (root / name).is_symlink():
+            raise ValueError('Required browser source missing or symlinked: ' + name)
+    source = set(required)
+    for folder, extensions in (('src', {'.js', '.css', '.html'}),
+                               ('tests', {'.js', '.cjs', '.html', '.css'})):
+        directory = root / folder
+        if directory.is_symlink() or not directory.is_dir():
+            raise ValueError('Missing or symlinked browser source directory: ' + folder)
+        for path in directory.rglob('*'):
+            if path.is_symlink():
+                raise ValueError('Symlink in browser source tree: ' + str(path))
+            if path.is_file() and path.suffix.lower() in extensions:
+                source.add(path.relative_to(root).as_posix())
+    return tuple(sorted(source))
+
+
 def source_digest(root=ROOT):
-    """Deterministic fingerprint of the exact client and acceptance sources."""
-    files = ('index.html', 'styles.css', 'tests/browser-acceptance.html',
-             'tests/browser-acceptance.js', 'src/app.js', 'src/kernel.js',
-             'src/session.js', 'src/state-machine.js')
+    """SHA-256 of all browser modules, markup, styles and test sources.
+
+    Each entry includes its relative name and byte length to make additions,
+    removals and content modifications change the fingerprint deterministically.
+    """
+    root = Path(root)
     digest = hashlib.sha256()
-    for name in files:
+    for name in browser_source_files(root):
         data = (root / name).read_bytes()
         digest.update(name.encode('utf-8') + b'\0' + len(data).to_bytes(8, 'big') + data)
     return digest.hexdigest()
