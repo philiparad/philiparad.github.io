@@ -59,14 +59,51 @@ function del(original){let d=clone(original),f=locate(d.root,d.anchor.sequenceId
  if(ss.every(([,s])=>s.children.length===0)){p.sequence.children.splice(p.index,1);d.anchor={sequenceId:p.sequence.id,offset:p.index}}
  else d.anchor={sequenceId:p.sequence.id,offset:p.index};
  return d}
-function delForward(original){let d=clone(original),f=locate(d.root,d.anchor.sequenceId),at=d.anchor.offset;if(at<f.sequence.children.length){let next=f.sequence.children[at],sub=slots(next);if(sub.length){if(sub.every(([,slot])=>slot.children.length===0))f.sequence.children.splice(at,1);else d.anchor={sequenceId:sub[0][1].id,offset:0}}else f.sequence.children.splice(at,1);return normalize(d)}if(f.parents.length){let parent=f.parents[f.parents.length-1],ss=slots(parent.node),i=ss.findIndex(([name])=>name===parent.slot);if(i+1<ss.length)d.anchor={sequenceId:ss[i+1][1].id,offset:0};else d.anchor={sequenceId:parent.sequence.id,offset:parent.index+1}}return normalize(d)}
-function overwriteToken(original,value){let d=clone(original),f=locate(d.root,d.anchor.sequenceId),at=d.anchor.offset;for(const c of String(value)){if(at<f.sequence.children.length&&f.sequence.children[at].kind==='Token')f.sequence.children.splice(at,1,token(c));else f.sequence.children.splice(at,0,token(c));at++}d.anchor.offset=at;return normalize(d)}
+// Forward deletion preserves template structure. A populated template is
+// entered rather than destroyed; an empty one can be removed atomically.
+function delForward(original){
+ let d=clone(original),f=locate(d.root,d.anchor.sequenceId),at=d.anchor.offset;
+ if(at<f.sequence.children.length){
+  let next=f.sequence.children[at],sub=slots(next);
+  if(sub.length){
+   if(sub.every(([,slot])=>slot.children.length===0))f.sequence.children.splice(at,1);
+   else d.anchor={sequenceId:sub[0][1].id,offset:0};
+  }else f.sequence.children.splice(at,1);
+  return normalize(d);
+ }
+ if(f.parents.length){
+  let parent=f.parents[f.parents.length-1],ss=slots(parent.node),i=ss.findIndex(([name])=>name===parent.slot);
+  if(i+1<ss.length)d.anchor={sequenceId:ss[i+1][1].id,offset:0};
+  else d.anchor={sequenceId:parent.sequence.id,offset:parent.index+1};
+ }
+ return normalize(d);
+}
+// Overwrite applies to plain tokens only; mathematical templates are never
+// overwritten implicitly because they own independently editable slots.
+function overwriteToken(original,value){
+ let d=clone(original),f=locate(d.root,d.anchor.sequenceId),at=d.anchor.offset;
+ for(const c of String(value)){
+  if(at<f.sequence.children.length&&f.sequence.children[at].kind==='Token')f.sequence.children.splice(at,1,token(c));
+  else f.sequence.children.splice(at,0,token(c));
+  at++;
+ }
+ d.anchor.offset=at;return normalize(d);
+}
 function serializeNode(node){switch(node.kind){case 'Token':return node.value;case 'Sequence':return node.children.map(serializeNode).join('');case 'Fraction':return '('+serializeNode(node.numerator)+')/('+serializeNode(node.denominator)+')';case 'Power':return '^('+serializeNode(node.exponent)+')';case 'Root':return node.degree?'('+serializeNode(node.radicand)+')^(1/('+serializeNode(node.degree)+'))':'sqrt('+serializeNode(node.radicand)+')';case 'Function':return node.name+'('+serializeNode(node.argument)+')';case 'Group':return '('+serializeNode(node.body)+')';default:throw Error('Unsupported node '+node.kind)}}
 function serialize(doc){return serializeNode(doc.root)}
 function inspect(doc){
  let nodes=0,slotsCount=0,ids=new Set(),duplicate=false;
  function walk(n){nodes++;if(ids.has(n.id))duplicate=true;ids.add(n.id);for(const [,s] of slots(n)){slotsCount++;walk(s)}if(n.kind==='Sequence')for(const child of n.children)walk(child)}walk(doc.root);
  return {nodes,slots:slotsCount,duplicate,anchorValid:!!locate(doc.root,doc.anchor.sequenceId)};
+}
+// Ensure newly generated nodes never reuse IDs from a restored document.
+function reserveIds(doc){
+ let maximum=0;
+ function walk(n){const match=/^nd([1-9]\d*)$/.exec(n.id);if(match){const x=Number(match[1]);if(!Number.isSafeInteger(x))throw Error('Unsafe node identifier');maximum=Math.max(maximum,x)}
+  if(n.kind==='Sequence')for(const child of n.children)walk(child);
+  else for(const [,sub] of slots(n))walk(sub);
+ }
+ walk(doc.root);nextId=Math.max(nextId,maximum+1);return doc;
 }
 function fromSource(text){let d=create();d.root.children=[...String(text)].map(token);d.anchor.offset=d.root.children.length;return d}
 // Locate the closest valid structural cursor anchor for a parser source offset.
@@ -104,5 +141,5 @@ function screenText(doc){function rec(n){if(n.kind==='Sequence')return n.childre
 function sourceCursor(doc){let position=0,found=null;
  function visit(node){if(node.kind==='Token'){position+=node.value.length;return}if(node.kind==='Sequence'){for(let i=0;i<=node.children.length;i++){if(node.id===doc.anchor.sequenceId&&i===doc.anchor.offset)found=position;if(i<node.children.length)visit(node.children[i])}return}if(node.kind==='Fraction'){position++;visit(node.numerator);position+=3;visit(node.denominator);position++;return}if(node.kind==='Power'){position+=2;visit(node.exponent);position++;return}if(node.kind==='Root'){if(node.degree){position++;visit(node.radicand);position+=5;visit(node.degree);position+=2}else{position+=5;visit(node.radicand);position++}return}if(node.kind==='Function'){position+=node.name.length+1;visit(node.argument);position++;return}if(node.kind==='Group'){position++;visit(node.body);position++;return}}
  visit(doc.root);return found??position}
-const api={create,clone,fromSource,seekSource,firstMissingAnchor,insertToken,overwriteToken,delForward,template,move,del,serialize,serializeNode,renderHTML,screenText,sourceCursor,invalidSlots,locate,normalize,exitSlot,inspect};global.FX991_EDITOR=Object.freeze(api);
+const api={create,clone,fromSource,reserveIds,seekSource,firstMissingAnchor,insertToken,overwriteToken,delForward,template,move,del,serialize,serializeNode,renderHTML,screenText,sourceCursor,invalidSlots,locate,normalize,exitSlot,inspect};global.FX991_EDITOR=Object.freeze(api);
 })(typeof window!=='undefined'?window:globalThis);
