@@ -1,4 +1,4 @@
-# Milestone 41 — CI Diagnostics and Browser Qualification
+# Milestone 43 — Authenticated Browser Evidence and CI Diagnostics
 
 **Status:** Local source/tests validated; browser release qualification blocked until real Chromium, Firefox and WebKit evidence exists. No physical Casio equivalence is certified.
 
@@ -102,3 +102,32 @@ Run `python tools/release_gate.py verify` to audit packaged files; see
 ## Milestone 40 — Human-readable release qualification
 
 The new `tools/release_report.py` generates an escaped, offline HTML release-decision report and JSON summary. Reports are uploaded by CI even when the browser suite is blocked. Source integrity and real 18/18 Chromium, Firefox and WebKit captures are both mandatory. A missing browser matrix produces `BLOCKED`, not a simulated pass. See `docs/release-decision-m40.md`.
+
+## Milestone 42 — GitHub Actions artifact inspection
+
+- `tools/actions_artifact_inspector.py`: validate downloaded GitHub Actions artifact ZIPs without executing their contents. Reject unsafe entries and triage captured browser evidence against this checkout.
+- `tools/tests/test_actions_artifact_inspector.py`: adversarial tests for path traversal, duplicate members, symlinks, zip bombs and fail-closed release reports.
+- `.github/workflows/browser-acceptance.yml`: bundles evidence and runs offline artifact inspection after CI diagnostics, always uploading diagnostic artifacts.
+- `docs/github-actions-artifact-inspection-m42.md`: manual recovery and verification steps.
+
+Offline inspection of a ZIP does **not** authenticate the GitHub run or certify browser compatibility. Release qualification remains blocked without matching, successful evidence from Chromium, Firefox and WebKit and verified CI provenance.
+
+## Milestone 43 — Authenticated GitHub Actions artifact retrieval
+
+Milestone 43 adds `tools/actions_run_collector.py` and a separate, read-only
+`review-browser-artifacts.yml` workflow. A completed **successful** source-repository
+browser workflow is checked by exact run ID, source commit, and matching artifact ID.
+The downloaded ZIP is then passed through the safe offline artifact inspector.
+The follow-up workflow publishes diagnostic artifacts and **fails** when qualifying
+browser evidence is missing or invalid; it does not deploy or certify hardware.
+
+To inspect a run manually (development/CI only):
+
+```sh
+python tools/actions_run_collector.py --repo philiparad/fx991ES \
+  --sha FULL_40_CHARACTER_SHA --run-id RUN_ID --out release-evidence/github-actions
+```
+
+No browser results are claimed until the authenticated GitHub run exists and all
+18 acceptance checks pass in Chromium, Firefox and WebKit. The existing calculator
+continues to run entirely in vanilla HTML/CSS/JavaScript.
