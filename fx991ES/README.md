@@ -1,4 +1,4 @@
-# Milestone 36 — Browser Failure Resolution & Release Qualification
+# Milestone 39 — Production Release Candidate Quality Gate
 
 Independent HTML/CSS/vanilla JavaScript scientific calculator. Not affiliated with CASIO.
 
@@ -68,3 +68,13 @@ python tools/evidence_review.py browser-evidence
 ```
 
 This is not a claim that Chromium, Firefox, or WebKit completed successfully, or that the simulator matches a physical Casio device.
+
+
+## Milestone 39 — reproducible release candidate
+
+`tools/release_gate.py` generates and verifies `release-manifest.json` and fail-closes
+release qualification unless **all three** real browser evidence reports pass.
+The local build can pass 474 calculator checks and all offline gate tests while
+remaining *unqualified* for browser or physical-calculator compatibility.
+Run `python tools/release_gate.py verify` to audit packaged files; see
+`docs/release-gate-m39.md`.
