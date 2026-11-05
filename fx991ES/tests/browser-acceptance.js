@@ -142,6 +142,7 @@ function render(){const counts={passed:entries.filter(e=>e.status==='PASS').leng
  const list=$('results');list.replaceChildren();for(const row of entries){const item=document.createElement('li');item.className=row.status==='PASS'?'pass':row.status==='FAIL'?'fail':'blocked';item.textContent=`${row.status} — ${row.name}`+(row.message?' — '+row.message:'');list.append(item)}
  $('download').disabled=!entries.length;
 }
+function navigationBlocked(message){const error=new Error(message);error.kind='navigation';return error}
 function loadFresh(){return new Promise((resolve,reject)=>{
  // A new element, not only a new URL, ensures the previous test cannot emit a
  // late load event into this test. The id is retained for layout assertions.
@@ -150,7 +151,7 @@ function loadFresh(){return new Promise((resolve,reject)=>{
  const frame=previous.cloneNode(false);
  frame.removeAttribute('src');
  let settled=false;
- const timer=setTimeout(()=>finish(Error('calculator iframe loading timed out')),12000);
+ const timer=setTimeout(()=>finish(navigationBlocked('calculator iframe loading timed out')),12000);
  function finish(error){
    if(settled)return;
    settled=true;clearTimeout(timer);
@@ -166,11 +167,11 @@ function loadFresh(){return new Promise((resolve,reject)=>{
    const win=frame.contentWindow,doc=frame.contentDocument;
    // `load` may also fire for about:blank or an HTTP 404 document.
    if(!win||!doc||!win.location.pathname.endsWith('/index.html')){
-     finish(Error('calculator iframe did not load index.html'));return;
+     finish(navigationBlocked('calculator iframe did not load index.html'));return;
    }
    finish();
  }
- function failed(){finish(Error('calculator iframe navigation failed'))}
+ function failed(){finish(navigationBlocked('calculator iframe navigation failed'))}
  frame.addEventListener('load',loaded);
  frame.addEventListener('error',failed);
  frame.src='../index.html?browser-acceptance='+encodeURIComponent(String(performance.now()));
@@ -184,7 +185,7 @@ async function run(){if(running)return;running=true;$('run').disabled=true;entri
    await fn(x);
    await new Promise(resolve=>setTimeout(resolve,0));
    expect(x.errors.length===0,'calculator JavaScript errors during interaction: '+x.errors.join('; '));
- }catch(error){status=/timed out|did not initialize|iframe did not load|iframe navigation failed/.test(String(error.message))?'BLOCKED':'FAIL';message=String(error.message)}
+ }catch(error){status=error&&error.kind==='navigation'?'BLOCKED':'FAIL';message=String(error&&error.message||error)}
  entries.push({name,status,message});render()}
  running=false;$('run').disabled=false;
 }
