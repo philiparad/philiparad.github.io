@@ -4,7 +4,7 @@
  */
 (function(global){'use strict';
 const base=global.FX991;
-const E=global.FX991_EDITOR;
+const E=global.FX991_EDITOR;const KEYS=global.FX991_KEYS;
 const SETUP=[['Angle','DEG','RAD','GRAD'],['Format','Norm1','Norm2','Fix','Sci']];
 const wizardConfigs={
  EQN:{menu:['QUAD','CUBIC','LINEAR2','LINEAR3'],fields:{QUAD:['a','b','c'],CUBIC:['a','b','c','d'],LINEAR2:['a11','a12','b1','a21','a22','b2'],LINEAR3:['a11','a12','a13','b1','a21','a22','a23','b2','a31','a32','a33','b3']}},
@@ -13,7 +13,7 @@ const wizardConfigs={
  STAT:{menu:['1VAR'],fields:{'1VAR':['x1','x2','x3']}},
  TABLE:{menu:['SINGLE'],fields:{SINGLE:['start','end','step']}}
 };
-function decorate(s){if(!s.ui)s.ui={page:0,pending:null,setupSection:null,wizard:null};return s}
+function decorate(s){if(!s.ui)s.ui={page:0,pending:null,setupSection:null,wizard:null,insertMode:true};if(s.ui.insertMode===undefined)s.ui.insertMode=true;return s}
 function syncInput(s){if(s.mode==='COMP'){s.document=E.fromSource(s.expression)}s.cursor=Math.min(s.expression.length,Math.max(0,s.cursor))}
 function record(s,key){s.trace=[...s.trace,{key,mode:s.mode,view:s.view,expression:s.expression,result:s.result}].slice(-200);return s}
 function enterWizard(s,mode){let config=wizardConfigs[mode];if(!config)return s;s.ui.wizard={mode,kind:null,fields:[],values:[],index:0,buffer:''};s.view='workflow-menu';s.menuPage=0;return s}
@@ -34,6 +34,9 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  if(key==='SHIFT'){s.shift=!s.shift;s.alpha=false;return end()}
  if(key==='ALPHA'){s.alpha=!s.alpha;s.shift=false;return end()}
  if(key==='AC'&&s.shift){s.power=false;s.view='off';s.shift=false;return end()}
+ if((key==='DEL'&&s.shift)||key==='INS'){s.ui.insertMode=!s.ui.insertMode;s.shift=false;s.alpha=false;return end()}
+ if(s.alpha&&!['mode','setup','coefficient','register-prompt','workflow-menu'].includes(s.view)){let letter=KEYS.resolve(s.model,key,'alpha');if(letter){key=letter;s.alpha=false}}
+
  // SHIFT + MODE enters a hierarchical SETUP menu. Direct setting keys are
  // also accepted to keep the prior controller and reference traces stable.
  if(key==='MODE'&&s.shift){s.shift=false;s.alpha=false;s.view='setup';s.ui.setupSection=null;return end()}
@@ -92,6 +95,8 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  }
  if(key==='RCL'&&s.shift){s.shift=false;s.ui.pending='STO';s.view='register-prompt';return end()}
  if(key==='RCL'&&s.alpha){s.alpha=false;s.ui.pending='RCL';s.view='register-prompt';return end()}
+ if(key==='FDEL'&&s.view==='edit'&&s.mode==='COMP'&&s.document){s.document=E.delForward(s.document);s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);s.result='';return end()}
+ if(s.ui.insertMode===false&&s.view==='edit'&&s.mode==='COMP'&&s.document&&/^[0-9.]$/.test(key)){s.document=E.overwriteToken(s.document,key);s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);s.result='';s.shift=false;s.alpha=false;return end()}
  // Support explicit RCL/STO keys for existing prototypes and tests.
  // A physical layout can use SHIFT+RCL for STO standby.
  s=decorate(base.dispatchKey(s,key));return s;
@@ -100,6 +105,7 @@ function endAfter(s,key){return s} // finishWizard records current dispatch even
 function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=base.semanticScreen(s);if(s.view==='workflow-menu'){let w=s.ui.wizard,choices=wizardConfigs[w.mode].menu;screen.result=choices.slice(s.menuPage*4,s.menuPage*4+4).map((c,i)=>(i+s.menuPage*4+1)+':'+c).join(' ');screen.expression='SELECT '+w.mode}
  if(s.view==='coefficient'){let w=s.ui.wizard;screen.expression=w.fields[w.index]+' = '+w.buffer;screen.result=(w.index+1)+'/'+w.fields.length}
  if(s.view==='register-prompt'){screen.expression=s.ui.pending+' REG';screen.result='A-F M X Y'}
+ if(s.ui.insertMode===false)screen.indicators=[...screen.indicators,'OVR'];
  if(s.view==='setup'){screen.expression=s.ui.setupSection?s.ui.setupSection+' DIGITS':'SETUP';screen.result=s.ui.setupSection?'0-9':'1:D 2:R 3:G 4:FIX 5:SCI 6:N1 7:N2'}return screen}
 function runTrace(test){let s=createState(test.model||'standard');for(let k of test.events)s=dispatchKey(s,k);let screen=semanticScreen(s),pixels=base.rasterizeScreen(screen);return {state:s,screen,pixels,hash:base.frameHash(pixels)}}
 function createState(model='standard'){return decorate(base.createState(model))}
