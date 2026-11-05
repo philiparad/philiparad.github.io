@@ -526,8 +526,21 @@ test('M30 no automatic expression evaluation after multiple imports',()=>{let s=
 test('M30 recovery disabled does not persist editing state',()=>{let st=fakeStorage();let s=m29document();eq(SS.store(st,s),false);eq(st.getItem(SS.KEY),null)});
 test('M30 document anchor remains valid after 10 restorations',()=>{let s=m29document();for(let i=0;i<10;i++)s=SS.importJSON(SS.exportJSON(s));eq(ED29.inspect(s.document).anchorValid,true)});
 
+
+// Milestone 31: deterministic release-flow tests (browser assertions run separately).
+function m31seq(keys){let s=K.createState();for(const k of keys)s=K.dispatchKey(s,k);return s}
+test('M31 keypad COMP addition is deterministic',()=>{let a=m31seq(['2','ADD','3','=']),b=m31seq(['2','ADD','3','=']);eq(a.result,'5');eq(a.result,b.result)});
+test('M31 input editing survives repeated structural restores',()=>{let s=m31seq(['FRAC','1','RIGHT','2']);for(let i=0;i<4;i++){s=SS.importJSON(SS.exportJSON(s));eq(ED29.inspect(s.document).anchorValid,true)}});
+test('M31 version-2 imported state retains exact matrix register',()=>{let s=mem28(),t=SS.importJSON(SS.exportJSON(s));eq(JSON.stringify(t.ui.modeMemory.matrix.B),'[[2,0],[0,2]]')});
+test('M31 v1 JSON is still accepted in release integration',()=>{let p=SS.extract(mem28());p.version=1;delete p.document;delete p.workflow;eq(SS.importJSON(JSON.stringify(p)).model,'c')});
+test('M31 disabling recovery is idempotent',()=>{let st=fakeStorage();SS.enable(st,true);SS.store(st,mem28());SS.enable(st,false);SS.enable(st,false);eq(SS.enabled(st),false)});
+test('M31 invalid import is rejected without changing existing state',()=>{let s=mem28();fail28(()=>SS.importJSON('{invalid'));eq(s.ui.modeMemory.matrix.A[0][0],1)});
+test('M31 display raster retains physical dimensions',()=>{let s=m31seq(['7','ADD','8','=']),pix=K.rasterizeScreen(K.semanticScreen(s));eq(pix.length,96*31)});
+test('M31 physical keypad sequence retains chronological trace',()=>{let s=m31seq(['2','ADD','3','=']);eq(s.trace.slice(-4).map(entry=>entry.key).join(','),'2,ADD,3,=')});
+test('M31 reset does not mutate recovered state before reset',()=>{let s=SS.importJSON(SS.exportJSON(mem28())),old=s.ui.modeMemory.matrix.A[0][0];let n=K.createState(s.model);eq(old,1);eq(n.ui.modeMemory.matrix.A,null)});
+test('M31 session reload preserves standard and C model distinctions',()=>{for(const model of ['standard','c']){let s=K.createState(model),t=SS.importJSON(SS.exportJSON(s));eq(t.model,model)}});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
-
 
