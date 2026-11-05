@@ -1,8 +1,8 @@
-# Milestone 31 — Release Integration and Browser Smoke QA
+# Milestone 33 — Automated Browser Release Integration
 
 Independent HTML/CSS/vanilla JavaScript scientific calculator. Not affiliated with CASIO.
 
-Milestone 31 integrates the previous v2 structural-session work with a browser-level smoke test. It adds a browser-only test page at `tests/browser-smoke.html` (actual DOM controls, canvas dimensions, accessible keypad names, expression calculation, mode and model switches, and regression execution) plus long-session restore tests. Session status wording now accurately distinguishes supported resumed editing workflows from cleared calculation caches.
+Milestone 32 integrates the previous v2 structural-session work with a browser-level smoke test. It adds a browser-only test page at `tests/browser-smoke.html` (actual DOM controls, canvas dimensions, accessible keypad names, expression calculation, mode and model switches, and regression execution) plus long-session restore tests. Session status wording now accurately distinguishes supported resumed editing workflows from cleared calculation caches.
 
 ## Verify
 
@@ -13,6 +13,20 @@ Milestone 31 integrates the previous v2 structural-session work with a browser-l
 
 Security: session imports remain schema-validated and must not execute imported expressions. Hardware/emulator matching has **not** been verified.
 
-## Milestone 31 Browser Acceptance
+## Milestone 32 Browser Acceptance
 
 New: `tests/browser-acceptance.html` runs 12 actual DOM/browser assertions and exports verifiable per-browser evidence as JSON. Internal JavaScript tests are separate. Chrome local navigation is blocked in this environment; there is no claim of successful browser automation. See `docs/browser-acceptance.md`.
+
+
+## Milestone 32 — cross-browser evidence
+
+- Run `tests/browser-acceptance.html` in Chromium, Firefox, and WebKit/Safari. It performs 18 DOM-level checks.
+- Export each actual browser run as JSON. Results are not assumed from unexecuted tests.
+- Open `tests/cross-browser.html`, import the three reports, inspect the test-by-test matrix and export the comparison. Missing, blocked, and failed checks all block browser qualification.
+- All evidence processing is offline, JSON-only; physical Casio verification is separate and still pending.
+- Run `tests/acceptance.html` for JavaScript regression tests. `node tests/run-node.cjs` is an optional developer runner, not a browser dependency.
+
+
+## Milestone 33
+
+The project includes a Python Playwright runner for Chromium/Firefox/WebKit (CI only, not calculator runtime), a GitHub Actions workflow, and `tests/release-readiness.html`. Browser reports are only claimed when runs execute successfully. See `docs/release-integration-m33.md`. Previous 474 internal tests are preserved.
