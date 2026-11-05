@@ -1,4 +1,4 @@
-# Milestone 34 — Automated Browser Release Integration
+# Milestone 35 — Release Candidate Evidence Integrity
 
 Independent HTML/CSS/vanilla JavaScript scientific calculator. Not affiliated with CASIO.
 
@@ -35,3 +35,8 @@ The project includes a Python Playwright runner for Chromium/Firefox/WebKit (CI 
 ## Milestone 34 — browser release stabilization
 
 The automated browser matrix validates all 18 individual browser checks, records browser errors, and rejects incomplete or mismatched Chromium/Firefox/WebKit evidence. CI also runs 9 offline evidence-gate tests. See [browser stabilization methodology](docs/browser-stabilization-m34.md). Local browser navigation is blocked by the execution environment; do not interpret JavaScript regression success as browser acceptance.
+
+
+## Milestone 35
+
+The CI browser runner now validates the exact 18-check acceptance manifest (including order), not just the row count, and supports `--base-url` for testing a deployed site. Added offline negative tests for substituted/reordered checks. See [M35 release validation](docs/release-validation-m35.md). Physical Casio compatibility is not certified.
