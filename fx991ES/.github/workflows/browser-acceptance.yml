@@ -1,4 +1,4 @@
-name: Cross-browser acceptance — M38
+name: Cross-browser acceptance — M39
 on:
   workflow_dispatch:
   push:
@@ -27,11 +27,16 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check playwright==1.56.0
           python -m playwright install --with-deps chromium firefox webkit
+      - name: Validate release candidate source inventory
+        run: python tools/release_gate.py verify
       - name: Run actual browser matrix
         run: python tools/browser_matrix.py --out browser-evidence
       - name: Audit captured browser evidence against this checkout
         if: always()
         run: python tools/evidence_review.py browser-evidence --out browser-evidence/evidence-review.json
+      - name: Produce fail-closed release decision
+        if: always()
+        run: python tools/release_gate.py qualify --evidence browser-evidence --out browser-evidence/release-qualification.json
       - name: Upload browser run evidence, even when blocked or failed
         if: always()
         uses: actions/upload-artifact@v4
