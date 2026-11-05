@@ -37,6 +37,35 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  if((key==='DEL'&&s.shift)||key==='INS'){s.ui.insertMode=!s.ui.insertMode;s.shift=false;s.alpha=false;return end()}
  if(s.alpha&&!['mode','setup','coefficient','register-prompt','workflow-menu'].includes(s.view)){let letter=KEYS.resolve(s.model,key,'alpha');if(letter){key=letter;s.alpha=false}}
 
+ // Milestone 25: semantic key-layer resolution; menus retain priority.
+ if(s.view==='edit'||s.view==='result'){
+  if(s.mode==='BASE-N'&&!s.shift&&!s.alpha){
+   const action=KEYS.resolve(s.model,key,'none','BASE-N');
+   if(['BIN','OCT','DEC','HEX'].includes(action)){
+    s.expression=action+':'+s.expression.replace(/^(?:BIN|OCT|DEC|HEX):/,'');
+    s.cursor=s.expression.length;s.result='';s.view='edit';s.document=E.fromSource('');
+    return end();
+   }
+   if(action!==key)key=action;
+  }
+  if(s.shift){
+   const action=KEYS.resolve(s.model,key,'shift',s.mode);
+   if(['CUBE','POW10','EXP'].includes(action)){
+    const literal={CUBE:'^3',POW10:'10^(',EXP:'exp('}[action];
+    if(s.mode==='COMP'&&s.document){
+     if(s.view==='result')s.document=E.create();
+     if(action==='POW10'){s.document=E.insertToken(s.document,'10');s.document=E.template(s.document,'Power')}
+     else if(action==='EXP')s.document=E.template(s.document,'Function','exp');
+     else s.document=E.insertToken(s.document,literal);
+     s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+    }else{
+     if(s.view==='result'){s.expression='';s.cursor=0}
+     s.expression=s.expression.slice(0,s.cursor)+literal+s.expression.slice(s.cursor);s.cursor+=literal.length;
+    }
+    s.shift=false;s.alpha=false;s.result='';s.view='edit';return end();
+   }
+  }
+ }
  // SHIFT + MODE enters a hierarchical SETUP menu. Direct setting keys are
  // also accepted to keep the prior controller and reference traces stable.
  if(key==='MODE'&&s.shift){s.shift=false;s.alpha=false;s.view='setup';s.ui.setupSection=null;return end()}
@@ -95,6 +124,7 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  }
  if(key==='RCL'&&s.shift){s.shift=false;s.ui.pending='STO';s.view='register-prompt';return end()}
  if(key==='RCL'&&s.alpha){s.alpha=false;s.ui.pending='RCL';s.view='register-prompt';return end()}
+ if(key==='RCL_MENU'&&!s.shift&&(s.view==='edit'||s.view==='result')){s.ui.pending='RCL';s.view='register-prompt';return end()}
  if(key==='FDEL'&&s.view==='edit'&&s.mode==='COMP'&&s.document){s.document=E.delForward(s.document);s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);s.result='';return end()}
  if(s.ui.insertMode===false&&s.view==='edit'&&s.mode==='COMP'&&s.document&&/^[0-9.]$/.test(key)){s.document=E.overwriteToken(s.document,key);s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);s.result='';s.shift=false;s.alpha=false;return end()}
  // Support explicit RCL/STO keys for existing prototypes and tests.
