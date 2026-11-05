@@ -389,6 +389,31 @@ test('M23 clipping preserves pixel bounds',()=>{let f=new L.Framebuffer();f.clip
  test('M24 OVR indicator toggles',()=>{let s=K.createState();if(K.semanticScreen(s).indicators.includes('OVR'))throw Error('unexpected OVR');s=K.dispatchKey(s,'INS');if(!K.semanticScreen(s).indicators.includes('OVR'))throw Error('missing OVR')});
  test('M24 SHIFT SIN retains inverse trig',()=>{let s=K.createState();for(let k of ['SHIFT','SIN','3','0','RP'])s=K.dispatchKey(s,k);eq(E.serialize(s.document),'asin(30)')});
 
+
+
+// Milestone 25 — mode-aware keypad sequences and modifiers.
+test('M25 model profiles include BASE-N legends',()=>{eq(KM.resolve('standard','SIN','none','BASE-N'),'D');eq(KM.resolve('c','NEG','none','BASE-N'),'A')});
+test('M25 SHIFT SQ cube legend',()=>eq(KM.resolve('standard','SQ','shift'),'CUBE'));
+test('M25 key legend is immutable',()=>{let x=KM.keyLegend('standard','SIN');eq(Object.isFrozen(x),true);eq(x.alpha,'D');eq(x.shift,'ASIN')});
+test('M25 SHIFT SQ inserts cube exponent',()=>{let s=K.createState();for(let k of ['2','SHIFT','SQ'])s=K.dispatchKey(s,k);eq(s.expression,'2^3');eq(s.shift,false)});
+test('M25 SHIFT SQ evaluates cube',()=>{let s=K.createState();for(let k of ['2','SHIFT','SQ','='])s=K.dispatchKey(s,k);eq(s.result,'8')});
+test('M25 SHIFT LOG creates ten-power template',()=>{let s=K.createState();for(let k of ['SHIFT','LOG','2','RP'])s=K.dispatchKey(s,k);eq(s.expression,'10^(2)')});
+test('M25 SHIFT LN evaluates exp zero',()=>{let s=K.createState();for(let k of ['SHIFT','LN','0','RP','='])s=K.dispatchKey(s,k);eq(s.result,'1')});
+test('M25 SHIFT clears after cube',()=>{let s=K.createState();for(let k of ['SHIFT','SQ'])s=K.dispatchKey(s,k);eq(s.shift,false);eq(s.alpha,false)});
+test('M25 BASE-N BIN key',()=>{let s=K.createState();for(let k of ['MODE','4','LOG'])s=K.dispatchKey(s,k);eq(s.expression,'BIN:')});
+test('M25 BASE-N HEX key',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:')});
+test('M25 hexadecimal F key',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','1','TAN'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:1F')});
+test('M25 HEX addition by keys',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','1','TAN','ADD','1','='])s=K.dispatchKey(s,k);eq(s.result,'00000020')});
+test('M25 radix selector replaces old prefix',()=>{let s=K.createState();for(let k of ['MODE','4','LOG','1','0','RECIP'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:10')});
+test('M25 BASE-N SIN COS enter D E',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','SIN','COS'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:DE')});
+test('M25 COMP SIN is structural',()=>{let s=K.createState();s=K.dispatchKey(s,'SIN');eq(s.document.root.children[0].kind,'Function')});
+test('M25 RCL prompt opens',()=>{let s=K.createState();s=K.dispatchKey(s,'RCL_MENU');eq(s.view,'register-prompt');eq(s.ui.pending,'RCL')});
+test('M25 RCL prompt cancels',()=>{let s=K.createState();for(let k of ['RCL_MENU','AC'])s=K.dispatchKey(s,k);eq(s.view,'edit');eq(s.ui.pending,null)});
+test('M25 SHIFT RCL stores typed register',()=>{let s=K.createState();for(let k of ['7','=','SHIFT','RCL','A','AC','RCL_MENU','A'])s=K.dispatchKey(s,k);eq(s.expression,'A');eq(K.valueToString(s.memory.A),'7')});
+test('M25 DEG setup inverse sine',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','SHIFT','SIN','0','.','5','RP','='])s=K.dispatchKey(s,k);eq(s.result,'30')});
+test('M25 C mode third menu page',()=>{let s=K.createState('c');for(let k of ['MODE','DOWN','DOWN','1'])s=K.dispatchKey(s,k);eq(s.mode,'INEQ')});
+test('M25 exponent template after result',()=>{let s=K.createState();for(let k of ['3','=','SHIFT','LN'])s=K.dispatchKey(s,k);eq(s.expression,'exp()')});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
