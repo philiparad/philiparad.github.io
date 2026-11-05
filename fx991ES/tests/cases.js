@@ -308,6 +308,25 @@ test('M20 cannot certify from fixture comparisons',()=>{let a=DEV.review(DEV.add
 test('M20 invalid imported schema rejected',()=>{try{DEV.importEvidence({schema:'bad',records:[]});throw Error('accepted')}catch(e){if(!e.message.includes('schema'))throw e}});
 test('M20 unsafe oversized key list rejected',()=>{let c=DEVICE_SAMPLE();c.keys=Array(501).fill('1');try{DEV.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('keys'))throw e}});
 
+
+// Milestone 21 semantic checks, not hardware observations.
+test('M21 implicit group 2(3+4)',()=>eq(K.valueToString(evaluate('2(3+4)')),'14'));
+test('M21 implicit 2pi is exact',()=>eq(K.valueToString(evaluate('2pi')),'2π'));
+test('M21 implicit radical',()=>eq(K.valueToString(evaluate('2sqrt(9)')),'6'));
+test('M21 adjacent trig functions',()=>close(K.numeric(evaluate('sin(30)cos(60)')),0.25));
+test('M21 strong implicit precedence 1/2(3+4)',()=>eq(K.valueToString(evaluate('1/2(3+4)')),'1/14'));
+test('M21 strong implicit precedence 1/2pi',()=>close(K.numeric(evaluate('1/2pi')),1/(2*Math.PI),1e-11));
+test('M21 chained implicit groups',()=>eq(K.valueToString(evaluate('2(3)(4)')),'24'));
+test('M21 implicit with power',()=>eq(K.valueToString(evaluate('2(1+3)^2')),'32'));
+test('M21 implicit pi after power',()=>eq(K.valueToString(evaluate('2^3pi')),'8π'));
+test('M21 pi adjacent to group',()=>eq(K.valueToString(evaluate('pi(2)')),'2π'));
+test('M21 Ans multiplication',()=>{let s=K.createState();s.ans=K.rat(4);eq(K.valueToString(K.evaluate(K.parse('3Ans'),s)),'12')});
+test('M21 register multiplication',()=>{let s=K.createState();s.memory.A=K.rat(7);eq(K.valueToString(K.evaluate(K.parse('2A'),s)),'14')});
+test('M21 implicit fraction stays exact',()=>eq(K.valueToString(evaluate('1/2(3+4)+1/14')),'1/7'));
+test('M21 syntax error remains typed',()=>{try{K.parse('2(3+)');throw Error('accepted')}catch(e){eq(e.code,K.ERROR.SYNTAX)}});
+test('M21 unary power precedence unaffected',()=>eq(K.valueToString(evaluate('(-2)^2')),'4'));
+test('M21 controller integrated result',()=>{let s=K.createState();s.expression='2(3+4)';s.document=global.FX991_EDITOR.fromSource(s.expression);s.cursor=s.expression.length;s=K.dispatchKey(s,'=');eq(s.result,'14')});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
