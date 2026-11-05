@@ -180,6 +180,25 @@ test('C mode result flows through Ans and history',()=>{let s=K.createState('c')
 test('C-mode selection through second menu page',()=>{let s=K.createState('c');s=K.dispatchKey(s,'MODE');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'1');eq(s.mode,'INEQ')});
 test('Standard model menu never exposes extensions',()=>{let s=K.createState('standard');s=K.dispatchKey(s,'MODE');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'1');eq(s.mode,'EQN')});
 
+/* Milestone 14 state-machine regression vectors. */
+function m14(model,events){let s=K.createState(model);for(const k of events)s=K.dispatchKey(s,k);return s}
+test('M14 Fix format submenu',()=>{let s=m14('standard',['SHIFT','MODE','4','3']);eq(s.setup.format,'Fix');eq(s.setup.digits,3);eq(s.view,'edit')});
+test('M14 Sci format submenu',()=>{let s=m14('standard',['SHIFT','MODE','5','5']);eq(s.setup.format,'Sci');eq(s.setup.digits,5)});
+test('M14 Norm 1',()=>eq(m14('standard',['SHIFT','MODE','6']).setup.format,'Norm1'));
+test('M14 Norm 2',()=>eq(m14('standard',['SHIFT','MODE','7']).setup.format,'Norm2'));
+test('M14 SETUP cancel',()=>eq(m14('standard',['SHIFT','MODE','AC']).view,'edit'));
+test('M14 OFF and ON',()=>{let s=m14('standard',['SHIFT','AC']);eq(s.power,false);s=K.dispatchKey(s,'1');eq(s.expression,'');s=K.dispatchKey(s,'ON');eq(s.power,true)});
+test('M14 STORE standby',()=>{let s=m14('standard',['8','=','SHIFT','RCL']);eq(s.view,'register-prompt');s=K.dispatchKey(s,'B');eq(K.valueToString(s.memory.B),'8')});
+test('M14 RECALL standby',()=>{let s=m14('standard',['ALPHA','RCL','C']);eq(s.expression,'C');eq(s.view,'edit')});
+test('M14 register cancel',()=>{let s=m14('standard',['SHIFT','RCL','AC']);eq(s.view,'edit');eq(s.ui.pending,null)});
+test('M14 quadratic coefficient entry',()=>{let s=m14('standard',['MODE','DOWN','1']);eq(s.view,'workflow-menu');for(let k of ['1','1','=','NEG','3','=','2','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('2')||!s.result.includes('1'))throw Error(s.result)});
+test('M14 determinant coefficient entry',()=>{let s=m14('standard',['MODE','DOWN','2','1']);for(let k of ['1','=','2','=','3','=','4','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('-2'))throw Error(s.result)});
+test('M14 missing coefficient rejected',()=>{let s=m14('standard',['MODE','DOWN','1','1','=']);eq(s.view,'error');eq(s.error,K.ERROR.ARGUMENT)});
+test('M14 error returns to editing',()=>{let s=m14('standard',['1','DIV','0','=']);eq(s.view,'error');s=K.dispatchKey(s,'RIGHT');eq(s.view,'edit');eq(s.error,null)});
+test('M14 coefficient screen semantic label',()=>{let s=m14('standard',['MODE','DOWN','1','1']);if(!K.semanticScreen(s).expression.includes('a ='))throw Error('Missing coefficient label')});
+test('M14 COMP normal mode selection',()=>{let s=m14('standard',['MODE','1']);eq(s.mode,'COMP');eq(s.view,'edit')});
+test('M14 deterministic workflow trace',()=>{let events=['MODE','DOWN','1','1','1','=','NEG','3','=','2','='];let a=K.runTrace({events}),b=K.runTrace({events});eq(a.hash,b.hash)});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
