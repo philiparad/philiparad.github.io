@@ -366,6 +366,29 @@ test('M23 nested vertical navigation does not change source',()=>{let d=E.templa
 test('M23 vertically scrolled frame deterministic',()=>{let d=E.create();for(let i=0;i<3;i++){d=E.template(d,'Fraction');d=E.move(d,'DOWN')}let s=K.semanticScreen(K.createState());s.document=d;let a=L.rasterizeScreen(s),b=L.rasterizeScreen(s);eq(K.frameHash(a),K.frameHash(b))});
 test('M23 clipping preserves pixel bounds',()=>{let f=new L.Framebuffer();f.clip={left:0,right:96,top:7,bottom:22};f.line(1,0,1,30);eq(f.pixels[96*0+1],0);eq(f.pixels[96*12+1],1);eq(f.pixels[96*30+1],0)});
 
+
+ // Milestone 24: independent physical key descriptors and structural editing.
+ const KM=global.FX991_KEYS;
+ test('M24 key profiles immutable',()=>{eq(KM.profiles.standard.id,'fx991esplus-2');eq(Object.isFrozen(KM.profiles.c),true)});
+ test('M24 alpha SIN maps D',()=>eq(KM.resolve('standard','SIN','alpha'),'D'));
+ test('M24 alpha parentheses map X Y',()=>{eq(KM.resolve('c','LP','alpha'),'X');eq(KM.resolve('c','RP','alpha'),'Y')});
+ test('M24 shift DEL maps INS',()=>eq(KM.resolve('standard','DEL','shift'),'INS'));
+ test('M24 ALPHA SIN enters D',()=>{let s=K.createState();for(let k of ['ALPHA','SIN'])s=K.dispatchKey(s,k);eq(s.expression,'D');eq(s.alpha,false)});
+ test('M24 ALPHA SIN remains plain token',()=>{let s=K.createState();for(let k of ['ALPHA','SIN'])s=K.dispatchKey(s,k);eq(s.document.root.children[0].kind,'Token')});
+ test('M24 ALPHA parentheses address X Y',()=>{let s=K.createState();for(let k of ['ALPHA','LP','ADD','ALPHA','RP'])s=K.dispatchKey(s,k);eq(s.expression,'X+Y')});
+ test('M24 SHIFT DEL toggles overwrite',()=>{let s=K.createState();for(let k of ['SHIFT','DEL'])s=K.dispatchKey(s,k);eq(s.ui.insertMode,false);eq(s.shift,false)});
+ test('M24 INS toggles to insertion',()=>{let s=K.createState();for(let k of ['INS','INS'])s=K.dispatchKey(s,k);eq(s.ui.insertMode,true)});
+ test('M24 overwrite replaces token',()=>{let s=K.createState();for(let k of ['1','2','3','LEFT','LEFT','INS','9'])s=K.dispatchKey(s,k);eq(s.expression,'193')});
+ test('M24 overwrite appends at end',()=>{let s=K.createState();for(let k of ['1','INS','9'])s=K.dispatchKey(s,k);eq(s.expression,'19')});
+ test('M24 overwrite protects fraction node',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');d=E.exitSlot(d);d=E.move(d,'LEFT');d=E.overwriteToken(d,'5');eq(d.root.children[0].kind,'Fraction')});
+ test('M24 forward deletion removes token',()=>{let d=E.fromSource('123');d=E.move(d,'LEFT');d=E.move(d,'LEFT');d=E.delForward(d);eq(E.serialize(d),'13')});
+ test('M24 forward deletion removes empty root template',()=>{let d=E.template(E.create(),'Root');d=E.exitSlot(d);d.anchor={sequenceId:d.root.id,offset:0};d=E.delForward(d);eq(E.serialize(d),'')});
+ test('M24 forward deletion enters populated template',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');d=E.exitSlot(d);d.anchor={sequenceId:d.root.id,offset:0};let src=E.serialize(d);d=E.delForward(d);eq(E.serialize(d),src);eq(d.anchor.sequenceId,d.root.children[0].numerator.id)});
+ test('M24 forward deletion exits final slot',()=>{let d=E.template(E.create(),'Root');d=E.insertToken(d,'2');d=E.delForward(d);eq(d.anchor.sequenceId,d.root.id);eq(d.anchor.offset,1)});
+ test('M24 controller FDEL leaves source valid',()=>{let s=K.createState();for(let k of ['1','2','3','LEFT','LEFT','FDEL'])s=K.dispatchKey(s,k);eq(s.expression,'13')});
+ test('M24 OVR indicator toggles',()=>{let s=K.createState();if(K.semanticScreen(s).indicators.includes('OVR'))throw Error('unexpected OVR');s=K.dispatchKey(s,'INS');if(!K.semanticScreen(s).indicators.includes('OVR'))throw Error('missing OVR')});
+ test('M24 SHIFT SIN retains inverse trig',()=>{let s=K.createState();for(let k of ['SHIFT','SIN','3','0','RP'])s=K.dispatchKey(s,k);eq(E.serialize(s.document),'asin(30)')});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
