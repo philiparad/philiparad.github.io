@@ -1,9 +1,14 @@
-# Milestone 28 — Session Portability and Optional Recovery
+# Milestone 30 — Release Integration and Browser Smoke QA
 
-An independent browser-only educational scientific calculator. No CASIO firmware or proprietary graphics. Not affiliated with CASIO.
+Independent HTML/CSS/vanilla JavaScript scientific calculator. Not affiliated with CASIO.
 
-**New:** Download and import validated session JSON containing MatA/MatB/MatC, VctA/VctB/VctC, STAT data, exact scalar registers/Ans, setup, expression and history. Browser recovery is opt-in; disabling deletes the stored browser snapshot. Transient editor workflows are not restored.
+Milestone 30 integrates the previous v2 structural-session work with a browser-level smoke test. It adds a browser-only test page at `tests/browser-smoke.html` (actual DOM controls, canvas dimensions, accessible keypad names, expression calculation, mode and model switches, and regression execution) plus long-session restore tests. Session status wording now accurately distinguishes supported resumed editing workflows from cleared calculation caches.
 
-Start `index.html`, or run `tests/acceptance.html`. See `docs/session-persistence.md` for security, format, limitations and recovery policy. Node is optional only for `node tests/run-node.cjs`, never required by the simulator itself.
+## Verify
 
-Physical Casio compatibility remains unverified.
+- Open `tests/acceptance.html` for the complete internal regression suite.
+- Open `tests/browser-smoke.html` **on the same origin** to test the live DOM and calculator controls. The iframe is test-only; it does not opt in to session recovery. Browser checks must be run separately from local Node tests.
+- The optional Node runner `node tests/run-node.cjs` is for development/CI only. The calculator itself has no Node.js runtime or bundler requirement.
+- See `docs/browser-release-integration.md` for limitations and manual coverage.
+
+Security: session imports remain schema-validated and must not execute imported expressions. Hardware/emulator matching has **not** been verified.
