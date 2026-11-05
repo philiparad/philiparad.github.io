@@ -2,6 +2,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+from datetime import datetime, timezone
 
 spec = importlib.util.spec_from_file_location('browser_matrix', Path(__file__).resolve().parents[1]/'browser_matrix.py')
 m = importlib.util.module_from_spec(spec)
@@ -12,7 +13,10 @@ class EvidenceGateTests(unittest.TestCase):
     def sample(self, browser='chromium', status='PASS'):
         agents = {'chromium':'Mozilla/5.0 Chrome/120.0', 'firefox':'Mozilla/5.0 Firefox/120.0',
                   'webkit':'Mozilla/5.0 AppleWebKit/605.1 Safari/605.1'}
-        return {'schema':m.SCHEMA, 'milestone':34, 'userAgent':agents[browser],
+        return {'schema':m.SCHEMA, 'milestone':36, 'userAgent':agents[browser],
+                'generatedAt':'2026-11-05T08:00:00+00:00',
+                'location':'https://example.org/fx991ES/tests/browser-acceptance.html',
+                'summary':f'{18 if status=="PASS" else 0}/18 browser checks passed; {0 if status=="PASS" else 18} failed; 0 blocked',
                 'results':[{'name':name,'status':status} for name in m.EXPECTED_NAMES]}
 
     def test_valid_capture(self):
@@ -73,6 +77,39 @@ class EvidenceGateTests(unittest.TestCase):
         rows=[dict(browser=b,status='PASS',names=list(m.EXPECTED_NAMES)) for b in m.BROWSERS]
         rows[0]['names'][0]='different assertion'
         self.assertFalse(m.aggregate(rows))
+
+    def test_reject_missing_capture_url(self):
+        raw=self.sample();raw.pop('location')
+        with self.assertRaisesRegex(ValueError,'location'):m.check_capture(raw,'chromium')
+
+    def test_reject_invalid_capture_url(self):
+        raw=self.sample();raw['location']='javascript:alert(1)'
+        with self.assertRaisesRegex(ValueError,'page URL'):m.check_capture(raw,'chromium')
+
+    def test_reject_capture_wrong_page(self):
+        raw=self.sample();raw['location']='https://example.org/index.html'
+        with self.assertRaisesRegex(ValueError,'page URL'):m.check_capture(raw,'chromium')
+
+    def test_reject_timestamp_without_timezone(self):
+        raw=self.sample();raw['generatedAt']='2026-11-05T08:00:00'
+        with self.assertRaisesRegex(ValueError,'timestamp'):m.check_capture(raw,'chromium')
+
+    def test_reject_invalid_timestamp(self):
+        raw=self.sample();raw['generatedAt']='not-a-time'
+        with self.assertRaisesRegex(ValueError,'timestamp'):m.check_capture(raw,'chromium')
+
+    def test_reject_falsified_summary(self):
+        raw=self.sample();raw['results'][0]['status']='FAIL'
+        with self.assertRaisesRegex(ValueError,'summary'):m.check_capture(raw,'chromium')
+
+    def test_reject_non_string_diagnostic(self):
+        raw=self.sample();raw['results'][0]['message']={'error':'bad'}
+        with self.assertRaisesRegex(ValueError,'diagnostic'):m.check_capture(raw,'chromium')
+
+    def test_accept_failed_report_with_truthful_summary(self):
+        raw=self.sample(status='FAIL')
+        names,count=m.check_capture(raw,'chromium')
+        self.assertEqual(count,0)
 
     def test_exact_canonical_manifest(self):
         self.assertEqual(len(m.EXPECTED_NAMES),18)
