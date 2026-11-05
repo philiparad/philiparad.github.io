@@ -1,4 +1,4 @@
-name: Cross-browser acceptance — M40
+name: Cross-browser acceptance — M41
 on:
   workflow_dispatch:
   push:
@@ -10,6 +10,8 @@ on:
       - 'index.html'
       - 'tools/**'
       - '.github/workflows/browser-acceptance.yml'
+permissions:
+  contents: read
 jobs:
   browser-matrix:
     runs-on: ubuntu-latest
@@ -37,6 +39,9 @@ jobs:
       - name: Generate a human-readable fail-closed release decision
         if: always()
         run: python tools/release_report.py --evidence browser-evidence --out release-evidence
+      - name: Generate actionable CI diagnostics even if evidence is missing
+        if: always()
+        run: python tools/ci_diagnostics.py --matrix browser-evidence/matrix-run.json --decision release-evidence/release-decision.json --out release-evidence/ci-diagnostics.json
       - name: Verify release report module unit tests
         if: always()
         run: python -m unittest discover -s tools/tests -v
