@@ -143,16 +143,38 @@ function render(){const counts={passed:entries.filter(e=>e.status==='PASS').leng
  $('download').disabled=!entries.length;
 }
 function loadFresh(){return new Promise((resolve,reject)=>{
- const frame=$('fixture'),previous=frame.contentWindow;
- const timeout=setTimeout(()=>{frame.removeEventListener('load',loaded);reject(Error('calculator iframe loading timed out'))},12000);
- function loaded(){clearTimeout(timeout);frame.removeEventListener('load',loaded);const win=frame.contentWindow,doc=frame.contentDocument;
+ // A new element, not only a new URL, ensures the previous test cannot emit a
+ // late load event into this test. The id is retained for layout assertions.
+ const previous=$('fixture');
+ try{previous?.contentWindow?.localStorage?.removeItem('fx991.educational.recovery.opt-in');previous?.contentWindow?.localStorage?.removeItem('fx991.educational.session.v1')}catch(_){/* storage can be denied */}
+ const frame=previous.cloneNode(false);
+ frame.removeAttribute('src');
+ let settled=false;
+ const timer=setTimeout(()=>finish(Error('calculator iframe loading timed out')),12000);
+ function finish(error){
+   if(settled)return;
+   settled=true;clearTimeout(timer);
+   frame.removeEventListener('load',loaded);
+   frame.removeEventListener('error',failed);
+   if(error){frame.src='about:blank';reject(error);return}
+   const win=frame.contentWindow,doc=frame.contentDocument;
    const monitor=win && win.FX991_BOOT_DIAGNOSTICS;
    const errors=monitor && Array.isArray(monitor.errors) ? monitor.errors : ['Bootstrap monitor unavailable'];
-   resolve({win,doc,errors});}
+   resolve({win,doc,errors});
+ }
+ function loaded(){
+   const win=frame.contentWindow,doc=frame.contentDocument;
+   // `load` may also fire for about:blank or an HTTP 404 document.
+   if(!win||!doc||!win.location.pathname.endsWith('/index.html')){
+     finish(Error('calculator iframe did not load index.html'));return;
+   }
+   finish();
+ }
+ function failed(){finish(Error('calculator iframe navigation failed'))}
  frame.addEventListener('load',loaded);
- // Reset local recovery before the *next* page, only within the isolated test iframe.
- try{previous?.localStorage?.removeItem('fx991.educational.recovery.opt-in');previous?.localStorage?.removeItem('fx991.educational.session.v1')}catch(e){}
+ frame.addEventListener('error',failed);
  frame.src='../index.html?browser-acceptance='+encodeURIComponent(String(performance.now()));
+ previous.replaceWith(frame);
 })}
 async function run(){if(running)return;running=true;$('run').disabled=true;entries.length=0;render();
  for(const [name,fn] of tests){let status='PASS',message='';try{
@@ -162,7 +184,7 @@ async function run(){if(running)return;running=true;$('run').disabled=true;entri
    await fn(x);
    await new Promise(resolve=>setTimeout(resolve,0));
    expect(x.errors.length===0,'calculator JavaScript errors during interaction: '+x.errors.join('; '));
- }catch(error){status=/timed out|did not initialize/.test(String(error.message))?'BLOCKED':'FAIL';message=String(error.message)}
+ }catch(error){status=/timed out|did not initialize|iframe did not load|iframe navigation failed/.test(String(error.message))?'BLOCKED':'FAIL';message=String(error.message)}
  entries.push({name,status,message});render()}
  running=false;$('run').disabled=false;
 }
