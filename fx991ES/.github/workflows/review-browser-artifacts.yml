@@ -1,0 +1,68 @@
+name: Review authenticated browser artifacts — M43
+on:
+  workflow_run:
+    workflows: ["Cross-browser acceptance — M42"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "GitHub Actions run ID to inspect"
+        required: true
+        type: string
+      sha:
+        description: "Exact 40-character source commit SHA"
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  review-browser-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the exact tested revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || inputs.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run offline evidence tests
+        run: python -m unittest discover -s tools/tests -v
+      - name: Fetch named browser artifact from GitHub API and review it
+        id: collect
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.sha }}
+        run: |
+          python tools/actions_run_collector.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id "$RUN_ID" \
+            --sha "$SOURCE_SHA" \
+            --out release-evidence/github-actions
+      - name: Upload diagnostics even if browser qualification is blocked
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-browser-review-${{ github.run_id }}
+          path: release-evidence/github-actions/
+          if-no-files-found: warn
+      - name: Reject unqualified browser evidence
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path=Path('release-evidence/github-actions/github-evidence.json')
+          if not path.is_file():
+              raise SystemExit('BLOCKED: GitHub browser evidence report was not generated')
+          report=json.loads(path.read_text(encoding='utf-8'))
+          if not report.get('browserQualified'):
+              raise SystemExit('BLOCKED: verified browser evidence is incomplete or failed')
+          print('BROWSER QUALIFIED: all three engines passed the matching build')
+          PY
