@@ -1,6 +1,6 @@
 (function(){'use strict';
 const K=window.FX991,$=id=>document.getElementById(id);
-const SESSION=window.FX991_SESSION;let localStore=null;try{localStore=window.localStorage}catch(e){}let state=SESSION.recover(localStore)||K.createState('standard');const E=window.FX991_EDITOR;let lastAnnouncement='';
+const SESSION=window.FX991_SESSION;const smokeMode=new URLSearchParams(location.search).has('smoke');let localStore=null;try{localStore=smokeMode?null:window.localStorage}catch(e){}const recovered=SESSION.recover(localStore);let state=recovered||K.createState('standard');const E=window.FX991_EDITOR;let lastAnnouncement='';
 const keyrows=[
 [['SHIFT','gold'],['ALPHA','gold'],['LEFT','dark'],['UP','dark'],['DOWN','dark'],['RIGHT','dark']],
 [['MODE','dark','SETUP'],['ON','orange'],['RCL','dark'],['STO','dark'],['DEL','orange','INS'],['AC','orange','OFF']],
@@ -71,11 +71,11 @@ registerConfirm.setAttribute('aria-label','Confirm selected register');
 registerConfirm.onclick=()=>keyEvent($('register').value);
 $('register').closest('.panel').querySelector('.actions').append(registerConfirm);
 document.addEventListener('keydown',e=>{if(state.view==='register-prompt'&&/^[A-FMXY]$/i.test(e.key)&&!e.ctrlKey&&!e.altKey){e.preventDefault();keyEvent(e.key.toUpperCase())}});
-// Milestone 28: recovery is strictly opt-in. Imports are validated before changing state.
-$('session-recovery').checked=SESSION.enabled(localStore);
+// Milestone 29: recovery is strictly opt-in. Imports are validated before changing state.
+$('session-recovery').checked=SESSION.enabled(localStore);if(recovered)$('session-status').textContent='Recovered '+recovered.mode+' session from this browser; active editing workflows are preserved when valid.';
 $('session-recovery').onchange=e=>{const on=e.target.checked;if(!SESSION.enable(localStore,on)){e.target.checked=!on;$('session-status').textContent='Browser storage is unavailable.';return}if(on)SESSION.store(localStore,state);$('session-status').textContent=on?'Recovery enabled for this browser.':'Recovery disabled; saved session cleared.'};
 $('session-export').onclick=()=>{try{download('fx991-session.json',SESSION.exportJSON(state),'application/json');$('session-status').textContent='Session exported.'}catch(e){$('session-status').textContent=e.message}};
-$('session-import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{if(f.size>90000)throw Error('Session file exceeds 90 KB');const restored=SESSION.importJSON(await f.text());state=restored;render();announce('Session imported');$('session-status').textContent='Session restored in edit mode. Transient workflow state was discarded.'}catch(err){$('session-status').textContent='Import rejected: '+err.message}finally{e.target.value=''}};
+$('session-import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{if(f.size>90000)throw Error('Session file exceeds 90 KB');const restored=SESSION.importJSON(await f.text());state=restored;render();announce('Session imported');$('session-status').textContent=restored.view==='edit'?'Session restored. Results and temporary modifiers were cleared.':'Session restored with active '+restored.mode+' editing workflow.'}catch(err){$('session-status').textContent='Import rejected: '+err.message}finally{e.target.value=''}};
 $('session-clear').onclick=()=>{SESSION.clear(localStore);$('session-status').textContent='Saved recovery data cleared (current calculator unchanged).'};
 showNumericalFields();
 $('a11y-audit').onclick=()=>{const r=window.FX991_DIFFERENTIAL.auditAccessibility(document);$('a11y-audit-result').textContent=r.controls+' controls checked; '+r.keyLabels+' calculator keys named; '+r.issues.length+' issues: '+r.issues.map(i=>i.type+(i.label?' ('+i.label+')':'')).join(', ');};
