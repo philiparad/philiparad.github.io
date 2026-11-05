@@ -252,6 +252,25 @@ test('M17 comparison has observed source separation',()=>{let c=REF.makeObservat
 test('M17 replay caps key sequences',()=>{try{DIFF.replay('standard',Array(501).fill('1'));throw Error('accepted')}catch(e){if(!e.message.includes('invalid key events'))throw e}});
 test('M17 frame hash deterministic through state traces',()=>{let a=DIFF.replay('c',['MODE','DOWN','DOWN','1']);let b=DIFF.replay('c',['MODE','DOWN','DOWN','1']);eq(a.final.frameHash,b.final.frameHash)});
 
+// Milestone 18 — release hardening and export safety.
+const REL=global.FX991_RELEASE;
+test('M18 asset inventory local',()=>{if(REL.EXPECTED_ASSETS.length<15||REL.EXPECTED_ASSETS.some(x=>x.includes('://')))throw Error('external dependency')});
+test('M18 normal expression allowed',()=>eq(REL.inspectInput('sqrt(8)+1/3').ok,true));
+test('M18 reject invalid input type',()=>eq(REL.inspectInput(8).reason,'not-a-string'));
+test('M18 reject control chars',()=>eq(REL.inspectInput('1\u0000+2').reason,'control-character'));
+test('M18 reject oversized input',()=>eq(REL.inspectInput('x'.repeat(100001)).reason,'too-long'));
+test('M18 length limit inclusive',()=>eq(REL.inspectInput('x'.repeat(100000)).ok,true));
+test('M18 CSV protect equals',()=>{if(!REL.csvSafe('=1+1').startsWith("'"))throw Error('formula')});
+test('M18 CSV protect plus',()=>eq(REL.csvSafe('+1+2'),"'+1+2"));
+test('M18 CSV protect @',()=>eq(REL.csvSafe('@SUM(A1:A3)'),"'@SUM(A1:A3)"));
+test('M18 CSV delimiter',()=>eq(REL.csvSafe('a,b'),'"a,b"'));
+test('M18 CSV quote',()=>eq(REL.csvSafe('x"y'),'"x""y"'));
+test('M18 leading whitespace formula',()=>{if(!REL.csvSafe('  =1+1').startsWith("'"))throw Error('formula')});
+test('M18 differential CSV protects formula',()=>{let data=DIFF.toCSV({results:[{passed:false,caseId:'=1+1',sourceKind:'manual',firstDivergence:{step:1,failures:[{field:'result',expected:'@foo',actual:'bar'}]}}]});if(!data.includes("'=1+1")||!data.includes("'@foo"))throw Error('CSV unsafe')});
+test('M18 API frozen',()=>eq(Object.isFrozen(REL),true));
+test('M18 COMP regression',()=>{let s=K.createState();for(let key of ['2','ADD','3','='])s=K.dispatchKey(s,key);eq(s.result,'5')});
+test('M18 LCD 2976 pixels',()=>eq(K.rasterizeScreen(K.semanticScreen(K.createState())).length,2976));
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
