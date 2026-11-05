@@ -1,4 +1,4 @@
-# Milestone 33 — Automated Browser Release Integration
+# Milestone 34 — Automated Browser Release Integration
 
 Independent HTML/CSS/vanilla JavaScript scientific calculator. Not affiliated with CASIO.
 
@@ -27,6 +27,11 @@ New: `tests/browser-acceptance.html` runs 12 actual DOM/browser assertions and e
 - Run `tests/acceptance.html` for JavaScript regression tests. `node tests/run-node.cjs` is an optional developer runner, not a browser dependency.
 
 
-## Milestone 33
+## Milestone 34
 
 The project includes a Python Playwright runner for Chromium/Firefox/WebKit (CI only, not calculator runtime), a GitHub Actions workflow, and `tests/release-readiness.html`. Browser reports are only claimed when runs execute successfully. See `docs/release-integration-m33.md`. Previous 474 internal tests are preserved.
+
+
+## Milestone 34 — browser release stabilization
+
+The automated browser matrix validates all 18 individual browser checks, records browser errors, and rejects incomplete or mismatched Chromium/Firefox/WebKit evidence. CI also runs 9 offline evidence-gate tests. See [browser stabilization methodology](docs/browser-stabilization-m34.md). Local browser navigation is blocked by the execution environment; do not interpret JavaScript regression success as browser acceptance.
