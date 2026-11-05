@@ -54,7 +54,12 @@ const tests=[
    expect(x.doc.querySelector('#session-export')&&x.doc.querySelector('#session-import'),'session UI absent');
  }],
  ['Browser viewport has no horizontal page overflow at narrow width',async x=>{
-   const root=x.doc.documentElement;expect(root.scrollWidth<=root.clientWidth+2,'horizontal page overflow');
+   const frame=$('fixture'), oldWidth=frame.style.width;
+   try { frame.style.width='375px'; await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+     const root=x.doc.documentElement;
+     expect(root.clientWidth<=380,'narrow viewport was not applied');
+     expect(root.scrollWidth<=root.clientWidth+2,`horizontal page overflow: ${root.scrollWidth} > ${root.clientWidth}`);
+   } finally { frame.style.width=oldWidth; }
  }],
  ['Visible input and selectors have programmatic labels',async x=>{
    const controls=[...x.doc.querySelectorAll('input:not([type=hidden]),select')].filter(el=>!el.disabled);
