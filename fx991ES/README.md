@@ -1,3 +1,22 @@
+# Milestone 41 — CI Diagnostics and Browser Qualification
+
+**Status:** Local source/tests validated; browser release qualification blocked until real Chromium, Firefox and WebKit evidence exists. No physical Casio equivalence is certified.
+
+Milestone 41 adds `tools/ci_diagnostics.py` and 12 fail-closed diagnostics unit tests. The CI workflow generates `release-evidence/ci-diagnostics.json` and `.html` even when the browser matrix fails or is missing. It identifies the failed browser, phase, and actionable next step without fabricating browser passes.
+
+Run from the repository root:
+
+```sh
+node tests/run-node.cjs
+python -m unittest discover -s tools/tests -v
+python tools/release_gate.py verify
+python tools/ci_diagnostics.py --matrix browser-evidence/matrix-run.json --decision release-evidence/release-decision.json --out release-evidence/ci-diagnostics.json
+```
+
+The last command exits nonzero until real browser evidence and release approval are available, but still writes JSON and HTML diagnosis files. See `docs/ci-diagnostics-m41.md`.
+
+---
+
 # Milestone 39 — Production Release Candidate Quality Gate
 
 Independent HTML/CSS/vanilla JavaScript scientific calculator. Not affiliated with CASIO.
