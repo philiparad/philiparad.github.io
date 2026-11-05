@@ -1,9 +1,13 @@
-# Milestone 28 — Session portability and optional recovery
+# Milestone 29 — Session v2 and interrupted workflow restoration
 
-The calculator now supports manual JSON download/upload of a **version 1** session envelope. It preserves the selected model/mode, angle and display settings, scalar register values and Ans, MatA/MatB/MatC, VctA/VctB/VctC, STAT rows and kind, expression, and up to 50 history entries.
+The browser-only calculator exports/imports version 2 JSON sessions. Supported data include exact typed scalar values, Ans, angle/display setup, registers MatA/MatB/MatC and VctA/VctB/VctC, statistical rows, expression/history, nested mathematical document nodes and the semantic caret anchor.
 
-Recovery uses `localStorage` **only after the user enables it**. Disabling clears the saved snapshot. Browser private mode, quotas, or disabled storage can prevent recovery; import/export remain available. Sessions are local to the browser and are not synchronized to GitHub or any server.
+**Version 1 compatibility:** older M28 session files continue to import. Because v1 lacked document structure, v1 restores expressions as source tokens in safe editing mode.
 
-Validation rejects malformed JSON, unknown schema revisions, nonfinite numeric entries, inconsistent matrix sizes, invalid rational denominators, oversized data, forbidden property names, unsupported modes and unsupported numeric types. Imported sessions never evaluate imported strings or JavaScript. The UI returns safely to **edit mode**, clearing transient workflows, unsaved editor templates, calculated result caches, and active prompts; no automatic calculation takes place.
+**Validated workflow recovery:** v2 can resume mode-specific register-menu/editor/summary/operation screens, STAT grid editing, and configured coefficient/function wizards for EQN, MATRIX, VECTOR, STAT and TABLE. Missing or invalid transient source workflows export as null and reload to ordinary edit mode. Importing an invalid **stored** workflow fails validation rather than silently accepting attacker-controlled input.
 
-**Limitations:** exact nested template document structure is reconstructed from source characters rather than guaranteed pixel-perfect structural editing context. `lastValue` and numerical transient state are not restored. JSON is portable but not encrypted; avoid importing untrusted or confidential files. Local recovery may be cleared by browser privacy controls. This is not a firmware memory-card emulation or a claim of CASIO memory parity.
+**Validation:** Every document node is checked against a strict allowlist, bounded by 620 nodes and nesting depth 20, with unique safe IDs, valid Sequence slots, a valid sequence-offset caret, and exact matching serialized source text. Numeric register dimensions and buffer sizes are checked. Wizard field definitions are reconstructed from a fixed catalog and checked against model restrictions; imported strings are never evaluated as JavaScript. Node IDs advance after restoration to prevent new edits from colliding with imported IDs.
+
+**Privacy:** Automatic recovery uses `localStorage` only when explicitly enabled and can be cleared or disabled; local JSON is neither encrypted nor synchronized. Browser private mode, storage quotas or blocked storage may prevent recovery.
+
+**Limits:** Cached calculation results, computed numerical transient objects, error screens, SHIFT/ALPHA, precise LCD scroll offsets, and non-catalog custom flows are not restored; import does not execute formulas. Physical CASIO memory and keyboard parity have not been validated.
