@@ -32,7 +32,15 @@ function move(original,direction){let d=clone(original),f=locate(d.root,d.anchor
   if(at<s.children.length){let child=s.children[at],sub=slots(child);if(sub.length)d.anchor={sequenceId:sub[0][1].id,offset:0};else d.anchor.offset++}
   else if(f.parents.length){let p=f.parents[f.parents.length-1],ss=slots(p.node),ix=ss.findIndex(x=>x[0]===p.slot);if(ix<ss.length-1)d.anchor={sequenceId:ss[ix+1][1].id,offset:0};else d.anchor={sequenceId:p.sequence.id,offset:p.index+1}}
  }else if(direction==='DOWN'||direction==='UP'){
-  if(f.parents.length){let p=f.parents[f.parents.length-1],ss=slots(p.node),ix=ss.findIndex(x=>x[0]===p.slot),other=direction==='DOWN'?ix+1:ix-1;if(other>=0&&other<ss.length){let target=ss[other][1];d.anchor={sequenceId:target.id,offset:Math.min(at,target.children.length)}}}
+  // Search outward for a spatially adjacent slot. A caret inside a nested
+  // function in a numerator can still move to the parent denominator.
+  for(let depth=f.parents.length-1;depth>=0;depth--){
+   let p=f.parents[depth],ss=slots(p.node),ix=ss.findIndex(x=>x[0]===p.slot);
+   let other=direction==='DOWN'?ix+1:ix-1;
+   if(other>=0&&other<ss.length){let target=ss[other][1];
+    d.anchor={sequenceId:target.id,offset:Math.min(at,target.children.length)};break;
+   }
+  }
  }
  return normalize(d)}
 function exitSlot(original){
