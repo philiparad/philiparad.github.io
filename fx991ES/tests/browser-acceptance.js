@@ -5,6 +5,7 @@ const $=id=>document.getElementById(id);
 const tests=[
  ['Calculator boots without JavaScript exceptions', async x=>{
    expect(x.doc.querySelector('#semantic').textContent.includes('Mode: COMP'),'COMP did not load');
+   expect(x.win.FX991_BOOT_DIAGNOSTICS && Array.isArray(x.win.FX991_BOOT_DIAGNOSTICS.errors),'bootstrap error monitor missing');
    expect(x.errors.length===0,'page errors: '+x.errors.join('; '));
  }],
  ['Keypad controls are accessible and keyboard focusable',async x=>{
@@ -101,7 +102,10 @@ function render(){const counts={passed:entries.filter(e=>e.status==='PASS').leng
 function loadFresh(){return new Promise((resolve,reject)=>{
  const frame=$('fixture'),previous=frame.contentWindow;
  const timeout=setTimeout(()=>{frame.removeEventListener('load',loaded);reject(Error('calculator iframe loading timed out'))},12000);
- function loaded(){clearTimeout(timeout);frame.removeEventListener('load',loaded);const win=frame.contentWindow,doc=frame.contentDocument;resolve({win,doc,errors:[]})}
+ function loaded(){clearTimeout(timeout);frame.removeEventListener('load',loaded);const win=frame.contentWindow,doc=frame.contentDocument;
+   const monitor=win && win.FX991_BOOT_DIAGNOSTICS;
+   const errors=monitor && Array.isArray(monitor.errors) ? monitor.errors : ['Bootstrap monitor unavailable'];
+   resolve({win,doc,errors});}
  frame.addEventListener('load',loaded);
  // Reset local recovery before the *next* page, only within the isolated test iframe.
  try{previous?.localStorage?.removeItem('fx991.educational.recovery.opt-in');previous?.localStorage?.removeItem('fx991.educational.session.v1')}catch(e){}
