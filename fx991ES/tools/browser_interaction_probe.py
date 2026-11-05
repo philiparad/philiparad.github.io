@@ -236,12 +236,20 @@ def main(argv=None):
         thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
         url=f'http://127.0.0.1:{server.server_address[1]}/index.html'
         try:
-            from playwright.sync_api import sync_playwright
-            with sync_playwright() as pw:
+            try:
+                from playwright.sync_api import sync_playwright
+            except ImportError as exc:
                 for name in args.browsers:
-                    result=run_browser(pw,name,url,out,args.chromium_executable)
-                    results.append(result)
-                    print(name+': '+result['status']+' — '+result['detail'],flush=True)
+                    record = {'browser':name, 'status':'BLOCKED', 'stage':'launch',
+                              'checks':[], 'detail':'Playwright dependency unavailable: '+str(exc)[:400]}
+                    results.append(record)
+                    print(name+': BLOCKED — '+record['detail'], flush=True)
+            else:
+                with sync_playwright() as pw:
+                    for name in args.browsers:
+                        result=run_browser(pw,name,url,out,args.chromium_executable)
+                        results.append(result)
+                        print(name+': '+result['status']+' — '+result['detail'],flush=True)
         finally:
             server.shutdown();thread.join(timeout=2)
     report={'schema':'fx991-interaction-probe','milestone':51,
