@@ -366,53 +366,69 @@ test('M23 nested vertical navigation does not change source',()=>{let d=E.templa
 test('M23 vertically scrolled frame deterministic',()=>{let d=E.create();for(let i=0;i<3;i++){d=E.template(d,'Fraction');d=E.move(d,'DOWN')}let s=K.semanticScreen(K.createState());s.document=d;let a=L.rasterizeScreen(s),b=L.rasterizeScreen(s);eq(K.frameHash(a),K.frameHash(b))});
 test('M23 clipping preserves pixel bounds',()=>{let f=new L.Framebuffer();f.clip={left:0,right:96,top:7,bottom:22};f.line(1,0,1,30);eq(f.pixels[96*0+1],0);eq(f.pixels[96*12+1],1);eq(f.pixels[96*30+1],0)});
 
-
- // Milestone 24: independent physical key descriptors and structural editing.
- const KM=global.FX991_KEYS;
- test('M24 key profiles immutable',()=>{eq(KM.profiles.standard.id,'fx991esplus-2');eq(Object.isFrozen(KM.profiles.c),true)});
- test('M24 alpha SIN maps D',()=>eq(KM.resolve('standard','SIN','alpha'),'D'));
- test('M24 alpha parentheses map X Y',()=>{eq(KM.resolve('c','LP','alpha'),'X');eq(KM.resolve('c','RP','alpha'),'Y')});
- test('M24 shift DEL maps INS',()=>eq(KM.resolve('standard','DEL','shift'),'INS'));
- test('M24 ALPHA SIN enters D',()=>{let s=K.createState();for(let k of ['ALPHA','SIN'])s=K.dispatchKey(s,k);eq(s.expression,'D');eq(s.alpha,false)});
- test('M24 ALPHA SIN remains plain token',()=>{let s=K.createState();for(let k of ['ALPHA','SIN'])s=K.dispatchKey(s,k);eq(s.document.root.children[0].kind,'Token')});
- test('M24 ALPHA parentheses address X Y',()=>{let s=K.createState();for(let k of ['ALPHA','LP','ADD','ALPHA','RP'])s=K.dispatchKey(s,k);eq(s.expression,'X+Y')});
- test('M24 SHIFT DEL toggles overwrite',()=>{let s=K.createState();for(let k of ['SHIFT','DEL'])s=K.dispatchKey(s,k);eq(s.ui.insertMode,false);eq(s.shift,false)});
- test('M24 INS toggles to insertion',()=>{let s=K.createState();for(let k of ['INS','INS'])s=K.dispatchKey(s,k);eq(s.ui.insertMode,true)});
- test('M24 overwrite replaces token',()=>{let s=K.createState();for(let k of ['1','2','3','LEFT','LEFT','INS','9'])s=K.dispatchKey(s,k);eq(s.expression,'193')});
- test('M24 overwrite appends at end',()=>{let s=K.createState();for(let k of ['1','INS','9'])s=K.dispatchKey(s,k);eq(s.expression,'19')});
- test('M24 overwrite protects fraction node',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');d=E.exitSlot(d);d=E.move(d,'LEFT');d=E.overwriteToken(d,'5');eq(d.root.children[0].kind,'Fraction')});
- test('M24 forward deletion removes token',()=>{let d=E.fromSource('123');d=E.move(d,'LEFT');d=E.move(d,'LEFT');d=E.delForward(d);eq(E.serialize(d),'13')});
- test('M24 forward deletion removes empty root template',()=>{let d=E.template(E.create(),'Root');d=E.exitSlot(d);d.anchor={sequenceId:d.root.id,offset:0};d=E.delForward(d);eq(E.serialize(d),'')});
- test('M24 forward deletion enters populated template',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');d=E.exitSlot(d);d.anchor={sequenceId:d.root.id,offset:0};let src=E.serialize(d);d=E.delForward(d);eq(E.serialize(d),src);eq(d.anchor.sequenceId,d.root.children[0].numerator.id)});
- test('M24 forward deletion exits final slot',()=>{let d=E.template(E.create(),'Root');d=E.insertToken(d,'2');d=E.delForward(d);eq(d.anchor.sequenceId,d.root.id);eq(d.anchor.offset,1)});
- test('M24 controller FDEL leaves source valid',()=>{let s=K.createState();for(let k of ['1','2','3','LEFT','LEFT','FDEL'])s=K.dispatchKey(s,k);eq(s.expression,'13')});
- test('M24 OVR indicator toggles',()=>{let s=K.createState();if(K.semanticScreen(s).indicators.includes('OVR'))throw Error('unexpected OVR');s=K.dispatchKey(s,'INS');if(!K.semanticScreen(s).indicators.includes('OVR'))throw Error('missing OVR')});
- test('M24 SHIFT SIN retains inverse trig',()=>{let s=K.createState();for(let k of ['SHIFT','SIN','3','0','RP'])s=K.dispatchKey(s,k);eq(E.serialize(s.document),'asin(30)')});
-
+// Milestone 24: physical-key resolution, insert/overwrite and structural deletion.
+const KM=global.FX991_KEYS;
+test('M24 key profiles explicit and immutable',()=>{eq(KM.profiles.standard.id,'fx991esplus-2');eq(Object.isFrozen(KM.profiles.c),true)});
+test('M24 ALPHA SIN resolves D',()=>eq(KM.resolve('standard','SIN','alpha'),'D'));
+test('M24 ALPHA parenthesis resolves X Y',()=>{eq(KM.resolve('c','LP','alpha'),'X');eq(KM.resolve('c','RP','alpha'),'Y')});
+test('M24 SHIFT DEL resolves INS',()=>eq(KM.resolve('standard','DEL','shift'),'INS'));
+test('M24 physical ALPHA SIN inserts D',()=>{let s=K.createState();for(let k of ['ALPHA','SIN'])s=K.dispatchKey(s,k);eq(s.expression,'D');eq(s.alpha,false)});
+test('M24 ALPHA SIN does not insert trig template',()=>{let s=K.createState();for(let k of ['ALPHA','SIN'])s=K.dispatchKey(s,k);eq(s.document.root.children[0].kind,'Token')});
+test('M24 ALPHA parentheses address X and Y',()=>{let s=K.createState();for(let k of ['ALPHA','LP','ADD','ALPHA','RP'])s=K.dispatchKey(s,k);eq(s.expression,'X+Y')});
+test('M24 SHIFT DEL toggles overwrite',()=>{let s=K.createState();for(let k of ['SHIFT','DEL'])s=K.dispatchKey(s,k);eq(s.ui.insertMode,false);eq(s.shift,false)});
+test('M24 INS toggles back to insertion',()=>{let s=K.createState();for(let k of ['INS','INS'])s=K.dispatchKey(s,k);eq(s.ui.insertMode,true)});
+test('M24 overwrite replaces token without shortening rest',()=>{let s=K.createState();for(let k of ['1','2','3','LEFT','LEFT','INS','9'])s=K.dispatchKey(s,k);eq(s.expression,'193')});
+test('M24 overwrite at end appends',()=>{let s=K.createState();for(let k of ['1','INS','9'])s=K.dispatchKey(s,k);eq(s.expression,'19')});
+test('M24 overwrite does not destroy fraction node',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');d=E.exitSlot(d);d=E.move(d,'LEFT');let before=d.root.children[0].kind;d=E.overwriteToken(d,'5');eq(before,'Fraction');eq(d.root.children[0].kind,'Fraction')});
+test('M24 forward delete removes token',()=>{let d=E.fromSource('123');d=E.move(d,'LEFT');d=E.move(d,'LEFT');d=E.delForward(d);eq(E.serialize(d),'13')});
+test('M24 forward delete empty template atomically',()=>{let d=E.template(E.create(),'Root');d=E.exitSlot(d);d.anchor={sequenceId:d.root.id,offset:0};d=E.delForward(d);eq(E.serialize(d),'')});
+test('M24 forward delete enters nonempty template',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'2');d=E.exitSlot(d);d.anchor={sequenceId:d.root.id,offset:0};let src=E.serialize(d);d=E.delForward(d);eq(E.serialize(d),src);eq(d.anchor.sequenceId,d.root.children[0].numerator.id)});
+test('M24 forward delete at final slot exits template',()=>{let d=E.template(E.create(),'Root');d=E.insertToken(d,'2');d=E.delForward(d);eq(d.anchor.sequenceId,d.root.id);eq(d.anchor.offset,1)});
+test('M24 controller FDEL preserves structured source',()=>{let s=K.createState();for(let k of ['1','2','3','LEFT','LEFT','FDEL'])s=K.dispatchKey(s,k);eq(s.expression,'13')});
+test('M24 overwrite indicator only when enabled',()=>{let s=K.createState();if(K.semanticScreen(s).indicators.includes('OVR'))throw Error('bad indicator');s=K.dispatchKey(s,'INS');if(!K.semanticScreen(s).indicators.includes('OVR'))throw Error('no indicator')});
+test('M24 modifier mapping preserves inverse trig',()=>{let s=K.createState();for(let k of ['SHIFT','SIN','3','0','RP'])s=K.dispatchKey(s,k);eq(E.serialize(s.document),'asin(30)')});
 
 
-// Milestone 25 — mode-aware keypad sequences and modifiers.
+// Milestone 25 — mode-aware keypad and full-sequence workflows.
 test('M25 model profiles include BASE-N legends',()=>{eq(KM.resolve('standard','SIN','none','BASE-N'),'D');eq(KM.resolve('c','NEG','none','BASE-N'),'A')});
-test('M25 SHIFT SQ cube legend',()=>eq(KM.resolve('standard','SQ','shift'),'CUBE'));
-test('M25 key legend is immutable',()=>{let x=KM.keyLegend('standard','SIN');eq(Object.isFrozen(x),true);eq(x.alpha,'D');eq(x.shift,'ASIN')});
+test('M25 standard SHIFT SQ cube legend',()=>eq(KM.resolve('standard','SQ','shift'),'CUBE'));
+test('M25 model key legend is immutable',()=>{let x=KM.keyLegend('standard','SIN','COMP');eq(Object.isFrozen(x),true);eq(x.alpha,'D');eq(x.shift,'ASIN')});
 test('M25 SHIFT SQ inserts cube exponent',()=>{let s=K.createState();for(let k of ['2','SHIFT','SQ'])s=K.dispatchKey(s,k);eq(s.expression,'2^3');eq(s.shift,false)});
-test('M25 SHIFT SQ evaluates cube',()=>{let s=K.createState();for(let k of ['2','SHIFT','SQ','='])s=K.dispatchKey(s,k);eq(s.result,'8')});
-test('M25 SHIFT LOG creates ten-power template',()=>{let s=K.createState();for(let k of ['SHIFT','LOG','2','RP'])s=K.dispatchKey(s,k);eq(s.expression,'10^(2)')});
-test('M25 SHIFT LN evaluates exp zero',()=>{let s=K.createState();for(let k of ['SHIFT','LN','0','RP','='])s=K.dispatchKey(s,k);eq(s.result,'1')});
-test('M25 SHIFT clears after cube',()=>{let s=K.createState();for(let k of ['SHIFT','SQ'])s=K.dispatchKey(s,k);eq(s.shift,false);eq(s.alpha,false)});
-test('M25 BASE-N BIN key',()=>{let s=K.createState();for(let k of ['MODE','4','LOG'])s=K.dispatchKey(s,k);eq(s.expression,'BIN:')});
-test('M25 BASE-N HEX key',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:')});
-test('M25 hexadecimal F key',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','1','TAN'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:1F')});
-test('M25 HEX addition by keys',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','1','TAN','ADD','1','='])s=K.dispatchKey(s,k);eq(s.result,'00000020')});
-test('M25 radix selector replaces old prefix',()=>{let s=K.createState();for(let k of ['MODE','4','LOG','1','0','RECIP'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:10')});
-test('M25 BASE-N SIN COS enter D E',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','SIN','COS'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:DE')});
-test('M25 COMP SIN is structural',()=>{let s=K.createState();s=K.dispatchKey(s,'SIN');eq(s.document.root.children[0].kind,'Function')});
-test('M25 RCL prompt opens',()=>{let s=K.createState();s=K.dispatchKey(s,'RCL_MENU');eq(s.view,'register-prompt');eq(s.ui.pending,'RCL')});
-test('M25 RCL prompt cancels',()=>{let s=K.createState();for(let k of ['RCL_MENU','AC'])s=K.dispatchKey(s,k);eq(s.view,'edit');eq(s.ui.pending,null)});
-test('M25 SHIFT RCL stores typed register',()=>{let s=K.createState();for(let k of ['7','=','SHIFT','RCL','A','AC','RCL_MENU','A'])s=K.dispatchKey(s,k);eq(s.expression,'A');eq(K.valueToString(s.memory.A),'7')});
-test('M25 DEG setup inverse sine',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','SHIFT','SIN','0','.','5','RP','='])s=K.dispatchKey(s,k);eq(s.result,'30')});
-test('M25 C mode third menu page',()=>{let s=K.createState('c');for(let k of ['MODE','DOWN','DOWN','1'])s=K.dispatchKey(s,k);eq(s.mode,'INEQ')});
-test('M25 exponent template after result',()=>{let s=K.createState();for(let k of ['3','=','SHIFT','LN'])s=K.dispatchKey(s,k);eq(s.expression,'exp()')});
+test('M25 SHIFT SQ executes cube',()=>{let s=K.createState();for(let k of ['2','SHIFT','SQ','='])s=K.dispatchKey(s,k);eq(s.result,'8')});
+test('M25 SHIFT LOG inserts ten power prefix',()=>{let s=K.createState();for(let k of ['SHIFT','LOG','2','RP'])s=K.dispatchKey(s,k);eq(s.expression,'10^(2)')});
+test('M25 SHIFT LN inserts exponential function',()=>{let s=K.createState();for(let k of ['SHIFT','LN','0','RP','='])s=K.dispatchKey(s,k);eq(s.result,'1')});
+test('M25 SHIFT remains one-shot after cube',()=>{let s=K.createState();for(let k of ['SHIFT','SQ'])s=K.dispatchKey(s,k);eq(s.shift,false);eq(s.alpha,false)});
+test('M25 BASE-N BIN selector on LOG',()=>{let s=K.createState();for(let k of ['MODE','4','LOG'])s=K.dispatchKey(s,k);eq(s.expression,'BIN:')});
+test('M25 BASE-N HEX selector on RECIP',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:')});
+test('M25 BASE-N HEX letters through function keys',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','1','TAN'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:1F')});
+test('M25 BASE-N calculate hexadecimal addition',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','1','TAN','ADD','1','='])s=K.dispatchKey(s,k);eq(s.result,'00000020')});
+test('M25 BASE-N mode edit selector swaps radix without duplicating',()=>{let s=K.createState();for(let k of ['MODE','4','LOG','1','0','RECIP'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:10')});
+test('M25 BASE-N letters do not trigger templates',()=>{let s=K.createState();for(let k of ['MODE','4','RECIP','SIN','COS'])s=K.dispatchKey(s,k);eq(s.expression,'HEX:DE')});
+test('M25 COMP SIN still creates structural template',()=>{let s=K.createState();s=K.dispatchKey(s,'SIN');eq(s.document.root.children[0].kind,'Function')});
+test('M25 normal RCL enters register prompt',()=>{let s=K.createState();s=K.dispatchKey(s,'RCL_MENU');eq(s.view,'register-prompt');eq(s.ui.pending,'RCL')});
+test('M25 RCL prompt cancelled by AC',()=>{let s=K.createState();for(let k of ['RCL_MENU','AC'])s=K.dispatchKey(s,k);eq(s.view,'edit');eq(s.ui.pending,null)});
+test('M25 SHIFT RCL stores then RCL recalls',()=>{let s=K.createState();for(let k of ['7','=','SHIFT','RCL','A','AC','RCL_MENU','A'])s=K.dispatchKey(s,k);eq(s.expression,'A');eq(K.valueToString(s.memory.A),'7')});
+test('M25 DEG through SETUP and inverse SIN',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','SHIFT','SIN','0','.','5','RP','='])s=K.dispatchKey(s,k);eq(s.result,'30')});
+test('M25 C mode menu has second and third pages',()=>{let s=K.createState('c');for(let k of ['MODE','DOWN','DOWN','1'])s=K.dispatchKey(s,k);eq(s.mode,'INEQ')});
+test('M25 editing after power result appends correctly',()=>{let s=K.createState();for(let k of ['3','='])s=K.dispatchKey(s,k);s=K.dispatchKey(s,'SHIFT');s=K.dispatchKey(s,'LN');eq(s.expression,'exp()')});
+// Milestone 26 — end-to-end keypad mode-data workflow acceptance.
+function m26(model,events){let s=K.createState(model);for(const key of events)s=K.dispatchKey(s,key);return s}
+function m26Mode(model,page,digit,op){return m26(model,['MODE',...Array(page).fill('DOWN'),String(digit),String(op)])}
+function m26Fields(s,values){for(const value of values){for(const c of String(value)){s=K.dispatchKey(s,c==='-'?'NEG':c)}s=K.dispatchKey(s,'=')}return s}
+test('M26 MATRIX inverse 2x2 keypad workflow',()=>{let s=m26Mode('standard',1,2,3);s=m26Fields(s,[1,2,3,4]);eq(s.view,'result');if(!s.expression.startsWith('INV:')||!s.result.includes('-2'))throw Error(s.result)});
+test('M26 MATRIX transpose 2x2 keypad workflow',()=>{let s=m26Mode('standard',1,2,4);s=m26Fields(s,[1,2,3,4]);eq(s.view,'result');eq(s.expression,'TRANS:1,2;3,4')});
+test('M26 MATRIX multiplication 2x2 supports second menu page',()=>{let s=m26Mode('standard',1,2,1);s=K.dispatchKey(s,'AC');s=m26('standard',['MODE','DOWN','2','DOWN','1']);eq(s.view,'coefficient');eq(s.ui.wizard.kind,'MUL2');s=m26Fields(s,[1,2,3,4,5,6,7,8]);eq(s.view,'result');if(!s.result.includes('19'))throw Error(s.result)});
+test('M26 VECTOR 2D addition via keypad',()=>{let s=m26Mode('standard',1,4,4);s=m26Fields(s,[1,2,3,4]);eq(s.view,'result');eq(s.expression,'ADD:1,2|3,4')});
+test('M26 VECTOR angle via keypad',()=>{let s=m26Mode('standard',1,4,1);s=m26('standard',['MODE','DOWN','4','DOWN','1']);s=m26Fields(s,[1,0,0,1]);eq(s.view,'result');if(!s.result.includes('90'))throw Error(s.result)});
+test('M26 STAT five values via keypad',()=>{let s=m26Mode('standard',0,3,2);s=m26Fields(s,[1,2,3,4,5]);eq(s.view,'result');eq(s.expression,'1VAR:1,2,3,4,5');if(!s.result.includes('3'))throw Error(s.result)});
+test('M26 STAT regression pairs via keypad',()=>{let s=m26Mode('standard',0,3,3);s=m26Fields(s,[1,3,2,5,3,7]);eq(s.view,'result');eq(s.expression,'LINEAR:1,3;2,5;3,7')});
+test('M26 TABLE custom function editor',()=>{let s=m26Mode('standard',1,3,2);for(const key of ['X','POW','2','ADD','1','='])s=K.dispatchKey(s,key);s=m26Fields(s,[-2,2,1]);eq(s.view,'result');eq(s.expression,'X^2+1|-2|2|1');eq(s.lastValue.data.rows.length,5)});
+test('M26 TABLE result paging preserves semantic data',()=>{let s=m26Mode('standard',1,3,1);s=m26Fields(s,[-2,2,1]);let a=K.semanticScreen(s);s=K.dispatchKey(s,'DOWN');let b=K.semanticScreen(s);eq(s.view,'result');if(a.expression===b.expression)throw Error('No page advance');eq(s.lastValue.data.rows.length,5)});
+test('M26 TABLE dual function forbidden on standard profile',()=>{let s=m26Mode('standard',1,3,3);eq(s.view,'workflow-menu')});
+test('M26 TABLE dual function on C profile',()=>{let s=m26Mode('c',1,3,3);eq(s.view,'coefficient');for(const key of ['X','=','X','POW','2','='])s=K.dispatchKey(s,key);s=m26Fields(s,[1,3,1]);eq(s.view,'result');eq(s.lastValue.data.rows.length,3);eq(s.lastValue.data.rows[2][2],9)});
+test('M26 wizard editor rejects unsafe function characters',()=>{let s=m26Mode('standard',1,3,2);s=K.dispatchKey(s,'=');eq(s.view,'error')});
+test('M26 field navigation preserves entered values',()=>{let s=m26Mode('standard',1,1,1);s=K.dispatchKey(s,'2');s=K.dispatchKey(s,'RIGHT');s=K.dispatchKey(s,'3');s=K.dispatchKey(s,'LEFT');eq(s.ui.wizard.buffer,'2');s=K.dispatchKey(s,'RIGHT');eq(s.ui.wizard.buffer,'3')});
+test('M26 wizard result trace is deterministic',()=>{let sequence=['MODE','DOWN','3','1','1','=','2','=','1','='];let a=K.runTrace({events:sequence}),b=K.runTrace({events:sequence});eq(a.hash,b.hash)});
 
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
