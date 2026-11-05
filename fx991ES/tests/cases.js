@@ -488,3 +488,4 @@ function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
 
+
