@@ -1,3 +1,11 @@
+# Milestone 48 — Boot-time browser error detection
+
+Fixed a concrete acceptance-test blind spot: the browser fixture previously initialized its calculator JavaScript error list as an empty array after page load, so the "boots without exceptions" check could falsely pass. The calculator now registers first-party, bounded in-memory `error` and `unhandledrejection` listeners before other modules load; the browser acceptance fixture reads the **actual recorded errors** and requires the monitor to exist. No telemetry or network requests are added. The canonical 18 browser acceptance assertions retain their names/order. See [the Milestone 48 technical note](docs/browser-bootstrap-error-capture-m48.md).
+
+Validation: `node tests/run-node.cjs`, `python -m unittest discover -s tools/tests -v`, `python tools/release_gate.py verify`. Local Chromium testing remains **BLOCKED** by `ERR_BLOCKED_BY_ADMINISTRATOR`; Firefox/WebKit and physical Casio compatibility remain unverified. A passing local regression suite does not qualify a browser release.
+
+---
+
 # Milestone 47 — GitHub Actions job-level failure triage
 
 `tools/github_job_triage.py` retrieves GitHub Actions **job and step metadata** for an exact authenticated run and source commit, even if the browser testing workflow failed before evidence upload. The `review-browser-artifacts.yml` workflow now attaches non-approving JSON/Markdown job triage reports. Missing/invalid job lists fail closed; this tool **never** qualifies the browser release. See [Milestone 47 documentation](docs/github-job-triage-m47.md).
