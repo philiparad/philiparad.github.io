@@ -214,6 +214,22 @@ test('M15 overflow and scroll on long expression',()=>{let s=K.semanticScreen(K.
 test('M15 LCD no proprietary resource dependency',()=>eq(typeof L.rasterizeScreen,'function'));
 test('M15 menu renderer fits framebuffer',()=>{let s=K.createState('c');s=K.dispatchKey(s,'MODE');eq(L.rasterizeScreen(K.semanticScreen(s)).length,2976)});
 test('M15 error renderer nonempty',()=>{let s=K.createState();for(const k of ['1','DIV','0','='])s=K.dispatchKey(s,k);if(!L.rasterizeScreen(K.semanticScreen(s)).some(Boolean))throw Error('no error pixels')});
+// Milestone 16: reference corpus is explicitly distinct from internal unit tests.
+const REF=global.FX991_REFERENCE;
+test('M16 reference seed corpus all matches internally',()=>{const r=REF.runCorpus(REF.SEEDED);eq(r.counts.passed,6);eq(r.counts.observed,0)});
+test('M16 trace has exact number of key transitions',()=>{const r=REF.execute(REF.SEEDED.cases[0],{trace:true});eq(r.steps.length,4);eq(r.steps[3].result,'5')});
+test('M16 references preserve model-specific behavior',()=>{const r=REF.execute(REF.SEEDED.cases[4]);eq(r.actual.mode,'INEQ')});
+test('M16 reference comparison detects wrong result',()=>{const c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.expected.result='7';const r=REF.execute(c);eq(r.passed,false);eq(r.checks.find(x=>x.field==='result').actual,'5')});
+test('M16 reference missing expected rejected',()=>{const c={...REF.SEEDED.cases[0],expected:{}};try{REF.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('Reference schema error'))throw e}});
+test('M16 reference duplicate IDs rejected',()=>{try{REF.importCorpus({cases:[REF.SEEDED.cases[0],REF.SEEDED.cases[0]]});throw Error('accepted')}catch(e){if(!e.message.includes('duplicate caseId'))throw e}});
+test('M16 physical observation requires device',()=>{const c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.source={kind:'physical',observedAt:'2026-11-05'};try{REF.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('device'))throw e}});
+test('M16 physical observation requires date',()=>{const c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.source={kind:'physical',device:'fx-991ES PLUS'};try{REF.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('observation date'))throw e}});
+test('M16 valid observed reference counted separately',()=>{const c=REF.makeObservation({caseId:'p001',model:'standard',kind:'physical',device:'fx-991ES PLUS',observedAt:'2026-11-05',events:['2','ADD','3','='],expected:{result:'5'}});const r=REF.runCorpus({cases:[c]});eq(r.counts.observed,1);eq(r.counts.observedPassed,1)});
+test('M16 no empty evidence source category',()=>{const c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.source.kind='unknown';try{REF.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('source.kind'))throw e}});
+test('M16 deterministic framebuffer hash',()=>{const c=REF.SEEDED.cases[0],a=REF.execute(c),b=REF.execute(c);eq(a.actual.frameHash,b.actual.frameHash)});
+test('M16 rejects excessive key sequence',()=>{const c={...REF.SEEDED.cases[0],events:Array(501).fill('1')};try{REF.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('events'))throw e}});
+test('M16 JSON roundtrip corpus',()=>{const b=REF.importCorpus(JSON.stringify(REF.SEEDED));eq(b.cases.length,6)});
+test('M16 error reference comparison',()=>{const c=REF.SEEDED.cases[5],r=REF.execute(c);eq(r.actual.error,K.ERROR.MATH);eq(r.passed,true)});
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
