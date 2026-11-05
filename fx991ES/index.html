@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Independent fx-991ES PLUS — Milestone 13 Standard Calculation Modes</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Scientific Calculator — Milestone 13: Standard Calculation Modes</h1>
+        <p>Independent educational implementation. Not affiliated with, sponsored by, or endorsed by CASIO.</p>
+    </header>
+    <main>
+        <section class="calculator" aria-label="Calculator keypad">
+            <div class="branding"><span>SCIENTIFIC</span><small>INDEPENDENT / EDUCATIONAL</small></div>
+            <div class="model">fx-991ES PLUS compatible study project</div>
+            <div class="lcd-housing"><div class="lcd-glass"><canvas id="lcd" width="96" height="31" role="img" aria-label="Monochrome calculator display"></canvas></div></div>
+            <div id="keypad" class="keys" aria-label="Calculator keys"></div>
+        </section>
+        <section class="side">
+            <div class="panel">
+                <h2>Model and display settings</h2>
+                <div class="grid2">
+                    <div class="field"><label for="model">Model descriptor</label><select id="model"><option value="standard">fx-991ES PLUS</option><option value="c">fx-991ES PLUS C</option></select></div>
+                    <div class="field"><label for="angle">Angle unit</label><select id="angle"><option value="DEG">Degrees</option><option value="RAD">Radians</option><option value="GRAD">Gradians</option></select></div>
+                    <div class="field"><label for="format">Number format</label><select id="format"><option value="Norm2">Norm 2</option><option value="Norm1">Norm 1</option><option value="Fix">Fix</option><option value="Sci">Sci</option></select></div>
+                    <div class="field"><label for="digits">Fix/Sci digits</label><select id="digits"><option>0</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></div>
+                </div>
+                <div class="actions"><button id="copy" class="button secondary">Copy result</button><button id="export" class="button secondary">Export LCD PNG</button><button id="reset" class="button secondary">Factory reset</button></div>
+            </div>
+            <div class="panel">
+                <h2>Expression / teaching input</h2>
+                <div class="field"><label for="expression">Editable source (shares the same controller as the keypad)</label><input id="expression" autocomplete="off" spellcheck="false" value="" placeholder="Example: 1/3+1/6"></div>
+                <div class="natural-panel" aria-label="Natural textbook expression editor">
+                    <div class="natural-header"><strong>Natural Textbook Display</strong><span id="natural-info" class="muted"></span></div>
+                    <div id="natural-preview" class="natural-preview" role="math" aria-label="Current structured mathematical expression"></div>
+                    <div class="natural-toolbar" id="natural-toolbar" aria-label="Insert mathematical structures"></div>
+                    <p class="muted">Use ◀ ▶ to navigate expressions and the upper/lower slots; ▲ ▼ switch numerator and denominator. Press <strong>)</strong> to exit the current template. Empty slots must be completed before calculating. The linear source field remains available for teaching input.</p>
+                </div>
+                <div class="actions"><button id="calculate" class="button">Evaluate (=)</button><button id="sample" class="button secondary">Load example</button><button id="trace-export" class="button secondary">Export key trace</button></div>
+                <p class="muted">Numeric-format example: <code>Rnd(1/3)*3</code> with Fix 2 gives <code>0.99</code>, because Rnd changes the stored result of its argument. Formatting examples: <code>2.675</code> in Fix 2 → <code>2.68</code>; <code>1/200</code> in Norm 1 → <code>5e-3</code>, Norm 2 → <code>0.005</code>. Other COMP examples: <code>-2^2</code>, <code>sqrt(8)</code>, <code>1/3+1/6</code>, <code>sin(30)</code>. CMPLX prototype: <code>2,3;4,5</code> (addition). BASE-N: <code>BIN:1010 AND 1100</code>.</p>
+                <div id="semantic" class="status mono" aria-live="polite"></div>
+            </div>
+            <div class="panel" id="modes-panel">
+                <h2>Calculation modes — Milestone 13</h2>
+                <p class="muted">The standard and C-edition teaching modes use the shared controller, Ans register, history, and LCD. Select the C model to unlock INEQ, VERIF, and DIST. The editors below are teaching-oriented input syntax, not yet physical Casio coefficient/menu sequences.</p>
+                <div class="field"><label for="mode-picker">Mode</label><select id="mode-picker"><option>COMP</option><option>CMPLX</option><option>STAT</option><option>BASE-N</option><option>EQN</option><option>MATRIX</option><option>TABLE</option><option>VECTOR</option><option>INEQ</option><option>VERIF</option><option>DIST</option></select></div>
+                <div class="field"><label for="mode-source">Mode-specific input</label><input id="mode-source" spellcheck="false" placeholder="Choose a mode and load an example"></div>
+                <div class="actions"><button id="mode-example" class="button secondary">Load mode example</button><button id="mode-evaluate" class="button">Evaluate mode (=)</button></div>
+                <div class="status mono" id="mode-detail" aria-live="polite"></div>
+                <div class="muted" id="mode-help"></div>
+            </div>
+            <div class="panel" id="numerical-panel">
+                <h2>Numerical calculus — unified COMP engine</h2>
+                <p class="muted">Uses the same expression parser, angle setting, variable X, Ans memory, and result formatter as the calculator. Input is a function of X; numerical methods are approximations.</p>
+                <div class="field"><label for="num-operation">Operation</label><select id="num-operation"><option value="SOLVE">SOLVE — f(X) = 0</option><option value="DIFF">d/dX — derivative at X</option><option value="INTEGRAL">∫ — definite integral</option><option value="SUM">Σ — finite integer sum</option></select></div>
+                <div class="field"><label for="num-source">Expression in X</label><input id="num-source" spellcheck="false" value="X^2-2"></div>
+                <div class="grid2">
+                    <div class="field" id="num-guess-box"><label for="num-guess">Initial guess</label><input id="num-guess" type="number" step="any" value="1"></div>
+                    <div class="field" id="num-at-box" hidden><label for="num-at">At X</label><input id="num-at" type="number" step="any" value="2"></div>
+                    <div class="field" id="num-lower-box" hidden><label for="num-lower">Lower bound</label><input id="num-lower" type="number" step="any" value="0"></div>
+                    <div class="field" id="num-upper-box" hidden><label for="num-upper">Upper bound</label><input id="num-upper" type="number" step="any" value="1"></div>
+                    <div class="field" id="num-tolerance-box" hidden><label for="num-tolerance">Integration tolerance</label><input id="num-tolerance" type="number" step="any" value="0.00001"></div>
+                </div>
+                <div class="actions"><button id="num-run" class="button">Calculate numerical result</button><button id="num-copy-source" class="button secondary">Use current expression</button></div>
+                <div id="num-details" class="status mono" aria-live="polite">SOLVE example: X² − 2 = 0, initial guess 1.</div>
+            </div>
+            <div class="panel">
+                <h2>Typed memory and history</h2>
+                <div class="grid2"><div class="field"><label for="register">Register</label><select id="register"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>M</option><option>X</option><option>Y</option></select></div><div class="field"><label for="register-value">Stored value</label><input id="register-value" readonly></div></div>
+                <div class="actions"><button id="store" class="button secondary">Store result</button><button id="recall" class="button secondary">Insert register</button></div>
+                <h2 style="margin-top:15px">History</h2><div id="history" class="history muted"></div>
+            </div>
+            <div class="panel">
+                <h2>Acceptance suite</h2>
+                <div class="actions"><button id="run-tests" class="button">Run integration tests</button><a class="button secondary" href="tests/acceptance.html">Open detailed test runner</a></div>
+                <div id="test-summary" class="muted" aria-live="polite">No tests run yet.</div>
+            </div>
+            <div class="warning"><strong>Compatibility status (Milestone 13):</strong> The standard-mode editors and preliminary C-edition INEQ, VERIF, DIST teaching workflows are implemented; reference-device workflows and results are not yet characterized. Integrated COMP numerical paths include SOLVE, numerical differentiation, adaptive Gauss–Kronrod integration, and exact finite summation where the existing exact engine supports it. They share typed values, X memory, Ans, formatting, and history. The advanced operations use a teaching control panel; physical Casio template and prompt sequences, firmware stopping rules, worker-based cancellation, numerical parity, remaining C-specific physical workflows, firmware numeric parity, and 96×31 structural layout remain incomplete. Not affiliated with CASIO.</div>
+        </section>
+    </main>
+    <footer>HTML + CSS + vanilla JavaScript only. Offline-capable. No proprietary calculator ROMs, fonts or emulator graphics included.</footer>
+    <script src="src/natural-editor.js"></script>
+    <script src="src/decimal15.js"></script>
+    <script src="src/kernel.js"></script>
+    <script src="src/numerical.js"></script>
+    <script src="src/modes.js"></script>
+    <script src="src/c-edition.js"></script>
+    <script src="tests/cases.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>
