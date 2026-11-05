@@ -230,6 +230,28 @@ test('M16 deterministic framebuffer hash',()=>{const c=REF.SEEDED.cases[0],a=REF
 test('M16 rejects excessive key sequence',()=>{const c={...REF.SEEDED.cases[0],events:Array(501).fill('1')};try{REF.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('events'))throw e}});
 test('M16 JSON roundtrip corpus',()=>{const b=REF.importCorpus(JSON.stringify(REF.SEEDED));eq(b.cases.length,6)});
 test('M16 error reference comparison',()=>{const c=REF.SEEDED.cases[5],r=REF.execute(c);eq(r.actual.error,K.ERROR.MATH);eq(r.passed,true)});
+// Milestone 17 — deterministic differential comparison and diagnostics.
+const DIFF=global.FX991_DIFFERENTIAL;
+test('M17 stable hash independent of property order',()=>eq(DIFF.hash({a:1,b:2}),DIFF.hash({b:2,a:1})));
+test('M17 stable hash detects data changes',()=>{if(DIFF.hash({a:1})===DIFF.hash({a:2}))throw Error('hash collision')});
+test('M17 replay has initial and every key state',()=>eq(DIFF.replay('standard',['2','ADD','3','=']).states.length,5));
+test('M17 replay preserves typed Ans',()=>eq(DIFF.replay('standard',['2','ADD','3','=']).final.ans,'5'));
+test('M17 deterministic replay parity',()=>{let a=DIFF.replay('standard',['1','ADD','2','=']),b=DIFF.replay('standard',['1','ADD','2','=']);eq(DIFF.compareRuns(a,b).equal,true)});
+test('M17 divergent key trace detected',()=>{let a=DIFF.replay('standard',['1']),b=DIFF.replay('standard',['2']);eq(DIFF.compareRuns(a,b).step,1)});
+test('M17 physical observations not invented',()=>eq(DIFF.compareCorpus(REF.SEEDED).counts.observed,0));
+test('M17 manual corpus matches',()=>eq(DIFF.compareCorpus(REF.SEEDED).counts.passed,6));
+test('M17 final mismatch first divergence',()=>{let c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.expected.result='7';let r=DIFF.compare(c);eq(r.firstDivergence.step,4);eq(r.firstDivergence.failures[0].field,'result')});
+test('M17 checkpoint earliest divergence',()=>{let c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.checkpoints=[{step:1,expected:{expression:'9'}}];let r=DIFF.compare(c);eq(r.firstDivergence.step,1)});
+test('M17 checkpoint validates step bound',()=>{let c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.checkpoints=[{step:8,expected:{result:'5'}}];try{DIFF.validateExtended(c);throw Error('accepted')}catch(e){if(!e.message.includes('checkpoint step'))throw e}});
+test('M17 checkpoint rejects duplicate step',()=>{let c=JSON.parse(JSON.stringify(REF.SEEDED.cases[0]));c.checkpoints=[{step:1,expected:{mode:'COMP'}},{step:1,expected:{mode:'COMP'}}];try{DIFF.validateExtended(c);throw Error('accepted')}catch(e){if(!e.message.includes('duplicate checkpoint'))throw e}});
+test('M17 generate checkpoint without adding observed claim',()=>{let c=REF.SEEDED.cases[0];let p=DIFF.makeCheckpoint(c,4,['result','ans']);eq(p.expected.result,'5');eq(p.expected.ans,'5')});
+test('M17 CSV escaped fields',()=>{let report={results:[{caseId:'x',sourceKind:'manual',passed:false,firstDivergence:{step:2,failures:[{field:'result',expected:'a,"b"',actual:'ok'}]}}]};if(!DIFF.toCSV(report).includes('"a,""b"""'))throw Error('CSV quoting')});
+test('M17 seeded fuzz deterministic',()=>{let a=DIFF.seededFuzz({seed:45,count:20}),b=DIFF.seededFuzz({seed:45,count:20});eq(DIFF.hash(a),DIFF.hash(b))});
+test('M17 seeded fuzz stays consistent on valid traces',()=>{let a=DIFF.seededFuzz({seed:75,count:20});eq(a.issues.length,0)});
+test('M17 comparison has observed source separation',()=>{let c=REF.makeObservation({caseId:'observed-1',model:'standard',kind:'physical',device:'fx-991ES PLUS specimen',observedAt:'2026-11-05',events:['2','ADD','3','='],expected:{result:'5'}});let o=DIFF.compareCorpus({cases:[c]});eq(o.counts.observed,1);eq(o.counts.observedPassed,1)});
+test('M17 replay caps key sequences',()=>{try{DIFF.replay('standard',Array(501).fill('1'));throw Error('accepted')}catch(e){if(!e.message.includes('invalid key events'))throw e}});
+test('M17 frame hash deterministic through state traces',()=>{let a=DIFF.replay('c',['MODE','DOWN','DOWN','1']);let b=DIFF.replay('c',['MODE','DOWN','DOWN','1']);eq(a.final.frameHash,b.final.frameHash)});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
