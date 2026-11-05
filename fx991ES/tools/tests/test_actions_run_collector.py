@@ -69,6 +69,49 @@ class GitHubEvidenceCollectorTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 G.select_completed_run({'workflow_runs':[run_data(**attrs)]},REPO,SHA)
 
+    def test_failed_run_is_available_for_diagnostics_only(self):
+        failed=run_data(conclusion='failure')
+        with self.assertRaises(ValueError):
+            G.validate_run(failed,REPO,SHA,run_id=RUN_ID)
+        selected=G.validate_run(failed,REPO,SHA,run_id=RUN_ID,diagnose_failed=True)
+        self.assertEqual(selected['conclusion'],'failure')
+        for bad in ('in_progress','queued'):
+            with self.assertRaises(ValueError):
+                G.validate_run(run_data(status=bad,conclusion='failure'),REPO,SHA,
+                               run_id=RUN_ID,diagnose_failed=True)
+
+    def test_failed_diagnostic_run_never_qualifies(self):
+        def fetch(url, *, token=None, binary=False):
+            if url.endswith('/actions/runs/1234'):
+                return run_data(conclusion='failure')
+            return mock_fetch(url,token=token,binary=binary)
+        with tempfile.TemporaryDirectory() as directory:
+            result=G.collect(REPO,SHA,Path(directory),run_id=RUN_ID,root=ROOT,
+                             token='test-token',diagnose_failed=True,fetch=fetch)
+            self.assertFalse(result['browserQualified'])
+            self.assertTrue(result['ciRunAuthenticated'])
+            self.assertEqual(result['runConclusion'],'failure')
+            self.assertTrue(any('conclusion is failure' in x for x in result['blockers']))
+            self.assertTrue(Path(directory,'browser-run-artifact.zip').is_file())
+
+    def test_without_token_cannot_approve(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result=G.collect(REPO,SHA,Path(directory),run_id=RUN_ID,root=ROOT,fetch=mock_fetch)
+            self.assertFalse(result['browserQualified'])
+            self.assertTrue(any('not authenticated' in x for x in result['blockers']))
+
+    def test_workflow_path_mismatch(self):
+        run=run_data(path='philiparad/fx991ES/.github/workflows/other.yml@main')
+        with self.assertRaises(ValueError):
+            G.validate_run(run,REPO,SHA,run_id=RUN_ID)
+        good=run_data(path='philiparad/fx991ES/.github/workflows/browser-acceptance.yml@main')
+        self.assertEqual(G.validate_run(good,REPO,SHA,run_id=RUN_ID)['id'],RUN_ID)
+
+    def test_diagnostic_does_not_accept_other_commit(self):
+        with self.assertRaises(ValueError):
+            G.validate_run(run_data(head_sha='c'*40,conclusion='failure'),REPO,SHA,
+                           run_id=RUN_ID,diagnose_failed=True)
+
     def test_latest_successful_matching_run(self):
         a=run_data(id=42)
         b=run_data(id=43)
