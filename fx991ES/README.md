@@ -198,3 +198,14 @@ Each of the 18 canonical checks creates a **new iframe DOM element** and rejects
 ## Milestone 55 — precise browser failure classification
 
 The canonical browser harness no longer infers infrastructure blockage from the text of arbitrary exceptions. Only navigation errors tagged by `navigationBlocked` become BLOCKED. Calculator startup assertions, UI import timeouts, and other application failures become FAIL, ensuring defect diagnosis is not hidden by keyword collisions. See `docs/acceptance-failure-classification-m55.md`. Real cross-browser qualification is still pending.
+
+
+### Milestone 56 — shared-origin cross-browser execution
+
+The 18 canonical checks and six native Playwright interactions must use the
+**same local origin**. Earlier CI launched two ephemeral servers with different
+ports, making otherwise successful evidence fail the origin audit. The workflow
+now calls `python tools/shared_browser_session.py --out browser-evidence` to
+run both suites against one server. Their reports remain separate and failure
+of either suite blocks qualification. See
+[`docs/shared-browser-origin-m56.md`](docs/shared-browser-origin-m56.md).
