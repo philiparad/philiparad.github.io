@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Milestone 50: genuine Playwright end-to-end interaction probes.
+"""Milestone 51: native Playwright browser interaction and fail-closed qualification.
 
 Supplementary to the 18 canonical in-browser acceptance checks. This program
 never substitutes simulated reports for actual browser interactions.
 """
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from urllib.parse import urlsplit
+import re
 from pathlib import Path
 import threading
 from browser_matrix import BROWSERS, Handler, Server, classify_failure, source_digest
@@ -22,33 +24,96 @@ CHECK_NAMES = (
 
 
 def validate_probe_report(report, requested=BROWSERS):
-    """Fail closed; the report is diagnostic and is not a release certificate."""
+    """Check one diagnostic scope; *not* permission to approve a partial matrix.
+
+    An approved release also requires three distinct browsers, matching checked-in
+    source, fresh timestamps, and an identical origin to canonical acceptance.
+    """
     if not isinstance(report, dict) or report.get('schema') != 'fx991-interaction-probe':
         return False
-    rows = report.get('results')
-    if not isinstance(rows, list) or len(rows) != len(requested):
+    if not isinstance(report.get('milestone'), int) or report['milestone'] < 50:
         return False
-    if [r.get('browser') for r in rows if isinstance(r, dict)] != list(requested):
+    if not isinstance(report.get('sourceDigest'), str) or not re.fullmatch(r'[a-f0-9]{64}', report['sourceDigest']):
+        return False
+    timestamp = report.get('generatedAt')
+    if not isinstance(timestamp, str):
+        return False
+    try:
+        instant = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        if instant.tzinfo is None:
+            return False
+    except ValueError:
+        return False
+    url = report.get('targetUrl')
+    if not isinstance(url, str):
+        return False
+    try:
+        parsed = urlsplit(url)
+        parsed_host = parsed.hostname
+    except ValueError:
+        return False
+    if parsed.scheme not in ('http', 'https') or not parsed_host or not parsed.path.endswith('/index.html') or parsed.username or parsed.password or parsed.fragment:
+        return False
+    if not isinstance(requested, (list, tuple)) or not requested or len(requested) != len(set(requested)) or any(x not in BROWSERS for x in requested):
+        return False
+    rows = report.get('results')
+    if not isinstance(rows, list) or len(rows) != len(requested) or not all(isinstance(row, dict) for row in rows):
+        return False
+    if [r.get('browser') for r in rows] != list(requested):
         return False
     for row in rows:
         checks = row.get('checks')
-        if row.get('status') != 'PASS' or not isinstance(checks, list):
+        if row.get('status') != 'PASS' or row.get('stage') != 'complete' or not isinstance(checks, list):
             return False
-        if tuple(c.get('name') for c in checks if isinstance(c, dict)) != CHECK_NAMES:
+        if len(checks) != len(CHECK_NAMES) or not all(isinstance(c, dict) for c in checks):
+            return False
+        if tuple(c.get('name') for c in checks) != CHECK_NAMES:
             return False
         if not all(c.get('status') == 'PASS' for c in checks):
             return False
     return True
 
 
+def audit_probe_evidence(report, *, expected_digest, matrix_target, matrix_time, now=None, max_age_hours=72):
+    """Require all native probes from the same fresh build and matrix run."""
+    problems = []
+    if not validate_probe_report(report, BROWSERS):
+        problems.append('Native interaction evidence is missing, incomplete or failed')
+        return problems
+    if report['sourceDigest'] != expected_digest:
+        problems.append('Native interaction fingerprint differs from this checkout')
+    now = now or datetime.now(timezone.utc)
+    timestamp = datetime.fromisoformat(report['generatedAt'].replace('Z', '+00:00'))
+    if timestamp > now + timedelta(minutes=5):
+        problems.append('Native interaction capture timestamp is in the future')
+    if timestamp < now - timedelta(hours=max_age_hours):
+        problems.append('Native interaction capture timestamp is stale')
+    if matrix_time is None or abs((timestamp - matrix_time).total_seconds()) > 1800:
+        problems.append('Native interaction capture is not within 30 minutes of canonical matrix run')
+    try:
+        source = urlsplit(report['targetUrl'])
+        target = urlsplit(matrix_target or '')
+        target_origin = target.hostname
+    except ValueError:
+        problems.append('Invalid canonical browser matrix target URL')
+        return problems
+    if not target_origin or source.scheme != target.scheme or source.netloc != target.netloc or target.path != source.path.removesuffix('/index.html') + '/tests/browser-acceptance.html':
+        problems.append('Native interaction test URL does not match canonical browser matrix origin')
+    return problems
+
+
 def fresh_page(browser, url):
     context = browser.new_context(viewport={'width': 1280, 'height': 900})
-    page = context.new_page()
-    errors = []
-    page.on('pageerror', lambda error: errors.append('pageerror: ' + str(error)[:250]))
-    page.goto(url, wait_until='load', timeout=30000)
-    page.locator('#keypad button').first.wait_for(timeout=10000)
-    return context, page, errors
+    try:
+        page = context.new_page()
+        errors = []
+        page.on('pageerror', lambda error: errors.append('pageerror: ' + str(error)[:250]))
+        page.goto(url, wait_until='load', timeout=30000)
+        page.locator('#keypad button').first.wait_for(timeout=10000)
+        return context, page, errors
+    except Exception:
+        context.close()  # A failed navigation must never leak a browser context.
+        raise
 
 
 def perform_check(name, page):
@@ -179,10 +244,11 @@ def main(argv=None):
                     print(name+': '+result['status']+' — '+result['detail'],flush=True)
         finally:
             server.shutdown();thread.join(timeout=2)
-    report={'schema':'fx991-interaction-probe','milestone':50,
+    report={'schema':'fx991-interaction-probe','milestone':51,
             'sourceDigest':source_digest(),'generatedAt':datetime.now(timezone.utc).isoformat(),
             'targetUrl':url,'results':results}
-    report['ready']=validate_probe_report(report,args.browsers)
+    report['diagnosticPassed']=validate_probe_report(report,args.browsers)
+    report['ready']=validate_probe_report(report,BROWSERS)
     (out/'interaction-probe.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     return 0 if report['ready'] else 1
 
