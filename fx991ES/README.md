@@ -1,4 +1,4 @@
-# Milestone 24 — Deep LCD Layout and Structural Navigation
+# Milestone 25 — Complete Keypad Workflow Validation
 
 Independent educational browser simulator of fx-991ES PLUS / C behavior, with no CASIO firmware or proprietary assets. Not affiliated with or endorsed by CASIO. Plain HTML/CSS/JavaScript; no Node or React required in the browser.
 
@@ -60,3 +60,12 @@ See `docs/lcd-navigation.md` for the layout contract and gaps.
 ## Milestone 24 — Keypad compatibility
 
 Added src/keymap.js, structural forward deletion, token overwrite, SHIFT+DEL insertion mode, supported one-shot ALPHA legends, OVR status, and deterministic editing tests. This is an independent educational implementation; real-device key parity remains unverified.
+
+## Milestone 25 — Complete keypad workflow validation
+
+- Mode-aware physical descriptors add BASE-N radix selectors and A–F hexadecimal legends for both models.
+- COMP: SHIFT+SQ enters a cube power; SHIFT+LOG a ten-power template; SHIFT+LN an exponential template. SHIFT+SIN/COS/TAN retain inverse-trigonometric structural functions.
+- BASE-N: LOG selects BIN, LN selects OCT, SQ selects DEC, RECIP selects HEX; NEG/DMS/HYP/SIN/COS/TAN enter A–F.
+- The on-screen RCL enters a register-selection prompt; SHIFT+RCL stores the current result. The legacy direct RCL semantic command is preserved for teaching controls.
+- New regression sequences test key-layer resolution, one-shot modifiers, radix changes, memory, and both calculator editions.
+- These are independent compatibility candidates. No physical device or official emulator observations are claimed. See docs/keypad-workflows.md.
