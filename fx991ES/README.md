@@ -1,3 +1,11 @@
+# Milestone 50 — Native end-to-end browser interaction probes
+
+New `tools/browser_interaction_probe.py` performs six additional Playwright scenarios with genuine key presses, native Tab traversal, file-input upload, keypad clicks and a 375px viewport. All Chromium, Firefox and WebKit probes are a required GitHub Actions workflow step. Their report, `browser-evidence/interaction-probe.json`, is diagnostic and never substitutes for the canonical 18-check acceptance evidence. Each scenario uses a clean browser context and saves a screenshot on failure. See [Milestone 50 documentation](docs/native-browser-e2e-m50.md).
+
+Validation: `node tests/run-node.cjs`, `python -m unittest discover -s tools/tests -v`, `python tools/release_gate.py verify`. Local Chromium browser navigation remains blocked by `ERR_BLOCKED_BY_ADMINISTRATOR`; true Chromium/Firefox/WebKit acceptance and physical Casio compatibility remain unverified.
+
+---
+
 # Milestone 48 — Boot-time browser error detection
 
 Fixed a concrete acceptance-test blind spot: the browser fixture previously initialized its calculator JavaScript error list as an empty array after page load, so the "boots without exceptions" check could falsely pass. The calculator now registers first-party, bounded in-memory `error` and `unhandledrejection` listeners before other modules load; the browser acceptance fixture reads the **actual recorded errors** and requires the monitor to exist. No telemetry or network requests are added. The canonical 18 browser acceptance assertions retain their names/order. See [the Milestone 48 technical note](docs/browser-bootstrap-error-capture-m48.md).
