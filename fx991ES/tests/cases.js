@@ -308,24 +308,45 @@ test('M20 cannot certify from fixture comparisons',()=>{let a=DEV.review(DEV.add
 test('M20 invalid imported schema rejected',()=>{try{DEV.importEvidence({schema:'bad',records:[]});throw Error('accepted')}catch(e){if(!e.message.includes('schema'))throw e}});
 test('M20 unsafe oversized key list rejected',()=>{let c=DEVICE_SAMPLE();c.keys=Array(501).fill('1');try{DEV.validate(c);throw Error('accepted')}catch(e){if(!e.message.includes('keys'))throw e}});
 
+// Milestone 21 — research-grounded COMP implicit multiplication correction.
+// These are local semantic regression vectors, NOT observed hardware traces.
+test('M21 implied multiplication before parentheses',()=>eq(K.valueToString(evaluate('2(3+4)')),'14'));
+test('M21 implied multiplication exact pi',()=>eq(K.valueToString(evaluate('2pi')),'2π'));
+test('M21 implied multiplication with radical',()=>eq(K.valueToString(evaluate('2sqrt(9)')),'6'));
+test('M21 implied multiplication function adjacency',()=>close(K.numeric(evaluate('sin(30)cos(60)')),0.25));
+test('M21 implied multiplication strong precedence 1/2(3+4)',()=>eq(K.valueToString(evaluate('1/2(3+4)')),'1/14'));
+test('M21 implied multiplication strong precedence 1/2pi',()=>close(K.numeric(evaluate('1/2pi')),1/(2*Math.PI),1e-11));
+test('M21 implicit multiplication is associative',()=>eq(K.valueToString(evaluate('2(3)(4)')),'24'));
+test('M21 implicit multiplication does not change square precedence',()=>eq(K.valueToString(evaluate('2(1+3)^2')),'32'));
+test('M21 implicit pi following power',()=>eq(K.valueToString(evaluate('2^3pi')),'8π'));
+test('M21 implied product of pi and group',()=>eq(K.valueToString(evaluate('pi(2)')),'2π'));
+test('M21 implicit multiplication with Ans',()=>{let s=K.createState();s.ans=K.rat(4);eq(K.valueToString(K.evaluate(K.parse('3Ans'),s)),'12')});
+test('M21 implicit multiplication with variable register',()=>{let s=K.createState();s.memory.A=K.rat(7);eq(K.valueToString(K.evaluate(K.parse('2A'),s)),'14')});
+test('M21 nested fraction precedence remains exact',()=>eq(K.valueToString(evaluate('1/2(3+4)+1/14')),'1/7'));
+test('M21 invalid operator syntax remains typed',()=>{try{K.parse('2(3+)');throw Error('accepted')}catch(e){eq(e.code,K.ERROR.SYNTAX)}});
+test('M21 explicit grouping square precedence unaffected',()=>eq(K.valueToString(evaluate('(-2)^2')),'4'));
+test('M21 visible result from integrated controller',()=>{let s=K.createState();s.expression='2(3+4)';s.document=global.FX991_EDITOR.fromSource(s.expression);s.cursor=s.expression.length;s=K.dispatchKey(s,'=');eq(s.result,'14')});
 
-// Milestone 21 semantic checks, not hardware observations.
-test('M21 implicit group 2(3+4)',()=>eq(K.valueToString(evaluate('2(3+4)')),'14'));
-test('M21 implicit 2pi is exact',()=>eq(K.valueToString(evaluate('2pi')),'2π'));
-test('M21 implicit radical',()=>eq(K.valueToString(evaluate('2sqrt(9)')),'6'));
-test('M21 adjacent trig functions',()=>close(K.numeric(evaluate('sin(30)cos(60)')),0.25));
-test('M21 strong implicit precedence 1/2(3+4)',()=>eq(K.valueToString(evaluate('1/2(3+4)')),'1/14'));
-test('M21 strong implicit precedence 1/2pi',()=>close(K.numeric(evaluate('1/2pi')),1/(2*Math.PI),1e-11));
-test('M21 chained implicit groups',()=>eq(K.valueToString(evaluate('2(3)(4)')),'24'));
-test('M21 implicit with power',()=>eq(K.valueToString(evaluate('2(1+3)^2')),'32'));
-test('M21 implicit pi after power',()=>eq(K.valueToString(evaluate('2^3pi')),'8π'));
-test('M21 pi adjacent to group',()=>eq(K.valueToString(evaluate('pi(2)')),'2π'));
-test('M21 Ans multiplication',()=>{let s=K.createState();s.ans=K.rat(4);eq(K.valueToString(K.evaluate(K.parse('3Ans'),s)),'12')});
-test('M21 register multiplication',()=>{let s=K.createState();s.memory.A=K.rat(7);eq(K.valueToString(K.evaluate(K.parse('2A'),s)),'14')});
-test('M21 implicit fraction stays exact',()=>eq(K.valueToString(evaluate('1/2(3+4)+1/14')),'1/7'));
-test('M21 syntax error remains typed',()=>{try{K.parse('2(3+)');throw Error('accepted')}catch(e){eq(e.code,K.ERROR.SYNTAX)}});
-test('M21 unary power precedence unaffected',()=>eq(K.valueToString(evaluate('(-2)^2')),'4'));
-test('M21 controller integrated result',()=>{let s=K.createState();s.expression='2(3+4)';s.document=global.FX991_EDITOR.fromSource(s.expression);s.cursor=s.expression.length;s=K.dispatchKey(s,'=');eq(s.result,'14')});
+// Milestone 22 — structural cursor recovery and validated numeric formatting.
+test('M22 seekSource preserves nested fraction tree',()=>{let d=E.create();d=E.template(d,'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN');d=E.insertToken(d,'23');let src=E.serialize(d),found=E.seekSource(d,src.indexOf('2'));eq(E.serialize(found),src);eq(found.anchor.sequenceId,d.anchor.sequenceId);eq(E.sourceCursor(found),src.indexOf('2'))});
+test('M22 seekSource clamps source positions',()=>{let d=E.fromSource('123');eq(E.sourceCursor(E.seekSource(d,-25)),0);eq(E.sourceCursor(E.seekSource(d,500)),3)});
+test('M22 seekSource leaves original untouched',()=>{let d=E.fromSource('123');let anchor={...d.anchor};E.seekSource(d,1);eq(JSON.stringify(d.anchor),JSON.stringify(anchor))});
+test('M22 firstMissingAnchor detects numerator',()=>{let d=E.template(E.create(),'Fraction');let found=E.firstMissingAnchor(d);if(!found)throw Error('missing anchor');eq(found.anchor.sequenceId,d.root.children[0].numerator.id)});
+test('M22 firstMissingAnchor detects denominator',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'3');let found=E.firstMissingAnchor(d);eq(found.anchor.sequenceId,d.root.children[0].denominator.id)});
+test('M22 completed fraction has no missing anchor',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'3');d=E.move(d,'DOWN');d=E.insertToken(d,'5');eq(E.firstMissingAnchor(d),null)});
+test('M22 Math ERROR points at zero divisor',()=>{let s=K.createState();s.document=E.fromSource('1/0');s.expression='1/0';s.cursor=3;s=K.dispatchKey(s,'=');eq(s.error,K.ERROR.MATH);eq(s.errorPos,2)});
+test('M22 Math ERROR recovers document cursor',()=>{let s=K.createState();s.document=E.fromSource('1/0');s.expression='1/0';s.cursor=3;s=K.dispatchKey(s,'=');s=K.dispatchKey(s,'LEFT');eq(s.cursor,2);eq(s.document.anchor.offset,2);eq(s.view,'edit')});
+test('M22 syntax ERROR points to bad operator',()=>{let s=K.createState();s.document=E.fromSource('2+*3');s.expression='2+*3';s.cursor=4;s=K.dispatchKey(s,'=');eq(s.error,K.ERROR.SYNTAX);eq(s.errorPos,2)});
+test('M22 syntax ERROR editing recovers at offending symbol',()=>{let s=K.createState();s.document=E.fromSource('2+*3');s.expression='2+*3';s.cursor=4;s=K.dispatchKey(s,'=');s=K.dispatchKey(s,'RIGHT');eq(s.cursor,2);s=K.dispatchKey(s,'DEL');eq(s.expression,'2*3')});
+test('M22 structural syntax failure points at empty denominator',()=>{let s=K.createState();s=K.dispatchKey(s,'FRAC');s=K.dispatchKey(s,'1');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'=');eq(s.view,'error');eq(s.error,K.ERROR.SYNTAX);let d=E.firstMissingAnchor(s.document);eq(s.errorPos,E.sourceCursor(d))});
+test('M22 structural error recovery retains Fraction node',()=>{let s=K.createState();for(let key of ['FRAC','1','DOWN','='])s=K.dispatchKey(s,key);s=K.dispatchKey(s,'LEFT');eq(s.view,'edit');eq(s.document.root.children[0].kind,'Fraction');eq(s.document.anchor.sequenceId,s.document.root.children[0].denominator.id);s=K.dispatchKey(s,'2');s=K.dispatchKey(s,'=');eq(s.result,'1/2')});
+test('M22 invalid group recovery retains source',()=>{let d=E.template(E.create(),'Group');d=E.insertToken(d,'2+');let src=E.serialize(d),r=E.seekSource(d,src.indexOf(')'));eq(E.serialize(r),src)});
+test('M22 Fix precision carries correctly',()=>eq(K.format(K.rat(9995,1000),{format:'Fix',digits:2},true),'10.00'));
+test('M22 Sci precision carries correctly',()=>eq(K.format(K.rat(9995,1000),{format:'Sci',digits:3},true),'1.00e+1'));
+test('M22 Norm 1 threshold',()=>eq(K.format(K.rat(1,100),{format:'Norm1'},true),'0.01'));
+test('M22 Norm 2 lower threshold',()=>eq(K.format(K.rat(1,1000000000),{format:'Norm2'},true),'0.000000001'));
+test('M22 Norm 2 below threshold',()=>eq(K.format(K.rat(1,10000000000),{format:'Norm2'},true),'1e-10'));
+test('M22 S-D does not mutate original exact Ans',()=>{let s=K.createState();for(let k of ['1','DIV','3','='])s=K.dispatchKey(s,k);let ans=K.serialValue(s.ans);s=K.dispatchKey(s,'S-D');s=K.dispatchKey(s,'S-D');eq(JSON.stringify(K.serialValue(s.ans)),JSON.stringify(ans))});
 
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
