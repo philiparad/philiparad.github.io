@@ -189,3 +189,7 @@ The GitHub run collector now supports `--diagnose-failed` for a named completed 
 ### Milestone 49 — browser interaction acceptance
 
 The 18 canonical browser checks now test keypad AC/reentry, keyboard shortcut suppression in focused input, partial/completed fraction templates, an actual JSON file-input session restore with matrix persistence and opt-in recovery lifecycle, and JavaScript errors after each interaction. Run `tests/browser-acceptance.html` in a real browser. This is not a declaration of three-browser or physical Casio compatibility.
+
+## Milestone 53 — isolated browser acceptance fixtures
+
+Each of the 18 canonical checks creates a **new iframe DOM element** and rejects late, stale and non-calculator load events. Timeout and navigation failures are marked BLOCKED, never falsely passed. See `docs/iframe-test-isolation-m53.md`. Browser/device qualification still requires real evidence.
