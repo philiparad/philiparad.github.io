@@ -1,4 +1,4 @@
-# Milestone 35 — Release Candidate Evidence Integrity
+# Milestone 36 — Browser Failure Resolution & Release Qualification
 
 Independent HTML/CSS/vanilla JavaScript scientific calculator. Not affiliated with CASIO.
 
@@ -40,3 +40,8 @@ The automated browser matrix validates all 18 individual browser checks, records
 ## Milestone 35
 
 The CI browser runner now validates the exact 18-check acceptance manifest (including order), not just the row count, and supports `--base-url` for testing a deployed site. Added offline negative tests for substituted/reordered checks. See [M35 release validation](docs/release-validation-m35.md). Physical Casio compatibility is not certified.
+
+
+## Milestone 36
+
+The browser acceptance test now **actually resizes the calculator frame to 375 px** for its narrow-screen check. The CI runner validates URLs, timezone-aware timestamps and per-check summary consistency, with 21 offline negative/positive gate tests. See [browser release corrections](docs/browser-release-m36.md). No actual cross-browser pass has been observed yet.
