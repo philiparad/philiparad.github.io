@@ -1,2 +1,20 @@
-/* Independent physical-key resolver, Milestone 24. Device mapping pending verification. */
-(function(global){'use strict';const alpha=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'}),shift=Object.freeze({DEL:'INS',MODE:'SETUP',SQRT:'NROOT',SIN:'ASIN',COS:'ACOS',TAN:'ATAN',AC:'OFF'});const profiles=Object.freeze({standard:Object.freeze({id:'fx991esplus-2',alpha,shift}),c:Object.freeze({id:'fx991esplus-c-2',alpha,shift})});function resolve(model,key,modifier){const p=profiles[model]||profiles.standard;return modifier==='alpha'?p.alpha[key]||null:modifier==='shift'?p.shift[key]||null:key}global.FX991_KEYS=Object.freeze({profiles,resolve})})(typeof window!=='undefined'?window:globalThis);
+/* Milestone 25: independently-authored model/mode key resolution.
+ * Unverified physical legends remain implementation policies.
+ */
+(function(global){'use strict';
+const alpha=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'});
+const shift=Object.freeze({DEL:'INS',MODE:'SETUP',SQRT:'NROOT',SIN:'ASIN',COS:'ACOS',TAN:'ATAN',SQ:'CUBE',LOG:'POW10',LN:'EXP',AC:'OFF'});
+const baseDigits=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F'});
+const radixSelectors=Object.freeze({SQ:'DEC',RECIP:'HEX',LOG:'BIN',LN:'OCT'});
+const profiles=Object.freeze({standard:Object.freeze({id:'fx991esplus-2',alpha,shift,baseDigits,radixSelectors}),c:Object.freeze({id:'fx991esplus-c-2',alpha,shift,baseDigits,radixSelectors})});
+function resolve(model,key,modifier,mode='COMP'){
+ const d=profiles[model]||profiles.standard;
+ if(mode==='BASE-N'&&modifier!=='shift'&&modifier!=='alpha'&&d.baseDigits[key])return d.baseDigits[key];
+ if(mode==='BASE-N'&&modifier==='none'&&d.radixSelectors[key])return d.radixSelectors[key];
+ if(modifier==='alpha')return d.alpha[key]||null;
+ if(modifier==='shift')return d.shift[key]||null;
+ return key;
+}
+function keyLegend(model,key,mode='COMP'){let d=profiles[model]||profiles.standard;return Object.freeze({normal:resolve(model,key,'none',mode),shift:d.shift[key]||null,alpha:d.alpha[key]||null,baseDigit:mode==='BASE-N'?d.baseDigits[key]||null:null})}
+global.FX991_KEYS=Object.freeze({profiles,resolve,keyLegend});
+})(typeof window!=='undefined'?window:globalThis);
