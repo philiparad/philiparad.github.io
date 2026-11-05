@@ -75,4 +75,4 @@ Added src/keymap.js, structural forward deletion, token overwrite, SHIFT+DEL ins
 
 New keypad workflows for EQN, MATRIX, VECTOR, STAT and TABLE are described in [`docs/mode-input-workflows.md`](docs/mode-input-workflows.md). Matrix 2×2 inverse/transpose/multiply, vector addition/angles, extended STAT entry, and user-entered TABLE functions (including C-edition dual TABLE) are available as guided coefficient/data screens. Browser controller state, typed math results, memory, history, and 96×31 framebuffer remain shared.
 
-**Verification:** 372/372 local JavaScript regression tests. This is not device-verified Casio compatibility. Browser automation remains restricted by this runtime.
+**Verification:** 373/373 local JavaScript regression tests. This is not device-verified Casio compatibility. Browser automation remains restricted by this runtime.
