@@ -1,3 +1,11 @@
+# Milestone 51 — Three-browser native interaction release gate
+
+Corrected a release-qualification loophole: Milestone 50 could set `interaction-probe.json` `ready: true` for a **single requested browser**, while the canonical release gate did not independently require the six native probes. Milestone 51 now requires **18/18 canonical checks and 6/6 real Playwright interactions in *each* of Chromium, Firefox and WebKit**, with a matching source fingerprint, origin, and fresh timestamps. Diagnostic subsets are allowed but cannot approve a release. A failed Playwright page load now closes its browser context. The release decision HTML/JSON explicitly lists native-interaction status. See [Milestone 51 technical documentation](docs/native-browser-release-gate-m51.md).
+
+Local verification: `node tests/run-node.cjs`; `python -m unittest discover -s tools/tests -v`; `python tools/release_gate.py verify`. Browser qualification remains **BLOCKED** without genuine successful matrix and native evidence. Physical Casio hardware equivalence remains unverified.
+
+---
+
 # Milestone 50 — Native end-to-end browser interaction probes
 
 New `tools/browser_interaction_probe.py` performs six additional Playwright scenarios with genuine key presses, native Tab traversal, file-input upload, keypad clicks and a 375px viewport. All Chromium, Firefox and WebKit probes are a required GitHub Actions workflow step. Their report, `browser-evidence/interaction-probe.json`, is diagnostic and never substitutes for the canonical 18-check acceptance evidence. Each scenario uses a clean browser context and saves a screenshot on failure. See [Milestone 50 documentation](docs/native-browser-e2e-m50.md).
