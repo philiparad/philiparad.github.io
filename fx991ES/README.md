@@ -140,3 +140,7 @@ continues to run entirely in vanilla HTML/CSS/JavaScript.
 ## Milestone 44 — failed-run browser evidence triage
 
 The GitHub run collector now supports `--diagnose-failed` for a named completed unsuccessful run. This permits artifact inspection without treating failed CI as a passing release. The downstream review workflow uses diagnostic mode and still blocks qualification until an authenticated, successful run provides complete browser evidence. See `docs/github-failure-triage-m44.md`.
+
+## Milestone 46 — CI environment verification
+
+`tools/ci_environment.py` reports missing Python Playwright, Node, and Chromium/Firefox/WebKit executables. The GitHub Actions workflow saves pre/post-install JSON and Markdown, including failures that precede browser execution. Preflight is strictly diagnostic and does not certify the calculator. See `docs/ci-environment-m46.md`.
