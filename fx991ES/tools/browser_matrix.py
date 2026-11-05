@@ -6,11 +6,12 @@ Development/CI only (Python + Playwright); calculator runtime is static HTML/CSS
 import argparse
 import http.server
 import json
+import hashlib
 from pathlib import Path
 import socketserver
 import threading
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 BROWSERS = ('chromium', 'firefox', 'webkit')
@@ -50,6 +51,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 class Server(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
     daemon_threads = True
+
+
+def source_digest(root=ROOT):
+    """Deterministic fingerprint of the exact client and acceptance sources."""
+    files = ('index.html', 'styles.css', 'tests/browser-acceptance.html',
+             'tests/browser-acceptance.js', 'src/app.js', 'src/kernel.js',
+             'src/session.js', 'src/state-machine.js')
+    digest = hashlib.sha256()
+    for name in files:
+        data = (root / name).read_bytes()
+        digest.update(name.encode('utf-8') + b'\0' + len(data).to_bytes(8, 'big') + data)
+    return digest.hexdigest()
 
 
 def check_capture(raw, browser):
@@ -106,6 +119,30 @@ def check_capture(raw, browser):
     return names, passed
 
 
+def classify_failure(stage, exception):
+    """Distinguish infrastructure failures from genuine test/app failures.
+
+    Timeouts *after* the page has loaded are failures, not infrastructure blocks.
+    That prevents a hung acceptance test from incorrectly being excused.
+    """
+    message = str(exception).lower()
+    if stage in ('launch', 'navigate') and any(x in message for x in (
+        'executable doesn\'t exist', 'browser has been closed',
+        'err_blocked_by_administrator', 'net::err_',
+        'failed to launch', 'target page, context or browser has been closed',
+        'timeout')):
+        return 'BLOCKED'
+    return 'FAIL'
+
+def same_origin_and_path(captured, configured):
+    """Reject prefix lookalikes, alternative ports, and cross-origin captures."""
+    try:
+        a, b = urlsplit(captured), urlsplit(configured)
+        return (a.scheme, a.netloc, a.path, a.query) == (b.scheme, b.netloc, b.path, b.query)
+    except ValueError:
+        return False
+
+
 def aggregate(results):
     """Return a release-gate result; incomplete/blocked browsers always fail."""
     valid = len(results) == len(BROWSERS) and {r['browser'] for r in results} == set(BROWSERS)
@@ -138,6 +175,7 @@ def main(argv=None):
                     browser = None
                     page = None
                     errors = []
+                    stage = 'launch'
                     evidence = dict(browser=browser_name, status='BLOCKED', detail='Not started',
                                     capture=None, names=[], passed=0, errors=[])
                     try:
@@ -150,27 +188,28 @@ def main(argv=None):
                         page = context.new_page()
                         page.on('pageerror', lambda err: errors.append('pageerror: '+str(err)[:500]))
                         page.on('console', lambda msg: errors.append('console: '+msg.text[:500]) if msg.type == 'error' else None)
+                        stage = 'navigate'
                         page.goto(url, wait_until='domcontentloaded', timeout=30000)
+                        stage = 'execute'
                         page.wait_for_function("['passed','failed','blocked'].includes(document.body.dataset.acceptance)",
                                                timeout=args.timeout * 1000)
+                        stage = 'capture'
                         with page.expect_download(timeout=15000) as info:
                             page.locator('#download').click()
                         destination = out / f'{browser_name}-acceptance.json'
                         info.value.save_as(destination)
                         capture = json.loads(destination.read_text(encoding='utf-8'))
                         names, passed = check_capture(capture, browser_name)
-                        if args.base_url and not capture.get('location', '').startswith(args.base_url.rstrip('/') + '/'):
+                        if not same_origin_and_path(capture.get('location', ''), url):
                             raise ValueError('Captured origin does not match the configured test origin')
                         evidence.update(capture=str(destination), names=names, passed=passed)
                         evidence['status'] = 'PASS' if passed == REQUIRED_CHECKS and not errors else 'FAIL'
                         evidence['detail'] = f'{passed}/{REQUIRED_CHECKS} passed; {len(errors)} script/console errors'
                     except (PlaywrightError, TimeoutError, OSError, ValueError, json.JSONDecodeError) as e:
                         msg = str(e)[:700]
-                        infrastructure = any(s in msg.lower() for s in
-                                             ('executable doesn\'t exist','err_blocked_by_administrator',
-                                              'browser has been closed', 'net::err_', 'timeout'))
-                        evidence.update(status='BLOCKED' if infrastructure else 'FAIL', detail=msg)
+                        evidence.update(status=classify_failure(stage, e), detail=msg)
                     finally:
+                        evidence['stage'] = stage
                         evidence['errors'] = errors[:20]
                         if page:
                             try:
@@ -185,7 +224,8 @@ def main(argv=None):
             server.shutdown()
             thread.join(timeout=2)
     ready = aggregate(results)
-    summary = {'schema':'fx991-browser-matrix-run', 'milestone':36,
+    summary = {'schema':'fx991-browser-matrix-run', 'milestone':38,
+               'sourceDigest': source_digest(), 'targetUrl': url,
                'generatedAt':datetime.now(timezone.utc).isoformat(), 'results':results,
                'ready':ready, 'note':'Browser checks do not certify physical Casio compatibility.'}
     (out / 'matrix-run.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
