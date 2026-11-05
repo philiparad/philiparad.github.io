@@ -11,6 +11,8 @@ from hashlib import sha256
 import json
 from pathlib import Path
 from evidence_review import review_directory
+from browser_matrix import source_digest
+from browser_interaction_probe import audit_probe_evidence
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = 'release-manifest.json'
@@ -79,6 +81,7 @@ def qualify(root=ROOT, evidence=None, *, max_age_hours=72, now=None):
               'generatedAt': (now or datetime.now(timezone.utc)).isoformat(),
               'sourceIntegrity': 'PASS' if audit['ready'] else 'FAIL',
               'fileCount': audit['fileCount'], 'browserEvidence': 'MISSING',
+              'nativeInteractions': 'MISSING',
               'deviceCompatibility': 'UNVERIFIED', 'ready': False,
               'blockers': list(audit['blockers'])}
     if evidence is None:
@@ -92,6 +95,25 @@ def qualify(root=ROOT, evidence=None, *, max_age_hours=72, now=None):
         except (OSError, ValueError, TypeError, KeyError) as exc:
             result['browserEvidence'] = 'FAIL'
             result['blockers'].append('Browser evidence review error: ' + str(exc))
+        # The six real Playwright interaction probes must pass in *all* three
+        # engines. They cannot be replaced by canonical DOM acceptance results.
+        try:
+            folder = Path(evidence)
+            native = json.loads((folder / 'interaction-probe.json').read_text(encoding='utf-8'))
+            matrix = json.loads((folder / 'matrix-run.json').read_text(encoding='utf-8'))
+            matrix_time = datetime.fromisoformat(matrix['generatedAt'].replace('Z', '+00:00'))
+            if matrix_time.tzinfo is None:
+                raise ValueError('Canonical matrix timestamp lacks timezone')
+            problems = audit_probe_evidence(native,
+                    expected_digest=source_digest(root),
+                    matrix_target=matrix['targetUrl'],
+                    matrix_time=matrix_time, now=now,
+                    max_age_hours=max_age_hours)
+            result['nativeInteractions'] = 'FAIL' if problems else 'PASS'
+            result['blockers'].extend('Native browser: ' + x for x in problems)
+        except (OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
+            result['nativeInteractions'] = 'FAIL'
+            result['blockers'].append('Missing/invalid native browser probe evidence: ' + str(exc))
     result['ready'] = not result['blockers']
     return result
 
