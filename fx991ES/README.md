@@ -131,3 +131,8 @@ python tools/actions_run_collector.py --repo philiparad/fx991ES \
 No browser results are claimed until the authenticated GitHub run exists and all
 18 acceptance checks pass in Chromium, Firefox and WebKit. The existing calculator
 continues to run entirely in vanilla HTML/CSS/JavaScript.
+
+
+## Milestone 44 — failed-run browser evidence triage
+
+The GitHub run collector now supports `--diagnose-failed` for a named completed unsuccessful run. This permits artifact inspection without treating failed CI as a passing release. The downstream review workflow uses diagnostic mode and still blocks qualification until an authenticated, successful run provides complete browser evidence. See `docs/github-failure-triage-m44.md`.
