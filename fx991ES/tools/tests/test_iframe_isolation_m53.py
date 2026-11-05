@@ -29,7 +29,7 @@ class IframeIsolationTests(unittest.TestCase):
     def test_infrastructure_errors_block_not_fail(self):
         self.assertIn('iframe navigation failed', SOURCE)
         self.assertIn('iframe did not load', SOURCE)
-        self.assertIn("status=/timed out|did not initialize|iframe did not load|iframe navigation failed/", SOURCE)
+        self.assertIn("status=error&&error.kind==='navigation'?'BLOCKED':'FAIL'", SOURCE)
 
     def test_script_syntax(self):
         r=subprocess.run(['node','--check',str(ROOT/'tests/browser-acceptance.js')],capture_output=True,text=True)
