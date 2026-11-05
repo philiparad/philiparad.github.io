@@ -198,57 +198,68 @@ def main(argv=None):
         thread.start()
         url = (args.base_url.rstrip('/') + '/tests/browser-acceptance.html') if args.base_url else f'http://127.0.0.1:{server.server_address[1]}/tests/browser-acceptance.html'
         try:
-            from playwright.sync_api import sync_playwright, Error as PlaywrightError
-            with sync_playwright() as p:
+            try:
+                from playwright.sync_api import sync_playwright, Error as PlaywrightError
+            except ImportError as exc:
+                # A missing Playwright installation is an infrastructure BLOCK,
+                # not an uncaught Python error that erases matrix evidence.
                 for browser_name in args.browsers:
-                    browser = None
-                    page = None
-                    errors = []
-                    stage = 'launch'
-                    evidence = dict(browser=browser_name, status='BLOCKED', detail='Not started',
-                                    capture=None, names=[], passed=0, errors=[])
-                    try:
-                        kw = {}
-                        if browser_name == 'chromium' and args.chromium_executable:
-                            kw.update(executable_path=args.chromium_executable,
-                                      args=['--no-sandbox', '--disable-dev-shm-usage'])
-                        browser = getattr(p, browser_name).launch(headless=True, **kw)
-                        context = browser.new_context(viewport={'width':1280,'height':900}, accept_downloads=True)
-                        page = context.new_page()
-                        page.on('pageerror', lambda err: errors.append('pageerror: '+str(err)[:500]))
-                        page.on('console', lambda msg: errors.append('console: '+msg.text[:500]) if msg.type == 'error' else None)
-                        stage = 'navigate'
-                        page.goto(url, wait_until='domcontentloaded', timeout=30000)
-                        stage = 'execute'
-                        page.wait_for_function("['passed','failed','blocked'].includes(document.body.dataset.acceptance)",
-                                               timeout=args.timeout * 1000)
-                        stage = 'capture'
-                        with page.expect_download(timeout=15000) as info:
-                            page.locator('#download').click()
-                        destination = out / f'{browser_name}-acceptance.json'
-                        info.value.save_as(destination)
-                        capture = json.loads(destination.read_text(encoding='utf-8'))
-                        names, passed = check_capture(capture, browser_name)
-                        if not same_origin_and_path(capture.get('location', ''), url):
-                            raise ValueError('Captured origin does not match the configured test origin')
-                        evidence.update(capture=str(destination), names=names, passed=passed)
-                        evidence['status'] = 'PASS' if passed == REQUIRED_CHECKS and not errors else 'FAIL'
-                        evidence['detail'] = f'{passed}/{REQUIRED_CHECKS} passed; {len(errors)} script/console errors'
-                    except (PlaywrightError, TimeoutError, OSError, ValueError, json.JSONDecodeError) as e:
-                        msg = str(e)[:700]
-                        evidence.update(status=classify_failure(stage, e), detail=msg)
-                    finally:
-                        evidence['stage'] = stage
-                        evidence['errors'] = errors[:20]
-                        if page:
-                            try:
-                                (out / f'{browser_name}-screenshot.png').write_bytes(page.screenshot(full_page=True, timeout=5000))
-                            except Exception:
-                                pass
-                        if browser:
-                            browser.close()
+                    evidence = dict(browser=browser_name, status='BLOCKED',
+                                    detail='Playwright dependency unavailable: ' + str(exc)[:400],
+                                    capture=None, names=[], passed=0, errors=[], stage='launch')
                     results.append(evidence)
-                    print(f'{browser_name}: {evidence["status"]} — {evidence["detail"]}', flush=True)
+                    print(f'{browser_name}: BLOCKED — {evidence["detail"]}', flush=True)
+            else:
+                with sync_playwright() as p:
+                    for browser_name in args.browsers:
+                        browser = None
+                        page = None
+                        errors = []
+                        stage = 'launch'
+                        evidence = dict(browser=browser_name, status='BLOCKED', detail='Not started',
+                                        capture=None, names=[], passed=0, errors=[])
+                        try:
+                            kw = {}
+                            if browser_name == 'chromium' and args.chromium_executable:
+                                kw.update(executable_path=args.chromium_executable,
+                                          args=['--no-sandbox', '--disable-dev-shm-usage'])
+                            browser = getattr(p, browser_name).launch(headless=True, **kw)
+                            context = browser.new_context(viewport={'width':1280,'height':900}, accept_downloads=True)
+                            page = context.new_page()
+                            page.on('pageerror', lambda err: errors.append('pageerror: '+str(err)[:500]))
+                            page.on('console', lambda msg: errors.append('console: '+msg.text[:500]) if msg.type == 'error' else None)
+                            stage = 'navigate'
+                            page.goto(url, wait_until='domcontentloaded', timeout=30000)
+                            stage = 'execute'
+                            page.wait_for_function("['passed','failed','blocked'].includes(document.body.dataset.acceptance)",
+                                                   timeout=args.timeout * 1000)
+                            stage = 'capture'
+                            with page.expect_download(timeout=15000) as info:
+                                page.locator('#download').click()
+                            destination = out / f'{browser_name}-acceptance.json'
+                            info.value.save_as(destination)
+                            capture = json.loads(destination.read_text(encoding='utf-8'))
+                            names, passed = check_capture(capture, browser_name)
+                            if not same_origin_and_path(capture.get('location', ''), url):
+                                raise ValueError('Captured origin does not match the configured test origin')
+                            evidence.update(capture=str(destination), names=names, passed=passed)
+                            evidence['status'] = 'PASS' if passed == REQUIRED_CHECKS and not errors else 'FAIL'
+                            evidence['detail'] = f'{passed}/{REQUIRED_CHECKS} passed; {len(errors)} script/console errors'
+                        except (PlaywrightError, TimeoutError, OSError, ValueError, json.JSONDecodeError) as e:
+                            msg = str(e)[:700]
+                            evidence.update(status=classify_failure(stage, e), detail=msg)
+                        finally:
+                            evidence['stage'] = stage
+                            evidence['errors'] = errors[:20]
+                            if page:
+                                try:
+                                    (out / f'{browser_name}-screenshot.png').write_bytes(page.screenshot(full_page=True, timeout=5000))
+                                except Exception:
+                                    pass
+                            if browser:
+                                browser.close()
+                        results.append(evidence)
+                        print(f'{browser_name}: {evidence["status"]} — {evidence["detail"]}', flush=True)
         finally:
             server.shutdown()
             thread.join(timeout=2)
