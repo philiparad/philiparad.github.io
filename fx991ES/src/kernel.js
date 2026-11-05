@@ -40,7 +40,11 @@ function parse(src){const t=tokenize(src);let i=0;let peek=()=>t[i]?.value;let t
  function atom(){let token=t[i];if(!token)throw new CalcError(ERROR.SYNTAX,String(src).length);if(take('(')){let a=sum();required(')');return {type:'group',arg:a}}let v=token.value;if(['sin','cos','tan','asin','acos','atan','sqrt','abs','log','ln','exp','Rnd'].includes(v)){i++;required('(');let a=sum();required(')');return {type:'fn',name:v,arg:a}}i++;if(v==='pi'||v==='Ans'||/^[A-FMXY]$/.test(v))return {type:'symbol',name:v};if(/^\d/.test(v)||/^\./.test(v))return {type:'number',raw:v};throw new CalcError(ERROR.SYNTAX,token.pos)}
  function power(){let a=atom();while(take('!'))a={type:'fact',arg:a};if(take('^'))a={type:'binary',op:'^',left:a,right:unary()};return a}
  function unary(){if(take('-'))return {type:'neg',arg:unary()};if(take('+'))return unary();return power()}
- function product(){let a=unary();while(['*','/'].includes(peek())){let op=t[i++].value;a={type:'binary',op,left:a,right:unary()}}return a}
+ // Implicit multiplication binds more strongly than explicit multiplication
+ // and division under the independently implemented ES-style priority model.
+ function startsImplicit(v){return v==='('||v==='pi'||v==='Ans'||/^[A-FMXY]$/.test(v||'')||['sin','cos','tan','asin','acos','atan','sqrt','abs','log','ln','exp','Rnd'].includes(v)}
+ function juxtaposition(){let a=unary();while(startsImplicit(peek()))a={type:'binary',op:'*',implicit:true,left:a,right:unary()};return a}
+ function product(){let a=juxtaposition();while(['*','/'].includes(peek())){let op=t[i++].value;a={type:'binary',op,left:a,right:juxtaposition()}}return a}
  function sum(){let a=product();while(['+','-'].includes(peek())){let op=t[i++].value;a={type:'binary',op,left:a,right:product()}}return a}
  let ast=sum();if(i!==t.length)throw new CalcError(ERROR.SYNTAX,t[i].pos);return ast}
 function evaluate(ast,context){const angle=context.setup?.angle||'DEG';const factor=angle==='DEG'?Math.PI/180:angle==='GRAD'?Math.PI/200:1;
