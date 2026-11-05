@@ -9,6 +9,7 @@ on:
       - 'styles.css'
       - 'index.html'
       - 'tools/**'
+      - '.github/workflows/review-browser-artifacts.yml'
       - '.github/workflows/browser-acceptance.yml'
 permissions:
   contents: read
@@ -33,6 +34,12 @@ jobs:
         run: python tools/release_gate.py verify
       - name: Run actual browser matrix
         run: python tools/browser_matrix.py --out browser-evidence
+      - name: Render browser matrix status for GitHub Actions summary
+        if: always()
+        continue-on-error: true
+        run: |
+          python tools/ci_matrix_summary.py --matrix browser-evidence/matrix-run.json --out release-evidence/ci-matrix-summary.json --markdown release-evidence/ci-matrix-summary.md
+          cat release-evidence/ci-matrix-summary.md >> "$GITHUB_STEP_SUMMARY"
       - name: Audit captured browser evidence against this checkout
         if: always()
         run: python tools/evidence_review.py browser-evidence --out browser-evidence/evidence-review.json
