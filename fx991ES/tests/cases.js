@@ -464,7 +464,7 @@ const SS=global.FX991_SESSION;
 function mem28(){let s=K.createState('c');s.mode='MATRIX';s.ui.modeMemory.matrix.A=[[1,2],[3,4]];s.ui.modeMemory.matrix.B=[[2,0],[0,2]];s.ui.modeMemory.vector.C=[3,4,5];s.ui.modeMemory.stat={kind:'LINEAR',rows:[[1,3],[2,5]]};s.memory.A=K.rat(7n,3n);s.ans=K.rat(-5n,8n);s.history=[{expression:'1+2',display:'3'}];s.expression='2+4';s.cursor=3;return s}
 function fail28(f){try{f();throw Error('Expected rejection')}catch(e){if(e.message==='Expected rejection')throw e}}
 function fakeStorage(){const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)}}
-test('M28 session exports explicit versioned schema',()=>{let x=JSON.parse(SS.exportJSON(mem28()));eq(x.schema,'fx991-session');eq(x.version,1)});
+test('M28 session exports explicit versioned schema',()=>{let x=JSON.parse(SS.exportJSON(mem28()));eq(x.schema,'fx991-session');eq(x.version,2)});
 test('M28 register matrices survive JSON round-trip',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,2],[3,4]]');eq(JSON.stringify(s.ui.modeMemory.matrix.B),'[[2,0],[0,2]]')});
 test('M28 vector register survives JSON round-trip',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));eq(JSON.stringify(s.ui.modeMemory.vector.C),'[3,4,5]')});
 test('M28 linear statistics pairs survive JSON round-trip',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));eq(JSON.stringify(s.ui.modeMemory.stat.rows),'[[1,3],[2,5]]')});
@@ -484,6 +484,48 @@ test('M28 disabling recovery clears saved data',()=>{let st=fakeStorage();SS.ena
 test('M28 corrupted storage fails closed',()=>{let st=fakeStorage();SS.enable(st,true);st.setItem(SS.KEY,'{broken');eq(SS.recover(st),null)});
 test('M28 export respects maximum expression length',()=>{let s=mem28();s.expression='1'.repeat(513);fail28(()=>SS.exportJSON(s))});
 test('M28 imported session retains safe calculator dispatch',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));s=K.dispatchKey(s,'AC');eq(s.view,'edit');eq(s.ui.modeMemory.matrix.A[0][0],1)});
+// M29: versioned structural and interrupted editor session restoration.
+const ED29=global.FX991_EDITOR;
+function m29keys(sequence){let s=K.createState();for(const k of sequence)s=K.dispatchKey(s,k);return s}
+function m29document(){return m29keys(['FRAC','1','RIGHT','2','LEFT']);}
+test('M29 exports structural document and anchor',()=>{let s=m29document(),p=SS.extract(s);eq(p.version,2);eq(p.document.root.children[0].kind,'Fraction');eq(p.document.anchor.sequenceId,s.document.anchor.sequenceId)});
+test('M29 exact fraction slot and cursor restore',()=>{let s=m29document(),t=SS.importJSON(SS.exportJSON(s));eq(ED29.serialize(t.document),s.expression);eq(t.document.anchor.sequenceId,s.document.anchor.sequenceId);eq(t.document.anchor.offset,s.document.anchor.offset)});
+test('M29 structural cursor editable after import',()=>{let t=SS.importJSON(SS.exportJSON(m29document()));t=K.dispatchKey(t,'3');eq(ED29.serialize(t.document),'(1)/(32)')});
+test('M29 restores nested function, power and root',()=>{let s=m29keys(['FRAC','SIN','3','RIGHT','RIGHT','SQRT','9']);let t=SS.importJSON(SS.exportJSON(s));eq(ED29.inspect(t.document).nodes,ED29.inspect(s.document).nodes);eq(t.document.anchor.sequenceId,s.document.anchor.sequenceId)});
+test('M29 reserves old node IDs when editing new templates',()=>{let s=m29document(),t=SS.importJSON(SS.exportJSON(s));t=K.dispatchKey(t,'FRAC');eq(ED29.inspect(t.document).duplicate,false)});
+test('M29 refuses invalid duplicate tree IDs',()=>{let p=SS.extract(m29document());p.document.root.children[0].denominator.id=p.document.root.children[0].numerator.id;fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 refuses foreign structural cursor ID',()=>{let p=SS.extract(m29document());p.document.anchor.sequenceId='nd999999';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 refuses expression and tree mismatch',()=>{let p=SS.extract(m29document());p.expression='17';p.cursor=2;fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 rejects malicious node types',()=>{let p=SS.extract(m29document());p.document.root.children[0].kind='Script';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 rejects oversized source document tree',()=>{let p=SS.extract(m29document());p.document.root.children=Array.from({length:510},(_,i)=>({kind:'Token',id:'nd'+(10000+i),value:'1'}));p.expression='1'.repeat(510);p.cursor=510;fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 imports older v1 sessions safely',()=>{let p=SS.extract(mem28());p.version=1;delete p.document;delete p.workflow;let s=SS.importJSON(JSON.stringify(p));eq(s.ui.modeMemory.matrix.A[0][0],1);eq(s.view,'edit')});
+test('M29 resumes valid register editor field and buffer',()=>{let s=t27matrix();s=t27keys(s,['1','=','2']);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'register-editor');eq(t.ui.registerFlow.field,1);eq(t.ui.registerFlow.buffer,'2');t=K.dispatchKey(t,'=');eq(t.ui.modeMemory.matrix.A[0][1],2)});
+test('M29 register menu survives reload',()=>{let s=t27('standard',['MODE','DOWN','2','REGS']);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'register-menu');eq(t.ui.registerFlow.name,null)});
+test('M29 resumes statistics pending cell',()=>{let s=t27('standard',['MODE','3','DATA','1','=','2']);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'stat-grid');eq(t.ui.statFlow.buffer,'2');t=K.dispatchKey(t,'=');eq(t.ui.modeMemory.stat.rows[1][0],2)});
+test('M29 rejects inconsistent workflow mode',()=>{let s=t27matrix();let p=SS.extract(s);p.mode='COMP';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 opt-in recovery retains structural document',()=>{let storage=fakeStorage();SS.enable(storage,true);let s=m29document();SS.store(storage,s);let r=SS.recover(storage);eq(r.document.anchor.sequenceId,s.document.anchor.sequenceId)});
+test('M29 matrix copy from MatA to MatB is independent',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=','COPY']);eq(JSON.stringify(s.ui.modeMemory.matrix.B),'[[1,2],[3,4]]');s.ui.modeMemory.matrix.B[0][0]=99;eq(s.ui.modeMemory.matrix.A[0][0],1)});
+test('M29 CLEARREG removes only selected register',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=','COPY','CLRREG']);eq(s.ui.modeMemory.matrix.A,null);eq(s.ui.modeMemory.matrix.B[0][0],1)});
+test('M29 vector register copy respects dimensions',()=>{let s=t27keys(t27vector(),['SIZE','1','=','2','=','3','=','COPY']);eq(JSON.stringify(s.ui.modeMemory.vector.B),'[1,2,3]')});
+test('M29 resumes coefficient wizard with progress',()=>{let s=m26Mode('standard',1,1,1);s=K.dispatchKey(s,'2');s=K.dispatchKey(s,'=');s=K.dispatchKey(s,'3');let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'coefficient');eq(t.ui.wizard.index,1);eq(t.ui.wizard.buffer,'3');t=K.dispatchKey(t,'=');eq(t.ui.wizard.index,2)});
+test('M29 restores wizard menu',()=>{let s=m26Mode('standard',1,1);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'workflow-menu');eq(t.ui.wizard.kind,null)});
+test('M29 rejects spoofed wizard field schema',()=>{let s=m26Mode('standard',1,1,1),p=SS.extract(s);p.workflow.wizard.fields[0]='eval';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 rejects malicious wizard buffer',()=>{let s=m26Mode('standard',1,1,1),p=SS.extract(s);p.workflow.wizard.buffer='process.exit()';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M29 restored session never executes expression during import',()=>{let s=m29document(),t=SS.importJSON(SS.exportJSON(s));eq(t.lastValue,null);eq(t.result,'');eq(t.error,null)});
+
+// Milestone 30: long-session editing and restore integration regressions.
+function t30keys(s,keys){for(const k of keys)s=K.dispatchKey(s,k);return s}
+test('M30 repeated structural restore preserves cursor and content',()=>{let s=m29document();for(let i=0;i<12;i++){s=SS.importJSON(SS.exportJSON(s));s=K.dispatchKey(s,String(i%10));eq(ED29.inspect(s.document).anchorValid,true)}eq(s.view,'edit')});
+test('M30 repeated template creation after import preserves unique IDs',()=>{let s=m29document();for(let i=0;i<8;i++){s=SS.importJSON(SS.exportJSON(s));s=K.dispatchKey(s,'FRAC');eq(ED29.inspect(s.document).duplicate,false)}});
+test('M30 session JSON round trip deterministic for unchanged state',()=>{let s=m29document(),a=SS.exportJSON(s),b=SS.exportJSON(SS.importJSON(a));eq(JSON.stringify(JSON.parse(a).document),JSON.stringify(JSON.parse(b).document))});
+test('M30 long matrix-edit resume preserves register values',()=>{let s=t27matrix();s=t30keys(s,['1','=','2','=','3','=','4','=']);for(let i=0;i<9;i++){s=SS.importJSON(SS.exportJSON(s));eq(s.ui.modeMemory.matrix.A[1][1],4)}eq(s.view,'register-summary')});
+test('M30 memory remains exact through multiple restores',()=>{let s=mem28();for(let i=0;i<15;i++)s=SS.importJSON(SS.exportJSON(s));eq(K.valueToString(s.memory.A),'7/3')});
+test('M30 stat dataset remains intact across repeated sessions',()=>{let s=mem28();for(let i=0;i<12;i++)s=SS.importJSON(SS.exportJSON(s));eq(JSON.stringify(s.ui.modeMemory.stat.rows),'[[1,3],[2,5]]')});
+test('M30 imported sessions reset transient modifiers',()=>{let s=m29document();s.shift=true;s.alpha=true;let r=SS.importJSON(SS.exportJSON(s));eq(r.shift,false);eq(r.alpha,false)});
+test('M30 no automatic expression evaluation after multiple imports',()=>{let s=m29document();for(let i=0;i<6;i++)s=SS.importJSON(SS.exportJSON(s));eq(s.lastValue,null);eq(s.result,'')});
+test('M30 recovery disabled does not persist editing state',()=>{let st=fakeStorage();let s=m29document();eq(SS.store(st,s),false);eq(st.getItem(SS.KEY),null)});
+test('M30 document anchor remains valid after 10 restorations',()=>{let s=m29document();for(let i=0;i<10;i++)s=SS.importJSON(SS.exportJSON(s));eq(ED29.inspect(s.document).anchorValid,true)});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
