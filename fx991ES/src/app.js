@@ -1,6 +1,6 @@
 (function(){'use strict';
 const K=window.FX991,$=id=>document.getElementById(id);
-let state=K.createState('standard');const E=window.FX991_EDITOR;
+let state=K.createState('standard');const E=window.FX991_EDITOR;let lastAnnouncement='';
 const keyrows=[
 [['SHIFT','gold'],['ALPHA','gold'],['LEFT','dark'],['UP','dark'],['DOWN','dark'],['RIGHT','dark']],
 [['MODE','dark','SETUP'],['ON','orange'],['RCL','dark'],['STO','dark'],['DEL','orange'],['AC','orange','OFF']],
@@ -12,7 +12,8 @@ const keyrows=[
 [['0',''],['.',''],['PI','dark'],['S-D','dark'],['MODE','dark'],['AC','orange']]
 ];
 const labels={LEFT:'◀',UP:'▲',DOWN:'▼',RIGHT:'▶',SQ:'x²',POW:'x^□',SQRT:'√',SIN:'sin',COS:'cos',TAN:'tan',LP:'(',RP:')',DIV:'÷',MUL:'×',SUB:'−',ADD:'+',NEG:'(-)',ANS:'Ans',PI:'π','S-D':'S⇔D',FRAC:'a/b',NROOT:'ⁿ√',LOG:'log',LN:'ln'};
-function keyEvent(key){state=K.dispatchKey(state,key);render()}
+function keyEvent(key){state=K.dispatchKey(state,key);render();if(state.view==='result'||state.view==='error')announce((state.view==='error'?'Error: ':'Result: ')+(state.error||state.result))}
+function announce(message){if(message!==lastAnnouncement){lastAnnouncement=message;$('announcements').textContent=message}}
 for(const row of keyrows)for(const [key,style,alt] of row){const cell=document.createElement('div');cell.className='key-cell';const alternative=document.createElement('div');alternative.className='alt';alternative.textContent=alt||' ';const button=document.createElement('button');button.type='button';button.className='key '+style;button.textContent=labels[key]||key;button.setAttribute('aria-label',key+' calculator key');button.addEventListener('click',()=>keyEvent(key));cell.append(alternative,button);$('keypad').append(cell)}
 function drawLCD(pixels){const ctx=$('lcd').getContext('2d'),data=ctx.createImageData(96,31);for(let i=0;i<pixels.length;i++){const pos=i*4,on=pixels[i];data.data[pos]=on?32:203;data.data[pos+1]=on?45:213;data.data[pos+2]=on?31:189;data.data[pos+3]=255}ctx.putImageData(data,0,0)}
 function renderNatural(){
@@ -29,8 +30,8 @@ function render(){const semantic=K.semanticScreen(state);drawLCD(K.rasterizeScre
 function setSource(text){state={...state,expression:text,cursor:text.length,document:E.fromSource(text),view:'edit',result:'',error:null};render()}
 const toolbar=[['FRAC','Fraction'],['POW','Power'],['SQRT','Square root'],['NROOT','Nth root'],['SIN','sin( )'],['COS','cos( )'],['TAN','tan( )'],['LOG','log( )'],['LP','( )'],['RIGHT','Next slot →'],['DOWN','Slot ↓'],['DEL','Delete']];
 for(const [key,label] of toolbar){const b=document.createElement('button');b.type='button';b.className='button secondary';b.textContent=label;b.setAttribute('aria-label','Insert or navigate: '+label);b.onclick=()=>keyEvent(key);$('natural-toolbar').append(b)}
-$('expression').addEventListener('input',e=>setSource(e.target.value));$('calculate').onclick=()=>keyEvent('=');$('model').onchange=e=>{state=K.createState(e.target.value);render();$('mode-source').value=''};$('angle').onchange=e=>{state={...state,setup:{...state.setup,angle:e.target.value}};render()};$('format').onchange=e=>{state={...state,setup:{...state.setup,format:e.target.value}};if(state.lastValue){state.result=K.format(state.lastValue,state.setup,state.decimalView);if(state.lastValue.kind==='complex'||state.lastValue.kind==='base'||state.lastValue.kind==='mode-result')state.result=K.valueDisplay(state.lastValue,state.setup,state.decimalView)}render()};$('digits').onchange=e=>{state={...state,setup:{...state.setup,digits:Number(e.target.value)}};if(state.lastValue&&state.lastValue.kind!=='complex'&&state.lastValue.kind!=='base'&&state.lastValue.kind!=='mode-result')state.result=K.format(state.lastValue,state.setup,state.decimalView);render()};$('register').onchange=render;
-$('store').onclick=()=>{state={...state,selectedRegister:$('register').value};keyEvent('STO')};$('recall').onclick=()=>{state={...state,selectedRegister:$('register').value};keyEvent('RCL')};$('reset').onclick=()=>{state=K.createState(state.model);render()};$('sample').onclick=()=>{setSource(window.FX991_CMODES.SAMPLES[state.mode]||window.FX991_MODES.SAMPLES[state.mode]||'1+2')};
+$('expression').addEventListener('input',e=>setSource(e.target.value));$('calculate').onclick=()=>keyEvent('=');$('model').onchange=e=>{state=K.createState(e.target.value);render();$('mode-source').value='';announce('Model changed to '+(e.target.value==='c'?'C edition':'standard edition'))};$('angle').onchange=e=>{state={...state,setup:{...state.setup,angle:e.target.value}};render()};$('format').onchange=e=>{state={...state,setup:{...state.setup,format:e.target.value}};if(state.lastValue){state.result=K.format(state.lastValue,state.setup,state.decimalView);if(state.lastValue.kind==='complex'||state.lastValue.kind==='base'||state.lastValue.kind==='mode-result')state.result=K.valueDisplay(state.lastValue,state.setup,state.decimalView)}render()};$('digits').onchange=e=>{state={...state,setup:{...state.setup,digits:Number(e.target.value)}};if(state.lastValue&&state.lastValue.kind!=='complex'&&state.lastValue.kind!=='base'&&state.lastValue.kind!=='mode-result')state.result=K.format(state.lastValue,state.setup,state.decimalView);render()};$('register').onchange=render;
+$('store').onclick=()=>{state={...state,selectedRegister:$('register').value};keyEvent('STO')};$('recall').onclick=()=>{state={...state,selectedRegister:$('register').value};keyEvent('RCL')};$('reset').onclick=()=>{state=K.createState(state.model);render();announce('Calculator reset')};$('sample').onclick=()=>{setSource(window.FX991_CMODES.SAMPLES[state.mode]||window.FX991_MODES.SAMPLES[state.mode]||'1+2')};
 function download(name,text,type){let url=URL.createObjectURL(new Blob([text],{type}));let a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 $('trace-export').onclick=()=>download('fx991-key-trace.json',JSON.stringify({model:state.model,trace:state.trace},null,2),'application/json');$('export').onclick=()=>{let c=document.createElement('canvas');c.width=960;c.height=310;let x=c.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage($('lcd'),0,0,960,310);c.toBlob(blob=>{if(!blob)return;let u=URL.createObjectURL(blob),a=document.createElement('a');a.download='fx991-lcd.png';a.href=u;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000)})};$('copy').onclick=()=>{if(navigator.clipboard?.writeText)navigator.clipboard.writeText(state.result).catch(()=>{})};
 // Milestone 11: numerical operations share the kernel state and typed memory.
@@ -58,7 +59,7 @@ function switchMode(next){
  $('mode-source').value=window.FX991_CMODES.SAMPLES[next]||window.FX991_MODES.SAMPLES[next]||'';
  setSource($('mode-source').value);syncModePanel();
 }
-$('mode-picker').onchange=e=>switchMode(e.target.value);
+$('mode-picker').onchange=e=>{switchMode(e.target.value);announce('Mode '+state.mode)};
 $('mode-example').onclick=()=>{let val=window.FX991_CMODES.SAMPLES[state.mode]||window.FX991_MODES.SAMPLES[state.mode]||'';$('mode-source').value=val;setSource(val)};
 $('mode-evaluate').onclick=()=>{setSource($('mode-source').value);keyEvent('=');$('mode-detail').textContent=state.view==='error'?state.error:state.result};
 
@@ -73,6 +74,6 @@ document.addEventListener('keydown',e=>{if(state.view==='register-prompt'&&/^[A-
 showNumericalFields();
 $('a11y-audit').onclick=()=>{const r=window.FX991_DIFFERENTIAL.auditAccessibility(document);$('a11y-audit-result').textContent=r.controls+' controls checked; '+r.keyLabels+' calculator keys named; '+r.issues.length+' issues: '+r.issues.map(i=>i.type+(i.label?' ('+i.label+')':'')).join(', ');};
 $('run-tests').onclick=()=>{const report=window.FX991_TESTS.run();$('test-summary').textContent=report.passed+'/'+report.total+' passed; '+report.failed+' failed. See detailed runner for cases.'};
-document.addEventListener('keydown',event=>{if(['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName))return;let mapped={Enter:'=',Escape:'AC',Backspace:'DEL',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','^':'POW'}[event.key]||event.key;if(/^[0-9.]$/.test(mapped)||['=','AC','DEL','LEFT','RIGHT','UP','DOWN','ADD','SUB','MUL','DIV','LP','RP','POW'].includes(mapped)){event.preventDefault();keyEvent(mapped)}});
+document.addEventListener('keydown',event=>{if(event.ctrlKey||event.metaKey||event.altKey||event.isComposing)return;if(['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName))return;let mapped={Enter:'=',Escape:'AC',Backspace:'DEL',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','^':'POW'}[event.key]||event.key;if(/^[0-9.]$/.test(mapped)||['=','AC','DEL','LEFT','RIGHT','UP','DOWN','ADD','SUB','MUL','DIV','LP','RP','POW'].includes(mapped)){event.preventDefault();keyEvent(mapped)}});
 render();
 })();
