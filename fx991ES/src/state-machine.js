@@ -48,6 +48,11 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
   let letter=KEYS.resolve(s.model,key,'alpha');
   if(letter){key=letter;s.alpha=false}
  }
+ // In TABLE function-entry fields, ALPHA+LP is a physical-key route to X.
+ if(s.alpha&&s.view==='coefficient'&&s.ui.wizard&&/^[fg]\(X\)$/.test(s.ui.wizard.fields[s.ui.wizard.index])){
+  let letter=KEYS.resolve(s.model,key,'alpha');
+  if(letter){key=letter;s.alpha=false}
+ }
  // Resolve mode-specific physical legends before the generic expression editor.
  // The MODE/SETUP/coefficient/register screens keep precedence over expression entry.
  if(s.view==='edit'||s.view==='result'){
