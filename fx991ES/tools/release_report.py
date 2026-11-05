@@ -25,6 +25,7 @@ def decision(root, evidence=None, *, now=None, max_age_hours=72):
         'requirements': {
             'sourceManifest': gate['sourceIntegrity'],
             'browserMatrix': gate['browserEvidence'],
+            'nativeInteractions': gate.get('nativeInteractions', 'MISSING'),
             'chromium': gate.get('browserResults', {}).get('chromium', 'MISSING'),
             'firefox': gate.get('browserResults', {}).get('firefox', 'MISSING'),
             'webkit': gate.get('browserResults', {}).get('webkit', 'MISSING'),
@@ -41,6 +42,7 @@ def render_html(result):
         raise ValueError('Invalid release decision')
     requirements = result.get('requirements', {})
     fields = [('Source manifest', 'sourceManifest'), ('Browser matrix', 'browserMatrix'),
+              ('Six native interaction checks per browser', 'nativeInteractions'),
               ('Chromium', 'chromium'), ('Firefox', 'firefox'), ('WebKit', 'webkit'),
               ('Physical Casio compatibility', 'physicalCasio')]
     def safe(x):
