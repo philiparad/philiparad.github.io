@@ -3,8 +3,9 @@
 (function(){'use strict';
 const $=id=>document.getElementById(id);
 const tests=[
- ['Calculator boots with the expected COMP state', async x=>{
+ ['Calculator boots without JavaScript exceptions', async x=>{
    expect(x.doc.querySelector('#semantic').textContent.includes('Mode: COMP'),'COMP did not load');
+   expect(x.errors.length===0,'page errors: '+x.errors.join('; '));
  }],
  ['Keypad controls are accessible and keyboard focusable',async x=>{
    const keys=[...x.doc.querySelectorAll('#keypad button')];
@@ -35,7 +36,7 @@ const tests=[
  ['Angle and format selectors update the screen',async x=>{
    let a=x.doc.querySelector('#angle');a.value='RAD';a.dispatchEvent(new x.win.Event('change',{bubbles:true}));
    let f=x.doc.querySelector('#format');f.value='Fix';f.dispatchEvent(new x.win.Event('change',{bubbles:true}));
-   expect(a.value==='RAD'&&f.value==='Fix','select controls');
+   expect(a.value==='RAD'&&f.value==='Fix','select controls');expect(x.errors.length===0,'script exception');
  }],
  ['Natural display editor preserves structural templates',async x=>{
    clickKey(x.doc,'FRAC');clickKey(x.doc,'1');clickKey(x.doc,'RIGHT');clickKey(x.doc,'2');
@@ -51,6 +52,32 @@ const tests=[
  ['Recovery remains opt-in on a fresh isolated session',async x=>{
    expect(x.doc.querySelector('#session-recovery').checked===false,'recovery unexpectedly enabled');
    expect(x.doc.querySelector('#session-export')&&x.doc.querySelector('#session-import'),'session UI absent');
+ }],
+ ['Browser viewport has no horizontal page overflow at narrow width',async x=>{
+   const root=x.doc.documentElement;expect(root.scrollWidth<=root.clientWidth+2,'horizontal page overflow');
+ }],
+ ['Visible input and selectors have programmatic labels',async x=>{
+   const controls=[...x.doc.querySelectorAll('input:not([type=hidden]),select')].filter(el=>!el.disabled);
+   expect(controls.length>=8,'missing settings controls');
+   expect(controls.every(el=>el.labels?.length||el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')),'unlabelled input or select');
+ }],
+ ['Keyboard-only focus can reach the first calculator key',async x=>{
+   const key=x.doc.querySelector('#keypad button');key.focus();
+   expect(x.doc.activeElement===key,'keypad key cannot take keyboard focus');
+ }],
+ ['Session export/import retains a nontrivial matrix register',async x=>{
+   const K=x.win.FX991,S=x.win.FX991_SESSION;let st=K.createState();
+   st.ui.modeMemory.matrix.A=[[1,2],[3,4]];
+   const restored=S.importJSON(S.exportJSON(st));
+   expect(JSON.stringify(restored.ui.modeMemory.matrix.A||[])===JSON.stringify([[1,2],[3,4]]),'matrix register lost');
+ }],
+ ['Focus indicator CSS is present for keyboard access',async x=>{
+   const a=x.doc.querySelector('#keypad button');const css=[...x.doc.styleSheets].filter(sh=>{try{return !!sh.cssRules}catch(_){return false}}).map(sh=>[...sh.cssRules].map(r=>r.cssText).join(' ')).join(' ');
+   expect(css.includes(':focus-visible'),'no keyboard focus styles');expect(a.tabIndex>=0,'key inaccessible');
+ }],
+ ['Long input remains a bounded accessible control',async x=>{
+   const input=x.doc.querySelector('#expression');input.value='1234567890'.repeat(15);input.dispatchEvent(new x.win.Event('input',{bubbles:true}));
+   expect(input.isConnected&&input.labels.length>0,'long input disconnected or unlabeled');
  }],
  ['Calculator regression suite passes in browser context',async x=>{
    const r=x.win.FX991_TESTS.run();expect(r.failed===0&&r.total>=448,`${r.passed}/${r.total}, ${r.failed} failed`);
@@ -87,11 +114,11 @@ async function run(){if(running)return;running=true;$('run').disabled=true;entri
 }
 $('run').onclick=run;
 $('download').onclick=()=>{
- const artifact={schema:'fx991-browser-acceptance',milestone:31,generatedAt:new Date().toISOString(),
+ const artifact={schema:'fx991-browser-acceptance',milestone:33,generatedAt:new Date().toISOString(),
  userAgent:navigator.userAgent,location:location.href,summary:$('summary').textContent,
  results:entries.map(x=>({...x}))};
  const u=URL.createObjectURL(new Blob([JSON.stringify(artifact,null,2)],{type:'application/json'}));
- const a=document.createElement('a');a.download='fx991-browser-evidence-m31.json';a.href=u;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);
+ const a=document.createElement('a');a.download='fx991-browser-evidence-m33.json';a.href=u;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);
 };
 run();
 })();
