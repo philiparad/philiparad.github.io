@@ -194,23 +194,7 @@ The 18 canonical browser checks now test keypad AC/reentry, keyboard shortcut su
 
 Each of the 18 canonical checks creates a **new iframe DOM element** and rejects late, stale and non-calculator load events. Timeout and navigation failures are marked BLOCKED, never falsely passed. See `docs/iframe-test-isolation-m53.md`. Browser/device qualification still requires real evidence.
 
-## Milestone 54 — Dependency-safe browser evidence
 
-The canonical 18-check browser runner and six native-interaction probe both emit
-normal JSON diagnostics if Python Playwright is not installed. Such a run is
-`BLOCKED`, exits nonzero, and cannot qualify a release. GitHub Actions now
-executes the canonical matrix with `if: always()` so a browser-installation
-failure does not suppress evidence collection. The new regression tests exercise
-this path with Python's `-S` option; see
-`docs/playwright-failure-evidence-m54.md`.
+## Milestone 55 — precise browser failure classification
 
-To verify the failure reporting without Playwright:
-
-```sh
-python -S tools/browser_matrix.py --out /tmp/m54-canonical
-python -S tools/browser_interaction_probe.py --out /tmp/m54-native
-```
-
-These commands are expected to exit nonzero and generate blocked evidence files.
-They are **not** browser-compatibility tests. Release approval still requires
-18 canonical checks plus 6 native interactions in all three browser engines.
+The canonical browser harness no longer infers infrastructure blockage from the text of arbitrary exceptions. Only navigation errors tagged by `navigationBlocked` become BLOCKED. Calculator startup assertions, UI import timeouts, and other application failures become FAIL, ensuring defect diagnosis is not hidden by keyword collisions. See `docs/acceptance-failure-classification-m55.md`. Real cross-browser qualification is still pending.
