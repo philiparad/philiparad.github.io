@@ -540,6 +540,28 @@ test('M31 physical keypad sequence retains chronological trace',()=>{let s=m31se
 test('M31 reset does not mutate recovered state before reset',()=>{let s=SS.importJSON(SS.exportJSON(mem28())),old=s.ui.modeMemory.matrix.A[0][0];let n=K.createState(s.model);eq(old,1);eq(n.ui.modeMemory.matrix.A,null)});
 test('M31 session reload preserves standard and C model distinctions',()=>{for(const model of ['standard','c']){let s=K.createState(model),t=SS.importJSON(SS.exportJSON(s));eq(t.model,model)}});
 
+// Milestone 32: cross-browser evidence parsing and release gating.
+const BE32=global.FX991_BROWSER_EVIDENCE;
+function m32report(ua,status='PASS',name='Calculator boot') {return JSON.stringify({schema:BE32.SCHEMA,milestone:32,userAgent:ua,generatedAt:'2026-11-05T08:00:00Z',results:[{name,status}]})}
+function m32full(ua,status='PASS'){let p=JSON.parse(m32report(ua,status));p.results=Array.from({length:18},(_,i)=>({name:'Browser test '+(i+1),status,message:''}));return BE32.parse(JSON.stringify(p))}
+const m32ua={chromium:'Mozilla/5.0 Chrome/130.0.0.0',firefox:'Mozilla/5.0 Firefox/130.0',webkit:'Mozilla/5.0 AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15'};
+test('M32 Chromium classified from user agent',()=>eq(BE32.classify(m32ua.chromium),'chromium'));
+test('M32 Firefox classified from user agent',()=>eq(BE32.classify(m32ua.firefox),'firefox'));
+test('M32 WebKit classified from user agent',()=>eq(BE32.classify(m32ua.webkit),'webkit'));
+test('M32 unknown browsers are not misclassified',()=>eq(BE32.classify('Test Agent'),'unknown'));
+test('M32 missing browser evidence blocks release',()=>{let s=BE32.summarize([BE32.parse(m32report(m32ua.chromium))]);eq(s.ready,false);eq(s.coverage.firefox.present,false)});
+test('M32 three matching real-format reports can satisfy browser gate',()=>{let r=Object.values(m32ua).map(ua=>m32full(ua));eq(BE32.summarize(r).ready,true)});
+test('M32 failed check blocks browser gate',()=>{let r=Object.values(m32ua).map(ua=>m32full(ua,ua===m32ua.firefox?'FAIL':'PASS'));eq(BE32.summarize(r).ready,false)});
+test('M32 blocked check blocks browser gate',()=>{let r=Object.values(m32ua).map(ua=>m32full(ua,ua===m32ua.webkit?'BLOCKED':'PASS'));eq(BE32.summarize(r).ready,false)});
+test('M32 incomplete test coverage blocks browser gate',()=>{let r=Object.values(m32ua).map(ua=>m32full(ua));r[0].results.push({name:'Other test',status:'PASS',message:''});eq(BE32.summarize(r).ready,false)});
+test('M32 invalid evidence JSON rejected',()=>{let bad=false;try{BE32.parse('{bad')}catch(_){bad=true}eq(bad,true)});
+test('M32 duplicate test names rejected',()=>{let p=JSON.parse(m32report(m32ua.chromium));p.results.push({...p.results[0]});let bad=false;try{BE32.parse(JSON.stringify(p))}catch(_){bad=true}eq(bad,true)});
+test('M32 evidence limit enforced',()=>{let bad=false;try{BE32.parse('x'.repeat(BE32.MAX_BYTES+1))}catch(_){bad=true}eq(bad,true)});
+test('M32 schema validation rejects status impersonation',()=>{let p=JSON.parse(m32report(m32ua.chromium));p.results[0].status='SUCCESS';let bad=false;try{BE32.parse(JSON.stringify(p))}catch(_){bad=true}eq(bad,true)});
+test('M32 missing test rows are distinguished from failures',()=>{let r=Object.values(m32ua).map(ua=>m32full(ua));r[1].results[0].name='Different test';eq(BE32.summarize(r).rows[0].statuses.firefox,'MISSING')});
+test('M32 summary export disclaims verified device status',()=>{let r=Object.values(m32ua).map(ua=>m32full(ua));eq(JSON.parse(BE32.evidenceJSON(BE32.summarize(r))).verified,false)});
+test('M32 unknown user-agent does not grant cross-browser coverage',()=>{let r=Object.values(m32ua).map(ua=>m32full(ua));r[2].browser='unknown';eq(BE32.summarize(r).ready,false)});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
