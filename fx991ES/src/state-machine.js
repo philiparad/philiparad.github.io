@@ -13,7 +13,48 @@ const wizardConfigs={
  STAT:{menu:['1VAR','1VAR5','LINEAR3'],fields:{'1VAR':['x1','x2','x3'],'1VAR5':['x1','x2','x3','x4','x5'],LINEAR3:['x1','y1','x2','y2','x3','y3']}},
  TABLE:{menu:['SINGLE','FUNCTION','DUAL'],fields:{SINGLE:['start','end','step'],FUNCTION:['f(X)','start','end','step'],DUAL:['f(X)','g(X)','start','end','step']}}
 };
-function decorate(s){if(!s.ui)s.ui={page:0,pending:null,setupSection:null,wizard:null,insertMode:true};if(s.ui.insertMode===undefined)s.ui.insertMode=true;return s}
+function decorate(s){if(!s.ui)s.ui={page:0,pending:null,setupSection:null,wizard:null,insertMode:true};if(s.ui.insertMode===undefined)s.ui.insertMode=true;
+ if(!s.ui.modeMemory)s.ui.modeMemory={matrix:{A:null,B:null,C:null},vector:{A:null,B:null,C:null},stat:{kind:'1VAR',rows:[]}};
+ return s}
+// Milestone 27 persistent mode-memory: plain numeric arrays only; no executable text.
+function cloneCells(rows){return rows.map(row=>row.slice())}
+function registerCategory(mode){return mode==='MATRIX'?'matrix':mode==='VECTOR'?'vector':null}
+function ensureReg(s,category,name){let r=s.ui.modeMemory[category][name];if(!r){r=category==='matrix'?[[0,0],[0,0]]:[0,0];s.ui.modeMemory[category][name]=r}return r}
+function startRegister(s){let category=registerCategory(s.mode);if(!category)return s;
+ s.ui.registerFlow={category,name:null,other:'B',size:2,field:0,buffer:'',operation:null};s.view='register-menu';return s}
+function regValues(flow,store){let data=ensureReg(store,flow.category,flow.name);return flow.category==='matrix'?data.flat():data.slice()}
+function saveRegValue(s){let flow=s.ui.registerFlow,v=flow.buffer;if(v==='')return;
+ if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(v)||!Number.isFinite(Number(v)))throw new base.CalcError(base.ERROR.ARGUMENT);
+ let data=ensureReg(s,flow.category,flow.name),n=flow.category==='matrix'?data.length:1,i=flow.field;
+ if(flow.category==='matrix')data[Math.floor(i/n)][i%n]=Number(v);else data[i]=Number(v);
+ flow.buffer='';}
+function regExpression(s,op){let flow=s.ui.registerFlow,cat=flow.category,one=s.ui.modeMemory[cat][flow.name],two=s.ui.modeMemory[cat][flow.other];
+ const matrixText=a=>a.map(row=>row.join(',')).join(';'),vectorText=a=>a.join(',');
+ let unary=cat==='matrix'?['DET','INV','TRANS']:['ABS'];let binary=cat==='matrix'?['ADD','MUL']:['DOT','ADD','CROSS','ANGLE'];
+ if(!unary.includes(op)&&!binary.includes(op))throw new base.CalcError(base.ERROR.ARGUMENT);
+ if(!one||((!unary.includes(op))&&!two))throw new base.CalcError(base.ERROR.ARGUMENT);
+ let encode=cat==='matrix'?matrixText:vectorText;
+ return op+':'+encode(one)+(unary.includes(op)?'':'|'+encode(two));}
+function regResult(s,op){try{let expression=regExpression(s,op),value=base.calculateExpression(s.mode,expression,s);
+ s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.kind==='mode-result'?value.ans:value;s.result=base.valueDisplay(value,s.setup,s.decimalView);s.error=null;s.view='result';s.ui.registerFlow=null;
+ s.history=[{expression,display:s.result},...s.history].slice(0,50);
+ s.ui.lastWizard={mode:s.mode,kind:op,fields:[],values:[],resultPage:0};}
+ catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error';s.result=s.error}return s}
+function editStat(s){let data=s.ui.modeMemory.stat;s.ui.statFlow={field:0,buffer:data.rows[0]?.[0]===undefined?'':String(data.rows[0][0])};s.view='stat-grid';return s}
+function statFields(s){return s.ui.modeMemory.stat.rows.flat()}
+function statAccept(s){let f=s.ui.statFlow,stat=s.ui.modeMemory.stat,v=f.buffer;if(v==='')return;
+ if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(v)||!Number.isFinite(Number(v)))throw new base.CalcError(base.ERROR.ARGUMENT);
+ let cols=stat.kind==='LINEAR'?2:1,row=Math.floor(f.field/cols),col=f.field%cols;
+ while(stat.rows.length<=row)stat.rows.push(Array(cols).fill(0));stat.rows[row][col]=Number(v);f.buffer='';}
+function statNavigate(s,step){let f=s.ui.statFlow,stat=s.ui.modeMemory.stat,cols=stat.kind==='LINEAR'?2:1;
+ statAccept(s);f.field=Math.max(0,Math.min((stat.rows.length+1)*cols-1,f.field+step));let row=Math.floor(f.field/cols),col=f.field%cols;f.buffer=stat.rows[row]?.[col]===undefined?'':String(stat.rows[row][col])}
+function statResult(s){try{statAccept(s);let stat=s.ui.modeMemory.stat,rows=stat.rows;
+ if(!rows.length||(stat.kind==='LINEAR'&&rows.length<2))throw new base.CalcError(base.ERROR.ARGUMENT);
+ let expression=stat.kind+':'+(stat.kind==='LINEAR'?rows.map(row=>row.join(',')).join(';'):rows.map(r=>r[0]).join(','));
+ let value=base.calculateExpression('STAT',expression,s);s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.ans;s.result=value.text;s.view='result';s.error=null;
+ s.history=[{expression,display:s.result},...s.history].slice(0,50);s.ui.statFlow=null;}
+ catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error';s.result=s.error}return s}
+
 function syncInput(s){if(s.mode==='COMP'){s.document=E.fromSource(s.expression)}s.cursor=Math.min(s.expression.length,Math.max(0,s.cursor))}
 function record(s,key){s.trace=[...s.trace,{key,mode:s.mode,view:s.view,expression:s.expression,result:s.result}].slice(-200);return s}
 function enterWizard(s,mode){let config=wizardConfigs[mode];if(!config)return s;s.ui.wizard={mode,kind:null,fields:[],values:[],index:0,buffer:''};s.view='workflow-menu';s.menuPage=0;return s}
@@ -32,6 +73,64 @@ function pushBuffer(w,k){if(k==='NEG'){w.buffer=w.buffer.startsWith('-')?w.buffe
 function finishWizard(s){let w=s.ui.wizard;try{let expression=wizardExpression(w),value=base.calculateExpression(w.mode,expression,s);s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.kind==='mode-result'?value.ans:value.kind==='complex'?value.re:value.kind==='base'?base.rat(value.value):value;s.result=base.valueDisplay(value,s.setup,s.decimalView);s.view='result';s.error=null;s.history=[{expression,display:s.result},...s.history].slice(0,50);s.historyCursor=-1;s.ui.lastWizard={mode:w.mode,kind:w.kind,fields:[...w.fields],values:[...w.values],resultPage:0};s.ui.wizard=null}catch(e){s.error=e.code||base.ERROR.MATH;s.errorPos=s.cursor;s.view='error';s.result=s.error;s.ui.wizard=null}return s}
 function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredClone(state.ui):undefined,history:state.history.slice(),memory:{...state.memory},trace:state.trace.slice(),setup:{...state.setup}});
  const end=()=>record(s,key);
+ // Persistent matrix/vector registers and editable STAT data are intentionally
+ // separate from COMP scalar memory. MODE switches preserve them until reset.
+ if(key==='REGS'&&registerCategory(s.mode)){startRegister(s);return end()}
+ if(key==='DATA'&&s.mode==='STAT'){editStat(s);return end()}
+ if(s.view==='register-menu'){
+  if(key==='AC'){s.view='edit';s.ui.registerFlow=null;return end()}
+  if(['1','2','3'].includes(key)){
+   const f=s.ui.registerFlow;f.name=['A','B','C'][Number(key)-1];let data=ensureReg(s,f.category,f.name);f.size=f.category==='matrix'?data.length:data.length;
+   f.field=0;f.buffer='';s.view='register-editor';return end()}
+  return end();
+ }
+ if(s.view==='register-editor'){
+  const f=s.ui.registerFlow;
+  if(key==='AC'){s.view='register-menu';return end()}
+  if(key==='OP'){try{saveRegValue(s);s.view='register-operation'}catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error'}return end()}
+  if(key==='SIZE'){
+   let n=f.size===2?3:2;f.size=n;f.field=0;f.buffer='';s.ui.modeMemory[f.category][f.name]=f.category==='matrix'?Array.from({length:n},()=>Array(n).fill(0)):Array(n).fill(0);return end()}
+  if(key==='DEL'){f.buffer=f.buffer.slice(0,-1);return end()}
+  if(key==='NEG'){f.buffer=f.buffer.startsWith('-')?f.buffer.slice(1):'-'+f.buffer;return end()}
+  if(/^[0-9.]$/.test(key)){if(f.buffer.length<24)f.buffer+=key;return end()}
+  if(['=','RIGHT','LEFT'].includes(key)){
+   try{saveRegValue(s);let count=f.category==='matrix'?f.size*f.size:f.size;
+    if(key==='LEFT')f.field=Math.max(0,f.field-1);
+    else if(f.field+1<count)f.field++;
+    else {s.view='register-summary';return end()}
+    f.buffer='';}
+   catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error'}return end()}
+  return end();
+ }
+ if(s.view==='register-summary'){
+  if(key==='AC'){s.view='edit';s.ui.registerFlow=null;return end()}
+  if(key==='EDIT'){s.view='register-editor';s.ui.registerFlow.field=0;s.ui.registerFlow.buffer='';return end()}
+  if(key==='OP'){s.view='register-operation';return end()}
+  if(key==='REGS'){s.view='register-menu';return end()}
+  return end();
+ }
+ if(s.view==='register-operation'){
+  let f=s.ui.registerFlow,ops=f.category==='matrix'?['DET','INV','TRANS','ADD','MUL']:['ABS','DOT','ADD','CROSS','ANGLE'];
+  if(key==='AC'){s.view='register-summary';return end()}
+  if(key==='OTHER'){f.other=f.other==='B'?'C':'B';return end()}
+  if(/^[1-5]$/.test(key)){regResult(s,ops[Number(key)-1]);return end()}
+  return end();
+ }
+ if(s.view==='stat-grid'){
+  let f=s.ui.statFlow,stat=s.ui.modeMemory.stat;
+  if(key==='AC'){s.view='edit';s.ui.statFlow=null;return end()}
+  if(key==='PAIR'){stat.kind=stat.kind==='1VAR'?'LINEAR':'1VAR';stat.rows=[];f.field=0;f.buffer='';return end()}
+  if(key==='DELROW'){stat.rows.splice(Math.floor(f.field/(stat.kind==='LINEAR'?2:1)),1);f.field=0;f.buffer=stat.rows[0]?.[0]===undefined?'':String(stat.rows[0][0]);return end()}
+  if(key==='ADDROW'){try{statAccept(s);if(stat.rows.length>=80)throw new base.CalcError(base.ERROR.MEM);stat.rows.push(Array(stat.kind==='LINEAR'?2:1).fill(0));f.field=(stat.rows.length-1)*(stat.kind==='LINEAR'?2:1);f.buffer=''}catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error'}return end()}
+  if(key==='STATS'){statResult(s);return end()}
+  if(key==='DEL'){f.buffer=f.buffer.slice(0,-1);return end()}
+  if(key==='NEG'){f.buffer=f.buffer.startsWith('-')?f.buffer.slice(1):'-'+f.buffer;return end()}
+  if(/^[0-9.]$/.test(key)){if(f.buffer.length<24)f.buffer+=key;return end()}
+  if(['=','RIGHT','LEFT','DOWN','UP'].includes(key)){
+   try{statNavigate(s,['LEFT','UP'].includes(key)?-1:1)}catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error'}return end()}
+  return end();
+ }
+
  if(key==='ON'){s.power=true;if(s.view==='off')s.view='edit';return end()}
  if(!s.power)return end();
  if(key==='SHIFT'){s.shift=!s.shift;s.alpha=false;return end()}
@@ -161,6 +260,14 @@ function endAfter(s,key){return s} // finishWizard records current dispatch even
 function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=base.semanticScreen(s);if(s.view==='workflow-menu'){let w=s.ui.wizard,choices=wizardConfigs[w.mode].menu;screen.result=choices.slice(s.menuPage*4,s.menuPage*4+4).map((c,i)=>(i+s.menuPage*4+1)+':'+c).join(' ');screen.expression='SELECT '+w.mode}
  if(s.view==='coefficient'){let w=s.ui.wizard;screen.expression=w.fields[w.index]+' = '+w.buffer;screen.result=(w.index+1)+'/'+w.fields.length}
  if(s.view==='result'&&s.ui.lastWizard){let w=s.ui.lastWizard,rows=s.lastValue?.data?.rows||s.lastValue?.data?.roots;if(Array.isArray(rows)&&rows.length){let index=w.resultPage||0;screen.expression=w.mode+' '+(index+1)+'/'+rows.length;screen.result=Array.isArray(rows[index])?rows[index].join(', '):String(rows[index])}}
+ if(s.view==='register-menu'){screen.expression=s.mode+' REGISTERS';screen.result='1:A 2:B 3:C'}
+ if(['register-editor','register-summary','register-operation'].includes(s.view)){
+  let f=s.ui.registerFlow,reg=s.ui.modeMemory[f.category][f.name],count=f.category==='matrix'?reg.length*reg.length:reg.length;
+  if(s.view==='register-editor'){screen.expression=(f.category==='matrix'?'Mat':'Vct')+f.name+' '+(f.field+1)+'/'+count;screen.result=f.buffer||String(regValues(f,s)[f.field]);}
+  else if(s.view==='register-summary'){screen.expression=(f.category==='matrix'?'Mat':'Vct')+f.name+' SAVED';screen.result='OP EDIT REGS';}
+  else{screen.expression=(f.category==='matrix'?'MATRIX':'VECTOR')+' OP';screen.result=f.category==='matrix'?'1:DET 2:INV 3:T 4:+ 5:*':'1:ABS 2:DOT 3:+ 4:X 5:ANGLE';}
+ }
+ if(s.view==='stat-grid'){let f=s.ui.statFlow,stat=s.ui.modeMemory.stat;screen.expression=stat.kind+' DATA '+(f.field+1);screen.result=f.buffer||'0';}
  if(s.view==='register-prompt'){screen.expression=s.ui.pending+' REG';screen.result='A-F M X Y'}
  if(s.ui.insertMode===false)screen.indicators=[...screen.indicators,'OVR'];
  if(s.view==='setup'){screen.expression=s.ui.setupSection?s.ui.setupSection+' DIGITS':'SETUP';screen.result=s.ui.setupSection?'0-9':'1:D 2:R 3:G 4:FIX 5:SCI 6:N1 7:N2'}return screen}
