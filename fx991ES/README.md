@@ -1,3 +1,11 @@
+# Milestone 52 — Complete Browser Evidence Fingerprint
+
+Corrected the browser evidence SHA-256 scope. Previous fingerprints excluded some live JS modules and test files; changing them could leave evidence associated with an outdated source digest. The fingerprint now includes all browser source files under `src/` and `tests/`, plus root HTML/CSS, with deterministic filenames and lengths. Missing required sources or symlinks fail closed. Eleven new regression tests cover these cases. Existing M51 browser evidence must be recaptured against this fingerprint; this milestone does **not** certify browser execution or physical Casio equivalence.
+
+Details: [Milestone 52 technical notes](docs/source-fingerprint-m52.md).
+
+---
+
 # Milestone 51 — Three-browser native interaction release gate
 
 Corrected a release-qualification loophole: Milestone 50 could set `interaction-probe.json` `ready: true` for a **single requested browser**, while the canonical release gate did not independently require the six native probes. Milestone 51 now requires **18/18 canonical checks and 6/6 real Playwright interactions in *each* of Chromium, Firefox and WebKit**, with a matching source fingerprint, origin, and fresh timestamps. Diagnostic subsets are allowed but cannot approve a release. A failed Playwright page load now closes its browser context. The release decision HTML/JSON explicitly lists native-interaction status. See [Milestone 51 technical documentation](docs/native-browser-release-gate-m51.md).
