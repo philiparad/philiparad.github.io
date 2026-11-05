@@ -1,5 +1,6 @@
 """Milestone 50: ensure native-browser probes fail closed and remain real E2E checks."""
 import importlib
+from datetime import datetime, timezone
 import sys
 import unittest
 from pathlib import Path
@@ -10,8 +11,10 @@ probe=importlib.import_module('browser_interaction_probe')
 
 class InteractionProbeTests(unittest.TestCase):
     def good(self):
-        return {'schema':'fx991-interaction-probe','results':[
-            {'browser':b,'status':'PASS','checks':[{'name':n,'status':'PASS'} for n in probe.CHECK_NAMES]}
+        return {'schema':'fx991-interaction-probe','milestone':51,
+            'sourceDigest':'a'*64, 'generatedAt':datetime.now(timezone.utc).isoformat(),
+            'targetUrl':'http://127.0.0.1:8100/index.html','results':[
+            {'browser':b,'status':'PASS','stage':'complete','checks':[{'name':n,'status':'PASS'} for n in probe.CHECK_NAMES]}
             for b in ('chromium','firefox','webkit')]}
     def test_six_distinct_scenarios(self):self.assertEqual(len(set(probe.CHECK_NAMES)),6)
     def test_fully_successful_matrix(self):self.assertTrue(probe.validate_probe_report(self.good()))
