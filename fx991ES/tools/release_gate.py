@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Milestone 39 release gate. A manifest is a checksum inventory, NOT an attestation.
+"""Milestone 40 release gate. A manifest is a checksum inventory, NOT an attestation.
 
 `prepare` records all shipped source files. `verify` checks that inventory and can
 qualify browser evidence using the *existing* fail-closed browser evidence reviewer.
@@ -32,7 +32,7 @@ def inventory(root=ROOT):
     return dict(sorted(found.items()))
 
 
-def build_manifest(root=ROOT, *, revision=39):
+def build_manifest(root=ROOT, *, revision=40):
     files = inventory(root)
     return {'schema': SCHEMA, 'milestone': revision, 'algorithm': 'sha256',
             'files': files, 'fileCount': len(files),
@@ -49,7 +49,7 @@ def audit_manifest(root=ROOT):
             raise ValueError('manifest must be an object')
     except (OSError, ValueError, TypeError) as exc:
         return {'ready': False, 'blockers': ['Manifest unavailable/invalid: ' + str(exc)], 'fileCount': 0}
-    if data.get('schema') != SCHEMA or data.get('algorithm') != 'sha256' or data.get('milestone') != 39 or data.get('status') != 'CANDIDATE':
+    if data.get('schema') != SCHEMA or data.get('algorithm') != 'sha256' or data.get('milestone') != 40 or data.get('status') != 'CANDIDATE':
         problems.append('Invalid release manifest identity')
     expected = data.get('files')
     if not isinstance(expected, dict) or not expected:
@@ -75,7 +75,7 @@ def audit_manifest(root=ROOT):
 def qualify(root=ROOT, evidence=None, *, max_age_hours=72, now=None):
     root = Path(root)
     audit = audit_manifest(root)
-    result = {'schema': 'fx991-release-qualification', 'milestone': 39,
+    result = {'schema': 'fx991-release-qualification', 'milestone': 40,
               'generatedAt': (now or datetime.now(timezone.utc)).isoformat(),
               'sourceIntegrity': 'PASS' if audit['ready'] else 'FAIL',
               'fileCount': audit['fileCount'], 'browserEvidence': 'MISSING',
