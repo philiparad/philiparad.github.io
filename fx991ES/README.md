@@ -45,3 +45,26 @@ The CI browser runner now validates the exact 18-check acceptance manifest (incl
 ## Milestone 36
 
 The browser acceptance test now **actually resizes the calculator frame to 375 px** for its narrow-screen check. The CI runner validates URLs, timezone-aware timestamps and per-check summary consistency, with 21 offline negative/positive gate tests. See [browser release corrections](docs/browser-release-m36.md). No actual cross-browser pass has been observed yet.
+
+
+## Milestone 38 — auditable browser evidence
+
+The runner records a SHA-256 source fingerprint and target URL with the browser matrix. `tools/evidence_review.py` checks complete three-browser captures, source and origin consistency, date freshness, individual assertions and JavaScript errors. The GitHub workflow uploads an audit report alongside the browser screenshots and test evidence. See `docs/evidence-review-m37.md`. Browser qualification is **not claimed** without actual successful captures.
+
+
+## Milestone 38 — reproducible browser evidence
+
+The browser runner now distinguishes **navigation/launch infrastructure blocks** from **post-load acceptance timeouts and failed evidence downloads**. Only genuine infrastructure errors are reported as BLOCKED; missing or hung UI tests fail. Captures must match the exact configured URL, not a lookalike prefix.
+
+The offline evidence review now enforces an aware, recent matrix timestamp and checks that browser reports were captured within 30 minutes of the matrix execution. A matrix with a missing timestamp, changed source digest, incomplete browser, or inconsistent result is not release-qualified.
+
+Run locally (developer tooling only):
+
+```sh
+node tests/run-node.cjs
+python -m unittest discover -s tools/tests -v
+python tools/browser_matrix.py --out browser-evidence
+python tools/evidence_review.py browser-evidence
+```
+
+This is not a claim that Chromium, Firefox, or WebKit completed successfully, or that the simulator matches a physical Casio device.
