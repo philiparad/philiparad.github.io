@@ -14,7 +14,7 @@ Independent educational browser simulator of fx-991ES PLUS / C behavior, with no
 
 ## Current readiness
 
-- **318/318** local JavaScript tests passed (303 previous + 15 new baseline, clipping, vertical scroll and navigation tests).
+- **358/358** local JavaScript tests passed (337 previous + 21 mode-aware keypad tests).
 - **0 bundled physical-device/emulator observations**. Hardware compatibility is NOT certified.
 - Browser QA evidence is not bundled or presumed. Chromium checks, where performed locally, are development checks—not manual accessibility or cross-browser certification.
 - See `docs/release-candidate.md`, `docs/release.md`, and `docs/compatibility.md` for precise gaps and requirements.
@@ -52,7 +52,7 @@ These behaviors are implemented compatibility candidates, **not** empirically co
 - Tall expressions scroll vertically toward the active structural cursor; top/bottom arrows indicate offscreen material. Horizontal scrolling is retained. Layout output includes `scrollX`, `scrollY`, and viewport metadata.
 - UP/DOWN navigation finds the nearest enclosing mathematical template with an adjacent slot, allowing movement from a nested numerator function to a fraction denominator.
 - The renderer is an independently developed approximation; its glyphs and layout are not pixel-identical to any CASIO product. The display has only fifteen logical rows for mathematical input, so tall expressions are **scrolled, not all visible simultaneously**.
-- **318/318** internal JavaScript regression tests pass; Chromium browser navigation remains blocked by this environment, and physical device parity has not been measured.
+- **358/358** internal JavaScript regression tests pass; Chromium browser navigation remains blocked by this environment, and physical device parity has not been measured.
 
 See `docs/lcd-navigation.md` for the layout contract and gaps.
 
