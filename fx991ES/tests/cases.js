@@ -271,6 +271,22 @@ test('M18 API frozen',()=>eq(Object.isFrozen(REL),true));
 test('M18 COMP regression',()=>{let s=K.createState();for(let key of ['2','ADD','3','='])s=K.dispatchKey(s,key);eq(s.result,'5')});
 test('M18 LCD 2976 pixels',()=>eq(K.rasterizeScreen(K.semanticScreen(K.createState())).length,2976));
 
+// Milestone 19 — release candidate evidence gate (no pre-certified observations).
+const RC=global.FX991_RC;
+test('M19 default evidence empty',()=>{const e=RC.fresh();eq(e.observations.length,0);eq(e.browserChecks.length,0)});
+test('M19 release gated with no physical observations',()=>{const r=RC.assess(RC.fresh(),{total:239,passed:239,failed:0,runtimePassed:true,pagesVerified:true});eq(r.releaseReady,false);if(!r.blockers.some(x=>x.includes('standard model')))throw Error('missing standard evidence blocker')});
+test('M19 internal regression failure blocks',()=>{let r=RC.assess(RC.fresh(),{total:240,passed:239,failed:1,runtimePassed:true,pagesVerified:true});if(!r.blockers.some(x=>x.includes('Internal')))throw Error('bad gate')});
+test('M19 observed references require model',()=>{try{RC.addObservation(RC.fresh(),{kind:'physical',device:'unit',observedAt:'2026-11-05',caseId:'a',result:'pass'});throw Error('accepted')}catch(e){if(!e.message.includes('model'))throw e}});
+test('M19 browser check must include platform',()=>{try{RC.addBrowserCheck(RC.fresh(),{browser:'Chromium',check:'keypad',status:'pass',platform:'',observedAt:'2026-11-05',notes:''});throw Error('accepted')}catch(e){if(!e.message.includes('platform'))throw e}});
+test('M19 browser check rejects fake browser',()=>{try{RC.addBrowserCheck(RC.fresh(),{browser:'Other',check:'keypad',status:'pass',platform:'OS 1',observedAt:'2026-11-05',notes:''});throw Error('accepted')}catch(e){if(!e.message.includes('browser'))throw e}});
+test('M19 duplicate browser checks replaced',()=>{const a={browser:'Chromium',check:'keypad',status:'pass',platform:'Chrome 1',observedAt:'2026-11-05',notes:''};let e=RC.addBrowserCheck(RC.fresh(),a);e=RC.addBrowserCheck(e,{...a,status:'fail'});eq(e.browserChecks.length,1);eq(e.browserChecks[0].status,'fail')});
+test('M19 release fails when browser checks fail',()=>{let e=RC.addBrowserCheck(RC.fresh(),{browser:'Chromium',platform:'Chrome 1',check:'keypad',status:'fail',observedAt:'2026-11-05',notes:''});let r=RC.assess(e,{total:239,passed:239,failed:0,runtimePassed:true,pagesVerified:true});if(!r.blockers.some(x=>x.includes('failed browser')))throw Error('not blocked')});
+test('M19 physical reference failure blocks',()=>{let e=RC.addObservation(RC.fresh(),{model:'standard',kind:'physical',device:'sample unit',observedAt:'2026-11-05',caseId:'sin30',result:'fail'});let r=RC.assess(e,{total:239,passed:239,failed:0,runtimePassed:true,pagesVerified:true});if(!r.blockers.some(x=>x.includes('failed reference')))throw Error('not blocked')});
+test('M19 observation records cannot be labeled manual',()=>{try{RC.addObservation(RC.fresh(),{model:'c',kind:'manual',device:'manual book',observedAt:'2026-11-05',caseId:'case',result:'pass'});throw Error('accepted')}catch(e){if(!e.message.includes('observations'))throw e}});
+test('M19 evidence JSON roundtrip',()=>{let e=RC.fresh();eq(JSON.stringify(RC.validateEvidence(JSON.parse(JSON.stringify(e)))),JSON.stringify(e))});
+test('M19 model coverage recorded separately',()=>{let e=RC.addObservation(RC.fresh(),{model:'standard',kind:'physical',device:'real calculator',observedAt:'2026-11-05',caseId:'a',result:'pass'});let r=RC.assess(e,{total:239,passed:239,failed:0,runtimePassed:true,pagesVerified:true});if(!r.blockers.some(x=>x.includes('c model')))throw Error('C missing')});
+test('M19 readiness not inferred from tests alone',()=>{let r=RC.assess(RC.fresh(),{total:1000,passed:1000,failed:0,runtimePassed:true,pagesVerified:true});eq(r.releaseReady,false)});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);

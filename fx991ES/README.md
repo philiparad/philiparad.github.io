@@ -1,23 +1,23 @@
-# Milestone 18 — Release Hardening and Browser QA
+# Milestone 19 — Release Candidate Evidence Gate
 
-Independent educational scientific calculator inspired by fx-991ES PLUS / C. **Not affiliated with CASIO.** Browser-only HTML/CSS/JavaScript.
+Independent educational browser simulator of fx-991ES PLUS / C behavior, with no CASIO firmware or proprietary assets. Not affiliated with or endorsed by CASIO. Plain HTML/CSS/JavaScript; no Node or React required in the browser.
 
-## Release-hardening changes
+## Applications
 
-- Main-page CSP: same-origin scripts/styles, no outbound connections, plugins, inline script, or HTML forms.
-- Skip-to-content, semantic LCD labels, result/error announcements, keyboard focus, reduced-motion and forced-color support.
-- Browser QA at `tests/release.html` and deterministic release audit at `src/release-audit.js`.
-- Safer CSV exports for untrusted reference values.
-- No external assets, tracking, or proprietary ROMs.
+- \`index.html\`: calculator
+- \`tests/acceptance.html\`: internal regression tests
+- \`tests/reference.html\`: provenance-aware reference observation lab
+- \`tests/differential.html\`: differential replay diagnostics
+- \`tests/release.html\`: browser runtime and QA checks
+- \`tests/rc.html\`: **new evidence-based release gate** and JSON evidence import/export
 
-## Entry points
+## Current readiness
 
-- `index.html`: calculator
-- `tests/acceptance.html`: internal tests
-- `tests/release.html`: browser QA
-- `tests/reference.html`: reference recording
-- `tests/differential.html`: key replay and comparison
+- **252/252** local JavaScript tests passed at build time (239 Milestone 18 + 13 release-gate checks).
+- **0 bundled physical-device/emulator observations**. Hardware compatibility is NOT certified.
+- Browser QA evidence is not bundled or presumed. Chromium checks, where performed locally, are development checks—not manual accessibility or cross-browser certification.
+- See \`docs/release-candidate.md\`, \`docs/release.md\`, and \`docs/compatibility.md\` for precise gaps and requirements.
 
-## Testing and limits
+## Developer tests
 
-Run `node tests/run-node.cjs` if Node is installed for development, or open the browser test pages. Node is **not** required to operate the calculator. No physical or official-emulator observations are yet verified. Browser and device compatibility are not certified; see `docs/release.md`.
+\`node tests/run-node.cjs\` uses Node as an optional local test tool, not as an application dependency. No external packages are needed.

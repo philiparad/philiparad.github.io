@@ -4,8 +4,8 @@ const MAX_INPUT=100000;
 const EXPECTED_ASSETS=Object.freeze([
  'styles.css','src/natural-editor.js','src/decimal15.js','src/display.js','src/kernel.js',
  'src/numerical.js','src/state-machine.js','src/modes.js','src/c-edition.js','src/reference.js',
- 'src/differential.js','src/release-audit.js','src/app.js','tests/cases.js',
- 'tests/acceptance.html','tests/reference.html','tests/differential.html','tests/release.html'
+ 'src/differential.js','src/release-audit.js','src/release-candidate.js','src/app.js','tests/cases.js',
+ 'tests/acceptance.html','tests/reference.html','tests/differential.html','tests/release.html','tests/rc.html'
 ]);
 function inspectInput(s){if(typeof s!=='string')return {ok:false,reason:'not-a-string'};if(s.length>MAX_INPUT)return {ok:false,reason:'too-long'};if(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(s))return {ok:false,reason:'control-character'};return {ok:true,reason:null}}
 function auditDocument(doc){const issues=[];let ids=new Set();const all=[...doc.querySelectorAll('[id]')];for(let e of all){if(ids.has(e.id))issues.push({rule:'duplicate-id',value:e.id});ids.add(e.id)}
