@@ -46,6 +46,21 @@ jobs:
             --run-id "$RUN_ID" \
             --sha "$SOURCE_SHA" \
             --out release-evidence/github-actions
+      - name: Collect job and step failures even without browser artifacts
+        if: always()
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.sha }}
+        run: |
+          python tools/github_job_triage.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id "$RUN_ID" \
+            --sha "$SOURCE_SHA" \
+            --out release-evidence/github-actions/job-triage.json \
+            --markdown release-evidence/github-actions/job-triage.md
+          cat release-evidence/github-actions/job-triage.md >> "$GITHUB_STEP_SUMMARY"
       - name: Upload diagnostics even if browser qualification is blocked
         if: always()
         uses: actions/upload-artifact@v4
