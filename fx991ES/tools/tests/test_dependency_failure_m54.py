@@ -61,8 +61,8 @@ class DependencyFailureTests(unittest.TestCase):
 
     def test_workflow_executes_matrix_even_if_install_fails(self):
         workflow=(ROOT/'.github/workflows/browser-acceptance.yml').read_text()
-        self.assertIn('      - name: Run actual browser matrix\n        if: always()\n',workflow)
-        self.assertIn('      - name: Run native end-to-end interactions in Chromium Firefox WebKit\n        if: always()\n',workflow)
+        self.assertIn('      - name: Run all 72 browser checks against one shared origin\n        if: always()\n',workflow)
+        self.assertIn('python tools/shared_browser_session.py --out browser-evidence',workflow)
         self.assertIn('      - name: Upload browser run evidence, even when blocked or failed\n        if: always()\n',workflow)
 
 if __name__=='__main__':unittest.main()
