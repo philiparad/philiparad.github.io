@@ -104,6 +104,8 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  }
  if(s.view==='register-summary'){
   if(key==='AC'){s.view='edit';s.ui.registerFlow=null;return end()}
+  if(key==='CLRREG'){s.ui.modeMemory[s.ui.registerFlow.category][s.ui.registerFlow.name]=null;s.view='register-menu';return end()}
+  if(key==='COPY'){const f=s.ui.registerFlow,source=s.ui.modeMemory[f.category][f.name];if(source){s.ui.modeMemory[f.category][f.other]=structuredClone(source)}return end()}
   if(key==='EDIT'){s.view='register-editor';s.ui.registerFlow.field=0;s.ui.registerFlow.buffer='';return end()}
   if(key==='OP'){s.view='register-operation';return end()}
   if(key==='REGS'){s.view='register-menu';return end()}
