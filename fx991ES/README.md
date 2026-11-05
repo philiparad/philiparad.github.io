@@ -69,3 +69,10 @@ Added src/keymap.js, structural forward deletion, token overwrite, SHIFT+DEL ins
 - The on-screen RCL enters a register-selection prompt; SHIFT+RCL stores the current result. The legacy direct RCL semantic command is preserved for teaching controls.
 - New regression sequences test key-layer resolution, one-shot modifiers, radix changes, memory, and both calculator editions.
 - These are independent compatibility candidates. No physical device or official emulator observations are claimed. See docs/keypad-workflows.md.
+
+
+## Milestone 26 — Mode-specific keypad editors
+
+New keypad workflows for EQN, MATRIX, VECTOR, STAT and TABLE are described in [`docs/mode-input-workflows.md`](docs/mode-input-workflows.md). Matrix 2×2 inverse/transpose/multiply, vector addition/angles, extended STAT entry, and user-entered TABLE functions (including C-edition dual TABLE) are available as guided coefficient/data screens. Browser controller state, typed math results, memory, history, and 96×31 framebuffer remain shared.
+
+**Verification:** 372/372 local JavaScript regression tests. This is not device-verified Casio compatibility. Browser automation remains restricted by this runtime.
