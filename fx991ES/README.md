@@ -1,34 +1,36 @@
-# Milestone 16 — Reference Characterization and Compatibility Testing
+# Milestone 17 — Differential Regression and Browser QA
 
-Independent educational scientific calculator inspired by fx-991ES PLUS / fx-991ES PLUS C, **not affiliated with CASIO**. Fully browser-side HTML/CSS/vanilla JavaScript. No React, Node runtime, external libraries, ROM extraction, or proprietary assets.
+Independent educational scientific calculator inspired by fx-991ES PLUS / fx-991ES PLUS C. **Not affiliated with CASIO.** HTML/CSS/vanilla JavaScript; no runtime framework, external numerical library, proprietary ROM, graphics, or fonts.
 
-## Open
+## Entry points
 
-- **Calculator:** `index.html`
-- **Internal tests:** `tests/acceptance.html`
-- **Reference laboratory:** `tests/reference.html` — import/export observed behavior and compare to the calculator.
+- `index.html` — interactive calculator and basic accessibility-name audit.
+- `tests/acceptance.html` — internal regression suite (**223/223 passed locally**).
+- `tests/reference.html` — Milestone 16 provenance-aware observation recorder.
+- `tests/differential.html` — NEW differential comparison, deterministic replay, first-divergence diagnostics, JSON/CSV export, and seeded random trace reproducibility tests.
 
-## Milestone 16 additions
+## Milestone 17 implementation
 
-- `src/reference.js` — schema validation, model/setup normalization, key-trace execution, field-by-field comparison, observable state, and reference-result aggregation.
-- `tests/reference.html` — interactive browser laboratory with six **manually seeded documentation-based expectations**, JSON corpus editing and import/export, observed-device recorder, case-by-case diagnostics, and detailed deterministic key traces.
-- `docs/reference-methodology.md` — explicit collection/evidence/provenance protocol.
-- `docs/compatibility.md` — separate claims about local test success and device-level verification.
-- Fourteen new internal regression tests for validation, deterministic rendering, model selection, error states, and reference-provenance separation.
+- `src/differential.js` — pure library exposing `replay`, `compare`, `compareCorpus`, `compareRuns`, `makeCheckpoint`, `toCSV`, `seededFuzz`, and `auditAccessibility`.
+- Deterministic 96×31 framebuffer hashes and semantic state snapshots for each key, including the initial state.
+- Optional `checkpoints: [{step, expected}]` on reference records. These identify the **first observed mismatch among supplied checkpoints**, not an inferred unobserved hardware divergence.
+- Real-device observations remain separate from manual/internal results; no physical observations are bundled.
+- Fully local JSON/CSV exports; no uploaded classroom data or external API calls.
+- Input bounded to 300 cases, 500 semantic events per case and 250 fuzz traces to prevent unbounded work.
+- Nineteen new tests; earlier 204 maintained.
 
-**Internal JavaScript tests: 204/204 passed locally** (190 previous + 14 new). These do not establish physical-device compatibility. The bundled corpus has **zero verified physical/emulator observations**.
+## Reproduce tests
 
-## How to contribute actual reference observations
+Open `tests/acceptance.html` in a desktop browser or (for developers) run `node tests/run-node.cjs`. Node is only an optional test runner; the shipped application uses browser-only JavaScript.
 
-Open `tests/reference.html`, record a real device or legitimate emulator operation with its edition, date, initial setup and entered keys, then add its observed result. Export the updated JSON and version it separately with attribution/provenance. The page does not automatically save personal data or transmit it off-device.
+## Browser QA limitation
 
-## Known limitations
+Automated Chromium navigation in this environment returns `ERR_BLOCKED_BY_ADMINISTRATOR` for both `file://` and `http://127.0.0.1` and therefore the browser UI is not certified. Independently test in current Chrome, Edge, Firefox and Safari, including Tab/Enter keyboard behavior, visible focus, screen-reader announcements, small viewport zoom, and PNG/corpus export.
 
-- This release does not establish equivalence with actual CASIO numeric precision, editor menus, status glyphs, or ROM behavior.
-- The reference runner performs strict comparison on explicitly provided fields. It does not infer missing observations or self-certify seeded manual expectations.
-- The standalone LCD renderer clips very tall nested expressions and uses independent glyphs.
-- Automated Chromium browser-level E2E and hardware/emulator black-box checks are still required.
+## Device-compatibility boundary
 
-## Next engineering stage
+No physical-device or official-emulator traces have been collected as part of this milestone; **0 hardware/emulator comparisons verified**. The six bundled manual-based examples are expectations, not empirical observations. Device reference data must be collected and attributed before any model-compatibility claim. Independent bitmaps are not exact Casio artwork.
 
-Milestone 17: differential testing, cross-browser accessibility checks, a larger provenance-backed observed corpus, automated replay diagnostics, and browser quality assurance. See the research report's verification roadmap.
+## Next
+
+Milestone 18: release hardening, accessibility and cross-browser certification, dependency/security documentation, and provenance-backed reference coverage; use real-device evidence before claiming compatibility.
