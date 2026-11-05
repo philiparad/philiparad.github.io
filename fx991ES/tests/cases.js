@@ -431,6 +431,59 @@ test('M26 wizard editor rejects unsafe function characters',()=>{let s=m26Mode('
 test('M26 field navigation preserves entered values',()=>{let s=m26Mode('standard',1,1,1);s=K.dispatchKey(s,'2');s=K.dispatchKey(s,'RIGHT');s=K.dispatchKey(s,'3');s=K.dispatchKey(s,'LEFT');eq(s.ui.wizard.buffer,'2');s=K.dispatchKey(s,'RIGHT');eq(s.ui.wizard.buffer,'3')});
 test('M26 wizard result trace is deterministic',()=>{let sequence=['MODE','DOWN','3','1','1','=','2','=','1','='];let a=K.runTrace({events:sequence}),b=K.runTrace({events:sequence});eq(a.hash,b.hash)});
 
+
+// Milestone 27 persistent typed data register and table workflow checks.
+function t27(model,keys){let s=K.createState(model);for(const k of keys)s=K.dispatchKey(s,k);return s}
+function t27keys(s,keys){for(const k of keys)s=K.dispatchKey(s,k);return s}
+function t27matrix(){return t27('standard',['MODE','DOWN','2','REGS','1'])}
+function t27vector(){return t27('standard',['MODE','DOWN','4','REGS','1'])}
+test('M27 register menu stores matrices separately',()=>{let s=t27matrix();eq(s.view,'register-editor');eq(s.ui.registerFlow.name,'A');eq(s.ui.modeMemory.matrix.B,null)});
+test('M27 matrix entry persists four values',()=>{let s=t27matrix();s=t27keys(s,['1','=','2','=','3','=','4','=']);eq(s.view,'register-summary');eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,2],[3,4]]')});
+test('M27 matrix stored after mode transitions',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=']);s=t27keys(s,['AC','MODE','1','MODE','DOWN','2']);eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,2],[3,4]]')});
+test('M27 independent MatB register',()=>{let s=t27keys(t27matrix(),['1','=','0','=','0','=','1','=','REGS','2','2','=','0','=','0','=','2','=']);eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,0],[0,1]]');eq(JSON.stringify(s.ui.modeMemory.matrix.B),'[[2,0],[0,2]]')});
+test('M27 determinant by stored MatA',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=','OP','1']);eq(s.view,'result');eq(s.expression,'DET:1,2;3,4');eq(s.result,'-2')});
+test('M27 inverse by stored MatA',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=','OP','2']);eq(s.view,'result');if(!s.result.includes('-2'))throw Error(s.result)});
+test('M27 multiplication uses MatB',()=>{let s=t27keys(t27matrix(),['1','=','0','=','0','=','1','=','REGS','2','2','=','0','=','0','=','2','=','REGS','1','OP','5']);eq(s.view,'result');eq(s.expression,'MUL:1,0;0,1|2,0;0,2')});
+test('M27 matrix size toggles 3x3',()=>{let s=t27keys(t27matrix(),['SIZE']);eq(s.ui.registerFlow.size,3);eq(s.ui.modeMemory.matrix.A.length,3)});
+test('M27 cannot calculate missing second matrix',()=>{let s=t27keys(t27matrix(),['1','=','0','=','0','=','1','=','OP','4']);eq(s.view,'error')});
+test('M27 vector register stores third component',()=>{let s=t27keys(t27vector(),['SIZE','1','=','2','=','3','=']);eq(s.view,'register-summary');eq(JSON.stringify(s.ui.modeMemory.vector.A),'[1,2,3]')});
+test('M27 stored vector norm',()=>{let s=t27keys(t27vector(),['3','=','4','=','OP','1']);eq(s.result,'5')});
+test('M27 vector B dot product',()=>{let s=t27keys(t27vector(),['1','=','2','=','REGS','2','3','=','4','=','REGS','1','OP','2']);eq(s.expression,'DOT:1,2|3,4');eq(s.result,'11')});
+test('M27 3D cross product',()=>{let s=t27keys(t27vector(),['SIZE','1','=','0','=','0','=','REGS','2','SIZE','0','=','1','=','0','=','REGS','1','OP','4']);eq(s.expression,'CROSS:1,0,0|0,1,0');eq(s.result,'[0, 0, 1]')});
+test('M27 invalid register entry does not execute JS',()=>{let s=t27keys(t27matrix(),['NEG','=']);eq(s.view,'error')});
+test('M27 STAT data editor initializes empty',()=>{let s=t27('standard',['MODE','3','DATA']);eq(s.view,'stat-grid');eq(s.ui.modeMemory.stat.rows.length,0)});
+test('M27 STAT editor accepts multiple rows and computes mean',()=>{let s=t27('standard',['MODE','3','DATA','1','=','2','=','3','STATS']);eq(s.view,'result');if(!s.result.includes('mean=2'))throw Error(s.result)});
+test('M27 STAT rows persist when mode changed',()=>{let s=t27('standard',['MODE','3','DATA','7','=','8','=','AC','MODE','1','MODE','3','DATA']);eq(s.ui.modeMemory.stat.rows.length,2);eq(s.ui.modeMemory.stat.rows[0][0],7)});
+test('M27 STAT row deletion',()=>{let s=t27('standard',['MODE','3','DATA','1','=','2','=','UP','DELROW']);eq(s.ui.modeMemory.stat.rows.length,1)});
+test('M27 STAT pair mode linear regression',()=>{let s=t27('standard',['MODE','3','DATA','PAIR','1','=','3','=','2','=','5','=','3','=','7','STATS']);eq(s.view,'result');eq(s.expression,'LINEAR:1,3;2,5;3,7')});
+test('M27 dataset reset on PAIR changes',()=>{let s=t27('standard',['MODE','3','DATA','1','=','PAIR']);eq(s.ui.modeMemory.stat.rows.length,0);eq(s.ui.modeMemory.stat.kind,'LINEAR')});
+test('M27 reset clears registers',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=']);let fresh=K.createState();eq(fresh.ui.modeMemory.matrix.A,null);eq(s.ui.modeMemory.matrix.A[0][0],1)});
+
+// M28: lossless typed scalar recovery, validated persistence, and opt-in storage.
+const SS=global.FX991_SESSION;
+function mem28(){let s=K.createState('c');s.mode='MATRIX';s.ui.modeMemory.matrix.A=[[1,2],[3,4]];s.ui.modeMemory.matrix.B=[[2,0],[0,2]];s.ui.modeMemory.vector.C=[3,4,5];s.ui.modeMemory.stat={kind:'LINEAR',rows:[[1,3],[2,5]]};s.memory.A=K.rat(7n,3n);s.ans=K.rat(-5n,8n);s.history=[{expression:'1+2',display:'3'}];s.expression='2+4';s.cursor=3;return s}
+function fail28(f){try{f();throw Error('Expected rejection')}catch(e){if(e.message==='Expected rejection')throw e}}
+function fakeStorage(){const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)}}
+test('M28 session exports explicit versioned schema',()=>{let x=JSON.parse(SS.exportJSON(mem28()));eq(x.schema,'fx991-session');eq(x.version,1)});
+test('M28 register matrices survive JSON round-trip',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,2],[3,4]]');eq(JSON.stringify(s.ui.modeMemory.matrix.B),'[[2,0],[0,2]]')});
+test('M28 vector register survives JSON round-trip',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));eq(JSON.stringify(s.ui.modeMemory.vector.C),'[3,4,5]')});
+test('M28 linear statistics pairs survive JSON round-trip',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));eq(JSON.stringify(s.ui.modeMemory.stat.rows),'[[1,3],[2,5]]')});
+test('M28 exact BigInt rational memory survives',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));eq(K.valueToString(s.memory.A),'7/3');eq(K.valueToString(s.ans),'-5/8')});
+test('M28 persists setup, model and expression',()=>{let s=mem28();s.setup={angle:'RAD',format:'Fix',digits:5};s=SS.importJSON(SS.exportJSON(s));eq(s.model,'c');eq(s.setup.format,'Fix');eq(s.setup.angle,'RAD');eq(s.expression,'2+4')});
+test('M28 restore resets active workflow to edit',()=>{let s=mem28();s.view='register-editor';s.ui.registerFlow={category:'matrix',name:'A',field:1};s=SS.importJSON(SS.exportJSON(s));eq(s.view,'edit');eq(s.ui.registerFlow,null);eq(s.lastValue,null)});
+test('M28 rejects invalid JSON',()=>fail28(()=>SS.importJSON('{bad')));
+test('M28 rejects newer unknown schema version',()=>{let p=JSON.parse(SS.exportJSON(mem28()));p.version=99;fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M28 rejects NaN matrix cells',()=>{let p=JSON.parse(SS.exportJSON(mem28()));p.modeMemory.matrix.A[0][1]='NaN';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M28 rejects non-square matrix',()=>{let p=JSON.parse(SS.exportJSON(mem28()));p.modeMemory.matrix.A=[[1,2],[3,4],[5,6]];fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M28 rejects malicious oversized datasets',()=>{let p=JSON.parse(SS.exportJSON(mem28()));p.modeMemory.stat.rows=Array.from({length:81},()=>[1,2]);fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M28 rejects invalid BigInt memory',()=>{let p=JSON.parse(SS.exportJSON(mem28()));p.memory.A.n='1e999';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M28 refuses C mode on standard model',()=>{let p=JSON.parse(SS.exportJSON(mem28()));p.model='standard';p.mode='INEQ';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('M28 initial browser recovery is disabled',()=>{let st=fakeStorage();eq(SS.enabled(st),false);eq(SS.store(st,mem28()),false);eq(SS.recover(st),null)});
+test('M28 opted-in storage restores state',()=>{let st=fakeStorage();eq(SS.enable(st,true),true);eq(SS.store(st,mem28()),true);eq(SS.recover(st).ui.modeMemory.vector.C[2],5)});
+test('M28 disabling recovery clears saved data',()=>{let st=fakeStorage();SS.enable(st,true);SS.store(st,mem28());SS.enable(st,false);eq(SS.enabled(st),false);eq(st.getItem(SS.KEY),null)});
+test('M28 corrupted storage fails closed',()=>{let st=fakeStorage();SS.enable(st,true);st.setItem(SS.KEY,'{broken');eq(SS.recover(st),null)});
+test('M28 export respects maximum expression length',()=>{let s=mem28();s.expression='1'.repeat(513);fail28(()=>SS.exportJSON(s))});
+test('M28 imported session retains safe calculator dispatch',()=>{let s=SS.importJSON(SS.exportJSON(mem28()));s=K.dispatchKey(s,'AC');eq(s.view,'edit');eq(s.ui.modeMemory.matrix.A[0][0],1)});
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
