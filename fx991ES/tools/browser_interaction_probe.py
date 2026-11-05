@@ -229,12 +229,14 @@ def main(argv=None):
     ap.add_argument('--browsers',nargs='+',choices=BROWSERS,default=list(BROWSERS))
     ap.add_argument('--out',default='browser-evidence')
     ap.add_argument('--chromium-executable',default=None)
+    ap.add_argument('--base-url',default=None,
+                    help='Shared test origin for canonical and native probes')
     args=ap.parse_args(argv)
     out=Path(args.out).resolve();out.mkdir(parents=True,exist_ok=True)
     results=[]
     with Server(('127.0.0.1',0),Handler) as server:
         thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-        url=f'http://127.0.0.1:{server.server_address[1]}/index.html'
+        url=(args.base_url.rstrip('/') + '/index.html') if args.base_url else f'http://127.0.0.1:{server.server_address[1]}/index.html'
         try:
             try:
                 from playwright.sync_api import sync_playwright
