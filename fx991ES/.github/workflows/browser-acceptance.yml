@@ -1,4 +1,4 @@
-name: Cross-browser acceptance — M36
+name: Cross-browser acceptance — M38
 on:
   workflow_dispatch:
   push:
@@ -29,6 +29,9 @@ jobs:
           python -m playwright install --with-deps chromium firefox webkit
       - name: Run actual browser matrix
         run: python tools/browser_matrix.py --out browser-evidence
+      - name: Audit captured browser evidence against this checkout
+        if: always()
+        run: python tools/evidence_review.py browser-evidence --out browser-evidence/evidence-review.json
       - name: Upload browser run evidence, even when blocked or failed
         if: always()
         uses: actions/upload-artifact@v4
