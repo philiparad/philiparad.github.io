@@ -1,3 +1,11 @@
+# Milestone 47 — GitHub Actions job-level failure triage
+
+`tools/github_job_triage.py` retrieves GitHub Actions **job and step metadata** for an exact authenticated run and source commit, even if the browser testing workflow failed before evidence upload. The `review-browser-artifacts.yml` workflow now attaches non-approving JSON/Markdown job triage reports. Missing/invalid job lists fail closed; this tool **never** qualifies the browser release. See [Milestone 47 documentation](docs/github-job-triage-m47.md).
+
+Local checks: `node tests/run-node.cjs`, `python -m unittest discover -s tools/tests -v`, `python tools/release_gate.py verify`. Browser qualification and physical Casio equivalence remain unverified.
+
+---
+
 # Milestone 45 — Browser CI Matrix Summary
 
 A non-approving GitHub Actions test summary now distinguishes individual Chromium/Firefox/WebKit failures, execution stages, and diagnostic output. The existing artifact collector and release gate remain the authoritative qualification path. Local unit tests and synthetic matrix fixtures are not browser execution evidence.
