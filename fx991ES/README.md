@@ -1,3 +1,7 @@
+# Milestone 45 — Browser CI Matrix Summary
+
+A non-approving GitHub Actions test summary now distinguishes individual Chromium/Firefox/WebKit failures, execution stages, and diagnostic output. The existing artifact collector and release gate remain the authoritative qualification path. Local unit tests and synthetic matrix fixtures are not browser execution evidence.
+
 # Milestone 43 — Authenticated Browser Evidence and CI Diagnostics
 
 **Status:** Local source/tests validated; browser release qualification blocked until real Chromium, Firefox and WebKit evidence exists. No physical Casio equivalence is certified.
