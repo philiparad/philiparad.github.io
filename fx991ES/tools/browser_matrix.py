@@ -10,6 +10,7 @@ from pathlib import Path
 import socketserver
 import threading
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 BROWSERS = ('chromium', 'firefox', 'webkit')
@@ -66,6 +67,22 @@ def check_capture(raw, browser):
         raise ValueError('Chromium evidence not captured in Chromium')
     if browser == 'webkit' and not ('applewebkit/' in ua and 'chrome/' not in ua and 'chromium/' not in ua):
         raise ValueError('WebKit evidence not captured in WebKit')
+    # Captures must contain a real page URL and a parseable timestamp.
+    location = raw.get('location')
+    if not isinstance(location, str) or not location:
+        raise ValueError('Missing browser capture location')
+    parsed = urlparse(location)
+    if parsed.scheme not in ('http', 'https') or not parsed.netloc or not parsed.path.endswith('/tests/browser-acceptance.html'):
+        raise ValueError('Invalid browser capture page URL')
+    timestamp = raw.get('generatedAt')
+    if not isinstance(timestamp, str):
+        raise ValueError('Missing browser capture timestamp')
+    try:
+        instant = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        if instant.tzinfo is None:
+            raise ValueError('timezone required')
+    except (ValueError, TypeError) as e:
+        raise ValueError('Invalid browser capture timestamp') from e
     rows = raw.get('results')
     if not isinstance(rows, list) or len(rows) != REQUIRED_CHECKS:
         raise ValueError(f'Expected {REQUIRED_CHECKS} browser checks; got {len(rows) if isinstance(rows, list) else "invalid"}')
@@ -75,12 +92,18 @@ def check_capture(raw, browser):
             raise ValueError(f'Invalid check name at position {i}')
         if row.get('status') not in ('PASS', 'FAIL', 'BLOCKED'):
             raise ValueError(f'Invalid check status at position {i}')
+        if 'message' in row and not isinstance(row['message'], str):
+            raise ValueError(f'Invalid check diagnostic at position {i}')
         names.append(row['name'])
     if len(names) != len(set(names)):
         raise ValueError('Duplicate browser checks in evidence')
     if tuple(names) != EXPECTED_NAMES:
         raise ValueError('Browser acceptance check names or order do not match the release manifest')
-    return names, sum(r['status'] == 'PASS' for r in rows)
+    passed = sum(r['status'] == 'PASS' for r in rows)
+    reported_summary = raw.get('summary')
+    if not isinstance(reported_summary, str) or not reported_summary.startswith(f'{passed}/{REQUIRED_CHECKS} browser checks passed'):
+        raise ValueError('Browser summary contradicts individual checks')
+    return names, passed
 
 
 def aggregate(results):
@@ -162,7 +185,7 @@ def main(argv=None):
             server.shutdown()
             thread.join(timeout=2)
     ready = aggregate(results)
-    summary = {'schema':'fx991-browser-matrix-run', 'milestone':35,
+    summary = {'schema':'fx991-browser-matrix-run', 'milestone':36,
                'generatedAt':datetime.now(timezone.utc).isoformat(), 'results':results,
                'ready':ready, 'note':'Browser checks do not certify physical Casio compatibility.'}
     (out / 'matrix-run.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
