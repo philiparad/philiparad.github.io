@@ -348,7 +348,24 @@ test('M22 Norm 2 lower threshold',()=>eq(K.format(K.rat(1,1000000000),{format:'N
 test('M22 Norm 2 below threshold',()=>eq(K.format(K.rat(1,10000000000),{format:'Norm2'},true),'1e-10'));
 test('M22 S-D does not mutate original exact Ans',()=>{let s=K.createState();for(let k of ['1','DIV','3','='])s=K.dispatchKey(s,k);let ans=K.serialValue(s.ans);s=K.dispatchKey(s,'S-D');s=K.dispatchKey(s,'S-D');eq(JSON.stringify(K.serialValue(s.ans)),JSON.stringify(ans))});
 
+
+// Milestone 23 — baseline-aware 96x31 LCD and deep structural navigation.
+test('M23 framebuffer remains exactly 96x31',()=>eq(L.rasterizeScreen(K.semanticScreen(K.createState())).length,2976));
+test('M23 plain token baseline is stable',()=>{let b=L.layoutExpression(E.fromSource('ABC'));eq(b.baseline,4);eq(b.height,5)});
+test('M23 power exponent rises above base',()=>{let d=E.fromSource('2');d=E.template(d,'Power');d=E.insertToken(d,'3');let b=L.layoutExpression(d);let children=b.commands.filter(c=>c.type==='child');if(children.length!==2)throw Error('expected base and power');if(!(children[1].y<children[0].y))throw Error('exponent not raised')});
+test('M23 fraction baseline lies inside box',()=>{let d=E.template(E.create(),'Fraction');let b=L.layoutExpression(d);if(!(b.baseline>0&&b.baseline<b.height))throw Error('fraction baseline invalid')});
+test('M23 fraction numerator visually above denominator',()=>{let d=E.template(E.create(),'Fraction');let b=L.layoutExpression(d).commands[0].box;let children=b.commands.filter(c=>c.type==='child');if(!(children[0].y<children[1].y))throw Error('fraction order incorrect')});
+test('M23 nested fraction vertical scroll keeps deep caret visible',()=>{let d=E.create();for(let i=0;i<4;i++){d=E.template(d,'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN')}d=E.insertToken(d,'2');let s=K.semanticScreen(K.createState());s.document=d;s.view='edit';let frame=L.composeScreen(s);if(frame.layout.height<=15||frame.scrollY<=0)throw Error('not vertically scrolled');let caret=frame.layout.anchors.find(a=>a.kind==='cursor');let centerY=7+caret.y-frame.scrollY;if(centerY<7||centerY>=22)throw Error('caret outside viewport')});
+test('M23 tall expression signals vertical overflow',()=>{let d=E.create();for(let i=0;i<3;i++)d=E.template(d,'Fraction');let s=K.semanticScreen(K.createState());s.document=d;let rendered=L.composeScreen(s);eq(rendered.overflow,true);eq(rendered.viewport.bottom,22)});
+test('M23 status row survives clipping',()=>{let d=E.create();for(let i=0;i<4;i++)d=E.template(d,'Fraction');let s=K.semanticScreen(K.createState());s.document=d;let rendered=L.composeScreen(s);if(!rendered.pixels.slice(0,96*7).some(Boolean))throw Error('status row gone')});
+test('M23 result row survives clipping',()=>{let d=E.create();for(let i=0;i<4;i++)d=E.template(d,'Fraction');let s=K.semanticScreen(K.createState());s.document=d;s.result='123';let rendered=L.composeScreen(s);if(!rendered.pixels.slice(96*24).some(Boolean))throw Error('result row gone')});
+test('M23 horizontal scroll still follows caret',()=>{let d=E.fromSource('123456789012345678901234567890');let s=K.semanticScreen(K.createState());s.document=d;let r=L.composeScreen(s);if(!(r.scrollX>0&&r.scrollY===0))throw Error('horizontal scrolling broken')});
+test('M23 nested vertical movement climbs to ancestor denominator',()=>{let d=E.template(E.create(),'Fraction');d=E.template(d,'Function','sin');d=E.insertToken(d,'1');let numerator=d.root.children[0].numerator.id,denominator=d.root.children[0].denominator.id;if(d.anchor.sequenceId===numerator)throw Error('not nested');d=E.move(d,'DOWN');eq(d.anchor.sequenceId,denominator)});
+test('M23 nested upward movement climbs to ancestor numerator',()=>{let d=E.template(E.create(),'Fraction');d=E.insertToken(d,'2');d=E.move(d,'DOWN');d=E.template(d,'Root');d=E.insertToken(d,'3');d=E.move(d,'UP');eq(d.anchor.sequenceId,d.root.children[0].numerator.id)});
+test('M23 nested vertical navigation does not change source',()=>{let d=E.template(E.create(),'Fraction');d=E.template(d,'Function','cos');d=E.insertToken(d,'5');let before=E.serialize(d);d=E.move(d,'DOWN');d=E.move(d,'UP');eq(E.serialize(d),before)});
+test('M23 vertically scrolled frame deterministic',()=>{let d=E.create();for(let i=0;i<3;i++){d=E.template(d,'Fraction');d=E.move(d,'DOWN')}let s=K.semanticScreen(K.createState());s.document=d;let a=L.rasterizeScreen(s),b=L.rasterizeScreen(s);eq(K.frameHash(a),K.frameHash(b))});
+test('M23 clipping preserves pixel bounds',()=>{let f=new L.Framebuffer();f.clip={left:0,right:96,top:7,bottom:22};f.line(1,0,1,30);eq(f.pixels[96*0+1],0);eq(f.pixels[96*12+1],1);eq(f.pixels[96*30+1],0)});
+
 function run(){let details=[],passed=0;for(let c of cases){try{c.run();passed++;details.push({name:c.name,pass:true})}catch(e){details.push({name:c.name,pass:false,error:String(e.message)})}}return {passed,failed:details.length-passed,total:details.length,details}}
 global.FX991_TESTS=Object.freeze({run,cases});
 })(typeof window!=='undefined'?window:globalThis);
-
