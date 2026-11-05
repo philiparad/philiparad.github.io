@@ -160,3 +160,8 @@ The GitHub run collector now supports `--diagnose-failed` for a named completed 
 ## Milestone 46 — CI environment verification
 
 `tools/ci_environment.py` reports missing Python Playwright, Node, and Chromium/Firefox/WebKit executables. The GitHub Actions workflow saves pre/post-install JSON and Markdown, including failures that precede browser execution. Preflight is strictly diagnostic and does not certify the calculator. See `docs/ci-environment-m46.md`.
+
+
+### Milestone 49 — browser interaction acceptance
+
+The 18 canonical browser checks now test keypad AC/reentry, keyboard shortcut suppression in focused input, partial/completed fraction templates, an actual JSON file-input session restore with matrix persistence and opt-in recovery lifecycle, and JavaScript errors after each interaction. Run `tests/browser-acceptance.html` in a real browser. This is not a declaration of three-browser or physical Casio compatibility.
