@@ -117,5 +117,25 @@ class EvidenceGateTests(unittest.TestCase):
         self.assertTrue(m.aggregate([dict(browser=b,status='PASS',names=list(m.EXPECTED_NAMES)) for b in m.BROWSERS]))
 
 
+
+class Milestone38FailureClassificationTests(unittest.TestCase):
+    def test_navigation_admin_block_is_infrastructure(self):
+        self.assertEqual(m.classify_failure('navigate', RuntimeError('net::ERR_BLOCKED_BY_ADMINISTRATOR')), 'BLOCKED')
+
+    def test_missing_browser_binary_is_infrastructure(self):
+        self.assertEqual(m.classify_failure('launch', RuntimeError("Executable doesn't exist")), 'BLOCKED')
+
+    def test_post_navigation_timeout_is_real_failure(self):
+        self.assertEqual(m.classify_failure('execute', TimeoutError('Timeout 150000ms exceeded')), 'FAIL')
+
+    def test_download_failure_is_not_excused(self):
+        self.assertEqual(m.classify_failure('capture', TimeoutError('Timeout downloading report')), 'FAIL')
+
+    def test_url_prefix_spoof_rejected(self):
+        expected='https://example.com/fx991ES/tests/browser-acceptance.html'
+        self.assertFalse(m.same_origin_and_path('https://example.com.attacker.invalid/fx991ES/tests/browser-acceptance.html',expected))
+        self.assertFalse(m.same_origin_and_path('https://example.com/fx991ES/tests/browser-acceptance.html?x=1',expected))
+        self.assertTrue(m.same_origin_and_path(expected,expected))
+
 if __name__ == '__main__':
     unittest.main()
