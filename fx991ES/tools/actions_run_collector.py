@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect and review evidence from a named GitHub Actions run (Milestone 43).
+"""Collect and review GitHub Actions browser evidence (Milestone 44).
 
 The authenticated GitHub API determines artifact provenance; artifact contents remain
 untrusted and are never executed. Failure always returns a BLOCKED decision.
@@ -25,7 +25,7 @@ import zipfile
 
 from actions_artifact_inspector import inspect_archive, render_html
 
-SCHEMA = 'fx991-github-run-evidence-m43'
+SCHEMA = 'fx991-github-run-evidence-m44'
 API = 'https://api.github.com'
 WORKFLOW = 'browser-acceptance.yml'
 WORKFLOW_NAME = 'Cross-browser acceptance'
@@ -76,8 +76,8 @@ def github_request(url, *, token=None, binary=False, timeout=25):
     return json.loads(payload)
 
 
-def select_completed_run(runs, repo, sha):
-    """Only accept a successful browser workflow for the exact expected commit."""
+def select_completed_run(runs, repo, sha, *, diagnose_failed=False):
+    """Select a matching completed workflow; failed runs may ONLY supply diagnostics."""
     if not isinstance(runs, dict) or not isinstance(runs.get('workflow_runs'), list):
         raise ValueError('Malformed workflow run listing')
     matches = []
@@ -88,24 +88,31 @@ def select_completed_run(runs, repo, sha):
         if (run.get('head_sha', '').lower() == sha.lower()
                 and repository.get('full_name', '').lower() == repo.lower()
                 and run.get('status') == 'completed'
-                and run.get('conclusion') == 'success'
+                and (run.get('conclusion') == 'success' or
+                     (diagnose_failed and run.get('conclusion') in ('failure', 'timed_out', 'cancelled', 'action_required')))
                 and run.get('event') in ('push', 'workflow_dispatch')
                 and run.get('head_branch') == 'main'
                 and isinstance(run.get('id'), int) and run['id'] > 0):
             matches.append(run)
     if not matches:
-        raise ValueError('No completed successful browser workflow run found for this source commit')
+        raise ValueError('No matching completed browser workflow run found for this source commit')
     return max(matches, key=lambda x: x['id'])
 
 
-def validate_run(run, repo, sha, *, run_id=None):
+def validate_run(run, repo, sha, *, run_id=None, diagnose_failed=False):
     if not isinstance(run, dict):
         raise ValueError('Malformed GitHub workflow run metadata')
     if run_id is not None and run.get('id') != run_id:
         raise ValueError('Run identity mismatch')
-    selected = select_completed_run({'workflow_runs':[run]}, repo, sha)
+    selected = select_completed_run({'workflow_runs':[run]}, repo, sha, diagnose_failed=diagnose_failed)
     if selected.get('name', '').split('—')[0].strip() != WORKFLOW_NAME:
         raise ValueError('Unexpected GitHub Actions workflow name')
+    # GitHub provides a workflow path on normal run details. When present it
+    # must identify the expected workflow, not just a matching display name.
+    path = selected.get('path')
+    if path is not None and (not isinstance(path, str) or
+            not path.split('@', 1)[0].endswith('/.github/workflows/' + WORKFLOW)):
+        raise ValueError('Unexpected GitHub Actions workflow file')
     return selected
 
 
@@ -124,11 +131,13 @@ def select_artifact(payload, run_id):
     return matches[0]
 
 
-def collect(repo, sha, out, *, run_id=None, root=None, token=None, fetch=github_request):
+def collect(repo, sha, out, *, run_id=None, root=None, token=None,
+            diagnose_failed=False, fetch=github_request):
     """Download and inspect an artifact; return provenance-annotated diagnostics.
 
-    `fetch` is injectable in tests, but production uses requests to GitHub's API.
-    A downloaded ZIP is not itself treated as a security attestation.
+    Failed runs can be fetched with diagnose_failed=True to identify defects.
+    Only completed, successful, authenticated runs can ever qualify a release.
+    `fetch` is injectable in tests. A ZIP alone is not a CI attestation.
     """
     validate_identity(repo, sha)
     out = Path(out)
@@ -137,12 +146,13 @@ def collect(repo, sha, out, *, run_id=None, root=None, token=None, fetch=github_
     base = f'{API}/repos/{repo}'
     if run_id is None:
         url = f'{base}/actions/workflows/{WORKFLOW}/runs?branch=main&per_page=100'
-        run = select_completed_run(fetch(url, token=token), repo, sha)
+        run = select_completed_run(fetch(url, token=token), repo, sha, diagnose_failed=False)
     else:
         if not isinstance(run_id, int) or run_id <= 0:
             raise ValueError('Invalid workflow run identifier')
-        run = validate_run(fetch(f'{base}/actions/runs/{run_id}', token=token), repo, sha, run_id=run_id)
-    run = validate_run(run, repo, sha, run_id=run['id'])
+        run = validate_run(fetch(f'{base}/actions/runs/{run_id}', token=token), repo, sha,
+                           run_id=run_id, diagnose_failed=diagnose_failed)
+    run = validate_run(run, repo, sha, run_id=run['id'], diagnose_failed=diagnose_failed)
     artifact = select_artifact(fetch(f'{base}/actions/runs/{run["id"]}/artifacts?per_page=100',token=token), run['id'])
     raw = fetch(f'{base}/actions/artifacts/{artifact["id"]}/zip', token=token, binary=True)
     if not isinstance(raw, bytes) or len(raw) > MAX_ARCHIVE:
@@ -163,12 +173,17 @@ def collect(repo, sha, out, *, run_id=None, root=None, token=None, fetch=github_
         'ciRunAuthenticated': bool(token),
         'githubApiMetadataMatched': True,
         'evidenceComplete': bool(audit.get('evidenceComplete')),
-        'browserQualified': bool(audit.get('evidenceComplete') and audit.get('sourceDigestMatches')),
+        'browserQualified': bool(token and run['conclusion'] == 'success' and
+                                 audit.get('evidenceComplete') and audit.get('sourceDigestMatches')),
         'deviceCompatibility': 'UNVERIFIED',
         'blockers': list(audit.get('blockers', [])),
         'browserDiagnostics': audit.get('browsers', {}),
         'note': 'GitHub API run metadata verified; browser qualification never certifies physical Casio compatibility.'
     }
+    if run['conclusion'] != 'success':
+        decision['blockers'].insert(0, 'GitHub workflow conclusion is ' + run['conclusion'] + '; diagnostic only')
+    if not token:
+        decision['blockers'].append('No GitHub API token supplied; provenance is not authenticated')
     if not decision['browserQualified'] and not decision['blockers']:
         decision['blockers'].append('Browser evidence incomplete or source digest mismatch')
     (out/'github-evidence.json').write_text(json.dumps(decision, indent=2)+'\n', encoding='utf-8')
@@ -180,13 +195,16 @@ def main(argv=None):
     p.add_argument('--repo', required=True)
     p.add_argument('--sha', required=True)
     p.add_argument('--run-id', type=int)
+    p.add_argument('--diagnose-failed', action='store_true',
+                   help='Fetch evidence from a failed completed run for diagnosis only; NEVER approves it')
     p.add_argument('--out', type=Path, default=Path('release-evidence/github-actions'))
     p.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
     args=p.parse_args(argv)
     result=None
     try:
         result=collect(args.repo, args.sha, args.out, run_id=args.run_id,
-                       root=args.root, token=os.environ.get('GITHUB_TOKEN'))
+                       root=args.root, token=os.environ.get('GITHUB_TOKEN'),
+                       diagnose_failed=args.diagnose_failed)
     except (ValueError, OSError, urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         result={'schema':SCHEMA, 'generatedAt':datetime.now(timezone.utc).isoformat(),
                 'repository':args.repo, 'headSha':args.sha, 'ciRunAuthenticated':False, 'githubApiMetadataMatched': False,
