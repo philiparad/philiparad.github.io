@@ -62,19 +62,16 @@ $('mode-picker').onchange=e=>switchMode(e.target.value);
 $('mode-example').onclick=()=>{let val=window.FX991_CMODES.SAMPLES[state.mode]||window.FX991_MODES.SAMPLES[state.mode]||'';$('mode-source').value=val;setSource(val)};
 $('mode-evaluate').onclick=()=>{setSource($('mode-source').value);keyEvent('=');$('mode-detail').textContent=state.view==='error'?state.error:state.result};
 
-// Milestone 14: accessible register confirmation for physical-key standby.
+// Milestone 14 accessible register standby confirmation.
 const registerConfirm=document.createElement('button');
 registerConfirm.type='button';registerConfirm.className='button secondary';
 registerConfirm.textContent='Confirm register key';
-registerConfirm.setAttribute('aria-label','Confirm the selected A–F, M, X or Y register');
+registerConfirm.setAttribute('aria-label','Confirm selected register');
 registerConfirm.onclick=()=>keyEvent($('register').value);
 $('register').closest('.panel').querySelector('.actions').append(registerConfirm);
-document.addEventListener('keydown',e=>{
- if(state.view==='register-prompt'&&/^[A-FMXY]$/i.test(e.key)&&!e.ctrlKey&&!e.altKey){
-  e.preventDefault();keyEvent(e.key.toUpperCase());
- }
-});
+document.addEventListener('keydown',e=>{if(state.view==='register-prompt'&&/^[A-FMXY]$/i.test(e.key)&&!e.ctrlKey&&!e.altKey){e.preventDefault();keyEvent(e.key.toUpperCase())}});
 showNumericalFields();
+$('a11y-audit').onclick=()=>{const r=window.FX991_DIFFERENTIAL.auditAccessibility(document);$('a11y-audit-result').textContent=r.controls+' controls checked; '+r.keyLabels+' calculator keys named; '+r.issues.length+' issues: '+r.issues.map(i=>i.type+(i.label?' ('+i.label+')':'')).join(', ');};
 $('run-tests').onclick=()=>{const report=window.FX991_TESTS.run();$('test-summary').textContent=report.passed+'/'+report.total+' passed; '+report.failed+' failed. See detailed runner for cases.'};
 document.addEventListener('keydown',event=>{if(['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName))return;let mapped={Enter:'=',Escape:'AC',Backspace:'DEL',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','^':'POW'}[event.key]||event.key;if(/^[0-9.]$/.test(mapped)||['=','AC','DEL','LEFT','RIGHT','UP','DOWN','ADD','SUB','MUL','DIV','LP','RP','POW'].includes(mapped)){event.preventDefault();keyEvent(mapped)}});
 render();
