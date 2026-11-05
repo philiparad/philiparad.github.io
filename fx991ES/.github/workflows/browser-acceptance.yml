@@ -1,4 +1,4 @@
-name: Cross-browser acceptance — M39
+name: Cross-browser acceptance — M40
 on:
   workflow_dispatch:
   push:
@@ -34,13 +34,18 @@ jobs:
       - name: Audit captured browser evidence against this checkout
         if: always()
         run: python tools/evidence_review.py browser-evidence --out browser-evidence/evidence-review.json
-      - name: Produce fail-closed release decision
+      - name: Generate a human-readable fail-closed release decision
         if: always()
-        run: python tools/release_gate.py qualify --evidence browser-evidence --out browser-evidence/release-qualification.json
+        run: python tools/release_report.py --evidence browser-evidence --out release-evidence
+      - name: Verify release report module unit tests
+        if: always()
+        run: python -m unittest discover -s tools/tests -v
       - name: Upload browser run evidence, even when blocked or failed
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-evidence-${{ github.run_id }}
-          path: browser-evidence/
+          path: |
+            browser-evidence/
+            release-evidence/
           if-no-files-found: warn
