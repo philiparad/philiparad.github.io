@@ -52,3 +52,16 @@ The project retains Milestone 12 COMP/CMPLX/STAT/BASE-N/EQN/MATRIX/TABLE/VECTOR 
 ## Next roadmap item
 
 Implement the **production state machine**: full mode-specific key resolution, menus, field-entry/replay, one-shot SHIFT/ALPHA, STO/RCL, error recovery, C-edition menu navigation, and deterministic reference traces. This is followed by complete LCD math layout and physical-device characterization.
+
+
+## Milestone 14 — Production state-machine foundation
+
+The new `src/state-machine.js` uses the existing semantic `dispatchKey()` interface and adds: a hierarchical SETUP menu (angle, Fix, Sci and Norm), OFF/ON, one-shot SHIFT/ALPHA, STO/RCL standby, error recovery, and guided coefficient/data input for selected EQN, MATRIX, VECTOR, STAT and TABLE workflows. Mode evaluators, typed memory, history and the 96×31 framebuffer remain shared.
+
+For example, select `MODE`, page down and choose EQN; select quadratic (1), enter coefficients `1`, `-3`, `2`, and confirm each with `=`. MATRIX determinant entry accepts four or nine elements. The coefficient editor is an educational approximation, not a verified CASIO key sequence.
+
+SHIFT+MODE opens SETUP. Digits 1/2/3 select DEG/RAD/GRAD; 4 followed by a digit selects Fix, 5 selects Sci, 6 selects Norm1, and 7 Norm2. SHIFT+RCL then a register letter is STO standby; ALPHA+RCL then a register letter is RCL standby. These mappings require physical-reference characterization.
+
+The regression suite has **178 tests** (previous 162 plus 16 controller-transition cases). These are independent software checks, not certification against CASIO hardware. In particular the physical keypad does not yet expose individual A–F keys directly, and the TABLE wizard uses a fixed demonstration function. Full device prompts, memory workflows, LCD layout and numerical parity remain pending.
+
+No React, Node.js runtime, ROM, firmware code or proprietary fonts are used.
