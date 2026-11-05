@@ -26,12 +26,12 @@ Three-value and five-value one-variable datasets, or three XY pairs for linear r
 
 ### TABLE
 
-Legacy `X^2` single-function shortcut; custom `f(X)` expression; or dual `f(X),g(X)` entry restricted to C edition. An expression may use X, digits, +, -, *, /, ^, and parentheses. Bounds are entered as start, end, step. Standard model limit is 30 rows for a single function; the C two-function workflow is limited to 20. On a result, **DOWN/UP** browses rows in the semantic LCD display without altering the computed data.
+Legacy `X^2` single-function shortcut; custom `f(X)` expression; or dual `f(X),g(X)` entry restricted to C edition. An expression may use X, digits, +, -, *, /, ^, and parentheses. Press **ALPHA**, then the physical **(** / LP key to enter X. Bounds are entered as start, end, step. Standard model limit is 30 rows for a single function; the C two-function workflow is limited to 20. On a result, **DOWN/UP** browses rows in the semantic LCD display without altering the computed data.
 
 ## Validation and limits
 
 - Every numeric entry is validated before advance. Invalid values produce `Argument ERROR` and do not silently coerce into zero.
 - Function expressions are parsed by the existing expression parser; no `eval` or dynamic execution is used.
 - Model-specific features are enforced in the shared controller, not only the web interface.
-- Fourteen new deterministic key-sequence tests were added to the existing 358 tests.
+- Fifteen new deterministic key-sequence tests were added to the existing 358 tests.
 - No physical-device observations were collected. This milestone does **not** qualify as hardware compatibility certification.
