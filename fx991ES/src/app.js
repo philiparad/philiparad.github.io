@@ -1,6 +1,7 @@
 (function(){'use strict';
 const K=window.FX991,$=id=>document.getElementById(id);
 const SESSION=window.FX991_SESSION;const smokeMode=new URLSearchParams(location.search).has('smoke');let localStore=null;try{localStore=smokeMode?null:window.localStorage}catch(e){}const recovered=SESSION.recover(localStore);let state=recovered||K.createState('standard');const E=window.FX991_EDITOR;let lastAnnouncement='';
+let studentHelpEnabled=false;
 const labels={DIFF:'d/dx',EXP10:'×10ˣ',RECIP:'x⁻¹',DMS:'°′″',HYP:'hyp',LEFT:'◀',UP:'▲',DOWN:'▼',RIGHT:'▶',SQ:'x²',POW:'x^□',SQRT:'√',SIN:'sin',COS:'cos',TAN:'tan',LP:'(',RP:')',DIV:'÷',MUL:'×',SUB:'−',ADD:'+',NEG:'(-)',ANS:'Ans',PI:'π','S-D':'S⇔D',FRAC:'a/b',LOG:'log',LN:'ln',RCL:'RCL',MODE:'MODE'};
 const keypadLayout=window.FX991_KEYPAD_LAYOUT;
 if(!keypadLayout)throw Error('Physical keypad layout module missing');
@@ -34,8 +35,20 @@ function renderNatural(){
  el.classList.toggle('invalid',missing.length>0);
 }
 function render(){const help=window.FX991_ERROR_HELP.forState(state),panel=$('error-help');panel.hidden=!help;
+const lesson=studentHelpEnabled?window.FX991_ERROR_HELP.lessonForState(state):null;
+$('student-help').hidden=!lesson;
+const items=$('student-help-steps');items.textContent='';
+if(lesson){$('student-help-title').textContent='Learn from this error: '+lesson.title;
+ for(const text of lesson.steps){const item=document.createElement('li');item.textContent=text;items.append(item)}}
+
 if(help){$('error-help-title').textContent=help.title;$('error-help-message').textContent=help.message}
 const semantic=K.semanticScreen(state);drawLCD(K.rasterizeScreen(semantic));$('lcd').setAttribute('aria-label','Calculator: '+semantic.mode+'; expression '+semantic.expression+'; result '+semantic.result);$('wizard-detail').textContent=state.view==='workflow-menu'?'Choose operation using digit keys; DOWN switches the menu page.':state.view==='coefficient'&&state.ui?.wizard?'Field '+(state.ui.wizard.index+1)+'/'+state.ui.wizard.fields.length+': '+state.ui.wizard.fields[state.ui.wizard.index]+' = '+state.ui.wizard.buffer+' | Press = to confirm, LEFT/RIGHT to navigate.':state.view==='result'&&state.ui?.lastWizard?'Completed '+state.ui.lastWizard.mode+' '+state.ui.lastWizard.kind+'; UP/DOWN browse result rows when available.':state.view==='register-menu'?'Choose 1=A, 2=B or 3=C to edit a persistent register.':state.view==='register-editor'?'Enter values, = or RIGHT to advance; SIZE switches dimensions.':state.view==='register-summary'?'OP calculates; EDIT revises values; REGS chooses another register.':state.view==='register-operation'?'Select operation 1–5, OTHER swaps second register B/C.':state.view==='stat-grid'?'= enters a cell; PAIR changes dataset type; ADDROW/DELROW edit rows; STATS calculates.':'Keypad workflows: MODE → EQN, MATRIX, VECTOR, STAT, TABLE.'; $('semantic').textContent='Mode: '+state.mode+'    State: '+state.view+'\nExpression: '+state.expression+'\nResult: '+(state.view==='error'?state.error:state.result)+'\nCursor: '+state.cursor+'    Indicators: '+semantic.indicators.join(', ')+'\nEditing: '+(state.ui?.insertMode===false?'OVERWRITE':'INSERT')+'\nFrame hash: '+K.frameHash(K.rasterizeScreen(semantic));$('expression').value=state.expression;$('model').value=state.model;$('display-style').value=K.effectiveDisplayStyle(state.setup,'COMP');$('angle').value=state.setup.angle;$('format').value=state.setup.format;$('digits').value=String(state.setup.digits);$('register-value').value=K.valueToString(state.memory[$('register').value]);renderNatural();syncModePanel();SESSION.store(localStore,state);const hist=$('history');hist.textContent='';if(!state.history.length)hist.textContent='No calculations yet.';for(const h of state.history){let b=document.createElement('button');b.type='button';b.textContent=h.expression+' = '+h.display;b.onclick=()=>{state={...state,view:'edit',expression:h.expression,cursor:h.expression.length,document:E.fromSource(h.expression),result:h.display};render()};hist.append(b)}}
+$('student-help-enabled').addEventListener('change',event=>{
+ studentHelpEnabled=Boolean(event.target.checked);
+ render();
+ if(studentHelpEnabled){const lesson=window.FX991_ERROR_HELP.lessonForState(state);
+  if(lesson)announce('Learning help: '+lesson.steps.join(' '))}
+});
 function setSource(text){state={...state,expression:text,cursor:text.length,document:E.fromSource(text),view:'edit',result:'',error:null};render()}
 const toolbar=[['REGS','Matrix/vector registers'],['DATA','STAT data editor'],['SIZE','Change dimensions'],['OP','Register operations'],['EDIT','Edit register'],['OTHER','Other register B/C'],['PAIR','STAT pair mode'],['ADDROW','Add STAT row'],['DELROW','Delete STAT row'],['STATS','Calculate STAT'],['RCL','Recall → register'],['SHIFT','SHIFT modifier'],['ALPHA','ALPHA modifier'],['FDEL','Delete forward'],['INS','Insert/overwrite'],['FRAC','Fraction'],['MIXIN','Mixed fraction (whole / numerator / denominator)'],['POW','Power'],['SQRT','Square root'],['NROOT','Nth root'],['SIN','sin( )'],['COS','cos( )'],['TAN','tan( )'],['SQ','Square'],['LOG','log( )'],['PI','π (teaching shortcut)'],['LP','( )'],['RIGHT','Next slot →'],['DOWN','Slot ↓'],['DEL','Delete']];
 for(const [key,label] of toolbar){const b=document.createElement('button');b.type='button';b.className='button secondary';b.textContent=label;b.setAttribute('aria-label','Insert or navigate: '+label);b.onclick=()=>keyEvent(key);$('natural-toolbar').append(b)}

@@ -24,7 +24,30 @@ function forState(state){
  return Object.freeze({title,message,error:state.error,operation:detail.operation,
   reason:detail.reason||'evaluation_error'});
 }
-const API=Object.freeze({forState});
+
+const STUDENT_LESSONS=Object.freeze({
+ domain_sample:['Check where the expression becomes undefined, especially denominators and roots.','1/X is undefined at X=0, so do not integrate across zero as one ordinary integral.'],
+ non_differentiable:['Compare the slope from the left with the slope from the right.','At X=0, |X| has left slope -1 and right slope +1. Its derivative does not exist.'],
+ near_zero_slope:['Try a different SOLVE starting guess, where the slope is not zero.','For X^2-2, try initial guess X=1 instead of X=0.'],
+ quadrature_not_converged:['Inspect the interval for singularities or steep changes, or split the interval.','A function with a pole inside the interval cannot be treated as a single ordinary integral.'],
+ derivative_not_converged:['Check that the function is smooth near the evaluation point.','A rapidly oscillating function near zero may not have a stable numerical derivative.'],
+ no_residual_improvement:['Choose another starting guess and check whether a real root exists.','X^2+1=0 has no real solution.'],
+ iteration_limit:['Simplify the equation or change the initial root guess.','For X^2-2, a starting guess near X=1 approaches the positive root.'],
+ invalid_tolerance:['Use a positive supported tolerance.','A tolerance of 0.00001 is supported.'],
+ evaluation_budget:['Simplify the expression or shorten the interval.','Highly oscillating functions can exceed the evaluation budget.'],
+ interval_budget:['Try splitting the interval and checking each part.','Some steep functions require more interval subdivisions than supported.'],
+ nonfinite_value:['Check input magnitude and operations that overflow.','A very large exponent may exceed finite-number limits.']
+});
+function lessonForState(state){
+ const h=forState(state);if(!h)return null;
+ const info=STUDENT_LESSONS[h.reason]||['Check the function domain and input values.','The derivative of X^2 at X=2 is 4.'];
+ return Object.freeze({title:h.title,steps:Object.freeze([
+  'Identify the problem: '+h.message,
+  'Suggested correction: '+info[0],
+  'Worked example: '+info[1]
+ ])});
+}
+const API=Object.freeze({forState,lessonForState});
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 root.FX991_ERROR_HELP=API;
 })(typeof window!=='undefined'?window:globalThis);
