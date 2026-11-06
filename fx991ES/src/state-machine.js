@@ -408,6 +408,17 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
   s.document=E.overwriteToken(s.document,key);s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
   s.result='';s.shift=false;s.alpha=false;return end();
  }
+ // P0-02: reciprocal of the preceding operand, not the entire sum.
+ if(key==='RECIP'&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  if(s.view==='result'){s.document=E.fromSource('Ans');s.expression='Ans';s.cursor=3}
+  const prefix=s.document?E.serialize(s.document).slice(0,E.sourceCursor(s.document)):'';
+  if(/[0-9A-FMXY)!]$/.test(prefix)||prefix.endsWith('Ans')){
+   s.document=E.insertToken(s.document,'^(-1)');
+   s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+   s.view='edit';s.result='';s.error=null;s.shift=false;s.alpha=false;
+  }
+  return end();
+ }
  // Educational EXP10 key: enter a power-of-ten template after a coefficient.
  // This is mathematically equivalent to coefficient × 10^exponent, but does
  // not claim exact physical CASIO keypress/raster behavior.
