@@ -90,6 +90,6 @@ $('session-clear').onclick=()=>{SESSION.clear(localStore);$('session-status').te
 showNumericalFields();
 $('a11y-audit').onclick=()=>{const r=window.FX991_DIFFERENTIAL.auditAccessibility(document);$('a11y-audit-result').textContent=r.controls+' controls checked; '+r.keyLabels+' calculator keys named; '+r.issues.length+' issues: '+r.issues.map(i=>i.type+(i.label?' ('+i.label+')':'')).join(', ');};
 $('run-tests').onclick=()=>{const report=window.FX991_TESTS.run();$('test-summary').textContent=report.passed+'/'+report.total+' passed; '+report.failed+' failed. See detailed runner for cases.'};
-document.addEventListener('keydown',event=>{if(event.ctrlKey||event.metaKey||event.altKey||event.isComposing)return;if(['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName))return;let mapped={Enter:'=',Escape:'AC',Backspace:'DEL',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','^':'POW'}[event.key]||event.key;if(/^[0-9.]$/.test(mapped)||['=','AC','DEL','LEFT','RIGHT','UP','DOWN','ADD','SUB','MUL','DIV','LP','RP','POW'].includes(mapped)){event.preventDefault();keyEvent(mapped)}});
+document.addEventListener('keydown',event=>{const mapped=window.FX991_KEYBOARD.keyFor(event,document.activeElement);if(mapped){event.preventDefault();keyEvent(mapped)}});
 render();
 })();
