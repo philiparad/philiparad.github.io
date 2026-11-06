@@ -507,6 +507,19 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
    return end();
   }
  }
+ // P0-10: SHIFT period enters Ran#; ALPHA period enters RanInt#.
+ if(((key==='.'&&s.shift)||key==='RANINT')&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  const integer=key==='RANINT';
+  if(s.view==='result'){s.document=E.create();s.expression='';s.cursor=0}
+  s.document=integer?E.template(s.document,'Function','RanInt#'):E.insertToken(s.document,'Ran#');
+  s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+  s.view='edit';s.result='';s.error=null;s.shift=false;s.alpha=false;return end();
+ }
+ if(key==='RP'&&s.shift&&s.mode==='COMP'&&s.view==='edit'&&s.document){
+  s.document=E.insertToken(s.document,',');
+  s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+  s.shift=false;s.alpha=false;s.result='';return end();
+ }
  // P0-09: SHIFT+0 inserts the mathematical Rnd() function.
  if(key==='0'&&s.shift&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
   if(s.view==='result'){s.document=E.create();s.expression='';s.cursor=0}

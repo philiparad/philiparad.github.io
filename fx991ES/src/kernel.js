@@ -77,7 +77,7 @@ function format(v,setup={},decimalView=false){
  if(global.FX991_DECIMAL){let r=decimalRational(v);return global.FX991_DECIMAL.format(r.n,r.d,setup)}
  return displayNumber(numeric(v),setup);
 }
-const TOKEN_RE=/(?:\d+(?:\.\d*)?|\.\d+|asinh|acosh|atanh|sinh|cosh|tanh|asin|acos|atan|sin|cos|tan|sqrt|abs|log|ln|exp|Rnd|Ans|pi|e|nPr|nCr|[A-FMXY]|[()+\-*/^!])/iy;
+const TOKEN_RE=/(?:\d+(?:\.\d*)?|\.\d+|asinh|acosh|atanh|sinh|cosh|tanh|asin|acos|atan|sin|cos|tan|sqrt|abs|log|ln|exp|RanInt#|Ran#|Rnd|Ans|pi|e|nPr|nCr|[A-FMXY]|[(),+\-*/^!])/iy;
 // P0-03 sexagesimal input is represented as exact degree + minute/60 +
 // second/3600 arithmetic, preserving source text for edit and replay.
 function normalizeSexagesimal(src){
@@ -94,21 +94,33 @@ function normalizeSexagesimal(src){
 }
 function tokenize(src){let s=String(src).replace(/\s/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/π/g,'pi').replace(/√\(/g,'sqrt(');if(s.includes('°'))s=normalizeSexagesimal(s);const out=[];let i=0;while(i<s.length){TOKEN_RE.lastIndex=i;let m=TOKEN_RE.exec(s);if(!m)throw new CalcError(ERROR.SYNTAX,i);out.push({value:m[0],pos:i});i=TOKEN_RE.lastIndex}if(!out.length)throw new CalcError(ERROR.SYNTAX,0);return out}
 function parse(src){const t=tokenize(src);let i=0;let peek=()=>t[i]?.value;let take=v=>{if(peek()===v){i++;return true}return false};let required=v=>{if(!take(v))throw new CalcError(ERROR.SYNTAX,t[i]?.pos??String(src).length)};
- function atom(){let token=t[i];if(!token)throw new CalcError(ERROR.SYNTAX,String(src).length);if(take('(')){let a=sum();required(')');return {type:'group',arg:a}}let v=token.value;if(['sinh','cosh','tanh','asinh','acosh','atanh','sin','cos','tan','asin','acos','atan','sqrt','abs','log','ln','exp','Rnd'].includes(v)){i++;required('(');let a=sum();required(')');return {type:'fn',name:v,arg:a}}i++;if(v==='pi'||v==='e'||v==='Ans'||/^[A-FMXY]$/.test(v))return {type:'symbol',name:v};if(/^\d/.test(v)||/^\./.test(v))return {type:'number',raw:v,pos:token.pos};throw new CalcError(ERROR.SYNTAX,token.pos)}
+ function atom(){let token=t[i];if(!token)throw new CalcError(ERROR.SYNTAX,String(src).length);if(take('(')){let a=sum();required(')');return {type:'group',arg:a}}let v=token.value;
+ if(v==='Ran#'){i++;return {type:'random'}}
+ if(v==='RanInt#'){i++;required('(');const lower=sum();required(',');const upper=sum();required(')');return {type:'randomInt',lower,upper}}
+ if(['sinh','cosh','tanh','asinh','acosh','atanh','sin','cos','tan','asin','acos','atan','sqrt','abs','log','ln','exp','Rnd'].includes(v)){i++;required('(');let a=sum();required(')');return {type:'fn',name:v,arg:a}}i++;if(v==='pi'||v==='e'||v==='Ans'||/^[A-FMXY]$/.test(v))return {type:'symbol',name:v};if(/^\d/.test(v)||/^\./.test(v))return {type:'number',raw:v,pos:token.pos};throw new CalcError(ERROR.SYNTAX,token.pos)}
  function power(){let a=atom();while(take('!'))a={type:'fact',arg:a};if(take('^'))a={type:'binary',op:'^',left:a,right:unary()};return a}
  function unary(){if(take('-'))return {type:'neg',arg:unary()};if(take('+'))return unary();return power()}
  // Juxtaposition binds more tightly than explicit multiplication/division in the
  // documented ES-style Natural Display calculation order. Examples:
  // 1/2pi means 1/(2*pi); 2(3+4) means 2*(3+4).
  // The document editor and semantic evaluator remain independent.
- function startsImplicit(v){return v==='('||v==='pi'||v==='e'||v==='Ans'||/^[A-FMXY]$/.test(v||'')||['sinh','cosh','tanh','asinh','acosh','atanh','sin','cos','tan','asin','acos','atan','sqrt','abs','log','ln','exp','Rnd'].includes(v)}
+ function startsImplicit(v){return v==='('||v==='pi'||v==='e'||v==='Ans'||/^[A-FMXY]$/.test(v||'')||v==='Ran#'||v==='RanInt#'||['sinh','cosh','tanh','asinh','acosh','atanh','sin','cos','tan','asin','acos','atan','sqrt','abs','log','ln','exp','Rnd'].includes(v)}
  function juxtaposition(){let a=unary();while(startsImplicit(peek()))a={type:'binary',op:'*',implicit:true,left:a,right:unary()};return a}
  function product(){let a=juxtaposition();while(['*','/','nPr','nCr'].includes(peek())){let op=t[i++].value;a={type:'binary',op,left:a,right:juxtaposition()}}return a}
  function sum(){let a=product();while(['+','-'].includes(peek())){let op=t[i++].value;a={type:'binary',op,left:a,right:product()}}return a}
  let ast=sum();if(i!==t.length)throw new CalcError(ERROR.SYNTAX,t[i].pos);return ast}
 function sourcePosition(ast){if(Number.isInteger(ast.pos))return ast.pos;if(ast.arg)return sourcePosition(ast.arg);if(ast.left)return sourcePosition(ast.left);return 0}
 function evaluate(ast,context){const angle=context.setup?.angle||'DEG';const factor=angle==='DEG'?Math.PI/180:angle==='GRAD'?Math.PI/200:1;
- function walk(a){if(a.type==='group')return walk(a.arg);if(a.type==='number'){if(!a.raw.includes('.'))return rat(BigInt(a.raw));let [left,right]=a.raw.split('.');return rat(BigInt((left||'0')+(right||'')),10n**BigInt(right?.length||0))}
+ function walk(a){
+ if(a.type==='random'||a.type==='randomInt'){
+  const rng=typeof context.rng==='function'?context.rng:Math.random;
+  const x=Number(rng());if(!Number.isFinite(x)||x<0||x>=1)throw new CalcError(ERROR.MATH);
+  if(a.type==='random')return rat(BigInt(Math.floor(x*1000)),1000n);
+  const lo=numeric(walk(a.lower)),hi=numeric(walk(a.upper));
+  if(!Number.isSafeInteger(lo)||!Number.isSafeInteger(hi)||lo>hi||hi-lo>1e9)throw new CalcError(ERROR.MATH);
+  return rat(BigInt(lo+Math.floor(x*(hi-lo+1))));
+ }
+ if(a.type==='group')return walk(a.arg);if(a.type==='number'){if(!a.raw.includes('.'))return rat(BigInt(a.raw));let [left,right]=a.raw.split('.');return rat(BigInt((left||'0')+(right||'')),10n**BigInt(right?.length||0))}
  if(a.type==='symbol')return a.name==='pi'?pi():a.name==='e'?dec(Math.E):a.name==='Ans'?context.ans:(context.memory[a.name]||rat(0n));if(a.type==='neg')return neg(walk(a.arg));if(a.type==='binary'){let l=walk(a.left),r=walk(a.right);
  if(a.op==='nPr'||a.op==='nCr'){
   const n=numeric(l),k=numeric(r);

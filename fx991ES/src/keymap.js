@@ -2,8 +2,8 @@
  * Unverified physical legends remain implementation policies.
  */
 (function(global){'use strict';
-const alpha=Object.freeze({EXP10:'EULER',NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'});
-const shift=Object.freeze({0:'RND',EXP10:'PI',HYP:'ABS',RECIP:'FACTORIAL',MUL:'NPR',DIV:'NCR',DEL:'INS',MODE:'SETUP',SQRT:'NROOT',FRAC:'MIX',SIN:'ASIN',COS:'ACOS',TAN:'ATAN',SQ:'CUBE',LOG:'POW10',LN:'EXP',AC:'OFF'});
+const alpha=Object.freeze({'.':'RANINT',EXP10:'EULER',NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'});
+const shift=Object.freeze({'.':'RAN',0:'RND',EXP10:'PI',HYP:'ABS',RECIP:'FACTORIAL',MUL:'NPR',DIV:'NCR',DEL:'INS',MODE:'SETUP',SQRT:'NROOT',FRAC:'MIX',SIN:'ASIN',COS:'ACOS',TAN:'ATAN',SQ:'CUBE',LOG:'POW10',LN:'EXP',AC:'OFF'});
 const baseDigits=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F'});
 const radixSelectors=Object.freeze({SQ:'DEC',RECIP:'HEX',LOG:'BIN',LN:'OCT'});
 const profiles=Object.freeze({standard:Object.freeze({id:'fx991esplus-2',alpha,shift,baseDigits,radixSelectors}),c:Object.freeze({id:'fx991esplus-c-2',alpha,shift,baseDigits,radixSelectors})});
