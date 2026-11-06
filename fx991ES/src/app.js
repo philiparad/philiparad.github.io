@@ -2,10 +2,24 @@
 const K=window.FX991,$=id=>document.getElementById(id);
 const SESSION=window.FX991_SESSION;const smokeMode=new URLSearchParams(location.search).has('smoke');let localStore=null;try{localStore=smokeMode?null:window.localStorage}catch(e){}const recovered=SESSION.recover(localStore);let state=recovered||K.createState('standard');const E=window.FX991_EDITOR;let lastAnnouncement='';
 let studentHelpEnabled=false;
+let practice=window.FX991_PRACTICE.stop(),practiceHint=false;
+function renderPractice(){
+ $('practice-content').hidden=!practice.enabled;
+ if(!practice.enabled)return;
+ const task=window.FX991_PRACTICE.current(practice);
+ $('practice-progress').textContent=practice.completed?'All exercises finished': 'Exercise '+(practice.index+1)+' / '+window.FX991_PRACTICE.TASKS.length+' · Attempts: '+practice.attempts;
+ $('practice-task').textContent=task?task.prompt:'Practice completed.';
+ $('practice-feedback').textContent=practice.feedback;
+ $('practice-next').disabled=!practice.solved||practice.completed;
+ $('practice-hint').disabled=!task||practice.solved;
+ $('practice-tip').hidden=!practiceHint||!task;
+ $('practice-tip').textContent=task?task.hint:'';
+}
+
 const labels={DIFF:'d/dx',EXP10:'×10ˣ',RECIP:'x⁻¹',DMS:'°′″',HYP:'hyp',LEFT:'◀',UP:'▲',DOWN:'▼',RIGHT:'▶',SQ:'x²',POW:'x^□',SQRT:'√',SIN:'sin',COS:'cos',TAN:'tan',LP:'(',RP:')',DIV:'÷',MUL:'×',SUB:'−',ADD:'+',NEG:'(-)',ANS:'Ans',PI:'π','S-D':'S⇔D',FRAC:'a/b',LOG:'log',LN:'ln',RCL:'RCL',MODE:'MODE'};
 const keypadLayout=window.FX991_KEYPAD_LAYOUT;
 if(!keypadLayout)throw Error('Physical keypad layout module missing');
-function keyEvent(key){state=K.dispatchKey(state,key);render();if(state.view==='result'||state.view==='error'){const help=window.FX991_ERROR_HELP.forState(state);announce((state.view==='error'?'Error: ':'Result: ')+(state.error||state.result)+(help?'. '+help.title+'. '+help.message:''))}}
+function keyEvent(key){state=K.dispatchKey(state,key);practice=window.FX991_PRACTICE.check(practice,state,key,K.numeric);render();if(state.view==='result'||state.view==='error'){const help=window.FX991_ERROR_HELP.forState(state);announce((state.view==='error'?'Error: ':'Result: ')+(state.error||state.result)+(help?'. '+help.title+'. '+help.message:''))}}
 function announce(message){if(message!==lastAnnouncement){lastAnnouncement=message;$('announcements').textContent=message}}
 for(const [groupName,items] of Object.entries(keypadLayout)){
  const group=document.createElement('div');group.className='keypad-group keypad-'+groupName;group.setAttribute('role','group');
@@ -34,7 +48,7 @@ function renderNatural(){
  info.textContent=stats.nodes+' nodes / '+missing.length+' empty fields';
  el.classList.toggle('invalid',missing.length>0);
 }
-function render(){const help=window.FX991_ERROR_HELP.forState(state),panel=$('error-help');panel.hidden=!help;
+function render(){renderPractice();const help=window.FX991_ERROR_HELP.forState(state),panel=$('error-help');panel.hidden=!help;
 const lesson=studentHelpEnabled?window.FX991_ERROR_HELP.lessonForState(state):null;
 $('student-help').hidden=!lesson;
 const items=$('student-help-steps');items.textContent='';
@@ -49,6 +63,12 @@ $('student-help-enabled').addEventListener('change',event=>{
  if(studentHelpEnabled){const lesson=window.FX991_ERROR_HELP.lessonForState(state);
   if(lesson)announce('Learning help: '+lesson.steps.join(' '))}
 });
+$('practice-enabled').addEventListener('change',event=>{
+ practice=event.target.checked?window.FX991_PRACTICE.start():window.FX991_PRACTICE.stop();
+ practiceHint=false;render();announce(event.target.checked?'Guided practice enabled':'Guided practice disabled');
+});
+$('practice-next').addEventListener('click',()=>{practice=window.FX991_PRACTICE.next(practice);practiceHint=false;render()});
+$('practice-hint').addEventListener('click',()=>{practiceHint=!practiceHint;render()});
 function setSource(text){state={...state,expression:text,cursor:text.length,document:E.fromSource(text),view:'edit',result:'',error:null};render()}
 const toolbar=[['REGS','Matrix/vector registers'],['DATA','STAT data editor'],['SIZE','Change dimensions'],['OP','Register operations'],['EDIT','Edit register'],['OTHER','Other register B/C'],['PAIR','STAT pair mode'],['ADDROW','Add STAT row'],['DELROW','Delete STAT row'],['STATS','Calculate STAT'],['RCL','Recall → register'],['SHIFT','SHIFT modifier'],['ALPHA','ALPHA modifier'],['FDEL','Delete forward'],['INS','Insert/overwrite'],['FRAC','Fraction'],['MIXIN','Mixed fraction (whole / numerator / denominator)'],['POW','Power'],['SQRT','Square root'],['NROOT','Nth root'],['SIN','sin( )'],['COS','cos( )'],['TAN','tan( )'],['SQ','Square'],['LOG','log( )'],['PI','π (teaching shortcut)'],['LP','( )'],['RIGHT','Next slot →'],['DOWN','Slot ↓'],['DEL','Delete']];
 for(const [key,label] of toolbar){const b=document.createElement('button');b.type='button';b.className='button secondary';b.textContent=label;b.setAttribute('aria-label','Insert or navigate: '+label);b.onclick=()=>keyEvent(key);$('natural-toolbar').append(b)}
