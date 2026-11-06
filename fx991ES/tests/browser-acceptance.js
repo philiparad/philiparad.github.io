@@ -25,6 +25,21 @@ const tests=[
    expect(x.doc.querySelector('#expression').value==='','AC did not clear expression');
    for(const key of ['4','MUL','5','='])clickKey(x.doc,key);
    expect(x.doc.querySelector('#semantic').textContent.includes('Result: 20'),'keypad did not calculate after AC');
+   // New exact mixed-fraction key path uses real DOM keypad events, not only a pure state mock.
+   clickKey(x.doc,'AC');
+   for(const key of ['FRAC','7','RIGHT','6','=','SHIFT','FRAC'])clickKey(x.doc,key);
+   expect(x.doc.querySelector('#semantic').textContent.includes('Result: 1 1/6'),'mixed fraction keypad toggle failed');
+   clickKey(x.doc,'SHIFT');clickKey(x.doc,'FRAC');
+   expect(x.doc.querySelector('#semantic').textContent.includes('Result: 7/6'),'mixed fraction round trip failed');
+   // Long results must remain on the result screen while RIGHT scrolls the LCD.
+   clickKey(x.doc,'AC');
+   for(const key of '12345678901234567890123456789')clickKey(x.doc,key);
+   clickKey(x.doc,'=');
+   const before=x.doc.querySelector('#lcd').getContext('2d').getImageData(0,0,96,31).data;
+   clickKey(x.doc,'RIGHT');
+   const after=x.doc.querySelector('#lcd').getContext('2d').getImageData(0,0,96,31).data;
+   expect(x.doc.querySelector('#semantic').textContent.includes('State: result'),'result scroll unexpectedly edited input');
+   expect(before.some((v,i)=>v!==after[i]),'horizontal result scrolling did not update actual canvas');
  }],
  ['Typing in the input field calculates implicit multiplication',async x=>{
    const input=x.doc.querySelector('#expression');input.value='2(3+4)';input.dispatchEvent(new x.win.Event('input',{bubbles:true}));
@@ -64,6 +79,17 @@ const tests=[
    expect(preview.textContent.includes('1')&&preview.textContent.includes('2'),'fraction fields not rendered');
    expect(!preview.classList.contains('invalid'),'completed fraction still marked incomplete');
    expect(x.doc.querySelector('#semantic').textContent.includes('Expression:'),'missing semantic display');
+   clickKey(x.doc,'AC');
+   // Physical-key teaching route: SHIFT + FRAC enters a three-field mixed
+   // template while editing; the same modifier converts results after =.
+   for(const key of ['SHIFT','FRAC','2','RIGHT','3','RIGHT','4'])clickKey(x.doc,key);
+   const mixed=x.doc.querySelector('#natural-preview');
+   expect(mixed.querySelector('.nd-mixed')!==null,'structured mixed-fraction template not visible');
+   expect(!mixed.classList.contains('invalid'),'filled mixed-fraction template marked incomplete');
+   clickKey(x.doc,'=');
+   expect(x.doc.querySelector('#semantic').textContent.includes('Result: 11/4'),'mixed-fraction keypad input failed');
+   clickKey(x.doc,'SHIFT');clickKey(x.doc,'FRAC');
+   expect(x.doc.querySelector('#semantic').textContent.includes('Result: 2 3/4'),'result presentation toggle failed');
  }],
  ['Session v2 serializes structured cursor and imports safely',async x=>{
    let k=x.win.FX991,e=x.win.FX991_SESSION,s=k.createState();
@@ -177,7 +203,7 @@ function loadFresh(){return new Promise((resolve,reject)=>{
  frame.src='../index.html?browser-acceptance='+encodeURIComponent(String(performance.now()));
  previous.replaceWith(frame);
 })}
-async function run(){if(running)return;running=true;$('run').disabled=true;entries.length=0;render();
+async function run(){if(running)return;running=true;document.body.dataset.acceptanceComplete='false';$('run').disabled=true;entries.length=0;render();
  for(const [name,fn] of tests){let status='PASS',message='';try{
    const x=await loadFresh();
    // A navigation error is observable from the iframe's document; no fake pass.
@@ -187,7 +213,7 @@ async function run(){if(running)return;running=true;$('run').disabled=true;entri
    expect(x.errors.length===0,'calculator JavaScript errors during interaction: '+x.errors.join('; '));
  }catch(error){status=error&&error.kind==='navigation'?'BLOCKED':'FAIL';message=String(error&&error.message||error)}
  entries.push({name,status,message});render()}
- running=false;$('run').disabled=false;
+ running=false;document.body.dataset.acceptanceComplete='true';$('run').disabled=false;
 }
 $('run').onclick=run;
 $('download').onclick=()=>{

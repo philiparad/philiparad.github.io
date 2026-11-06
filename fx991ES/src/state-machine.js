@@ -13,7 +13,7 @@ const wizardConfigs={
  STAT:{menu:['1VAR','1VAR5','LINEAR3'],fields:{'1VAR':['x1','x2','x3'],'1VAR5':['x1','x2','x3','x4','x5'],LINEAR3:['x1','y1','x2','y2','x3','y3']}},
  TABLE:{menu:['SINGLE','FUNCTION','DUAL'],fields:{SINGLE:['start','end','step'],FUNCTION:['f(X)','start','end','step'],DUAL:['f(X)','g(X)','start','end','step']}}
 };
-function decorate(s){if(!s.ui)s.ui={page:0,pending:null,setupSection:null,wizard:null,insertMode:true};if(s.ui.insertMode===undefined)s.ui.insertMode=true;
+function decorate(s){if(!s.ui)s.ui={page:0,pending:null,setupSection:null,wizard:null,insertMode:true};if(s.ui.insertMode===undefined)s.ui.insertMode=true;if(!base.DISPLAY_STYLES.includes(s.setup.displayStyle))s.setup.displayStyle=base.DISPLAY_STYLES.includes(s.ui.displayStyle)?s.ui.displayStyle:'MathO';s.ui.displayStyle=s.setup.displayStyle;
  if(!s.ui.modeMemory)s.ui.modeMemory={matrix:{A:null,B:null,C:null},vector:{A:null,B:null,C:null},stat:{kind:'1VAR',rows:[]}};
  return s}
 // Milestone 27 persistent mode-memory: plain numeric arrays only; no executable text.
@@ -36,7 +36,7 @@ function regExpression(s,op){let flow=s.ui.registerFlow,cat=flow.category,one=s.
  let encode=cat==='matrix'?matrixText:vectorText;
  return op+':'+encode(one)+(unary.includes(op)?'':'|'+encode(two));}
 function regResult(s,op){try{let expression=regExpression(s,op),value=base.calculateExpression(s.mode,expression,s);
- s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.kind==='mode-result'?value.ans:value;s.result=base.valueDisplay(value,s.setup,s.decimalView);s.error=null;s.view='result';s.ui.registerFlow=null;
+ s.expression=expression;s.cursor=expression.length;s.resultScrollX=0;s.mixedView=false;s.lastValue=value;s.ans=value.kind==='mode-result'?value.ans:value;s.result=base.valueDisplay(value,s.setup,s.decimalView,s.mode);s.error=null;s.view='result';s.ui.registerFlow=null;
  s.history=[{expression,display:s.result},...s.history].slice(0,50);
  s.ui.lastWizard={mode:s.mode,kind:op,fields:[],values:[],resultPage:0};}
  catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error';s.result=s.error}return s}
@@ -51,7 +51,7 @@ function statNavigate(s,step){let f=s.ui.statFlow,stat=s.ui.modeMemory.stat,cols
 function statResult(s){try{statAccept(s);let stat=s.ui.modeMemory.stat,rows=stat.rows;
  if(!rows.length||(stat.kind==='LINEAR'&&rows.length<2))throw new base.CalcError(base.ERROR.ARGUMENT);
  let expression=stat.kind+':'+(stat.kind==='LINEAR'?rows.map(row=>row.join(',')).join(';'):rows.map(r=>r[0]).join(','));
- let value=base.calculateExpression('STAT',expression,s);s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.ans;s.result=value.text;s.view='result';s.error=null;
+ let value=base.calculateExpression('STAT',expression,s);s.expression=expression;s.cursor=expression.length;s.resultScrollX=0;s.mixedView=false;s.lastValue=value;s.ans=value.ans;s.result=value.text;s.view='result';s.error=null;
  s.history=[{expression,display:s.result},...s.history].slice(0,50);s.ui.statFlow=null;}
  catch(e){s.error=e.code||base.ERROR.ARGUMENT;s.view='error';s.result=s.error}return s}
 
@@ -70,7 +70,7 @@ function safeNumber(t){if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(t))throw new ba
 function safeFunction(t){if(!t||t.length>96||!/^[A-Za-z0-9.+\-*/^() ]+$/.test(t))throw new base.CalcError(base.ERROR.ARGUMENT);try{base.parse(t)}catch(e){throw new base.CalcError(e.code||base.ERROR.SYNTAX)}return t}
 function acceptField(w){let field=w.fields[w.index],value=/^[fg]\(X\)$/.test(field)?safeFunction(w.buffer):safeNumber(w.buffer);w.values[w.index]=value;return value}
 function pushBuffer(w,k){if(k==='NEG'){w.buffer=w.buffer.startsWith('-')?w.buffer.slice(1):'-'+w.buffer;return}let map={ADD:'+',SUB:'-',MUL:'*',DIV:'/',LP:'(',RP:')',POW:'^',SQ:'^2',PI:'pi',ANS:'Ans'};if(/^[0-9.]$/.test(k)||(/^[X]$/.test(k)&&/^[fg]\(X\)$/.test(w.fields[w.index])))w.buffer+=k;else if(/^[fg]\(X\)$/.test(w.fields[w.index])&&map[k])w.buffer+=map[k]}
-function finishWizard(s){let w=s.ui.wizard;try{let expression=wizardExpression(w),value=base.calculateExpression(w.mode,expression,s);s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.kind==='mode-result'?value.ans:value.kind==='complex'?value.re:value.kind==='base'?base.rat(value.value):value;s.result=base.valueDisplay(value,s.setup,s.decimalView);s.view='result';s.error=null;s.history=[{expression,display:s.result},...s.history].slice(0,50);s.historyCursor=-1;s.ui.lastWizard={mode:w.mode,kind:w.kind,fields:[...w.fields],values:[...w.values],resultPage:0};s.ui.wizard=null}catch(e){s.error=e.code||base.ERROR.MATH;s.errorPos=s.cursor;s.view='error';s.result=s.error;s.ui.wizard=null}return s}
+function finishWizard(s){let w=s.ui.wizard;try{let expression=wizardExpression(w),value=base.calculateExpression(w.mode,expression,s);s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.kind==='mode-result'?value.ans:value.kind==='complex'?value.re:value.kind==='base'?base.rat(value.value):value;s.result=base.valueDisplay(value,s.setup,s.decimalView,s.mode);s.view='result';s.error=null;s.history=[{expression,display:s.result},...s.history].slice(0,50);s.historyCursor=-1;s.ui.lastWizard={mode:w.mode,kind:w.kind,fields:[...w.fields],values:[...w.values],resultPage:0};s.ui.wizard=null}catch(e){s.error=e.code||base.ERROR.MATH;s.errorPos=s.cursor;s.view='error';s.result=s.error;s.ui.wizard=null}return s}
 function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredClone(state.ui):undefined,history:state.history.slice(),memory:{...state.memory},trace:state.trace.slice(),setup:{...state.setup}});
  const end=()=>record(s,key);
  // Persistent matrix/vector registers and editable STAT data are intentionally
@@ -169,6 +169,7 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
   }
   if(s.shift){
    let action=KEYS.resolve(s.model,key,'shift',s.mode);
+   if(action==='MIX'){key=s.view==='edit'?'MIXIN':'MIX';s.shift=false;s.alpha=false}
    if(action==='CUBE'||action==='POW10'||action==='EXP'){
     let value={CUBE:'^3',POW10:'10^(',EXP:'exp('}[action];
     if(s.mode==='COMP'&&s.document){
@@ -189,15 +190,34 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
 
  // SHIFT + MODE enters a hierarchical SETUP menu. Direct setting keys are
  // also accepted to keep the prior controller and reference traces stable.
- if(key==='MODE'&&s.shift){s.shift=false;s.alpha=false;s.view='setup';s.ui.setupSection=null;return end()}
+ if(key==='MODE'&&s.shift){s.shift=false;s.alpha=false;s.view='setup';s.ui.setupSection=null;s.ui.setupPage=0;return end()}
  if(s.view==='setup'){
-  if(key==='AC'){s.view='edit';s.ui.setupSection=null;return end()}
-  if(s.ui.setupSection==='Fix'||s.ui.setupSection==='Sci'){
-   if(/^\d$/.test(key)){s.setup.format=s.ui.setupSection;s.setup.digits=Number(key);s.ui.setupSection=null;s.view='edit'}return end()
+  if(key==='AC'){s.view='edit';s.ui.setupSection=null;s.ui.setupPage=0;return end()}
+  if(s.ui.setupSection){
+   if(s.ui.setupSection==='Fix'||s.ui.setupSection==='Sci'){
+    if(/^[0-9]$/.test(key)){s.setup.format=s.ui.setupSection;s.setup.digits=Number(key);s.ui.setupSection=null;s.view='edit'}return end()
+   }
+   if(s.ui.setupSection==='Norm'&&['1','2'].includes(key)){
+    s.setup.format=key==='1'?'Norm1':'Norm2';s.ui.setupSection=null;s.view='edit';return end()
+   }
+   if(s.ui.setupSection==='MthIO'&&['1','2'].includes(key)){
+    // Record the preferred output layout; exact firmware raster/output is unverified.
+    s.ui.displayStyle=key==='1'?'MathO':'LineO';s.setup.displayStyle=s.ui.displayStyle;s.ui.setupSection=null;s.view='edit';return end()
+   }
+   return end();
   }
-  if(key==='1'||key==='2'||key==='3'){s.setup.angle={1:'DEG',2:'RAD',3:'GRAD'}[key];s.view='edit';return end()}
-  if(key==='4'||key==='5'){s.ui.setupSection=key==='4'?'Fix':'Sci';return end()}
-  if(key==='6'||key==='7'){s.setup.format=key==='6'?'Norm1':'Norm2';s.view='edit';return end()}
+  if(key==='UP'||key==='DOWN'){s.ui.setupPage=key==='DOWN'?1:0;return end()}
+  if(s.ui.setupPage===1){
+   // Secondary firmware choices are visible for reference; do not claim a
+   // working capability when fraction, complex, STAT and contrast policies
+   // have not yet been independently verified against device observations.
+   return end();
+  }
+  if(key==='1'){s.ui.setupSection='MthIO';return end()}
+  if(key==='2'){s.ui.displayStyle='LineIO';s.setup.displayStyle='LineIO';s.view='edit';return end()}
+  if(['3','4','5'].includes(key)){s.setup.angle={3:'DEG',4:'RAD',5:'GRAD'}[key];s.view='edit';return end()}
+  if(key==='6'||key==='7'){s.ui.setupSection=key==='6'?'Fix':'Sci';return end()}
+  if(key==='8'){s.ui.setupSection='Norm';return end()}
   return end();
  }
  // Existing MODE menu dispatch remains the source of truth for descriptors.
@@ -259,7 +279,13 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  s=decorate(base.dispatchKey(s,key));return s;
 }
 function endAfter(s,key){return s} // finishWizard records current dispatch event exactly once
-function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=base.semanticScreen(s);if(s.view==='workflow-menu'){let w=s.ui.wizard,choices=wizardConfigs[w.mode].menu;screen.result=choices.slice(s.menuPage*4,s.menuPage*4+4).map((c,i)=>(i+s.menuPage*4+1)+':'+c).join(' ');screen.expression='SELECT '+w.mode}
+function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=base.semanticScreen(s);
+ if(s.view==='mode'){
+  let modes=base.modeList(s);
+  screen.menuItems=s.menuPage===0?modes.slice(0,8).map((name,i)=>(i+1)+':'+name):modes.slice(8).map((name,i)=>(i+1)+':'+name);
+  screen.menuPage=s.menuPage;
+  screen.hasMore=s.menuPage===0&&modes.length>8;
+ }if(s.view==='workflow-menu'){let w=s.ui.wizard,choices=wizardConfigs[w.mode].menu;screen.result=choices.slice(s.menuPage*4,s.menuPage*4+4).map((c,i)=>(i+s.menuPage*4+1)+':'+c).join(' ');screen.expression='SELECT '+w.mode}
  if(s.view==='coefficient'){let w=s.ui.wizard;screen.expression=w.fields[w.index]+' = '+w.buffer;screen.result=(w.index+1)+'/'+w.fields.length}
  if(s.view==='result'&&s.ui.lastWizard){let w=s.ui.lastWizard,rows=s.lastValue?.data?.rows||s.lastValue?.data?.roots;if(Array.isArray(rows)&&rows.length){let index=w.resultPage||0;screen.expression=w.mode+' '+(index+1)+'/'+rows.length;screen.result=Array.isArray(rows[index])?rows[index].join(', '):String(rows[index])}}
  if(s.view==='register-menu'){screen.expression=s.mode+' REGISTERS';screen.result='1:A 2:B 3:C'}
@@ -272,7 +298,14 @@ function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=bas
  if(s.view==='stat-grid'){let f=s.ui.statFlow,stat=s.ui.modeMemory.stat;screen.expression=stat.kind+' DATA '+(f.field+1);screen.result=f.buffer||'0';}
  if(s.view==='register-prompt'){screen.expression=s.ui.pending+' REG';screen.result='A-F M X Y'}
  if(s.ui.insertMode===false)screen.indicators=[...screen.indicators,'OVR'];
- if(s.view==='setup'){screen.expression=s.ui.setupSection?s.ui.setupSection+' DIGITS':'SETUP';screen.result=s.ui.setupSection?'0-9':'1:D 2:R 3:G 4:FIX 5:SCI 6:N1 7:N2'}return screen}
+ if(s.view==='setup'){
+  const section=s.ui.setupSection;
+  screen.expression='SETUP';
+  screen.result=section==='MthIO'?'1:MathO 2:LineO':section==='Norm'?'1:Norm1 2:Norm2':section==='Fix'||section==='Sci'?section+' 0-9':s.ui.setupPage===1?'SECONDARY OPTIONS (not active)':'1:MthIO 2:LineIO 3:Deg 4:Rad 5:Gra 6:Fix 7:Sci 8:Norm';
+  screen.menuItems=section?null:s.ui.setupPage===1?['1:ab/c','2:d/c','3:CMPLX','4:STAT','5:Disp','6:CONT']:['1:MthIO','2:LineIO','3:Deg','4:Rad','5:Gra','6:Fix','7:Sci','8:Norm'];
+  screen.menuPage=s.ui.setupPage||0;
+ }
+ return screen}
 function runTrace(test){let s=createState(test.model||'standard');for(let k of test.events)s=dispatchKey(s,k);let screen=semanticScreen(s),pixels=base.rasterizeScreen(screen);return {state:s,screen,pixels,hash:base.frameHash(pixels)}}
 function createState(model='standard'){return decorate(base.createState(model))}
 global.FX991=Object.freeze({...base,createState,dispatchKey,semanticScreen,runTrace});

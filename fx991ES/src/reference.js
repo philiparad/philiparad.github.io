@@ -24,10 +24,11 @@ function validate(record){
  }
  if(record.setup!==undefined){assert(isObj(record.setup),'setup must be an object');
   for(const [key,value] of Object.entries(record.setup)){
-   assert(['angle','format','digits'].includes(key),'unknown setup field '+key);
+   assert(['angle','format','digits','displayStyle'].includes(key),'unknown setup field '+key);
    if(key==='angle')assert(['DEG','RAD','GRAD'].includes(value),'invalid angle');
    if(key==='format')assert(['Norm1','Norm2','Fix','Sci'].includes(value),'invalid format');
    if(key==='digits')assert(Number.isInteger(value)&&value>=0&&value<=10,'invalid digits');
+   if(key==='displayStyle')assert(['MathO','LineO','LineIO'].includes(value),'invalid display style');
   }
  }
  if(['physical','official-emulator'].includes(record.source.kind)){

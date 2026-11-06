@@ -178,27 +178,27 @@ test('DIST invalid probability rejected',()=>{try{cc('DIST','BPD:1,3,1.1');throw
 test('C extension forbidden on standard model',()=>{try{cc('INEQ','LT:1,2,-3','standard');throw Error('accepted')}catch(e){eq(e.code,K.ERROR.UNSUPPORTED)}});
 test('C mode result flows through Ans and history',()=>{let s=K.createState('c');s.mode='VERIF';s.expression='2+2=4';s=K.dispatchKey(s,'=');eq(s.result,'TRUE');eq(K.valueToString(s.ans),'1');eq(s.history.length,1)});
 test('C-mode selection through second menu page',()=>{let s=K.createState('c');s=K.dispatchKey(s,'MODE');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'1');eq(s.mode,'INEQ')});
-test('Standard model menu never exposes extensions',()=>{let s=K.createState('standard');s=K.dispatchKey(s,'MODE');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'1');eq(s.mode,'EQN')});
+test('Standard model menu never exposes extensions',()=>{let s=K.createState('standard');s=K.dispatchKey(s,'MODE');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'DOWN');s=K.dispatchKey(s,'1');eq(s.mode,'COMP')});
 
 
 // Milestone 14 — controller transition tests (independent of HTML UI).
 function keys14(model,events){let s=K.createState(model);for(let key of events)s=K.dispatchKey(s,key);return s}
-test('M14 setup Format Fix digits',()=>{let s=keys14('standard',['SHIFT','MODE','4','3']);eq(s.setup.format,'Fix');eq(s.setup.digits,3);eq(s.view,'edit')});
-test('M14 setup Norm1',()=>{let s=keys14('standard',['SHIFT','MODE','6']);eq(s.setup.format,'Norm1')});
-test('M14 setup Norm2',()=>{let s=keys14('standard',['SHIFT','MODE','7']);eq(s.setup.format,'Norm2')});
-test('M14 setup Sci 5',()=>{let s=keys14('standard',['SHIFT','MODE','5','5']);eq(s.setup.format,'Sci');eq(s.setup.digits,5)});
+test('M14 setup Format Fix digits',()=>{let s=keys14('standard',['SHIFT','MODE','6','3']);eq(s.setup.format,'Fix');eq(s.setup.digits,3);eq(s.view,'edit')});
+test('M14 setup Norm1',()=>{let s=keys14('standard',['SHIFT','MODE','8','1']);eq(s.setup.format,'Norm1')});
+test('M14 setup Norm2',()=>{let s=keys14('standard',['SHIFT','MODE','8','2']);eq(s.setup.format,'Norm2')});
+test('M14 setup Sci 5',()=>{let s=keys14('standard',['SHIFT','MODE','7','5']);eq(s.setup.format,'Sci');eq(s.setup.digits,5)});
 test('M14 setup cancel',()=>{let s=keys14('standard',['SHIFT','MODE','AC']);eq(s.view,'edit')});
 test('M14 OFF and ON',()=>{let s=keys14('standard',['SHIFT','AC']);eq(s.power,false);s=K.dispatchKey(s,'3');eq(s.expression,'');s=K.dispatchKey(s,'ON');eq(s.power,true)});
 test('M14 STO register prompt stores typed result',()=>{let s=keys14('standard',['8','=','SHIFT','RCL']);eq(s.view,'register-prompt');s=K.dispatchKey(s,'B');eq(K.valueToString(s.memory.B),'8')});
 test('M14 RCL prompt inserts variable',()=>{let s=keys14('standard',['ALPHA','RCL','C']);eq(s.expression,'C');eq(s.view,'edit')});
 test('M14 STO prompt cancel',()=>{let s=keys14('standard',['SHIFT','RCL','AC']);eq(s.view,'edit');eq(s.ui.pending,null)});
-test('M14 equation coefficient workflow',()=>{let s=keys14('standard',['MODE','DOWN','1']);eq(s.mode,'EQN');eq(s.view,'workflow-menu');for(let k of ['1','1','=','NEG','3','=','2','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('2')||!s.result.includes('1'))throw Error(s.result)});
-test('M14 matrix coefficient workflow',()=>{let s=keys14('standard',['MODE','DOWN','2','1']);for(let k of ['1','=','2','=','3','=','4','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('-2'))throw Error(s.result)});
-test('M14 wizard rejects missing coefficient',()=>{let s=keys14('standard',['MODE','DOWN','1','1','=']);eq(s.view,'error');eq(s.error,K.ERROR.ARGUMENT)});
+test('M14 equation coefficient workflow',()=>{let s=keys14('standard',['MODE','5']);eq(s.mode,'EQN');eq(s.view,'workflow-menu');for(let k of ['1','1','=','NEG','3','=','2','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('2')||!s.result.includes('1'))throw Error(s.result)});
+test('M14 matrix coefficient workflow',()=>{let s=keys14('standard',['MODE','6','1']);for(let k of ['1','=','2','=','3','=','4','='])s=K.dispatchKey(s,k);eq(s.view,'result');if(!s.result.includes('-2'))throw Error(s.result)});
+test('M14 wizard rejects missing coefficient',()=>{let s=keys14('standard',['MODE','5','1','=']);eq(s.view,'error');eq(s.error,K.ERROR.ARGUMENT)});
 test('M14 error recovers cursor',()=>{let s=keys14('standard',['1','DIV','0','=']);eq(s.view,'error');s=K.dispatchKey(s,'RIGHT');eq(s.view,'edit');eq(s.error,null)});
-test('M14 semantic screen indicates coefficient label',()=>{let s=keys14('standard',['MODE','DOWN','1','1']);let screen=K.semanticScreen(s);if(!screen.expression.includes('a ='))throw Error(screen.expression)});
+test('M14 semantic screen indicates coefficient label',()=>{let s=keys14('standard',['MODE','5','1']);let screen=K.semanticScreen(s);if(!screen.expression.includes('a ='))throw Error(screen.expression)});
 test('M14 MODE select COMP remains edit',()=>{let s=keys14('standard',['MODE','1']);eq(s.mode,'COMP');eq(s.view,'edit')});
-test('M14 trace reproducible after workflow',()=>{let events=['MODE','DOWN','1','1','1','=','NEG','3','=','2','='];let a=K.runTrace({events}),b=K.runTrace({events});eq(a.hash,b.hash)});
+test('M14 trace reproducible after workflow',()=>{let events=['MODE','5','1','1','=','NEG','3','=','2','='];let a=K.runTrace({events}),b=K.runTrace({events});eq(a.hash,b.hash)});
 
 // Milestone 15: structural LCD layout and raster acceptance tests.
 const L=global.FX991_DISPLAY;
@@ -349,6 +349,46 @@ test('M22 Norm 2 below threshold',()=>eq(K.format(K.rat(1,10000000000),{format:'
 test('M22 S-D does not mutate original exact Ans',()=>{let s=K.createState();for(let k of ['1','DIV','3','='])s=K.dispatchKey(s,k);let ans=K.serialValue(s.ans);s=K.dispatchKey(s,'S-D');s=K.dispatchKey(s,'S-D');eq(JSON.stringify(K.serialValue(s.ans)),JSON.stringify(ans))});
 
 
+// Phase 3 — LCD viewport, cursor visibility and compact mathematical glyphs.
+test('LCD filled 24-character row still keeps trailing caret visible',()=>{
+ let s=K.semanticScreen(K.createState());s.document=E.fromSource('123456789012345678901234');s.view='edit';
+ let r=L.composeScreen(s);eq(r.overflow,true);eq(r.caretVisible,true);
+ if(r.scrollX<=0)throw Error('end cursor was not scrolled into view');
+ eq(r.viewport.left,4);eq(r.viewport.right,92);
+});
+test('LCD content fits with no unnecessary side gutters',()=>{
+ let s=K.semanticScreen(K.createState());s.document=E.fromSource('123');s.view='edit';
+ let r=L.composeScreen(s);eq(r.overflow,false);eq(r.scrollX,0);
+ eq(r.viewport.left,0);eq(r.viewport.right,96);eq(r.caretVisible,true);
+});
+test('LCD horizontal left/right scrolling follows caret in reserved viewport',()=>{
+ let d=E.fromSource('123456789012345678901234567890');
+ let s=K.semanticScreen(K.createState());s.document=d;s.view='edit';
+ let end=L.composeScreen(s);eq(end.caretVisible,true);
+ if(end.scrollX<=0)throw Error('no horizontal scroll at end');
+ for(let i=0;i<30;i++)d=E.move(d,'LEFT');
+ s.document=d;let start=L.composeScreen(s);
+ eq(start.scrollX,0);eq(start.caretVisible,true);
+});
+test('LCD overflow arrows do not alter clipped expression content',()=>{
+ let s=K.semanticScreen(K.createState());s.document=E.fromSource('123456789012345678901234567890');s.view='edit';
+ let r=L.composeScreen(s);eq(r.viewport.left,4);eq(r.viewport.right,92);
+ if(!r.pixels.some(Boolean))throw Error('empty LCD');
+});
+test('LCD nested-fraction caret remains in visible vertical viewport',()=>{
+ let d=E.create();for(let i=0;i<4;i++){d=E.template(d,'Fraction');d=E.insertToken(d,'1');d=E.move(d,'DOWN')}
+ d=E.insertToken(d,'2');let s=K.semanticScreen(K.createState());s.document=d;s.view='edit';
+ let r=L.composeScreen(s);eq(r.overflow,true);eq(r.caretVisible,true);
+ if(r.scrollY<=0)throw Error('vertical scroll not applied');
+});
+test('LCD mathematical glyphs include common non-ASCII results',()=>{
+ for(const c of '−×÷∞σθΣ∫°²³→⇔')if(!L.FONT[c])throw Error('missing mathematical glyph '+c);
+});
+test('LCD glyph box sizes count Unicode code points',()=>{
+ let d=E.fromSource('π');let r=L.layoutExpression(d);
+ if(r.width<4)throw Error('collapsed glyph width');
+});
+
 // Milestone 23 — baseline-aware 96x31 LCD and deep structural navigation.
 test('M23 framebuffer remains exactly 96x31',()=>eq(L.rasterizeScreen(K.semanticScreen(K.createState())).length,2976));
 test('M23 plain token baseline is stable',()=>{let b=L.layoutExpression(E.fromSource('ABC'));eq(b.baseline,4);eq(b.height,5)});
@@ -365,6 +405,196 @@ test('M23 nested upward movement climbs to ancestor numerator',()=>{let d=E.temp
 test('M23 nested vertical navigation does not change source',()=>{let d=E.template(E.create(),'Fraction');d=E.template(d,'Function','cos');d=E.insertToken(d,'5');let before=E.serialize(d);d=E.move(d,'DOWN');d=E.move(d,'UP');eq(E.serialize(d),before)});
 test('M23 vertically scrolled frame deterministic',()=>{let d=E.create();for(let i=0;i<3;i++){d=E.template(d,'Fraction');d=E.move(d,'DOWN')}let s=K.semanticScreen(K.createState());s.document=d;let a=L.rasterizeScreen(s),b=L.rasterizeScreen(s);eq(K.frameHash(a),K.frameHash(b))});
 test('M23 clipping preserves pixel bounds',()=>{let f=new L.Framebuffer();f.clip={left:0,right:96,top:7,bottom:22};f.line(1,0,1,30);eq(f.pixels[96*0+1],0);eq(f.pixels[96*12+1],1);eq(f.pixels[96*30+1],0)});
+
+// Phase 4: verified manual MODE/SETUP numbering (not firmware pixel parity).
+test('P4 MODE direct key 8 selects VECTOR',()=>{let s=K.createState();for(let k of ['MODE','8'])s=K.dispatchKey(s,k);eq(s.mode,'VECTOR');eq(s.view,'workflow-menu')});
+test('P4 MODE direct key 7 selects TABLE',()=>{let s=K.createState();for(let k of ['MODE','7'])s=K.dispatchKey(s,k);eq(s.mode,'TABLE')});
+test('P4 MODE direct key 5 selects EQN',()=>{let s=K.createState();for(let k of ['MODE','5'])s=K.dispatchKey(s,k);eq(s.mode,'EQN')});
+test('P4 MODE C extension page selects INEQ',()=>{let s=K.createState('c');for(let k of ['MODE','DOWN','1'])s=K.dispatchKey(s,k);eq(s.mode,'INEQ')});
+test('P4 SETUP 3 selects degrees',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','3'])s=K.dispatchKey(s,k);eq(s.setup.angle,'DEG');eq(s.view,'edit')});
+test('P4 SETUP 4 selects radians',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','4'])s=K.dispatchKey(s,k);eq(s.setup.angle,'RAD')});
+test('P4 SETUP 5 selects grads',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','5'])s=K.dispatchKey(s,k);eq(s.setup.angle,'GRAD')});
+test('P4 SETUP 6 then 2 selects Fix 2',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','6','2'])s=K.dispatchKey(s,k);eq(s.setup.format,'Fix');eq(s.setup.digits,2)});
+test('P4 SETUP 7 then 4 selects Sci 4',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','7','4'])s=K.dispatchKey(s,k);eq(s.setup.format,'Sci');eq(s.setup.digits,4)});
+test('P4 SETUP 8 then 1 selects Norm 1',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','8','1'])s=K.dispatchKey(s,k);eq(s.setup.format,'Norm1')});
+test('P4 SETUP 8 then 2 selects Norm 2',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','8','2'])s=K.dispatchKey(s,k);eq(s.setup.format,'Norm2')});
+test('P4 SETUP MthIO preference selector does not claim output parity',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','2'])s=K.dispatchKey(s,k);eq(s.ui.displayStyle,'LineO');eq(s.view,'edit')});
+test('P4 SETUP secondary page has visible options and no fake settings',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','DOWN'])s=K.dispatchKey(s,k);let menu=K.semanticScreen(s);eq(menu.menuItems.length,6);for(let k of ['1','2','3'])s=K.dispatchKey(s,k);eq(s.view,'setup')});
+test('P4 SETUP cancels secondary page with AC',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','DOWN','AC'])s=K.dispatchKey(s,k);eq(s.view,'edit')});
+test('P4 LCD MODE grid renders all eight standard choices',()=>{let s=K.createState();s=K.dispatchKey(s,'MODE');let sc=K.semanticScreen(s);eq(sc.menuItems.length,8);let frame=L.composeScreen(sc);eq(frame.pixels.length,96*31)});
+test('P4 LCD SETUP grid renders documented first page',()=>{let s=K.createState();for(let k of ['SHIFT','MODE'])s=K.dispatchKey(s,k);let sc=K.semanticScreen(s);eq(sc.menuItems.length,8);eq(sc.menuItems[0],'1:MthIO');eq(sc.menuItems[7],'8:Norm')});
+
+// Phase 5: display-format policy; actual Casio glyph/rounding parity remains unverified.
+test('P5 default MathO exact rational output',()=>{let s=K.createState();for(let k of ['1','DIV','2','='])s=K.dispatchKey(s,k);eq(s.setup.displayStyle,'MathO');eq(s.result,'1/2')});
+test('P5 SETUP MathO keeps exact fraction',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','1','1','DIV','2','='])s=K.dispatchKey(s,k);eq(s.result,'1/2')});
+test('P5 LineO produces linear decimal while input stays natural',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','2','1','DIV','2','='])s=K.dispatchKey(s,k);eq(s.result,'0.5');eq(K.semanticScreen(s).displayStyle,'LineO');if(!K.semanticScreen(s).document)throw Error('natural input removed')});
+test('P5 LineIO uses linear input projection and decimal result',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','2','1','DIV','2','='])s=K.dispatchKey(s,k);eq(s.result,'0.5');eq(K.semanticScreen(s).displayStyle,'LineIO');eq(K.semanticScreen(s).document,null)});
+test('P5 Linear S-D reveals exact typed fraction without recalculating',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','2','1','DIV','2','='])s=K.dispatchKey(s,k);eq(s.result,'0.5');s=K.dispatchKey(s,'S-D');eq(s.result,'1/2');eq(K.valueToString(s.ans),'1/2')});
+test('P5 Linear S-D toggles back to approximate result',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','2','1','DIV','2','=','S-D','S-D'])s=K.dispatchKey(s,k);eq(s.result,'0.5')});
+test('P5 Norm1 linear output for one over 200',()=>{let s=K.createState();s.setup.format='Norm1';s.setup.displayStyle='LineO';for(let k of ['1','DIV','2','0','0','='])s=K.dispatchKey(s,k);eq(s.result,'5e-3')});
+test('P5 MathO preserves exact radical',()=>{let s=K.createState();s.expression='sqrt(8)';s.document=E.fromSource(s.expression);s=K.dispatchKey(s,'=');eq(s.result,'2√2')});
+test('P5 LineO approximates radical',()=>{let s=K.createState();s.setup.displayStyle='LineO';s.expression='sqrt(8)';s.document=E.fromSource(s.expression);s=K.dispatchKey(s,'=');if(!s.result.startsWith('2.828'))throw Error(s.result)});
+test('P5 specified Fix overrides exact representation',()=>{let s=K.createState();s.setup.format='Fix';s.setup.digits=2;for(let k of ['1','DIV','2','='])s=K.dispatchKey(s,k);eq(s.result,'0.50')});
+test('P5 selected modes force linear display policy',()=>{for(const mode of ['STAT','BASE-N','MATRIX','VECTOR'])eq(K.effectiveDisplayStyle({displayStyle:'MathO'},mode),'LineIO')});
+test('P5 no mutation of mathematical answer on display preference',()=>{let s=K.createState();for(let k of ['1','DIV','3','='])s=K.dispatchKey(s,k);let ans=K.valueToString(s.ans);eq(K.valueDisplay(s.lastValue,{...s.setup,displayStyle:'LineO'},false),'0.3333333333');eq(K.valueToString(s.ans),ans)});
+test('P5 session round-trip preserves display style',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','2'])s=K.dispatchKey(s,k);let copy=SS.importJSON(SS.exportJSON(s));eq(copy.setup.displayStyle,'LineO');eq(copy.ui.displayStyle,'LineO')});
+test('P5 session accepts legacy missing display preference',()=>{let s=K.createState(),obj=JSON.parse(SS.exportJSON(s));delete obj.setup.displayStyle;let copy=SS.importJSON(JSON.stringify(obj));eq(copy.setup.displayStyle,'MathO')});
+test('P5 session rejects invalid display preference',()=>{let s=K.createState(),obj=JSON.parse(SS.exportJSON(s));obj.setup.displayStyle='unsupported';try{SS.importJSON(JSON.stringify(obj));throw Error('accepted invalid style')}catch(e){if(String(e.message)==='accepted invalid style')throw e}});
+
+// Phase 6: independent exact MathO raster layout (not hardware pixel parity).
+test('P6 typed half displays as stacked fraction on MathO LCD',()=>{let s=K.createState();for(const k of ['1','DIV','2','='])s=K.dispatchKey(s,k);let f=L.composeScreen(K.semanticScreen(s));eq(f.resultLayout.height,13);eq(f.viewport.bottom,16);eq(f.pixels.length,2976)});
+test('P6 numerator and denominator occupy separate LCD rows',()=>{let s=K.createState();for(const k of ['1','DIV','2','='])s=K.dispatchKey(s,k);let p=L.composeScreen(K.semanticScreen(s)).pixels;const row=y=>p.slice(y*96,(y+1)*96).some(Boolean);if(!row(17)||!row(23)||!row(27))throw Error('missing stacked components')});
+test('P6 negative rational uses numerator sign',()=>{let b=L.exactResultLayout(K.rat(-3n,5n));eq(b.height,13);eq(b.width>=8,true)});
+test('P6 integral result stays on plain result row',()=>{let s=K.createState();for(const k of ['2','ADD','3','='])s=K.dispatchKey(s,k);eq(L.composeScreen(K.semanticScreen(s)).resultLayout,null)});
+test('P6 radical result draws overbar and glyph independently',()=>{let s=K.createState();s.document=E.fromSource('sqrt(8)');s.expression='sqrt(8)';s=K.dispatchKey(s,'=');let b=L.composeScreen(K.semanticScreen(s)).resultLayout;if(!b||b.height!==10)throw Error('radical layout missing')});
+test('P6 pi multiple has structure in exact mode',()=>{let s=K.createState();s.document=E.fromSource('pi/2');s.expression='pi/2';s=K.dispatchKey(s,'=');let b=L.composeScreen(K.semanticScreen(s)).resultLayout;if(!b||b.height!==13)throw Error('pi fraction layout missing')});
+test('P6 fraction switches to text on MathO S-D',()=>{let s=K.createState();for(const k of ['1','DIV','2','=','S-D'])s=K.dispatchKey(s,k);eq(L.composeScreen(K.semanticScreen(s)).resultLayout,null)});
+test('P6 LineO never paints structured fractions',()=>{let s=K.createState();s.setup.displayStyle='LineO';for(const k of ['1','DIV','2','='])s=K.dispatchKey(s,k);eq(L.composeScreen(K.semanticScreen(s)).resultLayout,null)});
+test('P6 Fix forces normal decimal text row',()=>{let s=K.createState();s.setup.format='Fix';s.setup.digits=2;for(const k of ['1','DIV','2','='])s=K.dispatchKey(s,k);eq(L.composeScreen(K.semanticScreen(s)).resultLayout,null)});
+test('P6 oversized exact fraction falls back to textual result',()=>{let b=L.exactResultLayout(K.rat(123456789012345678901234567890n,333333333333333333333333333331n));if(!(b.width>96))throw Error('not wide enough');let s=K.semanticScreen(K.createState());s.view='result';s.displayStyle='MathO';s.resultValue=K.rat(123456789012345678901234567890n,333333333333333333333333333331n);s.result='long';let frame=L.composeScreen(s);if(!frame.resultLayout||!frame.resultOverflow)throw Error('oversized structured fraction not scrollable')});
+test('P6 exact result layout does not mutate numerator denominator',()=>{const v=K.rat(1n,7n),before=K.valueToString(v);L.exactResultLayout(v);eq(K.valueToString(v),before)});
+test('P6 result rendering remains deterministic',()=>{let s=K.createState();for(const k of ['1','DIV','3','='])s=K.dispatchKey(s,k);let a=K.rasterizeScreen(K.semanticScreen(s)),b=K.rasterizeScreen(K.semanticScreen(s));eq(K.frameHash(a),K.frameHash(b))});
+
+// Phase 8 — real-reference observation schema and checkpoint differential (fixtures are synthetic only).
+test('P8 corrected setup preset enters RAD',()=>{eq(DEV.scenario('setup-radian').keys.join(' '),'SHIFT MODE 4')});
+test('P8 corrected C menu preset enters INEQ',()=>{eq(DEV.scenario('c-ineq-menu').keys.join(' '),'MODE DOWN 1')});
+test('P8 setup controlled observation compares final result',()=>{let c=DEVICE_SAMPLE();c.id='p8-rad-fixture';c.setup={angle:'RAD',format:'Norm2',digits:3,displayStyle:'LineO'};c.observed={result:'5'};eq(DEV.compare(c).passed,true)});
+test('P8 intermediate checkpoint matches observed state',()=>{let c=DEVICE_SAMPLE();c.id='p8-check-fixture';c.checkpoints=[{step:2,observed:{expression:'2+'}}];let o=DEV.compare(c);eq(o.passed,true);eq(o.firstDivergence,null)});
+test('P8 first intermediate mismatch reports key step',()=>{let c=DEVICE_SAMPLE();c.id='p8-mismatch-fixture';c.checkpoints=[{step:2,observed:{expression:'2-'}}];let o=DEV.compare(c);eq(o.passed,false);eq(o.firstDivergence,2);eq(o.issues[0].scope,'checkpoint')});
+test('P8 duplicate checkpoint steps rejected',()=>{let c=DEVICE_SAMPLE();c.checkpoints=[{step:1,observed:{result:'x'}},{step:1,observed:{result:'y'}}];try{DEV.validate(c);throw Error('accepted duplicate')}catch(e){if(e.message==='accepted duplicate')throw e}});
+test('P8 out of range checkpoint step rejected',()=>{let c=DEVICE_SAMPLE();c.checkpoints=[{step:99,observed:{result:'5'}}];try{DEV.validate(c);throw Error('accepted step')}catch(e){if(e.message==='accepted step')throw e}});
+test('P8 invalid setup display style rejected',()=>{let c=DEVICE_SAMPLE();c.setup={displayStyle:'NoSuchStyle'};try{DEV.validate(c);throw Error('accepted style')}catch(e){if(e.message==='accepted style')throw e}});
+test('P8 observed settings round-trip intact',()=>{let c=DEVICE_SAMPLE();c.setup={angle:'RAD',format:'Fix',digits:2,displayStyle:'LineIO'};c.checkpoints=[{step:1,observed:{expression:'2'}}];c.photoRef='physical-shot-001.png';let p=DEV.add(DEV.empty(),c);let q=DEV.importEvidence(JSON.stringify(p));eq(JSON.stringify(q.records[0]),JSON.stringify(c))});
+test('P8 textual notes cannot substitute for observations',()=>{let c=DEVICE_SAMPLE();c.observed={};c.notes='Expected 5';try{DEV.validate(c);throw Error('accepted note')}catch(e){if(e.message==='accepted note')throw e}});
+
+// Phase 9: 50-case capture plan contains scenarios ONLY, never physical observations.
+test('P9 capture plan has exactly 50 cases',()=>eq(global.FX991_REFERENCE_PLAN.CASES.length,50));
+test('P9 plan identifiers are unique',()=>eq(new Set(global.FX991_REFERENCE_PLAN.CASES.map(x=>x.id)).size,50));
+test('P9 plan contains no recorded or expected CASIO output',()=>{for(const c of global.FX991_REFERENCE_PLAN.CASES){eq(c.sourceStatus,'planned-unobserved');if('observed' in c||'expected' in c||'manual' in c)throw Error('observation in plan')}});
+test('P9 plan category counts are correct',()=>{const c=global.FX991_REFERENCE_PLAN.coverage(DEV.empty());eq(c.planned,50);eq(c.unrecorded,50);eq(c.categories.arithmetic.planned,10);eq(c.categories.trigonometry.planned,8);eq(c.categories.errors.planned,4)});
+test('P9 plan covers seven areas',()=>eq(Object.keys(global.FX991_REFERENCE_PLAN.coverage(DEV.empty()).categories).length,7));
+test('P9 all planned sequences are bounded semantic keys',()=>{for(const x of global.FX991_REFERENCE_PLAN.CASES){if(!x.keys.length||x.keys.some(k=>typeof k!=='string'||k.length>30))throw Error(x.id)}});
+test('P9 scenario selector returns setup and no manufacturer result',()=>{let x=DEV.scenario('T04');eq(x.setup.angle,'RAD');eq(x.planned,true);eq(x.manual,null)});
+test('P9 legacy reference scenario remains selectable',()=>{let x=DEV.scenario('setup-radian');eq(x.planned,false);eq(x.keys.join(' '),'SHIFT MODE 4')});
+test('P9 coverage is zero for observations without associated planned IDs',()=>{let c=DEV.add(DEV.empty(),DEVICE_SAMPLE());eq(DEV.planCoverage(c).recorded,0)});
+test('P9 coverage counts unique assigned scenario IDs only',()=>{let a=DEVICE_SAMPLE();a.id='p9a';a.scenarioId='A01';let b={...a,id:'p9b'};let c=DEV.add(DEV.add(DEV.empty(),a),b);eq(DEV.planCoverage(c).recorded,1)});
+test('P9 unknown scenario ID is rejected',()=>{let c=DEVICE_SAMPLE();c.scenarioId='FAKE';try{DEV.add(DEV.empty(),c);throw Error('accepted fake')}catch(e){if(e.message==='accepted fake')throw e}});
+test('P9 progress makes no claim of physical certification',()=>{let c=global.FX991_REFERENCE_PLAN.coverage(DEV.empty());eq(c.authenticated,false);eq(c.physicalDeviceAgreementVerified,false)});
+
+// Phase 11 — local photo hashes are metadata, not CASIO device authentication.
+const PH11=global.FX991_EVIDENCE_MEDIA;
+const m11=()=>({fileName:'original-lcd.png',mediaType:'image/png',bytes:100,
+ sha256:'a'.repeat(64),hashAlgorithm:'SHA-256',reviewStatus:'unreviewed'});
+test('P11 independent photo descriptor accepts lowercase SHA-256',()=>eq(PH11.validateDescriptor(m11()).reviewStatus,'unreviewed'));
+test('P11 explicit review state cannot claim physical certification',()=>{let x=m11();x.reviewStatus='verified';try{PH11.validateDescriptor(x);throw Error('accepted certification')}catch(e){if(e.message==='accepted certification')throw e}});
+test('P11 bad photo hash rejected',()=>{let x=m11();x.sha256='BAD';try{PH11.validateDescriptor(x);throw Error('accepted hash')}catch(e){if(e.message==='accepted hash')throw e}});
+test('P11 image bytes limited to twelve MiB',()=>{let x=m11();x.bytes=PH11.MAX_BYTES+1;try{PH11.validateDescriptor(x);throw Error('accepted oversize')}catch(e){if(e.message==='accepted oversize')throw e}});
+test('P11 photo name forbids directory traversal',()=>{let x=m11();x.fileName='../private.png';try{PH11.validateDescriptor(x);throw Error('accepted path')}catch(e){if(e.message==='accepted path')throw e}});
+test('P11 recognizable PNG file signature',()=>{eq(PH11.signature(new Uint8Array([137,80,78,71,13,10,26,10])), 'image/png')});
+test('P11 recognizable JPEG file signature',()=>{eq(PH11.signature(new Uint8Array([255,216,255,224])), 'image/jpeg')});
+test('P11 recognizable WebP file signature',()=>{eq(PH11.signature(new Uint8Array([82,73,70,70,0,0,0,0,87,69,66,80])), 'image/webp')});
+test('P11 unrelated file cannot masquerade as accepted image',()=>eq(PH11.signature(new Uint8Array([60,115,99,114,105,112,116,62])),null));
+test('P11 evidence record round-trips unreviewed image fingerprint',()=>{let c=DEVICE_SAMPLE();c.photoRef='original-lcd.png';c.media=m11();let e=DEV.add(DEV.empty(),c);eq(DEV.importEvidence(JSON.stringify(e)).records[0].media.sha256,'a'.repeat(64))});
+test('P11 mismatch between photo and identifier is refused',()=>{let c=DEVICE_SAMPLE();c.photoRef='another-photo.jpg';c.media=m11();try{DEV.validate(c);throw Error('accepted mismatch')}catch(e){if(e.message==='accepted mismatch')throw e}});
+test('P11 legacy records remain valid without media fingerprint',()=>{let c=DEVICE_SAMPLE();eq(DEV.validate(c).media,undefined)});
+
+// Phase 12: official manufacturer *document* examples — NOT real-device observations.
+test('P12 official example corpus has eleven source-grounded cases',()=>eq(global.FX991_MANUFACTURER_EXAMPLES.CASES.length,11));
+test('P12 official example cases identify source pages',()=>{for(const c of global.FX991_MANUFACTURER_EXAMPLES.CASES){if(![20,21,27].includes(c.page))throw Error(c.id)}});
+test('P12 manufacturer example IDs are unique',()=>eq(new Set(global.FX991_MANUFACTURER_EXAMPLES.CASES.map(c=>c.id)).size,11));
+test('P12 no official example claims physical-device observation',()=>{const r=global.FX991_MANUFACTURER_EXAMPLES.verify();eq(r.physicalObservations,0);for(const c of r.cases){eq(c.physicalKeySequenceVerified,false);eq(c.lcdGlyphParityVerified,false)}});
+test('P12 verified manual semantic-result matches are reported',()=>{const r=global.FX991_MANUFACTURER_EXAMPLES.verify();eq(r.total,11);eq(r.matched,11)});
+test('P12 previously divergent manufacturer cases now match normalized text',()=>{const r=global.FX991_MANUFACTURER_EXAMPLES.verify();eq(r.divergent,0);eq(r.cases.find(x=>x.caseId==='M12-11').actual,'√6+2√3')});
+test('P12 textual equality does not claim LCD raster parity',()=>{const c=global.FX991_MANUFACTURER_EXAMPLES.verify().cases.find(x=>x.caseId==='M12-01');eq(c.normalizedTextMatch,true);eq(c.lcdGlyphParityVerified,false)});
+
+// Phase 13: exact radical arithmetic and distinct fraction-template semantics.
+test('P13 unlike radical sum remains exact',()=>eq(K.valueToString(evaluate('sqrt(2)+sqrt(3)')),'√3+√2'));
+test('P13 documented radical distributive product exact',()=>eq(K.valueToString(evaluate('(sqrt(2)+2)*sqrt(3)')),'√6+2√3'));
+test('P13 documented compound radical computes approximately when toggled',()=>{const v=evaluate('(sqrt(2)+2)*sqrt(3)');if(Math.abs(K.numeric(v)-5.9135913579)>1e-9)throw Error('numeric parity')});
+test('P13 radical products simplify exactly',()=>eq(K.valueToString(evaluate('sqrt(2)*sqrt(3)')),'√6'));
+test('P13 equal radicals collapse to rational',()=>eq(K.valueToString(evaluate('sqrt(2)*sqrt(2)')),'2'));
+test('P13 unlike radicals cancel exactly',()=>eq(K.valueToString(evaluate('sqrt(2)+sqrt(3)-sqrt(3)')),'√2'));
+test('P13 combine identical radical coefficients',()=>eq(K.valueToString(evaluate('2*sqrt(3)+sqrt(3)')),'3√3'));
+test('P13 rational and radical sum retain exact forms',()=>eq(K.valueToString(evaluate('2+sqrt(3)')),'2+√3'));
+test('P13 exact radical result raster fits LCD',()=>{let s=K.createState();for(const k of ['LP','SQRT','2','RIGHT','ADD','2','RP','MUL','SQRT','3','RIGHT','='])s=K.dispatchKey(s,k);eq(s.result,'√6+2√3');let r=global.FX991_DISPLAY.composeScreen(K.semanticScreen(s));if(!r.resultLayout||r.resultLayout.width>96||r.resultLayout.height>14)throw Error('missing structured radical layout')});
+test('P13 LineIO DIV continues decimal-first',()=>{let s=K.createState();s.setup.displayStyle='LineIO';for(const k of ['1','DIV','5','='])s=K.dispatchKey(s,k);eq(s.result,'0.2');eq(s.decimalView,false)});
+test('P13 LineIO FRAC defaults to fraction form',()=>{let s=K.createState();s.setup.displayStyle='LineIO';for(const k of ['FRAC','1','RIGHT','5','='])s=K.dispatchKey(s,k);eq(s.result,'1/5');eq(s.decimalView,true)});
+test('P13 LineIO fraction toggles to decimal',()=>{let s=K.createState();s.setup.displayStyle='LineIO';for(const k of ['1','SUB','FRAC','4','RIGHT','5','=','S-D'])s=K.dispatchKey(s,k);eq(s.result,'0.2')});
+test('P13 LineIO addition of fraction templates stays exact',()=>{let s=K.createState();s.setup.displayStyle='LineIO';for(const k of ['FRAC','2','RIGHT','3','RIGHT','ADD','FRAC','1','RIGHT','2','='])s=K.dispatchKey(s,k);eq(s.result,'7/6')});
+test('P13 mixed explicit decimal and fraction displays decimal',()=>{let s=K.createState();s.setup.displayStyle='LineIO';for(const k of ['FRAC','1','RIGHT','5','RIGHT','ADD','0','.','5','='])s=K.dispatchKey(s,k);eq(s.result,'0.7')});
+test('P13 exact radical sum survives session Ans serialization',()=>{let s=K.createState();s.ans=evaluate('(sqrt(2)+2)*sqrt(3)');let restored=SS.importJSON(SS.exportJSON(s));eq(K.valueToString(restored.ans),'√6+2√3')});
+test('P13 invalid radical-sum import is rejected',()=>{let s=K.createState();s.ans=evaluate('(sqrt(2)+2)*sqrt(3)');let p=JSON.parse(SS.exportJSON(s));p.ans.radicals[0].radicand='-8';fail28(()=>SS.importJSON(JSON.stringify(p)))});
+test('P13 CASIO published corpus now matches eleven result texts',()=>{const r=global.FX991_MANUFACTURER_EXAMPLES.verify();eq(r.matched,11);eq(r.total,11);eq(r.physicalObservations,0)});
+
+// Phase 14: mixed fraction display plus independently scrollable exact result.
+test('P14 improper fraction toggles to mixed result',()=>{let s=m31seq(['FRAC','7','RIGHT','6','=','SHIFT','FRAC']);eq(s.result,'1 1/6');eq(s.mixedView,true);eq(K.valueToString(s.ans),'7/6')});
+test('P14 mixed toggle is reversible',()=>{let s=m31seq(['FRAC','7','RIGHT','6','=','SHIFT','FRAC','SHIFT','FRAC']);eq(s.result,'7/6');eq(s.mixedView,false)});
+test('P14 negative mixed fractions retain sign',()=>{let s=m31seq(['NEG','FRAC','7','RIGHT','6','=','SHIFT','FRAC']);eq(s.result,'-1 1/6')});
+test('P14 reduced proper fraction has no mixed form',()=>{let s=m31seq(['FRAC','1','RIGHT','6','=','SHIFT','FRAC']);eq(s.result,'1/6');eq(s.mixedView,false)});
+test('P14 integers do not become mixed fractions',()=>{let s=m31seq(['3','=','SHIFT','FRAC']);eq(s.result,'3');eq(s.mixedView,false)});
+test('P14 mixed fraction digit ceiling disallows huge conversions',()=>{eq(K.mixedFractionText(K.rat(123456789012345n,13n)),null)});
+test('P14 allowed mixed fraction stays within documented digit ceiling',()=>{eq(K.mixedFractionText(K.rat(11n,4n)),'2 3/4')});
+test('P14 mixed conversion cannot alter stored Ans',()=>{let s=m31seq(['FRAC','7','RIGHT','6','=','SHIFT','FRAC','S-D']);eq(K.valueToString(s.ans),'7/6');eq(s.mixedView,false)});
+test('P14 mixed MathO result uses plain mixed string not improper stacked fraction',()=>{let s=m31seq(['FRAC','7','RIGHT','6','=','SHIFT','FRAC']);eq(L.composeScreen(K.semanticScreen(s)).resultLayout,null)});
+test('P14 MIX shortcut handled by controller',()=>{let s=m31seq(['FRAC','1','1','RIGHT','4','=']);eq(s.view,'result')});
+test('P14 long integer result displays an overflow viewport',()=>{let s=m31seq([...'12345678901234567890123456789'.split(''),'=']);let frame=L.composeScreen(K.semanticScreen(s));eq(frame.resultOverflow,true);if(frame.resultMaxScroll<=0)throw Error('no scroll extent')});
+test('P14 result RIGHT scrolls while keeping result view',()=>{let s=m31seq([...'12345678901234567890123456789'.split(''),'=']);s=K.dispatchKey(s,'RIGHT');eq(s.view,'result');eq(s.resultScrollX,16)});
+test('P14 result LEFT reverses result scroll',()=>{let s=m31seq([...'12345678901234567890123456789'.split(''),'=','RIGHT','LEFT']);eq(s.view,'result');eq(s.resultScrollX,0)});
+test('P14 result scrolling has clamped right boundary',()=>{let s=m31seq([...'12345678901234567890123456789'.split(''),'=']);for(let i=0;i<15;i++)s=K.dispatchKey(s,'RIGHT');let frame=L.composeScreen(K.semanticScreen(s));eq(s.resultScrollX,frame.resultMaxScroll);eq(s.view,'result')});
+test('P14 result scrolling does not alter typed Ans',()=>{let s=m31seq([...'12345678901234567890123456789'.split(''),'=']);let original=K.valueToString(s.ans);s=K.dispatchKey(s,'RIGHT');eq(K.valueToString(s.ans),original)});
+test('P14 long structured fraction can scroll independently',()=>{let s=K.createState();let numerator='1234567890123456789012345678901';s.document=E.fromSource(numerator+'/31');s.expression=E.serialize(s.document);s=K.dispatchKey(s,'=');let r=L.composeScreen(K.semanticScreen(s));if(s.view!=='result')throw Error(s.result);if(r.resultMaxScroll<=0)throw Error('fraction not wider than LCD');s=K.dispatchKey(s,'RIGHT');eq(s.view,'result');eq(s.resultScrollX,16)});
+test('P14 S-D resets stale result viewport',()=>{let s=m31seq([...'12345678901234567890123456789'.split(''),'=','RIGHT','S-D']);eq(s.resultScrollX,0)});
+test('P14 short result LEFT retains earlier edit cursor behavior',()=>{let s=m31seq(['1','ADD','2','=','LEFT']);eq(s.view,'edit')});
+test('P14 exact radical boundary sqrt zero',()=>{eq(K.valueToString(evaluate('sqrt(0)')),'0')});
+test('P14 square-root square simplification',()=>{eq(K.valueToString(evaluate('sqrt(5)*sqrt(5)')),'5')});
+test('P14 unlike radicals cancel without decimal loss',()=>{eq(K.valueToString(evaluate('sqrt(2)+sqrt(5)-sqrt(5)')),'√2')});
+test('P14 mixed fraction remains text after session restore',()=>{let s=m31seq(['FRAC','7','RIGHT','6','=','SHIFT','FRAC']);let r=SS.importJSON(SS.exportJSON(s));eq(K.valueToString(r.ans),'7/6')});
+
+// Phase 15: dedicated three-field mixed-fraction *input*, not only display conversion.
+const p15=(keys,style='MathO')=>{let s=K.createState();s.setup.displayStyle=style;for(const k of keys)s=K.dispatchKey(s,k);return s};
+test('P15 SHIFT+FRAC enters mixed template in edit view',()=>{const s=p15(['SHIFT','FRAC']);eq(s.document.root.children[0].kind,'MixedFraction');eq(s.document.anchor.sequenceId,s.document.root.children[0].whole.id)});
+test('P15 dedicated MIXIN key enters mixed template',()=>{const s=p15(['MIXIN']);eq(s.document.root.children[0].kind,'MixedFraction')});
+test('P15 mixed template contains three independent slots',()=>{const s=p15(['MIXIN']);eq(E.inspect(s.document).slots,3);eq(E.inspect(s.document).duplicate,false)});
+test('P15 mixed templates display all three empty fields',()=>{const s=p15(['MIXIN']);eq(E.invalidSlots(s.document).length,3);if(!E.renderHTML(s.document).includes('nd-mixed'))throw Error('mixed editor markup missing')});
+test('P15 mixed cursor advances whole to numerator to denominator',()=>{let s=p15(['MIXIN','2']);const node=s.document.root.children[0];s=K.dispatchKey(s,'RIGHT');eq(s.document.anchor.sequenceId,node.numerator.id);s=K.dispatchKey(s,'3');s=K.dispatchKey(s,'RIGHT');eq(s.document.anchor.sequenceId,node.denominator.id)});
+test('P15 mixed 1 1/6 evaluates to 7/6',()=>{const s=p15(['SHIFT','FRAC','1','RIGHT','1','RIGHT','6','=']);eq(s.view,'result');eq(s.result,'7/6');eq(K.valueToString(s.ans),'7/6')});
+test('P15 mixed 2 3/4 evaluates to 11/4',()=>{const s=p15(['MIXIN','2','RIGHT','3','RIGHT','4','=']);eq(s.result,'11/4')});
+test('P15 unary minus affects whole mixed value',()=>{const s=p15(['NEG','MIXIN','2','RIGHT','3','RIGHT','4','=']);eq(s.result,'-11/4')});
+test('P15 separate mixed templates add exactly',()=>{const s=p15(['MIXIN','1','RIGHT','1','RIGHT','6','RIGHT','ADD','MIXIN','2','RIGHT','1','RIGHT','3','=']);eq(s.result,'7/2')});
+test('P15 mixed input under LineIO defaults to exact fraction',()=>{const s=p15(['MIXIN','1','RIGHT','1','RIGHT','6','='],'LineIO');eq(s.result,'7/6');eq(s.decimalView,true)});
+test('P15 mixed input LineIO toggles to decimal',()=>{const s=p15(['MIXIN','1','RIGHT','1','RIGHT','6','=','S-D'],'LineIO');eq(s.result,'1.166666667')});
+test('P15 incomplete mixed input reports Syntax ERROR first',()=>{const s=p15(['MIXIN','1','=']);eq(s.view,'error');eq(s.error,K.ERROR.SYNTAX)});
+test('P15 mixed denominator zero rejected as Argument ERROR',()=>{const s=p15(['MIXIN','1','RIGHT','1','RIGHT','0','=']);eq(s.error,K.ERROR.ARGUMENT)});
+test('P15 improper mixed numerator rejected',()=>{const s=p15(['MIXIN','2','RIGHT','5','RIGHT','4','=']);eq(s.error,K.ERROR.ARGUMENT)});
+test('P15 zero whole mixed field is rejected',()=>{const s=p15(['MIXIN','0','RIGHT','1','RIGHT','4','=']);eq(s.error,K.ERROR.ARGUMENT)});
+test('P15 nested non-digit numerator refused',()=>{const s=p15(['MIXIN','1','RIGHT','SQRT','4','RIGHT','RIGHT','2','=']);eq(s.error,K.ERROR.ARGUMENT)});
+test('P15 mixed structure draws independent stacked input fields',()=>{const s=p15(['MIXIN','1','RIGHT','1','RIGHT','6']);const layout=L.layoutExpression(s.document);if(layout.height<10||layout.width<10)throw Error('mixed layout missing');eq(L.composeScreen(K.semanticScreen(s)).pixels.length,2976)});
+test('P15 deleting empty mixed template is atomic',()=>{let d=E.template(E.create(),'MixedFraction');d=E.move(d,'LEFT');d=E.delForward(d);eq(d.root.children.length,0)});
+test('P15 mixed input survives session export/import',()=>{const s=p15(['MIXIN','2','RIGHT','1','RIGHT','3']);const x=SS.importJSON(SS.exportJSON(s));eq(x.expression,s.expression);eq(x.document.root.children[0].kind,'MixedFraction');eq(x.document.anchor.sequenceId,s.document.anchor.sequenceId)});
+test('P15 mixed input preserves unique node IDs after restore',()=>{let s=p15(['MIXIN','2','RIGHT','1','RIGHT','3']);s=SS.importJSON(SS.exportJSON(s));s=K.dispatchKey(s,'RIGHT');s=K.dispatchKey(s,'MIXIN');eq(E.inspect(s.document).duplicate,false)});
+test('P15 malformed mixed document session is rejected',()=>{const s=p15(['MIXIN','1','RIGHT','1','RIGHT','6']);const obj=JSON.parse(SS.exportJSON(s));delete obj.document.root.children[0].whole;let rejected=false;try{SS.importJSON(JSON.stringify(obj))}catch(_){rejected=true}eq(rejected,true)});
+test('P15 old fractional session remains backward compatible',()=>{const s=p15(['FRAC','1','RIGHT','2']);const x=SS.importJSON(SS.exportJSON(s));eq(x.document.root.children[0].kind,'Fraction')});
+test('P15 mixed input preserves exact evaluation source across restore',()=>{let s=p15(['MIXIN','3','RIGHT','2','RIGHT','5']);s=SS.importJSON(SS.exportJSON(s));s=K.dispatchKey(s,'=');eq(s.result,'17/5')});
+test('P15 arithmetic boundary rational sum of mixed expressions',()=>eq(K.valueToString(evaluate('((1)+((1)/(6)))+((2)+((1)/(3)))')),'7/2'));
+test('P15 LCD caret moves horizontally within mixed denominator',()=>{let s=p15(['MIXIN','1','RIGHT','1','RIGHT','6']);const start=K.frameHash(L.rasterizeScreen(K.semanticScreen(s)));s=K.dispatchKey(s,'LEFT');const moved=K.frameHash(L.rasterizeScreen(K.semanticScreen(s)));if(start===moved)throw Error('cursor frame unchanged');eq(s.view,'edit')});
+test('P15 tall mixed fraction scrolls vertically to selected slot',()=>{let s=p15(['MIXIN','1','RIGHT','1','RIGHT','6']);const a=L.composeScreen(K.semanticScreen(s));s=K.dispatchKey(s,'UP');const b=L.composeScreen(K.semanticScreen(s));if(a.pixels.every((v,i)=>v===b.pixels[i]))throw Error('slot navigation unchanged');eq(s.document.anchor.sequenceId,s.document.root.children[0].numerator.id)});
+test('P15 long mixed input has horizontal editor overflow',()=>{const digits='123456789012345'.split('');const s=p15(['MIXIN',...digits,'RIGHT',...digits,'RIGHT',...digits]);const f=L.composeScreen(K.semanticScreen(s));eq(f.overflow,true);if(f.scrollX<=0)throw Error('missing horizontal input scroll');eq(f.pixels.length,2976)});
+
+
+// Phase 16: real hardware fraction workflow plans — observations remain absent.
+const F16=global.FX991_FRACTION_VALIDATION;
+test('P16 hardware fraction capture contains twelve planned cases',()=>eq(F16.CASES.length,12));
+test('P16 capture plans contain no claimed device observations',()=>{for(const c of F16.CASES){eq(c.deviceObservation,null);eq(c.status,'unobserved-plan');eq(c.physicalKeyMappingVerified,false)}});
+test('P16 each checkpoint references an existing semantic key',()=>{for(const c of F16.CASES){if(!c.checkpoints.length||c.checkpoints.some(n=>!Number.isInteger(n)||n<1||n>c.keys.length))throw Error(c.id)}});
+test('P16 planned capture IDs are unique',()=>eq(new Set(F16.CASES.map(x=>x.id)).size,12));
+test('P16 blank worksheets contain no observed LCD text',()=>{for(const c of F16.CASES){let b=F16.blank(c.id);eq(b.actualLCD,'');eq(b.physicalKeySequence,'');eq(b.independentlyReviewed,false);if(b.checkpoints.some(p=>p.observedLCD!==''||p.photoFile!==''))throw Error('pre-filled observation')}});
+test('P16 unknown reference sheet ID rejected',()=>{let error=false;try{F16.blank('fake')}catch(_){error=true}eq(error,true)});
+test('P16 real-device records for focus IDs remain self-reported',()=>{let c=DEVICE_SAMPLE();c.scenarioId='F16-03';let e=DEV.add(DEV.empty(),c);eq(F16.progress(e.records).recorded,1);eq(DEV.review(e).certified,false);eq(F16.progress(e.records).physicalParityCertified,false)});
+test('P16 duplicate focus IDs cannot inflate case coverage',()=>{let c=DEVICE_SAMPLE();c.scenarioId='F16-03';let d={...c,id:'other'};eq(F16.progress([c,d]).recorded,1)});
+test('P16 base fifty-case progress excludes focused hardware cases',()=>{let c=DEVICE_SAMPLE();c.scenarioId='F16-03';eq(DEV.planCoverage(DEV.add(DEV.empty(),c)).recorded,0)});
+test('P16 focused scenarios available through workbench',()=>{let x=DEV.scenario('F16-03');eq(x.focus,true);eq(x.planned,true);eq(x.keys[1],'FRAC');eq(x.checkpoints.length>0,true)});
+test('P16 focused first mismatch identifies exact key-step',()=>{let c=DEVICE_SAMPLE();c.scenarioId='F16-01';c.keys=[...F16.get('F16-01').keys];c.checkpoints=[{step:1,observed:{expression:'bad-reference-fixture'}}];let r=DEV.compare(c);eq(r.passed,false);eq(r.firstDivergence,1);eq(r.issues[0].scope,'checkpoint')});
+test('P16 no focused records means no physical verification',()=>{const r=F16.progress([]);eq(r.planned,12);eq(r.recorded,0);eq(r.independentlyAuthenticated,false);eq(r.physicalParityCertified,false)});
 
 // Milestone 24: physical-key resolution, insert/overwrite and structural deletion.
 const KM=global.FX991_KEYS;
@@ -408,18 +638,18 @@ test('M25 COMP SIN still creates structural template',()=>{let s=K.createState()
 test('M25 normal RCL enters register prompt',()=>{let s=K.createState();s=K.dispatchKey(s,'RCL_MENU');eq(s.view,'register-prompt');eq(s.ui.pending,'RCL')});
 test('M25 RCL prompt cancelled by AC',()=>{let s=K.createState();for(let k of ['RCL_MENU','AC'])s=K.dispatchKey(s,k);eq(s.view,'edit');eq(s.ui.pending,null)});
 test('M25 SHIFT RCL stores then RCL recalls',()=>{let s=K.createState();for(let k of ['7','=','SHIFT','RCL','A','AC','RCL_MENU','A'])s=K.dispatchKey(s,k);eq(s.expression,'A');eq(K.valueToString(s.memory.A),'7')});
-test('M25 DEG through SETUP and inverse SIN',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','1','SHIFT','SIN','0','.','5','RP','='])s=K.dispatchKey(s,k);eq(s.result,'30')});
+test('M25 DEG through SETUP and inverse SIN',()=>{let s=K.createState();for(let k of ['SHIFT','MODE','3','SHIFT','SIN','0','.','5','RP','='])s=K.dispatchKey(s,k);eq(s.result,'30')});
 test('M25 C mode menu has second and third pages',()=>{let s=K.createState('c');for(let k of ['MODE','DOWN','DOWN','1'])s=K.dispatchKey(s,k);eq(s.mode,'INEQ')});
 test('M25 editing after power result appends correctly',()=>{let s=K.createState();for(let k of ['3','='])s=K.dispatchKey(s,k);s=K.dispatchKey(s,'SHIFT');s=K.dispatchKey(s,'LN');eq(s.expression,'exp()')});
 // Milestone 26 — end-to-end keypad mode-data workflow acceptance.
 function m26(model,events){let s=K.createState(model);for(const key of events)s=K.dispatchKey(s,key);return s}
-function m26Mode(model,page,digit,op){return m26(model,['MODE',...Array(page).fill('DOWN'),String(digit),String(op)])}
+function m26Mode(model,page,digit,op){const selected=Number(digit)+(page===1?4:0);return m26(model,['MODE',String(selected),String(op)])}
 function m26Fields(s,values){for(const value of values){for(const c of String(value)){s=K.dispatchKey(s,c==='-'?'NEG':c)}s=K.dispatchKey(s,'=')}return s}
 test('M26 MATRIX inverse 2x2 keypad workflow',()=>{let s=m26Mode('standard',1,2,3);s=m26Fields(s,[1,2,3,4]);eq(s.view,'result');if(!s.expression.startsWith('INV:')||!s.result.includes('-2'))throw Error(s.result)});
 test('M26 MATRIX transpose 2x2 keypad workflow',()=>{let s=m26Mode('standard',1,2,4);s=m26Fields(s,[1,2,3,4]);eq(s.view,'result');eq(s.expression,'TRANS:1,2;3,4')});
-test('M26 MATRIX multiplication 2x2 supports second menu page',()=>{let s=m26Mode('standard',1,2,1);s=K.dispatchKey(s,'AC');s=m26('standard',['MODE','DOWN','2','DOWN','1']);eq(s.view,'coefficient');eq(s.ui.wizard.kind,'MUL2');s=m26Fields(s,[1,2,3,4,5,6,7,8]);eq(s.view,'result');if(!s.result.includes('19'))throw Error(s.result)});
+test('M26 MATRIX multiplication 2x2 supports second menu page',()=>{let s=m26Mode('standard',1,2,1);s=K.dispatchKey(s,'AC');s=m26('standard',['MODE','6','DOWN','1']);eq(s.view,'coefficient');eq(s.ui.wizard.kind,'MUL2');s=m26Fields(s,[1,2,3,4,5,6,7,8]);eq(s.view,'result');if(!s.result.includes('19'))throw Error(s.result)});
 test('M26 VECTOR 2D addition via keypad',()=>{let s=m26Mode('standard',1,4,4);s=m26Fields(s,[1,2,3,4]);eq(s.view,'result');eq(s.expression,'ADD:1,2|3,4')});
-test('M26 VECTOR angle via keypad',()=>{let s=m26Mode('standard',1,4,1);s=m26('standard',['MODE','DOWN','4','DOWN','1']);s=m26Fields(s,[1,0,0,1]);eq(s.view,'result');if(!s.result.includes('90'))throw Error(s.result)});
+test('M26 VECTOR angle via keypad',()=>{let s=m26Mode('standard',1,4,1);s=m26('standard',['MODE','8','DOWN','1']);s=m26Fields(s,[1,0,0,1]);eq(s.view,'result');if(!s.result.includes('90'))throw Error(s.result)});
 test('M26 STAT five values via keypad',()=>{let s=m26Mode('standard',0,3,2);s=m26Fields(s,[1,2,3,4,5]);eq(s.view,'result');eq(s.expression,'1VAR:1,2,3,4,5');if(!s.result.includes('3'))throw Error(s.result)});
 test('M26 STAT regression pairs via keypad',()=>{let s=m26Mode('standard',0,3,3);s=m26Fields(s,[1,3,2,5,3,7]);eq(s.view,'result');eq(s.expression,'LINEAR:1,3;2,5;3,7')});
 test('M26 TABLE variable X through ALPHA+LP key sequence',()=>{let s=m26Mode('standard',1,3,2);for(const k of ['ALPHA','LP','POW','2','='])s=K.dispatchKey(s,k);eq(s.ui.wizard.values[0],'X^2');eq(s.ui.wizard.index,1);eq(s.alpha,false)});
@@ -429,17 +659,17 @@ test('M26 TABLE dual function forbidden on standard profile',()=>{let s=m26Mode(
 test('M26 TABLE dual function on C profile',()=>{let s=m26Mode('c',1,3,3);eq(s.view,'coefficient');for(const key of ['X','=','X','POW','2','='])s=K.dispatchKey(s,key);s=m26Fields(s,[1,3,1]);eq(s.view,'result');eq(s.lastValue.data.rows.length,3);eq(s.lastValue.data.rows[2][2],9)});
 test('M26 wizard editor rejects unsafe function characters',()=>{let s=m26Mode('standard',1,3,2);s=K.dispatchKey(s,'=');eq(s.view,'error')});
 test('M26 field navigation preserves entered values',()=>{let s=m26Mode('standard',1,1,1);s=K.dispatchKey(s,'2');s=K.dispatchKey(s,'RIGHT');s=K.dispatchKey(s,'3');s=K.dispatchKey(s,'LEFT');eq(s.ui.wizard.buffer,'2');s=K.dispatchKey(s,'RIGHT');eq(s.ui.wizard.buffer,'3')});
-test('M26 wizard result trace is deterministic',()=>{let sequence=['MODE','DOWN','3','1','1','=','2','=','1','='];let a=K.runTrace({events:sequence}),b=K.runTrace({events:sequence});eq(a.hash,b.hash)});
+test('M26 wizard result trace is deterministic',()=>{let sequence=['MODE','7','1','1','=','2','=','1','='];let a=K.runTrace({events:sequence}),b=K.runTrace({events:sequence});eq(a.hash,b.hash)});
 
 
 // Milestone 27 persistent typed data register and table workflow checks.
 function t27(model,keys){let s=K.createState(model);for(const k of keys)s=K.dispatchKey(s,k);return s}
 function t27keys(s,keys){for(const k of keys)s=K.dispatchKey(s,k);return s}
-function t27matrix(){return t27('standard',['MODE','DOWN','2','REGS','1'])}
-function t27vector(){return t27('standard',['MODE','DOWN','4','REGS','1'])}
+function t27matrix(){return t27('standard',['MODE','6','REGS','1'])}
+function t27vector(){return t27('standard',['MODE','8','REGS','1'])}
 test('M27 register menu stores matrices separately',()=>{let s=t27matrix();eq(s.view,'register-editor');eq(s.ui.registerFlow.name,'A');eq(s.ui.modeMemory.matrix.B,null)});
 test('M27 matrix entry persists four values',()=>{let s=t27matrix();s=t27keys(s,['1','=','2','=','3','=','4','=']);eq(s.view,'register-summary');eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,2],[3,4]]')});
-test('M27 matrix stored after mode transitions',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=']);s=t27keys(s,['AC','MODE','1','MODE','DOWN','2']);eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,2],[3,4]]')});
+test('M27 matrix stored after mode transitions',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=']);s=t27keys(s,['AC','MODE','1','MODE','6']);eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,2],[3,4]]')});
 test('M27 independent MatB register',()=>{let s=t27keys(t27matrix(),['1','=','0','=','0','=','1','=','REGS','2','2','=','0','=','0','=','2','=']);eq(JSON.stringify(s.ui.modeMemory.matrix.A),'[[1,0],[0,1]]');eq(JSON.stringify(s.ui.modeMemory.matrix.B),'[[2,0],[0,2]]')});
 test('M27 determinant by stored MatA',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=','OP','1']);eq(s.view,'result');eq(s.expression,'DET:1,2;3,4');eq(s.result,'-2')});
 test('M27 inverse by stored MatA',()=>{let s=t27keys(t27matrix(),['1','=','2','=','3','=','4','=','OP','2']);eq(s.view,'result');if(!s.result.includes('-2'))throw Error(s.result)});
@@ -500,7 +730,7 @@ test('M29 rejects malicious node types',()=>{let p=SS.extract(m29document());p.d
 test('M29 rejects oversized source document tree',()=>{let p=SS.extract(m29document());p.document.root.children=Array.from({length:510},(_,i)=>({kind:'Token',id:'nd'+(10000+i),value:'1'}));p.expression='1'.repeat(510);p.cursor=510;fail28(()=>SS.importJSON(JSON.stringify(p)))});
 test('M29 imports older v1 sessions safely',()=>{let p=SS.extract(mem28());p.version=1;delete p.document;delete p.workflow;let s=SS.importJSON(JSON.stringify(p));eq(s.ui.modeMemory.matrix.A[0][0],1);eq(s.view,'edit')});
 test('M29 resumes valid register editor field and buffer',()=>{let s=t27matrix();s=t27keys(s,['1','=','2']);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'register-editor');eq(t.ui.registerFlow.field,1);eq(t.ui.registerFlow.buffer,'2');t=K.dispatchKey(t,'=');eq(t.ui.modeMemory.matrix.A[0][1],2)});
-test('M29 register menu survives reload',()=>{let s=t27('standard',['MODE','DOWN','2','REGS']);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'register-menu');eq(t.ui.registerFlow.name,null)});
+test('M29 register menu survives reload',()=>{let s=t27('standard',['MODE','6','REGS']);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'register-menu');eq(t.ui.registerFlow.name,null)});
 test('M29 resumes statistics pending cell',()=>{let s=t27('standard',['MODE','3','DATA','1','=','2']);let t=SS.importJSON(SS.exportJSON(s));eq(t.view,'stat-grid');eq(t.ui.statFlow.buffer,'2');t=K.dispatchKey(t,'=');eq(t.ui.modeMemory.stat.rows[1][0],2)});
 test('M29 rejects inconsistent workflow mode',()=>{let s=t27matrix();let p=SS.extract(s);p.mode='COMP';fail28(()=>SS.importJSON(JSON.stringify(p)))});
 test('M29 opt-in recovery retains structural document',()=>{let storage=fakeStorage();SS.enable(storage,true);let s=m29document();SS.store(storage,s);let r=SS.recover(storage);eq(r.document.anchor.sequenceId,s.document.anchor.sequenceId)});
