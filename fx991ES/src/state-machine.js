@@ -189,54 +189,55 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
 
  // COMP-only CALC substitution / SHIFT+CALC numerical SOLVE.
  // Educational behavior; no physical CASIO observations have been claimed.
+ // Sequential CALC variable prompts; source expression remains unchanged.
  if(s.view==='calc-input'){
   const f=s.ui.calcFlow;
   if(key==='AC'){s.ui.calcFlow=null;s.view='edit';s.error=null;s.result='';return end()}
   if(key==='DEL'){f.buffer=f.buffer.slice(0,-1);return end()}
   if(key==='NEG'||(key==='SUB'&&!f.buffer)){f.buffer=f.buffer.startsWith('-')?f.buffer.slice(1):'-'+f.buffer;return end()}
-  if(/^[0-9.]$/.test(key)){
-   if(f.buffer.length<24&&!(key==='.'&&f.buffer.includes('.')))f.buffer+=key;
-   return end();
-  }
+  if(/^[0-9.]$/.test(key)){if(f.buffer.length<24&&!(key==='.'&&f.buffer.includes('.')))f.buffer+=key;return end()}
   if(key==='='){
    try{
-    if(!/^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$/.test(f.buffer))
-     throw new base.CalcError(base.ERROR.ARGUMENT);
-    const at=Number(f.buffer);
-    if(!Number.isFinite(at))throw new base.CalcError(base.ERROR.ARGUMENT);
+    const name=f.variables[f.index];
+    let given;
+    if(!f.buffer)given=s.memory[name]||base.rat(0);
+    else{
+     if(!/^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$/.test(f.buffer))throw new base.CalcError(base.ERROR.ARGUMENT);
+     const n=Number(f.buffer);if(!Number.isFinite(n))throw new base.CalcError(base.ERROR.ARGUMENT);
+     given=base.dec(n);
+    }
+    if(f.operation==='CALC'&&f.index+1<f.variables.length){
+     f.values[name]=given;f.index++;f.buffer='';return end();
+    }
     let value;
     if(f.operation==='SOLVE'){
-     const num=global.FX991_NUM;
-     if(!num)throw new base.CalcError(base.ERROR.UNSUPPORTED);
-     const output=num.run(s,'SOLVE',f.source,{guess:at});
+     const num=global.FX991_NUM;if(!num)throw new base.CalcError(base.ERROR.UNSUPPORTED);
+     const output=num.run({...s,memory:{...s.memory,X:given}},'SOLVE',f.source,{guess:base.numeric(given)});
      value=output.value;s.memory.X=value;s.numericalDetails=output.metadata;s.decimalView=true;
     }else{
-     const given=base.dec(at);
-     value=base.evaluate(base.parse(f.source),{
-      setup:s.setup,ans:s.ans,memory:{...s.memory,X:given}
-     });
-     s.memory.X=given;s.decimalView=false;
-     s.numericalDetails={operation:'CALC',source:f.source,at};
+     const inputs={...f.values,[name]:given};
+     value=base.evaluate(base.parse(f.source),{setup:s.setup,ans:s.ans,memory:{...s.memory,...inputs}});
+     Object.assign(s.memory,inputs);s.decimalView=false;
+     s.numericalDetails={operation:'CALC',source:f.source,variables:Object.fromEntries(Object.entries(inputs).map(([n,v])=>[n,base.numeric(v)]))};
     }
     s.ans=value;s.lastValue=value;s.mixedView=false;s.resultScrollX=0;
     s.result=base.valueDisplay(value,s.setup,s.decimalView,s.mode);
     s.history=[{expression:f.operation+'('+f.source+')',display:s.result},...s.history].slice(0,50);
     s.historyCursor=-1;s.view='result';s.error=null;
-   }catch(error){
-    s.error=error.code||base.ERROR.MATH;s.result=s.error;s.view='error';s.errorPos=s.cursor;
-   }
+   }catch(error){s.error=error.code||base.ERROR.MATH;s.result=s.error;s.view='error';s.errorPos=s.cursor}
    s.ui.calcFlow=null;return end();
   }
   return end();
  }
  if(key==='CALC'&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
   const source=s.document?E.serialize(s.document):s.expression;
-  if(!source||!/(?:^|[^a-zA-Z])X(?:$|[^a-zA-Z])/.test(source)){
-   s.shift=false;s.alpha=false;return end();
-  }
-  s.ui.calcFlow={operation:s.shift?'SOLVE':'CALC',source,buffer:''};
-  s.shift=false;s.alpha=false;s.view='calc-input';s.error=null;
-  return end();
+  let variables=[];
+  try{variables=[...new Set(base.tokenize(source).map(t=>t.value).filter(v=>/^[A-FMXY]$/.test(v)))]}
+  catch(error){s.shift=false;s.alpha=false;return end()}
+  const operation=s.shift?'SOLVE':'CALC';
+  if(!variables.length||(operation==='SOLVE'&&!variables.includes('X'))){s.shift=false;s.alpha=false;return end()}
+  s.ui.calcFlow={operation,source,variables:operation==='SOLVE'?['X']:variables,index:0,buffer:'',values:{}};
+  s.shift=false;s.alpha=false;s.view='calc-input';s.error=null;return end();
  }
  // Inverse trigonometric keys use the underlying structural template engine.
 
@@ -365,7 +366,7 @@ function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=bas
   else{screen.expression=(f.category==='matrix'?'MATRIX':'VECTOR')+' OP';screen.result=f.category==='matrix'?'1:DET 2:INV 3:T 4:+ 5:*':'1:ABS 2:DOT 3:+ 4:X 5:ANGLE';}
  }
  if(s.view==='stat-grid'){let f=s.ui.statFlow,stat=s.ui.modeMemory.stat;screen.expression=stat.kind+' DATA '+(f.field+1);screen.result=f.buffer||'0';}
- if(s.view==='calc-input'&&s.ui.calcFlow){const f=s.ui.calcFlow;screen.expression=f.operation+' '+f.source;screen.result='X? '+(f.buffer||'_');screen.menuItems=null}
+ if(s.view==='calc-input'&&s.ui.calcFlow){const f=s.ui.calcFlow,n=f.variables[f.index];screen.expression=f.operation+' '+f.source;screen.result=n+'? '+(f.buffer||'['+base.valueToString(s.memory[n]||base.rat(0))+']')+' ('+(f.index+1)+'/'+f.variables.length+')';screen.menuItems=null}
  if(s.view==='register-prompt'){screen.expression=s.ui.pending+' REG';screen.result='A-F M X Y'}
  if(s.ui.insertMode===false)screen.indicators=[...screen.indicators,'OVR'];
  if(s.view==='setup'){
