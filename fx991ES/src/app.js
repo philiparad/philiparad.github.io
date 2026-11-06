@@ -1,7 +1,7 @@
 (function(){'use strict';
 const K=window.FX991,$=id=>document.getElementById(id);
 const SESSION=window.FX991_SESSION;const smokeMode=new URLSearchParams(location.search).has('smoke');let localStore=null;try{localStore=smokeMode?null:window.localStorage}catch(e){}const recovered=SESSION.recover(localStore);let state=recovered||K.createState('standard');const E=window.FX991_EDITOR;let lastAnnouncement='';
-const labels={RECIP:'x⁻¹',DMS:'°′″',HYP:'hyp',LEFT:'◀',UP:'▲',DOWN:'▼',RIGHT:'▶',SQ:'x²',POW:'x^□',SQRT:'√',SIN:'sin',COS:'cos',TAN:'tan',LP:'(',RP:')',DIV:'÷',MUL:'×',SUB:'−',ADD:'+',NEG:'(-)',ANS:'Ans',PI:'π','S-D':'S⇔D',FRAC:'a/b',LOG:'log',LN:'ln',RCL:'RCL',MODE:'MODE'};
+const labels={EXP10:'×10ˣ',RECIP:'x⁻¹',DMS:'°′″',HYP:'hyp',LEFT:'◀',UP:'▲',DOWN:'▼',RIGHT:'▶',SQ:'x²',POW:'x^□',SQRT:'√',SIN:'sin',COS:'cos',TAN:'tan',LP:'(',RP:')',DIV:'÷',MUL:'×',SUB:'−',ADD:'+',NEG:'(-)',ANS:'Ans',PI:'π','S-D':'S⇔D',FRAC:'a/b',LOG:'log',LN:'ln',RCL:'RCL',MODE:'MODE'};
 const keypadLayout=window.FX991_KEYPAD_LAYOUT;
 if(!keypadLayout)throw Error('Physical keypad layout module missing');
 function keyEvent(key){state=K.dispatchKey(state,key);render();if(state.view==='result'||state.view==='error')announce((state.view==='error'?'Error: ':'Result: ')+(state.error||state.result))}

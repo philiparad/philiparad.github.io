@@ -20,7 +20,7 @@ const numeric=Object.freeze([
  button('7','CONST','number'),button('8','CONV','number'),button('9','CLR','number'),button('DEL','INS','green'),button('AC','OFF','green'),
  button('4','MATRIX','number'),button('5','VECTOR','number'),button('6','','number'),button('MUL','','number'),button('DIV','','number'),
  button('1','STAT','number'),button('2','CMPLX','number'),button('3','BASE','number'),button('ADD','','number'),button('SUB','','number'),
- button('0','Rnd','number'),button('.','Ran#','number'),button('EXP10','π','number',false),button('ANS','DRG▶','number'),button('=','','number')
+ button('0','Rnd','number'),button('.','Ran#','number'),button('EXP10','π','number'),button('ANS','DRG▶','number'),button('=','','number')
 ]);
 const groups=Object.freeze({top,scientific,numeric});
 for(const group of Object.values(groups))Object.freeze(group);

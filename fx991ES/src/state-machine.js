@@ -274,6 +274,23 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
   s.document=E.overwriteToken(s.document,key);s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
   s.result='';s.shift=false;s.alpha=false;return end();
  }
+ // Educational EXP10 key: enter a power-of-ten template after a coefficient.
+ // This is mathematically equivalent to coefficient × 10^exponent, but does
+ // not claim exact physical CASIO keypress/raster behavior.
+ if(key==='EXP10'&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  if(s.view==='result'){s.document=E.create();s.expression='';s.cursor=0}
+  if(s.document){
+   const before=E.serialize(s.document).slice(0,E.sourceCursor(s.document));
+   // A coefficient (digit or closing group) must precede ×10^.
+   if(/[0-9)]$/.test(before)){
+    s.document=E.insertToken(s.document,'*10');
+    s.document=E.template(s.document,'Power');
+    s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+    s.view='edit';s.result='';s.shift=false;s.alpha=false;
+   }
+  }
+  return end();
+ }
  // Support explicit RCL/STO keys for existing prototypes and tests.
  // A physical layout can use SHIFT+RCL for STO standby.
  s=decorate(base.dispatchKey(s,key));return s;
