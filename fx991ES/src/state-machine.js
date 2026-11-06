@@ -71,6 +71,17 @@ function safeFunction(t){if(!t||t.length>96||!/^[A-Za-z0-9.+\-*/^() ]+$/.test(t)
 function acceptField(w){let field=w.fields[w.index],value=/^[fg]\(X\)$/.test(field)?safeFunction(w.buffer):safeNumber(w.buffer);w.values[w.index]=value;return value}
 function pushBuffer(w,k){if(k==='NEG'){w.buffer=w.buffer.startsWith('-')?w.buffer.slice(1):'-'+w.buffer;return}let map={ADD:'+',SUB:'-',MUL:'*',DIV:'/',LP:'(',RP:')',POW:'^',SQ:'^2',PI:'pi',ANS:'Ans'};if(/^[0-9.]$/.test(k)||(/^[X]$/.test(k)&&/^[fg]\(X\)$/.test(w.fields[w.index])))w.buffer+=k;else if(/^[fg]\(X\)$/.test(w.fields[w.index])&&map[k])w.buffer+=map[k]}
 function finishWizard(s){let w=s.ui.wizard;try{let expression=wizardExpression(w),value=base.calculateExpression(w.mode,expression,s);s.expression=expression;s.cursor=expression.length;s.lastValue=value;s.ans=value.kind==='mode-result'?value.ans:value.kind==='complex'?value.re:value.kind==='base'?base.rat(value.value):value;s.result=base.valueDisplay(value,s.setup,s.decimalView,s.mode);s.view='result';s.error=null;s.history=[{expression,display:s.result},...s.history].slice(0,50);s.historyCursor=-1;s.ui.lastWizard={mode:w.mode,kind:w.kind,fields:[...w.fields],values:[...w.values],resultPage:0};s.ui.wizard=null}catch(e){s.error=e.code||base.ERROR.MATH;s.errorPos=s.cursor;s.view='error';s.result=s.error;s.ui.wizard=null}return s}
+function formatDms(value){
+ const negative=value<0?'-':'',magnitude=Math.abs(value);
+ let totalSeconds=Math.round(magnitude*3600*1e7)/1e7;
+ let degrees=Math.floor(totalSeconds/3600);
+ totalSeconds-=degrees*3600;
+ let minutes=Math.floor(totalSeconds/60);
+ let seconds=Math.round((totalSeconds-minutes*60)*1e7)/1e7;
+ if(seconds>=60){seconds-=60;minutes++}
+ if(minutes>=60){minutes-=60;degrees++}
+ return negative+degrees+'°'+minutes+'′'+seconds+'″';
+}
 function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredClone(state.ui):undefined,history:state.history.slice(),memory:{...state.memory},trace:state.trace.slice(),setup:{...state.setup}});
  const end=()=>record(s,key);
  // Persistent matrix/vector registers and editable STAT data are intentionally
@@ -135,6 +146,9 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
 
  if(key==='ON'){s.power=true;if(s.view==='off')s.view='edit';return end()}
  if(!s.power)return end();
+ if(key==='SHIFT'&&s.view==='hyp-menu'){
+  s.ui.hypMenu.inverse=!s.ui.hypMenu.inverse;s.shift=false;return end();
+ }
  if(key==='SHIFT'){s.shift=!s.shift;s.alpha=false;return end()}
  if(key==='ALPHA'){s.alpha=!s.alpha;s.shift=false;return end()}
  if(key==='AC'&&s.shift){s.power=false;s.view='off';s.shift=false;return end()}
@@ -408,6 +422,29 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
   s.document=E.overwriteToken(s.document,key);s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
   s.result='';s.shift=false;s.alpha=false;return end();
  }
+ // P0-07: physical modifier keys for permutations and combinations.
+ if(s.shift&&['MUL','DIV'].includes(key)&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  const operator=key==='MUL'?'nPr':'nCr';
+  if(s.view==='result'){s.document=E.fromSource('Ans');s.expression='Ans';s.cursor=3}
+  const prefix=s.document?E.serialize(s.document).slice(0,E.sourceCursor(s.document)):'';
+  if(/[0-9A-FMXY)!]$/.test(prefix)||prefix.endsWith('Ans')){
+   s.document=E.insertToken(s.document,operator);
+   s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+   s.view='edit';s.result='';s.error=null;
+  }
+  s.shift=false;s.alpha=false;return end();
+ }
+ // P0-06: SHIFT + reciprocal enters postfix factorial.
+ if(key==='RECIP'&&s.shift&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  if(s.view==='result'){s.document=E.fromSource('Ans');s.expression='Ans';s.cursor=3}
+  const prefix=s.document?E.serialize(s.document).slice(0,E.sourceCursor(s.document)):'';
+  if(/[0-9A-FMXY)!]$/.test(prefix)||prefix.endsWith('Ans')){
+   s.document=E.insertToken(s.document,'!');
+   s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+   s.view='edit';s.result='';s.error=null;
+  }
+  s.shift=false;s.alpha=false;return end();
+ }
  // P0-02: reciprocal of the preceding operand, not the entire sum.
  if(key==='RECIP'&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
   if(s.view==='result'){s.document=E.fromSource('Ans');s.expression='Ans';s.cursor=3}
@@ -418,6 +455,72 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
    s.view='edit';s.result='';s.error=null;s.shift=false;s.alpha=false;
   }
   return end();
+ }
+ // P0-03: °′″ enters sexagesimal fields; on a result it toggles DMS/decimal.
+ // P0-05: SHIFT+hyp inserts absolute value, not the hyperbolic menu.
+ if(key==='HYP'&&s.shift&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  if(s.view==='result'){s.document=E.create();s.expression='';s.cursor=0}
+  s.document=E.template(s.document,'Function','abs');
+  s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+  s.shift=false;s.alpha=false;s.view='edit';s.result='';s.error=null;return end();
+ }
+ // P0-04: the physical hyp key opens six hyperbolic function choices.
+ // They do not use the DEG/RAD/GRAD angle setting.
+ if(s.view==='hyp-menu'){
+  if(key==='AC'){s.view='edit';s.ui.hypMenu=null;return end()}
+  if(key==='SHIFT'){s.ui.hypMenu.inverse=!s.ui.hypMenu.inverse;return end()}
+  const functions=['sinh','cosh','tanh','asinh','acosh','atanh'];
+  let idx=/^[1-6]$/.test(key)?Number(key)-1:
+   ['SIN','COS','TAN'].includes(key)?
+    ['SIN','COS','TAN'].indexOf(key)+(s.ui.hypMenu.inverse?3:0):-1;
+  if(idx>=0){
+   const name=functions[idx];
+   if(s.ui.hypMenu.previousView==='result'){s.document=E.create();s.expression='';s.cursor=0}
+   s.document=E.template(s.document,'Function',name);
+   s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+   s.view='edit';s.result='';s.error=null;s.shift=false;s.alpha=false;s.ui.hypMenu=null;
+  }
+  return end();
+ }
+ if(key==='HYP'&&!s.shift&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  s.ui.hypMenu={inverse:false,previousView:s.view};s.view='hyp-menu';s.alpha=false;
+  return end();
+ }
+ if(key==='DMS'&&s.mode==='COMP'){
+  if(s.view==='result'&&s.lastValue){
+   const x=base.numeric(s.lastValue);
+   if(!Number.isFinite(x)||Math.abs(x)>=10000000){
+    s.error=base.ERROR.MATH;s.result=s.error;s.view='error';return end();
+   }
+   s.ui.dmsResult=!s.ui.dmsResult;
+   if(s.ui.dmsResult)s.result=formatDms(x);
+   else s.result=base.valueDisplay(s.lastValue,s.setup,true,s.mode);
+   s.resultScrollX=0;return end();
+  }
+  if(s.view==='edit'){
+   const before=s.document?E.serialize(s.document).slice(0,E.sourceCursor(s.document)):'';
+   if(/[0-9]$/.test(before)){
+    s.document=E.insertToken(s.document,'°');
+    s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+    s.result='';s.error=null;s.shift=false;s.alpha=false;
+   }
+   return end();
+  }
+ }
+ // P0-09: SHIFT+0 inserts the mathematical Rnd() function.
+ if(key==='0'&&s.shift&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  if(s.view==='result'){s.document=E.create();s.expression='';s.cursor=0}
+  s.document=E.template(s.document,'Function','Rnd');
+  s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+  s.view='edit';s.result='';s.error=null;s.shift=false;s.alpha=false;return end();
+ }
+ // P0-08: SHIFT ×10^x enters pi; ALPHA ×10^x enters Euler's constant.
+ if(((key==='EXP10'&&s.shift)||key==='EULER')&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  const value=key==='EULER'?'e':'pi';
+  if(s.view==='result'){s.document=E.create();s.expression='';s.cursor=0}
+  s.document=E.insertToken(s.document,value);
+  s.expression=E.serialize(s.document);s.cursor=E.sourceCursor(s.document);
+  s.view='edit';s.result='';s.error=null;s.shift=false;s.alpha=false;return end();
  }
  // Educational EXP10 key: enter a power-of-ten template after a coefficient.
  // This is mathematically equivalent to coefficient × 10^exponent, but does
@@ -438,7 +541,15 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  }
  // Support explicit RCL/STO keys for existing prototypes and tests.
  // A physical layout can use SHIFT+RCL for STO standby.
- s=decorate(base.dispatchKey(s,key));return s;
+ s=decorate(base.dispatchKey(s,key));
+ if(key==='='&&s.mode==='COMP'&&s.view==='result'){
+  s.ui.dmsResult=s.expression.includes('°');
+  if(s.ui.dmsResult){
+   s.result=formatDms(base.numeric(s.lastValue));
+   if(s.history?.length)s.history[0].display=s.result;
+  }
+ }
+ return s;
 }
 function endAfter(s,key){return s} // finishWizard records current dispatch event exactly once
 function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=base.semanticScreen(s);
@@ -465,6 +576,7 @@ function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=bas
   screen.result=label+'? '+(f.buffer||'_')+' ('+(f.index+1)+'/'+f.fields.length+')';
   screen.menuItems=null;
  }
+ if(s.view==='hyp-menu'){screen.expression='HYP';screen.result='1:sinh 2:cosh 3:tanh 4:asinh 5:acosh 6:atanh';screen.menuItems=null}
  if(s.view==='register-prompt'){screen.expression=s.ui.pending+' REG';screen.result='A-F M X Y'}
  if(s.ui.insertMode===false)screen.indicators=[...screen.indicators,'OVR'];
  if(s.view==='setup'){
