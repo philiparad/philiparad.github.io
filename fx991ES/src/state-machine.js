@@ -239,6 +239,58 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
   s.ui.calcFlow={operation,source,variables:operation==='SOLVE'?['X']:variables,index:0,buffer:'',values:{}};
   s.shift=false;s.alpha=false;s.view='calc-input';s.error=null;return end();
  }
+
+ // COMP numerical calculus uses the shared AST and bounded numerical engine.
+ // This guided input is educational; it does not certify physical CASIO behavior.
+ if(s.view==='numerical-input'&&s.ui.numericalFlow){
+  const f=s.ui.numericalFlow;
+  if(key==='AC'){s.ui.numericalFlow=null;s.view='edit';s.result='';s.error=null;return end()}
+  if(key==='DEL'){f.buffer=f.buffer.slice(0,-1);return end()}
+  if(key==='NEG'||(key==='SUB'&&!f.buffer)){
+   f.buffer=f.buffer.startsWith('-')?f.buffer.slice(1):'-'+f.buffer;return end();
+  }
+  if(/^[0-9.]$/.test(key)){
+   if(f.buffer.length<24&&!(key==='.'&&f.buffer.includes('.')))f.buffer+=key;
+   return end();
+  }
+  if(key==='='){
+   try{
+    if(!/^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$/.test(f.buffer))
+     throw new base.CalcError(base.ERROR.ARGUMENT);
+    const number=Number(f.buffer);
+    if(!Number.isFinite(number))throw new base.CalcError(base.ERROR.ARGUMENT);
+    const parameter=f.fields[f.index];
+    if(f.index+1<f.fields.length){
+     f.values[parameter]=number;f.index++;f.buffer='';return end();
+    }
+    const parameters={...f.values,[parameter]:number};
+    const numerical=global.FX991_NUM;
+    if(!numerical)throw new base.CalcError(base.ERROR.UNSUPPORTED);
+    const output=numerical.run(s,f.operation,f.source,parameters);
+    const value=output.value;
+    s.lastValue=value;s.ans=value;s.decimalView=true;s.mixedView=false;s.resultScrollX=0;
+    s.result=base.valueDisplay(value,s.setup,true,s.mode);
+    s.numericalDetails=output.metadata;
+    s.history=[{expression:f.operation+'('+f.source+')',display:s.result},...s.history].slice(0,50);
+    s.historyCursor=-1;s.view='result';s.error=null;
+   }catch(error){
+    s.error=error.code||base.ERROR.MATH;s.result=s.error;s.errorPos=s.cursor;s.view='error';
+   }
+   s.ui.numericalFlow=null;return end();
+  }
+  return end();
+ }
+ if(key==='DIFF'&&s.mode==='COMP'&&(s.view==='edit'||s.view==='result')){
+  const source=s.document?E.serialize(s.document):s.expression;
+  try{
+   if(!source||!base.tokenize(source).length){s.shift=false;s.alpha=false;return end()}
+  }catch(error){s.shift=false;s.alpha=false;return end()}
+  const operation=s.shift?'INTEGRAL':'DIFF';
+  s.ui.numericalFlow={operation,source,fields:operation==='DIFF'?['at']:['lower','upper'],
+   index:0,buffer:'',values:{}};
+  s.shift=false;s.alpha=false;s.view='numerical-input';s.error=null;
+  return end();
+ }
  // Inverse trigonometric keys use the underlying structural template engine.
 
  // SHIFT + MODE enters a hierarchical SETUP menu. Direct setting keys are
@@ -367,6 +419,12 @@ function semanticScreen(s){if(!s.ui)return base.semanticScreen(s);let screen=bas
  }
  if(s.view==='stat-grid'){let f=s.ui.statFlow,stat=s.ui.modeMemory.stat;screen.expression=stat.kind+' DATA '+(f.field+1);screen.result=f.buffer||'0';}
  if(s.view==='calc-input'&&s.ui.calcFlow){const f=s.ui.calcFlow,n=f.variables[f.index];screen.expression=f.operation+' '+f.source;screen.result=n+'? '+(f.buffer||'['+base.valueToString(s.memory[n]||base.rat(0))+']')+' ('+(f.index+1)+'/'+f.variables.length+')';screen.menuItems=null}
+ if(s.view==='numerical-input'&&s.ui.numericalFlow){
+  const f=s.ui.numericalFlow,parameter=f.fields[f.index],label=parameter==='at'?'X':parameter==='lower'?'Lower':'Upper';
+  screen.expression=(f.operation==='DIFF'?'d/dx':'INTEGRAL')+' '+f.source;
+  screen.result=label+'? '+(f.buffer||'_')+' ('+(f.index+1)+'/'+f.fields.length+')';
+  screen.menuItems=null;
+ }
  if(s.view==='register-prompt'){screen.expression=s.ui.pending+' REG';screen.result='A-F M X Y'}
  if(s.ui.insertMode===false)screen.indicators=[...screen.indicators,'OVR'];
  if(s.view==='setup'){

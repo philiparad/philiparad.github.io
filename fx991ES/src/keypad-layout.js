@@ -10,7 +10,7 @@ const top=Object.freeze([
  button('DOWN'),button('RIGHT'),button('MODE','SETUP'),button('ON','','orange')
 ]);
 const scientific=Object.freeze([
- button('CALC','SOLVE','dark'),button('DIFF','∫','dark',false),
+ button('CALC','SOLVE','dark'),button('DIFF','∫','dark'),
  button(null),button('RECIP','x!'),button('LOGBASE','Σ','dark',false),button(null),
  button('FRAC','a b/c'),button('SQRT','³√'),button('SQ','x³'),button('POW','ⁿ√'),button('LOG','10ˣ'),button('LN','eˣ'),
  button('NEG'),button('DMS'),button('HYP'),button('SIN','sin⁻¹'),button('COS','cos⁻¹'),button('TAN','tan⁻¹'),
