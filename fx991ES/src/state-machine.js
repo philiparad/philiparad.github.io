@@ -244,25 +244,53 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
  // This guided input is educational; it does not certify physical CASIO behavior.
  if(s.view==='numerical-input'&&s.ui.numericalFlow){
   const f=s.ui.numericalFlow;
+  // Accept decimal or scientific input, never nonfinite or incomplete exponent values.
+  const parseNumber=text=>{
+   if(!/^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:e[+-]?[0-9]+)?$/.test(text))
+    throw new base.CalcError(base.ERROR.ARGUMENT);
+   const number=Number(text);
+   if(!Number.isFinite(number))throw new base.CalcError(base.ERROR.ARGUMENT);
+   return number;
+  };
+  const current=()=>f.fields[f.index];
   if(key==='AC'){s.ui.numericalFlow=null;s.view='edit';s.result='';s.error=null;return end()}
   if(key==='DEL'){f.buffer=f.buffer.slice(0,-1);return end()}
-  if(key==='NEG'||(key==='SUB'&&!f.buffer)){
-   f.buffer=f.buffer.startsWith('-')?f.buffer.slice(1):'-'+f.buffer;return end();
-  }
-  if(/^[0-9.]$/.test(key)){
-   if(f.buffer.length<24&&!(key==='.'&&f.buffer.includes('.')))f.buffer+=key;
+  if(key==='LEFT'&&f.index>0){
+   f.buffers[current()]=f.buffer;
+   f.index--;f.buffer=f.buffers[current()]||'';
    return end();
   }
-  if(key==='='){
+  if(key==='NEG'||(key==='SUB'&&!f.buffer)){
+   const e=f.buffer.indexOf('e');
+   if(e>=0){
+    const mantissa=f.buffer.slice(0,e+1),exponent=f.buffer.slice(e+1);
+    f.buffer=mantissa+(exponent.startsWith('-')?exponent.slice(1):'-'+exponent.replace(/^\+/,''));
+   }else f.buffer=f.buffer.startsWith('-')?f.buffer.slice(1):'-'+f.buffer;
+   return end();
+  }
+  if(key==='ADD'&&/e-?$/.test(f.buffer)){
+   f.buffer=f.buffer.replace(/e[-+]?$/,'e+');
+   return end();
+  }
+  if(key==='EXP10'&&!f.buffer.includes('e')&&/^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$/.test(f.buffer)){
+   f.buffer+='e';return end();
+  }
+  if(/^[0-9.]$/.test(key)){
+   const mantissa=f.buffer.split('e')[0];
+   if(f.buffer.length<24&&!(key==='.'&&(f.buffer.includes('e')||mantissa.includes('.'))))
+    f.buffer+=key;
+   return end();
+  }
+  if(key==='='||(key==='RIGHT'&&f.index+1<f.fields.length)){
    try{
-    if(!/^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$/.test(f.buffer))
-     throw new base.CalcError(base.ERROR.ARGUMENT);
-    const number=Number(f.buffer);
-    if(!Number.isFinite(number))throw new base.CalcError(base.ERROR.ARGUMENT);
-    const parameter=f.fields[f.index];
+    const number=parseNumber(f.buffer);
+    const parameter=current();
     if(f.index+1<f.fields.length){
-     f.values[parameter]=number;f.index++;f.buffer='';return end();
+     f.values[parameter]=number;f.buffers[parameter]=f.buffer;
+     f.index++;f.buffer=f.buffers[current()]||'';
+     return end();
     }
+    if(key!=='=')return end();
     const parameters={...f.values,[parameter]:number};
     const numerical=global.FX991_NUM;
     if(!numerical)throw new base.CalcError(base.ERROR.UNSUPPORTED);
@@ -287,7 +315,7 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
   }catch(error){s.shift=false;s.alpha=false;return end()}
   const operation=s.shift?'INTEGRAL':'DIFF';
   s.ui.numericalFlow={operation,source,fields:operation==='DIFF'?['at']:['lower','upper'],
-   index:0,buffer:'',values:{}};
+   index:0,buffer:'',buffers:{},values:{}};
   s.shift=false;s.alpha=false;s.view='numerical-input';s.error=null;
   return end();
  }
