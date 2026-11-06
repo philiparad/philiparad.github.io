@@ -303,6 +303,7 @@ function dispatchKey(state,key){let s=decorate({...state,ui:state.ui?structuredC
     s.historyCursor=-1;s.view='result';s.error=null;
    }catch(error){
     s.error=error.code||base.ERROR.MATH;s.result=s.error;s.errorPos=s.cursor;s.view='error';
+    s.numericalDetails={operation:f.operation,error:s.error,reason:error.numericalReason||'evaluation_error',diagnostic:error.numericalDetails||null};
    }
    s.ui.numericalFlow=null;return end();
   }
