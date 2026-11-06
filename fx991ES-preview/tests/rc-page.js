@@ -1,0 +1,11 @@
+(function(){'use strict';const $=id=>document.getElementById(id),RC=window.FX991_RC;let evidence=RC.fresh();
+for(const kind of RC.CHECKS){const o=document.createElement('option');o.textContent=kind;$('check').append(o)}
+$('date').value=new Date().toISOString().slice(0,10);
+function feedback(s){$('feedback').textContent=s}
+function refresh(){let internal=RC.describeInternal(),report=RC.assess(evidence,{...internal,runtimePassed:FX991_RELEASE.auditRuntime(window).passed,pagesVerified:false});$('summary').textContent=report.status+' | '+internal.passed+'/'+internal.total+' internal tests | '+report.counts.browserChecks+' browser checks | '+report.counts.referenceObservations+' device observations | '+report.blockers.length+' release blockers';$('blockers').replaceChildren();for(const b of report.blockers){const li=document.createElement('li');li.textContent=b;$('blockers').append(li)}}
+$('assess').onclick=refresh;
+$('add-check').onclick=()=>{try{evidence=RC.addBrowserCheck(evidence,{browser:$('browser').value,platform:$('platform').value.trim(),check:$('check').value,status:$('status').value,observedAt:$('date').value,notes:$('notes').value});feedback('Browser check recorded locally. Export JSON to retain it.');refresh()}catch(e){feedback(e.message)}};
+$('add-observation').onclick=()=>{try{evidence=RC.addObservation(evidence,{model:$('model').value,kind:$('kind').value,device:$('device').value.trim(),observedAt:$('date').value,caseId:$('case-id').value.trim(),result:$('ref-result').value});feedback('Observation recorded locally. Export JSON to retain it.');refresh()}catch(e){feedback(e.message)}};
+$('export').onclick=()=>{const file=new Blob([JSON.stringify(evidence,null,2)],{type:'application/json'}),url=URL.createObjectURL(file),a=document.createElement('a');a.href=url;a.download='fx991-rc-evidence.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)};
+$('import').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>250000)throw Error('File too large');evidence=RC.validateEvidence(JSON.parse(await file.text()));feedback('Evidence imported successfully.');refresh()}catch(err){feedback(err.message)}};
+refresh();})();
