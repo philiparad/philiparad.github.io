@@ -18,9 +18,23 @@ function derivative(f,x){
  for(let i=0;i<12;i++){
   let a=(f(x+h)-f(x-h))/(2*h),b=(f(x+h/2)-f(x-h/2))/h;
   best=finite((4*b-a)/3);
-  if(prev!==null&&Math.abs(best-prev)<1e-9*Math.max(1,Math.abs(best)))return {value:best,iterations:i+1,errorEstimate:Math.abs(best-prev)};
+  if(prev!==null&&Math.abs(best-prev)<1e-9*Math.max(1,Math.abs(best))){
+   const probe=Math.max(1e-6,Math.abs(x)*1e-6),center=finite(f(x));
+   const left=finite((center-f(x-probe))/probe);
+   const right=finite((f(x+probe)-center)/probe);
+   if(Math.abs(left-right)>1e-4*Math.max(1,Math.abs(left),Math.abs(right)))fail(K.ERROR.MATH);
+   return {value:best,iterations:i+1,errorEstimate:Math.abs(best-prev)};
+  }
   prev=best;h/=2;
  }
+ // A symmetric difference can appear converged at a cusp (e.g. abs(X) at 0).
+ // Compare one-sided secants; refuse to certify a nonexistent derivative.
+ const probe=Math.max(1e-6,Math.abs(x)*1e-6);
+ const center=finite(f(x));
+ const left=finite((center-f(x-probe))/probe);
+ const right=finite((f(x+probe)-center)/probe);
+ if(Math.abs(left-right)>1e-4*Math.max(1,Math.abs(left),Math.abs(right)))
+  fail(K.ERROR.MATH);
  return {value:best,iterations:12,errorEstimate:null};
 }
 function solve(f,start){
@@ -53,6 +67,13 @@ function integrate(f,lower,upper,tolerance=1e-5){
  let sign=1;if(upper<lower){[lower,upper]=[upper,lower];sign=-1}
  let intervals=0,evaluations=0;
  function guarded(x){evaluations++;if(evaluations>100000)fail(K.ERROR.TIME_OUT);return finite(f(x))}
+ // This engine handles proper integrals only. Inspect both boundaries and a
+ // deterministic interior grid so common poles are not hidden by quadrature.
+ // A finite probe does NOT prove continuity or exclude every singularity.
+ for(let i=0;i<=64;i++){
+  const x=lower+(upper-lower)*(i/64);
+  guarded(x);
+ }
  function visit(a,b,depth,budget){intervals++;if(intervals>7000)fail(K.ERROR.TIME_OUT);
   let z=panel(guarded,a,b);if(z.error<=budget+1e-11*Math.abs(z.value))return z;
   if(depth>=18)fail(K.ERROR.TIME_OUT);
