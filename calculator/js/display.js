@@ -11,6 +11,34 @@ const FONT={
  ' ':['000','000','000','000','000'],'π':['000','111','101','101','101'],'√':['001','001','101','110','100'],'□':['111','101','101','101','111'],'°':['010','101','010','000','000'],'_':['000','000','000','000','111'],
  '↑':['010','111','010','010','010'],'↓':['010','010','010','111','010'],'<':['001','010','100','010','001'],'>':['100','010','001','010','100'],'×':['101','010','010','010','101'],'÷':['010','000','111','000','010']
 };
+// REA-010: independently drawn, compact glyphs for mathematical and
+// display-navigation symbols. Native glyph bitmaps are still unmeasured.
+Object.assign(FONT,{
+ 'θ':['010','101','111','101','010'],
+ 'α':['000','011','101','101','011'],
+ 'β':['110','101','110','101','110'],
+ 'Σ':['111','100','010','100','111'],
+ '∑':['111','100','010','100','111'],
+ '∫':['011','010','010','010','110'],
+ '∞':['000','101','111','101','000'],
+ '≠':['001','111','010','111','100'],
+ '≤':['001','010','100','111','000'],
+ '≥':['100','010','001','111','000'],
+ '≈':['000','110','011','110','011'],
+ '÷':['010','000','111','000','010'],
+ '′':['010','010','000','000','000'],
+ '″':['101','101','000','000','000'],
+ '▸':['100','110','111','110','100'],
+ '◂':['001','011','111','011','001'],
+ '▷':['100','110','101','110','100'],
+ '◁':['001','011','101','011','001'],
+ '↑':['010','111','010','010','010'],
+ '↓':['010','010','010','111','010'],
+ '√':['001','001','101','110','100'],
+ '×':['101','101','010','101','101'],
+ '·':['000','000','010','000','000']
+});
+const MATH_GLYPHS=Object.freeze(['θ','α','β','Σ','∑','∫','∞','≠','≤','≥','≈','′','″','▸','◂','▷','◁','√','×','·']);
 function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
  const glyph=(c,x,y)=>{const f=FONT[c]||FONT[c.toUpperCase()]||FONT['?'];for(let j=0;j<5;j++)for(let i=0;i<3;i++)if(f[j][i]==='1')pixel(x+i,y+j)};
  const write=(text,x,y,limit=W)=>{for(const c of String(text)){if(x+3>limit)break;glyph(c,x,y);x+=4}};
@@ -99,7 +127,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
      if(nth)drawField('index',x,baseline-10);
      const x0=x+prefix-5;
      pixel(x0,baseline+2);pixel(x0+1,baseline+3);pixel(x0+2,baseline+2);
-     for(let n=0;n<7;n++)pixel(x0+3+n/2|0,baseline+1-n);
+     for(let n=0;n<7;n++)pixel(x0+3+Math.floor(n/2),baseline+1-n);
      for(let xx=x+prefix-1;xx<x+w;xx++)pixel(xx,baseline-7);
      drawField('radicand',x+prefix,baseline);
     }
@@ -143,6 +171,6 @@ function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getCo
  }
  ctx.putImageData(img,0,0)
 }
-const API=Object.freeze({width:W,height:H,rasterize,draw,FONT});global.FreshLCD=API;
+const API=Object.freeze({width:W,height:H,rasterize,draw,FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
