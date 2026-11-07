@@ -1,0 +1,30 @@
+name: REA-010 LCD typography and indicator regressions
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/display.js'
+      - 'calculator/js/app.js'
+      - 'calculator/index.html'
+      - 'calculator/styles.css'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-010/**'
+      - '.github/workflows/rea010-display.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lcd-symbols:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium integration browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Exercise source-defined glyphs and annunciators
+        run: python calculator/reference/rea-010/test_lcd_browser.py
