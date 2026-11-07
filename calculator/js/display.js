@@ -46,13 +46,85 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(offset>0)write('<',87,0);
   return pixels;
  }
+ // REA-009: render editable mathematical templates in two dimensions.
+ const expression=state.editor;
+ const structured=expression&&expression.root.some(node=>node.type!=='char');
+ const fieldNames={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
+  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
+ function measureSeq(nodes){return nodes.reduce((width,node)=>width+measureNode(node),0)}
+ function measureNode(node){
+  if(node.type==='char')return 4;
+  const p=node.parts;
+  const measureField=name=>Math.max(6,measureSeq(p[name]||[]));
+  if(node.type==='fraction')return Math.max(measureField('numerator'),measureField('denominator'))+4;
+  if(node.type==='mixed')return measureField('integer')+Math.max(measureField('numerator'),measureField('denominator'))+8;
+  if(node.type==='power')return measureField('exponent')+2;
+  if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
+  if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
+  return 4;
+ }
+ function drawSeq(nodes,x,baseline,path,cursorOn){
+  const active=cursorOn&&expression.path.length===path.length&&expression.path.every((p,i)=>p.index===path[i].index&&p.field===path[i].field);
+  for(let i=0;i<=nodes.length;i++){
+   if(active&&expression.offset===i){
+    for(let yy=baseline-3;yy<=baseline+5;yy++)pixel(x,yy);
+   }
+   if(i===nodes.length)break;
+   const node=nodes[i],w=measureNode(node);
+   if(node.type==='char'){
+    glyph(node.value,x,baseline);
+   }else{
+    const p=node.parts,drawField=(field,xx,yy)=>{
+     const sub=p[field]||[];
+     if(!sub.length){for(let d=0;d<5;d++)pixel(xx+d,yy+5)}
+     drawSeq(sub,xx,yy,[...path,{index:i,field}],cursorOn);
+    };
+    if(node.type==='fraction'){
+     const widest=w-4,a=measureSeq(p.numerator),b=measureSeq(p.denominator);
+     drawField('numerator',x+2+Math.floor((widest-a)/2),baseline-10);
+     for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
+     drawField('denominator',x+2+Math.floor((widest-b)/2),baseline+1);
+    }else if(node.type==='mixed'){
+     drawField('integer',x,baseline);
+     const shift=Math.max(6,measureSeq(p.integer))+4;
+     const span=w-shift,a=measureSeq(p.numerator),b=measureSeq(p.denominator);
+     drawField('numerator',x+shift+Math.floor((span-a)/2),baseline-10);
+     for(let xx=x+shift-1;xx<x+w;xx++)pixel(xx,baseline-3);
+     drawField('denominator',x+shift+Math.floor((span-b)/2),baseline+1);
+    }else if(node.type==='power'){
+     drawField('exponent',x+2,baseline-8);
+    }else if(node.type==='squareRoot'||node.type==='cubeRoot'||node.type==='nthRoot'){
+     const nth=node.type==='nthRoot',prefix=nth?9:7;
+     if(node.type==='cubeRoot')glyph('3',x,baseline-9);
+     if(nth)drawField('index',x,baseline-10);
+     const x0=x+prefix-5;
+     pixel(x0,baseline+2);pixel(x0+1,baseline+3);pixel(x0+2,baseline+2);
+     for(let n=0;n<7;n++)pixel(x0+3+n/2|0,baseline+1-n);
+     for(let xx=x+prefix-1;xx<x+w;xx++)pixel(xx,baseline-7);
+     drawField('radicand',x+prefix,baseline);
+    }
+   }
+   x+=w;
+  }
+  return x;
+ }
+ function drawStructured(visibleCursor,baseline){
+  const nodes=expression.root;
+  const width=measureSeq(nodes);
+  const offset=Math.max(0,width-W+2);
+  drawSeq(nodes,-offset,baseline,[],visibleCursor);
+  if(offset>0)glyph('<',0,25);
+ }
+
  if(state.screen==='error'){write(state.error||'Math ERROR',0,14);return pixels}
  if(state.screen==='result'){
-  const input=state.input||'';write(input.slice(-24),0,8);
+  if(structured)drawStructured(false,8);
+  const input=state.input||'';if(!structured)write(input.slice(-24),0,8);
   const result=String(state.result||'0');write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
   if(result.length>24)write('<',0,25);
   return pixels;
  }
+ if(structured){drawStructured(true,12);if(state.info)write(state.info.slice(-23),0,25);return pixels}
  const input=state.input||'';const cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
  const visible=20;const start=Math.max(0,cursor-visible+1);const piece=input.slice(start,start+visible);
  write(piece,0,8);const caret=(cursor-start)*4;if(caret<W)for(let yy=8;yy<15;yy++)pixel(caret,yy);
