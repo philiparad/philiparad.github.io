@@ -1,12 +1,13 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured;
+if(!STRUCT)throw Error('Structured textbook editor unavailable');
 if(!MODELS)throw Error('Missing CASIO model profile definitions');
 const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -34,14 +35,42 @@ function setResult(value,source=state.input){
  notify('Calculated successfully');paint();
 }
 function error(message){state.error=message.includes('ERROR')||message==='Cannot Solve'?message:'Math ERROR';state.screen='error';releaseModifier();notify(message,true);paint()}
-function evaluate(){try{if(!state.input)throw new M.MathFault('Syntax ERROR');const result=M.evaluate(state.input,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});setResult(result)}catch(e){error(e.message||'Math ERROR')}}
-function beginEdit(){if(state.screen!=='edit'){state.screen='edit';state.input='';state.cursor=0;state.result='';state.error=''}}
-function insert(text){if(!state.power)return;beginEdit();if(state.input.length+text.length>220){error('Input limit');return}
- state.input=state.input.slice(0,state.cursor)+text+(state.insert?state.input.slice(state.cursor):state.input.slice(state.cursor+text.length));state.cursor+=text.length;
- releaseModifier();notify('Editing expression');paint()}
-function loadExpression(text){state.input=text;state.cursor=text.length;state.screen='edit';state.result='';releaseModifier();paint()}
+function evaluate(){try{
+ const source=STRUCT.serialize(state.editor,true);
+ if(!source)throw new M.MathFault('Syntax ERROR');
+ const result=M.evaluate(source,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+ setResult(result);
+}catch(e){error(e.message||'Math ERROR')}}
+function syncEditor(){
+ state.input=STRUCT.serialize(state.editor);
+ state.cursor=state.input.length;
+}
+function beginEdit(){
+ if(state.screen!=='edit'){
+  state.screen='edit';state.input='';state.cursor=0;state.result='';state.error='';
+  state.editor=STRUCT.create();
+ }
+}
+function insert(text){
+ if(!state.power)return;
+ beginEdit();
+ if(state.input.length+text.length>220){error('Input limit');return}
+ STRUCT.insert(state.editor,text);
+ syncEditor();releaseModifier();notify('Editing textbook expression');paint();
+}
+function insertTemplate(type){
+ if(!state.power)return;
+ beginEdit();
+ if(state.input.length>210){error('Input limit');return}
+ STRUCT.template(state.editor,type);
+ syncEditor();releaseModifier();notify('Use arrow keys to move between placeholders');paint();
+}
+function loadExpression(text){
+ state.editor=STRUCT.fromString(text);
+ syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
+}
 function reset(mode='all'){
- state.menuEntries=[];state.flow=null;state.menu=[];state.outputLines=[];state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
+ state.menuEntries=[];state.flow=null;state.menu=[];state.outputLines=[];state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.angle='DEG';state.format='Norm2';state.digits=3;state.math=true;state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -184,7 +213,7 @@ function setupMenu(){optionDialog('SETUP — angle and display',[
 function digitOption(kind){optionDialog(kind+' — decimal digits',Array.from({length:10},(_,i)=>({label:String(i),action:()=>{state.format=kind;state.digits=i;paint()}})))}
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
- state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+ state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
  if(!MODELS.profiles[id])return false;
  state.model=id;
@@ -272,7 +301,10 @@ function shifted(key){
  if(key==='CALC'){releaseModifier();numericalFlow('SOLVE');return true}
  if(key==='INTEGRAL'){releaseModifier();numericalFlow('DERIVATIVE');return true}
  if(key==='LOGBASE'){releaseModifier();numericalFlow('SUM');return true}
- const insertions={RECIP:'!',SQUARE:'^3',POWER:'^(1/',LOG:'10^(',LN:'exp(',SIN:'asin(',COS:'acos(',TAN:'atan(',SQRT:'cbrt(',EXP:'pi',FRAC:' + ',
+ if(key==='FRAC'){releaseModifier();insertTemplate('mixed');return true}
+ if(key==='SQRT'){releaseModifier();insertTemplate('cubeRoot');return true}
+ if(key==='POWER'){releaseModifier();insertTemplate('nthRoot');return true}
+ const insertions={RECIP:'!',SQUARE:'^3',LOG:'10^(',LN:'exp(',SIN:'asin(',COS:'acos(',TAN:'atan(',EXP:'pi',
   HYP:'abs(',NEG:'',DMS:'',SD:'',MPLUS:'',ENG:'',LP:'%',RP:',',ANS:'',MUL:'',DIV:'',ADD:'',SUB:'',DOT:''};
  if(key==='MPLUS'){state.memory.M-=state.ans;releaseModifier();paint();return true}
  if(key==='SD'){releaseModifier();toggleFraction();return true}
@@ -305,10 +337,10 @@ function handle(key){
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
- if(key==='AC'){state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
- if(key==='DEL'){if(state.screen==='error'){state.screen='edit';state.error=''}if(state.screen==='result')state.screen='edit';if(state.cursor>0){state.input=state.input.slice(0,state.cursor-1)+state.input.slice(state.cursor);state.cursor--}releaseModifier();paint();return}
- if(key==='LEFT'||key==='RIGHT'){if(state.screen==='result'){state.screen='edit'}state.cursor=Math.max(0,Math.min(state.input.length,state.cursor+(key==='LEFT'?-1:1)));paint();return}
- if(key==='UP'||key==='DOWN'){const items=state.history;if(!items.length)return;let idx=state.storedInputs.length?state.storedInputs[0]:-1;idx=Math.max(0,Math.min(items.length-1,idx+(key==='UP'?1:-1)));state.storedInputs=[idx];state.input=items[idx].source;state.cursor=state.input.length;state.screen='edit';paint();return}
+ if(key==='AC'){state.editor=STRUCT.create();state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='DEL'){if(state.screen==='error'){state.screen='edit';state.error=''}if(state.screen==='result')state.screen='edit';STRUCT.backspace(state.editor);syncEditor();releaseModifier();paint();return}
+ if(key==='LEFT'||key==='RIGHT'){if(state.screen==='result'){state.screen='edit'}STRUCT.navigate(state.editor,key);syncEditor();paint();return}
+ if(key==='UP'||key==='DOWN'){if(state.screen==='edit'&&STRUCT.navigate(state.editor,key)){syncEditor();paint();return}const items=state.history;if(!items.length)return;let idx=state.storedInputs.length?state.storedInputs[0]:-1;idx=Math.max(0,Math.min(items.length-1,idx+(key==='UP'?1:-1)));state.storedInputs=[idx];state.editor=STRUCT.fromString(items[idx].source);syncEditor();state.screen='edit';paint();return}
  if(key==='EQUAL'){if(state.mode!=='COMP'){advancedMode(state.mode);return}evaluate();return}
  if(key==='RCL'){memoryDialog(false);return}
  if(key==='MPLUS'){state.memory.M+=state.screen==='result'?state.raw:state.ans;notify('Added to M');paint();return}
@@ -323,8 +355,11 @@ function handle(key){
  if(key==='HYP'){state.hyp=!state.hyp;notify(state.hyp?'Hyperbolic trig selected':'Ordinary trig selected');paint();return}
  if(key==='NEG'){insert('-');return}
  const funcs={SIN:'sin(',COS:'cos(',TAN:'tan(',SQRT:'sqrt(',LOG:'log(',LN:'ln('};
+ if(key==='FRAC'){insertTemplate('fraction');return}
+ if(key==='POWER'){insertTemplate('power');return}
+ if(key==='SQRT'&&!state.hyp){insertTemplate('squareRoot');return}
  if(funcs[key]){const text=state.hyp?{SIN:'sinh(',COS:'cosh(',TAN:'tanh('}[key]||funcs[key]:funcs[key];state.hyp=false;insert(text);return}
- const ops={MUL:'*',DIV:'/',ADD:'+',SUB:'-',LP:'(',RP:')',DOT:'.',FRAC:'/',RECIP:'^(-1)',SQUARE:'^2',POWER:'^(',EXP:'e',ANS:'Ans'};
+ const ops={MUL:'*',DIV:'/',ADD:'+',SUB:'-',LP:'(',RP:')',DOT:'.',RECIP:'^(-1)',SQUARE:'^2',EXP:'e',ANS:'Ans'};
  if(Object.prototype.hasOwnProperty.call(ops,key)){insert(ops[key]);return}
  if(/^\d$/.test(key)){insert(key);return}
  notify('This key is not available in the current state',true);paint();
@@ -357,5 +392,5 @@ $('record-keylog').addEventListener('click',()=>{state.recording=!state.recordin
 $('export-keylog').addEventListener('click',()=>download('independent-calculator-keylog.json',JSON.stringify({schema:'fresh-calculator-1',entries:state.keylog},null,2),'application/json'));
 document.addEventListener('keydown',keyboard);
 paint();
-window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
+window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getStructured:()=>structuredClone(state.editor),getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
 })();
