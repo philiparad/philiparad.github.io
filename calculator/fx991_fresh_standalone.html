@@ -60,6 +60,18 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
 #lcd-large{display:block;width:100%;height:auto;image-rendering:pixelated;background:#d9e5d7;border:8px solid #090a0b;border-radius:6px}
 .keylog-list{max-height:250px;overflow:auto;font:12px/1.6 ui-monospace,monospace}
 
+/* REA-008 — read-only public capability and evidence matrix. */
+.capability-table-wrap{max-height:420px;overflow:auto;border:1px solid #cbd6d8;border-radius:8px}
+.capability-table{width:100%;border-collapse:collapse;font-size:12px;line-height:1.4;text-align:left}
+.capability-table th,.capability-table td{padding:9px 7px;vertical-align:top;border-bottom:1px solid #dce4e4}
+.capability-table th{position:sticky;top:0;background:#e4ece9;color:#26363b}
+.capability-table td:nth-child(2){font-weight:700;min-width:110px}
+.capability-table tr[data-status="unsupported"] td:nth-child(2){color:#973c28}
+.capability-table tr[data-status="approximation"] td:nth-child(2){color:#9a620c}
+.capability-table tr[data-status="implemented"] td:nth-child(2){color:#245f52}
+.capability-table tr[data-status="hardware-verified"] td:nth-child(2){color:#245f52}
+@media(max-width:550px){.capability-table{font-size:11px}.capability-table th,.capability-table td{padding:6px 4px}}
+
 </style>
 </head>
 <body>
@@ -116,6 +128,19 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
                 <p class="fine-print">Press MODE, then a numbered key (1–6). Use ▶ for the next menu page and ◀ to return. SHIFT + MODE opens SETUP. AC exits. Use only calculator buttons for calculations.</p>
             </section>
 
+            <section class="panel" aria-labelledby="capability-title">
+                <h2 id="capability-title">CASIO compatibility — feature status</h2>
+                <p class="fine-print">Implemented means available in this web application, not verified against a physical CASIO calculator. Approximation means partial educational functionality. Hardware verification requires native reference evidence.</p>
+                <p id="capability-summary" role="status">Loading feature evidence…</p>
+                <div class="capability-table-wrap">
+                    <table class="capability-table">
+                        <thead>
+                            <tr><th scope="col">Feature</th><th scope="col">Status</th><th scope="col">Evidence / limitation</th></tr>
+                        </thead>
+                        <tbody id="capability-rows"></tbody>
+                    </table>
+                </div>
+            </section>
             <section class="panel">
                 <h2>Verification</h2>
                 <div class="button-bar">
@@ -776,6 +801,455 @@ document.addEventListener('keydown',keyboard);
 paint();
 window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
 })();
+
+</script>
+    <script type="application/json" id="capability-manifest">
+{
+  "schema": "fx991-rea008-capability-gate-v1",
+  "task": "REA-008",
+  "target_model": "fx-991ES PLUS C 2nd edition",
+  "status": "SOURCE_IMPLEMENTED_DEVICE_PARITY_UNVERIFIED",
+  "statuses": [
+    "implemented",
+    "approximation",
+    "unsupported",
+    "hardware-verified"
+  ],
+  "policy": {
+    "hardware_verification": "Only source-validated real CASIO device/emulator capture evidence may support hardware-verified.",
+    "other_labels": "implemented means source functionality exists; approximation means partial educational behavior; unsupported means advertised exact function is absent or incomplete.",
+    "parity_claims_allowed": false
+  },
+  "features": [
+    {
+      "id": "basic-arithmetic",
+      "title": "Arithmetic and precedence",
+      "status": "implemented",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Source self-tests cover common arithmetic; CASIO precision not verified.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [
+        "source-regression"
+      ],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "physical-keypad",
+      "title": "50 clickable key controls",
+      "status": "implemented",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "REA-003 screenshot-space key map; native keycodes unavailable.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [
+        "source-regression"
+      ],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "shift-alpha",
+      "title": "SHIFT and ALPHA input routing",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "REA-005 browser behavior audit; semantics not manufacturer-verified.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "lcd-raster",
+      "title": "LCD bitmap display",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "REA-006 web-only 96x31 golden frames; native resolution unknown.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "natural-input",
+      "title": "Natural textbook fractions, roots and powers",
+      "status": "unsupported",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Flat expression editing; no genuine two-dimensional templates.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "display-setup",
+      "title": "Angle and display setup",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Web LCD setup flow; device key sequence unverified.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "fractions",
+      "title": "Rational/fraction result display",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Converts floating point values, not exact CASIO rational arithmetic.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "scientific-math",
+      "title": "Trigonometry, logarithms, roots",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Selected calculations supported; edge cases/precision unverified.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "calculus",
+      "title": "Numerical derivative, integral and sums",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Independent numerical routines and LCD prompts.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "memory",
+      "title": "Ans, STO/RCL and M+/M−",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Storage functions exist; native semantics unverified.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "constants",
+      "title": "Scientific constants catalog",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Limited educational constant selection.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "conversions",
+      "title": "Metric conversions",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Partial conversion catalog and workflow.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "complex",
+      "title": "CMPLX calculations",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Subset of complex operations, generic wizard.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "statistics",
+      "title": "STAT data and statistics",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "One-variable description; native data editor/regressions absent.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "base",
+      "title": "BASE-N operations",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Subset of integers and bitwise operators.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "equations",
+      "title": "EQN solver",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Quadratic/two-variable subsets.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "matrix",
+      "title": "MATRIX calculations",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Limited 2x2 operations, no full registers.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "table",
+      "title": "TABLE calculations",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Single function table subset.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "vector",
+      "title": "VECTOR calculations",
+      "status": "approximation",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "Subset of 2D/3D vector operations.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "inequality",
+      "title": "INEQ solution sets",
+      "status": "unsupported",
+      "models": [
+        "fx-991es-plus-c"
+      ],
+      "note": "Current mode lists roots, not full inequality solution intervals.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "verify",
+      "title": "VERIF relation testing",
+      "status": "approximation",
+      "models": [
+        "fx-991es-plus-c"
+      ],
+      "note": "Single relation subset; native chained verification absent.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "distribution",
+      "title": "DIST statistics functions",
+      "status": "approximation",
+      "models": [
+        "fx-991es-plus-c"
+      ],
+      "note": "Four partial distribution routines; complete catalog absent.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "reference-differential",
+      "title": "Native device-vs-web golden comparison",
+      "status": "unsupported",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "REA-001 has zero authentic captured CASIO sequences.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "web-snapshots",
+      "title": "Immutable web-only LCD regression frames",
+      "status": "implemented",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "REA-006 pins 13 web-rendered frames; not native LCD verification.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [
+        "source-regression"
+      ],
+      "caution": "Not certified against CASIO device firmware."
+    },
+    {
+      "id": "native-scancodes",
+      "title": "Manufacturer DLL native keycodes",
+      "status": "unsupported",
+      "models": [
+        "fx-991es",
+        "fx-991es-plus",
+        "fx-991es-plus-c"
+      ],
+      "note": "REA-003 records 0/50 native scancodes.",
+      "hardware_verified": false,
+      "native_evidence_ids": [],
+      "test_evidence_ids": [],
+      "caution": "Not certified against CASIO device firmware."
+    }
+  ]
+}
+
+</script>
+    <script>
+/* REA-008 public feature status. This panel is informational only.
+ * It does not send keys or make mathematical calculations.
+ */
+(function(global){'use strict';
+const STATUSES=Object.freeze({
+ implemented:'Implemented in web app',
+ approximation:'Educational approximation',
+ unsupported:'Not implemented',
+ 'hardware-verified':'Verified against CASIO hardware'
+});
+const $=id=>document.getElementById(id);
+async function data(){
+ const embedded=$('capability-manifest');
+ if(embedded)return JSON.parse(embedded.textContent);
+ const response=await fetch('reference/rea-008/capabilities.json',{cache:'no-store'});
+ if(!response.ok)throw Error('Capability manifest unavailable');
+ return response.json();
+}
+function render(manifest){
+ if(manifest.schema!=='fx991-rea008-capability-gate-v1')throw Error('Unknown capability manifest');
+ const filter=$('model-selector'),table=$('capability-rows'),summary=$('capability-summary');
+ if(!filter||!table||!summary)return;
+ function update(){
+  const model=filter.value;
+  const items=manifest.features.filter(f=>f.models.includes(model));
+  table.replaceChildren();
+  for(const item of items){
+   const tr=document.createElement('tr');
+   for(const value of [item.title,STATUSES[item.status]||'Unknown',item.note]){
+    const td=document.createElement('td');
+    td.textContent=value;
+    tr.append(td);
+   }
+   tr.dataset.status=item.status;
+   table.append(tr);
+  }
+  const verified=items.filter(f=>f.status==='hardware-verified').length;
+  summary.textContent=items.length+' capabilities listed · '+verified+
+    ' hardware-verified · source-only tests are not CASIO device certification.';
+ }
+ filter.addEventListener('change',update);
+ update();
+}
+data().then(render).catch(error=>{
+ const summary=$('capability-summary');
+ if(summary)summary.textContent='Capability evidence unavailable: '+error.message+
+  '. No hardware-equivalence claim can be made.';
+});
+})(typeof window!=='undefined'?window:globalThis);
 
 </script>
 </body>
