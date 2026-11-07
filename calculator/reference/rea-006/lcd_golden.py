@@ -5,6 +5,7 @@ Records independent WEB calculator screenshots only. No synthetic screenshot
 may be presented as an observed CASIO emulator/hardware reference.
 """
 import argparse
+import base64
 import asyncio
 import hashlib
 import json
@@ -56,8 +57,9 @@ async def capture(out,chromium=None):
                 if tuple(dimensions)!=CANVAS_SIZE:
                     raise RuntimeError(f"{name}: unexpected canvas size {dimensions}")
                 target=out/(name+".png")
-                await frame.screenshot(path=str(target))
-                actual=target.read_bytes()
+                actual=base64.b64decode(await frame.evaluate(
+                    "(el)=>el.toDataURL('image/png').split(',')[1]"))
+                target.write_bytes(actual)
                 state=await page.evaluate("""() => {
                     const s=FreshCalculator.getState();
                     const el=document.getElementById('lcd');
