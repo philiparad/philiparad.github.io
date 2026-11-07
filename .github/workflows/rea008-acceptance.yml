@@ -1,0 +1,44 @@
+name: REA-008 verified-versus-simulated acceptance gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/reference/rea-008/**'
+      - 'calculator/reference/rea-001/manifest.json'
+      - 'calculator/js/**'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/README.md'
+      - '.github/workflows/rea008-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  parity-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and run fail-closed acceptance rules
+        run: |
+          python -m py_compile calculator/reference/rea-008/gate.py calculator/reference/rea-008/test_gate.py calculator/reference/rea-008/test_public_browser.py
+          python -m unittest discover -v -s calculator/reference/rea-008 -p 'test_gate.py'
+      - name: Enforce evidence provenance and reject unsupported hardware parity claims
+        run: |
+          python calculator/reference/rea-008/gate.py --json-out /tmp/rea008-acceptance.json
+      - name: Install headless browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Audit public capability table in modular and standalone app
+        run: python calculator/reference/rea-008/test_public_browser.py
+      - name: Archive decision report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea008-parity-acceptance
+          path: /tmp/rea008-acceptance.json
+          if-no-files-found: warn
