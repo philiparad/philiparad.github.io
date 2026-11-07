@@ -15,8 +15,17 @@ const releaseModifier=()=>{state.shift=false;state.alpha=false};
 const notify=(text,isError=false)=>{const el=$('notice');el.textContent=text;el.classList.toggle('error',isError)};
 function paint(){
  LCD.draw($('lcd'),state);
- $('lcd-shift').textContent=state.shift?'S':'';$('lcd-alpha').textContent=state.alpha?'A':'';
- $('lcd-angle').textContent=state.angle==='DEG'?'D':state.angle==='RAD'?'R':'G';$('lcd-math').textContent=state.mode==='COMP'?'Math':state.mode;
+ // REA-010: manufacturer-documented indicator meanings; not a claim of
+ // exact native pixel positions or firmware states.
+ const lit=state.power;
+ $('lcd-shift').textContent=lit&&state.shift?'S':'';
+ $('lcd-alpha').textContent=lit&&state.alpha?'A':'';
+ $('lcd-memory').textContent=lit&&state.memory.M!==0?'M':'';
+ const modeIndicators={STAT:'STAT',CMPLX:'CMPLX',MATRIX:'MAT',VECTOR:'VCT'};
+ $('lcd-mode').textContent=lit?(modeIndicators[state.mode]||''):'';
+ $('lcd-angle').textContent=lit?(state.angle==='DEG'?'D':state.angle==='RAD'?'R':'G'):'';
+ $('lcd-format').textContent=lit?(state.format==='Fix'?'FIX':state.format==='Sci'?'SCI':''):'';
+ $('lcd-math').textContent=lit&&state.math?'Math':'';
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
  $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  $('model-label').textContent=MODELS.get(state.model).label;
