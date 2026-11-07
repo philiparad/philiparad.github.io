@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>REA-003 · 50-key geometry and native code audit</title>
+    <style>
+        :root {color-scheme:light; font-family:system-ui,Segoe UI,Arial,sans-serif;color:#20303b;background:#edf2f5}
+        *{box-sizing:border-box}
+        body{margin:0;padding:18px}
+        main{max-width:1120px;margin:0 auto}
+        h1{font-size:1.45rem}
+        p{line-height:1.5}
+        .layout{display:grid;grid-template-columns:minmax(300px,1fr) minmax(270px,390px);gap:16px;align-items:start}
+        .panel{background:#fff;border:1px solid #cad5de;padding:14px;border-radius:12px;min-width:0}
+        #face{position:relative;width:min(100%,410px);aspect-ratio:274 / 580;background:#45484b;border-radius:15% 15% 10% 10% / 7% 7% 5% 5%;margin:auto;overflow:hidden;border:2px solid #20272e}
+        .lcd{position:absolute;left:7.6%;top:13.8%;width:84.3%;height:17.6%;background:#d5e1d0;border:9px solid #080a0a;border-radius:10px}
+        .key{position:absolute;transform:translate(-50%,-50%);padding:0;border:1.5px solid #f6b44e;border-radius:5px;background:#0d141d;color:white;font-size:clamp(8px,1.4vw,12px);font-weight:700;cursor:pointer;overflow:hidden}
+        .key.numeric{background:#999ca4}
+        .key.top,.key.navigation{background:#969aa1;color:#12181d;border-radius:50%}
+        .key.navigation{border-radius:7px}
+        .key.selected{outline:4px solid #56e7ff;outline-offset:1px;z-index:2}
+        .label{display:grid;gap:4px;margin-top:8px}
+        .row{display:grid;grid-template-columns:95px 1fr;gap:8px;border-bottom:1px solid #e3e9ee;padding:7px 0;font-size:.88rem}
+        .row span:first-child{color:#536a7b}
+        #reference{display:block;max-width:100%;max-height:400px;margin:auto}
+        .hint{font-size:.87rem;color:#526578}
+        .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+        button.action{background:#245b85;color:#fff;border:0;border-radius:7px;padding:9px 12px;cursor:pointer}
+        input[type=text],textarea{width:100%;font:inherit;border:1px solid #b7c9d7;padding:8px;border-radius:6px}
+        textarea{min-height:78px}
+        .status{font-weight:bold;color:#9a4d00}
+        .badge{font-weight:700;color:#854409}
+        @media(max-width:760px){.layout{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<main>
+    <h1>REA-003 — 50-key physical map inspection</h1>
+    <p class="status">Screenshot-calibrated only. Native emulator keycodes and native key rectangles are NOT verified.</p>
+    <div class="layout">
+        <section class="panel">
+            <h2>Calculated button hit regions</h2>
+            <div id="face" aria-label="Interactive calculator key geometry" role="group">
+                <div class="lcd" aria-hidden="true"></div>
+            </div>
+            <p class="hint">Click a key to inspect its screenshot-space rectangle. Key labels and positions come from the source-controlled 50-key manifest, not from CASIO firmware.</p>
+            <div class="actions">
+                <button class="action" id="download" type="button">Export key audit JSON</button>
+                <button class="action" id="reset" type="button">Clear local observations</button>
+            </div>
+        </section>
+        <section class="panel">
+            <h2>Key evidence</h2>
+            <div class="row"><span>Inventory</span><strong id="inventory">Loading…</strong></div>
+            <div class="row"><span>Selected key</span><strong id="id">None</strong></div>
+            <div class="row"><span>Group</span><span id="group">—</span></div>
+            <div class="row"><span>Base legend</span><span id="base">—</span></div>
+            <div class="row"><span>SHIFT legend</span><span id="shift">—</span></div>
+            <div class="row"><span>ALPHA legend</span><span id="alpha">—</span></div>
+            <div class="row"><span>Rectangle</span><span id="rect">—</span></div>
+            <div class="row"><span>Native code</span><span id="native">Unverified</span></div>
+            <div class="label"><label for="code">Observed native emulator keycode (optional; requires trace evidence)</label><input id="code" type="text" placeholder="Leave empty until measured"></div>
+            <div class="label"><label for="notes">Source evidence / observation notes</label><textarea id="notes" placeholder="Record emulator version, measurement method, screenshot identifiers"></textarea></div>
+            <div class="actions"><button class="action" id="save" type="button">Save observation locally</button></div>
+            <p class="hint">Observations remain only in this browser page and exported JSON. Entered keycodes are not automatically accepted as verified hardware data.</p>
+            <hr>
+            <h2>Original emulator image (local only)</h2>
+            <input type="file" id="image" accept="image/png,image/jpeg">
+            <img id="reference" alt="Optional locally selected reference image" hidden>
+            <p class="hint">Optional local visual inspection only; proprietary source imagery is never uploaded or embedded in the public repository.</p>
+        </section>
+    </div>
+    <p><a href="../rea-001/">REA-001 capture instructions</a> · <a href="../../">Calculator application</a></p>
+</main>
+<script>
+    (async()=>{
+        'use strict';
+        const data=await fetch('./key-map.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Missing key-map.json');return r.json()});
+        if(data.keys.length!==50)throw Error('Expected exactly 50 keys');
+        const $=id=>document.getElementById(id);
+        const local=new Map();let selected=null;
+        const body=data.coordinates,face=$('face');
+        $('inventory').textContent=data.keys.length+' keys · '+data.native_keycode_count+' verified native codes';
+        for(const k of data.keys){
+            const b=document.createElement('button');b.type='button';b.className='key '+k.group;
+            b.textContent=k.base_legend||k.physical_id;
+            b.title=k.physical_id+' | SHIFT: '+(k.shift_legend||'—')+' | ALPHA: '+(k.alpha_legend||'—');
+            b.style.left=(k.center_x/body.body_width_px*100)+'%';
+            b.style.top=(k.center_y/body.body_height_px*100)+'%';
+            b.style.width=(k.width/body.body_width_px*100)+'%';
+            b.style.height=(k.height/body.body_height_px*100)+'%';
+            b.setAttribute('aria-label',k.physical_id+' position');
+            b.onclick=()=>select(k,b);
+            face.append(b);
+        }
+        function select(k,button){
+            selected=k;
+            face.querySelectorAll('.key.selected').forEach(b=>b.classList.remove('selected'));
+            button.classList.add('selected');
+            for(const [field,text] of Object.entries({id:k.physical_id,group:k.group,base:k.base_legend,shift:k.shift_legend,alpha:k.alpha_legend,
+                rect:'x '+(k.center_x-k.width/2).toFixed(2)+', y '+(k.center_y-k.height/2).toFixed(2)+', w '+k.width+', h '+k.height,native:k.native_scancode??'Unverified'})){
+                $(field).textContent=text||'—';
+            }
+            $('code').value=local.get(k.physical_id)?.native_code||'';
+            $('notes').value=local.get(k.physical_id)?.notes||'';
+        }
+        $('save').onclick=()=>{if(!selected)return;local.set(selected.physical_id,{native_code:$('code').value.trim()||null,notes:$('notes').value.trim(),verified:false});};
+        $('reset').onclick=()=>{local.clear();$('code').value='';$('notes').value='';};
+        $('download').onclick=()=>{
+            if(selected)local.set(selected.physical_id,{native_code:$('code').value.trim()||null,notes:$('notes').value.trim(),verified:false});
+            const observations=data.keys.map(k=>({physical_id:k.physical_id,...(local.get(k.physical_id)||{native_code:null,notes:'',verified:false})}));
+            const exportData={schema:'fx991-rea003-operator-observations-v1',model:data.model,
+                status:'UNREVIEWED_HUMAN_INPUT',source_manifest_sha:data.source_sha,observations};
+            const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
+            const url=URL.createObjectURL(blob),a=document.createElement('a');
+            a.href=url;a.download='rea003-key-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+        };
+        $('image').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;
+            if(!/^image\/(png|jpeg)$/.test(f.type)||f.size>20e6){alert('Select PNG/JPEG below 20 MB');return}
+            const img=$('reference');if(img.dataset.url)URL.revokeObjectURL(img.dataset.url);
+            img.dataset.url=URL.createObjectURL(f);img.src=img.dataset.url;img.hidden=false;
+        };
+    })().catch(e=>{document.getElementById('inventory').textContent='Error: '+e.message});
+</script>
+</body>
+</html>
