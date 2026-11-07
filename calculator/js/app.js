@@ -347,6 +347,8 @@ function keyboard(e){if(e.ctrlKey||e.altKey||e.metaKey||e.isComposing)return;con
  const map={Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',Escape:'AC',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','.':'DOT','^':'POWER'};
  const key=map[e.key]||(/^\d$/.test(e.key)?e.key:null);if(key){e.preventDefault();press(key)}}
 K.mount($('keys'),press);
+$('model-selector').value=state.model;
+$('model-selector').addEventListener('change',e=>setModel(e.target.value));
 $('run-checks').addEventListener('click',runChecks);
 $('enlarge').addEventListener('click',()=>{$('lcd-panel').hidden=!$('lcd-panel').hidden;paint()});
 $('capture').addEventListener('click',()=>$('lcd').toBlob(blob=>{if(blob)download('independent-calculator-lcd.png',blob,'image/png')}));
