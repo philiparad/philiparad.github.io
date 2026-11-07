@@ -19,7 +19,7 @@ STANDALONE = ROOT / "fx991_fresh_standalone.html"
 errors = []
 
 def source_array(text, name):
-    match = re.search(r"\b(?:const\s+|,)"+re.escape(name)+r"\s*=\s*\[",text)
+    match = re.search(r"(?:\bconst\s+|,)"+re.escape(name)+r"\s*=\s*\[",text)
     if not match:
         raise ValueError("Cannot locate JS array "+name)
     pos=match.end()-1
