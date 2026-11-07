@@ -43,7 +43,7 @@ function evaluate(){try{
 }catch(e){error(e.message||'Math ERROR')}}
 function syncEditor(){
  state.input=STRUCT.serialize(state.editor);
- state.cursor=state.input.length;
+ state.cursor=state.editor.path.length?state.input.length:state.editor.offset;
 }
 function beginEdit(){
  if(state.screen!=='edit'){
