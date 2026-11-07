@@ -31,7 +31,7 @@ def validate_reference(case, root):
         path = (root / rel).resolve()
         if not path.is_relative_to(root.resolve()) or not path.is_file():
             return f"native step {index} PNG missing/unsafe"
-        if path.read_bytes()[:8] != b"\\x89PNG\\r\\n\\x1a\\n":
+        if path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
             return f"native step {index} not a PNG"
     return None
 
@@ -54,7 +54,7 @@ def validate_web(case, keys, root):
         path = (root / rel).resolve()
         if not path.is_relative_to(root.resolve()) or not path.is_file():
             return f"web step {index} PNG missing/unsafe"
-        if path.read_bytes()[:8] != b"\\x89PNG\\r\\n\\x1a\\n":
+        if path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
             return f"web step {index} not a PNG"
     return None
 
@@ -162,6 +162,9 @@ def main(argv=None):
     (args.out/"report.json").write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf8")
     (args.out/"report.md").write_text(markdown(out),encoding="utf8")
     print("REA-004: "+str(out["totals"]))
+    if args.require_verified and not args.pixels:
+        print("NOT CERTIFIED: --pixels is required for full reference certification",file=sys.stderr)
+        return 1
     if args.require_verified and (out["totals"]["PASS"]<100 or any(out["totals"][k] for k in ("FAIL","BLOCKED_PIXEL_ALIGNMENT"))):
         print("NOT CERTIFIED: fewer than 100 reference-backed passes or unresolved mismatches",file=sys.stderr)
         return 1
