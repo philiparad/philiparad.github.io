@@ -87,6 +87,17 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
                 <h1>Natural scientific calculator</h1>
                 <p>Built from scratch in HTML, CSS and JavaScript using the static REA report and an independently recreated interface. No proprietary emulator components are included.</p>
             </div>
+            <section class="panel" aria-label="Emulated device selection">
+                <h2>Emulated CASIO model</h2>
+                <label for="model-selector">Select the physical model to simulate</label>
+                <select id="model-selector">
+                    <option value="fx-991es">fx-991ES (original)</option>
+                    <option value="fx-991es-plus">fx-991ES PLUS (2nd edition)</option>
+                    <option value="fx-991es-plus-c" selected>fx-991ES PLUS C (2nd edition)</option>
+                </select>
+                <p id="model-label" class="fine-print">fx-991ES PLUS C (2nd edition)</p>
+                <p class="fine-print">This device-profile setting resets calculator state. All calculations and MODE selections still use the calculator buttons and LCD. Native hardware behavior is not certified.</p>
+            </section>
             <section class="panel status-panel">
                 <h2>Calculation state</h2>
                 <div class="status-grid">
@@ -375,12 +386,44 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
 
 </script>
     <script>
+/* REA-007: explicit CASIO model profiles grounded in model-specific manuals.
+ * This is a capability/menu inventory, not a statement of numeric emulator parity.
+ * Native DLL emulator version and scan codes are not verified.
+ */
+(function(global){'use strict';
+const common=Object.freeze(['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']);
+const extended=Object.freeze([...common,'INEQ','VERIF','DIST']);
+const profiles=Object.freeze({
+ 'fx-991es':Object.freeze({id:'fx-991es',label:'fx-991ES',edition:'original',
+   modes:common,manual:'https://support.casio.com/pdf/004/fx-115ES_991ES_Eng.pdf',
+   hardwareVerified:false}),
+ 'fx-991es-plus':Object.freeze({id:'fx-991es-plus',label:'fx-991ES PLUS (2nd edition)',
+   edition:'2nd edition',modes:common,
+   manual:'https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/calculation_calculator/calculation_modes.html',
+   hardwareVerified:false}),
+ 'fx-991es-plus-c':Object.freeze({id:'fx-991es-plus-c',label:'fx-991ES PLUS C (2nd edition)',
+   edition:'2nd edition C',modes:extended,
+   manual:'https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/calculation_calculator/calculation_modes.html',
+   hardwareVerified:false})
+});
+function get(id){return profiles[id]||profiles['fx-991es-plus-c']}
+function supports(id,mode){return get(id).modes.includes(mode)}
+const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports});
+global.FreshModels=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+    <script>
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels;
+if(!MODELS)throw Error('Missing CASIO model profile definitions');
 const $=(id)=>document.getElementById(id);
-const modeNames=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR','INEQ','VERIF','DIST'];
-const state={power:true,mode:'COMP',angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const requestedModel=new URLSearchParams(location.search).get('model');
+const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
+const modeNames=MODELS.get(initialModel).modes;
+const state={power:true,model:initialModel,mode:'COMP',angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -392,6 +435,7 @@ function paint(){
  $('lcd-angle').textContent=state.angle==='DEG'?'D':state.angle==='RAD'?'R':'G';$('lcd-math').textContent=state.mode==='COMP'?'Math':state.mode;
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
  $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
+ $('model-label').textContent=MODELS.get(state.model).label;
  $('mode-label').textContent=state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+M.format(state.memory.M,{...state,math:false});
  $('expression-text').textContent=state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
@@ -555,8 +599,20 @@ function setupMenu(){optionDialog('SETUP — angle and display',[
  {label:'Fix digits',action:()=>digitOption('Fix')},{label:'Sci digits',action:()=>digitOption('Sci')}
  ])}
 function digitOption(kind){optionDialog(kind+' — decimal digits',Array.from({length:10},(_,i)=>({label:String(i),action:()=>{state.format=kind;state.digits=i;paint()}})))}
-function modeMenu(){optionDialog('MODE',modeNames.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
-function setMode(mode){state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
+function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
+ state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+function setModel(id){
+ if(!MODELS.profiles[id])return false;
+ state.model=id;
+ reset('all');
+ state.model=id;
+ state.mode='COMP';
+ $('model-selector').value=id;
+ notify('Model: '+MODELS.get(id).label+' · only supported modes are shown');
+ paint();
+ return true;
+}
 function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
 function advancedMode(mode){
@@ -708,6 +764,8 @@ function keyboard(e){if(e.ctrlKey||e.altKey||e.metaKey||e.isComposing)return;con
  const map={Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',Escape:'AC',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','.':'DOT','^':'POWER'};
  const key=map[e.key]||(/^\d$/.test(e.key)?e.key:null);if(key){e.preventDefault();press(key)}}
 K.mount($('keys'),press);
+$('model-selector').value=state.model;
+$('model-selector').addEventListener('change',e=>setModel(e.target.value));
 $('run-checks').addEventListener('click',runChecks);
 $('enlarge').addEventListener('click',()=>{$('lcd-panel').hidden=!$('lcd-panel').hidden;paint()});
 $('capture').addEventListener('click',()=>$('lcd').toBlob(blob=>{if(blob)download('independent-calculator-lcd.png',blob,'image/png')}));
@@ -716,7 +774,7 @@ $('record-keylog').addEventListener('click',()=>{state.recording=!state.recordin
 $('export-keylog').addEventListener('click',()=>download('independent-calculator-keylog.json',JSON.stringify({schema:'fresh-calculator-1',entries:state.keylog},null,2),'application/json'));
 document.addEventListener('keydown',keyboard);
 paint();
-window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
+window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
 })();
 
 </script>
