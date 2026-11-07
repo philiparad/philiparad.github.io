@@ -1,9 +1,12 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels;
+if(!MODELS)throw Error('Missing CASIO model profile definitions');
 const $=(id)=>document.getElementById(id);
-const modeNames=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR','INEQ','VERIF','DIST'];
-const state={power:true,mode:'COMP',angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const requestedModel=new URLSearchParams(location.search).get('model');
+const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
+const modeNames=MODELS.get(initialModel).modes;
+const state={power:true,model:initialModel,mode:'COMP',angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -15,6 +18,7 @@ function paint(){
  $('lcd-angle').textContent=state.angle==='DEG'?'D':state.angle==='RAD'?'R':'G';$('lcd-math').textContent=state.mode==='COMP'?'Math':state.mode;
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
  $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
+ $('model-label').textContent=MODELS.get(state.model).label;
  $('mode-label').textContent=state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+M.format(state.memory.M,{...state,math:false});
  $('expression-text').textContent=state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
@@ -178,8 +182,20 @@ function setupMenu(){optionDialog('SETUP — angle and display',[
  {label:'Fix digits',action:()=>digitOption('Fix')},{label:'Sci digits',action:()=>digitOption('Sci')}
  ])}
 function digitOption(kind){optionDialog(kind+' — decimal digits',Array.from({length:10},(_,i)=>({label:String(i),action:()=>{state.format=kind;state.digits=i;paint()}})))}
-function modeMenu(){optionDialog('MODE',modeNames.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
-function setMode(mode){state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
+function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
+ state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+function setModel(id){
+ if(!MODELS.profiles[id])return false;
+ state.model=id;
+ reset('all');
+ state.model=id;
+ state.mode='COMP';
+ $('model-selector').value=id;
+ notify('Model: '+MODELS.get(id).label+' · only supported modes are shown');
+ paint();
+ return true;
+}
 function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
 function advancedMode(mode){
@@ -339,5 +355,5 @@ $('record-keylog').addEventListener('click',()=>{state.recording=!state.recordin
 $('export-keylog').addEventListener('click',()=>download('independent-calculator-keylog.json',JSON.stringify({schema:'fresh-calculator-1',entries:state.keylog},null,2),'application/json'));
 document.addEventListener('keydown',keyboard);
 paint();
-window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
+window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
 })();
