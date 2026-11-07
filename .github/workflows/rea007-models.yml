@@ -1,0 +1,29 @@
+name: REA-007 model compatibility tests
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/model-profiles.js'
+      - 'calculator/js/app.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-007/**'
+      - '.github/workflows/rea007-models.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  models:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install headless browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify model profiles and both calculator builds
+        run: python calculator/reference/rea-007/test_models_browser.py
