@@ -18,3 +18,28 @@ jobs:
         run: python3 -m py_compile calculator/reference/rea-004/compare.py calculator/reference/rea-004/capture_browser.py calculator/reference/rea-004/test_compare.py
       - name: Run synthetic PASS, FAIL, and BLOCKED regression tests
         run: python3 -m unittest discover -v -s calculator/reference/rea-004 -p 'test_*.py'
+      - name: Confirm all unobserved CASIO cases stay blocked
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 calculator/reference/rea-004/compare.py \
+            --reference calculator/reference/rea-001/manifest.json \
+            --web calculator/reference/rea-004/empty-web-capture.fixture.json \
+            --out /tmp/rea004-report
+          python3 - <<'PY'
+          import json
+          p='/tmp/rea004-report/report.json'
+          report=json.load(open(p,encoding='utf8'))
+          assert report['reference_case_count']==133, report['reference_case_count']
+          assert report['totals']['BLOCKED_REFERENCE']==133,report['totals']
+          assert report['totals']['PASS']==0,report['totals']
+          print('REA-004: all 133 missing-native-evidence cases correctly BLOCKED')
+          PY
+          if python3 calculator/reference/rea-004/compare.py \
+            --reference calculator/reference/rea-001/manifest.json \
+            --web calculator/reference/rea-004/empty-web-capture.fixture.json \
+            --out /tmp/rea004-gated --require-verified --pixels; then
+            echo 'ERROR: incomplete reference corpus unexpectedly certified'
+            exit 1
+          fi
+          echo 'REA-004: fail-closed certification gate verified'
