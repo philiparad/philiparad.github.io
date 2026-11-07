@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>REA-002 · Native LCD Measurement Workbench</title>
+    <style>
+        :root{font-family:system-ui,'Segoe UI',Arial,sans-serif;color:#243341;background:#eef3f5;color-scheme:light}
+        *{box-sizing:border-box}body{margin:0}header,main,footer{max-width:1200px;margin:auto;padding:18px 22px}
+        header h1{font-size:clamp(1.4rem,2.8vw,2.2rem);margin:0 0 8px}p{line-height:1.5}small,.muted{color:#566b78}
+        main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:16px}section{min-width:0;background:#fff;border:1px solid #cbd8db;padding:18px;border-radius:12px}
+        h2{font-size:1.1rem;margin:0 0 12px}label{display:block;font-size:.9rem;font-weight:650;margin:10px 0 5px}
+        input,select,textarea,button{font:inherit}input:not([type=file]),select,textarea{width:100%;border:1px solid #aabdc7;border-radius:6px;padding:8px;background:white;color:#1f3444}
+        input[type=file]{max-width:100%}input[type=number]{font-variant-numeric:tabular-nums}
+        button{border:0;border-radius:7px;background:#245c7f;color:white;padding:9px 12px;cursor:pointer;font-weight:650}
+        button.secondary{background:#e4edf2;color:#203e52;border:1px solid #b8cbd4}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #e7a923;outline-offset:2px}
+        .buttons{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.drawing{border:1px solid #b8cbd4;background:#dbe6e7;border-radius:8px;overflow:auto;max-height:77vh;position:relative}
+        canvas{display:block;max-width:100%;height:auto;touch-action:none;cursor:crosshair;image-rendering:pixelated;image-rendering:crisp-edges}
+        .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 12px}
+        .status{border:1px solid #d5bc85;background:#fff8e9;border-radius:8px;padding:12px;margin:10px 0;font-size:.9rem}
+        .status.pass{border-color:#9abaac;background:#edf8f1}.pill{display:inline-block;padding:3px 8px;background:#e6eef3;border-radius:20px;font-size:.8rem}
+        .rect{font-family:ui-monospace,Consolas,monospace;font-size:.85rem;white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f4f6;padding:10px;border-radius:7px}
+        .help{font-size:.83rem;color:#4a6170}ol{padding-left:22px}ol li{margin:7px 0}
+        @media(max-width:850px){main{grid-template-columns:minmax(0,1fr)}}
+    </style>
+</head>
+<body>
+<header>
+    <h1>REA-002 · Native LCD geometry workbench</h1>
+    <p>Measure the actual <strong>CASIO fx-991ES PLUS C 2nd edition</strong> emulator LCD. Local screenshot files only. The tool does not upload images or infer native LCD resolution from a scaled screenshot.</p>
+    <span class="pill">Hardware evidence pending</span> <span class="pill">Independent vanilla JavaScript</span>
+</header>
+<main>
+    <section>
+        <h2>1 · Load an authentic screenshot</h2>
+        <label for="image">Original PNG screenshot (not a simulated web LCD)</label>
+        <input id="image" type="file" accept="image/png">
+        <p id="file-status" class="help">No screenshot loaded. Screenshot must be captured directly from the CASIO emulator or physical device.</p>
+        <div class="buttons">
+            <label for="region" style="margin:0;align-self:center">Select rectangle:</label>
+            <select id="region" style="width:auto;min-width:170px"><option value="bezel">LCD bezel</option><option value="active">Active LCD rectangle</option><option value="annunciators">Annunciator band</option><option value="glyph">Representative glyph cell</option></select>
+            <button id="clear" type="button" class="secondary">Clear selected region</button>
+        </div>
+        <div class="drawing"><canvas id="image-canvas" width="640" height="400" aria-label="Local reference image measurement canvas">Screenshot measurement canvas</canvas></div>
+        <p class="help">Drag over the image to mark a region. The image may scale visually but coordinates are stored in original PNG pixels. Use the form on the right to refine bounds.</p>
+        <div id="measurements" class="rect" aria-live="polite">No measurements yet.</div>
+    </section>
+    <section>
+        <h2>2 · Evidence metadata</h2>
+        <label for="device">Reference device / emulator identity</label><input id="device" placeholder="fx-991ES PLUS C 2nd edition emulator">
+        <div class="two"><div><label for="version">Emulator/firmware version</label><input id="version" placeholder="Observed version"></div><div><label for="capture-date">Capture date (UTC)</label><input id="capture-date" type="date"></div></div>
+        <label for="setup">Calculator setup and screen state</label><input id="setup" placeholder="COMP, DEG, MthIO, e.g. 1/3 result">
+        <label for="source-note">Provenance and source capture procedure</label><textarea id="source-note" rows="2" placeholder="How and where this image was captured"></textarea>
+        <h2>3 · Native raster characterization</h2>
+        <p class="help">These are <em>measured</em> logical LCD pixels, not the enlarged screenshot dimensions. Leave blank when unverified.</p>
+        <div class="three"><div><label for="raster-w">Native width</label><input id="raster-w" type="number" min="1" max="2048" placeholder="unknown"></div><div><label for="raster-h">Native height</label><input id="raster-h" type="number" min="1" max="2048" placeholder="unknown"></div><div><label for="pixel-pitch">Image pixels / LCD dot</label><input id="pixel-pitch" type="number" min="0.1" max="50" step="0.01" placeholder="unknown"></div></div>
+        <label for="raster-method">Evidence for native raster dimensions</label><textarea id="raster-method" rows="3" placeholder="Describe integer-scale captures, dot-grid measurements, or manufacturer evidence. An executable bitmap size alone is not sufficient."></textarea>
+        <h2>4 · Region coordinates (original image pixels)</h2>
+        <label for="rect-edit">Current rectangle (x, y, width, height)</label>
+        <div class="two"><input id="rect-x" type="number" min="0" aria-label="Rectangle x"><input id="rect-y" type="number" min="0" aria-label="Rectangle y"><input id="rect-w" type="number" min="0" aria-label="Rectangle width"><input id="rect-h" type="number" min="0" aria-label="Rectangle height"></div>
+        <div id="status" class="status" role="status">Reference measurement is not yet verified.</div>
+        <div class="buttons"><button id="export" type="button">Export evidence JSON</button><button id="export-annotation" type="button" class="secondary">Export annotated PNG</button></div>
+        <p class="help">The JSON stores the screenshot SHA-256 fingerprint and exact pixel rectangles. The original source PNG must be retained alongside the JSON. A valid JSON export is not proof of native raster fidelity until independently reviewed.</p>
+    </section>
+</main>
+<footer><small>REA-002 measurement workbench · No CASIO code, ROM, proprietary artwork, or direct Windows DLL execution. Native LCD parity remains unverified until evidence passes review.</small></footer>
+<script>
+(function(){'use strict';
+    const $=id=>document.getElementById(id);
+    const canvas=$('image-canvas'),ctx=canvas.getContext('2d');
+    const names=['bezel','active','annunciators','glyph'];
+    const colors={bezel:'#e59f26',active:'#16b3e7',annunciators:'#e45c9c',glyph:'#9be23c'};
+    const regions=Object.fromEntries(names.map(n=>[n,null]));
+    let original=null,raw=null,fileName='',sha256='',dragStart=null,temp=null;
+    const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+    const getNumber=id=>{const s=$(id).value.trim();return s===''?null:Number(s)};
+    const status=(msg,pass=false)=>{$('status').textContent=msg;$('status').classList.toggle('pass',pass)};
+    function paint(){
+        ctx.fillStyle='#dae6e6';ctx.fillRect(0,0,canvas.width,canvas.height);
+        if(original)ctx.drawImage(original,0,0);
+        for(const name of names){const r=name===$('region').value&&temp?temp:regions[name];if(!r)continue;
+            ctx.strokeStyle=colors[name];ctx.lineWidth=2;ctx.setLineDash(name===$('region').value?[7,3]:[]);
+            ctx.strokeRect(r.x+.5,r.y+.5,r.width,r.height);ctx.setLineDash([]);
+            ctx.font='bold 13px system-ui';ctx.fillStyle=colors[name];ctx.fillText(name,clamp(r.x+4,0,canvas.width-100),clamp(r.y-3,13,canvas.height-5));
+        }
+        const info=names.map(n=>n+': '+(regions[n]?JSON.stringify(regions[n]):'not measured')).join('\n');
+        $('measurements').textContent=(original?'Image '+canvas.width+' × '+canvas.height+' px\n':'')+info;
+    }
+    function selectRegion(){const r=regions[$('region').value];['x','y','w','h'].forEach((n,i)=>{$('rect-'+n).value=r?[r.x,r.y,r.width,r.height][i]:''});paint()}
+    function applyManual(){if(!original)return;const values=['x','y','w','h'].map(n=>getNumber('rect-'+n));if(values.some(v=>!Number.isInteger(v)))return;
+        const [x,y,width,height]=values;if(x<0||y<0||width<1||height<1||x+width>canvas.width||y+height>canvas.height){status('Rectangle must remain inside the image.');return}
+        regions[$('region').value]={x,y,width,height};status('Region measurement updated. Native LCD resolution not yet verified.');paint();}
+    function xy(ev){const box=canvas.getBoundingClientRect();return{x:clamp(Math.round((ev.clientX-box.left)*canvas.width/box.width),0,canvas.width),y:clamp(Math.round((ev.clientY-box.top)*canvas.height/box.height),0,canvas.height)}}
+    function rect(a,b){const x=Math.min(a.x,b.x),y=Math.min(a.y,b.y);return{x,y,width:Math.abs(a.x-b.x),height:Math.abs(a.y-b.y)}}
+    canvas.addEventListener('pointerdown',ev=>{if(!original)return;dragStart=xy(ev);canvas.setPointerCapture(ev.pointerId)});
+    canvas.addEventListener('pointermove',ev=>{if(!dragStart)return;temp=rect(dragStart,xy(ev));paint()});
+    canvas.addEventListener('pointerup',ev=>{if(!dragStart)return;const r=rect(dragStart,xy(ev));dragStart=null;temp=null;if(r.width>0&&r.height>0)regions[$('region').value]=r;selectRegion()});
+    canvas.addEventListener('pointercancel',()=>{dragStart=null;temp=null;paint()});
+    $('region').addEventListener('change',selectRegion);
+    $('clear').addEventListener('click',()=>{regions[$('region').value]=null;selectRegion()});
+    for(const n of ['x','y','w','h'])$('rect-'+n).addEventListener('change',applyManual);
+    async function hash(bytes){const out=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(out),x=>x.toString(16).padStart(2,'0')).join('')}
+    $('image').addEventListener('change',async ev=>{
+        const file=ev.target.files?.[0];if(!file)return;
+        if(file.type!=='image/png'){status('Only authentic PNG captures are accepted.');return}
+        raw=await file.arrayBuffer();
+        const bytes=new Uint8Array(raw);if(bytes.length<24||!bytes.slice(0,8).every((v,i)=>v===[137,80,78,71,13,10,26,10][i])){status('Invalid PNG signature.');return}
+        sha256=await hash(raw);fileName=file.name;
+        const url=URL.createObjectURL(new Blob([raw],{type:'image/png'}));
+        try{const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url});
+            original=img;canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+            for(const name of names)regions[name]=null;
+            $('file-status').textContent=fileName+' — '+img.naturalWidth+' × '+img.naturalHeight+' pixels · SHA-256 '+sha256;
+            status('Original PNG loaded; annotate all regions and independently measure native dot resolution.');selectRegion();
+        }catch(e){status('Unable to decode PNG image: '+e.message)}finally{URL.revokeObjectURL(url)}
+    });
+    function payload(){if(!original)return null;
+        return{schema:'casio-rea-002-lcd-evidence-v1',status:'UNREVIEWED_MEASUREMENT',model:'fx-991ES PLUS C 2nd edition',
+          capture:{file_name:fileName,sha256,source_device:$('device').value.trim(),version:$('version').value.trim(),date:$('capture-date').value,setup:$('setup').value.trim(),provenance:$('source-note').value.trim(),width:canvas.width,height:canvas.height},
+          geometry:{bezel:regions.bezel,active:regions.active,annunciators:regions.annunciators,glyph:regions.glyph},
+          raster:{width:getNumber('raster-w'),height:getNumber('raster-h'),image_pixels_per_dot:getNumber('pixel-pitch'),measurement_method:$('raster-method').value.trim()},
+          caveat:'Measurement alone does not certify native LCD parity; a reviewer must validate scale and pixel grid against real hardware/emulator.'};
+    }
+    function download(name,blob){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+    $('export').addEventListener('click',()=>{const d=payload();if(!d){status('Load a genuine screenshot first.');return}
+        download('rea-002-'+fileName.replace(/\.png$/i,'')+'.json',new Blob([JSON.stringify(d,null,2)+'\n'],{type:'application/json'}));
+        status('Evidence JSON exported as UNREVIEWED_MEASUREMENT. Source screenshot must be preserved.');
+    });
+    $('export-annotation').addEventListener('click',()=>{if(!original){status('Load screenshot first.');return}canvas.toBlob(blob=>{if(blob)download('rea-002-annotated.png',blob)},'image/png')});
+    $('capture-date').value=new Date().toISOString().slice(0,10);paint();
+})();
+</script>
+</body>
+</html>
