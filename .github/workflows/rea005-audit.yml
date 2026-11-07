@@ -1,0 +1,52 @@
+name: REA-005 key modifier mode audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/reference/rea-005/**'
+      - '.github/workflows/rea005-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  key-context-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile sources and verify classification rules
+        run: |
+          python -m py_compile calculator/reference/rea-005/audit.py calculator/reference/rea-005/test_audit.py
+          python -m unittest discover -v -s calculator/reference/rea-005 -p 'test_*.py'
+      - name: Install Chromium for real browser source observation
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Audit all 1650 independent key combinations
+        run: |
+          python calculator/reference/rea-005/audit.py --out /tmp/rea005-audit.json --require-full --progress 250
+      - name: Verify complete coverage and explicit unverified device status
+        run: |
+          python - <<'PY'
+          import json
+          report=json.load(open('/tmp/rea005-audit.json',encoding='utf8'))
+          assert report['scope']['full_grid']
+          assert len(report['entries'])==1650
+          assert len({(c['mode'],c['modifier'],c['physical_key']) for c in report['entries']})==1650
+          assert report['reference_code_coverage']==0
+          assert report['actual_native_device_tested'] is False
+          assert not any(c['device_behavior_claim'] for c in report['entries'])
+          assert report['counts'].get('AUDIT_EXCEPTION',0)==0,report['counts']
+          print('REA-005 full source behavior matrix checked; hardware parity remains unverified')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rea005-key-context-evidence
+          path: |
+            /tmp/rea005-audit.json
+            /tmp/rea005-audit.md
+          if-no-files-found: warn
