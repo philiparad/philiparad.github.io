@@ -56,7 +56,7 @@ for case in cases:
             or state.get("lcd_text") is None
             or not path.is_file()
             or path.suffix.lower() != ".png"
-            or path.read_bytes()[:8] != b"\\x89PNG\\r\\n\\x1a\\n"
+            or path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n"
         ):
             valid = False
             break
