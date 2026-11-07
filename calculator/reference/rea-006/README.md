@@ -8,7 +8,7 @@
 
 `lcd_golden.py` launches Chromium, opens the **independent** `calculator/index.html`, presses physical web buttons, captures `#lcd` at intrinsic **768 × 248** output pixels, and records calculator mode, input, output, error, cursor/menu page and the HTML SHIFT/ALPHA/angle/Math annunciators. This is a project-defined raster (96×31 scaled 8×), **not a claim about the physical CASIO LCD**.
 
-The pinned `web-golden.json` contains compressed raw RGB pixels, exact SHA-256 fingerprints, key sequences and semantic state for each approved scenario. During testing it is read as immutable input. **Do not regenerate and compare against the new output in the same verification step**, since that would mask regressions.
+The pinned `web-golden.json` was first recorded as a **web-only baseline** on commit `de0774f5` (13 scenarios, 768 × 248 pixel RGB frames). It is not a CASIO hardware golden. It contains compressed raw RGB pixels, exact SHA-256 fingerprints, key sequences and semantic state for each approved scenario. During testing it is read as immutable input. **Do not regenerate and compare against the new output in the same verification step**, since that would mask regressions.
 
 The scenarios cover: blank edit, editable cursor, arithmetic result, error, first and second MODE pages, STAT field prompt and multiple results, fraction result/conversion, SHIFT and ALPHA indicators, and history recall.
 
