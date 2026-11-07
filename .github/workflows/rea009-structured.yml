@@ -1,0 +1,30 @@
+name: REA-009 structured textbook input
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/structured-editor.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/display.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-009/**'
+      - '.github/workflows/rea009-structured.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  textbook-editor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium browser test harness
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Browser test nested templates in modular and standalone calculator
+        run: python calculator/reference/rea-009/test_structured_browser.py
