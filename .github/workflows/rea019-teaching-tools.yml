@@ -1,0 +1,37 @@
+name: REA-019 KeyLog and screen capture UX
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/teaching-tools.js'
+      - 'calculator/js/app.js'
+      - 'calculator/index.html'
+      - 'calculator/styles.css'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-019/**'
+      - '.github/workflows/rea019-teaching-tools.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  keylog-capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify KeyLog and LCD capture in both calculator builds
+        run: python calculator/reference/rea-019/test_teaching_tools_browser.py
+      - name: Preserve capture and KeyLog audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea019-teaching-tools-audit
+          path: /tmp/rea019-teaching-tools-report.json
+          if-no-files-found: warn
