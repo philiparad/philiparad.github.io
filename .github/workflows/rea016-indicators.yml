@@ -1,0 +1,37 @@
+name: REA-016 LCD status indicators
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/lcd-indicators.js'
+      - 'calculator/js/app.js'
+      - 'calculator/index.html'
+      - 'calculator/styles.css'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-016/**'
+      - '.github/workflows/rea016-indicators.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  annunciators:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify annunciator transitions in both calculator builds
+        run: python calculator/reference/rea-016/test_indicators_browser.py
+      - name: Archive state evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea016-lcd-status-evidence
+          path: /tmp/rea016-indicators-report.json
+          if-no-files-found: warn
