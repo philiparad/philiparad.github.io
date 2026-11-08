@@ -333,16 +333,19 @@ function shifted(key){
  if(['1','2','3','4','5','6'].includes(key)){releaseModifier();const mapped={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};setMode(mapped[key]);return true}
  return false
 }
-function showResult(decimal){
+function showResult(decimal,forceFraction=false){
  if(state.screen!=='result'||!Number.isFinite(state.raw))return;
- state.resultPresentation=RESULTS.calculate(state.raw,state.resultSource||state.input,state,{
-   decimal,allowApproxRational:state.math&&(state.resultSource||state.input).includes('/')&&!/\d\.\d/.test(state.resultSource||state.input)
+ const source=state.resultSource||state.input;
+ state.resultPresentation=RESULTS.calculate(state.raw,source,state,{
+   decimal,forceFraction,
+   allowApproxRational:forceFraction||(state.math&&source.includes('/')&&!/\d\.\d/.test(source))
  });
  state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;paint();
 }
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
- showResult(!state.decimal);
+ const isDecimal=state.resultPresentation?.chosen?.kind==='decimal';
+ showResult(!isDecimal,isDecimal);
 }
 function toggleMixed(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
