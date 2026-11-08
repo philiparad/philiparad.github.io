@@ -1,0 +1,37 @@
+name: REA-017 physical face geometry acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/index.html'
+      - 'calculator/styles.css'
+      - 'calculator/js/keypad.js'
+      - 'calculator/js/app.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-017/**'
+      - '.github/workflows/rea017-geometry.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  geometry:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Audit case, solar bezel, typography and 50 keys against screenshot-space geometry
+        run: python calculator/reference/rea-017/test_geometry_browser.py
+      - name: Export measured geometry
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rea017-face-geometry-audit
+          path: /tmp/rea017-geometry-report.json
+          if-no-files-found: warn
