@@ -36,7 +36,7 @@ function mount(root,handler){if(!root)return;root.textContent='';const fragment=
   wrap.style.setProperty('--w',pct(key.w/274));wrap.style.setProperty('--h',pct(key.h/580));
   if(key.angle)wrap.style.setProperty('--angle',key.angle);
   if(key.shift){const tag=document.createElement('span');tag.className='shift-label';tag.textContent=key.shift;wrap.append(tag)}
-  if(key.alpha&&key.alpha!=='dpad'&&key.alpha!==key.id){const tag=document.createElement('span');tag.className='alpha-label';tag.textContent=key.alpha;wrap.append(tag)}
+  if(key.alpha&&key.group!=='top'&&key.group!=='dpad'&&key.alpha!==key.id){const tag=document.createElement('span');tag.className='alpha-label';tag.textContent=key.alpha;wrap.append(tag)}
   const b=document.createElement('button');b.type='button';b.dataset.key=key.id;b.textContent=key.label;
   b.className=(key.label.length>4?'small-label':'');
   b.setAttribute('aria-label',key.id+' '+(key.shift?'SHIFT: '+key.shift:'')+(key.alpha?' ALPHA: '+key.alpha:''));
