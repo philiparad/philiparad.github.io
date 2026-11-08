@@ -99,18 +99,27 @@ async def audit(page,name):
     await setup("DOWN","4","1")
     await press("MODE","3")
     st=await state()
-    assert st["mode"]=="STAT" and st["screen"]=="prompt" and len(st["flow"]["fields"])==2,st
+    assert st["mode"]=="STAT" and st["screen"]=="prompt",st
+    await press("EQUAL")
+    st=await state()
+    assert st["screen"]=="prompt" and st["flow"]["index"]==1,st
     await press("AC")
     # TABLE choice controls single versus two editable expressions.
     await setup("DOWN","5","1")
     await press("MODE","RIGHT","1")
     st=await state()
-    assert st["mode"]=="TABLE" and len(st["flow"]["fields"])==4,st
+    assert st["mode"]=="TABLE" and st["screen"]=="prompt",st
+    await press("EQUAL","EQUAL","EQUAL")
+    st=await state()
+    assert st["screen"]=="prompt" and st["flow"]["index"]==3,st
     await press("AC")
     await setup("DOWN","5","2")
     await press("MODE","RIGHT","1")
     st=await state()
-    assert st["mode"]=="TABLE" and len(st["flow"]["fields"])==5,st
+    assert st["mode"]=="TABLE" and st["screen"]=="prompt",st
+    await press("EQUAL","EQUAL","EQUAL","EQUAL")
+    st=await state()
+    assert st["screen"]=="prompt" and st["flow"]["index"]==4,st
     print(name+": FREQ / TABLE mode effects PASS")
 
 async def main():
