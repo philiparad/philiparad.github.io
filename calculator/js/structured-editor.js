@@ -39,14 +39,19 @@ function nodeText(node,strict){
  throw Error('Unknown expression node '+node.type);
 }
 function serialize(editor,strict=false){return editor.root.map(node=>nodeText(node,strict)).join('')}
-function insert(editor,text){
+function insert(editor,text,overwrite=false){
  if(!text)return;
  const seq=locate(editor);
- const nodes=Array.from(String(text),value=>({type:'char',value}));
- seq.splice(editor.offset,0,...nodes);
- editor.offset+=nodes.length;
+ for(const value of Array.from(String(text))){
+  const char={type:'char',value};
+  // Overwrite only plain characters inside the current field. Never replace
+  // a formula node: discarding it would silently erase nested input.
+  if(overwrite&&seq[editor.offset]?.type==='char')seq[editor.offset]=char;
+  else seq.splice(editor.offset,0,char);
+  editor.offset++;
+ }
 }
-function template(editor,type){
+function template(editor,type,overwrite=false){
  const fields=FIELDS[type];
  if(!fields)throw Error('Unknown template '+type);
  const seq=locate(editor);
@@ -62,7 +67,8 @@ function template(editor,type){
  }
  const parent=editor.path.map(x=>({...x}));
  const position=editor.offset;
- seq.splice(position,0,node);
+ if(overwrite&&seq[position]?.type==='char')seq.splice(position,1,node);
+ else seq.splice(position,0,node);
  const initial=type==='fraction'&&node.parts.numerator.length?'denominator':fields[0];
  setPosition(editor,[...parent,{index:position,field:initial}],0);
 }
@@ -82,55 +88,81 @@ function moveField(editor,direction){
  setPosition(editor,parent,step.index+(direction>0?1:0));
  return true;
 }
+// Enter a neighboring formula only when its logical boundary is crossed.
+function enter(editor,nodeIndex,direction){
+ const seq=locate(editor),node=seq[nodeIndex];
+ const fields=FIELDS[node?.type];
+ if(!fields)return false;
+ const field=direction>0?fields[0]:fields[fields.length-1];
+ const path=[...editor.path,{index:nodeIndex,field}];
+ const child=node.parts[field];
+ setPosition(editor,path,direction>0?0:child.length);
+ return true;
+}
 function navigate(editor,key){
  const seq=locate(editor);
  if(key==='LEFT'){
-  if(editor.offset>0){editor.offset--;return true}
+  if(editor.offset>0){
+   const previous=editor.offset-1;
+   if(enter(editor,previous,-1))return true;
+   editor.offset--;return true;
+  }
   return moveField(editor,-1);
  }
  if(key==='RIGHT'){
-  if(editor.offset<seq.length){editor.offset++;return true}
+  if(editor.offset<seq.length){
+   const next=editor.offset;
+   if(enter(editor,next,1))return true;
+   editor.offset++;return true;
+  }
   return moveField(editor,1);
  }
- if(!editor.path.length)return false;
- const step=editor.path[editor.path.length-1];
- const parent=editor.path.slice(0,-1);
- let sequence=editor.root;
- for(const ref of parent)sequence=sequence[ref.index].parts[ref.field];
- const node=sequence[step.index];
- if(node.type==='fraction'||node.type==='mixed'){
-  if(key==='UP'){
-   const field=node.type==='fraction'?'numerator':'numerator';
-   setPosition(editor,[...parent,{index:step.index,field}],node.parts[field].length);
+ if(key!=='UP'&&key!=='DOWN')return false;
+ // Seek the nearest ancestor with a vertical edit field, preserving all
+ // siblings and deeper children while switching to numerator/denominator.
+ for(let depth=editor.path.length-1;depth>=0;depth--){
+  const step=editor.path[depth],parent=editor.path.slice(0,depth);
+  let parentSeq=editor.root;
+  for(const part of parent)parentSeq=parentSeq[part.index].parts[part.field];
+  const node=parentSeq[step.index];
+  let field=null;
+  if(node.type==='fraction'||node.type==='mixed'){
+   field=key==='UP'?'numerator':'denominator';
+  }else if(node.type==='nthRoot'){
+   field=key==='UP'?'index':'radicand';
+  }
+  if(field){
+   const target=[...parent,{index:step.index,field}];
+   setPosition(editor,target,Math.min(editor.offset,node.parts[field].length));
    return true;
   }
-  if(key==='DOWN'){
-   setPosition(editor,[...parent,{index:step.index,field:'denominator'}],
-    node.parts.denominator.length);
-   return true;
-  }
- }
- if(node.type==='nthRoot'&&(key==='UP'||key==='DOWN')){
-  const field=key==='UP'?'index':'radicand';
-  setPosition(editor,[...parent,{index:step.index,field}],node.parts[field].length);
-  return true;
  }
  return false;
 }
 function backspace(editor){
  const seq=locate(editor);
- if(editor.offset>0){seq.splice(editor.offset-1,1);editor.offset--;return}
+ if(editor.offset>0){
+  const index=editor.offset-1;
+  if(seq[index].type==='char'){
+   seq.splice(index,1);editor.offset--;return true;
+  }
+  // A full expression node cannot be erased with a single DEL: position the
+  // caret inside it so the student can edit its child without losing content.
+  return enter(editor,index,-1);
+ }
  if(editor.path.length){
   const last=editor.path[editor.path.length-1],parent=editor.path.slice(0,-1);
-  let p=editor.root;
-  for(const step of parent)p=p[step.index].parts[step.field];
-  const node=p[last.index];
-  const filled=Object.values(node.parts).some(items=>items.length);
-  if(!filled){
-   p.splice(last.index,1);
+  let parentSeq=editor.root;
+  for(const step of parent)parentSeq=parentSeq[step.index].parts[step.field];
+  const node=parentSeq[last.index],fields=FIELDS[node.type];
+  if(fields&&fields.every(field=>node.parts[field].length===0)){
+   parentSeq.splice(last.index,1);
    setPosition(editor,parent,last.index);
-  }else moveField(editor,-1);
+   return true;
+  }
+  return moveField(editor,-1);
  }
+ return false;
 }
 function fromString(text){
  const ed=create();insert(ed,String(text||''));return ed;
