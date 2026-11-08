@@ -72,7 +72,14 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const f=state.flow,field=f.fields[f.index];
   write((''+f.title).replace(/[^A-Za-z0-9 /-]/g,'').slice(0,22),0,0);
   write((f.index+1)+'/'+f.fields.length+' '+field.label.slice(0,20),0,9);
-  const content=String(f.buffer||'');write(content.slice(-23),0,18);
+  const content=String(f.buffer||'');
+  const cursor=Math.max(0,Math.min(content.length,f.cursor??content.length));
+  const start=Math.max(0,Math.min(cursor-22,content.length-23));
+  write(content.slice(start,start+23),0,18);
+  if(f.editing&&!(field.choices||['op','operator','kind','variable'].includes(field.id))){
+   const x=Math.max(0,Math.min(92,(cursor-start)*4));
+   for(let yy=17;yy<=23;yy++)pixel(x,yy);
+  }
   write((state.info||((field.choices||['op','operator','kind','variable'].includes(field.id))?'ARROWS CHOOSE  = OK':'= NEXT  AC BACK')).slice(0,23),0,25);
   return pixels;
  }
