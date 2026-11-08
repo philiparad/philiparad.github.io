@@ -48,11 +48,11 @@ async def main():
                 await press("3","EQUAL","MPLUS")
                 assert await page.locator("#lcd-memory").inner_text()=="M"
                 # Format and angle are managed by LCD SETUP, not a popup.
-                await press("SHIFT","MODE","2")
+                await press("SHIFT","MODE","4")
                 assert await page.locator("#lcd-angle").inner_text()=="R"
-                await press("SHIFT","MODE","RIGHT","2","2")
+                await press("SHIFT","MODE","6","2")
                 assert await page.locator("#lcd-format").inner_text()=="FIX"
-                await press("SHIFT","MODE","RIGHT","3","2")
+                await press("SHIFT","MODE","7","2")
                 assert await page.locator("#lcd-format").inner_text()=="SCI"
                 await press("MODE","3")
                 assert await page.locator("#lcd-mode").inner_text()=="STAT"
