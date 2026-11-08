@@ -611,8 +611,16 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
 }
 function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
  const scale=8, w=W*scale,h=H*scale;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+ // REA-020: Contrast adjusts the LCD ink shade, never the logical pixel raster.
+ // Level 5 preserves the approved web-only golden-frame colors exactly.
+ const level=Math.max(0,Math.min(9,Number.isFinite(Number(state.contrast))?Number(state.contrast):5));
+ const defaultInk=[29,40,34], paleInk=[135,151,134], darkInk=[7,17,12];
+ const anchor=level<=5?paleInk:defaultInk, target=level<=5?defaultInk:darkInk;
+ const t=level<=5?level/5:(level-5)/4;
+ const ink=defaultInk.map((_,i)=>Math.round(anchor[i]+(target[i]-anchor[i])*t));
+ const paper=[215,230,215];
  const img=ctx.createImageData(w,h);for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  const on=pixels[y*W+x];const color=on?[29,40,34]:[215,230,215];
+  const on=pixels[y*W+x];const color=on?ink:paper;
   for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){const i=((y*scale+dy)*w+(x*scale+dx))*4;
    const adjustment=(dx===scale-1||dy===scale-1)?(on?7:-2):0;
    img.data[i]=color[0]+adjustment;img.data[i+1]=color[1]+adjustment;img.data[i+2]=color[2]+adjustment;img.data[i+3]=255;
