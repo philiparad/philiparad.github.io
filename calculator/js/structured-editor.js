@@ -155,6 +155,15 @@ function backspace(editor){
   let parentSeq=editor.root;
   for(const step of parent)parentSeq=parentSeq[step.index].parts[step.field];
   const node=parentSeq[last.index],fields=FIELDS[node.type];
+  if(node.type==='fraction'&&last.field==='denominator'&&
+     node.parts.denominator.length===0&&node.parts.numerator.length>0){
+   // A numerator captured by FRAC must survive if the user cancels the empty
+   // denominator. Restore the exact original expression nodes.
+   const numerator=node.parts.numerator;
+   parentSeq.splice(last.index,1,...numerator);
+   setPosition(editor,parent,last.index+numerator.length);
+   return true;
+  }
   if(fields&&fields.every(field=>node.parts[field].length===0)){
    parentSeq.splice(last.index,1);
    setPosition(editor,parent,last.index);
