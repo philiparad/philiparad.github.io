@@ -1,0 +1,30 @@
+name: REA-011 natural result formatting
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/result-format.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/display.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-011/**'
+      - '.github/workflows/rea011-results.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  results:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test environment
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify real button sequences in modular and standalone calculators
+        run: python calculator/reference/rea-011/test_natural_results_browser.py
