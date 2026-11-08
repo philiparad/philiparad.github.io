@@ -9,7 +9,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,...SETUP.defaults,engShift:0,angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
