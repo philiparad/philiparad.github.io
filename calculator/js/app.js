@@ -1,6 +1,7 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup;
+if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
 if(!STRUCT)throw Error('Structured textbook editor unavailable');
 if(!MODELS)throw Error('Missing CASIO model profile definitions');
@@ -8,7 +9,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,fractionStyle:'improper',decimalSeparator:'dot',engShift:0,angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,...SETUP.defaults,engShift:0,angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -84,19 +85,21 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
- if(mode==='all'){state.mode='COMP';state.angle='DEG';state.format='Norm2';state.digits=3;state.math=true;state.fractionStyle='improper';state.decimalSeparator='dot';state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
+ if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
 // All calculation interactions use the calculator's 96 x 31 LCD and 50 keys.
 // The companion panels are read-only; they never collect a mathematical value.
-function optionDialog(title,entries){
- state.menuTitle=title;state.menuEntries=entries;state.menuPage=0;state.screen='menu';
- showMenu();
+function optionDialog(title,entries,options={}){
+ state.menuTitle=title;state.menuEntries=entries;state.menuPage=0;
+ state.menuPageSize=options.pageSize||6;state.menuKind=options.kind||'normal';
+ state.screen='menu';showMenu();
 }
 function showMenu(){
- state.menu=state.menuEntries.slice(state.menuPage*6,state.menuPage*6+6).map((e,i)=>({
-  label:e.label,number:i+1
+ const size=state.menuPageSize||6;
+ state.menu=state.menuEntries.slice(state.menuPage*size,state.menuPage*size+size).map((e,i)=>({
+  label:e.label,number:e.key!==undefined?e.key:i+1
  }));
  state.info=state.menuPage?'PAGE '+(state.menuPage+1):'';
  paint();
@@ -184,16 +187,23 @@ function flowHandle(key){
  return true;
 }
 function menuHandle(key){
- if(key==='AC'){state.menuEntries=[];state.menu=[];state.screen='edit';state.info='';paint();return true}
+ if(key==='AC'){state.menuEntries=[];state.menu=[];state.menuPageSize=6;state.menuKind='normal';state.screen='edit';state.info='';paint();return true}
+ const size=state.menuPageSize||6;
  if(key==='RIGHT'||key==='DOWN'){
-  if((state.menuPage+1)*6<state.menuEntries.length){state.menuPage++;showMenu()}return true
+  if((state.menuPage+1)*size<state.menuEntries.length){state.menuPage++;showMenu()}return true
  }
  if(key==='LEFT'||key==='UP'){
   if(state.menuPage>0){state.menuPage--;showMenu()}return true
  }
- if(/^[1-6]$/.test(key)){
-  const item=state.menuEntries[state.menuPage*6+Number(key)-1];
-  if(item){state.menuEntries=[];state.menu=[];state.screen='edit';item.action();paint()}
+ if(/^[0-9]$/.test(key)){
+  const view=state.menu;
+  const pos=view.findIndex(x=>String(x.number)===key);
+  const entry=pos>=0?state.menuEntries[state.menuPage*size+pos]:null;
+  if(entry){
+   state.menuEntries=[];state.menu=[];state.menuPageSize=6;
+   state.menuKind='normal';state.screen='edit';state.info='';
+   entry.action();paint();
+  }
   return true;
  }
  return true;
@@ -218,13 +228,55 @@ function formatDMS(value){const sign=value<0?'-':'';let n=Math.abs(value);const 
 function memoryDialog(store=false){optionDialog(store?'STO — select register':'RCL — select register',Object.keys(state.memory).map(r=>({label:r+' = '+M.format(state.memory[r],{...state,math:false}),action:()=>{
   if(store){state.memory[r]=state.ans;notify('Stored Ans in '+r);paint()}else insert(r)
  }})))}
-function setupMenu(){optionDialog('SETUP — angle and display',[
- {label:'DEG',action:()=>{state.angle='DEG';paint()}},{label:'RAD',action:()=>{state.angle='RAD';paint()}},{label:'GRAD',action:()=>{state.angle='GRAD';paint()}},
- {label:'MathIO',action:()=>{state.math=true;paint()}},{label:'LineIO',action:()=>{state.math=false;paint()}},
- {label:'Norm 1',action:()=>{state.format='Norm1';paint()}},{label:'Norm 2',action:()=>{state.format='Norm2';paint()}},
- {label:'Fix digits',action:()=>digitOption('Fix')},{label:'Sci digits',action:()=>digitOption('Sci')}
- ])}
-function digitOption(kind){optionDialog(kind+' — decimal digits',Array.from({length:10},(_,i)=>({label:String(i),action:()=>{state.format=kind;state.digits=i;paint()}})))}
+function setupChoose(id,value){
+ switch(id){
+ case 'mthio':
+  state.math=true;state.outputMath=value==='matho';break;
+ case 'norm':state.format=value==='norm1'?'Norm1':'Norm2';break;
+ case 'complex':state.complexFormat=value;break;
+ case 'stat':state.statFrequency=value==='on';break;
+ case 'table':state.tableFunctions=value==='single'?1:2;break;
+ case 'recurring':state.recurringDecimal=value==='on';break;
+ case 'disp':state.decimalSeparator=value;break;
+ }
+ notify('SETUP '+id+': '+value);paint();
+}
+function setupSetting(id){
+ if(id==='lineio'){state.math=false;state.outputMath=false;paint();return}
+ if(id==='deg'||id==='rad'||id==='gra'){
+  state.angle=id==='deg'?'DEG':id==='rad'?'RAD':'GRAD';paint();return;
+ }
+ if(id==='mixed'||id==='improper'){
+  state.fractionStyle=id;paint();return;
+ }
+ if(id==='fix'||id==='sci'){
+  const kind=id==='fix'?'Fix':'Sci';
+  optionDialog(kind+' 0-9',Array.from({length:10},(_,i)=>({
+   key:String(i),label:String(i),action:()=>{
+    state.format=kind;state.digits=i;paint();
+   }
+  })),{pageSize:10,kind:'setup'});
+  return;
+ }
+ if(id==='contrast'){
+  optionDialog('CONT 0-9',Array.from({length:10},(_,i)=>({
+   key:String(i),label:String(i),action:()=>{state.contrast=i;paint()}
+  })),{pageSize:10,kind:'setup'});
+  return;
+ }
+ const entries=SETUP.options(id);
+ if(entries.length){
+  optionDialog('SETUP '+id.toUpperCase(),entries.map(e=>({
+   key:e.key,label:e.label,action:()=>setupChoose(id,e.value)
+  })),{pageSize:8,kind:'setup'});
+ }
+}
+function setupMenu(){
+ const pages=SETUP.pages(state.model);
+ optionDialog('SETUP',pages.flat().map(e=>({
+  key:e.key,label:e.label,action:()=>setupSetting(e.id)
+ })),{pageSize:8,kind:'setup'});
+}
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
