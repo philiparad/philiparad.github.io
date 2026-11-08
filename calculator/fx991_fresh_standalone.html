@@ -85,6 +85,17 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
 .capability-table tr[data-status="hardware-verified"] td:nth-child(2){color:#245f52}
 @media(max-width:550px){.capability-table{font-size:11px}.capability-table th,.capability-table td{padding:6px 4px}}
 
+/* REA-019: view-only emulator KeyLog and LCD capture controls. */
+.capture-controls{display:flex;align-items:center;flex-wrap:wrap;gap:14px}
+.capture-controls label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}
+.capture-controls select{min-width:74px;padding:5px;border-radius:6px;border:1px solid #a8bdb6;background:#fff}
+.capture-check input{width:17px;height:17px;accent-color:#385e51}
+.keylog-list{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:10px 0;padding:12px!important;max-height:250px}
+.keylog-list li{margin:0;padding:0!important}
+.keylog-entry{border:1px solid #919da0;border-radius:6px;padding:5px 7px;background:#f0f3f2;color:#25353d;font:700 var(--keylog-size,19px)/1.2 Arial,Helvetica,sans-serif;cursor:pointer;min-width:30px;min-height:32px;transition:none}
+.keylog-entry[aria-pressed="true"]{border-color:#236d58;background:#d4ede4;box-shadow:inset 0 0 0 1px #236d58}
+.keylog-entry:focus-visible{outline:3px solid #27769c;outline-offset:2px}
+
 </style>
 </head>
 <body>
@@ -110,6 +121,7 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
                 <button id="enlarge" class="tool-button" type="button">⛶ Enlarged LCD</button>
                 <button id="keylog-toggle" class="tool-button" type="button">⌨ KeyLog</button>
                 <button id="capture" class="tool-button" type="button">↓ Save LCD</button>
+                <button id="capture-options-toggle" class="tool-button" type="button" aria-expanded="false" aria-controls="capture-options">⚙ Capture settings</button>
             </div>
         </section>
         <aside class="companion" aria-label="Calculator features and examples">
@@ -172,13 +184,32 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
         </aside>
     </main>
     <section class="diagnostic-tools" aria-label="Optional display and keylog tools">
+        <div id="capture-options" class="panel" hidden>
+            <h2>Screen capture settings <small>(view only)</small></h2>
+            <div class="capture-controls">
+                <label for="capture-zoom">Export zoom
+                    <select id="capture-zoom" aria-label="Capture zoom factor">
+                        <option value="1">×1</option>
+                        <option value="2" selected>×2</option>
+                        <option value="3">×3</option>
+                        <option value="4">×4</option>
+                        <option value="5">×5</option>
+                        <option value="6">×6</option>
+                    </select>
+                </label>
+                <label class="capture-check"><input type="checkbox" id="capture-frame" checked> Outer frame</label>
+                <button id="copy-lcd" class="tool-button" type="button">Copy LCD image</button>
+            </div>
+            <p class="fine-print">Options affect only the exported screenshot, never the calculation or LCD state. The image uses independently rendered web pixels, not the manufacturer emulator's bitmap.</p>
+        </div>
         <div id="lcd-panel" class="panel" hidden>
             <h2>Enlarged LCD (view only)</h2>
             <canvas id="lcd-large" width="1152" height="372" role="img" aria-label="Enlarged calculator display"></canvas>
         </div>
         <div id="keylog-panel" class="panel" hidden>
             <h2>KeyLog (diagnostics only)</h2>
-            <div class="button-bar"><button type="button" id="record-keylog">Start recording</button><button type="button" id="clear-keylog">Clear</button><button type="button" id="export-keylog">Export JSON</button></div>
+            <div class="button-bar"><button type="button" id="record-keylog">Start recording</button><button type="button" id="keylog-select-all">Select all</button><button type="button" id="keylog-copy">Copy selected keys</button><button type="button" id="keylog-decrease" aria-label="Decrease key size">A−</button><button type="button" id="keylog-increase" aria-label="Increase key size">A+</button><button type="button" id="clear-keylog">Clear</button><button type="button" id="export-keylog">Export JSON</button></div>
+            <p class="fine-print">Click entries to select keys; Ctrl/Shift-click selects multiple keys. Selection and copying are view-only; they do not execute key presses.</p>
             <p id="keylog-count">Recording off</p>
             <ol id="keylog-list" class="keylog-list"></ol>
         </div>
@@ -1258,6 +1289,81 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
 
 </script>
     <script>
+/* REA-019 — keylog formatting and LCD export options.
+ * Educational visualization; no replay, no calculation editing outside LCD.
+ * Uses fresh, independently rendered canvas rather than CASIO bitmap assets.
+ */
+(function(global){'use strict';
+const LABELS=Object.freeze({
+ SHIFT:'SHIFT',ALPHA:'ALPHA',MODE:'MODE',ON:'ON',
+ EQUAL:'=',DEL:'DEL',AC:'AC',LEFT:'◀',RIGHT:'▶',UP:'▲',DOWN:'▼',
+ ADD:'+',SUB:'−',MUL:'×',DIV:'÷',POWER:'x^□',SQUARE:'x²',FRAC:'a/b',
+ SQRT:'√',LP:'(',RP:')',DOT:'.',COMMA:',',EXP:'×10ˣ',ANS:'Ans',
+ SIN:'sin',COS:'cos',TAN:'tan',LOG:'log',LN:'ln',NEG:'(−)',
+ RCL:'RCL',MPLUS:'M+',SD:'S⇔D',DMS:'°′″',INTEGRAL:'∫',
+ CALC:'CALC',HYP:'hyp',ENG:'ENG',RECIP:'x⁻¹',LOGBASE:'log□'
+});
+const isInteger=i=>Number.isInteger(i)&&i>=0;
+function labelFor(key){
+ const k=String(key||'');
+ if(/^TEXT:/.test(k))return k.slice(5);
+ return LABELS[k]||k;
+}
+function formattedEntries(entries){
+ return (entries||[]).map((entry,index)=>{
+  const before=entry.before||{},key=entry.key||'';
+  const keyName=labelFor(key);
+  // The emulator key log shows key presses in order, including modifiers.
+  // Keep SHIFT/ALPHA as their own recorded events instead of changing order.
+  const text=keyName;
+  return {index,id:index,key,display:text,mode:before.mode||'',shift:!!before.shift,
+   alpha:!!before.alpha,screen:entry.after?.screen||'',result:entry.after?.result||''};
+ });
+}
+function selectionIndices(entries,selected){
+ const values=new Set((selected||[]).filter(isInteger));
+ return [...values].filter(i=>i<entries.length).sort((a,b)=>a-b);
+}
+function trace(entries,indices){
+ const rows=formattedEntries(entries);
+ const chosen=indices===undefined?rows:selectionIndices(entries,indices).map(i=>rows[i]);
+ return chosen.map(row=>row.display).join(' ');
+}
+function createImage(canvas,options={}){
+ if(!canvas||typeof document==='undefined')throw Error('Missing source LCD canvas');
+ const zoom=Math.max(1,Math.min(6,Math.trunc(Number(options.zoom)||1)));
+ const frame=options.frame!==false;
+ // Canvas contains the web project's 768×248 LCD raster. Work from that
+ // original bitmap and scale with nearest-neighbor to preserve pixel edges.
+ const border=frame?Math.max(6,6*zoom):0;
+ const output=document.createElement('canvas');
+ output.width=canvas.width*zoom+2*border;
+ output.height=canvas.height*zoom+2*border;
+ const ctx=output.getContext('2d');
+ if(!ctx)throw Error('Canvas export unsupported');
+ if(frame){
+  ctx.fillStyle='#151719';ctx.fillRect(0,0,output.width,output.height);
+  const lip=Math.max(1,Math.round(zoom));
+  ctx.fillStyle='#696d67';ctx.fillRect(border-lip,border-lip,
+   canvas.width*zoom+2*lip,canvas.height*zoom+2*lip);
+ }
+ ctx.imageSmoothingEnabled=false;
+ ctx.drawImage(canvas,border,border,canvas.width*zoom,canvas.height*zoom);
+ return output;
+}
+function captureConfig(options){
+ const zoom=Number(options?.zoom);
+ return {zoom:Number.isInteger(zoom)&&zoom>=1&&zoom<=6?zoom:1,
+  frame:options?.frame!==false};
+}
+const api=Object.freeze({labels:LABELS,labelFor,formattedEntries,selectionIndices,
+ trace,createImage,captureConfig});
+global.FreshTeachingTools=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+    <script>
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
 const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport;
@@ -1801,7 +1907,88 @@ function handle(key){
  if(/^\d$/.test(key)){insert(key);return}
  notify('This key is not available in the current state',true);paint();
 }
-function renderKeylog(){const list=$('keylog-list');list.textContent='';const frag=document.createDocumentFragment();for(const entry of state.keylog){const el=document.createElement('li');el.textContent=(entry.before.shift?'SHIFT+':entry.before.alpha?'ALPHA+':'')+entry.key+' ('+entry.before.mode+') → '+entry.after.screen+(entry.after.result?' ['+entry.after.result+']':'');frag.append(el)}list.append(frag);$('keylog-count').textContent=(state.recording?'Recording on':'Recording off')+' — '+state.keylog.length+' / '+maxEntries+' entries';$('record-keylog').textContent=state.recording?'Stop recording':'Start recording'}
+// REA-019: KeyLog selection is a view-only teaching aid: selecting and
+// copying displayed keys must never re-dispatch a calculator key.
+const Teaching=window.FreshTeachingTools;
+if(!Teaching)throw Error('Missing view-only KeyLog/capture module');
+const keylogView={selected:new Set(),anchor:-1,size:19};
+function keylogSelectionClear(){keylogView.selected.clear();keylogView.anchor=-1}
+function renderKeylog(){
+ const list=$('keylog-list');list.textContent='';
+ const formatted=Teaching.formattedEntries(state.keylog);
+ const fragment=document.createDocumentFragment();
+ for(const item of formatted){
+  const li=document.createElement('li');
+  li.dataset.index=String(item.index);
+  const button=document.createElement('button');
+  button.type='button';button.className='keylog-entry';
+  button.dataset.index=String(item.index);
+  button.textContent=item.display;
+  button.setAttribute('aria-pressed',String(keylogView.selected.has(item.index)));
+  button.setAttribute('aria-label','Select key '+(item.index+1)+': '+item.display);
+  button.addEventListener('click',event=>{
+   if(event.shiftKey&&keylogView.anchor>=0){
+    if(!event.ctrlKey&&!event.metaKey)keylogView.selected.clear();
+    const from=Math.min(keylogView.anchor,item.index),to=Math.max(keylogView.anchor,item.index);
+    for(let i=from;i<=to;i++)keylogView.selected.add(i);
+   }else if(event.ctrlKey||event.metaKey){
+    if(keylogView.selected.has(item.index))keylogView.selected.delete(item.index);
+    else keylogView.selected.add(item.index);
+    keylogView.anchor=item.index;
+   }else{
+    keylogView.selected.clear();keylogView.selected.add(item.index);
+    keylogView.anchor=item.index;
+   }
+   renderKeylog();
+  });
+  li.append(button);fragment.append(li);
+ }
+ list.append(fragment);
+ list.style.setProperty('--keylog-size',keylogView.size+'px');
+ for(const i of keylogView.selected){
+  const b=list.querySelector('button[data-index="'+i+'"]');
+  if(b)b.setAttribute('aria-pressed','true');
+ }
+ $('keylog-count').textContent=(state.recording?'Recording on':'Recording off')+
+  ' — '+state.keylog.length+' / '+maxEntries+' entries · '+keylogView.selected.size+' selected';
+ $('record-keylog').textContent=state.recording?'Stop recording':'Start recording';
+}
+function selectedKeyTrace(){
+ return Teaching.trace(state.keylog,[...keylogView.selected]);
+}
+async function copySelectedKeys(){
+ if(!keylogView.selected.size){notify('Select KeyLog keys first',true);return}
+ const text=selectedKeyTrace();
+ try{
+  if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
+  await navigator.clipboard.writeText(text);
+  notify('Copied '+keylogView.selected.size+' selected keys');
+ }catch{notify('Clipboard unavailable; use Export JSON',true)}
+}
+function captureOptions(){
+ return Teaching.captureConfig({zoom:Number($('capture-zoom').value),frame:$('capture-frame').checked});
+}
+function captureCanvas(){
+ return Teaching.createImage($('lcd'),captureOptions());
+}
+function downloadCapture(){
+ try{const canvas=captureCanvas();
+  canvas.toBlob(blob=>{
+   if(blob)download('independent-calculator-lcd.png',blob,'image/png');
+   else notify('Screen capture failed',true);
+  },'image/png');
+ }catch(err){notify('Screen capture failed: '+err.message,true)}
+}
+async function copyCapture(){
+ try{
+  if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')throw Error('Clipboard API unavailable');
+  const canvas=captureCanvas();
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(!blob)throw Error('Image rendering failed');
+  await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+  notify('LCD image copied to clipboard');
+ }catch{notify('Clipboard permission denied; use Save LCD instead',true)}
+}
 function download(name,content,type){const blob=content instanceof Blob?content:new Blob([content],{type});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
 function runChecks(){const checks=[
  ['precedence',()=>M.evaluate('2+3*4')===14],['power precedence',()=>M.evaluate('-2^2')===-4],['right-associative powers',()=>M.evaluate('2^3^2')===512],
@@ -1816,13 +2003,9 @@ function runChecks(){const checks=[
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
  if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')return false;
- $('lcd').toBlob(blob=>{
-  if(!blob){notify('LCD capture unavailable',true);return}
-  navigator.clipboard.write([new ClipboardItem({'image/png':blob})])
-   .then(()=>notify('LCD copied to clipboard'))
-   .catch(()=>notify('Clipboard permission denied; use Save LCD instead',true));
- },'image/png');
- return true;
+ // Initiated by a real Ctrl+C/Insert user gesture. Actual clipboard success
+ // is reported only after the browser resolves the write permission.
+ copyCapture();return true;
 }
 function keyboard(event){
  window.FreshKeyboard.dispatch(event,state,press,captureKeyboardLCD);
@@ -1832,10 +2015,34 @@ $('model-selector').value=state.model;
 $('model-selector').addEventListener('change',e=>setModel(e.target.value));
 $('run-checks').addEventListener('click',runChecks);
 $('enlarge').addEventListener('click',()=>{$('lcd-panel').hidden=!$('lcd-panel').hidden;paint()});
-$('capture').addEventListener('click',()=>$('lcd').toBlob(blob=>{if(blob)download('independent-calculator-lcd.png',blob,'image/png')}));
-$('keylog-toggle').addEventListener('click',()=>{$('keylog-panel').hidden=!$('keylog-panel').hidden;renderKeylog()});
-$('record-keylog').addEventListener('click',()=>{state.recording=!state.recording;renderKeylog()});$('clear-keylog').addEventListener('click',()=>{state.keylog=[];renderKeylog()});
-$('export-keylog').addEventListener('click',()=>download('independent-calculator-keylog.json',JSON.stringify({schema:'fresh-calculator-1',entries:state.keylog},null,2),'application/json'));
+$('capture').addEventListener('click',downloadCapture);
+$('copy-lcd').addEventListener('click',copyCapture);
+$('capture-options-toggle').addEventListener('click',()=>{
+ const panel=$('capture-options');panel.hidden=!panel.hidden;
+ $('capture-options-toggle').setAttribute('aria-expanded',String(!panel.hidden));
+});
+$('keylog-toggle').addEventListener('click',()=>{
+ $('keylog-panel').hidden=!$('keylog-panel').hidden;renderKeylog();
+});
+$('record-keylog').addEventListener('click',()=>{state.recording=!state.recording;renderKeylog()});
+$('keylog-select-all').addEventListener('click',()=>{
+ keylogView.selected=new Set(state.keylog.map((_,i)=>i));
+ keylogView.anchor=state.keylog.length-1;renderKeylog();
+});
+$('keylog-copy').addEventListener('click',copySelectedKeys);
+$('keylog-decrease').addEventListener('click',()=>{
+ keylogView.size=Math.max(12,keylogView.size-2);renderKeylog();
+});
+$('keylog-increase').addEventListener('click',()=>{
+ keylogView.size=Math.min(36,keylogView.size+2);renderKeylog();
+});
+$('clear-keylog').addEventListener('click',()=>{
+ state.keylog=[];keylogSelectionClear();renderKeylog();
+});
+$('export-keylog').addEventListener('click',()=>download('independent-calculator-keylog.json',
+ JSON.stringify({schema:'fresh-calculator-keylog-v2',entries:state.keylog,
+  selectedIndices:[...keylogView.selected].sort((a,b)=>a-b),
+  formattedTrace:selectedKeyTrace()},null,2),'application/json'));
 document.addEventListener('keydown',keyboard);
 paint();
 window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getStructured:()=>structuredClone(state.editor),getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,cursor:flow.cursor??flow.buffer.length,editing:flow.editing,fieldId:flow.fields[flow.index]?.id,fieldCount:flow.fields.length,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
