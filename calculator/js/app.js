@@ -120,13 +120,13 @@ function fieldForm(title,fields,run){
  };
  const modeSelect=Object.entries(selections).find(([name])=>title.startsWith(name));
  const prepared=fields.map(f=>({...f,...(f.id==='op'&&modeSelect?{choices:modeSelect[1]}:{})}));
- state.flow={title,fields:prepared,index:0,values:{},buffer:String(fields[0]?.value??''),editing:false,run};
+ state.flow={title,fields:prepared,index:0,values:{},buffer:String(fields[0]?.value??''),cursor:String(fields[0]?.value??'').length,editing:false,run};
  state.screen='prompt';releaseModifier();state.info='';paint();
 }
 function flowField(){return state.flow.fields[state.flow.index]}
 function flowNext(){
  const f=state.flow,field=flowField();f.values[field.id]=f.buffer;
- if(f.index<f.fields.length-1){f.index++;f.buffer=String(flowField().value??'');f.editing=false;state.info='';paint();return}
+ if(f.index<f.fields.length-1){f.index++;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false;state.info='';paint();return}
  try{
   const output=f.run({...f.values});
   const lines=String(output??state.result??'0').split(/\n/).flatMap(line=>{
@@ -140,16 +140,24 @@ function flowNext(){
 function flowHandle(key){
  const f=state.flow;if(!f)return false;
  if(key==='AC'){state.flow=null;state.screen='edit';releaseModifier();state.info='';paint();return true}
- if(key==='EQUAL'){releaseModifier();flowNext();return true}
+ if(key==='EQUAL'||key==='DOWN'){releaseModifier();flowNext();return true}
  if(key==='UP'){
-  if(f.index>0){f.values[flowField().id]=f.buffer;f.index--;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.editing=false}
+  if(f.index>0){f.values[flowField().id]=f.buffer;f.index--;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false}
   paint();return true
  }
  const field=flowField();const choices=field.choices||OPTION_CHOICES[field.id];
  if(choices&&(key==='LEFT'||key==='RIGHT')){
-  const at=Math.max(0,choices.indexOf(f.buffer));f.buffer=choices[(at+(key==='RIGHT'?1:choices.length-1))%choices.length];f.editing=false;paint();return true;
+  const at=Math.max(0,choices.indexOf(f.buffer));f.buffer=choices[(at+(key==='RIGHT'?1:choices.length-1))%choices.length];f.cursor=f.buffer.length;f.editing=false;paint();return true;
  }
- if(key==='DEL'){f.buffer=f.buffer.slice(0,-1);f.editing=true;paint();return true}
+ if(key==='LEFT'||key==='RIGHT'){
+  f.cursor=Math.max(0,Math.min(f.buffer.length,(f.cursor??f.buffer.length)+(key==='LEFT'?-1:1)));
+  paint();return true;
+ }
+ if(key==='DEL'){
+  const at=f.cursor??f.buffer.length;
+  if(at>0){f.buffer=f.buffer.slice(0,at-1)+f.buffer.slice(at);f.cursor=at-1}
+  f.editing=true;state.info='';paint();return true;
+ }
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return true}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return true}
  const vars={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
@@ -180,8 +188,12 @@ function flowHandle(key){
  else if(key==='LN')addition='ln(';
  else if(key==='ANS')addition='Ans';
  if(addition!==null){
-  if(f.editing===false){f.buffer='';f.editing=true}
-  if(f.buffer.length+addition.length<=170)f.buffer+=addition;
+  if(f.editing===false){f.buffer='';f.cursor=0;f.editing=true}
+  if(f.buffer.length+addition.length<=170){
+   const at=f.cursor??f.buffer.length;
+   f.buffer=f.buffer.slice(0,at)+addition+f.buffer.slice(at);
+   f.cursor=at+addition.length;
+  }
   releaseModifier();paint();return true;
  }
  return true;
