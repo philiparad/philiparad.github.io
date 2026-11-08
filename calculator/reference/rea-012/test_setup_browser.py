@@ -76,7 +76,13 @@ async def audit(page,name):
             disp="5";contrast="6"
         await check("decimalSeparator","comma","DOWN",disp,"2")
         await check("decimalSeparator","dot","DOWN",disp,"1")
-        await check("contrast",4,"DOWN",contrast,"4")
+        contrast_screen=await setup("DOWN",contrast)
+        assert contrast_screen["screen"]=="contrast",contrast_screen
+        await press("LEFT")
+        assert (await state())["contrast"]==4
+        await press("RIGHT","LEFT","AC")
+        st=await state()
+        assert st["screen"]=="edit" and st["contrast"]==4,st
         # Settings are active in actual calculation display.
         await check("math",False,"2")
         await press("AC","1","DIV","2","EQUAL")
