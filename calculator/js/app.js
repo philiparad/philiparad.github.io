@@ -153,6 +153,10 @@ function flowHandle(key){
   f.cursor=Math.max(0,Math.min(f.buffer.length,(f.cursor??f.buffer.length)+(key==='LEFT'?-1:1)));
   paint();return true;
  }
+ if(key==='DEL'&&state.shift){
+  state.insert=!state.insert;releaseModifier();
+  notify(state.insert?'Insert mode':'Overwrite mode');paint();return true;
+ }
  if(key==='DEL'){
   const at=f.cursor??f.buffer.length;
   if(at>0){f.buffer=f.buffer.slice(0,at-1)+f.buffer.slice(at);f.cursor=at-1}
@@ -160,10 +164,6 @@ function flowHandle(key){
  }
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return true}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return true}
- if(state.shift&&key==='DEL'){
-  state.insert=!state.insert;releaseModifier();
-  notify(state.insert?'Insert mode':'Overwrite mode');paint();return true;
- }
  const vars={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  let addition=null;
  if(key.startsWith('TEXT:'))addition=key.slice(5);
