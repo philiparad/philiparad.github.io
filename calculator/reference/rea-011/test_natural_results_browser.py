@@ -52,13 +52,13 @@ async def main():
                 assert st["resultPresentation"]["chosen"]["kind"]=="engineering",st
                 assert st["result"].endswith("×10^-3"),st["result"]
                 await check(["2","ADD","3","EQUAL"],"decimal","5",5)
-                await press("SHIFT","MODE","RIGHT","2","3")
+                await press("SHIFT","MODE","6","2")
                 await check(["1","DIV","4","EQUAL"],"decimal","0.25",.25)
                 st=await page.evaluate("FreshCalculator.getState()")
                 assert st["format"]=="Fix"
                 # On LINE output, S⇔D still converts between decimal and fraction.
-                await press("SHIFT","MODE","RIGHT","1")
-                await press("SHIFT","MODE","5")
+                await press("SHIFT","MODE","8","2")
+                await press("SHIFT","MODE","2")
                 await check(["1","DIV","5","EQUAL"],"decimal","0.2",.2)
                 await press("SD")
                 assert (await page.evaluate("FreshCalculator.getState()"))["result"]=="1/5"
