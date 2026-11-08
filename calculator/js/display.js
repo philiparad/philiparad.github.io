@@ -49,13 +49,15 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  if(state.screen==='menu'){
   const title=String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
   write(title,0,0);
-  const a=state.menu||[];
-  for(let i=0;i<Math.min(6,a.length);i++){
-   const x=i%2?48:0,y=8+8*Math.floor(i/2);
+  const a=state.menu||[],size=state.menuPageSize||6;
+  const lineHeight=size>=10?5:size>=8?6:8;
+  const firstY=size>=10?6:size>=8?6:8;
+  for(let i=0;i<Math.min(size,a.length);i++){
+   const x=i%2?48:0,y=firstY+lineHeight*Math.floor(i/2);
    const name=String(a[i].label).replace(/^\d+\.\s*/, '').replace(/[^A-Za-z0-9 +*/-]/g,'').slice(0,9);
-   write((i+1)+':'+name,x,y,x+48);
+   write(String(a[i].number)+':'+name,x,y,x+48);
   }
-  if((state.menuPage+1)*6<state.menuEntries.length)write('>',91,0);
+  if((state.menuPage+1)*size<state.menuEntries.length)write('>',91,0);
   if(state.menuPage>0)write('<',87,0);
   return pixels;
  }
