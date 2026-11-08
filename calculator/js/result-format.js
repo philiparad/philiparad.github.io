@@ -29,21 +29,21 @@ function parseSimpleFraction(source){
 }
 function symbolic(value,source){
  if(!Number.isFinite(value))return null;
- const compact=String(source||'').replace(/\s+/g,'').replace(/\(\(([-+]?\d+)\)\/\(([-+]?\d+)\)\)/g,'($1/$2)');
- // Do not assign symbolic meanings solely by accidental floating-point proximity.
- if(!/[A-Za-zπ√]/.test(compact))return null;
- if(/^(?:pi|π)$/.test(compact))return {kind:'pi',coefficient:reduced(1,1),text:'π'};
- const pi=/^(?:\(?([-+]?\d+)\)?\*?)?(?:pi|π)(?:\/\(?([-+]?\d+)\)?)?$/.exec(compact);
- if(pi&&compact.includes('pi')||pi&&compact.includes('π')){
-  const a=Number(pi[1]??1),b=Number(pi[2]??1),q=reduced(a,b);
+ const compact=String(source||'').replace(/\s+/g,'').replace(/π/g,'pi');
+ // Only known symbolic source expressions can create a symbolic result.
+ if(compact==='pi')return {kind:'pi',coefficient:reduced(1,1),text:'π'};
+ let m=/^(?:\(?([-+]?\d+)\)?\*?)?pi(?:\/\(?([-+]?\d+)\)?)?$/.exec(compact);
+ if(m){
+  const q=reduced(Number(m[1]||1),Number(m[2]||1));
   if(q&&Math.abs(q.numerator/q.denominator*Math.PI-value)<1e-10){
-   return {kind:'pi',coefficient:q,text:(q.numerator===1&&q.denominator===1?'':q.denominator===1?String(q.numerator):q.numerator+'/'+q.denominator)+'π'};
+   const a=q.numerator,d=q.denominator;
+   return {kind:'pi',coefficient:q,text:(a===1&&d===1?'':d===1?String(a):a+'/'+d)+'π'};
   }
  }
- const root=/^(?:sqrt|√)\(?([0-9]+)\)?$/.exec(compact);
- if(root){
-  let n=Number(root[1]);
-  if(Number.isSafeInteger(n)&&n>=0&&Math.sqrt(n)===value){
+ m=/^sqrt\(?(\d+)\)?$/.exec(compact);
+ if(m){
+  let n=Number(m[1]);
+  if(Number.isSafeInteger(n)&&n>=0&&Math.abs(Math.sqrt(n)-value)<1e-12){
    let k=1,r=n;
    for(let i=2;i*i<=r;i++)while(r%(i*i)===0){r/=i*i;k*=i}
    if(r>1)return {kind:'surd',coefficient:k,radicand:r,text:(k===1?'':k)+'√'+r};
