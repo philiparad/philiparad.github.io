@@ -1,0 +1,37 @@
+name: REA-015 two-dimensional LCD overflow and scrolling
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/lcd-viewport.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/display.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-015/**'
+      - '.github/workflows/rea015-viewport.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  viewport:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Test editing, result and TABLE scrolling in both builds
+        run: python calculator/reference/rea-015/test_viewport_browser.py
+      - name: Publish web-only viewport trace
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rea015-web-viewport
+          path: /tmp/rea015-viewport-report.json
+          if-no-files-found: warn
