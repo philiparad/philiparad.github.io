@@ -1,13 +1,14 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults;
+if(!RESULTS)throw Error('Missing natural-result formatter');
 if(!STRUCT)throw Error('Structured textbook editor unavailable');
 if(!MODELS)throw Error('Missing CASIO model profile definitions');
 const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,fractionStyle:'improper',decimalSeparator:'dot',engShift:0,angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -38,8 +39,12 @@ function paint(){
  });
 }
 function setResult(value,source=state.input){
- state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;
- state.result=M.format(value,state,state.math&&source.includes('/'));state.screen='result';state.error='';
+ state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
+ state.resultSource=source;
+ state.resultPresentation=RESULTS.calculate(value,source,state,{
+   allowApproxRational:state.math&&source.includes('/')&&!/\d\.\d/.test(source)
+ });
+ state.result=state.resultPresentation.chosen.text;state.screen='result';state.error='';
  state.history.unshift({source,value,mode:state.mode,angle:state.angle});if(state.history.length>80)state.history.pop();
  notify('Calculated successfully');paint();
 }
@@ -79,8 +84,8 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.flow=null;state.menu=[];state.outputLines=[];state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
- if(mode==='all'){state.mode='COMP';state.angle='DEG';state.format='Norm2';state.digits=3;state.math=true;state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
+ state.menuEntries=[];state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
+ if(mode==='all'){state.mode='COMP';state.angle='DEG';state.format='Norm2';state.digits=3;state.math=true;state.fractionStyle='improper';state.decimalSeparator='dot';state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
 // All calculation interactions use the calculator's 96 x 31 LCD and 50 keys.
@@ -193,7 +198,7 @@ function menuHandle(key){
  }
  return true;
 }
-function applyAdvancedResult(value,description){if(typeof value==='number'){state.ans=value;state.raw=value;state.result=M.format(value,state);state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
+function applyAdvancedResult(value,description){if(typeof value==='number'){state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
 function functionFor(expr){return x=>M.evaluate(expr,{...state,ans:state.ans,memory:{...state.memory,X:x},math:false})}
 function numericalFlow(kind){
  const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum'};
@@ -316,7 +321,7 @@ function shifted(key){
  const insertions={RECIP:'!',SQUARE:'^3',LOG:'10^(',LN:'exp(',SIN:'asin(',COS:'acos(',TAN:'atan(',EXP:'pi',
   HYP:'abs(',NEG:'',DMS:'',SD:'',MPLUS:'',ENG:'',LP:'%',RP:',',ANS:'',MUL:'',DIV:'',ADD:'',SUB:'',DOT:''};
  if(key==='MPLUS'){state.memory.M-=state.ans;releaseModifier();paint();return true}
- if(key==='SD'){releaseModifier();toggleFraction();return true}
+ if(key==='SD'){releaseModifier();toggleMixed();return true}
  if(key==='DMS'){releaseModifier();notify('Decimal-to-DMS function available with °′″');paint();return true}
  if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
  if(key==='DOT'){releaseModifier();insert('rand');return true}
@@ -328,8 +333,29 @@ function shifted(key){
  if(['1','2','3','4','5','6'].includes(key)){releaseModifier();const mapped={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};setMode(mapped[key]);return true}
  return false
 }
-function toggleFraction(){if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
- state.decimal=!state.decimal;state.result=M.format(state.raw,{...state,math:!state.decimal},true);paint()}
+function showResult(decimal){
+ if(state.screen!=='result'||!Number.isFinite(state.raw))return;
+ state.resultPresentation=RESULTS.calculate(state.raw,state.resultSource||state.input,state,{
+   decimal,allowApproxRational:state.math&&(state.resultSource||state.input).includes('/')&&!/\d\.\d/.test(state.resultSource||state.input)
+ });
+ state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;paint();
+}
+function toggleFraction(){
+ if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
+ showResult(!state.decimal);
+}
+function toggleMixed(){
+ if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
+ state.fractionStyle=state.fractionStyle==='improper'?'mixed':'improper';
+ showResult(false);
+}
+function showEngineering(){
+ if(state.screen!=='result'||!Number.isFinite(state.raw))return;
+ state.engShift+=1;
+ const result=RESULTS.engineering(state.raw,state.engShift,state);
+ state.resultPresentation={chosen:result,natural:result,decimal:{kind:'decimal',text:RESULTS.decimal(state.raw,state)}};
+ state.result=result.text;state.decimal=false;paint();
+}
 function press(key){
  const before={mode:state.mode,shift:state.shift,alpha:state.alpha,screen:state.screen,input:state.input};
  try{handle(key)}catch(e){error(e.message||'Math ERROR')}
@@ -359,7 +385,7 @@ function handle(key){
  });return}
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
  if(key==='LOGBASE'){insert('log(');return}
- if(key==='ENG'){if(state.screen==='result'){state.result=state.raw.toExponential(8);paint();return}insert('e');return}
+ if(key==='ENG'){if(state.screen==='result'){showEngineering();return}insert('e');return}
  if(key==='DMS'){if(state.screen==='result'){state.result=formatDMS(state.raw);paint();return}insert('°');return}
  if(key==='HYP'){state.hyp=!state.hyp;notify(state.hyp?'Hyperbolic trig selected':'Ordinary trig selected');paint();return}
  if(key==='NEG'){insert('-');return}
