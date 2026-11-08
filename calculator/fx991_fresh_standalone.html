@@ -384,13 +384,15 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  if(state.screen==='menu'){
   const title=String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
   write(title,0,0);
-  const a=state.menu||[];
-  for(let i=0;i<Math.min(6,a.length);i++){
-   const x=i%2?48:0,y=8+8*Math.floor(i/2);
+  const a=state.menu||[],size=state.menuPageSize||6;
+  const lineHeight=size>=10?5:size>=8?6:8;
+  const firstY=size>=10?6:size>=8?6:8;
+  for(let i=0;i<Math.min(size,a.length);i++){
+   const x=i%2?48:0,y=firstY+lineHeight*Math.floor(i/2);
    const name=String(a[i].label).replace(/^\d+\.\s*/, '').replace(/[^A-Za-z0-9 +*/-]/g,'').slice(0,9);
-   write((i+1)+':'+name,x,y,x+48);
+   write(String(a[i].number)+':'+name,x,y,x+48);
   }
-  if((state.menuPage+1)*6<state.menuEntries.length)write('>',91,0);
+  if((state.menuPage+1)*size<state.menuEntries.length)write('>',91,0);
   if(state.menuPage>0)write('<',87,0);
   return pixels;
  }
@@ -411,7 +413,8 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  }
  // REA-009: render editable mathematical templates in two dimensions.
  const expression=state.editor;
- const structured=expression&&expression.root.some(node=>node.type!=='char');
+ const linearModes=['STAT','BASE-N','MATRIX','VECTOR'];
+ const structured=expression&&state.math&&!linearModes.includes(state.mode)&&expression.root.some(node=>node.type!=='char');
  const fieldNames={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
   power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
  function measureSeq(nodes){return nodes.reduce((width,node)=>width+measureNode(node),0)}
@@ -804,7 +807,7 @@ function fractionParts(q,style){
 function calculate(value,source,settings={},options={}){
  const cfg={...DEFAULTS,...settings},digits=cfg.digits;
  const decimalText=decimal(value,cfg);
- const preferred=(!!cfg.math&&['Norm1','Norm2'].includes(cfg.format))||options.forceFraction===true;
+ const preferred=(!!cfg.math&&cfg.outputMath!==false&&['Norm1','Norm2'].includes(cfg.format))||options.forceFraction===true;
  const exact=parseSimpleFraction(source);
  const fraction=exact&&Math.abs(exact.numerator/exact.denominator-value)<=1e-12*Math.max(1,Math.abs(value))?
   exact:options.allowApproxRational?rational(value):null;
@@ -831,9 +834,70 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
 
 </script>
     <script>
+/* REA-012: documented SETUP menu structure, separate from calculation MODE.
+ * Official CASIO fx-991ES/PLUS/PLUS C manuals; firmware and LCD parity unverified.
+ */
+(function(global){'use strict';
+const SETUP_PAGE_1=Object.freeze([
+  {key:'1',label:'MthIO',id:'mthio'},
+  {key:'2',label:'LineIO',id:'lineio'},
+  {key:'3',label:'Deg',id:'deg'},
+  {key:'4',label:'Rad',id:'rad'},
+  {key:'5',label:'Gra',id:'gra'},
+  {key:'6',label:'Fix',id:'fix'},
+  {key:'7',label:'Sci',id:'sci'},
+  {key:'8',label:'Norm',id:'norm'}
+]);
+const SECOND_ORIGINAL=Object.freeze([
+  {key:'1',label:'ab/c',id:'mixed'},
+  {key:'2',label:'d/c',id:'improper'},
+  {key:'3',label:'CMPLX',id:'complex'},
+  {key:'4',label:'STAT',id:'stat'},
+  {key:'5',label:'Disp',id:'disp'},
+  {key:'6',label:'CONT',id:'contrast'}
+]);
+const SECOND_PLUS=SECOND_ORIGINAL;
+const SECOND_C=Object.freeze([
+  ...SECOND_ORIGINAL.slice(0,4),
+  {key:'5',label:'TABLE',id:'table'},
+  {key:'6',label:'Rdec',id:'recurring'},
+  {key:'7',label:'Disp',id:'disp'},
+  {key:'8',label:'CONT',id:'contrast'}
+]);
+const ALL=Object.freeze({
+ 'fx-991es':Object.freeze([SETUP_PAGE_1,SECOND_ORIGINAL]),
+ 'fx-991es-plus':Object.freeze([SETUP_PAGE_1,SECOND_PLUS]),
+ 'fx-991es-plus-c':Object.freeze([SETUP_PAGE_1,SECOND_C])
+});
+const DEFAULTS=Object.freeze({
+ angle:'DEG',format:'Norm1',digits:3,math:true,outputMath:true,
+ fractionStyle:'improper',complexFormat:'rectangular',statFrequency:false,
+ tableFunctions:2,recurringDecimal:true,decimalSeparator:'dot',contrast:5
+});
+function pages(model){return ALL[model]||ALL['fx-991es-plus-c']}
+function options(id){
+ const mapping={
+  mthio:[['1','MathO','matho'],['2','LineO','lineo']],
+  norm:[['1','Norm1','norm1'],['2','Norm2','norm2']],
+  complex:[['1','a+bi','rectangular'],['2','rθ','polar']],
+  stat:[['1','ON','on'],['2','OFF','off']],
+  table:[['1','f(x)','single'],['2','f(x),g(x)','double']],
+  recurring:[['1','ON','on'],['2','OFF','off']],
+  disp:[['1','Dot','dot'],['2','Comma','comma']]
+ };
+ return (mapping[id]||[]).map(([key,label,value])=>({key,label,value}));
+}
+const api=Object.freeze({pages,options,defaults:DEFAULTS,models:ALL});
+global.FreshSetup=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+    <script>
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup;
+if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
 if(!STRUCT)throw Error('Structured textbook editor unavailable');
 if(!MODELS)throw Error('Missing CASIO model profile definitions');
@@ -841,7 +905,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,fractionStyle:'improper',decimalSeparator:'dot',engShift:0,angle:'DEG',format:'Norm2',digits:3,math:true,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -859,7 +923,7 @@ function paint(){
  $('lcd-mode').textContent=lit?(modeIndicators[state.mode]||''):'';
  $('lcd-angle').textContent=lit?(state.angle==='DEG'?'D':state.angle==='RAD'?'R':'G'):'';
  $('lcd-format').textContent=lit?(state.format==='Fix'?'FIX':state.format==='Sci'?'SCI':''):'';
- $('lcd-math').textContent=lit&&state.math?'Math':'';
+ $('lcd-math').textContent=lit&&state.math&&!['STAT','BASE-N','MATRIX','VECTOR'].includes(state.mode)?'Math':'';
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
  $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  $('model-label').textContent=MODELS.get(state.model).label;
@@ -917,19 +981,21 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
- if(mode==='all'){state.mode='COMP';state.angle='DEG';state.format='Norm2';state.digits=3;state.math=true;state.fractionStyle='improper';state.decimalSeparator='dot';state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
+ if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
 // All calculation interactions use the calculator's 96 x 31 LCD and 50 keys.
 // The companion panels are read-only; they never collect a mathematical value.
-function optionDialog(title,entries){
- state.menuTitle=title;state.menuEntries=entries;state.menuPage=0;state.screen='menu';
- showMenu();
+function optionDialog(title,entries,options={}){
+ state.menuTitle=title;state.menuEntries=entries;state.menuPage=0;
+ state.menuPageSize=options.pageSize||6;state.menuKind=options.kind||'normal';
+ state.screen='menu';showMenu();
 }
 function showMenu(){
- state.menu=state.menuEntries.slice(state.menuPage*6,state.menuPage*6+6).map((e,i)=>({
-  label:e.label,number:i+1
+ const size=state.menuPageSize||6;
+ state.menu=state.menuEntries.slice(state.menuPage*size,state.menuPage*size+size).map((e,i)=>({
+  label:e.label,number:e.key!==undefined?e.key:i+1
  }));
  state.info=state.menuPage?'PAGE '+(state.menuPage+1):'';
  paint();
@@ -1017,16 +1083,23 @@ function flowHandle(key){
  return true;
 }
 function menuHandle(key){
- if(key==='AC'){state.menuEntries=[];state.menu=[];state.screen='edit';state.info='';paint();return true}
+ if(key==='AC'){state.menuEntries=[];state.menu=[];state.menuPageSize=6;state.menuKind='normal';state.screen='edit';state.info='';paint();return true}
+ const size=state.menuPageSize||6;
  if(key==='RIGHT'||key==='DOWN'){
-  if((state.menuPage+1)*6<state.menuEntries.length){state.menuPage++;showMenu()}return true
+  if((state.menuPage+1)*size<state.menuEntries.length){state.menuPage++;showMenu()}return true
  }
  if(key==='LEFT'||key==='UP'){
   if(state.menuPage>0){state.menuPage--;showMenu()}return true
  }
- if(/^[1-6]$/.test(key)){
-  const item=state.menuEntries[state.menuPage*6+Number(key)-1];
-  if(item){state.menuEntries=[];state.menu=[];state.screen='edit';item.action();paint()}
+ if(/^[0-9]$/.test(key)){
+  const view=state.menu;
+  const pos=view.findIndex(x=>String(x.number)===key);
+  const entry=pos>=0?state.menuEntries[state.menuPage*size+pos]:null;
+  if(entry){
+   state.menuEntries=[];state.menu=[];state.menuPageSize=6;
+   state.menuKind='normal';state.screen='edit';state.info='';
+   entry.action();paint();
+  }
   return true;
  }
  return true;
@@ -1051,13 +1124,55 @@ function formatDMS(value){const sign=value<0?'-':'';let n=Math.abs(value);const 
 function memoryDialog(store=false){optionDialog(store?'STO — select register':'RCL — select register',Object.keys(state.memory).map(r=>({label:r+' = '+M.format(state.memory[r],{...state,math:false}),action:()=>{
   if(store){state.memory[r]=state.ans;notify('Stored Ans in '+r);paint()}else insert(r)
  }})))}
-function setupMenu(){optionDialog('SETUP — angle and display',[
- {label:'DEG',action:()=>{state.angle='DEG';paint()}},{label:'RAD',action:()=>{state.angle='RAD';paint()}},{label:'GRAD',action:()=>{state.angle='GRAD';paint()}},
- {label:'MathIO',action:()=>{state.math=true;paint()}},{label:'LineIO',action:()=>{state.math=false;paint()}},
- {label:'Norm 1',action:()=>{state.format='Norm1';paint()}},{label:'Norm 2',action:()=>{state.format='Norm2';paint()}},
- {label:'Fix digits',action:()=>digitOption('Fix')},{label:'Sci digits',action:()=>digitOption('Sci')}
- ])}
-function digitOption(kind){optionDialog(kind+' — decimal digits',Array.from({length:10},(_,i)=>({label:String(i),action:()=>{state.format=kind;state.digits=i;paint()}})))}
+function setupChoose(id,value){
+ switch(id){
+ case 'mthio':
+  state.math=true;state.outputMath=value==='matho';break;
+ case 'norm':state.format=value==='norm1'?'Norm1':'Norm2';break;
+ case 'complex':state.complexFormat=value;break;
+ case 'stat':state.statFrequency=value==='on';break;
+ case 'table':state.tableFunctions=value==='single'?1:2;break;
+ case 'recurring':state.recurringDecimal=value==='on';break;
+ case 'disp':state.decimalSeparator=value;break;
+ }
+ notify('SETUP '+id+': '+value);paint();
+}
+function setupSetting(id){
+ if(id==='lineio'){state.math=false;state.outputMath=false;paint();return}
+ if(id==='deg'||id==='rad'||id==='gra'){
+  state.angle=id==='deg'?'DEG':id==='rad'?'RAD':'GRAD';paint();return;
+ }
+ if(id==='mixed'||id==='improper'){
+  state.fractionStyle=id;paint();return;
+ }
+ if(id==='fix'||id==='sci'){
+  const kind=id==='fix'?'Fix':'Sci';
+  optionDialog(kind+' 0-9',Array.from({length:10},(_,i)=>({
+   key:String(i),label:String(i),action:()=>{
+    state.format=kind;state.digits=i;paint();
+   }
+  })),{pageSize:10,kind:'setup'});
+  return;
+ }
+ if(id==='contrast'){
+  optionDialog('CONT 0-9',Array.from({length:10},(_,i)=>({
+   key:String(i),label:String(i),action:()=>{state.contrast=i;paint()}
+  })),{pageSize:10,kind:'setup'});
+  return;
+ }
+ const entries=SETUP.options(id);
+ if(entries.length){
+  optionDialog('SETUP '+id.toUpperCase(),entries.map(e=>({
+   key:e.key,label:e.label,action:()=>setupChoose(id,e.value)
+  })),{pageSize:8,kind:'setup'});
+ }
+}
+function setupMenu(){
+ const pages=SETUP.pages(state.model);
+ optionDialog('SETUP',pages.flat().map(e=>({
+  key:e.key,label:e.label,action:()=>setupSetting(e.id)
+ })),{pageSize:8,kind:'setup'});
+}
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
@@ -1075,14 +1190,27 @@ function setModel(id){
 function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
 function advancedMode(mode){
- if(mode==='STAT')return fieldForm('STAT — one-variable statistics',[{id:'data',label:'Observations, separated by commas',value:'1,2,3,4,5'}],d=>{
-  const s=M.descriptiveStats(parseCsv(d.data));applyAdvancedResult(s.mean,'STAT mean');return Object.entries(s).map(([k,v])=>k+' = '+(v===null?'N/A':M.format(v,{...state,math:false}))).join('\n')});
+ if(mode==='STAT')return fieldForm('STAT — one-variable statistics',[
+  {id:'data',label:'Observations, separated by commas',value:'1,2,3,4,5'},
+  ...(state.statFrequency?[{id:'freq',label:'FREQ per observation',value:'1,1,1,1,1'}]:[])
+ ],d=>{
+  const values=parseCsv(d.data);
+  let data=values;
+  if(state.statFrequency){
+   const freqs=parseCsv(d.freq);
+   if(freqs.length!==values.length||freqs.some(n=>!Number.isInteger(n)||n<0))throw Error('Argument ERROR');
+   if(freqs.reduce((a,b)=>a+b,0)>100000)throw Error('Argument ERROR');
+   data=values.flatMap((x,i)=>Array(freqs[i]).fill(x));
+  }
+  const summary=M.descriptiveStats(data);applyAdvancedResult(summary.mean,'STAT mean');
+  return Object.entries(summary).map(([k,v])=>k+' = '+(v===null?'N/A':M.format(v,{...state,math:false}))).join('\n');
+ });
  if(mode==='CMPLX')return fieldForm('CMPLX — complex arithmetic',[{id:'z1',label:'First complex number (a,b)',value:'2,3'},{id:'z2',label:'Second complex number (c,d)',value:'4,5'},{id:'op',label:'Operation: +, -, *, /, abs, arg',value:'+'}],d=>{
   const [a,b]=parseCsv(d.z1),[c,e]=parseCsv(d.z2),op=d.op.trim();if([a,b,c,e].some(x=>!Number.isFinite(x)))throw Error('Argument ERROR');let r,k;
   if(op==='+'){r=a+c;k=b+e}else if(op==='-'){r=a-c;k=b-e}else if(op==='*'){r=a*c-b*e;k=a*e+b*c}
   else if(op==='/'){const den=c*c+e*e;if(!den)throw Error('Math ERROR');r=(a*c+b*e)/den;k=(b*c-a*e)/den}
   else if(op==='abs'){r=Math.hypot(a,b);k=0}else if(op==='arg'){r=M.fromRadians(Math.atan2(b,a),state.angle);k=0}
-  else throw Error('Operation must be + - * / abs arg');applyAdvancedResult(r,op+' complex');return M.format(r,state)+(k<0?' - ':' + ')+M.format(Math.abs(k),state)+'i'
+  else throw Error('Operation must be + - * / abs arg');applyAdvancedResult(r,op+' complex');return state.complexFormat==='polar'?(M.format(Math.hypot(r,k),state)+'∠'+M.format(M.fromRadians(Math.atan2(k,r),state.angle),state)):M.format(r,state)+(k<0?' - ':' + ')+M.format(Math.abs(k),state)+'i'
  });
  if(mode==='BASE-N')return fieldForm('BASE-N — signed integer and bitwise operations',[{id:'a',label:'First integer',value:'10'},{id:'b',label:'Second integer',value:'12'},{id:'op',label:'Operation (+, -, AND, OR, XOR, NOT)',value:'AND'}],d=>{
   const a=Number(d.a),b=Number(d.b);if(!Number.isInteger(a)||!Number.isInteger(b))throw Error('Argument ERROR');let result;switch(d.op.trim().toUpperCase()){
@@ -1105,8 +1233,20 @@ function advancedMode(mode){
   if(d.op==='dot'){const n=a.reduce((acc,v,i)=>acc+v*b[i],0);applyAdvancedResult(n,'VECTOR dot');return M.format(n,state)}
   if(d.op==='cross'&&a.length===3)return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]].join(', ');throw Error('Cross product needs 3D vectors')
  });
- if(mode==='TABLE')return fieldForm('TABLE — values of f(X)',[{id:'expression',label:'f(X)',value:'X^2-2'},{id:'start',label:'Start',value:'-3'},{id:'end',label:'End',value:'3'},{id:'step',label:'Step',value:'1'}],d=>{
-  const a=+d.start,b=+d.end,h=+d.step;if(h<=0||b<a||(b-a)/h>60)throw Error('Argument ERROR');const fn=functionFor(d.expression);const rows=[];for(let x=a;x<=b+h/1e6;x+=h)rows.push(M.format(x,{math:false})+'  →  '+M.format(fn(x),state));return rows.join('\n')
+ if(mode==='TABLE')return fieldForm('TABLE — values of f(X)',[
+  {id:'expression',label:'f(X)',value:'X^2-2'},
+  ...(state.tableFunctions===2?[{id:'expression2',label:'g(X)',value:'X+1'}]:[]),
+  {id:'start',label:'Start',value:'-3'},{id:'end',label:'End',value:'3'},
+  {id:'step',label:'Step',value:'1'}
+ ],d=>{
+  const a=+d.start,b=+d.end,h=+d.step;
+  if(h<=0||b<a||(b-a)/h>60)throw Error('Argument ERROR');
+  const fn=functionFor(d.expression),gn=state.tableFunctions===2?functionFor(d.expression2):null;
+  const rows=[];
+  for(let x=a;x<=b+h/1e6;x+=h){
+   rows.push(M.format(x,{math:false})+' : '+M.format(fn(x),state)+(gn?' ; '+M.format(gn(x),state):''));
+  }
+  return rows.join('\n');
  });
  if(mode==='INEQ')return fieldForm('INEQ — quadratic sign intervals',[{id:'a',label:'a',value:'1'},{id:'b',label:'b',value:'-3'},{id:'c',label:'c',value:'2'},{id:'op',label:'Relation (<, <=, >, >=)',value:'<'}],d=>{
   let a=+d.a,b=+d.b,c=+d.c;if(a===0)throw Error('Only quadratic here');const roots=M.quadratic(a,b,c).sort((x,y)=>x-y);const sign=a>0?'positive':'negative';return 'Roots: '+(roots.length?roots.map(x=>M.format(x,state)).join(', '):'none')+'\nParabola opens '+(a>0?'upward':'downward')+'.\nFor two distinct roots, the sign is '+sign+' outside the roots and opposite inside.\nRelation: '+d.op
@@ -1135,7 +1275,7 @@ function shifted(key){
  if(key==='DEL'){state.insert=!state.insert;releaseModifier();notify(state.insert?'Insert mode':'Overwrite mode');paint();return true}
  if(key==='9'){releaseModifier();optionDialog('CLR — choose data to reset',[
   {label:'1. Memory',action:()=>{Object.keys(state.memory).forEach(r=>state.memory[r]=0);paint()}},
-  {label:'2. Setup',action:()=>{state.angle='DEG';state.format='Norm2';state.digits=3;paint()}},
+  {label:'2. Setup',action:()=>{Object.assign(state,SETUP.defaults);paint()}},
   {label:'3. All',action:()=>reset('all')}]);return true}
  if(key==='7'){releaseModifier();optionDialog('Scientific constants',[
   {label:'π',action:()=>insert('pi')},{label:'e',action:()=>insert('e')},{label:'Speed of light (m/s)',action:()=>insert('299792458')},
