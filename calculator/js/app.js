@@ -541,7 +541,88 @@ function handle(key){
  if(/^\d$/.test(key)){insert(key);return}
  notify('This key is not available in the current state',true);paint();
 }
-function renderKeylog(){const list=$('keylog-list');list.textContent='';const frag=document.createDocumentFragment();for(const entry of state.keylog){const el=document.createElement('li');el.textContent=(entry.before.shift?'SHIFT+':entry.before.alpha?'ALPHA+':'')+entry.key+' ('+entry.before.mode+') → '+entry.after.screen+(entry.after.result?' ['+entry.after.result+']':'');frag.append(el)}list.append(frag);$('keylog-count').textContent=(state.recording?'Recording on':'Recording off')+' — '+state.keylog.length+' / '+maxEntries+' entries';$('record-keylog').textContent=state.recording?'Stop recording':'Start recording'}
+// REA-019: KeyLog selection is a view-only teaching aid: selecting and
+// copying displayed keys must never re-dispatch a calculator key.
+const Teaching=window.FreshTeachingTools;
+if(!Teaching)throw Error('Missing view-only KeyLog/capture module');
+const keylogView={selected:new Set(),anchor:-1,size:19};
+function keylogSelectionClear(){keylogView.selected.clear();keylogView.anchor=-1}
+function renderKeylog(){
+ const list=$('keylog-list');list.textContent='';
+ const formatted=Teaching.formattedEntries(state.keylog);
+ const fragment=document.createDocumentFragment();
+ for(const item of formatted){
+  const li=document.createElement('li');
+  li.dataset.index=String(item.index);
+  const button=document.createElement('button');
+  button.type='button';button.className='keylog-entry';
+  button.dataset.index=String(item.index);
+  button.textContent=item.display;
+  button.setAttribute('aria-pressed',String(keylogView.selected.has(item.index)));
+  button.setAttribute('aria-label','Select key '+(item.index+1)+': '+item.display);
+  button.addEventListener('click',event=>{
+   if(event.shiftKey&&keylogView.anchor>=0){
+    if(!event.ctrlKey&&!event.metaKey)keylogView.selected.clear();
+    const from=Math.min(keylogView.anchor,item.index),to=Math.max(keylogView.anchor,item.index);
+    for(let i=from;i<=to;i++)keylogView.selected.add(i);
+   }else if(event.ctrlKey||event.metaKey){
+    if(keylogView.selected.has(item.index))keylogView.selected.delete(item.index);
+    else keylogView.selected.add(item.index);
+    keylogView.anchor=item.index;
+   }else{
+    keylogView.selected.clear();keylogView.selected.add(item.index);
+    keylogView.anchor=item.index;
+   }
+   renderKeylog();
+  });
+  li.append(button);fragment.append(li);
+ }
+ list.append(fragment);
+ list.style.setProperty('--keylog-size',keylogView.size+'px');
+ for(const i of keylogView.selected){
+  const b=list.querySelector('button[data-index="'+i+'"]');
+  if(b)b.setAttribute('aria-pressed','true');
+ }
+ $('keylog-count').textContent=(state.recording?'Recording on':'Recording off')+
+  ' — '+state.keylog.length+' / '+maxEntries+' entries · '+keylogView.selected.size+' selected';
+ $('record-keylog').textContent=state.recording?'Stop recording':'Start recording';
+}
+function selectedKeyTrace(){
+ return Teaching.trace(state.keylog,[...keylogView.selected]);
+}
+async function copySelectedKeys(){
+ if(!keylogView.selected.size){notify('Select KeyLog keys first',true);return}
+ const text=selectedKeyTrace();
+ try{
+  if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
+  await navigator.clipboard.writeText(text);
+  notify('Copied '+keylogView.selected.size+' selected keys');
+ }catch{notify('Clipboard unavailable; use Export JSON',true)}
+}
+function captureOptions(){
+ return Teaching.captureConfig({zoom:Number($('capture-zoom').value),frame:$('capture-frame').checked});
+}
+function captureCanvas(){
+ return Teaching.createImage($('lcd'),captureOptions());
+}
+function downloadCapture(){
+ try{const canvas=captureCanvas();
+  canvas.toBlob(blob=>{
+   if(blob)download('independent-calculator-lcd.png',blob,'image/png');
+   else notify('Screen capture failed',true);
+  },'image/png');
+ }catch(err){notify('Screen capture failed: '+err.message,true)}
+}
+async function copyCapture(){
+ try{
+  if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')throw Error('Clipboard API unavailable');
+  const canvas=captureCanvas();
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(!blob)throw Error('Image rendering failed');
+  await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+  notify('LCD image copied to clipboard');
+ }catch{notify('Clipboard permission denied; use Save LCD instead',true)}
+}
 function download(name,content,type){const blob=content instanceof Blob?content:new Blob([content],{type});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000)}
 function runChecks(){const checks=[
  ['precedence',()=>M.evaluate('2+3*4')===14],['power precedence',()=>M.evaluate('-2^2')===-4],['right-associative powers',()=>M.evaluate('2^3^2')===512],
@@ -556,13 +637,9 @@ function runChecks(){const checks=[
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
  if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')return false;
- $('lcd').toBlob(blob=>{
-  if(!blob){notify('LCD capture unavailable',true);return}
-  navigator.clipboard.write([new ClipboardItem({'image/png':blob})])
-   .then(()=>notify('LCD copied to clipboard'))
-   .catch(()=>notify('Clipboard permission denied; use Save LCD instead',true));
- },'image/png');
- return true;
+ // Initiated by a real Ctrl+C/Insert user gesture. Actual clipboard success
+ // is reported only after the browser resolves the write permission.
+ copyCapture();return true;
 }
 function keyboard(event){
  window.FreshKeyboard.dispatch(event,state,press,captureKeyboardLCD);
@@ -572,10 +649,34 @@ $('model-selector').value=state.model;
 $('model-selector').addEventListener('change',e=>setModel(e.target.value));
 $('run-checks').addEventListener('click',runChecks);
 $('enlarge').addEventListener('click',()=>{$('lcd-panel').hidden=!$('lcd-panel').hidden;paint()});
-$('capture').addEventListener('click',()=>$('lcd').toBlob(blob=>{if(blob)download('independent-calculator-lcd.png',blob,'image/png')}));
-$('keylog-toggle').addEventListener('click',()=>{$('keylog-panel').hidden=!$('keylog-panel').hidden;renderKeylog()});
-$('record-keylog').addEventListener('click',()=>{state.recording=!state.recording;renderKeylog()});$('clear-keylog').addEventListener('click',()=>{state.keylog=[];renderKeylog()});
-$('export-keylog').addEventListener('click',()=>download('independent-calculator-keylog.json',JSON.stringify({schema:'fresh-calculator-1',entries:state.keylog},null,2),'application/json'));
+$('capture').addEventListener('click',downloadCapture);
+$('copy-lcd').addEventListener('click',copyCapture);
+$('capture-options-toggle').addEventListener('click',()=>{
+ const panel=$('capture-options');panel.hidden=!panel.hidden;
+ $('capture-options-toggle').setAttribute('aria-expanded',String(!panel.hidden));
+});
+$('keylog-toggle').addEventListener('click',()=>{
+ $('keylog-panel').hidden=!$('keylog-panel').hidden;renderKeylog();
+});
+$('record-keylog').addEventListener('click',()=>{state.recording=!state.recording;renderKeylog()});
+$('keylog-select-all').addEventListener('click',()=>{
+ keylogView.selected=new Set(state.keylog.map((_,i)=>i));
+ keylogView.anchor=state.keylog.length-1;renderKeylog();
+});
+$('keylog-copy').addEventListener('click',copySelectedKeys);
+$('keylog-decrease').addEventListener('click',()=>{
+ keylogView.size=Math.max(12,keylogView.size-2);renderKeylog();
+});
+$('keylog-increase').addEventListener('click',()=>{
+ keylogView.size=Math.min(36,keylogView.size+2);renderKeylog();
+});
+$('clear-keylog').addEventListener('click',()=>{
+ state.keylog=[];keylogSelectionClear();renderKeylog();
+});
+$('export-keylog').addEventListener('click',()=>download('independent-calculator-keylog.json',
+ JSON.stringify({schema:'fresh-calculator-keylog-v2',entries:state.keylog,
+  selectedIndices:[...keylogView.selected].sort((a,b)=>a-b),
+  formattedTrace:selectedKeyTrace()},null,2),'application/json'));
 document.addEventListener('keydown',keyboard);
 paint();
 window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getStructured:()=>structuredClone(state.editor),getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,cursor:flow.cursor??flow.buffer.length,editing:flow.editing,fieldId:flow.fields[flow.index]?.id,fieldCount:flow.fields.length,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
