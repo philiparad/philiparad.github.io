@@ -10,7 +10,7 @@ const NORMAL=Object.freeze({
  Backspace:'DEL',Delete:'DEL',
  ArrowDown:'DOWN',ArrowUp:'UP',ArrowRight:'RIGHT',ArrowLeft:'LEFT',
  '^':'POWER','(':'LP',')':'RP','+':'ADD','-':'SUB','*':'MUL','/':'DIV',
- '.':'DOT',',':'COMMA','=','=':'EQUAL',
+ '.':'DOT',',':'COMMA','=':'EQUAL',
  Escape:'AC'
 });
 const PROMPT_TEXT=/^[a-zA-Z<>! ]$/;
