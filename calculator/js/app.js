@@ -294,14 +294,27 @@ function setModel(id){
 function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
 function advancedMode(mode){
- if(mode==='STAT')return fieldForm('STAT — one-variable statistics',[{id:'data',label:'Observations, separated by commas',value:'1,2,3,4,5'}],d=>{
-  const s=M.descriptiveStats(parseCsv(d.data));applyAdvancedResult(s.mean,'STAT mean');return Object.entries(s).map(([k,v])=>k+' = '+(v===null?'N/A':M.format(v,{...state,math:false}))).join('\n')});
+ if(mode==='STAT')return fieldForm('STAT — one-variable statistics',[
+  {id:'data',label:'Observations, separated by commas',value:'1,2,3,4,5'},
+  ...(state.statFrequency?[{id:'freq',label:'FREQ per observation',value:'1,1,1,1,1'}]:[])
+ ],d=>{
+  const values=parseCsv(d.data);
+  let data=values;
+  if(state.statFrequency){
+   const freqs=parseCsv(d.freq);
+   if(freqs.length!==values.length||freqs.some(n=>!Number.isInteger(n)||n<0))throw Error('Argument ERROR');
+   if(freqs.reduce((a,b)=>a+b,0)>100000)throw Error('Argument ERROR');
+   data=values.flatMap((x,i)=>Array(freqs[i]).fill(x));
+  }
+  const summary=M.descriptiveStats(data);applyAdvancedResult(summary.mean,'STAT mean');
+  return Object.entries(summary).map(([k,v])=>k+' = '+(v===null?'N/A':M.format(v,{...state,math:false}))).join('\n');
+ });
  if(mode==='CMPLX')return fieldForm('CMPLX — complex arithmetic',[{id:'z1',label:'First complex number (a,b)',value:'2,3'},{id:'z2',label:'Second complex number (c,d)',value:'4,5'},{id:'op',label:'Operation: +, -, *, /, abs, arg',value:'+'}],d=>{
   const [a,b]=parseCsv(d.z1),[c,e]=parseCsv(d.z2),op=d.op.trim();if([a,b,c,e].some(x=>!Number.isFinite(x)))throw Error('Argument ERROR');let r,k;
   if(op==='+'){r=a+c;k=b+e}else if(op==='-'){r=a-c;k=b-e}else if(op==='*'){r=a*c-b*e;k=a*e+b*c}
   else if(op==='/'){const den=c*c+e*e;if(!den)throw Error('Math ERROR');r=(a*c+b*e)/den;k=(b*c-a*e)/den}
   else if(op==='abs'){r=Math.hypot(a,b);k=0}else if(op==='arg'){r=M.fromRadians(Math.atan2(b,a),state.angle);k=0}
-  else throw Error('Operation must be + - * / abs arg');applyAdvancedResult(r,op+' complex');return M.format(r,state)+(k<0?' - ':' + ')+M.format(Math.abs(k),state)+'i'
+  else throw Error('Operation must be + - * / abs arg');applyAdvancedResult(r,op+' complex');return state.complexFormat==='polar'?(M.format(Math.hypot(r,k),state)+'∠'+M.format(M.fromRadians(Math.atan2(k,r),state.angle),state)):M.format(r,state)+(k<0?' - ':' + ')+M.format(Math.abs(k),state)+'i'
  });
  if(mode==='BASE-N')return fieldForm('BASE-N — signed integer and bitwise operations',[{id:'a',label:'First integer',value:'10'},{id:'b',label:'Second integer',value:'12'},{id:'op',label:'Operation (+, -, AND, OR, XOR, NOT)',value:'AND'}],d=>{
   const a=Number(d.a),b=Number(d.b);if(!Number.isInteger(a)||!Number.isInteger(b))throw Error('Argument ERROR');let result;switch(d.op.trim().toUpperCase()){
@@ -324,8 +337,20 @@ function advancedMode(mode){
   if(d.op==='dot'){const n=a.reduce((acc,v,i)=>acc+v*b[i],0);applyAdvancedResult(n,'VECTOR dot');return M.format(n,state)}
   if(d.op==='cross'&&a.length===3)return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]].join(', ');throw Error('Cross product needs 3D vectors')
  });
- if(mode==='TABLE')return fieldForm('TABLE — values of f(X)',[{id:'expression',label:'f(X)',value:'X^2-2'},{id:'start',label:'Start',value:'-3'},{id:'end',label:'End',value:'3'},{id:'step',label:'Step',value:'1'}],d=>{
-  const a=+d.start,b=+d.end,h=+d.step;if(h<=0||b<a||(b-a)/h>60)throw Error('Argument ERROR');const fn=functionFor(d.expression);const rows=[];for(let x=a;x<=b+h/1e6;x+=h)rows.push(M.format(x,{math:false})+'  →  '+M.format(fn(x),state));return rows.join('\n')
+ if(mode==='TABLE')return fieldForm('TABLE — values of f(X)',[
+  {id:'expression',label:'f(X)',value:'X^2-2'},
+  ...(state.tableFunctions===2?[{id:'expression2',label:'g(X)',value:'X+1'}]:[]),
+  {id:'start',label:'Start',value:'-3'},{id:'end',label:'End',value:'3'},
+  {id:'step',label:'Step',value:'1'}
+ ],d=>{
+  const a=+d.start,b=+d.end,h=+d.step;
+  if(h<=0||b<a||(b-a)/h>60)throw Error('Argument ERROR');
+  const fn=functionFor(d.expression),gn=state.tableFunctions===2?functionFor(d.expression2):null;
+  const rows=[];
+  for(let x=a;x<=b+h/1e6;x+=h){
+   rows.push(M.format(x,{math:false})+' : '+M.format(fn(x),state)+(gn?' ; '+M.format(gn(x),state):''));
+  }
+  return rows.join('\n');
  });
  if(mode==='INEQ')return fieldForm('INEQ — quadratic sign intervals',[{id:'a',label:'a',value:'1'},{id:'b',label:'b',value:'-3'},{id:'c',label:'c',value:'2'},{id:'op',label:'Relation (<, <=, >, >=)',value:'<'}],d=>{
   let a=+d.a,b=+d.b,c=+d.c;if(a===0)throw Error('Only quadratic here');const roots=M.quadratic(a,b,c).sort((x,y)=>x-y);const sign=a>0?'positive':'negative';return 'Roots: '+(roots.length?roots.map(x=>M.format(x,state)).join(', '):'none')+'\nParabola opens '+(a>0?'upward':'downward')+'.\nFor two distinct roots, the sign is '+sign+' outside the roots and opposite inside.\nRelation: '+d.op
