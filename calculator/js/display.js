@@ -46,6 +46,13 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  // Status annunciators are a separate accurately sized HTML overlay.
 
  if(!state.power){return pixels}
+ if(state.screen==='contrast'){
+  write('CONTRAST',28,1);
+  write('LIGHT <',0,13);
+  write('> DARK',67,13);
+  write('LEVEL '+String(state.contrast??5),24,22);
+  return pixels;
+ }
  if(state.screen==='menu'){
   const title=String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
   write(title,0,0);
