@@ -70,14 +70,14 @@ function insert(text){
  if(!state.power)return;
  beginEdit();
  if(state.input.length+text.length>220){error('Input limit');return}
- STRUCT.insert(state.editor,text);
+ STRUCT.insert(state.editor,text,!state.insert);
  syncEditor();releaseModifier();notify('Editing textbook expression');paint();
 }
 function insertTemplate(type){
  if(!state.power)return;
  beginEdit();
  if(state.input.length>210){error('Input limit');return}
- STRUCT.template(state.editor,type);
+ STRUCT.template(state.editor,type,!state.insert);
  syncEditor();releaseModifier();notify('Use arrow keys to move between placeholders');paint();
 }
 function loadExpression(text){
@@ -85,7 +85,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -469,7 +469,11 @@ function handle(key){
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
  if(key==='AC'){state.editor=STRUCT.create();state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
- if(key==='DEL'){if(state.screen==='error'){state.screen='edit';state.error=''}if(state.screen==='result')state.screen='edit';STRUCT.backspace(state.editor);syncEditor();releaseModifier();paint();return}
+ if(key==='DEL'){
+  if(state.screen==='error'){state.screen='edit';state.error=''}
+  if(state.screen==='result')state.screen='edit';
+  STRUCT.backspace(state.editor);syncEditor();releaseModifier();paint();return;
+ }
  if(key==='LEFT'||key==='RIGHT'){if(state.screen==='result'){state.screen='edit'}STRUCT.navigate(state.editor,key);syncEditor();paint();return}
  if(key==='UP'||key==='DOWN'){if(state.screen==='edit'&&STRUCT.navigate(state.editor,key)){syncEditor();paint();return}const items=state.history;if(!items.length)return;let idx=state.storedInputs.length?state.storedInputs[0]:-1;idx=Math.max(0,Math.min(items.length-1,idx+(key==='UP'?1:-1)));state.storedInputs=[idx];state.editor=STRUCT.fromString(items[idx].source);syncEditor();state.screen='edit';paint();return}
  if(key==='EQUAL'){if(state.mode!=='COMP'){advancedMode(state.mode);return}evaluate();return}
