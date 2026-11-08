@@ -93,7 +93,7 @@ function fractionParts(q,style){
 function calculate(value,source,settings={},options={}){
  const cfg={...DEFAULTS,...settings},digits=cfg.digits;
  const decimalText=decimal(value,cfg);
- const preferred=!!cfg.math&&['Norm1','Norm2'].includes(cfg.format);
+ const preferred=(!!cfg.math&&['Norm1','Norm2'].includes(cfg.format))||options.forceFraction===true;
  const exact=parseSimpleFraction(source);
  const fraction=exact&&Math.abs(exact.numerator/exact.denominator-value)<=1e-12*Math.max(1,Math.abs(value))?
   exact:options.allowApproxRational?rational(value):null;
