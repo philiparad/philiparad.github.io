@@ -1,0 +1,31 @@
+name: REA-012 model-specific SETUP menu and settings
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/setup.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/display.js'
+      - 'calculator/js/result-format.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-012/**'
+      - '.github/workflows/rea012-setup.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  setup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium test runner
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Validate all documented two-page SETUP flows
+        run: python calculator/reference/rea-012/test_setup_browser.py
