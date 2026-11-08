@@ -160,6 +160,10 @@ function flowHandle(key){
  }
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return true}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return true}
+ if(state.shift&&key==='DEL'){
+  state.insert=!state.insert;releaseModifier();
+  notify(state.insert?'Insert mode':'Overwrite mode');paint();return true;
+ }
  const vars={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  let addition=null;
  if(key.startsWith('TEXT:'))addition=key.slice(5);
@@ -191,7 +195,8 @@ function flowHandle(key){
   if(f.editing===false){f.buffer='';f.cursor=0;f.editing=true}
   if(f.buffer.length+addition.length<=170){
    const at=f.cursor??f.buffer.length;
-   f.buffer=f.buffer.slice(0,at)+addition+f.buffer.slice(at);
+   const rest=state.insert?f.buffer.slice(at):f.buffer.slice(at+addition.length);
+   f.buffer=f.buffer.slice(0,at)+addition+rest;
    f.cursor=at+addition.length;
   }
   releaseModifier();paint();return true;
