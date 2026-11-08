@@ -28,6 +28,8 @@ async def run():
                 async def tree():return await page.evaluate("FreshCalculator.getStructured()")
                 async def clean():
                     await press("AC")
+                    if not (await state())["insert"]:
+                        await press("SHIFT","DEL")
                     assert (await state())["insert"] is True
                 # Root-level plain-text editing in insert, overwrite and DEL modes.
                 await clean()
