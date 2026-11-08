@@ -30,7 +30,14 @@ function translate(event,context={}){
  const target=getTarget(event);
  if(target==='editor'||target==='control')return null;
  // Preserve OS shortcuts, browser copy, and keyboard-accessible focusing.
- if(event.metaKey||event.altKey||event.ctrlKey)return null;
+ if(event.metaKey||event.altKey)return null;
+ if(event.ctrlKey){
+  const inside=target==='face'||target==='key-button';
+  if(inside&&!event.shiftKey&&(event.key==='c'||event.key==='C'||event.key==='Insert')){
+   return {keys:[],action:'capture',label:event.key,reference:'casio'};
+  }
+  return null;
+ }
  if(event.key==='Tab'){
   // The CASIO emulator maps Tab -> AC. Limit this shortcut to the face
   // container itself; otherwise Tab must continue to navigate UI controls.
@@ -50,7 +57,7 @@ function translate(event,context={}){
  if(physical){
   if(physical==='COMMA'){
    if(context.screen==='prompt')return {keys:['TEXT:,'],label:',',reference:'casio-context'};
-   return {keys:['SHIFT','RP'],label:',',reference:'casio-context'};
+   return {keys:['COMMA'],label:',',reference:'casio-context'};
   }
   if(physical==='=')return {keys:['EQUAL'],label:'=',reference:'casio'};
   return {keys:[physical],label:key,reference:'casio'};
@@ -63,9 +70,14 @@ function translate(event,context={}){
  if(/^\d$/.test(key))return {keys:[key],label:key,reference:'casio'};
  return null;
 }
-function dispatch(event,context,press){
+function dispatch(event,context,press,capture){
  const resolved=translate(event,context);
  if(!resolved)return false;
+ if(resolved.action==='capture'){
+  // Never hijack browser Copy unless a safe screen-capture writer exists.
+  if(typeof capture!=='function'||capture()!==true)return false;
+  event.preventDefault();return true;
+ }
  event.preventDefault();
  for(const key of resolved.keys)press(key);
  return true;
@@ -76,8 +88,8 @@ const MAPPING=Object.freeze({
  Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',
  ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',
  '^':'POWER','(':'LP',')':'RP','+':'ADD','-':'SUB','*':'MUL','/':'DIV',
- '.':'DOT',',':'SHIFT+RP (main expression)',
- '0-9':'0-9'
+ '.':'DOT',',':'COMMA (calculator argument separator)',
+ '0-9':'0-9','Ctrl+C / Ctrl+Insert':'Capture LCD (when calculator focused)'
 });
 const API=Object.freeze({translate,dispatch,mapping:MAPPING,getTarget});
 global.FreshKeyboard=API;
