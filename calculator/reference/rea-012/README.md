@@ -7,6 +7,7 @@
 Official documentation:
 - [fx-991ES PLUS C (2nd edition): calculator setup](https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/calculation_calculator/configuring_calculator.html).
 - [fx-991ES PLUS: calculator setup](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/calculation_calculator/configuring_calculator.html).
+- [CASIO PLUS C contrast sequence](https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/before_using_calculator/getting_started.html).
 - [Original fx-991ES guide](https://support.casio.com/pdf/004/fx-115ES_991ES_Eng.pdf).
 
 **SHIFT MODE** opens SETUP. Use **DOWN/UP** to switch between the two full menu pages, and press the number shown on the LCD. These are not the separate calculation MODE menu pages. The first page is shared by all three supported profiles:
@@ -44,7 +45,7 @@ The second page depends on the chosen physical model:
 | DOWN, 5, 1 / DOWN, 5, 2 (PLUS C) | TABLE f(x) / f(x) and g(x) |
 | DOWN, 6, 1 / DOWN, 6, 2 (PLUS C) | Recurring-decimal mode ON / OFF (setting stored) |
 | DOWN, 7, 1 / DOWN, 7, 2 (PLUS C) | Decimal separator Dot / Comma |
-| DOWN, 8, n (PLUS C) | Stored contrast level n (0–9; hardware visual fidelity unverified) |
+| DOWN, 8 (PLUS C), then LEFT/RIGHT, AC | CONTRAST screen; adjust stored level with arrows, exit with AC (hardware visual fidelity unverified) |
 
 On original or standard PLUS, Disp is second-page item 5 and CONT is item 6.
 
@@ -55,7 +56,7 @@ On original or standard PLUS, Disp is second-page item 5 and CONT is item 6.
 - STAT FREQ ON creates an editable frequency input and computes repeated-observation statistics; OFF omits that input.
 - TABLE f(x)/f(x),g(x) changes the editable expression count. Complex display switches rectangular/polar result text.
 - Decimal dot/comma is applied to result formatting; original keypresses continue to use a dot in numeric input.
-- Contrast value and recurring-decimal switch are stored, but **physical LCD electro-optical contrast and true repeating-decimal overbar rendering are not implemented**. These capabilities are not claimed as fully equivalent.
+- Contrast adjustment follows the official LEFT/RIGHT then AC key sequence, and the recurring-decimal switch is stored, but **physical LCD electro-optical contrast and true repeating-decimal overbar rendering are not implemented**. These capabilities are not claimed as fully equivalent.
 - SHIFT 9 (CLR) → Setup now restores all documented settings together.
 
 ## Code and verification
