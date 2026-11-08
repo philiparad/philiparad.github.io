@@ -176,6 +176,7 @@ function flowHandle(key){
  else if(state.shift&&key==='DIV')addition='/';
  else if(/^\d$/.test(key))addition=key;
  else if(key==='DOT')addition='.';
+ else if(key==='COMMA')addition=',';
  else if(key==='NEG'||key==='SUB')addition='-';
  else if(key==='ADD')addition='+';
  else if(key==='MUL')addition='*';
@@ -528,6 +529,7 @@ function handle(key){
  if(key==='ENG'){if(state.screen==='result'){showEngineering();return}insert('e');return}
  if(key==='DMS'){if(state.screen==='result'){state.result=formatDMS(state.raw);paint();return}insert('°');return}
  if(key==='HYP'){state.hyp=!state.hyp;notify(state.hyp?'Hyperbolic trig selected':'Ordinary trig selected');paint();return}
+ if(key==='COMMA'){insert(',');return}
  if(key==='NEG'){insert('-');return}
  const funcs={SIN:'sin(',COS:'cos(',TAN:'tan(',SQRT:'sqrt(',LOG:'log(',LN:'ln('};
  if(key==='FRAC'){insertTemplate('fraction');return}
@@ -552,10 +554,19 @@ function runChecks(){const checks=[
  ['physical keys',()=>K.keys.length===50],['degree postfix',()=>Math.abs(M.evaluate('sin(30°)',{angle:'RAD'})-.5)<1e-12],['LCD buffer',()=>LCD.rasterize(state).length===96*31]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
-function keyboard(e){if(e.ctrlKey||e.altKey||e.metaKey||e.isComposing)return;const target=e.target;if(target.matches('input,textarea,select,[contenteditable]'))return;
- if(state.screen==='prompt'&&e.key.length===1&&/^[a-zA-Z,=<>!\s]$/.test(e.key)){e.preventDefault();press('TEXT:'+e.key);return}
- const map={Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',Escape:'AC',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','.':'DOT','^':'POWER'};
- const key=map[e.key]||(/^\d$/.test(e.key)?e.key:null);if(key){e.preventDefault();press(key)}}
+function captureKeyboardLCD(){
+ if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')return false;
+ $('lcd').toBlob(blob=>{
+  if(!blob){notify('LCD capture unavailable',true);return}
+  navigator.clipboard.write([new ClipboardItem({'image/png':blob})])
+   .then(()=>notify('LCD copied to clipboard'))
+   .catch(()=>notify('Clipboard permission denied; use Save LCD instead',true));
+ },'image/png');
+ return true;
+}
+function keyboard(event){
+ window.FreshKeyboard.dispatch(event,state,press,captureKeyboardLCD);
+}
 K.mount($('keys'),press);
 $('model-selector').value=state.model;
 $('model-selector').addEventListener('change',e=>setModel(e.target.value));
