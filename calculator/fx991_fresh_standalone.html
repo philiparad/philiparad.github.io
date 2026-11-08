@@ -338,6 +338,8 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
  */
 (function(global){'use strict';
 const W=96,H=31;
+// 2D scroll offsets are tracked independently by the controller.
+
 const FONT={
  '0':['111','101','101','101','111'],'1':['010','110','010','010','111'],'2':['111','001','111','100','111'],'3':['111','001','111','001','111'],'4':['101','101','111','001','001'],'5':['111','100','111','001','111'],'6':['111','100','111','101','111'],'7':['111','001','010','010','010'],'8':['111','101','111','101','111'],'9':['111','101','111','001','111'],
  A:['010','101','111','101','101'],B:['110','101','110','101','110'],C:['011','100','100','100','011'],D:['110','101','101','101','110'],E:['111','100','110','100','111'],F:['111','100','110','100','100'],G:['011','100','101','101','011'],H:['101','101','111','101','101'],I:['111','010','010','010','111'],J:['001','001','001','101','010'],K:['101','101','110','101','101'],L:['100','100','100','100','111'],M:['101','111','111','101','101'],N:['101','111','111','111','101'],O:['111','101','101','101','111'],P:['110','101','110','100','100'],Q:['111','101','101','111','001'],R:['110','101','110','101','101'],S:['011','100','010','001','110'],T:['111','010','010','010','010'],U:['101','101','101','101','111'],V:['101','101','101','101','010'],W:['101','101','111','111','101'],X:['101','101','010','101','101'],Y:['101','101','010','010','010'],Z:['111','001','010','100','111'],
@@ -419,10 +421,14 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   return pixels;
  }
  if(state.screen==='flow-result'){
-  const lines=state.outputLines||[];const offset=3*(state.outputPage||0);
-  for(let i=0;i<3;i++)write(String(lines[offset+i]||'').slice(0,23),0,7+i*8);
-  if(offset+3<lines.length)write('>',91,0);
-  if(offset>0)write('<',87,0);
+  const lines=state.outputLines||[],page=state.outputPage||0;
+  const pan=global.FreshViewport.scrollLine(lines,page,state.viewport?.flowX||0);
+  for(let i=0;i<3;i++)write(pan.lines[i]||'',0,7+i*8);
+  // Horizontal scrolling never changes which three output rows are shown.
+  if(pan.left)glyph('<',0,25);
+  if(pan.right)glyph('>',91,25);
+  if((page+1)*3<lines.length)write('>',91,0);
+  if(page>0)write('<',87,0);
   return pixels;
  }
  // REA-009: render editable mathematical templates in two dimensions.
@@ -489,11 +495,13 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   return x;
  }
  function drawStructured(visibleCursor,baseline){
-  const nodes=expression.root;
-  const width=measureSeq(nodes);
-  const offset=Math.max(0,width-W+2);
-  drawSeq(nodes,-offset,baseline,[],visibleCursor);
+  const nodes=expression.root,view=state.viewport||{},offset=view.inputX||0,vertical=view.inputY||0;
+  const layout=global.FreshViewport.layout(expression,baseline);
+  drawSeq(nodes,-offset,baseline-vertical,[],visibleCursor);
   if(offset>0)glyph('<',0,25);
+  if(layout.width-offset>W-1)glyph('>',91,25);
+  if(layout.minY-vertical<0)glyph('↑',87,0);
+  if(layout.maxY-vertical>26)glyph('↓',91,0);
  }
 
  if(state.screen==='error'){write(state.error||'Math ERROR',0,14);return pixels}
@@ -502,6 +510,8 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(!item||!['fraction','mixed','pi','surd','engineering'].includes(item.kind))return false;
   if(item.kind==='fraction'||item.kind==='mixed'){
    const n=String(item.numerator),d=String(item.denominator);
+   // Long fractions remain recoverable as a horizontally pannable linear form.
+   if((item.text||'').length>22)return false;
    const integer=item.kind==='mixed'?String(item.integer):'';
    const numberWidth=integer?integer.length*4+4:0;
    const width=Math.max(n.length,d.length)*4+2;
@@ -514,21 +524,38 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    return true;
   }
   const text=String(item.text);
+  if(text.length>23)return false;
   write(text.slice(-24),Math.max(0,W-Math.min(text.length,24)*4),25);
   return true;
  }
  if(state.screen==='result'){
+  const input=state.input||'',view=state.viewport||{};
   if(structured)drawStructured(false,8);
-  const input=state.input||'';if(!structured)write(input.slice(-24),0,8);
-  const result=String(state.result||'0');if(!drawTypedResult(state.resultPresentation))write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
-  if(result.length>24)write('<',0,25);
+  else {
+   const start=Math.max(0,Math.min(Math.floor((view.inputX||0)/4),Math.max(0,input.length-23)));
+   write(input.slice(start,start+23),0,8);
+   if(start>0)glyph('<',0,15);
+   if(start+23<input.length)glyph('>',91,15);
+  }
+  const result=String(state.result||'0');
+  if(!drawTypedResult(state.resultPresentation)){
+   if(result.length>23){
+    const start=Math.max(0,Math.min(view.resultX||0,result.length-23));
+    write(result.slice(start,start+23),0,25);
+    if(start>0)glyph('<',0,19);
+    if(start+23<result.length)glyph('>',91,19);
+   }else write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
+  }
   return pixels;
  }
  if(structured){drawStructured(true,12);if(state.info)write(state.info.slice(-23),0,25);return pixels}
- const input=state.input||'';const cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
- const visible=20;const start=Math.max(0,cursor-visible+1);const piece=input.slice(start,start+visible);
- write(piece,0,8);const caret=(cursor-start)*4;if(caret<W)for(let yy=8;yy<15;yy++)pixel(caret,yy);
- if(start>0)write('<',0,20);if(input.length>start+visible)write('>',91,20);
+ const input=state.input||'',cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
+ const visible=23,start=Math.max(0,Math.min(Math.floor((state.viewport?.inputX||0)/4),Math.max(0,input.length-visible)));
+ const piece=input.slice(start,start+visible);
+ write(piece,0,8);const caret=(cursor-start)*4;
+ if(caret>=0&&caret<W)for(let yy=8;yy<15;yy++)pixel(caret,yy);
+ if(start>0)glyph('<',0,20);
+ if(input.length>start+visible)glyph('>',91,20);
  if(state.info)write(state.info.slice(-23),0,25);
  return pixels;
 }
@@ -949,9 +976,105 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
 
 </script>
     <script>
+/* REA-015: deterministic 2D LCD viewport for independent calculator input.
+ * Logical pixel dimensions are project choices, NOT measured CASIO hardware.
+ */
+(function(global){'use strict';
+const WIDTH=96,HEIGHT=31,CHAR=4;
+const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
+function measure(nodes){return nodes.reduce((sum,node)=>sum+nodeWidth(node),0)}
+function fieldWidth(node,name){return Math.max(6,measure(node.parts[name]||[]))}
+function nodeWidth(node){
+ if(node.type==='char')return CHAR;
+ if(node.type==='fraction')return Math.max(fieldWidth(node,'numerator'),fieldWidth(node,'denominator'))+4;
+ if(node.type==='mixed')return fieldWidth(node,'integer')+Math.max(fieldWidth(node,'numerator'),fieldWidth(node,'denominator'))+8;
+ if(node.type==='power')return fieldWidth(node,'exponent')+2;
+ if(node.type==='squareRoot'||node.type==='cubeRoot')return fieldWidth(node,'radicand')+8;
+ if(node.type==='nthRoot')return fieldWidth(node,'index')+fieldWidth(node,'radicand')+9;
+ return CHAR;
+}
+function layout(editor,baseline=12){
+ let cursor=null,minY=baseline,maxY=baseline+5;
+ const wanted=JSON.stringify(editor.path||[]);
+ const add=(y1,y2)=>{minY=Math.min(minY,y1);maxY=Math.max(maxY,y2)};
+ function walk(nodes,x,y,path){
+  if(JSON.stringify(path)===wanted)cursor={x:x+(editor.offset||0)*0,y};
+  for(let i=0;i<=nodes.length;i++){
+   if(JSON.stringify(path)===wanted&&editor.offset===i)cursor={x,y};
+   if(i===nodes.length)break;
+   const n=nodes[i],w=nodeWidth(n),p=n.parts||{};
+   if(n.type==='char')add(y,y+5);
+   else {
+    function field(name,fx,fy){
+     const child=p[name]||[];
+     if(!child.length)add(fy+5,fy+5);
+     walk(child,fx,fy,[...path,{index:i,field:name}]);
+    }
+    if(n.type==='fraction'){
+     const widest=w-4,a=measure(p.numerator),b=measure(p.denominator);
+     field('numerator',x+2+Math.floor((widest-a)/2),y-10);
+     add(y-3,y-3);
+     field('denominator',x+2+Math.floor((widest-b)/2),y+1);
+    }else if(n.type==='mixed'){
+     field('integer',x,y);
+     const shift=fieldWidth(n,'integer')+4,span=w-shift;
+     field('numerator',x+shift+Math.floor((span-measure(p.numerator))/2),y-10);
+     add(y-3,y-3);
+     field('denominator',x+shift+Math.floor((span-measure(p.denominator))/2),y+1);
+    }else if(n.type==='power')field('exponent',x+2,y-8);
+    else if(['squareRoot','cubeRoot','nthRoot'].includes(n.type)){
+     const prefix=n.type==='nthRoot'?9:7;
+     add(y-7,y+4);
+     if(n.type==='nthRoot')field('index',x,y-10);
+     field('radicand',x+prefix,y);
+    }
+   }
+   x+=w;
+  }
+ }
+ walk(editor.root||[],0,baseline,[]);
+ return {width:measure(editor.root||[]),cursor:cursor||{x:0,y:baseline},minY,maxY};
+}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function follow(editor,current={x:0,y:0},baseline=12){
+ const frame=layout(editor,baseline),xMax=Math.max(0,frame.width-WIDTH+8);
+ let x=clamp(current.x||0,0,xMax),y=current.y||0;
+ // Leave a few pixels for the two lateral overflow cues.
+ if(frame.cursor.x-x<5)x=clamp(frame.cursor.x-5,0,xMax);
+ if(frame.cursor.x-x>WIDTH-6)x=clamp(frame.cursor.x-(WIDTH-6),0,xMax);
+ if(frame.cursor.y-y<3)y=frame.cursor.y-3;
+ if(frame.cursor.y-y>21)y=frame.cursor.y-21;
+ // Never shift an ordinary short, shallow expression vertically.
+ if(frame.minY>=0&&frame.maxY<=26)y=0;
+ return {x,y,frame,arrows:{
+  left:x>0,right:frame.width-x>WIDTH-1,
+  up:frame.minY-y<0,down:frame.maxY-y>26
+ }};
+}
+function linearWindow(text,cursor,visible=23){
+ const length=String(text).length;
+ const max=Math.max(0,length-visible);
+ const start=clamp((cursor||0)-visible+1,0,max);
+ return {start,end:start+visible,left:start>0,right:length>start+visible};
+}
+function pageCount(lines,pageLines=3){return Math.max(1,Math.ceil((lines||[]).length/pageLines))}
+function scrollLine(lines,page,x,chars=23){
+ const slice=(lines||[]).slice(page*3,page*3+3).map(String);
+ const max=Math.max(0,...slice.map(s=>Math.max(0,s.length-chars)));
+ const offset=clamp(x||0,0,max);
+ return {offset,max,left:offset>0,right:offset<max,lines:slice.map(s=>s.slice(offset,offset+chars))};
+}
+const api=Object.freeze({layout,follow,linearWindow,scrollLine,pageCount,width:WIDTH,height:HEIGHT});
+global.FreshViewport=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+    <script>
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport;
+if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
 if(!STRUCT)throw Error('Structured textbook editor unavailable');
@@ -960,7 +1083,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -996,7 +1119,7 @@ function setResult(value,source=state.input){
  state.resultPresentation=RESULTS.calculate(value,source,state,{
    allowApproxRational:state.math&&source.includes('/')&&!/\d\.\d/.test(source)
  });
- state.result=state.resultPresentation.chosen.text;state.screen='result';state.error='';
+ state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.screen='result';state.error='';
  state.history.unshift({source,value,mode:state.mode,angle:state.angle});if(state.history.length>80)state.history.pop();
  notify('Calculated successfully');paint();
 }
@@ -1010,11 +1133,18 @@ function evaluate(){try{
 function syncEditor(){
  state.input=STRUCT.serialize(state.editor);
  state.cursor=state.editor.path.length?state.input.length:state.editor.offset;
+ if(state.editor.root.some(n=>n.type!=='char')&&state.math){
+  const position=VIEW.follow(state.editor,{x:state.viewport.inputX,y:state.viewport.inputY});
+  state.viewport.inputX=position.x;state.viewport.inputY=position.y;
+ }else{
+  const position=VIEW.linearWindow(state.input,state.cursor,23);
+  state.viewport.inputX=position.start*4;state.viewport.inputY=0;
+ }
 }
 function beginEdit(){
  if(state.screen!=='edit'){
   state.screen='edit';state.input='';state.cursor=0;state.result='';state.error='';
-  state.editor=STRUCT.create();
+  state.editor=STRUCT.create();state.viewport.inputX=0;state.viewport.inputY=0;
  }
 }
 function insert(text){
@@ -1036,7 +1166,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -1081,10 +1211,9 @@ function flowNext(){
  try{
   const output=f.run({...f.values});
   const lines=String(output??state.result??'0').split(/\n/).flatMap(line=>{
-    if(line.length<=22)return [line];
-    const parts=[];for(let i=0;i<line.length;i+=22)parts.push(line.slice(i,i+22));return parts;
+    return [line];
   });
-  state.flow=null;state.outputLines=lines;state.outputPage=0;state.screen='flow-result';state.info='';
+  state.flow=null;state.outputLines=lines;state.outputPage=0;state.viewport.flowX=0;state.screen='flow-result';state.info='';
   notify('Calculation completed. UP/DOWN: scroll; AC: exit');paint();
  }catch(e){state.info=String(e.message||'Math ERROR').slice(0,23);notify(state.info,true);paint()}
 }
@@ -1383,7 +1512,7 @@ function showResult(decimal,forceFraction=false){
    decimal,forceFraction,
    allowApproxRational:forceFraction||(state.math&&source.includes('/')&&!/\d\.\d/.test(source))
  });
- state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;paint();
+ state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);paint();
 }
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
@@ -1400,7 +1529,7 @@ function showEngineering(){
  const result=RESULTS.engineering(state.raw,state.engShift,state);
  state.engShift+=1;
  state.resultPresentation={chosen:result,natural:result,decimal:{kind:'decimal',text:RESULTS.decimal(state.raw,state)}};
- state.result=result.text;state.decimal=false;paint();
+ state.result=result.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.decimal=false;paint();
 }
 function press(key){
  const before={mode:state.mode,shift:state.shift,alpha:state.alpha,screen:state.screen,input:state.input};
@@ -1418,13 +1547,46 @@ function handle(key){
  }
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
- if(state.screen==='flow-result'){if(key==='UP'||key==='DOWN'){state.outputPage=Math.max(0,Math.min(Math.ceil(state.outputLines.length/3)-1,state.outputPage+(key==='DOWN'?1:-1)));paint();return}if(key==='AC'){state.screen='edit';state.outputLines=[];state.info='';paint();return}if(key==='MODE'){modeMenu();return}state.screen='edit'}
+ if(state.screen==='flow-result'){
+  if(key==='UP'||key==='DOWN'){
+   state.outputPage=Math.max(0,Math.min(VIEW.pageCount(state.outputLines)-1,state.outputPage+(key==='DOWN'?1:-1)));
+   state.viewport.flowX=0;paint();return;
+  }
+  if(key==='LEFT'||key==='RIGHT'){
+   const view=VIEW.scrollLine(state.outputLines,state.outputPage,state.viewport.flowX);
+   state.viewport.flowX=Math.max(0,Math.min(view.max,state.viewport.flowX+(key==='RIGHT'?4:-4)));
+   paint();return;
+  }
+  if(key==='AC'){state.screen='edit';state.outputLines=[];state.viewport.flowX=0;state.info='';paint();return}
+  if(key==='MODE'){modeMenu();return}
+  state.screen='edit';
+ }
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+ if(state.shift&&['LEFT','RIGHT','UP','DOWN'].includes(key)&&['edit','result'].includes(state.screen)){
+  // Panning is independent of the expression caret: SHIFT + arrows scrolls
+  // the viewport only; the active mathematical field is unchanged.
+  const v=state.viewport,dx=key==='RIGHT'?4:key==='LEFT'?-4:0,
+      dy=key==='DOWN'?4:key==='UP'?-4:0;
+  if(state.screen==='result'&&dx){
+   v.resultX=Math.max(0,Math.min(Math.max(0,state.result.length-23),v.resultX+dx/4));
+  }else{
+   const frame=VIEW.layout(state.editor,state.screen==='result'?8:12);
+   v.inputX=Math.max(0,Math.min(Math.max(0,frame.width-88),v.inputX+dx));
+   const minY=Math.min(0,frame.minY-3),maxY=Math.max(0,frame.maxY-24);
+   v.inputY=Math.max(minY,Math.min(maxY,v.inputY+dy));
+  }
+  releaseModifier();paint();return;
+ }
+ if(state.screen==='result'&&['LEFT','RIGHT'].includes(key)&&state.result.length>23){
+  state.viewport.resultX=Math.max(0,Math.min(state.result.length-23,
+    state.viewport.resultX+(key==='LEFT'?-4:4)));
+  paint();return;
+ }
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
- if(key==='AC'){state.editor=STRUCT.create();state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
