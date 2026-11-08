@@ -1,0 +1,41 @@
+name: REA-011 approve fraction display golden
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rea011-fraction-golden.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: rea011-one-frame-golden
+  cancel-in-progress: false
+jobs:
+  approve-one-frame:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deterministic image capture dependencies
+        run: |
+          python -m pip install playwright==1.56.0 Pillow
+          python -m playwright install --with-deps chromium
+      - name: Approve ONLY fraction_result after exact comparison of all 13 cases
+        run: python calculator/reference/rea-011/approve_fraction_golden.py
+      - name: Verify entire immutable LCD suite before committing
+        run: python calculator/reference/rea-006/lcd_golden.py --out /tmp/rea011-verified-frames
+      - name: Commit explicitly approved REA-011 golden pixels only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git diff --name-only | wc -l)" -eq 1
+          test "$(git diff --name-only)" = "calculator/reference/rea-006/web-golden.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add calculator/reference/rea-006/web-golden.json
+          git commit -m "REA-011: approve reviewed stacked-fraction LCD golden (1 of 13)"
+          git pull --rebase origin main
+          git push origin HEAD:main
