@@ -56,6 +56,14 @@ async def main():
                 await check(["1","DIV","4","EQUAL"],"decimal","0.25",.25)
                 st=await page.evaluate("FreshCalculator.getState()")
                 assert st["format"]=="Fix"
+                # On LINE output, S⇔D still converts between decimal and fraction.
+                await press("SHIFT","MODE","RIGHT","1")
+                await press("SHIFT","MODE","5")
+                await check(["1","DIV","5","EQUAL"],"decimal","0.2",.2)
+                await press("SD")
+                assert (await page.evaluate("FreshCalculator.getState()"))["result"]=="1/5"
+                await press("SD")
+                assert (await page.evaluate("FreshCalculator.getState()"))["result"]=="0.2"
                 assert not errors,(page_name,errors)
                 print(page_name+": fraction, decimal, mixed, pi, sqrt, ENG, FIX, S-D PASS")
                 await page.close()
