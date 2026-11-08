@@ -1,0 +1,85 @@
+/* REA-018 — PC keyboard routing documented by CASIO fx-ES PLUS Emulator.
+ * Guide: fx-ES_PLUS_Emulator_Subscription_EN.pdf, EN-2.
+ * Browser accessibility takes precedence when an edit control or unrelated
+ * button owns focus. Keyboard events never simulate physical firmware codes.
+ */
+(function(global){'use strict';
+const NORMAL=Object.freeze({
+ F1:'SHIFT',F2:'ALPHA',F3:'MODE',F4:'ON',Home:'MODE',
+ Enter:'EQUAL',NumpadEnter:'EQUAL',
+ Backspace:'DEL',Delete:'DEL',
+ ArrowDown:'DOWN',ArrowUp:'UP',ArrowRight:'RIGHT',ArrowLeft:'LEFT',
+ '^':'POWER','(':'LP',')':'RP','+':'ADD','-':'SUB','*':'MUL','/':'DIV',
+ '.':'DOT',',':'COMMA','=','=':'EQUAL',
+ Escape:'AC'
+});
+const PROMPT_TEXT=/^[a-zA-Z<>! ]$/;
+const EDITOR_SELECTOR='input,textarea,select,[contenteditable],[role="textbox"]';
+function getTarget(event){
+ const target=event.target;
+ if(target&&typeof target.closest==='function'){
+  if(target.closest(EDITOR_SELECTOR))return 'editor';
+  if(target.closest('button:not([data-key])'))return 'control';
+  if(target.closest('[data-key]'))return 'key-button';
+  if(target.closest('#face'))return 'face';
+ }
+ return 'document';
+}
+function translate(event,context={}){
+ if(!event||event.isComposing||event.key==='Process')return null;
+ const target=getTarget(event);
+ if(target==='editor'||target==='control')return null;
+ // Preserve OS shortcuts, browser copy, and keyboard-accessible focusing.
+ if(event.metaKey||event.altKey||event.ctrlKey)return null;
+ if(event.key==='Tab'){
+  // The CASIO emulator maps Tab -> AC. Limit this shortcut to the face
+  // container itself; otherwise Tab must continue to navigate UI controls.
+  if(event.shiftKey||target!=='face')return null;
+  return {keys:['AC'],label:'Tab',reference:'casio'};
+ }
+ if(event.key===' '||event.key==='Spacebar'){
+  // Space on a focused key activates that button natively.
+  if(target==='key-button')return null;
+  return {keys:['AC'],label:'Space',reference:'casio'};
+ }
+ // When a physical key has DOM focus, let native Enter click its button.
+ if(event.key==='Enter'&&target==='key-button')return null;
+ const key=event.key==='NumpadEnter'?'Enter':event.key;
+ if(key==='Escape')return {keys:['AC'],label:'Escape',reference:'convenience'};
+ const physical=NORMAL[key];
+ if(physical){
+  if(physical==='COMMA'){
+   if(context.screen==='prompt')return {keys:['TEXT:,'],label:',',reference:'casio-context'};
+   return {keys:['SHIFT','RP'],label:',',reference:'casio-context'};
+  }
+  if(physical==='=')return {keys:['EQUAL'],label:'=',reference:'casio'};
+  return {keys:[physical],label:key,reference:'casio'};
+ }
+ // The guide documents the numerical keyboard, not literal alphabetic
+ // expression entry. Keep letters usable only in web function prompts.
+ if(context.screen==='prompt'&&key.length===1&&PROMPT_TEXT.test(key)){
+  return {keys:['TEXT:'+key],label:key,reference:'web-extension'};
+ }
+ if(/^\d$/.test(key))return {keys:[key],label:key,reference:'casio'};
+ return null;
+}
+function dispatch(event,context,press){
+ const resolved=translate(event,context);
+ if(!resolved)return false;
+ event.preventDefault();
+ for(const key of resolved.keys)press(key);
+ return true;
+}
+const MAPPING=Object.freeze({
+ Tab:'AC (face focus only)',Space:'AC (except native focused button)',
+ F1:'SHIFT',F2:'ALPHA',F3:'MODE',F4:'ON',Home:'MODE',
+ Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',
+ ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',
+ '^':'POWER','(':'LP',')':'RP','+':'ADD','-':'SUB','*':'MUL','/':'DIV',
+ '.':'DOT',',':'SHIFT+RP (main expression)',
+ '0-9':'0-9'
+});
+const API=Object.freeze({translate,dispatch,mapping:MAPPING,getTarget});
+global.FreshKeyboard=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
