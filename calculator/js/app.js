@@ -1,6 +1,7 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport;
+if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
 if(!STRUCT)throw Error('Structured textbook editor unavailable');
@@ -9,7 +10,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),resultPresentation:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -45,7 +46,7 @@ function setResult(value,source=state.input){
  state.resultPresentation=RESULTS.calculate(value,source,state,{
    allowApproxRational:state.math&&source.includes('/')&&!/\d\.\d/.test(source)
  });
- state.result=state.resultPresentation.chosen.text;state.screen='result';state.error='';
+ state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.screen='result';state.error='';
  state.history.unshift({source,value,mode:state.mode,angle:state.angle});if(state.history.length>80)state.history.pop();
  notify('Calculated successfully');paint();
 }
@@ -59,11 +60,18 @@ function evaluate(){try{
 function syncEditor(){
  state.input=STRUCT.serialize(state.editor);
  state.cursor=state.editor.path.length?state.input.length:state.editor.offset;
+ if(state.editor.root.some(n=>n.type!=='char')&&state.math){
+  const position=VIEW.follow(state.editor,{x:state.viewport.inputX,y:state.viewport.inputY});
+  state.viewport.inputX=position.x;state.viewport.inputY=position.y;
+ }else{
+  const position=VIEW.linearWindow(state.input,state.cursor,23);
+  state.viewport.inputX=position.start*4;state.viewport.inputY=0;
+ }
 }
 function beginEdit(){
  if(state.screen!=='edit'){
   state.screen='edit';state.input='';state.cursor=0;state.result='';state.error='';
-  state.editor=STRUCT.create();
+  state.editor=STRUCT.create();state.viewport.inputX=0;state.viewport.inputY=0;
  }
 }
 function insert(text){
@@ -85,7 +93,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -130,10 +138,9 @@ function flowNext(){
  try{
   const output=f.run({...f.values});
   const lines=String(output??state.result??'0').split(/\n/).flatMap(line=>{
-    if(line.length<=22)return [line];
-    const parts=[];for(let i=0;i<line.length;i+=22)parts.push(line.slice(i,i+22));return parts;
+    return [line];
   });
-  state.flow=null;state.outputLines=lines;state.outputPage=0;state.screen='flow-result';state.info='';
+  state.flow=null;state.outputLines=lines;state.outputPage=0;state.viewport.flowX=0;state.screen='flow-result';state.info='';
   notify('Calculation completed. UP/DOWN: scroll; AC: exit');paint();
  }catch(e){state.info=String(e.message||'Math ERROR').slice(0,23);notify(state.info,true);paint()}
 }
@@ -432,7 +439,7 @@ function showResult(decimal,forceFraction=false){
    decimal,forceFraction,
    allowApproxRational:forceFraction||(state.math&&source.includes('/')&&!/\d\.\d/.test(source))
  });
- state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;paint();
+ state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);paint();
 }
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
@@ -449,7 +456,7 @@ function showEngineering(){
  const result=RESULTS.engineering(state.raw,state.engShift,state);
  state.engShift+=1;
  state.resultPresentation={chosen:result,natural:result,decimal:{kind:'decimal',text:RESULTS.decimal(state.raw,state)}};
- state.result=result.text;state.decimal=false;paint();
+ state.result=result.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.decimal=false;paint();
 }
 function press(key){
  const before={mode:state.mode,shift:state.shift,alpha:state.alpha,screen:state.screen,input:state.input};
@@ -467,13 +474,45 @@ function handle(key){
  }
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
- if(state.screen==='flow-result'){if(key==='UP'||key==='DOWN'){state.outputPage=Math.max(0,Math.min(Math.ceil(state.outputLines.length/3)-1,state.outputPage+(key==='DOWN'?1:-1)));paint();return}if(key==='AC'){state.screen='edit';state.outputLines=[];state.info='';paint();return}if(key==='MODE'){modeMenu();return}state.screen='edit'}
+ if(state.screen==='flow-result'){
+  if(key==='UP'||key==='DOWN'){
+   state.outputPage=Math.max(0,Math.min(VIEW.pageCount(state.outputLines)-1,state.outputPage+(key==='DOWN'?1:-1)));
+   state.viewport.flowX=0;paint();return;
+  }
+  if(key==='LEFT'||key==='RIGHT'){
+   const view=VIEW.scrollLine(state.outputLines,state.outputPage,state.viewport.flowX);
+   state.viewport.flowX=Math.max(0,Math.min(view.max,state.viewport.flowX+(key==='RIGHT'?4:-4)));
+   paint();return;
+  }
+  if(key==='AC'){state.screen='edit';state.outputLines=[];state.viewport.flowX=0;state.info='';paint();return}
+  if(key==='MODE'){modeMenu();return}
+  state.screen='edit';
+ }
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+ if(state.shift&&['LEFT','RIGHT','UP','DOWN'].includes(key)&&['edit','result'].includes(state.screen)){
+  // Panning is independent of the expression caret: SHIFT + arrows scrolls
+  // the viewport only; the active mathematical field is unchanged.
+  const v=state.viewport,dx=key==='RIGHT'?4:key==='LEFT'?-4:0,
+      dy=key==='DOWN'?4:key==='UP'?-4:0;
+  if(state.screen==='result'&&dx){
+   v.resultX=Math.max(0,Math.min(Math.max(0,state.result.length-23),v.resultX+dx/4));
+  }else{
+   const frame=VIEW.layout(state.editor,state.screen==='result'?8:12);
+   v.inputX=Math.max(0,Math.min(Math.max(0,frame.width-88),v.inputX+dx));
+   v.inputY=Math.max(frame.minY-3,Math.min(frame.maxY-24,v.inputY+dy));
+  }
+  releaseModifier();paint();return;
+ }
+ if(state.screen==='result'&&['LEFT','RIGHT'].includes(key)&&state.result.length>23){
+  state.viewport.resultX=Math.max(0,Math.min(state.result.length-23,
+    state.viewport.resultX+(key==='LEFT'?-4:4)));
+  paint();return;
+ }
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
- if(key==='AC'){state.editor=STRUCT.create();state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
