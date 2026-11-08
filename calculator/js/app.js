@@ -259,10 +259,8 @@ function setupSetting(id){
   return;
  }
  if(id==='contrast'){
-  optionDialog('CONT 0-9',Array.from({length:10},(_,i)=>({
-   key:String(i),label:String(i),action:()=>{state.contrast=i;paint()}
-  })),{pageSize:10,kind:'setup'});
-  return;
+  state.screen='contrast';state.info='LIGHT LEFT  RIGHT DARK';
+  paint();return;
  }
  const entries=SETUP.options(id);
  if(entries.length){
@@ -444,6 +442,12 @@ function press(key){
 function handle(key){
  if(key==='ON'){state.power=true;state.screen='edit';releaseModifier();notify('Calculator on');paint();return}
  if(!state.power)return;
+ if(state.screen==='contrast'){
+  if(key==='LEFT')state.contrast=Math.max(0,state.contrast-1);
+  if(key==='RIGHT')state.contrast=Math.min(9,state.contrast+1);
+  if(key==='AC'||key==='EQUAL'){state.screen='edit';state.info=''}
+  paint();return;
+ }
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){if(key==='UP'||key==='DOWN'){state.outputPage=Math.max(0,Math.min(Math.ceil(state.outputLines.length/3)-1,state.outputPage+(key==='DOWN'?1:-1)));paint();return}if(key==='AC'){state.screen='edit';state.outputLines=[];state.info='';paint();return}if(key==='MODE'){modeMenu();return}state.screen='edit'}
