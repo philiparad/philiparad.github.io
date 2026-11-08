@@ -27,7 +27,7 @@ function paint(){
  $('lcd-mode').textContent=lit?(modeIndicators[state.mode]||''):'';
  $('lcd-angle').textContent=lit?(state.angle==='DEG'?'D':state.angle==='RAD'?'R':'G'):'';
  $('lcd-format').textContent=lit?(state.format==='Fix'?'FIX':state.format==='Sci'?'SCI':''):'';
- $('lcd-math').textContent=lit&&state.math?'Math':'';
+ $('lcd-math').textContent=lit&&state.math&&!['STAT','BASE-N','MATRIX','VECTOR'].includes(state.mode)?'Math':'';
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
  $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  $('model-label').textContent=MODELS.get(state.model).label;
@@ -379,7 +379,7 @@ function shifted(key){
  if(key==='DEL'){state.insert=!state.insert;releaseModifier();notify(state.insert?'Insert mode':'Overwrite mode');paint();return true}
  if(key==='9'){releaseModifier();optionDialog('CLR — choose data to reset',[
   {label:'1. Memory',action:()=>{Object.keys(state.memory).forEach(r=>state.memory[r]=0);paint()}},
-  {label:'2. Setup',action:()=>{state.angle='DEG';state.format='Norm2';state.digits=3;paint()}},
+  {label:'2. Setup',action:()=>{Object.assign(state,SETUP.defaults);paint()}},
   {label:'3. All',action:()=>reset('all')}]);return true}
  if(key==='7'){releaseModifier();optionDialog('Scientific constants',[
   {label:'π',action:()=>insert('pi')},{label:'e',action:()=>insert('e')},{label:'Speed of light (m/s)',action:()=>insert('299792458')},
