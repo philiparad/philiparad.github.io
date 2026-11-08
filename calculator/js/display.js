@@ -3,6 +3,8 @@
  */
 (function(global){'use strict';
 const W=96,H=31;
+// 2D scroll offsets are tracked independently by the controller.
+
 const FONT={
  '0':['111','101','101','101','111'],'1':['010','110','010','010','111'],'2':['111','001','111','100','111'],'3':['111','001','111','001','111'],'4':['101','101','111','001','001'],'5':['111','100','111','001','111'],'6':['111','100','111','101','111'],'7':['111','001','010','010','010'],'8':['111','101','111','101','111'],'9':['111','101','111','001','111'],
  A:['010','101','111','101','101'],B:['110','101','110','101','110'],C:['011','100','100','100','011'],D:['110','101','101','101','110'],E:['111','100','110','100','111'],F:['111','100','110','100','100'],G:['011','100','101','101','011'],H:['101','101','111','101','101'],I:['111','010','010','010','111'],J:['001','001','001','101','010'],K:['101','101','110','101','101'],L:['100','100','100','100','111'],M:['101','111','111','101','101'],N:['101','111','111','111','101'],O:['111','101','101','101','111'],P:['110','101','110','100','100'],Q:['111','101','101','111','001'],R:['110','101','110','101','101'],S:['011','100','010','001','110'],T:['111','010','010','010','010'],U:['101','101','101','101','111'],V:['101','101','101','101','010'],W:['101','101','111','111','101'],X:['101','101','010','101','101'],Y:['101','101','010','010','010'],Z:['111','001','010','100','111'],
@@ -84,10 +86,14 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   return pixels;
  }
  if(state.screen==='flow-result'){
-  const lines=state.outputLines||[];const offset=3*(state.outputPage||0);
-  for(let i=0;i<3;i++)write(String(lines[offset+i]||'').slice(0,23),0,7+i*8);
-  if(offset+3<lines.length)write('>',91,0);
-  if(offset>0)write('<',87,0);
+  const lines=state.outputLines||[],page=state.outputPage||0;
+  const pan=global.FreshViewport.scrollLine(lines,page,state.viewport?.flowX||0);
+  for(let i=0;i<3;i++)write(pan.lines[i]||'',0,7+i*8);
+  // Horizontal scrolling never changes which three output rows are shown.
+  if(pan.left)glyph('<',0,25);
+  if(pan.right)glyph('>',91,25);
+  if((page+1)*3<lines.length)write('>',91,0);
+  if(page>0)write('<',87,0);
   return pixels;
  }
  // REA-009: render editable mathematical templates in two dimensions.
@@ -154,11 +160,13 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   return x;
  }
  function drawStructured(visibleCursor,baseline){
-  const nodes=expression.root;
-  const width=measureSeq(nodes);
-  const offset=Math.max(0,width-W+2);
-  drawSeq(nodes,-offset,baseline,[],visibleCursor);
+  const nodes=expression.root,view=state.viewport||{},offset=view.inputX||0,vertical=view.inputY||0;
+  const layout=global.FreshViewport.layout(expression,baseline);
+  drawSeq(nodes,-offset,baseline-vertical,[],visibleCursor);
   if(offset>0)glyph('<',0,25);
+  if(layout.width-offset>W-1)glyph('>',91,25);
+  if(layout.minY-vertical<0)glyph('↑',87,0);
+  if(layout.maxY-vertical>26)glyph('↓',91,0);
  }
 
  if(state.screen==='error'){write(state.error||'Math ERROR',0,14);return pixels}
@@ -167,6 +175,8 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(!item||!['fraction','mixed','pi','surd','engineering'].includes(item.kind))return false;
   if(item.kind==='fraction'||item.kind==='mixed'){
    const n=String(item.numerator),d=String(item.denominator);
+   // Long fractions remain recoverable as a horizontally pannable linear form.
+   if((item.text||'').length>22)return false;
    const integer=item.kind==='mixed'?String(item.integer):'';
    const numberWidth=integer?integer.length*4+4:0;
    const width=Math.max(n.length,d.length)*4+2;
@@ -179,21 +189,38 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    return true;
   }
   const text=String(item.text);
+  if(text.length>23)return false;
   write(text.slice(-24),Math.max(0,W-Math.min(text.length,24)*4),25);
   return true;
  }
  if(state.screen==='result'){
+  const input=state.input||'',view=state.viewport||{};
   if(structured)drawStructured(false,8);
-  const input=state.input||'';if(!structured)write(input.slice(-24),0,8);
-  const result=String(state.result||'0');if(!drawTypedResult(state.resultPresentation))write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
-  if(result.length>24)write('<',0,25);
+  else {
+   const start=Math.max(0,Math.min(Math.floor((view.inputX||0)/4),Math.max(0,input.length-23)));
+   write(input.slice(start,start+23),0,8);
+   if(start>0)glyph('<',0,15);
+   if(start+23<input.length)glyph('>',91,15);
+  }
+  const result=String(state.result||'0');
+  if(!drawTypedResult(state.resultPresentation)){
+   if(result.length>23){
+    const start=Math.max(0,Math.min(view.resultX||0,result.length-23));
+    write(result.slice(start,start+23),0,25);
+    if(start>0)glyph('<',0,19);
+    if(start+23<result.length)glyph('>',91,19);
+   }else write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
+  }
   return pixels;
  }
  if(structured){drawStructured(true,12);if(state.info)write(state.info.slice(-23),0,25);return pixels}
- const input=state.input||'';const cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
- const visible=20;const start=Math.max(0,cursor-visible+1);const piece=input.slice(start,start+visible);
- write(piece,0,8);const caret=(cursor-start)*4;if(caret<W)for(let yy=8;yy<15;yy++)pixel(caret,yy);
- if(start>0)write('<',0,20);if(input.length>start+visible)write('>',91,20);
+ const input=state.input||'',cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
+ const visible=23,start=Math.max(0,Math.min(Math.floor((state.viewport?.inputX||0)/4),Math.max(0,input.length-visible)));
+ const piece=input.slice(start,start+visible);
+ write(piece,0,8);const caret=(cursor-start)*4;
+ if(caret>=0&&caret<W)for(let yy=8;yy<15;yy++)pixel(caret,yy);
+ if(start>0)glyph('<',0,20);
+ if(input.length>start+visible)glyph('>',91,20);
  if(state.info)write(state.info.slice(-23),0,25);
  return pixels;
 }
