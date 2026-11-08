@@ -78,7 +78,8 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  }
  // REA-009: render editable mathematical templates in two dimensions.
  const expression=state.editor;
- const structured=expression&&expression.root.some(node=>node.type!=='char');
+ const linearModes=['STAT','BASE-N','MATRIX','VECTOR'];
+ const structured=expression&&state.math&&!linearModes.includes(state.mode)&&expression.root.some(node=>node.type!=='char');
  const fieldNames={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
   power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
  function measureSeq(nodes){return nodes.reduce((width,node)=>width+measureNode(node),0)}
