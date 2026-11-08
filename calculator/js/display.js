@@ -145,10 +145,30 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  }
 
  if(state.screen==='error'){write(state.error||'Math ERROR',0,14);return pixels}
+ function drawTypedResult(presentation){
+  const item=presentation&&presentation.chosen;
+  if(!item||!['fraction','mixed','pi','surd','engineering'].includes(item.kind))return false;
+  if(item.kind==='fraction'||item.kind==='mixed'){
+   const n=String(item.numerator),d=String(item.denominator);
+   const integer=item.kind==='mixed'?String(item.integer):'';
+   const numberWidth=integer?integer.length*4+4:0;
+   const width=Math.max(n.length,d.length)*4+2;
+   const start=Math.max(0,W-numberWidth-width-1);
+   if(integer)write(integer,start,23);
+   const x=start+numberWidth;
+   write(n,x+Math.max(0,Math.floor((width-n.length*4)/2)),15);
+   for(let i=0;i<width;i++)pixel(x+i,21);
+   write(d,x+Math.max(0,Math.floor((width-d.length*4)/2)),24);
+   return true;
+  }
+  const text=String(item.text);
+  write(text.slice(-24),Math.max(0,W-Math.min(text.length,24)*4),25);
+  return true;
+ }
  if(state.screen==='result'){
   if(structured)drawStructured(false,8);
   const input=state.input||'';if(!structured)write(input.slice(-24),0,8);
-  const result=String(state.result||'0');write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
+  const result=String(state.result||'0');if(!drawTypedResult(state.resultPresentation))write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
   if(result.length>24)write('<',0,25);
   return pixels;
  }
