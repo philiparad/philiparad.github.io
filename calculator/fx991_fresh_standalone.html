@@ -90,7 +90,7 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
 <body>
     <main class="workspace">
         <section class="calculator-panel" aria-label="Interactive scientific calculator">
-            <div class="face" id="face" aria-label="Reference-inspired 50-key scientific calculator">
+            <div class="face" id="face" tabindex="0" aria-label="Reference-inspired 50-key scientific calculator; keyboard shortcut mode; Shift+Tab moves focus out">
                 <div class="brand" aria-hidden="true">CASIO</div>
                 <div class="case-model" aria-hidden="true">
                     <span class="case-model-id">fx-991ES PLUS C</span>
@@ -145,6 +145,7 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
                 <h2>Modes and setup</h2>
                 <p><strong>Everything is entered through the calculator.</strong> MODE opens the LCD mode menu; press 1–6 to choose an item, ◀/▶ for pages. In multi-field screens, enter a value, press = to advance, and AC to exit. SHIFT → MODE opens LCD setup.</p>
                 <p class="fine-print">Press MODE, then a numbered key (1–6). Use ▶ for the next menu page and ◀ to return. SHIFT + MODE opens SETUP. AC exits. Use only calculator buttons for calculations.</p>
+                <p class="fine-print"><strong>CASIO emulator keyboard shortcuts:</strong> F1 = SHIFT, F2 = ALPHA, F3 or Home = MODE, F4 = ON; Enter = equals, Backspace/Delete = DEL, arrows = REPLAY, Space = AC, and digits/operators type normally. With the calculator case focused, Tab = AC (Shift+Tab leaves the case). Browser controls keep standard keyboard navigation. Ctrl+C or Ctrl+Insert copies the LCD when clipboard permissions allow it.</p>
             </section>
 
             <section class="panel" aria-labelledby="capability-title">
@@ -1157,6 +1158,106 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
 
 </script>
     <script>
+/* REA-018 — PC keyboard routing documented by CASIO fx-ES PLUS Emulator.
+ * Guide: fx-ES_PLUS_Emulator_Subscription_EN.pdf, EN-2.
+ * Browser accessibility takes precedence when an edit control or unrelated
+ * button owns focus. Keyboard events never simulate physical firmware codes.
+ */
+(function(global){'use strict';
+const NORMAL=Object.freeze({
+ F1:'SHIFT',F2:'ALPHA',F3:'MODE',F4:'ON',Home:'MODE',
+ Enter:'EQUAL',NumpadEnter:'EQUAL',
+ Backspace:'DEL',Delete:'DEL',
+ ArrowDown:'DOWN',ArrowUp:'UP',ArrowRight:'RIGHT',ArrowLeft:'LEFT',
+ '^':'POWER','(':'LP',')':'RP','+':'ADD','-':'SUB','*':'MUL','/':'DIV',
+ '.':'DOT',',':'COMMA','=':'EQUAL',
+ Escape:'AC'
+});
+const PROMPT_TEXT=/^[a-zA-Z<>! ]$/;
+const EDITOR_SELECTOR='input,textarea,select,[contenteditable],[role="textbox"]';
+function getTarget(event){
+ const target=event.target;
+ if(target&&typeof target.closest==='function'){
+  if(target.closest(EDITOR_SELECTOR))return 'editor';
+  if(target.closest('button:not([data-key])'))return 'control';
+  if(target.closest('[data-key]'))return 'key-button';
+  if(target.closest('#face'))return 'face';
+ }
+ return 'document';
+}
+function translate(event,context={}){
+ if(!event||event.isComposing||event.key==='Process')return null;
+ const target=getTarget(event);
+ if(target==='editor'||target==='control')return null;
+ // Preserve OS shortcuts, browser copy, and keyboard-accessible focusing.
+ if(event.metaKey||event.altKey)return null;
+ if(event.ctrlKey){
+  const inside=target==='face'||target==='key-button';
+  if(inside&&!event.shiftKey&&(event.key==='c'||event.key==='C'||event.key==='Insert')){
+   return {keys:[],action:'capture',label:event.key,reference:'casio'};
+  }
+  return null;
+ }
+ if(event.key==='Tab'){
+  // The CASIO emulator maps Tab -> AC. Limit this shortcut to the face
+  // container itself; otherwise Tab must continue to navigate UI controls.
+  if(event.shiftKey||target!=='face')return null;
+  return {keys:['AC'],label:'Tab',reference:'casio'};
+ }
+ if(event.key===' '||event.key==='Spacebar'){
+  // Space on a focused key activates that button natively.
+  if(target==='key-button')return null;
+  return {keys:['AC'],label:'Space',reference:'casio'};
+ }
+ // When a physical key has DOM focus, let native Enter click its button.
+ if(event.key==='Enter'&&target==='key-button')return null;
+ const key=event.key==='NumpadEnter'?'Enter':event.key;
+ if(key==='Escape')return {keys:['AC'],label:'Escape',reference:'convenience'};
+ const physical=NORMAL[key];
+ if(physical){
+  if(physical==='COMMA'){
+   if(context.screen==='prompt')return {keys:['TEXT:,'],label:',',reference:'casio-context'};
+   return {keys:['COMMA'],label:',',reference:'casio-context'};
+  }
+  if(physical==='=')return {keys:['EQUAL'],label:'=',reference:'casio'};
+  return {keys:[physical],label:key,reference:'casio'};
+ }
+ // The guide documents the numerical keyboard, not literal alphabetic
+ // expression entry. Keep letters usable only in web function prompts.
+ if(context.screen==='prompt'&&key.length===1&&PROMPT_TEXT.test(key)){
+  return {keys:['TEXT:'+key],label:key,reference:'web-extension'};
+ }
+ if(/^\d$/.test(key))return {keys:[key],label:key,reference:'casio'};
+ return null;
+}
+function dispatch(event,context,press,capture){
+ const resolved=translate(event,context);
+ if(!resolved)return false;
+ if(resolved.action==='capture'){
+  // Never hijack browser Copy unless a safe screen-capture writer exists.
+  if(typeof capture!=='function'||capture()!==true)return false;
+  event.preventDefault();return true;
+ }
+ event.preventDefault();
+ for(const key of resolved.keys)press(key);
+ return true;
+}
+const MAPPING=Object.freeze({
+ Tab:'AC (face focus only)',Space:'AC (except native focused button)',
+ F1:'SHIFT',F2:'ALPHA',F3:'MODE',F4:'ON',Home:'MODE',
+ Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',
+ ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',
+ '^':'POWER','(':'LP',')':'RP','+':'ADD','-':'SUB','*':'MUL','/':'DIV',
+ '.':'DOT',',':'COMMA (calculator argument separator)',
+ '0-9':'0-9','Ctrl+C / Ctrl+Insert':'Capture LCD (when calculator focused)'
+});
+const API=Object.freeze({translate,dispatch,mapping:MAPPING,getTarget});
+global.FreshKeyboard=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+    <script>
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
 const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport;
@@ -1335,6 +1436,7 @@ function flowHandle(key){
  else if(state.shift&&key==='DIV')addition='/';
  else if(/^\d$/.test(key))addition=key;
  else if(key==='DOT')addition='.';
+ else if(key==='COMMA')addition=',';
  else if(key==='NEG'||key==='SUB')addition='-';
  else if(key==='ADD')addition='+';
  else if(key==='MUL')addition='*';
@@ -1687,6 +1789,7 @@ function handle(key){
  if(key==='ENG'){if(state.screen==='result'){showEngineering();return}insert('e');return}
  if(key==='DMS'){if(state.screen==='result'){state.result=formatDMS(state.raw);paint();return}insert('°');return}
  if(key==='HYP'){state.hyp=!state.hyp;notify(state.hyp?'Hyperbolic trig selected':'Ordinary trig selected');paint();return}
+ if(key==='COMMA'){insert(',');return}
  if(key==='NEG'){insert('-');return}
  const funcs={SIN:'sin(',COS:'cos(',TAN:'tan(',SQRT:'sqrt(',LOG:'log(',LN:'ln('};
  if(key==='FRAC'){insertTemplate('fraction');return}
@@ -1711,10 +1814,19 @@ function runChecks(){const checks=[
  ['physical keys',()=>K.keys.length===50],['degree postfix',()=>Math.abs(M.evaluate('sin(30°)',{angle:'RAD'})-.5)<1e-12],['LCD buffer',()=>LCD.rasterize(state).length===96*31]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
-function keyboard(e){if(e.ctrlKey||e.altKey||e.metaKey||e.isComposing)return;const target=e.target;if(target.matches('input,textarea,select,[contenteditable]'))return;
- if(state.screen==='prompt'&&e.key.length===1&&/^[a-zA-Z,=<>!\s]$/.test(e.key)){e.preventDefault();press('TEXT:'+e.key);return}
- const map={Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',Escape:'AC',ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowUp:'UP',ArrowDown:'DOWN','+':'ADD','-':'SUB','*':'MUL','/':'DIV','(':'LP',')':'RP','.':'DOT','^':'POWER'};
- const key=map[e.key]||(/^\d$/.test(e.key)?e.key:null);if(key){e.preventDefault();press(key)}}
+function captureKeyboardLCD(){
+ if(!navigator.clipboard?.write||typeof ClipboardItem==='undefined')return false;
+ $('lcd').toBlob(blob=>{
+  if(!blob){notify('LCD capture unavailable',true);return}
+  navigator.clipboard.write([new ClipboardItem({'image/png':blob})])
+   .then(()=>notify('LCD copied to clipboard'))
+   .catch(()=>notify('Clipboard permission denied; use Save LCD instead',true));
+ },'image/png');
+ return true;
+}
+function keyboard(event){
+ window.FreshKeyboard.dispatch(event,state,press,captureKeyboardLCD);
+}
 K.mount($('keys'),press);
 $('model-selector').value=state.model;
 $('model-selector').addEventListener('change',e=>setModel(e.target.value));
