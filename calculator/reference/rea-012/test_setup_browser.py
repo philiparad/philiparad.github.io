@@ -103,12 +103,12 @@ async def audit(page,name):
     await press("AC")
     # TABLE choice controls single versus two editable expressions.
     await setup("DOWN","5","1")
-    await press("MODE","7")
+    await press("MODE","RIGHT","1")
     st=await state()
     assert st["mode"]=="TABLE" and len(st["flow"]["fields"])==4,st
     await press("AC")
     await setup("DOWN","5","2")
-    await press("MODE","7")
+    await press("MODE","RIGHT","1")
     st=await state()
     assert st["mode"]=="TABLE" and len(st["flow"]["fields"])==5,st
     print(name+": FREQ / TABLE mode effects PASS")
