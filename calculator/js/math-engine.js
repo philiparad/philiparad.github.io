@@ -36,7 +36,7 @@ function format(value,settings={},preferFraction=false){
  if(cfg.format==='Sci')return value.toExponential(cfg.digits).replace('e+','×10^').replace('e-','×10^-');
  const norm1=cfg.format==='Norm1';const abs=Math.abs(value);
  if(abs!==0&&((norm1&&abs<.01)||(!norm1&&abs<1e-9)||abs>=1e10))return value.toExponential(9).replace(/0+e/,'e').replace(/\.e/,'e');
- return Number(value.toPrecision(12)).toString();
+ return Number(value.toPrecision(10)).toString();
 }
 const T={NUMBER:'number',IDENT:'identifier',OP:'operator'};
 function tokenize(source){
@@ -51,6 +51,14 @@ function tokenize(source){
  return raw;
 }
 function evaluate(source,opts={}){
+ // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
+ // Scientific functions, register variables and unsupported powers use the existing engine.
+ if(global.FreshDecimal){
+  try{
+   const decimalValue=global.FreshDecimal.evaluate(source);
+   if(decimalValue!==null)return decimalValue;
+  }catch(error){fail(error instanceof SyntaxError?'Syntax ERROR':'Math ERROR')}
+ }
  const st={...SETTINGS,...opts};const memory=opts.memory||{};
  const raw=tokenize(source);
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
