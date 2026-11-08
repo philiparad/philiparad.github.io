@@ -1,0 +1,36 @@
+name: REA-013 menu and prompt transition fidelity
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/app.js'
+      - 'calculator/js/display.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-013/**'
+      - '.github/workflows/rea013-transitions.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  menu-prompt:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium test harness
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify 50-key MODE SETUP and function prompt transitions
+        run: python calculator/reference/rea-013/test_transitions_browser.py
+      - name: Export machine-readable web-only transition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea013-web-transition-report
+          path: /tmp/rea013-transition-report.json
+          if-no-files-found: warn
