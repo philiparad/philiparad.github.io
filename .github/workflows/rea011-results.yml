@@ -28,3 +28,16 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Verify real button sequences in modular and standalone calculators
         run: python calculator/reference/rea-011/test_natural_results_browser.py
+      - name: Capture candidate REA-006 web LCD baseline for explicit review
+        run: |
+          python -m pip install Pillow
+          python calculator/reference/rea-006/lcd_golden.py --out /tmp/rea011-candidate --capture-only
+      - name: Preserve candidate baseline without auto-approving changes
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rea011-lcd-candidate-for-review
+          path: |
+            /tmp/rea011-candidate/web-golden.candidate.json
+            /tmp/rea011-candidate/captured.json
+          if-no-files-found: warn
