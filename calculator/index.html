@@ -31,6 +31,7 @@
                 <button id="enlarge" class="tool-button" type="button">⛶ Enlarged LCD</button>
                 <button id="keylog-toggle" class="tool-button" type="button">⌨ KeyLog</button>
                 <button id="capture" class="tool-button" type="button">↓ Save LCD</button>
+                <button id="capture-options-toggle" class="tool-button" type="button" aria-expanded="false" aria-controls="capture-options">⚙ Capture settings</button>
             </div>
         </section>
         <aside class="companion" aria-label="Calculator features and examples">
@@ -93,13 +94,32 @@
         </aside>
     </main>
     <section class="diagnostic-tools" aria-label="Optional display and keylog tools">
+        <div id="capture-options" class="panel" hidden>
+            <h2>Screen capture settings <small>(view only)</small></h2>
+            <div class="capture-controls">
+                <label for="capture-zoom">Export zoom
+                    <select id="capture-zoom" aria-label="Capture zoom factor">
+                        <option value="1">×1</option>
+                        <option value="2" selected>×2</option>
+                        <option value="3">×3</option>
+                        <option value="4">×4</option>
+                        <option value="5">×5</option>
+                        <option value="6">×6</option>
+                    </select>
+                </label>
+                <label class="capture-check"><input type="checkbox" id="capture-frame" checked> Outer frame</label>
+                <button id="copy-lcd" class="tool-button" type="button">Copy LCD image</button>
+            </div>
+            <p class="fine-print">Options affect only the exported screenshot, never the calculation or LCD state. The image uses independently rendered web pixels, not the manufacturer emulator's bitmap.</p>
+        </div>
         <div id="lcd-panel" class="panel" hidden>
             <h2>Enlarged LCD (view only)</h2>
             <canvas id="lcd-large" width="1152" height="372" role="img" aria-label="Enlarged calculator display"></canvas>
         </div>
         <div id="keylog-panel" class="panel" hidden>
             <h2>KeyLog (diagnostics only)</h2>
-            <div class="button-bar"><button type="button" id="record-keylog">Start recording</button><button type="button" id="clear-keylog">Clear</button><button type="button" id="export-keylog">Export JSON</button></div>
+            <div class="button-bar"><button type="button" id="record-keylog">Start recording</button><button type="button" id="keylog-select-all">Select all</button><button type="button" id="keylog-copy">Copy selected keys</button><button type="button" id="keylog-decrease" aria-label="Decrease key size">A−</button><button type="button" id="keylog-increase" aria-label="Increase key size">A+</button><button type="button" id="clear-keylog">Clear</button><button type="button" id="export-keylog">Export JSON</button></div>
+            <p class="fine-print">Click entries to select keys; Ctrl/Shift-click selects multiple keys. Selection and copying are view-only; they do not execute key presses.</p>
             <p id="keylog-count">Recording off</p>
             <ol id="keylog-list" class="keylog-list"></ol>
         </div>
@@ -114,6 +134,7 @@
     <script src="js/lcd-viewport.js"></script>
     <script src="js/lcd-indicators.js"></script>
     <script src="js/keyboard.js"></script>
+    <script src="js/teaching-tools.js"></script>
     <script src="js/app.js"></script>
     <script src="js/capability-ui.js"></script>
 </body>
