@@ -500,7 +500,8 @@ function handle(key){
   }else{
    const frame=VIEW.layout(state.editor,state.screen==='result'?8:12);
    v.inputX=Math.max(0,Math.min(Math.max(0,frame.width-88),v.inputX+dx));
-   v.inputY=Math.max(frame.minY-3,Math.min(frame.maxY-24,v.inputY+dy));
+   const minY=Math.min(0,frame.minY-3),maxY=Math.max(0,frame.maxY-24);
+   v.inputY=Math.max(minY,Math.min(maxY,v.inputY+dy));
   }
   releaseModifier();paint();return;
  }
