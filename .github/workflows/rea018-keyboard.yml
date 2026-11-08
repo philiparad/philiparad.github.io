@@ -1,0 +1,36 @@
+name: REA-018 PC keyboard shortcut fidelity
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/keyboard.js'
+      - 'calculator/js/app.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-018/**'
+      - '.github/workflows/rea018-keyboard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shortcuts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify emulator keyboard parity and browser accessibility
+        run: python calculator/reference/rea-018/test_keyboard_browser.py
+      - name: Archive keyboard parity matrix
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rea018-keyboard-guide-audit
+          path: /tmp/rea018-keyboard-audit.json
+          if-no-files-found: warn
