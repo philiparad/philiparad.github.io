@@ -804,7 +804,7 @@ function fractionParts(q,style){
 function calculate(value,source,settings={},options={}){
  const cfg={...DEFAULTS,...settings},digits=cfg.digits;
  const decimalText=decimal(value,cfg);
- const preferred=!!cfg.math&&['Norm1','Norm2'].includes(cfg.format);
+ const preferred=(!!cfg.math&&['Norm1','Norm2'].includes(cfg.format))||options.forceFraction===true;
  const exact=parseSimpleFraction(source);
  const fraction=exact&&Math.abs(exact.numerator/exact.denominator-value)<=1e-12*Math.max(1,Math.abs(value))?
   exact:options.allowApproxRational?rational(value):null;
@@ -1166,16 +1166,19 @@ function shifted(key){
  if(['1','2','3','4','5','6'].includes(key)){releaseModifier();const mapped={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};setMode(mapped[key]);return true}
  return false
 }
-function showResult(decimal){
+function showResult(decimal,forceFraction=false){
  if(state.screen!=='result'||!Number.isFinite(state.raw))return;
- state.resultPresentation=RESULTS.calculate(state.raw,state.resultSource||state.input,state,{
-   decimal,allowApproxRational:state.math&&(state.resultSource||state.input).includes('/')&&!/\d\.\d/.test(state.resultSource||state.input)
+ const source=state.resultSource||state.input;
+ state.resultPresentation=RESULTS.calculate(state.raw,source,state,{
+   decimal,forceFraction,
+   allowApproxRational:forceFraction||(state.math&&source.includes('/')&&!/\d\.\d/.test(source))
  });
  state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;paint();
 }
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
- showResult(!state.decimal);
+ const isDecimal=state.resultPresentation?.chosen?.kind==='decimal';
+ showResult(!isDecimal,isDecimal);
 }
 function toggleMixed(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
