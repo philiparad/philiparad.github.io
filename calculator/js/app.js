@@ -310,16 +310,18 @@ function menuHandle(key){
 function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.resultDMS=false;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
 function functionFor(expr){return x=>M.evaluate(expr,{...state,ans:state.ans,memory:{...state.memory,X:x},math:false})}
 function numericalFlow(kind){
- const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum'};
+ const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum',PRODUCT:'Π — finite product'};
  const fields=[{id:'expression',label:'Expression in X',value:state.input||'X^2-2'}];
  if(kind==='DERIVATIVE')fields.push({id:'at',label:'At X',value:'2'});
  if(kind==='SOLVE')fields.push({id:'guess',label:'Initial X',value:'1'});
- if(kind==='INTEGRAL'||kind==='SUM')fields.push({id:'a',label:'Lower bound',value:'0'},{id:'b',label:'Upper bound',value:'1'});
+ if(kind==='INTEGRAL'||kind==='SUM'||kind==='PRODUCT')fields.push({id:'a',label:'Lower bound',value:'0'},{id:'b',label:'Upper bound',value:'1'});
+ if(kind==='PRODUCT')fields.push({id:'step',label:'Positive integer step (web extension)',value:'1'});
  fieldForm(modes[kind],fields,data=>{const f=functionFor(data.expression);let x;
   if(kind==='DERIVATIVE')x=M.derivative(f,Number(data.at));
   if(kind==='INTEGRAL')x=M.integrate(f,Number(data.a),Number(data.b));
   if(kind==='SOLVE')x=M.solve(f,Number(data.guess));
   if(kind==='SUM'){const a=Number(data.a),b=Number(data.b);if(!Number.isInteger(a)||!Number.isInteger(b)||b-a>20000||b<a)throw Error('Argument ERROR');x=0;for(let k=a;k<=b;k++)x+=f(k)}
+  if(kind==='PRODUCT')x=M.finiteProduct({expression:data.expression,a:data.a,b:data.b,step:data.step},{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
   applyAdvancedResult(x,data.expression);return M.format(x,state);
  })
 }
@@ -499,6 +501,8 @@ function advancedMode(mode){
  });
 }
 function alphaKey(key){
+ if(key==='INTEGRAL')return insert('Prod(');
+ if(key==='LOGBASE'){numericalFlow('PRODUCT');return true}
  if(key==='FRAC')return insert('÷R');
  if(key==='SQRT'){
   if(!state.math||!state.input.endsWith('.')){notify('Use decimal point before recurring digits',true);paint();return true}

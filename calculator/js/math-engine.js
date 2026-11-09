@@ -196,7 +196,61 @@ function tokenize(source){
  }
  return raw;
 }
+// REA-037: finite product Π with an explicit optional web step.
+// CASIO's native Π(expr,a,b) always uses integer step 1.
+// The fourth argument is a labeled educational extension.
+const PRODUCT_TERM_LIMIT=20000;
+function splitProductArguments(body){
+ let depth=0,start=0,parts=[];
+ for(let i=0;i<body.length;i++){
+  if(body[i]==='(')depth++;
+  else if(body[i]===')'){depth--;if(depth<0)fail('Syntax ERROR')}
+  else if(body[i]===','&&depth===0){parts.push(body.slice(start,i).trim());start=i+1}
+ }
+ if(depth!==0)fail('Syntax ERROR');
+ parts.push(body.slice(start).trim());
+ if(parts.some(x=>!x)||parts.length<3||parts.length>4)fail('Syntax ERROR');
+ return parts;
+}
+function parseProduct(source){
+ const text=String(source).trim();
+ const match=/^(?:Prod|Product|Π)\(/i.exec(text);
+ if(!match)return null;
+ let depth=1,close=-1;
+ for(let i=match[0].length;i<text.length;i++){
+  if(text[i]==='(')depth++;
+  else if(text[i]===')'){depth--;if(depth===0){close=i;break}}
+ }
+ if(close!==text.length-1)fail('Syntax ERROR');
+ const parts=splitProductArguments(text.slice(match[0].length,-1));
+ return {expression:parts[0],a:parts[1],b:parts[2],step:parts[3]||'1'};
+}
+function finiteProduct(parts,opts){
+ // Do not permit nested series, derivative/integral, or vector transforms.
+ const prohibited=/\b(?:Prod|Product|Pol|Rec)\s*\(|[ΠΣ∫]|÷R|\bd\/dx\b/i;
+ if(prohibited.test(parts.expression)||[parts.a,parts.b,parts.step].some(s=>prohibited.test(s)))
+  fail('Syntax ERROR');
+ const lower=evaluate(parts.a,opts);
+ const upper=evaluate(parts.b,opts);
+ const step=evaluate(parts.step,opts);
+ if(![lower,upper,step].every(Number.isSafeInteger)||
+    Math.abs(lower)>=1e10||Math.abs(upper)>=1e10||
+    step<1||step>=1e10||lower>upper)fail('Argument ERROR');
+ const count=Math.floor((upper-lower)/step)+1;
+ if(count>PRODUCT_TERM_LIMIT)fail('Argument ERROR');
+ let result=1;
+ for(let i=0;i<count;i++){
+  const x=lower+i*step;
+  const item=evaluate(parts.expression,{...opts,memory:{...(opts.memory||{}),X:x}});
+  if(!Number.isFinite(item))fail('Math ERROR');
+  result*=item;
+  if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
+ }
+ return result;
+}
 function evaluate(source,opts={}){
+ const series=parseProduct(source);
+ if(series)return finiteProduct(series,opts);
  if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
  // Scientific functions, register variables and unsupported powers use the existing engine.
@@ -289,6 +343,6 @@ function quadratic(a,b,c){if(a===0){if(b===0)fail('Math ERROR');return [-c/b]}co
 function matrixSolve(rows){const n=rows.length;const m=rows.map(r=>r.slice());for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;[m[i],m[pivot]]=[m[pivot],m[i]];if(Math.abs(m[i][i])<1e-12)fail('Math ERROR');const d=m[i][i];for(let k=i;k<=n;k++)m[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){const f=m[j][i];for(let k=i;k<=n;k++)m[j][k]-=f*m[i][k]}}return m.map(row=>row[n])}
 function descriptiveStats(data){if(!data.length)fail('Argument ERROR');const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n,variance=data.reduce((a,b)=>a+(b-mean)**2,0)/n;return {n,sum:data.reduce((a,b)=>a+b,0),mean,variance,sd:Math.sqrt(variance),sampleSD:n>1?Math.sqrt(variance*n/(n-1)):null,min:Math.min(...data),max:Math.max(...data)}}
 function parseNumbers(text){const vals=String(text).split(/[,;\s]+/).filter(Boolean).map(Number);if(!vals.length||vals.some(n=>!Number.isFinite(n)))fail('Argument ERROR');return vals}
-const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
+const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,parseProduct,finiteProduct,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
 global.FreshMath=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);

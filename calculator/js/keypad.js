@@ -8,8 +8,8 @@ const topSpec=[
  ['MODE','','MODE · SETUP','top'],['ON','','ON','top']
 ];
 const scienceSpec=[
- ['CALC','CALC','SOLVE','='],['INTEGRAL','∫','d/dx',''],null,
- null,['RECIP','x⁻¹','x!',''],['LOGBASE','log□','Σ',''],
+ ['CALC','CALC','SOLVE','='],['INTEGRAL','∫','d/dx','Π'],null,
+ null,['RECIP','x⁻¹','x!',''],['LOGBASE','log□','Σ','Π flow'],
  ['FRAC','▤','▣','÷R'],['SQRT','√','³√','Rdec'],['SQUARE','x²','x³',''],['POWER','x^□','ⁿ√',''],['LOG','log','10ˣ',''],['LN','ln','eˣ',''],
  ['NEG','(−)','∠','A'],['DMS','°′″','FACT','B'],['HYP','hyp','Abs','C'],['SIN','sin','sin⁻¹','D'],['COS','cos','cos⁻¹','E'],['TAN','tan','tan⁻¹','F'],
  ['RCL','RCL','STO',''],['ENG','ENG','←',':'],['LP','(','%','X'],['RP',')',',','Y'],['SD','S⇔D','▣',''],['MPLUS','M+','M−','M']

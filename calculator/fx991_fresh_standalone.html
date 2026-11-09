@@ -727,7 +727,61 @@ function tokenize(source){
  }
  return raw;
 }
+// REA-037: finite product Π with an explicit optional web step.
+// CASIO's native Π(expr,a,b) always uses integer step 1.
+// The fourth argument is a labeled educational extension.
+const PRODUCT_TERM_LIMIT=20000;
+function splitProductArguments(body){
+ let depth=0,start=0,parts=[];
+ for(let i=0;i<body.length;i++){
+  if(body[i]==='(')depth++;
+  else if(body[i]===')'){depth--;if(depth<0)fail('Syntax ERROR')}
+  else if(body[i]===','&&depth===0){parts.push(body.slice(start,i).trim());start=i+1}
+ }
+ if(depth!==0)fail('Syntax ERROR');
+ parts.push(body.slice(start).trim());
+ if(parts.some(x=>!x)||parts.length<3||parts.length>4)fail('Syntax ERROR');
+ return parts;
+}
+function parseProduct(source){
+ const text=String(source).trim();
+ const match=/^(?:Prod|Product|Π)\(/i.exec(text);
+ if(!match)return null;
+ let depth=1,close=-1;
+ for(let i=match[0].length;i<text.length;i++){
+  if(text[i]==='(')depth++;
+  else if(text[i]===')'){depth--;if(depth===0){close=i;break}}
+ }
+ if(close!==text.length-1)fail('Syntax ERROR');
+ const parts=splitProductArguments(text.slice(match[0].length,-1));
+ return {expression:parts[0],a:parts[1],b:parts[2],step:parts[3]||'1'};
+}
+function finiteProduct(parts,opts){
+ // Do not permit nested series, derivative/integral, or vector transforms.
+ const prohibited=/\b(?:Prod|Product|Pol|Rec)\s*\(|[ΠΣ∫]|÷R|\bd\/dx\b/i;
+ if(prohibited.test(parts.expression)||[parts.a,parts.b,parts.step].some(s=>prohibited.test(s)))
+  fail('Syntax ERROR');
+ const lower=evaluate(parts.a,opts);
+ const upper=evaluate(parts.b,opts);
+ const step=evaluate(parts.step,opts);
+ if(![lower,upper,step].every(Number.isSafeInteger)||
+    Math.abs(lower)>=1e10||Math.abs(upper)>=1e10||
+    step<1||step>=1e10||lower>upper)fail('Argument ERROR');
+ const count=Math.floor((upper-lower)/step)+1;
+ if(count>PRODUCT_TERM_LIMIT)fail('Argument ERROR');
+ let result=1;
+ for(let i=0;i<count;i++){
+  const x=lower+i*step;
+  const item=evaluate(parts.expression,{...opts,memory:{...(opts.memory||{}),X:x}});
+  if(!Number.isFinite(item))fail('Math ERROR');
+  result*=item;
+  if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
+ }
+ return result;
+}
 function evaluate(source,opts={}){
+ const series=parseProduct(source);
+ if(series)return finiteProduct(series,opts);
  if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
  // Scientific functions, register variables and unsupported powers use the existing engine.
@@ -820,7 +874,7 @@ function quadratic(a,b,c){if(a===0){if(b===0)fail('Math ERROR');return [-c/b]}co
 function matrixSolve(rows){const n=rows.length;const m=rows.map(r=>r.slice());for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;[m[i],m[pivot]]=[m[pivot],m[i]];if(Math.abs(m[i][i])<1e-12)fail('Math ERROR');const d=m[i][i];for(let k=i;k<=n;k++)m[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){const f=m[j][i];for(let k=i;k<=n;k++)m[j][k]-=f*m[i][k]}}return m.map(row=>row[n])}
 function descriptiveStats(data){if(!data.length)fail('Argument ERROR');const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n,variance=data.reduce((a,b)=>a+(b-mean)**2,0)/n;return {n,sum:data.reduce((a,b)=>a+b,0),mean,variance,sd:Math.sqrt(variance),sampleSD:n>1?Math.sqrt(variance*n/(n-1)):null,min:Math.min(...data),max:Math.max(...data)}}
 function parseNumbers(text){const vals=String(text).split(/[,;\s]+/).filter(Boolean).map(Number);if(!vals.length||vals.some(n=>!Number.isFinite(n)))fail('Argument ERROR');return vals}
-const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
+const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,parseProduct,finiteProduct,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
 global.FreshMath=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
 
@@ -836,8 +890,8 @@ const topSpec=[
  ['MODE','','MODE · SETUP','top'],['ON','','ON','top']
 ];
 const scienceSpec=[
- ['CALC','CALC','SOLVE','='],['INTEGRAL','∫','d/dx',''],null,
- null,['RECIP','x⁻¹','x!',''],['LOGBASE','log□','Σ',''],
+ ['CALC','CALC','SOLVE','='],['INTEGRAL','∫','d/dx','Π'],null,
+ null,['RECIP','x⁻¹','x!',''],['LOGBASE','log□','Σ','Π flow'],
  ['FRAC','▤','▣','÷R'],['SQRT','√','³√','Rdec'],['SQUARE','x²','x³',''],['POWER','x^□','ⁿ√',''],['LOG','log','10ˣ',''],['LN','ln','eˣ',''],
  ['NEG','(−)','∠','A'],['DMS','°′″','FACT','B'],['HYP','hyp','Abs','C'],['SIN','sin','sin⁻¹','D'],['COS','cos','cos⁻¹','E'],['TAN','tan','tan⁻¹','F'],
  ['RCL','RCL','STO',''],['ENG','ENG','←',':'],['LP','(','%','X'],['RP',')',',','Y'],['SD','S⇔D','▣',''],['MPLUS','M+','M−','M']
@@ -2491,16 +2545,18 @@ function menuHandle(key){
 function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.resultDMS=false;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
 function functionFor(expr){return x=>M.evaluate(expr,{...state,ans:state.ans,memory:{...state.memory,X:x},math:false})}
 function numericalFlow(kind){
- const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum'};
+ const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum',PRODUCT:'Π — finite product'};
  const fields=[{id:'expression',label:'Expression in X',value:state.input||'X^2-2'}];
  if(kind==='DERIVATIVE')fields.push({id:'at',label:'At X',value:'2'});
  if(kind==='SOLVE')fields.push({id:'guess',label:'Initial X',value:'1'});
- if(kind==='INTEGRAL'||kind==='SUM')fields.push({id:'a',label:'Lower bound',value:'0'},{id:'b',label:'Upper bound',value:'1'});
+ if(kind==='INTEGRAL'||kind==='SUM'||kind==='PRODUCT')fields.push({id:'a',label:'Lower bound',value:'0'},{id:'b',label:'Upper bound',value:'1'});
+ if(kind==='PRODUCT')fields.push({id:'step',label:'Positive integer step (web extension)',value:'1'});
  fieldForm(modes[kind],fields,data=>{const f=functionFor(data.expression);let x;
   if(kind==='DERIVATIVE')x=M.derivative(f,Number(data.at));
   if(kind==='INTEGRAL')x=M.integrate(f,Number(data.a),Number(data.b));
   if(kind==='SOLVE')x=M.solve(f,Number(data.guess));
   if(kind==='SUM'){const a=Number(data.a),b=Number(data.b);if(!Number.isInteger(a)||!Number.isInteger(b)||b-a>20000||b<a)throw Error('Argument ERROR');x=0;for(let k=a;k<=b;k++)x+=f(k)}
+  if(kind==='PRODUCT')x=M.finiteProduct({expression:data.expression,a:data.a,b:data.b,step:data.step},{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
   applyAdvancedResult(x,data.expression);return M.format(x,state);
  })
 }
@@ -2680,6 +2736,8 @@ function advancedMode(mode){
  });
 }
 function alphaKey(key){
+ if(key==='INTEGRAL')return insert('Prod(');
+ if(key==='LOGBASE'){numericalFlow('PRODUCT');return true}
  if(key==='FRAC')return insert('÷R');
  if(key==='SQRT'){
   if(!state.math||!state.input.endsWith('.')){notify('Use decimal point before recurring digits',true);paint();return true}
