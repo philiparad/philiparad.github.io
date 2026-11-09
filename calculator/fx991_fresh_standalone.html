@@ -474,6 +474,61 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
     <script>
+/* REA-028: decimal-degree / degrees-minutes-seconds conversion.
+ * Independent educational implementation, not manufacturer firmware.
+ */
+(function(global){'use strict';
+const DMS_FULL=/(\d+(?:\.\d+)?|\.\d+)°(\d+(?:\.\d+)?|\.\d+)′(\d+(?:\.\d+)?|\.\d+)″/g;
+function parseComponents(degrees,minutes,seconds){
+ const d=Number(degrees),m=Number(minutes),s=Number(seconds);
+ if(![d,m,s].every(Number.isFinite)||d<0||m<0||s<0||m>=60||s>=60)
+  throw new RangeError('Argument ERROR');
+ return d+m/60+s/3600;
+}
+function normalize(expression){
+ const original=String(expression);
+ const source=original.replace(DMS_FULL,(_,d,m,s)=>{
+  const value=parseComponents(d,m,s);
+  return '('+Number(value.toPrecision(15)).toString()+')';
+ });
+ // Isolated degree postfix (for example sin(30°)) belongs to the existing
+ // angle-unit evaluator. However, unfinished DMS sequences must not fall
+ // through into an unrelated postfix calculation.
+ if(/[′″]/.test(source))throw new SyntaxError('Syntax ERROR');
+ if(/°(?:\d|\.)/.test(source))throw new SyntaxError('Syntax ERROR');
+ return source;
+}
+function hasDMS(source){DMS_FULL.lastIndex=0;return DMS_FULL.test(String(source))}
+function format(value){
+ if(!Number.isFinite(value))return null;
+ const sign=value<0?'-':'';
+ // Round at the final display precision before carrying seconds/minutes.
+ const units=Math.round(Math.abs(value)*3600*1e6);
+ if(!Number.isSafeInteger(units))return null;
+ const degrees=Math.floor(units/(3600*1e6));
+ const rem=units-degrees*3600*1e6;
+ const minutes=Math.floor(rem/(60*1e6));
+ const micros=rem-minutes*60*1e6;
+ let seconds=micros/1e6;
+ if(Math.abs(seconds-Math.round(seconds))<1e-9)seconds=Math.round(seconds);
+ const sec=Number(seconds.toFixed(6)).toString();
+ return sign+degrees+'°'+minutes+'′'+sec+'″';
+}
+function nextSeparator(input){
+ const source=String(input);
+ const term=source.slice(Math.max(source.lastIndexOf('+'),source.lastIndexOf('-'),source.lastIndexOf('*'),source.lastIndexOf('/'),source.lastIndexOf('('))+1);
+ if(!/\d(?:\.\d*)?$/.test(term))return null;
+ if(term.includes('″'))return null;
+ if(term.includes('′'))return '″';
+ if(term.includes('°'))return '′';
+ return '°';
+}
+const api=Object.freeze({parseComponents,normalize,hasDMS,format,nextSeparator});
+global.FreshSexagesimal=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+    <script>
 /* Independent numerical/expression engine. No eval, new Function, CASIO binary or ROM. */
 (function(global){'use strict';
 const TAU=2*Math.PI;
@@ -524,6 +579,7 @@ function tokenize(source){
  return raw;
 }
 function evaluate(source,opts={}){
+ if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
  // Scientific functions, register variables and unsupported powers use the existing engine.
  if(global.FreshDecimal){
@@ -1743,7 +1799,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,resultDMS:false,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -1777,6 +1833,14 @@ function setResult(value,source=state.input,exactRational=null){
    exactRational:state.ansRational,
    allowApproxRational:false
  });
+ state.resultDMS=!!(window.FreshSexagesimal&&window.FreshSexagesimal.hasDMS(source));
+ if(state.resultDMS){
+  const text=window.FreshSexagesimal.format(value);
+  if(text!==null){
+   state.resultPresentation={chosen:{kind:'dms',text},natural:{kind:'dms',text},
+    decimal:{kind:'decimal',text:RESULTS.decimal(value,state)}};
+  }else state.resultDMS=false;
+ }
  state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.screen='result';state.error='';state.errorOffset=null;state.errorSource='';
  state.history.unshift({source,value,mode:state.mode,angle:state.angle});if(state.history.length>80)state.history.pop();
  notify('Calculated successfully');paint();
@@ -1839,7 +1903,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultDMS=false;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -1979,7 +2043,7 @@ function menuHandle(key){
  }
  return true;
 }
-function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
+function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.resultDMS=false;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
 function functionFor(expr){return x=>M.evaluate(expr,{...state,ans:state.ans,memory:{...state.memory,X:x},math:false})}
 function numericalFlow(kind){
  const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum'};
@@ -1995,7 +2059,18 @@ function numericalFlow(kind){
   applyAdvancedResult(x,data.expression);return M.format(x,state);
  })
 }
-function formatDMS(value){const sign=value<0?'-':'';let n=Math.abs(value);const d=Math.floor(n);n=(n-d)*60;const m=Math.floor(n);const s=Number(((n-m)*60).toFixed(8));return sign+d+'°'+m+'′'+s+'″'}
+function toggleDMS(){
+ if(state.screen!=='result'||!Number.isFinite(state.raw))return;
+ const asDMS=!state.resultDMS;
+ const text=asDMS?window.FreshSexagesimal.format(state.raw):RESULTS.decimal(state.raw,state);
+ if(text===null)return;
+ state.resultDMS=asDMS;
+ const item={kind:asDMS?'dms':'decimal',text};
+ state.resultPresentation={chosen:item,natural:item,
+  decimal:{kind:'decimal',text:RESULTS.decimal(state.raw,state)}};
+ state.result=text;state.viewport.resultX=Math.max(0,text.length-23);
+ paint();
+}
 function memoryDialog(store=false){optionDialog(store?'STO — select register':'RCL — select register',Object.keys(state.memory).map(r=>({label:r+' = '+M.format(state.memory[r],{...state,math:false}),action:()=>{
   if(store){state.memory[r]=state.ans;notify('Stored Ans in '+r);paint()}else insert(r)
  }})))}
@@ -2169,7 +2244,7 @@ function shifted(key){
  if(key==='MPLUS'){state.memory.M-=state.ans;releaseModifier();paint();return true}
  if(key==='SD'){releaseModifier();toggleMixed();return true}
  if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
- if(key==='DMS'){releaseModifier();notify('Decimal-to-DMS function available with °′″');paint();return true}
+ if(key==='DMS'){releaseModifier();if(state.screen==='result')toggleDMS();else notify('Enter degrees, minutes and seconds with °′″');paint();return true}
  if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
  if(key==='DOT'){releaseModifier();insert('rand');return true}
  if(key==='0'){releaseModifier();state.ans=Number(state.ans.toFixed(state.digits));state.result=M.format(state.ans,state);paint();return true}
@@ -2194,7 +2269,7 @@ function showResult(decimal,forceFraction=false){
  if(forceFraction&&presentation.chosen.kind==='decimal')return;
  if(!decimal&&presentation.chosen.kind==='decimal'&&presentation.decimal.text===state.result)return;
  state.resultPresentation=presentation;
- state.decimal=decimal;state.engShift=0;state.result=presentation.chosen.text;
+ state.decimal=decimal;state.resultDMS=false;state.engShift=0;state.result=presentation.chosen.text;
  state.viewport.resultX=Math.max(0,state.result.length-23);paint();
 }
 function toggleFraction(){
@@ -2334,7 +2409,12 @@ function handle(key){
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
  if(key==='LOGBASE'){insert('log(');return}
  if(key==='ENG'){if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
- if(key==='DMS'){if(state.screen==='result'){state.result=formatDMS(state.raw);paint();return}insert('°');return}
+ if(key==='DMS'){
+  if(state.screen==='result'){toggleDMS();return}
+  const separator=window.FreshSexagesimal.nextSeparator(state.input);
+  if(!separator){notify('Enter degrees, minutes, then seconds',true);paint();return}
+  insert(separator);return;
+ }
  if(key==='HYP'){state.hyp=!state.hyp;notify(state.hyp?'Hyperbolic trig selected':'Ordinary trig selected');paint();return}
  if(key==='COMMA'){insert(',');return}
  if(key==='NEG'){insert('-');return}

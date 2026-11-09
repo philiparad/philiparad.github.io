@@ -48,6 +48,7 @@ function tokenize(source){
  return raw;
 }
 function evaluate(source,opts={}){
+ if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
  // Scientific functions, register variables and unsupported powers use the existing engine.
  if(global.FreshDecimal){
