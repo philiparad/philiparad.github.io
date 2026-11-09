@@ -198,8 +198,49 @@ function loadExpression(text){
 function reset(mode='all'){
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
- if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
+ if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[];state.power=true}
  notify('Calculator reset');paint()
+}
+// REA-043: memory and settings persist across an ordinary OFF/ON cycle.
+function clearTransientDisplay(){
+ state.pendingMemory=null;state.flow=null;state.menuEntries=[];state.menu=[];
+ state.menuTitle='';state.menuPage=0;state.outputLines=[];state.outputPage=0;
+ state.factorization=null;state.coordinateResult=null;state.multiStatements=null;
+ state.remainderResult=null;state.resultPresentation=null;state.resultSource='';
+ state.resultDMS=false;state.error='';state.errorOffset=null;state.errorSource='';
+ state.info='';state.screen='edit';state.result='';state.editor=STRUCT.create();
+ state.input='';state.cursor=0;state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};
+ state.hyp=false;releaseModifier();clearReplay();
+}
+function clearSetup(){
+ // CLR 1: setup defaults and calculation history, but no change to memory.
+ Object.assign(state,SETUP.defaults);state.history=[];
+ clearTransientDisplay();state.engShift=0;state.decimal=false;
+ state.resultFractionStyle=null;notify('Setup initialized');paint();
+}
+function powerOff(){
+ // OFF does not erase variables, Ans, PreAns, M, active mode or setup.
+ clearTransientDisplay();state.history=[];state.power=false;
+ notify('Calculator off — press ON');paint();
+}
+function powerOn(){
+ // The ON key also clears calculation history, not saved memories.
+ clearTransientDisplay();state.history=[];state.power=true;
+ notify('Calculator on');paint();
+}
+function clearMenu(){
+ releaseModifier();
+ optionDialog('CLR — choose data to reset',[
+  {key:'1',label:'1. Setup',action:()=>optionDialog('Clear Setup? = Yes, AC No',[
+   {key:'=',label:'Yes',action:()=>clearSetup()}
+  ])},
+  {key:'2',label:'2. Memory',action:()=>optionDialog('Clear Memory? = Yes, AC No',[
+   {key:'=',label:'Yes',action:()=>clearMemory()}
+  ])},
+  {key:'3',label:'3. All',action:()=>optionDialog('Clear All? = Yes, AC No',[
+   {key:'=',label:'Yes',action:()=>reset('all')}
+  ])}
+ ]);
 }
 // All calculation interactions use the calculator's 96 x 31 LCD and 50 keys.
 // The companion panels are read-only; they never collect a mathematical value.
@@ -659,20 +700,11 @@ function shifted(key){
   state.hyp=false;releaseModifier();insert(map[key]);return true;
  }
  const n=Number(key);
- if(key==='AC'){state.pendingMemory=null;state.power=false;state.screen='edit';state.input='';state.result='';releaseModifier();notify('Calculator off — press ON');paint();return true}
+ if(key==='AC'){powerOff();return true}
  if(key==='MODE'){releaseModifier();setupMenu();return true}
  if(key==='RCL'){releaseModifier();memoryDialog(true);return true}
  if(key==='DEL'){state.insert=!state.insert;releaseModifier();notify(state.insert?'Insert mode':'Overwrite mode');paint();return true}
- if(key==='9'){releaseModifier();optionDialog('CLR — choose data to reset',[
-  {label:'1. Setup',action:()=>{Object.assign(state,SETUP.defaults);paint()}},
-  {label:'2. Memory',action:()=>optionDialog('Clear Memory? = Yes, AC No',[
-   {label:'Yes',key:'=',action:()=>clearMemory()},
-   {label:'No',key:'0',action:()=>{state.screen='edit';paint()}}
-  ])},
-  {label:'3. All',action:()=>optionDialog('Clear All? = Yes, AC No',[
-   {label:'Yes',key:'=',action:()=>reset('all')},
-   {label:'No',key:'0',action:()=>{state.screen='edit';paint()}}
-  ])}]);return true}
+ if(key==='9'){clearMenu();return true}
  if(key==='7'){releaseModifier();optionDialog('Scientific constants',[
   {label:'π',action:()=>insert('pi')},{label:'e',action:()=>insert('e')},{label:'Speed of light (m/s)',action:()=>insert('299792458')},
   {label:'Gravitational constant',action:()=>insert('6.67430*10^-11')},{label:'Avogadro constant',action:()=>insert('6.02214076*10^23')}
@@ -792,7 +824,7 @@ function handle(key){
   if(name){memorySelect(name);return}
   notify('Choose A-F, X, Y or M',true);paint();return;
  }
- if(key==='ON'){state.power=true;state.pendingMemory=null;state.screen='edit';releaseModifier();notify('Calculator on');paint();return}
+ if(key==='ON'){powerOn();return}
  if(!state.power)return;
  if(state.screen==='error'){
   if(key==='LEFT'||key==='RIGHT'){
