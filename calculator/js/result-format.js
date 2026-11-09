@@ -90,20 +90,43 @@ function fractionParts(q,style){
  }
  return {kind:'fraction',text,numerator:String(n),denominator:String(d)};
 }
+function exactFractionParts(q,style){
+ const n=BigInt(q.numerator),d=BigInt(q.denominator);
+ if(d<=0n)return null;
+ if(d===1n)return {kind:'decimal',text:n.toString()};
+ if(style==='mixed'&& (n<0n?-n:n)>d){
+  const whole=n/d,remainder=(n<0n?-n:n)%d;
+  if(remainder){
+   const text=whole.toString()+' '+remainder.toString()+'/'+d.toString();
+   if(text.length<=23)return {kind:'mixed',text,integer:whole.toString(),numerator:remainder.toString(),denominator:d.toString()};
+  }
+ }
+ const text=n.toString()+'/'+d.toString();
+ return {kind:'fraction',text,numerator:n.toString(),denominator:d.toString()};
+}
 function calculate(value,source,settings={},options={}){
  const cfg={...DEFAULTS,...settings},digits=cfg.digits;
  const decimalText=decimal(value,cfg);
  const preferred=(!!cfg.math&&cfg.outputMath!==false&&['Norm1','Norm2'].includes(cfg.format))||options.forceFraction===true;
- const exact=parseSimpleFraction(source);
- const fraction=exact&&Math.abs(exact.numerator/exact.denominator-value)<=1e-12*Math.max(1,Math.abs(value))?
+ const exact=options.exactRational||parseSimpleFraction(source);
+ const exactFromEngine=options.exactRational&&/^[-]?\d+$/.test(String(exact.numerator))&&/^\d+$/.test(String(exact.denominator));
+ const fraction=exactFromEngine?exact:
+  exact&&Math.abs(exact.numerator/exact.denominator-value)<=1e-12*Math.max(1,Math.abs(value))?
   exact:options.allowApproxRational?rational(value):null;
  const symbolicCandidate=preferred?symbolic(value,source):null;
  let natural={kind:'decimal',text:decimalText};
  if(preferred&&symbolicCandidate)natural=symbolicCandidate;
- else if(preferred&&fraction)natural=fractionParts(fraction,cfg.fractionStyle);
+ else if(preferred&&fraction){
+  // A large exact integer should keep its standard scientific LCD presentation.
+  // Exact numerator/denominator metadata is still retained for Ans chaining.
+  const hugeInteger=exactFromEngine&&BigInt(fraction.denominator)===1n&&
+   String(fraction.numerator).replace('-','').length>10;
+  if(!hugeInteger)natural=exactFromEngine?
+   exactFractionParts(fraction,cfg.fractionStyle):fractionParts(fraction,cfg.fractionStyle);
+ }
  const chosen=options.decimal?{kind:'decimal',text:decimalText}:natural;
  return {natural,decimal:{kind:'decimal',text:decimalText},chosen,hasAlternate:chosen.kind!=='decimal',
-  fraction,exactRational:!!exact,symbolic:symbolicCandidate};
+  fraction,exactRational:!!fraction&&!!exact,symbolic:symbolicCandidate};
 }
 function engineering(value,shift=0,settings={}){
  if(!Number.isFinite(value))return null;

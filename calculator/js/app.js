@@ -10,7 +10,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -35,11 +35,14 @@ function paint(){
   el.classList.toggle('lit',(id==='SHIFT'&&state.shift)||(id==='ALPHA'&&state.alpha));
  });
 }
-function setResult(value,source=state.input){
+function setResult(value,source=state.input,exactRational=null){
+ state.preAnsRational=state.ansRational;
+ state.ansRational=exactRational;
  state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
  state.resultSource=source;
  state.resultPresentation=RESULTS.calculate(value,source,state,{
-   allowApproxRational:state.math&&source.includes('/')&&!/\d\.\d/.test(source)
+   exactRational:state.ansRational,
+   allowApproxRational:false
  });
  state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.screen='result';state.error='';
  state.history.unshift({source,value,mode:state.mode,angle:state.angle});if(state.history.length>80)state.history.pop();
@@ -49,8 +52,17 @@ function error(message){state.error=message.includes('ERROR')||message==='Cannot
 function evaluate(){try{
  const source=STRUCT.serialize(state.editor,true);
  if(!source)throw new M.MathFault('Syntax ERROR');
- const result=M.evaluate(source,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
- setResult(result);
+ let exactRational=null, exactValue=NaN;
+ if(window.FreshRational){
+  const exact=window.FreshRational.evaluate(source,{ansRational:state.ansRational,preAnsRational:state.preAnsRational});
+  if(exact){
+   exactRational=window.FreshRational.serialize(exact);
+   exactValue=window.FreshRational.toNumber(exact);
+  }
+ }
+ const result=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
+  exactValue:M.evaluate(source,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+ setResult(result,source,exactRational);
 }catch(e){error(e.message||'Math ERROR')}}
 function syncEditor(){
  state.input=STRUCT.serialize(state.editor);
@@ -88,7 +100,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultSource='';state.engShift=0;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -228,7 +240,7 @@ function menuHandle(key){
  }
  return true;
 }
-function applyAdvancedResult(value,description){if(typeof value==='number'){state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
+function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
 function functionFor(expr){return x=>M.evaluate(expr,{...state,ans:state.ans,memory:{...state.memory,X:x},math:false})}
 function numericalFlow(kind){
  const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum'};
@@ -433,7 +445,8 @@ function showResult(decimal,forceFraction=false){
  const source=state.resultSource||state.input;
  state.resultPresentation=RESULTS.calculate(state.raw,source,state,{
    decimal,forceFraction,
-   allowApproxRational:forceFraction||(state.math&&source.includes('/')&&!/\d\.\d/.test(source))
+   exactRational:state.ansRational,
+   allowApproxRational:false
  });
  state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);paint();
 }
