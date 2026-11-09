@@ -204,7 +204,7 @@ function flowHandle(key){
  else if(key==='RP')addition=')';
  else if(key==='POWER')addition='^';
  else if(key==='SQUARE')addition='^2';
- else if(key==='EXP')addition='e';
+ else if(key==='EXP')addition='E';
  else if(key==='FRAC')addition='/';
  else if(key==='SQRT')addition='sqrt(';
  else if(key==='SIN')addition='sin(';
@@ -436,6 +436,7 @@ function shifted(key){
   HYP:'abs(',NEG:'',DMS:'',SD:'',MPLUS:'',ENG:'',LP:'%',RP:',',ANS:'',MUL:'',DIV:'',ADD:'',SUB:'',DOT:''};
  if(key==='MPLUS'){state.memory.M-=state.ans;releaseModifier();paint();return true}
  if(key==='SD'){releaseModifier();toggleMixed();return true}
+ if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
  if(key==='DMS'){releaseModifier();notify('Decimal-to-DMS function available with °′″');paint();return true}
  if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
  if(key==='DOT'){releaseModifier();insert('rand');return true}
@@ -492,12 +493,18 @@ function toggleMixed(){
  state.resultFractionStyle=next;
  showResult(false,true);
 }
-function showEngineering(){
+function showEngineering(direction=-1){
  if(state.screen!=='result'||!Number.isFinite(state.raw))return;
- const result=RESULTS.engineering(state.raw,state.engShift,state);
- state.engShift+=1;
+ const already=state.resultPresentation?.chosen?.kind==='engineering';
+ // Initial ENG converts to engineering form. SHIFT+ENG initially shifts left
+ // by three places. Further presses move the exponent in opposite directions.
+ const nextShift=already?state.engShift+direction:(direction>0?1:0);
+ const result=RESULTS.engineering(state.raw,nextShift,state);
+ if(!result)return;
+ state.engShift=nextShift;
  state.resultPresentation={chosen:result,natural:result,decimal:{kind:'decimal',text:RESULTS.decimal(state.raw,state)}};
- state.result=result.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.decimal=false;paint();
+ state.result=result.text;state.viewport.resultX=Math.max(0,state.result.length-23);
+ state.decimal=false;releaseModifier();paint();
 }
 function press(key){
  const before={mode:state.mode,shift:state.shift,alpha:state.alpha,screen:state.screen,input:state.input};
@@ -594,7 +601,7 @@ function handle(key){
  });return}
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
  if(key==='LOGBASE'){insert('log(');return}
- if(key==='ENG'){if(state.screen==='result'){showEngineering();return}insert('e');return}
+ if(key==='ENG'){if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
  if(key==='DMS'){if(state.screen==='result'){state.result=formatDMS(state.raw);paint();return}insert('°');return}
  if(key==='HYP'){state.hyp=!state.hyp;notify(state.hyp?'Hyperbolic trig selected':'Ordinary trig selected');paint();return}
  if(key==='COMMA'){insert(',');return}
@@ -604,7 +611,16 @@ function handle(key){
  if(key==='POWER'){insertTemplate('power');return}
  if(key==='SQRT'&&!state.hyp){insertTemplate('squareRoot');return}
  if(funcs[key]){const text=state.hyp?{SIN:'sinh(',COS:'cosh(',TAN:'tanh('}[key]||funcs[key]:funcs[key];state.hyp=false;insert(text);return}
- const ops={MUL:'*',DIV:'/',ADD:'+',SUB:'-',LP:'(',RP:')',DOT:'.',RECIP:'^(-1)',SQUARE:'^2',EXP:'e',ANS:'Ans'};
+ if(key==='EXP'){
+  // Natural input presents a dedicated ×10^ field. Its serial form is the
+  // exponent literal E, not Euler's constant e (ALPHA + EXP).
+  const root=state.editor.path.length?null:state.editor.root;
+  const before=root&&root[state.editor.offset-1];
+  const isMantissa=before?.type==='char'&&/[0-9]/.test(before.value);
+  if(!isMantissa){notify('Enter a mantissa before ×10^',true);paint();return}
+  insertTemplate('exp10');return;
+ }
+ const ops={MUL:'*',DIV:'/',ADD:'+',SUB:'-',LP:'(',RP:')',DOT:'.',RECIP:'^(-1)',SQUARE:'^2',ANS:'Ans'};
  if(Object.prototype.hasOwnProperty.call(ops,key)){insert(ops[key]);return}
  if(/^\d$/.test(key)){insert(key);return}
  notify('This key is not available in the current state',true);paint();

@@ -5,7 +5,7 @@
 (function(global){'use strict';
 const FIELDS={fraction:['numerator','denominator'],
  mixed:['integer','numerator','denominator'],
- power:['exponent'],squareRoot:['radicand'],
+ power:['exponent'],exp10:['exponent'],squareRoot:['radicand'],
  cubeRoot:['radicand'],nthRoot:['index','radicand']};
 function create(){return {root:[],path:[],offset:0,version:1}}
 function locate(editor){
@@ -32,6 +32,7 @@ function nodeText(node,strict){
   case 'fraction':return '(('+get('numerator')+')/('+get('denominator')+'))';
   case 'mixed':return '(('+get('integer')+')+(('+get('numerator')+')/('+get('denominator')+')))';
   case 'power':return '^('+get('exponent')+')';
+  case 'exp10':return 'E'+get('exponent');
   case 'squareRoot':return 'sqrt('+get('radicand')+')';
   case 'cubeRoot':return 'cbrt('+get('radicand')+')';
   case 'nthRoot':return '(('+get('radicand')+')^(1/('+get('index')+')))';

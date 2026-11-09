@@ -110,6 +110,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(node.type==='fraction')return Math.max(measureField('numerator'),measureField('denominator'))+4;
   if(node.type==='mixed')return measureField('integer')+Math.max(measureField('numerator'),measureField('denominator'))+8;
   if(node.type==='power')return measureField('exponent')+2;
+  if(node.type==='exp10')return measureField('exponent')+13;
   if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
   if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
   return 4;
@@ -144,6 +145,9 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
      drawField('denominator',x+shift+Math.floor((span-b)/2),baseline+1);
     }else if(node.type==='power'){
      drawField('exponent',x+2,baseline-8);
+    }else if(node.type==='exp10'){
+     glyph('×',x,baseline);glyph('1',x+4,baseline);glyph('0',x+8,baseline);
+     drawField('exponent',x+13,baseline-8);
     }else if(node.type==='squareRoot'||node.type==='cubeRoot'||node.type==='nthRoot'){
      const nth=node.type==='nthRoot',prefix=nth?9:7;
      if(node.type==='cubeRoot')glyph('3',x,baseline-9);

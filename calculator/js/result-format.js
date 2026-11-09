@@ -118,12 +118,28 @@ function calculate(value,source,settings={},options={}){
  return {natural,decimal:{kind:'decimal',text:decimalText},chosen,hasAlternate:chosen.kind!=='decimal',
   fraction,exactRational:!!fraction&&!!exact,symbolic:symbolicCandidate};
 }
+function engineeringPlain(value){
+ const rounded=Number(value.toPrecision(10));
+ if(rounded===0)return '0';
+ const sign=rounded<0?'-':'';
+ const [mantissa,eText]=Math.abs(rounded).toExponential(9).split('e');
+ const figures=mantissa.replace('.','').replace(/0+$/,'');
+ const position=Number(eText)+1;
+ if(position<=0)return sign+'0.'+'0'.repeat(-position)+figures;
+ if(position>=figures.length)return sign+figures+'0'.repeat(position-figures.length);
+ return sign+figures.slice(0,position)+'.'+figures.slice(position);
+}
 function engineering(value,shift=0,settings={}){
- if(!Number.isFinite(value))return null;
- const base=value===0?0:Math.floor(Math.log10(Math.abs(value))/3)*3;
+ if(!Number.isFinite(value)||!Number.isInteger(shift))return null;
+ const magnitude=Math.abs(value);
+ const base=value===0?0:Math.floor(Math.floor(Math.log10(magnitude))/3)*3;
  const exponent=base+3*shift;
- const mantissa=value/10**exponent;
- return {kind:'engineering',text:Number(mantissa.toPrecision(10)).toString()+'×10^'+exponent,mantissa,exponent};
+ if(exponent>99||exponent< -99)return null;
+ const mantissa=value===0?0:value/10**exponent;
+ if(!Number.isFinite(mantissa))return null;
+ const number=engineeringPlain(mantissa);
+ const text=(settings.decimalSeparator==='comma'?number.replace('.',','):number)+'×10^'+exponent;
+ return {kind:'engineering',text,mantissa,exponent,shift};
 }
 const api=Object.freeze({calculate,decimal,sci,rational,reduced,parseSimpleFraction,
  fractionText,fractionParts,symbolic,engineering});
