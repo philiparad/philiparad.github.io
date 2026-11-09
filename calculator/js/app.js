@@ -486,6 +486,10 @@ function alphaKey(key){
  if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt(');if(key==='CALC')return insert('=');return null
 }
 function shifted(key){
+ if(state.hyp&&['SIN','COS','TAN'].includes(key)){
+  const map={SIN:'asinh(',COS:'acosh(',TAN:'atanh('};
+  state.hyp=false;releaseModifier();insert(map[key]);return true;
+ }
  const n=Number(key);
  if(key==='AC'){state.power=false;state.screen='edit';state.input='';state.result='';releaseModifier();notify('Calculator off — press ON');paint();return true}
  if(key==='MODE'){releaseModifier();setupMenu();return true}
