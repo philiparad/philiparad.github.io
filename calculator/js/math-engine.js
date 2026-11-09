@@ -140,7 +140,7 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','int','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','int','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,rand:Math.random(),Ran:Math.random(),...memory};
  function call(name,args){
   const x=args[0];const unit=st.angle;
@@ -149,8 +149,28 @@ function evaluate(source,opts={}){
    case 'asin':case 'acos':case 'atan':return checkedInverseTrig(name.toLowerCase(),x,unit);
    case 'sinh':case 'cosh':case 'tanh':
    case 'asinh':case 'acosh':case 'atanh':return checkedHyperbolic(name.toLowerCase(),x);
-   case 'ln':return Math.log(x);case 'log':return args.length===2?Math.log(args[1])/Math.log(x):Math.log10(x);
-   case 'sqrt':return Math.sqrt(x);case 'cbrt':return Math.cbrt(x);case 'abs':return Math.abs(x);
+   case 'ln':if(args.length!==1||x<=0)fail('Math ERROR');return Math.log(x);
+   case 'log':
+    if(args.length===1){if(x<=0)fail('Math ERROR');return Math.log10(x)}
+    if(args.length!==2||x<=0||x===1||args[1]<=0)fail('Math ERROR');
+    return Math.log(args[1])/Math.log(x);
+   case 'nthroot':{
+    if(args.length!==2||x===0)fail('Math ERROR');
+    const radicand=args[1],index=x;
+    if(radicand<0){
+     if(!Number.isInteger(index)||Math.abs(index)%2!==1)fail('Math ERROR');
+     const answer=-Math.pow(-radicand,1/index);
+     if(!Number.isFinite(answer))fail('Math ERROR');
+     return answer;
+    }
+    if(radicand===0&&index<0)fail('Math ERROR');
+    const answer=Math.pow(radicand,1/index);
+    if(!Number.isFinite(answer))fail('Math ERROR');
+    return answer;
+   }
+   case 'sqrt':if(x<0)fail('Math ERROR');return Math.sqrt(x);
+   case 'cbrt':return Math.cbrt(x);
+   case 'abs':return Math.abs(x);
    case 'exp':return Math.exp(x);case 'floor':case 'int':return Math.floor(x);case 'ceil':return Math.ceil(x);
    case 'round':return Math.round(x);case 'rnd':return Number(x.toFixed(st.digits));
    case 'min':return Math.min(...args);case 'max':return Math.max(...args);case 'sign':return Math.sign(x);

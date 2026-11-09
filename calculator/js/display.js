@@ -102,7 +102,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  const linearModes=['STAT','BASE-N','MATRIX','VECTOR'];
  const structured=expression&&state.math&&!linearModes.includes(state.mode)&&expression.root.some(node=>node.type!=='char');
  const fieldNames={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
-  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
+  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
  function measureSeq(nodes){return nodes.reduce((width,node)=>width+measureNode(node),0)}
  function measureNode(node){
   if(node.type==='char')return 4;
@@ -115,6 +115,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(node.type==='recurring')return measureField('period')+2;
   if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
   if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
+  if(node.type==='logBase')return 14+measureField('base')+measureField('argument');
   return 4;
  }
  function drawSeq(nodes,x,baseline,path,cursorOn){
@@ -153,6 +154,10 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     }else if(node.type==='recurring'){
      drawField('period',x+1,baseline);
      for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
+    }else if(node.type==='logBase'){
+     glyph('l',x,baseline);glyph('o',x+4,baseline);glyph('g',x+8,baseline);
+     drawField('base',x+11,baseline+6);
+     drawField('argument',x+14+Math.max(6,measureSeq(node.parts.base)),baseline);
     }else if(node.type==='squareRoot'||node.type==='cubeRoot'||node.type==='nthRoot'){
      const nth=node.type==='nthRoot',prefix=nth?9:7;
      if(node.type==='cubeRoot')glyph('3',x,baseline-9);

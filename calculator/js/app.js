@@ -721,7 +721,7 @@ function handle(key){
   const k=d.variable.toUpperCase();if(!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Unknown variable');state.memory[k]=Number(d.value);const n=M.evaluate(state.input,{...state,memory:state.memory,ans:state.ans});applyAdvancedResult(n,state.input);return M.format(n,state)
  });return}
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
- if(key==='LOGBASE'){insert('log(');return}
+ if(key==='LOGBASE'){insertTemplate('logBase');return}
  if(key==='ENG'){if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
  if(key==='DMS'){
   if(state.screen==='result'){toggleDMS();return}

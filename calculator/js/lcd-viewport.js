@@ -3,7 +3,7 @@
  */
 (function(global){'use strict';
 const WIDTH=96,HEIGHT=31,CHAR=4;
-const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
+const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
 function measure(nodes){return nodes.reduce((sum,node)=>sum+nodeWidth(node),0)}
 function fieldWidth(node,name){return Math.max(6,measure(node.parts[name]||[]))}
 function nodeWidth(node){
@@ -15,6 +15,7 @@ function nodeWidth(node){
  if(node.type==='recurring')return fieldWidth(node,'period')+2;
  if(node.type==='squareRoot'||node.type==='cubeRoot')return fieldWidth(node,'radicand')+8;
  if(node.type==='nthRoot')return fieldWidth(node,'index')+fieldWidth(node,'radicand')+9;
+ if(node.type==='logBase')return 14+fieldWidth(node,'base')+fieldWidth(node,'argument');
  return CHAR;
 }
 function layout(editor,baseline=12){
@@ -48,7 +49,10 @@ function layout(editor,baseline=12){
     }else if(n.type==='power')field('exponent',x+2,y-8);
     else if(n.type==='exp10'){add(y-8,y+5);field('exponent',x+13,y-8)}
     else if(n.type==='recurring'){add(y-3,y+5);field('period',x+1,y)}
-    else if(['squareRoot','cubeRoot','nthRoot'].includes(n.type)){
+    else if(n.type==='logBase'){
+     add(y,y+10);field('base',x+11,y+6);
+     field('argument',x+14+fieldWidth(n,'base'),y);
+    }else if(['squareRoot','cubeRoot','nthRoot'].includes(n.type)){
      const prefix=n.type==='nthRoot'?9:7;
      add(y-7,y+4);
      if(n.type==='nthRoot')field('index',x,y-10);

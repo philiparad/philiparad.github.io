@@ -6,7 +6,7 @@
 const FIELDS={fraction:['numerator','denominator'],
  mixed:['integer','numerator','denominator'],
  power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],
- cubeRoot:['radicand'],nthRoot:['index','radicand']};
+ cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
 function create(){return {root:[],path:[],offset:0,version:1}}
 function locate(editor){
  let seq=editor.root;
@@ -36,7 +36,8 @@ function nodeText(node,strict){
   case 'recurring':return 'RPT('+get('period')+')';
   case 'squareRoot':return 'sqrt('+get('radicand')+')';
   case 'cubeRoot':return 'cbrt('+get('radicand')+')';
-  case 'nthRoot':return '(('+get('radicand')+')^(1/('+get('index')+')))';
+  case 'nthRoot':return 'nthroot('+get('index')+','+get('radicand')+')';
+  case 'logBase':return 'log('+get('base')+','+get('argument')+')';
  }
  throw Error('Unknown expression node '+node.type);
 }
@@ -132,6 +133,8 @@ function navigate(editor,key){
    field=key==='UP'?'numerator':'denominator';
   }else if(node.type==='nthRoot'){
    field=key==='UP'?'index':'radicand';
+  }else if(node.type==='logBase'){
+   field=key==='UP'?'base':'argument';
   }
   if(field){
    const target=[...parent,{index:step.index,field}];

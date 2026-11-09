@@ -671,7 +671,7 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','int','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','int','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,rand:Math.random(),Ran:Math.random(),...memory};
  function call(name,args){
   const x=args[0];const unit=st.angle;
@@ -680,8 +680,28 @@ function evaluate(source,opts={}){
    case 'asin':case 'acos':case 'atan':return checkedInverseTrig(name.toLowerCase(),x,unit);
    case 'sinh':case 'cosh':case 'tanh':
    case 'asinh':case 'acosh':case 'atanh':return checkedHyperbolic(name.toLowerCase(),x);
-   case 'ln':return Math.log(x);case 'log':return args.length===2?Math.log(args[1])/Math.log(x):Math.log10(x);
-   case 'sqrt':return Math.sqrt(x);case 'cbrt':return Math.cbrt(x);case 'abs':return Math.abs(x);
+   case 'ln':if(args.length!==1||x<=0)fail('Math ERROR');return Math.log(x);
+   case 'log':
+    if(args.length===1){if(x<=0)fail('Math ERROR');return Math.log10(x)}
+    if(args.length!==2||x<=0||x===1||args[1]<=0)fail('Math ERROR');
+    return Math.log(args[1])/Math.log(x);
+   case 'nthroot':{
+    if(args.length!==2||x===0)fail('Math ERROR');
+    const radicand=args[1],index=x;
+    if(radicand<0){
+     if(!Number.isInteger(index)||Math.abs(index)%2!==1)fail('Math ERROR');
+     const answer=-Math.pow(-radicand,1/index);
+     if(!Number.isFinite(answer))fail('Math ERROR');
+     return answer;
+    }
+    if(radicand===0&&index<0)fail('Math ERROR');
+    const answer=Math.pow(radicand,1/index);
+    if(!Number.isFinite(answer))fail('Math ERROR');
+    return answer;
+   }
+   case 'sqrt':if(x<0)fail('Math ERROR');return Math.sqrt(x);
+   case 'cbrt':return Math.cbrt(x);
+   case 'abs':return Math.abs(x);
    case 'exp':return Math.exp(x);case 'floor':case 'int':return Math.floor(x);case 'ceil':return Math.ceil(x);
    case 'round':return Math.round(x);case 'rnd':return Number(x.toFixed(st.digits));
    case 'min':return Math.min(...args);case 'max':return Math.max(...args);case 'sign':return Math.sign(x);
@@ -885,7 +905,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  const linearModes=['STAT','BASE-N','MATRIX','VECTOR'];
  const structured=expression&&state.math&&!linearModes.includes(state.mode)&&expression.root.some(node=>node.type!=='char');
  const fieldNames={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
-  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
+  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
  function measureSeq(nodes){return nodes.reduce((width,node)=>width+measureNode(node),0)}
  function measureNode(node){
   if(node.type==='char')return 4;
@@ -898,6 +918,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(node.type==='recurring')return measureField('period')+2;
   if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
   if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
+  if(node.type==='logBase')return 14+measureField('base')+measureField('argument');
   return 4;
  }
  function drawSeq(nodes,x,baseline,path,cursorOn){
@@ -936,6 +957,10 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     }else if(node.type==='recurring'){
      drawField('period',x+1,baseline);
      for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
+    }else if(node.type==='logBase'){
+     glyph('l',x,baseline);glyph('o',x+4,baseline);glyph('g',x+8,baseline);
+     drawField('base',x+11,baseline+6);
+     drawField('argument',x+14+Math.max(6,measureSeq(node.parts.base)),baseline);
     }else if(node.type==='squareRoot'||node.type==='cubeRoot'||node.type==='nthRoot'){
      const nth=node.type==='nthRoot',prefix=nth?9:7;
      if(node.type==='cubeRoot')glyph('3',x,baseline-9);
@@ -1088,7 +1113,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
 const FIELDS={fraction:['numerator','denominator'],
  mixed:['integer','numerator','denominator'],
  power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],
- cubeRoot:['radicand'],nthRoot:['index','radicand']};
+ cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
 function create(){return {root:[],path:[],offset:0,version:1}}
 function locate(editor){
  let seq=editor.root;
@@ -1118,7 +1143,8 @@ function nodeText(node,strict){
   case 'recurring':return 'RPT('+get('period')+')';
   case 'squareRoot':return 'sqrt('+get('radicand')+')';
   case 'cubeRoot':return 'cbrt('+get('radicand')+')';
-  case 'nthRoot':return '(('+get('radicand')+')^(1/('+get('index')+')))';
+  case 'nthRoot':return 'nthroot('+get('index')+','+get('radicand')+')';
+  case 'logBase':return 'log('+get('base')+','+get('argument')+')';
  }
  throw Error('Unknown expression node '+node.type);
 }
@@ -1214,6 +1240,8 @@ function navigate(editor,key){
    field=key==='UP'?'numerator':'denominator';
   }else if(node.type==='nthRoot'){
    field=key==='UP'?'index':'radicand';
+  }else if(node.type==='logBase'){
+   field=key==='UP'?'base':'argument';
   }
   if(field){
    const target=[...parent,{index:step.index,field}];
@@ -1486,7 +1514,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
  */
 (function(global){'use strict';
 const WIDTH=96,HEIGHT=31,CHAR=4;
-const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand']};
+const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
 function measure(nodes){return nodes.reduce((sum,node)=>sum+nodeWidth(node),0)}
 function fieldWidth(node,name){return Math.max(6,measure(node.parts[name]||[]))}
 function nodeWidth(node){
@@ -1498,6 +1526,7 @@ function nodeWidth(node){
  if(node.type==='recurring')return fieldWidth(node,'period')+2;
  if(node.type==='squareRoot'||node.type==='cubeRoot')return fieldWidth(node,'radicand')+8;
  if(node.type==='nthRoot')return fieldWidth(node,'index')+fieldWidth(node,'radicand')+9;
+ if(node.type==='logBase')return 14+fieldWidth(node,'base')+fieldWidth(node,'argument');
  return CHAR;
 }
 function layout(editor,baseline=12){
@@ -1531,7 +1560,10 @@ function layout(editor,baseline=12){
     }else if(n.type==='power')field('exponent',x+2,y-8);
     else if(n.type==='exp10'){add(y-8,y+5);field('exponent',x+13,y-8)}
     else if(n.type==='recurring'){add(y-3,y+5);field('period',x+1,y)}
-    else if(['squareRoot','cubeRoot','nthRoot'].includes(n.type)){
+    else if(n.type==='logBase'){
+     add(y,y+10);field('base',x+11,y+6);
+     field('argument',x+14+fieldWidth(n,'base'),y);
+    }else if(['squareRoot','cubeRoot','nthRoot'].includes(n.type)){
      const prefix=n.type==='nthRoot'?9:7;
      add(y-7,y+4);
      if(n.type==='nthRoot')field('index',x,y-10);
@@ -2793,7 +2825,7 @@ function handle(key){
   const k=d.variable.toUpperCase();if(!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Unknown variable');state.memory[k]=Number(d.value);const n=M.evaluate(state.input,{...state,memory:state.memory,ans:state.ans});applyAdvancedResult(n,state.input);return M.format(n,state)
  });return}
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
- if(key==='LOGBASE'){insert('log(');return}
+ if(key==='LOGBASE'){insertTemplate('logBase');return}
  if(key==='ENG'){if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
  if(key==='DMS'){
   if(state.screen==='result'){toggleDMS();return}
