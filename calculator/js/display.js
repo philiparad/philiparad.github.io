@@ -169,7 +169,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(layout.maxY-vertical>26)glyph('↓',91,0);
  }
 
- if(state.screen==='error'){write(state.error||'Math ERROR',0,14);return pixels}
+ if(state.screen==='error'){write(state.error||'Math ERROR',0,9);write('AC:CANCEL',0,20);write('< >:GOTO',51,20);return pixels}
  function drawTypedResult(presentation){
   const item=presentation&&presentation.chosen;
   if(!item||!['fraction','mixed','pi','surd','engineering'].includes(item.kind))return false;

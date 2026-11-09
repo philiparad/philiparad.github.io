@@ -1,6 +1,7 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport;
+const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -12,7 +13,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
- insert:true,error:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
+ insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
 const releaseModifier=()=>{state.shift=false;state.alpha=false};
 const notify=(text,isError=false)=>{const el=$('notice');el.textContent=text;el.classList.toggle('error',isError)};
@@ -22,7 +23,7 @@ function paint(){
  // STO/RCL standby and history/menu replay cues.
  const flags=window.FreshIndicators.render(state,$);
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
- $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
+ $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  const faceIds={'fx-991es':'fx-991ES','fx-991es-plus':'fx-991ES PLUS','fx-991es-plus-c':'fx-991ES PLUS C'};
  document.querySelector('.case-model-id').textContent=faceIds[state.model];
  document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'':'2nd edition';
@@ -44,13 +45,19 @@ function setResult(value,source=state.input,exactRational=null){
    exactRational:state.ansRational,
    allowApproxRational:false
  });
- state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.screen='result';state.error='';
+ state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);state.screen='result';state.error='';state.errorOffset=null;state.errorSource='';
  state.history.unshift({source,value,mode:state.mode,angle:state.angle});if(state.history.length>80)state.history.pop();
  notify('Calculated successfully');paint();
 }
-function error(message){state.error=message.includes('ERROR')||message==='Cannot Solve'?message:'Math ERROR';state.screen='error';releaseModifier();notify(message,true);paint()}
-function evaluate(){try{
- const source=STRUCT.serialize(state.editor,true);
+function error(message,source=state.input){
+ const kind=ERRORS.classify(message,state.mode);
+ state.error=kind;state.errorSource=String(source||state.input||'');
+ state.errorOffset=ERRORS.location(state.errorSource,message);
+ state.screen='error';releaseModifier();notify(kind,true);paint();
+}
+function evaluate(){let source=state.input;try{
+ source=STRUCT.serialize(state.editor,true);
+ ERRORS.checkStack(source);
  if(!source)throw new M.MathFault('Syntax ERROR');
  let exactRational=null, exactValue=NaN;
  if(window.FreshRational){
@@ -63,7 +70,7 @@ function evaluate(){try{
  const result=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
   exactValue:M.evaluate(source,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
  setResult(result,source,exactRational);
-}catch(e){error(e.message||'Math ERROR')}}
+}catch(e){error(e.message||'Math ERROR',source)}}
 function syncEditor(){
  state.input=STRUCT.serialize(state.editor);
  state.cursor=state.editor.path.length?state.input.length:state.editor.offset;
@@ -77,7 +84,7 @@ function syncEditor(){
 }
 function beginEdit(){
  if(state.screen!=='edit'){
-  state.screen='edit';state.input='';state.cursor=0;state.result='';state.error='';
+  state.screen='edit';state.input='';state.cursor=0;state.result='';state.error='';state.errorOffset=null;state.errorSource='';
   state.editor=STRUCT.create();state.viewport.inputX=0;state.viewport.inputY=0;
  }
 }
@@ -97,10 +104,10 @@ function insertTemplate(type){
 }
 function loadExpression(text){
  state.editor=STRUCT.fromString(text);
- syncEditor();state.screen='edit';state.result='';releaseModifier();paint();
+ syncEditor();state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -475,6 +482,29 @@ function press(key){
 function handle(key){
  if(key==='ON'){state.power=true;state.screen='edit';releaseModifier();notify('Calculator on');paint();return}
  if(!state.power)return;
+ if(state.screen==='error'){
+  if(key==='LEFT'||key==='RIGHT'){
+   const target=Number.isInteger(state.errorOffset)?state.errorOffset:state.input.length;
+   state.screen='edit';state.error='';state.info='';
+   // Preserve the structured editor tree; place the caret exactly for linear
+   // input, or retain its existing structured location when paths differ.
+   if(state.editor.path.length===0&&state.editor.root.every(node=>node.type==='char')){
+    state.editor.offset=Math.max(0,Math.min(state.editor.root.length,target));
+   }
+   syncEditor();state.errorOffset=null;state.errorSource='';
+   releaseModifier();notify('Edit the calculation and press =');paint();
+   return;
+  }
+  if(key==='AC'){
+   state.editor=STRUCT.create();state.input='';state.cursor=0;
+   state.error='';state.errorOffset=null;state.errorSource='';
+   state.screen='edit';state.info='';
+   state.viewport.inputX=0;state.viewport.inputY=0;
+   releaseModifier();notify('Error cleared');paint();return;
+  }
+  // Error display remains until recovery or cancellation.
+  return;
+ }
  if(state.screen==='contrast'){
   if(key==='LEFT')state.contrast=Math.max(0,state.contrast-1);
   if(key==='RIGHT')state.contrast=Math.min(9,state.contrast+1);
@@ -522,7 +552,7 @@ function handle(key){
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
- if(key==='AC'){state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
