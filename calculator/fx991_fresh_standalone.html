@@ -535,9 +535,47 @@ const TAU=2*Math.PI;
 const SETTINGS={angle:'DEG',format:'Norm2',digits:3,math:true};
 class MathFault extends Error{constructor(message){super(message);this.name='CalculatorError'}}
 const fail=(message)=>{throw new MathFault(message)};
-function factorial(n){if(!Number.isInteger(n)||n<0||n>170)fail('Math ERROR');let a=1;for(let i=2;i<=n;i++)a*=i;return a}
-function permutation(n,r){if(!Number.isInteger(n)||!Number.isInteger(r)||n<0||r<0||r>n||n>170)fail('Math ERROR');let a=1;for(let k=0;k<r;k++)a*=n-k;return a}
-function combination(n,r){if(!Number.isInteger(n)||!Number.isInteger(r)||n<0||r<0||r>n)fail('Math ERROR');r=Math.min(r,n-r);let a=1;for(let k=1;k<=r;k++)a=a*(n-k+1)/k;return Math.round(a)}
+// REA-031: source-backed integer domains and bounded exact intermediates.
+// Convert to the calculator's 15-significant-digit numerical model only after
+// the exact integer is known; do not round huge combinations to JS integers.
+const COMB_LIMIT=10n**100n;
+function calculatorInteger(n){
+ if(!Number.isFinite(n)||!Number.isInteger(n)||n<0||n>=1e10)fail('Math ERROR');
+ return BigInt(n);
+}
+function toCalculatorNumber(exact){
+ if(exact>=COMB_LIMIT)fail('Math ERROR');
+ const number=Number(exact);
+ if(!Number.isFinite(number))fail('Math ERROR');
+ return Number(number.toPrecision(15));
+}
+function factorial(n){
+ if(!Number.isInteger(n)||n<0||n>69)fail('Math ERROR');
+ let exact=1n;
+ for(let k=2n;k<=BigInt(n);k++)exact*=k;
+ return toCalculatorNumber(exact);
+}
+function permutation(n,r){
+ const N=calculatorInteger(n),R=calculatorInteger(r);
+ if(R>N)fail('Math ERROR');
+ let exact=1n;
+ for(let k=0n;k<R;k++){
+  exact*=N-k;
+  if(exact>=COMB_LIMIT)fail('Math ERROR');
+ }
+ return toCalculatorNumber(exact);
+}
+function combination(n,r){
+ const N=calculatorInteger(n),R=calculatorInteger(r);
+ if(R>N)fail('Math ERROR');
+ const K=R<N-R?R:N-R;
+ let exact=1n;
+ for(let k=1n;k<=K;k++){
+  exact=exact*(N-k+1n)/k;
+  if(exact>=COMB_LIMIT)fail('Math ERROR');
+ }
+ return toCalculatorNumber(exact);
+}
 function toRadians(n,unit){return unit==='RAD'?n:unit==='GRAD'?n*Math.PI/200:n*Math.PI/180}
 function fromRadians(n,unit){return unit==='RAD'?n:unit==='GRAD'?n*200/Math.PI:n*180/Math.PI}
 function gcd(a,b){while(b!==0n){const t=a%b;a=b;b=t}return a<0n?-a:a}
