@@ -52,21 +52,11 @@ function symbolic(value,source){
  return null;
 }
 function sci(value,digits){
- const exp=Number(value).toExponential(Math.max(0,Math.min(9,digits??3)));
- const [mantissa,e]=exp.split('e');
- return mantissa.replace(/\.?0+$/,'')+'×10^'+Number(e);
+ return global.FreshNumberFormat.sci(value,digits===0?10:digits);
 }
 function decimal(value,settings={}){
  const cfg={...DEFAULTS,...settings};
- if(typeof value!=='number'||!Number.isFinite(value))return 'Math ERROR';
- const x=Math.abs(value)<1e-14?0:value;
- let text;
- if(cfg.format==='Fix')text=x.toFixed(Math.min(9,Math.max(0,cfg.digits)));
- else if(cfg.format==='Sci')text=sci(x,cfg.digits);
- else if(x!==0&&((cfg.format==='Norm1'&&Math.abs(x)<1e-2)||(cfg.format!=='Norm1'&&Math.abs(x)<1e-9)||Math.abs(x)>=1e10)){
-  text=sci(x,9);
- }else text=Number(x.toPrecision(12)).toString();
- return cfg.decimalSeparator==='comma'?text.replace('.',','):text;
+ return global.FreshNumberFormat.format(value,cfg);
 }
 function fractionText(q,style='improper'){
  const n=q.numerator,d=q.denominator;

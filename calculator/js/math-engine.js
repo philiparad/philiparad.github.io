@@ -27,16 +27,12 @@ function format(value,settings={},preferFraction=false){
  const cfg={...SETTINGS,...settings};
  if(typeof value==='string')return value;
  if(!Number.isFinite(value))return 'Math ERROR';
- if(Math.abs(value)<1e-14)value=0;
  if(preferFraction&&cfg.math&&cfg.format.startsWith('Norm')){
   const f=fraction(value);
   if(f&&f[1]!==1)return f[0]+'/'+f[1];
  }
- if(cfg.format==='Fix')return value.toFixed(cfg.digits);
- if(cfg.format==='Sci')return value.toExponential(cfg.digits).replace('e+','×10^').replace('e-','×10^-');
- const norm1=cfg.format==='Norm1';const abs=Math.abs(value);
- if(abs!==0&&((norm1&&abs<.01)||(!norm1&&abs<1e-9)||abs>=1e10))return value.toExponential(9).replace(/0+e/,'e').replace(/\.e/,'e');
- return Number(value.toPrecision(10)).toString();
+ return global.FreshNumberFormat?
+  global.FreshNumberFormat.format(value,cfg):Number(value.toPrecision(10)).toString();
 }
 const T={NUMBER:'number',IDENT:'identifier',OP:'operator'};
 function tokenize(source){
