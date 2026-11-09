@@ -1,5 +1,7 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
+const COORD=window.FreshCoordinates;
+if(!COORD)throw Error('Missing coordinate conversion module');
 const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
@@ -15,7 +17,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,factorization:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -42,7 +44,7 @@ function paint(){
 }
 function setResult(value,source=state.input,exactRational=null){
  state.preAnsRational=state.ansRational;
- state.ansRational=exactRational;state.resultFractionStyle=null;state.remainderResult=null;state.factorization=null;
+ state.ansRational=exactRational;state.resultFractionStyle=null;state.remainderResult=null;state.factorization=null;state.coordinateResult=null;
  state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
  state.resultSource=source;
  state.resultPresentation=RESULTS.calculate(value,source,state,{
@@ -68,6 +70,22 @@ function error(message,source=state.input){
  state.screen='error';releaseModifier();notify(kind,true);paint();
 }
 function evaluateSegment(source){
+ const parsed=COORD.parse(source);
+ if(parsed){
+  const coordinate=COORD.evaluate(source,state,
+   (part,opts)=>M.evaluate(part,{...opts,ans:state.ans,preAns:state.preAns,memory:state.memory}));
+  // Compute the entire pair before modifying memory or Ans.
+  setResult(coordinate.first,source,null);
+  state.memory.X=coordinate.first;
+  state.memory.Y=coordinate.second;
+  state.coordinateResult=coordinate;
+  const left=RESULTS.decimal(coordinate.first,{...state,math:false});
+  const right=RESULTS.decimal(coordinate.second,{...state,math:false});
+  const item={...coordinate,text:coordinate.firstLabel+'='+left+'  '+coordinate.secondLabel+'='+right};
+  state.resultPresentation={chosen:item,natural:item,decimal:item};
+  state.result=item.text;state.viewport.resultX=Math.max(0,item.text.length-23);
+  paint();return;
+ }
  const recurringExpanded=SPECIAL.expandRecurring(source);
  const div=SPECIAL.remainderExpression(recurringExpanded,state.ans);
  const expression=div.expression;
@@ -120,7 +138,7 @@ function syncEditor(){
 }
 function beginEdit(){
  if(state.screen!=='edit'){
-  state.screen='edit';state.input='';state.cursor=0;state.result='';state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
+  state.screen='edit';state.input='';state.cursor=0;state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
   state.editor=STRUCT.create();state.viewport.inputX=0;state.viewport.inputY=0;
  }
 }
@@ -140,10 +158,10 @@ function insertTemplate(type){
 }
 function loadExpression(text){
  state.editor=STRUCT.fromString(text);
- syncEditor();state.screen='edit';state.result='';state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
+ syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -522,6 +540,8 @@ function shifted(key){
  if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
  if(key==='DOT'){releaseModifier();insert('rand');return true}
  if(key==='0'){releaseModifier();state.ans=Number(state.ans.toFixed(state.digits));state.result=M.format(state.ans,state);paint();return true}
+ if(key==='ADD'){releaseModifier();insert('Pol(');return true}
+ if(key==='SUB'){releaseModifier();insert('Rec(');return true}
  if(key==='MUL'){releaseModifier();insert('nPr');return true}
  if(key==='DIV'){releaseModifier();insert('nCr');return true}
  if(key==='ADD'||key==='SUB'){releaseModifier();insert(key==='ADD'?',':',');return true}
@@ -548,7 +568,7 @@ function showResult(decimal,forceFraction=false){
 }
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
- if(state.remainderResult)return;
+ if(state.remainderResult||state.coordinateResult)return;
  const recurring=state.recurringDecimal&&state.ansRational?
   SPECIAL.recurringOf(state.ansRational):null;
  if(recurring){
