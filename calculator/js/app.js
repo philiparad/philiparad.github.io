@@ -1,5 +1,7 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
+const FACT=window.FreshFactorization;
+if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
 const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
@@ -13,7 +15,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,factorization:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -40,7 +42,7 @@ function paint(){
 }
 function setResult(value,source=state.input,exactRational=null){
  state.preAnsRational=state.ansRational;
- state.ansRational=exactRational;state.resultFractionStyle=null;state.remainderResult=null;
+ state.ansRational=exactRational;state.resultFractionStyle=null;state.remainderResult=null;state.factorization=null;
  state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
  state.resultSource=source;
  state.resultPresentation=RESULTS.calculate(value,source,state,{
@@ -118,7 +120,7 @@ function syncEditor(){
 }
 function beginEdit(){
  if(state.screen!=='edit'){
-  state.screen='edit';state.input='';state.cursor=0;state.result='';state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
+  state.screen='edit';state.input='';state.cursor=0;state.result='';state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
   state.editor=STRUCT.create();state.viewport.inputX=0;state.viewport.inputY=0;
  }
 }
@@ -138,10 +140,10 @@ function insertTemplate(type){
 }
 function loadExpression(text){
  state.editor=STRUCT.fromString(text);
- syncEditor();state.screen='edit';state.result='';state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
+ syncEditor();state.screen='edit';state.result='';state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -297,6 +299,27 @@ function numericalFlow(kind){
   applyAdvancedResult(x,data.expression);return M.format(x,state);
  })
 }
+function exitFactorization(){
+ const saved=state.factorization;
+ if(!saved)return false;
+ state.factorization=null;
+ state.resultPresentation=saved.presentation;
+ state.result=saved.result;state.viewport.resultX=Math.max(0,state.result.length-23);
+ paint();return true;
+}
+function factorResult(){
+ if(state.screen!=='result')return;
+ if(state.factorization){exitFactorization();return}
+ const chosen=state.resultPresentation?.chosen;
+ // Only a displayed positive integer result is eligible; not a fractional,
+ // sexagesimal, repeating, remainder, or engineering result.
+ const invalid=chosen&&chosen.kind!=='decimal';
+ const fact=FACT.factorize(state.raw,{mode:state.mode,remainder:!!state.remainderResult,disallowed:!!invalid});
+ state.factorization={result:state.result,presentation:state.resultPresentation};
+ state.resultPresentation={...state.resultPresentation,chosen:fact};
+ state.result=fact.text;state.viewport.resultX=Math.max(0,state.result.length-23);
+ releaseModifier();paint();
+}
 function toggleDMS(){
  if(state.screen!=='result'||!Number.isFinite(state.raw))return;
  const asDMS=!state.resultDMS;
@@ -313,6 +336,7 @@ function memoryDialog(store=false){optionDialog(store?'STO — select register':
   if(store){state.memory[r]=state.ans;notify('Stored Ans in '+r);paint()}else insert(r)
  }})))}
 function setupChoose(id,value){
+ if(state.factorization)exitFactorization();
  switch(id){
  case 'mthio':
   state.math=true;state.outputMath=value==='matho';break;
@@ -326,6 +350,7 @@ function setupChoose(id,value){
  notify('SETUP '+id+': '+value);paint();
 }
 function setupSetting(id){
+ if(state.factorization)exitFactorization();
  if(id==='lineio'){state.math=false;state.outputMath=false;paint();return}
  if(id==='deg'||id==='rad'||id==='gra'){
   state.angle=id==='deg'?'DEG':id==='rad'?'RAD':'GRAD';paint();return;
@@ -489,7 +514,7 @@ function shifted(key){
  if(key==='MPLUS'){state.memory.M-=state.ans;releaseModifier();paint();return true}
  if(key==='SD'){releaseModifier();toggleMixed();return true}
  if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
- if(key==='DMS'){releaseModifier();if(state.screen==='result')toggleDMS();else notify('Enter degrees, minutes and seconds with °′″');paint();return true}
+ if(key==='DMS'){releaseModifier();if(state.screen==='result')factorResult();return true}
  if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
  if(key==='DOT'){releaseModifier();insert('rand');return true}
  if(key==='0'){releaseModifier();state.ans=Number(state.ans.toFixed(state.digits));state.result=M.format(state.ans,state);paint();return true}
@@ -628,6 +653,9 @@ function handle(key){
   if(key==='MODE'){modeMenu();return}
   state.screen='edit';
  }
+ if(state.factorization&&['EQUAL','ENG','DMS'].includes(key)){
+  exitFactorization();return;
+ }
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
  if(state.shift&&['LEFT','RIGHT','UP','DOWN'].includes(key)&&['edit','result'].includes(state.screen)){
@@ -653,7 +681,7 @@ function handle(key){
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
- if(key==='AC'){state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
