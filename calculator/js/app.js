@@ -436,9 +436,15 @@ function toggleDMS(){
 // REA-039: physical STO/RCL standby and independent memory behavior.
 const MEMORY_KEYS=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'});
 function memoryOperand(){
+ // CASIO memory keys consume the displayed result, an entered calculation,
+ // or Ans when the input line is empty after AC.
  if(state.screen==='result')return state.raw;
  const source=STRUCT.serialize(state.editor,true);
- if(!source)throw Error('Syntax ERROR');
+ if(!source){
+  if(!Number.isFinite(state.ans))throw Error('Math ERROR');
+  setResult(state.ans,'Ans',state.ansRational);
+  return state.raw;
+ }
  evaluate();
  if(state.screen!=='result')throw Error(state.error||'Math ERROR');
  return state.raw;
@@ -464,17 +470,25 @@ function memoryDialog(store=false){
  state.pendingMemory=store?'STO':'RCL';
  releaseModifier();notify(state.pendingMemory+' — select A-F, X, Y or M');paint();
 }
+function memorySum(current,value,sign){
+ if(sign!==1&&sign!==-1)throw Error('Argument ERROR');
+ const total=current+sign*value;
+ if(!Number.isFinite(total)||Math.abs(total)>9.999999999e99)throw Error('Math ERROR');
+ return total;
+}
 function accumulateMemory(sign){
  try{
-  const value=memoryOperand();assignRegister('M',state.memory.M+sign*value);
+  const value=memoryOperand();
+  assignRegister('M',memorySum(state.memory.M,value,sign));
   notify(sign===1?'Added to M':'Subtracted from M');releaseModifier();paint();
  }catch(e){if(state.screen!=='error')error(e.message||'Math ERROR')}
 }
 function clearMemory(){
  for(const name of Object.keys(state.memory))state.memory[name]=0;
  state.ans=0;state.preAns=0;state.raw=0;state.ansRational=null;state.preAnsRational=null;
- state.pendingMemory=null;state.resultPresentation=null;state.result='';state.history=[];clearReplay();
- state.screen='edit';state.editor=STRUCT.create();syncEditor();
+ state.pendingMemory=null;state.resultPresentation=null;state.result='';state.resultSource='';
+ state.error='';state.errorOffset=null;state.errorSource='';state.history=[];clearReplay();
+ state.screen='edit';state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};syncEditor();
  notify('Memory cleared');paint();
 }
 function setupChoose(id,value){
@@ -999,7 +1013,14 @@ function runChecks(){const checks=[
  ['implicit multiplication',()=>Math.abs(M.evaluate('2pi')-2*Math.PI)<1e-12],['variables',()=>M.evaluate('X^2',{memory:{X:3}})===9],
  ['quadratic roots',()=>M.quadratic(1,-3,2).length===2],['matrix solve',()=>M.matrixSolve([[2,1,5],[1,-1,1]]).every(Number.isFinite)],
  ['numerical derivative',()=>Math.abs(M.derivative(x=>x*x,2)-4)<1e-9],['numerical integral',()=>Math.abs(M.integrate(x=>x*x,0,1)-1/3)<1e-9],
- ['physical keys',()=>K.keys.length===50],['degree postfix',()=>Math.abs(M.evaluate('sin(30°)',{angle:'RAD'})-.5)<1e-12],['LCD buffer',()=>LCD.rasterize(state).length===96*31]
+ ['physical keys',()=>K.keys.length===50],['degree postfix',()=>Math.abs(M.evaluate('sin(30°)',{angle:'RAD'})-.5)<1e-12],['LCD buffer',()=>LCD.rasterize(state).length===96*31],
+  // REA-042: independent M arithmetic and annunciator are model-state driven.
+  ['M+ accumulation',()=>memorySum(0,50,1)===50],
+  ['M- accumulation',()=>memorySum(50,15,-1)===35],
+  ['M zero crossing',()=>memorySum(15,15,-1)===0],
+  ['M overflow rejected',()=>{try{memorySum(9e99,9e99,1);return false}catch{return true}}],
+  ['M indicator',()=>window.FreshIndicators.derive({...state,power:true,memory:{...state.memory,M:35}}).memory==='M'&&
+    window.FreshIndicators.derive({...state,power:true,memory:{...state.memory,M:0}}).memory==='']
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
