@@ -85,6 +85,39 @@ function checkedHyperbolic(name,x){
  if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
  return result;
 }
+
+const INTEGER_FUNCTION_LIMIT=1e10;
+function validatedInteger(n,allowNegative){
+ if(!Number.isInteger(n)||!Number.isFinite(n)||
+    Math.abs(n)>=INTEGER_FUNCTION_LIMIT||(!allowNegative&&n<0))fail('Math ERROR');
+ return BigInt(n);
+}
+function exactGcd(a,b){
+ a=a<0n?-a:a;b=b<0n?-b:b;
+ while(b!==0n){const r=a%b;a=b;b=r}
+ return a;
+}
+function gcdFunction(args){
+ if(args.length!==2)fail('Syntax ERROR');
+ const a=validatedInteger(args[0],true),b=validatedInteger(args[1],true);
+ if(a===0n&&b===0n)fail('Math ERROR');
+ return Number(exactGcd(a,b));
+}
+function lcmFunction(args){
+ if(args.length!==2)fail('Syntax ERROR');
+ const a=validatedInteger(args[0],false),b=validatedInteger(args[1],false);
+ if(a===0n||b===0n)return 0;
+ const exact=(a/exactGcd(a,b))*b;
+ if(exact>=10n**100n)fail('Math ERROR');
+ return Number(Number(exact).toPrecision(15));
+}
+function integerPart(args,largest){
+ if(args.length!==1)fail('Syntax ERROR');
+ const x=args[0];
+ if(!Number.isFinite(x)||Math.abs(x)>9.999999999e99)fail('Math ERROR');
+ const value=largest?Math.floor(x):Math.trunc(x);
+ return value===0?0:value;
+}
 function toRadians(n,unit){return unit==='RAD'?n:unit==='GRAD'?n*Math.PI/200:n*Math.PI/180}
 function fromRadians(n,unit){return unit==='RAD'?n:unit==='GRAD'?n*200/Math.PI:n*180/Math.PI}
 function gcd(a,b){while(b!==0n){const t=a%b;a=b;b=t}return a<0n?-a:a}
@@ -140,7 +173,7 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','int','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,rand:Math.random(),Ran:Math.random(),...memory};
  function call(name,args){
   const x=args[0];const unit=st.angle;
@@ -171,7 +204,11 @@ function evaluate(source,opts={}){
    case 'sqrt':if(x<0)fail('Math ERROR');return Math.sqrt(x);
    case 'cbrt':return Math.cbrt(x);
    case 'abs':return Math.abs(x);
-   case 'exp':return Math.exp(x);case 'floor':case 'int':return Math.floor(x);case 'ceil':return Math.ceil(x);
+   case 'gcd':return gcdFunction(args);
+   case 'lcm':return lcmFunction(args);
+   case 'int':return integerPart(args,false);
+   case 'intg':return integerPart(args,true);
+   case 'exp':return Math.exp(x);case 'floor':return Math.floor(x);case 'ceil':return Math.ceil(x);
    case 'round':return Math.round(x);case 'rnd':return Number(x.toFixed(st.digits));
    case 'min':return Math.min(...args);case 'max':return Math.max(...args);case 'sign':return Math.sign(x);
    case 'ranint':if(args.length!==2||!args.every(Number.isInteger)||x>args[1])fail('Argument ERROR');return Math.floor(Math.random()*(args[1]-x+1))+x;
@@ -185,7 +222,7 @@ function evaluate(source,opts={}){
   if(t.value==='('){const x=expr(0);if(!peek()||take().value!==')')fail('Syntax ERROR');return x}
   if(t.type===T.NUMBER)return t.value;
   if(t.type===T.IDENT){
-   if(peek()?.value==='('&&names.has(t.value)){take();let args=[];if(peek()?.value!==')'){while(true){args.push(expr(0));if(peek()?.value!==',')break;take()}}if(!peek()||take().value!==')')fail('Syntax ERROR');return call(t.value,args)}
+   if(peek()?.value==='('&&(names.has(t.value)||names.has(t.value.toLowerCase()))){take();let args=[];if(peek()?.value!==')'){while(true){args.push(expr(0));if(peek()?.value!==',')break;take()}}if(!peek()||take().value!==')')fail('Syntax ERROR');return call(t.value,args)}
    if(Object.prototype.hasOwnProperty.call(variables,t.value))return Number(variables[t.value]);
    fail('Variable ERROR: '+t.value);
   }

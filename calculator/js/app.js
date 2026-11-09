@@ -499,6 +499,10 @@ function alphaKey(key){
   return insertTemplate('recurring');
  }
  if(key==='ENG')return insert(':');
+ if(key==='MUL')return insert('GCD(');
+ if(key==='DIV')return insert('LCM(');
+ if(key==='ADD')return insert('Int(');
+ if(key==='SUB')return insert('Intg(');
  const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  if(variables[key])return insert(variables[key]);
  if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt(');if(key==='CALC')return insert('=');return null
