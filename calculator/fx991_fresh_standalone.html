@@ -1181,7 +1181,7 @@ function fractionText(q,style='improper'){
  if(d===1)return String(n);
  if(style==='mixed'&&Math.abs(n)>d){
   const integer=Math.trunc(n/d),remainder=Math.abs(n)%d;
-  if(remainder&&String(integer).length+String(remainder).length+String(d).length+1<=10){
+  if(remainder&&String(integer).length+String(remainder).length+String(d).length+2<=10){
    return integer+' '+remainder+'/'+d;
   }
  }
@@ -1206,7 +1206,7 @@ function exactFractionParts(q,style){
   const whole=n/d,remainder=(n<0n?-n:n)%d;
   if(remainder){
    const text=whole.toString()+' '+remainder.toString()+'/'+d.toString();
-   if(text.length<=23)return {kind:'mixed',text,integer:whole.toString(),numerator:remainder.toString(),denominator:d.toString()};
+   if(text.length<=10)return {kind:'mixed',text,integer:whole.toString(),numerator:remainder.toString(),denominator:d.toString()};
   }
  }
  const text=n.toString()+'/'+d.toString();
@@ -1720,7 +1720,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -1747,7 +1747,7 @@ function paint(){
 }
 function setResult(value,source=state.input,exactRational=null){
  state.preAnsRational=state.ansRational;
- state.ansRational=exactRational;
+ state.ansRational=exactRational;state.resultFractionStyle=null;
  state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
  state.resultSource=source;
  state.resultPresentation=RESULTS.calculate(value,source,state,{
@@ -1816,7 +1816,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -1995,7 +1995,7 @@ function setupSetting(id){
   state.angle=id==='deg'?'DEG':id==='rad'?'RAD':'GRAD';paint();return;
  }
  if(id==='mixed'||id==='improper'){
-  state.fractionStyle=id;paint();return;
+  state.fractionStyle=id;state.resultFractionStyle=null;paint();return;
  }
  if(id==='fix'||id==='sci'){
   const kind=id==='fix'?'Fix':'Sci';
@@ -2159,22 +2159,47 @@ function shifted(key){
 function showResult(decimal,forceFraction=false){
  if(state.screen!=='result'||!Number.isFinite(state.raw))return;
  const source=state.resultSource||state.input;
- state.resultPresentation=RESULTS.calculate(state.raw,source,state,{
+ const presentation=RESULTS.calculate(state.raw,source,
+  {...state,fractionStyle:state.resultFractionStyle||state.fractionStyle},{
    decimal,forceFraction,
    exactRational:state.ansRational,
    allowApproxRational:false
- });
- state.decimal=decimal;state.engShift=0;state.result=state.resultPresentation.chosen.text;state.viewport.resultX=Math.max(0,state.result.length-23);paint();
+  });
+ // S⇔D must not manufacture a fraction from a floating-point approximation.
+ // A result without a supported alternative remains exactly as displayed.
+ if(forceFraction&&presentation.chosen.kind==='decimal')return;
+ if(!decimal&&presentation.chosen.kind==='decimal'&&presentation.decimal.text===state.result)return;
+ state.resultPresentation=presentation;
+ state.decimal=decimal;state.engShift=0;state.result=presentation.chosen.text;
+ state.viewport.resultX=Math.max(0,state.result.length-23);paint();
 }
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
+ const candidate=RESULTS.calculate(state.raw,state.resultSource||state.input,
+  {...state,fractionStyle:state.resultFractionStyle||state.fractionStyle},{
+   exactRational:state.ansRational,forceFraction:true,allowApproxRational:false
+  });
+ if(candidate.chosen.kind==='decimal')return;
  const isDecimal=state.resultPresentation?.chosen?.kind==='decimal';
  showResult(!isDecimal,isDecimal);
 }
 function toggleMixed(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
- state.fractionStyle=state.fractionStyle==='improper'?'mixed':'improper';
- showResult(false);
+ // SHIFT+S⇔D changes this displayed result, not the global SETUP selection.
+ const current=state.resultPresentation?.chosen;
+ if(!current||!['fraction','mixed'].includes(current.kind))return;
+ const previous=state.resultFractionStyle||state.fractionStyle;
+ const next=previous==='mixed'?'improper':'mixed';
+ const candidate=RESULTS.calculate(state.raw,state.resultSource||state.input,
+  {...state,fractionStyle:next},{
+   exactRational:state.ansRational,forceFraction:true,allowApproxRational:false
+  });
+ if(!['fraction','mixed'].includes(candidate.chosen.kind))return;
+ // A conversion to mixed form that exceeds CASIO's 10-character result
+ // budget is unavailable. Do not fall back to an invented conversion.
+ if(next==='mixed'&&candidate.chosen.kind!=='mixed')return;
+ state.resultFractionStyle=next;
+ showResult(false,true);
 }
 function showEngineering(){
  if(state.screen!=='result'||!Number.isFinite(state.raw))return;

@@ -63,7 +63,7 @@ function fractionText(q,style='improper'){
  if(d===1)return String(n);
  if(style==='mixed'&&Math.abs(n)>d){
   const integer=Math.trunc(n/d),remainder=Math.abs(n)%d;
-  if(remainder&&String(integer).length+String(remainder).length+String(d).length+1<=10){
+  if(remainder&&String(integer).length+String(remainder).length+String(d).length+2<=10){
    return integer+' '+remainder+'/'+d;
   }
  }
@@ -88,7 +88,7 @@ function exactFractionParts(q,style){
   const whole=n/d,remainder=(n<0n?-n:n)%d;
   if(remainder){
    const text=whole.toString()+' '+remainder.toString()+'/'+d.toString();
-   if(text.length<=23)return {kind:'mixed',text,integer:whole.toString(),numerator:remainder.toString(),denominator:d.toString()};
+   if(text.length<=10)return {kind:'mixed',text,integer:whole.toString(),numerator:remainder.toString(),denominator:d.toString()};
   }
  }
  const text=n.toString()+'/'+d.toString();

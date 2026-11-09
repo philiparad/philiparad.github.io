@@ -1,0 +1,52 @@
+/* REA-026 — S⇔D and mixed fraction conversion regression. */
+'use strict';
+const assert=require('node:assert/strict');
+const Results=require('../../js/result-format.js');
+const Rational=require('../../js/rational.js');
+let assertions=0;
+const cfg={math:true,outputMath:true,format:'Norm2',fractionStyle:'improper'};
+function view(source,options={},settings=cfg){
+ const exact=Rational.evaluate(source);
+ return Results.calculate(Rational.toNumber(exact),source,settings,
+  {exactRational:Rational.serialize(exact),allowApproxRational:false,...options});
+}
+const fraction=view('7/6');
+assert.equal(fraction.chosen.kind,'fraction');assertions++;
+assert.equal(fraction.chosen.text,'7/6');assertions++;
+const decimal=view('7/6',{decimal:true});
+assert.equal(decimal.chosen.kind,'decimal');assertions++;
+assert.equal(decimal.chosen.text,'1.166666667');assertions++;
+assert.equal(view('7/6',{forceFraction:true}).chosen.text,'7/6');assertions++;
+const mixed=view('7/6',{forceFraction:true},{...cfg,fractionStyle:'mixed'});
+assert.equal(mixed.chosen.kind,'mixed');assertions++;
+assert.equal(mixed.chosen.text,'1 1/6');assertions++;
+const negative=view('-7/6',{forceFraction:true},{...cfg,fractionStyle:'mixed'});
+assert.equal(negative.chosen.text,'-1 1/6');assertions++;
+const proper=view('1/3',{forceFraction:true},{...cfg,fractionStyle:'mixed'});
+assert.equal(proper.chosen.kind,'fraction');assertions++;
+assert.equal(proper.chosen.text,'1/3');assertions++;
+const exactInteger=view('6/3',{forceFraction:true},{...cfg,fractionStyle:'mixed'});
+assert.equal(exactInteger.chosen.text,'2');assertions++;
+assert.equal(exactInteger.chosen.kind,'decimal');assertions++;
+const atLimit=view('1234567/8',{forceFraction:true},{...cfg,fractionStyle:'mixed'});
+assert.equal(atLimit.chosen.text,'154320 7/8');assertions++;
+assert.equal(atLimit.chosen.text.length,10);assertions++;
+const overLimit=view('12345679/9',{forceFraction:true},{...cfg,fractionStyle:'mixed'});
+assert.equal(overLimit.chosen.kind,'fraction');assertions++;
+assert.equal(overLimit.chosen.text,'12345679/9');assertions++;
+const line=view('1/5',{}, {...cfg,outputMath:false});
+assert.equal(line.chosen.text,'0.2');assertions++;
+assert.equal(view('1/5',{forceFraction:true},{...cfg,outputMath:false}).chosen.text,'1/5');assertions++;
+const pi=Results.calculate(Math.PI,'pi',cfg);
+assert.equal(pi.chosen.kind,'pi');assertions++;
+assert.equal(Results.calculate(Math.PI,'pi',cfg,{decimal:true}).chosen.text,'3.141592654');assertions++;
+const root=Results.calculate(Math.sqrt(2),'sqrt(2)',cfg);
+assert.equal(root.chosen.kind,'surd');assertions++;
+assert.equal(Results.calculate(Math.sqrt(2),'sqrt(2)',cfg,{decimal:true}).chosen.text,'1.414213562');assertions++;
+const trig=Results.calculate(.5,'sin(30)',cfg,{forceFraction:true,allowApproxRational:false});
+assert.equal(trig.chosen.kind,'decimal');assertions++;
+assert.equal(trig.fraction,null);assertions++;
+const ans=view('1/3');
+assert.equal(ans.fraction.numerator,'1');assertions++;
+assert.equal(ans.fraction.denominator,'3');assertions++;
+console.log('REA-026: '+assertions+' result conversion assertions passed');
