@@ -867,14 +867,125 @@ function evaluate(source,opts={}){
  return left}
  if(!raw.length)fail('Syntax ERROR');const result=expr(0);if(i<raw.length)fail('Syntax ERROR');if(!Number.isFinite(result))fail('Math ERROR');if(Math.abs(result)>9.999999999e99)fail('Math ERROR');return result;
 }
-function derivative(fn,x,h=1e-4){const d=h*Math.max(1,Math.abs(x));return (-fn(x+2*d)+8*fn(x+d)-8*fn(x-d)+fn(x-2*d))/(12*d)}
-function integrate(fn,a,b,steps=1200){if(a===b)return 0;let sign=1;if(a>b){[a,b]=[b,a];sign=-1}steps+=steps%2;const h=(b-a)/steps;let sum=fn(a)+fn(b);for(let k=1;k<steps;k++)sum+=(k%2?4:2)*fn(a+k*h);return sign*sum*h/3}
-function solve(fn,start=1){let x=Number(start);for(let i=0;i<80;i++){let y=fn(x);if(Math.abs(y)<1e-11)return x;const d=derivative(fn,x);if(!Number.isFinite(d)||Math.abs(d)<1e-13)break;const next=x-y/d;if(!Number.isFinite(next))break;if(Math.abs(next-x)<1e-12)return next;x=next}fail('Cannot Solve')}
+// REA-038: guarded, tolerance-controlled numerical algorithms.
+// These approximate CASIO's documented behavior, not its private firmware.
+const NUMERIC_EVAL_LIMIT=60000;
+function numericTolerance(tol,defaultValue){
+ const t=tol===undefined?defaultValue:Number(tol);
+ if(!Number.isFinite(t)||t<1e-14||t>0.1)fail('Argument ERROR');
+ return t;
+}
+function checkedSample(fn,x){
+ if(!Number.isFinite(x))fail('Math ERROR');
+ let y;
+ try{y=fn(x)}catch(e){throw e}
+ if(typeof y!=='number'||!Number.isFinite(y)||Math.abs(y)>9.999999999e99)fail('Math ERROR');
+ return y;
+}
+function derivative(fn,x,tol=1e-10){
+ const threshold=numericTolerance(tol,1e-10);
+ if(!Number.isFinite(x)||Math.abs(x)>9.999999999e99)fail('Argument ERROR');
+ const scale=Math.max(1,Math.abs(x)),middle=checkedSample(fn,x);
+ let h=Math.max(1e-4,Math.pow(Number.EPSILON,1/5))*scale,last=null;
+ for(let k=0;k<17;k++){
+  if(x+h===x||x-h===x)fail('Time Out');
+  const p=checkedSample(fn,x+h),m=checkedSample(fn,x-h);
+  const p2=checkedSample(fn,x+2*h),m2=checkedSample(fn,x-2*h);
+  const slope=(-p2+8*p-8*m+m2)/(12*h);
+  const left=(middle-m)/h,right=(p-middle)/h;
+  // A cusp or jump has unequal one-sided derivatives even at tiny h.
+  if(k>=5&&Math.abs(left-right)>Math.max(1e-4,20*h/scale*Math.max(1,Math.abs(slope))))
+   fail('Math ERROR');
+  if(last!==null&&Math.abs(slope-last)<=Math.max(threshold,threshold*Math.abs(slope))){
+   const hh=Math.max(1e-5*scale,16*Number.EPSILON*scale);
+   const leftCheck=(middle-checkedSample(fn,x-hh))/hh;
+   const rightCheck=(checkedSample(fn,x+hh)-middle)/hh;
+   if(Math.abs(leftCheck-rightCheck)>Math.max(1e-4,10*hh/scale*Math.max(1,Math.abs(slope))))
+    fail('Math ERROR');
+   return Math.abs(slope)<threshold?0:slope;
+  }
+  last=slope;h/=2;
+ }
+ fail('Time Out');
+}
+function integrate(fn,a,b,tol=1e-5){
+ const threshold=numericTolerance(tol,1e-5);
+ if(!Number.isFinite(a)||!Number.isFinite(b)||Math.abs(a)>=1e10||Math.abs(b)>=1e10)
+  fail('Argument ERROR');
+ if(a===b)return 0;
+ const sign=a>b?-1:1;
+ if(sign<0){const tmp=a;a=b;b=tmp}
+ let calls=0;
+ const sample=x=>{if(++calls>NUMERIC_EVAL_LIMIT)fail('Time Out');return checkedSample(fn,x)};
+ const fa=sample(a),fb=sample(b),mid=(a+b)/2,fm=sample(mid);
+ const simpson=(left,right,fl,fc,fr)=>(right-left)*(fl+4*fc+fr)/6;
+ const whole=simpson(a,b,fa,fm,fb);
+ function refine(left,right,fl,fm,fr,estimate,budget,depth){
+  if(depth>=24)fail('Time Out');
+  const mid=(left+right)/2,lmid=(left+mid)/2,rmid=(mid+right)/2;
+  if(mid===left||mid===right||lmid===left||rmid===right)fail('Time Out');
+  const f1=sample(lmid),f2=sample(rmid);
+  const a1=simpson(left,mid,fl,f1,fm),a2=simpson(mid,right,fm,f2,fr);
+  const delta=a1+a2-estimate;
+  if(Math.abs(delta)<=15*budget)return a1+a2+delta/15;
+  return refine(left,mid,fl,f1,fm,a1,budget/2,depth+1)+
+         refine(mid,right,fm,f2,fr,a2,budget/2,depth+1);
+ }
+ // Relative and absolute error tolerances are both scaled into each subinterval.
+ const absTol=Math.max(threshold,threshold*Math.abs(whole));
+ const result=sign*refine(a,b,fa,fm,fb,whole,absTol,0);
+ if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
+ return result===0?0:result;
+}
+function summation(fn,a,b){
+ if(!Number.isSafeInteger(a)||!Number.isSafeInteger(b)||
+    Math.abs(a)>=1e10||Math.abs(b)>=1e10||a>b)fail('Argument ERROR');
+ if(b-a+1>20000)fail('Argument ERROR');
+ let total=0,correction=0;
+ for(let k=a;k<=b;k++){
+  const item=checkedSample(fn,k),y=item-correction,t=total+y;
+  correction=(t-total)-y;total=t;
+  if(!Number.isFinite(total)||Math.abs(total)>9.999999999e99)fail('Math ERROR');
+ }
+ return total;
+}
+function solve(fn,start=1,tol=1e-10){
+ const threshold=numericTolerance(tol,1e-10);
+ if(!Number.isFinite(start)||Math.abs(start)>=1e10)fail('Argument ERROR');
+ let x=start,fx=checkedSample(fn,x),lastStep=Infinity;
+ const good=(v,at)=>Math.abs(v)<=threshold*Math.max(1,Math.abs(at));
+ for(let i=0;i<100;i++){
+  // Reject pole-induced "roots" by always checking function residual.
+  if(good(fx,x)&&(i===0||lastStep<=Math.sqrt(threshold)*Math.max(1,Math.abs(x))))
+   return x;
+  let slope;
+  try{slope=derivative(fn,x,Math.max(1e-9,threshold))}catch(e){slope=NaN}
+  let proposal=Number.isFinite(slope)&&Math.abs(slope)>1e-14?x-fx/slope:NaN;
+  if(!Number.isFinite(proposal)||Math.abs(proposal)>1e10)
+   proposal=x+Math.max(.1,Math.abs(x)*.1)*(fx>0?-1:1);
+  let accepted=false;
+  for(let j=0;j<22;j++){
+   const next=x+(proposal-x)*Math.pow(.5,j);
+   if(next===x)break;
+   try{
+    const candidate=checkedSample(fn,next);
+    if(Math.abs(candidate)<Math.abs(fx)||good(candidate,next)){
+     lastStep=Math.abs(next-x);x=next;fx=candidate;accepted=true;break;
+    }
+   }catch(e){}
+  }
+  if(!accepted){
+   // Solve can legitimately fail for flat functions, poles and poor initial guesses.
+   fail("Can't Solve");
+  }
+ }
+ fail("Can't Solve");
+}
 function quadratic(a,b,c){if(a===0){if(b===0)fail('Math ERROR');return [-c/b]}const d=b*b-4*a*c;if(d<0)return [];const s=Math.sqrt(d);return d===0?[-b/(2*a)]:[(-b+s)/(2*a),(-b-s)/(2*a)]}
 function matrixSolve(rows){const n=rows.length;const m=rows.map(r=>r.slice());for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;[m[i],m[pivot]]=[m[pivot],m[i]];if(Math.abs(m[i][i])<1e-12)fail('Math ERROR');const d=m[i][i];for(let k=i;k<=n;k++)m[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){const f=m[j][i];for(let k=i;k<=n;k++)m[j][k]-=f*m[i][k]}}return m.map(row=>row[n])}
 function descriptiveStats(data){if(!data.length)fail('Argument ERROR');const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n,variance=data.reduce((a,b)=>a+(b-mean)**2,0)/n;return {n,sum:data.reduce((a,b)=>a+b,0),mean,variance,sd:Math.sqrt(variance),sampleSD:n>1?Math.sqrt(variance*n/(n-1)):null,min:Math.min(...data),max:Math.max(...data)}}
 function parseNumbers(text){const vals=String(text).split(/[,;\s]+/).filter(Boolean).map(Number);if(!vals.length||vals.some(n=>!Number.isFinite(n)))fail('Argument ERROR');return vals}
-const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,parseProduct,finiteProduct,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
+const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,parseProduct,finiteProduct,summation,numericTolerance,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
 global.FreshMath=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
 
@@ -2543,21 +2654,56 @@ function menuHandle(key){
  return true;
 }
 function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.resultDMS=false;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
-function functionFor(expr){return x=>M.evaluate(expr,{...state,ans:state.ans,memory:{...state.memory,X:x},math:false})}
+function functionFor(expr,equation=false){
+ const expression=String(expr).trim();
+ const parts=expression.split('=');
+ if(parts.length>2||parts.some(s=>!s.trim())||(!equation&&parts.length>1))
+  throw Error('Syntax ERROR');
+ const left=parts[0],right=parts.length===2?parts[1]:null;
+ if(equation&&!/(?:^|[^A-Za-z0-9_])X(?:$|[^A-Za-z0-9_])/.test(expression))
+  throw Error('Variable ERROR');
+ return x=>{
+  const opts={...state,ans:state.ans,memory:{...state.memory,X:x},math:false};
+  const a=M.evaluate(left,opts);
+  return right===null?a:a-M.evaluate(right,opts);
+ };
+}
 function numericalFlow(kind){
+ if(state.mode!=='COMP'){error('Argument ERROR');return}
  const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum',PRODUCT:'Π — finite product'};
  const fields=[{id:'expression',label:'Expression in X',value:state.input||'X^2-2'}];
  if(kind==='DERIVATIVE')fields.push({id:'at',label:'At X',value:'2'});
  if(kind==='SOLVE')fields.push({id:'guess',label:'Initial X',value:'1'});
  if(kind==='INTEGRAL'||kind==='SUM'||kind==='PRODUCT')fields.push({id:'a',label:'Lower bound',value:'0'},{id:'b',label:'Upper bound',value:'1'});
+ if(kind==='DERIVATIVE'||kind==='INTEGRAL')fields.push({id:'tol',label:'Tolerance (≥ 1E-14)',value:kind==='DERIVATIVE'?'1E-10':'1E-5'});
  if(kind==='PRODUCT')fields.push({id:'step',label:'Positive integer step (web extension)',value:'1'});
- fieldForm(modes[kind],fields,data=>{const f=functionFor(data.expression);let x;
-  if(kind==='DERIVATIVE')x=M.derivative(f,Number(data.at));
-  if(kind==='INTEGRAL')x=M.integrate(f,Number(data.a),Number(data.b));
-  if(kind==='SOLVE')x=M.solve(f,Number(data.guess));
-  if(kind==='SUM'){const a=Number(data.a),b=Number(data.b);if(!Number.isInteger(a)||!Number.isInteger(b)||b-a>20000||b<a)throw Error('Argument ERROR');x=0;for(let k=a;k<=b;k++)x+=f(k)}
-  if(kind==='PRODUCT')x=M.finiteProduct({expression:data.expression,a:data.a,b:data.b,step:data.step},{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
-  applyAdvancedResult(x,data.expression);return M.format(x,state);
+ fieldForm(modes[kind],fields,data=>{
+  if(/\b(?:Pol|Rec|Prod|Product)\s*\(|[ΠΣ∫]|÷R|d\/dx|\b(?:Sum|Sigma|Integral|Diff)\s*\(/i.test(data.expression))
+   throw Error('Syntax ERROR');
+  const f=functionFor(data.expression,kind==='SOLVE');
+  if(Object.entries(data).some(([field,expression])=>
+   field!=='expression'&&/\b(?:Pol|Rec|Prod|Product|Sum|Sigma|Integral|Diff)\s*\(|[ΠΣ∫]|÷R|d\/dx/i.test(String(expression))))
+   throw Error('Syntax ERROR');
+  const asNumber=(source)=>{
+   if(!String(source).trim())throw Error('Argument ERROR');
+   const value=M.evaluate(String(source),{...state,ans:state.ans,memory:state.memory});
+   if(!Number.isFinite(value))throw Error('Math ERROR');
+   return value;
+  };
+  let value;
+  if(kind==='DERIVATIVE')value=M.derivative(f,asNumber(data.at),asNumber(data.tol));
+  if(kind==='INTEGRAL')value=M.integrate(f,asNumber(data.a),asNumber(data.b),asNumber(data.tol));
+  if(kind==='SOLVE')value=M.solve(f,asNumber(data.guess));
+  if(kind==='SUM')value=M.summation(f,asNumber(data.a),asNumber(data.b));
+  if(kind==='PRODUCT')value=M.finiteProduct({expression:data.expression,a:data.a,b:data.b,step:data.step},{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
+  if(!Number.isFinite(value)||Math.abs(value)>9.999999999e99)throw Error('Math ERROR');
+  // REA-038: calculation results update Ans/PreAns and history, not just the LCD.
+  setResult(value,data.expression,null);
+  if(kind==='SOLVE'){
+   const residual=f(value);
+   return 'X = '+M.format(value,{...state,math:false})+'\nL-R = '+M.format(residual,{...state,math:false});
+  }
+  return M.format(value,state);
  })
 }
 function exitFactorization(){

@@ -308,21 +308,56 @@ function menuHandle(key){
  return true;
 }
 function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.resultDMS=false;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
-function functionFor(expr){return x=>M.evaluate(expr,{...state,ans:state.ans,memory:{...state.memory,X:x},math:false})}
+function functionFor(expr,equation=false){
+ const expression=String(expr).trim();
+ const parts=expression.split('=');
+ if(parts.length>2||parts.some(s=>!s.trim())||(!equation&&parts.length>1))
+  throw Error('Syntax ERROR');
+ const left=parts[0],right=parts.length===2?parts[1]:null;
+ if(equation&&!/(?:^|[^A-Za-z0-9_])X(?:$|[^A-Za-z0-9_])/.test(expression))
+  throw Error('Variable ERROR');
+ return x=>{
+  const opts={...state,ans:state.ans,memory:{...state.memory,X:x},math:false};
+  const a=M.evaluate(left,opts);
+  return right===null?a:a-M.evaluate(right,opts);
+ };
+}
 function numericalFlow(kind){
+ if(state.mode!=='COMP'){error('Argument ERROR');return}
  const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum',PRODUCT:'Π — finite product'};
  const fields=[{id:'expression',label:'Expression in X',value:state.input||'X^2-2'}];
  if(kind==='DERIVATIVE')fields.push({id:'at',label:'At X',value:'2'});
  if(kind==='SOLVE')fields.push({id:'guess',label:'Initial X',value:'1'});
  if(kind==='INTEGRAL'||kind==='SUM'||kind==='PRODUCT')fields.push({id:'a',label:'Lower bound',value:'0'},{id:'b',label:'Upper bound',value:'1'});
+ if(kind==='DERIVATIVE'||kind==='INTEGRAL')fields.push({id:'tol',label:'Tolerance (≥ 1E-14)',value:kind==='DERIVATIVE'?'1E-10':'1E-5'});
  if(kind==='PRODUCT')fields.push({id:'step',label:'Positive integer step (web extension)',value:'1'});
- fieldForm(modes[kind],fields,data=>{const f=functionFor(data.expression);let x;
-  if(kind==='DERIVATIVE')x=M.derivative(f,Number(data.at));
-  if(kind==='INTEGRAL')x=M.integrate(f,Number(data.a),Number(data.b));
-  if(kind==='SOLVE')x=M.solve(f,Number(data.guess));
-  if(kind==='SUM'){const a=Number(data.a),b=Number(data.b);if(!Number.isInteger(a)||!Number.isInteger(b)||b-a>20000||b<a)throw Error('Argument ERROR');x=0;for(let k=a;k<=b;k++)x+=f(k)}
-  if(kind==='PRODUCT')x=M.finiteProduct({expression:data.expression,a:data.a,b:data.b,step:data.step},{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
-  applyAdvancedResult(x,data.expression);return M.format(x,state);
+ fieldForm(modes[kind],fields,data=>{
+  if(/\b(?:Pol|Rec|Prod|Product)\s*\(|[ΠΣ∫]|÷R|d\/dx|\b(?:Sum|Sigma|Integral|Diff)\s*\(/i.test(data.expression))
+   throw Error('Syntax ERROR');
+  const f=functionFor(data.expression,kind==='SOLVE');
+  if(Object.entries(data).some(([field,expression])=>
+   field!=='expression'&&/\b(?:Pol|Rec|Prod|Product|Sum|Sigma|Integral|Diff)\s*\(|[ΠΣ∫]|÷R|d\/dx/i.test(String(expression))))
+   throw Error('Syntax ERROR');
+  const asNumber=(source)=>{
+   if(!String(source).trim())throw Error('Argument ERROR');
+   const value=M.evaluate(String(source),{...state,ans:state.ans,memory:state.memory});
+   if(!Number.isFinite(value))throw Error('Math ERROR');
+   return value;
+  };
+  let value;
+  if(kind==='DERIVATIVE')value=M.derivative(f,asNumber(data.at),asNumber(data.tol));
+  if(kind==='INTEGRAL')value=M.integrate(f,asNumber(data.a),asNumber(data.b),asNumber(data.tol));
+  if(kind==='SOLVE')value=M.solve(f,asNumber(data.guess));
+  if(kind==='SUM')value=M.summation(f,asNumber(data.a),asNumber(data.b));
+  if(kind==='PRODUCT')value=M.finiteProduct({expression:data.expression,a:data.a,b:data.b,step:data.step},{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
+  if(!Number.isFinite(value)||Math.abs(value)>9.999999999e99)throw Error('Math ERROR');
+  // REA-038: calculation results update Ans/PreAns and history, not just the LCD.
+  setResult(value,data.expression,null);
+  if(kind==='SOLVE'){
+   const residual=f(value);
+   return 'X = '+M.format(value,{...state,math:false})+'\nL-R = '+M.format(residual,{...state,math:false});
+  }
+  return M.format(value,state);
  })
 }
 function exitFactorization(){
