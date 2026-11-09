@@ -19,8 +19,33 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
- insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null};
+ insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
+// REA-044: browser simulation; all supported ES-family profiles specify
+// approximately ten minutes. No physical battery level can be read here.
+const AUTO_OFF_MS=Object.freeze({'fx-991es':600000,'fx-991es-plus':600000,'fx-991es-plus-c':600000});
+let lastOperationAt=Date.now(),powerTimer=null;
+function autoOffDelay(model){return AUTO_OFF_MS[model]??600000}
+function inactivityExpired(last,now,limit){return Number.isFinite(last)&&Number.isFinite(now)&&now-last>=limit}
+function clearPowerTimer(){if(powerTimer!==null){clearTimeout(powerTimer);powerTimer=null}}
+function checkInactivity(){
+ if(!state.power){clearPowerTimer();return}
+ const remaining=autoOffDelay(state.model)-(Date.now()-lastOperationAt);
+ if(remaining<=0){powerOff('automatic');return}
+ clearPowerTimer();
+ powerTimer=setTimeout(checkInactivity,Math.max(1,remaining));
+}
+function markOperation(){
+ if(!state.power){clearPowerTimer();return}
+ lastOperationAt=Date.now();checkInactivity();
+}
+// This is an explicit simulation control, never a claimed hardware reading.
+function setSimulatedBattery(status){
+ if(status!=='normal'&&status!=='low')return false;
+ state.batterySimulation=status;
+ notify(status==='low'?'Simulated battery: low (not measured)':'Simulated battery: normal (not measured)');
+ paint();return true;
+}
 const releaseModifier=()=>{state.shift=false;state.alpha=false};
 const notify=(text,isError=false)=>{const el=$('notice');el.textContent=text;el.classList.toggle('error',isError)};
 function paint(){
@@ -218,15 +243,16 @@ function clearSetup(){
  clearTransientDisplay();state.engShift=0;state.decimal=false;
  state.resultFractionStyle=null;notify('Setup initialized');paint();
 }
-function powerOff(){
- // OFF does not erase variables, Ans, PreAns, M, active mode or setup.
- clearTransientDisplay();state.history=[];state.power=false;
- notify('Calculator off — press ON');paint();
+function powerOff(reason='manual'){
+ // OFF/APO do not erase variables, Ans, PreAns, M, mode, or SETUP.
+ clearPowerTimer();clearTransientDisplay();state.history=[];state.power=false;
+ state.powerOffReason=reason;
+ notify(reason==='automatic'?'Auto Power Off — press ON':'Calculator off — press ON');paint();
 }
 function powerOn(){
  // The ON key also clears calculation history, not saved memories.
- clearTransientDisplay();state.history=[];state.power=true;
- notify('Calculator on');paint();
+ clearTransientDisplay();state.history=[];state.power=true;state.powerOffReason=null;
+ markOperation();notify('Calculator on');paint();
 }
 function clearMenu(){
  releaseModifier();
@@ -813,8 +839,12 @@ function showEngineering(direction=-1){
  state.decimal=false;releaseModifier();paint();
 }
 function press(key){
+ // Enforce expiry even when a background tab's timer has been throttled.
+ // ON is the only key allowed to wake the unit after auto-off.
+ if(state.power&&inactivityExpired(lastOperationAt,Date.now(),autoOffDelay(state.model)))powerOff('automatic');
  const before={mode:state.mode,shift:state.shift,alpha:state.alpha,screen:state.screen,input:state.input};
  try{handle(key)}catch(e){error(e.message||'Math ERROR')}
+ if(state.power&&key!=='ON')markOperation();
  if(state.recording){state.keylog.push({key,before,after:{mode:state.mode,screen:state.screen,result:state.result}});if(state.keylog.length>maxEntries)state.keylog.shift();if(!$('keylog-panel').hidden)renderKeylog()}
 }
 function handle(key){
@@ -1052,7 +1082,11 @@ function runChecks(){const checks=[
   ['M zero crossing',()=>memorySum(15,15,-1)===0],
   ['M overflow rejected',()=>{try{memorySum(9e99,9e99,1);return false}catch{return true}}],
   ['M indicator',()=>window.FreshIndicators.derive({...state,power:true,memory:{...state.memory,M:35}}).memory==='M'&&
-    window.FreshIndicators.derive({...state,power:true,memory:{...state.memory,M:0}}).memory==='']
+    window.FreshIndicators.derive({...state,power:true,memory:{...state.memory,M:0}}).memory===''],
+  ['APO all profiles 10min',()=>Object.keys(MODELS.profiles).every(id=>autoOffDelay(id)===600000)],
+  ['APO deadline boundaries',()=>!inactivityExpired(1000,600999,600000)&&inactivityExpired(1000,601000,600000)],
+  ['APO clock rollback',()=>!inactivityExpired(600000,599999,600000)],
+  ['battery state is explicitly simulated',()=>['normal','low'].includes(state.batterySimulation)]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
@@ -1098,6 +1132,9 @@ $('export-keylog').addEventListener('click',()=>download('independent-calculator
   selectedIndices:[...keylogView.selected].sort((a,b)=>a-b),
   formattedTrace:selectedKeyTrace()},null,2),'application/json'));
 document.addEventListener('keydown',keyboard);
+// Background tabs can throttle timers: recheck elapsed wall time on return.
+document.addEventListener('visibilitychange',()=>{if(state.power)checkInactivity()});
+markOperation();
 paint();
-window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,getStructured:()=>structuredClone(state.editor),getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,cursor:flow.cursor??flow.buffer.length,editing:flow.editing,fieldId:flow.fields[flow.index]?.id,fieldCount:flow.fields.length,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
+window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,setSimulatedBattery,getStructured:()=>structuredClone(state.editor),getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,cursor:flow.cursor??flow.buffer.length,editing:flow.editing,fieldId:flow.fields[flow.index]?.id,fieldCount:flow.fields.length,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
 })();
