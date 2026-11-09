@@ -1875,8 +1875,8 @@ function derive(state){
  const historySelection=Array.isArray(state.storedInputs)&&state.storedInputs.length?
   state.storedInputs[0]:-1;
  const mode=state.mode||'COMP';
- const pending=screen==='menu'&&state.menuTitle?.startsWith('STO')?'STO':
-  screen==='menu'&&state.menuTitle?.startsWith('RCL')?'RCL':'';
+ const pending=state.pendingMemory||(screen==='menu'&&state.menuTitle?.startsWith('STO')?'STO':
+  screen==='menu'&&state.menuTitle?.startsWith('RCL')?'RCL':'');
  // Replay arrows also serve as a cue for another page of menu/results.
  let replayUp=false,replayDown=false;
  if(screen==='menu'){
@@ -2363,7 +2363,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -2640,9 +2640,9 @@ function menuHandle(key){
  if(key==='LEFT'||key==='UP'){
   if(state.menuPage>0){state.menuPage--;showMenu()}return true
  }
- if(/^[0-9]$/.test(key)){
+ if(/^[0-9]$/.test(key)||key==='EQUAL'){
   const view=state.menu;
-  const pos=view.findIndex(x=>String(x.number)===key);
+  const pos=view.findIndex(x=>String(x.number)===(key==='EQUAL'?'=':key));
   const entry=pos>=0?state.menuEntries[state.menuPage*size+pos]:null;
   if(entry){
    state.menuEntries=[];state.menu=[];state.menuPageSize=6;
@@ -2739,9 +2739,50 @@ function toggleDMS(){
  state.result=text;state.viewport.resultX=Math.max(0,text.length-23);
  paint();
 }
-function memoryDialog(store=false){optionDialog(store?'STO — select register':'RCL — select register',Object.keys(state.memory).map(r=>({label:r+' = '+M.format(state.memory[r],{...state,math:false}),action:()=>{
-  if(store){state.memory[r]=state.ans;notify('Stored Ans in '+r);paint()}else insert(r)
- }})))}
+// REA-039: physical STO/RCL standby and independent memory behavior.
+const MEMORY_KEYS=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'});
+function memoryOperand(){
+ if(state.screen==='result')return state.raw;
+ const source=STRUCT.serialize(state.editor,true);
+ if(!source)throw Error('Syntax ERROR');
+ evaluate();
+ if(state.screen!=='result')throw Error(state.error||'Math ERROR');
+ return state.raw;
+}
+function assignRegister(name,value){
+ if(!Number.isFinite(value)||Math.abs(value)>9.999999999e99)throw Error('Math ERROR');
+ state.memory[name]=value;
+}
+function memorySelect(name){
+ const kind=state.pendingMemory;state.pendingMemory=null;
+ try{
+  if(kind==='STO'){
+   const value=memoryOperand();assignRegister(name,value);
+   notify('Stored '+M.format(value,{...state,math:false})+' in '+name);
+  }else if(kind==='RCL'){
+   const value=state.memory[name];setResult(value,name,null);
+   notify('Recalled '+name);
+  }
+ }catch(e){if(state.screen!=='error')error(e.message||'Math ERROR')}
+ paint();
+}
+function memoryDialog(store=false){
+ state.pendingMemory=store?'STO':'RCL';
+ releaseModifier();notify(state.pendingMemory+' — select A-F, X, Y or M');paint();
+}
+function accumulateMemory(sign){
+ try{
+  const value=memoryOperand();assignRegister('M',state.memory.M+sign*value);
+  notify(sign===1?'Added to M':'Subtracted from M');releaseModifier();paint();
+ }catch(e){if(state.screen!=='error')error(e.message||'Math ERROR')}
+}
+function clearMemory(){
+ for(const name of Object.keys(state.memory))state.memory[name]=0;
+ state.ans=0;state.preAns=0;state.raw=0;state.ansRational=null;state.preAnsRational=null;
+ state.pendingMemory=null;state.resultPresentation=null;state.result='';state.history=[];
+ state.screen='edit';state.editor=STRUCT.create();syncEditor();
+ notify('Memory cleared');paint();
+}
 function setupChoose(id,value){
  if(state.factorization)exitFactorization();
  switch(id){
@@ -2793,7 +2834,8 @@ function setupMenu(){
 }
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
- state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+ if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
+ state.pendingMemory=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
  if(!MODELS.profiles[id])return false;
  state.model=id;
@@ -2904,14 +2946,20 @@ function shifted(key){
   state.hyp=false;releaseModifier();insert(map[key]);return true;
  }
  const n=Number(key);
- if(key==='AC'){state.power=false;state.screen='edit';state.input='';state.result='';releaseModifier();notify('Calculator off — press ON');paint();return true}
+ if(key==='AC'){state.pendingMemory=null;state.power=false;state.screen='edit';state.input='';state.result='';releaseModifier();notify('Calculator off — press ON');paint();return true}
  if(key==='MODE'){releaseModifier();setupMenu();return true}
  if(key==='RCL'){releaseModifier();memoryDialog(true);return true}
  if(key==='DEL'){state.insert=!state.insert;releaseModifier();notify(state.insert?'Insert mode':'Overwrite mode');paint();return true}
  if(key==='9'){releaseModifier();optionDialog('CLR — choose data to reset',[
-  {label:'1. Memory',action:()=>{Object.keys(state.memory).forEach(r=>state.memory[r]=0);paint()}},
-  {label:'2. Setup',action:()=>{Object.assign(state,SETUP.defaults);paint()}},
-  {label:'3. All',action:()=>reset('all')}]);return true}
+  {label:'1. Setup',action:()=>{Object.assign(state,SETUP.defaults);paint()}},
+  {label:'2. Memory',action:()=>optionDialog('Clear Memory? = Yes, AC No',[
+   {label:'Yes',key:'=',action:()=>clearMemory()},
+   {label:'No',key:'0',action:()=>{state.screen='edit';paint()}}
+  ])},
+  {label:'3. All',action:()=>optionDialog('Clear All? = Yes, AC No',[
+   {label:'Yes',key:'=',action:()=>reset('all')},
+   {label:'No',key:'0',action:()=>{state.screen='edit';paint()}}
+  ])}]);return true}
  if(key==='7'){releaseModifier();optionDialog('Scientific constants',[
   {label:'π',action:()=>insert('pi')},{label:'e',action:()=>insert('e')},{label:'Speed of light (m/s)',action:()=>insert('299792458')},
   {label:'Gravitational constant',action:()=>insert('6.67430*10^-11')},{label:'Avogadro constant',action:()=>insert('6.02214076*10^23')}
@@ -2928,7 +2976,7 @@ function shifted(key){
  if(key==='POWER'){releaseModifier();insertTemplate('nthRoot');return true}
  const insertions={RECIP:'!',SQUARE:'^3',LOG:'10^(',LN:'exp(',SIN:'asin(',COS:'acos(',TAN:'atan(',EXP:'pi',
   HYP:'abs(',NEG:'',DMS:'',SD:'',MPLUS:'',ENG:'',LP:'%',RP:',',ANS:'',MUL:'',DIV:'',ADD:'',SUB:'',DOT:''};
- if(key==='MPLUS'){state.memory.M-=state.ans;releaseModifier();paint();return true}
+ if(key==='MPLUS'){accumulateMemory(-1);return true}
  if(key==='SD'){releaseModifier();toggleMixed();return true}
  if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
  if(key==='DMS'){releaseModifier();if(state.screen==='result')factorResult();return true}
@@ -3025,7 +3073,13 @@ function press(key){
  if(state.recording){state.keylog.push({key,before,after:{mode:state.mode,screen:state.screen,result:state.result}});if(state.keylog.length>maxEntries)state.keylog.shift();if(!$('keylog-panel').hidden)renderKeylog()}
 }
 function handle(key){
- if(key==='ON'){state.power=true;state.screen='edit';releaseModifier();notify('Calculator on');paint();return}
+ if(state.pendingMemory){
+  if(key==='AC'){state.pendingMemory=null;releaseModifier();notify('Memory selection cancelled');paint();return}
+  const name=MEMORY_KEYS[key]||(/^[A-FMXY]$/.test(key)?key:null);
+  if(name){memorySelect(name);return}
+  notify('Choose A-F, X, Y or M',true);paint();return;
+ }
+ if(key==='ON'){state.power=true;state.pendingMemory=null;state.screen='edit';releaseModifier();notify('Calculator on');paint();return}
  if(!state.power)return;
  if(state.screen==='error'){
   if(key==='LEFT'||key==='RIGHT'){
@@ -3100,7 +3154,7 @@ function handle(key){
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
- if(key==='AC'){state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
@@ -3110,7 +3164,7 @@ function handle(key){
  if(key==='UP'||key==='DOWN'){if(state.screen==='edit'&&STRUCT.navigate(state.editor,key)){syncEditor();paint();return}const items=state.history;if(!items.length)return;let idx=state.storedInputs.length?state.storedInputs[0]:-1;idx=Math.max(0,Math.min(items.length-1,idx+(key==='UP'?1:-1)));state.storedInputs=[idx];state.editor=STRUCT.fromString(items[idx].source);syncEditor();state.screen='edit';paint();return}
  if(key==='EQUAL'){if(state.mode!=='COMP'){advancedMode(state.mode);return}if(state.screen==='result'&&advanceStatements())return;evaluate();return}
  if(key==='RCL'){memoryDialog(false);return}
- if(key==='MPLUS'){state.memory.M+=state.screen==='result'?state.raw:state.ans;notify('Added to M');paint();return}
+ if(key==='MPLUS'){accumulateMemory(1);return}
  if(key==='SD'){toggleFraction();return}
  if(key==='CALC'){fieldForm('CALC — substitute a variable',[{id:'variable',label:'Variable name (A-F, X, Y)',value:'X'},{id:'value',label:'Value for variable',value:'2'}],d=>{
   const k=d.variable.toUpperCase();if(!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Unknown variable');state.memory[k]=Number(d.value);const n=M.evaluate(state.input,{...state,memory:state.memory,ans:state.ans});applyAdvancedResult(n,state.input);return M.format(n,state)

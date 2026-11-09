@@ -19,8 +19,8 @@ function derive(state){
  const historySelection=Array.isArray(state.storedInputs)&&state.storedInputs.length?
   state.storedInputs[0]:-1;
  const mode=state.mode||'COMP';
- const pending=screen==='menu'&&state.menuTitle?.startsWith('STO')?'STO':
-  screen==='menu'&&state.menuTitle?.startsWith('RCL')?'RCL':'';
+ const pending=state.pendingMemory||(screen==='menu'&&state.menuTitle?.startsWith('STO')?'STO':
+  screen==='menu'&&state.menuTitle?.startsWith('RCL')?'RCL':'');
  // Replay arrows also serve as a cue for another page of menu/results.
  let replayUp=false,replayDown=false;
  if(screen==='menu'){
