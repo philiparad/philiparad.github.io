@@ -111,6 +111,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(node.type==='mixed')return measureField('integer')+Math.max(measureField('numerator'),measureField('denominator'))+8;
   if(node.type==='power')return measureField('exponent')+2;
   if(node.type==='exp10')return measureField('exponent')+13;
+  if(node.type==='recurring')return measureField('period')+2;
   if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
   if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
   return 4;
@@ -148,6 +149,9 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     }else if(node.type==='exp10'){
      glyph('×',x,baseline);glyph('1',x+4,baseline);glyph('0',x+8,baseline);
      drawField('exponent',x+13,baseline-8);
+    }else if(node.type==='recurring'){
+     drawField('period',x+1,baseline);
+     for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
     }else if(node.type==='squareRoot'||node.type==='cubeRoot'||node.type==='nthRoot'){
      const nth=node.type==='nthRoot',prefix=nth?9:7;
      if(node.type==='cubeRoot')glyph('3',x,baseline-9);
@@ -176,7 +180,15 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  if(state.screen==='error'){write(state.error||'Math ERROR',0,9);write('AC:CANCEL',0,20);write('< >:GOTO',51,20);return pixels}
  function drawTypedResult(presentation){
   const item=presentation&&presentation.chosen;
-  if(!item||!['fraction','mixed','pi','surd','engineering'].includes(item.kind))return false;
+  if(!item||!['fraction','mixed','pi','surd','engineering','recurring'].includes(item.kind))return false;
+  if(item.kind==='recurring'){
+   const prefix=String(item.initial||''),period=String(item.period||'');
+   const all=prefix+period;if(all.length>23)return false;
+   const x=Math.max(0,W-all.length*4);
+   write(all,x,25);
+   for(let xx=x+prefix.length*4;xx<x+all.length*4-1;xx++)pixel(xx,23);
+   return true;
+  }
   if(item.kind==='fraction'||item.kind==='mixed'){
    const n=String(item.numerator),d=String(item.denominator);
    // Long fractions remain recoverable as a horizontally pannable linear form.
@@ -199,6 +211,8 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  }
  if(state.screen==='result'){
   const input=state.input||'',view=state.viewport||{};
+  if(state.multiStatements&&state.multiStatements.index<state.multiStatements.parts.length-1)
+   write('D',91,0);
   if(structured)drawStructured(false,8);
   else {
    const start=Math.max(0,Math.min(Math.floor((view.inputX||0)/4),Math.max(0,input.length-23)));

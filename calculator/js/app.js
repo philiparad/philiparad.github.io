@@ -1,5 +1,7 @@
 /* A new, independent browser calculator controller. No imported project code. */
 (function(){'use strict';
+const SPECIAL=window.FreshSpecial;
+if(!SPECIAL)throw Error('Missing special arithmetic module');
 const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
@@ -11,7 +13,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,resultDMS:false,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[]};
 const maxEntries=300;
@@ -38,7 +40,7 @@ function paint(){
 }
 function setResult(value,source=state.input,exactRational=null){
  state.preAnsRational=state.ansRational;
- state.ansRational=exactRational;state.resultFractionStyle=null;
+ state.ansRational=exactRational;state.resultFractionStyle=null;state.remainderResult=null;
  state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
  state.resultSource=source;
  state.resultPresentation=RESULTS.calculate(value,source,state,{
@@ -63,22 +65,46 @@ function error(message,source=state.input){
  state.errorOffset=ERRORS.location(state.errorSource,message);
  state.screen='error';releaseModifier();notify(kind,true);paint();
 }
+function evaluateSegment(source){
+ const recurringExpanded=SPECIAL.expandRecurring(source);
+ const div=SPECIAL.remainderExpression(recurringExpanded,state.ans);
+ const expression=div.expression;
+ let exactRational=null,exactValue=NaN;
+ if(window.FreshRational){
+  const exact=window.FreshRational.evaluate(expression,{
+   ansRational:state.ansRational,preAnsRational:state.preAnsRational
+  });
+  if(exact){exactRational=window.FreshRational.serialize(exact);exactValue=window.FreshRational.toNumber(exact)}
+ }
+ const value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
+  exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+ setResult(value,source,exactRational);
+ if(div.remainder){
+  state.remainderResult=div.remainder;
+  const text=String(div.remainder.quotient)+(state.decimalSeparator==='comma'?';':',')+' R='+String(div.remainder.remainder);
+  const display={kind:'remainder',text};
+  state.resultPresentation={chosen:display,natural:display,decimal:display};
+  state.result=text;paint();
+ }
+}
 function evaluate(){let source=state.input;try{
  source=STRUCT.serialize(state.editor,true);
  ERRORS.checkStack(source);
  if(!source)throw new M.MathFault('Syntax ERROR');
- let exactRational=null, exactValue=NaN;
- if(window.FreshRational){
-  const exact=window.FreshRational.evaluate(source,{ansRational:state.ansRational,preAnsRational:state.preAnsRational});
-  if(exact){
-   exactRational=window.FreshRational.serialize(exact);
-   exactValue=window.FreshRational.toNumber(exact);
-  }
- }
- const result=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
-  exactValue:M.evaluate(source,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
- setResult(result,source,exactRational);
-}catch(e){error(e.message||'Math ERROR',source)}}
+ const parts=SPECIAL.splitStatements(source);
+ state.multiStatements=parts.length>1?{parts,index:0}:null;
+ evaluateSegment(parts[0]);
+}catch(e){state.multiStatements=null;error(e.message||'Math ERROR',source)}}
+function advanceStatements(){
+ if(!state.multiStatements)return false;
+ const seq=state.multiStatements;
+ if(seq.index>=seq.parts.length-1){state.multiStatements=null;return false}
+ seq.index++;
+ try{evaluateSegment(seq.parts[seq.index])}
+ catch(e){state.multiStatements=null;error(e.message||'Math ERROR',seq.parts[seq.index])}
+ if(seq.index>=seq.parts.length-1)state.multiStatements=null;
+ return true;
+}
 function syncEditor(){
  state.input=STRUCT.serialize(state.editor);
  state.cursor=state.editor.path.length?state.input.length:state.editor.offset;
@@ -92,7 +118,7 @@ function syncEditor(){
 }
 function beginEdit(){
  if(state.screen!=='edit'){
-  state.screen='edit';state.input='';state.cursor=0;state.result='';state.error='';state.errorOffset=null;state.errorSource='';
+  state.screen='edit';state.input='';state.cursor=0;state.result='';state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
   state.editor=STRUCT.create();state.viewport.inputX=0;state.viewport.inputY=0;
  }
 }
@@ -112,10 +138,10 @@ function insertTemplate(type){
 }
 function loadExpression(text){
  state.editor=STRUCT.fromString(text);
- syncEditor();state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
+ syncEditor();state.screen='edit';state.result='';state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultDMS=false;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[]}
  notify('Calculator reset');paint()
 }
@@ -423,7 +449,14 @@ function advancedMode(mode){
   else throw Error('Invalid distribution');applyAdvancedResult(ans,'DIST');return M.format(ans,{...state,math:false})
  });
 }
-function alphaKey(key){const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
+function alphaKey(key){
+ if(key==='FRAC')return insert('÷R');
+ if(key==='SQRT'){
+  if(!state.math||!state.input.endsWith('.')){notify('Use decimal point before recurring digits',true);paint();return true}
+  return insertTemplate('recurring');
+ }
+ if(key==='ENG')return insert(':');
+ const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  if(variables[key])return insert(variables[key]);
  if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt(');if(key==='CALC')return insert('=');return null
 }
@@ -486,6 +519,23 @@ function showResult(decimal,forceFraction=false){
 }
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
+ if(state.remainderResult)return;
+ const recurring=state.recurringDecimal&&state.ansRational?
+  SPECIAL.recurringOf(state.ansRational):null;
+ if(recurring){
+  const kind=state.resultPresentation?.chosen?.kind;
+  if(kind==='fraction'||kind==='mixed'){
+   state.resultPresentation={...state.resultPresentation,chosen:recurring};
+   state.result=recurring.text;state.viewport.resultX=Math.max(0,state.result.length-23);
+   paint();return;
+  }
+  if(kind==='recurring'){
+   const text=RESULTS.decimal(state.raw,state);
+   state.resultPresentation={...state.resultPresentation,chosen:{kind:'decimal',text}};
+   state.result=text;state.viewport.resultX=Math.max(0,text.length-23);
+   paint();return;
+  }
+ }
  const candidate=RESULTS.calculate(state.raw,state.resultSource||state.input,
   {...state,fractionStyle:state.resultFractionStyle||state.fractionStyle},{
    exactRational:state.ansRational,forceFraction:true,allowApproxRational:false
@@ -603,7 +653,7 @@ function handle(key){
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
- if(key==='AC'){state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
@@ -611,7 +661,7 @@ function handle(key){
  }
  if(key==='LEFT'||key==='RIGHT'){if(state.screen==='result'){state.screen='edit'}STRUCT.navigate(state.editor,key);syncEditor();paint();return}
  if(key==='UP'||key==='DOWN'){if(state.screen==='edit'&&STRUCT.navigate(state.editor,key)){syncEditor();paint();return}const items=state.history;if(!items.length)return;let idx=state.storedInputs.length?state.storedInputs[0]:-1;idx=Math.max(0,Math.min(items.length-1,idx+(key==='UP'?1:-1)));state.storedInputs=[idx];state.editor=STRUCT.fromString(items[idx].source);syncEditor();state.screen='edit';paint();return}
- if(key==='EQUAL'){if(state.mode!=='COMP'){advancedMode(state.mode);return}evaluate();return}
+ if(key==='EQUAL'){if(state.mode!=='COMP'){advancedMode(state.mode);return}if(state.screen==='result'&&advanceStatements())return;evaluate();return}
  if(key==='RCL'){memoryDialog(false);return}
  if(key==='MPLUS'){state.memory.M+=state.screen==='result'?state.raw:state.ans;notify('Added to M');paint();return}
  if(key==='SD'){toggleFraction();return}
