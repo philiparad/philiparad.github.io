@@ -43,9 +43,17 @@ function paint(){
  });
 }
 function setResult(value,source=state.input,exactRational=null){
- state.preAnsRational=state.ansRational;
+ // REA-040: commit answer memories only after a valid numeric calculation.
+ if(typeof value!=='number'||!Number.isFinite(value)||Math.abs(value)>9.999999999e99)
+  throw Error('Math ERROR');
+ if(state.mode==='COMP'){
+  state.preAns=state.ans;
+  state.preAnsRational=state.ansRational;
+ }else{
+  state.preAns=0;state.preAnsRational=null;
+ }
  state.ansRational=exactRational;state.resultFractionStyle=null;state.remainderResult=null;state.factorization=null;state.coordinateResult=null;
- state.preAns=state.ans;state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
+ state.ans=value;state.raw=value;state.decimal=false;state.engShift=0;
  state.resultSource=source;
  state.resultPresentation=RESULTS.calculate(value,source,state,{
    exactRational:state.ansRational,
@@ -142,15 +150,19 @@ function syncEditor(){
   state.viewport.inputX=position.start*4;state.viewport.inputY=0;
  }
 }
-function beginEdit(){
+function beginEdit(continueAns=false){
  if(state.screen!=='edit'){
   state.screen='edit';state.input='';state.cursor=0;state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
-  state.editor=STRUCT.create();state.viewport.inputX=0;state.viewport.inputY=0;
+  state.editor=continueAns?STRUCT.fromString('Ans'):STRUCT.create();
+  state.viewport.inputX=0;state.viewport.inputY=0;
+  if(continueAns)syncEditor();
  }
 }
 function insert(text){
  if(!state.power)return;
- beginEdit();
+ // A basic arithmetic operator following a result automatically starts with Ans.
+ const continueAns=state.screen==='result'&&['+','-','*','/','^','^2','^(-1)'].includes(text);
+ beginEdit(continueAns);
  if(state.input.length+text.length>220){error('Input limit');return}
  STRUCT.insert(state.editor,text,!state.insert);
  syncEditor();releaseModifier();notify('Editing textbook expression');paint();
@@ -307,7 +319,16 @@ function menuHandle(key){
  }
  return true;
 }
-function applyAdvancedResult(value,description){if(typeof value==='number'){state.ansRational=null;state.preAnsRational=null;state.resultDMS=false;state.ans=value;state.raw=value;state.result=M.format(value,state);state.resultPresentation=null;state.screen='result';state.input=description||state.input;state.cursor=state.input.length;paint()}}
+function applyAdvancedResult(value,description){
+ // Use the ordinary result transition for all scalar advanced-mode calculations.
+ if(typeof value!=='number'||!Number.isFinite(value))throw Error('Math ERROR');
+ const source=description||state.input;
+ if(source){
+  state.editor=STRUCT.fromString(source);
+  syncEditor();
+ }
+ setResult(value,source,null);
+}
 function functionFor(expr,equation=false){
  const expression=String(expr).trim();
  const parts=expression.split('=');
@@ -592,7 +613,12 @@ function alphaKey(key){
  if(key==='SUB')return insert('Intg(');
  const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  if(variables[key])return insert(variables[key]);
- if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt#(');if(key==='CALC')return insert('=');return null
+ if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt#(');
+ if(key==='ANS'){
+  if(state.mode!=='COMP'){notify('PreAns requires COMP mode',true);paint();return true}
+  return insert('PreAns');
+ }
+ if(key==='CALC')return insert('=');return null
 }
 function shifted(key){
  if(state.hyp&&['SIN','COS','TAN'].includes(key)){
@@ -821,7 +847,16 @@ function handle(key){
  if(key==='MPLUS'){accumulateMemory(1);return}
  if(key==='SD'){toggleFraction();return}
  if(key==='CALC'){fieldForm('CALC — substitute a variable',[{id:'variable',label:'Variable name (A-F, X, Y)',value:'X'},{id:'value',label:'Value for variable',value:'2'}],d=>{
-  const k=d.variable.toUpperCase();if(!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Unknown variable');state.memory[k]=Number(d.value);const n=M.evaluate(state.input,{...state,memory:state.memory,ans:state.ans});applyAdvancedResult(n,state.input);return M.format(n,state)
+  const k=String(d.variable).trim().toUpperCase();
+  if(!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Variable ERROR');
+  const v=M.evaluate(String(d.value),{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
+  if(!Number.isFinite(v))throw Error('Math ERROR');
+  const memory={...state.memory,[k]:v};
+  const result=M.evaluate(state.input,{...state,memory,ans:state.ans,preAns:state.preAns});
+  if(!Number.isFinite(result))throw Error('Math ERROR');
+  state.memory[k]=v;
+  applyAdvancedResult(result,state.input);
+  return M.format(result,state);
  });return}
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
  if(key==='LOGBASE'){insertTemplate('logBase');return}
