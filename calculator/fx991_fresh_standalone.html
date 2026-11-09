@@ -649,6 +649,44 @@ function integerPart(args,largest){
  const value=largest?Math.floor(x):Math.trunc(x);
  return value===0?0:value;
 }
+// REA-036: injectable randomness and reproducible test sequences.
+// This seeded generator is for tests only, not a representation of CASIO's PRNG.
+function createSeededRandom(seed){
+ if(!Number.isSafeInteger(seed))fail('Argument ERROR');
+ let state=(seed>>>0)||0x6d2b79f5;
+ return function(){
+  state^=state<<13;state^=state>>>17;state^=state<<5;
+  return (state>>>0)/4294967296;
+ };
+}
+function randomUnit(opts){
+ const rng=typeof opts.random==='function'?opts.random:Math.random;
+ const sample=rng();
+ if(typeof sample!=='number'||!Number.isFinite(sample)||sample<0||sample>=1)
+  fail('Math ERROR');
+ return sample;
+}
+function randomThreeDigits(opts){return Math.floor(randomUnit(opts)*1000)/1000}
+function randomInteger(args,opts){
+ if(args.length!==2||!args.every(Number.isSafeInteger))fail('Argument ERROR');
+ const [a,b]=args;
+ if(!(a<b)||Math.abs(a)>=1e10||Math.abs(b)>=1e10||b-a>=1e10)
+  fail('Argument ERROR');
+ return a+Math.floor(randomUnit(opts)*(b-a+1));
+}
+function roundCalculated(value,settings){
+ if(!Number.isFinite(value))fail('Math ERROR');
+ const mode=settings.format||'Norm2';
+ if(mode==='Fix'||mode==='Sci'){
+  const numberFormat=global.FreshNumberFormat;
+  if(!numberFormat)fail('Math ERROR');
+  const formatted=numberFormat.format(value,{...settings,decimalSeparator:'dot'});
+  const rounded=Number(formatted.replace('×10^','e'));
+  if(!Number.isFinite(rounded))fail('Math ERROR');
+  return Object.is(rounded,-0)?0:rounded;
+ }
+ return Number(value.toPrecision(10));
+}
 function toRadians(n,unit){return unit==='RAD'?n:unit==='GRAD'?n*Math.PI/200:n*Math.PI/180}
 function fromRadians(n,unit){return unit==='RAD'?n:unit==='GRAD'?n*200/Math.PI:n*180/Math.PI}
 function gcd(a,b){while(b!==0n){const t=a%b;a=b;b=t}return a<0n?-a:a}
@@ -679,7 +717,7 @@ function format(value,settings={},preferFraction=false){
 const T={NUMBER:'number',IDENT:'identifier',OP:'operator'};
 function tokenize(source){
  if(/[\d.]\s+[\d.]/.test(String(source)))fail('Syntax ERROR');
- let raw=[],s=String(source).replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/π/g,'pi').replace(/√/g,'sqrt').replace(/²/g,'^2').replace(/³/g,'^3').replace(/\s+/g,'');
+ let raw=[],s=String(source).replace(/RanInt#/gi,'RanInt').replace(/Ran#/gi,'Ran').replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/π/g,'pi').replace(/√/g,'sqrt').replace(/²/g,'^2').replace(/³/g,'^3').replace(/\s+/g,'');
  for(let i=0;i<s.length;){const sub=s.slice(i);let m;
   if((m=/^(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?/.exec(sub))){raw.push({type:T.NUMBER,value:Number(m[0]),text:m[0]});i+=m[0].length;continue}
   if(s.startsWith('nPr',i)||s.startsWith('nCr',i)){raw.push({type:T.OP,value:s.slice(i,i+3)});i+=3;continue}
@@ -704,8 +742,8 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
- const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,rand:Math.random(),Ran:Math.random(),...memory};
+ const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
+ const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,...memory};
  function call(name,args){
   const x=args[0];const unit=st.angle;
   switch(name.toLowerCase()){
@@ -740,9 +778,10 @@ function evaluate(source,opts={}){
    case 'int':return integerPart(args,false);
    case 'intg':return integerPart(args,true);
    case 'exp':return Math.exp(x);case 'floor':return Math.floor(x);case 'ceil':return Math.ceil(x);
-   case 'round':return Math.round(x);case 'rnd':return Number(x.toFixed(st.digits));
+   case 'round':return Math.round(x);
+   case 'rnd':if(args.length!==1)fail('Syntax ERROR');return roundCalculated(x,st);
    case 'min':return Math.min(...args);case 'max':return Math.max(...args);case 'sign':return Math.sign(x);
-   case 'ranint':if(args.length!==2||!args.every(Number.isInteger)||x>args[1])fail('Argument ERROR');return Math.floor(Math.random()*(args[1]-x+1))+x;
+   case 'ranint':return randomInteger(args,opts);
    default:fail('Syntax ERROR');
   }
  }
@@ -753,6 +792,7 @@ function evaluate(source,opts={}){
   if(t.value==='('){const x=expr(0);if(!peek()||take().value!==')')fail('Syntax ERROR');return x}
   if(t.type===T.NUMBER)return t.value;
   if(t.type===T.IDENT){
+   if(t.value==='Ran'||t.value==='rand'||t.value==='ran')return randomThreeDigits(opts);
    if(peek()?.value==='('&&(names.has(t.value)||names.has(t.value.toLowerCase()))){take();let args=[];if(peek()?.value!==')'){while(true){args.push(expr(0));if(peek()?.value!==',')break;take()}}if(!peek()||take().value!==')')fail('Syntax ERROR');return call(t.value,args)}
    if(Object.prototype.hasOwnProperty.call(variables,t.value))return Number(variables[t.value]);
    fail('Variable ERROR: '+t.value);
@@ -780,7 +820,7 @@ function quadratic(a,b,c){if(a===0){if(b===0)fail('Math ERROR');return [-c/b]}co
 function matrixSolve(rows){const n=rows.length;const m=rows.map(r=>r.slice());for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;[m[i],m[pivot]]=[m[pivot],m[i]];if(Math.abs(m[i][i])<1e-12)fail('Math ERROR');const d=m[i][i];for(let k=i;k<=n;k++)m[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){const f=m[j][i];for(let k=i;k<=n;k++)m[j][k]-=f*m[i][k]}}return m.map(row=>row[n])}
 function descriptiveStats(data){if(!data.length)fail('Argument ERROR');const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n,variance=data.reduce((a,b)=>a+(b-mean)**2,0)/n;return {n,sum:data.reduce((a,b)=>a+b,0),mean,variance,sd:Math.sqrt(variance),sampleSD:n>1?Math.sqrt(variance*n/(n-1)):null,min:Math.min(...data),max:Math.max(...data)}}
 function parseNumbers(text){const vals=String(text).split(/[,;\s]+/).filter(Boolean).map(Number);if(!vals.length||vals.some(n=>!Number.isFinite(n)))fail('Argument ERROR');return vals}
-const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
+const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
 global.FreshMath=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
 
@@ -2239,6 +2279,12 @@ function evaluateSegment(source){
  }
  const value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
   exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+ // Native Natural Display presents a standalone Ran# as a fraction
+ // representing one of the 1000 possible three-digit outcomes.
+ if(/^Ran#$/i.test(source.trim())&&!exactRational){
+  const q=RESULTS.reduced(Math.round(value*1000),1000);
+  if(q)exactRational={numerator:String(q.numerator),denominator:String(q.denominator)};
+ }
  setResult(value,source,exactRational);
  if(div.remainder){
   state.remainderResult=div.remainder;
@@ -2646,7 +2692,7 @@ function alphaKey(key){
  if(key==='SUB')return insert('Intg(');
  const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  if(variables[key])return insert(variables[key]);
- if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt(');if(key==='CALC')return insert('=');return null
+ if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt#(');if(key==='CALC')return insert('=');return null
 }
 function shifted(key){
  if(state.hyp&&['SIN','COS','TAN'].includes(key)){
@@ -2683,8 +2729,8 @@ function shifted(key){
  if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
  if(key==='DMS'){releaseModifier();if(state.screen==='result')factorResult();return true}
  if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
- if(key==='DOT'){releaseModifier();insert('rand');return true}
- if(key==='0'){releaseModifier();state.ans=Number(state.ans.toFixed(state.digits));state.result=M.format(state.ans,state);paint();return true}
+ if(key==='DOT'){releaseModifier();insert('Ran#');return true}
+ if(key==='0'){releaseModifier();insert('Rnd(');return true}
  if(key==='ADD'){releaseModifier();insert('Pol(');return true}
  if(key==='SUB'){releaseModifier();insert('Rec(');return true}
  if(key==='MUL'){releaseModifier();insert('nPr');return true}

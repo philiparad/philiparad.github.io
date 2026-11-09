@@ -98,6 +98,12 @@ function evaluateSegment(source){
  }
  const value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
   exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+ // Native Natural Display presents a standalone Ran# as a fraction
+ // representing one of the 1000 possible three-digit outcomes.
+ if(/^Ran#$/i.test(source.trim())&&!exactRational){
+  const q=RESULTS.reduced(Math.round(value*1000),1000);
+  if(q)exactRational={numerator:String(q.numerator),denominator:String(q.denominator)};
+ }
  setResult(value,source,exactRational);
  if(div.remainder){
   state.remainderResult=div.remainder;
@@ -505,7 +511,7 @@ function alphaKey(key){
  if(key==='SUB')return insert('Intg(');
  const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  if(variables[key])return insert(variables[key]);
- if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt(');if(key==='CALC')return insert('=');return null
+ if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt#(');if(key==='CALC')return insert('=');return null
 }
 function shifted(key){
  if(state.hyp&&['SIN','COS','TAN'].includes(key)){
@@ -542,8 +548,8 @@ function shifted(key){
  if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
  if(key==='DMS'){releaseModifier();if(state.screen==='result')factorResult();return true}
  if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
- if(key==='DOT'){releaseModifier();insert('rand');return true}
- if(key==='0'){releaseModifier();state.ans=Number(state.ans.toFixed(state.digits));state.result=M.format(state.ans,state);paint();return true}
+ if(key==='DOT'){releaseModifier();insert('Ran#');return true}
+ if(key==='0'){releaseModifier();insert('Rnd(');return true}
  if(key==='ADD'){releaseModifier();insert('Pol(');return true}
  if(key==='SUB'){releaseModifier();insert('Rec(');return true}
  if(key==='MUL'){releaseModifier();insert('nPr');return true}
