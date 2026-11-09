@@ -40,6 +40,7 @@ function format(value,settings={},preferFraction=false){
 }
 const T={NUMBER:'number',IDENT:'identifier',OP:'operator'};
 function tokenize(source){
+ if(/[\d.]\s+[\d.]/.test(String(source)))fail('Syntax ERROR');
  let raw=[],s=String(source).replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/π/g,'pi').replace(/√/g,'sqrt').replace(/²/g,'^2').replace(/³/g,'^3').replace(/\s+/g,'');
  for(let i=0;i<s.length;){const sub=s.slice(i);let m;
   if((m=/^(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?/.exec(sub))){raw.push({type:T.NUMBER,value:Number(m[0]),text:m[0]});i+=m[0].length;continue}
@@ -82,7 +83,7 @@ function evaluate(source,opts={}){
    default:fail('Syntax ERROR');
   }
  }
- function begin(t){return t&&(t.type===T.NUMBER||t.type===T.IDENT||t.value==='(')}
+ function begin(t){return t&&(t.type===T.IDENT||t.value==='(')}
  function primary(){const t=take();if(!t)fail('Syntax ERROR');
   if(t.value==='+')return expr(25);
   if(t.value==='-')return -expr(25);
@@ -98,7 +99,7 @@ function evaluate(source,opts={}){
  function expr(min){let left=primary();while(true){const t=peek();if(!t||t.value===')'||t.value===',')break;
   if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='′'||t.value==='″'){if(45<min)break;take();if(t.value==='!')left=factorial(left);else if(t.value==='%')left=left/100;else left=fromRadians(toRadians(left/(t.value==='°'?1:t.value==='′'?60:3600),'DEG'),st.angle);continue}
   const implicit=begin(t);const operator=implicit?'*':t.value;
-  const binding={'nPr':20,'nCr':20,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
+  const binding=implicit?24:{'nPr':23,'nCr':23,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
   if(binding===undefined||binding<min)break;
   if(!implicit)take();const right=expr(operator==='^'?binding:binding+1);
   if(operator==='+')left+=right;else if(operator==='-')left-=right;

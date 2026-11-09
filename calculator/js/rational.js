@@ -37,6 +37,7 @@ function fromStored(value){
 function serialize(a){return a?{numerator:a.n.toString(),denominator:a.d.toString()}:null}
 const toNumber=a=>a?Number(a.n)/Number(a.d):NaN;
 function evaluate(source,options={}){
+ if(/[\d.]\s+[\d.]/.test(String(source)))throw new SyntaxError('Syntax ERROR');
  const s=String(source).replace(/\s+/g,'').replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/');
  // Expressions outside rational grammar must go through scientific evaluator.
  if(!/^(?:[\d.Ee+*/^()\-]|Ans|PreAns)+$/.test(s))return null;
@@ -56,8 +57,8 @@ function evaluate(source,options={}){
  function expression(min){
   let left=primary();
   while(at<tokens.length&&peek()!==')'){
-   const t=peek(),implicit=t==='('||t==='Ans'||t==='PreAns'||/^(?:\d|\.)/.test(t);
-   const op=implicit?'*':t,bp={'+':10,'-':10,'*':20,'/':20,'^':30}[op];
+   const t=peek(),implicit=t==='('||t==='Ans'||t==='PreAns';
+   const op=implicit?'*':t,bp=implicit?24:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(bp===undefined||bp<min)break;
    if(!implicit)at++;
    const right=expression(op==='^'?bp:bp+1);

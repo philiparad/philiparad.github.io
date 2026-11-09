@@ -49,6 +49,7 @@ function pow(a,b){
 const asNumber=v=>Number(v.n.toString()+'e'+String(-v.s));
 function evaluate(expression){
  if(!/^[\d.Ee+\-*/^()\s]+$/.test(expression))return null;
+ if(/[\d.]\s+[\d.]/.test(expression))throw new SyntaxError('Syntax ERROR');
  const source=expression.replace(/\s+/g,'');
  const tokens=source.match(/(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?|[()+*/^\-]/g);
  if(!tokens||tokens.join('')!==source){
@@ -68,8 +69,8 @@ function evaluate(expression){
  function expr(min){
   let left=primary();
   while(at<tokens.length&&peek()!==')'){
-   const t=peek(),implicit=t==='('||/^(?:\d|\.)/.test(t),op=implicit?'*':t;
-   const priority={'+':10,'-':10,'*':20,'/':20,'^':30}[op];
+   const t=peek(),implicit=t==='(',op=implicit?'*':t;
+   const priority=implicit?24:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(priority===undefined||priority<min)break;
    if(!implicit)at++;
    const right=expr(op==='^'?priority:priority+1);
