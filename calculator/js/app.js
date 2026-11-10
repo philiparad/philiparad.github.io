@@ -6,12 +6,13 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
 if(!REG)throw Error('Missing STAT regression engine');
 if(!BASE)throw Error('Missing BASE-N integer engine');
+if(!EQN)throw Error('Missing EQN solving engine');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -23,7 +24,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- statTable:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ statTable:null,eqnSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -250,7 +251,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.power=true}
@@ -339,6 +340,13 @@ function flowNext(){
  if(f.index<f.fields.length-1){f.index++;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false;state.info='';paint();return}
  try{
   const output=f.run({...f.values});
+   if(state.mode==='EQN'&&state.eqnSession){
+    state.flow=null;state.screen='eqn-result';state.info='';
+    const first=state.eqnSession.solutions[0];
+    state.result=first?first.text:state.eqnSession.status;
+    state.raw=first?first.value:NaN;
+    notify('EQN: = next; AC coefficients');paint();return;
+   }
   const lines=String(output??state.result??'0').split(/\n/).flatMap(line=>{
     return [line];
   });
@@ -659,6 +667,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
+ state.eqnSession=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
@@ -886,17 +895,45 @@ function baseHandle(key){
  }
  notify('BASE-N key unavailable in this radix',true);paint();
 }
+// REA-051: four EQN types, existing coefficient prompts and real result paging.
+function eqnTypeMenu(){
+ optionDialog('EQN type',EQN.TYPES.map((t,i)=>({
+  key:String(i+1),label:(i+1)+'. '+t.label,action:()=>eqnStart(t.id)
+ })),{pageSize:6,kind:'eqn-type'});
+}
+function eqnStart(type,previous=null){
+ const def=EQN.TYPES.find(t=>t.id===type);if(!def)throw Error('Argument ERROR');
+ state.eqnSession=null;
+ fieldForm('EQN '+def.label,def.fields.map(name=>({
+  id:name,label:name,value:previous?.[name]??'0'
+ })),values=>{
+  const result=EQN.solve(type,values);
+  state.eqnSession={type,values:{...values},solutions:result.solutions,status:result.status,nonRealCount:result.nonRealCount||0,index:0};
+  return result.solutions.length?result.solutions.map(x=>x.text).join('\\n'):result.status;
+ });
+}
+function eqnPage(delta){
+ const e=state.eqnSession;if(!e)return;
+ if(!e.solutions.length){eqnStart(e.type,e.values);return}
+ if(e.index+delta>=e.solutions.length){eqnStart(e.type,e.values);return}
+ e.index=Math.max(0,e.index+delta);
+ state.result=e.solutions[e.index].text;state.raw=e.solutions[e.index].value;
+ state.info='';paint();
+}
+function eqnResultHandle(key){
+ const e=state.eqnSession;if(!e)return;
+ if(key==='AC'){eqnStart(e.type,e.values);return}
+ if(key==='EQUAL'||key==='DOWN'||key==='RIGHT'){eqnPage(1);return}
+ if(key==='UP'||key==='LEFT'){eqnPage(-1);return}
+ if(key==='MODE'){modeMenu();return}
+ notify('EQN: = next; AC coefficients');paint();
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0;state.screen='edit';notify('BASE-N Dec · x² DEC; x⁻¹ HEX; log BIN; ln OCT');paint();return}
-  if(mode==='EQN')return optionDialog('EQN — choose equation type',[
-  {label:'Quadratic ax²+bx+c=0',action:()=>fieldForm('Quadratic equation',[{id:'a',label:'a',value:'1'},{id:'b',label:'b',value:'-3'},{id:'c',label:'c',value:'2'}],d=>{
-   const roots=M.quadratic(+d.a,+d.b,+d.c);if(roots.length)applyAdvancedResult(roots[0],'EQN');return roots.length?roots.map((r,i)=>'X'+(i+1)+' = '+M.format(r,state)).join('\n'):'No real solution'})},
-  {label:'Two linear equations',action:()=>fieldForm('2×2 linear system',[{id:'a',label:'First row: a,b,c',value:'2,1,5'},{id:'b',label:'Second row: a,b,c',value:'1,-1,1'}],d=>{
-   const rows=[parseCsv(d.a),parseCsv(d.b)];if(rows.some(x=>x.length!==3))throw Error('Expected three numbers per row');const x=M.matrixSolve(rows);applyAdvancedResult(x[0],'EQN');return 'X='+M.format(x[0],state)+'\nY='+M.format(x[1],state)})}
- ]);
- if(mode==='MATRIX')return fieldForm('MATRIX — 2×2 operations',[{id:'a',label:'Matrix A, row-major four entries',value:'1,2,3,4'},{id:'b',label:'Matrix B, row-major four entries',value:'2,0,1,3'},{id:'op',label:'Operation (det, add, multiply)',value:'multiply'}],d=>{
+  if(mode==='EQN')return eqnTypeMenu();
+  if(mode==='MATRIX')return fieldForm('MATRIX — 2×2 operations',[{id:'a',label:'Matrix A, row-major four entries',value:'1,2,3,4'},{id:'b',label:'Matrix B, row-major four entries',value:'2,0,1,3'},{id:'op',label:'Operation (det, add, multiply)',value:'multiply'}],d=>{
   const a=parseCsv(d.a),b=parseCsv(d.b);if(a.length!==4||b.length!==4)throw Error('Expected 2×2 matrices');let values;
   if(d.op==='det'){const det=a[0]*a[3]-a[1]*a[2];applyAdvancedResult(det,'MatA det');return 'det(A) = '+M.format(det,state)}
   if(d.op==='add')values=a.map((v,i)=>v+b[i]);else if(d.op==='multiply')values=[a[0]*b[0]+a[1]*b[2],a[0]*b[1]+a[1]*b[3],a[2]*b[0]+a[3]*b[2],a[2]*b[1]+a[3]*b[3]];else throw Error('Operation must be det, add or multiply');return values.slice(0,2).join('  ')+'\n'+values.slice(2).join('  ')
@@ -1142,6 +1179,7 @@ function handle(key){
   paint();return;
  }
  if(state.screen==='menu'){menuHandle(key);return}
+ if(state.screen==='eqn-result'){eqnResultHandle(key);return}
  if(state.mode==='BASE-N'){baseHandle(key);return}
  if(state.screen==='stat-table'){statTableHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
@@ -1397,7 +1435,13 @@ function runChecks(){const checks=[
   ['BASE-N logic Not',()=>BASE.format(BASE.evaluate('Not(1010)','BIN',state.model),'BIN',state.model)==='1111111111110101'],
   ['BASE-N logic Neg',()=>BASE.format(BASE.evaluate('Neg(101101)','BIN',state.model),'BIN',state.model)==='1111111111010011'],
   ['BASE-N logic width',()=>BASE.evaluate('Not(0)','DEC',state.model)===-1n&&BASE.evaluate('Not(0)','BIN',state.model)===-1n],
-  ['BASE-N logic precedence',()=>BASE.evaluate('1010 or 1100 and 101','BIN',state.model)===14n]
+  ['BASE-N logic precedence',()=>BASE.evaluate('1010 or 1100 and 101','BIN',state.model)===14n],
+  ['EQN types',()=>EQN.TYPES.length===4],
+  ['EQN cubic',()=>EQN.cubic([1,-2,-1,2]).solutions.every((v,i)=>Math.abs(v.value-[-1,1,2][i])<1e-8)],
+  ['EQN 3 unknowns',()=>EQN.systems([[1,-1,1,2],[1,1,-1,0],[-1,1,1,4]]).solutions.every((v,i)=>Math.abs(v.value-[1,2,3][i])<1e-8)],
+  ['EQN inconsistent',()=>EQN.systems([[1,1,2],[2,2,5]]).status==='No Solution'],
+  ['EQN infinite',()=>EQN.systems([[1,1,2],[2,2,4]]).status==='Infinite Solutions'],
+  ['EQN nonreal',()=>EQN.quadratic([1,0,1]).status==='No Real Roots']
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
