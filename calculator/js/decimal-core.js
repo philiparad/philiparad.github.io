@@ -83,7 +83,10 @@ function evaluate(expression){
   const result=expr(0);if(at!==tokens.length)throw new SyntaxError('Syntax ERROR');
   const number=asNumber(result);
   if(!Number.isFinite(number)||Math.abs(number)>9.999999999e99)throw new RangeError('Math ERROR');
-  return number
+  // CASIO's documented calculation range starts at 10^-99 (or zero).
+  // Under-range values are displayed/retained as zero in this independent
+  // model; native underflow transitions still need hardware verification.
+  return number!==0&&Math.abs(number)<1e-99?0:number
  }catch(error){if(error.message==='Unsupported power')return null;throw error}
 }
 const API=Object.freeze({evaluate,parse,add,subtract,multiply,divide,decimal,asNumber,PRECISION});
