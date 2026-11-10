@@ -66,11 +66,13 @@ function runNumeric(kind,data){
   worker.onerror=()=>finish('Math ERROR');
   job.timer=setTimeout(()=>finish('Time Out'),NUMERIC_WALL_MS);
   try{worker.postMessage({id:1,task:{kind,data,settings:{
-   angle:state.angle,format:state.format,digits:state.digits,math:state.math,
+   model:state.model,angle:state.angle,format:state.format,digits:state.digits,math:state.math,
    ans:state.ans,preAns:state.preAns,memory:{...state.memory}
   }}})}catch(e){finish('Argument ERROR')}
  });
 }
+const registerAllowed=name=>MODELS.hasRegister(state.model,name);
+const registerNames=()=>MODELS.registers(state.model).join(', ');
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -175,7 +177,7 @@ function evaluateSegment(source){
  if(state.mode==='CMPLX'){
   const command=COMPLEX.splitDisplayCommand(source);
   const z=COMPLEX.evaluate(command.expression,{angle:state.angle,ans:state.complexAns,
-   memory:{...state.memory,...state.complexMemory}});
+   memory:{...state.memory,...state.complexMemory},model:state.model});
   setComplexResult(z,source,command.format);return;
  }
  const parsed=COORD.parse(source);
@@ -442,7 +444,7 @@ function flowHandle(key){
   if(f.index>0){f.values[flowField().id]=f.buffer;f.index--;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false}
   paint();return true
  }
- const field=flowField();const choices=field.choices||OPTION_CHOICES[field.id];
+ const field=flowField();const choices=field.id==='variable'?MODELS.registers(state.model).filter(x=>x!=='M'):(field.choices||OPTION_CHOICES[field.id]);
  if(choices&&(key==='LEFT'||key==='RIGHT')){
   const at=Math.max(0,choices.indexOf(f.buffer));f.buffer=choices[(at+(key==='RIGHT'?1:choices.length-1))%choices.length];f.cursor=f.buffer.length;f.editing=false;paint();return true;
  }
@@ -465,7 +467,10 @@ function flowHandle(key){
  const vars={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  let addition=null;
  if(key.startsWith('TEXT:'))addition=key.slice(5);
- else if(state.alpha&&vars[key])addition=vars[key];
+ else if(state.alpha&&vars[key]){
+  if(!registerAllowed(vars[key])){releaseModifier();notify('Register unavailable on this model',true);paint();return true}
+  addition=vars[key];
+ }
  else if(state.shift&&key==='RP')addition=',';
  else if(state.shift&&key==='DOT')addition=',';
  else if(state.shift&&key==='MUL')addition='*';
@@ -620,6 +625,7 @@ function memoryOperand(){
  return state.raw;
 }
 function assignRegister(name,value){
+ if(!registerAllowed(name))throw Error('Variable ERROR');
  if(state.mode==='CMPLX'){
   const z=COMPLEX.value(value);state.complexMemory[name]=z;
   if(z.im===0)state.memory[name]=z.re;
@@ -630,6 +636,7 @@ function assignRegister(name,value){
  delete state.complexMemory[name];
 }
 function memorySelect(name){
+ if(!registerAllowed(name)){notify('Register unavailable: '+name,true);paint();return}
  const kind=state.pendingMemory;state.pendingMemory=null;
  try{
   if(kind==='STO'){
@@ -645,7 +652,7 @@ function memorySelect(name){
 }
 function memoryDialog(store=false){
  state.pendingMemory=store?'STO':'RCL';
- releaseModifier();notify(state.pendingMemory+' — select A-F, X, Y or M');paint();
+ releaseModifier();notify(state.pendingMemory+' — select '+registerNames());paint();
 }
 function memorySum(current,value,sign){
  if(sign!==1&&sign!==-1)throw Error('Argument ERROR');
@@ -1719,7 +1726,10 @@ function alphaKey(key){
  if(key==='ADD')return insert('Int(');
  if(key==='SUB')return insert('Intg(');
  const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
- if(variables[key])return insert(variables[key]);
+ if(variables[key]){
+  if(!registerAllowed(variables[key])){notify('Register unavailable on this model',true);paint();return true}
+  return insert(variables[key]);
+ }
  if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt#(');
  if(key==='ANS'){
   if(state.mode!=='COMP'){notify('PreAns requires COMP mode',true);paint();return true}
@@ -1952,7 +1962,7 @@ function handle(key){
   if(key==='AC'){state.pendingMemory=null;releaseModifier();notify('Memory selection cancelled');paint();return}
   const name=MEMORY_KEYS[key]||(/^[A-FMXY]$/.test(key)?key:null);
   if(name){memorySelect(name);return}
-  notify('Choose A-F, X, Y or M',true);paint();return;
+  notify('Choose '+registerNames(),true);paint();return;
  }
  if(key==='ON'){powerOn();return}
  if(!state.power)return;
@@ -2084,9 +2094,9 @@ function handle(key){
  if(key==='RCL'){memoryDialog(false);return}
  if(key==='MPLUS'){accumulateMemory(1);return}
  if(key==='SD'){if(state.mode==='CMPLX')return;toggleFraction();return}
- if(key==='CALC'){fieldForm('CALC — substitute a variable',[{id:'variable',label:'Variable name (A-F, X, Y)',value:'X'},{id:'value',label:'Value for variable',value:'2'}],d=>{
+ if(key==='CALC'){fieldForm('CALC — substitute a variable',[{id:'variable',label:'Variable name ('+MODELS.registers(state.model).filter(x=>x!=='M').join(', ')+')',value:'X'},{id:'value',label:'Value for variable',value:'2'}],d=>{
   const k=String(d.variable).trim().toUpperCase();
-  if(!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Variable ERROR');
+  if(!registerAllowed(k)||!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Variable ERROR');
   const v=M.evaluate(String(d.value),{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
   if(!Number.isFinite(v))throw Error('Math ERROR');
   const memory={...state.memory,[k]:v};
