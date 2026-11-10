@@ -63,9 +63,10 @@ function fractionText(q,style='improper'){
  if(d===1)return String(n);
  if(style==='mixed'&&Math.abs(n)>d){
   const integer=Math.trunc(n/d),remainder=Math.abs(n)%d;
-  // Count both fraction separators and the sign in the visible budget.
-  if(remainder&&String(integer).length+String(remainder).length+String(d).length+2<=10){
-   return integer+' '+remainder+'/'+d;
+  // Count integer, numerator, denominator and two separator positions.
+  if(remainder){
+   const text=integer+' '+remainder+'/'+d;
+   return text.length<=10?text:null;
   }
  }
  return n+'/'+d;
@@ -74,6 +75,7 @@ function fractionParts(q,style){
  const n=q.numerator,d=q.denominator;
  if(d===1)return {kind:'decimal',text:String(n)};
  const text=fractionText(q,style);
+ if(text===null)return null;
  if(text.includes(' ')){
   const [integer,ratio]=text.split(' ');
   const [numerator,denominator]=ratio.split('/');
@@ -90,6 +92,7 @@ function exactFractionParts(q,style){
   if(remainder){
    const text=whole.toString()+' '+remainder.toString()+'/'+d.toString();
    if(text.length<=10)return {kind:'mixed',text,integer:whole.toString(),numerator:remainder.toString(),denominator:d.toString()};
+   return null; // Mixed form too wide; no silent improper substitution.
   }
  }
  const text=n.toString()+'/'+d.toString();
@@ -118,8 +121,11 @@ function calculate(value,source,settings={},options={}){
   // Exact numerator/denominator metadata is still retained for Ans chaining.
   const hugeInteger=exactFromEngine&&BigInt(fraction.denominator)===1n&&
    String(fraction.numerator).replace('-','').length>10;
-  if(!hugeInteger)natural=exactFromEngine?
-   exactFractionParts(fraction,cfg.fractionStyle):fractionParts(fraction,cfg.fractionStyle);
+  if(!hugeInteger){
+   const candidate=exactFromEngine?
+    exactFractionParts(fraction,cfg.fractionStyle):fractionParts(fraction,cfg.fractionStyle);
+   if(candidate)natural=candidate;
+  }
  }
  const chosen=options.decimal?{kind:'decimal',text:decimalText}:natural;
  return {natural,decimal:{kind:'decimal',text:decimalText},chosen,hasAlternate:chosen.kind!=='decimal',
