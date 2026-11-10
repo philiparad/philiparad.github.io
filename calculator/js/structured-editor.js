@@ -6,7 +6,9 @@
 const FIELDS={fraction:['numerator','denominator'],
  mixed:['integer','numerator','denominator'],
  power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],
- cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
+ cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument'],
+ derivative:['expression','at'],integral:['lower','upper','expression'],
+ summation:['lower','upper','expression']};
 function create(){return {root:[],path:[],offset:0,version:1,undoStack:[]}}
 const MAX_UNDO=40;
 function snapshot(editor){
@@ -55,6 +57,10 @@ function nodeText(node,strict){
   case 'cubeRoot':return 'cbrt('+get('radicand')+')';
   case 'nthRoot':return 'nthroot('+get('index')+','+get('radicand')+')';
   case 'logBase':return 'log('+get('base')+','+get('argument')+')';
+  // Fixed native variable X: derivative at X, integral bounds, and sum bounds.
+  case 'derivative':return 'Diff('+get('expression')+','+get('at')+')';
+  case 'integral':return 'Integral('+get('expression')+','+get('lower')+','+get('upper')+')';
+  case 'summation':return 'Sum('+get('expression')+','+get('lower')+','+get('upper')+')';
  }
  throw Error('Unknown expression node '+node.type);
 }
@@ -232,6 +238,10 @@ function navigate(editor,key){
    field=key==='UP'?'index':'radicand';
   }else if(node.type==='logBase'){
    field=key==='UP'?'base':'argument';
+  }else if(node.type==='integral'||node.type==='summation'){
+   field=key==='UP'?'upper':'lower';
+  }else if(node.type==='derivative'){
+   field=key==='UP'?'expression':'at';
   }
   if(field&&field!==step.field){
    const target=[...parent,{index:step.index,field}];
