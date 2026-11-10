@@ -31,7 +31,7 @@ function symbolic(value,source){
  if(!Number.isFinite(value))return null;
  const compact=String(source||'').replace(/\s+/g,'').replace(/π/g,'pi');
  // Only known symbolic source expressions can create a symbolic result.
- if(compact==='pi')return {kind:'pi',coefficient:reduced(1,1),text:'π'};
+ if(compact==='pi'&&Math.abs(value-Math.PI)<1e-10)return {kind:'pi',coefficient:reduced(1,1),text:'π'};
  let m=/^(?:\(?([-+]?\d+)\)?\*?)?pi(?:\/\(?([-+]?\d+)\)?)?$/.exec(compact);
  if(m){
   const q=reduced(Number(m[1]||1),Number(m[2]||1));
