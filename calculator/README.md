@@ -8,7 +8,7 @@ Open `index.html` in a modern browser from this folder, or open the `fx991_fresh
 
 ## All operations take place inside the calculator
 
-- Press **MODE** to open the LCD menu. Select a numbered item with **1–6**. Use **▶ / ◀** to move between menu pages. Press **AC** to exit.
+- Press **MODE** to open the LCD menu. The ES/ES PLUS modes use keys **1–8**. On PLUS C, press **DOWN** for the second MODE screen (**1 INEQ, 2 VERIF, 3 DIST**). Use **UP/DOWN** between menu pages and **AC** to exit.
 - Press **SHIFT → MODE** to configure angle and output settings on the LCD.
 - Each multi-field operation shows a **prompt on the LCD**. Enter a value using calculator keys, then press **=** to accept the value and advance. Press **▲** to go to the previous field; press **AC** to cancel.
 - For an operation-selection field, **◀ / ▶** cycle between valid choices, then **=** confirms.
@@ -165,7 +165,7 @@ References: <https://support.casio.com/storage/en/manual/pdf/EN/004/fx-570_991ES
 
 **MODE → MATRIX** now opens a native LCD workflow instead of the previous one-off two-matrix 2×2 web prompt. Three independent matrix registers, **MatA**, **MatB** and **MatC**, can each hold a numeric matrix of **1–3 rows by 1–3 columns** (all nine dimension combinations). Each register remembers its dimensions and entries when another register is opened or another calculator mode is selected. Full calculator reset clears all matrix registers and history.
 
-**Define a register:** enter MATRIX mode, choose **MatA / MatB / MatC** (1/2/3) and choose a dimension (1–9). The last **3×3** option is on the next menu page: press **RIGHT → 9**. The LCD displays an editable table. Type a numeric value and press **=** to store it and advance, or use **UP/DOWN/LEFT/RIGHT** to navigate individual cells. **(−)** changes a cell's sign; **DEL** edits the value. A repeated edit does not affect other registers. Press **AC** to leave the editor while preserving committed changes. On the final **=**, the editor closes and stores the completed matrix.
+**Define a register:** enter MATRIX mode, choose **MatA / MatB / MatC** (1/2/3) and choose a dimension (1–9). The last **3×3** option is on the next menu page: press **DOWN → 1**. The LCD displays an editable table. Type a numeric value and press **=** to store it and advance, or use **UP/DOWN/LEFT/RIGHT** to navigate individual cells. **(−)** changes a cell's sign; **DEL** edits the value. A repeated edit does not affect other registers. Press **AC** to leave the editor while preserving committed changes. On the final **=**, the editor closes and stores the completed matrix.
 
 **Matrix menu:** press **SHIFT → 4 (MATRIX)** in MATRIX mode to access **1 Dim**, **2 Data**, **3 MatA**, **4 MatB**, **5 MatC**, **6 MatAns**, **7 Copy**, **8 Calc**, **9 History**. The ninth option is on the next page (**RIGHT → 9**). **Dim** creates or replaces a register at a chosen dimension; **Data** reopens an existing editable register. Register/MatAns options inspect stored values using the LCD and arrow keys. **Copy** copies any existing MatA/MatB/MatC/MatAns into another register, producing an independent matrix that can be edited without changing the source.
 
@@ -179,7 +179,7 @@ Official reference: <https://support.casio.com/global/en/calc/manual/fx-570ESPLU
 
 ## MATRIX arithmetic operations and error semantics (REA-054)
 
-The **MATRIX Calc** menu, opened with **SHIFT → 4 → 8**, now provides all nine operations. Options **1–8** fit on its first menu page; press **RIGHT → 9** to access the final option. Each operation chooses the required MatA, MatB or MatC register (uninitialized registers are not offered). All calculations are performed on independent snapshots and store matrix results in **MatAns** while retaining the source registers.
+The **MATRIX Calc** menu, opened with **SHIFT → 4 → 8**, now provides all nine operations. Options **1–8** fit on its first menu page; press **DOWN → 1** to access the final option. Each operation chooses the required MatA, MatB or MatC register (uninitialized registers are not offered). All calculations are performed on independent snapshots and store matrix results in **MatAns** while retaining the source registers.
 
 | Calculator option | Operation | Constraints / result |
 |---|---|---|
@@ -309,7 +309,7 @@ REA-059 replaces the REA-058 sequential coefficient prompts and generic multi-li
 
 ## DIST seven distribution calculations (REA-061)
 
-REA-061 completes **all seven** distribution calculation types on the **fx-991ES PLUS C** model. The original educational four-choice Normal/Binomial form is replaced by a model-correct **DIST type** menu and independent, ordered parameter prompts. Select **MODE → DIST** (in the simulator's 11-mode picker, the second page: **MODE → RIGHT → 5**). The DIST menu shows four types on page one and three on page two; use **RIGHT** to reach the latter.
+REA-061 completes **all seven** distribution calculation types on the **fx-991ES PLUS C** model. The original educational four-choice Normal/Binomial form is replaced by a model-correct **DIST type** menu and independent, ordered parameter prompts. Select **MODE → DIST** (in the simulator's 11-mode picker, the second page: **MODE → DOWN → 3**). The DIST menu shows four types on page one and three on page two; use **RIGHT** to reach the latter.
 
 | Menu page | Selection | CASIO DIST name | Input parameter order |
 |---|---|---|---|
@@ -335,7 +335,7 @@ Official model-specific source: <https://support.casio.com/global/en/calc/manual
 
 REA-062 implements the calculator-style **DIST List** workflow for the **four discrete distribution modes**: Binomial PD, Binomial CD, Poisson PD and Poisson CD. The three normal distributions retain Var-only input.
 
-**Select input format:** Enter **MODE → DIST**, select the desired discrete distribution type, then choose **1 Var** for the existing single-value workflow or **2 List** for multiple sample values. In the emulator's 11-mode menu, DIST is **MODE → RIGHT → 5**; the DIST type menu shows the first four types, with the final three on its second page. The selected List has a maximum of **25 X samples**. All rows share the same distribution parameters (N, p, or μ).
+**Select input format:** Enter **MODE → DIST**, select the desired discrete distribution type, then choose **1 Var** for the existing single-value workflow or **2 List** for multiple sample values. In the emulator's 11-mode menu, DIST is **MODE → DOWN → 3**; the DIST type menu shows the first four types, with the final three on its second page. The selected List has a maximum of **25 X samples**. All rows share the same distribution parameters (N, p, or μ).
 
 **Enter and edit List samples:** The LCD shows two columns, **X** and **Ans**, with a highlight on the selected cell. Type a signed numeric sample and press **=** to store it and advance. Use **UP/DOWN** to move between samples and **LEFT/RIGHT** to inspect X or Ans. Selecting an existing X row and entering a new value replaces that sample. **DEL** on a selected, unedited row removes the sample and closes the gap; while editing a value, **DEL** removes the final digit.
 
@@ -416,6 +416,24 @@ The complete code catalog contains **20 forward/reverse pairs**:
 **Testing:** Dedicated catalog tests check all 40 codes, inverse-pair consistency, temperature functions, invalid code recovery, and postfix placement. Key-driven calculator tests cover the three CASIO examples; 15 permanent built-in CONV regressions include arithmetic evaluation for every code on all three supported calculator models (120 combinations). Full graphical deployed-browser tests and physical device equivalence checks are still pending.
 
 Official sources: [CASIO metric-conversion manual](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/function_calculations/metric_conversion.html), [CASIO fx-991ES PLUS C manual](https://support.casio.com/pdf/004/fx-115_991ES_PLUS_C_E.pdf), [Original fx-991ES appendix with conversion factors](https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf).
+
+## Model-specific CASIO menu navigation and LCD labels (REA-065)
+
+REA-065 replaces the former generic six-option paging logic with a **model-aware CASIO menu layout**. The calculator now renders most MODE, SETUP, STAT and DIST menus with the original two-column numeric arrangement on the 96 × 31 pixel monochrome LCD. A shared `js/menu-model.js` specifies hardware-model menu types, displayed labels, local numeric selection, page sizes, and UP/DOWN behavior, rather than treating every menu as one unstructured list.
+
+**MODE — documented manufacturer key sequences:**
+- **Original fx-991ES / fx-991ES PLUS:** one page of eight choices: `1 COMP`, `2 CMPLX`, `3 STAT`, `4 BASE-N`, `5 EQN`, `6 MATRIX`, `7 TABLE`, `8 VECTOR`.
+- **fx-991ES PLUS C:** the same first page, followed by **DOWN** → `1 INEQ`, `2 VERIF`, `3 DIST`. Thus DIST is now **MODE → DOWN → 3**, rather than the earlier emulator-specific RIGHT → 5. **UP** returns to the first menu page; RIGHT and LEFT do **not** switch calculator menu pages.
+
+**SETUP — model-dependent two-page menu:** **SHIFT → MODE** opens the first eight settings `MthIO`, `LineIO`, `Deg`, `Rad`, `Gra`, `Fix`, `Sci`, `Norm`. **DOWN** shows the manufacturer-specific second menu: the original and ordinary PLUS models have six settings, while PLUS C includes `TABLE` and `Rdec` for eight. Choices on each page use **local numeric keys**, so the first choice after paging is **1**, not 9. Settings submenus display a context-specific heading rather than another identical SETUP title. The ten-digit Fix/Sci selection screen displays all digits 0–9 inside the LCD.
+
+**STAT, DIST, memory and calculation screens:** STAT type selection uses an eight-item screen; DIST type selection uses two pages of four and three options, with local keys `1–4` then `1–3`; the distribution's separate Var/List choice remains unchanged. The STAT menu and edit submenu retain their working actions, with concise titles and page-local selections. Memory **STO/RCL** standby now shows register letters `A B C D E F X Y M` rather than suggesting numeric scan-code mappings. SOLVE, CALC, derivative, integral, sum, product, TABLE, VERIFY and DIST parameter prompts have short legible headings and parameter names on the LCD.
+
+**Physical navigation feedback:** The emulator draws small upper-right ▲/▼ page indicators on multi-screen menus. **AC** cancels a menu and returns to the source screen when possible (including a calculation parameter prompt). **SHIFT → MODE** from a parameter prompt correctly opens SETUP. The LCD renderer supports the 8-choice 4-row and 10-choice 5-row arrangements without clipping the last Fix/Sci row.
+
+**Test coverage and limits:** The menu layout model passed 14 standalone checks and a further 7 focused title/parameter checks. End-to-end key-navigation tests passed for MODE, DIST, SETUP and prompt restoration, and **18 permanent MENU regressions** validate the two model families, local keys, page flags, sizes and LCD buffer. These are software-level source and simulated-keyboard tests. **Pixel-by-pixel photographic parity remains unverified**: the CASIO manual explicitly describes its images as illustrative, and no aligned photographs of an individual physical calculator's MODE/SETUP/memory/STAT/DIST/calculation/settings LCD states have yet been captured for image-difference validation. The simulator's educational-only workflow menus for certain extended operations can still differ from the physical device.
+
+**Official references:** [CASIO fx-991ES PLUS C user guide, E-5 onward](https://support.casio.com/pdf/004/fx-115_991ES_PLUS_C_E.pdf), [CASIO fx-991ES PLUS mode specifications](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/calculation_calculator/calculation_modes.html), and [CASIO PLUS C SETUP](https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/calculation_calculator/configuring_calculator.html).
 
 ## Files
 
