@@ -11,7 +11,8 @@ The original/PLUS editions support a textbook-like MathIO editor with fraction, 
 
 ## REA-073 changes
 
-- **Operand-aware fraction insertion:** inserting FRAC after a completed numeral, named variable, parenthesized expression, structured radical, or structured power captures that complete operand into the fraction numerator. This is an incremental approximation of CASIO's documented "incorporating a value into a function" behavior, not a full replacement for its physical SHIFT+INS selection workflow.
+- **Operand-aware fraction insertion:** inserting FRAC after a completed numeral, named variable, parenthesized expression, structured radical, or structured power captures that complete operand into the fraction numerator.
+- **MathIO SHIFT+DEL (INS):** the actual key combination now arms a one-shot "incorporate following operand" state. Moving the caret immediately before a number, variable, existing structured node, or balanced parenthesized expression and pressing FRAC or a supported root/log template wraps that operand in a native editable template. The new slots can then be filled or undone. Example: `1+(2+3)+4` → caret before `(` → SHIFT+DEL → SQRT yields `1+sqrt((2+3))+4`. When SETUP uses LineIO, SHIFT+DEL retains the existing overwrite toggle. This reproduces a documented ES MathIO workflow, although not all nested argument selection cases are device-verified.
 - **Nested slot navigation:** UP/DOWN no longer claims movement when already in the requested field; LEFT/RIGHT can enter/leave nested edit nodes without destroying siblings. Empty required fields remain rejected by strict serialization (no silent calculation of incomplete expressions).
 - **Undo:** a bounded 40-snapshot edit history restores the entire tree and exact slot cursor after insertion, template creation, deletion, or replacement. **Ctrl+Z is a browser-only convenience** when the calculator face or a calculator key is focused. It does **not** imply a corresponding original fx-991ES physical key. Browser shortcuts outside the calculator remain untouched.
 - **Signed mixed fractions:** a negative whole part now applies the negative sign to the fractional component too. Example: `-2 1/4` evaluates as `-2.25`, not `-1.75`.
@@ -26,13 +27,13 @@ node tests/rea073-structured-editor.cjs
 python reference/rea-073/test_editor_browser.py
 ```
 
-The 24 source checks cover full operands, nested fractions, cube and nth roots, square root fractions, powers, logarithm base, mixed signs, strict placeholders, cursor flow, deletion/restoration, bounded undo, overwriting and LCD cursor difference, keyboard focus and controller routing.
+The 29 source checks cover full operands, nested fractions, cube and nth roots, square root fractions, powers, logarithm base, mixed signs, strict placeholders, cursor flow, deletion/restoration, bounded undo, overwriting and LCD cursor difference, keyboard focus and controller routing.
 
-The Playwright browser test enters formulas **through actual DOM calculator key buttons**, changes models, verifies resulting expressions/values, checks error on missing denominator, and tests browser-only Ctrl+Z. Browser test and GitHub Actions workflow are committed but had not been executed in the connector execution session; do not claim browser execution or CI success until those runs are observed.
+The Playwright browser test enters formulas **through actual DOM calculator key buttons**, changes models, verifies results and missing-slot errors, exercises MathIO SHIFT+DEL INS and LineIO overwrite, and tests browser-only Ctrl+Z. Browser test and GitHub Actions workflow are committed but had not been executed in the connector execution session; do not claim browser execution or CI success until those runs are observed.
 
 ## Remaining REA-073 acceptance gaps
 
-1. **Full native MathIO key parity:** original CASIO insertion mode via SHIFT+DEL (INS) and incorporation while the caret precedes a fraction, whole function, or parenthesized expression requires a manufacturer-faithful state machine. The current source captures completed operands as a practical partial implementation, but not all native cases.
+1. **Full native MathIO key parity:** SHIFT+DEL INS and incorporation are now implemented for common value, node and parenthesized targets, but exact nested function-selection, complex cursor transitions, and every documented edge case require manufacturer-trace verification.
 2. **Complete multi-line template support:** derivatives, integrals and sums currently use calculator prompts rather than the native multi-field inline glyph templates. This behavior is covered by the separate **REA-080** development task.
 3. **Pixel-perfect structured layout and caret motion:** requires device/emulator frame captures, including the allowable formula-height limit, complex nested roots and long 2D expressions, plus authentic matching LCD dimensions. Dependencies: REA-001/002/004/072.
 4. **LineIO exact physical behavior and insertion/overwrite restrictions:** current web UI does not yet claim exact calculator parity under all editor setup combinations.
