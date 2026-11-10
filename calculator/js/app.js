@@ -693,7 +693,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
- state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;
+ state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;
  state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
@@ -2249,6 +2249,18 @@ function runChecks(){const checks=[
   ['DIST List full insertion rejected',()=>{const e=DISTLIST.create('poisson-pd',Array(25).fill(0));try{DISTLIST.insert(e);return false}catch(e){return e.message==='Insufficient MEM'}}],
   ['DIST List invalid insert preserves rows',()=>{const e=DISTLIST.create('poisson-pd',[2,3]);DISTLIST.insert(e);DISTLIST.edit(e,'-');try{DISTLIST.commitInsertion(e);return false}catch{return e.samples.join(',')==='2,3'}}],
   ['DIST List scalar engine unchanged',()=>Math.abs(DIST.calculate('binomial-pd',{x:10,n:15,p:.6})-.185937844764672)<1e-10],
+  ['CONST 40 codes',()=>CONST.ITEMS.length===40],
+  ['CONST sequential codes',()=>CONST.ITEMS.every((x,i)=>x.code===String(i+1).padStart(2,'0'))],
+  ['CONST all named and positive/negative finite',()=>CONST.ITEMS.every(x=>x.name&&x.symbol&&Number.isFinite(x.values[2002])&&Number.isFinite(x.values[2014]))],
+  ['CONST C0 code 28',()=>CONST.select('fx-991es-plus','28').value===299792458],
+  ['CONST Planck code 06',()=>CONST.select('fx-991es-plus','06').value===6.62607004e-34],
+  ['CONST Boltzmann code 25',()=>CONST.select('fx-991es-plus-c','25').value===1.38064852e-23],
+  ['CONST gravitation period difference',()=>CONST.select('fx-991es','39').value===6.6742e-11&&CONST.select('fx-991es-plus','39').value===6.67408e-11],
+  ['CONST rejected 00',()=>{try{CONST.select('fx-991es-plus','00');return false}catch{return true}}],
+  ['CONST rejected 41',()=>{try{CONST.select('fx-991es-plus','41');return false}catch{return true}}],
+  ['CONST two digit entry',()=>{const e=CONST.codeEditor();return CONST.type(e,'2','fx-991es-plus')===null&&CONST.type(e,'8','fx-991es-plus').value===299792458}],
+  ['CONST DEL removes digit',()=>{const e=CONST.codeEditor();CONST.type(e,'1','fx-991es-plus');CONST.backspace(e);return e.buffer===''}],
+  ['CONST 120 model/catalog expression results',()=>Object.keys(CONST.MODELS).every(model=>CONST.ITEMS.every(x=>{const e=CONST.select(model,x.code);try{const value=M.evaluate(CONST.literal(e),{...state,ans:0,memory:{}});return Math.abs(value-e.value)<=Math.max(1e-99,Math.abs(e.value)*1e-12)}catch{return false}}))],
   ['numerical derivative',()=>Math.abs(M.derivative(x=>x*x,2)-4)<1e-9],['numerical integral',()=>Math.abs(M.integrate(x=>x*x,0,1)-1/3)<1e-9],
  ['physical keys',()=>K.keys.length===50],['degree postfix',()=>Math.abs(M.evaluate('sin(30°)',{angle:'RAD'})-.5)<1e-12],['LCD buffer',()=>LCD.rasterize(state).length===96*31],
   // REA-042: independent M arithmetic and annunciator are model-state driven.
