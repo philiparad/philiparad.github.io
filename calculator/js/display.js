@@ -120,6 +120,27 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(t.error)write(t.error.slice(-20),0,25);
   return pixels;
  }
+ if(state.mode==='VECTOR'&&['vector-table','vector-result','vector-scalar'].includes(state.screen)){
+  if(state.screen==='vector-scalar'){
+   write('VECTOR Result',0,0);
+   const n=String(state.result||'0');
+   write(n.slice(-23),Math.max(0,W-Math.min(23,n.length)*4),25);
+   return pixels;
+  }
+  const editing=state.screen==='vector-table';
+  const e=editing?state.vectorEditor:state.vectorView;
+  if(!e)return pixels;
+  const v=e.vector;
+  write((editing?'EDIT ':'ANS ')+e.name+' '+v.dimension+'D',0,0);
+  for(let i=0;i<v.dimension;i++){
+   const y=9+i*8,selected=e.index===i,raw=editing&&selected?e.buffer:String(v.data[i]);
+   write((selected?'>':' ')+['X','Y','Z'][i]+' =',0,y);
+   write(raw.slice(-19),25,y);
+   if(selected)for(let x=25;x<Math.min(W,25+Math.max(1,Math.min(18,raw.length))*4);x++)pixel(x,Math.min(H-1,y+6));
+  }
+  if(editing&&e.error)write(e.error.slice(-18),0,29);
+  return pixels;
+ }
  if(state.mode==='MATRIX'&&state.screen==='matrix-parameter'&&state.matrixParameter){
   const p=state.matrixParameter;
   write('MATRIX '+p.operator,0,0);
