@@ -1,0 +1,52 @@
+name: REA-072 LCD glyph, annunciator and viewport regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/display.js'
+      - 'calculator/js/lcd-indicators.js'
+      - 'calculator/js/lcd-viewport.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/model-profiles.js'
+      - 'calculator/js/menu-model.js'
+      - 'calculator/js/setup.js'
+      - 'calculator/index.html'
+      - 'calculator/tests/rea072-lcd-fidelity.cjs'
+      - 'calculator/reference/rea-072/**'
+      - '.github/workflows/rea072-lcd-fidelity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lcd-fidelity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate independent web renderer
+        run: node calculator/tests/rea072-lcd-fidelity.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Test LCD output with DOM physical calculator keys
+        run: python calculator/reference/rea-072/test_lcd_browser.py
+      - name: Create review-only candidate LCD web screenshots
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/rea072-web-candidate
+          python calculator/reference/rea-006/lcd_golden.py --capture-only --out /tmp/rea072-web-candidate
+      - name: Upload candidate for explicit human approval
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rea072-web-only-screenshot-review
+          path: /tmp/rea072-web-candidate/
+          if-no-files-found: warn
