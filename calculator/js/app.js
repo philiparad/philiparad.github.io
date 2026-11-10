@@ -842,10 +842,11 @@ function baseHandle(key){
  if(BASE_SELECT[key]){baseSwitch(BASE_SELECT[key]);return}
  const hex=HEX_KEYS[key];
  if(hex&&state.baseRadix==='HEX'){baseAppend(hex);return}
+ if(key==='NEG'&&state.baseRadix==='DEC'){baseAppend('-');return}
  if(key.startsWith('TEXT:')&&state.baseRadix==='HEX'&&/^[a-f]$/i.test(key.slice(5))){
   baseAppend(key.slice(5).toUpperCase());return;
  }
- if(key==='AC'){baseSetInput('');notify('BASE-N cleared input');return}
+ if(key==='AC'){state.baseValue=0;baseSetInput('');notify('BASE-N cleared input');return}
  if(key==='DEL'){
   if(state.screen==='result')baseSetInput('');
   else baseSetInput(state.input.slice(0,-1));
@@ -1357,7 +1358,13 @@ function runChecks(){const checks=[
   ['BASE-N hex conversion',()=>BASE.format(-1n,'HEX',state.model)==='FFFFFFFF'],
   ['BASE-N decimal minimum',()=>BASE.evaluate('-2147483648','DEC',state.model)===-2147483648n],
   ['BASE-N binary range guard',()=>{try{BASE.format(-32769n,'BIN',state.model);return false}catch{return true}}],
-  ['BASE-N octal signed',()=>BASE.evaluate('37777777777','OCT',state.model)===-1n]
+  ['BASE-N octal signed',()=>BASE.evaluate('37777777777','OCT',state.model)===-1n],
+  ['BASE-N 16-bit min',()=>BASE.evaluate('1000000000000000','BIN',state.model)===-32768n],
+  ['BASE-N signed conversion',()=>BASE.convert(-1n,'HEX',state.model)==='FFFFFFFF'&&BASE.convert(-1n,'BIN',state.model)==='1111111111111111'],
+  ['BASE-N padded octal',()=>BASE.format(8n,'OCT',state.model)==='00000000010'],
+  ['BASE-N HEX F digit',()=>BASE.evaluate('1F+1','HEX',state.model)===32n],
+  ['BASE-N rejects bad BIN digit',()=>{try{BASE.evaluate('102','BIN',state.model);return false}catch{return true}}],
+  ['BASE-N 32-bit overflow',()=>{try{BASE.evaluate('2147483647+1','DEC',state.model);return false}catch{return true}}]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
