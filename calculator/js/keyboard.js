@@ -64,7 +64,10 @@ function translate(event,context={}){
  }
  // The guide documents the numerical keyboard, not literal alphabetic
  // expression entry. Keep letters usable only in web function prompts.
- if(context.mode==='CMPLX'&&['edit','result'].includes(context.screen)&&key.length===1&&/^[A-Za-z]$/.test(key)){
+ if(context.mode==='BASE-N'&&['edit','result'].includes(context.screen)&&/^[A-Fa-f]$/.test(key)){
+   return {keys:['TEXT:'+key.toUpperCase()],label:key,reference:'base-n-hex'};
+  }
+  if(context.mode==='CMPLX'&&['edit','result'].includes(context.screen)&&key.length===1&&/^[A-Za-z]$/.test(key)){
    return {keys:['TEXT:'+key],label:key,reference:'complex-expression'};
   }
   if(context.screen==='prompt'&&key.length===1&&PROMPT_TEXT.test(key)){
