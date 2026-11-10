@@ -39,6 +39,13 @@ const DEFAULTS=Object.freeze({
  tableFunctions:2,recurringDecimal:true,decimalSeparator:'dot',contrast:5
 });
 function pages(model){return ALL[model]||ALL['fx-991es-plus-c']}
+function entries(model){return pages(model).flatMap((items,page)=>
+ items.map(entry=>Object.freeze({...entry,page})))}
+function setting(model,id){return entries(model).find(entry=>entry.id===id)||null}
+function selection(model,page,key){
+ const group=pages(model)[page];
+ return group?group.find(entry=>entry.key===String(key))||null:null;
+}
 function options(id){
  const mapping={
   mthio:[['1','MathO','matho'],['2','LineO','lineo']],
@@ -51,7 +58,7 @@ function options(id){
  };
  return (mapping[id]||[]).map(([key,label,value])=>({key,label,value}));
 }
-const api=Object.freeze({pages,options,defaults:DEFAULTS,models:ALL});
+const api=Object.freeze({pages,entries,setting,selection,options,defaults:DEFAULTS,models:ALL});
 global.FreshSetup=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
