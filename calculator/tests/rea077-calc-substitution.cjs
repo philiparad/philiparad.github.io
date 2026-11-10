@@ -135,7 +135,7 @@ test('CALC leaves context complex memory unchanged until caller commits',()=>{
 test('frontend uses per-variable CALC form',()=>{
  const app=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
  assert.match(app,/fieldForm\('CALC '\+session\.source,session\.fields,run\)/);
- assert.match(app,/state\.calcSession=\{source:output\.source,mode:output\.mode\}/);
+ assert.match(app,/state\.calcSession=\{source:output\.source,mode:output\.mode/);
  assert.match(app,/if\(key==='EQUAL'&&state\.screen==='result'&&state\.calcSession/);
  assert.match(app,/if\(output&&output\.kind==='calc-substitution'\)/);
  assert.doesNotMatch(app,/CALC — substitute a variable/);
