@@ -120,9 +120,18 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(t.error)write(t.error.slice(-20),0,25);
   return pixels;
  }
+ if(state.mode==='VECTOR'&&state.screen==='vector-parameter'&&state.vectorParameter){
+  const p=state.vectorParameter;
+  write('VECTOR Scalar',0,0);
+  write('k x '+p.name,0,10);
+  const value=String(p.buffer);
+  write(value.slice(-22),Math.max(0,W-Math.min(22,value.length)*4),25);
+  if(p.error)write(p.error.slice(-20),0,17);
+  return pixels;
+ }
  if(state.mode==='VECTOR'&&['vector-table','vector-result','vector-scalar'].includes(state.screen)){
   if(state.screen==='vector-scalar'){
-   write('VECTOR Result',0,0);
+   write((state.vectorScalarInfo||'VECTOR Result').slice(0,23),0,0);
    const n=String(state.result||'0');
    write(n.slice(-23),Math.max(0,W-Math.min(23,n.length)*4),25);
    return pixels;
