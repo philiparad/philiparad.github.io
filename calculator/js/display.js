@@ -322,6 +322,32 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   write((prefix+value).slice(-23),0,25);
   return pixels;
  }
+ // REA-062: DIST List X/Ans tabular LCD view with highlighted cell.
+ if(state.screen==='dist-list'&&state.distList){
+  const e=state.distList,rows=e.samples;
+  const kind=e.type.replace('binomial','BIN').replace('poisson','POI').replace('-pd',' PD').replace('-cd',' CD');
+  write(('DIST '+kind).slice(0,22),0,0);
+  write('X',8,7);write('Ans',52,7);
+  const limit=rows.length<25?rows.length+1:rows.length;
+  const top=Math.max(0,Math.min(Math.max(0,limit-2),e.row-1));
+  for(let index=top;index<Math.min(limit,top+2);index++){
+   const y=14+(index-top)*8;
+   const sample=index<rows.length?rows[index]:null;
+   const sampleText=e.editing&&index===e.row?e.buffer:sample===null?'_':global.FreshDistList.format(sample);
+   const answer=e.calculated&&index<e.answers.length?global.FreshDistList.format(e.answers[index]):'';
+   write((index+1)+':',0,y);
+   write(sampleText.slice(-8),8,y,43);
+   write(answer.slice(-10),52,y,94);
+   if(index===e.row){
+    const start=e.column===0?8:52,end=e.column===0?43:94;
+    for(let x=start;x<end;x++)pixel(x,Math.min(30,y+6));
+   }
+  }
+  const active=e.column===0?(e.editing?e.buffer:rows[e.row]):e.answers[e.row];
+  const detail=e.error||((e.column===0?'X':'Ans')+'='+((active===undefined||active===null)?'':global.FreshDistList.format(Number(active))));
+  write(detail.slice(-23),0,29);
+  return pixels;
+ }
  if(state.screen==='flow-result'){
   const lines=state.outputLines||[],page=state.outputPage||0;
   const pan=global.FreshViewport.scrollLine(lines,page,state.viewport?.flowX||0);
