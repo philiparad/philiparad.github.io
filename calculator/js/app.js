@@ -6,7 +6,7 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -17,6 +17,7 @@ if(!INEQ)throw Error('Missing INEQ interval solver');
 if(!INEQDISPLAY)throw Error('Missing INEQ result display module');
 if(!VERIFY)throw Error('Missing chained VERIFY module');
 if(!DIST)throw Error('Missing seven-type DIST calculation module');
+if(!DISTLIST)throw Error('Missing DIST List data editor');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!MATRIX)throw Error('Missing MATRIX registers module');
@@ -33,7 +34,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -260,7 +261,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -688,7 +689,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
- state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;
+ state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;
  state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
@@ -1519,8 +1520,107 @@ function verifyRelationMenu(){
 // REA-061 — seven scalar DIST types in the documented CASIO order.
 function distMenu(){
  optionDialog('DIST type',DIST.TYPES.map((spec,i)=>({
-  label:(i+1)+'. '+spec.label,action:()=>distStart(spec.id)
+  label:(i+1)+'. '+spec.label,action:()=>DISTLIST.supported(spec.id)?distInputMenu(spec.id):distStart(spec.id)
  })),{pageSize:4,kind:'dist-type'});
+}
+// REA-062: CASIO Var/List selection for the four discrete distributions.
+function distInputMenu(type){
+ optionDialog('DIST '+type+' input',[
+  {key:'1',label:'1. Var',action:()=>distStart(type)},
+  {key:'2',label:'2. List',action:()=>distListStart(type)}
+ ],{pageSize:6,kind:'dist-input'});
+}
+function distListStart(type){
+ if(!DISTLIST.supported(type))throw Error('Argument ERROR');
+ const previous=state.distList;
+ state.distList=previous&&previous.type===type?previous:DISTLIST.create(type);
+ state.distType=type;state.distListParams=null;
+ state.screen='dist-list';state.flow=null;state.info='';releaseModifier();
+ notify('DIST List: enter X, = next; CALC calculate; SHIFT 1 Edit');paint();
+}
+function distListEditMenu(){
+ optionDialog('DIST Edit',[
+  {key:'1',label:'1. Ins',action:()=>{
+   try{DISTLIST.insert(state.distList);state.screen='dist-list';paint()}
+   catch(e){state.screen='dist-list';notify(e.message,true);paint()}
+  }},
+  {key:'2',label:'2. Del-A',action:()=>{DISTLIST.clear(state.distList);state.screen='dist-list';paint()}},
+  {key:'3',label:'3. Type',action:distMenu},
+  {key:'4',label:'4. Calc',action:distListCalculate}
+ ],{pageSize:6,kind:'dist-edit'});
+}
+function distListCalculate(){
+ const editor=state.distList;if(!editor)return;
+ try{
+  if(editor.inserting)DISTLIST.commitInsertion(editor);
+  else DISTLIST.save(editor);
+  if(!editor.samples.length)throw Error('Argument ERROR');
+  const spec=DIST.TYPES.find(x=>x.id===editor.type);
+  const params=spec.params.filter(name=>name!=='x');
+  const old=state.distListParams||{};
+  fieldForm('DIST List '+spec.label,params.map(name=>({
+   id:name,label:{n:'N',p:'p',mu:'μ'}[name],
+   value:old[name]??spec.defaults[spec.params.indexOf(name)]
+  })),data=>{
+   const numeric={};
+   for(const name of params){
+    if(!String(data[name]??'').trim())throw Error('Argument ERROR');
+    numeric[name]=M.evaluate(String(data[name]),{...state,math:false,memory:{...state.memory},ans:state.ans});
+   }
+   // Parameter errors invalidate the whole calculation; row errors are
+   // shown as ERROR in Ans, without discarding other valid rows.
+   const probe=DIST.calculate(editor.type,{...numeric,x:editor.samples[0]});
+   void probe;
+   DISTLIST.evaluate(editor,numeric,DIST);
+   state.distListParams={...data};
+   state.screen='dist-list';state.flow=null;
+   notify('DIST List results: X / Ans; arrows navigate');paint();
+   return '';
+  });
+ }catch(e){editor.error=String(e.message||'Math ERROR');state.screen='dist-list';notify(editor.error,true);paint()}
+}
+function distListHandle(key){
+ const e=state.distList;if(!e)return;
+ try{
+  if(key==='MODE'){modeMenu();return}
+  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+  if(state.shift&&key==='1'){releaseModifier();distListEditMenu();return}
+  if(key==='CALC'){distListCalculate();return}
+  if(key==='AC'){
+   if(e.inserting){DISTLIST.cancelInsertion(e);paint();return}
+   if(e.editing){DISTLIST.load(e);paint();return}
+   distInputMenu(e.type);return;
+  }
+  if(key==='DEL'){
+   if(e.inserting){DISTLIST.backspace(e);paint();return}
+   if(e.editing){DISTLIST.backspace(e);paint();return}
+   DISTLIST.remove(e);paint();return;
+  }
+  if(key==='NEG'){DISTLIST.sign(e);paint();return}
+  if(key==='EQUAL'){
+   if(e.inserting)DISTLIST.commitInsertion(e);
+   else DISTLIST.next(e);
+   paint();return;
+  }
+  if(['UP','DOWN','LEFT','RIGHT'].includes(key)){
+   if(e.inserting)DISTLIST.commitInsertion(e);
+   DISTLIST.move(e,key==='UP'?-1:key==='DOWN'?1:0,
+      key==='LEFT'?-1:key==='RIGHT'?1:0);
+   paint();return;
+  }
+  let token=null;
+  if(/^[0-9]$/.test(key))token=key;
+  else if(key==='DOT')token='.';
+  else if(key==='EXP')token='E';
+  else if(key==='SUB')token='-';
+  else if(key==='ADD')token='+';
+  else if(key.startsWith('TEXT:')&&/^[0-9Ee.+-]$/.test(key.slice(5)))token=key.slice(5);
+  if(token!==null){
+   if(e.column===1)e.column=0;
+   DISTLIST.edit(e,token);paint();return;
+  }
+  notify('DIST List: = save; DEL remove; CALC calculate',true);paint();
+ }catch(err){e.error=String(err.message||'Math ERROR');releaseModifier();notify(e.error,true);paint()}
 }
 function distStart(type,previous=null){
  const spec=DIST.TYPES.find(item=>item.id===type);if(!spec)throw Error('Argument ERROR');
@@ -1795,6 +1895,10 @@ function handle(key){
  if(state.screen==='eqn-coeff'){eqnCoeffHandle(key);return}
  if(state.mode==='BASE-N'){baseHandle(key);return}
  if(state.screen==='stat-table'){statTableHandle(key);return}
+ if(state.mode==='DIST'&&state.screen==='dist-list'){distListHandle(key);return}
+ if(state.mode==='DIST'&&state.screen==='prompt'&&state.flow.title.startsWith('DIST List')&&key==='AC'){
+  state.flow=null;state.screen='dist-list';releaseModifier();paint();return;
+ }
  if(state.mode==='DIST'&&state.screen==='prompt'&&distFlowHandle(key))return;
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
