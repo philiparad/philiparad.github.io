@@ -68,6 +68,38 @@ function insert(editor,text,overwrite=false){
   editor.offset++;
  }
 }
+// REA-073: capture a complete preceding operand when a stacked fraction
+// is inserted after it (e.g. 2^3, √4, or (1+2)). Do not absorb binary signs.
+function captureOperandStart(seq,end){
+ let at=end;
+ while(at>0&&seq[at-1].type==='power')at--;
+ if(at<=0)return end;
+ const last=seq[at-1];
+ if(last.type!=='char')return at-1;
+ if(last.value===')'){
+  let depth=0;
+  for(let i=at-1;i>=0;i--){
+   const n=seq[i];
+   if(n.type!=='char')continue;
+   if(n.value===')')depth++;
+   if(n.value==='('){
+    depth--;
+    if(depth===0)return i;
+   }
+  }
+  return end; // Leave unmatched parentheses as editable input.
+ }
+ if(/[0-9.]/.test(last.value)){
+  while(at>0&&seq[at-1].type==='char'&&/[0-9.]/.test(seq[at-1].value))at--;
+  return at;
+ }
+ if(/[A-Za-z]/.test(last.value)){
+  // Identifiers (Ans, X, pi) are single operands in the editor.
+  while(at>0&&seq[at-1].type==='char'&&/[A-Za-z]/.test(seq[at-1].value))at--;
+  return at;
+ }
+ return end;
+}
 function template(editor,type,overwrite=false){
  const fields=FIELDS[type];
  if(!fields)throw Error('Unknown template '+type);
@@ -76,8 +108,7 @@ function template(editor,type,overwrite=false){
  const node={type,parts:Object.fromEntries(fields.map(field=>[field,[]]))};
  const before=editor.offset;
  if(type==='fraction'&&before>0){
-  let at=before;
-  while(at>0&&seq[at-1].type==='char'&&/[\d.]/.test(seq[at-1].value))at--;
+  const at=captureOperandStart(seq,before);
   if(at!==before){
    node.parts.numerator=seq.splice(at,before-at);
    editor.offset=at;
