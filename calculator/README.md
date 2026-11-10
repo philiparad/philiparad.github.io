@@ -55,6 +55,18 @@ Examples (DEG mode):
 
 **Verification (without physical hardware):** 12 complex-engine tests, 14 controller/key-sequence tests and an independent two-line LCD raster check passed. Tests included entry via physical keys, the four-option command menu, one-shot overrides, persistent SETUP behavior, radians and invalid expressions. Full browser/hardware parity tests were not performed.
 
+## STAT LCD data editor (REA-047)
+
+**MODE → STAT** now opens a type-selection menu: **1: 1-VAR** for one-variable data, or **2: A+BX** for paired X/Y data. The old comma-separated prompt is replaced by a scrolling table **inside the calculator's own LCD**. The table starts empty and accepts up to 80 rows.
+
+- Enter a number with calculator keys; **=** commits the current cell and advances to the next column, automatically creating a new row after the last column. **UP/DOWN** select rows, **LEFT/RIGHT** select columns, and **DEL** edits or clears the selected cell.
+- **SHIFT → UP** inserts a row immediately after the current row. **SHIFT → DOWN** deletes the current row (the table always retains at least one blank row). **AC** exits the table and **MODE** can select another calculator mode.
+- Use **SHIFT → MODE → STAT: ON/OFF** to add or hide the **FREQ** column without losing entered X/Y values. Frequency values are nonnegative integers. Zero-frequency rows contribute no observations.
+- **CALC** computes statistical results shown on the LCD in a scrollable list. **UP/DOWN** scroll result pages; **AC** returns to the existing data table. One-variable results include count, sum, population/sample SD, mean, min and max. Paired-data results include X/Y means and deviations, covariance-based correlation, and least-squares slope/intercept (when defined).
+- The table validates numeric entry, enforces a maximum of **80 rows** and **100,000 weighted observations**, and reports errors for missing paired values, invalid frequency weights, undefined results or empty datasets. The separate HTML diagnostic panels remain read-only.
+
+**Verification:** the STAT model passed weighted-mean, paired regression, row removal and invalid-frequency tests. A simulated controller/LCD key-sequence suite passed 13/13 checks, including STAT selection, data entry, row operations, frequency SETUP, navigation and display rendering. These are behavioral tests of the independent implementation, not proof of manufacturer-firmware parity. The modular `calculator/index.html` loads `js/stat-editor.js`; the separately bundled standalone HTML file is not automatically regenerated.
+
 ## Files
 
 - `index.html` — modular browser application.
