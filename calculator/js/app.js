@@ -1170,6 +1170,147 @@ function matrixResultHandle(key){
  }
  notify('MATRIX: arrows browse; SHIFT 4 options',true);paint();
 }
+
+/* REA-055: named VECTOR data editor, VctAns and memory selection. */
+function vectorRegisterMenu(kind){
+ optionDialog('VECTOR '+kind,VECTOR.NAMES.map((name,i)=>({
+  label:(i+1)+'. '+name,action:()=>kind==='Dim'?vectorDimensionMenu(name):vectorEdit(name)
+ })),{pageSize:6,kind:'vector'});
+}
+function vectorDimensionMenu(name){
+ optionDialog(name+' Dimension',[2,3].map((size,i)=>({
+  label:(i+1)+'. '+size+'D',action:()=>{VECTOR.set(state.vectors,name,VECTOR.create(size));vectorEdit(name)}
+ })),{pageSize:6,kind:'vector'});
+}
+function vectorEdit(name){
+ if(!state.vectors[name]){vectorDimensionMenu(name);return}
+ state.vectorEditor=VECTOR.editor(state.vectors,name);
+ state.vectorView=null;state.screen='vector-table';releaseModifier();
+ notify(name+' vector editor: arrows, = advance, AC save');paint();
+}
+function vectorPersist(){
+ const e=state.vectorEditor;if(!e)return;
+ VECTOR.commit(e);VECTOR.set(state.vectors,e.name,e.vector);
+}
+function vectorClose(){
+ vectorPersist();state.vectorEditor=null;state.screen='edit';releaseModifier();
+ notify('VECTOR saved; SHIFT 5 options');paint();
+}
+function vectorShow(name,value=null){
+ if(!value&&!state.vectors[name]){
+  releaseModifier();notify(name+' undefined; choose Dim',true);
+  if(VECTOR.NAMES.includes(name))vectorDimensionMenu(name);
+  else vectorMenu();
+  return;
+ }
+ const vector=value?VECTOR.clone(value):VECTOR.get(state.vectors,name);
+ state.vectorView={name,vector,index:0};
+ state.vectorEditor=null;state.screen='vector-result';releaseModifier();
+ notify(name+' vector; arrows inspect; AC return');paint();
+}
+function vectorRun(op,a,b=null){
+ try{
+  const result=VECTOR.record(state.vectors,op,a,b);
+  if(typeof result==='number'){
+   state.vectorView=null;state.screen='vector-scalar';
+   state.raw=result;state.result=String(Number(result.toPrecision(12)));
+   releaseModifier();notify('VECTOR '+op+' '+a+' = '+state.result);paint();
+  }else vectorShow('VctAns',result);
+ }catch(err){releaseModifier();notify(String(err.message||'Math ERROR'),true);vectorMenu()}
+}
+function vectorOperandMenu(op,a=null){
+ const names=VECTOR.NAMES.filter(name=>!!state.vectors[name]);
+ if(!names.length){vectorRegisterMenu('Dim');return}
+ optionDialog('VECTOR '+op+' '+(a||''),names.map(name=>({
+  label:name,action:()=>a?vectorRun(op,a,name):op==='abs'?vectorRun(op,name):vectorOperandMenu(op,name)
+ })),{pageSize:6,kind:'vector'});
+}
+function vectorCopy(from=null){
+ if(!from){
+  const names=[...VECTOR.NAMES,'VctAns'].filter(name=>!!state.vectors[name]);
+  if(!names.length){vectorRegisterMenu('Dim');return}
+  optionDialog('Vector copy from',names.map(name=>({label:name,action:()=>vectorCopy(name)})),
+   {pageSize:6,kind:'vector'});
+  return;
+ }
+ optionDialog('Copy '+from+' to',VECTOR.NAMES.filter(name=>name!==from).map(name=>({
+  label:name,action:()=>{VECTOR.copy(state.vectors,from,name);vectorEdit(name)}
+ })),{pageSize:6,kind:'vector'});
+}
+function vectorHistoryMenu(){
+ const h=state.vectors.history.slice().reverse();
+ if(!h.length){notify('No VECTOR history',true);vectorMenu();return}
+ optionDialog('VECTOR History',h.map((entry,i)=>({
+  label:(i+1)+'. '+entry.operator+' '+entry.aName+(entry.bName?' '+entry.bName:''),
+  action:()=>{
+   if(typeof entry.output==='number'){
+    state.vectorView=null;state.screen='vector-scalar';
+    state.raw=entry.output;state.result=String(entry.output);paint();
+   }else{
+    state.vectors.VctAns=VECTOR.clone(entry.output);
+    vectorShow('VctAns',entry.output);
+   }
+  }
+ })),{pageSize:8,kind:'vector'});
+}
+function vectorMenu(){
+ releaseModifier();
+ optionDialog('VECTOR',[
+  {key:'1',label:'1. Dim',action:()=>vectorRegisterMenu('Dim')},
+  {key:'2',label:'2. Data',action:()=>vectorRegisterMenu('Data')},
+  ...VECTOR.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,action:()=>vectorShow(name)})),
+  {key:'6',label:'6. VctAns',action:()=>vectorShow('VctAns')},
+  {key:'7',label:'7. Copy',action:()=>vectorCopy()},
+  {key:'8',label:'8. Calc',action:()=>optionDialog('VECTOR Calc',[
+   {label:'1. Dot',action:()=>vectorOperandMenu('dot')},
+   {label:'2. Cross',action:()=>vectorOperandMenu('cross')},
+   {label:'3. Abs',action:()=>vectorOperandMenu('abs')}
+  ],{pageSize:6,kind:'vector'})},
+  {key:'9',label:'9. History',action:vectorHistoryMenu}
+ ],{pageSize:8,kind:'vector'});
+}
+function vectorTableHandle(key){
+ const e=state.vectorEditor;if(!e)return;
+ try{
+  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+  if(state.shift&&key==='5'){vectorPersist();vectorMenu();return}
+  if(key==='MODE'){vectorPersist();modeMenu();return}
+  if(key==='AC'){vectorClose();return}
+  if(key==='DEL'){VECTOR.backspace(e);releaseModifier();paint();return}
+  if(key==='NEG'){VECTOR.sign(e);releaseModifier();paint();return}
+  if(key==='EQUAL'){
+   const done=VECTOR.next(e);VECTOR.set(state.vectors,e.name,e.vector);
+   releaseModifier();if(done)vectorClose();else paint();return;
+  }
+  if(['UP','DOWN','LEFT','RIGHT'].includes(key)){
+   VECTOR.move(e,key==='UP'||key==='LEFT'?-1:1);
+   VECTOR.set(state.vectors,e.name,e.vector);
+   releaseModifier();paint();return;
+  }
+  let token=null;
+  if(/^[0-9]$/.test(key))token=key;
+  else if(key==='DOT')token='.';
+  else if(key==='EXP')token='E';
+  else if(key==='SUB')token='-';
+  else if(key==='ADD')token='+';
+  else if(key.startsWith('TEXT:')&&/^[0-9.Ee+-]$/.test(key.slice(5)))token=key.slice(5);
+  if(token!==null){VECTOR.type(e,token);releaseModifier();paint();return}
+  notify('Unsupported vector editor key',true);paint();
+ }catch(err){e.error=String(err.message||'Math ERROR');releaseModifier();notify(e.error,true);paint()}
+}
+function vectorResultHandle(key){
+ if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+ if(state.shift&&key==='5'){vectorMenu();return}
+ if(key==='MODE'){modeMenu();return}
+ if(key==='AC'){state.vectorView=null;state.screen='edit';releaseModifier();paint();return}
+ const view=state.vectorView;
+ if(view&&['UP','DOWN','LEFT','RIGHT'].includes(key)){
+  view.index=Math.max(0,Math.min(view.vector.dimension-1,view.index+(key==='UP'||key==='LEFT'?-1:1)));
+  paint();return;
+ }
+ notify('VECTOR result: arrows browse, SHIFT 5 options',true);paint();
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
