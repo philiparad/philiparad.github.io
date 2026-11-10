@@ -6,10 +6,11 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
+if(!REG)throw Error('Missing STAT regression engine');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -675,15 +676,72 @@ function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
 // REA-047: all STAT data are edited on the calculator LCD.
 function statModeMenu(){
- optionDialog('STAT type',[
-  {key:'1',label:'1. 1-VAR',action:()=>startStat(false)},
-  {key:'2',label:'2. A+BX',action:()=>startStat(true)}
- ]);
+ optionDialog('STAT type',REG.TYPES.map((t,i)=>({
+  key:String(i+1),label:(i+1)+'. '+t.label,action:()=>startStat(t.id)
+ })),{pageSize:8,kind:'stat-type'});
 }
-function startStat(paired){
- state.statTable=STAT.create(paired,state.statFrequency);
- state.screen='stat-table';state.info='';releaseModifier();
- notify('STAT arrows move; = next; SHIFT UP add; SHIFT DOWN delete; CALC results');paint();
+function startStat(type){
+ const selected=REG.TYPES.find(t=>t.id===type);
+ if(!selected)throw Error('Argument ERROR');
+ const old=state.statTable;
+ state.statTable=old&&old.paired===selected.paired?old:STAT.create(selected.paired,state.statFrequency);
+ state.statTable.regressionType=type;state.screen='stat-table';
+ state.info='';releaseModifier();notify('STAT '+selected.label+' data editor');paint();
+}
+function statSafe(fn){
+ try{return fn()}catch(e){
+  state.statTable.error=String(e.message||'Math ERROR');
+  state.screen='stat-table';releaseModifier();notify(state.statTable.error,true);paint();
+  return null;
+ }
+}
+function statShow(lines,title){
+ state.outputLines=lines;state.outputPage=0;state.viewport.flowX=0;
+ state.screen='flow-result';state.info='';releaseModifier();
+ notify('STAT '+title+'; AC returns to data');paint();
+}
+function statSummary(){STAT.commit(state.statTable);return REG.summary(state.statTable)}
+function statFit(){STAT.commit(state.statTable);return REG.fit(state.statTable,state.statTable.regressionType||'LIN')}
+function statMenuResult(title,lines){
+ optionDialog('STAT '+title,lines.map((line,i)=>({
+  key:String(i+1),label:(i+1)+'. '+line.split(' = ')[0],
+  action:()=>statSafe(()=>{
+   const raw=Number(line.split(' = ')[1]);
+   if(!Number.isFinite(raw))throw Error('Math ERROR');
+   state.raw=raw;state.ans=raw;state.ansRational=null;state.result=REG.format(raw);
+   statShow([line],title);
+  })
+ })),{pageSize:8});
+}
+function statEstimate(which){
+ fieldForm('STAT estimate '+which,[{id:'value',label:which==='y'?'Given X':'Given Y',value:'1'}],d=>{
+  const number=Number(d.value);
+  if(!Number.isFinite(number))throw Error('Argument ERROR');
+  const model=statFit(),out=which==='y'?[REG.estimateY(model,number)]:REG.estimateX(model,number);
+  state.raw=out[0];state.ans=out[0];state.ansRational=null;state.result=REG.format(out[0]);
+  return out.map((v,i)=>(which==='y'?'yHat':'xHat'+(out.length>1?i+1:''))+' = '+REG.format(v)).join('\\n');
+ });
+}
+function statMenu(){
+ if(!state.statTable){statModeMenu();return}
+ releaseModifier();
+ optionDialog('STAT',[
+  {key:'1',label:'1. Type',action:statModeMenu},
+  {key:'2',label:'2. Data',action:()=>{state.screen='stat-table';paint()}},
+  {key:'3',label:'3. Edit',action:()=>optionDialog('STAT Edit',[
+   {key:'1',label:'1. Ins',action:()=>statSafe(()=>{STAT.insert(state.statTable);state.screen='stat-table';paint()})},
+   {key:'2',label:'2. Del',action:()=>statSafe(()=>{STAT.remove(state.statTable);state.screen='stat-table';paint()})},
+   {key:'3',label:'3. Del-A',action:()=>{const t=state.statTable;t.rows=[{X:null,Y:null,FREQ:1}];t.row=0;t.col=0;STAT.load(t);state.screen='stat-table';paint()}}
+  ])},
+  {key:'4',label:'4. Sum',action:()=>statSafe(()=>statMenuResult('Sum',REG.sumLines(statSummary(),state.statTable.paired)))},
+  {key:'5',label:'5. Var',action:()=>statSafe(()=>statMenuResult('Var',REG.varLines(statSummary(),state.statTable.paired)))},
+  {key:'6',label:'6. MinMax',action:()=>statSafe(()=>statMenuResult('MinMax',REG.minMaxLines(statSummary(),state.statTable.paired)))},
+  {key:'7',label:'7. Reg',action:()=>statSafe(()=>statMenuResult('Reg',REG.regLines(statFit())))},
+  {key:'8',label:'8. Estimate',action:()=>optionDialog('STAT estimate',[
+   {key:'1',label:'1. yHat',action:()=>statSafe(()=>statEstimate('y'))},
+   {key:'2',label:'2. xHat',action:()=>statSafe(()=>statEstimate('x'))}
+  ])}
+ ],{pageSize:8,kind:'stat'});
 }
 function statAdvance(){
  const t=state.statTable;STAT.commit(t);
@@ -693,19 +751,23 @@ function statAdvance(){
  else{t.col=0;STAT.move(t,1,0)}
 }
 function statResults(){
- const t=state.statTable;
- const results=STAT.calculate(t);
- state.raw=results.meanX;state.ans=results.meanX;state.ansRational=null;
- state.result=String(results.meanX);
- state.outputLines=STAT.lines(results,t.paired);state.outputPage=0;state.viewport.flowX=0;
- state.screen='flow-result';state.info='';releaseModifier();
- notify('STAT results; UP/DOWN scroll; AC returns to table');paint();
+ statSafe(()=>{
+  const t=state.statTable,summary=statSummary();
+  state.raw=summary.meanX;state.ans=summary.meanX;state.ansRational=null;state.result=REG.format(summary.meanX);
+  const lines=[...REG.varLines(summary,t.paired),...REG.sumLines(summary,t.paired),...REG.minMaxLines(summary,t.paired)];
+  if(t.paired){
+   try{lines.push(...REG.regLines(statFit()))}
+   catch(e){lines.push('Reg: '+String(e.message||'Math ERROR'))}
+  }
+  statShow(lines,'summary');
+ });
 }
 function statTableHandle(key){
  const t=state.statTable;if(!t)return;
  try{
   if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
   if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+  if(state.shift&&key==='1'){statMenu();return}
   if(state.shift&&key==='UP'){STAT.insert(t);releaseModifier();paint();return}
   if(state.shift&&key==='DOWN'){STAT.remove(t);releaseModifier();paint();return}
   if(state.shift&&key==='MODE'){releaseModifier();setupMenu();return}
@@ -995,6 +1057,8 @@ function handle(key){
  if(state.screen==='stat-table'){statTableHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
+  if(state.mode==='STAT'&&state.statTable&&key==='SHIFT'){state.shift=!state.shift;paint();return}
+  if(state.mode==='STAT'&&state.statTable&&state.shift&&key==='1'){statMenu();return}
   if(key==='UP'||key==='DOWN'){
    state.outputPage=Math.max(0,Math.min(VIEW.pageCount(state.outputLines)-1,state.outputPage+(key==='DOWN'?1:-1)));
    state.viewport.flowX=0;paint();return;
