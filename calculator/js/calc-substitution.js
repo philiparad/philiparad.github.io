@@ -71,7 +71,8 @@ function prepare(source,modelRegisters,mode='COMP',current={}){
  const parts=statementParts(source),segments=parts.map(equality);
  const output=String(source);
  if(!output.trim())throw Error('Syntax ERROR');
- const names=scan(segments.map(x=>x.expression).join(':'),modelRegisters);
+ const names=scan(segments.map(x=>mode==='CMPLX'?
+  x.expression.replace(/(?:►|▶|→)\s*(?:r∠θ|a\+bi)\s*$/i,''):x.expression).join(':'),modelRegisters);
  // For Y=X^2+3, Y is the output label and must not be prompted for.
  const fields=names.map(name=>({id:name,label:name+'?',value:String(current[name]??0)}));
  return {source:output,segments,names,fields,mode};
