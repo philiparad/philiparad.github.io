@@ -33,6 +33,11 @@ function translate(event,context={}){
  if(event.metaKey||event.altKey)return null;
  if(event.ctrlKey){
   const inside=target==='face'||target==='key-button';
+  // REA-073: Ctrl+Z is a web-only editing convenience when the calculator
+  // has focus. Never intercept the browser shortcut outside the calculator.
+  if(inside&&!event.shiftKey&&['z','Z'].includes(event.key)&&
+     context.screen==='edit'&&context.math!==false)
+   return {keys:['UNDO'],label:'Ctrl+Z',reference:'web-editor'};
   if(inside&&!event.shiftKey&&(event.key==='c'||event.key==='C'||event.key==='Insert')){
    return {keys:[],action:'capture',label:event.key,reference:'casio'};
   }
@@ -93,7 +98,8 @@ const MAPPING=Object.freeze({
  ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',
  '^':'POWER','(':'LP',')':'RP','+':'ADD','-':'SUB','*':'MUL','/':'DIV',
  '.':'DOT',',':'COMMA (calculator argument separator)',
- '0-9':'0-9','Ctrl+C / Ctrl+Insert':'Capture LCD (when calculator focused)'
+ '0-9':'0-9','Ctrl+C / Ctrl+Insert':'Capture LCD (when calculator focused)',
+ 'Ctrl+Z':'Undo recent structured edit (calculator focus only)'
 });
 const API=Object.freeze({translate,dispatch,mapping:MAPPING,getTarget});
 global.FreshKeyboard=API;
