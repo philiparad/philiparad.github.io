@@ -348,7 +348,15 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   write(detail.slice(-23),0,29);
   return pixels;
  }
- if(state.screen==='constant-code'&&state.constantCode){
+ if(state.screen==='conversion-code'&&state.conversionCode){
+  write('CONVERSION',0,0);
+  write('Number 01-40?',0,10);
+  const editor=state.conversionCode;
+  write((editor.buffer||'_')+(editor.buffer.length===1?'_':''),80,25);
+  if(editor.error)write(editor.error.slice(0,22),0,18);
+  return pixels;
+ }
+  if(state.screen==='constant-code'&&state.constantCode){
   write('CONSTANT',0,0);
   write('Number 01-40?',0,10);
   const editor=state.constantCode;
