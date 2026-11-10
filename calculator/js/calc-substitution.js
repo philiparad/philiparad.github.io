@@ -1,0 +1,125 @@
+/* REA-077: native-style CALC substitution session (independent web model).
+ * Detect all source variables, keep prompts in first-reference order, validate
+ * all substitutions before committing register memory, and retain expression
+ * for repeat CALC/= runs. No CASIO ROM, eval, or host side effects.
+ */
+(function(global){'use strict';
+const KNOWN=Object.freeze([
+ 'RanInt','PreAns','Ran','Ans','Conjg','conj','arg','sqrt','cbrt',
+ 'nthroot','abs','sin','cos','tan','asin','acos','atan','sinh','cosh',
+ 'tanh','asinh','acosh','atanh','log','ln','exp','floor','ceil',
+ 'round','rnd','intg','int','gcd','lcm','min','max','sign','pol',
+ 'rec','Prod','Sum','RPT','pi','nPr','nCr','i','e'
+].sort((a,b)=>b.length-a.length));
+const WORD=new RegExp('^(?:'+KNOWN.filter(x=>x.length>1).map(x=>x.replace(/[.*+?^$\u007b\u007d()|[\]\\]/g,'\\$&')).join('|')+')','i');
+function scan(source,available){
+ const allowed=new Set(available);
+ const all=new Set(['A','B','C','D','E','F','X','Y','M']);
+ const text=String(source).replace(/π/g,'pi');
+ const found=[],seen=new Set();
+ let i=0;
+ while(i<text.length){
+  const c=text[i];
+  if(/[0-9]/.test(c)){
+   const match=/^(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+\-]?\d+)?/.exec(text.slice(i));
+   if(match){i+=match[0].length;continue}
+  }
+  if(/[A-Za-z]/.test(c)){
+   const word=WORD.exec(text.slice(i));
+   if(word){i+=word[0].length;continue}
+   if(all.has(c)){
+    if(!allowed.has(c))throw Error('Variable ERROR: '+c);
+    if(!seen.has(c)){seen.add(c);found.push(c)}
+    i++;continue;
+   }
+   throw Error('Variable ERROR: '+c);
+  }
+  i++;
+ }
+ return found;
+}
+function statementParts(source){
+ const text=String(source);
+ let depth=0,start=0,items=[];
+ for(let i=0;i<text.length;i++){
+  if(text[i]==='(')depth++;
+  else if(text[i]===')')depth--;
+  else if(text[i]===':'&&depth===0){
+   items.push(text.slice(start,i).trim());start=i+1;
+  }
+  if(depth<0)throw Error('Syntax ERROR');
+ }
+ if(depth)throw Error('Syntax ERROR');
+ items.push(text.slice(start).trim());
+ if(items.some(s=>!s))throw Error('Syntax ERROR');
+ return items;
+}
+function equality(segment){
+ let depth=0,at=-1;
+ for(let i=0;i<segment.length;i++){
+  const c=segment[i];if(c==='(')depth++;else if(c===')')depth--;
+  if(c==='='&&depth===0){if(at!==-1)throw Error('Syntax ERROR');at=i}
+ }
+ if(at===-1)return {expression:segment,target:null};
+ const left=segment.slice(0,at).trim(),right=segment.slice(at+1).trim();
+ if(!/^[A-FMXY]$/.test(left)||!right)throw Error('Syntax ERROR');
+ return {expression:right,target:left};
+}
+function prepare(source,modelRegisters,mode='COMP',current={}){
+ if(!['COMP','CMPLX'].includes(mode))throw Error('Argument ERROR');
+ const parts=statementParts(source),segments=parts.map(equality);
+ const output=String(source);
+ if(!output.trim())throw Error('Syntax ERROR');
+ const names=scan(segments.map(x=>x.expression).join(':'),modelRegisters);
+ // For Y=X^2+3, Y is the output label and must not be prompted for.
+ const fields=names.map(name=>({id:name,label:name+'?',value:String(current[name]??0)}));
+ return {source:output,segments,names,fields,mode};
+}
+function evaluate(session,inputs,context){
+ const memory={...context.memory};
+ const complexMemory={...context.complexMemory};
+ const changes={};
+ // Compute all prompt values before any output evaluation. Invalid entries
+ // leave the real state untouched so users can correct a specific field.
+ for(const name of session.names){
+  if(!Object.prototype.hasOwnProperty.call(inputs,name))throw Error('Variable ERROR: '+name);
+  const raw=String(inputs[name]).trim();
+  if(!raw)throw Error('Syntax ERROR');
+  const current={...memory,...complexMemory};
+  const v=session.mode==='CMPLX'?
+   context.complex.evaluate(raw,{angle:context.angle,memory:current,ans:context.complexAns}):
+   context.math.evaluate(raw,{...context,ans:context.ans,preAns:context.preAns,memory});
+  if(session.mode==='COMP'&&(!Number.isFinite(v)||Math.abs(v)>9.999999999e99))throw Error('Math ERROR');
+  changes[name]=v;memory[name]=session.mode==='CMPLX'?v.re:v;
+  if(session.mode==='CMPLX')complexMemory[name]=v;
+ }
+ let result=null;
+ const output=[];
+ let answer=context.ans;
+ let complexAnswer=context.complexAns;
+ let formatOverride=null;
+ for(const segment of session.segments){
+  if(session.mode==='CMPLX'){
+   const parsed=context.complex.splitDisplayCommand(segment.expression);
+   result=context.complex.evaluate(parsed.expression,{
+    angle:context.angle,memory:{...memory,...complexMemory},ans:complexAnswer
+   });
+   complexAnswer=result;
+   formatOverride=parsed.format||formatOverride;
+   output.push(context.complex.format(result,context.angle,formatOverride||context.complexFormat));
+  }else{
+   result=context.math.evaluate(segment.expression,{
+    ...context,ans:answer,preAns:context.preAns,memory
+   });
+   if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)throw Error('Math ERROR');
+   answer=result;
+   output.push(String(result));
+  }
+ }
+ return {kind:'calc-substitution',value:result,changes,output,
+  source:session.source,mode:session.mode,formatOverride};
+}
+const api=Object.freeze({scan,statementParts,equality,prepare,evaluate});
+global.FreshCalcSubstitution=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
