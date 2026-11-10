@@ -260,6 +260,31 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   write((state.info||((field.choices||['op','operator','kind','variable'].includes(field.id))?'ARROWS CHOOSE  = OK':'= NEXT  AC BACK')).slice(0,23),0,25);
   return pixels;
  }
+ if(state.screen==='table-grid'&&state.tableData){
+  const t=state.tableData,cols=t.columns,dual=t.dual;
+  const positions=dual?[0,32,64]:[0,49],width=dual?7:11;
+  for(let c=0;c<cols.length;c++){
+   write(cols[c],positions[c],0);
+  }
+  // Two consecutive rows plus a synchronized full-value inspection line.
+  const top=Math.max(0,Math.min(t.rows.length-2,t.row-1));
+  for(let ri=top;ri<Math.min(t.rows.length,top+2);ri++){
+   const y=8+(ri-top)*8,row=t.rows[ri];
+   const values=[row.x,row.f,...(dual?[row.g]:[])];
+   for(let c=0;c<cols.length;c++){
+    const value=global.FreshTable.format(values[c]);
+    write(value.slice(-width),positions[c],y,positions[c]+width*4);
+    if(ri===t.row&&c===t.col){
+     const maxX=Math.min(W-1,positions[c]+Math.min(width,Math.max(1,value.length))*4-1);
+     for(let x=positions[c];x<=maxX;x++)pixel(x,y+6);
+    }
+   }
+  }
+  const value=global.FreshTable.format(global.FreshTable.active(t));
+  const prefix=(t.row+1)+'/'+t.rows.length+' '+['X','F','G'][t.col]+'=';
+  write((prefix+value).slice(-23),0,25);
+  return pixels;
+ }
  if(state.screen==='flow-result'){
   const lines=state.outputLines||[],page=state.outputPage||0;
   const pan=global.FreshViewport.scrollLine(lines,page,state.viewport?.flowX||0);
