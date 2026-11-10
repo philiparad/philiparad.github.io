@@ -120,6 +120,31 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(t.error)write(t.error.slice(-20),0,25);
   return pixels;
  }
+ if(state.screen==='eqn-coeff'&&state.eqnEditor){
+  const e=state.eqnEditor,cols=e.rows[0].length;
+  const gap=cols===4?21:27,offset=cols===4?11:12;
+  const names=e.rows[0].map(name=>name.charAt(0).toUpperCase());
+  const key=e.rows[e.row][e.col];
+  const value=e.editing?e.buffer:String(e.values[key]);
+  const heading=e.error?'ERR '+e.error:'EQN '+key+'='+value;
+  write(heading.slice(-23),0,0);
+  for(let c=0;c<cols;c++)write(names[c],offset+c*gap,6);
+  for(let r=0;r<e.rows.length;r++){
+   const y=12+r*7,activeRow=e.rows[r];
+   write(String(r+1),0,y);
+   for(let c=0;c<activeRow.length;c++){
+    const current=r===e.row&&c===e.col;
+    const text=current?value:String(e.values[activeRow[c]]);
+    const width=cols===4?4:5;
+    write(text.slice(-width),offset+c*gap,y,Math.min(W,offset+c*gap+width*4));
+    if(current){
+     const limit=Math.min(W-1,offset+c*gap+Math.max(1,Math.min(width,text.length))*4-1);
+     for(let xx=offset+c*gap;xx<=limit;xx++)pixel(xx,Math.min(H-1,y+6));
+    }
+   }
+  }
+  return pixels;
+ }
  if(state.screen==='eqn-result'&&state.eqnSession){
   const e=state.eqnSession,parts=e.solutions,count=parts.length;
   write('EQN '+e.type,0,0);
