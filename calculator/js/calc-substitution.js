@@ -25,9 +25,9 @@ function scan(source,available){
    if(match){i+=match[0].length;continue}
   }
   if(/[A-Za-z]/.test(c)){
-   if(c==='i'||c==='e'){i++;continue}
    const word=WORD.exec(text.slice(i));
    if(word){i+=word[0].length;continue}
+   if(c==='i'||c==='e'){i++;continue}
    if(all.has(c)){
     if(!allowed.has(c))throw Error('Variable ERROR: '+c);
     if(!seen.has(c)){seen.add(c);found.push(c)}
