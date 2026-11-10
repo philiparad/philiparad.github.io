@@ -100,11 +100,38 @@ References: [CASIO fx-991ES PLUS guide](https://support.casio.com/storage/en/man
 - Examples: BIN `11+1` → `0000000000000100`; HEX `1F+1` → `00000020`; OCT `7+1` → `00000000010`. Decimal `-1` converts to HEX `FFFFFFFF`, OCT `37777777777`, and BIN `1111111111111111`. Divisions discard any fractional part toward zero.
 - The signed ranges are currently identical for the supported fx-991ES, fx-991ES PLUS and PLUS C profiles; model-specific tables are kept separate in `js/base-n.js` for future variants.
 
-**Scope boundary:** BASE-N bitwise operators AND, OR, XOR, XNOR, Not and Neg are reserved for **REA-050**. This task focuses on numeral input, arithmetic, base switching, integer ranges and signed representations. Unlike physical calculator memory, the browser session does not persist across a page reload.
+**Scope boundary (REA-049):** radix entry, signed representations and conversion were implemented here. Logical operators and two's-complement functions were subsequently added in REA-050. Unlike physical calculator memory, the browser session does not persist across a page reload.
 
 **Verification:** 18 direct engine tests and 14 controller/LCD key-sequence checks passed during development, covering radix selection, signed binary and octal values, HEX letter entry, width padding, decimal minimum, invalid digits, overflow, conversion and reset. Additional permanent built-in regression cases are included. These are simulator checks rather than a full real-device or deployed-browser parity test.
 
 Reference: [CASIO fx-570ES PLUS / fx-991ES PLUS manual, BASE-N section](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/base-n_calculations.html).
+
+## BASE-N logical operations and negation (REA-050)
+
+In BASE-N, press **SHIFT → 3 (BASE)** to open the physical calculator's six-choice logical-operation menu:
+
+1. **and** — bitwise AND
+2. **or** — bitwise OR
+3. **xor** — exclusive OR
+4. **xnor** — exclusive NOR (complement of XOR)
+5. **Not(** — bitwise complement of the operand
+6. **Neg(** — arithmetic two's-complement negation
+
+Choose an operation from the calculator menu. For binary operators, enter the second operand and press `=`. For the unary functions, enter the operand and close the parenthesis before `=`. Choosing a binary operator immediately after a displayed result uses that result as the first operand. The menu operates in the currently selected **DEC**, **HEX**, **BIN** or **OCT** radix, and respects the corresponding 32-bit or 16-bit signed integer width.
+
+Using **BIN**:
+- `1010 and 1100` → `0000000000001000`
+- `1011 or 11010` → `0000000000011011`
+- `1010 xor 1100` → `0000000000000110`
+- `1111 xnor 101` → `1111111111110101`
+- `Not(1010)` → `1111111111110101`
+- `Neg(101101)` → `1111111111010011`
+
+Logical values use explicitly masked **BigInt** words so negative complements and two's-complement negation do not silently overflow or truncate through JavaScript Number bitwise arithmetic. The expression evaluator supports parentheses and nested `Not(...)`/`Neg(...)` calls. For combinations of operators that the original manual does not explicitly specify, the simulator defines precedence as: multiplication/division, addition/subtraction, AND, XOR/XNOR, then OR. Use parentheses to make combined operations unambiguous.
+
+**Verification:** 17 standalone engine assertions, 12 calculator-controller key-sequence checks, and 19 built-in BASE-N checks passed. The six manual examples were covered. Full deployed-browser and physical-calculator parity checks have not been run; the implementation is an independently written simulation.
+
+Manual reference: [CASIO fx-570ES PLUS / fx-991ES PLUS user's guide, Logical and Negation Operations, page E-27](https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-570ESPLUS_991ESPLUS_EN.pdf).
 
 ## Files
 
