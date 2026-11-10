@@ -18,6 +18,8 @@ const FONT={
 // display-navigation symbols. Native glyph bitmaps are still unmeasured.
 Object.assign(FONT,{
  'θ':['010','101','111','101','010'],
+ '∠':['001','001','111','000','000'],
+ '►':['100','110','111','110','100'],
  'α':['000','011','101','101','011'],
  'β':['110','101','110','101','110'],
  'Σ':['111','100','010','100','111'],
@@ -41,7 +43,7 @@ Object.assign(FONT,{
  '×':['101','101','010','101','101'],
  '·':['000','000','010','000','000']
 });
-const MATH_GLYPHS=Object.freeze(['θ','α','β','Σ','∑','∫','∞','≠','≤','≥','≈','′','″','▸','◂','▷','◁','√','×','·']);
+const MATH_GLYPHS=Object.freeze(['θ','∠','►','α','β','Σ','∑','∫','∞','≠','≤','≥','≈','′','″','▸','◂','▷','◁','√','×','·']);
 function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
  const glyph=(c,x,y)=>{const f=FONT[c]||FONT[c.toUpperCase()]||FONT['?'];for(let j=0;j<5;j++)for(let i=0;i<3;i++)if(f[j][i]==='1')pixel(x+i,y+j)};
  const write=(text,x,y,limit=W)=>{for(const c of String(text)){if(x+3>limit)break;glyph(c,x,y);x+=4}};
@@ -64,7 +66,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const firstY=size>=10?6:size>=8?6:8;
   for(let i=0;i<Math.min(size,a.length);i++){
    const x=i%2?48:0,y=firstY+lineHeight*Math.floor(i/2);
-   const name=String(a[i].label).replace(/^\d+\.\s*/, '').replace(/[^A-Za-z0-9 +*/-]/g,'').slice(0,9);
+   const name=String(a[i].label).replace(/^\d+\.\s*/, '').replace(/[^A-Za-z0-9 +*/∠θ►-]/g,'').slice(0,9);
    write(String(a[i].number)+':'+name,x,y,x+48);
   }
   if((state.menuPage+1)*size<state.menuEntries.length)write('>',91,0);
@@ -227,7 +229,16 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    if(start+23<input.length)glyph('>',91,15);
   }
   const result=String(state.result||'0');
-  if(!drawTypedResult(state.resultPresentation)){
+  if(state.mode==='CMPLX'&&!state.math&&
+      Array.isArray(state.complexResultLines)&&state.complexResultLines.length===2){
+    // LineIO displays rectangular real/imaginary or polar radius/angle as two lines.
+    const parts=state.complexResultLines;
+    write(parts[0].slice(0,23),0,17);
+    write(parts[1].slice(0,23),0,25);
+    if(parts[0].length>23||parts[1].length>23)glyph('>',91,24);
+    return pixels;
+   }
+   if(!drawTypedResult(state.resultPresentation)){
    if(result.length>23){
     const start=Math.max(0,Math.min(view.resultX||0,result.length-23));
     write(result.slice(start,start+23),0,25);
