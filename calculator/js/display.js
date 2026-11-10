@@ -120,6 +120,15 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(t.error)write(t.error.slice(-20),0,25);
   return pixels;
  }
+ if(state.mode==='MATRIX'&&state.screen==='matrix-parameter'&&state.matrixParameter){
+  const p=state.matrixParameter;
+  write('MATRIX '+p.operator,0,0);
+  write(p.name+' '+(p.operator==='power'?'exponent':'scalar'),0,10);
+  const value=String(p.buffer);
+  write(value.slice(-22),Math.max(0,W-Math.min(22,value.length)*4),25);
+  if(p.error)write(p.error.slice(-20),0,17);
+  return pixels;
+ }
  if(state.mode==='MATRIX'&&['matrix-table','matrix-result','matrix-scalar'].includes(state.screen)){
   if(state.screen==='matrix-scalar'){
    write('MATRIX det',0,0);
