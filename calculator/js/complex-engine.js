@@ -40,6 +40,37 @@ function power(a,b){
  const angle=b.re*theta+b.im*Math.log(radius);
  return complex(scale*Math.cos(angle),scale*Math.sin(angle));
 }
+function polar(radius,angle,unit='DEG'){
+ if(radius.im!==0||angle.im!==0)fault('Math ERROR');
+ if(radius.re<0)fault('Math ERROR');
+ const theta=radians(angle.re,unit);
+ // Avoid retaining sine/cosine floating-point noise on axis-aligned angles.
+ const re=radius.re*Math.cos(theta),im=radius.re*Math.sin(theta);
+ const clean=n=>Math.abs(n)<1e-13*Math.max(1,radius.re)?0:n;
+ return complex(clean(re),clean(im));
+}
+function normalizedAngle(re,im,unit='DEG'){
+ if(re===0&&im===0)return 0;
+ let angle=degrees(Math.atan2(im,re),unit);
+ const half=unit==='RAD'?Math.PI:unit==='GRAD'?200:180;
+ const full=half*2;
+ if(angle<=-half)angle+=full;
+ if(angle>half)angle-=full;
+ if(Math.abs(angle)<1e-12)return 0;
+ return angle;
+}
+// Explicit format commands are legal only at the end of an expression.
+function splitDisplayCommand(source){
+ const text=String(source).trim();
+ const match=/(?:►|▶|→)\s*(r∠θ|a\+bi)\s*$/i.exec(text);
+ if(!match){
+  if(/[►▶→]/.test(text))fault('Syntax ERROR');
+  return {expression:text,format:null};
+ }
+ const expression=text.slice(0,match.index).trim();
+ if(!expression||/[►▶→]/.test(expression))fault('Syntax ERROR');
+ return {expression,format:match[1].toLowerCase()==='a+bi'?'rectangular':'polar'};
+}
 function radians(angle,unit){return unit==='RAD'?angle:unit==='GRAD'?angle*Math.PI/200:angle*Math.PI/180}
 function degrees(angle,unit){return unit==='RAD'?angle:unit==='GRAD'?angle*200/Math.PI:angle*180/Math.PI}
 function call(name,args,unit){
@@ -48,7 +79,7 @@ function call(name,args,unit){
  switch(name.toLowerCase()){
   case 'conj':case 'conjg':return complex(z.re,-z.im);
   case 'abs':return complex(Math.hypot(z.re,z.im));
-  case 'arg':if(z.re===0&&z.im===0)fault();return complex(degrees(Math.atan2(z.im,z.re),unit));
+  case 'arg':if(z.re===0&&z.im===0)fault();return complex(normalizedAngle(z.re,z.im,unit));
   case 're':case 'real':return complex(z.re);
   case 'im':case 'imag':return complex(z.im);
   case 'sqrt':return power(z,complex(.5));
@@ -65,14 +96,15 @@ function tokenize(source){
   const id=/^[A-Za-z][A-Za-z0-9]*/.exec(fragment);
   if(num){tokens.push({kind:'number',text:num[0]});pos+=num[0].length;continue}
   if(id){tokens.push({kind:'id',text:id[0]});pos+=id[0].length;continue}
-  if('+-*/^(),'.includes(text[pos])){tokens.push({kind:'op',text:text[pos++]});continue}
+  if('+-*/^(),∠'.includes(text[pos])){tokens.push({kind:'op',text:text[pos++]});continue}
   fault('Syntax ERROR');
  }
  if(tokens.length>240)fault('Syntax ERROR');
  return tokens;
 }
 function evaluate(expression,options={}){
- const tokens=tokenize(expression),unit=options.angle||'DEG';
+ const {expression:body}=splitDisplayCommand(expression);
+ const tokens=tokenize(body),unit=options.angle||'DEG';
  const memory=options.memory||{};
  const vars={pi:complex(Math.PI),e:complex(Math.E),i:complex(0,1),
   Ans:value(options.ans??0),PreAns:value(options.preAns??0)};
@@ -105,12 +137,12 @@ function evaluate(expression,options={}){
    if(t===')'||t===',')break;
    const implicit=token.kind==='number'||token.kind==='id'||t==='(';
    const op=implicit?'*':t;
-   const binding=op==='^'?30:op==='*'||op==='/'?20:op==='+'||op==='-'?10:-1;
+   const binding=op==='^'?30:op==='∠'?22:op==='*'||op==='/'?20:op==='+'||op==='-'?10:-1;
    if(binding<min)break;
    if(!implicit)consume();
    const right=parse(op==='^'?binding:binding+1);
    left=op==='+'?add(left,right):op==='-'?sub(left,right):
-    op==='*'?mul(left,right):op==='/'?div(left,right):power(left,right);
+    op==='*'?mul(left,right):op==='/'?div(left,right):op==='∠'?polar(left,right,unit):power(left,right);
   }
   return left;
  }
@@ -119,15 +151,21 @@ function evaluate(expression,options={}){
  if(at!==tokens.length)fault('Syntax ERROR');
  return value(answer);
 }
+function components(z,unit='DEG',style='rectangular'){
+ z=value(z);
+ const f=n=>String(Number(n.toPrecision(12)));
+ if(style==='polar')return [f(Math.hypot(z.re,z.im)),f(normalizedAngle(z.re,z.im,unit))];
+ return [f(z.re),f(z.im)+'i'];
+}
 function format(z,unit='DEG',style='rectangular'){
  z=value(z);
  const f=n=>String(Number(n.toPrecision(12)));
- if(style==='polar')return f(Math.hypot(z.re,z.im))+'∠'+f(degrees(Math.atan2(z.im,z.re),unit));
+ if(style==='polar')return f(Math.hypot(z.re,z.im))+'∠'+f(normalizedAngle(z.re,z.im,unit));
  if(z.im===0)return f(z.re);
  if(z.re===0)return (z.im<0?'-':'')+(Math.abs(z.im)===1?'':f(Math.abs(z.im)))+'i';
  return f(z.re)+(z.im<0?'-':'+')+(Math.abs(z.im)===1?'':f(Math.abs(z.im)))+'i';
 }
-const API=Object.freeze({complex,value,add,sub,mul,div,power,evaluate,format,radians});
+const API=Object.freeze({complex,value,add,sub,mul,div,power,polar,normalizedAngle,splitDisplayCommand,components,evaluate,format,radians});
 global.FreshComplex=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
