@@ -211,6 +211,10 @@ function evaluateSegment(source){
  }
  const value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
   exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+ // A radical expression may cancel to an exact rational, even though the
+ // rational-only parser cannot parse sqrt(...). Retain exact provenance.
+ if(!exactRational&&window.FreshExactSymbolic&&state.mode==='COMP')
+  exactRational=window.FreshExactSymbolic.rational(expression,value);
  // Native Natural Display presents a standalone Ran# as a fraction
  // representing one of the 1000 possible three-digit outcomes.
  if(/^Ran#$/i.test(source.trim())&&!exactRational){
