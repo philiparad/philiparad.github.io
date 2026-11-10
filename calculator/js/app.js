@@ -2102,8 +2102,8 @@ function press(key){
 function handle(key){
  if(state.screen==='calculating'){
   if(key==='AC'||key==='MODE'||key==='ON'){
-   cancelNumeric();state.flow=null;state.screen='edit';state.info='';
-   releaseModifier();
+   cancelNumeric();state.flow=null;state.solveSession=null;
+   state.screen='edit';state.info='';releaseModifier();
    if(key==='MODE')modeMenu();
    else if(key==='ON')powerOn();
    else{notify('Calculation cancelled');paint()}
