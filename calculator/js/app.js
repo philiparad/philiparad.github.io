@@ -1975,6 +1975,14 @@ function handle(key){
  }
  if(key==='ON'){powerOn();return}
  if(!state.power)return;
+ // REA-073: scoped browser Ctrl+Z. No invented physical CASIO key.
+ if(key==='UNDO'){
+  if(state.screen==='edit'&&STRUCT.undo(state.editor)){
+   clearReplay();syncEditor();releaseModifier();
+   notify('Last textbook edit undone');paint();
+  }else{notify('Nothing to undo');paint()}
+  return;
+ }
  if(state.screen==='error'){
   if(key==='LEFT'||key==='RIGHT'){
    const target=Number.isInteger(state.errorOffset)?state.errorOffset:state.input.length;
