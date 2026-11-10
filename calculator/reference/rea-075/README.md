@@ -14,6 +14,7 @@ Both guides document internal 15-digit calculations, ten-digit display accuracy 
 - `js/number-format.js`: Scientific 1–10-digit display rounding no longer produces an impossible exponent of `100` when the numeric value itself is still within the documented range. The fallback retains the ten-digit in-range mantissa, and avoids inventing an out-of-range result.
 - `js/number-format.js`: Fix0–9 counts all displayed decimal mantissa digits, including requested trailing places, and uses ten-digit scientific fallback if the fixed representation cannot fit. This addresses former outputs such as `10000000000.00` and `9999999999.90`.
 - `js/decimal-core.js`: The independent 15-significant-digit arithmetic path now maps nonzero results below the documented `10^-99` range to zero rather than returning a nonzero out-of-range number. This is a **chosen underflow emulation policy** and not a device-confirmed native transition.
+- `js/app.js`: the exact-rational calculation fast path now applies the same under-range floor, preventing source expressions such as `1e-100` from bypassing this web policy. Out-of-range exact numerator/denominator metadata is dropped when the underflow value is normalized to zero.
 - Existing 15-digit decimal rounding, sign normalization, Norm1 threshold `0.01`, Norm2 threshold `1e-9`, and Fix/Sci setup navigation are retained and regression-checked.
 - Exact rational/surd/π result handling is unchanged; this task concerns **decimal** representations only.
 
@@ -42,7 +43,7 @@ node tests/rea075-precision.cjs
 python reference/rea-075/test_precision_browser.py
 ```
 
-The Node source suite passed **74 checks** in a JavaScript execution harness (all Fix0–9 and Sci1–10 choices, Norm thresholds, half-up ties, carry/negative zero, 15-digit decimal arithmetic, plus upper/lower range boundaries for all three model menus).
+The Node source suite passed **75 checks** in a JavaScript execution harness (all Fix0–9 and Sci1–10 choices, Norm thresholds, half-up ties, carry/negative zero, 15-digit decimal arithmetic, plus upper/lower range boundaries for all three model menus).
 
 The browser suite covers physical web MODE/SETUP number-key sequences, Fix/Sci/Norm values, transitions back to MathIO, domain errors and AC cancellation for all three model profiles. It is committed but **not executed** during this source-only GitHub connector session.
 
