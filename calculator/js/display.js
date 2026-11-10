@@ -51,6 +51,25 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  // Status annunciators are a separate accurately sized HTML overlay.
 
  if(!state.power){return pixels}
+ if(state.mode==='BASE-N'&&['edit','result'].includes(state.screen)){
+  // REA-049: Casio-like radix annunciator and padded 16/32-bit result.
+  const base=state.baseRadix||'DEC';
+  const title=base==='HEX'?'Hex':base==='BIN'?'Bin':base==='OCT'?'Oct':'Dec';
+  write(title,0,0);
+  const input=String(state.input||'');
+  if(state.screen==='edit'){
+   const start=Math.max(0,input.length-23);
+   write(input.slice(start),0,10);
+   if(start>0)glyph('<',0,17);
+   const blank=base==='DEC'?'0':base==='BIN'?'0000000000000000':base==='HEX'?'00000000':'00000000000';
+   if(!input)write(blank,Math.max(0,W-blank.length*4),25);
+  }else{
+   write(input.slice(-23),0,10);
+   const result=String(state.result||'0');
+   write(result.slice(-23),Math.max(0,W-Math.min(result.length,23)*4),25);
+  }
+  return pixels;
+ }
  if(state.screen==='contrast'){
   write('CONTRAST',28,1);
   write('LIGHT <',0,13);
