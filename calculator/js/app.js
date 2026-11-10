@@ -391,7 +391,7 @@ function flowNext(){
   if(output&&typeof output.then==='function'){
    state.screen='calculating';state.info='';
    notify('Calculating… AC cancels; MODE changes mode');paint();
-   output.then(value=>{if(state.flow===f&&state.screen==='calculating')finishFlow(value)})
+   output.then(value=>{if(state.flow===f)finishFlow(value)})
     .catch(e=>{
      if(state.flow!==f||state.screen!=='calculating')return;
      state.screen='prompt';state.info=String(e.message||'Math ERROR').slice(0,23);
