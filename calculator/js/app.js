@@ -6,7 +6,7 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -16,6 +16,7 @@ if(!EQN)throw Error('Missing EQN solving engine');
 if(!INEQ)throw Error('Missing INEQ interval solver');
 if(!INEQDISPLAY)throw Error('Missing INEQ result display module');
 if(!VERIFY)throw Error('Missing chained VERIFY module');
+if(!DIST)throw Error('Missing seven-type DIST calculation module');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!MATRIX)throw Error('Missing MATRIX registers module');
@@ -32,7 +33,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -259,7 +260,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -687,7 +688,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
- state.tableData=null;state.tableDraft=null;
+ state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;
  state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
@@ -1515,6 +1516,40 @@ function verifyRelationMenu(){
   action:()=>verifyInsertRelation(operator)
  })),{pageSize:6,kind:'verify-relations'});
 }
+// REA-061 — seven scalar DIST types in the documented CASIO order.
+function distMenu(){
+ optionDialog('DIST type',DIST.TYPES.map((spec,i)=>({
+  label:(i+1)+'. '+spec.label,action:()=>distStart(spec.id)
+ })),{pageSize:4,kind:'dist-type'});
+}
+function distStart(type,previous=null){
+ const spec=DIST.TYPES.find(item=>item.id===type);if(!spec)throw Error('Argument ERROR');
+ state.distType=type;
+ const restored=previous||{};
+ fieldForm('DIST '+spec.label,spec.params.map((param,i)=>({
+  id:param,label:({x:'x',sigma:'σ',mu:'μ',lower:'Lower',upper:'Upper',area:'Area',n:'N',p:'p'}[param]),
+  value:restored[param]??spec.defaults[i]
+ })),data=>{
+  // Expressions are evaluated using the same calculator arithmetic settings,
+  // then checked by the distribution engine for the selected type/domain.
+  const values={};
+  for(const param of spec.params){
+   if(!String(data[param]??'').trim())throw Error('Argument ERROR');
+   values[param]=M.evaluate(String(data[param]),{...state,math:false,memory:{...state.memory},ans:state.ans});
+  }
+  const result=DIST.calculate(type,values);
+  // No side effects until the full computation has succeeded.
+  state.distDraft={type,values:{...data}};
+  applyAdvancedResult(result,'DIST '+spec.label);
+  return M.format(result,{...state,math:false});
+ });
+}
+function distFlowHandle(key){
+ if(key==='MODE'){modeMenu();return true}
+ if(key==='SHIFT'){state.shift=!state.shift;paint();return true}
+ if(state.shift&&key==='1'){releaseModifier();distMenu();return true}
+ return false;
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
@@ -1525,13 +1560,7 @@ function advancedMode(mode){
   if(mode==='TABLE')return tableStart();
   if(mode==='INEQ')return ineqTypeMenu();
   if(mode==='VERIF')return verifyStart();
-  if(mode==='DIST')return fieldForm('DIST — normal / binomial distribution',[{id:'kind',label:'Normal CDF, Normal PDF, Binomial PDF, Binomial CDF',value:'Normal CDF'},{id:'x',label:'X',value:'1'},{id:'a',label:'μ (normal) or n (binomial)',value:'0'},{id:'b',label:'σ (normal) or p (binomial)',value:'1'}],d=>{
-  const x=+d.x,a=+d.a,b=+d.b;let ans;if(d.kind==='Normal CDF')ans=normalCDF(x,a,b);
-  else if(d.kind==='Normal PDF')ans=Math.exp(-.5*((x-a)/b)**2)/(b*Math.sqrt(2*Math.PI));
-  else if(d.kind==='Binomial PDF')ans=M.combination(a,x)*b**x*(1-b)**(a-x);
-  else if(d.kind==='Binomial CDF'){ans=0;for(let i=0;i<=x;i++)ans+=M.combination(a,i)*b**i*(1-b)**(a-i)}
-  else throw Error('Invalid distribution');applyAdvancedResult(ans,'DIST');return M.format(ans,{...state,math:false})
- });
+  if(mode==='DIST')return distMenu();
 }
 function alphaKey(key){
  if(key==='INTEGRAL')return insert('Prod(');
@@ -1766,8 +1795,15 @@ function handle(key){
  if(state.screen==='eqn-coeff'){eqnCoeffHandle(key);return}
  if(state.mode==='BASE-N'){baseHandle(key);return}
  if(state.screen==='stat-table'){statTableHandle(key);return}
+ if(state.mode==='DIST'&&state.screen==='prompt'&&distFlowHandle(key))return;
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
+  if(state.mode==='DIST'){
+   if(key==='MODE'){modeMenu();return}
+   if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+   if(state.shift&&key==='1'){releaseModifier();distMenu();return}
+   if((key==='EQUAL'||key==='AC')&&state.distDraft){distStart(state.distDraft.type,state.distDraft.values);return}
+  }
   if(state.mode==='STAT'&&state.statTable&&key==='SHIFT'){state.shift=!state.shift;paint();return}
   if(state.mode==='STAT'&&state.statTable&&state.shift&&key==='1'){statMenu();return}
   if(key==='UP'||key==='DOWN'){
