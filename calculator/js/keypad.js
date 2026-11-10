@@ -93,6 +93,26 @@ function applyModel(root,model){
  }
  root.dataset.model=model;
 }
+// REA-081: a visible native legend is not an always-active shortcut.
+// Keep physical keys clickable so an unavailable action can explain itself.
+function applyContext(root,state,policy,profiles){
+ if(!root||!policy||!profiles)return;
+ const modifier=state.shift?'SHIFT':state.alpha?'ALPHA':'normal';
+ const model=state.model,keys=keysForModel(model);
+ for(const key of keys){
+  const wrap=[...root.querySelectorAll('.key-unit')].find(el=>el.querySelector('button')?.dataset.key===key.id);
+  if(!wrap)continue;
+  const action=policy.classify(key,modifier,state.mode,state.screen,model,profiles.supports);
+  const unavailable=action.status==='blocked'||action.status==='unlabelled';
+  wrap.classList.toggle('legend-unavailable',unavailable);
+  wrap.dataset.legendStatus=action.status;
+  const button=wrap.querySelector('button');
+  if(!button)continue;
+  button.setAttribute('aria-description',unavailable?
+   modifier+' unavailable: '+action.reason:
+   modifier+' '+(action.legend||key.label)+': '+action.reason);
+ }
+}
 function mount(root,handler,model='fx-991es-plus-c'){
  if(!root)return;
  root.textContent='';const fragment=document.createDocumentFragment();
@@ -109,6 +129,6 @@ function mount(root,handler,model='fx-991es-plus-c'){
  root.append(fragment);root.dataset.model=model;
 }
 
-const API=Object.freeze({keys,mount,applyModel,keysForModel,MODEL_LEGENDS,topSpec,scienceSpec,numericSpec});global.FreshKeypad=API;
+const API=Object.freeze({keys,mount,applyModel,keysForModel,applyContext,MODEL_LEGENDS,topSpec,scienceSpec,numericSpec});global.FreshKeypad=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
