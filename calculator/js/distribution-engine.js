@@ -17,22 +17,30 @@ function sigma(s){if(s<=0)fail('Argument ERROR');return s}
 function clamp(p){return Math.max(0,Math.min(1,p))}
 const GAUSS=Math.sqrt(2*Math.PI);
 function normalPDF(x,s,mu){const z=(x-mu)/sigma(s);return Math.exp(-z*z/2)/(s*GAUSS)}
+function normalTail(z){
+ // Integrate the positive Gaussian tail directly to avoid cancellation
+ // (0.5 - integral) at z >= 8. The omitted part beyond z+12 is tiny.
+ if(z>=40)return 0;
+ const pdf=t=>Math.exp(-t*t/2)/GAUSS,end=z+12;
+ function simp(a,b,fa,fm,fb){return (b-a)*(fa+4*fm+fb)/6}
+ function integrate(a,b,fa,fm,fb,whole,tol,depth){
+  const mid=(a+b)/2,leftMid=(a+mid)/2,rightMid=(mid+b)/2;
+  const f1=pdf(leftMid),f2=pdf(rightMid);
+  const first=simp(a,mid,fa,f1,fm),second=simp(mid,b,fm,f2,fb);
+  if(depth===0||Math.abs(first+second-whole)<=15*tol)
+   return first+second+(first+second-whole)/15;
+  return integrate(a,mid,fa,f1,fm,first,tol/2,depth-1)+
+    integrate(mid,b,fm,f2,fb,second,tol/2,depth-1);
+ }
+ const fa=pdf(z),fb=pdf(end),fm=pdf((z+end)/2);
+ return integrate(z,end,fa,fm,fb,simp(z,end,fa,fm,fb),
+   Math.max(1e-300,fa*1e-13),26);
+}
 function normalCDF(x,s=1,mu=0){
  const z=(x-mu)/sigma(s);
- if(z<=-12)return 0;if(z>=12)return 1;if(z===0)return .5;
- // Adaptive Simpson integration of the standard normal density, absolute
- // tolerance < 1e-13. Symmetry gives stable near-zero results.
- const end=Math.abs(z),pdf=t=>Math.exp(-t*t/2)/GAUSS;
- function simpson(a,b,fa,fm,fb){return(b-a)*(fa+4*fm+fb)/6}
- function integrate(a,b,fa,fm,fb,whole,eps,depth){
-  const m=(a+b)/2,l=(a+m)/2,r=(m+b)/2,fl=pdf(l),fr=pdf(r);
-  const left=simpson(a,m,fa,fl,fm),right=simpson(m,b,fm,fr,fb);
-  if(depth===0||Math.abs(left+right-whole)<=15*eps)return left+right+(left+right-whole)/15;
-  return integrate(a,m,fa,fl,fm,left,eps/2,depth-1)+integrate(m,b,fm,fr,fb,right,eps/2,depth-1);
- }
- const fa=pdf(0),fm=pdf(end/2),fb=pdf(end);
- const area=integrate(0,end,fa,fm,fb,simpson(0,end,fa,fm,fb),2e-14,21);
- return clamp(z<0?.5-area:.5+area);
+ if(!Number.isFinite(z))return z<0?0:1;
+ const tail=normalTail(Math.abs(z));
+ return clamp(z<0?tail:1-tail);
 }
 function normalCD(lower,upper,s,mu){
  sigma(s);if(lower>upper)fail('Argument ERROR');if(lower===upper)return 0;
@@ -41,7 +49,7 @@ function normalCD(lower,upper,s,mu){
 function inverseNormal(area,s,mu){
  probability(area);sigma(s);if(area===0||area===1)fail('Math ERROR');
  // Monotone bracketed solve, avoiding unstable Newton derivatives in tails.
- let low=-12,high=12;
+ let low=-40,high=40;
  for(let i=0;i<62;i++){
   const mid=(low+high)/2;
   if(normalCDF(mid)<area)low=mid;else high=mid;
@@ -71,11 +79,11 @@ function binomialCD(x,n,p){
  // Sum from the cheaper tail with ratios, stopping when terms underflow.
  if(x<n*p){
   let term=binomialPD(x,n,p),total=term;
-  for(let k=x;k>0;k--){term*=k/(n-k+1)*(1-p)/p;total+=term;if(term===0)break}
+  for(let k=x,steps=0;k>0;k--){if(++steps>100000)fail('Time Out Error');term*=k/(n-k+1)*(1-p)/p;total+=term;if(term===0)break}
   return clamp(total);
  }
  let term=binomialPD(x+1,n,p),tail=term;
- for(let k=x+1;k<n;k++){term*=(n-k)/(k+1)*p/(1-p);tail+=term;if(term===0)break}
+ for(let k=x+1,steps=0;k<n;k++){if(++steps>100000)fail('Time Out Error');term*=(n-k)/(k+1)*p/(1-p);tail+=term;if(term===0)break}
  return clamp(1-tail);
 }
 function poissonPD(x,mu){
@@ -86,11 +94,12 @@ function poissonCD(x,mu){
  integer(x);if(mu<0)fail('Argument ERROR');if(mu===0)return 1;
  if(x<mu){
   let term=poissonPD(x,mu),sum=term;
-  for(let k=x;k>0;k--){term*=k/mu;sum+=term;if(term===0)break}
+  for(let k=x,steps=0;k>0;k--){if(++steps>100000)fail('Time Out Error');term*=k/mu;sum+=term;if(term===0)break}
   return clamp(sum);
  }
  let term=poissonPD(x+1,mu),tail=term;
- for(let k=x+1;k<Math.max(x+30,mu+1000);k++){
+ for(let k=x+1,steps=0;k<Math.max(x+30,mu+1000);k++){
+  if(++steps>100000)fail('Time Out Error');
   term*=mu/(k+1);tail+=term;
   if(term===0||term<1e-16*Math.max(tail,1e-100))break;
  }
