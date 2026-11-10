@@ -84,7 +84,9 @@ function format(value,settings={}){
   else{
    const fixed=fix(value,digit);
    const integerDigits=fixed.split('.')[0].replace('-','').length;
-   text=integerDigits>10?sci(value,10):fixed;
+   // Count digits on both sides of the decimal point. A wide fixed
+   // result must fall back to a bounded exponential representation.
+   text=integerDigits+digit>10?sci(value,10):fixed;
   }
  }else if(kind==='Sci'){
   text=sci(value,digit===0?10:digit);
