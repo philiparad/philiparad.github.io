@@ -125,6 +125,53 @@ function template(editor,type,overwrite=false){
  const initial=type==='fraction'&&node.parts.numerator.length?'denominator':fields[0];
  setPosition(editor,[...parent,{index:position,field:initial}],0);
 }
+// REA-073: MathIO INS incorporates the complete operand to the right
+// of the caret into a function. Original CASIO feature, source-modelled.
+function captureFollowingEnd(seq,start){
+ if(start>=seq.length)return start;
+ const first=seq[start];
+ if(first.type!=='char'){
+  let end=start+1;
+  while(end<seq.length&&seq[end].type==='power')end++;
+  return end;
+ }
+ let end=start;
+ if(first.value==='('){
+  let depth=0;
+  for(let i=start;i<seq.length;i++){
+   const node=seq[i];if(node.type!=='char')continue;
+   if(node.value==='(')depth++;
+   if(node.value===')'){
+    depth--;
+    if(depth===0){end=i+1;break}
+   }
+  }
+ }else if(/[0-9.]/.test(first.value)){
+  while(end<seq.length&&seq[end].type==='char'&&/[0-9.]/.test(seq[end].value))end++;
+ }else if(/[A-Za-z]/.test(first.value)){
+  while(end<seq.length&&seq[end].type==='char'&&/[A-Za-z]/.test(seq[end].value))end++;
+ }
+ if(end>start)while(end<seq.length&&seq[end].type==='power')end++;
+ return end;
+}
+function incorporate(editor,type){
+ const targets={fraction:'numerator',squareRoot:'radicand',
+  cubeRoot:'radicand',nthRoot:'radicand',logBase:'argument'};
+ const target=targets[type];
+ if(!target)return false;
+ const seq=locate(editor),start=editor.offset,end=captureFollowingEnd(seq,start);
+ if(end===start)return false;
+ const fields=FIELDS[type];
+ snapshot(editor);
+ const nodes=seq.splice(start,end-start);
+ const templateNode={type,parts:Object.fromEntries(fields.map(field=>[field,[]]))};
+ templateNode.parts[target]=nodes;
+ seq.splice(start,0,templateNode);
+ const next=type==='fraction'?'denominator':
+  type==='nthRoot'?'index':type==='logBase'?'base':target;
+ setPosition(editor,[...editor.path,{index:start,field:next}],0);
+ return true;
+}
 function moveField(editor,direction){
  const path=editor.path;
  if(!path.length)return false;
@@ -238,7 +285,7 @@ function cursor(editor){return {path:editor.path.map(x=>({...x})),offset:editor.
 function fieldText(editor){return locate(editor).map(node=>nodeText(node,false)).join('')}
 function isComplete(editor){try{serialize(editor,true);return true}catch{return false}}
 const api=Object.freeze({create,fromString,serialize,insert,template,navigate,backspace,cursor,fieldText,isComplete,
- undo,types:Object.freeze(Object.keys(FIELDS))});
+ undo,incorporate,types:Object.freeze(Object.keys(FIELDS))});
 global.FreshStructured=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
