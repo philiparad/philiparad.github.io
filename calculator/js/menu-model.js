@@ -44,12 +44,34 @@ function navigate(index,key,count,size){
  return index;
 }
 function displayTitle(kind,title){
- return RULES[kind]?.title||String(title||'MENU').replace(/[^A-Za-z0-9 +/ -]/g,'').slice(0,15);
+ const name=String(title||'MENU');
+ if(kind==='setup'&&name!=='SETUP')
+  return name.replace(/^SETUP\s*/,'').replace(/[^A-Za-z0-9 +/ -]/g,'').slice(0,15);
+ return RULES[kind]?.title||name.replace(/[^A-Za-z0-9 +/ -]/g,'').slice(0,15);
+}
+function promptTitle(title){
+ const name=String(title||'');
+ if(name.startsWith('SOLVE'))return 'SOLVE';
+ if(name.startsWith('d/dx'))return 'd/dx';
+ if(name.startsWith('∫'))return 'INTEGRAL';
+ if(name.startsWith('Σ'))return 'SUM';
+ if(name.startsWith('Π'))return 'PRODUCT';
+ if(name.startsWith('CALC'))return 'CALC';
+ if(name.startsWith('DIST'))return name.replace(/[^A-Za-z0-9 /-]/g,'').slice(0,21);
+ if(name.startsWith('TABLE'))return name.replace(/[^A-Za-z0-9 (),]/g,'').slice(0,21);
+ if(name.startsWith('VERIF'))return 'VERIFY';
+ return name.replace(/[^A-Za-z0-9 /-]/g,'').slice(0,21);
+}
+function promptField(field){
+ const names={expression:'EXPR',at:'X =',guess:'X?',a:'LOWER',b:'UPPER',
+ lower:'LOWER',upper:'UPPER',sigma:'SIGMA',mu:'MU',p:'p',n:'N',x:'x',
+ area:'AREA',step:'STEP',tol:'TOL',value:'VALUE'};
+ return names[field.id]||String(field.label||field.id).replace(/[^A-Za-z0-9 +-]/g,'').slice(0,16);
 }
 function label(item){
  const txt=String(item.label||'').replace(/^\s*\d+\.\s*/,'');
  return txt.replace(/[^A-Za-z0-9 +*/∠θ►^=.-]/g,'').slice(0,10);
 }
-const API=Object.freeze({RULES,rule,modeEntries,page,navigate,displayTitle,label});
+const API=Object.freeze({RULES,rule,modeEntries,page,navigate,displayTitle,promptTitle,promptField,label});
 g.FreshMenuModel=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
