@@ -58,7 +58,13 @@ function evaluate(expression,base='DEC',model='fx-991es-plus'){
   if(t.kind==='number')return parseLiteral(t.text,base,model);
   if(t.kind==='('){const z=parse(0);if(list[at]?.kind!==')')fail('Syntax ERROR');at++;return z}
   if(t.kind==='+')return primary();
-  if(t.kind==='-')return assertSigned(-primary(),base,model);
+  if(t.kind==='-'){
+   // Signed decimal MIN cannot be parsed as a positive 32-bit operand first.
+   if(base==='DEC'&&list[at]?.kind==='number'&&list[at].text==='2147483648'){
+    at++;return -2147483648n;
+   }
+   return assertSigned(-primary(),base,model);
+  }
   fail('Syntax ERROR');
  }
  function parse(min){
