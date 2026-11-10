@@ -6,9 +6,9 @@ const WIDTH=96,HEIGHT=31,CHAR=4;
 const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument'],
  derivative:['expression','at'],integral:['expression','lower','upper'],
  summation:['expression','lower','upper']};
-function measure(nodes){return nodes.reduce((sum,node)=>sum+nodeWidth(node),0)}
-function fieldWidth(node,name){return Math.max(6,measure(node.parts[name]||[]))}
-function nodeWidth(node){
+function measure(nodes,linear=false){return nodes.reduce((sum,node)=>sum+nodeWidth(node,linear),0)}
+function fieldWidth(node,name,linear=false){return Math.max(6,measure(node.parts[name]||[],linear))}
+function nodeWidth(node,linear=false){
  if(node.type==='char')return CHAR;
  if(node.type==='fraction')return Math.max(fieldWidth(node,'numerator'),fieldWidth(node,'denominator'))+4;
  if(node.type==='mixed')return fieldWidth(node,'integer')+Math.max(fieldWidth(node,'numerator'),fieldWidth(node,'denominator'))+8;
@@ -18,12 +18,15 @@ function nodeWidth(node){
  if(node.type==='squareRoot'||node.type==='cubeRoot')return fieldWidth(node,'radicand')+8;
  if(node.type==='nthRoot')return fieldWidth(node,'index')+fieldWidth(node,'radicand')+9;
  if(node.type==='logBase')return 14+fieldWidth(node,'base')+fieldWidth(node,'argument');
+ if(linear&&node.type==='derivative')return 28+fieldWidth(node,'expression',true)+fieldWidth(node,'at',true);
+ if(linear&&(node.type==='integral'||node.type==='summation'))
+  return 20+fieldWidth(node,'expression',true)+fieldWidth(node,'lower',true)+fieldWidth(node,'upper',true);
  if(node.type==='derivative')return 20+fieldWidth(node,'expression')+fieldWidth(node,'at');
  if(node.type==='integral'||node.type==='summation')
   return 21+Math.max(fieldWidth(node,'upper'),fieldWidth(node,'lower'))+fieldWidth(node,'expression');
  return CHAR;
 }
-function layout(editor,baseline=12){
+function layout(editor,baseline=12,linear=false){
  let cursor=null,minY=baseline,maxY=baseline+5;
  const wanted=JSON.stringify(editor.path||[]);
  const add=(y1,y2)=>{minY=Math.min(minY,y1);maxY=Math.max(maxY,y2)};
@@ -32,7 +35,7 @@ function layout(editor,baseline=12){
   for(let i=0;i<=nodes.length;i++){
    if(JSON.stringify(path)===wanted&&editor.offset===i)cursor={x,y};
    if(i===nodes.length)break;
-   const n=nodes[i],w=nodeWidth(n),p=n.parts||{};
+   const n=nodes[i],w=nodeWidth(n,linear),p=n.parts||{};
    if(n.type==='char')add(y,y+5);
    else {
     function field(name,fx,fy){
@@ -40,7 +43,14 @@ function layout(editor,baseline=12){
      if(!child.length)add(fy+5,fy+5);
      walk(child,fx,fy,[...path,{index:i,field:name}]);
     }
-    if(n.type==='fraction'){
+    if(linear&&['derivative','integral','summation'].includes(n.type)){
+     const prefix=n.type==='derivative'?20:8;
+     let at=x+prefix;
+     for(const name of n.type==='derivative'?['expression','at']:['expression','lower','upper']){
+      field(name,at,y);at+=fieldWidth(n,name,true)+4;
+     }
+     add(y,y+5);
+    }else if(n.type==='fraction'){
      const widest=w-4,a=measure(p.numerator),b=measure(p.denominator);
      field('numerator',x+2+Math.floor((widest-a)/2),y-10);
      add(y-3,y-3);
@@ -76,11 +86,11 @@ function layout(editor,baseline=12){
   }
  }
  walk(editor.root||[],0,baseline,[]);
- return {width:measure(editor.root||[]),cursor:cursor||{x:0,y:baseline},minY,maxY};
+ return {width:measure(editor.root||[],linear),cursor:cursor||{x:0,y:baseline},minY,maxY};
 }
 function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
-function follow(editor,current={x:0,y:0},baseline=12){
- const frame=layout(editor,baseline),xMax=Math.max(0,frame.width-WIDTH+8);
+function follow(editor,current={x:0,y:0},baseline=12,linear=false){
+ const frame=layout(editor,baseline,linear),xMax=Math.max(0,frame.width-WIDTH+8);
  let x=clamp(current.x||0,0,xMax),y=current.y||0;
  // Leave a few pixels for the two lateral overflow cues.
  if(frame.cursor.x-x<5)x=clamp(frame.cursor.x-5,0,xMax);
