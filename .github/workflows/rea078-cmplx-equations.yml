@@ -1,0 +1,38 @@
+name: REA-078 CMPLX CALC and equation expressions
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/calc-substitution.js'
+      - 'calculator/js/complex-engine.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/model-profiles.js'
+      - 'calculator/index.html'
+      - 'calculator/tests/rea078-cmplx-equations.cjs'
+      - 'calculator/reference/rea-078/**'
+      - '.github/workflows/rea078-cmplx-equations.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  complex-calc:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: CMPLX, equality, multistatement and memory regression
+        run: node calculator/tests/rea078-cmplx-equations.cjs
+      - name: Verify prior CALC substitution regression
+        run: node calculator/tests/rea077-calc-substitution.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium browser dependencies
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Run model-specific CALC browser key sequences
+        run: python calculator/reference/rea-078/test_cmplx_calc_browser.py
