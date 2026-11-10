@@ -56,21 +56,85 @@ function det(a){
  if(a.rows===2)return number(d[0][0]*d[1][1]-d[0][1]*d[1][0]);
  return number(d[0][0]*(d[1][1]*d[2][2]-d[1][2]*d[2][1])-d[0][1]*(d[1][0]*d[2][2]-d[1][2]*d[2][0])+d[0][2]*(d[1][0]*d[2][1]-d[1][1]*d[2][0]));
 }
-function record(state,operator,aName,bName=null){
- const a=get(state,aName),b=bName?get(state,bName):null;
+function subtract(a,b){
+ if(a.rows!==b.rows||a.cols!==b.cols)fail('Dimension ERROR');
+ return create(a.rows,a.cols,a.data.map((row,r)=>row.map((v,c)=>number(v-b.data[r][c]))));
+}
+function transpose(a){
+ return create(a.cols,a.rows,Array.from({length:a.cols},(_,c)=>Array.from({length:a.rows},(_,r)=>a.data[r][c])));
+}
+function scalar(a,k){
+ const factor=number(k);
+ return create(a.rows,a.cols,a.data.map(row=>row.map(v=>number(v*factor))));
+}
+function identity(n){dims(n,n);return create(n,n,Array.from({length:n},(_,r)=>Array.from({length:n},(_,c)=>r===c?1:0)))}
+function inverse(a){
+ if(a.rows!==a.cols)fail('Dimension ERROR');
+ const n=a.rows;
+ const A=a.data.map((row,i)=>[...row,...identity(n).data[i]]);
+ const scale=Math.max(...a.data.flat().map(x=>Math.abs(x)));
+ if(scale===0)fail('Math ERROR');
+ // Gaussian elimination with scaled partial pivot selection; non-invertible
+ // matrices cause Math ERROR and cannot update MatAns/history.
+ for(let c=0;c<n;c++){
+  let pivot=c;
+  for(let row=c+1;row<n;row++)if(Math.abs(A[row][c])>Math.abs(A[pivot][c]))pivot=row;
+  if(Math.abs(A[pivot][c])<=1e-12*scale)fail('Math ERROR');
+  [A[c],A[pivot]]=[A[pivot],A[c]];
+  const div=A[c][c];
+  for(let j=0;j<2*n;j++)A[c][j]/=div;
+  for(let row=0;row<n;row++)if(row!==c){
+   const factor=A[row][c];
+   for(let j=0;j<2*n;j++)A[row][j]-=factor*A[c][j];
+  }
+ }
+ const result=create(n,n,A.map(row=>row.slice(n)));
+ const product=multiply(a,result);
+ for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+  const target=r===c?1:0;
+  if(!Number.isFinite(product.data[r][c])||Math.abs(product.data[r][c]-target)>1e-8)fail('Math ERROR');
+ }
+ return result;
+}
+function power(a,exponent){
+ if(a.rows!==a.cols)fail('Dimension ERROR');
+ if(!Number.isInteger(exponent)||Math.abs(exponent)>99)fail('Argument ERROR');
+ let result=identity(a.rows),factor=exponent<0?inverse(a):clone(a),n=Math.abs(exponent);
+ while(n){
+  if(n%2===1)result=multiply(result,factor);
+  n=Math.floor(n/2);
+  if(n)factor=multiply(factor,factor);
+ }
+ return result;
+}
+function absolute(a){return Math.abs(det(a))}
+function record(state,operator,aName,bName=null,parameter=null){
+ const a=get(state,aName);
+ const binary=['add','subtract','multiply'].includes(operator);
+ const b=binary?get(state,bName):null;
  let result;
- if(operator==='add')result=add(a,b);
- else if(operator==='multiply')result=multiply(a,b);
- else if(operator==='det')result=det(a);
- else fail('Argument ERROR');
+ switch(operator){
+ case 'add':result=add(a,b);break;
+ case 'subtract':result=subtract(a,b);break;
+ case 'multiply':result=multiply(a,b);break;
+ case 'transpose':result=transpose(a);break;
+ case 'inverse':result=inverse(a);break;
+ case 'power':result=power(a,parameter);break;
+ case 'scalar':result=scalar(a,parameter);break;
+ case 'det':result=det(a);break;
+ case 'abs':result=absolute(a);break;
+ default:fail('Argument ERROR');
+ }
+ // Mutate history and MatAns only after a successful calculation.
  if(typeof result==='object')state.MatAns=clone(result);
- const entry={operator,aName,bName,operandA:a,operandB:b,output:typeof result==='object'?clone(result):result};
+ const entry={operator,aName,bName:binary?bName:null,parameter:operator==='power'||operator==='scalar'?parameter:null,
+  operandA:a,operandB:b,output:typeof result==='object'?clone(result):result};
  state.history.push(entry);
  if(state.history.length>MAX_HISTORY)state.history.shift();
  return result;
 }
 function copy(state,from,to){ensureName(to);return set(state,to,get(state,from))}
-const API=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,current,load,parse,commit,type,sign,backspace,move,next,clear,resize,add,multiply,det,record,copy});
+const API=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,current,load,parse,commit,type,sign,backspace,move,next,clear,resize,add,subtract,multiply,transpose,scalar,identity,inverse,power,det,absolute,record,copy});
 g.FreshMatrixRegisters=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
