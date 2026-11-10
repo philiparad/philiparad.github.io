@@ -109,7 +109,7 @@ test('CALC rejects unsupported modes',()=>{
  assert.throws(()=>C.prepare('X+2',MODELS.registers('fx-991es'),'STAT'),/Argument ERROR/);
 });
 test('CALC rejects malformed multistatement source',()=>{
- assert.throws(()=>C.prepare('X+:Y',MODELS.registers('fx-991es')), /Syntax ERROR/);
+ assert.throws(()=>execute('X+:Y',{X:'1',Y:'2'},'fx-991es'), /Syntax ERROR/);
 });
 test('CALC complex A+Bi',()=>{
  const {session,result}=execute('A+Bi',{A:'sqrt(3)',B:'1'},'fx-991es-plus-c','CMPLX');
