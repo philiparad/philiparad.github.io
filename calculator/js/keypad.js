@@ -99,8 +99,10 @@ function applyContext(root,state,policy,profiles){
  if(!root||!policy||!profiles)return;
  const modifier=state.shift?'SHIFT':state.alpha?'ALPHA':'normal';
  const model=state.model,keys=keysForModel(model);
+ const wrappers=new Map([...root.querySelectorAll('.key-unit')].map(el=>
+  [el.querySelector('button')?.dataset.key,el]));
  for(const key of keys){
-  const wrap=[...root.querySelectorAll('.key-unit')].find(el=>el.querySelector('button')?.dataset.key===key.id);
+  const wrap=wrappers.get(key.id);
   if(!wrap)continue;
   const action=policy.classify(key,modifier,state.mode,state.screen,model,profiles.supports);
   const unavailable=action.status==='blocked'||action.status==='unlabelled';
