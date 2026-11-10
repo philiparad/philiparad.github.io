@@ -832,12 +832,37 @@ function baseCalculate(){
  state.result=output;state.screen='result';releaseModifier();
  notify('BASE-N '+state.baseRadix+' calculation');paint();
 }
+function baseLogicMenu(){
+ const fromResult=state.screen==='result';
+ const previous=fromResult?BASE.format(state.baseValue,state.baseRadix,state.model):null;
+ const entries=[
+  {key:'1',label:'1. and',token:'and',binary:true},
+  {key:'2',label:'2. or',token:'or',binary:true},
+  {key:'3',label:'3. xor',token:'xor',binary:true},
+  {key:'4',label:'4. xnor',token:'xnor',binary:true},
+  {key:'5',label:'5. Not(',token:'Not(',binary:false},
+  {key:'6',label:'6. Neg(',token:'Neg(',binary:false}
+ ];
+ releaseModifier();
+ optionDialog('BASE logic',entries.map(item=>({
+  key:item.key,label:item.label,action:()=>{
+   // Choosing an infix operator after a result retains the displayed operand.
+   if(item.binary){
+    const source=fromResult?previous:state.input;
+    if(!source||/[+*/(-]\\s*$/.test(source))throw Error('Syntax ERROR');
+    baseSetInput(source+' '+item.token+' ');
+   }else baseSetInput((fromResult?'':state.input)+item.token);
+   notify('BASE-N '+item.token+' inserted');
+  }
+ })),{pageSize:6,kind:'base-logic'});
+}
 function baseHandle(key){
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
  if(state.shift&&key==='AC'){powerOff();return}
  if(state.shift&&key==='MODE'){releaseModifier();setupMenu();return}
  if(state.shift&&key==='9'){releaseModifier();clearMenu();return}
+ if(state.shift&&key==='3'){baseLogicMenu();return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
  if(BASE_SELECT[key]){baseSwitch(BASE_SELECT[key]);return}
  const hex=HEX_KEYS[key];
@@ -1364,7 +1389,15 @@ function runChecks(){const checks=[
   ['BASE-N padded octal',()=>BASE.format(8n,'OCT',state.model)==='00000000010'],
   ['BASE-N HEX F digit',()=>BASE.evaluate('1F+1','HEX',state.model)===32n],
   ['BASE-N rejects bad BIN digit',()=>{try{BASE.evaluate('102','BIN',state.model);return false}catch{return true}}],
-  ['BASE-N 32-bit overflow',()=>{try{BASE.evaluate('2147483647+1','DEC',state.model);return false}catch{return true}}]
+  ['BASE-N 32-bit overflow',()=>{try{BASE.evaluate('2147483647+1','DEC',state.model);return false}catch{return true}}],
+  ['BASE-N logic and',()=>BASE.evaluate('1010 and 1100','BIN',state.model)===8n],
+  ['BASE-N logic or',()=>BASE.evaluate('1011 or 11010','BIN',state.model)===27n],
+  ['BASE-N logic xor',()=>BASE.evaluate('1010 xor 1100','BIN',state.model)===6n],
+  ['BASE-N logic xnor',()=>BASE.format(BASE.evaluate('1111 xnor 101','BIN',state.model),'BIN',state.model)==='1111111111110101'],
+  ['BASE-N logic Not',()=>BASE.format(BASE.evaluate('Not(1010)','BIN',state.model),'BIN',state.model)==='1111111111110101'],
+  ['BASE-N logic Neg',()=>BASE.format(BASE.evaluate('Neg(101101)','BIN',state.model),'BIN',state.model)==='1111111111010011'],
+  ['BASE-N logic width',()=>BASE.evaluate('Not(0)','DEC',state.model)===-1n&&BASE.evaluate('Not(0)','BIN',state.model)===-1n],
+  ['BASE-N logic precedence',()=>BASE.evaluate('1010 or 1100 and 101','BIN',state.model)===14n]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
