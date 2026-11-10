@@ -1126,7 +1126,7 @@ function runChecks(){const checks=[
   ['complex argument',()=>COMPLEX.evaluate('arg(i)',{angle:'DEG'}).re===90],
   ['complex Ans/register',()=>{const z=COMPLEX.evaluate('Ans+A',{ans:{re:2,im:3},memory:{A:{re:4,im:-1}}});return z.re===6&&z.im===2}],
   ['complex i squared',()=>COMPLEX.evaluate('i^2').re===-1],
-  ['complex zero division',()=>{try{COMPLEX.evaluate('1/(1-i-i^0)');return false}catch{return true}}],
+  ['complex zero division',()=>{try{COMPLEX.evaluate('1/(i-i)');return false}catch{return true}}],
   ['complex polar',()=>COMPLEX.format({re:0,im:1},'DEG','polar').includes('∠90')]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
