@@ -1,0 +1,41 @@
+name: REA-080 inline calculus MathIO and LineIO
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/structured-editor.js'
+      - 'calculator/js/lcd-viewport.js'
+      - 'calculator/js/display.js'
+      - 'calculator/js/inline-calculus.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/numeric-worker.js'
+      - 'calculator/js/math-engine.js'
+      - 'calculator/index.html'
+      - 'calculator/tests/rea080-inline-calculus.cjs'
+      - 'calculator/reference/rea-080/**'
+      - '.github/workflows/rea080-inline-calculus.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inline-calculus:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inline calculus parser / LCD / numerical regression
+        run: node calculator/tests/rea080-inline-calculus.cjs
+      - name: Previous structured-editor regression
+        run: node calculator/tests/rea073-structured-editor.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium browser
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Browser real-key MathIO and LineIO with numeric Worker
+        run: python calculator/reference/rea-080/test_inline_calculus_browser.py
