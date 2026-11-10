@@ -3,7 +3,7 @@
  * Error classifications and iteration ceilings remain in math-engine.js.
  */
 'use strict';
-importScripts('decimal-core.js','number-format.js','sexagesimal.js','math-engine.js');
+importScripts('decimal-core.js','number-format.js','sexagesimal.js','math-engine.js','solve-session.js');
 const M=self.FreshMath;
 function compute(task){
  const {kind,data,settings}=task;
@@ -35,7 +35,12 @@ function compute(task){
  let value;
  if(kind==='DERIVATIVE')value=M.derivative(f,number(data.at),number(data.tol));
  if(kind==='INTEGRAL')value=M.integrate(f,number(data.a),number(data.b),number(data.tol));
- if(kind==='SOLVE')value=M.solve(f,number(data.guess));
+ if(kind==='SOLVE'){
+  const progress=self.FreshSolveSession.iterate(f,M,number(data.guess),data.resume||null);
+  if(progress.status==='continue')return {continue:true,resume:progress.resume,
+   iterations:progress.iterations};
+  value=progress.value;
+ }
  if(kind==='SUM')value=M.summation(f,number(data.a),number(data.b));
  if(kind==='PRODUCT')value=M.finiteProduct({
   expression,a:data.a,b:data.b,step:data.step
