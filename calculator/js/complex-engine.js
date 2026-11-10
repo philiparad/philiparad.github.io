@@ -1,0 +1,133 @@
+/* REA-045 — independent complex expression engine (no eval or firmware imports). */
+(function(global){'use strict';
+const LIMIT=9.999999999e99;
+const fault=(type='Math ERROR')=>{throw Error(type)};
+function complex(re,im=0){
+ if(!Number.isFinite(re)||!Number.isFinite(im)||Math.abs(re)>LIMIT||Math.abs(im)>LIMIT)fault();
+ return {re:re||0,im:im||0};
+}
+function value(x){
+ if(typeof x==='number')return complex(x);
+ if(x&&typeof x==='object'&&typeof x.re==='number'&&typeof x.im==='number')return complex(x.re,x.im);
+ fault('Variable ERROR');
+}
+const add=(a,b)=>complex(a.re+b.re,a.im+b.im);
+const neg=a=>complex(-a.re,-a.im);
+const sub=(a,b)=>add(a,neg(b));
+const mul=(a,b)=>complex(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
+function div(a,b){
+ // Smith's scaled algorithm avoids unnecessary overflow for large operands.
+ if(b.re===0&&b.im===0)fault();
+ if(Math.abs(b.re)>=Math.abs(b.im)){
+  const t=b.im/b.re,den=b.re+b.im*t;
+  return complex((a.re+a.im*t)/den,(a.im-a.re*t)/den);
+ }
+ const t=b.re/b.im,den=b.im+b.re*t;
+ return complex((a.re*t+a.im)/den,(a.im*t-a.re)/den);
+}
+function power(a,b){
+ if(a.re===0&&a.im===0){
+  if(b.im!==0||b.re<=0)fault();
+  return complex(0);
+ }
+ if(b.im===0&&Number.isInteger(b.re)&&Math.abs(b.re)<=1000){
+  let n=Math.abs(b.re),base=a,out=complex(1);
+  while(n){if(n%2)out=mul(out,base);n=Math.floor(n/2);if(n)base=mul(base,base)}
+  return b.re<0?div(complex(1),out):out;
+ }
+ const radius=Math.hypot(a.re,a.im),theta=Math.atan2(a.im,a.re);
+ const scale=Math.exp(b.re*Math.log(radius)-b.im*theta);
+ const angle=b.re*theta+b.im*Math.log(radius);
+ return complex(scale*Math.cos(angle),scale*Math.sin(angle));
+}
+function radians(angle,unit){return unit==='RAD'?angle:unit==='GRAD'?angle*Math.PI/200:angle*Math.PI/180}
+function degrees(angle,unit){return unit==='RAD'?angle:unit==='GRAD'?angle*200/Math.PI:angle*180/Math.PI}
+function call(name,args,unit){
+ if(args.length!==1)fault('Syntax ERROR');
+ const z=args[0];
+ switch(name.toLowerCase()){
+  case 'conj':case 'conjg':return complex(z.re,-z.im);
+  case 'abs':return complex(Math.hypot(z.re,z.im));
+  case 'arg':if(z.re===0&&z.im===0)fault();return complex(degrees(Math.atan2(z.im,z.re),unit));
+  case 're':case 'real':return complex(z.re);
+  case 'im':case 'imag':return complex(z.im);
+  case 'sqrt':return power(z,complex(.5));
+  default:fault('Syntax ERROR');
+ }
+}
+function tokenize(source){
+ const text=String(source).replace(/\u2212/g,'-').replace(/\u00d7/g,'*').replace(/\u00f7/g,'/');
+ const tokens=[];let pos=0;
+ while(pos<text.length){
+  if(/\s/.test(text[pos])){pos++;continue}
+  const fragment=text.slice(pos);
+  const num=/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/.exec(fragment);
+  const id=/^[A-Za-z][A-Za-z0-9]*/.exec(fragment);
+  if(num){tokens.push({kind:'number',text:num[0]});pos+=num[0].length;continue}
+  if(id){tokens.push({kind:'id',text:id[0]});pos+=id[0].length;continue}
+  if('+-*/^(),'.includes(text[pos])){tokens.push({kind:'op',text:text[pos++]});continue}
+  fault('Syntax ERROR');
+ }
+ if(tokens.length>240)fault('Syntax ERROR');
+ return tokens;
+}
+function evaluate(expression,options={}){
+ const tokens=tokenize(expression),unit=options.angle||'DEG';
+ const memory=options.memory||{};
+ const vars={pi:complex(Math.PI),e:complex(Math.E),i:complex(0,1),
+  Ans:value(options.ans??0),PreAns:value(options.preAns??0)};
+ for(const [key,item] of Object.entries(memory))vars[key]=value(item);
+ let at=0;
+ const peek=()=>tokens[at]?.text;
+ const consume=()=>tokens[at++];
+ function primary(){
+  const t=consume();if(!t)fault('Syntax ERROR');
+  if(t.text==='+')return parse(25);
+  if(t.text==='-')return neg(parse(25));
+  if(t.text==='('){const z=parse(0);if(peek()!==')')fault('Syntax ERROR');consume();return z}
+  if(t.kind==='number')return complex(Number(t.text));
+  if(t.kind==='id'){
+   if(peek()==='('&&/^(conj|conjg|abs|arg|re|real|im|imag|sqrt)$/i.test(t.text)){
+    consume();const args=[];
+    if(peek()!==')'){args.push(parse(0));while(peek()===','){consume();args.push(parse(0))}}
+    if(peek()!==')')fault('Syntax ERROR');consume();
+    return call(t.text,args,unit);
+   }
+   if(Object.prototype.hasOwnProperty.call(vars,t.text))return vars[t.text];
+   fault('Variable ERROR');
+  }
+  fault('Syntax ERROR');
+ }
+ function parse(min){
+  let left=primary();
+  while(at<tokens.length){
+   const token=tokens[at],t=token.text;
+   if(t===')'||t===',')break;
+   const implicit=token.kind==='number'||token.kind==='id'||t==='(';
+   const op=implicit?'*':t;
+   const binding=op==='^'?30:op==='*'||op==='/'?20:op==='+'||op==='-'?10:-1;
+   if(binding<min)break;
+   if(!implicit)consume();
+   const right=parse(op==='^'?binding:binding+1);
+   left=op==='+'?add(left,right):op==='-'?sub(left,right):
+    op==='*'?mul(left,right):op==='/'?div(left,right):power(left,right);
+  }
+  return left;
+ }
+ if(!tokens.length)fault('Syntax ERROR');
+ const answer=parse(0);
+ if(at!==tokens.length)fault('Syntax ERROR');
+ return value(answer);
+}
+function format(z,unit='DEG',style='rectangular'){
+ z=value(z);
+ const f=n=>String(Number(n.toPrecision(12)));
+ if(style==='polar')return f(Math.hypot(z.re,z.im))+'∠'+f(degrees(Math.atan2(z.im,z.re),unit));
+ if(z.im===0)return f(z.re);
+ if(z.re===0)return (z.im<0?'-':'')+(Math.abs(z.im)===1?'':f(Math.abs(z.im)))+'i';
+ return f(z.re)+(z.im<0?'-':'+')+(Math.abs(z.im)===1?'':f(Math.abs(z.im)))+'i';
+}
+const API=Object.freeze({complex,value,add,sub,mul,div,power,evaluate,format,radians});
+global.FreshComplex=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
