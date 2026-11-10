@@ -106,8 +106,11 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
       String(entries[i].label).replace(/^\\d+\\.\\s*/,'').slice(0,9);
    write(String(entries[i].number)+':'+name,x,y,Math.min(W,x+colWidth));
   }
-  if((state.menuPage+1)*size<state.menuEntries.length)write('v',91,0);
-  if(state.menuPage>0)write('^',87,0);
+  // CASIO upper-right page arrows, rendered as filled LCD triangles.
+  if((state.menuPage+1)*size<state.menuEntries.length)
+   for(let y=0;y<3;y++)for(let x=0;x<5-2*y;x++)pixel(89+y+x,1+y);
+  if(state.menuPage>0)
+   for(let y=0;y<3;y++)for(let x=0;x<1+2*y;x++)pixel(85+2-y+x,1+y);
   return pixels;
  }
  if(state.screen==='stat-table'&&state.statTable){
@@ -301,9 +304,11 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   return pixels;
  }
  if(state.screen==='prompt'&&state.flow){
-  const f=state.flow,field=f.fields[f.index];
-  write((''+f.title).replace(/[^A-Za-z0-9 /-]/g,'').slice(0,22),0,0);
-  write((f.index+1)+'/'+f.fields.length+' '+field.label.slice(0,20),0,9);
+  const f=state.flow,field=f.fields[f.index],menu=global.FreshMenuModel;
+  const title=menu?menu.promptTitle(f.title):String(f.title).replace(/[^A-Za-z0-9 /-]/g,'').slice(0,22);
+  const key=menu?menu.promptField(field):String(field.label).slice(0,20);
+  write(title,0,0);
+  write((f.index+1)+'/'+f.fields.length+' '+key.slice(0,18),0,9);
   const content=String(f.buffer||'');
   const cursor=Math.max(0,Math.min(content.length,f.cursor??content.length));
   const start=Math.max(0,Math.min(cursor-22,content.length-23));
