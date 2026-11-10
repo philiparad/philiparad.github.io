@@ -56,14 +56,14 @@ function paint(){
  // STO/RCL standby and history/menu replay cues.
  const flags=window.FreshIndicators.render(state,$);
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
- $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
+ $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='stat-table'&&state.statTable?'STAT data table row '+(state.statTable.row+1)+' of '+state.statTable.rows.length+', '+STAT.active(state.statTable)+' equals '+state.statTable.buffer+', '+(state.statTable.paired?'paired data':'one variable')+', frequency '+(state.statTable.frequency?'on':'off'):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  const faceIds={'fx-991es':'fx-991ES','fx-991es-plus':'fx-991ES PLUS','fx-991es-plus-c':'fx-991ES PLUS C'};
  document.querySelector('.case-model-id').textContent=faceIds[state.model];
  document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'':'2nd edition';
  $('model-label').textContent=MODELS.get(state.model).label;
  $('mode-label').textContent=state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
- $('expression-text').textContent=state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
+ $('expression-text').textContent=state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
  document.querySelectorAll('.key-unit').forEach(el=>{
   const id=el.querySelector('button').dataset.key;
   el.classList.toggle('lit',(id==='SHIFT'&&state.shift)||(id==='ALPHA'&&state.alpha));
@@ -1211,7 +1211,9 @@ function runChecks(){const checks=[
    ['STAT weighted count',()=>{const t=STAT.create(false,true);t.rows=[{X:2,Y:null,FREQ:3},{X:4,Y:null,FREQ:1}];return STAT.calculate(t).n===4&&STAT.calculate(t).meanX===2.5}],
    ['STAT paired slope',()=>{const t=STAT.create(true,false);t.rows=[{X:1,Y:2,FREQ:1},{X:2,Y:4,FREQ:1}];return STAT.calculate(t).slope===2}],
    ['STAT row delete',()=>{const t=STAT.create();STAT.insert(t);STAT.remove(t);return t.rows.length===1}],
-   ['STAT frequency columns',()=>STAT.columns(true,true).join(',')==='X,Y,FREQ']]
+   ['STAT frequency columns',()=>STAT.columns(true,true).join(',')==='X,Y,FREQ'],
+   ['STAT full table limit',()=>{const t=STAT.create();t.rows=Array.from({length:STAT.MAX_ROWS},()=>({X:1,Y:null,FREQ:1}));t.row=t.rows.length-1;try{STAT.insert(t);return false}catch{return true}}],
+   ['STAT rejects invalid weights',()=>{const t=STAT.create(false,true);t.col=1;t.buffer='-2';try{STAT.commit(t);return false}catch{return true}}]]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
