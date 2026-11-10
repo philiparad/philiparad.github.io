@@ -142,7 +142,7 @@ test('CMPLX multi-statement second statement failure atomic',()=>{
 });
 test('invalid complex prompt remains transactional',()=>{
  const cfg=context(),snapshot=JSON.stringify(cfg.memory);
- assert.throws(()=>run('A+Bi',{A:'2+i',B:'sqrt(-4)'},cfg),/Math ERROR/);
+ assert.throws(()=>run('A+Bi',{A:'2+i',B:'1/(2-2)'},cfg),/Math ERROR/);
  assert.equal(JSON.stringify(cfg.memory),snapshot);
 });
 test('division by zero rejects complex calculation',()=>{
