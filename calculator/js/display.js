@@ -77,7 +77,8 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const t=state.statTable,cols=t.paired?(t.frequency?['X','Y','FREQ']:['X','Y']):(t.frequency?['X','FREQ']:['X']);
   const starts=cols.length===3?[12,40,68]:cols.length===2?[12,54]:[14];
   const widths=cols.length===3?[6,6,6]:cols.length===2?[9,9]:[18];
-  write(t.paired?'STAT 2VAR':'STAT 1VAR',0,0);
+  const headings={ '1VAR':'STAT 1VAR',LIN:'STAT A+BX',QUAD:'STAT CX2',LOG:'STAT lnX',EXP:'STAT e^X',ABEXP:'STAT AB^X',POWER:'STAT AX^B',INV:'STAT 1/X'};
+  write(headings[t.regressionType]||(t.paired?'STAT 2VAR':'STAT 1VAR'),0,0);
   for(let c=0;c<cols.length;c++)write(cols[c]==='FREQ'?'F':cols[c],starts[c],6);
   const first=Math.max(0,Math.min(Math.max(0,t.rows.length-3),t.row-1));
   for(let n=0;n<3;n++){
