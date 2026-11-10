@@ -43,7 +43,7 @@ function options(id){
  const mapping={
   mthio:[['1','MathO','matho'],['2','LineO','lineo']],
   norm:[['1','Norm1','norm1'],['2','Norm2','norm2']],
-  complex:[['1','a+bi','rectangular'],['2','rθ','polar']],
+  complex:[['1','a+bi','rectangular'],['2','r∠θ','polar']],
   stat:[['1','ON','on'],['2','OFF','off']],
   table:[['1','f(x)','single'],['2','f(x),g(x)','double']],
   recurring:[['1','ON','on'],['2','OFF','off']],
