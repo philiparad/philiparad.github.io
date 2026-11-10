@@ -6,7 +6,7 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -15,6 +15,7 @@ if(!BASE)throw Error('Missing BASE-N integer engine');
 if(!EQN)throw Error('Missing EQN solving engine');
 if(!INEQ)throw Error('Missing INEQ interval solver');
 if(!INEQDISPLAY)throw Error('Missing INEQ result display module');
+if(!VERIFY)throw Error('Missing chained VERIFY module');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!MATRIX)throw Error('Missing MATRIX registers module');
@@ -368,6 +369,14 @@ function flowNext(){
 function flowHandle(key){
  const f=state.flow;if(!f)return false;
  if(key==='AC'){state.flow=null;state.screen='edit';releaseModifier();state.info='';paint();return true}
+ if(f.title.startsWith('VERIF ')){
+  if(key==='CALC'){verifyRelationMenu();return true}
+  if(state.shift&&/^[1-6]$/.test(key)){
+   const op=['=','!=','<','<=','>','>='][Number(key)-1];
+   verifyInsertRelation(op);return true;
+  }
+  if(key==='MODE'){modeMenu();return true}
+ }
  if(key==='EQUAL'||key==='DOWN'){releaseModifier();flowNext();return true}
  if(key==='UP'){
   if(f.index>0){f.values[flowField().id]=f.buffer;f.index--;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false}
@@ -1477,6 +1486,35 @@ function ineqResultHandle(key){
  else{notify('INEQ: = next; AC coefficients');paint();return}
  state.result=session.pages[session.index].text;state.info='';paint();
 }
+// REA-060: one editable chained relation with relational-key insertions.
+function verifyStart(initial='1<2<3'){
+ fieldForm('VERIF chained relations',[{id:'expression',label:'Relation chain',value:initial}],d=>{
+  const evaluated=VERIFY.evaluate(d.expression,part=>M.evaluate(part,{
+   ...state,memory:{...state.memory},ans:state.ans
+  }));
+  applyAdvancedResult(evaluated.result?1:0,'VERIF '+d.expression);
+  return evaluated.text;
+ });
+}
+function verifyInsertRelation(operator){
+ const f=state.flow;
+ if(state.mode!=='VERIF'||!f||f.fields[f.index].id!=='expression')return;
+ if(!VERIFY.OPERATORS.includes(operator))return;
+ if(!f.editing){f.buffer='';f.cursor=0;f.editing=true}
+ const at=f.cursor??f.buffer.length;
+ const rest=state.insert?f.buffer.slice(at):f.buffer.slice(at+operator.length);
+ if(f.buffer.length+operator.length>170){notify('Input limit',true);return}
+ f.buffer=f.buffer.slice(0,at)+operator+rest;
+ f.cursor=at+operator.length;
+ state.screen='prompt';state.info='';releaseModifier();paint();
+}
+function verifyRelationMenu(){
+ const operators=['=','!=','<','<=','>','>='];
+ optionDialog('VERIF Relations',operators.map((operator,index)=>({
+  key:String(index+1),label:(index+1)+'. '+operator,
+  action:()=>verifyInsertRelation(operator)
+ })),{pageSize:6,kind:'verify-relations'});
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
@@ -1486,11 +1524,8 @@ function advancedMode(mode){
   if(mode==='VECTOR')return vectorRegisterMenu('Dim');
   if(mode==='TABLE')return tableStart();
   if(mode==='INEQ')return ineqTypeMenu();
-  if(mode==='VERIF')return fieldForm('VERIF — numerical equality or inequality',[{id:'left',label:'Left expression',value:'sqrt(9)'},{id:'operator',label:'Comparison (=, !=, <, <=, >, >=)',value:'='},{id:'right',label:'Right expression',value:'3'}],d=>{
-  const a=M.evaluate(d.left,{...state,memory:state.memory,ans:state.ans}),b=M.evaluate(d.right,{...state,memory:state.memory,ans:state.ans});const op=d.operator.trim(),eps=1e-10*Math.max(1,Math.abs(a),Math.abs(b));
-  const ok=op==='='?Math.abs(a-b)<eps:op==='!='?Math.abs(a-b)>=eps:op==='<'?a<b:op==='>'?a>b:op==='<='?a<=b:op==='>='?a>=b:null;if(ok===null)throw Error('Invalid comparison');applyAdvancedResult(ok?1:0,'VERIF');return ok?'TRUE':'FALSE'
- });
- if(mode==='DIST')return fieldForm('DIST — normal / binomial distribution',[{id:'kind',label:'Normal CDF, Normal PDF, Binomial PDF, Binomial CDF',value:'Normal CDF'},{id:'x',label:'X',value:'1'},{id:'a',label:'μ (normal) or n (binomial)',value:'0'},{id:'b',label:'σ (normal) or p (binomial)',value:'1'}],d=>{
+  if(mode==='VERIF')return verifyStart();
+  if(mode==='DIST')return fieldForm('DIST — normal / binomial distribution',[{id:'kind',label:'Normal CDF, Normal PDF, Binomial PDF, Binomial CDF',value:'Normal CDF'},{id:'x',label:'X',value:'1'},{id:'a',label:'μ (normal) or n (binomial)',value:'0'},{id:'b',label:'σ (normal) or p (binomial)',value:'1'}],d=>{
   const x=+d.x,a=+d.a,b=+d.b;let ans;if(d.kind==='Normal CDF')ans=normalCDF(x,a,b);
   else if(d.kind==='Normal PDF')ans=Math.exp(-.5*((x-a)/b)**2)/(b*Math.sqrt(2*Math.PI));
   else if(d.kind==='Binomial PDF')ans=M.combination(a,x)*b**x*(1-b)**(a-x);
