@@ -117,6 +117,10 @@ test('fraction/decimal cycles leave source unchanged',()=>{
  }
  assert.equal(source,'7/6');
 });
+test('recurring S-D branch requires PLUS C model',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
+ assert.match(app,/state\.model==='fx-991es-plus-c'&&state\.recurringDecimal&&state\.ansRational/);
+});
 test('controller routes SHIFT SD and simple SD separately',()=>{
  const s=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
  assert.match(s,/if\(key==='SD'\)\{releaseModifier\(\);toggleMixed\(\);return true\}/);
