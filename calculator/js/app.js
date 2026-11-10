@@ -432,6 +432,13 @@ function flowNext(){
 }
 function finishFlow(output){
  try{
+  if(output&&output.kind==='solve-continue'){
+   // No X/register/Ans updates until an actual root converges.
+   state.flow=null;state.solveSession={...output.session,pending:true};
+   state.outputLines=['Continue: [=]','AC: cancel'];state.outputPage=0;
+   state.viewport.flowX=0;state.screen='flow-result';state.info='';
+   releaseModifier();notify('SOLVE: = continue, AC cancel');paint();return;
+  }
   if(output&&output.kind==='solve'){
    // SOLVE commits only its successfully computed X and supplied registers.
    // No premature Ans or memory writes while prompting or iterating.
@@ -633,6 +640,34 @@ function startCalc(){
   fieldForm('CALC '+session.source,session.fields,run);
  }catch(e){notify(e.message||'Syntax ERROR',true);paint()}
 }
+function solveProgress(session,params,reply){
+ const current={source:session.source,initial:params.guess,
+  changes:params.changes,request:{
+   expression:params.expression,guess:String(params.guess),memory:params.memory
+  }};
+ if(reply.continue)return {kind:'solve-continue',session:{
+  ...current,resume:reply.resume,iterations:reply.iterations
+ }};
+ return {...SOLVES.result(session.source,reply.value,reply.residual,
+  number=>RESULTS.decimal(number,{...state,math:false})),
+  changes:params.changes,initial:params.guess};
+}
+function continueSolve(){
+ const active=state.solveSession;
+ if(!active?.pending)return;
+ state.screen='calculating';state.info='';releaseModifier();paint();
+ runNumeric('SOLVE',{...active.request,resume:active.resume})
+  .then(reply=>{
+   if(state.solveSession!==active||state.screen!=='calculating')return;
+   const params={guess:active.initial,changes:active.changes,
+    expression:active.request.expression,memory:active.request.memory};
+   finishFlow(solveProgress({source:active.source},params,reply));
+  }).catch(e=>{
+   if(state.solveSession!==active||state.screen!=='calculating')return;
+   state.screen='flow-result';state.outputLines=[String(e.message||"Can't Solve")];
+   state.info='';notify('SOLVE failed; AC to exit',true);paint();
+  });
+}
 function startSolve(){
  if(state.mode!=='COMP'){notify('SOLVE requires COMP mode',true);paint();return}
  const source=state.screen==='flow-result'&&state.solveSession?
@@ -646,11 +681,9 @@ function startSolve(){
    });
    return runNumeric('SOLVE',{
     expression:params.expression,guess:String(params.guess),memory:params.memory
-   }).then(({value,residual})=>{
+   }).then(reply=>{
     if(!state.flow||state.screen!=='calculating')throw Error('Cancelled');
-    return {...SOLVES.result(session.source,value,residual,
-     number=>RESULTS.decimal(number,{...state,math:false})),
-     changes:params.changes,initial:params.guess};
+    return solveProgress(session,params,reply);
    });
   };
   fieldForm('SOLVE '+session.source,session.fields,run);
@@ -2160,6 +2193,7 @@ function handle(key){
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
   if(state.solveSession&&state.mode==='COMP'){
+   if(key==='EQUAL'&&state.solveSession.pending){continueSolve();return}
    if(key==='EQUAL'||key==='CALC'){startSolve();return}
    if(key==='AC'){
     state.solveSession=null;state.screen='edit';state.outputLines=[];
