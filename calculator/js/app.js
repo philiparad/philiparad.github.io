@@ -763,11 +763,18 @@ function alphaKey(key){
 }
 function complexMenu(){
  // SHIFT 2: match the documented CMPLX function ordering.
+ const fromResult=state.screen==='result';
+ const emit=(text,command=false)=>{
+  // Opening a new CMPLX function from a displayed result must not append
+  // the function name to the old calculation. Suffixes can convert Ans.
+  if(fromResult)loadExpression(command?'Ans'+text:text);
+  else insert(text);
+ };
  releaseModifier();optionDialog('CMPLX',[
-  {key:'1',label:'1. arg',action:()=>insert('arg(')},
-  {key:'2',label:'2. Conjg',action:()=>insert('conj(')},
-  {key:'3',label:'3. ►r∠θ',action:()=>insert('►r∠θ')},
-  {key:'4',label:'4. ►a+bi',action:()=>insert('►a+bi')}
+  {key:'1',label:'1. arg',action:()=>emit('arg(')},
+  {key:'2',label:'2. Conjg',action:()=>emit('conj(')},
+  {key:'3',label:'3. ►r∠θ',action:()=>emit('►r∠θ',true)},
+  {key:'4',label:'4. ►a+bi',action:()=>emit('►a+bi',true)}
  ]);
 }
 function shifted(key){
