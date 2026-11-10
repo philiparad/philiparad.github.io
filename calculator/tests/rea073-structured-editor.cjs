@@ -48,6 +48,11 @@ check('mixed fraction slots',()=>{
  E.insert(e,'2');E.navigate(e,'RIGHT');
  E.insert(e,'1');E.navigate(e,'RIGHT');E.insert(e,'4');numerical(e,2.25);
 });
+check('negative mixed number sign',()=>{
+ const e=E.create();E.template(e,'mixed');
+ E.insert(e,'-2');E.navigate(e,'RIGHT');
+ E.insert(e,'1');E.navigate(e,'RIGHT');E.insert(e,'4');numerical(e,-2.25);
+});
 check('cube root',()=>{
  const e=E.create();E.template(e,'cubeRoot');E.insert(e,'27');numerical(e,3);
 });
