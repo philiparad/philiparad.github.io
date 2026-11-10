@@ -103,7 +103,10 @@ function calculate(value,source,settings={},options={}){
  const fraction=exactFromEngine?exact:
   exact&&Math.abs(exact.numerator/exact.denominator-value)<=1e-12*Math.max(1,Math.abs(value))?
   exact:options.allowApproxRational?rational(value):null;
- const symbolicCandidate=preferred?symbolic(value,source):null;
+ // REA-074: derive exact radical/pi combinations from a bounded source
+ // expression tree, never from an approximate decimal identity.
+ const symbolicCandidate=preferred?
+  (global.FreshExactSymbolic?.symbolic(source,value)||symbolic(value,source)):null;
  let natural={kind:'decimal',text:decimalText};
  if(preferred&&symbolicCandidate)natural=symbolicCandidate;
  else if(preferred&&fraction){
