@@ -19,6 +19,13 @@ function sci(value,significant=10){
  const sign=value<0?'-':'';
  const {digits,exponent}=digits15(value);
  const rounded=roundSignificant(digits,exponent,n);
+ // Rounding cannot manufacture a 10^100 exponent beyond the ES LCD range.
+ // Preserve the highest-representable ten-digit mantissa at the upper edge.
+ if(rounded.exponent>99){
+  const max=digits15(Math.abs(value));
+  const m=max.digits[0]+'.'+max.digits.slice(1,10);
+  return sign+m+'×10^'+max.exponent;
+ }
  const mantissa=rounded.number[0]+(n>1?'.'+rounded.number.slice(1):'');
  return sign+mantissa+'×10^'+rounded.exponent;
 }
@@ -39,6 +46,8 @@ function fix(value,places){
 function normal(value,format='Norm2'){
  // Round to 10 display-significant digits while retaining numeric Ans.
  const rounded=Number(value.toPrecision(MAX_DIGITS));
+ // A carry into 10^100 is beyond the documented two-digit exponent range.
+ if(Math.abs(rounded)>=1e100)return sci(value,MAX_DIGITS);
  if(rounded===0)return '0';
  const abs=Math.abs(rounded);
  const threshold=format==='Norm1'?1e-2:1e-9;
@@ -69,9 +78,14 @@ function format(value,settings={}){
  const digit=Number.isInteger(settings.digits)?Math.max(0,Math.min(9,settings.digits)):3;
  let text;
  if(kind==='Fix'){
-  // Valid calculator range is 0–9 decimal places. Guard JS's toFixed magnitude cutoff.
+  // A ten-digit LCD mantissa cannot show arbitrarily long fixed output.
+  // Switch to scientific notation if the fixed integer part overflows.
   if(Math.abs(value)>=1e21)text=sci(value,10);
-  else text=fix(value,digit);
+  else{
+   const fixed=fix(value,digit);
+   const integerDigits=fixed.split('.')[0].replace('-','').length;
+   text=integerDigits>10?sci(value,10):fixed;
+  }
  }else if(kind==='Sci'){
   text=sci(value,digit===0?10:digit);
  }else text=normal(value,kind);
