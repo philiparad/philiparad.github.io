@@ -191,6 +191,43 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(m.rows<3||e.error)write((e.error||selectedValue).slice(-23),0,29);
   return pixels;
  }
+ // REA-059: native INEQ coefficient cells and special-case result cards.
+ if(state.screen==='ineq-coeff'&&state.ineqEditor){
+  const item=state.ineqEditor,e=item.coefficients;
+  const cols=e.rows[0].length,gap=cols===4?22:28,offset=cols===4?9:13;
+  const key=e.rows[e.row][e.col],value=e.editing?e.buffer:String(e.values[key]);
+  const heading=e.error?'INEQ ERR '+e.error:'INEQ '+item.degree+' '+item.operator+' 0';
+  write(heading.slice(-23),0,0);
+  write((key.toUpperCase()+' = '+value).slice(-23),0,9);
+  for(let c=0;c<cols;c++){
+   const name=e.rows[0][c];
+   write(name.toUpperCase(),offset+c*gap,18);
+   const selected=e.row===0&&e.col===c,txt=selected?value:String(e.values[name]);
+   const width=cols===4?4:6;
+   write(txt.slice(-width),offset+c*gap,25,Math.min(W,offset+c*gap+width*4));
+   if(selected){
+    const end=Math.min(W-1,offset+c*gap+Math.max(1,Math.min(width,txt.length))*4-1);
+    for(let x=offset+c*gap;x<=end;x++)pixel(x,30);
+   }
+  }
+  return pixels;
+ }
+ if(state.screen==='ineq-result'&&state.ineqSession){
+  const sess=state.ineqSession;
+  const current=sess.pages[sess.index]||sess.pages[0];
+  write('INEQ '+sess.degree+' '+sess.operator+' 0',0,0);
+  const status=current.kind==='empty'?'NO SOLUTION':current.kind==='all'?'ALL REAL X':
+   current.kind==='point'?'EQUALITY ROOT':'SOLUTION '+(sess.index+1);
+  write(status.slice(0,23),0,9);
+  const text=String(current.text).replace(/All Real Numbers/g,'All Real X');
+  if(text.length<=23)write(text,0,25);
+  else{
+   write(text.slice(0,23),0,19);
+   write(text.slice(23,46),0,25);
+  }
+  if(sess.pages.length>1)write((sess.index+1)+'/'+sess.pages.length,80,0);
+  return pixels;
+ }
  if(state.screen==='eqn-coeff'&&state.eqnEditor){
   const e=state.eqnEditor,cols=e.rows[0].length;
   const gap=cols===4?21:27,offset=cols===4?11:12;
