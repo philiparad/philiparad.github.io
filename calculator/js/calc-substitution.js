@@ -25,6 +25,7 @@ function scan(source,available){
    if(match){i+=match[0].length;continue}
   }
   if(/[A-Za-z]/.test(c)){
+   if(c==='i'||c==='e'){i++;continue}
    const word=WORD.exec(text.slice(i));
    if(word){i+=word[0].length;continue}
    if(all.has(c)){
@@ -75,6 +76,13 @@ function prepare(source,modelRegisters,mode='COMP',current={}){
  const fields=names.map(name=>({id:name,label:name+'?',value:String(current[name]??0)}));
  return {source:output,segments,names,fields,mode};
 }
+function normalize(source){
+ // Adjacent variable letters denote multiplication on the CASIO keypad:
+ // 2AX = 2*A*X, and in CMPLX the imaginary unit can follow B (Bi).
+ return String(source)
+  .replace(/([A-FMXY]{2,})(?![A-Za-z])/g,word=>word.split('').join('*'))
+  .replace(/([A-FMXY])i(?![A-Za-z])/g,'$1*i');
+}
 function evaluate(session,inputs,context){
  const memory={...context.memory};
  const complexMemory={...context.complexMemory};
@@ -100,7 +108,7 @@ function evaluate(session,inputs,context){
  let formatOverride=null;
  for(const segment of session.segments){
   if(session.mode==='CMPLX'){
-   const parsed=context.complex.splitDisplayCommand(segment.expression);
+   const parsed=context.complex.splitDisplayCommand(normalize(segment.expression));
    result=context.complex.evaluate(parsed.expression,{
     angle:context.angle,memory:{...memory,...complexMemory},ans:complexAnswer
    });
@@ -108,7 +116,7 @@ function evaluate(session,inputs,context){
    formatOverride=parsed.format||formatOverride;
    output.push(context.complex.format(result,context.angle,formatOverride||context.complexFormat));
   }else{
-   result=context.math.evaluate(segment.expression,{
+   result=context.math.evaluate(normalize(segment.expression),{
     ...context,ans:answer,preAns:context.preAns,memory
    });
    if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)throw Error('Math ERROR');
@@ -119,7 +127,7 @@ function evaluate(session,inputs,context){
  return {kind:'calc-substitution',value:result,changes,output,
   source:session.source,mode:session.mode,formatOverride};
 }
-const api=Object.freeze({scan,statementParts,equality,prepare,evaluate});
+const api=Object.freeze({scan,statementParts,equality,normalize,prepare,evaluate});
 global.FreshCalcSubstitution=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
