@@ -28,6 +28,7 @@ function form(a,b=zero(),kind=null,d=0n){
 const scalar=x=>form(x);
 function root(n){
  if(n<0n||n>MAX_ROOT)return null;
+ if(n===0n)return scalar(zero());
  let k=1n,d=n;
  for(let i=2n;i*i<=d;i++){
   while(d%(i*i)===0n){k*=i;d/=i*i}
@@ -153,7 +154,7 @@ function formatted(f){
  const mag=abs(b.n),unit=f.kind==='pi'?'π':'√'+f.d;
  const coeff=mag===b.d?'':b.d===1n?mag.toString():mag.toString()+'/'+b.d.toString();
  const irrational=b.d===1n?coeff+unit:
-  mag===b.d?unit:mag.toString()+unit+'/'+b.d.toString();
+  (mag===1n?'':mag.toString())+unit+'/'+b.d.toString();
  const pre=a.n?formatQ(a):'';
  const text=pre+((a.n||b.n<0n)?b.n<0n?'-':'+':'')+irrational;
  // Keep exact output bounded to native LCD-friendly forms.
