@@ -27,7 +27,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,statTable:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,statTable:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -254,7 +254,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.power=true}
@@ -670,7 +670,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
- state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;
+ state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
@@ -1015,9 +1015,9 @@ function matrixShow(name,value=null){
  state.matrixEditor=null;state.screen='matrix-result';releaseModifier();
  notify(name+'; arrows inspect, AC back');paint();
 }
-function matrixRun(op,a,b){
+function matrixRun(op,a,b=null,parameter=null){
  try{
-  const value=MATRIX.record(state.matrices,op,a,b);
+  const value=MATRIX.record(state.matrices,op,a,b,parameter);
   if(typeof value==='number'){
    state.matrixView=null;state.screen='matrix-scalar';
    state.raw=value;state.result=String(Number(value.toPrecision(12)));
@@ -1025,11 +1025,49 @@ function matrixRun(op,a,b){
   }else matrixShow('MatAns',value);
  }catch(err){notify(String(err.message||'Math ERROR'),true);matrixMenu()}
 }
+function matrixParameterStart(op,name){
+ state.matrixParameter={operator:op,name,buffer:'2',editing:false,error:''};
+ state.screen='matrix-parameter';releaseModifier();
+ notify('MATRIX '+op+' '+name+'; = calculate; AC cancel');paint();
+}
+function matrixParameterHandle(key){
+ const p=state.matrixParameter;if(!p)return;
+ if(key==='AC'){state.matrixParameter=null;matrixMenu();return}
+ if(key==='MODE'){state.matrixParameter=null;modeMenu();return}
+ if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+ if(key==='DEL'){if(!p.editing){p.buffer='';p.editing=true}else p.buffer=p.buffer.slice(0,-1);p.error='';paint();return}
+ if(key==='NEG'){p.buffer=p.buffer.startsWith('-')?p.buffer.slice(1):'-'+p.buffer;p.editing=true;p.error='';paint();return}
+ if(key==='EQUAL'){
+  try{
+   const value=MATRIX.parse(p.buffer);
+   if(p.operator==='power'&&!Number.isInteger(value))throw Error('Argument ERROR');
+   const result=MATRIX.record(state.matrices,p.operator,p.name,null,value);
+   state.matrixParameter=null;
+   if(typeof result==='number'){
+    state.screen='matrix-scalar';state.raw=result;state.result=String(result);paint();
+   }else matrixShow('MatAns',result);
+  }catch(err){p.error=String(err.message||'Math ERROR');notify(p.error,true);paint()}
+  return;
+ }
+ let token=null;
+ if(/^[0-9]$/.test(key))token=key;
+ else if(key==='DOT')token='.';
+ else if(key==='EXP')token='E';
+ else if(key==='SUB')token='-';
+ else if(key==='ADD')token='+';
+ else if(key.startsWith('TEXT:')&&/^[0-9.Ee+-]$/.test(key.slice(5)))token=key.slice(5);
+ if(token!==null){
+  if(!p.editing){p.buffer='';p.editing=true}
+  if(p.buffer.length<28)p.buffer+=token;
+  p.error='';paint();return;
+ }
+ notify('Enter a numeric MATRIX parameter',true);paint();
+}
 function matrixOperandMenu(op,a=null){
  const names=MATRIX.NAMES.filter(name=>state.matrices[name]);
  if(!names.length){matrixRegisterMenu('Dim');return}
  optionDialog('MATRIX '+op+' '+(a||''),names.map(name=>({
-  label:name,action:()=>a?matrixRun(op,a,name):op==='det'?matrixRun(op,name,null):matrixOperandMenu(op,name)
+  label:name,action:()=>a?matrixRun(op,a,name):['det','abs'].includes(op)?matrixRun(op,name,null):['scalar','power'].includes(op)?matrixParameterStart(op,name):['inverse','transpose'].includes(op)?matrixRun(op,name,null):matrixOperandMenu(op,name)
  })),{pageSize:6,kind:'matrix'});
 }
 function matrixCopy(from=null){
@@ -1072,8 +1110,14 @@ function matrixMenu(){
   {key:'8',label:'8. Calc',action:()=>optionDialog('MATRIX Calc',[
    {label:'1. Add',action:()=>matrixOperandMenu('add')},
    {label:'2. Multiply',action:()=>matrixOperandMenu('multiply')},
-   {label:'3. Det',action:()=>matrixOperandMenu('det')}
-  ],{pageSize:6,kind:'matrix'})},
+   {label:'3. Det',action:()=>matrixOperandMenu('det')},
+   {label:'4. Subtract',action:()=>matrixOperandMenu('subtract')},
+   {label:'5. Inverse',action:()=>matrixOperandMenu('inverse')},
+   {label:'6. Transpose',action:()=>matrixOperandMenu('transpose')},
+   {label:'7. Power',action:()=>matrixOperandMenu('power')},
+   {label:'8. Scalar',action:()=>matrixOperandMenu('scalar')},
+   {key:'9',label:'9. AbsDet',action:()=>matrixOperandMenu('abs')}
+  ],{pageSize:8,kind:'matrix'})},
   {key:'9',label:'9. History',action:matrixHistoryMenu}
  ],{pageSize:8,kind:'matrix'});
 }
@@ -1369,6 +1413,7 @@ function handle(key){
  }
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.mode==='MATRIX'&&state.screen==='matrix-table'){matrixTableHandle(key);return}
+ if(state.mode==='MATRIX'&&state.screen==='matrix-parameter'){matrixParameterHandle(key);return}
  if(state.mode==='MATRIX'&&['matrix-result','matrix-scalar'].includes(state.screen)){matrixResultHandle(key);return}
  if(state.mode==='MATRIX'&&state.screen==='edit'){
   if(key==='SHIFT'){state.shift=!state.shift;paint();return}
