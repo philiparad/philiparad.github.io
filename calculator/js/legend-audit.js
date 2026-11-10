@@ -113,7 +113,9 @@ function context(key,modifier,mode,screen,model,supports){
 function classify(key,modifier,mode,screen,model,supports){
  if(!key||!MODELS.includes(model)||!MODIFIERS.includes(modifier)||!MODES.includes(mode)||
   !SCREENS.includes(screen))throw Error('Argument ERROR');
- const r=context(key,modifier,mode,screen,model,supports);
+ const r=supports(model,mode)?
+  context(key,modifier,mode,screen,model,supports):
+  {status:'blocked',reason:'Mode '+mode+' is not supported by '+model};
  return Object.freeze({model,mode,screen,key:key.id,modifier,
   legend:legend(key,modifier)||'',status:r.status,reason:r.reason});
 }
