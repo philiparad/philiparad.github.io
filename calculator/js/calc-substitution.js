@@ -69,6 +69,11 @@ function equality(segment){
 function prepare(source,modelRegisters,mode='COMP',current={}){
  if(!['COMP','CMPLX'].includes(mode))throw Error('Argument ERROR');
  const parts=statementParts(source),segments=parts.map(equality);
+ const allowed=new Set(modelRegisters);
+ // An equality label uses a physical register too; unsupported E/F on
+ // the original fx-991ES must never slip through as a free output name.
+ for(const item of segments)if(item.target&&!allowed.has(item.target))
+  throw Error('Variable ERROR: '+item.target);
  const output=String(source);
  if(!output.trim())throw Error('Syntax ERROR');
  const names=scan(segments.map(x=>mode==='CMPLX'?
@@ -96,7 +101,10 @@ function evaluate(session,inputs,context){
   if(!raw)throw Error('Syntax ERROR');
   const current={...memory,...complexMemory};
   const v=session.mode==='CMPLX'?
-   context.complex.evaluate(raw,{angle:context.angle,memory:current,ans:context.complexAns}):
+   context.complex.evaluate(normalize(raw),{
+    angle:context.angle,memory:current,ans:context.complexAns,
+    preAns:context.preComplexAns||0,model:context.model
+   }):
    context.math.evaluate(raw,{...context,ans:context.ans,preAns:context.preAns,memory});
   if(session.mode==='COMP'&&(!Number.isFinite(v)||Math.abs(v)>9.999999999e99))throw Error('Math ERROR');
   changes[name]=v;memory[name]=session.mode==='CMPLX'?v.re:v;
@@ -107,15 +115,19 @@ function evaluate(session,inputs,context){
  let answer=context.ans;
  let complexAnswer=context.complexAns;
  let formatOverride=null;
+ const statementResults=[];
  for(const segment of session.segments){
   if(session.mode==='CMPLX'){
    const parsed=context.complex.splitDisplayCommand(normalize(segment.expression));
    result=context.complex.evaluate(parsed.expression,{
-    angle:context.angle,memory:{...memory,...complexMemory},ans:complexAnswer
+    angle:context.angle,memory:{...memory,...complexMemory},ans:complexAnswer,
+    preAns:context.preComplexAns||0,model:context.model
    });
    complexAnswer=result;
    formatOverride=parsed.format||formatOverride;
-   output.push(context.complex.format(result,context.angle,formatOverride||context.complexFormat));
+   const shown=context.complex.format(result,context.angle,formatOverride||context.complexFormat);
+   output.push(shown);
+   statementResults.push({target:segment.target,text:shown,value:result});
   }else{
    result=context.math.evaluate(normalize(segment.expression),{
     ...context,ans:answer,preAns:context.preAns,memory
@@ -123,10 +135,11 @@ function evaluate(session,inputs,context){
    if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)throw Error('Math ERROR');
    answer=result;
    output.push(String(result));
+   statementResults.push({target:segment.target,text:String(result),value:result});
   }
  }
  return {kind:'calc-substitution',value:result,changes,output,
-  source:session.source,mode:session.mode,formatOverride};
+  source:session.source,mode:session.mode,formatOverride,statementResults};
 }
 const api=Object.freeze({scan,statementParts,equality,normalize,prepare,evaluate});
 global.FreshCalcSubstitution=api;
