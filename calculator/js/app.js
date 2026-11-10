@@ -6,7 +6,7 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -17,6 +17,7 @@ if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!MATRIX)throw Error('Missing MATRIX registers module');
 if(!VECTOR)throw Error('Missing VECTOR registers module');
+if(!TABLE)throw Error('Missing TABLE model');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -28,7 +29,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -255,7 +256,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -344,6 +345,10 @@ function flowNext(){
  if(f.index<f.fields.length-1){f.index++;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false;state.info='';paint();return}
  try{
   const output=f.run({...f.values});
+   if(state.mode==='TABLE'&&state.tableData){
+    state.flow=null;state.screen='table-grid';state.info='';
+    notify('TABLE: UP/DOWN rows, LEFT/RIGHT columns, AC inputs');paint();return;
+   }
    if(state.mode==='EQN'&&state.eqnSession){
     state.flow=null;state.screen='eqn-result';state.info='';
     const first=state.eqnSession.solutions[0];
@@ -627,7 +632,7 @@ function setupChoose(id,value){
  case 'norm':state.format=value==='norm1'?'Norm1':'Norm2';break;
  case 'complex':state.complexFormat=value;break;
  case 'stat':{const enabled=value==='on';if(state.statTable){STAT.toggleFrequency(state.statTable,enabled);if(state.mode==='STAT')state.screen='stat-table'}state.statFrequency=enabled;break}
- case 'table':state.tableFunctions=value==='single'?1:2;break;
+ case 'table':state.tableFunctions=TABLE.dualEnabled(state.model,value==='double'?2:1)?2:1;state.tableData=null;state.tableDraft=null;break;
  case 'recurring':state.recurringDecimal=value==='on';break;
  case 'disp':state.decimalSeparator=value;break;
  }
@@ -671,6 +676,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
+ state.tableData=null;state.tableDraft=null;
  state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
@@ -1356,6 +1362,40 @@ function vectorResultHandle(key){
  }
  notify('VECTOR result: arrows browse, SHIFT 5 options',true);paint();
 }
+// REA-057: synchronized two-function TABLE with native LCD grid.
+function tableStart(previous=null){
+ const dual=TABLE.dualEnabled(state.model,state.tableFunctions);
+ const defaults=previous||state.tableDraft||{};
+ const fields=[
+  {id:'expression',label:'f(X)',value:defaults.expression??'X^2-2'},
+  ...(dual?[{id:'expression2',label:'g(X)',value:defaults.expression2??'X+1'}]:[]),
+  {id:'start',label:'Start',value:defaults.start??'1'},
+  {id:'end',label:'End',value:defaults.end??'5'},
+  {id:'step',label:'Step',value:defaults.step??'1'}
+ ];
+ state.tableData=null;
+ fieldForm('TABLE '+(dual?'f(X),g(X)':'f(X)'),fields,data=>{
+  const fn=functionFor(data.expression);
+  const gn=dual&&String(data.expression2||'').trim()?functionFor(data.expression2):null;
+  const table=TABLE.generate({model:state.model,count:gn?2:1,start:data.start,end:data.end,
+   step:data.step,f:fn,g:gn});
+  state.tableData=table;
+  state.tableDraft={...data};
+  state.memory.X=table.rows[table.rows.length-1].x;
+  return '';
+ });
+}
+function tableHandle(key){
+ const t=state.tableData;if(!t)return;
+ if(key==='MODE'){modeMenu();return}
+ if(key==='AC'||key==='EQUAL'){tableStart({...state.tableDraft});return}
+ if(['UP','DOWN','LEFT','RIGHT'].includes(key)){
+  TABLE.navigate(t,key==='UP'?-1:key==='DOWN'?1:0,
+   key==='LEFT'?-1:key==='RIGHT'?1:0);
+  state.info='';paint();return;
+ }
+ notify('TABLE: arrows navigate; AC edits input',true);paint();
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
@@ -1363,22 +1403,8 @@ function advancedMode(mode){
   if(mode==='EQN')return eqnTypeMenu();
   if(mode==='MATRIX')return matrixRegisterMenu('Dim');
   if(mode==='VECTOR')return vectorRegisterMenu('Dim');
-  if(mode==='TABLE')return fieldForm('TABLE — values of f(X)',[
-  {id:'expression',label:'f(X)',value:'X^2-2'},
-  ...(state.tableFunctions===2?[{id:'expression2',label:'g(X)',value:'X+1'}]:[]),
-  {id:'start',label:'Start',value:'-3'},{id:'end',label:'End',value:'3'},
-  {id:'step',label:'Step',value:'1'}
- ],d=>{
-  const a=+d.start,b=+d.end,h=+d.step;
-  if(h<=0||b<a||(b-a)/h>60)throw Error('Argument ERROR');
-  const fn=functionFor(d.expression),gn=state.tableFunctions===2?functionFor(d.expression2):null;
-  const rows=[];
-  for(let x=a;x<=b+h/1e6;x+=h){
-   rows.push(M.format(x,{math:false})+' : '+M.format(fn(x),state)+(gn?' ; '+M.format(gn(x),state):''));
-  }
-  return rows.join('\n');
- });
- if(mode==='INEQ')return fieldForm('INEQ — quadratic sign intervals',[{id:'a',label:'a',value:'1'},{id:'b',label:'b',value:'-3'},{id:'c',label:'c',value:'2'},{id:'op',label:'Relation (<, <=, >, >=)',value:'<'}],d=>{
+  if(mode==='TABLE')return tableStart();
+  if(mode==='INEQ')return fieldForm('INEQ — quadratic sign intervals',[{id:'a',label:'a',value:'1'},{id:'b',label:'b',value:'-3'},{id:'c',label:'c',value:'2'},{id:'op',label:'Relation (<, <=, >, >=)',value:'<'}],d=>{
   let a=+d.a,b=+d.b,c=+d.c;if(a===0)throw Error('Only quadratic here');const roots=M.quadratic(a,b,c).sort((x,y)=>x-y);const sign=a>0?'positive':'negative';return 'Roots: '+(roots.length?roots.map(x=>M.format(x,state)).join(', '):'none')+'\nParabola opens '+(a>0?'upward':'downward')+'.\nFor two distinct roots, the sign is '+sign+' outside the roots and opposite inside.\nRelation: '+d.op
  });
  if(mode==='VERIF')return fieldForm('VERIF — numerical equality or inequality',[{id:'left',label:'Left expression',value:'sqrt(9)'},{id:'operator',label:'Comparison (=, !=, <, <=, >, >=)',value:'='},{id:'right',label:'Right expression',value:'3'}],d=>{
@@ -1599,6 +1625,7 @@ function handle(key){
   paint();return;
  }
  if(state.screen==='menu'){menuHandle(key);return}
+ if(state.mode==='TABLE'&&state.screen==='table-grid'){tableHandle(key);return}
  if(state.mode==='VECTOR'&&state.screen==='vector-table'){vectorTableHandle(key);return}
  if(state.mode==='VECTOR'&&state.screen==='vector-parameter'){vectorParameterHandle(key);return}
  if(state.mode==='VECTOR'&&['vector-result','vector-scalar'].includes(state.screen)){vectorResultHandle(key);return}
