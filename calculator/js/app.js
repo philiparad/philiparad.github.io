@@ -8,6 +8,8 @@ const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
 const CALCS=window.FreshCalcSubstitution;
 if(!CALCS)throw Error('Missing CALC substitution module');
+const SOLVES=window.FreshSolveSession;
+if(!SOLVES)throw Error('Missing SOLVE session module');
 const MENUS=window.FreshMenuModel;
 if(!MENUS)throw Error('Missing model-specific CASIO menu rules');
 const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
@@ -38,7 +40,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,solveSession:null,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
  matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
@@ -69,7 +71,7 @@ function runNumeric(kind,data){
   job.timer=setTimeout(()=>finish('Time Out'),NUMERIC_WALL_MS);
   try{worker.postMessage({id:1,task:{kind,data,settings:{
    model:state.model,angle:state.angle,format:state.format,digits:state.digits,math:state.math,
-   ans:state.ans,preAns:state.preAns,memory:{...state.memory}
+   ans:state.ans,preAns:state.preAns,memory:{...state.memory,...(data.memory||{})}
   }}})}catch(e){finish('Argument ERROR')}
  });
 }
@@ -315,14 +317,14 @@ function insertTemplate(type){
  syncEditor();releaseModifier();notify('Use arrow keys to move between placeholders');paint();
 }
 function loadExpression(text){
- clearReplay();state.captureTemplate=false;state.calcSession=null;
+ clearReplay();state.captureTemplate=false;state.calcSession=null;state.solveSession=null;
  state.editor=STRUCT.fromString(text);
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
  state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;state.calcSession=null;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
  notify('Calculator reset');paint()
 }
@@ -336,7 +338,7 @@ function clearTransientDisplay(){
  state.resultDMS=false;state.error='';state.errorOffset=null;state.errorSource='';
  state.info='';state.screen='edit';state.result='';state.editor=STRUCT.create();
  state.input='';state.cursor=0;state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};
- state.hyp=false;state.captureTemplate=false;state.calcSession=null;releaseModifier();clearReplay();
+ state.hyp=false;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;releaseModifier();clearReplay();
 }
 function clearSetup(){
  // CLR 1: setup defaults and calculation history, but no change to memory.
@@ -430,6 +432,20 @@ function flowNext(){
 }
 function finishFlow(output){
  try{
+  if(output&&output.kind==='solve'){
+   // SOLVE commits only its successfully computed X and supplied registers.
+   // No premature Ans or memory writes while prompting or iterating.
+   for(const [name,value] of Object.entries(output.changes||{})){
+    state.memory[name]=value;delete state.complexMemory[name];
+   }
+   state.memory.X=output.value;delete state.complexMemory.X;
+   state.solveSession={source:output.source,initial:output.initial,
+    value:output.value,residual:output.residual};
+   state.flow=null;state.outputLines=output.lines;state.outputPage=0;
+   state.viewport.flowX=0;state.raw=output.value;
+   state.result=output.lines[1];state.screen='flow-result';state.info='';
+   releaseModifier();notify('SOLVE: X and L-R; AC exits; = solves again');paint();return;
+  }
   if(output&&output.kind==='calc-substitution'){
    // All inputs and the complete calculation have been validated; commit
    // the prompted registers atomically, never during intermediate prompts.
@@ -617,7 +633,31 @@ function startCalc(){
   fieldForm('CALC '+session.source,session.fields,run);
  }catch(e){notify(e.message||'Syntax ERROR',true);paint()}
 }
+function startSolve(){
+ if(state.mode!=='COMP'){notify('SOLVE requires COMP mode',true);paint();return}
+ const source=state.screen==='flow-result'&&state.solveSession?
+  state.solveSession.source:STRUCT.serialize(state.editor,true);
+ try{
+  const session=SOLVES.prepare(source,MODELS.registers(state.model),
+   state.memory,CALCS.scan);
+  const run=data=>{
+   const params=SOLVES.resolve(session,data,M,{
+    ...state,memory:{...state.memory}
+   });
+   return runNumeric('SOLVE',{
+    expression:params.expression,guess:String(params.guess),memory:params.memory
+   }).then(({value,residual})=>{
+    if(!state.flow||state.screen!=='calculating')throw Error('Cancelled');
+    return {...SOLVES.result(session.source,value,residual,
+     number=>RESULTS.decimal(number,{...state,math:false})),
+     changes:params.changes,initial:params.guess};
+   });
+  };
+  fieldForm('SOLVE '+session.source,session.fields,run);
+ }catch(e){notify(e.message||'Syntax ERROR',true);paint()}
+}
 function numericalFlow(kind){
+ if(kind==='SOLVE'){startSolve();return}
  if(state.mode!=='COMP'){error('Argument ERROR');return}
  const modes={SOLVE:'SOLVE — numerical root',DERIVATIVE:'d/dx — derivative at X',INTEGRAL:'∫ — definite integral',SUM:'Σ — finite sum',PRODUCT:'Π — finite product'};
  const fields=[{id:'expression',label:'Expression in X',value:state.input||'X^2-2'}];
@@ -808,7 +848,7 @@ function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not availa
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
- clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+ clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
  cancelNumeric();
  if(!MODELS.profiles[id])return false;
@@ -2119,6 +2159,13 @@ function handle(key){
  if(state.mode==='DIST'&&state.screen==='prompt'&&distFlowHandle(key))return;
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
+  if(state.solveSession&&state.mode==='COMP'){
+   if(key==='EQUAL'||key==='CALC'){startSolve();return}
+   if(key==='AC'){
+    state.solveSession=null;state.screen='edit';state.outputLines=[];
+    state.outputPage=0;state.viewport.flowX=0;releaseModifier();paint();return;
+   }
+  }
   if(state.mode==='DIST'){
    if(key==='MODE'){modeMenu();return}
    if(key==='SHIFT'){state.shift=!state.shift;paint();return}
@@ -2169,13 +2216,14 @@ function handle(key){
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
   if(key.startsWith('TEXT:')&&state.mode==='CMPLX'&&/^[A-Za-z]$/.test(key.slice(5))){insert(key.slice(5));return}
- if(key==='AC'){clearReplay();state.calcSession=null;state.captureTemplate=false;state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){clearReplay();state.calcSession=null;state.solveSession=null;state.captureTemplate=false;state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
+  state.solveSession=null;
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
   STRUCT.backspace(state.editor);syncEditor();releaseModifier();paint();return;
  }
- if(key==='LEFT'||key==='RIGHT'){clearReplay();if(state.screen==='result'){state.screen='edit'}STRUCT.navigate(state.editor,key);syncEditor();paint();return}
+ if(key==='LEFT'||key==='RIGHT'){clearReplay();state.solveSession=null;if(state.screen==='result'){state.screen='edit'}STRUCT.navigate(state.editor,key);syncEditor();paint();return}
  if(key==='UP'||key==='DOWN'){if(!state.storedInputs.length&&state.screen==='edit'&&STRUCT.navigate(state.editor,key)){syncEditor();paint();return}replayHistory(key);return}
  if(key==='EQUAL'&&state.screen==='result'&&state.calcSession&&
     state.calcSession.source===state.resultSource&&state.calcSession.mode===state.mode){
