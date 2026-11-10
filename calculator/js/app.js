@@ -1071,6 +1071,50 @@ function matrixMenu(){
   {label:'9. History',action:matrixHistoryMenu}
  ],{pageSize:8,kind:'matrix'});
 }
+
+function matrixTableHandle(key){
+ const e=state.matrixEditor;if(!e)return;
+ try{
+  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+  if(state.shift&&key==='4'){matrixCommit();matrixMenu();return}
+  if(key==='MODE'){matrixCommit();modeMenu();return}
+  if(key==='AC'){matrixClose();return}
+  if(key==='DEL'){MATRIX.backspace(e);releaseModifier();paint();return}
+  if(key==='NEG'){MATRIX.sign(e);releaseModifier();paint();return}
+  if(key==='EQUAL'){
+   const done=MATRIX.next(e);MATRIX.set(state.matrices,e.name,e.matrix);
+   releaseModifier();if(done)matrixClose();else paint();return;
+  }
+  if(['UP','DOWN','LEFT','RIGHT'].includes(key)){
+   MATRIX.move(e,key==='UP'?-1:key==='DOWN'?1:0,key==='LEFT'?-1:key==='RIGHT'?1:0);
+   MATRIX.set(state.matrices,e.name,e.matrix);
+   releaseModifier();paint();return;
+  }
+  let token=null;
+  if(/^[0-9]$/.test(key))token=key;
+  else if(key==='DOT')token='.';
+  else if(key==='EXP')token='E';
+  else if(key==='SUB')token='-';
+  else if(key==='ADD')token='+';
+  else if(key.startsWith('TEXT:')&&/^[0-9.Ee+-]$/.test(key.slice(5)))token=key.slice(5);
+  if(token!==null){MATRIX.type(e,token);releaseModifier();paint();return}
+  notify('Unsupported matrix editor key',true);paint();
+ }catch(err){e.error=String(err.message||'Math ERROR');releaseModifier();notify(e.error,true);paint()}
+}
+function matrixResultHandle(key){
+ if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+ if(state.shift&&key==='4'){matrixMenu();return}
+ if(key==='MODE'){modeMenu();return}
+ if(key==='AC'){state.matrixView=null;state.screen='edit';releaseModifier();paint();return}
+ const view=state.matrixView;
+ if(view&&['UP','DOWN','LEFT','RIGHT'].includes(key)){
+  view.row=Math.max(0,Math.min(view.matrix.rows-1,view.row+(key==='UP'?-1:key==='DOWN'?1:0)));
+  view.col=Math.max(0,Math.min(view.matrix.cols-1,view.col+(key==='LEFT'?-1:key==='RIGHT'?1:0)));
+  paint();return;
+ }
+ notify('MATRIX: arrows browse; SHIFT 4 options',true);paint();
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
@@ -1318,6 +1362,15 @@ function handle(key){
   paint();return;
  }
  if(state.screen==='menu'){menuHandle(key);return}
+ if(state.mode==='MATRIX'&&state.screen==='matrix-table'){matrixTableHandle(key);return}
+ if(state.mode==='MATRIX'&&['matrix-result','matrix-scalar'].includes(state.screen)){matrixResultHandle(key);return}
+ if(state.mode==='MATRIX'&&state.screen==='edit'){
+  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+  if(state.shift&&key==='4'){matrixMenu();return}
+  if(key==='MODE'){modeMenu();return}
+  if(key==='AC'){state.result='';releaseModifier();paint();return}
+  matrixMenu();return;
+ }
  if(state.screen==='eqn-result'){eqnResultHandle(key);return}
  if(state.screen==='eqn-coeff'){eqnCoeffHandle(key);return}
  if(state.mode==='BASE-N'){baseHandle(key);return}
