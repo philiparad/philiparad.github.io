@@ -49,8 +49,6 @@ def main():
                 verify(page,'sqrt(2)+sqrt(2)','2√2','surd')
                 verify(page,'pi/2+pi/3','5π/6','pi')
                 verify(page,'(1+sqrt(2))^2','3+2√2','surd')
-                verify(page,'sqrt(2)+sqrt(3)',
-                       state(page)['result'] if False else 'NEVER', 'decimal') if False else None
                 expression(page,'sqrt(2)+sqrt(3)')
                 press(page,'EQUAL')
                 assert state(page)['resultPresentation']['chosen']['kind']=='decimal'
