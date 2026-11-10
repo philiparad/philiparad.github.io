@@ -100,10 +100,14 @@ test('SHIFT polar input only in CMPLX',()=>{
  assert.equal(row('fx-991es-plus-c','SHIFT','NEG','CMPLX').status,'available');
  assert.equal(row('fx-991es-plus-c','SHIFT','NEG','COMP').status,'blocked');
 });
-test('COMP-only ALPHA arithmetic function routes',()=>{
- for(const key of ['MUL','DIV','ADD','SUB','DOT','ANS','INTEGRAL','LOGBASE']){
+test('printed COMP-only ALPHA function routes',()=>{
+ for(const key of ['DOT','ANS','INTEGRAL','LOGBASE']){
   assert.equal(row('fx-991es-plus-c','ALPHA',key,'COMP').status,'available',key);
   assert.equal(row('fx-991es-plus-c','ALPHA',key,'CMPLX').status,'blocked',key);
+ }
+ // Source-only GCD/LCM/Int/Intg helpers have no ALPHA ink on this face.
+ for(const key of ['MUL','DIV','ADD','SUB']){
+  assert.equal(row('fx-991es-plus-c','ALPHA',key,'COMP').status,'unlabelled',key);
  }
 });
 test('mode-specific shortcuts respect available modes',()=>{
