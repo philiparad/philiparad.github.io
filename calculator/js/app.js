@@ -28,7 +28,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,statTable:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -255,7 +255,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -671,7 +671,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
- state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;
+ state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
@@ -1208,21 +1208,62 @@ function vectorShow(name,value=null){
  state.vectorEditor=null;state.screen='vector-result';releaseModifier();
  notify(name+' vector; arrows inspect; AC return');paint();
 }
-function vectorRun(op,a,b=null){
+function vectorRun(op,a,b=null,parameter=null){
  try{
-  const result=VECTOR.record(state.vectors,op,a,b);
+  const result=VECTOR.record(state.vectors,op,a,b,op==='angle'?state.angle:parameter);
   if(typeof result==='number'){
    state.vectorView=null;state.screen='vector-scalar';
    state.raw=result;state.result=String(Number(result.toPrecision(12)));
-   releaseModifier();notify('VECTOR '+op+' '+a+' = '+state.result);paint();
-  }else vectorShow('VctAns',result);
+   const suffix=op==='angle'?(state.angle==='RAD'?' rad':state.angle==='GRA'||state.angle==='GRAD'?' grad':' deg'):'';
+   const details=op==='angle'?VECTOR.geometry(VECTOR.get(state.vectors,a),VECTOR.get(state.vectors,b)).relation:'';
+   state.vectorScalarInfo=op==='angle'?'Angle'+suffix+' · '+details:op==='abs'?'Magnitude':'Dot product';
+   releaseModifier();notify('VECTOR '+op+' '+a+(b?' '+b:'')+' = '+state.result+suffix+(details?' ('+details+')':''));paint();
+  }else{state.vectorScalarInfo=null;vectorShow('VctAns',result)}
  }catch(err){releaseModifier();notify(String(err.message||'Math ERROR'),true);vectorMenu()}
+}
+function vectorScalarStart(name){
+ state.vectorParameter={name,buffer:'2',editing:false,error:''};
+ state.screen='vector-parameter';releaseModifier();
+ notify('VECTOR scalar for '+name+': enter value and press =');paint();
+}
+function vectorParameterHandle(key){
+ const p=state.vectorParameter;if(!p)return;
+ if(key==='AC'){state.vectorParameter=null;vectorMenu();return}
+ if(key==='MODE'){state.vectorParameter=null;modeMenu();return}
+ if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+ if(key==='DEL'){if(!p.editing){p.buffer='';p.editing=true}else p.buffer=p.buffer.slice(0,-1);p.error='';paint();return}
+ if(key==='NEG'){
+  if(!p.editing){p.buffer='-';p.editing=true}
+  else p.buffer=p.buffer.startsWith('-')?p.buffer.slice(1):'-'+p.buffer;
+  p.error='';paint();return;
+ }
+ if(key==='EQUAL'){
+  try{
+   const k=VECTOR.parse(p.buffer);
+   const value=VECTOR.record(state.vectors,'scalar',p.name,null,k);
+   state.vectorParameter=null;state.vectorScalarInfo=null;vectorShow('VctAns',value);
+  }catch(err){p.error=String(err.message||'Math ERROR');notify(p.error,true);paint()}
+  return;
+ }
+ let token=null;
+ if(/^[0-9]$/.test(key))token=key;
+ else if(key==='DOT')token='.';
+ else if(key==='EXP')token='E';
+ else if(key==='SUB')token='-';
+ else if(key==='ADD')token='+';
+ else if(key.startsWith('TEXT:')&&/^[0-9Ee.+-]$/.test(key.slice(5)))token=key.slice(5);
+ if(token!==null){
+  if(!p.editing){p.buffer='';p.editing=true}
+  if(p.buffer.length<28)p.buffer+=token;
+  p.error='';paint();return;
+ }
+ notify('Enter a numeric scalar',true);paint();
 }
 function vectorOperandMenu(op,a=null){
  const names=VECTOR.NAMES.filter(name=>!!state.vectors[name]);
  if(!names.length){vectorRegisterMenu('Dim');return}
  optionDialog('VECTOR '+op+' '+(a||''),names.map(name=>({
-  label:name,action:()=>a?vectorRun(op,a,name):op==='abs'?vectorRun(op,name):vectorOperandMenu(op,name)
+  label:name,action:()=>a?vectorRun(op,a,name):op==='abs'?vectorRun(op,name):op==='scalar'?vectorScalarStart(name):vectorOperandMenu(op,name)
  })),{pageSize:6,kind:'vector'});
 }
 function vectorCopy(from=null){
@@ -1264,8 +1305,12 @@ function vectorMenu(){
   {key:'8',label:'8. Calc',action:()=>optionDialog('VECTOR Calc',[
    {label:'1. Dot',action:()=>vectorOperandMenu('dot')},
    {label:'2. Cross',action:()=>vectorOperandMenu('cross')},
-   {label:'3. Abs',action:()=>vectorOperandMenu('abs')}
-  ],{pageSize:6,kind:'vector'})},
+   {label:'3. Abs',action:()=>vectorOperandMenu('abs')},
+   {label:'4. Add',action:()=>vectorOperandMenu('add')},
+   {label:'5. Subtract',action:()=>vectorOperandMenu('subtract')},
+   {label:'6. Scalar',action:()=>vectorOperandMenu('scalar')},
+   {label:'7. Angle',action:()=>vectorOperandMenu('angle')}
+  ],{pageSize:8,kind:'vector'})},
   {key:'9',label:'9. History',action:vectorHistoryMenu}
  ],{pageSize:8,kind:'vector'});
 }
@@ -1555,6 +1600,7 @@ function handle(key){
  }
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.mode==='VECTOR'&&state.screen==='vector-table'){vectorTableHandle(key);return}
+ if(state.mode==='VECTOR'&&state.screen==='vector-parameter'){vectorParameterHandle(key);return}
  if(state.mode==='VECTOR'&&['vector-result','vector-scalar'].includes(state.screen)){vectorResultHandle(key);return}
  if(state.mode==='VECTOR'&&state.screen==='edit'){
   if(key==='SHIFT'){state.shift=!state.shift;paint();return}
