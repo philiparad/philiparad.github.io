@@ -20,6 +20,12 @@ run('decimal overflow throws',()=>assert.throws(()=>D.evaluate('1e100'),/Math ER
 run('decimal multiplication overflow throws',()=>assert.throws(()=>D.evaluate('9.999999999e99*10'),/Math ERROR/));
 run('decimal upper bound accepted',()=>equal(D.evaluate('9.999999999e99'),9.999999999e99));
 run('math engine uses decimal range floor when loaded',()=>equal(M.evaluate('1e-100'),0));
+run('controller exact rational under-range gate',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const app=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
+ assert.match(app,/if\(value!==0&&Number\.isFinite\(value\)&&Math\.abs\(value\)<1e-99\)/);
+ assert.match(app,/value=0;exactRational=null/);
+});
 run('negative zero normalize',()=>equal(fmt(-0,'Norm1'),'0'));
 run('fixed zero does not display -0',()=>equal(fmt(-0,'Fix',4),'0.0000'));
 run('zero scientific stable',()=>equal(fmt(0,'Sci',3),'0.00×10^0'));
