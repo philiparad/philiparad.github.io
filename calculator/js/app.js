@@ -613,7 +613,7 @@ function setupChoose(id,value){
   state.math=true;state.outputMath=value==='matho';break;
  case 'norm':state.format=value==='norm1'?'Norm1':'Norm2';break;
  case 'complex':state.complexFormat=value;break;
- case 'stat':state.statFrequency=value==='on';if(state.statTable){STAT.toggleFrequency(state.statTable,state.statFrequency);if(state.mode==='STAT')state.screen='stat-table'}break;
+ case 'stat':{const enabled=value==='on';if(state.statTable){STAT.toggleFrequency(state.statTable,enabled);if(state.mode==='STAT')state.screen='stat-table'}state.statFrequency=enabled;break}
  case 'table':state.tableFunctions=value==='single'?1:2;break;
  case 'recurring':state.recurringDecimal=value==='on';break;
  case 'disp':state.decimalSeparator=value;break;
@@ -1277,7 +1277,19 @@ function runChecks(){const checks=[
    ['STAT row delete',()=>{const t=STAT.create();STAT.insert(t);STAT.remove(t);return t.rows.length===1}],
    ['STAT frequency columns',()=>STAT.columns(true,true).join(',')==='X,Y,FREQ'],
    ['STAT full table limit',()=>{const t=STAT.create();t.rows=Array.from({length:STAT.MAX_ROWS},()=>({X:1,Y:null,FREQ:1}));t.row=t.rows.length-1;try{STAT.insert(t);return false}catch{return true}}],
-   ['STAT rejects invalid weights',()=>{const t=STAT.create(false,true);t.col=1;t.buffer='-2';try{STAT.commit(t);return false}catch{return true}}]]
+   ['STAT rejects invalid weights',()=>{const t=STAT.create(false,true);t.col=1;t.buffer='-2';t.editing=true;try{STAT.commit(t);return false}catch{return true}}],
+   // REA-048: textbook regression forms, weighted sums, sample spread & estimates.
+   ['STAT 8 types',()=>REG.TYPES.length===8],
+   ['STAT linear fit',()=>{const t=STAT.create(true);t.rows=[{X:1,Y:3,FREQ:1},{X:2,Y:5,FREQ:1},{X:3,Y:7,FREQ:1}];const m=REG.fit(t,'LIN');return Math.abs(m.A-1)<1e-10&&Math.abs(m.B-2)<1e-10}],
+   ['STAT quadratic fit',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:1,FREQ:1},{X:1,Y:2,FREQ:1},{X:2,Y:7,FREQ:1}];const m=REG.fit(t,'QUAD');return Math.abs(m.C-2)<1e-10}],
+   ['STAT logarithmic fit',()=>{const t=STAT.create(true);t.rows=[{X:1,Y:2,FREQ:1},{X:Math.E,Y:5,FREQ:1},{X:Math.E**2,Y:8,FREQ:1}];return Math.abs(REG.fit(t,'LOG').B-3)<1e-9}],
+   ['STAT exponential fit',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:2,FREQ:1},{X:1,Y:2*Math.E,FREQ:1},{X:2,Y:2*Math.E**2,FREQ:1}];return Math.abs(REG.fit(t,'EXP').A-2)<1e-9}],
+   ['STAT ab-exp fit',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:3,FREQ:1},{X:1,Y:6,FREQ:1},{X:2,Y:12,FREQ:1}];return Math.abs(REG.fit(t,'ABEXP').B-2)<1e-9}],
+   ['STAT power fit',()=>{const t=STAT.create(true);t.rows=[{X:1,Y:3,FREQ:1},{X:2,Y:12,FREQ:1},{X:4,Y:48,FREQ:1}];return Math.abs(REG.fit(t,'POWER').B-2)<1e-9}],
+   ['STAT inverse fit',()=>{const t=STAT.create(true);t.rows=[{X:1,Y:7,FREQ:1},{X:2,Y:5,FREQ:1},{X:4,Y:4,FREQ:1}];return Math.abs(REG.fit(t,'INV').B-4)<1e-9}],
+   ['STAT sample sd',()=>{const t=STAT.create();t.rows=[{X:1,Y:null,FREQ:1},{X:2,Y:null,FREQ:1},{X:3,Y:null,FREQ:1}];return Math.abs(REG.summary(t).sampleSDX-1)<1e-10}],
+   ['STAT manual row limits',()=>[STAT.create(),STAT.create(false,true),STAT.create(true,false),STAT.create(true,true)].map(STAT.rowCapacity).join(',')==='80,40,40,26'],
+   ['STAT invalid log domain',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:2,FREQ:1},{X:1,Y:3,FREQ:1}];try{REG.fit(t,'LOG');return false}catch{return true}}]]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
