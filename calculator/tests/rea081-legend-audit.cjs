@@ -30,6 +30,14 @@ check('only model-supported modes are selected for observed UI',()=>{
   assert.ok(!M.supports(model,'VERIF') || model==='fx-991es-plus-c');
  }
 });
+check('unsupported mode contexts are blocked even in the full Cartesian export',()=>{
+ for(const r of rows){
+  if(!M.supports(r.model,r.mode)){
+   assert.equal(r.status,'blocked');
+   assert.match(r.reason,/not supported/);
+  }
+ }
+});
 check('any modifier in prompt/menu/result-flow is delegated or explicitly blocked',()=>{
  for(const r of rows){
   if(['prompt','menu','flow-result'].includes(r.screen)&&r.modifier!=='normal')
