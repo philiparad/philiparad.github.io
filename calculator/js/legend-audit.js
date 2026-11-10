@@ -28,8 +28,10 @@ function legend(key,modifier){
 }
 function context(key,modifier,mode,screen,model,supports){
  const label=legend(key,modifier);
- if(modifier==='SHIFT'&&['LEFT','RIGHT','UP','DOWN'].includes(key.id))
-  return {status:'unlabelled-control',reason:'Viewport pan uses SHIFT with directional control'};
+ if(screen==='edit'||screen==='result'){
+  if(modifier==='SHIFT'&&['LEFT','RIGHT','UP','DOWN'].includes(key.id))
+   return {status:'unlabelled-control',reason:'Viewport pan uses SHIFT with directional control'};
+ }
  if(!label)return {status:'unlabelled',reason:'No printed legend for this model'};
  if(key.id==='SHIFT'||key.id==='ALPHA'){
   return {status:modifier==='normal'?'available':'blocked',reason:'Modifier key state is handled separately'};
