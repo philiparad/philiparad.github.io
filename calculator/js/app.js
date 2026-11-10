@@ -6,8 +6,9 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
+if(!COMPLEX)throw Error('Missing complex expression module');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -18,7 +19,7 @@ const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
- screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},
+ screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
@@ -60,7 +61,7 @@ function paint(){
  document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'':'2nd edition';
  $('model-label').textContent=MODELS.get(state.model).label;
  $('mode-label').textContent=state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
- $('memory-label').textContent='M = '+M.format(state.memory.M,{...state,math:false});
+ $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
  $('expression-text').textContent=state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
  document.querySelectorAll('.key-unit').forEach(el=>{
   const id=el.querySelector('button').dataset.key;
@@ -102,7 +103,26 @@ function error(message,source=state.input){
  state.errorOffset=ERRORS.location(state.errorSource,message);
  state.screen='error';releaseModifier();notify(kind,true);paint();
 }
+function setComplexResult(value,source){
+ const z=COMPLEX.value(value);
+ state.complexAns=z;state.raw=z.im===0?z.re:NaN;state.resultSource=source;
+ state.ansRational=null;state.resultFractionStyle=null;state.remainderResult=null;
+ state.factorization=null;state.coordinateResult=null;state.decimal=false;
+ const text=COMPLEX.format(z,state.angle,state.complexFormat);
+ const item={kind:'complex',text};
+ state.resultPresentation={chosen:item,natural:item,decimal:item};
+ state.result=text;state.viewport.resultX=Math.max(0,text.length-23);
+ state.screen='result';state.error='';state.errorOffset=null;state.errorSource='';
+ state.history.unshift({source,value:z,mode:'CMPLX',angle:state.angle});
+ if(state.history.length>80)state.history.pop();clearReplay();
+ notify('Complex calculation completed');paint();
+}
 function evaluateSegment(source){
+ if(state.mode==='CMPLX'){
+  const z=COMPLEX.evaluate(source,{angle:state.angle,ans:state.complexAns,
+   memory:{...state.memory,...state.complexMemory}});
+  setComplexResult(z,source);return;
+ }
  const parsed=COORD.parse(source);
  if(parsed){
   const coordinate=COORD.evaluate(source,state,
@@ -223,7 +243,7 @@ function loadExpression(text){
 function reset(mode='all'){
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
- if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.history=[];state.power=true}
+ if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.power=true}
  notify('Calculator reset');paint()
 }
 // REA-043: memory and settings persist across an ordinary OFF/ON cycle.
@@ -503,6 +523,13 @@ function toggleDMS(){
 // REA-039: physical STO/RCL standby and independent memory behavior.
 const MEMORY_KEYS=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'});
 function memoryOperand(){
+ if(state.mode==='CMPLX'){
+  if(state.screen==='result')return COMPLEX.value(state.complexAns);
+  const source=STRUCT.serialize(state.editor,true);
+  if(!source)return COMPLEX.value(state.complexAns);
+  evaluate();if(state.screen!=='result')throw Error(state.error||'Math ERROR');
+  return COMPLEX.value(state.complexAns);
+ }
  // CASIO memory keys consume the displayed result, an entered calculation,
  // or Ans when the input line is empty after AC.
  if(state.screen==='result')return state.raw;
@@ -517,6 +544,11 @@ function memoryOperand(){
  return state.raw;
 }
 function assignRegister(name,value){
+ if(state.mode==='CMPLX'){
+  const z=COMPLEX.value(value);state.complexMemory[name]=z;
+  if(z.im===0)state.memory[name]=z.re;
+  return;
+ }
  if(!Number.isFinite(value)||Math.abs(value)>9.999999999e99)throw Error('Math ERROR');
  state.memory[name]=value;
 }
@@ -525,9 +557,10 @@ function memorySelect(name){
  try{
   if(kind==='STO'){
    const value=memoryOperand();assignRegister(name,value);
-   notify('Stored '+M.format(value,{...state,math:false})+' in '+name);
+   notify('Stored '+(state.mode==='CMPLX'?COMPLEX.format(value,state.angle,state.complexFormat):M.format(value,{...state,math:false}))+' in '+name);
   }else if(kind==='RCL'){
-   const value=state.memory[name];setResult(value,name,null);
+   const value=state.mode==='CMPLX'?(state.complexMemory[name]??COMPLEX.value(state.memory[name])):state.memory[name];
+    if(state.mode==='CMPLX')setComplexResult(value,name);else setResult(value,name,null);
    notify('Recalled '+name);
   }
  }catch(e){if(state.screen!=='error')error(e.message||'Math ERROR')}
@@ -546,13 +579,16 @@ function memorySum(current,value,sign){
 function accumulateMemory(sign){
  try{
   const value=memoryOperand();
-  assignRegister('M',memorySum(state.memory.M,value,sign));
+  if(state.mode==='CMPLX'){
+   const previous=state.complexMemory.M??COMPLEX.value(state.memory.M);
+   assignRegister('M',sign===1?COMPLEX.add(previous,value):COMPLEX.sub(previous,value));
+  }else assignRegister('M',memorySum(state.memory.M,value,sign));
   notify(sign===1?'Added to M':'Subtracted from M');releaseModifier();paint();
  }catch(e){if(state.screen!=='error')error(e.message||'Math ERROR')}
 }
 function clearMemory(){
  for(const name of Object.keys(state.memory))state.memory[name]=0;
- state.ans=0;state.preAns=0;state.raw=0;state.ansRational=null;state.preAnsRational=null;
+ state.ans=0;state.preAns=0;state.raw=0;state.ansRational=null;state.preAnsRational=null;state.complexAns={re:0,im:0};state.complexMemory={};
  state.pendingMemory=null;state.resultPresentation=null;state.result='';state.resultSource='';
  state.error='';state.errorOffset=null;state.errorSource='';state.history=[];clearReplay();
  state.screen='edit';state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};syncEditor();
@@ -640,13 +676,7 @@ function advancedMode(mode){
   const summary=M.descriptiveStats(data);applyAdvancedResult(summary.mean,'STAT mean');
   return Object.entries(summary).map(([k,v])=>k+' = '+(v===null?'N/A':M.format(v,{...state,math:false}))).join('\n');
  });
- if(mode==='CMPLX')return fieldForm('CMPLX — complex arithmetic',[{id:'z1',label:'First complex number (a,b)',value:'2,3'},{id:'z2',label:'Second complex number (c,d)',value:'4,5'},{id:'op',label:'Operation: +, -, *, /, abs, arg',value:'+'}],d=>{
-  const [a,b]=parseCsv(d.z1),[c,e]=parseCsv(d.z2),op=d.op.trim();if([a,b,c,e].some(x=>!Number.isFinite(x)))throw Error('Argument ERROR');let r,k;
-  if(op==='+'){r=a+c;k=b+e}else if(op==='-'){r=a-c;k=b-e}else if(op==='*'){r=a*c-b*e;k=a*e+b*c}
-  else if(op==='/'){const den=c*c+e*e;if(!den)throw Error('Math ERROR');r=(a*c+b*e)/den;k=(b*c-a*e)/den}
-  else if(op==='abs'){r=Math.hypot(a,b);k=0}else if(op==='arg'){r=M.fromRadians(Math.atan2(b,a),state.angle);k=0}
-  else throw Error('Operation must be + - * / abs arg');applyAdvancedResult(r,op+' complex');return state.complexFormat==='polar'?(M.format(Math.hypot(r,k),state)+'∠'+M.format(M.fromRadians(Math.atan2(k,r),state.angle),state)):M.format(r,state)+(k<0?' - ':' + ')+M.format(Math.abs(k),state)+'i'
- });
+ if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
  if(mode==='BASE-N')return fieldForm('BASE-N — signed integer and bitwise operations',[{id:'a',label:'First integer',value:'10'},{id:'b',label:'Second integer',value:'12'},{id:'op',label:'Operation (+, -, AND, OR, XOR, NOT)',value:'AND'}],d=>{
   const a=Number(d.a),b=Number(d.b);if(!Number.isInteger(a)||!Number.isInteger(b))throw Error('Argument ERROR');let result;switch(d.op.trim().toUpperCase()){
    case '+':result=a+b;break;case '-':result=a-b;break;case 'AND':result=a&b;break;case 'OR':result=a|b;break;case 'XOR':result=a^b;break;case 'NOT':result=~a;break;default:throw Error('Unsupported operation')}
@@ -706,7 +736,7 @@ function alphaKey(key){
   if(!state.math||!state.input.endsWith('.')){notify('Use decimal point before recurring digits',true);paint();return true}
   return insertTemplate('recurring');
  }
- if(key==='ENG')return insert(':');
+ if(key==='ENG')return insert(state.mode==='CMPLX'?'i':':');
  if(key==='MUL')return insert('GCD(');
  if(key==='DIV')return insert('LCM(');
  if(key==='ADD')return insert('Int(');
@@ -929,6 +959,7 @@ function handle(key){
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
+  if(key.startsWith('TEXT:')&&state.mode==='CMPLX'&&/^[A-Za-z]$/.test(key.slice(5))){insert(key.slice(5));return}
  if(key==='AC'){clearReplay();state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
@@ -937,10 +968,10 @@ function handle(key){
  }
  if(key==='LEFT'||key==='RIGHT'){clearReplay();if(state.screen==='result'){state.screen='edit'}STRUCT.navigate(state.editor,key);syncEditor();paint();return}
  if(key==='UP'||key==='DOWN'){if(!state.storedInputs.length&&state.screen==='edit'&&STRUCT.navigate(state.editor,key)){syncEditor();paint();return}replayHistory(key);return}
- if(key==='EQUAL'){clearReplay();if(state.mode!=='COMP'){advancedMode(state.mode);return}if(state.screen==='result'&&advanceStatements())return;evaluate();return}
+ if(key==='EQUAL'){clearReplay();if(state.mode!=='COMP'&&state.mode!=='CMPLX'){advancedMode(state.mode);return}if(state.screen==='result'&&advanceStatements())return;evaluate();return}
  if(key==='RCL'){memoryDialog(false);return}
  if(key==='MPLUS'){accumulateMemory(1);return}
- if(key==='SD'){toggleFraction();return}
+ if(key==='SD'){if(state.mode==='CMPLX')return;toggleFraction();return}
  if(key==='CALC'){fieldForm('CALC — substitute a variable',[{id:'variable',label:'Variable name (A-F, X, Y)',value:'X'},{id:'value',label:'Value for variable',value:'2'}],d=>{
   const k=String(d.variable).trim().toUpperCase();
   if(!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Variable ERROR');
@@ -955,7 +986,7 @@ function handle(key){
  });return}
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
  if(key==='LOGBASE'){insertTemplate('logBase');return}
- if(key==='ENG'){if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
+ if(key==='ENG'){if(state.mode==='CMPLX'){insert('i');return}if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
  if(key==='DMS'){
   if(state.screen==='result'){toggleDMS();return}
   const separator=window.FreshSexagesimal.nextSeparator(state.input);
@@ -1086,7 +1117,13 @@ function runChecks(){const checks=[
   ['APO all profiles 10min',()=>Object.keys(MODELS.profiles).every(id=>autoOffDelay(id)===600000)],
   ['APO deadline boundaries',()=>!inactivityExpired(1000,600999,600000)&&inactivityExpired(1000,601000,600000)],
   ['APO clock rollback',()=>!inactivityExpired(600000,599999,600000)],
-  ['battery state is explicitly simulated',()=>['normal','low'].includes(state.batterySimulation)]
+  ['battery state is explicitly simulated',()=>['normal','low'].includes(state.batterySimulation)],
+  ['complex product',()=>{const z=COMPLEX.evaluate('(2+3i)*(4-5i)');return z.re===23&&z.im===2}],
+  ['complex power',()=>{const z=COMPLEX.evaluate('(1+i)^2');return Math.abs(z.re)<1e-12&&z.im===2}],
+  ['complex conjugate',()=>COMPLEX.evaluate('conj(2+3i)').im===-3],
+  ['complex magnitude',()=>COMPLEX.evaluate('abs(3+4i)').re===5],
+  ['complex argument',()=>COMPLEX.evaluate('arg(i)',{angle:'DEG'}).re===90],
+  ['complex Ans/register',()=>{const z=COMPLEX.evaluate('Ans+A',{ans:{re:2,im:3},memory:{A:{re:4,im:-1}}});return z.re===6&&z.im===2}]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
