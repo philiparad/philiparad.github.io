@@ -439,7 +439,10 @@ function finishFlow(output){
      if(z.im===0)state.memory[name]=z.re;
     }else{state.memory[name]=value;delete state.complexMemory[name]}
    }
-   state.calcSession={source:output.source,mode:output.mode};
+   // Retain named equality outputs and every multi-statement result for
+   // CALC replay and diagnostic inspection without assigning output labels.
+   state.calcSession={source:output.source,mode:output.mode,
+    statementResults:output.statementResults};
    state.flow=null;
    if(output.mode==='CMPLX')setComplexResult(output.value,output.source,output.formatOverride);
    else setResult(output.value,output.source,null);
