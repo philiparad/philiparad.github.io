@@ -120,6 +120,22 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(t.error)write(t.error.slice(-20),0,25);
   return pixels;
  }
+ if(state.screen==='eqn-result'&&state.eqnSession){
+  const e=state.eqnSession,parts=e.solutions,count=parts.length;
+  write('EQN '+e.type,0,0);
+  if(count){
+   const current=parts[e.index]||parts[0];
+   write(current.label+' =',0,10);
+   const v=String(global.FreshEquation?.format(current.value)??current.value);
+   const start=Math.max(0,v.length-22);
+   write(v.slice(start),Math.max(0,W-Math.min(v.length,22)*4),25);
+   if(count>1)write((e.index+1)+'/'+count,76,0);
+   if(e.nonRealCount&&e.index===count-1)write('REAL ONLY',45,10);
+  }else{
+   write(e.status||'Math ERROR',0,12);
+  }
+  return pixels;
+ }
  if(state.screen==='prompt'&&state.flow){
   const f=state.flow,field=f.fields[f.index];
   write((''+f.title).replace(/[^A-Za-z0-9 /-]/g,'').slice(0,22),0,0);
