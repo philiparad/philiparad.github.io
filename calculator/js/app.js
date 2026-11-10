@@ -10,6 +10,8 @@ const CALCS=window.FreshCalcSubstitution;
 if(!CALCS)throw Error('Missing CALC substitution module');
 const SOLVES=window.FreshSolveSession;
 if(!SOLVES)throw Error('Missing SOLVE session module');
+const INLINE=window.FreshInlineCalculus;
+if(!INLINE)throw Error('Missing inline calculus module');
 const MENUS=window.FreshMenuModel;
 if(!MENUS)throw Error('Missing model-specific CASIO menu rules');
 const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
@@ -243,6 +245,8 @@ function evaluate(){let source=state.input;try{
  source=STRUCT.serialize(state.editor,true);
  ERRORS.checkStack(source);
  if(!source)throw new M.MathFault('Syntax ERROR');
+ const calculus=INLINE.parse(source);
+ if(calculus){executeInlineCalculus(calculus);return}
  const parts=SPECIAL.splitStatements(source);
  state.multiStatements=parts.length>1?{parts,index:0}:null;
  evaluateSegment(parts[0]);
@@ -688,6 +692,25 @@ function startSolve(){
   };
   fieldForm('SOLVE '+session.source,session.fields,run);
  }catch(e){notify(e.message||'Syntax ERROR',true);paint()}
+}
+function executeInlineCalculus(calculus){
+ if(state.mode!=='COMP')throw Error('Argument ERROR');
+ state.screen='calculating';state.info='';releaseModifier();paint();
+ runNumeric(calculus.kind,calculus.data).then(({value})=>{
+  if(state.screen!=='calculating')return; // OFF, AC, MODE cancel worker.
+  setResult(value,calculus.source,null);
+ }).catch(err=>{
+  if(state.screen!=='calculating')return;
+  error(err.message||'Math ERROR',calculus.source);
+ });
+}
+function insertCalculusTemplate(type){
+ if(state.mode!=='COMP'){
+  releaseModifier();notify('Calculus templates require COMP mode',true);paint();return;
+ }
+ // SHIFT+DEL incorporation is defined for operand templates, not integrals.
+ state.captureTemplate=false;
+ insertTemplate(type);
 }
 function numericalFlow(kind){
  if(kind==='SOLVE'){startSolve();return}
@@ -1990,8 +2013,8 @@ function shifted(key){
  if(key==='7'){constantStart();return true}
  if(key==='8'){conversionStart();return true}
  if(key==='CALC'){releaseModifier();numericalFlow('SOLVE');return true}
- if(key==='INTEGRAL'){releaseModifier();numericalFlow('DERIVATIVE');return true}
- if(key==='LOGBASE'){releaseModifier();numericalFlow('SUM');return true}
+ if(key==='INTEGRAL'){releaseModifier();insertCalculusTemplate('derivative');return true}
+ if(key==='LOGBASE'){releaseModifier();insertCalculusTemplate('summation');return true}
  if(key==='FRAC'){releaseModifier();insertTemplate('mixed');return true}
  if(key==='SQRT'){releaseModifier();insertTemplate('cubeRoot');return true}
  if(key==='POWER'){releaseModifier();insertTemplate('nthRoot');return true}
@@ -2268,7 +2291,7 @@ function handle(key){
  if(key==='MPLUS'){accumulateMemory(1);return}
  if(key==='SD'){if(state.mode==='CMPLX')return;toggleFraction();return}
  if(key==='CALC'){startCalc();return}
- if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
+ if(key==='INTEGRAL'){insertCalculusTemplate('integral');return}
  if(key==='LOGBASE'){insertTemplate('logBase');return}
  if(key==='ENG'){if(state.mode==='CMPLX'){insert('i');return}if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
  if(key==='DMS'){
