@@ -1554,6 +1554,15 @@ function handle(key){
   paint();return;
  }
  if(state.screen==='menu'){menuHandle(key);return}
+ if(state.mode==='VECTOR'&&state.screen==='vector-table'){vectorTableHandle(key);return}
+ if(state.mode==='VECTOR'&&['vector-result','vector-scalar'].includes(state.screen)){vectorResultHandle(key);return}
+ if(state.mode==='VECTOR'&&state.screen==='edit'){
+  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
+  if(state.shift&&key==='5'){vectorMenu();return}
+  if(key==='MODE'){modeMenu();return}
+  if(key==='AC'){state.result='';releaseModifier();paint();return}
+  vectorMenu();return;
+ }
  if(state.mode==='MATRIX'&&state.screen==='matrix-table'){matrixTableHandle(key);return}
  if(state.mode==='MATRIX'&&state.screen==='matrix-parameter'){matrixParameterHandle(key);return}
  if(state.mode==='MATRIX'&&['matrix-result','matrix-scalar'].includes(state.screen)){matrixResultHandle(key);return}
