@@ -20,7 +20,7 @@ function nodeWidth(node){
  if(node.type==='logBase')return 14+fieldWidth(node,'base')+fieldWidth(node,'argument');
  if(node.type==='derivative')return 20+fieldWidth(node,'expression')+fieldWidth(node,'at');
  if(node.type==='integral'||node.type==='summation')
-  return 17+Math.max(fieldWidth(node,'upper'),fieldWidth(node,'lower'))+fieldWidth(node,'expression');
+  return 21+Math.max(fieldWidth(node,'upper'),fieldWidth(node,'lower'))+fieldWidth(node,'expression');
  return CHAR;
 }
 function layout(editor,baseline=12){
