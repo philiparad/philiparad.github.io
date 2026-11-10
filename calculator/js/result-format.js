@@ -63,6 +63,7 @@ function fractionText(q,style='improper'){
  if(d===1)return String(n);
  if(style==='mixed'&&Math.abs(n)>d){
   const integer=Math.trunc(n/d),remainder=Math.abs(n)%d;
+  // Count both fraction separators and the sign in the visible budget.
   if(remainder&&String(integer).length+String(remainder).length+String(d).length+2<=10){
    return integer+' '+remainder+'/'+d;
   }
@@ -105,7 +106,10 @@ function calculate(value,source,settings={},options={}){
   exact:options.allowApproxRational?rational(value):null;
  // REA-074: derive exact radical/pi combinations from a bounded source
  // expression tree, never from an approximate decimal identity.
- const symbolicCandidate=preferred?
+ // Force-fraction is used for S⇔D in LineIO. It must not also enable
+ // a radical/pi identity: those forms require a genuine MathO source result.
+ const symbolicCandidate=preferred&&!!cfg.math&&cfg.outputMath!==false&&
+  ['Norm1','Norm2'].includes(cfg.format)?
   (global.FreshExactSymbolic?.symbolic(source,value)||symbolic(value,source)):null;
  let natural={kind:'decimal',text:decimalText};
  if(preferred&&symbolicCandidate)natural=symbolicCandidate;
