@@ -7,8 +7,8 @@ const FIELDS={fraction:['numerator','denominator'],
  mixed:['integer','numerator','denominator'],
  power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],
  cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument'],
- derivative:['expression','at'],integral:['lower','upper','expression'],
- summation:['lower','upper','expression']};
+ derivative:['expression','at'],integral:['expression','lower','upper'],
+ summation:['expression','lower','upper']};
 function create(){return {root:[],path:[],offset:0,version:1,undoStack:[]}}
 const MAX_UNDO=40;
 function snapshot(editor){
