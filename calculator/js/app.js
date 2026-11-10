@@ -264,8 +264,9 @@ function advanceStatements(){
 function syncEditor(){
  state.input=STRUCT.serialize(state.editor);
  state.cursor=state.editor.path.length?state.input.length:state.editor.offset;
- if(state.editor.root.some(n=>n.type!=='char')&&state.math){
-  const position=VIEW.follow(state.editor,{x:state.viewport.inputX,y:state.viewport.inputY});
+ const hasInlineCalculus=state.editor.root.some(n=>['derivative','integral','summation'].includes(n.type));
+ if(state.editor.root.some(n=>n.type!=='char')&&(state.math||hasInlineCalculus)){
+  const position=VIEW.follow(state.editor,{x:state.viewport.inputX,y:state.viewport.inputY},12,!state.math);
   state.viewport.inputX=position.x;state.viewport.inputY=position.y;
  }else{
   const position=VIEW.linearWindow(state.input,state.cursor,23);
