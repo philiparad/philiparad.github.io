@@ -1036,7 +1036,11 @@ function matrixParameterHandle(key){
  if(key==='MODE'){state.matrixParameter=null;modeMenu();return}
  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
  if(key==='DEL'){if(!p.editing){p.buffer='';p.editing=true}else p.buffer=p.buffer.slice(0,-1);p.error='';paint();return}
- if(key==='NEG'){p.buffer=p.buffer.startsWith('-')?p.buffer.slice(1):'-'+p.buffer;p.editing=true;p.error='';paint();return}
+ if(key==='NEG'){
+  if(!p.editing){p.buffer='-';p.editing=true}
+  else p.buffer=p.buffer.startsWith('-')?p.buffer.slice(1):'-'+p.buffer;
+  p.error='';paint();return;
+ }
  if(key==='EQUAL'){
   try{
    const value=MATRIX.parse(p.buffer);
