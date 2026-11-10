@@ -99,9 +99,11 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const columns=special.columns===3?3:2;
   const colWidth=Math.floor(W/columns);
   const rows=Math.ceil(Math.min(size,entries.length)/columns);
-  const lineHeight=rows>3?6:rows===3?7:8;
+  // The 10-digit Fix/Sci popup needs five rows, unlike MODE's four.
+  const lineHeight=rows>4?5:rows>3?6:rows===3?7:8;
+  const firstY=rows>4?6:7;
   for(let i=0;i<Math.min(size,entries.length);i++){
-   const x=i%columns*colWidth,y=7+Math.floor(i/columns)*lineHeight;
+   const x=i%columns*colWidth,y=firstY+Math.floor(i/columns)*lineHeight;
    const name=menu?menu.label(entries[i]):
       String(entries[i].label).replace(/^\\d+\\.\\s*/,'').slice(0,9);
    write(String(entries[i].number)+':'+name,x,y,Math.min(W,x+colWidth));
