@@ -90,6 +90,22 @@ References: [CASIO fx-991ES PLUS guide](https://support.casio.com/storage/en/man
 
 **REA-048 verification:** seven regression-type checks, sample-SD and estimate tests, 16 end-to-end STAT key-sequence checks, and further built-in checks cover the implemented functionality. Full deployed-browser regression and physical-calculator parity checks remain outstanding.
 
+## BASE-N signed integer entry and conversion (REA-049)
+
+**MODE → BASE-N** now opens a key-driven calculator expression editor (the former comma-separated BASE-N wizard is removed). The initial radix is **Dec**. The physical face selects **SQUARE / x² → DEC**, **RECIP / x⁻¹ → HEX**, **LOG → BIN**, **LN → OCT**, as in the fx-991ES PLUS manual. The LCD shows a dedicated Dec/Hex/Bin/Oct label and fixed-width nondecimal results.
+
+- Enter digits in the selected radix and calculate with **=**; `+`, `−`, `×`, `÷` and parentheses are supported here. Hexadecimal A–F use the physical **(−), °′″, hyp, sin, cos, tan** keys (NEG/DMS/HYP/SIN/COS/TAN), or A–F on a computer keyboard. In decimal mode, the **(−)** key inserts a negative sign. Unlike COMP, fractional inputs, exponents, and floating-point values are intentionally not accepted.
+- With a BASE-N result displayed, pressing another radix key **converts the stored signed integer** instead of reinterpreting the displayed digits. Switching radices while entering an unfinished expression clears that unfinished input, to avoid silently changing its meaning. **AC** clears the current input/result to zero.
+- Binary is **16-bit two's complement**, with signed range **−32768 through 32767**. Decimal, octal and hexadecimal are **32-bit two's complement**, with signed range **−2147483648 through 2147483647**. The nondecimal display widths are **16 BIN digits**, **11 OCT digits** and **8 HEX digits**. Overflows and conversions outside the destination's signed range report Math ERROR without silently wrapping.
+- Examples: BIN `11+1` → `0000000000000100`; HEX `1F+1` → `00000020`; OCT `7+1` → `00000000010`. Decimal `-1` converts to HEX `FFFFFFFF`, OCT `37777777777`, and BIN `1111111111111111`. Divisions discard any fractional part toward zero.
+- The signed ranges are currently identical for the supported fx-991ES, fx-991ES PLUS and PLUS C profiles; model-specific tables are kept separate in `js/base-n.js` for future variants.
+
+**Scope boundary:** BASE-N bitwise operators AND, OR, XOR, XNOR, Not and Neg are reserved for **REA-050**. This task focuses on numeral input, arithmetic, base switching, integer ranges and signed representations. Unlike physical calculator memory, the browser session does not persist across a page reload.
+
+**Verification:** 18 direct engine tests and 14 controller/LCD key-sequence checks passed during development, covering radix selection, signed binary and octal values, HEX letter entry, width padding, decimal minimum, invalid digits, overflow, conversion and reset. Additional permanent built-in regression cases are included. These are simulator checks rather than a full real-device or deployed-browser parity test.
+
+Reference: [CASIO fx-570ES PLUS / fx-991ES PLUS manual, BASE-N section](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/base-n_calculations.html).
+
 ## Files
 
 - `index.html` — modular browser application.
