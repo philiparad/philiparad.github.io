@@ -19,7 +19,7 @@ const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
- screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},
+ screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
  insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
@@ -103,13 +103,17 @@ function error(message,source=state.input){
  state.errorOffset=ERRORS.location(state.errorSource,message);
  state.screen='error';releaseModifier();notify(kind,true);paint();
 }
-function setComplexResult(value,source){
+function setComplexResult(value,source,formatOverride=null){
  const z=COMPLEX.value(value);
  state.complexAns=z;state.raw=z.im===0?z.re:NaN;state.resultSource=source;
  state.ansRational=null;state.resultFractionStyle=null;state.remainderResult=null;
  state.factorization=null;state.coordinateResult=null;state.decimal=false;
- const text=COMPLEX.format(z,state.angle,state.complexFormat);
- const item={kind:'complex',text};
+ const style=formatOverride||state.complexFormat;
+ const text=COMPLEX.format(z,state.angle,style);
+ state.complexDisplayFormat=style;
+ // CASIO LineIO presents rectangular parts (or polar r and θ) on two lines.
+ state.complexResultLines=state.math?[]:COMPLEX.components(z,state.angle,style);
+ const item={kind:'complex',text,style};
  state.resultPresentation={chosen:item,natural:item,decimal:item};
  state.result=text;state.viewport.resultX=Math.max(0,text.length-23);
  state.screen='result';state.error='';state.errorOffset=null;state.errorSource='';
@@ -119,9 +123,10 @@ function setComplexResult(value,source){
 }
 function evaluateSegment(source){
  if(state.mode==='CMPLX'){
-  const z=COMPLEX.evaluate(source,{angle:state.angle,ans:state.complexAns,
+  const command=COMPLEX.splitDisplayCommand(source);
+  const z=COMPLEX.evaluate(command.expression,{angle:state.angle,ans:state.complexAns,
    memory:{...state.memory,...state.complexMemory}});
-  setComplexResult(z,source);return;
+  setComplexResult(z,source,command.format);return;
  }
  const parsed=COORD.parse(source);
  if(parsed){
@@ -210,6 +215,7 @@ function replayHistory(key){
  state.screen='edit';state.result='';state.error='';syncEditor();releaseModifier();paint();return true;
 }
 function beginEdit(continueAns=false){
+ if(state.screen!=='edit'){state.complexResultLines=[];state.complexDisplayFormat=null}
  if(state.screen!=='edit'){
   state.screen='edit';state.input='';state.cursor=0;state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
   state.editor=continueAns?STRUCT.fromString('Ans'):STRUCT.create();
@@ -241,6 +247,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
+ state.complexResultLines=[];state.complexDisplayFormat=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.power=true}
@@ -248,6 +255,7 @@ function reset(mode='all'){
 }
 // REA-043: memory and settings persist across an ordinary OFF/ON cycle.
 function clearTransientDisplay(){
+ state.complexResultLines=[];state.complexDisplayFormat=null;
  state.pendingMemory=null;state.flow=null;state.menuEntries=[];state.menu=[];
  state.menuTitle='';state.menuPage=0;state.outputLines=[];state.outputPage=0;
  state.factorization=null;state.coordinateResult=null;state.multiStatements=null;
@@ -588,6 +596,7 @@ function accumulateMemory(sign){
  }catch(e){if(state.screen!=='error')error(e.message||'Math ERROR')}
 }
 function clearMemory(){
+ state.complexResultLines=[];state.complexDisplayFormat=null;
  for(const name of Object.keys(state.memory))state.memory[name]=0;
  state.ans=0;state.preAns=0;state.raw=0;state.ansRational=null;state.preAnsRational=null;state.complexAns={re:0,im:0};state.complexMemory={};
  state.pendingMemory=null;state.resultPresentation=null;state.result='';state.resultSource='';
@@ -646,6 +655,7 @@ function setupMenu(){
 }
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
+ state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
  clearReplay();state.pendingMemory=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
@@ -751,7 +761,18 @@ function alphaKey(key){
  }
  if(key==='CALC')return insert('=');return null
 }
+function complexMenu(){
+ // SHIFT 2: match the documented CMPLX function ordering.
+ releaseModifier();optionDialog('CMPLX',[
+  {key:'1',label:'1. arg',action:()=>insert('arg(')},
+  {key:'2',label:'2. Conjg',action:()=>insert('conj(')},
+  {key:'3',label:'3. ►r∠θ',action:()=>insert('►r∠θ')},
+  {key:'4',label:'4. ►a+bi',action:()=>insert('►a+bi')}
+ ]);
+}
 function shifted(key){
+ if(state.mode==='CMPLX'&&key==='2'){complexMenu();return true}
+ if(state.mode==='CMPLX'&&key==='NEG'){releaseModifier();insert('∠');return true}
  if(state.hyp&&['SIN','COS','TAN'].includes(key)){
   const map={SIN:'asinh(',COS:'acosh(',TAN:'atanh('};
   state.hyp=false;releaseModifier();insert(map[key]);return true;
@@ -1127,7 +1148,11 @@ function runChecks(){const checks=[
   ['complex Ans/register',()=>{const z=COMPLEX.evaluate('Ans+A',{ans:{re:2,im:3},memory:{A:{re:4,im:-1}}});return z.re===6&&z.im===2}],
   ['complex i squared',()=>COMPLEX.evaluate('i^2').re===-1],
   ['complex zero division',()=>{try{COMPLEX.evaluate('1/(i-i)');return false}catch{return true}}],
-  ['complex polar',()=>COMPLEX.format({re:0,im:1},'DEG','polar').includes('∠90')]
+  ['complex polar',()=>COMPLEX.format({re:0,im:1},'DEG','polar').includes('∠90')],
+  ['CMPLX polar input',()=>{const z=COMPLEX.evaluate('2∠45',{angle:'DEG'});return Math.abs(z.re-Math.SQRT2)<1e-12&&Math.abs(z.im-Math.SQRT2)<1e-12}],
+  ['CMPLX command parsing',()=>COMPLEX.splitDisplayCommand('2∠45►a+bi').format==='rectangular'],
+  ['CMPLX angle normalization',()=>COMPLEX.format({re:-2,im:0},'DEG','polar')==='2∠180'],
+  ['CMPLX LineIO components',()=>COMPLEX.components({re:3,im:-2},'DEG','rectangular').join('|')==='3|-2i']
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
