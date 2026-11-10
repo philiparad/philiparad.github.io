@@ -43,7 +43,11 @@ function nodeText(node,strict){
  };
  switch(node.type){
   case 'fraction':return '(('+get('numerator')+')/('+get('denominator')+'))';
-  case 'mixed':return '(('+get('integer')+')+(('+get('numerator')+')/('+get('denominator')+')))';
+  case 'mixed':{
+   const integer=get('integer'),fraction='(('+get('numerator')+')/('+get('denominator')+'))';
+   // A negative mixed number is -(whole + fraction), not -whole + fraction.
+   return '(('+integer+')'+(integer.trim().startsWith('-')?'-':'+')+fraction+')';
+  }
   case 'power':return '^('+get('exponent')+')';
   case 'exp10':return 'E'+get('exponent');
   case 'recurring':return 'RPT('+get('period')+')';
