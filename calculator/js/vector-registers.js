@@ -45,20 +45,62 @@ function cross(a,b){
  return create(3,[finite(y*w-z*v),finite(z*u-x*w),finite(x*v-y*u)]);
 }
 function magnitude(a){return finite(Math.hypot(...a.data))}
-function record(state,operator,aName,bName=null){
- const a=get(state,aName),binary=operator==='dot'||operator==='cross',b=binary?get(state,bName):null;
+function add(a,b){
+ if(a.dimension!==b.dimension)fail('Dimension ERROR');
+ return create(a.dimension,a.data.map((x,i)=>finite(x+b.data[i])));
+}
+function subtract(a,b){
+ if(a.dimension!==b.dimension)fail('Dimension ERROR');
+ return create(a.dimension,a.data.map((x,i)=>finite(x-b.data[i])));
+}
+function scalar(a,k){const factor=finite(k);return create(a.dimension,a.data.map(x=>finite(x*factor)))}
+function angle(a,b,unit='DEG'){
+ if(a.dimension!==b.dimension)fail('Dimension ERROR');
+ const na=magnitude(a),nb=magnitude(b);
+ if(na===0||nb===0)fail('Math ERROR');
+ const cosine=dot(a,b)/(na*nb);
+ if(!Number.isFinite(cosine))fail('Math ERROR');
+ const radians=Math.acos(Math.max(-1,Math.min(1,cosine)));
+ if(unit==='DEG')return finite(radians*180/Math.PI);
+ if(unit==='RAD')return finite(radians);
+ if(unit==='GRA'||unit==='GRAD')return finite(radians*200/Math.PI);
+ fail('Argument ERROR');
+}
+function geometry(a,b){
+ if(a.dimension!==b.dimension)fail('Dimension ERROR');
+ const na=magnitude(a),nb=magnitude(b);
+ if(na===0||nb===0)fail('Math ERROR');
+ const cos=Math.max(-1,Math.min(1,dot(a,b)/(na*nb)));
+ const relation=Math.abs(cos)<1e-12?'perpendicular':
+  Math.abs(cos-1)<1e-12?'parallel, same direction':
+  Math.abs(cos+1)<1e-12?'parallel, opposite direction':
+  cos>0?'acute':'obtuse';
+ return {cosine:cos,relation,normA:na,normB:nb};
+}
+function record(state,operator,aName,bName=null,parameter=null){
+ const a=get(state,aName);
+ const binary=['add','subtract','dot','cross','angle'].includes(operator);
+ const b=binary?get(state,bName):null;
  let output;
- if(operator==='dot')output=dot(a,b);
+ if(operator==='add')output=add(a,b);
+ else if(operator==='subtract')output=subtract(a,b);
+ else if(operator==='scalar')output=scalar(a,parameter);
+ else if(operator==='dot')output=dot(a,b);
  else if(operator==='cross')output=cross(a,b);
  else if(operator==='abs')output=magnitude(a);
+ else if(operator==='angle')output=angle(a,b,parameter||'DEG');
  else fail('Argument ERROR');
+ // Failed calculations never alter VctAns or the history.
  if(typeof output==='object')state.VctAns=clone(output);
- state.history.push({operator,aName,bName:binary?bName:null,operandA:a,operandB:b,
-  output:typeof output==='object'?clone(output):output});
+ const historyItem={operator,aName,bName:binary?bName:null,
+  parameter:operator==='scalar'||operator==='angle'?parameter:null,
+  operandA:a,operandB:b,output:typeof output==='object'?clone(output):output};
+ if(operator==='angle')historyItem.geometry=geometry(a,b);
+ state.history.push(historyItem);
  if(state.history.length>MAX_HISTORY)state.history.shift();
  return output;
 }
 function copy(state,from,to){if(!NAMES.includes(to))fail('Argument ERROR');return set(state,to,get(state,from))}
-g.FreshVectorRegisters=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,parse,load,commit,type,sign,backspace,move,next,clear,dot,cross,magnitude,record,copy});
+g.FreshVectorRegisters=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,parse,load,commit,type,sign,backspace,move,next,clear,dot,cross,magnitude,add,subtract,scalar,angle,geometry,record,copy});
 if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshVectorRegisters;
 })(typeof window!=='undefined'?window:globalThis);
