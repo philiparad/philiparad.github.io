@@ -41,7 +41,7 @@ check('denominator backspace preserves absorbed numerator',()=>{
 check('nested fraction',()=>{
  const e=E.create();E.template(e,'fraction');E.insert(e,'1');
  E.template(e,'fraction');E.insert(e,'2');
- E.navigate(e,'RIGHT');E.insert(e,'3');numerical(e,1/6);
+ E.navigate(e,'RIGHT');E.navigate(e,'RIGHT');E.insert(e,'3');numerical(e,1/6);
 });
 check('mixed fraction slots',()=>{
  const e=E.create();E.template(e,'mixed');
