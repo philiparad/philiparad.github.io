@@ -267,7 +267,7 @@ function loadExpression(text){
 function reset(mode='all'){
  state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
  notify('Calculator reset');paint()
 }
@@ -318,13 +318,14 @@ function clearMenu(){
 // The companion panels are read-only; they never collect a mathematical value.
 function optionDialog(title,entries,options={}){
  state.menuTitle=title;state.menuEntries=entries;state.menuPage=0;
+  if(state.screen!=='menu')state.menuReturnScreen=state.screen;
  state.menuKind=options.kind||'normal';state.menuPageSize=options.pageSize||MENUS.rule(state.menuKind).size;
  state.screen='menu';showMenu();
 }
 function showMenu(){
  const size=state.menuPageSize||6;
  state.menu=state.menuEntries.slice(state.menuPage*size,state.menuPage*size+size).map((e,i)=>({
-  label:e.label,number:e.key!==undefined?e.key:i+1
+  label:e.label,number:size===10&&e.key!==undefined?e.key:(e.key==='='?'=':String(i+1))
  }));
  state.info=state.menuPage?'PAGE '+(state.menuPage+1):'';
  paint();
@@ -452,7 +453,7 @@ function flowHandle(key){
  return true;
 }
 function menuHandle(key){
- if(key==='AC'){state.menuEntries=[];state.menu=[];state.menuPageSize=6;state.menuKind='normal';state.screen='edit';state.info='';paint();return true}
+ if(key==='AC'){const back=state.menuReturnScreen||'edit';state.menuEntries=[];state.menu=[];state.menuPageSize=6;state.menuKind='normal';state.screen=back;state.info='';paint();return true}
  const size=state.menuPageSize||6;
  if(key==='DOWN'||key==='UP'){
   const next=MENUS.navigate(state.menuPage,key,state.menuEntries.length,size);
@@ -777,7 +778,7 @@ function statMenu(){
    {key:'1',label:'1. Ins',action:()=>statSafe(()=>{STAT.insert(state.statTable);state.screen='stat-table';paint()})},
    {key:'2',label:'2. Del',action:()=>statSafe(()=>{STAT.remove(state.statTable);state.screen='stat-table';paint()})},
    {key:'3',label:'3. Del-A',action:()=>{const t=state.statTable;t.rows=[{X:null,Y:null,FREQ:1}];t.row=0;t.col=0;STAT.load(t);state.screen='stat-table';paint()}}
-  ])},
+  ],{kind:'stat-edit',pageSize:4})},
   {key:'4',label:'4. Sum',action:()=>statSafe(()=>statMenuResult('Sum',REG.sumLines(statSummary(),state.statTable.paired)))},
   {key:'5',label:'5. Var',action:()=>statSafe(()=>statMenuResult('Var',REG.varLines(statSummary(),state.statTable.paired)))},
   {key:'6',label:'6. MinMax',action:()=>statSafe(()=>statMenuResult('MinMax',REG.minMaxLines(statSummary(),state.statTable.paired)))},
@@ -786,7 +787,7 @@ function statMenu(){
    {key:'1',label:'1. yHat',action:()=>statSafe(()=>statEstimate('y'))},
    {key:'2',label:'2. xHat',action:()=>statSafe(()=>statEstimate('x'))}
   ])}
- ],{pageSize:8,kind:'stat'});
+ ],{pageSize:8,kind:'stat-menu'});
 }
 function statAdvance(){
  const t=state.statTable;STAT.commit(t);
