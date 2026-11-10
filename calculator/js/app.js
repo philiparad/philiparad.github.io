@@ -1004,6 +1004,12 @@ function matrixClose(){
  notify('MATRIX registers saved; SHIFT 4 menu');paint();
 }
 function matrixShow(name,value=null){
+ if(!value&&!state.matrices[name]){
+  releaseModifier();notify(name+' has no data; use Dim first',true);
+  if(MATRIX.NAMES.includes(name))matrixDimensionMenu(name);
+  else matrixMenu();
+  return;
+ }
  const matrix=value?MATRIX.clone(value):MATRIX.get(state.matrices,name);
  state.matrixView={name,matrix,row:0,col:0};
  state.matrixEditor=null;state.screen='matrix-result';releaseModifier();
