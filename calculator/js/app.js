@@ -209,8 +209,13 @@ function evaluateSegment(source){
   });
   if(exact){exactRational=window.FreshRational.serialize(exact);exactValue=window.FreshRational.toNumber(exact)}
  }
- const value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
+ let value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
   exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+ // REA-075: the exact-rational fast path must obey the same documented
+ // numeric range floor as base-10 arithmetic; discard out-of-range metadata.
+ if(value!==0&&Number.isFinite(value)&&Math.abs(value)<1e-99){
+  value=0;exactRational=null;
+ }
  // A radical expression may cancel to an exact rational, even though the
  // rational-only parser cannot parse sqrt(...). Retain exact provenance.
  if(!exactRational&&window.FreshExactSymbolic&&state.mode==='COMP')
