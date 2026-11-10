@@ -77,19 +77,37 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   write('LEVEL '+String(state.contrast??5),24,22);
   return pixels;
  }
- if(state.screen==='menu'){
-  const title=String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
-  write(title,0,0);
-  const a=state.menu||[],size=state.menuPageSize||6;
-  const lineHeight=size>=10?5:size>=8?6:8;
-  const firstY=size>=10?6:size>=8?6:8;
-  for(let i=0;i<Math.min(size,a.length);i++){
-   const x=i%2?48:0,y=firstY+lineHeight*Math.floor(i/2);
-   const name=String(a[i].label).replace(/^\d+\.\s*/, '').replace(/[^A-Za-z0-9 +*/∠θ►-]/g,'').slice(0,9);
-   write(String(a[i].number)+':'+name,x,y,x+48);
+ // CASIO MODE/SETUP/STAT/DIST menus: local 1–8 keys, 2 columns,
+ // four rows, UP/DOWN page flags. Side-by-side LCD keys are underlined.
+ if(state.pendingMemory){
+  write(state.pendingMemory==='STO'?'STO':'RCL',0,0);
+  const names=['A','B','C','D','E','F','X','Y','M'];
+  for(let i=0;i<names.length;i++){
+   const col=i%3,row=Math.floor(i/3);
+   write((i+1)+':'+names[i],col*32,9+row*7,col*32+32);
   }
-  if((state.menuPage+1)*size<state.menuEntries.length)write('>',91,0);
-  if(state.menuPage>0)write('<',87,0);
+  return pixels;
+ }
+ if(state.screen==='menu'){
+  const menu=global.FreshMenuModel;
+  const kind=state.menuKind||'normal';
+  const title=menu?menu.displayTitle(kind,state.menuTitle):
+    String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
+  write(title,0,0);
+  const entries=state.menu||[],size=state.menuPageSize||6;
+  const special=menu?menu.rule(kind):{columns:2,size:6};
+  const columns=special.columns===3?3:2;
+  const colWidth=Math.floor(W/columns);
+  const rows=Math.ceil(Math.min(size,entries.length)/columns);
+  const lineHeight=rows>3?6:rows===3?7:8;
+  for(let i=0;i<Math.min(size,entries.length);i++){
+   const x=i%columns*colWidth,y=7+Math.floor(i/columns)*lineHeight;
+   const name=menu?menu.label(entries[i]):
+      String(entries[i].label).replace(/^\\d+\\.\\s*/,'').slice(0,9);
+   write(String(entries[i].number)+':'+name,x,y,Math.min(W,x+colWidth));
+  }
+  if((state.menuPage+1)*size<state.menuEntries.length)write('v',91,0);
+  if(state.menuPage>0)write('^',87,0);
   return pixels;
  }
  if(state.screen==='stat-table'&&state.statTable){
