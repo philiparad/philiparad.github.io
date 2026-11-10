@@ -3,7 +3,9 @@
  */
 (function(global){'use strict';
 const WIDTH=96,HEIGHT=31,CHAR=4;
-const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
+const FIELDS={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument'],
+ derivative:['expression','at'],integral:['expression','lower','upper'],
+ summation:['expression','lower','upper']};
 function measure(nodes){return nodes.reduce((sum,node)=>sum+nodeWidth(node),0)}
 function fieldWidth(node,name){return Math.max(6,measure(node.parts[name]||[]))}
 function nodeWidth(node){
@@ -16,6 +18,9 @@ function nodeWidth(node){
  if(node.type==='squareRoot'||node.type==='cubeRoot')return fieldWidth(node,'radicand')+8;
  if(node.type==='nthRoot')return fieldWidth(node,'index')+fieldWidth(node,'radicand')+9;
  if(node.type==='logBase')return 14+fieldWidth(node,'base')+fieldWidth(node,'argument');
+ if(node.type==='derivative')return 20+fieldWidth(node,'expression')+fieldWidth(node,'at');
+ if(node.type==='integral'||node.type==='summation')
+  return 17+Math.max(fieldWidth(node,'upper'),fieldWidth(node,'lower'))+fieldWidth(node,'expression');
  return CHAR;
 }
 function layout(editor,baseline=12){
@@ -46,6 +51,14 @@ function layout(editor,baseline=12){
      field('numerator',x+shift+Math.floor((span-measure(p.numerator))/2),y-10);
      add(y-3,y-3);
      field('denominator',x+shift+Math.floor((span-measure(p.denominator))/2),y+1);
+    }else if(n.type==='derivative'){
+     add(y-8,y+8);field('expression',x+16,y);
+     field('at',x+16+fieldWidth(n,'expression'),y+7);
+    }else if(n.type==='integral'||n.type==='summation'){
+     add(y-12,y+12);
+     field('upper',x+6,y-12);
+     field('lower',x+6,y+7);
+     field('expression',x+13+Math.max(fieldWidth(n,'upper'),fieldWidth(n,'lower')),y);
     }else if(n.type==='power')field('exponent',x+2,y-8);
     else if(n.type==='exp10'){add(y-8,y+5);field('exponent',x+13,y-8)}
     else if(n.type==='recurring'){add(y-3,y+5);field('period',x+1,y)}
