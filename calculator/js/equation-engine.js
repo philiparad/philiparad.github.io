@@ -72,13 +72,21 @@ function cubic(coeff){
  const A=b/a,B=c/a,C=d/a,p=B-A*A/3,q=2*A*A*A/27-A*B/3+C;
  const delta=q*q/4+p*p*p/27;if(!Number.isFinite(delta))fail();
  const tol=1e-13*Math.max(1,Math.abs(q*q/4),Math.abs(p*p*p/27));
- let roots,nonReal=0;
- if(delta>tol){const root=Math.sqrt(delta);roots=[Math.cbrt(-q/2+root)+Math.cbrt(-q/2-root)-A/3];nonReal=2}
- else if(delta< -tol){
+ let roots;
+ if(delta>tol){
+  const root=Math.sqrt(delta),u=Math.cbrt(-q/2+root),v=Math.cbrt(-q/2-root);
+  const real=u+v-A/3,part=-(u+v)/2-A/3,imag=Math.abs(Math.sqrt(3)*(u-v)/2);
+  return {type:'CUBIC',status:'ok',nonRealCount:2,
+   solutions:[realRoot('X1',real),complexRoot('X2',part,imag),complexRoot('X3',part,-imag)]};
+ }
+ if(delta< -tol){
   const magnitude=2*Math.sqrt(-p/3),angle=Math.acos(Math.max(-1,Math.min(1,-q/(2*Math.sqrt(-(p*p*p)/27)))));
   roots=[0,1,2].map(k=>magnitude*Math.cos((angle-2*Math.PI*k)/3)-A/3).sort((x,y)=>x-y);
  }else{const u=Math.cbrt(-q/2);roots=[2*u-A/3,-u-A/3,-u-A/3].sort((x,y)=>x-y)}
- return record('CUBIC',roots.map((x,i)=>['X'+(i+1),x]),nonReal?'1 Real Root':'ok',nonReal);
+ roots=unique(roots);
+ // CASIO's documented x^3-2x^2-x+2: -1, 2, 1.
+ if(roots.length===3)roots=[roots[0],roots[2],roots[1]];
+ return record('CUBIC',roots.map((x,i)=>[roots.length===1?'X':'X'+(i+1),x]));
 }
 function solve(type,values){
  const t=TYPES.find(item=>item.id===type);if(!t)fail('Argument ERROR');
