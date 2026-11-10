@@ -1,6 +1,8 @@
 /* REA-047 — LCD-native STAT table model, independent of the page DOM. */
 (function(global){'use strict';
 const MAX_ROWS=80,MAX_WEIGHT=100000;
+// CASIO fx-991ES PLUS editor: 80 X; 40 X/FREQ or X/Y; 26 X/Y/FREQ.
+function rowCapacity(s){return s.paired?(s.frequency?26:40):(s.frequency?40:80)}
 function fail(msg='Argument ERROR'){throw Error(msg)}
 function columns(paired,frequency){return paired?(frequency?['X','Y','FREQ']:['X','Y']):(frequency?['X','FREQ']:['X'])}
 function newRow(){return {X:null,Y:null,FREQ:1}}
@@ -34,7 +36,7 @@ function move(s,dr,dc){
 }
 function insert(s){
  commit(s);
- if(s.rows.length>=MAX_ROWS)fail('Data Full');
+ if(s.rows.length>=rowCapacity(s))fail('Data Full');
  s.rows.splice(s.row+1,0,newRow());s.row++;s.col=0;
  return load(s);
 }
@@ -45,7 +47,9 @@ function remove(s){
 }
 function toggleFrequency(s,enabled){
  // No entered X/Y or stored frequencies are discarded by hiding a column.
- commit(s);s.frequency=!!enabled;
+ commit(s);
+ if(s.rows.length>rowCapacity({...s,frequency:!!enabled}))fail('Data Full');
+ s.frequency=!!enabled;
  s.col=Math.min(s.col,columns(s.paired,s.frequency).length-1);
  return load(s);
 }
@@ -89,7 +93,7 @@ function lines(result,paired=false){
  else rows.push(['Min',result.min],['Max',result.max]);
  return rows.map(([name,v])=>name+' = '+format(v));
 }
-const API=Object.freeze({MAX_ROWS,columns,create,active,load,parse,commit,move,insert,remove,toggleFrequency,type,calculate,lines});
+const API=Object.freeze({MAX_ROWS,rowCapacity,columns,create,active,load,parse,commit,move,insert,remove,toggleFrequency,type,calculate,lines});
 global.FreshStatEditor=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
