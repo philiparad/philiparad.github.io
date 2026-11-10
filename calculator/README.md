@@ -133,6 +133,20 @@ Logical values use explicitly masked **BigInt** words so negative complements an
 
 Manual reference: [CASIO fx-570ES PLUS / fx-991ES PLUS user's guide, Logical and Negation Operations, page E-27](https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-570ESPLUS_991ESPLUS_EN.pdf).
 
+## EQN cubic and three-variable systems (REA-051)
+
+**MODE → 5 (EQN)** now presents the four documented equation types, in the CASIO guide's ordering: **1** simultaneous equations with two unknowns, **2** with three unknowns, **3** quadratic equation `aX²+bX+c=0`, and **4** cubic equation `aX³+bX²+cX+d=0`. The existing coefficient prompts allow one numeric coefficient at a time; the native multi-cell coefficient editor is reserved for **REA-052**.
+
+For type 1, enter six coefficients in row order (`a1,b1,c1,a2,b2,c2`); for type 2, enter 12 (`a1,b1,c1,d1`, then rows 2 and 3). For quadratics and cubics, enter the respective three or four coefficients. Coefficients can be negative or zero. The first result is displayed after the final `=`; press **= / DOWN / RIGHT** to view the next real solution, **UP / LEFT** to go back, and **AC** to reopen the existing coefficient prompt with its values preserved. Pressing **=** on the last result also returns to the coefficient prompts. Results are shown on the calculator LCD rather than in an external results panel.
+
+The independent `js/equation-engine.js` solves 2×2 and 3×3 systems with partial-pivot elimination and residual checks, and classifies **No Solution** and **Infinite Solutions** when the coefficient matrix is singular. Quadratic solutions use a cancellation-resistant real-root formula; cubic roots use the depressed cubic/Cardano method with a three-real-root trigonometric branch. Repeated roots are retained for cubic display. A non-real quadratic returns **No Real Roots**. If a cubic has one real root and two non-real conjugate roots, the simulator displays that real root with a **REAL ONLY** label; it does not invent real values for complex solutions or claim to render complex values unsupported by the current EQN display.
+
+Examples from the CASIO guide: `X−Y+Z=2; X+Y−Z=0; −X+Y+Z=4` has `X=1,Y=2,Z=3`; `X³−2X²−X+2=0` has three real roots `−1,1,2`. Solution ordering for distinct real cubic roots in this independent implementation is ascending rather than a promise of CASIO firmware-internal ordering.
+
+**Verification:** 13 independent engine cases cover cubic distinct/repeated/non-real roots, quadratic roots, two-/three-unknown systems, singular classifications and type selection. Six permanent controller self-tests cover EQN behavior, and controller key-sequence tests exercise result paging. Full browser and physical-calculator parity tests have not been performed.
+
+Source: [CASIO EQN user guide](https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/using_calculation_modes/equation_calculations.html).
+
 ## Files
 
 - `index.html` — modular browser application.
