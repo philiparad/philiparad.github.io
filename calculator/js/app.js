@@ -6,11 +6,12 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
 if(!REG)throw Error('Missing STAT regression engine');
+if(!BASE)throw Error('Missing BASE-N integer engine');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -22,7 +23,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- statTable:null,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ statTable:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -62,7 +63,7 @@ function paint(){
  document.querySelector('.case-model-id').textContent=faceIds[state.model];
  document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'':'2nd edition';
  $('model-label').textContent=MODELS.get(state.model).label;
- $('mode-label').textContent=state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
+ $('mode-label').textContent=state.mode==='BASE-N'?'BASE-N '+state.baseRadix:state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
  $('expression-text').textContent=state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
  document.querySelectorAll('.key-unit').forEach(el=>{
@@ -252,7 +253,7 @@ function reset(mode='all'){
  state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
- if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.power=true}
+ if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.power=true}
  notify('Calculator reset');paint()
 }
 // REA-043: memory and settings persist across an ordinary OFF/ON cycle.
@@ -658,6 +659,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
+ if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
  clearReplay();state.pendingMemory=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
@@ -794,15 +796,75 @@ function statTableHandle(key){
  }
  notify('STAT editor: arrows, =, CALC, SHIFT UP/DOWN',true);paint();
 }
+// REA-049: calculator-key BASE-N editor, with signed ranges by model.
+const BASE_SELECT=Object.freeze({SQUARE:'DEC',RECIP:'HEX',LOG:'BIN',LN:'OCT'});
+const HEX_KEYS=Object.freeze({NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F'});
+function baseSetInput(text){
+ state.input=text;state.cursor=text.length;state.editor=STRUCT.fromString(text);
+ state.screen='edit';state.result='';releaseModifier();paint();
+}
+function baseSwitch(radix){
+ // Convert the stored numeric result; never reinterpret its old digit string.
+ if(state.screen==='result'){
+  const text=BASE.convert(state.baseValue,radix,state.model);
+  state.baseRadix=radix;state.result=text;state.raw=state.baseValue;
+  state.resultPresentation=null;releaseModifier();
+  notify('BASE-N '+radix+' conversion');paint();return;
+ }
+ if(state.input){
+  state.baseRadix=radix;baseSetInput('');
+  notify('BASE-N '+radix+' — previous input cleared');return;
+ }
+ state.baseRadix=radix;releaseModifier();
+ notify('BASE-N '+radix+' selected');paint();
+}
+function baseAppend(token){
+ const next=state.screen==='result'?token:state.input+token;
+ if(next.length>100)throw Error('Syntax ERROR');
+ baseSetInput(next);
+}
+function baseCalculate(){
+ const expression=state.input;
+ const n=expression?BASE.evaluate(expression,state.baseRadix,state.model):BigInt(state.baseValue);
+ const output=BASE.format(n,state.baseRadix,state.model);
+ state.baseValue=Number(n);state.raw=Number(n);state.ans=Number(n);
+ state.ansRational=null;state.resultPresentation=null;
+ state.result=output;state.screen='result';releaseModifier();
+ notify('BASE-N '+state.baseRadix+' calculation');paint();
+}
+function baseHandle(key){
+ if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+ if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+ if(state.shift&&key==='AC'){powerOff();return}
+ if(state.shift&&key==='MODE'){releaseModifier();setupMenu();return}
+ if(state.shift&&key==='9'){releaseModifier();clearMenu();return}
+ if(key==='MODE'){releaseModifier();modeMenu();return}
+ if(BASE_SELECT[key]){baseSwitch(BASE_SELECT[key]);return}
+ const hex=HEX_KEYS[key];
+ if(hex&&state.baseRadix==='HEX'){baseAppend(hex);return}
+ if(key.startsWith('TEXT:')&&state.baseRadix==='HEX'&&/^[a-f]$/i.test(key.slice(5))){
+  baseAppend(key.slice(5).toUpperCase());return;
+ }
+ if(key==='AC'){baseSetInput('');notify('BASE-N cleared input');return}
+ if(key==='DEL'){
+  if(state.screen==='result')baseSetInput('');
+  else baseSetInput(state.input.slice(0,-1));
+  return;
+ }
+ if(key==='EQUAL'){baseCalculate();return}
+ const ops={ADD:'+',SUB:'-',MUL:'*',DIV:'/',LP:'(',RP:')'};
+ if(ops[key]){baseAppend(ops[key]);return}
+ if(/^[0-9]$/.test(key)){
+  if(Number(key)>=BASE.BASES[state.baseRadix]){notify('Invalid '+state.baseRadix+' digit',true);return}
+  baseAppend(key);return;
+ }
+ notify('BASE-N key unavailable in this radix',true);paint();
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
- if(mode==='BASE-N')return fieldForm('BASE-N — signed integer and bitwise operations',[{id:'a',label:'First integer',value:'10'},{id:'b',label:'Second integer',value:'12'},{id:'op',label:'Operation (+, -, AND, OR, XOR, NOT)',value:'AND'}],d=>{
-  const a=Number(d.a),b=Number(d.b);if(!Number.isInteger(a)||!Number.isInteger(b))throw Error('Argument ERROR');let result;switch(d.op.trim().toUpperCase()){
-   case '+':result=a+b;break;case '-':result=a-b;break;case 'AND':result=a&b;break;case 'OR':result=a|b;break;case 'XOR':result=a^b;break;case 'NOT':result=~a;break;default:throw Error('Unsupported operation')}
-  applyAdvancedResult(result,'BASE-N');return 'DEC '+result+'\nHEX '+(result>>>0).toString(16).toUpperCase()+'\nBIN '+(result>>>0).toString(2)+'\nOCT '+(result>>>0).toString(8)
- });
- if(mode==='EQN')return optionDialog('EQN — choose equation type',[
+ if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0;state.screen='edit';notify('BASE-N Dec · x² DEC; x⁻¹ HEX; log BIN; ln OCT');paint();return}
+  if(mode==='EQN')return optionDialog('EQN — choose equation type',[
   {label:'Quadratic ax²+bx+c=0',action:()=>fieldForm('Quadratic equation',[{id:'a',label:'a',value:'1'},{id:'b',label:'b',value:'-3'},{id:'c',label:'c',value:'2'}],d=>{
    const roots=M.quadratic(+d.a,+d.b,+d.c);if(roots.length)applyAdvancedResult(roots[0],'EQN');return roots.length?roots.map((r,i)=>'X'+(i+1)+' = '+M.format(r,state)).join('\n'):'No real solution'})},
   {label:'Two linear equations',action:()=>fieldForm('2×2 linear system',[{id:'a',label:'First row: a,b,c',value:'2,1,5'},{id:'b',label:'Second row: a,b,c',value:'1,-1,1'}],d=>{
@@ -1054,6 +1116,7 @@ function handle(key){
   paint();return;
  }
  if(state.screen==='menu'){menuHandle(key);return}
+ if(state.mode==='BASE-N'){baseHandle(key);return}
  if(state.screen==='stat-table'){statTableHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
@@ -1289,7 +1352,12 @@ function runChecks(){const checks=[
    ['STAT inverse fit',()=>{const t=STAT.create(true);t.rows=[{X:1,Y:7,FREQ:1},{X:2,Y:5,FREQ:1},{X:4,Y:4,FREQ:1}];return Math.abs(REG.fit(t,'INV').B-4)<1e-9}],
    ['STAT sample sd',()=>{const t=STAT.create();t.rows=[{X:1,Y:null,FREQ:1},{X:2,Y:null,FREQ:1},{X:3,Y:null,FREQ:1}];return Math.abs(REG.summary(t).sampleSDX-1)<1e-10}],
    ['STAT manual row limits',()=>[STAT.create(),STAT.create(false,true),STAT.create(true,false),STAT.create(true,true)].map(STAT.rowCapacity).join(',')==='80,40,40,26'],
-   ['STAT invalid log domain',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:2,FREQ:1},{X:1,Y:3,FREQ:1}];try{REG.fit(t,'LOG');return false}catch{return true}}]
+   ['STAT invalid log domain',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:2,FREQ:1},{X:1,Y:3,FREQ:1}];try{REG.fit(t,'LOG');return false}catch{return true}}],
+  ['BASE-N binary signed',()=>BASE.evaluate('1111111111111111','BIN',state.model)===-1n],
+  ['BASE-N hex conversion',()=>BASE.format(-1n,'HEX',state.model)==='FFFFFFFF'],
+  ['BASE-N decimal minimum',()=>BASE.evaluate('-2147483648','DEC',state.model)===-2147483648n],
+  ['BASE-N binary range guard',()=>{try{BASE.format(-32769n,'BIN',state.model);return false}catch{return true}}],
+  ['BASE-N octal signed',()=>BASE.evaluate('37777777777','OCT',state.model)===-1n]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
