@@ -38,7 +38,9 @@ function derive(state){
  return {
   shift:state.shift?'S':'',
   alpha:state.alpha?'A':'',
-  memory:Number(state.memory?.M)!==0&&Number.isFinite(Number(state.memory?.M))?'M':'',
+  memory:(state.mode==='CMPLX'&&state.complexMemory?.M?
+   (state.complexMemory.M.re!==0||state.complexMemory.M.im!==0):
+   (Number(state.memory?.M)!==0&&Number.isFinite(Number(state.memory?.M))))?'M':'',
   pending,
   mode:MODE_LABELS[mode]||'',
   angle:state.angle==='DEG'?'D':state.angle==='RAD'?'R':'G',
