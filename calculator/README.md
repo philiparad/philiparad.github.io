@@ -199,6 +199,20 @@ After selecting **Power** or **Scalar**, use the calculator's dedicated LCD para
 
 **Scope and verification:** The core engine includes numerically checked inverses (Gaussian elimination with pivoting), matrix dimensions up to (3×3), and typed errors. Standalone engine tests, calculator key-sequence tests and permanent self-tests cover the new operations and invalid cases. Arbitrary typed MATRIX expressions and bit-for-bit CASIO numerical rounding are **not** claimed complete; no deployed-browser visual or physical-calculator parity test was performed.
 
+## VECTOR named registers, dimension editing and VctAns (REA-055)
+
+**MODE → VECTOR** (second MODE page, **RIGHT → 2** in the 8-mode emulator menu) now opens native vector-register selection instead of the original one-off pair-of-vectors prompt. Define independent **VctA**, **VctB**, and **VctC** registers with **two or three components**. The registers retain their dimensions and entries while switching other calculator modes; full calculator reset clears these vectors, VctAns and vector history.
+
+**Editor controls:** choose a register, then **1 = 2D** or **2 = 3D**. The calculator LCD displays its component list. Type each numeric component and press **=** to store and advance. **UP/DOWN/LEFT/RIGHT** move between components and permit replacement of an earlier value; **(−)** switches signs, and **DEL** deletes a digit. Pressing **=** on the final component or **AC** exits the table with committed values saved. Press **SHIFT → 5** to open the VECTOR menu.
+
+**VECTOR menu:** **1 Dim** defines a named register, **2 Data** reopens its editor, **3 VctA**, **4 VctB**, **5 VctC** and **6 VctAns** display stored vectors, **7 Copy** copies a register or VctAns into an independent destination register, **8 Calc** offers Dot, Cross and Abs (magnitude), and **9 History** recalls up to 30 recent vector calculations (on page 2, **RIGHT → 9**). Existing operations have been integrated with the persistent register model. The 3D cross product creates a **VctAns** vector; scalar dot products and magnitudes are displayed as numbers and do **not** overwrite existing VctAns.
+
+**Example:** choose VctA = `(1,2,3)` and VctB = `(4,5,6)`. Dot product gives **32**; cross product gives **VctAns = (−3,6,−3)**; magnitude of VctA is **√14 ≈ 3.74165738677**. Copy VctAns to VctC, edit VctC, and the saved VctAns remains unchanged.
+
+**Error semantics:** a cross product requires both vectors to be 3D; dot products require equal vector dimensions; invalid components and unsupported calculations are rejected. Failed calculations do not overwrite vector history or VctAns. This implements the REA-055 storage/editor/memory requirements; broad VECTOR expression parsing and additional operation parity are separate follow-up tasks.
+
+**Verification:** 23 vector model unit tests, 16 end-to-end key-sequence tests, LCD rendering checks and nine permanent VECTOR regression checks were added or executed during development. These are simulator checks rather than full deployed-browser or physical-calculator equivalence tests.
+
 ## Files
 
 - `index.html` — modular browser application.
