@@ -1572,8 +1572,9 @@ function distListCalculate(){
    }
    // Parameter errors invalidate the whole calculation; row errors are
    // shown as ERROR in Ans, without discarding other valid rows.
-   const probe=DIST.calculate(editor.type,{...numeric,x:editor.samples[0]});
-   void probe;
+   // Validate distribution parameters independently from each list sample.
+   // Invalid sample X values produce individual ERROR cells.
+   DIST.calculate(editor.type,{...numeric,x:0});
    DISTLIST.evaluate(editor,numeric,DIST);
    state.distListParams={...data};
    state.screen='dist-list';state.flow=null;
