@@ -161,6 +161,22 @@ The final **=** on the last cell calculates the equation and opens the first res
 
 References: <https://support.casio.com/storage/en/manual/pdf/EN/004/fx-570_991ES_PLUS_EN.pdf>, Equation Calculations (EQN), page E-28.
 
+## MATRIX registers, dimensions and matrix answer memory (REA-053)
+
+**MODE → MATRIX** now opens a native LCD workflow instead of the previous one-off two-matrix 2×2 web prompt. Three independent matrix registers, **MatA**, **MatB** and **MatC**, can each hold a numeric matrix of **1–3 rows by 1–3 columns** (all nine dimension combinations). Each register remembers its dimensions and entries when another register is opened or another calculator mode is selected. Full calculator reset clears all matrix registers and history.
+
+**Define a register:** enter MATRIX mode, choose **MatA / MatB / MatC** (1/2/3) and choose a dimension (1–9). The last **3×3** option is on the next menu page: press **RIGHT → 9**. The LCD displays an editable table. Type a numeric value and press **=** to store it and advance, or use **UP/DOWN/LEFT/RIGHT** to navigate individual cells. **(−)** changes a cell's sign; **DEL** edits the value. A repeated edit does not affect other registers. Press **AC** to leave the editor while preserving committed changes. On the final **=**, the editor closes and stores the completed matrix.
+
+**Matrix menu:** press **SHIFT → 4 (MATRIX)** in MATRIX mode to access **1 Dim**, **2 Data**, **3 MatA**, **4 MatB**, **5 MatC**, **6 MatAns**, **7 Copy**, **8 Calc**, **9 History**. The ninth option is on the next page (**RIGHT → 9**). **Dim** creates or replaces a register at a chosen dimension; **Data** reopens an existing editable register. Register/MatAns options inspect stored values using the LCD and arrow keys. **Copy** copies any existing MatA/MatB/MatC/MatAns into another register, producing an independent matrix that can be edited without changing the source.
+
+**MatAns and history:** supported calculations retain the previous **add, multiply and determinant** operations. Choose **Calc**, then an operation and the input registers; incompatible dimensions report a calculation error. A matrix result is stored as **MatAns** and displayed as a browsable LCD matrix. Scalar determinant results are shown as numbers. A history of the most recent **30** matrix calculations holds operand snapshots and result snapshots; selecting a historical matrix restores that result into MatAns. This history is separate from the general COMP input history.
+
+**Example:** define MatA = `[[2,1],[1,1]]`, MatB = `[[2,-1],[-1,2]]`; multiply them to obtain **MatAns = [[3,0],[1,1]]**. Copy MatAns to MatC and edit MatC independently: the saved MatAns and MatA/MatB remain unchanged. All dimensions within 3×3 are available. Expanded matrix arithmetic such as transpose, inverse, scalar operations and expression parsing is **not claimed complete by REA-053**.
+
+**Verification:** 18 matrix-register/engine tests, 15 key-sequence tests for register definition, arithmetic, MatAns, copy and independent edits, 6 further key-sequence tests for 3×3 page selection and mode-change persistence, and 7 built-in MATRIX checks passed. These are implementation-level tests; actual browser rendering and physical-device parity have not yet been fully verified.
+
+Official reference: <https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/matrix.html>.
+
 ## Files
 
 - `index.html` — modular browser application.
