@@ -353,6 +353,31 @@ Press **=** after each parameter. The same LCD screen then shows **X** and the c
 
 Official CASIO reference: <https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/using_calculation_modes/dist.html>.
 
+## Scientific constants: all 40 manufacturer codes (REA-063)
+
+REA-063 replaces the five-entry shortcut menu with CASIO's documented **40 scientific constants**, keyed by their fixed **two-digit codes 01–40**. In a normal calculation, press **SHIFT → 7 (CONST)**. The LCD displays **CONSTANT / Number 01–40?**; enter two digits. For example, **SHIFT → 7 → 2 → 8** inserts `c₀`, the speed of light in vacuum, as an expression operand equal to **299792458 m/s**. This works inside arithmetic expressions: `2 × CONST 28` computes **599584916**. Press **DEL/LEFT** to erase a digit, **AC** to cancel, or enter another valid two-digit code after a rejected code. Codes 00 and 41–99 are rejected. Scientific constants are not available in BASE-N, following the documented mode restriction.
+
+**Complete code map** (the number, symbol, and physical quantity are shared by the fx-991ES, fx-991ES PLUS and fx-991ES PLUS C manufacturer manuals):
+
+| Codes | Symbols and quantities |
+|---|---|
+| 01–05 | 01 proton mass (mp); 02 neutron mass (mn); 03 electron mass (me); 04 muon mass (mμ); 05 Bohr radius (a₀) |
+| 06–10 | 06 Planck constant (h); 07 nuclear magneton (μN); 08 Bohr magneton (μB); 09 reduced Planck constant (ħ); 10 fine-structure constant (α) |
+| 11–15 | 11 classical electron radius (re); 12 electron Compton wavelength (λc); 13 proton gyromagnetic ratio (γp); 14 proton Compton wavelength (λcp); 15 neutron Compton wavelength (λcn) |
+| 16–20 | 16 Rydberg constant (R∞); 17 atomic mass constant (u); 18 proton magnetic moment (μp); 19 electron magnetic moment (μe); 20 neutron magnetic moment (μn) |
+| 21–25 | 21 muon magnetic moment (μμ); 22 Faraday constant (F); 23 elementary charge (e); 24 Avogadro constant (NA); 25 Boltzmann constant (k) |
+| 26–30 | 26 ideal gas molar volume (Vm); 27 molar gas constant (R); 28 speed of light (c₀); 29 first radiation constant (c₁); 30 second radiation constant (c₂) |
+| 31–35 | 31 Stefan–Boltzmann constant (σ); 32 electric constant (ε₀); 33 magnetic constant (μ₀); 34 magnetic flux quantum (Φ₀); 35 standard gravity (g) |
+| 36–40 | 36 conductance quantum (G₀); 37 vacuum impedance (Z₀); 38 Celsius temperature offset (t); 39 Newtonian gravitational constant (G); 40 standard atmosphere (atm) |
+
+**Historical numeric profiles:** For **fx-991ES PLUS** and **fx-991ES PLUS C**, the catalog uses the **NIST CODATA 2014 values**, matching the 2nd-edition CASIO PLUS reference (for example `G = 6.67408×10⁻¹¹`). For the **original fx-991ES**, the implementation uses the **NIST CODATA 2002 historic values** as a period-appropriate *approximation* (for example `G = 6.6742×10⁻¹¹`); the original calculator manual lists the same 40 codes but does not clearly identify the precise embedded CODATA release, so physical-ROM value parity is **not** asserted for that model. The 40 values are historical, **not 2026 scientific recommendations**. The numerical catalog keeps signs, SI units and constant identity; exact mathematical constants such as π and e are separate from the manufacturer-coded scientific constants.
+
+**Expression integration:** Each selected constant is inserted as a protected ordinary numeric expression such as `(2.99792458*10^(8))`. This avoids requiring extra symbolic parser functions and permits addition, multiplication and division using the existing calculator engine. The entry is converted at sufficient numeric precision for the underlying JavaScript calculator's 15-significant-digit evaluation. The text LCD prompts for a constant code rather than showing the old five-option list.
+
+**Tests:** 13 catalog/controller source-model assertions, **120 numeric expression checks** (40 codes × 3 models) using the real calculator math engine, 13 keypad-navigation scenarios, and 12 permanent built-in CONST regressions cover all manufacturer codes, code entry/cancel/recovery, model profiles and arithmetic insertion. Full deployed-browser visual and physical-device parity tests remain outstanding.
+
+**Source manuals and numeric archives:** CASIO 2nd-edition [scientific-constants table](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/function_calculations/scientific_constants.html); CASIO [original fx-991ES manual](https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_991ES_EN.pdf); NIST [2002 CODATA ASCII archive](https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2002.txt) and [2014 CODATA ASCII archive](https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2014.txt).
+
 ## Files
 
 - `index.html` — modular browser application.
