@@ -237,6 +237,30 @@ After selecting **Power** or **Scalar**, use the calculator's dedicated LCD para
 
 CASIO reference: <https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/vector_calculations.html>.
 
+## TABLE f(X), g(X) and native synchronized grid (REA-057)
+
+REA-057 replaces the previous TABLE text-list result with a calculator-LCD-native, synchronized table. It accepts **f(X)** and, on the **fx-991ES PLUS C** model when enabled in SETUP, **g(X)**. Enter the functions, then **Start**, **End**, and **Step**. The input expressions are evaluated against the same X values; the table displays **X | F(X) | G(X)** for dual-function mode, or **X | F(X)** for single-function mode.
+
+**CASIO-specific row limits:** The standard **fx-991ES PLUS** and original **fx-991ES** support a single f(X) table of **at most 30 rows**. The **fx-991ES PLUS C** supports either a single f(X) table (**30 rows**) or simultaneous f(X), g(X) tables (**20 rows**). In PLUS C, select **SETUP → TABLE → f(X)** or **f(X),g(X)**. The simulator will not offer dual columns on non-C models, even if an incompatible setup value was retained. In the C dual-function input workflow, leaving g(X) empty produces a single-function table with the single-function limit.
+
+**Generation and editing:** TABLE prompts accept a numeric Start, End and positive Step, with **End greater than Start**. Rows include X values from Start in increments of Step, stopping at the last value not exceeding End (including End if reached). Requests exceeding the model-specific row allowance report **Insufficient MEM** without changing existing calculator history; zero/negative steps and reversed ranges report **Argument ERROR**. Individual function-evaluation domain failures appear as **ERROR** cells. A completed table updates scalar memory X to the last generated X value, matching CASIO TABLE behavior.
+
+**Native LCD navigation:** **UP/DOWN** move through rows and simultaneously keep f(X) and g(X) aligned with the same X. **LEFT/RIGHT** select the X, F(X) or G(X) column. The 96×31 LCD shows a compact three-column table, a highlighted selected cell, and a full-value inspection line. **AC** or **=** returns to the function-entry prompts with the previous functions and range preserved for editing. TABLE results are view-only; individual computed table cells cannot be edited.
+
+**Example:** On PLUS C, set f(X)=X²−2 and g(X)=X+1; Start=−1, End=1, Step=0.5. Five synchronized rows appear:
+
+| X | F(X) | G(X) |
+|---:|---:|---:|
+| -1 | -1 | 0 |
+| -0.5 | -1.75 | 0.5 |
+| 0 | -2 | 1 |
+| 0.5 | -1.75 | 1.5 |
+| 1 | -1 | 2 |
+
+**Verification:** 20 table-model unit tests, 15 end-to-end controller tests and 12 permanent built-in TABLE regression checks were added/executed. The LCD was checked in both single- and dual-function layouts. Full deployed-browser visual parity and physical-device validation remain outstanding.
+
+Official CASIO documentation: [fx-991ES PLUS TABLE](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/creating_number.html); [fx-991ES PLUS C manual](https://support.casio.com/pdf/004/fx-115_991ES_PLUS_C_E.pdf).
+
 ## Files
 
 - `index.html` — modular browser application.
