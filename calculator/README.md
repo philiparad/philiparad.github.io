@@ -171,11 +171,33 @@ References: <https://support.casio.com/storage/en/manual/pdf/EN/004/fx-570_991ES
 
 **MatAns and history:** supported calculations retain the previous **add, multiply and determinant** operations. Choose **Calc**, then an operation and the input registers; incompatible dimensions report a calculation error. A matrix result is stored as **MatAns** and displayed as a browsable LCD matrix. Scalar determinant results are shown as numbers. A history of the most recent **30** matrix calculations holds operand snapshots and result snapshots; selecting a historical matrix restores that result into MatAns. This history is separate from the general COMP input history.
 
-**Example:** define MatA = `[[2,1],[1,1]]`, MatB = `[[2,-1],[-1,2]]`; multiply them to obtain **MatAns = [[3,0],[1,1]]**. Copy MatAns to MatC and edit MatC independently: the saved MatAns and MatA/MatB remain unchanged. All dimensions within 3×3 are available. Expanded matrix arithmetic such as transpose, inverse, scalar operations and expression parsing is **not claimed complete by REA-053**.
+**Example:** define MatA = `[[2,1],[1,1]]`, MatB = `[[2,-1],[-1,2]]`; multiply them to obtain **MatAns = [[3,0],[1,1]]**. Copy MatAns to MatC and edit MatC independently: the saved MatAns and MatA/MatB remain unchanged. All dimensions within 3×3 are available. Further matrix operations, including subtraction, inverse, transpose, powers, scalar multiplication and absolute determinant, were added in **REA-054**. Full arbitrary MATRIX expression parsing remains beyond the verified scope.
 
 **Verification:** 18 matrix-register/engine tests, 15 key-sequence tests for register definition, arithmetic, MatAns, copy and independent edits, 6 further key-sequence tests for 3×3 page selection and mode-change persistence, and 7 built-in MATRIX checks passed. These are implementation-level tests; actual browser rendering and physical-device parity have not yet been fully verified.
 
 Official reference: <https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/matrix.html>.
+
+## MATRIX arithmetic operations and error semantics (REA-054)
+
+The **MATRIX Calc** menu, opened with **SHIFT → 4 → 8**, now provides all nine operations. Options **1–8** fit on its first menu page; press **RIGHT → 9** to access the final option. Each operation chooses the required MatA, MatB or MatC register (uninitialized registers are not offered). All calculations are performed on independent snapshots and store matrix results in **MatAns** while retaining the source registers.
+
+| Calculator option | Operation | Constraints / result |
+|---|---|---|
+| 1 Add | MatA + MatB or any two chosen registers | Matching dimensions; matrix MatAns |
+| 2 Multiply | Matrix product | Left columns equal right rows; matrix MatAns |
+| 3 Det | Determinant | Square matrix only; scalar |
+| 4 Subtract | A − B | Matching dimensions; matrix MatAns |
+| 5 Inverse | A⁻¹ | Square nonsingular matrix; matrix MatAns |
+| 6 Transpose | Transpose(A) | Any 1–3 by 1–3 matrix; matrix MatAns |
+| 7 Power | A^n | Square matrix, integer exponent from −99 through 99; matrix MatAns |
+| 8 Scalar | k·A | Numeric scalar multiplier; matrix MatAns |
+| 9 AbsDet | |det(A)| | Square matrix only; nonnegative scalar |
+
+After selecting **Power** or **Scalar**, use the calculator's dedicated LCD parameter editor to enter a signed exponent or scalar. **(−)** starts a negative parameter, **DEL** corrects digits, **=** calculates and **AC** returns to MATRIX options without changing the registers. A zero power returns the identity matrix; a negative power uses the inverse first. Fractions and decimals are allowed for scalar multiplication, but exponentiation is restricted to whole-number exponents. If any computation is invalid (dimension mismatch, singular inverse, noninteger exponent or numerical overflow), an error is displayed; **MatAns** and calculation history remain unchanged, and the user can correct the input or select another operation.
+
+**Calculation examples:** In MatA store `[[4,7],[2,6]]`; its inverse is `[[0.6,-0.7],[-0.2,0.4]]`, its square is `[[30,70],[20,50]]`, and scalar multiplication by `−2` yields `[[-8,-14],[-4,-12]]`. Transposing a (2×3) matrix produces (3×2), and taking absolute determinant of `[[1,2],[3,4]]` returns `2`.
+
+**Scope and verification:** The core engine includes numerically checked inverses (Gaussian elimination with pivoting), matrix dimensions up to (3×3), and typed errors. Standalone engine tests, calculator key-sequence tests and permanent self-tests cover the new operations and invalid cases. Arbitrary typed MATRIX expressions and bit-for-bit CASIO numerical rounding are **not** claimed complete; no deployed-browser visual or physical-calculator parity test was performed.
 
 ## Files
 
