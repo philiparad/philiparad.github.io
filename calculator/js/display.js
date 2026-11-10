@@ -120,6 +120,38 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(t.error)write(t.error.slice(-20),0,25);
   return pixels;
  }
+ if(state.mode==='MATRIX'&&['matrix-table','matrix-result','matrix-scalar'].includes(state.screen)){
+  if(state.screen==='matrix-scalar'){
+   write('MATRIX det',0,0);
+   const value=String(state.result||'0');
+   write(value.slice(-23),Math.max(0,W-Math.min(23,value.length)*4),25);
+   return pixels;
+  }
+  const editing=state.screen==='matrix-table';
+  const e=editing?state.matrixEditor:state.matrixView;
+  if(!e)return pixels;
+  const m=editing?e.matrix:e.matrix;
+  const cwidth=m.cols===3?6:m.cols===2?9:19;
+  const x0=m.cols===3?12:m.cols===2?18:12;
+  const gap=m.cols===3?27:m.cols===2?42:0;
+  write((editing?'EDIT ':'ANS ')+(editing?e.name:e.name)+' '+m.rows+'x'+m.cols,0,0);
+  for(let row=0;row<m.rows;row++){
+   const y=9+row*7;
+   write(String(row+1),0,y);
+   for(let col=0;col<m.cols;col++){
+    const selected=row===e.row&&col===e.col;
+    const number=editing&&selected?e.buffer:String(m.data[row][col]);
+    write(number.slice(-cwidth),x0+col*gap,y,Math.min(W,x0+col*gap+cwidth*4));
+    if(selected){
+     const end=Math.min(W-1,x0+col*gap+Math.max(1,Math.min(cwidth,number.length))*4-1);
+     for(let x=x0+col*gap;x<=end;x++)pixel(x,Math.min(H-1,y+6));
+    }
+   }
+  }
+  const selectedValue=editing?e.buffer:String(m.data[e.row][e.col]);
+  if(m.rows<3||e.error)write((e.error||selectedValue).slice(-23),0,29);
+  return pixels;
+ }
  if(state.screen==='eqn-coeff'&&state.eqnEditor){
   const e=state.eqnEditor,cols=e.rows[0].length;
   const gap=cols===4?21:27,offset=cols===4?11:12;
