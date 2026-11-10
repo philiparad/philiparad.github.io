@@ -295,6 +295,18 @@ REA-059 replaces the REA-058 sequential coefficient prompts and generic multi-li
 
 **Verification:** The result formatter passed 17 unit tests, and a dedicated end-to-end controller/keypad run exercised coefficient entry, navigation, correction, result paging, empty and all-real outcomes, and MathIO surds. Additional built-in INEQ regression cases cover the new formatting and coefficient-editor behavior. Full deployed-browser rendering and real-device parity testing remain outstanding.
 
+## VERIF chained relational expressions (REA-060)
+
+**MODE → VERIF** now presents a single editable **relation chain**, replacing the former three-field Left / Operator / Right calculation form. Enter a combined expression such as `1<2<3`, `2^3=8`, `1<=2<3`, or `1<2!=3`, and press **=** to obtain **TRUE** or **FALSE**. Each adjacent comparison is evaluated independently and a chain is TRUE only if **all** comparisons succeed; for example, `1<2<3` is TRUE but `1<3<2` is FALSE. Both results update the scalar Ans as `1` or `0` respectively.
+
+**Relational-key entry:** In the relation input prompt, press **CALC** to open a six-option operator picker: **1 =**, **2 !=**, **3 <**, **4 <=**, **5 >**, **6 >=**. Alternatively press **SHIFT + 1–6** to insert the corresponding operator at the input cursor. Standard calculator arrows move the cursor; **DEL** corrects text; the regular numeric, arithmetic, function and parentheses keys still enter the subexpressions. The `TEXT:` input route also accepts relation strings. Plain-text aliases `≤`, `≥`, `≠`, `==`, and `<>` are recognized for copy/paste and programmatic entry.
+
+**Truth semantics:** Equality is a strict numerical comparison **without epsilon tolerance**; `!=` is its exact complement. Inequalities use the direct numerical `<`, `<=`, `>`, and `>=` operations. Arithmetic is evaluated by the existing calculator expression engine; each subexpression in a chain is computed once. The existing engine may round certain operations, so comparisons depend on the actual numeric results. For example, the current implementation evaluates `1/3*3=1` as TRUE, whereas `sin(30)=0.5` may be FALSE because the computed sine is not represented as exactly `0.5`. This precision behavior is not represented as physical CASIO hardware parity.
+
+**Errors:** No relational operator, missing operands, consecutive malformed relations, unmatched parentheses, invalid mathematical operations and nonfinite results produce **Syntax ERROR**, **Math ERROR**, or the underlying arithmetic error. Invalid input keeps the editable relation prompt available for corrections; a failed verification does not overwrite the prior Ans.
+
+**Verification:** 21 dedicated chained-relation unit tests, 13 calculator controller key-sequence checks, 12 additional permanent built-in VERIFY regressions, and a real calculator-math-engine cross-check verify parsing, relation-key entry, chain truth tables, strict comparison behavior and error recovery. Full deployed-browser visual and physical-device parity testing remain outstanding.
+
 ## Files
 
 - `index.html` — modular browser application.
