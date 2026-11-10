@@ -2686,6 +2686,9 @@ K.mount($('keys'),press,state.model);
 $('model-selector').value=state.model;
 $('model-selector').addEventListener('change',e=>setModel(e.target.value));
 $('run-checks').addEventListener('click',runChecks);
+$('export-legends').addEventListener('click',()=>download('rea081-key-modifier-inventory.json',
+ JSON.stringify({schema:'rea081-key-legends-v1',scope:'independent web calculator',
+  manufacturerHardwareVerified:false,rows:LEGENDS.inventory(K,MODELS)},null,2),'application/json'));
 $('enlarge').addEventListener('click',()=>{$('lcd-panel').hidden=!$('lcd-panel').hidden;paint()});
 $('capture').addEventListener('click',downloadCapture);
 $('copy-lcd').addEventListener('click',copyCapture);
