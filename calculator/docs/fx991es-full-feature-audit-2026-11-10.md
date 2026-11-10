@@ -25,7 +25,7 @@ The original manual explicitly documents 40 constants based on ISO 1992 and CODA
 ### Summary
 
 - **178 feature-level entries** (including model-specific and physical/non-simulatable entries).
-- **32 open development tasks** REA-069 to REA-100; each task specifies acceptance conditions and manual/reference evidence.
+- **36 open development tasks** REA-069 to REA-104; each task specifies acceptance conditions and manual/reference evidence. REA-084 is the coordinating STAT Distr task; REA-101–104 split the four genuinely missing functions into individual issues.
 - Source implementation does **not** prove matching CASIO results, timing or LCD pixels.
 - Further physical-device tests may reveal additional gaps; those should receive new issue numbers after REA-100.
 
@@ -159,10 +159,10 @@ The original manual explicitly documents 40 constants based on ISO 1992 and CODA
 | STAT | Power regression | source | [REA-086](https://github.com/philiparad/philiparad.github.io/issues/36) |
 | STAT | Inverse regression | source | [REA-086](https://github.com/philiparad/philiparad.github.io/issues/36) |
 | STAT | Estimated xHat/yHat values | partial | [REA-086](https://github.com/philiparad/philiparad.github.io/issues/36) |
-| STAT | Original STAT P(t) probability | missing | [REA-084](https://github.com/philiparad/philiparad.github.io/issues/34) |
-| STAT | Original STAT Q(t) probability | missing | [REA-084](https://github.com/philiparad/philiparad.github.io/issues/34) |
-| STAT | Original STAT R(t) probability | missing | [REA-084](https://github.com/philiparad/philiparad.github.io/issues/34) |
-| STAT | Original normalized variate t | missing | [REA-084](https://github.com/philiparad/philiparad.github.io/issues/34) |
+| STAT | Original STAT P(t) probability | missing | [REA-101](https://github.com/philiparad/philiparad.github.io/issues/55) |
+| STAT | Original STAT Q(t) probability | missing | [REA-102](https://github.com/philiparad/philiparad.github.io/issues/56) |
+| STAT | Original STAT R(t) probability | missing | [REA-103](https://github.com/philiparad/philiparad.github.io/issues/57) |
+| STAT | Original normalized variate t | missing | [REA-104](https://github.com/philiparad/philiparad.github.io/issues/58) |
 | STAT | Original STAT multi-page menu | partial | [REA-085](https://github.com/philiparad/philiparad.github.io/issues/35) |
 | BASE-N | Binary input and display | source | [REA-088](https://github.com/philiparad/philiparad.github.io/issues/42) |
 | BASE-N | Octal input and display | source | [REA-088](https://github.com/philiparad/philiparad.github.io/issues/42) |
@@ -249,9 +249,14 @@ The original manual explicitly documents 40 constants based on ISO 1992 and CODA
 | [REA-099](https://github.com/philiparad/philiparad.github.io/issues/53) | Require model-specific physical/reference evidence before parity claims | Open |
 | [REA-100](https://github.com/philiparad/philiparad.github.io/issues/54) | Keep standalone calculator publication synchronized with modular source | Open |
 
+| [REA-101](https://github.com/philiparad/philiparad.github.io/issues/55) | Implement original STAT P(t): standard normal lower-tail probability | Open |
+| [REA-102](https://github.com/philiparad/philiparad.github.io/issues/56) | Implement original STAT Q(t): standard normal probability from 0 to t | Open |
+| [REA-103](https://github.com/philiparad/philiparad.github.io/issues/57) | Implement original STAT R(t): standard normal upper-tail probability | Open |
+| [REA-104](https://github.com/philiparad/philiparad.github.io/issues/58) | Implement original STAT normalized variate t from sample data | Open |
+
 ## Recommended execution order
 
-1. **Manual contradictions and genuinely missing features:** REA-069 (original registers), REA-084 (original STAT P/Q/R and normalized t), REA-094 (1998 constants), REA-098 (edition gates).
+1. **Manual contradictions and genuinely missing features:** REA-069 (original registers), REA-084 and REA-101–104 (original STAT P/Q/R and normalized t), REA-094 (1998 constants), REA-098 (edition gates).
 2. **Core native workflows:** REA-073, REA-074, REA-075, REA-077, REA-078, REA-080.
 3. **Model and controls parity:** REA-070, REA-071, REA-072, REA-081, REA-082, REA-083.
 4. **Mode-specific behavior:** REA-085 through REA-093, REA-095 through REA-097.
