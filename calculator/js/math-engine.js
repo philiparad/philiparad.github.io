@@ -267,6 +267,8 @@ function evaluate(source,opts={}){
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
  const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,...memory};
+ // Original model does not expose the newer E/F variable registers.
+ if(opts.model==='fx-991es'){delete variables.E;delete variables.F}
  function call(name,args){
   const x=args[0];const unit=st.angle;
   switch(name.toLowerCase()){
