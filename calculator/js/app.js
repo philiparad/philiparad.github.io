@@ -520,6 +520,10 @@ function flowHandle(key){
  else if(/^\d$/.test(key))addition=key;
  else if(key==='DOT')addition='.';
  else if(key==='COMMA')addition=',';
+ // REA-078: CMPLX CALC's prompted values accept the calculator's
+ // native i and polar-angle keys, not just decimal digits and operators.
+ else if(state.mode==='CMPLX'&&state.shift&&key==='NEG')addition='∠';
+ else if(state.mode==='CMPLX'&&key==='ENG')addition='i';
  else if(key==='NEG'||key==='SUB')addition='-';
  else if(key==='ADD')addition='+';
  else if(key==='MUL')addition='*';
