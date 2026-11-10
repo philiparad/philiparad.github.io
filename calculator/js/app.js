@@ -363,7 +363,10 @@ function optionDialog(title,entries,options={}){
 function showMenu(){
  const size=state.menuPageSize||6;
  state.menu=state.menuEntries.slice(state.menuPage*size,state.menuPage*size+size).map((e,i)=>({
-  label:e.label,number:size===10&&e.key!==undefined?e.key:(e.key==='='?'=':String(i+1))
+  label:e.label,
+  // MODE and SETUP use the printed number on the current hardware page.
+  number:(state.menuKind==='mode'||state.menuKind==='setup'||size===10)&&e.key!==undefined?
+   String(e.key):(e.key==='='?'=':String(i+1))
  }));
  state.info=state.menuPage?'PAGE '+(state.menuPage+1):'';
  paint();
@@ -683,6 +686,8 @@ function clearMemory(){
  notify('Memory cleared');paint();
 }
 function setupChoose(id,value){
+ if(!SETUP.setting(state.model,id))throw Error('Argument ERROR');
+ if(!SETUP.options(id).some(choice=>choice.value===value))throw Error('Argument ERROR');
  if(state.factorization)exitFactorization();
  switch(id){
  case 'mthio':
@@ -697,6 +702,7 @@ function setupChoose(id,value){
  notify('SETUP '+id+': '+value);paint();
 }
 function setupSetting(id){
+ if(!SETUP.setting(state.model,id))throw Error('Argument ERROR');
  if(state.factorization)exitFactorization();
  if(id==='lineio'){state.math=false;state.outputMath=false;paint();return}
  if(id==='deg'||id==='rad'||id==='gra'){
@@ -726,14 +732,13 @@ function setupSetting(id){
  }
 }
 function setupMenu(){
- const pages=SETUP.pages(state.model);
- optionDialog('SETUP',pages.flat().map(e=>({
+ optionDialog('SETUP',SETUP.entries(state.model).map(e=>({
   key:e.key,label:e.key+'. '+e.label,action:()=>setupSetting(e.id)
  })),{pageSize:8,kind:'setup'});
 }
 function modeMenu(){
  optionDialog('MODE',MENUS.modeEntries(state.model).map(entry=>({
-  key:entry.number,label:entry.number+'. '+entry.label,
+  key:entry.key,label:entry.key+'. '+entry.label,
   action:()=>setMode(entry.label)
  })),{kind:'mode',pageSize:8});
 }
