@@ -975,6 +975,102 @@ function eqnResultHandle(key){
  if(key==='MODE'){modeMenu();return}
  notify('EQN: = next; AC coefficients');paint();
 }
+
+const MATRIX_DIMS=[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3],[3,1],[3,2],[3,3]];
+function matrixRegisterMenu(kind){
+ optionDialog('MATRIX '+kind,MATRIX.NAMES.map((name,i)=>({
+  label:(i+1)+'. '+name,action:()=>kind==='Dim'?matrixDimensionMenu(name):matrixEdit(name)
+ })),{pageSize:6,kind:'matrix'});
+}
+function matrixDimensionMenu(name){
+ optionDialog(name+' Dimension',MATRIX_DIMS.map(([rows,cols],i)=>({
+  label:(i+1)+'. '+rows+'x'+cols,
+  action:()=>{MATRIX.set(state.matrices,name,MATRIX.create(rows,cols));matrixEdit(name)}
+ })),{pageSize:8,kind:'matrix'});
+}
+function matrixEdit(name){
+ if(!state.matrices[name]){matrixDimensionMenu(name);return}
+ state.matrixEditor=MATRIX.editor(state.matrices,name);
+ state.matrixView=null;state.screen='matrix-table';releaseModifier();
+ notify(name+' matrix editor; arrows move, = enter, AC exit');paint();
+}
+function matrixCommit(){
+ if(!state.matrixEditor)return;
+ MATRIX.commit(state.matrixEditor);
+ MATRIX.set(state.matrices,state.matrixEditor.name,state.matrixEditor.matrix);
+}
+function matrixClose(){
+ matrixCommit();state.matrixEditor=null;state.screen='edit';releaseModifier();
+ notify('MATRIX registers saved; SHIFT 4 menu');paint();
+}
+function matrixShow(name,value=null){
+ const matrix=value?MATRIX.clone(value):MATRIX.get(state.matrices,name);
+ state.matrixView={name,matrix,row:0,col:0};
+ state.matrixEditor=null;state.screen='matrix-result';releaseModifier();
+ notify(name+'; arrows inspect, AC back');paint();
+}
+function matrixRun(op,a,b){
+ try{
+  const value=MATRIX.record(state.matrices,op,a,b);
+  if(typeof value==='number'){
+   state.matrixView=null;state.screen='matrix-scalar';
+   state.raw=value;state.result=String(Number(value.toPrecision(12)));
+   notify(op+' '+a+' = '+state.result);paint();
+  }else matrixShow('MatAns',value);
+ }catch(err){notify(String(err.message||'Math ERROR'),true);matrixMenu()}
+}
+function matrixOperandMenu(op,a=null){
+ const names=MATRIX.NAMES.filter(name=>state.matrices[name]);
+ if(!names.length){matrixRegisterMenu('Dim');return}
+ optionDialog('MATRIX '+op+' '+(a||''),names.map(name=>({
+  label:name,action:()=>a?matrixRun(op,a,name):op==='det'?matrixRun(op,name,null):matrixOperandMenu(op,name)
+ })),{pageSize:6,kind:'matrix'});
+}
+function matrixCopy(from=null){
+ if(!from){
+  const names=[...MATRIX.NAMES,'MatAns'].filter(name=>state.matrices[name]);
+  if(!names.length){matrixRegisterMenu('Dim');return}
+  optionDialog('Copy from',names.map(name=>({label:name,action:()=>matrixCopy(name)})),{pageSize:6,kind:'matrix'});
+  return;
+ }
+ optionDialog('Copy '+from+' to',MATRIX.NAMES.filter(name=>name!==from).map(name=>({
+  label:name,action:()=>{
+   MATRIX.copy(state.matrices,from,name);matrixEdit(name);
+  }
+ })),{pageSize:6,kind:'matrix'});
+}
+function matrixHistoryMenu(){
+ const entries=state.matrices.history.slice().reverse();
+ if(!entries.length){notify('No matrix history',true);matrixMenu();return}
+ optionDialog('MATRIX History',entries.map((entry,i)=>({
+  label:(i+1)+'. '+entry.operator+' '+entry.aName+(entry.bName?' '+entry.bName:''),
+  action:()=>{
+   if(typeof entry.output==='number'){
+    state.matrixView=null;state.screen='matrix-scalar';
+    state.result=String(entry.output);state.raw=entry.output;paint();
+   }else{
+    state.matrices.MatAns=MATRIX.clone(entry.output);
+    matrixShow('MatAns',entry.output);
+   }
+  }
+ })),{pageSize:8,kind:'matrix'});
+}
+function matrixMenu(){
+ releaseModifier();
+ optionDialog('MATRIX',[
+  {label:'1. Dim',action:()=>matrixRegisterMenu('Dim')},
+  {label:'2. Data',action:()=>matrixRegisterMenu('Data')},
+  ...MATRIX.NAMES.map((name,i)=>({label:(i+3)+'. '+name,action:()=>matrixShow(name)})),
+  {label:'6. MatAns',action:()=>matrixShow('MatAns')},
+  {label:'7. Copy',action:()=>matrixCopy()},
+  {label:'8. Calc',action:()=>optionDialog('MATRIX Calc',[
+   {label:'1. Add',action:()=>matrixOperandMenu('add')},
+   {label:'2. Multiply',action:()=>matrixOperandMenu('multiply')},
+   {label:'3. Det',action:()=>matrixOperandMenu('det')}
+  ],{pageSize:6,kind:'matrix'})},
+  {label:'9. History',action:matrixHistoryMenu}
+ ],{pageSize:8,kind:'matrix'});
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
