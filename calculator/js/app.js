@@ -6,6 +6,8 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
+const CALCS=window.FreshCalcSubstitution;
+if(!CALCS)throw Error('Missing CALC substitution module');
 const MENUS=window.FreshMenuModel;
 if(!MENUS)throw Error('Missing model-specific CASIO menu rules');
 const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
@@ -36,7 +38,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
  matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
@@ -279,6 +281,7 @@ function replayHistory(key){
  state.screen='edit';state.result='';state.error='';syncEditor();releaseModifier();paint();return true;
 }
 function beginEdit(continueAns=false){
+ state.calcSession=null;
  if(state.screen!=='edit'){state.complexResultLines=[];state.complexDisplayFormat=null}
  if(state.screen!=='edit'){
   state.screen='edit';state.input='';state.cursor=0;state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';
@@ -312,14 +315,14 @@ function insertTemplate(type){
  syncEditor();releaseModifier();notify('Use arrow keys to move between placeholders');paint();
 }
 function loadExpression(text){
- clearReplay();state.captureTemplate=false;
+ clearReplay();state.captureTemplate=false;state.calcSession=null;
  state.editor=STRUCT.fromString(text);
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
  state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;state.calcSession=null;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
  notify('Calculator reset');paint()
 }
@@ -333,7 +336,7 @@ function clearTransientDisplay(){
  state.resultDMS=false;state.error='';state.errorOffset=null;state.errorSource='';
  state.info='';state.screen='edit';state.result='';state.editor=STRUCT.create();
  state.input='';state.cursor=0;state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};
- state.hyp=false;state.captureTemplate=false;releaseModifier();clearReplay();
+ state.hyp=false;state.captureTemplate=false;state.calcSession=null;releaseModifier();clearReplay();
 }
 function clearSetup(){
  // CLR 1: setup defaults and calculation history, but no change to memory.
@@ -427,6 +430,21 @@ function flowNext(){
 }
 function finishFlow(output){
  try{
+  if(output&&output.kind==='calc-substitution'){
+   // All inputs and the complete calculation have been validated; commit
+   // the prompted registers atomically, never during intermediate prompts.
+   for(const [name,value] of Object.entries(output.changes)){
+    if(output.mode==='CMPLX'){
+     const z=COMPLEX.value(value);state.complexMemory[name]=z;
+     if(z.im===0)state.memory[name]=z.re;
+    }else{state.memory[name]=value;delete state.complexMemory[name]}
+   }
+   state.calcSession={source:output.source,mode:output.mode};
+   state.flow=null;
+   if(output.mode==='CMPLX')setComplexResult(output.value,output.source,output.formatOverride);
+   else setResult(output.value,output.source,null);
+   return;
+  }
    if(state.mode==='DIST'&&state.screen==='dist-list'&&state.distList){
     state.flow=null;state.info='';paint();return;
    }
@@ -451,7 +469,7 @@ function finishFlow(output){
 function flowHandle(key){
  const f=state.flow;if(!f)return false;
  if(key==='MODE'&&state.shift){releaseModifier();setupMenu();return true;}
- if(key==='AC'){state.flow=null;state.screen='edit';releaseModifier();state.info='';paint();return true}
+ if(key==='AC'){state.flow=null;state.calcSession=null;state.screen='edit';releaseModifier();state.info='';paint();return true}
  if(f.title.startsWith('VERIF ')){
   if(key==='CALC'){verifyRelationMenu();return true}
   if(state.shift&&/^[1-6]$/.test(key)){
@@ -572,6 +590,25 @@ function functionFor(expr,equation=false){
   const a=M.evaluate(left,opts);
   return right===null?a:a-M.evaluate(right,opts);
  };
+}
+// REA-077: use the stored expression for every CALC run. There is one
+// prompt for each referenced register, in first-occurrence order.
+function startCalc(){
+ if(state.mode!=='COMP'&&state.mode!=='CMPLX'){
+  notify('CALC is available in COMP and CMPLX only',true);paint();return;
+ }
+ const source=state.screen==='result'&&state.calcSession?.mode===state.mode?
+  state.calcSession.source:STRUCT.serialize(state.editor,true);
+ try{
+  const session=CALCS.prepare(source,MODELS.registers(state.model),state.mode,
+   {...state.memory,...Object.fromEntries(Object.entries(state.complexMemory)
+    .map(([name,z])=>[name,COMPLEX.format(z,state.angle,'rectangular')]))});
+  if(!session.names.length){notify('CALC requires at least one variable',true);paint();return}
+  const run=(inputs)=>CALCS.evaluate(session,inputs,{
+   ...state,math:M,complex:COMPLEX
+  });
+  fieldForm('CALC '+session.source,session.fields,run);
+ }catch(e){notify(e.message||'Syntax ERROR',true);paint()}
 }
 function numericalFlow(kind){
  if(state.mode!=='COMP'){error('Argument ERROR');return}
@@ -764,7 +801,7 @@ function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not availa
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
- clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+ clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
  cancelNumeric();
  if(!MODELS.profiles[id])return false;
@@ -2125,7 +2162,7 @@ function handle(key){
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
   if(key.startsWith('TEXT:')&&state.mode==='CMPLX'&&/^[A-Za-z]$/.test(key.slice(5))){insert(key.slice(5));return}
- if(key==='AC'){clearReplay();state.captureTemplate=false;state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){clearReplay();state.calcSession=null;state.captureTemplate=false;state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
@@ -2133,22 +2170,15 @@ function handle(key){
  }
  if(key==='LEFT'||key==='RIGHT'){clearReplay();if(state.screen==='result'){state.screen='edit'}STRUCT.navigate(state.editor,key);syncEditor();paint();return}
  if(key==='UP'||key==='DOWN'){if(!state.storedInputs.length&&state.screen==='edit'&&STRUCT.navigate(state.editor,key)){syncEditor();paint();return}replayHistory(key);return}
+ if(key==='EQUAL'&&state.screen==='result'&&state.calcSession&&
+    state.calcSession.source===state.resultSource&&state.calcSession.mode===state.mode){
+   startCalc();return;
+ }
  if(key==='EQUAL'){clearReplay();if(state.mode!=='COMP'&&state.mode!=='CMPLX'){advancedMode(state.mode);return}if(state.screen==='result'&&advanceStatements())return;evaluate();return}
  if(key==='RCL'){memoryDialog(false);return}
  if(key==='MPLUS'){accumulateMemory(1);return}
  if(key==='SD'){if(state.mode==='CMPLX')return;toggleFraction();return}
- if(key==='CALC'){fieldForm('CALC — substitute a variable',[{id:'variable',label:'Variable name ('+MODELS.registers(state.model).filter(x=>x!=='M').join(', ')+')',value:'X'},{id:'value',label:'Value for variable',value:'2'}],d=>{
-  const k=String(d.variable).trim().toUpperCase();
-  if(!registerAllowed(k)||!Object.prototype.hasOwnProperty.call(state.memory,k))throw Error('Variable ERROR');
-  const v=M.evaluate(String(d.value),{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
-  if(!Number.isFinite(v))throw Error('Math ERROR');
-  const memory={...state.memory,[k]:v};
-  const result=M.evaluate(state.input,{...state,memory,ans:state.ans,preAns:state.preAns});
-  if(!Number.isFinite(result))throw Error('Math ERROR');
-  state.memory[k]=v;delete state.complexMemory[k];
-  applyAdvancedResult(result,state.input);
-  return M.format(result,state);
- });return}
+ if(key==='CALC'){startCalc();return}
  if(key==='INTEGRAL'){numericalFlow('INTEGRAL');return}
  if(key==='LOGBASE'){insertTemplate('logBase');return}
  if(key==='ENG'){if(state.mode==='CMPLX'){insert('i');return}if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
