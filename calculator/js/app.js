@@ -6,13 +6,14 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, EQEDIT=window.FreshEquationEditor, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
 if(!REG)throw Error('Missing STAT regression engine');
 if(!BASE)throw Error('Missing BASE-N integer engine');
 if(!EQN)throw Error('Missing EQN solving engine');
+if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -24,7 +25,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- statTable:null,eqnSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ statTable:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -251,7 +252,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.eqnSession=null;state.eqnEditor=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.power=true}
@@ -667,7 +668,7 @@ function setupMenu(){
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
- state.eqnSession=null;
+ state.eqnSession=null;state.eqnEditor=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
@@ -903,26 +904,69 @@ function eqnTypeMenu(){
 }
 function eqnStart(type,previous=null){
  const def=EQN.TYPES.find(t=>t.id===type);if(!def)throw Error('Argument ERROR');
+ // Selecting a new equation type starts with a zero-filled coefficient table.
+ state.eqnEditor=EQEDIT.create(type);
  state.eqnSession=null;
- fieldForm('EQN '+def.label,def.fields.map(name=>({
-  id:name,label:name,value:previous?.[name]??'0'
- })),values=>{
-  const result=EQN.solve(type,values);
-  state.eqnSession={type,values:{...values},solutions:result.solutions,status:result.status,nonRealCount:result.nonRealCount||0,index:0};
-  return result.solutions.length?result.solutions.map(x=>x.text).join('\\n'):result.status;
- });
+ if(previous){for(const key of def.fields)if(previous[key]!==undefined)state.eqnEditor.values[key]=Number(previous[key])}
+ EQEDIT.restore(state.eqnEditor);
+ state.screen='eqn-coeff';state.result='';state.info='';releaseModifier();
+ notify('EQN coefficients: arrows navigate; = next / solve; AC clears');paint();
+}
+function eqnSolve(){
+ const e=state.eqnEditor;EQEDIT.commit(e);
+ // On any failed solve, retain the entire editor and current coefficient.
+ const solved=EQN.solve(e.type,e.values);
+ state.eqnSession={type:e.type,values:{...e.values},solutions:solved.solutions,
+  status:solved.status,nonRealCount:solved.nonRealCount||0,index:0};
+ const first=solved.solutions[0];
+ state.result=first?first.text:solved.status;
+ state.raw=first&&typeof first.value==='number'?first.value:NaN;
+ state.screen='eqn-result';state.info='';releaseModifier();
+ notify('EQN: = or DOWN next; AC returns to coefficients');paint();
+}
+function eqnCoeffHandle(key){
+ const e=state.eqnEditor;if(!e)return;
+ try{
+  if(key==='MODE'){releaseModifier();modeMenu();return}
+  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+  if(key==='AC'){EQEDIT.clear(e);releaseModifier();notify('All EQN coefficients cleared');paint();return}
+  if(key==='UP'){EQEDIT.move(e,-1,0);releaseModifier();paint();return}
+  if(key==='DOWN'){EQEDIT.move(e,1,0);releaseModifier();paint();return}
+  if(key==='LEFT'){EQEDIT.move(e,0,-1);releaseModifier();paint();return}
+  if(key==='RIGHT'){EQEDIT.move(e,0,1);releaseModifier();paint();return}
+  if(key==='DEL'){EQEDIT.backspace(e);releaseModifier();paint();return}
+  if(key==='EQUAL'){
+   const done=EQEDIT.next(e);releaseModifier();
+   if(done)eqnSolve();else paint();
+   return;
+  }
+  if(key==='NEG'){EQEDIT.sign(e);releaseModifier();paint();return}
+  let token=null;
+  if(/^[0-9]$/.test(key))token=key;
+  else if(key==='DOT')token='.';
+  else if(key==='EXP')token='E';
+  else if(key==='SUB')token='-';
+  else if(key==='ADD')token='+';
+  else if(key.startsWith('TEXT:')&&/^[0-9.Ee+-]$/.test(key.slice(5)))token=key.slice(5);
+  if(token!==null){EQEDIT.enter(e,token);releaseModifier();paint();return}
+  releaseModifier();notify('Unsupported EQN coefficient operation',true);paint();
+ }catch(err){
+  e.error=String(err.message||'Math ERROR');
+  releaseModifier();notify(e.error,true);paint();
+ }
 }
 function eqnPage(delta){
  const e=state.eqnSession;if(!e)return;
- if(!e.solutions.length){eqnStart(e.type,e.values);return}
- if(e.index+delta>=e.solutions.length){eqnStart(e.type,e.values);return}
+ if(!e.solutions.length){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
+ if(e.index+delta>=e.solutions.length){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
  e.index=Math.max(0,e.index+delta);
  state.result=e.solutions[e.index].text;state.raw=typeof e.solutions[e.index].value==='number'?e.solutions[e.index].value:NaN;
  state.info='';paint();
 }
 function eqnResultHandle(key){
  const e=state.eqnSession;if(!e)return;
- if(key==='AC'){eqnStart(e.type,e.values);return}
+ if(key==='AC'){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
  if(key==='EQUAL'||key==='DOWN'||key==='RIGHT'){eqnPage(1);return}
  if(key==='UP'||key==='LEFT'){eqnPage(-1);return}
  if(key==='MODE'){modeMenu();return}
@@ -1180,6 +1224,7 @@ function handle(key){
  }
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.screen==='eqn-result'){eqnResultHandle(key);return}
+ if(state.screen==='eqn-coeff'){eqnCoeffHandle(key);return}
  if(state.mode==='BASE-N'){baseHandle(key);return}
  if(state.screen==='stat-table'){statTableHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
@@ -1443,7 +1488,11 @@ function runChecks(){const checks=[
   ['EQN infinite',()=>EQN.systems([[1,1,2],[2,2,4]]).status==='Infinite Solutions'],
   ['EQN nonreal',()=>EQN.quadratic([1,0,1]).solutions.length===2&&Math.abs(EQN.quadratic([1,0,1]).solutions[0].complex.im-1)<1e-8],
   ['EQN cubic complex',()=>EQN.cubic([1,0,0,1]).solutions.length===3&&Math.abs(EQN.cubic([1,0,0,1]).solutions[1].complex.im-Math.sqrt(3)/2)<1e-8],
-  ['EQN repeated roots',()=>EQN.cubic([1,0,-3,2]).solutions.length===2]
+  ['EQN repeated roots',()=>EQN.cubic([1,0,-3,2]).solutions.length===2],
+  ['EQN coefficient editor',()=>EQEDIT.create('LINEAR3').rows.flat().length===12],
+  ['EQN coefficient navigation',()=>{const e=EQEDIT.create('QUAD');EQEDIT.enter(e,'2');EQEDIT.next(e);EQEDIT.move(e,0,-1);return e.values.a===2&&EQEDIT.current(e)==='a'}],
+  ['EQN coefficient AC',()=>{const e=EQEDIT.create('QUAD');EQEDIT.enter(e,'3');EQEDIT.commit(e);EQEDIT.clear(e);return e.values.a===0&&e.values.b===0}],
+  ['EQN coefficient reject expression',()=>{try{EQEDIT.parse('2+3');return false}catch{return true}}]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
