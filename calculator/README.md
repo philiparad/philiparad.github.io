@@ -213,6 +213,30 @@ After selecting **Power** or **Scalar**, use the calculator's dedicated LCD para
 
 **Verification:** 23 vector model unit tests, 16 end-to-end key-sequence tests, LCD rendering checks and nine permanent VECTOR regression checks were added or executed during development. These are simulator checks rather than full deployed-browser or physical-calculator equivalence tests.
 
+## VECTOR arithmetic, scalar products and geometric angle interpretation (REA-056)
+
+**Scope:** REA-056 completes the VECTOR calculation operations while preserving the VctA, VctB and VctC registers, native editor and VctAns memory introduced in REA-055. In VECTOR mode, press **SHIFT → 5 → 8 (Calc)** to select:
+
+| Menu key | Operation | Result and restrictions |
+|---|---|---|
+| 1 | Dot product (A·B) | Scalar; vectors must have equal 2D or 3D dimensions |
+| 2 | Cross product (A×B) | Vector stored in VctAns; currently requires 3D vectors |
+| 3 | Magnitude `Abs(A)` | Scalar nonnegative length |
+| 4 | Addition A+B | Vector stored in VctAns; dimensions must match |
+| 5 | Subtraction A−B | Vector stored in VctAns; dimensions must match |
+| 6 | Scalar multiplication kA | Vector stored in VctAns; LCD prompts for a signed decimal factor |
+| 7 | Angle between A and B | Scalar in current DEG/RAD/GRA unit; dimensions must match and both lengths must be nonzero |
+
+**Geometric interpretation:** The angle is computed from `acos((A·B)/(|A||B|))`, with the cosine clamped into `[-1,1]` to avoid spurious domain failures near parallel vectors. The result uses the configured angle unit (**degrees**, **radians**, or **gradians**). The display/notice also labels a pair as **perpendicular**, **parallel in the same direction**, **parallel in opposite directions**, **acute**, or **obtuse** when the component values justify it. Selecting Angle directly in this emulator is a *convenience addition*: the physical fx-991ES PLUS manual obtains the angle with dot product, magnitudes and inverse cosine rather than a dedicated Angle command.
+
+**Examples:** with VctA=(1,2,3) and VctB=(4,5,6), addition gives VctAns=(5,7,9), subtraction gives VctAns=(-3,-3,-3), dot product gives 32 and cross product gives VctAns=(-3,6,-3). Multiplying VctA by -2 gives VctAns=(-2,-4,-6). For perpendicular 2D vectors (3,4) and (-4,3), Angle returns 90° in DEG, π/2 in RAD or 100 in GRA.
+
+**Memory and errors:** Vector results replace **VctAns** but never alter VctA/VctB/VctC. Scalar results (dot, magnitude and angle) do **not** overwrite a previous VctAns. Successful operations append snapshots to the separate VECTOR history, including the angle's geometric classification and unit. A zero vector cannot form an angle; incompatible dimensions, invalid scalar inputs and overflow are rejected with an error. Failed calculations preserve VctAns and history. A signed numeric scalar can be corrected in the LCD parameter prompt without re-entering the vectors.
+
+**Verification:** 21 dedicated engine checks, 20 controller key-sequence tests and 20 built-in VECTOR regression checks exercise arithmetic, scalar signs, angle units, geometry classifications, dimensional failures, error recovery, history and VctAns preservation. Physical-calculator parity and deployed-browser graphical tests have not yet been carried out.
+
+CASIO reference: <https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/vector_calculations.html>.
+
 ## Files
 
 - `index.html` — modular browser application.
