@@ -261,6 +261,26 @@ REA-057 replaces the previous TABLE text-list result with a calculator-LCD-nativ
 
 Official CASIO documentation: [fx-991ES PLUS TABLE](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/creating_number.html); [fx-991ES PLUS C manual](https://support.casio.com/pdf/004/fx-115_991ES_PLUS_C_E.pdf).
 
+## INEQ actual quadratic and cubic inequality solution sets (REA-058)
+
+**MODE → INEQ** now computes the real solution sets instead of displaying only zeros and a general sign explanation. This mode is exposed on calculator profiles that support INEQ. Choose **1 Quadratic** or **2 Cubic**; then choose the relation (**1 >**, **2 <**, **3 ≥**, **4 ≤**) and enter three or four polynomial coefficients in the existing LCD prompt editor. The leading coefficient must be nonzero. Press **=** after the last coefficient to calculate the satisfying intervals.
+
+The solver supports all four comparisons `<`, `<=`, `>`, `>=` against zero. It sorts all real polynomial roots, recognizes even- and odd-multiplicity roots, computes the sign of every intervening interval, and merges adjacent intervals only when their shared root is included in the solution. Strict inequalities exclude equality points; non-strict inequalities include them. Quadratic cases with no real zeros, tangent roots, cubic cases with one or three distinct real zeros, cubic double roots, and cubic triple roots are supported.
+
+**Examples:**
+- `X²−3X+2 < 0` → `1 < X < 2`.
+- `X²−3X+2 ≥ 0` → `X ≤ 1 OR X ≥ 2`.
+- `X²+1 < 0` → `No solution`; `X²+1 ≥ 0` → `All real X`.
+- `(X−1)² ≤ 0` → `X = 1`.
+- `X³−3X+2 ≤ 0` → `X ≤ −2 OR X = 1`.
+- `2X³−3X² ≥ 0` → `X = 0 OR X ≥ 1.5`, also used as an example in the CASIO manual.
+
+**Navigation and presentation:** Solutions use the existing calculator LCD result pages. **UP/DOWN** browse solution rows, **LEFT/RIGHT** pan longer lines and **AC** returns to regular mode. Output explicitly uses `No solution` or `All real X` where applicable. Root bounds are shown with up to 12 significant decimal digits where an irrational value cannot be expressed exactly in this interface. Rich CASIO-like INEQ coefficient editing and special MathIO fraction/surd formatting are separately tracked under **REA-059**, so no full hardware-display parity is claimed here.
+
+**Verification:** The dedicated inequality model passed 26 focused tests; the integrated controller passed 14 end-to-end keypad checks; 14 built-in regression cases cover quadratic/cubic sign intervals, repeated zeros, degeneracy and official CASIO examples. The tests are simulator-level and do not establish physical-device parity or complete deployed-browser validation.
+
+Official manual: <https://support.casio.com/pdf/004/fx-115_991ES_PLUS_C_E.pdf>.
+
 ## Files
 
 - `index.html` — modular browser application.
