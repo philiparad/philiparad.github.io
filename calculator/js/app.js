@@ -6,7 +6,7 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, EQEDIT=window.FreshEquationEditor, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -14,6 +14,7 @@ if(!REG)throw Error('Missing STAT regression engine');
 if(!BASE)throw Error('Missing BASE-N integer engine');
 if(!EQN)throw Error('Missing EQN solving engine');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
+if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -60,14 +61,14 @@ function paint(){
  // STO/RCL standby and history/menu replay cues.
  const flags=window.FreshIndicators.render(state,$);
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
- $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='stat-table'&&state.statTable?'STAT data table row '+(state.statTable.row+1)+' of '+state.statTable.rows.length+', '+STAT.active(state.statTable)+' equals '+state.statTable.buffer+', '+(state.statTable.paired?'paired data':'one variable')+', frequency '+(state.statTable.frequency?'on':'off'):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
+ $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='eqn-coeff'&&state.eqnEditor?'EQN coefficient editor, '+state.eqnEditor.type+', selected '+EQEDIT.current(state.eqnEditor)+' equals '+state.eqnEditor.buffer+', row '+(state.eqnEditor.row+1)+', column '+(state.eqnEditor.col+1):state.screen==='eqn-result'&&state.eqnSession?'EQN result '+(state.eqnSession.index+1)+' of '+state.eqnSession.solutions.length+', '+state.result:state.screen==='stat-table'&&state.statTable?'STAT data table row '+(state.statTable.row+1)+' of '+state.statTable.rows.length+', '+STAT.active(state.statTable)+' equals '+state.statTable.buffer+', '+(state.statTable.paired?'paired data':'one variable')+', frequency '+(state.statTable.frequency?'on':'off'):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  const faceIds={'fx-991es':'fx-991ES','fx-991es-plus':'fx-991ES PLUS','fx-991es-plus-c':'fx-991ES PLUS C'};
  document.querySelector('.case-model-id').textContent=faceIds[state.model];
  document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'':'2nd edition';
  $('model-label').textContent=MODELS.get(state.model).label;
  $('mode-label').textContent=state.mode==='BASE-N'?'BASE-N '+state.baseRadix:state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
- $('expression-text').textContent=state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
+ $('expression-text').textContent=state.screen==='eqn-coeff'&&state.eqnEditor?'EQN '+EQEDIT.current(state.eqnEditor)+' = '+state.eqnEditor.buffer:state.screen==='eqn-result'&&state.eqnSession?'EQN '+state.eqnSession.type:state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
  document.querySelectorAll('.key-unit').forEach(el=>{
   const id=el.querySelector('button').dataset.key;
   el.classList.toggle('lit',(id==='SHIFT'&&state.shift)||(id==='ALPHA'&&state.alpha));
@@ -915,11 +916,12 @@ function eqnStart(type,previous=null){
 function eqnSolve(){
  const e=state.eqnEditor;EQEDIT.commit(e);
  // On any failed solve, retain the entire editor and current coefficient.
- const solved=EQN.solve(e.type,e.values);
+ const fields=EQN.TYPES.find(type=>type.id===e.type).fields;
+ const solved=EQEX.decorate(EQN.solve(e.type,e.values),fields.map(k=>e.values[k]));
  state.eqnSession={type:e.type,values:{...e.values},solutions:solved.solutions,
   status:solved.status,nonRealCount:solved.nonRealCount||0,index:0};
  const first=solved.solutions[0];
- state.result=first?first.text:solved.status;
+ state.result=first?first.label+' = '+EQEX.display(first,state.math):solved.status;
  state.raw=first&&typeof first.value==='number'?first.value:NaN;
  state.screen='eqn-result';state.info='';releaseModifier();
  notify('EQN: = or DOWN next; AC returns to coefficients');paint();
@@ -961,7 +963,7 @@ function eqnPage(delta){
  if(!e.solutions.length){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
  if(e.index+delta>=e.solutions.length){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
  e.index=Math.max(0,e.index+delta);
- state.result=e.solutions[e.index].text;state.raw=typeof e.solutions[e.index].value==='number'?e.solutions[e.index].value:NaN;
+ state.result=e.solutions[e.index].label+' = '+EQEX.display(e.solutions[e.index],state.math);state.raw=typeof e.solutions[e.index].value==='number'?e.solutions[e.index].value:NaN;
  state.info='';paint();
 }
 function eqnResultHandle(key){
@@ -1492,7 +1494,10 @@ function runChecks(){const checks=[
   ['EQN coefficient editor',()=>EQEDIT.create('LINEAR3').rows.flat().length===12],
   ['EQN coefficient navigation',()=>{const e=EQEDIT.create('QUAD');EQEDIT.enter(e,'2');EQEDIT.next(e);EQEDIT.move(e,0,-1);return e.values.a===2&&EQEDIT.current(e)==='a'}],
   ['EQN coefficient AC',()=>{const e=EQEDIT.create('QUAD');EQEDIT.enter(e,'3');EQEDIT.commit(e);EQEDIT.clear(e);return e.values.a===0&&e.values.b===0}],
-  ['EQN coefficient reject expression',()=>{try{EQEDIT.parse('2+3');return false}catch{return true}}]
+  ['EQN coefficient reject expression',()=>{try{EQEDIT.parse('2+3');return false}catch{return true}}],
+  ['EQN exact surd',()=>{const v=EQEX.decorate(EQN.quadratic([1,0,-2]),[1,0,-2]);return v.solutions.map(s=>s.exact).join(',')==='-√2,√2'}],
+  ['EQN exact complex',()=>{const v=EQEX.decorate(EQN.quadratic([1,0,1]),[1,0,1]);return v.solutions.map(s=>s.exact).join(',')==='i,-i'}],
+  ['EQN exact rational',()=>{const v=EQEX.decorate(EQN.quadratic([2,1,-3]),[2,1,-3]);return v.solutions[0].exact==='-3/2'}]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
