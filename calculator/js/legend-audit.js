@@ -32,7 +32,7 @@ function context(key,modifier,mode,screen,model,supports){
   return {status:'unlabelled-control',reason:'Viewport pan uses SHIFT with directional control'};
  if(!label)return {status:'unlabelled',reason:'No printed legend for this model'};
  if(key.id==='SHIFT'||key.id==='ALPHA'){
-  return {status:modifier==='normal'?'available':'unlabelled',reason:'Modifier key'};
+  return {status:modifier==='normal'?'available':'blocked',reason:'Modifier key state is handled separately'};
  }
  if(screen==='calculating')return {status:key.id==='AC'||key.id==='MODE'||key.id==='ON'?
   'available':'blocked',reason:'Numerical worker running'};
