@@ -73,6 +73,33 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(state.menuPage>0)write('<',87,0);
   return pixels;
  }
+ if(state.screen==='stat-table'&&state.statTable){
+  const t=state.statTable,cols=t.paired?(t.frequency?['X','Y','FREQ']:['X','Y']):(t.frequency?['X','FREQ']:['X']);
+  const starts=cols.length===3?[12,40,68]:cols.length===2?[12,54]:[14];
+  const widths=cols.length===3?[6,6,6]:cols.length===2?[9,9]:[18];
+  write(t.paired?'STAT 2VAR':'STAT 1VAR',0,0);
+  for(let c=0;c<cols.length;c++)write(cols[c]==='FREQ'?'F':cols[c],starts[c],6);
+  const first=Math.max(0,Math.min(Math.max(0,t.rows.length-3),t.row-1));
+  for(let n=0;n<3;n++){
+   const index=first+n,row=t.rows[index];if(!row)continue;
+   const y=12+n*7;
+   write(index===t.row?'>':String(index+1).slice(-2),0,y);
+   for(let c=0;c<cols.length;c++){
+    const raw=index===t.row&&c===t.col?t.buffer:row[cols[c]];
+    const str=raw===null?'':String(raw);
+    const width=widths[c],part=str.length>width?str.slice(-width):str;
+    write(part,starts[c],y,starts[c]+width*4);
+    if(index===t.row&&c===t.col){
+     const end=Math.min(W-1,starts[c]+Math.min(width,part.length)*4);
+     for(let x=starts[c];x<=end;x++)pixel(x,y+6);
+    }
+   }
+  }
+  if(first>0)glyph('↑',88,0);
+  if(first+3<t.rows.length)glyph('↓',92,0);
+  if(t.error)write(t.error.slice(-20),0,25);
+  return pixels;
+ }
  if(state.screen==='prompt'&&state.flow){
   const f=state.flow,field=f.fields[f.index];
   write((''+f.title).replace(/[^A-Za-z0-9 /-]/g,'').slice(0,22),0,0);
