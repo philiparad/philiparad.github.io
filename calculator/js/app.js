@@ -6,9 +6,10 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
+if(!STAT)throw Error('Missing STAT table editor');
 if(!VIEW)throw Error('Missing two-dimensional LCD viewport');
 if(!SETUP)throw Error('Missing model-specific SETUP menu');
 if(!RESULTS)throw Error('Missing natural-result formatter');
@@ -20,7 +21,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ statTable:null,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -247,7 +248,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.power=true}
@@ -611,7 +612,7 @@ function setupChoose(id,value){
   state.math=true;state.outputMath=value==='matho';break;
  case 'norm':state.format=value==='norm1'?'Norm1':'Norm2';break;
  case 'complex':state.complexFormat=value;break;
- case 'stat':state.statFrequency=value==='on';break;
+ case 'stat':state.statFrequency=value==='on';if(state.statTable)STAT.toggleFrequency(state.statTable,state.statFrequency);break;
  case 'table':state.tableFunctions=value==='single'?1:2;break;
  case 'recurring':state.recurringDecimal=value==='on';break;
  case 'disp':state.decimalSeparator=value;break;
@@ -655,6 +656,7 @@ function setupMenu(){
 }
 function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
+ if(mode!=='STAT')state.statTable=null;
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
  clearReplay();state.pendingMemory=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
@@ -671,22 +673,67 @@ function setModel(id){
 }
 function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
+// REA-047: all STAT data are edited on the calculator LCD.
+function statModeMenu(){
+ optionDialog('STAT type',[
+  {key:'1',label:'1. 1-VAR',action:()=>startStat(false)},
+  {key:'2',label:'2. A+BX',action:()=>startStat(true)}
+ ]);
+}
+function startStat(paired){
+ state.statTable=STAT.create(paired,state.statFrequency);
+ state.screen='stat-table';state.info='';releaseModifier();
+ notify('STAT arrows move; = next; SHIFT UP add; SHIFT DOWN delete; CALC results');paint();
+}
+function statAdvance(){
+ const t=state.statTable;STAT.commit(t);
+ const cols=STAT.columns(t.paired,t.frequency);
+ if(t.col<cols.length-1)STAT.move(t,0,1);
+ else if(t.row===t.rows.length-1)STAT.insert(t);
+ else{t.col=0;STAT.move(t,1,0)}
+}
+function statResults(){
+ const t=state.statTable;
+ const results=STAT.calculate(t);
+ state.raw=results.meanX;state.ans=results.meanX;state.ansRational=null;
+ state.result=String(results.meanX);
+ state.outputLines=STAT.lines(results,t.paired);state.outputPage=0;state.viewport.flowX=0;
+ state.screen='flow-result';state.info='';releaseModifier();
+ notify('STAT results; UP/DOWN scroll; AC returns to table');paint();
+}
+function statTableHandle(key){
+ const t=state.statTable;if(!t)return;
+ try{
+  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+  if(state.shift&&key==='UP'){STAT.insert(t);releaseModifier();paint();return}
+  if(state.shift&&key==='DOWN'){STAT.remove(t);releaseModifier();paint();return}
+  if(state.shift&&key==='MODE'){releaseModifier();setupMenu();return}
+  if(key==='MODE'){releaseModifier();modeMenu();return}
+  if(key==='AC'){releaseModifier();state.screen='edit';state.info='';paint();return}
+  if(key==='CALC'){statResults();return}
+  if(key==='EQUAL'){statAdvance();releaseModifier();paint();return}
+  if(key==='UP'){STAT.move(t,-1,0);releaseModifier();paint();return}
+  if(key==='DOWN'){STAT.move(t,1,0);releaseModifier();paint();return}
+  if(key==='LEFT'){STAT.move(t,0,-1);releaseModifier();paint();return}
+  if(key==='RIGHT'){STAT.move(t,0,1);releaseModifier();paint();return}
+  if(key==='DEL'){if(t.editing)t.buffer=t.buffer.slice(0,-1);else {t.buffer='';t.editing=true}t.error='';releaseModifier();paint();return}
+  let content=null;
+  if(/^\\d$/.test(key))content=key;
+  else if(key==='DOT')content='.';
+  else if(key==='NEG'||key==='SUB')content='-';
+  else if(key==='ADD')content='+';
+  else if(key==='EXP')content='E';
+  else if(key.startsWith('TEXT:'))content=key.slice(5);
+  if(content!==null){STAT.type(t,content,!state.insert);releaseModifier();paint();return}
+ }catch(e){
+  t.error=String(e.message||'Argument ERROR');
+  releaseModifier();notify(t.error,true);paint();return;
+ }
+ notify('STAT editor: arrows, =, CALC, SHIFT UP/DOWN',true);paint();
+}
 function advancedMode(mode){
- if(mode==='STAT')return fieldForm('STAT — one-variable statistics',[
-  {id:'data',label:'Observations, separated by commas',value:'1,2,3,4,5'},
-  ...(state.statFrequency?[{id:'freq',label:'FREQ per observation',value:'1,1,1,1,1'}]:[])
- ],d=>{
-  const values=parseCsv(d.data);
-  let data=values;
-  if(state.statFrequency){
-   const freqs=parseCsv(d.freq);
-   if(freqs.length!==values.length||freqs.some(n=>!Number.isInteger(n)||n<0))throw Error('Argument ERROR');
-   if(freqs.reduce((a,b)=>a+b,0)>100000)throw Error('Argument ERROR');
-   data=values.flatMap((x,i)=>Array(freqs[i]).fill(x));
-  }
-  const summary=M.descriptiveStats(data);applyAdvancedResult(summary.mean,'STAT mean');
-  return Object.entries(summary).map(([k,v])=>k+' = '+(v===null?'N/A':M.format(v,{...state,math:false}))).join('\n');
- });
+ if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
  if(mode==='BASE-N')return fieldForm('BASE-N — signed integer and bitwise operations',[{id:'a',label:'First integer',value:'10'},{id:'b',label:'Second integer',value:'12'},{id:'op',label:'Operation (+, -, AND, OR, XOR, NOT)',value:'AND'}],d=>{
   const a=Number(d.a),b=Number(d.b);if(!Number.isInteger(a)||!Number.isInteger(b))throw Error('Argument ERROR');let result;switch(d.op.trim().toUpperCase()){
@@ -945,6 +992,7 @@ function handle(key){
   paint();return;
  }
  if(state.screen==='menu'){menuHandle(key);return}
+ if(state.screen==='stat-table'){statTableHandle(key);return}
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
   if(key==='UP'||key==='DOWN'){
@@ -956,7 +1004,7 @@ function handle(key){
    state.viewport.flowX=Math.max(0,Math.min(view.max,state.viewport.flowX+(key==='RIGHT'?4:-4)));
    paint();return;
   }
-  if(key==='AC'){state.screen='edit';state.outputLines=[];state.viewport.flowX=0;state.info='';paint();return}
+  if(key==='AC'){state.screen=state.mode==='STAT'&&state.statTable?'stat-table':'edit';state.outputLines=[];state.viewport.flowX=0;state.info='';paint();return}
   if(key==='MODE'){modeMenu();return}
   state.screen='edit';
  }
@@ -1159,7 +1207,11 @@ function runChecks(){const checks=[
   ['CMPLX polar input',()=>{const z=COMPLEX.evaluate('2∠45',{angle:'DEG'});return Math.abs(z.re-Math.SQRT2)<1e-12&&Math.abs(z.im-Math.SQRT2)<1e-12}],
   ['CMPLX command parsing',()=>COMPLEX.splitDisplayCommand('2∠45►a+bi').format==='rectangular'],
   ['CMPLX angle normalization',()=>COMPLEX.format({re:-2,im:0},'DEG','polar')==='2∠180'],
-  ['CMPLX LineIO components',()=>COMPLEX.components({re:3,im:-2},'DEG','rectangular').join('|')==='3|-2i']
+  ['CMPLX LineIO components',()=>COMPLEX.components({re:3,im:-2},'DEG','rectangular').join('|')==='3|-2i',
+   ['STAT weighted count',()=>{const t=STAT.create(false,true);t.rows=[{X:2,Y:null,FREQ:3},{X:4,Y:null,FREQ:1}];return STAT.calculate(t).n===4&&STAT.calculate(t).meanX===2.5}],
+   ['STAT paired slope',()=>{const t=STAT.create(true,false);t.rows=[{X:1,Y:2,FREQ:1},{X:2,Y:4,FREQ:1}];return STAT.calculate(t).slope===2}],
+   ['STAT row delete',()=>{const t=STAT.create();STAT.insert(t);STAT.remove(t);return t.rows.length===1}],
+   ['STAT frequency columns',()=>STAT.columns(true,true).join(',')==='X,Y,FREQ']]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
