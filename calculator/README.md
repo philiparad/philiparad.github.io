@@ -321,7 +321,7 @@ REA-061 completes **all seven** distribution calculation types on the **fx-991ES
 | 2 | 2 | Poisson PD | x, μ |
 | 2 | 3 | Poisson CD | x, μ |
 
-**Usage:** Enter numeric values or supported arithmetic expressions in the same sequence as the original CASIO. **=** advances to the next parameter and calculates after the final input. The result is written to scalar Ans and displayed numerically on the calculator LCD. Press **=** or **AC** from the result to reopen the first parameter with the previous values retained; press **SHIFT → 1** in the DIST entry/result workflow to reopen the distribution-type menu. The input and result screens in REA-061 use the existing calculator flow framework; the dedicated DIST List screen, insertion/deletion, multi-sample input and 25-entry limit are expressly reserved for **REA-062**.
+**Usage:** Enter numeric values or supported arithmetic expressions in the same sequence as the original CASIO. **=** advances to the next parameter and calculates after the final input. The result is written to scalar Ans and displayed numerically on the calculator LCD. Press **=** or **AC** from the result to reopen the first parameter with the previous values retained; press **SHIFT → 1** in the DIST entry/result workflow to reopen the distribution-type menu. REA-062 adds the dedicated DIST List editor with a 25-sample limit and X/Ans result columns; the scalar Var workflow from REA-061 remains available.
 
 **Accuracy and domains:** Gaussian PD/CD use a standard normal density and numerically integrated CDF with direct tail integration. Inverse Normal solves the **left-tail quantile** using a monotone bracketed numerical method. Binomial probabilities use stable log-factorial evaluation and recurrence-based cumulative tails; Poisson probabilities use log-factorial PMFs and recurrence-based tails. Cumulative probabilities are clamped into [0,1] to correct rounding noise. Standard deviations must be positive; binomial trials, success counts and Poisson counts must be nonnegative integers, with binomial success probabilities in [0,1] and Poisson means nonnegative. An inverse-normal Area of 0 or 1 has no finite quantile and is rejected with a Math ERROR. Invalid parameters leave the editable prompt open without updating Ans. Very expensive cumulative calculations have a bounded operation count and report Time Out Error rather than hanging the browser.
 
@@ -330,6 +330,28 @@ REA-061 completes **all seven** distribution calculation types on the **fx-991ES
 **Verification:** 30 initial numerical/domain unit tests, 28 further reference-data/edge-case tests, 26 controller key-sequence tests, and 17 permanent built-in DIST checks were run or added for the seven type/parameter workflows. Numerical agreement has not been certified against every hardware firmware variant; CASIO documents distribution accuracy up to five significant digits, and visual LCD / key-scan hardware parity remains unverified.
 
 Official model-specific source: <https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/using_calculation_modes/dist.html>.
+
+## DIST List input, editing and X/Ans result table (REA-062)
+
+REA-062 implements the calculator-style **DIST List** workflow for the **four discrete distribution modes**: Binomial PD, Binomial CD, Poisson PD and Poisson CD. The three normal distributions retain Var-only input.
+
+**Select input format:** Enter **MODE → DIST**, select the desired discrete distribution type, then choose **1 Var** for the existing single-value workflow or **2 List** for multiple sample values. In the emulator's 11-mode menu, DIST is **MODE → RIGHT → 5**; the DIST type menu shows the first four types, with the final three on its second page. The selected List has a maximum of **25 X samples**. All rows share the same distribution parameters (N, p, or μ).
+
+**Enter and edit List samples:** The LCD shows two columns, **X** and **Ans**, with a highlight on the selected cell. Type a signed numeric sample and press **=** to store it and advance. Use **UP/DOWN** to move between samples and **LEFT/RIGHT** to inspect X or Ans. Selecting an existing X row and entering a new value replaces that sample. **DEL** on a selected, unedited row removes the sample and closes the gap; while editing a value, **DEL** removes the final digit.
+
+**Insert or clear:** Press **SHIFT → 1** to open **DIST Edit**. Choose **1 Ins** to insert a new sample immediately before the current row, enter its value and press **=**; invalid input does not mutate the existing samples, and **AC** cancels the pending insertion. Choose **2 Del-A** to clear the entire sample list. Choose **3 Type** to switch distribution types, or **4 Calc** to calculate. Attempting to exceed 25 samples reports **Insufficient MEM**.
+
+**Calculate:** From the List screen press **CALC**, then enter the shared parameters in CASIO order:
+- Binomial PD/CD: `N`, then `p`.
+- Poisson PD/CD: `μ`.
+
+Press **=** after each parameter. The same LCD screen then shows **X** and the corresponding calculated **Ans** for each sample. Calculations that fail for an individual X (such as a non-integer) appear as **ERROR** in that row's Ans cell, while valid rows still produce answers. Invalid *shared* parameters produce an error without discarding the sample list. Editing or deleting X values invalidates outdated Ans values until the list is recalculated. **AC** while actively entering a sample cancels its current edit; otherwise it returns to the Var/List selection.
+
+**CASIO example:** Choose Binomial PD, List, and enter X values **10, 11, 12, 13, 14**. Press CALC and enter N=15 and p=0.6. The Ans column contains approximately **0.18594, 0.12678, 0.063388, 0.021942 and 0.0047018**, matching the model's documented five-sample example.
+
+**Scope and verification:** This is a browser-calculator approximation of the fx-991ES PLUS C List experience; it is not pixel-identical or certified against the device's scan codes. The DIST List model passed 18 focused unit tests, the controller passed a 19-step realistic key-sequence test, and 16 permanent List regression checks cover capacity, insertion/deletion, stale results, per-row errors and scalar calculation preservation. Full deployed-browser graphical testing remains outstanding.
+
+Official CASIO reference: <https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/using_calculation_modes/dist.html>.
 
 ## Files
 
