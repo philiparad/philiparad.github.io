@@ -1916,7 +1916,9 @@ function showResult(decimal,forceFraction=false){
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
  if(state.remainderResult||state.coordinateResult)return;
- const recurring=state.recurringDecimal&&state.ansRational?
+ // Rdec S⇔D cycling is exclusive to the PLUS C model.
+ // Original ES and standard PLUS always use ordinary fraction/decimal.
+ const recurring=state.model==='fx-991es-plus-c'&&state.recurringDecimal&&state.ansRational?
   SPECIAL.recurringOf(state.ansRational):null;
  if(recurring){
   const kind=state.resultPresentation?.chosen?.kind;
