@@ -1888,7 +1888,7 @@ function alphaKey(key){
   if(!state.math||!state.input.endsWith('.')){notify('Use decimal point before recurring digits',true);paint();return true}
   return insertTemplate('recurring');
  }
- if(key==='ENG')return insert(state.mode==='CMPLX'?'i':':');
+ if(key==='ENG')return insert(':'); // ALPHA ENG is colon; plain CMPLX ENG inserts i
  if(key==='MUL')return insert('GCD(');
  if(key==='DIV')return insert('LCM(');
  if(key==='ADD')return insert('Int(');
