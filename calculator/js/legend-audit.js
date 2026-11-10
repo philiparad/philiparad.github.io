@@ -20,10 +20,16 @@ const SHIFT_RESULT=new Set(['SD','ENG','DMS']);
 const GLOBAL_SHIFT=new Set(['AC','MODE','RCL','DEL','7','8','9','1','2','3','4','5','6','CALC','ANS','MPLUS']);
 const MODE_CHANGE={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};
 function legend(key,modifier){
+ // Top-row and d-pad 'alpha' metadata in the physical geometry describes
+ // their key group, not an ALPHA legend (REA-070 legacy key shape).
+ if(modifier==='ALPHA'&&(key.group==='top'||key.group==='dpad'))return '';
+ if(modifier==='SHIFT'&&key.group==='dpad')return '';
  return modifier==='SHIFT'?key.shift:modifier==='ALPHA'?key.alpha:key.label;
 }
 function context(key,modifier,mode,screen,model,supports){
  const label=legend(key,modifier);
+ if(modifier==='SHIFT'&&['LEFT','RIGHT','UP','DOWN'].includes(key.id))
+  return {status:'unlabelled-control',reason:'Viewport pan uses SHIFT with directional control'};
  if(!label)return {status:'unlabelled',reason:'No printed legend for this model'};
  if(key.id==='SHIFT'||key.id==='ALPHA'){
   return {status:modifier==='normal'?'available':'unlabelled',reason:'Modifier key'};
