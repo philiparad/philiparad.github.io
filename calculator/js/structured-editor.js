@@ -7,7 +7,20 @@ const FIELDS={fraction:['numerator','denominator'],
  mixed:['integer','numerator','denominator'],
  power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],
  cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
-function create(){return {root:[],path:[],offset:0,version:1}}
+function create(){return {root:[],path:[],offset:0,version:1,undoStack:[]}}
+const MAX_UNDO=40;
+function snapshot(editor){
+ if(!Array.isArray(editor.undoStack))editor.undoStack=[];
+ editor.undoStack.push({root:JSON.parse(JSON.stringify(editor.root)),
+  path:editor.path.map(step=>({...step})),offset:editor.offset});
+ if(editor.undoStack.length>MAX_UNDO)editor.undoStack.shift();
+}
+function undo(editor){
+ if(!editor.undoStack?.length)return false;
+ const prior=editor.undoStack.pop();
+ editor.root=prior.root;editor.path=prior.path;editor.offset=prior.offset;
+ return true;
+}
 function locate(editor){
  let seq=editor.root;
  for(const step of editor.path){
@@ -45,6 +58,7 @@ function serialize(editor,strict=false){return editor.root.map(node=>nodeText(no
 function insert(editor,text,overwrite=false){
  if(!text)return;
  const seq=locate(editor);
+ snapshot(editor);
  for(const value of Array.from(String(text))){
   const char={type:'char',value};
   // Overwrite only plain characters inside the current field. Never replace
@@ -58,6 +72,7 @@ function template(editor,type,overwrite=false){
  const fields=FIELDS[type];
  if(!fields)throw Error('Unknown template '+type);
  const seq=locate(editor);
+ snapshot(editor);
  const node={type,parts:Object.fromEntries(fields.map(field=>[field,[]]))};
  const before=editor.offset;
  if(type==='fraction'&&before>0){
@@ -136,7 +151,7 @@ function navigate(editor,key){
   }else if(node.type==='logBase'){
    field=key==='UP'?'base':'argument';
   }
-  if(field){
+  if(field&&field!==step.field){
    const target=[...parent,{index:step.index,field}];
    setPosition(editor,target,Math.min(editor.offset,node.parts[field].length));
    return true;
@@ -149,6 +164,7 @@ function backspace(editor){
  if(editor.offset>0){
   const index=editor.offset-1;
   if(seq[index].type==='char'){
+   snapshot(editor);
    seq.splice(index,1);editor.offset--;return true;
   }
   // A full expression node cannot be erased with a single DEL: position the
@@ -165,11 +181,13 @@ function backspace(editor){
    // A numerator captured by FRAC must survive if the user cancels the empty
    // denominator. Restore the exact original expression nodes.
    const numerator=node.parts.numerator;
+   snapshot(editor);
    parentSeq.splice(last.index,1,...numerator);
    setPosition(editor,parent,last.index+numerator.length);
    return true;
   }
   if(fields&&fields.every(field=>node.parts[field].length===0)){
+   snapshot(editor);
    parentSeq.splice(last.index,1);
    setPosition(editor,parent,last.index);
    return true;
@@ -185,7 +203,7 @@ function cursor(editor){return {path:editor.path.map(x=>({...x})),offset:editor.
 function fieldText(editor){return locate(editor).map(node=>nodeText(node,false)).join('')}
 function isComplete(editor){try{serialize(editor,true);return true}catch{return false}}
 const api=Object.freeze({create,fromString,serialize,insert,template,navigate,backspace,cursor,fieldText,isComplete,
- types:Object.freeze(Object.keys(FIELDS))});
+ undo,types:Object.freeze(Object.keys(FIELDS))});
 global.FreshStructured=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
