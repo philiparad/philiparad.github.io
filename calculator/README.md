@@ -191,7 +191,7 @@ The **MATRIX Calc** menu, opened with **SHIFT → 4 → 8**, now provides all ni
 | 6 Transpose | Transpose(A) | Any 1–3 by 1–3 matrix; matrix MatAns |
 | 7 Power | A^n | Square matrix, integer exponent from −99 through 99; matrix MatAns |
 | 8 Scalar | k·A | Numeric scalar multiplier; matrix MatAns |
-| 9 AbsDet | |det(A)| | Square matrix only; nonnegative scalar |
+| 9 AbsDet | Absolute value of determinant | Square matrix only; nonnegative scalar |
 
 After selecting **Power** or **Scalar**, use the calculator's dedicated LCD parameter editor to enter a signed exponent or scalar. **(−)** starts a negative parameter, **DEL** corrects digits, **=** calculates and **AC** returns to MATRIX options without changing the registers. A zero power returns the identity matrix; a negative power uses the inverse first. Fractions and decimals are allowed for scalar multiplication, but exponentiation is restricted to whole-number exponents. If any computation is invalid (dimension mismatch, singular inverse, noninteger exponent or numerical overflow), an error is displayed; **MatAns** and calculation history remain unchanged, and the user can correct the input or select another operation.
 
