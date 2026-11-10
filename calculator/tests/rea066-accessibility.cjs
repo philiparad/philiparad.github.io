@@ -1,0 +1,31 @@
+/* REA-066: keyboard and accessible keypad regression tests. Run: node tests/rea066-accessibility.cjs */
+'use strict';
+const assert=require('node:assert/strict');
+const keyboard=require('../js/keyboard.js');
+function event(key,target,extra={}){return {key,target,preventDefault(){this.prevented=true},...extra}}
+const face={closest(selector){return selector==='#face'?this:null}};
+const documentTarget={closest(){return null}};
+const editor={closest(selector){return selector==='input,textarea,select,[contenteditable],[role="textbox"]'?this:null}};
+const control={closest(selector){return selector==='button:not([data-key])'?this:null}};
+const keyButton={closest(selector){return selector==='[data-key]'?this:null}};
+assert.equal(keyboard.translate(event('Tab',face)),null,'Tab must navigate away from face');
+assert.equal(keyboard.translate(event('Tab',face,{shiftKey:true})),null);
+assert.equal(keyboard.translate(event(' ',documentTarget)),null,'Space must scroll page outside case');
+assert.equal(keyboard.translate(event(' ',keyButton)),null,'Space must activate a focused DOM button');
+assert.deepEqual(keyboard.translate(event(' ',face)).keys,['AC']);
+assert.equal(keyboard.translate(event('3',editor)),null);
+assert.equal(keyboard.translate(event('3',control)),null);
+assert.deepEqual(keyboard.translate(event('3',face)).keys,['3']);
+assert.equal(keyboard.translate(event('c',face,{ctrlKey:true,shiftKey:true})),null);
+let calls=[];const e=event('Tab',face);
+assert.equal(keyboard.dispatch(e,{},x=>calls.push(x)),false);
+assert.equal(e.prevented,undefined);
+assert.deepEqual(calls,[]);
+const space=event(' ',face);
+assert.equal(keyboard.dispatch(space,{},x=>calls.push(x)),true);
+assert.equal(space.prevented,true);
+assert.deepEqual(calls,['AC']);
+const keypad=require('../js/keypad.js');
+assert.equal(keypad.keys.length,50,'Physical keypad must retain 50 keys');
+assert.equal(new Set(keypad.keys.map(x=>x.id)).size,50);
+console.log('REA-066 keyboard and keypad checks passed');
