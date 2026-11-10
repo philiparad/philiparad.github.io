@@ -15,6 +15,8 @@ if(!INLINE)throw Error('Missing inline calculus module');
 const MENUS=window.FreshMenuModel;
 if(!MENUS)throw Error('Missing model-specific CASIO menu rules');
 const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const LEGENDS=window.FreshLegendAudit;
+if(!LEGENDS)throw Error('Missing modifier legend audit module');
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -108,6 +110,7 @@ function setSimulatedBattery(status){
 const releaseModifier=()=>{state.shift=false;state.alpha=false};
 const notify=(text,isError=false)=>{const el=$('notice');el.textContent=text;el.classList.toggle('error',isError)};
 function paint(){
+ K.applyContext($('keys'),state,LEGENDS,MODELS);
  LCD.draw($('lcd'),state);
  // REA-016: derive all annunciators from current state, including
  // STO/RCL standby and history/menu replay cues.
@@ -2270,6 +2273,20 @@ function handle(key){
     state.viewport.resultX+(key==='LEFT'?-4:4)));
   paint();return;
  }
+ // REA-081: never execute a SHIFT/ALPHA action missing from the selected
+ // model legend or restricted by this physical mode/result context.
+ if((state.shift||state.alpha)&&!['SHIFT','ALPHA'].includes(key)&&
+   ['edit','result'].includes(state.screen)){
+  const physical=K.keysForModel(state.model).find(item=>item.id===key);
+  if(physical){
+   const modifier=state.shift?'SHIFT':'ALPHA';
+   const action=LEGENDS.classify(physical,modifier,state.mode,state.screen,
+    state.model,MODELS.supports);
+   if(action.status==='blocked'||action.status==='unlabelled'){
+    releaseModifier();notify(modifier+' '+key+': '+action.reason,true);paint();return;
+   }
+  }
+ }
  if(state.shift&&shifted(key))return;
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
@@ -2703,5 +2720,10 @@ document.addEventListener('keydown',keyboard);
 document.addEventListener('visibilitychange',()=>{if(state.power)checkInactivity()});
 markOperation();
 paint();
-window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,modelProfiles:MODELS.profiles,setSimulatedBattery,getStructured:()=>structuredClone(state.editor),getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,cursor:flow.cursor??flow.buffer.length,editing:flow.editing,fieldId:flow.fields[flow.index]?.id,fieldCount:flow.fields.length,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
+window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,
+ legendInventory:(options)=>LEGENDS.inventory(K,MODELS,options),
+ legendStatus:(key,modifier='normal',mode=state.mode,screen=state.screen,model=state.model)=>{
+  const physical=K.keysForModel(model).find(item=>item.id===key);
+  return LEGENDS.classify(physical,modifier,mode,screen,model,MODELS.supports);
+ },modelProfiles:MODELS.profiles,setSimulatedBattery,getStructured:()=>structuredClone(state.editor),getState:()=>{const {menuEntries,flow,...snapshot}=state;return structuredClone({...snapshot,flow:flow?{title:flow.title,index:flow.index,buffer:flow.buffer,cursor:flow.cursor??flow.buffer.length,editing:flow.editing,fieldId:flow.fields[flow.index]?.id,fieldCount:flow.fields.length,values:{...flow.values}}:null,menuEntries:menuEntries.map(x=>x.label)})}});
 })();
