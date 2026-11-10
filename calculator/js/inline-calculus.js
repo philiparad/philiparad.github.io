@@ -33,11 +33,12 @@ function parse(source){
  }
  if(end<0||end!==text.length-1)throw Error('Syntax ERROR');
  const parts=split(text.slice(start,end));
- if(parts.length!==form.fields.length)throw Error('Syntax ERROR');
+ const extraTolerance=!!form.tol&&parts.length===form.fields.length+1;
+ if(parts.length!==form.fields.length&&!extraTolerance)throw Error('Syntax ERROR');
  const data={expression:parts[0]};
  if(type==='Diff')data.at=parts[1];
  else{data.a=parts[1];data.b=parts[2]}
- if(form.tol)data.tol=form.tol;
+ if(form.tol)data.tol=extraTolerance?parts[parts.length-1]:form.tol;
  return {kind:form.kind,type,source:text,data,fields:parts};
 }
 const api=Object.freeze({parse,split,forms:FORMS});
