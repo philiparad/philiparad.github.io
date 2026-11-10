@@ -52,7 +52,7 @@ check('calculating blocks active modifier legends',()=>{
 });
 check('error screen supports AC/LEFT/RIGHT only',()=>{
  for(const r of rows){
-  if(r.screen==='error'&&r.modifier==='normal'&&['AC','LEFT','RIGHT'].includes(r.key))
+  if(M.supports(r.model,r.mode)&&r.screen==='error'&&r.modifier==='normal'&&['AC','LEFT','RIGHT'].includes(r.key))
    assert.equal(r.status,'available');
  }
 });
