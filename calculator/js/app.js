@@ -6,13 +6,14 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
 if(!REG)throw Error('Missing STAT regression engine');
 if(!BASE)throw Error('Missing BASE-N integer engine');
 if(!EQN)throw Error('Missing EQN solving engine');
+if(!INEQ)throw Error('Missing INEQ interval solver');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!MATRIX)throw Error('Missing MATRIX registers module');
@@ -1396,6 +1397,37 @@ function tableHandle(key){
  }
  notify('TABLE: arrows navigate; AC edits input',true);paint();
 }
+// REA-058: real inequality interval sets, separate cubic special-display task.
+function ineqTypeMenu(){
+ optionDialog('INEQ degree',[
+  {key:'1',label:'1. Quadratic',action:()=>ineqRelationMenu(2)},
+  {key:'2',label:'2. Cubic',action:()=>ineqRelationMenu(3)}
+ ],{pageSize:6,kind:'ineq-type'});
+}
+function ineqRelationMenu(degree){
+ const operators=['>','<','>=','<='];
+ optionDialog('INEQ '+degree+' relation',operators.map((op,i)=>({
+  key:String(i+1),label:(i+1)+'. f(X) '+op+' 0',
+  action:()=>ineqCoefficients(degree,op)
+ })),{pageSize:6,kind:'ineq-relation'});
+}
+function ineqCoefficients(degree,op){
+ const names=degree===2?['a','b','c']:['a','b','c','d'];
+ fieldForm('INEQ '+(degree===2?'quadratic':'cubic')+' '+op+' 0',
+  names.map((id,i)=>({id,label:id+' coefficient',value:i===0?'1':'0'})),
+  data=>{
+   const values=names.map(id=>{
+    const raw=String(data[id]??'').trim();
+    if(!raw)throw Error('Argument ERROR');
+    const number=Number(raw);
+    if(!Number.isFinite(number))throw Error('Argument ERROR');
+    return number;
+   });
+   const result=INEQ.solve(values,op);
+   const lines=INEQ.lines(result);
+   return lines.join('\n');
+  });
+}
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
@@ -1404,10 +1436,8 @@ function advancedMode(mode){
   if(mode==='MATRIX')return matrixRegisterMenu('Dim');
   if(mode==='VECTOR')return vectorRegisterMenu('Dim');
   if(mode==='TABLE')return tableStart();
-  if(mode==='INEQ')return fieldForm('INEQ — quadratic sign intervals',[{id:'a',label:'a',value:'1'},{id:'b',label:'b',value:'-3'},{id:'c',label:'c',value:'2'},{id:'op',label:'Relation (<, <=, >, >=)',value:'<'}],d=>{
-  let a=+d.a,b=+d.b,c=+d.c;if(a===0)throw Error('Only quadratic here');const roots=M.quadratic(a,b,c).sort((x,y)=>x-y);const sign=a>0?'positive':'negative';return 'Roots: '+(roots.length?roots.map(x=>M.format(x,state)).join(', '):'none')+'\nParabola opens '+(a>0?'upward':'downward')+'.\nFor two distinct roots, the sign is '+sign+' outside the roots and opposite inside.\nRelation: '+d.op
- });
- if(mode==='VERIF')return fieldForm('VERIF — numerical equality or inequality',[{id:'left',label:'Left expression',value:'sqrt(9)'},{id:'operator',label:'Comparison (=, !=, <, <=, >, >=)',value:'='},{id:'right',label:'Right expression',value:'3'}],d=>{
+  if(mode==='INEQ')return ineqTypeMenu();
+  if(mode==='VERIF')return fieldForm('VERIF — numerical equality or inequality',[{id:'left',label:'Left expression',value:'sqrt(9)'},{id:'operator',label:'Comparison (=, !=, <, <=, >, >=)',value:'='},{id:'right',label:'Right expression',value:'3'}],d=>{
   const a=M.evaluate(d.left,{...state,memory:state.memory,ans:state.ans}),b=M.evaluate(d.right,{...state,memory:state.memory,ans:state.ans});const op=d.operator.trim(),eps=1e-10*Math.max(1,Math.abs(a),Math.abs(b));
   const ok=op==='='?Math.abs(a-b)<eps:op==='!='?Math.abs(a-b)>=eps:op==='<'?a<b:op==='>'?a>b:op==='<='?a<=b:op==='>='?a>=b:null;if(ok===null)throw Error('Invalid comparison');applyAdvancedResult(ok?1:0,'VERIF');return ok?'TRUE':'FALSE'
  });
