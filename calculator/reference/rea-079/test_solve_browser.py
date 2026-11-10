@@ -53,7 +53,7 @@ def main():
                 field(page,'B',2,4)
                 press(page,'NEG','2','EQUAL')
                 s=field(page,'guess',3,4)
-                assert s['flow']['label']=='Solve for X' if 'label' in s['flow'] else True
+                assert s['flow']['fieldId']=='guess',s
                 # Before convergence neither memory nor Ans may change.
                 assert s['memory']==initial and s['ans']==previous_ans,s
                 press(page,'1','EQUAL')
