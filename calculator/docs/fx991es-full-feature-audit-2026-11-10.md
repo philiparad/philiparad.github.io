@@ -248,7 +248,6 @@ The original manual explicitly documents 40 constants based on ISO 1992 and CODA
 | [REA-098](https://github.com/philiparad/philiparad.github.io/issues/52) | Isolate edition-only features and model-specific random commands | Open |
 | [REA-099](https://github.com/philiparad/philiparad.github.io/issues/53) | Require model-specific physical/reference evidence before parity claims | Open |
 | [REA-100](https://github.com/philiparad/philiparad.github.io/issues/54) | Keep standalone calculator publication synchronized with modular source | Open |
-
 | [REA-101](https://github.com/philiparad/philiparad.github.io/issues/55) | Implement original STAT P(t): standard normal lower-tail probability | Open |
 | [REA-102](https://github.com/philiparad/philiparad.github.io/issues/56) | Implement original STAT Q(t): standard normal probability from 0 to t | Open |
 | [REA-103](https://github.com/philiparad/philiparad.github.io/issues/57) | Implement original STAT R(t): standard normal upper-tail probability | Open |
