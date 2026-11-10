@@ -5,6 +5,15 @@
 (function(global){'use strict';
 const common=Object.freeze(['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']);
 const extended=Object.freeze([...common,'INEQ','VERIF','DIST']);
+// REA-069: six ordinary registers plus independent M on the original fx-991ES.
+const REGISTERS=Object.freeze({
+ 'fx-991es':Object.freeze(['A','B','C','D','X','Y','M']),
+ 'fx-991es-plus':Object.freeze(['A','B','C','D','E','F','X','Y','M']),
+ 'fx-991es-plus-c':Object.freeze(['A','B','C','D','E','F','X','Y','M'])
+});
+function registers(model){return REGISTERS[model]||REGISTERS['fx-991es-plus-c']}
+function hasRegister(model,name){return registers(model).includes(name)}
+
 const profiles=Object.freeze({
  'fx-991es':Object.freeze({id:'fx-991es',label:'fx-991ES',edition:'original',
    modes:common,manual:'https://support.casio.com/pdf/004/fx-115ES_991ES_Eng.pdf',
@@ -20,7 +29,7 @@ const profiles=Object.freeze({
 });
 function get(id){return profiles[id]||profiles['fx-991es-plus-c']}
 function supports(id,mode){return get(id).modes.includes(mode)}
-const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports});
+const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports,registers,hasRegister});
 global.FreshModels=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
