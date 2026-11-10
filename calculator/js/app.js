@@ -39,6 +39,38 @@ const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
  matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+// REA-068: numerical calculations run away from the UI thread.
+let numericJob=null;
+const NUMERIC_WALL_MS=6000;
+function cancelNumeric(){
+ if(!numericJob)return false;
+ const job=numericJob;numericJob=null;
+ clearTimeout(job.timer);job.worker.terminate();
+ job.reject(Error('Cancelled'));return true;
+}
+function runNumeric(kind,data){
+ if(typeof Worker!=='function')return Promise.reject(Error('Worker unavailable'));
+ cancelNumeric();
+ return new Promise((resolve,reject)=>{
+  const worker=new Worker('js/numeric-worker.js');
+  const job={worker,reject,timer:null};numericJob=job;
+  const finish=(err,value)=>{
+   if(numericJob!==job)return;
+   numericJob=null;clearTimeout(job.timer);worker.terminate();
+   if(err)reject(Error(err));else resolve(value);
+  };
+  worker.onmessage=e=>{
+   const result=e.data||{};
+   if(result.ok)finish(null,result);else finish(result.error||'Math ERROR');
+  };
+  worker.onerror=()=>finish('Math ERROR');
+  job.timer=setTimeout(()=>finish('Time Out'),NUMERIC_WALL_MS);
+  try{worker.postMessage({id:1,task:{kind,data,settings:{
+   angle:state.angle,format:state.format,digits:state.digits,math:state.math,
+   ans:state.ans,preAns:state.preAns,memory:{...state.memory}
+  }}})}catch(e){finish('Argument ERROR')}
+ });
+}
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -290,6 +322,7 @@ function clearSetup(){
  state.resultFractionStyle=null;notify('Setup initialized');paint();
 }
 function powerOff(reason='manual'){
+ cancelNumeric();
  // OFF/APO do not erase variables, Ans, PreAns, M, mode, or SETUP.
  clearPowerTimer();clearTransientDisplay();state.history=[];state.power=false;
  state.powerOffReason=reason;
@@ -355,6 +388,22 @@ function flowNext(){
  if(f.index<f.fields.length-1){f.index++;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false;state.info='';paint();return}
  try{
   const output=f.run({...f.values});
+  if(output&&typeof output.then==='function'){
+   state.screen='calculating';state.info='';
+   notify('Calculating… AC cancels; MODE changes mode');paint();
+   output.then(value=>{if(state.flow===f&&state.screen==='calculating')finishFlow(value)})
+    .catch(e=>{
+     if(state.flow!==f||state.screen!=='calculating')return;
+     state.screen='prompt';state.info=String(e.message||'Math ERROR').slice(0,23);
+     notify(state.info,true);paint();
+    });
+   return;
+  }
+  finishFlow(output);
+ }catch(e){state.info=String(e.message||'Math ERROR').slice(0,23);notify(state.info,true);paint()}
+}
+function finishFlow(output){
+ try{
    if(state.mode==='DIST'&&state.screen==='dist-list'&&state.distList){
     state.flow=null;state.info='';paint();return;
    }
@@ -507,34 +556,12 @@ function numericalFlow(kind){
  if(kind==='INTEGRAL'||kind==='SUM'||kind==='PRODUCT')fields.push({id:'a',label:'Lower bound',value:'0'},{id:'b',label:'Upper bound',value:'1'});
  if(kind==='DERIVATIVE'||kind==='INTEGRAL')fields.push({id:'tol',label:'Tolerance (≥ 1E-14)',value:kind==='DERIVATIVE'?'1E-10':'1E-5'});
  if(kind==='PRODUCT')fields.push({id:'step',label:'Positive integer step (web extension)',value:'1'});
- fieldForm(modes[kind],fields,data=>{
-  if(/\b(?:Pol|Rec|Prod|Product)\s*\(|[ΠΣ∫]|÷R|d\/dx|\b(?:Sum|Sigma|Integral|Diff)\s*\(/i.test(data.expression))
-   throw Error('Syntax ERROR');
-  const f=functionFor(data.expression,kind==='SOLVE');
-  if(Object.entries(data).some(([field,expression])=>
-   field!=='expression'&&/\b(?:Pol|Rec|Prod|Product|Sum|Sigma|Integral|Diff)\s*\(|[ΠΣ∫]|÷R|d\/dx/i.test(String(expression))))
-   throw Error('Syntax ERROR');
-  const asNumber=(source)=>{
-   if(!String(source).trim())throw Error('Argument ERROR');
-   const value=M.evaluate(String(source),{...state,ans:state.ans,memory:state.memory});
-   if(!Number.isFinite(value))throw Error('Math ERROR');
-   return value;
-  };
-  let value;
-  if(kind==='DERIVATIVE')value=M.derivative(f,asNumber(data.at),asNumber(data.tol));
-  if(kind==='INTEGRAL')value=M.integrate(f,asNumber(data.a),asNumber(data.b),asNumber(data.tol));
-  if(kind==='SOLVE')value=M.solve(f,asNumber(data.guess));
-  if(kind==='SUM')value=M.summation(f,asNumber(data.a),asNumber(data.b));
-  if(kind==='PRODUCT')value=M.finiteProduct({expression:data.expression,a:data.a,b:data.b,step:data.step},{...state,memory:state.memory,ans:state.ans,preAns:state.preAns});
-  if(!Number.isFinite(value)||Math.abs(value)>9.999999999e99)throw Error('Math ERROR');
-  // REA-038: calculation results update Ans/PreAns and history, not just the LCD.
+ fieldForm(modes[kind],fields,data=>runNumeric(kind,data).then(({value,residual})=>{
+  if(!state.flow||state.screen!=='calculating')throw Error('Cancelled');
   setResult(value,data.expression,null);
-  if(kind==='SOLVE'){
-   const residual=f(value);
-   return 'X = '+M.format(value,{...state,math:false})+'\nL-R = '+M.format(residual,{...state,math:false});
-  }
+  if(kind==='SOLVE')return 'X = '+M.format(value,{...state,math:false})+'\nL-R = '+M.format(residual,{...state,math:false});
   return M.format(value,state);
- })
+ }));
 }
 function exitFactorization(){
  const saved=state.factorization;
@@ -709,6 +736,7 @@ function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not availa
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
  clearReplay();state.pendingMemory=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
+ cancelNumeric();
  if(!MODELS.profiles[id])return false;
  state.model=id;
  reset('all');
@@ -1910,6 +1938,16 @@ function press(key){
  if(state.recording){state.keylog.push({key,before,after:{mode:state.mode,screen:state.screen,result:state.result}});if(state.keylog.length>maxEntries)state.keylog.shift();if(!$('keylog-panel').hidden)renderKeylog()}
 }
 function handle(key){
+ if(state.screen==='calculating'){
+  if(key==='AC'||key==='MODE'||key==='ON'){
+   cancelNumeric();state.flow=null;state.screen='edit';state.info='';
+   releaseModifier();
+   if(key==='MODE')modeMenu();
+   else if(key==='ON')powerOn();
+   else{notify('Calculation cancelled');paint()}
+  }
+  return;
+ }
  if(state.pendingMemory){
   if(key==='AC'){state.pendingMemory=null;releaseModifier();notify('Memory selection cancelled');paint();return}
   const name=MEMORY_KEYS[key]||(/^[A-FMXY]$/.test(key)?key:null);
