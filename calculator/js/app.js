@@ -719,7 +719,7 @@ function statTableHandle(key){
   if(key==='RIGHT'){STAT.move(t,0,1);releaseModifier();paint();return}
   if(key==='DEL'){if(t.editing)t.buffer=t.buffer.slice(0,-1);else {t.buffer='';t.editing=true}t.error='';releaseModifier();paint();return}
   let content=null;
-  if(/^\\d$/.test(key))content=key;
+  if(/^[0-9]$/.test(key))content=key;
   else if(key==='DOT')content='.';
   else if(key==='NEG'||key==='SUB')content='-';
   else if(key==='ADD')content='+';
