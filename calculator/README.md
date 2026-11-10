@@ -378,6 +378,45 @@ REA-063 replaces the five-entry shortcut menu with CASIO's documented **40 scien
 
 **Source manuals and numeric archives:** CASIO 2nd-edition [scientific-constants table](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/function_calculations/scientific_constants.html); CASIO [original fx-991ES manual](https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_991ES_EN.pdf); NIST [2002 CODATA ASCII archive](https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2002.txt) and [2014 CODATA ASCII archive](https://physics.nist.gov/cuu/Constants/ArchiveASCII/allascii_2014.txt).
 
+## Metric conversion: 40 manufacturer codes, postfix syntax (REA-064)
+
+REA-064 replaces the prior four arbitrary `SHIFT + 8` shortcuts with the complete **40-code CONV catalog** used by the fx-991ES, fx-991ES PLUS, and fx-991ES PLUS C. In a normal editable expression, enter the **quantity first**, then press **SHIFT → 8 (CONV)**, followed by the **two-digit conversion number 01–40**. The LCD prompts `CONVERSION / Number 01-40?`. After a valid code the conversion is inserted as an arithmetic operation on the immediately preceding operand; press **=** to evaluate. `AC` cancels the code prompt without discarding the expression, `DEL` erases one code digit, and invalid numbers such as 00 and 41–99 are rejected. Conversions are unavailable in BASE-N and TABLE, as indicated by the CASIO manuals.
+
+The complete code catalog contains **20 forward/reverse pairs**:
+
+| Codes | Forward / reverse conversion |
+|---|---|
+| 01 / 02 | inch → cm / cm → inch |
+| 03 / 04 | foot → m / m → foot |
+| 05 / 06 | yard → m / m → yard |
+| 07 / 08 | mile → km / km → mile |
+| 09 / 10 | nautical mile → m / m → nautical mile |
+| 11 / 12 | acre → m² / m² → acre |
+| 13 / 14 | US gallon → L / L → US gallon |
+| 15 / 16 | UK gallon → L / L → UK gallon |
+| 17 / 18 | parsec → km / km → parsec |
+| 19 / 20 | km/h → m/s / m/s → km/h |
+| 21 / 22 | oz → g / g → oz |
+| 23 / 24 | lb → kg / kg → lb |
+| 25 / 26 | atm → Pa / Pa → atm |
+| 27 / 28 | mmHg → Pa / Pa → mmHg |
+| 29 / 30 | hp → kW / kW → hp |
+| 31 / 32 | kgf/cm² → Pa / Pa → kgf/cm² |
+| 33 / 34 | kgf·m → J / J → kgf·m |
+| 35 / 36 | lbf/in² → kPa / kPa → lbf/in² |
+| 37 / 38 | °F → °C / °C → °F |
+| 39 / 40 | J → cal / cal → J |
+
+**CASIO examples:** `5 SHIFT 8 02 =` gives **1.968503937 in**. `100 SHIFT 8 22 =` gives approximately **3.527396584 oz**. `(−)31 SHIFT 8 38 =` gives **−23.8 °F**. The last pair uses the *15 °C calorie*: **1 cal = 4.1858 J**, not the 4.184 J thermochemical calorie. Temperature conversions are **affine**, meaning an additive 32-degree offset is included. They are not implemented by incorrect standalone multipliers.
+
+**Expression placement:** The conversion applies to the last entered number, variable or balanced parenthesized expression. For example, `2+5 SHIFT 8 02 =` computes `2+(5/2.54)`, rather than converting the whole sum, and `(5+3) SHIFT 8 02 =` converts the parenthesized value. This is implemented as protected arithmetic parentheses so addition/multiplication precedence is preserved. Invalid/incomplete input does not modify the original expression. Conversions within more complicated structured MathIO editor fields are not fully verified against the physical calculator.
+
+**Factors and models:** The code map is confirmed against CASIO's official manuals. The original ES appendix supplies historically rounded conversion coefficients, including `acre → m² = 4046.856`, `oz → g = 28.34952`, and `cal → J = 4.1858`. The fx-991ES PLUS profile uses more precise 2008 NIST conversion factors for a subset of catalog entries. CASIO PLUS C documentation refers to NIST SP 811 (1995), so it uses the rounded manual-era factors. Exact binary-identical internal ROM coefficients have not been verified. General numeric calculations inherit the simulator's existing 15-significant-digit engine.
+
+**Testing:** Dedicated catalog tests check all 40 codes, inverse-pair consistency, temperature functions, invalid code recovery, and postfix placement. Key-driven calculator tests cover the three CASIO examples; 15 permanent built-in CONV regressions include arithmetic evaluation for every code on all three supported calculator models (120 combinations). Full graphical deployed-browser tests and physical device equivalence checks are still pending.
+
+Official sources: [CASIO metric-conversion manual](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/function_calculations/metric_conversion.html), [CASIO fx-991ES PLUS C manual](https://support.casio.com/pdf/004/fx-115_991ES_PLUS_C_E.pdf), [Original fx-991ES appendix with conversion factors](https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf).
+
 ## Files
 
 - `index.html` — modular browser application.
