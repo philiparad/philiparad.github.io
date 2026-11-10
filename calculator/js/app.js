@@ -344,7 +344,7 @@ function flowNext(){
     state.flow=null;state.screen='eqn-result';state.info='';
     const first=state.eqnSession.solutions[0];
     state.result=first?first.text:state.eqnSession.status;
-    state.raw=first?first.value:NaN;
+    state.raw=first&&typeof first.value==='number'?first.value:NaN;
     notify('EQN: = next; AC coefficients');paint();return;
    }
   const lines=String(output??state.result??'0').split(/\n/).flatMap(line=>{
@@ -917,7 +917,7 @@ function eqnPage(delta){
  if(!e.solutions.length){eqnStart(e.type,e.values);return}
  if(e.index+delta>=e.solutions.length){eqnStart(e.type,e.values);return}
  e.index=Math.max(0,e.index+delta);
- state.result=e.solutions[e.index].text;state.raw=e.solutions[e.index].value;
+ state.result=e.solutions[e.index].text;state.raw=typeof e.solutions[e.index].value==='number'?e.solutions[e.index].value:NaN;
  state.info='';paint();
 }
 function eqnResultHandle(key){
@@ -1437,11 +1437,13 @@ function runChecks(){const checks=[
   ['BASE-N logic width',()=>BASE.evaluate('Not(0)','DEC',state.model)===-1n&&BASE.evaluate('Not(0)','BIN',state.model)===-1n],
   ['BASE-N logic precedence',()=>BASE.evaluate('1010 or 1100 and 101','BIN',state.model)===14n],
   ['EQN types',()=>EQN.TYPES.length===4],
-  ['EQN cubic',()=>EQN.cubic([1,-2,-1,2]).solutions.every((v,i)=>Math.abs(v.value-[-1,1,2][i])<1e-8)],
+  ['EQN cubic',()=>EQN.cubic([1,-2,-1,2]).solutions.every((v,i)=>Math.abs(v.value-[-1,2,1][i])<1e-8)],
   ['EQN 3 unknowns',()=>EQN.systems([[1,-1,1,2],[1,1,-1,0],[-1,1,1,4]]).solutions.every((v,i)=>Math.abs(v.value-[1,2,3][i])<1e-8)],
   ['EQN inconsistent',()=>EQN.systems([[1,1,2],[2,2,5]]).status==='No Solution'],
   ['EQN infinite',()=>EQN.systems([[1,1,2],[2,2,4]]).status==='Infinite Solutions'],
-  ['EQN nonreal',()=>EQN.quadratic([1,0,1]).status==='No Real Roots']
+  ['EQN nonreal',()=>EQN.quadratic([1,0,1]).solutions.length===2&&Math.abs(EQN.quadratic([1,0,1]).solutions[0].complex.im-1)<1e-8],
+  ['EQN cubic complex',()=>EQN.cubic([1,0,0,1]).solutions.length===3&&Math.abs(EQN.cubic([1,0,0,1]).solutions[1].complex.im-Math.sqrt(3)/2)<1e-8],
+  ['EQN repeated roots',()=>EQN.cubic([1,0,-3,2]).solutions.length===2]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
