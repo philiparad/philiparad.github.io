@@ -39,7 +39,21 @@ function mount(root,handler){if(!root)return;root.textContent='';const fragment=
   if(key.alpha&&key.group!=='top'&&key.group!=='dpad'&&key.alpha!==key.id){const tag=document.createElement('span');tag.className='alpha-label';tag.textContent=key.alpha;wrap.append(tag)}
   const b=document.createElement('button');b.type='button';b.dataset.key=key.id;b.textContent=key.label;
   b.className=(key.label.length>4?'small-label':'');
-  b.setAttribute('aria-label',key.id+' '+(key.shift?'SHIFT: '+key.shift:'')+(key.alpha?' ALPHA: '+key.alpha:''));
+  // The visible key is sometimes a symbol or visually blank (SHIFT/ALPHA).
+  // Give assistive technologies a meaningful primary name, plus secondary legends.
+  const spoken={LEFT:'Left arrow',RIGHT:'Right arrow',UP:'Up arrow',DOWN:'Down arrow',
+   LP:'Open parenthesis',RP:'Close parenthesis',EQUAL:'Equals',DEL:'Delete',
+   AC:'All clear',ON:'Power on',NEG:'Negative sign',MUL:'Multiply',DIV:'Divide',
+   ADD:'Plus',SUB:'Minus',DOT:'Decimal point',EXP:'Times ten to the power',
+   FRAC:'Fraction',RECIP:'Reciprocal',SQRT:'Square root',SQUARE:'Square',
+   POWER:'Power',INTEGRAL:'Integral',SD:'Standard decimal conversion',
+   DMS:'Degrees minutes seconds',MPLUS:'Memory plus'};
+  const primary=spoken[key.id]||key.label||key.id;
+  const legends=[];
+  if(key.shift&&key.shift!==key.id)legends.push('Shift: '+key.shift);
+  if(key.alpha&&key.alpha!==key.id&&key.alpha!==key.group)legends.push('Alpha: '+key.alpha);
+  b.setAttribute('aria-label',primary+(legends.length?'. '+legends.join('. '):''));
+  b.setAttribute('title',primary+(legends.length?' | '+legends.join(' | '):''));
   b.addEventListener('click',()=>handler(key.id));wrap.append(b);fragment.append(wrap)
  }
  root.append(fragment);
