@@ -38,15 +38,13 @@ function translate(event,context={}){
   }
   return null;
  }
- if(event.key==='Tab'){
-  // The CASIO emulator maps Tab -> AC. Limit this shortcut to the face
-  // container itself; otherwise Tab must continue to navigate UI controls.
-  if(event.shiftKey||target!=='face')return null;
-  return {keys:['AC'],label:'Tab',reference:'casio'};
- }
+ // Tab and Shift+Tab always retain native focus navigation. A face
+ // shortcut must never trap keyboard or screen-reader users.
+ if(event.key==='Tab')return null;
  if(event.key===' '||event.key==='Spacebar'){
-  // Space on a focused key activates that button natively.
-  if(target==='key-button')return null;
+  // Space activates a focused button natively; only an explicitly focused
+  // calculator face should use Space as the AC convenience shortcut.
+  if(target!=='face')return null;
   return {keys:['AC'],label:'Space',reference:'casio'};
  }
  // When a physical key has DOM focus, let native Enter click its button.
@@ -89,7 +87,7 @@ function dispatch(event,context,press,capture){
  return true;
 }
 const MAPPING=Object.freeze({
- Tab:'AC (face focus only)',Space:'AC (except native focused button)',
+ Tab:'Browser focus navigation',Space:'AC (face focus only; native button activation otherwise)',
  F1:'SHIFT',F2:'ALPHA',F3:'MODE',F4:'ON',Home:'MODE',
  Enter:'EQUAL',Backspace:'DEL',Delete:'DEL',
  ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',
