@@ -102,6 +102,41 @@ check('overwrite cannot destroy structured node',()=>{
  E.navigate(e,'RIGHT');E.navigate(e,'LEFT');E.insert(e,'2',true);
  assert.ok(E.serialize(e).includes('sqrt('));
 });
+check('MathIO INS incorporates parenthesized expression into square root',()=>{
+ const e=E.fromString('1+(2+3)+4');
+ for(let i=0;i<7;i++)E.navigate(e,'LEFT');
+ assert.equal(E.incorporate(e,'squareRoot'),true);
+ equal(E.serialize(e,true),'1+sqrt((2+3))+4');
+ numerical(e,1+Math.sqrt(5)+4);
+});
+check('MathIO INS incorporates existing numeral into fraction',()=>{
+ const e=E.fromString('1+12+3');
+ for(let i=0;i<4;i++)E.navigate(e,'LEFT');
+ assert.equal(E.incorporate(e,'fraction'),true);
+ equal(E.cursor(e).path.at(-1).field,'denominator');
+ E.insert(e,'4');
+ equal(E.serialize(e,true),'1+((12)/(4))+3');
+ numerical(e,7);
+});
+check('MathIO INS failure does not mutate expression',()=>{
+ const e=E.fromString('2+3'),before=E.serialize(e);
+ assert.equal(E.incorporate(e,'squareRoot'),false);
+ equal(E.serialize(e),before);
+});
+check('MathIO INS undo restores absorbed expression and caret',()=>{
+ const e=E.fromString('(2+3)');
+ for(let i=0;i<5;i++)E.navigate(e,'LEFT');
+ const before=E.cursor(e);
+ assert.equal(E.incorporate(e,'squareRoot'),true);
+ assert.equal(E.undo(e),true);
+ equal(E.serialize(e),'(2+3)');
+ equal(E.cursor(e),before);
+});
+check('controller distinguishes MathIO INS from LineIO overwrite',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
+ assert.match(app,/if\(state\.math&&state\.mode==='COMP'\)/);
+ assert.match(app,/STRUCT\.incorporate\(state\.editor,type\)/);
+});
 check('viewport follows nested cursor',()=>{
  const e=E.create();E.template(e,'fraction');E.template(e,'nthRoot');E.insert(e,'3');
  E.navigate(e,'RIGHT');E.insert(e,'8');
