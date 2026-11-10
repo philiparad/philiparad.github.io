@@ -27,7 +27,7 @@ function literal(entry){
  // undocumented parser functions, no scientific notation ambiguity.
  const n=entry.value;
  if(n===0)return '(0)';
- const str=n.toExponential(12);
+ const str=n.toExponential(15);
  const [mantissa,exp]=str.split('e');
  return '('+Number(mantissa)+'*10^('+Number(exp)+'))';
 }
