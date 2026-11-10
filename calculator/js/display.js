@@ -84,7 +84,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const names=['A','B','C','D','E','F','X','Y','M'];
   for(let i=0;i<names.length;i++){
    const col=i%3,row=Math.floor(i/3);
-   write((i+1)+':'+names[i],col*32,9+row*7,col*32+32);
+   write(names[i],col*32+10,9+row*7,col*32+32);
   }
   return pixels;
  }
