@@ -307,6 +307,30 @@ REA-059 replaces the REA-058 sequential coefficient prompts and generic multi-li
 
 **Verification:** 21 dedicated chained-relation unit tests, 13 calculator controller key-sequence checks, 12 additional permanent built-in VERIFY regressions, and a real calculator-math-engine cross-check verify parsing, relation-key entry, chain truth tables, strict comparison behavior and error recovery. Full deployed-browser visual and physical-device parity testing remain outstanding.
 
+## DIST seven distribution calculations (REA-061)
+
+REA-061 completes **all seven** distribution calculation types on the **fx-991ES PLUS C** model. The original educational four-choice Normal/Binomial form is replaced by a model-correct **DIST type** menu and independent, ordered parameter prompts. Select **MODE → DIST** (in the simulator's 11-mode picker, the second page: **MODE → RIGHT → 5**). The DIST menu shows four types on page one and three on page two; use **RIGHT** to reach the latter.
+
+| Menu page | Selection | CASIO DIST name | Input parameter order |
+|---|---|---|---|
+| 1 | 1 | Normal PD | x, σ, μ |
+| 1 | 2 | Normal CD | Lower, Upper, σ, μ |
+| 1 | 3 | Inverse Normal | Area, σ, μ (left tail) |
+| 1 | 4 | Binomial PD | x, N, p |
+| 2 | 1 | Binomial CD | x, N, p |
+| 2 | 2 | Poisson PD | x, μ |
+| 2 | 3 | Poisson CD | x, μ |
+
+**Usage:** Enter numeric values or supported arithmetic expressions in the same sequence as the original CASIO. **=** advances to the next parameter and calculates after the final input. The result is written to scalar Ans and displayed numerically on the calculator LCD. Press **=** or **AC** from the result to reopen the first parameter with the previous values retained; press **SHIFT → 1** in the DIST entry/result workflow to reopen the distribution-type menu. The input and result screens in REA-061 use the existing calculator flow framework; the dedicated DIST List screen, insertion/deletion, multi-sample input and 25-entry limit are expressly reserved for **REA-062**.
+
+**Accuracy and domains:** Gaussian PD/CD use a standard normal density and numerically integrated CDF with direct tail integration. Inverse Normal solves the **left-tail quantile** using a monotone bracketed numerical method. Binomial probabilities use stable log-factorial evaluation and recurrence-based cumulative tails; Poisson probabilities use log-factorial PMFs and recurrence-based tails. Cumulative probabilities are clamped into [0,1] to correct rounding noise. Standard deviations must be positive; binomial trials, success counts and Poisson counts must be nonnegative integers, with binomial success probabilities in [0,1] and Poisson means nonnegative. An inverse-normal Area of 0 or 1 has no finite quantile and is rejected with a Math ERROR. Invalid parameters leave the editable prompt open without updating Ans. Very expensive cumulative calculations have a bounded operation count and report Time Out Error rather than hanging the browser.
+
+**Reference examples:** Normal PD at x=36, σ=2, μ=35 is **0.1760326634**, matching the CASIO manual; Normal CD from -1 to 1 with μ=0 and σ=1 is approximately **0.6826894921**; inverse Normal at Area=.975, σ=1, μ=0 is approximately **1.9599639845**; Binomial PD at x=10, N=15, p=.6 is approximately **0.1859378448**; and Poisson CD at x=3, μ=2 is approximately **0.8571234605**.
+
+**Verification:** 30 initial numerical/domain unit tests, 28 further reference-data/edge-case tests, 26 controller key-sequence tests, and 17 permanent built-in DIST checks were run or added for the seven type/parameter workflows. Numerical agreement has not been certified against every hardware firmware variant; CASIO documents distribution accuracy up to five significant digits, and visual LCD / key-scan hardware parity remains unverified.
+
+Official model-specific source: <https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/using_calculation_modes/dist.html>.
+
 ## Files
 
 - `index.html` — modular browser application.
