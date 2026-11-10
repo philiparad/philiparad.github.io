@@ -109,8 +109,11 @@ function paint(){
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
  $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='matrix-table'&&state.matrixEditor?'MATRIX editor '+state.matrixEditor.name+', '+state.matrixEditor.matrix.rows+' by '+state.matrixEditor.matrix.cols+', selected row '+(state.matrixEditor.row+1)+' column '+(state.matrixEditor.col+1)+' value '+state.matrixEditor.buffer:state.screen==='matrix-result'&&state.matrixView?'MATRIX '+state.matrixView.name+' result, '+state.matrixView.matrix.rows+' by '+state.matrixView.matrix.cols+', value '+state.matrixView.matrix.data[state.matrixView.row][state.matrixView.col]:state.screen==='conversion-code'&&state.conversionCode?'CONV code '+state.conversionCode.buffer+' of 01 to 40':state.screen==='constant-code'&&state.constantCode?'Scientific constant code '+state.constantCode.buffer+' of 01 through 40':state.screen==='dist-list'&&state.distList?'DIST List row '+(state.distList.row+1)+' of '+state.distList.samples.length+', '+(state.distList.column===0?'X':'Ans')+', value '+DISTLIST.format(DISTLIST.active(state.distList)):state.screen==='table-grid'&&state.tableData?'TABLE row '+(state.tableData.row+1)+' of '+state.tableData.rows.length+', column '+state.tableData.columns[state.tableData.col]+', value '+TABLE.format(TABLE.active(state.tableData)):state.screen==='vector-parameter'&&state.vectorParameter?'VECTOR scalar parameter for '+state.vectorParameter.name+', value '+state.vectorParameter.buffer+(state.vectorParameter.error?', '+state.vectorParameter.error:''):state.screen==='vector-scalar'?'VECTOR scalar result '+state.result+', '+(state.vectorScalarInfo||''):state.screen==='vector-table'&&state.vectorEditor?'VECTOR editor '+state.vectorEditor.name+', '+state.vectorEditor.vector.dimension+' dimensions, component '+(state.vectorEditor.index+1)+' value '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name+' result, component '+(state.vectorView.index+1)+' value '+state.vectorView.vector.data[state.vectorView.index]:state.screen==='ineq-coeff'&&state.ineqEditor?'INEQ '+state.ineqEditor.degree+' '+state.ineqEditor.operator+' zero, coefficient '+EQEDIT.current(state.ineqEditor.coefficients)+' equals '+state.ineqEditor.coefficients.buffer+', position '+(state.ineqEditor.coefficients.col+1):state.screen==='ineq-result'&&state.ineqSession?'INEQ result '+(state.ineqSession.index+1)+' of '+state.ineqSession.pages.length+', '+state.ineqSession.pages[state.ineqSession.index].text:state.screen==='eqn-coeff'&&state.eqnEditor?'EQN coefficient editor, '+state.eqnEditor.type+', selected '+EQEDIT.current(state.eqnEditor)+' equals '+state.eqnEditor.buffer+', row '+(state.eqnEditor.row+1)+', column '+(state.eqnEditor.col+1):state.screen==='eqn-result'&&state.eqnSession?'EQN result '+(state.eqnSession.index+1)+' of '+state.eqnSession.solutions.length+', '+state.result:state.screen==='stat-table'&&state.statTable?'STAT data table row '+(state.statTable.row+1)+' of '+state.statTable.rows.length+', '+STAT.active(state.statTable)+' equals '+state.statTable.buffer+', '+(state.statTable.paired?'paired data':'one variable')+', frequency '+(state.statTable.frequency?'on':'off'):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  const faceIds={'fx-991es':'fx-991ES','fx-991es-plus':'fx-991ES PLUS','fx-991es-plus-c':'fx-991ES PLUS C'};
+ const face=$('face');
+ face.dataset.model=state.model;
  document.querySelector('.case-model-id').textContent=faceIds[state.model];
- document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'':'2nd edition';
+ document.querySelector('.case-model-series').textContent=state.model==='fx-991es'?'NATURAL DISPLAY':'NATURAL-V.P.A.M.';
+ document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'TWO WAY POWER':'2nd edition';
  $('model-label').textContent=MODELS.get(state.model).label;
  $('mode-label').textContent=state.mode==='BASE-N'?'BASE-N '+state.baseRadix:state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
@@ -750,6 +753,7 @@ function setModel(id){
  state.model=id;
  state.mode='COMP';
  $('model-selector').value=id;
+ K.applyModel($('keys'),id);
  notify('Model: '+MODELS.get(id).label+' · only supported modes are shown');
  paint();
  return true;
@@ -2479,7 +2483,7 @@ function captureKeyboardLCD(){
 function keyboard(event){
  window.FreshKeyboard.dispatch(event,state,press,captureKeyboardLCD);
 }
-K.mount($('keys'),press);
+K.mount($('keys'),press,state.model);
 $('model-selector').value=state.model;
 $('model-selector').addEventListener('change',e=>setModel(e.target.value));
 $('run-checks').addEventListener('click',runChecks);
