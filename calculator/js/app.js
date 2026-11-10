@@ -303,7 +303,7 @@ function insertTemplate(type){
  syncEditor();releaseModifier();notify('Use arrow keys to move between placeholders');paint();
 }
 function loadExpression(text){
- clearReplay();
+ clearReplay();state.captureTemplate=false;
  state.editor=STRUCT.fromString(text);
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
@@ -755,7 +755,7 @@ function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not availa
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
- clearReplay();state.pendingMemory=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+ clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
  cancelNumeric();
  if(!MODELS.profiles[id])return false;
