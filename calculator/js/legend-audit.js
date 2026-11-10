@@ -39,6 +39,11 @@ function context(key,modifier,mode,screen,model,supports){
  if(screen==='error')return {status:key.id==='AC'||key.id==='LEFT'||key.id==='RIGHT'?
   'available':'blocked',reason:'Error recovery only'};
  if(screen!=='edit'&&screen!=='result'){
+  // A dedicated menu/form handler consumes the physical event. Its SHIFT
+  // and ALPHA interpretations are not the printed scientific shortcuts.
+  // Distinguish ordinary navigation from unavailable modifier legends.
+  if(modifier!=='normal')return {status:'blocked',
+   reason:'Modifier legend unavailable in '+screen+' screen'};
   return {status:'delegated',reason:'Dedicated '+screen+' handler owns key events'};
  }
  if(modifier==='normal'){
@@ -49,6 +54,9 @@ function context(key,modifier,mode,screen,model,supports){
     reason:'Integral requires COMP; log template is editable'};
   }
   if(key.id==='CALC')return {status:'available',reason:mode+' CALC'};
+  if(key.id==='RCL')return {status:'available',reason:'Recall register selection'};
+  if(key.id==='ENG'&&mode==='CMPLX')return {status:'available',reason:'Imaginary unit input'};
+  if(key.id==='INTEGRAL'&&mode==='CMPLX')return {status:'blocked',reason:'Integration requires COMP'};
   if(key.id==='SD'&&mode==='CMPLX')return {status:'blocked',reason:'S⇔D not active for CMPLX'};
   if(key.id==='DMS'&&mode==='CMPLX')return {status:'blocked',reason:'Sexagesimal limited to real mode'};
   return {status:'available',reason:'Normal physical input or result action'};
@@ -83,8 +91,8 @@ function context(key,modifier,mode,screen,model,supports){
    reason:'Equation input in COMP/CMPLX'};
   if(key.id==='INTEGRAL'||key.id==='LOGBASE')return {status:mode==='COMP'?'available':'blocked',
    reason:'Product input in COMP'};
-  if(key.id==='SQRT')return {status:mode==='COMP'?'available':'blocked',
-   reason:'Recurring decimal entry in COMP'};
+  if(key.id==='SQRT')return {status:mode==='COMP'&&screen==='edit'?'available':'blocked',
+   reason:'Recurring decimal requires MathIO edit ending in decimal point'};
   if(key.id==='FRAC'||key.id==='DOT'||key.id==='ANS'||key.id==='MUL'||
      key.id==='DIV'||key.id==='ADD'||key.id==='SUB'){
    return {status:mode==='COMP'?'available':'blocked',reason:'COMP function or register'};
