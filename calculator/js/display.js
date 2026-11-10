@@ -445,9 +445,13 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  // REA-009: render editable mathematical templates in two dimensions.
  const expression=state.editor;
  const linearModes=['STAT','BASE-N','MATRIX','VECTOR'];
- const structured=expression&&state.math&&!linearModes.includes(state.mode)&&expression.root.some(node=>node.type!=='char');
+ const hasCalculus=expression&&expression.root.some(node=>['derivative','integral','summation'].includes(node.type));
+ const structured=expression&&!linearModes.includes(state.mode)&&
+  (state.math||hasCalculus)&&expression.root.some(node=>node.type!=='char');
  const fieldNames={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
-  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument']};
+  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument'],
+  derivative:['expression','at'],integral:['expression','lower','upper'],
+  summation:['expression','lower','upper']};
  function measureSeq(nodes){return nodes.reduce((width,node)=>width+measureNode(node),0)}
  function measureNode(node){
   if(node.type==='char')return 4;
@@ -461,6 +465,9 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
   if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
   if(node.type==='logBase')return 14+measureField('base')+measureField('argument');
+  if(node.type==='derivative')return 20+measureField('expression')+measureField('at');
+  if(node.type==='integral'||node.type==='summation')return 21+
+   Math.max(measureField('upper'),measureField('lower'))+measureField('expression');
   return 4;
  }
  function drawSeq(nodes,x,baseline,path,cursorOn){
@@ -491,6 +498,23 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
      drawField('numerator',x+shift+Math.floor((span-a)/2),baseline-10);
      for(let xx=x+shift-1;xx<x+w;xx++)pixel(xx,baseline-3);
      drawField('denominator',x+shift+Math.floor((span-b)/2),baseline+1);
+    }else if(node.type==='derivative'){
+     glyph('d',x,baseline-5);glyph('/',x+4,baseline-5);
+     glyph('d',x+8,baseline-5);glyph('x',x+12,baseline-5);
+     drawField('expression',x+16,baseline);
+     const at=x+16+Math.max(6,measureSeq(p.expression));
+     glyph('|',at-3,baseline+7);drawField('at',at,baseline+7);
+    }else if(node.type==='integral'||node.type==='summation'){
+     glyph(node.type==='integral'?'∫':'Σ',x,baseline-2);
+     const span=Math.max(Math.max(6,measureSeq(p.lower)),Math.max(6,measureSeq(p.upper)));
+     drawField('upper',x+6,baseline-12);
+     drawField('lower',x+6,baseline+7);
+     const expressionX=x+13+span;
+     drawField('expression',expressionX,baseline);
+     if(node.type==='integral'){
+      const end=expressionX+Math.max(6,measureSeq(p.expression));
+      glyph('d',end,baseline);glyph('x',end+4,baseline);
+     }
     }else if(node.type==='power'){
      drawField('exponent',x+2,baseline-8);
     }else if(node.type==='exp10'){
