@@ -18,6 +18,9 @@ function parse(s){
  return value;
 }
 function commit(s){
+ // Navigation and calculating must not overwrite stored cells with a stale
+ // empty buffer. Only a key-initiated editing session may modify a value.
+ if(!s.editing)return s;
  const value=parse(s);
  s.rows[s.row][active(s)]=value;s.editing=false;s.error='';
  return s;
