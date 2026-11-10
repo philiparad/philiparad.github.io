@@ -125,12 +125,19 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   write('EQN '+e.type,0,0);
   if(count){
    const current=parts[e.index]||parts[0];
-   write(current.label+' =',0,10);
-   const v=String(global.FreshEquation?.format(current.value)??current.value);
-   const start=Math.max(0,v.length-22);
-   write(v.slice(start),Math.max(0,W-Math.min(v.length,22)*4),25);
+   if(current.complex){
+    const fmt=global.FreshEquation.format;
+    write(current.label+' = '+fmt(current.complex.re),0,10);
+    const imag=current.complex.im;
+    const imaginary=(imag<0?'-':'+')+fmt(Math.abs(imag))+'i';
+    write(imaginary.slice(-23),Math.max(0,W-Math.min(23,imaginary.length)*4),25);
+   }else{
+    write(current.label+' =',0,10);
+    const v=String(global.FreshEquation?.format(current.value)??current.value);
+    const start=Math.max(0,v.length-22);
+    write(v.slice(start),Math.max(0,W-Math.min(v.length,22)*4),25);
+   }
    if(count>1)write((e.index+1)+'/'+count,76,0);
-   if(e.nonRealCount&&e.index===count-1)write('REAL ONLY',45,10);
   }else{
    write(e.status||'Math ERROR',0,12);
   }
