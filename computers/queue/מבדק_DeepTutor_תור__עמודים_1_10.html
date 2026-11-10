@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <link rel="icon" type="image/png" href="philip_favicon.png">
+        <title>DeepTutor | מבדק למידה: תור #C</title>
+        <style>
+            :root {--ink:#17334d;--navy:#163d62;--teal:#087a7e;--line:#cbdde9;--muted:#55718a;--good:#177c59;--warn:#a15e23;--bg:#eef5fb;--white:#fff}
+            * {box-sizing:border-box}
+            html {scroll-behavior:smooth}
+            body {margin:0;min-width:290px;font:18px/1.7 Arial,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(135deg,#e9f4fc,#f7f2ff)}
+            header {background:linear-gradient(112deg,#153a62,#246d87);color:white;padding:24px max(20px,calc((100vw - 1120px)/2))}
+            h1 {font-size:clamp(25px,3.4vw,35px);margin:0 0 4px;line-height:1.3}
+            header p {font-size:15px;color:#e7f7ff;margin:0}
+            main {display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;max-width:1120px;margin:25px auto 60px;padding:0 15px;align-items:start}
+            .panel {background:#fff;border:2px solid var(--line);border-radius:19px;padding:25px;box-shadow:0 7px 22px #1239590d}
+            .eyebrow {display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:14px;font-weight:bold;color:#09686b}
+            .pill {display:none;border-radius:40px;padding:3px 12px;background:#e4f5f2}
+            h2 {color:var(--navy);font-size:clamp(23px,3vw,29px);margin:11px 0}
+            .lead {line-height:1.8;margin:12px 0 17px}
+            .question {background:#f5faff;border:2px solid #c9deeb;border-radius:15px;padding:18px;margin:18px 0}
+            .question strong {font-size:20px}
+            .choices {display:grid;gap:10px;margin-top:13px}
+            .choice {display:flex;align-items:center;gap:12px;text-align:right;min-height:59px;padding:12px 15px;background:#fff;border:2px solid #bed3e3;border-radius:13px;font:inherit;color:var(--ink);cursor:pointer}
+            .choice:hover:not(:disabled) {border-color:#278f9f;background:#ebf8fc}
+            .choice:focus-visible,.action:focus-visible {outline:3px solid #eca64f;outline-offset:3px}
+            .choice:disabled {cursor:default;opacity:.82}
+            .key {display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:10px;background:#eaf4fb;color:#176181;font-size:15px;font-weight:bold}
+            .choice.selected-good {background:#e8f8ef;border-color:#49b386}
+            .feedback {margin-top:16px;padding:15px 17px;border-radius:13px;border:2px solid #e6bf81;background:#fff7e8;line-height:1.7}
+            .feedback.good {background:#eafaf0;border-color:#91d2af}
+            .feedback b {display:block;margin-bottom:4px}
+            .controls {display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+            .action {border:2px solid var(--teal);background:var(--teal);border-radius:13px;padding:11px 21px;color:#fff;font:inherit;font-weight:bold;cursor:pointer;min-height:54px}
+            .action.secondary {color:#15607a;background:white;border-color:#bad0df}
+            .action:hover {filter:brightness(.95)}
+            .hide {display:none!important}
+            .side-title {font-weight:bold;font-size:18px;margin-bottom:10px}
+            .progress {height:13px;border-radius:30px;background:#e1ebf4;overflow:hidden}
+            .fill {height:100%;background:#10959c;transition:width .35s;width:0}
+            .small {font-size:14px;color:var(--muted)}
+            .step-list {margin-top:12px;max-height:560px;overflow:auto}
+            .step {padding:4px 0;border-bottom:1px solid #e5eef3;font-size:14px;display:flex;gap:8px;align-items:start}
+            .step.current {font-weight:bold;color:#126483}
+            .step .symbol {width:22px;flex:none;text-align:center}
+            .note {background:#fff8e9;border:2px solid #efd7aa;border-radius:12px;padding:12px 13px;font-size:14px;margin-top:16px}
+            .diagram {border:2px solid #cee1eb;border-radius:13px;padding:15px;background:#f6fbff;margin:17px 0;overflow-x:auto}
+            .queue-cells {display:flex;direction:ltr;align-items:center;gap:0;justify-content:center;min-width:max-content;padding:5px 0}
+            .qcell {display:grid;place-items:center;border:2px solid #377f9c;background:white;border-radius:9px;min-width:55px;height:53px;font-weight:bold;font-size:20px}
+            .qarr {color:#407b96;font-size:23px;padding:0 6px}
+            .end-labels {display:flex;direction:ltr;justify-content:space-between;gap:12px;font-size:13px;color:#3d6582;font-weight:bold}
+            .empty {text-align:center;color:#627c90;font-weight:bold;padding:10px}
+            pre {direction:ltr;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;background:#162d48;color:#f0f7ff;border:2px solid #254869;border-radius:13px;padding:16px;font:16px/1.7 Consolas,"Courier New",monospace;margin:14px 0}
+            code {direction:ltr;unicode-bidi:isolate;display:inline-block;padding:1px 5px;background:#edf4fa;border-radius:5px;font:0.92em Consolas,monospace}
+            .result-summary {border:2px solid #b6dfcb;background:#f1fbf6;border-radius:13px;padding:18px}
+            .metric {display:inline-block;border:2px solid #ccdde8;border-radius:12px;padding:9px 18px;margin:8px 5px;background:white;font-size:16px}
+            .metric b {font-size:27px;color:#0b6a80;display:block}
+            .source {margin-top:25px;padding-top:13px;border-top:1px solid #e3ecf0;font-size:13px;color:var(--muted)}
+            .visually-hidden {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+            @media(max-width:780px) {main {display:flex;flex-direction:column} main>* {width:100%} .panel {padding:18px} .step-list {max-height:190px} .choice {font-size:17px} header {padding:22px 16px}}
+            @media(prefers-reduced-motion:reduce) {html {scroll-behavior:auto}.fill {transition:none}}
+            @media print {header {background:#fff;color:#111} main {display:block;margin:0}.panel {box-shadow:none;margin-bottom:15px} .controls,.choices {display:none} .step-list {max-height:none}}
+        </style>
+        <script>
+            window.MathJax = {tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    </head>
+    <body>
+        <header>
+            <h1>🧠 תור (Queue) ב־#C — מסלול למידה ומבדק</h1>
+        </header>
+        <main>
+            <section class="panel" aria-labelledby="stageTitle">
+                <div class="eyebrow"><span class="pill" id="topicPill"></span><span class="pill" id="pagePill"></span></div>
+                <h2 id="stageTitle"></h2>
+                <div id="content"></div>
+                <div id="feedback" class="feedback hide" aria-live="polite" aria-atomic="true"></div>
+                <div class="controls">
+                    <button type="button" class="action secondary" id="hint">💡 תן לי רמז</button>
+                    <button type="button" class="action secondary hide" id="retry">🔁 נסה שוב</button>
+                    <button type="button" class="action hide" id="next">ממשיכים ←</button>
+                </div>
+            </section>
+            <aside class="panel" aria-label="מסלול הלמידה">
+                <div class="side-title">📍 מסלול ההתקדמות</div>
+                <div class="progress" role="progressbar" aria-label="התקדמות השיעור" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress"><div class="fill" id="bar"></div></div>
+                <p class="small" id="progressLabel"></p>
+                <div id="steps" class="step-list"></div>
+            </aside>
+        </main>
+        <script type="application/json" id="stageData">[{"title": "מהו תור?", "topic": "הגדרת תור", "page": 3, "explain": "תור הוא מבנה נתונים המכיל אוסף <b>סדור<\/b> של נתונים מאותו סוג. כמו תור של אנשים: יש משמעות למי הגיע קודם.", "question": "מה מתאר בצורה הטובה ביותר תור?", "options": [["a", "אוסף סדור של נתונים מאותו סוג"], ["b", "אוסף ללא סדר של נתונים"], ["c", "תמיד מערך של מספרים"]], "right": "a", "hint": "חפש בהגדרה שתי מילים: אוסף <b>סדור<\/b>.", "wrong": "הנקודה החשובה היא שיש סדר לאיברים, והם מאותו סוג.", "good": "נכון. בתור יש סדר מוגדר של איברים.", "queue": null, "code": null, "challenge": false}, {"title": "מי ראשון יוצא?", "topic": "עקרון FIFO", "page": 3, "explain": "ראשי התיבות <b dir=\"ltr\">FIFO<\/b> הם <span dir=\"ltr\">First In, First Out<\/span>: האיבר שנכנס ראשון יוצא ראשון.", "question": "נכנסו לתור לפי הסדר: 4, אחר כך 7, ואז 9. מי ייצא ראשון?", "options": [["a", "9"], ["b", "4"], ["c", "7"]], "right": "b", "hint": "חשוב על האדם שהגיע <b>ראשון<\/b> לתור.", "wrong": "FIFO אינו מוציא את מי שהגיע אחרון. בחר את הראשון שנכנס.", "good": "בדיוק. 4 נכנס ראשון ולכן יוצא ראשון.", "queue": [4, 7, 9], "code": null, "challenge": false}, {"title": "מאיזה צד מוציאים?", "topic": "ראש וסוף", "page": 5, "explain": "בתור מוציאים איברים רק מ<b>ראש התור<\/b> (<span dir=\"ltr\">first<\/span>). סוף התור הוא הצד השני.", "question": "באיזה צד מתבצעת הוצאה מהתור?", "options": [["a", "בסוף התור"], ["b", "מכל צד שנבחר"], ["c", "בראש התור"]], "right": "c", "hint": "מצא בתרשים את הכיתוב <b>ראש התור<\/b>.", "wrong": "ההוצאה בתור מתבצעת תמיד מראש התור, לא מהסוף.", "good": "נכון. הוצאה נעשית מראש התור.", "queue": [1, 2, 3], "code": null, "challenge": false}, {"title": "מאיזה צד מכניסים?", "topic": "ראש וסוף", "page": 5, "explain": "איבר חדש מצטרף תמיד ל<b>סוף התור<\/b> (<span dir=\"ltr\">last<\/span>). איברים קיימים אינם נעקפים.", "question": "אם התור כרגע 2, 5, 8 (מהראש לסוף), לאן ייכנס 10?", "options": [["a", "לפני 2"], ["b", "אחרי 8"], ["c", "בין 2 ל־5"]], "right": "b", "hint": "הכנסה מתבצעת לצד הנגדי לראש התור.", "wrong": "הכנסה היא בסוף התור — אחרי כל האיברים שהמתינו קודם.", "good": "נכון. התור יהיה 2, 5, 8, 10.", "queue": [2, 5, 8], "code": null, "challenge": false}, {"title": "בונים תור ריק", "topic": "פעולות המחלקה", "page": 6, "explain": "הפעולה הבונה <code dir=\"ltr\">new Queue&lt;int&gt;()<\/code> יוצרת תור ריק של מספרים שלמים.", "question": "מה מצבו של התור מיד לאחר יצירתו?", "options": [["a", "התור מכיל את המספר 0"], ["b", "התור ריק"], ["c", "התור מכיל איבר אחד מסוג int"]], "right": "b", "hint": "יצירת <b>תור ריק<\/b> היא תפקידה של הפעולה הבונה.", "wrong": "הגדרת הטיפוס int אינה מוסיפה ערך לתור. הפעולה הבונה יוצרת תור ריק.", "good": "נכון. בשלב הזה אין שום איברים.", "queue": [], "code": "Queue<int> q = new Queue<int>();", "challenge": false}, {"title": "Insert מוסיפה איבר", "topic": "פעולות המחלקה", "page": 6, "explain": "הפעולה <code dir=\"ltr\">Insert(item)<\/code> מוסיפה איבר <b>לסוף<\/b> התור.", "question": "איזה תור מתקבל לאחר הפעולה?", "options": [["a", "3, 6, 9"], ["b", "9, 3, 6"], ["c", "3, 9, 6"]], "right": "a", "hint": "הערכים 3 ו־6 כבר בתור; איפה מתווסף 9?", "wrong": "Insert אינה מכניסה לראש או לאמצע. 9 נוסף לסוף.", "good": "נכון. סדר האיברים הוא 3, 6, 9.", "queue": [3, 6], "code": "q.Insert(9);", "challenge": false}, {"title": "Remove מוציאה ומחזירה", "topic": "פעולות המחלקה", "page": 6, "explain": "הפעולה <code dir=\"ltr\">Remove()<\/code> מוציאה את האיבר מ<b>ראש התור<\/b> ומחזירה את ערכו.", "question": "איזה ערך תחזיר הפעולה?", "options": [["a", "5"], ["b", "2"], ["c", "8"]], "right": "b", "hint": "קרא את המספר שבצד המסומן \"ראש התור\".", "wrong": "Remove פועלת על הראש. הערך הראשון כאן הוא 2.", "good": "נכון. Remove מחזירה 2 ומוציאה אותו מהתור.", "queue": [2, 5, 8], "code": "int x = q.Remove();", "challenge": false}, {"title": "Head רק מסתכלת", "topic": "פעולות המחלקה", "page": 6, "explain": "הפעולה <code dir=\"ltr\">Head()<\/code> מחזירה את הערך בראש התור, <b>בלי להוציא אותו<\/b>.", "question": "מה יישאר בתור אחרי Head?", "options": [["a", "7, 9"], ["b", "9 בלבד"], ["c", "התור יתרוקן"]], "right": "a", "hint": "Head מחזירה את הערך, אבל אינה משנה את התור.", "wrong": "אין להסיר את 7: Head לא משנה את תכולת התור.", "good": "נכון. הערך המוחזר הוא 7, והתור נשאר 7, 9.", "queue": [7, 9], "code": "int x = q.Head();", "challenge": false}, {"title": "IsEmpty בודקת", "topic": "פעולות המחלקה", "page": 6, "explain": "הפעולה <code dir=\"ltr\">IsEmpty()<\/code> מחזירה ערך בוליאני: <code dir=\"ltr\">true<\/code> כאשר התור ריק, ו־<code dir=\"ltr\">false<\/code> כאשר יש בו איברים.", "question": "מה תחזיר הפעולה עבור התור המצויר?", "options": [["a", "true"], ["b", "false"], ["c", "0"]], "right": "b", "hint": "בדוק אם בתור יש לפחות איבר אחד.", "wrong": "התור מכיל איבר ולכן אינו ריק: IsEmpty תחזיר false.", "good": "נכון. יש בתור איבר ולכן התוצאה היא false.", "queue": [12], "code": "bool empty = q.IsEmpty();", "challenge": false}, {"title": "מתי בודקים תור ריק?", "topic": "מקרי קצה", "page": 6, "explain": "לפי ההנחיה בעמוד 6, לפני קריאה ל־<code dir=\"ltr\">Remove()<\/code> או <code dir=\"ltr\">Head()<\/code> על המשתמש לוודא שהתור <b>אינו ריק<\/b>.", "question": "איזו בדיקה מתאימה לפני הוצאה?", "options": [["a", "if (!q.IsEmpty())"], ["b", "if (q.IsEmpty())"], ["c", "if (q.Head() == 0)"]], "right": "a", "hint": "הסימן ! הופך את התוצאה: \"לא ריק\".", "wrong": "אם q ריק אין להוציא ממנו איבר. יש לבצע Remove רק כאשר !q.IsEmpty().", "good": "נכון. התנאי מבטיח שהתור אינו ריק.", "queue": [], "code": "if (!q.IsEmpty())\n{\n    Console.WriteLine(q.Remove());\n}", "challenge": false}, {"title": "עוקבים אחרי פקודות", "topic": "ניתוח קוד", "page": 7, "explain": "בדוגמה בעמוד 7 מכניסים 1, 2, 3. לאחר מכן Remove מחזירה את הראשון ו־Head קוראת את הראשון שנותר.", "question": "מה יהיה הפלט של שתי שורות ההדפסה?", "options": [["a", "1 ואז 2"], ["b", "1 ואז 1"], ["c", "3 ואז 2"]], "right": "a", "hint": "Remove מוציאה את 1; מהו הראש עכשיו?", "wrong": "לאחר Remove, האיבר 1 איננו. לכן Head מחזירה 2.", "good": "נכון. הפלט יהיה 1 ואחריו 2.", "queue": [1, 2, 3], "code": "Console.WriteLine(q.Remove());\nConsole.WriteLine(q.Head());", "challenge": false}, {"title": "תור של מחרוזות", "topic": "טיפוס גנרי", "page": 7, "explain": "מחלקת <code dir=\"ltr\">Queue&lt;T&gt;<\/code> מאפשרת ליצור תור של מספרים או תור של מחרוזות. כל תור בדוגמאות מכיל ערכים מהסוג שהוגדר לו.", "question": "איזה ערך תפיק Remove?", "options": [["a", "A"], ["b", "B"], ["c", "0"]], "right": "a", "hint": "זהו תור של string, והערך הראשון שהוכנס הוא \"A\".", "wrong": "Insert(\"A\") הכניסה את A; זו גם ההוצאה הראשונה.", "good": "נכון. Remove מחזירה את המחרוזת A.", "queue": ["A"], "code": "Queue<string> q = new Queue<string>();\nq.Insert(\"A\");\nConsole.WriteLine(q.Remove());", "challenge": false}, {"title": "מה קורה אחרי הוצאה אחרונה?", "topic": "מקרי קצה", "page": 7, "explain": "בדוגמה בעמוד 7, לאחר שכל האיברים הוצאו, ניסיון נוסף להוציא איבר או לקרוא את הראש מסומן כשגיאה.", "question": "לאחר הוצאת האיבר היחיד, מה נכון?", "options": [["a", "אפשר תמיד לקרוא Head ללא בדיקה"], ["b", "התור ריק ואין לקרוא Head לפני בדיקת IsEmpty"], ["c", "Remove תחזיר אוטומטית 0"]], "right": "b", "hint": "אחרי הסרה של האיבר היחיד, כמה איברים נותרו?", "wrong": "התור ריק. לפי המצגת יש לבדוק IsEmpty לפני Head או Remove.", "good": "בדיוק. בדיקה מונעת שימוש בפעולה על תור ריק.", "queue": [5], "code": "q.Remove();\n// Now the queue is empty", "challenge": false}, {"title": "מה מסתירים מאיתנו?", "topic": "טיפוס נתונים מופשט", "page": 9, "explain": "<b>טיפוס נתונים מופשט (ADT)<\/b> מגדיר אילו פעולות ניתן לבצע על המבנה, בלי להיכנס לדרך שבה הן ממומשות בתוך המחלקה.", "question": "מה חשוב למשתמש של Queue בשלב הזה?", "options": [["a", "איך מאוחסנות החוליות בזיכרון"], ["b", "אילו פעולות קיימות ומה הן עושות"], ["c", "כמה שדות פרטיים יש במימוש הפנימי"]], "right": "b", "hint": "בעמוד 9 מפרידים בין מה שרואים <b>מבחוץ<\/b> לבין מה שמוסתר <b>בפנים<\/b>.", "wrong": "עיקר ה־ADT הוא חוזה הפעולות הגלויות למשתמש ולא פרטי המימוש.", "good": "נכון. משתמשים בפעולות בלי לדעת איך המחלקה בנויה מבפנים.", "queue": null, "code": null, "challenge": false}, {"title": "אתגר: רצף פעולות", "topic": "יישום עצמאי", "page": 7, "explain": "כעת תשתמש במה שלמדת. חשוב לעקוב אחרי מצב התור <b>לאחר כל פקודה<\/b>.", "question": "מהו הערך שיודפס?", "options": [["a", "10"], ["b", "20"], ["c", "30"]], "right": "b", "hint": "אחרי Remove הראשונה הראש משתנה. Head בודקת את הראש החדש.", "wrong": "לאחר הוצאת 10, הראש החדש הוא 20; לכן Head מחזירה 20.", "good": "נכון. 20 הוא כעת ראש התור.", "queue": [10, 20, 30], "code": "q.Insert(10);\nq.Insert(20);\nq.Insert(30);\nq.Remove();\nConsole.WriteLine(q.Head());", "challenge": true}, {"title": "אתגר: מתי התור ריק?", "topic": "יישום עצמאי", "page": 6, "explain": "הפעולה <code dir=\"ltr\">IsEmpty()<\/code> מושפעת מהפעולות הקודמות על התור. חשוב לעקוב אחרי מספר האיברים.", "question": "מה תהיה התוצאה של IsEmpty בסוף?", "options": [["a", "true"], ["b", "false"], ["c", "לא ניתן לדעת"]], "right": "a", "hint": "הוספת איבר אחד והוצאת איבר אחד משאירות כמה איברים?", "wrong": "לאחר הכנסת 6 והוצאתו אין בתור איברים, ולכן התוצאה true.", "good": "נכון. התור חזר להיות ריק.", "queue": [], "code": "Queue<int> q = new Queue<int>();\nq.Insert(6);\nq.Remove();\nConsole.WriteLine(q.IsEmpty());", "challenge": true}, {"title": "אתגר סיום: מי נשאר ראשון?", "topic": "יישום עצמאי", "page": 7, "explain": "במבחן הסיום הקצר, שלב בין פעולות <code dir=\"ltr\">Insert<\/code>, <code dir=\"ltr\">Remove<\/code> ו־<code dir=\"ltr\">Head<\/code>.", "question": "מה יודפס בשורה האחרונה?", "options": [["a", "4"], ["b", "7"], ["c", "9"]], "right": "b", "hint": "עקוב אחרי התור: אחרי הוצאת 4, מי יהיה בראש? הוספה חדשה מתבצעת רק בסוף.", "wrong": "Remove מוציאה את 4. הוספת 9 אינה משנה את הראש; 7 נשאר ראשון.", "good": "נכון. התוצאה היא 7 — הבנת את סדר הפעולות של התור.", "queue": null, "code": "q.Insert(4);\nq.Insert(7);\nq.Remove();\nq.Insert(9);\nConsole.WriteLine(q.Head());", "challenge": true}]</script>
+        <script>
+            (() => {
+                'use strict';
+                const stages = JSON.parse(document.getElementById('stageData').textContent);
+                let stage = 0;
+                let answered = false;
+                let mistakes = 0;
+                let hints = 0;
+                let firstTry = 0;
+                let usedHelp = false;
+                let stepWrong = false;
+                const $ = id => document.getElementById(id);
+                const typeset = () => { if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(() => {}); };
+                function make(tag, className, content) {
+                    const element = document.createElement(tag);
+                    if (className) element.className = className;
+                    if (content !== undefined) element.textContent = content;
+                    return element;
+                }
+                function renderQueue(values) {
+                    const d = make('div', 'diagram');
+                    if (values.length === 0) {
+                        d.append(make('div','empty','∅ התור ריק — אין איברים'));
+                        return d;
+                    }
+                    const caps = make('div', 'end-labels');
+                    caps.append(make('span','','ראש התור — first / Remove'),make('span','','סוף התור — last / Insert'));
+                    const cells = make('div','queue-cells');
+                    values.forEach((v,i) => {
+                        if(i) cells.append(make('span','qarr','→'));
+                        cells.append(make('div','qcell',String(v)));
+                    });
+                    d.append(caps,cells);
+                    d.setAttribute('role','img');
+                    d.setAttribute('aria-label', 'תור מראש לסוף: '+values.join(', '));
+                    return d;
+                }
+                function show() {
+                    answered=false; usedHelp=false; stepWrong=false;
+                    $('feedback').className='feedback hide';
+                    $('feedback').textContent='';
+                    $('retry').classList.add('hide');
+                    $('next').classList.add('hide');
+                    $('next').textContent='ממשיכים ←';
+                    $('hint').classList.remove('hide');
+                    const s=stages[stage];
+                    $('stageTitle').textContent=s.title;
+                    $('topicPill').textContent='📘 '+s.topic;
+                    $('pagePill').textContent='עמוד '+s.page;
+                    const c=$('content'); c.replaceChildren();
+                    const explain=make('div','lead'); explain.innerHTML=s.explain;
+                    c.append(explain);
+                    if (s.queue !== null) c.append(renderQueue(s.queue));
+                    if (s.code) c.append(make('pre','',s.code));
+                    const question=make('div','question');
+                    question.append(make('strong','',s.question));
+                    const choices=make('div','choices');choices.id='choices';
+                    s.options.forEach(([id,label],i) => {
+                        const b=make('button','choice'); b.type='button'; b.dataset.answer=id;
+                        b.append(make('span','key',String(i+1)));
+                        b.append(make('span','',label));
+                        b.addEventListener('click',()=>choose(id,b));
+                        choices.append(b);
+                    });
+                    question.append(choices);c.append(question);
+                    const pct=Math.round(stage/stages.length*100);
+                    $('bar').style.width=pct+'%';
+                    $('progress').setAttribute('aria-valuenow',String(pct));
+                    $('progressLabel').textContent='שלב '+(stage+1)+' מתוך '+stages.length+' · '+pct+'% הושלמו';
+                    $('steps').replaceChildren();
+                    stages.forEach((item,i) => {
+                        const line=make('div','step'+(i===stage?' current':''));
+                        line.append(make('span','symbol',i<stage?'✅':i===stage?'🔵':'◯'));
+                        line.append(make('span','',item.title));
+                        $('steps').append(line);
+                    });
+                    typeset();
+                }
+                function feedback(good,title,body) {
+                    const f=$('feedback');f.className='feedback'+(good?' good':'');
+                    f.replaceChildren(make('b','',title),make('div','',body));
+                }
+                function choose(id,button) {
+                    if (answered) return;
+                    const s=stages[stage];
+                    if (id===s.right) {
+                        answered=true;
+                        if(!stepWrong && !usedHelp)firstTry++;
+                        feedback(true,'✅ תשובה נכונה!',s.good);
+                        $('hint').classList.add('hide');$('retry').classList.add('hide');
+                        $('next').classList.remove('hide');
+                        document.querySelectorAll('#choices button').forEach(b=>b.disabled=true);
+                        button.classList.add('selected-good');
+                        $('next').focus();
+                    } else {
+                        mistakes++;stepWrong=true;
+                        feedback(false,'🧩 ננסה לחשוב שוב',s.wrong);
+                        $('retry').classList.remove('hide');
+                    }
+                }
+                $('hint').addEventListener('click',()=>{
+                    if(answered)return;
+                    hints++;usedHelp=true;
+                    feedback(false,'💡 רמז',stages[stage].hint.replace(/<[^>]*>/g,''));
+                });
+                $('retry').addEventListener('click',()=>{
+                    $('retry').classList.add('hide');
+                    $('feedback').className='feedback hide';
+                    const first=$('choices').querySelector('button');if(first)first.focus();
+                });
+                $('next').addEventListener('click',()=>{
+                    if(stage===stages.length){stage=0;mistakes=0;hints=0;firstTry=0;show();return;}
+                    if(!answered)return;
+                    stage++;
+                    if(stage<stages.length){show();$('stageTitle').focus();return;}
+                    finish();
+                });
+                function finish() {
+                    $('stageTitle').textContent='🎉 השלמת את המסלול!';
+                    $('topicPill').textContent='סיכום';$('pagePill').textContent='עמודים 1–10';
+                    $('content').replaceChildren();
+                    const summary=make('div','result-summary');
+                    summary.innerHTML='<h3>מה למדנו?</h3><p>תור הוא מבנה סדור, הפועל לפי FIFO: הראשון שנכנס הוא הראשון שיוצא. Insert מוסיפה לסוף; Remove מוציאה ומחזירה מהראש; Head קוראת את הראש בלי להסיר; IsEmpty בודקת האם התור ריק.</p><p>המחלקה Queue&lt;T&gt; נלמדת דרך פעולותיה הציבוריות, בלי צורך להכיר בשלב זה את המימוש הפנימי (ADT).</p>';
+                    $('content').append(summary);
+                    const metrics=make('div');
+                    [[String(firstTry)+'/'+stages.length,'נכון בלי רמז או שגיאה'],[String(mistakes),'בחירות שגויות'],[String(hints),'רמזים שנלקחו']].forEach(([n,l])=>{
+                        const item=make('div','metric');item.append(make('b','',n),make('span','',l));metrics.append(item);
+                    });
+                    $('content').append(metrics);
+                    $('content').append(make('p','small','השלמת המסלול אינה הוכחה לשליטה מלאה בחומר. הנתונים נשמרים בזיכרון הדף בלבד, אינם נשלחים ואינם נשמרים לאחר רענון.'));
+                    $('feedback').className='feedback good';$('feedback').textContent='סיימת את כל השאלות. ניתן להתחיל שוב ולתרגל באופן עצמאי.';
+                    $('hint').classList.add('hide');$('retry').classList.add('hide');
+                    $('next').classList.remove('hide');$('next').textContent='🔄 התחל מחדש';
+                    $('bar').style.width='100%';$('progress').setAttribute('aria-valuenow','100');
+                    $('progressLabel').textContent=stages.length+' מתוך '+stages.length+' שלבים הושלמו · 100%';
+                    $('steps').replaceChildren(...stages.map(s=>{const d=make('div','step');d.append(make('span','symbol','✅'),make('span','',s.title));return d;}));
+                    $('next').focus();
+                }
+                show();
+            })();
+        </script>
+    </body>
+</html>
