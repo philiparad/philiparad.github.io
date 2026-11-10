@@ -36,7 +36,7 @@ const $=(id)=>document.getElementById(id);
 const requestedModel=new URLSearchParams(location.search).get('model');
 const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
-const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
+const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
  matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
@@ -293,7 +293,13 @@ function insertTemplate(type){
  if(!state.power)return;
  beginEdit();
  if(state.input.length>210){error('Input limit');return}
- STRUCT.template(state.editor,type,!state.insert);
+ if(state.captureTemplate){
+  state.captureTemplate=false;
+  if(!STRUCT.incorporate(state.editor,type)){
+   releaseModifier();notify('INS: move the caret before an operand, then select a template',true);paint();
+   return;
+  }
+ }else STRUCT.template(state.editor,type,!state.insert);
  syncEditor();releaseModifier();notify('Use arrow keys to move between placeholders');paint();
 }
 function loadExpression(text){
@@ -304,7 +310,7 @@ function loadExpression(text){
 function reset(mode='all'){
  state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
- state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
+ state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
  notify('Calculator reset');paint()
 }
@@ -318,7 +324,7 @@ function clearTransientDisplay(){
  state.resultDMS=false;state.error='';state.errorOffset=null;state.errorSource='';
  state.info='';state.screen='edit';state.result='';state.editor=STRUCT.create();
  state.input='';state.cursor=0;state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};
- state.hyp=false;releaseModifier();clearReplay();
+ state.hyp=false;state.captureTemplate=false;releaseModifier();clearReplay();
 }
 function clearSetup(){
  // CLR 1: setup defaults and calculation history, but no change to memory.
@@ -1844,7 +1850,16 @@ function shifted(key){
  if(key==='AC'){powerOff();return true}
  if(key==='MODE'){releaseModifier();setupMenu();return true}
  if(key==='RCL'){releaseModifier();memoryDialog(true);return true}
- if(key==='DEL'){state.insert=!state.insert;releaseModifier();notify(state.insert?'Insert mode':'Overwrite mode');paint();return true}
+ if(key==='DEL'){
+  if(state.math&&state.mode==='COMP'){
+   state.captureTemplate=!state.captureTemplate;
+   releaseModifier();notify(state.captureTemplate?
+    'MathIO INS: place cursor before an operand, then choose fraction/root':
+    'MathIO INS cancelled');paint();return true;
+  }
+  state.insert=!state.insert;releaseModifier();
+  notify(state.insert?'Insert mode':'Overwrite mode');paint();return true;
+ }
  if(key==='9'){clearMenu();return true}
  if(key==='7'){constantStart();return true}
  if(key==='8'){conversionStart();return true}
@@ -2099,7 +2114,7 @@ function handle(key){
  if(state.alpha){state.alpha=false;if(alphaKey(key)!==null)return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
   if(key.startsWith('TEXT:')&&state.mode==='CMPLX'&&/^[A-Za-z]$/.test(key.slice(5))){insert(key.slice(5));return}
- if(key==='AC'){clearReplay();state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
+ if(key==='AC'){clearReplay();state.captureTemplate=false;state.pendingMemory=null;state.factorization=null;state.multiStatements=null;state.remainderResult=null;state.editor=STRUCT.create();state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.input='';state.cursor=0;state.screen='edit';state.result='';state.error='';state.errorOffset=null;state.errorSource='';state.info='';releaseModifier();notify('Cleared input');paint();return}
  if(key==='DEL'){
   if(state.screen==='error'){state.screen='edit';state.error=''}
   if(state.screen==='result')state.screen='edit';
