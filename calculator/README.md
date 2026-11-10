@@ -57,15 +57,38 @@ Examples (DEG mode):
 
 ## STAT LCD data editor (REA-047)
 
-**MODE → STAT** now opens a type-selection menu: **1: 1-VAR** for one-variable data, or **2: A+BX** for paired X/Y data. The old comma-separated prompt is replaced by a scrolling table **inside the calculator's own LCD**. The table starts empty and accepts up to 80 rows.
+**MODE → STAT** now opens a type-selection menu: **1: 1-VAR** for one-variable data, or **2: A+BX** for paired X/Y data. The old comma-separated prompt is replaced by a scrolling table **inside the calculator's own LCD**. The table starts empty. Row capacity depends on visible columns: **80** for X alone, **40** for X/FREQ or X/Y, and **26** for X/Y/FREQ.
 
 - Enter a number with calculator keys; **=** commits the current cell and advances to the next column, automatically creating a new row after the last column. **UP/DOWN** select rows, **LEFT/RIGHT** select columns, and **DEL** edits or clears the selected cell.
 - **SHIFT → UP** inserts a row immediately after the current row. **SHIFT → DOWN** deletes the current row (the table always retains at least one blank row). **AC** exits the table and **MODE** can select another calculator mode.
 - Use **SHIFT → MODE → STAT: ON/OFF** to add or hide the **FREQ** column without losing entered X/Y values. Frequency values are nonnegative integers. Zero-frequency rows contribute no observations.
 - **CALC** computes statistical results shown on the LCD in a scrollable list. **UP/DOWN** scroll result pages; **AC** returns to the existing data table. One-variable results include count, sum, population/sample SD, mean, min and max. Paired-data results include X/Y means and deviations, covariance-based correlation, and least-squares slope/intercept (when defined).
-- The table validates numeric entry, enforces a maximum of **80 rows** and **100,000 weighted observations**, and reports errors for missing paired values, invalid frequency weights, undefined results or empty datasets. The separate HTML diagnostic panels remain read-only.
+- The table validates numeric entry, enforces the manual-derived **80/40/26 row limits** and **100,000 weighted observations**, and reports errors for missing paired values, invalid frequency weights, undefined results or empty datasets. The separate HTML diagnostic panels remain read-only.
 
 **Verification:** the STAT model passed weighted-mean, paired regression, row removal and invalid-frequency tests. A simulated controller/LCD key-sequence suite passed 13/13 checks, including STAT selection, data entry, row operations, frequency SETUP, navigation and display rendering. These are behavioral tests of the independent implementation, not proof of manufacturer-firmware parity. The modular `calculator/index.html` loads `js/stat-editor.js`; the separately bundled standalone HTML file is not automatically regenerated.
+
+## Full STAT regression and statistics menus (REA-048)
+
+The STAT type menu now provides all eight documented types: **1 1-VAR**, **2 A+BX** (linear), **3 _+CX²** (quadratic), **4 ln X** (logarithmic), **5 e^X** (exponential), **6 A·B^X** (base-B exponential), **7 A·X^B** (power), and **8 1/X** (inverse). The selected type is shown on the LCD data table.
+
+Press **SHIFT → 1 (STAT)** from the data table or a STAT result to access **Type, Data, Edit, Sum, Var, MinMax, Reg, and Estimate**. The Sum, Var, MinMax and Reg submenus show selectable individual values; **CALC** shows the combined summary. Statistical values include weighted sums (Σx, Σx², Σy, Σy², Σxy, Σx³, Σx²y, Σx⁴), population and sample standard deviations for both X and Y, means, minima and maxima, and fitted coefficients. The regression menu provides A/B and correlation r where defined, and A/B/C for quadratic regression. **Estimate** asks for an X or Y value and calculates y-hat or x-hat; quadratic x-hat can return two values.
+
+Regression models:
+- Linear: `y = A + B*x`
+- Quadratic: `y = A + B*x + C*x^2`
+- Logarithmic: `y = A + B*ln(x)` (X positive)
+- e exponential: `y = A*exp(B*x)` (Y positive when fitting)
+- ab exponential: `y = A*B^x` (Y positive when fitting)
+- Power: `y = A*x^B` (X/Y positive when fitting)
+- Inverse: `y = A + B/x` (X nonzero)
+
+Weighted least squares are used for the models that support paired data; quadratic coefficients use scaled input and a pivoted linear solver. Invalid domains, insufficient independent observations, singular regressions and undefined inverse estimates report a calculation error instead of supplying misleading values. For a single observation, the sample standard deviation is unavailable.
+
+The model implements the official STAT menu families and formulas but does not claim bit-identical CASIO floating-point rounding. **Changing from one-variable to paired-variable, or vice versa, clears the table**; switching between paired regression types preserves it. Data limits are **80 rows (X)**, **40 rows (X/FREQ or X/Y)**, **26 rows (X/Y/FREQ)**, with a separate bound on weighted observation count.
+
+References: [CASIO fx-991ES PLUS guide](https://support.casio.com/storage/en/manual/pdf/EN/004/fx-570_991ES_PLUS_EN.pdf), Statistical Calculations section (E-22 to E-24).
+
+**REA-048 verification:** seven regression-type checks, sample-SD and estimate tests, 16 end-to-end STAT key-sequence checks, and further built-in checks cover the implemented functionality. Full deployed-browser regression and physical-calculator parity checks remain outstanding.
 
 ## Files
 
