@@ -152,7 +152,8 @@ function formatted(f){
  const a=f.a,b=f.b;
  const mag=abs(b.n),unit=f.kind==='pi'?'π':'√'+f.d;
  const coeff=mag===b.d?'':b.d===1n?mag.toString():mag.toString()+'/'+b.d.toString();
- const irrational=coeff+unit;
+ const irrational=b.d===1n?coeff+unit:
+  mag===b.d?unit:mag.toString()+unit+'/'+b.d.toString();
  const pre=a.n?formatQ(a):'';
  const text=pre+((a.n||b.n<0n)?b.n<0n?'-':'+':'')+irrational;
  // Keep exact output bounded to native LCD-friendly forms.
@@ -165,13 +166,20 @@ function formatted(f){
   rational:{numerator:a.n.toString(),denominator:a.d.toString()},
   radicand:f.kind==='sqrt'?Number(f.d):undefined};
 }
+function rational(source,value){
+ const f=evaluate(source);
+ if(!f||f.kind||!Number.isFinite(value))return null;
+ const exact=Number(f.a.n)/Number(f.a.d);
+ if(!Number.isFinite(exact)||Math.abs(exact-value)>2e-10*Math.max(1,Math.abs(value)))return null;
+ return {numerator:f.a.n.toString(),denominator:f.a.d.toString()};
+}
 function symbolic(source,value){
  const f=evaluate(source),out=formatted(f);
  if(!out||!Number.isFinite(value))return null;
  if(Math.abs(out.numeric-value)>2e-10*Math.max(1,Math.abs(value)))return null;
  return out;
 }
-const api=Object.freeze({evaluate,symbolic,formatted});
+const api=Object.freeze({evaluate,symbolic,rational,formatted});
 global.FreshExactSymbolic=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
