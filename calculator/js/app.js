@@ -129,8 +129,8 @@ function evaluateSegment(source){
    (part,opts)=>M.evaluate(part,{...opts,ans:state.ans,preAns:state.preAns,memory:state.memory}));
   // Compute the entire pair before modifying memory or Ans.
   setResult(coordinate.first,source,null);
-  state.memory.X=coordinate.first;
-  state.memory.Y=coordinate.second;
+  state.memory.X=coordinate.first;delete state.complexMemory.X;
+  state.memory.Y=coordinate.second;delete state.complexMemory.Y;
   state.coordinateResult=coordinate;
   const left=RESULTS.decimal(coordinate.first,{...state,math:false});
   const right=RESULTS.decimal(coordinate.second,{...state,math:false});
@@ -981,7 +981,7 @@ function handle(key){
   const memory={...state.memory,[k]:v};
   const result=M.evaluate(state.input,{...state,memory,ans:state.ans,preAns:state.preAns});
   if(!Number.isFinite(result))throw Error('Math ERROR');
-  state.memory[k]=v;
+  state.memory[k]=v;delete state.complexMemory[k];
   applyAdvancedResult(result,state.input);
   return M.format(result,state);
  });return}
