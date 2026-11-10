@@ -191,6 +191,11 @@ test('controller saves CALC statement result metadata',()=>{
  assert.match(code,/if\(key==='AC'\)\{state\.flow=null;state\.calcSession=null/);
  new Function(code);
 });
+test('CMPLX prompt accepts keypad i and polar-angle keys',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
+ assert.match(code,/state\.mode==='CMPLX'&&key==='ENG'\)addition='i'/);
+ assert.match(code,/state\.mode==='CMPLX'&&state\.shift&&key==='NEG'\)addition='∠'/);
+});
 test('ALPHA CALC inserts an equation equal sign',()=>{
  const code=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
  assert.match(code,/if\(key==='CALC'\)return insert\('='/);
