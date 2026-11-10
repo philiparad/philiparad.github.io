@@ -150,7 +150,13 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   write('EQN '+e.type,0,0);
   if(count){
    const current=parts[e.index]||parts[0];
-   if(current.complex){
+   if(state.math&&current.exact){
+    // Natural MathIO: exact fractions and simple polynomial surds.
+    write(current.label+' =',0,10);
+    const exact=String(current.exact);
+    write(exact.slice(-23),Math.max(0,W-Math.min(23,exact.length)*4),25);
+    if(exact.length>23)glyph('<',0,19);
+   }else if(current.complex){
     const fmt=global.FreshEquation.format;
     write(current.label+' = '+fmt(current.complex.re),0,10);
     const imag=current.complex.im;
