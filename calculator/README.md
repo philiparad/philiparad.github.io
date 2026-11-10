@@ -275,11 +275,25 @@ The solver supports all four comparisons `<`, `<=`, `>`, `>=` against zero. It s
 - `X³−3X+2 ≤ 0` → `X ≤ −2 OR X = 1`.
 - `2X³−3X² ≥ 0` → `X = 0 OR X ≥ 1.5`, also used as an example in the CASIO manual.
 
-**Navigation and presentation:** Solutions use the existing calculator LCD result pages. **UP/DOWN** browse solution rows, **LEFT/RIGHT** pan longer lines and **AC** returns to regular mode. Output explicitly uses `No solution` or `All real X` where applicable. Root bounds are shown with up to 12 significant decimal digits where an irrational value cannot be expressed exactly in this interface. Rich CASIO-like INEQ coefficient editing and special MathIO fraction/surd formatting are separately tracked under **REA-059**, so no full hardware-display parity is claimed here.
+**Navigation and presentation:** Solutions use the existing calculator LCD result pages. **UP/DOWN** browse solution rows, **LEFT/RIGHT** pan longer lines and **AC** returns to regular mode. Output explicitly uses `No solution` or `All real X` where applicable. Root bounds are shown with up to 12 significant decimal digits where an irrational value cannot be expressed exactly in this interface. Native INEQ coefficient editing and special-case MathIO output were added in **REA-059**. Full physical-hardware LCD parity remains unverified.
 
 **Verification:** The dedicated inequality model passed 26 focused tests; the integrated controller passed 14 end-to-end keypad checks; 14 built-in regression cases cover quadratic/cubic sign intervals, repeated zeros, degeneracy and official CASIO examples. The tests are simulator-level and do not establish physical-device parity or complete deployed-browser validation.
 
 Official manual: <https://support.casio.com/pdf/004/fx-115_991ES_PLUS_C_E.pdf>.
+
+## INEQ native coefficient editing and special-case displays (REA-059)
+
+REA-059 replaces the REA-058 sequential coefficient prompts and generic multi-line output with calculator-native **INEQ coefficient cells** and a **dedicated paged LCD result**. The underlying REA-058 polynomial interval solver is unchanged.
+
+**Workflow:** Select **MODE → INEQ**, choose **quadratic** or **cubic**, then the relation **>**, **<**, **≥** or **≤**. The LCD displays a horizontal three-cell `a,b,c` table for quadratics or a four-cell `a,b,c,d` table for cubics. The default leading coefficient is `1`; other coefficients begin at `0`. Enter signed numbers and decimals with the calculator keys. **=** stores the active coefficient and moves to the next. **LEFT/RIGHT** allow revisiting any coefficient, **DEL** edits digits, **(−)** switches the sign and **AC** clears the coefficient table. The last **=** solves the inequality. Errors such as a zero leading coefficient preserve the table and permit correction without re-entering the other values.
+
+**Result paging:** The solution is divided into one **INEQ result page per disjoint solution interval or isolated equality root**. **=**, **DOWN**, or **RIGHT** advances; **UP** or **LEFT** returns to the preceding page. **AC** returns to the stored coefficient table; advancing past the last result also returns to the coefficient table. The LCD header names the inequality degree and relation and highlights special cases such as **NO SOLUTION**, **ALL REAL X**, and **EQUALITY ROOT**.
+
+**Natural MathIO:** When supported, interval boundaries use reduced rational fractions, e.g. `X > 3/2` rather than `X > 1.5`, and certain quadratic irrational roots use radicals, such as `−√2 < X < √2` or `3/2−√5/2 < X < 3/2+√5/2`. LineIO retains numeric decimal bounds. Root expression conversion is deliberately conservative, so other roots continue to use decimal approximations rather than unverified symbolic expressions. The display is a compact text-rendering approximation to the hardware LCD, **not** a verified pixel-identical CASIO result layout.
+
+**Special cases:** For `X²+1 < 0`, the LCD shows **No Solution**; for `X²+1 ≥ 0`, it shows **All Real Numbers**. For `(X−1)² ≤ 0`, it shows the isolated solution **X = 1**. For `X³−3X+2 ≤ 0`, two pages show **X ≤ −2** and **X = 1**. A strict inequality with a tangent root correctly excludes that root, keeping the two disjoint intervals separate.
+
+**Verification:** The result formatter passed 17 unit tests, and a dedicated end-to-end controller/keypad run exercised coefficient entry, navigation, correction, result paging, empty and all-real outcomes, and MathIO surds. Additional built-in INEQ regression cases cover the new formatting and coefficient-editor behavior. Full deployed-browser rendering and real-device parity testing remain outstanding.
 
 ## Files
 
