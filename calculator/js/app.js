@@ -984,7 +984,7 @@ function matrixRegisterMenu(kind){
 }
 function matrixDimensionMenu(name){
  optionDialog(name+' Dimension',MATRIX_DIMS.map(([rows,cols],i)=>({
-  label:(i+1)+'. '+rows+'x'+cols,
+  key:String(i+1),label:(i+1)+'. '+rows+'x'+cols,
   action:()=>{MATRIX.set(state.matrices,name,MATRIX.create(rows,cols));matrixEdit(name)}
  })),{pageSize:8,kind:'matrix'});
 }
@@ -1058,17 +1058,17 @@ function matrixHistoryMenu(){
 function matrixMenu(){
  releaseModifier();
  optionDialog('MATRIX',[
-  {label:'1. Dim',action:()=>matrixRegisterMenu('Dim')},
-  {label:'2. Data',action:()=>matrixRegisterMenu('Data')},
-  ...MATRIX.NAMES.map((name,i)=>({label:(i+3)+'. '+name,action:()=>matrixShow(name)})),
-  {label:'6. MatAns',action:()=>matrixShow('MatAns')},
-  {label:'7. Copy',action:()=>matrixCopy()},
-  {label:'8. Calc',action:()=>optionDialog('MATRIX Calc',[
+  {key:'1',label:'1. Dim',action:()=>matrixRegisterMenu('Dim')},
+  {key:'2',label:'2. Data',action:()=>matrixRegisterMenu('Data')},
+  ...MATRIX.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,action:()=>matrixShow(name)})),
+  {key:'6',label:'6. MatAns',action:()=>matrixShow('MatAns')},
+  {key:'7',label:'7. Copy',action:()=>matrixCopy()},
+  {key:'8',label:'8. Calc',action:()=>optionDialog('MATRIX Calc',[
    {label:'1. Add',action:()=>matrixOperandMenu('add')},
    {label:'2. Multiply',action:()=>matrixOperandMenu('multiply')},
    {label:'3. Det',action:()=>matrixOperandMenu('det')}
   ],{pageSize:6,kind:'matrix'})},
-  {label:'9. History',action:matrixHistoryMenu}
+  {key:'9',label:'9. History',action:matrixHistoryMenu}
  ],{pageSize:8,kind:'matrix'});
 }
 
