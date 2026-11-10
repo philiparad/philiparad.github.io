@@ -6,6 +6,8 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
+const MENUS=window.FreshMenuModel;
+if(!MENUS)throw Error('Missing model-specific CASIO menu rules');
 const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
@@ -316,7 +318,7 @@ function clearMenu(){
 // The companion panels are read-only; they never collect a mathematical value.
 function optionDialog(title,entries,options={}){
  state.menuTitle=title;state.menuEntries=entries;state.menuPage=0;
- state.menuPageSize=options.pageSize||6;state.menuKind=options.kind||'normal';
+ state.menuKind=options.kind||'normal';state.menuPageSize=options.pageSize||MENUS.rule(state.menuKind).size;
  state.screen='menu';showMenu();
 }
 function showMenu(){
@@ -452,11 +454,10 @@ function flowHandle(key){
 function menuHandle(key){
  if(key==='AC'){state.menuEntries=[];state.menu=[];state.menuPageSize=6;state.menuKind='normal';state.screen='edit';state.info='';paint();return true}
  const size=state.menuPageSize||6;
- if(key==='RIGHT'||key==='DOWN'){
-  if((state.menuPage+1)*size<state.menuEntries.length){state.menuPage++;showMenu()}return true
- }
- if(key==='LEFT'||key==='UP'){
-  if(state.menuPage>0){state.menuPage--;showMenu()}return true
+ if(key==='DOWN'||key==='UP'){
+  const next=MENUS.navigate(state.menuPage,key,state.menuEntries.length,size);
+  if(next!==state.menuPage){state.menuPage=next;showMenu()}
+  return true;
  }
  if(/^[0-9]$/.test(key)||key==='EQUAL'){
   const view=state.menu;
@@ -688,10 +689,15 @@ function setupSetting(id){
 function setupMenu(){
  const pages=SETUP.pages(state.model);
  optionDialog('SETUP',pages.flat().map(e=>({
-  key:e.key,label:e.label,action:()=>setupSetting(e.id)
+  key:e.key,label:e.key+'. '+e.label,action:()=>setupSetting(e.id)
  })),{pageSize:8,kind:'setup'});
 }
-function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,i)=>({label:(i+1)+'. '+mode,action:()=>setMode(mode)})))}
+function modeMenu(){
+ optionDialog('MODE',MENUS.modeEntries(state.model).map(entry=>({
+  key:entry.number,label:entry.number+'. '+entry.label,
+  action:()=>setMode(entry.label)
+ })),{kind:'mode',pageSize:8});
+}
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
  state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;
