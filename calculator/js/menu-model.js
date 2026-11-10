@@ -25,11 +25,21 @@ const RULES=Object.freeze({
 });
 const fallback=Object.freeze({size:6,columns:2,title:'MENU'});
 function rule(kind){return RULES[kind]||fallback}
-function modeEntries(model){
- const common=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR'];
- const extended=['INEQ','VERIF','DIST'];
- const labels=model==='fx-991es-plus-c'?[...common,...extended]:common;
- return labels.map((name,index)=>({number:String(index<8?index+1:index-7),label:name}));
+// REA-071: explicit page-local numbered MODE choices from the three guides.
+const MODE_PAGE_1=Object.freeze(['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']
+ .map((label,index)=>Object.freeze({key:String(index+1),number:String(index+1),label,page:0})));
+const MODE_PAGE_C=Object.freeze(['INEQ','VERIF','DIST']
+ .map((label,index)=>Object.freeze({key:String(index+1),number:String(index+1),label,page:1})));
+const MODE_PAGES=Object.freeze({
+ 'fx-991es':Object.freeze([MODE_PAGE_1]),
+ 'fx-991es-plus':Object.freeze([MODE_PAGE_1]),
+ 'fx-991es-plus-c':Object.freeze([MODE_PAGE_1,MODE_PAGE_C])
+});
+function modePages(model){return MODE_PAGES[model]||MODE_PAGES['fx-991es-plus-c']}
+function modeEntries(model){return modePages(model).flat()}
+function modeSelection(model,pageIndex,key){
+ const page=modePages(model)[pageIndex];
+ return page?page.find(entry=>entry.key===String(key))||null:null;
 }
 function page(items,index,size){
  const total=Math.max(1,Math.ceil(items.length/size));
@@ -72,6 +82,6 @@ function label(item){
  const txt=String(item.label||'').replace(/^\s*\d+\.\s*/,'');
  return txt.replace(/[^A-Za-z0-9 +*/∠θ►^=.-]/g,'').slice(0,10);
 }
-const API=Object.freeze({RULES,rule,modeEntries,page,navigate,displayTitle,promptTitle,promptField,label});
+const API=Object.freeze({RULES,rule,MODE_PAGES,modePages,modeEntries,modeSelection,page,navigate,displayTitle,promptTitle,promptField,label});
 g.FreshMenuModel=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
