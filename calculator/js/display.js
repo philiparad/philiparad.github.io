@@ -465,6 +465,9 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
   if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
   if(node.type==='logBase')return 14+measureField('base')+measureField('argument');
+  if(!state.math&&node.type==='derivative')return 28+measureField('expression')+measureField('at');
+  if(!state.math&&(node.type==='integral'||node.type==='summation'))
+   return 20+measureField('expression')+measureField('lower')+measureField('upper');
   if(node.type==='derivative')return 20+measureField('expression')+measureField('at');
   if(node.type==='integral'||node.type==='summation')return 21+
    Math.max(measureField('upper'),measureField('lower'))+measureField('expression');
@@ -486,7 +489,18 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
      if(!sub.length){for(let d=0;d<5;d++)pixel(xx+d,yy+5)}
      drawSeq(sub,xx,yy,[...path,{index:i,field}],cursorOn);
     };
-    if(node.type==='fraction'){
+    if(!state.math&&['derivative','integral','summation'].includes(node.type)){
+     const prefix=node.type==='derivative'?'d/dx(':
+      node.type==='integral'?'∫(':'Σ(';
+     for(let k=0;k<prefix.length;k++)glyph(prefix[k],x+k*4,baseline);
+     let at=x+prefix.length*4;
+     const order=node.type==='derivative'?['expression','at']:['expression','lower','upper'];
+     for(let k=0;k<order.length;k++){
+      const name=order[k];drawField(name,at,baseline);
+      at+=Math.max(6,measureSeq(p[name]||[]));
+      glyph(k===order.length-1?')':',',at,baseline);at+=4;
+     }
+    }else if(node.type==='fraction'){
      const widest=w-4,a=measureSeq(p.numerator),b=measureSeq(p.denominator);
      drawField('numerator',x+2+Math.floor((widest-a)/2),baseline-10);
      for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
@@ -544,7 +558,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  }
  function drawStructured(visibleCursor,baseline){
   const nodes=expression.root,view=state.viewport||{},offset=view.inputX||0,vertical=view.inputY||0;
-  const layout=global.FreshViewport.layout(expression,baseline);
+  const layout=global.FreshViewport.layout(expression,baseline,!state.math);
   drawSeq(nodes,-offset,baseline-vertical,[],visibleCursor);
   if(offset>0)glyph('<',0,25);
   if(layout.width-offset>W-1)glyph('>',91,25);
