@@ -135,9 +135,9 @@ Manual reference: [CASIO fx-570ES PLUS / fx-991ES PLUS user's guide, Logical and
 
 ## EQN cubic and three-variable systems (REA-051)
 
-**MODE → 5 (EQN)** now presents the four CASIO equation types, in documented order: **1** two-unknown simultaneous linear equations, **2** three-unknown simultaneous equations, **3** quadratic `aX²+bX+c=0`, and **4** cubic `aX³+bX²+cX+d=0`. The existing sequential numeric prompts accept the six, twelve, three or four corresponding coefficients; a dedicated multi-cell coefficient editor is reserved for **REA-052**.
+**MODE → 5 (EQN)** now presents the four CASIO equation types, in documented order: **1** two-unknown simultaneous linear equations, **2** three-unknown simultaneous equations, **3** quadratic `aX²+bX+c=0`, and **4** cubic `aX³+bX²+cX+d=0`. The original sequential numeric prompts were replaced by a dedicated calculator-LCD coefficient matrix editor in **REA-052**. The matrix supports the six, twelve, three or four respective coefficients.
 
-**Results:** after the final coefficient is confirmed, the LCD displays the first solution. Press **= / DOWN / RIGHT** for the next solution, **UP / LEFT** to go backward, and **AC** to return to coefficient prompts with their values retained. Pressing **=** after the last root also returns to the prompts. Solving does not overwrite normal COMP answer memory. The simulator displays real roots as numbers and complex solutions as real/imaginary parts on separate LCD rows.
+**Results:** after the final coefficient is confirmed, the LCD displays the first solution. Press **= / DOWN / RIGHT** for the next solution, **UP / LEFT** to go backward, and **AC** to return to the coefficient matrix with its values retained. Pressing **=** after the last root also returns to the coefficient matrix. Solving does not overwrite normal COMP answer memory. The simulator displays real roots as numbers and complex solutions as real/imaginary parts on separate LCD rows.
 
 **Mathematics and edge cases:** 2×2 and 3×3 linear systems use pivoted Gaussian elimination, classify **No Solution** and **Infinite Solutions**, and validate numeric residuals. Quadratic equations use a cancellation-resistant formula and display non-real conjugate roots. Cubic equations use Cardano's formula, trigonometric evaluation for three distinct real roots, and return complex conjugate roots when only one root is real. A repeated real root appears once, in line with the device's unique-root presentation; leading coefficients of zero are rejected. For the manufacturer's example `X³−2X²−X+2=0`, the result order is **X1=−1, X2=2, X3=1**. For `X²+X+3/4=0`, the two complex solutions are approximately **−0.5±0.707106781187i**.
 
@@ -146,6 +146,20 @@ Manual reference: [CASIO fx-570ES PLUS / fx-991ES PLUS user's guide, Logical and
 **Verification:** independent engine checks cover distinct, repeated and complex polynomial roots, 2×2/3×3 systems and singular cases; controller checks cover coefficient entry, paged solutions, and returning to retained coefficients. Full deployed-browser and physical-calculator parity tests have not been performed.
 
 Official reference: [CASIO fx-991ES PLUS equation calculations](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/using_calculation_modes/equation_calculations.html).
+
+## EQN coefficient matrix editor and MathIO exact output (REA-052)
+
+The dedicated LCD-native **EQN Coefficient Editor** replaces the old sequential prompt wizard for all four equation types. It displays the numeric coefficient matrix inside the calculator screen, not in a separate web form. Each type starts with zero-filled coefficients, following the CASIO fx-991ES PLUS guide.
+
+**Key operation:** select **MODE → EQN**, then the equation type. Enter a number and press **=** to commit it and advance to the next cell. **UP/DOWN** move between rows; **LEFT/RIGHT** move between coefficient cells. To correct an earlier value, navigate to it, type the replacement and confirm with **=**. **(−)** toggles its sign, **DEL** removes digits from the edited value, and decimal/scientific notation is accepted. **AC** clears all coefficients to zero (it does not exit the editor). Unsupported operations such as memory accumulation, STO, Pol and Rec are intentionally rejected in this editor.
+
+The final **=** on the last cell calculates the equation and opens the first result. Each further **=** advances through the solution pages; after the last result it returns to the coefficient matrix with all entered values preserved. **AC** on a solution screen also returns to the matrix. An invalid equation (such as a zero leading coefficient) leaves the matrix and its values available for correction. Changing equation type creates a new zero-filled matrix.
+
+**Output:** In MathIO, eligible values are displayed as reduced rational fractions or simple quadratic radicals using symbolic `√` notation; for example, `2X²+X−3=0` produces `−3/2` and `1`, while `X²−2=0` produces `−√2` and `√2`. `X²+X+3/4=0` can be displayed as `−1/2±√2/2i`. These symbolic expressions are emitted only when the coefficients admit a validated simple rational/surd representation. Otherwise the numerical result is retained. LineIO uses decimal values instead. Simultaneous-equation outputs do not invent surd solutions. The LCD uses a compact textual presentation; it does not yet reproduce every pixel of the original stacked-fraction typesetting.
+
+**Testing:** 12 dedicated coefficient-editor model checks, 9 exact-output-format checks, 20 controller key-sequence tests and 15 EQN built-in tests passed during implementation. Tests covered re-editing cells, AC clear, changing equation type, error correction, real/complex/fraction results, and all rows of a 3×3 system. Full deployed-browser visual regression and physical-device parity testing were not performed.
+
+References: <https://support.casio.com/storage/en/manual/pdf/EN/004/fx-570_991ES_PLUS_EN.pdf>, Equation Calculations (EQN), page E-28.
 
 ## Files
 
