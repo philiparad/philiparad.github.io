@@ -6,7 +6,7 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -14,6 +14,7 @@ if(!REG)throw Error('Missing STAT regression engine');
 if(!BASE)throw Error('Missing BASE-N integer engine');
 if(!EQN)throw Error('Missing EQN solving engine');
 if(!INEQ)throw Error('Missing INEQ interval solver');
+if(!INEQDISPLAY)throw Error('Missing INEQ result display module');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!MATRIX)throw Error('Missing MATRIX registers module');
@@ -30,7 +31,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -257,7 +258,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -678,7 +679,7 @@ function modeMenu(){optionDialog('MODE',MODELS.get(state.model).modes.map((mode,
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
  state.tableData=null;state.tableDraft=null;
- state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
@@ -1397,7 +1398,7 @@ function tableHandle(key){
  }
  notify('TABLE: arrows navigate; AC edits input',true);paint();
 }
-// REA-058: real inequality interval sets, separate cubic special-display task.
+// REA-059: dedicated INEQ coefficient editor and special-case result paging.
 function ineqTypeMenu(){
  optionDialog('INEQ degree',[
   {key:'1',label:'1. Quadratic',action:()=>ineqRelationMenu(2)},
@@ -1405,28 +1406,76 @@ function ineqTypeMenu(){
  ],{pageSize:6,kind:'ineq-type'});
 }
 function ineqRelationMenu(degree){
- const operators=['>','<','>=','<='];
- optionDialog('INEQ '+degree+' relation',operators.map((op,i)=>({
+ const ops=['>','<','>=','<='];
+ optionDialog('INEQ '+degree+' relation',ops.map((op,i)=>({
   key:String(i+1),label:(i+1)+'. f(X) '+op+' 0',
-  action:()=>ineqCoefficients(degree,op)
+  action:()=>ineqStart(degree,op)
  })),{pageSize:6,kind:'ineq-relation'});
 }
-function ineqCoefficients(degree,op){
- const names=degree===2?['a','b','c']:['a','b','c','d'];
- fieldForm('INEQ '+(degree===2?'quadratic':'cubic')+' '+op+' 0',
-  names.map((id,i)=>({id,label:id+' coefficient',value:i===0?'1':'0'})),
-  data=>{
-   const values=names.map(id=>{
-    const raw=String(data[id]??'').trim();
-    if(!raw)throw Error('Argument ERROR');
-    const number=Number(raw);
-    if(!Number.isFinite(number))throw Error('Argument ERROR');
-    return number;
-   });
-   const result=INEQ.solve(values,op);
-   const lines=INEQ.lines(result);
-   return lines.join('\n');
-  });
+function ineqStart(degree,op,previous=null){
+ if(![2,3].includes(degree)||!INEQ.OPS.includes(op))throw Error('Argument ERROR');
+ const coefficients=EQEDIT.create(degree===2?'QUAD':'CUBIC');
+ if(previous){for(const name of coefficients.rows.flat())if(previous[name]!==undefined)coefficients.values[name]=Number(previous[name])}
+ else coefficients.values.a=1;
+ EQEDIT.restore(coefficients);
+ state.ineqEditor={degree,operator:op,coefficients};
+ state.ineqSession=null;
+ state.screen='ineq-coeff';state.result='';state.info='';releaseModifier();
+ notify('INEQ coefficients: arrows navigate; = next / solve; AC clears');paint();
+}
+function ineqSolve(){
+ const e=state.ineqEditor;if(!e)return;
+ const c=e.coefficients;EQEDIT.commit(c);
+ const fields=c.rows.flat(),values=fields.map(name=>c.values[name]);
+ const solved=INEQ.solve(values,e.operator);
+ const snapshot=Object.fromEntries(fields.map(name=>[name,c.values[name]]));
+ state.ineqSession=INEQDISPLAY.session(e.degree,e.operator,snapshot,solved,state.math);
+ state.result=state.ineqSession.pages[0].text;
+ state.raw=NaN;state.screen='ineq-result';state.info='';releaseModifier();
+ notify('INEQ: = or DOWN next; AC returns coefficients');paint();
+}
+function ineqCoeffHandle(key){
+ const parent=state.ineqEditor;if(!parent)return;
+ const e=parent.coefficients;
+ try{
+  if(key==='MODE'){modeMenu();return}
+  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+  if(key==='AC'){EQEDIT.clear(e);releaseModifier();notify('INEQ coefficients cleared');paint();return}
+  if(key==='UP'){EQEDIT.move(e,-1,0);releaseModifier();paint();return}
+  if(key==='DOWN'){EQEDIT.move(e,1,0);releaseModifier();paint();return}
+  if(key==='LEFT'){EQEDIT.move(e,0,-1);releaseModifier();paint();return}
+  if(key==='RIGHT'){EQEDIT.move(e,0,1);releaseModifier();paint();return}
+  if(key==='DEL'){EQEDIT.backspace(e);releaseModifier();paint();return}
+  if(key==='EQUAL'){
+   const done=EQEDIT.next(e);releaseModifier();
+   if(done)ineqSolve();else paint();return;
+  }
+  if(key==='NEG'){EQEDIT.sign(e);releaseModifier();paint();return}
+  let token=null;
+  if(/^[0-9]$/.test(key))token=key;
+  else if(key==='DOT')token='.';
+  else if(key==='EXP')token='E';
+  else if(key==='SUB')token='-';
+  else if(key==='ADD')token='+';
+  else if(key.startsWith('TEXT:')&&/^[0-9.Ee+-]$/.test(key.slice(5)))token=key.slice(5);
+  if(token!==null){EQEDIT.enter(e,token);releaseModifier();paint();return}
+  releaseModifier();notify('Unsupported INEQ coefficient key',true);paint();
+ }catch(err){e.error=String(err.message||'Math ERROR');releaseModifier();notify(e.error,true);paint()}
+}
+function ineqResultHandle(key){
+ const session=state.ineqSession,e=state.ineqEditor;
+ if(!session||!e)return;
+ if(key==='MODE'){modeMenu();return}
+ if(key==='AC'){EQEDIT.restore(e.coefficients);state.screen='ineq-coeff';state.info='';releaseModifier();paint();return}
+ if(['EQUAL','DOWN','RIGHT'].includes(key)){
+  if(session.index+1>=session.pages.length){
+   EQEDIT.restore(e.coefficients);state.screen='ineq-coeff';state.info='';paint();return;
+  }
+  INEQDISPLAY.page(session,1,state.math);
+ }else if(['UP','LEFT'].includes(key))INEQDISPLAY.page(session,-1,state.math);
+ else{notify('INEQ: = next; AC coefficients');paint();return}
+ state.result=session.pages[session.index].text;state.info='';paint();
 }
 function advancedMode(mode){
  if(mode==='STAT')return statModeMenu();
@@ -1676,6 +1725,8 @@ function handle(key){
   if(key==='AC'){state.result='';releaseModifier();paint();return}
   matrixMenu();return;
  }
+ if(state.screen==='ineq-result'){ineqResultHandle(key);return}
+ if(state.screen==='ineq-coeff'){ineqCoeffHandle(key);return}
  if(state.screen==='eqn-result'){eqnResultHandle(key);return}
  if(state.screen==='eqn-coeff'){eqnCoeffHandle(key);return}
  if(state.mode==='BASE-N'){baseHandle(key);return}
