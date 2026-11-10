@@ -1,4 +1,4 @@
-/* REA-051 — EQN quadratic/cubic and 2x2/3x3 linear systems, real outputs. */
+/* REA-051 — EQN quadratic/cubic and 2x2/3x3 linear systems, real and complex solutions. */
 (function(g){'use strict';
 const TYPES=Object.freeze([
  {id:'LINEAR2',label:'2 unknowns',fields:['a1','b1','c1','a2','b2','c2']},
@@ -10,8 +10,23 @@ const fail=(message='Math ERROR')=>{throw Error(message)};
 const val=v=>{const n=Number(v);if(!Number.isFinite(n)||Math.abs(n)>9.999999999e99)fail('Argument ERROR');return n};
 const round=v=>{if(!Number.isFinite(v)||Math.abs(v)>9.999999999e99)fail();return Math.abs(v)<1e-13?0:v};
 const format=n=>String(Number(round(n).toPrecision(12)));
+function realRoot(label,n){return {label,value:round(n),text:label+' = '+format(n)}}
+function complexRoot(label,re,im){
+ const r=round(re),v=round(im);
+ if(v===0)return realRoot(label,r);
+ return {label,value:null,complex:{re:r,im:v},
+  text:label+' = '+format(r)+(v<0?'-':'+')+format(Math.abs(v))+'i'};
+}
 function record(type,pairs,status='ok',nonRealCount=0){
- return {type,status,nonRealCount,solutions:pairs.map(([label,value])=>({label,value:round(value),text:label+' = '+format(value)}))};
+ return {type,status,nonRealCount,solutions:pairs.map(([label,value])=>realRoot(label,value))};
+}
+function unique(sorted){
+ const out=[];
+ for(const x of sorted){
+  const last=out[out.length-1];
+  if(last===undefined||Math.abs(x-last)>1e-9*Math.max(1,Math.abs(x),Math.abs(last)))out.push(x);
+ }
+ return out;
 }
 function systems(rows){
  const n=rows.length;if(![2,3].includes(n)||rows.some(r=>r.length!==n+1))fail('Argument ERROR');
@@ -40,7 +55,11 @@ function quadratic(coeff){
  const [a,b,c]=coeff.map(val);if(a===0)fail();
  const d=b*b-4*a*c;if(!Number.isFinite(d))fail();
  const tol=1e-13*Math.max(1,Math.abs(b*b),Math.abs(4*a*c));
- if(d< -tol)return record('QUAD',[],'No Real Roots',2);
+ if(d< -tol){
+  const r=-b/(2*a),im=Math.sqrt(-d)/(2*Math.abs(a));
+  return {type:'QUAD',status:'ok',nonRealCount:2,
+   solutions:[complexRoot('X1',r,im),complexRoot('X2',r,-im)]};
+ }
  let roots;
  if(Math.abs(d)<=tol)roots=[-b/(2*a)];
  else{const root=Math.sqrt(Math.max(0,d)),q=-.5*(b+Math.sign(b||1)*root);roots=q===0?[-b/(2*a)]:[q/a,c/q]}
