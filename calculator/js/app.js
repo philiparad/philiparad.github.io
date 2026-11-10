@@ -1271,7 +1271,7 @@ function runChecks(){const checks=[
   ['CMPLX polar input',()=>{const z=COMPLEX.evaluate('2∠45',{angle:'DEG'});return Math.abs(z.re-Math.SQRT2)<1e-12&&Math.abs(z.im-Math.SQRT2)<1e-12}],
   ['CMPLX command parsing',()=>COMPLEX.splitDisplayCommand('2∠45►a+bi').format==='rectangular'],
   ['CMPLX angle normalization',()=>COMPLEX.format({re:-2,im:0},'DEG','polar')==='2∠180'],
-  ['CMPLX LineIO components',()=>COMPLEX.components({re:3,im:-2},'DEG','rectangular').join('|')==='3|-2i',
+  ['CMPLX LineIO components',()=>COMPLEX.components({re:3,im:-2},'DEG','rectangular').join('|')==='3|-2i'],
    ['STAT weighted count',()=>{const t=STAT.create(false,true);t.rows=[{X:2,Y:null,FREQ:3},{X:4,Y:null,FREQ:1}];return STAT.calculate(t).n===4&&STAT.calculate(t).meanX===2.5}],
    ['STAT paired slope',()=>{const t=STAT.create(true,false);t.rows=[{X:1,Y:2,FREQ:1},{X:2,Y:4,FREQ:1}];return STAT.calculate(t).slope===2}],
    ['STAT row delete',()=>{const t=STAT.create();STAT.insert(t);STAT.remove(t);return t.rows.length===1}],
@@ -1289,7 +1289,7 @@ function runChecks(){const checks=[
    ['STAT inverse fit',()=>{const t=STAT.create(true);t.rows=[{X:1,Y:7,FREQ:1},{X:2,Y:5,FREQ:1},{X:4,Y:4,FREQ:1}];return Math.abs(REG.fit(t,'INV').B-4)<1e-9}],
    ['STAT sample sd',()=>{const t=STAT.create();t.rows=[{X:1,Y:null,FREQ:1},{X:2,Y:null,FREQ:1},{X:3,Y:null,FREQ:1}];return Math.abs(REG.summary(t).sampleSDX-1)<1e-10}],
    ['STAT manual row limits',()=>[STAT.create(),STAT.create(false,true),STAT.create(true,false),STAT.create(true,true)].map(STAT.rowCapacity).join(',')==='80,40,40,26'],
-   ['STAT invalid log domain',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:2,FREQ:1},{X:1,Y:3,FREQ:1}];try{REG.fit(t,'LOG');return false}catch{return true}}]]
+   ['STAT invalid log domain',()=>{const t=STAT.create(true);t.rows=[{X:0,Y:2,FREQ:1},{X:1,Y:3,FREQ:1}];try{REG.fit(t,'LOG');return false}catch{return true}}]
  ];const results=checks.map(([label,fn])=>{try{return {label,pass:!!fn()}}catch(e){return {label,pass:false,error:e.message}}});const passed=results.filter(x=>x.pass).length;
  const el=$('test-result');el.className='test-result '+(passed===checks.length?'good':'bad');el.textContent=passed+'/'+checks.length+' tests passed'+(passed===checks.length?'':': '+results.filter(x=>!x.pass).map(x=>x.label).join(', '));return results}
 function captureKeyboardLCD(){
