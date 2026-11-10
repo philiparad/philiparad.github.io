@@ -6,7 +6,7 @@ const FACT=window.FreshFactorization;
 if(!FACT)throw Error('Missing prime-factorization module');
 const SPECIAL=window.FreshSpecial;
 if(!SPECIAL)throw Error('Missing special arithmetic module');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
 if(!STAT)throw Error('Missing STAT table editor');
@@ -18,6 +18,7 @@ if(!INEQDISPLAY)throw Error('Missing INEQ result display module');
 if(!VERIFY)throw Error('Missing chained VERIFY module');
 if(!DIST)throw Error('Missing seven-type DIST calculation module');
 if(!DISTLIST)throw Error('Missing DIST List data editor');
+if(!CONST)throw Error('Missing model scientific-constants catalog');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
 if(!EQEX)throw Error('Missing EQN exact-output formatter');
 if(!MATRIX)throw Error('Missing MATRIX registers module');
@@ -34,7 +35,7 @@ const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.default
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,constantCode:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
@@ -69,14 +70,14 @@ function paint(){
  // STO/RCL standby and history/menu replay cues.
  const flags=window.FreshIndicators.render(state,$);
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
- $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='matrix-table'&&state.matrixEditor?'MATRIX editor '+state.matrixEditor.name+', '+state.matrixEditor.matrix.rows+' by '+state.matrixEditor.matrix.cols+', selected row '+(state.matrixEditor.row+1)+' column '+(state.matrixEditor.col+1)+' value '+state.matrixEditor.buffer:state.screen==='matrix-result'&&state.matrixView?'MATRIX '+state.matrixView.name+' result, '+state.matrixView.matrix.rows+' by '+state.matrixView.matrix.cols+', value '+state.matrixView.matrix.data[state.matrixView.row][state.matrixView.col]:state.screen==='dist-list'&&state.distList?'DIST List row '+(state.distList.row+1)+' of '+state.distList.samples.length+', '+(state.distList.column===0?'X':'Ans')+', value '+DISTLIST.format(DISTLIST.active(state.distList)):state.screen==='table-grid'&&state.tableData?'TABLE row '+(state.tableData.row+1)+' of '+state.tableData.rows.length+', column '+state.tableData.columns[state.tableData.col]+', value '+TABLE.format(TABLE.active(state.tableData)):state.screen==='vector-parameter'&&state.vectorParameter?'VECTOR scalar parameter for '+state.vectorParameter.name+', value '+state.vectorParameter.buffer+(state.vectorParameter.error?', '+state.vectorParameter.error:''):state.screen==='vector-scalar'?'VECTOR scalar result '+state.result+', '+(state.vectorScalarInfo||''):state.screen==='vector-table'&&state.vectorEditor?'VECTOR editor '+state.vectorEditor.name+', '+state.vectorEditor.vector.dimension+' dimensions, component '+(state.vectorEditor.index+1)+' value '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name+' result, component '+(state.vectorView.index+1)+' value '+state.vectorView.vector.data[state.vectorView.index]:state.screen==='ineq-coeff'&&state.ineqEditor?'INEQ '+state.ineqEditor.degree+' '+state.ineqEditor.operator+' zero, coefficient '+EQEDIT.current(state.ineqEditor.coefficients)+' equals '+state.ineqEditor.coefficients.buffer+', position '+(state.ineqEditor.coefficients.col+1):state.screen==='ineq-result'&&state.ineqSession?'INEQ result '+(state.ineqSession.index+1)+' of '+state.ineqSession.pages.length+', '+state.ineqSession.pages[state.ineqSession.index].text:state.screen==='eqn-coeff'&&state.eqnEditor?'EQN coefficient editor, '+state.eqnEditor.type+', selected '+EQEDIT.current(state.eqnEditor)+' equals '+state.eqnEditor.buffer+', row '+(state.eqnEditor.row+1)+', column '+(state.eqnEditor.col+1):state.screen==='eqn-result'&&state.eqnSession?'EQN result '+(state.eqnSession.index+1)+' of '+state.eqnSession.solutions.length+', '+state.result:state.screen==='stat-table'&&state.statTable?'STAT data table row '+(state.statTable.row+1)+' of '+state.statTable.rows.length+', '+STAT.active(state.statTable)+' equals '+state.statTable.buffer+', '+(state.statTable.paired?'paired data':'one variable')+', frequency '+(state.statTable.frequency?'on':'off'):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
+ $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='matrix-table'&&state.matrixEditor?'MATRIX editor '+state.matrixEditor.name+', '+state.matrixEditor.matrix.rows+' by '+state.matrixEditor.matrix.cols+', selected row '+(state.matrixEditor.row+1)+' column '+(state.matrixEditor.col+1)+' value '+state.matrixEditor.buffer:state.screen==='matrix-result'&&state.matrixView?'MATRIX '+state.matrixView.name+' result, '+state.matrixView.matrix.rows+' by '+state.matrixView.matrix.cols+', value '+state.matrixView.matrix.data[state.matrixView.row][state.matrixView.col]:state.screen==='constant-code'&&state.constantCode?'Scientific constant code '+state.constantCode.buffer+' of 01 through 40':state.screen==='dist-list'&&state.distList?'DIST List row '+(state.distList.row+1)+' of '+state.distList.samples.length+', '+(state.distList.column===0?'X':'Ans')+', value '+DISTLIST.format(DISTLIST.active(state.distList)):state.screen==='table-grid'&&state.tableData?'TABLE row '+(state.tableData.row+1)+' of '+state.tableData.rows.length+', column '+state.tableData.columns[state.tableData.col]+', value '+TABLE.format(TABLE.active(state.tableData)):state.screen==='vector-parameter'&&state.vectorParameter?'VECTOR scalar parameter for '+state.vectorParameter.name+', value '+state.vectorParameter.buffer+(state.vectorParameter.error?', '+state.vectorParameter.error:''):state.screen==='vector-scalar'?'VECTOR scalar result '+state.result+', '+(state.vectorScalarInfo||''):state.screen==='vector-table'&&state.vectorEditor?'VECTOR editor '+state.vectorEditor.name+', '+state.vectorEditor.vector.dimension+' dimensions, component '+(state.vectorEditor.index+1)+' value '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name+' result, component '+(state.vectorView.index+1)+' value '+state.vectorView.vector.data[state.vectorView.index]:state.screen==='ineq-coeff'&&state.ineqEditor?'INEQ '+state.ineqEditor.degree+' '+state.ineqEditor.operator+' zero, coefficient '+EQEDIT.current(state.ineqEditor.coefficients)+' equals '+state.ineqEditor.coefficients.buffer+', position '+(state.ineqEditor.coefficients.col+1):state.screen==='ineq-result'&&state.ineqSession?'INEQ result '+(state.ineqSession.index+1)+' of '+state.ineqSession.pages.length+', '+state.ineqSession.pages[state.ineqSession.index].text:state.screen==='eqn-coeff'&&state.eqnEditor?'EQN coefficient editor, '+state.eqnEditor.type+', selected '+EQEDIT.current(state.eqnEditor)+' equals '+state.eqnEditor.buffer+', row '+(state.eqnEditor.row+1)+', column '+(state.eqnEditor.col+1):state.screen==='eqn-result'&&state.eqnSession?'EQN result '+(state.eqnSession.index+1)+' of '+state.eqnSession.solutions.length+', '+state.result:state.screen==='stat-table'&&state.statTable?'STAT data table row '+(state.statTable.row+1)+' of '+state.statTable.rows.length+', '+STAT.active(state.statTable)+' equals '+state.statTable.buffer+', '+(state.statTable.paired?'paired data':'one variable')+', frequency '+(state.statTable.frequency?'on':'off'):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
  const faceIds={'fx-991es':'fx-991ES','fx-991es-plus':'fx-991ES PLUS','fx-991es-plus-c':'fx-991ES PLUS C'};
  document.querySelector('.case-model-id').textContent=faceIds[state.model];
  document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'':'2nd edition';
  $('model-label').textContent=MODELS.get(state.model).label;
  $('mode-label').textContent=state.mode==='BASE-N'?'BASE-N '+state.baseRadix:state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
- $('expression-text').textContent=state.screen==='dist-list'&&state.distList?'DIST List '+state.distList.type+' X['+(state.distList.row+1)+']':state.screen==='table-grid'&&state.tableData?'TABLE '+state.tableData.columns[state.tableData.col]+' ('+(state.tableData.row+1)+'/'+state.tableData.rows.length+')':state.screen==='vector-table'&&state.vectorEditor?'VECTOR '+state.vectorEditor.name+' ['+(state.vectorEditor.index+1)+'] = '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name:state.screen==='ineq-coeff'&&state.ineqEditor?'INEQ '+state.ineqEditor.degree+' '+state.ineqEditor.operator+' '+EQEDIT.current(state.ineqEditor.coefficients)+' = '+state.ineqEditor.coefficients.buffer:state.screen==='ineq-result'&&state.ineqSession?'INEQ '+state.ineqSession.degree+' '+state.ineqSession.operator+' 0':state.screen==='eqn-coeff'&&state.eqnEditor?'EQN '+EQEDIT.current(state.eqnEditor)+' = '+state.eqnEditor.buffer:state.screen==='eqn-result'&&state.eqnSession?'EQN '+state.eqnSession.type:state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='dist-list'&&state.distList?(state.distList.error||DISTLIST.format(DISTLIST.active(state.distList))):state.screen==='table-grid'&&state.tableData?TABLE.detail(state.tableData):state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
+ $('expression-text').textContent=state.screen==='constant-code'?'CONST 01-40: '+state.constantCode.buffer:state.screen==='dist-list'&&state.distList?'DIST List '+state.distList.type+' X['+(state.distList.row+1)+']':state.screen==='table-grid'&&state.tableData?'TABLE '+state.tableData.columns[state.tableData.col]+' ('+(state.tableData.row+1)+'/'+state.tableData.rows.length+')':state.screen==='vector-table'&&state.vectorEditor?'VECTOR '+state.vectorEditor.name+' ['+(state.vectorEditor.index+1)+'] = '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name:state.screen==='ineq-coeff'&&state.ineqEditor?'INEQ '+state.ineqEditor.degree+' '+state.ineqEditor.operator+' '+EQEDIT.current(state.ineqEditor.coefficients)+' = '+state.ineqEditor.coefficients.buffer:state.screen==='ineq-result'&&state.ineqSession?'INEQ '+state.ineqSession.degree+' '+state.ineqSession.operator+' 0':state.screen==='eqn-coeff'&&state.eqnEditor?'EQN '+EQEDIT.current(state.eqnEditor)+' = '+state.eqnEditor.buffer:state.screen==='eqn-result'&&state.eqnSession?'EQN '+state.eqnSession.type:state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='dist-list'&&state.distList?(state.distList.error||DISTLIST.format(DISTLIST.active(state.distList))):state.screen==='table-grid'&&state.tableData?TABLE.detail(state.tableData):state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
  document.querySelectorAll('.key-unit').forEach(el=>{
   const id=el.querySelector('button').dataset.key;
   el.classList.toggle('lit',(id==='SHIFT'&&state.shift)||(id==='ALPHA'&&state.alpha));
@@ -261,7 +262,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -1704,6 +1705,37 @@ function complexMenu(){
   {key:'4',label:'4. ►a+bi',action:()=>emit('►a+bi',true)}
  ]);
 }
+// REA-063: physical SHIFT+7, then two-digit 01-40 constant code.
+function constantStart(){
+ if(state.mode==='BASE-N'){
+  releaseModifier();notify('Scientific constants unavailable in BASE-N',true);paint();return;
+ }
+ state.constantCode=CONST.codeEditor();
+ state.screen='constant-code';releaseModifier();
+ notify('CONST 01-40: enter a two-digit manufacturer code');paint();
+}
+function constantCodeHandle(key){
+ const editor=state.constantCode;if(!editor)return;
+ if(key==='MODE'){state.constantCode=null;modeMenu();return}
+ if(key==='AC'){state.constantCode=null;state.screen='edit';releaseModifier();paint();return}
+ if(key==='DEL'||key==='LEFT'){CONST.backspace(editor);paint();return}
+ if(['RIGHT','UP','DOWN'].includes(key)){notify('Enter two decimal digits (01-40)',true);paint();return}
+ if(/^[0-9]$/.test(key)){
+  try{
+   const item=CONST.type(editor,key,state.model);
+   if(!item){paint();return}
+   const literal=CONST.literal(item);
+   state.constantCode=null;state.screen='edit';releaseModifier();
+   insert(literal);
+   notify('CONST '+item.code+' '+item.symbol+' = '+item.value+' '+item.unit);
+  }catch(error){
+   editor.error=String(error.message||'Argument ERROR');
+   editor.buffer='';notify('CONST: '+editor.error+' (01-40)',true);paint();
+  }
+  return;
+ }
+ notify('CONST: choose digits 01-40',true);paint();
+}
 function shifted(key){
  if(state.mode==='CMPLX'&&key==='2'){complexMenu();return true}
  if(state.mode==='CMPLX'&&key==='NEG'){releaseModifier();insert('∠');return true}
@@ -1717,10 +1749,7 @@ function shifted(key){
  if(key==='RCL'){releaseModifier();memoryDialog(true);return true}
  if(key==='DEL'){state.insert=!state.insert;releaseModifier();notify(state.insert?'Insert mode':'Overwrite mode');paint();return true}
  if(key==='9'){clearMenu();return true}
- if(key==='7'){releaseModifier();optionDialog('Scientific constants',[
-  {label:'π',action:()=>insert('pi')},{label:'e',action:()=>insert('e')},{label:'Speed of light (m/s)',action:()=>insert('299792458')},
-  {label:'Gravitational constant',action:()=>insert('6.67430*10^-11')},{label:'Avogadro constant',action:()=>insert('6.02214076*10^23')}
- ]);return true}
+ if(key==='7'){constantStart();return true}
  if(key==='8'){releaseModifier();optionDialog('Unit conversion shortcuts',[
   {label:'cm → inch',action:()=>insert('/2.54')},{label:'inch → cm',action:()=>insert('*2.54')},
   {label:'°C → °F',action:()=>insert('*9/5+32')},{label:'kg → lb',action:()=>insert('*2.2046226218')}
@@ -1871,6 +1900,7 @@ function handle(key){
   if(key==='AC'||key==='EQUAL'){state.screen='edit';state.info=''}
   paint();return;
  }
+ if(state.screen==='constant-code'){constantCodeHandle(key);return}
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.mode==='TABLE'&&state.screen==='table-grid'){tableHandle(key);return}
  if(state.mode==='VECTOR'&&state.screen==='vector-table'){vectorTableHandle(key);return}
