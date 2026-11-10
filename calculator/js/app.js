@@ -378,6 +378,7 @@ function flowNext(){
 }
 function flowHandle(key){
  const f=state.flow;if(!f)return false;
+ if(key==='MODE'&&state.shift){releaseModifier();setupMenu();return true;}
  if(key==='AC'){state.flow=null;state.screen='edit';releaseModifier();state.info='';paint();return true}
  if(f.title.startsWith('VERIF ')){
   if(key==='CALC'){verifyRelationMenu();return true}
@@ -1658,6 +1659,7 @@ function distStart(type,previous=null){
  });
 }
 function distFlowHandle(key){
+ if(key==='MODE'&&state.shift){releaseModifier();setupMenu();return true}
  if(key==='MODE'){modeMenu();return true}
  if(key==='SHIFT'){state.shift=!state.shift;paint();return true}
  if(state.shift&&key==='1'){releaseModifier();distMenu();return true}
