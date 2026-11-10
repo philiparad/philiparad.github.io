@@ -612,7 +612,7 @@ function setupChoose(id,value){
   state.math=true;state.outputMath=value==='matho';break;
  case 'norm':state.format=value==='norm1'?'Norm1':'Norm2';break;
  case 'complex':state.complexFormat=value;break;
- case 'stat':state.statFrequency=value==='on';if(state.statTable)STAT.toggleFrequency(state.statTable,state.statFrequency);break;
+ case 'stat':state.statFrequency=value==='on';if(state.statTable){STAT.toggleFrequency(state.statTable,state.statFrequency);if(state.mode==='STAT')state.screen='stat-table'}break;
  case 'table':state.tableFunctions=value==='single'?1:2;break;
  case 'recurring':state.recurringDecimal=value==='on';break;
  case 'disp':state.decimalSeparator=value;break;
