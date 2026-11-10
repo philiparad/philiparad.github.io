@@ -1,0 +1,36 @@
+name: REA-079 SOLVE iteration and LCD flow
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/solve-session.js'
+      - 'calculator/js/numeric-worker.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/math-engine.js'
+      - 'calculator/index.html'
+      - 'calculator/tests/rea079-solve-session.cjs'
+      - 'calculator/reference/rea-079/**'
+      - '.github/workflows/rea079-solve-flow.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  solve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate SOLVE Newton state, prompts and memory
+        run: node calculator/tests/rea079-solve-session.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright Chromium
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Run three-model SOLVE keypad browser regression
+        run: python calculator/reference/rea-079/test_solve_browser.py
