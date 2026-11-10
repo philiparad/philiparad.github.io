@@ -49,6 +49,23 @@ def main():
             press(page,"SHIFT","FRAC","2","RIGHT","1","RIGHT","4","EQUAL")
             assert abs(state(page)["ans"]-2.25)<1e-10,state(page)
             press(page,"AC")
+            # Native MathIO SHIFT+DEL (INS) incorporates the value
+            # immediately to the right of the caret into a function.
+            page.evaluate("FreshCalculator.loadExpression('1+(2+3)+4')")
+            for _ in range(7):
+                press(page,"LEFT")
+            press(page,"SHIFT","DEL","SQRT")
+            assert state(page)["input"]=="1+sqrt((2+3))+4",state(page)
+            press(page,"EQUAL")
+            assert abs(state(page)["ans"]-(5+5**0.5))<1e-9,state(page)
+            press(page,"AC")
+            # LineIO uses SHIFT+DEL for overwrite, not MathIO INS capture.
+            press(page,"SHIFT","MODE","2")
+            press(page,"SHIFT","DEL")
+            assert state(page)["insert"] is False,state(page)
+            press(page,"SHIFT","DEL")
+            assert state(page)["insert"] is True,state(page)
+            press(page,"SHIFT","MODE","1","1")
             # Undo is a web-only keyboard shortcut scoped to calculator focus.
             page.locator("#face").focus()
             press(page,"2","SQRT","9")
