@@ -23,17 +23,22 @@ The earlier REA-097 implementation correctly modeled the original fx-991ES in th
    - Explicitly passes `opts` into `FreshDecimal.evaluate(source,opts)`.
    - Uses the same model-specific implicit multiplication tier in the general Pratt expression parser.
    - Skips the optimizer for long operator/parenthesis sequences (>23 occurrences), so the general parser's numeric and command-stack guards cannot be bypassed by 25 unary prefixes or nested powers. This conservative fallback may use binary floating-point for very long arithmetic expressions; high-precision numerical behavior still requires additional hardware/reference comparison.
-3. `calculator/tests/rea097-stack-precedence.cjs`
+3. `calculator/js/rational.js`
+   - The exact-rational optimizer was a **third arithmetic parser**, executed before the decimal/general engine by `app.js`.
+   - It now applies the same original-versus-PLUS/C implicit multiplication priorities, accepts adjacent numeric factors after parentheses consistently, and defers long operator chains to the stack-limited general parser.
+4. `calculator/js/app.js`
+   - The controller explicitly supplies `model:state.model` to `FreshRational.evaluate`. Without this correction, `8/2(2+2)` could still display `1` on the original model despite both other engines returning `16`.
+5. `calculator/tests/rea097-stack-precedence.cjs`
    - Corrected obsolete model-independent examples.
    - Added explicit original-vs-PLUS/C expectations; **109 isolated checks passed**.
-4. `calculator/tests/rea105-decimal-precedence.cjs`
-   - **294 isolated checks passed**, covering 29 arithmetic reference cases and their enabled/disabled-decimal comparisons across all 3 models, syntax and domain failures, stack errors, direct decimal mode handling, precision preservation, and source checks.
-5. `calculator/tests/rea105_browser_precedence.py`
+6. `calculator/tests/rea105-decimal-precedence.cjs`
+   - **348 isolated checks passed**, covering 29 arithmetic reference cases and their enabled/disabled-decimal comparisons across all 3 models, syntax and domain failures, stack errors, direct decimal mode handling, precision preservation, exact-rational backend parity (including Ans metadata), controller model-context forwarding, and source checks.
+7. `calculator/tests/rea105_browser_precedence.py`
    - New Playwright script intended to exercise physical calculator buttons, both modular and standalone publications, three model profiles, MathIO and LineIO settings, `Ans`, and error recovery.
    - **Committed but not executed in Chromium in this session.**
-6. `calculator/fx991_fresh_standalone.html`
+8. `calculator/fx991_fresh_standalone.html`
    - Updated the two changed canonical JS modules, preserving original HTML, CSS, capability manifest and all 46 scripts in the same order as `index.html`.
-7. `.github/workflows/rea100-standalone-sync.yml`
+9. `.github/workflows/rea100-standalone-sync.yml`
    - CI now includes both Node regression suites and REA-105 browser smoke test, in addition to byte-exact standalone release checks.
 
 ## Source-level examples
@@ -61,7 +66,7 @@ python3 calculator/tests/rea100_browser_parity.py
 python3 calculator/tests/rea105_browser_precedence.py
 ```
 
-The isolated JavaScript harness passed **109 REA-097 and 294 REA-105 regression assertions** after the implementation. A direct comparison of committed `index.html` against the generated standalone (after replacing embedded JS/CSS/manifest with their canonical references) passed; the two edited JS modules were byte-for-byte equivalent to their embedded source content. **Native Node, Python, Chromium and GitHub Actions results were not confirmed in this session.**
+The isolated JavaScript harness passed **109 REA-097 and 348 REA-105 regression assertions** after the implementation. A direct comparison of committed `index.html` against the generated standalone (after replacing embedded JS/CSS/manifest with their canonical references) passed; the four edited JS modules (`decimal-core.js`, `math-engine.js`, `rational.js`, `app.js`) were text-identical to their embedded source content. **Native Node, Python, Chromium and GitHub Actions results were not confirmed in this session.**
 
 ## Remaining before hardware parity / issue closure
 
