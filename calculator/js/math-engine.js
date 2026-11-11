@@ -190,6 +190,7 @@ function tokenize(source){
  for(let i=0;i<s.length;){const sub=s.slice(i);let m;
   if((m=/^(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?/.exec(sub))){raw.push({type:T.NUMBER,value:Number(m[0]),text:m[0]});i+=m[0].length;continue}
   if(s.startsWith('nPr',i)||s.startsWith('nCr',i)){raw.push({type:T.OP,value:s.slice(i,i+3)});i+=3;continue}
+  if(s.startsWith('▶t',i)){raw.push({type:T.OP,value:'▶t'});i+=2;continue}
   if((m=/^[A-Za-z_][A-Za-z_0-9]*/.exec(sub))){
    // DRG▶ radians/grads are postfix operators, never variable names.
    // They convert only the immediately preceding expression/operand.
@@ -355,10 +356,17 @@ function evaluate(source,opts={}){
   fail('Syntax ERROR');
  }
  function expr(min){let left=primary();while(true){const t=peek();if(!t||t.value===')'||t.value===',')break;
-  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='r'||t.value==='g'||t.value==='′'||t.value==='″'){
+  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='r'||t.value==='g'||t.value==='′'||t.value==='″'||t.value==='▶t'){
    if(45<min)break;
    take();
    if(t.value==='!')left=factorial(left);
+   else if(t.value==='▶t'){
+    // REA-104: manufacturer postfix X▶t, precedence alongside factorial.
+    if(opts.model!=='fx-991es'||opts.mode!=='STAT'||!opts.statOriginalDistr)
+     fail('Argument ERROR');
+    if(!global.FreshStatNormal)fail('Math ERROR');
+    left=global.FreshStatNormal.normalized(left,opts.statSummary);
+   }
    else if(t.value==='%')left=left/100;
    else if(t.value==='r'||t.value==='g'){
     left=fromRadians(toRadians(left,t.value==='r'?'RAD':'GRAD'),st.angle);
