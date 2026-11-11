@@ -1,25 +1,69 @@
-/* REA-063 — 40 scientific constant codes, model-specific historical CODATA values.
- * Catalog/code ordering: Casio fx-991ES and fx-991ES PLUS/PLUS C manuals.
- * Values: archived NIST CODATA 2002 (original ES) and 2014 (PLUS family).
- * NIST: https://physics.nist.gov/cuu/Constants/archive2002.html
- *       https://physics.nist.gov/cuu/Constants/archive2014.html
- * The original ES manual does not explicitly specify its CODATA edition;
- * 2002 is used as a period-appropriate historical profile, not a device-ROM claim.
+/* REA-094 — 40 scientific constant codes with manufacturer-sourced original values.
+ * Original fx-991ES: Appendix #114 (ISO 1992 / CODATA 1998).
+ * https://support.casio.com/pdf/004/fx-115ES_570ES.etc_Appendix.pdf
+ * Original User's Guide p. E-65 explicitly cites these editions.
+ * PLUS-family profiles remain separate legacy 2014 candidates; no assertion
+ * of physical ROM parity for those devices is made here.
  */
 (function(global){'use strict';
 const MODELS=Object.freeze({
- 'fx-991es':2002,'fx-991es-plus':2014,'fx-991es-plus-c':2014
+ 'fx-991es':1998,'fx-991es-plus':2014,'fx-991es-plus-c':2014
 });
 const DATA=[["mp","proton mass","kg",1.672621898e-27,1.67262171e-27],["mn","neutron mass","kg",1.674927471e-27,1.67492728e-27],["me","electron mass","kg",9.10938356e-31,9.1093826e-31],["mμ","muon mass","kg",1.883531594e-28,1.8835314e-28],["a₀","Bohr radius","m",5.2917721067e-11,5.291772108e-11],["h","Planck constant","J s",6.62607004e-34,6.6260693e-34],["μN","nuclear magneton","J/T",5.050783699e-27,5.05078343e-27],["μB","Bohr magneton","J/T",9.274009994e-24,9.27400949e-24],["ħ","reduced Planck constant","J s",1.0545718e-34,1.05457168e-34],["α","fine-structure constant","",0.0072973525664,0.007297352568],["re","classical electron radius","m",2.8179403227e-15,2.817940325e-15],["λc","Compton wavelength","m",2.4263102367e-12,2.426310238e-12],["γp","proton gyromagnetic ratio","s^-1 T^-1",267522190,267522205],["λcp","proton Compton wavelength","m",1.32140985396e-15,1.3214098555e-15],["λcn","neutron Compton wavelength","m",1.31959090481e-15,1.3195909067e-15],["R∞","Rydberg constant","m^-1",10973731.568508,10973731.568525],["u","atomic mass constant","kg",1.66053904e-27,1.66053886e-27],["μp","proton magnetic moment","J/T",1.4106067873e-26,1.41060671e-26],["μe","electron magnetic moment","J/T",-9.28476462e-24,-9.28476411e-24],["μn","neutron magnetic moment","J/T",-9.662365e-27,-9.6623645e-27],["μμ","muon magnetic moment","J/T",-4.49044826e-26,-4.49044799e-26],["F","Faraday constant","C/mol",96485.33289,96485.3383],["e","elementary charge","C",1.6021766208e-19,1.60217653e-19],["NA","Avogadro constant","mol^-1",6.022140857e+23,6.0221415e+23],["k","Boltzmann constant","J/K",1.38064852e-23,1.3806504e-23],["Vm","molar volume of ideal gas (273.15 K, 100 kPa)","m^3/mol",0.022710947,0.022710981],["R","molar gas constant","J/(mol K)",8.3144598,8.314472],["c₀","speed of light in vacuum","m/s",299792458,299792458],["c₁","first radiation constant","W m^2",3.74177179e-16,3.74177138e-16],["c₂","second radiation constant","m K",0.0143877736,0.014387752],["σ","Stefan-Boltzmann constant","W/(m^2 K^4)",5.670367e-8,5.6704e-8],["ε₀","electric constant","F/m",8.854187817e-12,8.854187817e-12],["μ₀","magnetic constant","N/A^2",0.0000012566370614359173,0.0000012566370614359173],["Φ₀","magnetic flux quantum","Wb",2.067833831e-15,2.06783372e-15],["g","standard acceleration of gravity","m/s^2",9.80665,9.80665],["G₀","conductance quantum","S",0.00007748091731,0.00007748091733],["Z₀","characteristic impedance of vacuum","ohm",376.730313461,376.730313461],["t","Celsius temperature offset","K",273.15,273.15],["G","Newtonian constant of gravitation","m^3/(kg s^2)",6.67408e-11,6.6742e-11],["atm","standard atmosphere","Pa",101325,101325]];
+// Strings preserve the exact significant digits printed in CASIO Appendix #114.
+const ORIGINAL_1998=Object.freeze([
+ "1.67262158e-27",
+ "1.67492716e-27",
+ "9.10938188e-31",
+ "1.88353109e-28",
+ "0.5291772083e-10",
+ "6.62606876e-34",
+ "5.05078317e-27",
+ "927.400899e-26",
+ "1.054571596e-34",
+ "7.297352533e-3",
+ "2.817940285e-15",
+ "2.426310215e-12",
+ "2.67522212e8",
+ "1.321409847e-15",
+ "1.319590898e-15",
+ "10973731.568549",
+ "1.66053873e-27",
+ "1.410606633e-26",
+ "-928.476362e-26",
+ "-0.96623640e-26",
+ "-4.49044813e-26",
+ "96485.3415",
+ "1.602176462e-19",
+ "6.02214199e23",
+ "1.3806503e-23",
+ "22.413996e-3",
+ "8.314472",
+ "299792458",
+ "3.74177107e-16",
+ "1.4387752e-2",
+ "5.670400e-8",
+ "8.854187817e-12",
+ "12.566370614e-7",
+ "2.067833636e-15",
+ "9.80665",
+ "7.748091696e-5",
+ "376.730313461",
+ "273.15",
+ "6.673e-11",
+ "101325"
+]);
 const ITEMS=Object.freeze(DATA.map(([symbol,name,unit,value2014,value2002],index)=>
  Object.freeze({code:String(index+1).padStart(2,'0'),symbol,name,unit,
-  values:Object.freeze({2014:value2014,2002:value2002})})));
+  printed1998:ORIGINAL_1998[index],
+  values:Object.freeze({1998:Number(ORIGINAL_1998[index]),2014:value2014,2002:value2002})})));
 const fault=(message='Argument ERROR')=>{throw Error(message)};
 function select(model,code){
  const version=MODELS[model];if(!version)fault();
  const number=String(code).padStart(2,'0');
  const entry=ITEMS.find(x=>x.code===number);if(!entry)fault('Argument ERROR');
- return Object.freeze({...entry,value:entry.values[version],year:version});
+ return Object.freeze({...entry,value:entry.values[version],year:version,
+  printedValue:version===1998?entry.printed1998:null});
 }
 function literal(entry){
  if(!entry||!Number.isFinite(entry.value))fault();
@@ -41,6 +85,6 @@ function type(editor,key,model){
  return selected;
 }
 function backspace(editor){editor.buffer=editor.buffer.slice(0,-1);editor.error='';return editor}
-global.FreshScientificConstants=Object.freeze({ITEMS,MODELS,select,literal,codeEditor,type,backspace});
+global.FreshScientificConstants=Object.freeze({ITEMS,MODELS,ORIGINAL_1998,select,literal,codeEditor,type,backspace});
 if(typeof module!=='undefined'&&module.exports)module.exports=global.FreshScientificConstants;
 })(typeof window!=='undefined'?window:globalThis);
