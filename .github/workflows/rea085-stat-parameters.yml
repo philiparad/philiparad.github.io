@@ -1,0 +1,37 @@
+name: REA-085 original STAT menu order and live parameter insertion
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/stat-parameters.js'
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/js/app.js'
+      - 'calculator/index.html'
+      - 'calculator/tests/rea085-stat-parameters.cjs'
+      - 'calculator/reference/rea-085/**'
+      - '.github/workflows/rea085-stat-parameters.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stat-parameters:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Original menu and dynamic parameter regression
+        run: node calculator/tests/rea085-stat-parameters.cjs
+      - name: Preserve REA-084 original normal STAT regression
+        run: node calculator/tests/rea084-stat-normal.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright Chromium
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Test original plus paired STAT raw parameters and PLUS isolation
+        run: python calculator/reference/rea-085/test_stat_parameters_browser.py
