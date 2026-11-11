@@ -44,7 +44,9 @@ function lowerTail(t){
 }
 function probabilities(t){
  const x=finite(Number(t)),half=area(x),signed=x<0?-half:half;
- const P=lowerTail(x),Q=signed,R=.5-signed;
+ // REA-103: obtain the positive upper tail directly through symmetry.
+ // Subtracting Q(t) from 0.5 loses small R(t) for t >> 0.
+ const P=lowerTail(x),Q=signed,R=lowerTail(-x);
  return {P,Q,R};
 }
 function normalized(x,summary){
