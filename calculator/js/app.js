@@ -250,6 +250,9 @@ function evaluateSegment(source){
 }
 function evaluate(){let source=state.input;try{
  source=STRUCT.serialize(state.editor,true);
+ // A pasted/replayed unsupported edition command must not reach any engine.
+ if(!MODELS.hasFeature(state.model,'ranint')&&/\bRanInt#?\s*\(/i.test(source))
+  throw Error('Argument ERROR');
  ERRORS.checkStack(source,state.mode);
  if(!source)throw new M.MathFault('Syntax ERROR');
  const calculus=INLINE.parse(source);
@@ -884,7 +887,9 @@ function setupChoose(id,value){
  case 'complex':state.complexFormat=value;break;
  case 'stat':{const enabled=value==='on';if(state.statTable){STAT.toggleFrequency(state.statTable,enabled);if(state.mode==='STAT')state.screen='stat-table'}state.statFrequency=enabled;break}
  case 'table':state.tableFunctions=TABLE.dualEnabled(state.model,value==='double'?2:1)?2:1;state.tableData=null;state.tableDraft=null;break;
- case 'recurring':state.recurringDecimal=value==='on';break;
+ case 'recurring':
+  if(!MODELS.hasFeature(state.model,'recurring'))throw Error('Argument ERROR');
+  state.recurringDecimal=value==='on';break;
  case 'disp':state.decimalSeparator=value;break;
  }
  notify('SETUP '+id+': '+value);paint();
@@ -2098,6 +2103,9 @@ function distFlowHandle(key){
  return false;
 }
 function advancedMode(mode){
+ if(!MODELS.supports(state.model,mode)){
+  releaseModifier();notify('Mode unavailable on selected model',true);paint();return;
+ }
  if(mode==='STAT')return statModeMenu();
  if(mode==='CMPLX'){notify('Enter expressions; ALPHA + ENG inserts i');paint();return}
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0;state.screen='edit';notify('BASE-N Dec · x² DEC; x⁻¹ HEX; log BIN; ln OCT');paint();return}
@@ -2110,6 +2118,12 @@ function advancedMode(mode){
   if(mode==='DIST')return distMenu();
 }
 function alphaKey(key){
+ if(key==='DOT'&&!MODELS.hasFeature(state.model,'ranint')){
+  releaseModifier();notify('RanInt# requires PLUS model',true);paint();return true;
+ }
+ if(key==='SQRT'&&!MODELS.hasFeature(state.model,'recurring')){
+  releaseModifier();notify('Recurring decimals require PLUS C',true);paint();return true;
+ }
  if(key==='INTEGRAL')return insert('Prod(');
  if(key==='LOGBASE'){numericalFlow('PRODUCT');return true}
  if(key==='FRAC')return insert('÷R');
@@ -2279,7 +2293,12 @@ function shifted(key){
  if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
  if(key==='DMS'){releaseModifier();if(state.screen==='result')factorResult();return true}
  if(key==='ANS'){drgMenu();return true}
- if(key==='DOT'){releaseModifier();insert('Ran#');return true}
+ if(key==='DOT'){
+  if(!MODELS.hasFeature(state.model,'ran')){
+   releaseModifier();notify('Ran# unavailable on selected model',true);paint();return true;
+  }
+  releaseModifier();insert('Ran#');return true;
+ }
  if(key==='0'){releaseModifier();insert('Rnd(');return true}
  if(key==='ADD'){releaseModifier();insert('Pol(');return true}
  if(key==='SUB'){releaseModifier();insert('Rec(');return true}
