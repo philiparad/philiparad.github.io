@@ -29,7 +29,10 @@ function derive(state){
  }else if(screen==='flow-result'){
   replayUp=resultPage>0;
   replayDown=(resultPage+1)*3<resultCount;
- }else if(screen==='edit'||screen==='result'){
+ }else if((screen==='edit'||screen==='result')&&
+           ['COMP','CMPLX','BASE-N'].includes(mode)){
+  // Calculation-history indicators exist only in the three original
+  // modes supporting replay (original manual E-24).
   replayUp=history.length>0&&(historySelection<0||historySelection<history.length-1);
   replayDown=historySelection>0;
  }
