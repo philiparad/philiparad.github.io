@@ -1,0 +1,29 @@
+name: REA-107 paired STAT numeric safety
+on:
+  push:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-107/**'
+      - 'calculator/tools/build_standalone.py'
+      - '.github/workflows/rea107-paired-stat.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-107/**'
+      - 'calculator/tools/build_standalone.py'
+jobs:
+  paired-stat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JS syntax
+        run: node --check calculator/js/stat-regression.js
+      - name: Paired summary regression cases
+        run: node calculator/reference/rea-107/test_paired_stat.js
+      - name: Standalone source sync
+        run: python3 calculator/tools/build_standalone.py --check
