@@ -444,6 +444,11 @@ function flowNext(){
 }
 function finishFlow(output){
  try{
+  if(output&&output.kind==='stat-original-estimate'){
+   state.flow=null;
+   setResult(output.value,output.source,null);
+   return;
+  }
   if(output&&output.kind==='stat-normal'){
    // Preserve the user-entered distribution expression for the LCD and
    // make Ans available immediately for the documented P(Ans) sequence.
@@ -1026,6 +1031,26 @@ function statDistrInput(kind){
   return {kind:'stat-normal',source:expression,value:result};
  });
 }
+function originalStatEstimate(item){
+ const which=item.estimate;
+ fieldForm('STAT '+item.label,[{
+  id:'value',label:which==='x'?'Given Y':'Given X',value:'0'
+ }],values=>{
+  if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
+     !state.statTable.paired)throw Error('Argument ERROR');
+  const source=String(values.value??'').trim();
+  if(!source)throw Error('Syntax ERROR');
+  const number=M.evaluate(source,{...state,math:false,
+   memory:{...state.memory,...STATPARAM.resolve(source,state.statTable,REG)}});
+  const fit=statFit();
+  const results=which==='y'?[REG.estimateY(fit,number)]:REG.estimateX(fit,number);
+  if(item.root!==undefined&&item.root>=results.length)throw Error('Math ERROR');
+  const output=results[item.root??0];
+  if(!Number.isFinite(output))throw Error('Math ERROR');
+  return {kind:'stat-original-estimate',value:output,
+   source:item.label+'('+source+')'};
+ });
+}
 function originalStatParameterMenu(group){
  const t=state.statTable;
  if(state.model!=='fx-991es'||state.mode!=='STAT'||!t)
@@ -1034,6 +1059,7 @@ function originalStatParameterMenu(group){
  optionDialog('STAT '+group,options.map(item=>({
   key:item.key,label:item.key+'. '+item.label,
   action:()=>{
+   if(item.estimate){originalStatEstimate(item);return}
    // The command inserts a symbolic token, not a premature numeric answer.
    if(state.screen==='stat-table'){
     state.screen='edit';state.editor=STRUCT.create();syncEditor();
