@@ -1208,7 +1208,11 @@ function baseLogicMenu(){
   {key:'3',label:'3. xor',token:'xor',binary:true},
   {key:'4',label:'4. xnor',token:'xnor',binary:true},
   {key:'5',label:'5. Not(',token:'Not(',binary:false},
-  {key:'6',label:'6. Neg(',token:'Neg(',binary:false}
+  {key:'6',label:'6. Neg(',token:'Neg(',binary:false},
+  {key:'1',label:'1. d: (decimal)',token:'d:',literal:true},
+  {key:'2',label:'2. h: (hex)',token:'h:',literal:true},
+  {key:'3',label:'3. b: (binary)',token:'b:',literal:true},
+  {key:'4',label:'4. o: (octal)',token:'o:',literal:true}
  ];
  releaseModifier();
  optionDialog('BASE logic',entries.map(item=>({
@@ -1218,6 +1222,11 @@ function baseLogicMenu(){
     const source=fromResult?previous:state.input;
     if(!source||/[+*/(-]\\s*$/.test(source))throw Error('Syntax ERROR');
     baseSetInput(source+' '+item.token+' ');
+   }else if(item.literal){
+    // An explicit radix marker belongs to the expression, not to baseRadix.
+    const source=fromResult?'':state.input;
+    if(source&&!/[+*/(-]\\s*$/.test(source))throw Error('Syntax ERROR');
+    baseSetInput(source+item.token);
    }else baseSetInput((fromResult?'':state.input)+item.token);
    notify('BASE-N '+item.token+' inserted');
   }
@@ -1231,11 +1240,13 @@ function baseHandle(key){
  if(state.shift&&key==='9'){releaseModifier();clearMenu();return}
  if(state.shift&&key==='3'){baseLogicMenu();return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
+ if(state.shift||state.alpha){releaseModifier();notify('BASE-N modified key unavailable',true);paint();return}
  if(BASE_SELECT[key]){baseSwitch(BASE_SELECT[key]);return}
+ const activeRadix=BASE.inputRadix(state.screen==='result'?'':state.input,state.baseRadix);
  const hex=HEX_KEYS[key];
- if(hex&&state.baseRadix==='HEX'){baseAppend(hex);return}
+ if(hex&&activeRadix==='HEX'){baseAppend(hex);return}
  if(key==='NEG'&&state.baseRadix==='DEC'){baseAppend('-');return}
- if(key.startsWith('TEXT:')&&state.baseRadix==='HEX'&&/^[a-f]$/i.test(key.slice(5))){
+ if(key.startsWith('TEXT:')&&activeRadix==='HEX'&&/^[a-f]$/i.test(key.slice(5))){
   baseAppend(key.slice(5).toUpperCase());return;
  }
  if(key==='AC'){state.baseValue=0;baseSetInput('');notify('BASE-N cleared input');return}
@@ -1248,7 +1259,7 @@ function baseHandle(key){
  const ops={ADD:'+',SUB:'-',MUL:'*',DIV:'/',LP:'(',RP:')'};
  if(ops[key]){baseAppend(ops[key]);return}
  if(/^[0-9]$/.test(key)){
-  if(Number(key)>=BASE.BASES[state.baseRadix]){notify('Invalid '+state.baseRadix+' digit',true);return}
+  if(Number(key)>=BASE.BASES[activeRadix]){notify('Invalid '+activeRadix+' digit',true);return}
   baseAppend(key);return;
  }
  notify('BASE-N key unavailable in this radix',true);paint();
