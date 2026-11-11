@@ -23,7 +23,17 @@ function entries(group,paired,regressionType){
  if(group==='Sum')return paired?SUM2:SUM1;
  if(group==='Var')return paired?VAR2:VAR1;
  if(group==='MinMax')return paired?MIN2:MIN1;
- if(group==='Reg'&&paired)return regressionType==='QUAD'?REG2:REG1;
+ if(group==='Reg'&&paired){
+  const roots=regressionType==='QUAD'?[
+   {key:'4',label:'x̂1',estimate:'x',root:0},
+   {key:'5',label:'x̂2',estimate:'x',root:1},
+   {key:'6',label:'ŷ',estimate:'y'}
+  ]:[
+   {key:'4',label:'x̂',estimate:'x',root:0},
+   {key:'5',label:'ŷ',estimate:'y'}
+  ];
+  return [...(regressionType==='QUAD'?REG2:REG1),...roots];
+ }
  throw Error('Argument ERROR');
 }
 const all=[...SUM2,...VAR2,...MIN2,...REG1,...REG2];
