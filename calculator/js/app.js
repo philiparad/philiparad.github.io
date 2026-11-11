@@ -1325,21 +1325,30 @@ function eqnCoeffHandle(key){
   releaseModifier();notify(e.error,true);paint();
  }
 }
-function eqnPage(delta){
+function eqnPage(delta,exitAtEnd=false){
  const e=state.eqnSession;if(!e)return;
- if(!e.solutions.length){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
- if(e.index+delta>=e.solutions.length){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
- e.index=Math.max(0,e.index+delta);
- state.result=e.solutions[e.index].label+' = '+EQEX.display(e.solutions[e.index],state.math);state.raw=typeof e.solutions[e.index].value==='number'?e.solutions[e.index].value:NaN;
+ if(!e.solutions.length){
+  if(exitAtEnd){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint()}
+  return;
+ }
+ // On the original fx-991ES, = at the final solution returns to the
+ // coefficient grid; arrow keys only scroll between available solutions.
+ if(exitAtEnd&&e.index+delta>=e.solutions.length){
+  EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return;
+ }
+ e.index=Math.max(0,Math.min(e.solutions.length-1,e.index+delta));
+ state.result=e.solutions[e.index].label+' = '+EQEX.display(e.solutions[e.index],state.math);
+ state.raw=typeof e.solutions[e.index].value==='number'?e.solutions[e.index].value:NaN;
  state.info='';paint();
 }
 function eqnResultHandle(key){
  const e=state.eqnSession;if(!e)return;
  if(key==='AC'){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return}
- if(key==='EQUAL'||key==='DOWN'||key==='RIGHT'){eqnPage(1);return}
+ if(key==='EQUAL'){eqnPage(1,true);return}
+ if(key==='DOWN'||key==='RIGHT'){eqnPage(1);return}
  if(key==='UP'||key==='LEFT'){eqnPage(-1);return}
  if(key==='MODE'){modeMenu();return}
- notify('EQN: = next; AC coefficients');paint();
+ notify('EQN: = next/finish; arrows scroll; AC coefficients');paint();
 }
 
 const MATRIX_DIMS=[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3],[3,1],[3,2],[3,3]];
