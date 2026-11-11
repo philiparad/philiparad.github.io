@@ -18,7 +18,9 @@ near(extreme.sampleSDX,Math.SQRT2*1e50);
 assert.equal(extreme.minX,-1e50);
 assert.equal(extreme.maxX,1e50);
 assert.ok(Stat.varLines(extreme,true).some(line => line.startsWith('Sigma X = ')));
-assert.throws(() => Stat.sumLines(extreme,true), /Math ERROR/);
+// REA-111: unavailable sums are marked per-entry; valid results remain selectable.
+assert.equal(Stat.sumLines(extreme,true)[0], 'Sum X2 = Math ERROR');
+assert.equal(Stat.sumLines(extreme,true)[1], 'Sum X = 0');
 // A normal paired STAT table remains usable for sums and descriptive statistics.
 const normal=Stat.summary(paired([
     {X:1,Y:2,FREQ:1},{X:3,Y:4,FREQ:1}
