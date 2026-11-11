@@ -1,0 +1,36 @@
+name: REA-082 DRG per-operand suffix and persistent angle setup
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/math-engine.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/legend-audit.js'
+      - 'calculator/tests/rea082-drg-angle.cjs'
+      - 'calculator/reference/rea-082/**'
+      - '.github/workflows/rea082-drg-angles.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  angle-units:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test 69 unit, nested trigonometry and DRG key states
+        run: node calculator/tests/rea082-drg-angle.cjs
+      - name: Check previous 50-key modifier inventory regression
+        run: node calculator/tests/rea081-legend-audit.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Exercise original, PLUS and PLUS C DRG keys in browser
+        run: python calculator/reference/rea-082/test_drg_browser.py
