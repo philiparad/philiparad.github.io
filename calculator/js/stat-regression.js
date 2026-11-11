@@ -234,6 +234,13 @@ function estimateY(m,x){
  }
  return finite(y);
 }
+// REA-120: avoid forming y/A when that ratio cannot be represented.
+// Keep direct ratio logging in ordinary cases to preserve prior rounding.
+function logPositiveRatio(y,A){
+ const ratio=y/A;
+ return ratio>0&&Number.isFinite(ratio)?
+  Math.log(ratio):Math.log(y)-Math.log(A);
+}
 function estimateX(m,y){
  finite(y);const {A,B,C,type}=m;
  if(type==='QUAD'){
@@ -257,9 +264,14 @@ function estimateX(m,y){
  switch(type){
  case 'LIN':if(!B)fail();x=(y-A)/B;break;
  case 'LOG':if(!B)fail();x=Math.exp((y-A)/B);break;
- case 'EXP':if(y<=0||A<=0||!B)fail();x=Math.log(y/A)/B;break;
- case 'ABEXP':if(y<=0||A<=0||B<=0||B===1)fail();x=Math.log(y/A)/Math.log(B);break;
- case 'POWER':if(y<=0||A<=0||!B)fail();x=Math.pow(y/A,1/B);break;
+ case 'EXP':if(y<=0||A<=0||!B)fail();x=logPositiveRatio(y,A)/B;break;
+ case 'ABEXP':if(y<=0||A<=0||B<=0||B===1)fail();x=logPositiveRatio(y,A)/Math.log(B);break;
+ case 'POWER':if(y<=0||A<=0||!B)fail();{
+  const ratio=y/A;
+  x=ratio>0&&Number.isFinite(ratio)?Math.pow(ratio,1/B):
+   Math.exp(logPositiveRatio(y,A)/B);
+  break;
+ }
  case 'INV':if(y===A)fail();x=B/(y-A);if(x===0)fail();break;
  default:fail('Argument ERROR');
  }
