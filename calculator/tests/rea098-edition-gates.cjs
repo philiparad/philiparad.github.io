@@ -50,6 +50,11 @@ for(const fragment of [
  "function setMode(mode)",
  "throw Error('Argument ERROR')"
 ])test('controller edition source '+fragment,()=>assert.ok(APP.includes(fragment),fragment));
+test('pasted recurring notation is restricted to PLUS C',()=>{
+ const evaluation=APP.slice(APP.indexOf('function evaluate(){'),APP.indexOf('function advanceStatements(){'));
+ assert.ok(evaluation.includes("!MODELS.hasFeature(state.model,'recurring')"));
+ assert.ok(evaluation.includes('RPT'));
+});
 test('controller evaluates model guard before parser',()=>{
  const evaluation=APP.slice(APP.indexOf('function evaluate(){'),APP.indexOf('function advanceStatements(){'));
  assert.ok(evaluation.indexOf("MODELS.hasFeature(state.model,'ranint')")<
