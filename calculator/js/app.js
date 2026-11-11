@@ -1488,8 +1488,8 @@ function matrixMenu(){
    {label:'8. Scalar',action:()=>matrixOperandMenu('scalar')},
    {key:'9',label:'9. AbsDet',action:()=>matrixOperandMenu('abs')}
   ],{pageSize:8,kind:'matrix'})},
-  {key:'9',label:'9. History',action:matrixHistoryMenu},
-  {key:'0',label:'0. Expression',action:()=>matrixExpressionInput('')}
+  {key:'9',label:'History',action:matrixHistoryMenu},
+  {key:'0',label:'Expression',action:()=>matrixExpressionInput('')}
  ],{pageSize:8,kind:'matrix'});
 }
 
@@ -1577,9 +1577,9 @@ function matrixResultHandle(key){
  // A matrix result is an expression operand. Arithmetic starts from MatAns.
  const chaining={ADD:'+',SUB:'-',MUL:'*',POWER:'^'};
  if(chaining[key]&&state.matrixView){
-  matrixExpressionInput('MatAns'+chaining[key]);return;
+  matrixExpressionInput(state.matrixView.name+chaining[key]);return;
  }
- if(key==='EQUAL'&&state.matrixView){matrixExpressionInput('MatAns');return}
+ if(key==='EQUAL'&&state.matrixView){matrixExpressionInput(state.matrixView.name);return}
  const view=state.matrixView;
  if(view&&['UP','DOWN','LEFT','RIGHT'].includes(key)){
   view.row=Math.max(0,Math.min(view.matrix.rows-1,view.row+(key==='UP'?-1:key==='DOWN'?1:0)));
