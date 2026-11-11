@@ -1,10 +1,11 @@
 /* REA-064 — 40 CASIO CONV code pairs; original ES manual appendix
  * https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf
- * fx-991ES PLUS newer conversions use NIST SP 811 (2008) values where
- * available; original ES and PLUS C use manual-era (1995) rounded factors.
+ * Original fx-991ES Appendix #117 uses NIST SP 811 (1995) rounded
+ * factors. PLUS profiles retain their separately defined existing factors.
+ * https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf
  */
 (function(g){'use strict';
-const FORWARD=[["in","cm",2.54],["ft","m",0.3048],["yd","m",0.9144],["mile","km",1.609344],["n mile","m",1852],["acre","m²",4046.856],["gal (US)","L",3.785412],["gal (UK)","L",4.54609],["pc","km",30856780000000],["km/h","m/s",0.2777777777777778],["oz","g",28.34952],["lb","kg",0.4535924],["atm","Pa",101325],["mmHg","Pa",133.3224],["hp","kW",0.7457],["kgf/cm²","Pa",98066.5],["kgf·m","J",9.80665],["lbf/in²","kPa",6.894757],["°F","°C",null],["J","cal",0.2389029576186153]];
+const FORWARD=[["in","cm",2.54],["ft","m",0.3048],["yd","m",0.9144],["mile","km",1.609344],["n mile","m",1852],["acre","m²",4046.856],["gal (US)","L",3.785412],["gal (UK)","L",4.54609],["pc","km",30856780000000],["km/h","m/s",0.2777777777777778],["oz","g",28.34952],["lb","kg",0.4535924],["atm","Pa",101325],["mmHg","Pa",133.3224],["hp","kW",0.7457],["kgf/cm²","Pa",98066.5],["kgf·m","J",9.80665],["lbf/in²","kPa",6.894757],["°F","°C",null],["J","cal",4.1858]];
 const PRECISE={"11":4046.8564224,"13":3.785411784,"17":30856775814913.67,"21":28.349523125,"23":0.45359237,"27":133.322387415,"29":0.745699871582,"35":6.894757293168};
 const ITEMS=Object.freeze(FORWARD.flatMap(([from,to,factor],index)=>{
  const code=2*index+1;
@@ -24,6 +25,10 @@ function convert(value,entry){
  let result;
  if(entry.code==='37')result=(value-32)/1.8;
  else if(entry.code==='38')result=value*1.8+32;
+ // Appendix #117 specifies 39: 1 J = (1/4.1858) cal,
+ // 40: 1 cal = 4.1858 J. Keep the exact printed factor.
+ else if(entry.code==='39')result=value/4.1858;
+ else if(entry.code==='40')result=value*4.1858;
  else result=entry.reverse?value/entry.factor:value*entry.factor;
  if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
  return result;
@@ -33,6 +38,8 @@ function literal(entry,operand){
  const x='('+operand+')';
  if(entry.code==='37')return '(('+x+'-32)/1.8)';
  if(entry.code==='38')return '(('+x+'*1.8)+32)';
+ if(entry.code==='39')return '('+x+'/4.1858)';
+ if(entry.code==='40')return '('+x+'*4.1858)';
  const factor=Number(entry.factor.toPrecision(15));
  return entry.reverse?'('+x+'/'+factor+')':'('+x+'*'+factor+')';
 }
