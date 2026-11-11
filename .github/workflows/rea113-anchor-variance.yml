@@ -1,0 +1,38 @@
+name: REA-113 anchor-relative STAT variance
+on:
+  push:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-113/**'
+      - 'calculator/tools/build_standalone.py'
+      - '.github/workflows/rea113-anchor-variance.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-113/**'
+      - 'calculator/tools/build_standalone.py'
+jobs:
+  stat-variance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check calculator/js/stat-regression.js
+          node --check calculator/reference/rea-113/test_anchor_variance.js
+      - name: Run native STAT regression suites
+        run: |
+          node calculator/reference/rea-113/test_anchor_variance.js
+          node calculator/reference/rea-112/test_stat_precision.js
+          node calculator/reference/rea-111/test_stat_menu_values.js
+          node calculator/reference/rea-110/test_quadratic_qr.js
+          node calculator/reference/rea-109/test_quadratic_roots.js
+          node calculator/reference/rea-108/test_linear_regression.js
+          node calculator/reference/rea-107/test_paired_stat.js
+      - name: Check generated standalone
+        run: python3 calculator/tools/build_standalone.py --check
