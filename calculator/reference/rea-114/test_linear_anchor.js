@@ -26,7 +26,7 @@ approx(model.B,1);approx(model.correlation,1);
 model=fit([1,2,3],[5,5,5]);
 approx(model.A,5);approx(model.B,0);assert.equal(model.correlation,null);
 assert.throws(()=>fit([2,2],[1,3]),/Math ERROR/);
-assert.throws(()=>fit([1,2],[1e99,-1e99]),/Math ERROR/);
+assert.throws(()=>fit([1,2],[9e99,-9e99]),/Math ERROR/);
 const log=fit([1,Math.E],[2,5],null,'LOG');
 approx(log.A,2);approx(log.B,3);approx(log.correlation,1);
 const inv=fit([1,2],[3,2],null,'INV');
