@@ -133,8 +133,66 @@ function record(state,operator,aName,bName=null,parameter=null){
  if(state.history.length>MAX_HISTORY)state.history.shift();
  return result;
 }
+// REA-090: evaluate matrix expressions atomically; no eval().
+function expression(state,source){
+ const src=String(source).replace(/−/g,'-').replace(/×/g,'*');
+ const tokens=[];const re=/\s+|MatAns|Mat[ABC]|Trn|det|Abs|(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|[()+*^,-]/gy;
+ let pos=0;
+ while(pos<src.length){re.lastIndex=pos;const m=re.exec(src);
+  if(!m||m.index!==pos)fail('Syntax ERROR');
+  if(!/^\s+$/.test(m[0]))tokens.push(m[0]);pos=re.lastIndex;
+  if(tokens.length>200)fail('Syntax ERROR');
+ }
+ if(!tokens.length)fail('Syntax ERROR');
+ let index=0;const peek=()=>tokens[index],next=()=>tokens[index++];
+ const isMatrix=v=>v&&typeof v==='object'&&Array.isArray(v.data);
+ function unary(v,sign){return isMatrix(v)?scalar(v,sign):number(sign*v)}
+ function operation(op,a,b){
+  if(op==='+')return isMatrix(a)&&isMatrix(b)?add(a,b):typeof a==='number'&&typeof b==='number'?number(a+b):fail('Dimension ERROR');
+  if(op==='-')return isMatrix(a)&&isMatrix(b)?subtract(a,b):typeof a==='number'&&typeof b==='number'?number(a-b):fail('Dimension ERROR');
+  if(op==='*'){
+   if(isMatrix(a)&&isMatrix(b))return multiply(a,b);
+   if(isMatrix(a)&&typeof b==='number')return scalar(a,b);
+   if(typeof a==='number'&&isMatrix(b))return scalar(b,a);
+   if(typeof a==='number'&&typeof b==='number')return number(a*b);
+  }
+  fail('Dimension ERROR');
+ }
+ function primary(){
+  const t=next();if(t===undefined)fail('Syntax ERROR');
+  if(t==='+')return primary();
+  if(t==='-')return unary(primary(),-1);
+  if(t==='('){const result=parse(0);if(next()!==')')fail('Syntax ERROR');return result}
+  if(['MatA','MatB','MatC','MatAns'].includes(t))return get(state,t);
+  if(['det','Trn','Abs'].includes(t)){
+   if(next()!=='(')fail('Syntax ERROR');const arg=parse(0);
+   if(next()!==')')fail('Syntax ERROR');if(!isMatrix(arg))fail('Dimension ERROR');
+   return t==='det'?det(arg):t==='Trn'?transpose(arg):absolute(arg);
+  }
+  if(/^(?:\d|\.)/.test(t))return number(t);
+  fail('Syntax ERROR');
+ }
+ function parse(min){
+  let lhs=primary();
+  while(index<tokens.length){
+   const op=peek(),prec=op==='^'?30:op==='*'?20:op==='+'||op==='-'?10:-1;
+   if(prec<min)break;next();
+   if(op==='^'){
+    const n=parse(30);
+    if(!isMatrix(lhs)||typeof n!=='number')fail('Dimension ERROR');
+    lhs=power(lhs,n);
+   }else lhs=operation(op,lhs,parse(prec+1));
+  }
+  return lhs;
+ }
+ const result=parse(0);if(index!==tokens.length)fail('Syntax ERROR');
+ if(isMatrix(result))state.MatAns=clone(result);
+ state.history.push({operator:'expression',source:src,output:isMatrix(result)?clone(result):result});
+ if(state.history.length>MAX_HISTORY)state.history.shift();
+ return result;
+}
 function copy(state,from,to){ensureName(to);return set(state,to,get(state,from))}
-const API=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,current,load,parse,commit,type,sign,backspace,move,next,clear,resize,add,subtract,multiply,transpose,scalar,identity,inverse,power,det,absolute,record,copy});
+const API=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,current,load,parse,commit,type,sign,backspace,move,next,clear,resize,add,subtract,multiply,transpose,scalar,identity,inverse,power,det,absolute,record,copy,expression});
 g.FreshMatrixRegisters=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
