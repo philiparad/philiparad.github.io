@@ -1,0 +1,44 @@
+name: REA-119 scaled exponential and power prediction
+on:
+  push:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-119/**'
+      - 'calculator/tools/build_standalone.py'
+      - '.github/workflows/rea119-scaled-predictions.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-119/**'
+      - 'calculator/tools/build_standalone.py'
+jobs:
+  scaled-predictions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check calculator/js/stat-regression.js
+          node --check calculator/reference/rea-119/test_scaled_predictions.js
+      - name: Run REA-119 and prior STAT regression suites
+        run: |
+          node calculator/reference/rea-119/test_scaled_predictions.js
+          node calculator/reference/rea-118/test_quadratic_discriminant.js
+          node calculator/reference/rea-117/test_linear_prediction.js
+          node calculator/reference/rea-116/test_quadratic_prediction.js
+          node calculator/reference/rea-115/test_compensated_sums.js
+          node calculator/reference/rea-114/test_linear_anchor.js
+          node calculator/reference/rea-113/test_anchor_variance.js
+          node calculator/reference/rea-112/test_stat_precision.js
+          node calculator/reference/rea-111/test_stat_menu_values.js
+          node calculator/reference/rea-110/test_quadratic_qr.js
+          node calculator/reference/rea-109/test_quadratic_roots.js
+          node calculator/reference/rea-108/test_linear_regression.js
+          node calculator/reference/rea-107/test_paired_stat.js
+      - name: Check standalone consistency
+        run: python3 calculator/tools/build_standalone.py --check
