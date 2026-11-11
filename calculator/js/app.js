@@ -226,7 +226,10 @@ function evaluateSegment(source){
   exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,
     memory:state.memory,
     statOriginalDistr:state.model==='fx-991es'&&state.mode==='STAT'&&
-     !!state.statTable&&!state.statTable.paired&&state.statTable.regressionType==='1VAR'});
+     !!state.statTable&&!state.statTable.paired&&state.statTable.regressionType==='1VAR',
+    statSummary:source.includes('▶t')&&state.model==='fx-991es'&&
+     state.mode==='STAT'&&state.statTable?
+     REG.summary(state.statTable):null});
  // REA-075: the exact-rational fast path must obey the same documented
  // numeric range floor as base-10 arithmetic; discard out-of-range metadata.
  if(value!==0&&Number.isFinite(value)&&Math.abs(value)<1e-99){
@@ -1034,7 +1037,7 @@ function statDistr(){
   {key:'1',label:'1. P(',action:()=>originalStatPInput()},
   {key:'2',label:'2. Q(',action:()=>originalStatQInput()},
   {key:'3',label:'3. R(',action:()=>originalStatRInput()},
-  {key:'4',label:'4. ▶t',action:()=>statDistrInput('t')}
+  {key:'4',label:'4. ▶t',action:()=>originalStatTInput()}
  ],{pageSize:4,kind:'stat-distr'});
 }
 // REA-101: native STAT Distr 1 inserts the P( command into the calculation
@@ -1070,30 +1073,18 @@ function originalStatRInput(){
  }
  insert('R(');
 }
-function statDistrInput(kind){
- // For P/Q/R a subsequent P(Ans) is a documented native workflow.
- // For normalized ▶t, the first use defaults to the stored X value if
- // available; it is still explicitly entered/confirmed in the prompt.
- const label=kind==='t'?'▶t':kind+'(';
- fieldForm('STAT '+label,[{
-  id:'value',label:kind==='t'?'Sample X':'Standard variate t',
-  value:String(Number.isFinite(state.ans)?state.ans:0)
- }],values=>{
-  if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
-     state.statTable.paired||state.statTable.regressionType!=='1VAR')
-   throw Error('Argument ERROR');
-  // No changes to Ans or the STAT table until complete validation.
-  const raw=String(values.value??'').trim();
-  if(!raw)throw Error('Syntax ERROR');
-  STAT.commit(state.statTable);
-  const arg=M.evaluate(raw,{...state,ans:state.ans,preAns:state.preAns,
-   memory:state.memory});
-  if(!Number.isFinite(arg))throw Error('Math ERROR');
-  const summary=kind==='t'?REG.summary(state.statTable):null;
-  const result=STATN.calculate(kind,arg,summary);
-  const expression=kind==='t'?REG.format(arg)+'▶t':kind+'('+raw+')';
-  return {kind:'stat-normal',source:expression,value:result};
- });
+// REA-104: original STAT normalized variate is a postfix operator X▶t.
+// Read the current, frequency-weighted sample data at the moment of evaluation.
+function originalStatTInput(){
+ if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
+    state.statTable.paired||state.statTable.regressionType!=='1VAR')
+  throw Error('Argument ERROR');
+ if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
+  const fromResult=['result','flow-result'].includes(state.menuReturnScreen);
+  state.editor=STRUCT.create();state.screen='edit';syncEditor();
+  if(fromResult)insert('Ans');
+ }
+ insert('▶t');
 }
 function originalStatEstimate(item){
  const which=item.estimate;
@@ -2631,7 +2622,9 @@ function handle(key){
     const value=M.evaluate(source,{...state,math:false,ans:state.ans,
      memory:{...state.memory,...bound},
      statOriginalDistr:!state.statTable.paired&&
-      state.statTable.regressionType==='1VAR'});
+      state.statTable.regressionType==='1VAR',
+     statSummary:source.includes('▶t')?
+      REG.summary(state.statTable):null});
     setResult(value,source,null);
    }catch(e){error(e.message||'Math ERROR')}
    return;
