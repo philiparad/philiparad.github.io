@@ -20,6 +20,17 @@ function numeric(value,label){
  if(String(value).trim()===''||!Number.isFinite(n))fail('Argument ERROR');
  return n;
 }
+// REA-093: original fx-991ES TABLE accepts scalar f(X), not calculus,
+// coordinate conversion or a sequence of statements. Check before generation.
+function validateExpression(source){
+ const expr=String(source).trim();
+ if(!expr||expr.length>240)fail('Syntax ERROR');
+ // Match function names as tokens, not substrings inside other identifiers.
+ const forbidden=/(?:^|[^A-Za-z0-9_])(?:Diff|Derivative|Integral|Integrate|Sum|Sigma|Pol|Rec)\s*\(/i;
+ if(forbidden.test(expr)||/[∫Σ∑]/.test(expr))fail('Argument ERROR');
+ if(/[=;:]/.test(expr))fail('Syntax ERROR');
+ return expr;
+}
 function generate({model,count=1,start,end,step,f,g=null}){
  const dual=dualEnabled(model,count);
  if(typeof f!=='function'||(dual&&typeof g!=='function'))fail('Argument ERROR');
@@ -50,7 +61,7 @@ function format(value){
  return String(Number(value.toPrecision(12)));
 }
 function detail(table){return table.columns[table.col]+' = '+format(active(table))}
-const API=Object.freeze({dualCapable,dualEnabled,maxRows,countRows,generate,navigate,active,format,detail});
+const API=Object.freeze({dualCapable,dualEnabled,maxRows,countRows,validateExpression,generate,navigate,active,format,detail});
 g.FreshTable=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
