@@ -26,15 +26,26 @@ function render(manifest){
   table.replaceChildren();
   for(const item of items){
    const tr=document.createElement('tr');
-   for(const value of [item.title,STATUSES[item.status]||'Unknown',item.note]){
+   // Public UI fails closed on unsupported parity claims. Source tests,
+   // manuals and web-only LCD snapshots never constitute device proof.
+   const grounded=item.status!=='hardware-verified'||
+    (item.hardware_verified===true&&Array.isArray(item.native_evidence_ids)&&
+     item.native_evidence_ids.length>0&&Array.isArray(item.verified_models)&&
+     item.verified_models.includes(model));
+   const shownStatus=grounded?item.status:'approximation';
+   const label=grounded?(STATUSES[item.status]||'Unknown'):
+    'Unverified — missing model-specific native evidence';
+   for(const value of [item.title,label,item.note]){
     const td=document.createElement('td');
     td.textContent=value;
     tr.append(td);
    }
-   tr.dataset.status=item.status;
+   tr.dataset.status=shownStatus;
    table.append(tr);
   }
-  const verified=items.filter(f=>f.status==='hardware-verified').length;
+  const verified=items.filter(f=>f.status==='hardware-verified'&&f.hardware_verified===true&&
+   Array.isArray(f.native_evidence_ids)&&f.native_evidence_ids.length>0&&
+   Array.isArray(f.verified_models)&&f.verified_models.includes(model)).length;
   summary.textContent=items.length+' capabilities listed · '+verified+
     ' hardware-verified · source-only tests are not CASIO device certification.';
  }
