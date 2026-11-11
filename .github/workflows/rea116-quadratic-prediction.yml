@@ -1,0 +1,41 @@
+name: REA-116 compensated quadratic prediction
+on:
+  push:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-116/**'
+      - 'calculator/tools/build_standalone.py'
+      - '.github/workflows/rea116-quadratic-prediction.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-116/**'
+      - 'calculator/tools/build_standalone.py'
+jobs:
+  compensated-quadratic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check calculator/js/stat-regression.js
+          node --check calculator/reference/rea-116/test_quadratic_prediction.js
+      - name: Execute regression suites
+        run: |
+          node calculator/reference/rea-116/test_quadratic_prediction.js
+          node calculator/reference/rea-115/test_compensated_sums.js
+          node calculator/reference/rea-114/test_linear_anchor.js
+          node calculator/reference/rea-113/test_anchor_variance.js
+          node calculator/reference/rea-112/test_stat_precision.js
+          node calculator/reference/rea-111/test_stat_menu_values.js
+          node calculator/reference/rea-110/test_quadratic_qr.js
+          node calculator/reference/rea-109/test_quadratic_roots.js
+          node calculator/reference/rea-108/test_linear_regression.js
+          node calculator/reference/rea-107/test_paired_stat.js
+      - name: Verify standalone generation
+        run: python3 calculator/tools/build_standalone.py --check
