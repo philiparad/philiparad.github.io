@@ -223,7 +223,10 @@ function evaluateSegment(source){
   if(exact){exactRational=window.FreshRational.serialize(exact);exactValue=window.FreshRational.toNumber(exact)}
  }
  let value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
-  exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+  exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,
+    memory:state.memory,
+    statOriginalDistr:state.model==='fx-991es'&&state.mode==='STAT'&&
+     !!state.statTable&&!state.statTable.paired&&state.statTable.regressionType==='1VAR'});
  // REA-075: the exact-rational fast path must obey the same documented
  // numeric range floor as base-10 arithmetic; discard out-of-range metadata.
  if(value!==0&&Number.isFinite(value)&&Math.abs(value)<1e-99){
@@ -1028,11 +1031,22 @@ function statDistr(){
  }
  releaseModifier();
  optionDialog('STAT Distr',[
-  {key:'1',label:'1. P(',action:()=>statDistrInput('P')},
+  {key:'1',label:'1. P(',action:()=>originalStatPInput()},
   {key:'2',label:'2. Q(',action:()=>statDistrInput('Q')},
   {key:'3',label:'3. R(',action:()=>statDistrInput('R')},
   {key:'4',label:'4. ▶t',action:()=>statDistrInput('t')}
  ],{pageSize:4,kind:'stat-distr'});
+}
+// REA-101: native STAT Distr 1 inserts the P( command into the calculation
+// editor. This permits P(0), P(Ans), arithmetic and ordinary cursor editing.
+function originalStatPInput(){
+ if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
+    state.statTable.paired||state.statTable.regressionType!=='1VAR')
+  throw Error('Argument ERROR');
+ if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
+  state.editor=STRUCT.create();state.screen='edit';syncEditor();
+ }
+ insert('P(');
 }
 function statDistrInput(kind){
  // For P/Q/R a subsequent P(Ans) is a documented native workflow.
