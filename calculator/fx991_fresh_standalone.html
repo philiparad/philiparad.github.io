@@ -3904,7 +3904,7 @@ function fit(t,type){
  if(type==='ABEXP')B=finite(Math.exp(B));
  return {type,A,B,C:null,correlation};
 }
-// REA-116: double-double Horner evaluation of quadratic predictions.
+// REA-116/117: double-double Horner evaluation of quadratic and linear predictions.
 // TwoSum/TwoProduct retain cancellation terms discarded by plain A+B*x+C*x*x.
 function quadraticPrediction(A,B,C,x){
  const add=(a,b)=>{
@@ -3934,7 +3934,7 @@ function quadraticPrediction(A,B,C,x){
 function estimateY(m,x){
  finite(x);let y;const {A,B,C,type}=m;
  switch(type){
- case 'LIN':y=A+B*x;break;
+ case 'LIN':y=quadraticPrediction(A,B,0,x);break;
  case 'QUAD':y=quadraticPrediction(A,B,C,x);break;
  case 'LOG':if(x<=0)fail();y=A+B*Math.log(x);break;
  case 'EXP':y=A*Math.exp(B*x);break;
