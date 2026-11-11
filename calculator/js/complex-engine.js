@@ -16,14 +16,16 @@ const neg=a=>complex(-a.re,-a.im);
 const sub=(a,b)=>add(a,neg(b));
 const mul=(a,b)=>complex(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
 function div(a,b){
- // Smith's scaled algorithm avoids unnecessary overflow for large operands.
+ // Scale numerator and denominator by the dominant divisor component.
+ // Computing b.re + b.im*t first can overflow even for valid operands
+ // (for example (10^99+10^99 i)/(10^99+10^99 i) must equal 1).
  if(b.re===0&&b.im===0)fault();
  if(Math.abs(b.re)>=Math.abs(b.im)){
-  const t=b.im/b.re,den=b.re+b.im*t;
-  return complex((a.re+a.im*t)/den,(a.im-a.re*t)/den);
+  const t=b.im/b.re,den=1+t*t,ar=a.re/b.re,ai=a.im/b.re;
+  return complex((ar+ai*t)/den,(ai-ar*t)/den);
  }
- const t=b.re/b.im,den=b.im+b.re*t;
- return complex((a.re*t+a.im)/den,(a.im*t-a.re)/den);
+ const t=b.re/b.im,den=1+t*t,ar=a.re/b.im,ai=a.im/b.im;
+ return complex((ar*t+ai)/den,(ai*t-ar)/den);
 }
 function power(a,b){
  if(a.re===0&&a.im===0){
