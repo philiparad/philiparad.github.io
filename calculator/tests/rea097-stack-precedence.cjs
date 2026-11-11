@@ -10,9 +10,9 @@ let passed=0;
 function check(name,fn){try{fn();passed++}catch(e){e.message=name+': '+e.message;throw e}}
 function near(actual,want){assert.ok(Number.isFinite(actual)&&Math.abs(actual-want)<1e-10*Math.max(1,Math.abs(want)),actual+' != '+want)}
 const examples=[
- ['8/2(2+2)',16],['8/(2(2+2))',1],
- ['2(3+4)',14],['(1+2)3',9],['6/3(1+1)',4],
- ['2/2pi',Math.PI],['2pi/2',Math.PI],
+ ['8/(2(2+2))',1],
+ ['2(3+4)',14],['(1+2)3',9],
+ ['2pi/2',Math.PI],
  ['2+3*4',14],['2+3(4+1)',17],
  ['-2^2',-4],['(-2)^2',4],
  ['-3!',-6],['(-3)^2',9],['5!',120],
@@ -25,6 +25,19 @@ const examples=[
 for(const model of ['fx-991es','fx-991es-plus','fx-991es-plus-c']){
  for(const [expr,value] of examples)
   check(model+' precedence '+expr,()=>near(M.evaluate(expr,{model}),value));
+ // REA-105: original omitted-sign multiplication = explicit ×/÷,
+ // whereas PLUS and PLUS C give omitted multiplication higher priority.
+ const original=model==='fx-991es';
+ const editionExamples=[
+  ['8/2(2+2)',original?16:1],
+  ['12/3(1+3)',original?16:1],
+  ['18/3(2+1)',original?18:2],
+  ['16/4(2+2)',original?16:1],
+  ['6/3(1+1)',original?4:1],
+  ['2/2pi',original?Math.PI:1/Math.PI]
+ ];
+ for(const [expr,value] of editionExamples)
+  check(model+' manufacturer precedence '+expr,()=>near(M.evaluate(expr,{model}),value));
  for(const expr of ['5nPr6','5nCr6','-3!','sqrt(-1)'])
   if(expr!=='-3!')check(model+' mathematical error '+expr,()=>assert.throws(
    ()=>M.evaluate(expr,{model}),/Math ERROR/));
