@@ -39,6 +39,9 @@ const toNumber=a=>a?Number(a.n)/Number(a.d):NaN;
 function evaluate(source,options={}){
  if(/[\d.]\s+[\d.]/.test(String(source)))throw new SyntaxError('Syntax ERROR');
  const s=String(source).replace(/\s+/g,'').replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/');
+ // REA-105: the main parser enforces stack limits for long expressions.
+ // Never let the exact-rational shortcut silently bypass those errors.
+ if((s.match(/[-+*/^()]/g)||[]).length>23)return null;
  // Expressions outside rational grammar must go through scientific evaluator.
  if(!/^(?:[\d.Ee+*/^()\-]|Ans|PreAns)+$/.test(s))return null;
  const tokens=s.match(/(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?|PreAns|Ans|[()+*/^\-]/g);
@@ -57,8 +60,11 @@ function evaluate(source,options={}){
  function expression(min){
   let left=primary();
   while(at<tokens.length&&peek()!==')'){
-   const t=peek(),implicit=t==='('||t==='Ans'||t==='PreAns';
-   const op=implicit?'*':t,bp=implicit?24:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
+   const t=peek(),implicit=t==='('||t==='Ans'||t==='PreAns'||/^[0-9.]/.test(t);
+   // Original fx-991ES: omitted multiplication equals × / ÷.
+   // PLUS and PLUS C: omitted multiplication binds more strongly.
+   const implicitPriority=options.model==='fx-991es-plus'||options.model==='fx-991es-plus-c'?24:20;
+   const op=implicit?'*':t,bp=implicit?implicitPriority:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(bp===undefined||bp<min)break;
    if(!implicit)at++;
    const right=expression(op==='^'?bp:bp+1);
