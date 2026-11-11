@@ -270,9 +270,12 @@ function evaluate(source,opts={}){
  if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
  // Scientific functions, register variables and unsupported powers use the existing engine.
- if(global.FreshDecimal){
+ // Keep long arithmetic in the full stack-limited parser. Otherwise
+ // the fast path could accept unary/power chains exceeding the 24-frame cap.
+ const fastSafe=(String(source).match(/[+*/^()\\-]/g)||[]).length<=23;
+ if(global.FreshDecimal&&fastSafe){
   try{
-   const decimalValue=global.FreshDecimal.evaluate(source);
+   const decimalValue=global.FreshDecimal.evaluate(source,opts);
    if(decimalValue!==null)return decimalValue;
   }catch(error){fail(error instanceof SyntaxError?'Syntax ERROR':'Math ERROR')}
  }
@@ -375,7 +378,9 @@ function evaluate(source,opts={}){
   }
   const implicit=begin(t);const operator=implicit?'*':t.value;
   // Implicit and explicit multiplication share Priority 8, left-to-right.
-  const binding=implicit?20:{'nPr':22,'nCr':22,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
+  // Original ES: same priority. PLUS and PLUS C: omitted-sign higher.
+  const implicitPriority=opts.model==='fx-991es-plus'||opts.model==='fx-991es-plus-c'?24:20;
+  const binding=implicit?implicitPriority:{'nPr':22,'nCr':22,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
   if(binding===undefined||binding<min)break;
   if(!implicit)take();holdNumber();enterCommand();
   const right=expr(operator==='^'?binding:binding+1);
