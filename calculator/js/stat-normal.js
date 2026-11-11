@@ -44,7 +44,7 @@ function lowerTail(t){
 }
 function probabilities(t){
  const x=finite(Number(t)),half=area(x),signed=x<0?-half:half;
- const P=.5+signed,Q=signed,R=.5-signed;
+ const P=lowerTail(x),Q=signed,R=.5-signed;
  return {P,Q,R};
 }
 function normalized(x,summary){
