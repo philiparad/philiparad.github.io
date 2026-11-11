@@ -22,9 +22,23 @@ function observations(t){
 // Use scaled, weighted residuals to compute σ without squaring huge X.
 // Keep aggregate sums as raw numbers: REG.format() enforces range if a
 // user explicitly requests an unavailable Sum X / Sum X2 value.
+// REA-115: Neumaier compensated summation retains small terms added
+// between large positive/negative terms. Unlike ordinary addition it is
+// much less sensitive to the order of valid STAT observations.
+function compensatedSum(rows,term){
+ let sum=0,correction=0;
+ for(const r of rows){
+  const value=r.w*term(r);
+  const next=sum+value;
+  if(Math.abs(sum)>=Math.abs(value))correction+=(sum-next)+value;
+  else correction+=(value-next)+sum;
+  sum=next;
+ }
+ return sum+correction;
+}
 function oneVarSummary(rows,n){
- const sumX=rows.reduce((sum,r)=>sum+r.w*r.x,0);
- const sumX2=rows.reduce((sum,r)=>sum+r.w*r.x*r.x,0);
+ const sumX=compensatedSum(rows,r=>r.x);
+ const sumX2=compensatedSum(rows,r=>r.x*r.x);
  // Use folds; spreading a large STAT table into Math.max overflows
  // the JavaScript argument stack on some engines.
  // REA-113: derive variance in an anchor-relative coordinate system.
@@ -34,7 +48,7 @@ function oneVarSummary(rows,n){
  const span=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-anchor)),0);
  const offset=span===0?0:rows.reduce(
   (sum,r)=>sum+r.w*((r.x-anchor)/span),0)/n;
- const meanX=finite(span===0?anchor:anchor+offset*span);
+ const meanX=finite(sumX/n);
  const normalizedVariance=span===0?0:rows.reduce((sum,r)=>{
   const deviation=(r.x-anchor)/span-offset;
   return sum+r.w*deviation*deviation;
@@ -55,7 +69,7 @@ function summary(t){
  // Delay range checks until an aggregate is actually selected.
  const xStats=oneVarSummary(rows,n);
  const yStats=oneVarSummary(rows.map(r=>({x:r.y,w:r.w})),n);
- const rawSum=fn=>rows.reduce((sum,r)=>sum+r.w*fn(r),0);
+ const rawSum=fn=>compensatedSum(rows,fn);
  const out={
   n,sumX:xStats.sumX,sumX2:xStats.sumX2,
   meanX:xStats.meanX,varianceX:xStats.varianceX,
