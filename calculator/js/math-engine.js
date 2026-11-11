@@ -190,7 +190,12 @@ function tokenize(source){
  for(let i=0;i<s.length;){const sub=s.slice(i);let m;
   if((m=/^(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?/.exec(sub))){raw.push({type:T.NUMBER,value:Number(m[0]),text:m[0]});i+=m[0].length;continue}
   if(s.startsWith('nPr',i)||s.startsWith('nCr',i)){raw.push({type:T.OP,value:s.slice(i,i+3)});i+=3;continue}
-  if((m=/^[A-Za-z_][A-Za-z_0-9]*/.exec(sub))){raw.push({type:T.IDENT,value:m[0]});i+=m[0].length;continue}
+  if((m=/^[A-Za-z_][A-Za-z_0-9]*/.exec(sub))){
+   // DRG▶ radians/grads are postfix operators, never variable names.
+   // They convert only the immediately preceding expression/operand.
+   const word=m[0];
+   raw.push({type:word==='r'||word==='g'?T.OP:T.IDENT,value:word});
+   i+=word.length;continue}
   if('+-*/^!()% ,°′″'.includes(s[i])&&s[i]!== ' '){raw.push({type:T.OP,value:s[i]});i++;continue}
   fail('Syntax ERROR');
  }
@@ -325,7 +330,16 @@ function evaluate(source,opts={}){
   fail('Syntax ERROR');
  }
  function expr(min){let left=primary();while(true){const t=peek();if(!t||t.value===')'||t.value===',')break;
-  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='′'||t.value==='″'){if(45<min)break;take();if(t.value==='!')left=factorial(left);else if(t.value==='%')left=left/100;else left=fromRadians(toRadians(left/(t.value==='°'?1:t.value==='′'?60:3600),'DEG'),st.angle);continue}
+  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='r'||t.value==='g'||t.value==='′'||t.value==='″'){
+   if(45<min)break;
+   take();
+   if(t.value==='!')left=factorial(left);
+   else if(t.value==='%')left=left/100;
+   else if(t.value==='r'||t.value==='g'){
+    left=fromRadians(toRadians(left,t.value==='r'?'RAD':'GRAD'),st.angle);
+   }else left=fromRadians(toRadians(left/(t.value==='°'?1:t.value==='′'?60:3600),'DEG'),st.angle);
+   continue;
+  }
   const implicit=begin(t);const operator=implicit?'*':t.value;
   const binding=implicit?24:{'nPr':23,'nCr':23,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
   if(binding===undefined||binding<min)break;
