@@ -1061,7 +1061,10 @@ function originalStatParameterMenu(group){
   action:()=>{
    if(item.estimate){originalStatEstimate(item);return}
    // The command inserts a symbolic token, not a premature numeric answer.
-   if(state.screen==='stat-table'){
+   // The menu dispatcher has already switched screen to edit. Respect
+   // its recorded origin: selecting from the data or result screen starts
+   // a fresh expression, while selecting during editing inserts at caret.
+   if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
     state.screen='edit';state.editor=STRUCT.create();syncEditor();
    }
    insert(item.token);
