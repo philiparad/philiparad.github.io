@@ -59,7 +59,10 @@ function resolve(source,table,reg){
    if(!fit)fit=reg.fit(table,table.regressionType||'LIN');
   }
   const value=(item.token.startsWith('StatReg')?fit:summary)[item.field];
-  if(typeof value!=='number'||!Number.isFinite(value))throw Error('Math ERROR');
+  // REA-106: an internally retained Σx² may exceed the LCD arithmetic
+  // range while σ remains valid. Never expose such sums as usable registers.
+  if(typeof value!=='number'||!Number.isFinite(value)||
+     Math.abs(value)>9.999999999e99)throw Error('Math ERROR');
   memory[token]=value;
  }
  return memory;
