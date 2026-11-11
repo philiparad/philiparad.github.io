@@ -22,7 +22,7 @@ assert.equal(negative.sumX,-7);
 near(negative.meanX,-7/3);
 const weighted=STAT.summary(table([1e90,1,-1e90,9e99],null,[1,3,1,0]));
 assert.equal(weighted.sumX,3);
-near(weighted.meanX,1);
+near(weighted.meanX,3/5);
 assert.equal(weighted.n,5);
 const paired=STAT.summary(table([1e90,1,-1e90],[1e90,2,-1e90]));
 assert.equal(paired.sumX,1);
