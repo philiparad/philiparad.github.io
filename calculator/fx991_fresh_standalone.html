@@ -3761,7 +3761,9 @@ function oneVarSummary(rows,n){
   return sum+r.w*d*d;
  },0)/n;
  const sdX=finite(maxDelta*Math.sqrt(scaledVariance));
- const sampleSDX=n>1?finite(sdX*Math.sqrt(n/(n-1))):null;
+ // A sample σ can exceed the LCD range even when the population σ is
+ // valid. Preserve it internally; parameter selection enforces the limit.
+ const sampleSDX=n>1?sdX*Math.sqrt(n/(n-1)):null;
  return {n,sumX,sumX2,meanX,varianceX:sdX*sdX,sdX,sampleSDX,
   minX:rows.reduce((min,r)=>Math.min(min,r.x),Infinity),
   maxX:rows.reduce((max,r)=>Math.max(max,r.x),-Infinity)};
