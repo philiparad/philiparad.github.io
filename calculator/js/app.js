@@ -282,7 +282,7 @@ function syncEditor(){
 }
 function clearReplay(){state.storedInputs=[];state.replayDraft=null}
 function replayHistory(key){
- if(state.mode!=='COMP'&&state.mode!=='CMPLX')return false;
+ if(!['COMP','CMPLX','BASE-N'].includes(state.mode))return false;
  const entries=state.history.filter(item=>item.mode===state.mode&&typeof item.source==='string'&&item.source.length<=220);
  if(!entries.length)return false;
  const current=state.storedInputs.length?state.storedInputs[0]:-1;
@@ -353,8 +353,16 @@ function clearTransientDisplay(){
  state.hyp=false;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;releaseModifier();clearReplay();
 }
 function clearSetup(){
- // CLR 1: setup defaults and calculation history, but no change to memory.
+ // CLR 1 restores COMP and setup defaults without erasing stored memory.
+ if(state.mode==='CMPLX'){
+  state.ans=state.complexAns.re;
+  state.complexAns={re:state.complexAns.re,im:0};
+ }
+ state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;
  Object.assign(state,SETUP.defaults);state.history=[];
+ state.statTable=null;state.tableData=null;state.tableDraft=null;
+ state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;
+ state.vectorEditor=null;state.vectorView=null;state.distList=null;
  clearTransientDisplay();state.engShift=0;state.decimal=false;
  state.resultFractionStyle=null;notify('Setup initialized');paint();
 }
@@ -868,6 +876,7 @@ function setupChoose(id,value){
  if(state.factorization)exitFactorization();
  switch(id){
  case 'mthio':
+  if(!state.math||state.outputMath!==(value==='matho')){state.history=[];clearReplay()}
   state.math=true;state.outputMath=value==='matho';
   if(state.mode==='TABLE'){state.tableData=null;state.tableDraft=null}
   break;
@@ -884,6 +893,7 @@ function setupSetting(id){
  if(!SETUP.setting(state.model,id))throw Error('Argument ERROR');
  if(state.factorization)exitFactorization();
  if(id==='lineio'){
+  if(state.math||state.outputMath){state.history=[];clearReplay()}
   state.math=false;state.outputMath=false;
   if(state.mode==='TABLE'){state.tableData=null;state.tableDraft=null}
   paint();return;
@@ -931,8 +941,13 @@ function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not availa
  state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
+ // Preserve the real component of Ans when leaving CMPLX (manual E-25).
+ if(state.mode==='CMPLX'&&mode!=='CMPLX'){
+  state.ans=state.complexAns.re;
+  state.complexAns={re:state.complexAns.re,im:0};
+ }
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
- clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+ state.history=[];clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function setModel(id){
  cancelNumeric();
  if(!MODELS.profiles[id])return false;
