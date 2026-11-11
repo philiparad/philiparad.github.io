@@ -75,6 +75,8 @@ function context(key,modifier,mode,screen,model,supports){
   if(key.id==='CALC'||key.id==='INTEGRAL'||key.id==='LOGBASE'){
    return {status:mode==='COMP'?'available':'blocked',reason:'COMP-only SOLVE/calculus'};
   }
+  if(key.id==='ANS')return {status:mode==='COMP'?'available':'blocked',
+   reason:'DRG▶ operand unit suffix menu requires COMP'};
   if(key.id==='DMS'||key.id==='SD'||key.id==='ENG'){
    return {status:screen==='result'?'available':'blocked',reason:'Displayed result required'};
   }
