@@ -43,13 +43,25 @@ function location(source,message){
  }
  return s.length;
 }
-function checkStack(source,maxDepth=40){
- let level=0,peak=0;
- for(const ch of String(source||'')){
-  if(ch==='('){level++;peak=Math.max(peak,level)}
-  if(ch===')')level=Math.max(0,level-1);
+// The original ES allocates separate numeric (10) and command (24)
+// stacks. This preflight counts active parenthesized/function commands;
+// the numerical parser separately checks live deferred operands/operators.
+// CMPLX uses two numeric slots per value, hence five effective slots.
+// Unmatched parentheses are Syntax ERROR, not Stack ERROR.
+function checkStack(source,mode='COMP'){
+ const text=String(source||'');
+ let level=0;
+ for(const ch of text){
+  if(ch==='('){
+   level++;
+   if(level>24)throw new Error('Stack ERROR');
+  }else if(ch===')'){
+   level--;
+   if(level<0)throw new Error('Syntax ERROR');
+  }
  }
- if(peak>maxDepth)throw new Error('Stack ERROR');
+ // A malformed expression still needs to reach the parser's Syntax ERROR.
+ return {commandLimit:24,numericLimit:mode==='CMPLX'?5:10,commandDepth:Math.max(0,level)};
 }
 const api=Object.freeze({classify,location,checkStack,LABELS});
 global.FreshErrors=api;
