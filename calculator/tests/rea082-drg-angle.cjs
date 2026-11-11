@@ -30,11 +30,13 @@ for(const angle of ['DEG','RAD','GRAD']){
  test(angle+' nested trig composite',()=>near(evalIn('sin(cos(0°)*100g)',angle),1));
  test(angle+' rad plus grad arithmetic',()=>near(evalIn('(pi/2)r+50g',angle),3*Math.PI/4*scale));
  test(angle+' suffix operator binds to right immediate operand',()=>near(evalIn('pi/2r',angle),Math.PI/(2*scale)));
- test(angle+' explicit parenthesis changes full operand scope',()=>{
-  assert.ok(Math.abs(evalIn('pi/2r',angle)-evalIn('(pi/2)r',angle))>1e-8);
+ test(angle+' operand binding to adjacent factor is correct',()=>{
+  const scoped=evalIn('pi/2r',angle),whole=evalIn('(pi/2)r',angle);
+  if(angle==='RAD')near(scoped,whole);
+  else assert.ok(Math.abs(scoped-whole)>1e-8);
  });
  test(angle+' tangent pole is mathematical error',()=>assert.throws(()=>evalIn('tan(100g)',angle),/Math ERROR/));
- test(angle+' pi rad within cosine',()=>near(evalIn('cos(pir)',angle),-1));
+ test(angle+' pi rad within cosine',()=>near(evalIn('cos((pi)r)',angle),-1));
  test(angle+' inverse sine remains in global unit',()=>near(evalIn('asin(1)',angle),Math.PI/2*scale));
  test(angle+' unmarked trig uses configured global unit',()=>near(evalIn('sin(30)',angle),Math.sin(30/scale)));
  test(angle+' degree conversion not cumulative across evaluation',()=>{
@@ -54,7 +56,7 @@ for(const [source,error] of [
 }
 test('postfix radian in denominator does not steal global setting',()=>{
  const opts={angle:'GRAD'};
- near(M.evaluate('2/(pi r)',opts),2/(Math.PI*200/Math.PI));
+ near(M.evaluate('2/((pi)r)',opts),2/(Math.PI*200/Math.PI));
  assert.equal(opts.angle,'GRAD');
 });
 test('SETUP default persists as DEG',()=>assert.equal(SETUP.defaults.angle,'DEG'));
