@@ -2607,7 +2607,9 @@ function handle(key){
     STAT.commit(state.statTable);
     const bound=STATPARAM.resolve(source,state.statTable,REG);
     const value=M.evaluate(source,{...state,math:false,ans:state.ans,
-     memory:{...state.memory,...bound}});
+     memory:{...state.memory,...bound},
+     statOriginalDistr:!state.statTable.paired&&
+      state.statTable.regressionType==='1VAR'});
     setResult(value,source,null);
    }catch(e){error(e.message||'Math ERROR')}
    return;
