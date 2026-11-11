@@ -47,7 +47,7 @@ function pow(a,b){
  return value<0?divide(decimal(1n,0),result):result
 }
 const asNumber=v=>Number(v.n.toString()+'e'+String(-v.s));
-function evaluate(expression){
+function evaluate(expression,opts={}){
  if(!/^[\d.Ee+\-*/^()\s]+$/.test(expression))return null;
  if(/[\d.]\s+[\d.]/.test(expression))throw new SyntaxError('Syntax ERROR');
  const source=expression.replace(/\s+/g,'');
@@ -72,7 +72,11 @@ function evaluate(expression){
    // REA-105: implicit and explicit multiplication/division share precedence.
    // A number after a closing parenthesis also denotes multiplication.
    const t=peek(),implicit=t==='('||/^[0-9.]/.test(t),op=implicit?'*':t;
-   const priority=implicit?20:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
+   // The original ES uses one left-to-right multiply/divide tier.
+   // PLUS and PLUS C manuals elevate omitted-sign multiplication above ÷.
+   const priority=implicit?
+    (opts.model==='fx-991es-plus'||opts.model==='fx-991es-plus-c'?24:20):
+    {'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(priority===undefined||priority<min)break;
    if(!implicit)at++;
    const right=expr(op==='^'?priority:priority+1);
