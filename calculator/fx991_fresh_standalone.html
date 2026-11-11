@@ -3739,8 +3739,37 @@ function observations(t){
  if(!n)fail('Argument ERROR');
  return {rows,n};
 }
+// REA-106: a 1-VAR standard deviation can be representable even when
+// ΣX² and Σ(X-mean)² exceed the calculator's displayable number range.
+// Use scaled, weighted residuals to compute σ without squaring huge X.
+// Keep aggregate sums as raw numbers: REG.format() enforces range if a
+// user explicitly requests an unavailable Sum X / Sum X2 value.
+function oneVarSummary(rows,n){
+ const sumX=rows.reduce((sum,r)=>sum+r.w*r.x,0);
+ const sumX2=rows.reduce((sum,r)=>sum+r.w*r.x*r.x,0);
+ // Use folds; spreading a large STAT table into Math.max overflows
+ // the JavaScript argument stack on some engines.
+ const maxX=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x)),0);
+ const scaledMean=maxX===0?0:rows.reduce(
+  (sum,r)=>sum+r.w*(r.x/maxX),0)/n*maxX;
+ const meanX=finite(
+  Number.isFinite(sumX)&&Math.abs(sumX)<=9.999999999e99?
+   sumX/n:scaledMean);
+ const maxDelta=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-meanX)),0);
+ const scaledVariance=maxDelta===0?0:rows.reduce((sum,r)=>{
+  const d=(r.x-meanX)/maxDelta;
+  return sum+r.w*d*d;
+ },0)/n;
+ const sdX=finite(maxDelta*Math.sqrt(scaledVariance));
+ const sampleSDX=n>1?finite(sdX*Math.sqrt(n/(n-1))):null;
+ return {n,sumX,sumX2,meanX,varianceX:sdX*sdX,sdX,sampleSDX,
+  minX:rows.reduce((min,r)=>Math.min(min,r.x),Infinity),
+  maxX:rows.reduce((max,r)=>Math.max(max,r.x),-Infinity)};
+}
 function summary(t){
- const {rows,n}=observations(t),sum=fn=>finite(rows.reduce((s,r)=>s+r.w*fn(r),0));
+ const {rows,n}=observations(t);
+ if(!t.paired)return oneVarSummary(rows,n);
+ const sum=fn=>finite(rows.reduce((s,r)=>s+r.w*fn(r),0));
  const sumX=sum(r=>r.x),sumX2=sum(r=>r.x*r.x),meanX=finite(sumX/n);
  const varianceX=finite(Math.max(0,sum(r=>(r.x-meanX)**2)/n));
  const out={n,sumX,sumX2,meanX,varianceX,sdX:Math.sqrt(varianceX),sampleSDX:n>1?Math.sqrt(varianceX*n/(n-1)):null,
@@ -3983,7 +4012,10 @@ function resolve(source,table,reg){
    if(!fit)fit=reg.fit(table,table.regressionType||'LIN');
   }
   const value=(item.token.startsWith('StatReg')?fit:summary)[item.field];
-  if(typeof value!=='number'||!Number.isFinite(value))throw Error('Math ERROR');
+  // REA-106: an internally retained Σx² may exceed the LCD arithmetic
+  // range while σ remains valid. Never expose such sums as usable registers.
+  if(typeof value!=='number'||!Number.isFinite(value)||
+     Math.abs(value)>9.999999999e99)throw Error('Math ERROR');
   memory[token]=value;
  }
  return memory;
