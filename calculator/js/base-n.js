@@ -70,18 +70,32 @@ function tokens(expression,base){
    parts.push({kind:op==='not'?'Not':op==='neg'?'Neg':op,text:match[0]});
    i+=match[0].length;continue;
   }
-  const word=/^[0-9A-Fa-f]+/.exec(source.slice(i));
-  if(!word)fail('Syntax ERROR');
-  parts.push({kind:'number',text:word[0]});i+=word[0].length;
+  // Lowercase d/h/b/o designate explicit-radix literals; uppercase A-F remain
+  // ordinary HEX digits. A colon is the unambiguous keypad/menu representation.
+  const explicit=/^([dhbo])(:?)([0-9A-Fa-f]+)/.exec(source.slice(i));
+  if(explicit){
+   const selected={d:'DEC',h:'HEX',b:'BIN',o:'OCT'}[explicit[1]];
+   parts.push({kind:'number',text:explicit[3],base:selected});
+   i+=explicit[0].length;
+  }else{
+   const word=/^[0-9A-Fa-f]+/.exec(source.slice(i));
+   if(!word)fail('Syntax ERROR');
+   parts.push({kind:'number',text:word[0]});i+=word[0].length;
+  }
   if(parts.length>200)fail('Syntax ERROR');
  }
  return parts;
+}
+// Returns the radix of the number currently being typed, not the display radix.
+function inputRadix(expression,selected='DEC'){
+ const matched=/(?:^|[()+*\/\-]|\s)([dhbo]):([0-9A-Fa-f]*)$/.exec(String(expression));
+ return matched?{d:'DEC',h:'HEX',b:'BIN',o:'OCT'}[matched[1]]:selected;
 }
 function evaluate(expression,base='DEC',model='fx-991es-plus'){
  const list=tokens(expression,base);let at=0;
  function primary(){
   const t=list[at++];if(!t)fail('Syntax ERROR');
-  if(t.kind==='number')return parseLiteral(t.text,base,model);
+  if(t.kind==='number')return parseLiteral(t.text,t.base||base,model);
   if(t.kind==='Not'||t.kind==='Neg'){
    if(list[at]?.kind!=='(')fail('Syntax ERROR');
    at++;const operand=parse(0);
@@ -122,7 +136,7 @@ function evaluate(expression,base='DEC',model='fx-991es-plus'){
 }
 function convert(value,to,model){return format(BigInt(value),to,model)}
 function display(value,base,model){return {base,text:format(value,base,model),decimal:Number(value)}}
-const API=Object.freeze({BASES,SPECS,bits,range,parseLiteral,format,logical,evaluate,convert,display,LOGIC_BINARY,LOGIC_UNARY});
+const API=Object.freeze({BASES,SPECS,bits,range,inputRadix,parseLiteral,format,logical,evaluate,convert,display,LOGIC_BINARY,LOGIC_UNARY});
 g.FreshBaseN=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
