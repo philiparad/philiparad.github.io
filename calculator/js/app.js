@@ -16,6 +16,8 @@ const MENUS=window.FreshMenuModel;
 if(!MENUS)throw Error('Missing model-specific CASIO menu rules');
 const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 const LEGENDS=window.FreshLegendAudit;
+const STATN=window.FreshStatNormal;
+if(!STATN)throw Error('Missing STAT standard normal module');
 if(!LEGENDS)throw Error('Missing modifier legend audit module');
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
@@ -440,6 +442,15 @@ function flowNext(){
 }
 function finishFlow(output){
  try{
+  if(output&&output.kind==='stat-normal'){
+   // Preserve the user-entered distribution expression for the LCD and
+   // make Ans available immediately for the documented P(Ans) sequence.
+   state.flow=null;state.raw=output.value;state.ans=output.value;
+   state.ansRational=null;state.result=REG.format(output.value);
+   state.outputLines=[output.source,'= '+state.result];state.outputPage=0;
+   state.viewport.flowX=0;state.screen='flow-result';state.info='';
+   releaseModifier();notify('STAT Distr: AC data; SHIFT 1 menu');paint();return;
+  }
   if(output&&output.kind==='solve-continue'){
    // No X/register/Ans updates until an actual root converges.
    state.flow=null;state.solveSession={...output.session,pending:true};
@@ -972,6 +983,47 @@ function statEstimate(which){
   return out.map((v,i)=>(which==='y'?'yHat':'xHat'+(out.length>1?i+1:''))+' = '+REG.format(v)).join('\\n');
  });
 }
+// REA-084 — original fx-991ES single-variable STAT → 7: Distr.
+// P(t), Q(t), R(t) use the standard-normal integral. x▶t is computed
+// from the current STAT editor's population SD (xσn), never sample SD.
+function statDistr(){
+ if(state.model!=='fx-991es'||!state.statTable||
+   state.statTable.paired||state.statTable.regressionType!=='1VAR'){
+  notify('STAT Distr requires original 1-VAR',true);paint();return;
+ }
+ releaseModifier();
+ optionDialog('STAT Distr',[
+  {key:'1',label:'1. P(',action:()=>statDistrInput('P')},
+  {key:'2',label:'2. Q(',action:()=>statDistrInput('Q')},
+  {key:'3',label:'3. R(',action:()=>statDistrInput('R')},
+  {key:'4',label:'4. ▶t',action:()=>statDistrInput('t')}
+ ],{pageSize:4,kind:'stat-distr'});
+}
+function statDistrInput(kind){
+ // For P/Q/R a subsequent P(Ans) is a documented native workflow.
+ // For normalized ▶t, the first use defaults to the stored X value if
+ // available; it is still explicitly entered/confirmed in the prompt.
+ const label=kind==='t'?'▶t':kind+'(';
+ fieldForm('STAT '+label,[{
+  id:'value',label:kind==='t'?'Sample X':'Standard variate t',
+  value:String(Number.isFinite(state.ans)?state.ans:0)
+ }],values=>{
+  if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
+     state.statTable.paired||state.statTable.regressionType!=='1VAR')
+   throw Error('Argument ERROR');
+  // No changes to Ans or the STAT table until complete validation.
+  const raw=String(values.value??'').trim();
+  if(!raw)throw Error('Syntax ERROR');
+  STAT.commit(state.statTable);
+  const arg=M.evaluate(raw,{...state,ans:state.ans,preAns:state.preAns,
+   memory:state.memory});
+  if(!Number.isFinite(arg))throw Error('Math ERROR');
+  const summary=kind==='t'?REG.summary(state.statTable):null;
+  const result=STATN.calculate(kind,arg,summary);
+  const expression=kind==='t'?REG.format(arg)+'▶t':kind+'('+raw+')';
+  return {kind:'stat-normal',source:expression,value:result};
+ });
+}
 function statMenu(){
  if(!state.statTable){statModeMenu();return}
  releaseModifier();
@@ -986,11 +1038,13 @@ function statMenu(){
   {key:'4',label:'4. Sum',action:()=>statSafe(()=>statMenuResult('Sum',REG.sumLines(statSummary(),state.statTable.paired)))},
   {key:'5',label:'5. Var',action:()=>statSafe(()=>statMenuResult('Var',REG.varLines(statSummary(),state.statTable.paired)))},
   {key:'6',label:'6. MinMax',action:()=>statSafe(()=>statMenuResult('MinMax',REG.minMaxLines(statSummary(),state.statTable.paired)))},
-  {key:'7',label:'7. Reg',action:()=>statSafe(()=>statMenuResult('Reg',REG.regLines(statFit())))},
-  {key:'8',label:'8. Estimate',action:()=>optionDialog('STAT estimate',[
+  {key:'7',label:state.model==='fx-991es'&&!state.statTable.paired?'7. Distr':'7. Reg',
+   action:()=>state.model==='fx-991es'&&!state.statTable.paired?
+    statDistr():statSafe(()=>statMenuResult('Reg',REG.regLines(statFit())))},
+  ...(state.statTable.paired?[{key:'8',label:'8. Estimate',action:()=>optionDialog('STAT estimate',[
    {key:'1',label:'1. yHat',action:()=>statSafe(()=>statEstimate('y'))},
    {key:'2',label:'2. xHat',action:()=>statSafe(()=>statEstimate('x'))}
-  ])}
+  ])}]:[])
  ],{pageSize:8,kind:'stat-menu'});
 }
 function statAdvance(){
