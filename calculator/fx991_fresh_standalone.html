@@ -3880,8 +3880,17 @@ function estimateX(m,y){
  finite(y);const {A,B,C,type}=m;
  if(type==='QUAD'){
   if(C===0){if(!B)fail();return [finite((y-A)/B)]}
-  const d=B*B-4*C*(A-y);if(d<0||!Number.isFinite(d))fail();
-  return [finite((-B-Math.sqrt(d))/(2*C)),finite((-B+Math.sqrt(d))/(2*C))];
+  // REA-109: avoid subtracting nearly equal numbers for the small root.
+  // The product of the two roots is (A-y)/C. Recover the small root
+  // from the stable large root rather than losing it to cancellation.
+  const constant=A-y;
+  const d=B*B-4*C*constant;
+  if(d<0||!Number.isFinite(d))fail();
+  const root=Math.sqrt(d);
+  const q=-0.5*(B>=0?B+root:B-root);
+  if(q===0)return [finite(0),finite(0)];
+  const large=finite(q/C),small=finite(constant/q);
+  return B>=0?[large,small]:[small,large];
  }
  let x;
  switch(type){
