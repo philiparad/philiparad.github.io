@@ -68,6 +68,13 @@ def matching_evidence(case, feature_id, model):
         return False
     review=case.get("comparison") or {}
     capture=case.get("capture") or {}
+    # The reviewer must be different from the operator who made the capture.
+    if not case.get("keys") or not isinstance(case["keys"],list):
+        return False
+    if not isinstance(capture.get("source_device"),str):
+        return False
+    if not review.get("reviewer") or review.get("reviewer")==capture.get("operator"):
+        return False
     # Independently reviewed comparison against the native capture is mandatory.
     return (case.get("verification_status") == "DEVICE_REVIEWED_PASS"
             and review.get("status") == "PASS"
@@ -122,7 +129,7 @@ def validate(manifest,reference,reference_root,source_texts=None):
             errors.append(name+": missing per-model verification coverage")
         if status=="hardware-verified":
             verified=item.get("verified_models")
-            if not isinstance(verified,list) or set(verified)!=set(models or []):
+            if not isinstance(verified,list) or len(verified)!=len(set(verified)) or set(verified)!=set(models or []):
                 errors.append(name+": verified_models must match advertised models")
             else:
                 for model in verified:
