@@ -115,4 +115,12 @@ check('large Sum X rejects while mean remains valid',()=>{
  assert.equal(PARAM.resolve('StatMeanX',t,REG).StatMeanX,9e99);
  assert.throws(()=>PARAM.resolve('StatSumX',t,REG),/Math ERROR/);
 });
+check('oversized sample SD does not block valid population SD',()=>{
+ const t=sample([8e99,-8e99]);
+ const stat=REG.summary(t);
+ assert.equal(stat.sdX,8e99);
+ assert.ok(stat.sampleSDX>9.999999999e99);
+ assert.equal(PARAM.resolve('StatSDX',t,REG).StatSDX,8e99);
+ assert.throws(()=>PARAM.resolve('StatSampleSDX',t,REG),/Math ERROR/);
+});
 console.log('REA-106 PASS '+count+' isolated STAT numerical and model regression checks; hardware unverified');
