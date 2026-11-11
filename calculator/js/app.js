@@ -868,7 +868,9 @@ function setupChoose(id,value){
  if(state.factorization)exitFactorization();
  switch(id){
  case 'mthio':
-  state.math=true;state.outputMath=value==='matho';break;
+  state.math=true;state.outputMath=value==='matho';
+  if(state.mode==='TABLE'){state.tableData=null;state.tableDraft=null}
+  break;
  case 'norm':state.format=value==='norm1'?'Norm1':'Norm2';break;
  case 'complex':state.complexFormat=value;break;
  case 'stat':{const enabled=value==='on';if(state.statTable){STAT.toggleFrequency(state.statTable,enabled);if(state.mode==='STAT')state.screen='stat-table'}state.statFrequency=enabled;break}
@@ -881,7 +883,11 @@ function setupChoose(id,value){
 function setupSetting(id){
  if(!SETUP.setting(state.model,id))throw Error('Argument ERROR');
  if(state.factorization)exitFactorization();
- if(id==='lineio'){state.math=false;state.outputMath=false;paint();return}
+ if(id==='lineio'){
+  state.math=false;state.outputMath=false;
+  if(state.mode==='TABLE'){state.tableData=null;state.tableDraft=null}
+  paint();return;
+ }
  if(id==='deg'||id==='rad'||id==='gra'){
   state.angle=id==='deg'?'DEG':id==='rad'?'RAD':'GRAD';paint();return;
  }
@@ -1799,13 +1805,26 @@ function tableStart(previous=null){
  ];
  state.tableData=null;
  fieldForm('TABLE '+(dual?'f(X),g(X)':'f(X)'),fields,data=>{
-  const fn=functionFor(data.expression);
-  const gn=dual&&String(data.expression2||'').trim()?functionFor(data.expression2):null;
-  const table=TABLE.generate({model:state.model,count:gn?2:1,start:data.start,end:data.end,
-   step:data.step,f:fn,g:gn});
+  // Validate excluded function families before evaluating table cells.
+  const expression=TABLE.validateExpression(data.expression);
+  const expression2=dual?TABLE.validateExpression(data.expression2):null;
+  const rangeValue=source=>{
+   // The original TABLE prompts accept numeric calculations as range values.
+   const v=M.evaluate(String(source),{...state,math:false,ans:state.ans,
+    memory:{...state.memory}});
+   if(typeof v!=='number'||!Number.isFinite(v))throw Error('Argument ERROR');
+   return v;
+  };
+  const start=rangeValue(data.start),end=rangeValue(data.end),step=rangeValue(data.step);
+  const fn=functionFor(expression);
+  const gn=dual?functionFor(expression2):null;
+  const table=TABLE.generate({model:state.model,count:dual?2:1,start,end,
+   step,f:fn,g:gn});
+  // Failed validation or generation never overwrites X, table or the draft.
   state.tableData=table;
   state.tableDraft={...data};
   state.memory.X=table.rows[table.rows.length-1].x;
+  delete state.complexMemory.X;
   return '';
  });
 }
