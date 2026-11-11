@@ -1802,40 +1802,2069 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/error-handling.js">
-/* REA100_PENDING: js/error-handling.js */
+/* REA-024: calculator error categories and editable error recovery. */
+(function(global){'use strict';
+const LABELS=Object.freeze([
+ 'Math ERROR','Stack ERROR','Syntax ERROR','Argument ERROR',
+ 'Dimension ERROR','Variable ERROR',"Can't Solve",'Insufficient MEM','Time Out'
+]);
+function classify(message,mode='COMP'){
+ const original=String(message||'');
+ if(/can't solve|cannot solve/i.test(original))return "Can't Solve";
+ if(/insufficient mem/i.test(original))return 'Insufficient MEM';
+ if(/time out|timeout/i.test(original))return 'Time Out';
+ if(/dimension error/i.test(original))return 'Dimension ERROR';
+ if(/stack error|maximum call stack/i.test(original))return 'Stack ERROR';
+ if(/argument error/i.test(original))return 'Argument ERROR';
+ if(/variable error/i.test(original))return mode==='SOLVE'?'Variable ERROR':'Syntax ERROR';
+ if(/syntax error|missing|unexpected|invalid editor/i.test(original))return 'Syntax ERROR';
+ if(/math error|rangeerror|division by zero|input limit/i.test(original))return 'Math ERROR';
+ return 'Math ERROR';
+}
+function location(source,message){
+ const s=String(source||''),text=String(message||'');
+ // Match known illegal operations; pointing near them is a best-effort
+ // editor hint, NOT a native device cursor reference.
+ const div=/\/\s*\(?\s*[+-]?0+(?:\.0*)?(?=\s*(?:\)|[+\-*/^]|$))/g;
+ let match=div.exec(s);
+ if(/math error/i.test(text)&&match)return Math.min(s.length,match.index+1);
+ const sqrt=/\b(?:sqrt|log|ln|asin|acos|acosh|atanh)\s*\(/.exec(s);
+ if(/math error/i.test(text)&&sqrt)return sqrt.index;
+ const invalid=/\d\.\./.exec(s);
+ if(invalid)return invalid.index+2;
+ if(/variable error/i.test(text)){
+  match=/[A-Za-z_][A-Za-z_0-9]*/g.exec(s);
+  if(match)return match.index;
+ }
+ if(/syntax error|missing/i.test(text)){
+  const stack=[];
+  for(let i=0;i<s.length;i++){
+   if(s[i]==='(')stack.push(i);
+   if(s[i]===')'){if(!stack.length)return i;stack.pop()}
+  }
+  if(stack.length)return stack[stack.length-1];
+  const end=/[+\-*/^(,]\s*$/.exec(s);if(end)return s.length;
+ }
+ return s.length;
+}
+// The original ES allocates separate numeric (10) and command (24)
+// stacks. This preflight counts active parenthesized/function commands;
+// the numerical parser separately checks live deferred operands/operators.
+// CMPLX uses two numeric slots per value, hence five effective slots.
+// Unmatched parentheses are Syntax ERROR, not Stack ERROR.
+function checkStack(source,mode='COMP'){
+ const text=String(source||'');
+ let level=0;
+ for(const ch of text){
+  if(ch==='('){
+   level++;
+   if(level>24)throw new Error('Stack ERROR');
+  }else if(ch===')'){
+   level--;
+   if(level<0)throw new Error('Syntax ERROR');
+  }
+ }
+ // A malformed expression still needs to reach the parser's Syntax ERROR.
+ return {commandLimit:24,numericLimit:mode==='CMPLX'?5:10,commandDepth:Math.max(0,level)};
+}
+const api=Object.freeze({classify,location,checkStack,LABELS});
+global.FreshErrors=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/keypad.js">
-/* REA100_PENDING: js/keypad.js */
+/* Independently drawn 50-key face; geometry measured from user reference screenshot.
+ * 274 x 580 pixel body at the reference scale. No image-backed hit targets.
+ */
+(function(global){'use strict';
+const topSpec=[
+ ['SHIFT','','SHIFT','top'],['ALPHA','','ALPHA','top'],['LEFT','◀','','dpad'],
+ ['UP','▲','','dpad'],['DOWN','▼','','dpad'],['RIGHT','▶','','dpad'],
+ ['MODE','','MODE · SETUP','top'],['ON','','ON','top']
+];
+const scienceSpec=[
+ ['CALC','CALC','SOLVE','='],['INTEGRAL','∫','d/dx','Π'],null,
+ null,['RECIP','x⁻¹','x!',''],['LOGBASE','log□','Σ','Π flow'],
+ ['FRAC','▤','▣','÷R'],['SQRT','√','³√','Rdec'],['SQUARE','x²','x³',''],['POWER','x^□','ⁿ√',''],['LOG','log','10ˣ',''],['LN','ln','eˣ',''],
+ ['NEG','(−)','∠','A'],['DMS','°′″','FACT','B'],['HYP','hyp','Abs','C'],['SIN','sin','sin⁻¹','D'],['COS','cos','cos⁻¹','E'],['TAN','tan','tan⁻¹','F'],
+ ['RCL','RCL','STO',''],['ENG','ENG','←',':'],['LP','(','%','X'],['RP',')',',','Y'],['SD','S⇔D','▣',''],['MPLUS','M+','M−','M']
+];
+const numericSpec=[
+ ['7','7','CONST',''],['8','8','CONV',''],['9','9','CLR',''],['DEL','DEL','INS',''],['AC','AC','OFF',''],
+ ['4','4','MATRIX',''],['5','5','VECTOR',''],['6','6','VERIFY',''],['MUL','×','nPr',''],['DIV','÷','nCr',''],
+ ['1','1','STAT',''],['2','2','CMPLX',''],['3','3','BASE',''],['ADD','+','Pol',''],['SUB','−','Rec',''],
+ ['0','0','Rnd',''],['DOT','.','Ran#','RanInt'],['EXP','×10ˣ','π','e'],['ANS','Ans','DRG▶','PreAns'],['EQUAL','=','','']
+];
+// REA-070: painted legends follow selected model, not the shared PLUS C face.
+// Geometry remains screenshot-derived and is NOT an original hardware measurement.
+const MODEL_LEGENDS=Object.freeze({
+ 'fx-991es':Object.freeze({
+  CALC:{alpha:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
+  COS:{alpha:''},TAN:{alpha:''},
+  '6':{shift:''},DOT:{alpha:''},ANS:{alpha:''},
+  FRAC:{alpha:''},SQRT:{alpha:''},DMS:{shift:''},
+  LP:{shift:''},RP:{shift:''}
+ }),
+ 'fx-991es-plus':Object.freeze({
+  '6':{shift:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
+  SQRT:{alpha:''},ANS:{alpha:''},DOT:{alpha:'RanInt'},
+  DMS:{shift:'FACT'}
+ }),
+ 'fx-991es-plus-c':Object.freeze({
+  '6':{shift:'VERIFY'},DOT:{alpha:'RanInt'},INTEGRAL:{alpha:'Π'},
+  LOGBASE:{alpha:'Π flow'},SQRT:{alpha:'Rdec'},ANS:{alpha:'PreAns'}
+ })
+});
+function keyForModel(key,model){
+ const overrides=(MODEL_LEGENDS[model]||MODEL_LEGENDS['fx-991es-plus-c'])[key.id];
+ return overrides?Object.freeze({...key,...overrides}):key;
+}
+function keysForModel(model){return Object.freeze(keys.map(key=>keyForModel(key,model)))}
+const pct=(n)=>((100*n).toFixed(4))+'%';
+const newKey=(data,cx,cy,w,h,group,angle)=>Object.freeze({id:data[0],label:data[1],shift:data[2],alpha:data[3],cx,cy,w,h,group,angle:angle||null});
+const topCenters=[[39.83,220.67],[75.60,220.60],[108.21,238.61],[136.38,219.65],[136.46,257.52],[164.48,238.54],[196.81,220.66],[232.60,220.60]];
+const scienceCols=[40.6,78.8,117,155.4,193.5,231.6],scienceRows=[265.6,298.5,331.5,364.3];
+const numCols=[44,90,136,182.1,228.4],numRows=[406.6,446,486,525.4];
+const keys=[];
+topSpec.forEach((data,i)=>{const sizes=i===2||i===5?[30,20]:i===3||i===4?[20,28]:[22,22];keys.push(newKey(data,...topCenters[i],...sizes,data[3]==='dpad'?'dpad':'top',{LEFT:'135deg',UP:'225deg',RIGHT:'315deg',DOWN:'45deg'}[data[0]]))});
+scienceSpec.forEach((data,i)=>{if(!data)return;keys.push(newKey(data,scienceCols[i%6],scienceRows[Math.floor(i/6)],32,20,'scientific'))});
+numericSpec.forEach((data,i)=>keys.push(newKey(data,numCols[i%5],numRows[Math.floor(i/5)],39,i>=5&&i<15?29:28,'numeric')));
+if(keys.length!==50)throw Error('Expected 50 physical buttons; received '+keys.length);
+const spoken={LEFT:'Left arrow',RIGHT:'Right arrow',UP:'Up arrow',DOWN:'Down arrow',
+ LP:'Open parenthesis',RP:'Close parenthesis',EQUAL:'Equals',DEL:'Delete',
+ AC:'All clear',ON:'Power on',NEG:'Negative sign',MUL:'Multiply',DIV:'Divide',
+ ADD:'Plus',SUB:'Minus',DOT:'Decimal point',EXP:'Times ten to the power',
+ FRAC:'Fraction',RECIP:'Reciprocal',SQRT:'Square root',SQUARE:'Square',
+ POWER:'Power',INTEGRAL:'Integral',SD:'Standard decimal conversion',
+ DMS:'Degrees minutes seconds',MPLUS:'Memory plus'};
+function renderLegend(wrap,key){
+ for(const old of [...wrap.querySelectorAll('.shift-label,.alpha-label')])old.remove();
+ const button=wrap.querySelector('button');
+ if(!button)throw Error('Key missing for '+key.id);
+ if(key.shift){
+  const tag=document.createElement('span');tag.className='shift-label';tag.textContent=key.shift;
+  wrap.insertBefore(tag,button);
+ }
+ if(key.alpha&&key.group!=='top'&&key.group!=='dpad'&&key.alpha!==key.id){
+  const tag=document.createElement('span');tag.className='alpha-label';tag.textContent=key.alpha;
+  wrap.insertBefore(tag,button);
+ }
+ button.textContent=key.label;
+ button.className=key.label.length>4?'small-label':'';
+ const primary=spoken[key.id]||key.label||key.id;
+ const legends=[];
+ if(key.shift&&key.shift!==key.id)legends.push('Shift: '+key.shift);
+ if(key.alpha&&key.alpha!==key.id&&key.alpha!==key.group)legends.push('Alpha: '+key.alpha);
+ const accessible=primary+(legends.length?'. '+legends.join('. '):'');
+ button.setAttribute('aria-label',accessible);
+ button.setAttribute('title',primary+(legends.length?' | '+legends.join(' | '):''));
+}
+function applyModel(root,model){
+ if(!root)return;
+ const list=keysForModel(model);
+ for(const key of list){
+  const wrap=[...root.querySelectorAll('.key-unit')].find(el=>el.querySelector('button')?.dataset.key===key.id);
+  if(wrap)renderLegend(wrap,key);
+ }
+ root.dataset.model=model;
+}
+// REA-081: a visible native legend is not an always-active shortcut.
+// Keep physical keys clickable so an unavailable action can explain itself.
+function applyContext(root,state,policy,profiles){
+ if(!root||!policy||!profiles)return;
+ const modifier=state.shift?'SHIFT':state.alpha?'ALPHA':'normal';
+ const model=state.model,keys=keysForModel(model);
+ const wrappers=new Map([...root.querySelectorAll('.key-unit')].map(el=>
+  [el.querySelector('button')?.dataset.key,el]));
+ for(const key of keys){
+  const wrap=wrappers.get(key.id);
+  if(!wrap)continue;
+  const action=policy.classify(key,modifier,state.mode,state.screen,model,profiles.supports);
+  const unavailable=action.status==='blocked'||action.status==='unlabelled';
+  wrap.classList.toggle('legend-unavailable',unavailable);
+  wrap.dataset.legendStatus=action.status;
+  const button=wrap.querySelector('button');
+  if(!button)continue;
+  button.setAttribute('aria-description',unavailable?
+   modifier+' unavailable: '+action.reason:
+   modifier+' '+(action.legend||key.label)+': '+action.reason);
+ }
+}
+function mount(root,handler,model='fx-991es-plus-c'){
+ if(!root)return;
+ root.textContent='';const fragment=document.createDocumentFragment();
+ for(const key of keysForModel(model)){
+  const wrap=document.createElement('div');
+  wrap.className='key-unit '+key.group+' button-'+key.id;
+  wrap.style.setProperty('--x',pct(key.cx/274));wrap.style.setProperty('--y',pct(key.cy/580));
+  wrap.style.setProperty('--w',pct(key.w/274));wrap.style.setProperty('--h',pct(key.h/580));
+  if(key.angle)wrap.style.setProperty('--angle',key.angle);
+  const b=document.createElement('button');b.type='button';b.dataset.key=key.id;
+  b.addEventListener('click',()=>handler(key.id));wrap.append(b);
+  renderLegend(wrap,key);fragment.append(wrap);
+ }
+ root.append(fragment);root.dataset.model=model;
+}
+
+const API=Object.freeze({keys,mount,applyModel,keysForModel,applyContext,MODEL_LEGENDS,topSpec,scienceSpec,numericSpec});global.FreshKeypad=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/legend-audit.js">
-/* REA100_PENDING: js/legend-audit.js */
+/* REA-081 — physical 50-key legend capability inventory.
+ * Every row is keyed by model, key, normal/SHIFT/ALPHA, mode, and screen.
+ * This is a source-grounded WEB-model audit, not a CASIO firmware audit.
+ */
+(function(global){'use strict';
+const MODELS=['fx-991es','fx-991es-plus','fx-991es-plus-c'];
+const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR','INEQ','VERIF','DIST'];
+const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating'];
+const MODIFIERS=['normal','SHIFT','ALPHA'];
+const NORMAL_MODES=new Set(['COMP','CMPLX']);
+const FUNCTIONS=new Set(['CALC','INTEGRAL','LOGBASE','FRAC','SQRT','SQUARE','POWER',
+ 'LOG','LN','NEG','DMS','HYP','SIN','COS','TAN','RECIP','MPLUS','SD','ENG',
+ 'RCL','ANS','EXP','DOT','MUL','DIV','ADD','SUB','LP','RP']);
+const ALPHA_EDITOR=new Set(['CALC','INTEGRAL','LOGBASE','FRAC','SQRT','NEG','DMS','HYP',
+ 'SIN','COS','TAN','ENG','LP','RP','MPLUS','EXP','DOT','ANS','MUL','DIV','ADD','SUB']);
+const SHIFT_EDITOR=new Set(['INTEGRAL','LOGBASE','FRAC','SQRT','SQUARE','POWER','RECIP',
+ 'LOG','LN','NEG','HYP','SIN','COS','TAN','LP','RP','MUL','DIV','ADD','SUB','EXP',
+ 'DOT','0']);
+const SHIFT_RESULT=new Set(['SD','ENG','DMS']);
+const GLOBAL_SHIFT=new Set(['AC','MODE','RCL','DEL','7','8','9','1','2','3','4','5','6','CALC','ANS','MPLUS']);
+const MODE_CHANGE={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};
+function legend(key,modifier){
+ // Top-row and d-pad 'alpha' metadata in the physical geometry describes
+ // their key group, not an ALPHA legend (REA-070 legacy key shape).
+ if(modifier==='ALPHA'&&(key.group==='top'||key.group==='dpad'))return '';
+ if(modifier==='SHIFT'&&key.group==='dpad')return '';
+ return modifier==='SHIFT'?key.shift:modifier==='ALPHA'?key.alpha:key.label;
+}
+function context(key,modifier,mode,screen,model,supports){
+ const label=legend(key,modifier);
+ if(screen==='edit'||screen==='result'){
+  if(modifier==='SHIFT'&&['LEFT','RIGHT','UP','DOWN'].includes(key.id))
+   return {status:'unlabelled-control',reason:'Viewport pan uses SHIFT with directional control'};
+ }
+ if(!label)return {status:'unlabelled',reason:'No printed legend for this model'};
+ if(key.id==='SHIFT'||key.id==='ALPHA'){
+  return {status:modifier==='normal'?'available':'blocked',reason:'Modifier key state is handled separately'};
+ }
+ if(screen==='calculating')return {status:key.id==='AC'||key.id==='MODE'||key.id==='ON'?
+  'available':'blocked',reason:'Numerical worker running'};
+ if(screen==='error')return {status:key.id==='AC'||key.id==='LEFT'||key.id==='RIGHT'?
+  'available':'blocked',reason:'Error recovery only'};
+ if(screen!=='edit'&&screen!=='result'){
+  // A dedicated menu/form handler consumes the physical event. Its SHIFT
+  // and ALPHA interpretations are not the printed scientific shortcuts.
+  // Distinguish ordinary navigation from unavailable modifier legends.
+  if(modifier!=='normal')return {status:'blocked',
+   reason:'Modifier legend unavailable in '+screen+' screen'};
+  return {status:'delegated',reason:'Dedicated '+screen+' handler owns key events'};
+ }
+ if(modifier==='normal'){
+  if(key.id==='ON'||key.id==='MODE'||key.id==='AC')return {status:'available',reason:'System key'};
+  if(!NORMAL_MODES.has(mode))return {status:'delegated',reason:mode+' mode-specific key handler'};
+  if(key.id==='INTEGRAL'||key.id==='LOGBASE'){
+   return {status:mode==='COMP'||key.id==='LOGBASE'?'available':'blocked',
+    reason:'Integral requires COMP; log template is editable'};
+  }
+  if(key.id==='CALC')return {status:'available',reason:mode+' CALC'};
+  if(key.id==='RCL')return {status:'available',reason:'Recall register selection'};
+  if(key.id==='ENG'&&mode==='CMPLX')return {status:'available',reason:'Imaginary unit input'};
+  if(key.id==='INTEGRAL'&&mode==='CMPLX')return {status:'blocked',reason:'Integration requires COMP'};
+  if(key.id==='SD'&&mode==='CMPLX')return {status:'blocked',reason:'S⇔D not active for CMPLX'};
+  if(key.id==='DMS'&&mode==='CMPLX')return {status:'blocked',reason:'Sexagesimal limited to real mode'};
+  return {status:'available',reason:'Normal physical input or result action'};
+ }
+ if(modifier==='SHIFT'){
+  if(['LEFT','RIGHT','UP','DOWN'].includes(key.id))
+   return {status:'unlabelled-control',reason:'Viewport pan without printed shifted legend'};
+  if(Object.prototype.hasOwnProperty.call(MODE_CHANGE,key.id)){
+   const target=MODE_CHANGE[key.id];
+   return {status:supports(model,target)?'available':'blocked',
+    reason:supports(model,target)?'Mode shortcut':'Mode not supported by selected model'};
+  }
+  if(key.id==='6')return {status:model==='fx-991es-plus-c'?'available':'blocked',reason:'VERIF is PLUS C only'};
+  if(key.id==='CALC'||key.id==='INTEGRAL'||key.id==='LOGBASE'){
+   return {status:mode==='COMP'?'available':'blocked',reason:'COMP-only SOLVE/calculus'};
+  }
+  if(key.id==='ANS')return {status:mode==='COMP'?'available':'blocked',
+   reason:'DRG▶ operand unit suffix menu requires COMP'};
+  if(key.id==='DMS'||key.id==='SD'||key.id==='ENG'){
+   return {status:screen==='result'?'available':'blocked',reason:'Displayed result required'};
+  }
+  if(key.id==='NEG')return {status:mode==='CMPLX'?'available':'blocked',
+   reason:'Polar angle input is CMPLX-only'};
+  if(key.id==='7'||key.id==='8')return {status:mode==='BASE-N'||mode==='TABLE'?
+   'blocked':'available',reason:'CONST/CONV context restriction'};
+  if(key.id==='DEL')return {status:screen==='edit'?'available':'blocked',reason:'INS edit only'};
+  if(GLOBAL_SHIFT.has(key.id))return {status:'available',reason:'System or setup command'};
+  if(SHIFT_EDITOR.has(key.id))return {status:NORMAL_MODES.has(mode)?'available':'blocked',
+   reason:'Scientific editor shortcut'};
+  return {status:'blocked',reason:'No implemented shifted action'};
+ }
+ if(modifier==='ALPHA'){
+  if(key.id==='CALC')return {status:mode==='COMP'||mode==='CMPLX'?'available':'blocked',
+   reason:'Equation input in COMP/CMPLX'};
+  if(key.id==='INTEGRAL'||key.id==='LOGBASE')return {status:mode==='COMP'?'available':'blocked',
+   reason:'Product input in COMP'};
+  if(key.id==='SQRT')return {status:mode==='COMP'&&screen==='edit'?'available':'blocked',
+   reason:'Recurring decimal requires MathIO edit ending in decimal point'};
+  if(key.id==='FRAC'||key.id==='DOT'||key.id==='ANS'||key.id==='MUL'||
+     key.id==='DIV'||key.id==='ADD'||key.id==='SUB'){
+   return {status:mode==='COMP'?'available':'blocked',reason:'COMP function or register'};
+  }
+  if(['COS','TAN','NEG','DMS','HYP','SIN','LP','RP','MPLUS'].includes(key.id)){
+   const register={COS:'E',TAN:'F',NEG:'A',DMS:'B',HYP:'C',SIN:'D',LP:'X',RP:'Y',MPLUS:'M'}[key.id];
+   return {status:model==='fx-991es'&&['E','F'].includes(register)?'blocked':'available',
+    reason:'Register '+register};
+  }
+  if(ALPHA_EDITOR.has(key.id))return {status:NORMAL_MODES.has(mode)?'available':'blocked',
+   reason:'ALPHA scientific input'};
+  return {status:'blocked',reason:'No implemented ALPHA action'};
+ }
+ return {status:'blocked',reason:'Unknown modifier'};
+}
+function classify(key,modifier,mode,screen,model,supports){
+ if(!key||!MODELS.includes(model)||!MODIFIERS.includes(modifier)||!MODES.includes(mode)||
+  !SCREENS.includes(screen))throw Error('Argument ERROR');
+ const r=supports(model,mode)?
+  context(key,modifier,mode,screen,model,supports):
+  {status:'blocked',reason:'Mode '+mode+' is not supported by '+model};
+ return Object.freeze({model,mode,screen,key:key.id,modifier,
+  legend:legend(key,modifier)||'',status:r.status,reason:r.reason});
+}
+function inventory(keypad,profiles,options={}){
+ const models=options.models||MODELS,modes=options.modes||MODES,
+  screens=options.screens||SCREENS,modifiers=options.modifiers||MODIFIERS;
+ const rows=[];
+ for(const model of models){
+  const keys=keypad.keysForModel(model);
+  for(const mode of modes)for(const screen of screens)for(const key of keys)
+   for(const modifier of modifiers)
+    rows.push(classify(key,modifier,mode,screen,model,profiles.supports));
+ }
+ return rows;
+}
+const API=Object.freeze({MODELS,MODES,SCREENS,MODIFIERS,classify,inventory});
+global.FreshLegendAudit=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/display.js">
-/* REA100_PENDING: js/display.js */
+/* Independent 96 x 31 single-bit LCD raster with deterministic rendering.
+ * This logical dimension is a project design choice, not a hardware claim.
+ */
+(function(global){'use strict';
+const W=96,H=31;
+// 2D scroll offsets are tracked independently by the controller.
+
+const FONT={
+ '0':['111','101','101','101','111'],'1':['010','110','010','010','111'],'2':['111','001','111','100','111'],'3':['111','001','111','001','111'],'4':['101','101','111','001','001'],'5':['111','100','111','001','111'],'6':['111','100','111','101','111'],'7':['111','001','010','010','010'],'8':['111','101','111','101','111'],'9':['111','101','111','001','111'],
+ A:['010','101','111','101','101'],B:['110','101','110','101','110'],C:['011','100','100','100','011'],D:['110','101','101','101','110'],E:['111','100','110','100','111'],F:['111','100','110','100','100'],G:['011','100','101','101','011'],H:['101','101','111','101','101'],I:['111','010','010','010','111'],J:['001','001','001','101','010'],K:['101','101','110','101','101'],L:['100','100','100','100','111'],M:['101','111','111','101','101'],N:['101','111','111','111','101'],O:['111','101','101','101','111'],P:['110','101','110','100','100'],Q:['111','101','101','111','001'],R:['110','101','110','101','101'],S:['011','100','010','001','110'],T:['111','010','010','010','010'],U:['101','101','101','101','111'],V:['101','101','101','101','010'],W:['101','101','111','111','101'],X:['101','101','010','101','101'],Y:['101','101','010','010','010'],Z:['111','001','010','100','111'],
+ '+':['000','010','111','010','000'],'-':['000','000','111','000','000'],'.':['000','000','000','000','010'],',':['000','000','000','010','100'],'/':['001','001','010','100','100'],':':['000','010','000','010','000'],'=':['000','111','000','111','000'],
+ '(':['001','010','010','010','001'],')':['100','010','010','010','100'],'*':['000','101','010','101','000'],'^':['010','101','000','000','000'],'!':['010','010','010','000','010'],'?':['110','001','010','000','010'],
+ '²':['010','101','010','000','000'],'³':['110','001','110','000','000'],
+ ' ':['000','000','000','000','000'],'π':['000','111','101','101','101'],'√':['001','001','101','110','100'],'□':['111','101','101','101','111'],'°':['010','101','010','000','000'],'_':['000','000','000','000','111'],
+ '↑':['010','111','010','010','010'],'↓':['010','010','010','111','010'],'<':['001','010','100','010','001'],'>':['100','010','001','010','100'],'×':['101','010','010','010','101'],'÷':['010','000','111','000','010']
+};
+// REA-072: independently designed lowercase 3x5 glyphs.
+// Previous fallback converted all lowercase to uppercase, making case
+// sensitive expressions and variable names visually indistinguishable.
+Object.assign(FONT,{
+ a:['000','011','101','101','011'],
+ b:['100','100','110','101','110'],
+ c:['000','011','100','100','011'],
+ d:['001','001','011','101','011'],
+ e:['000','011','111','100','011'],
+ f:['011','010','111','010','010'],
+ g:['000','011','101','011','001'],
+ h:['100','100','110','101','101'],
+ i:['010','000','010','010','010'],
+ j:['001','000','001','101','010'],
+ k:['100','101','110','101','101'],
+ l:['010','010','010','010','001'],
+ m:['000','110','111','101','101'],
+ n:['000','110','101','101','101'],
+ o:['000','010','101','101','010'],
+ p:['000','110','101','110','100'],
+ q:['000','011','101','011','001'],
+ r:['000','110','101','100','100'],
+ s:['000','011','100','001','110'],
+ t:['010','111','010','010','011'],
+ u:['000','101','101','101','011'],
+ v:['000','101','101','101','010'],
+ w:['000','101','101','111','101'],
+ x:['000','101','010','010','101'],
+ y:['000','101','101','011','001'],
+ z:['000','111','010','100','111'],
+ '|':['010','010','010','010','010'],
+ '[':['110','100','100','100','110'],
+ ']':['011','001','001','001','011'],
+ '{':['001','010','110','010','001'],
+ '}':['100','010','011','010','100'],
+ ';':['000','010','000','010','100'],
+ "'":['010','010','000','000','000'],
+ '∂':['011','001','111','101','111']
+});
+// REA-010: independently drawn, compact glyphs for mathematical and
+// display-navigation symbols. Native glyph bitmaps are still unmeasured.
+Object.assign(FONT,{
+ 'θ':['010','101','111','101','010'],
+ '∠':['001','001','111','000','000'],
+ '►':['100','110','111','110','100'],
+ 'α':['000','011','101','101','011'],
+ 'β':['110','101','110','101','110'],
+ 'Σ':['111','100','010','100','111'],
+ '∑':['111','100','010','100','111'],
+ '∫':['011','010','010','010','110'],
+ '∞':['000','101','111','101','000'],
+ '≠':['001','111','010','111','100'],
+ '≤':['001','010','100','111','000'],
+ '≥':['100','010','001','111','000'],
+ '≈':['000','110','011','110','011'],
+ '÷':['010','000','111','000','010'],
+ '′':['010','010','000','000','000'],
+ '″':['101','101','000','000','000'],
+ '▸':['100','110','111','110','100'],
+ '◂':['001','011','111','011','001'],
+ '▷':['100','110','101','110','100'],
+ '◁':['001','011','101','011','001'],
+ '↑':['010','111','010','010','010'],
+ '↓':['010','010','010','111','010'],
+ '√':['001','001','101','110','100'],
+ '×':['101','101','010','101','101'],
+ '·':['000','000','010','000','000']
+});
+const MATH_GLYPHS=Object.freeze(['θ','∠','►','α','β','Σ','∑','∫','∞','≠','≤','≥','≈','′','″','▸','◂','▷','◁','√','×','·']);
+function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
+ const glyph=(c,x,y)=>{const f=FONT[c]||FONT[c.toUpperCase()]||FONT['?'];for(let j=0;j<5;j++)for(let i=0;i<3;i++)if(f[j][i]==='1')pixel(x+i,y+j)};
+ const write=(text,x,y,limit=W)=>{for(const c of String(text)){if(x+3>limit)break;glyph(c,x,y);x+=4}};
+ const line=(y)=>{for(let x=0;x<W;x++)pixel(x,y)};
+ // Status annunciators are a separate accurately sized HTML overlay.
+
+ if(!state.power){return pixels}
+ if(state.mode==='BASE-N'&&['edit','result'].includes(state.screen)){
+  // REA-049: Casio-like radix annunciator and padded 16/32-bit result.
+  const base=state.baseRadix||'DEC';
+  const title=base==='HEX'?'Hex':base==='BIN'?'Bin':base==='OCT'?'Oct':'Dec';
+  write(title,0,0);
+  const input=String(state.input||'');
+  if(state.screen==='edit'){
+   const start=Math.max(0,input.length-23);
+   write(input.slice(start),0,10);
+   if(start>0)glyph('<',0,17);
+   const blank=base==='DEC'?'0':base==='BIN'?'0000000000000000':base==='HEX'?'00000000':'00000000000';
+   if(!input)write(blank,Math.max(0,W-blank.length*4),25);
+  }else{
+   write(input.slice(-23),0,10);
+   const result=String(state.result||'0');
+   write(result.slice(-23),Math.max(0,W-Math.min(result.length,23)*4),25);
+  }
+  return pixels;
+ }
+ if(state.screen==='contrast'){
+  write('CONTRAST',28,1);
+  write('LIGHT <',0,13);
+  write('> DARK',67,13);
+  write('LEVEL '+String(state.contrast??5),24,22);
+  return pixels;
+ }
+ // CASIO MODE/SETUP/STAT/DIST menus: local 1–8 keys, 2 columns,
+ // four rows, UP/DOWN page flags. Side-by-side LCD keys are underlined.
+ if(state.pendingMemory){
+  write(state.pendingMemory==='STO'?'STO':'RCL',0,0);
+  // REA-072: original fx-991ES has no E/F register (REA-069).
+  const names=state.model==='fx-991es'?
+   ['A','B','C','D','X','Y','M']:
+   ['A','B','C','D','E','F','X','Y','M'];
+  for(let i=0;i<names.length;i++){
+   const col=i%3,row=Math.floor(i/3);
+   write(names[i],col*32+10,9+row*7,col*32+32);
+  }
+  return pixels;
+ }
+ if(state.screen==='menu'){
+  const menu=global.FreshMenuModel;
+  const kind=state.menuKind||'normal';
+  const title=menu?menu.displayTitle(kind,state.menuTitle):
+    String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
+  write(title,0,0);
+  const entries=state.menu||[],size=state.menuPageSize||6;
+  const special=menu?menu.rule(kind):{columns:2,size:6};
+  const columns=special.columns===3?3:2;
+  const colWidth=Math.floor(W/columns);
+  const rows=Math.ceil(Math.min(size,entries.length)/columns);
+  // The 10-digit Fix/Sci popup needs five rows, unlike MODE's four.
+  const lineHeight=rows>4?5:rows>3?6:rows===3?7:8;
+  const firstY=rows>4?6:7;
+  for(let i=0;i<Math.min(size,entries.length);i++){
+   const x=i%columns*colWidth,y=firstY+Math.floor(i/columns)*lineHeight;
+   const name=menu?menu.label(entries[i]):
+      String(entries[i].label).replace(/^\\d+\\.\\s*/,'').slice(0,9);
+   write(String(entries[i].number)+':'+name,x,y,Math.min(W,x+colWidth));
+  }
+  // CASIO upper-right page arrows, rendered as filled LCD triangles.
+  if((state.menuPage+1)*size<state.menuEntries.length)
+   for(let y=0;y<3;y++)for(let x=0;x<5-2*y;x++)pixel(89+y+x,1+y);
+  if(state.menuPage>0)
+   for(let y=0;y<3;y++)for(let x=0;x<1+2*y;x++)pixel(85+2-y+x,1+y);
+  return pixels;
+ }
+ if(state.screen==='stat-table'&&state.statTable){
+  const t=state.statTable,cols=t.paired?(t.frequency?['X','Y','FREQ']:['X','Y']):(t.frequency?['X','FREQ']:['X']);
+  const starts=cols.length===3?[12,40,68]:cols.length===2?[12,54]:[14];
+  const widths=cols.length===3?[6,6,6]:cols.length===2?[9,9]:[18];
+  const headings={ '1VAR':'STAT 1VAR',LIN:'STAT A+BX',QUAD:'STAT CX2',LOG:'STAT lnX',EXP:'STAT e^X',ABEXP:'STAT AB^X',POWER:'STAT AX^B',INV:'STAT 1/X'};
+  write(headings[t.regressionType]||(t.paired?'STAT 2VAR':'STAT 1VAR'),0,0);
+  for(let c=0;c<cols.length;c++)write(cols[c]==='FREQ'?'F':cols[c],starts[c],6);
+  const first=Math.max(0,Math.min(Math.max(0,t.rows.length-3),t.row-1));
+  for(let n=0;n<3;n++){
+   const index=first+n,row=t.rows[index];if(!row)continue;
+   const y=12+n*7;
+   write(index===t.row?'>':String(index+1).slice(-2),0,y);
+   for(let c=0;c<cols.length;c++){
+    const raw=index===t.row&&c===t.col?t.buffer:row[cols[c]];
+    const str=raw===null?'':String(raw);
+    const width=widths[c],part=str.length>width?str.slice(-width):str;
+    write(part,starts[c],y,starts[c]+width*4);
+    if(index===t.row&&c===t.col){
+     const end=Math.min(W-1,starts[c]+Math.min(width,part.length)*4);
+     for(let x=starts[c];x<=end;x++)pixel(x,y+6);
+    }
+   }
+  }
+  if(first>0)glyph('↑',88,0);
+  if(first+3<t.rows.length)glyph('↓',92,0);
+  if(t.error)write(t.error.slice(-20),0,25);
+  return pixels;
+ }
+ if(state.mode==='VECTOR'&&state.screen==='vector-parameter'&&state.vectorParameter){
+  const p=state.vectorParameter;
+  write('VECTOR Scalar',0,0);
+  write('k x '+p.name,0,10);
+  const value=String(p.buffer);
+  write(value.slice(-22),Math.max(0,W-Math.min(22,value.length)*4),25);
+  if(p.error)write(p.error.slice(-20),0,17);
+  return pixels;
+ }
+ if(state.mode==='VECTOR'&&['vector-table','vector-result','vector-scalar'].includes(state.screen)){
+  if(state.screen==='vector-scalar'){
+   write((state.vectorScalarInfo||'VECTOR Result').slice(0,23),0,0);
+   const n=String(state.result||'0');
+   write(n.slice(-23),Math.max(0,W-Math.min(23,n.length)*4),25);
+   return pixels;
+  }
+  const editing=state.screen==='vector-table';
+  const e=editing?state.vectorEditor:state.vectorView;
+  if(!e)return pixels;
+  const v=e.vector;
+  write((editing?'EDIT ':'ANS ')+e.name+' '+v.dimension+'D',0,0);
+  for(let i=0;i<v.dimension;i++){
+   const y=9+i*8,selected=e.index===i,raw=editing&&selected?e.buffer:String(v.data[i]);
+   write((selected?'>':' ')+['X','Y','Z'][i]+' =',0,y);
+   write(raw.slice(-19),25,y);
+   if(selected)for(let x=25;x<Math.min(W,25+Math.max(1,Math.min(18,raw.length))*4);x++)pixel(x,Math.min(H-1,y+6));
+  }
+  if(editing&&e.error)write(e.error.slice(-18),0,29);
+  return pixels;
+ }
+ if(state.mode==='MATRIX'&&state.screen==='matrix-parameter'&&state.matrixParameter){
+  const p=state.matrixParameter;
+  write('MATRIX '+p.operator,0,0);
+  write(p.name+' '+(p.operator==='power'?'exponent':'scalar'),0,10);
+  const value=String(p.buffer);
+  write(value.slice(-22),Math.max(0,W-Math.min(22,value.length)*4),25);
+  if(p.error)write(p.error.slice(-20),0,17);
+  return pixels;
+ }
+ if(state.mode==='MATRIX'&&['matrix-table','matrix-result','matrix-scalar'].includes(state.screen)){
+  if(state.screen==='matrix-scalar'){
+   write('MATRIX det',0,0);
+   const value=String(state.result||'0');
+   write(value.slice(-23),Math.max(0,W-Math.min(23,value.length)*4),25);
+   return pixels;
+  }
+  const editing=state.screen==='matrix-table';
+  const e=editing?state.matrixEditor:state.matrixView;
+  if(!e)return pixels;
+  const m=editing?e.matrix:e.matrix;
+  const cwidth=m.cols===3?6:m.cols===2?9:19;
+  const x0=m.cols===3?12:m.cols===2?18:12;
+  const gap=m.cols===3?27:m.cols===2?42:0;
+  write((editing?'EDIT ':'ANS ')+(editing?e.name:e.name)+' '+m.rows+'x'+m.cols,0,0);
+  for(let row=0;row<m.rows;row++){
+   const y=9+row*7;
+   write(String(row+1),0,y);
+   for(let col=0;col<m.cols;col++){
+    const selected=row===e.row&&col===e.col;
+    const number=editing&&selected?e.buffer:String(m.data[row][col]);
+    write(number.slice(-cwidth),x0+col*gap,y,Math.min(W,x0+col*gap+cwidth*4));
+    if(selected){
+     const end=Math.min(W-1,x0+col*gap+Math.max(1,Math.min(cwidth,number.length))*4-1);
+     for(let x=x0+col*gap;x<=end;x++)pixel(x,Math.min(H-1,y+6));
+    }
+   }
+  }
+  const selectedValue=editing?e.buffer:String(m.data[e.row][e.col]);
+  if(m.rows<3||e.error)write((e.error||selectedValue).slice(-23),0,29);
+  return pixels;
+ }
+ // REA-059: native INEQ coefficient cells and special-case result cards.
+ if(state.screen==='ineq-coeff'&&state.ineqEditor){
+  const item=state.ineqEditor,e=item.coefficients;
+  const cols=e.rows[0].length,gap=cols===4?22:28,offset=cols===4?9:13;
+  const key=e.rows[e.row][e.col],value=e.editing?e.buffer:String(e.values[key]);
+  const heading=e.error?'INEQ ERR '+e.error:'INEQ '+item.degree+' '+item.operator+' 0';
+  write(heading.slice(-23),0,0);
+  write((key.toUpperCase()+' = '+value).slice(-23),0,9);
+  for(let c=0;c<cols;c++){
+   const name=e.rows[0][c];
+   write(name.toUpperCase(),offset+c*gap,18);
+   const selected=e.row===0&&e.col===c,txt=selected?value:String(e.values[name]);
+   const width=cols===4?4:6;
+   write(txt.slice(-width),offset+c*gap,25,Math.min(W,offset+c*gap+width*4));
+   if(selected){
+    const end=Math.min(W-1,offset+c*gap+Math.max(1,Math.min(width,txt.length))*4-1);
+    for(let x=offset+c*gap;x<=end;x++)pixel(x,30);
+   }
+  }
+  return pixels;
+ }
+ if(state.screen==='ineq-result'&&state.ineqSession){
+  const sess=state.ineqSession;
+  const current=sess.pages[sess.index]||sess.pages[0];
+  write('INEQ '+sess.degree+' '+sess.operator+' 0',0,0);
+  const status=current.kind==='empty'?'NO SOLUTION':current.kind==='all'?'ALL REAL X':
+   current.kind==='point'?'EQUALITY ROOT':'SOLUTION '+(sess.index+1);
+  write(status.slice(0,23),0,9);
+  const text=String(current.text).replace(/All Real Numbers/g,'All Real X');
+  if(text.length<=23)write(text,0,25);
+  else{
+   write(text.slice(0,23),0,19);
+   write(text.slice(23,46),0,25);
+  }
+  if(sess.pages.length>1)write((sess.index+1)+'/'+sess.pages.length,80,0);
+  return pixels;
+ }
+ if(state.screen==='eqn-coeff'&&state.eqnEditor){
+  const e=state.eqnEditor,cols=e.rows[0].length;
+  const gap=cols===4?21:27,offset=cols===4?11:12;
+  const names=e.rows[0].map(name=>name.charAt(0).toUpperCase());
+  const key=e.rows[e.row][e.col];
+  const value=e.editing?e.buffer:String(e.values[key]);
+  const heading=e.error?'ERR '+e.error:'EQN '+key+'='+value;
+  write(heading.slice(-23),0,0);
+  for(let c=0;c<cols;c++)write(names[c],offset+c*gap,6);
+  for(let r=0;r<e.rows.length;r++){
+   const y=12+r*7,activeRow=e.rows[r];
+   write(String(r+1),0,y);
+   for(let c=0;c<activeRow.length;c++){
+    const current=r===e.row&&c===e.col;
+    const text=current?value:String(e.values[activeRow[c]]);
+    const width=cols===4?4:5;
+    write(text.slice(-width),offset+c*gap,y,Math.min(W,offset+c*gap+width*4));
+    if(current){
+     const limit=Math.min(W-1,offset+c*gap+Math.max(1,Math.min(width,text.length))*4-1);
+     for(let xx=offset+c*gap;xx<=limit;xx++)pixel(xx,Math.min(H-1,y+6));
+    }
+   }
+  }
+  return pixels;
+ }
+ if(state.screen==='eqn-result'&&state.eqnSession){
+  const e=state.eqnSession,parts=e.solutions,count=parts.length;
+  write('EQN '+e.type,0,0);
+  if(count){
+   const current=parts[e.index]||parts[0];
+   if(state.math&&current.exact){
+    // Natural MathIO: exact fractions and simple polynomial surds.
+    write(current.label+' =',0,10);
+    const exact=String(current.exact);
+    write(exact.slice(-23),Math.max(0,W-Math.min(23,exact.length)*4),25);
+    if(exact.length>23)glyph('<',0,19);
+   }else if(current.complex){
+    const fmt=global.FreshEquation.format;
+    write(current.label+' = '+fmt(current.complex.re),0,10);
+    const imag=current.complex.im;
+    const imaginary=(imag<0?'-':'+')+fmt(Math.abs(imag))+'i';
+    write(imaginary.slice(-23),Math.max(0,W-Math.min(23,imaginary.length)*4),25);
+   }else{
+    write(current.label+' =',0,10);
+    const v=String(global.FreshEquation?.format(current.value)??current.value);
+    const start=Math.max(0,v.length-22);
+    write(v.slice(start),Math.max(0,W-Math.min(v.length,22)*4),25);
+   }
+   if(count>1)write((e.index+1)+'/'+count,76,0);
+  }else{
+   write(e.status||'Math ERROR',0,12);
+  }
+  return pixels;
+ }
+ if(state.screen==='prompt'&&state.flow){
+  const f=state.flow,field=f.fields[f.index],menu=global.FreshMenuModel;
+  const title=menu?menu.promptTitle(f.title):String(f.title).replace(/[^A-Za-z0-9 /-]/g,'').slice(0,22);
+  const key=menu?menu.promptField(field):String(field.label).slice(0,20);
+  write(title,0,0);
+  write((f.index+1)+'/'+f.fields.length+' '+key.slice(0,18),0,9);
+  const content=String(f.buffer||'');
+  const cursor=Math.max(0,Math.min(content.length,f.cursor??content.length));
+  const start=Math.max(0,Math.min(cursor-22,content.length-23));
+  write(content.slice(start,start+23),0,18);
+  if(f.editing&&!(field.choices||['op','operator','kind','variable'].includes(field.id))){
+   const x=Math.max(0,Math.min(92,(cursor-start)*4));
+   for(let yy=17;yy<=23;yy++)pixel(x,yy);
+  }
+  write((state.info||((field.choices||['op','operator','kind','variable'].includes(field.id))?'ARROWS CHOOSE  = OK':'= NEXT  AC BACK')).slice(0,23),0,25);
+  return pixels;
+ }
+ if(state.screen==='table-grid'&&state.tableData){
+  const t=state.tableData,cols=t.columns,dual=t.dual;
+  const positions=dual?[0,32,64]:[0,49],width=dual?7:11;
+  for(let c=0;c<cols.length;c++){
+   write(cols[c],positions[c],0);
+  }
+  // Two consecutive rows plus a synchronized full-value inspection line.
+  const top=Math.max(0,Math.min(t.rows.length-2,t.row-1));
+  for(let ri=top;ri<Math.min(t.rows.length,top+2);ri++){
+   const y=8+(ri-top)*8,row=t.rows[ri];
+   const values=[row.x,row.f,...(dual?[row.g]:[])];
+   for(let c=0;c<cols.length;c++){
+    const value=global.FreshTable.format(values[c]);
+    write(value.slice(-width),positions[c],y,positions[c]+width*4);
+    if(ri===t.row&&c===t.col){
+     const maxX=Math.min(W-1,positions[c]+Math.min(width,Math.max(1,value.length))*4-1);
+     for(let x=positions[c];x<=maxX;x++)pixel(x,y+6);
+    }
+   }
+  }
+  const value=global.FreshTable.format(global.FreshTable.active(t));
+  const prefix=(t.row+1)+'/'+t.rows.length+' '+['X','F','G'][t.col]+'=';
+  write((prefix+value).slice(-23),0,25);
+  return pixels;
+ }
+ // REA-062: DIST List X/Ans tabular LCD view with highlighted cell.
+ if(state.screen==='dist-list'&&state.distList){
+  const e=state.distList,rows=e.samples;
+  const kind=e.type.replace('binomial','BIN').replace('poisson','POI').replace('-pd',' PD').replace('-cd',' CD');
+  write(('DIST '+kind).slice(0,22),0,0);
+  write('X',8,7);write('Ans',52,7);
+  const limit=rows.length<25?rows.length+1:rows.length;
+  const top=Math.max(0,Math.min(Math.max(0,limit-2),e.row-1));
+  for(let index=top;index<Math.min(limit,top+2);index++){
+   const y=14+(index-top)*8;
+   const sample=index<rows.length?rows[index]:null;
+   const sampleText=e.editing&&index===e.row?e.buffer:sample===null?'_':global.FreshDistList.format(sample);
+   const answer=e.calculated&&index<e.answers.length?global.FreshDistList.format(e.answers[index]):'';
+   write((index+1)+':',0,y);
+   write(sampleText.slice(-8),8,y,43);
+   write(answer.slice(-10),52,y,94);
+   if(index===e.row){
+    const start=e.column===0?8:52,end=e.column===0?43:94;
+    for(let x=start;x<end;x++)pixel(x,Math.min(30,y+6));
+   }
+  }
+  const active=e.column===0?(e.editing?e.buffer:rows[e.row]):e.answers[e.row];
+  const detail=e.error||((e.column===0?'X':'Ans')+'='+((active===undefined||active===null)?'':global.FreshDistList.format(Number(active))));
+  write(detail.slice(-23),0,29);
+  return pixels;
+ }
+ if(state.screen==='conversion-code'&&state.conversionCode){
+  write('CONVERSION',0,0);
+  write('Number 01-40?',0,10);
+  const editor=state.conversionCode;
+  write((editor.buffer||'_')+(editor.buffer.length===1?'_':''),80,25);
+  if(editor.error)write(editor.error.slice(0,22),0,18);
+  return pixels;
+ }
+  if(state.screen==='constant-code'&&state.constantCode){
+  write('CONSTANT',0,0);
+  write('Number 01-40?',0,10);
+  const editor=state.constantCode;
+  write((editor.buffer||'_')+(editor.buffer.length===1?'_':''),80,25);
+  if(editor.error)write(editor.error.slice(0,22),0,18);
+  return pixels;
+ }
+ if(state.screen==='flow-result'){
+  const lines=state.outputLines||[],page=state.outputPage||0;
+  const pan=global.FreshViewport.scrollLine(lines,page,state.viewport?.flowX||0);
+  for(let i=0;i<3;i++)write(pan.lines[i]||'',0,7+i*8);
+  // Horizontal scrolling never changes which three output rows are shown.
+  if(pan.left)glyph('<',0,25);
+  if(pan.right)glyph('>',91,25);
+  if((page+1)*3<lines.length)write('>',91,0);
+  if(page>0)write('<',87,0);
+  return pixels;
+ }
+ // REA-009: render editable mathematical templates in two dimensions.
+ const expression=state.editor;
+ const linearModes=['STAT','BASE-N','MATRIX','VECTOR'];
+ const hasCalculus=expression&&expression.root.some(node=>['derivative','integral','summation'].includes(node.type));
+ const structured=expression&&!linearModes.includes(state.mode)&&
+  (state.math||hasCalculus)&&expression.root.some(node=>node.type!=='char');
+ const fieldNames={fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
+  power:['exponent'],squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument'],
+  derivative:['expression','at'],integral:['expression','lower','upper'],
+  summation:['expression','lower','upper']};
+ function measureSeq(nodes){return nodes.reduce((width,node)=>width+measureNode(node),0)}
+ function measureNode(node){
+  if(node.type==='char')return 4;
+  const p=node.parts;
+  const measureField=name=>Math.max(6,measureSeq(p[name]||[]));
+  if(node.type==='fraction')return Math.max(measureField('numerator'),measureField('denominator'))+4;
+  if(node.type==='mixed')return measureField('integer')+Math.max(measureField('numerator'),measureField('denominator'))+8;
+  if(node.type==='power')return measureField('exponent')+2;
+  if(node.type==='exp10')return measureField('exponent')+13;
+  if(node.type==='recurring')return measureField('period')+2;
+  if(node.type==='squareRoot'||node.type==='cubeRoot')return measureField('radicand')+8;
+  if(node.type==='nthRoot')return measureField('index')+measureField('radicand')+9;
+  if(node.type==='logBase')return 14+measureField('base')+measureField('argument');
+  if(!state.math&&node.type==='derivative')return 28+measureField('expression')+measureField('at');
+  if(!state.math&&(node.type==='integral'||node.type==='summation'))
+   return 20+measureField('expression')+measureField('lower')+measureField('upper');
+  if(node.type==='derivative')return 20+measureField('expression')+measureField('at');
+  if(node.type==='integral'||node.type==='summation')return 21+
+   Math.max(measureField('upper'),measureField('lower'))+measureField('expression');
+  return 4;
+ }
+ function drawSeq(nodes,x,baseline,path,cursorOn){
+  const active=cursorOn&&expression.path.length===path.length&&expression.path.every((p,i)=>p.index===path[i].index&&p.field===path[i].field);
+  for(let i=0;i<=nodes.length;i++){
+   if(active&&expression.offset===i){
+    for(let yy=baseline-3;yy<=baseline+5;yy++)pixel(x,yy);
+   }
+   if(i===nodes.length)break;
+   const node=nodes[i],w=measureNode(node);
+   if(node.type==='char'){
+    glyph(node.value,x,baseline);
+   }else{
+    const p=node.parts,drawField=(field,xx,yy)=>{
+     const sub=p[field]||[];
+     if(!sub.length){for(let d=0;d<5;d++)pixel(xx+d,yy+5)}
+     drawSeq(sub,xx,yy,[...path,{index:i,field}],cursorOn);
+    };
+    if(!state.math&&['derivative','integral','summation'].includes(node.type)){
+     const prefix=node.type==='derivative'?'d/dx(':
+      node.type==='integral'?'∫(':'Σ(';
+     for(let k=0;k<prefix.length;k++)glyph(prefix[k],x+k*4,baseline);
+     let at=x+prefix.length*4;
+     const order=node.type==='derivative'?['expression','at']:['expression','lower','upper'];
+     for(let k=0;k<order.length;k++){
+      const name=order[k];drawField(name,at,baseline);
+      at+=Math.max(6,measureSeq(p[name]||[]));
+      glyph(k===order.length-1?')':',',at,baseline);at+=4;
+     }
+    }else if(node.type==='fraction'){
+     const widest=w-4,a=measureSeq(p.numerator),b=measureSeq(p.denominator);
+     drawField('numerator',x+2+Math.floor((widest-a)/2),baseline-10);
+     for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
+     drawField('denominator',x+2+Math.floor((widest-b)/2),baseline+1);
+    }else if(node.type==='mixed'){
+     drawField('integer',x,baseline);
+     const shift=Math.max(6,measureSeq(p.integer))+4;
+     const span=w-shift,a=measureSeq(p.numerator),b=measureSeq(p.denominator);
+     drawField('numerator',x+shift+Math.floor((span-a)/2),baseline-10);
+     for(let xx=x+shift-1;xx<x+w;xx++)pixel(xx,baseline-3);
+     drawField('denominator',x+shift+Math.floor((span-b)/2),baseline+1);
+    }else if(node.type==='derivative'){
+     glyph('d',x,baseline-5);glyph('/',x+4,baseline-5);
+     glyph('d',x+8,baseline-5);glyph('x',x+12,baseline-5);
+     drawField('expression',x+16,baseline);
+     const at=x+16+Math.max(6,measureSeq(p.expression));
+     glyph('|',at-3,baseline+7);drawField('at',at,baseline+7);
+    }else if(node.type==='integral'||node.type==='summation'){
+     glyph(node.type==='integral'?'∫':'Σ',x,baseline-2);
+     const span=Math.max(Math.max(6,measureSeq(p.lower)),Math.max(6,measureSeq(p.upper)));
+     drawField('upper',x+6,baseline-12);
+     drawField('lower',x+6,baseline+7);
+     const expressionX=x+13+span;
+     drawField('expression',expressionX,baseline);
+     if(node.type==='integral'){
+      const end=expressionX+Math.max(6,measureSeq(p.expression));
+      glyph('d',end,baseline);glyph('x',end+4,baseline);
+     }
+    }else if(node.type==='power'){
+     drawField('exponent',x+2,baseline-8);
+    }else if(node.type==='exp10'){
+     glyph('×',x,baseline);glyph('1',x+4,baseline);glyph('0',x+8,baseline);
+     drawField('exponent',x+13,baseline-8);
+    }else if(node.type==='recurring'){
+     drawField('period',x+1,baseline);
+     for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
+    }else if(node.type==='logBase'){
+     glyph('l',x,baseline);glyph('o',x+4,baseline);glyph('g',x+8,baseline);
+     drawField('base',x+11,baseline+6);
+     drawField('argument',x+14+Math.max(6,measureSeq(node.parts.base)),baseline);
+    }else if(node.type==='squareRoot'||node.type==='cubeRoot'||node.type==='nthRoot'){
+     const nth=node.type==='nthRoot',prefix=nth?9:7;
+     if(node.type==='cubeRoot')glyph('3',x,baseline-9);
+     if(nth)drawField('index',x,baseline-10);
+     const x0=x+prefix-5;
+     pixel(x0,baseline+2);pixel(x0+1,baseline+3);pixel(x0+2,baseline+2);
+     for(let n=0;n<7;n++)pixel(x0+3+Math.floor(n/2),baseline+1-n);
+     for(let xx=x+prefix-1;xx<x+w;xx++)pixel(xx,baseline-7);
+     drawField('radicand',x+prefix,baseline);
+    }
+   }
+   x+=w;
+  }
+  return x;
+ }
+ function drawStructured(visibleCursor,baseline){
+  const nodes=expression.root,view=state.viewport||{},offset=view.inputX||0,vertical=view.inputY||0;
+  const layout=global.FreshViewport.layout(expression,baseline,!state.math);
+  drawSeq(nodes,-offset,baseline-vertical,[],visibleCursor);
+  if(offset>0)glyph('<',0,25);
+  if(layout.width-offset>W-1)glyph('>',91,25);
+  if(layout.minY-vertical<0)glyph('↑',87,0);
+  if(layout.maxY-vertical>26)glyph('↓',91,0);
+ }
+
+ if(state.screen==='error'){write(state.error||'Math ERROR',0,9);write('AC:CANCEL',0,20);write('< >:GOTO',51,20);return pixels}
+ function drawTypedResult(presentation){
+  const item=presentation&&presentation.chosen;
+  if(!item||!['fraction','mixed','pi','surd','engineering','recurring'].includes(item.kind))return false;
+  if(item.kind==='recurring'){
+   const prefix=String(item.initial||''),period=String(item.period||'');
+   const all=prefix+period;if(all.length>23)return false;
+   const x=Math.max(0,W-all.length*4);
+   write(all,x,25);
+   for(let xx=x+prefix.length*4;xx<x+all.length*4-1;xx++)pixel(xx,23);
+   return true;
+  }
+  if(item.kind==='fraction'||item.kind==='mixed'){
+   const n=String(item.numerator),d=String(item.denominator);
+   // Long fractions remain recoverable as a horizontally pannable linear form.
+   if((item.text||'').length>22)return false;
+   const integer=item.kind==='mixed'?String(item.integer):'';
+   const numberWidth=integer?integer.length*4+4:0;
+   const width=Math.max(n.length,d.length)*4+2;
+   const start=Math.max(0,W-numberWidth-width-1);
+   if(integer)write(integer,start,23);
+   const x=start+numberWidth;
+   write(n,x+Math.max(0,Math.floor((width-n.length*4)/2)),15);
+   for(let i=0;i<width;i++)pixel(x+i,21);
+   write(d,x+Math.max(0,Math.floor((width-d.length*4)/2)),24);
+   return true;
+  }
+  const text=String(item.text);
+  if(text.length>23)return false;
+  write(text.slice(-24),Math.max(0,W-Math.min(text.length,24)*4),25);
+  return true;
+ }
+ if(state.screen==='result'){
+  const input=state.input||'',view=state.viewport||{};
+  if(state.multiStatements&&state.multiStatements.index<state.multiStatements.parts.length-1)
+   write('D',91,0);
+  if(structured)drawStructured(false,8);
+  else {
+   const start=Math.max(0,Math.min(Math.floor((view.inputX||0)/4),Math.max(0,input.length-23)));
+   write(input.slice(start,start+23),0,8);
+   if(start>0)glyph('<',0,15);
+   if(start+23<input.length)glyph('>',91,15);
+  }
+  const result=String(state.result||'0');
+  if(state.mode==='CMPLX'&&!state.math&&
+      Array.isArray(state.complexResultLines)&&state.complexResultLines.length===2){
+    // LineIO displays rectangular real/imaginary or polar radius/angle as two lines.
+    const parts=state.complexResultLines;
+    write(parts[0].slice(0,23),0,17);
+    write(parts[1].slice(0,23),0,25);
+    if(parts[0].length>23||parts[1].length>23)glyph('>',91,24);
+    return pixels;
+   }
+   if(!drawTypedResult(state.resultPresentation)){
+   if(result.length>23){
+    const start=Math.max(0,Math.min(view.resultX||0,result.length-23));
+    write(result.slice(start,start+23),0,25);
+    if(start>0)glyph('<',0,19);
+    if(start+23<result.length)glyph('>',91,19);
+   }else write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
+  }
+  return pixels;
+ }
+ if(structured){drawStructured(true,12);if(state.info)write(state.info.slice(-23),0,25);return pixels}
+ const input=state.input||'',cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
+ const visible=23,start=Math.max(0,Math.min(Math.floor((state.viewport?.inputX||0)/4),Math.max(0,input.length-visible)));
+ const piece=input.slice(start,start+visible);
+ write(piece,0,8);const caret=(cursor-start)*4;
+ if(caret>=0&&caret<W)for(let yy=8;yy<15;yy++)pixel(caret,yy);
+ if(start>0)glyph('<',0,20);
+ if(input.length>start+visible)glyph('>',91,20);
+ if(state.info)write(state.info.slice(-23),0,25);
+ return pixels;
+}
+function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
+ const scale=8, w=W*scale,h=H*scale;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+ // REA-020: Contrast adjusts the LCD ink shade, never the logical pixel raster.
+ // Level 5 preserves the approved web-only golden-frame colors exactly.
+ const level=Math.max(0,Math.min(9,Number.isFinite(Number(state.contrast))?Number(state.contrast):5));
+ const defaultInk=[29,40,34], paleInk=[135,151,134], darkInk=[7,17,12];
+ const anchor=level<=5?paleInk:defaultInk, target=level<=5?defaultInk:darkInk;
+ const t=level<=5?level/5:(level-5)/4;
+ const ink=defaultInk.map((_,i)=>Math.round(anchor[i]+(target[i]-anchor[i])*t));
+ const paper=[215,230,215];
+ const img=ctx.createImageData(w,h);for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+  const on=pixels[y*W+x];const color=on?ink:paper;
+  for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){const i=((y*scale+dy)*w+(x*scale+dx))*4;
+   const adjustment=(dx===scale-1||dy===scale-1)?(on?7:-2):0;
+   img.data[i]=color[0]+adjustment;img.data[i+1]=color[1]+adjustment;img.data[i+2]=color[2]+adjustment;img.data[i+3]=255;
+  }
+ }
+ ctx.putImageData(img,0,0)
+}
+const API=Object.freeze({width:W,height:H,rasterize,draw,FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/model-profiles.js">
-/* REA100_PENDING: js/model-profiles.js */
+/* REA-007: explicit CASIO model profiles grounded in model-specific manuals.
+ * This is a capability/menu inventory, not a statement of numeric emulator parity.
+ * Native DLL emulator version and scan codes are not verified.
+ */
+(function(global){'use strict';
+const common=Object.freeze(['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']);
+const extended=Object.freeze([...common,'INEQ','VERIF','DIST']);
+// REA-069: six ordinary registers plus independent M on the original fx-991ES.
+const REGISTERS=Object.freeze({
+ 'fx-991es':Object.freeze(['A','B','C','D','X','Y','M']),
+ 'fx-991es-plus':Object.freeze(['A','B','C','D','E','F','X','Y','M']),
+ 'fx-991es-plus-c':Object.freeze(['A','B','C','D','E','F','X','Y','M'])
+});
+function registers(model){return REGISTERS[model]||REGISTERS['fx-991es-plus-c']}
+function hasRegister(model,name){return registers(model).includes(name)}
+// REA-098: explicit edition capabilities, not merely a shared keypad handler.
+const FEATURES=Object.freeze({
+ 'fx-991es':Object.freeze(['ran','basic-stat']),
+ 'fx-991es-plus':Object.freeze(['ran','ranint','basic-stat']),
+ 'fx-991es-plus-c':Object.freeze(['ran','ranint','basic-stat','ineq','verif','dist','recurring','dual-table'])
+});
+function hasFeature(model,feature){
+ return Object.prototype.hasOwnProperty.call(FEATURES,model)&&
+  FEATURES[model].includes(feature);
+}
+
+const profiles=Object.freeze({
+ 'fx-991es':Object.freeze({id:'fx-991es',label:'fx-991ES',edition:'original',
+   modes:common,manual:'https://support.casio.com/pdf/004/fx-115ES_991ES_Eng.pdf',
+   hardwareVerified:false}),
+ 'fx-991es-plus':Object.freeze({id:'fx-991es-plus',label:'fx-991ES PLUS (2nd edition)',
+   edition:'2nd edition',modes:common,
+   manual:'https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/calculation_calculator/calculation_modes.html',
+   hardwareVerified:false}),
+ 'fx-991es-plus-c':Object.freeze({id:'fx-991es-plus-c',label:'fx-991ES PLUS C (2nd edition)',
+   edition:'2nd edition C',modes:extended,
+   manual:'https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/calculation_calculator/calculation_modes.html',
+   hardwareVerified:false})
+});
+function get(id){return profiles[id]||profiles['fx-991es-plus-c']}
+function supports(id,mode){return Object.prototype.hasOwnProperty.call(profiles,id)&&profiles[id].modes.includes(mode)}
+const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports,registers,hasRegister,FEATURES,hasFeature});
+global.FreshModels=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/structured-editor.js">
-/* REA100_PENDING: js/structured-editor.js */
+/* REA-009: independent structured textbook expression editor.
+ * No eval, browser dialogs, React or NodeJS. Editable slots form a tree.
+ * The mathematical expression is serialized only for the calculation engine.
+ */
+(function(global){'use strict';
+const FIELDS={fraction:['numerator','denominator'],
+ mixed:['integer','numerator','denominator'],
+ power:['exponent'],exp10:['exponent'],recurring:['period'],squareRoot:['radicand'],
+ cubeRoot:['radicand'],nthRoot:['index','radicand'],logBase:['base','argument'],
+ derivative:['expression','at'],integral:['expression','lower','upper'],
+ summation:['expression','lower','upper']};
+function create(){return {root:[],path:[],offset:0,version:1,undoStack:[]}}
+const MAX_UNDO=40;
+function snapshot(editor){
+ if(!Array.isArray(editor.undoStack))editor.undoStack=[];
+ editor.undoStack.push({root:JSON.parse(JSON.stringify(editor.root)),
+  path:editor.path.map(step=>({...step})),offset:editor.offset});
+ if(editor.undoStack.length>MAX_UNDO)editor.undoStack.shift();
+}
+function undo(editor){
+ if(!editor.undoStack?.length)return false;
+ const prior=editor.undoStack.pop();
+ editor.root=prior.root;editor.path=prior.path;editor.offset=prior.offset;
+ return true;
+}
+function locate(editor){
+ let seq=editor.root;
+ for(const step of editor.path){
+  const node=seq[step.index];
+  if(!node||!FIELDS[node.type]||!Object.prototype.hasOwnProperty.call(node.parts,step.field))throw Error('Invalid editor cursor');
+  seq=node.parts[step.field];
+ }
+ return seq;
+}
+function setPosition(editor,path,offset){
+ editor.path=path.map(x=>({...x}));
+ editor.offset=Math.max(0,Math.min(locate(editor).length,offset));
+}
+function nodeText(node,strict){
+ if(node.type==='char')return node.value;
+ const get=field=>{
+  const s=node.parts[field].map(x=>nodeText(x,strict)).join('');
+  if(!s&&strict)throw Error('Syntax ERROR: missing '+field);
+  return s||'?';
+ };
+ switch(node.type){
+  case 'fraction':return '(('+get('numerator')+')/('+get('denominator')+'))';
+  case 'mixed':{
+   const integer=get('integer'),fraction='(('+get('numerator')+')/('+get('denominator')+'))';
+   // A negative mixed number is -(whole + fraction), not -whole + fraction.
+   return '(('+integer+')'+(integer.trim().startsWith('-')?'-':'+')+fraction+')';
+  }
+  case 'power':return '^('+get('exponent')+')';
+  case 'exp10':return 'E'+get('exponent');
+  case 'recurring':return 'RPT('+get('period')+')';
+  case 'squareRoot':return 'sqrt('+get('radicand')+')';
+  case 'cubeRoot':return 'cbrt('+get('radicand')+')';
+  case 'nthRoot':return 'nthroot('+get('index')+','+get('radicand')+')';
+  case 'logBase':return 'log('+get('base')+','+get('argument')+')';
+  // Fixed native variable X: derivative at X, integral bounds, and sum bounds.
+  case 'derivative':return 'Diff('+get('expression')+','+get('at')+')';
+  case 'integral':return 'Integral('+get('expression')+','+get('lower')+','+get('upper')+')';
+  case 'summation':return 'Sum('+get('expression')+','+get('lower')+','+get('upper')+')';
+ }
+ throw Error('Unknown expression node '+node.type);
+}
+function serialize(editor,strict=false){return editor.root.map(node=>nodeText(node,strict)).join('')}
+function insert(editor,text,overwrite=false){
+ if(!text)return;
+ const seq=locate(editor);
+ snapshot(editor);
+ for(const value of Array.from(String(text))){
+  const char={type:'char',value};
+  // Overwrite only plain characters inside the current field. Never replace
+  // a formula node: discarding it would silently erase nested input.
+  if(overwrite&&seq[editor.offset]?.type==='char')seq[editor.offset]=char;
+  else seq.splice(editor.offset,0,char);
+  editor.offset++;
+ }
+}
+// REA-073: capture a complete preceding operand when a stacked fraction
+// is inserted after it (e.g. 2^3, √4, or (1+2)). Do not absorb binary signs.
+function captureOperandStart(seq,end){
+ let at=end;
+ while(at>0&&seq[at-1].type==='power')at--;
+ if(at<=0)return end;
+ const last=seq[at-1];
+ if(last.type!=='char')return at-1;
+ if(last.value===')'){
+  let depth=0;
+  for(let i=at-1;i>=0;i--){
+   const n=seq[i];
+   if(n.type!=='char')continue;
+   if(n.value===')')depth++;
+   if(n.value==='('){
+    depth--;
+    if(depth===0)return i;
+   }
+  }
+  return end; // Leave unmatched parentheses as editable input.
+ }
+ if(/[0-9.]/.test(last.value)){
+  while(at>0&&seq[at-1].type==='char'&&/[0-9.]/.test(seq[at-1].value))at--;
+  return at;
+ }
+ if(/[A-Za-z]/.test(last.value)){
+  // Identifiers (Ans, X, pi) are single operands in the editor.
+  while(at>0&&seq[at-1].type==='char'&&/[A-Za-z]/.test(seq[at-1].value))at--;
+  return at;
+ }
+ return end;
+}
+function template(editor,type,overwrite=false){
+ const fields=FIELDS[type];
+ if(!fields)throw Error('Unknown template '+type);
+ const seq=locate(editor);
+ snapshot(editor);
+ const node={type,parts:Object.fromEntries(fields.map(field=>[field,[]]))};
+ const before=editor.offset;
+ if(type==='fraction'&&before>0){
+  const at=captureOperandStart(seq,before);
+  if(at!==before){
+   node.parts.numerator=seq.splice(at,before-at);
+   editor.offset=at;
+  }
+ }
+ const parent=editor.path.map(x=>({...x}));
+ const position=editor.offset;
+ if(overwrite&&seq[position]?.type==='char')seq.splice(position,1,node);
+ else seq.splice(position,0,node);
+ const initial=type==='fraction'&&node.parts.numerator.length?'denominator':fields[0];
+ setPosition(editor,[...parent,{index:position,field:initial}],0);
+}
+// REA-073: MathIO INS incorporates the complete operand to the right
+// of the caret into a function. Original CASIO feature, source-modelled.
+function captureFollowingEnd(seq,start){
+ if(start>=seq.length)return start;
+ const first=seq[start];
+ if(first.type!=='char'){
+  let end=start+1;
+  while(end<seq.length&&seq[end].type==='power')end++;
+  return end;
+ }
+ let end=start;
+ if(first.value==='('){
+  let depth=0;
+  for(let i=start;i<seq.length;i++){
+   const node=seq[i];if(node.type!=='char')continue;
+   if(node.value==='(')depth++;
+   if(node.value===')'){
+    depth--;
+    if(depth===0){end=i+1;break}
+   }
+  }
+ }else if(/[0-9.]/.test(first.value)){
+  while(end<seq.length&&seq[end].type==='char'&&/[0-9.]/.test(seq[end].value))end++;
+ }else if(/[A-Za-z]/.test(first.value)){
+  while(end<seq.length&&seq[end].type==='char'&&/[A-Za-z]/.test(seq[end].value))end++;
+ }
+ if(end>start)while(end<seq.length&&seq[end].type==='power')end++;
+ return end;
+}
+function incorporate(editor,type){
+ const targets={fraction:'numerator',squareRoot:'radicand',
+  cubeRoot:'radicand',nthRoot:'radicand',logBase:'argument'};
+ const target=targets[type];
+ if(!target)return false;
+ const seq=locate(editor),start=editor.offset,end=captureFollowingEnd(seq,start);
+ if(end===start)return false;
+ const fields=FIELDS[type];
+ snapshot(editor);
+ const nodes=seq.splice(start,end-start);
+ const templateNode={type,parts:Object.fromEntries(fields.map(field=>[field,[]]))};
+ templateNode.parts[target]=nodes;
+ seq.splice(start,0,templateNode);
+ const next=type==='fraction'?'denominator':
+  type==='nthRoot'?'index':type==='logBase'?'base':target;
+ setPosition(editor,[...editor.path,{index:start,field:next}],0);
+ return true;
+}
+function moveField(editor,direction){
+ const path=editor.path;
+ if(!path.length)return false;
+ const step=path[path.length-1],parent=path.slice(0,-1);
+ let seq=editor.root;
+ for(const entry of parent)seq=seq[entry.index].parts[entry.field];
+ const node=seq[step.index],fields=FIELDS[node.type],pos=fields.indexOf(step.field);
+ let to=pos+(direction>0?1:-1);
+ if(to>=0&&to<fields.length){
+  setPosition(editor,[...parent,{index:step.index,field:fields[to]}],
+   direction>0?0:node.parts[fields[to]].length);
+  return true;
+ }
+ setPosition(editor,parent,step.index+(direction>0?1:0));
+ return true;
+}
+// Enter a neighboring formula only when its logical boundary is crossed.
+function enter(editor,nodeIndex,direction){
+ const seq=locate(editor),node=seq[nodeIndex];
+ const fields=FIELDS[node?.type];
+ if(!fields)return false;
+ const field=direction>0?fields[0]:fields[fields.length-1];
+ const path=[...editor.path,{index:nodeIndex,field}];
+ const child=node.parts[field];
+ setPosition(editor,path,direction>0?0:child.length);
+ return true;
+}
+function navigate(editor,key){
+ const seq=locate(editor);
+ if(key==='LEFT'){
+  if(editor.offset>0){
+   const previous=editor.offset-1;
+   if(enter(editor,previous,-1))return true;
+   editor.offset--;return true;
+  }
+  return moveField(editor,-1);
+ }
+ if(key==='RIGHT'){
+  if(editor.offset<seq.length){
+   const next=editor.offset;
+   if(enter(editor,next,1))return true;
+   editor.offset++;return true;
+  }
+  return moveField(editor,1);
+ }
+ if(key!=='UP'&&key!=='DOWN')return false;
+ // Seek the nearest ancestor with a vertical edit field, preserving all
+ // siblings and deeper children while switching to numerator/denominator.
+ for(let depth=editor.path.length-1;depth>=0;depth--){
+  const step=editor.path[depth],parent=editor.path.slice(0,depth);
+  let parentSeq=editor.root;
+  for(const part of parent)parentSeq=parentSeq[part.index].parts[part.field];
+  const node=parentSeq[step.index];
+  let field=null;
+  if(node.type==='fraction'||node.type==='mixed'){
+   field=key==='UP'?'numerator':'denominator';
+  }else if(node.type==='nthRoot'){
+   field=key==='UP'?'index':'radicand';
+  }else if(node.type==='logBase'){
+   field=key==='UP'?'base':'argument';
+  }else if(node.type==='integral'||node.type==='summation'){
+   field=key==='UP'?'upper':'lower';
+  }else if(node.type==='derivative'){
+   field=key==='UP'?'expression':'at';
+  }
+  if(field&&field!==step.field){
+   const target=[...parent,{index:step.index,field}];
+   setPosition(editor,target,Math.min(editor.offset,node.parts[field].length));
+   return true;
+  }
+ }
+ return false;
+}
+function backspace(editor){
+ const seq=locate(editor);
+ if(editor.offset>0){
+  const index=editor.offset-1;
+  if(seq[index].type==='char'){
+   snapshot(editor);
+   seq.splice(index,1);editor.offset--;return true;
+  }
+  // A full expression node cannot be erased with a single DEL: position the
+  // caret inside it so the student can edit its child without losing content.
+  return enter(editor,index,-1);
+ }
+ if(editor.path.length){
+  const last=editor.path[editor.path.length-1],parent=editor.path.slice(0,-1);
+  let parentSeq=editor.root;
+  for(const step of parent)parentSeq=parentSeq[step.index].parts[step.field];
+  const node=parentSeq[last.index],fields=FIELDS[node.type];
+  if(node.type==='fraction'&&last.field==='denominator'&&
+     node.parts.denominator.length===0&&node.parts.numerator.length>0){
+   // A numerator captured by FRAC must survive if the user cancels the empty
+   // denominator. Restore the exact original expression nodes.
+   const numerator=node.parts.numerator;
+   snapshot(editor);
+   parentSeq.splice(last.index,1,...numerator);
+   setPosition(editor,parent,last.index+numerator.length);
+   return true;
+  }
+  if(fields&&fields.every(field=>node.parts[field].length===0)){
+   snapshot(editor);
+   parentSeq.splice(last.index,1);
+   setPosition(editor,parent,last.index);
+   return true;
+  }
+  return moveField(editor,-1);
+ }
+ return false;
+}
+function fromString(text){
+ const ed=create();insert(ed,String(text||''));return ed;
+}
+function cursor(editor){return {path:editor.path.map(x=>({...x})),offset:editor.offset}}
+function fieldText(editor){return locate(editor).map(node=>nodeText(node,false)).join('')}
+function isComplete(editor){try{serialize(editor,true);return true}catch{return false}}
+const api=Object.freeze({create,fromString,serialize,insert,template,navigate,backspace,cursor,fieldText,isComplete,
+ undo,incorporate,types:Object.freeze(Object.keys(FIELDS))});
+global.FreshStructured=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/exact-symbolic.js">
-/* REA100_PENDING: js/exact-symbolic.js */
+/* REA-074: bounded source-based exact scalar algebra.
+ * Supports rational + one radical OR rational + pi coefficient.
+ * No numerical rational reconstruction, broad CAS, or CASIO firmware claims.
+ */
+(function(global){'use strict';
+const LIMIT=1000000000000n, MAX_ROOT=1000000n;
+const abs=n=>n<0n?-n:n;
+function gcd(a,b){a=abs(a);b=abs(b);while(b){const x=a%b;a=b;b=x}return a||1n}
+function q(n,d=1n){
+ n=BigInt(n);d=BigInt(d);
+ if(!d)throw Error('Math ERROR');
+ if(d<0n){n=-n;d=-d}
+ const k=gcd(n,d);n/=k;d/=k;
+ if(abs(n)>LIMIT||d>LIMIT)return null;
+ return {n,d};
+}
+const zero=()=>q(0n),one=()=>q(1n);
+function addQ(a,b){return a&&b?q(a.n*b.d+b.n*a.d,a.d*b.d):null}
+function negQ(a){return a&&q(-a.n,a.d)}
+function subQ(a,b){return addQ(a,negQ(b))}
+function mulQ(a,b){return a&&b?q(a.n*b.n,a.d*b.d):null}
+function divQ(a,b){return a&&b&&b.n!==0n?q(a.n*b.d,a.d*b.n):null}
+function form(a,b=zero(),kind=null,d=0n){
+ if(!a||!b)return null;
+ if(b.n===0n){kind=null;d=0n}
+ return {a,b,kind,d};
+}
+const scalar=x=>form(x);
+function root(n){
+ if(n<0n||n>MAX_ROOT)return null;
+ if(n===0n)return scalar(zero());
+ let k=1n,d=n;
+ for(let i=2n;i*i<=d;i++){
+  while(d%(i*i)===0n){k*=i;d/=i*i}
+ }
+ return d===1n?scalar(q(k)):form(zero(),q(k),'sqrt',d);
+}
+function compatible(x,y){
+ if(!x.kind)return y.kind;
+ if(!y.kind)return x.kind;
+ return x.kind===y.kind&&x.d===y.d?x.kind:null;
+}
+function plus(x,y,sign=1){
+ if(!x||!y)return null;
+ const kind=compatible(x,y);
+ if(x.kind&&y.kind&&!kind)return null;
+ const a=sign===1?addQ(x.a,y.a):subQ(x.a,y.a);
+ const b=sign===1?addQ(x.b,y.b):subQ(x.b,y.b);
+ return form(a,b,kind,x.kind?x.d:y.d);
+}
+function times(x,y){
+ if(!x||!y)return null;
+ if(!x.kind&&!y.kind)return scalar(mulQ(x.a,y.a));
+ if(!x.kind||!y.kind){
+  const t=x.kind?x:y,r=x.kind?y:x;
+  return form(mulQ(t.a,r.a),mulQ(t.b,r.a),t.kind,t.d);
+ }
+ if(x.kind==='pi'||y.kind==='pi')return null;
+ // Different radicals are reducible only if both are pure radicals.
+ if(x.d!==y.d){
+  if(x.a.n||y.a.n)return null;
+  const factor=mulQ(x.b,y.b),rad=root(x.d*y.d);
+  return factor&&rad?times(rad,scalar(factor)):null;
+ }
+ return form(addQ(mulQ(x.a,y.a),mulQ(mulQ(x.b,y.b),q(x.d))),
+  addQ(mulQ(x.a,y.b),mulQ(x.b,y.a)),'sqrt',x.d);
+}
+function inverse(y){
+ if(!y)return null;
+ if(!y.kind)return scalar(divQ(one(),y.a));
+ if(y.kind==='pi')return null; // No 1/pi exact-format inference.
+ const denom=subQ(mulQ(y.a,y.a),mulQ(mulQ(y.b,y.b),q(y.d)));
+ if(!denom||!denom.n)return null;
+ return form(divQ(y.a,denom),divQ(negQ(y.b),denom),'sqrt',y.d);
+}
+function divide(x,y){return times(x,inverse(y))}
+function power(x,y){
+ if(!x||!y||y.kind||y.a.d!==1n||abs(y.a.n)>12n)return null;
+ let n=y.a.n,z=scalar(one());
+ if(n<0n){x=inverse(x);n=-n}
+ if(!x)return null;
+ for(let i=0n;i<n;i++){z=times(z,x);if(!z)return null}
+ return z;
+}
+function tokenize(text){
+ const s=String(text).replace(/\s+/g,'').replace(/π/g,'pi').replace(/√/g,'sqrt').replace(/×/g,'*').replace(/÷/g,'/');
+ if(!s||s.length>180)return null;
+ const tokens=[];
+ for(let i=0;i<s.length;){
+  const tail=s.slice(i);
+  const number=/^(?:\d+(?:\.\d*)?|\.\d+)/.exec(tail);
+  if(number){tokens.push({type:'num',value:number[0]});i+=number[0].length;continue}
+  const name=/^[A-Za-z_][A-Za-z_0-9]*/.exec(tail);
+  if(name){if(!['pi','sqrt'].includes(name[0]))return null;tokens.push({type:'id',value:name[0]});i+=name[0].length;continue}
+  if(!'+-*/^()'.includes(s[i]))return null;
+  tokens.push({type:'op',value:s[i++]});
+  if(tokens.length>180)return null;
+ }
+ return tokens;
+}
+function literal(s){
+ const [integer,fraction='']=s.split('.');
+ if(fraction.length>12)return null;
+ return q(BigInt(integer||'0')*10n**BigInt(fraction.length)+BigInt(fraction||'0'),10n**BigInt(fraction.length));
+}
+function evaluate(source){
+ try{
+  const t=tokenize(source);if(!t)return null;
+  let i=0;const peek=()=>t[i];const take=()=>t[i++];
+  function primary(){
+   const current=take();if(!current)return null;
+   if(current.value==='+')return expression(25);
+   if(current.value==='-'){const a=expression(25);return a?times(scalar(q(-1n)),a):null}
+   if(current.value==='('){const a=expression(0);if(take()?.value!==')')return null;return a}
+   if(current.type==='num')return scalar(literal(current.value));
+   if(current.value==='pi')return form(zero(),one(),'pi');
+   if(current.value==='sqrt'){
+    if(take()?.value!=='(')return null;
+    const arg=expression(0);
+    if(take()?.value!==')'||!arg||arg.kind||arg.a.d!==1n)return null;
+    return root(arg.a.n);
+   }
+   return null;
+  }
+  function expression(min){
+   let left=primary();if(!left)return null;
+   while(i<t.length){
+    const next=peek();if(next.value===')')break;
+    const implicit=next.type==='num'||next.type==='id'||next.value==='(';
+    const op=implicit?'*':next.value;
+    const bp={'+':10,'-':10,'*':20,'/':20,'^':30}[op];
+    if(bp===undefined||bp<min)break;
+    if(!implicit)take();
+    const right=expression(op==='^'?bp:bp+1);
+    if(!right)return null;
+    left=op==='+'?plus(left,right):op==='-'?plus(left,right,-1):
+     op==='*'?times(left,right):op==='/'?divide(left,right):power(left,right);
+    if(!left)return null;
+   }
+   return left;
+  }
+  const result=expression(0);
+  if(!result||i!==t.length)return null;
+  return result;
+ }catch{return null}
+}
+function formatQ(v){
+ if(!v)return null;
+ return v.d===1n?v.n.toString():v.n.toString()+'/'+v.d.toString();
+}
+function formatted(f){
+ if(!f||!f.kind||f.b.n===0n)return null;
+ const a=f.a,b=f.b;
+ const mag=abs(b.n),unit=f.kind==='pi'?'π':'√'+f.d;
+ const coeff=mag===b.d?'':b.d===1n?mag.toString():mag.toString()+'/'+b.d.toString();
+ const irrational=b.d===1n?coeff+unit:
+  (mag===1n?'':mag.toString())+unit+'/'+b.d.toString();
+ const pre=a.n?formatQ(a):'';
+ const text=pre+((a.n||b.n<0n)?b.n<0n?'-':'+':'')+irrational;
+ // Keep exact output bounded to native LCD-friendly forms.
+ if(text.length>22)return null;
+ const numeric=Number(a.n)/Number(a.d)+Number(b.n)/Number(b.d)*
+  (f.kind==='pi'?Math.PI:Math.sqrt(Number(f.d)));
+ if(!Number.isFinite(numeric))return null;
+ return {kind:f.kind==='pi'?'pi':'surd',text,exact:true,
+  numeric,coefficient:{numerator:b.n.toString(),denominator:b.d.toString()},
+  rational:{numerator:a.n.toString(),denominator:a.d.toString()},
+  radicand:f.kind==='sqrt'?Number(f.d):undefined};
+}
+function rational(source,value){
+ const f=evaluate(source);
+ if(!f||f.kind||!Number.isFinite(value))return null;
+ const exact=Number(f.a.n)/Number(f.a.d);
+ if(!Number.isFinite(exact)||Math.abs(exact-value)>2e-10*Math.max(1,Math.abs(value)))return null;
+ return {numerator:f.a.n.toString(),denominator:f.a.d.toString()};
+}
+function symbolic(source,value){
+ const f=evaluate(source),out=formatted(f);
+ if(!out||!Number.isFinite(value))return null;
+ if(Math.abs(out.numeric-value)>2e-10*Math.max(1,Math.abs(value)))return null;
+ return out;
+}
+const api=Object.freeze({evaluate,symbolic,rational,formatted});
+global.FreshExactSymbolic=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/result-format.js">
-/* REA100_PENDING: js/result-format.js */
+/* REA-011: result representations on an independent educational calculator.
+ * Only demonstrably simple symbolic classes are converted; unknown numbers
+ * remain decimals instead of guessing a fraction/pi/root identity.
+ */
+(function(global){'use strict';
+const DEFAULTS={math:true,format:'Norm2',digits:3,fractionStyle:'improper',decimalSeparator:'dot'};
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){const r=a%b;a=b;b=r}return a||1};
+function reduced(n,d){
+ if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||d===0)return null;
+ if(d<0){n=-n;d=-d}
+ const g=gcd(n,d);return {numerator:n/g,denominator:d/g};
+}
+function rational(value,maxD=10000){
+ if(!Number.isFinite(value)||Math.abs(value)>1e10)return null;
+ // Approximation only; do not infer irrational symbolic forms from decimals.
+ for(let d=1;d<=maxD;d++){
+  const n=Math.round(value*d);
+  if(Number.isSafeInteger(n)&&Math.abs(n/d-value)<1e-12*Math.max(1,Math.abs(value))){
+   return reduced(n,d);
+  }
+ }
+ return null;
+}
+function parseSimpleFraction(source){
+ const text=String(source).replace(/\s+/g,'');
+ const m=/^\(?\(?(-?\d+)\)?\/\(?(-?\d+)\)?\)?$/.exec(text);
+ if(!m)return null;
+ return reduced(Number(m[1]),Number(m[2]));
+}
+function symbolic(value,source){
+ if(!Number.isFinite(value))return null;
+ const compact=String(source||'').replace(/\s+/g,'').replace(/π/g,'pi');
+ // Only known symbolic source expressions can create a symbolic result.
+ if(compact==='pi'&&Math.abs(value-Math.PI)<1e-10)return {kind:'pi',coefficient:reduced(1,1),text:'π'};
+ let m=/^(?:\(?([-+]?\d+)\)?\*?)?pi(?:\/\(?([-+]?\d+)\)?)?$/.exec(compact);
+ if(m){
+  const q=reduced(Number(m[1]||1),Number(m[2]||1));
+  if(q&&Math.abs(q.numerator/q.denominator*Math.PI-value)<1e-10){
+   const a=q.numerator,d=q.denominator;
+   return {kind:'pi',coefficient:q,text:(a===1&&d===1?'':d===1?String(a):a+'/'+d)+'π'};
+  }
+ }
+ m=/^sqrt\(?(\d+)\)?$/.exec(compact);
+ if(m){
+  let n=Number(m[1]);
+  if(Number.isSafeInteger(n)&&n>=0&&Math.abs(Math.sqrt(n)-value)<1e-12){
+   let k=1,r=n;
+   for(let i=2;i*i<=r;i++)while(r%(i*i)===0){r/=i*i;k*=i}
+   if(r>1)return {kind:'surd',coefficient:k,radicand:r,text:(k===1?'':k)+'√'+r};
+  }
+ }
+ return null;
+}
+function sci(value,digits){
+ return global.FreshNumberFormat.sci(value,digits===0?10:digits);
+}
+function decimal(value,settings={}){
+ const cfg={...DEFAULTS,...settings};
+ return global.FreshNumberFormat.format(value,cfg);
+}
+function fractionText(q,style='improper'){
+ const n=q.numerator,d=q.denominator;
+ if(d===1)return String(n);
+ if(style==='mixed'&&Math.abs(n)>d){
+  const integer=Math.trunc(n/d),remainder=Math.abs(n)%d;
+  // Count integer, numerator, denominator and two separator positions.
+  if(remainder){
+   const text=integer+' '+remainder+'/'+d;
+   return text.length<=10?text:null;
+  }
+ }
+ return n+'/'+d;
+}
+function fractionParts(q,style){
+ const n=q.numerator,d=q.denominator;
+ if(d===1)return {kind:'decimal',text:String(n)};
+ const text=fractionText(q,style);
+ if(text===null)return null;
+ if(text.includes(' ')){
+  const [integer,ratio]=text.split(' ');
+  const [numerator,denominator]=ratio.split('/');
+  return {kind:'mixed',text,integer,numerator,denominator};
+ }
+ return {kind:'fraction',text,numerator:String(n),denominator:String(d)};
+}
+function exactFractionParts(q,style){
+ const n=BigInt(q.numerator),d=BigInt(q.denominator);
+ if(d<=0n)return null;
+ if(d===1n)return {kind:'decimal',text:n.toString()};
+ if(style==='mixed'&& (n<0n?-n:n)>d){
+  const whole=n/d,remainder=(n<0n?-n:n)%d;
+  if(remainder){
+   const text=whole.toString()+' '+remainder.toString()+'/'+d.toString();
+   if(text.length<=10)return {kind:'mixed',text,integer:whole.toString(),numerator:remainder.toString(),denominator:d.toString()};
+   return null; // Mixed form too wide; no silent improper substitution.
+  }
+ }
+ const text=n.toString()+'/'+d.toString();
+ return {kind:'fraction',text,numerator:n.toString(),denominator:d.toString()};
+}
+function calculate(value,source,settings={},options={}){
+ const cfg={...DEFAULTS,...settings},digits=cfg.digits;
+ const decimalText=decimal(value,cfg);
+ const preferred=(!!cfg.math&&cfg.outputMath!==false&&['Norm1','Norm2'].includes(cfg.format))||options.forceFraction===true;
+ const exact=options.exactRational||parseSimpleFraction(source);
+ const exactFromEngine=options.exactRational&&/^[-]?\d+$/.test(String(exact.numerator))&&/^\d+$/.test(String(exact.denominator));
+ const fraction=exactFromEngine?exact:
+  exact&&Math.abs(exact.numerator/exact.denominator-value)<=1e-12*Math.max(1,Math.abs(value))?
+  exact:options.allowApproxRational?rational(value):null;
+ // REA-074: derive exact radical/pi combinations from a bounded source
+ // expression tree, never from an approximate decimal identity.
+ // Force-fraction is used for S⇔D in LineIO. It must not also enable
+ // a radical/pi identity: those forms require a genuine MathO source result.
+ const symbolicCandidate=preferred&&!!cfg.math&&cfg.outputMath!==false&&
+  ['Norm1','Norm2'].includes(cfg.format)?
+  (global.FreshExactSymbolic?.symbolic(source,value)||symbolic(value,source)):null;
+ let natural={kind:'decimal',text:decimalText};
+ if(preferred&&symbolicCandidate)natural=symbolicCandidate;
+ else if(preferred&&fraction){
+  // A large exact integer should keep its standard scientific LCD presentation.
+  // Exact numerator/denominator metadata is still retained for Ans chaining.
+  const hugeInteger=exactFromEngine&&BigInt(fraction.denominator)===1n&&
+   String(fraction.numerator).replace('-','').length>10;
+  if(!hugeInteger){
+   const candidate=exactFromEngine?
+    exactFractionParts(fraction,cfg.fractionStyle):fractionParts(fraction,cfg.fractionStyle);
+   if(candidate)natural=candidate;
+  }
+ }
+ const chosen=options.decimal?{kind:'decimal',text:decimalText}:natural;
+ return {natural,decimal:{kind:'decimal',text:decimalText},chosen,hasAlternate:chosen.kind!=='decimal',
+  fraction,exactRational:!!fraction&&!!exact,symbolic:symbolicCandidate};
+}
+function engineeringPlain(value){
+ const rounded=Number(value.toPrecision(10));
+ if(rounded===0)return '0';
+ const sign=rounded<0?'-':'';
+ const [mantissa,eText]=Math.abs(rounded).toExponential(9).split('e');
+ const figures=mantissa.replace('.','').replace(/0+$/,'');
+ const position=Number(eText)+1;
+ if(position<=0)return sign+'0.'+'0'.repeat(-position)+figures;
+ if(position>=figures.length)return sign+figures+'0'.repeat(position-figures.length);
+ return sign+figures.slice(0,position)+'.'+figures.slice(position);
+}
+function engineering(value,shift=0,settings={}){
+ if(!Number.isFinite(value)||!Number.isInteger(shift))return null;
+ const magnitude=Math.abs(value);
+ const base=value===0?0:Math.floor(Math.floor(Math.log10(magnitude))/3)*3;
+ const exponent=base+3*shift;
+ if(exponent>99||exponent< -99)return null;
+ const mantissa=value===0?0:value/10**exponent;
+ if(!Number.isFinite(mantissa))return null;
+ const number=engineeringPlain(mantissa);
+ const text=(settings.decimalSeparator==='comma'?number.replace('.',','):number)+'×10^'+exponent;
+ return {kind:'engineering',text,mantissa,exponent,shift};
+}
+const api=Object.freeze({calculate,decimal,sci,rational,reduced,parseSimpleFraction,
+ fractionText,fractionParts,symbolic,engineering});
+global.FreshResults=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/setup.js">
-/* REA100_PENDING: js/setup.js */
+/* REA-012: documented SETUP menu structure, separate from calculation MODE.
+ * Official CASIO fx-991ES/PLUS/PLUS C manuals; firmware and LCD parity unverified.
+ */
+(function(global){'use strict';
+const SETUP_PAGE_1=Object.freeze([
+  {key:'1',label:'MthIO',id:'mthio'},
+  {key:'2',label:'LineIO',id:'lineio'},
+  {key:'3',label:'Deg',id:'deg'},
+  {key:'4',label:'Rad',id:'rad'},
+  {key:'5',label:'Gra',id:'gra'},
+  {key:'6',label:'Fix',id:'fix'},
+  {key:'7',label:'Sci',id:'sci'},
+  {key:'8',label:'Norm',id:'norm'}
+]);
+const SECOND_ORIGINAL=Object.freeze([
+  {key:'1',label:'ab/c',id:'mixed'},
+  {key:'2',label:'d/c',id:'improper'},
+  {key:'3',label:'CMPLX',id:'complex'},
+  {key:'4',label:'STAT',id:'stat'},
+  {key:'5',label:'Disp',id:'disp'},
+  {key:'6',label:'CONT',id:'contrast'}
+]);
+const SECOND_PLUS=SECOND_ORIGINAL;
+const SECOND_C=Object.freeze([
+  ...SECOND_ORIGINAL.slice(0,4),
+  {key:'5',label:'TABLE',id:'table'},
+  {key:'6',label:'Rdec',id:'recurring'},
+  {key:'7',label:'Disp',id:'disp'},
+  {key:'8',label:'CONT',id:'contrast'}
+]);
+const ALL=Object.freeze({
+ 'fx-991es':Object.freeze([SETUP_PAGE_1,SECOND_ORIGINAL]),
+ 'fx-991es-plus':Object.freeze([SETUP_PAGE_1,SECOND_PLUS]),
+ 'fx-991es-plus-c':Object.freeze([SETUP_PAGE_1,SECOND_C])
+});
+const DEFAULTS=Object.freeze({
+ angle:'DEG',format:'Norm1',digits:3,math:true,outputMath:true,
+ fractionStyle:'improper',complexFormat:'rectangular',statFrequency:false,
+ tableFunctions:2,recurringDecimal:true,decimalSeparator:'dot',contrast:5
+});
+function pages(model){return ALL[model]||ALL['fx-991es-plus-c']}
+function entries(model){return pages(model).flatMap((items,page)=>
+ items.map(entry=>Object.freeze({...entry,page})))}
+function setting(model,id){return entries(model).find(entry=>entry.id===id)||null}
+function selection(model,page,key){
+ const group=pages(model)[page];
+ return group?group.find(entry=>entry.key===String(key))||null:null;
+}
+function options(id){
+ const mapping={
+  mthio:[['1','MathO','matho'],['2','LineO','lineo']],
+  norm:[['1','Norm1','norm1'],['2','Norm2','norm2']],
+  complex:[['1','a+bi','rectangular'],['2','r∠θ','polar']],
+  stat:[['1','ON','on'],['2','OFF','off']],
+  table:[['1','f(x)','single'],['2','f(x),g(x)','double']],
+  recurring:[['1','ON','on'],['2','OFF','off']],
+  disp:[['1','Dot','dot'],['2','Comma','comma']]
+ };
+ return (mapping[id]||[]).map(([key,label,value])=>({key,label,value}));
+}
+const api=Object.freeze({pages,entries,setting,selection,options,defaults:DEFAULTS,models:ALL});
+global.FreshSetup=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/stat-editor.js">
-/* REA100_PENDING: js/stat-editor.js */
+/* REA-047 — LCD-native STAT table model, independent of the page DOM. */
+(function(global){'use strict';
+const MAX_ROWS=80,MAX_WEIGHT=100000;
+// CASIO fx-991ES PLUS editor: 80 X; 40 X/FREQ or X/Y; 26 X/Y/FREQ.
+function rowCapacity(s){return s.paired?(s.frequency?26:40):(s.frequency?40:80)}
+function fail(msg='Argument ERROR'){throw Error(msg)}
+function columns(paired,frequency){return paired?(frequency?['X','Y','FREQ']:['X','Y']):(frequency?['X','FREQ']:['X'])}
+function newRow(){return {X:null,Y:null,FREQ:1}}
+function create(paired=false,frequency=false){return {paired:!!paired,frequency:!!frequency,rows:[newRow()],row:0,col:0,buffer:'',editing:false,scroll:0,error:''}}
+function active(s){return columns(s.paired,s.frequency)[s.col]}
+function rowValue(s){const v=s.rows[s.row][active(s)];return v===null?'':String(v)}
+function load(s){s.buffer=rowValue(s);s.editing=false;s.error='';return s}
+function parse(s){
+ const col=active(s),text=s.buffer.trim();
+ if(!text){if(col==='FREQ')return 1;return null}
+ if(text.length>32)fail();
+ const value=Number(text);
+ if(!Number.isFinite(value)||Math.abs(value)>=1e100)fail();
+ if(col==='FREQ'&&(!Number.isInteger(value)||value<0||value>MAX_WEIGHT))fail();
+ return value;
+}
+function commit(s){
+ // Navigation and calculating must not overwrite stored cells with a stale
+ // empty buffer. Only a key-initiated editing session may modify a value.
+ if(!s.editing)return s;
+ const value=parse(s);
+ s.rows[s.row][active(s)]=value;s.editing=false;s.error='';
+ return s;
+}
+function move(s,dr,dc){
+ commit(s);
+ const cols=columns(s.paired,s.frequency);
+ s.row=Math.max(0,Math.min(s.rows.length-1,s.row+dr));
+ s.col=Math.max(0,Math.min(cols.length-1,s.col+dc));
+ return load(s);
+}
+function insert(s){
+ commit(s);
+ if(s.rows.length>=rowCapacity(s))fail('Data Full');
+ s.rows.splice(s.row+1,0,newRow());s.row++;s.col=0;
+ return load(s);
+}
+function remove(s){
+ if(s.rows.length===1){s.rows[0]=newRow();s.row=0}
+ else{s.rows.splice(s.row,1);s.row=Math.min(s.row,s.rows.length-1)}
+ s.col=0;return load(s);
+}
+function toggleFrequency(s,enabled){
+ // No entered X/Y or stored frequencies are discarded by hiding a column.
+ commit(s);
+ if(s.rows.length>rowCapacity({...s,frequency:!!enabled}))fail('Data Full');
+ s.frequency=!!enabled;
+ s.col=Math.min(s.col,columns(s.paired,s.frequency).length-1);
+ return load(s);
+}
+function type(s,addition,overwrite=false){
+ const c=String(addition);
+ if(!/^[0-9.Ee+\-]+$/.test(c)||s.buffer.length+c.length>32)fail();
+ if(!s.editing){s.buffer='';s.editing=true}
+ s.buffer=overwrite?s.buffer.slice(0,-1)+c:s.buffer+c;
+ s.error='';return s;
+}
+function calculate(s){
+ commit(s);
+ let n=0,sumX=0,sumY=0,sumX2=0,sumY2=0,sumXY=0,min=Infinity,max=-Infinity,nonempty=0;
+ for(const row of s.rows){
+  if(row.X===null){if(row.Y!==null)fail();continue}
+  if(s.paired&&row.Y===null)fail();
+  const f=s.frequency?row.FREQ:1;
+  if(!Number.isInteger(f)||f<0||f>MAX_WEIGHT)fail();
+  if(f===0)continue;
+  n+=f;if(n>MAX_WEIGHT)fail('Data Full');
+  nonempty++;
+  const x=row.X,y=row.Y??0;
+  sumX+=f*x;sumX2+=f*x*x;min=Math.min(min,x);max=Math.max(max,x);
+  if(s.paired){sumY+=f*y;sumY2+=f*y*y;sumXY+=f*x*y}
+ }
+ if(!n||!nonempty)fail('Argument ERROR');
+ const meanX=sumX/n,varianceX=Math.max(0,sumX2/n-meanX*meanX);
+ const result={n,sumX,meanX,sdX:Math.sqrt(varianceX),sampleSDX:n>1?Math.sqrt(varianceX*n/(n-1)):null,min,max};
+ if(s.paired){
+  const meanY=sumY/n,varianceY=Math.max(0,sumY2/n-meanY*meanY),covariance=sumXY/n-meanX*meanY;
+  const slope=varianceX>0?covariance/varianceX:null;
+  const correlation=varianceX>0&&varianceY>0?covariance/Math.sqrt(varianceX*varianceY):null;
+  Object.assign(result,{sumY,meanY,sdY:Math.sqrt(varianceY),sumXY,slope,intercept:slope===null?null:meanY-slope*meanX,correlation});
+ }
+ return result;
+}
+function lines(result,paired=false){
+ const format=n=>n===null?'N/A':String(Number(n.toPrecision(12)));
+ const rows=[['n',result.n],['Sum X',result.sumX],['Mean X',result.meanX],['Sigma X',result.sdX],['s X',result.sampleSDX]];
+ if(paired)rows.push(['Sum Y',result.sumY],['Mean Y',result.meanY],['Sigma Y',result.sdY],['Sum XY',result.sumXY],['a',result.intercept],['b',result.slope],['r',result.correlation]);
+ else rows.push(['Min',result.min],['Max',result.max]);
+ return rows.map(([name,v])=>name+' = '+format(v));
+}
+const API=Object.freeze({MAX_ROWS,rowCapacity,columns,create,active,load,parse,commit,move,insert,remove,toggleFrequency,type,calculate,lines});
+global.FreshStatEditor=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/stat-regression.js">
-/* REA100_PENDING: js/stat-regression.js */
+/* REA-048: independent weighted STAT regression models; no firmware or eval. */
+(function(g){'use strict';
+const TYPES=Object.freeze([['1VAR','1-VAR'],['LIN','A+BX'],['QUAD','_+CX2'],['LOG','ln X'],['EXP','e^X'],['ABEXP','A*B^X'],['POWER','A*X^B'],['INV','1/X']].map(([id,label],i)=>Object.freeze({id,label,paired:i>0})));
+const fail=(reason='Math ERROR')=>{throw Error(reason)};
+const finite=v=>{if(!Number.isFinite(v)||Math.abs(v)>9.999999999e99)fail();return v};
+function observations(t){
+ if(!t||!Array.isArray(t.rows))fail('Argument ERROR');
+ let n=0;const rows=[];
+ for(const r of t.rows){
+  if(r.X===null){if(t.paired&&r.Y!==null)fail('Argument ERROR');continue}
+  if(!Number.isFinite(r.X)||t.paired&&!Number.isFinite(r.Y))fail('Argument ERROR');
+  const w=t.frequency?r.FREQ:1;
+  if(!Number.isInteger(w)||w<0||w>100000)fail('Argument ERROR');
+  if(!w)continue;n+=w;if(n>100000)fail('Data Full');
+  rows.push({x:finite(r.X),y:t.paired?finite(r.Y):0,w});
+ }
+ if(!n)fail('Argument ERROR');
+ return {rows,n};
+}
+function summary(t){
+ const {rows,n}=observations(t),sum=fn=>finite(rows.reduce((s,r)=>s+r.w*fn(r),0));
+ const sumX=sum(r=>r.x),sumX2=sum(r=>r.x*r.x),meanX=finite(sumX/n);
+ const varianceX=finite(Math.max(0,sum(r=>(r.x-meanX)**2)/n));
+ const out={n,sumX,sumX2,meanX,varianceX,sdX:Math.sqrt(varianceX),sampleSDX:n>1?Math.sqrt(varianceX*n/(n-1)):null,
+  minX:Math.min(...rows.map(r=>r.x)),maxX:Math.max(...rows.map(r=>r.x))};
+ if(t.paired){
+  const sumY=sum(r=>r.y),sumY2=sum(r=>r.y*r.y),meanY=sumY/n,varianceY=finite(Math.max(0,sum(r=>(r.y-meanY)**2)/n));
+  Object.assign(out,{sumY,sumY2,sumXY:sum(r=>r.x*r.y),sumX3:sum(r=>r.x**3),sumX2Y:sum(r=>r.x*r.x*r.y),sumX4:sum(r=>r.x**4),
+   meanY,varianceY,sdY:Math.sqrt(varianceY),sampleSDY:n>1?Math.sqrt(varianceY*n/(n-1)):null,
+   minY:Math.min(...rows.map(r=>r.y)),maxY:Math.max(...rows.map(r=>r.y))});
+ }
+ return out;
+}
+function linear(rows){
+ const n=rows.reduce((v,r)=>v+r.w,0),mx=rows.reduce((v,r)=>v+r.w*r.x,0)/n,my=rows.reduce((v,r)=>v+r.w*r.y,0)/n;
+ let xx=0,yy=0,xy=0;
+ for(const r of rows){const dx=r.x-mx,dy=r.y-my;xx+=r.w*dx*dx;yy+=r.w*dy*dy;xy+=r.w*dx*dy}
+ if(!Number.isFinite(xx)||xx<=0)fail();
+ const B=finite(xy/xx),A=finite(my-B*mx),correlation=yy>0?Math.max(-1,Math.min(1,xy/Math.sqrt(xx*yy))):null;
+ return {A,B,correlation};
+}
+function gaussian3(m,b){
+ const a=m.map((v,i)=>[...v,b[i]]);
+ for(let i=0;i<3;i++){
+  let p=i;for(let j=i+1;j<3;j++)if(Math.abs(a[j][i])>Math.abs(a[p][i]))p=j;
+  if(!Number.isFinite(a[p][i])||Math.abs(a[p][i])<1e-13)fail();
+  [a[p],a[i]]=[a[i],a[p]];
+  const d=a[i][i];for(let k=i;k<4;k++)a[i][k]/=d;
+  for(let j=0;j<3;j++)if(j!==i){const q=a[j][i];for(let k=i;k<4;k++)a[j][k]-=q*a[i][k]}
+ }
+ return a.map(v=>finite(v[3]));
+}
+function quad(rows){
+ const n=rows.reduce((v,r)=>v+r.w,0),center=rows.reduce((v,r)=>v+r.w*r.x,0)/n;
+ const span=Math.max(...rows.map(r=>Math.abs(r.x-center)));if(!Number.isFinite(span)||span<=0)fail();
+ const moments=[0,0,0,0,0],rhs=[0,0,0];
+ for(const r of rows){const u=(r.x-center)/span;let power=1;
+  for(let i=0;i<5;i++){moments[i]+=r.w*power;if(i<3)rhs[i]+=r.w*power*r.y;power*=u}
+ }
+ const [q0,q1,q2]=gaussian3([[moments[0],moments[1],moments[2]],[moments[1],moments[2],moments[3]],[moments[2],moments[3],moments[4]]],rhs);
+ const C=finite(q2/span**2),B=finite(q1/span-2*C*center),A=finite(q0-q1*center/span+C*center**2);
+ return {A,B,C,correlation:null};
+}
+function fit(t,type){
+ if(!TYPES.some(x=>x.id===type)||type==='1VAR'||!t.paired)fail('Argument ERROR');
+ const {rows}=observations(t);
+ if(type==='QUAD')return {type,...quad(rows)};
+ const mapped=rows.map(({x,y,w})=>{
+  let u=x,v=y;
+  if(type==='LOG'){if(x<=0)fail();u=Math.log(x)}
+  if(type==='EXP'||type==='ABEXP'){if(y<=0)fail();v=Math.log(y)}
+  if(type==='POWER'){if(x<=0||y<=0)fail();u=Math.log(x);v=Math.log(y)}
+  if(type==='INV'){if(x===0)fail();u=1/x}
+  return {x:finite(u),y:finite(v),w};
+ });
+ let {A,B,correlation}=linear(mapped);
+ if(['EXP','ABEXP','POWER'].includes(type))A=finite(Math.exp(A));
+ if(type==='ABEXP')B=finite(Math.exp(B));
+ return {type,A,B,C:null,correlation};
+}
+function estimateY(m,x){
+ finite(x);let y;const {A,B,C,type}=m;
+ switch(type){
+ case 'LIN':y=A+B*x;break;
+ case 'QUAD':y=A+B*x+C*x*x;break;
+ case 'LOG':if(x<=0)fail();y=A+B*Math.log(x);break;
+ case 'EXP':y=A*Math.exp(B*x);break;
+ case 'ABEXP':y=A*Math.pow(B,x);break;
+ case 'POWER':if(x<=0)fail();y=A*Math.pow(x,B);break;
+ case 'INV':if(!x)fail();y=A+B/x;break;
+ default:fail('Argument ERROR');
+ }
+ return finite(y);
+}
+function estimateX(m,y){
+ finite(y);const {A,B,C,type}=m;
+ if(type==='QUAD'){
+  if(C===0){if(!B)fail();return [finite((y-A)/B)]}
+  const d=B*B-4*C*(A-y);if(d<0||!Number.isFinite(d))fail();
+  return [finite((-B-Math.sqrt(d))/(2*C)),finite((-B+Math.sqrt(d))/(2*C))];
+ }
+ let x;
+ switch(type){
+ case 'LIN':if(!B)fail();x=(y-A)/B;break;
+ case 'LOG':if(!B)fail();x=Math.exp((y-A)/B);break;
+ case 'EXP':if(y<=0||A<=0||!B)fail();x=Math.log(y/A)/B;break;
+ case 'ABEXP':if(y<=0||A<=0||B<=0||B===1)fail();x=Math.log(y/A)/Math.log(B);break;
+ case 'POWER':if(y<=0||A<=0||!B)fail();x=Math.pow(y/A,1/B);break;
+ case 'INV':if(y===A)fail();x=B/(y-A);if(x===0)fail();break;
+ default:fail('Argument ERROR');
+ }
+ return [finite(x)];
+}
+function format(v){return v===null?'N/A':String(Number(finite(v).toPrecision(12)))}
+function lines(pairs){return pairs.map(([k,v])=>k+' = '+format(v))}
+function sumLines(s,paired){
+ const a=[['Sum X2',s.sumX2],['Sum X',s.sumX]];
+ if(paired)a.push(['Sum Y2',s.sumY2],['Sum Y',s.sumY],['Sum XY',s.sumXY],['Sum X3',s.sumX3],['Sum X2Y',s.sumX2Y],['Sum X4',s.sumX4]);
+ return lines(a);
+}
+function varLines(s,paired){
+ const a=[['n',s.n],['Mean X',s.meanX],['Sigma X',s.sdX],['s X',s.sampleSDX]];
+ if(paired)a.push(['Mean Y',s.meanY],['Sigma Y',s.sdY],['s Y',s.sampleSDY]);
+ return lines(a);
+}
+function minMaxLines(s,paired){return lines(paired?[['minX',s.minX],['maxX',s.maxX],['minY',s.minY],['maxY',s.maxY]]:[['minX',s.minX],['maxX',s.maxX]])}
+function regLines(m){return lines(m.type==='QUAD'?[['A',m.A],['B',m.B],['C',m.C]]:[['A',m.A],['B',m.B],['r',m.correlation]])}
+const API=Object.freeze({TYPES,observations,summary,fit,estimateY,estimateX,format,sumLines,varLines,minMaxLines,regLines});
+g.FreshStatRegression=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/stat-normal.js">
-/* REA100_PENDING: js/stat-normal.js */
+/* REA-084: original fx-991ES STAT/Distr standard normal functions.
+ * Deterministic independent implementation, not proprietary firmware.
+ */
+(function(global){'use strict';
+const LIMIT=9.999999999e99;
+const finite=x=>{if(!Number.isFinite(x)||Math.abs(x)>LIMIT)throw Error('Math ERROR');return x};
+function area(z){
+ finite(z);
+ const a=Math.abs(z);
+ if(a===0)return 0;
+ if(a>=12)return 0.5;
+ const f=x=>Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);
+ function simpson(a,b,fa,fc,fb){return (b-a)*(fa+4*fc+fb)/6}
+ function refine(left,right,fa,fc,fb,total,tol,remaining){
+  const mid=(left+right)/2,l=(left+mid)/2,r=(mid+right)/2;
+  const fl=f(l),fr=f(r);
+  const first=simpson(left,mid,fa,fl,fc),last=simpson(mid,right,fc,fr,fb);
+  if(remaining<=0||Math.abs(first+last-total)<=15*tol)
+   return first+last+(first+last-total)/15;
+  return refine(left,mid,fa,fl,fc,first,tol/2,remaining-1)+
+   refine(mid,right,fc,fr,fb,last,tol/2,remaining-1);
+ }
+ const fa=f(0),fb=f(a),fc=f(a/2);
+ return Math.min(.5,Math.max(0,refine(0,a,fa,fc,fb,
+  simpson(0,a,fa,fc,fb),2e-14,22)));
+}
+function probabilities(t){
+ const x=finite(Number(t)),half=area(x),signed=x<0?-half:half;
+ const P=.5+signed,Q=signed,R=.5-signed;
+ return {P,Q,R};
+}
+function normalized(x,summary){
+ const value=finite(Number(x));
+ if(!summary||!Number.isFinite(summary.meanX)||
+  !Number.isFinite(summary.sdX)||summary.sdX<=0)
+  throw Error('Math ERROR');
+ return finite((value-summary.meanX)/summary.sdX);
+}
+function calculate(kind,x,summary){
+ if(!['P','Q','R','t'].includes(kind))throw Error('Argument ERROR');
+ const value=kind==='t'?normalized(x,summary):probabilities(x)[kind];
+ return finite(value);
+}
+const API=Object.freeze({area,probabilities,normalized,calculate});
+global.FreshStatNormal=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/stat-parameters.js">
 /* REA100_PENDING: js/stat-parameters.js */
