@@ -13,7 +13,7 @@ FILES=("index.html","fx991_fresh_standalone.html")
 # Click exactly the same displayed calculator keys, not hidden app APIs.
 CASES=(
     (("2","ADD","3","MUL","4","EQUAL"),"14"),
-    (("8","DIV","2","LP","2","ADD","2","RP","EQUAL"),"16"),
+    (("8","DIV","2","MUL","LP","2","ADD","2","RP","EQUAL"),"16"),
     (("5","MUL","6","EQUAL"),"30"),
 )
 
