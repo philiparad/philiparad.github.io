@@ -27,18 +27,19 @@ function oneVarSummary(rows,n){
  const sumX2=rows.reduce((sum,r)=>sum+r.w*r.x*r.x,0);
  // Use folds; spreading a large STAT table into Math.max overflows
  // the JavaScript argument stack on some engines.
- const maxX=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x)),0);
- const scaledMean=maxX===0?0:rows.reduce(
-  (sum,r)=>sum+r.w*(r.x/maxX),0)/n*maxX;
- const meanX=finite(
-  Number.isFinite(sumX)&&Math.abs(sumX)<=9.999999999e99?
-   sumX/n:scaledMean);
- const maxDelta=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-meanX)),0);
- const scaledVariance=maxDelta===0?0:rows.reduce((sum,r)=>{
-  const d=(r.x-meanX)/maxDelta;
-  return sum+r.w*d*d;
+ // REA-113: derive variance in an anchor-relative coordinate system.
+ // A rounded *reported* mean can lose a half-ULP offset (e.g. 1e16+1)
+ // although the actual samples have a precisely representable difference.
+ const anchor=rows[0].x;
+ const span=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-anchor)),0);
+ const offset=span===0?0:rows.reduce(
+  (sum,r)=>sum+r.w*((r.x-anchor)/span),0)/n;
+ const meanX=finite(span===0?anchor:anchor+offset*span);
+ const normalizedVariance=span===0?0:rows.reduce((sum,r)=>{
+  const deviation=(r.x-anchor)/span-offset;
+  return sum+r.w*deviation*deviation;
  },0)/n;
- const sdX=finite(maxDelta*Math.sqrt(scaledVariance));
+ const sdX=finite(span*Math.sqrt(Math.max(0,normalizedVariance)));
  // A sample σ can exceed the LCD range even when the population σ is
  // valid. Preserve it internally; parameter selection enforces the limit.
  const sampleSDX=n>1?sdX*Math.sqrt(n/(n-1)):null;
