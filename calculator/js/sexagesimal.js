@@ -47,7 +47,12 @@ function format(value){
  let seconds=(minutesDecimal-minutes)*60;
  // Keep six seconds decimals for moderate values; avoid the >2^53
  // integer-microsecond overflow of the older implementation.
- seconds=Math.round(seconds*1e6)/1e6;
+ // At large degree magnitudes the 15-significant-digit arithmetic path
+ // cannot resolve six fractional second places. Avoid printing spurious
+ // microseconds (e.g. 9999999°59′58.999992″ for 9999999°59′59″).
+ const places=magnitude>=1e6?0:magnitude>=1e4?2:magnitude>=1e2?4:6;
+ const multiplier=10**places;
+ seconds=Math.round(seconds*multiplier)/multiplier;
  if(seconds>=60){seconds=0;minutes++}
  if(minutes>=60){minutes=0;degrees++}
  if(degrees>MAX_DEGREES)return null;
