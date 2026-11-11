@@ -82,6 +82,14 @@ test('STAT only P gate in calculation app',()=>{
  assert.match(snippet,/!state\.statTable\.paired/);
  assert.match(snippet,/state\.statTable\.regressionType==='1VAR'/);
 });
+test('original STAT equals-key path passes P gate',()=>{
+ const start=APP.indexOf("if(state.mode==='STAT'&&state.model==='fx-991es'&&state.statTable){");
+ const end=APP.indexOf("if(state.mode!=='COMP'&&state.mode!=='CMPLX')",start);
+ assert.ok(start>=0&&end>start);
+ const snippet=APP.slice(start,end);
+ assert.match(snippet,/statOriginalDistr:!state\.statTable\.paired/);
+ assert.match(snippet,/state\.statTable\.regressionType==='1VAR'/);
+});
 test('P menu original STAT only',()=>{
  const start=APP.indexOf('function statDistr(){');
  const end=APP.indexOf('function statDistrInput(kind)',start);
