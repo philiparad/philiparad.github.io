@@ -36,7 +36,7 @@ assert.ok(pv.includes('Sigma Y = 1'));
 // FREQ zero rows are ignored; unrelated failures don't mask valid sums.
 const weighted=STAT.summary(table([9e99,-9e99,9e99],[1,1,1],true,[1,1,0]));
 assert.equal(STAT.sumLines(weighted,true)[1],'Sum X = 0');
-assert.equal(STAT.varLines(weighted,true)[6],'Sigma Y = 0');
+assert.equal(STAT.varLines(weighted,true)[5],'Sigma Y = 0');
 // Preserve normal results, missing values and string formatting.
 const normal=STAT.summary(table([1,3]));
 assert.deepEqual(STAT.sumLines(normal,false),['Sum X2 = 10','Sum X = 4']);
