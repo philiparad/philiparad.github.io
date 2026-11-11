@@ -1,0 +1,35 @@
+name: REA-109 stable quadratic inverse roots
+on:
+  push:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-109/**'
+      - 'calculator/tools/build_standalone.py'
+      - '.github/workflows/rea109-quadratic-roots.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-109/**'
+      - 'calculator/tools/build_standalone.py'
+jobs:
+  quadratic-roots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check calculator/js/stat-regression.js
+          node --check calculator/reference/rea-109/test_quadratic_roots.js
+      - name: Stable quadratic inverse roots
+        run: node calculator/reference/rea-109/test_quadratic_roots.js
+      - name: Prior regression stability suites
+        run: |
+          node calculator/reference/rea-108/test_linear_regression.js
+          node calculator/reference/rea-107/test_paired_stat.js
+      - name: Standalone build consistency
+        run: python3 calculator/tools/build_standalone.py --check
