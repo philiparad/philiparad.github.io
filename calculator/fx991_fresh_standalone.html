@@ -3823,26 +3823,55 @@ function linear(rows){
  const correlation=yy>0?Math.max(-1,Math.min(1,xy/Math.sqrt(xx*yy))):null;
  return {A,B,correlation};
 }
-function gaussian3(m,b){
- const a=m.map((v,i)=>[...v,b[i]]);
- for(let i=0;i<3;i++){
-  let p=i;for(let j=i+1;j<3;j++)if(Math.abs(a[j][i])>Math.abs(a[p][i]))p=j;
-  if(!Number.isFinite(a[p][i])||Math.abs(a[p][i])<1e-13)fail();
-  [a[p],a[i]]=[a[i],a[p]];
-  const d=a[i][i];for(let k=i;k<4;k++)a[i][k]/=d;
-  for(let j=0;j<3;j++)if(j!==i){const q=a[j][i];for(let k=i;k<4;k++)a[j][k]-=q*a[i][k]}
- }
- return a.map(v=>finite(v[3]));
-}
+// REA-110: weighted QR with two orthogonalization passes.
+// Normal equations magnify conditioning errors and can falsely reject
+// valid, unevenly spaced points under the old absolute pivot cutoff.
 function quad(rows){
- const n=rows.reduce((v,r)=>v+r.w,0),center=rows.reduce((v,r)=>v+r.w*r.x,0)/n;
- const span=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-center)),0);if(!Number.isFinite(span)||span<=0)fail();
- const moments=[0,0,0,0,0],rhs=[0,0,0];
- for(const r of rows){const u=(r.x-center)/span;let power=1;
-  for(let i=0;i<5;i++){moments[i]+=r.w*power;if(i<3)rhs[i]+=r.w*power*r.y;power*=u}
+ const n=rows.reduce((sum,r)=>sum+r.w,0);
+ const anchor=rows[0].x;
+ const span=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-anchor)),0);
+ if(!Number.isFinite(span)||span===0)fail();
+ const offset=rows.reduce((sum,r)=>sum+r.w*((r.x-anchor)/span),0)/n;
+ const center=anchor+offset*span;
+ const scale=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-center)),0);
+ if(!Number.isFinite(scale)||scale===0)fail();
+ const yScale=rows.reduce((max,r)=>Math.max(max,Math.abs(r.y)),0);
+ const columns=[[],[],[]],target=[];
+ for(const r of rows){
+  const u=(r.x-center)/scale,weight=Math.sqrt(r.w);
+  columns[0].push(weight);
+  columns[1].push(weight*u);
+  columns[2].push(weight*u*u);
+  target.push(yScale===0?0:weight*(r.y/yScale));
  }
- const [q0,q1,q2]=gaussian3([[moments[0],moments[1],moments[2]],[moments[1],moments[2],moments[3]],[moments[2],moments[3],moments[4]]],rhs);
- const C=finite(q2/span**2),B=finite(q1/span-2*C*center),A=finite(q0-q1*center/span+C*center**2);
+ const dot=(x,y)=>x.reduce((sum,v,i)=>sum+v*y[i],0);
+ const vectors=[],upper=[[0,0,0],[0,0,0],[0,0,0]];
+ for(let j=0;j<3;j++){
+  const v=columns[j].slice();
+  for(let pass=0;pass<2;pass++){
+   for(let i=0;i<j;i++){
+    const projection=dot(vectors[i],v);
+    upper[i][j]+=projection;
+    for(let k=0;k<v.length;k++)v[k]-=projection*vectors[i][k];
+   }
+  }
+  const length=Math.sqrt(dot(v,v));
+  const original=Math.sqrt(dot(columns[j],columns[j]));
+  if(!Number.isFinite(length)||length<=Number.EPSILON*original*8)fail();
+  upper[j][j]=length;
+  vectors.push(v.map(value=>value/length));
+ }
+ const projections=vectors.map(v=>dot(v,target));
+ const coefficients=[0,0,0];
+ for(let j=2;j>=0;j--){
+  let value=projections[j];
+  for(let k=j+1;k<3;k++)value-=upper[j][k]*coefficients[k];
+  coefficients[j]=value/upper[j][j];
+ }
+ const [q0,q1,q2]=coefficients.map(q=>q*yScale);
+ const C=finite((q2/scale)/scale);
+ const B=finite(q1/scale-2*C*center);
+ const A=finite(q0-(q1/scale)*center+C*center*center);
  return {A,B,C,correlation:null};
 }
 function fit(t,type){
