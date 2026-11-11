@@ -23,7 +23,9 @@ function normalize(expression){
  const source=original.replace(DMS_FULL,(_,d,m,s,offset)=>{
   // Do not replace an interior substring of a name or longer numeric token.
   const before=original[offset-1]||'';
-  if(/[A-Za-z_0-9.]/.test(before))throw new SyntaxError('Syntax ERROR');
+  const after=original[offset+_.length]||'';
+  if(/[A-Za-z_0-9.]/.test(before)||/[0-9.′″]/.test(after))
+   throw new SyntaxError('Syntax ERROR');
   const value=parseComponents(d,m,s);
   return '('+Number(value.toPrecision(15)).toString()+')';
  });
