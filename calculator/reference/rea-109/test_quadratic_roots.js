@@ -35,7 +35,10 @@ assert.throws(()=>roots(1,1e100,1),/Math ERROR/);
 const weighted={paired:true,frequency:true,rows:[
  {X:-1,Y:1,FREQ:1},{X:0,Y:0,FREQ:2},{X:1,Y:1,FREQ:1}]};
 const fit=Stat.fit(weighted,'QUAD');
-near(fit.A,0);near(fit.B,0);near(fit.C,1);
+// Fitted coefficients may have roundoff at zero after QR regression.
+assert.ok(Math.abs(fit.A)<1e-12);
+assert.ok(Math.abs(fit.B)<1e-12);
+near(fit.C,1);
 r=Stat.estimateX(fit,1);
 near(r[0],-1);near(r[1],1);
 console.log('REA-109 stable inverse quadratic test passed');
