@@ -49,17 +49,26 @@ function oneVarSummary(rows,n){
 function summary(t){
  const {rows,n}=observations(t);
  if(!t.paired)return oneVarSummary(rows,n);
- const sum=fn=>finite(rows.reduce((s,r)=>s+r.w*fn(r),0));
- const sumX=sum(r=>r.x),sumX2=sum(r=>r.x*r.x),meanX=finite(sumX/n);
- const varianceX=finite(Math.max(0,sum(r=>(r.x-meanX)**2)/n));
- const out={n,sumX,sumX2,meanX,varianceX,sdX:Math.sqrt(varianceX),sampleSDX:n>1?Math.sqrt(varianceX*n/(n-1)):null,
-  minX:Math.min(...rows.map(r=>r.x)),maxX:Math.max(...rows.map(r=>r.x))};
- if(t.paired){
-  const sumY=sum(r=>r.y),sumY2=sum(r=>r.y*r.y),meanY=sumY/n,varianceY=finite(Math.max(0,sum(r=>(r.y-meanY)**2)/n));
-  Object.assign(out,{sumY,sumY2,sumXY:sum(r=>r.x*r.y),sumX3:sum(r=>r.x**3),sumX2Y:sum(r=>r.x*r.x*r.y),sumX4:sum(r=>r.x**4),
-   meanY,varianceY,sdY:Math.sqrt(varianceY),sampleSDY:n>1?Math.sqrt(varianceY*n/(n-1)):null,
-   minY:Math.min(...rows.map(r=>r.y)),maxY:Math.max(...rows.map(r=>r.y))});
- }
+ // REA-107: paired STAT's Var and MinMax commands do not depend on
+ // potentially unrepresentable Sum X² / Sum Y² / cross moments.
+ // Delay range checks until an aggregate is actually selected.
+ const xStats=oneVarSummary(rows,n);
+ const yStats=oneVarSummary(rows.map(r=>({x:r.y,w:r.w})),n);
+ const rawSum=fn=>rows.reduce((sum,r)=>sum+r.w*fn(r),0);
+ const out={
+  n,sumX:xStats.sumX,sumX2:xStats.sumX2,
+  meanX:xStats.meanX,varianceX:xStats.varianceX,
+  sdX:xStats.sdX,sampleSDX:xStats.sampleSDX,
+  minX:xStats.minX,maxX:xStats.maxX,
+  sumY:yStats.sumX,sumY2:yStats.sumX2,
+  meanY:yStats.meanX,varianceY:yStats.varianceX,
+  sdY:yStats.sdX,sampleSDY:yStats.sampleSDX,
+  minY:yStats.minX,maxY:yStats.maxX,
+  sumXY:rawSum(r=>r.x*r.y),
+  sumX3:rawSum(r=>r.x**3),
+  sumX2Y:rawSum(r=>r.x*r.x*r.y),
+  sumX4:rawSum(r=>r.x**4)
+ };
  return out;
 }
 function linear(rows){
@@ -83,7 +92,7 @@ function gaussian3(m,b){
 }
 function quad(rows){
  const n=rows.reduce((v,r)=>v+r.w,0),center=rows.reduce((v,r)=>v+r.w*r.x,0)/n;
- const span=Math.max(...rows.map(r=>Math.abs(r.x-center)));if(!Number.isFinite(span)||span<=0)fail();
+ const span=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-center)),0);if(!Number.isFinite(span)||span<=0)fail();
  const moments=[0,0,0,0,0],rhs=[0,0,0];
  for(const r of rows){const u=(r.x-center)/span;let power=1;
   for(let i=0;i<5;i++){moments[i]+=r.w*power;if(i<3)rhs[i]+=r.w*power*r.y;power*=u}
