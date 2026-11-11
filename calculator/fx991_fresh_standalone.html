@@ -3867,40 +3867,1053 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/stat-parameters.js">
-/* REA100_PENDING: js/stat-parameters.js */
+/* REA-085 original fx-991ES STAT command tokens and source-sensitive menus.
+ * Tokens remain symbolic in the input; values are resolved against the
+ * current committed STAT data only when the expression is evaluated.
+ */
+(function(global){'use strict';
+const row=(key,label,token,field)=>Object.freeze({key:String(key),label,token,field});
+const SUM1=Object.freeze([row(1,'Σx²','StatSumX2','sumX2'),row(2,'Σx','StatSumX','sumX')]);
+const SUM2=Object.freeze([...SUM1,row(3,'Σy²','StatSumY2','sumY2'),
+ row(4,'Σy','StatSumY','sumY'),row(5,'Σxy','StatSumXY','sumXY'),
+ row(6,'Σx³','StatSumX3','sumX3'),row(7,'Σx²y','StatSumX2Y','sumX2Y'),
+ row(8,'Σx⁴','StatSumX4','sumX4')]);
+const VAR1=Object.freeze([row(1,'n','StatN','n'),row(2,'x̄','StatMeanX','meanX'),
+ row(3,'xσn','StatSDX','sdX'),row(4,'xσn−1','StatSampleSDX','sampleSDX')]);
+const VAR2=Object.freeze([...VAR1,row(5,'ȳ','StatMeanY','meanY'),
+ row(6,'yσn','StatSDY','sdY'),row(7,'yσn−1','StatSampleSDY','sampleSDY')]);
+const MIN1=Object.freeze([row(1,'minX','StatMinX','minX'),row(2,'maxX','StatMaxX','maxX')]);
+const MIN2=Object.freeze([...MIN1,row(3,'minY','StatMinY','minY'),row(4,'maxY','StatMaxY','maxY')]);
+const REG1=Object.freeze([row(1,'A','StatRegA','A'),row(2,'B','StatRegB','B'),
+ row(3,'r','StatRegR','correlation')]);
+const REG2=Object.freeze([row(1,'A','StatRegA','A'),row(2,'B','StatRegB','B'),
+ row(3,'C','StatRegC','C')]);
+function entries(group,paired,regressionType){
+ if(group==='Sum')return paired?SUM2:SUM1;
+ if(group==='Var')return paired?VAR2:VAR1;
+ if(group==='MinMax')return paired?MIN2:MIN1;
+ if(group==='Reg'&&paired){
+  const roots=regressionType==='QUAD'?[
+   {key:'4',label:'x̂1',estimate:'x',root:0},
+   {key:'5',label:'x̂2',estimate:'x',root:1},
+   {key:'6',label:'ŷ',estimate:'y'}
+  ]:[
+   {key:'4',label:'x̂',estimate:'x',root:0},
+   {key:'5',label:'ŷ',estimate:'y'}
+  ];
+  return [...(regressionType==='QUAD'?REG2:REG1),...roots];
+ }
+ throw Error('Argument ERROR');
+}
+const all=[...SUM2,...VAR2,...MIN2,...REG1,...REG2];
+const tokenMap=Object.freeze(Object.fromEntries(all.map(x=>[x.token,x])));
+function tokens(source){
+ return [...String(source).matchAll(/\bStat[A-Za-z0-9]+\b/g)].map(m=>m[0]);
+}
+function resolve(source,table,reg){
+ const found=tokens(source);
+ if(!found.length)return {};
+ if(!table||!reg)throw Error('Argument ERROR');
+ const required=[...new Set(found)];
+ for(const token of required)if(!tokenMap[token])throw Error('Variable ERROR: '+token);
+ const summary=reg.summary(table);
+ let fit=null;const memory={};
+ const permitted=new Set([...SUM1,...VAR1,...MIN1,...(table.paired?SUM2:[]),
+  ...(table.paired?VAR2:[]),...(table.paired?MIN2:[]),
+  ...(table.paired?entries('Reg',true,table.regressionType):[])].map(x=>x.token));
+ for(const token of required){
+  if(!permitted.has(token))throw Error('Argument ERROR');
+  const item=tokenMap[token];
+  if(item.token.startsWith('StatReg')){
+   if(!fit)fit=reg.fit(table,table.regressionType||'LIN');
+  }
+  const value=(item.token.startsWith('StatReg')?fit:summary)[item.field];
+  if(typeof value!=='number'||!Number.isFinite(value))throw Error('Math ERROR');
+  memory[token]=value;
+ }
+ return memory;
+}
+const API=Object.freeze({entries,resolve,tokens,tokenMap});
+global.FreshStatParameters=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/base-n.js">
-/* REA100_PENDING: js/base-n.js */
+/* REA-049 — independent BASE-N integer and conversion semantics. */
+(function(g){'use strict';
+const BASES=Object.freeze({DEC:10,BIN:2,OCT:8,HEX:16});
+const SPECS=Object.freeze({
+ 'fx-991es':{BIN:16,DEC:32,OCT:32,HEX:32},
+ 'fx-991es-plus':{BIN:16,DEC:32,OCT:32,HEX:32},
+ 'fx-991es-plus-c':{BIN:16,DEC:32,OCT:32,HEX:32}
+});
+function fail(message='Math ERROR'){throw Error(message)}
+function bits(base,model='fx-991es-plus'){const item=SPECS[model];if(!item||!item[base])fail('Argument ERROR');return item[base]}
+function range(base,model){
+ const size=BigInt(bits(base,model)),half=1n<<(size-1n);
+ return {min:-half,max:half-1n,width:Number(size)};
+}
+function assertSigned(number,base,model){
+ const n=BigInt(number),limits=range(base,model);
+ if(n<limits.min||n>limits.max)fail('Math ERROR');
+ return n;
+}
+function digitValue(char){const n=parseInt(char,16);return Number.isNaN(n)?-1:n}
+function parseLiteral(text,base='DEC',model='fx-991es-plus'){
+ const radix=BASES[base];if(!radix)fail('Argument ERROR');
+ const digits=String(text).toUpperCase();
+ if(!digits||digits.length>40)fail('Syntax ERROR');
+ let unsigned=0n;
+ for(const c of digits){const d=digitValue(c);if(d<0||d>=radix)fail('Syntax ERROR');unsigned=unsigned*BigInt(radix)+BigInt(d)}
+ const spec=bits(base,model),full=1n<<BigInt(spec),half=full>>1n;
+ if(base==='DEC')return assertSigned(unsigned,base,model);
+ if(unsigned>=full)fail('Math ERROR');
+ return unsigned>=half?unsigned-full:unsigned;
+}
+function format(number,base='DEC',model='fx-991es-plus'){
+ const n=assertSigned(number,base,model);
+ if(base==='DEC')return n.toString();
+ const width=bits(base,model),unsigned=BigInt.asUintN(width,n);
+ const places=base==='BIN'?width:base==='HEX'?width/4:Math.ceil(width/3);
+ return unsigned.toString(BASES[base]).toUpperCase().padStart(places,'0');
+}
+// Base-specific two's-complement logic, avoiding Number's implicit 32-bit truncation.
+const LOGIC_BINARY=Object.freeze(['and','or','xor','xnor']);
+const LOGIC_UNARY=Object.freeze(['Not','Neg']);
+function logical(op,a,b,base='DEC',model='fx-991es-plus'){
+ const width=bits(base,model),mask=(1n<<BigInt(width))-1n;
+ const lhs=BigInt.asUintN(width,BigInt(a));
+ if(op==='Not')return BigInt.asIntN(width,(~lhs)&mask);
+ if(op==='Neg')return BigInt.asIntN(width,(-lhs)&mask);
+ if(b===undefined)fail('Syntax ERROR');
+ const rhs=BigInt.asUintN(width,BigInt(b));
+ let res;
+ switch(op.toLowerCase()){
+ case 'and':res=lhs&rhs;break;
+ case 'or':res=lhs|rhs;break;
+ case 'xor':res=lhs^rhs;break;
+ case 'xnor':res=(~(lhs^rhs))&mask;break;
+ default:fail('Syntax ERROR');
+ }
+ return BigInt.asIntN(width,res);
+}
+function tokens(expression,base){
+ const source=String(expression).trim().replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/');
+ if(!source)fail('Syntax ERROR');
+ const parts=[];let i=0;
+ while(i<source.length){
+  const c=source[i];
+  if(/\s/.test(c)){i++;continue}
+  if('()+-*/'.includes(c)){parts.push({kind:c,text:c});i++;continue}
+  const match=/^(xnor|xor|and|or|Not|Neg)(?![0-9A-Za-z])/i.exec(source.slice(i));
+  if(match){
+   const op=match[1].toLowerCase();
+   parts.push({kind:op==='not'?'Not':op==='neg'?'Neg':op,text:match[0]});
+   i+=match[0].length;continue;
+  }
+  // Lowercase d/h/b/o designate explicit-radix literals; uppercase A-F remain
+  // ordinary HEX digits. A colon is the unambiguous keypad/menu representation.
+  const explicit=/^([dhbo])(:?)([0-9A-Fa-f]+)/.exec(source.slice(i));
+  if(explicit){
+   const selected={d:'DEC',h:'HEX',b:'BIN',o:'OCT'}[explicit[1]];
+   parts.push({kind:'number',text:explicit[3],base:selected});
+   i+=explicit[0].length;
+  }else{
+   const word=/^[0-9A-Fa-f]+/.exec(source.slice(i));
+   if(!word)fail('Syntax ERROR');
+   parts.push({kind:'number',text:word[0]});i+=word[0].length;
+  }
+  if(parts.length>200)fail('Syntax ERROR');
+ }
+ return parts;
+}
+// Returns the radix of the number currently being typed, not the display radix.
+function inputRadix(expression,selected='DEC'){
+ const matched=/(?:^|[()+*\/\-]|\s)([dhbo]):([0-9A-Fa-f]*)$/.exec(String(expression));
+ return matched?{d:'DEC',h:'HEX',b:'BIN',o:'OCT'}[matched[1]]:selected;
+}
+function evaluate(expression,base='DEC',model='fx-991es-plus'){
+ const list=tokens(expression,base);let at=0;
+ function primary(){
+  const t=list[at++];if(!t)fail('Syntax ERROR');
+  if(t.kind==='number')return parseLiteral(t.text,t.base||base,model);
+  if(t.kind==='Not'||t.kind==='Neg'){
+   if(list[at]?.kind!=='(')fail('Syntax ERROR');
+   at++;const operand=parse(0);
+   if(list[at]?.kind!==')')fail('Syntax ERROR');
+   at++;return logical(t.kind,operand,undefined,base,model);
+  }
+  if(t.kind==='('){const z=parse(0);if(list[at]?.kind!==')')fail('Syntax ERROR');at++;return z}
+  if(t.kind==='+')return primary();
+  if(t.kind==='-'){
+   // Signed decimal MIN cannot be parsed as a positive 32-bit operand first.
+   if(base==='DEC'&&list[at]?.kind==='number'&&list[at].text==='2147483648'){
+    at++;return -2147483648n;
+   }
+   return assertSigned(-primary(),base,model);
+  }
+  fail('Syntax ERROR');
+ }
+ function parse(min){
+  let lhs=primary();
+  while(at<list.length){
+   const op=list[at].kind;
+   if(op===')')break;
+   const prec=op==='*'||op==='/'?30:op==='+'||op==='-'?20:
+    op==='and'?15:op==='or'||op==='xor'||op==='xnor'?10:-1;
+   if(prec<min)break;
+   at++;const rhs=parse(prec+1);
+   if(op==='+')lhs+=rhs;
+   else if(op==='-')lhs-=rhs;
+   else if(op==='*')lhs*=rhs;
+   else if(op==='/'){if(!rhs)fail('Math ERROR');lhs/=rhs}
+   else lhs=logical(op,lhs,rhs,base,model);
+   lhs=assertSigned(lhs,base,model);
+  }
+  return lhs;
+ }
+ const result=parse(0);if(at!==list.length)fail('Syntax ERROR');
+ return assertSigned(result,base,model);
+}
+function convert(value,to,model){return format(BigInt(value),to,model)}
+function display(value,base,model){return {base,text:format(value,base,model),decimal:Number(value)}}
+const API=Object.freeze({BASES,SPECS,bits,range,inputRadix,parseLiteral,format,logical,evaluate,convert,display,LOGIC_BINARY,LOGIC_UNARY});
+g.FreshBaseN=API;
+if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/equation-engine.js">
-/* REA100_PENDING: js/equation-engine.js */
+/* REA-051 — EQN quadratic/cubic and 2x2/3x3 linear systems, real and complex solutions. */
+(function(g){'use strict';
+const TYPES=Object.freeze([
+ {id:'LINEAR2',label:'2 unknowns',fields:['a1','b1','c1','a2','b2','c2']},
+ {id:'LINEAR3',label:'3 unknowns',fields:['a1','b1','c1','d1','a2','b2','c2','d2','a3','b3','c3','d3']},
+ {id:'QUAD',label:'Quadratic',fields:['a','b','c']},
+ {id:'CUBIC',label:'Cubic',fields:['a','b','c','d']}
+]);
+const fail=(message='Math ERROR')=>{throw Error(message)};
+const val=v=>{const n=Number(v);if(!Number.isFinite(n)||Math.abs(n)>9.999999999e99)fail('Argument ERROR');return n};
+const round=v=>{if(!Number.isFinite(v)||Math.abs(v)>9.999999999e99)fail();return Math.abs(v)<1e-13?0:v};
+const format=n=>String(Number(round(n).toPrecision(12)));
+function realRoot(label,n){return {label,value:round(n),text:label+' = '+format(n)}}
+function complexRoot(label,re,im){
+ const r=round(re),v=round(im);
+ if(v===0)return realRoot(label,r);
+ return {label,value:null,complex:{re:r,im:v},
+  text:label+' = '+format(r)+(v<0?'-':'+')+format(Math.abs(v))+'i'};
+}
+function record(type,pairs,status='ok',nonRealCount=0){
+ return {type,status,nonRealCount,solutions:pairs.map(([label,value])=>realRoot(label,value))};
+}
+function unique(sorted){
+ const out=[];
+ for(const x of sorted){
+  const last=out[out.length-1];
+  if(last===undefined||Math.abs(x-last)>1e-9*Math.max(1,Math.abs(x),Math.abs(last)))out.push(x);
+ }
+ return out;
+}
+function systems(rows){
+ const n=rows.length;if(![2,3].includes(n)||rows.some(r=>r.length!==n+1))fail('Argument ERROR');
+ const m=rows.map(r=>r.map(val)),original=m.map(r=>r.slice());
+ const scale=Math.max(1,...m.flat().map(Math.abs));
+ const cols=[];let rank=0;
+ for(let c=0;c<n;c++){
+  let pivot=rank;for(let k=rank+1;k<n;k++)if(Math.abs(m[k][c])>Math.abs(m[pivot][c]))pivot=k;
+  if(Math.abs(m[pivot][c])<=scale*1e-12)continue;
+  [m[rank],m[pivot]]=[m[pivot],m[rank]];
+  const div=m[rank][c];for(let j=c;j<=n;j++)m[rank][j]/=div;
+  for(let k=0;k<n;k++)if(k!==rank){const f=m[k][c];for(let j=c;j<=n;j++)m[k][j]-=f*m[rank][j]}
+  cols.push(c);rank++;
+ }
+ for(let i=rank;i<n;i++)if(Math.abs(m[i][n])>1e-9)return record('LINEAR'+n,[],'No Solution');
+ if(rank<n)return record('LINEAR'+n,[],'Infinite Solutions');
+ const roots=Array(n).fill(0);cols.forEach((col,r)=>roots[col]=round(m[r][n]));
+ for(const r of original){
+  const error=r.slice(0,n).reduce((sum,k,i)=>sum+k*roots[i],-r[n]);
+  if(Math.abs(error)>1e-8*Math.max(1,...r.map(Math.abs)))fail();
+ }
+ return record('LINEAR'+n,roots.map((v,i)=>[['X','Y','Z'][i],v]));
+}
+function quadratic(coeff){
+ if(coeff.length!==3)fail('Argument ERROR');
+ const [a,b,c]=coeff.map(val);if(a===0)fail();
+ const d=b*b-4*a*c;if(!Number.isFinite(d))fail();
+ const tol=1e-13*Math.max(1,Math.abs(b*b),Math.abs(4*a*c));
+ if(d< -tol){
+  const r=-b/(2*a),im=Math.sqrt(-d)/(2*Math.abs(a));
+  return {type:'QUAD',status:'ok',nonRealCount:2,
+   solutions:[complexRoot('X1',r,im),complexRoot('X2',r,-im)]};
+ }
+ let roots;
+ if(Math.abs(d)<=tol)roots=[-b/(2*a)];
+ else{const root=Math.sqrt(Math.max(0,d)),q=-.5*(b+Math.sign(b||1)*root);roots=q===0?[-b/(2*a)]:[q/a,c/q]}
+ roots.sort((x,y)=>x-y);
+ return record('QUAD',roots.map((x,i)=>[roots.length===1?'X':'X'+(i+1),x]));
+}
+function cubic(coeff){
+ if(coeff.length!==4)fail('Argument ERROR');
+ const [a,b,c,d]=coeff.map(val);if(!a)fail();
+ const A=b/a,B=c/a,C=d/a,p=B-A*A/3,q=2*A*A*A/27-A*B/3+C;
+ const delta=q*q/4+p*p*p/27;if(!Number.isFinite(delta))fail();
+ const tol=1e-13*Math.max(1,Math.abs(q*q/4),Math.abs(p*p*p/27));
+ let roots;
+ if(delta>tol){
+  const root=Math.sqrt(delta),u=Math.cbrt(-q/2+root),v=Math.cbrt(-q/2-root);
+  const real=u+v-A/3,part=-(u+v)/2-A/3,imag=Math.abs(Math.sqrt(3)*(u-v)/2);
+  return {type:'CUBIC',status:'ok',nonRealCount:2,
+   solutions:[realRoot('X1',real),complexRoot('X2',part,imag),complexRoot('X3',part,-imag)]};
+ }
+ if(delta< -tol){
+  const magnitude=2*Math.sqrt(-p/3),angle=Math.acos(Math.max(-1,Math.min(1,-q/(2*Math.sqrt(-(p*p*p)/27)))));
+  roots=[0,1,2].map(k=>magnitude*Math.cos((angle-2*Math.PI*k)/3)-A/3).sort((x,y)=>x-y);
+ }else{const u=Math.cbrt(-q/2);roots=[2*u-A/3,-u-A/3,-u-A/3].sort((x,y)=>x-y)}
+ roots=unique(roots);
+ // CASIO's documented x^3-2x^2-x+2: -1, 2, 1.
+ if(roots.length===3)roots=[roots[0],roots[2],roots[1]];
+ return record('CUBIC',roots.map((x,i)=>[roots.length===1?'X':'X'+(i+1),x]));
+}
+function solve(type,values){
+ const t=TYPES.find(item=>item.id===type);if(!t)fail('Argument ERROR');
+ const nums=t.fields.map(key=>val(values[key]));
+ if(type==='QUAD')return quadratic(nums);
+ if(type==='CUBIC')return cubic(nums);
+ const width=type==='LINEAR3'?4:3,rows=[];
+ for(let i=0;i<nums.length;i+=width)rows.push(nums.slice(i,i+width));
+ return systems(rows);
+}
+g.FreshEquation=Object.freeze({TYPES,solve,systems,quadratic,cubic,format});
+if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshEquation;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/inequality-engine.js">
-/* REA100_PENDING: js/inequality-engine.js */
+/* REA-058 — true quadratic and cubic real inequality solution sets. */
+(function(g){'use strict';
+const OPS=['<','<=','>','>='];
+function fail(message='Argument ERROR'){throw Error(message)}
+function valid(v){const n=Number(v);if(String(v).trim()===''||!Number.isFinite(n)||Math.abs(n)>9.999999999e99)fail();return n}
+function equal(x,y){return Number.isFinite(x)&&Number.isFinite(y)&&Math.abs(x-y)<=1e-9*Math.max(1,Math.abs(x),Math.abs(y))}
+function roots(coeff){
+ const values=coeff.map(valid),degree=values.length-1;
+ if((degree!==2&&degree!==3)||values[0]===0)fail('Math ERROR');
+ const answer=degree===2?g.FreshEquation.quadratic(values):g.FreshEquation.cubic(values);
+ const distinct=[];
+ for(const x of answer.solutions.filter(s=>typeof s.value==='number').map(s=>s.value).sort((a,b)=>a-b)){
+  if(!distinct.length||!equal(distinct[distinct.length-1],x))distinct.push(x);
+ }
+ const multiplicity=distinct.map(()=>1);
+ if(degree===2&&distinct.length===1)multiplicity[0]=2;
+ if(degree===3){
+  if(distinct.length===1)multiplicity[0]=answer.nonRealCount===2?1:3;
+  if(distinct.length===2){
+   const [a,b,c]=values;
+   const norm=x=>Math.max(1,Math.abs(3*a*x*x),Math.abs(2*b*x),Math.abs(c));
+   const test=x=>Math.abs(3*a*x*x+2*b*x+c)/norm(x);
+   multiplicity[test(distinct[0])<=test(distinct[1])?0:1]=2;
+  }
+ }
+ return {degree,values,zeros:distinct,multiplicity};
+}
+function solve(coeff,operator){
+ if(!OPS.includes(operator))fail();
+ const poly=roots(coeff),{zeros,multiplicity}=poly;
+ const inclusive=operator.includes('='),inside=sign=>operator[0]==='<'?sign<0:sign>0;
+ const signs=Array(zeros.length+1);
+ signs[zeros.length]=Math.sign(poly.values[0]);
+ for(let i=zeros.length-1;i>=0;i--)signs[i]=signs[i+1]*(multiplicity[i]%2?-1:1);
+ const raw=[];
+ for(let i=0;i<=zeros.length;i++){
+  if(inside(signs[i]))raw.push({lo:i?zeros[i-1]:-Infinity,hi:i<zeros.length?zeros[i]:Infinity,loClosed:false,hiClosed:false});
+  if(i<zeros.length&&inclusive)raw.push({lo:zeros[i],hi:zeros[i],loClosed:true,hiClosed:true});
+ }
+ const intervals=[];
+ for(const part of raw){
+  const previous=intervals[intervals.length-1];
+  if(previous&&equal(previous.hi,part.lo)&&(previous.hiClosed||part.loClosed)){
+   previous.hi=part.hi;previous.hiClosed=part.hiClosed;
+  }else intervals.push({...part});
+ }
+ return {...poly,operator,signs,intervals,empty:intervals.length===0,
+  allReal:intervals.length===1&&intervals[0].lo===-Infinity&&intervals[0].hi===Infinity};
+}
+function num(value){return String(Number(value.toPrecision(12)))}
+function interval(i){
+ if(i.lo===-Infinity&&i.hi===Infinity)return 'All real X';
+ if(i.lo===i.hi)return 'X = '+num(i.lo);
+ if(i.lo===-Infinity)return 'X '+(i.hiClosed?'≤':'<')+' '+num(i.hi);
+ if(i.hi===Infinity)return 'X '+(i.loClosed?'≥':'>')+' '+num(i.lo);
+ return num(i.lo)+' '+(i.loClosed?'≤':'<')+' X '+(i.hiClosed?'≤':'<')+' '+num(i.hi);
+}
+function format(r){return r.empty?'No solution':r.intervals.map(interval).join(' OR ')}
+function lines(r){
+ if(r.empty||r.allReal)return [format(r)];
+ return r.intervals.map(interval);
+}
+g.FreshInequality=Object.freeze({OPS,roots,solve,interval,format,lines});
+if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshInequality;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/eqn-coeff-editor.js">
-/* REA100_PENDING: js/eqn-coeff-editor.js */
+/* REA-052 — EQN LCD coefficient matrix editor, independent of DOM. */
+(function(global){'use strict';
+const FIELDS={
+ LINEAR2:[['a1','b1','c1'],['a2','b2','c2']],
+ LINEAR3:[['a1','b1','c1','d1'],['a2','b2','c2','d2'],['a3','b3','c3','d3']],
+ QUAD:[['a','b','c']],
+ CUBIC:[['a','b','c','d']]
+};
+function fault(message='Argument ERROR'){throw Error(message)}
+function create(type){
+ if(!Object.prototype.hasOwnProperty.call(FIELDS,type))fault();
+ return {type,rows:FIELDS[type].map(row=>row.slice()),values:Object.fromEntries(FIELDS[type].flat().map(k=>[k,0])),
+  row:0,col:0,buffer:'0',editing:false,error:''};
+}
+function current(e){return e.rows[e.row][e.col]}
+function load(e){e.buffer=String(e.values[current(e)]);e.editing=false;e.error='';return e}
+function parse(text){
+ const src=String(text).trim();
+ if(!src||src.length>24||!/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[Ee][+-]?\d+)?$/.test(src))fault('Syntax ERROR');
+ const n=Number(src);
+ if(!Number.isFinite(n)||Math.abs(n)>9.999999999e99)fault('Math ERROR');
+ return n;
+}
+function commit(e){
+ if(e.editing){e.values[current(e)]=parse(e.buffer);e.editing=false}
+ e.buffer=String(e.values[current(e)]);e.error='';return e;
+}
+function enter(e,s){
+ const text=String(s);
+ if(!/^[0-9Ee.+-]$/.test(text))fault('Syntax ERROR');
+ if(!e.editing){e.buffer='';e.editing=true}
+ if(e.buffer.length>=24)fault('Input limit');
+ e.buffer+=text;e.error='';return e;
+}
+function sign(e){
+ if(!e.editing){e.buffer=String(e.values[current(e)]);e.editing=true}
+ e.buffer=e.buffer.startsWith('-')?e.buffer.slice(1):'-'+e.buffer;
+ e.error='';return e;
+}
+function backspace(e){
+ if(!e.editing){e.buffer=String(e.values[current(e)]);e.editing=true}
+ e.buffer=e.buffer.slice(0,-1);e.error='';return e;
+}
+function next(e){
+ commit(e);if(e.col+1<e.rows[e.row].length){e.col++}
+ else if(e.row+1<e.rows.length){e.row++;e.col=0}
+ else return true;
+ load(e);return false;
+}
+function move(e,dr,dc){
+ commit(e);
+ if(dc){
+  const flat=e.rows.flat(),index=flat.indexOf(current(e));
+  const target=flat[Math.max(0,Math.min(flat.length-1,index+dc))];
+  for(let r=0;r<e.rows.length;r++){const c=e.rows[r].indexOf(target);if(c>=0){e.row=r;e.col=c;break}}
+ }else e.row=Math.max(0,Math.min(e.rows.length-1,e.row+dr));
+ e.col=Math.min(e.col,e.rows[e.row].length-1);
+ return load(e);
+}
+function clear(e){for(const k of e.rows.flat())e.values[k]=0;e.row=0;e.col=0;return load(e)}
+function restore(e){e.row=0;e.col=0;return load(e)}
+const API=Object.freeze({FIELDS,create,current,load,parse,commit,enter,sign,backspace,next,move,clear,restore});
+global.FreshEquationEditor=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/eqn-exact.js">
-/* REA100_PENDING: js/eqn-exact.js */
+/* REA-052 — conservative symbolic EQN root formatting for MathIO. */
+(function(g){'use strict';
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1}
+function fraction(n,d){if(d===0)return null;if(d<0){n=-n;d=-d}const h=gcd(n,d);n/=h;d/=h;return d===1?String(n):n+'/'+d}
+function rational(x){
+ if(!Number.isFinite(x))return null;
+ for(let d=1;d<=1000;d++){const n=Math.round(x*d);
+  if(Number.isSafeInteger(n)&&Math.abs(n/d-x)<1e-12*Math.max(1,Math.abs(x)))return fraction(n,d)}
+ return null;
+}
+function integerCoefficients(coeff){
+ if(coeff.some(n=>!Number.isFinite(n)||Math.abs(n)>1e6))return null;
+ for(let scale=1;scale<=1e6;scale*=10){
+  const ints=coeff.map(n=>Math.round(n*scale));
+  if(ints.every((n,i)=>Number.isSafeInteger(n)&&Math.abs(n/scale-coeff[i])<1e-12)){
+   const h=ints.reduce((a,b)=>gcd(a,b),0);return ints.map(n=>n/h)}
+ }
+ return null;
+}
+function rootTerm(k,s,d){
+ const h=gcd(k,d);k/=h;d/=h;
+ if(s===1)return fraction(k,d);
+ const term=(k===1?'':k)+'√'+s;
+ return d===1?term:term+'/'+d;
+}
+function quadratic(coeff,solutions){
+ const values=integerCoefficients(coeff);if(!values)return;
+ const [a,b,c]=values,D=b*b-4*a*c;
+ if(!Number.isSafeInteger(D)||Math.abs(D)>1e8||D===0)return;
+ let k=1,m=Math.abs(D);
+ for(let p=2;p*p<=m;p++)while(m%(p*p)===0){k*=p;m/=p*p}
+ if(m===1&&D>0)return; // All roots already reduced to exact rationals.
+ const base=fraction(-b,2*a),term=rootTerm(k,m,2*Math.abs(a)),center=-b/(2*a);
+ for(const root of solutions){
+  if(D<0&&root.complex){
+   const imag=term==='1'?'i':term+'i';
+   root.exact=(base==='0'?'':base)+(root.complex.im<0?'-':'+')+imag;
+  }else if(D>0&&!root.complex){
+   root.exact=(base==='0'?'':base)+(root.value<center?'-':'+')+term;
+  }
+  if(root.exact?.startsWith('+'))root.exact=root.exact.slice(1);
+ }
+}
+function decorate(result,coeff=[]){
+ for(const root of result.solutions)if(typeof root.value==='number'){
+  const exact=rational(root.value);if(exact)root.exact=exact;
+ }
+ if(result.type==='QUAD')quadratic(coeff,result.solutions);
+ return result;
+}
+function display(root,math=true){
+ if(math&&root.exact)return root.exact;
+ const fmt=g.FreshEquation.format;
+ if(root.complex)return fmt(root.complex.re)+(root.complex.im<0?'-':'+')+fmt(Math.abs(root.complex.im))+'i';
+ return fmt(root.value);
+}
+g.FreshEquationExact=Object.freeze({gcd,fraction,rational,integerCoefficients,quadratic,decorate,display});
+if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshEquationExact;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/inequality-display.js">
-/* REA100_PENDING: js/inequality-display.js */
+/* REA-059 — INEQ solution pages and conservative exact-bound formatting. */
+(function(g){'use strict';
+function number(n,math){
+ if(!Number.isFinite(n))return n<0?'-∞':'∞';
+ if(math&&g.FreshEquationExact){
+  const fraction=g.FreshEquationExact.rational(n);
+  if(fraction!==null)return fraction;
+ }
+ return String(Number(n.toPrecision(12)));
+}
+function rootExpressions(result,math){
+ const map=new Map();
+ if(!math||!g.FreshEquationExact||!g.FreshEquation)return map;
+ const coeff=result.values;
+ // MathIO uses conservative exact fractions and the simple
+ // sqrt form verified by the existing EQN exact formatter.
+ const degree=coeff.length-1;
+ if(degree===2){
+  try{
+   const eq=g.FreshEquationExact.decorate(g.FreshEquation.quadratic(coeff),coeff);
+   for(const root of eq.solutions)if(typeof root.value==='number'&&root.exact)
+    map.set(root.value,root.exact);
+  }catch{}
+ }
+ return map;
+}
+function pages(result,math=true){
+ const expressions=rootExpressions(result,math);
+ const fmt=n=>{
+  if(!Number.isFinite(n))return n<0?'-∞':'∞';
+  for(const [value,text] of expressions)
+   if(Math.abs(n-value)<=1e-10*Math.max(1,Math.abs(n),Math.abs(value)))return text;
+  return number(n,math);
+ };
+ if(result.empty)return [{label:'No Solution',text:'No Solution',kind:'empty'}];
+ if(result.allReal)return [{label:'All Real',text:'All Real Numbers',kind:'all'}];
+ return result.intervals.map((part,index)=>{
+  const lo=part.lo,hi=part.hi;
+  let text;
+  if(lo===hi)text='X = '+fmt(lo);
+  else if(lo===-Infinity)text='X '+(part.hiClosed?'≤':'<')+' '+fmt(hi);
+  else if(hi===Infinity)text='X '+(part.loClosed?'≥':'>')+' '+fmt(lo);
+  else text=fmt(lo)+' '+(part.loClosed?'≤':'<')+' X '+(part.hiClosed?'≤':'<')+' '+fmt(hi);
+  return {label:'Solution '+(index+1),text,kind:lo===hi?'point':'interval'};
+ });
+}
+function session(degree,operator,values,result,math=true){
+ if(![2,3].includes(degree))throw Error('Argument ERROR');
+ const items=pages(result,math);
+ return {degree,operator,values:{...values},solution:result,pages:items,index:0};
+}
+function page(state,delta,math=true){
+ if(!state)return null;
+ state.index=Math.max(0,Math.min(state.pages.length-1,state.index+delta));
+ return state.pages[state.index];
+}
+function updateMath(state,math){
+ state.pages=pages(state.solution,math);
+ state.index=Math.max(0,Math.min(state.index,state.pages.length-1));
+ return state;
+}
+g.FreshInequalityDisplay=Object.freeze({number,pages,session,page,updateMath});
+if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshInequalityDisplay;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/verify-engine.js">
-/* REA100_PENDING: js/verify-engine.js */
+/* REA-060: chained VERIFY relations with exact pairwise comparisons. */
+(function(global){'use strict';
+const OPERATORS=Object.freeze(['=','!=','<','<=','>','>=']);
+const CANONICAL=Object.freeze({'≤':'<=','≥':'>=','≠':'!=','==':'=','<>':'!='});
+function fault(message='Syntax ERROR'){throw Error(message)}
+function parse(input){
+ const source=String(input??'').trim().replace(/[≤≥≠]/g,sign=>CANONICAL[sign]);
+ if(!source||source.length>170)fault();
+ const terms=[],operators=[];
+ let start=0,depth=0;
+ for(let i=0;i<source.length;i++){
+  const ch=source[i];
+  if(ch==='('){depth++;continue}
+  if(ch===')'){if(--depth<0)fault();continue}
+  if(depth!==0)continue;
+  if(ch==='<'||ch==='>'||ch==='='||ch==='!'){
+   let op=ch;
+   if(source[i+1]==='='){op+='=';i++}
+   else if(ch==='<'&&source[i+1]==='>'){op='!=';i++}
+   if(op==='==')op='=';
+   if(!OPERATORS.includes(op))fault();
+   const term=source.slice(start,i-op.length+1).trim();
+   if(!term)fault();
+   terms.push(term);
+   operators.push(op);
+   start=i+1;
+  }
+ }
+ if(depth!==0)fault();
+ const last=source.slice(start).trim();
+ if(!last||!operators.length)fault();
+ terms.push(last);
+ return {source,terms,operators};
+}
+function compare(a,b,op){
+ if(!Number.isFinite(a)||!Number.isFinite(b))fault('Math ERROR');
+ switch(op){
+ case '=':return a===b;
+ case '!=':return a!==b;
+ case '<':return a<b;
+ case '<=':return a<=b;
+ case '>':return a>b;
+ case '>=':return a>=b;
+ default:fault();
+ }
+}
+function evaluate(input,evaluator){
+ const parsed=parse(input);
+ if(typeof evaluator!=='function')fault('Argument ERROR');
+ // Evaluate each sub-expression exactly once, including both sides of a chain.
+ const values=parsed.terms.map(term=>{
+  const n=evaluator(term);
+  if(typeof n!=='number'||!Number.isFinite(n))fault('Math ERROR');
+  return n;
+ });
+ const comparisons=parsed.operators.map((operator,i)=>({
+  left:values[i],right:values[i+1],operator,
+  result:compare(values[i],values[i+1],operator)
+ }));
+ return {...parsed,values,comparisons,result:comparisons.every(x=>x.result),
+   text:comparisons.every(x=>x.result)?'TRUE':'FALSE'};
+}
+global.FreshVerify=Object.freeze({OPERATORS,parse,compare,evaluate});
+if(typeof module!=='undefined'&&module.exports)module.exports=global.FreshVerify;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/distribution-engine.js">
-/* REA100_PENDING: js/distribution-engine.js */
+/* REA-061 — seven CASIO fx-991ES PLUS C distributions, scalar/Var path. */
+(function(global){'use strict';
+const TYPES=Object.freeze([
+ {id:'normal-pd',label:'Normal PD',params:['x','sigma','mu'],defaults:['36','2','35']},
+ {id:'normal-cd',label:'Normal CD',params:['lower','upper','sigma','mu'],defaults:['-1','1','1','0']},
+ {id:'inverse-normal',label:'Inverse Normal',params:['area','sigma','mu'],defaults:['0.95','1','0']},
+ {id:'binomial-pd',label:'Binomial PD',params:['x','n','p'],defaults:['10','15','0.6']},
+ {id:'binomial-cd',label:'Binomial CD',params:['x','n','p'],defaults:['10','15','0.6']},
+ {id:'poisson-pd',label:'Poisson PD',params:['x','mu'],defaults:['3','2']},
+ {id:'poisson-cd',label:'Poisson CD',params:['x','mu'],defaults:['3','2']}
+]);
+function fail(message='Argument ERROR'){throw Error(message)}
+function val(v){if(v===null||v===undefined||String(v).trim()==='')fail();const n=Number(v);if(!Number.isFinite(n)||Math.abs(n)>9.999999999e99)fail();return n}
+function integer(n){if(n<0||!Number.isSafeInteger(n))fail('Argument ERROR');return n}
+function probability(p){if(p<0||p>1)fail('Argument ERROR');return p}
+function sigma(s){if(s<=0)fail('Argument ERROR');return s}
+function clamp(p){return Math.max(0,Math.min(1,p))}
+const GAUSS=Math.sqrt(2*Math.PI);
+function normalPDF(x,s,mu){const z=(x-mu)/sigma(s);return Math.exp(-z*z/2)/(s*GAUSS)}
+function normalTail(z){
+ // Integrate the positive Gaussian tail directly to avoid cancellation
+ // (0.5 - integral) at z >= 8. The omitted part beyond z+12 is tiny.
+ if(z>=40)return 0;
+ const pdf=t=>Math.exp(-t*t/2)/GAUSS,end=z+12;
+ function simp(a,b,fa,fm,fb){return (b-a)*(fa+4*fm+fb)/6}
+ function integrate(a,b,fa,fm,fb,whole,tol,depth){
+  const mid=(a+b)/2,leftMid=(a+mid)/2,rightMid=(mid+b)/2;
+  const f1=pdf(leftMid),f2=pdf(rightMid);
+  const first=simp(a,mid,fa,f1,fm),second=simp(mid,b,fm,f2,fb);
+  if(depth===0||Math.abs(first+second-whole)<=15*tol)
+   return first+second+(first+second-whole)/15;
+  return integrate(a,mid,fa,f1,fm,first,tol/2,depth-1)+
+    integrate(mid,b,fm,f2,fb,second,tol/2,depth-1);
+ }
+ const fa=pdf(z),fb=pdf(end),fm=pdf((z+end)/2);
+ return integrate(z,end,fa,fm,fb,simp(z,end,fa,fm,fb),
+   Math.max(1e-300,fa*1e-13),26);
+}
+function normalCDF(x,s=1,mu=0){
+ const z=(x-mu)/sigma(s);
+ if(!Number.isFinite(z))return z<0?0:1;
+ const tail=normalTail(Math.abs(z));
+ return clamp(z<0?tail:1-tail);
+}
+function normalCD(lower,upper,s,mu){
+ sigma(s);if(lower>upper)fail('Argument ERROR');if(lower===upper)return 0;
+ return clamp(normalCDF(upper,s,mu)-normalCDF(lower,s,mu));
+}
+function inverseNormal(area,s,mu){
+ probability(area);sigma(s);if(area===0||area===1)fail('Math ERROR');
+ // Monotone bracketed solve, avoiding unstable Newton derivatives in tails.
+ let low=-40,high=40;
+ for(let i=0;i<62;i++){
+  const mid=(low+high)/2;
+  if(normalCDF(mid)<area)low=mid;else high=mid;
+ }
+ return mu+s*(low+high)/2;
+}
+const COF=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.984369578019572e-6,1.5056327351493116e-7];
+function logGamma(z){
+ if(z<=0)fail('Argument ERROR');
+ if(z<.5)return Math.log(Math.PI)-Math.log(Math.sin(Math.PI*z))-logGamma(1-z);
+ let x=COF[0];z-=1;
+ for(let i=1;i<COF.length;i++)x+=COF[i]/(z+i);
+ const t=z+7.5;
+ return .5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x);
+}
+function logFact(k){return logGamma(k+1)}
+function binomialPD(x,n,p){
+ integer(n);integer(x);probability(p);
+ if(x>n)return 0;
+ if(p===0)return x===0?1:0;
+ if(p===1)return x===n?1:0;
+ return Math.exp(logFact(n)-logFact(x)-logFact(n-x)+x*Math.log(p)+(n-x)*Math.log1p(-p));
+}
+function binomialCD(x,n,p){
+ integer(n);integer(x);probability(p);
+ if(x>=n)return 1;if(p===0)return 1;if(p===1)return 0;
+ // Sum from the cheaper tail with ratios, stopping when terms underflow.
+ if(x<n*p){
+  let term=binomialPD(x,n,p),total=term;
+  for(let k=x,steps=0;k>0;k--){if(++steps>100000)fail('Time Out Error');term*=k/(n-k+1)*(1-p)/p;total+=term;if(term===0)break}
+  return clamp(total);
+ }
+ let term=binomialPD(x+1,n,p),tail=term;
+ for(let k=x+1,steps=0;k<n;k++){if(++steps>100000)fail('Time Out Error');term*=(n-k)/(k+1)*p/(1-p);tail+=term;if(term===0)break}
+ return clamp(1-tail);
+}
+function poissonPD(x,mu){
+ integer(x);if(mu<0)fail('Argument ERROR');if(mu===0)return x===0?1:0;
+ return Math.exp(-mu+x*Math.log(mu)-logFact(x));
+}
+function poissonCD(x,mu){
+ integer(x);if(mu<0)fail('Argument ERROR');if(mu===0)return 1;
+ if(x<mu){
+  let term=poissonPD(x,mu),sum=term;
+  for(let k=x,steps=0;k>0;k--){if(++steps>100000)fail('Time Out Error');term*=k/mu;sum+=term;if(term===0)break}
+  return clamp(sum);
+ }
+ let term=poissonPD(x+1,mu),tail=term;
+ for(let k=x+1,steps=0;k<Math.max(x+30,mu+1000);k++){
+  if(++steps>100000)fail('Time Out Error');
+  term*=mu/(k+1);tail+=term;
+  if(term===0||term<1e-16*Math.max(tail,1e-100))break;
+ }
+ return clamp(1-tail);
+}
+function calculate(type,raw){
+ const spec=TYPES.find(t=>t.id===type);if(!spec)fail();
+ const d={};for(const key of spec.params)d[key]=val(raw[key]);
+ let result;
+ if(type==='normal-pd')result=normalPDF(d.x,d.sigma,d.mu);
+ else if(type==='normal-cd')result=normalCD(d.lower,d.upper,d.sigma,d.mu);
+ else if(type==='inverse-normal')result=inverseNormal(d.area,d.sigma,d.mu);
+ else if(type==='binomial-pd')result=binomialPD(d.x,d.n,d.p);
+ else if(type==='binomial-cd')result=binomialCD(d.x,d.n,d.p);
+ else if(type==='poisson-pd')result=poissonPD(d.x,d.mu);
+ else result=poissonCD(d.x,d.mu);
+ if(!Number.isFinite(result))fail('Math ERROR');
+ return result;
+}
+global.FreshDistribution=Object.freeze({TYPES,calculate,normalPDF,normalCDF,normalCD,inverseNormal,binomialPD,binomialCD,poissonPD,poissonCD});
+if(typeof module!=='undefined'&&module.exports)module.exports=global.FreshDistribution;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/dist-list.js">
-/* REA100_PENDING: js/dist-list.js */
+/* REA-062 — DIST list editor, 25 independent samples and result cells. */
+(function(g){'use strict';
+const MAX=25;
+const LIST_TYPES=Object.freeze(['binomial-pd','binomial-cd','poisson-pd','poisson-cd']);
+const fail=(message='Argument ERROR')=>{throw Error(message)};
+const supported=type=>LIST_TYPES.includes(type);
+function create(type,samples=[]){
+ if(!supported(type)||!Array.isArray(samples)||samples.length>MAX)fail();
+ const data=samples.map(x=>parse(String(x)));
+ return {type,samples:data,answers:[],row:0,column:0,buffer:data.length?String(data[0]):'',
+   editing:false,error:'',calculated:false,parameters:null};
+}
+function parse(text){
+ const s=String(text).trim();
+ if(!s||s.length>24||!/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[Ee][+-]?\d+)?$/.test(s))fail('Syntax ERROR');
+ const x=Number(s);if(!Number.isFinite(x)||Math.abs(x)>9.999999999e99)fail('Math ERROR');
+ return x;
+}
+function load(e){e.buffer=e.row<e.samples.length?String(e.samples[e.row]):'';e.editing=false;e.error='';return e}
+function edit(e,t){
+ if(!/^[0-9Ee.+-]$/.test(String(t)))fail('Syntax ERROR');
+ if(!e.editing){e.buffer='';e.editing=true}
+ if(e.buffer.length>=24)fail('Input limit');
+ e.buffer+=t;e.error='';return e;
+}
+function sign(e){
+ if(!e.editing){e.buffer=e.row<e.samples.length?String(e.samples[e.row]):'';e.editing=true}
+ e.buffer=e.buffer.startsWith('-')?e.buffer.slice(1):'-'+e.buffer;return e;
+}
+function backspace(e){
+ if(!e.editing){e.buffer=e.row<e.samples.length?String(e.samples[e.row]):'';e.editing=true}
+ e.buffer=e.buffer.slice(0,-1);return e;
+}
+function save(e){
+ if(!e.editing)return e;
+ const value=parse(e.buffer);
+ if(e.row===e.samples.length){
+  if(e.samples.length>=MAX)fail('Insufficient MEM');
+  e.samples.push(value);
+ }else e.samples[e.row]=value;
+ e.answers=[];e.calculated=false;e.parameters=null;return load(e);
+}
+function next(e){
+ save(e);
+ if(e.row<e.samples.length&&e.row<MAX-1)e.row++;
+ return load(e);
+}
+function move(e,dr,dc){
+ save(e);
+ e.row=Math.max(0,Math.min(e.samples.length<MAX?e.samples.length:MAX-1,e.row+dr));
+ e.column=Math.max(0,Math.min(1,e.column+dc));
+ return load(e);
+}
+function remove(e){
+ if(e.row>=e.samples.length)return load(e);
+ e.samples.splice(e.row,1);
+ e.row=Math.min(e.row,e.samples.length);
+ e.answers=[];e.parameters=null;e.calculated=false;
+ return load(e);
+}
+function insert(e){
+ if(e.samples.length>=MAX)fail('Insufficient MEM');
+ // A real entry is added only after the replacement number is accepted.
+ // Existing samples are not modified if the new input is invalid/cancelled.
+ e.inserting=true;e.editing=true;e.buffer='';e.error='';return e;
+}
+function commitInsertion(e){
+ if(!e.inserting)return save(e);
+ const value=parse(e.buffer);
+ if(e.samples.length>=MAX)fail('Insufficient MEM');
+ e.samples.splice(e.row,0,value);
+ e.inserting=false;e.answers=[];e.parameters=null;e.calculated=false;
+ return load(e);
+}
+function cancelInsertion(e){e.inserting=false;return load(e)}
+function clear(e){
+ e.samples=[];e.answers=[];e.parameters=null;e.calculated=false;e.row=0;e.column=0;
+ e.inserting=false;return load(e);
+}
+function evaluate(e,params,engine){
+ if(!e.samples.length)fail('Argument ERROR');
+ const answers=e.samples.map(x=>{
+  try{return engine.calculate(e.type,{...params,x})}catch{return null}
+ });
+ e.answers=answers;e.parameters={...params};e.calculated=true;e.column=1;
+ e.row=Math.min(e.row,e.samples.length-1);
+ e.error='';
+ return answers.slice();
+}
+function active(e){return e.column===0?(e.samples[e.row]??null):(e.answers[e.row]??null)}
+function format(value){return value===null||value===undefined?'ERROR':String(Number(value.toPrecision(10)))}
+g.FreshDistList=Object.freeze({MAX,LIST_TYPES,supported,create,parse,load,edit,sign,backspace,save,next,move,remove,insert,commitInsertion,cancelInsertion,clear,evaluate,active,format});
+if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshDistList;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/scientific-constants.js">
-/* REA100_PENDING: js/scientific-constants.js */
+/* REA-094 — 40 scientific constant codes with manufacturer-sourced original values.
+ * Original fx-991ES: Appendix #114 (ISO 1992 / CODATA 1998).
+ * https://support.casio.com/pdf/004/fx-115ES_570ES.etc_Appendix.pdf
+ * Original User's Guide p. E-65 explicitly cites these editions.
+ * PLUS-family profiles remain separate legacy 2014 candidates; no assertion
+ * of physical ROM parity for those devices is made here.
+ */
+(function(global){'use strict';
+const MODELS=Object.freeze({
+ 'fx-991es':1998,'fx-991es-plus':2014,'fx-991es-plus-c':2014
+});
+const DATA=[["mp","proton mass","kg",1.672621898e-27,1.67262171e-27],["mn","neutron mass","kg",1.674927471e-27,1.67492728e-27],["me","electron mass","kg",9.10938356e-31,9.1093826e-31],["mμ","muon mass","kg",1.883531594e-28,1.8835314e-28],["a₀","Bohr radius","m",5.2917721067e-11,5.291772108e-11],["h","Planck constant","J s",6.62607004e-34,6.6260693e-34],["μN","nuclear magneton","J/T",5.050783699e-27,5.05078343e-27],["μB","Bohr magneton","J/T",9.274009994e-24,9.27400949e-24],["ħ","reduced Planck constant","J s",1.0545718e-34,1.05457168e-34],["α","fine-structure constant","",0.0072973525664,0.007297352568],["re","classical electron radius","m",2.8179403227e-15,2.817940325e-15],["λc","Compton wavelength","m",2.4263102367e-12,2.426310238e-12],["γp","proton gyromagnetic ratio","s^-1 T^-1",267522190,267522205],["λcp","proton Compton wavelength","m",1.32140985396e-15,1.3214098555e-15],["λcn","neutron Compton wavelength","m",1.31959090481e-15,1.3195909067e-15],["R∞","Rydberg constant","m^-1",10973731.568508,10973731.568525],["u","atomic mass constant","kg",1.66053904e-27,1.66053886e-27],["μp","proton magnetic moment","J/T",1.4106067873e-26,1.41060671e-26],["μe","electron magnetic moment","J/T",-9.28476462e-24,-9.28476411e-24],["μn","neutron magnetic moment","J/T",-9.662365e-27,-9.6623645e-27],["μμ","muon magnetic moment","J/T",-4.49044826e-26,-4.49044799e-26],["F","Faraday constant","C/mol",96485.33289,96485.3383],["e","elementary charge","C",1.6021766208e-19,1.60217653e-19],["NA","Avogadro constant","mol^-1",6.022140857e+23,6.0221415e+23],["k","Boltzmann constant","J/K",1.38064852e-23,1.3806504e-23],["Vm","molar volume of ideal gas","m^3/mol",0.022710947,0.022710981],["R","molar gas constant","J/(mol K)",8.3144598,8.314472],["c₀","speed of light in vacuum","m/s",299792458,299792458],["c₁","first radiation constant","W m^2",3.74177179e-16,3.74177138e-16],["c₂","second radiation constant","m K",0.0143877736,0.014387752],["σ","Stefan-Boltzmann constant","W/(m^2 K^4)",5.670367e-8,5.6704e-8],["ε₀","electric constant","F/m",8.854187817e-12,8.854187817e-12],["μ₀","magnetic constant","N/A^2",0.0000012566370614359173,0.0000012566370614359173],["Φ₀","magnetic flux quantum","Wb",2.067833831e-15,2.06783372e-15],["g","standard acceleration of gravity","m/s^2",9.80665,9.80665],["G₀","conductance quantum","S",0.00007748091731,0.00007748091733],["Z₀","characteristic impedance of vacuum","ohm",376.730313461,376.730313461],["t","Celsius temperature offset","K",273.15,273.15],["G","Newtonian constant of gravitation","m^3/(kg s^2)",6.67408e-11,6.6742e-11],["atm","standard atmosphere","Pa",101325,101325]];
+// Strings preserve the exact significant digits printed in CASIO Appendix #114.
+const ORIGINAL_1998=Object.freeze([
+ "1.67262158e-27",
+ "1.67492716e-27",
+ "9.10938188e-31",
+ "1.88353109e-28",
+ "0.5291772083e-10",
+ "6.62606876e-34",
+ "5.05078317e-27",
+ "927.400899e-26",
+ "1.054571596e-34",
+ "7.297352533e-3",
+ "2.817940285e-15",
+ "2.426310215e-12",
+ "2.67522212e8",
+ "1.321409847e-15",
+ "1.319590898e-15",
+ "10973731.568549",
+ "1.66053873e-27",
+ "1.410606633e-26",
+ "-928.476362e-26",
+ "-0.96623640e-26",
+ "-4.49044813e-26",
+ "96485.3415",
+ "1.602176462e-19",
+ "6.02214199e23",
+ "1.3806503e-23",
+ "22.413996e-3",
+ "8.314472",
+ "299792458",
+ "3.74177107e-16",
+ "1.4387752e-2",
+ "5.670400e-8",
+ "8.854187817e-12",
+ "12.566370614e-7",
+ "2.067833636e-15",
+ "9.80665",
+ "7.748091696e-5",
+ "376.730313461",
+ "273.15",
+ "6.673e-11",
+ "101325"
+]);
+const ITEMS=Object.freeze(DATA.map(([symbol,name,unit,value2014,value2002],index)=>
+ Object.freeze({code:String(index+1).padStart(2,'0'),symbol,name,unit,
+  printed1998:ORIGINAL_1998[index],
+  values:Object.freeze({1998:Number(ORIGINAL_1998[index]),2014:value2014,2002:value2002})})));
+const fault=(message='Argument ERROR')=>{throw Error(message)};
+function select(model,code){
+ const version=MODELS[model];if(!version)fault();
+ const number=String(code).padStart(2,'0');
+ const entry=ITEMS.find(x=>x.code===number);if(!entry)fault('Argument ERROR');
+ return Object.freeze({...entry,value:entry.values[version],year:version,
+  printedValue:version===1998?entry.printed1998:null});
+}
+function literal(entry){
+ if(!entry||!Number.isFinite(entry.value))fault();
+ // Keep inserted constants as ordinary expression operands; no new
+ // undocumented parser functions, no scientific notation ambiguity.
+ const n=entry.value;
+ if(n===0)return '(0)';
+ const str=n.toExponential(15);
+ const [mantissa,exp]=str.split('e');
+ return '('+Number(mantissa)+'*10^('+Number(exp)+'))';
+}
+function codeEditor(){return {buffer:'',error:''}}
+function type(editor,key,model){
+ if(!/^[0-9]$/.test(String(key)))fault();
+ if(editor.buffer.length>=2)fault('Syntax ERROR');
+ editor.buffer+=key;editor.error='';
+ if(editor.buffer.length!==2)return null;
+ const selected=select(model,editor.buffer);
+ return selected;
+}
+function backspace(editor){editor.buffer=editor.buffer.slice(0,-1);editor.error='';return editor}
+global.FreshScientificConstants=Object.freeze({ITEMS,MODELS,ORIGINAL_1998,select,literal,codeEditor,type,backspace});
+if(typeof module!=='undefined'&&module.exports)module.exports=global.FreshScientificConstants;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/metric-conversions.js">
-/* REA100_PENDING: js/metric-conversions.js */
+/* REA-064 — 40 CASIO CONV code pairs; original ES manual appendix
+ * https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf
+ * Original fx-991ES Appendix #117 uses NIST SP 811 (1995) rounded
+ * factors. PLUS profiles retain their separately defined existing factors.
+ * https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf
+ */
+(function(g){'use strict';
+const FORWARD=[["in","cm",2.54],["ft","m",0.3048],["yd","m",0.9144],["mile","km",1.609344],["n mile","m",1852],["acre","m²",4046.856],["gal (US)","L",3.785412],["gal (UK)","L",4.54609],["pc","km",30856780000000],["km/h","m/s",0.2777777777777778],["oz","g",28.34952],["lb","kg",0.4535924],["atm","Pa",101325],["mmHg","Pa",133.3224],["hp","kW",0.7457],["kgf/cm²","Pa",98066.5],["kgf·m","J",9.80665],["lbf/in²","kPa",6.894757],["°F","°C",null],["J","cal",4.1858]];
+const PRECISE={"11":4046.8564224,"13":3.785411784,"17":30856775814913.67,"21":28.349523125,"23":0.45359237,"27":133.322387415,"29":0.745699871582,"35":6.894757293168};
+const ITEMS=Object.freeze(FORWARD.flatMap(([from,to,factor],index)=>{
+ const code=2*index+1;
+ return [Object.freeze({code:String(code).padStart(2,'0'),from,to,factor,reverse:false}),
+         Object.freeze({code:String(code+1).padStart(2,'0'),from:to,to:from,factor,reverse:true})];
+}));
+const fail=(message='Argument ERROR')=>{throw Error(message)};
+function select(model,code){
+ if(!['fx-991es','fx-991es-plus','fx-991es-plus-c'].includes(model))fail();
+ const entry=ITEMS.find(item=>item.code===String(code).padStart(2,'0'));if(!entry)fail();
+ const key=Number(entry.code)-(entry.reverse?1:0);
+ const factor=model==='fx-991es-plus'&&PRECISE[key]!==undefined?PRECISE[key]:entry.factor;
+ return {...entry,factor};
+}
+function convert(value,entry){
+ if(!Number.isFinite(value))fail('Math ERROR');
+ let result;
+ if(entry.code==='37')result=(value-32)/1.8;
+ else if(entry.code==='38')result=value*1.8+32;
+ // Appendix #117 specifies 39: 1 J = (1/4.1858) cal,
+ // 40: 1 cal = 4.1858 J. Keep the exact printed factor.
+ else if(entry.code==='39')result=value/4.1858;
+ else if(entry.code==='40')result=value*4.1858;
+ else result=entry.reverse?value/entry.factor:value*entry.factor;
+ if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
+ return result;
+}
+function literal(entry,operand){
+ if(!entry||typeof operand!=='string'||!operand.trim())fail('Syntax ERROR');
+ const x='('+operand+')';
+ if(entry.code==='37')return '(('+x+'-32)/1.8)';
+ if(entry.code==='38')return '(('+x+'*1.8)+32)';
+ if(entry.code==='39')return '('+x+'/4.1858)';
+ if(entry.code==='40')return '('+x+'*4.1858)';
+ const factor=Number(entry.factor.toPrecision(15));
+ return entry.reverse?'('+x+'/'+factor+')':'('+x+'*'+factor+')';
+}
+function suffix(expression){
+ const str=String(expression??'');
+ let end=str.length;while(end>0&&/\s/.test(str[end-1]))end--;
+ if(end===0)fail('Syntax ERROR');
+ let start=end;
+ if(str[end-1]===')'){
+  let depth=0;
+  for(let i=end-1;i>=0;i--){
+   if(str[i]===')')depth++;
+   else if(str[i]==='('){depth--;if(depth===0){start=i;break}}
+  }
+  if(depth!==0)fail('Syntax ERROR');
+  while(start>0&&/[A-Za-z]/.test(str[start-1]))start--;
+ }else{
+  // Digits, decimal, scientific E notation and simple calculator variables.
+  if(!/[0-9.A-Za-z]/.test(str[end-1]))fail('Syntax ERROR');
+  const source=str.slice(0,end);
+  const match=source.match(/(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?$|(?:Ans|PreAns|[A-FMXY]|pi|e)$/);
+  if(!match)fail('Syntax ERROR');
+  start=end-match[0].length;
+ }
+ // Make the leading negative sign part of the operand only where unary.
+ if(start>0&&str[start-1]==='-'&&(start===1||/[+\-*/^(,]/.test(str[start-2])))start--;
+ if(start>0&&str[start-1]==='+'&&(start===1||/[+\-*/^(,]/.test(str[start-2])))start--;
+ return {prefix:str.slice(0,start),operand:str.slice(start,end),suffix:str.slice(end)};
+}
+function insert(expression,entry){
+ const part=suffix(expression);
+ return part.prefix+literal(entry,part.operand)+part.suffix;
+}
+function editor(){return {buffer:'',error:''}}
+function digit(e,key,model){
+ if(!/^[0-9]$/.test(key)||e.buffer.length>=2)fail('Syntax ERROR');
+ e.buffer+=key;e.error='';
+ if(e.buffer.length<2)return null;
+ return select(model,e.buffer);
+}
+function backspace(e){e.buffer=e.buffer.slice(0,-1);e.error='';return e}
+g.FreshConversions=Object.freeze({ITEMS,select,convert,literal,suffix,insert,editor,digit,backspace});
+if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshConversions;
+})(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/menu-model.js">
 /* REA100_PENDING: js/menu-model.js */
