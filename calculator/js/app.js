@@ -1820,7 +1820,7 @@ function tableStart(previous=null){
   const gn=dual?functionFor(expression2):null;
   const table=TABLE.generate({model:state.model,count:dual?2:1,start,end,
    step,f:fn,g:gn});
-  // Failed validation or generation never overwrites X, table or the draft.
+  // Failed generation leaves X and the last successful draft unchanged.
   state.tableData=table;
   state.tableDraft={...data};
   state.memory.X=table.rows[table.rows.length-1].x;
