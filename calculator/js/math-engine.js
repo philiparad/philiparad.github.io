@@ -272,7 +272,7 @@ function evaluate(source,opts={}){
  // Scientific functions, register variables and unsupported powers use the existing engine.
  // Keep long arithmetic in the full stack-limited parser. Otherwise
  // the fast path could accept unary/power chains exceeding the 24-frame cap.
- const fastSafe=(String(source).match(/[+*/^()\\-]/g)||[]).length<=23;
+ const fastSafe=(String(source).match(/[-+*/^()]/g)||[]).length<=23;
  if(global.FreshDecimal&&fastSafe){
   try{
    const decimalValue=global.FreshDecimal.evaluate(source,opts);
