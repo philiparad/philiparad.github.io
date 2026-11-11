@@ -7,6 +7,7 @@ const assert=require('node:assert/strict');
 const REG=require('../js/stat-regression.js');
 const NORMAL=require('../js/stat-normal.js');
 const M=require('../js/math-engine.js');
+const PARAM=require('../js/stat-parameters.js');
 let count=0;
 function check(label,action){try{action();count++}catch(e){e.message=label+': '+e.message;throw e}}
 function near(actual,expected,eps=2e-12){
@@ -92,5 +93,26 @@ check('paired regression remains operational',()=>{
  const stat=REG.summary(t);
  near(stat.meanX,2);near(stat.meanY,5);
  const fit=REG.fit(t,'LIN');near(fit.A,1);near(fit.B,2);
+});
+check('original Var menu resolves extreme Sigma X',()=>{
+ const t=sample([1e50,-1e50]);
+ assert.equal(PARAM.resolve('StatSDX',t,REG).StatSDX,1e50);
+});
+check('original Sum menu rejects extreme Sum X2',()=>{
+ const t=sample([1e50,-1e50]);
+ assert.throws(()=>PARAM.resolve('StatSumX2',t,REG),/Math ERROR/);
+});
+check('original Sum X still resolves representable zero',()=>{
+ const t=sample([1e50,-1e50]);
+ assert.equal(PARAM.resolve('StatSumX',t,REG).StatSumX,0);
+});
+check('original Sum X2 still resolves ordinary data',()=>{
+ const t=sample([2,4,6]);
+ assert.equal(PARAM.resolve('StatSumX2',t,REG).StatSumX2,56);
+});
+check('large Sum X rejects while mean remains valid',()=>{
+ const t=sample([9e99,9e99]);
+ assert.equal(PARAM.resolve('StatMeanX',t,REG).StatMeanX,9e99);
+ assert.throws(()=>PARAM.resolve('StatSumX',t,REG),/Math ERROR/);
 });
 console.log('REA-106 PASS '+count+' isolated STAT numerical and model regression checks; hardware unverified');
