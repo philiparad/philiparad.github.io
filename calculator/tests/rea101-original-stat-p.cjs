@@ -59,7 +59,7 @@ test('STAT Distr requires original 1VAR only',()=>{
 test('STAT P evaluates variable expressions before changing Ans',()=>{
  const segment=app.slice(app.indexOf('function statDistrInput(kind){'),app.indexOf('function originalStatEstimate(',app.indexOf('function statDistrInput(kind){')));
  assert.ok(segment.indexOf('M.evaluate(raw,')<segment.indexOf('STATN.calculate(kind,arg,summary)'));
- assert.match(segment,/kind\+'\\('\+raw\+'\\)'/);
+ assert.ok(segment.includes("kind+'('+raw+')'"));
 });
 test('STAT P result displays source and makes Ans available',()=>{
  const segment=app.slice(app.indexOf("if(output&&output.kind==='stat-normal')"),app.indexOf("if(output&&output.kind==='solve-continue')"));
