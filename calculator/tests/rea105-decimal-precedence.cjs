@@ -5,6 +5,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const DEC=require('../js/decimal-core.js'),M=require('../js/math-engine.js');
+const RAT=require('../js/rational.js');
 const fs=require('node:fs'),path=require('node:path');
 let checks=0;
 function test(label,fn){try{fn();checks++}catch(e){e.message=label+': '+e.message;throw e}}
@@ -86,5 +87,43 @@ test('source passes model and guards fast arithmetic',()=>{
  assert.match(src,/FreshDecimal\.evaluate\(source,opts\)/);
  assert.match(src,/const implicitPriority=opts\.model===/);
  assert.match(src,/const fastSafe=/);
+});
+// The app chooses exact-rational results before the decimal/math parser.
+// Check that this cannot silently undo the edition-specific correction.
+const rationalCases=[
+ ['8/2(2+2)',16,1],['12/3(1+3)',16,1],
+ ['18/3(2+1)',18,2],['16/4(2+2)',16,1],
+ ['(1+2)3',9,9],['(1+2)(3+4)',21,21],
+ ['8/2*4',16,16],['2(3+4)',14,14]
+];
+for(const model of ['fx-991es','fx-991es-plus','fx-991es-plus-c']){
+ for(const [expr,orig,plus] of rationalCases){
+  const want=model==='fx-991es'?orig:plus;
+  test('rational engine '+model+' '+expr,()=>{
+   const exact=RAT.evaluate(expr,{model});
+   assert.ok(exact);
+   close(RAT.toNumber(exact),want);
+  });
+  test('controller rational-first result '+model+' '+expr,()=>{
+   const exact=RAT.evaluate(expr,{model});
+   const value=exact?RAT.toNumber(exact):M.evaluate(expr,{model});
+   close(value,want);
+  });
+ }
+ test('rational Ans metadata '+model,()=>{
+  const opts={model,ansRational:{numerator:'2',denominator:'1'}};
+  const exact=RAT.evaluate('8/Ans(2+2)',opts);
+  close(RAT.toNumber(exact),model==='fx-991es'?16:1);
+ });
+}
+for(const expr of ['-'.repeat(25)+'1','1^'.repeat(25)+'1']){
+ test('long rational input falls through to checked parser '+expr.slice(0,12),()=>{
+  assert.equal(RAT.evaluate(expr,{model:'fx-991es'}),null);
+ });
+}
+test('app forwards its model to exact-rational shortcut',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
+ assert.match(app,/FreshRational\.evaluate\(expression,\{/);
+ assert.match(app,/model:state\.model/);
 });
 console.log('REA-105 PASS '+checks+' source-level precedence, precision, errors and backend-consistency checks');
