@@ -3951,7 +3951,13 @@ function estimateY(m,x){
  case 'EXP':y=scaledFactor(A,Math.exp(B*x),B*x);break;
  case 'ABEXP':y=B>0?scaledFactor(A,Math.pow(B,x),x*Math.log(B)):A*Math.pow(B,x);break;
  case 'POWER':if(x<=0)fail();y=scaledFactor(A,Math.pow(x,B),B*Math.log(x));break;
- case 'INV':if(!x)fail();y=A+B/x;break;
+ case 'INV':if(!x)fail();{
+  // REA-121: evaluate (A*x+B)/x with compensated arithmetic so the
+  // rounded division B/x cannot erase small valid cancellation terms.
+  const numerator=ddAdd(ddProduct(A,x),{hi:B,lo:0});
+  y=(numerator.hi+numerator.lo)/x;
+  break;
+ }
  default:fail('Argument ERROR');
  }
  return finite(y);
