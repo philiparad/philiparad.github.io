@@ -90,6 +90,28 @@ test('original STAT equals-key path passes P gate',()=>{
  assert.match(snippet,/statOriginalDistr:!state\.statTable\.paired/);
  assert.match(snippet,/state\.statTable\.regressionType==='1VAR'/);
 });
+test('original STAT P key actually inserts calculator expression',()=>{
+ const start=APP.indexOf('function statDistr(){');
+ const end=APP.indexOf('function statDistrInput(kind)',start);
+ const stat={model:'fx-991es',mode:'STAT',
+  statTable:{paired:false,regressionType:'1VAR'},
+  menuReturnScreen:'stat-table',screen:'menu',editor:{old:true}};
+ let commands,inserted='',stopped=false;
+ const evaluateRoute=new Function('state','releaseModifier','optionDialog',
+  'notify','paint','STRUCT','syncEditor','insert',
+  APP.slice(start,end)+';return {statDistr,originalStatPInput};');
+ const route=evaluateRoute(stat,()=>{},
+  (title,entries)=>{assert.equal(title,'STAT Distr');commands=entries;},
+  ()=>{stopped=true},()=>{},{create:()=>({created:true})},()=>{},
+  value=>{inserted=value;});
+ route.statDistr();assert.equal(commands.length,4);
+ commands[0].action();assert.equal(inserted,'P(');
+ assert.equal(stat.screen,'edit');
+ assert.deepEqual(stat.editor,{created:true});
+ stat.model='fx-991es-plus-c';commands=null;
+ route.statDistr();assert.equal(commands,null);
+ assert.equal(stopped,true);
+});
 test('P menu original STAT only',()=>{
  const start=APP.indexOf('function statDistr(){');
  const end=APP.indexOf('function statDistrInput(kind)',start);
