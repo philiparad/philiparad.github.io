@@ -69,8 +69,10 @@ function evaluate(expression){
  function expr(min){
   let left=primary();
   while(at<tokens.length&&peek()!==')'){
-   const t=peek(),implicit=t==='(',op=implicit?'*':t;
-   const priority=implicit?24:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
+   // REA-105: implicit and explicit multiplication/division share precedence.
+   // A number after a closing parenthesis also denotes multiplication.
+   const t=peek(),implicit=t==='('||/^[0-9.]/.test(t),op=implicit?'*':t;
+   const priority=implicit?20:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(priority===undefined||priority<min)break;
    if(!implicit)at++;
    const right=expr(op==='^'?priority:priority+1);
