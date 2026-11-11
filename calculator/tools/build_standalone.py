@@ -63,7 +63,7 @@ def build():
                       manifest + '\n</script>\n' + bundle)
         return bundle
 
-    html = STYLE.sub('<style data-source="styles.css">\n' +
+    html = STYLE.sub(lambda _: '<style data-source="styles.css">\n' +
                      css.rstrip("\n") + '\n</style>', html)
     html = SCRIPT.sub(inline, html)
     if re.search(r'<script\s+src=', html):
