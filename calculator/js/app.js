@@ -1992,6 +1992,20 @@ function conversionCodeHandle(key){
  }
  notify('CONV: choose a code 01-40',true);paint();
 }
+// DRG▶ specifies the unit of the preceding operand; the global SETUP
+// angle setting is intentionally unchanged. 1: degrees, 2: radians,
+// 3: grads. MENU cancellation retains the editor/result and unit.
+function drgMenu(){
+ if(state.mode!=='COMP'){
+  releaseModifier();notify('DRG requires COMP mode',true);paint();return;
+ }
+ releaseModifier();
+ optionDialog('DRG▶',[
+  {key:'1',label:'1. ° (Deg)',action:()=>insert('°')},
+  {key:'2',label:'2. r (Rad)',action:()=>insert('r')},
+  {key:'3',label:'3. g (Gra)',action:()=>insert('g')}
+ ],{kind:'normal',pageSize:3});
+}
 function shifted(key){
  if(state.mode==='CMPLX'&&key==='2'){complexMenu();return true}
  if(state.mode==='CMPLX'&&key==='NEG'){releaseModifier();insert('∠');return true}
@@ -2028,7 +2042,7 @@ function shifted(key){
  if(key==='SD'){releaseModifier();toggleMixed();return true}
  if(key==='ENG'){releaseModifier();if(state.screen==='result')showEngineering(1);return true}
  if(key==='DMS'){releaseModifier();if(state.screen==='result')factorResult();return true}
- if(key==='ANS'){state.angle=state.angle==='DEG'?'RAD':state.angle==='RAD'?'GRAD':'DEG';releaseModifier();paint();return true}
+ if(key==='ANS'){drgMenu();return true}
  if(key==='DOT'){releaseModifier();insert('Ran#');return true}
  if(key==='0'){releaseModifier();insert('Rnd(');return true}
  if(key==='ADD'){releaseModifier();insert('Pol(');return true}
