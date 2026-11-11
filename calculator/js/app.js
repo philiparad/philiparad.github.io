@@ -250,7 +250,7 @@ function evaluateSegment(source){
 }
 function evaluate(){let source=state.input;try{
  source=STRUCT.serialize(state.editor,true);
- ERRORS.checkStack(source);
+ ERRORS.checkStack(source,state.mode);
  if(!source)throw new M.MathFault('Syntax ERROR');
  const calculus=INLINE.parse(source);
  if(calculus){executeInlineCalculus(calculus);return}
