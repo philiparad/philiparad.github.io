@@ -267,6 +267,12 @@ function evaluate(source,opts={}){
  }
  const st={...SETTINGS,...opts};const memory=opts.memory||{};
  const raw=tokenize(source);
+ // Casio original: numeric stack 10 levels, command stack 24 levels.
+ let numericSlots=0,commandSlots=0;
+ const enterCommand=()=>{if(++commandSlots>24)fail('Stack ERROR')};
+ const leaveCommand=()=>{commandSlots--};
+ const holdNumber=()=>{if(++numericSlots>10)fail('Stack ERROR')};
+ const releaseNumber=()=>{numericSlots--};
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
@@ -315,15 +321,15 @@ function evaluate(source,opts={}){
    default:fail('Syntax ERROR');
   }
  }
- function begin(t){return t&&(t.type===T.IDENT||t.value==='(')}
+ function begin(t){return t&&(t.type===T.IDENT||t.type===T.NUMBER||t.value==='(')}
  function primary(){const t=take();if(!t)fail('Syntax ERROR');
   if(t.value==='+')return expr(25);
   if(t.value==='-')return -expr(25);
-  if(t.value==='('){const x=expr(0);if(!peek()||take().value!==')')fail('Syntax ERROR');return x}
+  if(t.value==='('){enterCommand();const x=expr(0);if(!peek()||take().value!==')')fail('Syntax ERROR');leaveCommand();return x}
   if(t.type===T.NUMBER)return t.value;
   if(t.type===T.IDENT){
    if(t.value==='Ran'||t.value==='rand'||t.value==='ran')return randomThreeDigits(opts);
-   if(peek()?.value==='('&&(names.has(t.value)||names.has(t.value.toLowerCase()))){take();let args=[];if(peek()?.value!==')'){while(true){args.push(expr(0));if(peek()?.value!==',')break;take()}}if(!peek()||take().value!==')')fail('Syntax ERROR');return call(t.value,args)}
+   if(peek()?.value==='('&&(names.has(t.value)||names.has(t.value.toLowerCase()))){take();enterCommand();let args=[];if(peek()?.value!==')'){while(true){args.push(expr(0));if(peek()?.value!==',')break;take()}}if(!peek()||take().value!==')')fail('Syntax ERROR');leaveCommand();return call(t.value,args)}
    if(Object.prototype.hasOwnProperty.call(variables,t.value))return Number(variables[t.value]);
    fail('Variable ERROR: '+t.value);
   }
@@ -341,9 +347,12 @@ function evaluate(source,opts={}){
    continue;
   }
   const implicit=begin(t);const operator=implicit?'*':t.value;
-  const binding=implicit?24:{'nPr':23,'nCr':23,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
+  // Implicit and explicit multiplication share Priority 8, left-to-right.
+  const binding=implicit?20:{'nPr':22,'nCr':22,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
   if(binding===undefined||binding<min)break;
-  if(!implicit)take();const right=expr(operator==='^'?binding:binding+1);
+  if(!implicit)take();holdNumber();enterCommand();
+  const right=expr(operator==='^'?binding:binding+1);
+  leaveCommand();releaseNumber();
   if(operator==='+')left+=right;else if(operator==='-')left-=right;
   else if(operator==='*')left*=right;else if(operator==='/'){if(right===0)fail('Math ERROR');left/=right}
   else if(operator==='^')left=Math.pow(left,right);else if(operator==='nPr')left=permutation(left,right);
