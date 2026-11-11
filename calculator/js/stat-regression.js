@@ -225,7 +225,7 @@ function estimateY(m,x){
  switch(type){
  case 'LIN':y=quadraticPrediction(A,B,0,x);break;
  case 'QUAD':y=quadraticPrediction(A,B,C,x);break;
- case 'LOG':if(x<=0)fail();y=A+B*Math.log(x);break;
+ case 'LOG':if(x<=0)fail();y=quadraticPrediction(A,B,0,Math.log(x));break;
  case 'EXP':y=scaledFactor(A,Math.exp(B*x),B*x);break;
  case 'ABEXP':y=B>0?scaledFactor(A,Math.pow(B,x),x*Math.log(B)):A*Math.pow(B,x);break;
  case 'POWER':if(x<=0)fail();y=scaledFactor(A,Math.pow(x,B),B*Math.log(x));break;
