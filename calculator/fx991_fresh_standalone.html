@@ -6935,12 +6935,26 @@ function statShow(lines,title){
 }
 function statSummary(){STAT.commit(state.statTable);return REG.summary(state.statTable)}
 function statFit(){STAT.commit(state.statTable);return REG.fit(state.statTable,state.statTable.regressionType||'LIN')}
-function statMenuResult(title,lines){
+// REA-112: preserve full internal STAT values in Ans and raw memory.
+// Text in the menu is rounded for display only; it must not be parsed
+// back into the calculator's arithmetic state.
+function statMenuResult(title,source,paired){
+ const sum=title==='Sum',vari=title==='Var',minmax=title==='MinMax';
+ const lines=sum?REG.sumLines(source,paired):
+  vari?REG.varLines(source,paired):
+  minmax?REG.minMaxLines(source,paired):REG.regLines(source);
+ const values=sum?
+  [source.sumX2,source.sumX,...(paired?[source.sumY2,source.sumY,source.sumXY,source.sumX3,source.sumX2Y,source.sumX4]:[])]:
+  vari?[source.n,source.meanX,source.sdX,source.sampleSDX,...(paired?[source.meanY,source.sdY,source.sampleSDY]:[])]:
+  minmax?[source.minX,source.maxX,...(paired?[source.minY,source.maxY]:[])]:
+  source.type==='QUAD'?[source.A,source.B,source.C]:[source.A,source.B,source.correlation];
  optionDialog('STAT '+title,lines.map((line,i)=>({
   key:String(i+1),label:(i+1)+'. '+line.split(' = ')[0],
   action:()=>statSafe(()=>{
-   const raw=Number(line.split(' = ')[1]);
-   if(!Number.isFinite(raw))throw Error('Math ERROR');
+   const raw=values[i];
+   // Preserve N/A and Math ERROR semantics from earlier STAT tasks.
+   if(typeof raw!=='number'||!Number.isFinite(raw)||Math.abs(raw)>9.999999999e99)
+    throw Error('Math ERROR');
    state.raw=raw;state.ans=raw;state.ansRational=null;state.result=REG.format(raw);
    statShow([line],title);
   })
@@ -7086,12 +7100,12 @@ function statMenu(){
    {key:'2',label:'2. Del',action:()=>statSafe(()=>{STAT.remove(state.statTable);state.screen='stat-table';paint()})},
    {key:'3',label:'3. Del-A',action:()=>{const t=state.statTable;t.rows=[{X:null,Y:null,FREQ:1}];t.row=0;t.col=0;STAT.load(t);state.screen='stat-table';paint()}}
   ],{kind:'stat-edit',pageSize:4})},
-  {key:'4',label:'4. Sum',action:()=>statSafe(()=>statMenuResult('Sum',REG.sumLines(statSummary(),state.statTable.paired)))},
-  {key:'5',label:'5. Var',action:()=>statSafe(()=>statMenuResult('Var',REG.varLines(statSummary(),state.statTable.paired)))},
-  {key:'6',label:'6. MinMax',action:()=>statSafe(()=>statMenuResult('MinMax',REG.minMaxLines(statSummary(),state.statTable.paired)))},
+  {key:'4',label:'4. Sum',action:()=>statSafe(()=>statMenuResult('Sum',statSummary(),state.statTable.paired))},
+  {key:'5',label:'5. Var',action:()=>statSafe(()=>statMenuResult('Var',statSummary(),state.statTable.paired))},
+  {key:'6',label:'6. MinMax',action:()=>statSafe(()=>statMenuResult('MinMax',statSummary(),state.statTable.paired))},
   {key:'7',label:state.model==='fx-991es'&&!state.statTable.paired?'7. Distr':'7. Reg',
    action:()=>state.model==='fx-991es'&&!state.statTable.paired?
-    statDistr():statSafe(()=>statMenuResult('Reg',REG.regLines(statFit())))},
+    statDistr():statSafe(()=>statMenuResult('Reg',statFit(),state.statTable.paired))},
   ...(state.statTable.paired?[{key:'8',label:'8. Estimate',action:()=>optionDialog('STAT estimate',[
    {key:'1',label:'1. yHat',action:()=>statSafe(()=>statEstimate('y'))},
    {key:'2',label:'2. xHat',action:()=>statSafe(()=>statEstimate('x'))}
