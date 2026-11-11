@@ -945,7 +945,7 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['p','q','nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['p','q','r','nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,...memory};
  // Original model does not expose the newer E/F variable registers.
  if(opts.model==='fx-991es'){delete variables.E;delete variables.F}
@@ -954,7 +954,8 @@ function evaluate(source,opts={}){
   switch(name.toLowerCase()){
    case 'p':
    case 'q':
-    // REA-101/102: P(t) and signed Q(t) belong to original STAT 1-VAR.
+   case 'r':
+    // REA-101–103: P(t), signed Q(t), and R(t) belong to original STAT 1-VAR.
     // Reject COMP, other STAT types and the PLUS / PLUS C model profiles.
     if(!opts.statOriginalDistr||opts.model!=='fx-991es'||
        opts.mode!=='STAT'||args.length!==1)fail('Argument ERROR');
@@ -3872,7 +3873,9 @@ function lowerTail(t){
 }
 function probabilities(t){
  const x=finite(Number(t)),half=area(x),signed=x<0?-half:half;
- const P=lowerTail(x),Q=signed,R=.5-signed;
+ // REA-103: obtain the positive upper tail directly through symmetry.
+ // Subtracting Q(t) from 0.5 loses small R(t) for t >> 0.
+ const P=lowerTail(x),Q=signed,R=lowerTail(-x);
  return {P,Q,R};
 }
 function normalized(x,summary){
@@ -6824,7 +6827,7 @@ function statDistr(){
  optionDialog('STAT Distr',[
   {key:'1',label:'1. P(',action:()=>originalStatPInput()},
   {key:'2',label:'2. Q(',action:()=>originalStatQInput()},
-  {key:'3',label:'3. R(',action:()=>statDistrInput('R')},
+  {key:'3',label:'3. R(',action:()=>originalStatRInput()},
   {key:'4',label:'4. ▶t',action:()=>statDistrInput('t')}
  ],{pageSize:4,kind:'stat-distr'});
 }
@@ -6849,6 +6852,17 @@ function originalStatQInput(){
   state.editor=STRUCT.create();state.screen='edit';syncEditor();
  }
  insert('Q(');
+}
+// REA-103: original STAT Distr 3 inserts the R( upper-tail command
+// into the normal editable expression rather than a separate prompt.
+function originalStatRInput(){
+ if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
+    state.statTable.paired||state.statTable.regressionType!=='1VAR')
+  throw Error('Argument ERROR');
+ if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
+  state.editor=STRUCT.create();state.screen='edit';syncEditor();
+ }
+ insert('R(');
 }
 function statDistrInput(kind){
  // For P/Q/R a subsequent P(Ans) is a documented native workflow.
