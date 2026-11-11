@@ -24,6 +24,24 @@ function area(z){
  return Math.min(.5,Math.max(0,refine(0,a,fa,fc,fb,
   simpson(0,a,fa,fc,fb),2e-14,22)));
 }
+// REA-101: normal lower-tail P(t) must avoid subtracting nearly equal
+// halves for t << 0. The Gaussian Mills-ratio continued fraction evaluates
+// the small tail directly, with 100 terms for stable double precision.
+function lowerTail(t){
+ const x=finite(t);
+ if(x===0)return 0.5;
+ const a=Math.abs(x);
+ let tail;
+ if(a>=4){
+  if(a>=39)tail=0; // below IEEE-754 normal representable output range
+  else{
+   let fraction=0;
+   for(let k=100;k>=1;k--)fraction=k/(a+fraction);
+   tail=Math.exp(-a*a/2)/Math.sqrt(2*Math.PI)/(a+fraction);
+  }
+ }else tail=0.5-area(a);
+ return x<0?tail:1-tail;
+}
 function probabilities(t){
  const x=finite(Number(t)),half=area(x),signed=x<0?-half:half;
  const P=.5+signed,Q=signed,R=.5-signed;
@@ -38,10 +56,11 @@ function normalized(x,summary){
 }
 function calculate(kind,x,summary){
  if(!['P','Q','R','t'].includes(kind))throw Error('Argument ERROR');
- const value=kind==='t'?normalized(x,summary):probabilities(x)[kind];
+ const value=kind==='t'?normalized(x,summary):
+  kind==='P'?lowerTail(x):probabilities(x)[kind];
  return finite(value);
 }
-const API=Object.freeze({area,probabilities,normalized,calculate});
+const API=Object.freeze({area,lowerTail,probabilities,normalized,calculate});
 global.FreshStatNormal=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
