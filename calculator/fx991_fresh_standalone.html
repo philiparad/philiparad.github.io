@@ -945,13 +945,19 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['p','nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,...memory};
  // Original model does not expose the newer E/F variable registers.
  if(opts.model==='fx-991es'){delete variables.E;delete variables.F}
  function call(name,args){
   const x=args[0];const unit=st.angle;
   switch(name.toLowerCase()){
+   case 'p':
+    // REA-101: CASIO P(t) belongs only to original STAT 1-VAR Distr.
+    if(!opts.statOriginalDistr||opts.model!=='fx-991es'||
+       opts.mode!=='STAT'||args.length!==1)fail('Argument ERROR');
+    if(!global.FreshStatNormal)fail('Math ERROR');
+    return global.FreshStatNormal.calculate('P',x);
    case 'sin':case 'cos':case 'tan':return checkedTrig(name.toLowerCase(),x,unit);
    case 'asin':case 'acos':case 'atan':return checkedInverseTrig(name.toLowerCase(),x,unit);
    case 'sinh':case 'cosh':case 'tanh':
@@ -6006,7 +6012,10 @@ function evaluateSegment(source){
   if(exact){exactRational=window.FreshRational.serialize(exact);exactValue=window.FreshRational.toNumber(exact)}
  }
  let value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
-  exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,memory:state.memory});
+  exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,
+    memory:state.memory,
+    statOriginalDistr:state.model==='fx-991es'&&state.mode==='STAT'&&
+     !!state.statTable&&!state.statTable.paired&&state.statTable.regressionType==='1VAR'});
  // REA-075: the exact-rational fast path must obey the same documented
  // numeric range floor as base-10 arithmetic; discard out-of-range metadata.
  if(value!==0&&Number.isFinite(value)&&Math.abs(value)<1e-99){
@@ -6811,11 +6820,22 @@ function statDistr(){
  }
  releaseModifier();
  optionDialog('STAT Distr',[
-  {key:'1',label:'1. P(',action:()=>statDistrInput('P')},
+  {key:'1',label:'1. P(',action:()=>originalStatPInput()},
   {key:'2',label:'2. Q(',action:()=>statDistrInput('Q')},
   {key:'3',label:'3. R(',action:()=>statDistrInput('R')},
   {key:'4',label:'4. ▶t',action:()=>statDistrInput('t')}
  ],{pageSize:4,kind:'stat-distr'});
+}
+// REA-101: native STAT Distr 1 inserts the P( command into the calculation
+// editor. This permits P(0), P(Ans), arithmetic and ordinary cursor editing.
+function originalStatPInput(){
+ if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
+    state.statTable.paired||state.statTable.regressionType!=='1VAR')
+  throw Error('Argument ERROR');
+ if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
+  state.editor=STRUCT.create();state.screen='edit';syncEditor();
+ }
+ insert('P(');
 }
 function statDistrInput(kind){
  // For P/Q/R a subsequent P(Ans) is a documented native workflow.
@@ -8376,7 +8396,9 @@ function handle(key){
     STAT.commit(state.statTable);
     const bound=STATPARAM.resolve(source,state.statTable,REG);
     const value=M.evaluate(source,{...state,math:false,ans:state.ans,
-     memory:{...state.memory,...bound}});
+     memory:{...state.memory,...bound},
+     statOriginalDistr:!state.statTable.paired&&
+      state.statTable.regressionType==='1VAR'});
     setResult(value,source,null);
    }catch(e){error(e.message||'Math ERROR')}
    return;
