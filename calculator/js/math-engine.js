@@ -254,6 +254,13 @@ function finiteProduct(parts,opts){
  return result;
 }
 function evaluate(source,opts={}){
+ // Validate the command-stack budget before the optional decimal fast path.
+ // That optimizer must not bypass the original hardware nesting limit.
+ let commandDepth=0;
+ for(const ch of String(source)){
+  if(ch==='('&&++commandDepth>24)fail('Stack ERROR');
+  if(ch===')'&&--commandDepth<0)fail('Syntax ERROR');
+ }
  const series=parseProduct(source);
  if(series)return finiteProduct(series,opts);
  if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
@@ -323,8 +330,8 @@ function evaluate(source,opts={}){
  }
  function begin(t){return t&&(t.type===T.IDENT||t.type===T.NUMBER||t.value==='(')}
  function primary(){const t=take();if(!t)fail('Syntax ERROR');
-  if(t.value==='+')return expr(25);
-  if(t.value==='-')return -expr(25);
+  if(t.value==='+'){enterCommand();const v=expr(25);leaveCommand();return v}
+  if(t.value==='-'){enterCommand();const v=expr(25);leaveCommand();return -v}
   if(t.value==='('){enterCommand();const x=expr(0);if(!peek()||take().value!==')')fail('Syntax ERROR');leaveCommand();return x}
   if(t.type===T.NUMBER)return t.value;
   if(t.type===T.IDENT){
