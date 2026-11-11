@@ -1579,6 +1579,9 @@ function matrixResultHandle(key){
  if(chaining[key]&&state.matrixView){
   matrixExpressionInput(state.matrixView.name+chaining[key]);return;
  }
+ if(chaining[key]&&state.screen==='matrix-scalar'&&Number.isFinite(state.raw)){
+  matrixExpressionInput('('+String(state.raw)+')'+chaining[key]);return;
+ }
  if(key==='EQUAL'&&state.matrixView){matrixExpressionInput(state.matrixView.name);return}
  const view=state.matrixView;
  if(view&&['UP','DOWN','LEFT','RIGHT'].includes(key)){
