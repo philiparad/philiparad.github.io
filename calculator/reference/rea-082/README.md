@@ -42,6 +42,7 @@ CASIO's documented DEG examples are `(π÷2)r = 90` and `50g = 45`, with the sam
 
 - `SHIFT+MODE → 3`: DEG, `SHIFT+MODE → 4`: RAD, `SHIFT+MODE → 5`: GRA.
 - `SHIFT+Ans → DRG▶ → 1/2/3`: inserts a local suffix; the global setting does not change.
+- Adjacent modifier distinction: on PLUS C, `ALPHA+Ans` inserts `PreAns`; on the original and standard PLUS profiles, the printed `ALPHA+Ans` legend is absent and the key is blocked. This does not open DRG▶ or change the angle setting.
 - An unmarked trig argument is interpreted using the currently selected global unit.
 - Inverse trig outputs (e.g. `asin(1)`) follow the global unit.
 - Existing complete degrees/minutes/seconds (`°′″`) parsing remains independent from DRG angle suffixes.
