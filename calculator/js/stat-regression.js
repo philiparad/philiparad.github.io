@@ -29,15 +29,15 @@ function oneVarSummary(rows,n){
  // the JavaScript argument stack on some engines.
  const maxX=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x)),0);
  const scaledMean=maxX===0?0:rows.reduce(
-  (sum,r)=>sum+(r.w/n)*(r.x/maxX),0)*maxX;
+  (sum,r)=>sum+r.w*(r.x/maxX),0)/n*maxX;
  const meanX=finite(
   Number.isFinite(sumX)&&Math.abs(sumX)<=9.999999999e99?
    sumX/n:scaledMean);
  const maxDelta=rows.reduce((max,r)=>Math.max(max,Math.abs(r.x-meanX)),0);
  const scaledVariance=maxDelta===0?0:rows.reduce((sum,r)=>{
   const d=(r.x-meanX)/maxDelta;
-  return sum+(r.w/n)*d*d;
- },0);
+  return sum+r.w*d*d;
+ },0)/n;
  const sdX=finite(maxDelta*Math.sqrt(scaledVariance));
  const sampleSDX=n>1?finite(sdX*Math.sqrt(n/(n-1))):null;
  return {n,sumX,sumX2,meanX,varianceX:sdX*sdX,sdX,sampleSDX,
