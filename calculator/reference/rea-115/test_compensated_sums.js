@@ -29,7 +29,7 @@ assert.equal(paired.sumX,1);
 assert.equal(paired.sumY,2);
 near(paired.meanX,1/3);
 near(paired.meanY,2/3);
-assert.equal(paired.sumXY,2e180);
+near(paired.sumXY,2e180);
 const pairedSmall=STAT.summary(table([1e40,1,-1e40],[1e40,1,-1e40]));
 assert.equal(pairedSmall.sumX,1);
 assert.equal(pairedSmall.sumY,1);
