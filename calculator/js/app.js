@@ -758,7 +758,7 @@ function toggleDMS(){
  if(state.screen!=='result'||!Number.isFinite(state.raw))return;
  const asDMS=!state.resultDMS;
  const text=asDMS?window.FreshSexagesimal.format(state.raw):RESULTS.decimal(state.raw,state);
- if(text===null)return;
+ if(text===null){notify('DMS conversion out of range',true);paint();return}
  state.resultDMS=asDMS;
  const item={kind:asDMS?'dms':'decimal',text};
  state.resultPresentation={chosen:item,natural:item,
@@ -2334,6 +2334,9 @@ function handle(key){
  if(key==='LOGBASE'){insertTemplate('logBase');return}
  if(key==='ENG'){if(state.mode==='CMPLX'){insert('i');return}if(state.screen==='result'){showEngineering(-1);return}notify('Calculate first');paint();return}
  if(key==='DMS'){
+  if(state.mode!=='COMP'){
+   notify('Sexagesimal entry requires COMP mode',true);paint();return;
+  }
   if(state.screen==='result'){toggleDMS();return}
   const separator=window.FreshSexagesimal.nextSeparator(state.input);
   if(!separator){notify('Enter degrees, minutes, then seconds',true);paint();return}
