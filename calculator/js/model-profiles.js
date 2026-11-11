@@ -13,6 +13,16 @@ const REGISTERS=Object.freeze({
 });
 function registers(model){return REGISTERS[model]||REGISTERS['fx-991es-plus-c']}
 function hasRegister(model,name){return registers(model).includes(name)}
+// REA-098: explicit edition capabilities, not merely a shared keypad handler.
+const FEATURES=Object.freeze({
+ 'fx-991es':Object.freeze(['ran','basic-stat']),
+ 'fx-991es-plus':Object.freeze(['ran','ranint','basic-stat']),
+ 'fx-991es-plus-c':Object.freeze(['ran','ranint','basic-stat','ineq','verif','dist','recurring','dual-table'])
+});
+function hasFeature(model,feature){
+ return Object.prototype.hasOwnProperty.call(FEATURES,model)&&
+  FEATURES[model].includes(feature);
+}
 
 const profiles=Object.freeze({
  'fx-991es':Object.freeze({id:'fx-991es',label:'fx-991ES',edition:'original',
@@ -29,7 +39,7 @@ const profiles=Object.freeze({
 });
 function get(id){return profiles[id]||profiles['fx-991es-plus-c']}
 function supports(id,mode){return get(id).modes.includes(mode)}
-const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports,registers,hasRegister});
+const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports,registers,hasRegister,FEATURES,hasFeature});
 global.FreshModels=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
