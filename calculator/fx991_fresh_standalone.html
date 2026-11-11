@@ -3932,15 +3932,25 @@ function quadraticPrediction(A,B,C,x){
  const result=ddAdd(ddTimes(first,x),{hi:A,lo:0});
  return result.hi+result.lo;
 }
+// REA-119: combine multiplicative regression predictions in log space
+// only when the direct factor overflowed or underflowed. This keeps
+// representable results even when the intermediate exponential is not.
+function scaledFactor(A,factor,logFactor){
+ const direct=A*factor;
+ if(Number.isFinite(direct)&&!(direct===0&&A!==0))return direct;
+ if(A===0)return 0;
+ if(!Number.isFinite(logFactor))return direct;
+ return Math.sign(A)*Math.exp(Math.log(Math.abs(A))+logFactor);
+}
 function estimateY(m,x){
  finite(x);let y;const {A,B,C,type}=m;
  switch(type){
  case 'LIN':y=quadraticPrediction(A,B,0,x);break;
  case 'QUAD':y=quadraticPrediction(A,B,C,x);break;
  case 'LOG':if(x<=0)fail();y=A+B*Math.log(x);break;
- case 'EXP':y=A*Math.exp(B*x);break;
- case 'ABEXP':y=A*Math.pow(B,x);break;
- case 'POWER':if(x<=0)fail();y=A*Math.pow(x,B);break;
+ case 'EXP':y=scaledFactor(A,Math.exp(B*x),B*x);break;
+ case 'ABEXP':y=B>0?scaledFactor(A,Math.pow(B,x),x*Math.log(B)):A*Math.pow(B,x);break;
+ case 'POWER':if(x<=0)fail();y=scaledFactor(A,Math.pow(x,B),B*Math.log(x));break;
  case 'INV':if(!x)fail();y=A+B/x;break;
  default:fail('Argument ERROR');
  }
