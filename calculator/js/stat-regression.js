@@ -17,8 +17,34 @@ function observations(t){
  if(!n)fail('Argument ERROR');
  return {rows,n};
 }
+// REA-106: a 1-VAR standard deviation can be representable even when
+// ΣX² and Σ(X-mean)² exceed the calculator's displayable number range.
+// Use scaled, weighted residuals to compute σ without squaring huge X.
+// Keep aggregate sums as raw numbers: REG.format() enforces range if a
+// user explicitly requests an unavailable Sum X / Sum X2 value.
+function oneVarSummary(rows,n){
+ const sumX=rows.reduce((sum,r)=>sum+r.w*r.x,0);
+ const sumX2=rows.reduce((sum,r)=>sum+r.w*r.x*r.x,0);
+ const maxX=Math.max(...rows.map(r=>Math.abs(r.x)));
+ const scaledMean=maxX===0?0:rows.reduce(
+  (sum,r)=>sum+(r.w/n)*(r.x/maxX),0)*maxX;
+ const meanX=finite(
+  Number.isFinite(sumX)&&Math.abs(sumX)<=9.999999999e99?
+   sumX/n:scaledMean);
+ const maxDelta=Math.max(...rows.map(r=>Math.abs(r.x-meanX)));
+ const scaledVariance=maxDelta===0?0:rows.reduce((sum,r)=>{
+  const d=(r.x-meanX)/maxDelta;
+  return sum+(r.w/n)*d*d;
+ },0);
+ const sdX=finite(maxDelta*Math.sqrt(scaledVariance));
+ const sampleSDX=n>1?finite(sdX*Math.sqrt(n/(n-1))):null;
+ return {n,sumX,sumX2,meanX,varianceX:sdX*sdX,sdX,sampleSDX,
+  minX:Math.min(...rows.map(r=>r.x)),maxX:Math.max(...rows.map(r=>r.x))};
+}
 function summary(t){
- const {rows,n}=observations(t),sum=fn=>finite(rows.reduce((s,r)=>s+r.w*fn(r),0));
+ const {rows,n}=observations(t);
+ if(!t.paired)return oneVarSummary(rows,n);
+ const sum=fn=>finite(rows.reduce((s,r)=>s+r.w*fn(r),0));
  const sumX=sum(r=>r.x),sumX2=sum(r=>r.x*r.x),meanX=finite(sumX/n);
  const varianceX=finite(Math.max(0,sum(r=>(r.x-meanX)**2)/n));
  const out={n,sumX,sumX2,meanX,varianceX,sdX:Math.sqrt(varianceX),sampleSDX:n>1?Math.sqrt(varianceX*n/(n-1)):null,
