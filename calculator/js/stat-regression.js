@@ -71,12 +71,34 @@ function summary(t){
  };
  return out;
 }
+// REA-108: scale centered residuals before forming regression moments.
+// Raw xx/yy/xy can overflow even when A, B and r are representable.
 function linear(rows){
- const n=rows.reduce((v,r)=>v+r.w,0),mx=rows.reduce((v,r)=>v+r.w*r.x,0)/n,my=rows.reduce((v,r)=>v+r.w*r.y,0)/n;
+ const n=rows.reduce((sum,r)=>sum+r.w,0);
+ const anchorX=rows[0].x,anchorY=rows[0].y;
+ const spanX=rows.reduce((v,r)=>Math.max(v,Math.abs(r.x-anchorX)),0);
+ const spanY=rows.reduce((v,r)=>Math.max(v,Math.abs(r.y-anchorY)),0);
+ // Center relative to one observed point to retain precision when data
+ // are clustered around a large offset. All normalized sums stay bounded.
+ const meanOffset=(anchor,span,key)=>span===0?0:
+  rows.reduce((sum,r)=>sum+r.w*((r[key]-anchor)/span),0)/n*span;
+ const mx=anchorX+meanOffset(anchorX,spanX,'x');
+ const my=anchorY+meanOffset(anchorY,spanY,'y');
+ const scaleX=rows.reduce((v,r)=>Math.max(v,Math.abs(r.x-mx)),0);
+ const scaleY=rows.reduce((v,r)=>Math.max(v,Math.abs(r.y-my)),0);
+ if(!Number.isFinite(scaleX)||scaleX===0)fail();
  let xx=0,yy=0,xy=0;
- for(const r of rows){const dx=r.x-mx,dy=r.y-my;xx+=r.w*dx*dx;yy+=r.w*dy*dy;xy+=r.w*dx*dy}
+ for(const r of rows){
+  const dx=(r.x-mx)/scaleX;
+  const dy=scaleY===0?0:(r.y-my)/scaleY;
+  xx+=r.w*dx*dx;
+  yy+=r.w*dy*dy;
+  xy+=r.w*dx*dy;
+ }
  if(!Number.isFinite(xx)||xx<=0)fail();
- const B=finite(xy/xx),A=finite(my-B*mx),correlation=yy>0?Math.max(-1,Math.min(1,xy/Math.sqrt(xx*yy))):null;
+ const B=finite(scaleY===0?0:(xy/xx)*(scaleY/scaleX));
+ const A=finite(my-B*mx);
+ const correlation=yy>0?Math.max(-1,Math.min(1,xy/Math.sqrt(xx*yy))):null;
  return {A,B,correlation};
 }
 function gaussian3(m,b){
