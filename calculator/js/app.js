@@ -253,6 +253,8 @@ function evaluate(){let source=state.input;try{
  // A pasted/replayed unsupported edition command must not reach any engine.
  if(!MODELS.hasFeature(state.model,'ranint')&&/\bRanInt#?\s*\(/i.test(source))
   throw Error('Argument ERROR');
+ if(!MODELS.hasFeature(state.model,'recurring')&&/\bRPT\s*\(/i.test(source))
+  throw Error('Argument ERROR');
  ERRORS.checkStack(source,state.mode);
  if(!source)throw new M.MathFault('Syntax ERROR');
  const calculus=INLINE.parse(source);
