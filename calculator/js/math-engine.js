@@ -286,7 +286,7 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['p','nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['p','q','nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,...memory};
  // Original model does not expose the newer E/F variable registers.
  if(opts.model==='fx-991es'){delete variables.E;delete variables.F}
@@ -294,11 +294,13 @@ function evaluate(source,opts={}){
   const x=args[0];const unit=st.angle;
   switch(name.toLowerCase()){
    case 'p':
-    // REA-101: CASIO P(t) belongs only to original STAT 1-VAR Distr.
+   case 'q':
+    // REA-101/102: P(t) and signed Q(t) belong to original STAT 1-VAR.
+    // Reject COMP, other STAT types and the PLUS / PLUS C model profiles.
     if(!opts.statOriginalDistr||opts.model!=='fx-991es'||
        opts.mode!=='STAT'||args.length!==1)fail('Argument ERROR');
     if(!global.FreshStatNormal)fail('Math ERROR');
-    return global.FreshStatNormal.calculate('P',x);
+    return global.FreshStatNormal.calculate(name.toUpperCase(),x);
    case 'sin':case 'cos':case 'tan':return checkedTrig(name.toLowerCase(),x,unit);
    case 'asin':case 'acos':case 'atan':return checkedInverseTrig(name.toLowerCase(),x,unit);
    case 'sinh':case 'cosh':case 'tanh':
