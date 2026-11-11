@@ -3906,15 +3906,15 @@ function fit(t,type){
 }
 // REA-116/117: double-double Horner evaluation of quadratic and linear predictions.
 // TwoSum/TwoProduct retain cancellation terms discarded by plain A+B*x+C*x*x.
-function quadraticPrediction(A,B,C,x){
- const add=(a,b)=>{
+// REA-118: share compensated arithmetic with quadratic inversion.
+const ddAdd=(a,b)=>{
   const s=a.hi+b.hi,part=s-a.hi;
   const error=(a.hi-(s-part))+(b.hi-part);
   const tail=error+a.lo+b.lo;
   const hi=s+tail;
   return {hi,lo:tail-(hi-s)};
  };
- const product=(a,b)=>{
+const ddProduct=(a,b)=>{
   const hi=a*b;
   const splitter=134217729;
   const ca=splitter*a,cb=splitter*b;
@@ -3923,12 +3923,13 @@ function quadraticPrediction(A,B,C,x){
   const lo=((ah*bh-hi)+ah*bl+al*bh)+al*bl;
   return {hi,lo};
  };
- const times=(value,scalar)=>{
-  const p=product(value.hi,scalar);
-  return add(p,{hi:0,lo:value.lo*scalar});
+const ddTimes=(value,scalar)=>{
+  const p=ddProduct(value.hi,scalar);
+  return ddAdd(p,{hi:0,lo:value.lo*scalar});
  };
- const first=add(times({hi:C,lo:0},x),{hi:B,lo:0});
- const result=add(times(first,x),{hi:A,lo:0});
+function quadraticPrediction(A,B,C,x){
+ const first=ddAdd(ddTimes({hi:C,lo:0},x),{hi:B,lo:0});
+ const result=ddAdd(ddTimes(first,x),{hi:A,lo:0});
  return result.hi+result.lo;
 }
 function estimateY(m,x){
@@ -3953,7 +3954,10 @@ function estimateX(m,y){
   // The product of the two roots is (A-y)/C. Recover the small root
   // from the stable large root rather than losing it to cancellation.
   const constant=A-y;
-  const d=B*B-4*C*constant;
+  // Retain low-order terms lost by separately rounding B² and A-y.
+  const difference=ddAdd({hi:A,lo:0},{hi:-y,lo:0});
+  const discriminant=ddAdd(ddProduct(B,B),ddTimes(ddTimes(difference,C),-4));
+  const d=discriminant.hi+discriminant.lo;
   if(d<0||!Number.isFinite(d))fail();
   const root=Math.sqrt(d);
   const q=-0.5*(B>=0?B+root:B-root);
