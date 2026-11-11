@@ -1,0 +1,50 @@
+name: REA-101 original STAT P(t) regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'calculator/js/stat-normal.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/js/model-profiles.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/tests/rea101-original-stat-p.cjs'
+      - 'calculator/tests/rea101_original_stat_p_browser.py'
+      - '.github/workflows/rea101-original-stat-p.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-normal.js'
+      - 'calculator/js/app.js'
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/js/model-profiles.js'
+      - 'calculator/index.html'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/tests/rea101-original-stat-p.cjs'
+      - 'calculator/tests/rea101_original_stat_p_browser.py'
+      - '.github/workflows/rea101-original-stat-p.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stat-original-p:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate original P(t) against normal CDF references
+        run: node calculator/tests/rea101-original-stat-p.cjs
+      - name: Check generated standalone revision
+        run: python calculator/tools/build_standalone.py --check
+      - name: Install browser automation
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Trace original P(t) keypad and cross-model rejection
+        run: python calculator/tests/rea101_original_stat_p_browser.py
