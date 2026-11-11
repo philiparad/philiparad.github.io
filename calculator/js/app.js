@@ -1999,11 +1999,18 @@ function drgMenu(){
  if(state.mode!=='COMP'){
   releaseModifier();notify('DRG requires COMP mode',true);paint();return;
  }
+ const fromResult=state.screen==='result';
+ const append=suffix=>{
+  // When invoked from a displayed result, use Ans as a complete operand.
+  // A postfix on a bare identifier would otherwise tokenize as "Ansr".
+  if(fromResult)loadExpression('(Ans)');
+  insert(suffix);
+ };
  releaseModifier();
  optionDialog('DRG▶',[
-  {key:'1',label:'1. ° (Deg)',action:()=>insert('°')},
-  {key:'2',label:'2. r (Rad)',action:()=>insert('r')},
-  {key:'3',label:'3. g (Gra)',action:()=>insert('g')}
+  {key:'1',label:'1. ° (Deg)',action:()=>append('°')},
+  {key:'2',label:'2. r (Rad)',action:()=>append('r')},
+  {key:'3',label:'3. g (Gra)',action:()=>append('g')}
  ],{kind:'normal',pageSize:3});
 }
 function shifted(key){
