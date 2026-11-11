@@ -212,7 +212,15 @@ function estimateX(m,y){
  return [finite(x)];
 }
 function format(v){return v===null?'N/A':String(Number(finite(v).toPrecision(12)))}
-function lines(pairs){return pairs.map(([k,v])=>k+' = '+format(v))}
+// REA-111: a non-displayable aggregate must not suppress other valid
+// STAT menu choices. The selected entry still raises Math ERROR in app.js.
+function lines(pairs){return pairs.map(([k,v])=>{
+ try{return k+' = '+format(v)}
+ catch(error){
+  if(error.message!=='Math ERROR')throw error;
+  return k+' = Math ERROR';
+ }
+})}
 function sumLines(s,paired){
  const a=[['Sum X2',s.sumX2],['Sum X',s.sumX]];
  if(paired)a.push(['Sum Y2',s.sumY2],['Sum Y',s.sumY],['Sum XY',s.sumXY],['Sum X3',s.sumX3],['Sum X2Y',s.sumX2Y],['Sum X4',s.sumX4]);
