@@ -38,7 +38,7 @@ async def run_case(browser,url,model,filename,keys,want):
         await page.close()
 
 async def main():
-    handler=partial(SimpleHTTPRequestHandler,directory=str(ROOT.parent))
+    handler=partial(SimpleHTTPRequestHandler,directory=str(ROOT))
     server=ThreadingHTTPServer(("127.0.0.1",0),handler)
     thread=threading.Thread(target=server.serve_forever,daemon=True)
     thread.start()
