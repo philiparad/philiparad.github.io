@@ -18,6 +18,8 @@ const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegre
 const LEGENDS=window.FreshLegendAudit;
 const STATN=window.FreshStatNormal;
 if(!STATN)throw Error('Missing STAT standard normal module');
+const STATPARAM=window.FreshStatParameters;
+if(!STATPARAM)throw Error('Missing STAT parameter module');
 if(!LEGENDS)throw Error('Missing modifier legend audit module');
 if(!ERRORS)throw Error('Missing calculator error handling module');
 if(!COMPLEX)throw Error('Missing complex expression module');
@@ -1024,8 +1026,42 @@ function statDistrInput(kind){
   return {kind:'stat-normal',source:expression,value:result};
  });
 }
+function originalStatParameterMenu(group){
+ const t=state.statTable;
+ if(state.model!=='fx-991es'||state.mode!=='STAT'||!t)
+  throw Error('Argument ERROR');
+ const options=STATPARAM.entries(group,t.paired,t.regressionType);
+ optionDialog('STAT '+group,options.map(item=>({
+  key:item.key,label:item.key+'. '+item.label,
+  action:()=>{
+   // The command inserts a symbolic token, not a premature numeric answer.
+   if(state.screen==='stat-table'){
+    state.screen='edit';state.editor=STRUCT.create();syncEditor();
+   }
+   insert(item.token);
+  }
+ })),{pageSize:8,kind:'stat-'+group.toLowerCase()});
+}
 function statMenu(){
  if(!state.statTable){statModeMenu();return}
+ if(state.model==='fx-991es'){
+  releaseModifier();
+  optionDialog('STAT',[
+   {key:'1',label:'1. Type',action:statModeMenu},
+   {key:'2',label:'2. Data',action:()=>{state.screen='stat-table';paint()}},
+   {key:'3',label:'3. Edit',action:()=>optionDialog('STAT Edit',[
+    {key:'1',label:'1. Ins',action:()=>statSafe(()=>{STAT.insert(state.statTable);state.screen='stat-table';paint()})},
+    {key:'2',label:'2. Del',action:()=>statSafe(()=>{STAT.remove(state.statTable);state.screen='stat-table';paint()})},
+    {key:'3',label:'3. Del-A',action:()=>{const t=state.statTable;t.rows=[{X:null,Y:null,FREQ:1}];t.row=0;t.col=0;STAT.load(t);state.screen='stat-table';paint()}}
+   ],{pageSize:4,kind:'stat-edit'})},
+   {key:'4',label:'4. Sum',action:()=>originalStatParameterMenu('Sum')},
+   {key:'5',label:'5. Var',action:()=>originalStatParameterMenu('Var')},
+   {key:'6',label:'6. MinMax',action:()=>originalStatParameterMenu('MinMax')},
+   {key:'7',label:state.statTable.paired?'7. Reg':'7. Distr',
+    action:()=>state.statTable.paired?originalStatParameterMenu('Reg'):statDistr()}
+  ],{pageSize:8,kind:'stat-menu'});
+  return;
+ }
  releaseModifier();
  optionDialog('STAT',[
   {key:'1',label:'1. Type',action:statModeMenu},
@@ -2386,7 +2422,24 @@ function handle(key){
     state.calcSession.source===state.resultSource&&state.calcSession.mode===state.mode){
    startCalc();return;
  }
- if(key==='EQUAL'){clearReplay();if(state.mode!=='COMP'&&state.mode!=='CMPLX'){advancedMode(state.mode);return}if(state.screen==='result'&&advanceStatements())return;evaluate();return}
+ if(key==='EQUAL'){
+  clearReplay();
+  if(state.mode==='STAT'&&state.model==='fx-991es'&&state.statTable){
+   try{
+    const source=STRUCT.serialize(state.editor,true);
+    if(!source)throw Error('Syntax ERROR');
+    STAT.commit(state.statTable);
+    const bound=STATPARAM.resolve(source,state.statTable,REG);
+    const value=M.evaluate(source,{...state,math:false,ans:state.ans,
+     memory:{...state.memory,...bound}});
+    setResult(value,source,null);
+   }catch(e){error(e.message||'Math ERROR')}
+   return;
+  }
+  if(state.mode!=='COMP'&&state.mode!=='CMPLX'){advancedMode(state.mode);return}
+  if(state.screen==='result'&&advanceStatements())return;
+  evaluate();return;
+ }
  if(key==='RCL'){memoryDialog(false);return}
  if(key==='MPLUS'){accumulateMemory(1);return}
  if(key==='SD'){if(state.mode==='CMPLX')return;toggleFraction();return}
