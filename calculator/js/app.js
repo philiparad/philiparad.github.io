@@ -2348,6 +2348,13 @@ function handle(key){
     state.viewport.resultX+(key==='LEFT'?-4:4)));
   paint();return;
  }
+ // The STAT calculation screen must use SHIFT+1 for its STAT command
+ // menu, not the general COMP-mode shortcut for selecting STAT again.
+ // This route preserves the entered observations and their frequency.
+ if(state.mode==='STAT'&&state.statTable&&state.shift&&key==='1'&&
+    ['edit','result'].includes(state.screen)){
+  releaseModifier();statMenu();return;
+ }
  // REA-081: never execute a SHIFT/ALPHA action missing from the selected
  // model legend or restricted by this physical mode/result context.
  if((state.shift||state.alpha)&&!['SHIFT','ALPHA'].includes(key)&&
