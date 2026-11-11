@@ -119,7 +119,7 @@ function evaluate(expression,base='DEC',model='fx-991es-plus'){
    const op=list[at].kind;
    if(op===')')break;
    const prec=op==='*'||op==='/'?30:op==='+'||op==='-'?20:
-    op==='and'?15:op==='xor'||op==='xnor'?10:op==='or'?5:-1;
+    op==='and'?15:op==='or'||op==='xor'||op==='xnor'?10:-1;
    if(prec<min)break;
    at++;const rhs=parse(prec+1);
    if(op==='+')lhs+=rhs;
