@@ -272,6 +272,9 @@ function evaluate(source,opts={}){
    if(decimalValue!==null)return decimalValue;
   }catch(error){fail(error instanceof SyntaxError?'Syntax ERROR':'Math ERROR')}
  }
+ // REA-098: original ES supports Ran# but not PLUS RanInt#.
+ if(opts.model==='fx-991es'&&/\bRanInt#?\s*\(/i.test(String(source)))
+  fail('Argument ERROR');
  const st={...SETTINGS,...opts};const memory=opts.memory||{};
  const raw=tokenize(source);
  // Casio original: numeric stack 10 levels, command stack 24 levels.
