@@ -56,6 +56,28 @@ def genuine_reference_ids(data,root):
             valid.add(case["id"])
     return valid
 
+def matching_evidence(case, feature_id, model):
+    """The capture must explicitly identify exactly the claimed feature/model.
+    A manual example or a synthetic web screenshot cannot serve as device proof.
+    """
+    if not isinstance(case, dict):
+        return False
+    if case.get("feature_id") != feature_id:
+        return False
+    if case.get("model_id") != model:
+        return False
+    review=case.get("comparison") or {}
+    capture=case.get("capture") or {}
+    # Independently reviewed comparison against the native capture is mandatory.
+    return (case.get("verification_status") == "DEVICE_REVIEWED_PASS"
+            and review.get("status") == "PASS"
+            and review.get("reviewer")
+            and review.get("reviewed_at")
+            and review.get("web_capture_id")
+            and review.get("matched_steps") == len(case.get("keys", []))+1
+            and capture.get("source_device")
+            and capture.get("capture_date"))
+
 def validate(manifest,reference,reference_root,source_texts=None):
     errors=[]
     if manifest.get("schema")!="fx991-rea008-capability-gate-v1":
@@ -64,6 +86,8 @@ def validate(manifest,reference,reference_root,source_texts=None):
     if not isinstance(features,list) or not features:
         return ["No capability rows defined"]
     refs=genuine_reference_ids(reference,reference_root)
+    cases={case.get("id"):case for case in reference.get("cases",[])
+           if isinstance(case,dict) and case.get("id") in refs}
     names=set()
     model_coverage={m:0 for m in MODELS}
     for item in features:
@@ -94,6 +118,16 @@ def validate(manifest,reference,reference_root,source_texts=None):
             errors.append(name+": missing genuine CASIO reference evidence: "+", ".join(sorted(unknown)))
         if status=="hardware-verified" and not evid:
             errors.append(name+": cannot claim hardware verification without native evidence")
+        if status=="hardware-verified" and not item.get("verified_models"):
+            errors.append(name+": missing per-model verification coverage")
+        if status=="hardware-verified":
+            verified=item.get("verified_models")
+            if not isinstance(verified,list) or set(verified)!=set(models or []):
+                errors.append(name+": verified_models must match advertised models")
+            else:
+                for model in verified:
+                    if not any(matching_evidence(cases.get(ref),name,model) for ref in evid):
+                        errors.append(name+": missing independently reviewed native comparison for "+model)
         if status=="hardware-verified" and "hardware" not in str(item.get("note","")).lower() and "CASIO" not in str(item.get("note","")):
             errors.append(name+": native claim must explain validation in public note")
     for model,count in model_coverage.items():
