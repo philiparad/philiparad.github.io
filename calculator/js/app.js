@@ -218,7 +218,8 @@ function evaluateSegment(source){
  let exactRational=null,exactValue=NaN;
  if(window.FreshRational){
   const exact=window.FreshRational.evaluate(expression,{
-   ansRational:state.ansRational,preAnsRational:state.preAnsRational
+   ansRational:state.ansRational,preAnsRational:state.preAnsRational,
+   model:state.model
   });
   if(exact){exactRational=window.FreshRational.serialize(exact);exactValue=window.FreshRational.toNumber(exact)}
  }
