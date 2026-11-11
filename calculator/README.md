@@ -4,7 +4,17 @@ This is an independent educational web calculator based on the static CASIO emul
 
 ## Run it
 
-Open `index.html` in a modern browser from this folder, or open the `fx991_fresh_standalone.html` file directly (all CSS/JS embedded). There are no runtime dependencies, no React and no Node.js.
+Open `index.html` in a modern browser from this folder, or open the `fx991_fresh_standalone.html` file directly (all CSS/JS embedded). There are no browser runtime dependencies, no React and no Node.js.
+
+**REA-100 publishing rule:** `index.html`, `styles.css`, the 46 ordered `js/*.js` entries listed by `index.html`, and `reference/rea-008/capabilities.json` are canonical. **Never edit the generated standalone file directly.** After changing the modular source, run:
+
+```bash
+python3 calculator/tools/build_standalone.py --write
+python3 calculator/tools/build_standalone.py --check
+python3 -m unittest discover -v -s calculator/tests -p 'test_rea100_standalone.py'
+```
+
+Run from the repository root. The release workflow `.github/workflows/rea100-standalone-sync.yml` rejects source/bundle drift and exercises the same calculator-key scenarios in both publications for the original fx-991ES, PLUS and PLUS C profiles. Publication equivalence is **web-to-web only**; it is not physical CASIO compatibility.
 
 ## All operations take place inside the calculator
 
