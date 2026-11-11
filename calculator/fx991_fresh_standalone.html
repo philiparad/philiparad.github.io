@@ -3904,11 +3904,38 @@ function fit(t,type){
  if(type==='ABEXP')B=finite(Math.exp(B));
  return {type,A,B,C:null,correlation};
 }
+// REA-116: double-double Horner evaluation of quadratic predictions.
+// TwoSum/TwoProduct retain cancellation terms discarded by plain A+B*x+C*x*x.
+function quadraticPrediction(A,B,C,x){
+ const add=(a,b)=>{
+  const s=a.hi+b.hi,part=s-a.hi;
+  const error=(a.hi-(s-part))+(b.hi-part);
+  const tail=error+a.lo+b.lo;
+  const hi=s+tail;
+  return {hi,lo:tail-(hi-s)};
+ };
+ const product=(a,b)=>{
+  const hi=a*b;
+  const splitter=134217729;
+  const ca=splitter*a,cb=splitter*b;
+  const ah=ca-(ca-a),al=a-ah;
+  const bh=cb-(cb-b),bl=b-bh;
+  const lo=((ah*bh-hi)+ah*bl+al*bh)+al*bl;
+  return {hi,lo};
+ };
+ const times=(value,scalar)=>{
+  const p=product(value.hi,scalar);
+  return add(p,{hi:0,lo:value.lo*scalar});
+ };
+ const first=add(times({hi:C,lo:0},x),{hi:B,lo:0});
+ const result=add(times(first,x),{hi:A,lo:0});
+ return result.hi+result.lo;
+}
 function estimateY(m,x){
  finite(x);let y;const {A,B,C,type}=m;
  switch(type){
  case 'LIN':y=A+B*x;break;
- case 'QUAD':y=A+B*x+C*x*x;break;
+ case 'QUAD':y=quadraticPrediction(A,B,C,x);break;
  case 'LOG':if(x<=0)fail();y=A+B*Math.log(x);break;
  case 'EXP':y=A*Math.exp(B*x);break;
  case 'ABEXP':y=A*Math.pow(B,x);break;
