@@ -1,0 +1,33 @@
+name: REA-108 scaled regression stability
+on:
+  push:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-108/**'
+      - 'calculator/tools/build_standalone.py'
+      - '.github/workflows/rea108-linear-regression.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-108/**'
+      - 'calculator/tools/build_standalone.py'
+jobs:
+  linear-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JavaScript syntax
+        run: |
+          node --check calculator/js/stat-regression.js
+          node --check calculator/reference/rea-108/test_linear_regression.js
+      - name: Execute scaled regression tests
+        run: node calculator/reference/rea-108/test_linear_regression.js
+      - name: Execute prior paired STAT regression suite
+        run: node calculator/reference/rea-107/test_paired_stat.js
+      - name: Check generated standalone source
+        run: python3 calculator/tools/build_standalone.py --check
