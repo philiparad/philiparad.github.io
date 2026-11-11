@@ -126,6 +126,17 @@ def main():
                 assert state(page)['mode']=='CMPLX' and state(page)['screen']=='edit'
                 press(page,'MODE','1')
                 assert state(page)['mode']=='COMP'
+                # Adjacent ALPHA+Ans is NOT DRG▶. Only PLUS C exposes PreAns.
+                press(page,'AC','ALPHA')
+                status=page.locator('#keys button[data-key="ANS"]').evaluate(
+                    '(b)=>b.parentElement.dataset.legendStatus')
+                assert status==('available' if model=='fx-991es-plus-c' else 'unlabelled'),status
+                press(page,'ANS')
+                assert state(page)['screen']=='edit',state(page)
+                if model=='fx-991es-plus-c':
+                    assert state(page)['input']=='PreAns',state(page)
+                else:
+                    assert state(page)['input']=='',state(page)
                 assert not errors,errors
                 print('REA-082 DRG conversion',model,'PASS')
         finally: browser.close()
