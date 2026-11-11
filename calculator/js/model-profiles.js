@@ -38,7 +38,7 @@ const profiles=Object.freeze({
    hardwareVerified:false})
 });
 function get(id){return profiles[id]||profiles['fx-991es-plus-c']}
-function supports(id,mode){return get(id).modes.includes(mode)}
+function supports(id,mode){return Object.prototype.hasOwnProperty.call(profiles,id)&&profiles[id].modes.includes(mode)}
 const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports,registers,hasRegister,FEATURES,hasFeature});
 global.FreshModels=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
