@@ -1,0 +1,46 @@
+name: REA-121 compensated INV prediction
+on:
+  push:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-121/**'
+      - 'calculator/tools/build_standalone.py'
+      - '.github/workflows/rea121-inverse-prediction.yml'
+  pull_request:
+    paths:
+      - 'calculator/js/stat-regression.js'
+      - 'calculator/fx991_fresh_standalone.html'
+      - 'calculator/reference/rea-121/**'
+      - 'calculator/tools/build_standalone.py'
+jobs:
+  inverse-prediction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax checks
+        run: |
+          node --check calculator/js/stat-regression.js
+          node --check calculator/reference/rea-121/test_inverse_prediction.js
+      - name: Execute inverse prediction and compatibility suites
+        run: |
+          node calculator/reference/rea-121/test_inverse_prediction.js
+          node calculator/reference/rea-120/test_inverse_ratios.js
+          node calculator/reference/rea-119/test_scaled_predictions.js
+          node calculator/reference/rea-118/test_quadratic_discriminant.js
+          node calculator/reference/rea-117/test_linear_prediction.js
+          node calculator/reference/rea-116/test_quadratic_prediction.js
+          node calculator/reference/rea-115/test_compensated_sums.js
+          node calculator/reference/rea-114/test_linear_anchor.js
+          node calculator/reference/rea-113/test_anchor_variance.js
+          node calculator/reference/rea-112/test_stat_precision.js
+          node calculator/reference/rea-111/test_stat_menu_values.js
+          node calculator/reference/rea-110/test_quadratic_qr.js
+          node calculator/reference/rea-109/test_quadratic_roots.js
+          node calculator/reference/rea-108/test_linear_regression.js
+          node calculator/reference/rea-107/test_paired_stat.js
+      - name: Standalone consistency
+        run: python3 calculator/tools/build_standalone.py --check
