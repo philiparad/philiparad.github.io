@@ -1033,7 +1033,7 @@ function statDistr(){
  optionDialog('STAT Distr',[
   {key:'1',label:'1. P(',action:()=>originalStatPInput()},
   {key:'2',label:'2. Q(',action:()=>originalStatQInput()},
-  {key:'3',label:'3. R(',action:()=>statDistrInput('R')},
+  {key:'3',label:'3. R(',action:()=>originalStatRInput()},
   {key:'4',label:'4. ▶t',action:()=>statDistrInput('t')}
  ],{pageSize:4,kind:'stat-distr'});
 }
@@ -1058,6 +1058,17 @@ function originalStatQInput(){
   state.editor=STRUCT.create();state.screen='edit';syncEditor();
  }
  insert('Q(');
+}
+// REA-103: original STAT Distr 3 inserts the R( upper-tail command
+// into the normal editable expression rather than a separate prompt.
+function originalStatRInput(){
+ if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
+    state.statTable.paired||state.statTable.regressionType!=='1VAR')
+  throw Error('Argument ERROR');
+ if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
+  state.editor=STRUCT.create();state.screen='edit';syncEditor();
+ }
+ insert('R(');
 }
 function statDistrInput(kind){
  // For P/Q/R a subsequent P(Ans) is a documented native workflow.
