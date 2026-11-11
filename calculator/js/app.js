@@ -1488,7 +1488,8 @@ function matrixMenu(){
    {label:'8. Scalar',action:()=>matrixOperandMenu('scalar')},
    {key:'9',label:'9. AbsDet',action:()=>matrixOperandMenu('abs')}
   ],{pageSize:8,kind:'matrix'})},
-  {key:'9',label:'9. History',action:matrixHistoryMenu}
+  {key:'9',label:'9. History',action:matrixHistoryMenu},
+  {key:'0',label:'0. Expression',action:()=>matrixExpressionInput('')}
  ],{pageSize:8,kind:'matrix'});
 }
 
@@ -1522,11 +1523,63 @@ function matrixTableHandle(key){
   notify('Unsupported matrix editor key',true);paint();
  }catch(err){e.error=String(err.message||'Math ERROR');releaseModifier();notify(e.error,true);paint()}
 }
+// REA-090: text-based native MATRIX calculation screen and chained MatAns.
+function matrixExpressionInput(source){
+ state.input=source;state.cursor=source.length;state.editor=STRUCT.fromString(source);
+ state.screen='matrix-expression';state.matrixView=null;
+ state.result='';releaseModifier();paint();
+}
+function matrixExpressionInsert(token){
+ const source=state.input||'';
+ if(source.length+token.length>100)throw Error('Syntax ERROR');
+ matrixExpressionInput(source+token);
+}
+function matrixExpressionCalculate(){
+ try{
+  const source=state.input;
+  const result=MATRIX.expression(state.matrices,source);
+  if(typeof result==='number'){
+   state.matrixView=null;state.raw=result;state.result=String(result);
+   state.screen='matrix-scalar';state.info='';releaseModifier();paint();
+  }else matrixShow('MatAns',result);
+ }catch(e){error(e.message||'Math ERROR',state.input)}
+}
+function matrixExpressionSymbols(){
+ optionDialog('MATRIX symbols',[
+  ...['MatA','MatB','MatC','MatAns'].map((token,i)=>({
+   key:String(i+1),label:(i+1)+'. '+token,
+   action:()=>matrixExpressionInsert(token)
+  })),
+  {key:'5',label:'5. det(',action:()=>matrixExpressionInsert('det(')},
+  {key:'6',label:'6. Trn(',action:()=>matrixExpressionInsert('Trn(')},
+  {key:'7',label:'7. Abs(',action:()=>matrixExpressionInsert('Abs(')}
+ ],{pageSize:6,kind:'matrix-symbols'});
+}
+function matrixExpressionHandle(key){
+ if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+ if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+ if(state.shift&&key==='4'){releaseModifier();matrixExpressionSymbols();return}
+ if(key==='MODE'){releaseModifier();modeMenu();return}
+ if(key==='AC'){matrixExpressionInput('');return}
+ if(key==='DEL'){matrixExpressionInput(state.input.slice(0,-1));return}
+ if(key==='EQUAL'){matrixExpressionCalculate();return}
+ if(state.shift||state.alpha){releaseModifier();notify('Unsupported MATRIX modifier',true);paint();return}
+ const ops={ADD:'+',SUB:'-',MUL:'*',POWER:'^',LP:'(',RP:')',DOT:'.',NEG:'-'};
+ if(ops[key]){matrixExpressionInsert(ops[key]);return}
+ if(/^[0-9]$/.test(key)){matrixExpressionInsert(key);return}
+ notify('MATRIX expression: SHIFT 4 symbols, = calculate',true);paint();
+}
 function matrixResultHandle(key){
  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
  if(state.shift&&key==='4'){matrixMenu();return}
  if(key==='MODE'){modeMenu();return}
  if(key==='AC'){state.matrixView=null;state.screen='edit';releaseModifier();paint();return}
+ // A matrix result is an expression operand. Arithmetic starts from MatAns.
+ const chaining={ADD:'+',SUB:'-',MUL:'*',POWER:'^'};
+ if(chaining[key]&&state.matrixView){
+  matrixExpressionInput('MatAns'+chaining[key]);return;
+ }
+ if(key==='EQUAL'&&state.matrixView){matrixExpressionInput('MatAns');return}
  const view=state.matrixView;
  if(view&&['UP','DOWN','LEFT','RIGHT'].includes(key)){
   view.row=Math.max(0,Math.min(view.matrix.rows-1,view.row+(key==='UP'?-1:key==='DOWN'?1:0)));
@@ -2347,6 +2400,7 @@ function handle(key){
   if(key==='AC'){state.result='';releaseModifier();paint();return}
   vectorMenu();return;
  }
+ if(state.mode==='MATRIX'&&state.screen==='matrix-expression'){matrixExpressionHandle(key);return}
  if(state.mode==='MATRIX'&&state.screen==='matrix-table'){matrixTableHandle(key);return}
  if(state.mode==='MATRIX'&&state.screen==='matrix-parameter'){matrixParameterHandle(key);return}
  if(state.mode==='MATRIX'&&['matrix-result','matrix-scalar'].includes(state.screen)){matrixResultHandle(key);return}
@@ -2355,6 +2409,7 @@ function handle(key){
   if(state.shift&&key==='4'){matrixMenu();return}
   if(key==='MODE'){modeMenu();return}
   if(key==='AC'){state.result='';releaseModifier();paint();return}
+  if(key==='EQUAL'){matrixExpressionInput('MatAns');return}
   matrixMenu();return;
  }
  if(state.screen==='ineq-result'){ineqResultHandle(key);return}
