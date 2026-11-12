@@ -61,9 +61,8 @@ function evaluate(source,options={}){
   let left=primary();
   while(at<tokens.length&&peek()!==')'){
    const t=peek(),implicit=t==='('||t==='Ans'||t==='PreAns'||/^[0-9.]/.test(t);
-   // Original fx-991ES: omitted multiplication equals × / ÷.
-   // PLUS and PLUS C: omitted multiplication binds more strongly.
-   const implicitPriority=options.model==='fx-991es-plus'||options.model==='fx-991es-plus-c'?24:20;
+   // fx-991ES PLUS: omitted multiplication binds more strongly.
+   const implicitPriority=24;
    const op=implicit?'*':t,bp=implicit?implicitPriority:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(bp===undefined||bp<min)break;
    if(!implicit)at++;
