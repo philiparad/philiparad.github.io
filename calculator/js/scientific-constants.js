@@ -1,78 +1,25 @@
-/* REA-094 — 40 scientific constant codes with manufacturer-sourced original values.
- * Original fx-991ES: Appendix #114 (ISO 1992 / CODATA 1998).
- * https://support.casio.com/pdf/004/fx-115ES_570ES.etc_Appendix.pdf
- * Original User's Guide p. E-65 explicitly cites these editions.
- * PLUS-family profiles remain separate legacy 2014 candidates; no assertion
- * of physical ROM parity for those devices is made here.
+/* fx-991ES PLUS 2nd edition: 40 scientific-constant input codes.
+ * Values require manufacturer-device parity review; source catalog retained.
  */
 (function(global){'use strict';
-const MODELS=Object.freeze({
- 'fx-991es':1998,'fx-991es-plus':2014,'fx-991es-plus-c':2014
-});
-const DATA=[["mp","proton mass","kg",1.672621898e-27,1.67262171e-27],["mn","neutron mass","kg",1.674927471e-27,1.67492728e-27],["me","electron mass","kg",9.10938356e-31,9.1093826e-31],["mμ","muon mass","kg",1.883531594e-28,1.8835314e-28],["a₀","Bohr radius","m",5.2917721067e-11,5.291772108e-11],["h","Planck constant","J s",6.62607004e-34,6.6260693e-34],["μN","nuclear magneton","J/T",5.050783699e-27,5.05078343e-27],["μB","Bohr magneton","J/T",9.274009994e-24,9.27400949e-24],["ħ","reduced Planck constant","J s",1.0545718e-34,1.05457168e-34],["α","fine-structure constant","",0.0072973525664,0.007297352568],["re","classical electron radius","m",2.8179403227e-15,2.817940325e-15],["λc","Compton wavelength","m",2.4263102367e-12,2.426310238e-12],["γp","proton gyromagnetic ratio","s^-1 T^-1",267522190,267522205],["λcp","proton Compton wavelength","m",1.32140985396e-15,1.3214098555e-15],["λcn","neutron Compton wavelength","m",1.31959090481e-15,1.3195909067e-15],["R∞","Rydberg constant","m^-1",10973731.568508,10973731.568525],["u","atomic mass constant","kg",1.66053904e-27,1.66053886e-27],["μp","proton magnetic moment","J/T",1.4106067873e-26,1.41060671e-26],["μe","electron magnetic moment","J/T",-9.28476462e-24,-9.28476411e-24],["μn","neutron magnetic moment","J/T",-9.662365e-27,-9.6623645e-27],["μμ","muon magnetic moment","J/T",-4.49044826e-26,-4.49044799e-26],["F","Faraday constant","C/mol",96485.33289,96485.3383],["e","elementary charge","C",1.6021766208e-19,1.60217653e-19],["NA","Avogadro constant","mol^-1",6.022140857e+23,6.0221415e+23],["k","Boltzmann constant","J/K",1.38064852e-23,1.3806504e-23],["Vm","molar volume of ideal gas","m^3/mol",0.022710947,0.022710981],["R","molar gas constant","J/(mol K)",8.3144598,8.314472],["c₀","speed of light in vacuum","m/s",299792458,299792458],["c₁","first radiation constant","W m^2",3.74177179e-16,3.74177138e-16],["c₂","second radiation constant","m K",0.0143877736,0.014387752],["σ","Stefan-Boltzmann constant","W/(m^2 K^4)",5.670367e-8,5.6704e-8],["ε₀","electric constant","F/m",8.854187817e-12,8.854187817e-12],["μ₀","magnetic constant","N/A^2",0.0000012566370614359173,0.0000012566370614359173],["Φ₀","magnetic flux quantum","Wb",2.067833831e-15,2.06783372e-15],["g","standard acceleration of gravity","m/s^2",9.80665,9.80665],["G₀","conductance quantum","S",0.00007748091731,0.00007748091733],["Z₀","characteristic impedance of vacuum","ohm",376.730313461,376.730313461],["t","Celsius temperature offset","K",273.15,273.15],["G","Newtonian constant of gravitation","m^3/(kg s^2)",6.67408e-11,6.6742e-11],["atm","standard atmosphere","Pa",101325,101325]];
-// Strings preserve the exact significant digits printed in CASIO Appendix #114.
-const ORIGINAL_1998=Object.freeze([
- "1.67262158e-27",
- "1.67492716e-27",
- "9.10938188e-31",
- "1.88353109e-28",
- "0.5291772083e-10",
- "6.62606876e-34",
- "5.05078317e-27",
- "927.400899e-26",
- "1.054571596e-34",
- "7.297352533e-3",
- "2.817940285e-15",
- "2.426310215e-12",
- "2.67522212e8",
- "1.321409847e-15",
- "1.319590898e-15",
- "10973731.568549",
- "1.66053873e-27",
- "1.410606633e-26",
- "-928.476362e-26",
- "-0.96623640e-26",
- "-4.49044813e-26",
- "96485.3415",
- "1.602176462e-19",
- "6.02214199e23",
- "1.3806503e-23",
- "22.413996e-3",
- "8.314472",
- "299792458",
- "3.74177107e-16",
- "1.4387752e-2",
- "5.670400e-8",
- "8.854187817e-12",
- "12.566370614e-7",
- "2.067833636e-15",
- "9.80665",
- "7.748091696e-5",
- "376.730313461",
- "273.15",
- "6.673e-11",
- "101325"
-]);
-const ITEMS=Object.freeze(DATA.map(([symbol,name,unit,value2014,value2002],index)=>
- Object.freeze({code:String(index+1).padStart(2,'0'),symbol,name,unit,
-  printed1998:ORIGINAL_1998[index],
-  values:Object.freeze({1998:Number(ORIGINAL_1998[index]),2014:value2014,2002:value2002})})));
+const MODEL='fx-991es-plus';
+const MODELS=Object.freeze({[MODEL]:2014});
+const ITEMS=Object.freeze([{"symbol":"mp","name":"proton mass","unit":"kg","value":1.672621898e-27},{"symbol":"mn","name":"neutron mass","unit":"kg","value":1.674927471e-27},{"symbol":"me","name":"electron mass","unit":"kg","value":9.10938356e-31},{"symbol":"mμ","name":"muon mass","unit":"kg","value":1.883531594e-28},{"symbol":"a₀","name":"Bohr radius","unit":"m","value":5.2917721067e-11},{"symbol":"h","name":"Planck constant","unit":"J s","value":6.62607004e-34},{"symbol":"μN","name":"nuclear magneton","unit":"J/T","value":5.050783699e-27},{"symbol":"μB","name":"Bohr magneton","unit":"J/T","value":9.274009994e-24},{"symbol":"ħ","name":"reduced Planck constant","unit":"J s","value":1.0545718e-34},{"symbol":"α","name":"fine-structure constant","unit":"","value":0.0072973525664},{"symbol":"re","name":"classical electron radius","unit":"m","value":2.8179403227e-15},{"symbol":"λc","name":"Compton wavelength","unit":"m","value":2.4263102367e-12},{"symbol":"γp","name":"proton gyromagnetic ratio","unit":"s^-1 T^-1","value":267522190},{"symbol":"λcp","name":"proton Compton wavelength","unit":"m","value":1.32140985396e-15},{"symbol":"λcn","name":"neutron Compton wavelength","unit":"m","value":1.31959090481e-15},{"symbol":"R∞","name":"Rydberg constant","unit":"m^-1","value":10973731.568508},{"symbol":"u","name":"atomic mass constant","unit":"kg","value":1.66053904e-27},{"symbol":"μp","name":"proton magnetic moment","unit":"J/T","value":1.4106067873e-26},{"symbol":"μe","name":"electron magnetic moment","unit":"J/T","value":-9.28476462e-24},{"symbol":"μn","name":"neutron magnetic moment","unit":"J/T","value":-9.662365e-27},{"symbol":"μμ","name":"muon magnetic moment","unit":"J/T","value":-4.49044826e-26},{"symbol":"F","name":"Faraday constant","unit":"C/mol","value":96485.33289},{"symbol":"e","name":"elementary charge","unit":"C","value":1.6021766208e-19},{"symbol":"NA","name":"Avogadro constant","unit":"mol^-1","value":6.022140857e+23},{"symbol":"k","name":"Boltzmann constant","unit":"J/K","value":1.38064852e-23},{"symbol":"Vm","name":"molar volume of ideal gas","unit":"m^3/mol","value":0.022710947},{"symbol":"R","name":"molar gas constant","unit":"J/(mol K)","value":8.3144598},{"symbol":"c₀","name":"speed of light in vacuum","unit":"m/s","value":299792458},{"symbol":"c₁","name":"first radiation constant","unit":"W m^2","value":3.74177179e-16},{"symbol":"c₂","name":"second radiation constant","unit":"m K","value":0.0143877736},{"symbol":"σ","name":"Stefan-Boltzmann constant","unit":"W/(m^2 K^4)","value":5.670367e-8},{"symbol":"ε₀","name":"electric constant","unit":"F/m","value":8.854187817e-12},{"symbol":"μ₀","name":"magnetic constant","unit":"N/A^2","value":0.0000012566370614359173},{"symbol":"Φ₀","name":"magnetic flux quantum","unit":"Wb","value":2.067833831e-15},{"symbol":"g","name":"standard acceleration of gravity","unit":"m/s^2","value":9.80665},{"symbol":"G₀","name":"conductance quantum","unit":"S","value":0.00007748091731},{"symbol":"Z₀","name":"characteristic impedance of vacuum","unit":"ohm","value":376.730313461},{"symbol":"t","name":"Celsius temperature offset","unit":"K","value":273.15},{"symbol":"G","name":"Newtonian constant of gravitation","unit":"m^3/(kg s^2)","value":6.67408e-11},{"symbol":"atm","name":"standard atmosphere","unit":"Pa","value":101325}].map((x,i)=>Object.freeze({
+ code:String(i+1).padStart(2,'0'),symbol:x.symbol,name:x.name,unit:x.unit,
+ values:Object.freeze({2014:x.value})
+})));
 const fault=(message='Argument ERROR')=>{throw Error(message)};
 function select(model,code){
- const version=MODELS[model];if(!version)fault();
+ if(model!==MODEL)fault();
  const number=String(code).padStart(2,'0');
  const entry=ITEMS.find(x=>x.code===number);if(!entry)fault('Argument ERROR');
- return Object.freeze({...entry,value:entry.values[version],year:version,
-  printedValue:version===1998?entry.printed1998:null});
+ return Object.freeze({...entry,value:entry.values[2014],year:2014,printedValue:null});
 }
 function literal(entry){
  if(!entry||!Number.isFinite(entry.value))fault();
- // Keep inserted constants as ordinary expression operands; no new
- // undocumented parser functions, no scientific notation ambiguity.
  const n=entry.value;
  if(n===0)return '(0)';
- const str=n.toExponential(15);
- const [mantissa,exp]=str.split('e');
+ const [mantissa,exp]=n.toExponential(15).split('e');
  return '('+Number(mantissa)+'*10^('+Number(exp)+'))';
 }
 function codeEditor(){return {buffer:'',error:''}}
@@ -81,10 +28,9 @@ function type(editor,key,model){
  if(editor.buffer.length>=2)fault('Syntax ERROR');
  editor.buffer+=key;editor.error='';
  if(editor.buffer.length!==2)return null;
- const selected=select(model,editor.buffer);
- return selected;
+ return select(model,editor.buffer);
 }
 function backspace(editor){editor.buffer=editor.buffer.slice(0,-1);editor.error='';return editor}
-global.FreshScientificConstants=Object.freeze({ITEMS,MODELS,ORIGINAL_1998,select,literal,codeEditor,type,backspace});
+global.FreshScientificConstants=Object.freeze({ITEMS,MODELS,select,literal,codeEditor,type,backspace});
 if(typeof module!=='undefined'&&module.exports)module.exports=global.FreshScientificConstants;
 })(typeof window!=='undefined'?window:globalThis);
