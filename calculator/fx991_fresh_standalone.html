@@ -1073,6 +1073,17 @@ function power(a,b){
  const radius=Math.hypot(a.re,a.im),theta=Math.atan2(a.im,a.re);
  const scale=Math.exp(b.re*Math.log(radius)-b.im*theta);
  const angle=b.re*theta+b.im*Math.log(radius);
+ // Exact real-axis operands can land on quarter turns; binary64 sin/cos
+ // produces tiny ghost components there (sqrt(-1) displayed as 6e-17+i).
+ // Snap only when the phase itself is indistinguishable from k·π/2,
+ // not whenever a component happens to be small.
+ const quarter=Math.PI/2,turn=Math.round(angle/quarter);
+ const onAxis=Number.isSafeInteger(turn)&&
+  Math.abs(angle-turn*quarter)<=8*Number.EPSILON*Math.max(1,Math.abs(angle));
+ if(onAxis){
+  const quadrant=((turn%4)+4)%4;
+  return complex(scale*[1,0,-1,0][quadrant],scale*[0,1,0,-1][quadrant]);
+ }
  return complex(scale*Math.cos(angle),scale*Math.sin(angle));
 }
 function polar(radius,angle,unit='DEG'){
