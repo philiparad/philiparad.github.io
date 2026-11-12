@@ -557,6 +557,11 @@ function flowHandle(key){
   if(!registerAllowed(vars[key])){releaseModifier();notify('Register unavailable on this model',true);paint();return true}
   addition=vars[key];
  }
+ else if(state.alpha&&key==='ENG')addition=':';
+ else if(state.alpha&&key==='EXP')addition='e';
+ else if(state.alpha&&key==='CALC')addition='=';
+ else if(state.alpha&&key==='DOT')addition='RanInt#(';
+ else if(state.alpha&&key==='FRAC')addition='÷R';
  else if(state.shift&&key==='RP')addition=',';
  else if(state.shift&&key==='DOT')addition=',';
  else if(state.shift&&key==='MUL')addition='*';
@@ -2065,6 +2070,18 @@ function handle(key){
   if(key==='RIGHT')state.contrast=Math.min(9,state.contrast+1);
   if(key==='AC'||key==='EQUAL'){state.screen='edit';state.info=''}
   paint();return;
+ }
+ // ALPHA is one-shot and must never fall through to an ordinary numeral or
+ // unrelated editor action when the key has no usable ALPHA legend.
+ if(state.alpha&&key!=='ALPHA'&&key!=='SHIFT'&&!key.startsWith('TEXT:')){
+  const physical=K.keysForModel(state.model).find(item=>item.id===key);
+  if(physical){
+   const action=LEGENDS.classify(physical,'ALPHA',state.mode,state.screen,
+    state.model,MODELS.supports);
+   if(action.status==='blocked'||action.status==='unlabelled'){
+    releaseModifier();notify('ALPHA '+key+': '+action.reason,true);paint();return;
+   }
+  }
  }
  // MODE and SHIFT+MODE are global physical keys, including in coefficient,
  // table and prompt editors. Opening either menu must not discard the editor:
