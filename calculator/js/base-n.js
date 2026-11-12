@@ -1,11 +1,7 @@
 /* REA-049 — independent BASE-N integer and conversion semantics. */
 (function(g){'use strict';
 const BASES=Object.freeze({DEC:10,BIN:2,OCT:8,HEX:16});
-const SPECS=Object.freeze({
- 'fx-991es':{BIN:16,DEC:32,OCT:32,HEX:32},
- 'fx-991es-plus':{BIN:16,DEC:32,OCT:32,HEX:32},
- 'fx-991es-plus-c':{BIN:16,DEC:32,OCT:32,HEX:32}
-});
+const SPECS=Object.freeze({'fx-991es-plus':{BIN:16,DEC:32,OCT:32,HEX:32}});
 function fail(message='Math ERROR'){throw Error(message)}
 function bits(base,model='fx-991es-plus'){const item=SPECS[model];if(!item||!item[base])fail('Argument ERROR');return item[base]}
 function range(base,model){
