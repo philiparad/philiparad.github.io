@@ -36,7 +36,7 @@ async def run(page,file):
         await press(page,'AC')
         assert (await state(page))['screen']=='eqn-coeff'
     await page.goto(base+'?plus006=cursor',wait_until='load')
-    await press(page,'MODE','5','3','1','ADD','2','MUL','3','LEFT','DEL','3','EQUAL')
+    await press(page,'MODE','5','3','1','ADD','2','MUL','3','LEFT','DEL','MUL','EQUAL')
     result=await state(page)
     assert result['screen']=='eqn-coeff',(file,result['screen'],result['error'])
     assert result['eqnEditor']['values']['a']==7,(file,result['eqnEditor']['values'])
