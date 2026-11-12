@@ -1416,35 +1416,28 @@ function matrixHistoryMenu(){
  })),{pageSize:8,kind:'matrix'});
 }
 function matrixMenu(){
+ // The real PLUS SHIFT+4 menu is 1 Dim, 2 Data, 3..6 registers,
+ // 7 det(, 8 Trn(. Selecting a register inserts an expression operand.
+ const prefix=state.screen==='matrix-expression'?state.input:'';
+ const emit=token=>matrixExpressionInput(prefix+token);
  releaseModifier();
  optionDialog('MATRIX',[
   {key:'1',label:'1. Dim',action:()=>matrixRegisterMenu('Dim')},
   {key:'2',label:'2. Data',action:()=>matrixRegisterMenu('Data')},
-  ...MATRIX.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,action:()=>matrixShow(name)})),
-  {key:'6',label:'6. MatAns',action:()=>matrixShow('MatAns')},
-  {key:'7',label:'7. Copy',action:()=>matrixCopy()},
-  {key:'8',label:'8. Calc',action:()=>optionDialog('MATRIX Calc',[
-   {label:'1. Add',action:()=>matrixOperandMenu('add')},
-   {label:'2. Multiply',action:()=>matrixOperandMenu('multiply')},
-   {label:'3. Det',action:()=>matrixOperandMenu('det')},
-   {label:'4. Subtract',action:()=>matrixOperandMenu('subtract')},
-   {label:'5. Inverse',action:()=>matrixOperandMenu('inverse')},
-   {label:'6. Transpose',action:()=>matrixOperandMenu('transpose')},
-   {label:'7. Power',action:()=>matrixOperandMenu('power')},
-   {label:'8. Scalar',action:()=>matrixOperandMenu('scalar')},
-   {key:'9',label:'9. AbsDet',action:()=>matrixOperandMenu('abs')}
-  ],{pageSize:8,kind:'matrix'})},
-  {key:'9',label:'History',action:matrixHistoryMenu},
-  {key:'0',label:'Expression',action:()=>matrixExpressionInput('')}
+  ...MATRIX.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,
+   action:()=>emit(name)})),
+  {key:'6',label:'6. MatAns',action:()=>emit('MatAns')},
+  {key:'7',label:'7. det(',action:()=>emit('det(')},
+  {key:'8',label:'8. Trn(',action:()=>emit('Trn(')}
  ],{pageSize:8,kind:'matrix'});
 }
-
 function matrixTableHandle(key){
  const e=state.matrixEditor;if(!e)return;
  try{
   if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
   if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
   if(state.shift&&key==='4'){matrixCommit();matrixMenu();return}
+  if(state.shift&&key==='RCL'){const name=e.name;matrixCommit();releaseModifier();matrixCopy(name);return}
   if(key==='MODE'){matrixCommit();modeMenu();return}
   if(key==='AC'){matrixClose();return}
   if(key==='DEL'){MATRIX.backspace(e);releaseModifier();paint();return}
@@ -1472,7 +1465,7 @@ function matrixTableHandle(key){
 // REA-090: text-based native MATRIX calculation screen and chained MatAns.
 function matrixExpressionInput(source){
  state.input=source;state.cursor=source.length;state.editor=STRUCT.fromString(source);
- state.screen='matrix-expression';state.matrixView=null;
+ state.screen='matrix-expression';state.matrixView=null;state.matrixEditor=null;
  state.result='';releaseModifier();paint();
 }
 function matrixExpressionInsert(token){
@@ -1490,27 +1483,18 @@ function matrixExpressionCalculate(){
   }else matrixShow('MatAns',result);
  }catch(e){error(e.message||'Math ERROR',state.input)}
 }
-function matrixExpressionSymbols(){
- optionDialog('MATRIX symbols',[
-  ...['MatA','MatB','MatC','MatAns'].map((token,i)=>({
-   key:String(i+1),label:(i+1)+'. '+token,
-   action:()=>matrixExpressionInsert(token)
-  })),
-  {key:'5',label:'5. det(',action:()=>matrixExpressionInsert('det(')},
-  {key:'6',label:'6. Trn(',action:()=>matrixExpressionInsert('Trn(')},
-  {key:'7',label:'7. Abs(',action:()=>matrixExpressionInsert('Abs(')}
- ],{pageSize:6,kind:'matrix-symbols'});
-}
 function matrixExpressionHandle(key){
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
- if(state.shift&&key==='4'){releaseModifier();matrixExpressionSymbols();return}
+ if(state.shift&&key==='4'){matrixMenu();return}
+ if(state.shift&&key==='HYP'){releaseModifier();matrixExpressionInsert('Abs(');return}
+ if(state.shift&&key==='SQUARE'){releaseModifier();matrixExpressionInsert('^3');return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
  if(key==='AC'){matrixExpressionInput('');return}
  if(key==='DEL'){matrixExpressionInput(state.input.slice(0,-1));return}
  if(key==='EQUAL'){matrixExpressionCalculate();return}
  if(state.shift||state.alpha){releaseModifier();notify('Unsupported MATRIX modifier',true);paint();return}
- const ops={ADD:'+',SUB:'-',MUL:'*',POWER:'^',LP:'(',RP:')',DOT:'.',NEG:'-'};
+ const ops={ADD:'+',SUB:'-',MUL:'*',POWER:'^',RECIP:'^(-1)',SQUARE:'^2',LP:'(',RP:')',DOT:'.',NEG:'-'};
  if(ops[key]){matrixExpressionInsert(ops[key]);return}
  if(/^[0-9]$/.test(key)){matrixExpressionInsert(key);return}
  notify('MATRIX expression: SHIFT 4 symbols, = calculate',true);paint();
@@ -1518,10 +1502,22 @@ function matrixExpressionHandle(key){
 function matrixResultHandle(key){
  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
  if(state.shift&&key==='4'){matrixMenu();return}
+ if(state.shift&&key==='RCL'){
+  const name=state.matrixView?.name;
+  releaseModifier();
+  if(name)matrixCopy(name);else{notify('Matrix result required for STO',true);paint()}
+  return;
+ }
+ if(state.shift&&key==='SQUARE'&&state.matrixView){
+  matrixExpressionInput(state.matrixView.name+'^3');return;
+ }
+ if(state.shift&&key==='HYP'&&state.matrixView){
+  matrixExpressionInput('Abs('+state.matrixView.name+')');return;
+ }
  if(key==='MODE'){modeMenu();return}
  if(key==='AC'){state.matrixView=null;state.screen='edit';releaseModifier();paint();return}
  // A matrix result is an expression operand. Arithmetic starts from MatAns.
- const chaining={ADD:'+',SUB:'-',MUL:'*',POWER:'^'};
+ const chaining={ADD:'+',SUB:'-',MUL:'*',POWER:'^',RECIP:'^(-1)',SQUARE:'^2'};
  if(chaining[key]&&state.matrixView){
   matrixExpressionInput(state.matrixView.name+chaining[key]);return;
  }
