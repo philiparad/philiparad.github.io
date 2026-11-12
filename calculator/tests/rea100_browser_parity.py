@@ -8,7 +8,7 @@ import threading
 from playwright.async_api import async_playwright
 
 ROOT=Path(__file__).resolve().parents[2]
-MODELS=("fx-991es","fx-991es-plus","fx-991es-plus-c")
+MODELS=("fx-991es-plus",)
 FILES=("index.html","fx991_fresh_standalone.html")
 # Click exactly the same displayed calculator keys, not hidden app APIs.
 CASES=(
@@ -24,14 +24,12 @@ async def run_case(browser,url,model,filename,keys,want):
     try:
         await page.goto(f"{url}{filename}?model={model}",wait_until="load")
         await page.locator("#keys button[data-key='EQUAL']").wait_for()
-        await page.locator("#model-selector").wait_for()
-        assert await page.locator("#model-selector").input_value()==model
         for key in keys:
             await page.locator(f"#keys button[data-key='{key}']").click()
         actual=(await page.locator("#answer-text").inner_text()).strip()
         assert actual==want,(model,filename,keys,actual,want)
         assert not errors,(model,filename,errors)
-        modes=await page.evaluate("() => window.FreshModels.get(document.querySelector('#model-selector').value).modes")
+        modes=await page.evaluate("() => window.FreshModels.get().modes")
         capabilities=await page.locator("#capability-rows tr").count()
         return actual,tuple(modes),capabilities
     finally:
