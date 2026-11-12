@@ -42,8 +42,19 @@
 4. **Publication gate:** both modular and standalone pass the same tests before release.
 5. **Disclosure gate:** manufacturer hardware parity is described as unverified unless backed by physical evidence.
 
-## Status as of 2026-11-12
-- PLUS-001: **Implemented in source** — single PLUS identity, no model selector, obsolete URL profile ignored. Browser validation remains pending.
-- PLUS-002: **Partially implemented** — alternate-model runtime branches, keypad skins, capabilities, and unsupported C/original modules removed. Archived reference material and historical test fixtures require a separate repository-wide retention/deletion audit.
-- PLUS-027: **Source synchronization completed** — the 39 active script modules and capability manifest are embedded into the standalone publication; independent build/CI execution remains pending.
-- PLUS-003–PLUS-026, PLUS-028: **Open for parity implementation and reference verification**. Some numerical functionality exists, but must not be labelled device-verified.
+## Verified implementation status — 2026-11-12
+
+- **PLUS-001:** Implemented. Single PLUS identity, no profile switching; strict profile tests pass.
+- **PLUS-002:** Active runtime cleanup and gate pass. Archived research files, reference screenshots and historical multi-model fixtures are retained; repository-wide archival deletion is **not complete**.
+- **PLUS-003–PLUS-013:** Implemented with model-specific source and physical-button browser regressions, including both modular and standalone publication. Verified by [successful GitHub Actions release run](https://github.com/philiparad/philiparad.github.io/actions/runs/43186524940).
+- **PLUS-010:** MATRIX printed SHIFT+4 menu, expressions, MatAns, determinant, transpose, STO copy.
+- **PLUS-011:** VECTOR printed SHIFT+5 menu, direct vector calculations, Dot, VctAns and STO copy.
+- **PLUS-012:** STAT Edit 1 Ins / 2 Del-A, physical DEL line deletion, safe append and capacity tests.
+- **PLUS-013:** TABLE ULP-level fractional boundary checks, 1–30 X-values, error cells, grid navigation and variable X writeback.
+- **PLUS-027:** Byte-identical standalone synchronization verified in release workflow; 39 active JavaScript modules.
+- **PLUS-014–PLUS-026, PLUS-028:** Remaining implementation and physical-reference gaps are **open**. In particular, PLUS-014 requires native 96×31 LCD screenshots/keylogs to certify exact glyph, annunciator and pixel placements; source/browser-only tests cannot prove device pixel parity.
+
+### Verification scope and evidence
+- Release run: https://github.com/philiparad/philiparad.github.io/actions/runs/43186524940 (success)
+- Source and browser regressions do **not** constitute hardware parity certification.
+- Do not mark physical-device pixel/precision/menu parity verified without a matching CASIO fx-991ES PLUS (2nd edition) device capture and observed key sequence.
