@@ -1421,17 +1421,18 @@ function eqnResultHandle(key){
  notify('EQN: = next/finish; arrows scroll; AC coefficients');paint();
 }
 
-const MATRIX_DIMS=[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3],[3,1],[3,2],[3,3]];
+// PLUS C emulator reference: dimension choices descend from 3x3 to 1x1.
+const MATRIX_DIMS=[[3,3],[3,2],[3,1],[2,3],[2,2],[2,1],[1,3],[1,2],[1,1]];
 function matrixRegisterMenu(kind){
- optionDialog('MATRIX '+kind,MATRIX.NAMES.map((name,i)=>({
+ optionDialog(kind==='Dim'?'Matrix?':'Matrix '+kind,MATRIX.NAMES.map((name,i)=>({
   label:(i+1)+'. '+name,action:()=>kind==='Dim'?matrixDimensionMenu(name):matrixEdit(name)
  })),{pageSize:6,kind:'matrix'});
 }
 function matrixDimensionMenu(name){
- optionDialog(name+' Dimension',MATRIX_DIMS.map(([rows,cols],i)=>({
+ optionDialog(name+'(m×n) m×n?',MATRIX_DIMS.map(([rows,cols],i)=>({
   key:String(i+1),label:(i+1)+'. '+rows+'x'+cols,
   action:()=>{MATRIX.set(state.matrices,name,MATRIX.create(rows,cols));matrixEdit(name)}
- })),{pageSize:8,kind:'matrix'});
+ })),{pageSize:6,kind:'matrix-dims'});
 }
 function matrixEdit(name){
  if(!state.matrices[name]){matrixDimensionMenu(name);return}
@@ -1673,7 +1674,7 @@ function matrixResultHandle(key){
 
 /* REA-055: named VECTOR data editor, VctAns and memory selection. */
 function vectorRegisterMenu(kind){
- optionDialog('VECTOR '+kind,VECTOR.NAMES.map((name,i)=>({
+ optionDialog(kind==='Dim'?'Vector?':'Vector '+kind,VECTOR.NAMES.map((name,i)=>({
   label:(i+1)+'. '+name,action:()=>kind==='Dim'?vectorDimensionMenu(name):vectorEdit(name)
  })),{pageSize:6,kind:'vector'});
 }
@@ -1861,8 +1862,8 @@ function tableStart(previous=null){
  const dual=TABLE.dualEnabled(state.model,state.tableFunctions);
  const defaults=previous||state.tableDraft||{};
  const fields=[
-  {id:'expression',label:'f(X)',value:defaults.expression??'X^2-2'},
-  ...(dual?[{id:'expression2',label:'g(X)',value:defaults.expression2??'X+1'}]:[]),
+  {id:'expression',label:'f(X)',value:defaults.expression??''},
+  ...(dual?[{id:'expression2',label:'g(X)',value:defaults.expression2??''}]:[]),
   {id:'start',label:'Start',value:defaults.start??'1'},
   {id:'end',label:'End',value:defaults.end??'5'},
   {id:'step',label:'Step',value:defaults.step??'1'}
