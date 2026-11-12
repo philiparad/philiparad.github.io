@@ -4893,9 +4893,13 @@ function countRows(start,end,step,limit){
  if(step<=0||end<=start)fail('Argument ERROR');
  const ratio=(end-start)/step;
  if(!Number.isFinite(ratio))fail('Insufficient MEM');
- // Inclusive X, with an allowance only for floating point arithmetic near an integer.
- const count=Math.floor(ratio+1e-11*Math.max(1,Math.abs(ratio)))+1;
- if(!Number.isSafeInteger(count)||count<2||count>limit)fail('Insufficient MEM');
+ // Include the endpoint only when the step ratio is within floating-point
+ // roundoff of an integer; a broad decimal tolerance manufactures extra rows.
+ const nearest=Math.round(ratio);
+ const ulp=32*Number.EPSILON*Math.max(1,Math.abs(ratio));
+ const aligned=Math.abs(ratio-nearest)<=ulp?nearest:ratio;
+ const count=Math.floor(aligned)+1;
+ if(!Number.isSafeInteger(count)||count<1||count>limit)fail('Insufficient MEM');
  return count;
 }
 function numeric(value,label){
@@ -4921,7 +4925,9 @@ function generate({model,count=1,start,end,step,f,g=null}){
  const limit=maxRows(model,count),size=countRows(a,b,h,limit);
  const rows=[];
  for(let i=0;i<size;i++){
-  const x=i===size-1&&Math.abs(a+i*h-b)<=1e-11*Math.max(1,Math.abs(b))?b:a+i*h;
+  const candidate=a+i*h;
+  const tolerance=16*Number.EPSILON*Math.max(Math.abs(a),Math.abs(b),Math.abs(i*h),Number.MIN_VALUE);
+  const x=i===size-1&&Math.abs(candidate-b)<=tolerance?b:candidate;
   if(!Number.isFinite(x))fail('Argument ERROR');
   const value=(fn)=>{
    try{const y=fn(x);return typeof y==='number'&&Number.isFinite(y)?y:null}
