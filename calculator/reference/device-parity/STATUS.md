@@ -52,3 +52,15 @@ The models are separate **configurations of the shared independent web engine**;
 - [ ] Close model-specific parity acceptance only when verifiable native reference evidence exists.
 
 **Critical distinction:** Browser simulation and documented mathematical agreement do **not** establish physical-device/firmware parity. The user's supplied `CASIO(1).zip` contains a PLUS C second-edition Windows emulator installer and documentation, but no authenticated screenshots or executed native key traces. It was not executed in this environment.
+
+## User-provided PLUS C emulator screenshot follow-up — 2026-11-12
+
+**11 uploaded screenshots** were inspected and cryptographically registered, including MODE, EQN, Matrix?, MatA dimensions/editor, Vector?, TABLE f(X)=, BASE-N Dec/0, and the example 888 ÷ 3 = 296. The user-provided `CASIO(2).zip` is byte-identical to the earlier `CASIO(1).zip`. [Screenshot evidence manifest](native-emulator-screenshots-2026-11-12.json) records hashes without publishing the user-owned images; [screenshot correction review](PLUS_C_SCREENSHOT_REVIEW_2026-11-12.md) documents the observed differences and source corrections.
+
+The web simulator now includes capture-derived LCD approximations (boxed numbered MODE choices, mathematical EQN options, Matrix?/Vector? registers, descending MatA sizes, PLUS C-only bracketed 3×3 matrix editor, empty f(X)= input and lower-right Dec/0 layout). The canonical standalone HTML has been resynchronized.
+
+The browser manifest was extended to **67 scenario definitions**, corresponding to **172 model-applicable browser executions** (53 original, 53 PLUS, 66 PLUS C); these are configured and committed but the expanded run has **not yet been independently confirmed successful**. Additional `test_native_screen_layout.cjs` source tests passed **23/23** direct JavaScript assertions.
+
+The **last confirmed full browser execution** remains **162/162 passed** at [workflow 43148006611](https://github.com/philiparad/philiparad.github.io/actions/runs/43148006611). The new 172-case suite must be checked via its GitHub Actions run/artifact before replacing that result.
+
+**Native-reference status:** user-uploaded screenshot-only evidence; **0 native KeyLog files, 0 verified same-key emulator comparisons, 0 genuine physical-device observations**. Screenshot-matched UI shapes are approximations, not byte-for-byte LCD firmware equivalence. REA-123 remains open.
