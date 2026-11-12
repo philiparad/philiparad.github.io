@@ -1,6 +1,6 @@
-/* REA-065 — CASIO ES-family model-specific 96x31 LCD menu behavior.
+/* CASIO fx-991ES PLUS second-edition 96x31 logical LCD menu behavior.
  * Navigation: UP/DOWN between pages; number keys select local page items.
- * Reference: CASIO fx-991ES / ES PLUS / ES PLUS C printed manuals.
+ * Reference: CASIO fx-991ES PLUS manufacturer user guide.
  */
 (function(g){'use strict';
 const RULES=Object.freeze({
