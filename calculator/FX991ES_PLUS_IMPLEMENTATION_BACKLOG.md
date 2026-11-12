@@ -42,7 +42,8 @@
 4. **Publication gate:** both modular and standalone pass the same tests before release.
 5. **Disclosure gate:** manufacturer hardware parity is described as unverified unless backed by physical evidence.
 
-## Status
-- PLUS-001: **in progress** (model definitions and UI restricted).
-- PLUS-002, PLUS-027: **in progress**.
-- PLUS-003–PLUS-026, PLUS-028: **open**, except existing partial implementations. Do not mark complete based on source-level classification alone.
+## Status as of 2026-11-12
+- PLUS-001: **Implemented in source** — single PLUS identity, no model selector, obsolete URL profile ignored. Browser validation remains pending.
+- PLUS-002: **Partially implemented** — alternate-model runtime branches, keypad skins, capabilities, and unsupported C/original modules removed. Archived reference material and historical test fixtures require a separate repository-wide retention/deletion audit.
+- PLUS-027: **Source synchronization completed** — the 39 active script modules and capability manifest are embedded into the standalone publication; independent build/CI execution remains pending.
+- PLUS-003–PLUS-026, PLUS-028: **Open for parity implementation and reference verification**. Some numerical functionality exists, but must not be labelled device-verified.
