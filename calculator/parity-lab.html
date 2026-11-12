@@ -122,6 +122,8 @@ async function run(){
     const api=win.FreshCalculator;
     if(!api)throw Error('Calculator iframe not initialized');
     api.setModel(model);
+    win.document.getElementById('clear-keylog').click();
+    if(!api.getState().recording)win.document.getElementById('record-keylog').click();
     for(const key of scenario.keys){
      const button=win.document.querySelector('#keys button[data-key="'+key+'"]');
      if(!button)throw Error('Missing key '+key);
@@ -133,9 +135,12 @@ async function run(){
       keyCount:win.document.querySelectorAll('#keys button[data-key]').length,
       profileRegisterMatch:JSON.stringify(win.FreshModels.registers(model))===JSON.stringify(profile.registers)};
     errors.push(...validate(observed,scenario.expect));
+    const actualKeylog=state.keylog.map(entry=>entry.key);
+    if(JSON.stringify(actualKeylog)!==JSON.stringify(scenario.keys))errors.push('KeyLog differs from requested key sequence');
     if(state.model!==model)errors.push('Unexpected active model');
-    records.push({model,scenario:scenario.id,keys:scenario.keys,expected:scenario.expect,observed,
-      browser_pass:errors.length===0,errors,hardware_verified:false,manual_url:profile.manual});
+    records.push({model,scenario:scenario.id,keys:scenario.keys,recorded_keys:actualKeylog,keylog:state.keylog,
+      keylog_exact_match:JSON.stringify(actualKeylog)===JSON.stringify(scenario.keys),
+      expected:scenario.expect,observed,browser_pass:errors.length===0,errors,hardware_verified:false,manual_url:profile.manual});
    }catch(e){errors.push(String(e));records.push({model,scenario:scenario.id,keys:scenario.keys,browser_pass:false,errors,hardware_verified:false});}
   }
  }
