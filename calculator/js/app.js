@@ -1198,7 +1198,7 @@ function eqnStart(type,previous=null){
  notify('EQN coefficients: arrows navigate; = next / solve; AC clears');paint();
 }
 function eqnSolve(){
- const e=state.eqnEditor;EQEDIT.commit(e);
+ const e=state.eqnEditor;EQEDIT.commit(e,state);
  // On any failed solve, retain the entire editor and current coefficient.
  const fields=EQN.TYPES.find(type=>type.id===e.type).fields;
  const solved=EQEX.decorate(EQN.solve(e.type,e.values),fields.map(k=>e.values[k]));
@@ -1217,24 +1217,22 @@ function eqnCoeffHandle(key){
   if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
   if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
   if(key==='AC'){EQEDIT.clear(e);releaseModifier();notify('All EQN coefficients cleared');paint();return}
-  if(key==='UP'){EQEDIT.move(e,-1,0);releaseModifier();paint();return}
-  if(key==='DOWN'){EQEDIT.move(e,1,0);releaseModifier();paint();return}
-  if(key==='LEFT'){EQEDIT.move(e,0,-1);releaseModifier();paint();return}
-  if(key==='RIGHT'){EQEDIT.move(e,0,1);releaseModifier();paint();return}
+  if(key==='UP'){EQEDIT.move(e,-1,0,state);releaseModifier();paint();return}
+  if(key==='DOWN'){EQEDIT.move(e,1,0,state);releaseModifier();paint();return}
+  if(key==='LEFT'){if(e.editing&&/[()*/^a-z]/i.test(e.buffer)&&EQEDIT.caret(e,-1)){paint();return}EQEDIT.move(e,0,-1,state);releaseModifier();paint();return}
+  if(key==='RIGHT'){if(e.editing&&/[()*/^a-z]/i.test(e.buffer)&&EQEDIT.caret(e,1)){paint();return}EQEDIT.move(e,0,1,state);releaseModifier();paint();return}
   if(key==='DEL'){EQEDIT.backspace(e);releaseModifier();paint();return}
   if(key==='EQUAL'){
-   const done=EQEDIT.next(e);releaseModifier();
+   const done=EQEDIT.next(e,state);releaseModifier();
    if(done)eqnSolve();else paint();
    return;
   }
   if(key==='NEG'){EQEDIT.sign(e);releaseModifier();paint();return}
-  let token=null;
-  if(/^[0-9]$/.test(key))token=key;
-  else if(key==='DOT')token='.';
-  else if(key==='EXP')token='E';
-  else if(key==='SUB')token='-';
-  else if(key==='ADD')token='+';
-  else if(key.startsWith('TEXT:')&&/^[0-9.Ee+-]$/.test(key.slice(5)))token=key.slice(5);
+  const tokens={DOT:'.',EXP:'E',SUB:'-',ADD:'+',MUL:'*',DIV:'/',FRAC:'/',
+   LP:'(',RP:')',SQRT:'sqrt(',POWER:'^',SQUARE:'^2',RECIP:'^(-1)',
+   SIN:'sin(',COS:'cos(',TAN:'tan(',LOG:'log(',LN:'ln(',ANS:'Ans'};
+  let token=/^[0-9]$/.test(key)?key:tokens[key]??null;
+  if(key.startsWith('TEXT:')&&/^[0-9.Ee+\-*/^(),]$/.test(key.slice(5)))token=key.slice(5);
   if(token!==null){EQEDIT.enter(e,token);releaseModifier();paint();return}
   releaseModifier();notify('Unsupported EQN coefficient operation',true);paint();
  }catch(err){
