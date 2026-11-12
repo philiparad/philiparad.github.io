@@ -38,4 +38,17 @@ const pTable=render({mode:'TABLE',screen:'prompt',flow:{
 assert.equal(get(pTable,2,9),0,'f glyph starts with a clear pixel');
 assert.ok(pTable.slice(9*W,15*W).some(Boolean),'TABLE first prompt f(X)=');
 assert.equal(pTable.slice(0,8*W).reduce((a,b)=>a+b,0),0,'TABLE blank formula has no engineering title');
+const initialMatrix={name:'MatA',row:0,col:0,buffer:'0',
+ matrix:{rows:3,cols:3,data:[[0,0,0],[0,0,0],[0,0,0]]}};
+const pMatrix=render({model:'fx-991es-plus-c',mode:'MATRIX',
+ screen:'matrix-table',matrixEditor:initialMatrix});
+assert.ok(count(pMatrix)>140,'native-style matrix grid with headings, brackets and zeros');
+assert.equal(get(pMatrix,13,6),1,'3×3 bracket starts at x=13');
+assert.equal(get(pMatrix,94,6),1,'right bracket edge');
+assert.ok(pMatrix.slice(25*W,31*W).some(Boolean),'selected value at lower right');
+const pLegacyMatrix=render({model:'fx-991es-plus',mode:'MATRIX',
+ screen:'matrix-table',matrixEditor:initialMatrix});
+assert.ok(count(pLegacyMatrix)>80,'older edition keeps original documented simulator editor');
+assert.ok(pLegacyMatrix.some((value,index)=>value!==pMatrix[index]),
+ 'plus-c emulator layout is separate from other models');
 console.log('PLUS C emulator-derived LCD menu and prompt geometry checks passed');
