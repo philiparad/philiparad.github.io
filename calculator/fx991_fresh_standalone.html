@@ -1363,7 +1363,7 @@ function prepare(source,modelRegisters,mode='COMP',current={}){
  const parts=statementParts(source),segments=parts.map(equality);
  const allowed=new Set(modelRegisters);
  // An equality label uses a physical register too; unsupported E/F on
- // the original fx-991ES must never slip through as a free output name.
+ // Variables used as output symbols must not be silently accepted as free output names.
  for(const item of segments)if(item.target&&!allowed.has(item.target))
   throw Error('Variable ERROR: '+item.target);
  const output=String(source);
@@ -1724,7 +1724,7 @@ function location(source,message){
  }
  return s.length;
 }
-// The original ES allocates separate numeric (10) and command (24)
+// The PLUS architecture uses separate numeric (10) and command (24)
 // stacks. This preflight counts active parenthesized/function commands;
 // the numerical parser separately checks live deferred operands/operators.
 // CMPLX uses two numeric slots per value, hence five effective slots.
@@ -1768,7 +1768,7 @@ const scienceSpec=[
 ];
 const numericSpec=[
  ['7','7','CONST',''],['8','8','CONV',''],['9','9','CLR',''],['DEL','DEL','INS',''],['AC','AC','OFF',''],
- ['4','4','MATRIX',''],['5','5','VECTOR',''],['6','6','VERIFY',''],['MUL','×','nPr',''],['DIV','÷','nCr',''],
+ ['4','4','MATRIX',''],['5','5','VECTOR',''],['6','6','',''],['MUL','×','nPr',''],['DIV','÷','nCr',''],
  ['1','1','STAT',''],['2','2','CMPLX',''],['3','3','BASE',''],['ADD','+','Pol',''],['SUB','−','Rec',''],
  ['0','0','Rnd',''],['DOT','.','Ran#','RanInt'],['EXP','×10ˣ','π','e'],['ANS','Ans','DRG▶','PreAns'],['EQUAL','=','','']
 ];
@@ -1776,7 +1776,7 @@ const numericSpec=[
 // Geometry remains screenshot-derived and is NOT an original hardware measurement.
 const MODEL_LEGENDS=Object.freeze({
  'fx-991es-plus':Object.freeze({
-  '6':{shift:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
+  INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
   SQRT:{alpha:''},ANS:{alpha:''},DOT:{alpha:'RanInt'},
   DMS:{shift:'FACT'}
  })
@@ -1785,7 +1785,7 @@ function keyForModel(key,model){
  const overrides=MODEL_LEGENDS['fx-991es-plus'][key.id];
  return overrides?Object.freeze({...key,...overrides}):key;
 }
-function keysForModel(model){return Object.freeze(keys.map(key=>keyForModel(key,model)))}
+function keysForModel(model='fx-991es-plus'){if(model!=='fx-991es-plus')throw Error('Unsupported calculator model');return Object.freeze(keys.map(key=>keyForModel(key,model)))}
 const pct=(n)=>((100*n).toFixed(4))+'%';
 const newKey=(data,cx,cy,w,h,group,angle)=>Object.freeze({id:data[0],label:data[1],shift:data[2],alpha:data[3],cx,cy,w,h,group,angle:angle||null});
 const topCenters=[[39.83,220.67],[75.60,220.60],[108.21,238.61],[136.38,219.65],[136.46,257.52],[164.48,238.54],[196.81,220.66],[232.60,220.60]];
@@ -3420,7 +3420,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;
 </script>
     <script data-source="js/setup.js">
 /* REA-012: documented SETUP menu structure, separate from calculation MODE.
- * Official CASIO fx-991ES/PLUS/PLUS C manuals; firmware and LCD parity unverified.
+ * Reference: CASIO fx-991ES PLUS second-edition manual; hardware parity unverified.
  */
 (function(global){'use strict';
 const SETUP_PAGE_1=Object.freeze([
@@ -4383,9 +4383,9 @@ if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshConversions
 })(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/menu-model.js">
-/* REA-065 — CASIO ES-family model-specific 96x31 LCD menu behavior.
+/* CASIO fx-991ES PLUS second-edition 96x31 logical LCD menu behavior.
  * Navigation: UP/DOWN between pages; number keys select local page items.
- * Reference: CASIO fx-991ES / ES PLUS / ES PLUS C printed manuals.
+ * Reference: CASIO fx-991ES PLUS manufacturer user guide.
  */
 (function(g){'use strict';
 const RULES=Object.freeze({
@@ -4790,7 +4790,7 @@ function numeric(value,label){
  if(String(value).trim()===''||!Number.isFinite(n))fail('Argument ERROR');
  return n;
 }
-// REA-093: original fx-991ES TABLE accepts scalar f(X), not calculus,
+// CASIO PLUS TABLE accepts scalar f(X), not calculus,
 // coordinate conversion or a sequence of statements. Check before generation.
 function validateExpression(source){
  const expr=String(source).trim();
@@ -6460,7 +6460,7 @@ function eqnPage(delta,exitAtEnd=false){
   if(exitAtEnd){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint()}
   return;
  }
- // On the original fx-991ES, = at the final solution returns to the
+ // At the last EQN result, = returns to the
  // coefficient grid; arrow keys only scroll between available solutions.
  if(exitAtEnd&&e.index+delta>=e.solutions.length){
   EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return;
@@ -7170,7 +7170,7 @@ function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
  if(state.remainderResult||state.coordinateResult)return;
  // PLUS uses fraction/decimal conversion without recurring-cycle mode.
- // Original ES and standard PLUS always use ordinary fraction/decimal.
+ // The supported PLUS uses ordinary fraction/decimal conversion.
  const candidate=RESULTS.calculate(state.raw,state.resultSource||state.input,
   {...state,fractionStyle:state.resultFractionStyle||state.fractionStyle},{
    exactRational:state.ansRational,forceFraction:true,allowApproxRational:false
