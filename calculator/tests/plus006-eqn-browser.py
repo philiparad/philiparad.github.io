@@ -10,7 +10,7 @@ from playwright.async_api import async_playwright
 ROOT=Path(__file__).resolve().parents[2]
 FILES=('index.html','fx991_fresh_standalone.html')
 CASES=(
- ('1',(('SQRT','9','RP'),('1',),('3',),('1',),('NEG','1'),('1',)),'LINEAR2',2),
+ ('1',(('SQRT','9','RP'),('1',),('3',),('1',),('NEG','1'),('1',)),'LINEAR2',1),
  ('2',(('1',),('0',),('0',),('2',),('0',),('1',),('0',),('3',),
        ('0',),('0',),('1',),('4',)),'LINEAR3',2),
  ('3',(('SQRT','9','RP'),('0',),('NEG','1','2')),'QUAD',-2),
