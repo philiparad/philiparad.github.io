@@ -103,6 +103,7 @@ def main():
                       return {model:state.model,mode:state.mode,screen:state.screen,
                         raw:state.raw,result:state.result,input:state.input,
                         shift:state.shift,alpha:state.alpha,menuPage:state.menuPage,
+                        angle:state.angle,math:state.math,
                         info:state.info,menuEntries:state.menuEntries,
                         recording:state.recording,keylog:state.keylog,
                         keyCount:document.querySelectorAll('#keys button[data-key]').length,
