@@ -361,9 +361,8 @@ function evaluate(source,options={}){
   let left=primary();
   while(at<tokens.length&&peek()!==')'){
    const t=peek(),implicit=t==='('||t==='Ans'||t==='PreAns'||/^[0-9.]/.test(t);
-   // Original fx-991ES: omitted multiplication equals × / ÷.
-   // PLUS and PLUS C: omitted multiplication binds more strongly.
-   const implicitPriority=options.model==='fx-991es-plus'||options.model==='fx-991es-plus-c'?24:20;
+   // fx-991ES PLUS: omitted multiplication binds more strongly.
+   const implicitPriority=24;
    const op=implicit?'*':t,bp=implicit?implicitPriority:{'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(bp===undefined||bp<min)break;
    if(!implicit)at++;
@@ -457,10 +456,9 @@ function evaluate(expression,opts={}){
    // REA-105: implicit and explicit multiplication/division share precedence.
    // A number after a closing parenthesis also denotes multiplication.
    const t=peek(),implicit=t==='('||/^[0-9.]/.test(t),op=implicit?'*':t;
-   // The original ES uses one left-to-right multiply/divide tier.
-   // PLUS and PLUS C manuals elevate omitted-sign multiplication above ÷.
+   // fx-991ES PLUS elevates omitted-sign multiplication above division.
    const priority=implicit?
-    (opts.model==='fx-991es-plus'||opts.model==='fx-991es-plus-c'?24:20):
+    24:
     {'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(priority===undefined||priority<min)break;
    if(!implicit)at++;
@@ -763,38 +761,6 @@ function checkedHyperbolic(name,x){
  return result;
 }
 
-const INTEGER_FUNCTION_LIMIT=1e10;
-function validatedInteger(n,allowNegative){
- if(!Number.isInteger(n)||!Number.isFinite(n)||
-    Math.abs(n)>=INTEGER_FUNCTION_LIMIT||(!allowNegative&&n<0))fail('Math ERROR');
- return BigInt(n);
-}
-function exactGcd(a,b){
- a=a<0n?-a:a;b=b<0n?-b:b;
- while(b!==0n){const r=a%b;a=b;b=r}
- return a;
-}
-function gcdFunction(args){
- if(args.length!==2)fail('Syntax ERROR');
- const a=validatedInteger(args[0],true),b=validatedInteger(args[1],true);
- if(a===0n&&b===0n)fail('Math ERROR');
- return Number(exactGcd(a,b));
-}
-function lcmFunction(args){
- if(args.length!==2)fail('Syntax ERROR');
- const a=validatedInteger(args[0],false),b=validatedInteger(args[1],false);
- if(a===0n||b===0n)return 0;
- const exact=(a/exactGcd(a,b))*b;
- if(exact>=10n**100n)fail('Math ERROR');
- return Number(Number(exact).toPrecision(15));
-}
-function integerPart(args,largest){
- if(args.length!==1)fail('Syntax ERROR');
- const x=args[0];
- if(!Number.isFinite(x)||Math.abs(x)>9.999999999e99)fail('Math ERROR');
- const value=largest?Math.floor(x):Math.trunc(x);
- return value===0?0:value;
-}
 // REA-036: injectable randomness and reproducible test sequences.
 // This seeded generator is for tests only, not a representation of CASIO's PRNG.
 function createSeededRandom(seed){
@@ -882,72 +848,13 @@ function tokenize(source){
 // REA-037: finite product Π with an explicit optional web step.
 // CASIO's native Π(expr,a,b) always uses integer step 1.
 // The fourth argument is a labeled educational extension.
-const PRODUCT_TERM_LIMIT=20000;
-function splitProductArguments(body){
- let depth=0,start=0,parts=[];
- for(let i=0;i<body.length;i++){
-  if(body[i]==='(')depth++;
-  else if(body[i]===')'){depth--;if(depth<0)fail('Syntax ERROR')}
-  else if(body[i]===','&&depth===0){parts.push(body.slice(start,i).trim());start=i+1}
- }
- if(depth!==0)fail('Syntax ERROR');
- parts.push(body.slice(start).trim());
- if(parts.some(x=>!x)||parts.length<3||parts.length>4)fail('Syntax ERROR');
- return parts;
-}
-function parseProduct(source){
- const text=String(source).trim();
- const match=/^(?:Prod|Product|Π)\(/i.exec(text);
- if(!match)return null;
- let depth=1,close=-1;
- for(let i=match[0].length;i<text.length;i++){
-  if(text[i]==='(')depth++;
-  else if(text[i]===')'){depth--;if(depth===0){close=i;break}}
- }
- if(close!==text.length-1)fail('Syntax ERROR');
- const parts=splitProductArguments(text.slice(match[0].length,-1));
- return {expression:parts[0],a:parts[1],b:parts[2],step:parts[3]||'1'};
-}
-function finiteProduct(parts,opts){
- // Do not permit nested series, derivative/integral, or vector transforms.
- const prohibited=/\b(?:Prod|Product|Pol|Rec)\s*\(|[ΠΣ∫]|÷R|\bd\/dx\b/i;
- if(prohibited.test(parts.expression)||[parts.a,parts.b,parts.step].some(s=>prohibited.test(s)))
-  fail('Syntax ERROR');
- const lower=evaluate(parts.a,opts);
- const upper=evaluate(parts.b,opts);
- const step=evaluate(parts.step,opts);
- if(![lower,upper,step].every(Number.isSafeInteger)||
-    Math.abs(lower)>=1e10||Math.abs(upper)>=1e10||
-    step<1||step>=1e10||lower>upper)fail('Argument ERROR');
- const count=Math.floor((upper-lower)/step)+1;
- if(count>PRODUCT_TERM_LIMIT)fail('Argument ERROR');
- let result=1;
- for(let i=0;i<count;i++){
-  const x=lower+i*step;
-  const item=evaluate(parts.expression,{...opts,memory:{...(opts.memory||{}),X:x}});
-  if(!Number.isFinite(item))fail('Math ERROR');
-  result*=item;
-  if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
- }
- return result;
-}
 function evaluate(source,opts={}){
- // REA-098: original ES supports Ran# but not PLUS RanInt#.
- if(opts.model==='fx-991es'&&/\bRanInt#?\s*\(/i.test(String(source)))
-  fail('Argument ERROR');
  // Validate the command-stack budget before the optional decimal fast path.
  // That optimizer must not bypass the original hardware nesting limit.
  let commandDepth=0;
  for(const ch of String(source)){
   if(ch==='('&&++commandDepth>24)fail('Stack ERROR');
   if(ch===')'&&--commandDepth<0)fail('Syntax ERROR');
- }
- const series=parseProduct(source);
- if(series){
-  // Three-model reference: Π product is documented for PLUS C, not the
-  // original ES or standard PLUS. Unspecified model retains legacy API.
-  if(opts.model==='fx-991es'||opts.model==='fx-991es-plus')fail('Argument ERROR');
-  return finiteProduct(series,opts);
  }
  if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
@@ -963,7 +870,7 @@ function evaluate(source,opts={}){
  }
  const st={...SETTINGS,...opts};const memory=opts.memory||{};
  const raw=tokenize(source);
- // Casio original: numeric stack 10 levels, command stack 24 levels.
+ // fx-991ES PLUS: numeric stack 10 levels, command stack 24 levels.
  let numericSlots=0,commandSlots=0;
  const enterCommand=()=>{if(++commandSlots>24)fail('Stack ERROR')};
  const leaveCommand=()=>{commandSlots--};
@@ -972,22 +879,11 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['p','q','r','nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,...memory};
- // Original model does not expose the newer E/F variable registers.
- if(opts.model==='fx-991es'){delete variables.E;delete variables.F}
  function call(name,args){
   const x=args[0];const unit=st.angle;
   switch(name.toLowerCase()){
-   case 'p':
-   case 'q':
-   case 'r':
-    // REA-101–103: P(t), signed Q(t), and R(t) belong to original STAT 1-VAR.
-    // Reject COMP, other STAT types and the PLUS / PLUS C model profiles.
-    if(!opts.statOriginalDistr||opts.model!=='fx-991es'||
-       opts.mode!=='STAT'||args.length!==1)fail('Argument ERROR');
-    if(!global.FreshStatNormal)fail('Math ERROR');
-    return global.FreshStatNormal.calculate(name.toUpperCase(),x);
    case 'sin':case 'cos':case 'tan':return checkedTrig(name.toLowerCase(),x,unit);
    case 'asin':case 'acos':case 'atan':return checkedInverseTrig(name.toLowerCase(),x,unit);
    case 'sinh':case 'cosh':case 'tanh':
@@ -1014,15 +910,6 @@ function evaluate(source,opts={}){
    case 'sqrt':if(x<0)fail('Math ERROR');return Math.sqrt(x);
    case 'cbrt':return Math.cbrt(x);
    case 'abs':return Math.abs(x);
-   // PLUS C 2nd edition guide adds GCD, LCM, Int and Intg. They are
-   // not printed commands in the original and standard PLUS guides.
-   case 'gcd':case 'lcm':case 'int':case 'intg':{
-    if(opts.model==='fx-991es'||opts.model==='fx-991es-plus')fail('Argument ERROR');
-    const kind=name.toLowerCase();
-    if(kind==='gcd')return gcdFunction(args);
-    if(kind==='lcm')return lcmFunction(args);
-    return integerPart(args,kind==='intg');
-   }
    case 'exp':return Math.exp(x);case 'floor':return Math.floor(x);case 'ceil':return Math.ceil(x);
    case 'round':return Math.round(x);
    case 'rnd':if(args.length!==1)fail('Syntax ERROR');return roundCalculated(x,st);
@@ -1046,17 +933,10 @@ function evaluate(source,opts={}){
   fail('Syntax ERROR');
  }
  function expr(min){let left=primary();while(true){const t=peek();if(!t||t.value===')'||t.value===',')break;
-  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='r'||t.value==='g'||t.value==='′'||t.value==='″'||t.value==='▶t'){
+  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='r'||t.value==='g'||t.value==='′'||t.value==='″'){
    if(45<min)break;
    take();
    if(t.value==='!')left=factorial(left);
-   else if(t.value==='▶t'){
-    // REA-104: manufacturer postfix X▶t, precedence alongside factorial.
-    if(opts.model!=='fx-991es'||opts.mode!=='STAT'||!opts.statOriginalDistr)
-     fail('Argument ERROR');
-    if(!global.FreshStatNormal)fail('Math ERROR');
-    left=global.FreshStatNormal.normalized(left,opts.statSummary);
-   }
    else if(t.value==='%')left=left/100;
    else if(t.value==='r'||t.value==='g'){
     left=fromRadians(toRadians(left,t.value==='r'?'RAD':'GRAD'),st.angle);
@@ -1065,8 +945,8 @@ function evaluate(source,opts={}){
   }
   const implicit=begin(t);const operator=implicit?'*':t.value;
   // Implicit and explicit multiplication share Priority 8, left-to-right.
-  // Original ES: same priority. PLUS and PLUS C: omitted-sign higher.
-  const implicitPriority=opts.model==='fx-991es-plus'||opts.model==='fx-991es-plus-c'?24:20;
+  // fx-991ES PLUS: omitted-sign multiplication binds more strongly.
+  const implicitPriority=24;
   const binding=implicit?implicitPriority:{'nPr':22,'nCr':22,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
   if(binding===undefined||binding<min)break;
   if(!implicit)take();holdNumber();enterCommand();
@@ -1198,7 +1078,7 @@ function quadratic(a,b,c){if(a===0){if(b===0)fail('Math ERROR');return [-c/b]}co
 function matrixSolve(rows){const n=rows.length;const m=rows.map(r=>r.slice());for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;[m[i],m[pivot]]=[m[pivot],m[i]];if(Math.abs(m[i][i])<1e-12)fail('Math ERROR');const d=m[i][i];for(let k=i;k<=n;k++)m[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){const f=m[j][i];for(let k=i;k<=n;k++)m[j][k]-=f*m[i][k]}}return m.map(row=>row[n])}
 function descriptiveStats(data){if(!data.length)fail('Argument ERROR');const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n,variance=data.reduce((a,b)=>a+(b-mean)**2,0)/n;return {n,sum:data.reduce((a,b)=>a+b,0),mean,variance,sd:Math.sqrt(variance),sampleSD:n>1?Math.sqrt(variance*n/(n-1)):null,min:Math.min(...data),max:Math.max(...data)}}
 function parseNumbers(text){const vals=String(text).split(/[,;\s]+/).filter(Boolean).map(Number);if(!vals.length||vals.some(n=>!Number.isFinite(n)))fail('Argument ERROR');return vals}
-const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,parseProduct,finiteProduct,summation,numericTolerance,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
+const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,summation,numericTolerance,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
 global.FreshMath=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
@@ -1316,7 +1196,6 @@ function evaluate(expression,options={}){
  const vars={pi:complex(Math.PI),e:complex(Math.E),i:complex(0,1),
   Ans:value(options.ans??0),PreAns:value(options.preAns??0)};
  for(const [key,item] of Object.entries(memory)){
-  if(options.model==='fx-991es'&&(key==='E'||key==='F'))continue;
   vars[key]=value(item);
  }
  let at=0;
@@ -1945,28 +1824,17 @@ const numericSpec=[
  ['1','1','STAT',''],['2','2','CMPLX',''],['3','3','BASE',''],['ADD','+','Pol',''],['SUB','−','Rec',''],
  ['0','0','Rnd',''],['DOT','.','Ran#','RanInt'],['EXP','×10ˣ','π','e'],['ANS','Ans','DRG▶','PreAns'],['EQUAL','=','','']
 ];
-// REA-070: painted legends follow selected model, not the shared PLUS C face.
+// Single physical key-label inventory for the fx-991ES PLUS.
 // Geometry remains screenshot-derived and is NOT an original hardware measurement.
 const MODEL_LEGENDS=Object.freeze({
- 'fx-991es':Object.freeze({
-  CALC:{alpha:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
-  COS:{alpha:''},TAN:{alpha:''},
-  '6':{shift:''},DOT:{alpha:''},ANS:{alpha:''},
-  FRAC:{alpha:''},SQRT:{alpha:''},DMS:{shift:''},
-  LP:{shift:''},RP:{shift:''}
- }),
  'fx-991es-plus':Object.freeze({
   '6':{shift:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
   SQRT:{alpha:''},ANS:{alpha:''},DOT:{alpha:'RanInt'},
   DMS:{shift:'FACT'}
- }),
- 'fx-991es-plus-c':Object.freeze({
-  '6':{shift:'VERIFY'},DOT:{alpha:'RanInt'},INTEGRAL:{alpha:'Π'},
-  LOGBASE:{alpha:'Π flow'},SQRT:{alpha:'Rdec'},ANS:{alpha:'PreAns'}
  })
 });
 function keyForModel(key,model){
- const overrides=(MODEL_LEGENDS[model]||MODEL_LEGENDS['fx-991es-plus-c'])[key.id];
+ const overrides=MODEL_LEGENDS['fx-991es-plus'][key.id];
  return overrides?Object.freeze({...key,...overrides}):key;
 }
 function keysForModel(model){return Object.freeze(keys.map(key=>keyForModel(key,model)))}
@@ -2040,7 +1908,7 @@ function applyContext(root,state,policy,profiles){
    modifier+' '+(action.legend||key.label)+': '+action.reason);
  }
 }
-function mount(root,handler,model='fx-991es-plus-c'){
+function mount(root,handler,model='fx-991es-plus'){
  if(!root)return;
  root.textContent='';const fragment=document.createDocumentFragment();
  for(const key of keysForModel(model)){
@@ -2066,8 +1934,8 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
  * This is a source-grounded WEB-model audit, not a CASIO firmware audit.
  */
 (function(global){'use strict';
-const MODELS=['fx-991es','fx-991es-plus','fx-991es-plus-c'];
-const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR','INEQ','VERIF','DIST'];
+const MODELS=['fx-991es-plus'];
+const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR'];
 const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating',
  'contrast','constant-code','conversion-code','stat-table','eqn-coeff','eqn-result',
  'ineq-coeff','ineq-result','matrix-table','matrix-expression','matrix-parameter',
@@ -2085,7 +1953,7 @@ const SHIFT_EDITOR=new Set(['INTEGRAL','LOGBASE','FRAC','SQRT','SQUARE','POWER',
  'DOT','0']);
 const SHIFT_RESULT=new Set(['SD','ENG','DMS']);
 const GLOBAL_SHIFT=new Set(['AC','MODE','RCL','DEL','7','8','9','1','2','3','4','5','6','CALC','ANS','MPLUS']);
-const MODE_CHANGE={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};
+const MODE_CHANGE={};
 function legend(key,modifier){
  // Top-row and d-pad 'alpha' metadata in the physical geometry describes
  // their key group, not an ALPHA legend (REA-070 legacy key shape).
@@ -2138,8 +2006,7 @@ function context(key,modifier,mode,screen,model,supports){
    return {status:supports(model,target)?'available':'blocked',
     reason:supports(model,target)?'Mode shortcut':'Mode not supported by selected model'};
   }
-  if(key.id==='6')return {status:model==='fx-991es-plus-c'?'available':'blocked',reason:'VERIF is PLUS C only'};
-  if(key.id==='CALC'||key.id==='INTEGRAL'||key.id==='LOGBASE'){
+   if(key.id==='CALC'||key.id==='INTEGRAL'||key.id==='LOGBASE'){
    return {status:mode==='COMP'?'available':'blocked',reason:'COMP-only SOLVE/calculus'};
   }
   if(key.id==='ANS')return {status:mode==='COMP'?'available':'blocked',
@@ -2170,7 +2037,7 @@ function context(key,modifier,mode,screen,model,supports){
   }
   if(['COS','TAN','NEG','DMS','HYP','SIN','LP','RP','MPLUS'].includes(key.id)){
    const register={COS:'E',TAN:'F',NEG:'A',DMS:'B',HYP:'C',SIN:'D',LP:'X',RP:'Y',MPLUS:'M'}[key.id];
-   return {status:model==='fx-991es'&&['E','F'].includes(register)?'blocked':'available',
+   return {status:'available',
     reason:'Register '+register};
   }
   if(ALPHA_EDITOR.has(key.id))return {status:NORMAL_MODES.has(mode)?'available':'blocked',
@@ -2405,14 +2272,11 @@ function rasterize(state){
   write('LEVEL '+String(state.contrast??5),24,22);
   return finish();
  }
- // CASIO MODE/SETUP/STAT/DIST menus: local 1–8 keys, 2 columns,
+ // CASIO MODE/SETUP/STAT menus: local 1–8 keys, 2 columns,
  // four rows, UP/DOWN page flags. Side-by-side LCD keys are underlined.
  if(state.pendingMemory){
   write(state.pendingMemory==='STO'?'STO':'RCL',0,0);
-  // REA-072: original fx-991ES has no E/F register (REA-069).
-  const names=state.model==='fx-991es'?
-   ['A','B','C','D','X','Y','M']:
-   ['A','B','C','D','E','F','X','Y','M'];
+  const names=['A','B','C','D','E','F','X','Y','M'];
   for(let i=0;i<names.length;i++){
    const col=i%3,row=Math.floor(i/3);
    write(names[i],col*32+10,9+row*7,col*32+32);
@@ -2425,7 +2289,7 @@ function rasterize(state){
   const title=menu?menu.displayTitle(kind,state.menuTitle):
     String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
   const entries=state.menu||[],size=state.menuPageSize||6;
-  // Emulator-reference LCD observations (PLUS C, 2026-11-12):
+  // LCD observation note (screen details require PLUS hardware confirmation):
   // first MODE page uses inverse boxed digits without a "MODE" heading.
   if(kind==='mode'&&state.menuPage===0){
    const colWidth=48;
@@ -2572,34 +2436,6 @@ function rasterize(state){
   const e=editing?state.matrixEditor:state.matrixView;
   if(!e)return finish();
   const m=editing?e.matrix:e.matrix;
-  // Screenshot-derived PLUS C matrix editor: alphabetic a/b/c headings,
-  // 1/2/3 row markers, bracketed grid, and inverse selected entry.
-  // Other editions keep the established generic layout until references exist.
-  if(editing&&state.model==='fx-991es-plus-c'){
-   const xs=m.cols===3?[24,52,78]:m.cols===2?[33,68]:[51];
-   const ys=m.rows===3?[8,15,22]:m.rows===2?[12,20]:[16];
-   const top=ys[0]-2,bottom=Math.min(H-2,ys[ys.length-1]+5);
-   for(let col=0;col<m.cols;col++)write('abc'[col],xs[col],0);
-   // Square brackets mimic the native 3×3 editor without pretending
-   // these pixels were extracted from proprietary ROM assets.
-   for(let yy=top;yy<=bottom;yy++){pixel(13,yy);pixel(94,yy)}
-   for(let xx=13;xx<=17;xx++){pixel(xx,top);pixel(xx,bottom)}
-   for(let xx=90;xx<=94;xx++){pixel(xx,top);pixel(xx,bottom)}
-   for(let row=0;row<m.rows;row++){
-    const y=ys[row];write(String(row+1),1,y);
-    for(let col=0;col<m.cols;col++){
-     const x=xs[col],selected=row===e.row&&col===e.col;
-     const text=String(selected?e.buffer:m.data[row][col]).slice(-Math.max(1,m.cols===3?4:6));
-     if(selected){
-      for(let dy=-1;dy<6;dy++)for(let dx=-2;dx<Math.min(18,Math.max(8,text.length*4+2));dx++)pixel(x+dx,y+dy);
-      for(let k=0;k<text.length;k++)glyph(text[k],x+k*4,y,true);
-     }else write(text,x,y,Math.min(W-1,x+22));
-    }
-   }
-   const selectedText=String(e.buffer).slice(-8);
-   write(selectedText,Math.max(0,W-selectedText.length*4),25);
-   return finish();
-  }
   const cwidth=m.cols===3?6:m.cols===2?9:19;
   const x0=m.cols===3?12:m.cols===2?18:12;
   const gap=m.cols===3?27:m.cols===2?42:0;
@@ -2619,43 +2455,6 @@ function rasterize(state){
   }
   const selectedValue=editing?e.buffer:String(m.data[e.row][e.col]);
   if(m.rows<3||e.error)write((e.error||selectedValue).slice(-23),0,29);
-  return finish();
- }
- // REA-059: native INEQ coefficient cells and special-case result cards.
- if(state.screen==='ineq-coeff'&&state.ineqEditor){
-  const item=state.ineqEditor,e=item.coefficients;
-  const cols=e.rows[0].length,gap=cols===4?22:28,offset=cols===4?9:13;
-  const key=e.rows[e.row][e.col],value=e.editing?e.buffer:String(e.values[key]);
-  const heading=e.error?'INEQ ERR '+e.error:'INEQ '+item.degree+' '+item.operator+' 0';
-  write(heading.slice(-23),0,0);
-  write((key.toUpperCase()+' = '+value).slice(-23),0,9);
-  for(let c=0;c<cols;c++){
-   const name=e.rows[0][c];
-   write(name.toUpperCase(),offset+c*gap,18);
-   const selected=e.row===0&&e.col===c,txt=selected?value:String(e.values[name]);
-   const width=cols===4?4:6;
-   write(txt.slice(-width),offset+c*gap,25,Math.min(W,offset+c*gap+width*4));
-   if(selected){
-    const end=Math.min(W-1,offset+c*gap+Math.max(1,Math.min(width,txt.length))*4-1);
-    for(let x=offset+c*gap;x<=end;x++)pixel(x,30);
-   }
-  }
-  return finish();
- }
- if(state.screen==='ineq-result'&&state.ineqSession){
-  const sess=state.ineqSession;
-  const current=sess.pages[sess.index]||sess.pages[0];
-  write('INEQ '+sess.degree+' '+sess.operator+' 0',0,0);
-  const status=current.kind==='empty'?'NO SOLUTION':current.kind==='all'?'ALL REAL X':
-   current.kind==='point'?'EQUALITY ROOT':'SOLUTION '+(sess.index+1);
-  write(status.slice(0,23),0,9);
-  const text=String(current.text).replace(/All Real Numbers/g,'All Real X');
-  if(text.length<=23)write(text,0,25);
-  else{
-   write(text.slice(0,23),0,19);
-   write(text.slice(23,46),0,25);
-  }
-  if(sess.pages.length>1)write((sess.index+1)+'/'+sess.pages.length,80,0);
   return finish();
  }
  if(state.screen==='eqn-coeff'&&state.eqnEditor){
@@ -2754,41 +2553,7 @@ function rasterize(state){
   write((prefix+value).slice(-23),0,25);
   return finish();
  }
- // REA-062: DIST List X/Ans tabular LCD view with highlighted cell.
- if(state.screen==='dist-list'&&state.distList){
-  const e=state.distList,rows=e.samples;
-  const kind=e.type.replace('binomial','BIN').replace('poisson','POI').replace('-pd',' PD').replace('-cd',' CD');
-  write(('DIST '+kind).slice(0,22),0,0);
-  write('X',8,7);write('Ans',52,7);
-  const limit=rows.length<25?rows.length+1:rows.length;
-  const top=Math.max(0,Math.min(Math.max(0,limit-2),e.row-1));
-  for(let index=top;index<Math.min(limit,top+2);index++){
-   const y=14+(index-top)*8;
-   const sample=index<rows.length?rows[index]:null;
-   const sampleText=e.editing&&index===e.row?e.buffer:sample===null?'_':global.FreshDistList.format(sample);
-   const answer=e.calculated&&index<e.answers.length?global.FreshDistList.format(e.answers[index]):'';
-   write((index+1)+':',0,y);
-   write(sampleText.slice(-8),8,y,43);
-   write(answer.slice(-10),52,y,94);
-   if(index===e.row){
-    const start=e.column===0?8:52,end=e.column===0?43:94;
-    for(let x=start;x<end;x++)pixel(x,Math.min(30,y+6));
-   }
-  }
-  const active=e.column===0?(e.editing?e.buffer:rows[e.row]):e.answers[e.row];
-  const detail=e.error||((e.column===0?'X':'Ans')+'='+((active===undefined||active===null)?'':global.FreshDistList.format(Number(active))));
-  write(detail.slice(-23),0,29);
-  return finish();
- }
- if(state.screen==='conversion-code'&&state.conversionCode){
-  write('CONVERSION',0,0);
-  write('Number 01-40?',0,10);
-  const editor=state.conversionCode;
-  write((editor.buffer||'_')+(editor.buffer.length===1?'_':''),80,25);
-  if(editor.error)write(editor.error.slice(0,22),0,18);
-  return finish();
- }
-  if(state.screen==='constant-code'&&state.constantCode){
+ if(state.screen==='constant-code'&&state.constantCode){
   write('CONSTANT',0,0);
   write('Number 01-40?',0,10);
   const editor=state.constantCode;
@@ -3029,48 +2794,24 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/model-profiles.js">
-/* REA-007: explicit CASIO model profiles grounded in model-specific manuals.
- * This is a capability/menu inventory, not a statement of numeric emulator parity.
- * Native DLL emulator version and scan codes are not verified.
+/* Single-device capability definition: CASIO fx-991ES PLUS (2nd edition).
+ * Hardware parity remains subject to physical-key and LCD verification.
  */
 (function(global){'use strict';
-const common=Object.freeze(['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']);
-const extended=Object.freeze([...common,'INEQ','VERIF','DIST']);
-// REA-069: six ordinary registers plus independent M on the original fx-991ES.
-const REGISTERS=Object.freeze({
- 'fx-991es':Object.freeze(['A','B','C','D','X','Y','M']),
- 'fx-991es-plus':Object.freeze(['A','B','C','D','E','F','X','Y','M']),
- 'fx-991es-plus-c':Object.freeze(['A','B','C','D','E','F','X','Y','M'])
-});
-function registers(model){return REGISTERS[model]||REGISTERS['fx-991es-plus-c']}
-function hasRegister(model,name){return registers(model).includes(name)}
-// REA-098: explicit edition capabilities, not merely a shared keypad handler.
-const FEATURES=Object.freeze({
- 'fx-991es':Object.freeze(['ran','basic-stat']),
- 'fx-991es-plus':Object.freeze(['ran','ranint','basic-stat']),
- 'fx-991es-plus-c':Object.freeze(['ran','ranint','basic-stat','ineq','verif','dist','recurring','dual-table','gcd','lcm','int','intg','finite-product'])
-});
-function hasFeature(model,feature){
- return Object.prototype.hasOwnProperty.call(FEATURES,model)&&
-  FEATURES[model].includes(feature);
-}
-
+const MODEL='fx-991es-plus';
+const MODES=Object.freeze(['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']);
+const REGISTERS=Object.freeze(['A','B','C','D','E','F','X','Y','M']);
+const FEATURES=Object.freeze({[MODEL]:Object.freeze(['ran','ranint','basic-stat'])});
 const profiles=Object.freeze({
- 'fx-991es':Object.freeze({id:'fx-991es',label:'fx-991ES',edition:'original',
-   modes:common,manual:'https://support.casio.com/pdf/004/fx-115ES_991ES_Eng.pdf',
-   hardwareVerified:false}),
- 'fx-991es-plus':Object.freeze({id:'fx-991es-plus',label:'fx-991ES PLUS (2nd edition)',
-   edition:'2nd edition',modes:common,
-   manual:'https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/calculation_calculator/calculation_modes.html',
-   hardwareVerified:false}),
- 'fx-991es-plus-c':Object.freeze({id:'fx-991es-plus-c',label:'fx-991ES PLUS C (2nd edition)',
-   edition:'2nd edition C',modes:extended,
-   manual:'https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/calculation_calculator/calculation_modes.html',
-   hardwareVerified:false})
+ [MODEL]:Object.freeze({id:MODEL,label:'fx-991ES PLUS (2nd edition)',edition:'2nd edition',
+  modes:MODES,manual:'https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/',hardwareVerified:false})
 });
-function get(id){return profiles[id]||profiles['fx-991es-plus-c']}
-function supports(id,mode){return Object.prototype.hasOwnProperty.call(profiles,id)&&profiles[id].modes.includes(mode)}
-const api=Object.freeze({profiles,defaultModel:'fx-991es-plus-c',get,supports,registers,hasRegister,FEATURES,hasFeature});
+function get(){return profiles[MODEL]}
+function supports(id,mode){return id===MODEL&&MODES.includes(mode)}
+function registers(){return REGISTERS}
+function hasRegister(_id,name){return REGISTERS.includes(name)}
+function hasFeature(_id,feature){return FEATURES[MODEL].includes(feature)}
+const api=Object.freeze({MODEL,profiles,defaultModel:MODEL,get,supports,registers,hasRegister,FEATURES,hasFeature});
 global.FreshModels=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
@@ -3744,7 +3485,7 @@ const SETUP_PAGE_1=Object.freeze([
   {key:'7',label:'Sci',id:'sci'},
   {key:'8',label:'Norm',id:'norm'}
 ]);
-const SECOND_ORIGINAL=Object.freeze([
+const SECOND_PLUS=Object.freeze([
   {key:'1',label:'ab/c',id:'mixed'},
   {key:'2',label:'d/c',id:'improper'},
   {key:'3',label:'CMPLX',id:'complex'},
@@ -3752,25 +3493,13 @@ const SECOND_ORIGINAL=Object.freeze([
   {key:'5',label:'Disp',id:'disp'},
   {key:'6',label:'CONT',id:'contrast'}
 ]);
-const SECOND_PLUS=SECOND_ORIGINAL;
-const SECOND_C=Object.freeze([
-  ...SECOND_ORIGINAL.slice(0,4),
-  {key:'5',label:'TABLE',id:'table'},
-  {key:'6',label:'Rdec',id:'recurring'},
-  {key:'7',label:'Disp',id:'disp'},
-  {key:'8',label:'CONT',id:'contrast'}
-]);
-const ALL=Object.freeze({
- 'fx-991es':Object.freeze([SETUP_PAGE_1,SECOND_ORIGINAL]),
- 'fx-991es-plus':Object.freeze([SETUP_PAGE_1,SECOND_PLUS]),
- 'fx-991es-plus-c':Object.freeze([SETUP_PAGE_1,SECOND_C])
-});
+const ALL=Object.freeze({'fx-991es-plus':Object.freeze([SETUP_PAGE_1,SECOND_PLUS])});
 const DEFAULTS=Object.freeze({
  angle:'DEG',format:'Norm1',digits:3,math:true,outputMath:true,
  fractionStyle:'improper',complexFormat:'rectangular',statFrequency:false,
  tableFunctions:2,recurringDecimal:true,decimalSeparator:'dot',contrast:5
 });
-function pages(model){return ALL[model]||ALL['fx-991es-plus-c']}
+function pages(model){return ALL['fx-991es-plus']}
 function entries(model){return pages(model).flatMap((items,page)=>
  items.map(entry=>Object.freeze({...entry,page})))}
 function setting(model,id){return entries(model).find(entry=>entry.id===id)||null}
@@ -3784,8 +3513,6 @@ function options(id){
   norm:[['1','Norm1','norm1'],['2','Norm2','norm2']],
   complex:[['1','a+bi','rectangular'],['2','r∠θ','polar']],
   stat:[['1','ON','on'],['2','OFF','off']],
-  table:[['1','f(x)','single'],['2','f(x),g(x)','double']],
-  recurring:[['1','ON','on'],['2','OFF','off']],
   disp:[['1','Dot','dot'],['2','Comma','comma']]
  };
  return (mapping[id]||[]).map(([key,label,value])=>({key,label,value}));
@@ -4357,11 +4084,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
 /* REA-049 — independent BASE-N integer and conversion semantics. */
 (function(g){'use strict';
 const BASES=Object.freeze({DEC:10,BIN:2,OCT:8,HEX:16});
-const SPECS=Object.freeze({
- 'fx-991es':{BIN:16,DEC:32,OCT:32,HEX:32},
- 'fx-991es-plus':{BIN:16,DEC:32,OCT:32,HEX:32},
- 'fx-991es-plus-c':{BIN:16,DEC:32,OCT:32,HEX:32}
-});
+const SPECS=Object.freeze({'fx-991es-plus':{BIN:16,DEC:32,OCT:32,HEX:32}});
 function fail(message='Math ERROR'){throw Error(message)}
 function bits(base,model='fx-991es-plus'){const item=SPECS[model];if(!item||!item[base])fail('Argument ERROR');return item[base]}
 function range(base,model){
@@ -5151,81 +4874,28 @@ if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshDistList;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/scientific-constants.js">
-/* REA-094 — 40 scientific constant codes with manufacturer-sourced original values.
- * Original fx-991ES: Appendix #114 (ISO 1992 / CODATA 1998).
- * https://support.casio.com/pdf/004/fx-115ES_570ES.etc_Appendix.pdf
- * Original User's Guide p. E-65 explicitly cites these editions.
- * PLUS-family profiles remain separate legacy 2014 candidates; no assertion
- * of physical ROM parity for those devices is made here.
+/* fx-991ES PLUS 2nd edition: 40 scientific-constant input codes.
+ * Values require manufacturer-device parity review; source catalog retained.
  */
 (function(global){'use strict';
-const MODELS=Object.freeze({
- 'fx-991es':1998,'fx-991es-plus':2014,'fx-991es-plus-c':2014
-});
-const DATA=[["mp","proton mass","kg",1.672621898e-27,1.67262171e-27],["mn","neutron mass","kg",1.674927471e-27,1.67492728e-27],["me","electron mass","kg",9.10938356e-31,9.1093826e-31],["mμ","muon mass","kg",1.883531594e-28,1.8835314e-28],["a₀","Bohr radius","m",5.2917721067e-11,5.291772108e-11],["h","Planck constant","J s",6.62607004e-34,6.6260693e-34],["μN","nuclear magneton","J/T",5.050783699e-27,5.05078343e-27],["μB","Bohr magneton","J/T",9.274009994e-24,9.27400949e-24],["ħ","reduced Planck constant","J s",1.0545718e-34,1.05457168e-34],["α","fine-structure constant","",0.0072973525664,0.007297352568],["re","classical electron radius","m",2.8179403227e-15,2.817940325e-15],["λc","Compton wavelength","m",2.4263102367e-12,2.426310238e-12],["γp","proton gyromagnetic ratio","s^-1 T^-1",267522190,267522205],["λcp","proton Compton wavelength","m",1.32140985396e-15,1.3214098555e-15],["λcn","neutron Compton wavelength","m",1.31959090481e-15,1.3195909067e-15],["R∞","Rydberg constant","m^-1",10973731.568508,10973731.568525],["u","atomic mass constant","kg",1.66053904e-27,1.66053886e-27],["μp","proton magnetic moment","J/T",1.4106067873e-26,1.41060671e-26],["μe","electron magnetic moment","J/T",-9.28476462e-24,-9.28476411e-24],["μn","neutron magnetic moment","J/T",-9.662365e-27,-9.6623645e-27],["μμ","muon magnetic moment","J/T",-4.49044826e-26,-4.49044799e-26],["F","Faraday constant","C/mol",96485.33289,96485.3383],["e","elementary charge","C",1.6021766208e-19,1.60217653e-19],["NA","Avogadro constant","mol^-1",6.022140857e+23,6.0221415e+23],["k","Boltzmann constant","J/K",1.38064852e-23,1.3806504e-23],["Vm","molar volume of ideal gas","m^3/mol",0.022710947,0.022710981],["R","molar gas constant","J/(mol K)",8.3144598,8.314472],["c₀","speed of light in vacuum","m/s",299792458,299792458],["c₁","first radiation constant","W m^2",3.74177179e-16,3.74177138e-16],["c₂","second radiation constant","m K",0.0143877736,0.014387752],["σ","Stefan-Boltzmann constant","W/(m^2 K^4)",5.670367e-8,5.6704e-8],["ε₀","electric constant","F/m",8.854187817e-12,8.854187817e-12],["μ₀","magnetic constant","N/A^2",0.0000012566370614359173,0.0000012566370614359173],["Φ₀","magnetic flux quantum","Wb",2.067833831e-15,2.06783372e-15],["g","standard acceleration of gravity","m/s^2",9.80665,9.80665],["G₀","conductance quantum","S",0.00007748091731,0.00007748091733],["Z₀","characteristic impedance of vacuum","ohm",376.730313461,376.730313461],["t","Celsius temperature offset","K",273.15,273.15],["G","Newtonian constant of gravitation","m^3/(kg s^2)",6.67408e-11,6.6742e-11],["atm","standard atmosphere","Pa",101325,101325]];
-// Strings preserve the exact significant digits printed in CASIO Appendix #114.
-const ORIGINAL_1998=Object.freeze([
- "1.67262158e-27",
- "1.67492716e-27",
- "9.10938188e-31",
- "1.88353109e-28",
- "0.5291772083e-10",
- "6.62606876e-34",
- "5.05078317e-27",
- "927.400899e-26",
- "1.054571596e-34",
- "7.297352533e-3",
- "2.817940285e-15",
- "2.426310215e-12",
- "2.67522212e8",
- "1.321409847e-15",
- "1.319590898e-15",
- "10973731.568549",
- "1.66053873e-27",
- "1.410606633e-26",
- "-928.476362e-26",
- "-0.96623640e-26",
- "-4.49044813e-26",
- "96485.3415",
- "1.602176462e-19",
- "6.02214199e23",
- "1.3806503e-23",
- "22.413996e-3",
- "8.314472",
- "299792458",
- "3.74177107e-16",
- "1.4387752e-2",
- "5.670400e-8",
- "8.854187817e-12",
- "12.566370614e-7",
- "2.067833636e-15",
- "9.80665",
- "7.748091696e-5",
- "376.730313461",
- "273.15",
- "6.673e-11",
- "101325"
-]);
-const ITEMS=Object.freeze(DATA.map(([symbol,name,unit,value2014,value2002],index)=>
- Object.freeze({code:String(index+1).padStart(2,'0'),symbol,name,unit,
-  printed1998:ORIGINAL_1998[index],
-  values:Object.freeze({1998:Number(ORIGINAL_1998[index]),2014:value2014,2002:value2002})})));
+const MODEL='fx-991es-plus';
+const MODELS=Object.freeze({[MODEL]:2014});
+const ITEMS=Object.freeze([{"symbol":"mp","name":"proton mass","unit":"kg","value":1.672621898e-27},{"symbol":"mn","name":"neutron mass","unit":"kg","value":1.674927471e-27},{"symbol":"me","name":"electron mass","unit":"kg","value":9.10938356e-31},{"symbol":"mμ","name":"muon mass","unit":"kg","value":1.883531594e-28},{"symbol":"a₀","name":"Bohr radius","unit":"m","value":5.2917721067e-11},{"symbol":"h","name":"Planck constant","unit":"J s","value":6.62607004e-34},{"symbol":"μN","name":"nuclear magneton","unit":"J/T","value":5.050783699e-27},{"symbol":"μB","name":"Bohr magneton","unit":"J/T","value":9.274009994e-24},{"symbol":"ħ","name":"reduced Planck constant","unit":"J s","value":1.0545718e-34},{"symbol":"α","name":"fine-structure constant","unit":"","value":0.0072973525664},{"symbol":"re","name":"classical electron radius","unit":"m","value":2.8179403227e-15},{"symbol":"λc","name":"Compton wavelength","unit":"m","value":2.4263102367e-12},{"symbol":"γp","name":"proton gyromagnetic ratio","unit":"s^-1 T^-1","value":267522190},{"symbol":"λcp","name":"proton Compton wavelength","unit":"m","value":1.32140985396e-15},{"symbol":"λcn","name":"neutron Compton wavelength","unit":"m","value":1.31959090481e-15},{"symbol":"R∞","name":"Rydberg constant","unit":"m^-1","value":10973731.568508},{"symbol":"u","name":"atomic mass constant","unit":"kg","value":1.66053904e-27},{"symbol":"μp","name":"proton magnetic moment","unit":"J/T","value":1.4106067873e-26},{"symbol":"μe","name":"electron magnetic moment","unit":"J/T","value":-9.28476462e-24},{"symbol":"μn","name":"neutron magnetic moment","unit":"J/T","value":-9.662365e-27},{"symbol":"μμ","name":"muon magnetic moment","unit":"J/T","value":-4.49044826e-26},{"symbol":"F","name":"Faraday constant","unit":"C/mol","value":96485.33289},{"symbol":"e","name":"elementary charge","unit":"C","value":1.6021766208e-19},{"symbol":"NA","name":"Avogadro constant","unit":"mol^-1","value":6.022140857e+23},{"symbol":"k","name":"Boltzmann constant","unit":"J/K","value":1.38064852e-23},{"symbol":"Vm","name":"molar volume of ideal gas","unit":"m^3/mol","value":0.022710947},{"symbol":"R","name":"molar gas constant","unit":"J/(mol K)","value":8.3144598},{"symbol":"c₀","name":"speed of light in vacuum","unit":"m/s","value":299792458},{"symbol":"c₁","name":"first radiation constant","unit":"W m^2","value":3.74177179e-16},{"symbol":"c₂","name":"second radiation constant","unit":"m K","value":0.0143877736},{"symbol":"σ","name":"Stefan-Boltzmann constant","unit":"W/(m^2 K^4)","value":5.670367e-8},{"symbol":"ε₀","name":"electric constant","unit":"F/m","value":8.854187817e-12},{"symbol":"μ₀","name":"magnetic constant","unit":"N/A^2","value":0.0000012566370614359173},{"symbol":"Φ₀","name":"magnetic flux quantum","unit":"Wb","value":2.067833831e-15},{"symbol":"g","name":"standard acceleration of gravity","unit":"m/s^2","value":9.80665},{"symbol":"G₀","name":"conductance quantum","unit":"S","value":0.00007748091731},{"symbol":"Z₀","name":"characteristic impedance of vacuum","unit":"ohm","value":376.730313461},{"symbol":"t","name":"Celsius temperature offset","unit":"K","value":273.15},{"symbol":"G","name":"Newtonian constant of gravitation","unit":"m^3/(kg s^2)","value":6.67408e-11},{"symbol":"atm","name":"standard atmosphere","unit":"Pa","value":101325}].map((x,i)=>Object.freeze({
+ code:String(i+1).padStart(2,'0'),symbol:x.symbol,name:x.name,unit:x.unit,
+ values:Object.freeze({2014:x.value})
+})));
 const fault=(message='Argument ERROR')=>{throw Error(message)};
 function select(model,code){
- const version=MODELS[model];if(!version)fault();
+ if(model!==MODEL)fault();
  const number=String(code).padStart(2,'0');
  const entry=ITEMS.find(x=>x.code===number);if(!entry)fault('Argument ERROR');
- return Object.freeze({...entry,value:entry.values[version],year:version,
-  printedValue:version===1998?entry.printed1998:null});
+ return Object.freeze({...entry,value:entry.values[2014],year:2014,printedValue:null});
 }
 function literal(entry){
  if(!entry||!Number.isFinite(entry.value))fault();
- // Keep inserted constants as ordinary expression operands; no new
- // undocumented parser functions, no scientific notation ambiguity.
  const n=entry.value;
  if(n===0)return '(0)';
- const str=n.toExponential(15);
- const [mantissa,exp]=str.split('e');
+ const [mantissa,exp]=n.toExponential(15).split('e');
  return '('+Number(mantissa)+'*10^('+Number(exp)+'))';
 }
 function codeEditor(){return {buffer:'',error:''}}
@@ -5234,21 +4904,15 @@ function type(editor,key,model){
  if(editor.buffer.length>=2)fault('Syntax ERROR');
  editor.buffer+=key;editor.error='';
  if(editor.buffer.length!==2)return null;
- const selected=select(model,editor.buffer);
- return selected;
+ return select(model,editor.buffer);
 }
 function backspace(editor){editor.buffer=editor.buffer.slice(0,-1);editor.error='';return editor}
-global.FreshScientificConstants=Object.freeze({ITEMS,MODELS,ORIGINAL_1998,select,literal,codeEditor,type,backspace});
+global.FreshScientificConstants=Object.freeze({ITEMS,MODELS,select,literal,codeEditor,type,backspace});
 if(typeof module!=='undefined'&&module.exports)module.exports=global.FreshScientificConstants;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
     <script data-source="js/metric-conversions.js">
-/* REA-064 — 40 CASIO CONV code pairs; original ES manual appendix
- * https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf
- * Original fx-991ES Appendix #117 uses NIST SP 811 (1995) rounded
- * factors. PLUS profiles retain their separately defined existing factors.
- * https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_570ES.etc_Appendix_EN.pdf
- */
+/* 40 conversion pairs supported by the fx-991ES PLUS (2nd edition). */
 (function(g){'use strict';
 const FORWARD=[["in","cm",2.54],["ft","m",0.3048],["yd","m",0.9144],["mile","km",1.609344],["n mile","m",1852],["acre","m²",4046.856],["gal (US)","L",3.785412],["gal (UK)","L",4.54609],["pc","km",30856780000000],["km/h","m/s",0.2777777777777778],["oz","g",28.34952],["lb","kg",0.4535924],["atm","Pa",101325],["mmHg","Pa",133.3224],["hp","kW",0.7457],["kgf/cm²","Pa",98066.5],["kgf·m","J",9.80665],["lbf/in²","kPa",6.894757],["°F","°C",null],["J","cal",4.1858]];
 const PRECISE={"11":4046.8564224,"13":3.785411784,"17":30856775814913.67,"21":28.349523125,"23":0.45359237,"27":133.322387415,"29":0.745699871582,"35":6.894757293168};
@@ -5259,7 +4923,7 @@ const ITEMS=Object.freeze(FORWARD.flatMap(([from,to,factor],index)=>{
 }));
 const fail=(message='Argument ERROR')=>{throw Error(message)};
 function select(model,code){
- if(!['fx-991es','fx-991es-plus','fx-991es-plus-c'].includes(model))fail();
+ if(model!=='fx-991es-plus')fail();
  const entry=ITEMS.find(item=>item.code===String(code).padStart(2,'0'));if(!entry)fail();
  const key=Number(entry.code)-(entry.reverse?1:0);
  const factor=model==='fx-991es-plus'&&PRECISE[key]!==undefined?PRECISE[key]:entry.factor;
