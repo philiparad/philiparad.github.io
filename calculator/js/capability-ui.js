@@ -18,10 +18,10 @@ async function data(){
 }
 function render(manifest){
  if(manifest.schema!=='fx991-rea008-capability-gate-v1')throw Error('Unknown capability manifest');
- const filter=$('model-selector'),table=$('capability-rows'),summary=$('capability-summary');
- if(!filter||!table||!summary)return;
+ const table=$('capability-rows'),summary=$('capability-summary');
+ if(!table||!summary)return;
  function update(){
-  const model=filter.value;
+  const model='fx-991es-plus';
   const items=manifest.features.filter(f=>f.models.includes(model));
   table.replaceChildren();
   for(const item of items){
@@ -49,7 +49,6 @@ function render(manifest){
   summary.textContent=items.length+' capabilities listed · '+verified+
     ' hardware-verified · source-only tests are not CASIO device certification.';
  }
- filter.addEventListener('change',update);
  update();
 }
 data().then(render).catch(error=>{
