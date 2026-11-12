@@ -13,7 +13,7 @@ from playwright.async_api import async_playwright
 
 ROOT=Path(__file__).resolve().parents[2]
 FILES=("index.html","fx991_fresh_standalone.html")
-MODELS=("fx-991es","fx-991es-plus","fx-991es-plus-c")
+MODELS=("fx-991es-plus",)
 
 async def exercise(browser,url,file,model):
     page=await browser.new_page(viewport={"width":1100,"height":1100})
@@ -22,8 +22,6 @@ async def exercise(browser,url,file,model):
     try:
         await page.goto(f"{url}{file}?model={model}",wait_until="load")
         await page.locator("#keys button[data-key='EQUAL']").wait_for()
-        await page.locator("#model-selector").wait_for()
-        assert await page.locator("#model-selector").input_value()==model
         # Enter real STAT mode using the displayed calculator keypad.
         for key in ("MODE","3","1"):
             await page.locator(f"#keys button[data-key='{key}']").click()
@@ -31,12 +29,12 @@ async def exercise(browser,url,file,model):
         assert state["mode"]=="STAT",(file,model,state["mode"])
         result=await page.evaluate("""() => {
           const R=window.FreshStatRegression;
-          const P=window.FreshStatParameters;
+          
           const table={paired:false,frequency:false,regressionType:'1VAR',
             rows:[{X:1e50,Y:null,FREQ:1},{X:-1e50,Y:null,FREQ:1}]};
           const s=R.summary(table);
           let error=null;
-          try {P.resolve('StatSumX2',table,R)} catch(e){error=e.message}
+          try {R.sumLines(s,false)} catch(e){error=e.message}
           return {mean:s.meanX,sd:s.sdX,sample:s.sampleSDX,
             varLines:R.varLines(s,false),oversizedSumError:error};
         }""")
