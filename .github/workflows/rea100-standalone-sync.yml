@@ -27,6 +27,8 @@ on:
       - 'calculator/tests/plus007-error-browser.py'
       - 'calculator/tests/plus008-stat-format.cjs'
       - 'calculator/tests/plus008-stat-browser.py'
+      - 'calculator/tests/plus009-menu-rules.cjs'
+      - 'calculator/tests/plus009-menu-browser.py'
       - 'calculator/tests/plus001-single-model.cjs'
       - 'calculator/tests/plus002-no-retired-runtime.cjs'
       - '.github/workflows/rea100-standalone-sync.yml'
@@ -56,6 +58,8 @@ on:
       - 'calculator/tests/plus007-error-browser.py'
       - 'calculator/tests/plus008-stat-format.cjs'
       - 'calculator/tests/plus008-stat-browser.py'
+      - 'calculator/tests/plus009-menu-rules.cjs'
+      - 'calculator/tests/plus009-menu-browser.py'
       - 'calculator/tests/plus001-single-model.cjs'
       - 'calculator/tests/plus002-no-retired-runtime.cjs'
       - '.github/workflows/rea100-standalone-sync.yml'
@@ -73,7 +77,7 @@ jobs:
           python-version: '3.12'
       - name: Compile release scripts
         run: |
-          python -m py_compile calculator/tools/build_standalone.py calculator/tests/test_rea100_standalone.py calculator/tests/rea100_browser_parity.py calculator/tests/rea105_browser_precedence.py calculator/tests/rea106_browser_stat_stability.py calculator/tests/rea113_browser_mode_keys.py calculator/tests/plus003-mode-transitions.py calculator/tests/plus004-shift-menu-keys.py calculator/tests/plus005-alpha-key-actions.py calculator/tests/plus006-eqn-browser.py calculator/tests/plus007-error-browser.py calculator/tests/plus008-stat-browser.py
+          python -m py_compile calculator/tools/build_standalone.py calculator/tests/test_rea100_standalone.py calculator/tests/rea100_browser_parity.py calculator/tests/rea105_browser_precedence.py calculator/tests/rea106_browser_stat_stability.py calculator/tests/rea113_browser_mode_keys.py calculator/tests/plus003-mode-transitions.py calculator/tests/plus004-shift-menu-keys.py calculator/tests/plus005-alpha-key-actions.py calculator/tests/plus006-eqn-browser.py calculator/tests/plus007-error-browser.py calculator/tests/plus008-stat-browser.py calculator/tests/plus009-menu-browser.py
       - name: Fail on stale standalone, missing modules, CSS or manifest drift
         run: |
           python calculator/tools/build_standalone.py --check
@@ -83,6 +87,7 @@ jobs:
           node-version: '22'
       - name: Verify PLUS-only arithmetic, model identity and key contracts
         run: |
+          node calculator/tests/plus009-menu-rules.cjs
           node calculator/tests/plus008-stat-format.cjs
           node calculator/tests/plus007-error-contract.cjs
           node calculator/tests/plus006-eqn-expressions.cjs
@@ -116,3 +121,5 @@ jobs:
         run: python calculator/tests/plus007-error-browser.py
       - name: PLUS-008 STAT FREQ clearing and regression-type retention
         run: python calculator/tests/plus008-stat-browser.py
+      - name: PLUS-009 menu paging numbers nested cancel and selections
+        run: python calculator/tests/plus009-menu-browser.py

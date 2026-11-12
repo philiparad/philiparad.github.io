@@ -5661,12 +5661,16 @@ function optionDialog(title,entries,options={}){
 }
 function showMenu(){
  const size=state.menuPageSize||6;
- state.menu=state.menuEntries.slice(state.menuPage*size,state.menuPage*size+size).map((e,i)=>({
-  label:e.label,
-  // MODE and SETUP use the printed number on the current hardware page.
-  number:(state.menuKind==='mode'||state.menuKind==='setup'||size===10)&&e.key!==undefined?
-   String(e.key):(e.key==='='?'=':String(i+1))
- }));
+ const visible=state.menuEntries.slice(state.menuPage*size,state.menuPage*size+size);
+ const count=new Map();
+ for(const e of visible)if(e.key!==undefined){
+  const key=String(e.key);count.set(key,(count.get(key)||0)+1);
+ }
+ state.menu=visible.map((e,i)=>{
+  const printed=e.key===undefined?'':String(e.key);
+  const usable=/^(?:[0-9]|=)$/.test(printed)&&count.get(printed)===1;
+  return {label:e.label,number:usable?printed:String(i+1)};
+ });
  state.info=state.menuPage?'PAGE '+(state.menuPage+1):'';
  paint();
 }
@@ -5882,9 +5886,17 @@ function menuHandle(key){
   const pos=view.findIndex(x=>String(x.number)===(key==='EQUAL'?'=':key));
   const entry=pos>=0?state.menuEntries[state.menuPage*size+pos]:null;
   if(entry){
-   state.menuEntries=[];state.menu=[];state.menuPageSize=6;
+   const previousMode=state.mode,previousKind=state.menuKind;
+   const previousReturn=state.menuReturnScreen||'edit';
+   state.menuEntries=[];state.menu=[];state.menuPage=0;state.menuPageSize=6;
    state.menuKind='normal';state.screen='edit';state.info='';
-   entry.action();paint();
+   entry.action();
+   // Nested menus retain the original calculator screen for AC. MODE
+   // selection is a new session and must NOT return to the old mode editor.
+   if(state.screen==='menu'&&previousKind!=='mode'&&state.mode===previousMode)
+    state.menuReturnScreen=previousReturn;
+   else if(state.screen!=='menu')state.menuReturnScreen=null;
+   paint();
   }
   return true;
  }
