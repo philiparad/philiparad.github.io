@@ -1,8 +1,8 @@
 /* REA-057: native TABLE data model, CASIO row limits and synchronized cursor. */
 (function(g){'use strict';
-const C_MODEL='fx-991es-plus-c';
+const SUPPORTED_MODEL='fx-991es-plus';
 function fail(message){throw Error(message)}
-function dualCapable(model){return model===C_MODEL}
+function dualCapable(){return false}
 function dualEnabled(model,requested){return dualCapable(model)&&requested===2}
 function maxRows(model,count){return dualEnabled(model,count)?20:30}
 function countRows(start,end,step,limit){
