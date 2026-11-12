@@ -64,3 +64,17 @@ The browser manifest was extended to **67 scenario definitions**, corresponding 
 The **last confirmed full browser execution** remains **162/162 passed** at [workflow 43148006611](https://github.com/philiparad/philiparad.github.io/actions/runs/43148006611). The new 172-case suite must be checked via its GitHub Actions run/artifact before replacing that result.
 
 **Native-reference status:** user-uploaded screenshot-only evidence; **0 native KeyLog files, 0 verified same-key emulator comparisons, 0 genuine physical-device observations**. Screenshot-matched UI shapes are approximations, not byte-for-byte LCD firmware equivalence. REA-123 remains open.
+
+## LCD bitmap/font quality improvement (2026-11-12)
+
+- [x] Upgraded the **output** raster from 96×31 to **192×62** pixels.
+- [x] Added a deterministic **7×11** bitmap font atlas for 127 printable/mathematical glyphs; no downloadable font files or manufacturer glyph assets are bundled.
+- [x] Render normal and inverted text at the new resolution, retaining the 96×31 **layout-coordinate system** for existing graph/menu/prompt geometry.
+- [x] Raised the browser and standalone canvas backing stores from 768×248 to **960×310**, preserving the visible aspect ratio.
+- [x] Updated source-level native menu/matrix geometry regression tests.
+- [x] Verified **55** high-resolution font/raster assertions and **23** native-menu geometry assertions in a direct JavaScript source harness.
+- [x] Included these tests in the three-model GitHub Actions workflow.
+- [ ] Verify the updated 192×62 LCD on the full Chromium browser suite and inspect captured screenshots when the workflow completes.
+- [ ] Compare updated pixels with authenticated manufacturer-emulator LCD screenshot crops; user-provided static screenshot evidence still lacks native key logs.
+
+**Source quality note:** the physical LCD's actual dimensions, glyph ROM and subpixel properties have **not** been proven. This is a structural resolution/font improvement, not an assertion of completed physical-device parity.
