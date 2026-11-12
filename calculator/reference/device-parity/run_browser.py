@@ -87,6 +87,10 @@ def main():
                     page.goto(url + "?model=" + model, wait_until="load")
                     page.wait_for_function("Boolean(window.FreshCalculator)")
                     before_errors = len(js_errors)
+                    # Activate the application\x27s real KeyLog without synthesizing a
+                    # calculator key press. This permits independently checking
+                    # DOM click routing against the requested physical key sequence.
+                    page.evaluate("document.querySelector(\x27#record-keylog\x27).click()")
                     pressed = []
                     for key in scenario["keys"]:
                         target = page.locator('#keys button[data-key="' + key + '"]')
@@ -99,6 +103,7 @@ def main():
                       return {model:state.model,mode:state.mode,screen:state.screen,
                         raw:state.raw,result:state.result,input:state.input,
                         info:state.info,menuEntries:state.menuEntries,
+                        recording:state.recording,keylog:state.keylog,
                         keyCount:document.querySelectorAll('#keys button[data-key]').length,
                         profileRegisterMatch:JSON.stringify(window.FreshModels.registers(state.model))===
                           JSON.stringify(window.FreshModels.registers(state.model))};
@@ -110,6 +115,12 @@ def main():
                         == profile["registers"]
                     )
                     problems = check(snapshot, scenario["expect"])
+                    actual_keys = [entry.get("key") for entry in snapshot["keylog"]]
+                    if actual_keys != pressed:
+                        problems.append("KeyLog mismatch: expected %r, observed %r" %
+                                        (pressed, actual_keys))
+                    if not snapshot["recording"]:
+                        problems.append("KeyLog recording was not active")
                     if snapshot["model"] != model:
                         problems.append("wrong active model")
                     if len(js_errors) > before_errors:
@@ -118,11 +129,26 @@ def main():
                     image_path = out / filename
                     page.locator("#lcd").screenshot(path=str(image_path))
                     digest = hashlib.sha256(image_path.read_bytes()).hexdigest()
+                    trace_file = "%s-%s-keylog.json" % (model, scenario["id"])
+                    trace_path = out / trace_file
+                    trace_path.write_text(json.dumps({
+                        "schema": "casio-parity-browser-keylog-v1",
+                        "model": model, "scenario_id": scenario["id"],
+                        "requested_keys": pressed, "actual_keylog": snapshot["keylog"],
+                        "exact_key_sequence_match": actual_keys == pressed,
+                        "origin": "independent_browser_simulation",
+                    }, indent=2) + "\
+", encoding="utf-8")
+                    trace_hash = hashlib.sha256(trace_path.read_bytes()).hexdigest()
                     record = {
                         "scenario_id": scenario["id"],
                         "category": scenario["category"],
                         "model": model,
                         "keys": pressed,
+                        "recorded_keys": actual_keys,
+                        "keylog_file": trace_file,
+                        "keylog_sha256": trace_hash,
+                        "keylog_exact_match": actual_keys == pressed,
                         "expected": scenario["expect"],
                         "observed": snapshot,
                         "manual_area": scenario["manualArea"],
