@@ -87,10 +87,10 @@ def main():
                     page.goto(url + "?model=" + model, wait_until="load")
                     page.wait_for_function("Boolean(window.FreshCalculator)")
                     before_errors = len(js_errors)
-                    # Activate the application\x27s real KeyLog without synthesizing a
+                    # Activate the application's real KeyLog without synthesizing a
                     # calculator key press. This permits independently checking
                     # DOM click routing against the requested physical key sequence.
-                    page.evaluate("document.querySelector(\x27#record-keylog\x27).click()")
+                    page.evaluate("document.querySelector('#record-keylog').click()")
                     pressed = []
                     for key in scenario["keys"]:
                         target = page.locator('#keys button[data-key="' + key + '"]')
