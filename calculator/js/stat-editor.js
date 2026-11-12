@@ -40,6 +40,12 @@ function insert(s){
  s.rows.splice(s.row,0,newRow());s.col=0;
  return load(s);
 }
+function append(s){
+ commit(s);
+ if(s.rows.length>=rowCapacity(s))fail('Data Full');
+ s.rows.push(newRow());s.row=s.rows.length-1;s.col=0;
+ return load(s);
+}
 function remove(s){
  if(s.rows.length===1){s.rows[0]=newRow();s.row=0}
  else{s.rows.splice(s.row,1);s.row=Math.min(s.row,s.rows.length-1)}
@@ -99,7 +105,7 @@ function lines(result,paired=false){
  else rows.push(['Min',result.min],['Max',result.max]);
  return rows.map(([name,v])=>name+' = '+format(v));
 }
-const API=Object.freeze({MAX_ROWS,rowCapacity,columns,create,active,load,parse,commit,move,insert,remove,clearData,toggleFrequency,type,calculate,lines});
+const API=Object.freeze({MAX_ROWS,rowCapacity,columns,create,active,load,parse,commit,move,insert,append,remove,clearData,toggleFrequency,type,calculate,lines});
 global.FreshStatEditor=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);

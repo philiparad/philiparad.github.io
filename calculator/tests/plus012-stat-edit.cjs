@@ -18,6 +18,10 @@ for(const pair of [false,true])for(const freq of [false,true]){
  S.remove(s);
  A.deepEqual(s.rows,original);
  A.equal(s.row,1);
+ s.row=s.rows.length-1;S.append(s);
+ A.equal(s.rows.length,original.length+1);
+ A.equal(s.row,s.rows.length-1);
+ A.equal(s.rows[s.row].X,null);
  S.clearData(s);
  A.equal(s.rows.length,1);
  A.equal(s.rows[0].X,null);

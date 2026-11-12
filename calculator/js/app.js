@@ -1053,7 +1053,7 @@ function statAdvance(){
  const t=state.statTable;STAT.commit(t);
  const cols=STAT.columns(t.paired,t.frequency);
  if(t.col<cols.length-1)STAT.move(t,0,1);
- else if(t.row===t.rows.length-1)STAT.insert(t);
+ else if(t.row===t.rows.length-1)STAT.append(t);
  else{t.col=0;STAT.move(t,1,0)}
 }
 function statResults(){
