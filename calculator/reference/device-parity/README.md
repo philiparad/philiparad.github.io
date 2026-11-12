@@ -98,6 +98,29 @@ python3 calculator/reference/device-parity/verify_evidence.py \
 
 Use `--require-complete` to fail when any browser scenario lacks checked native parity evidence. The verifier checks source provenance, screenshot hashes, model/scenario identity, key logs, and explicit human sign-off. It does **not** automatically determine pixel identity or authenticate a photograph. A licensed-emulator-reviewed case is kept distinct from a physical-device-reviewed case.
 
+## LCD bitmap comparison for supplied native screenshots
+
+After recording a properly licensed reference source and its exact LCD crop, run the optional grayscale difference tool:
+
+```bash
+python3 -m pip install Pillow
+python3 calculator/reference/device-parity/compare_lcd.py \
+  calculator/reference/device-parity/browser-evidence/fx-991es-plus-c-arithmetic-precedence.png \
+  calculator/reference/device-parity/private-native/reference.png \
+  --native-crop 30,20,480,155 \
+  --diff casio-lcd-diff.png --json casio-lcd-review.json
+```
+
+Replace the `--native-crop` values with the **measured actual LCD rectangle** from your reference image; do not reuse this illustration blindly. The utility segments each image to the simulator's independent 96×31 logical raster, tries ±2 pixels of alignment, and reports mismatched pixels with a red difference mask. It also includes screenshot hashes and notes about low contrast.
+
+**Limitations:** Neither the default raster nor the threshold segmentation is certified against CASIO's actual LCD dot matrix. The quantitative mismatch helps a person spot differences; it is not an automatic fidelity score or physical parity certificate. Native provenance, key sequence and result review must still pass `verify_evidence.py`. No authentic native screenshot was present in the uploaded ZIP, so no real visual comparisons were possible in this session.
+
+Unit tests use deliberately synthetic images to check translation, cropping, identical and different glyphs. Run:
+
+```bash
+python3 -m unittest discover -s calculator/reference/device-parity -p 'test_lcd_compare.py' -v
+```
+
 ## Acceptance matrix and remaining work
 
 | Level | What constitutes success | What it **doesn't** prove |
