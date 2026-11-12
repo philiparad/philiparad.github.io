@@ -1886,7 +1886,6 @@ function shifted(key){
   const map={SIN:'asinh(',COS:'acosh(',TAN:'atanh('};
   state.hyp=false;releaseModifier();insert(map[key]);return true;
  }
- const n=Number(key);
  if(key==='AC'){powerOff();return true}
  if(key==='MODE'){releaseModifier();setupMenu();return true}
  if(key==='RCL'){releaseModifier();memoryDialog(true);return true}
@@ -1929,7 +1928,16 @@ function shifted(key){
  if(key==='DIV'){releaseModifier();insert('nCr');return true}
  if(key==='ADD'||key==='SUB'){releaseModifier();insert(key==='ADD'?',':',');return true}
  if(insertions[key]!==undefined){releaseModifier();if(insertions[key])insert(insertions[key]);else notify('Function requires a result or an input');paint();return true}
- if(['1','2','3','4','5'].includes(key)){releaseModifier();const mapped={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR'};setMode(mapped[key]);return true}
+ // SHIFT+1..5 invoke the legends in their own calculation mode.
+ // They never perform a MODE selection; MODE -> 1..8 is the only such route.
+ const shiftMenus={'1':['STAT',statMenu],'2':['CMPLX',complexMenu],
+  '3':['BASE-N',baseLogicMenu],'4':['MATRIX',matrixMenu],'5':['VECTOR',vectorMenu]};
+ if(Object.prototype.hasOwnProperty.call(shiftMenus,key)){
+  const [required,action]=shiftMenus[key];releaseModifier();
+  if(state.mode===required)action();
+  else{notify('SHIFT '+key+' requires '+required+' mode',true);paint()}
+  return true;
+ }
  return false
 }
 function showResult(decimal,forceFraction=false){
