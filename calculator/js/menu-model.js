@@ -7,8 +7,6 @@ const RULES=Object.freeze({
  mode:Object.freeze({size:8,columns:2,title:'MODE'}),
  setup:Object.freeze({size:8,columns:2,title:'SETUP'}),
  'stat-type':Object.freeze({size:8,columns:2,title:'STAT'}),
- 'dist-type':Object.freeze({size:4,columns:2,title:'DIST'}),
- 'dist-input':Object.freeze({size:2,columns:2,title:'DIST'}),
  'stat-menu':Object.freeze({size:8,columns:2,title:'STAT'}),
  'stat-edit':Object.freeze({size:4,columns:2,title:'EDIT'}),
  'stat-sum':Object.freeze({size:8,columns:2,title:'SUM'}),
@@ -18,10 +16,6 @@ const RULES=Object.freeze({
  matrix:Object.freeze({size:8,columns:2,title:'MATRIX'}),
  vector:Object.freeze({size:8,columns:2,title:'VECTOR'}),
  'eqn-type':Object.freeze({size:4,columns:2,title:'EQN'}),
- 'ineq-type':Object.freeze({size:2,columns:2,title:'INEQ'}),
- 'ineq-relation':Object.freeze({size:4,columns:2,title:'INEQ'}),
- 'verify-relations':Object.freeze({size:6,columns:2,title:'VERIFY'}),
- 'dist-edit':Object.freeze({size:4,columns:2,title:'EDIT'})
 });
 const fallback=Object.freeze({size:6,columns:2,title:'MENU'});
 function rule(kind){return RULES[kind]||fallback}
@@ -61,9 +55,9 @@ function promptTitle(title){
  if(name.startsWith('Σ'))return 'SUM';
  if(name.startsWith('Π'))return 'PRODUCT';
  if(name.startsWith('CALC'))return 'CALC';
- if(name.startsWith('DIST'))return name.replace(/[^A-Za-z0-9 /-]/g,'').slice(0,21);
+
  if(name.startsWith('TABLE'))return name.replace(/[^A-Za-z0-9 (),]/g,'').slice(0,21);
- if(name.startsWith('VERIF'))return 'VERIFY';
+
  return name.replace(/[^A-Za-z0-9 /-]/g,'').slice(0,21);
 }
 function promptField(field){
