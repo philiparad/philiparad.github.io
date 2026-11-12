@@ -32,10 +32,14 @@ jobs:
           node --check calculator/js/math-engine.js
           node --check calculator/reference/device-parity/test_model_contract.cjs
           node --check calculator/reference/device-parity/test_scientific_features.cjs
+          node --check calculator/reference/device-parity/test_edition_gates.cjs
       - name: Test model capabilities, keys, math and statistics
         run: |
           node calculator/reference/device-parity/test_model_contract.cjs
           node calculator/reference/device-parity/test_scientific_features.cjs
+          node calculator/reference/device-parity/test_edition_gates.cjs
+      - name: Verify evidence validation rejects unreviewed or forged references
+        run: python -m unittest discover -s calculator/reference/device-parity -p 'test_evidence.py' -v
       - name: Check canonical standalone build
         run: python3 calculator/tools/build_standalone.py --check
   browser-key-and-lcd-evidence:
