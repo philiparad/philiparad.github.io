@@ -11,7 +11,7 @@ const profiles=Object.freeze({
   modes:MODES,manual:'https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/',hardwareVerified:false})
 });
 function get(){return profiles[MODEL]}
-function supports(_id,mode){return MODES.includes(mode)}
+function supports(id,mode){return id===MODEL&&MODES.includes(mode)}
 function registers(){return REGISTERS}
 function hasRegister(_id,name){return REGISTERS.includes(name)}
 function hasFeature(_id,feature){return FEATURES[MODEL].includes(feature)}
