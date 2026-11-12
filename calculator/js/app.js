@@ -40,7 +40,7 @@ const initialModel=MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,solveSession:null,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,matrixCopySource:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
 let numericJob=null;
 const NUMERIC_WALL_MS=6000;
@@ -335,7 +335,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.matrixCopySource=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -1399,6 +1399,11 @@ function matrixCopy(from=null){
   }
  })),{pageSize:6,kind:'matrix'});
 }
+function matrixCopyStart(name){
+ if(!state.matrices[name]){notify('Matrix source has no data',true);paint();return}
+ state.matrixCopySource=name;releaseModifier();
+ notify('STO: (−) MatA, °′″ MatB, hyp MatC');paint();
+}
 function matrixHistoryMenu(){
  const entries=state.matrices.history.slice().reverse();
  if(!entries.length){notify('No matrix history',true);matrixMenu();return}
@@ -1437,7 +1442,7 @@ function matrixTableHandle(key){
   if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
   if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
   if(state.shift&&key==='4'){matrixCommit();matrixMenu();return}
-  if(state.shift&&key==='RCL'){const name=e.name;matrixCommit();releaseModifier();matrixCopy(name);return}
+  if(state.shift&&key==='RCL'){const name=e.name;matrixCommit();releaseModifier();matrixCopyStart(name);return}
   if(key==='MODE'){matrixCommit();modeMenu();return}
   if(key==='AC'){matrixClose();return}
   if(key==='DEL'){MATRIX.backspace(e);releaseModifier();paint();return}
@@ -1505,7 +1510,7 @@ function matrixResultHandle(key){
  if(state.shift&&key==='RCL'){
   const name=state.matrixView?.name;
   releaseModifier();
-  if(name)matrixCopy(name);else{notify('Matrix result required for STO',true);paint()}
+  if(name)matrixCopyStart(name);else{notify('Matrix result required for STO',true);paint()}
   return;
  }
  if(state.shift&&key==='SQUARE'&&state.matrixView){
@@ -2040,6 +2045,19 @@ function handle(key){
    else{notify('Calculation cancelled');paint()}
   }
   return;
+ }
+ if(state.matrixCopySource){
+  const from=state.matrixCopySource;
+  const name={NEG:'MatA',DMS:'MatB',HYP:'MatC'}[key];
+  if(key==='AC'||key==='MODE'){
+   state.matrixCopySource=null;releaseModifier();
+   if(key==='MODE')modeMenu();else{notify('MATRIX STO cancelled');paint()}
+   return;
+  }
+  if(!name){notify('STO: use (−), °′″ or hyp to select MatA/MatB/MatC',true);paint();return}
+  state.matrixCopySource=null;
+  MATRIX.copy(state.matrices,from,name);
+  matrixEdit(name);return;
  }
  if(state.pendingMemory){
   if(key==='AC'){state.pendingMemory=null;releaseModifier();notify('Memory selection cancelled');paint();return}
