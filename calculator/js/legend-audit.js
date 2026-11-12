@@ -8,7 +8,7 @@ const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR'];
 const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating',
  'contrast','constant-code','conversion-code','stat-table','eqn-coeff','eqn-result',
  'matrix-table','matrix-expression','matrix-parameter',
- 'matrix-result','matrix-scalar','vector-table','vector-parameter','vector-result',
+ 'matrix-result','matrix-scalar','vector-table','vector-expression','vector-parameter','vector-result',
  'vector-scalar','table-grid'];
 const MODIFIERS=['normal','SHIFT','ALPHA'];
 const NORMAL_MODES=new Set(['COMP','CMPLX']);
