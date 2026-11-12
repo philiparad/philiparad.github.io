@@ -28,14 +28,8 @@ function rule(kind){return RULES[kind]||fallback}
 // REA-071: explicit page-local numbered MODE choices from the three guides.
 const MODE_PAGE_1=Object.freeze(['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']
  .map((label,index)=>Object.freeze({key:String(index+1),number:String(index+1),label,page:0})));
-const MODE_PAGE_C=Object.freeze(['INEQ','VERIF','DIST']
- .map((label,index)=>Object.freeze({key:String(index+1),number:String(index+1),label,page:1})));
-const MODE_PAGES=Object.freeze({
- 'fx-991es':Object.freeze([MODE_PAGE_1]),
- 'fx-991es-plus':Object.freeze([MODE_PAGE_1]),
- 'fx-991es-plus-c':Object.freeze([MODE_PAGE_1,MODE_PAGE_C])
-});
-function modePages(model){return MODE_PAGES[model]||MODE_PAGES['fx-991es-plus-c']}
+const MODE_PAGES=Object.freeze({'fx-991es-plus':Object.freeze([MODE_PAGE_1])});
+function modePages(model){return MODE_PAGES['fx-991es-plus']}
 function modeEntries(model){return modePages(model).flat()}
 function modeSelection(model,pageIndex,key){
  const page=modePages(model)[pageIndex];
