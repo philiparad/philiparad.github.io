@@ -41,8 +41,8 @@ for(const [expr,number] of [['2+3*4',14],['sqrt(9)',3],['sqrt(9',3],
 }
 const e=D.create('QUAD');
 write(e,'12+34');assert.equal(e.cursor,5);
-D.caret(e,-1);D.caret(e,-1);D.backspace(e);assert.equal(e.buffer,'12+4');
-D.enter(e,'3');assert.equal(e.buffer,'12+34');D.commit(e,ctx);assert.equal(e.values.a,46);
+D.caret(e,-1);D.caret(e,-1);D.backspace(e);assert.equal(e.buffer,'1234');
+D.enter(e,'+');assert.equal(e.buffer,'12+34');D.commit(e,ctx);assert.equal(e.values.a,46);
 D.clear(e);write(e,'sqrt(-1)');
 assert.throws(()=>D.commit(e,ctx),/Math ERROR/);
 assert.equal(e.values.a,0,'invalid edit must not write coefficient');
