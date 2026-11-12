@@ -1,51 +1,54 @@
-# Three-model CASIO parity — implementation and acceptance status
+# Three-model CASIO parity — executed verification status
 
 **Updated:** 2026-11-12  
-**Target editions:** fx-991ES original; fx-991ES PLUS 2nd edition; fx-991ES PLUS C 2nd edition.  
-**Scope:** Browser simulator, manufacturer-reference tests, evidence provenance and native-LCD comparison.  
-**Parity verdict:** **NOT YET HARDWARE-VERIFIED** for any of the three editions.
+**Models:** original fx-991ES; fx-991ES PLUS 2nd edition; fx-991ES PLUS C 2nd edition.  
+**Parity verdict:** **Browser verified for the tested scenarios; physical hardware parity UNVERIFIED**.
 
-## Completed source implementation
+## Actual executed results
 
-- [x] Three independently selectable model configurations and direct full-size URLs.
-- [x] Side-by-side interactive `calculator/parity-lab.html`, with manufacturer links and exportable browser-only test results.
-- [x] Three-edition manual-derived modes, register sets and edition-specific feature matrix.
-- [x] Added correct PLUS C-only restrictions for GCD, LCM, Int, Intg and Π; retained ordinary/legacy math API behavior when no model was specified.
-- [x] Updated `calculator/js/math-engine.js`, `calculator/js/model-profiles.js` and exact matching standalone HTML source.
-- [x] Browser Playwright runner configured for 18 key/DOM scenarios across all three edition profiles. It records actual web-LCD PNGs, SHA-256 hashes, key sequences and state results.
-- [x] Independent evidence verifier: requires native source type, matching key sequences, image hashes and explicit signed visual/result/key-behavior review; distinguishes physical hardware from licensed emulator and will not certify browser-only cases.
-- [x] Optional grayscale/threshold 96×31 web-to-reference LCD mismatch visualizer with calibrated crop and small translation alignment. **An image difference alone is not a native parity certificate.**
-- [x] Test and CI workflow definitions committed. The new workflow is `.github/workflows/casio-three-model-parity.yml`.
+| Verification | Outcome | Evidence |
+|---|---|---|
+| Playwright/Chromium browser keypad + navigation + display | **162 / 162 passed** | [GitHub Actions run 43148006611](https://github.com/philiparad/philiparad.github.io/actions/runs/43148006611) |
+| Original fx-991ES | 53 / 53 passed | Recorded web LCD PNG and KeyLog per case |
+| fx-991ES PLUS | 53 / 53 passed | Recorded web LCD PNG and KeyLog per case |
+| fx-991ES PLUS C | 56 / 56 passed | Recorded web LCD PNG and KeyLog per case |
+| LCD screenshot SHA-256 integrity | 162 / 162 matched | Downloaded workflow artifact |
+| Recorded KeyLog SHA-256 integrity | 162 / 162 matched | Downloaded workflow artifact |
+| Actual recorded vs requested KeyLog sequences | 162 / 162 matched | Browser runner's state snapshots + JSON |
+| Manual Fix/Sci/Norm display examples | Passed in Node and browser | `test_manual_rounding.cjs`, `cases.json` |
+| Source/model/edition mathematical tests | Passed | GitHub Actions source-and-model job |
+| Prior REA-107–122 STAT regression suites | 990 direct JavaScript assertions passed | Prior suite execution |
+| Deterministic standalone source/build check | Passed | GitHub Actions `build_standalone.py --check`; exact embedding of 46 modules |
+| Genuine or licensed-emulator native LCD comparison | **0 completed** | Requires actual native evidence |
 
-## Executed source-based JavaScript checks
+**Run artifact:** `casio-three-model-browser-evidence`, run [43148006611](https://github.com/philiparad/philiparad.github.io/actions/runs/43148006611), artifact id `13912547531`. Downloaded evidence contains 162 browser-generated LCD screenshots, 162 recorded KeyLogs, `report.json` and `verified.json`. Artifact digest: `sha256:f33549eb966be74483c9e5c78dec236dc5378c23ab4f7885ee53bb6e63ffad85`.
 
-| Suite | Assertions | Execution |
-|---|---:|---|
-| Three-model manifest/menu/keypad contract | 240 | Passed in JavaScript harness |
-| Broad mathematical, scientific and STAT functions across model IDs | 264 | Passed in JavaScript harness |
-| C-only function gates and unsupported command rejection | 43 | Passed in JavaScript harness |
-| Existing REA-107–122 STAT regression suites | 990 | Passed in JavaScript harness |
-| **Total** | **1,537** | **No failed assertions** |
+**Permanent executed review:** [EXECUTED_REVIEW_2026-11-12.md](EXECUTED_REVIEW_2026-11-12.md).
 
-The test harness executes the currently committed modules and test content, but is **not** a confirmed GitHub Actions/Node/Chromium execution.
+## Three existing simulation editions
 
-## Documentation and ZIP findings
+- [Original fx-991ES](../../index.html?model=fx-991es): eight standard MODE entries, original memory-register restrictions.
+- [fx-991ES PLUS](../../index.html?model=fx-991es-plus): eight base modes and expanded PLUS register set.
+- [fx-991ES PLUS C](../../index.html?model=fx-991es-plus-c): eleven modes, including second-page INEQ/VERIF/DIST, PLUS C-only mathematical functions.
+- [Interactive three-model parity lab](../../parity-lab.html): model comparison and browser KeyLog tests.
 
-- Inspected the uploaded `CASIO(1).zip` (41 entries) and reviewed its bundled English `EmulatorUsersGuide.pdf`.
-- The ZIP contains an **fx-991ES PLUS C 2nd edition Windows emulator** and activation components; it is *not* an authentic hardware capture for the other two models.
-- Documented the emulator's capture, keylog, zoomed LCD, browser/keyboard operation, licensing and isolation requirements in `README.md`.
-- Cross-checked edition distinctions with CASIO's original fx-991ES manual, fx-991ES PLUS 2nd edition manual and PLUS C 2nd edition online manual.
-- No executable, DLL, license contents or manufacturer screen images from the ZIP were added to the public repository.
+The models are separate **configurations of the shared independent web engine**; no manufacturer ROM, firmware, DLL or licensed executable has been published.
 
-## Outstanding acceptance (all three models)
+## Issues discovered and corrected in the verification harness
 
-- [ ] Execute the new CI job and investigate any failures or standalone build drift.
-- [ ] Execute Chromium Playwright key/DOM scenarios and inspect LCD captures.
-- [ ] Collect genuine fx-991ES original screenshots/key logs for representative input, error and menu scenarios.
-- [ ] Collect fx-991ES PLUS 2nd edition native screenshots/key logs.
-- [ ] Run the user's licensed PLUS C Windows emulator locally and capture its authentic LCD and key logs (or use the actual calculator).
-- [ ] Calibrate reference LCD crop/geometry and compare all relevant state transitions, result precision, line wrapping, annunciators, rounding and errors.
-- [ ] Expand 18 browser scenarios into the full manufacturer feature/mode matrix; execute adjacent SHIFT/ALPHA and editing paths, native memory, EQN, MATRIX, VECTOR, STAT, BASE-N, numeric calculus, resets and random functions.
-- [ ] Obtain explicit reviewer signoff per feature/model and close only those legacy REA issues with complete acceptance evidence.
+- Initial Chromium installation failed on Ubuntu 26.04 because the pinned Playwright version was too old; upgraded to a supported release. CI subsequently ran successfully.
+- The initial expanded square-root tests produced an extra closing parenthesis after the natural MathIO template; removed that erroneous extra key press. Six test failures disappeared without modifying calculator calculations.
+- Added real app KeyLog recording, hash-verified KeyLog exports, and state coverage of shift/alpha, mode pages, math/angle modes.
+- Expanded the browser suite to **57 distinct scenarios**, executed across the applicable models as **162 browser checks**.
+- Browser-rendered LCD screenshots reviewed for MENU, PLUS C exclusive page, √9, Fix 2, Sci 4, Norm1/Norm2 and division-by-zero error screens. No obvious internal inconsistencies in those selected screenshots.
+- Manual-defined display rounding examples passed using **actual browser key sequences**, not only formatter unit tests.
 
-**Important:** "source implemented", "browser test passed", "licensed-emulator reviewed" and "physical-device reviewed" are four different states. At present this work establishes source-level progress and the verification machinery, not a completed hardware parity claim.
+## What remains open
+
+- [ ] Capture authentic model-matched reference LCD images and key logs from physical original fx-991ES and PLUS.
+- [ ] Run the legally obtained PLUS C Windows emulator locally, record native key/LCD results, or collect genuine PLUS C hardware captures.
+- [ ] Compare native result rounding, screen glyphs, layout, key scanning, error handling, and editing using `compare_lcd.py` and `verify_evidence.py` (human review required).
+- [ ] Expand case coverage to additional MATRIX, VECTOR, STAT, EQN, BASE-N, SOLVE, calculus and model-dependent corner cases.
+- [ ] Close model-specific parity acceptance only when verifiable native reference evidence exists.
+
+**Critical distinction:** Browser simulation and documented mathematical agreement do **not** establish physical-device/firmware parity. The user's supplied `CASIO(1).zip` contains a PLUS C second-edition Windows emulator installer and documentation, but no authenticated screenshots or executed native key traces. It was not executed in this environment.
