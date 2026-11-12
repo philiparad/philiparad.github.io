@@ -43,7 +43,7 @@ function location(source,message){
  }
  return s.length;
 }
-// The original ES allocates separate numeric (10) and command (24)
+// The PLUS architecture uses separate numeric (10) and command (24)
 // stacks. This preflight counts active parenthesized/function commands;
 // the numerical parser separately checks live deferred operands/operators.
 // CMPLX uses two numeric slots per value, hence five effective slots.
