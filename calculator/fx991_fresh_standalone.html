@@ -2068,7 +2068,11 @@ if(typeof module!=='undefined'&&module.exports)module.exports=API;
 (function(global){'use strict';
 const MODELS=['fx-991es','fx-991es-plus','fx-991es-plus-c'];
 const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR','INEQ','VERIF','DIST'];
-const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating'];
+const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating',
+ 'contrast','constant-code','conversion-code','stat-table','eqn-coeff','eqn-result',
+ 'ineq-coeff','ineq-result','matrix-table','matrix-expression','matrix-parameter',
+ 'matrix-result','matrix-scalar','vector-table','vector-parameter','vector-result',
+ 'vector-scalar','table-grid','dist-list'];
 const MODIFIERS=['normal','SHIFT','ALPHA'];
 const NORMAL_MODES=new Set(['COMP','CMPLX']);
 const FUNCTIONS=new Set(['CALC','INTEGRAL','LOGBASE','FRAC','SQRT','SQUARE','POWER',
@@ -2177,7 +2181,9 @@ function context(key,modifier,mode,screen,model,supports){
 }
 function classify(key,modifier,mode,screen,model,supports){
  if(!key||!MODELS.includes(model)||!MODIFIERS.includes(modifier)||!MODES.includes(mode)||
-  !SCREENS.includes(screen))throw Error('Argument ERROR');
+  typeof screen!=='string'||!screen)throw Error('Argument ERROR');
+ // A new controller screen must never crash the LCD as an Argument ERROR.
+ // Unknown specialized screens are delegated to their dedicated key handler.
  const r=supports(model,mode)?
   context(key,modifier,mode,screen,model,supports):
   {status:'blocked',reason:'Mode '+mode+' is not supported by '+model};
