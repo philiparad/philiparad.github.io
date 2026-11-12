@@ -105,6 +105,7 @@ def main():
                         shift:state.shift,alpha:state.alpha,menuPage:state.menuPage,
                         angle:state.angle,math:state.math,
                         menuKind:state.menuKind,menuTitle:state.menuTitle,flow:state.flow,
+                        flowFieldId:state.flow?.fieldId||null,flowBuffer:state.flow?.buffer??null,
                         baseRadix:state.baseRadix,matrixInfo:state.matrixEditor?{
                           name:state.matrixEditor.name,rows:state.matrixEditor.matrix.rows,
                           cols:state.matrixEditor.matrix.cols,row:state.matrixEditor.row,
