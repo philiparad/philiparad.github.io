@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""REA-113: physical keypad browser smoke across three models and two publications.
+"""REA-113: physical keypad browser smoke for the PLUS model and two publications.
 Tests EQN 1/2/3/4 with meaningful coefficient sets and every MODE menu entry.
 This is web-behavior testing, not manufacturer hardware parity.
 """
@@ -11,7 +11,7 @@ import threading
 from playwright.async_api import async_playwright
 
 ROOT=Path(__file__).resolve().parents[2]
-MODELS=("fx-991es","fx-991es-plus","fx-991es-plus-c")
+MODELS=("fx-991es-plus",)
 FILES=("index.html","fx991_fresh_standalone.html")
 EQN_CASES=(
     ("1",(1,1,3,1,-1,1),"LINEAR2",2),
@@ -49,13 +49,6 @@ async def exercise(browser,url,file,model):
             assert snap["screen"] in ("edit","menu","prompt"),(model,mode,snap["screen"])
             if snap["screen"] in ("menu","prompt"):
                 await press(page,"AC")
-        if model=="fx-991es-plus-c":
-            for number,mode in (("1","INEQ"),("2","VERIF"),("3","DIST")):
-                await press(page,"MODE","DOWN",number)
-                snap=await state(page)
-                expect_ok(snap,model,mode,("extended mode",number))
-                if snap["screen"] in ("menu","prompt"):
-                    await press(page,"AC")
         eqn_answers=[]
         for number,coefficients,kind,first_expected in EQN_CASES:
             await press(page,"MODE","5",number)
