@@ -95,6 +95,24 @@ The user subsequently provided **11 screenshots** visually showing the PLUS C 2n
 
 **Provenance:** the images are user-provided screen captures; no original native KeyLog exports accompanied them. No standalone emulator executable, license, or screenshot has been published publicly. The new 172-case browser suite is configured, but only completed workflow results may be reported as passed. Browser screenshot alignment by itself cannot prove genuine-device pixel parity.
 
+## High-resolution LCD implementation (November 12, 2026)
+
+The previous LCD output was an independently designed **96×31 single-bit raster**, with uppercase, lowercase and mathematical text rendered from **3×5 bitmap glyphs**. Merely enlarging its canvas did not add character detail.
+
+The new renderer in `calculator/js/display.js` implements a **192×62 native output raster** and a deterministic, pre-rasterized **7×11 bitmap font atlas** (127 printable/math glyphs, derived from freely licensed DejaVu Sans Mono patterns; no font binaries are included). Geometric primitives continue to use the established 96×31 screen layout coordinate system and become precise 2×2 pixel blocks; **text is rendered independently at full 192×62 resolution**, including the inverse-video MODE numbers and selected matrix entries. Character case is preserved.
+
+The backing canvas in `calculator/index.html` and `calculator/fx991_fresh_standalone.html` is now **960×310**, retaining the old displayed aspect ratio while producing sharper bitmap dots and characters. CSS keeps pixelated presentation; the calculator's visible physical size and all numeric input/rendering paths remain unchanged.
+
+Regression commands:
+
+```bash
+node calculator/reference/device-parity/test_high_resolution_lcd.cjs
+node calculator/reference/device-parity/test_native_screen_layout.cjs
+python3 calculator/tools/build_standalone.py --check
+```
+
+Direct source execution passed **55/55** high-resolution font/bitmap assertions and **23/23** existing native-reference layout assertions. The 3-model Playwright CI workflow has been updated to execute both tests and the full browser scenario suite. **Do not report the updated browser build as passing until its GitHub Actions run completes and is inspected**. The internal 96×31 layout grid is retained for compatibility, and neither the new font nor the output size is asserted to be identical to the actual manufacturer's LCD.
+
 ## Native evidence workflow (human review required)
 
 1. Run the applicable genuine CASIO hardware or appropriately licensed manufacturer emulator, matching the **exact model edition**.
