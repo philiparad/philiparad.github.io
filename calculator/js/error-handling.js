@@ -29,8 +29,9 @@ function location(source,message){
  const invalid=/\d\.\./.exec(s);
  if(invalid)return invalid.index+2;
  if(/variable error/i.test(text)){
-  match=/[A-Za-z_][A-Za-z_0-9]*/g.exec(s);
-  if(match)return match.index;
+  // A missing X in SOLVE has no editable X token; point to the input end.
+  match=/(?:^|[^A-Za-z0-9_])X(?:$|[^A-Za-z0-9_])/.exec(s);
+  return match?s.indexOf('X',match.index):s.length;
  }
  if(/syntax error|missing/i.test(text)){
   const stack=[];
