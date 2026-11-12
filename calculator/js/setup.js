@@ -12,7 +12,7 @@ const SETUP_PAGE_1=Object.freeze([
   {key:'7',label:'Sci',id:'sci'},
   {key:'8',label:'Norm',id:'norm'}
 ]);
-const SECOND_ORIGINAL=Object.freeze([
+const SECOND_PLUS=Object.freeze([
   {key:'1',label:'ab/c',id:'mixed'},
   {key:'2',label:'d/c',id:'improper'},
   {key:'3',label:'CMPLX',id:'complex'},
@@ -20,25 +20,13 @@ const SECOND_ORIGINAL=Object.freeze([
   {key:'5',label:'Disp',id:'disp'},
   {key:'6',label:'CONT',id:'contrast'}
 ]);
-const SECOND_PLUS=SECOND_ORIGINAL;
-const SECOND_C=Object.freeze([
-  ...SECOND_ORIGINAL.slice(0,4),
-  {key:'5',label:'TABLE',id:'table'},
-  {key:'6',label:'Rdec',id:'recurring'},
-  {key:'7',label:'Disp',id:'disp'},
-  {key:'8',label:'CONT',id:'contrast'}
-]);
-const ALL=Object.freeze({
- 'fx-991es':Object.freeze([SETUP_PAGE_1,SECOND_ORIGINAL]),
- 'fx-991es-plus':Object.freeze([SETUP_PAGE_1,SECOND_PLUS]),
- 'fx-991es-plus-c':Object.freeze([SETUP_PAGE_1,SECOND_C])
-});
+const ALL=Object.freeze({'fx-991es-plus':Object.freeze([SETUP_PAGE_1,SECOND_PLUS])});
 const DEFAULTS=Object.freeze({
  angle:'DEG',format:'Norm1',digits:3,math:true,outputMath:true,
  fractionStyle:'improper',complexFormat:'rectangular',statFrequency:false,
  tableFunctions:2,recurringDecimal:true,decimalSeparator:'dot',contrast:5
 });
-function pages(model){return ALL[model]||ALL['fx-991es-plus-c']}
+function pages(model){return ALL['fx-991es-plus']}
 function entries(model){return pages(model).flatMap((items,page)=>
  items.map(entry=>Object.freeze({...entry,page})))}
 function setting(model,id){return entries(model).find(entry=>entry.id===id)||null}
@@ -52,8 +40,6 @@ function options(id){
   norm:[['1','Norm1','norm1'],['2','Norm2','norm2']],
   complex:[['1','a+bi','rectangular'],['2','r∠θ','polar']],
   stat:[['1','ON','on'],['2','OFF','off']],
-  table:[['1','f(x)','single'],['2','f(x),g(x)','double']],
-  recurring:[['1','ON','on'],['2','OFF','off']],
   disp:[['1','Dot','dot'],['2','Comma','comma']]
  };
  return (mapping[id]||[]).map(([key,label,value])=>({key,label,value}));
