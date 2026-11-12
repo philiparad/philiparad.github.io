@@ -14,7 +14,7 @@ const INLINE=window.FreshInlineCalculus;
 if(!INLINE)throw Error('Missing inline calculus module');
 const MENUS=window.FreshMenuModel;
 if(!MENUS)throw Error('Missing model-specific CASIO menu rules');
-const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, INEQ=window.FreshInequality, INEQDISPLAY=window.FreshInequalityDisplay, VERIFY=window.FreshVerify, DIST=window.FreshDistribution, DISTLIST=window.FreshDistList, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
+const M=window.FreshMath, STAT=window.FreshStatEditor, REG=window.FreshStatRegression, BASE=window.FreshBaseN, EQN=window.FreshEquation, CONST=window.FreshScientificConstants, CONV=window.FreshConversions, EQEDIT=window.FreshEquationEditor, EQEX=window.FreshEquationExact, MATRIX=window.FreshMatrixRegisters, VECTOR=window.FreshVectorRegisters, TABLE=window.FreshTable, COMPLEX=window.FreshComplex, K=window.FreshKeypad, LCD=window.FreshLCD, MODELS=window.FreshModels, STRUCT=window.FreshStructured, RESULTS=window.FreshResults, SETUP=window.FreshSetup, VIEW=window.FreshViewport, ERRORS=window.FreshErrors;
 const LEGENDS=window.FreshLegendAudit;
 const STATN=window.FreshStatNormal;
 if(!STATN)throw Error('Missing STAT standard normal module');
@@ -27,11 +27,6 @@ if(!STAT)throw Error('Missing STAT table editor');
 if(!REG)throw Error('Missing STAT regression engine');
 if(!BASE)throw Error('Missing BASE-N integer engine');
 if(!EQN)throw Error('Missing EQN solving engine');
-if(!INEQ)throw Error('Missing INEQ interval solver');
-if(!INEQDISPLAY)throw Error('Missing INEQ result display module');
-if(!VERIFY)throw Error('Missing chained VERIFY module');
-if(!DIST)throw Error('Missing seven-type DIST calculation module');
-if(!DISTLIST)throw Error('Missing DIST List data editor');
 if(!CONST)throw Error('Missing model scientific-constants catalog');
 if(!CONV)throw Error('Missing metric conversion catalog');
 if(!EQEDIT)throw Error('Missing EQN coefficient editor');
@@ -49,7 +44,7 @@ const initialModel=MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,solveSession:null,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,distType:null,distDraft:null,distList:null,distListParams:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,ineqEditor:null,ineqSession:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
 let numericJob=null;
 const NUMERIC_WALL_MS=6000;
@@ -342,7 +337,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -370,7 +365,7 @@ function clearSetup(){
  Object.assign(state,SETUP.defaults);state.history=[];
  state.statTable=null;state.tableData=null;state.tableDraft=null;
  state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;
- state.vectorEditor=null;state.vectorView=null;state.distList=null;
+ state.vectorEditor=null;state.vectorView=null;
  clearTransientDisplay();state.engShift=0;state.decimal=false;
  state.resultFractionStyle=null;notify('Setup initialized');paint();
 }
@@ -431,7 +426,6 @@ function fieldForm(title,fields,run){
   'BASE-N':['+','-','AND','OR','XOR','NOT'],
   'MATRIX':['det','add','multiply'],
   'VECTOR':['dot','cross','abs'],
-  'INEQ':['<','<=','>','>=']
  };
  const modeSelect=Object.entries(selections).find(([name])=>title.startsWith(name));
  const prepared=fields.map(f=>({...f,...(f.id==='op'&&modeSelect?{choices:modeSelect[1]}:{})}));
@@ -513,9 +507,6 @@ function finishFlow(output){
    else setResult(output.value,output.source,null);
    return;
   }
-   if(state.mode==='DIST'&&state.screen==='dist-list'&&state.distList){
-    state.flow=null;state.info='';paint();return;
-   }
    if(state.mode==='TABLE'&&state.tableData){
     state.flow=null;state.screen='table-grid';state.info='';
     notify('TABLE: UP/DOWN rows, LEFT/RIGHT columns, AC inputs');paint();return;
@@ -538,14 +529,6 @@ function flowHandle(key){
  const f=state.flow;if(!f)return false;
  if(key==='MODE'&&state.shift){releaseModifier();setupMenu();return true;}
  if(key==='AC'){state.flow=null;state.calcSession=null;state.screen='edit';releaseModifier();state.info='';paint();return true}
- if(f.title.startsWith('VERIF ')){
-  if(key==='CALC'){verifyRelationMenu();return true}
-  if(state.shift&&/^[1-6]$/.test(key)){
-   const op=['=','!=','<','<=','>','>='][Number(key)-1];
-   verifyInsertRelation(op);return true;
-  }
-  if(key==='MODE'){modeMenu();return true}
- }
  if(key==='EQUAL'||key==='DOWN'){releaseModifier();flowNext();return true}
  if(key==='UP'){
   if(f.index>0){f.values[flowField().id]=f.buffer;f.index--;f.buffer=f.values[flowField().id]??String(flowField().value??'');f.cursor=f.buffer.length;f.editing=false}
@@ -947,8 +930,8 @@ function modeMenu(){
 }
 function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not available for '+MODELS.get(state.model).label,true);return}
  if(mode!=='STAT')state.statTable=null;
- state.tableData=null;state.tableDraft=null;state.distType=null;state.distDraft=null;state.distList=null;state.distListParams=null;state.constantCode=null;
- state.eqnSession=null;state.eqnEditor=null;state.ineqEditor=null;state.ineqSession=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.tableData=null;state.tableDraft=null;state.constantCode=null;
+ state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  if(mode==='BASE-N'){state.baseRadix='DEC';state.baseValue=0}
  state.complexResultLines=[];state.complexDisplayFormat=null;
  // Preserve the real component of Ans when leaving CMPLX (manual E-25).
@@ -1765,249 +1748,6 @@ function tableHandle(key){
  }
  notify('TABLE: arrows navigate; AC edits input',true);paint();
 }
-// REA-059: dedicated INEQ coefficient editor and special-case result paging.
-function ineqTypeMenu(){
- optionDialog('INEQ degree',[
-  {key:'1',label:'1. Quadratic',action:()=>ineqRelationMenu(2)},
-  {key:'2',label:'2. Cubic',action:()=>ineqRelationMenu(3)}
- ],{pageSize:6,kind:'ineq-type'});
-}
-function ineqRelationMenu(degree){
- const ops=['>','<','>=','<='];
- optionDialog('INEQ '+degree+' relation',ops.map((op,i)=>({
-  key:String(i+1),label:(i+1)+'. f(X) '+op+' 0',
-  action:()=>ineqStart(degree,op)
- })),{pageSize:6,kind:'ineq-relation'});
-}
-function ineqStart(degree,op,previous=null){
- if(![2,3].includes(degree)||!INEQ.OPS.includes(op))throw Error('Argument ERROR');
- const coefficients=EQEDIT.create(degree===2?'QUAD':'CUBIC');
- if(previous){for(const name of coefficients.rows.flat())if(previous[name]!==undefined)coefficients.values[name]=Number(previous[name])}
- else coefficients.values.a=1;
- EQEDIT.restore(coefficients);
- state.ineqEditor={degree,operator:op,coefficients};
- state.ineqSession=null;
- state.screen='ineq-coeff';state.result='';state.info='';releaseModifier();
- notify('INEQ coefficients: arrows navigate; = next / solve; AC clears');paint();
-}
-function ineqSolve(){
- const e=state.ineqEditor;if(!e)return;
- const c=e.coefficients;EQEDIT.commit(c);
- const fields=c.rows.flat(),values=fields.map(name=>c.values[name]);
- const solved=INEQ.solve(values,e.operator);
- const snapshot=Object.fromEntries(fields.map(name=>[name,c.values[name]]));
- state.ineqSession=INEQDISPLAY.session(e.degree,e.operator,snapshot,solved,state.math);
- state.result=state.ineqSession.pages[0].text;
- state.raw=NaN;state.screen='ineq-result';state.info='';releaseModifier();
- notify('INEQ: = or DOWN next; AC returns coefficients');paint();
-}
-function ineqCoeffHandle(key){
- const parent=state.ineqEditor;if(!parent)return;
- const e=parent.coefficients;
- try{
-  if(key==='MODE'){modeMenu();return}
-  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
-  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
-  if(key==='AC'){EQEDIT.clear(e);releaseModifier();notify('INEQ coefficients cleared');paint();return}
-  if(key==='UP'){EQEDIT.move(e,-1,0);releaseModifier();paint();return}
-  if(key==='DOWN'){EQEDIT.move(e,1,0);releaseModifier();paint();return}
-  if(key==='LEFT'){EQEDIT.move(e,0,-1);releaseModifier();paint();return}
-  if(key==='RIGHT'){EQEDIT.move(e,0,1);releaseModifier();paint();return}
-  if(key==='DEL'){EQEDIT.backspace(e);releaseModifier();paint();return}
-  if(key==='EQUAL'){
-   const done=EQEDIT.next(e);releaseModifier();
-   if(done)ineqSolve();else paint();return;
-  }
-  if(key==='NEG'){EQEDIT.sign(e);releaseModifier();paint();return}
-  let token=null;
-  if(/^[0-9]$/.test(key))token=key;
-  else if(key==='DOT')token='.';
-  else if(key==='EXP')token='E';
-  else if(key==='SUB')token='-';
-  else if(key==='ADD')token='+';
-  else if(key.startsWith('TEXT:')&&/^[0-9.Ee+-]$/.test(key.slice(5)))token=key.slice(5);
-  if(token!==null){EQEDIT.enter(e,token);releaseModifier();paint();return}
-  releaseModifier();notify('Unsupported INEQ coefficient key',true);paint();
- }catch(err){e.error=String(err.message||'Math ERROR');releaseModifier();notify(e.error,true);paint()}
-}
-function ineqResultHandle(key){
- const session=state.ineqSession,e=state.ineqEditor;
- if(!session||!e)return;
- if(key==='MODE'){modeMenu();return}
- if(key==='AC'){EQEDIT.restore(e.coefficients);state.screen='ineq-coeff';state.info='';releaseModifier();paint();return}
- if(['EQUAL','DOWN','RIGHT'].includes(key)){
-  if(session.index+1>=session.pages.length){
-   EQEDIT.restore(e.coefficients);state.screen='ineq-coeff';state.info='';paint();return;
-  }
-  INEQDISPLAY.page(session,1,state.math);
- }else if(['UP','LEFT'].includes(key))INEQDISPLAY.page(session,-1,state.math);
- else{notify('INEQ: = next; AC coefficients');paint();return}
- state.result=session.pages[session.index].text;state.info='';paint();
-}
-// REA-060: one editable chained relation with relational-key insertions.
-function verifyStart(initial='1<2<3'){
- fieldForm('VERIF chained relations',[{id:'expression',label:'Relation chain',value:initial}],d=>{
-  const evaluated=VERIFY.evaluate(d.expression,part=>M.evaluate(part,{
-   ...state,memory:{...state.memory},ans:state.ans
-  }));
-  applyAdvancedResult(evaluated.result?1:0,'VERIF '+d.expression);
-  return evaluated.text;
- });
-}
-function verifyInsertRelation(operator){
- const f=state.flow;
- if(state.mode!=='VERIF'||!f||f.fields[f.index].id!=='expression')return;
- if(!VERIFY.OPERATORS.includes(operator))return;
- if(!f.editing){f.buffer='';f.cursor=0;f.editing=true}
- const at=f.cursor??f.buffer.length;
- const rest=state.insert?f.buffer.slice(at):f.buffer.slice(at+operator.length);
- if(f.buffer.length+operator.length>170){notify('Input limit',true);return}
- f.buffer=f.buffer.slice(0,at)+operator+rest;
- f.cursor=at+operator.length;
- state.screen='prompt';state.info='';releaseModifier();paint();
-}
-function verifyRelationMenu(){
- const operators=['=','!=','<','<=','>','>='];
- optionDialog('VERIF Relations',operators.map((operator,index)=>({
-  key:String(index+1),label:(index+1)+'. '+operator,
-  action:()=>verifyInsertRelation(operator)
- })),{pageSize:6,kind:'verify-relations'});
-}
-// REA-061 — seven scalar DIST types in the documented CASIO order.
-function distMenu(){
- optionDialog('DIST type',DIST.TYPES.map((spec,i)=>({
-  label:(i+1)+'. '+spec.label,action:()=>DISTLIST.supported(spec.id)?distInputMenu(spec.id):distStart(spec.id)
- })),{pageSize:4,kind:'dist-type'});
-}
-// REA-062: CASIO Var/List selection for the four discrete distributions.
-function distInputMenu(type){
- optionDialog('DIST '+type+' input',[
-  {key:'1',label:'1. Var',action:()=>distStart(type)},
-  {key:'2',label:'2. List',action:()=>distListStart(type)}
- ],{pageSize:6,kind:'dist-input'});
-}
-function distListStart(type){
- if(!DISTLIST.supported(type))throw Error('Argument ERROR');
- const previous=state.distList;
- state.distList=previous&&previous.type===type?previous:DISTLIST.create(type);
- state.distType=type;state.distListParams=null;
- state.screen='dist-list';state.flow=null;state.info='';releaseModifier();
- notify('DIST List: enter X, = next; CALC calculate; SHIFT 1 Edit');paint();
-}
-function distListEditMenu(){
- optionDialog('DIST Edit',[
-  {key:'1',label:'1. Ins',action:()=>{
-   try{DISTLIST.insert(state.distList);state.screen='dist-list';paint()}
-   catch(e){state.screen='dist-list';notify(e.message,true);paint()}
-  }},
-  {key:'2',label:'2. Del-A',action:()=>{DISTLIST.clear(state.distList);state.screen='dist-list';paint()}},
-  {key:'3',label:'3. Type',action:distMenu},
-  {key:'4',label:'4. Calc',action:distListCalculate}
- ],{pageSize:6,kind:'dist-edit'});
-}
-function distListCalculate(){
- const editor=state.distList;if(!editor)return;
- try{
-  if(editor.inserting)DISTLIST.commitInsertion(editor);
-  else DISTLIST.save(editor);
-  if(!editor.samples.length)throw Error('Argument ERROR');
-  const spec=DIST.TYPES.find(x=>x.id===editor.type);
-  const params=spec.params.filter(name=>name!=='x');
-  const old=state.distListParams||{};
-  fieldForm('DIST List '+spec.label,params.map(name=>({
-   id:name,label:{n:'N',p:'p',mu:'μ'}[name],
-   value:old[name]??spec.defaults[spec.params.indexOf(name)]
-  })),data=>{
-   const numeric={};
-   for(const name of params){
-    if(!String(data[name]??'').trim())throw Error('Argument ERROR');
-    numeric[name]=M.evaluate(String(data[name]),{...state,math:false,memory:{...state.memory},ans:state.ans});
-   }
-   // Parameter errors invalidate the whole calculation; row errors are
-   // shown as ERROR in Ans, without discarding other valid rows.
-   // Validate distribution parameters independently from each list sample.
-   // Invalid sample X values produce individual ERROR cells.
-   DIST.calculate(editor.type,{...numeric,x:0});
-   DISTLIST.evaluate(editor,numeric,DIST);
-   state.distListParams={...data};
-   state.screen='dist-list';state.flow=null;
-   notify('DIST List results: X / Ans; arrows navigate');paint();
-   return '';
-  });
- }catch(e){editor.error=String(e.message||'Math ERROR');state.screen='dist-list';notify(editor.error,true);paint()}
-}
-function distListHandle(key){
- const e=state.distList;if(!e)return;
- try{
-  if(key==='MODE'){modeMenu();return}
-  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
-  if(state.shift&&key==='1'){releaseModifier();distListEditMenu();return}
-  if(key==='CALC'){distListCalculate();return}
-  if(key==='AC'){
-   if(e.inserting){DISTLIST.cancelInsertion(e);paint();return}
-   if(e.editing){DISTLIST.load(e);paint();return}
-   distInputMenu(e.type);return;
-  }
-  if(key==='DEL'){
-   if(e.inserting){DISTLIST.backspace(e);paint();return}
-   if(e.editing){DISTLIST.backspace(e);paint();return}
-   DISTLIST.remove(e);paint();return;
-  }
-  if(key==='NEG'){DISTLIST.sign(e);paint();return}
-  if(key==='EQUAL'){
-   if(e.inserting)DISTLIST.commitInsertion(e);
-   else DISTLIST.next(e);
-   paint();return;
-  }
-  if(['UP','DOWN','LEFT','RIGHT'].includes(key)){
-   if(e.inserting)DISTLIST.commitInsertion(e);
-   DISTLIST.move(e,key==='UP'?-1:key==='DOWN'?1:0,
-      key==='LEFT'?-1:key==='RIGHT'?1:0);
-   paint();return;
-  }
-  let token=null;
-  if(/^[0-9]$/.test(key))token=key;
-  else if(key==='DOT')token='.';
-  else if(key==='EXP')token='E';
-  else if(key==='SUB')token='-';
-  else if(key==='ADD')token='+';
-  else if(key.startsWith('TEXT:')&&/^[0-9Ee.+-]$/.test(key.slice(5)))token=key.slice(5);
-  if(token!==null){
-   if(e.column===1)e.column=0;
-   DISTLIST.edit(e,token);paint();return;
-  }
-  notify('DIST List: = save; DEL remove; CALC calculate',true);paint();
- }catch(err){e.error=String(err.message||'Math ERROR');releaseModifier();notify(e.error,true);paint()}
-}
-function distStart(type,previous=null){
- const spec=DIST.TYPES.find(item=>item.id===type);if(!spec)throw Error('Argument ERROR');
- state.distType=type;
- const restored=previous||{};
- fieldForm('DIST '+spec.label,spec.params.map((param,i)=>({
-  id:param,label:({x:'x',sigma:'σ',mu:'μ',lower:'Lower',upper:'Upper',area:'Area',n:'N',p:'p'}[param]),
-  value:restored[param]??spec.defaults[i]
- })),data=>{
-  // Expressions are evaluated using the same calculator arithmetic settings,
-  // then checked by the distribution engine for the selected type/domain.
-  const values={};
-  for(const param of spec.params){
-   if(!String(data[param]??'').trim())throw Error('Argument ERROR');
-   values[param]=M.evaluate(String(data[param]),{...state,math:false,memory:{...state.memory},ans:state.ans});
-  }
-  const result=DIST.calculate(type,values);
-  // No side effects until the full computation has succeeded.
-  state.distDraft={type,values:{...data}};
-  applyAdvancedResult(result,'DIST '+spec.label);
-  return M.format(result,{...state,math:false});
- });
-}
-function distFlowHandle(key){
- if(key==='MODE'&&state.shift){releaseModifier();setupMenu();return true}
- if(key==='MODE'){modeMenu();return true}
- if(key==='SHIFT'){state.shift=!state.shift;paint();return true}
- if(state.shift&&key==='1'){releaseModifier();distMenu();return true}
- return false;
-}
 function advancedMode(mode){
  if(!MODELS.supports(state.model,mode)){
   releaseModifier();notify('Mode unavailable on selected model',true);paint();return;
@@ -2019,9 +1759,6 @@ function advancedMode(mode){
   if(mode==='MATRIX')return matrixRegisterMenu('Dim');
   if(mode==='VECTOR')return vectorRegisterMenu('Dim');
   if(mode==='TABLE')return tableStart();
-  if(mode==='INEQ')return ineqTypeMenu();
-  if(mode==='VERIF')return verifyStart();
-  if(mode==='DIST')return distMenu();
 }
 function alphaKey(key){
  if(key==='DOT'&&!MODELS.hasFeature(state.model,'ranint')){
@@ -2367,17 +2104,10 @@ function handle(key){
   if(key==='EQUAL'){matrixExpressionInput('MatAns');return}
   matrixMenu();return;
  }
- if(state.screen==='ineq-result'){ineqResultHandle(key);return}
- if(state.screen==='ineq-coeff'){ineqCoeffHandle(key);return}
  if(state.screen==='eqn-result'){eqnResultHandle(key);return}
  if(state.screen==='eqn-coeff'){eqnCoeffHandle(key);return}
  if(state.mode==='BASE-N'){baseHandle(key);return}
  if(state.screen==='stat-table'){statTableHandle(key);return}
- if(state.mode==='DIST'&&state.screen==='dist-list'){distListHandle(key);return}
- if(state.mode==='DIST'&&state.screen==='prompt'&&state.flow.title.startsWith('DIST List')&&key==='AC'){
-  state.flow=null;state.screen='dist-list';releaseModifier();paint();return;
- }
- if(state.mode==='DIST'&&state.screen==='prompt'&&distFlowHandle(key))return;
  if(state.screen==='prompt'){flowHandle(key);return}
  if(state.screen==='flow-result'){
   if(state.solveSession&&state.mode==='COMP'){
@@ -2387,12 +2117,6 @@ function handle(key){
     state.solveSession=null;state.screen='edit';state.outputLines=[];
     state.outputPage=0;state.viewport.flowX=0;releaseModifier();paint();return;
    }
-  }
-  if(state.mode==='DIST'){
-   if(key==='MODE'){modeMenu();return}
-   if(key==='SHIFT'){state.shift=!state.shift;paint();return}
-   if(state.shift&&key==='1'){releaseModifier();distMenu();return}
-   if((key==='EQUAL'||key==='AC')&&state.distDraft){distStart(state.distDraft.type,state.distDraft.values);return}
   }
   if(state.mode==='STAT'&&state.statTable&&key==='SHIFT'){state.shift=!state.shift;paint();return}
   if(state.mode==='STAT'&&state.statTable&&state.shift&&key==='1'){statMenu();return}
