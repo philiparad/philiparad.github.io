@@ -118,7 +118,9 @@ function context(key,modifier,mode,screen,model,supports){
 }
 function classify(key,modifier,mode,screen,model,supports){
  if(!key||!MODELS.includes(model)||!MODIFIERS.includes(modifier)||!MODES.includes(mode)||
-  !SCREENS.includes(screen))throw Error('Argument ERROR');
+  typeof screen!=='string'||!screen)throw Error('Argument ERROR');
+ // A new controller screen must never crash the LCD as an Argument ERROR.
+ // Unknown specialized screens are delegated to their dedicated key handler.
  const r=supports(model,mode)?
   context(key,modifier,mode,screen,model,supports):
   {status:'blocked',reason:'Mode '+mode+' is not supported by '+model};
