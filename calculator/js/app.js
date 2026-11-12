@@ -45,8 +45,7 @@ if(!RESULTS)throw Error('Missing natural-result formatter');
 if(!STRUCT)throw Error('Structured textbook editor unavailable');
 if(!MODELS)throw Error('Missing CASIO model profile definitions');
 const $=(id)=>document.getElementById(id);
-const requestedModel=new URLSearchParams(location.search).get('model');
-const initialModel=MODELS.profiles[requestedModel]?requestedModel:MODELS.defaultModel;
+const initialModel=MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,solveSession:null,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
@@ -88,7 +87,7 @@ const registerNames=()=>MODELS.registers(state.model).join(', ');
 const maxEntries=300;
 // REA-044: browser simulation; all supported ES-family profiles specify
 // approximately ten minutes. No physical battery level can be read here.
-const AUTO_OFF_MS=Object.freeze({'fx-991es':600000,'fx-991es-plus':600000,'fx-991es-plus-c':600000});
+const AUTO_OFF_MS=Object.freeze({'fx-991es-plus':600000});
 let lastOperationAt=Date.now(),powerTimer=null;
 function autoOffDelay(model){return AUTO_OFF_MS[model]??600000}
 function inactivityExpired(last,now,limit){return Number.isFinite(last)&&Number.isFinite(now)&&now-last>=limit}
@@ -121,13 +120,13 @@ function paint(){
  const flags=window.FreshIndicators.render(state,$);
  if(!$('lcd-panel').hidden){const ctx=$('lcd-large').getContext('2d');if(ctx){ctx.imageSmoothingEnabled=false;ctx.drawImage($('lcd'),0,0,$('lcd-large').width,$('lcd-large').height)}}
  $('lcd').setAttribute('aria-label',state.screen==='menu'?'LCD menu '+state.menuTitle+', page '+(state.menuPage+1)+', '+state.menu.map(x=>x.number+' '+x.label).join('; '):state.screen==='prompt'?'LCD prompt '+state.flow.title+', '+(state.flow.index+1)+' of '+state.flow.fields.length+', '+state.flow.fields[state.flow.index].label+' equals '+state.flow.buffer:state.screen==='flow-result'?'LCD result '+state.outputLines.join('; '):state.screen==='matrix-table'&&state.matrixEditor?'MATRIX editor '+state.matrixEditor.name+', '+state.matrixEditor.matrix.rows+' by '+state.matrixEditor.matrix.cols+', selected row '+(state.matrixEditor.row+1)+' column '+(state.matrixEditor.col+1)+' value '+state.matrixEditor.buffer:state.screen==='matrix-result'&&state.matrixView?'MATRIX '+state.matrixView.name+' result, '+state.matrixView.matrix.rows+' by '+state.matrixView.matrix.cols+', value '+state.matrixView.matrix.data[state.matrixView.row][state.matrixView.col]:state.screen==='conversion-code'&&state.conversionCode?'CONV code '+state.conversionCode.buffer+' of 01 to 40':state.screen==='constant-code'&&state.constantCode?'Scientific constant code '+state.constantCode.buffer+' of 01 through 40':state.screen==='dist-list'&&state.distList?'DIST List row '+(state.distList.row+1)+' of '+state.distList.samples.length+', '+(state.distList.column===0?'X':'Ans')+', value '+DISTLIST.format(DISTLIST.active(state.distList)):state.screen==='table-grid'&&state.tableData?'TABLE row '+(state.tableData.row+1)+' of '+state.tableData.rows.length+', column '+state.tableData.columns[state.tableData.col]+', value '+TABLE.format(TABLE.active(state.tableData)):state.screen==='vector-parameter'&&state.vectorParameter?'VECTOR scalar parameter for '+state.vectorParameter.name+', value '+state.vectorParameter.buffer+(state.vectorParameter.error?', '+state.vectorParameter.error:''):state.screen==='vector-scalar'?'VECTOR scalar result '+state.result+', '+(state.vectorScalarInfo||''):state.screen==='vector-table'&&state.vectorEditor?'VECTOR editor '+state.vectorEditor.name+', '+state.vectorEditor.vector.dimension+' dimensions, component '+(state.vectorEditor.index+1)+' value '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name+' result, component '+(state.vectorView.index+1)+' value '+state.vectorView.vector.data[state.vectorView.index]:state.screen==='ineq-coeff'&&state.ineqEditor?'INEQ '+state.ineqEditor.degree+' '+state.ineqEditor.operator+' zero, coefficient '+EQEDIT.current(state.ineqEditor.coefficients)+' equals '+state.ineqEditor.coefficients.buffer+', position '+(state.ineqEditor.coefficients.col+1):state.screen==='ineq-result'&&state.ineqSession?'INEQ result '+(state.ineqSession.index+1)+' of '+state.ineqSession.pages.length+', '+state.ineqSession.pages[state.ineqSession.index].text:state.screen==='eqn-coeff'&&state.eqnEditor?'EQN coefficient editor, '+state.eqnEditor.type+', selected '+EQEDIT.current(state.eqnEditor)+' equals '+state.eqnEditor.buffer+', row '+(state.eqnEditor.row+1)+', column '+(state.eqnEditor.col+1):state.screen==='eqn-result'&&state.eqnSession?'EQN result '+(state.eqnSession.index+1)+' of '+state.eqnSession.solutions.length+', '+state.result:state.screen==='stat-table'&&state.statTable?'STAT data table row '+(state.statTable.row+1)+' of '+state.statTable.rows.length+', '+STAT.active(state.statTable)+' equals '+state.statTable.buffer+', '+(state.statTable.paired?'paired data':'one variable')+', frequency '+(state.statTable.frequency?'on':'off'):state.screen==='error'?'LCD error '+state.error+', press left or right to correct, or AC to cancel':'Calculator '+state.mode+', '+state.angle+', expression '+state.input+', result '+state.result);
- const faceIds={'fx-991es':'fx-991ES','fx-991es-plus':'fx-991ES PLUS','fx-991es-plus-c':'fx-991ES PLUS C'};
+ const faceIds={'fx-991es-plus':'fx-991ES PLUS'};
  const face=$('face');
  face.dataset.model=state.model;
  document.querySelector('.case-model-id').textContent=faceIds[state.model];
- document.querySelector('.case-model-series').textContent=state.model==='fx-991es'?'NATURAL DISPLAY':'NATURAL-V.P.A.M.';
- document.querySelector('.edition-mark').textContent=state.model==='fx-991es'?'TWO WAY POWER':'2nd edition';
- $('model-label').textContent=MODELS.get(state.model).label;
+ document.querySelector('.case-model-series').textContent='NATURAL-V.P.A.M.';
+ document.querySelector('.edition-mark').textContent='2nd edition';
+
  $('mode-label').textContent=state.mode==='BASE-N'?'BASE-N '+state.baseRadix:state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
  $('expression-text').textContent=state.screen==='conversion-code'?'CONV 01-40: '+state.conversionCode.buffer:state.screen==='constant-code'?'CONST 01-40: '+state.constantCode.buffer:state.screen==='dist-list'&&state.distList?'DIST List '+state.distList.type+' X['+(state.distList.row+1)+']':state.screen==='table-grid'&&state.tableData?'TABLE '+state.tableData.columns[state.tableData.col]+' ('+(state.tableData.row+1)+'/'+state.tableData.rows.length+')':state.screen==='vector-table'&&state.vectorEditor?'VECTOR '+state.vectorEditor.name+' ['+(state.vectorEditor.index+1)+'] = '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name:state.screen==='ineq-coeff'&&state.ineqEditor?'INEQ '+state.ineqEditor.degree+' '+state.ineqEditor.operator+' '+EQEDIT.current(state.ineqEditor.coefficients)+' = '+state.ineqEditor.coefficients.buffer:state.screen==='ineq-result'&&state.ineqSession?'INEQ '+state.ineqSession.degree+' '+state.ineqSession.operator+' 0':state.screen==='eqn-coeff'&&state.eqnEditor?'EQN '+EQEDIT.current(state.eqnEditor)+' = '+state.eqnEditor.buffer:state.screen==='eqn-result'&&state.eqnSession?'EQN '+state.eqnSession.type:state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='dist-list'&&state.distList?(state.distList.error||DISTLIST.format(DISTLIST.active(state.distList))):state.screen==='table-grid'&&state.tableData?TABLE.detail(state.tableData):state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
@@ -226,11 +225,8 @@ function evaluateSegment(source){
  let value=Number.isFinite(exactValue)&&Math.abs(exactValue)<=9.999999999e99?
   exactValue:M.evaluate(expression,{...state,ans:state.ans,preAns:state.preAns,
     memory:state.memory,
-    statOriginalDistr:state.model==='fx-991es'&&state.mode==='STAT'&&
-     !!state.statTable&&!state.statTable.paired&&state.statTable.regressionType==='1VAR',
-    statSummary:source.includes('▶t')&&state.model==='fx-991es'&&
-     state.mode==='STAT'&&state.statTable?
-     REG.summary(state.statTable):null});
+    statOriginalDistr:false,
+    statSummary:null});
  // REA-075: the exact-rational fast path must obey the same documented
  // numeric range floor as base-10 arithmetic; discard out-of-range metadata.
  if(value!==0&&Number.isFinite(value)&&Math.abs(value)<1e-99){
@@ -962,19 +958,6 @@ function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not availa
  }
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
  state.history=[];clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
-function setModel(id){
- cancelNumeric();
- if(!MODELS.profiles[id])return false;
- state.model=id;
- reset('all');
- state.model=id;
- state.mode='COMP';
- $('model-selector').value=id;
- K.applyModel($('keys'),id);
- notify('Model: '+MODELS.get(id).label+' · only supported modes are shown');
- paint();
- return true;
-}
 function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
 // REA-047: all STAT data are edited on the calculator LCD.
@@ -1039,128 +1022,8 @@ function statEstimate(which){
   return out.map((v,i)=>(which==='y'?'yHat':'xHat'+(out.length>1?i+1:''))+' = '+REG.format(v)).join('\\n');
  });
 }
-// REA-084 — original fx-991ES single-variable STAT → 7: Distr.
-// P(t), Q(t), R(t) use the standard-normal integral. x▶t is computed
-// from the current STAT editor's population SD (xσn), never sample SD.
-function statDistr(){
- if(state.model!=='fx-991es'||!state.statTable||
-   state.statTable.paired||state.statTable.regressionType!=='1VAR'){
-  notify('STAT Distr requires original 1-VAR',true);paint();return;
- }
- releaseModifier();
- optionDialog('STAT Distr',[
-  {key:'1',label:'1. P(',action:()=>originalStatPInput()},
-  {key:'2',label:'2. Q(',action:()=>originalStatQInput()},
-  {key:'3',label:'3. R(',action:()=>originalStatRInput()},
-  {key:'4',label:'4. ▶t',action:()=>originalStatTInput()}
- ],{pageSize:4,kind:'stat-distr'});
-}
-// REA-101: native STAT Distr 1 inserts the P( command into the calculation
-// editor. This permits P(0), P(Ans), arithmetic and ordinary cursor editing.
-function originalStatPInput(){
- if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
-    state.statTable.paired||state.statTable.regressionType!=='1VAR')
-  throw Error('Argument ERROR');
- if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
-  state.editor=STRUCT.create();state.screen='edit';syncEditor();
- }
- insert('P(');
-}
-// REA-102: Q(t) uses the native editable calculation expression, just as
-// P(t) does. The normal integral is signed for negative arguments.
-function originalStatQInput(){
- if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
-    state.statTable.paired||state.statTable.regressionType!=='1VAR')
-  throw Error('Argument ERROR');
- if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
-  state.editor=STRUCT.create();state.screen='edit';syncEditor();
- }
- insert('Q(');
-}
-// REA-103: original STAT Distr 3 inserts the R( upper-tail command
-// into the normal editable expression rather than a separate prompt.
-function originalStatRInput(){
- if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
-    state.statTable.paired||state.statTable.regressionType!=='1VAR')
-  throw Error('Argument ERROR');
- if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
-  state.editor=STRUCT.create();state.screen='edit';syncEditor();
- }
- insert('R(');
-}
-// REA-104: original STAT normalized variate is a postfix operator X▶t.
-// Read the current, frequency-weighted sample data at the moment of evaluation.
-function originalStatTInput(){
- if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
-    state.statTable.paired||state.statTable.regressionType!=='1VAR')
-  throw Error('Argument ERROR');
- if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
-  const fromResult=['result','flow-result'].includes(state.menuReturnScreen);
-  state.editor=STRUCT.create();state.screen='edit';syncEditor();
-  if(fromResult)insert('Ans');
- }
- insert('▶t');
-}
-function originalStatEstimate(item){
- const which=item.estimate;
- fieldForm('STAT '+item.label,[{
-  id:'value',label:which==='x'?'Given Y':'Given X',value:'0'
- }],values=>{
-  if(state.model!=='fx-991es'||state.mode!=='STAT'||!state.statTable||
-     !state.statTable.paired)throw Error('Argument ERROR');
-  const source=String(values.value??'').trim();
-  if(!source)throw Error('Syntax ERROR');
-  const number=M.evaluate(source,{...state,math:false,
-   memory:{...state.memory,...STATPARAM.resolve(source,state.statTable,REG)}});
-  const fit=statFit();
-  const results=which==='y'?[REG.estimateY(fit,number)]:REG.estimateX(fit,number);
-  if(item.root!==undefined&&item.root>=results.length)throw Error('Math ERROR');
-  const output=results[item.root??0];
-  if(!Number.isFinite(output))throw Error('Math ERROR');
-  return {kind:'stat-original-estimate',value:output,
-   source:item.label+'('+source+')'};
- });
-}
-function originalStatParameterMenu(group){
- const t=state.statTable;
- if(state.model!=='fx-991es'||state.mode!=='STAT'||!t)
-  throw Error('Argument ERROR');
- const options=STATPARAM.entries(group,t.paired,t.regressionType);
- optionDialog('STAT '+group,options.map(item=>({
-  key:item.key,label:item.key+'. '+item.label,
-  action:()=>{
-   if(item.estimate){originalStatEstimate(item);return}
-   // The command inserts a symbolic token, not a premature numeric answer.
-   // The menu dispatcher has already switched screen to edit. Respect
-   // its recorded origin: selecting from the data or result screen starts
-   // a fresh expression, while selecting during editing inserts at caret.
-   if(['stat-table','result','flow-result'].includes(state.menuReturnScreen)){
-    state.screen='edit';state.editor=STRUCT.create();syncEditor();
-   }
-   insert(item.token);
-  }
- })),{pageSize:8,kind:'stat-'+group.toLowerCase()});
-}
 function statMenu(){
  if(!state.statTable){statModeMenu();return}
- if(state.model==='fx-991es'){
-  releaseModifier();
-  optionDialog('STAT',[
-   {key:'1',label:'1. Type',action:statModeMenu},
-   {key:'2',label:'2. Data',action:()=>{state.screen='stat-table';paint()}},
-   {key:'3',label:'3. Edit',action:()=>optionDialog('STAT Edit',[
-    {key:'1',label:'1. Ins',action:()=>statSafe(()=>{STAT.insert(state.statTable);state.screen='stat-table';paint()})},
-    {key:'2',label:'2. Del',action:()=>statSafe(()=>{STAT.remove(state.statTable);state.screen='stat-table';paint()})},
-    {key:'3',label:'3. Del-A',action:()=>{const t=state.statTable;t.rows=[{X:null,Y:null,FREQ:1}];t.row=0;t.col=0;STAT.load(t);state.screen='stat-table';paint()}}
-   ],{pageSize:4,kind:'stat-edit'})},
-   {key:'4',label:'4. Sum',action:()=>originalStatParameterMenu('Sum')},
-   {key:'5',label:'5. Var',action:()=>originalStatParameterMenu('Var')},
-   {key:'6',label:'6. MinMax',action:()=>originalStatParameterMenu('MinMax')},
-   {key:'7',label:state.statTable.paired?'7. Reg':'7. Distr',
-    action:()=>state.statTable.paired?originalStatParameterMenu('Reg'):statDistr()}
-  ],{pageSize:8,kind:'stat-menu'});
-  return;
- }
  releaseModifier();
  optionDialog('STAT',[
   {key:'1',label:'1. Type',action:statModeMenu},
@@ -1173,9 +1036,7 @@ function statMenu(){
   {key:'4',label:'4. Sum',action:()=>statSafe(()=>statMenuResult('Sum',statSummary(),state.statTable.paired))},
   {key:'5',label:'5. Var',action:()=>statSafe(()=>statMenuResult('Var',statSummary(),state.statTable.paired))},
   {key:'6',label:'6. MinMax',action:()=>statSafe(()=>statMenuResult('MinMax',statSummary(),state.statTable.paired))},
-  {key:'7',label:state.model==='fx-991es'&&!state.statTable.paired?'7. Distr':'7. Reg',
-   action:()=>state.model==='fx-991es'&&!state.statTable.paired?
-    statDistr():statSafe(()=>statMenuResult('Reg',statFit(),state.statTable.paired))},
+  {key:'7',label:'7. Reg',action:()=>statSafe(()=>statMenuResult('Reg',statFit(),state.statTable.paired))},
   ...(state.statTable.paired?[{key:'8',label:'8. Estimate',action:()=>optionDialog('STAT estimate',[
    {key:'1',label:'1. yHat',action:()=>statSafe(()=>statEstimate('y'))},
    {key:'2',label:'2. xHat',action:()=>statSafe(()=>statEstimate('x'))}
@@ -2376,22 +2237,6 @@ function toggleFraction(){
  if(state.remainderResult||state.coordinateResult)return;
  // Rdec S⇔D cycling is exclusive to the PLUS C model.
  // Original ES and standard PLUS always use ordinary fraction/decimal.
- const recurring=state.model==='fx-991es-plus-c'&&state.recurringDecimal&&state.ansRational?
-  SPECIAL.recurringOf(state.ansRational):null;
- if(recurring){
-  const kind=state.resultPresentation?.chosen?.kind;
-  if(kind==='fraction'||kind==='mixed'){
-   state.resultPresentation={...state.resultPresentation,chosen:recurring};
-   state.result=recurring.text;state.viewport.resultX=Math.max(0,state.result.length-23);
-   paint();return;
-  }
-  if(kind==='recurring'){
-   const text=RESULTS.decimal(state.raw,state);
-   state.resultPresentation={...state.resultPresentation,chosen:{kind:'decimal',text}};
-   state.result=text;state.viewport.resultX=Math.max(0,text.length-23);
-   paint();return;
-  }
- }
  const candidate=RESULTS.calculate(state.raw,state.resultSource||state.input,
   {...state,fractionStyle:state.resultFractionStyle||state.fractionStyle},{
    exactRational:state.ansRational,forceFraction:true,allowApproxRational:false
@@ -2629,22 +2474,6 @@ function handle(key){
  }
  if(key==='EQUAL'){
   clearReplay();
-  if(state.mode==='STAT'&&state.model==='fx-991es'&&state.statTable){
-   try{
-    const source=STRUCT.serialize(state.editor,true);
-    if(!source)throw Error('Syntax ERROR');
-    STAT.commit(state.statTable);
-    const bound=STATPARAM.resolve(source,state.statTable,REG);
-    const value=M.evaluate(source,{...state,math:false,ans:state.ans,
-     memory:{...state.memory,...bound},
-     statOriginalDistr:!state.statTable.paired&&
-      state.statTable.regressionType==='1VAR',
-     statSummary:source.includes('▶t')?
-      REG.summary(state.statTable):null});
-    setResult(value,source,null);
-   }catch(e){error(e.message||'Math ERROR')}
-   return;
-  }
   if(state.mode!=='COMP'&&state.mode!=='CMPLX'){advancedMode(state.mode);return}
   if(state.screen==='result'&&advanceStatements())return;
   evaluate();return;
@@ -3030,8 +2859,8 @@ function keyboard(event){
  window.FreshKeyboard.dispatch(event,state,press,captureKeyboardLCD);
 }
 K.mount($('keys'),press,state.model);
-$('model-selector').value=state.model;
-$('model-selector').addEventListener('change',e=>setModel(e.target.value));
+
+
 $('run-checks').addEventListener('click',runChecks);
 $('export-legends').addEventListener('click',()=>download('rea081-key-modifier-inventory.json',
  JSON.stringify({schema:'rea081-key-legends-v1',scope:'independent web calculator',
@@ -3070,7 +2899,7 @@ document.addEventListener('keydown',keyboard);
 document.addEventListener('visibilitychange',()=>{if(state.power)checkInactivity()});
 markOperation();
 paint();
-window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,setModel,
+window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,
  legendInventory:(options)=>LEGENDS.inventory(K,MODELS,options),
  legendStatus:(key,modifier='normal',mode=state.mode,screen=state.screen,model=state.model)=>{
   const physical=K.keysForModel(model).find(item=>item.id===key);
