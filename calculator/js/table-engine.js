@@ -20,7 +20,7 @@ function numeric(value,label){
  if(String(value).trim()===''||!Number.isFinite(n))fail('Argument ERROR');
  return n;
 }
-// REA-093: original fx-991ES TABLE accepts scalar f(X), not calculus,
+// CASIO PLUS TABLE accepts scalar f(X), not calculus,
 // coordinate conversion or a sequence of statements. Check before generation.
 function validateExpression(source){
  const expr=String(source).trim();
