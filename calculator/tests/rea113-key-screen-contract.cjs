@@ -29,7 +29,7 @@ for(const model of models){
      assert.equal(typeof info.status,'string');
      assert(info.status.length>0);
      if(screen==='future-specialized-screen'&&modifier==='normal')
-      assert.equal(info.status,'delegated');
+      assert.equal(info.status,key.label?'delegated':'unlabelled',key.id);
      checks++;
     }
    }
