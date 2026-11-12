@@ -3528,11 +3528,12 @@ function remove(s){
  s.col=0;return load(s);
 }
 function toggleFrequency(s,enabled){
- // No entered X/Y or stored frequencies are discarded by hiding a column.
- commit(s);
- if(s.rows.length>rowCapacity({...s,frequency:!!enabled}))fail('Data Full');
- s.frequency=!!enabled;
- s.col=Math.min(s.col,columns(s.paired,s.frequency).length-1);
+ // CASIO PLUS: changing STAT Format erases ALL observations, not just FREQ.
+ // Selecting the currently active format is a no-op, including pending input.
+ const next=!!enabled;
+ if(s.frequency===next)return s;
+ s.frequency=next;s.rows=[newRow()];s.row=0;s.col=0;s.scroll=0;
+ s.buffer='';s.editing=false;s.error='';
  return load(s);
 }
 function type(s,addition,overwrite=false){
