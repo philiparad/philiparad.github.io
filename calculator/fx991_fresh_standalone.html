@@ -1924,6 +1924,10 @@ function context(key,modifier,mode,screen,model,supports){
  if(screen==='error')return {status:key.id==='AC'||key.id==='LEFT'||key.id==='RIGHT'?
   'available':'blocked',reason:'Error recovery only'};
  if(screen!=='edit'&&screen!=='result'){
+  if(modifier==='ALPHA'&&screen==='prompt'){
+   if(['NEG','DMS','HYP','SIN','COS','TAN','LP','RP','MPLUS','ENG','EXP','CALC','DOT','FRAC'].includes(key.id))
+    return {status:'available',reason:'Printed ALPHA symbol in prompt expression'};
+  }
   const editorShift=(mode==='STAT'&&['stat-table','flow-result'].includes(screen)&&key.id==='1')||
    (mode==='MATRIX'&&['matrix-table','matrix-expression','matrix-result','matrix-scalar'].includes(screen)&&key.id==='4')||
    (mode==='VECTOR'&&['vector-table','vector-result','vector-scalar'].includes(screen)&&key.id==='5');
@@ -5780,6 +5784,11 @@ function flowHandle(key){
   if(!registerAllowed(vars[key])){releaseModifier();notify('Register unavailable on this model',true);paint();return true}
   addition=vars[key];
  }
+ else if(state.alpha&&key==='ENG')addition=':';
+ else if(state.alpha&&key==='EXP')addition='e';
+ else if(state.alpha&&key==='CALC')addition='=';
+ else if(state.alpha&&key==='DOT')addition='RanInt#(';
+ else if(state.alpha&&key==='FRAC')addition='÷R';
  else if(state.shift&&key==='RP')addition=',';
  else if(state.shift&&key==='DOT')addition=',';
  else if(state.shift&&key==='MUL')addition='*';
@@ -7288,6 +7297,18 @@ function handle(key){
   if(key==='RIGHT')state.contrast=Math.min(9,state.contrast+1);
   if(key==='AC'||key==='EQUAL'){state.screen='edit';state.info=''}
   paint();return;
+ }
+ // ALPHA is one-shot and must never fall through to an ordinary numeral or
+ // unrelated editor action when the key has no usable ALPHA legend.
+ if(state.alpha&&key!=='ALPHA'&&key!=='SHIFT'&&!key.startsWith('TEXT:')){
+  const physical=K.keysForModel(state.model).find(item=>item.id===key);
+  if(physical){
+   const action=LEGENDS.classify(physical,'ALPHA',state.mode,state.screen,
+    state.model,MODELS.supports);
+   if(action.status==='blocked'||action.status==='unlabelled'){
+    releaseModifier();notify('ALPHA '+key+': '+action.reason,true);paint();return;
+   }
+  }
  }
  // MODE and SHIFT+MODE are global physical keys, including in coefficient,
  // table and prompt editors. Opening either menu must not discard the editor:
