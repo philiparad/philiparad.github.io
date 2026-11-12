@@ -94,7 +94,10 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   // REA-049: Casio-like radix annunciator and padded 16/32-bit result.
   const base=state.baseRadix||'DEC';
   const title=base==='HEX'?'Hex':base==='BIN'?'Bin':base==='OCT'?'Oct':'Dec';
-  write(title,0,0);
+  // The native BASE-N empty screen aligns "Dec" directly above
+  // the right-aligned zero instead of printing it at the upper left.
+  if(!state.input&&state.screen==='edit')write(title,W-title.length*4,18);
+  else write(title,0,0);
   const input=String(state.input||'');
   if(state.screen==='edit'){
    const start=Math.max(0,input.length-23);
@@ -108,6 +111,20 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    write(result.slice(-23),Math.max(0,W-Math.min(result.length,23)*4),25);
   }
   return pixels;
+ }
+ // Native TABLE entry starts with a blank f(X)= field, not a
+ // multiline engineering form with a sample formula prefilled.
+ if(state.screen==='prompt'&&state.flow&&state.flow.title.startsWith('TABLE')){
+  const current=state.flow.fields[state.flow.index];
+  if(current&&(current.id==='expression'||current.id==='expression2')){
+   const text=current.id==='expression'?'f(X)=':'g(X)=';
+   write(text,2,9);
+   const value=String(state.flow.buffer||'');
+   write(value.slice(0,Math.max(0,23-text.length)),2+text.length*4,9);
+   const cursor=Math.min(W-1,2+Math.min(23,text.length+value.length)*4);
+   for(let yy=9;yy<=14;yy++)pixel(cursor,yy);
+   return pixels;
+  }
  }
  if(state.screen==='contrast'){
   write('CONTRAST',28,1);
@@ -135,8 +152,58 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const kind=state.menuKind||'normal';
   const title=menu?menu.displayTitle(kind,state.menuTitle):
     String(state.menuTitle||'MENU').replace(/[^A-Za-z0-9 /-]/g,'').slice(0,18);
-  write(title,0,0);
   const entries=state.menu||[],size=state.menuPageSize||6;
+  // Emulator-reference LCD observations (PLUS C, 2026-11-12):
+  // first MODE page uses inverse boxed digits without a "MODE" heading.
+  if(kind==='mode'&&state.menuPage===0){
+   const colWidth=48;
+   for(let i=0;i<Math.min(8,entries.length);i++){
+    const x=(i%2)*colWidth+1,y=4+Math.floor(i/2)*7;
+    for(let py=0;py<7;py++)for(let px=0;px<6;px++)pixel(x+px,y+py);
+    const font=FONT[String(entries[i].number)]||FONT['?'];
+    for(let py=0;py<5;py++)for(let px=0;px<3;px++)
+     if(font[py][px]==='1')pixels[(y+1+py)*W+x+1+px]=0;
+    const name=menu?menu.label(entries[i]):String(entries[i].label);
+    write(name,x+8,y+1,x+colWidth-1);
+   }
+   if(state.menuEntries.length>size)for(let y=0;y<3;y++)
+    for(let x=0;x<5-2*y;x++)pixel(89+y+x,1+y);
+   return pixels;
+  }
+  // The native EQN selection screen shows mathematical equations rather
+  // than the simulator's descriptive "unknowns/Quadratic" labels.
+  if(kind==='eqn-type'){
+   const lines=['1:aX+bY=c','2:aX+bY+cZ=d','3:aX²+bX+c=0','4:aX³+bX²+cX+d=0'];
+   for(let i=0;i<Math.min(entries.length,4);i++)write(lines[i],1,2+i*7);
+   return pixels;
+  }
+  // Native MatA dimension selection orders 3x3, 3x2, 3x1, 2x3, 2x2,
+  // 2x1 on its first page (then 1-row dimensions after DOWN).
+  if(kind==='matrix-dims'){
+   write(String(state.menuTitle||'MatA(m×n) m×n?'),0,0);
+   for(let i=0;i<Math.min(6,entries.length);i++){
+    const x=(i%2)*48+1,y=9+Math.floor(i/2)*7;
+    const name=menu?menu.label(entries[i]):String(entries[i].label);
+    write(String(entries[i].number)+':'+name,x,y,x+47);
+   }
+   if((state.menuPage+1)*size<state.menuEntries.length)
+    for(let y=0;y<3;y++)for(let x=0;x<5-2*y;x++)pixel(89+y+x,1+y);
+   if(state.menuPage>0)
+    for(let y=0;y<3;y++)for(let x=0;x<1+2*y;x++)pixel(85+2-y+x,1+y);
+   return pixels;
+  }
+  // Emulator selector headings are "Matrix?" and "Vector?" rather than
+  // the internal engineering MODE names "MATRIX" and "VECTOR".
+  if(kind==='matrix'||kind==='vector'){
+   write(kind==='matrix'?'Matrix?':'Vector?',2,2);
+   for(let i=0;i<Math.min(entries.length,6);i++){
+    const x=(i%2)*48+2,y=11+Math.floor(i/2)*7;
+    const name=menu?menu.label(entries[i]):String(entries[i].label);
+    write(String(entries[i].number)+':'+name,x,y,x+46);
+   }
+   return pixels;
+  }
+  write(title,0,0);
   const special=menu?menu.rule(kind):{columns:2,size:6};
   const columns=special.columns===3?3:2;
   const colWidth=Math.floor(W/columns);
