@@ -302,6 +302,39 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const e=editing?state.matrixEditor:state.matrixView;
   if(!e)return pixels;
   const m=editing?e.matrix:e.matrix;
+  // Screenshot-derived PLUS C matrix editor: alphabetic a/b/c headings,
+  // 1/2/3 row markers, bracketed grid, and inverse selected entry.
+  // Other editions keep the established generic layout until references exist.
+  if(editing&&state.model==='fx-991es-plus-c'){
+   const xs=m.cols===3?[24,52,78]:m.cols===2?[33,68]:[51];
+   const ys=m.rows===3?[8,15,22]:m.rows===2?[12,20]:[16];
+   const top=ys[0]-2,bottom=Math.min(H-2,ys[ys.length-1]+5);
+   for(let col=0;col<m.cols;col++)write('abc'[col],xs[col],0);
+   // Square brackets mimic the native 3×3 editor without pretending
+   // these pixels were extracted from proprietary ROM assets.
+   for(let yy=top;yy<=bottom;yy++){pixel(13,yy);pixel(94,yy)}
+   for(let xx=13;xx<=17;xx++){pixel(xx,top);pixel(xx,bottom)}
+   for(let xx=90;xx<=94;xx++){pixel(xx,top);pixel(xx,bottom)}
+   for(let row=0;row<m.rows;row++){
+    const y=ys[row];write(String(row+1),1,y);
+    for(let col=0;col<m.cols;col++){
+     const x=xs[col],selected=row===e.row&&col===e.col;
+     const text=String(selected?e.buffer:m.data[row][col]).slice(-Math.max(1,m.cols===3?4:6));
+     if(selected){
+      for(let dy=-1;dy<6;dy++)for(let dx=-2;dx<Math.min(18,Math.max(8,text.length*4+2));dx++)pixel(x+dx,y+dy);
+      for(let k=0;k<text.length;k++){
+       const bitmap=FONT[text[k]]||FONT['?'];
+       for(let gy=0;gy<5;gy++)for(let gx=0;gx<3;gx++)
+        if(bitmap[gy][gx]==='1'&&x+k*4+gx<W&&y+gy<H)
+         pixels[(y+gy)*W+x+k*4+gx]=0;
+      }
+     }else write(text,x,y,Math.min(W-1,x+22));
+    }
+   }
+   const selectedText=String(e.buffer).slice(-8);
+   write(selectedText,Math.max(0,W-selectedText.length*4),25);
+   return pixels;
+  }
   const cwidth=m.cols===3?6:m.cols===2?9:19;
   const x0=m.cols===3?12:m.cols===2?18:12;
   const gap=m.cols===3?27:m.cols===2?42:0;
