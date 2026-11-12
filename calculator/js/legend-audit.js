@@ -3,8 +3,8 @@
  * This is a source-grounded WEB-model audit, not a CASIO firmware audit.
  */
 (function(global){'use strict';
-const MODELS=['fx-991es','fx-991es-plus','fx-991es-plus-c'];
-const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR','INEQ','VERIF','DIST'];
+const MODELS=['fx-991es-plus'];
+const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR'];
 const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating',
  'contrast','constant-code','conversion-code','stat-table','eqn-coeff','eqn-result',
  'ineq-coeff','ineq-result','matrix-table','matrix-expression','matrix-parameter',
@@ -22,7 +22,7 @@ const SHIFT_EDITOR=new Set(['INTEGRAL','LOGBASE','FRAC','SQRT','SQUARE','POWER',
  'DOT','0']);
 const SHIFT_RESULT=new Set(['SD','ENG','DMS']);
 const GLOBAL_SHIFT=new Set(['AC','MODE','RCL','DEL','7','8','9','1','2','3','4','5','6','CALC','ANS','MPLUS']);
-const MODE_CHANGE={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};
+const MODE_CHANGE={};
 function legend(key,modifier){
  // Top-row and d-pad 'alpha' metadata in the physical geometry describes
  // their key group, not an ALPHA legend (REA-070 legacy key shape).
@@ -75,8 +75,7 @@ function context(key,modifier,mode,screen,model,supports){
    return {status:supports(model,target)?'available':'blocked',
     reason:supports(model,target)?'Mode shortcut':'Mode not supported by selected model'};
   }
-  if(key.id==='6')return {status:model==='fx-991es-plus-c'?'available':'blocked',reason:'VERIF is PLUS C only'};
-  if(key.id==='CALC'||key.id==='INTEGRAL'||key.id==='LOGBASE'){
+   if(key.id==='CALC'||key.id==='INTEGRAL'||key.id==='LOGBASE'){
    return {status:mode==='COMP'?'available':'blocked',reason:'COMP-only SOLVE/calculus'};
   }
   if(key.id==='ANS')return {status:mode==='COMP'?'available':'blocked',
@@ -107,7 +106,7 @@ function context(key,modifier,mode,screen,model,supports){
   }
   if(['COS','TAN','NEG','DMS','HYP','SIN','LP','RP','MPLUS'].includes(key.id)){
    const register={COS:'E',TAN:'F',NEG:'A',DMS:'B',HYP:'C',SIN:'D',LP:'X',RP:'Y',MPLUS:'M'}[key.id];
-   return {status:model==='fx-991es'&&['E','F'].includes(register)?'blocked':'available',
+   return {status:'available',
     reason:'Register '+register};
   }
   if(ALPHA_EDITOR.has(key.id))return {status:NORMAL_MODES.has(mode)?'available':'blocked',
