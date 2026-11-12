@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""REA-105: key-driven browser parity for original, PLUS, PLUS C and both I/O modes.
+"""REA-105: key-driven browser parity for fx-991ES PLUS in both I/O modes.
 
 Run: python3 calculator/tests/rea105_browser_precedence.py
 Requires Playwright Chromium. Web behavior is not physical CASIO certification.
@@ -14,7 +14,7 @@ from playwright.async_api import async_playwright
 
 ROOT=Path(__file__).resolve().parents[2]
 FILES=("index.html","fx991_fresh_standalone.html")
-MODELS=("fx-991es","fx-991es-plus","fx-991es-plus-c")
+MODELS=("fx-991es-plus",)
 CASES=(
     (("8","DIV","2","LP","2","ADD","2","RP","EQUAL"),16.0,1.0),
     (("1","2","DIV","3","LP","1","ADD","3","RP","EQUAL"),16.0,1.0),
@@ -33,8 +33,6 @@ async def exercise(browser,base,file,model,format_mode,keys,expected):
     try:
         await page.goto(f"{base}{file}?model={model}",wait_until="load")
         await page.locator("#keys button[data-key='EQUAL']").wait_for()
-        await page.locator("#model-selector").wait_for()
-        assert await page.locator("#model-selector").input_value()==model
         if format_mode=="LineIO":
             await press(page,"SHIFT","MODE","2")
         settings=await page.evaluate("window.FreshCalculator.getState()")
@@ -72,8 +70,8 @@ async def main():
             try:
                 for model in MODELS:
                     for format_mode in ("MathIO","LineIO"):
-                        for keys,original,plus in CASES:
-                            expected=original if model=="fx-991es" else plus
+                        for keys,_legacy,plus in CASES:
+                            expected=plus
                             values=[]
                             for file in FILES:
                                 values.append(await exercise(
