@@ -16,7 +16,7 @@ const scienceSpec=[
 ];
 const numericSpec=[
  ['7','7','CONST',''],['8','8','CONV',''],['9','9','CLR',''],['DEL','DEL','INS',''],['AC','AC','OFF',''],
- ['4','4','MATRIX',''],['5','5','VECTOR',''],['6','6','VERIFY',''],['MUL','×','nPr',''],['DIV','÷','nCr',''],
+ ['4','4','MATRIX',''],['5','5','VECTOR',''],['6','6','',''],['MUL','×','nPr',''],['DIV','÷','nCr',''],
  ['1','1','STAT',''],['2','2','CMPLX',''],['3','3','BASE',''],['ADD','+','Pol',''],['SUB','−','Rec',''],
  ['0','0','Rnd',''],['DOT','.','Ran#','RanInt'],['EXP','×10ˣ','π','e'],['ANS','Ans','DRG▶','PreAns'],['EQUAL','=','','']
 ];
@@ -24,7 +24,7 @@ const numericSpec=[
 // Geometry remains screenshot-derived and is NOT an original hardware measurement.
 const MODEL_LEGENDS=Object.freeze({
  'fx-991es-plus':Object.freeze({
-  '6':{shift:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
+  INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
   SQRT:{alpha:''},ANS:{alpha:''},DOT:{alpha:'RanInt'},
   DMS:{shift:'FACT'}
  })
@@ -33,7 +33,7 @@ function keyForModel(key,model){
  const overrides=MODEL_LEGENDS['fx-991es-plus'][key.id];
  return overrides?Object.freeze({...key,...overrides}):key;
 }
-function keysForModel(model){return Object.freeze(keys.map(key=>keyForModel(key,model)))}
+function keysForModel(model='fx-991es-plus'){if(model!=='fx-991es-plus')throw Error('Unsupported calculator model');return Object.freeze(keys.map(key=>keyForModel(key,model)))}
 const pct=(n)=>((100*n).toFixed(4))+'%';
 const newKey=(data,cx,cy,w,h,group,angle)=>Object.freeze({id:data[0],label:data[1],shift:data[2],alpha:data[3],cx,cy,w,h,group,angle:angle||null});
 const topCenters=[[39.83,220.67],[75.60,220.60],[108.21,238.61],[136.38,219.65],[136.46,257.52],[164.48,238.54],[196.81,220.66],[232.60,220.60]];
