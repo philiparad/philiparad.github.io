@@ -101,6 +101,69 @@ function record(state,operator,aName,bName=null,parameter=null){
  return output;
 }
 function copy(state,from,to){if(!NAMES.includes(to))fail('Argument ERROR');return set(state,to,get(state,from))}
-g.FreshVectorRegisters=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,parse,load,commit,type,sign,backspace,move,next,clear,dot,cross,magnitude,add,subtract,scalar,angle,geometry,record,copy});
+
+/* PLUS-011: native-style vector expression parser, without code evaluation. */
+function expression(state,source){
+ const text=String(source||'');
+ if(!text.trim()||text.length>140)fail('Syntax ERROR');
+ const tokens=[],scanner=/\s*(VctAns|VctA|VctB|VctC|Abs|(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?|[()+*·/-])\s*/gy;
+ let pos=0;
+ while(pos<text.length){
+  scanner.lastIndex=pos;const match=scanner.exec(text);
+  if(!match||match.index!==pos)fail('Syntax ERROR');
+  tokens.push(match[1]);pos=scanner.lastIndex;
+ }
+ let at=0;
+ const peek=()=>tokens[at],next=()=>tokens[at++];
+ const isVector=x=>x&&typeof x==='object'&&Array.isArray(x.data);
+ function atom(){
+  const token=next();
+  if(token==='+')return atom();
+  if(token==='-'){const value=atom();return isVector(value)?scalar(value,-1):finite(-value)}
+  if(token==='('){const value=addition();if(next()!==')')fail('Syntax ERROR');return value}
+  if(token==='Abs'){
+   if(next()!=='(')fail('Syntax ERROR');
+   const value=addition();
+   if(next()!==')')fail('Syntax ERROR');
+   return isVector(value)?magnitude(value):finite(Math.abs(value));
+  }
+  if(['VctA','VctB','VctC','VctAns'].includes(token))return get(state,token);
+  if(token!==undefined&&/^(?:\d|\.)/.test(token))return finite(Number(token));
+  fail('Syntax ERROR');
+ }
+ function product(){
+  let left=atom();
+  while(['*','/','·'].includes(peek())){
+   const op=next(),right=atom(),lv=isVector(left),rv=isVector(right);
+   if(op==='·'){if(!lv||!rv)fail('Dimension ERROR');left=dot(left,right)}
+   else if(op==='/'){
+    if(rv||right===0)fail(rv?'Dimension ERROR':'Math ERROR');
+    left=lv?scalar(left,1/right):finite(left/right);
+   }else if(lv&&rv)left=cross(left,right);
+   else if(lv)left=scalar(left,right);
+   else if(rv)left=scalar(right,left);
+   else left=finite(left*right);
+  }
+  return left;
+ }
+ function addition(){
+  let left=product();
+  while(peek()==='+'||peek()==='-'){
+   const op=next(),right=product(),lv=isVector(left),rv=isVector(right);
+   if(lv!==rv)fail('Dimension ERROR');
+   left=lv?(op==='+'?add(left,right):subtract(left,right)):finite(op==='+'?left+right:left-right);
+  }
+  return left;
+ }
+ const value=addition();
+ if(at!==tokens.length)fail('Syntax ERROR');
+ const output=isVector(value)?clone(value):finite(value);
+ if(isVector(output))state.VctAns=clone(output);
+ state.history.push({operator:'expression',aName:text,bName:null,
+  output:isVector(output)?clone(output):output});
+ if(state.history.length>MAX_HISTORY)state.history.shift();
+ return output;
+}
+g.FreshVectorRegisters=Object.freeze({NAMES,MAX_HISTORY,create,clone,store,set,get,editor,parse,load,commit,type,sign,backspace,move,next,clear,dot,cross,magnitude,add,subtract,scalar,angle,geometry,record,copy,expression});
 if(typeof module!=='undefined'&&module.exports)module.exports=g.FreshVectorRegisters;
 })(typeof window!=='undefined'?window:globalThis);
