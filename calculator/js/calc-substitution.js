@@ -71,7 +71,7 @@ function prepare(source,modelRegisters,mode='COMP',current={}){
  const parts=statementParts(source),segments=parts.map(equality);
  const allowed=new Set(modelRegisters);
  // An equality label uses a physical register too; unsupported E/F on
- // the original fx-991ES must never slip through as a free output name.
+ // Variables used as output symbols must not be silently accepted as free output names.
  for(const item of segments)if(item.target&&!allowed.has(item.target))
   throw Error('Variable ERROR: '+item.target);
  const output=String(source);
