@@ -51,8 +51,10 @@
 - **PLUS-011:** VECTOR printed SHIFT+5 menu, direct vector calculations, Dot, VctAns and STO copy.
 - **PLUS-012:** STAT Edit 1 Ins / 2 Del-A, physical DEL line deletion, safe append and capacity tests.
 - **PLUS-013:** TABLE ULP-level fractional boundary checks, 1–30 X-values, error cells, grid navigation and variable X writeback.
+- **PLUS-014:** Added deterministic 192×62 simulator raster/glyph/status-indicator contract, executed successfully in isolated JavaScript against current source; included in release CI. Physical 96×31 LCD parity remains **unverified**, without native device captures.
+- **PLUS-015:** Added and executed 24 MathIO/LineIO render cases covering all 12 structured templates plus nested radicals, fraction field navigation, and long-expression viewport clipping; included in release CI. Physical template parity, browser-level interactions, and screenshot comparison remain **open**.
 - **PLUS-027:** Byte-identical standalone synchronization verified in release workflow; 39 active JavaScript modules.
-- **PLUS-014–PLUS-026, PLUS-028:** Remaining implementation and physical-reference gaps are **open**. In particular, PLUS-014 requires native 96×31 LCD screenshots/keylogs to certify exact glyph, annunciator and pixel placements; source/browser-only tests cannot prove device pixel parity.
+- **PLUS-014–PLUS-015:** Regression coverage added; device-reference and full interactive parity still **open**. **PLUS-016–PLUS-026, PLUS-028:** Remaining implementation and reference gaps are **open**. In particular, PLUS-014 requires native 96×31 LCD screenshots/keylogs to certify exact glyph, annunciator and pixel placements; source/browser-only tests cannot prove device pixel parity.
 
 ### Verification scope and evidence
 - Release run: https://github.com/philiparad/philiparad.github.io/actions/runs/43186524940 (success)
