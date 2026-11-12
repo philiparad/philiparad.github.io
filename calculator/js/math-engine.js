@@ -86,38 +86,6 @@ function checkedHyperbolic(name,x){
  return result;
 }
 
-const INTEGER_FUNCTION_LIMIT=1e10;
-function validatedInteger(n,allowNegative){
- if(!Number.isInteger(n)||!Number.isFinite(n)||
-    Math.abs(n)>=INTEGER_FUNCTION_LIMIT||(!allowNegative&&n<0))fail('Math ERROR');
- return BigInt(n);
-}
-function exactGcd(a,b){
- a=a<0n?-a:a;b=b<0n?-b:b;
- while(b!==0n){const r=a%b;a=b;b=r}
- return a;
-}
-function gcdFunction(args){
- if(args.length!==2)fail('Syntax ERROR');
- const a=validatedInteger(args[0],true),b=validatedInteger(args[1],true);
- if(a===0n&&b===0n)fail('Math ERROR');
- return Number(exactGcd(a,b));
-}
-function lcmFunction(args){
- if(args.length!==2)fail('Syntax ERROR');
- const a=validatedInteger(args[0],false),b=validatedInteger(args[1],false);
- if(a===0n||b===0n)return 0;
- const exact=(a/exactGcd(a,b))*b;
- if(exact>=10n**100n)fail('Math ERROR');
- return Number(Number(exact).toPrecision(15));
-}
-function integerPart(args,largest){
- if(args.length!==1)fail('Syntax ERROR');
- const x=args[0];
- if(!Number.isFinite(x)||Math.abs(x)>9.999999999e99)fail('Math ERROR');
- const value=largest?Math.floor(x):Math.trunc(x);
- return value===0?0:value;
-}
 // REA-036: injectable randomness and reproducible test sequences.
 // This seeded generator is for tests only, not a representation of CASIO's PRNG.
 function createSeededRandom(seed){
@@ -205,72 +173,13 @@ function tokenize(source){
 // REA-037: finite product Π with an explicit optional web step.
 // CASIO's native Π(expr,a,b) always uses integer step 1.
 // The fourth argument is a labeled educational extension.
-const PRODUCT_TERM_LIMIT=20000;
-function splitProductArguments(body){
- let depth=0,start=0,parts=[];
- for(let i=0;i<body.length;i++){
-  if(body[i]==='(')depth++;
-  else if(body[i]===')'){depth--;if(depth<0)fail('Syntax ERROR')}
-  else if(body[i]===','&&depth===0){parts.push(body.slice(start,i).trim());start=i+1}
- }
- if(depth!==0)fail('Syntax ERROR');
- parts.push(body.slice(start).trim());
- if(parts.some(x=>!x)||parts.length<3||parts.length>4)fail('Syntax ERROR');
- return parts;
-}
-function parseProduct(source){
- const text=String(source).trim();
- const match=/^(?:Prod|Product|Π)\(/i.exec(text);
- if(!match)return null;
- let depth=1,close=-1;
- for(let i=match[0].length;i<text.length;i++){
-  if(text[i]==='(')depth++;
-  else if(text[i]===')'){depth--;if(depth===0){close=i;break}}
- }
- if(close!==text.length-1)fail('Syntax ERROR');
- const parts=splitProductArguments(text.slice(match[0].length,-1));
- return {expression:parts[0],a:parts[1],b:parts[2],step:parts[3]||'1'};
-}
-function finiteProduct(parts,opts){
- // Do not permit nested series, derivative/integral, or vector transforms.
- const prohibited=/\b(?:Prod|Product|Pol|Rec)\s*\(|[ΠΣ∫]|÷R|\bd\/dx\b/i;
- if(prohibited.test(parts.expression)||[parts.a,parts.b,parts.step].some(s=>prohibited.test(s)))
-  fail('Syntax ERROR');
- const lower=evaluate(parts.a,opts);
- const upper=evaluate(parts.b,opts);
- const step=evaluate(parts.step,opts);
- if(![lower,upper,step].every(Number.isSafeInteger)||
-    Math.abs(lower)>=1e10||Math.abs(upper)>=1e10||
-    step<1||step>=1e10||lower>upper)fail('Argument ERROR');
- const count=Math.floor((upper-lower)/step)+1;
- if(count>PRODUCT_TERM_LIMIT)fail('Argument ERROR');
- let result=1;
- for(let i=0;i<count;i++){
-  const x=lower+i*step;
-  const item=evaluate(parts.expression,{...opts,memory:{...(opts.memory||{}),X:x}});
-  if(!Number.isFinite(item))fail('Math ERROR');
-  result*=item;
-  if(!Number.isFinite(result)||Math.abs(result)>9.999999999e99)fail('Math ERROR');
- }
- return result;
-}
 function evaluate(source,opts={}){
- // REA-098: original ES supports Ran# but not PLUS RanInt#.
- if(opts.model==='fx-991es'&&/\bRanInt#?\s*\(/i.test(String(source)))
-  fail('Argument ERROR');
  // Validate the command-stack budget before the optional decimal fast path.
  // That optimizer must not bypass the original hardware nesting limit.
  let commandDepth=0;
  for(const ch of String(source)){
   if(ch==='('&&++commandDepth>24)fail('Stack ERROR');
   if(ch===')'&&--commandDepth<0)fail('Syntax ERROR');
- }
- const series=parseProduct(source);
- if(series){
-  // Three-model reference: Π product is documented for PLUS C, not the
-  // original ES or standard PLUS. Unspecified model retains legacy API.
-  if(opts.model==='fx-991es'||opts.model==='fx-991es-plus')fail('Argument ERROR');
-  return finiteProduct(series,opts);
  }
  if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
@@ -286,7 +195,7 @@ function evaluate(source,opts={}){
  }
  const st={...SETTINGS,...opts};const memory=opts.memory||{};
  const raw=tokenize(source);
- // Casio original: numeric stack 10 levels, command stack 24 levels.
+ // fx-991ES PLUS: numeric stack 10 levels, command stack 24 levels.
  let numericSlots=0,commandSlots=0;
  const enterCommand=()=>{if(++commandSlots>24)fail('Stack ERROR')};
  const leaveCommand=()=>{commandSlots--};
@@ -295,22 +204,11 @@ function evaluate(source,opts={}){
  // Recombine nPr/nCr even if the tokenizer recognized the letters as identifiers.
  for(const token of raw)if(token.type===T.IDENT&&/^(nPr|nCr)$/.test(token.value))token.type=T.OP;
  let i=0;const peek=()=>raw[i];const take=()=>raw[i++];
- const names=new Set(['p','q','r','nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','int','intg','gcd','lcm','pol','rec','min','max','sign','RanInt']);
+ const names=new Set(['nthroot','sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','asinh','acosh','atanh','log','ln','sqrt','cbrt','abs','exp','floor','ceil','round','rnd','ranint','pol','rec','min','max','sign','RanInt']);
  const variables={pi:Math.PI,e:Math.E,Ans:opts.ans??0,PreAns:opts.preAns??0,...memory};
- // Original model does not expose the newer E/F variable registers.
- if(opts.model==='fx-991es'){delete variables.E;delete variables.F}
  function call(name,args){
   const x=args[0];const unit=st.angle;
   switch(name.toLowerCase()){
-   case 'p':
-   case 'q':
-   case 'r':
-    // REA-101–103: P(t), signed Q(t), and R(t) belong to original STAT 1-VAR.
-    // Reject COMP, other STAT types and the PLUS / PLUS C model profiles.
-    if(!opts.statOriginalDistr||opts.model!=='fx-991es'||
-       opts.mode!=='STAT'||args.length!==1)fail('Argument ERROR');
-    if(!global.FreshStatNormal)fail('Math ERROR');
-    return global.FreshStatNormal.calculate(name.toUpperCase(),x);
    case 'sin':case 'cos':case 'tan':return checkedTrig(name.toLowerCase(),x,unit);
    case 'asin':case 'acos':case 'atan':return checkedInverseTrig(name.toLowerCase(),x,unit);
    case 'sinh':case 'cosh':case 'tanh':
@@ -337,15 +235,6 @@ function evaluate(source,opts={}){
    case 'sqrt':if(x<0)fail('Math ERROR');return Math.sqrt(x);
    case 'cbrt':return Math.cbrt(x);
    case 'abs':return Math.abs(x);
-   // PLUS C 2nd edition guide adds GCD, LCM, Int and Intg. They are
-   // not printed commands in the original and standard PLUS guides.
-   case 'gcd':case 'lcm':case 'int':case 'intg':{
-    if(opts.model==='fx-991es'||opts.model==='fx-991es-plus')fail('Argument ERROR');
-    const kind=name.toLowerCase();
-    if(kind==='gcd')return gcdFunction(args);
-    if(kind==='lcm')return lcmFunction(args);
-    return integerPart(args,kind==='intg');
-   }
    case 'exp':return Math.exp(x);case 'floor':return Math.floor(x);case 'ceil':return Math.ceil(x);
    case 'round':return Math.round(x);
    case 'rnd':if(args.length!==1)fail('Syntax ERROR');return roundCalculated(x,st);
@@ -369,17 +258,10 @@ function evaluate(source,opts={}){
   fail('Syntax ERROR');
  }
  function expr(min){let left=primary();while(true){const t=peek();if(!t||t.value===')'||t.value===',')break;
-  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='r'||t.value==='g'||t.value==='′'||t.value==='″'||t.value==='▶t'){
+  if(t.value==='!'||t.value==='%'||t.value==='°'||t.value==='r'||t.value==='g'||t.value==='′'||t.value==='″'){
    if(45<min)break;
    take();
    if(t.value==='!')left=factorial(left);
-   else if(t.value==='▶t'){
-    // REA-104: manufacturer postfix X▶t, precedence alongside factorial.
-    if(opts.model!=='fx-991es'||opts.mode!=='STAT'||!opts.statOriginalDistr)
-     fail('Argument ERROR');
-    if(!global.FreshStatNormal)fail('Math ERROR');
-    left=global.FreshStatNormal.normalized(left,opts.statSummary);
-   }
    else if(t.value==='%')left=left/100;
    else if(t.value==='r'||t.value==='g'){
     left=fromRadians(toRadians(left,t.value==='r'?'RAD':'GRAD'),st.angle);
@@ -388,8 +270,8 @@ function evaluate(source,opts={}){
   }
   const implicit=begin(t);const operator=implicit?'*':t.value;
   // Implicit and explicit multiplication share Priority 8, left-to-right.
-  // Original ES: same priority. PLUS and PLUS C: omitted-sign higher.
-  const implicitPriority=opts.model==='fx-991es-plus'||opts.model==='fx-991es-plus-c'?24:20;
+  // fx-991ES PLUS: omitted-sign multiplication binds more strongly.
+  const implicitPriority=24;
   const binding=implicit?implicitPriority:{'nPr':22,'nCr':22,'+':10,'-':10,'*':20,'/':20,'^':30}[operator];
   if(binding===undefined||binding<min)break;
   if(!implicit)take();holdNumber();enterCommand();
@@ -521,6 +403,6 @@ function quadratic(a,b,c){if(a===0){if(b===0)fail('Math ERROR');return [-c/b]}co
 function matrixSolve(rows){const n=rows.length;const m=rows.map(r=>r.slice());for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;[m[i],m[pivot]]=[m[pivot],m[i]];if(Math.abs(m[i][i])<1e-12)fail('Math ERROR');const d=m[i][i];for(let k=i;k<=n;k++)m[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){const f=m[j][i];for(let k=i;k<=n;k++)m[j][k]-=f*m[i][k]}}return m.map(row=>row[n])}
 function descriptiveStats(data){if(!data.length)fail('Argument ERROR');const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n,variance=data.reduce((a,b)=>a+(b-mean)**2,0)/n;return {n,sum:data.reduce((a,b)=>a+b,0),mean,variance,sd:Math.sqrt(variance),sampleSD:n>1?Math.sqrt(variance*n/(n-1)):null,min:Math.min(...data),max:Math.max(...data)}}
 function parseNumbers(text){const vals=String(text).split(/[,;\s]+/).filter(Boolean).map(Number);if(!vals.length||vals.some(n=>!Number.isFinite(n)))fail('Argument ERROR');return vals}
-const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,parseProduct,finiteProduct,summation,numericTolerance,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
+const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,summation,numericTolerance,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
 global.FreshMath=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
