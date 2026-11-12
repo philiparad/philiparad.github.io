@@ -5298,7 +5298,7 @@ const initialModel=MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,solveSession:null,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,matrixCopySource:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
 let numericJob=null;
 const NUMERIC_WALL_MS=6000;
@@ -5593,7 +5593,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.matrixCopySource=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -6657,6 +6657,11 @@ function matrixCopy(from=null){
   }
  })),{pageSize:6,kind:'matrix'});
 }
+function matrixCopyStart(name){
+ if(!state.matrices[name]){notify('Matrix source has no data',true);paint();return}
+ state.matrixCopySource=name;releaseModifier();
+ notify('STO: (−) MatA, °′″ MatB, hyp MatC');paint();
+}
 function matrixHistoryMenu(){
  const entries=state.matrices.history.slice().reverse();
  if(!entries.length){notify('No matrix history',true);matrixMenu();return}
@@ -6674,35 +6679,28 @@ function matrixHistoryMenu(){
  })),{pageSize:8,kind:'matrix'});
 }
 function matrixMenu(){
+ // The real PLUS SHIFT+4 menu is 1 Dim, 2 Data, 3..6 registers,
+ // 7 det(, 8 Trn(. Selecting a register inserts an expression operand.
+ const prefix=state.screen==='matrix-expression'?state.input:'';
+ const emit=token=>matrixExpressionInput(prefix+token);
  releaseModifier();
  optionDialog('MATRIX',[
   {key:'1',label:'1. Dim',action:()=>matrixRegisterMenu('Dim')},
   {key:'2',label:'2. Data',action:()=>matrixRegisterMenu('Data')},
-  ...MATRIX.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,action:()=>matrixShow(name)})),
-  {key:'6',label:'6. MatAns',action:()=>matrixShow('MatAns')},
-  {key:'7',label:'7. Copy',action:()=>matrixCopy()},
-  {key:'8',label:'8. Calc',action:()=>optionDialog('MATRIX Calc',[
-   {label:'1. Add',action:()=>matrixOperandMenu('add')},
-   {label:'2. Multiply',action:()=>matrixOperandMenu('multiply')},
-   {label:'3. Det',action:()=>matrixOperandMenu('det')},
-   {label:'4. Subtract',action:()=>matrixOperandMenu('subtract')},
-   {label:'5. Inverse',action:()=>matrixOperandMenu('inverse')},
-   {label:'6. Transpose',action:()=>matrixOperandMenu('transpose')},
-   {label:'7. Power',action:()=>matrixOperandMenu('power')},
-   {label:'8. Scalar',action:()=>matrixOperandMenu('scalar')},
-   {key:'9',label:'9. AbsDet',action:()=>matrixOperandMenu('abs')}
-  ],{pageSize:8,kind:'matrix'})},
-  {key:'9',label:'History',action:matrixHistoryMenu},
-  {key:'0',label:'Expression',action:()=>matrixExpressionInput('')}
+  ...MATRIX.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,
+   action:()=>emit(name)})),
+  {key:'6',label:'6. MatAns',action:()=>emit('MatAns')},
+  {key:'7',label:'7. det(',action:()=>emit('det(')},
+  {key:'8',label:'8. Trn(',action:()=>emit('Trn(')}
  ],{pageSize:8,kind:'matrix'});
 }
-
 function matrixTableHandle(key){
  const e=state.matrixEditor;if(!e)return;
  try{
   if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
   if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
   if(state.shift&&key==='4'){matrixCommit();matrixMenu();return}
+  if(state.shift&&key==='RCL'){const name=e.name;matrixCommit();releaseModifier();matrixCopyStart(name);return}
   if(key==='MODE'){matrixCommit();modeMenu();return}
   if(key==='AC'){matrixClose();return}
   if(key==='DEL'){MATRIX.backspace(e);releaseModifier();paint();return}
@@ -6730,7 +6728,7 @@ function matrixTableHandle(key){
 // REA-090: text-based native MATRIX calculation screen and chained MatAns.
 function matrixExpressionInput(source){
  state.input=source;state.cursor=source.length;state.editor=STRUCT.fromString(source);
- state.screen='matrix-expression';state.matrixView=null;
+ state.screen='matrix-expression';state.matrixView=null;state.matrixEditor=null;
  state.result='';releaseModifier();paint();
 }
 function matrixExpressionInsert(token){
@@ -6748,27 +6746,18 @@ function matrixExpressionCalculate(){
   }else matrixShow('MatAns',result);
  }catch(e){error(e.message||'Math ERROR',state.input)}
 }
-function matrixExpressionSymbols(){
- optionDialog('MATRIX symbols',[
-  ...['MatA','MatB','MatC','MatAns'].map((token,i)=>({
-   key:String(i+1),label:(i+1)+'. '+token,
-   action:()=>matrixExpressionInsert(token)
-  })),
-  {key:'5',label:'5. det(',action:()=>matrixExpressionInsert('det(')},
-  {key:'6',label:'6. Trn(',action:()=>matrixExpressionInsert('Trn(')},
-  {key:'7',label:'7. Abs(',action:()=>matrixExpressionInsert('Abs(')}
- ],{pageSize:6,kind:'matrix-symbols'});
-}
 function matrixExpressionHandle(key){
  if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
  if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
- if(state.shift&&key==='4'){releaseModifier();matrixExpressionSymbols();return}
+ if(state.shift&&key==='4'){matrixMenu();return}
+ if(state.shift&&key==='HYP'){releaseModifier();matrixExpressionInsert('Abs(');return}
+ if(state.shift&&key==='SQUARE'){releaseModifier();matrixExpressionInsert('^3');return}
  if(key==='MODE'){releaseModifier();modeMenu();return}
  if(key==='AC'){matrixExpressionInput('');return}
  if(key==='DEL'){matrixExpressionInput(state.input.slice(0,-1));return}
  if(key==='EQUAL'){matrixExpressionCalculate();return}
  if(state.shift||state.alpha){releaseModifier();notify('Unsupported MATRIX modifier',true);paint();return}
- const ops={ADD:'+',SUB:'-',MUL:'*',POWER:'^',LP:'(',RP:')',DOT:'.',NEG:'-'};
+ const ops={ADD:'+',SUB:'-',MUL:'*',POWER:'^',RECIP:'^(-1)',SQUARE:'^2',LP:'(',RP:')',DOT:'.',NEG:'-'};
  if(ops[key]){matrixExpressionInsert(ops[key]);return}
  if(/^[0-9]$/.test(key)){matrixExpressionInsert(key);return}
  notify('MATRIX expression: SHIFT 4 symbols, = calculate',true);paint();
@@ -6776,10 +6765,22 @@ function matrixExpressionHandle(key){
 function matrixResultHandle(key){
  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
  if(state.shift&&key==='4'){matrixMenu();return}
+ if(state.shift&&key==='RCL'){
+  const name=state.matrixView?.name;
+  releaseModifier();
+  if(name)matrixCopyStart(name);else{notify('Matrix result required for STO',true);paint()}
+  return;
+ }
+ if(state.shift&&key==='SQUARE'&&state.matrixView){
+  matrixExpressionInput(state.matrixView.name+'^3');return;
+ }
+ if(state.shift&&key==='HYP'&&state.matrixView){
+  matrixExpressionInput('Abs('+state.matrixView.name+')');return;
+ }
  if(key==='MODE'){modeMenu();return}
  if(key==='AC'){state.matrixView=null;state.screen='edit';releaseModifier();paint();return}
  // A matrix result is an expression operand. Arithmetic starts from MatAns.
- const chaining={ADD:'+',SUB:'-',MUL:'*',POWER:'^'};
+ const chaining={ADD:'+',SUB:'-',MUL:'*',POWER:'^',RECIP:'^(-1)',SQUARE:'^2'};
  if(chaining[key]&&state.matrixView){
   matrixExpressionInput(state.matrixView.name+chaining[key]);return;
  }
@@ -7302,6 +7303,19 @@ function handle(key){
    else{notify('Calculation cancelled');paint()}
   }
   return;
+ }
+ if(state.matrixCopySource){
+  const from=state.matrixCopySource;
+  const name={NEG:'MatA',DMS:'MatB',HYP:'MatC'}[key];
+  if(key==='AC'||key==='MODE'){
+   state.matrixCopySource=null;releaseModifier();
+   if(key==='MODE')modeMenu();else{notify('MATRIX STO cancelled');paint()}
+   return;
+  }
+  if(!name){notify('STO: use (−), °′″ or hyp to select MatA/MatB/MatC',true);paint();return}
+  state.matrixCopySource=null;
+  MATRIX.copy(state.matrices,from,name);
+  matrixEdit(name);return;
  }
  if(state.pendingMemory){
   if(key==='AC'){state.pendingMemory=null;releaseModifier();notify('Memory selection cancelled');paint();return}
