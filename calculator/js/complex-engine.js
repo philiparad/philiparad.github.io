@@ -111,7 +111,6 @@ function evaluate(expression,options={}){
  const vars={pi:complex(Math.PI),e:complex(Math.E),i:complex(0,1),
   Ans:value(options.ans??0),PreAns:value(options.preAns??0)};
  for(const [key,item] of Object.entries(memory)){
-  if(options.model==='fx-991es'&&(key==='E'||key==='F'))continue;
   vars[key]=value(item);
  }
  let at=0;
