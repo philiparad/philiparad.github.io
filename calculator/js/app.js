@@ -1037,8 +1037,7 @@ function statMenu(){
   {key:'2',label:'2. Data',action:()=>{state.screen='stat-table';paint()}},
   {key:'3',label:'3. Edit',action:()=>optionDialog('STAT Edit',[
    {key:'1',label:'1. Ins',action:()=>statSafe(()=>{STAT.insert(state.statTable);state.screen='stat-table';paint()})},
-   {key:'2',label:'2. Del',action:()=>statSafe(()=>{STAT.remove(state.statTable);state.screen='stat-table';paint()})},
-   {key:'3',label:'3. Del-A',action:()=>{const t=state.statTable;t.rows=[{X:null,Y:null,FREQ:1}];t.row=0;t.col=0;STAT.load(t);state.screen='stat-table';paint()}}
+   {key:'2',label:'2. Del-A',action:()=>statSafe(()=>{STAT.clearData(state.statTable);state.screen='stat-table';paint()})}
   ],{kind:'stat-edit',pageSize:4})},
   {key:'4',label:'4. Sum',action:()=>statSafe(()=>statMenuResult('Sum',statSummary(),state.statTable.paired))},
   {key:'5',label:'5. Var',action:()=>statSafe(()=>statMenuResult('Var',statSummary(),state.statTable.paired))},
@@ -1075,8 +1074,9 @@ function statTableHandle(key){
   if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
   if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
   if(state.shift&&key==='1'){statMenu();return}
-  if(state.shift&&key==='UP'){STAT.insert(t);releaseModifier();paint();return}
-  if(state.shift&&key==='DOWN'){STAT.remove(t);releaseModifier();paint();return}
+  if(state.shift&&['UP','DOWN'].includes(key)){
+   releaseModifier();notify('STAT Edit: SHIFT 1, then 3 Edit',true);paint();return;
+  }
   if(state.shift&&key==='MODE'){releaseModifier();setupMenu();return}
   if(key==='MODE'){releaseModifier();modeMenu();return}
   if(key==='AC'){releaseModifier();state.screen='edit';state.info='';paint();return}
@@ -1086,7 +1086,11 @@ function statTableHandle(key){
   if(key==='DOWN'){STAT.move(t,1,0);releaseModifier();paint();return}
   if(key==='LEFT'){STAT.move(t,0,-1);releaseModifier();paint();return}
   if(key==='RIGHT'){STAT.move(t,0,1);releaseModifier();paint();return}
-  if(key==='DEL'){if(t.editing)t.buffer=t.buffer.slice(0,-1);else {t.buffer='';t.editing=true}t.error='';releaseModifier();paint();return}
+  if(key==='DEL'){
+   if(t.editing){t.buffer=t.buffer.slice(0,-1);t.error=''}
+   else STAT.remove(t);
+   releaseModifier();paint();return;
+  }
   let content=null;
   if(/^[0-9]$/.test(key))content=key;
   else if(key==='DOT')content='.';
