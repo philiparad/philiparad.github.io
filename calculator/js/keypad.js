@@ -23,25 +23,14 @@ const numericSpec=[
 // REA-070: painted legends follow selected model, not the shared PLUS C face.
 // Geometry remains screenshot-derived and is NOT an original hardware measurement.
 const MODEL_LEGENDS=Object.freeze({
- 'fx-991es':Object.freeze({
-  CALC:{alpha:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
-  COS:{alpha:''},TAN:{alpha:''},
-  '6':{shift:''},DOT:{alpha:''},ANS:{alpha:''},
-  FRAC:{alpha:''},SQRT:{alpha:''},DMS:{shift:''},
-  LP:{shift:''},RP:{shift:''}
- }),
  'fx-991es-plus':Object.freeze({
   '6':{shift:''},INTEGRAL:{alpha:''},LOGBASE:{alpha:''},
   SQRT:{alpha:''},ANS:{alpha:''},DOT:{alpha:'RanInt'},
   DMS:{shift:'FACT'}
- }),
- 'fx-991es-plus-c':Object.freeze({
-  '6':{shift:'VERIFY'},DOT:{alpha:'RanInt'},INTEGRAL:{alpha:'Π'},
-  LOGBASE:{alpha:'Π flow'},SQRT:{alpha:'Rdec'},ANS:{alpha:'PreAns'}
  })
 });
 function keyForModel(key,model){
- const overrides=(MODEL_LEGENDS[model]||MODEL_LEGENDS['fx-991es-plus-c'])[key.id];
+ const overrides=MODEL_LEGENDS['fx-991es-plus'][key.id];
  return overrides?Object.freeze({...key,...overrides}):key;
 }
 function keysForModel(model){return Object.freeze(keys.map(key=>keyForModel(key,model)))}
@@ -115,7 +104,7 @@ function applyContext(root,state,policy,profiles){
    modifier+' '+(action.legend||key.label)+': '+action.reason);
  }
 }
-function mount(root,handler,model='fx-991es-plus-c'){
+function mount(root,handler,model='fx-991es-plus'){
  if(!root)return;
  root.textContent='';const fragment=document.createDocumentFragment();
  for(const key of keysForModel(model)){
