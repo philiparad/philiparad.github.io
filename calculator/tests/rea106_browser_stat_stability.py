@@ -33,15 +33,14 @@ async def exercise(browser,url,file,model):
           const table={paired:false,frequency:false,regressionType:'1VAR',
             rows:[{X:1e50,Y:null,FREQ:1},{X:-1e50,Y:null,FREQ:1}]};
           const s=R.summary(table);
-          let error=null;
-          try {R.sumLines(s,false)} catch(e){error=e.message}
+          const sumX2Cell=R.sumLines(s,false).find(line=>line.startsWith('Sum X2'));
           return {mean:s.meanX,sd:s.sdX,sample:s.sampleSDX,
-            varLines:R.varLines(s,false),oversizedSumError:error};
+            varLines:R.varLines(s,false),oversizedSumCell:sumX2Cell};
         }""")
         assert result["mean"]==0
         assert result["sd"]==1e50
         assert abs(result["sample"]/(2**0.5*1e50)-1)<1e-12
-        assert result["oversizedSumError"]=="Math ERROR"
+        assert result["oversizedSumCell"]=="Sum X2 = Math ERROR"
         assert any("Sigma X" in line for line in result["varLines"])
         assert not errors,(file,model,errors)
         return result
