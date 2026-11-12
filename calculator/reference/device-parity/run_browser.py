@@ -104,6 +104,12 @@ def main():
                         raw:state.raw,result:state.result,input:state.input,
                         shift:state.shift,alpha:state.alpha,menuPage:state.menuPage,
                         angle:state.angle,math:state.math,
+                        menuKind:state.menuKind,menuTitle:state.menuTitle,flow:state.flow,
+                        baseRadix:state.baseRadix,matrixInfo:state.matrixEditor?{
+                          name:state.matrixEditor.name,rows:state.matrixEditor.matrix.rows,
+                          cols:state.matrixEditor.matrix.cols,row:state.matrixEditor.row,
+                          col:state.matrixEditor.col}:null,
+                        eqnType:state.eqnEditor?.type||null,
                         info:state.info,menuEntries:state.menuEntries,
                         recording:state.recording,keylog:state.keylog,
                         keyCount:document.querySelectorAll('#keys button[data-key]').length,
