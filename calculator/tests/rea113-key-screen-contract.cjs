@@ -12,7 +12,7 @@ const models=Object.keys(M.profiles);
 const activeScreens=['edit','result','prompt','menu','flow-result','error','calculating',
  'contrast','constant-code','conversion-code','stat-table','eqn-coeff','eqn-result',
  'matrix-table','matrix-expression','matrix-parameter',
- 'matrix-result','matrix-scalar','vector-table','vector-parameter','vector-result',
+ 'matrix-result','matrix-scalar','vector-table','vector-expression','vector-parameter','vector-result',
  'vector-scalar','table-grid'];
 assert.equal(K.keys.length,50);
 assert.equal(new Set(K.keys.map(k=>k.id)).size,50);
