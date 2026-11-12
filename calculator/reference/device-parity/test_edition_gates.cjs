@@ -24,6 +24,11 @@ for(const [expr,want] of [
 }
 assert.throws(()=>M.evaluate('GCD(0,0)',{model}),/Math ERROR/);
 assert.throws(()=>M.evaluate('Π(X,4,1)',{model}),/Argument ERROR/);
+assert.equal(MODELS.hasFeature(model,'gcd'),true);
+assert.equal(MODELS.hasFeature(model,'lcm'),true);
+assert.equal(MODELS.hasFeature(model,'finite-product'),true);
+assert.equal(MODELS.hasFeature('fx-991es','gcd'),false);
+assert.equal(MODELS.hasFeature('fx-991es-plus','gcd'),false);
 assert.equal(M.evaluate('sqrt(9)',{model}),3);
 assert.equal(M.evaluate('5 nCr 2',{model}),10);
 // Web-only core API has historically supported direct calls with no
