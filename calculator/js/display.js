@@ -83,6 +83,43 @@ Object.assign(FONT,{
  '·':['000','000','010','000','000']
 });
 const MATH_GLYPHS=Object.freeze(['θ','∠','►','α','β','Σ','∑','∫','∞','≠','≤','≥','≈','′','″','▸','◂','▷','◁','√','×','·']);
+// Twofold logical LCD resolution with a *new* 7×11 glyph atlas.
+// 7×11 pixel patterns derived from the freely licensed DejaVu Sans Mono.
+// No font binaries are shipped; original 96×31 coordinates remain the layout grid.
+const HI_W=192,HI_H=62,HI_PIXEL_SCALE=2;
+const HI_CHARS=" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~π√θ∠►αβΣ∑∫∞≠≤≥≈′″▸◂▷◁↑↓×÷·²³°□∂−";
+const HI_DATA="AAAAAAAAAAAAAAAACAgICAgIAAgAAAAUFBQAAAAAAAAAABoWfxQUfigoAAAACB4oKBwOCjwICABwWHIMEC4LDgAAABwwMDBrRmY+AAAACAgIAAAAAAAAAAwICBgYGBgICAwAEBgICAgICAgYEAAACCocHCoIAAAAAAAAAAgIfggIAAAAAAAAAAAAAAgYEAAAAAAAABwAAAAAAAAAAAAAAAAYGAAAAAYEDAgYEBAgIAAAHDYmIiomNhwAAAA4CAgICAgIPgAAADwmBgQMGDA+AAAAPCYGHAYCJjwAAAAMDBQ0JH4EBAAAADwgIDwGBgY8AAAAHDAgPCYiJhwAAAA+BgQMCAgYEAAAADwmJhwmIiY8AAAAPCYmJj4GBDwAAAAAABgYAAAYGAAAAAAAGBgAAAgYEAAAAAAGHHAcBgAAAAAAAAB+AH4AAAAAAAAAYBwGHGAAAAAAPAYEDAgYABgAAAAcMmJOUlJOYDAeABgcFDQmPmJiAAAAPCYmPCYiJjwAAAAcMiAgICAyHAAAADwmJiIiJiY8AAAAPiAgPiAgID4AAAA+MDA+MDAwMAAAABwyIGBmIjIeAAAAIiIiPiIiIiIAAAA+CAgICAgIPgAAABwEBAQEBGQ4AAAAIiQoOCgsJiIAAAAgICAgICAgPgAAAGZ2dnpqYmJiAAAAIjIyOiouJiYAAAAcNiJiYiI2HAAAADwmIiY8ICAgAAAAHDYiYmIiNhwEAAA8JiYmPCQmIwAAABwmIDgOAiY8AAAAfwgICAgICAgAAAAiIiIiIiImHAAAAGIiJjQ0FBwYAAAAQ0N6ej42NiYAAAAiNhwYHBQmYgAAAGImNBwICAgIAAAAPgYEDBgQID4AABwYGBgYGBgYGBwAACAgEBAYCAwEBgAYCAgICAgICAgYAAAYNCIAAAAAAAAAAAAAAAAAAAAAAAAQCAAAAAAAAAAAAAAAADwGPiYmPgAAICAgPDYiIjY8AAAAAAAeMCAgMB4AAAYGBj4mJiYmPgAAAAAAHCI+IDAeAAAOCBg+GBgYGBgAAAAAAD4mJiYmPgY8ICAgPDYmJiYmAAAIAAA4CAgICD4AAAgAADgICAgICAg4ICAgJiw4PCYiAAA4GBgYGBgYGA4AAAAAAH5qampqagAAAAAAPDYmJiYmAAAAAAAcJiIiJhwAAAAAADw2IiI2PCAgAAAAHiYmJiYeAgIAAAAeGBAQEBAAAAAAABwwOAwGPAAAABAQPhAQEBgOAAAAAAAmJiYmJh4AAAAAACImNBQcGAAAAAAAQ0JqOjY2AAAAAAAmFBgYNCIAAAAAACImNBQcCBgwAAAAPgQIGDA+AAAOCAgYMBgICAgOAAgICAgICAgICAgIMBgICA4ICAgYMAAAAAAAADpOAAAAAAAAAH4mJiYmJgAAAgICBiQkHBgYGAAcNiYiPiImNhwAAAAAAgQIED4+AAAAAAAAAGB8fnAAAAAAAAA6ZmRkbDoAABg8JiQ8JiIiPCAgAH4gEBgYECB+AAAAPiAQCAgICBAgPggICAgICAgICAgwAAAAADZaWjYAAAAAAAIGfgh+MCAAAAAAAAY4OAYAfgAAAAAAcB4ecAB+AAAAAAAAOk46TgAAAAAIEAAAAAAAAAAAABwIAAAAAAAAAAAAAAAAIDg8MAAAAAAAAAAGHh4GAAAAAAAAYFhGRlhgAAAAAAADDTFhGQcAAAAAAAgcCAgICAAAAAAACAgICBwYAAAAAAAiPBg8JgAAAAAAABgAfgAYAAAAAAAAABgYAAAAAAAAHAQIHAAAAAAAAAAcHAQcAAAAAAAAABw0HAAAAAAAAAAAAAB/QUFBQUF+AAAAHAYOPiQkOAAAAAAAAAB+AAAAAAA=";
+const HI_FONT=Object.create(null);
+{
+ const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+ const keys=[...HI_CHARS],expected=keys.length*11;
+ let value=0,bits=0,index=0;
+ for(const char of HI_DATA){
+  if(char==='=')break;
+  const v=alphabet.indexOf(char);
+  if(v<0)throw Error('Invalid high-resolution LCD atlas');
+  value=(value<<6)|v;bits+=6;
+  if(bits>=8){
+   bits-=8;
+   const k=Math.floor(index/11),row=index%11;
+   if(!HI_FONT[keys[k]])HI_FONT[keys[k]]=new Uint8Array(11);
+   HI_FONT[keys[k]][row]=(value>>>bits)&255;
+   index++;value &= (1<<bits)-1;
+  }
+ }
+ if(index!==expected)throw Error('LCD atlas length mismatch: '+index+' != '+expected);
+}
+function hiGlyph(c){
+ if(HI_FONT[c])return HI_FONT[c];
+ const old=FONT[c]||FONT[c.toUpperCase()]||FONT['?'];
+ const rows=new Uint8Array(11);
+ for(let y=0;y<11;y++){
+  const line=old[Math.min(4,Math.floor(y*5/11))];
+  for(let x=0;x<7;x++)if(line[Math.min(2,Math.floor(x*3/7))]==='1')
+   rows[y]|=1<<(6-x);
+ }
+ return rows;
+}
 function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
  const glyph=(c,x,y)=>{const f=FONT[c]||FONT[c.toUpperCase()]||FONT['?'];for(let j=0;j<5;j++)for(let i=0;i<3;i++)if(f[j][i]==='1')pixel(x+i,y+j)};
  const write=(text,x,y,limit=W)=>{for(const c of String(text)){if(x+3>limit)break;glyph(c,x,y);x+=4}};
