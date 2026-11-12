@@ -943,7 +943,12 @@ function evaluate(source,opts={}){
   if(ch===')'&&--commandDepth<0)fail('Syntax ERROR');
  }
  const series=parseProduct(source);
- if(series)return finiteProduct(series,opts);
+ if(series){
+  // Three-model reference: Π product is documented for PLUS C, not the
+  // original ES or standard PLUS. Unspecified model retains legacy API.
+  if(opts.model==='fx-991es'||opts.model==='fx-991es-plus')fail('Argument ERROR');
+  return finiteProduct(series,opts);
+ }
  if(global.FreshSexagesimal)source=global.FreshSexagesimal.normalize(source);
  // REA-021: exact base-10 intermediates for numeric arithmetic expressions.
  // Scientific functions, register variables and unsupported powers use the existing engine.
@@ -1009,10 +1014,15 @@ function evaluate(source,opts={}){
    case 'sqrt':if(x<0)fail('Math ERROR');return Math.sqrt(x);
    case 'cbrt':return Math.cbrt(x);
    case 'abs':return Math.abs(x);
-   case 'gcd':return gcdFunction(args);
-   case 'lcm':return lcmFunction(args);
-   case 'int':return integerPart(args,false);
-   case 'intg':return integerPart(args,true);
+   // PLUS C 2nd edition guide adds GCD, LCM, Int and Intg. They are
+   // not printed commands in the original and standard PLUS guides.
+   case 'gcd':case 'lcm':case 'int':case 'intg':{
+    if(opts.model==='fx-991es'||opts.model==='fx-991es-plus')fail('Argument ERROR');
+    const kind=name.toLowerCase();
+    if(kind==='gcd')return gcdFunction(args);
+    if(kind==='lcm')return lcmFunction(args);
+    return integerPart(args,kind==='intg');
+   }
    case 'exp':return Math.exp(x);case 'floor':return Math.floor(x);case 'ceil':return Math.ceil(x);
    case 'round':return Math.round(x);
    case 'rnd':if(args.length!==1)fail('Syntax ERROR');return roundCalculated(x,st);
