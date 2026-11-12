@@ -1261,7 +1261,7 @@ function eqnResultHandle(key){
  notify('EQN: = next/finish; arrows scroll; AC coefficients');paint();
 }
 
-// PLUS C emulator reference: dimension choices descend from 3x3 to 1x1.
+// PLUS dimension choices are presented in descending order.
 const MATRIX_DIMS=[[3,3],[3,2],[3,1],[2,3],[2,2],[2,1],[1,3],[1,2],[1,1]];
 function matrixRegisterMenu(kind){
  optionDialog(kind==='Dim'?'Matrix?':'Matrix '+kind,MATRIX.NAMES.map((name,i)=>({
@@ -1757,35 +1757,17 @@ function advancedMode(mode){
   if(mode==='TABLE')return tableStart();
 }
 function alphaKey(key){
- if(key==='DOT'&&!MODELS.hasFeature(state.model,'ranint')){
-  releaseModifier();notify('RanInt# requires PLUS model',true);paint();return true;
- }
- if(key==='SQRT'&&!MODELS.hasFeature(state.model,'recurring')){
-  releaseModifier();notify('Recurring decimals require PLUS C',true);paint();return true;
- }
- if(key==='INTEGRAL')return insert('Prod(');
- if(key==='LOGBASE'){numericalFlow('PRODUCT');return true}
+ if(key==='ENG')return insert(':');
  if(key==='FRAC')return insert('÷R');
- if(key==='SQRT'){
-  if(!state.math||!state.input.endsWith('.')){notify('Use decimal point before recurring digits',true);paint();return true}
-  return insertTemplate('recurring');
- }
- if(key==='ENG')return insert(':'); // ALPHA ENG is colon; plain CMPLX ENG inserts i
- if(key==='MUL')return insert('GCD(');
- if(key==='DIV')return insert('LCM(');
- if(key==='ADD')return insert('Int(');
- if(key==='SUB')return insert('Intg(');
  const variables={NEG:'A',DMS:'B',HYP:'C',SIN:'D',COS:'E',TAN:'F',LP:'X',RP:'Y',MPLUS:'M'};
  if(variables[key]){
-  if(!registerAllowed(variables[key])){notify('Register unavailable on this model',true);paint();return true}
+  if(!registerAllowed(variables[key])){notify('Register unavailable on PLUS',true);paint();return true}
   return insert(variables[key]);
  }
- if(key==='EXP')return insert('e');if(key==='DOT')return insert('RanInt#(');
- if(key==='ANS'){
-  if(state.mode!=='COMP'){notify('PreAns requires COMP mode',true);paint();return true}
-  return insert('PreAns');
- }
- if(key==='CALC')return insert('=');return null
+ if(key==='EXP')return insert('e');
+ if(key==='DOT')return insert('RanInt#(');
+ if(key==='CALC')return insert('=');
+ return null;
 }
 function complexMenu(){
  // SHIFT 2: match the documented CMPLX function ordering.
@@ -1945,7 +1927,7 @@ function shifted(key){
  if(key==='DIV'){releaseModifier();insert('nCr');return true}
  if(key==='ADD'||key==='SUB'){releaseModifier();insert(key==='ADD'?',':',');return true}
  if(insertions[key]!==undefined){releaseModifier();if(insertions[key])insert(insertions[key]);else notify('Function requires a result or an input');paint();return true}
- if(['1','2','3','4','5','6'].includes(key)){releaseModifier();const mapped={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR','6':'VERIF'};setMode(mapped[key]);return true}
+ if(['1','2','3','4','5'].includes(key)){releaseModifier();const mapped={'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR'};setMode(mapped[key]);return true}
  return false
 }
 function showResult(decimal,forceFraction=false){
@@ -1968,7 +1950,7 @@ function showResult(decimal,forceFraction=false){
 function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
  if(state.remainderResult||state.coordinateResult)return;
- // Rdec S⇔D cycling is exclusive to the PLUS C model.
+ // PLUS uses fraction/decimal conversion without recurring-cycle mode.
  // Original ES and standard PLUS always use ordinary fraction/decimal.
  const candidate=RESULTS.calculate(state.raw,state.resultSource||state.input,
   {...state,fractionStyle:state.resultFractionStyle||state.fractionStyle},{
