@@ -1,5 +1,5 @@
 /* REA-012: documented SETUP menu structure, separate from calculation MODE.
- * Official CASIO fx-991ES/PLUS/PLUS C manuals; firmware and LCD parity unverified.
+ * Reference: CASIO fx-991ES PLUS second-edition manual; hardware parity unverified.
  */
 (function(global){'use strict';
 const SETUP_PAGE_1=Object.freeze([
