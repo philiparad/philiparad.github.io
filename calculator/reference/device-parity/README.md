@@ -39,6 +39,14 @@ The user-supplied `CASIO(1).zip` contained 41 entries (~17.1 MB compressed). The
 
 **Important:** The ZIP describes the **PLUS C 2nd edition**. It does not independently establish original fx-991ES or standard PLUS behavior. The Windows software was **not executed** in this session. Its proprietary executable/DLLs, screenshots and license were **not copied into GitHub**. The user should run the legally obtained emulator locally on a compatible Windows computer under its license and record its own authorized observations.
 
+## Additional manual-driven correction: C-only math functions
+
+Comparing the three editions' **function calculation** tables exposed one measurable implementation gap: the original fx-991ES and standard fx-991ES PLUS manuals do **not** list GCD, LCM, Int, Intg or Π finite-product commands, whereas the PLUS C 2nd edition guide explicitly describes them. Previously, the common expression engine accepted those commands for all three model selections.
+
+The updated `js/math-engine.js` rejects these commands in the original and non-C PLUS profiles while accepting the documented functions in PLUS C. `js/model-profiles.js` now declares those edition-specific capabilities. The standalone calculator embeds the same updated source. `test_edition_gates.cjs` confirms the original/PLUS rejection, PLUS C results, and support matrix.
+
+The expression engine's model-unspecified programmatic API retains its legacy behavior so internal mathematical utilities outside the physical model selector remain compatible. The gating change represents a **manual-grounded compatibility correction**, not yet a captured native calculator key sequence.
+
 ## Source-based mathematical verification
 
 `test_scientific_features.cjs` covers arithmetic and precedence, parentheses, powers, roots, trigonometry in DEG/RAD/GRAD, logarithms and exponentials, factorial/combinations/permutations, invalid domains, original-vs-PLUS RanInt gating, finite sums, numerical calculus and SOLVE, matrix equations, rectangular/polar conversions, complex arithmetic, standard-normal P/Q/R, weighted STAT and regression predictions.
@@ -52,6 +60,8 @@ Run with Node 22:
 ```bash
 node calculator/reference/device-parity/test_model_contract.cjs
 node calculator/reference/device-parity/test_scientific_features.cjs
+node calculator/reference/device-parity/test_edition_gates.cjs
+python3 -m unittest discover -s calculator/reference/device-parity -p 'test_evidence.py' -v
 python3 calculator/tools/build_standalone.py --check
 ```
 
