@@ -20,7 +20,7 @@ const numericSpec=[
  ['1','1','STAT',''],['2','2','CMPLX',''],['3','3','BASE',''],['ADD','+','Pol',''],['SUB','−','Rec',''],
  ['0','0','Rnd',''],['DOT','.','Ran#','RanInt'],['EXP','×10ˣ','π','e'],['ANS','Ans','DRG▶','PreAns'],['EQUAL','=','','']
 ];
-// REA-070: painted legends follow selected model, not the shared PLUS C face.
+// Single physical key-label inventory for the fx-991ES PLUS.
 // Geometry remains screenshot-derived and is NOT an original hardware measurement.
 const MODEL_LEGENDS=Object.freeze({
  'fx-991es-plus':Object.freeze({
