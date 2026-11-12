@@ -195,7 +195,7 @@ function rasterize(state){
   write('LEVEL '+String(state.contrast??5),24,22);
   return finish();
  }
- // CASIO MODE/SETUP/STAT/DIST menus: local 1–8 keys, 2 columns,
+ // CASIO MODE/SETUP/STAT menus: local 1–8 keys, 2 columns,
  // four rows, UP/DOWN page flags. Side-by-side LCD keys are underlined.
  if(state.pendingMemory){
   write(state.pendingMemory==='STO'?'STO':'RCL',0,0);
@@ -380,43 +380,6 @@ function rasterize(state){
   if(m.rows<3||e.error)write((e.error||selectedValue).slice(-23),0,29);
   return finish();
  }
- // REA-059: native INEQ coefficient cells and special-case result cards.
- if(state.screen==='ineq-coeff'&&state.ineqEditor){
-  const item=state.ineqEditor,e=item.coefficients;
-  const cols=e.rows[0].length,gap=cols===4?22:28,offset=cols===4?9:13;
-  const key=e.rows[e.row][e.col],value=e.editing?e.buffer:String(e.values[key]);
-  const heading=e.error?'INEQ ERR '+e.error:'INEQ '+item.degree+' '+item.operator+' 0';
-  write(heading.slice(-23),0,0);
-  write((key.toUpperCase()+' = '+value).slice(-23),0,9);
-  for(let c=0;c<cols;c++){
-   const name=e.rows[0][c];
-   write(name.toUpperCase(),offset+c*gap,18);
-   const selected=e.row===0&&e.col===c,txt=selected?value:String(e.values[name]);
-   const width=cols===4?4:6;
-   write(txt.slice(-width),offset+c*gap,25,Math.min(W,offset+c*gap+width*4));
-   if(selected){
-    const end=Math.min(W-1,offset+c*gap+Math.max(1,Math.min(width,txt.length))*4-1);
-    for(let x=offset+c*gap;x<=end;x++)pixel(x,30);
-   }
-  }
-  return finish();
- }
- if(state.screen==='ineq-result'&&state.ineqSession){
-  const sess=state.ineqSession;
-  const current=sess.pages[sess.index]||sess.pages[0];
-  write('INEQ '+sess.degree+' '+sess.operator+' 0',0,0);
-  const status=current.kind==='empty'?'NO SOLUTION':current.kind==='all'?'ALL REAL X':
-   current.kind==='point'?'EQUALITY ROOT':'SOLUTION '+(sess.index+1);
-  write(status.slice(0,23),0,9);
-  const text=String(current.text).replace(/All Real Numbers/g,'All Real X');
-  if(text.length<=23)write(text,0,25);
-  else{
-   write(text.slice(0,23),0,19);
-   write(text.slice(23,46),0,25);
-  }
-  if(sess.pages.length>1)write((sess.index+1)+'/'+sess.pages.length,80,0);
-  return finish();
- }
  if(state.screen==='eqn-coeff'&&state.eqnEditor){
   const e=state.eqnEditor,cols=e.rows[0].length;
   const gap=cols===4?21:27,offset=cols===4?11:12;
@@ -513,41 +476,7 @@ function rasterize(state){
   write((prefix+value).slice(-23),0,25);
   return finish();
  }
- // REA-062: DIST List X/Ans tabular LCD view with highlighted cell.
- if(state.screen==='dist-list'&&state.distList){
-  const e=state.distList,rows=e.samples;
-  const kind=e.type.replace('binomial','BIN').replace('poisson','POI').replace('-pd',' PD').replace('-cd',' CD');
-  write(('DIST '+kind).slice(0,22),0,0);
-  write('X',8,7);write('Ans',52,7);
-  const limit=rows.length<25?rows.length+1:rows.length;
-  const top=Math.max(0,Math.min(Math.max(0,limit-2),e.row-1));
-  for(let index=top;index<Math.min(limit,top+2);index++){
-   const y=14+(index-top)*8;
-   const sample=index<rows.length?rows[index]:null;
-   const sampleText=e.editing&&index===e.row?e.buffer:sample===null?'_':global.FreshDistList.format(sample);
-   const answer=e.calculated&&index<e.answers.length?global.FreshDistList.format(e.answers[index]):'';
-   write((index+1)+':',0,y);
-   write(sampleText.slice(-8),8,y,43);
-   write(answer.slice(-10),52,y,94);
-   if(index===e.row){
-    const start=e.column===0?8:52,end=e.column===0?43:94;
-    for(let x=start;x<end;x++)pixel(x,Math.min(30,y+6));
-   }
-  }
-  const active=e.column===0?(e.editing?e.buffer:rows[e.row]):e.answers[e.row];
-  const detail=e.error||((e.column===0?'X':'Ans')+'='+((active===undefined||active===null)?'':global.FreshDistList.format(Number(active))));
-  write(detail.slice(-23),0,29);
-  return finish();
- }
- if(state.screen==='conversion-code'&&state.conversionCode){
-  write('CONVERSION',0,0);
-  write('Number 01-40?',0,10);
-  const editor=state.conversionCode;
-  write((editor.buffer||'_')+(editor.buffer.length===1?'_':''),80,25);
-  if(editor.error)write(editor.error.slice(0,22),0,18);
-  return finish();
- }
-  if(state.screen==='constant-code'&&state.constantCode){
+ if(state.screen==='constant-code'&&state.constantCode){
   write('CONSTANT',0,0);
   write('Number 01-40?',0,10);
   const editor=state.constantCode;
