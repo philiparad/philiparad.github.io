@@ -186,7 +186,7 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
                 <div class="edition-mark" aria-hidden="true">2nd edition</div>
                 <div class="lcd-frame">
                     <div class="lcd-glass">
-                        <canvas id="lcd" width="768" height="248" role="img" aria-label="Calculator display"></canvas>
+                        <canvas id="lcd" width="960" height="310" role="img" aria-label="Calculator display"></canvas>
                         <div class="lcd-annotations" aria-hidden="true"><span id="lcd-shift"></span><span id="lcd-alpha"></span><span id="lcd-memory"></span><span id="lcd-pending"></span><span id="lcd-mode"></span><span id="lcd-angle">D</span><span id="lcd-format"></span><span id="lcd-math">Math</span><span id="lcd-replay"></span><span id="lcd-disp"></span></div>
                     </div>
                 </div>
@@ -2287,10 +2287,72 @@ Object.assign(FONT,{
  '·':['000','000','010','000','000']
 });
 const MATH_GLYPHS=Object.freeze(['θ','∠','►','α','β','Σ','∑','∫','∞','≠','≤','≥','≈','′','″','▸','◂','▷','◁','√','×','·']);
-function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
- const glyph=(c,x,y)=>{const f=FONT[c]||FONT[c.toUpperCase()]||FONT['?'];for(let j=0;j<5;j++)for(let i=0;i<3;i++)if(f[j][i]==='1')pixel(x+i,y+j)};
- const write=(text,x,y,limit=W)=>{for(const c of String(text)){if(x+3>limit)break;glyph(c,x,y);x+=4}};
+// Twofold logical LCD resolution with a *new* 7×11 glyph atlas.
+// 7×11 pixel patterns derived from the freely licensed DejaVu Sans Mono.
+// No font binaries are shipped; original 96×31 coordinates remain the layout grid.
+const HI_W=192,HI_H=62,HI_PIXEL_SCALE=2;
+const HI_CHARS=" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~π√θ∠►αβΣ∑∫∞≠≤≥≈′″▸◂▷◁↑↓×÷·²³°□∂−";
+const HI_DATA="AAAAAAAAAAAAAAAACAgICAgIAAgAAAAUFBQAAAAAAAAAABoWfxQUfigoAAAACB4oKBwOCjwICABwWHIMEC4LDgAAABwwMDBrRmY+AAAACAgIAAAAAAAAAAwICBgYGBgICAwAEBgICAgICAgYEAAACCocHCoIAAAAAAAAAAgIfggIAAAAAAAAAAAAAAgYEAAAAAAAABwAAAAAAAAAAAAAAAAYGAAAAAYEDAgYEBAgIAAAHDYmIiomNhwAAAA4CAgICAgIPgAAADwmBgQMGDA+AAAAPCYGHAYCJjwAAAAMDBQ0JH4EBAAAADwgIDwGBgY8AAAAHDAgPCYiJhwAAAA+BgQMCAgYEAAAADwmJhwmIiY8AAAAPCYmJj4GBDwAAAAAABgYAAAYGAAAAAAAGBgAAAgYEAAAAAAGHHAcBgAAAAAAAAB+AH4AAAAAAAAAYBwGHGAAAAAAPAYEDAgYABgAAAAcMmJOUlJOYDAeABgcFDQmPmJiAAAAPCYmPCYiJjwAAAAcMiAgICAyHAAAADwmJiIiJiY8AAAAPiAgPiAgID4AAAA+MDA+MDAwMAAAABwyIGBmIjIeAAAAIiIiPiIiIiIAAAA+CAgICAgIPgAAABwEBAQEBGQ4AAAAIiQoOCgsJiIAAAAgICAgICAgPgAAAGZ2dnpqYmJiAAAAIjIyOiouJiYAAAAcNiJiYiI2HAAAADwmIiY8ICAgAAAAHDYiYmIiNhwEAAA8JiYmPCQmIwAAABwmIDgOAiY8AAAAfwgICAgICAgAAAAiIiIiIiImHAAAAGIiJjQ0FBwYAAAAQ0N6ej42NiYAAAAiNhwYHBQmYgAAAGImNBwICAgIAAAAPgYEDBgQID4AABwYGBgYGBgYGBwAACAgEBAYCAwEBgAYCAgICAgICAgYAAAYNCIAAAAAAAAAAAAAAAAAAAAAAAAQCAAAAAAAAAAAAAAAADwGPiYmPgAAICAgPDYiIjY8AAAAAAAeMCAgMB4AAAYGBj4mJiYmPgAAAAAAHCI+IDAeAAAOCBg+GBgYGBgAAAAAAD4mJiYmPgY8ICAgPDYmJiYmAAAIAAA4CAgICD4AAAgAADgICAgICAg4ICAgJiw4PCYiAAA4GBgYGBgYGA4AAAAAAH5qampqagAAAAAAPDYmJiYmAAAAAAAcJiIiJhwAAAAAADw2IiI2PCAgAAAAHiYmJiYeAgIAAAAeGBAQEBAAAAAAABwwOAwGPAAAABAQPhAQEBgOAAAAAAAmJiYmJh4AAAAAACImNBQcGAAAAAAAQ0JqOjY2AAAAAAAmFBgYNCIAAAAAACImNBQcCBgwAAAAPgQIGDA+AAAOCAgYMBgICAgOAAgICAgICAgICAgIMBgICA4ICAgYMAAAAAAAADpOAAAAAAAAAH4mJiYmJgAAAgICBiQkHBgYGAAcNiYiPiImNhwAAAAAAgQIED4+AAAAAAAAAGB8fnAAAAAAAAA6ZmRkbDoAABg8JiQ8JiIiPCAgAH4gEBgYECB+AAAAPiAQCAgICBAgPggICAgICAgICAgwAAAAADZaWjYAAAAAAAIGfgh+MCAAAAAAAAY4OAYAfgAAAAAAcB4ecAB+AAAAAAAAOk46TgAAAAAIEAAAAAAAAAAAABwIAAAAAAAAAAAAAAAAIDg8MAAAAAAAAAAGHh4GAAAAAAAAYFhGRlhgAAAAAAADDTFhGQcAAAAAAAgcCAgICAAAAAAACAgICBwYAAAAAAAiPBg8JgAAAAAAABgAfgAYAAAAAAAAABgYAAAAAAAAHAQIHAAAAAAAAAAcHAQcAAAAAAAAABw0HAAAAAAAAAAAAAB/QUFBQUF+AAAAHAYOPiQkOAAAAAAAAAB+AAAAAAA=";
+const HI_FONT=Object.create(null);
+{
+ const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+ const keys=[...HI_CHARS],expected=keys.length*11;
+ let value=0,bits=0,index=0;
+ for(const char of HI_DATA){
+  if(char==='=')break;
+  const v=alphabet.indexOf(char);
+  if(v<0)throw Error('Invalid high-resolution LCD atlas');
+  value=(value<<6)|v;bits+=6;
+  if(bits>=8){
+   bits-=8;
+   const k=Math.floor(index/11),row=index%11;
+   if(!HI_FONT[keys[k]])HI_FONT[keys[k]]=new Uint8Array(11);
+   HI_FONT[keys[k]][row]=(value>>>bits)&255;
+   index++;value &= (1<<bits)-1;
+  }
+ }
+ if(index!==expected)throw Error('LCD atlas length mismatch: '+index+' != '+expected);
+}
+function hiGlyph(c){
+ if(HI_FONT[c])return HI_FONT[c];
+ const old=FONT[c]||FONT[c.toUpperCase()]||FONT['?'];
+ const rows=new Uint8Array(11);
+ for(let y=0;y<11;y++){
+  const line=old[Math.min(4,Math.floor(y*5/11))];
+  for(let x=0;x<7;x++)if(line[Math.min(2,Math.floor(x*3/7))]==='1')
+   rows[y]|=1<<(6-x);
+ }
+ return rows;
+}
+function rasterize(state){
+ // Preserve the existing 96×31 layout coordinates while painting a finer
+ // 192×62 pixel output. Geometry retains precise edges; text uses a fresh
+ // 7×11 bitmap glyph rather than enlarging its former 3×5 dots.
+ const pixels=new Uint8Array(W*H),textRuns=[];
+ const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
+ const glyph=(c,x,y,inverse=false)=>{textRuns.push({c,x,y,inverse})};
+ const write=(text,x,y,limit=W)=>{for(const c of String(text)){
+  if(x+3>limit)break;glyph(c,x,y);x+=4;
+ }};
  const line=(y)=>{for(let x=0;x<W;x++)pixel(x,y)};
+ const finish=()=>{
+  const hi=new Uint8Array(HI_W*HI_H);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(pixels[y*W+x]){
+   const i=(y*2)*HI_W+x*2;
+   hi[i]=hi[i+1]=hi[i+HI_W]=hi[i+HI_W+1]=1;
+  }
+  for(const item of textRuns){
+   const glyphRows=hiGlyph(item.c),px=Math.round(item.x*2),py=Math.round(item.y*2);
+   for(let gy=0;gy<11;gy++){
+    const yy=py+gy;if(yy<0||yy>=HI_H)continue;
+    for(let gx=0;gx<7;gx++){
+     const xx=px+gx;if(xx<0||xx>=HI_W)continue;
+     if(glyphRows[gy]&(1<<(6-gx)))hi[yy*HI_W+xx]=item.inverse?0:1;
+    }
+   }
+  }
+  return hi;
+ };
  // Status annunciators are a separate accurately sized HTML overlay.
 
  if(!state.power){return pixels}
@@ -2314,7 +2376,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    const result=String(state.result||'0');
    write(result.slice(-23),Math.max(0,W-Math.min(result.length,23)*4),25);
   }
-  return pixels;
+  return finish();
  }
  // Native TABLE entry starts with a blank f(X)= field, not a
  // multiline engineering form with a sample formula prefilled.
@@ -2327,7 +2389,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    write(value.slice(0,Math.max(0,23-text.length)),2+text.length*4,9);
    const cursor=Math.min(W-1,2+Math.min(23,text.length+value.length)*4);
    for(let yy=9;yy<=14;yy++)pixel(cursor,yy);
-   return pixels;
+   return finish();
   }
  }
  if(state.screen==='contrast'){
@@ -2335,7 +2397,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   write('LIGHT <',0,13);
   write('> DARK',67,13);
   write('LEVEL '+String(state.contrast??5),24,22);
-  return pixels;
+  return finish();
  }
  // CASIO MODE/SETUP/STAT/DIST menus: local 1–8 keys, 2 columns,
  // four rows, UP/DOWN page flags. Side-by-side LCD keys are underlined.
@@ -2349,7 +2411,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    const col=i%3,row=Math.floor(i/3);
    write(names[i],col*32+10,9+row*7,col*32+32);
   }
-  return pixels;
+  return finish();
  }
  if(state.screen==='menu'){
   const menu=global.FreshMenuModel;
@@ -2364,22 +2426,20 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    for(let i=0;i<Math.min(8,entries.length);i++){
     const x=(i%2)*colWidth+1,y=4+Math.floor(i/2)*7;
     for(let py=0;py<7;py++)for(let px=0;px<6;px++)pixel(x+px,y+py);
-    const font=FONT[String(entries[i].number)]||FONT['?'];
-    for(let py=0;py<5;py++)for(let px=0;px<3;px++)
-     if(font[py][px]==='1')pixels[(y+1+py)*W+x+1+px]=0;
+    glyph(String(entries[i].number),x+1,y+1,true);
     const name=menu?menu.label(entries[i]):String(entries[i].label);
     write(name,x+8,y+1,x+colWidth-1);
    }
    if(state.menuEntries.length>size)for(let y=0;y<3;y++)
     for(let x=0;x<5-2*y;x++)pixel(89+y+x,1+y);
-   return pixels;
+   return finish();
   }
   // The native EQN selection screen shows mathematical equations rather
   // than the simulator's descriptive "unknowns/Quadratic" labels.
   if(kind==='eqn-type'){
    const lines=['1:aX+bY=c','2:aX+bY+cZ=d','3:aX²+bX+c=0','4:aX³+bX²+cX+d=0'];
    for(let i=0;i<Math.min(entries.length,4);i++)write(lines[i],1,2+i*7);
-   return pixels;
+   return finish();
   }
   // Native MatA dimension selection orders 3x3, 3x2, 3x1, 2x3, 2x2,
   // 2x1 on its first page (then 1-row dimensions after DOWN).
@@ -2394,7 +2454,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     for(let y=0;y<3;y++)for(let x=0;x<5-2*y;x++)pixel(89+y+x,1+y);
    if(state.menuPage>0)
     for(let y=0;y<3;y++)for(let x=0;x<1+2*y;x++)pixel(85+2-y+x,1+y);
-   return pixels;
+   return finish();
   }
   // Emulator selector headings are "Matrix?" and "Vector?" rather than
   // the internal engineering MODE names "MATRIX" and "VECTOR".
@@ -2405,7 +2465,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     const name=menu?menu.label(entries[i]):String(entries[i].label);
     write(String(entries[i].number)+':'+name,x,y,x+46);
    }
-   return pixels;
+   return finish();
   }
   write(title,0,0);
   const special=menu?menu.rule(kind):{columns:2,size:6};
@@ -2426,7 +2486,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    for(let y=0;y<3;y++)for(let x=0;x<5-2*y;x++)pixel(89+y+x,1+y);
   if(state.menuPage>0)
    for(let y=0;y<3;y++)for(let x=0;x<1+2*y;x++)pixel(85+2-y+x,1+y);
-  return pixels;
+  return finish();
  }
  if(state.screen==='stat-table'&&state.statTable){
   const t=state.statTable,cols=t.paired?(t.frequency?['X','Y','FREQ']:['X','Y']):(t.frequency?['X','FREQ']:['X']);
@@ -2454,7 +2514,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(first>0)glyph('↑',88,0);
   if(first+3<t.rows.length)glyph('↓',92,0);
   if(t.error)write(t.error.slice(-20),0,25);
-  return pixels;
+  return finish();
  }
  if(state.mode==='VECTOR'&&state.screen==='vector-parameter'&&state.vectorParameter){
   const p=state.vectorParameter;
@@ -2463,18 +2523,18 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const value=String(p.buffer);
   write(value.slice(-22),Math.max(0,W-Math.min(22,value.length)*4),25);
   if(p.error)write(p.error.slice(-20),0,17);
-  return pixels;
+  return finish();
  }
  if(state.mode==='VECTOR'&&['vector-table','vector-result','vector-scalar'].includes(state.screen)){
   if(state.screen==='vector-scalar'){
    write((state.vectorScalarInfo||'VECTOR Result').slice(0,23),0,0);
    const n=String(state.result||'0');
    write(n.slice(-23),Math.max(0,W-Math.min(23,n.length)*4),25);
-   return pixels;
+   return finish();
   }
   const editing=state.screen==='vector-table';
   const e=editing?state.vectorEditor:state.vectorView;
-  if(!e)return pixels;
+  if(!e)return finish();
   const v=e.vector;
   write((editing?'EDIT ':'ANS ')+e.name+' '+v.dimension+'D',0,0);
   for(let i=0;i<v.dimension;i++){
@@ -2484,7 +2544,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    if(selected)for(let x=25;x<Math.min(W,25+Math.max(1,Math.min(18,raw.length))*4);x++)pixel(x,Math.min(H-1,y+6));
   }
   if(editing&&e.error)write(e.error.slice(-18),0,29);
-  return pixels;
+  return finish();
  }
  if(state.mode==='MATRIX'&&state.screen==='matrix-parameter'&&state.matrixParameter){
   const p=state.matrixParameter;
@@ -2493,18 +2553,18 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const value=String(p.buffer);
   write(value.slice(-22),Math.max(0,W-Math.min(22,value.length)*4),25);
   if(p.error)write(p.error.slice(-20),0,17);
-  return pixels;
+  return finish();
  }
  if(state.mode==='MATRIX'&&['matrix-table','matrix-result','matrix-scalar'].includes(state.screen)){
   if(state.screen==='matrix-scalar'){
    write('MATRIX det',0,0);
    const value=String(state.result||'0');
    write(value.slice(-23),Math.max(0,W-Math.min(23,value.length)*4),25);
-   return pixels;
+   return finish();
   }
   const editing=state.screen==='matrix-table';
   const e=editing?state.matrixEditor:state.matrixView;
-  if(!e)return pixels;
+  if(!e)return finish();
   const m=editing?e.matrix:e.matrix;
   // Screenshot-derived PLUS C matrix editor: alphabetic a/b/c headings,
   // 1/2/3 row markers, bracketed grid, and inverse selected entry.
@@ -2526,18 +2586,13 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
      const text=String(selected?e.buffer:m.data[row][col]).slice(-Math.max(1,m.cols===3?4:6));
      if(selected){
       for(let dy=-1;dy<6;dy++)for(let dx=-2;dx<Math.min(18,Math.max(8,text.length*4+2));dx++)pixel(x+dx,y+dy);
-      for(let k=0;k<text.length;k++){
-       const bitmap=FONT[text[k]]||FONT['?'];
-       for(let gy=0;gy<5;gy++)for(let gx=0;gx<3;gx++)
-        if(bitmap[gy][gx]==='1'&&x+k*4+gx<W&&y+gy<H)
-         pixels[(y+gy)*W+x+k*4+gx]=0;
-      }
+      for(let k=0;k<text.length;k++)glyph(text[k],x+k*4,y,true);
      }else write(text,x,y,Math.min(W-1,x+22));
     }
    }
    const selectedText=String(e.buffer).slice(-8);
    write(selectedText,Math.max(0,W-selectedText.length*4),25);
-   return pixels;
+   return finish();
   }
   const cwidth=m.cols===3?6:m.cols===2?9:19;
   const x0=m.cols===3?12:m.cols===2?18:12;
@@ -2558,7 +2613,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   }
   const selectedValue=editing?e.buffer:String(m.data[e.row][e.col]);
   if(m.rows<3||e.error)write((e.error||selectedValue).slice(-23),0,29);
-  return pixels;
+  return finish();
  }
  // REA-059: native INEQ coefficient cells and special-case result cards.
  if(state.screen==='ineq-coeff'&&state.ineqEditor){
@@ -2579,7 +2634,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     for(let x=offset+c*gap;x<=end;x++)pixel(x,30);
    }
   }
-  return pixels;
+  return finish();
  }
  if(state.screen==='ineq-result'&&state.ineqSession){
   const sess=state.ineqSession;
@@ -2595,7 +2650,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    write(text.slice(23,46),0,25);
   }
   if(sess.pages.length>1)write((sess.index+1)+'/'+sess.pages.length,80,0);
-  return pixels;
+  return finish();
  }
  if(state.screen==='eqn-coeff'&&state.eqnEditor){
   const e=state.eqnEditor,cols=e.rows[0].length;
@@ -2620,7 +2675,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     }
    }
   }
-  return pixels;
+  return finish();
  }
  if(state.screen==='eqn-result'&&state.eqnSession){
   const e=state.eqnSession,parts=e.solutions,count=parts.length;
@@ -2649,7 +2704,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   }else{
    write(e.status||'Math ERROR',0,12);
   }
-  return pixels;
+  return finish();
  }
  if(state.screen==='prompt'&&state.flow){
   const f=state.flow,field=f.fields[f.index],menu=global.FreshMenuModel;
@@ -2666,7 +2721,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
    for(let yy=17;yy<=23;yy++)pixel(x,yy);
   }
   write((state.info||((field.choices||['op','operator','kind','variable'].includes(field.id))?'ARROWS CHOOSE  = OK':'= NEXT  AC BACK')).slice(0,23),0,25);
-  return pixels;
+  return finish();
  }
  if(state.screen==='table-grid'&&state.tableData){
   const t=state.tableData,cols=t.columns,dual=t.dual;
@@ -2691,7 +2746,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const value=global.FreshTable.format(global.FreshTable.active(t));
   const prefix=(t.row+1)+'/'+t.rows.length+' '+['X','F','G'][t.col]+'=';
   write((prefix+value).slice(-23),0,25);
-  return pixels;
+  return finish();
  }
  // REA-062: DIST List X/Ans tabular LCD view with highlighted cell.
  if(state.screen==='dist-list'&&state.distList){
@@ -2717,7 +2772,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const active=e.column===0?(e.editing?e.buffer:rows[e.row]):e.answers[e.row];
   const detail=e.error||((e.column===0?'X':'Ans')+'='+((active===undefined||active===null)?'':global.FreshDistList.format(Number(active))));
   write(detail.slice(-23),0,29);
-  return pixels;
+  return finish();
  }
  if(state.screen==='conversion-code'&&state.conversionCode){
   write('CONVERSION',0,0);
@@ -2725,7 +2780,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const editor=state.conversionCode;
   write((editor.buffer||'_')+(editor.buffer.length===1?'_':''),80,25);
   if(editor.error)write(editor.error.slice(0,22),0,18);
-  return pixels;
+  return finish();
  }
   if(state.screen==='constant-code'&&state.constantCode){
   write('CONSTANT',0,0);
@@ -2733,7 +2788,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   const editor=state.constantCode;
   write((editor.buffer||'_')+(editor.buffer.length===1?'_':''),80,25);
   if(editor.error)write(editor.error.slice(0,22),0,18);
-  return pixels;
+  return finish();
  }
  if(state.screen==='flow-result'){
   const lines=state.outputLines||[],page=state.outputPage||0;
@@ -2744,7 +2799,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
   if(pan.right)glyph('>',91,25);
   if((page+1)*3<lines.length)write('>',91,0);
   if(page>0)write('<',87,0);
-  return pixels;
+  return finish();
  }
  // REA-009: render editable mathematical templates in two dimensions.
  const expression=state.editor;
@@ -2921,7 +2976,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     write(parts[0].slice(0,23),0,17);
     write(parts[1].slice(0,23),0,25);
     if(parts[0].length>23||parts[1].length>23)glyph('>',91,24);
-    return pixels;
+    return finish();
    }
    if(!drawTypedResult(state.resultPresentation)){
    if(result.length>23){
@@ -2931,7 +2986,7 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
     if(start+23<result.length)glyph('>',91,19);
    }else write(result.slice(-24),Math.max(0,W-Math.min(result.length,24)*4),25);
   }
-  return pixels;
+  return finish();
  }
  if(structured){drawStructured(true,12);if(state.info)write(state.info.slice(-23),0,25);return pixels}
  const input=state.input||'',cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
@@ -2942,10 +2997,10 @@ function rasterize(state){const pixels=new Uint8Array(W*H);const pixel=(x,y)=>{i
  if(start>0)glyph('<',0,20);
  if(input.length>start+visible)glyph('>',91,20);
  if(state.info)write(state.info.slice(-23),0,25);
- return pixels;
+ return finish();
 }
 function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
- const scale=8, w=W*scale,h=H*scale;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+ const scale=5, w=HI_W*scale,h=HI_H*scale;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
  // REA-020: Contrast adjusts the LCD ink shade, never the logical pixel raster.
  // Level 5 preserves the approved web-only golden-frame colors exactly.
  const level=Math.max(0,Math.min(9,Number.isFinite(Number(state.contrast))?Number(state.contrast):5));
@@ -2954,8 +3009,8 @@ function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getCo
  const t=level<=5?level/5:(level-5)/4;
  const ink=defaultInk.map((_,i)=>Math.round(anchor[i]+(target[i]-anchor[i])*t));
  const paper=[215,230,215];
- const img=ctx.createImageData(w,h);for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  const on=pixels[y*W+x];const color=on?ink:paper;
+ const img=ctx.createImageData(w,h);for(let y=0;y<HI_H;y++)for(let x=0;x<HI_W;x++){
+  const on=pixels[y*HI_W+x];const color=on?ink:paper;
   for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){const i=((y*scale+dy)*w+(x*scale+dx))*4;
    const adjustment=(dx===scale-1||dy===scale-1)?(on?7:-2):0;
    img.data[i]=color[0]+adjustment;img.data[i+1]=color[1]+adjustment;img.data[i+2]=color[2]+adjustment;img.data[i+3]=255;
@@ -2963,7 +3018,7 @@ function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getCo
  }
  ctx.putImageData(img,0,0)
 }
-const API=Object.freeze({width:W,height:H,rasterize,draw,FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
+const API=Object.freeze({width:HI_W,height:HI_H,layoutWidth:W,layoutHeight:H,fontWidth:7,fontHeight:11,rasterize,draw,FONT,highFont:HI_FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
