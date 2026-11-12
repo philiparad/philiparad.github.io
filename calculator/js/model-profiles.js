@@ -10,11 +10,11 @@ const profiles=Object.freeze({
  [MODEL]:Object.freeze({id:MODEL,label:'fx-991ES PLUS (2nd edition)',edition:'2nd edition',
   modes:MODES,manual:'https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/',hardwareVerified:false})
 });
-function get(){return profiles[MODEL]}
+function get(id=MODEL){return id===MODEL?profiles[MODEL]:null}
 function supports(id,mode){return id===MODEL&&MODES.includes(mode)}
-function registers(){return REGISTERS}
-function hasRegister(_id,name){return REGISTERS.includes(name)}
-function hasFeature(_id,feature){return FEATURES[MODEL].includes(feature)}
+function registers(id=MODEL){return id===MODEL?REGISTERS:Object.freeze([])}
+function hasRegister(id,name){return id===MODEL&&REGISTERS.includes(name)}
+function hasFeature(id,feature){return id===MODEL&&FEATURES[MODEL].includes(feature)}
 const api=Object.freeze({MODEL,profiles,defaultModel:MODEL,get,supports,registers,hasRegister,FEATURES,hasFeature});
 global.FreshModels=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
