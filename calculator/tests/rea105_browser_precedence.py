@@ -16,10 +16,10 @@ ROOT=Path(__file__).resolve().parents[2]
 FILES=("index.html","fx991_fresh_standalone.html")
 MODELS=("fx-991es-plus",)
 CASES=(
-    (("8","DIV","2","LP","2","ADD","2","RP","EQUAL"),16.0,1.0),
-    (("1","2","DIV","3","LP","1","ADD","3","RP","EQUAL"),16.0,1.0),
-    (("LP","1","ADD","2","RP","3","EQUAL"),9.0,9.0),
-    (("8","DIV","2","MUL","LP","2","ADD","2","RP","EQUAL"),16.0,16.0),
+    (("8","DIV","2","LP","2","ADD","2","RP","EQUAL"),1.0),
+    (("1","2","DIV","3","LP","1","ADD","3","RP","EQUAL"),1.0),
+    (("LP","1","ADD","2","RP","3","EQUAL"),9.0),
+    (("8","DIV","2","MUL","LP","2","ADD","2","RP","EQUAL"),16.0),
 )
 
 async def press(page,*keys):
@@ -43,7 +43,7 @@ async def exercise(browser,base,file,model,format_mode,keys,expected):
         assert abs(value-expected)<1e-9,(file,model,format_mode,keys,answer,expected)
         assert not errors,(file,model,format_mode,errors)
         if keys==CASES[0][0]:
-            # Ans must preserve the actual model-specific result.
+            # Ans must preserve the calculated PLUS result.
             await press(page,"AC","ANS","ADD","1","EQUAL")
             ans=float((await page.locator("#answer-text").inner_text()).strip())
             assert abs(ans-(expected+1))<1e-9,(file,model,ans,expected)
@@ -70,8 +70,7 @@ async def main():
             try:
                 for model in MODELS:
                     for format_mode in ("MathIO","LineIO"):
-                        for keys,_legacy,plus in CASES:
-                            expected=plus
+                        for keys,expected in CASES:
                             values=[]
                             for file in FILES:
                                 values.append(await exercise(
