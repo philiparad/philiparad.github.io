@@ -598,7 +598,7 @@ function flowHandle(key){
  return true;
 }
 function menuHandle(key){
- if(key==='AC'){const back=state.menuReturnScreen||'edit';state.menuEntries=[];state.menu=[];state.menuPageSize=6;state.menuKind='normal';state.screen=back;state.info='';paint();return true}
+ if(key==='AC'){const back=state.menuReturnScreen||'edit';state.menuReturnScreen=null;state.menuEntries=[];state.menu=[];state.menuPage=0;state.menuPageSize=6;state.menuKind='normal';state.screen=back;state.info='';releaseModifier();paint();return true}
  const size=state.menuPageSize||6;
  if(key==='DOWN'||key==='UP'){
   const next=MENUS.navigate(state.menuPage,key,state.menuEntries.length,size);
@@ -936,7 +936,9 @@ function setMode(mode){if(!MODELS.supports(state.model,mode)){notify('Not availa
   state.complexAns={re:state.complexAns.re,im:0};
  }
  if(state.mode==='COMP'&&mode!=='COMP'){state.preAns=0;state.preAnsRational=null}
- state.history=[];clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
+ state.history=[];clearReplay();state.pendingMemory=null;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;state.flow=null;state.outputLines=[];state.outputPage=0;state.editor=STRUCT.create();state.mode=mode;state.input='';state.cursor=0;state.result='';state.screen='edit';
+ if(['STAT','BASE-N','MATRIX','VECTOR'].includes(mode)){state.math=false;state.outputMath=false}
+ releaseModifier();notify(mode+' mode');paint();if(mode!=='COMP')advancedMode(mode)}
 function parseCsv(text){return M.parseNumbers(text)}
 function normalCDF(x,mu=0,sigma=1){if(sigma<=0)throw Error('Argument ERROR');const z=(x-mu)/(sigma*Math.SQRT2);const sign=Math.sign(z),a=Math.abs(z),t=1/(1+0.3275911*a);const erf=sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-a*a));return (1+erf)/2}
 // REA-047: all STAT data are edited on the calculator LCD.
@@ -2055,6 +2057,15 @@ function handle(key){
   if(key==='RIGHT')state.contrast=Math.min(9,state.contrast+1);
   if(key==='AC'||key==='EQUAL'){state.screen='edit';state.info=''}
   paint();return;
+ }
+ // MODE and SHIFT+MODE are global physical keys, including in coefficient,
+ // table and prompt editors. Opening either menu must not discard the editor:
+ // AC returns to the same screen; selecting a mode resets temporary state.
+ if(key==='MODE'){
+  const setup=state.shift;
+  releaseModifier();
+  if(setup)setupMenu();else modeMenu();
+  return;
  }
  if(state.screen==='conversion-code'){conversionCodeHandle(key);return}
  if(state.screen==='constant-code'){constantCodeHandle(key);return}
