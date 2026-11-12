@@ -85,6 +85,16 @@ The suite serves the actual modular `index.html` over local HTTP, loads each edi
 
 Open `parity-lab.html` for the three-model comparison and interactive browser-only tests. Its exported report does not contain screenshot hashes and is therefore never eligible for the stricter native parity verifier.
 
+## Uploaded PLUS C screenshots — additional observed LCD states
+
+The user subsequently provided **11 screenshots** visually showing the PLUS C 2nd edition Windows emulator. They reveal meaningful differences between native-looking menu/prompt screens and the original simulator: boxed MODE numbers, algebraic EQN type labels, Matrix?/Vector? headings, MatA dimensions in descending order, a bracketed matrix editor with a/b/c columns, an initially blank f(X)= prompt, and BASE-N Dec at the right of the LCD. Source changes and screenshot-derived browser regression scenarios are committed.
+
+- [Detailed screenshot observations and corrections](PLUS_C_SCREENSHOT_REVIEW_2026-11-12.md)
+- [11 hashed screenshot reference records](native-emulator-screenshots-2026-11-12.json)
+- [Current test status](STATUS.md)
+
+**Provenance:** the images are user-provided screen captures; no original native KeyLog exports accompanied them. No standalone emulator executable, license, or screenshot has been published publicly. The new 172-case browser suite is configured, but only completed workflow results may be reported as passed. Browser screenshot alignment by itself cannot prove genuine-device pixel parity.
+
 ## Native evidence workflow (human review required)
 
 1. Run the applicable genuine CASIO hardware or appropriately licensed manufacturer emulator, matching the **exact model edition**.
