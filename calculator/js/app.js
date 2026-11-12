@@ -155,9 +155,11 @@ function setResult(value,source=state.input,exactRational=null){
  state.history.unshift({source,value,mode:state.mode,angle:state.angle});if(state.history.length>80)state.history.pop();clearReplay();
  notify('Calculated successfully');paint();
 }
-function error(message,source=state.input){
- const kind=ERRORS.classify(message,state.mode);
- state.error=kind;state.errorSource=String(source||state.input||'');
+function error(message,source=state.input,operation=state.mode){
+ const kind=ERRORS.classify(message,operation);
+ // Retain a SOLVE field until either arrow restores the prompt; AC cancels it.
+ state.errorReturnScreen=state.screen==='prompt'&&state.flow?'prompt':'edit';
+ state.error=kind;state.errorSource=String(source??state.input??'');
  state.errorOffset=ERRORS.location(state.errorSource,message);
  state.screen='error';releaseModifier();notify(kind,true);paint();
 }
@@ -446,7 +448,14 @@ function flowNext(){
    return;
   }
   finishFlow(output);
- }catch(e){state.info=String(e.message||'Math ERROR').slice(0,23);notify(state.info,true);paint()}
+ }catch(e){
+  if(f.title.startsWith('SOLVE')){
+   error(e.message||'Argument ERROR',f.buffer,'SOLVE');
+  }else{
+   state.info=String(e.message||'Math ERROR').slice(0,23);
+   notify(state.info,true);paint();
+  }
+ }
 }
 function finishFlow(output){
  try{
@@ -713,7 +722,7 @@ function startSolve(){
    });
   };
   fieldForm('SOLVE '+session.source,session.fields,run);
- }catch(e){notify(e.message||'Syntax ERROR',true);paint()}
+ }catch(e){error(e.message||'Syntax ERROR',source,'SOLVE')}
 }
 function executeInlineCalculus(calculus){
  if(state.mode!=='COMP')throw Error('Argument ERROR');
@@ -2043,20 +2052,26 @@ function handle(key){
  if(state.screen==='error'){
   if(key==='LEFT'||key==='RIGHT'){
    const target=Number.isInteger(state.errorOffset)?state.errorOffset:state.input.length;
-   state.screen='edit';state.error='';state.info='';
-   // Preserve the structured editor tree; place the caret exactly for linear
-   // input, or retain its existing structured location when paths differ.
-   if(state.editor.path.length===0&&state.editor.root.every(node=>node.type==='char')){
-    state.editor.offset=Math.max(0,Math.min(state.editor.root.length,target));
+   const prompt=state.errorReturnScreen==='prompt'&&state.flow;
+   state.screen=prompt?'prompt':'edit';state.error='';state.info='';
+   if(prompt){
+    state.flow.cursor=Math.max(0,Math.min(state.flow.buffer.length,target));
+    state.flow.editing=true;
+   }else{
+    // Preserve the structured editor and put the cursor at the failed token.
+    if(state.editor.path.length===0&&state.editor.root.every(node=>node.type==='char')){
+     state.editor.offset=Math.max(0,Math.min(state.editor.root.length,target));
+    }
+    syncEditor();
    }
-   syncEditor();state.errorOffset=null;state.errorSource='';
-   releaseModifier();notify('Edit the calculation and press =');paint();
+   state.errorOffset=null;state.errorSource='';state.errorReturnScreen='edit';
+   releaseModifier();notify('Correct the highlighted input and press =');paint();
    return;
   }
   if(key==='AC'){
    state.editor=STRUCT.create();state.input='';state.cursor=0;
-   state.error='';state.errorOffset=null;state.errorSource='';
-   state.screen='edit';state.info='';
+   state.error='';state.errorOffset=null;state.errorSource='';state.errorReturnScreen='edit';
+   state.flow=null;state.screen='edit';state.info='';
    state.viewport.inputX=0;state.viewport.inputY=0;
    releaseModifier();notify('Error cleared');paint();return;
   }
