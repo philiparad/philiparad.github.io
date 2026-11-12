@@ -47,14 +47,14 @@ async def exercise(browser,url,file,model):
             snap=await state(page)
             expect_ok(snap,model,mode,("mode",n))
             assert snap["screen"] in ("edit","menu","prompt"),(model,mode,snap["screen"])
-            if snap["screen"]=="menu":
+            if snap["screen"] in ("menu","prompt"):
                 await press(page,"AC")
         if model=="fx-991es-plus-c":
             for number,mode in (("1","INEQ"),("2","VERIF"),("3","DIST")):
                 await press(page,"MODE","DOWN",number)
                 snap=await state(page)
                 expect_ok(snap,model,mode,("extended mode",number))
-                if snap["screen"]=="menu":
+                if snap["screen"] in ("menu","prompt"):
                     await press(page,"AC")
         eqn_answers=[]
         for number,coefficients,kind,first_expected in EQN_CASES:
