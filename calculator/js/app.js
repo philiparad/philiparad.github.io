@@ -40,7 +40,7 @@ const initialModel=MODELS.defaultModel;
 const modeNames=MODELS.get(initialModel).modes;
 const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),viewport:{inputX:0,inputY:0,resultX:0,flowX:0},resultPresentation:null,pendingMemory:null,factorization:null,coordinateResult:null,resultDMS:false,multiStatements:null,remainderResult:null,resultFractionStyle:null,ansRational:null,preAnsRational:null,...SETUP.defaults,engShift:0,shift:false,alpha:false,hyp:false,captureTemplate:false,calcSession:null,solveSession:null,input:'',cursor:0,
  screen:'edit',result:'',raw:0,ans:0,preAns:0,history:[],memory:{A:0,B:0,C:0,D:0,E:0,F:0,M:0,X:0,Y:0},complexAns:{re:0,im:0},complexMemory:{},complexResultLines:[],complexDisplayFormat:null,
- matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,matrixCopySource:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
+ matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,matrixCopySource:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,vectorCopySource:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
 let numericJob=null;
 const NUMERIC_WALL_MS=6000;
@@ -335,7 +335,7 @@ function loadExpression(text){
  syncEditor();state.screen='edit';state.result='';state.factorization=null;state.coordinateResult=null;state.multiStatements=null;state.remainderResult=null;state.error='';state.errorOffset=null;state.errorSource='';releaseModifier();paint();
 }
 function reset(mode='all'){
- state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.matrixCopySource=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;
+ state.complexResultLines=[];state.complexDisplayFormat=null;state.statTable=null;state.tableData=null;state.tableDraft=null;state.constantCode=null;state.conversionCode=null;state.eqnSession=null;state.eqnEditor=null;state.matrixEditor=null;state.matrixView=null;state.matrixParameter=null;state.matrixCopySource=null;state.vectorEditor=null;state.vectorView=null;state.vectorParameter=null;state.vectorScalarInfo=null;state.vectorCopySource=null;
  clearReplay();
  state.menuEntries=[];state.menuPageSize=6;state.menuKind='normal';state.menuReturnScreen='edit';state.flow=null;state.menu=[];state.outputLines=[];state.viewport={inputX:0,inputY:0,resultX:0,flowX:0};state.resultPresentation=null;state.factorization=null;state.coordinateResult=null;state.resultDMS=false;state.multiStatements=null;state.remainderResult=null;state.resultFractionStyle=null;state.resultSource='';state.engShift=0;state.ansRational=null;state.preAnsRational=null;state.editor=STRUCT.create();state.input='';state.cursor=0;state.result='';state.ans=0;state.preAns=0;state.raw=0;state.screen='edit';state.error='';state.errorOffset=null;state.errorSource='';state.decimal=false;state.hyp=false;state.insert=true;state.captureTemplate=false;state.calcSession=null;state.solveSession=null;releaseModifier();
  if(mode==='all'){state.mode='COMP';state.baseRadix='DEC';state.baseValue=0;Object.assign(state,SETUP.defaults);state.memory=Object.fromEntries(Object.keys(state.memory).map(k=>[k,0]));state.complexMemory={};state.complexAns={re:0,im:0};state.history=[];state.matrices=MATRIX.store();state.vectors=VECTOR.store();state.power=true}
@@ -1662,24 +1662,55 @@ function vectorHistoryMenu(){
   }
  })),{pageSize:8,kind:'vector'});
 }
+
+function vectorCopyStart(name){
+ if(!state.vectors[name]){notify('Vector source has no data',true);paint();return}
+ state.vectorCopySource=name;releaseModifier();
+ notify('STO: (−) VctA, °′″ VctB, hyp VctC');paint();
+}
+function vectorExpressionInput(source){
+ state.input=source;state.cursor=source.length;state.editor=STRUCT.fromString(source);
+ state.screen='vector-expression';state.vectorView=null;state.vectorEditor=null;
+ state.result='';releaseModifier();paint();
+}
+function vectorExpressionInsert(token){
+ if(state.input.length+token.length>140)throw Error('Syntax ERROR');
+ vectorExpressionInput((state.input||'')+token);
+}
+function vectorExpressionCalculate(){
+ try{
+  const output=VECTOR.expression(state.vectors,state.input);
+  if(typeof output==='number'){
+   state.vectorView=null;state.raw=output;state.ans=output;state.result=String(Number(output.toPrecision(12)));
+   state.screen='vector-scalar';state.info='';releaseModifier();paint();
+  }else vectorShow('VctAns',output);
+ }catch(err){error(err.message||'Math ERROR',state.input)}
+}
+function vectorExpressionHandle(key){
+ if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
+ if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
+ if(state.shift&&key==='5'){vectorMenu();return}
+ if(state.shift&&key==='HYP'){vectorExpressionInsert('Abs(');return}
+ if(key==='AC'){vectorExpressionInput('');return}
+ if(key==='DEL'){vectorExpressionInput((state.input||'').slice(0,-1));return}
+ if(key==='EQUAL'){vectorExpressionCalculate();return}
+ if(state.shift||state.alpha){releaseModifier();notify('Unsupported VECTOR modifier',true);paint();return}
+ const operations={ADD:'+',SUB:'-',MUL:'*',DIV:'/',LP:'(',RP:')',DOT:'.',NEG:'-',EXP:'E'};
+ if(Object.prototype.hasOwnProperty.call(operations,key)){vectorExpressionInsert(operations[key]);return}
+ if(/^[0-9]$/.test(key)){vectorExpressionInsert(key);return}
+ notify('VECTOR expression: SHIFT 5 registers/Dot, = calculate',true);paint();
+}
 function vectorMenu(){
+ const fromResult=state.screen==='vector-result';
+ const prefix=state.screen==='vector-expression'?state.input:fromResult?(state.vectorView?.name||''):'';
+ const emit=token=>vectorExpressionInput((fromResult&&token!=='·'?'':prefix)+token);
  releaseModifier();
  optionDialog('VECTOR',[
   {key:'1',label:'1. Dim',action:()=>vectorRegisterMenu('Dim')},
   {key:'2',label:'2. Data',action:()=>vectorRegisterMenu('Data')},
-  ...VECTOR.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,action:()=>vectorShow(name)})),
-  {key:'6',label:'6. VctAns',action:()=>vectorShow('VctAns')},
-  {key:'7',label:'7. Copy',action:()=>vectorCopy()},
-  {key:'8',label:'8. Calc',action:()=>optionDialog('VECTOR Calc',[
-   {label:'1. Dot',action:()=>vectorOperandMenu('dot')},
-   {label:'2. Cross',action:()=>vectorOperandMenu('cross')},
-   {label:'3. Abs',action:()=>vectorOperandMenu('abs')},
-   {label:'4. Add',action:()=>vectorOperandMenu('add')},
-   {label:'5. Subtract',action:()=>vectorOperandMenu('subtract')},
-   {label:'6. Scalar',action:()=>vectorOperandMenu('scalar')},
-   {label:'7. Angle',action:()=>vectorOperandMenu('angle')}
-  ],{pageSize:8,kind:'vector'})},
-  {key:'9',label:'9. History',action:vectorHistoryMenu}
+  ...VECTOR.NAMES.map((name,i)=>({key:String(i+3),label:(i+3)+'. '+name,action:()=>emit(name)})),
+  {key:'6',label:'6. VctAns',action:()=>emit('VctAns')},
+  {key:'7',label:'7. Dot',action:()=>emit('·')}
  ],{pageSize:8,kind:'vector'});
 }
 function vectorTableHandle(key){
@@ -1688,6 +1719,7 @@ function vectorTableHandle(key){
   if(key==='SHIFT'){state.shift=!state.shift;state.alpha=false;paint();return}
   if(key==='ALPHA'){state.alpha=!state.alpha;state.shift=false;paint();return}
   if(state.shift&&key==='5'){vectorPersist();vectorMenu();return}
+  if(state.shift&&key==='RCL'){const name=e.name;vectorPersist();vectorCopyStart(name);return}
   if(key==='MODE'){vectorPersist();modeMenu();return}
   if(key==='AC'){vectorClose();return}
   if(key==='DEL'){VECTOR.backspace(e);releaseModifier();paint();return}
@@ -1715,8 +1747,22 @@ function vectorTableHandle(key){
 function vectorResultHandle(key){
  if(key==='SHIFT'){state.shift=!state.shift;paint();return}
  if(state.shift&&key==='5'){vectorMenu();return}
+ if(state.shift&&key==='RCL'){
+  const name=state.vectorView?.name;releaseModifier();
+  if(name)vectorCopyStart(name);else{notify('Vector result required for STO',true);paint()}
+  return;
+ }
+ if(state.shift&&key==='HYP'&&state.vectorView){
+  vectorExpressionInput('Abs('+state.vectorView.name+')');return;
+ }
  if(key==='MODE'){modeMenu();return}
  if(key==='AC'){state.vectorView=null;state.screen='edit';releaseModifier();paint();return}
+ const op={ADD:'+',SUB:'-',MUL:'*',DIV:'/'};
+ if(op[key]&&state.vectorView){vectorExpressionInput(state.vectorView.name+op[key]);return}
+ if(op[key]&&state.screen==='vector-scalar'&&Number.isFinite(state.raw)){
+  vectorExpressionInput(String(state.raw)+op[key]);return;
+ }
+ if(key==='EQUAL'&&state.vectorView){vectorExpressionInput(state.vectorView.name);return}
  const view=state.vectorView;
  if(view&&['UP','DOWN','LEFT','RIGHT'].includes(key)){
   view.index=Math.max(0,Math.min(view.vector.dimension-1,view.index+(key==='UP'||key==='LEFT'?-1:1)));
@@ -2046,6 +2092,16 @@ function handle(key){
   }
   return;
  }
+ if(state.vectorCopySource){
+  const from=state.vectorCopySource,name={NEG:'VctA',DMS:'VctB',HYP:'VctC'}[key];
+  if(key==='AC'||key==='MODE'){
+   state.vectorCopySource=null;releaseModifier();
+   if(key==='MODE')modeMenu();else{notify('VECTOR STO cancelled');paint()}
+   return;
+  }
+  if(!name){notify('STO: use (−), °′″ or hyp for VctA/B/C',true);paint();return}
+  state.vectorCopySource=null;VECTOR.copy(state.vectors,from,name);vectorEdit(name);return;
+ }
  if(state.matrixCopySource){
   const from=state.matrixCopySource;
   const name={NEG:'MatA',DMS:'MatB',HYP:'MatC'}[key];
@@ -2135,6 +2191,7 @@ function handle(key){
  if(state.screen==='constant-code'){constantCodeHandle(key);return}
  if(state.screen==='menu'){menuHandle(key);return}
  if(state.mode==='TABLE'&&state.screen==='table-grid'){tableHandle(key);return}
+ if(state.mode==='VECTOR'&&state.screen==='vector-expression'){vectorExpressionHandle(key);return}
  if(state.mode==='VECTOR'&&state.screen==='vector-table'){vectorTableHandle(key);return}
  if(state.mode==='VECTOR'&&state.screen==='vector-parameter'){vectorParameterHandle(key);return}
  if(state.mode==='VECTOR'&&['vector-result','vector-scalar'].includes(state.screen)){vectorResultHandle(key);return}
@@ -2143,6 +2200,7 @@ function handle(key){
   if(state.shift&&key==='5'){vectorMenu();return}
   if(key==='MODE'){modeMenu();return}
   if(key==='AC'){state.result='';releaseModifier();paint();return}
+  if(/^[0-9]$/.test(key)){vectorExpressionInput(key);return}
   vectorMenu();return;
  }
  if(state.mode==='MATRIX'&&state.screen==='matrix-expression'){matrixExpressionHandle(key);return}
