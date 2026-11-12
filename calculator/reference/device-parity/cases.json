@@ -1,0 +1,394 @@
+{
+  "schema": "casio-independent-parity-scenarios-v1",
+  "updated": "2026-11-12",
+  "provenance": "Manual-derived expected behaviors, not native device observations",
+  "hardwareVerified": false,
+  "models": {
+    "fx-991es": {
+      "label": "fx-991ES (original)",
+      "manual": "https://www.casio.com/content/dam/casio/global/support/manuals/calculators/pdf/004-en/f/fx-115ES_991ES_EN.pdf",
+      "registers": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "X",
+        "Y",
+        "M"
+      ],
+      "modes": [
+        "COMP",
+        "CMPLX",
+        "STAT",
+        "BASE-N",
+        "EQN",
+        "MATRIX",
+        "TABLE",
+        "VECTOR"
+      ],
+      "features": [
+        "original-stat-normal",
+        "native-textbook-display"
+      ],
+      "notFeatures": [
+        "INEQ",
+        "VERIF",
+        "DIST",
+        "RanInt"
+      ]
+    },
+    "fx-991es-plus": {
+      "label": "fx-991ES PLUS",
+      "manual": "https://support.casio.com/storage/en/manual/pdf/EN/004/fx-570_991ES_PLUS_EN.pdf",
+      "registers": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "X",
+        "Y",
+        "M"
+      ],
+      "modes": [
+        "COMP",
+        "CMPLX",
+        "STAT",
+        "BASE-N",
+        "EQN",
+        "MATRIX",
+        "TABLE",
+        "VECTOR"
+      ],
+      "features": [
+        "RanInt",
+        "native-textbook-display"
+      ],
+      "notFeatures": [
+        "INEQ",
+        "VERIF",
+        "DIST"
+      ]
+    },
+    "fx-991es-plus-c": {
+      "label": "fx-991ES PLUS C (2nd edition)",
+      "manual": "https://support.casio.com/global/en/calc/manual/fx-115ESPLUS_991ESPLUSC_en/calculation_calculator/calculation_modes.html",
+      "registers": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "X",
+        "Y",
+        "M"
+      ],
+      "modes": [
+        "COMP",
+        "CMPLX",
+        "STAT",
+        "BASE-N",
+        "EQN",
+        "MATRIX",
+        "TABLE",
+        "VECTOR",
+        "INEQ",
+        "VERIF",
+        "DIST"
+      ],
+      "features": [
+        "INEQ",
+        "VERIF",
+        "DIST",
+        "recurring-decimal",
+        "dual-table",
+        "PreAns"
+      ],
+      "notFeatures": []
+    }
+  },
+  "scenarios": [
+    {
+      "id": "arithmetic-precedence",
+      "category": "arithmetic",
+      "keys": [
+        "AC",
+        "2",
+        "ADD",
+        "3",
+        "MUL",
+        "4",
+        "EQUAL"
+      ],
+      "expect": {
+        "screen": "result",
+        "raw": 14
+      },
+      "manualArea": "Basic Calculations"
+    },
+    {
+      "id": "parentheses",
+      "category": "arithmetic",
+      "keys": [
+        "AC",
+        "LP",
+        "2",
+        "ADD",
+        "3",
+        "RP",
+        "MUL",
+        "4",
+        "EQUAL"
+      ],
+      "expect": {
+        "screen": "result",
+        "raw": 20
+      },
+      "manualArea": "Basic Calculations"
+    },
+    {
+      "id": "subtraction",
+      "category": "arithmetic",
+      "keys": [
+        "AC",
+        "9",
+        "SUB",
+        "4",
+        "EQUAL"
+      ],
+      "expect": {
+        "screen": "result",
+        "raw": 5
+      },
+      "manualArea": "Basic Calculations"
+    },
+    {
+      "id": "division",
+      "category": "arithmetic",
+      "keys": [
+        "AC",
+        "1",
+        "DIV",
+        "4",
+        "EQUAL"
+      ],
+      "expect": {
+        "screen": "result",
+        "raw": 0.25
+      },
+      "manualArea": "Basic Calculations"
+    },
+    {
+      "id": "square",
+      "category": "scientific-functions",
+      "keys": [
+        "AC",
+        "3",
+        "SQUARE",
+        "EQUAL"
+      ],
+      "expect": {
+        "screen": "result",
+        "raw": 9
+      },
+      "manualArea": "Function Calculations"
+    },
+    {
+      "id": "division-by-zero",
+      "category": "errors",
+      "keys": [
+        "AC",
+        "1",
+        "DIV",
+        "0",
+        "EQUAL"
+      ],
+      "expect": {
+        "screen": "error"
+      },
+      "manualArea": "Errors"
+    },
+    {
+      "id": "mode-menu",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE"
+      ],
+      "expect": {
+        "screen": "menu",
+        "menuContains": [
+          "1. COMP",
+          "2. CMPLX",
+          "3. STAT",
+          "4. BASE-N",
+          "5. EQN",
+          "6. MATRIX",
+          "7. TABLE",
+          "8. VECTOR"
+        ]
+      },
+      "manualArea": "Calculation Modes"
+    },
+    {
+      "id": "mode-cmplx",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE",
+        "2"
+      ],
+      "expect": {
+        "mode": "CMPLX"
+      },
+      "manualArea": "Calculation Modes"
+    },
+    {
+      "id": "mode-stat",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE",
+        "3"
+      ],
+      "expect": {
+        "mode": "STAT"
+      },
+      "manualArea": "Statistical Calculations"
+    },
+    {
+      "id": "mode-base-n",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE",
+        "4"
+      ],
+      "expect": {
+        "mode": "BASE-N"
+      },
+      "manualArea": "Base-n Calculations"
+    },
+    {
+      "id": "mode-eqn",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE",
+        "5"
+      ],
+      "expect": {
+        "mode": "EQN"
+      },
+      "manualArea": "Equation Calculations"
+    },
+    {
+      "id": "mode-matrix",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE",
+        "6"
+      ],
+      "expect": {
+        "mode": "MATRIX"
+      },
+      "manualArea": "Matrix Calculations"
+    },
+    {
+      "id": "mode-table",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE",
+        "7"
+      ],
+      "expect": {
+        "mode": "TABLE"
+      },
+      "manualArea": "Creating a Number Table"
+    },
+    {
+      "id": "mode-vector",
+      "category": "mode-routing",
+      "keys": [
+        "AC",
+        "MODE",
+        "8"
+      ],
+      "expect": {
+        "mode": "VECTOR"
+      },
+      "manualArea": "Vector Calculations"
+    },
+    {
+      "id": "mode-c-exclusive",
+      "category": "model-differences",
+      "onlyModels": [
+        "fx-991es-plus-c"
+      ],
+      "keys": [
+        "AC",
+        "MODE",
+        "DOWN"
+      ],
+      "expect": {
+        "screen": "menu",
+        "menuContains": [
+          "9. INEQ",
+          "10. VERIF",
+          "11. DIST"
+        ]
+      },
+      "manualArea": "Calculation Modes"
+    },
+    {
+      "id": "mode-no-c-exclusive",
+      "category": "model-differences",
+      "excludeModels": [
+        "fx-991es-plus-c"
+      ],
+      "keys": [
+        "AC",
+        "MODE",
+        "DOWN"
+      ],
+      "expect": {
+        "screen": "menu",
+        "menuAbsent": [
+          "9. INEQ",
+          "10. VERIF",
+          "11. DIST"
+        ]
+      },
+      "manualArea": "Calculation Modes"
+    },
+    {
+      "id": "model-legend-registers",
+      "category": "model-differences",
+      "keys": [
+        "AC"
+      ],
+      "expect": {
+        "keyCount": 50,
+        "profileRegisterMatch": true
+      },
+      "manualArea": "Key Markings and Memory"
+    },
+    {
+      "id": "shift-setup",
+      "category": "keypad-modifiers",
+      "keys": [
+        "AC",
+        "SHIFT",
+        "MODE"
+      ],
+      "expect": {
+        "screen": "menu"
+      },
+      "manualArea": "Calculator Setup"
+    }
+  ]
+}
