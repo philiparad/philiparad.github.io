@@ -72,10 +72,9 @@ function evaluate(expression,opts={}){
    // REA-105: implicit and explicit multiplication/division share precedence.
    // A number after a closing parenthesis also denotes multiplication.
    const t=peek(),implicit=t==='('||/^[0-9.]/.test(t),op=implicit?'*':t;
-   // The original ES uses one left-to-right multiply/divide tier.
-   // PLUS and PLUS C manuals elevate omitted-sign multiplication above ÷.
+   // fx-991ES PLUS elevates omitted-sign multiplication above division.
    const priority=implicit?
-    (opts.model==='fx-991es-plus'||opts.model==='fx-991es-plus-c'?24:20):
+    24:
     {'+':10,'-':10,'*':20,'/':20,'^':30}[op];
    if(priority===undefined||priority<min)break;
    if(!implicit)at++;
