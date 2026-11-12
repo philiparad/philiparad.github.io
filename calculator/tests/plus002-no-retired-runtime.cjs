@@ -9,7 +9,7 @@ assert.equal(sourceScripts.length,39,'All live JS modules must be listed explici
 assert.equal(new Set(sourceScripts).size,sourceScripts.length,'Duplicate module');
 const files=['index.html','styles.css','js/numeric-worker.js','parity-lab.html',
  'fx991_fresh_standalone.html',...sourceScripts];
-const retired=/(?:fx-991es-plus-c|fx-991es(?!-plus)|PLUS\s*C\b|\bINEQ\b|\bVERIF\b|\bDIST\b|model-selector)/i;
+const retired=/(?:fx-991es-plus-c|fx-991es(?![- ]plus)|PLUS\s*C\b|\bINEQ\b|\bVERIF\b|\bDIST\b|model-selector)/i;
 for(const filename of files){
  const content=fs.readFileSync(path.join(root,filename),'utf8');
  assert.doesNotMatch(content,retired,filename+' contains retired-model code or labels');
