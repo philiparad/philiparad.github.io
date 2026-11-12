@@ -45,6 +45,10 @@ function context(key,modifier,mode,screen,model,supports){
  if(screen==='error')return {status:key.id==='AC'||key.id==='LEFT'||key.id==='RIGHT'?
   'available':'blocked',reason:'Error recovery only'};
  if(screen!=='edit'&&screen!=='result'){
+  if(modifier==='ALPHA'&&screen==='prompt'){
+   if(['NEG','DMS','HYP','SIN','COS','TAN','LP','RP','MPLUS','ENG','EXP','CALC','DOT','FRAC'].includes(key.id))
+    return {status:'available',reason:'Printed ALPHA symbol in prompt expression'};
+  }
   const editorShift=(mode==='STAT'&&['stat-table','flow-result'].includes(screen)&&key.id==='1')||
    (mode==='MATRIX'&&['matrix-table','matrix-expression','matrix-result','matrix-scalar'].includes(screen)&&key.id==='4')||
    (mode==='VECTOR'&&['vector-table','vector-result','vector-scalar'].includes(screen)&&key.id==='5');
