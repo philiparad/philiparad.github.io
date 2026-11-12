@@ -18,6 +18,7 @@ on:
       - 'calculator/tests/rea106_browser_stat_stability.py'
       - 'calculator/tests/rea113-key-screen-contract.cjs'
       - 'calculator/tests/rea113_browser_mode_keys.py'
+      - 'calculator/tests/plus001-single-model.cjs'
       - '.github/workflows/rea100-standalone-sync.yml'
   pull_request:
     paths:
@@ -36,6 +37,7 @@ on:
       - 'calculator/tests/rea106_browser_stat_stability.py'
       - 'calculator/tests/rea113-key-screen-contract.cjs'
       - 'calculator/tests/rea113_browser_mode_keys.py'
+      - 'calculator/tests/plus001-single-model.cjs'
       - '.github/workflows/rea100-standalone-sync.yml'
   workflow_dispatch:
 permissions:
@@ -59,8 +61,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify original/PLUS edition arithmetic and stack regressions
+      - name: Verify PLUS-only arithmetic, model identity and key contracts
         run: |
+          node calculator/tests/plus001-single-model.cjs
           node calculator/tests/rea097-stack-precedence.cjs
           node calculator/tests/rea105-decimal-precedence.cjs
           node calculator/tests/rea106-stat-stability.cjs
@@ -71,9 +74,9 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Verify modular and standalone keypad, model and result behavior
         run: python calculator/tests/rea100_browser_parity.py
-      - name: Verify original versus PLUS precedence with real browser keypresses
+      - name: Verify PLUS arithmetic precedence using actual browser keypad
         run: python calculator/tests/rea105_browser_precedence.py
       - name: Verify live STAT summary and protected Sum fields in both publications
         run: python calculator/tests/rea106_browser_stat_stability.py
-      - name: Verify all physical MODE keys and EQN types 1-4 for every model
+      - name: Verify PLUS physical MODE keys and EQN types 1-4
         run: python calculator/tests/rea113_browser_mode_keys.py
