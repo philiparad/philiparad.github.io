@@ -7,7 +7,7 @@ const cases=require('./cases.json');
 const ids=Object.keys(cases.models);
 assert.deepEqual(ids,['fx-991es','fx-991es-plus','fx-991es-plus-c']);
 assert.equal(cases.hardwareVerified,false);
-assert.equal(cases.scenarios.length,18);
+assert.ok(cases.scenarios.length>=45,'expected expanded browser scenarios');
 const usedIds=new Set();
 for(const c of cases.scenarios){
  assert.ok(c.id);
