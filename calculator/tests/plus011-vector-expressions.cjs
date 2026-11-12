@@ -7,6 +7,8 @@ V.set(s,'VctA',V.create(3,[1,2,3]));V.set(s,'VctB',V.create(3,[4,5,6]));
 function result(src){const x=V.expression(s,src);return typeof x==='number'?x:x.data}
 assert.deepEqual(result('VctA+VctB'),[5,7,9]);
 assert.equal(result('VctA·VctB'),32);
+assert.equal(result('0+3'),3);
+assert.equal(result('3-0'),3);
 assert.deepEqual(result('VctA*VctB'),[-3,6,-3]);
 assert.deepEqual(result('2*VctA'),[2,4,6]);
 assert.deepEqual(result('(VctA+VctB)-VctB'),[1,2,3]);
