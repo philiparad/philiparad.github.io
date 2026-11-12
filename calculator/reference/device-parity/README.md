@@ -67,6 +67,10 @@ python3 calculator/tools/build_standalone.py --check
 
 The existing REA-107–122 regression suites remain covered by `.github/workflows/rea-release-verification.yml`.
 
+## Executed browser verification — 162/162 passed
+
+GitHub Actions has executed the Python/Playwright suite on all three simulator profiles, not just configured it. The current manifest has **57 test descriptions**, corresponding to **162 model-specific browser executions**. The completed workflow stores hashed LCD screenshots, per-key before/after KeyLog JSON and the run's `report.json` and `verified.json` as an artifact. The recorded browser and screenshot data are genuine automated web output, **not physical-device captures**. The optional comparison lab and raw evidence are described below.
+
 ## Physical-key/browser and screen evidence
 
 Install Playwright and Chromium:
@@ -131,4 +135,4 @@ python3 -m unittest discover -s calculator/reference/device-parity -p 'test_lcd_
 | Physical-device review | Real device capture + trace and signed comparison | Unexamined modes/edge cases |
 | Full model claim | All relevant feature categories and edge cases reviewed against the same model; residual differences declared | Blanket CASIO ROM equivalence |
 
-Outstanding: run the browser job and inspect failures; capture a comparable manufacturer reference for each of the three editions; expand tests beyond the representative 18 browser traces to all menu/editor functions; calibrate LCD pixels, battery/power timing, complex/radical formatting and model-dependent error precision. These remain **unverified**, not silently completed. The previous REA issues stay open until their acceptance criteria are satisfied.
+**Executed browser verification (2026-11-12):** [GitHub Actions run 43148006611](https://github.com/philiparad/philiparad.github.io/actions/runs/43148006611) passed **162/162 model-specific Chromium scenarios** (53 original, 53 PLUS, 56 PLUS C). The downloaded artifact contains **162 actual browser LCD PNGs and 162 real app KeyLogs**, all corresponding SHA-256 hashes and requested-vs-recorded key sequences checked. Manual-derived Fix/Sci/Norm outputs were also verified via real browser keys; standalone build/source consistency passed. See [EXECUTED_REVIEW_2026-11-12.md](EXECUTED_REVIEW_2026-11-12.md) and [STATUS.md](STATUS.md). Outstanding: capture a comparable *authentic* manufacturer emulator or physical reference for all three editions; calibrate LCD pixels, battery/power timing, complex/radical formatting and model-dependent error precision; expand browser cases into the full feature matrix. **Real hardware parity remains unverified.** The earlier REA issues remain open until their acceptance criteria are satisfied.
