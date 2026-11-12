@@ -1,0 +1,48 @@
+# CASIO fx-991ES PLUS (2nd edition) — Implementation Backlog
+
+**Scope:** Exactly one supported model: fx-991ES PLUS (2nd edition). No original ES, PLUS C, INEQ, VERIF, DIST, or model-selector behavior.
+**Baseline:** Official manufacturer user guide: https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/
+**Rule:** Every change gets dedicated model-specific regression tests, keypad traces, and modular ↔ standalone verification. Avoid any unsupported claims of physical parity.
+
+| Task | Priority | Area | Implementation acceptance criteria | Verification |
+|---|---|---|---|---|
+| PLUS-001 | P0 | Model | Only fx-991ES PLUS exists in UI and runtime; URL model query cannot switch profiles | Static and browser checks |
+| PLUS-002 | P0 | Dead code | Remove other-model branches, imports, feature tables, screenshots, samples and build/test fixtures; no references to fx-991es, PLUS C, INEQ, VERIF or DIST remain in active application | Repo-wide source search |
+| PLUS-003 | P0 | MODE | All eight modes open by MODE → 1…8, with correct status, return and cancel behavior | 8-mode keylogs |
+| PLUS-004 | P0 | SHIFT | SHIFT+1/2/3/4/5 must perform printed contextual function, never switch calculator mode | Keylog comparison with real PLUS |
+| PLUS-005 | P0 | ALPHA | Verify all ALPHA+key actions and unavailable-function behavior against PLUS key legends | 50-key × modifiers table |
+| PLUS-006 | P0 | EQN | All four EQN types accept numerical expressions, cursor edits and sign/exponent input as documented | 4-types × 30 cases |
+| PLUS-007 | P0 | Errors | Correct SOLVE/COMP Variable, Math, Syntax, Stack and Argument error classification and caret recovery | Official error test set |
+| PLUS-008 | P0 | STAT | Switching FREQ/Stat Format resets data as on CASIO; preserve data only where documented | Model keylog tests |
+| PLUS-009 | P1 | Menus | Numbering, paging, submenu action keys, return and confirmation consistent with hardware | Menu tree test |
+| PLUS-010 | P1 | MATRIX | Reimplement printed SHIFT+4, Dim, Data, MatA/B/C, MatAns workflows and key behavior | Matrix keylog/test cases |
+| PLUS-011 | P1 | VECTOR | Reimplement printed SHIFT+5, Dim, Data, VctA/B/C, VctAns workflows | Vector keylog/test cases |
+| PLUS-012 | P1 | STAT edit | Implement STAT Edit → Ins, Del, Del-A navigation and preserve expected row behavior | STAT edit keylogs |
+| PLUS-013 | P1 | TABLE | Correct range boundaries, maximum 30 rows, error cells, memory and editor navigation | Boundary/fractional-step cases |
+| PLUS-014 | P1 | LCD | Pixel-correct native glyphs, icons, symbol placement and 96×31 logical screen composition | Model-specific golden screenshots |
+| PLUS-015 | P1 | MathIO | Correct nested templates, fractions, roots, calculus, cursor insertion and clipping | Screenshot and AST tests |
+| PLUS-016 | P1 | LineIO | Reproduce ordinary linear entry, replay, cursor, fractions and result display | Manufacturer keylogs |
+| PLUS-017 | P1 | Precision | Match 15-digit internal arithmetic, 10-digit display, rounding, Norm/Fix/Sci and overflow cases | Numerical boundary suite |
+| PLUS-018 | P1 | Symbolic | Expand supported π, surd, rational, complex and EQN forms without guessing unsupported exact identities | Reference expression corpus |
+| PLUS-019 | P1 | BASE-N | Verify DEC/BIN/OCT/HEX, signed ranges, two's complement, operators and key mappings | CASIO reference vectors |
+| PLUS-020 | P1 | CMPLX | Test rectangular/polar operations, argument, conjugate, Ans and mode-exit memory | Device comparison |
+| PLUS-021 | P1 | SOLVE/CALC | Verify iterative solve, prompts, cancellation, memory writeback, numerical failure and multiple roots | Manufacturer example traces |
+| PLUS-022 | P2 | Constants | Compare 40 scientific constants, printed order and device-specific values | Full 40-code table |
+| PLUS-023 | P2 | CONV | Verify 40 conversions, offsets, suffix entry and displayed scientific notation | Full 40-code table |
+| PLUS-024 | P2 | DMS/angles | Test negative DMS, DRG conversion, degrees/radians/gradians and boundary rounding | Reference cases |
+| PLUS-025 | P2 | Keyboard | Ensure PC shortcuts never hijack native browser controls and map to correct physical keys | Playwright focus testing |
+| PLUS-026 | P1 | CI | Integrate exhaustive 50-key × 3-modifier × screen tests, plus real keypress browser cases | CI must run and pass |
+| PLUS-027 | P0 | Standalone | Regenerate standalone from authoritative files; fail if stale; remove other-model assets | Byte-identical builder check |
+| PLUS-028 | P2 | Hardware parity | Acquire native LCD captures and keylogs, compare pixel and numeric deviations; report unresolved differences explicitly | Signed evidence report |
+
+## Acceptance gates
+1. **Single-model gate:** no alternate-model labels, query switching, executable branches or documentation in active calculator.
+2. **Interaction gate:** the physical 50-key matrix, SHIFT, ALPHA, MODE, SETUP, AC, DEL, REPLAY, = and nested menus have independently tested outcomes.
+3. **Computation gate:** tests compare exact results, allowed error messages, and display rounding to manufacturer examples and controlled hardware captures.
+4. **Publication gate:** both modular and standalone pass the same tests before release.
+5. **Disclosure gate:** manufacturer hardware parity is described as unverified unless backed by physical evidence.
+
+## Status
+- PLUS-001: **in progress** (model definitions and UI restricted).
+- PLUS-002, PLUS-027: **in progress**.
+- PLUS-003–PLUS-026, PLUS-028: **open**, except existing partial implementations. Do not mark complete based on source-level classification alone.
