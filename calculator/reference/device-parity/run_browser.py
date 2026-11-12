@@ -102,6 +102,7 @@ def main():
                       const state=window.FreshCalculator.getState();
                       return {model:state.model,mode:state.mode,screen:state.screen,
                         raw:state.raw,result:state.result,input:state.input,
+                        shift:state.shift,alpha:state.alpha,menuPage:state.menuPage,
                         info:state.info,menuEntries:state.menuEntries,
                         recording:state.recording,keylog:state.keylog,
                         keyCount:document.querySelectorAll('#keys button[data-key]').length,
