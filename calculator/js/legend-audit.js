@@ -5,7 +5,11 @@
 (function(global){'use strict';
 const MODELS=['fx-991es','fx-991es-plus','fx-991es-plus-c'];
 const MODES=['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR','INEQ','VERIF','DIST'];
-const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating'];
+const SCREENS=['edit','result','prompt','menu','flow-result','error','calculating',
+ 'contrast','constant-code','conversion-code','stat-table','eqn-coeff','eqn-result',
+ 'ineq-coeff','ineq-result','matrix-table','matrix-expression','matrix-parameter',
+ 'matrix-result','matrix-scalar','vector-table','vector-parameter','vector-result',
+ 'vector-scalar','table-grid','dist-list'];
 const MODIFIERS=['normal','SHIFT','ALPHA'];
 const NORMAL_MODES=new Set(['COMP','CMPLX']);
 const FUNCTIONS=new Set(['CALC','INTEGRAL','LOGBASE','FRAC','SQRT','SQUARE','POWER',
