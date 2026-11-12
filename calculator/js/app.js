@@ -1241,7 +1241,7 @@ function eqnPage(delta,exitAtEnd=false){
   if(exitAtEnd){EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint()}
   return;
  }
- // On the original fx-991ES, = at the final solution returns to the
+ // At the last EQN result, = returns to the
  // coefficient grid; arrow keys only scroll between available solutions.
  if(exitAtEnd&&e.index+delta>=e.solutions.length){
   EQEDIT.restore(state.eqnEditor);state.screen='eqn-coeff';state.info='';paint();return;
@@ -1951,7 +1951,7 @@ function toggleFraction(){
  if(state.screen!=='result'||!Number.isFinite(state.raw)){notify('Calculate first');return}
  if(state.remainderResult||state.coordinateResult)return;
  // PLUS uses fraction/decimal conversion without recurring-cycle mode.
- // Original ES and standard PLUS always use ordinary fraction/decimal.
+ // The supported PLUS uses ordinary fraction/decimal conversion.
  const candidate=RESULTS.calculate(state.raw,state.resultSource||state.input,
   {...state,fractionStyle:state.resultFractionStyle||state.fractionStyle},{
    exactRational:state.ansRational,forceFraction:true,allowApproxRational:false
