@@ -137,8 +137,7 @@ def main():
                         "requested_keys": pressed, "actual_keylog": snapshot["keylog"],
                         "exact_key_sequence_match": actual_keys == pressed,
                         "origin": "independent_browser_simulation",
-                    }, indent=2) + "\
-", encoding="utf-8")
+                    }, indent=2) + "\n", encoding="utf-8")
                     trace_hash = hashlib.sha256(trace_path.read_bytes()).hexdigest()
                     record = {
                         "scenario_id": scenario["id"],
