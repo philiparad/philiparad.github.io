@@ -151,7 +151,7 @@ function rasterize(state){
  };
  // Status annunciators are a separate accurately sized HTML overlay.
 
- if(!state.power){return pixels}
+ if(!state.power){return finish()}
  if(state.mode==='BASE-N'&&['edit','result'].includes(state.screen)){
   // REA-049: Casio-like radix annunciator and padded 16/32-bit result.
   const base=state.baseRadix||'DEC';
@@ -721,7 +721,7 @@ function rasterize(state){
   if(layout.maxY-vertical>26)glyph('↓',91,0);
  }
 
- if(state.screen==='error'){write(state.error||'Math ERROR',0,9);write('AC:CANCEL',0,20);write('< >:GOTO',51,20);return pixels}
+ if(state.screen==='error'){write(state.error||'Math ERROR',0,9);write('AC:CANCEL',0,20);write('< >:GOTO',51,20);return finish()}
  function drawTypedResult(presentation){
   const item=presentation&&presentation.chosen;
   if(!item||!['fraction','mixed','pi','surd','engineering','recurring'].includes(item.kind))return false;
@@ -784,7 +784,7 @@ function rasterize(state){
   }
   return finish();
  }
- if(structured){drawStructured(true,12);if(state.info)write(state.info.slice(-23),0,25);return pixels}
+ if(structured){drawStructured(true,12);if(state.info)write(state.info.slice(-23),0,25);return finish()}
  const input=state.input||'',cursor=Math.max(0,Math.min(input.length,state.cursor??input.length));
  const visible=23,start=Math.max(0,Math.min(Math.floor((state.viewport?.inputX||0)/4),Math.max(0,input.length-visible)));
  const piece=input.slice(start,start+visible);
