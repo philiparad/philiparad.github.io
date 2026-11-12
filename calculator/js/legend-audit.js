@@ -22,7 +22,7 @@ const SHIFT_EDITOR=new Set(['INTEGRAL','LOGBASE','FRAC','SQRT','SQUARE','POWER',
  'DOT','0']);
 const SHIFT_RESULT=new Set(['SD','ENG','DMS']);
 const GLOBAL_SHIFT=new Set(['AC','MODE','RCL','DEL','7','8','9','1','2','3','4','5','6','CALC','ANS','MPLUS']);
-const MODE_CHANGE={};
+const SHIFT_MENUS=Object.freeze({'1':'STAT','2':'CMPLX','3':'BASE-N','4':'MATRIX','5':'VECTOR'});
 function legend(key,modifier){
  // Top-row and d-pad 'alpha' metadata in the physical geometry describes
  // their key group, not an ALPHA legend (REA-070 legacy key shape).
@@ -45,6 +45,10 @@ function context(key,modifier,mode,screen,model,supports){
  if(screen==='error')return {status:key.id==='AC'||key.id==='LEFT'||key.id==='RIGHT'?
   'available':'blocked',reason:'Error recovery only'};
  if(screen!=='edit'&&screen!=='result'){
+  const editorShift=(mode==='STAT'&&['stat-table','flow-result'].includes(screen)&&key.id==='1')||
+   (mode==='MATRIX'&&['matrix-table','matrix-expression','matrix-result','matrix-scalar'].includes(screen)&&key.id==='4')||
+   (mode==='VECTOR'&&['vector-table','vector-result','vector-scalar'].includes(screen)&&key.id==='5');
+  if(modifier==='SHIFT'&&editorShift)return {status:'available',reason:'Contextual '+mode+' function menu'};
   // A dedicated menu/form handler consumes the physical event. Its SHIFT
   // and ALPHA interpretations are not the printed scientific shortcuts.
   // Distinguish ordinary navigation from unavailable modifier legends.
@@ -70,10 +74,10 @@ function context(key,modifier,mode,screen,model,supports){
  if(modifier==='SHIFT'){
   if(['LEFT','RIGHT','UP','DOWN'].includes(key.id))
    return {status:'unlabelled-control',reason:'Viewport pan without printed shifted legend'};
-  if(Object.prototype.hasOwnProperty.call(MODE_CHANGE,key.id)){
-   const target=MODE_CHANGE[key.id];
-   return {status:supports(model,target)?'available':'blocked',
-    reason:supports(model,target)?'Mode shortcut':'Mode not supported by selected model'};
+  if(Object.prototype.hasOwnProperty.call(SHIFT_MENUS,key.id)){
+   const required=SHIFT_MENUS[key.id];
+   return {status:mode===required?'available':'blocked',
+    reason:mode===required?'Contextual '+mode+' function menu':'Requires '+required+' mode; never changes MODE'};
   }
    if(key.id==='CALC'||key.id==='INTEGRAL'||key.id==='LOGBASE'){
    return {status:mode==='COMP'?'available':'blocked',reason:'COMP-only SOLVE/calculus'};
