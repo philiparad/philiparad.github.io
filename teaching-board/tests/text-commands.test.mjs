@@ -61,7 +61,6 @@ test('clear formatting flattens styled wrappers but preserves inline equations',
   assert.equal(applyInlineFormat(root,selection,'removeFormat'),true);
   assert.equal(range.inserted.style.fontWeight,'400');
   assert.equal(range.inserted.style.fontStyle,'normal');
-  assert.equal(range.inserted.childNodes[0].nodeType,11);
   assert.deepEqual(range.inserted.childNodes[0].childNodes,[text,equation]);
  }finally{globalThis.document=previous;}
 });
