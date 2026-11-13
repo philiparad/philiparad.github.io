@@ -50,7 +50,7 @@ export class InlineText {
   this.root.style.left=`${v.x+i.x*v.zoom+(v.zoom-1)*i.w/2}px`;
   this.root.style.top=`${v.y+i.y*v.zoom+(v.zoom-1)*i.h/2}px`;
  }
- finish(save,focus=true){if(this.closed)return;const {runs,paragraphs}=readRichDocument(this.input,this.item),text=runs.map(r=>r.text).join('');if(save){try{validateRuns(runs,text);validateParagraphs(paragraphs,text);}catch(e){this.controls.append(el('span',e.message,'error'));return;}}this.closed=true;document.removeEventListener('pointerdown',this.outside,true);document.removeEventListener('focusin',this.outside,true);document.removeEventListener('selectionchange',this.selectionChange);this.root.remove();this.controls.remove();this.editor.inlineText=null;
+ finish(save,focus=true){if(this.closed)return;let runs=[],paragraphs=[],text='';if(save){try{const result=readRichDocument(this.input,this.item);runs=result.runs;paragraphs=result.paragraphs;text=runs.map(r=>r.text).join('');validateRuns(runs,text);validateParagraphs(paragraphs,text);}catch(e){const error=this.controls.querySelector('.error')||el('span',null,'error');error.textContent=e.message||'Unable to save formatted text.';if(!error.isConnected)this.controls.append(error);return;}}this.closed=true;document.removeEventListener('pointerdown',this.outside,true);document.removeEventListener('focusin',this.outside,true);document.removeEventListener('selectionchange',this.selectionChange);this.root.remove();this.controls.remove();this.editor.inlineText=null;
   if(save&&text.trim()){this.item.runs=runs;this.item.paragraphs=paragraphs;this.editor.applyText(this.item,text,this.height,this.existing);}
   else this.editor.paint();
   if(focus&&!this.editor.disposed)this.editor.svg.focus();
