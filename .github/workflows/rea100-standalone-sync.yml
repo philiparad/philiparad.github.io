@@ -53,6 +53,8 @@ on:
       - 'calculator/tests/plus026-matrix-browser.py'
       - 'calculator/tools/plus028_compare_hardware.py'
       - 'calculator/tests/test_plus028_hardware_evidence.py'
+      - 'calculator/tests/plus028-casio-manual-examples.cjs'
+      - 'calculator/tools/plus028_reference_report.py'
       - 'calculator/reference/plus-028/**'
       - 'calculator/tests/plus001-single-model.cjs'
       - 'calculator/tests/plus002-no-retired-runtime.cjs'
@@ -109,6 +111,8 @@ on:
       - 'calculator/tests/plus026-matrix-browser.py'
       - 'calculator/tools/plus028_compare_hardware.py'
       - 'calculator/tests/test_plus028_hardware_evidence.py'
+      - 'calculator/tests/plus028-casio-manual-examples.cjs'
+      - 'calculator/tools/plus028_reference_report.py'
       - 'calculator/reference/plus-028/**'
       - 'calculator/tests/plus001-single-model.cjs'
       - 'calculator/tests/plus002-no-retired-runtime.cjs'
@@ -127,7 +131,7 @@ jobs:
           python-version: '3.12'
       - name: Compile release scripts
         run: |
-          python -m py_compile calculator/tools/build_standalone.py calculator/tests/test_rea100_standalone.py calculator/tests/rea100_browser_parity.py calculator/tests/rea105_browser_precedence.py calculator/tests/rea106_browser_stat_stability.py calculator/tests/rea113_browser_mode_keys.py calculator/tests/plus003-mode-transitions.py calculator/tests/plus004-shift-menu-keys.py calculator/tests/plus005-alpha-key-actions.py calculator/tests/plus006-eqn-browser.py calculator/tests/plus007-error-browser.py calculator/tests/plus008-stat-browser.py calculator/tests/plus009-menu-browser.py calculator/tests/plus010-matrix-browser.py calculator/tests/plus011-vector-browser.py calculator/tests/plus012-stat-browser.py calculator/tests/plus013-table-browser.py calculator/tests/plus025-keyboard-browser.py calculator/tests/plus026-matrix-browser.py calculator/tests/test_plus028_hardware_evidence.py calculator/tools/plus028_compare_hardware.py
+          python -m py_compile calculator/tools/build_standalone.py calculator/tests/test_rea100_standalone.py calculator/tests/rea100_browser_parity.py calculator/tests/rea105_browser_precedence.py calculator/tests/rea106_browser_stat_stability.py calculator/tests/rea113_browser_mode_keys.py calculator/tests/plus003-mode-transitions.py calculator/tests/plus004-shift-menu-keys.py calculator/tests/plus005-alpha-key-actions.py calculator/tests/plus006-eqn-browser.py calculator/tests/plus007-error-browser.py calculator/tests/plus008-stat-browser.py calculator/tests/plus009-menu-browser.py calculator/tests/plus010-matrix-browser.py calculator/tests/plus011-vector-browser.py calculator/tests/plus012-stat-browser.py calculator/tests/plus013-table-browser.py calculator/tests/plus025-keyboard-browser.py calculator/tests/plus026-matrix-browser.py calculator/tests/test_plus028_hardware_evidence.py calculator/tools/plus028_compare_hardware.py calculator/tools/plus028_reference_report.py
       - name: Install PNG comparison dependency
         run: python -m pip install Pillow==11.3.0
       - name: PLUS-028 verify evidence comparator and report explicitly blocked hardware status
@@ -161,6 +165,7 @@ jobs:
           node calculator/tests/plus024-dms-angle-contract.cjs
           node calculator/tests/plus025-keyboard-focus.cjs
           node calculator/tests/plus026-full-key-matrix.cjs
+          node calculator/tests/plus028-casio-manual-examples.cjs
           node calculator/tests/plus012-stat-edit.cjs
           node calculator/tests/plus011-vector-expressions.cjs
           node calculator/tests/plus006-eqn-expressions.cjs
@@ -170,6 +175,15 @@ jobs:
           node calculator/tests/rea105-decimal-precedence.cjs
           node calculator/tests/rea106-stat-stability.cjs
           node calculator/tests/rea113-key-screen-contract.cjs
+      - name: PLUS-028 ALT manufacturer-reference conformance report
+        run: python calculator/tools/plus028_reference_report.py --report /tmp/plus028-reference-report.json
+      - name: Upload reproducible reference-conformance record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plus028-reference-conformance
+          path: /tmp/plus028-reference-report.json
+          if-no-files-found: warn
       - name: Install Chromium and browser test dependencies
         run: |
           python -m pip install playwright==1.56.0
