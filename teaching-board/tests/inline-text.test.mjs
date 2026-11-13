@@ -42,9 +42,13 @@ test('Ctrl+Z and Ctrl+Y travel through isolated text history',()=>{
  edit.input.textContent='Updated';
  edit.input.oninput();
  assert.equal(edit.textHistory.canUndo,true);
+ assert.equal(edit.undoButton.disabled,false);
+ assert.equal(edit.redoButton.disabled,true);
  const event=(key)=>({key,ctrlKey:true,preventDefault(){},stopPropagation(){}});
  edit.input.onkeydown(event('z'));
  assert.equal(edit.input.textContent,'Original');
+ assert.equal(edit.undoButton.disabled,true);
+ assert.equal(edit.redoButton.disabled,false);
  edit.input.onkeydown(event('y'));
  assert.equal(edit.input.textContent,'Updated');
  edit.finish(false);
