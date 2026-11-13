@@ -16,8 +16,9 @@ export function paragraphAncestor(node,root){
     return null;
 }
 export function supportedInlineSelection(root,range){
+    const start=range&&paragraphAncestor(range.startContainer,root);
     return Boolean(range&&!range.collapsed&&root.contains(range.startContainer)&&root.contains(range.endContainer)
-        &&paragraphAncestor(range.startContainer,root)===paragraphAncestor(range.endContainer,root));
+        &&start&&start===paragraphAncestor(range.endContainer,root));
 }
 export function inlineFormatState(root,selection,name){
     if(!BOOLEAN_STYLES[name]||!selection?.rangeCount||!root.contains(selection.anchorNode))return false;
