@@ -5,6 +5,7 @@ import { el, btn } from './ui.js?v=20261017-history-budget';
 import { TextHistory } from './text-history.js';
 import { captureTextSelection,restoreTextSelection } from './text-selection.js';
 import {applyInlineFormat,inlineFormatState} from './text-commands.js';
+import {applyParagraphList} from './text-lists.js';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
@@ -27,7 +28,7 @@ export class InlineText {
   this.textHistory=new TextHistory(readRichDocument(this.input,this.item));this.updateHistoryButtons();
   this.input.oninput=()=>{this.resize();if(!this.composing)this.recordSnapshot();};
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
-  this.selectionChange=()=>{if(this.closed||!this.input.contains(document.activeElement))return;this.textHistory.setSelection(captureTextSelection(this.input,window.getSelection()));for(const [name,button] of this.formatButtons||[]){button.setAttribute('aria-pressed',String(inlineFormatState(this.input,window.getSelection(),name)));}};
+  this.selectionChange=()=>{if(this.closed||!this.input.contains(document.activeElement))return;this.textHistory.setSelection(captureTextSelection(this.input,window.getSelection()));for(const [name,button] of this.formatButtons||[]){if(name.startsWith('insert')){const selection=window.getSelection(),node=selection?.anchorNode,block=node?.nodeType===1?node:node?.parentElement,list=block?.closest?.('li')?.parentElement;button.setAttribute('aria-pressed',String(list?.tagName===(name==='insertOrderedList'?'OL':'UL')));}else button.setAttribute('aria-pressed',String(inlineFormatState(this.input,window.getSelection(),name)));}};
   document.addEventListener('selectionchange',this.selectionChange);
   this.input.onpaste=e=>{e.preventDefault();this.insertPlainText(e.clipboardData?.getData('text/plain')?.slice(0,10000)||'');};
   this.input.ondrop=e=>e.preventDefault();
@@ -45,13 +46,22 @@ export class InlineText {
  addFormatting(){
   this.formatButtons=new Map();
   this.undoButton=btn('Undo',()=>this.stepTextHistory('undo'));this.undoButton.title='Undo text (Ctrl/⌘+Z)';this.redoButton=btn('Redo',()=>this.stepTextHistory('redo'));this.redoButton.title='Redo text (Ctrl/⌘+Y / Ctrl/⌘+Shift+Z)';this.controls.append(this.undoButton,this.redoButton);
-  const command=(name,value)=>{if(name.startsWith('justify')){this.setParagraphAlignment({justifyLeft:'left',justifyCenter:'center',justifyRight:'right'}[name]);this.savedRange=null;return;}if(['bold','italic','underline','strikeThrough','foreColor','removeFormat'].includes(name)){this.formatText(name,value);return;}this.input.focus();if(this.savedRange){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(this.savedRange);}document.execCommand(name,false,value);this.savedRange=null;this.resize();this.recordSnapshot();};
-  for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['strikeThrough','Strikethrough'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list'],['removeFormat','Clear formatting']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);if(['bold','italic','underline','strikeThrough'].includes(name)){button.setAttribute('aria-pressed','false');this.formatButtons.set(name,button);}}
+  const command=(name,value)=>{if(name.startsWith('justify')){this.setParagraphAlignment({justifyLeft:'left',justifyCenter:'center',justifyRight:'right'}[name]);this.savedRange=null;return;}if(['bold','italic','underline','strikeThrough','foreColor','removeFormat'].includes(name)){this.formatText(name,value);return;}if(name==='insertUnorderedList'||name==='insertOrderedList'){this.formatList(name==='insertOrderedList'?'number':'bullet');return;}this.input.focus();if(this.savedRange){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(this.savedRange);}document.execCommand(name,false,value);this.savedRange=null;this.resize();this.recordSnapshot();};
+  for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['strikeThrough','Strikethrough'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list'],['removeFormat','Clear formatting']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);if(['bold','italic','underline','strikeThrough','insertOrderedList','insertUnorderedList'].includes(name)){button.setAttribute('aria-pressed','false');this.formatButtons.set(name,button);}}
   const math=btn('Inline equation',()=>this.editEquation());math.onpointerdown=e=>e.preventDefault();this.controls.append(math);
   const colors=el('select');colors.setAttribute('aria-label','Selected text color');for(const [value,label]of [['','Text color…'],['#203954','Dark blue'],['#b42318','Red'],['#147d92','Teal'],['#7c50b0','Purple'],['#000000','Black']]){const option=el('option',label);option.value=value;colors.append(option);}
   const capture=()=>{const selection=window.getSelection();if(selection.rangeCount&&this.input.contains(selection.anchorNode)&&this.input.contains(selection.focusNode))this.savedRange=selection.getRangeAt(0).cloneRange();};colors.onpointerdown=capture;colors.onfocus=capture;colors.onchange=()=>{if(colors.value)command('foreColor',colors.value);colors.value='';};this.controls.append(colors);const direction=el('select');direction.setAttribute('aria-label','Paragraph text direction');for(const [value,label] of [['auto','Direction: Auto'],['rtl','Right-to-left (Hebrew)'],['ltr','Left-to-right (English)']]){const option=el('option',label);option.value=value;direction.append(option);}direction.onpointerdown=capture;direction.onfocus=capture;direction.onchange=()=>{this.setParagraphDirection(direction.value);this.savedRange=null;};this.controls.append(direction);const custom=el('input');custom.type='color';custom.value='#203954';custom.setAttribute('aria-label','Custom text color');custom.title='Custom text color';custom.onpointerdown=capture;custom.onfocus=capture;custom.onchange=()=>command('foreColor',custom.value);this.controls.append(custom);
  }
  formatText(name,value){if(this.closed||this.composing)return false;this.input.focus();const selection=window.getSelection();if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}let changed=applyInlineFormat(this.input,selection,name,value);if(!changed&&selection?.anchorNode&&this.input.contains(selection.anchorNode)&&typeof document.execCommand==='function'){changed=document.execCommand(name,false,value);}this.savedRange=null;if(changed){this.resize();this.recordSnapshot();this.selectionChange();}return changed;}
+ formatList(kind){
+  if(this.closed||this.composing)return false;
+  const selection=window.getSelection();
+  if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}
+  const changed=applyParagraphList(this.input,this.item,selection,kind);
+  this.savedRange=null;
+  if(changed){this.input.focus();this.resize();this.recordSnapshot();this.selectionChange();}
+  return changed;
+ }
  setParagraphAlignment(align){
   if(!['left','center','right'].includes(align))return;
   const selection=window.getSelection();
