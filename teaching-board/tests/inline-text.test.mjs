@@ -64,3 +64,20 @@ test('composition input is recorded only after composition finishes',()=>{
  assert.equal(edit.textHistory.canUndo,true);
  edit.finish(false);
 });
+
+test('paragraph alignment commands use native paragraph styling',()=>{
+ const e=fixture(),edit=e.inlineText;
+ const paragraph=edit.input.children[0];
+ edit.input.querySelectorAll=()=>[paragraph];
+ paragraph.closest=()=>null;
+ const original=globalThis.document.execCommand;
+ globalThis.document.execCommand=()=>{throw Error('legacy alignment command should not run');};
+ try{
+  edit.setParagraphAlignment('center');
+  assert.equal(paragraph.style.textAlign,'center');
+  edit.setParagraphAlignment('right');
+  assert.equal(paragraph.style.textAlign,'right');
+  edit.setParagraphAlignment('invalid');
+  assert.equal(paragraph.style.textAlign,'right');
+ }finally{globalThis.document.execCommand=original;edit.finish(false);}
+});
