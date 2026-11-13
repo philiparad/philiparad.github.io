@@ -44,3 +44,24 @@ test('Range command wraps selected words and preserves the selection',()=>{
   assert.equal(applyInlineFormat(root,selection,'foreColor','red;unsafe'),false);
  }finally{globalThis.document=previous;}
 });
+
+test('clear formatting flattens styled wrappers but preserves inline equations',()=>{
+ const root=makeElement('DIV'),para=makeElement('DIV',root),leaf=textNode(para);
+ const node=(tag)=>({nodeType:1,tagName:tag.toUpperCase(),style:{},childNodes:[],get firstChild(){return this.childNodes[0]||null;},removeChild(c){this.childNodes.splice(this.childNodes.indexOf(c),1);return c;},append(c){if(c.nodeType===11)this.childNodes.push(...c.childNodes);else this.childNodes.push(c);}});
+ const fragment=node('fragment');fragment.nodeType=11;
+ const bold=node('b'),text={nodeType:3,textContent:'שלום',childNodes:[]};
+ bold.childNodes.push(text);
+ const equation=node('span');equation.dataset={equation:'test'};
+ fragment.childNodes.push(bold,equation);
+ const range={collapsed:false,startContainer:leaf,endContainer:leaf,extractContents(){return fragment;},insertNode(n){this.inserted=n;},selectNodeContents(){}};
+ const selection={rangeCount:1,anchorNode:leaf,getRangeAt(){return range;},removeAllRanges(){},addRange(){}};
+ const previous=globalThis.document;
+ globalThis.document={createElement:tag=>node(tag),createDocumentFragment:()=>{const f=node('fragment');f.nodeType=11;return f;}};
+ try{
+  assert.equal(applyInlineFormat(root,selection,'removeFormat'),true);
+  assert.equal(range.inserted.style.fontWeight,'400');
+  assert.equal(range.inserted.style.fontStyle,'normal');
+  assert.equal(range.inserted.childNodes[0].nodeType,11);
+  assert.deepEqual(range.inserted.childNodes[0].childNodes,[text,equation]);
+ }finally{globalThis.document=previous;}
+});
