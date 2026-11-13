@@ -21,7 +21,13 @@ CASES = (
     {"id": "equation-2-unknowns",
      "keys": ("MODE", "5", "1", "1", "EQUAL", "2", "EQUAL", "3", "EQUAL",
               "2", "EQUAL", "3", "EQUAL", "4", "EQUAL"),
-     "mode": "EQN", "result": -1}
+     "mode": "EQN", "result": -1},
+    {"id": "parentheses-precedence",
+     "keys": ("8", "DIV", "2", "MUL", "LP", "2", "ADD", "2", "RP", "EQUAL"),
+     "mode": "COMP", "result": 16},
+    {"id": "basic-multiplication",
+     "keys": ("5", "MUL", "6", "EQUAL"),
+     "mode": "COMP", "result": 30}
 )
 
 
@@ -43,7 +49,7 @@ async def run_case(browser, root, file, case, out):
             trace.append({"key": key, **step})
         state = await page.evaluate("window.FreshCalculator.getState()")
         assert state["mode"] == case["mode"], (file, case["id"], state["mode"])
-        if case["id"] == "precedence":
+        if case["mode"] == "COMP":
             actual = state["raw"]
             assert state["screen"] == "result", (file, state["screen"])
         else:
