@@ -39,3 +39,14 @@ test('paragraph metadata survives formatting boundaries',()=>{
  assert.equal(rows[1].runs[0].underline,true);
  validateParagraphs(item.paragraphs,'אבג\nx');
 });
+
+test('explicit direction survives paragraph layout; legacy paragraphs remain automatic',()=>{
+ const item={text:'שלום test\nEnglish שלום',runs:[{text:'שלום test\nEnglish שלום'}],paragraphs:[{align:'right',list:'none',dir:'rtl'},{align:'left',list:'none',dir:'ltr'}]};
+ validateParagraphs(item.paragraphs,item.text);
+ const rows=paragraphRuns(item);
+ assert.equal(rows[0].dir,'rtl');
+ assert.equal(rows[1].dir,'ltr');
+ assert.deepEqual(paragraphRuns({text:'Legacy'})[0].dir,'auto');
+ assert.doesNotThrow(()=>validateParagraphs([{align:'auto',list:'none'}],'Legacy'));
+ for(const dir of ['right','left','AUTO','up',null])assert.throws(()=>validateParagraphs([{align:'auto',list:'none',dir}],'Legacy'),/Invalid text paragraphs/);
+});
