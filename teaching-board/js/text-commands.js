@@ -56,12 +56,13 @@ export function applyInlineFormat(root,selection,name,value){
     const range=selection.getRangeAt(0);
     if(!supportedInlineSelection(root,range))return false;
     if(name==='foreColor'&&!/^#[0-9a-f]{6}$/i.test(value||''))return false;
+    const activeBefore=BOOLEAN_STYLES[name]?inlineFormatState(root,selection,name):false;
     const wrap=document.createElement('span');
     if(name==='foreColor')wrap.style.color=value;
     else if(name==='removeFormat'){wrap.style.fontWeight='400';wrap.style.fontStyle='normal';wrap.style.textDecorationLine='none';wrap.style.color=root.style.color||'#203954';}
     else {
         const [property,on,off]=BOOLEAN_STYLES[name];
-        const enabled=inlineFormatState(root,selection,name);
+        const enabled=activeBefore;
         if(property==='textDecorationLine') {
             const other=name==='underline'?'line-through':'underline';
             const existing=inlineFormatState(root,selection,name==='underline'?'strikeThrough':'underline');
@@ -79,8 +80,7 @@ export function applyInlineFormat(root,selection,name,value){
             if(child.hasAttribute?.('color'))child.removeAttribute('color');
         }
     }else if(name!=='removeFormat'){
-        const active=inlineFormatState(root,selection,name);
-        if(active){
+        if(activeBefore){
             const [property]=BOOLEAN_STYLES[name];
             // Remove inherited formatting on the extracted child nodes so the
             // explicit "off" style on our wrapper can take effect.
