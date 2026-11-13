@@ -9,6 +9,7 @@ import json
 import os
 import threading
 
+from PIL import Image, ImageChops
 from playwright.async_api import async_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,8 +32,15 @@ async def run_case(browser, root, file, case, out):
     try:
         await page.goto(root + file + "?plus028=" + case["id"], wait_until="load")
         await page.locator("#keys button[data-key='MODE']").wait_for()
+        trace = []
         for key in case["keys"]:
             await page.locator("#keys button[data-key='" + key + "']").click()
+            step = await page.evaluate("""() => {
+                const s = window.FreshCalculator.getState();
+                return {mode: s.mode, screen: s.screen, input: s.input,
+                        result: s.result, error: s.error, info: s.info};
+            }""")
+            trace.append({"key": key, **step})
         state = await page.evaluate("window.FreshCalculator.getState()")
         assert state["mode"] == case["mode"], (file, case["id"], state["mode"])
         if case["id"] == "precedence":
@@ -49,6 +57,7 @@ async def run_case(browser, root, file, case, out):
         return {"web_publication": file, "case": case["id"],
                 "keys": list(case["keys"]), "mode": state["mode"],
                 "screen": state["screen"], "numeric_result": actual,
+                "key_trace": trace,
                 "web_lcd_png": name, "web_lcd_sha256":
                 hashlib.sha256(frame.read_bytes()).hexdigest(),
                 "physical_device_evidence": False}
@@ -75,8 +84,26 @@ async def main():
                         captures.append(item)
                         variants.append(item)
                     assert variants[0]["numeric_result"] == variants[1]["numeric_result"], case["id"]
+                    assert variants[0]["key_trace"] == variants[1]["key_trace"], (
+                        case["id"], "modular / standalone key-state divergence")
+                    first = root_out / variants[0]["web_lcd_png"]
+                    second = root_out / variants[1]["web_lcd_png"]
+                    with Image.open(first) as image_a, Image.open(second) as image_b:
+                        assert image_a.size == image_b.size, (
+                            case["id"], "web LCD dimensions differ",
+                            image_a.size, image_b.size)
+                        diff = ImageChops.difference(
+                            image_a.convert("RGBA"), image_b.convert("RGBA"))
+                        differing_pixels = sum(
+                            1 for rgba in diff.getdata() if any(rgba))
+                        assert differing_pixels == 0, (
+                            case["id"], "web LCD pixel divergence",
+                            differing_pixels)
+                        for item in variants:
+                            item["web_pair_pixel_mismatch_count"] = differing_pixels
+                            item["web_pair_pixel_comparison_verified"] = True
                 report = {
-                    "schema": "plus028-web-reference-browser-v1",
+                    "schema": "plus028-web-reference-browser-v2",
                     "model": "fx-991ES PLUS (2nd edition)",
                     "source": "manufacturer example and calculation-priority cases",
                     "captures": captures,
