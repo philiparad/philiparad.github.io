@@ -43,7 +43,10 @@ function iterate(fn,math,start,previous=null,steps=20){
  let lastStep=previous?.lastStep??Infinity,iterations=previous?.iterations??0;
  if(!Number.isFinite(fx))throw Error('Math ERROR');
  const threshold=1e-10;
- const good=(y,at)=>Math.abs(y)<=threshold*Math.max(1,Math.abs(at));
+ // Equation residual is f(X), not X: scaling tolerance by |X|
+ // previously allowed a residual of 0.05 at X=1e9 to pass immediately.
+ // Keep a conservative absolute residual; hardware thresholds unverified.
+ const good=y=>Math.abs(y)<=threshold;
  for(let index=0;index<steps;index++){
   if(good(fx,x)&&(iterations===0||lastStep<=Math.sqrt(threshold)*Math.max(1,Math.abs(x)))){
    return {status:'solved',value:x,residual:fx,iterations};
