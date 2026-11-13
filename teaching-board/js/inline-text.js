@@ -19,6 +19,9 @@ export class InlineText {
   this.controls.append(el('span','Enter: new line · Ctrl/⌘ Enter: save · Esc: cancel'),btn('Cancel',()=>this.finish(false)),btn('Done',()=>this.finish(true),'primary'));
   editor.area.append(this.root,this.controls);
   this.input.oninput=()=>this.resize();
+  // Keep toolbar feedback synchronized with the insertion point and selected formatting.
+  this.selectionChange=()=>{if(this.closed||!this.input.contains(document.activeElement))return;for(const [name,button] of this.formatButtons||[]){try{button.setAttribute('aria-pressed',String(document.queryCommandState(name)));}catch{button.setAttribute('aria-pressed','false');}}};
+  document.addEventListener('selectionchange',this.selectionChange);
   this.input.onpaste=e=>{e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain').slice(0,10000));this.resize();};
   this.input.ondrop=e=>e.preventDefault();
   this.input.ondblclick=e=>{const node=e.target.closest('.inline-equation');if(node){e.preventDefault();this.editEquation(node);}};
@@ -33,11 +36,12 @@ export class InlineText {
   try{const value=await equationDialog(node?JSON.parse(node.dataset.equation).source:'x^2');if(this.closed||!value)return;const replacement=equationNode(value,this.item.fontSize||24);if(node&&this.input.contains(node))node.replaceWith(replacement);else{if(!range){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}range.deleteContents();range.insertNode(replacement);}range=document.createRange();range.setStartAfter(replacement);range.collapse(true);this.input.focus();selection.removeAllRanges();selection.addRange(range);this.resize();}finally{this.suspended=false;if(!this.closed)this.input.focus();}
  }
  addFormatting(){
+  this.formatButtons=new Map();
   const command=(name,value)=>{this.input.focus();if(this.savedRange){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(this.savedRange);}document.execCommand(name,false,value);this.savedRange=null;this.resize();};
-  for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);}
+  for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['strikeThrough','Strikethrough'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list'],['removeFormat','Clear formatting']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);if(['bold','italic','underline','strikeThrough'].includes(name)){button.setAttribute('aria-pressed','false');this.formatButtons.set(name,button);}}
   const math=btn('Inline equation',()=>this.editEquation());math.onpointerdown=e=>e.preventDefault();this.controls.append(math);
   const colors=el('select');colors.setAttribute('aria-label','Selected text color');for(const [value,label]of [['','Text color…'],['#203954','Dark blue'],['#b42318','Red'],['#147d92','Teal'],['#7c50b0','Purple'],['#000000','Black']]){const option=el('option',label);option.value=value;colors.append(option);}
-  const capture=()=>{const selection=window.getSelection();if(selection.rangeCount&&this.input.contains(selection.anchorNode)&&this.input.contains(selection.focusNode))this.savedRange=selection.getRangeAt(0).cloneRange();};colors.onpointerdown=capture;colors.onfocus=capture;colors.onchange=()=>{if(colors.value)command('foreColor',colors.value);colors.value='';};this.controls.append(colors);
+  const capture=()=>{const selection=window.getSelection();if(selection.rangeCount&&this.input.contains(selection.anchorNode)&&this.input.contains(selection.focusNode))this.savedRange=selection.getRangeAt(0).cloneRange();};colors.onpointerdown=capture;colors.onfocus=capture;colors.onchange=()=>{if(colors.value)command('foreColor',colors.value);colors.value='';};this.controls.append(colors);const custom=el('input');custom.type='color';custom.value='#203954';custom.setAttribute('aria-label','Custom text color');custom.title='Custom text color';custom.onpointerdown=capture;custom.onfocus=capture;custom.onchange=()=>command('foreColor',custom.value);this.controls.append(custom);
  }
  resize(){this.update();this.input.style.height='0px';this.height=Math.min(100000,Math.max(this.item.h,this.input.scrollHeight+2));this.input.style.height=`${this.height}px`;this.update();}
  update(){const i=this.item,v=this.editor.board.viewport;Object.assign(this.root.style,{width:`${i.w}px`,left:`${v.x+i.x*v.zoom}px`,top:`${v.y+i.y*v.zoom}px`,transform:`scale(${v.zoom}) rotate(${i.rotation||0}deg)`,transformOrigin:`${i.w/2}px ${i.h/2}px`});
@@ -46,7 +50,7 @@ export class InlineText {
   this.root.style.left=`${v.x+i.x*v.zoom+(v.zoom-1)*i.w/2}px`;
   this.root.style.top=`${v.y+i.y*v.zoom+(v.zoom-1)*i.h/2}px`;
  }
- finish(save,focus=true){if(this.closed)return;const {runs,paragraphs}=readRichDocument(this.input,this.item),text=runs.map(r=>r.text).join('');if(save){try{validateRuns(runs,text);validateParagraphs(paragraphs,text);}catch(e){this.controls.append(el('span',e.message,'error'));return;}}this.closed=true;document.removeEventListener('pointerdown',this.outside,true);document.removeEventListener('focusin',this.outside,true);this.root.remove();this.controls.remove();this.editor.inlineText=null;
+ finish(save,focus=true){if(this.closed)return;const {runs,paragraphs}=readRichDocument(this.input,this.item),text=runs.map(r=>r.text).join('');if(save){try{validateRuns(runs,text);validateParagraphs(paragraphs,text);}catch(e){this.controls.append(el('span',e.message,'error'));return;}}this.closed=true;document.removeEventListener('pointerdown',this.outside,true);document.removeEventListener('focusin',this.outside,true);document.removeEventListener('selectionchange',this.selectionChange);this.root.remove();this.controls.remove();this.editor.inlineText=null;
   if(save&&text.trim()){this.item.runs=runs;this.item.paragraphs=paragraphs;this.editor.applyText(this.item,text,this.height,this.existing);}
   else this.editor.paint();
   if(focus&&!this.editor.disposed)this.editor.svg.focus();
