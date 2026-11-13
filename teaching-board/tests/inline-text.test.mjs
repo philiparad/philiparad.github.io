@@ -128,3 +128,15 @@ test('collapsed caret formatting inserts styled Hebrew text without execCommand'
   edit.finish(false);
  }
 });
+
+test('pending marks are discarded when IME composition begins',()=>{
+ const e=fixture(),edit=e.inlineText;
+ edit.pendingMarks={bold:true};
+ edit.pendingSelection={anchor:[],focus:[],anchorOffset:0,focusOffset:0};
+ edit.input.oncompositionstart();
+ assert.equal(edit.composing,true);
+ assert.equal(edit.pendingMarks,null);
+ assert.equal(edit.pendingSelection,null);
+ edit.input.oncompositionend();
+ edit.finish(false);
+});
