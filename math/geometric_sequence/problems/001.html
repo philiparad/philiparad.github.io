@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <link rel="icon" type="image/png" href="philip_favicon.png"/>
+        <title>סדרה הנדסית - שאלה ופתרון מלא</title>
+        <script>
+            window.MathJax = {
+                tex: {inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']]},
+                options: {enableMenu: false}
+            };
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css">
+        <script defer src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+        <style>
+            :root { --ink:#18283f; --blue:#1e527f; --pale:#eef6fc; --gold:#fff5d9; --green:#eaf8ed; --line:#c8d9e8; --paper:#ffffff; }
+            * { box-sizing:border-box; }
+            body { margin:0; background:#eaf0f5; font-family:Arial, 'Noto Sans Hebrew', sans-serif; font-size:18px; line-height:1.58; color:var(--ink); }
+            header, nav, main, footer { max-width:940px; margin:auto; }
+            header { padding:30px 24px 12px; }
+            h1 { margin:0; font-size:32px; color:#153f65; }
+            .subtitle { margin:7px 0; color:#52667c; }
+            nav { padding:12px 24px 20px; display:flex; gap:10px; flex-wrap:wrap; }
+            nav a { background:white; border:2px solid var(--line); padding:7px 14px; border-radius:9px; color:#155b93; text-decoration:none; font-weight:bold; }
+            nav a:hover, nav a:focus { background:var(--pale); text-decoration:underline; outline-offset:3px; }
+            section { background:var(--paper); border:2px solid #d7e2ed; border-radius:16px; margin:0 20px 19px; padding:23px 28px; break-inside:avoid; }
+            h2 { margin:0 0 13px; font-size:25px; color:#164e7a; }
+            h3 { font-size:20px; margin:14px 0 7px; color:#214a71; }
+            p { margin:9px 0; }
+            ol { padding-right:26px; margin:7px 0; }
+            li { margin:8px 0; }
+            .question { background:#f3f8fd; border:2px solid #c4deef; padding:15px 19px; border-radius:12px; }
+            .step { border:2px solid var(--line); padding:12px 17px; border-radius:12px; margin:12px 0; break-inside:avoid; }
+            .step strong { color:#154b76; }
+            .tip { background:var(--gold); border:2px solid #ead89e; padding:11px 15px; border-radius:11px; margin:12px 0; }
+            .answer { background:var(--green); border:2px solid #a9d9b6; border-radius:11px; padding:9px 17px; font-weight:bold; }
+            .math { direction:ltr; text-align:center; margin:9px 0; }
+            mjx-container[display="true"] { margin:0.65em 0 !important; max-width:100%; }
+            .small { font-size:16px; color:#52667c; }
+
+            .series-visual { background:#f8fbfe; border:2px solid #cddfed; border-radius:14px; padding:14px 12px; margin:14px 0; break-inside:avoid; }
+            .series-visual-title { margin:0 0 8px; font-weight:bold; color:#154b76; }
+            #series-board { height:280px; width:100%; direction:ltr; background:white; border:2px solid #d7e4ee; border-radius:10px; touch-action:none; }
+            .diagram-controls { display:none; flex-wrap:wrap; align-items:center; gap:7px; margin:10px 0 0; }
+            .diagram-controls button { border:2px solid #b5cede; background:#fff; color:#174c75; padding:6px 11px; border-radius:8px; font-size:15px; font-weight:bold; cursor:pointer; }
+            .diagram-controls button:hover, .diagram-controls button:focus-visible { background:#e8f4fc; outline:2px solid #376da2; outline-offset:2px; }
+            .diagram-controls button.primary { background:#1e527f; color:white; border-color:#1e527f; }
+            .diagram-status { margin:8px 0 0; font-size:15px; min-height:27px; color:#264c69; }
+            .diagram-fallback { background:#fff3e4; border:2px solid #d7a967; border-radius:8px; padding:12px; margin:8px 0; }
+            .diagram-fallback[hidden] { display:none; }
+            .print-diagram-fallback { display:none; }
+            footer { padding:10px 30px 30px; color:#4e6175; font-size:15px; }
+            @media(max-width:650px) { body{font-size:17px;} section{margin:0 9px 12px;padding:17px 13px;} header{padding:20px 15px 8px;} h1{font-size:27px;} h2{font-size:22px;} nav{padding:10px 14px;} }
+            @page { size:A4; margin:12mm 14mm; }
+            @media print {
+                html, body { background:#fff; font-size:15px; line-height:1.46; }
+                header, nav, footer { display:none; }
+                main { max-width:none; }
+                section { border:0; border-radius:0; margin:0; padding:2mm 0; width:100%; break-after:page; page-break-after:always; }
+                section:last-child { break-after:auto; page-break-after:auto; }
+                h2 {font-size:22px;} h3 {font-size:17px;}
+                .step { margin:8px 0; padding:9px 12px; }
+                .question {padding:10px 14px;}
+                .tip,.answer {padding:8px 12px; margin:8px 0;}
+                p,li {margin:6px 0;}
+                .diagram-controls, .diagram-status { display:none !important; }
+                #series-board {height:250px;}
+                .print-diagram-fallback { display:block; text-align:center; font-size:13px; }
+                .series-visual { break-inside:avoid; }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>סדרה הנדסית - השאלה והפתרון המלא</h1>
+            <p class="subtitle">5 יחידות מתמטיקה | הסבר צעד אחר צעד | אפשר ללמוד בקצב אישי</p>
+        </header>
+        <nav aria-label="תוכן עניינים">
+            <a href="#question">נוסח השאלה</a>
+            <a href="#part-a">סעיף א׳</a>
+            <a href="#part-b">סעיף ב׳</a>
+            <a href="#part-c">סעיף ג׳</a>
+            <a href="#part-d">סעיף ד׳</a>
+        </nav>
+        <main>
+            <section id="question">
+                <h2>השאלה המלאה</h2>
+                <div class="question">
+                    <p>נתונה סדרה הנדסית שמנתה \(q\).</p>
+                    <ol type="א">
+                        <li><strong>א.</strong> הוכיחו שמתקיים:</li>
+                    </ol>
+                    <div class="math">\[a_1\cdot a_{2n}=a_n\cdot a_{n+1}\]</div>
+                    <p><strong>ב.</strong> בסדרה \(2n\) איברים. הביעו באמצעות \(q\) את היחס בין סכום כל איברי הסדרה לסכום האיברים במקומות הזוגיים.</p>
+                    <p><strong>ג.</strong> מוסיפים לסדרה איבר נוסף כך שכעת מספר האיברים בסדרה הוא \(2n+1\). הביעו באמצעות \(q\) ו-\(n\) את היחס בין סכום \(n\) האיברים האחרונים לסכום \(n\) האיברים הראשונים.</p>
+                    <p><strong>ד.</strong> היחס שמצאתם בסעיף ב׳ שווה ל-\(1.5\). נתון כי \(a_1=1\). חשבו את הסכום:</p>
+                    <div class="math">\[a_1-a_2+a_3-a_4+\cdots-a_{20}+a_{21}\]</div>
+                </div>
+                <h3>מה צריך לדעת לפני הפתרון?</h3>
+                <p>בסדרה הנדסית מכפילים כל איבר ב-\(q\) כדי לקבל את האיבר הבא. האיבר במקום \(n\) הוא:</p>
+                <div class="math">\[\boxed{a_n=a_1q^{n-1}}\]</div>
+                <p>סכום \(n\) איברים בסדרה הנדסית שמנתה \(q\) ואיברה הראשון \(a_1\), כאשר \(q\ne1\):</p>
+                <div class="math">\[\boxed{S_n=\frac{a_1(q^n-1)}{q-1}}\]</div>
+                <div class="tip">💡 שימו לב: אם בוחרים רק את האיברים במקומות הזוגיים, המנה החדשה היא \(q^2\), כי מתקדמים בשני מקומות בכל פעם.</div>
+            </section>
+            <section id="part-a">
+                <h2>סעיף א׳ - הוכחת השוויון</h2>
+                <p>נוכיח כי \(a_1\cdot a_{2n}=a_n\cdot a_{n+1}\) באמצעות הצבת הנוסחה לאיבר כללי.</p>
+                <div class="step"><strong>שלב 1 - נכתוב את האיברים הדרושים.</strong>
+                    <div class="math">\[a_{2n}=a_1q^{2n-1}\]</div>
+                    <div class="math">\[a_n=a_1q^{n-1},\qquad a_{n+1}=a_1q^n\]</div>
+                </div>
+                <div class="step"><strong>שלב 2 - נחשב את אגף שמאל.</strong>
+                    <div class="math">\[a_1\cdot a_{2n}=a_1\cdot a_1q^{2n-1}=a_1^2q^{2n-1}\]</div>
+                </div>
+                <div class="step"><strong>שלב 3 - נחשב את אגף ימין.</strong>
+                    <div class="math">\[\begin{aligned}a_n\cdot a_{n+1}&=(a_1q^{n-1})(a_1q^n)\\&=a_1^2q^{(n-1)+n}\\&=a_1^2q^{2n-1}\end{aligned}\]</div>
+                </div>
+                <div class="answer">✅ קיבלנו את אותו ביטוי בשני האגפים, ולכן: \(\boxed{a_1a_{2n}=a_na_{n+1}}\).</div>
+                <p class="small">כשכופלים חזקות בעלות אותו בסיס, מחברים את המעריכים.</p>
+            </section>
+            <section id="part-b">
+                <h2>סעיף ב׳ - היחס בין סכום כל האיברים לסכום הזוגיים</h2>
+                <div class="step"><strong>שלב 1 - סכום כל \(2n\) האיברים.</strong>
+                    <p>זו הסדרה המקורית: האיבר הראשון \(a_1\), המנה \(q\), ומספר האיברים \(2n\).</p>
+                    <div class="math">\[S_{\mathrm{all}}=\frac{a_1(q^{2n}-1)}{q-1}\]</div>
+                </div>
+                <div class="step"><strong>שלב 2 - סכום האיברים במקומות הזוגיים.</strong>
+                    <p><strong>תחילה נוכיח שהסדרה המתקבלת היא סדרה הנדסית.</strong></p>
+                    <div class="math">\[a_2,\ a_4,\ a_6,\ldots,\ a_{2n}\]</div>
+                    <p>כדי להוכיח שסדרה היא הנדסית, נבדוק שהיחס בין <strong>כל שני איברים עוקבים בה</strong> קבוע.</p>
+                    <p>בסדרה החדשה שני איברים עוקבים הם \(a_{2n}\) ו-\(a_{2n+2}\). לפי נוסחת האיבר הכללי:</p>
+                    <div class="math">\[\begin{aligned}a_{2n}&=a_1q^{2n-1}\\a_{2n+2}&=a_1q^{2n+1}\end{aligned}\]</div>
+                    <p>לכן, כאשר האיברים אינם אפס:</p>
+                    <div class="math">\[\frac{a_{2n+2}}{a_{2n}}=\frac{a_1q^{2n+1}}{a_1q^{2n-1}}=q^{(2n+1)-(2n-1)}=\boxed{q^2}\]</div>
+                    <p>קיבלנו יחס קבוע שאינו תלוי ב-\(n\) ⇐ <strong>הסדרה של האיברים במקומות הזוגיים היא הנדסית, ומנתה \(q^2\).</strong></p>
+                    <p>בסדרה זו יש \(n\) איברים, והאיבר הראשון הוא \(a_2=a_1q\). כעת מותר להשתמש בנוסחת סכום סדרה הנדסית:</p>
+                    <div class="math">\[\begin{aligned}S_{\mathrm{even}}&=\frac{a_2((q^2)^n-1)}{q^2-1}\\&=\frac{a_1q(q^{2n}-1)}{q^2-1}\end{aligned}\]</div>
+                </div>
+                <div class="step"><strong>שלב 3 - נחשב את היחס ונצמצם.</strong>
+                    <div class="math">\[\begin{aligned}\frac{S_{\mathrm{all}}}{S_{\mathrm{even}}}&=\frac{a_1(q^{2n}-1)}{q-1}\cdot\frac{q^2-1}{a_1q(q^{2n}-1)}\\&=\frac{q^2-1}{q(q-1)}\\&=\frac{(q-1)(q+1)}{q(q-1)}\\&=\frac{q+1}{q}\end{aligned}\]</div>
+                </div>
+                <div class="answer">✅ התשובה: \(\boxed{\dfrac{S_{\mathrm{all}}}{S_{\mathrm{even}}}=\dfrac{q+1}{q}}\).</div>
+                <p class="small">הערת דיוק: בעת השימוש בנוסחת הסכום מניחים \(q\ne1\) וגם \(q^2\ne1\).</p>
+            </section>
+            <section id="part-c">
+                <h2>סעיף ג׳ - יחס סכום האיברים האחרונים לראשונים</h2>
+                <div class="step"><strong>שלב 1 - נזהה נכון את שתי הקבוצות.</strong>
+                    <p>יש \(2n+1\) איברים. האיבר \(a_{n+1}\) הוא האיבר האמצעי, ולכן אינו שייך לאף אחת משתי הקבוצות.</p>
+                    <p>ראשונים: \(a_1,a_2,\ldots,a_n\)</p>
+                    <p>אחרונים: \(a_{n+2},a_{n+3},\ldots,a_{2n+1}\)</p>
+                
+                <div class="series-visual" aria-label="תרשים אינטראקטיבי של חלוקת הסדרה לשלוש קבוצות">
+                    <p class="series-visual-title">תרשים אינטראקטיבי - \(n\) ראשונים, איבר אמצעי, \(n\) אחרונים</p>
+                    <div id="series-board" class="jxgbox" role="img" aria-label="מצד שמאל n האיברים הראשונים, במרכז האיבר a n ועוד 1, ומימין n האיברים האחרונים. אפשר לחשוף כל קבוצה באמצעות הכפתורים."></div>
+                    <div id="series-fallback" class="diagram-fallback" hidden>
+                        התרשים האינטראקטיבי לא נטען. החלוקה היא:
+                        \(\underbrace{a_1,a_2,\ldots,a_n}_{n\ \mathrm{first}}\),
+                        \(a_{n+1}\),
+                        \(\underbrace{a_{n+2},\ldots,a_{2n+1}}_{n\ \mathrm{last}}\).
+                    </div>
+                    <div class="diagram-controls" aria-label="פקדי התרשים">
+                        <button type="button" class="primary" id="diagram-next">הצג קבוצה הבאה</button>
+                        <button type="button" id="diagram-all">הצג את כל הקבוצות</button>
+                        <button type="button" id="diagram-reset">איפוס</button>
+                        <button type="button" id="diagram-zoom-in">הגדלה +</button>
+                        <button type="button" id="diagram-zoom-out">הקטנה −</button>
+                        <button type="button" id="diagram-center">מרכוז</button>
+                    </div>
+                    <p class="diagram-status" id="diagram-status" role="status" aria-live="polite">התרשים מציג את כל שלוש הקבוצות. לחצו על ״הצג קבוצה הבאה״ כדי לעבור להדגמה מדורגת.</p>
+                    <p class="print-diagram-fallback">\(\underbrace{a_1,\ldots,a_n}_{n\ \text{איברים}}\quad |\quad a_{n+1}\quad |\quad \underbrace{a_{n+2},\ldots,a_{2n+1}}_{n\ \text{איברים}}\)</p>
+                </div>
+                </div>
+                <div class="step"><strong>שלב 2 - נחשב את סכום \(n\) הראשונים.</strong>
+                    <div class="math">\[S_{\mathrm{first}}=\frac{a_1(q^n-1)}{q-1}\]</div>
+                </div>
+                <div class="step"><strong>שלב 3 - נחשב את סכום \(n\) האחרונים.</strong>
+                    <p>האיבר הראשון בקבוצה השנייה הוא \(a_{n+2}=a_1q^{n+1}\).</p>
+                    <div class="math">\[S_{\mathrm{last}}=\frac{a_{n+2}(q^n-1)}{q-1}\]</div>
+                </div>
+                <div class="step"><strong>שלב 4 - נחשב את היחס.</strong>
+                    <div class="math">\[\begin{aligned}\frac{S_{\mathrm{last}}}{S_{\mathrm{first}}}&=\frac{a_{n+2}(q^n-1)}{q-1}\cdot\frac{q-1}{a_1(q^n-1)}\\&=\frac{a_{n+2}}{a_1}\\&=\frac{a_1q^{n+1}}{a_1}\\&=q^{n+1}\end{aligned}\]</div>
+                </div>
+                <div class="answer">✅ התשובה: \(\boxed{\dfrac{S_{\mathrm{last}}}{S_{\mathrm{first}}}=q^{n+1}}\), בתנאי שסכום \(n\) האיברים הראשונים אינו אפס.</div>
+                <div class="tip">💡 דרך להבין ללא נוסחה: כל איבר בקבוצת האחרונים גדול פי \(q^{n+1}\) מהאיבר המקביל לו בקבוצת הראשונים. לכן גם הסכום מוכפל באותו גורם.</div>
+            </section>
+            <section id="part-d">
+                <h2>סעיף ד׳ - מציאת המנה וחישוב הסכום</h2>
+                <div class="step"><strong>שלב 1 - נמצא את \(q\) מהיחס שבסעיף ב׳.</strong>
+                    <div class="math">\[\begin{aligned}\frac{q+1}{q}&=1.5=\frac32\\2(q+1)&=3q\\2q+2&=3q\\\boxed{q=2}\end{aligned}\]</div>
+                    <p>נוסף לכך נתון \(a_1=1\).</p>
+                </div>
+                <div class="step"><strong>שלב 2 - נפריד איברים עם סימן פלוס ואיברים עם סימן מינוס.</strong>
+                    <div class="math">\[\begin{aligned}T={}&(a_1+a_3+a_5+\cdots+a_{21})\\&-(a_2+a_4+a_6+\cdots+a_{20})\end{aligned}\]</div>
+                    <p>בקבוצת הפלוסים יש <strong>11 איברים</strong>, בקבוצת המינוסים יש <strong>10 איברים</strong>. בשתיהן המנה היא \(q^2=4\).</p>
+                </div>
+                <div class="step"><strong>שלב 3 - נחשב כל סכום בנפרד.</strong>
+                    <p>קבוצת הפלוסים מתחילה ב-\(a_1=1\):</p>
+                    <div class="math">\[S_+=\frac{1(4^{11}-1)}{4-1}=\frac{4^{11}-1}{3}\]</div>
+                    <p>קבוצת המינוסים מתחילה ב-\(a_2=2\):</p>
+                    <div class="math">\[S_-=\frac{2(4^{10}-1)}{4-1}=\frac{2(4^{10}-1)}{3}\]</div>
+                </div>
+                <div class="step"><strong>שלב 4 - נחסר ונחשב.</strong>
+                    <div class="math">\[\begin{aligned}T&=S_+-S_-\\&=\frac{4^{11}-1-2(4^{10}-1)}{3}\\&=\frac{2\cdot4^{10}+1}{3}\\&=\frac{2\cdot1{,}048{,}576+1}{3}\\&=699{,}051\end{aligned}\]</div>
+                </div>
+                <div class="answer">✅ התשובה הסופית: \(\boxed{699{,}051}\).</div>
+                <div class="tip">💡 בדיקה נוספת: אפשר לקבץ זוגות: \((a_1-a_2)+(a_3-a_4)+\cdots+(a_{19}-a_{20})+a_{21}\). מתקבל אותו סכום בדיוק.</div>
+            </section>
+        </main>
+        <script>
+            (function () {
+                'use strict';
+                const initialBox = [-0.6, 5.4, 15.6, -0.9];
+                let board = null;
+                let stage = 3;
+                let groups = [];
+                const status = document.getElementById('diagram-status');
+                const fallback = document.getElementById('series-fallback');
+
+                function showError(message) {
+                    fallback.hidden = false;
+                    status.textContent = message;
+                    document.getElementById('series-board').style.display = 'none';
+                    document.querySelectorAll('.diagram-controls button').forEach(function (button) { button.disabled = true; });
+                }
+                function updateStage(nextStage) {
+                    stage = Math.max(0, Math.min(3, nextStage));
+                    groups.forEach(function (items, i) {
+                        items.forEach(function (item) { item.setAttribute({ visible: stage >= i + 1 }); });
+                    });
+                    board.update();
+                    const messages = [
+                        'התבוננו בסדרה. היכן נמצאים n האיברים הראשונים?',
+                        'הקבוצה הראשונה מכילה n איברים: מ-a₁ ועד aₙ.',
+                        'האיבר האמצעי הוא aₙ₊₁, והוא אינו שייך לאף אחד משני הסכומים.',
+                        'כל שלוש הקבוצות מוצגות: n איברים ראשונים, איבר אמצעי אחד, n איברים אחרונים.'
+                    ];
+                    status.textContent = messages[stage];
+                }
+                function textAt(x, y, latex, options) {
+                    return board.create('text', [x, y, '\\(' + latex + '\\)'], Object.assign({
+                        fixed: true, highlight: false, parse: false, useMathJax: true,
+                        anchorX: 'middle', anchorY: 'middle', fontSize: 19
+                    }, options || {}));
+                }
+                function segment(x1, y1, x2, y2, color, width) {
+                    return board.create('segment', [[x1,y1],[x2,y2]], {
+                        fixed: true, highlight: false, strokeColor: color, strokeWidth: width || 2,
+                        point1: { visible: false }, point2: { visible: false }
+                    });
+                }
+                function bracket(x1, x2, color) {
+                    const y = 1.6;
+                    return [
+                        segment(x1, y+0.25, x1, y, color, 2.4),
+                        segment(x1, y, x2, y, color, 2.4),
+                        segment(x2, y, x2, y+0.25, color, 2.4),
+                        textAt((x1+x2)/2, 0.9, 'n', { fontSize: 20, strokeColor: color })
+                    ];
+                }
+                function init() {
+                    if (!window.JXG || !window.MathJax) {
+                        showError('לא ניתן לטעון את JSXGraph או MathJax. התיאור החלופי מוצג.');
+                        return;
+                    }
+                    try {
+                        board = JXG.JSXGraph.initBoard('series-board', {
+                            boundingbox: initialBox, keepaspectratio: false, axis: false,
+                            showNavigation: false, showCopyright: false,
+                            pan: { enabled: true, needShift: true },
+                            zoom: { wheel: true, pinchHorizontal: true, pinchVertical: true },
+                            resize: { enabled: true }
+                        });
+                        board.suspendUpdate();
+                        const blue = '#205da0', amber = '#a7630e', green = '#1f7b4c';
+                        // Every mathematical label is a JSXGraph text object using MathJax.
+                        textAt(2.7, 3.15, 'a_1,\\ a_2,\\ a_3,\\ldots,\\ a_n', { fontSize: 23 });
+                        textAt(7.55, 3.15, 'a_{n+1}', { fontSize: 24 });
+                        textAt(12.4, 3.15, 'a_{n+2},\\ldots,\\ a_{2n},\\ a_{2n+1}', { fontSize: 21 });
+                        groups = [
+                            bracket(0.3, 5.2, blue),
+                            [segment(7.55, 2.65, 7.55, 1.8, amber, 2.6), textAt(7.55, 1.2, '\\text{יעצמא רביא}', { fontSize: 16, strokeColor: amber })],
+                            bracket(9.25, 15.2, green)
+                        ];
+                        board.unsuspendUpdate();
+                        updateStage(3);
+                        document.getElementById('diagram-next').addEventListener('click', function () { updateStage(stage < 3 ? stage + 1 : 1); });
+                        document.getElementById('diagram-all').addEventListener('click', function () { updateStage(3); });
+                        document.getElementById('diagram-reset').addEventListener('click', function () { board.setBoundingBox(initialBox, false); updateStage(3); });
+                        document.getElementById('diagram-zoom-in').addEventListener('click', function () { board.zoomIn(); });
+                        document.getElementById('diagram-zoom-out').addEventListener('click', function () { board.zoomOut(); });
+                        document.getElementById('diagram-center').addEventListener('click', function () { board.setBoundingBox(initialBox, false); });
+                        window.addEventListener('beforeprint', function () { updateStage(3); board.resizeContainer(); board.fullUpdate(); });
+                        window.addEventListener('afterprint', function () { board.resizeContainer(); board.fullUpdate(); });
+                    } catch (error) {
+                        showError('לא ניתן להציג את התרשים: ' + error.message);
+                    }
+                }
+                window.addEventListener('load', init);
+            }());
+        </script>
+    </body>
+</html>
