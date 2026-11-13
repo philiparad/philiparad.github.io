@@ -15,13 +15,14 @@ export class TextHistory {
     get canRedo() { return this.index < this.entries.length-1; }
     push(value) {
         const copy=structuredClone(value);
-        if (JSON.stringify(copy) === JSON.stringify(this.entries[this.index])) return false;
+        if (JSON.stringify({runs:copy.runs,paragraphs:copy.paragraphs}) === JSON.stringify({runs:this.entries[this.index].runs,paragraphs:this.entries[this.index].paragraphs})) {this.entries[this.index].selection=copy.selection??this.entries[this.index].selection;return false;}
         this.entries.length=this.index+1;
         this.entries.push(copy);
         if(this.entries.length > this.limit) this.entries.shift();
         this.index=this.entries.length-1;
         return true;
     }
+    setSelection(selection) { if (selection) this.entries[this.index].selection=structuredClone(selection); }
     undo() {
         if(!this.canUndo)return null;
         this.index--;
