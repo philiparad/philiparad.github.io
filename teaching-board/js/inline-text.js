@@ -44,11 +44,28 @@ export class InlineText {
  addFormatting(){
   this.formatButtons=new Map();
   this.undoButton=btn('Undo',()=>this.stepTextHistory('undo'));this.undoButton.title='Undo text (Ctrl/⌘+Z)';this.redoButton=btn('Redo',()=>this.stepTextHistory('redo'));this.redoButton.title='Redo text (Ctrl/⌘+Y / Ctrl/⌘+Shift+Z)';this.controls.append(this.undoButton,this.redoButton);
-  const command=(name,value)=>{this.input.focus();if(this.savedRange){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(this.savedRange);}document.execCommand(name,false,value);this.savedRange=null;this.resize();this.recordSnapshot();};
+  const command=(name,value)=>{if(name.startsWith('justify')){this.setParagraphAlignment({justifyLeft:'left',justifyCenter:'center',justifyRight:'right'}[name]);this.savedRange=null;return;}this.input.focus();if(this.savedRange){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(this.savedRange);}document.execCommand(name,false,value);this.savedRange=null;this.resize();this.recordSnapshot();};
   for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['strikeThrough','Strikethrough'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list'],['removeFormat','Clear formatting']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);if(['bold','italic','underline','strikeThrough'].includes(name)){button.setAttribute('aria-pressed','false');this.formatButtons.set(name,button);}}
   const math=btn('Inline equation',()=>this.editEquation());math.onpointerdown=e=>e.preventDefault();this.controls.append(math);
   const colors=el('select');colors.setAttribute('aria-label','Selected text color');for(const [value,label]of [['','Text color…'],['#203954','Dark blue'],['#b42318','Red'],['#147d92','Teal'],['#7c50b0','Purple'],['#000000','Black']]){const option=el('option',label);option.value=value;colors.append(option);}
   const capture=()=>{const selection=window.getSelection();if(selection.rangeCount&&this.input.contains(selection.anchorNode)&&this.input.contains(selection.focusNode))this.savedRange=selection.getRangeAt(0).cloneRange();};colors.onpointerdown=capture;colors.onfocus=capture;colors.onchange=()=>{if(colors.value)command('foreColor',colors.value);colors.value='';};this.controls.append(colors);const direction=el('select');direction.setAttribute('aria-label','Paragraph text direction');for(const [value,label] of [['auto','Direction: Auto'],['rtl','Right-to-left (Hebrew)'],['ltr','Left-to-right (English)']]){const option=el('option',label);option.value=value;direction.append(option);}direction.onpointerdown=capture;direction.onfocus=capture;direction.onchange=()=>{this.setParagraphDirection(direction.value);this.savedRange=null;};this.controls.append(direction);const custom=el('input');custom.type='color';custom.value='#203954';custom.setAttribute('aria-label','Custom text color');custom.title='Custom text color';custom.onpointerdown=capture;custom.onfocus=capture;custom.onchange=()=>command('foreColor',custom.value);this.controls.append(custom);
+ }
+ setParagraphAlignment(align){
+  if(!['left','center','right'].includes(align))return;
+  const selection=window.getSelection();
+  if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}
+  const range=selection?.rangeCount?selection.getRangeAt(0):null;
+  const blocks=[...this.input.querySelectorAll('div,p,li')].filter(n=>n.closest('li')===null||n.tagName==='LI');
+  const matches=range&&typeof range.intersectsNode==='function'?blocks.filter(n=>range.intersectsNode(n)):[];
+  if(matches.length){for(const block of matches)block.style.textAlign=align;}
+  else{
+   let node=selection?.anchorNode;
+   let block=node?.nodeType===1?node:node?.parentElement;
+   while(block&&block!==this.input&&!['DIV','P','LI'].includes(block.tagName))block=block.parentElement;
+   if(block&&block!==this.input)block.style.textAlign=align;
+   else for(const child of this.input.children)if(['DIV','P','LI'].includes(child.tagName))child.style.textAlign=align;
+  }
+  this.input.focus();this.resize();this.recordSnapshot();
  }
  setParagraphDirection(dir){if(!['auto','ltr','rtl'].includes(dir))return;const selection=window.getSelection();if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}let node=selection.anchorNode;let block=node?.nodeType===1?node:node?.parentElement;while(block&&block!==this.input&&!['DIV','P','LI'].includes(block.tagName))block=block.parentElement;const blocks=[...this.input.querySelectorAll('div,p,li')].filter(n=>n.closest('li')===null||n.tagName==='LI');const range=selection.rangeCount?selection.getRangeAt(0):null;const targets=range&&typeof range.intersectsNode==='function'?blocks.filter(n=>range.intersectsNode(n)):[];if(targets.length)for(const n of targets)n.dir=dir;else if(block&&block!==this.input)block.dir=dir;else for(const child of this.input.children)if(['DIV','P','LI'].includes(child.tagName))child.dir=dir;this.input.focus();this.resize();this.recordSnapshot();}
  recordSnapshot(){if(this.closed||this.composing)return;try{const snapshot=readRichDocument(this.input,this.item);const txt=snapshot.runs.map(run=>run.text).join('');validateRuns(snapshot.runs,txt);validateParagraphs(snapshot.paragraphs,txt);snapshot.selection=captureTextSelection(this.input,window.getSelection());this.textHistory.push(snapshot);this.updateHistoryButtons();}catch{/* Keep an invalid intermediate composition out of history. */}}
