@@ -77,43 +77,78 @@ async def main():
             browser = await playwright.chromium.launch()
             try:
                 captures = []
+                comparisons = []
+                failures = []
                 for case in CASES:
                     variants = []
                     for file in FILES:
-                        item = await run_case(browser, root, file, case, root_out)
-                        captures.append(item)
-                        variants.append(item)
-                    assert variants[0]["numeric_result"] == variants[1]["numeric_result"], case["id"]
-                    assert variants[0]["key_trace"] == variants[1]["key_trace"], (
-                        case["id"], "modular / standalone key-state divergence")
-                    first = root_out / variants[0]["web_lcd_png"]
-                    second = root_out / variants[1]["web_lcd_png"]
+                        try:
+                            item = await run_case(browser, root, file, case, root_out)
+                            captures.append(item)
+                            variants.append(item)
+                        except Exception as error:
+                            failures.append({"case": case["id"], "publication": file,
+                                             "kind": "browser_execution",
+                                             "error": str(error)})
+                    if len(variants) != len(FILES):
+                        continue
+                    left, right = variants
+                    mismatches = []
+                    if left["numeric_result"] != right["numeric_result"]:
+                        mismatches.append({"kind": "numeric", "modular": left["numeric_result"],
+                                           "standalone": right["numeric_result"]})
+                    for index, (a, b) in enumerate(zip(left["key_trace"], right["key_trace"])):
+                        if a != b:
+                            mismatches.append({"kind": "key_state", "step": index + 1,
+                                               "modular": a, "standalone": b})
+                    if len(left["key_trace"]) != len(right["key_trace"]):
+                        mismatches.append({"kind": "key_trace_length",
+                                           "modular": len(left["key_trace"]),
+                                           "standalone": len(right["key_trace"])})
+                    first = root_out / left["web_lcd_png"]
+                    second = root_out / right["web_lcd_png"]
                     with Image.open(first) as image_a, Image.open(second) as image_b:
-                        assert image_a.size == image_b.size, (
-                            case["id"], "web LCD dimensions differ",
-                            image_a.size, image_b.size)
-                        diff = ImageChops.difference(
-                            image_a.convert("RGBA"), image_b.convert("RGBA"))
-                        differing_pixels = sum(
-                            1 for rgba in diff.getdata() if any(rgba))
-                        assert differing_pixels == 0, (
-                            case["id"], "web LCD pixel divergence",
-                            differing_pixels)
-                        for item in variants:
-                            item["web_pair_pixel_mismatch_count"] = differing_pixels
-                            item["web_pair_pixel_comparison_verified"] = True
+                        if image_a.size != image_b.size:
+                            mismatches.append({"kind": "lcd_dimensions",
+                                               "modular": image_a.size,
+                                               "standalone": image_b.size})
+                            differing_pixels = None
+                        else:
+                            diff = ImageChops.difference(
+                                image_a.convert("RGBA"), image_b.convert("RGBA"))
+                            differing_pixels = sum(
+                                1 for rgba in diff.getdata() if any(rgba))
+                            if differing_pixels:
+                                mismatches.append({"kind": "lcd_pixels",
+                                                   "differing_pixels": differing_pixels})
+                                diff.save(root_out / (case["id"] + "-lcd-diff.png"))
+                    for item in variants:
+                        item["web_pair_pixel_mismatch_count"] = differing_pixels
+                        item["web_pair_pixel_comparison_verified"] = differing_pixels is not None
+                    comparison = {"id": case["id"], "matches": not mismatches,
+                                  "differences": mismatches}
+                    comparisons.append(comparison)
+                    failures.extend({"case": case["id"], **difference}
+                                    for difference in mismatches)
+                passed = not failures and len(comparisons) == len(CASES)
                 report = {
-                    "schema": "plus028-web-reference-browser-v2",
+                    "schema": "plus028-web-reference-browser-v3",
                     "model": "fx-991ES PLUS (2nd edition)",
                     "source": "manufacturer example and calculation-priority cases",
                     "captures": captures,
-                    "verified_web_cases": len(captures),
+                    "comparisons": comparisons,
+                    "failures": failures,
+                    "status": "PASS_WEB_ONLY" if passed else "FAIL_WEB_COMPARISON",
+                    "verified_web_cases": len(comparisons) if passed else 0,
                     "native_hardware_parity_certified": False,
                     "note": "PNG captures are web canvas screenshots, NOT native CASIO LCD captures."
                 }
                 (root_out / "web-reference-report.json").write_text(
                     json.dumps(report, indent=2) + "\n", encoding="utf-8")
-                print("PLUS-028 ALT WEB PASS:", len(captures),
+                if not passed:
+                    raise AssertionError("PLUS-031 browser comparison failed: " +
+                                         json.dumps(failures[:10], ensure_ascii=False))
+                print("PLUS-031 WEB PASS:", len(captures),
                       "web traces across modular and standalone")
             finally:
                 await browser.close()
