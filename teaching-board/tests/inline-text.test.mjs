@@ -9,6 +9,7 @@ class Element {
  replaceChildren(...nodes){this.children=nodes;}
  getAttribute(k){return this[k]||null;}
  setAttribute(k,v){this[k]=v;}
+ addEventListener(k,fn){this['on'+k]=fn;}
  append(...nodes){this.children.push(...nodes);}
  contains(n){return n===this||this.children.includes(n);}
  remove(){this.removed=true;}
