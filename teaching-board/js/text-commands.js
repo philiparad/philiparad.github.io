@@ -38,14 +38,27 @@ export function inlineFormatState(root,selection,name){
     }
     return false;
 }
+function plainFragment(source){
+    const clean=document.createDocumentFragment();
+    const copy=node=>{
+        if(node.nodeType===3){clean.append(node);return;}
+        if(node.nodeType!==1)return;
+        if(node.dataset?.equation||node.classList?.contains('inline-equation')){clean.append(node);return;}
+        if(node.tagName==='BR'){clean.append(node);return;}
+        while(node.firstChild)copy(node.firstChild);
+    };
+    while(source.firstChild)copy(source.firstChild);
+    return clean;
+}
 export function applyInlineFormat(root,selection,name,value){
-    if(!BOOLEAN_STYLES[name]&&name!=='foreColor')return false;
+    if(!BOOLEAN_STYLES[name]&&!['foreColor','removeFormat'].includes(name))return false;
     if(!selection?.rangeCount)return false;
     const range=selection.getRangeAt(0);
     if(!supportedInlineSelection(root,range))return false;
     if(name==='foreColor'&&!/^#[0-9a-f]{6}$/i.test(value||''))return false;
     const wrap=document.createElement('span');
     if(name==='foreColor')wrap.style.color=value;
+    else if(name==='removeFormat'){wrap.style.fontWeight='400';wrap.style.fontStyle='normal';wrap.style.textDecorationLine='none';wrap.style.color=root.style.color||'#203954';}
     else {
         const [property,on,off]=BOOLEAN_STYLES[name];
         const enabled=inlineFormatState(root,selection,name);
@@ -57,14 +70,15 @@ export function applyInlineFormat(root,selection,name,value){
     }
     // extractContents supports selections crossing inline elements without
     // invalidating the outer paragraph; equations remain atomic DOM nodes.
-    const fragment=range.extractContents();
+    let fragment=range.extractContents();
+    if(name==='removeFormat')fragment=plainFragment(fragment);
     if(name==='foreColor'){
         for(const child of fragment.querySelectorAll('*')){
             if(child.classList?.contains('inline-equation'))continue;
             if(child.style?.color)child.style.color=value;
             if(child.hasAttribute?.('color'))child.removeAttribute('color');
         }
-    }else{
+    }else if(name!=='removeFormat'){
         const active=inlineFormatState(root,selection,name);
         if(active){
             const [property]=BOOLEAN_STYLES[name];
