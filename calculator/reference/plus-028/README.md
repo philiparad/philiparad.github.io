@@ -24,7 +24,7 @@ PLUS028_WEB_CAPTURE_DIR=/tmp/plus028-web-captures python calculator/tests/plus02
 python calculator/tools/build_standalone.py --check
 ```
 
-CI uploads `plus028-reference-conformance` (JSON) and `plus028-browser-reference-captures` (web-only screenshots/traces), when the corresponding tests execute. Review their actual statuses in GitHub Actions. Native pixel placement and undocumented key timing cannot be confirmed by these artifacts.
+CI uploads `plus028-reference-conformance` (JSON) and `plus028-browser-reference-captures` (web-only screenshots/traces), when the corresponding tests execute. The browser comparison now checks **every per-key screen/mode/input/result/error state** and requires **zero pixel differences** between the modular and standalone web LCD PNGs for each captured reference sequence. It records per-case key-state traces, PNG SHA-256 hashes, and `web_pair_pixel_mismatch_count` in the v2 browser report. This comparison validates parity between the two web publications—not their physical similarity to a CASIO device. Review their actual statuses in GitHub Actions. Native pixel placement and undocumented key timing cannot be confirmed by these artifacts.
 
 **Evidence classification:** `REFERENCE_CASES_PASSED_HARDWARE_UNVERIFIED` means the documented examples passed, not that a physical calculator matched. The original empty hardware manifest continues to report `BLOCKED_NO_DEVICE_EVIDENCE`. Never populate it with web captures or synthetic fixtures.
 
