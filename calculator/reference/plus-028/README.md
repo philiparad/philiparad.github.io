@@ -2,6 +2,34 @@
 
 Target: **physical CASIO fx-991ES PLUS (2nd edition)**. This task is **BLOCKED** until genuine device-captured LCD images and observed keylogs are supplied. Modular/standalone screenshots and synthetic unit-test fixtures **are not hardware evidence**. No firmware parity is claimed.
 
+## Hardware-free verification path (supported)
+
+**You do not need a physical calculator to run the alternative checks.** We use:
+- [CASIO's official 2nd-edition guide](https://support.casio.com/global/en/calc/manual/fx-570ESPLUS_991ESPLUS_en/) as an independent oracle for published outputs, modes, and limits
+- `calculator/tests/plus028-casio-manual-examples.cjs`: 30 official-example/reference-derived checks across EQN, CMPLX, BASE-N, conversions and numerical behavior
+- `calculator/tools/plus028_reference_report.py`: a JSON record with the regression runner's source digest, source URLs, results and explicit limitation flags
+- `calculator/tests/plus028-reference-browser.py`: Playwright replay of real DOM key buttons in both modular and standalone pages, plus web-only LCD PNG captures and key sequences
+- Existing PLUS-001–PLUS-026 source and browser regressions, manufacturer references, and the deterministic standalone build
+
+These are **reference-conformance and web-publication verification**, not native CASIO firmware/pixel certification. Lack of native capture is not a reason to stop improving or testing documented functions.
+
+From repository root:
+
+```bash
+node calculator/tests/plus028-casio-manual-examples.cjs
+python calculator/tools/plus028_reference_report.py --report /tmp/plus028-reference-report.json
+python -m pip install playwright==1.56.0
+python -m playwright install chromium
+PLUS028_WEB_CAPTURE_DIR=/tmp/plus028-web-captures python calculator/tests/plus028-reference-browser.py
+python calculator/tools/build_standalone.py --check
+```
+
+CI uploads `plus028-reference-conformance` (JSON) and `plus028-browser-reference-captures` (web-only screenshots/traces), when the corresponding tests execute. Review their actual statuses in GitHub Actions. Native pixel placement and undocumented key timing cannot be confirmed by these artifacts.
+
+**Evidence classification:** `REFERENCE_CASES_PASSED_HARDWARE_UNVERIFIED` means the documented examples passed, not that a physical calculator matched. The original empty hardware manifest continues to report `BLOCKED_NO_DEVICE_EVIDENCE`. Never populate it with web captures or synthetic fixtures.
+
+---
+
 ## Required capture procedure
 
 1. Identify the exact 2nd-edition model on the physical calculator. Record the date, operator, relevant setup/mode, and a non-sensitive redacted device identifier. Keep the source/original photographs privately for audit.
