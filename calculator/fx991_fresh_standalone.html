@@ -5200,9 +5200,15 @@ function getTarget(event){
 function translate(event,context={}){
  if(!event||event.isComposing||event.key==='Process')return null;
  const target=getTarget(event);
- if(target==='editor'||target==='control')return null;
+ // The calculator must own focus before it may prevent browser shortcuts,
+ // scrolling, Backspace navigation or other document-level keyboard actions.
+ // A click/Tab to the face or one of its physical keys explicitly opts in.
+ if(target==='editor'||target==='control'||target==='document')return null;
  // Preserve OS shortcuts, browser copy, and keyboard-accessible focusing.
  if(event.metaKey||event.altKey)return null;
+ // Do not shadow browser Shift+function-key/navigation combinations.
+ // Shift-generated printable symbols (+, *, (, )) remain calculator input.
+ if(event.shiftKey&&event.key.length>1&&event.key!=='NumpadEnter')return null;
  if(event.ctrlKey){
   const inside=target==='face'||target==='key-button';
   // REA-073: Ctrl+Z is a web-only editing convenience when the calculator
