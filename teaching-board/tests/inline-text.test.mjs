@@ -93,3 +93,38 @@ test('Ctrl/Command+Shift+7/8 dispatch native list formatting without legacy comm
  assert.deepEqual(called,['number','bullet']);
  edit.finish(false);
 });
+
+test('collapsed caret formatting inserts styled Hebrew text without execCommand',()=>{
+ const e=fixture(),edit=e.inlineText;
+ const prevSelection=globalThis.window.getSelection;
+ const prevText=globalThis.document.createTextNode;
+ const prevCommand=globalThis.document.execCommand;
+ const range={
+  collapsed:true,startContainer:edit.input,
+  deleteContents(){},insertNode(node){this.inserted=node;edit.input.append(node);node.parentNode=edit.input;},
+  setStart(node,offset){this.caret=[node,offset];},collapse(){this.collapsed=true;}
+ };
+ const selection={
+  rangeCount:1,anchorNode:edit.input,focusNode:edit.input,anchorOffset:0,focusOffset:0,
+  getRangeAt(){return range;},removeAllRanges(){},addRange(){}
+ };
+ globalThis.window.getSelection=()=>selection;
+ globalThis.document.createTextNode=value=>({nodeType:3,textContent:value});
+ globalThis.document.execCommand=()=>{throw Error('deprecated command must not run');};
+ try{
+  assert.equal(edit.formatText('bold'),true);
+  assert.equal(edit.pendingMarks.bold,true);
+  let prevented=false;
+  edit.input.onbeforeinput({inputType:'insertText',data:'אבג',isComposing:false,preventDefault(){prevented=true;}});
+  assert.equal(prevented,true);
+  assert.equal(range.inserted.style.fontWeight,'700');
+  assert.deepEqual(range.caret.map((v,i)=>i===0?v.textContent:v),['אבג',3]);
+  assert.equal(edit.pendingMarks,null);
+  assert.equal(edit.textHistory.canUndo,true);
+ }finally{
+  globalThis.window.getSelection=prevSelection;
+  globalThis.document.createTextNode=prevText;
+  globalThis.document.execCommand=prevCommand;
+  edit.finish(false);
+ }
+});
