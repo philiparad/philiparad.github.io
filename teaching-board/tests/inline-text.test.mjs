@@ -36,3 +36,27 @@ test('outside pointer or keyboard focus saves; internal controls do not',()=>{
  const e=fixture(),edit=e.inlineText;edit.outside({target:edit.input});assert.equal(e.applied,undefined);
  edit.outside({target:new Element()});assert.equal(e.applied[1],'Original');assert.equal(listeners.size,0);
 });
+
+test('Ctrl+Z and Ctrl+Y travel through isolated text history',()=>{
+ const e=fixture(),edit=e.inlineText;
+ edit.input.textContent='Updated';
+ edit.input.oninput();
+ assert.equal(edit.textHistory.canUndo,true);
+ const event=(key)=>({key,ctrlKey:true,preventDefault(){},stopPropagation(){}});
+ edit.input.onkeydown(event('z'));
+ assert.equal(edit.input.textContent,'Original');
+ edit.input.onkeydown(event('y'));
+ assert.equal(edit.input.textContent,'Updated');
+ edit.finish(false);
+ assert.equal(listeners.size,0);
+});
+test('composition input is recorded only after composition finishes',()=>{
+ const e=fixture(),edit=e.inlineText;
+ edit.input.oncompositionstart();
+ edit.input.textContent='שלום';
+ edit.input.oninput();
+ assert.equal(edit.textHistory.canUndo,false);
+ edit.input.oncompositionend();
+ assert.equal(edit.textHistory.canUndo,true);
+ edit.finish(false);
+});
