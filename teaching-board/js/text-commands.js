@@ -58,7 +58,13 @@ export function applyInlineFormat(root,selection,name,value){
     // extractContents supports selections crossing inline elements without
     // invalidating the outer paragraph; equations remain atomic DOM nodes.
     const fragment=range.extractContents();
-    if(name!=='foreColor'){
+    if(name==='foreColor'){
+        for(const child of fragment.querySelectorAll('*')){
+            if(child.classList?.contains('inline-equation'))continue;
+            if(child.style?.color)child.style.color=value;
+            if(child.hasAttribute?.('color'))child.removeAttribute('color');
+        }
+    }else{
         const active=inlineFormatState(root,selection,name);
         if(active){
             const [property]=BOOLEAN_STYLES[name];
