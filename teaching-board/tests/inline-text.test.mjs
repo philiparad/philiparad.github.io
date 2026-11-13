@@ -81,3 +81,15 @@ test('paragraph alignment commands use native paragraph styling',()=>{
   assert.equal(paragraph.style.textAlign,'right');
  }finally{globalThis.document.execCommand=original;edit.finish(false);}
 });
+
+test('Ctrl/Command+Shift+7/8 dispatch native list formatting without legacy command',()=>{
+ const e=fixture(),edit=e.inlineText,called=[];
+ edit.formatList=kind=>{called.push(kind);return true;};
+ for(const key of ['7','8']){
+  let prevented=false;
+  edit.input.onkeydown({key,ctrlKey:true,shiftKey:true,preventDefault(){prevented=true;},stopPropagation(){}});
+  assert.equal(prevented,true);
+ }
+ assert.deepEqual(called,['number','bullet']);
+ edit.finish(false);
+});
