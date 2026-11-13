@@ -45,9 +45,9 @@ function plainFragment(source){
         if(node.nodeType!==1)return;
         if(node.dataset?.equation||node.classList?.contains('inline-equation')){clean.append(node);return;}
         if(node.tagName==='BR'){clean.append(node);return;}
-        while(node.firstChild)copy(node.firstChild);
+        while(node.firstChild){const child=node.firstChild;node.removeChild(child);copy(child);}
     };
-    while(source.firstChild)copy(source.firstChild);
+    while(source.firstChild){const child=source.firstChild;source.removeChild(child);copy(child);}
     return clean;
 }
 export function applyInlineFormat(root,selection,name,value){
