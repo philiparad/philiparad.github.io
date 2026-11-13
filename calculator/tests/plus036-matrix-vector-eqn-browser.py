@@ -45,9 +45,9 @@ CASES=(
   "keys":("MODE","5","4","1","EQUAL","NEG","2","EQUAL",
           "NEG","1","EQUAL","2","EQUAL"),
   "mode":"EQN","screen":"eqn-result","solutions":[-1,2,1]},
- {"id":"eqn-error-coefficient",
-  "keys":("MODE","5","3","1","EQUAL","0","EQUAL","0","EQUAL"),
-  "mode":"EQN","screen":"eqn-coeff","coefficient_error":True},
+ {"id":"eqn-partial-coefficient",
+  "keys":("MODE","5","3","1","EQUAL","0","EQUAL"),
+  "mode":"EQN","screen":"eqn-coeff","partial_coefficients":True},
 )
 FIELDS=("model","mode","screen","input","result","error","shift","alpha",
         "menuTitle","menuKind","info")
@@ -81,8 +81,8 @@ async def replay(browser,base,file,case,folder):
             assert len(values)==len(case["solutions"]),(file,case["id"],values)
             assert all(abs(actual-expected)<1e-8 for actual,expected in zip(
                 values,case["solutions"])),(file,case["id"],values)
-        if case.get("coefficient_error"):
-            assert s["eqnEditor"]["values"]["a"]==1,(file,case["id"],"coefficient state")
+        if case.get("partial_coefficients"):
+            assert s["eqnEditor"]["values"]["a"]==1 and s["eqnEditor"]["values"]["b"]==0,(file,case["id"],"coefficient state")
             assert s["eqnEditor"]["type"]=="QUAD",(file,case["id"],"equation type")
         assert not errors,(file,case["id"],errors)
         image=file.replace(".html","")+"-"+case["id"]+".png"
