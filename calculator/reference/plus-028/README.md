@@ -11,7 +11,10 @@ Target: **physical CASIO fx-991ES PLUS (2nd edition)**. This task is **BLOCKED**
 - `calculator/tests/plus028-reference-browser.py`: Playwright replay of real DOM key buttons in both modular and standalone pages, plus web-only LCD PNG captures and key sequences
 - Existing PLUS-001–PLUS-026 source and browser regressions, manufacturer references, and the deterministic standalone build
 
-These are **reference-conformance and web-publication verification**, not native CASIO firmware/pixel certification. Lack of native capture is not a reason to stop improving or testing documented functions.
+These are **reference-conformance and web-publication verification**, not native CASIO firmware/pixel certification.
+
+**PLUS-031 failure diagnostics:** The browser evidence runner now writes `web-reference-report.json` even if a reference example fails, and includes a `failures` array with the case, publication, expected outcome or divergent key state, numeric output, screen dimensions, and exact differing-pixel count as applicable. For matching dimensions with different LCD output it also saves `<case-id>-lcd-diff.png`. The CI artifact upload uses `if: always()`, so reports and images produced before the failure can be inspected. A failed run exits nonzero and never reports parity success. The v3 report's `PASS_WEB_ONLY` status is restricted to successful web-to-web comparisons.
+ Lack of native capture is not a reason to stop improving or testing documented functions.
 
 From repository root:
 
