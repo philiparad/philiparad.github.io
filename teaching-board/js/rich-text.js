@@ -8,26 +8,26 @@ export function validateRuns(runs,text){
 }
 export function compactRuns(runs){const result=[];for(const run of runs){if(!run.text)continue;const clean={text:run.text,bold:!!run.bold,italic:!!run.italic,underline:!!run.underline,strike:!!run.strike,...(run.color?{color:run.color}:{}),...(run.equation?{equation:structuredClone(run.equation)}:{})},last=result.at(-1);if(last&&!last.equation&&!clean.equation&&['bold','italic','underline','strike','color'].every(k=>last[k]===clean[k]))last.text+=clean.text;else result.push(clean);}return result;}
 export function colorHex(value){if(/^#[0-9a-f]{6}$/i.test(value||''))return value.toLowerCase();const rgb=/^rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)$/.exec(value||'');return rgb&&rgb.slice(1).every(n=>+n<=255)?'#'+rgb.slice(1).map(n=>(+n).toString(16).padStart(2,'0')).join(''):undefined;}
-export function validateParagraphs(paragraphs,text){if(!Array.isArray(paragraphs)||paragraphs.length!==text.split('\n').length||paragraphs.some(p=>!p||!['auto','left','center','right'].includes(p.align)||!['none','bullet','number'].includes(p.list)))throw new Error('Invalid text paragraphs.');}
-export function paragraphRuns(item){const rows=[[]];for(const run of textRuns(item)){const parts=run.text.split('\n');parts.forEach((text,k)=>{if(k)rows.push([]);if(text)rows.at(-1).push({...run,text});});}return rows.map((runs,k)=>({runs,align:item.paragraphs?.[k]?.align||item.textAlign||'auto',list:item.paragraphs?.[k]?.list||'none'}));}
+export function validateParagraphs(paragraphs,text){if(!Array.isArray(paragraphs)||paragraphs.length!==text.split('\n').length||paragraphs.some(p=>!p||!['auto','left','center','right'].includes(p.align)||!['none','bullet','number'].includes(p.list)||(p.dir!==undefined&&!['auto','ltr','rtl'].includes(p.dir))))throw new Error('Invalid text paragraphs.');}
+export function paragraphRuns(item){const rows=[[]];for(const run of textRuns(item)){const parts=run.text.split('\n');parts.forEach((text,k)=>{if(k)rows.push([]);if(text)rows.at(-1).push({...run,text});});}return rows.map((runs,k)=>({runs,align:item.paragraphs?.[k]?.align||item.textAlign||'auto',list:item.paragraphs?.[k]?.list||'none',dir:item.paragraphs?.[k]?.dir||'auto'}));}
 export function readRichDocument(root,item){
- const rows=[],base=textRuns({...item,runs:undefined})[0],defaultMeta={align:item.textAlign||'auto',list:'none'};let current=[],meta={...defaultMeta},trailing=false;
+ const rows=[],base=textRuns({...item,runs:undefined})[0],defaultMeta={align:item.textAlign||'auto',list:'none',dir:'auto'};let current=[],meta={...defaultMeta},trailing=false;
  const flush=force=>{if(current.length||force)rows.push({runs:compactRuns(current),...meta});current=[];trailing=false;};
  const walk=(node,style,inherited)=>{if(node.nodeType===3){const parts=node.textContent.split('\n');parts.forEach((text,k)=>{if(k){flush(true);trailing=true;}if(text){current.push({...style,text});trailing=false;}});return;}if(node.nodeType!==1)return;if(node.dataset?.equation){const equation=JSON.parse(node.dataset.equation);validateInlineEquation(equation);current.push({text:'\uFFFC',equation});trailing=false;return;}const tag=node.tagName.toLowerCase();if(['script','style','img','iframe','object'].includes(tag))return;
  if(tag==='br'){if(node.parentNode?.childNodes.length===1)return;flush(true);trailing=true;return;}
  const next={...style},s=node.style;for(const [key,tags]of [['bold',['b','strong']],['italic',['i','em']],['underline',['u']]])if(tags.includes(tag))next[key]=true;if(tag==='s'||tag==='strike'||tag==='del')next.strike=true;
  if(s.fontWeight)next.bold=s.fontWeight==='bold'||+s.fontWeight>=600;if(s.fontStyle)next.italic=s.fontStyle==='italic';if(s.textDecorationLine||s.textDecoration){const decoration=s.textDecorationLine||s.textDecoration;next.underline=decoration.includes('underline');next.strike=decoration.includes('line-through');}const color=colorHex(s.color||node.getAttribute('color'));if(color)next.color=color;
- const nextMeta={...inherited};if(['left','center','right'].includes(s.textAlign))nextMeta.align=s.textAlign;if(tag==='li')nextMeta.list=node.parentNode?.tagName==='OL'?'number':'bullet';
+ const nextMeta={...inherited};if(['left','center','right'].includes(s.textAlign))nextMeta.align=s.textAlign;if(tag==='li')nextMeta.list=node.parentNode?.tagName==='OL'?'number':'bullet';if(['rtl','ltr','auto'].includes(node.dir))nextMeta.dir=node.dir;
  const block=['div','p','li'].includes(tag);if(block){flush(false);meta=nextMeta;}const before=rows.length;
  for(const child of node.childNodes)walk(child,next,nextMeta);
  if(block){flush(current.length>0||rows.length===before);meta={...inherited};}
  };
  for(const node of root.childNodes)walk(node,base,defaultMeta);flush(trailing||!rows.length);
- const runs=compactRuns(rows.flatMap((row,k)=>[...(k?[{text:'\n'}]:[]),...row.runs]));return {runs,paragraphs:rows.map(({align,list})=>({align,list}))};
+ const runs=compactRuns(rows.flatMap((row,k)=>[...(k?[{text:'\n'}]:[]),...row.runs]));return {runs,paragraphs:rows.map(({align,list,dir})=>({align,list,dir}))};
 }
 export function readRuns(root,item){return readRichDocument(root,item).runs;}
 export function writeRuns(root,item){root.replaceChildren();let list=null,lastList='none';for(const row of paragraphRuns(item)){let parent=root;if(row.list!=='none'){if(row.list!==lastList){list=document.createElement(row.list==='number'?'ol':'ul');root.append(list);}parent=list;}else list=null;lastList=row.list;
- const block=document.createElement(row.list==='none'?'div':'li');block.style.textAlign=row.align==='auto'?'start':row.align;parent.append(block);if(!row.runs.length)block.append(document.createElement('br'));
+ const block=document.createElement(row.list==='none'?'div':'li');block.style.textAlign=row.align==='auto'?'start':row.align;block.dir=row.dir||'auto';parent.append(block);if(!row.runs.length)block.append(document.createElement('br'));
  for(const run of row.runs){if(run.equation){block.append(equationNode(run.equation,item.fontSize||24));continue;}const span=document.createElement('span');span.textContent=run.text;Object.assign(span.style,{...(run.bold?{fontWeight:'700'}:{}),...(run.italic?{fontStyle:'italic'}:{}),...((run.underline||run.strike)?{textDecoration:[run.underline?'underline':'',run.strike?'line-through':''].filter(Boolean).join(' ')}:{}),...(run.color?{color:run.color}:{})});block.append(span);}}
 }
 /** Preserve formatting boundaries and explicit newlines while wrapping. */
