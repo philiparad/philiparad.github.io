@@ -1,5 +1,5 @@
 import {el,btn} from './ui.js?v=20261017-history-budget';
-import {toolIcon} from './tool-icons.js?v=20261017-history-budget';
+import {toolIcon} from './tool-icons.js?v=20261114-calculator-modal';
 
 export const CALCULATOR_URL='https://philiparad.github.io/calculator/?key=calculator';
 let nextDialogId=0;
