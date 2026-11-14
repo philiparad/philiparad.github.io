@@ -3,6 +3,35 @@ import {join} from 'node:path';
 
 const signature=Buffer.from([137,80,78,71,13,10,26,10]);
 const types=['cached','export','difference'];
+const escapeHtml=value=>String(value).replace(/[&<>"']/g,ch=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[ch]));
+
+function visualGallery(manifest){
+ const columns=types.map(type=>`<span>${type==='cached'?'Editor render':type==='export'?'SVG export':'Pixel difference'}</span>`).join('');
+ const scenes=manifest.scenes.map(scene=>{
+  const views=types.map(type=>`<figure><img src="${escapeHtml(scene.files[type])}" alt="${escapeHtml(scene.fixture)} – ${type} PNG" loading="lazy"><figcaption>${type==='cached'?'Editor render':type==='export'?'SVG export':'Pixel difference'}</figcaption></figure>`).join('');
+  const matched=scene.goldenMatch===true?'Reference hash matched':scene.goldenMatch===false?'Reference mismatch':'Recording mode';
+  return `<section class="scene"><h2>${escapeHtml(scene.fixture)}</h2><p>${matched} · Pixel differences: ${scene.changedPixels}</p><div class="images">${views}</div><p class="hash">SHA-256: ${escapeHtml(scene.capturedSha256)}</p></section>`;
+ }).join('');
+ return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teaching Board visual review – ${escapeHtml(manifest.engine)}</title>
+<style>
+:root{font-family:system-ui,Arial,sans-serif;color:#1d2b3e;background:#f0f3f8}
+body{max-width:1450px;margin:auto;padding:20px}
+h1{margin-bottom:6px}h2{font-size:1.12rem;margin:0}p{color:#44546a}
+.scene{background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:18px;margin:22px 0}
+.images{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+figure{margin:0;min-width:0}img{width:100%;height:auto;border:1px solid #dbe1e8;display:block}
+figcaption{text-align:center;margin-top:6px;font-weight:600}
+.hash{overflow-wrap:anywhere;font-size:.8rem;font-family:monospace}
+@media(max-width:760px){.images{grid-template-columns:1fr}}
+</style></head><body><h1>Teaching Board visual review – ${escapeHtml(manifest.engine)}</h1>
+<p>Inspectable PNG images: cached board, independent SVG export and a difference map.
+A reference match is verified using the separately committed raw RGBA SHA-256 fingerprint.</p>
+${scenes}</body></html>`;
+}
 
 /** Reject malformed or incorrectly sized browser PNGs before publishing artifacts. */
 export function decodeVisualPng(dataUrl,width,height){
@@ -48,5 +77,6 @@ export function writeVisualArtifacts(directory,engine,snapshots,findings,{width=
   });
  }
  writeFileSync(join(directory,`${engine}-visual-artifacts.json`),JSON.stringify(manifest,null,2)+'\n');
+ writeFileSync(join(directory,`${engine}-gallery.html`),visualGallery(manifest));
  return manifest;
 }
