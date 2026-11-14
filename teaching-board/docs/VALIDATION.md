@@ -163,3 +163,30 @@ LTR/RTL and after changing paragraph direction, Shift selection, native
 selected-equation deletion, Backspace/Delete, cancelable `beforeinput`,
 mouse placement and Undo/Redo. Full native OS IME/device coverage remains
 manual QA.
+
+## TXT-054: accessible rich-text clipboard and inline LaTeX (November 14, 2026)
+
+**Implementation:** `text-inline-clipboard.js` preserves text formatting,
+paragraph direction and lists, embedded equation images and editable
+LaTeX sources using a versioned, validated clipboard schema. Plain-text
+output uses `\\(source\\)` rather than `U+FFFC`.
+
+Pasting validates the custom MIME payload or an encoded, inert HTML
+fallback. No external clipboard HTML enters the editor as live DOM.
+Untrusted or malformed rich data falls back to literal plain text.
+Validated fragments are recreated with the editor's own DOM writer,
+preserving undo/redo and caret position.
+
+Inline equations expose an ARIA `math` role with the LaTeX source in
+the accessible label; the image is hidden from redundant announcements.
+
+[Verified run 43583536256](https://github.com/philiparad/philiparad.github.io/actions/runs/43583536256):
+**290/290 Node.js tests**, Chromium/Firefox/WebKit regression suites,
+unchanged visual golden images and A4 PDF validation all passed.
+New browser tests cover copy, cut, paste, formatting, editable LaTeX,
+HTML fallback, selected cut/undo/redo and malicious HTML as literal text.
+
+Browser and OS clipboard managers may strip custom MIME and HTML
+metadata. In that case plain-text LaTeX remains readable but is not
+automatically reconstructed into an editable image. Native screen
+reader and external-application clipboard QA remain manual.
