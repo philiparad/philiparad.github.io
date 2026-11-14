@@ -74,6 +74,32 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## Edit imported multi-paragraph text without moving the caret (TXT-060)
+
+When you paste text containing lists or table-derived rows, you can select
+part of several paragraphs and apply formatting without losing the
+selection. Formatting is calculated from **logical character positions**
+rather than DOM element boundaries, which matters when paragraphs are
+reconstructed as ordered/unordered list items.
+
+- **Paragraph alignment and RTL/LTR direction:** Apply to exactly the
+  selected paragraphs, preserving their text, list type, custom numbering,
+  colors and equations.
+- **End-of-paragraph boundaries:** If a selection ends at character 0 of
+  the following paragraph, that otherwise-unselected paragraph is not
+  changed.
+- **Backward and keyboard selections:** An anchor in a later paragraph
+  and a focus in an earlier paragraph are retained through alignment,
+  direction, list changes and cross-paragraph text-formatting commands.
+  Use Shift with arrow keys to select text, or Ctrl/⌘+B to apply bold.
+- **Undo/Redo:** Editing remains part of the isolated text history.
+  Undo and redo restore formatting and the intended logical selection.
+
+The imported nested lists remain *flat editable paragraphs* with visible
+`↳` markers, and imported tables remain readable rows separated with
+`|`. This task improves editing those rows, not native nested-list or
+table-grid layout support.
+
 ## Pasting nested lists and tables from documents (TXT-059)
 
 External HTML paste now preserves more document structure within the

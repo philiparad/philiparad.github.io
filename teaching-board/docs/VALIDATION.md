@@ -406,3 +406,44 @@ regression checks remain green.
 representation, not full table/layout round-tripping. Native OS
 clipboard behavior and third-party editors should still be tested
 manually with representative real documents.
+
+## TXT-060: stable multi-paragraph selections and formatting (November 14, 2026)
+
+`text-lists.js` introduces
+`logicalSelectedParagraphIndices(saved, paragraphCount)`, based
+on stable paragraph indexes and UTF-16 offsets. An end boundary
+at `{paragraph:n,offset:0}` excludes paragraph `n` when the
+selection begins in an earlier paragraph. Collapsed and backwards
+selections are handled explicitly, rather than relying solely on
+`Range.intersectsNode` (which can include a trailing unselected
+paragraph). Existing DOM range discovery remains as a fallback.
+
+A new `text-paragraph-format.js` provides a pure, validated
+`formatSelectedParagraphs` transformation and a browser command
+`applyParagraphFormatting`. Paragraph alignment and text direction
+now use this shared model-based mechanism instead of mutating
+individual DOM blocks. It retains text runs, list metadata,
+custom numbering and math while restoring both logical selection
+endpoints through an editor DOM rewrite.
+
+`text-range-format.js` now attempts
+`captureLogicalSelection` and `restoreLogicalSelection` first for
+multi-paragraph bold/italic/underline, colors and clear formatting.
+This supports reversed selections and cross-list spans, including
+selections containing atomic inline math, without falling back to
+coarse selection of the entire editor. The existing DOM-offset
+reconstruction remains as a defensive fallback.
+
+**Regression verification:** The new pure unit tests check forward,
+backward, collapsed and newline-only selections; excluded end-boundary
+paragraphs; invalid formatting; and formatting independence from
+runs and list metadata. Browser regression tests use an actual
+imported mixed RTL/LTR ordered/bulleted list and table; they apply
+alignment, direction, list format and Ctrl+B to selections crossing
+paragraphs, verify exact caret anchor/focus and unchanged text,
+exercise Undo/Redo, and change direction from a focused toolbar select.
+
+The completed implementation's GitHub Actions verification is
+recorded in the TXT-060 commit history. Native screen readers,
+input methods and editing in external native applications remain
+manual checks.
