@@ -142,6 +142,116 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
 .sim-dialog code{display:block;white-space:normal;overflow-wrap:anywhere;background:#eff4f4;border:1px solid #cbd6d6;padding:12px;margin:12px 0;font-size:16px}
 .sim-dialog button{margin-top:12px}
 @media(max-width:740px){.workspace{min-height:auto}.sim-dialog{padding:16px}}
+
+/* VIS-001: Windows fx-991ES emulator visual reference (2026-11-14).
+   These rules intentionally affect appearance only. All 50 key DOM IDs,
+   interaction coordinates and math handlers remain unchanged.
+   Reference screen: 430px-wide calculator case; maintain cqw scaling. */
+.face[data-model="fx-991es-plus"]{
+  background:#4b4b4b;
+  border-color:#464646;
+  border-radius:13.2% 13.2% 7% 7% / 6.5% 6.5% 4% 4%;
+  box-shadow:0 7px 17px #14141456, inset 0 1px 1px #8885;
+}
+.face[data-model="fx-991es-plus"]::after{border-color:transparent;box-shadow:none}
+.face .solar-recess,.face .case-model,.face .edition-mark{display:none}
+.face .brand{
+  top:4.35%;left:10.3%;
+  font:900 6.15cqw/.96 Arial,Helvetica,sans-serif;
+  letter-spacing:-.035em;color:#fff;text-shadow:none;
+}
+.face .lcd-frame{
+  left:7.05%;width:85.9%;top:14.03%;height:17.65%;
+  padding:3.05%;border-radius:3cqw;background:#050505;
+}
+.face .lcd-glass{border-radius:1.1cqw;background:#dbe8dd}
+.face #lcd{background:#dbe8dd}
+.face .lcd-annotations{font-size:1.53cqw;color:#0a0e0a}
+.face .key-unit button{font-family:Arial,Helvetica,sans-serif;letter-spacing:-.025em}
+.face .key-unit .shift-label,.face .key-unit .alpha-label{
+  bottom:calc(100% + .45cqw);
+  font:700 2.85cqw/.97 Arial,Helvetica,sans-serif;
+  letter-spacing:-.045em;text-shadow:none;
+}
+.face .key-unit .shift-label{color:#ffce25}
+.face .key-unit .alpha-label{color:#fa6d8f}
+/* On the Windows emulator inactive printed legends remain clearly visible.
+   Logical disabled/missing variants still have accessible descriptions. */
+.face .key-unit.legend-unavailable .shift-label,
+.face .key-unit.legend-unavailable .alpha-label{
+  opacity:1;text-decoration:none;
+}
+.face .key-unit.legend-unavailable button{filter:none}
+.face .key-unit.top button{
+  background:#99999b;border:1.35px solid #090909;border-radius:50%;
+  color:#fff;box-shadow:0 2px 1px #0007,inset 0 1px 0 #cbcbcb;
+  font-size:3.3cqw;
+}
+.face .key-unit.top .shift-label,
+.face .key-unit.top .alpha-label{
+  bottom:calc(100% + .65cqw);font-size:3.05cqw;
+}
+.face .key-unit.dpad button{
+  background:#9c9c9e;border:1.35px solid #090909;border-radius:29%;
+  box-shadow:0 2px 1px #0009;
+}
+.face .key-unit.dpad button::before{display:none}
+.face .key-unit.scientific button{
+  background:#090a0b;border:0;border-radius:1.4cqw;
+  box-shadow:inset 0 -1px 0 #414141,0 1px 1px #2226;
+  color:#fff;font-size:4.35cqw;font-weight:700;letter-spacing:-.047em;
+}
+.face .key-unit.scientific button.small-label{font-size:3.65cqw}
+.face .key-unit.button-RECIP button,.face .key-unit.button-SQUARE button,
+.face .key-unit.button-POWER button{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700}
+.face .key-unit.numeric button{
+  background:#99999b;border-radius:1.7cqw;
+  box-shadow:none;color:#fff;font-size:7.7cqw;font-weight:400;
+  letter-spacing:-.04em;
+}
+.face .key-unit.numeric button.small-label{font-size:5.35cqw}
+.face .key-unit.numeric.button-DEL button,
+.face .key-unit.numeric.button-AC button{
+  background:#82c415;border-radius:1.7cqw;
+  color:#fff;font-size:6.35cqw;
+}
+.face .key-unit.numeric.button-\= button{background:#99999b}
+.face .key-unit.scientific.button-DMS button{font-size:4.55cqw}
+.face .key-unit.scientific.button-INTEGRAL button{font-family:Georgia,'Times New Roman',serif}
+.face .key-unit.scientific.button-FRAC button,
+.face .key-unit.scientific.button-INTEGRAL button,
+.face .key-unit.scientific.button-SQRT button,
+.face .key-unit.scientific.button-POWER button,
+.face .key-unit.scientific.button-LOGBASE button{overflow:visible}
+.face .key-unit button:focus-visible{outline:2px solid #ffe469;outline-offset:2px}
+.face .key-unit button:active,.face .key-unit button.pressed{filter:brightness(1.16)}
+/* Precisely sized, browser-independent typographic math templates. */
+.face .key-unit button .face-glyph{display:flex;align-items:center;justify-content:center;color:#fff;width:100%;height:100%;pointer-events:none}
+.face .key-unit button .face-glyph svg{width:88%;height:88%;display:block;overflow:visible}
+.face .key-unit button .face-glyph svg *{vector-effect:non-scaling-stroke}
+
+/* VIS-001 screenshot-aligned key sizing and printed legends. */
+@media(min-width:791px){.face{max-width:348px}}
+.face .keys::before{
+  content:"";position:absolute;z-index:0;
+  left:50%;top:41%;width:25%;height:11.7%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;background:#3c3c3c;
+  pointer-events:none;
+}
+.face .key-unit{z-index:1}
+.face .key-unit.top.button-MODE .shift-label{color:#fff;letter-spacing:-.07em;left:-.4cqw}
+.face .key-unit.top.button-MODE .setup-legend{color:#ffce25}
+.face .key-unit.top.button-ON .shift-label{color:#fff}
+.face .key-unit.top.button-ALPHA .alpha-label{left:0;right:auto;color:#fd6e91}
+.face .key-unit.top.button-SHIFT .shift-label{color:#ffce25}
+.face .key-unit .base-label{
+  position:absolute;bottom:calc(100% + .45cqw);left:61%;
+  color:#4abaff;font:700 2.8cqw/.98 Arial,Helvetica,sans-serif;
+  white-space:nowrap;pointer-events:none;
+}
+.face .key-unit.scientific.button-LOGBASE .face-glyph svg{width:92%}
+.face .key-unit.numeric button{border-radius:1.55cqw}
 </style>
 </head>
 <body>
@@ -1840,13 +1950,13 @@ function keyForModel(key,model){
 function keysForModel(model='fx-991es-plus'){if(model!=='fx-991es-plus')throw Error('Unsupported calculator model');return Object.freeze(keys.map(key=>keyForModel(key,model)))}
 const pct=(n)=>((100*n).toFixed(4))+'%';
 const newKey=(data,cx,cy,w,h,group,angle)=>Object.freeze({id:data[0],label:data[1],shift:data[2],alpha:data[3],cx,cy,w,h,group,angle:angle||null});
-const topCenters=[[39.83,220.67],[75.60,220.60],[108.21,238.61],[136.38,219.65],[136.46,257.52],[164.48,238.54],[196.81,220.66],[232.60,220.60]];
-const scienceCols=[40.6,78.8,117,155.4,193.5,231.6],scienceRows=[265.6,298.5,331.5,364.3];
-const numCols=[44,90,136,182.1,228.4],numRows=[406.6,446,486,525.4];
+const topCenters=[[39.83,222.67],[75.60,222.60],[108.21,240.61],[136.38,221.65],[136.46,259.52],[164.48,240.54],[196.81,222.66],[232.60,222.60]];
+const scienceCols=[40.6,78.8,117,155.4,193.5,231.6],scienceRows=[268.6,301.5,334.5,367.3];
+const numCols=[44,90,136,182.1,228.4],numRows=[410.6,450,490,529.4];
 const keys=[];
 topSpec.forEach((data,i)=>{const sizes=i===2||i===5?[30,20]:i===3||i===4?[20,28]:[22,22];keys.push(newKey(data,...topCenters[i],...sizes,data[3]==='dpad'?'dpad':'top',{LEFT:'135deg',UP:'225deg',RIGHT:'315deg',DOWN:'45deg'}[data[0]]))});
 scienceSpec.forEach((data,i)=>{if(!data)return;keys.push(newKey(data,scienceCols[i%6],scienceRows[Math.floor(i/6)],32,20,'scientific'))});
-numericSpec.forEach((data,i)=>keys.push(newKey(data,numCols[i%5],numRows[Math.floor(i/5)],39,i>=5&&i<15?29:28,'numeric')));
+numericSpec.forEach((data,i)=>keys.push(newKey(data,numCols[i%5],numRows[Math.floor(i/5)],40,i>=5&&i<15?29:28,'numeric')));
 if(keys.length!==50)throw Error('Expected 50 physical buttons; received '+keys.length);
 const spoken={LEFT:'Left arrow',RIGHT:'Right arrow',UP:'Up arrow',DOWN:'Down arrow',
  LP:'Open parenthesis',RP:'Close parenthesis',EQUAL:'Equals',DEL:'Delete',
@@ -1855,12 +1965,22 @@ const spoken={LEFT:'Left arrow',RIGHT:'Right arrow',UP:'Up arrow',DOWN:'Down arr
  FRAC:'Fraction',RECIP:'Reciprocal',SQRT:'Square root',SQUARE:'Square',
  POWER:'Power',INTEGRAL:'Integral',SD:'Standard decimal conversion',
  DMS:'Degrees minutes seconds',MPLUS:'Memory plus'};
+// VIS-001: independent vector glyphs for four Windows-emulator key faces.
+// Preserve the physical key IDs and accessible names; SVG is decoration only.
+const FACE_GLYPHS=Object.freeze({
+ FRAC:'<svg viewBox="0 0 38 24" aria-hidden="true"><rect x="17" y="3" width="9" height="6" fill="none" stroke="white" stroke-width="1.6"/><path d="M4 12H34" fill="none" stroke="white" stroke-width="2"/><rect x="17" y="15" width="9" height="6" fill="none" stroke="white" stroke-width="1.6"/></svg>',
+ INTEGRAL:'<svg viewBox="0 0 40 25" aria-hidden="true"><text x="2" y="21" font-size="25" font-family="Georgia,serif" fill="white">∫</text><text x="15" y="10" font-size="12" font-weight="bold" font-family="Georgia,serif" fill="white">d</text><path d="M15 13H27" stroke="white" stroke-width="1.4"/><text x="15" y="23" font-size="12" font-family="Georgia,serif" fill="white">x</text><rect x="29" y="13" width="8" height="8" fill="none" stroke="white" stroke-width="1.3"/></svg>',
+ LOGBASE:'<svg viewBox="0 0 50 26" aria-hidden="true"><text x="1" y="20" font-size="22" font-weight="bold" font-family="Arial,sans-serif" fill="white">log</text><rect x="37" y="14" width="10" height="9" fill="none" stroke="white" stroke-width="1.5"/></svg>',
+ POWER:'<svg viewBox="0 0 42 25" aria-hidden="true"><text x="5" y="22" font-size="25" font-style="italic" font-weight="bold" font-family="Georgia,serif" fill="white">x</text><rect x="22" y="2" width="11" height="11" fill="none" stroke="white" stroke-width="1.7"/></svg>'
+});
+const BASE_LEGENDS=Object.freeze({SQUARE:'DEC',POWER:'HEX',LOG:'BIN',LN:'OCT'});
 function renderLegend(wrap,key){
- for(const old of [...wrap.querySelectorAll('.shift-label,.alpha-label')])old.remove();
+ for(const old of [...wrap.querySelectorAll('.shift-label,.alpha-label,.base-label')])old.remove();
  const button=wrap.querySelector('button');
  if(!button)throw Error('Key missing for '+key.id);
  if(key.shift){
-  const tag=document.createElement('span');tag.className='shift-label';tag.textContent=key.shift;
+  const tag=document.createElement('span');tag.className=key.id==='ALPHA'?'alpha-label':'shift-label';tag.textContent=key.shift;
+  if(key.id==='MODE'){tag.textContent='';const mode=document.createElement('span');mode.className='mode-legend';mode.textContent='MODE';const setup=document.createElement('span');setup.className='setup-legend';setup.textContent='SETUP';tag.append(mode,document.createTextNode(' '),setup);}
   wrap.insertBefore(tag,button);
  }
  if(key.alpha&&key.group!=='top'&&key.group!=='dpad'&&key.alpha!==key.id){
@@ -1868,7 +1988,9 @@ function renderLegend(wrap,key){
   wrap.insertBefore(tag,button);
  }
  button.textContent=key.label;
+ if(FACE_GLYPHS[key.id]){const span=document.createElement('span');span.className='face-glyph';span.innerHTML=FACE_GLYPHS[key.id];button.textContent='';button.appendChild(span);}
  button.className=key.label.length>4?'small-label':'';
+ if(BASE_LEGENDS[key.id]){const base=document.createElement('span');base.className='base-label';base.textContent=BASE_LEGENDS[key.id];wrap.insertBefore(base,button);}
  const primary=spoken[key.id]||key.label||key.id;
  const legends=[];
  if(key.shift&&key.shift!==key.id)legends.push('Shift: '+key.shift);
