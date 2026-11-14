@@ -1,5 +1,5 @@
 import {imageSVGTransform} from './image-geometry.js?v=20261023-image-handles';
-import { drawItem } from './scene.js?v=20261024-image-actions';
+import { drawItem, textObjectHeight } from './scene.js?v=20261024-image-actions';
 
 // Editor-only cache: exports always render the complete model independently.
 // Comparing serialized visual data also detects in-place curve/crop edits and
@@ -11,7 +11,7 @@ export class RenderCache {
   const key=JSON.stringify(visual);
   let entry=this.entries.get(id);
   if(!entry||entry.key!==key){entry={key,node:this.render(item)};this.entries.set(id,entry);}
-  const w=item.w||1,h=item.h||1;
+  const w=item.w||1,h=textObjectHeight(item);
   entry.node.setAttribute('transform',item.type==='image'?imageSVGTransform(item):`translate(${x} ${y}) rotate(${rotation||0} ${w/2} ${h/2})`);
   entry.node.setAttribute('opacity',opacity??1);
   return entry.node;
