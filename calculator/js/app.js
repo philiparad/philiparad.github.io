@@ -2665,7 +2665,7 @@ window.addEventListener('message',event=>{
  const answer=state.resultPresentation?.chosen?.text;
  const display=typeof answer==='string'?answer.trim():'';
  const valid=display.length>0&&display.length<=160&&
-    !/[\\u0000-\\u001f\\u007f\\ufffc]/u.test(display);
+    !/[\u0000-\u001f\u007f\ufffc]/u.test(display);
  event.source.postMessage(valid?{
   protocol:BOARD_ANS_PROTOCOL,type:'response',id:data.id,display
  }:{
