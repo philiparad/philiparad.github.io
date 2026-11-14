@@ -3,21 +3,21 @@ export function equationSize(eq,font,width=Infinity){let h=Math.min(font*3,Math.
 export function equationNode(eq,font){validateInlineEquation(eq);const span=document.createElement('span'),img=document.createElement('img');span.contentEditable='false';span.dataset.equation=JSON.stringify(eq);span.className='inline-equation';span.title='Double-click to edit equation';img.src=eq.src;img.alt=eq.source;const size=equationSize(eq,font);img.style.width=size.w+'px';img.style.height=size.h+'px';span.append(img);return span;}
 /** Layout using measured text widths, reserving actual equation space. */
 export function equationLines(paragraphs,width,font,measure){
- const lines=[];let number=0;const limit=Math.max(1,width);
+ const lines=[];let number=0;const limit=Math.max(1,width);let sourceOffset=0;
  const graphemes=text=>typeof Intl!=='undefined'&&Intl.Segmenter
    ?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(text)].map(s=>s.segment)
    :Array.from(text);
- for(const p of paragraphs){
+ for(const [paragraphIndex,p] of paragraphs.entries()){
   number=p.list==='number'?number+1:0;
   const marker=p.list==='bullet'?'• ':p.list==='number'?number+'. ':'';
-  let parts=[],used=0,height=font*1.3;
-  const flush=()=>{lines.push({parts,width:used,height,align:p.align,dir:p.dir||'auto'});parts=[];used=0;height=font*1.3;};
+  let parts=[],used=0,height=font*1.3,lineStart=sourceOffset,lineLength=0;
+  const flush=()=>{lines.push({parts,width:used,height,align:p.align,dir:p.dir||'auto',paragraphIndex,sourceStart:lineStart,sourceEnd:lineStart+lineLength});lineStart+=lineLength;lineLength=0;parts=[];used=0;height=font*1.3;};
   const add=(text,run,w,h)=>{
    const fitted=Math.min(w,limit);
    if(used&&used+fitted>limit)flush();
-   parts.push({...run,text,w:fitted,h,...(w>limit&&!run.equation?{fitText:true}:{})});used+=fitted;height=Math.max(height,run.equation?h+font*.2:h);
+   parts.push({...run,text,w:fitted,h,...(w>limit&&!run.equation?{fitText:true}:{})});if(!run.synthetic)lineLength+=text.length;used+=fitted;height=Math.max(height,run.equation?h+font*.2:h);
   };
-  for(const run of [...(marker?[{text:marker}]:[]),...p.runs]){
+  for(const run of [...(marker?[{text:marker,synthetic:true}]:[]),...p.runs]){
    if(run.equation){const size=equationSize(run.equation,font,limit);add(run.text,run,size.w,size.h);continue;}
    for(const token of run.text.split(/(\s+)/).filter(Boolean)){
     const size=measure(token,run);
@@ -33,7 +33,7 @@ export function equationLines(paragraphs,width,font,measure){
     if(chunk)add(chunk,run,chunkWidth,font*1.3);
    }
   }
-  flush();
+  flush();sourceOffset=lineStart+1;
  }
  return lines;
 }
