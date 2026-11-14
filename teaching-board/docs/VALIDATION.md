@@ -606,3 +606,40 @@ The final documentation commit is separately validated in CI.
 than reproducing a physical OS input method or real screen reader.
 Platform-native IME, braille, screen-reader, keyboard layouts,
 and third-party accessibility workflows warrant manual QA.
+
+## Toolbar calculator modal — November 14, 2026
+
+A new `CalculatorModal` component in `js/calculator-modal.js` adds an
+SVG calculator icon directly before the `⚙ Ink & style` properties
+menu, using the existing `tool` icon conventions and responsive
+`layout.css` styling. The button's ARIA label and `aria-expanded`
+state reflect opening and closing, and `aria-controls` identifies
+the native modal dialog.
+
+The dialog embeds precisely
+`https://philiparad.github.io/calculator/?key=calculator` in a
+titled iframe. The browser provides modal keyboard focus
+management and the Escape-to-close gesture. A header close
+button offers a visible alternative. On close, the iframe `src`
+is removed and focus is restored to the originating toolbar
+button. `Editor.dispose()` disposes the component and unloads
+the iframe when navigating back to the dashboard or switching
+lessons; calculator state is intentionally not persisted in the
+whiteboard document model.
+
+**Regression coverage:** The browser smoke suite checks the
+calculator icon, matching 36px size, exact placement before
+the properties menu, proper `aria-label`/`aria-haspopup`/
+`aria-controls`/`aria-expanded` attributes, exact iframe
+source URL and accessible title, native modal state,
+keyboard Escape and close-button interactions, iframe
+unloading, focus restoration, and complete cleanup when
+the user navigates away. The calculator iframe's network
+response is stubbed only within automated tests, to avoid
+a dependency on external network availability; production
+loads the specified GitHub Pages URL unmodified.
+
+A real manual deployment check should confirm that the
+calculator page permits same-origin iframe embedding and
+its key-only URL variant renders without extra surrounding
+panels. TXT-064 mobile-accessibility work has not been started.
