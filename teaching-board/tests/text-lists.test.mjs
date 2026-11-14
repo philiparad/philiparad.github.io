@@ -63,3 +63,16 @@ test('converting a custom-start numbered list clears invalid ordinal metadata',(
  const partiallySelected=toggleParagraphLists(original,[1,2],'number');
  assert.equal(partiallySelected[0].numberStart,7);
 });
+
+test('collapsed caret at contenteditable root resolves the nearest paragraph',()=>{
+ const root=element('DIV'),first=element('DIV',root),ol=element('OL',root);
+ const second=element('LI',ol),third=element('LI',ol),last=element('DIV',root);
+ const ranges=[{at:0,expected:0},{at:1,expected:1},{at:2,expected:3},{at:3,expected:3}];
+ for(const {at,expected} of ranges){
+  const range={collapsed:true,startContainer:root,endContainer:root,startOffset:at,endOffset:at};
+  const result=selectedParagraphIndices(root,{rangeCount:1,getRangeAt:()=>range});
+  assert.deepEqual(result,[expected]);
+ }
+ const withinList={collapsed:true,startContainer:second,endContainer:second,startOffset:0,endOffset:0};
+ assert.deepEqual(selectedParagraphIndices(root,{rangeCount:1,getRangeAt:()=>withinList}),[1]);
+});
