@@ -2835,6 +2835,39 @@ try{
   assert(active.width>300&&active.height>400);
   await page.frameLocator('iframe.board-calculator-frame')
    .locator('#calculator-fixture').waitFor({state:'visible'});
+  // The embedded calculator uses a 274:580 face capped at 348px,
+  // with 12px iframe padding on each side. Match that aspect ratio
+  // instead of stretching the dialog into a large empty rectangle.
+  const dimensions=()=>page.evaluate(()=>{
+   const dialog=document.querySelector('.board-calculator-dialog');
+   const iframe=dialog.querySelector('iframe');
+   const d=dialog.getBoundingClientRect(),f=iframe.getBoundingClientRect();
+   const faceWidth=Math.min(348,f.width-24,(f.height-24)*274/580);
+   const faceHeight=faceWidth*580/274;
+   return {dialogWidth:d.width,dialogHeight:d.height,
+    iframeWidth:f.width,iframeHeight:f.height,faceWidth,faceHeight,
+    viewportWidth:innerWidth,viewportHeight:innerHeight};
+  });
+  const desktopSize=await dimensions();
+  assert(Math.abs(desktopSize.dialogWidth-374)<3,
+   'Desktop dialog should fit the 348px calculator case with 12px side padding');
+  assert(Math.abs(desktopSize.dialogHeight-(desktopSize.faceHeight+76))<3,
+   'Dialog should wrap calculator height plus 24px padding and 50px header');
+  assert(Math.abs(desktopSize.iframeWidth-(desktopSize.faceWidth+24))<3,
+   'Iframe should not have excess blank width around the calculator');
+  assert(Math.abs(desktopSize.iframeHeight-(desktopSize.faceHeight+24))<3,
+   'Iframe should not have excess blank height around the calculator');
+  await page.setViewportSize({width:375,height:720});
+  const phoneSize=await dimensions();
+  assert(phoneSize.dialogWidth<phoneSize.viewportWidth-16,
+   'Compact calculator dialog must fit inside a narrow viewport');
+  assert(phoneSize.dialogHeight<phoneSize.viewportHeight*.92+2,
+   'Compact calculator dialog must fit inside a short viewport');
+  assert(Math.abs(phoneSize.iframeWidth-(phoneSize.faceWidth+24))<3,
+   'Compact dialog should scale down without large side gutters');
+  assert(Math.abs(phoneSize.iframeHeight-(phoneSize.faceHeight+24))<3,
+   'Compact dialog should scale down without large vertical gutters');
+  await page.setViewportSize({width:1440,height:900});
   await page.keyboard.press('Escape');
   await modal.waitFor({state:'hidden'});
   // Native dialog 'close' events are queued after the open state clears.
