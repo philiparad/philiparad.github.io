@@ -3,9 +3,24 @@ import {captureLogicalSelection} from './text-selection.js';
 
 export const TEXT_RICH_CLIPBOARD='application/x-teaching-board-rich-text+json';
 const MAX_CLIPBOARD_BYTES=4_000_000;
+const MAX_HTML_BYTES=MAX_CLIPBOARD_BYTES*3+100_000;
 const emptyParagraph=()=>({align:'auto',list:'none',dir:'auto'});
 const chars=runs=>runs.map(run=>run.text).join('');
 const linesBefore=(text,offset)=>text.slice(0,offset).split('\n').length-1;
+function numberedItemAt(paragraphs,index){
+    let number=0,previous='none';
+    for(let i=0;i<=index;i++){
+        const p=paragraphs[i];
+        number=p.list==='number'?(p.numberStart??(previous==='number'?number+1:1)):0;
+        previous=p.list;
+    }
+    return number;
+}
+function paragraphOffset(rows,index){
+    let offset=0;
+    for(let i=0;i<index;i++)offset+=rows[i].length+1;
+    return offset;
+}
 const escapeHtml=text=>text.replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -72,23 +87,70 @@ export function selectedRichClipboard(snapshot,start,end){
     if(!Number.isInteger(start)||!Number.isInteger(end)||
         start<0||end>text.length||start>=end)return null;
     const excerpt=text.slice(start,end),begin=linesBefore(text,start);
+    const paragraphs=original.paragraphs.slice(begin,begin+excerpt.split('\n').length);
+    // A copied middle numbered-list item must still start at its actual
+    // visible ordinal even when its original <ol start> was in an earlier row.
+    if(paragraphs[0]?.list==='number')
+        paragraphs[0]={...paragraphs[0],
+            numberStart:numberedItemAt(original.paragraphs,begin)};
     return validateRichClipboard({schema:1,
-        runs:sliceRuns(original.runs,start,end),
-        paragraphs:original.paragraphs.slice(begin,begin+excerpt.split('\n').length)
+        runs:sliceRuns(original.runs,start,end),paragraphs
     });
 }
 export function clipboardPlainText(payload){
     return payload.runs.map(run=>run.equation?'\\('+run.equation.source+'\\)':run.text).join('');
 }
+function htmlRun(run){
+    const text=escapeHtml(run.equation?'\\('+run.equation.source+'\\)':run.text);
+    if(run.equation)
+        return '<span role="math" aria-label="'+
+            escapeHtml('Math equation: '+run.equation.source)+'">'+text+'</span>';
+    let result=text;
+    if(run.bold)result='<strong>'+result+'</strong>';
+    if(run.italic)result='<em>'+result+'</em>';
+    if(run.underline)result='<u>'+result+'</u>';
+    if(run.strike)result='<s>'+result+'</s>';
+    if(run.color)result='<span style="color:'+run.color+'">'+result+'</span>';
+    return result;
+}
+function htmlParagraphRuns(runs){
+    const rows=[[]];
+    for(const run of runs){
+        if(run.equation){rows.at(-1).push(htmlRun(run));continue;}
+        const parts=run.text.split('\n');
+        parts.forEach((text,i)=>{
+            if(i)rows.push([]);
+            if(text)rows.at(-1).push(htmlRun({...run,text}));
+        });
+    }
+    return rows.map(row=>row.join('')||'<br>');
+}
+/** A semantic, safe HTML representation for external document editors. */
 export function clipboardHTML(payload){
     const safe=validateRichClipboard(payload);
     if(!safe)return '';
-    const plain=clipboardPlainText(safe);
-    // Never use copied HTML as editable DOM. It is only a portable fallback
-    // carrier for validated JSON, and the rest is escaped display text.
-    return '<span data-teaching-board-rich="'+
-        encodeURIComponent(JSON.stringify(safe))+'">'+
-        escapeHtml(plain).replace(/\n/g,'<br>')+'</span>';
+    const rows=htmlParagraphRuns(safe.runs);
+    let html='<div data-teaching-board-rich="'+
+        encodeURIComponent(JSON.stringify(safe))+'">',list='none',number=0;
+    const close=()=>{if(list!=='none')html+='</'+(list==='number'?'ol':'ul')+'>';};
+    for(let i=0;i<rows.length;i++){
+        const p=safe.paragraphs[i],dir=p.dir||'auto',align=p.align||'auto';
+        const next=p.list==='number'?(p.numberStart??(list==='number'?number+1:1)):0;
+        const restart=p.list!==list||p.list==='number'&&p.numberStart!==undefined&&
+            (list!=='number'||p.numberStart!==number+1);
+        if(restart){
+            close();list=p.list;
+            if(list==='number')html+='<ol start="'+next+'">';
+            else if(list==='bullet')html+='<ul>';
+        }
+        number=next;
+        const attributes=' dir="'+dir+'" style="text-align:'+
+            (align==='auto'?'start':align)+'"';
+        if(list==='none')html+='<p'+attributes+'>'+rows[i]+'</p>';
+        else html+='<li'+attributes+'>'+rows[i]+'</li>';
+    }
+    close();
+    return html+'</div>';
 }
 export function clipboardFromTransfer(data){
     if(!data||typeof data.getData!=='function')return null;
@@ -96,14 +158,14 @@ export function clipboardFromTransfer(data){
         const direct=parseRichClipboard(data.getData(TEXT_RICH_CLIPBOARD));
         if(direct)return direct;
         const html=data.getData('text/html')||'';
-        if(html.length<=MAX_CLIPBOARD_BYTES){
+        if(html.length<=MAX_HTML_BYTES){
             // Parse only an inert clipboard fragment, never inject its DOM.
             if(typeof DOMParser!=='undefined'){
                 const doc=new DOMParser().parseFromString(html,'text/html');
-                const node=doc.querySelector('span[data-teaching-board-rich]');
+                const node=doc.querySelector('[data-teaching-board-rich]');
                 if(node){
                     const encoded=node.getAttribute('data-teaching-board-rich');
-                    if(encoded&&encoded.length<=MAX_CLIPBOARD_BYTES){
+                    if(encoded&&encoded.length<=MAX_HTML_BYTES){
                         const parsed=parseRichClipboard(decodeURIComponent(encoded));
                         if(parsed)return parsed;
                     }
@@ -113,8 +175,18 @@ export function clipboardFromTransfer(data){
     }catch{/* Damaged or hostile clipboard metadata falls back to plain text. */}
     return null;
 }
-/** Validate a full replacement before the caller makes any DOM or history change. */
-export function replaceRichClipboard(snapshot,start,end,fragment){
+/**
+ * Merge paragraph metadata at the actual text boundaries:
+ * - unchanged prefix keeps destination formatting;
+ * - fully replaced first/empty paragraph takes source formatting;
+ * - inserted interior paragraphs keep source direction and list ordinals;
+ * - a surviving suffix keeps its destination paragraph formatting;
+ * - external plain text inherits the destination style for its new lines.
+ *
+ * Numbering is normalized by the normal rich-text writer after validation;
+ * source numberStart is preserved when pasted at a genuine paragraph boundary.
+ */
+export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=false}={}){
     const original=validateRichClipboard({schema:1,...snapshot});
     if(!original||!fragment||!Array.isArray(fragment.runs))return null;
     const payload=validateRichClipboard(fragment);
@@ -130,16 +202,30 @@ export function replaceRichClipboard(snapshot,start,end,fragment){
             ...payload.runs,
             ...sliceRuns(original.runs,end,text.length)
         ]);
+        const oldRows=text.split('\n'),newRows=insertion.split('\n');
         const first=linesBefore(text,start),last=linesBefore(text,end);
-        const firstParagraph=(start===0&&end===text.length||
-            text.length===0)&&insertion?payload.paragraphs[0]:
-            original.paragraphs[first]||emptyParagraph();
+        const prefix=oldRows[first].slice(0,start-paragraphOffset(oldRows,first));
+        const suffix=oldRows[last].slice(end-paragraphOffset(oldRows,last));
+        const replaceWholeFirst=start!==end&&
+            (last>first||end-paragraphOffset(oldRows,last)===oldRows[first].length);
+        const sourceOwnsFirst=!!insertion&&!plainText&&!prefix.length&&
+            (oldRows[first].length===0||replaceWholeFirst);
+        const firstMeta=sourceOwnsFirst?payload.paragraphs[0]:original.paragraphs[first];
         const paragraphs=[
-            ...original.paragraphs.slice(0,first),
-            structuredClone(firstParagraph),
-            ...structuredClone(payload.paragraphs.slice(1)),
-            ...original.paragraphs.slice(last+1)
+            ...structuredClone(original.paragraphs.slice(0,first)),
+            structuredClone(firstMeta)
         ];
+        for(let i=1;i<newRows.length;i++){
+            let p;
+            if(i===newRows.length-1&&suffix.length)
+                p=structuredClone(original.paragraphs[last]);
+            else if(plainText){
+                p=structuredClone(original.paragraphs[first]);
+                if(p.list==='number')delete p.numberStart;
+            }else p=structuredClone(payload.paragraphs[i]);
+            paragraphs.push(p);
+        }
+        paragraphs.push(...structuredClone(original.paragraphs.slice(last+1)));
         validateRuns(runs,updated);validateParagraphs(paragraphs,updated);
         return {runs,paragraphs,text:updated,
             cursor:absoluteCaret({runs},start+insertion.length)};

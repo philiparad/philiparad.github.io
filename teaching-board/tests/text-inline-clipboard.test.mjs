@@ -79,3 +79,120 @@ test('malformed data, huge content, non-image URLs and bare equation placeholder
  assert.equal(validateRichClipboard({schema:1,runs:[{text:'hello'}],paragraphs:[]}),null);
  assert.equal(replaceRichClipboard(snapshot(),0,0,plainClipboard('z'.repeat(10000))),null);
 });
+
+
+test('copied middle list starts at its actual visible ordinal, including restarts',()=>{
+ const rich={runs:[{text:'אחד\nשניים\nשלוש\nארבע\nחמש'}],
+  paragraphs:[
+   {align:'right',dir:'rtl',list:'number',numberStart:7},
+   {align:'right',dir:'rtl',list:'number'},
+   {align:'left',dir:'ltr',list:'number'},
+   {align:'right',dir:'rtl',list:'number',numberStart:20},
+   {align:'right',dir:'rtl',list:'number'}
+  ]};
+ const t=rich.runs[0].text,at=t.indexOf('שניים'),after=t.indexOf('\nארבע');
+ const selected=selectedRichClipboard(rich,at,after);
+ assert.equal(selected.runs.map(x=>x.text).join(''),'שניים\nשלוש');
+ assert.equal(selected.paragraphs[0].numberStart,8);
+ assert.equal(selected.paragraphs[1].numberStart,undefined);
+ const later=selectedRichClipboard(rich,t.indexOf('חמש'),t.length);
+ assert.equal(later.paragraphs[0].numberStart,21);
+ const lastRestart=selectedRichClipboard(rich,t.indexOf('ארבע'),t.length);
+ assert.deepEqual(lastRestart.paragraphs.map(x=>x.numberStart),[20,undefined]);
+ const pasted=replaceRichClipboard({runs:[{text:'',bold:false}],
+   paragraphs:[{align:'auto',dir:'auto',list:'none'}]},0,0,selected);
+ assert.equal(pasted.paragraphs[0].numberStart,8);
+ assert.equal(pasted.paragraphs[1].list,'number');
+});
+
+test('rich multiline paste preserves its interior numbering and existing trailing paragraph',()=>{
+ const source={runs:[{text:'קבוצה\nEnglish\nמספרים'}],
+  paragraphs:[
+   {align:'right',dir:'rtl',list:'number',numberStart:11},
+   {align:'left',dir:'ltr',list:'number'},
+   {align:'right',dir:'rtl',list:'number'}
+  ]};
+ const target={runs:[{text:'Prefix before\nTail remainder'}],
+  paragraphs:[
+   {align:'center',dir:'ltr',list:'bullet'},
+   {align:'left',dir:'ltr',list:'number',numberStart:4}
+  ]};
+ const inserted=replaceRichClipboard(target,7,19,{schema:1,...source});
+ assert(inserted);
+ assert.equal(inserted.text,'Prefix קבוצה\nEnglish\nמספריםremainder');
+ assert.equal(inserted.paragraphs.length,3);
+ assert.equal(inserted.paragraphs[0].list,'bullet');
+ assert.equal(inserted.paragraphs[0].align,'center');
+ assert.equal(inserted.paragraphs[1].numberStart,undefined);
+ assert.equal(inserted.paragraphs[1].dir,'ltr');
+ assert.equal(inserted.paragraphs[2].numberStart,4);
+ assert.deepEqual(inserted.cursor,{paragraph:2,offset:6});
+ const replaceAll=replaceRichClipboard(target,0,target.runs[0].text.length,
+  {schema:1,...source});
+ assert.deepEqual(replaceAll.paragraphs,source.paragraphs);
+});
+
+test('middle cut merges surviving paragraphs without changing their leading style',()=>{
+ const doc={runs:[{text:'first\nmiddle\nlast'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7},
+   {align:'left',dir:'ltr',list:'number'},
+   {align:'center',dir:'ltr',list:'bullet'}]};
+ const start=doc.runs[0].text.indexOf('st\n'),end=doc.runs[0].text.indexOf('st',11);
+ const removed=replaceRichClipboard(doc,start,end,
+  {schema:1,runs:[],paragraphs:[{align:'auto',dir:'auto',list:'none'}]});
+ assert(removed);
+ assert.equal(removed.paragraphs.length,1);
+ assert.equal(removed.paragraphs[0].numberStart,7);
+ assert.equal(removed.paragraphs[0].dir,'rtl');
+});
+
+test('plain multiline paste inherits target RTL list style but keeps following paragraph',()=>{
+ const doc={runs:[{text:'שלום עולם\nEnglish end'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:9},
+   {align:'left',dir:'ltr',list:'bullet'}]};
+ const payload=plainClipboard('first\nsecond\nthird');
+ const result=replaceRichClipboard(doc,5,5,payload,{plainText:true});
+ assert(result);
+ assert.equal(result.text,'שלום first\nsecond\nthirdעולם\nEnglish end');
+ assert.deepEqual(result.paragraphs.map(p=>p.list),['number','number','number','bullet']);
+ assert.equal(result.paragraphs[0].numberStart,9);
+ assert.equal(result.paragraphs[1].numberStart,undefined);
+ assert.equal(result.paragraphs[2].numberStart,undefined);
+ assert.deepEqual(result.paragraphs.map(p=>p.dir),['rtl','rtl','rtl','ltr']);
+});
+
+test('semantic portable HTML carries visible numbered list start and safe bidi paragraphs',()=>{
+ const payload={schema:1,runs:[{text:'שלב ראשון\n'},{text:'English ',bold:true},
+  {text:'\uFFFC',equation:{...equation,source:'x<2 & y>1'}},{text:'\n• bullet'}],
+  paragraphs:[
+   {align:'right',dir:'rtl',list:'number',numberStart:12},
+   {align:'left',dir:'ltr',list:'number'},
+   {align:'right',dir:'rtl',list:'bullet'}
+  ]};
+ const html=clipboardHTML(payload);
+ assert.match(html,/<ol start="12">/);
+ assert.match(html,/<li dir="rtl" style="text-align:right">/);
+ assert.match(html,/<li dir="ltr" style="text-align:left"><strong>English <\/strong>/);
+ assert.match(html,/<\/ol><ul><li dir="rtl"/);
+ assert.match(html,/x&lt;2 &amp; y&gt;1/);
+ assert(!html.includes('<2 &'));
+ assert(html.includes('data-teaching-board-rich='));
+ assert.equal(parseRichClipboard(decodeURIComponent(
+  html.match(/data-teaching-board-rich="([^"]+)"/)[1])).runs[2].equation.source,
+  'x<2 & y>1');
+});
+
+test('long multi-paragraph copy/paste respects document length and rejects invalid joins',()=>{
+ const p=plainClipboard('A\nB\nC');
+ const old={runs:[{text:'x'.repeat(9998)}],paragraphs:[
+  {align:'auto',list:'none',dir:'ltr'}]};
+ assert.equal(replaceRichClipboard(old,9998,9998,p),null);
+ assert.equal(replaceRichClipboard(old,-1,0,p),null);
+ assert.equal(replaceRichClipboard(old,4,3,p),null);
+ const first=selectedRichClipboard({runs:[{text:'א\nב'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:10000},
+   {align:'right',dir:'rtl',list:'number'}]},2,3);
+ // The schema permits explicit ordinals only up to 10000. A computed 10001
+ // is outside that cap; do not generate invalid clipboard JSON or silently reset.
+ assert.equal(first,null);
+});
