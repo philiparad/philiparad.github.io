@@ -2909,6 +2909,151 @@ try{
   await page.unroute(url);
  });
 
+
+ await check('Send Ans to Board places an editable fraction at the visible center with undo and redo',async()=>{
+  const remote='https://philiparad.github.io/calculator/?key=calculator';
+  await page.route(remote,async route=>route.fulfill({
+   status:200,contentType:'text/html',
+   body:'<!doctype html><html><body><p>Calculator test iframe</p><script>'+
+    'let requests=0;window.addEventListener("message",event=>{'+
+     'if(event.data?.protocol!=="teaching-board/calculator-ans-v1"||event.data.type!=="request")return;'+
+     'requests++;const base={protocol:event.data.protocol,type:"response",id:event.data.id};'+
+     'if(requests===1){event.source.postMessage({...base,error:"no-answer"},event.origin);return;}'+
+     'event.source.postMessage({...base,id:"forged-id",display:"9999"},event.origin);'+
+     'setTimeout(()=>event.source.postMessage({...base,display:"1/3"},event.origin),80);'+
+    '});</script></body></html>'
+  }));
+  const boardId=await page.evaluate(async()=>{
+   const {createBoard}=await import('./js/model.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository();
+   const board=createBoard('Calculator Ans smoke '+crypto.randomUUID().slice(0,8));
+   const result=await repo.save(board);repo.close();return result.id;
+  });
+  await page.goto(base+'#/board/'+boardId,{waitUntil:'domcontentloaded'});
+  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+  const icon=page.locator('.command-deck .calculator-toggle');
+  await icon.click();
+  const dialog=page.getByRole('dialog',{name:'CASIO calculator'});
+  await dialog.waitFor({state:'visible'});
+  const send=dialog.getByRole('button',{name:'Send Ans to Board'});
+  await send.waitFor({state:'visible'});
+  await page.waitForFunction(()=>{
+   const b=document.querySelector('.board-calculator-send');
+   return b&&!b.disabled;
+  });
+  await send.click();
+  await dialog.getByRole('status').getByText('Calculate a result before sending Ans.').waitFor();
+  assert.equal(await dialog.isVisible(),true);
+  const untouched=await page.evaluate(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository(),board=await repo.get(boardId);
+   repo.close();return board.items.length;
+  },boardId);
+  assert.equal(untouched,0,'No result must not create a board item');
+  await send.click();
+  await dialog.waitFor({state:'hidden',timeout:10000});
+  await page.waitForFunction(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository(),board=await repo.get(boardId);
+   repo.close();return board?.items.length===1&&board.items[0]?.text==='1/3';
+  },boardId,{timeout:20000});
+  const result=await page.evaluate(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository(),board=await repo.get(boardId);
+   repo.close();
+   const item=board.items[0],area=document.querySelector('.board');
+   return {item,
+    center:{x:area.clientWidth/2,y:area.clientHeight/2},
+    hasTextOnScreen:!!document.querySelector('[data-id="'+item.id+'"]'),
+    expanded:document.querySelector('.calculator-toggle')?.getAttribute('aria-expanded')
+   };
+  },boardId);
+  assert.equal(result.item.type,'text');
+  assert.equal(result.item.text,'1/3');
+  assert.deepEqual(result.item.runs,[{text:'1/3'}]);
+  assert.deepEqual(result.item.paragraphs,[{align:'left',dir:'ltr',list:'none'}]);
+  assert(result.hasTextOnScreen);
+  assert.equal(result.expanded,'false');
+  assert(Math.abs(result.item.x+result.item.w/2-result.center.x)<2);
+  assert(Math.abs(result.item.y+result.item.h/2-result.center.y)<2);
+  await page.getByRole('button',{name:'Undo',exact:true}).click();
+  await page.waitForFunction(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository(),b=await repo.get(boardId);repo.close();
+   return b?.items.length===0;
+  },boardId);
+  await page.getByRole('button',{name:'Redo',exact:true}).click();
+  await page.waitForFunction(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository(),b=await repo.get(boardId);repo.close();
+   return b?.items.length===1&&b.items[0].text==='1/3';
+  },boardId);
+  await page.unroute(remote);
+ });
+
+ await check('actual calculator answers parent Ans requests and rejects unsolved initial state',async()=>{
+  // Exercise the real calculator controller under a same-origin iframe.
+  // The independent modal test above mocks only the remote network response.
+  await page.goto(base,{waitUntil:'domcontentloaded'});
+  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+  await page.evaluate(()=>{
+   const frame=document.createElement('iframe');
+   frame.id='real-calc-ans-test';
+   frame.title='Real calculator Ans test';
+   frame.src=new URL('../calculator/?key=calculator',location.href).href;
+   document.body.append(frame);
+  });
+  await page.waitForFunction(()=>{
+   const frame=document.querySelector('#real-calc-ans-test');
+   return !!frame?.contentWindow?.FreshCalculator?.getState;
+  },null,{timeout:20000});
+  const child=await page.evaluate(async()=>{
+   const iframe=document.querySelector('#real-calc-ans-test');
+   const api=iframe.contentWindow.FreshCalculator;
+   const protocol='teaching-board/calculator-ans-v1';
+   const request=id=>new Promise((resolve,reject)=>{
+    const timeout=setTimeout(()=>reject(Error('No calculator Ans response')),3000);
+    const onMessage=e=>{
+     if(e.source!==iframe.contentWindow||e.data?.id!==id)return;
+     clearTimeout(timeout);window.removeEventListener('message',onMessage);
+     resolve({origin:e.origin,...e.data});
+    };
+    window.addEventListener('message',onMessage);
+    iframe.contentWindow.postMessage({protocol,type:'request',id},location.origin);
+   });
+   const initial=await request('initial-ans');
+   api.loadExpression('1/3');
+   api.press('=');
+   const state=api.getState();
+   const completed=await request('fraction-ans');
+   const wrong=await new Promise(resolve=>{
+    let arrived=false;
+    const onMessage=e=>{if(e.data?.id==='untrusted-ans')arrived=true;};
+    window.addEventListener('message',onMessage);
+    // A different-origin forged request must not elicit any reply.
+    iframe.contentWindow.postMessage({protocol,type:'request',id:'untrusted-ans'},
+     'https://not-the-calculator.invalid');
+    setTimeout(()=>{window.removeEventListener('message',onMessage);resolve(arrived);},150);
+   });
+   iframe.remove();
+   return {initial,completed,
+    result:state.result,chosen:state.resultPresentation?.chosen?.text,
+    numeric:state.ans,screen:state.screen,untrustedResponse:wrong,
+    protocol};
+  });
+  assert.equal(child.initial.error,'no-answer');
+  assert.equal(child.initial.protocol,child.protocol);
+  assert.equal(child.completed.protocol,child.protocol);
+  assert.equal(child.completed.type,'response');
+  assert.equal(child.completed.id,'fraction-ans');
+  assert.equal(child.completed.display,child.chosen);
+  assert.equal(child.completed.display,child.result);
+  assert(Math.abs(child.numeric-1/3)<1e-12);
+  assert.equal(child.screen,'result');
+  assert.equal(child.untrustedResponse,false);
+ });
+
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{
