@@ -21,7 +21,7 @@ FILES = ("index.html", "fx991_fresh_standalone.html")
 CASES = (
     {"id": "sin30", "keys": ("SIN", "3", "0", "RP", "EQUAL"),
      "screen": "result", "number": .5},
-    {"id": "sqrt81", "keys": ("SQRT", "8", "1", "RP", "EQUAL"),
+    {"id": "sqrt81", "keys": ("SQRT", "8", "1", "RIGHT", "EQUAL"),
      "screen": "result", "number": 9},
     {"id": "inverse-sin", "keys": ("SHIFT", "SIN", "1", "RP", "EQUAL"),
      "screen": "result", "number": 90},
