@@ -73,9 +73,42 @@ export function adjacentEquationAtCaret(root,selection){
     return equationAtOffset(current.block,current.point.offset,-1)?.node||
         equationAtOffset(current.block,current.point.offset,1)?.node||null;
 }
-/** Pointer placement chooses the side of an equation in its paragraph flow. */
+/** Make the entire math token one selectable unit, never the image subtree. */
+function placeEquationBoundary(root,selection,node,after,extend=false){
+    if(!root||!selection||!node?.dataset?.equation||!root.contains(node))return false;
+    try{
+        const range=document.createRange();
+        range.setStartBefore(node);
+        range.setEndAfter(node);
+        if(!extend)range.collapse(!after);
+        root.focus();
+        if(extend&&typeof selection.setBaseAndExtent==='function'){
+            const parent=node.parentNode;
+            const index=Array.prototype.indexOf.call(parent?.childNodes||[],node);
+            if(index<0)return false;
+            selection.setBaseAndExtent(parent,after?index:index+1,
+                parent,after?index+1:index);
+        }else{
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        return true;
+    }catch{return false;}
+}
+/** Keyboard navigation for Tab-focusable math in RTL or LTR paragraphs.
+ * Shift+arrow selects the whole equation; Escape returns to text editing. */
+export function positionFromEquationKeyboard(root,selection,node,key,extend=false){
+    if(!node?.dataset?.equation||!root?.contains(node))return false;
+    const block=logicalParagraphs(root).find(p=>p===node||p.contains(node));
+    if(!block)return false;
+    const direction=typeof getComputedStyle==='function'
+        ?getComputedStyle(block).direction:block.dir||'ltr';
+    const step=key==='Escape'?1:equationArrowStep(key,direction);
+    return !!step&&placeEquationBoundary(root,selection,node,step===1,extend);
+}
+/** Tap/click places the caret at the math boundary in paragraph flow. */
 export function positionBesideEquation(root,selection,node,clientX){
-    if(!node?.dataset?.equation||!root.contains(node)||!Number.isFinite(clientX))return false;
+    if(!node?.dataset?.equation||!root?.contains(node)||!Number.isFinite(clientX))return false;
     const block=logicalParagraphs(root).find(p=>p===node||p.contains(node));
     if(!block)return false;
     const rect=node.getBoundingClientRect();
@@ -83,13 +116,5 @@ export function positionBesideEquation(root,selection,node,clientX){
         ?getComputedStyle(block).direction:block.dir||'ltr';
     const before=direction==='rtl'?clientX>=rect.left+rect.width/2:
         clientX<rect.left+rect.width/2;
-    try{
-        const range=document.createRange();
-        if(before)range.setStartBefore(node);else range.setStartAfter(node);
-        range.collapse(true);
-        root.focus();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        return true;
-    }catch{return false;}
+    return placeEquationBoundary(root,selection,node,!before);
 }
