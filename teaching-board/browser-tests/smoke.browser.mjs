@@ -174,15 +174,27 @@ try{
    svg.style.cssText='position:fixed;right:0;bottom:0;z-index:2501';
    svg.append(drawEquationText(model,paragraphRuns(model),svgEl));
    host.append(svg);
-   const blocks=[...draft.input.children],texts=[...svg.querySelectorAll('text')];
-   if(blocks.length!==3||texts.length!==3)throw Error('Missing a one-line paragraph in HTML or SVG');
+   const blocks=[...draft.input.children];
+   const vectorLines=[];
+   // SVG creates a text node for each token, not each paragraph.
+   for(const node of svg.querySelectorAll('text')){
+    const baseline=Number(node.getAttribute('y'));
+    let line=vectorLines.find(row=>Math.abs(row.y-baseline)<1);
+    if(!line){line={y:baseline,nodes:[]};vectorLines.push(line);}
+    line.nodes.push(node);
+   }
+   if(blocks.length!==3||vectorLines.length!==3)
+    throw Error('Missing one-line paragraphs: HTML='+blocks.length+
+     ', SVG='+vectorLines.length+', SVG tokens='+svg.querySelectorAll('text').length);
    const inputBounds=draft.input.getBoundingClientRect();
    const rows=blocks.map((block,index)=>{
     const range=document.createRange();range.selectNodeContents(block);
-    const html=range.getBoundingClientRect(),vector=texts[index].getBBox();
-    return {string:block.textContent,svgText:texts[index].textContent,
+    const html=range.getBoundingClientRect(),nodes=vectorLines[index].nodes;
+    const bounds=nodes.map(node=>node.getBBox());
+    return {string:block.textContent,svgText:nodes.map(node=>node.textContent).join(''),
      html:{left:html.left-inputBounds.left,right:html.right-inputBounds.left},
-     svg:{left:vector.x,right:vector.x+vector.width},
+     svg:{left:Math.min(...bounds.map(box=>box.x)),
+      right:Math.max(...bounds.map(box=>box.x+box.width))},
      width:item.w};
    });
    draft.finish(false);host.remove();
