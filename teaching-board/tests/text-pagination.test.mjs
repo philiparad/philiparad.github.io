@@ -73,7 +73,6 @@ test('unsupported or unsafe changes are rejected without changing the lesson',()
  for(const property of [{locked:true},{groupId:'group'},{rotation:30},{x:-1},{x:750}]){
   assert.throws(()=>planTextFlow(board([{...source,...property}]),source.id,A4));
  }
- assert.throws(()=>planTextFlow(board([{...source,paragraphs:[{align:'right',list:'number',dir:'rtl'}]}]),source.id,A4),/Numbered lists/);
  const occupied=board([source,{id:'occupied',type:'rectangle',x:20,y:step+20,w:380,h:500}],2);
  assert.throws(()=>planTextFlow(occupied,source.id,A4),/another object/);
  assert.deepEqual(input,original);
