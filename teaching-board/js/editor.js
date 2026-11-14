@@ -13,6 +13,7 @@ import { exportScopeDialog } from './export-scope.js?v=20261031-export-layout';
 import { planA4Import } from './pdf-a4.js?v=20261024-image-actions';
 import { Snippets, snippetCopies } from './snippets.js?v=20261024-image-actions';
 import { InlineText } from './inline-text.js?v=20261017-history-budget';
+import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js';
 import { connectorTarget, syncConnectors } from './connectors.js?v=20261023-image-handles';
 import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261024-image-actions';
 import { visibleItems } from './visibility.js?v=20261024-image-actions';
@@ -44,17 +45,82 @@ import { equationDialog } from './equation-editor.js?v=20261024-active-shape';
 import { graphDialog } from './graph-editor.js?v=20261024-active-shape';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 export class Editor {
- constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.laserTrail=new LaserTrail(this);this.recovery.auto(board);this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.cutHandler=e=>{if(this.inlineText||editingText(e.target)||document.querySelector('dialog[open]'))return;if(this.board.items.some(i=>this.selected.has(i.id)&&this.isLocked(i)))return;this.onCopy(e);if(e.defaultPrevented)this.remove();};window.addEventListener('cut',this.cutHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
+ constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.pendingNewTextDraftIds=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);for(const id of this.pendingNewTextDraftIds){
+ if(saved.items.some(item=>item.id===id)){
+  try{clearTextDraft(localStorage,saved.id,id);}catch{}
+  this.pendingNewTextDraftIds.delete(id);
+ }
+}this.refreshNewTextDraftNotice?.();},(state,error)=>{this.saveState.textContent=state==='saving'?'Saving…':state==='saved'?'Saved on this device':'Save failed — back up your work';this.saveState.classList.toggle('error',state==='error');this.retry.hidden=state!=='error';if(error)notify(error.message);});this.geometry=new Geometry(this);this.pages=new Pages(this);this.snippets=new Snippets(this);this.build();this.refreshNewTextDraftNotice();this.laserTrail=new LaserTrail(this);this.recovery.auto(board);this.pasteHandler=e=>this.onPaste(e);this.copyHandler=e=>this.onCopy(e);window.addEventListener('paste',this.pasteHandler);window.addEventListener('copy',this.copyHandler);this.cutHandler=e=>{if(this.inlineText||editingText(e.target)||document.querySelector('dialog[open]'))return;if(this.board.items.some(i=>this.selected.has(i.id)&&this.isLocked(i)))return;this.onCopy(e);if(e.defaultPrevented)this.remove();};window.addEventListener('cut',this.cutHandler);this.keyHandler=e=>this.onKey(e);window.addEventListener('keydown',this.keyHandler);this.keyUp=e=>{if(e.code==='Space'){this.space=false;this.svg.style.cursor=this.tool==='pan'?'grab':'crosshair';}};window.addEventListener('keyup',this.keyUp);this.blur=()=>{this.space=false;};window.addEventListener('blur',this.blur);}
+
+ draftStorage(){
+  try{return localStorage;}catch{return null;}
+ }
+ refreshNewTextDraftNotice(){
+  const drafts=listNewTextDrafts(this.draftStorage(),this.board.id,this.board.items.map(item=>item.id));
+  if(this.unsavedDraftButton){
+   this.unsavedDraftButton.hidden=!drafts.length;
+   this.unsavedDraftButton.textContent=drafts.length?
+    `Recover unsaved text (${drafts.length})`:'Recover unsaved text';
+  }
+  return drafts;
+ }
+ showNewTextDrafts(){
+  if(this.disposed)return;
+  if(this.inlineText){notify('Finish editing the current text before recovering another draft.');return;}
+  const records=this.refreshNewTextDraftNotice();
+  if(!records.length){notify('There are no unsaved text objects to recover.');return;}
+  const dialog=el('dialog',null,'form-dialog');
+  dialog.setAttribute('aria-label','Recover unsaved text objects');
+  dialog.append(el('h2','Recover unsaved text objects'),
+   el('p','These text boxes and sticky notes were not committed to this lesson. Choose one to review and save. Nothing is inserted automatically.','muted'));
+  for(const record of records){
+   const row=el('div',null,'new-text-draft-choice');
+   const preview=(record.text.trim()||record.rawText.trim()).slice(0,90);
+   row.append(el('p',`${record.item.type==='note'?'Sticky note':'Text box'}: ${preview||'(no valid content)'}`));
+   row.append(btn('Open draft for review',()=>{
+    if(this.disposed||this.inlineText)return;
+    const fresh=this.refreshNewTextDraftNotice().find(candidate=>candidate.item.id===record.item.id);
+    if(!fresh){notify('This draft is no longer available.');return;}
+    const proposed={...fresh.item,text:fresh.text,runs:fresh.runs,paragraphs:fresh.paragraphs};
+    validateBoard({...this.board,items:[...this.board.items,proposed]});
+    const draft=new InlineText(this,fresh.item,false);
+    if(!draft.restoreFormattedDraft(fresh)){
+     draft.finish(false,false,true);
+     throw new Error('Unable to restore the unsaved text safely.');
+    }
+    draft.controls.querySelector('.text-recovery-banner')?.remove();
+    if(fresh.rawText!==fresh.text)draft.showRawDraft(fresh.rawText);
+    this.inlineText=draft;this.selected.clear();this.setTool('select');
+    dialog.close();
+   }),btn('Discard this draft',()=>{
+    clearTextDraft(this.draftStorage(),this.board.id,record.item.id);
+    row.remove();this.refreshNewTextDraftNotice();
+    if(!dialog.querySelector('.new-text-draft-choice'))dialog.close();
+   }));
+   dialog.append(row);
+  }
+  dialog.append(btn('Close',()=>dialog.close()));
+  dialog.onclose=()=>dialog.remove();
+  document.body.append(dialog);dialog.showModal();
+ }
  document(){return structuredClone({items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
- async flush(){this.inlineText?.finish(true,false);await this.queue.flush();}
- dispose(){this.disposed=true;this.laserTrail?.dispose();this.boardMenu?.dispose();this.selectionMenu?.dispose();this.imageToolbar?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('cut',this.cutHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
+ async flush(){if(this.inlineText){
+    this.inlineText.finish(true,false);
+    if(!this.inlineText.closed){
+     notify('Resolve the current text save error before creating another object.');
+     return;
+    }
+   }await this.queue.flush();}
+ dispose(){this.disposed=true;this.laserTrail?.dispose();this.boardMenu?.dispose();this.selectionMenu?.dispose();this.imageToolbar?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false,true);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('cut',this.cutHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
  save(){this.queue.enqueue(this.board).catch(()=>{});}
  commit(options){try{this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);syncConnectors(this.board.items);validateBoard(this.board);this.history.commit(this.document(),options);this.save();this.paint();}catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
  build(){document.body.classList.add('board-open');this.root.className='editor';this.root.replaceChildren();const top=el('div',null,'editor-top');top.setAttribute('role','toolbar');top.setAttribute('aria-label','Teaching board toolbar');const logo=el('a','Teaching Board','editor-brand');logo.href='#/';logo.title='Return to lessons';const brandIcon=el('img',null,'brand-icon');brandIcon.src='./philip_favicon.png';brandIcon.alt='';brandIcon.width=32;brandIcon.height=32;logo.prepend(brandIcon);this.boardMenu=new BoardMenu({clear:()=>this.clearBoard()});const back=this.boardMenu.root;this.title=btn(this.board.title,async()=>{const r=await formDialog('Lesson settings',[['title','Title',this.board.title],['folder','Folder',this.board.folder]],{validate:v=>{if(!v.title.trim()||v.title.length>200||v.folder.length>200)throw new Error('Use a title and folder under 200 characters.');return v;}});if(r){Object.assign(this.board,r);this.title.textContent=r.title;this.save();}},'lesson-title');this.title.dir='auto';
  this.saveState=el('span','Saved on this device','save-state');this.retry=btn('Retry save',()=>this.flush());this.retry.hidden=true;
+  this.unsavedDraftButton=btn('Recover unsaved text',()=>this.showNewTextDrafts());
+  this.unsavedDraftButton.hidden=true;
  const exports=el('select');exports.setAttribute('aria-label','Export lesson');for(const [v,t] of [['','Export…'],['json','Editable backup'],['svg','SVG image'],['png','PNG image'],['pdf','Print / Save as PDF']]){const o=el('option',t);o.value=v;exports.append(o);}exports.onchange=()=>{const format=exports.value;exports.value='';if(format)this.action(async()=>{const options=format==='json'?{scope:'all'}:await exportScopeDialog(this,format);if(options&&!this.disposed)await exportBoard(this.board,format,options);});};
- top.append(logo,back,this.title,this.saveState,this.retry,exports,btn('Present',()=>{document.body.classList.toggle('presenting');}),btn('Help',()=>this.help()));
+ top.append(logo,back,this.title,this.saveState,this.retry,this.unsavedDraftButton,exports,btn('Present',()=>{document.body.classList.toggle('presenting');}),btn('Help',()=>this.help()));
  const bar=el('div',null,'tools');this.toolButtons=new Map();this.shapeGallery=new ShapeGallery(this);for(const [id,icon,label] of TOOLS){if(id==='rectangle')bar.append(this.shapeGallery.root);if(['rectangle','ellipse','triangle'].includes(id))continue;const b=btn(icon,()=>this.setTool(id),'tool');b.title=label;b.setAttribute('aria-label',label);b.replaceChildren(toolIcon(id));if(['pen','line','text','image'].includes(id))b.classList.add('group-start');this.toolButtons.set(id,b);bar.append(b);}this.undoButton=btn('↶',()=>this.undo());this.undoButton.title='Undo (Ctrl+Z)';this.undoButton.setAttribute('aria-label','Undo');this.redoButton=btn('↷',()=>this.redo());this.redoButton.title='Redo (Ctrl+Shift+Z / Ctrl+Y)';this.redoButton.setAttribute('aria-label','Redo');const history=el('div',null,'history-tools');history.append(this.undoButton,this.redoButton);top.insertBefore(history,back);
  const snap=el('select');snap.setAttribute('aria-label','Snapping');for(const [value,label] of [['off','Snap: Off'],['grid','Snap: Grid'],['objects','Snap: Objects'],['both','Snap: Both']]){const o=el('option',label);o.value=value;snap.append(o);}snap.value=this.board.snapMode||'off';snap.onchange=()=>{this.board.snapMode=snap.value;this.guides=[];this.save();this.paint();};top.append(snap);
  const properties=el('div',null,'properties');
@@ -225,8 +291,16 @@ export class Editor {
   if(!target||this.isLocked(target))return;
   if(existing&&target.text===text&&JSON.stringify(target.runs)===JSON.stringify(item.runs)&&JSON.stringify(target.paragraphs)===JSON.stringify(item.paragraphs)&&target.h>=height){this.paint();return;}
   target.text=text;if(item.runs)target.runs=structuredClone(item.runs);if(item.paragraphs)target.paragraphs=structuredClone(item.paragraphs);target.h=Math.max(target.h,height);
-  if(!existing)this.board.items.push(target);
-  this.selected=new Set([target.id]);this.commit();
+  if(!existing){
+    this.pendingNewTextDraftIds.add(target.id);
+    this.board.items.push(target);
+   }
+   this.selected=new Set([target.id]);
+   try{this.commit();}
+   catch(error){
+    if(!existing)this.pendingNewTextDraftIds.delete(target.id);
+    throw error;
+   }
  }
  async setGraphMarker(clear=false){
   const members=rangeMembers(this.board.items,this.selected);if(members.some(i=>this.isLocked(i)))throw new Error('Unlock all linked graphs first.');
