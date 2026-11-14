@@ -1,6 +1,7 @@
+import {editableTextFont} from './text-font.js';
 import {equationDialog} from './equation-editor.js?v=20261023-image-handles';
-import {equationNode,textLayoutMetrics,equationContentWidth} from './inline-equation.js?v=20261017-history-budget';
-import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261017-history-budget';
+import {equationNode,textLayoutMetrics,equationContentWidth} from './inline-equation.js?v=20261114-font-fallback';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261114-font-fallback';
 import { el, btn } from './ui.js?v=20261017-history-budget';
 import { TextHistory } from './text-history.js';
 import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection,recoverEquationSelection } from './text-selection.js';
@@ -76,7 +77,7 @@ export class InlineText {
    this.selectionChange();
   });
   const font=item.fontSize||24,pad=item.type==='note'?14:0;
-  Object.assign(this.input.style,{font:`${(item.textStyle||'').includes('italic')?'italic':'normal'} ${(item.textStyle||'').includes('bold')?'700':'400'} ${font}px/1.3 Arial, sans-serif`,textAlign:item.textAlign&&item.textAlign!=='auto'?item.textAlign:'start',padding:`${pad}px`,color:item.stroke||'#203954',background:item.type==='note'&&item.fill!=='none'?(item.fill||'#fff1a8'):'transparent'});
+  Object.assign(this.input.style,{font:editableTextFont(font,item.textStyle||'normal'),textAlign:item.textAlign&&item.textAlign!=='auto'?item.textAlign:'start',padding:`${pad}px`,color:item.stroke||'#203954',background:item.type==='note'&&item.fill!=='none'?(item.fill||'#fff1a8'):'transparent'});
   this.root.append(this.input,this.imeHelp,this.compositionStatus);
   this.controls=el('div',null,'inline-text-actions');this.controls.setAttribute('aria-label','Text editing actions');
   this.addFormatting();
