@@ -1508,6 +1508,142 @@ try{
   assert.equal(result.rejectedOrdinal,null,'Out-of-range list numbers must not be silently reset');
  });
 
+
+ await check('TXT-060 imported list and table paragraphs retain exact keyboard selections during formatting',async()=>{
+  const output=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection}=await import('./js/text-selection.js');
+   const {externalRichClipboardHTML}=await import('./js/text-inline-clipboard.js');
+   const html='<section dir="rtl"><ol start="6">'+
+    '<li>שלום מספר</li><li>Second item<ul>'+
+    '<li dir="ltr"><em>Nested English</em></li></ul></li>'+
+    '<li>עוד שורה</li></ol><table dir="ltr">'+
+    '<tr><th>Column</th><th>עמודה</th></tr>'+
+    '<tr dir="rtl"><td>ערך</td><td>Value</td></tr></table></section>';
+   const imported=externalRichClipboardHTML(html);
+   if(!imported||imported.paragraphs.length!==6)throw Error('Invalid mixed HTML fixture');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:85px 50px 35px;background:white;z-index:4900';
+   document.body.append(host);
+   const board={id:'format-rtl-'+crypto.randomUUID(),viewport:{x:0,y:0,zoom:1}};
+   const editor={area:host,board,disposed:true,paint(){},applyText(){}};
+   const text=imported.runs.map(r=>r.text).join('');
+   const draft=new InlineText(editor,{
+    id:'selection-format-'+crypto.randomUUID(),type:'text',
+    x:10,y:10,w:550,h:120,fontSize:24,text,
+    runs:imported.runs,paragraphs:imported.paragraphs
+   },true);
+   const select=(a,b)=>{
+    draft.input.focus();
+    if(!restoreLogicalSelection(draft.input,window.getSelection(),
+     {anchor:{paragraph:a[0],offset:a[1]},focus:{paragraph:b[0],offset:b[1]}}))
+     throw Error('Cannot restore logical test selection');
+   };
+   const read=()=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    return {text:doc.runs.map(r=>r.text).join(''),runs:doc.runs,
+     paragraphs:doc.paragraphs,
+     selection:captureLogicalSelection(draft.input,window.getSelection()),
+     listStarts:[...draft.input.querySelectorAll('ol')].map(n=>n.start),
+     canUndo:draft.textHistory.canUndo,
+     aria:draft.input.getAttribute('aria-multiline')};
+   };
+   const initial=read();
+   select([1,2],[4,0]);
+   const forwardBefore=read().selection;
+   const changedAlign=draft.setParagraphAlignment('center');
+   const aligned=read();
+   const changedDir=draft.setParagraphDirection('ltr');
+   const directed=read();
+
+   select([5,2],[3,1]); // backwards across a list-to-table boundary
+   const backwardBefore=read().selection;
+   const changedList=draft.formatList('bullet');
+   const listed=read();
+
+   // Cross-paragraph keyboard formatting rebuilds the DOM. Anchor/focus
+   // must remain in the same logical positions, even when reversed.
+   const key=new KeyboardEvent('keydown',{
+    bubbles:true,cancelable:true,ctrlKey:true,key:'b'});
+   const consumed=!draft.input.dispatchEvent(key);
+   const bolded=read();
+   const selectedRow3=bolded.runs.filter(r=>r.text.includes('עוד שורה'));
+   const selectedRow5=bolded.runs.filter(r=>r.text.includes('ערך'));
+   const row3First=bolded.runs.find(r=>r.text.startsWith('ע'));
+   const ctrlZ=new KeyboardEvent('keydown',{
+    bubbles:true,cancelable:true,ctrlKey:true,key:'z'});
+   draft.input.dispatchEvent(ctrlZ);
+   const undone=read();
+   const ctrlY=new KeyboardEvent('keydown',{
+    bubbles:true,cancelable:true,ctrlKey:true,key:'y'});
+   draft.input.dispatchEvent(ctrlY);
+   const redone=read();
+
+   // Change direction via a genuinely keyboard-focusable toolbar control.
+   select([0,2],[2,0]);
+   const dropdownBefore=read().selection;
+   const dirChoice=draft.controls.querySelector('select[aria-label="Paragraph text direction"]');
+   dirChoice.focus();
+   dirChoice.value='ltr';
+   dirChoice.dispatchEvent(new Event('change',{bubbles:true}));
+   const dropdownAfter=read();
+   const active=document.activeElement===draft.input;
+
+   draft.finish(false);
+   host.remove();
+   return {initial,forwardBefore,changedAlign,aligned,changedDir,directed,
+    backwardBefore,changedList,listed,consumed,bolded,selectedRow3,
+    selectedRow5,row3First,undone,redone,dropdownBefore,dropdownAfter,active};
+  });
+  assert.equal(output.initial.paragraphs.length,6);
+  assert.equal(output.initial.aria,'true');
+  assert.equal(output.initial.paragraphs[0].numberStart,6);
+  assert(output.initial.paragraphs.some(p=>p.list==='none'));
+  assert.deepEqual(output.forwardBefore,{
+   anchor:{paragraph:1,offset:2},focus:{paragraph:4,offset:0}
+  });
+  assert(output.changedAlign);
+  assert.deepEqual(output.aligned.paragraphs.map(p=>p.align),
+   ['auto','center','center','center','auto','auto']);
+  assert.deepEqual(output.aligned.selection,output.forwardBefore);
+  assert(output.changedDir);
+  assert.deepEqual(output.directed.paragraphs.map(p=>p.dir),
+   ['rtl','ltr','ltr','ltr','ltr','rtl']);
+  assert.deepEqual(output.directed.selection,output.forwardBefore);
+  assert.equal(output.directed.paragraphs[0].numberStart,6);
+
+  assert.deepEqual(output.backwardBefore,{
+   anchor:{paragraph:5,offset:2},focus:{paragraph:3,offset:1}
+  });
+  assert(output.changedList);
+  assert.deepEqual(output.listed.paragraphs.map(p=>p.list),
+   ['number','number','bullet','bullet','bullet','bullet']);
+  assert.deepEqual(output.listed.selection,output.backwardBefore);
+  assert(output.consumed,'Ctrl+B must be handled without native execCommand');
+  assert.deepEqual(output.bolded.selection,output.backwardBefore);
+  assert.equal(output.bolded.text,output.initial.text);
+  assert.deepEqual(output.bolded.paragraphs,output.listed.paragraphs);
+  assert(output.bolded.runs.some(r=>r.text.includes('ורה')&&r.bold),
+   'Cross-paragraph formatting must affect the selected Hebrew text');
+  assert(output.bolded.runs.some(r=>r.text.includes('Value')&&r.bold),
+   'Table-derived English cell text must retain selected formatting');
+  assert.equal(output.undone.text,output.initial.text);
+  assert.deepEqual(output.undone.paragraphs,output.listed.paragraphs);
+  assert.deepEqual(output.redone.runs,output.bolded.runs);
+  assert.deepEqual(output.redone.selection,output.bolded.selection);
+
+  assert.deepEqual(output.dropdownBefore,{
+   anchor:{paragraph:0,offset:2},focus:{paragraph:2,offset:0}
+  });
+  assert(output.active,'Changing dropdown with keyboard focus must return to editor');
+  assert.deepEqual(output.dropdownAfter.selection,output.dropdownBefore);
+  assert.equal(output.dropdownAfter.paragraphs[0].dir,'ltr');
+  assert.equal(output.dropdownAfter.paragraphs[1].dir,'ltr');
+  assert.equal(output.dropdownAfter.paragraphs[2].dir,'ltr');
+  assert.equal(output.dropdownAfter.paragraphs[5].dir,'rtl');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
