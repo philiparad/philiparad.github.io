@@ -9,11 +9,12 @@ export function formatDocumentRange(snapshot,start,end,name,value){
     const keys={bold:'bold',italic:'italic',underline:'underline',strikeThrough:'strike'};
     if(!keys[name]&&!['foreColor','removeFormat'].includes(name))return null;
     if(name==='foreColor'&&!/^#[0-9a-f]{6}$/i.test(value||''))return null;
-    const selected=snapshot.runs.filter((run,i)=>{
-        let cursor=0;
-        for(let j=0;j<i;j++)cursor+=snapshot.runs[j].text.length;
-        return cursor<end&&cursor+run.text.length>start&&!run.equation&&run.text!=='\n';
-    });
+    let probe=0;
+    const selected=[];
+    for(const run of snapshot.runs){
+        const from=probe;probe+=run.text.length;
+        if(probe>start&&from<end&&!run.equation&&run.text.slice(Math.max(start,from)-from,Math.min(end,probe)-from).replace(/\n/g,''))selected.push(run);
+    }
     if(!selected.length)return null;
     const prop=keys[name],turnOn=prop?!selected.every(r=>r[prop]===true):false;
     let cursor=0;const out=[];
