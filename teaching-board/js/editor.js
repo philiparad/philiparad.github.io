@@ -12,7 +12,7 @@ import { Recovery } from './recovery.js?v=20261024-image-actions';
 import { exportScopeDialog } from './export-scope.js?v=20261031-export-layout';
 import { planA4Import } from './pdf-a4.js?v=20261024-image-actions';
 import { Snippets, snippetCopies } from './snippets.js?v=20261024-image-actions';
-import { InlineText } from './inline-text.js?v=20261114-auto-paragraph-direction';
+import { InlineText } from './inline-text.js?v=20261114-mixed-style';
 import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js';
 import { connectorTarget, syncConnectors } from './connectors.js?v=20261023-image-handles';
 import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261024-image-actions';

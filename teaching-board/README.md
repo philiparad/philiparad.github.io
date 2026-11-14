@@ -549,3 +549,14 @@ and an English-leading paragraph remains LTR when later lines contain
 Hebrew. Explicit LTR/RTL paragraph settings retain priority. This
 applies to the SVG canvas and exported/printed SVG; existing lessons and
 editable backups do not need migration.
+
+## TXT-067 — Mixed bold/italic formatting in legacy text boxes
+
+Existing text objects may have a global `textStyle` of `bold`, `italic`, or
+`bold-italic` while their rich-text runs explicitly disable either style.
+Every editable text span now sets both its own font weight and font style,
+including the normal (`400`) and non-italic (`normal`) states. This keeps
+its appearance and saved formatting consistent when unbolding/unitalicizing
+part of an older styled paragraph, across Hebrew/English text, numbered lists,
+and repeated edit/save cycles. Board drawing, SVG export, and editable backup
+formats are unchanged; no data migration is required.

@@ -25,6 +25,55 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('TXT-067 mixed normal/bold/italic runs survive legacy editor save and reopen',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:110px 90px 70px;background:white;z-index:3000';
+   document.body.append(host);
+   const item={id:'mixed-style-legacy',type:'text',x:0,y:0,w:450,h:100,
+    fontSize:24,textStyle:'bold-italic',text:'רגיל Bold 123',
+    runs:[{text:'רגיל ',bold:false,italic:false},
+          {text:'Bold ',bold:true,italic:false},
+          {text:'123',bold:false,italic:true}],
+    paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
+   let saved=null;
+   const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},
+    disposed:true,paint(){},applyText(...args){saved=args;}};
+   let draft=new InlineText(editor,item,true);
+   const state=()=>{
+    const spans=[...draft.input.querySelectorAll('span')];
+    return {styles:spans.map(node=>({
+     weight:getComputedStyle(node).fontWeight,
+     style:getComputedStyle(node).fontStyle
+    })),
+    runs:readRichDocument(draft.input,draft.item).runs.map(run=>({
+     text:run.text,bold:run.bold,italic:run.italic
+    }))};
+   };
+   const initial=state();
+   draft.finish(true,false);
+   const savedItem=saved?.[0],savedText=saved?.[1];
+   draft=new InlineText(editor,{...savedItem,text:savedText},true);
+   const reopened=state();
+   draft.finish(false,false);
+   host.remove();
+   return {initial,reopened,savedText};
+  });
+  assert.equal(result.savedText,'רגיל Bold 123');
+  const expected=[
+   {text:'רגיל ',bold:false,italic:false},
+   {text:'Bold ',bold:true,italic:false},
+   {text:'123',bold:false,italic:true}
+  ];
+  for(const snapshot of [result.initial,result.reopened]){
+   assert.deepEqual(snapshot.runs,expected);
+   assert.deepEqual(snapshot.styles.map(s=>s.weight),['400','700','400']);
+   assert.deepEqual(snapshot.styles.map(s=>s.style),['normal','normal','italic']);
+  }
+ });
+
  await check('TXT-066 wrapped auto paragraphs retain HTML and SVG bidi parity',async()=>{
   const cases=await page.evaluate(async()=>{
    const {writeRuns,paragraphRuns}=await import('./js/rich-text.js');
