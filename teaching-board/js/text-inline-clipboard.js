@@ -154,7 +154,7 @@ export function clipboardHTML(payload){
 }
 const FORBIDDEN_CLIPBOARD_TAGS='script,style,iframe,object,embed,svg,img,form,link,meta,template,canvas,math,video,audio,input,button,select,textarea';
 const HTML_PARAGRAPH_TAGS=new Set(['p','li','h1','h2','h3','h4','h5','h6','blockquote','pre']);
-const HTML_WRAPPER_TAGS=new Set(['div','section','article','main','header','footer','table','tbody','tr','td','th']);
+const HTML_WRAPPER_TAGS=new Set(['div','section','article','main','header','footer']);
 const HTML_BLOCK_TAGS=new Set([...HTML_PARAGRAPH_TAGS,...HTML_WRAPPER_TAGS,'ul','ol']);
 const MAX_IMPORT_NODES=3000;
 const MAX_IMPORT_HTML=250_000;
@@ -226,7 +226,7 @@ export function externalRichClipboardHTML(html){
                 style.color='#'+valid.slice(1).map(n=>Number(n).toString(16).padStart(2,'0')).join('');
             return style;
         };
-        function visit(node,style,paragraph,list=null){
+        function visit(node,style,paragraph,list=null,depth=0,cell=false){
             if(failed||++nodes>MAX_IMPORT_NODES){failed=true;return;}
             if(node.nodeType===3){
                 // HTML collapses formatting-only whitespace outside blocks.
@@ -240,6 +240,41 @@ export function externalRichClipboardHTML(html){
             if(node.hidden||node.getAttribute('aria-hidden')==='true'||
                 node.style?.display==='none'||node.style?.visibility==='hidden')return;
             const st=nextStyle(node,style,tag),pm=nextMeta(node,paragraph);
+            if(cell){
+                // Flat editor schema: represent multi-line cell content using
+                // a readable separator without inventing real table layout.
+                if(tag==='br'){append(' / ',{});return;}
+                for(const child of node.childNodes)visit(child,st,pm,null,depth,true);
+                return;
+            }
+            if(tag==='table'){
+                commit(false);
+                const tableMeta=nextMeta(node,pm);
+                const tableRows=[...node.querySelectorAll('tr')].filter(row=>
+                    row.closest('table')===node);
+                for(const tr of tableRows){
+                    if(failed||++nodes>MAX_IMPORT_NODES){failed=true;break;}
+                    const trMeta=nextMeta(tr,tableMeta);
+                    meta={...trMeta,list:'none'};
+                    let count=0;
+                    for(const td of tr.children){
+                        if(!['td','th'].includes(td.tagName.toLowerCase()))continue;
+                        if(failed||++nodes>MAX_IMPORT_NODES){failed=true;break;}
+                        const cellMeta=nextMeta(td,trMeta);
+                        if(count)append(' | ',{});
+                        if(count===0&&meta.dir==='auto'&&cellMeta.dir!=='auto')
+                            meta.dir=cellMeta.dir;
+                        const cellStyle=nextStyle(td,st,td.tagName.toLowerCase());
+                        if(td.tagName.toLowerCase()==='th')cellStyle.bold=true;
+                        for(const child of td.childNodes)
+                            visit(child,cellStyle,cellMeta,null,depth,true);
+                        count++;
+                    }
+                    if(count)commit(true);
+                }
+                meta={...pm};
+                return;
+            }
             if(tag==='br'){commit(true);meta={...pm};return;}
             if(tag==='ol'||tag==='ul'){
                 commit(false);
@@ -251,28 +286,40 @@ export function externalRichClipboardHTML(html){
                     const ordinal=tag==='ol'&&child.hasAttribute('value')?override:n;
                     if(tag==='ol'&&!validOrdinal(ordinal)){failed=true;return;}
                     visit(child,st,pm,{type:tag==='ol'?'number':'bullet',
-                        number:ordinal,first:tag==='ol'&&child===node.firstElementChild});
+                        number:ordinal,depth:depth+1},depth+1);
                     if(tag==='ol')n=ordinal+1;
                 }
                 return;
             }
             const hasBlocks=HTML_WRAPPER_TAGS.has(tag)&&
                 [...node.children].some(child=>HTML_BLOCK_TAGS.has(child.tagName.toLowerCase()));
-            const block=HTML_PARAGRAPH_TAGS.has(tag)||
+            const block=(HTML_PARAGRAPH_TAGS.has(tag)&&!cell)||
                 HTML_WRAPPER_TAGS.has(tag)&&!hasBlocks;
             if(block){
                 commit(false);
                 const prior=meta;
                 meta={...pm,list:list?.type||'none'};
-                if(list?.type==='number'&&
-                   (list.first||node.hasAttribute('value')))
-                    meta.numberStart=list.number;
+                // The flat paragraph model has no actual nested lists.
+                // Mark deeper items visibly, preserve their real list type
+                // and ordinal, and restart parent numbering when returning.
+                if(list?.type==='number')meta.numberStart=list.number;
+                if(tag==='li'&&list?.depth>1)
+                    append('↳ '.repeat(Math.min(list.depth-1,4)),{});
                 const count=rows.length;
-                for(const child of node.childNodes)visit(child,st,pm);
-                if(!failed&&rows.length===count||current.length)commit(true);
+                for(const child of node.childNodes){
+                    const childTag=child.nodeType===1?child.tagName.toLowerCase():'';
+                    if(tag==='li'&&HTML_PARAGRAPH_TAGS.has(childTag)){
+                        // A paragraph nested inside <li> is part of that
+                        // same list item, not an extra unnumbered row.
+                        const cs=nextStyle(child,st,childTag);
+                        for(const part of child.childNodes)
+                            visit(part,cs,nextMeta(child,pm),null,depth);
+                    }else visit(child,st,pm,null,depth);
+                }
+                if(!failed&&(rows.length===count||current.length))commit(true);
                 meta=prior;
             }else{
-                for(const child of node.childNodes)visit(child,st,pm);
+                for(const child of node.childNodes)visit(child,st,pm,null,depth);
             }
         }
         for(const node of body.childNodes)visit(node,{},emptyParagraph());
