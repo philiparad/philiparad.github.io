@@ -148,6 +148,145 @@ try{
   assert(metrics.svgTextCount>=4,'The SVG renderer lost paragraph contents');
  });
 
+
+ await check('HTML and SVG anchors agree for Hebrew RTL, English LTR and centered text',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {drawEquationText}=await import('./js/inline-equation.js');
+   const {readRichDocument,paragraphRuns}=await import('./js/rich-text.js');
+   const {svgEl}=await import('./js/scene.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:125px 90px 75px;background:white;z-index:2500';
+   document.body.append(host);
+   const item={id:'anchor-fixture',type:'text',x:0,y:0,w:360,h:24,fontSize:24,
+    text:'שלום תלמידים\nEnglish students\nCentered paragraph',
+    paragraphs:[{align:'right',dir:'rtl',list:'none'},
+                {align:'left',dir:'ltr',list:'none'},
+                {align:'center',dir:'ltr',list:'none'}]};
+   const editor={area:host,board:{id:'browser-anchor-fixture-'+crypto.randomUUID(),
+    viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const draft=new InlineText(editor,item,true);
+   await document.fonts.ready;draft.resize();
+   const rich=readRichDocument(draft.input,item);
+   const model={...item,text:rich.runs.map(run=>run.text).join(''),
+    runs:rich.runs,paragraphs:rich.paragraphs};
+   const svg=svgEl('svg',{width:400,height:240,viewBox:'0 0 400 240'});
+   svg.style.cssText='position:fixed;right:0;bottom:0;z-index:2501';
+   svg.append(drawEquationText(model,paragraphRuns(model),svgEl));
+   host.append(svg);
+   const blocks=[...draft.input.children],texts=[...svg.querySelectorAll('text')];
+   if(blocks.length!==3||texts.length!==3)throw Error('Missing a one-line paragraph in HTML or SVG');
+   const inputBounds=draft.input.getBoundingClientRect();
+   const rows=blocks.map((block,index)=>{
+    const range=document.createRange();range.selectNodeContents(block);
+    const html=range.getBoundingClientRect(),vector=texts[index].getBBox();
+    return {string:block.textContent,svgText:texts[index].textContent,
+     html:{left:html.left-inputBounds.left,right:html.right-inputBounds.left},
+     svg:{left:vector.x,right:vector.x+vector.width},
+     width:item.w};
+   });
+   draft.finish(false);host.remove();
+   return rows;
+  });
+  assert.deepEqual(report.map(r=>r.string),report.map(r=>r.svgText));
+  for(const [index,edge] of [[0,'right'],[1,'left']]){
+   const r=report[index],expected=edge==='right'?r.width:0;
+   assert(Math.abs(r.html[edge]-expected)<18,
+    'HTML '+edge+' alignment drifted: '+JSON.stringify(r));
+   assert(Math.abs(r.svg[edge]-expected)<18,
+    'SVG '+edge+' alignment drifted: '+JSON.stringify(r));
+   assert(Math.abs(r.html[edge]-r.svg[edge])<12,
+    'HTML/SVG '+edge+' anchors disagree: '+JSON.stringify(r));
+  }
+  const center=report[2],htmlCenter=(center.html.left+center.html.right)/2,
+   svgCenter=(center.svg.left+center.svg.right)/2;
+  assert(Math.abs(htmlCenter-center.width/2)<18,
+   'HTML center alignment shifted: '+JSON.stringify(center));
+  assert(Math.abs(svgCenter-center.width/2)<18,
+   'SVG center alignment shifted: '+JSON.stringify(center));
+  assert(Math.abs(htmlCenter-svgCenter)<12,
+   'HTML and SVG centers disagree: '+JSON.stringify(center));
+ });
+
+ await check('mixed Hebrew/English wraps remain visible in HTML and SVG, including sticky notes',async()=>{
+  const samples=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {textLayoutMetrics}=await import('./js/inline-equation.js');
+   const {drawItem}=await import('./js/scene.js');
+   const {readRichDocument,paragraphRuns}=await import('./js/rich-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:125px 90px 75px;background:white;z-index:2500';
+   document.body.append(host);
+   const fixtures=[
+    {id:'wrapped-rtl',type:'text',x:0,y:0,w:195,h:12,fontSize:24,
+     text:'לומדים מתמטיקה באמצעות תרגילים בעברית ובאנגלית',
+     paragraphs:[{align:'right',dir:'rtl',list:'none'}]},
+    {id:'wrapped-english',type:'text',x:0,y:0,w:205,h:12,fontSize:24,
+     text:'Understanding variables through carefully written English examples',
+     paragraphs:[{align:'left',dir:'ltr',list:'none'}]},
+    {id:'wrapped-note',type:'note',x:0,y:0,w:225,h:20,fontSize:24,fill:'#fff1a8',
+     text:'שלב ראשון עם הסבר מפורט\nSecond step with enough words to wrap',
+     paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7},
+                 {align:'left',dir:'ltr',list:'number'}]}
+   ];
+   const outcomes=[];
+   for(const item of fixtures){
+    const editor={area:host,board:{id:'browser-wrap-fixture-'+crypto.randomUUID(),
+     viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+    const draft=new InlineText(editor,item,true);
+    await document.fonts.ready;draft.resize();
+    const rich=readRichDocument(draft.input,item);
+    const model={...item,text:rich.runs.map(run=>run.text).join(''),
+     runs:rich.runs,paragraphs:rich.paragraphs};
+    const metrics=textLayoutMetrics(model,paragraphRuns(model));
+    const input=draft.input.getBoundingClientRect();
+    const walker=document.createTreeWalker(draft.input,NodeFilter.SHOW_TEXT);
+    const tops=[],htmlGlyphs=[];
+    let node;
+    // Native Range rectangles verify actual browser line breaks rather
+    // than relying on one bounding box per paragraph.
+    while((node=walker.nextNode())){
+     for(let offset=0;offset<node.length;offset++){
+      if(/\s/.test(node.textContent[offset]))continue;
+      const range=document.createRange();
+      range.setStart(node,offset);range.setEnd(node,offset+1);
+      const rect=range.getBoundingClientRect();
+      if(!rect.width&&!rect.height)continue;
+      const b={left:rect.left-input.left,right:rect.right-input.left,
+       top:rect.top-input.top,bottom:rect.bottom-input.top};
+      htmlGlyphs.push(b);
+      if(!tops.some(t=>Math.abs(t-b.top)<3))tops.push(b.top);
+     }
+    }
+    const group=drawItem(model),svg=group.querySelector('g:last-child');
+    const vector=[...svg.querySelectorAll('text')].map(n=>n.getBBox());
+    const nonSynthetic=metrics.lines.flatMap(line=>line.parts.filter(p=>!p.synthetic).map(p=>p.text)).join('');
+    outcomes.push({id:item.id,w:item.w,height:draft.height,htmlScroll:draft.input.scrollHeight,
+     svgHeight:metrics.height,nativeLines:tops.length,vectorLines:metrics.lines.length,
+     sourceText:model.text.replaceAll('\n',''),renderedText:nonSynthetic,
+     glyphs:htmlGlyphs,vector:vector.map(b=>({x:b.x,right:b.x+b.width,y:b.y,bottom:b.y+b.height}))});
+    draft.finish(false);
+   }
+   host.remove();
+   return outcomes;
+  });
+  for(const entry of samples){
+   assert(entry.nativeLines>=2&&entry.vectorLines>=2,
+    'Fixture did not actually wrap: '+JSON.stringify({id:entry.id,html:entry.nativeLines,svg:entry.vectorLines}));
+   assert(Math.abs(entry.nativeLines-entry.vectorLines)<=2,
+    'HTML/SVG wrapping differs by more than two lines: '+JSON.stringify({id:entry.id,html:entry.nativeLines,svg:entry.vectorLines}));
+   assert.equal(entry.renderedText,entry.sourceText,'SVG line wrapping lost or duplicated characters: '+entry.id);
+   assert(entry.height>=entry.htmlScroll-2&&entry.height>=entry.svgHeight,
+    'Editing overlay clips wrapped content: '+entry.id);
+   assert(entry.glyphs.length>12&&entry.vector.length>=2,
+    'Wrapped glyph positions were not measured: '+entry.id);
+   assert(entry.glyphs.every(b=>b.left>=-4&&b.right<=entry.w+4&&b.bottom<=entry.height+5),
+    'HTML glyph escapes editing box: '+entry.id);
+   assert(entry.vector.every(b=>b.x>=-6&&b.right<=entry.w+6&&b.y>=-6&&b.bottom<=entry.svgHeight+6),
+    'SVG glyph escapes rendered text bounds: '+entry.id);
+  }
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
