@@ -244,13 +244,13 @@ try{
    return {runs:readRichDocument(draft.input,draft.item).runs,
     text:draft.input.textContent,pending:draft.pendingMarks};
   });
-  assert.equal(typed.text,'שלבאום');
+  assert.equal(typed.text,'שלאבום');
   assert(typed.runs.some(run=>run.italic&&run.text==='אב'),'Inserted Hebrew should be italic');
   assert.equal(typed.pending,null);
   await page.keyboard.press('Control+z');
   assert.equal(await page.evaluate(()=>window.__pending.draft.input.textContent),'שלום');
   await page.keyboard.press('Control+y');
-  assert.equal(await page.evaluate(()=>window.__pending.draft.input.textContent),'שלבאום');
+  assert.equal(await page.evaluate(()=>window.__pending.draft.input.textContent),'שלאבום');
   await page.evaluate(()=>{window.__pending.draft.finish(false);window.__pending.host.remove();});
  });
 
