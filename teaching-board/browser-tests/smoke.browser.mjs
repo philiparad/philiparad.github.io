@@ -2067,6 +2067,81 @@ try{
   assert(output.afterBold.runs.filter(r=>r.equation).every(r=>!r.bold));
   assert.deepEqual(output.undoBold.runs,output.boldBefore.runs);
  });
+ await check('TXT-062 real keyboard extends across bidi list equations and deletes whole selected objects',async()=>{
+  await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection}=await import('./js/text-selection.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:100px 50px 40px;background:white;z-index:5500';
+   document.body.append(host);
+   const canvas=document.createElement('canvas');canvas.width=40;canvas.height=24;
+   canvas.getContext('2d').fillRect(2,2,36,20);
+   const eq=source=>({source,src:canvas.toDataURL('image/png'),w:40,h:24});
+   const editor={area:host,board:{id:'keyboard-math-'+crypto.randomUUID(),
+     viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const doc={type:'text',x:0,y:0,w:550,h:100,fontSize:24,
+    text:'אב\uFFFCגד\n\uFFFC\uFFFCA\nשלום\n\nLast\uFFFC',
+    runs:[
+     {text:'אב'},{text:'\uFFFC',equation:eq('a')},
+     {text:'גד\n'},{text:'\uFFFC',equation:eq('b')},
+     {text:'\uFFFC',equation:eq('c')},{text:'A\nשלום\n\nLast'},
+     {text:'\uFFFC',equation:eq('d')}
+    ],paragraphs:[
+     {align:'right',dir:'rtl',list:'number',numberStart:7},
+     {align:'right',dir:'rtl',list:'number'},
+     {align:'right',dir:'rtl',list:'bullet'},
+     {align:'left',dir:'ltr',list:'none'},
+     {align:'left',dir:'ltr',list:'number',numberStart:21}
+    ]};
+   const draft=new InlineText(editor,{...doc,id:'kbd-multi-'+crypto.randomUUID()},true);
+   draft.input.focus();
+   const caret={paragraph:0,offset:2};
+   if(!restoreLogicalSelection(draft.input,window.getSelection(),
+    {anchor:caret,focus:caret}))throw Error('No paragraph caret');
+   const state=()=>{
+    const rich=readRichDocument(draft.input,draft.item);
+    return {text:rich.runs.map(r=>r.text).join(''),
+     math:rich.runs.filter(r=>r.equation).map(r=>r.equation.source),
+     paragraphs:rich.paragraphs,
+     selection:captureLogicalSelection(draft.input,window.getSelection()),
+     focused:document.activeElement===draft.input
+    };
+   };
+   window.__txt062RealKeys={host,draft,state};
+  });
+  await page.keyboard.press('Alt+Shift+ArrowDown');
+  const selecting=await page.evaluate(()=>window.__txt062RealKeys.state());
+  assert.deepEqual(selecting.selection,{
+   anchor:{paragraph:0,offset:2},focus:{paragraph:1,offset:2}
+  });
+  assert.deepEqual(selecting.math,['a','b','c','d']);
+  assert(selecting.focused);
+  await page.keyboard.press('Backspace');
+  const deleted=await page.evaluate(()=>window.__txt062RealKeys.state());
+  assert.equal(deleted.text,'אבA\nשלום\n\nLast\uFFFC');
+  assert.deepEqual(deleted.math,['d']);
+  assert.deepEqual(deleted.paragraphs.map(p=>p.list),
+   ['number','bullet','none','number']);
+  assert.equal(deleted.paragraphs[0].numberStart,7);
+  assert.equal(deleted.paragraphs[3].numberStart,21);
+  assert.deepEqual(deleted.selection,{
+   anchor:{paragraph:0,offset:2},focus:{paragraph:0,offset:2}
+  });
+  await page.keyboard.press('Control+z');
+  const undone=await page.evaluate(()=>window.__txt062RealKeys.state());
+  assert.equal(undone.text,selecting.text);
+  assert.deepEqual(undone.math,['a','b','c','d']);
+  assert.deepEqual(undone.selection,selecting.selection);
+  await page.keyboard.press('Control+y');
+  const redone=await page.evaluate(()=>window.__txt062RealKeys.state());
+  assert.deepEqual(redone.math,['d']);
+  assert.equal(redone.text,deleted.text);
+  await page.evaluate(()=>{
+   const t=window.__txt062RealKeys;t.draft.finish(false);t.host.remove();
+   delete window.__txt062RealKeys;
+  });
+ });
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
