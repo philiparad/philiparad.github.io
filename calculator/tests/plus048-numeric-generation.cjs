@@ -29,7 +29,7 @@ class ControlledWorker {
  deliver(value,residual=0){this.onmessage({data:{id:1,ok:true,value,residual}})}
  fail(message='Math ERROR'){this.onmessage({data:{id:1,ok:false,error:message}})}
 }
-const state={model:'fx-991es-plus',angle:'DEG',format:'Norm1',
+const state={model:'fx-991es-plus',mode:'COMP',angle:'DEG',format:'Norm1',
  digits:3,math:true,ans:0,preAns:0,memory:{X:0},power:true,
  screen:'edit',info:''};
 const make=new Function('Worker','state','setResult','error','paint',
