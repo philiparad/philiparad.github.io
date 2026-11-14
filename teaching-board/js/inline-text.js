@@ -6,7 +6,7 @@ import { TextHistory } from './text-history.js';
 import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection } from './text-selection.js';
 import {applyInlineFormat,inlineFormatState} from './text-commands.js';
 import {applyParagraphList} from './text-lists.js';
-import {pendingMark,insertPendingText} from './text-pending.js';
+import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pending.js';
 import {applyDocumentRange} from './text-range-format.js';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
@@ -18,8 +18,24 @@ export class InlineText {
   writeRuns(this.input,item);this.input.dir='auto';this.input.spellcheck=true;
   this.input.dataset.placeholder='Type here…';
   this.input.style.whiteSpace='pre-wrap';
-  this.input.addEventListener('compositionstart',()=>{this.composing=true;this.pendingMarks=null;this.pendingSelection=null;});
-  this.input.addEventListener('compositionend',()=>{this.composing=false;this.resize();this.recordSnapshot();});
+  this.input.addEventListener('compositionstart',()=>{
+   this.composing=true;
+   this.compositionMarks=this.pendingMarks;
+   try{this.compositionBefore=readRichDocument(this.input,this.item).runs.map(run=>run.text).join('');}
+   catch{this.compositionBefore=null;}
+   this.pendingMarks=null;this.pendingSelection=null;
+  });
+  this.input.addEventListener('compositionend',()=>{
+   this.composing=false;
+   if(this.compositionMarks&&this.compositionBefore!==null){
+    try{
+     const after=readRichDocument(this.input,this.item).runs.map(run=>run.text).join('');
+     styleCommittedComposition(this.input,window.getSelection(),this.compositionMarks,this.compositionBefore,after);
+    }catch{/* Retain the native IME result if styling cannot be applied safely. */}
+   }
+   this.compositionMarks=null;this.compositionBefore=null;
+   this.resize();this.recordSnapshot();
+  });
   const font=item.fontSize||24,pad=item.type==='note'?14:0;
   Object.assign(this.input.style,{font:`${(item.textStyle||'').includes('italic')?'italic':'normal'} ${(item.textStyle||'').includes('bold')?'700':'400'} ${font}px/1.3 Arial, sans-serif`,textAlign:item.textAlign&&item.textAlign!=='auto'?item.textAlign:'start',padding:`${pad}px`,color:item.stroke||'#203954',background:item.type==='note'&&item.fill!=='none'?(item.fill||'#fff1a8'):'transparent'});
   this.root.append(this.input);
@@ -31,7 +47,7 @@ export class InlineText {
   this.input.oninput=()=>{this.resize();if(!this.composing){this.pendingMarks=null;this.pendingSelection=null;this.recordSnapshot();}};
   this.input.onbeforeinput=e=>{if(this.closed||this.composing||e.isComposing||e.inputType!=='insertText'||!this.pendingMarks)return;const selection=window.getSelection();if(insertPendingText(this.input,selection,this.pendingMarks,e.data)){e.preventDefault();this.pendingMarks=null;this.pendingSelection=null;this.resize();this.recordSnapshot();this.selectionChange();}};
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
-  this.selectionChange=()=>{if(this.closed||!this.input.contains(document.activeElement))return;const caret=captureLogicalSelection(this.input,window.getSelection());this.textHistory.setSelection(caret);if(this.pendingMarks&&JSON.stringify(caret)!==JSON.stringify(this.pendingSelection)){this.pendingMarks=null;this.pendingSelection=null;}for(const [name,button] of this.formatButtons||[]){if(name.startsWith('insert')){const selection=window.getSelection(),node=selection?.anchorNode,block=node?.nodeType===1?node:node?.parentElement,list=block?.closest?.('li')?.parentElement;button.setAttribute('aria-pressed',String(list?.tagName===(name==='insertOrderedList'?'OL':'UL')));}else button.setAttribute('aria-pressed',String(this.pendingMarks&&Object.prototype.hasOwnProperty.call(this.pendingMarks,name)?this.pendingMarks[name]:inlineFormatState(this.input,window.getSelection(),name)));}};
+  this.selectionChange=()=>{if(this.closed||this.composing||!this.input.contains(document.activeElement))return;const caret=captureLogicalSelection(this.input,window.getSelection());this.textHistory.setSelection(caret);if(this.pendingMarks&&JSON.stringify(caret)!==JSON.stringify(this.pendingSelection)){this.pendingMarks=null;this.pendingSelection=null;}for(const [name,button] of this.formatButtons||[]){if(name.startsWith('insert')){const selection=window.getSelection(),node=selection?.anchorNode,block=node?.nodeType===1?node:node?.parentElement,list=block?.closest?.('li')?.parentElement;button.setAttribute('aria-pressed',String(list?.tagName===(name==='insertOrderedList'?'OL':'UL')));}else button.setAttribute('aria-pressed',String(this.pendingMarks&&Object.prototype.hasOwnProperty.call(this.pendingMarks,name)?this.pendingMarks[name]:inlineFormatState(this.input,window.getSelection(),name)));}};
   document.addEventListener('selectionchange',this.selectionChange);
   this.input.onpaste=e=>{e.preventDefault();this.insertPlainText(e.clipboardData?.getData('text/plain')?.slice(0,10000)||'');};
   this.input.ondrop=e=>e.preventDefault();
