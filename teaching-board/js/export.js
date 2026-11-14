@@ -13,7 +13,21 @@ export async function exportBoard(board,format,options={scope:'all'}){if(format=
  const frame=document.createElement('iframe');frame.title='Printable lesson';frame.style.cssText='position:fixed;width:1px;height:1px;right:0;bottom:0;border:0';document.body.append(frame);const doc=frame.contentDocument;doc.open();doc.write('<!doctype html><html><head><title></title><style>@page{size:A4 landscape;margin:10mm}body{margin:0}img{width:100%;height:185mm;object-fit:contain}h1{font:16px Arial;margin:0 0 4mm}</style></head><body></body></html>');doc.close();doc.title=exportFilename();const title=doc.createElement('h1');title.textContent=board.title;const image=doc.createElement('img');image.alt=board.title;image.src=canvas.toDataURL('image/png');doc.body.append(title,image);await image.decode();frame.contentWindow.focus();frame.contentWindow.print();setTimeout(()=>frame.remove(),120000);}
  }finally{URL.revokeObjectURL(url);}}
 
+/** Build the exact A4 print document used by the browser and PDF validation. */
+export function preparePrintPagesDocument(doc,board,indexes=printPageIndexes(board)){
+ doc.open();
+ doc.write('<!doctype html><html><head><title></title><style>@page{size:A4 portrait;margin:0}html,body{margin:0}section{width:210mm;height:297mm;break-after:page;overflow:hidden}section:last-child{break-after:auto}svg{display:block;width:100%;height:100%}</style></head><body></body></html>');
+ doc.close();
+ doc.title=exportFilename();
+ for(const n of indexes){
+  const section=doc.createElement('section');
+  section.setAttribute('aria-label',`A4 page ${n+1}`);
+  section.append(doc.importNode(pageSVG(board,n),true));
+  doc.body.append(section);
+ }
+ return doc;
+}
 export async function printPages(board,indexes=printPageIndexes(board)){
  const frame=document.createElement('iframe');frame.title='Printable A4 lesson';frame.style.cssText='position:fixed;width:1px;height:1px;border:0';document.body.append(frame);
- try{const doc=frame.contentDocument;doc.open();doc.write('<!doctype html><html><head><title></title><style>@page{size:A4 portrait;margin:0}html,body{margin:0}section{width:210mm;height:297mm;break-after:page;overflow:hidden}section:last-child{break-after:auto}svg{display:block;width:100%;height:100%}</style></head><body></body></html>');doc.close();doc.title=exportFilename();for(const n of indexes){const section=doc.createElement('section');section.setAttribute('aria-label',`A4 page ${n+1}`);section.append(doc.importNode(pageSVG(board,n),true));doc.body.append(section);}await Promise.all([...doc.querySelectorAll('image')].map(node=>loadImage(node.getAttribute('href'))));frame.contentWindow.focus();frame.contentWindow.print();setTimeout(()=>frame.remove(),120000);}catch(error){frame.remove();throw error;}
+ try{const doc=preparePrintPagesDocument(frame.contentDocument,board,indexes);await Promise.all([...doc.querySelectorAll('image')].map(node=>loadImage(node.getAttribute('href'))));frame.contentWindow.focus();frame.contentWindow.print();setTimeout(()=>frame.remove(),120000);}catch(error){frame.remove();throw error;}
 }
