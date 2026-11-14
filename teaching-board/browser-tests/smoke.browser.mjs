@@ -212,7 +212,7 @@ try{
   const samples=await page.evaluate(async()=>{
    const {InlineText}=await import('./js/inline-text.js');
    const {textLayoutMetrics}=await import('./js/inline-equation.js');
-   const {drawItem}=await import('./js/scene.js');
+   const {drawItem,svgEl}=await import('./js/scene.js');
    const {readRichDocument,paragraphRuns}=await import('./js/rich-text.js');
    const host=document.createElement('div');
    host.style.cssText='position:fixed;inset:125px 90px 75px;background:white;z-index:2500';
@@ -258,8 +258,12 @@ try{
       if(!tops.some(t=>Math.abs(t-b.top)<3))tops.push(b.top);
      }
     }
-    const group=drawItem(model),svg=group.querySelector('g:last-child');
+    const scene=svgEl('svg',{width:item.w,height:Math.ceil(metrics.height+20)});
+    scene.style.cssText='position:fixed;left:0;top:0;opacity:0;pointer-events:none';
+    const group=drawItem(model);scene.append(group);host.append(scene);
+    const svg=group.querySelector('g:last-child');
     const vector=[...svg.querySelectorAll('text')].map(n=>n.getBBox());
+    scene.remove();
     const nonSynthetic=metrics.lines.flatMap(line=>line.parts.filter(p=>!p.synthetic).map(p=>p.text)).join('');
     outcomes.push({id:item.id,w:item.w,height:draft.height,htmlScroll:draft.input.scrollHeight,
      svgHeight:metrics.height,nativeLines:tops.length,vectorLines:metrics.lines.length,
