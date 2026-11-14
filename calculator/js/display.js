@@ -124,7 +124,9 @@ function rasterize(state){
  // Preserve the existing 96×31 layout coordinates while painting a finer
  // 192×62 pixel output. Geometry retains precise edges; text uses a fresh
  // 7×11 bitmap glyph rather than enlarging its former 3×5 dots.
- const pixels=new Uint8Array(W*H),textRuns=[];
+ const pixels=new Uint8Array(W*H),textRuns=[],fineStrokes=[];
+  // Keep 96x31 expression layout, but draw geometric signs at 192x62.
+  const fineStroke=(x1,y1,x2,y2)=>fineStrokes.push([x1,y1,x2,y2]);
  const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
  const glyph=(c,x,y,inverse=false)=>{textRuns.push({c,x,y,inverse})};
  const write=(text,x,y,limit=W)=>{for(const c of String(text)){
@@ -136,6 +138,17 @@ function rasterize(state){
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(pixels[y*W+x]){
    const i=(y*2)*HI_W+x*2;
    hi[i]=hi[i+1]=hi[i+HI_W]=hi[i+HI_W+1]=1;
+  }
+  // Render diagonal mathematical strokes without doubled coarse pixels.
+  for(const [x1,y1,x2,y2] of fineStrokes){
+   const ax=Math.round(x1*2),ay=Math.round(y1*2);
+   const bx=Math.round(x2*2),by=Math.round(y2*2);
+   const steps=Math.max(Math.abs(bx-ax),Math.abs(by-ay),1);
+   for(let i=0;i<=steps;i++){
+    const xx=Math.round(ax+(bx-ax)*i/steps);
+    const yy=Math.round(ay+(by-ay)*i/steps);
+    if(xx>=0&&xx<HI_W&&yy>=0&&yy<HI_H)hi[yy*HI_W+xx]=1;
+   }
   }
   for(const item of textRuns){
    const glyphRows=hiGlyph(item.c),px=Math.round(item.x*2),py=Math.round(item.y*2);
@@ -599,9 +612,11 @@ function rasterize(state){
      if(node.type==='cubeRoot')glyph('3',x,baseline-9);
      if(nth)drawField('index',x,baseline-10);
      const x0=x+prefix-5;
-     pixel(x0,baseline+2);pixel(x0+1,baseline+3);pixel(x0+2,baseline+2);
-     for(let n=0;n<7;n++)pixel(x0+3+Math.floor(n/2),baseline+1-n);
-     for(let xx=x+prefix-1;xx<x+w;xx++)pixel(xx,baseline-7);
+     // Smooth high-resolution square-root hook, stem and overbar.
+     fineStroke(x0,baseline+2,x0+1,baseline+3);
+     fineStroke(x0+1,baseline+3,x0+2,baseline+2);
+     fineStroke(x0+2,baseline+2,x+prefix-1,baseline-7);
+     fineStroke(x+prefix-1,baseline-7,x+w-1,baseline-7);
      drawField('radicand',x+prefix,baseline);
     }
    }
