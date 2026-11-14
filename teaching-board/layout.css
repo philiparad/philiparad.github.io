@@ -241,8 +241,18 @@ body.board-open{overflow:hidden}
 
 /* Responsive standalone calculator: native modal, with focus and Escape support. */
 .board-calculator-dialog{
-  width:min(580px,96vw);height:min(820px,92dvh);
-  max-width:96vw;max-height:92dvh;padding:0;overflow:hidden;
+  /* The calculator-only page uses a 348px max face at 274:580,
+     with 12px of padding inside the iframe. A 50px title bar
+     and 1px borders are the only additions to the calculator size. */
+  --calculator-face-width:min(
+    348px,
+    calc(100vw - 50px),
+    calc((92dvh - 76px) * 274 / 580)
+  );
+  width:calc(var(--calculator-face-width) + 26px);
+  height:calc(var(--calculator-face-width) * 580 / 274 + 76px);
+  max-width:calc(100vw - 16px);max-height:92dvh;
+  padding:0;overflow:hidden;
   border:1px solid #b9c9d9;border-radius:12px;background:#fff;
   box-shadow:0 14px 48px #1f324f55;
 }
@@ -263,7 +273,6 @@ body.board-open{overflow:hidden}
 .board-calculator-close:hover{background:#d5e1ec}
 .board-calculator-frame{display:block;width:100%;min-height:0;flex:1;border:0;background:#fff}
 @media(max-width:560px){
-  .board-calculator-dialog{width:98vw;max-width:98vw;height:96dvh;max-height:96dvh}
-  .board-calculator-heading{min-height:44px;padding:5px 9px 5px 13px}
+  /* Do not stretch the calculator dialog to full-screen on phones. */
   .command-deck .calculator-toggle{flex-basis:36px}
 }
