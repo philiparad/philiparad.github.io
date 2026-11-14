@@ -329,6 +329,7 @@ test('snippet insertion is one undoable change with fresh groups and editable co
 
 test('text alignment respects physical left/right, RTL, note padding and exports',async()=>{
  const {drawItem}=await import('../js/scene.js');
+ const {tokenTextAnchor}=await import('../js/inline-equation.js');
  for(const rtl of [false,true])for(const type of ['text','note'])for(const align of ['auto','left','center','right']){
   const pad=type==='note'?14:0,item={id:'aligned',type,x:0,y:0,w:300,h:100,text:rtl?'שלום עולם':'hello world',fontSize:24,textAlign:align};
   const parts=walk(drawItem(item)).filter(n=>n.tagName==='text'&&n.textContent);
@@ -336,8 +337,11 @@ test('text alignment respects physical left/right, RTL, note padding and exports
   const positions=parts.map(n=>{
    const width=Array.from(n.textContent).length*item.fontSize*.55;
    const x=+n.attributes.x,anchor=n.attributes['text-anchor'];
-   assert.equal(anchor,rtl?'end':'start');
-   return {left:anchor==='end'?x-width:x,right:anchor==='end'?x:x+width};
+   const dir=n.attributes.direction;
+   assert.equal(anchor,tokenTextAnchor(rtl,dir));
+   // SVG text-anchor start/end are interpreted relative to token direction.
+   const extendsLeft=dir==='rtl'?anchor==='start':anchor==='end';
+   return {left:extendsLeft?x-width:x,right:extendsLeft?x:x+width};
   });
   const left=Math.min(...positions.map(p=>p.left)),right=Math.max(...positions.map(p=>p.right));
   const approx=(a,b)=>assert.ok(Math.abs(a-b)<1e-5,`${a} != ${b}`);

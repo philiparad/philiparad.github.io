@@ -43,7 +43,7 @@ test('explicit per-paragraph direction overrides language of first word',()=>{
  const english=texts.find(n=>n.textContent==='English');
  assert.equal(english.attributes['text-anchor'],'end');
  const hebrew=texts.find(n=>n.textContent==='שלום');
- assert.equal(hebrew.attributes['text-anchor'],'start');
+ assert.equal(hebrew.attributes['text-anchor'],'end');
 });
 
 test('oversized grapheme is compressed in SVG without modifying source text',()=>{
@@ -53,4 +53,18 @@ test('oversized grapheme is compressed in SVG without modifying source text',()=
  assert.equal(elements.length,1);
  assert.equal(elements[0].attributes.textLength,'35');
  assert.equal(elements[0].attributes.lengthAdjust,'spacingAndGlyphs');
+});
+
+test('SVG token anchors account for mixed Hebrew and English directions',()=>{
+ const item={id:'mixed-bidi',type:'text',x:0,y:0,w:480,h:120,fontSize:24,
+  text:'שלום English\nEnglish עברית',
+  paragraphs:[{align:'right',list:'none',dir:'rtl'},
+              {align:'left',list:'none',dir:'ltr'}]};
+ const nodes=flatten(drawItem(item)).filter(n=>n.tagName==='text'&&n.textContent.trim());
+ const before=nodes.filter(n=>Number(n.attributes.y)<50);
+ const after=nodes.filter(n=>Number(n.attributes.y)>=50);
+ assert.equal(before.find(n=>n.textContent==='שלום')?.attributes['text-anchor'],'start');
+ assert.equal(before.find(n=>n.textContent==='English')?.attributes['text-anchor'],'end');
+ assert.equal(after.find(n=>n.textContent==='English')?.attributes['text-anchor'],'start');
+ assert.equal(after.find(n=>n.textContent==='עברית')?.attributes['text-anchor'],'end');
 });

@@ -162,6 +162,7 @@ try {
   width:720,height:470,expected:recording?{}:manifest.engines[engine]
  });
  console.log('VISUAL ARTIFACTS '+engine+': '+outputDirectory);
+ const goldenMismatches=[];
  for(const test of findings){
   console.log('PIXEL '+engine+' '+test.name+': '+JSON.stringify(test));
   assert(test.inkPixels>50,'Fixture rendered blank: '+test.name);
@@ -178,11 +179,14 @@ try {
   if(!recording){
    const expected=manifest.engines[engine][test.name];
    assert.match(expected||'',/^[0-9a-f]{64}$/,'Missing or malformed committed golden hash for '+test.name);
-   assert.equal(test.exportHash,expected,'Visual image changed relative to committed independent baseline: '+engine+'/'+test.name);
+   if(test.exportHash!==expected)goldenMismatches.push({engine,fixture:test.name,expected,actual:test.exportHash});
   }
  }
  assert.deepEqual(failures,[]);
- if(!recording)assert.equal(Object.keys(manifest.engines[engine]).length,findings.length,'Golden manifest has orphaned or duplicate fixtures');
+ if(!recording){
+  assert.equal(Object.keys(manifest.engines[engine]).length,findings.length,'Golden manifest has orphaned or duplicate fixtures');
+  assert.deepEqual(goldenMismatches,[],'Changed SVG pixels require inspection and explicit golden approval');
+ }
  console.log('PASS '+engine+' '+(recording?'golden-recording':'committed-golden-check')+' board/SVG pixel parity: '+findings.length+' fixtures');
 }catch(error){
  await page.locator('#visual-preview').screenshot({path:'/tmp/teaching-board-visual-parity-failure.png'}).catch(()=>{});
