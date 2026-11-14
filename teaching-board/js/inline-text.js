@@ -152,10 +152,12 @@ export class InlineText {
  }
  restoreFormattedDraft(record){
   if(this.closed)return false;
-  const model={...this.item,text:record.text,runs:record.runs,paragraphs:record.paragraphs};
+  const text=typeof record?.text==='string'?record.text:
+   Array.isArray(record?.runs)?record.runs.map(run=>run.text).join(''):'';
+  const model={...this.item,text,runs:record?.runs,paragraphs:record?.paragraphs};
   try{
-   validateRuns(record.runs,record.text);
-   validateParagraphs(record.paragraphs,record.text);
+   validateRuns(record.runs,text);
+   validateParagraphs(record.paragraphs,text);
    writeRuns(this.input,model);
    this.resize();this.recordSnapshot();this.input.focus();
    this.controls.querySelector?.('.error')?.remove();
