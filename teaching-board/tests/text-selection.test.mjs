@@ -68,3 +68,31 @@ test('logical offsets treat a complete inline equation as a single atomic charac
  assert.equal(restoreLogicalSelection(root,selection,{anchor:{paragraph:0,offset:999},focus:{paragraph:0,offset:999}}),true);
  assert.equal(selection.args[3],2);
 });
+
+test('logical selection counts text returned inside browser Range DocumentFragments',()=>{
+ const make=(tag,value)=>{
+  const textNode=txt(value),span={nodeType:1,tagName:'SPAN',childNodes:[textNode]};
+  const block={nodeType:1,tagName:tag,childNodes:[span],children:[span],
+   contains(n){return n===this||n===span||n===textNode;}};
+  span.parentNode=block;textNode.parentNode=span;
+  return {block,textNode};
+ };
+ const first=make('DIV','שלום Middle'),second=make('DIV','English נוסחה');
+ const root={nodeType:1,tagName:'DIV',children:[first.block,second.block],childNodes:[first.block,second.block],
+  contains(n){return n===this||this.children.some(b=>b.contains(n));}};
+ first.block.parentNode=root;second.block.parentNode=root;
+ const selection={rangeCount:1,anchorNode:first.textNode,anchorOffset:2,focusNode:second.textNode,focusOffset:3};
+ const old=globalThis.document;
+ globalThis.document={createRange:()=>({
+  selectNodeContents(block){this.block=block;},
+  setEnd(node,offset){this.node=node;this.offset=offset;},
+  cloneContents(){return {nodeType:11,childNodes:[{nodeType:1,childNodes:[
+   {nodeType:3,textContent:this.node.textContent.slice(0,this.offset)}
+  ]}]};}
+ })};
+ try{
+  assert.deepEqual(captureLogicalSelection(root,selection),{
+   anchor:{paragraph:0,offset:2},focus:{paragraph:1,offset:3}
+  });
+ }finally{globalThis.document=old;}
+});
