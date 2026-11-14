@@ -753,8 +753,9 @@ function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getCo
  const img=ctx.createImageData(w,h);for(let y=0;y<HI_H;y++)for(let x=0;x<HI_W;x++){
   const on=pixels[y*HI_W+x];const color=on?ink:paper;
   for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){const i=((y*scale+dy)*w+(x*scale+dx))*4;
-   const adjustment=(dx===scale-1||dy===scale-1)?(on?7:-2):0;
-   img.data[i]=color[0]+adjustment;img.data[i+1]=color[1]+adjustment;img.data[i+2]=color[2]+adjustment;img.data[i+3]=255;
+   // Solid, color-consistent LCD cells. The old 5x5 per-cell light
+   // border made mathematical strokes look striped when scaled by WebView2.
+   img.data[i]=color[0];img.data[i+1]=color[1];img.data[i+2]=color[2];img.data[i+3]=255;
   }
  }
  ctx.putImageData(img,0,0)
