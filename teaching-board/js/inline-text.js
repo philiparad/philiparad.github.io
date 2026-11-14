@@ -91,8 +91,10 @@ export class InlineText {
    this.resize();
    if(this.composing)return;
    this.pendingMarks=null;this.pendingSelection=null;
-   const trailing=this.postComposition&&
-    ['insertFromComposition','insertCompositionText'].includes(e?.inputType);
+   // InputEvent.inputType differs across browsers, and some IMEs report
+   // the final commit as plain insertText or an empty type. Coalesce the
+   // first post-composition input unless a separate user edit intervened.
+   const trailing=!!this.postComposition&&!e?.isComposing;
    const commit=this.postComposition;
    this.postComposition=null;
    if(trailing&&commit){
@@ -125,11 +127,18 @@ export class InlineText {
   this.input.addEventListener('keyup',e=>{
    if(e.key?.toLowerCase()==='v')this.forcePlainNextPaste=false;
   });
-  this.input.addEventListener('focusout',()=>{this.forcePlainNextPaste=false;});
+  this.input.addEventListener('focusout',()=>{
+   this.forcePlainNextPaste=false;this.postComposition=null;
+  });
   this.input.ondrop=e=>e.preventDefault();
-  this.input.addEventListener('pointerdown',e=>{if(e.button!==0)return;const node=e.target.closest?.('.inline-equation');if(node&&positionBesideEquation(this.input,window.getSelection(),node,e.clientX)){e.preventDefault();this.selectionChange();}});
+  this.input.addEventListener('pointerdown',e=>{
+   this.postComposition=null;
+   if(e.button!==0)return;const node=e.target.closest?.('.inline-equation');if(node&&positionBesideEquation(this.input,window.getSelection(),node,e.clientX)){e.preventDefault();this.selectionChange();}});
   this.input.ondblclick=e=>{const node=e.target.closest('.inline-equation');if(node){e.preventDefault();this.editEquation(node);}};
-  this.input.onkeydown=e=>{if(e.isComposing||this.composing||e.keyCode===229)return;if(!e.ctrlKey&&!e.metaKey&&!e.altKey){if(['Backspace','Delete'].includes(e.key)&&this.deleteInlineEquation(e.key)){e.preventDefault();e.stopPropagation();return;}if(['ArrowLeft','ArrowRight'].includes(e.key)&&moveAcrossEquation(this.input,window.getSelection(),e.key,e.shiftKey)){e.preventDefault();e.stopPropagation();this.selectionChange();return;}}if(e.key==='Enter'&&e.altKey&&!e.ctrlKey&&!e.metaKey&&this.editAdjacentEquation()){
+  this.input.onkeydown=e=>{
+   if(!e.isComposing&&!this.composing&&e.keyCode!==229)
+    this.postComposition=null;
+   if(e.isComposing||this.composing||e.keyCode===229)return;if(!e.ctrlKey&&!e.metaKey&&!e.altKey){if(['Backspace','Delete'].includes(e.key)&&this.deleteInlineEquation(e.key)){e.preventDefault();e.stopPropagation();return;}if(['ArrowLeft','ArrowRight'].includes(e.key)&&moveAcrossEquation(this.input,window.getSelection(),e.key,e.shiftKey)){e.preventDefault();e.stopPropagation();this.selectionChange();return;}}if(e.key==='Enter'&&e.altKey&&!e.ctrlKey&&!e.metaKey&&this.editAdjacentEquation()){
     e.preventDefault();e.stopPropagation();return;
    }if(this.handleBoundaryKey(e)){e.preventDefault();e.stopPropagation();return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'){e.preventDefault();e.stopPropagation();this.stepTextHistory(e.shiftKey?'redo':'undo');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='y'){e.preventDefault();e.stopPropagation();this.stepTextHistory('redo');return;}if((e.ctrlKey||e.metaKey)&&e.shiftKey&&!e.altKey&&['7','8'].includes(e.key)){e.preventDefault();e.stopPropagation();this.formatList(e.key==='7'?'number':'bullet');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&['b','i','u'].includes(e.key.toLowerCase())){e.preventDefault();e.stopPropagation();this.formatText({b:'bold',i:'italic',u:'underline'}[e.key.toLowerCase()]);return;}if(e.key==='Escape'||e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();this.finish(e.key!=='Escape');}};
   this.outside=e=>{if(this.suspended||this.composing)return;if(!this.root.contains(e.target)&&!this.controls.contains(e.target))this.finish(true,false);};
@@ -210,6 +219,7 @@ export class InlineText {
  }
  recordSnapshot({amendComposition=null}={}){
   if(this.closed||this.composing)return;
+  if(!amendComposition)this.postComposition=null;
   try{
    const snapshot=readRichDocument(this.input,this.item);
    const txt=snapshot.runs.map(run=>run.text).join('');
