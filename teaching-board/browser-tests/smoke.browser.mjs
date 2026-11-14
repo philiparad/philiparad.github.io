@@ -2837,6 +2837,13 @@ try{
    .locator('#calculator-fixture').waitFor({state:'visible'});
   await page.keyboard.press('Escape');
   await modal.waitFor({state:'hidden'});
+  // Native dialog 'close' events are queued after the open state clears.
+  await page.waitForFunction(()=>{
+   const b=document.querySelector('.calculator-toggle');
+   const frame=document.querySelector('.board-calculator-frame');
+   return b?.getAttribute('aria-expanded')==='false'&&
+    !frame?.hasAttribute('src')&&document.activeElement===b;
+  });
   const escaped=await page.evaluate(()=>{
    const b=document.querySelector('.calculator-toggle');
    return {expanded:b.getAttribute('aria-expanded'),
