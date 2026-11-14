@@ -84,6 +84,9 @@ export class Editor {
     const proposed={...fresh.item,text:fresh.text,runs:fresh.runs,paragraphs:fresh.paragraphs};
     validateBoard({...this.board,items:[...this.board.items,proposed]});
     const draft=new InlineText(this,fresh.item,false);
+    // Closing the recovery modal can restore focus to its trigger in some
+    // engines, which otherwise looks like an outside click and auto-saves.
+    draft.suspended=true;
     if(!draft.restoreFormattedDraft(fresh)){
      draft.finish(false,false,true);
      throw new Error('Unable to restore the unsaved text safely.');
@@ -92,6 +95,9 @@ export class Editor {
     if(fresh.rawText!==fresh.text)draft.showRawDraft(fresh.rawText);
     this.inlineText=draft;this.selected.clear();this.setTool('select');
     dialog.close();
+    requestAnimationFrame(()=>{
+     if(!draft.closed){draft.input.focus();draft.suspended=false;}
+    });
    }),btn('Discard this draft',()=>{
     clearTextDraft(this.draftStorage(),this.board.id,record.item.id);
     row.remove();this.refreshNewTextDraftNotice();
