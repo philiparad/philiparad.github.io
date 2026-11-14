@@ -29,5 +29,6 @@ export function applyParagraphFormatting(root,item,selection,property,value){
     if(!changed||!changed.changed)return false;
     const text=snapshot.runs.map(r=>r.text).join('');
     writeRuns(root,{...item,text,runs:changed.runs,paragraphs:changed.paragraphs});
-    return restoreLogicalSelection(root,selection,saved);
+    restoreLogicalSelection(root,selection,saved);
+    return true;
 }
