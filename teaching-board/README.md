@@ -529,3 +529,12 @@ Piecewise functions: select Piecewise function as a curve type. Add up to eight 
 Endpoint controls: choose Open (excluded) or Closed (included) at each finite function or branch bound. Hollow/filled markers and inequality legends reflect the choice. Undefined or offscreen endpoint values have no marker; unbounded sides have no endpoint. Adjacent piecewise branches cannot both include their shared boundary.
 
 Named functions: in the graph editor, add definitions such as f(x) = x^2 and g(x) = f(x+1). Use them in ordinary, piecewise, parametric and polar curves. Definitions use x and shared parameters; curve calls may use x or t. Names are unique lowercase letters; built-in names are reserved. Missing references, cycles and excessive expansion are rejected. Definitions remain editable in saved lessons and backups and appear in the graph legend.
+
+## TXT-065 — Font fallback parity across text and exports
+
+A shared, local font stack is now used for HTML text editing, Canvas text
+measurements, SVG drawing, and exported/printed SVG text: Arial first for
+backward compatibility, then Noto Sans Hebrew, Noto Sans, DejaVu Sans, and
+generic sans-serif. Existing text objects and JSON backups require no data
+migration. No external web-font download is required. Exact glyph appearance
+can vary between operating systems because installed fonts differ.

@@ -1,10 +1,10 @@
 import { showRecovery } from './recovery.js?v=20261024-image-actions';
 import { createBoard, parseBackup } from './model.js?v=20261024-image-actions';
 import { BoardRepository } from './storage.js?v=20261024-image-actions';
-import { Editor } from './editor.js?v=20261114-send-ans';
+import { Editor } from './editor.js?v=20261114-font-fallback';
 import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261017-history-budget';
 import { backup } from './export.js?v=20261024-image-actions';
-import { drawItem, svgEl, union } from './scene.js?v=20261024-image-actions';
+import { drawItem, svgEl, union } from './scene.js?v=20261114-font-fallback';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';
