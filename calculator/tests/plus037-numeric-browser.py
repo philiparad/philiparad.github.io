@@ -11,6 +11,7 @@ import threading
 from pathlib import Path
 from functools import partial
 from http.server import SimpleHTTPRequestHandler,ThreadingHTTPServer
+from PIL import Image, ImageChops
 from playwright.async_api import async_playwright
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -125,6 +126,20 @@ async def main():
                                 report["failures"].append({"case":kind,
                                     "kind":"modular_standalone_difference","field":key,
                                     "modular":outcomes[0][key],"standalone":outcomes[1][key]})
+                        with Image.open(folder/outcomes[0]["lcd_png"]) as left, Image.open(
+                                folder/outcomes[1]["lcd_png"]) as right:
+                            if left.size!=right.size:
+                                report["failures"].append({"case":kind,
+                                    "kind":"lcd_dimensions",
+                                    "modular":list(left.size),"standalone":list(right.size)})
+                            else:
+                                delta=ImageChops.difference(
+                                    left.convert("RGB"),right.convert("RGB"))
+                                pixels=sum(any(pixel) for pixel in delta.getdata())
+                                if pixels:
+                                    delta.save(folder/(kind+"-lcd-diff.png"))
+                                    report["failures"].append({"case":kind,
+                                        "kind":"lcd_pixels","differing_pixels":pixels})
                     report["cases"].append({"id":kind,"outcomes":outcomes})
             finally:
                 await browser.close()
