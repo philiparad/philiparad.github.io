@@ -2142,6 +2142,185 @@ try{
    delete window.__txt062RealKeys;
   });
  });
+
+ await check('TXT-063 IME deferred commit preserves styled Hebrew, equations, caret and one undo step',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection,recoverEquationSelection}=
+      await import('./js/text-selection.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:90px 55px 40px;background:white;z-index:5700';
+   document.body.append(host);
+   const canvas=document.createElement('canvas');canvas.width=40;canvas.height=24;
+   canvas.getContext('2d').fillRect(2,2,36,20);
+   const eq=source=>({source,src:canvas.toDataURL('image/png'),w:40,h:24});
+   const editor={area:host,board:{id:'ime-math-'+crypto.randomUUID(),viewport:{x:0,y:0,zoom:1}},
+       disposed:true,paint(){},applyText(){}};
+   const model={
+    id:'ime-'+crypto.randomUUID(),type:'text',x:0,y:0,w:510,h:88,fontSize:24,
+    text:'שלום \uFFFC English\nאחר \uFFFC סוף',
+    runs:[{text:'שלום '},{text:'\uFFFC',equation:eq('x^2')},
+      {text:' English\nאחר '},{text:'\uFFFC',equation:eq('y+1')},{text:' סוף'}],
+    paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7},
+       {align:'right',dir:'rtl',list:'bullet'}]
+   };
+   const make=()=>new InlineText(editor,{...structuredClone(model),
+     id:'ime-'+crypto.randomUUID()},true);
+   const select=(draft,p,offset)=>{
+    draft.input.focus();const point={paragraph:p,offset};
+    if(!restoreLogicalSelection(draft.input,window.getSelection(),{anchor:point,focus:point}))
+      throw Error('IME fixture cannot restore caret');
+   };
+   const state=draft=>{
+    const d=readRichDocument(draft.input,draft.item);
+    return {text:d.runs.map(r=>r.text).join(''),runs:d.runs,
+     paragraphs:d.paragraphs,math:d.runs.filter(r=>r.equation).map(r=>r.equation.source),
+     caret:captureLogicalSelection(draft.input,window.getSelection()),
+     history:draft.textHistory.entries.length,index:draft.textHistory.index,
+     busy:draft.input.getAttribute('aria-busy'),status:draft.compositionStatus.textContent,
+     canUndo:draft.textHistory.canUndo};
+   };
+   const comp=(draft,name,data='')=>draft.input.dispatchEvent(
+    new CompositionEvent(name,{bubbles:true,data}));
+   const emit=(draft,inputType,data='',isComposing=false)=>draft.input.dispatchEvent(
+    new InputEvent('input',{bubbles:true,inputType,data,isComposing}));
+   const key=(draft,key,extra={})=>{
+    const e=new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true,...extra});
+    draft.input.dispatchEvent(e);
+    return e.defaultPrevented;
+   };
+   let draft=make();
+   select(draft,0,5);
+   draft.pendingMarks={bold:true,color:'#b42318'};
+   const initial=state(draft);
+   comp(draft,'compositionstart','א');
+   const composing=state(draft);
+   const keyEsc=key(draft,'Escape');
+   const keyDelete=key(draft,'Delete');
+   const keyMath=key(draft,'Enter',{altKey:true});
+   const duringAfterKeys=state(draft);
+   draft.input.children[0].querySelector('span').textContent='שלום אב';
+   emit(draft,'insertCompositionText','אב',true);
+   const during=state(draft);
+   comp(draft,'compositionend','אב');
+   const committed=state(draft);
+   const committedSpan=[...draft.input.querySelectorAll('span')].find(
+    el=>el.style.fontWeight==='700'&&el.textContent==='אב');
+   if(!committedSpan)throw Error('Committed Hebrew span did not inherit pending marks');
+   committedSpan.textContent='אבג';
+   emit(draft,'insertFromComposition','אבג');
+   const trailing=state(draft);
+   draft.stepTextHistory('undo');
+   const undone=state(draft);
+   draft.stepTextHistory('redo');
+   const redone=state(draft);
+   const helpId=draft.input.getAttribute('aria-describedby');
+   const accessibility={
+     hint:document.getElementById(helpId)?.textContent,
+     hintId:helpId,
+     shortcuts:draft.input.getAttribute('aria-keyshortcuts'),
+     live:draft.compositionStatus.getAttribute('aria-live'),
+     role:draft.compositionStatus.getAttribute('role'),
+     math:[...draft.input.querySelectorAll('[role="math"]')].map(el=>({
+      source:JSON.parse(el.dataset.equation).source,
+      label:el.getAttribute('aria-label'),
+      editable:el.contentEditable,
+      hiddenImage:el.querySelector('img')?.getAttribute('aria-hidden')
+     }))
+   };
+   draft.finish(false);
+
+   // Some browsers end composition before the native insertion event.
+   // This must still create one undoable, styled edit.
+   draft=make();select(draft,0,6);
+   draft.pendingMarks={italic:true,color:'#147d92'};
+   comp(draft,'compositionstart','נ');
+   comp(draft,'compositionend','נ');
+   const earlyEnd=state(draft);
+   const suffix=draft.input.children[0].querySelectorAll('span')[2];
+   if(!suffix||suffix.textContent!==' English')
+    throw Error('Fixture suffix was not found after atomic math');
+   suffix.textContent=' לימוד English';
+   emit(draft,'insertFromComposition',' לימוד');
+   const afterLate=state(draft);
+   draft.stepTextHistory('undo');
+   const lateUndo=state(draft);
+   draft.finish(false);
+
+   // If the IME anchors inside inaccessible math descendants, recover
+   // a real caret at a complete equation boundary before further typing.
+   draft=make();
+   const eqNode=draft.input.querySelector('.inline-equation');
+   const img=eqNode.querySelector('img'),sel=window.getSelection();
+   let insideImg=false,recovered=false,afterRecovery=null;
+   try{
+    sel.setBaseAndExtent(img,0,img,0);
+    insideImg=sel.anchorNode===img;
+    if(insideImg){
+     recovered=recoverEquationSelection(draft.input,sel);
+     afterRecovery=state(draft);
+    }
+   }catch{/* Some browsers disallow placing selection inside an image. */}
+   draft.finish(false);
+   host.remove();
+   return {initial,composing,keyEsc,keyDelete,keyMath,duringAfterKeys,during,
+    committed,trailing,undone,redone,accessibility,
+    earlyEnd,afterLate,lateUndo,insideImg,recovered,afterRecovery};
+  });
+  assert.equal(report.initial.text,'שלום \uFFFC English\nאחר \uFFFC סוף');
+  assert.deepEqual(report.initial.math,['x^2','y+1']);
+  assert.equal(report.composing.busy,'true');
+  assert.equal(report.composing.status,'Text composition in progress');
+  assert.equal(report.composing.canUndo,false);
+  assert.equal(report.keyEsc,false,'Escape must not end a live composition');
+  assert.equal(report.keyDelete,false,'Native IME owns Delete during composition');
+  assert.equal(report.keyMath,false,'Alt+Enter must not open math dialog during composition');
+  assert.equal(report.duringAfterKeys.text,report.initial.text);
+  assert.equal(report.during.history,1,'Preedit must not create history entries');
+  assert.equal(report.committed.busy,'false');
+  assert.equal(report.committed.status,'Text composition complete');
+  assert.equal(report.committed.history,2);
+  assert.deepEqual(report.committed.caret,{
+   anchor:{paragraph:0,offset:7},focus:{paragraph:0,offset:7}
+  });
+  assert.deepEqual(report.committed.math,['x^2','y+1']);
+  assert(report.committed.runs.some(r=>r.text.includes('אב')&&r.bold&&r.color==='#b42318'));
+  assert.equal(report.trailing.text,'שלום אבג\uFFFC English\nאחר \uFFFC סוף');
+  assert.equal(report.trailing.history,2,'Trailing native commit must amend one history entry');
+  assert.equal(report.trailing.index,1);
+  assert.deepEqual(report.trailing.caret,{
+   anchor:{paragraph:0,offset:8},focus:{paragraph:0,offset:8}
+  });
+  assert(report.trailing.runs.some(r=>r.text.includes('אבג')&&r.bold&&r.color==='#b42318'));
+  assert.deepEqual(report.trailing.math,['x^2','y+1']);
+  assert.equal(report.undone.text,report.initial.text);
+  assert.deepEqual(report.undone.math,['x^2','y+1']);
+  assert.equal(report.redone.text,report.trailing.text);
+  assert.deepEqual(report.redone.math,['x^2','y+1']);
+  assert.equal(report.redone.history,2);
+  assert(report.accessibility.hint.includes('Alt+Enter edits the equation'));
+  assert(report.accessibility.hintId.startsWith('teaching-board-ime-help-'));
+  assert(report.accessibility.shortcuts.includes('Alt+Enter'));
+  assert.equal(report.accessibility.live,'polite');
+  assert.equal(report.accessibility.role,'status');
+  assert.deepEqual(report.accessibility.math.map(x=>x.label),
+    ['Math equation: x^2','Math equation: y+1']);
+  assert(report.accessibility.math.every(x=>x.editable==='false'&&x.hiddenImage==='true'));
+  assert.equal(report.earlyEnd.history,1);
+  assert.equal(report.afterLate.history,2);
+  assert.equal(report.afterLate.text,'שלום \uFFFC לימוד English\nאחר \uFFFC סוף');
+  assert.deepEqual(report.afterLate.math,['x^2','y+1']);
+  assert(report.afterLate.runs.some(r=>r.text.includes('לימוד')&&r.italic&&r.color==='#147d92'));
+  assert.equal(report.lateUndo.text,report.initial.text);
+  if(report.insideImg){
+   assert(report.recovered);
+   assert.deepEqual(report.afterRecovery.caret,{
+    anchor:{paragraph:0,offset:5},focus:{paragraph:0,offset:5}
+   });
+  }
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
