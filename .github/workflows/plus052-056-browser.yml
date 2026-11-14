@@ -1,0 +1,28 @@
+name: PLUS-052..056 browser acceptance
+on:
+  push:
+    paths:
+      - 'calculator/**'
+      - '.github/workflows/plus052-056-browser.yml'
+  pull_request:
+    paths:
+      - 'calculator/**'
+      - '.github/workflows/plus052-056-browser.yml'
+  workflow_dispatch:
+jobs:
+  emulator-extras:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify canonical standalone matches modular files
+        run: python3 calculator/tools/build_standalone.py --check
+      - name: Install Chromium Playwright
+        run: |
+          python3 -m pip install playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Run five-feature acceptance tests on both builds
+        run: python3 calculator/tests/plus052_056_browser.py
