@@ -127,13 +127,23 @@ function rasterize(state){
  const pixels=new Uint8Array(W*H),textRuns=[],fineStrokes=[];
   // Keep 96x31 expression layout, but draw geometric signs at 192x62.
   const fineStroke=(x1,y1,x2,y2)=>fineStrokes.push([x1,y1,x2,y2]);
-  // Hollow, proportionate edit box: unlike the old underline, it cannot
-  // be mistaken for the caret, fraction bar or radical's descending stem.
+  // A consistent 7x11 pixel slot for Natural Display. It is a glyph,
+  // not an enlarged outline rectangle: same ink weight as numbers and letters.
+  const SLOT_GLYPH=new Uint8Array([
+   0b0000000,
+   0b0111110,
+   0b0100010,
+   0b0100010,
+   0b0100010,
+   0b0100010,
+   0b0100010,
+   0b0100010,
+   0b0111110,
+   0b0000000,
+   0b0000000
+  ]);
   const placeholder=(x,y)=>{
-   fineStroke(x+1,y+1,x+5,y+1);
-   fineStroke(x+5,y+1,x+5,y+6);
-   fineStroke(x+5,y+6,x+1,y+6);
-   fineStroke(x+1,y+6,x+1,y+1);
+   textRuns.push({rows:SLOT_GLYPH,x:x+1,y:y+1,inverse:false});
   };
   // Scale the mathematical strokes at the source, not after rasterization.
   const mathLine=(x1,y1,x2,y2)=>fineStroke(x1,y1,x2,y2);
@@ -161,7 +171,7 @@ function rasterize(state){
    }
   }
   for(const item of textRuns){
-   const glyphRows=hiGlyph(item.c),px=Math.round(item.x*2),py=Math.round(item.y*2);
+   const glyphRows=item.rows||hiGlyph(item.c),px=Math.round(item.x*2),py=Math.round(item.y*2);
    for(let gy=0;gy<11;gy++){
     const yy=py+gy;if(yy<0||yy>=HI_H)continue;
     for(let gx=0;gx<7;gx++){
