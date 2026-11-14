@@ -185,7 +185,7 @@ try{
    document.body.append(host);
    const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},paint(){},disposed:true,applyText(){}};
    const item={id:'stable-text',type:'text',x:10,y:10,w:450,h:120,fontSize:24,
-    text:'שלום Middle\\nEnglish נוסחה',paragraphs:[
+    text:'שלום Middle\nEnglish נוסחה',paragraphs:[
      {align:'right',dir:'rtl',list:'none'},{align:'left',dir:'ltr',list:'none'}]};
    const draft=new InlineText(editor,item,true);
    const first=draft.input.children[0].querySelector('span').firstChild;
