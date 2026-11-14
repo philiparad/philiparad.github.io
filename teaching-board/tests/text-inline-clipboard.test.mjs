@@ -199,3 +199,36 @@ test('long multi-paragraph copy/paste respects document length and rejects inval
  // is outside that cap; do not generate invalid clipboard JSON or silently reset.
  assert.equal(first,null);
 });
+
+
+test('cutting complete preceding paragraphs retains surviving RTL/LTR metadata and ordinal',()=>{
+ const doc={runs:[{text:'First\nשני\nThird'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7},
+   {align:'left',dir:'ltr',list:'number'},
+   {align:'center',dir:'ltr',list:'bullet'}]};
+ const cutFirst=replaceRichClipboard(doc,0,'First\n'.length,
+  {schema:1,runs:[],paragraphs:[{align:'auto',dir:'auto',list:'none'}]});
+ assert(cutFirst);
+ assert.equal(cutFirst.text,'שני\nThird');
+ assert.equal(cutFirst.paragraphs[0].dir,'ltr');
+ assert.equal(cutFirst.paragraphs[0].numberStart,8);
+ const cutAcross=replaceRichClipboard(doc,0,doc.runs[0].text.indexOf('ird'),
+  {schema:1,runs:[],paragraphs:[{align:'auto',dir:'auto',list:'none'}]});
+ assert.equal(cutAcross.text,'ird');
+ assert.equal(cutAcross.paragraphs[0].list,'bullet');
+ assert.equal(cutAcross.paragraphs[0].dir,'ltr');
+});
+
+test('copying lists into a bulleted prefix preserves the next numbered source ordinal',()=>{
+ const copied={schema:1,runs:[{text:'שמונה\nNine'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:8},
+   {align:'left',dir:'ltr',list:'number'}]};
+ const target={runs:[{text:'Prefix suffix'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'bullet'}]};
+ const added=replaceRichClipboard(target,7,7,copied);
+ assert(added);
+ assert.equal(added.paragraphs[0].list,'bullet');
+ assert.equal(added.paragraphs[1].list,'number');
+ assert.equal(added.paragraphs[1].numberStart,9);
+ assert.equal(added.paragraphs[1].dir,'ltr');
+});

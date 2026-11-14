@@ -210,7 +210,15 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
             (last>first||end-paragraphOffset(oldRows,last)===oldRows[first].length);
         const sourceOwnsFirst=!!insertion&&!plainText&&!prefix.length&&
             (oldRows[first].length===0||replaceWholeFirst);
-        const firstMeta=sourceOwnsFirst?payload.paragraphs[0]:original.paragraphs[first];
+        const deletingWholeLeadingRows=!insertion&&!prefix.length&&last>first;
+        let firstMeta=sourceOwnsFirst?payload.paragraphs[0]:original.paragraphs[first];
+        if(deletingWholeLeadingRows){
+            firstMeta=structuredClone(original.paragraphs[last]);
+            // A surviving second-or-later numbered item needs its real
+            // starting ordinal when all earlier list items were removed.
+            if(firstMeta.list==='number')
+                firstMeta.numberStart=numberedItemAt(original.paragraphs,last);
+        }
         const paragraphs=[
             ...structuredClone(original.paragraphs.slice(0,first)),
             structuredClone(firstMeta)
@@ -226,7 +234,16 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
             }else if(plainText){
                 p=structuredClone(original.paragraphs[first]);
                 if(p.list==='number')delete p.numberStart;
-            }else p=structuredClone(payload.paragraphs[i]);
+            }else{
+                p=structuredClone(payload.paragraphs[i]);
+                // If the copied first numbered item merged into a non-list
+                // destination prefix, preserve the visible ordinal of the
+                // next copied numbered item rather than starting at 1.
+                const prior=paragraphs.at(-1);
+                if(p.list==='number'&&p.numberStart===undefined&&
+                    payload.paragraphs[i-1].list==='number'&&prior.list!=='number')
+                    p.numberStart=numberedItemAt(payload.paragraphs,i);
+            }
             paragraphs.push(p);
         }
         paragraphs.push(...structuredClone(original.paragraphs.slice(last+1)));
