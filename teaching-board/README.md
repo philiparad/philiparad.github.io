@@ -29,6 +29,23 @@ Polygon: click each vertex, then press Enter. Use `*` for multiplication in grap
 
 Use Export → Editable backup before clearing browser data, or to transfer a lesson. Import creates a new lesson without replacing the original. Print / Save as PDF fits the full board onto one A4 landscape page; very large boards may print small.
 
+## Inline equation cursor and keyboard controls
+
+Inline equations behave as **one atomic character** in text boxes and sticky
+notes. Place the caret by clicking the left/right side of an equation, or use
+the Left/Right arrow keys to move across the entire equation. Keyboard movement
+follows the paragraph's writing direction: in English/LTR, Right moves forward;
+in Hebrew/RTL, Left moves forward. Use Shift+Arrow to select the entire
+equation. Backspace and Delete remove an adjacent equation without changing
+neighboring text. The normal text Undo/Redo commands restore or reapply the
+removal. Double-click the equation to edit its mathematical source.
+
+The editor also handles cancelable `beforeinput` delete events, including
+input paths that do not emit a standard desktop keydown. The ordinary browser
+editing behavior is preserved when the caret is not adjacent to an equation
+or when deleting a wider text selection. Browser-specific operating system
+IME and accessibility-device behavior still require manual testing.
+
 ## Text draft recovery
 
 Changed drafts for text boxes and sticky notes are stored locally in the

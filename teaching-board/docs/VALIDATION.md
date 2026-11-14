@@ -137,3 +137,29 @@ The sole expected failure in that capture run was outdated pixel baselines
 for the mixed-language inline-math fixture, now explicitly reviewed and
 updated in the golden manifest. Final full verification remains dependent
 on the subsequent enforcing workflow, including the A4 PDF raster check.
+
+## TXT-053: atomic inline-equation editing (November 14, 2026)
+
+Added explicit logical-caret navigation and deletion for non-editable inline
+math spans. An equation counts as exactly one `U+FFFC` token, regardless
+of its nested HTML image markup. Left/Right arrows skip one equation only
+when the caret is beside it; the logical direction follows each paragraph's
+computed RTL or LTR flow. Shift+Arrow selects one atomic token. Clicking the
+left or right half of the rendered equation places the caret on the
+corresponding logical side, including reversed RTL behavior.
+
+Adjacent Backspace/Delete removes only the equation and restores the caret
+to its old logical start. The editor records this as a normal rich-text
+history entry, supporting Undo/Redo without losing neighboring Hebrew or
+English text. Cancelable mobile-style `beforeinput` deletion and selected
+range deletion are covered as separate regression paths. Ordinary native
+text editing is unchanged when no equation borders the caret.
+
+[Verified GitHub Actions run 43577589874](https://github.com/philiparad/philiparad.github.io/actions/runs/43577589874)
+passed **285/285 Node.js tests**, plus Chromium, Firefox and WebKit browser
+smoke tests, all nine committed pixel goldens, and Chromium A4 PDF print to
+Poppler rasterization. Browser smoke coverage includes caret movement in
+LTR/RTL and after changing paragraph direction, Shift selection, native
+selected-equation deletion, Backspace/Delete, cancelable `beforeinput`,
+mouse placement and Undo/Redo. Full native OS IME/device coverage remains
+manual QA.
