@@ -59,8 +59,11 @@ try {
    imageCount:section.querySelectorAll('image').length
   }));
   if(JSON.stringify(board)!==before)throw Error('Preparing PDF mutated the lesson.');
+  const selected=document.implementation.createHTMLDocument('Selected A4 page');
+  preparePrintPagesDocument(selected,board,[1]);
   return {
    html:'<!doctype html>'+printDocument.documentElement.outerHTML,
+   selectedHtml:'<!doctype html>'+selected.documentElement.outerHTML,
    sections:shapes,width:A4.w,height:A4.h
   };
  });
@@ -120,9 +123,36 @@ try {
  assert(first.blue<100,'Second-page blue object leaked onto page one.');
  assert(second.blue>9000,'Second PDF page lost the blue reference object.');
  assert(second.red<100,'First-page red object leaked onto page two.');
+
+ // Selected-page PDF must export only the requested page, retaining its
+ // document-local content while excluding neighboring objects.
+ await print.setContent(printed.selectedHtml,{waitUntil:'load'});
+ const selectedPdf=await print.pdf({printBackground:true,preferCSSPageSize:true,format:'A4'});
+ const selectedPath=join(workspace,'selected.pdf');
+ writeFileSync(selectedPath,selectedPdf);
+ const selectedInfo=execFileSync('pdfinfo',[selectedPath],{encoding:'utf8'});
+ assert.match(selectedInfo,/^Pages:\s+1\s*$/m,'Selected-page printing exported more than one page.');
+ const selectedPrefix=join(workspace,'selected-print');
+ execFileSync('pdftoppm',['-f','1','-l','1','-r','96','-png',selectedPath,selectedPrefix],{timeout:60000});
+ const selectedPng=readFileSync(join(workspace,'selected-print-1.png')).toString('base64');
+ const selectedColors=await page.evaluate(async b64=>{
+  const image=new Image();image.src='data:image/png;base64,'+b64;await image.decode();
+  const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
+  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  let blue=0,red=0;
+  for(let i=0;i<pixels.length;i+=4){
+   if(pixels[i+2]>125&&pixels[i]<75&&pixels[i+1]<125)blue++;
+   if(pixels[i]>155&&pixels[i+1]<85&&pixels[i+2]<85)red++;
+  }
+  return {blue,red};
+ },selectedPng);
+ assert(selectedColors.blue>9000,'Selected-page PDF lost page two content.');
+ assert(selectedColors.red<100,'Selected-page PDF leaked page one content.');
  assert.deepEqual(pageErrors,[]);
  console.log('PASS Chromium A4 print→PDF→Poppler raster: '+JSON.stringify({
-  pages,bytes:pdf.length,sections:printed.sections,raster:metrics
+  pages,bytes:pdf.length,sections:printed.sections,raster:metrics,
+  selectedPage:{pages:1,...selectedColors}
  }));
 }finally{
  await browser.close();
