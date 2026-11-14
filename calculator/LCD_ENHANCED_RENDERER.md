@@ -57,3 +57,15 @@ If any semantic error, clipping, or overlap is detected, use `lcd=authentic` unt
 - Add image-golden comparisons from a real browser; automated array tests alone do not establish visual quality.
 - Offer a user-facing display mode switch that preserves current editor state.
 - Optionally render status annunciators in the same Canvas coordinate system.
+
+## Result-line typography improvement — November 14, 2026
+
+The original enhanced renderer only repainted the **input** expression. Answers such as `4√6` were still drawn with the legacy 7×11 glyph atlas, leaving visible bitmap jaggies. The enhanced renderer now additionally paints short MathIO results with measured Canvas text and vector radicals/lines.
+
+- Supports short decimal and π answers, exact radical text including `4√6` and `√2+3√5`, stacked fractions, mixed fractions, and repeating-decimal overbars.
+- Result coordinates remain right-aligned, and a separate clipped lower LCD region protects the input and annunciators.
+- Long outputs, horizontally scrolled results, unsupported formats, and other calculator modes continue to use the legacy renderer.
+- The calculation engine and result values are unchanged.
+- `test_lcd_enhanced.cjs` includes result and fallback fixtures; **66** enhanced test cases pass, alongside **322** legacy LCD regression cases.
+
+These are geometry and Canvas-operation checks, not browser image-diff tests. Verify actual text crispness and root shape on the website and in Windows WebView2 before claiming visual/device parity.
