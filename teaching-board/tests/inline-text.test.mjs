@@ -154,3 +154,21 @@ test('editing overlay expands from measured SVG layout when DOM scrollHeight is 
  assert.equal(e.applied[2],expected);
  assert.equal(e.applied[1],Array(25).fill('שלום English').join(' '));
 });
+
+test('restore last valid history snapshot repairs malformed equation before saving',()=>{
+ const e=fixture(),edit=e.inlineText;
+ const richNode=edit.input.children[0]?.children[0];
+ assert.ok(richNode);
+ richNode.dataset.equation='{malformed';
+ edit.finish(true);
+ assert.notEqual(edit.closed,true,'Invalid equation cannot close the editor.');
+ assert.equal(e.applied,undefined);
+ const history=edit.textHistory.current;
+ assert.equal(Object.hasOwn(history,'text'),false,'TextHistory stores runs, not duplicate text.');
+ assert.equal(edit.restoreFormattedDraft(history),true);
+ assert.equal(edit.input.textContent,'Original');
+ edit.finish(true);
+ assert.equal(edit.closed,true);
+ assert.equal(e.applied[1],'Original');
+ assert.equal(listeners.size,0);
+});
