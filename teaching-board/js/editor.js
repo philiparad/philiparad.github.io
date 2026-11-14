@@ -292,7 +292,7 @@ export class Editor {
   if(existing&&target.text===text&&JSON.stringify(target.runs)===JSON.stringify(item.runs)&&JSON.stringify(target.paragraphs)===JSON.stringify(item.paragraphs)&&target.h>=height){this.paint();return;}
   target.text=text;if(item.runs)target.runs=structuredClone(item.runs);if(item.paragraphs)target.paragraphs=structuredClone(item.paragraphs);target.h=Math.max(target.h,height);
   if(!existing){
-    this.pendingNewTextDraftIds.add(target.id);
+    (this.pendingNewTextDraftIds??=new Set()).add(target.id);
     this.board.items.push(target);
    }
    this.selected=new Set([target.id]);
