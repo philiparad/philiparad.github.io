@@ -2649,6 +2649,30 @@ $('export-keylog').addEventListener('click',()=>download('independent-calculator
  JSON.stringify({schema:'fresh-calculator-keylog-v2',entries:state.keylog,
   selectedIndices:[...keylogView.selected].sort((a,b)=>a-b),
   formattedTrace:selectedKeyTrace()},null,2),'application/json'));
+// Opt-in, same-origin integration with the Teaching Board calculator modal.
+// The board asks for Ans; the calculator never sends unsolicited results.
+// Only the dedicated calculator-only iframe may respond, and the requester
+// must be its same-origin parent. No mutable state or code is transferred.
+const BOARD_ANS_PROTOCOL='teaching-board/calculator-ans-v1';
+window.addEventListener('message',event=>{
+ if(window.parent===window||event.source!==window.parent||
+    event.origin!==window.location.origin||
+    !document.documentElement.classList.contains('calculator-only'))return;
+ const data=event.data;
+ if(!data||typeof data!=='object'||Array.isArray(data)||
+    data.protocol!==BOARD_ANS_PROTOCOL||data.type!=='request'||
+    typeof data.id!=='string'||data.id.length<1||data.id.length>100)return;
+ const answer=state.resultPresentation?.chosen?.text;
+ const display=typeof answer==='string'?answer.trim():'';
+ const valid=display.length>0&&display.length<=160&&
+    !/[\\u0000-\\u001f\\u007f\\ufffc]/u.test(display);
+ event.source.postMessage(valid?{
+  protocol:BOARD_ANS_PROTOCOL,type:'response',id:data.id,display
+ }:{
+  protocol:BOARD_ANS_PROTOCOL,type:'response',id:data.id,error:'no-answer'
+ },event.origin);
+});
+
 document.addEventListener('keydown',keyboard);
 // Background tabs can throttle timers: recheck elapsed wall time on return.
 document.addEventListener('visibilitychange',()=>{if(state.power)checkInactivity()});
