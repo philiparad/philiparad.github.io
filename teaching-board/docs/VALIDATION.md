@@ -27,5 +27,13 @@ zero differing pixels.
 
 **Scope limits:** These parity comparisons are not committed golden-image
 snapshots and do not establish exact HTML/SVG/PDF glyph-level equivalence.
-Full native OS IME testing, visual baselines, PDF raster fidelity and wider
-device coverage remain open.
+A separate **Chromium A4 PDF print regression** uses Teaching Board's own
+`preparePrintPagesDocument` implementation, Chromium's PDF printer, and
+Poppler's independent `pdfinfo` and `pdftoppm` tools. It checks exact page
+count, A4 orientation/dimensions, text and graphics presence, no cross-page
+bleed, and that printing only page two excludes page one's objects. The
+two-page and selected-page tests passed in [GitHub Actions 43560506880](https://github.com/philiparad/philiparad.github.io/actions/runs/43560506880),
+alongside all 263 Node tests and three-browser smoke and SVG parity checks.
+
+Full native OS IME testing, independent golden-image visual baselines, exact
+PDF-to-SVG glyph-level pixel equality, and wider device coverage remain open.
