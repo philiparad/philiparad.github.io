@@ -53,6 +53,19 @@ No application server, package installation or build step. Serve the repository 
 
 `tests/index.html` runs pure logic and isolated IndexedDB tests. See `docs/VALIDATION.md` for release validation and `docs/ARCHITECTURE.md` for module responsibilities.
 
+The [Teaching Board regression workflow](https://github.com/philiparad/philiparad.github.io/actions/workflows/teaching-board-tests.yml) runs the Node test suite **and Chromium browser smoke tests** whenever `teaching-board/` changes. Browser tests use the actual static application, real text selection, toolbar formatting, undo/redo, SVG mixed-direction rendering, and confirmed A4 numbered-list flow.
+
+To reproduce the browser smoke tests locally, serve the repository root over HTTP, then run:
+
+```sh
+npm install --no-save --no-package-lock playwright@1.56.1
+npx playwright install chromium
+node teaching-board/browser-tests/smoke.browser.mjs
+```
+
+By default, the smoke script expects `http://127.0.0.1:8765/teaching-board/`. Override `TEACHING_BOARD_URL` to use another local origin. The tests use a fresh, isolated browser profile; they do not access lessons in your normal browser. Chromium coverage is **not** equivalent to Firefox/WebKit testing or a pixel-level visual baseline.
+
+
 The folder uses relative URLs and hash routing. It is deployed through the existing repository's GitHub Pages workflow. Existing teaching materials and the homepage are preserved.
 
 ### Polar curves
