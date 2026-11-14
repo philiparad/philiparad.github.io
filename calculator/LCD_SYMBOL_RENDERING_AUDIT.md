@@ -57,3 +57,11 @@ The test covers twelve structured node types and verifies deterministic 192 × 6
 6. Preserve the existing calculation engine, serializing expressions exactly as before.
 
 Do not assume a larger canvas by itself improves glyph detail. Improve the **source geometry and glyph atlas first**, then test rasterization at each platform's display scale.
+
+## Follow-up: native-style placeholder and LCD image quality (2026-11-14)
+
+- Replaced the coarse outlined placeholder with a fixed 7×11 monochrome LCD bitmap. It shares the high-resolution character renderer with digits and operators and is used for empty structured-input fields.
+- Removed the per-subpixel brightness stripe from the 960×310 output image; each underlying 192×62 logical LCD pixel now has a uniform ink/background color.
+- Extended `calculator/tests/test_lcd_symbols.cjs` to **322 passing rendering cases**: all 12 structured templates, empty/filled states, MathIO/LineIO, edit/result states, nested expressions, input glyph atlas, eight calculation modes, contrast levels, off state, canvas color consistency, and template insertion/undo through the actual editor APIs.
+- The Windows Actions workflow runs this test in `calculator/desktop/package.json` during `npm run check`; edits to the test itself also trigger the workflow.
+- The new slot is **reference-inspired, not manufacturer pixel-for-pixel certified**. An exact hardware match still requires a native fx-991ES PLUS 2nd edition screenshot of the empty root slot and browser/Windows image-diff review under matched zoom.
