@@ -39,6 +39,7 @@ import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-h
 
 import { toolIcon } from './tool-icons.js?v=20261114-calculator-modal';
 import { CalculatorModal } from './calculator-modal.js';
+import {calculatorTextItem} from './calculator-answer.js';
 
 import { Geometry } from './geometry.js?v=20261024-image-actions';
 import { snapPoint, snapAngle } from './snapping.js?v=20261024-image-actions';
@@ -143,7 +144,7 @@ export class Editor {
  dynamics.onchange=()=>{this.penDynamics=dynamics.value;try{localStorage.setItem('teaching-board-pen-dynamics',this.penDynamics);}catch{}};
  const paperSettings=btn('Background settings',async()=>{const current=backgroundOptions(this.board.background,this.board.backgroundOptions);const result=await formDialog('Background settings',[['color','Paper color',current.color,'color'],['lineColor','Line color',current.lineColor,'color'],['spacing','Spacing (8–256)',current.spacing,'number']],{validate:v=>backgroundOptions(this.board.background,{...v,spacing:Number(v.spacing)})});if(result){this.board.backgroundOptions=result;this.commit();}});
  const laserSettings=btn('Laser settings',async()=>{const o=this.laserTrail.options;const r=await formDialog('Laser settings',[['color','Trail color',o.color,'color'],['width','Thickness (1–24)',o.width,'number'],['seconds','Fade duration (seconds)',o.duration/1000,'number']],{validate:v=>laserOptions({color:v.color,width:Number(v.width),duration:Number(v.seconds)*1000})});if(r)this.laserTrail.configure(r);});
- properties.append(paperSettings,laserSettings,width,font,alignment,textStyle,el('span','Opacity'),opacity,el('span','Ink'),smoothing,dynamics,paper);const deck=el('div',null,'command-deck');const propertyMenu=el('details',null,'property-menu');const propertySummary=el('summary','⚙ Ink & style');propertySummary.title='Drawing properties and handwriting smoothing';propertyMenu.append(propertySummary,properties);this.lineStyleMenu=new LineStyleMenu(this);this.fillPalette=new FillPalette(this);this.strokePalette=new FillPalette(this,'stroke');this.calculatorModal=new CalculatorModal();deck.append(bar,this.strokePalette.root,this.lineStyleMenu.root,this.fillPalette.root,this.calculatorModal.button,propertyMenu);
+ properties.append(paperSettings,laserSettings,width,font,alignment,textStyle,el('span','Opacity'),opacity,el('span','Ink'),smoothing,dynamics,paper);const deck=el('div',null,'command-deck');const propertyMenu=el('details',null,'property-menu');const propertySummary=el('summary','⚙ Ink & style');propertySummary.title='Drawing properties and handwriting smoothing';propertyMenu.append(propertySummary,properties);this.lineStyleMenu=new LineStyleMenu(this);this.fillPalette=new FillPalette(this);this.strokePalette=new FillPalette(this,'stroke');this.calculatorModal=new CalculatorModal(display=>this.insertCalculatorAnswer(display));deck.append(bar,this.strokePalette.root,this.lineStyleMenu.root,this.fillPalette.root,this.calculatorModal.button,propertyMenu);
  const layout=el('div',null,'editor-layout');this.area=el('div',null,'board');this.svg=svgEl('svg',{'aria-label':'Teaching canvas',tabindex:0});this.area.append(this.svg);this.selectionMenu=new SelectionMenu(this);this.imageToolbar=new ImageToolbar(this);this.svg.oncontextmenu=e=>this.selectionMenu.open(e);
  this.zoomLabel=el('span');const zoom=el('div',null,'zoom');zoom.append(btn('−',()=>this.zoom(1/1.2)),this.zoomLabel,btn('+',()=>this.zoom(1.2)),btn('Fit',()=>this.fit()),btn('100%',()=>{this.board.viewport={x:0,y:0,zoom:1};this.paint();this.save();}));this.area.append(zoom,this.pages.controls());this.minimap=new Minimap(this);this.area.append(this.minimap.root);
  this.exitPresent=btn('Exit presentation',()=>document.body.classList.remove('presenting'),'exit-present');this.area.append(this.exitPresent);
@@ -285,6 +286,29 @@ export class Editor {
  zoom(factor){this.board.viewport=zoomAt(this.board.viewport,{x:this.area.clientWidth/2,y:this.area.clientHeight/2},factor);this.paint();this.save();}
  fit(){if(this.board.layout==='a4'){this.pages.go(this.pages.index);return;}if(!this.board.items.length)return;const b=union(this.board.items),z=Math.max(.1,Math.min(3,(this.area.clientWidth-80)/Math.max(1,b.w),(this.area.clientHeight-80)/Math.max(1,b.h)));this.board.viewport={zoom:z,x:(this.area.clientWidth-b.w*z)/2-b.x*z,y:(this.area.clientHeight-b.h*z)/2-b.y*z};this.paint();this.save();}
  async resizeDialog(){const i=this.board.items.find(i=>this.selected.has(i.id)&&this.canTransform(i));if(!i){notify('Select an editable object, or detach the connector first.');return;}if(i.links){notify('Detach the connector before changing its size.');return;}const selected=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i)),group=selected.some(i=>i.groupId),box=group?union(selected):{...i,h:textObjectHeight(i)};const r=await formDialog('Object size',[['w','Width',box.w,'number'],['h','Height',box.h,'number']],{validate:v=>{const w=+v.w,h=+v.h;if(!Number.isFinite(w)||!Number.isFinite(h)||w<1||h<1||w>10000||h>10000)throw new Error('Use sizes from 1 to 10,000.');return {w,h};}});if(r){if(group){this.scaleSelection(r.w/box.w,r.h/box.h,box);return;}for(const item of this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i))){if(item.points)item.points=item.points.map(([x,y])=>[x*r.w/item.w,y*r.h/item.h]);if(item.rawPoints)item.rawPoints=item.rawPoints.map(([x,y])=>[x*r.w/item.w,y*r.h/item.h]);Object.assign(item,r);}this.commit();}}
+ /**
+  * Send the calculator's currently formatted Ans to the visible center as
+  * an editable text item, using the same board validation/history pipeline.
+  */
+ insertCalculatorAnswer(display){
+  if(this.disposed)throw Error('The teaching board is closed.');
+  if(this.inlineText&&!this.inlineText.closed){
+   this.inlineText.finish(true,false);
+   if(this.inlineText&&!this.inlineText.closed)
+    throw Error('Finish editing the current text before sending Ans.');
+  }
+  const base=this.base('text',{x:0,y:0});
+  const item=calculatorTextItem(base,display,this.fontSize);
+  const p=this.center();
+  item.x=p.x-item.w/2;item.y=p.y-item.h/2;
+  validateBoard({...this.board,items:[...this.board.items,item]});
+  this.board.items.push(item);
+  this.selected=new Set([item.id]);
+  this.setTool('select');
+  this.commit();
+  notify('Calculator Ans added to the board as editable text.');
+  return true;
+ }
  insertText(type,p=this.center(),existing=null){
   if(existing&&(this.isLocked(existing)||existing.groupId))return;
   this.inlineText?.finish(true,false);
