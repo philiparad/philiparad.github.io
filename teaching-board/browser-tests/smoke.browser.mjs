@@ -2856,6 +2856,12 @@ try{
   await modal.waitFor({state:'visible'});
   await modal.getByRole('button',{name:'Close calculator'}).click();
   await modal.waitFor({state:'hidden'});
+  await page.waitForFunction(()=>{
+   const b=document.querySelector('.calculator-toggle');
+   const frame=document.querySelector('.board-calculator-frame');
+   return b?.getAttribute('aria-expanded')==='false'&&
+    !frame?.hasAttribute('src')&&document.activeElement===b;
+  });
   assert.equal(await button.getAttribute('aria-expanded'),'false');
   assert.equal(await button.getAttribute('aria-label'),'Open calculator');
   assert.equal(await page.locator('.board-calculator-frame').getAttribute('src'),null);
