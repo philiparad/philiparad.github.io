@@ -304,6 +304,101 @@ try{
   }
  });
 
+ await check('inline math uses native baselines, atomic wrapping and bounded HTML/SVG export',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {equationContentWidth,textLayoutMetrics}=await import('./js/inline-equation.js');
+   const {paragraphRuns,readRichDocument}=await import('./js/rich-text.js');
+   const {drawItem,sceneSVG,svgEl}=await import('./js/scene.js');
+   const {createBoard,parseBackup,serializeBackup}=await import('./js/model.js');
+   const equation={source:'x^2+1',src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRrQAAAAASUVORK5CYII=',w:80,h:90};
+   const cases=[
+    {id:'rtl-math',type:'note',x:0,y:0,w:330,h:20,fontSize:24,fill:'#fff1a8',
+     text:'שלום \uFFFC English',runs:[{text:'שלום '},{text:'\uFFFC',equation},{text:' English'}],
+     paragraphs:[{align:'right',dir:'rtl',list:'none'}]},
+    {id:'wrapped-math',type:'text',x:0,y:0,w:145,h:15,fontSize:24,
+     text:'Before \uFFFC after',runs:[{text:'Before '},{text:'\uFFFC',equation:{...equation,w:1400,h:45}},{text:' after'}],
+     paragraphs:[{align:'left',dir:'ltr',list:'none'}]},
+    {id:'tall-math',type:'text',x:0,y:0,w:330,h:15,fontSize:24,
+     text:'Solve \uFFFC now',runs:[{text:'Solve '},{text:'\uFFFC',equation:{...equation,w:45,h:120}},{text:' now'}],
+     paragraphs:[{align:'left',dir:'ltr',list:'none'}]}
+   ];
+   const host=document.createElement('div');host.style.cssText='position:fixed;inset:125px 80px 50px;background:white;z-index:3000';
+   document.body.append(host);
+   const result=[];
+   for(const item of cases){
+    const editor={area:host,board:{id:'browser-inline-math-'+crypto.randomUUID(),
+      viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+    const draft=new InlineText(editor,item,true);
+    await document.fonts.ready;
+    const img=draft.input.querySelector('.inline-equation img');
+    await img.decode();
+    draft.resize();
+    const box=img.getBoundingClientRect(),inputBox=draft.input.getBoundingClientRect();
+    const inline=img.closest('.inline-equation');
+    const sentinel=document.createElement('span');
+    sentinel.style.cssText='display:inline-block;width:0;height:0;line-height:0;vertical-align:baseline;padding:0;border:0;margin:0';
+    inline.after(sentinel);
+    const nativeBaseline=sentinel.getBoundingClientRect().top-inputBox.top;
+    sentinel.remove();
+    const snapshot=readRichDocument(draft.input,item),model={...item,
+      text:snapshot.runs.map(run=>run.text).join(''),
+      runs:snapshot.runs,paragraphs:snapshot.paragraphs};
+    const metrics=textLayoutMetrics(model,paragraphRuns(model));
+    const svg=svgEl('svg',{width:item.w,height:metrics.height+10});
+    svg.style.cssText='position:fixed;left:0;top:0;opacity:0;pointer-events:none';
+    const drawing=drawItem(model);svg.append(drawing);host.append(svg);
+    const vectorImage=drawing.querySelector('image');
+    const vb=vectorImage?.getBBox();
+    const exported=sceneSVG({...createBoard('Math export'),background:'plain',items:[model]});
+    const exportCount=exported.querySelectorAll('image').length;
+    const expectedBaselines=[];let top=metrics.pad;
+    for(const line of metrics.lines){
+      if(line.parts.some(part=>part.equation))expectedBaselines.push(top+line.height-metrics.font*.25);
+      top+=line.height;
+    }
+    const actual={
+      id:item.id,limit:equationContentWidth(item),pad:metrics.pad,
+      imgX:box.left-inputBox.left,imgRight:box.right-inputBox.left,
+      imgBottom:box.bottom-inputBox.top,imgWidth:box.width,imgHeight:box.height,
+      nativeBaseline,verticalAlign:getComputedStyle(inline).verticalAlign,
+      svgImage:vb?{x:vb.x,right:vb.x+vb.width,width:vb.width,
+        y:vb.y,bottom:vb.y+vb.height,height:vb.height}:null,
+      svgBaseline:expectedBaselines[0],svgLineCount:metrics.lines.length,
+      editorHeight:draft.height,htmlScroll:draft.input.scrollHeight,
+      layoutHeight:metrics.height,exportCount,plainText:model.text,
+      equations:model.runs.filter(run=>run.equation).length
+    };
+    svg.remove();draft.finish(false);
+    result.push(actual);
+   }
+   host.remove();
+   return result;
+  });
+  for(const item of report){
+   assert.equal(item.verticalAlign,'baseline','Equation did not align to native text baseline: '+item.id);
+   assert(item.svgImage&&item.exportCount===1&&item.equations===1,
+    'Equation lost during rendering or SVG export: '+JSON.stringify(item));
+   assert(Math.abs(item.imgBottom-item.nativeBaseline)<3,
+    'HTML equation baseline drift: '+JSON.stringify(item));
+   assert(Math.abs(item.svgImage.bottom-item.svgBaseline)<0.1,
+    'SVG equation baseline drift: '+JSON.stringify(item));
+   assert(Math.abs(item.imgWidth-item.svgImage.width)<1&&Math.abs(item.imgHeight-item.svgImage.height)<1,
+    'HTML/SVG equation scaling mismatch: '+JSON.stringify(item));
+   assert(item.svgImage.x>=item.pad-2&&item.svgImage.right<=item.pad+item.limit+2,
+    'SVG math escapes text content width: '+JSON.stringify(item));
+   assert(item.imgX>=item.pad-3&&item.imgRight<=item.pad+item.limit+3,
+    'HTML math escapes text content width: '+JSON.stringify(item));
+   assert(item.svgImage.y>=item.pad-1&&item.svgImage.bottom<=item.layoutHeight+1,
+    'SVG math escapes vertical text bounds: '+JSON.stringify(item));
+   assert(item.editorHeight>=item.htmlScroll-2&&item.editorHeight>=item.layoutHeight,
+    'HTML editor clips inline math: '+JSON.stringify(item));
+   assert(item.plainText.includes('\uFFFC'),'Math placeholder was removed: '+item.id);
+  }
+  assert(report.find(item=>item.id==='wrapped-math').svgLineCount>1,
+   'Oversized equation should wrap atomically onto an available line');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');

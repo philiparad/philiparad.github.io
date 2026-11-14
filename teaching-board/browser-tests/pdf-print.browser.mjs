@@ -22,9 +22,13 @@ try {
   const {preparePrintPagesDocument}=await import('./js/export.js');
   const {createBoard,validateBoard}=await import('./js/model.js');
   const step=A4.h+A4.gap;
-  const equation={source:'x^2+1=10',
-   src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRrQAAAAASUVORK5CYII=',
-   w:95,h:40};
+  // Opaque green math artwork makes the imported inline equation independently
+  // observable in the real print→PDF→Poppler raster, not just in SVG markup.
+  const art=document.createElement('canvas');art.width=95;art.height=40;
+  const pen=art.getContext('2d');pen.fillStyle='#16aa45';
+  pen.fillRect(3,3,89,34);pen.fillStyle='#ffffff';
+  pen.fillRect(18,17,59,5);
+  const equation={source:'x^2+1=10',src:art.toDataURL('image/png'),w:95,h:40};
   const firstText='First page English עברית '+String.fromCharCode(0xfffc);
   const secondText='Second page שלום with mathematics';
   const board={
@@ -102,14 +106,15 @@ try {
    const ctx=canvas.getContext('2d',{willReadFrequently:true});
    ctx.drawImage(img,0,0);
    const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-   let red=0,blue=0,dark=0;
+   let red=0,blue=0,dark=0,green=0;
    for(let i=0;i<data.length;i+=4){
     const r=data[i],g=data[i+1],b=data[i+2];
     if(r>155&&g<85&&b<85)red++;
     if(b>125&&r<75&&g<125)blue++;
     if(r<125&&g<125&&b<125)dark++;
+    if(g>110&&g>r*1.6&&g>b*1.3)green++;
    }
-   results.push({width:canvas.width,height:canvas.height,red,blue,dark});
+   results.push({width:canvas.width,height:canvas.height,red,blue,dark,green});
   }
   return results;
  },images);
@@ -123,6 +128,8 @@ try {
  assert(first.blue<100,'Second-page blue object leaked onto page one.');
  assert(second.blue>9000,'Second PDF page lost the blue reference object.');
  assert(second.red<100,'First-page red object leaked onto page two.');
+ assert(first.green>100,'First PDF page lost its visible inline mathematical equation.');
+ assert(second.green<20,'Inline equation from page one leaked onto page two.');
 
  // Selected-page PDF must export only the requested page, retaining its
  // document-local content while excluding neighboring objects.
@@ -140,15 +147,17 @@ try {
   const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
   const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-  let blue=0,red=0;
+  let blue=0,red=0,green=0;
   for(let i=0;i<pixels.length;i+=4){
    if(pixels[i+2]>125&&pixels[i]<75&&pixels[i+1]<125)blue++;
    if(pixels[i]>155&&pixels[i+1]<85&&pixels[i+2]<85)red++;
+   if(pixels[i+1]>110&&pixels[i+1]>pixels[i]*1.6&&pixels[i+1]>pixels[i+2]*1.3)green++;
   }
-  return {blue,red};
+  return {blue,red,green};
  },selectedPng);
  assert(selectedColors.blue>9000,'Selected-page PDF lost page two content.');
  assert(selectedColors.red<100,'Selected-page PDF leaked page one content.');
+ assert(selectedColors.green<20,'Selected-page PDF leaked page-one inline math.');
  assert.deepEqual(pageErrors,[]);
  console.log('PASS Chromium A4 print→PDF→Poppler raster: '+JSON.stringify({
   pages,bytes:pdf.length,sections:printed.sections,raster:metrics,
