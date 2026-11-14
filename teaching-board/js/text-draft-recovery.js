@@ -43,8 +43,12 @@ export function readTextDraft(storage,boardId,item,now=Date.now()){
   const record=JSON.parse(raw);
   if(record.version!==1||record.itemId!==item.id||record.itemType!==item.type||
      !Number.isFinite(record.updatedAt)||record.updatedAt>now+60000||
-     now-record.updatedAt>MAX_AGE_MS||
      typeof record.rawText!=='string'||record.rawText.length>10000)return null;
+  if(now-record.updatedAt>MAX_AGE_MS){
+   // Expired unsaved content should not remain indefinitely in local storage.
+   try{storage.removeItem(key);}catch{/* Storage can be blocked. */}
+   return null;
+  }
   const valid=validateSnapshot(record);
   if(valid.text!==record.text)return null;
   return {...valid,rawText:record.rawText,updatedAt:record.updatedAt};
