@@ -5,7 +5,7 @@ import {positionFromEquationKeyboard} from '../js/text-equation-caret.js';
 test('TXT-064 math is focusable, named and an atomic image-hidden token',()=>{
  const previous=globalThis.document;
  try{
-  globalThis.document={createElement(tag){return {tagName:tag.toUpperCase(),style:{},attrs:{},
+  globalThis.document={createElement(tag){return {tagName:tag.toUpperCase(),style:{},attrs:{},dataset:{},
    setAttribute(k,v){this.attrs[k]=v;},append(child){this.image=child;}};}};
   const node=equationNode({source:'x^2',src:'data:image/png;base64,AAAA',w:50,h:30},24);
   assert.equal(node.tabIndex,0);
