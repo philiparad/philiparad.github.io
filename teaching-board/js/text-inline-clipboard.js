@@ -249,7 +249,7 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
         // equation image/source atoms intact, without copying text marks onto
         // the equation object or converting it into plain LaTeX.
         const insertionRuns=inheritDestination?payload.runs.map(run=>
-            run.equation?run:{...run,...inheritedStyle}):payload.runs;
+            run.equation?run:{text:run.text,...inheritedStyle}):payload.runs;
         const runs=compactRuns([
             ...sliceRuns(original.runs,0,start),
             ...insertionRuns,
