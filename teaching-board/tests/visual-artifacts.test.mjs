@@ -25,12 +25,18 @@ test('inspectable PNG artifacts include both renders, difference image and hash 
   });
   assert.deepEqual(readdirSync(path).sort(),[
    'chromium-01-cached.png','chromium-01-difference.png',
-   'chromium-01-export.png','chromium-visual-artifacts.json'
+   'chromium-01-export.png','chromium-gallery.html','chromium-visual-artifacts.json'
   ]);
   for(const type of ['cached','export','difference']){
    assert.ok(readFileSync(join(path,`chromium-01-${type}.png`)).equals(decodeVisualPng(onePixel,1,1)));
   }
   assert.equal(manifest.scenes[0].goldenMatch,true);
+  const gallery=readFileSync(join(path,'chromium-gallery.html'),'utf8');
+  assert.match(gallery,/<title>Teaching Board visual review/);
+  assert.match(gallery,/chromium-01-export\.png/);
+  assert.match(gallery,/chromium-01-cached\.png/);
+  assert.match(gallery,/chromium-01-difference\.png/);
+  assert.match(gallery,/Reference hash matched/);
   const written=JSON.parse(readFileSync(join(path,'chromium-visual-artifacts.json'),'utf8'));
   assert.deepEqual(written,manifest);
  }finally{rmSync(path,{recursive:true,force:true});}
