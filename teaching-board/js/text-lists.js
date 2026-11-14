@@ -1,5 +1,5 @@
 import {readRichDocument,writeRuns,validateParagraphs,validateRuns} from './rich-text.js?v=20261017-history-budget';
-import {captureTextSelection,restoreTextSelection} from './text-selection.js';
+import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js';
 
 /** Toggle list metadata without touching text runs, equation sources, or directions. */
 export function toggleParagraphLists(paragraphs,indices,kind){
@@ -65,13 +65,11 @@ export function applyParagraphList(root,item,selection,kind){
     if(snapshot.paragraphs.length!==blocks.length)return false;
     const paragraphs=toggleParagraphLists(snapshot.paragraphs,indices,kind);
     if(!paragraphs)return false;
-    const range=selection.getRangeAt(0);
-    const one=indices.length===1&&range.collapsed;
-    const saved=one?captureTextSelection(blocks[indices[0]],selection):null;
+    const saved=captureLogicalSelection(root,selection);
     writeRuns(root,{...item,text,runs:snapshot.runs,paragraphs});
     const newBlocks=editableParagraphs(root);
     if(newBlocks.length!==blocks.length)throw new Error('Paragraph count changed during list formatting.');
-    if(one&&saved&&restoreTextSelection(newBlocks[indices[0]],selection,saved))return true;
+    if(saved&&restoreLogicalSelection(root,selection,saved))return true;
     const first=newBlocks[indices[0]],last=newBlocks[indices[indices.length-1]];
     const newRange=document.createRange();
     newRange.selectNodeContents(first);
