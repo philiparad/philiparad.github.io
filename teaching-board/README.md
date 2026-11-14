@@ -39,6 +39,34 @@ the dashboard disposes of the modal without leaving an iframe
 running. The calculator page requires a working network
 connection unless the browser has already cached it.
 
+## Send calculator Ans to the whiteboard
+
+You can add the result of a scientific-calculator calculation without
+manually copying, switching windows, or typing the number again.
+
+1. Select the **calculator icon** beside **Ink & style**.
+2. Complete a calculation and press **=** on the calculator.
+3. Select **Send Ans to Board** in the modal header.
+
+The modal closes and places the result in the **center of the
+currently visible teaching canvas** as an ordinary, editable text
+object. The new object is selected and can be moved, resized,
+formatted, deleted, undone (**Ctrl/⌘+Z**) or restored with Redo.
+
+The transfer uses the calculator's **currently chosen displayed
+representation**, so `1/3` stays `1/3` and a displayed rounded
+decimal or scientific notation is not recomputed from its binary
+numeric value. This inserts literal editable text, not a rendered
+MathJax fraction or an image. To change the display format first,
+use the calculator's existing `S⇔D` controls before sending.
+
+If no calculation has been completed, the button displays a message
+and leaves the modal open. The action is available only after the
+calculator iframe loads. Its one-time `postMessage` exchange
+checks the sender, page origin, request ID and received string.
+It does not expose the board contents to the calculator or transfer
+results without an explicit click.
+
 ## Quick start
 
 Create a lesson, choose a tool, and draw on the canvas. Click the lesson title to change its name or folder. Select objects with the pointer tool; Shift-click adds/removes objects. Drag the corner handle to resize. Double-click text, notes, equations or graphs to edit them. PDF pages are locked on import so you can write on top; select a page and use Lock / Unlock to move it.
