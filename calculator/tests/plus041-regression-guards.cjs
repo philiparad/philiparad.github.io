@@ -50,4 +50,4 @@ const transformed=MATRIX.transpose(source);
 A.deepEqual(transformed.data,[[2,1],[3,4]]);
 A.notDeepEqual(transformed.data,source.data,
  'the source matrix must be non-symmetric to detect a no-op transpose');
-console.log('PLUS-041 PASS: natural square-root keylog and non-symmetric MATRIX transpose regression guards');
+console.log('PLUS-041/042 PASS: square-root entry, matrix transpose, and exact AC error-recovery guards');
