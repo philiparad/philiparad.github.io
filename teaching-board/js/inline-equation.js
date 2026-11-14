@@ -14,7 +14,7 @@ export function equationLines(paragraphs,width,font,measure){
   let parts=[],used=0,height=font*1.3;
   const flush=()=>{lines.push({parts,width:used,height,align:p.align,dir:p.dir||'auto'});parts=[];used=0;height=font*1.3;};
   const add=(text,run,w,h)=>{
-   if(used&&used+w>limit&&!/^\s+$/.test(text))flush();
+   if(used&&used+w>limit)flush();
    parts.push({...run,text,w,h});used+=w;height=Math.max(height,h+font*.2);
   };
   for(const run of [...(marker?[{text:marker}]:[]),...p.runs]){
