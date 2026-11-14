@@ -75,24 +75,73 @@ function logicalLength(node) {
     for (const child of node.childNodes) length+=logicalLength(child);
     return length;
 }
-function logicalPoint(root,blocks,node,offset) {
-    let index=blocks.findIndex(block=>block===node||block.contains(node));
-    if (index<0&&node===root&&blocks.length) {
-        // A collapsed browser caret may be between root-level DIV / OL nodes.
-        const child=root.childNodes[Math.min(Math.max(0,offset),root.childNodes.length-1)];
-        index=blocks.findIndex(block=>block===child||child?.contains?.(block));
-        if (offset===root.childNodes.length) index=blocks.length-1;
-        if (index<0) index=0;
-        return {paragraph:index,offset:offset===root.childNodes.length?logicalLength(blocks[index]):0};
+/** Position of a DOM boundary inside one paragraph, using U+FFFC for
+ * entire equation widgets even when the browser anchors on their descendants.
+ * This avoids partially counting the image accessibility DOM as editable text.
+ */
+function offsetInParagraph(block,node,offset){
+    const visit=current=>{
+        if(current===node){
+            if(current.nodeType===3)
+                return Math.max(0,Math.min(Number.isInteger(offset)?offset:0,
+                    current.textContent.length));
+            if(current.nodeType===1||current.nodeType===11){
+                const count=Math.max(0,Math.min(Number.isInteger(offset)?offset:0,
+                    current.childNodes.length));
+                if(current.dataset?.equation)return count?1:0;
+                let prefix=0;
+                for(let i=0;i<count;i++)prefix+=logicalLength(current.childNodes[i]);
+                return prefix;
+            }
+            return 0;
+        }
+        if(current.nodeType===3)return null;
+        if(current.nodeType!==1&&current.nodeType!==11)return null;
+        if(current.nodeType===1&&current.dataset?.equation){
+            // Some engines put a caret in the formula's image subtree.
+            // Snap to a boundary, never a partial image/alt-text offset.
+            if(current.contains?.(node))
+                return Number.isInteger(offset)&&offset>0?1:0;
+            return null;
+        }
+        let before=0;
+        for(const child of current.childNodes){
+            const result=visit(child);
+            if(result!==null)return before+result;
+            before+=logicalLength(child);
+        }
+        return null;
+    };
+    return visit(block);
+}
+/** Browser selections may be attached to the <ol>, <ul>, or contenteditable
+ * root *between* list items rather than to a descendant text span.
+ */
+function wrapperBoundary(root,blocks,node,offset){
+    if(node!==root&&node?.tagName!=='OL'&&node?.tagName!=='UL')return null;
+    if(node!==root&&!root.contains(node))return null;
+    const children=node.childNodes||[];
+    const at=Math.max(0,Math.min(Number.isInteger(offset)?offset:0,children.length));
+    const inside=child=>blocks.filter(block=>block===child||child?.contains?.(block));
+    for(let i=at;i<children.length;i++){
+        const following=inside(children[i]);
+        if(following.length)return {paragraph:blocks.indexOf(following[0]),offset:0};
     }
-    if (index<0) return null;
-    const block=blocks[index];
-    try {
-        const range=document.createRange();
-        range.selectNodeContents(block);
-        range.setEnd(node,offset);
-        return {paragraph:index,offset:logicalLength(range.cloneContents())};
-    } catch { return null; }
+    for(let i=at-1;i>=0;i--){
+        const prior=inside(children[i]);
+        if(prior.length){
+            const block=prior.at(-1);
+            return {paragraph:blocks.indexOf(block),offset:logicalLength(block)};
+        }
+    }
+    return null;
+}
+function logicalPoint(root,blocks,node,offset) {
+    if(!node)return null;
+    const index=blocks.findIndex(block=>block===node||block.contains(node));
+    if(index<0)return wrapperBoundary(root,blocks,node,offset);
+    const computed=offsetInParagraph(blocks[index],node,offset);
+    return computed===null?null:{paragraph:index,offset:computed};
 }
 export function captureLogicalSelection(root,selection) {
     if (!selection?.rangeCount) return null;
