@@ -18,7 +18,8 @@ const suites=[
  ['plus034-memory-dms-setup-browser.py','PLUS034_CAPTURE_DIR','plus034-browser-captures'],
  ['plus035-constants-stat-table-browser.py','PLUS035_CAPTURE_DIR','plus035-browser-captures'],
  ['plus036-matrix-vector-eqn-browser.py','PLUS036_CAPTURE_DIR','plus036-browser-captures'],
- ['plus037-numeric-browser.py','PLUS037_CAPTURE_DIR','plus037-browser-captures']
+ ['plus037-numeric-browser.py','PLUS037_CAPTURE_DIR','plus037-browser-captures'],
+ ['plus047-solve-calc-browser.py','PLUS047_CAPTURE_DIR','plus047-browser-captures']
 ];
 let sequences=0,presses=0;
 for(const [file,env,folder] of suites){
@@ -45,9 +46,9 @@ for(const [file,env,folder] of suites){
  A.ok(src.includes('getState()'),file+' missing calculator state read');
  A.ok(src.includes('#keys button[data-key='),file+' not using physical DOM keys');
 }
-A.equal(suites.length,6);
-A.ok(sequences>=40,'unexpectedly few covered sequences');
-A.ok(presses>=300,'unexpectedly low key coverage');
+A.equal(suites.length,7);
+A.ok(sequences>=42,'unexpectedly few covered sequences');
+A.ok(presses>=340,'unexpectedly low key coverage');
 A.ok(workflow.includes('PLUS-038 final release quality gate'),
  'browser checks missing consolidated release gate');
 A.ok(workflow.includes('if: always()'),'expected persistent CI artifacts');
