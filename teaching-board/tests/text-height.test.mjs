@@ -4,7 +4,6 @@ import {textLayoutMetrics} from '../js/inline-equation.js';
 import {bounds,drawItem,sceneSVG,textObjectHeight} from '../js/scene.js';
 import {paragraphRuns} from '../js/rich-text.js';
 import {createBoard} from '../js/model.js';
-import {Editor} from '../js/editor.js';
 
 class SvgElement{
  constructor(tag){this.tagName=tag;this.attributes={};this.children=[];}
@@ -51,7 +50,8 @@ test('old sticky note background expands to the measured content height',()=>{
  assert.equal(bounds(note).h,Number(bg.attributes.height));
 });
 
-test('saving unchanged text still commits increased height for legacy objects',()=>{
+test('saving unchanged text still commits increased height for legacy objects',async()=>{
+ const {Editor}=await import('../js/editor.js');
  const item={id:'t',type:'text',x:0,y:0,w:80,h:18,fontSize:24,text:'שלום',runs:[{text:'שלום'}],paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
  const existing=structuredClone(item);
  const fake={board:{items:[existing]},isLocked(){return false;},paint(){this.paints=(this.paints||0)+1;},commit(){this.commits=(this.commits||0)+1;},disposed:false};
