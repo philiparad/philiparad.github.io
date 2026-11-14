@@ -499,7 +499,8 @@ try{
    return {content:text?.textContent,bold:!!text?.querySelector('[style*="font-weight"]'),
     italic:!!text?.querySelector('[style*="italic"]')};
   });
-  assert.deepEqual(draft,{content:'טיוטה English lesson',bold:true,italic:true});
+  assert(draft.content==='טיוטה English lesson'&&draft.bold&&draft.italic,
+   'Draft review failed to open correctly: '+JSON.stringify(draft));
   assert.equal(await page.locator('[data-id="'+record.itemId+'"]').count(),0,
    'Opening recovery must not commit content before Done');
   await page.getByRole('button',{name:'Done'}).click();
@@ -510,8 +511,9 @@ try{
     localStorage.getItem(key)===null;
   },record,{timeout:30000});
   await page.reload({waitUntil:'domcontentloaded'});
-  assert.equal(await page.getByRole('button',{name:/^Recover unsaved text/}).count(),1);
-  assert.equal(await page.getByRole('button',{name:/^Recover unsaved text/}).isHidden(),true);
+  const hiddenRecover=page.getByRole('button',{name:/^Recover unsaved text/,includeHidden:true});
+  await hiddenRecover.waitFor({state:'attached'});
+  assert.equal(await hiddenRecover.isHidden(),true);
   const result=await page.evaluate(async({boardId,itemId,key})=>{
    const {BoardRepository}=await import('./js/storage.js');
    const repo=new BoardRepository(),board=await repo.get(boardId);repo.close();
