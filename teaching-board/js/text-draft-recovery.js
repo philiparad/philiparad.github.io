@@ -36,6 +36,13 @@ function newItemTemplate(item){
     ![result.x,result.y,result.w,result.h,result.fontSize].every(Number.isFinite)||
     result.w<1||result.h<1||result.w>10000||result.h>10000||
     result.fontSize<1||result.fontSize>1000)return null;
+ // Recovery must not reintroduce malformed numeric style/geometry from a
+ // corrupted or manually modified localStorage entry.
+ if(['rotation','strokeOpacity','fillOpacity','opacity','lineWidth'].some(field=>
+    result[field]!==undefined&&!Number.isFinite(result[field])))return null;
+ if(['strokeOpacity','fillOpacity','opacity'].some(field=>
+    result[field]!==undefined&&(result[field]<0||result[field]>1)))return null;
+ if(result.lineWidth!==undefined&&(result.lineWidth<0||result.lineWidth>1000))return null;
  return result;
 }
 export function storeTextDraft(storage,boardId,item,snapshot,rawText=null,now=Date.now(),options={}){
