@@ -117,7 +117,7 @@ test('new-object recovery rejects malformed numeric styles and geometry',()=>{
  for(const patch of [
   {rotation:NaN},{rotation:Infinity},{opacity:2},{opacity:-0.1},
   {strokeOpacity:'opaque'},{fillOpacity:Infinity},{lineWidth:-1},
-  {lineWidth:1001}
+  {lineWidth:1001},{lineWidth:0},{x:1e7},{y:-1e7}
  ]){
   assert.equal(storeTextDraft(store,boardId,{...valid,...patch},snapshot,null,now,
    {newItem:true}),false,JSON.stringify(patch));
@@ -128,5 +128,36 @@ test('new-object recovery rejects malformed numeric styles and geometry',()=>{
  store.map.set(key,JSON.stringify({...original,newItem:{...original.newItem,rotation:'bad'}}));
  assert.deepEqual(listNewTextDrafts(store,boardId,[],now),[]);
  store.map.set(key,JSON.stringify(original));
+ assert.equal(listNewTextDrafts(store,boardId,[],now).length,1);
+});
+
+test('new-object draft recovery rejects invalid colors, line styles, alignment and locks',()=>{
+ const store=storage(),now=2000000000000;
+ store.key=i=>[...store.map.keys()][i]??null;
+ Object.defineProperty(store,'length',{get:()=>store.map.size});
+ const valid={id:'style-guard',type:'note',x:30,y:60,w:280,h:120,fontSize:26,
+  fill:'#fff1a8',stroke:'#203954',locked:false,textAlign:'center',
+  textStyle:'bold-italic',lineStyle:'dashed',lineWidth:2,text:''};
+ const malformed=[
+  {stroke:'blue'},{fill:'#123'},{stroke:{color:'#123456'}},
+  {locked:'false'},{textAlign:'justify'},{textStyle:'normal!important'},
+  {lineStyle:'zigzag'}
+ ];
+ for(const patch of malformed){
+  assert.equal(storeTextDraft(store,boardId,{...valid,...patch},snapshot,null,now,
+   {newItem:true}),false,'Invalid draft was stored: '+JSON.stringify(patch));
+ }
+ assert.equal(storeTextDraft(store,boardId,valid,snapshot,null,now,{newItem:true}),true);
+ const key=draftStorageKey(boardId,valid.id),original=JSON.parse(store.getItem(key));
+ const recovered=listNewTextDrafts(store,boardId,[],now);
+ assert.equal(recovered.length,1);
+ assert.equal(recovered[0].item.textAlign,'center');
+ assert.equal(recovered[0].item.lineStyle,'dashed');
+ for(const patch of malformed){
+  store.setItem(key,JSON.stringify({...original,newItem:{...original.newItem,...patch}}));
+  assert.deepEqual(listNewTextDrafts(store,boardId,[],now),[],
+   'Tampered invalid metadata was offered for recovery: '+JSON.stringify(patch));
+ }
+ store.setItem(key,JSON.stringify(original));
  assert.equal(listNewTextDrafts(store,boardId,[],now).length,1);
 });

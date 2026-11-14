@@ -1,4 +1,10 @@
 import {validateRuns,validateParagraphs} from './rich-text.js?v=20261017-history-budget';
+import {LINE_STYLES} from './line-style.js';
+
+const VALID_LINE_STYLES=new Set(LINE_STYLES.map(([style])=>style));
+const VALID_TEXT_STYLES=new Set(['normal','bold','italic','bold-italic']);
+const VALID_TEXT_ALIGN=new Set(['auto','left','center','right']);
+const COLOR=/^(#[0-9a-f]{6}|none)$/i;
 
 const PREFIX='teaching-board:inline-draft:v1:';
 const MAX_AGE_MS=30*24*60*60*1000;
@@ -34,6 +40,7 @@ function newItemTemplate(item){
  result.text='';
  if(typeof result.id!=='string'||!result.id||result.id.length>200||
     ![result.x,result.y,result.w,result.h,result.fontSize].every(Number.isFinite)||
+    Math.abs(result.x)>=1e7||Math.abs(result.y)>=1e7||
     result.w<1||result.h<1||result.w>10000||result.h>10000||
     result.fontSize<1||result.fontSize>1000)return null;
  // Recovery must not reintroduce malformed numeric style/geometry from a
@@ -42,7 +49,15 @@ function newItemTemplate(item){
     result[field]!==undefined&&!Number.isFinite(result[field])))return null;
  if(['strokeOpacity','fillOpacity','opacity'].some(field=>
     result[field]!==undefined&&(result[field]<0||result[field]>1)))return null;
- if(result.lineWidth!==undefined&&(result.lineWidth<0||result.lineWidth>1000))return null;
+ if(result.lineWidth!==undefined&&(result.lineWidth<=0||result.lineWidth>1000))return null;
+ // Use the board's accepted presentation metadata, not arbitrary localStorage
+ // values. Otherwise a visible "recoverable" draft can fail at Done/save.
+ if(['stroke','fill'].some(field=>result[field]!==undefined&&
+    (typeof result[field]!=='string'||!COLOR.test(result[field]))))return null;
+ if(result.locked!==undefined&&typeof result.locked!=='boolean')return null;
+ if(result.textAlign!==undefined&&!VALID_TEXT_ALIGN.has(result.textAlign))return null;
+ if(result.textStyle!==undefined&&!VALID_TEXT_STYLES.has(result.textStyle))return null;
+ if(result.lineStyle!==undefined&&!VALID_LINE_STYLES.has(result.lineStyle))return null;
  return result;
 }
 export function storeTextDraft(storage,boardId,item,snapshot,rawText=null,now=Date.now(),options={}){
