@@ -46,7 +46,10 @@ async def inspect(browser, host, name):
        shiftOpacity:css('.button-CALC .shift-label','opacity'),
        topMode:document.querySelector('.button-MODE .shift-label').textContent,
        bases:[...document.querySelectorAll('.base-label')].map(x=>x.textContent),
-       glyphs:document.querySelectorAll('.face-glyph svg').length,keys};
+       glyphs:document.querySelectorAll('.face-glyph svg').length,
+       expFont:parseFloat(css('.button-EXP button','font-size')),
+       ansFont:parseFloat(css('.button-ANS button','font-size')),
+       sevenFont:parseFloat(css('.button-7 button','font-size')),keys};
     }""")
     assert metrics["model"]=="fx-991es-plus",metrics["model"]
     assert metrics["keyCount"]==50,metrics["keyCount"]
@@ -62,6 +65,7 @@ async def inspect(browser, host, name):
     assert metrics["topMode"]=="MODE SETUP"
     assert metrics["bases"]==["DEC","HEX","BIN","OCT"]
     assert metrics["glyphs"]==4
+    assert 0 < metrics["expFont"] < metrics["ansFont"] < metrics["sevenFont"],("Bottom-row text sizes",name,metrics)
     assert all(k["x"]>=0 and k["x"]+k["w"]<=metrics["width"]+1 and
                k["y"]>=0 and k["y"]+k["h"]<=metrics["height"]+1
                for k in metrics["keys"]),"Physical keys extend beyond calculator face"
