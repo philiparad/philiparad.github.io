@@ -32,7 +32,17 @@ export function selectedParagraphIndices(root,selection,blocks=editableParagraph
     const range=selection.getRangeAt(0);
     if(!root.contains(range.startContainer)||!root.contains(range.endContainer))return [];
     if(range.collapsed){
-        const at=blocks.findIndex(b=>b.contains(range.startContainer));
+        let at=blocks.findIndex(b=>b.contains(range.startContainer));
+        if(at<0&&range.startContainer===root&&blocks.length){
+            // A browser may place the caret at the contenteditable root,
+            // between its block children, instead of within a text node.
+            const offset=Math.max(0,Math.min(root.childNodes.length,range.startOffset));
+            let child=root.childNodes[offset];
+            if(!child&&offset)child=root.childNodes[offset-1];
+            at=blocks.findIndex(block=>child===block||child?.contains?.(block));
+            if(at<0)at=offset===0?0:blocks.length-1;
+            if(offset===root.childNodes.length)at=blocks.length-1;
+        }
         return at<0?[]:[at];
     }
     if(typeof range.intersectsNode!=='function')return [];
