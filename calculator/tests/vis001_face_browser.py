@@ -65,6 +65,20 @@ async def inspect(browser, host, name):
     assert all(k["x"]>=0 and k["x"]+k["w"]<=metrics["width"]+1 and
                k["y"]>=0 and k["y"]+k["h"]<=metrics["height"]+1
                for k in metrics["keys"]),"Physical keys extend beyond calculator face"
+    # VIS-002: MODE/SETUP and ON captions must not overlap at small and full face sizes.
+    for face_width in (220,274,334,348):
+        collision=await page.evaluate("""width => {
+          const face=document.querySelector('#face');
+          face.style.width=width+'px';face.style.maxWidth='none';
+          const mode=document.querySelector('.button-MODE .shift-label').getBoundingClientRect();
+          const on=document.querySelector('.button-ON .shift-label').getBoundingClientRect();
+          const casing=face.getBoundingClientRect();
+          return {width,modeRight:mode.right,onLeft:on.left,onRight:on.right,faceRight:casing.right};
+        }""",face_width)
+        assert collision["modeRight"]+1 <= collision["onLeft"],("ON and MODE captions overlap",name,collision)
+        assert collision["onRight"] <= collision["faceRight"]+1,("ON caption outside face",name,collision)
+    await page.evaluate("""() => {document.querySelector('#face').style.removeProperty('width');
+                          document.querySelector('#face').style.removeProperty('max-width');}""")
     assert not errors,errors
     image=await page.locator("#face").screenshot()
     (OUTPUT / (name+".png")).write_bytes(image)
