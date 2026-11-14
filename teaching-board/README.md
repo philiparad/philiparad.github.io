@@ -74,6 +74,38 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## External clipboard compatibility and plain-text shortcut (TXT-058)
+
+**Paste from another editor:** Teaching Board can now import a *restricted,
+validated subset* of HTML copied from common document editors, even if that
+clipboard offers **HTML only**, with no `text/plain` alternative. Supported
+features include text, paragraphs, line breaks, bold/italic/underline/
+strikethrough, six-digit or RGB text colors, Hebrew/English direction,
+paragraph alignment, and numbered/bulleted lists with valid list starts.
+The existing **Keep source formatting** / **Match destination formatting**
+selector applies to this safely imported material too. Office-style HTML
+head metadata and CSS are ignored; only safe inline formatting is read.
+
+**Paste plain text with the keyboard:** While the text editor has focus,
+press **Ctrl+Shift+V** on Windows/Linux or **⌘+Shift+V** on macOS. This
+pastes readable *plain text regardless of the rich-paste mode* and never
+recreates clipboard equation images. If a clipboard provides rich HTML or
+Teaching Board metadata but omits its plain-text field, the shortcut
+generates readable plain text, with LaTeX such as `\\(x^2\\)` for
+equations. The plain-paste request is one use only; cancelling the
+keyboard gesture does not affect a later ordinary paste.
+
+**Safety and limitations:** External HTML is parsed in an inert document,
+never inserted into the editor as live DOM. Scripts, embedded images,
+SVG, frames, form controls and other unsupported markup cannot be
+imported as rich content. If a safe rich import is unavailable, the
+ordinary clipboard plain-text value is used when present, preserving
+literal text rather than running HTML. Large or malformed clipboard
+payloads are rejected. Class-based document styles, external images,
+arbitrary embedded objects, and native Office equation formats are
+**not** imported. Actual cross-application clipboard behavior varies
+by browser, OS and clipboard manager.
+
 ## Choose paste formatting (TXT-057)
 
 While editing a text box or sticky note, choose **Paste formatting** in

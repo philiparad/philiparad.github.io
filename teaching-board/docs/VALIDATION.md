@@ -314,3 +314,50 @@ custom MIME/HTML clipboard metadata. Such external clipboard
 interoperability and real assistive-technology workflows remain
 manual QA; these modes do not reconstruct rendered equations from
 arbitrary plain LaTeX text.
+
+## TXT-058: interoperable external HTML and keyboard-only plain paste (November 14, 2026)
+
+`text-inline-clipboard.js` now provides `externalRichClipboardHTML()`:
+a deliberately narrow, size- and node-bounded external HTML importer.
+It uses an inert DOMParser document and reconstructs only validated
+rich-text runs/paragraph metadata rather than importing clipboard DOM
+nodes. It accepts safe inline text formatting, color, line breaks,
+paragraph direction/alignment, ordered/bulleted lists and list starts.
+HTML-only clipboards are supported when there is usable textual HTML;
+existing authenticated-by-schema Teaching Board custom/encoded
+clipboard payloads retain priority. Unsupported embedded images,
+scripts, SVG, forms, and other active markup reject the rich HTML
+import. Standard Office-like head style and meta blocks are ignored;
+styles not present inline cannot be recovered. Unsafe HTML with an
+available plain-text representation falls back to literal plain text,
+not executable elements.
+
+`inline-text.js` now recognizes `Ctrl/⌘+Shift+V` during a native
+clipboard paste gesture. The browser still owns ClipboardEvent access;
+the editor only consumes the next native paste as plain text and
+resets the shortcut flag on paste, keyup or focusout to prevent stale
+paste preferences. HTML-only clipboard metadata can be converted
+to readable text with inline LaTeX instead of silently dropping the
+paste. Plain-text paste still inherits destination formatting as
+implemented in TXT-056. The paste-mode selector exposes this shortcut
+in its title and ARIA description, and its keyboard selection/focus
+behavior remains intact.
+
+**Validation:** [GitHub Actions run 43592608226](https://github.com/philiparad/philiparad.github.io/actions/runs/43592608226)
+passed **308/308 Node.js tests** and all Chromium, Firefox and
+WebKit browser jobs, including unchanged visual reference images and
+A4 PDF raster validation. New cross-browser tests cover HTML-only
+numbered RTL/LTR lists, safe bold/color/italic preservation, destination
+format matching, undo/redo, Ctrl+Shift+V with a complete rich
+clipboard, ordinary Ctrl+V retaining equations, HTML-only encoded
+equation carrier converted to LaTeX text, safe HTML `br` and hidden
+element handling, rejected `img onerror` payloads, and bounded
+oversize HTML. Further regression tests cover macOS Command+Shift+V,
+keyup cancellation of a pending shortcut, and Office-style inert
+head markup.
+
+**Limits:** Not a general-purpose browser HTML sanitizer or full Office
+importer. Unsupported rich HTML uses the available `text/plain`
+fallback; if both sources contain no usable text, no paste is made.
+Native OS clipboard, device screen-reader and third-party document
+interoperability remain additional manual QA requirements.
