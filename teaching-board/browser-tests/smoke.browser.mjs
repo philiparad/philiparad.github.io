@@ -28,7 +28,7 @@ try{
    const {readRichDocument}=await import('./js/rich-text.js');
    const host=document.createElement('div');host.id='browser-smoke-editor';host.style.cssText='position:fixed;inset:150px 120px 80px;background:#fff;z-index:1000';
    document.body.append(host);
-   const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},applyText(...args){this.saved=args;},paint(){}};
+   const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},disposed:true,applyText(...args){this.saved=args;},paint(){}};
    const item={id:'browser-text',type:'text',x:10,y:10,w:450,h:100,fontSize:24,
     text:'שלום English',paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
    const draft=new InlineText(editor,item,true);
@@ -70,7 +70,7 @@ try{
   assert.equal(list.paragraphs[0].list,'number');
   await page.getByRole('button',{name:'Done'}).click();
   const saved=await page.evaluate(()=>window.__smoke.editor.saved);
-  assert(saved&&saved[1].includes('שלום')&&saved[3]?.length>0,'Rich text not committed');
+  assert(saved&&saved[1].includes('שלום')&&saved[0]?.paragraphs?.length>0,'Rich text not committed');
  });
 
  await check('SVG renders isolated RTL/LTR tokens and inline equation inside measured bounds',async()=>{
@@ -122,7 +122,7 @@ try{
   await page.getByRole('button',{name:'Flow selected text onto A4 pages'}).click();
   await page.locator('dialog[open]').waitFor({timeout:15000});
   await page.locator('dialog[open] button[type=submit]').click();
-  await page.waitForFunction(()=>window.__smokeA4.editor.history.past.length===1,{timeout:15000});
+  await page.waitForFunction(()=>window.__smokeA4.editor.history.past.length===1,null,{timeout:15000});
   const result=await page.evaluate(async()=>{
    const {textLayoutMetrics}=await import('./js/inline-equation.js');
    const {paragraphRuns}=await import('./js/rich-text.js');
