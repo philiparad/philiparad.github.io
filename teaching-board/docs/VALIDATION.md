@@ -9,7 +9,7 @@
 
 The original 18-test release-validation notes above are historical. The current
 [Teaching Board CI workflow](https://github.com/philiparad/philiparad.github.io/actions/workflows/teaching-board-tests.yml)
-runs the Node 22 syntax checks and **274 Node tests**, plus real Chromium,
+runs the Node 22 syntax checks and **277 Node tests**, plus real Chromium,
 Firefox, and WebKit browser smoke tests covering rich-text editing,
 selection/undo/redo, IME-related input, A4 continuation, IndexedDB reload,
 and JSON/SVG export.
@@ -79,7 +79,22 @@ after reload without overwriting saved lesson content.
 passed **274/274 Node tests** and the Chromium, Firefox, and WebKit browser
 jobs (all four jobs green).
 
-**Limits:** Local recovery applies to **existing text objects**, not newly
-created unsaved text objects. It does not provide cross-device synchronization,
+**Additional new-object recovery (November 14, 2026):** Uncommitted new
+text boxes and sticky notes now keep their plain, validated rich-text content
+and safe geometry/style metadata in lesson- and item-scoped local draft records.
+After a reload, the editor toolbar explicitly offers **Recover unsaved text**,
+showing a per-object preview and individual review/discard actions. A recovery
+opens the editable text overlay; it does not insert an object automatically.
+Recovery is schema-validated, excludes object IDs already in the board, and
+retains each new draft until the asynchronous IndexedDB board save succeeds.
+Explicit Cancel clears it, while editor disposal/navigation preserves it.
+
+Unit tests verify collection discovery, collision exclusion, expiration and
+purging without skipping entries, blocked storage and new-editor lifecycle.
+The real-browser smoke test restores a brand-new formatted sticky note into an
+actual lesson after navigating to it, commits and persists it once, then checks
+that reload does not duplicate it. Chromium, Firefox and WebKit pass.
+
+**Limits:** Text recovery does not provide cross-device synchronization,
 server backups, or guaranteed persistence when local browser storage is
 disabled. Native operating-system IME behavior still requires manual QA.
