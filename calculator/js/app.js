@@ -620,6 +620,8 @@ function flowHandle(key){
  return true;
 }
 function menuHandle(key){
+ // Emulator guide EN-4: MODE → 0 shows demo ID; preserve MODE beneath dialog.
+ if(state.menuKind==='mode'&&key==='0'&&window.FreshEmulatorExtras){window.FreshEmulatorExtras.openId();return true;}
  if(key==='AC'){const back=state.menuReturnScreen||'edit';state.menuReturnScreen=null;state.menuEntries=[];state.menu=[];state.menuPage=0;state.menuPageSize=6;state.menuKind='normal';state.screen=back;state.info='';releaseModifier();paint();return true}
  const size=state.menuPageSize||6;
  if(key==='DOWN'||key==='UP'){
