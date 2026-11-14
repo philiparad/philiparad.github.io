@@ -1820,6 +1820,78 @@ try{
   assert.equal(result.beforeInputState.paragraphs[1].list,'none');
  });
 
+
+ await check('TXT-061 real Playwright keyboard keeps empty-list and RTL paragraph caret stable',async()=>{
+  await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {captureLogicalSelection,restoreLogicalSelection}=await import('./js/text-selection.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:110px 65px 60px;background:white;z-index:5300';
+   document.body.append(host);
+   const editor={area:host,board:{id:'native-kbd-'+crypto.randomUUID(),
+    viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const draft=new InlineText(editor,{
+    id:'native-kbd-'+crypto.randomUUID(),type:'text',x:0,y:0,w:440,h:85,fontSize:24,
+    text:'one\n\nשלוש',runs:[{text:'one\n\nשלוש'}],
+    paragraphs:[
+     {align:'left',dir:'ltr',list:'number',numberStart:12},
+     {align:'left',dir:'ltr',list:'number'},
+     {align:'right',dir:'rtl',list:'bullet'}
+    ]
+   },true);
+   const go=(p,o)=>{
+    draft.input.focus();
+    const point={paragraph:p,offset:o};
+    if(!restoreLogicalSelection(draft.input,window.getSelection(),
+     {anchor:point,focus:point}))throw Error('Cannot set real keyboard caret');
+   };
+   const read=()=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    return {text:doc.runs.map(r=>r.text).join(''),
+     paragraphs:doc.paragraphs,
+     selection:captureLogicalSelection(draft.input,window.getSelection()),
+     hasFocus:document.activeElement===draft.input};
+   };
+   go(0,3);
+   window.__nativeBoundaries={draft,host,go,read};
+  });
+  await page.keyboard.press('Alt+ArrowDown');
+  const reachedEmpty=await page.evaluate(()=>window.__nativeBoundaries.read());
+  assert.deepEqual(reachedEmpty.selection.focus,{paragraph:1,offset:0});
+  assert(reachedEmpty.hasFocus);
+  await page.keyboard.press('Backspace');
+  const unlisted=await page.evaluate(()=>window.__nativeBoundaries.read());
+  assert.equal(unlisted.paragraphs[1].list,'none');
+  assert.equal(unlisted.text,'one\n\nשלוש');
+  assert.deepEqual(unlisted.selection.focus,{paragraph:1,offset:0});
+  await page.keyboard.press('Control+z');
+  const restored=await page.evaluate(()=>window.__nativeBoundaries.read());
+  assert.equal(restored.paragraphs[1].list,'number');
+  await page.keyboard.press('Control+End');
+  const atEnd=await page.evaluate(()=>window.__nativeBoundaries.read());
+  assert.deepEqual(atEnd.selection.focus,{paragraph:2,offset:4});
+  await page.keyboard.press('Control+Shift+Home');
+  const selectedAll=await page.evaluate(()=>window.__nativeBoundaries.read());
+  assert.deepEqual(selectedAll.selection,{
+   anchor:{paragraph:2,offset:4},focus:{paragraph:0,offset:0}
+  });
+  await page.keyboard.press('Control+Home');
+  await page.keyboard.press('Alt+ArrowDown');
+  const backAtEmpty=await page.evaluate(()=>window.__nativeBoundaries.read());
+  assert.deepEqual(backAtEmpty.selection.focus,{paragraph:1,offset:0});
+  await page.keyboard.press('ArrowDown');
+  const reachedRTL=await page.evaluate(()=>window.__nativeBoundaries.read());
+  assert.deepEqual(reachedRTL.selection.focus,{paragraph:2,offset:0});
+  assert(reachedRTL.hasFocus);
+  await page.evaluate(()=>{
+   const x=window.__nativeBoundaries;
+   x.draft.finish(false);
+   x.host.remove();
+   delete window.__nativeBoundaries;
+  });
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
