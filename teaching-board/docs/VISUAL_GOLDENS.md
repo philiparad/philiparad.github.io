@@ -37,6 +37,34 @@ TEACHING_BOARD_BROWSER=webkit node teaching-board/browser-tests/visual-parity.br
 Pixel hashes can depend on OS fonts, browser binaries and graphics stack.
 Use the pinned GitHub runner to adjudicate differences from local machines.
 
+## Inspectable PNG review artifacts
+
+Each browser CI job now uploads a separate downloadable ZIP artifact:
+`teaching-board-visual-chromium`, `teaching-board-visual-firefox`, or
+`teaching-board-visual-webkit`. They are retained for **14 days**.
+
+Open the [Teaching Board Actions workflow](https://github.com/philiparad/philiparad.github.io/actions/workflows/teaching-board-tests.yml),
+choose a run, and download the appropriate entry under **Artifacts**. Unzip
+it and open `<browser>-gallery.html` in your browser. The offline gallery
+shows three images for each fixture:
+
+- **Editor render:** PNG rasterization of the actual cached board SVG.
+- **SVG export:** PNG rasterization of the independent SVG-export path.
+- **Pixel difference:** A pale-gray reference with mismatching pixels in
+  magenta (normally no magenta).
+
+Each ZIP also includes `<browser>-visual-artifacts.json` with fixture labels,
+captured pixel SHA-256 values, committed expected values and match status.
+All PNGs are validated for the expected 720 × 470 dimensions before upload.
+A broken PNG or missing viewport fails the job rather than silently producing
+an unusable review artifact.
+
+**The permanent baseline is the checked-in SHA-256 manifest, not the
+14-day image archive.** Historical PNG files are available only while their
+corresponding CI artifacts are retained. To make long-term visual review
+possible, archive approved CI artifacts outside the repository or separately
+commit reviewed binary screenshots.
+
 ## Intentional visual changes
 
 1. Review the actual UI and exported SVG for correctness, especially RTL,
@@ -55,7 +83,7 @@ Recording mode is an opt-in maintenance operation. It is **not enabled by CI**.
 
 ## Limitations
 
-SHA-256 references do **not** store independently inspectable PNG snapshots.
+SHA-256 references do **not** store permanently versioned PNG snapshots in Git. Each CI run now publishes inspectable temporary PNG artifacts and an offline HTML gallery.
 The suite does not compare two different OS/browser engines to each other.
 It does not establish pixel-identical HTML contenteditable glyph rendering,
 print/PDF raster equivalence, or correctness of every possible font, Unicode
