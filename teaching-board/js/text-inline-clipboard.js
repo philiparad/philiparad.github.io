@@ -225,7 +225,11 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
         ];
         for(let i=1;i<newRows.length;i++){
             let p;
-            if(i===newRows.length-1&&suffix.length){
+            if(i===newRows.length-1&&suffix.length&&(plainText||last>first)){
+                // A surviving destination suffix takes its own formatting
+                // when the paste replaced multiple existing paragraphs.
+                // When a rich fragment splits ONE paragraph, its new last
+                // paragraph keeps the source metadata instead.
                 p=structuredClone(original.paragraphs[last]);
                 // Splitting one numbered item with plain multiline paste
                 // must continue its ordinal rather than restart at the

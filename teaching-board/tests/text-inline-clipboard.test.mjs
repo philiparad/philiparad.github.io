@@ -60,10 +60,9 @@ test('clipboard paragraph joins keep existing target direction and validate stru
  assert.equal(result.text,'Start '+multi.runs.map(r=>r.text).join('')+'END');
  assert.equal(result.paragraphs[0].list,'number');
  assert.equal(result.paragraphs[0].numberStart,3);
- assert.equal(result.paragraphs[1].list,'number',
-  'Surviving destination suffix retains its own list type');
- assert.equal(result.paragraphs[1].numberStart,3,
-  'Surviving destination suffix retains its explicit list restart');
+ assert.equal(result.paragraphs[1].list,'bullet',
+  'A rich fragment splitting one paragraph keeps its new last list style');
+ assert.equal(result.paragraphs[1].numberStart,undefined);
  assert.equal(result.paragraphs[1].dir,'ltr');
  assert.deepEqual(absoluteCaret(result,result.cursor.paragraph===0?6:6),{paragraph:0,offset:6});
 });
@@ -126,7 +125,8 @@ test('rich multiline paste preserves its interior numbering and existing trailin
  assert.equal(inserted.paragraphs.length,3);
  assert.equal(inserted.paragraphs[0].list,'bullet');
  assert.equal(inserted.paragraphs[0].align,'center');
- assert.equal(inserted.paragraphs[1].numberStart,undefined);
+ assert.equal(inserted.paragraphs[1].numberStart,12,
+  'Numbered source content keeps its visible ordinal after a bullet prefix');
  assert.equal(inserted.paragraphs[1].dir,'ltr');
  assert.equal(inserted.paragraphs[2].numberStart,4);
  assert.deepEqual(inserted.cursor,{paragraph:2,offset:6});
