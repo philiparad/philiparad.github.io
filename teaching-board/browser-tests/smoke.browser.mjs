@@ -2060,7 +2060,10 @@ try{
   assert.deepEqual(output.afterBold.caret,output.boldBefore.caret);
   assert.deepEqual(output.afterBold.paragraphs,output.boldBefore.paragraphs);
   assert(output.afterBold.runs.some(r=>r.text.includes('גד')&&r.bold));
-  assert(output.afterBold.runs.some(r=>r.text.includes('שלום')&&r.bold));
+  assert(output.afterBold.runs.some(r=>r.text.includes('שלו')&&r.bold),
+   'Only the selected Hebrew prefix should receive bold formatting');
+  assert(output.afterBold.runs.some(r=>r.text.includes('ם')&&!r.bold),
+   'Unselected Hebrew suffix must retain its original style');
   assert(output.afterBold.runs.filter(r=>r.equation).every(r=>!r.bold));
   assert.deepEqual(output.undoBold.runs,output.boldBefore.runs);
  });
