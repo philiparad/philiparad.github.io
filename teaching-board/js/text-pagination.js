@@ -14,13 +14,22 @@ function textSlice(item,start,end,continued=false){
   if(next>start&&pos<end)runs.push({...run,text:run.text.slice(Math.max(0,start-pos),Math.min(run.text.length,end-pos))});
   pos=next;
  }
- const sourceMeta=paragraphRuns(item);
+ const sourceMeta=paragraphRuns(item),ordinals=[];
+ let number=0;
+ for(const row of sourceMeta){
+  number=row.list==='number'?(row.numberStart??number+1):0;
+  ordinals.push(number);
+ }
  const firstParagraph=item.text.slice(0,start).split('\n').length-1;
- const paragraphs=text.split('\n').map((_,i)=>{
-  const row=sourceMeta[firstParagraph+i];
-  return {align:row?.align||item.textAlign||'auto',dir:row?.dir||'auto',
-   list:i===0&&continued&&item.text[start-1]!=='\n'?'none':row?.list||'none'};
- });
+ const paragraphs=[];
+ for(const [i] of text.split('\n').entries()){
+  const sourceIndex=firstParagraph+i,row=sourceMeta[sourceIndex];
+  const list=i===0&&continued&&item.text[start-1]!=='\n'?'none':row?.list||'none';
+  const ordinal=ordinals[sourceIndex]||0,previous=paragraphs.at(-1);
+  const previousOrdinal=ordinals[sourceIndex-1]||0;
+  paragraphs.push({align:row?.align||item.textAlign||'auto',dir:row?.dir||'auto',list,
+   ...(list==='number'&&ordinal>1&&(!previous||previous.list!=='number'||ordinal!==previousOrdinal+1)?{numberStart:ordinal}:{})});
+ }
  const result={...structuredClone(item),text,runs:compactRuns(runs),paragraphs};
  validateRuns(result.runs,text);validateParagraphs(paragraphs,text);
  return result;
@@ -44,8 +53,6 @@ export function planTextFlow(board,id,page,{checkOverlaps=true}={}){
   flowError('The text box must contain valid text.');
  validateRuns(textRuns(original),original.text);
  if(original.paragraphs)validateParagraphs(original.paragraphs,original.text);
- if(paragraphRuns(original).some(row=>row.list==='number'))
-  flowError('Numbered lists cannot yet be flowed safely. Split them manually to preserve numbering.');
  const count=board.pageCount||1;
  if(!Number.isInteger(count)||count<1||count>MAX_PAGES)flowError('Invalid A4 page count.');
  if(!Number.isFinite(original.x)||original.x<0||original.x+(original.w||0)>page.w)
