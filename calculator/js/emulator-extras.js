@@ -136,7 +136,15 @@ document.addEventListener('keydown',e=>{
   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
  }
 },true);
-const dummyId='EDU991ESPLUS2026DEMO000001';
+document.addEventListener('click',event=>{
+ if(!modal)return;
+ const key=event.target.closest?.('[data-key]');
+ if(key?.dataset.key==='AC'){
+  event.preventDefault();event.stopImmediatePropagation();
+  closeDialog(true);
+ }
+},true);
+const dummyId='EDU991ESPLUS26DEMO000001';
 function idView(){
  const wrap=document.createElement('div');
  const p=document.createElement('p');p.textContent='Educational demonstration only. This is not a genuine CASIO device ID and does not establish authenticity.';
@@ -144,8 +152,13 @@ function idView(){
  const info=document.createElement('p');info.textContent='Official education site: ';
  const link=document.createElement('a');link.href='https://edu.casio.com/';link.target='_blank';link.rel='noopener noreferrer';link.textContent='edu.casio.com';
  info.appendChild(link);
- const qr=document.createElement('p');qr.textContent='The original emulator shows a sample QR code; this independent web edition provides the destination as an accessible direct link.';
- wrap.append(p,code,info,qr);
+ const matrix='1111111001011111101111111/1000001010010011101000001/1011101000100011001011101/1011101001000010001011101/1011101011111011001011101/1000001001101001101000001/1111111010101010101111111/0000000001101111000000000/1010101001011101100010010/1011100000110000111000001/1111001010001100011110111/0100010101100110010000010/0001101110100100011001011/0111000011110000101001001/1011101011100000011100111/0101010100010111000010010/1000101010001110111111000/0000000011011001100011011/1111111001011101101011011/1000001001101110100011011/1011101011110010111111011/1011101000110000110111100/1011101011100100100010001/1000001001010001101011010/1111111011001001100100011'.split('/');
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 33 33');svg.setAttribute('width','198');svg.setAttribute('height','198');
+ svg.setAttribute('role','img');svg.setAttribute('aria-label','Sample QR code for https://edu.casio.com/');
+ const bg=document.createElementNS(svg.namespaceURI,'rect');bg.setAttribute('width','33');bg.setAttribute('height','33');bg.setAttribute('fill','#fff');svg.appendChild(bg);
+ matrix.forEach((line,y)=>{for(let x=0;x<25;x++)if(line[x]==='1'){const cell=document.createElementNS(svg.namespaceURI,'rect');cell.setAttribute('x',String(x+4));cell.setAttribute('y',String(y+4));cell.setAttribute('width','1');cell.setAttribute('height','1');cell.setAttribute('fill','#101010');svg.appendChild(cell);}});
+ wrap.append(p,code,info,svg);
  showDialog('Calculator ID (demo)',wrap,()=>{if(window.FreshCalculator?.getState?.().screen==='menu')return;});
 }
 idButton.addEventListener('click',idView);
