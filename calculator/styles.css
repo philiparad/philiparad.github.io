@@ -283,3 +283,33 @@ body{margin:0;color:var(--ink);background:radial-gradient(circle at 20% 5%,#f8fa
 /* VIS-004: slightly reduce the two long bottom-row button labels. */
 .face .key-unit.numeric.button-EXP button{font-size:4.8cqw}
 .face .key-unit.numeric.button-ANS button{font-size:6.6cqw}
+
+/* VIEW-001: ?key=calculator — clean calculator-only embed/presentation.
+   Keep companion DOM available for calculation/status updates, but invisible. */
+body.calculator-only{background:#f4f4f4;min-height:100vh}
+body.calculator-only .workspace{
+  display:flex;justify-content:center;align-items:center;
+  max-width:none;min-height:100vh;width:100%;
+  padding:12px;margin:0;gap:0;
+}
+body.calculator-only .calculator-panel{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  width:min(348px,calc(100vw - 24px),calc((100vh - 24px)*274/580));
+  max-width:none;margin:0;padding:0;
+}
+body.calculator-only .face{
+  display:block;width:100%;max-width:none;margin:0;flex:none;
+}
+body.calculator-only .companion,
+body.calculator-only .face-actions,
+body.calculator-only .diagnostic-tools,
+body.calculator-only #calculator-keyboard-help{display:none!important}
+@media(max-width:790px){
+  body.calculator-only .workspace{display:flex;padding:12px}
+  body.calculator-only .calculator-panel{width:min(348px,calc(100vw - 24px),calc((100vh - 24px)*274/580))}
+  body.calculator-only .face{max-width:none}
+}
+@media print{
+  body.calculator-only .workspace{min-height:0}
+  body.calculator-only .face{width:274px;max-width:274px}
+}
