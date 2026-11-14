@@ -21,6 +21,24 @@ A personal teaching whiteboard built with HTML, CSS and JavaScript. Stage 2 adds
 - Self-contained editable JSON backups, including images and imported PDF pages.
 - Automatic browser storage, save error/retry status and stale-write protection across tabs.
 
+## Calculator button in the lesson toolbar
+
+The calculator icon is located directly **to the left of “⚙ Ink & style”**
+in the lower toolbar. It uses the same SVG button style as the drawing
+tools. Select it to open the CASIO calculator in a responsive modal,
+embedded from:
+
+`https://philiparad.github.io/calculator/?key=calculator`
+
+The modal keeps the whiteboard behind it unchanged. To close it,
+press **Escape** or select **Close calculator** (×) in the modal
+header. Closing unloads the calculator iframe; reopening loads a
+fresh calculator. Keyboard focus returns to the toolbar button
+after closing. Navigating to another lesson or returning to
+the dashboard disposes of the modal without leaving an iframe
+running. The calculator page requires a working network
+connection unless the browser has already cached it.
+
 ## Quick start
 
 Create a lesson, choose a tool, and draw on the canvas. Click the lesson title to change its name or folder. Select objects with the pointer tool; Shift-click adds/removes objects. Drag the corner handle to resize. Double-click text, notes, equations or graphs to edit them. PDF pages are locked on import so you can write on top; select a page and use Lock / Unlock to move it.
