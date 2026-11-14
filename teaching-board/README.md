@@ -74,6 +74,43 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## IME composition and accessible equation editing (TXT-063)
+
+Teaching Board protects active text composition (for Hebrew, other
+input methods, and multilingual typing) while preserving inline math.
+
+- **During composition:** Keyboard editing commands, equation deletion,
+  and undo-history recording do not interrupt the browser's preedit text.
+  A screen-reader status identifies when composition is active.
+- **After composition:** Pending formatting, including color, bold and
+  italic, is applied only to committed text. Paragraph breaks and whole
+  equation objects are not mistakenly included in styled text.
+  The insertion caret returns immediately after the committed text.
+- **Single-step Undo:** Some browsers deliver one last input event
+  after `compositionend`. The editor combines it with the preceding
+  composition snapshot, so **Ctrl/⌘+Z** undoes the composition once.
+  A separate keyboard, pointer, or editing action starts a new step.
+- **Unicode-safe text:** Comparison respects complete displayed
+  characters, including Hebrew niqqud (combining marks) and emoji.
+- **Caret recovery:** An IME caret accidentally placed inside the
+  decorative image markup of an equation is restored to a valid
+  boundary beside the entire mathematical object. Normal Hebrew
+  and English caret positions remain native to the browser.
+- **Keyboard editing for an existing equation:** Place the caret
+  immediately before or after a formula and press **Alt+Enter**.
+  The visual/LaTeX editor opens for that equation. **Cancel**
+  closes it without changing the equation and restores text focus.
+
+The textbox also exposes a screen-reader description through
+`aria-describedby`, an accessible `role=status` composition
+announcement, and an `aria-busy` flag during input composition.
+Existing inline equations retain their `role=math` labels and
+noneditable decorative images.
+
+Actual IME, keyboard and screen-reader behavior varies by operating
+system. The automated regression tests simulate composition and use
+real browser keyboard shortcuts; physical-device checks remain valuable.
+
 ## Reliable selection across multiple equations and lists (TXT-062)
 
 Teaching Board now treats a selection spanning **several editable inline
