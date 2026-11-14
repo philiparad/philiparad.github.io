@@ -1,0 +1,29 @@
+name: Teaching Board regression suite
+on:
+  push:
+    paths:
+      - 'teaching-board/**'
+      - '.github/workflows/teaching-board-tests.yml'
+  pull_request:
+    paths:
+      - 'teaching-board/**'
+      - '.github/workflows/teaching-board-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  teaching-board:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript module syntax
+        run: |
+          for file in teaching-board/js/*.js; do
+            node --check "$file"
+          done
+      - name: Run Teaching Board tests
+        run: node --test teaching-board/tests/*.test.mjs
