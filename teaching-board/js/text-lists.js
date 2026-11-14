@@ -8,7 +8,12 @@ export function toggleParagraphLists(paragraphs,indices,kind){
     const unique=[...new Set(indices)];
     if(unique.some(i=>!Number.isInteger(i)||i<0||i>=paragraphs.length))return null;
     const remove=unique.every(i=>paragraphs[i].list===kind);
-    return paragraphs.map((row,i)=>unique.includes(i)?{...row,list:remove?'none':kind}:{...row});
+    return paragraphs.map((row,i)=>{
+        if(!unique.includes(i))return {...row};
+        const list=remove?'none':kind;
+        const {numberStart,...rest}=row;
+        return {...rest,list,...(list==='number'&&row.list==='number'&&numberStart!==undefined?{numberStart}:{})};
+    });
 }
 
 /** Return paragraph elements in the same order as writeRuns/paragraphRuns. */
