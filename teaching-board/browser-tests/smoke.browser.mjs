@@ -497,7 +497,10 @@ try{
   const draft=await page.evaluate(()=>{
    const text=document.querySelector('.inline-text-editor [contenteditable="true"]');
    return {content:text?.textContent,bold:!!text?.querySelector('[style*="font-weight"]'),
-    italic:!!text?.querySelector('[style*="italic"]')};
+    italic:!!text?.querySelector('[style*="italic"]'),
+    status:document.querySelector('#status')?.textContent,
+    dialogOpen:!!document.querySelector('dialog[open]'),
+    overlayCount:document.querySelectorAll('.inline-text-editor').length};
   });
   assert(draft.content==='טיוטה English lesson'&&draft.bold&&draft.italic,
    'Draft review failed to open correctly: '+JSON.stringify(draft));
