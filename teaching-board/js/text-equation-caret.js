@@ -63,6 +63,16 @@ export function deleteEquationAtCaret(root,selection,key){
     restoreLogicalSelection(root,selection,{anchor:at,focus:at});
     return true;
 }
+/** Find the intact formula touching a collapsed keyboard caret.
+ * Prefer the equation before the caret if there is one; otherwise the next
+ * equation. Do not expose its image descendants or match selected ranges.
+ */
+export function adjacentEquationAtCaret(root,selection){
+    const current=caret(root,selection);
+    if(!current)return null;
+    return equationAtOffset(current.block,current.point.offset,-1)?.node||
+        equationAtOffset(current.block,current.point.offset,1)?.node||null;
+}
 /** Pointer placement chooses the side of an equation in its paragraph flow. */
 export function positionBesideEquation(root,selection,node,clientX){
     if(!node?.dataset?.equation||!root.contains(node)||!Number.isFinite(clientX))return false;
