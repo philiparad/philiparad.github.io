@@ -168,10 +168,15 @@ const MAX_IMPORT_HTML=250_000;
 export function externalRichClipboardHTML(html){
     if(typeof html!=='string'||!html.trim()||html.length>MAX_IMPORT_HTML||
        typeof DOMParser==='undefined')return null;
+    // Reject tags that can load remote resources BEFORE parsing, including
+    // image/iframe/script payloads. Inline Office <head><style> is harmless
+    // in an inert document and is ignored rather than executed or imported.
+    if(/<\s*(?:script|iframe|object|embed|svg|img|form|template|canvas|math|video|audio|input|button|select|textarea)\b/i.test(html))
+        return null;
     try{
         const doc=new DOMParser().parseFromString(html,'text/html'),body=doc.body;
         if(!body||body.querySelector(FORBIDDEN_CLIPBOARD_TAGS)||
-           doc.head?.querySelector('script,style,link,meta'))return null;
+           doc.head?.querySelector('script,link,base'))return null;
         if(body.querySelector('[data-teaching-board-rich]'))return null;
         const rows=[];
         let current=[],meta={align:'auto',dir:'auto',list:'none'};

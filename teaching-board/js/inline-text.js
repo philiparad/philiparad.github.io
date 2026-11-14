@@ -97,7 +97,8 @@ export class InlineText {
   const pasteLabel=el('label','Paste formatting: ');
   const pasteChoice=el('select');
   pasteChoice.setAttribute('aria-label','Paste formatting mode');
-  pasteChoice.title='Choose whether pasted rich text keeps its original formatting or matches this text box. Equations remain editable.';
+  pasteChoice.setAttribute('aria-description','Use Up and Down arrows to select a mode. Control or Command plus Shift plus V always pastes plain text.');
+  pasteChoice.title='Keep copied styles or match this text box. Ctrl/⌘+Shift+V always pastes plain text; equations remain editable with regular paste.';
   for(const [value,label] of [['keep','Keep source formatting'],
    ['match','Match destination formatting']]){
    const option=el('option',label);option.value=value;pasteChoice.append(option);
