@@ -176,6 +176,109 @@ try{
   assert(restored.markup.includes('font-weight="700"'));
  });
 
+
+ await check('list restructuring preserves exact selection across Hebrew and English paragraphs',async()=>{
+  const before=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {captureLogicalSelection}=await import('./js/text-selection.js');
+   const host=document.createElement('div');host.id='smoke-stable-selection';host.style.cssText='position:fixed;inset:140px 90px 50px;background:white;z-index:2000';
+   document.body.append(host);
+   const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},paint(){},disposed:true,applyText(){}};
+   const item={id:'stable-text',type:'text',x:10,y:10,w:450,h:120,fontSize:24,
+    text:'שלום Middle\\nEnglish נוסחה',paragraphs:[
+     {align:'right',dir:'rtl',list:'none'},{align:'left',dir:'ltr',list:'none'}]};
+   const draft=new InlineText(editor,item,true);
+   const first=draft.input.children[0].querySelector('span').firstChild;
+   const second=draft.input.children[1].querySelector('span').firstChild;
+   draft.input.focus();const range=document.createRange();range.setStart(first,2);range.setEnd(second,3);
+   const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
+   const start=captureLogicalSelection(draft.input,selection);
+   window.__stable={draft,host,start};
+   return start;
+  });
+  assert.deepEqual(before,{anchor:{paragraph:0,offset:2},focus:{paragraph:1,offset:3}});
+  await page.getByRole('button',{name:'Bulleted list selected text'}).click();
+  const afterBullet=await page.evaluate(async()=>{
+   const {captureLogicalSelection}=await import('./js/text-selection.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {draft}=window.__stable;
+   return {selection:captureLogicalSelection(draft.input,window.getSelection()),
+    paragraphs:readRichDocument(draft.input,draft.item).paragraphs.map(p=>p.list)};
+  });
+  assert.deepEqual(afterBullet.selection,before);
+  assert.deepEqual(afterBullet.paragraphs,['bullet','bullet']);
+  await page.getByRole('button',{name:'Numbered list selected text'}).click();
+  const afterNumber=await page.evaluate(async()=>{
+   const {captureLogicalSelection}=await import('./js/text-selection.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {draft}=window.__stable;
+   const result={selection:captureLogicalSelection(draft.input,window.getSelection()),
+    paragraphs:readRichDocument(draft.input,draft.item).paragraphs.map(p=>p.list)};
+   draft.finish(false);window.__stable.host.remove();
+   return result;
+  });
+  assert.deepEqual(afterNumber.selection,before);
+  assert.deepEqual(afterNumber.paragraphs,['number','number']);
+ });
+
+ await check('collapsed cursor formatting applies to subsequent Hebrew typing and supports undo',async()=>{
+  await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const host=document.createElement('div');host.id='smoke-pending-caret';host.style.cssText='position:fixed;inset:140px 90px 50px;background:white;z-index:2000';
+   document.body.append(host);
+   const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},paint(){},disposed:true,applyText(){}};
+   const item={id:'pending-text',type:'text',x:10,y:10,w:420,h:100,fontSize:24,text:'שלום',
+    paragraphs:[{align:'right',dir:'rtl',list:'none'}]};
+   const draft=new InlineText(editor,item,true);
+   const node=draft.input.querySelector('span').firstChild;
+   draft.input.focus();const range=document.createRange();range.setStart(node,2);range.collapse(true);
+   const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
+   window.__pending={draft,host};
+  });
+  await page.getByRole('button',{name:'Italic selected text'}).click();
+  assert.equal(await page.evaluate(()=>window.__pending.draft.pendingMarks?.italic),true);
+  await page.keyboard.insertText('אב');
+  const typed=await page.evaluate(async()=>{
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {draft}=window.__pending;
+   return {runs:readRichDocument(draft.input,draft.item).runs,
+    text:draft.input.textContent,pending:draft.pendingMarks};
+  });
+  assert.equal(typed.text,'שלבאום');
+  assert(typed.runs.some(run=>run.italic&&run.text==='אב'),'Inserted Hebrew should be italic');
+  assert.equal(typed.pending,null);
+  await page.keyboard.press('Control+z');
+  assert.equal(await page.evaluate(()=>window.__pending.draft.input.textContent),'שלום');
+  await page.keyboard.press('Control+y');
+  assert.equal(await page.evaluate(()=>window.__pending.draft.input.textContent),'שלבאום');
+  await page.evaluate(()=>{window.__pending.draft.finish(false);window.__pending.host.remove();});
+ });
+
+ await check('composition events defer history and clear pending formatting',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const host=document.createElement('div');host.style.cssText='position:fixed;inset:140px 90px 50px;background:white;z-index:2000';
+   document.body.append(host);
+   const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},paint(){},disposed:true,applyText(){}};
+   const item={id:'composition',type:'text',x:10,y:10,w:350,h:80,fontSize:24,text:'שלום',
+    paragraphs:[{align:'right',dir:'rtl',list:'none'}]};
+   const draft=new InlineText(editor,item,true);
+   draft.pendingMarks={bold:true};
+   draft.input.dispatchEvent(new CompositionEvent('compositionstart',{data:'ק',bubbles:true}));
+   const pendingCleared=draft.pendingMarks===null;
+   draft.input.children[0].querySelector('span').textContent='שלום קלט';
+   draft.input.dispatchEvent(new InputEvent('input',{inputType:'insertCompositionText',data:'קלט',isComposing:true,bubbles:true}));
+   const during=draft.textHistory.canUndo;
+   draft.input.dispatchEvent(new CompositionEvent('compositionend',{data:'קלט',bubbles:true}));
+   const after=draft.textHistory.canUndo;
+   const text=readRichDocument(draft.input,draft.item).runs.map(run=>run.text).join('');
+   draft.finish(false);host.remove();
+   return {pendingCleared,during,after,text};
+  });
+  assert.deepEqual(result,{pendingCleared:true,during:false,after:true,text:'שלום קלט'});
+ });
+
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{
