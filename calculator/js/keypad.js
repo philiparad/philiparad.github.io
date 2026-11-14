@@ -36,13 +36,13 @@ function keyForModel(key,model){
 function keysForModel(model='fx-991es-plus'){if(model!=='fx-991es-plus')throw Error('Unsupported calculator model');return Object.freeze(keys.map(key=>keyForModel(key,model)))}
 const pct=(n)=>((100*n).toFixed(4))+'%';
 const newKey=(data,cx,cy,w,h,group,angle)=>Object.freeze({id:data[0],label:data[1],shift:data[2],alpha:data[3],cx,cy,w,h,group,angle:angle||null});
-const topCenters=[[39.83,220.67],[75.60,220.60],[108.21,238.61],[136.38,219.65],[136.46,257.52],[164.48,238.54],[196.81,220.66],[232.60,220.60]];
-const scienceCols=[40.6,78.8,117,155.4,193.5,231.6],scienceRows=[265.6,298.5,331.5,364.3];
-const numCols=[44,90,136,182.1,228.4],numRows=[406.6,446,486,525.4];
+const topCenters=[[39.83,222.67],[75.60,222.60],[108.21,240.61],[136.38,221.65],[136.46,259.52],[164.48,240.54],[196.81,222.66],[232.60,222.60]];
+const scienceCols=[40.6,78.8,117,155.4,193.5,231.6],scienceRows=[268.6,301.5,334.5,367.3];
+const numCols=[44,90,136,182.1,228.4],numRows=[410.6,450,490,529.4];
 const keys=[];
 topSpec.forEach((data,i)=>{const sizes=i===2||i===5?[30,20]:i===3||i===4?[20,28]:[22,22];keys.push(newKey(data,...topCenters[i],...sizes,data[3]==='dpad'?'dpad':'top',{LEFT:'135deg',UP:'225deg',RIGHT:'315deg',DOWN:'45deg'}[data[0]]))});
 scienceSpec.forEach((data,i)=>{if(!data)return;keys.push(newKey(data,scienceCols[i%6],scienceRows[Math.floor(i/6)],32,20,'scientific'))});
-numericSpec.forEach((data,i)=>keys.push(newKey(data,numCols[i%5],numRows[Math.floor(i/5)],39,i>=5&&i<15?29:28,'numeric')));
+numericSpec.forEach((data,i)=>keys.push(newKey(data,numCols[i%5],numRows[Math.floor(i/5)],40,i>=5&&i<15?29:28,'numeric')));
 if(keys.length!==50)throw Error('Expected 50 physical buttons; received '+keys.length);
 const spoken={LEFT:'Left arrow',RIGHT:'Right arrow',UP:'Up arrow',DOWN:'Down arrow',
  LP:'Open parenthesis',RP:'Close parenthesis',EQUAL:'Equals',DEL:'Delete',
