@@ -21,7 +21,7 @@ CASES = (
     {"id": "equation-2-unknowns",
      "keys": ("MODE", "5", "1", "1", "EQUAL", "2", "EQUAL", "3", "EQUAL",
               "2", "EQUAL", "3", "EQUAL", "4", "EQUAL"),
-     "mode": "EQN", "result": -1},
+     "mode": "EQN", "result": -1, "solutions": (-1, 2)},
     {"id": "parentheses-precedence",
      "keys": ("8", "DIV", "2", "MUL", "LP", "2", "ADD", "2", "RP", "EQUAL"),
      "mode": "COMP", "result": 16},
@@ -54,7 +54,18 @@ async def run_case(browser, root, file, case, out):
             assert state["screen"] == "result", (file, state["screen"])
         else:
             assert state["screen"] == "eqn-result", (file, state["screen"])
-            actual = state["eqnSession"]["solutions"][0]["value"]
+            solutions = state["eqnSession"]["solutions"]
+            expected = case["solutions"]
+            assert len(solutions) == len(expected), (
+                file, case["id"], "solution count", len(solutions))
+            assert [solution["label"] for solution in solutions] == ["X", "Y"], (
+                file, case["id"], "solution labels", solutions)
+            assert all(
+                isinstance(item["value"], (int, float))
+                and abs(item["value"] - wanted) < 1e-10
+                for item, wanted in zip(solutions, expected)
+            ), (file, case["id"], "all solutions", solutions)
+            actual = solutions[0]["value"]
         assert abs(actual - case["result"]) < 1e-10, (file, case["id"], actual)
         assert not errors, (file, case["id"], errors)
         name = file.replace(".html", "") + "-" + case["id"] + ".png"
@@ -63,6 +74,10 @@ async def run_case(browser, root, file, case, out):
         return {"web_publication": file, "case": case["id"],
                 "keys": list(case["keys"]), "mode": state["mode"],
                 "screen": state["screen"], "numeric_result": actual,
+                "equation_solutions": [
+                    {"label": item["label"], "value": item["value"]}
+                    for item in state["eqnSession"]["solutions"]
+                ] if case["mode"] == "EQN" else None,
                 "key_trace": trace,
                 "web_lcd_png": name, "web_lcd_sha256":
                 hashlib.sha256(frame.read_bytes()).hexdigest(),
@@ -103,6 +118,10 @@ async def main():
                     if left["numeric_result"] != right["numeric_result"]:
                         mismatches.append({"kind": "numeric", "modular": left["numeric_result"],
                                            "standalone": right["numeric_result"]})
+                    if left["equation_solutions"] != right["equation_solutions"]:
+                        mismatches.append({"kind": "all_equation_solutions",
+                                           "modular": left["equation_solutions"],
+                                           "standalone": right["equation_solutions"]})
                     for index, (a, b) in enumerate(zip(left["key_trace"], right["key_trace"])):
                         if a != b:
                             mismatches.append({"kind": "key_state", "step": index + 1,
