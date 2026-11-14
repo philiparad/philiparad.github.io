@@ -20,7 +20,7 @@ test('text crossing a page gap is detected without modifying its source',()=>{
  assert.equal(b.items[0].y,A4.h-10);
 });
 test('out-of-range text, horizontal overflow and expanded legacy height are reported',()=>{
- const tooTall=text('legacy',A4.h-250,{w:70,h:12,text:'Long '.repeat(45)});
+ const tooTall=text('legacy',A4.h-250,{w:70,h:12,text:'Long '.repeat(8)});
  assert.ok(textObjectHeight(tooTall)>250);
  const issues=textOverflowWarnings(board([
   tooTall,
@@ -42,14 +42,15 @@ test('overflow checker accepts single-page lessons and clamps navigation target'
  assert.deepEqual(issues,[{id:'tail',reason:'outside-pages',page:0}]);
 });
 test('A4 text-fit action selects the first affected box without editing the board',async()=>{
- const messages=[],oldDocument=globalThis.document;
+ const oldDocument=globalThis.document,oldSetTimeout=globalThis.setTimeout;
+ globalThis.setTimeout=()=>0;
  class Element{
   constructor(tag){this.tagName=tag;this.children=[];this.style={};this.value='';this.hidden=false;}
   append(...nodes){this.children.push(...nodes);}
   replaceChildren(...nodes){this.children=nodes;}
   setAttribute(name,value){this[name]=String(value);}
  }
- globalThis.document={createElement:tag=>new Element(tag)};
+ globalThis.document={createElement:tag=>new Element(tag),querySelector:()=>({textContent:''})};
  try{
   // Controls use injectable UI helpers from pages.js.
   const b=board([text('gap',A4.h-10)]),initial=structuredClone(b);
@@ -60,5 +61,5 @@ test('A4 text-fit action selects the first affected box without editing the boar
   assert.deepEqual([...e.selected],['gap']);
   assert.deepEqual(e.board.items,initial.items);
   e.board.layout='infinite';pages.update();assert.equal(pages.textFit.hidden,true);
- }finally{globalThis.document=oldDocument;}
+ }finally{globalThis.document=oldDocument;globalThis.setTimeout=oldSetTimeout;}
 });
