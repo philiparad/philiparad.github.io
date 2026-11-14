@@ -23,7 +23,7 @@ const red=build(tsv.replace('plus038_check_14\tsuccess',
  'plus038_check_14\tfailure'));
 A.equal(red.status,'FAIL');
 A.equal(red.failed,1);
-A.equal(red.passed,28);
+A.equal(red.passed,29);
 const skipped=build(tsv.replace('plus038_check_14\tsuccess',
  'plus038_check_14\tskipped'));
 A.equal(skipped.failed,1);
