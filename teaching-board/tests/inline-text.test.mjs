@@ -65,21 +65,14 @@ test('composition input is recorded only after composition finishes',()=>{
  edit.finish(false);
 });
 
-test('paragraph alignment commands use native paragraph styling',()=>{
+test('paragraph alignment and direction reject invalid values in the headless editor',()=>{
  const e=fixture(),edit=e.inlineText;
- const paragraph=edit.input.children[0];
- edit.input.querySelectorAll=()=>[paragraph];
- paragraph.closest=()=>null;
- const original=globalThis.document.execCommand;
- globalThis.document.execCommand=()=>{throw Error('legacy alignment command should not run');};
- try{
-  edit.setParagraphAlignment('center');
-  assert.equal(paragraph.style.textAlign,'center');
-  edit.setParagraphAlignment('right');
-  assert.equal(paragraph.style.textAlign,'right');
-  edit.setParagraphAlignment('invalid');
-  assert.equal(paragraph.style.textAlign,'right');
- }finally{globalThis.document.execCommand=original;edit.finish(false);}
+ assert.equal(edit.setParagraphAlignment('invalid'),false);
+ assert.equal(edit.setParagraphDirection('invalid'),false);
+ // Valid paragraph transformations are now model-based and verified with
+ // the real browser DOM in smoke.browser.mjs, not by this minimal stub.
+ edit.finish(false);
+ assert.equal(listeners.size,0);
 });
 
 test('Ctrl/Command+Shift+7/8 dispatch native list formatting without legacy command',()=>{
