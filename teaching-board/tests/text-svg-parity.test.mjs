@@ -45,3 +45,12 @@ test('explicit per-paragraph direction overrides language of first word',()=>{
  const hebrew=texts.find(n=>n.textContent==='שלום');
  assert.equal(hebrew.attributes['text-anchor'],'start');
 });
+
+test('oversized grapheme is compressed in SVG without modifying source text',()=>{
+ const item={id:'emoji',type:'text',x:0,y:0,w:35,h:100,fontSize:24,text:'👨‍👩‍👧‍👦'};
+ const elements=flatten(drawItem(item)).filter(n=>n.tagName==='text');
+ assert.equal(elements.map(n=>n.textContent).join(''),'👨‍👩‍👧‍👦');
+ assert.equal(elements.length,1);
+ assert.equal(elements[0].attributes.textLength,'35');
+ assert.equal(elements[0].attributes.lengthAdjust,'spacingAndGlyphs');
+});
