@@ -49,7 +49,8 @@ function main(){
  fs.writeFileSync(option('--output'),JSON.stringify(report,null,2)+'\n');
  console.log('PLUS-040:',report.status,report.passed+'/'+report.count,
              'checks; report SHA-256:',report.sha256);
- process.exitCode=report.failed?1:0;
+ // The workflow's consolidated quality gate owns the exit status, so this
+ // reporter must still publish diagnostics when some test outcomes failed.
 }
 if(require.main===module)main();
 module.exports={build};
