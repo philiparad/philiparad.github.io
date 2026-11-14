@@ -1,5 +1,5 @@
 import {equationDialog} from './equation-editor.js?v=20261023-image-handles';
-import {equationNode,textLayoutMetrics} from './inline-equation.js?v=20261017-history-budget';
+import {equationNode,textLayoutMetrics,equationContentWidth} from './inline-equation.js?v=20261017-history-budget';
 import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261017-history-budget';
 import { el, btn } from './ui.js?v=20261017-history-budget';
 import { TextHistory } from './text-history.js';
@@ -67,7 +67,7 @@ export class InlineText {
  async editEquation(node=null){
   const selection=window.getSelection();let range=selection.rangeCount?selection.getRangeAt(0).cloneRange():null;if(range&&!this.input.contains(range.commonAncestorContainer))range=null;
   this.suspended=true;
-  try{const value=await equationDialog(node?JSON.parse(node.dataset.equation).source:'x^2');if(this.closed||!value)return;const replacement=equationNode(value,this.item.fontSize||24);if(node&&this.input.contains(node))node.replaceWith(replacement);else{if(!range){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}range.deleteContents();range.insertNode(replacement);}range=document.createRange();range.setStartAfter(replacement);range.collapse(true);this.input.focus();selection.removeAllRanges();selection.addRange(range);this.resize();this.recordSnapshot();}finally{this.suspended=false;if(!this.closed)this.input.focus();}
+  try{const value=await equationDialog(node?JSON.parse(node.dataset.equation).source:'x^2');if(this.closed||!value)return;const replacement=equationNode(value,this.item.fontSize||24,equationContentWidth(this.item));if(node&&this.input.contains(node))node.replaceWith(replacement);else{if(!range){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}range.deleteContents();range.insertNode(replacement);}range=document.createRange();range.setStartAfter(replacement);range.collapse(true);this.input.focus();selection.removeAllRanges();selection.addRange(range);this.resize();this.recordSnapshot();}finally{this.suspended=false;if(!this.closed)this.input.focus();}
  }
  addFormatting(){
   this.formatButtons=new Map();

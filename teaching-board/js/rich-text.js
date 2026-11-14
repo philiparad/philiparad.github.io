@@ -1,4 +1,4 @@
-import {validateInlineEquation,equationNode} from './inline-equation.js?v=20261017-history-budget';
+import {validateInlineEquation,equationNode,equationContentWidth} from './inline-equation.js?v=20261017-history-budget';
 /** Plain data only: no HTML is stored in lessons or exports. */
 export function textRuns(item){return item.runs||[{text:item.text||'',bold:(item.textStyle||'').includes('bold'),italic:(item.textStyle||'').includes('italic'),underline:false,strike:false}];}
 export function validateRuns(runs,text){
@@ -28,7 +28,7 @@ export function readRichDocument(root,item){
 export function readRuns(root,item){return readRichDocument(root,item).runs;}
 export function writeRuns(root,item){root.replaceChildren();let list=null,lastList='none',number=0;for(const row of paragraphRuns(item)){let parent=root;if(row.list!=='none'){const nextNumber=row.list==='number'?(row.numberStart??number+1):0;if(row.list!==lastList||(row.list==='number'&&row.numberStart!==undefined&&nextNumber!==number+1)){list=document.createElement(row.list==='number'?'ol':'ul');if(row.list==='number'&&nextNumber!==1)list.start=nextNumber;root.append(list);}parent=list;number=nextNumber;}else{list=null;number=0;}lastList=row.list;
  const block=document.createElement(row.list==='none'?'div':'li');block.style.textAlign=row.align==='auto'?'start':row.align;block.dir=row.dir||'auto';parent.append(block);if(!row.runs.length)block.append(document.createElement('br'));
- for(const run of row.runs){if(run.equation){block.append(equationNode(run.equation,item.fontSize||24));continue;}const span=document.createElement('span');span.textContent=run.text;Object.assign(span.style,{...(run.bold?{fontWeight:'700'}:{}),...(run.italic?{fontStyle:'italic'}:{}),...((run.underline||run.strike)?{textDecoration:[run.underline?'underline':'',run.strike?'line-through':''].filter(Boolean).join(' ')}:{}),...(run.color?{color:run.color}:{})});block.append(span);}}
+ for(const run of row.runs){if(run.equation){block.append(equationNode(run.equation,item.fontSize||24,equationContentWidth(item)));continue;}const span=document.createElement('span');span.textContent=run.text;Object.assign(span.style,{...(run.bold?{fontWeight:'700'}:{}),...(run.italic?{fontStyle:'italic'}:{}),...((run.underline||run.strike)?{textDecoration:[run.underline?'underline':'',run.strike?'line-through':''].filter(Boolean).join(' ')}:{}),...(run.color?{color:run.color}:{})});block.append(span);}}
 }
 /** Preserve formatting boundaries and explicit newlines while wrapping. */
 export function runLines(runs,max){const lines=[[]];let count=0;for(const run of runs)for(const part of run.text.split(/(\n|[^\S\n]+)/)){if(!part)continue;if(part==='\n'){lines.push([]);count=0;continue;}if(count&&count+part.length>max&&!/^\s+$/.test(part)){lines.push([]);count=0;}lines.at(-1).push({...run,text:part});count+=part.length;}return lines.map(compactRuns);}

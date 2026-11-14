@@ -68,3 +68,25 @@ test('SVG token anchors account for mixed Hebrew and English directions',()=>{
  assert.equal(after.find(n=>n.textContent==='English')?.attributes['text-anchor'],'start');
  assert.equal(after.find(n=>n.textContent==='עברית')?.attributes['text-anchor'],'end');
 });
+
+test('rendered SVG equation bottom follows the same text baseline in RTL and LTR',()=>{
+ const equation={source:'\\frac{x^2}{2}',src:'data:image/png;base64,AAAA',w:48,h:90};
+ for(const dir of ['rtl','ltr']){
+  const item={id:'math-baseline-'+dir,type:'text',x:0,y:0,w:350,h:12,fontSize:24,
+   text:'שלום \uFFFC English',
+   runs:[{text:'שלום '},{text:'\uFFFC',equation},{text:' English'}],
+   paragraphs:[{align:dir==='rtl'?'right':'left',dir,list:'none'}]};
+  const svg=flatten(drawItem(item)),image=svg.find(n=>n.tagName==='image');
+  assert.ok(image,'Expected a visible SVG inline equation');
+  const tokens=svg.filter(n=>n.tagName==='text');
+  const top=Number(image.attributes.y),height=Number(image.attributes.height);
+  assert.ok(top>=-1e-8,'Equation must not escape the first line vertically');
+  assert.ok(height>24);
+  const baseline=top+height;
+  const nearby=tokens.filter(n=>Math.abs(Number(n.attributes.y)-baseline)<1e-8);
+  assert.ok(nearby.some(n=>n.textContent.includes('שלום')),'Equation must share its baseline with Hebrew');
+  assert.ok(nearby.some(n=>n.textContent.includes('English')),'Equation must share its baseline with English');
+  const x=Number(image.attributes.x),w=Number(image.attributes.width);
+  assert.ok(x>=-1e-8&&x+w<=item.w+1e-8);
+ }
+});
