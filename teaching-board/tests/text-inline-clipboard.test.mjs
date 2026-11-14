@@ -31,7 +31,7 @@ test('rich clipboard carries only selected text, formatting and atomic equation 
  assert.deepEqual(parseRichClipboard(JSON.stringify(selected)),selected);
 });
 test('multi-paragraph selection retains paragraph direction and list metadata',()=>{
- const selected=selectedRichClipboard(snapshot(),5,20);
+ const selected=selectedRichClipboard(snapshot(),5,21);
  assert.equal(selected.runs.map(r=>r.text).join(''),'\uFFFC English\nSecond');
  assert.deepEqual(selected.paragraphs,snapshot().paragraphs);
  assert.equal(selected.runs.find(r=>r.equation).equation.source,equation.source);
