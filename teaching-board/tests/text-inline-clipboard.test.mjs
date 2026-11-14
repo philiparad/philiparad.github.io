@@ -270,7 +270,7 @@ test('plain replacement inherits leading selected text, not style of preceding r
   paragraphs:[{align:'left',dir:'ltr',list:'none'}]};
  const replaced=replaceRichClipboard(doc,7,10,plainClipboard('NEW'),{plainText:true});
  assert(replaced);
- const r=replaced.runs.find(x=>x.text==='NEW');
+ const r=replaced.runs.find(x=>x.text.includes('NEW'));
  assert.equal(r.italic,true);
  assert.equal(r.color,'#7c50b0');
  assert.equal(r.bold,false);
@@ -330,9 +330,13 @@ test('plain text pasted next to equations chooses nearby text style, never image
  ]};
  const next=replaceRichClipboard(doc,6,6,plainClipboard('X'),{plainText:true});
  assert(next);
- assert.equal(next.runs.find(r=>r.text.includes('X')).bold,true);
- assert.equal(next.runs.find(r=>r.text.includes('X')).color,'#147d92');
+ assert.equal(next.runs.find(r=>r.text.includes('X')).italic,true,
+  'After an equation, inherit the immediately following word style');
+ assert.equal(next.runs.find(r=>r.text.includes('X')).color,undefined);
  assert.equal(next.runs.find(r=>r.text.includes('X')).equation,undefined);
+ const beforeEquation=replaceRichClipboard(doc,5,5,plainClipboard('B'),{plainText:true});
+ assert.equal(beforeEquation.runs.find(r=>r.text.includes('B')).bold,true);
+ assert.equal(beforeEquation.runs.find(r=>r.text.includes('B')).color,'#147d92');
  assert.equal(next.runs.find(r=>r.equation).equation.source,'x');
  const beginning=replaceRichClipboard(doc,7,7,plainClipboard('Y'),{plainText:true});
  assert.equal(beginning.runs.find(r=>r.text.includes('Y')).italic,true);
