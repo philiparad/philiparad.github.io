@@ -74,6 +74,29 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## Plain-text paste formatting (TXT-056)
+
+Plain text pasted into an existing formatted text box now **inherits the
+style at the caret**, including bold, italic, underline, strikethrough
+and text color. At a collapsed caret, the nearest preceding text run in
+the current paragraph usually supplies the style; at the beginning of
+a paragraph, the following text supplies it. Replacing selected text
+uses the first selected run's style instead. No formatting is borrowed
+across a paragraph boundary or from an inline equation's image.
+
+For plain text containing multiple lines, **all pasted lines share the
+insertion style**, while the surrounding RTL/LTR direction, list
+numbering and surviving paragraph metadata are preserved. Existing
+toolbar formatting choices for an insertion point take precedence:
+for example, disabling bold and choosing teal applies to all pasted
+lines even inside an otherwise bold red paragraph.
+
+Formatted source copied *within* Teaching Board still retains its
+original rich formatting. The inheritance rules apply only to
+ordinary plain-text paste, including the plain-text fallback used
+when an external app removes the Teaching Board clipboard format.
+Untrusted clipboard HTML is never executed or inserted as DOM.
+
 ## Inline equation cursor and keyboard controls
 
 Inline equations behave as **one atomic character** in text boxes and sticky

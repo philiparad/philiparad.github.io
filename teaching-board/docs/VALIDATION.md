@@ -233,3 +233,40 @@ HTML-only round-trip, and safe plain multi-line paste. The unchanged
 visual-golden and A4 print/PDF regressions also passed. Browser system
 clipboard and third-party office application behavior still require
 manual interoperability validation.
+
+## TXT-056: caret-aware plain-text paste and formatting overrides (November 14, 2026)
+
+Plain-text pasting now chooses style from the insertion position in
+the **destination paragraph**. At a collapsed caret it prefers the
+preceding text run, falling forward to the next text run at a paragraph
+start or next to an inline equation. For non-collapsed selection
+replacement it prefers the first selected text run. Equations are
+atomic and are never treated as style sources, and styling does not
+leak across paragraph boundaries.
+
+The validated `replaceRichClipboard` operation applies these styles
+to inserted plain-text runs, including multi-line content. Pending
+formatting marks set by the toolbar explicitly override inherited
+bold/italic/underline/strikethrough and color; `removeFormat` can
+clear inherited color. A multi-line plain paste with pending marks
+uses the same validated rebuilding path, while single-line pending
+input retains its established native insertion workflow. Original
+rich clipboard fragments are still pasted with their source
+formatting, not the target insertion style.
+
+Browser tests exercise Hebrew RTL colored/bold paragraphs and English
+LTR italic text; insertion at a style boundary; replacement of
+a formatted selection; a differently formatted next paragraph;
+multiple pasted lines inside a numbered list; pending style override;
+paste directly before and after an accessible inline equation;
+undo/redo; and malicious clipboard HTML as literal text.
+
+**Verification:** [GitHub Actions run 43587241484](https://github.com/philiparad/philiparad.github.io/actions/runs/43587241484)
+passed **304/304 Node.js tests**, all Chromium/Firefox/WebKit browser
+smoke suites, all nine unchanged visual-golden checks, and the
+Chromium A4 PDF-to-Poppler raster regression.
+
+**Limitations:** Clipboard sanitization and OS/browser behavior outside
+the automated browsers still require hands-on testing. These changes
+do not attempt to convert arbitrary external LaTeX text into an
+editable rendered equation.
