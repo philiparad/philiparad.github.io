@@ -217,9 +217,13 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
         ];
         for(let i=1;i<newRows.length;i++){
             let p;
-            if(i===newRows.length-1&&suffix.length)
+            if(i===newRows.length-1&&suffix.length){
                 p=structuredClone(original.paragraphs[last]);
-            else if(plainText){
+                // Splitting one numbered item with plain multiline paste
+                // must continue its ordinal rather than restart at the
+                // original explicit <ol start> on the suffix line.
+                if(plainText&&last===first&&p.list==='number')delete p.numberStart;
+            }else if(plainText){
                 p=structuredClone(original.paragraphs[first]);
                 if(p.list==='number')delete p.numberStart;
             }else p=structuredClone(payload.paragraphs[i]);
