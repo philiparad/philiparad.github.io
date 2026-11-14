@@ -540,3 +540,69 @@ not override the browser's general visual bidirectional caret
 algorithm for ordinary text. Real assistive technology, keyboard
 layouts, native clipboard managers, and IME behavior warrant further
 manual integration testing.
+
+## TXT-063: IME composition, caret recovery and accessible equations (November 14, 2026)
+
+**Safe IME styling — `js/text-pending.js`:** Before/after
+composition diffs are aligned to complete Unicode grapheme clusters
+using `Intl.Segmenter`, with Unicode code-point fallback. Styling
+rejects a diff containing a paragraph newline or a complete
+`U+FFFC` equation placeholder, keeping the native IME result
+instead of extracting parts of equation markup. Successfully
+styled text receives a collapsed caret after the committed range,
+not a stale selected preedit range. Selection recovery is attempted
+if a formatting operation fails.
+
+**History coalescing — `js/inline-text.js`,
+`js/text-history.js`:** While a composition is active, browser
+preedit events do not add snapshots or invoke keyboard edit
+commands. On `compositionend`, pending styles are applied and
+one valid document snapshot is saved. A final input can arrive
+after that event with different `InputEvent.inputType` values
+depending on the engine; the first such input, in the absence
+of another keyboard, pointer, focus or editing action, amends
+only that composition's current history entry. A composition
+whose initial end event has not yet changed the text instead
+pushes a new entry upon the eventual input. No prior undo
+entry is overwritten, and user-initiated edits reset the one-shot
+coalescing state.
+
+**Equation caret and keyboard access — `js/text-selection.js`,
+`js/text-equation-caret.js`:**
+`recoverEquationSelection` normalizes a caret inside a
+`contenteditable=false` equation image subtree to the nearest
+logical boundary of the intact `U+FFFC` atom; it does nothing to
+ordinary Hebrew/English selections. An adjacent collapsed caret
+can use **Alt+Enter** to open the existing visual/LaTeX equation
+dialog. Cancel is non-destructive, leaves undo history unchanged
+and returns focus to the editor.
+
+**Accessibility:** The editor adds a visually hidden explanatory
+element referenced by the textbox's `aria-describedby`, publishes
+supported keys using `aria-keyshortcuts`, announces composition
+start/finish through a polite `role=status` live region, and
+reflects active composition through `aria-busy`. Existing math
+elements remain labeled `role=math` with the LaTeX source and
+their decorative image hidden from duplicate announcements.
+
+**Tests:** Added `tests/text-ime-recovery.test.mjs` with coverage
+for grapheme-aligned Hebrew niqqud, emoji substitution, safe
+composition differences, atomic-equation caret recovery,
+adjacent math lookup, and delayed-commit history amendment.
+Expanded cross-browser Playwright smoke tests verify that IME
+preedit suppresses shortcuts, pending formatting applies only
+to committed Hebrew or mixed-direction text near equations,
+both early and late native commits use one Undo step,
+equation sources and list metadata survive, accessible hints
+and status attributes remain present, and a real Alt+Enter
+gesture opens the correct equation and Cancel restores focus.
+
+**Verification:** [GitHub Actions run 43608679341](https://github.com/philiparad/philiparad.github.io/actions/runs/43608679341)
+passed **333/333 Node.js tests**, plus Chromium, Firefox, and
+WebKit, including existing visual-golden and A4 PDF checks.
+The final documentation commit is separately validated in CI.
+
+**Limits:** The browser tests simulate IME lifecycle events rather
+than reproducing a physical OS input method or real screen reader.
+Platform-native IME, braille, screen-reader, keyboard layouts,
+and third-party accessibility workflows warrant manual QA.
