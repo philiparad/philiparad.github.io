@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const sourceScripts=[...index.matchAll(/<script src="(js\/[^"]+\.js)"\s*><\/script>/g)].map(m=>m[1]);
-assert.equal(sourceScripts.length,40,'All live JS modules must be listed explicitly');
+assert.equal(sourceScripts.length,41,'All live JS modules must be listed explicitly');
 assert.equal(new Set(sourceScripts).size,sourceScripts.length,'Duplicate module');
 const files=['index.html','styles.css','js/numeric-worker.js','parity-lab.html',
  'fx991_fresh_standalone.html',...sourceScripts];
