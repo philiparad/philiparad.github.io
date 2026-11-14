@@ -51,12 +51,22 @@ const spoken={LEFT:'Left arrow',RIGHT:'Right arrow',UP:'Up arrow',DOWN:'Down arr
  FRAC:'Fraction',RECIP:'Reciprocal',SQRT:'Square root',SQUARE:'Square',
  POWER:'Power',INTEGRAL:'Integral',SD:'Standard decimal conversion',
  DMS:'Degrees minutes seconds',MPLUS:'Memory plus'};
+// VIS-001: independent vector glyphs for four Windows-emulator key faces.
+// Preserve the physical key IDs and accessible names; SVG is decoration only.
+const FACE_GLYPHS=Object.freeze({
+ FRAC:'<svg viewBox="0 0 38 24" aria-hidden="true"><rect x="17" y="3" width="9" height="6" fill="none" stroke="white" stroke-width="1.6"/><path d="M4 12H34" fill="none" stroke="white" stroke-width="2"/><rect x="17" y="15" width="9" height="6" fill="none" stroke="white" stroke-width="1.6"/></svg>',
+ INTEGRAL:'<svg viewBox="0 0 40 25" aria-hidden="true"><text x="2" y="21" font-size="25" font-family="Georgia,serif" fill="white">∫</text><text x="15" y="10" font-size="12" font-weight="bold" font-family="Georgia,serif" fill="white">d</text><path d="M15 13H27" stroke="white" stroke-width="1.4"/><text x="15" y="23" font-size="12" font-family="Georgia,serif" fill="white">x</text><rect x="29" y="13" width="8" height="8" fill="none" stroke="white" stroke-width="1.3"/></svg>',
+ LOGBASE:'<svg viewBox="0 0 50 26" aria-hidden="true"><text x="1" y="20" font-size="22" font-weight="bold" font-family="Arial,sans-serif" fill="white">log</text><rect x="37" y="14" width="10" height="9" fill="none" stroke="white" stroke-width="1.5"/></svg>',
+ POWER:'<svg viewBox="0 0 42 25" aria-hidden="true"><text x="5" y="22" font-size="25" font-style="italic" font-weight="bold" font-family="Georgia,serif" fill="white">x</text><rect x="22" y="2" width="11" height="11" fill="none" stroke="white" stroke-width="1.7"/></svg>'
+});
+const BASE_LEGENDS=Object.freeze({SQUARE:'DEC',POWER:'HEX',LOG:'BIN',LN:'OCT'});
 function renderLegend(wrap,key){
- for(const old of [...wrap.querySelectorAll('.shift-label,.alpha-label')])old.remove();
+ for(const old of [...wrap.querySelectorAll('.shift-label,.alpha-label,.base-label')])old.remove();
  const button=wrap.querySelector('button');
  if(!button)throw Error('Key missing for '+key.id);
  if(key.shift){
-  const tag=document.createElement('span');tag.className='shift-label';tag.textContent=key.shift;
+  const tag=document.createElement('span');tag.className=key.id==='ALPHA'?'alpha-label':'shift-label';tag.textContent=key.shift;
+  if(key.id==='MODE'){tag.textContent='';const mode=document.createElement('span');mode.className='mode-legend';mode.textContent='MODE';const setup=document.createElement('span');setup.className='setup-legend';setup.textContent='SETUP';tag.append(mode,document.createTextNode(' '),setup);}
   wrap.insertBefore(tag,button);
  }
  if(key.alpha&&key.group!=='top'&&key.group!=='dpad'&&key.alpha!==key.id){
@@ -64,7 +74,9 @@ function renderLegend(wrap,key){
   wrap.insertBefore(tag,button);
  }
  button.textContent=key.label;
+ if(FACE_GLYPHS[key.id]){const span=document.createElement('span');span.className='face-glyph';span.innerHTML=FACE_GLYPHS[key.id];button.textContent='';button.appendChild(span);}
  button.className=key.label.length>4?'small-label':'';
+ if(BASE_LEGENDS[key.id]){const base=document.createElement('span');base.className='base-label';base.textContent=BASE_LEGENDS[key.id];wrap.insertBefore(base,button);}
  const primary=spoken[key.id]||key.label||key.id;
  const legends=[];
  if(key.shift&&key.shift!==key.id)legends.push('Shift: '+key.shift);
