@@ -270,3 +270,47 @@ Chromium A4 PDF-to-Poppler raster regression.
 the automated browsers still require hands-on testing. These changes
 do not attempt to convert arbitrary external LaTeX text into an
 editable rendered equation.
+
+## TXT-057: explicit paste formatting choices and accessible keyboard navigation (November 14, 2026)
+
+The text editing toolbar now provides a native `select` control with
+the accessible label `Paste formatting mode`. Two choices are exposed:
+**Keep source formatting** (default for each draft) and **Match
+destination formatting**. A mode change from the select's native
+Up/Down Arrow keyboard interaction restores editor focus and the
+logical saved selection, avoiding a silently moved paste caret.
+The selection is also captured when the control receives keyboard
+focus or a pointer interaction.
+
+Rich clipboard paste now passes `matchDestination` through the
+existing validated `replaceRichClipboard` operation. When enabled,
+every inserted *text* run has its source style stripped before
+receiving the destination caret's style (including pending toolbar
+overrides). This avoids inheriting source bold/italic/underline or
+color when the destination style leaves that property unspecified.
+Atomic `U+FFFC` equation runs retain their original validated
+image and LaTeX source without adding copied text styling.
+Paragraph metadata follows the same destination-inheritance rules
+already exercised for ordinary plain-text paste; unmodified
+destination prefix/suffix metadata is preserved as appropriate.
+Keep-source mode retains the original rich clipboard behavior.
+Ordinary plain-text paste is destination-styled in either mode,
+and clipboard HTML still passes inert parsing and validation.
+
+**Verification:** [GitHub Actions run 43588942447](https://github.com/philiparad/philiparad.github.io/actions/runs/43588942447)
+passed **308/308 Node.js tests** and all Chromium, Firefox, and WebKit
+browser jobs, including nine unchanged visual goldens and Chromium A4
+PDF raster validation. New model tests cover both paste modes,
+multi-paragraph RTL/LTR and list metadata, selection replacement,
+explicit pending marks, atomic math retention, and hostile rich
+clipboard rejection. Cross-engine browser tests verify the native
+selector's accessible label/options, ArrowUp/ArrowDown interaction,
+selection/focus preservation, default-mode reset in new drafts,
+rich paste preservation, destination style matching, equation
+sources, and Undo/Redo.
+
+**Limitations:** Native browser and OS clipboard managers may strip
+custom MIME/HTML clipboard metadata. Such external clipboard
+interoperability and real assistive-technology workflows remain
+manual QA; these modes do not reconstruct rendered equations from
+arbitrary plain LaTeX text.

@@ -74,6 +74,33 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## Choose paste formatting (TXT-057)
+
+While editing a text box or sticky note, choose **Paste formatting** in
+the text toolbar. This native, keyboard-accessible dropdown offers:
+
+- **Keep source formatting** (default): Pasted rich text retains its
+  copied bold/italic/underline/strikethrough, color and paragraph
+  formatting where applicable. Inline equations remain fully editable.
+- **Match destination formatting**: Pasted text adopts the formatting
+  at the insertion point (or the selected destination text) and
+  surrounding paragraph alignment, direction, and list behavior.
+  Copied equations remain intact, with their original editable LaTeX,
+  image and dimensions. Source text styles are *replaced*, not layered
+  over the destination styling.
+
+To use the dropdown with a keyboard, **Tab** to the **Paste formatting
+mode** selector and use **Up/Down Arrow** to choose a mode. The editor
+then restores focus and the exact insertion position, so **Ctrl/⌘+V**
+pastes where you intended. The chosen mode lasts only for the current
+text editing session; each new edit starts with **Keep source
+formatting**. Both modes support Undo/Redo.
+
+Plain-text paste already matches destination formatting in either
+setting, because plain text carries no rich source formatting.
+Clipboard content is always validated before use, and unsafe
+external HTML is never inserted as executable content.
+
 ## Plain-text paste formatting (TXT-056)
 
 Plain text pasted into an existing formatted text box now **inherits the
