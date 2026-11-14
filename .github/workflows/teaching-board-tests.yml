@@ -60,6 +60,14 @@ jobs:
         env:
           TEACHING_BOARD_BROWSER: ${{ matrix.browser }}
         run: node teaching-board/browser-tests/visual-parity.browser.mjs
+      - name: Upload inspectable golden scene PNGs and difference maps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: teaching-board-visual-${{ matrix.browser }}
+          path: /tmp/teaching-board-visual-artifacts/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Ensure independent PDF raster tools are available
         if: matrix.browser == 'chromium'
         run: |
