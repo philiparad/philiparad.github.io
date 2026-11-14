@@ -92,11 +92,30 @@ try {
     if(delta>0){different++;largest=Math.max(largest,delta);}
     if(first.pixels[offset]<240||first.pixels[offset+1]<240||first.pixels[offset+2]<240)ink++;
    }
+   // Negative control: deliberately hide text in the cached board scene.
+   // The comparator must detect a real visual regression rather than merely
+   // comparing two white/blank images or treating all images as equal.
+   let injectedDifference=null;
+   if(fixture.name==='mixed Hebrew English and inline math'){
+    const changed=edited.querySelector('g[data-id="mixed"]');
+    changed.setAttribute('opacity','0');
+    const damaged=await raster(edited);
+    let pixels=0;
+    for(let offset=0;offset<damaged.pixels.length;offset+=4){
+     if(damaged.pixels[offset]!==second.pixels[offset]||
+        damaged.pixels[offset+1]!==second.pixels[offset+1]||
+        damaged.pixels[offset+2]!==second.pixels[offset+2]||
+        damaged.pixels[offset+3]!==second.pixels[offset+3])pixels++;
+    }
+    injectedDifference=pixels;
+    changed.setAttribute('opacity','1');
+   }
    results.push({
     name:fixture.name,inkPixels:ink,differentPixels:different,maxChannelDifference:largest,
     editorImageCount:edited.querySelectorAll('image').length,
     exportImageCount:exported.querySelectorAll('image').length,
-    svgDataValid:exported.getAttribute('viewBox')==='0 0 '+W+' '+H
+    svgDataValid:exported.getAttribute('viewBox')==='0 0 '+W+' '+H,
+    injectedDifference
    });
   }
   return results;
@@ -107,6 +126,7 @@ try {
   assert.equal(test.editorImageCount,test.exportImageCount,'Inline equation/image missing');
   assert(test.svgDataValid,'Export viewBox was incorrect');
   assert.equal(test.differentPixels,0,'Board and export rendered different pixels: '+test.name);
+  if(test.injectedDifference!==null)assert(test.injectedDifference>200,'Visual diff failed to detect deliberately missing text');
  }
  assert.deepEqual(failures,[]);
  console.log('PASS '+engine+' board and SVG export visual pixel parity: '+findings.length+' fixtures');
