@@ -18,7 +18,7 @@ for(const word of registrations)
  A.ok(browser.includes(word),'missing CALC/SOLVE scenario '+word);
 for(const check of [
  'session["residual"]','session["source"]=="X-2"',
- 'session["value"]-2','final["memory"]["X"]',
+ 'close(session["value"],2)','final["memory"]["X"]',
  'final["ans"]==original_ans',
  'session["statementResults"]','results[0]["value"]',
  'window.__plus047Workers[0].terminated',
