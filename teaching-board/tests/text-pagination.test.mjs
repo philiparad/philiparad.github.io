@@ -6,6 +6,7 @@ import {textLayoutMetrics} from '../js/inline-equation.js';
 import {paragraphRuns,validateRuns,validateParagraphs} from '../js/rich-text.js';
 import {bounds} from '../js/scene.js';
 import {createBoard,validateBoard,serializeBackup,parseBackup} from '../js/model.js';
+import {History} from '../js/history.js';
 
 const step=A4.h+A4.gap;
 function board(items,count=1){
@@ -83,4 +84,27 @@ test('A4 page limit prevents partial pagination or data loss',()=>{
  const input=board([source],100),original=structuredClone(input);
  assert.throws(()=>planTextFlow(input,source.id,A4),/100 A4 pages/);
  assert.deepEqual(input,original);
+});
+
+test('flow is a single undoable history step and redo restores each continuation',()=>{
+ const source=textItem(),input=board([source]),before=structuredClone(input);
+ const history=new History(input),plan=planTextFlow(input,source.id,A4);
+ assert.ok(plan.items.length>1);
+ applyTextFlow(input,plan);
+ assert.equal(history.commit(input),true);
+ assert.equal(history.past.length,1);
+ const after=structuredClone(input);
+ assert.deepEqual(history.undo(),before);
+ assert.deepEqual(history.redo(),after);
+});
+test('bullet continuation suppresses repeated bullets while retaining list metadata',()=>{
+ const source=textItem({text:'חשבון '.repeat(90),
+  paragraphs:[{align:'right',list:'bullet',dir:'rtl'}]}),input=board([source]),plan=planTextFlow(input,source.id,A4);
+ assert.ok(plan.items.length>1);
+ assert.equal(plan.items[0].paragraphs[0].list,'bullet');
+ for(const fragment of plan.items.slice(1)){
+  assert.equal(fragment.paragraphs[0].list,'none');
+  assert.equal(fragment.paragraphs[0].dir,'rtl');
+ }
+ assert.equal(plan.items.map(fragment=>fragment.text).join(''),source.text);
 });
