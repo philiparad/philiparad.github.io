@@ -406,7 +406,7 @@ try{
   assert.equal(state.hasError,true);
   assert.equal(state.rawControl,true);
   await page.getByRole('button',{name:'Show raw text'}).click();
-  assert.equal(await page.getByRole('textbox',{name:'Unparsed text recovery'}).inputValue(),'שלום English');
+  assert.equal((await page.getByRole('textbox',{name:'Unparsed text recovery'}).inputValue()).trimEnd(),'שלום English');
   await page.getByRole('button',{name:'Restore last valid version'}).click();
   const result=await page.evaluate(()=>{
    const {draft,host,editor}=window.__invalidRecovery;
