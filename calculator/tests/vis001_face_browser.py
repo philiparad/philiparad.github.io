@@ -71,12 +71,22 @@ async def inspect(browser, host, name):
           const face=document.querySelector('#face');
           face.style.width=width+'px';face.style.maxWidth='none';
           const mode=document.querySelector('.button-MODE .shift-label').getBoundingClientRect();
+          const modeWord=document.querySelector('.button-MODE .mode-legend').getBoundingClientRect();
+          const setupWord=document.querySelector('.button-MODE .setup-legend').getBoundingClientRect();
           const on=document.querySelector('.button-ON .shift-label').getBoundingClientRect();
+          const modeKey=document.querySelector('.button-MODE button').getBoundingClientRect();
+          const onKey=document.querySelector('.button-ON button').getBoundingClientRect();
           const casing=face.getBoundingClientRect();
-          return {width,modeRight:mode.right,onLeft:on.left,onRight:on.right,faceRight:casing.right};
+          return {width,modeRight:mode.right,onLeft:on.left,onRight:on.right,
+           setupRight:setupWord.right,modeWordRight:modeWord.right,modeKeyCenter:(modeKey.left+modeKey.right)/2,
+           onKeyCenter:(onKey.left+onKey.right)/2,modeCenter:(mode.left+mode.right)/2,
+           onCenter:(on.left+on.right)/2,faceRight:casing.right};
         }""",face_width)
-        assert collision["modeRight"]+1 <= collision["onLeft"],("ON and MODE captions overlap",name,collision)
-        assert collision["onRight"] <= collision["faceRight"]+1,("ON caption outside face",name,collision)
+        assert collision["setupRight"]+2 <= collision["onLeft"],("SETUP glyphs overlap ON glyphs",name,collision)
+        assert collision["modeRight"]+2 <= collision["onLeft"],("MODE/SETUP caption box overlaps ON",name,collision)
+        assert abs(collision["modeCenter"]-collision["modeKeyCenter"])<2,("MODE caption not centered",name,collision)
+        assert abs(collision["onCenter"]-collision["onKeyCenter"])<2,("ON caption not centered",name,collision)
+        assert collision["onRight"] <= collision["faceRight"]-3,("ON caption too close to case edge",name,collision)
     await page.evaluate("""() => {document.querySelector('#face').style.removeProperty('width');
                           document.querySelector('#face').style.removeProperty('max-width');}""")
     assert not errors,errors
