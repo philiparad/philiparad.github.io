@@ -695,6 +695,180 @@ try{
    'Untrusted HTML must be inserted only as literal plain text');
  });
 
+
+ await check('TXT-055 multi-paragraph clipboard retains list ordinals and bilingual styles',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection}=await import('./js/text-selection.js');
+   const {TEXT_RICH_CLIPBOARD}=await import('./js/text-inline-clipboard.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:110px 80px 60px;background:white;z-index:3200';
+   document.body.append(host);
+   const editor={area:host,board:{id:'multi-clip-'+crypto.randomUUID(),
+    viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const canvas=document.createElement('canvas');canvas.width=60;canvas.height=40;
+   const paint=canvas.getContext('2d');paint.fillStyle='#227dcc';paint.fillRect(2,2,56,36);
+   const eq={source:'\\frac{a+1}{2}',src:canvas.toDataURL('image/png'),w:60,h:40};
+   const source={id:'multi-source',type:'text',x:0,y:0,w:440,h:40,fontSize:24,
+    text:'ראשון\nאלגוריתם \uFFFC\nSolve x^2\nסיום',
+    runs:[{text:'ראשון\n'},{text:'אלגוריתם ',bold:true,color:'#b42318'},
+      {text:'\uFFFC',equation:eq},{text:'\nSolve x^2',italic:true},{text:'\nסיום'}],
+    paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7},
+      {align:'right',dir:'rtl',list:'number'},
+      {align:'left',dir:'ltr',list:'number'},
+      {align:'right',dir:'rtl',list:'bullet'}]};
+   const selection=window.getSelection();
+   const create=(item)=>new InlineText(editor,item,true);
+   const select=(draft,a,b=a)=>{
+    draft.input.focus();
+    if(!restoreLogicalSelection(draft.input,selection,{anchor:a,focus:b}))
+     throw Error('Unable to place a clipboard selection');
+   };
+   const pos=(paragraph,offset)=>({paragraph,offset});
+   const state=draft=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    const ol=draft.input.querySelector('ol');
+    return {text:doc.runs.map(r=>r.text).join(''),paragraphs:doc.paragraphs,
+      eqs:doc.runs.filter(r=>r.equation).map(r=>r.equation.source),
+      bold:doc.runs.some(r=>r.bold&&r.color==='#b42318'&&r.text.includes('אלגוריתם')),
+      italic:doc.runs.some(r=>r.italic&&r.text.includes('Solve')),
+      listStart:ol?.start??null,listItems:ol?.children.length??0,
+      listDirs:ol?[...ol.children].map(li=>li.dir):[],
+      caret:captureLogicalSelection(draft.input,selection)};
+   };
+   const data=new Map();
+   const transfer={setData(type,value){data.set(type,value);},
+     getData(type){return data.get(type)||'';}};
+   const fire=(draft,name,clipboardData)=>{
+    const event=new Event(name,{cancelable:true,bubbles:true});
+    Object.defineProperty(event,'clipboardData',{value:clipboardData});
+    draft.input.dispatchEvent(event);
+    return event.defaultPrevented;
+   };
+   let draft=create(source);
+   select(draft,pos(1,0),pos(2,9));
+   const copied=fire(draft,'copy',transfer);
+   const meta=JSON.parse(data.get(TEXT_RICH_CLIPBOARD));
+   const html=data.get('text/html'),plain=data.get('text/plain');
+   const sourceBefore=state(draft);
+   draft.finish(false);
+
+   const empty={id:'multi-empty',type:'text',x:0,y:0,w:450,h:20,fontSize:24,
+    text:'',paragraphs:[{align:'auto',dir:'auto',list:'none'}]};
+   draft=create(empty);
+   select(draft,pos(0,0));
+   const pasted=fire(draft,'paste',transfer);
+   const afterPaste=state(draft);
+   draft.stepTextHistory('undo');
+   const afterUndo=state(draft);
+   draft.stepTextHistory('redo');
+   const afterRedo=state(draft);
+   select(draft,pos(0,0),pos(1,0));
+   const cutData=new Map();
+   const cutTransfer={setData(type,value){cutData.set(type,value);},
+    getData(type){return cutData.get(type)||'';}};
+   const cut=fire(draft,'cut',cutTransfer);
+   const afterCut=state(draft);
+   draft.stepTextHistory('undo');
+   const afterCutUndo=state(draft);
+   draft.finish(false);
+
+   const bullet={id:'multi-bullet',type:'text',x:0,y:0,w:490,h:20,fontSize:24,
+    text:'Prefix tail',paragraphs:[{align:'right',dir:'rtl',list:'bullet'}]};
+   draft=create(bullet);
+   select(draft,pos(0,7));
+   const prefixPasted=fire(draft,'paste',transfer);
+   const afterPrefixPaste=state(draft);
+   draft.finish(false);
+
+   const fallback={id:'multi-fallback',type:'text',x:0,y:0,w:490,h:20,fontSize:24,
+    text:'',paragraphs:[{align:'auto',dir:'auto',list:'none'}]};
+   draft=create(fallback);
+   select(draft,pos(0,0));
+   const htmlOnly={
+    getData(type){
+      return type===TEXT_RICH_CLIPBOARD?'{invalid JSON':
+       type==='text/html'?html:type==='text/plain'?plain:'';
+    }
+   };
+   const htmlPasted=fire(draft,'paste',htmlOnly);
+   const afterHtmlPaste=state(draft);
+   draft.finish(false);
+
+   const numbered={id:'multi-plain',type:'text',x:0,y:0,w:480,h:25,fontSize:24,
+    text:'לפני סוף',
+    paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:12}]};
+   draft=create(numbered);
+   select(draft,pos(0,5));
+   const unsafe={
+    getData(type){
+      return type==='text/html'?'<img src=x onerror="window.__pasteAttack=true">':
+       type==='text/plain'?'first\nsecond\nthird':'';
+    }
+   };
+   const plainPasted=fire(draft,'paste',unsafe),afterPlainPaste=state(draft);
+   const injected=!!window.__pasteAttack;
+   const unexpectedImageCount=draft.input.querySelectorAll('img').length;
+   draft.finish(false);
+   host.remove();
+   return {copied,meta,html,plain,sourceBefore,pasted,afterPaste,afterUndo,
+     afterRedo,cut,afterCut,afterCutUndo,prefixPasted,afterPrefixPaste,
+     htmlPasted,afterHtmlPaste,plainPasted,afterPlainPaste,injected,unexpectedImageCount};
+  });
+  assert(report.copied);
+  assert.equal(report.meta.paragraphs[0].numberStart,8);
+  assert.equal(report.meta.paragraphs[1].list,'number');
+  assert.equal(report.meta.paragraphs[0].dir,'rtl');
+  assert.equal(report.meta.paragraphs[1].dir,'ltr');
+  assert.equal(report.meta.runs.find(r=>r.equation)?.equation.source,'\\frac{a+1}{2}');
+  assert.match(report.html,/<ol start="8">/);
+  assert.match(report.html,/<li dir="rtl"/);
+  assert.match(report.html,/<li dir="ltr"/);
+  assert.match(report.html,/<strong>אלגוריתם <\/strong>/);
+  assert.match(report.html,/<em>Solve x\^2<\/em>/);
+  assert(report.plain.includes('\\(\\frac{a+1}{2}\\)'));
+
+  assert(report.pasted,'Rich paste should intercept native browser paste');
+  assert.equal(report.afterPaste.text,'אלגוריתם \uFFFC\nSolve x^2');
+  assert.deepEqual(report.afterPaste.eqs,['\\frac{a+1}{2}']);
+  assert(report.afterPaste.bold&&report.afterPaste.italic);
+  assert.equal(report.afterPaste.listStart,8);
+  assert.equal(report.afterPaste.listItems,2);
+  assert.deepEqual(report.afterPaste.listDirs,['rtl','ltr']);
+  assert.equal(report.afterPaste.paragraphs[0].numberStart,8);
+  assert.equal(report.afterPaste.paragraphs[1].numberStart,undefined);
+  assert.equal(report.afterUndo.text,'');
+  assert.deepEqual(report.afterRedo,report.afterPaste,'Redo should reconstruct numbered RTL/LTR paragraphs');
+
+  assert(report.cut);
+  assert.equal(report.afterCut.text,'Solve x^2');
+  assert.equal(report.afterCut.listStart,9,
+   'Removing a complete numbered paragraph should retain the next real ordinal');
+  assert.equal(report.afterCut.paragraphs[0].dir,'ltr');
+  assert.deepEqual(report.afterCutUndo,report.afterPaste,'Undo should restore both copied list rows');
+
+  assert(report.prefixPasted);
+  assert.equal(report.afterPrefixPaste.paragraphs[0].list,'bullet');
+  assert.equal(report.afterPrefixPaste.paragraphs[1].list,'number');
+  assert.equal(report.afterPrefixPaste.paragraphs[1].numberStart,9,
+   'A list pasted after a bullet prefix must preserve its remaining ordinal');
+  assert.equal(report.afterPrefixPaste.listStart,9);
+
+  assert(report.htmlPasted);
+  assert.equal(report.afterHtmlPaste.listStart,8);
+  assert.deepEqual(report.afterHtmlPaste.eqs,['\\frac{a+1}{2}']);
+  assert(report.plainPasted);
+  assert.deepEqual(report.afterPlainPaste.paragraphs.map(p=>p.list),
+   ['number','number','number']);
+  assert.deepEqual(report.afterPlainPaste.paragraphs.map(p=>p.dir),
+   ['rtl','rtl','rtl']);
+  assert.equal(report.afterPlainPaste.listStart,12);
+  assert.equal(report.afterPlainPaste.listItems,3);
+  assert.equal(report.injected,false);
+  assert.equal(report.unexpectedImageCount,0);
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
