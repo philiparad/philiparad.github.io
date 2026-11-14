@@ -73,7 +73,12 @@ for(const mode of ['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR
 }
 for(const screen of ['menu','prompt','error','table-grid','flow-result']){
  const canvas=makeCanvas();
- assert.equal(lcd.draw(canvas,state([node('squareRoot')],{screen})),'authentic');
+ const fallback=state([node('squareRoot')],{
+  screen,menu:[],menuEntries:[],menuPage:0,menuPageSize:6,menuTitle:'MODE',
+  flow:{title:'TEST',fields:[{id:'value',label:'X'}],index:0,buffer:''},
+  error:'Math ERROR',outputLines:[],outputPage:0
+ });
+ assert.equal(lcd.draw(canvas,fallback),'authentic');
  tested++;
 }
 const plain=makeCanvas();
