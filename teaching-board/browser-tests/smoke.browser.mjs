@@ -2774,6 +2774,95 @@ try{
    x:92,y:142,localCleared:true});
  });
 
+
+ await check('calculator toolbar icon opens and closes modal with exact calculator URL and focus recovery',async()=>{
+  const url='https://philiparad.github.io/calculator/?key=calculator';
+  await page.route(url,async route=>route.fulfill({
+   status:200,contentType:'text/html',
+   body:'<!doctype html><html><body><div id="calculator-fixture">Calculator embed test</div></body></html>'
+  }));
+  const button=page.locator('.command-deck .calculator-toggle');
+  await button.waitFor({state:'visible',timeout:30000});
+  const before=await page.evaluate(()=>{
+   const b=document.querySelector('.command-deck .calculator-toggle');
+   const svg=b.querySelector('svg'),frame=document.querySelector('.board-calculator-frame');
+   return {
+    label:b.getAttribute('aria-label'),
+    title:b.title,
+    expanded:b.getAttribute('aria-expanded'),
+    haspopup:b.getAttribute('aria-haspopup'),
+    hasIcon:!!svg?.querySelector('path'),
+    size:{w:Math.round(b.getBoundingClientRect().width),
+      h:Math.round(b.getBoundingClientRect().height)},
+    nextIsInk:b.nextElementSibling?.classList.contains('property-menu'),
+    dialogId:b.getAttribute('aria-controls'),
+    dialogExists:!!document.getElementById(b.getAttribute('aria-controls')),
+    iframeUnloaded:!frame?.hasAttribute('src'),
+    dialogClosed:!document.querySelector('.board-calculator-dialog[open]')
+   };
+  });
+  assert.equal(before.label,'Open calculator');
+  assert.equal(before.title,'Open calculator');
+  assert.equal(before.expanded,'false');
+  assert.equal(before.haspopup,'dialog');
+  assert(before.hasIcon);
+  assert.deepEqual(before.size,{w:36,h:36});
+  assert.equal(before.nextIsInk,true,
+   'Calculator must occupy the slot immediately before Ink & style');
+  assert(before.dialogExists&&before.iframeUnloaded&&before.dialogClosed);
+  await button.click();
+  const modal=page.getByRole('dialog',{name:'CASIO calculator'});
+  await modal.waitFor({state:'visible'});
+  const active=await page.evaluate(()=>{
+   const b=document.querySelector('.calculator-toggle');
+   const d=document.querySelector('.board-calculator-dialog');
+   const frame=d.querySelector('iframe');
+   return {open:d.open,modal:d.matches(':modal'),
+     expanded:b.getAttribute('aria-expanded'),
+     label:b.getAttribute('aria-label'),
+     source:frame.getAttribute('src'),
+     title:frame.getAttribute('title'),
+     buttonFocus:document.activeElement===d.querySelector('.board-calculator-close'),
+     width:Math.round(d.getBoundingClientRect().width),
+     height:Math.round(d.getBoundingClientRect().height)};
+  });
+  assert(active.open&&active.modal);
+  assert.equal(active.expanded,'true');
+  assert.equal(active.label,'Close calculator');
+  assert.equal(active.source,url);
+  assert.equal(active.title,'CASIO fx-991ES PLUS calculator');
+  assert(active.buttonFocus);
+  assert(active.width>300&&active.height>400);
+  await page.frameLocator('iframe.board-calculator-frame')
+   .locator('#calculator-fixture').waitFor({state:'visible'});
+  await page.keyboard.press('Escape');
+  await modal.waitFor({state:'hidden'});
+  const escaped=await page.evaluate(()=>{
+   const b=document.querySelector('.calculator-toggle');
+   return {expanded:b.getAttribute('aria-expanded'),
+     src:document.querySelector('.board-calculator-frame').getAttribute('src'),
+     focus:document.activeElement===b,
+     dialogOpen:document.querySelector('.board-calculator-dialog').open};
+  });
+  assert.deepEqual(escaped,{expanded:'false',src:null,focus:true,dialogOpen:false});
+  await button.click();
+  await modal.waitFor({state:'visible'});
+  await modal.getByRole('button',{name:'Close calculator'}).click();
+  await modal.waitFor({state:'hidden'});
+  assert.equal(await button.getAttribute('aria-expanded'),'false');
+  assert.equal(await button.getAttribute('aria-label'),'Open calculator');
+  assert.equal(await page.locator('.board-calculator-frame').getAttribute('src'),null);
+  // A route change must also unload the iframe and release the modal.
+  await button.click();
+  await modal.waitFor({state:'visible'});
+  await page.evaluate(()=>{location.hash='#/';});
+  await page.locator('#app[aria-busy="false"]').waitFor();
+  await page.getByRole('heading',{name:/Your lessons|Recently deleted/}).waitFor();
+  assert.equal(await page.locator('.board-calculator-dialog').count(),0);
+  assert.equal(await page.locator('.calculator-toggle').count(),0);
+  await page.unroute(url);
+ });
+
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{
