@@ -421,6 +421,54 @@ try{
    'Restored document failed to save: '+JSON.stringify(result));
  });
 
+ await check('unparseable raw text survives reload without overwriting the saved lesson',async()=>{
+  await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {draftStorageKey}=await import('./js/text-draft-recovery.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:130px 80px 60px;background:white;z-index:2500';
+   document.body.append(host);
+   const item={id:'unparsed-text',type:'text',x:0,y:0,w:350,h:90,fontSize:24,
+    text:'שלום',paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
+   const editor={area:host,board:{id:'broken-draft-fixture',viewport:{x:0,y:0,zoom:1}},
+    disposed:true,paint(){},applyText(){}};
+   const key=draftStorageKey(editor.board.id,item.id);
+   localStorage.removeItem(key);
+   const draft=new InlineText(editor,item,true);
+   const span=draft.input.querySelector('span');
+   span.textContent='שלום INVALID';
+   span.dataset.equation='{invalid';
+   draft.input.oninput();
+   const record=localStorage.getItem(key);
+   if(!record||!record.includes('INVALID'))throw Error('Raw invalid draft was not preserved');
+  });
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+  await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:130px 80px 60px;background:white;z-index:2500';
+   document.body.append(host);
+   const item={id:'unparsed-text',type:'text',x:0,y:0,w:350,h:90,fontSize:24,
+    text:'שלום',paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
+   const editor={area:host,board:{id:'broken-draft-fixture',viewport:{x:0,y:0,zoom:1}},
+    disposed:true,paint(){},applyText(){}};
+   window.__brokenReload={draft:new InlineText(editor,item,true),host,editor};
+  });
+  await page.getByRole('button',{name:'Show unparsed text'}).click();
+  const raw=(await page.getByRole('textbox',{name:'Unparsed text recovery'}).inputValue()).trimEnd();
+  assert.equal(raw,'שלום INVALID');
+  await page.getByRole('button',{name:'Discard saved draft'}).click();
+  const outcome=await page.evaluate(async()=>{
+   const {draftStorageKey}=await import('./js/text-draft-recovery.js');
+   const {draft,host,editor}=window.__brokenReload;
+   const key=draftStorageKey(editor.board.id,draft.item.id);
+   const result={savedText:draft.item.text,cleared:localStorage.getItem(key)===null};
+   draft.finish(false);host.remove();return result;
+  });
+  assert.deepEqual(outcome,{savedText:'שלום',cleared:true});
+ });
+
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{
