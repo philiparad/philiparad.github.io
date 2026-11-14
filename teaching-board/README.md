@@ -29,6 +29,30 @@ Polygon: click each vertex, then press Enter. Use `*` for multiplication in grap
 
 Use Export → Editable backup before clearing browser data, or to transfer a lesson. Import creates a new lesson without replacing the original. Print / Save as PDF fits the full board onto one A4 landscape page; very large boards may print small.
 
+## Text draft recovery
+
+When editing an **existing** text box or sticky note, each valid changed draft is
+also stored locally in your browser so an accidental page reload need not
+discard the text. On reopening that same object in the same lesson and browser
+profile, choose **Recover saved draft** to restore the unsaved formatted version,
+or **Discard saved draft** to keep the current saved object. Recovery is always
+explicit: it does not silently overwrite the lesson.
+
+If a malformed equation or other invalid formatting prevents a text save, the
+editor stays open with the error and the controls **Restore last valid version**
+and **Show raw text**. The second control exposes the unparsed text for manual
+copying even if structured formatting is temporarily invalid. Save errors do not
+automatically close the editor or discard the draft.
+
+Recovery stores only validated text runs and paragraph metadata, plus a plain
+raw-text fallback; it never stores editor HTML or uploads text to a server.
+Records are scoped to lesson and object IDs, expire for recovery after 30 days,
+and are cleared when **Done** succeeds or **Cancel** intentionally discards the
+edit. This is a local best-effort safety net: it may be unavailable when browser
+storage is disabled, does not transfer between devices, and currently applies
+to **existing text objects**, not brand-new uncommitted boxes. Keep regular
+lesson backups for important work.
+
 ## Reusable snippets
 
 Select objects, open Selection tools, and choose **Save selection as snippet**. Open **Saved snippets** in any lesson to insert a copy at the current view center. Each copy is independent, unlocked, and keeps groups and connections between included objects. Connections to objects outside the selection detach. Insertions support normal undo/redo and become part of lesson backups.
