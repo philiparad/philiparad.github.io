@@ -27,8 +27,31 @@ export function editableParagraphs(root){
     }
     return result;
 }
+/**
+ * Convert anchor/focus paragraph offsets into exactly the paragraphs
+ * containing selected characters. A selection ending at the next row's
+ * offset 0 must not accidentally format that unselected row.
+ * Works for forwards, backwards, collapsed and equation-adjacent selections.
+ */
+export function logicalSelectedParagraphIndices(saved,count){
+    if(!saved?.anchor||!saved?.focus||!Number.isInteger(count)||count<1)return [];
+    const a=saved.anchor,b=saved.focus;
+    if([a,b].some(p=>!Number.isInteger(p.paragraph)||p.paragraph<0||
+        p.paragraph>=count||!Number.isInteger(p.offset)||p.offset<0))return [];
+    const cmp=(u,v)=>u.paragraph-v.paragraph||u.offset-v.offset;
+    const from=cmp(a,b)<=0?a:b,to=cmp(a,b)<=0?b:a;
+    const last=cmp(from,to)!==0&&to.paragraph>from.paragraph&&to.offset===0?
+        to.paragraph-1:to.paragraph;
+    return Array.from({length:Math.max(0,last-from.paragraph+1)},
+        (_,i)=>from.paragraph+i);
+}
 export function selectedParagraphIndices(root,selection,blocks=editableParagraphs(root)){
     if(!selection?.rangeCount)return [];
+    const logical=captureLogicalSelection(root,selection);
+    if(logical){
+        const indices=logicalSelectedParagraphIndices(logical,blocks.length);
+        if(indices.length)return indices;
+    }
     const range=selection.getRangeAt(0);
     if(!root.contains(range.startContainer)||!root.contains(range.endContainer))return [];
     if(range.collapsed){
