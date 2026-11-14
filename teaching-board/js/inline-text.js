@@ -20,6 +20,7 @@ export class InlineText {
   try{this.draftStorage=globalThis.localStorage||null;}catch{this.draftStorage=null;}
   this.root=el('div',null,'inline-text-editor');
   this.pasteFormattingMode='keep';
+  this.forcePlainNextPaste=false;
   this.input=el('div');this.input.contentEditable='true';this.input.setAttribute('role','textbox');this.input.setAttribute('aria-multiline','true');this.input.setAttribute('aria-label',item.type==='note'?'Edit sticky note on canvas':'Edit text on canvas');
   writeRuns(this.input,item);this.input.dir='auto';this.input.spellcheck=true;
   this.input.dataset.placeholder='Type here…';
@@ -62,6 +63,18 @@ export class InlineText {
   this.input.oncopy=e=>this.copyRichText(e,false);
   this.input.oncut=e=>this.copyRichText(e,true);
   this.input.onpaste=e=>this.pasteRichText(e);
+  // Ctrl/⌘+Shift+V means paste literal text even when the clipboard has
+  // Teaching Board rich metadata. Keep the browser's native paste event
+  // for permission-safe access to ClipboardEvent.clipboardData.
+  this.input.addEventListener('keydown',e=>{
+   if(!this.composing&&!e.isComposing&&!e.altKey&&e.shiftKey&&
+      (e.ctrlKey||e.metaKey)&&e.key?.toLowerCase()==='v')
+    this.forcePlainNextPaste=true;
+  },true);
+  this.input.addEventListener('keyup',e=>{
+   if(e.key?.toLowerCase()==='v')this.forcePlainNextPaste=false;
+  });
+  this.input.addEventListener('focusout',()=>{this.forcePlainNextPaste=false;});
   this.input.ondrop=e=>e.preventDefault();
   this.input.addEventListener('pointerdown',e=>{if(e.button!==0)return;const node=e.target.closest?.('.inline-equation');if(node&&positionBesideEquation(this.input,window.getSelection(),node,e.clientX)){e.preventDefault();this.selectionChange();}});
   this.input.ondblclick=e=>{const node=e.target.closest('.inline-equation');if(node){e.preventDefault();this.editEquation(node);}};
@@ -253,6 +266,8 @@ export class InlineText {
  pasteRichText(event){
   if(this.closed||this.composing)return;
   event.preventDefault();
+  const forcePlain=this.forcePlainNextPaste===true;
+  this.forcePlainNextPaste=false;
   const data=event.clipboardData;
   const selection=window.getSelection();
   let snapshot,range;
@@ -261,10 +276,14 @@ export class InlineText {
    range=logicalClipboardRange(this.input,selection,snapshot,true);
   }catch{/* Use the existing plain-text fallback for partial native edits. */}
   const rich=clipboardFromTransfer(data);
-  if(rich&&range&&this.replaceRichTextRange(range,rich,
+  if(!forcePlain&&rich&&range&&this.replaceRichTextRange(range,rich,
    {matchDestination:this.pasteFormattingMode==='match',
     marks:this.pasteFormattingMode==='match'?this.pendingMarks:null}))return;
-  const plain=data?.getData?.('text/plain')?.slice(0,10000)||'';
+  // Some external editors offer HTML or a custom payload but no text/plain.
+  // For explicit plain paste, recover visible text with readable LaTeX
+  // rather than dropping the paste or reconstructing rich equations.
+  const plain=(data?.getData?.('text/plain')||'').slice(0,10000)||
+   (rich?clipboardPlainText(rich).slice(0,10000):'');
   if(!plain)return;
   // Keep the established plaintext paste path for normal text, including
   // text copied from untrusted HTML-rich applications.
