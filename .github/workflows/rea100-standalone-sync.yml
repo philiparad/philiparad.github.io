@@ -347,6 +347,36 @@ jobs:
       - name: PLUS-038 final release quality gate
         if: always()
         run: |
+          : > /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_01' '${{ steps.plus038_check_01.outcome }}' 'Compile release scripts' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_02' '${{ steps.plus038_check_02.outcome }}' 'PLUS-028 verify evidence comparator and report explicitly blocked hardware status' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_03' '${{ steps.plus038_check_03.outcome }}' 'Fail on stale standalone, missing modules, CSS or manifest drift' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_04' '${{ steps.plus038_check_04.outcome }}' 'Verify PLUS-only arithmetic, model identity and key contracts' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_05' '${{ steps.plus038_check_05.outcome }}' 'PLUS-028 ALT manufacturer-reference conformance report' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_06' '${{ steps.plus038_check_06.outcome }}' 'Verify modular and standalone keypad, model and result behavior' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_07' '${{ steps.plus038_check_07.outcome }}' 'Verify PLUS arithmetic precedence using actual browser keypad' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_08' '${{ steps.plus038_check_08.outcome }}' 'Verify live STAT summary and protected Sum fields in both publications' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_09' '${{ steps.plus038_check_09.outcome }}' 'Verify PLUS physical MODE keys and EQN types 1-4' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_10' '${{ steps.plus038_check_10.outcome }}' 'PLUS-003 eight-mode selection, editor return, cancel and SETUP' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_11' '${{ steps.plus038_check_11.outcome }}' 'PLUS-004 shifted numeric key menus and mode stability' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_12' '${{ steps.plus038_check_12.outcome }}' 'PLUS-005 ALPHA key and input-context restrictions' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_13' '${{ steps.plus038_check_13.outcome }}' 'PLUS-006 mathematical EQN coefficient input and cursor editing' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_14' '${{ steps.plus038_check_14.outcome }}' 'PLUS-007 error messages and caret recovery with physical keys' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_15' '${{ steps.plus038_check_15.outcome }}' 'PLUS-008 STAT FREQ clearing and regression-type retention' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_16' '${{ steps.plus038_check_16.outcome }}' 'PLUS-009 menu paging numbers nested cancel and selections' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_17' '${{ steps.plus038_check_17.outcome }}' 'PLUS-010 printed MATRIX menu and STO key flows' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_18' '${{ steps.plus038_check_18.outcome }}' 'PLUS-011 printed VECTOR menu, dot/cross, STO key flows' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_19' '${{ steps.plus038_check_19.outcome }}' 'PLUS-012 STAT insert, delete and clear key semantics' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_20' '${{ steps.plus038_check_20.outcome }}' 'PLUS-013 TABLE fractional boundaries error cells and X memory' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_21' '${{ steps.plus038_check_21.outcome }}' 'PLUS-025 keyboard focus safety, browser shortcuts and native controls' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_22' '${{ steps.plus038_check_22.outcome }}' 'PLUS-026 complete physical-key inventory and live browser regression' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_23' '${{ steps.plus038_check_23.outcome }}' 'PLUS-028 ALT capture independent reference web keylogs and LCD frames' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_24' '${{ steps.plus038_check_24.outcome }}' 'PLUS-033 mathematical keys SHIFT ALPHA and error recovery' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_25' '${{ steps.plus038_check_25.outcome }}' 'PLUS-034 memory DMS SETUP and mode transitions in both releases' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_26' '${{ steps.plus038_check_26.outcome }}' 'PLUS-035 constants conversions STAT and TABLE web reference checks' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_27' '${{ steps.plus038_check_27.outcome }}' 'PLUS-036 MATRIX VECTOR and EQN web algebra reference checks' >> /tmp/plus040-release-outcomes.tsv
+          printf '%s\t%s\t%s\n' 'plus038_check_28' '${{ steps.plus038_check_28.outcome }}' 'PLUS-037 CALC SOLVE and cancellable numerical worker browser checks' >> /tmp/plus040-release-outcomes.tsv
+          node calculator/tools/plus040-release-report.cjs --input /tmp/plus040-release-outcomes.tsv --output /tmp/plus040-release-report.json
           failed=0
           echo "### PLUS-038 release verification" >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ steps.plus038_check_01.outcome }}" != "success" ]; then
@@ -522,3 +552,10 @@ jobs:
             exit 1
           fi
           echo "All 28 release verification steps passed." >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload complete PLUS-040 release outcome report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plus040-release-outcome-report
+          path: /tmp/plus040-release-report.json
+          if-no-files-found: warn
