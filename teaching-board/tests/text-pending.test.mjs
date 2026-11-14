@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {pendingMark,insertPendingText} from '../js/text-pending.js';
+import {pendingMark,insertPendingText,compositionInsertion} from '../js/text-pending.js';
 
 test('collapsed-caret marks toggle safely and preserve independent formatting',()=>{
  let state=pendingMark(null,'bold',undefined,()=>false);
@@ -45,4 +45,13 @@ test('pending insertion rejects unsafe or non-collapsed input without changing t
  assert.equal(insertPendingText(root,sel,{bold:true},'line\nnext'),false);
  assert.equal(insertPendingText(root,sel,null,'text'),false);
  assert.equal(insertPendingText(root,sel,{bold:true},''),false);
+});
+
+test('IME insertion diff isolates only committed text, including Hebrew input',()=>{
+ assert.deepEqual(compositionInsertion('שלום','שלאבום'),{start:2,end:4});
+ assert.deepEqual(compositionInsertion('abcXYZdef','abcעבריתdef'),{start:3,end:8});
+ assert.deepEqual(compositionInsertion('שלום','שלום'),null);
+ assert.equal(compositionInsertion('something',''),null);
+ assert.equal(compositionInsertion('a','a\nb'),null);
+ assert.equal(compositionInsertion(null,'text'),null);
 });
