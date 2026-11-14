@@ -69,8 +69,8 @@ export function logicalParagraphs(root) {
 }
 function logicalLength(node) {
     if (node.nodeType===3) return node.textContent.length;
-    if (node.nodeType!==1) return 0;
-    if (node.dataset?.equation) return 1;
+    if (node.nodeType!==1&&node.nodeType!==11) return 0;
+    if (node.nodeType===1&&node.dataset?.equation) return 1;
     let length=0;
     for (const child of node.childNodes) length+=logicalLength(child);
     return length;
