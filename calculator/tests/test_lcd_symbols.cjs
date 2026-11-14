@@ -50,5 +50,5 @@ assert.equal(pixel(root,16,26),1,'outlined placeholder top-left');
 assert.equal(pixel(root,24,26),1,'outlined placeholder top-right');
 assert.equal(pixel(root,24,36),1,'outlined placeholder bottom-right');
 assert.equal(pixel(root,16,36),1,'outlined placeholder bottom-left');
-assert.equal(pixel(root,14,24),1,'independent edit caret');
+assert.equal(pixel(root,0,24),1,'independent root-level edit caret');
 console.log('LCD symbol geometry: '+variants.length+' structured types passed.');
