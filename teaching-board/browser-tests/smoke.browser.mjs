@@ -1892,6 +1892,185 @@ try{
   });
  });
 
+ await check('TXT-062 multiple equations, bidi list transitions and atomic keyboard range edits',async()=>{
+  const output=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {captureLogicalSelection,restoreLogicalSelection}=await import('./js/text-selection.js');
+   const {clipboardFromTransfer,clipboardPlainText,TEXT_RICH_CLIPBOARD}=
+     await import('./js/text-inline-clipboard.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:90px 50px 40px;background:white;z-index:5400';
+   document.body.append(host);
+   const editor={area:host,board:{id:'multi-equation-'+crypto.randomUUID(),
+     viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const canvas=document.createElement('canvas');canvas.width=45;canvas.height=25;
+   canvas.getContext('2d').fillRect(2,2,40,20);
+   const data=canvas.toDataURL('image/png');
+   const eq=source=>({source,src:data,w:45,h:25});
+   const fixture={
+    type:'text',x:0,y:0,w:540,h:100,fontSize:24,
+    text:'אב\uFFFCגד\n\uFFFC\uFFFCA\nשלום\n\nLast\uFFFC',
+    runs:[
+     {text:'אב',bold:true},{text:'\uFFFC',equation:eq('x^2')},
+     {text:'גד\n',italic:true},{text:'\uFFFC',equation:eq('y')},
+     {text:'\uFFFC',equation:eq('z')},
+     {text:'A\nשלום\n\nLast',color:'#147d92'},
+     {text:'\uFFFC',equation:eq('t')}
+    ],
+    paragraphs:[
+     {align:'right',dir:'rtl',list:'number',numberStart:7},
+     {align:'right',dir:'rtl',list:'number'},
+     {align:'right',dir:'rtl',list:'bullet'},
+     {align:'left',dir:'ltr',list:'none'},
+     {align:'left',dir:'ltr',list:'number',numberStart:21}
+    ]
+   };
+   const create=()=>new InlineText(editor,{...structuredClone(fixture),
+    id:'multi-'+crypto.randomUUID()},true);
+   const sel=window.getSelection();
+   const choose=(draft,ap,ao,fp=ap,fo=ao)=>{
+    draft.input.focus();
+    const anchor={paragraph:ap,offset:ao},focus={paragraph:fp,offset:fo};
+    if(!restoreLogicalSelection(draft.input,sel,{anchor,focus}))
+     throw Error('Cannot restore multi-equation selection');
+    draft.selectionChange();
+   };
+   const state=draft=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    return {
+     text:doc.runs.map(r=>r.text).join(''),
+     runs:doc.runs,
+     paragraphs:doc.paragraphs,
+     math:doc.runs.filter(r=>r.equation).map(r=>r.equation.source),
+     mathLabels:[...draft.input.querySelectorAll('[role="math"]')]
+       .map(n=>n.getAttribute('aria-label')),
+     caret:captureLogicalSelection(draft.input,sel),
+     olStarts:[...draft.input.querySelectorAll('ol')].map(n=>n.start)
+    };
+   };
+   const key=(draft,name,mods={})=>{
+    const e=new KeyboardEvent('keydown',{key:name,bubbles:true,cancelable:true,...mods});
+    return !draft.input.dispatchEvent(e);
+   };
+   const clipboard=()=>{
+    const values={};
+    const obj={
+     setData(type,value){values[type]=value;},
+     getData(type){return values[type]||'';}
+    };
+    return {values,obj,event:{clipboardData:obj,defaultPrevented:false,
+     preventDefault(){this.defaultPrevented=true;}}};
+   };
+   const baseline=state(createAndDiscard());
+   function createAndDiscard(){
+    const d=create();const snap=state(d);d.finish(false);
+    // Create a new editor only for building a grounded initial snapshot.
+    // Returning this discarded object is harmless; the caller ignores it.
+    return {input:{},item:fixture,_baseline:snap};
+   }
+   // Selection starts before two adjacent equation atoms in an RTL ordered item.
+   let draft=create();choose(draft,1,0);
+   const firstStep=key(draft,'ArrowLeft',{shiftKey:true}),afterFirst=state(draft);
+   const secondStep=key(draft,'ArrowLeft',{shiftKey:true}),afterSecond=state(draft);
+   const deleteSelected=key(draft,'Backspace'),afterDelete=state(draft);
+   draft.stepTextHistory('undo');const undoMath=state(draft);
+   draft.stepTextHistory('redo');const redoMath=state(draft);
+   draft.finish(false);
+
+   // Backwards selection spans mixed RTL/LTR list types and three images.
+   draft=create();choose(draft,2,0,0,2);
+   const backSelection=state(draft).caret;
+   const copied=clipboard();
+   const didCopy=draft.copyRichText(copied.event,false);
+   const copiedRich=clipboardFromTransfer(copied.obj);
+   const copiedPlain=copiedRich?clipboardPlainText(copiedRich):null;
+   const cutData=clipboard();
+   const didCut=draft.copyRichText(cutData.event,true);
+   const afterCut=state(draft);
+   draft.stepTextHistory('undo');const undoCut=state(draft);
+   draft.finish(false);
+
+   // A native selection whose endpoints are *on the OL wrapper* must be
+   // interpreted as paragraph boundaries, never image DOM offsets.
+   draft=create();
+   const ol=draft.input.querySelector('ol');
+   draft.input.focus();
+   sel.setBaseAndExtent(ol,1,ol,2);
+   const wrapperBefore=state(draft);
+   const deleteWrapper=key(draft,'Delete'),wrapperAfter=state(draft);
+   draft.stepTextHistory('undo');const wrapperUndo=state(draft);
+   draft.finish(false);
+
+   // Cross-paragraph bold must not wrap or modify image source data.
+   draft=create();choose(draft,0,1,2,3);
+   const boldBefore=state(draft);
+   const doBold=key(draft,'b',{ctrlKey:true}),afterBold=state(draft);
+   draft.stepTextHistory('undo');const undoBold=state(draft);
+   draft.finish(false);
+   host.remove();
+   return {firstStep,afterFirst,secondStep,afterSecond,deleteSelected,
+    afterDelete,undoMath,redoMath,backSelection,didCopy,
+    copiedPlain,copiedRich,copyPrevented:copied.event.defaultPrevented,
+    didCut,cutPrevented:cutData.event.defaultPrevented,afterCut,undoCut,
+    wrapperBefore,deleteWrapper,wrapperAfter,wrapperUndo,
+    boldBefore,doBold,afterBold,undoBold};
+  });
+  assert(output.firstStep&&output.secondStep);
+  assert.deepEqual(output.afterFirst.caret,{
+   anchor:{paragraph:1,offset:0},focus:{paragraph:1,offset:1}
+  });
+  assert.deepEqual(output.afterSecond.caret,{
+   anchor:{paragraph:1,offset:0},focus:{paragraph:1,offset:2}
+  });
+  assert(output.deleteSelected);
+  assert.deepEqual(output.afterDelete.math,['x^2','t']);
+  assert.equal(output.afterDelete.text,'אב\uFFFCגד\nA\nשלום\n\nLast\uFFFC');
+  assert.deepEqual(output.afterDelete.caret.focus,{paragraph:1,offset:0});
+  assert.deepEqual(output.afterDelete.paragraphs.map(p=>p.list),
+   ['number','number','bullet','none','number']);
+  assert.deepEqual(output.afterDelete.olStarts,[7,21]);
+  assert.deepEqual(output.undoMath.math,['x^2','y','z','t']);
+  assert.deepEqual(output.undoMath.caret,{
+   anchor:{paragraph:1,offset:0},focus:{paragraph:1,offset:2}
+  });
+  assert.deepEqual(output.redoMath.math,['x^2','t']);
+  assert.deepEqual(output.backSelection,{
+   anchor:{paragraph:2,offset:0},focus:{paragraph:0,offset:2}
+  });
+  assert(output.didCopy&&output.copyPrevented);
+  assert(output.copiedRich);
+  assert.deepEqual(output.copiedRich.runs.filter(r=>r.equation)
+   .map(r=>r.equation.source),['x^2','y','z']);
+  assert(output.copiedPlain.includes('\\(x^2\\)'));
+  assert(output.copiedPlain.includes('\\(y\\)'));
+  assert(output.copiedPlain.includes('\\(z\\)'));
+  assert(output.didCut&&output.cutPrevented);
+  assert.equal(output.afterCut.text,'אבשלום\n\nLast\uFFFC');
+  assert.deepEqual(output.afterCut.math,['t']);
+  assert.deepEqual(output.afterCut.paragraphs.map(p=>p.list),
+   ['number','none','number']);
+  assert.deepEqual(output.afterCut.paragraphs.map(p=>p.dir),
+   ['rtl','ltr','ltr']);
+  assert.deepEqual(output.afterCut.caret.focus,{paragraph:0,offset:2});
+  assert.deepEqual(output.undoCut.math,['x^2','y','z','t']);
+  assert.deepEqual(output.wrapperBefore.caret,{
+   anchor:{paragraph:1,offset:0},focus:{paragraph:1,offset:3}
+  });
+  assert(output.deleteWrapper);
+  assert.deepEqual(output.wrapperAfter.math,['x^2','t']);
+  assert.equal(output.wrapperAfter.paragraphs[1].list,'number');
+  assert.deepEqual(output.wrapperAfter.caret.focus,{paragraph:1,offset:0});
+  assert.deepEqual(output.wrapperUndo.math,['x^2','y','z','t']);
+  assert(output.doBold);
+  assert.deepEqual(output.afterBold.math,['x^2','y','z','t']);
+  assert.deepEqual(output.afterBold.caret,output.boldBefore.caret);
+  assert.deepEqual(output.afterBold.paragraphs,output.boldBefore.paragraphs);
+  assert(output.afterBold.runs.some(r=>r.text.includes('גד')&&r.bold));
+  assert(output.afterBold.runs.some(r=>r.text.includes('שלום')&&r.bold));
+  assert(output.afterBold.runs.filter(r=>r.equation).every(r=>!r.bold));
+  assert.deepEqual(output.undoBold.runs,output.boldBefore.runs);
+ });
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
