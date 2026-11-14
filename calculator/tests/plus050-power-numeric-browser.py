@@ -22,6 +22,8 @@ SUM=("SHIFT","LOGBASE","ALPHA","LP","RIGHT","1","RIGHT","3","RIGHT","EQUAL")
 INTEGRAL=("INTEGRAL","ALPHA","LP","RIGHT","0","RIGHT","1","RIGHT","EQUAL")
 CASES=(
  {"id":"solve-on-restart","keys":SOLVE,"interrupt":("ON",),"next":SOLVE,"kind":"SOLVE"},
+ {"id":"solve-off-on","keys":SOLVE,"interrupt":("AC","SHIFT","AC","ON"),
+  "next":SOLVE,"kind":"SOLVE"},
  {"id":"solve-mode-restart","keys":SOLVE,"interrupt":("MODE","2","MODE","1"),
   "next":SOLVE,"kind":"SOLVE"},
  {"id":"solve-rapid-ac","keys":SOLVE,"interrupt":("7","8","AC"),
@@ -80,6 +82,9 @@ async def run_case(browser,origin,file,case,folder):
             file,case["id"],"first task",workers)
         await press(page,case["interrupt"])
         interrupted=await state(page)
+        if case["id"]=="solve-off-on":
+            assert interrupted["power"] and interrupted["powerOffReason"] is None, (
+                file,case["id"],"unit failed to recover after OFF/ON")
         assert interrupted["memory"]["X"]==before_x and (
             interrupted["ans"]==before_ans),(file,case["id"],"cancel mutated registers")
         assert interrupted["screen"]=="edit",(file,case["id"],"cancel screen",interrupted["screen"])
