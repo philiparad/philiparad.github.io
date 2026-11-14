@@ -1,7 +1,7 @@
 import {editableTextFont} from './text-font.js';
 import {equationDialog} from './equation-editor.js?v=20261023-image-handles';
 import {equationNode,textLayoutMetrics,equationContentWidth} from './inline-equation.js?v=20261114-auto-paragraph-direction';
-import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261114-font-fallback';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261114-auto-paragraph-direction';
 import { el, btn } from './ui.js?v=20261017-history-budget';
 import { TextHistory } from './text-history.js';
 import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection,recoverEquationSelection } from './text-selection.js';

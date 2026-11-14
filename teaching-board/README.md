@@ -538,3 +538,14 @@ backward compatibility, then Noto Sans Hebrew, Noto Sans, DejaVu Sans, and
 generic sans-serif. Existing text objects and JSON backups require no data
 migration. No external web-font download is required. Exact glyph appearance
 can vary between operating systems because installed fonts differ.
+
+## TXT-066 — Stable automatic text direction across wrapped lines
+
+When a paragraph mixes Hebrew, Arabic, English, numbers, and equations,
+automatic direction is determined by the first strong text character
+of the **whole paragraph**, not recalculated for each displayed line.
+A paragraph beginning in Hebrew remains RTL on later English-only lines,
+and an English-leading paragraph remains LTR when later lines contain
+Hebrew. Explicit LTR/RTL paragraph settings retain priority. This
+applies to the SVG canvas and exported/printed SVG; existing lessons and
+editable backups do not need migration.

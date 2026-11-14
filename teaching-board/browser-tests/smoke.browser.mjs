@@ -25,6 +25,41 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('TXT-066 wrapped auto paragraphs retain HTML and SVG bidi parity',async()=>{
+  const cases=await page.evaluate(async()=>{
+   const {writeRuns,paragraphRuns}=await import('./js/rich-text.js');
+   const {drawEquationText}=await import('./js/inline-equation.js');
+   const {svgEl}=await import('./js/scene.js');
+   const fixtures=[
+    {text:'English English שלום שלום',expect:'ltr',hebrewAnchor:'end'},
+    {text:'שלום שלום English English',expect:'rtl',hebrewAnchor:'start'},
+    {text:' 123 שלום English English',expect:'rtl',hebrewAnchor:'start'},
+    {text:'שלום שלום English',expect:'ltr',hebrewAnchor:'end',dir:'ltr'}
+   ];
+   return fixtures.map(({text,expect,hebrewAnchor,dir='auto'})=>{
+    const item={type:'text',w:72,fontSize:24,text,runs:[{text}],
+     paragraphs:[{align:'auto',list:'none',dir}]};
+    const root=document.createElement('div');
+    writeRuns(root,item);document.body.append(root);
+    const computed=getComputedStyle(root.firstElementChild).direction;
+    const tokens=[...drawEquationText(item,paragraphRuns(item),svgEl).querySelectorAll('text')];
+    const hebrew=tokens.filter(node=>/[\p{Script=Hebrew}]/u.test(node.textContent));
+    const rows=new Set(tokens.map(node=>node.getAttribute('y')));
+    const result={text,expect,computed,hebrewAnchor,rows:rows.size,
+     hebrew:hebrew.map(node=>node.getAttribute('text-anchor')),
+     tokenCount:tokens.length};
+    root.remove();return result;
+   });
+  });
+  for(const item of cases){
+   assert.equal(item.computed,item.expect,'Native direction mismatch: '+item.text);
+   assert(item.rows>1,'Fixture should wrap across visual rows: '+item.text);
+   assert(item.hebrew.length>0,'Expected Hebrew tokens: '+item.text);
+   assert(item.hebrew.every(anchor=>anchor===item.hebrewAnchor),
+    'SVG changed paragraph flow on a wrapped line: '+JSON.stringify(item));
+  }
+ });
+
  await check('TXT-065 font fallback parity for Hebrew/English editor, SVG, and canvas',async()=>{
   const report=await page.evaluate(async()=>{
    const {TEXT_FONT_FAMILY,canvasTextFont,editableTextFont}=
