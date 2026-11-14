@@ -6,6 +6,7 @@
 const assert = require('node:assert/strict');
 require('../js/lcd-viewport.js');
 const lcd = require('../js/display.js');
+const structuredEditor = require('../js/structured-editor.js');
 
 const fieldsByType = {
   fraction:['numerator','denominator'],
@@ -102,6 +103,20 @@ for(const mode of ['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR
     assert.ok(frame.length===size,'mode '+mode);
     cases++;
   }
+}
+
+// Exercise real editor insertion, typing, and undo for every template.
+// These are not manufactured editor JSON snapshots: they follow production APIs.
+for(const type of structuredEditor.types){
+  const editor=structuredEditor.create();
+  structuredEditor.template(editor,type);
+  const blank=draw(makeState([],{editor}));
+  structuredEditor.insert(editor,'2');
+  const typed=draw(makeState([],{editor}));
+  assert.notDeepEqual(blank,typed,'editor insertion must update LCD for '+type);
+  assert.ok(structuredEditor.undo(editor),'undo available for '+type);
+  assert.deepEqual(draw(makeState([],{editor})),blank,'undo restores LCD for '+type);
+  cases+=3;
 }
 
 // Off state, contrast settings, and the physical presentation canvas.
