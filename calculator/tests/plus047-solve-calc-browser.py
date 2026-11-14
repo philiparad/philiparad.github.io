@@ -67,7 +67,7 @@ async def run_case(browser,origin,file,kind,output):
         assert prompted["flow"] is not None,(file,kind,"missing prompt")
         assert prompted["memory"]["X"]==original_x,(file,kind,"premature X mutation")
         if kind=="calc-commit":
-            assert prompted["flow"]["fields"][0]["id"]=="X",(
+            assert prompted["flow"]["fieldId"]=="X",(
                 file,kind,"wrong CALC substitution variable")
             await press(page,"4","EQUAL")
             final=await state(page)
@@ -84,7 +84,7 @@ async def run_case(browser,origin,file,kind,output):
             assert len(results)==1 and close(results[0]["value"],7),(
                 file,kind,"CALC statement result",results)
         else:
-            assert prompted["flow"]["fields"][-1]["id"]=="guess",(
+            assert prompted["flow"]["fieldId"]=="guess",(
                 file,kind,"missing SOLVE guess")
             await press(page,"EQUAL")
             if kind=="solve-residual":
