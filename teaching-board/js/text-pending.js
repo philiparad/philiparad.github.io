@@ -60,7 +60,12 @@ export function compositionInsertion(before,after){
     while(beforeEnd>start&&afterEnd>start&&before[beforeEnd-1]===after[afterEnd-1]){
         beforeEnd--;afterEnd--;
     }
-    if(afterEnd<=start||after.slice(start,afterEnd).includes('\n'))return null;
+    // An input method may replace text, but it must never wrap, split,
+    // or replace the editor's U+FFFC equation atoms or paragraph boundaries.
+    const erased=before.slice(start,beforeEnd);
+    const committed=after.slice(start,afterEnd);
+    if(!committed||/[\n\uFFFC]/.test(committed)||
+        /[\n\uFFFC]/.test(erased))return null;
     return {start,end:afterEnd};
 }
 function textPosition(text,absolute){
@@ -78,6 +83,10 @@ export function styleCommittedComposition(root,selection,marks,before,after){
     if(!insertion)return false;
     const start=textPosition(after,insertion.start),end=textPosition(after,insertion.end);
     if(start.paragraph!==end.paragraph)return false;
+    const previous=selection.rangeCount?{
+        anchorNode:selection.anchorNode,anchorOffset:selection.anchorOffset,
+        focusNode:selection.focusNode,focusOffset:selection.focusOffset
+    }:null;
     if(!restoreLogicalSelection(root,selection,{anchor:start,focus:end}))return false;
     const range=selection.getRangeAt(0);
     if(range.collapsed)return false;
@@ -87,8 +96,18 @@ export function styleCommittedComposition(root,selection,marks,before,after){
         const content=range.extractContents();
         span.append(content);
         range.insertNode(span);
-        range.selectNodeContents(span);range.collapse(false);
+        // Leave a collapsed insertion caret AFTER committed IME text.
+        // Do not leave the preedit range highlighted on completion.
+        range.setStartAfter(span);
+        range.collapse(true);
         selection.removeAllRanges();selection.addRange(range);
         return true;
-    }catch{return false;}
+    }catch{
+        if(previous?.anchorNode&&previous.focusNode&&
+           typeof selection.setBaseAndExtent==='function'){
+            try{selection.setBaseAndExtent(previous.anchorNode,previous.anchorOffset,
+                previous.focusNode,previous.focusOffset);}catch{}
+        }
+        return false;
+    }
 }
