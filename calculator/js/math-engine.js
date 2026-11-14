@@ -367,6 +367,29 @@ function summation(fn,a,b){
  }
  return total;
 }
+// Browser-only PRODUCT extension used by numeric-worker; CASIO native 2nd-edition
+// parity is not asserted. Match finite SUM limits and reject invalid operands.
+function finiteProduct({expression,a,b,step='1'},opts={}){
+ const read=value=>evaluate(String(value),opts);
+ const from=read(a),to=read(b),stride=read(step);
+ if(!Number.isSafeInteger(from)||!Number.isSafeInteger(to)||
+    !Number.isSafeInteger(stride)||stride<=0||
+    Math.abs(from)>=1e10||Math.abs(to)>=1e10||from>to)
+  fail('Argument ERROR');
+ const count=Math.floor((to-from)/stride)+1;
+ if(count>20000)fail('Argument ERROR');
+ let total=1;
+ for(let i=0;i<count;i++){
+  const x=from+i*stride;
+  const item=checkedSample(v=>evaluate(String(expression),{
+   ...opts,memory:{...(opts.memory||{}),X:v},math:false
+  }),x);
+  total*=item;
+  if(!Number.isFinite(total)||Math.abs(total)>9.999999999e99)
+   fail('Math ERROR');
+ }
+ return total;
+}
 function solve(fn,start=1,tol=1e-10){
  const threshold=numericTolerance(tol,1e-10);
  if(!Number.isFinite(start)||Math.abs(start)>=1e10)fail('Argument ERROR');
@@ -403,6 +426,6 @@ function quadratic(a,b,c){if(a===0){if(b===0)fail('Math ERROR');return [-c/b]}co
 function matrixSolve(rows){const n=rows.length;const m=rows.map(r=>r.slice());for(let i=0;i<n;i++){let pivot=i;for(let j=i+1;j<n;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;[m[i],m[pivot]]=[m[pivot],m[i]];if(Math.abs(m[i][i])<1e-12)fail('Math ERROR');const d=m[i][i];for(let k=i;k<=n;k++)m[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){const f=m[j][i];for(let k=i;k<=n;k++)m[j][k]-=f*m[i][k]}}return m.map(row=>row[n])}
 function descriptiveStats(data){if(!data.length)fail('Argument ERROR');const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n,variance=data.reduce((a,b)=>a+(b-mean)**2,0)/n;return {n,sum:data.reduce((a,b)=>a+b,0),mean,variance,sd:Math.sqrt(variance),sampleSD:n>1?Math.sqrt(variance*n/(n-1)):null,min:Math.min(...data),max:Math.max(...data)}}
 function parseNumbers(text){const vals=String(text).split(/[,;\s]+/).filter(Boolean).map(Number);if(!vals.length||vals.some(n=>!Number.isFinite(n)))fail('Argument ERROR');return vals}
-const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,summation,numericTolerance,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
+const API=Object.freeze({evaluate,format,fraction,MathFault,SETTINGS,summation,finiteProduct,numericTolerance,createSeededRandom,randomThreeDigits,randomInteger,roundCalculated,toRadians,fromRadians,factorial,permutation,combination,derivative,integrate,solve,quadratic,matrixSolve,descriptiveStats,parseNumbers});
 global.FreshMath=API;if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
