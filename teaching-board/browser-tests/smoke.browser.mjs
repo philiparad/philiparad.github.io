@@ -469,6 +469,61 @@ try{
   assert.deepEqual(outcome,{savedText:'שלום',cleared:true});
  });
 
+
+ await check('new unsaved sticky note can be recovered after reload without duplicates',async()=>{
+  const record=await page.evaluate(async()=>{
+   const {createBoard}=await import('./js/model.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   const {storeTextDraft,draftStorageKey}=await import('./js/text-draft-recovery.js');
+   const repo=new BoardRepository();
+   const lesson=createBoard('Browser new-note recovery '+crypto.randomUUID().slice(0,8));
+   const saved=await repo.save(lesson);repo.close();
+   const note={id:crypto.randomUUID(),type:'note',x:92,y:142,w:260,h:130,
+    fontSize:26,fill:'#fff1a8',stroke:'#203954',rotation:0,locked:false,text:''};
+   const snapshot={runs:[{text:'טיוטה ',bold:true},{text:'English lesson',italic:true}],
+    paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
+   if(!storeTextDraft(localStorage,saved.id,note,snapshot,null,Date.now(),{newItem:true}))
+    throw Error('Failed to preserve a new unsaved note');
+   return {boardId:saved.id,itemId:note.id,key:draftStorageKey(saved.id,note.id)};
+  });
+  await page.goto(base+'#/board/'+record.boardId,{waitUntil:'domcontentloaded'});
+  const recover=page.getByRole('button',{name:'Recover unsaved text (1)'});
+  await recover.waitFor({timeout:30000});
+  assert.equal(await page.locator('[data-id="'+record.itemId+'"]').count(),0,
+   'A draft was inserted into the board without confirmation');
+  await recover.click();
+  await page.getByRole('dialog',{name:'Recover unsaved text objects'}).waitFor();
+  await page.getByRole('button',{name:'Open draft for review'}).click();
+  const draft=await page.evaluate(()=>{
+   const text=document.querySelector('.inline-text-editor [contenteditable="true"]');
+   return {content:text?.textContent,bold:!!text?.querySelector('[style*="font-weight"]'),
+    italic:!!text?.querySelector('[style*="italic"]')};
+  });
+  assert.deepEqual(draft,{content:'טיוטה English lesson',bold:true,italic:true});
+  assert.equal(await page.locator('[data-id="'+record.itemId+'"]').count(),0,
+   'Opening recovery must not commit content before Done');
+  await page.getByRole('button',{name:'Done'}).click();
+  await page.waitForFunction(async({boardId,itemId,key})=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository();const board=await repo.get(boardId);repo.close();
+   return board?.items.some(i=>i.id===itemId&&i.text==='טיוטה English lesson')&&
+    localStorage.getItem(key)===null;
+  },record,{timeout:30000});
+  await page.reload({waitUntil:'domcontentloaded'});
+  assert.equal(await page.getByRole('button',{name:/^Recover unsaved text/}).count(),1);
+  assert.equal(await page.getByRole('button',{name:/^Recover unsaved text/}).isHidden(),true);
+  const result=await page.evaluate(async({boardId,itemId,key})=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository(),board=await repo.get(boardId);repo.close();
+   const matches=board.items.filter(i=>i.id===itemId);
+   return {count:matches.length,type:matches[0]?.type,
+    text:matches[0]?.text,x:matches[0]?.x,y:matches[0]?.y,
+    localCleared:localStorage.getItem(key)===null};
+  },record);
+  assert.deepEqual(result,{count:1,type:'note',text:'טיוטה English lesson',
+   x:92,y:142,localCleared:true});
+ });
+
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{
