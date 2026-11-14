@@ -11,7 +11,7 @@ class FakeElement {
   this.childNodes=[];
   this.attributes={};
  }
- append(...nodes){this.childNodes.push(...nodes);}
+ append(...nodes){for(const node of nodes){node.parentNode=this;this.childNodes.push(node);}}
  replaceChildren(...nodes){this.childNodes=[...nodes];}
  set textContent(value){this.childNodes=[{nodeType:3,textContent:value}];}
  get textContent(){return this.childNodes.map(n=>n.textContent).join('');}
