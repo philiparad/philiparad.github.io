@@ -402,6 +402,112 @@ try{
    'Oversized equation should wrap atomically onto an available line');
  });
 
+
+ await check('inline equation keyboard, pointer and history preserve atomic selection in RTL/LTR',async()=>{
+  const created=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection}=await import('./js/text-selection.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:110px 80px 55px;background:white;z-index:2600';
+   document.body.append(host);
+   const art=document.createElement('canvas');art.width=60;art.height=35;
+   const pen=art.getContext('2d');pen.fillStyle='#3455a5';pen.fillRect(2,2,55,30);
+   const eq={source:'x^2',src:art.toDataURL('image/png'),w:60,h:35};
+   const item={id:'atomic-math',type:'text',x:10,y:10,w:420,h:120,fontSize:24,
+    text:'שלום \uFFFC English\nSolve \uFFFC now',
+    runs:[{text:'שלום '},{text:'\uFFFC',equation:eq},{text:' English\nSolve '},
+          {text:'\uFFFC',equation:{...eq,source:'y^2'}},{text:' now'}],
+    paragraphs:[{align:'right',dir:'rtl',list:'none'},
+                {align:'left',dir:'ltr',list:'none'}]};
+   const editor={area:host,board:{id:'atomic-math-'+crypto.randomUUID(),
+      viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(...args){this.saved=args;}};
+   const draft=new InlineText(editor,item,true);
+   const selection=window.getSelection();
+   const move=(paragraph,offset)=>{
+    draft.input.focus();
+    if(!restoreLogicalSelection(draft.input,selection,
+      {anchor:{paragraph,offset},focus:{paragraph,offset}}))throw Error('Cannot restore initial caret');
+   };
+   const state=()=>({logical:captureLogicalSelection(draft.input,selection),
+    sources:readRichDocument(draft.input,draft.item).runs.filter(r=>r.equation).map(r=>r.equation.source),
+    text:readRichDocument(draft.input,draft.item).runs.map(r=>r.text).join('')});
+   move(1,6);
+   window.__atomicMath={draft,editor,host,move,state};
+   return state();
+  });
+  assert.deepEqual(created.sources,['x^2','y^2']);
+  assert.equal(created.logical.focus.offset,6);
+
+  await page.keyboard.press('ArrowRight');
+  assert.equal((await page.evaluate(()=>window.__atomicMath.state())).logical.focus.offset,7,
+   'LTR right arrow should skip the whole equation');
+  await page.keyboard.press('ArrowLeft');
+  assert.equal((await page.evaluate(()=>window.__atomicMath.state())).logical.focus.offset,6);
+  await page.keyboard.press('Shift+ArrowRight');
+  const selected=await page.evaluate(()=>window.__atomicMath.state());
+  assert.deepEqual(selected.logical,{anchor:{paragraph:1,offset:6},focus:{paragraph:1,offset:7}},
+   'Shift+Right should select exactly one math placeholder');
+
+  await page.evaluate(()=>window.__atomicMath.move(0,5));
+  await page.keyboard.press('ArrowLeft');
+  assert.equal((await page.evaluate(()=>window.__atomicMath.state())).logical.focus.offset,6,
+   'RTL left arrow should skip the whole equation');
+  await page.keyboard.press('ArrowRight');
+  assert.equal((await page.evaluate(()=>window.__atomicMath.state())).logical.focus.offset,5);
+
+  await page.evaluate(()=>window.__atomicMath.move(1,7));
+  await page.keyboard.press('Backspace');
+  const removed=await page.evaluate(()=>window.__atomicMath.state());
+  assert.deepEqual(removed.sources,['x^2']);
+  assert.equal(removed.text,'שלום \uFFFC English\nSolve  now');
+  assert.equal(removed.logical.focus.offset,6);
+  await page.keyboard.press('Control+z');
+  const undone=await page.evaluate(()=>window.__atomicMath.state());
+  assert.deepEqual(undone.sources,['x^2','y^2']);
+  assert.equal(undone.text,created.text);
+  await page.keyboard.press('Control+y');
+  assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2']);
+  await page.keyboard.press('Control+z');
+  assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2','y^2']);
+
+  await page.evaluate(()=>window.__atomicMath.move(1,6));
+  await page.keyboard.press('Delete');
+  assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2']);
+  await page.keyboard.press('Control+z');
+  assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2','y^2']);
+
+  const pointer=await page.evaluate(()=>{
+   const {draft,move,state}=window.__atomicMath;
+   const eq=draft.input.querySelector('.inline-equation');
+   const r=eq.getBoundingClientRect();
+   const click=x=>eq.dispatchEvent(new PointerEvent('pointerdown',{
+    button:0,bubbles:true,clientX:x,clientY:r.top+r.height/2
+   }));
+   move(0,0);click(r.right-2);const right=state().logical.focus.offset;
+   click(r.left+2);const left=state().logical.focus.offset;
+   return {right,left};
+  });
+  assert.deepEqual(pointer,{right:5,left:6},
+   'In RTL, clicking the equation right/left edges should locate the caret before/after it');
+
+  const direction=await page.evaluate(()=>{
+   const {draft,move,state}=window.__atomicMath;
+   draft.input.children[0].dir='ltr';
+   move(0,5);
+   return state();
+  });
+  assert.equal(direction.logical.focus.offset,5);
+  await page.keyboard.press('ArrowRight');
+  assert.equal((await page.evaluate(()=>window.__atomicMath.state())).logical.focus.offset,6,
+   'Changing paragraph to LTR must change arrow behavior around the equation');
+
+  await page.evaluate(()=>{
+   const {draft,host}=window.__atomicMath;
+   draft.finish(false);host.remove();
+  });
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
