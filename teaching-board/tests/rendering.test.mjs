@@ -302,7 +302,7 @@ test('inline text commits one undo step and retains connectors, copies and expor
  e.undo();assert.equal(e.board.items.find(i=>i.id==='text').text,'First line\nשלום');
  e.redo();assert.equal(e.board.items.find(i=>i.id==='text').text,'Updated\nMultiple\nLines');
  e.selected=new Set(['text']);e.duplicate();assert.equal(e.board.items.at(-1).text,'Updated\nMultiple\nLines');
- assert.ok(walk(sceneSVG(e.board)).some(n=>n.tagName==='tspan'&&n.textContent==='Updated'));validateBoard(e.board);
+ assert.ok(walk(sceneSVG(e.board)).some(n=>n.tagName==='text'&&n.textContent==='Updated'));validateBoard(e.board);
  const count=e.history.past.length;e.applyText(e.board.items.at(-1),e.board.items.at(-1).text,500,true);assert.equal(e.history.past.length,count);
 });
 
@@ -330,10 +330,20 @@ test('text alignment respects physical left/right, RTL, note padding and exports
  const {drawItem}=await import('../js/scene.js');
  for(const rtl of [false,true])for(const type of ['text','note'])for(const align of ['auto','left','center','right']){
   const pad=type==='note'?14:0,item={id:'aligned',type,x:0,y:0,w:300,h:100,text:rtl?'שלום עולם':'hello world',fontSize:24,textAlign:align};
-  const text=drawItem(item).children.find(n=>n.tagName==='text');
-  const x=align==='center'?150:align==='left'?pad:align==='right'?300-pad:rtl?300-pad:pad;
-  assert.equal(+text.attributes.x,x);assert.equal(+text.children[0].attributes.x,x);
-  assert.equal(text.attributes['text-anchor'],align==='center'?'middle':align==='left'?(rtl?'end':'start'):align==='right'?(rtl?'start':'end'):'start');
+  const parts=walk(drawItem(item)).filter(n=>n.tagName==='text'&&n.textContent);
+  assert.ok(parts.length>=2); // Measured SVG renderer emits separate words.
+  const positions=parts.map(n=>{
+   const width=Array.from(n.textContent).length*item.fontSize*.55;
+   const x=+n.attributes.x,anchor=n.attributes['text-anchor'];
+   assert.equal(anchor,rtl?'end':'start');
+   return {left:anchor==='end'?x-width:x,right:anchor==='end'?x:x+width};
+  });
+  const left=Math.min(...positions.map(p=>p.left)),right=Math.max(...positions.map(p=>p.right));
+  const approx=(a,b)=>assert.ok(Math.abs(a-b)<1e-5,`${a} != ${b}`);
+  if(align==='center')approx((left+right)/2,item.w/2);
+  else if(align==='left'||align==='auto'&&!rtl)approx(left,pad);
+  else approx(right,item.w-pad);
+  assert.ok(left>=pad-1e-5&&right<=item.w-pad+1e-5);
  }
 });
 test('alignment only changes unlocked text and notes and supports undo and backups',async()=>{
@@ -348,9 +358,12 @@ test('text emphasis renders consistently in English and Hebrew SVG exports',asyn
  const {drawItem}=await import('../js/scene.js');
  for(const type of ['text','note'])for(const text of ['Hello','שלום'])for(const textStyle of [undefined,'normal','bold','italic','bold-italic']){
   const item={id:'styled',type,x:0,y:0,w:300,h:100,text,fontSize:24,textStyle};
-  const node=drawItem(item).children.find(n=>n.tagName==='text');
-  assert.equal(node.attributes['font-weight'],(textStyle||'').includes('bold')?'700':'400');
-  assert.equal(node.attributes['font-style'],(textStyle||'').includes('italic')?'italic':'normal');
+  const parts=walk(drawItem(item)).filter(n=>n.tagName==='text'&&n.textContent);
+  assert.ok(parts.length>0);
+  for(const node of parts){
+   assert.equal(node.attributes['font-weight'],(textStyle||'').includes('bold')?'700':'400');
+   assert.equal(node.attributes['font-style'],(textStyle||'').includes('italic')?'italic':'normal');
+  }
  }
 });
 test('text emphasis preserves locks, history, copies, snippets and backups',async()=>{
