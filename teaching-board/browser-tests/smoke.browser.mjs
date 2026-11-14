@@ -412,10 +412,13 @@ try{
    const {draft,host,editor}=window.__invalidRecovery;
    const valid=draft.input.textContent==='שלום English';
    draft.finish(true);
-   const outcome={valid,closed:!!draft.closed,text:editor.saved?.[1]};
+   const outcome={valid,closed:!!draft.closed,text:editor.saved?.[1],
+    error:draft.controls.querySelector('.error')?.textContent||null,
+    markup:draft.input.innerHTML};
    host.remove();return outcome;
   });
-  assert.deepEqual(result,{valid:true,closed:true,text:'שלום English'});
+  assert(result.valid&&result.closed&&result.text==='שלום English',
+   'Restored document failed to save: '+JSON.stringify(result));
  });
 
  assert.deepEqual(pageErrors,[]);
