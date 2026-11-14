@@ -38,7 +38,7 @@ import { validateBoard } from './model.js?v=20261024-image-actions';
 import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-history-budget';
 
 import { toolIcon } from './tool-icons.js?v=20261114-calculator-modal';
-import { CalculatorModal } from './calculator-modal.js';
+import { CalculatorModal } from './calculator-modal.js?v=20261114-send-ans';
 import {calculatorTextItem} from './calculator-answer.js';
 
 import { Geometry } from './geometry.js?v=20261024-image-actions';
