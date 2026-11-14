@@ -311,7 +311,10 @@ try{
    const {paragraphRuns,readRichDocument}=await import('./js/rich-text.js');
    const {drawItem,sceneSVG,svgEl}=await import('./js/scene.js');
    const {createBoard,parseBackup,serializeBackup}=await import('./js/model.js');
-   const equation={source:'x^2+1',src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRrQAAAAASUVORK5CYII=',w:80,h:90};
+   const mathCanvas=document.createElement('canvas');mathCanvas.width=80;mathCanvas.height=90;
+   const mathContext=mathCanvas.getContext('2d');mathContext.fillStyle='#168b62';
+   mathContext.fillRect(5,4,70,82);
+   const equation={source:'x^2+1',src:mathCanvas.toDataURL('image/png'),w:80,h:90};
    const cases=[
     {id:'rtl-math',type:'note',x:0,y:0,w:330,h:20,fontSize:24,fill:'#fff1a8',
      text:'שלום \uFFFC English',runs:[{text:'שלום '},{text:'\uFFFC',equation},{text:' English'}],
