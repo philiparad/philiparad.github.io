@@ -68,9 +68,8 @@ test('TXT-061 Backspace on empty numbered list row removes marker before joining
  assert.deepEqual(input.paragraphs[1].list,'number');
  validateParagraphs(updated.paragraphs,input.runs.map(r=>r.text).join(''));
  assert.equal(unlistEmptyParagraph(input,2),null);
- assert.equal(boundaryEdit(input,at(1,0),'Delete'),{
-  kind:'join',start:4,end:5
- }.start && boundaryEdit(input,at(1,0),'Delete'));
+ assert.deepEqual(boundaryEdit(input,at(1,0),'Delete'),
+  {kind:'join',start:4,end:5});
 });
 
 test('TXT-061 removal of empty ordered item preserves following ordinal without stale list starts',()=>{
