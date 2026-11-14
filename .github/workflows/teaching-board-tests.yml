@@ -56,11 +56,16 @@ jobs:
         env:
           TEACHING_BOARD_BROWSER: ${{ matrix.browser }}
         run: node teaching-board/browser-tests/smoke.browser.mjs
+      - name: Pixel compare editor rendering and SVG export
+        env:
+          TEACHING_BOARD_BROWSER: ${{ matrix.browser }}
+        run: node teaching-board/browser-tests/visual-parity.browser.mjs
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: teaching-board-${{ matrix.browser }}-failure
           path: |
             /tmp/teaching-board-browser-failure.png
+            /tmp/teaching-board-visual-parity-failure.png
             /tmp/teaching-board-http.log
           if-no-files-found: ignore
