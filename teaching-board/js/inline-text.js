@@ -8,11 +8,14 @@ import {applyInlineFormat,inlineFormatState} from './text-commands.js';
 import {applyParagraphList} from './text-lists.js';
 import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pending.js';
 import {applyDocumentRange} from './text-range-format.js';
+import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
  constructor(editor,item,existing){
   this.editor=editor;this.item=structuredClone(item);this.existing=existing;
+  this.draftBoardId=editor.board?.id;
+  try{this.draftStorage=globalThis.localStorage||null;}catch{this.draftStorage=null;}
   this.root=el('div',null,'inline-text-editor');
   this.input=el('div');this.input.contentEditable='true';this.input.setAttribute('role','textbox');this.input.setAttribute('aria-multiline','true');this.input.setAttribute('aria-label',item.type==='note'?'Edit sticky note on canvas':'Edit text on canvas');
   writeRuns(this.input,item);this.input.dir='auto';this.input.spellcheck=true;
@@ -43,7 +46,11 @@ export class InlineText {
   this.addFormatting();
   this.controls.append(el('span','Enter: new line · Ctrl/⌘ Enter: save · Esc: cancel'),btn('Cancel',()=>this.finish(false)),btn('Done',()=>this.finish(true),'primary'));
   editor.area.append(this.root,this.controls);
-  this.textHistory=new TextHistory(readRichDocument(this.input,this.item));this.updateHistoryButtons();
+  const initial=readRichDocument(this.input,this.item);
+  this.textHistory=new TextHistory(initial);this.updateHistoryButtons();
+  const recovered=readTextDraft(this.draftStorage,this.draftBoardId,this.item);
+  if(recovered&&isDifferentDraft(recovered,initial))this.offerDraftRecovery(recovered);
+  else if(recovered)clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
   this.input.oninput=()=>{this.resize();if(!this.composing){this.pendingMarks=null;this.pendingSelection=null;this.recordSnapshot();}};
   this.input.onbeforeinput=e=>{if(this.closed||this.composing||e.isComposing||e.inputType!=='insertText'||!this.pendingMarks)return;const selection=window.getSelection();if(insertPendingText(this.input,selection,this.pendingMarks,e.data)){e.preventDefault();this.pendingMarks=null;this.pendingSelection=null;this.resize();this.recordSnapshot();this.selectionChange();}};
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
@@ -99,7 +106,77 @@ export class InlineText {
   this.input.focus();this.resize();this.recordSnapshot();
  }
  setParagraphDirection(dir){if(!['auto','ltr','rtl'].includes(dir))return;const selection=window.getSelection();if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}let node=selection.anchorNode;let block=node?.nodeType===1?node:node?.parentElement;while(block&&block!==this.input&&!['DIV','P','LI'].includes(block.tagName))block=block.parentElement;const blocks=[...this.input.querySelectorAll('div,p,li')].filter(n=>n.closest('li')===null||n.tagName==='LI');const range=selection.rangeCount?selection.getRangeAt(0):null;const targets=range&&typeof range.intersectsNode==='function'?blocks.filter(n=>range.intersectsNode(n)):[];if(targets.length)for(const n of targets)n.dir=dir;else if(block&&block!==this.input)block.dir=dir;else for(const child of this.input.children)if(['DIV','P','LI'].includes(child.tagName))child.dir=dir;this.input.focus();this.resize();this.recordSnapshot();}
- recordSnapshot(){if(this.closed||this.composing)return;try{const snapshot=readRichDocument(this.input,this.item);const txt=snapshot.runs.map(run=>run.text).join('');validateRuns(snapshot.runs,txt);validateParagraphs(snapshot.paragraphs,txt);snapshot.selection=captureLogicalSelection(this.input,window.getSelection());this.textHistory.push(snapshot);this.updateHistoryButtons();}catch{/* Keep an invalid intermediate composition out of history. */}}
+ recordSnapshot(){
+  if(this.closed||this.composing)return;
+  try{
+   const snapshot=readRichDocument(this.input,this.item);
+   const txt=snapshot.runs.map(run=>run.text).join('');
+   validateRuns(snapshot.runs,txt);validateParagraphs(snapshot.paragraphs,txt);
+   snapshot.selection=captureLogicalSelection(this.input,window.getSelection());
+   const changed=this.textHistory.push(snapshot);
+   if(changed)storeTextDraft(this.draftStorage,this.draftBoardId,this.item,snapshot);
+   this.updateHistoryButtons();
+  }catch{
+   // Preserve both the most recent valid formatted state and raw invalid text.
+   // An incorrectly entered equation never silently replaces a valid snapshot.
+   storeTextDraft(this.draftStorage,this.draftBoardId,this.item,
+    this.textHistory.current,rawDraftText(this.input));
+  }
+ }
+ offerDraftRecovery(record){
+  const banner=el('div',null,'text-recovery-banner');
+  banner.setAttribute('role','status');
+  banner.append(el('span','Unsaved text from an earlier editing session is available on this device.'),
+   btn('Recover saved draft',()=>{
+    if(this.closed)return;
+    this.restoreFormattedDraft(record);
+    banner.remove();
+   }));
+  if(record.rawText!==record.text)banner.append(btn('Show unparsed text',()=>this.showRawDraft(record.rawText,banner)));
+  banner.append(btn('Discard saved draft',()=>{
+   clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
+   banner.remove();
+  }));
+  this.controls.append(banner);
+ }
+ showRawDraft(text,container=this.controls){
+  let input=container.querySelector?.('.text-raw-recovery');
+  if(!input){
+   input=el('textarea',null,'text-raw-recovery');
+   input.setAttribute('aria-label','Unparsed text recovery');
+   input.readOnly=true;input.rows=4;input.style.width='100%';
+   container.append(input);
+  }
+  input.value=text;
+  return input;
+ }
+ restoreFormattedDraft(record){
+  if(this.closed)return false;
+  const model={...this.item,text:record.text,runs:record.runs,paragraphs:record.paragraphs};
+  try{
+   validateRuns(record.runs,record.text);
+   validateParagraphs(record.paragraphs,record.text);
+   writeRuns(this.input,model);
+   this.resize();this.recordSnapshot();this.input.focus();
+   this.controls.querySelector?.('.error')?.remove();
+   return true;
+  }catch{return false;}
+ }
+ showDraftError(error){
+  const node=this.controls.querySelector?.('.error')||el('span',null,'error');
+  node.textContent=(error?.message||'Unable to save formatted text.')+' Draft kept open; nothing was discarded.';
+  if(!node.isConnected)this.controls.append(node);
+  let actions=this.controls.querySelector?.('.text-error-recovery');
+  if(!actions){
+   actions=el('div',null,'text-error-recovery');
+   actions.append(btn('Restore last valid version',()=>{
+    this.restoreFormattedDraft(this.textHistory.current);actions.remove();
+   }),btn('Show raw text',()=>this.showRawDraft(rawDraftText(this.input),actions)));
+   this.controls.append(actions);
+  }
+  storeTextDraft(this.draftStorage,this.draftBoardId,this.item,
+   this.textHistory.current,rawDraftText(this.input));
+ }
  updateHistoryButtons(){if(!this.textHistory)return;this.undoButton.disabled=!this.textHistory.canUndo;this.redoButton.disabled=!this.textHistory.canRedo;}
  stepTextHistory(direction){if(this.closed||this.composing)return;this.pendingMarks=null;this.pendingSelection=null;const snapshot=direction==='redo'?this.textHistory.redo():this.textHistory.undo();if(!snapshot)return;this.updateHistoryButtons();const txt=snapshot.runs.map(run=>run.text).join('');writeRuns(this.input,{...this.item,text:txt,runs:snapshot.runs,paragraphs:snapshot.paragraphs});this.resize();this.input.focus();const selection=window.getSelection();if(selection&&!(restoreLogicalSelection(this.input,selection,snapshot.selection)||restoreTextSelection(this.input,selection,snapshot.selection))){const range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);selection.removeAllRanges();selection.addRange(range);}}
  insertPlainText(value){if(!value||this.closed||this.composing)return;const selection=window.getSelection();if(this.pendingMarks&&insertPendingText(this.input,selection,this.pendingMarks,value)){this.pendingMarks=null;this.pendingSelection=null;this.input.focus();this.resize();this.recordSnapshot();return;}let range=selection?.rangeCount?selection.getRangeAt(0):null;if(!range||!this.input.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}this.pendingMarks=null;this.pendingSelection=null;range.deleteContents();const node=document.createTextNode(value);range.insertNode(node);range.setStartAfter(node);range.collapse(true);selection?.removeAllRanges();selection?.addRange(range);this.input.focus();this.resize();this.recordSnapshot();}
@@ -110,9 +187,31 @@ export class InlineText {
   this.root.style.left=`${v.x+i.x*v.zoom+(v.zoom-1)*i.w/2}px`;
   this.root.style.top=`${v.y+i.y*v.zoom+(v.zoom-1)*i.h/2}px`;
  }
- finish(save,focus=true){if(this.closed)return;let runs=[],paragraphs=[],text='';if(save){try{const result=readRichDocument(this.input,this.item);runs=result.runs;paragraphs=result.paragraphs;text=runs.map(r=>r.text).join('');validateRuns(runs,text);validateParagraphs(paragraphs,text);}catch(e){const error=this.controls.querySelector('.error')||el('span',null,'error');error.textContent=e.message||'Unable to save formatted text.';if(!error.isConnected)this.controls.append(error);return;}}this.closed=true;document.removeEventListener('pointerdown',this.outside,true);document.removeEventListener('focusin',this.outside,true);document.removeEventListener('selectionchange',this.selectionChange);this.root.remove();this.controls.remove();this.editor.inlineText=null;
-  if(save&&text.trim()){this.item.runs=runs;this.item.paragraphs=paragraphs;this.editor.applyText(this.item,text,this.height,this.existing);}
-  else this.editor.paint();
+ finish(save,focus=true){
+  if(this.closed)return;
+  let runs=[],paragraphs=[],text='';
+  if(save){
+   try{
+    const result=readRichDocument(this.input,this.item);
+    runs=result.runs;paragraphs=result.paragraphs;
+    text=runs.map(r=>r.text).join('');
+    validateRuns(runs,text);validateParagraphs(paragraphs,text);
+   }catch(error){this.showDraftError(error);return;}
+  }
+  // Keep the live draft visible if a commit throws; the user can retry or
+  // recover a valid version instead of losing edits on a failed save.
+  try{
+   if(save&&text.trim()){
+    this.item.runs=runs;this.item.paragraphs=paragraphs;
+    this.editor.applyText(this.item,text,this.height,this.existing);
+   }else this.editor.paint();
+  }catch(error){this.showDraftError(error);return;}
+  clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
+  this.closed=true;
+  document.removeEventListener('pointerdown',this.outside,true);
+  document.removeEventListener('focusin',this.outside,true);
+  document.removeEventListener('selectionchange',this.selectionChange);
+  this.root.remove();this.controls.remove();this.editor.inlineText=null;
   if(focus&&!this.editor.disposed)this.editor.svg.focus();
  }
 }
