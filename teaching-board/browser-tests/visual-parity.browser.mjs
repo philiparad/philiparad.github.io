@@ -1,10 +1,18 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {chromium,firefox,webkit} from 'playwright';
 
 const engine=process.env.TEACHING_BOARD_BROWSER||'chromium';
 const type={chromium,firefox,webkit}[engine];
 if(!type)throw new Error('Unsupported browser: '+engine);
 const base=process.env.TEACHING_BOARD_URL||'http://127.0.0.1:8765/teaching-board/';
+const recording=process.env.TEACHING_BOARD_GOLDEN_RECORD==='1';
+const manifest=recording?null:JSON.parse(readFileSync(new URL('./visual-goldens.json',import.meta.url),'utf8'));
+if(!recording){
+ assert.equal(manifest.schemaVersion,1);
+ assert.deepEqual(manifest.dimensions,{width:720,height:470});
+ assert.ok(manifest.engines?.[engine],'Missing golden image hashes for '+engine);
+}
 const browser=await type.launch({headless:true,...(engine==='chromium'?{args:['--no-sandbox']}:{})});
 const page=await browser.newPage({viewport:{width:1600,height:1100},deviceScaleFactor:1});
 const failures=[];
@@ -12,6 +20,7 @@ page.on('pageerror',error=>failures.push(error.message));
 try {
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:45000});
  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+ await page.evaluate(()=>document.fonts.ready);
  const findings=await page.evaluate(async()=>{
   const {sceneSVG,svgEl,background}=await import('./js/scene.js');
   const {RenderCache}=await import('./js/render-cache.js');
@@ -64,6 +73,10 @@ try {
    svg.append(g);
    return svg;
   }
+  async function digest(pixels){
+   const value=await crypto.subtle.digest('SHA-256',pixels);
+   return [...new Uint8Array(value)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
+  }
   async function raster(svg){
    const markup=new XMLSerializer().serializeToString(svg);
    const blob=new Blob([markup],{type:'image/svg+xml;charset=utf-8'});
@@ -75,7 +88,8 @@ try {
     canvas.width=W;canvas.height=H;
     const ctx=canvas.getContext('2d',{willReadFrequently:true});
     ctx.drawImage(image,0,0,W,H);
-    return {pixels:ctx.getImageData(0,0,W,H).data,markup};
+    const pixels=ctx.getImageData(0,0,W,H).data;
+    return {pixels,sha256:await digest(pixels),markup};
    }finally{URL.revokeObjectURL(url);}
   }
   const results=[];
@@ -95,7 +109,7 @@ try {
    // Negative control: deliberately hide text in the cached board scene.
    // The comparator must detect a real visual regression rather than merely
    // comparing two white/blank images or treating all images as equal.
-   let injectedDifference=null;
+   let injectedDifference=null,injectedHash=null;
    if(fixture.name==='mixed Hebrew English and inline math'){
     const changed=edited.querySelector('g[data-id="mixed"]');
     changed.setAttribute('opacity','0');
@@ -107,7 +121,7 @@ try {
         damaged.pixels[offset+2]!==second.pixels[offset+2]||
         damaged.pixels[offset+3]!==second.pixels[offset+3])pixels++;
     }
-    injectedDifference=pixels;
+    injectedDifference=pixels;injectedHash=damaged.sha256;
     changed.setAttribute('opacity','1');
    }
    results.push({
@@ -115,7 +129,8 @@ try {
     editorImageCount:edited.querySelectorAll('image').length,
     exportImageCount:exported.querySelectorAll('image').length,
     svgDataValid:exported.getAttribute('viewBox')==='0 0 '+W+' '+H,
-    injectedDifference
+    editorHash:first.sha256,exportHash:second.sha256,
+    injectedDifference,injectedHash
    });
   }
   return results;
@@ -126,10 +141,22 @@ try {
   assert.equal(test.editorImageCount,test.exportImageCount,'Inline equation/image missing');
   assert(test.svgDataValid,'Export viewBox was incorrect');
   assert.equal(test.differentPixels,0,'Board and export rendered different pixels: '+test.name);
-  if(test.injectedDifference!==null)assert(test.injectedDifference>200,'Visual diff failed to detect deliberately missing text');
+  assert.match(test.editorHash,/^[0-9a-f]{64}$/);
+  assert.equal(test.editorHash,test.exportHash,'Cached and exported images disagree by hash');
+  if(test.injectedDifference!==null){
+   assert(test.injectedDifference>200,'Visual diff failed to detect deliberately missing text');
+   assert.notEqual(test.injectedHash,test.exportHash,'Negative control did not change the rendered image');
+  }
+  console.log('GOLDEN '+JSON.stringify({engine,fixture:test.name,sha256:test.exportHash}));
+  if(!recording){
+   const expected=manifest.engines[engine][test.name];
+   assert.match(expected||'',/^[0-9a-f]{64}$/,'Missing or malformed committed golden hash for '+test.name);
+   assert.equal(test.exportHash,expected,'Visual image changed relative to committed independent baseline: '+engine+'/'+test.name);
+  }
  }
  assert.deepEqual(failures,[]);
- console.log('PASS '+engine+' board and SVG export visual pixel parity: '+findings.length+' fixtures');
+ if(!recording)assert.equal(Object.keys(manifest.engines[engine]).length,findings.length,'Golden manifest has orphaned or duplicate fixtures');
+ console.log('PASS '+engine+' '+(recording?'golden-recording':'committed-golden-check')+' board/SVG pixel parity: '+findings.length+' fixtures');
 }catch(error){
  await page.locator('#visual-preview').screenshot({path:'/tmp/teaching-board-visual-parity-failure.png'}).catch(()=>{});
  throw error;
