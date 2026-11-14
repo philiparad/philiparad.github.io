@@ -106,27 +106,367 @@
     .lesson-tabs{display:none!important}
     .lesson-tab-panel,.lesson-tab-panel[hidden]{display:block!important;animation:none}
 }
+
+
+/* Compliance corrections: C# / MathJax direction, accessibility and printing. */
+.mathjax-code-inline, .mj-inline, .code-inline-ltr {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: inline-block;
+    vertical-align: baseline;
+    max-width: 100%;
+}
+.csharp-code-block, .csharp-code-block pre, .csharp-code-block code,
+.codepanel, .codepanel pre, .codepanel code,
+.codebox, .codebox pre, .codebox code,
+.latex-code, .latex-code-line, .sim-code, .sim-code-line {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+    tab-size: 4;
+    word-break: normal;
+    max-width: 100%;
+}
+.csharp-code-block pre, .csharp-code-block code,
+.codepanel pre, .codepanel code { white-space: pre-wrap; overflow-wrap: normal; overflow: visible; }
+.csharp-code-block pre, .codepanel pre { line-height: 1.65; }
+.latex-code-line, .sim-code-line { white-space: pre-wrap; }
+button:focus-visible, a:focus-visible, select:focus-visible,
+[role="tab"]:focus-visible { outline: 3px solid #bc7400; outline-offset: 3px; }
+@media (max-width: 650px) {
+    .page, .sim, .codepanel, .codebox { min-width: 0; }
+    .steps, .grid { min-width: 0; }
+    .csharp-code-block pre, .codepanel pre { font-size: 0.85rem; }
+}
+@media print {
+    .csharp-code-block pre, .codepanel pre, .codebox,
+    .latex-code-line, .sim-code-line { white-space: pre-wrap; overflow: visible !important; }
+    .csharp-code-block, .codepanel, .codebox { break-inside: avoid; }
+    .mathjax-code-inline { white-space: normal; }
+}
+
+
+/* Multi-statement C# examples: readable multiline LTR blocks. */
+.lesson-csharp-block {
+    display: block;
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+    white-space: pre-wrap;
+    overflow-wrap: normal;
+    tab-size: 4;
+    max-width: 100%;
+    margin: 10px 0;
+    padding: 13px 16px;
+    background: #17283c;
+    color: #ecf4ff;
+    border: 2px solid #405775;
+    border-radius: 12px;
+    font: 16px/1.7 Consolas, 'Courier New', monospace;
+}
+.lesson-csharp-block code { font: inherit; white-space: inherit; direction: ltr; unicode-bidi: isolate; }
+@media print {
+    .lesson-csharp-block { background: #f1f3f7; color: #17283c; border-color: #869bb0; break-inside: avoid; }
+}
+
+</style>
+<style>
+/* Answers are revealed alongside their matching exercises, never in a separate tab. */
+.inline-solution[hidden] { display: none !important; }
+.inline-solution { direction: rtl; text-align: right; padding: 12px 16px; margin: 12px 0 4px; border: 2px solid #b9ddc9; border-radius: 12px; background: #f1faf4; color: #184e35; line-height: 1.7; }
+.inline-solution-label { font-weight: 700; margin-bottom: 6px; }
+.inline-solution p { margin: 5px 0; }
+.inline-solution pre, .inline-solution code { direction: ltr; text-align: left; unicode-bidi: isolate; }
+.check-solutions { display: inline-block; border: 2px solid #266b54; border-radius: 10px; background: #e5f5eb; color: #164b34; padding: 10px 20px; margin: 14px 0; font: 700 16px Arial, sans-serif; cursor: pointer; }
+.check-solutions:hover { background: #d2f0df; }
+.check-solutions:focus-visible { outline: 3px solid #ba7100; outline-offset: 3px; }
+@media print { .check-solutions { display:none !important; } .inline-solution[hidden] {display:none!important;} .inline-solution {break-inside:avoid;} }
+</style>
+<style id="independent-lesson-visual-refresh">
+
+/* Visual refresh for independent learners, ages 16-17. No lesson content rewritten. */
+:root {
+    --ink: #21304b;
+    --muted: #64738a;
+    --bg: #f3f6fd;
+    --blue: #5157d8;
+    --line: #d9e1f3;
+    --soft: #eef0ff;
+    --focus: #f5a623;
+}
+html {scroll-behavior:smooth;}
+body {
+    color: var(--ink);
+    background: radial-gradient(ellipse 680px 420px at 94% 5%,#e5e7ff 0%,transparent 68%),
+                radial-gradient(ellipse 650px 380px at 1% 34%,#dcf6f2 0%,transparent 65%),
+                #f4f6fc;
+    font-family: 'Segoe UI', Arial, 'Noto Sans Hebrew', sans-serif;
+    line-height:1.75;
+}
+main {max-width:1140px;}
+main > header, header:has(> h1) {
+    position:relative;
+    border-radius:22px;
+    padding:25px 28px;
+    margin:12px 0 16px;
+    background:linear-gradient(115deg,#252d81 0%,#514dc4 58%,#8d55cb 100%);
+    color:#fff;
+    box-shadow:0 13px 30px rgba(46,43,121,.16);
+    overflow:hidden;
+}
+main > header::after, header:has(> h1)::after {
+    content:"";position:absolute;left:-48px;top:-55px;width:200px;height:200px;
+    background:radial-gradient(circle,#ffffff25 0 24%,transparent 25% 34%,#ffffff14 35% 44%,transparent 45%);
+    pointer-events:none;
+}
+main > header h1, header:has(> h1) h1 {color:#fff;font-weight:850;letter-spacing:-.025em;}
+main > header p, header:has(> h1) p {color:#e8eaff;}
+.lesson-tabs {
+    background:#fffffff2;
+    backdrop-filter:blur(12px);
+    border:1px solid #dce3f4;
+    border-radius:16px;
+    padding:9px;
+    box-shadow:0 5px 17px #1b265316;
+    margin-bottom:16px;
+    gap:7px;
+}
+.lesson-tab {
+    border:1px solid #d9def7;
+    border-radius:11px;
+    background:#f6f7ff;
+    color:#414b88;
+    padding:10px 8px;
+    font-weight:750;
+    transition:transform .17s ease,background .17s ease,box-shadow .17s ease;
+}
+.lesson-tab:hover {background:#e9edff;transform:translateY(-2px);box-shadow:0 4px 10px #4652aa17;}
+.lesson-tab[aria-selected="true"], .lesson-tab.active {
+    background:linear-gradient(125deg,#4d52ce,#7359d6);
+    border-color:#4f53ca;
+    color:#fff;
+    box-shadow:0 5px 12px #5753d43a;
+}
+.lesson-tab-panel {--accent:#5b58ca;--accent2:#a066db;--pale:#f0eeff;}
+.lesson-tab-panel:nth-of-type(3n + 2) {--accent:#087e94;--accent2:#30a8ae;--pale:#eafaf9;}
+.lesson-tab-panel:nth-of-type(3n + 3) {--accent:#bd5b42;--accent2:#f2a65d;--pale:#fff4e8;}
+.page {
+    position:relative;
+    border:1px solid #dce3f2;
+    border-radius:20px;
+    background:#fff;
+    box-shadow:0 8px 28px #20305c12;
+    padding:25px 29px;
+    overflow:visible;
+}
+.page::before {
+    content:"";position:absolute;inset:0 0 auto 0;height:5px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border-radius:20px 20px 0 0;
+}
+.page h2 {color:var(--accent);line-height:1.3;letter-spacing:-.02em;}
+.page h3 {color:#313c69;}
+.kicker,.section-label,.tag {color:var(--accent);}
+.lead {color:#293957;}
+.steps, .grid {gap:14px;}
+.step {
+    position:relative;
+    border:1px solid #dbe4f7;
+    background:linear-gradient(145deg,#fff,#f5f7ff);
+    border-radius:16px;
+    box-shadow:0 3px 9px #2533610c;
+    padding:16px;
+    transition:transform .18s ease,box-shadow .18s ease;
+}
+.step:hover {transform:translateY(-2px);box-shadow:0 9px 18px #24315d18;}
+.stepnum {background:linear-gradient(140deg,var(--accent),var(--accent2));box-shadow:0 3px 8px #3340a72e;}
+.tip,.note,.warning {
+    border:1px solid #cbd9ec;
+    border-inline-start:5px solid var(--accent);
+    border-radius:14px;
+    background:linear-gradient(105deg,var(--pale),#fff);
+    padding:15px 19px;
+}
+.note,.warning {border-inline-start-color:#e59d3e;background:linear-gradient(105deg,#fff6e9,#fff);}
+.sim,.codebox,.codepanel {
+    border-radius:16px;
+    box-shadow:0 4px 16px #1d305c10;
+}
+.sim {border:1px solid #d5e1f2;background:linear-gradient(160deg,#f8fbff,#f2f6ff);}
+pre,pre code,.codepanel pre,.codebox pre,.csharp-code-block pre {
+    direction:ltr;text-align:left;unicode-bidi:isolate;tab-size:4;
+    white-space:pre-wrap;overflow-wrap:normal;
+}
+pre,.codepanel,.codebox {border-radius:13px;}
+.questions,.exercise-list {list-style-position:outside;}
+.question,.exercise-list > li {
+    border:1px solid #e2e8f4;
+    border-radius:13px;
+    background:#fff;
+    margin:10px 0;
+    padding:15px 17px;
+    box-shadow:0 2px 8px #28366a0b;
+}
+.inline-solution:not([hidden]) {
+    border:1px solid #b8e0d5;
+    border-inline-start:5px solid #159d83;
+    border-radius:12px;
+    background:#f1fbf6;
+    padding:13px 16px;
+    margin-top:12px;
+    color:#164c40;
+}
+.inline-solution-label {color:#167862;font-weight:800;margin-bottom:5px;}
+.check-solutions,.self-check button,.sim-controls button,.simtools button,.practice-controls button {
+    border:1px solid #4a55b9;
+    background:linear-gradient(110deg,#4f57c7,#6956cf);
+    color:white;
+    border-radius:12px;
+    font-weight:750;
+    box-shadow:0 4px 12px #4956b72c;
+    transition:filter .15s ease,transform .15s ease;
+}
+.check-solutions:hover,.self-check button:hover,.sim-controls button:not(:disabled):hover {
+    background:linear-gradient(110deg,#4149b1,#5a4cb9);
+    color:#fff;
+    filter:brightness(1.05);transform:translateY(-1px);
+}
+a {color:#474fc4;text-underline-offset:3px;}
+a:hover {color:#252a94;}
+#intro .toc a,.deletion-links a {
+    background:linear-gradient(140deg,#f3f4ff,#f9fbff);
+    border:1px solid #d2d8f6;
+    box-shadow:0 4px 12px #28308b12;
+    border-radius:15px;
+    transition:transform .15s ease,box-shadow .15s ease;
+}
+#intro .toc a:hover,.deletion-links a:hover {transform:translateY(-2px);box-shadow:0 10px 19px #28308b1c;}
+#intro .toc a::before,.deletion-links a::before {background:linear-gradient(120deg,#4d54c9,#9a65d0);}
+button:focus-visible,a:focus-visible,select:focus-visible {outline:3px solid #f1a831;outline-offset:3px;}
+@media (max-width:650px) {
+    main {padding:9px;}
+    .page {padding:20px 15px;border-radius:16px;}
+    .step {padding:12px;}
+    .lesson-tabs {border-radius:12px;}
+    main > header, header:has(> h1) {padding:20px 16px;border-radius:16px;}
+    .question,.exercise-list > li {padding:12px;}
+}
+@media (prefers-reduced-motion:reduce) {
+    .step,.lesson-tab,.check-solutions,#intro .toc a,.deletion-links a {transition:none!important;}
+}
+@page {size:A4;margin:12mm;}
+@media print {
+    body {background:#fff!important;color:#111!important;}
+    .page {box-shadow:none!important;border:1px solid #bec9d8!important;border-radius:0!important;}
+    .page::before {display:none!important;}
+    .step,.sim,.question {box-shadow:none!important;break-inside:avoid;}
+    .lesson-tabs,.check-solutions {display:none!important;}
+    .inline-solution[hidden] {display:none!important;}
+    main > header,header:has(> h1) {background:#fff!important;color:#111!important;box-shadow:none!important;}
+    main > header h1,header:has(> h1) h1,main > header p,header:has(> h1) p {color:#111!important;}
+}
+
+
+/* Shared lesson header and navigation: matches Lessons_001 reference. */
+main > header.lesson-hero {
+    position: relative;
+    display: block;
+    padding: 26px 30px;
+    min-height: 150px;
+    margin: 10px 0 16px;
+    border: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    background: linear-gradient(110deg,#33237f 0%,#5436ae 51%,#9944cd 100%);
+    box-shadow: 0 12px 26px #32247b24;
+    color: #fff;
+    text-align: right;
+}
+main > header.lesson-hero::after {
+    content: "";
+    position:absolute;
+    left: -52px; top: -64px;
+    width: 214px; height: 214px;
+    background: radial-gradient(circle, #ffffff22 0 23%,transparent 24% 33%,#ffffff15 34% 43%,transparent 44%);
+    pointer-events:none;
+}
+main > header.lesson-hero h1 {font-size:clamp(26px,3.1vw,36px);line-height:1.35;letter-spacing:-.02em;margin:0 0 12px;color:#fff;font-weight:850;}
+main > header.lesson-hero p {margin:0;font-size:16px;line-height:1.6;color:#eee8ff;}
+main > nav.lesson-tabs {
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    grid-auto-rows:minmax(74px,auto);
+    align-items:stretch;
+    gap:8px;
+    overflow:visible;
+    margin:0 0 16px;
+    padding:9px;
+    background:#ffffffed;
+    border:1px solid #dbe1f4;
+    border-radius:17px;
+    box-shadow:0 5px 17px #1b265316;
+}
+main > nav.lesson-tabs > .lesson-tab {
+    min-width:0;width:100%;height:100%;
+    padding:10px 7px;
+    display:flex;align-items:center;justify-content:center;
+    white-space:normal;overflow-wrap:break-word;
+    line-height:1.4;
+    text-align:center;
+    font:700 14px/1.4 'Segoe UI',Arial,sans-serif;
+    border:1px solid #d9def7;
+    border-radius:11px;
+    background:#f6f7ff;
+    color:#414b88;
+    cursor:pointer;
+    transition:background .16s,transform .16s,box-shadow .16s;
+}
+main > nav.lesson-tabs > .lesson-tab:hover {background:#e9edff;transform:translateY(-2px);box-shadow:0 4px 10px #4652aa17;}
+main > nav.lesson-tabs > .lesson-tab[aria-selected="true"] {
+    background:linear-gradient(125deg,#553ed3,#814bcc);
+    border-color:#6446d0;color:white;
+    box-shadow:0 5px 12px #5753d43a;
+}
+main > nav.lesson-tabs .mj-inline {vertical-align:middle;}
+@media(max-width:900px) {
+    main > nav.lesson-tabs {grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(64px,auto);}
+}
+@media(max-width:550px) {
+    main > header.lesson-hero {padding:22px 18px;min-height:130px;}
+    main > nav.lesson-tabs {grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(56px,auto);gap:6px;}
+    main > nav.lesson-tabs > .lesson-tab {font-size:13px;min-height:56px;}
+}
+@media print {
+    main > nav.lesson-tabs {display:none!important;}
+    main > header.lesson-hero {background:white!important;color:#111!important;box-shadow:none!important;border:1px solid #ccc;min-height:0;}
+    main > header.lesson-hero h1,main > header.lesson-hero p {color:#111!important;}
+}
+@media(prefers-reduced-motion:reduce){main > nav.lesson-tabs > .lesson-tab {transition:none;}}
+
 </style>
 </head>
 <body>
 <main>
-<nav class="lesson-tabs" role="tablist" aria-label="בחירת שיעור">
-<button type="button" class="lesson-tab" id="tab-btn-intro" role="tab" aria-controls="tab-panel-intro" aria-selected="true" tabindex="0" data-tab="intro">🏠 מבוא</button>
-<button type="button" class="lesson-tab" id="tab-btn-lesson-1" role="tab" aria-controls="tab-panel-lesson-1" aria-selected="false" tabindex="-1" data-tab="lesson-1">שיעור 1</button>
-<button type="button" class="lesson-tab" id="tab-btn-lesson-2" role="tab" aria-controls="tab-panel-lesson-2" aria-selected="false" tabindex="-1" data-tab="lesson-2">שיעור 2</button>
-<button type="button" class="lesson-tab" id="tab-btn-lesson-3" role="tab" aria-controls="tab-panel-lesson-3" aria-selected="false" tabindex="-1" data-tab="lesson-3">שיעור 3</button>
-<button type="button" class="lesson-tab" id="tab-btn-lesson-4" role="tab" aria-controls="tab-panel-lesson-4" aria-selected="false" tabindex="-1" data-tab="lesson-4">שיעור 4</button>
-<button type="button" class="lesson-tab" id="tab-btn-lesson-5" role="tab" aria-controls="tab-panel-lesson-5" aria-selected="false" tabindex="-1" data-tab="lesson-5">שיעור 5</button>
-<button type="button" class="lesson-tab" id="tab-btn-lesson-6" role="tab" aria-controls="tab-panel-lesson-6" aria-selected="false" tabindex="-1" data-tab="lesson-6">שיעור 6</button>
-<button type="button" class="lesson-tab" id="tab-btn-solutions" role="tab" aria-controls="tab-panel-solutions" aria-selected="false" tabindex="-1" data-tab="solutions">✅ פתרונות</button>
-<button type="button" class="lesson-tab" id="tab-btn-final-exercises" role="tab" aria-controls="tab-panel-final-exercises" aria-selected="false" tabindex="-1" data-tab="final-exercises">🏆 תרגול מסכם</button>
-<button type="button" class="lesson-tab" id="tab-btn-final-solutions" role="tab" aria-controls="tab-panel-final-solutions" aria-selected="false" tabindex="-1" data-tab="final-solutions">פתרונות מסכמים</button>
-<button type="button" style="display:none;" class="lesson-tab" id="tab-btn-teacher-notes" role="tab" aria-controls="tab-panel-teacher-notes" aria-selected="false" tabindex="-1" data-tab="teacher-notes">למורה</button>
+<header class="lesson-hero"><h1>🔗 שרשרת חוליות: מבינים לפני שכותבים קוד</h1><p>לימוד עצמי בקצב אישי | מדעי המחשב - תיכון</p></header>
+
+<nav aria-label="בחירת שיעור" class="lesson-tabs" role="tablist">
+<button aria-controls="tab-panel-intro" aria-selected="true" class="lesson-tab" data-tab="intro" id="tab-btn-intro" role="tab" tabindex="0" type="button">🏠 מבוא</button>
+<button aria-controls="tab-panel-lesson-1" aria-selected="false" class="lesson-tab" data-tab="lesson-1" id="tab-btn-lesson-1" role="tab" tabindex="-1" type="button">שיעור 1: מבינים חוליות, מצביעים וקישורים</button>
+<button aria-controls="tab-panel-lesson-2" aria-selected="false" class="lesson-tab" data-tab="lesson-2" id="tab-btn-lesson-2" role="tab" tabindex="-1" type="button">שיעור 2: בודקים האם רשימה ממוינת</button>
+<button aria-controls="tab-panel-lesson-3" aria-selected="false" class="lesson-tab" data-tab="lesson-3" id="tab-btn-lesson-3" role="tab" tabindex="-1" type="button">שיעור 3: מוסיפים חוליה לתחילת הרשימה</button>
+<button aria-controls="tab-panel-lesson-4" aria-selected="false" class="lesson-tab" data-tab="lesson-4" id="tab-btn-lesson-4" role="tab" tabindex="-1" type="button">שיעור 4: מוסיפים חוליה לסוף הרשימה</button>
+<button aria-controls="tab-panel-lesson-5" aria-selected="false" class="lesson-tab" data-tab="lesson-5" id="tab-btn-lesson-5" role="tab" tabindex="-1" type="button">שיעור 5: מוסיפים חוליה בתוך הרשימה</button>
+<button aria-controls="tab-panel-lesson-6" aria-selected="false" class="lesson-tab" data-tab="lesson-6" id="tab-btn-lesson-6" role="tab" tabindex="-1" type="button">שיעור 6: מוצאים מקסימום ומינימום ומוסיפים</button>
+
+<button aria-controls="tab-panel-final-exercises" aria-selected="false" class="lesson-tab" data-tab="final-exercises" id="tab-btn-final-exercises" role="tab" tabindex="-1" type="button">🏆 תרגול מסכם</button>
+
+<button aria-controls="tab-panel-teacher-notes" aria-selected="false" class="lesson-tab" data-tab="teacher-notes" id="tab-btn-teacher-notes" role="tab" style="display:none;" tabindex="-1" type="button">למורה</button>
 </nav>
-<div id="tab-panel-intro" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-intro" data-lesson-tab="intro">
+<div aria-labelledby="tab-btn-intro" class="lesson-tab-panel" data-lesson-tab="intro" id="tab-panel-intro" role="tabpanel">
 <section class="page" id="intro">
 <span class="tag">לימוד עצמי בקצב אישי | מדעי המחשב - תיכון</span>
-<h1>🔗 שרשרת חוליות: מבינים לפני שכותבים קוד</h1>
+
 <div class="tip"><strong>איך ללמוד?</strong> בכל שיעור: קוראים הסבר קצר ⇐ מקדמים את ההדמיה ⇐ מסבירים בקול ⇐ פותרים 10 תרגילים. הפתרונות נמצאים בסוף, כדי לא לדלג על שלב החשיבה.</div>
 <div class="note"><strong>שלושה כללי זהב:</strong> (1) המשתנה המצביע אינו החוליה. (2) סריקה אינה משנה קישורים. (3) בהוספה לאמצע מחברים את החדשה להמשך לפני שמחברים אליה את הקודמת.</div>
 <h2>תוכן העניינים</h2>
@@ -137,12 +477,12 @@
 <a href="#lesson-4">➡️ שיעור 4: מוסיפים חוליה לסוף הרשימה</a>
 <a href="#lesson-5">🔗 שיעור 5: מוסיפים חוליה בתוך הרשימה</a>
 <a href="#lesson-6">🏁 שיעור 6: מוצאים מקסימום ומינימום ומוסיפים</a>
-<a href="#solutions">✅ פתרונות לתרגול</a>
+
 <a href="#final-exercises">🏆 תרגילים מסכמים</a>
 </nav>
 </section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-lesson-1" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-lesson-1" data-lesson-tab="lesson-1" hidden>
+<div aria-labelledby="tab-btn-lesson-1" class="lesson-tab-panel" data-lesson-tab="lesson-1" hidden="" id="tab-panel-lesson-1" role="tabpanel">
 <section class="page" id="lesson-1">
 <span class="tag">שיעור 1 מתוך 6 | מושגי יסוד</span>
 <h2>🧠 מבינים חוליות, מצביעים וקישורים</h2>
@@ -150,9 +490,9 @@
 <h3>לומדים בצעדים קטנים</h3>
 <div class="grid">
 <div class="step"><strong>1. מהי חוליה?</strong><p>חוליה מכילה ערך וקישור לחוליה הבאה. הקישור אינו הערך עצמו.</p></div>
-<div class="step"><strong>2. מי הוא הראש?</strong><p>המשתנה \(\mathtt{head}\) מצביע לחוליה הראשונה. ברשימה ריקה ערכו \(\mathtt{null}\).</p></div>
-<div class="step"><strong>3. איך מתקדמים?</strong><p>הפעולה \(\mathtt{GetNext()}\) מחזירה הפניה לחוליה הבאה. הפעולה \(\mathtt{GetValue()}\) מחזירה את הערך.</p></div>
-<div class="step"><strong>4. הכלל החשוב</strong><p>הצבה למשתנה \(\mathtt{current}\) משנה את המקום שאליו המשתנה מצביע, אבל אינה משנה את קישורי החוליות.</p></div>
+<div class="step"><strong>2. מי הוא הראש?</strong><p>המשתנה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\)</span> מצביע לחוליה הראשונה. ברשימה ריקה ערכו <span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span>.</p></div>
+<div class="step"><strong>3. איך מתקדמים?</strong><p>הפעולה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{GetNext()}\)</span> מחזירה הפניה לחוליה הבאה. הפעולה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{GetValue()}\)</span> מחזירה את הערך.</p></div>
+<div class="step"><strong>4. הכלל החשוב</strong><p>הצבה למשתנה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\)</span> משנה את המקום שאליו המשתנה מצביע, אבל אינה משנה את קישורי החוליות.</p></div>
 </div>
 <p class="footer">לפני ההמשך: עצרו ונסו להסביר את השלבים ללא קריאת הטקסט.</p>
 </section>
@@ -170,7 +510,7 @@
 <div aria-label="כל שלבי ההדמיה להדפסה" class="sim-print-sequence" id="sim-print-1"></div>
 </div></div>
 <h3>👨‍💻 כך כותבים את הפעולה בקוד</h3>
-<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('1')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0">\(\mathtt{static\ void\ PrintValues(Node\lt int\gt \ head)}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt int\gt \ current\ =\ head;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{while\ (current\ !=\ null)}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{Console.WriteLine(current.GetValue());}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{current\ =\ current.GetNext();}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\}}\)</div></div><textarea aria-hidden="true" class="code-source-only" id="source-1" readonly="" tabindex="-1">static void PrintValues(Node&lt;int&gt; head)
+<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('1')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{static\ void\ PrintValues(Node\lt int\gt \ head)}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt int\gt \ current\ =\ head;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{while\ (current\ !=\ null)}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Console.WriteLine(current.GetValue());}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current\ =\ current.GetNext();}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div></div><textarea aria-hidden="true" class="code-source-only" id="source-1" readonly="" tabindex="-1">static void PrintValues(Node&lt;int&gt; head)
 {
     Node&lt;int&gt; current = head;
     while (current != null)
@@ -184,41 +524,41 @@
 <section class="page" id="practice-1-1">
 <span class="tag">תרגול שיעור 1 | חלק 1 מתוך 2</span>
 <h2>✍️ תרגול: מבינים חוליות, מצביעים וקישורים</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions">
-<li class="question" value="1"><span>ברשימה \(3\rightarrow7\rightarrow9\rightarrow\mathtt{null}\) מהו ערך החוליה הראשונה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="2"><span>מה מחזירה \(\mathtt{head.GetNext().GetValue()}\) ברשימה \(3\rightarrow7\rightarrow9\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="3"><span>מה הערך של \(\mathtt{head.GetNext().GetNext().GetValue()}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="4"><span>כמה חוליות נמצאות ברשימה \(4\rightarrow8\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="5"><span>למה מצביעת החוליה האחרונה?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="1"><span>ברשימה <span class="mathjax-code-inline" dir="ltr">\(3\rightarrow7\rightarrow9\rightarrow\mathtt{null}\)</span> מהו ערך החוליה הראשונה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>3.</div></li>
+<li class="question" value="2"><span>מה מחזירה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head.GetNext().GetValue()}\)</span> ברשימה <span class="mathjax-code-inline" dir="ltr">\(3\rightarrow7\rightarrow9\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>7.</div></li>
+<li class="question" value="3"><span>מה הערך של <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head.GetNext().GetNext().GetValue()}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>9.</div></li>
+<li class="question" value="4"><span>כמה חוליות נמצאות ברשימה <span class="mathjax-code-inline" dir="ltr">\(4\rightarrow8\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>שתי חוליות.</div></li>
+<li class="question" value="5"><span>למה מצביעת החוליה האחרונה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>ל־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span>.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 <section class="page" id="practice-1-2">
 <span class="tag">תרגול שיעור 1 | חלק 2 מתוך 2</span>
 <h2>✍️ תרגול: מבינים חוליות, מצביעים וקישורים</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions" start="6">
-<li class="question" value="6"><span>ברשימה ריקה, מהו ערך \(\mathtt{head}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="7"><span>אחרי \(\mathtt{current}\;=\;\mathtt{head.GetNext()}\) ברשימה \(5\rightarrow6\rightarrow7\rightarrow\mathtt{null}\), מה ערך \(\mathtt{current.GetValue()}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="8"><span>האם השמה \(\mathtt{current}\;=\;\mathtt{current.GetNext()}\) משנה את הקישור של החוליה הראשונה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="9"><span>לאחר \(\mathtt{head.SetNext(null)}\) ברשימה \(2\rightarrow4\rightarrow6\rightarrow\mathtt{null}\), מה נגיש דרך הראש?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="10"><span>כיצד מזהים אם לחוליה יש חוליה אחריה?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="6"><span>ברשימה ריקה, מהו ערך <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>הערך <span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span>.</div></li>
+<li class="question" value="7"><span>אחרי <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\;=\;\mathtt{head.GetNext()}\)</span> ברשימה <span class="mathjax-code-inline" dir="ltr">\(5\rightarrow6\rightarrow7\rightarrow\mathtt{null}\)</span>, מה ערך <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.GetValue()}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>6.</div></li>
+<li class="question" value="8"><span>האם השמה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\;=\;\mathtt{current.GetNext()}\)</span> משנה את הקישור של החוליה הראשונה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>לא. רק המשתנה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\)</span> משתנה.</div></li>
+<li class="question" value="9"><span>לאחר <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head.SetNext(null)}\)</span> ברשימה <span class="mathjax-code-inline" dir="ltr">\(2\rightarrow4\rightarrow6\rightarrow\mathtt{null}\)</span>, מה נגיש דרך הראש?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>רק <span class="mathjax-code-inline" dir="ltr">\(2\rightarrow\mathtt{null}\)</span>. החוליות האחרות כבר אינן נגישות דרך הראש.</div></li>
+<li class="question" value="10"><span>כיצד מזהים אם לחוליה יש חוליה אחריה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>באמצעות <span class="mathjax-code-inline" dir="ltr">\(\mathtt{HasNext()}\)</span> או על ידי בדיקה שההפניה המוחזרת מ־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{GetNext()}\)</span> אינה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span>.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-lesson-2" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-lesson-2" data-lesson-tab="lesson-2" hidden>
+<div aria-labelledby="tab-btn-lesson-2" class="lesson-tab-panel" data-lesson-tab="lesson-2" hidden="" id="tab-panel-lesson-2" role="tabpanel">
 <section class="page" id="lesson-2">
 <span class="tag">שיעור 2 מתוך 6</span>
 <h2>🔍 בודקים האם רשימה ממוינת</h2>
 <div class="tip"><strong>המטרה:</strong> להשוות זוגות עוקבים ולזהות את הזוג הראשון שמפר סדר יורד.</div>
 <h3>לומדים בצעדים קטנים</h3>
 <div class="grid">
-<div class="step"><strong>1. מתחילים במספרים</strong><p>ברשימה \(9\rightarrow7\rightarrow4\rightarrow\mathtt{null}\) כל מספר גדול או שווה לבא אחריו.</p></div>
+<div class="step"><strong>1. מתחילים במספרים</strong><p>ברשימה <span class="mathjax-code-inline" dir="ltr">\(9\rightarrow7\rightarrow4\rightarrow\mathtt{null}\)</span> כל מספר גדול או שווה לבא אחריו.</p></div>
 <div class="step"><strong>2. משווים שניים בכל פעם</strong><p>בכל צעד בודקים את הערך בחוליה הנוכחית לעומת הערך בחוליה הבאה.</p></div>
-<div class="step"><strong>3. לא חייבים להגיע לסוף</strong><p>אם מצאנו זוג בסדר עולה, אפשר מיד להשיב \(\mathtt{false}\).</p></div>
-<div class="step"><strong>4. עוברים לשמות ערים</strong><p>הפעולה \(\mathtt{CompareTo()}\) מחזירה מספר שלילי כאשר המחרוזת הראשונה קודמת לשנייה בסדר ההשוואה. לכן ערך שלילי מעיד על הפרה של סדר יורד.</p></div>
+<div class="step"><strong>3. לא חייבים להגיע לסוף</strong><p>אם מצאנו זוג בסדר עולה, אפשר מיד להשיב <span class="mathjax-code-inline" dir="ltr">\(\mathtt{false}\)</span>.</p></div>
+<div class="step"><strong>4. עוברים לשמות ערים</strong><p>הפעולה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{CompareTo()}\)</span> מחזירה מספר שלילי כאשר המחרוזת הראשונה קודמת לשנייה בסדר ההשוואה. לכן ערך שלילי מעיד על הפרה של סדר יורד.</p></div>
 <div class="step"><strong>5. מקרי קצה</strong><p>רשימה ריקה ורשימה בת חוליה אחת נחשבות ממוינות: אין בהן זוג שמפר את הסדר.</p></div>
 </div>
 <p class="footer">לפני ההמשך: עצרו ונסו להסביר את השלבים ללא קריאת הטקסט.</p>
@@ -237,7 +577,7 @@
 <div aria-label="כל שלבי ההדמיה להדפסה" class="sim-print-sequence" id="sim-print-2"></div>
 </div></div>
 <h3>👨‍💻 כך כותבים את הפעולה בקוד</h3>
-<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('2')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0">\(\mathtt{static\ bool\ IsSortedDescending(Node\lt string\gt \ head)}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt string\gt \ current\ =\ head;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{while\ (current\ !=\ null\ \&amp; \&amp; \ current.HasNext())}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{string\ a\ =\ current.GetValue();}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{string\ b\ =\ current.GetNext().GetValue();}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{if\ (a.CompareTo(b)\ \lt \ 0)}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:12">\(\mathtt{return\ false;}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{current\ =\ current.GetNext();}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{return\ true;}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\}}\)</div></div><textarea aria-hidden="true" class="code-source-only" id="source-2" readonly="" tabindex="-1">static bool IsSortedDescending(Node&lt;string&gt; head)
+<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('2')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{static\ bool\ IsSortedDescending(Node\lt string\gt \ head)}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt string\gt \ current\ =\ head;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{while\ (current\ !=\ null\ \&amp; \&amp; \ current.HasNext())}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{string\ a\ =\ current.GetValue();}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{string\ b\ =\ current.GetNext().GetValue();}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{if\ (a.CompareTo(b)\ \lt \ 0)}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:12"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ false;}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current\ =\ current.GetNext();}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ true;}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div></div><textarea aria-hidden="true" class="code-source-only" id="source-2" readonly="" tabindex="-1">static bool IsSortedDescending(Node&lt;string&gt; head)
 {
     Node&lt;string&gt; current = head;
     while (current != null &amp;&amp; current.HasNext())
@@ -257,41 +597,41 @@
 <section class="page" id="practice-2-1">
 <span class="tag">תרגול שיעור 2 | חלק 1 מתוך 2</span>
 <h2>✍️ תרגול: בודקים האם רשימה ממוינת</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions">
-<li class="question" value="1"><span>האם \(9\rightarrow7\rightarrow3\rightarrow\mathtt{null}\) ממוינת בסדר יורד?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="2"><span>האם \(9\rightarrow4\rightarrow7\rightarrow\mathtt{null}\) ממוינת בסדר יורד?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="3"><span>האם \(8\rightarrow8\rightarrow2\rightarrow\mathtt{null}\) ממוינת בסדר יורד?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="4"><span>כמה זוגות עוקבים משווים ברשימה בת ארבע חוליות שאין בה הפרה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="5"><span>ברשימה \(5\rightarrow\mathtt{null}\), מה תחזיר בדיקת המיון?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="1"><span>האם <span class="mathjax-code-inline" dir="ltr">\(9\rightarrow7\rightarrow3\rightarrow\mathtt{null}\)</span> ממוינת בסדר יורד?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כן.</div></li>
+<li class="question" value="2"><span>האם <span class="mathjax-code-inline" dir="ltr">\(9\rightarrow4\rightarrow7\rightarrow\mathtt{null}\)</span> ממוינת בסדר יורד?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>לא, כי 4 קטן מ־7.</div></li>
+<li class="question" value="3"><span>האם <span class="mathjax-code-inline" dir="ltr">\(8\rightarrow8\rightarrow2\rightarrow\mathtt{null}\)</span> ממוינת בסדר יורד?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כן; ערכים שווים מותרים.</div></li>
+<li class="question" value="4"><span>כמה זוגות עוקבים משווים ברשימה בת ארבע חוליות שאין בה הפרה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>שלושה זוגות.</div></li>
+<li class="question" value="5"><span>ברשימה <span class="mathjax-code-inline" dir="ltr">\(5\rightarrow\mathtt{null}\)</span>, מה תחזיר בדיקת המיון?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(\mathtt{true}\)</span>.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 <section class="page" id="practice-2-2">
 <span class="tag">תרגול שיעור 2 | חלק 2 מתוך 2</span>
 <h2>✍️ תרגול: בודקים האם רשימה ממוינת</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions" start="6">
-<li class="question" value="6"><span>מה מחזירה הבדיקה עבור רשימה ריקה בגרסה המתוקנת?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="7"><span>איזה זוג מפר סדר יורד ב־\(12\rightarrow9\rightarrow10\rightarrow2\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="8"><span>מה פירוש תוצאה שלילית של \(\mathtt{a.CompareTo(b)}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="9"><span>למה בודקים \(\mathtt{current.HasNext()}\) לפני שמשווים?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="10"><span>מה צריך לתקן בקוד לבדיקת מיון כדי שלא יקרוס ברשימה ריקה?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="6"><span>מה מחזירה הבדיקה עבור רשימה ריקה בגרסה המתוקנת?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(\mathtt{true}\)</span>.</div></li>
+<li class="question" value="7"><span>איזה זוג מפר סדר יורד ב־<span class="mathjax-code-inline" dir="ltr">\(12\rightarrow9\rightarrow10\rightarrow2\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>9 ואחריו 10.</div></li>
+<li class="question" value="8"><span>מה פירוש תוצאה שלילית של <span class="mathjax-code-inline" dir="ltr">\(\mathtt{a.CompareTo(b)}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>המחרוזת a קודמת ל־b לפי שיטת ההשוואה של המחרוזות.</div></li>
+<li class="question" value="9"><span>למה בודקים <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.HasNext()}\)</span> לפני שמשווים?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כי צריך שתי חוליות קיימות להשוואה.</div></li>
+<li class="question" value="10"><span>מה צריך לתקן בקוד לבדיקת מיון כדי שלא יקרוס ברשימה ריקה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>להוסיף <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\;\mathtt{!=}\;\mathtt{null}\)</span> לתנאי הלולאה לפני הקריאה ל־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{HasNext()}\)</span>.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-lesson-3" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-lesson-3" data-lesson-tab="lesson-3" hidden>
+<div aria-labelledby="tab-btn-lesson-3" class="lesson-tab-panel" data-lesson-tab="lesson-3" hidden="" id="tab-panel-lesson-3" role="tabpanel">
 <section class="page" id="lesson-3">
 <span class="tag">שיעור 3 מתוך 6</span>
 <h2>⬅️ מוסיפים חוליה לתחילת הרשימה</h2>
 <div class="tip"><strong>המטרה:</strong> להבין למה צריך ליצור חוליה, לקשר לראש הישן ולהחזיר ראש חדש.</div>
 <h3>לומדים בצעדים קטנים</h3>
 <div class="grid">
-<div class="step"><strong>1. מכינים חוליה חדשה</strong><p>אם הרשימה \(10\rightarrow30\rightarrow\mathtt{null}\), נרצה להכניס את 5 בהתחלה.</p></div>
-<div class="step"><strong>2. שומרים על ההמשך</strong><p>קודם מחברים את \(\mathtt{newNode}\) לראש הישן באמצעות \(\mathtt{SetNext(head)}\).</p></div>
-<div class="step"><strong>3. מעדכנים את הראש</strong><p>מחזירים את החוליה החדשה ומציבים \(\mathtt{head}\;=\;\mathtt{AddFirst(head,5)}\).</p></div>
-<div class="step"><strong>4. גם רשימה ריקה עובדת</strong><p>כאשר \(\mathtt{head}\;\mathtt{==}\;\mathtt{null}\), החוליה החדשה מצביעה ל־\(\mathtt{null}\) והופכת לראש.</p></div>
+<div class="step"><strong>1. מכינים חוליה חדשה</strong><p>אם הרשימה <span class="mathjax-code-inline" dir="ltr">\(10\rightarrow30\rightarrow\mathtt{null}\)</span>, נרצה להכניס את 5 בהתחלה.</p></div>
+<div class="step"><strong>2. שומרים על ההמשך</strong><p>קודם מחברים את <span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode}\)</span> לראש הישן באמצעות <span class="mathjax-code-inline" dir="ltr">\(\mathtt{SetNext(head)}\)</span>.</p></div>
+<div class="step"><strong>3. מעדכנים את הראש</strong><p>מחזירים את החוליה החדשה ומציבים <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\;=\;\mathtt{AddFirst(head,5)}\)</span>.</p></div>
+<div class="step"><strong>4. גם רשימה ריקה עובדת</strong><p>כאשר <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\;\mathtt{==}\;\mathtt{null}\)</span>, החוליה החדשה מצביעה ל־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span> והופכת לראש.</p></div>
 </div>
 <p class="footer">לפני ההמשך: עצרו ונסו להסביר את השלבים ללא קריאת הטקסט.</p>
 </section>
@@ -309,7 +649,7 @@
 <div aria-label="כל שלבי ההדמיה להדפסה" class="sim-print-sequence" id="sim-print-3"></div>
 </div></div>
 <h3>👨‍💻 כך כותבים את הפעולה בקוד</h3>
-<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('3')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0">\(\mathtt{static\ Node\lt int\gt \ AddFirst(Node\lt int\gt \ head,\ int\ value)}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt int\gt \ newNode\ =\ new\ Node\lt int\gt (value);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{newNode.SetNext(head);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{return\ newNode;}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\}}\)</div></div><textarea aria-hidden="true" class="code-source-only" id="source-3" readonly="" tabindex="-1">static Node&lt;int&gt; AddFirst(Node&lt;int&gt; head, int value)
+<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('3')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{static\ Node\lt int\gt \ AddFirst(Node\lt int\gt \ head,\ int\ value)}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt int\gt \ newNode\ =\ new\ Node\lt int\gt (value);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode.SetNext(head);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ newNode;}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div></div><textarea aria-hidden="true" class="code-source-only" id="source-3" readonly="" tabindex="-1">static Node&lt;int&gt; AddFirst(Node&lt;int&gt; head, int value)
 {
     Node&lt;int&gt; newNode = new Node&lt;int&gt;(value);
     newNode.SetNext(head);
@@ -320,31 +660,31 @@
 <section class="page" id="practice-3-1">
 <span class="tag">תרגול שיעור 3 | חלק 1 מתוך 2</span>
 <h2>✍️ תרגול: מוסיפים חוליה לתחילת הרשימה</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions">
-<li class="question" value="1"><span>הוסיפו 2 לראש \(4\rightarrow6\rightarrow\mathtt{null}\). מה התוצאה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="2"><span>הוסיפו 7 לראש רשימה ריקה. מה התוצאה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="3"><span>מה עושה \(\mathtt{new}\;\mathtt{Node}\lt\mathtt{int}\gt(8)\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="4"><span>מהי השורה שמחברת את החוליה החדשה לראש הישן?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="5"><span>מה מחזירים מהפעולה?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="1"><span>הוסיפו 2 לראש <span class="mathjax-code-inline" dir="ltr">\(4\rightarrow6\rightarrow\mathtt{null}\)</span>. מה התוצאה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(2\rightarrow4\rightarrow6\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="2"><span>הוסיפו 7 לראש רשימה ריקה. מה התוצאה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(7\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="3"><span>מה עושה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{new}\;\mathtt{Node}\lt\mathtt{int}\gt(8)\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>יוצרת חוליה חדשה שערכה 8; הקישור שלה מתחיל כ־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span>.</div></li>
+<li class="question" value="4"><span>מהי השורה שמחברת את החוליה החדשה לראש הישן?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode.SetNext(head)}\)</span>.</div></li>
+<li class="question" value="5"><span>מה מחזירים מהפעולה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>הפניה לחוליה החדשה.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 <section class="page" id="practice-3-2">
 <span class="tag">תרגול שיעור 3 | חלק 2 מתוך 2</span>
 <h2>✍️ תרגול: מוסיפים חוליה לתחילת הרשימה</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions" start="6">
-<li class="question" value="6"><span>איזו השמה צריך לכתוב בקריאה לפעולה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="7"><span>האם החוליות המקוריות נמחקות?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="8"><span>הוסיפו 3 ולאחר מכן 1 לראש \(5\rightarrow\mathtt{null}\).</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="9"><span>למה אין צורך בלולאה בפעולת הוספה לראש?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="10"><span>מה יקרה אם נציב ראש חדש ולא נחבר אותו לראש הישן?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="6"><span>איזו השמה צריך לכתוב בקריאה לפעולה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\;=\;\mathtt{AddFirst(head,value)}\)</span>.</div></li>
+<li class="question" value="7"><span>האם החוליות המקוריות נמחקות?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>לא, אם מחברים את החוליה החדשה אל הראש הישן לפני העדכון.</div></li>
+<li class="question" value="8"><span>הוסיפו 3 ולאחר מכן 1 לראש <span class="mathjax-code-inline" dir="ltr">\(5\rightarrow\mathtt{null}\)</span>.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(1\rightarrow3\rightarrow5\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="9"><span>למה אין צורך בלולאה בפעולת הוספה לראש?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כי הגישה לחוליה הראשונה מיידית.</div></li>
+<li class="question" value="10"><span>מה יקרה אם נציב ראש חדש ולא נחבר אותו לראש הישן?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>השרשרת הישנה לא תהיה נגישה מהראש החדש; איבדנו את ההפניה אליה אם לא נשמרה במקום אחר.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-lesson-4" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-lesson-4" data-lesson-tab="lesson-4" hidden>
+<div aria-labelledby="tab-btn-lesson-4" class="lesson-tab-panel" data-lesson-tab="lesson-4" hidden="" id="tab-panel-lesson-4" role="tabpanel">
 <section class="page" id="lesson-4">
 <span class="tag">שיעור 4 מתוך 6</span>
 <h2>➡️ מוסיפים חוליה לסוף הרשימה</h2>
@@ -352,8 +692,8 @@
 <h3>לומדים בצעדים קטנים</h3>
 <div class="grid">
 <div class="step"><strong>1. למה צריך לסרוק?</strong><p>ברשימה חד-כיוונית אנו יודעים להגיע לראש; כדי למצוא את הסוף מתקדמים דרך החוליות.</p></div>
-<div class="step"><strong>2. מתי עוצרים?</strong><p>כאשר \(\mathtt{current.HasNext()}\) מחזירה \(\mathtt{false}\). זה אומר שהחוליה הנוכחית היא האחרונה.</p></div>
-<div class="step"><strong>3. מחברים את החדשה</strong><p>מעדכנים את \(\mathtt{current.SetNext(newNode)}\).</p></div>
+<div class="step"><strong>2. מתי עוצרים?</strong><p>כאשר <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.HasNext()}\)</span> מחזירה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{false}\)</span>. זה אומר שהחוליה הנוכחית היא האחרונה.</p></div>
+<div class="step"><strong>3. מחברים את החדשה</strong><p>מעדכנים את <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(newNode)}\)</span>.</p></div>
 <div class="step"><strong>4. מה אם הרשימה ריקה?</strong><p>אז אין חוליה אחרונה. מחזירים את החוליה החדשה בתור ראש הרשימה.</p></div>
 <div class="step"><strong>5. מה נשאר קבוע?</strong><p>ברשימה שאינה ריקה הראש הישן לא משתנה; רק הקישור של החוליה האחרונה משתנה.</p></div>
 </div>
@@ -373,7 +713,7 @@
 <div aria-label="כל שלבי ההדמיה להדפסה" class="sim-print-sequence" id="sim-print-4"></div>
 </div></div>
 <h3>👨‍💻 כך כותבים את הפעולה בקוד</h3>
-<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('4')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0">\(\mathtt{static\ Node\lt int\gt \ AddLast(Node\lt int\gt \ head,\ int\ value)}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt int\gt \ newNode\ =\ new\ Node\lt int\gt (value);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{if\ (head\ ==\ null)}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{return\ newNode;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt int\gt \ current\ =\ head;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{while\ (current.HasNext())}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{current\ =\ current.GetNext();}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{current.SetNext(newNode);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{return\ head;}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\}}\)</div></div><textarea aria-hidden="true" class="code-source-only" id="source-4" readonly="" tabindex="-1">static Node&lt;int&gt; AddLast(Node&lt;int&gt; head, int value)
+<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('4')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{static\ Node\lt int\gt \ AddLast(Node\lt int\gt \ head,\ int\ value)}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt int\gt \ newNode\ =\ new\ Node\lt int\gt (value);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{if\ (head\ ==\ null)}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ newNode;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt int\gt \ current\ =\ head;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{while\ (current.HasNext())}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current\ =\ current.GetNext();}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(newNode);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ head;}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div></div><textarea aria-hidden="true" class="code-source-only" id="source-4" readonly="" tabindex="-1">static Node&lt;int&gt; AddLast(Node&lt;int&gt; head, int value)
 {
     Node&lt;int&gt; newNode = new Node&lt;int&gt;(value);
     if (head == null)
@@ -393,31 +733,31 @@
 <section class="page" id="practice-4-1">
 <span class="tag">תרגול שיעור 4 | חלק 1 מתוך 2</span>
 <h2>✍️ תרגול: מוסיפים חוליה לסוף הרשימה</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions">
-<li class="question" value="1"><span>הוסיפו 9 לסוף \(2\rightarrow4\rightarrow\mathtt{null}\).</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="2"><span>הוסיפו 5 לסוף רשימה ריקה.</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="3"><span>מהו התנאי שמזהה כי \(\mathtt{current}\) נמצא בחוליה האחרונה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="4"><span>למה לא מתחילים מ־\(\mathtt{head.GetNext()}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="5"><span>מה יקרה אם נכתוב \(\mathtt{while}\;(\mathtt{current}\;\mathtt{!=}\;\mathtt{null})\) ואז \(\mathtt{current.SetNext(newNode)}\)?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="1"><span>הוסיפו 9 לסוף <span class="mathjax-code-inline" dir="ltr">\(2\rightarrow4\rightarrow\mathtt{null}\)</span>.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(2\rightarrow4\rightarrow9\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="2"><span>הוסיפו 5 לסוף רשימה ריקה.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(5\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="3"><span>מהו התנאי שמזהה כי <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\)</span> נמצא בחוליה האחרונה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.HasNext()}\;\mathtt{==}\;\mathtt{false}\)</span>.</div></li>
+<li class="question" value="4"><span>למה לא מתחילים מ־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{head.GetNext()}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כי ברשימה בת חוליה אחת נקבל <span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span> ונאבד את החוליה היחידה.</div></li>
+<li class="question" value="5"><span>מה יקרה אם נכתוב <span class="mathjax-code-inline" dir="ltr">\(\mathtt{while}\;(\mathtt{current}\;\mathtt{!=}\;\mathtt{null})\)</span> ואז <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(newNode)}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>בסיום הלולאה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\)</span> יהיה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{null}\)</span> ותתרחש שגיאה.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 <section class="page" id="practice-4-2">
 <span class="tag">תרגול שיעור 4 | חלק 2 מתוך 2</span>
 <h2>✍️ תרגול: מוסיפים חוליה לסוף הרשימה</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions" start="6">
-<li class="question" value="6"><span>איזה משתנה רצוי להזיז בזמן הסריקה כדי לשמור את הראש?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="7"><span>הוסיפו 6 ואז 8 לסוף \(1\rightarrow\mathtt{null}\).</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="8"><span>האם פעולה המחזירה ראש חדש נחוצה גם כשהרשימה אינה ריקה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="9"><span>למה צריך לכתוב \(\mathtt{head}\;=\;\mathtt{AddLast(head,7)}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="10"><span>מהו מספר המעברים בין חוליות בהוספה לסוף רשימה בת 4 חוליות?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="6"><span>איזה משתנה רצוי להזיז בזמן הסריקה כדי לשמור את הראש?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\)</span>.</div></li>
+<li class="question" value="7"><span>הוסיפו 6 ואז 8 לסוף <span class="mathjax-code-inline" dir="ltr">\(1\rightarrow\mathtt{null}\)</span>.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(1\rightarrow6\rightarrow8\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="8"><span>האם פעולה המחזירה ראש חדש נחוצה גם כשהרשימה אינה ריקה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>התוצאה עדיין מחזירה את הראש המקורי; כך אותה פעולה מטפלת גם ברשימה ריקה.</div></li>
+<li class="question" value="9"><span>למה צריך לכתוב <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\;=\;\mathtt{AddLast(head,7)}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כדי לשמור את הראש החדש במקרה שהרשימה הייתה ריקה.</div></li>
+<li class="question" value="10"><span>מהו מספר המעברים בין חוליות בהוספה לסוף רשימה בת 4 חוליות?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>שלושה מעברים כדי להגיע לחוליה הרביעית, ואז שינוי קישור.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-lesson-5" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-lesson-5" data-lesson-tab="lesson-5" hidden>
+<div aria-labelledby="tab-btn-lesson-5" class="lesson-tab-panel" data-lesson-tab="lesson-5" hidden="" id="tab-panel-lesson-5" role="tabpanel">
 <section class="page" id="lesson-5">
 <span class="tag">שיעור 5 מתוך 6</span>
 <h2>🔗 מוסיפים חוליה בתוך הרשימה</h2>
@@ -426,9 +766,9 @@
 <div class="grid">
 <div class="step"><strong>1. מגדירים מיקום</strong><p>כאן מיקום 0 הוא התחלה; מיקום 1 הוא אחרי החוליה הראשונה.</p></div>
 <div class="step"><strong>2. מוצאים את החוליה שלפני</strong><p>מתקדמים רק עד החוליה שאחריה רוצים להכניס את החדשה.</p></div>
-<div class="step"><strong>3. קישור ראשון: שומרים את ההמשך</strong><p>מבצעים \(\mathtt{newNode.SetNext(current.GetNext())}\).</p></div>
-<div class="step"><strong>4. קישור שני: מחברים את הקודמת</strong><p>מבצעים \(\mathtt{current.SetNext(newNode)}\).</p></div>
-<div class="step"><strong>5. בודקים מקרי קצה</strong><p>אם הראש ריק או המיקום 0 ומטה, מוסיפים לראש. אם המיקום גדול מאורך הרשימה, בגרסת המקור מוסיפים לסוף.</p></div>
+<div class="step"><strong>3. קישור ראשון: שומרים את ההמשך</strong><p>מבצעים <span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode.SetNext(current.GetNext())}\)</span>.</p></div>
+<div class="step"><strong>4. קישור שני: מחברים את הקודמת</strong><p>מבצעים <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(newNode)}\)</span>.</p></div>
+<div class="step"><strong>5. בודקים מקרי קצה</strong><p>אם הראש ריק או המיקום 0 ומטה, מוסיפים לראש. אם המיקום גדול מאורך הרשימה, במימוש זה מוסיפים לסוף.</p></div>
 </div>
 <p class="footer">לפני ההמשך: עצרו ונסו להסביר את השלבים ללא קריאת הטקסט.</p>
 </section>
@@ -446,7 +786,7 @@
 <div aria-label="כל שלבי ההדמיה להדפסה" class="sim-print-sequence" id="sim-print-5"></div>
 </div></div>
 <h3>👨‍💻 כך כותבים את הפעולה בקוד</h3>
-<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('5')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0">\(\mathtt{static\ Node\lt int\gt \ AddMiddle(Node\lt int\gt \ head,\ int\ value,}\)</div><div class="latex-code-line" style="--indent:27">\(\mathtt{int\ position)}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt int\gt \ newNode\ =\ new\ Node\lt int\gt (value);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{if\ (head\ ==\ null\ ||\ position\ \lt =\ 0)}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{newNode.SetNext(head);}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{return\ newNode;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt int\gt \ current\ =\ head;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{int\ i\ =\ 1;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{while\ (current.GetNext()\ !=\ null\ \&amp; \&amp; \ i\ \lt \ position)}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{current\ =\ current.GetNext();}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{i++;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{newNode.SetNext(current.GetNext());}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{current.SetNext(newNode);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{return\ head;}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\}}\)</div></div><textarea aria-hidden="true" class="code-source-only" id="source-5" readonly="" tabindex="-1">static Node&lt;int&gt; AddMiddle(Node&lt;int&gt; head, int value,
+<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('5')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{static\ Node\lt int\gt \ AddMiddle(Node\lt int\gt \ head,\ int\ value,}\)</span></div><div class="latex-code-line" style="--indent:27"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{int\ position)}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt int\gt \ newNode\ =\ new\ Node\lt int\gt (value);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{if\ (head\ ==\ null\ ||\ position\ \lt =\ 0)}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode.SetNext(head);}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ newNode;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt int\gt \ current\ =\ head;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{int\ i\ =\ 1;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{while\ (current.GetNext()\ !=\ null\ \&amp; \&amp; \ i\ \lt \ position)}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current\ =\ current.GetNext();}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{i++;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode.SetNext(current.GetNext());}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(newNode);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ head;}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div></div><textarea aria-hidden="true" class="code-source-only" id="source-5" readonly="" tabindex="-1">static Node&lt;int&gt; AddMiddle(Node&lt;int&gt; head, int value,
                            int position)
 {
     Node&lt;int&gt; newNode = new Node&lt;int&gt;(value);
@@ -471,31 +811,31 @@
 <section class="page" id="practice-5-1">
 <span class="tag">תרגול שיעור 5 | חלק 1 מתוך 2</span>
 <h2>✍️ תרגול: מוסיפים חוליה בתוך הרשימה</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions">
-<li class="question" value="1"><span>הכניסו 20 במיקום 1 ב־\(10\rightarrow30\rightarrow\mathtt{null}\).</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="2"><span>הכניסו 5 במיקום 0 ב־\(10\rightarrow30\rightarrow\mathtt{null}\).</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="3"><span>הכניסו 40 במיקום 3 ב־\(10\rightarrow20\rightarrow30\rightarrow\mathtt{null}\).</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="4"><span>איזה קישור יש לשנות ראשון כשמכניסים 20 בין 10 ל־30?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="5"><span>איזה קישור משנים שני?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="1"><span>הכניסו 20 במיקום 1 ב־<span class="mathjax-code-inline" dir="ltr">\(10\rightarrow30\rightarrow\mathtt{null}\)</span>.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(10\rightarrow20\rightarrow30\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="2"><span>הכניסו 5 במיקום 0 ב־<span class="mathjax-code-inline" dir="ltr">\(10\rightarrow30\rightarrow\mathtt{null}\)</span>.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(5\rightarrow10\rightarrow30\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="3"><span>הכניסו 40 במיקום 3 ב־<span class="mathjax-code-inline" dir="ltr">\(10\rightarrow20\rightarrow30\rightarrow\mathtt{null}\)</span>.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(10\rightarrow20\rightarrow30\rightarrow40\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="4"><span>איזה קישור יש לשנות ראשון כשמכניסים 20 בין 10 ל־30?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>את קישור החוליה החדשה, כך שיצביע ל־30.</div></li>
+<li class="question" value="5"><span>איזה קישור משנים שני?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>את הקישור של 10, כדי שיצביע ל־20.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 <section class="page" id="practice-5-2">
 <span class="tag">תרגול שיעור 5 | חלק 2 מתוך 2</span>
 <h2>✍️ תרגול: מוסיפים חוליה בתוך הרשימה</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions" start="6">
-<li class="question" value="6"><span>מדוע סדר הפעולות חשוב?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="7"><span>מה התוצאה של הוספת 3 במיקום 2 לרשימה ריקה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="8"><span>מה תוצאת הוספת 9 במיקום 100 לרשימה \(1\rightarrow2\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="9"><span>מתי \(\mathtt{head}\) משתנה בהוספה בתוך הרשימה?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="10"><span>מצא שגיאה: קודם \(\mathtt{current.SetNext(newNode)}\) ואחר כך \(\mathtt{newNode.SetNext(current.GetNext())}\).</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="6"><span>מדוע סדר הפעולות חשוב?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>עדכון הקישור של 10 לפני שמירת ההמשך יכול לנתק את 30.</div></li>
+<li class="question" value="7"><span>מה התוצאה של הוספת 3 במיקום 2 לרשימה ריקה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(3\rightarrow\mathtt{null}\)</span> לפי גרסת המקור: ראש ריק גורר הוספה בהתחלה.</div></li>
+<li class="question" value="8"><span>מה תוצאת הוספת 9 במיקום 100 לרשימה <span class="mathjax-code-inline" dir="ltr">\(1\rightarrow2\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(1\rightarrow2\rightarrow9\rightarrow\mathtt{null}\)</span> במימוש זה.</div></li>
+<li class="question" value="9"><span>מתי <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\)</span> משתנה בהוספה בתוך הרשימה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כשמוסיפים בראש; בהוספה אחרי חוליה קיימת הראש נשאר זהה.</div></li>
+<li class="question" value="10"><span>מצא שגיאה: קודם <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(newNode)}\)</span> ואחר כך <span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode.SetNext(current.GetNext())}\)</span>.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>לאחר השורה הראשונה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.GetNext()}\)</span> כבר מצביע ל־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{newNode}\)</span>; בשורה השנייה ייווצר קישור של החוליה החדשה לעצמה.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-lesson-6" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-lesson-6" data-lesson-tab="lesson-6" hidden>
+<div aria-labelledby="tab-btn-lesson-6" class="lesson-tab-panel" data-lesson-tab="lesson-6" hidden="" id="tab-panel-lesson-6" role="tabpanel">
 <section class="page" id="lesson-6">
 <span class="tag">שיעור 6 מתוך 6</span>
 <h2>🏁 מוצאים מקסימום ומינימום ומוסיפים</h2>
@@ -524,7 +864,7 @@
 <div aria-label="כל שלבי ההדמיה להדפסה" class="sim-print-sequence" id="sim-print-6"></div>
 </div></div>
 <h3>👨‍💻 כך כותבים את הפעולה בקוד</h3>
-<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('6')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0">\(\mathtt{static\ Node\lt double\gt \ AddExtremes(Node\lt double\gt \ head)}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{if\ (head\ ==\ null)}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{return\ null;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{double\ maxValue\ =\ head.GetValue();}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{double\ minValue\ =\ head.GetValue();}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt double\gt \ current\ =\ head;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{while\ (current\ !=\ null)}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{double\ value\ =\ current.GetValue();}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{if\ (value\ \gt \ maxValue)}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:12">\(\mathtt{maxValue\ =\ value;}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{if\ (value\ \lt \ minValue)}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:12">\(\mathtt{minValue\ =\ value;}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{current\ =\ current.GetNext();}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{Node\lt double\gt \ newHead\ =\ new\ Node\lt double\gt (maxValue);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{newHead.SetNext(head);}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{head\ =\ newHead;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{current\ =\ head;}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{while\ (current.HasNext())}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\{}\)</div><div class="latex-code-line" style="--indent:8">\(\mathtt{current\ =\ current.GetNext();}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{\}}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{current.SetNext(new\ Node\lt double\gt (minValue));}\)</div><div class="latex-code-line" style="--indent:4">\(\mathtt{return\ head;}\)</div><div class="latex-code-line" style="--indent:0">\(\mathtt{\}}\)</div></div><textarea aria-hidden="true" class="code-source-only" id="source-6" readonly="" tabindex="-1">static Node&lt;double&gt; AddExtremes(Node&lt;double&gt; head)
+<div class="codebox"><header><button class="secondary noprint" onclick="copyCode('6')">העתק קוד</button></header><div aria-label="קוד C# מוצג באמצעות MathJax" class="latex-code" role="group"><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{static\ Node\lt double\gt \ AddExtremes(Node\lt double\gt \ head)}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{if\ (head\ ==\ null)}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ null;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{double\ maxValue\ =\ head.GetValue();}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{double\ minValue\ =\ head.GetValue();}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt double\gt \ current\ =\ head;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{while\ (current\ !=\ null)}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{double\ value\ =\ current.GetValue();}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{if\ (value\ \gt \ maxValue)}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:12"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{maxValue\ =\ value;}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{if\ (value\ \lt \ minValue)}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:12"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{minValue\ =\ value;}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current\ =\ current.GetNext();}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{Node\lt double\gt \ newHead\ =\ new\ Node\lt double\gt (maxValue);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{newHead.SetNext(head);}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{head\ =\ newHead;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current\ =\ head;}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{while\ (current.HasNext())}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\{}\)</span></div><div class="latex-code-line" style="--indent:8"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current\ =\ current.GetNext();}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(new\ Node\lt double\gt (minValue));}\)</span></div><div class="latex-code-line" style="--indent:4"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{return\ head;}\)</span></div><div class="latex-code-line" style="--indent:0"><span class="mathjax-code-inline" dir="ltr">\(\mathtt{\}}\)</span></div></div><textarea aria-hidden="true" class="code-source-only" id="source-6" readonly="" tabindex="-1">static Node&lt;double&gt; AddExtremes(Node&lt;double&gt; head)
 {
     if (head == null)
     {
@@ -562,242 +902,72 @@
 <section class="page" id="practice-6-1">
 <span class="tag">תרגול שיעור 6 | חלק 1 מתוך 2</span>
 <h2>✍️ תרגול: מוצאים מקסימום ומינימום ומוסיפים</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions">
-<li class="question" value="1"><span>מה המקסימום והמינימום ברשימה \(4\rightarrow1\rightarrow7\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="2"><span>מה תהיה הרשימה אחרי הוספת הקצוות ל־\(4\rightarrow1\rightarrow7\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="3"><span>מה המקסימום והמינימום ברשימה \(-3\rightarrow-8\rightarrow-1\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="4"><span>מה תוצאת הפעולה על \(5\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="5"><span>בכמה חוליות גדלה רשימה לא ריקה?</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="1"><span>מה המקסימום והמינימום ברשימה <span class="mathjax-code-inline" dir="ltr">\(4\rightarrow1\rightarrow7\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>מקסימום 7, מינימום 1.</div></li>
+<li class="question" value="2"><span>מה תהיה הרשימה אחרי הוספת הקצוות ל־<span class="mathjax-code-inline" dir="ltr">\(4\rightarrow1\rightarrow7\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(7\rightarrow4\rightarrow1\rightarrow7\rightarrow1\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="3"><span>מה המקסימום והמינימום ברשימה <span class="mathjax-code-inline" dir="ltr">\(-3\rightarrow-8\rightarrow-1\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>מקסימום ‎−1, מינימום ‎−8.</div></li>
+<li class="question" value="4"><span>מה תוצאת הפעולה על <span class="mathjax-code-inline" dir="ltr">\(5\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(5\rightarrow5\rightarrow5\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="5"><span>בכמה חוליות גדלה רשימה לא ריקה?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>בשתי חוליות.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 <section class="page" id="practice-6-2">
 <span class="tag">תרגול שיעור 6 | חלק 2 מתוך 2</span>
 <h2>✍️ תרגול: מוצאים מקסימום ומינימום ומוסיפים</h2>
-<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; פתרונות מלאים מופיעים בסוף המסמך.</p>
+<p>פתרו בעצמכם. התרגילים מסודרים בקושי עולה; לחצו על "בדיקת פתרונות" כדי להציג את הפתרונות מתחת לשאלות.</p>
 <ol class="questions" start="6">
-<li class="question" value="6"><span>האם מותר למחוק את המקסימום המקורי?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="7"><span>למה מאתחלים \(\mathtt{maxValue}\) לפי הערך הראשון ולא תמיד לפי 0?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="8"><span>מה יקרה אם לא נבדוק \(\mathtt{head}\;\mathtt{==}\;\mathtt{null}\) ואז נבצע \(\mathtt{head.GetValue()}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="9"><span>מה תוצאת הפעולה על \(2\rightarrow2\rightarrow2\rightarrow\mathtt{null}\)?</span><div aria-hidden="true" class="answer"></div></li>
-<li class="question" value="10"><span>תנו תוצאה עבור \(3\rightarrow-2\rightarrow8\rightarrow0\rightarrow\mathtt{null}\) והסבירו את סדר השינוי.</span><div aria-hidden="true" class="answer"></div></li>
+<li class="question" value="6"><span>האם מותר למחוק את המקסימום המקורי?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>לא. השאלה דורשת להוסיף עותק חדש בלי למחוק מופעים קיימים.</div></li>
+<li class="question" value="7"><span>למה מאתחלים <span class="mathjax-code-inline" dir="ltr">\(\mathtt{maxValue}\)</span> לפי הערך הראשון ולא תמיד לפי 0?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>כי כל הערכים עלולים להיות שליליים.</div></li>
+<li class="question" value="8"><span>מה יקרה אם לא נבדוק <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head}\;\mathtt{==}\;\mathtt{null}\)</span> ואז נבצע <span class="mathjax-code-inline" dir="ltr">\(\mathtt{head.GetValue()}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>תתרחש שגיאה עקב גישה דרך הפניה ריקה.</div></li>
+<li class="question" value="9"><span>מה תוצאת הפעולה על <span class="mathjax-code-inline" dir="ltr">\(2\rightarrow2\rightarrow2\rightarrow\mathtt{null}\)</span>?</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(2\rightarrow2\rightarrow2\rightarrow2\rightarrow2\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="10"><span>תנו תוצאה עבור <span class="mathjax-code-inline" dir="ltr">\(3\rightarrow-2\rightarrow8\rightarrow0\rightarrow\mathtt{null}\)</span> והסבירו את סדר השינוי.</span><div aria-hidden="true" class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(8\rightarrow3\rightarrow-2\rightarrow8\rightarrow0\rightarrow-2\rightarrow\mathtt{null}\)</span>. קודם מוצאים קצוות, מוסיפים 8 לראש, ואז ‎−2 לסוף.</div></li>
 </ol>
 <div class="tip">💡 אם נתקעתם, ציירו שלוש חוליות, סמנו את הראש והתקדמו חץ אחד בכל פעם. אל תעברו לפתרון לפני ניסיון עצמאי.</div>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-solutions" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-solutions" data-lesson-tab="solutions" hidden>
-<section class="page" id="solutions">
-<span class="tag">מאגר הפתרונות</span>
-<h2>✅ פתרונות לדפי התרגול</h2>
-<p>כל פתרון מתאים למספר השאלה בשיעור שלו. נסו להסביר גם למה הפתרון נכון ולא רק מה התוצאה.</p>
-<nav aria-label="מעבר לפתרונות" class="toc">
-<a href="#solution-1">פתרונות שיעור 1</a>
-<a href="#solution-2">פתרונות שיעור 2</a>
-<a href="#solution-3">פתרונות שיעור 3</a>
-<a href="#solution-4">פתרונות שיעור 4</a>
-<a href="#solution-5">פתרונות שיעור 5</a>
-<a href="#solution-6">פתרונות שיעור 6</a>
-</nav>
-</section>
-<section class="page" id="solution-1">
-<span class="tag">פתרונות שיעור 1 | חלק 1</span>
-<h2>✅ מבינים חוליות, מצביעים וקישורים</h2>
-<ol class="solutions" start="1">
-<li>3.</li>
-<li>7.</li>
-<li>9.</li>
-<li>שתי חוליות.</li>
-<li>ל־\(\mathtt{null}\).</li>
-</ol>
-</section>
-<section class="page">
-<span class="tag">פתרונות שיעור 1 | חלק 2</span>
-<h2>✅ מבינים חוליות, מצביעים וקישורים</h2>
-<ol class="solutions" start="6">
-<li>הערך \(\mathtt{null}\).</li>
-<li>6.</li>
-<li>לא. רק המשתנה \(\mathtt{current}\) משתנה.</li>
-<li>רק \(2\rightarrow\mathtt{null}\). החוליות האחרות כבר אינן נגישות דרך הראש.</li>
-<li>באמצעות \(\mathtt{HasNext()}\) או על ידי בדיקה שההפניה המוחזרת מ־\(\mathtt{GetNext()}\) אינה \(\mathtt{null}\).</li>
-</ol>
-</section>
-<section class="page" id="solution-2">
-<span class="tag">פתרונות שיעור 2 | חלק 1</span>
-<h2>✅ בודקים האם רשימה ממוינת</h2>
-<ol class="solutions" start="1">
-<li>כן.</li>
-<li>לא, כי 4 קטן מ־7.</li>
-<li>כן; ערכים שווים מותרים.</li>
-<li>שלושה זוגות.</li>
-<li>\(\mathtt{true}\).</li>
-</ol>
-</section>
-<section class="page">
-<span class="tag">פתרונות שיעור 2 | חלק 2</span>
-<h2>✅ בודקים האם רשימה ממוינת</h2>
-<ol class="solutions" start="6">
-<li>\(\mathtt{true}\).</li>
-<li>9 ואחריו 10.</li>
-<li>המחרוזת a קודמת ל־b לפי שיטת ההשוואה של המחרוזות.</li>
-<li>כי צריך שתי חוליות קיימות להשוואה.</li>
-<li>להוסיף \(\mathtt{current}\;\mathtt{!=}\;\mathtt{null}\) לתנאי הלולאה לפני הקריאה ל־\(\mathtt{HasNext()}\).</li>
-</ol>
-</section>
-<section class="page" id="solution-3">
-<span class="tag">פתרונות שיעור 3 | חלק 1</span>
-<h2>✅ מוסיפים חוליה לתחילת הרשימה</h2>
-<ol class="solutions" start="1">
-<li>\(2\rightarrow4\rightarrow6\rightarrow\mathtt{null}\).</li>
-<li>\(7\rightarrow\mathtt{null}\).</li>
-<li>יוצרת חוליה חדשה שערכה 8; הקישור שלה מתחיל כ־\(\mathtt{null}\).</li>
-<li>\(\mathtt{newNode.SetNext(head)}\).</li>
-<li>הפניה לחוליה החדשה.</li>
-</ol>
-</section>
-<section class="page">
-<span class="tag">פתרונות שיעור 3 | חלק 2</span>
-<h2>✅ מוסיפים חוליה לתחילת הרשימה</h2>
-<ol class="solutions" start="6">
-<li>\(\mathtt{head}\;=\;\mathtt{AddFirst(head,value)}\).</li>
-<li>לא, אם מחברים את החוליה החדשה אל הראש הישן לפני העדכון.</li>
-<li>\(1\rightarrow3\rightarrow5\rightarrow\mathtt{null}\).</li>
-<li>כי הגישה לחוליה הראשונה מיידית.</li>
-<li>השרשרת הישנה לא תהיה נגישה מהראש החדש; איבדנו את ההפניה אליה אם לא נשמרה במקום אחר.</li>
-</ol>
-</section>
-<section class="page" id="solution-4">
-<span class="tag">פתרונות שיעור 4 | חלק 1</span>
-<h2>✅ מוסיפים חוליה לסוף הרשימה</h2>
-<ol class="solutions" start="1">
-<li>\(2\rightarrow4\rightarrow9\rightarrow\mathtt{null}\).</li>
-<li>\(5\rightarrow\mathtt{null}\).</li>
-<li>\(\mathtt{current.HasNext()}\;\mathtt{==}\;\mathtt{false}\).</li>
-<li>כי ברשימה בת חוליה אחת נקבל \(\mathtt{null}\) ונאבד את החוליה היחידה.</li>
-<li>בסיום הלולאה \(\mathtt{current}\) יהיה \(\mathtt{null}\) ותתרחש שגיאה.</li>
-</ol>
-</section>
-<section class="page">
-<span class="tag">פתרונות שיעור 4 | חלק 2</span>
-<h2>✅ מוסיפים חוליה לסוף הרשימה</h2>
-<ol class="solutions" start="6">
-<li>\(\mathtt{current}\).</li>
-<li>\(1\rightarrow6\rightarrow8\rightarrow\mathtt{null}\).</li>
-<li>התוצאה עדיין מחזירה את הראש המקורי; כך אותה פעולה מטפלת גם ברשימה ריקה.</li>
-<li>כדי לשמור את הראש החדש במקרה שהרשימה הייתה ריקה.</li>
-<li>שלושה מעברים כדי להגיע לחוליה הרביעית, ואז שינוי קישור.</li>
-</ol>
-</section>
-<section class="page" id="solution-5">
-<span class="tag">פתרונות שיעור 5 | חלק 1</span>
-<h2>✅ מוסיפים חוליה בתוך הרשימה</h2>
-<ol class="solutions" start="1">
-<li>\(10\rightarrow20\rightarrow30\rightarrow\mathtt{null}\).</li>
-<li>\(5\rightarrow10\rightarrow30\rightarrow\mathtt{null}\).</li>
-<li>\(10\rightarrow20\rightarrow30\rightarrow40\rightarrow\mathtt{null}\).</li>
-<li>את קישור החוליה החדשה, כך שיצביע ל־30.</li>
-<li>את הקישור של 10, כדי שיצביע ל־20.</li>
-</ol>
-</section>
-<section class="page">
-<span class="tag">פתרונות שיעור 5 | חלק 2</span>
-<h2>✅ מוסיפים חוליה בתוך הרשימה</h2>
-<ol class="solutions" start="6">
-<li>עדכון הקישור של 10 לפני שמירת ההמשך יכול לנתק את 30.</li>
-<li>\(3\rightarrow\mathtt{null}\) לפי גרסת המקור: ראש ריק גורר הוספה בהתחלה.</li>
-<li>\(1\rightarrow2\rightarrow9\rightarrow\mathtt{null}\) בגרסת המקור.</li>
-<li>כשמוסיפים בראש; בהוספה אחרי חוליה קיימת הראש נשאר זהה.</li>
-<li>לאחר השורה הראשונה \(\mathtt{current.GetNext()}\) כבר מצביע ל־\(\mathtt{newNode}\); בשורה השנייה ייווצר קישור של החוליה החדשה לעצמה.</li>
-</ol>
-</section>
-<section class="page" id="solution-6">
-<span class="tag">פתרונות שיעור 6 | חלק 1</span>
-<h2>✅ מוצאים מקסימום ומינימום ומוסיפים</h2>
-<ol class="solutions" start="1">
-<li>מקסימום 7, מינימום 1.</li>
-<li>\(7\rightarrow4\rightarrow1\rightarrow7\rightarrow1\rightarrow\mathtt{null}\).</li>
-<li>מקסימום ‎−1, מינימום ‎−8.</li>
-<li>\(5\rightarrow5\rightarrow5\rightarrow\mathtt{null}\).</li>
-<li>בשתי חוליות.</li>
-</ol>
-</section>
-<section class="page">
-<span class="tag">פתרונות שיעור 6 | חלק 2</span>
-<h2>✅ מוצאים מקסימום ומינימום ומוסיפים</h2>
-<ol class="solutions" start="6">
-<li>לא. השאלה דורשת להוסיף עותק חדש בלי למחוק מופעים קיימים.</li>
-<li>כי כל הערכים עלולים להיות שליליים.</li>
-<li>תתרחש שגיאה עקב גישה דרך הפניה ריקה.</li>
-<li>\(2\rightarrow2\rightarrow2\rightarrow2\rightarrow2\rightarrow\mathtt{null}\).</li>
-<li>\(8\rightarrow3\rightarrow-2\rightarrow8\rightarrow0\rightarrow-2\rightarrow\mathtt{null}\). קודם מוצאים קצוות, מוסיפים 8 לראש, ואז ‎−2 לסוף.</li>
-</ol>
-</section>
-</div><!-- end lesson tab panel -->
-<div id="tab-panel-final-exercises" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-final-exercises" data-lesson-tab="final-exercises" hidden>
+<!-- end lesson tab panel -->
+<div aria-labelledby="tab-btn-final-exercises" class="lesson-tab-panel" data-lesson-tab="final-exercises" hidden="" id="tab-panel-final-exercises" role="tabpanel">
 <section class="page" id="final-exercises">
 <span class="tag">אתגר מסכם | חלק 1 מתוך 2</span>
 <h2>🏆 תרגילים מסכמים מכל השיעורים</h2>
 <p>התרגילים מערבים סריקה והוספה בכמה שלבים. נסו לפתור בלי להציץ בפתרונות.</p>
 <ol class="questions">
-<li class="question" value="1">כתבו מה יודפס לאחר הוספת 0 לראש ולאחר מכן 7 לסוף \(2\rightarrow4\rightarrow\mathtt{null}\).<div class="answer"></div></li>
-<li class="question" value="2">ב־\(8\rightarrow5\rightarrow6\rightarrow\mathtt{null}\) מצאו את ההשוואה הראשונה שמוכיחה שהרשימה אינה ממוינת בסדר יורד.<div class="answer"></div></li>
-<li class="question" value="3">הכניסו 7 במיקום 2 ב־\(1\rightarrow3\rightarrow9\rightarrow\mathtt{null}\), ואז הוסיפו 0 לראש.<div class="answer"></div></li>
-<li class="question" value="4">מה התוצאה לאחר פעולת המקסימום והמינימום על \(-5\rightarrow-1\rightarrow-8\rightarrow\mathtt{null}\)?<div class="answer"></div></li>
-<li class="question" value="5">הסבירו מדוע ההשמה \(\mathtt{current}\;=\;\mathtt{current.GetNext()}\) אינה מנתקת חוליות.<div class="answer"></div></li>
+<li class="question" value="1">כתבו מה יודפס לאחר הוספת 0 לראש ולאחר מכן 7 לסוף <span class="mathjax-code-inline" dir="ltr">\(2\rightarrow4\rightarrow\mathtt{null}\)</span>.<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(0\rightarrow2\rightarrow4\rightarrow7\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="2">ב־<span class="mathjax-code-inline" dir="ltr">\(8\rightarrow5\rightarrow6\rightarrow\mathtt{null}\)</span> מצאו את ההשוואה הראשונה שמוכיחה שהרשימה אינה ממוינת בסדר יורד.<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>5 ואחריו 6.</div></li>
+<li class="question" value="3">הכניסו 7 במיקום 2 ב־<span class="mathjax-code-inline" dir="ltr">\(1\rightarrow3\rightarrow9\rightarrow\mathtt{null}\)</span>, ואז הוסיפו 0 לראש.<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(0\rightarrow1\rightarrow3\rightarrow7\rightarrow9\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="4">מה התוצאה לאחר פעולת המקסימום והמינימום על <span class="mathjax-code-inline" dir="ltr">\(-5\rightarrow-1\rightarrow-8\rightarrow\mathtt{null}\)</span>?<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(-1\rightarrow-5\rightarrow-1\rightarrow-8\rightarrow-8\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="5">הסבירו מדוע ההשמה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current}\;=\;\mathtt{current.GetNext()}\)</span> אינה מנתקת חוליות.<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>היא משנה רק את המשתנה שמחזיק את ההפניה; אינה משנה <span class="mathjax-code-inline" dir="ltr">\(\mathtt{next}\)</span> באף חוליה.</div></li>
 </ol>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 <section class="page">
 <span class="tag">אתגר מסכם | חלק 2 מתוך 2</span>
 <h2>🏆 תרגילים מסכמים מכל השיעורים</h2>
 <p>התרגילים מערבים סריקה והוספה בכמה שלבים. נסו לפתור בלי להציץ בפתרונות.</p>
 <ol class="questions">
-<li class="question" value="6">הציעו תיקון לפעולה הממיינת כאשר הרשימה ריקה.<div class="answer"></div></li>
-<li class="question" value="7">מה יקרה אם בתחילת הוספה לאמצע נבצע \(\mathtt{current.SetNext(newNode)}\) לפני שמירת החוליה הבאה?<div class="answer"></div></li>
-<li class="question" value="8">כתבו את סדר שלוש הפעולות: יצירת חוליה, חיבור לקודם, חיבור לבא.<div class="answer"></div></li>
-<li class="question" value="9">ברשימה ריקה הפעילו הוספה לסוף עם הערך 11, ואז הוספה לראש עם הערך 4. מה התוצאה?<div class="answer"></div></li>
-<li class="question" value="10">בנו סדר פעולות המקבל את \(6\rightarrow2\rightarrow9\rightarrow\mathtt{null}\), מוסיף 8 במיקום 2, ואז מוסיף עותקים של המקסימום והמינימום.<div class="answer"></div></li>
+<li class="question" value="6">הציעו תיקון לפעולה הממיינת כאשר הרשימה ריקה.<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>תנאי בטוח: <span class="mathjax-code-inline" dir="ltr">\(\mathtt{while}\;(\mathtt{current}\;\mathtt{!=}\;\mathtt{null}\;\mathtt{\&amp;\&amp;}\;\mathtt{current.HasNext()})\)</span>.</div></li>
+<li class="question" value="7">מה יקרה אם בתחילת הוספה לאמצע נבצע <span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.SetNext(newNode)}\)</span> לפני שמירת החוליה הבאה?<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>הרשימה עלולה להינתק או להיווצר לולאה עצמית אם אחר כך משתמשים ב־<span class="mathjax-code-inline" dir="ltr">\(\mathtt{current.GetNext()}\)</span>.</div></li>
+<li class="question" value="8">כתבו את סדר שלוש הפעולות: יצירת חוליה, חיבור לקודם, חיבור לבא.<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>יצירת חוליה חדשה ⇐ חיבור החדשה לבא ⇐ חיבור הקודמת לחדשה.</div></li>
+<li class="question" value="9">ברשימה ריקה הפעילו הוספה לסוף עם הערך 11, ואז הוספה לראש עם הערך 4. מה התוצאה?<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div><span class="mathjax-code-inline" dir="ltr">\(4\rightarrow11\rightarrow\mathtt{null}\)</span>.</div></li>
+<li class="question" value="10">בנו סדר פעולות המקבל את <span class="mathjax-code-inline" dir="ltr">\(6\rightarrow2\rightarrow9\rightarrow\mathtt{null}\)</span>, מוסיף 8 במיקום 2, ואז מוסיף עותקים של המקסימום והמינימום.<div class="answer"></div><div class="inline-solution" dir="rtl" hidden=""><div class="inline-solution-label">✅ פתרון</div>אחרי הוספת 8: <span class="mathjax-code-inline" dir="ltr">\(6\rightarrow2\rightarrow8\rightarrow9\rightarrow\mathtt{null}\)</span>. לאחר הוספת קצוות: <span class="mathjax-code-inline" dir="ltr">\(9\rightarrow6\rightarrow2\rightarrow8\rightarrow9\rightarrow2\rightarrow\mathtt{null}\)</span>.</div></li>
 </ol>
-</section>
+<button aria-expanded="false" class="check-solutions" type="button">בדיקת פתרונות</button></section>
 </div><!-- end lesson tab panel -->
-<div id="tab-panel-final-solutions" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-final-solutions" data-lesson-tab="final-solutions" hidden>
-<section class="page" id="final-solutions">
-<span class="tag">פתרונות אתגר מסכם | חלק 1</span>
-<h2>✅ פתרונות התרגילים המסכמים</h2>
-<ol class="solutions" start="1">
-<li>\(0\rightarrow2\rightarrow4\rightarrow7\rightarrow\mathtt{null}\).</li>
-<li>5 ואחריו 6.</li>
-<li>\(0\rightarrow1\rightarrow3\rightarrow7\rightarrow9\rightarrow\mathtt{null}\).</li>
-<li>\(-1\rightarrow-5\rightarrow-1\rightarrow-8\rightarrow-8\rightarrow\mathtt{null}\).</li>
-<li>היא משנה רק את המשתנה שמחזיק את ההפניה; אינה משנה \(\mathtt{next}\) באף חוליה.</li>
-</ol>
-</section>
-<section class="page">
-<span class="tag">פתרונות אתגר מסכם | חלק 2</span>
-<h2>✅ פתרונות התרגילים המסכמים</h2>
-<ol class="solutions" start="6">
-<li>תנאי בטוח: \(\mathtt{while}\;(\mathtt{current}\;\mathtt{!=}\;\mathtt{null}\;\mathtt{\&amp;\&amp;}\;\mathtt{current.HasNext()})\).</li>
-<li>הרשימה עלולה להינתק או להיווצר לולאה עצמית אם אחר כך משתמשים ב־\(\mathtt{current.GetNext()}\).</li>
-<li>יצירת חוליה חדשה ⇐ חיבור החדשה לבא ⇐ חיבור הקודמת לחדשה.</li>
-<li>\(4\rightarrow11\rightarrow\mathtt{null}\).</li>
-<li>אחרי הוספת 8: \(6\rightarrow2\rightarrow8\rightarrow9\rightarrow\mathtt{null}\). לאחר הוספת קצוות: \(9\rightarrow6\rightarrow2\rightarrow8\rightarrow9\rightarrow2\rightarrow\mathtt{null}\).</li>
-</ol>
-</section>
-</div><!-- end lesson tab panel -->
-<div id="tab-panel-teacher-notes" class="lesson-tab-panel" role="tabpanel" aria-labelledby="tab-btn-teacher-notes" data-lesson-tab="teacher-notes" hidden>
+<!-- end lesson tab panel -->
+<div aria-labelledby="tab-btn-teacher-notes" class="lesson-tab-panel" data-lesson-tab="teacher-notes" hidden="" id="tab-panel-teacher-notes" role="tabpanel">
 <section class="page" id="teacher-notes">
 <h2>🧑‍🏫 הנחיות למורה ובדיקות הבנה</h2>
 <div class="grid"><div class="step"><h3>מפתח להתקדמות</h3><p>שלוש תשובות נכונות מתוך ארבע שאלות הסבר ללא עזרה הן סימן שאפשר להמשיך. כשמתקשים, חוזרים להדמיה ולציור.</p></div><div class="step"><h3>זיהוי טעויות</h3><p>בקשו מהתלמיד לזהות מהו ההבדל בין תזוזת משתנה לבין שינוי קישור, להסביר את סדר ההוספה לאמצע ולזהות רשימה ריקה.</p></div><div class="step"><h3>בדיקת מיון</h3><p>בקוד לבדיקת מיון יש לטפל בראש ריק. בגרסה המתוקנת נוספה בדיקת ראש לפני קריאת הפעולה המבררת אם יש חוליה הבאה.</p></div><div class="step"><h3>טיפול במקרים מיוחדים</h3><p>בהוספה לסוף מוצג טיפול ברשימה ריקה. בפעולות למציאת מקסימום ומינימום נדרשת בדיקה שהרשימה אינה ריקה; כאן נוספה בדיקת הגנה.</p></div></div>
-<div class="note"><strong>הבהרת סימון המיקום:</strong> פעולת ההוספה לאמצע מתייחסת למיקום 0 כהוספה לראש ולמיקום 1 כהוספה לאחר החוליה הראשונה. כאשר מבקשים מיקום מעבר לסוף, גרסת המקור מוסיפה בסוף.</div>
-<p class="footer">מערך השיעור מבוסס על חומר המקור, בתוספת דוגמאות תרגול עצמאיות, המחשות ושיפור מקרי קצה שהובהרו במפורש.</p>
+<div class="note"><strong>הבהרת סימון המיקום:</strong> פעולת ההוספה לאמצע מתייחסת למיקום 0 כהוספה לראש ולמיקום 1 כהוספה לאחר החוליה הראשונה. כאשר מבקשים מיקום מעבר לסוף, הפעולה מוסיפה בסוף.</div>
+<p class="footer">מערך השיעור כולל הסברים, דוגמאות תרגול, המחשות והתייחסות למקרי קצה.</p>
 </section>
 </div><!-- end last lesson tab panel -->
 </main>
-
 <script>
 (function(){
     'use strict';
     const ids = ['intro','lesson-1','lesson-2','lesson-3','lesson-4',
-                 'lesson-5','lesson-6','solutions','final-exercises',
+                 'lesson-5','lesson-6','final-exercises',
                  'final-solutions','teacher-notes'];
     function resolveTab(hash){
         const name = decodeURIComponent((hash || '').replace(/^#/, ''));
@@ -850,7 +1020,6 @@
     });
 })();
 </script>
-
 <script>'use strict';
 /* Each state contains actual node identities, next-references and variables.
    Preview frames are immutable snapshots; the practice mode tests a student's
@@ -1031,5 +1200,22 @@ document.addEventListener('DOMContentLoaded',()=>Object.keys(simulations).forEac
  const print=document.getElementById('sim-print-'+id);print.innerHTML=simulations[id].map((st,i)=>simFrameText(st,i)).join('');renderSim(id);
 }));
 </script>
-</body>
+<script>
+(function () {
+    'use strict';
+    document.addEventListener('click', function (event) {
+        const button = event.target.closest('.check-solutions');
+        if (!button) return;
+        const section = button.closest('section.page');
+        if (!section) return;
+        const reveal = button.getAttribute('aria-expanded') !== 'true';
+        section.querySelectorAll('.inline-solution').forEach(function (solution) { solution.hidden = !reveal; });
+        button.setAttribute('aria-expanded', String(reveal));
+        button.textContent = reveal ? 'הסתרת פתרונות' : 'בדיקת פתרונות';
+        if (reveal && window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+            window.MathJax.typesetPromise(Array.from(section.querySelectorAll('.inline-solution'))).catch(function(error) { console.error('MathJax:', error); });
+        }
+    });
+}());
+</script></body>
 </html>
