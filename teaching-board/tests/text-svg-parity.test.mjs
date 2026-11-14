@@ -32,7 +32,8 @@ test('measured wrapping splits long Unicode words without breaking grapheme clus
  const text=lines.flatMap(line=>line.parts).map(part=>part.text).join('');
  assert.equal(text,'supercalifragilistic 👨‍👩‍👧‍👦');
  assert.ok(lines.some(line=>line.parts.some(p=>p.text==='👨‍👩‍👧‍👦')));
- assert.ok(lines.every(line=>line.width<=48||line.parts.some(p=>p.text==='👨‍👩‍👧‍👦')));
+ assert.ok(lines.every(line=>line.width<=48));
+ assert.ok(lines.some(line=>line.parts.some(p=>p.text==='👨‍👩‍👧‍👦'&&p.fitText===true)));
 });
 test('explicit per-paragraph direction overrides language of first word',()=>{
  const item={id:'direction',type:'text',x:0,y:0,w:500,h:200,fontSize:24,text:'English עברית\nשלום English',
