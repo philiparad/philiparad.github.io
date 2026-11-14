@@ -237,15 +237,25 @@ try{
   });
   await page.getByRole('button',{name:'Italic selected text'}).click();
   assert.equal(await page.evaluate(()=>window.__pending.draft.pendingMarks?.italic),true);
+  await page.evaluate(()=>{
+   const {draft}=window.__pending;
+   window.__pending.inputEvents=[];
+   draft.input.addEventListener('beforeinput',event=>{
+    window.__pending.inputEvents.push({inputType:event.inputType,data:event.data,
+     cancelable:event.cancelable,marks:structuredClone(draft.pendingMarks),
+     caret:window.getSelection().anchorOffset});
+   },true);
+  });
   await page.keyboard.insertText('אב');
   const typed=await page.evaluate(async()=>{
    const {readRichDocument}=await import('./js/rich-text.js');
    const {draft}=window.__pending;
    return {runs:readRichDocument(draft.input,draft.item).runs,
-    text:draft.input.textContent,pending:draft.pendingMarks};
+    text:draft.input.textContent,pending:draft.pendingMarks,
+    events:window.__pending.inputEvents,html:draft.input.innerHTML};
   });
   assert.equal(typed.text,'שלאבום');
-  assert(typed.runs.some(run=>run.italic&&run.text==='אב'),'Inserted Hebrew should be italic');
+  assert(typed.runs.some(run=>run.italic&&run.text==='אב'),'Inserted Hebrew should be italic: '+JSON.stringify(typed));
   assert.equal(typed.pending,null);
   await page.keyboard.press('Control+z');
   assert.equal(await page.evaluate(()=>window.__pending.draft.input.textContent),'שלום');
