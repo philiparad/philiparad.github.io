@@ -42,9 +42,11 @@ test('invalid document metadata, expired records, tampering and storage failures
  const now=2000000000000,store=storage();
  assert.equal(storeTextDraft(store,boardId,item,{...snapshot,paragraphs:[]},null,now),false);
  assert.equal(storeTextDraft(store,boardId,item,snapshot,null,now),true);
- assert.equal(readTextDraft(store,boardId,item,now+31*24*60*60*1000),null);
  const key=draftStorageKey(boardId,item.id);
  const original=JSON.parse(store.map.get(key));
+ assert.equal(readTextDraft(store,boardId,item,now+31*24*60*60*1000),null);
+ assert.equal(store.map.has(key),false,'Expired unsaved local text must be purged');
+ store.map.set(key,JSON.stringify(original));
  store.map.set(key,JSON.stringify({...original,text:'tampered'}));
  assert.equal(readTextDraft(store,boardId,item,now),null);
  store.map.set(key,'{bad');
