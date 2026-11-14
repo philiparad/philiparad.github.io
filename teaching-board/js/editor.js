@@ -222,7 +222,7 @@ export class Editor {
   if(this.disposed)return;
   const target=existing?this.board.items.find(i=>i.id===item.id):structuredClone(item);
   if(!target||this.isLocked(target))return;
-  if(existing&&target.text===text&&JSON.stringify(target.runs)===JSON.stringify(item.runs)&&JSON.stringify(target.paragraphs)===JSON.stringify(item.paragraphs)){this.paint();return;}
+  if(existing&&target.text===text&&JSON.stringify(target.runs)===JSON.stringify(item.runs)&&JSON.stringify(target.paragraphs)===JSON.stringify(item.paragraphs)&&target.h>=height){this.paint();return;}
   target.text=text;if(item.runs)target.runs=structuredClone(item.runs);if(item.paragraphs)target.paragraphs=structuredClone(item.paragraphs);target.h=Math.max(target.h,height);
   if(!existing)this.board.items.push(target);
   this.selected=new Set([target.id]);this.commit();
