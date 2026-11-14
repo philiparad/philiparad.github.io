@@ -95,7 +95,7 @@ export function planTextFlow(board,id,page,{checkOverlaps=true}={}){
   }
  }
  if(board.items.length+items.length-1>20000)flowError('Too many board objects.');
- return {sourceId:id,items,pageCount:Math.max(count,pageIndex),firstPage:initialPage};
+ return {sourceId:id,sourceSignature:JSON.stringify(original),priorPageCount:count,items,pageCount:Math.max(count,pageIndex),firstPage:initialPage};
 }
 
 /** Apply only a successfully calculated plan as a single undoable board change. */
@@ -103,6 +103,8 @@ export function applyTextFlow(board,plan){
  if(!plan||!plan.items?.length)return false;
  const index=board.items.findIndex(item=>item.id===plan.sourceId);
  if(index<0)flowError('The original text box is no longer available.');
+ if(JSON.stringify(board.items[index])!==plan.sourceSignature||(board.pageCount||1)!==plan.priorPageCount)
+  flowError('The lesson changed while text flow was being prepared. Check the layout and try again.');
  board.items.splice(index,1,...plan.items);
  board.pageCount=plan.pageCount;
  return true;
