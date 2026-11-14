@@ -8,7 +8,7 @@ export function equationLines(paragraphs,width,font,measure){
    ?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(text)].map(s=>s.segment)
    :Array.from(text);
  for(const [paragraphIndex,p] of paragraphs.entries()){
-  number=p.list==='number'?number+1:0;
+  number=p.list==='number'?(p.numberStart??number+1):0;
   const marker=p.list==='bullet'?'• ':p.list==='number'?number+'. ':'';
   let parts=[],used=0,height=font*1.3,lineStart=sourceOffset,lineLength=0;
   const flush=()=>{lines.push({parts,width:used,height,align:p.align,dir:p.dir||'auto',paragraphIndex,sourceStart:lineStart,sourceEnd:lineStart+lineLength});lineStart+=lineLength;lineLength=0;parts=[];used=0;height=font*1.3;};
