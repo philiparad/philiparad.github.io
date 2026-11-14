@@ -85,6 +85,11 @@ In **Choose PDF pages**, use **Page layout** to choose a Vertical stack, Horizon
 ### A4 page navigation
 Switch **Canvas layout** to **A4 pages**, then use the **Go to A4 page** selector to jump directly to any page. The page indicator follows the page at the center of the view while panning and after reopening a lesson. Page options update after adding, deleting, undoing or redoing pages. Navigation changes the view without adding an undo step.
 
+### Flow overflowing A4 text across pages
+In **A4 pages** mode, select one editable text box or sticky note and choose **Flow selected text**. Review the confirmation before applying: the editor divides overflowing text into individually editable objects on consecutive pages and adds pages when necessary. Formatting, mixed Hebrew/English direction, bullet paragraphs and inline equations are retained, and the operation is a single Undo step. The original text object keeps its ID and the resulting pieces remain in JSON backups.
+
+The action does not run silently during export. Use **Check text fit** first to find clipped objects. Flowing is blocked when a continuation would overlap another object, exceed 100 pages, or involve locked, background-locked, grouped, rotated or horizontally out-of-bounds text. **Numbered lists** still require manual page splits so numbering cannot silently restart. Paragraph layout may change slightly at split boundaries; review printed A4 output before distributing lessons.
+
 ### PDF pages as an A4 document
 Choose **PDF pages → Page layout → A4 document pages**. Each selected PDF page is proportionally fitted and centered inside a portrait A4 sheet with a 24-pixel margin, then locked for annotation. A new or single empty A4 lesson uses its first sheet; existing A4 documents append after their last page. The view jumps to the first imported sheet. A nonempty infinite canvas must first be explicitly switched to A4. Imports respect the 100-sheet limit and can be undone/redone as one change, including the layout and page count. **Export → Print / Save as PDF** uses the existing one-sheet-per-page A4 print layout.
 
