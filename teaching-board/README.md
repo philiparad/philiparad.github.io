@@ -74,6 +74,43 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## Reliable selection across multiple equations and lists (TXT-062)
+
+Teaching Board now treats a selection spanning **several editable inline
+equations**, RTL Hebrew/English text, and different paragraph/list types
+as one logical range. This improves editing of mathematics-rich lessons
+and mixed-direction explanations.
+
+- **Atomic math selections:** Each inline equation counts as exactly one
+  `U+FFFC` character. Dragging or using **Shift+Arrow** beside formulas
+  selects the *whole* equation, not part of the image or its descriptive
+  accessibility text. Selections anchored on equation descendants are
+  normalized to an equation boundary.
+- **Between list items:** Browser selections may land on an
+  `<ol>`/`<ul>` wrapper rather than inside a text span. The editor
+  resolves these boundaries to the correct adjacent paragraph, including
+  the document's first and last paragraphs.
+- **Delete selected content:** **Backspace/Delete** now removes a
+  non-collapsed selection through the validated rich-text document
+  model. This works when several equations and paragraph breaks are
+  selected, preserves unselected equations and their original LaTeX,
+  and retains the surviving text's list numbering, direction and styles.
+- **Backward selections and history:** Hebrew/English selection
+  direction, clipboard copy/cut, keyboard range deletion, and
+  **Undo/Redo** all retain the correct logical text and equation state.
+
+**Keyboard example:** Put the caret before a formula in a numbered
+paragraph. Use **Shift+Arrow** to select adjoining formulas. You can
+also use **Alt+Shift+Down** to extend the selection into the next
+paragraph. Press **Backspace** to delete the selected formulas and
+text together, or **Ctrl/⌘+Z** to restore them.
+
+This is precise *document-model* editing, not a general-purpose
+bi-directional text layout engine. Ordinary visual cursor movement
+between non-equation characters remains browser-native. Different
+OS/browser/IME combinations and screen readers may display selection
+handles differently and merit hands-on testing.
+
 ## Keyboard navigation across paragraphs and equations (TXT-061)
 
 The Teaching Board text editor now handles paragraph boundaries consistently,

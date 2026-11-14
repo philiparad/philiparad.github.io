@@ -492,3 +492,51 @@ The source-code regression job for the implementation passed at
 Physical keyboards, IME composition and assistive technology remain
 manual integration checks, particularly when OS shortcuts are
 overridden at the system level.
+
+## TXT-062: multi-equation selections and atomic range deletion (November 14, 2026)
+
+**Logical selection normalization** (`js/text-selection.js`):
+`offsetInParagraph` now counts actual paragraph text without
+depending on browser fragment serialization. For equation descendants,
+the computed caret snaps to the boundary before or after the equation,
+never into image or alternate-text markup; each equation is one
+`U+FFFC` placeholder. `wrapperBoundary` resolves native browser
+anchor/focus positions located directly on contenteditable root or
+`ol`/`ul` containers between list items into the correct first
+following paragraph or final preceding paragraph.
+
+**Selection deletion** (`js/text-boundary-keys.js` and
+`js/inline-text.js`): New pure `selectedDeletion(snapshot,saved,key)`
+maps both ends of a valid, noncollapsed keyboard selection to absolute
+UTF-16 document offsets. Backspace/Delete routes this selection to
+the existing `replaceRichTextRange` → `replaceRichClipboard`
+validated editing pipeline, rather than using browser-native partial
+DOM deletion that can split equation wrappers, corrupt list
+transitions, or lose undo fidelity. Paragraph-boundary joins and
+empty-item unlisting from TXT-061 remain separate collapsed-caret
+operations. Clipboard copy/cut continues to use validated rich
+payloads with readable LaTeX for external plain-text targets.
+
+**Regression coverage:** The new unit tests exercise root and list
+wrapper boundary positions, reversed selections, caret anchors
+located inside formula image descendants, multiple consecutive
+equations, rich selection deletion across mixed numbered/bulleted/
+plain paragraphs, preserved numbering, surviving equations, and
+rejection of invalid/collapsed ranges. Cross-browser smoke tests
+exercise RTL Shift+Arrow selection of two adjacent equations,
+copy/cut across list transitions, model-based Backspace/Delete,
+selection formatting, equation accessibility labels, preserved
+LaTeX source, and undo/redo. An additional genuine Playwright
+keyboard workflow selects equations across a paragraph break with
+`Alt+Shift+ArrowDown`, deletes the range, and checks undo/redo.
+
+**Verification:** [GitHub Actions run 43605361031](https://github.com/philiparad/philiparad.github.io/actions/runs/43605361031)
+passed **328/328 Node.js tests** and the Chromium, Firefox, and WebKit
+browser smoke jobs, including the established visual-golden and A4 PDF
+raster checks.
+
+**Limitations:** The changes normalize model-level positions but do
+not override the browser's general visual bidirectional caret
+algorithm for ordinary text. Real assistive technology, keyboard
+layouts, native clipboard managers, and IME behavior warrant further
+manual integration testing.
