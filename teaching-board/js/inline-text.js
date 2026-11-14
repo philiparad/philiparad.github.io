@@ -11,6 +11,7 @@ import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pe
 import {applyDocumentRange} from './text-range-format.js';
 import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js';
 import {moveAcrossEquation,deleteEquationAtCaret,positionBesideEquation} from './text-equation-caret.js';
+import {boundaryEdit,boundaryNavigation,unlistEmptyParagraph} from './text-boundary-keys.js';
 import {TEXT_RICH_CLIPBOARD,clipboardFromTransfer,clipboardPlainText,clipboardHTML,selectedRichClipboard,logicalClipboardRange,replaceRichClipboard,plainClipboard} from './text-inline-clipboard.js';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
@@ -57,7 +58,7 @@ export class InlineText {
   if(recovered&&isDifferentDraft(recovered,initial))this.offerDraftRecovery(recovered);
   else if(recovered)clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
   this.input.oninput=()=>{this.resize();if(!this.composing){this.pendingMarks=null;this.pendingSelection=null;this.recordSnapshot();}};
-  this.input.onbeforeinput=e=>{if(this.closed||this.composing||e.isComposing)return;if(e.cancelable&&['deleteContentBackward','deleteContentForward'].includes(e.inputType)&&this.deleteInlineEquation(e.inputType==='deleteContentBackward'?'Backspace':'Delete')){e.preventDefault();return;}if(e.inputType!=='insertText'||!this.pendingMarks)return;const selection=window.getSelection();if(insertPendingText(this.input,selection,this.pendingMarks,e.data)){e.preventDefault();this.pendingMarks=null;this.pendingSelection=null;this.resize();this.recordSnapshot();this.selectionChange();}};
+  this.input.onbeforeinput=e=>{if(this.closed||this.composing||e.isComposing)return;if(e.cancelable&&['deleteContentBackward','deleteContentForward'].includes(e.inputType)){const key=e.inputType==='deleteContentBackward'?'Backspace':'Delete';if(this.deleteInlineEquation(key)||this.handleBoundaryKey({key})){e.preventDefault();return;}}if(e.inputType!=='insertText'||!this.pendingMarks)return;const selection=window.getSelection();if(insertPendingText(this.input,selection,this.pendingMarks,e.data)){e.preventDefault();this.pendingMarks=null;this.pendingSelection=null;this.resize();this.recordSnapshot();this.selectionChange();}};
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
   this.selectionChange=()=>{if(this.closed||this.composing||!this.input.contains(document.activeElement))return;const caret=captureLogicalSelection(this.input,window.getSelection());this.textHistory.setSelection(caret);if(this.pendingMarks&&JSON.stringify(caret)!==JSON.stringify(this.pendingSelection)){this.pendingMarks=null;this.pendingSelection=null;}for(const [name,button] of this.formatButtons||[]){if(name.startsWith('insert')){const selection=window.getSelection(),node=selection?.anchorNode,block=node?.nodeType===1?node:node?.parentElement,list=block?.closest?.('li')?.parentElement;button.setAttribute('aria-pressed',String(list?.tagName===(name==='insertOrderedList'?'OL':'UL')));}else button.setAttribute('aria-pressed',String(this.pendingMarks&&Object.prototype.hasOwnProperty.call(this.pendingMarks,name)?this.pendingMarks[name]:inlineFormatState(this.input,window.getSelection(),name)));}};
   document.addEventListener('selectionchange',this.selectionChange);
@@ -79,7 +80,7 @@ export class InlineText {
   this.input.ondrop=e=>e.preventDefault();
   this.input.addEventListener('pointerdown',e=>{if(e.button!==0)return;const node=e.target.closest?.('.inline-equation');if(node&&positionBesideEquation(this.input,window.getSelection(),node,e.clientX)){e.preventDefault();this.selectionChange();}});
   this.input.ondblclick=e=>{const node=e.target.closest('.inline-equation');if(node){e.preventDefault();this.editEquation(node);}};
-  this.input.onkeydown=e=>{if(e.isComposing||this.composing||e.keyCode===229)return;if(!e.ctrlKey&&!e.metaKey&&!e.altKey){if(['Backspace','Delete'].includes(e.key)&&this.deleteInlineEquation(e.key)){e.preventDefault();e.stopPropagation();return;}if(['ArrowLeft','ArrowRight'].includes(e.key)&&moveAcrossEquation(this.input,window.getSelection(),e.key,e.shiftKey)){e.preventDefault();e.stopPropagation();this.selectionChange();return;}}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'){e.preventDefault();e.stopPropagation();this.stepTextHistory(e.shiftKey?'redo':'undo');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='y'){e.preventDefault();e.stopPropagation();this.stepTextHistory('redo');return;}if((e.ctrlKey||e.metaKey)&&e.shiftKey&&!e.altKey&&['7','8'].includes(e.key)){e.preventDefault();e.stopPropagation();this.formatList(e.key==='7'?'number':'bullet');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&['b','i','u'].includes(e.key.toLowerCase())){e.preventDefault();e.stopPropagation();this.formatText({b:'bold',i:'italic',u:'underline'}[e.key.toLowerCase()]);return;}if(e.key==='Escape'||e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();this.finish(e.key!=='Escape');}};
+  this.input.onkeydown=e=>{if(e.isComposing||this.composing||e.keyCode===229)return;if(!e.ctrlKey&&!e.metaKey&&!e.altKey){if(['Backspace','Delete'].includes(e.key)&&this.deleteInlineEquation(e.key)){e.preventDefault();e.stopPropagation();return;}if(['ArrowLeft','ArrowRight'].includes(e.key)&&moveAcrossEquation(this.input,window.getSelection(),e.key,e.shiftKey)){e.preventDefault();e.stopPropagation();this.selectionChange();return;}}if(this.handleBoundaryKey(e)){e.preventDefault();e.stopPropagation();return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'){e.preventDefault();e.stopPropagation();this.stepTextHistory(e.shiftKey?'redo':'undo');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='y'){e.preventDefault();e.stopPropagation();this.stepTextHistory('redo');return;}if((e.ctrlKey||e.metaKey)&&e.shiftKey&&!e.altKey&&['7','8'].includes(e.key)){e.preventDefault();e.stopPropagation();this.formatList(e.key==='7'?'number':'bullet');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&['b','i','u'].includes(e.key.toLowerCase())){e.preventDefault();e.stopPropagation();this.formatText({b:'bold',i:'italic',u:'underline'}[e.key.toLowerCase()]);return;}if(e.key==='Escape'||e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();this.finish(e.key!=='Escape');}};
   this.outside=e=>{if(this.suspended||this.composing)return;if(!this.root.contains(e.target)&&!this.controls.contains(e.target))this.finish(true,false);};
   document.addEventListener('pointerdown',this.outside,true);document.addEventListener('focusin',this.outside,true);
   this.resize();this.input.focus();const selection=window.getSelection(),range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);selection.removeAllRanges();selection.addRange(range);
@@ -230,6 +231,52 @@ export class InlineText {
   storeTextDraft(this.draftStorage,this.draftBoardId,this.item,
    this.textHistory.current,rawDraftText(this.input),
    Date.now(),{newItem:!this.existing});
+ }
+ /** Move across paragraph boundaries using stable logical offsets.
+  * Ordinary character keys and non-boundary editing remain browser native.
+  */
+ handleBoundaryKey(event){
+  if(this.closed||this.composing||event?.isComposing)return false;
+  const selection=window.getSelection();
+  if(!selection?.rangeCount)return false;
+  try{
+   const snapshot=readRichDocument(this.input,this.item);
+   const saved=captureLogicalSelection(this.input,selection);
+   if(!saved)return false;
+   const key=event.key;
+   const modified=!!(event.ctrlKey||event.metaKey||event.altKey);
+   if(!modified&&['Backspace','Delete'].includes(key)){
+    const action=boundaryEdit(snapshot,saved,key);
+    if(!action)return false;
+    if(action.kind==='join'){
+     return this.replaceRichTextRange(
+      {start:action.start,end:action.end},
+      {schema:1,runs:[],paragraphs:[{align:'auto',list:'none',dir:'auto'}]});
+    }
+    if(action.kind==='unlist'){
+     const result=unlistEmptyParagraph(snapshot,action.paragraph);
+     if(!result)return false;
+     const text=result.runs.map(run=>run.text).join('');
+     writeRuns(this.input,{...this.item,text,runs:result.runs,paragraphs:result.paragraphs});
+     this.pendingMarks=null;this.pendingSelection=null;this.savedRange=null;
+     this.input.focus();
+     restoreLogicalSelection(this.input,selection,{
+      anchor:action.cursor,focus:action.cursor
+     });
+     this.resize();this.recordSnapshot();this.selectionChange();
+     return true;
+    }
+    return false;
+   }
+   const to=boundaryNavigation(snapshot,saved,key,{
+    alt:!!event.altKey,ctrl:!!event.ctrlKey,meta:!!event.metaKey,
+    shift:!!event.shiftKey
+   });
+   if(!to||!restoreLogicalSelection(this.input,selection,to))return false;
+   this.pendingMarks=null;this.pendingSelection=null;
+   this.selectionChange();
+   return true;
+  }catch{return false;}
  }
  deleteInlineEquation(key){if(this.closed||this.composing)return false;const selection=window.getSelection();if(!deleteEquationAtCaret(this.input,selection,key))return false;this.pendingMarks=null;this.pendingSelection=null;this.savedRange=null;this.resize();this.recordSnapshot();this.selectionChange();return true;}
  updateHistoryButtons(){if(!this.textHistory)return;this.undoButton.disabled=!this.textHistory.canUndo;this.redoButton.disabled=!this.textHistory.canRedo;}
