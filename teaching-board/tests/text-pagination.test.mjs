@@ -108,3 +108,17 @@ test('bullet continuation suppresses repeated bullets while retaining list metad
  }
  assert.equal(plan.items.map(fragment=>fragment.text).join(''),source.text);
 });
+
+test('stale flow plans cannot overwrite newer text edits or page changes',()=>{
+ const source=textItem(),input=board([source]),plan=planTextFlow(input,source.id,A4);
+ assert.ok(plan);
+ input.items[0].text+=' Updated';
+ const changed=structuredClone(input);
+ assert.throws(()=>applyTextFlow(input,plan),/lesson changed/);
+ assert.deepEqual(input,changed);
+ const other=board([textItem()]),next=planTextFlow(other,'source',A4);
+ other.pageCount=2;
+ const withExtraPage=structuredClone(other);
+ assert.throws(()=>applyTextFlow(other,next),/lesson changed/);
+ assert.deepEqual(other,withExtraPage);
+});
