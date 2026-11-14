@@ -29,8 +29,9 @@ test('TXT-061 Backspace merges paragraphs at exact preceding newline and keeps d
  assert(after);
  assert.equal(after.text,'אבג\nEnglish\n\uFFFC tail\nסיום');
  assert.equal(after.paragraphs.length,4);
- assert.equal(after.paragraphs[1].list,'number');
- assert.equal(after.paragraphs[1].dir,'rtl');
+ assert.equal(after.paragraphs[1].list,'bullet',
+  'When an empty leading row disappears, the surviving text keeps its list style');
+ assert.equal(after.paragraphs[1].dir,'ltr');
  assert.deepEqual(after.cursor,point(1,0));
  const next=boundaryEdit(input,at(4,0),'Backspace');
  assert.deepEqual(next,{kind:'join',start:19,end:20});
