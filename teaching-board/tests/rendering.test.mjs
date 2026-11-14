@@ -303,7 +303,8 @@ test('inline text commits one undo step and retains connectors, copies and expor
  e.redo();assert.equal(e.board.items.find(i=>i.id==='text').text,'Updated\nMultiple\nLines');
  e.selected=new Set(['text']);e.duplicate();assert.equal(e.board.items.at(-1).text,'Updated\nMultiple\nLines');
  assert.ok(walk(sceneSVG(e.board)).some(n=>n.tagName==='text'&&n.textContent==='Updated'));validateBoard(e.board);
- const count=e.history.past.length;e.applyText(e.board.items.at(-1),e.board.items.at(-1).text,500,true);assert.equal(e.history.past.length,count);
+ const count=e.history.past.length;e.applyText(e.board.items.at(-1),e.board.items.at(-1).text,500,true);assert.equal(e.history.past.length,count+1);assert.equal(e.board.items.at(-1).h,500);
+ e.undo();assert.equal(e.board.items.at(-1).h,260);e.redo();assert.equal(e.board.items.at(-1).h,500);
 });
 
 test('two text pointer clicks reopen editing despite redraws; dragging does not',()=>{
