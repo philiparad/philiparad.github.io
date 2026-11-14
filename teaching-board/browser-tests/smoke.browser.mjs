@@ -1245,6 +1245,23 @@ try{
    d.finish(false);
 
    d=create('StartEnd');choose(d,5);
+   const commandKey=new KeyboardEvent('keydown',{
+    bubbles:true,cancelable:true,metaKey:true,shiftKey:true,key:'v'});
+   d.input.dispatchEvent(commandKey);
+   const macFlag=d.forcePlainNextPaste;
+   const macPlain=send(d,richClipboard),macPlainState=state(d);
+   d.finish(false);
+
+   d=create('StartEnd');choose(d,5);
+   d.input.dispatchEvent(new KeyboardEvent('keydown',{
+    bubbles:true,cancelable:true,ctrlKey:true,shiftKey:true,key:'v'}));
+   d.input.dispatchEvent(new KeyboardEvent('keyup',{
+    bubbles:true,ctrlKey:true,shiftKey:true,key:'v'}));
+   const staleCleared=!d.forcePlainNextPaste;
+   const richAfterKeyup=send(d,richClipboard),richAfterKeyupState=state(d);
+   d.finish(false);
+
+   d=create('StartEnd');choose(d,5);
    const richKey=new KeyboardEvent('keydown',{
     bubbles:true,cancelable:true,ctrlKey:true,key:'v'});
    d.input.dispatchEvent(richKey);
@@ -1265,6 +1282,9 @@ try{
     'font-weight:bold">לימוד</span><br>English</p>'+
     '<p><em>Second</em><span style="display:none">HIDDEN</span></p>';
    const imported=externalRichClipboardHTML(safeFragment);
+   const officeHTML='<html><head><meta charset="utf-8"><style>.office{font-size:14px}</style>'+
+    '</head><body><p class="office" dir="rtl"><strong>Office content</strong></p></body></html>';
+   const officeImported=externalRichClipboardHTML(officeHTML);
    d=create();choose(d,0);
    const withBr=send(d,{getData(type){return type==='text/html'?safeFragment:'';}}),
     brState=state(d);
@@ -1290,8 +1310,9 @@ try{
    host.remove();
    return {parsed,yes,htmlOnlyState,htmlStart,undone,redone,
     matchPrevented,matchState,flagBefore,forced,forcedState,
-    forcedUndo,regular,regularState,carrierPlain,carrierPlainState,
-    imported,withBr,brState,preventedUnsafe,unsafeState,unsafeNodes,
+    forcedUndo,macFlag,macPlain,macPlainState,staleCleared,richAfterKeyup,
+    richAfterKeyupState,regular,regularState,carrierPlain,carrierPlainState,
+    imported,officeImported,withBr,brState,preventedUnsafe,unsafeState,unsafeNodes,
     oversize,oversizeState,injected};
   });
   assert(result.parsed);
@@ -1319,6 +1340,13 @@ try{
   assert(result.forcedState.runs.some(r=>r.text.includes('אלגברה')&&
     r.italic&&r.color==='#147d92'));
   assert.equal(result.forcedUndo.text,'StartEnd');
+  assert(result.macFlag);
+  assert(result.macPlain);
+  assert.equal(result.macPlainState.equations.length,0);
+  assert(result.macPlainState.text.includes('\\(x^2\\)'));
+  assert(result.staleCleared,'Cancelled Ctrl+Shift+V should not change a later paste');
+  assert(result.richAfterKeyup);
+  assert.deepEqual(result.richAfterKeyupState.equations,['x^2']);
   assert(result.regular);
   assert.deepEqual(result.regularState.equations,['x^2']);
   assert(result.regularState.runs.some(r=>r.text.includes('אלגברה')&&r.bold));
@@ -1326,6 +1354,10 @@ try{
   assert(result.carrierPlainState.text.includes('\\(x^2\\)'));
   assert.deepEqual(result.carrierPlainState.equations,[]);
   assert(result.imported);
+  assert(result.officeImported);
+  assert.equal(result.officeImported.runs[0].text,'Office content');
+  assert.equal(result.officeImported.runs[0].bold,true);
+  assert.equal(result.officeImported.paragraphs[0].dir,'rtl');
   assert(result.withBr);
   assert(result.brState.text.includes('לימוד\nEnglish'));
   assert(result.brState.text.includes('Second'));
