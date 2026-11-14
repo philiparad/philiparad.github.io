@@ -448,6 +448,14 @@ try{
   const selected=await page.evaluate(()=>window.__atomicMath.state());
   assert.deepEqual(selected.logical,{anchor:{paragraph:1,offset:6},focus:{paragraph:1,offset:7}},
    'Shift+Right should select exactly one math placeholder');
+  await page.keyboard.press('Delete');
+  const removedSelection=await page.evaluate(()=>window.__atomicMath.state());
+  assert.deepEqual(removedSelection.sources,['x^2'],
+   'Deleting a selected equation must remove its entire DOM token');
+  assert.equal(removedSelection.text,'שלום \uFFFC English\nSolve  now');
+  await page.keyboard.press('Control+z');
+  assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2','y^2'],
+   'Undo must recover an equation deleted from a range selection');
 
   await page.evaluate(()=>window.__atomicMath.move(0,5));
   await page.keyboard.press('ArrowLeft');
@@ -474,6 +482,20 @@ try{
   await page.evaluate(()=>window.__atomicMath.move(1,6));
   await page.keyboard.press('Delete');
   assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2']);
+  await page.keyboard.press('Control+z');
+  assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2','y^2']);
+
+  const mobile=await page.evaluate(()=>{
+   const {draft,move,state}=window.__atomicMath;
+   move(1,7);
+   const event=new InputEvent('beforeinput',{
+    inputType:'deleteContentBackward',bubbles:true,cancelable:true
+   });
+   draft.input.dispatchEvent(event);
+   return {prevented:event.defaultPrevented,...state()};
+  });
+  assert.equal(mobile.prevented,true,'Atomic deletion should handle cancelable beforeinput');
+  assert.deepEqual(mobile.sources,['x^2'],'Touch/IME deletion must remove the entire equation');
   await page.keyboard.press('Control+z');
   assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).sources,['x^2','y^2']);
 
