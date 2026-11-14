@@ -56,7 +56,7 @@ async def run_case(browser,base,file,kind,folder):
         s=await state(page)
         assert s["screen"]=="prompt",(file,kind,"prompt",s["screen"],s.get("error"))
         if kind=="calc-substitution":
-            assert s["flow"]["fields"][0]["id"]=="X",(file,kind,s["flow"])
+            assert s["flow"]["fieldId"]=="X",(file,kind,s["flow"])
             await press(page,"4","EQUAL")
             s=await state(page)
             assert s["screen"]=="result" and abs(s["raw"]-7)<1e-10,(file,kind,s["screen"],s["raw"])
