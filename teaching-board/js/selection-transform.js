@@ -27,7 +27,15 @@ export function resizeItems(board,d,p,shift=false){
   item.w=old.w*sx;item.h=old.h*sy;item.x=cx-item.w/2;item.y=cy-item.h/2;
   if(old.points)item.points=old.points.map(([x,y])=>[x*sx,y*sy]);
   if(old.rawPoints)item.rawPoints=old.rawPoints.map(([x,y])=>[x*sx,y*sy]);
-  if(['text','note'].includes(item.type))item.fontSize=(old.fontSize||26)*Math.min(sx,sy);
+  if(['text','note'].includes(item.type)){
+   // Dragging an east/west handle changes the text column width, not its font.
+   // Keep the top edge fixed and grow the box when text reflows to more lines.
+   if(d.items.length===1&&!old.groupId&&v===.5&&u!==.5){
+    item.fontSize=old.fontSize||26;
+    item.h=Math.max(old.h,textObjectHeight(item));
+    item.y=old.y;
+   }else item.fontSize=(old.fontSize||26)*Math.min(sx,sy);
+  }
  }
 }
 
