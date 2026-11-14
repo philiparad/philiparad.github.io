@@ -2864,7 +2864,7 @@ try{
   assert(phoneSize.dialogHeight<phoneSize.viewportHeight*.92+2,
    'Compact calculator dialog must fit inside a short viewport');
   assert(Math.abs(phoneSize.iframeWidth-(phoneSize.faceWidth+24))<3,
-   'Compact dialog should scale down without large side gutters');
+   'Compact dialog should scale down without large side gutters: '+JSON.stringify(phoneSize));
   assert(Math.abs(phoneSize.iframeHeight-(phoneSize.faceHeight+24))<3,
    'Compact dialog should scale down without large vertical gutters');
   await page.setViewportSize({width:1440,height:900});
