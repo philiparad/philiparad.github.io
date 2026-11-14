@@ -79,7 +79,9 @@ try {
  const info=execFileSync('pdfinfo',[path],{encoding:'utf8',timeout:30000});
  const pages=Number(info.match(/^Pages:\s+(\d+)/m)?.[1]);
  assert.equal(pages,2,'A4 printer generated an unexpected page count:\n'+info);
- assert.match(info,/Page size:\s+595(?:\.\d+)? x 842(?:\.\d+)? pts/, 'PDF page is not portrait A4.');
+ const pageSize=info.match(/Page size:\s+([\\d.]+) x ([\\d.]+) pts/);
+ assert(pageSize&&Math.abs(Number(pageSize[1])-595.28)<1&&Math.abs(Number(pageSize[2])-841.89)<1,
+  'PDF page is not portrait A4: '+info);
 
  const prefix=join(workspace,'print');
  execFileSync('pdftoppm',['-f','1','-l','2','-r','96','-png',path,prefix],{timeout:60000});
