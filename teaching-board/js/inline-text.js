@@ -6,6 +6,7 @@ import { TextHistory } from './text-history.js';
 import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection } from './text-selection.js';
 import {applyInlineFormat,inlineFormatState} from './text-commands.js';
 import {applyParagraphList} from './text-lists.js';
+import {applyParagraphFormatting} from './text-paragraph-format.js';
 import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pending.js';
 import {applyDocumentRange} from './text-range-format.js';
 import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js';
@@ -136,23 +137,25 @@ export class InlineText {
   return changed;
  }
  setParagraphAlignment(align){
-  if(!['left','center','right'].includes(align))return;
+  if(this.closed||this.composing||!['left','center','right'].includes(align))return false;
   const selection=window.getSelection();
+  this.input.focus();
   if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}
-  const range=selection?.rangeCount?selection.getRangeAt(0):null;
-  const blocks=[...this.input.querySelectorAll('div,p,li')].filter(n=>n.closest('li')===null||n.tagName==='LI');
-  const matches=range&&typeof range.intersectsNode==='function'?blocks.filter(n=>range.intersectsNode(n)):[];
-  if(matches.length){for(const block of matches)block.style.textAlign=align;}
-  else{
-   let node=selection?.anchorNode;
-   let block=node?.nodeType===1?node:node?.parentElement;
-   while(block&&block!==this.input&&!['DIV','P','LI'].includes(block.tagName))block=block.parentElement;
-   if(block&&block!==this.input)block.style.textAlign=align;
-   else for(const child of this.input.children)if(['DIV','P','LI'].includes(child.tagName))child.style.textAlign=align;
-  }
-  this.input.focus();this.resize();this.recordSnapshot();
+  const changed=applyParagraphFormatting(this.input,this.item,selection,'align',align);
+  this.savedRange=null;
+  if(changed){this.resize();this.recordSnapshot();this.selectionChange();}
+  return changed;
  }
- setParagraphDirection(dir){if(!['auto','ltr','rtl'].includes(dir))return;const selection=window.getSelection();if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}let node=selection.anchorNode;let block=node?.nodeType===1?node:node?.parentElement;while(block&&block!==this.input&&!['DIV','P','LI'].includes(block.tagName))block=block.parentElement;const blocks=[...this.input.querySelectorAll('div,p,li')].filter(n=>n.closest('li')===null||n.tagName==='LI');const range=selection.rangeCount?selection.getRangeAt(0):null;const targets=range&&typeof range.intersectsNode==='function'?blocks.filter(n=>range.intersectsNode(n)):[];if(targets.length)for(const n of targets)n.dir=dir;else if(block&&block!==this.input)block.dir=dir;else for(const child of this.input.children)if(['DIV','P','LI'].includes(child.tagName))child.dir=dir;this.input.focus();this.resize();this.recordSnapshot();}
+ setParagraphDirection(dir){
+  if(this.closed||this.composing||!['auto','ltr','rtl'].includes(dir))return false;
+  const selection=window.getSelection();
+  this.input.focus();
+  if(this.savedRange){selection.removeAllRanges();selection.addRange(this.savedRange);}
+  const changed=applyParagraphFormatting(this.input,this.item,selection,'dir',dir);
+  this.savedRange=null;
+  if(changed){this.resize();this.recordSnapshot();this.selectionChange();}
+  return changed;
+ }
  recordSnapshot(){
   if(this.closed||this.composing)return;
   try{
