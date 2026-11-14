@@ -157,7 +157,8 @@ function supported(state){
  return state.editor.root.some(n=>n&&n.type!=='char');
 }
 function draw(canvas,state){
- if(!canvas||!supported(state)){legacy.draw(canvas,state);return 'authentic'}
+ const authentic=new URLSearchParams(global.location?.search||'').get('lcd')==='authentic';
+ if(!canvas||authentic||!supported(state)){legacy.draw(canvas,state);return 'authentic'}
  // First retain the proven LCD raster (status/readouts, results, mode details).
  legacy.draw(canvas,state);
  const ctx=canvas.getContext('2d',{alpha:false});
