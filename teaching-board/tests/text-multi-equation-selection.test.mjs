@@ -78,7 +78,8 @@ test('TXT-062 list-container and root selection boundaries select correct neighb
  const saved=selected(at(4,5),at(0,2));
  const fake={setBaseAndExtent(...a){this.args=a;}};
  assert.equal(restoreLogicalSelection(root,fake,saved),true);
- assert.equal(fake.args[1],1);
+ assert.equal(fake.args[1],2,
+  'The restored end caret belongs after the fourth inline child');
  assert.equal(fake.args[3],2);
 });
 
