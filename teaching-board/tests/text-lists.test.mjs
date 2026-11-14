@@ -43,3 +43,23 @@ test('paragraph index discovery ignores list wrapper and preserves order',()=>{
  const outside=element('DIV');
  assert.deepEqual(selectedParagraphIndices(root,{rangeCount:1,getRangeAt:()=>({...collapsed,startContainer:outside})},blocks),[]);
 });
+
+test('converting a custom-start numbered list clears invalid ordinal metadata',()=>{
+ const original=[
+  {align:'left',dir:'ltr',list:'number',numberStart:7},
+  {align:'left',dir:'ltr',list:'number'},
+  {align:'right',dir:'rtl',list:'bullet'}
+ ];
+ const bullet=toggleParagraphLists(original,[0,1],'bullet');
+ assert.deepEqual(bullet.map(p=>p.list),['bullet','bullet','bullet']);
+ assert.ok(!Object.hasOwn(bullet[0],'numberStart'));
+ const backToNumber=toggleParagraphLists(bullet,[0,1],'number');
+ assert.deepEqual(backToNumber.map(p=>p.list),['number','number','bullet']);
+ assert.ok(!Object.hasOwn(backToNumber[0],'numberStart'));
+ assert.equal(original[0].numberStart,7);
+ const plain=toggleParagraphLists(original,[0,1],'number');
+ assert.deepEqual(plain.map(p=>p.list),['none','none','bullet']);
+ assert.ok(!Object.hasOwn(plain[0],'numberStart'));
+ const partiallySelected=toggleParagraphLists(original,[1,2],'number');
+ assert.equal(partiallySelected[0].numberStart,7);
+});
