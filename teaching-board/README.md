@@ -31,12 +31,15 @@ Use Export → Editable backup before clearing browser data, or to transfer a le
 
 ## Text draft recovery
 
-When editing an **existing** text box or sticky note, each valid changed draft is
-also stored locally in your browser so an accidental page reload need not
-discard the text. On reopening that same object in the same lesson and browser
-profile, choose **Recover saved draft** to restore the unsaved formatted version,
-or **Discard saved draft** to keep the current saved object. Recovery is always
-explicit: it does not silently overwrite the lesson.
+Changed drafts for text boxes and sticky notes are stored locally in the
+browser, including **brand-new objects that have never been saved to the
+lesson**. For existing objects, reopen the same object in the same lesson and
+browser profile and choose **Recover saved draft** or **Discard saved draft**.
+For brand-new objects, reopen the lesson and use the toolbar's
+**Recover unsaved text (N)** button, then **Open draft for review**. Review the
+formatting and click **Done** to save the restored object. You can also discard
+an unwanted new-object draft. Recovery is always explicit: it never silently
+inserts an unsaved object or overwrites an existing one.
 
 If a malformed equation or other invalid formatting prevents a text save, the
 editor stays open with the error and the controls **Restore last valid version**
@@ -46,12 +49,14 @@ automatically close the editor or discard the draft.
 
 Recovery stores only validated text runs and paragraph metadata, plus a plain
 raw-text fallback; it never stores editor HTML or uploads text to a server.
-Records are scoped to lesson and object IDs, expire for recovery after 30 days,
-and are cleared when **Done** succeeds or **Cancel** intentionally discards the
-edit. This is a local best-effort safety net: it may be unavailable when browser
-storage is disabled, does not transfer between devices, and currently applies
-to **existing text objects**, not brand-new uncommitted boxes. Keep regular
-lesson backups for important work.
+Records are scoped to lesson and object IDs and expire after 30 days.
+**Cancel** intentionally discards the current draft. For a new text object,
+its recovery record is retained until the asynchronous lesson save actually
+succeeds, not merely until the save is queued. Navigating away from an
+unfinished edit preserves its local recovery record. This is a local
+best-effort safety net: it may be unavailable when browser storage is
+disabled and does not transfer between devices. Keep regular lesson backups
+for important work.
 
 ## Reusable snippets
 
