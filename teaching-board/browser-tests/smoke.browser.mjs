@@ -190,7 +190,8 @@ try{
    const rows=blocks.map((block,index)=>{
     const range=document.createRange();range.selectNodeContents(block);
     const html=range.getBoundingClientRect(),nodes=vectorLines[index].nodes;
-    const bounds=nodes.map(node=>node.getBBox());
+    const bounds=nodes.map(node=>node.getBBox()).filter(box=>box.width>0.1);
+    if(!bounds.length)throw Error('No measurable SVG glyphs in paragraph '+index);
     return {string:block.textContent,svgText:nodes.map(node=>node.textContent).join(''),
      html:{left:html.left-inputBounds.left,right:html.right-inputBounds.left},
      svg:{left:Math.min(...bounds.map(box=>box.x)),
