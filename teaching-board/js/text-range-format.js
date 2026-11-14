@@ -1,5 +1,6 @@
 import {compactRuns,readRichDocument,validateRuns,validateParagraphs,writeRuns} from './rich-text.js?v=20261017-history-budget';
 import {editableParagraphs} from './text-lists.js';
+import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js';
 
 /** Apply formatting to [start,end) in document text, preserving paragraph metadata. */
 export function formatDocumentRange(snapshot,start,end,name,value){
@@ -93,12 +94,16 @@ export function rangeDocumentOffsets(root,selection,snapshot){
 /** Rebuild from validated text runs; preserve selection using character offsets. */
 export function applyDocumentRange(root,item,selection,name,value){
     const snapshot=readRichDocument(root,item);
+    const saved=captureLogicalSelection(root,selection);
     const offsets=rangeDocumentOffsets(root,selection,snapshot);
     if(!offsets)return false;
     const changed=formatDocumentRange(snapshot,offsets.start,offsets.end,name,value);
     if(!changed)return false;
     const text=changed.runs.map(r=>r.text).join('');
     writeRuns(root,{...item,text,...changed});
+    // Preserve backwards selections and the exact anchor/focus through
+    // span regeneration, list wrappers and atomic equation tokens.
+    if(saved&&restoreLogicalSelection(root,selection,saved))return true;
     const blocks=editableParagraphs(root),rows=text.split('\n');
     const locate=absolute=>{
         let index=0;
