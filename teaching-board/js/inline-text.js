@@ -19,6 +19,7 @@ export class InlineText {
   this.draftBoardId=editor.board?.id;
   try{this.draftStorage=globalThis.localStorage||null;}catch{this.draftStorage=null;}
   this.root=el('div',null,'inline-text-editor');
+  this.pasteFormattingMode='keep';
   this.input=el('div');this.input.contentEditable='true';this.input.setAttribute('role','textbox');this.input.setAttribute('aria-multiline','true');this.input.setAttribute('aria-label',item.type==='note'?'Edit sticky note on canvas':'Edit text on canvas');
   writeRuns(this.input,item);this.input.dir='auto';this.input.spellcheck=true;
   this.input.dataset.placeholder='Type here…';
@@ -80,6 +81,33 @@ export class InlineText {
   const command=(name,value)=>{if(name.startsWith('justify')){this.setParagraphAlignment({justifyLeft:'left',justifyCenter:'center',justifyRight:'right'}[name]);this.savedRange=null;return;}if(['bold','italic','underline','strikeThrough','foreColor','removeFormat'].includes(name)){this.formatText(name,value);return;}if(name==='insertUnorderedList'||name==='insertOrderedList'){this.formatList(name==='insertOrderedList'?'number':'bullet');return;}throw new Error('Unsupported text command: '+name);};
   for(const [name,label]of [['bold','Bold'],['italic','Italic'],['underline','Underline'],['strikeThrough','Strikethrough'],['justifyLeft','Align left'],['justifyCenter','Center'],['justifyRight','Align right'],['insertUnorderedList','Bulleted list'],['insertOrderedList','Numbered list'],['removeFormat','Clear formatting']]){const button=btn(label,()=>command(name));button.onpointerdown=e=>e.preventDefault();button.setAttribute('aria-label',label+' selected text');this.controls.append(button);if(['bold','italic','underline','strikeThrough','insertOrderedList','insertUnorderedList'].includes(name)){button.setAttribute('aria-pressed','false');this.formatButtons.set(name,button);}}
   const math=btn('Inline equation',()=>this.editEquation());math.onpointerdown=e=>e.preventDefault();this.controls.append(math);
+  const pasteLabel=el('label','Paste formatting: ');
+  const pasteChoice=el('select');
+  pasteChoice.setAttribute('aria-label','Paste formatting mode');
+  pasteChoice.title='Choose whether pasted rich text keeps its original formatting or matches this text box. Equations remain editable.';
+  for(const [value,label] of [['keep','Keep source formatting'],
+   ['match','Match destination formatting']]){
+   const option=el('option',label);option.value=value;pasteChoice.append(option);
+  }
+  pasteChoice.value=this.pasteFormattingMode;
+  let preservedCaret=null;
+  const rememberCaret=()=>{
+   const sel=window.getSelection();
+   if(sel?.rangeCount&&this.input.contains(sel.anchorNode)&&this.input.contains(sel.focusNode))
+    preservedCaret=captureLogicalSelection(this.input,sel);
+  };
+  pasteChoice.onpointerdown=rememberCaret;
+  pasteChoice.onfocus=rememberCaret;
+  pasteChoice.onchange=()=>{
+   if(!['keep','match'].includes(pasteChoice.value))return;
+   this.pasteFormattingMode=pasteChoice.value;
+   this.input.focus();
+   if(preservedCaret)restoreLogicalSelection(this.input,window.getSelection(),preservedCaret);
+   preservedCaret=null;
+   this.selectionChange();
+  };
+  pasteLabel.append(pasteChoice);this.controls.append(pasteLabel);
+  this.pasteModeSelect=pasteChoice;
   const colors=el('select');colors.setAttribute('aria-label','Selected text color');for(const [value,label]of [['','Text color…'],['#203954','Dark blue'],['#b42318','Red'],['#147d92','Teal'],['#7c50b0','Purple'],['#000000','Black']]){const option=el('option',label);option.value=value;colors.append(option);}
   const capture=()=>{const selection=window.getSelection();if(selection.rangeCount&&this.input.contains(selection.anchorNode)&&this.input.contains(selection.focusNode))this.savedRange=selection.getRangeAt(0).cloneRange();};colors.onpointerdown=capture;colors.onfocus=capture;colors.onchange=()=>{if(colors.value)command('foreColor',colors.value);colors.value='';};this.controls.append(colors);const direction=el('select');direction.setAttribute('aria-label','Paragraph text direction');for(const [value,label] of [['auto','Direction: Auto'],['rtl','Right-to-left (Hebrew)'],['ltr','Left-to-right (English)']]){const option=el('option',label);option.value=value;direction.append(option);}direction.onpointerdown=capture;direction.onfocus=capture;direction.onchange=()=>{this.setParagraphDirection(direction.value);this.savedRange=null;};this.controls.append(direction);const custom=el('input');custom.type='color';custom.value='#203954';custom.setAttribute('aria-label','Custom text color');custom.title='Custom text color';custom.onpointerdown=capture;custom.onfocus=capture;custom.onchange=()=>command('foreColor',custom.value);this.controls.append(custom);
  }
@@ -233,7 +261,9 @@ export class InlineText {
    range=logicalClipboardRange(this.input,selection,snapshot,true);
   }catch{/* Use the existing plain-text fallback for partial native edits. */}
   const rich=clipboardFromTransfer(data);
-  if(rich&&range&&this.replaceRichTextRange(range,rich))return;
+  if(rich&&range&&this.replaceRichTextRange(range,rich,
+   {matchDestination:this.pasteFormattingMode==='match',
+    marks:this.pasteFormattingMode==='match'?this.pendingMarks:null}))return;
   const plain=data?.getData?.('text/plain')?.slice(0,10000)||'';
   if(!plain)return;
   // Keep the established plaintext paste path for normal text, including

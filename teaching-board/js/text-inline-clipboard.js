@@ -231,7 +231,7 @@ export function plainPasteStyle(snapshot,start,end=start,marks=null){
  * Numbering is normalized by the normal rich-text writer after validation;
  * source numberStart is preserved when pasted at a genuine paragraph boundary.
  */
-export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=false,marks=null}={}){
+export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=false,matchDestination=false,marks=null}={}){
     const original=validateRichClipboard({schema:1,...snapshot});
     if(!original||!fragment||!Array.isArray(fragment.runs))return null;
     const payload=validateRichClipboard(fragment);
@@ -242,9 +242,14 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
     const updated=text.slice(0,start)+insertion+text.slice(end);
     if(updated.length>10000)return null;
     try{
-        const insertionRuns=plainText?payload.runs.map(run=>({
-            ...run,...plainPasteStyle(original,start,end,marks)
-        })):payload.runs;
+        const inheritDestination=plainText||matchDestination;
+        const inheritedStyle=inheritDestination?
+            plainPasteStyle(original,start,end,marks):null;
+        // Match destination formatting only affects textual runs. Preserve
+        // equation image/source atoms intact, without copying text marks onto
+        // the equation object or converting it into plain LaTeX.
+        const insertionRuns=inheritDestination?payload.runs.map(run=>
+            run.equation?run:{...run,...inheritedStyle}):payload.runs;
         const runs=compactRuns([
             ...sliceRuns(original.runs,0,start),
             ...insertionRuns,
@@ -256,7 +261,7 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
         const suffix=oldRows[last].slice(end-paragraphOffset(oldRows,last));
         const replaceWholeFirst=start!==end&&
             (last>first||end-paragraphOffset(oldRows,last)===oldRows[first].length);
-        const sourceOwnsFirst=!!insertion&&!plainText&&!prefix.length&&
+        const sourceOwnsFirst=!!insertion&&!inheritDestination&&!prefix.length&&
             (oldRows[first].length===0||replaceWholeFirst);
         const deletingWholeLeadingRows=!insertion&&!prefix.length&&last>first;
         let firstMeta=sourceOwnsFirst?payload.paragraphs[0]:original.paragraphs[first];
@@ -273,7 +278,7 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
         ];
         for(let i=1;i<newRows.length;i++){
             let p;
-            if(i===newRows.length-1&&suffix.length&&(plainText||last>first)){
+            if(i===newRows.length-1&&suffix.length&&(inheritDestination||last>first)){
                 // A surviving destination suffix takes its own formatting
                 // when the paste replaced multiple existing paragraphs.
                 // When a rich fragment splits ONE paragraph, its new last
@@ -282,8 +287,8 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
                 // Splitting one numbered item with plain multiline paste
                 // must continue its ordinal rather than restart at the
                 // original explicit <ol start> on the suffix line.
-                if(plainText&&last===first&&p.list==='number')delete p.numberStart;
-            }else if(plainText){
+                if(inheritDestination&&last===first&&p.list==='number')delete p.numberStart;
+            }else if(inheritDestination){
                 p=structuredClone(original.paragraphs[first]);
                 if(p.list==='number')delete p.numberStart;
             }else{

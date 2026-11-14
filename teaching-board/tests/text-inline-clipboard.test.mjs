@@ -354,3 +354,93 @@ test('invalid style overrides cannot inject unsafe HTML or color values into cli
  assert(pasted.runs.some(r=>r.text.includes('<img src=x>')&&r.color==='#147d92'));
  assert(pasted.runs.every(r=>r.bold!==true&&r.italic!==true));
 });
+
+
+test('TXT-057 keep-source and match-destination make distinct formatted copies',()=>{
+ const eq={source:'x^2+1',src:'data:image/png;base64,AAAA',w:70,h:35};
+ const source={schema:1,
+  runs:[{text:'שלום ',bold:true,color:'#b42318'},{text:'\uFFFC',equation:eq},
+   {text:' English\nSecond',italic:true,underline:true,color:'#7c50b0'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:12},
+   {align:'left',dir:'ltr',list:'bullet'}]};
+ const target={runs:[{text:'Prefix and suffix',italic:true,color:'#147d92'}],
+  paragraphs:[{align:'center',dir:'ltr',list:'number',numberStart:4}]};
+ const start=7;
+ const keep=replaceRichClipboard(target,start,start,source);
+ const match=replaceRichClipboard(target,start,start,source,{matchDestination:true});
+ assert(keep&&match);
+ assert.equal(keep.text,match.text);
+ assert.equal(keep.runs.find(r=>r.text.includes('שלום')).bold,true);
+ assert.equal(keep.runs.find(r=>r.text.includes('שלום')).color,'#b42318');
+ assert.equal(keep.runs.find(r=>r.text.includes('Second')).color,'#7c50b0');
+ assert.equal(match.runs.find(r=>r.text.includes('שלום')).italic,true);
+ assert.equal(match.runs.find(r=>r.text.includes('שלום')).bold,false);
+ assert.equal(match.runs.find(r=>r.text.includes('שלום')).color,'#147d92');
+ assert.equal(match.runs.find(r=>r.text.includes('Second')).underline,false);
+ assert.equal(match.runs.find(r=>r.text.includes('Second')).color,'#147d92');
+ assert.equal(match.runs.find(r=>r.equation)?.equation.source,'x^2+1');
+ assert.deepEqual(match.paragraphs.map(p=>p.dir),['ltr','ltr']);
+ assert.deepEqual(match.paragraphs.map(p=>p.list),['number','number']);
+ assert.equal(match.paragraphs[0].numberStart,4);
+ assert.equal(match.paragraphs[1].numberStart,undefined);
+ assert.equal(keep.paragraphs[1].list,'bullet');
+ assert.equal(keep.paragraphs[1].dir,'ltr');
+ assert.deepEqual(match.cursor,{paragraph:1,offset:6});
+});
+
+test('TXT-057 matching target style respects selection replacement and pending overrides',()=>{
+ const fragment={schema:1,runs:[{text:'COLORS\nmore',bold:true,color:'#b42318'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:15},
+   {align:'right',dir:'rtl',list:'number'}]};
+ const doc={runs:[{text:'first ',bold:true},
+  {text:'EDITABLE',italic:true,color:'#147d92'},
+  {text:'\nNext',underline:true}],
+  paragraphs:[{align:'left',dir:'ltr',list:'bullet'},
+   {align:'right',dir:'rtl',list:'number',numberStart:5}]};
+ const result=replaceRichClipboard(doc,6,10,fragment,{matchDestination:true});
+ assert(result);
+ assert(result.runs.some(r=>r.text.includes('COLORS')&&r.italic&&r.color==='#147d92'&&!r.bold));
+ assert(result.runs.some(r=>r.text.includes('more')&&r.italic&&r.color==='#147d92'&&!r.bold));
+ assert.equal(result.paragraphs[0].list,'bullet');
+ assert.equal(result.paragraphs[1].list,'bullet');
+ assert.equal(result.paragraphs[2].list,'number');
+ assert.equal(result.paragraphs[2].dir,'rtl');
+ const overridden=replaceRichClipboard(doc,6,10,fragment,
+  {matchDestination:true,marks:{bold:true,italic:false,color:'#7c50b0'}});
+ assert(overridden);
+ assert(overridden.runs.some(r=>r.text.includes('COLORS')&&r.bold&&!r.italic&&r.color==='#7c50b0'));
+ assert(overridden.runs.some(r=>r.text.includes('more')&&r.bold&&!r.italic&&r.color==='#7c50b0'));
+ assert.equal(replaceRichClipboard(doc,6,10,fragment,{matchDestination:false}).runs
+  .find(r=>r.text.includes('COLORS')).color,'#b42318');
+});
+
+test('TXT-057 matching preserves math atoms while styling adjoining text',()=>{
+ const equation={source:'\\frac{x}{2}',src:'data:image/png;base64,AAAA',w:55,h:28};
+ const source={schema:1,runs:[{text:'B ',bold:true},{text:'\uFFFC',equation},
+  {text:' C',strike:true,color:'#b42318'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:8}]};
+ const target={runs:[{text:'אחר',underline:true,color:'#147d92'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'bullet'}]};
+ const matched=replaceRichClipboard(target,1,1,source,{matchDestination:true});
+ assert(matched);
+ assert.deepEqual(matched.runs.filter(r=>r.equation).map(r=>r.equation.source),['\\frac{x}{2}']);
+ assert.deepEqual(matched.runs.filter(r=>r.equation).map(r=>r.text),['\uFFFC']);
+ assert(matched.runs.filter(r=>r.equation).every(r=>!r.bold&&!r.italic&&!r.color));
+ assert(matched.runs.filter(r=>r.text.includes('B')).some(r=>r.underline&&r.color==='#147d92'));
+ assert(matched.runs.filter(r=>r.text.includes('C')).some(r=>r.underline&&r.color==='#147d92'&&!r.strike));
+ assert.equal(matched.paragraphs[0].list,'bullet');
+});
+
+test('TXT-057 match destination rejects unsafe rich payloads just as keep source does',()=>{
+ const doc={runs:[{text:'safe',bold:true}],paragraphs:[{align:'auto',list:'none',dir:'ltr'}]};
+ const bogus={schema:1,runs:[{text:'\uFFFC',equation:{
+  source:'x',src:'javascript:alert(1)',w:20,h:20}}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number'}]};
+ assert.equal(replaceRichClipboard(doc,2,2,bogus),null);
+ assert.equal(replaceRichClipboard(doc,2,2,bogus,{matchDestination:true}),null);
+ const raw=plainClipboard('<script>alert(1)</script>');
+ const result=replaceRichClipboard(doc,2,2,raw,{matchDestination:true,plainText:true});
+ assert(result);
+ assert(result.text.includes('<script>alert(1)</script>'));
+ assert(result.runs.some(r=>r.text.includes('<script>')&&r.bold));
+});
