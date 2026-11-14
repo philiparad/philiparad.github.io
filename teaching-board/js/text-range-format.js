@@ -105,9 +105,16 @@ export function applyDocumentRange(root,item,selection,name,value){
         while(index<rows.length-1&&absolute>rows[index].length){absolute-=rows[index].length+1;index++;}
         return positionInBlock(blocks[index],absolute);
     };
-    const a=locate(offsets.start),b=locate(offsets.end);
-    const range=document.createRange();
-    range.setStart(a.node,a.offset);range.setEnd(b.node,b.offset);
-    selection.removeAllRanges();selection.addRange(range);
+    try{
+        const a=locate(offsets.start),b=locate(offsets.end);
+        const range=document.createRange();
+        range.setStart(a.node,a.offset);range.setEnd(b.node,b.offset);
+        selection.removeAllRanges();selection.addRange(range);
+    }catch{
+        // The data model is already valid; a stale range must not make it unsavable.
+        const range=document.createRange();
+        range.selectNodeContents(root);range.collapse(false);
+        selection.removeAllRanges();selection.addRange(range);
+    }
     return true;
 }
