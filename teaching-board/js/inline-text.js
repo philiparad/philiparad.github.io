@@ -3,17 +3,18 @@ import {equationNode,textLayoutMetrics,equationContentWidth} from './inline-equa
 import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261017-history-budget';
 import { el, btn } from './ui.js?v=20261017-history-budget';
 import { TextHistory } from './text-history.js';
-import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection } from './text-selection.js';
+import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection,recoverEquationSelection } from './text-selection.js';
 import {applyInlineFormat,inlineFormatState} from './text-commands.js';
 import {applyParagraphList} from './text-lists.js';
 import {applyParagraphFormatting} from './text-paragraph-format.js';
 import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pending.js';
 import {applyDocumentRange} from './text-range-format.js';
 import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js';
-import {moveAcrossEquation,deleteEquationAtCaret,positionBesideEquation} from './text-equation-caret.js';
+import {moveAcrossEquation,deleteEquationAtCaret,positionBesideEquation,adjacentEquationAtCaret} from './text-equation-caret.js';
 import {boundaryEdit,boundaryNavigation,unlistEmptyParagraph,selectedDeletion} from './text-boundary-keys.js';
 import {TEXT_RICH_CLIPBOARD,clipboardFromTransfer,clipboardPlainText,clipboardHTML,selectedRichClipboard,logicalClipboardRange,replaceRichClipboard,plainClipboard} from './text-inline-clipboard.js';
 
+let nextImeHelpId=0;
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
  constructor(editor,item,existing){
@@ -23,31 +24,60 @@ export class InlineText {
   this.root=el('div',null,'inline-text-editor');
   this.pasteFormattingMode='keep';
   this.forcePlainNextPaste=false;
+  this.postComposition=null;
   this.input=el('div');this.input.contentEditable='true';this.input.setAttribute('role','textbox');this.input.setAttribute('aria-multiline','true');this.input.setAttribute('aria-label',item.type==='note'?'Edit sticky note on canvas':'Edit text on canvas');
+  const help=el('span','Finish text composition before using shortcuts. Inline equations are single objects. Alt+Enter edits the equation next to the caret.');
+  help.id='teaching-board-ime-help-'+(++nextImeHelpId);
+  Object.assign(help.style,{position:'absolute',width:'1px',height:'1px',
+   padding:'0',margin:'-1px',overflow:'hidden',clip:'rect(0, 0, 0, 0)',
+   whiteSpace:'nowrap',border:'0'});
+  this.imeHelp=help;
+  this.compositionStatus=el('span');
+  this.compositionStatus.setAttribute('role','status');
+  this.compositionStatus.setAttribute('aria-live','polite');
+  this.compositionStatus.setAttribute('aria-atomic','true');
+  Object.assign(this.compositionStatus.style,{position:'absolute',width:'1px',
+   height:'1px',padding:'0',margin:'-1px',overflow:'hidden',
+   clip:'rect(0, 0, 0, 0)',whiteSpace:'nowrap',border:'0'});
+  this.input.setAttribute('aria-describedby',help.id);
+  this.input.setAttribute('aria-keyshortcuts','Alt+Enter Alt+ArrowUp Alt+ArrowDown Control+Z Meta+Z');
   writeRuns(this.input,item);this.input.dir='auto';this.input.spellcheck=true;
   this.input.dataset.placeholder='Type here…';
   this.input.style.whiteSpace='pre-wrap';
   this.input.addEventListener('compositionstart',()=>{
    this.composing=true;
+   this.postComposition=null;
+   this.compositionStartIndex=this.textHistory?.index??0;
    this.compositionMarks=this.pendingMarks;
    try{this.compositionBefore=readRichDocument(this.input,this.item).runs.map(run=>run.text).join('');}
    catch{this.compositionBefore=null;}
    this.pendingMarks=null;this.pendingSelection=null;
+   this.input.setAttribute('aria-busy','true');
+   this.compositionStatus.textContent='Text composition in progress';
   });
   this.input.addEventListener('compositionend',()=>{
+   if(!this.composing)return;
    this.composing=false;
-   if(this.compositionMarks&&this.compositionBefore!==null){
+   const before=this.compositionBefore,marks=this.compositionMarks;
+   const initialIndex=this.compositionStartIndex??this.textHistory.index;
+   if(marks&&before!==null){
     try{
      const after=readRichDocument(this.input,this.item).runs.map(run=>run.text).join('');
-     styleCommittedComposition(this.input,window.getSelection(),this.compositionMarks,this.compositionBefore,after);
-    }catch{/* Retain the native IME result if styling cannot be applied safely. */}
+     styleCommittedComposition(this.input,window.getSelection(),marks,before,after);
+    }catch{/* Keep valid native IME content if a rich edit cannot be styled. */}
    }
+   recoverEquationSelection(this.input,window.getSelection());
    this.compositionMarks=null;this.compositionBefore=null;
+   this.input.setAttribute('aria-busy','false');
+   this.compositionStatus.textContent='Text composition complete';
    this.resize();this.recordSnapshot();
+   this.postComposition={before,marks,startIndex:initialIndex,
+    recordedIndex:this.textHistory.index};
+   this.selectionChange();
   });
   const font=item.fontSize||24,pad=item.type==='note'?14:0;
   Object.assign(this.input.style,{font:`${(item.textStyle||'').includes('italic')?'italic':'normal'} ${(item.textStyle||'').includes('bold')?'700':'400'} ${font}px/1.3 Arial, sans-serif`,textAlign:item.textAlign&&item.textAlign!=='auto'?item.textAlign:'start',padding:`${pad}px`,color:item.stroke||'#203954',background:item.type==='note'&&item.fill!=='none'?(item.fill||'#fff1a8'):'transparent'});
-  this.root.append(this.input);
+  this.root.append(this.input,this.imeHelp,this.compositionStatus);
   this.controls=el('div',null,'inline-text-actions');this.controls.setAttribute('aria-label','Text editing actions');
   this.addFormatting();
   this.controls.append(el('span','Enter: new line · Ctrl/⌘ Enter: save · Esc: cancel'),btn('Cancel',()=>this.finish(false)),btn('Done',()=>this.finish(true),'primary'));
@@ -57,7 +87,26 @@ export class InlineText {
   const recovered=readTextDraft(this.draftStorage,this.draftBoardId,this.item);
   if(recovered&&isDifferentDraft(recovered,initial))this.offerDraftRecovery(recovered);
   else if(recovered)clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
-  this.input.oninput=()=>{this.resize();if(!this.composing){this.pendingMarks=null;this.pendingSelection=null;this.recordSnapshot();}};
+  this.input.oninput=e=>{
+   this.resize();
+   if(this.composing)return;
+   this.pendingMarks=null;this.pendingSelection=null;
+   const trailing=this.postComposition&&
+    ['insertFromComposition','insertCompositionText'].includes(e?.inputType);
+   const commit=this.postComposition;
+   this.postComposition=null;
+   if(trailing&&commit){
+    if(commit.marks&&commit.before!==null){
+     try{
+      const after=readRichDocument(this.input,this.item).runs.map(run=>run.text).join('');
+      styleCommittedComposition(this.input,window.getSelection(),
+       commit.marks,commit.before,after);
+     }catch{/* Preserve native committed text and last valid history. */}
+    }
+    recoverEquationSelection(this.input,window.getSelection());
+    this.recordSnapshot({amendComposition:commit});
+   }else this.recordSnapshot();
+  };
   this.input.onbeforeinput=e=>{if(this.closed||this.composing||e.isComposing)return;if(e.cancelable&&['deleteContentBackward','deleteContentForward'].includes(e.inputType)){const key=e.inputType==='deleteContentBackward'?'Backspace':'Delete';if(this.deleteInlineEquation(key)||this.handleBoundaryKey({key})){e.preventDefault();return;}}if(e.inputType!=='insertText'||!this.pendingMarks)return;const selection=window.getSelection();if(insertPendingText(this.input,selection,this.pendingMarks,e.data)){e.preventDefault();this.pendingMarks=null;this.pendingSelection=null;this.resize();this.recordSnapshot();this.selectionChange();}};
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
   this.selectionChange=()=>{if(this.closed||this.composing||!this.input.contains(document.activeElement))return;const caret=captureLogicalSelection(this.input,window.getSelection());this.textHistory.setSelection(caret);if(this.pendingMarks&&JSON.stringify(caret)!==JSON.stringify(this.pendingSelection)){this.pendingMarks=null;this.pendingSelection=null;}for(const [name,button] of this.formatButtons||[]){if(name.startsWith('insert')){const selection=window.getSelection(),node=selection?.anchorNode,block=node?.nodeType===1?node:node?.parentElement,list=block?.closest?.('li')?.parentElement;button.setAttribute('aria-pressed',String(list?.tagName===(name==='insertOrderedList'?'OL':'UL')));}else button.setAttribute('aria-pressed',String(this.pendingMarks&&Object.prototype.hasOwnProperty.call(this.pendingMarks,name)?this.pendingMarks[name]:inlineFormatState(this.input,window.getSelection(),name)));}};
@@ -80,7 +129,9 @@ export class InlineText {
   this.input.ondrop=e=>e.preventDefault();
   this.input.addEventListener('pointerdown',e=>{if(e.button!==0)return;const node=e.target.closest?.('.inline-equation');if(node&&positionBesideEquation(this.input,window.getSelection(),node,e.clientX)){e.preventDefault();this.selectionChange();}});
   this.input.ondblclick=e=>{const node=e.target.closest('.inline-equation');if(node){e.preventDefault();this.editEquation(node);}};
-  this.input.onkeydown=e=>{if(e.isComposing||this.composing||e.keyCode===229)return;if(!e.ctrlKey&&!e.metaKey&&!e.altKey){if(['Backspace','Delete'].includes(e.key)&&this.deleteInlineEquation(e.key)){e.preventDefault();e.stopPropagation();return;}if(['ArrowLeft','ArrowRight'].includes(e.key)&&moveAcrossEquation(this.input,window.getSelection(),e.key,e.shiftKey)){e.preventDefault();e.stopPropagation();this.selectionChange();return;}}if(this.handleBoundaryKey(e)){e.preventDefault();e.stopPropagation();return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'){e.preventDefault();e.stopPropagation();this.stepTextHistory(e.shiftKey?'redo':'undo');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='y'){e.preventDefault();e.stopPropagation();this.stepTextHistory('redo');return;}if((e.ctrlKey||e.metaKey)&&e.shiftKey&&!e.altKey&&['7','8'].includes(e.key)){e.preventDefault();e.stopPropagation();this.formatList(e.key==='7'?'number':'bullet');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&['b','i','u'].includes(e.key.toLowerCase())){e.preventDefault();e.stopPropagation();this.formatText({b:'bold',i:'italic',u:'underline'}[e.key.toLowerCase()]);return;}if(e.key==='Escape'||e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();this.finish(e.key!=='Escape');}};
+  this.input.onkeydown=e=>{if(e.isComposing||this.composing||e.keyCode===229)return;if(!e.ctrlKey&&!e.metaKey&&!e.altKey){if(['Backspace','Delete'].includes(e.key)&&this.deleteInlineEquation(e.key)){e.preventDefault();e.stopPropagation();return;}if(['ArrowLeft','ArrowRight'].includes(e.key)&&moveAcrossEquation(this.input,window.getSelection(),e.key,e.shiftKey)){e.preventDefault();e.stopPropagation();this.selectionChange();return;}}if(e.key==='Enter'&&e.altKey&&!e.ctrlKey&&!e.metaKey&&this.editAdjacentEquation()){
+    e.preventDefault();e.stopPropagation();return;
+   }if(this.handleBoundaryKey(e)){e.preventDefault();e.stopPropagation();return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'){e.preventDefault();e.stopPropagation();this.stepTextHistory(e.shiftKey?'redo':'undo');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='y'){e.preventDefault();e.stopPropagation();this.stepTextHistory('redo');return;}if((e.ctrlKey||e.metaKey)&&e.shiftKey&&!e.altKey&&['7','8'].includes(e.key)){e.preventDefault();e.stopPropagation();this.formatList(e.key==='7'?'number':'bullet');return;}if((e.ctrlKey||e.metaKey)&&!e.altKey&&['b','i','u'].includes(e.key.toLowerCase())){e.preventDefault();e.stopPropagation();this.formatText({b:'bold',i:'italic',u:'underline'}[e.key.toLowerCase()]);return;}if(e.key==='Escape'||e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.stopPropagation();this.finish(e.key!=='Escape');}};
   this.outside=e=>{if(this.suspended||this.composing)return;if(!this.root.contains(e.target)&&!this.controls.contains(e.target))this.finish(true,false);};
   document.addEventListener('pointerdown',this.outside,true);document.addEventListener('focusin',this.outside,true);
   this.resize();this.input.focus();const selection=window.getSelection(),range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);selection.removeAllRanges();selection.addRange(range);
@@ -157,14 +208,19 @@ export class InlineText {
   if(changed){this.resize();this.recordSnapshot();this.selectionChange();}
   return changed;
  }
- recordSnapshot(){
+ recordSnapshot({amendComposition=null}={}){
   if(this.closed||this.composing)return;
   try{
    const snapshot=readRichDocument(this.input,this.item);
    const txt=snapshot.runs.map(run=>run.text).join('');
    validateRuns(snapshot.runs,txt);validateParagraphs(snapshot.paragraphs,txt);
    snapshot.selection=captureLogicalSelection(this.input,window.getSelection());
-   const changed=this.textHistory.push(snapshot);
+   const coalesce=amendComposition&&
+    amendComposition.recordedIndex>amendComposition.startIndex&&
+    this.textHistory.index===amendComposition.recordedIndex;
+   const changed=coalesce?
+    this.textHistory.amendCurrent(snapshot,amendComposition.recordedIndex):
+    this.textHistory.push(snapshot);
    if(changed)storeTextDraft(this.draftStorage,this.draftBoardId,this.item,snapshot,
     null,Date.now(),{newItem:!this.existing});
    this.updateHistoryButtons();
@@ -231,6 +287,14 @@ export class InlineText {
   storeTextDraft(this.draftStorage,this.draftBoardId,this.item,
    this.textHistory.current,rawDraftText(this.input),
    Date.now(),{newItem:!this.existing});
+ }
+ /** Alt+Enter edits the entire equation immediately next to the caret. */
+ editAdjacentEquation(){
+  if(this.closed||this.composing)return false;
+  const node=adjacentEquationAtCaret(this.input,window.getSelection());
+  if(!node)return false;
+  this.editEquation(node);
+  return true;
  }
  /** Move across paragraph boundaries using stable logical offsets.
   * Ordinary character keys and non-boundary editing remain browser native.
