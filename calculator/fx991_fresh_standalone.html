@@ -479,7 +479,11 @@ function fix(value,places){
 }
 function normal(value,format='Norm2'){
  // Round to 10 display-significant digits while retaining numeric Ans.
- const rounded=Number(value.toPrecision(MAX_DIGITS));
+ const source=digits15(value);
+ const roundedDigits=roundSignificant(source.digits,source.exponent,MAX_DIGITS);
+ // Round in decimal mantissa space rather than at a binary64 tie.
+ const mantissa=roundedDigits.number[0]+'.'+roundedDigits.number.slice(1);
+ const rounded=(value<0?-1:1)*Number(mantissa+'e'+roundedDigits.exponent);
  // A carry into 10^100 is beyond the documented two-digit exponent range.
  if(Math.abs(rounded)>=1e100)return sci(value,MAX_DIGITS);
  if(rounded===0)return '0';
