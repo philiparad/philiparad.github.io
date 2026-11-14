@@ -1557,7 +1557,7 @@ try{
    const changedDir=draft.setParagraphDirection('ltr');
    const directed=read();
 
-   select([5,2],[3,1]); // backwards across a list-to-table boundary
+   select([5,11],[3,1]); // backwards across a list-to-table boundary
    const backwardBefore=read().selection;
    const changedList=draft.formatList('bullet');
    const listed=read();
@@ -1614,7 +1614,7 @@ try{
   assert.equal(output.directed.paragraphs[0].numberStart,6);
 
   assert.deepEqual(output.backwardBefore,{
-   anchor:{paragraph:5,offset:2},focus:{paragraph:3,offset:1}
+   anchor:{paragraph:5,offset:11},focus:{paragraph:3,offset:1}
   });
   assert(output.changedList);
   assert.deepEqual(output.listed.paragraphs.map(p=>p.list),
