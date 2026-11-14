@@ -69,7 +69,7 @@ export function planTextFlow(board,id,page,{checkOverlaps=true}={}){
   // because the next page may start halfway through a styled paragraph.
   for(const end of boundaries){
    if(end<=offset)continue;
-   const sample=textSlice(original,offset,end,!first);
+   const sample=textSlice(original,offset,end,offset>0);
    const height=textLayoutMetrics(sample,paragraphRuns(sample)).height;
    if(height>space)break;
    best=sample;bestOffset=end;best.h=height;
@@ -78,7 +78,7 @@ export function planTextFlow(board,id,page,{checkOverlaps=true}={}){
    flowError('A text line is too tall for an A4 page.');
    pageIndex++;first=false;continue;}
   best.x=original.x;best.y=y;
-  if(!first)best.id=crypto.randomUUID();
+  if(items.length)best.id=crypto.randomUUID();
   items.push(best);
   offset=bestOffset;pageIndex++;first=false;
  }
