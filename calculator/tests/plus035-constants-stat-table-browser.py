@@ -37,11 +37,11 @@ CASES=(
  {"id":"table-square","keys":("MODE","7","ALPHA","LP","SQUARE","EQUAL",
                              "NEG","1","EQUAL","1","EQUAL","DOT","5","EQUAL"),
   "mode":"TABLE","screen":"table-grid","rows":5,
-  "f_values":(1,.25,0,.25,1)},
+  "f_values":(1,.25,0,.25,1),"x_values":(-1,-.5,0,.5,1)},
  {"id":"table-linear","keys":("MODE","7","ALPHA","LP","EQUAL",
                              "0","EQUAL","2","EQUAL","1","EQUAL"),
   "mode":"TABLE","screen":"table-grid","rows":3,
-  "f_values":(0,1,2)}
+  "f_values":(0,1,2),"x_values":(0,1,2)}
 )
 FIELDS=("model","mode","screen","input","result","error","shift","alpha",
         "angle","format","math","menuKind","menuTitle","info")
@@ -74,9 +74,26 @@ async def replay(browser,base,file,case,output):
                 file,case["id"],"number",actual,case["number"])
         if "rows" in case:
             rows=s["tableData"]["rows"]
-            assert len(rows)==case["rows"],(file,case["id"],"rows",len(rows))
-            for row,want in zip(rows,case["f_values"]):
-                assert abs(row["f"]-want)<1e-10,(file,case["id"],row,want)
+            expected_x=case["x_values"]
+            expected_f=case["f_values"]
+            assert len(rows)==len(expected_x)==len(expected_f)==case["rows"], (
+                file,case["id"],"row/oracle length mismatch",
+                len(rows),len(expected_x),len(expected_f))
+            for index,(row,want_x,want_f) in enumerate(
+                    zip(rows,expected_x,expected_f)):
+                actual_x=row["x"]
+                actual_f=row["f"]
+                assert isinstance(actual_x,(int,float)) and math.isfinite(actual_x), (
+                    file,case["id"],"non-finite X",index,actual_x)
+                assert isinstance(actual_f,(int,float)) and math.isfinite(actual_f), (
+                    file,case["id"],"non-finite f(X)",index,actual_f)
+                assert abs(actual_x-want_x)<=1e-12, (
+                    file,case["id"],"incorrect X",index,actual_x,want_x)
+                assert abs(actual_f-want_f)<=1e-10, (
+                    file,case["id"],"incorrect f(X)",index,actual_f,want_f)
+            assert math.isfinite(s["memory"]["X"]) and abs(
+                s["memory"]["X"]-expected_x[-1])<=1e-12, (
+                file,case["id"],"final X register",s["memory"]["X"])
         assert not errors,(file,case["id"],errors)
         filename=file.replace(".html","")+"-"+case["id"]+".png"
         img=output/filename
