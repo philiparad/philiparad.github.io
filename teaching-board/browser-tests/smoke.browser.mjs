@@ -1370,6 +1370,144 @@ try{
   assert.equal(result.oversizeState.text,'SAFE');
  });
 
+
+ await check('TXT-059 external nested lists, mixed-direction tables and safe flat import',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {externalRichClipboardHTML,clipboardPlainText}=await import('./js/text-inline-clipboard.js');
+   const {restoreLogicalSelection}=await import('./js/text-selection.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:80px 50px 40px;background:white;z-index:4500';
+   document.body.append(host);
+   const editor={area:host,board:{id:'nested-import-'+crypto.randomUUID(),
+     viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const html='<section dir="rtl">'+
+    '<ol start="4">'+
+     '<li>סעיף ראשון<ul>'+
+       '<li dir="ltr"><p><em>nested English</em></p></li>'+
+       '<li dir="rtl"><strong>סעיף פנימי</strong></li>'+
+     '</ul></li>'+
+     '<li>סעיף שני<ol start="2">'+
+       '<li dir="ltr">Inner A</li>'+
+       '<li dir="rtl">פנימי ב</li>'+
+     '</ol></li>'+
+     '<li>סעיף שלישי</li>'+
+    '</ol>'+
+    '<table dir="rtl"><thead>'+
+     '<tr><th>שם</th><th dir="ltr">Value</th></tr>'+
+    '</thead><tbody>'+
+     '<tr><td dir="rtl"><p><span style="color:#b42318">שלום</span></p></td>'+
+       '<td dir="ltr"><strong>42</strong></td></tr>'+
+     '<tr dir="ltr"><td>English</td><td>עולם</td></tr>'+
+    '</tbody></table>'+
+    '</section>';
+   const parsed=externalRichClipboardHTML(html);
+   const model=(text='')=>({id:'nested-'+crypto.randomUUID(),type:'text',
+    x:0,y:0,w:550,h:65,fontSize:24,
+    text,runs:[{text,italic:true,color:'#147d92'}],
+    paragraphs:[{align:'left',dir:'ltr',list:'bullet'}]});
+   const make=(text='')=>{
+    const draft=new InlineText(editor,model(text),true);
+    draft.input.focus();const caret={paragraph:0,offset:text.length};
+    if(!restoreLogicalSelection(draft.input,window.getSelection(),{anchor:caret,focus:caret}))
+      throw Error('TXT-059 cannot focus paste target');
+    return draft;
+   };
+   const state=draft=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    return {text:doc.runs.map(r=>r.text).join(''),runs:doc.runs,
+     paragraphs:doc.paragraphs,
+     listStarts:[...draft.input.querySelectorAll('ol')].map(x=>x.start),
+     listTypes:[...draft.input.querySelectorAll('li')].map(x=>x.parentNode.tagName),
+     listDirections:[...draft.input.querySelectorAll('li')].map(x=>x.dir)};
+   };
+   const paste=(draft,value)=>{
+    const event=new Event('paste',{bubbles:true,cancelable:true});
+    Object.defineProperty(event,'clipboardData',
+     {value:{getData(type){return type==='text/html'?value:'';}}});
+    draft.input.dispatchEvent(event);return event.defaultPrevented;
+   };
+   let draft=make();
+   const keepPrevented=paste(draft,html),keep=state(draft);
+   draft.stepTextHistory('undo');const undo=state(draft);
+   draft.stepTextHistory('redo');const redo=state(draft);
+   draft.finish(false);
+
+   draft=make('Prefix ');
+   draft.pasteModeSelect.value='match';
+   draft.pasteModeSelect.dispatchEvent(new Event('change',{bubbles:true}));
+   const matchPrevented=paste(draft,html),match=state(draft);
+   draft.finish(false);
+
+   const hostile='<table><tr><td>Safe</td><td><img src=x '+
+    'onerror="window.__nestedAttack=true"></td></tr></table>';
+   draft=make('SAFE');
+   const hostilePaste=paste(draft,hostile),safe=state(draft);
+   const injected=!!window.__nestedAttack;
+   const embeddedNodes=draft.input.querySelectorAll('img,script,iframe,svg').length;
+   draft.finish(false);
+
+   const tooMany='<table>'+Array.from({length:1100},
+    (_,i)=>'<tr><td>'+i+'</td></tr>').join('')+'</table>';
+   const rejected=externalRichClipboardHTML(tooMany);
+   const tooDeep='<ol start="10001"><li>Overflow</li></ol>';
+   const rejectedOrdinal=externalRichClipboardHTML(tooDeep);
+   const plain=parsed?clipboardPlainText(parsed):null;
+   host.remove();
+   return {parsed,plain,keepPrevented,keep,undo,redo,matchPrevented,match,
+    hostilePaste,safe,injected,embeddedNodes,rejected,rejectedOrdinal};
+  });
+  assert(result.parsed,'nested lists and tables should be safely importable');
+  const lines=result.plain.split('\n');
+  assert.deepEqual(lines,[
+    'סעיף ראשון','↳ nested English','↳ סעיף פנימי',
+    'סעיף שני','↳ Inner A','↳ פנימי ב','סעיף שלישי',
+    'שם | Value','שלום | 42','English | עולם'
+  ]);
+  assert.deepEqual(result.parsed.paragraphs.map(p=>p.list),[
+    'number','bullet','bullet','number','number','number','number',
+    'none','none','none'
+  ]);
+  assert.deepEqual(result.parsed.paragraphs.slice(0,7).map(p=>p.numberStart),[
+    4,undefined,undefined,5,2,3,6
+  ]);
+  assert.deepEqual(result.parsed.paragraphs.map(p=>p.dir),[
+    'rtl','ltr','rtl','rtl','ltr','rtl','rtl','rtl','rtl','ltr'
+  ]);
+  assert(result.parsed.runs.some(r=>r.text.includes('nested English')&&r.italic));
+  assert(result.parsed.runs.some(r=>r.text.includes('סעיף פנימי')&&r.bold));
+  assert(result.parsed.runs.some(r=>r.text.includes('שלום')&&r.color==='#b42318'));
+  assert(result.parsed.runs.some(r=>r.text.includes('42')&&r.bold));
+  assert(result.parsed.runs.some(r=>r.text.includes('שם')&&r.bold));
+  assert(result.keepPrevented);
+  assert.equal(result.keep.text,result.plain);
+  assert.deepEqual(result.keep.paragraphs.map(p=>p.list),
+   result.parsed.paragraphs.map(p=>p.list));
+  assert.equal(result.keep.paragraphs[0].numberStart,4);
+  assert(result.keep.listStarts.includes(4));
+  assert(result.keep.listStarts.includes(5));
+  assert(result.keep.listStarts.includes(2));
+  assert(result.keep.listStarts.includes(6));
+  assert.equal(result.undo.text,'');
+  assert.equal(result.redo.text,result.keep.text);
+  assert.deepEqual(result.redo.paragraphs,result.keep.paragraphs);
+  assert(result.matchPrevented);
+  assert.equal(result.match.text,'Prefix '+result.plain);
+  assert(result.match.paragraphs.every(p=>p.list==='bullet'));
+  assert(result.match.paragraphs.every(p=>p.dir==='ltr'));
+  assert(result.match.runs.some(r=>r.text.includes('nested English')&&
+    r.italic&&r.color==='#147d92'));
+  assert(result.match.runs.some(r=>r.text.includes('שלום')&&
+    r.italic&&r.color==='#147d92'&&!r.bold));
+  assert(result.hostilePaste,'Unsafe HTML with no text/plain must still block browser default');
+  assert.equal(result.safe.text,'SAFE');
+  assert.equal(result.embeddedNodes,0);
+  assert.equal(result.injected,false);
+  assert.equal(result.rejected,null,'Imports above the bounded paragraph cap must be rejected');
+  assert.equal(result.rejectedOrdinal,null,'Out-of-range list numbers must not be silently reset');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
