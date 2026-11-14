@@ -447,3 +447,48 @@ The completed implementation's GitHub Actions verification is
 recorded in the TXT-060 commit history. Native screen readers,
 input methods and editing in external native applications remain
 manual checks.
+
+## TXT-061: paragraph-boundary keys, empty list items, and equation-aware keyboard navigation (November 14, 2026)
+
+Introduced the pure module `js/text-boundary-keys.js`, with
+`boundaryEdit`, `boundaryNavigation` and `unlistEmptyParagraph`
+to calculate text-safe keyboard actions from logical paragraph
+indexes and UTF-16 offsets. All calculations count an atomic
+inline equation as one `U+FFFC` placeholder and avoid touching
+its image/LaTeX data.
+
+**Editing boundaries:** A collapsed Backspace at the start of a
+paragraph and Delete at its end remove only the adjacent newline
+using the existing validated `replaceRichClipboard` splice operation.
+The untouched destination paragraph's metadata survives according
+to the existing TXT-055 merge rules. On an empty numbered/bulleted
+item, Backspace first removes list styling without removing the
+paragraph; when a following numbered item becomes a new list start,
+its original visible ordinal is retained. Rebuilding the editor
+restores the computed logical caret, records history, and supports
+undo/redo. The same boundary handler runs on cancelable native
+`beforeinput` delete events when needed.
+
+**Navigation:** `Alt+ArrowUp/Down` jumps between paragraph indexes,
+clamping offsets to the target paragraph length. `Shift+Alt+ArrowUp/Down`
+preserves the selection anchor, including backwards selections.
+`Ctrl/Meta+Home/End` targets the exact start/end of the whole text;
+`Shift` extends the selection from its current anchor.
+Unmodified Up/Down is intercepted only when the current paragraph
+is empty; standard visual navigation in nonempty/wrapped text
+remains native. Existing left/right equation navigation retains
+priority for atomic equation boundaries.
+
+**Tests:** New model-level tests cover paragraph joins, list
+numbering, empty-list exits, equation-adjacent lines, RTL/LTR offsets,
+document-edge navigation, reversed Shift selections, invalid
+offsets, and unchanged native behavior. Cross-browser smoke tests
+exercise all these actions, `beforeinput`, selection restoration,
+equation accessibility/undo, and actual Playwright keyboard input
+rather than relying exclusively on constructed key events.
+
+The source-code regression job for the implementation passed at
+[GitHub Actions run 43603467929](https://github.com/philiparad/philiparad.github.io/actions/runs/43603467929).
+Physical keyboards, IME composition and assistive technology remain
+manual integration checks, particularly when OS shortcuts are
+overridden at the system level.

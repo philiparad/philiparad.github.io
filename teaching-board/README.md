@@ -74,6 +74,40 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## Keyboard navigation across paragraphs and equations (TXT-061)
+
+The Teaching Board text editor now handles paragraph boundaries consistently,
+including mixed right-to-left Hebrew, English text, numbered/bulleted lists,
+empty paragraphs, and inline mathematical equations.
+
+- **Alt+Up / Alt+Down:** Move the caret to the previous or next paragraph,
+  staying as close as possible to the same logical character offset. This
+  includes empty list items and paragraphs containing equations.
+  **Shift+Alt+Up/Down** extends a selection without changing its original
+  anchor, even when selecting backwards.
+- **Ctrl+Home / Ctrl+End** (or **⌘+Home / ⌘+End**): Move to the first or
+  last character of the document. Add **Shift** to extend the selection.
+  **Up/Down** from an empty paragraph also moves to the neighboring
+  paragraph.
+- **Backspace at the start of a nonempty paragraph:** Join it with the
+  preceding paragraph by removing the line break. Surviving text retains
+  the applicable paragraph format, while the caret stays at the join.
+  **Delete at the end of a paragraph** joins with the next paragraph.
+- **Backspace on an empty list item:** Remove its bullet or number
+  formatting *without deleting the empty paragraph*. Undo restores the
+  list item. When an immediately following numbered item is affected,
+  its visible numbering is preserved.
+- **Inline equations:** Navigation counts each equation as one atomic
+  character, without entering or modifying the equation image markup.
+  Backspace and Delete beside an equation continue to remove the
+  complete equation, with undo/redo restoring it.
+
+Only recognized paragraph-boundary operations are intercepted. Ordinary
+typing, editing inside paragraphs, and normal character arrow movement
+remain native to the browser. Changes are validated and recorded in the
+existing text undo/redo history. Operating systems and browser settings
+may reserve some keyboard shortcuts; test on the target device.
+
 ## Edit imported multi-paragraph text without moving the caret (TXT-060)
 
 When you paste text containing lists or table-derived rows, you can select
