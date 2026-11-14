@@ -20,7 +20,7 @@ test('text crossing a page gap is detected without modifying its source',()=>{
  assert.equal(b.items[0].y,A4.h-10);
 });
 test('out-of-range text, horizontal overflow and expanded legacy height are reported',()=>{
- const tooTall=text('legacy',A4.h-250,{w:70,h:12,text:'Long '.repeat(8)});
+ const tooTall=text('legacy',A4.h-250,{w:70,h:12,text:'Long '.repeat(9)});
  assert.ok(textObjectHeight(tooTall)>250);
  const issues=textOverflowWarnings(board([
   tooTall,
