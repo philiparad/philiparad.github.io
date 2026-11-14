@@ -14,14 +14,14 @@ export function equationLines(paragraphs,width,font,measure){
   let parts=[],used=0,height=font*1.3;
   const flush=()=>{lines.push({parts,width:used,height,align:p.align,dir:p.dir||'auto'});parts=[];used=0;height=font*1.3;};
   const add=(text,run,w,h)=>{
-   if(used&&used+w>limit&&!/^\\s+$/.test(text))flush();
+   if(used&&used+w>limit&&!/^\s+$/.test(text))flush();
    parts.push({...run,text,w,h});used+=w;height=Math.max(height,h+font*.2);
   };
   for(const run of [...(marker?[{text:marker}]:[]),...p.runs]){
    if(run.equation){const size=equationSize(run.equation,font,limit);add(run.text,run,size.w,size.h);continue;}
-   for(const token of run.text.split(/(\\s+)/).filter(Boolean)){
+   for(const token of run.text.split(/(\s+)/).filter(Boolean)){
     const size=measure(token,run);
-    if(size<=limit||/^\\s+$/.test(token)){add(token,run,size,font*1.3);continue;}
+    if(size<=limit||/^\s+$/.test(token)){add(token,run,size,font*1.3);continue;}
     let chunk='',chunkWidth=0;
     for(const glyph of graphemes(token)){
      const glyphWidth=measure(glyph,run);
