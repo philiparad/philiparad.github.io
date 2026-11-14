@@ -41,6 +41,7 @@ async def verify(browser,page_name,base):
     await page.keyboard.press("Escape")
     assert (await page.evaluate("() => window.FreshCalculator.getState().screen"))=="menu"
 
+    await page.locator("#keylog-toggle").click()
     await page.locator("#record-keylog").click()
     await page.evaluate("() => {window.FreshCalculator.press('1');window.FreshCalculator.press('SHIFT');window.FreshCalculator.press('2');}")
     details=await page.evaluate("() => {const canvas=window.FreshEmulatorExtras.renderKeylog();return [canvas.width,canvas.height,window.FreshCalculator.getState().keylog.length];}")
