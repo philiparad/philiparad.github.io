@@ -43,6 +43,31 @@ export function boundaryEdit(snapshot,saved,key){
     }
     return null;
 }
+/** Remove an empty list marker without dropping the empty paragraph.
+ * If the following numbered item becomes the first item in its list,
+ * preserve its previously visible ordinal rather than restarting at 1.
+ */
+export function unlistEmptyParagraph(snapshot,index){
+    const doc=parts(snapshot);
+    if(!doc||!Number.isInteger(index)||index<0||index>=doc.rows.length||
+        doc.rows[index].length||snapshot.paragraphs[index]?.list==='none')return null;
+    const paragraphs=structuredClone(snapshot.paragraphs);
+    const next=paragraphs[index+1],previous=paragraphs[index];
+    if(previous.list==='number'&&next?.list==='number'&&next.numberStart===undefined){
+        let number=0,prior='none';
+        for(let i=0;i<=index+1;i++){
+            const row=snapshot.paragraphs[i];
+            number=row.list==='number'?
+                (row.numberStart??(prior==='number'?number+1:1)):0;
+            prior=row.list;
+        }
+        if(number<1||number>10000)return null;
+        next.numberStart=number;
+    }
+    const {numberStart,...rest}=previous;
+    paragraphs[index]={...rest,list:'none'};
+    return {runs:structuredClone(snapshot.runs),paragraphs};
+}
 /**
  * Accessible paragraph navigation:
  *   Alt+ArrowUp/Down: previous/next paragraph at same logical column
