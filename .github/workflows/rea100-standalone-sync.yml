@@ -131,23 +131,29 @@ permissions:
 jobs:
   standalone-parity:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Compile release scripts
+        id: plus038_check_01
+        continue-on-error: true
         run: |
           python -m py_compile calculator/tools/build_standalone.py calculator/tests/test_rea100_standalone.py calculator/tests/rea100_browser_parity.py calculator/tests/rea105_browser_precedence.py calculator/tests/rea106_browser_stat_stability.py calculator/tests/rea113_browser_mode_keys.py calculator/tests/plus003-mode-transitions.py calculator/tests/plus004-shift-menu-keys.py calculator/tests/plus005-alpha-key-actions.py calculator/tests/plus006-eqn-browser.py calculator/tests/plus007-error-browser.py calculator/tests/plus008-stat-browser.py calculator/tests/plus009-menu-browser.py calculator/tests/plus010-matrix-browser.py calculator/tests/plus011-vector-browser.py calculator/tests/plus012-stat-browser.py calculator/tests/plus013-table-browser.py calculator/tests/plus025-keyboard-browser.py calculator/tests/plus026-matrix-browser.py calculator/tests/test_plus028_hardware_evidence.py calculator/tools/plus028_compare_hardware.py calculator/tools/plus028_reference_report.py calculator/tests/plus028-reference-browser.py calculator/tests/plus033-key-functions-browser.py calculator/tests/plus034-memory-dms-setup-browser.py calculator/tests/plus035-constants-stat-table-browser.py calculator/tests/plus036-matrix-vector-eqn-browser.py calculator/tests/plus037-numeric-browser.py
       - name: Install PNG comparison dependency
         run: python -m pip install Pillow==11.3.0
       - name: PLUS-028 verify evidence comparator and report explicitly blocked hardware status
+        id: plus038_check_02
+        continue-on-error: true
         run: |
           python -m unittest -v calculator/tests/test_plus028_hardware_evidence.py
           python calculator/tools/plus028_compare_hardware.py --manifest calculator/reference/plus-028/hardware-evidence.json --report /tmp/plus028-evidence-report.json
           python -c "import json; p=json.load(open('/tmp/plus028-evidence-report.json')); assert p['status']=='BLOCKED_NO_DEVICE_EVIDENCE'; assert not p['native_hardware_parity_certified']"
       - name: Fail on stale standalone, missing modules, CSS or manifest drift
+        id: plus038_check_03
+        continue-on-error: true
         run: |
           python calculator/tools/build_standalone.py --check
           python -m unittest discover -v -s calculator/tests -p 'test_rea100_standalone.py'
@@ -155,6 +161,8 @@ jobs:
         with:
           node-version: '22'
       - name: Verify PLUS-only arithmetic, model identity and key contracts
+        id: plus038_check_04
+        continue-on-error: true
         run: |
           node calculator/tests/plus009-menu-rules.cjs
           node calculator/tests/plus008-stat-format.cjs
@@ -187,6 +195,8 @@ jobs:
           node calculator/tests/rea106-stat-stability.cjs
           node calculator/tests/rea113-key-screen-contract.cjs
       - name: PLUS-028 ALT manufacturer-reference conformance report
+        id: plus038_check_05
+        continue-on-error: true
         run: python calculator/tools/plus028_reference_report.py --report /tmp/plus028-reference-report.json
       - name: Upload reproducible reference-conformance record
         if: always()
@@ -200,40 +210,76 @@ jobs:
           python -m pip install playwright==1.56.0
           python -m playwright install --with-deps chromium
       - name: Verify modular and standalone keypad, model and result behavior
+        id: plus038_check_06
+        continue-on-error: true
         run: python calculator/tests/rea100_browser_parity.py
       - name: Verify PLUS arithmetic precedence using actual browser keypad
+        id: plus038_check_07
+        continue-on-error: true
         run: python calculator/tests/rea105_browser_precedence.py
       - name: Verify live STAT summary and protected Sum fields in both publications
+        id: plus038_check_08
+        continue-on-error: true
         run: python calculator/tests/rea106_browser_stat_stability.py
       - name: Verify PLUS physical MODE keys and EQN types 1-4
+        id: plus038_check_09
+        continue-on-error: true
         run: python calculator/tests/rea113_browser_mode_keys.py
       - name: PLUS-003 eight-mode selection, editor return, cancel and SETUP
+        id: plus038_check_10
+        continue-on-error: true
         run: python calculator/tests/plus003-mode-transitions.py
       - name: PLUS-004 shifted numeric key menus and mode stability
+        id: plus038_check_11
+        continue-on-error: true
         run: python calculator/tests/plus004-shift-menu-keys.py
       - name: PLUS-005 ALPHA key and input-context restrictions
+        id: plus038_check_12
+        continue-on-error: true
         run: python calculator/tests/plus005-alpha-key-actions.py
       - name: PLUS-006 mathematical EQN coefficient input and cursor editing
+        id: plus038_check_13
+        continue-on-error: true
         run: python calculator/tests/plus006-eqn-browser.py
       - name: PLUS-007 error messages and caret recovery with physical keys
+        id: plus038_check_14
+        continue-on-error: true
         run: python calculator/tests/plus007-error-browser.py
       - name: PLUS-008 STAT FREQ clearing and regression-type retention
+        id: plus038_check_15
+        continue-on-error: true
         run: python calculator/tests/plus008-stat-browser.py
       - name: PLUS-009 menu paging numbers nested cancel and selections
+        id: plus038_check_16
+        continue-on-error: true
         run: python calculator/tests/plus009-menu-browser.py
       - name: PLUS-010 printed MATRIX menu and STO key flows
+        id: plus038_check_17
+        continue-on-error: true
         run: python calculator/tests/plus010-matrix-browser.py
       - name: PLUS-011 printed VECTOR menu, dot/cross, STO key flows
+        id: plus038_check_18
+        continue-on-error: true
         run: python calculator/tests/plus011-vector-browser.py
       - name: PLUS-012 STAT insert, delete and clear key semantics
+        id: plus038_check_19
+        continue-on-error: true
         run: python calculator/tests/plus012-stat-browser.py
       - name: PLUS-013 TABLE fractional boundaries error cells and X memory
+        id: plus038_check_20
+        continue-on-error: true
         run: python calculator/tests/plus013-table-browser.py
       - name: PLUS-025 keyboard focus safety, browser shortcuts and native controls
+        id: plus038_check_21
+        continue-on-error: true
         run: python calculator/tests/plus025-keyboard-browser.py
       - name: PLUS-026 complete physical-key inventory and live browser regression
+        id: plus038_check_22
+        continue-on-error: true
         run: python calculator/tests/plus026-matrix-browser.py
       - name: PLUS-028 ALT capture independent reference web keylogs and LCD frames
+        id: plus038_check_23
+        continue-on-error: true
         run: python calculator/tests/plus028-reference-browser.py
       - name: Upload web-only reference captures and results
         if: always()
@@ -243,6 +289,8 @@ jobs:
           path: /tmp/plus028-web-captures/
           if-no-files-found: warn
       - name: PLUS-033 mathematical keys SHIFT ALPHA and error recovery
+        id: plus038_check_24
+        continue-on-error: true
         run: python calculator/tests/plus033-key-functions-browser.py
       - name: Upload PLUS-033 keypad state and LCD parity diagnostics
         if: always()
@@ -252,6 +300,8 @@ jobs:
           path: /tmp/plus033-browser-captures/
           if-no-files-found: warn
       - name: PLUS-034 memory DMS SETUP and mode transitions in both releases
+        id: plus038_check_25
+        continue-on-error: true
         run: python calculator/tests/plus034-memory-dms-setup-browser.py
       - name: Upload PLUS-034 web keypad and LCD comparison evidence
         if: always()
@@ -261,6 +311,8 @@ jobs:
           path: /tmp/plus034-browser-captures/
           if-no-files-found: warn
       - name: PLUS-035 constants conversions STAT and TABLE web reference checks
+        id: plus038_check_26
+        continue-on-error: true
         run: python calculator/tests/plus035-constants-stat-table-browser.py
       - name: Upload PLUS-035 reference keypad traces and LCD comparison
         if: always()
@@ -270,6 +322,8 @@ jobs:
           path: /tmp/plus035-browser-captures/
           if-no-files-found: warn
       - name: PLUS-036 MATRIX VECTOR and EQN web algebra reference checks
+        id: plus038_check_27
+        continue-on-error: true
         run: python calculator/tests/plus036-matrix-vector-eqn-browser.py
       - name: Upload PLUS-036 algebra keypad traces and LCD comparisons
         if: always()
@@ -279,6 +333,8 @@ jobs:
           path: /tmp/plus036-browser-captures/
           if-no-files-found: warn
       - name: PLUS-037 CALC SOLVE and cancellable numerical worker browser checks
+        id: plus038_check_28
+        continue-on-error: true
         run: python calculator/tests/plus037-numeric-browser.py
       - name: Upload PLUS-037 numerical worker traces and cancellation diagnostics
         if: always()
@@ -287,3 +343,181 @@ jobs:
           name: plus037-numeric-browser-captures
           path: /tmp/plus037-browser-captures/
           if-no-files-found: warn
+      - name: PLUS-038 final release quality gate
+        if: always()
+        run: |
+          failed=0
+          echo "### PLUS-038 release verification" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.plus038_check_01.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: Compile release scripts" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: Compile release scripts" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_02.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-028 verify evidence comparator and report explicitly blocked hardware status" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-028 verify evidence comparator and report explicitly blocked hardware status" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_03.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: Fail on stale standalone, missing modules, CSS or manifest drift" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: Fail on stale standalone, missing modules, CSS or manifest drift" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_04.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: Verify PLUS-only arithmetic, model identity and key contracts" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: Verify PLUS-only arithmetic, model identity and key contracts" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_05.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-028 ALT manufacturer-reference conformance report" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-028 ALT manufacturer-reference conformance report" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_06.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: Verify modular and standalone keypad, model and result behavior" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: Verify modular and standalone keypad, model and result behavior" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_07.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: Verify PLUS arithmetic precedence using actual browser keypad" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: Verify PLUS arithmetic precedence using actual browser keypad" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_08.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: Verify live STAT summary and protected Sum fields in both publications" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: Verify live STAT summary and protected Sum fields in both publications" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_09.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: Verify PLUS physical MODE keys and EQN types 1-4" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: Verify PLUS physical MODE keys and EQN types 1-4" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_10.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-003 eight-mode selection, editor return, cancel and SETUP" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-003 eight-mode selection, editor return, cancel and SETUP" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_11.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-004 shifted numeric key menus and mode stability" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-004 shifted numeric key menus and mode stability" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_12.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-005 ALPHA key and input-context restrictions" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-005 ALPHA key and input-context restrictions" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_13.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-006 mathematical EQN coefficient input and cursor editing" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-006 mathematical EQN coefficient input and cursor editing" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_14.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-007 error messages and caret recovery with physical keys" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-007 error messages and caret recovery with physical keys" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_15.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-008 STAT FREQ clearing and regression-type retention" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-008 STAT FREQ clearing and regression-type retention" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_16.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-009 menu paging numbers nested cancel and selections" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-009 menu paging numbers nested cancel and selections" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_17.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-010 printed MATRIX menu and STO key flows" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-010 printed MATRIX menu and STO key flows" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_18.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-011 printed VECTOR menu, dot/cross, STO key flows" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-011 printed VECTOR menu, dot/cross, STO key flows" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_19.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-012 STAT insert, delete and clear key semantics" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-012 STAT insert, delete and clear key semantics" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_20.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-013 TABLE fractional boundaries error cells and X memory" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-013 TABLE fractional boundaries error cells and X memory" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_21.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-025 keyboard focus safety, browser shortcuts and native controls" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-025 keyboard focus safety, browser shortcuts and native controls" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_22.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-026 complete physical-key inventory and live browser regression" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-026 complete physical-key inventory and live browser regression" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_23.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-028 ALT capture independent reference web keylogs and LCD frames" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-028 ALT capture independent reference web keylogs and LCD frames" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_24.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-033 mathematical keys SHIFT ALPHA and error recovery" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-033 mathematical keys SHIFT ALPHA and error recovery" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_25.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-034 memory DMS SETUP and mode transitions in both releases" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-034 memory DMS SETUP and mode transitions in both releases" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_26.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-035 constants conversions STAT and TABLE web reference checks" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-035 constants conversions STAT and TABLE web reference checks" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_27.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-036 MATRIX VECTOR and EQN web algebra reference checks" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-036 MATRIX VECTOR and EQN web algebra reference checks" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "${{ steps.plus038_check_28.outcome }}" != "success" ]; then
+            echo "- FAIL or SKIP: PLUS-037 CALC SOLVE and cancellable numerical worker browser checks" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          else
+            echo "- PASS: PLUS-037 CALC SOLVE and cancellable numerical worker browser checks" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$failed" -ne 0 ]; then
+            echo "One or more required PLUS release checks did not pass."
+            exit 1
+          fi
+          echo "All 28 release verification steps passed." >> "$GITHUB_STEP_SUMMARY"
