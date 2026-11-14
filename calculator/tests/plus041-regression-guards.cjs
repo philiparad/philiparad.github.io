@@ -15,6 +15,18 @@ const sqrt=sqrtBrowser.match(/"id": "sqrt81", "keys": \(([^)]*)\)/);
 A.ok(sqrt,'sqrt browser test absent');
 A.ok(sqrt[1].includes('"RIGHT"'),'natural square root must exit its field with RIGHT');
 A.ok(!sqrt[1].includes('"RP"'),'natural square root must not insert extra closing )');
+// PLUS-042: empty substring assertions always pass and cannot prove AC cleared
+// a failed calculation. Require exact input equality and an empty error field.
+const clearCase=sqrtBrowser.match(/"id": "error-clear",([\s\S]*?)\},/);
+A.ok(clearCase,'AC error-recovery case missing');
+A.ok(clearCase[1].includes('"input_equals": ""'),
+ 'AC must require an exact empty input');
+A.ok(clearCase[1].includes('"error": ""'),
+ 'AC must require a cleared error');
+A.ok(sqrtBrowser.includes('s["input"] == case["input_equals"]'),
+ 'browser must compare exact input rather than substring');
+A.ok(!clearCase[1].includes('"contains": ""'),
+ 'vacuous empty substring must not return');
 const rootEditor=E.create();
 E.template(rootEditor,'squareRoot');
 E.insert(rootEditor,'8');E.insert(rootEditor,'1');
