@@ -98,3 +98,21 @@ test('numbers remain correct when a nonnumbered paragraph interrupts a list',()=
  assert.ok(plan?.items?.length>1);
  assert.deepEqual(plan.items.flatMap(markers),['1.','1.']);
 });
+
+test('numbered A4 flow retains a single equation and mixed Hebrew/English direction',()=>{
+ const eq={source:'x^2+1',src:'data:image/png;base64,AAAA',w:100,h:40};
+ const prefix='סעיף ראשון ',tail=' English question '.repeat(85),next='סעיף שני';
+ const source=item(prefix+'\uFFFC'+tail+'\n'+next,[
+  {align:'right',list:'number',dir:'rtl',numberStart:4},
+  {align:'left',list:'number',dir:'ltr'}
+ ],{runs:[{text:prefix,bold:true},{text:'\uFFFC',equation:eq},{text:tail,italic:true},{text:'\n'+next,color:'#2364aa'}]});
+ const plan=planTextFlow(board(source),source.id,A4);
+ assert.ok(plan.items.length>1);
+ assert.equal(plan.items.map(fragment=>fragment.text).join(''),source.text);
+ assert.deepEqual(plan.items.flatMap(markers),['4.','5.']);
+ assert.equal(plan.items.flatMap(fragment=>fragment.runs).filter(run=>run.equation).length,1);
+ assert.ok(plan.items.some(fragment=>fragment.paragraphs.some(p=>p.dir==='rtl')));
+ assert.ok(plan.items.some(fragment=>fragment.paragraphs.some(p=>p.dir==='ltr')));
+ const b=board(source);applyTextFlow(b,plan);
+ assert.deepEqual(parseBackup(serializeBackup(b)).items.flatMap(markers),['4.','5.']);
+});
