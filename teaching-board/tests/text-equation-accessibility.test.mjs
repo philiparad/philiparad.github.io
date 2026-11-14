@@ -11,7 +11,7 @@ test('TXT-064 math is focusable, named and an atomic image-hidden token',()=>{
   assert.equal(node.tabIndex,0);
   assert.equal(node.contentEditable,'false');
   assert.equal(node.attrs.role,'math');
-  assert.match(node.attrs['aria-label'],/x\\^2/);
+  assert(node.attrs['aria-label'].includes('x^2'));
   assert.match(node.attrs['aria-description'],/Shift/);
   assert.match(node.attrs['aria-keyshortcuts'],/Enter/);
   assert.equal(node.image.attrs['aria-hidden'],'true');
