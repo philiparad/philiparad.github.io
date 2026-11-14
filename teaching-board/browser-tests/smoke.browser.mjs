@@ -1025,6 +1025,152 @@ try{
   assert(inserted(report.untrustedState,'<script>').bold);
  });
 
+
+ await check('TXT-057 explicit paste formatting modes work with keyboard and preserve math source',async()=>{
+  const initial=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection}=await import('./js/text-selection.js');
+   const {TEXT_RICH_CLIPBOARD}=await import('./js/text-inline-clipboard.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:105px 60px 40px;background:#fff;z-index:4100';
+   document.body.append(host);
+   const board={id:'mode-clipboard-'+crypto.randomUUID(),viewport:{x:0,y:0,zoom:1}};
+   const editor={area:host,board,disposed:true,paint(){},applyText(){}};
+   const canvas=document.createElement('canvas');canvas.width=40;canvas.height=26;
+   canvas.getContext('2d').fillRect(2,2,36,22);
+   const eq={source:'x^2+1',src:canvas.toDataURL('image/png'),w:40,h:26};
+   const source={schema:1,runs:[
+    {text:'שלום ',bold:true,color:'#b42318'},
+    {text:'\uFFFC',equation:eq},
+    {text:' English\nSecond',underline:true,color:'#7c50b0'}
+   ],paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:8},
+    {align:'left',dir:'ltr',list:'number'}]};
+   const target={type:'text',x:10,y:10,w:540,h:90,fontSize:24,
+    text:'Start End',runs:[{text:'Start End',italic:true,color:'#147d92'}],
+    paragraphs:[{align:'center',dir:'ltr',list:'bullet'}]};
+   const data={getData(type){
+    if(type===TEXT_RICH_CLIPBOARD)return JSON.stringify(source);
+    if(type==='text/plain')return 'שלום \\(x^2+1\\) English\nSecond';
+    return '';
+   }};
+   const create=()=>{
+    const draft=new InlineText(editor,{...structuredClone(target),
+     id:'mode-target-'+crypto.randomUUID()},true);
+    draft.input.focus();
+    const point={paragraph:0,offset:6},selection=window.getSelection();
+    if(!restoreLogicalSelection(draft.input,selection,{anchor:point,focus:point}))
+     throw Error('Could not place paste caret');
+    return draft;
+   };
+   const state=()=>{
+    const draft=window.__pasteModeTest.draft,doc=readRichDocument(draft.input,draft.item);
+    return {text:doc.runs.map(r=>r.text).join(''),runs:doc.runs,
+     paragraphs:doc.paragraphs,
+     equations:doc.runs.filter(r=>r.equation).map(r=>r.equation.source),
+     position:captureLogicalSelection(draft.input,window.getSelection()),
+     mode:draft.pasteFormattingMode,selectedMode:draft.pasteModeSelect.value,
+     active:document.activeElement===draft.input};
+   };
+   const paste=()=>{
+    const event=new Event('paste',{bubbles:true,cancelable:true});
+    Object.defineProperty(event,'clipboardData',{value:data});
+    window.__pasteModeTest.draft.input.dispatchEvent(event);
+    return event.defaultPrevented;
+   };
+   const draft=create();
+   window.__pasteModeTest={host,editor,draft,target,create,state,paste};
+   const mode=draft.pasteModeSelect;
+   return {initialMode:mode.value,label:mode.getAttribute('aria-label'),
+    options:[...mode.options].map(o=>({text:o.text,value:o.value})),
+    position:state().position};
+  });
+  assert.equal(initial.initialMode,'keep');
+  assert.equal(initial.label,'Paste formatting mode');
+  assert.deepEqual(initial.options,[
+   {text:'Keep source formatting',value:'keep'},
+   {text:'Match destination formatting',value:'match'}]);
+  assert.deepEqual(initial.position.focus,{paragraph:0,offset:6});
+  const keep=await page.evaluate(()=>{
+   const m=window.__pasteModeTest;
+   return {prevented:m.paste(),...m.state()};
+  });
+  assert(keep.prevented);
+  assert.equal(keep.mode,'keep');
+  assert.equal(keep.equations[0],'x^2+1');
+  assert(keep.runs.some(r=>r.text.includes('שלום')&&r.bold&&r.color==='#b42318'));
+  assert(keep.runs.some(r=>r.text.includes('English')&&r.underline&&r.color==='#7c50b0'));
+  assert.deepEqual(keep.paragraphs.map(p=>p.list),['bullet','number']);
+  assert.equal(keep.paragraphs[1].numberStart,9);
+  const restored=await page.evaluate(()=>{
+   const m=window.__pasteModeTest;
+   m.draft.finish(false);
+   m.draft=m.create();
+   return m.state();
+  });
+  assert.equal(restored.mode,'keep');
+  assert.deepEqual(restored.position.focus,{paragraph:0,offset:6});
+
+  const mode=page.locator('.inline-text-actions select[aria-label="Paste formatting mode"]').last();
+  await mode.focus();
+  await page.keyboard.press('ArrowDown');
+  const afterKeyboard=await page.evaluate(()=>window.__pasteModeTest.state());
+  assert.equal(afterKeyboard.mode,'match','Native ArrowDown should switch paste formatting mode');
+  assert.equal(afterKeyboard.selectedMode,'match');
+  assert(afterKeyboard.active,'Changing mode should return focus to the editor');
+  assert.deepEqual(afterKeyboard.position.focus,{paragraph:0,offset:6},
+   'Mode switch must preserve selection and the exact paste insertion point');
+  const matched=await page.evaluate(()=>{
+   const m=window.__pasteModeTest;
+   return {prevented:m.paste(),...m.state()};
+  });
+  assert(matched.prevented);
+  assert.equal(matched.text,keep.text);
+  assert.deepEqual(matched.equations,['x^2+1']);
+  assert(matched.runs.some(r=>r.text.includes('שלום')&&r.italic&&
+   !r.bold&&r.color==='#147d92'));
+  assert(matched.runs.some(r=>r.text.includes('English')&&r.italic&&
+   !r.underline&&r.color==='#147d92'));
+  assert(matched.runs.some(r=>r.text.includes('Second')&&r.italic&&
+   !r.underline&&r.color==='#147d92'));
+  assert.deepEqual(matched.paragraphs.map(p=>p.dir),['ltr','ltr']);
+  assert.deepEqual(matched.paragraphs.map(p=>p.list),['bullet','bullet']);
+  assert(matched.runs.find(r=>r.equation).equation.src.startsWith('data:image/png;base64,'));
+  const history=await page.evaluate(()=>{
+   const m=window.__pasteModeTest;
+   m.draft.stepTextHistory('undo');const undo=m.state();
+   m.draft.stepTextHistory('redo');const redo=m.state();
+   return {undo,redo};
+  });
+  assert.equal(history.undo.text,'Start End');
+  assert.deepEqual(history.redo.text,matched.text);
+  assert.deepEqual(history.redo.equations,['x^2+1']);
+  assert.deepEqual(history.redo.paragraphs,matched.paragraphs);
+
+  const reset=await page.evaluate(()=>{
+   const m=window.__pasteModeTest;
+   m.draft.finish(false);m.draft=m.create();
+   m.draft.pasteModeSelect.focus();
+   return m.state();
+  });
+  assert.equal(reset.mode,'keep','Paste setting should remain local to one draft');
+  await page.keyboard.press('ArrowDown');
+  const keyboardMatch=await page.evaluate(()=>window.__pasteModeTest.state());
+  assert.equal(keyboardMatch.mode,'match');
+  await mode.focus();
+  await page.keyboard.press('ArrowUp');
+  const keyboardKeep=await page.evaluate(()=>window.__pasteModeTest.state());
+  assert.equal(keyboardKeep.mode,'keep');
+  assert(keyboardKeep.active);
+  assert.deepEqual(keyboardKeep.position.focus,{paragraph:0,offset:6});
+  await page.evaluate(()=>{
+   const m=window.__pasteModeTest;
+   m.draft.finish(false);
+   m.host.remove();
+   delete window.__pasteModeTest;
+  });
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
