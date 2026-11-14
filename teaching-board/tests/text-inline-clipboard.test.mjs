@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {TEXT_RICH_CLIPBOARD,parseRichClipboard,selectedRichClipboard,
     clipboardPlainText,clipboardHTML,replaceRichClipboard,plainClipboard,
-    validateRichClipboard,absoluteCaret} from '../js/text-inline-clipboard.js';
+    validateRichClipboard,absoluteCaret,plainPasteStyle} from '../js/text-inline-clipboard.js';
 const equation={source:'\\frac{x+1}{2}',src:'data:image/png;base64,AAAA',w:85,h:42};
 const snapshot=()=>({
  runs:[{text:'שלום ',bold:true,color:'#b42318'},
@@ -231,4 +231,122 @@ test('copying lists into a bulleted prefix preserves the next numbered source or
  assert.equal(added.paragraphs[1].list,'number');
  assert.equal(added.paragraphs[1].numberStart,9);
  assert.equal(added.paragraphs[1].dir,'ltr');
+});
+
+
+test('plain text inherits the style at a collapsed caret in mixed Hebrew/English runs',()=>{
+ const doc={runs:[
+  {text:'שלום ',bold:true,color:'#b42318'},
+  {text:'English',italic:true,underline:true,color:'#147d92'},
+  {text:'\nNew line',strike:true}
+ ],paragraphs:[
+  {align:'right',dir:'rtl',list:'none'},
+  {align:'left',dir:'ltr',list:'none'}
+ ]};
+ const before=replaceRichClipboard(doc,2,2,plainClipboard('X'),{plainText:true});
+ const red=before.runs.find(r=>r.text.includes('X'));
+ assert.equal(red.bold,true);
+ assert.equal(red.color,'#b42318');
+ assert.equal(red.italic,false);
+ const atBoundary=replaceRichClipboard(doc,5,5,plainClipboard('INSERT'),{plainText:true});
+ assert.equal(atBoundary.runs.find(r=>r.text.includes('INSERT')).bold,true,
+  'Collapsed caret at a style boundary inherits preceding run');
+ const inside=replaceRichClipboard(doc,7,7,plainClipboard('YES'),{plainText:true});
+ const teal=inside.runs.find(r=>r.text.includes('YES'));
+ assert.equal(teal.italic,true);
+ assert.equal(teal.underline,true);
+ assert.equal(teal.color,'#147d92');
+ const atNext=replaceRichClipboard(doc,14,14,plainClipboard('Z'),{plainText:true});
+ const strike=atNext.runs.find(r=>r.text.includes('Z'));
+ assert.equal(strike.strike,true);
+ assert.equal(strike.color,undefined);
+ assert.equal(atNext.paragraphs[1].dir,'ltr');
+});
+
+test('plain replacement inherits leading selected text, not style of preceding run',()=>{
+ const doc={runs:[{text:'prefix ',bold:true},
+                  {text:'colored',italic:true,color:'#7c50b0'},
+                  {text:' end'}],
+  paragraphs:[{align:'left',dir:'ltr',list:'none'}]};
+ const replaced=replaceRichClipboard(doc,7,10,plainClipboard('NEW'),{plainText:true});
+ assert(replaced);
+ const r=replaced.runs.find(x=>x.text==='NEW');
+ assert.equal(r.italic,true);
+ assert.equal(r.color,'#7c50b0');
+ assert.equal(r.bold,false);
+ assert.equal(replaced.text,'prefix NEWored end');
+});
+
+test('plain multiline paste inherits color and marks on each line without altering next paragraph',()=>{
+ const doc={runs:[{text:'שלום עולם',bold:true,color:'#b42318'},
+                  {text:'\nNext',italic:true,color:'#147d92'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7},
+              {align:'left',dir:'ltr',list:'bullet'}]};
+ const pasted=replaceRichClipboard(doc,5,5,plainClipboard('a\nb\nc'),{plainText:true});
+ assert(pasted);
+ assert.equal(pasted.text,'שלום a\nb\ncעולם\nNext');
+ assert.deepEqual(pasted.paragraphs.map(x=>x.dir),['rtl','rtl','rtl','ltr']);
+ for(const value of ['a\nb\nc']){
+  assert(pasted.runs.some(r=>r.text.includes(value)&&r.bold&&r.color==='#b42318'));
+ }
+ assert.equal(pasted.runs.at(-1).italic,true);
+ assert.equal(pasted.runs.at(-1).color,'#147d92');
+});
+
+test('pending formatting explicitly overrides inherited style for multiline plain paste',()=>{
+ const doc={runs:[{text:'ערך',bold:true,italic:true,underline:true,strike:true,color:'#b42318'}],
+  paragraphs:[{align:'right',dir:'rtl',list:'none'}]};
+ const pasted=replaceRichClipboard(doc,2,2,plainClipboard('one\ntwo'),{
+  plainText:true,marks:{bold:false,italic:false,underline:false,
+   strikeThrough:false,color:'#147d92'}
+ });
+ assert(pasted);
+ const middle=pasted.runs.filter(r=>r.text.includes('one')||r.text.includes('two'));
+ assert.equal(middle.length,1);
+ assert.equal(middle[0].text,'one\ntwo');
+ assert.equal(middle[0].bold,false);
+ assert.equal(middle[0].italic,false);
+ assert.equal(middle[0].underline,false);
+ assert.equal(middle[0].strike,false);
+ assert.equal(middle[0].color,'#147d92');
+ assert.deepEqual(pasted.paragraphs.map(p=>p.dir),['rtl','rtl']);
+ const cleared=replaceRichClipboard(doc,2,2,plainClipboard('clear'),{
+  plainText:true,marks:{color:null}
+ });
+ assert.equal(cleared.runs.find(r=>r.text.includes('clear')).color,undefined);
+});
+
+test('plain text pasted next to equations chooses nearby text style, never image source',()=>{
+ const eq={source:'x',src:'data:image/png;base64,AAAA',w:45,h:30};
+ const doc={runs:[
+  {text:'Hello',bold:true,color:'#147d92'},
+  {text:'\uFFFC',equation:eq},
+  {text:'world',italic:true},
+  {text:'\n',bold:false},
+  {text:'English',underline:true}
+ ],paragraphs:[
+  {align:'right',dir:'rtl',list:'none'},
+  {align:'left',dir:'ltr',list:'none'}
+ ]};
+ const next=replaceRichClipboard(doc,6,6,plainClipboard('X'),{plainText:true});
+ assert(next);
+ assert.equal(next.runs.find(r=>r.text.includes('X')).bold,true);
+ assert.equal(next.runs.find(r=>r.text.includes('X')).color,'#147d92');
+ assert.equal(next.runs.find(r=>r.text.includes('X')).equation,undefined);
+ assert.equal(next.runs.find(r=>r.equation).equation.source,'x');
+ const beginning=replaceRichClipboard(doc,7,7,plainClipboard('Y'),{plainText:true});
+ assert.equal(beginning.runs.find(r=>r.text.includes('Y')).italic,true);
+ assert.deepEqual(plainPasteStyle(doc,0,0),{bold:true,color:'#147d92'});
+ assert.equal(plainPasteStyle(doc,-1,0),null);
+});
+
+test('invalid style overrides cannot inject unsafe HTML or color values into clipboard runs',()=>{
+ const doc={runs:[{text:'safe',color:'#147d92'}],
+  paragraphs:[{align:'left',dir:'ltr',list:'none'}]};
+ const pasted=replaceRichClipboard(doc,2,2,plainClipboard('<img src=x>'),{
+  plainText:true,marks:{color:'red;position:absolute',bold:'true',italic:17}
+ });
+ assert(pasted);
+ assert(pasted.runs.some(r=>r.text.includes('<img src=x>')&&r.color==='#147d92'));
+ assert(pasted.runs.every(r=>r.bold!==true&&r.italic!==true));
 });

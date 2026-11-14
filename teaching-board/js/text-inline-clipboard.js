@@ -176,6 +176,51 @@ export function clipboardFromTransfer(data){
     return null;
 }
 /**
+ * Choose plain-text paste formatting from the destination paragraph, not
+ * from the clipboard (which has no formatting). Never borrow math-image
+ * metadata or a style from a different paragraph. Native collapsed-caret
+ * input favors the preceding text run; replacing a selection favors the
+ * selected run's leading style. At the very start, use the following run.
+ */
+export function plainPasteStyle(snapshot,start,end=start,marks=null){
+    if(!snapshot||!Array.isArray(snapshot.runs))return null;
+    const text=chars(snapshot.runs);
+    if(!Number.isInteger(start)||!Number.isInteger(end)||
+       start<0||end<start||end>text.length)return null;
+    const paragraphStart=text.lastIndexOf('\n',start-1)+1;
+    const newline=text.indexOf('\n',start);
+    const paragraphEnd=newline<0?text.length:newline;
+    const candidates=[];
+    let position=0;
+    for(const run of snapshot.runs){
+        const from=position,to=position+run.text.length;position=to;
+        if(run.equation||!run.text||to<=paragraphStart||from>=paragraphEnd)continue;
+        const left=Math.max(from,paragraphStart),right=Math.min(to,paragraphEnd);
+        if(left<right)candidates.push({run,from:left,to:right});
+    }
+    let chosen;
+    if(end>start)chosen=candidates.find(part=>part.from<=start&&start<part.to);
+    if(!chosen)chosen=candidates.find(part=>part.from<start&&part.to>=start);
+    if(!chosen)chosen=candidates.find(part=>part.from<=start&&start<part.to);
+    if(!chosen)chosen=candidates.find(part=>part.from>=start);
+    if(!chosen)chosen=candidates.at(-1);
+    const style={};
+    if(chosen){
+        for(const key of ['bold','italic','underline','strike'])if(chosen.run[key]!==undefined)
+            style[key]=chosen.run[key];
+        if(chosen.run.color)style.color=chosen.run.color;
+    }
+    if(marks){
+        for(const key of ['bold','italic','underline'])if(typeof marks[key]==='boolean')
+            style[key]=marks[key];
+        if(typeof marks.strikeThrough==='boolean')style.strike=marks.strikeThrough;
+        if(marks.color===null)delete style.color;
+        else if(typeof marks.color==='string'&&/^#[0-9a-f]{6}$/i.test(marks.color))
+            style.color=marks.color.toLowerCase();
+    }
+    return style;
+}
+/**
  * Merge paragraph metadata at the actual text boundaries:
  * - unchanged prefix keeps destination formatting;
  * - fully replaced first/empty paragraph takes source formatting;
@@ -186,7 +231,7 @@ export function clipboardFromTransfer(data){
  * Numbering is normalized by the normal rich-text writer after validation;
  * source numberStart is preserved when pasted at a genuine paragraph boundary.
  */
-export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=false}={}){
+export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=false,marks=null}={}){
     const original=validateRichClipboard({schema:1,...snapshot});
     if(!original||!fragment||!Array.isArray(fragment.runs))return null;
     const payload=validateRichClipboard(fragment);
@@ -197,9 +242,12 @@ export function replaceRichClipboard(snapshot,start,end,fragment,{plainText=fals
     const updated=text.slice(0,start)+insertion+text.slice(end);
     if(updated.length>10000)return null;
     try{
+        const insertionRuns=plainText?payload.runs.map(run=>({
+            ...run,...plainPasteStyle(original,start,end,marks)
+        })):payload.runs;
         const runs=compactRuns([
             ...sliceRuns(original.runs,0,start),
-            ...payload.runs,
+            ...insertionRuns,
             ...sliceRuns(original.runs,end,text.length)
         ]);
         const oldRows=text.split('\n'),newRows=insertion.split('\n');

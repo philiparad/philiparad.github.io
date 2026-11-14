@@ -238,9 +238,10 @@ export class InlineText {
   if(!plain)return;
   // Keep the established plaintext paste path for normal text, including
   // text copied from untrusted HTML-rich applications.
-  if(this.pendingMarks){this.insertPlainText(plain);return;}
+  if(this.pendingMarks&&!/[\r\n]/.test(plain)){this.insertPlainText(plain);return;}
   const payload=plainClipboard(plain);
-  if(payload&&range&&this.replaceRichTextRange(range,payload,{plainText:true}))return;
+  if(payload&&range&&this.replaceRichTextRange(range,payload,
+   {plainText:true,marks:this.pendingMarks}))return;
   this.insertPlainText(plain);
  }
  insertPlainText(value){if(!value||this.closed||this.composing)return;const selection=window.getSelection();if(this.pendingMarks&&insertPendingText(this.input,selection,this.pendingMarks,value)){this.pendingMarks=null;this.pendingSelection=null;this.input.focus();this.resize();this.recordSnapshot();return;}let range=selection?.rangeCount?selection.getRangeAt(0):null;if(!range||!this.input.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}this.pendingMarks=null;this.pendingSelection=null;range.deleteContents();const node=document.createTextNode(value);range.insertNode(node);range.setStartAfter(node);range.collapse(true);selection?.removeAllRanges();selection?.addRange(range);this.input.focus();this.resize();this.recordSnapshot();}
