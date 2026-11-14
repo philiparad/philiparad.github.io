@@ -1171,6 +1171,173 @@ try{
   });
  });
 
+ await check('TXT-058 external editor clipboard and keyboard plain paste interoperability',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {restoreLogicalSelection}=await import('./js/text-selection.js');
+   const {TEXT_RICH_CLIPBOARD,externalRichClipboardHTML,
+      clipboardFromTransfer,clipboardPlainText}=await import('./js/text-inline-clipboard.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:105px 60px 40px;z-index:4200;background:#fff';
+   document.body.append(host);
+   const editor={area:host,board:{id:'external-clipboard-'+crypto.randomUUID(),
+    viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const selection=window.getSelection();
+   const create=(text='')=>new InlineText(editor,{
+    id:'ext-'+crypto.randomUUID(),type:'text',x:0,y:0,w:500,h:50,fontSize:24,
+    text,runs:[{text,italic:true,color:'#147d92'}],
+    paragraphs:[{align:'left',dir:'ltr',list:'bullet'}]},true);
+   const choose=(draft,at)=>{
+    draft.input.focus();const point={paragraph:0,offset:at};
+    if(!restoreLogicalSelection(draft.input,selection,{anchor:point,focus:point}))
+     throw Error('Cannot position external clipboard caret');
+   };
+   const state=draft=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    return {text:doc.runs.map(r=>r.text).join(''),runs:doc.runs,
+      paragraphs:doc.paragraphs,
+      equations:doc.runs.filter(r=>r.equation).map(r=>r.equation.source)};
+   };
+   const send=(draft,clipboardData)=>{
+    const event=new Event('paste',{bubbles:true,cancelable:true});
+    Object.defineProperty(event,'clipboardData',{value:clipboardData});
+    draft.input.dispatchEvent(event);
+    return event.defaultPrevented;
+   };
+   const html='<ol start="4"><li dir="rtl" style="text-align:right">'+
+    '<strong style="color:#b42318">שלום</strong></li>'+
+    '<li dir="ltr"><em>English</em></li></ol>';
+   const htmlOnly={getData(type){return type==='text/html'?html:'';}};
+   const parsed=externalRichClipboardHTML(html);
+   let d=create();choose(d,0);
+   const yes=send(d,htmlOnly),htmlOnlyState=state(d);
+   const htmlStart=d.input.querySelector('ol')?.start;
+   d.stepTextHistory('undo');const undone=state(d);
+   d.stepTextHistory('redo');const redone=state(d);
+   d.finish(false);
+
+   d=create('BeforeAfter');choose(d,6);
+   d.pasteModeSelect.value='match';
+   d.pasteModeSelect.dispatchEvent(new Event('change',{bubbles:true}));
+   const matchPrevented=send(d,htmlOnly),matchState=state(d);
+   d.finish(false);
+
+   const canvas=document.createElement('canvas');canvas.width=40;canvas.height=25;
+   canvas.getContext('2d').fillRect(2,2,36,21);
+   const rich={schema:1,
+    runs:[{text:'אלגברה ',bold:true,color:'#b42318'},
+      {text:'\uFFFC',equation:{source:'x^2',src:canvas.toDataURL('image/png'),w:40,h:25}}],
+    paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:9}]};
+   const richClipboard={
+    getData(type){
+     return type===TEXT_RICH_CLIPBOARD?JSON.stringify(rich):
+      type==='text/plain'?'אלגברה \\(x^2\\)':'';
+    }
+   };
+   d=create('StartEnd');choose(d,5);
+   const plainKey=new KeyboardEvent('keydown',{
+    bubbles:true,cancelable:true,ctrlKey:true,shiftKey:true,key:'v'});
+   d.input.dispatchEvent(plainKey);
+   const flagBefore=d.forcePlainNextPaste;
+   const forced=send(d,richClipboard),forcedState=state(d);
+   d.stepTextHistory('undo');const forcedUndo=state(d);
+   d.finish(false);
+
+   d=create('StartEnd');choose(d,5);
+   const richKey=new KeyboardEvent('keydown',{
+    bubbles:true,cancelable:true,ctrlKey:true,key:'v'});
+   d.input.dispatchEvent(richKey);
+   const regular=send(d,richClipboard),regularState=state(d);
+   d.finish(false);
+
+   const encodedHTML='<div data-teaching-board-rich="'+
+    encodeURIComponent(JSON.stringify(rich))+'">'+
+    'אלגברה \\(x^2\\)</div>';
+   const htmlCarrier={getData(type){return type==='text/html'?encodedHTML:'';}};
+   d=create();choose(d,0);
+   d.input.dispatchEvent(new KeyboardEvent('keydown',{
+    bubbles:true,ctrlKey:true,shiftKey:true,key:'v'}));
+   const carrierPlain=send(d,htmlCarrier),carrierPlainState=state(d);
+   d.finish(false);
+
+   const safeFragment='<p dir="rtl"><span style="color:#147d92;'+
+    'font-weight:bold">לימוד</span><br>English</p>'+
+    '<p><em>Second</em><span style="display:none">HIDDEN</span></p>';
+   const imported=externalRichClipboardHTML(safeFragment);
+   d=create();choose(d,0);
+   const withBr=send(d,{getData(type){return type==='text/html'?safeFragment:'';}}),
+    brState=state(d);
+   d.finish(false);
+
+   const evil='<p>Hello</p><img src="x" onerror="window.__externalInjected=true">';
+   const evilData={getData(type){
+    return type==='text/html'?evil:
+     type==='text/plain'?'<script>window.__externalInjected=true</script>':'';
+   }};
+   d=create('A');choose(d,1);
+   const preventedUnsafe=send(d,evilData),unsafeState=state(d);
+   const unsafeNodes=d.input.querySelectorAll('img,script,iframe,svg').length;
+   d.finish(false);
+
+   const htmlGuard={getData(type){
+    return type==='text/html'?'<p>'+('X'.repeat(251000))+'</p>':'';
+   }};
+   d=create('SAFE');choose(d,2);
+   const oversize=send(d,htmlGuard),oversizeState=state(d);
+   d.finish(false);
+   const injected=!!window.__externalInjected;
+   host.remove();
+   return {parsed,yes,htmlOnlyState,htmlStart,undone,redone,
+    matchPrevented,matchState,flagBefore,forced,forcedState,
+    forcedUndo,regular,regularState,carrierPlain,carrierPlainState,
+    imported,withBr,brState,preventedUnsafe,unsafeState,unsafeNodes,
+    oversize,oversizeState,injected};
+  });
+  assert(result.parsed);
+  assert.equal(result.parsed.paragraphs[0].numberStart,4);
+  assert.deepEqual(result.parsed.paragraphs.map(p=>p.dir),['rtl','ltr']);
+  assert(result.yes);
+  assert.equal(result.htmlOnlyState.text,'שלום\nEnglish');
+  assert.equal(result.htmlStart,4);
+  assert(result.htmlOnlyState.runs.some(r=>r.text.includes('שלום')&&r.bold&&r.color==='#b42318'));
+  assert(result.htmlOnlyState.runs.some(r=>r.text.includes('English')&&r.italic));
+  assert.equal(result.undone.text,'');
+  assert.deepEqual(result.redone,result.htmlOnlyState);
+  assert(result.matchPrevented);
+  assert.equal(result.matchState.text,'Beforeשלום\nEnglishAfter');
+  assert.deepEqual(result.matchState.paragraphs.map(p=>p.list),['bullet','bullet']);
+  assert.deepEqual(result.matchState.paragraphs.map(p=>p.dir),['ltr','ltr']);
+  assert(result.matchState.runs.some(r=>r.text.includes('שלום')&&
+    r.italic&&r.color==='#147d92'&&!r.bold));
+  assert(result.matchState.runs.some(r=>r.text.includes('English')&&
+    r.italic&&r.color==='#147d92'));
+  assert.equal(result.flagBefore,true);
+  assert(result.forced);
+  assert.equal(result.forcedState.text,'Startאלגברה \\(x^2\\)End');
+  assert.deepEqual(result.forcedState.equations,[]);
+  assert(result.forcedState.runs.some(r=>r.text.includes('אלגברה')&&
+    r.italic&&r.color==='#147d92'));
+  assert.equal(result.forcedUndo.text,'StartEnd');
+  assert(result.regular);
+  assert.deepEqual(result.regularState.equations,['x^2']);
+  assert(result.regularState.runs.some(r=>r.text.includes('אלגברה')&&r.bold));
+  assert(result.carrierPlain);
+  assert(result.carrierPlainState.text.includes('\\(x^2\\)'));
+  assert.deepEqual(result.carrierPlainState.equations,[]);
+  assert(result.imported);
+  assert(result.withBr);
+  assert(result.brState.text.includes('לימוד\nEnglish'));
+  assert(result.brState.text.includes('Second'));
+  assert(!result.brState.text.includes('HIDDEN'));
+  assert(result.preventedUnsafe);
+  assert.equal(result.unsafeNodes,0);
+  assert.equal(result.injected,false);
+  assert(result.unsafeState.text.includes('<script>window.__externalInjected=true</script>'));
+  assert(result.oversize);
+  assert.equal(result.oversizeState.text,'SAFE');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
