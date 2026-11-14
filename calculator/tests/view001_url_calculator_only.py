@@ -23,6 +23,8 @@ async def inspect(browser,base,name,width,height):
       const hidden=s=>getComputedStyle($(s)).display==='none';
       const rect=$('#face').getBoundingClientRect();
       return {active:document.body.classList.contains('calculator-only'),
+        earlyActive:document.documentElement.classList.contains('calculator-only'),
+        bootstrap:document.documentElement.dataset.calculatorView,
         companionsHidden:hidden('.companion'),
         actionsHidden:hidden('.face-actions'),
         diagnosticsHidden:hidden('.diagnostic-tools'),
@@ -31,7 +33,7 @@ async def inspect(browser,base,name,width,height):
         horizontalOverflow:document.documentElement.scrollWidth>window.innerWidth,
         verticalOverflow:document.documentElement.scrollHeight>window.innerHeight};
     }""")
-    assert result["active"] and all(result[k] for k in ("companionsHidden","actionsHidden","diagnosticsHidden")),result
+    assert result["active"] and result["earlyActive"] and result["bootstrap"]=="only" and all(result[k] for k in ("companionsHidden","actionsHidden","diagnosticsHidden")),result
     assert result["totalButtons"]==50,result
     assert result["face"]["w"]<=width and result["face"]["h"]<=height,result
     assert abs(result["face"]["x"]-(width-result["face"]["w"])/2)<2,result
@@ -42,7 +44,7 @@ async def inspect(browser,base,name,width,height):
     assert state["ans"]==5 and state["screen"]=="result",state
     assert not errors,errors
     await page.goto(base+"/calculator/"+name)
-    assert not await page.evaluate("() => document.body.classList.contains('calculator-only')")
+    assert not await page.evaluate("() => document.body.classList.contains('calculator-only') || document.documentElement.classList.contains('calculator-only')")
     assert await page.locator(".companion").is_visible()
     assert await page.locator(".face-actions").is_visible()
     await context.close()
