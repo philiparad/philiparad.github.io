@@ -513,6 +513,67 @@ try{
   assert.deepEqual(pointer,{right:5,left:6},
    'In RTL, clicking the equation right/left edges should locate the caret before/after it');
 
+  const keyboardMath=await page.evaluate(()=>{
+   const {draft,move}=window.__atomicMath,eq=draft.input.querySelector('.inline-equation');
+   move(0,0);eq.focus();
+   return {focused:document.activeElement===eq,tabIndex:eq.tabIndex,
+    role:eq.getAttribute('role'),description:eq.getAttribute('aria-description')};
+  });
+  assert(keyboardMath.focused&&keyboardMath.tabIndex===0&&keyboardMath.role==='math',
+   'Screen readers and keyboard users must be able to focus inline math');
+  assert(keyboardMath.description.includes('Shift'),'Math needs navigation instructions');
+  await page.keyboard.press('ArrowLeft');
+  assert.equal((await page.evaluate(()=>window.__atomicMath.state())).logical.focus.offset,6,
+   'ArrowLeft on RTL math moves the caret after the complete equation');
+  await page.evaluate(()=>window.__atomicMath.draft.input.querySelector('.inline-equation').focus());
+  await page.keyboard.press('Shift+ArrowRight');
+  assert.deepEqual((await page.evaluate(()=>window.__atomicMath.state())).logical,
+   {anchor:{paragraph:0,offset:6},focus:{paragraph:0,offset:5}},
+   'Shift+ArrowRight on focused RTL equation must select one complete atom');
+  await page.evaluate(()=>window.__atomicMath.draft.input.querySelector('.inline-equation').focus());
+  await page.keyboard.press('Escape');
+  assert.deepEqual(await page.evaluate(()=>({
+   open:!window.__atomicMath.draft.closed,
+   focus:document.activeElement===window.__atomicMath.draft.input
+  })),{open:true,focus:true},'Escape exits equation focus without cancelling the text draft');
+  await page.evaluate(()=>{
+   const {draft}=window.__atomicMath;
+   draft.editEquation=node=>{draft.keyboardMathSource=JSON.parse(node.dataset.equation).source;};
+   draft.input.querySelector('.inline-equation').focus();
+  });
+  await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(()=>window.__atomicMath.draft.keyboardMathSource),'x^2',
+   'Enter on focused equation opens editing rather than inserting a paragraph');
+  await page.evaluate(()=>window.__atomicMath.draft.input.querySelector('.inline-equation').focus());
+  await page.keyboard.press('Space');
+  assert.equal(await page.evaluate(()=>window.__atomicMath.draft.keyboardMathSource),'x^2');
+
+  const touchMath=await page.evaluate(async()=>{
+   const {draft,move,state}=window.__atomicMath;
+   const {restoreLogicalSelection}=await import('./js/text-selection.js');
+   const eq=draft.input.querySelector('.inline-equation'),rect=eq.getBoundingClientRect();
+   move(0,0);
+   eq.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,
+    pointerType:'touch',button:0,clientX:rect.left+2}));
+   const afterDown=state().logical.focus.offset;
+   eq.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,
+    clientX:rect.left+2}));
+   const afterTap=state().logical.focus.offset;
+   restoreLogicalSelection(draft.input,window.getSelection(),{
+    anchor:{paragraph:0,offset:4},focus:{paragraph:0,offset:6}
+   });
+   const beforeLongPress=state().logical;
+   eq.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,
+    pointerType:'touch',button:0,clientX:rect.right-2}));
+   eq.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,
+    clientX:rect.right-2}));
+   return {afterDown,afterTap,beforeLongPress,afterLongPress:state().logical};
+  });
+  assert.equal(touchMath.afterDown,0,'Touch-down must leave text selection to the browser');
+  assert.equal(touchMath.afterTap,6,'Completed touch tap should reach the math boundary');
+  assert.deepEqual(touchMath.afterLongPress,touchMath.beforeLongPress,
+   'Long-press selection must not collapse after touching equation');
+
   const direction=await page.evaluate(()=>{
    const {draft,move,state}=window.__atomicMath;
    draft.input.children[0].dir='ltr';
