@@ -141,6 +141,41 @@ try{
   assert.equal(result.undo,1);
  });
 
+ await check('edit-save-reload-SVG/backup round-trip preserves selected formatting',async()=>{
+  const id=await page.evaluate(async()=>{
+   const {createBoard}=await import('./js/model.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   const saved=window.__smoke.editor.saved;
+   if(!saved?.[0]?.runs||!saved[0].paragraphs)throw Error('No completed rich text draft');
+   const board=createBoard('Cross-browser rich text round trip');
+   board.items=[{...saved[0],text:saved[1],h:saved[2]}];
+   const repo=new BoardRepository('teaching-board-cross-browser-smoke');
+   await repo.save(board);repo.close();
+   return board.id;
+  });
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+  const restored=await page.evaluate(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const {serializeBackup,parseBackup}=await import('./js/model.js');
+   const {sceneSVG}=await import('./js/scene.js');
+   const repo=new BoardRepository('teaching-board-cross-browser-smoke');
+   const board=await repo.get(boardId);repo.close();
+   if(!board)throw Error('IndexedDB did not persist the formatted lesson');
+   const backup=parseBackup(serializeBackup(board));
+   const item=backup.items[0],svg=sceneSVG(backup);
+   const textElements=[...svg.querySelectorAll('text')].map(n=>n.textContent);
+   return {text:item.text,paragraphs:item.paragraphs,runs:item.runs,textElements,
+    markup:new XMLSerializer().serializeToString(svg)};
+  },id);
+  assert.equal(restored.text,'שלום English');
+  assert.equal(restored.paragraphs[0].list,'number');
+  assert(restored.runs.some(run=>run.bold&&run.text.includes('שלום')));
+  assert(restored.textElements.some(t=>t.includes('שלום')));
+  assert(restored.textElements.some(t=>t.includes('English')));
+  assert(restored.markup.includes('font-weight="700"'));
+ });
+
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{
