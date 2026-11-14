@@ -74,11 +74,24 @@ export function tokenTextAnchor(lineRtl,tokenDir){
  * separately wrapped visual lines. This mirrors contenteditable dir="auto".
  * Inline equation images are neutral and must not affect the first strong
  * character. Explicit paragraph directions always win. */
+/**
+ * The Unicode bidirectional algorithm treats the first strong character as
+ * LTR or RTL. Greek mathematical letters, Cyrillic, CJK, etc. are LTR,
+ * not invisible while searching for a later Hebrew word.
+ *
+ * Letters from the principal RTL scripts are right-to-left. Other letters
+ * are left-to-right. Numbers, punctuation and inline equation images are
+ * direction-neutral for the first-strong-letter decision.
+ */
+const RTL_LETTER=/[\p{Script=Hebrew}\p{Script=Arabic}\p{Script=Syriac}\p{Script=Thaana}\p{Script=Nko}\p{Script=Samaritan}\p{Script=Mandaic}\p{Script=Adlam}\p{Script=Hanifi_Rohingya}\p{Script=Yezidi}]/u;
+export function firstStrongTextDirection(source,fallback='ltr'){
+ const firstStrong=source.match(/\p{Letter}/u)?.[0];
+ return firstStrong?(RTL_LETTER.test(firstStrong)?'rtl':'ltr'):fallback;
+}
 export function paragraphDirectionIsRtl(paragraph){
  if(paragraph?.dir==='rtl')return true;
  if(paragraph?.dir==='ltr')return false;
  const source=(paragraph?.runs||[]).map(run=>run.equation?'':run.text||'').join('');
- const firstStrong=source.match(/[\p{Script=Hebrew}\p{Script=Arabic}\p{Script=Latin}]/u)?.[0]||'';
- return /[\p{Script=Hebrew}\p{Script=Arabic}]/u.test(firstStrong);
+ return firstStrongTextDirection(source)==='rtl';
 }
-export function drawEquationText(item,paragraphs,svgEl){const {font,pad,lines}=textLayoutMetrics(item,paragraphs),g=svgEl('g');const paragraphDirections=paragraphs.map(paragraphDirectionIsRtl);let top=pad;for(const line of lines){const rtl=paragraphDirections[line.paragraphIndex]??false;let left=line.align==='center'?(item.w-line.width)/2:line.align==='right'||line.align==='auto'&&rtl?item.w-pad-line.width:pad;let cursor=rtl?left+line.width:left;for(const part of line.parts){const x=rtl?cursor-part.w:cursor;if(part.equation){const image=svgEl('image',{href:part.equation.src,x,y:top+line.height-part.h-font*.25,width:part.w,height:part.h,role:'img','aria-label':part.equation.source});const title=svgEl('title');title.textContent=part.equation.source;image.append(title);g.append(image);}else{const tokenDir=/^[^\p{Script=Latin}\p{Script=Hebrew}\p{Script=Arabic}]*[\p{Script=Hebrew}\p{Script=Arabic}]/u.test(part.text)?'rtl':/^[^\p{Script=Latin}\p{Script=Hebrew}\p{Script=Arabic}]*[\p{Script=Latin}]/u.test(part.text)?'ltr':rtl?'rtl':'ltr';const text=svgEl('text',{x:cursor,y:top+line.height-font*.25,fill:part.color||item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,'font-size':font,'font-family':TEXT_FONT_FAMILY,'font-weight':part.bold?'700':'400','font-style':part.italic?'italic':'normal','text-decoration':[part.underline?'underline':'',part.strike?'line-through':''].filter(Boolean).join(' ')||'none',direction:tokenDir,'unicode-bidi':'isolate','text-anchor':tokenTextAnchor(rtl,tokenDir),...(part.fitText?{textLength:part.w,lengthAdjust:'spacingAndGlyphs'}:{}),'xml:space':'preserve'});text.textContent=part.text;g.append(text);}cursor+=rtl?-part.w:part.w;}top+=line.height;}return g;}
+export function drawEquationText(item,paragraphs,svgEl){const {font,pad,lines}=textLayoutMetrics(item,paragraphs),g=svgEl('g');const paragraphDirections=paragraphs.map(paragraphDirectionIsRtl);let top=pad;for(const line of lines){const rtl=paragraphDirections[line.paragraphIndex]??false;let left=line.align==='center'?(item.w-line.width)/2:line.align==='right'||line.align==='auto'&&rtl?item.w-pad-line.width:pad;let cursor=rtl?left+line.width:left;for(const part of line.parts){const x=rtl?cursor-part.w:cursor;if(part.equation){const image=svgEl('image',{href:part.equation.src,x,y:top+line.height-part.h-font*.25,width:part.w,height:part.h,role:'img','aria-label':part.equation.source});const title=svgEl('title');title.textContent=part.equation.source;image.append(title);g.append(image);}else{const tokenDir=firstStrongTextDirection(part.text,rtl?'rtl':'ltr');const text=svgEl('text',{x:cursor,y:top+line.height-font*.25,fill:part.color||item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,'font-size':font,'font-family':TEXT_FONT_FAMILY,'font-weight':part.bold?'700':'400','font-style':part.italic?'italic':'normal','text-decoration':[part.underline?'underline':'',part.strike?'line-through':''].filter(Boolean).join(' ')||'none',direction:tokenDir,'unicode-bidi':'isolate','text-anchor':tokenTextAnchor(rtl,tokenDir),...(part.fitText?{textLength:part.w,lengthAdjust:'spacingAndGlyphs'}:{}),'xml:space':'preserve'});text.textContent=part.text;g.append(text);}cursor+=rtl?-part.w:part.w;}top+=line.height;}return g;}

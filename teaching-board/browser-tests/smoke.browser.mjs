@@ -25,6 +25,41 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('TXT-068 Unicode first-strong direction matches browser for Greek and Cyrillic',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {writeRuns,paragraphRuns}=await import('./js/rich-text.js');
+   const {drawEquationText}=await import('./js/inline-equation.js');
+   const {svgEl}=await import('./js/scene.js');
+   const fixtures=[
+    {text:'α + β שלום',expected:'ltr',greek:'ltr'},
+    {text:'Δx² שלום',expected:'ltr',greek:'ltr'},
+    {text:'Привет שלום',expected:'ltr'},
+    {text:'שלום α + β',expected:'rtl',greek:'ltr'},
+    {text:'١٢٣ مرحبا Δ',expected:'rtl',greek:'ltr'}
+   ];
+   return fixtures.map(({text,expected,greek})=>{
+    const item={type:'text',w:320,fontSize:24,text,
+     runs:[{text}],paragraphs:[{align:'auto',dir:'auto',list:'none'}]};
+    const root=document.createElement('div');
+    writeRuns(root,item);document.body.append(root);
+    const browserDirection=getComputedStyle(root.firstElementChild).direction;
+    const tokens=[...drawEquationText(item,paragraphRuns(item),svgEl).querySelectorAll('text')];
+    const greekNodes=tokens.filter(n=>/[αβΔ]/u.test(n.textContent));
+    const tokenDirections=greekNodes.map(n=>n.getAttribute('direction'));
+    root.remove();
+    return {text,expected,greek,browserDirection,tokenDirections};
+   });
+  });
+  for(const row of report){
+   assert.equal(row.browserDirection,row.expected,'Native direction: '+row.text);
+   if(row.greek){
+    assert(row.tokenDirections.length>0,'Missing math Greek tokens: '+row.text);
+    assert(row.tokenDirections.every(dir=>dir===row.greek),
+     'Math token direction mismatch: '+JSON.stringify(row));
+   }
+  }
+ });
+
  await check('TXT-067 mixed normal/bold/italic runs survive legacy editor save and reopen',async()=>{
   const result=await page.evaluate(async()=>{
    const {InlineText}=await import('./js/inline-text.js');

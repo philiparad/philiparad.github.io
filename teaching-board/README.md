@@ -560,3 +560,14 @@ its appearance and saved formatting consistent when unbolding/unitalicizing
 part of an older styled paragraph, across Hebrew/English text, numbered lists,
 and repeated edit/save cycles. Board drawing, SVG export, and editable backup
 formats are unchanged; no data migration is required.
+
+## TXT-068 — Unicode-aware automatic direction for math and multilingual text
+
+Automatic direction now follows the first **strong Unicode letter** instead
+of only looking for Latin, Hebrew, or Arabic. Mathematical Greek letters
+(`α`, `β`, `Δ`), Cyrillic, and other LTR scripts correctly establish LTR
+flow even if Hebrew appears later. Hebrew, Arabic, Syriac, and other supported
+RTL letters continue to establish RTL flow. Equation images, digits and
+punctuation are neutral. SVG token direction and text anchoring use the same
+logic as paragraph direction. Explicit RTL/LTR settings remain authoritative.
+No changes to saved board data or JSON backups are needed.
