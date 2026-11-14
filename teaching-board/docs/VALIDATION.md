@@ -361,3 +361,48 @@ importer. Unsupported rich HTML uses the available `text/plain`
 fallback; if both sources contain no usable text, no paste is made.
 Native OS clipboard, device screen-reader and third-party document
 interoperability remain additional manual QA requirements.
+
+## TXT-059: nested-list and table clipboard fidelity (November 14, 2026)
+
+Expanded the external HTML clipboard importer in
+`js/text-inline-clipboard.js` with best-effort flattening for
+hierarchical lists and tabular source documents. The document model
+continues to store only flat paragraphs, runs and one list type per
+paragraph, so these conversions do not introduce incompatible nested
+DOM or table-specific objects.
+
+**Nested lists:** The walker tracks list depth, prefixes nested item
+text with the explicit visual marker `↳ ` (up to four levels of
+prefixes), and records each ordered item's original visible ordinal.
+Explicit starts on nested lists remain intact, and returning to a
+parent ordered list restores its correct numbering. A paragraph
+nested directly inside `li` contributes to that list item rather than
+creating an extra unnumbered paragraph.
+
+**Tables:** The importer visits each direct table row; cells become
+plain-text portions separated by ` | `, with one paragraph per row.
+Table/header/cell inline styles and safe text are retained; `th`
+is represented as bold. Row direction inherits from the surrounding
+table, row or first cell when available. Cell geometry, borders,
+`colspan`, `rowspan` and original grid layout are intentionally
+not represented in the flat text model.
+
+The same inert parsing, forbidden-element checking, 250 KB HTML
+input cap, bounded node traversal, 10,000-character document limit,
+paragraph validation and schema checks remain in place. Unsupported
+or unsafe external HTML is not inserted as live DOM.
+
+**Regression coverage:** [GitHub Actions run 43595689229](https://github.com/philiparad/philiparad.github.io/actions/runs/43595689229)
+passed the Teaching Board Node.js tests and all three
+Chromium/Firefox/WebKit browser jobs. New cross-browser tests cover
+a nested mixed RTL/LTR ordered/bullet sequence with sublist restarts,
+continuation of parent numbering, an HTML table with Hebrew/English
+cells and bold headers, keep-source and match-destination pasting,
+undo/redo, disallowed image handlers, excessive table rows and
+out-of-range list numbers. Existing visual-golden and A4 PDF
+regression checks remain green.
+
+**Limitations and manual follow-up:** This is a readable flat-text
+representation, not full table/layout round-tripping. Native OS
+clipboard behavior and third-party editors should still be tested
+manually with representative real documents.

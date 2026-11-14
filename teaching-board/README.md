@@ -74,6 +74,38 @@ the structured clipboard payload before recreating its editable content;
 external applications may discard clipboard metadata or display LaTeX
 as text rather than math graphics.
 
+## Pasting nested lists and tables from documents (TXT-059)
+
+External HTML paste now preserves more document structure within the
+existing **flat text paragraph model**:
+
+- **Nested ordered and bulleted lists:** Each child item becomes its own
+  editable list paragraph with the appropriate list type and displayed
+  numbering. Since Teaching Board does not store true nested-list depth,
+  deeper items receive a visible `↳ ` prefix to communicate hierarchy.
+  Numbered sublists may restart at 1 or at another original `start`
+  value, and parent list numbering resumes correctly after a sublist.
+- **Tables:** Each external HTML table row becomes an editable text
+  paragraph; cells are separated with ` | `. Header cells retain bold
+  formatting, while supported inline font styles/colors and paragraph
+  direction are carried into the flattened text.
+- **Mixed RTL/LTR:** Text from Hebrew and English paragraphs and list
+  items keeps its inherited paragraph direction and supported styles,
+  where the source HTML provides those properties.
+- **Both paste modes:** `Keep source formatting` retains imported
+  styling and list metadata, while `Match destination formatting`
+  applies the insertion paragraph's text and list styles.
+
+These are **readable conversions, not native nested lists or editable
+table grids**. Cell spanning, borders, widths, and column alignment do
+not survive conversion. Do not use external HTML paste when exact table
+geometry is required; import the underlying data separately instead.
+
+External HTML remains inert and validated. Payloads with disallowed
+embedded elements, invalid list ordinals, or excessive rows/characters
+are rejected as rich content and use the available literal plain-text
+fallback when possible.
+
 ## External clipboard compatibility and plain-text shortcut (TXT-058)
 
 **Paste from another editor:** Teaching Board can now import a *restricted,
