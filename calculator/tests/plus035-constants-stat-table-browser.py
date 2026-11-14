@@ -75,11 +75,11 @@ async def replay(browser,base,file,case,output):
             assert abs(actual-case["number"])<=case.get("abs_tolerance",1e-10), (
                 file,case["id"],"number",actual,case["number"])
         if "output_contains" in case:
-            output=s["outputLines"]
-            assert isinstance(output,list), (file,case["id"],"missing STAT output")
-            assert all(any(expected in line for line in output)
+            output_lines=s["outputLines"]
+            assert isinstance(output_lines,list), (file,case["id"],"missing STAT output")
+            assert all(any(expected in line for line in output_lines)
                 for expected in case["output_contains"]), (
-                file,case["id"],"incomplete STAT summary",output)
+                file,case["id"],"incomplete STAT summary",output_lines)
         if "output_equals" in case:
             assert s["outputLines"]==list(case["output_equals"]), (
                 file,case["id"],"wrong STAT menu selection",s["outputLines"])
