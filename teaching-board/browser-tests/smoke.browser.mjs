@@ -101,6 +101,53 @@ try{
   assert(visual.bounds.h>0);
  });
 
+ await check('HTML editor height and paragraph direction contain exported SVG layout',async()=>{
+  const metrics=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {textObjectHeight,drawItem}=await import('./js/scene.js');
+   const {readRichDocument,paragraphRuns}=await import('./js/rich-text.js');
+   const {textLayoutMetrics}=await import('./js/inline-equation.js');
+   const host=document.createElement('div');host.id='smoke-layout-parity';
+   host.style.cssText='position:fixed;inset:130px 70px 50px;background:white;z-index:1500';
+   document.body.append(host);
+   const editor={area:host,board:{viewport:{x:0,y:0,zoom:1}},
+    disposed:true,paint(){},applyText(){}};
+   const item={id:'parity',type:'note',x:10,y:10,w:175,h:22,fontSize:25,
+    fill:'#fff1a8',
+    text:'שלום mixed words\nSecond English explanation with superlongword',
+    paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7},
+                {align:'left',dir:'ltr',list:'number'}]};
+   const draft=new InlineText(editor,item,true);
+   await document.fonts.ready;
+   draft.resize();
+   const model=readRichDocument(draft.input,draft.item);
+   const content={...item,text:model.runs.map(run=>run.text).join(''),
+    runs:model.runs,paragraphs:model.paragraphs};
+   const layout=textLayoutMetrics(content,paragraphRuns(content));
+   const svg=drawItem(content);
+   const result={
+    overlayHeight:draft.height,
+    htmlScrollHeight:draft.input.scrollHeight,
+    svgLayoutHeight:layout.height,
+    renderedHeight:textObjectHeight(content),
+    directions:[...draft.input.querySelectorAll('li')].map(n=>getComputedStyle(n).direction),
+    listStart:draft.input.querySelector('ol')?.start,
+    svgTextCount:svg.querySelectorAll('text').length,
+    listMetadata:content.paragraphs.map(p=>p.list)
+   };
+   draft.finish(false);host.remove();
+   return result;
+  });
+  assert(metrics.htmlScrollHeight>22,'HTML fixture must wrap to more than its stored height');
+  assert(metrics.overlayHeight>=metrics.htmlScrollHeight,'HTML editor clips its own scroll content');
+  assert(metrics.overlayHeight>=metrics.svgLayoutHeight,'SVG export needs more vertical space than HTML editor');
+  assert(metrics.renderedHeight>=metrics.svgLayoutHeight,'SVG bounds clip measured text lines');
+  assert.deepEqual(metrics.directions,['rtl','ltr']);
+  assert.deepEqual(metrics.listMetadata,['number','number']);
+  assert.equal(metrics.listStart,7);
+  assert(metrics.svgTextCount>=4,'The SVG renderer lost paragraph contents');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
