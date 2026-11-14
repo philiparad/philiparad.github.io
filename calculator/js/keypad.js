@@ -36,7 +36,7 @@ function keyForModel(key,model){
 function keysForModel(model='fx-991es-plus'){if(model!=='fx-991es-plus')throw Error('Unsupported calculator model');return Object.freeze(keys.map(key=>keyForModel(key,model)))}
 const pct=(n)=>((100*n).toFixed(4))+'%';
 const newKey=(data,cx,cy,w,h,group,angle)=>Object.freeze({id:data[0],label:data[1],shift:data[2],alpha:data[3],cx,cy,w,h,group,angle:angle||null});
-const topCenters=[[39.83,222.67],[75.60,222.60],[108.21,240.61],[136.38,221.65],[136.46,259.52],[164.48,240.54],[196.81,222.66],[232.60,222.60]];
+const topCenters=[[39.83,222.67],[75.60,222.60],[108.21,240.61],[136.38,221.65],[136.46,259.52],[164.48,240.54],[196.81,222.66],[238.60,222.60]];
 const scienceCols=[40.6,78.8,117,155.4,193.5,231.6],scienceRows=[268.6,301.5,334.5,367.3];
 const numCols=[44,90,136,182.1,228.4],numRows=[410.6,450,490,529.4];
 const keys=[];
