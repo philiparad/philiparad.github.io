@@ -127,6 +127,16 @@ function rasterize(state){
  const pixels=new Uint8Array(W*H),textRuns=[],fineStrokes=[];
   // Keep 96x31 expression layout, but draw geometric signs at 192x62.
   const fineStroke=(x1,y1,x2,y2)=>fineStrokes.push([x1,y1,x2,y2]);
+  // Hollow, proportionate edit box: unlike the old underline, it cannot
+  // be mistaken for the caret, fraction bar or radical's descending stem.
+  const placeholder=(x,y)=>{
+   fineStroke(x+1,y+1,x+5,y+1);
+   fineStroke(x+5,y+1,x+5,y+6);
+   fineStroke(x+5,y+6,x+1,y+6);
+   fineStroke(x+1,y+6,x+1,y+1);
+  };
+  // Scale the mathematical strokes at the source, not after rasterization.
+  const mathLine=(x1,y1,x2,y2)=>fineStroke(x1,y1,x2,y2);
  const pixel=(x,y)=>{if(x>=0&&y>=0&&x<W&&y<H)pixels[y*W+x]=1};
  const glyph=(c,x,y,inverse=false)=>{textRuns.push({c,x,y,inverse})};
  const write=(text,x,y,limit=W)=>{for(const c of String(text)){
@@ -552,7 +562,7 @@ function rasterize(state){
    }else{
     const p=node.parts,drawField=(field,xx,yy)=>{
      const sub=p[field]||[];
-     if(!sub.length){for(let d=0;d<5;d++)pixel(xx+d,yy+5)}
+     if(!sub.length)placeholder(xx,yy);
      drawSeq(sub,xx,yy,[...path,{index:i,field}],cursorOn);
     };
     if(!state.math&&['derivative','integral','summation'].includes(node.type)){
@@ -569,14 +579,14 @@ function rasterize(state){
     }else if(node.type==='fraction'){
      const widest=w-4,a=measureSeq(p.numerator),b=measureSeq(p.denominator);
      drawField('numerator',x+2+Math.floor((widest-a)/2),baseline-10);
-     for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
+     mathLine(x,baseline-3,x+w-1,baseline-3);
      drawField('denominator',x+2+Math.floor((widest-b)/2),baseline+1);
     }else if(node.type==='mixed'){
      drawField('integer',x,baseline);
      const shift=Math.max(6,measureSeq(p.integer))+4;
      const span=w-shift,a=measureSeq(p.numerator),b=measureSeq(p.denominator);
      drawField('numerator',x+shift+Math.floor((span-a)/2),baseline-10);
-     for(let xx=x+shift-1;xx<x+w;xx++)pixel(xx,baseline-3);
+     mathLine(x+shift-1,baseline-3,x+w-1,baseline-3);
      drawField('denominator',x+shift+Math.floor((span-b)/2),baseline+1);
     }else if(node.type==='derivative'){
      glyph('d',x,baseline-5);glyph('/',x+4,baseline-5);
@@ -585,7 +595,19 @@ function rasterize(state){
      const at=x+16+Math.max(6,measureSeq(p.expression));
      glyph('|',at-3,baseline+7);drawField('at',at,baseline+7);
     }else if(node.type==='integral'||node.type==='summation'){
-     glyph(node.type==='integral'?'∫':'Σ',x,baseline-2);
+     // Full-height calculus signs align visually with their bounds.
+      if(node.type==='integral'){
+       mathLine(x+4,baseline-10,x+3,baseline-11);
+       mathLine(x+3,baseline-11,x+2,baseline-10);
+       mathLine(x+2,baseline-10,x+2,baseline+8);
+       mathLine(x+2,baseline+8,x+1,baseline+9);
+       mathLine(x+1,baseline+9,x,baseline+8);
+      }else{
+       mathLine(x+5,baseline-10,x,baseline-10);
+       mathLine(x,baseline-10,x+4,baseline-1);
+       mathLine(x+4,baseline-1,x,baseline+8);
+       mathLine(x,baseline+8,x+5,baseline+8);
+      }
      const span=Math.max(Math.max(6,measureSeq(p.lower)),Math.max(6,measureSeq(p.upper)));
      drawField('upper',x+6,baseline-12);
      drawField('lower',x+6,baseline+7);
@@ -602,7 +624,7 @@ function rasterize(state){
      drawField('exponent',x+13,baseline-8);
     }else if(node.type==='recurring'){
      drawField('period',x+1,baseline);
-     for(let xx=x;xx<x+w;xx++)pixel(xx,baseline-3);
+     mathLine(x,baseline-3,x+w-1,baseline-3);
     }else if(node.type==='logBase'){
      glyph('l',x,baseline);glyph('o',x+4,baseline);glyph('g',x+8,baseline);
      drawField('base',x+11,baseline+6);
