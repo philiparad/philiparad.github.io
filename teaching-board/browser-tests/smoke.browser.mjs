@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
-import { chromium } from 'playwright';
+import { chromium, firefox, webkit } from 'playwright';
 
 const base=process.env.TEACHING_BOARD_URL||'http://127.0.0.1:8765/teaching-board/';
-const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+const engine=process.env.TEACHING_BOARD_BROWSER||'chromium';
+const browserType={chromium,firefox,webkit}[engine];
+if(!browserType)throw new Error('Unsupported browser engine: '+engine);
+const browser=await browserType.launch({headless:true,...(engine==='chromium'?{args:['--no-sandbox']}:{})});
 const page=await browser.newPage({viewport:{width:1440,height:900},locale:'he-IL'});
 const pageErrors=[];
 page.on('pageerror',error=>pageErrors.push(error.message));
@@ -139,7 +142,7 @@ try{
  });
 
  assert.deepEqual(pageErrors,[]);
- console.log('All browser smoke checks passed.');
+ console.log('All '+engine+' browser smoke checks passed.');
 }finally{
  await browser.close();
 }
