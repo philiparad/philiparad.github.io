@@ -118,3 +118,22 @@ across Chromium, Firefox and WebKit. Its visual jobs intentionally
 reported the old golden-hash mismatch; the images were inspected, and
 all nine versioned golden hashes updated. A subsequent enforcing run
 must pass before this release is considered fully verified.
+
+## TXT-052: mathematical inline images (November 14, 2026)
+
+Fixed the CSS selector which previously treated non-editable inline equation
+spans as 100%-width block editors. HTML now constrains equation image widths
+to the available text or padded sticky-note width, consistent with SVG.
+Equations align on the surrounding text baseline and reserve a non-clipping
+line height in SVG.
+
+New Node tests check oversized equations, atomic wrapping, baseline positions,
+and both RTL and LTR source text. Browser tests use valid generated PNG images
+and independently compare native HTML image baselines, fitted dimensions,
+SVG positions, export preservation and editor bounds. These geometry checks
+passed Chromium, Firefox and WebKit in
+[CI capture run 43576725714](https://github.com/philiparad/philiparad.github.io/actions/runs/43576725714).
+The sole expected failure in that capture run was outdated pixel baselines
+for the mixed-language inline-math fixture, now explicitly reviewed and
+updated in the golden manifest. Final full verification remains dependent
+on the subsequent enforcing workflow, including the A4 PDF raster check.

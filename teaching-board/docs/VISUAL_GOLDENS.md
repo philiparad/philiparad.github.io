@@ -113,3 +113,30 @@ All nine hashes were then explicitly updated in the committed reference
 manifest. These are reviewed references for the intentional fix, not
 automatically accepted baselines. Font differences on other OS/browser
 stacks are still outside this pinned golden contract.
+
+## TXT-052: corrected inline equation baseline references (November 14, 2026)
+
+The HTML text editor previously applied a broad `[contenteditable]` CSS rule
+to nested `contenteditable="false"` equation spans. This unexpectedly made
+math objects display as full-width blocks. The rule now targets only the
+editable root. Equation images are inline, isolated from surrounding RTL/LTR
+text, use baseline alignment, and share the SVG renderer's content-width limit.
+
+SVG equation images now sit on the same baseline as neighboring text; their
+line height explicitly reserves enough space above that baseline, including
+tall equations. Tests verify atomic wrapping and visible image geometry in
+real Chromium, Firefox and WebKit.
+
+The change intentionally affects only the **mixed Hebrew English and inline
+math** visual fixture. Reference PNGs were compared with the previous
+Chromium golden: the mixed-line text position changes subtly as intended;
+rotated sticky notes and non-math wrapping are unchanged. The temporary
+inspectable engine PNGs came from
+[CI run 43576725714](https://github.com/philiparad/philiparad.github.io/actions/runs/43576725714).
+All three engines' new fixture hashes were recorded explicitly; the other
+six hashes remain unchanged. All baseline comparisons remain enforcing
+checks (never automatically updated by CI).
+
+The printed-PDF regression additionally draws a nontransparent green
+equation image and verifies its presence only on the correct A4 page after
+Poppler rasterization, independent of other colored page objects.
