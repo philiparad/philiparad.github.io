@@ -11,7 +11,7 @@ import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pe
 import {applyDocumentRange} from './text-range-format.js';
 import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js';
 import {moveAcrossEquation,deleteEquationAtCaret,positionBesideEquation} from './text-equation-caret.js';
-import {boundaryEdit,boundaryNavigation,unlistEmptyParagraph} from './text-boundary-keys.js';
+import {boundaryEdit,boundaryNavigation,unlistEmptyParagraph,selectedDeletion} from './text-boundary-keys.js';
 import {TEXT_RICH_CLIPBOARD,clipboardFromTransfer,clipboardPlainText,clipboardHTML,selectedRichClipboard,logicalClipboardRange,replaceRichClipboard,plainClipboard} from './text-inline-clipboard.js';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
@@ -246,6 +246,14 @@ export class InlineText {
    const key=event.key;
    const modified=!!(event.ctrlKey||event.metaKey||event.altKey);
    if(!modified&&['Backspace','Delete'].includes(key)){
+    // Always resolve selected equations/line breaks through the validated
+    // document model instead of native DOM range.deleteContents().
+    const selected=selectedDeletion(snapshot,saved,key);
+    if(selected){
+     return this.replaceRichTextRange(
+      {start:selected.start,end:selected.end},
+      {schema:1,runs:[],paragraphs:[{align:'auto',list:'none',dir:'auto'}]});
+    }
     const action=boundaryEdit(snapshot,saved,key);
     if(!action)return false;
     if(action.kind==='join'){
