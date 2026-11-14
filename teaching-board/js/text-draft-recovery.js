@@ -102,8 +102,11 @@ export function listNewTextDrafts(storage,boardId,existingIds=[],now=Date.now())
  const known=new Set(existingIds),candidates=[];
  try{
   const limit=Math.min(storage.length,5000);
-  for(let index=0;index<limit;index++){
-   const key=storage.key(index);
+  // Reading may purge expired records. Snapshot keys first so deletions cannot
+  // skip the next entry in the browser's live localStorage enumeration.
+  const keys=[];
+  for(let index=0;index<limit;index++)keys.push(storage.key(index));
+  for(const key of keys){
    if(typeof key!=='string'||!key.startsWith(stem))continue;
    const raw=storage.getItem(key);
    if(typeof raw!=='string'||raw.length>200000)continue;
