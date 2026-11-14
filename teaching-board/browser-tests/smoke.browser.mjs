@@ -530,6 +530,171 @@ try{
   });
  });
 
+
+ await check('inline equation clipboard preserves LaTeX, formatting, safe paste and accessible math',async()=>{
+  const copied=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {restoreLogicalSelection}=await import('./js/text-selection.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {TEXT_RICH_CLIPBOARD}=await import('./js/text-inline-clipboard.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:100px 70px 50px;background:white;z-index:2900';
+   document.body.append(host);
+   const canvas=document.createElement('canvas');canvas.width=60;canvas.height=40;
+   const ctx=canvas.getContext('2d');ctx.fillStyle='#1852cb';ctx.fillRect(2,2,56,36);
+   const image=canvas.toDataURL('image/png');
+   const equation={source:'\\frac{x+1}{2}',src:image,w:60,h:40};
+   const source={id:'clip-source',type:'text',x:10,y:10,w:400,h:130,fontSize:24,
+    text:'שלום \uFFFC English\nReview \uFFFC end',
+    runs:[{text:'שלום ',bold:true,color:'#b42318'},
+       {text:'\uFFFC',equation},
+       {text:' English\nReview ',italic:true},
+       {text:'\uFFFC',equation:{...equation,source:'y^2'}},
+       {text:' end'}],
+    paragraphs:[{align:'right',dir:'rtl',list:'none'},
+                {align:'left',dir:'ltr',list:'bullet'}]};
+   const editor={area:host,board:{id:'clipboard-'+crypto.randomUUID(),
+     viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const draft=new InlineText(editor,source,true);
+   const selected=window.getSelection();
+   const choose=(start,end)=>{
+    draft.input.focus();
+    if(!restoreLogicalSelection(draft.input,selected,
+      {anchor:{paragraph:0,offset:start},focus:{paragraph:0,offset:end}}))
+     throw Error('Could not select source paragraph');
+   };
+   const data=new Map();
+   const transfer={
+    setData(type,value){data.set(type,value);},
+    getData(type){return data.get(type)||'';}
+   };
+   const fire=(type,clipboardData)=>{
+    const event=new Event(type,{bubbles:true,cancelable:true});
+    Object.defineProperty(event,'clipboardData',{value:clipboardData});
+    draft.input.dispatchEvent(event);
+    return event.defaultPrevented;
+   };
+   choose(0,14);
+   const prevented=fire('copy',transfer);
+   const meta=[...draft.input.querySelectorAll('.inline-equation')].map(node=>({
+    role:node.getAttribute('role'),label:node.getAttribute('aria-label'),
+    imgHidden:node.querySelector('img')?.getAttribute('aria-hidden')
+   }));
+   const doc=readRichDocument(draft.input,draft.item);
+   window.__richClipboard={host,editor,source,draft,transfer,data,readRichDocument,
+    TEXT_RICH_CLIPBOARD,fire,choose};
+   return {prevented,plain:data.get('text/plain'),html:data.get('text/html'),
+    rich:JSON.parse(data.get(TEXT_RICH_CLIPBOARD)),meta,
+    beforeText:doc.runs.map(run=>run.text).join('')};
+  });
+  assert.equal(copied.prevented,true);
+  assert.equal(copied.beforeText,'שלום \uFFFC English\nReview \uFFFC end');
+  assert.equal(copied.rich.runs.find(run=>run.equation).equation.source,'\\frac{x+1}{2}');
+  assert.equal(copied.rich.paragraphs[0].dir,'rtl');
+  assert(copied.rich.runs.some(run=>run.bold&&run.color==='#b42318'));
+  assert(copied.rich.runs.some(run=>run.italic));
+  assert(copied.plain.includes('\\(\\frac{x+1}{2}\\)'));
+  assert(!copied.plain.includes('\uFFFC'));
+  assert(copied.html.includes('data-teaching-board-rich'));
+  assert(copied.meta.every(node=>node.role==='math'&&
+    node.label?.startsWith('Math equation: ')&&node.imgHidden==='true'),
+    'Equation images must provide a single accessible math description');
+
+  const pasted=await page.evaluate(()=>{
+   const {host,draft,transfer,fire,editor}=window.__richClipboard;
+   draft.finish(false);
+   return true;
+  });
+  assert.equal(pasted,true);
+  // Start an independent destination document while retaining the copied data.
+  const destination=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection}=await import('./js/text-selection.js');
+   const {host,editor,transfer,data,readRichDocument,TEXT_RICH_CLIPBOARD}=window.__richClipboard;
+   const target={id:'clip-target',type:'text',x:10,y:10,w:500,h:100,fontSize:24,
+    text:'Answer: END',paragraphs:[{align:'left',dir:'ltr',list:'none'}]};
+   const draft=new InlineText(editor,target,true),selection=window.getSelection();
+   const select=(a,b=a)=>{
+    draft.input.focus();
+    if(!restoreLogicalSelection(draft.input,selection,
+      {anchor:{paragraph:0,offset:a},focus:{paragraph:0,offset:b}}))
+     throw Error('Cannot set destination caret');
+   };
+   const state=()=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    return {text:doc.runs.map(run=>run.text).join(''),
+      eqs:doc.runs.filter(run=>run.equation).map(run=>run.equation.source),
+      bold:doc.runs.some(run=>run.bold&&run.color==='#b42318'&&run.text.includes('שלום')),
+      italic:doc.runs.some(run=>run.italic&&run.text.includes('English')),
+      paragraphs:doc.paragraphs,caret:captureLogicalSelection(draft.input,selection)};
+   };
+   const fire=(type,clipboardData)=>{
+    const event=new Event(type,{bubbles:true,cancelable:true});
+    Object.defineProperty(event,'clipboardData',{value:clipboardData});
+    draft.input.dispatchEvent(event);
+    return event.defaultPrevented;
+   };
+   select(8);
+   const prevented=fire('paste',transfer);
+   window.__richClipboard={...window.__richClipboard,draft,select,state,fire,editor,host};
+   return {prevented,...state()};
+  });
+  assert.equal(destination.prevented,true);
+  assert.equal(destination.text,'Answer: שלום \uFFFC EnglishEND');
+  assert.deepEqual(destination.eqs,['\\frac{x+1}{2}']);
+  assert(destination.bold&&destination.italic);
+  assert.equal(destination.paragraphs[0].dir,'ltr','Destination paragraph direction must be retained');
+
+  await page.evaluate(()=>window.__richClipboard.select(13,14));
+  const cut=await page.evaluate(()=>{
+   const {data,fire,state}=window.__richClipboard;
+   const transfer={setData(type,value){data.set('cut:'+type,value);},
+    getData(type){return data.get('cut:'+type)||'';}};
+   const prevented=fire('cut',transfer);
+   return {prevented,plain:transfer.getData('text/plain'),...state()};
+  });
+  assert(cut.prevented&&cut.plain.includes('\\frac{x+1}{2}'));
+  assert.deepEqual(cut.eqs,[]);
+  await page.keyboard.press('Control+z');
+  assert.deepEqual((await page.evaluate(()=>window.__richClipboard.state())).eqs,['\\frac{x+1}{2}']);
+  await page.keyboard.press('Control+y');
+  assert.deepEqual((await page.evaluate(()=>window.__richClipboard.state())).eqs,[]);
+  await page.keyboard.press('Control+z');
+
+  const restored=await page.evaluate(()=>{
+   const {data,fire,select,state}=window.__richClipboard;
+   const transfer={getData(type){return type==='text/html'?data.get('text/html'):
+     type==='text/plain'?data.get('text/plain'):'';}};
+   const before=state().text;
+   select(before.length);
+   const prevented=fire('paste',transfer);
+   return {prevented,...state()};
+  });
+  assert(restored.prevented);
+  assert.deepEqual(restored.eqs,['\\frac{x+1}{2}','\\frac{x+1}{2}'],
+   'The HTML clipboard fallback must keep the editable LaTeX source');
+  assert(restored.bold&&restored.italic);
+
+  const safe=await page.evaluate(()=>{
+   const {select,fire,state,draft,host}=window.__richClipboard;
+   const before=state().text;
+   select(before.length);
+   const untrusted='<img src=x onerror="window.__clipboardInjected=true">';
+   const transfer={getData(type){return type==='text/html'?untrusted:
+     type==='text/plain'?'<script>alert(1)</script>':'';}};
+   const prevented=fire('paste',transfer);
+   const result={prevented,...state(),scripts:draft.input.querySelectorAll('script').length,
+    injected:!!window.__clipboardInjected};
+   draft.finish(false);host.remove();
+   return result;
+  });
+  assert(safe.prevented);
+  assert.equal(safe.scripts,0);
+  assert.equal(safe.injected,false);
+  assert(safe.text.endsWith('<script>alert(1)</script>'),
+   'Untrusted HTML must be inserted only as literal plain text');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
