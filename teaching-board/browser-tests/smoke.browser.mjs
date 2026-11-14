@@ -1962,13 +1962,6 @@ try{
     return {values,obj,event:{clipboardData:obj,defaultPrevented:false,
      preventDefault(){this.defaultPrevented=true;}}};
    };
-   const baseline=state(createAndDiscard());
-   function createAndDiscard(){
-    const d=create();const snap=state(d);d.finish(false);
-    // Create a new editor only for building a grounded initial snapshot.
-    // Returning this discarded object is harmless; the caller ignores it.
-    return {input:{},item:fixture,_baseline:snap};
-   }
    // Selection starts before two adjacent equation atoms in an RTL ordered item.
    let draft=create();choose(draft,1,0);
    const firstStep=key(draft,'ArrowLeft',{shiftKey:true}),afterFirst=state(draft);
