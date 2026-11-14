@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {writeVisualArtifacts} from './visual-artifacts.mjs';
 import {chromium,firefox,webkit} from 'playwright';
 
 const engine=process.env.TEACHING_BOARD_BROWSER||'chromium';
@@ -21,7 +22,7 @@ try {
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:45000});
  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
  await page.evaluate(()=>document.fonts.ready);
- const findings=await page.evaluate(async()=>{
+ const capture=await page.evaluate(async()=>{
   const {sceneSVG,svgEl,background}=await import('./js/scene.js');
   const {RenderCache}=await import('./js/render-cache.js');
   const {backgroundOrder}=await import('./js/background-lock.js');
@@ -89,10 +90,28 @@ try {
     const ctx=canvas.getContext('2d',{willReadFrequently:true});
     ctx.drawImage(image,0,0,W,H);
     const pixels=ctx.getImageData(0,0,W,H).data;
-    return {pixels,sha256:await digest(pixels),markup};
+    return {pixels,sha256:await digest(pixels),png:canvas.toDataURL('image/png'),markup};
    }finally{URL.revokeObjectURL(url);}
   }
-  const results=[];
+  const differencePng=(before,after)=>{
+   const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+   const context=canvas.getContext('2d');
+   const image=context.createImageData(W,H);
+   for(let i=0;i<before.length;i+=4){
+    const changed=before[i]!==after[i]||before[i+1]!==after[i+1]||
+      before[i+2]!==after[i+2]||before[i+3]!==after[i+3];
+    if(changed){
+     image.data[i]=255;image.data[i+1]=0;image.data[i+2]=180;
+    }else{
+     const faded=Math.round((before[i]+before[i+1]+before[i+2])/15)+204;
+     image.data[i]=faded;image.data[i+1]=faded;image.data[i+2]=faded;
+    }
+    image.data[i+3]=255;
+   }
+   context.putImageData(image,0,0);
+   return canvas.toDataURL('image/png');
+  };
+  const results=[],snapshots=[];
   for(const fixture of fixtures){
    const board={background:'plain',items:fixture.items};
    const edited=editorSVG(board);
@@ -124,6 +143,8 @@ try {
     injectedDifference=pixels;injectedHash=damaged.sha256;
     changed.setAttribute('opacity','1');
    }
+   snapshots.push({name:fixture.name,cached:first.png,export:second.png,
+    difference:differencePng(first.pixels,second.pixels)});
    results.push({
     name:fixture.name,inkPixels:ink,differentPixels:different,maxChannelDifference:largest,
     editorImageCount:edited.querySelectorAll('image').length,
@@ -133,8 +154,14 @@ try {
     injectedDifference,injectedHash
    });
   }
-  return results;
+  return {results,snapshots};
  });
+ const {results:findings,snapshots}=capture;
+ const outputDirectory=process.env.TEACHING_BOARD_VISUAL_DIR||'/tmp/teaching-board-visual-artifacts';
+ writeVisualArtifacts(outputDirectory,engine,snapshots,findings,{
+  width:720,height:470,expected:recording?{}:manifest.engines[engine]
+ });
+ console.log('VISUAL ARTIFACTS '+engine+': '+outputDirectory);
  for(const test of findings){
   console.log('PIXEL '+engine+' '+test.name+': '+JSON.stringify(test));
   assert(test.inkPixels>50,'Fixture rendered blank: '+test.name);
