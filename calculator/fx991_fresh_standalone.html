@@ -7484,7 +7484,16 @@ function handle(key){
    state.screen='edit';state.info='';releaseModifier();
    if(key==='MODE')modeMenu();
    else if(key==='ON')powerOn();
-   else{notify('Calculation cancelled');paint()}
+   else{
+    // AC cancels the pending job AND clears the expression, as it does in
+    // normal editing. Otherwise a subsequent template appends to the
+    // abandoned Sum/Integral expression after numeric cancellation.
+    state.editor=STRUCT.create();state.input='';state.cursor=0;
+    state.calcSession=null;state.captureTemplate=false;state.result='';
+    state.error='';state.errorOffset=null;state.errorSource='';
+    state.viewport.inputX=0;state.viewport.inputY=0;
+    notify('Calculation cancelled');paint();
+   }
   }
   return;
  }
