@@ -22,6 +22,20 @@ export class TextHistory {
         this.index=this.entries.length-1;
         return true;
     }
+    /**
+     * Some browsers dispatch their final insertFromComposition input AFTER
+     * compositionend. Coalesce that trailing commit into the same single
+     * undo step; never overwrite the earlier precomposition history entry.
+     * Only the editing session can call this for its own recorded index.
+     */
+    amendCurrent(value,expectedIndex=this.index){
+        if(this.index<1||this.index!==expectedIndex)return false;
+        const copy=structuredClone(value),old=this.entries[this.index];
+        const changed=JSON.stringify({runs:copy.runs,paragraphs:copy.paragraphs})!==
+            JSON.stringify({runs:old.runs,paragraphs:old.paragraphs});
+        this.entries[this.index]=copy;
+        return changed;
+    }
     setSelection(selection) { if (selection) this.entries[this.index].selection=structuredClone(selection); }
     undo() {
         if(!this.canUndo)return null;
