@@ -3024,7 +3024,7 @@ try{
    });
    const initial=await request('initial-ans');
    api.loadExpression('1/3');
-   api.press('=');
+   api.press('EQUAL');
    const state=api.getState();
    const completed=await request('fraction-ans');
    const wrong=await new Promise(resolve=>{
