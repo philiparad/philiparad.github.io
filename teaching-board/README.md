@@ -29,6 +29,28 @@ Polygon: click each vertex, then press Enter. Use `*` for multiplication in grap
 
 Use Export → Editable backup before clearing browser data, or to transfer a lesson. Import creates a new lesson without replacing the original. Print / Save as PDF fits the full board onto one A4 landscape page; very large boards may print small.
 
+## Copy, cut and paste formatted text and equations
+
+The text editor supports **rich copy, cut and paste** within Teaching Board,
+including styling, text colors, Hebrew/English text and the editable LaTeX
+source of inline mathematical equations.
+
+Select text containing an equation and press **Ctrl/⌘+C**, **Ctrl/⌘+X**
+or **Ctrl/⌘+V**. Equations remain atomic, and Undo/Redo restores cut or
+pasted equations. The editor copies a versioned, validated rich-text
+payload together with a structured HTML fallback when the clipboard
+removes custom MIME types. Clipboard HTML is **never inserted as live HTML**:
+the data is validated and rebuilt as safe text/editor objects.
+
+For other applications, the clipboard contains **plain text** with
+equation sources written in LaTeX delimiters, such as `\\(x^2\\)`.
+If an application strips the structured metadata, pasting back uses
+this readable plain-text fallback rather than an editable equation.
+
+Inline equation images are announced as math with a descriptive LaTeX
+source label, avoiding redundant image announcements. Native assistive
+technology and cross-app clipboard interoperability still need manual QA.
+
 ## Inline equation cursor and keyboard controls
 
 Inline equations behave as **one atomic character** in text boxes and sticky
