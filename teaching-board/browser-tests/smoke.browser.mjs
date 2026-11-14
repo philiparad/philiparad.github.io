@@ -336,6 +336,88 @@ try{
   assert.deepEqual(result,{pendingCleared:true,during:false,after:true,text:'שלום קלט'});
  });
 
+ await check('unsaved valid rich-text draft recovers after a browser reload',async()=>{
+  await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {draftStorageKey}=await import('./js/text-draft-recovery.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:130px 80px 60px;background:white;z-index:2500';
+   document.body.append(host);
+   const item={id:'recovery-text',type:'text',x:0,y:0,w:350,h:90,fontSize:24,text:'שלום',
+    paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
+   const editor={area:host,board:{id:'browser-recovery-fixture',viewport:{x:0,y:0,zoom:1}},
+    disposed:true,paint(){},applyText(){}};
+   const key=draftStorageKey(editor.board.id,item.id);
+   localStorage.removeItem(key);
+   const draft=new InlineText(editor,item,true);
+   draft.input.textContent='שלום Draft continued English';
+   draft.input.oninput();
+   const saved=localStorage.getItem(key);
+   if(!saved||!saved.includes('Draft continued'))throw Error('Unsaved draft was not persisted locally');
+   window.__recoveryKey=key;
+  });
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+  await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:130px 80px 60px;background:white;z-index:2500';
+   document.body.append(host);
+   const item={id:'recovery-text',type:'text',x:0,y:0,w:350,h:90,fontSize:24,text:'שלום',
+    paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
+   const editor={area:host,board:{id:'browser-recovery-fixture',viewport:{x:0,y:0,zoom:1}},
+    disposed:true,paint(){},applyText(...args){this.saved=args;}};
+   window.__recover={draft:new InlineText(editor,item,true),editor,host};
+  });
+  await page.getByRole('button',{name:'Recover saved draft'}).click();
+  const recovered=await page.evaluate(()=>window.__recover.draft.input.textContent);
+  assert.equal(recovered,'שלום Draft continued English');
+  await page.getByRole('button',{name:'Done'}).click();
+  const result=await page.evaluate(async()=>{
+   const {draftStorageKey}=await import('./js/text-draft-recovery.js');
+   const {editor,host}=window.__recover;
+   const key=draftStorageKey(editor.board.id,'recovery-text');
+   const output={text:editor.saved?.[1],cleared:localStorage.getItem(key)===null};
+   host.remove();return output;
+  });
+  assert.equal(result.text,'שלום Draft continued English');
+  assert.equal(result.cleared,true);
+ });
+
+ await check('malformed equation cannot close editor and offers last-valid and raw recovery',async()=>{
+  const state=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:130px 80px 60px;background:white;z-index:2500';
+   document.body.append(host);
+   const item={id:'invalid-equation-recovery',type:'text',x:0,y:0,w:360,h:90,
+    fontSize:24,text:'שלום English',paragraphs:[{align:'right',list:'none',dir:'rtl'}]};
+   const editor={area:host,board:{id:'browser-invalid-recovery',viewport:{x:0,y:0,zoom:1}},
+    disposed:true,paint(){},applyText(...args){this.saved=args;}};
+   const draft=new InlineText(editor,item,true);
+   draft.input.querySelector('span').dataset.equation='{broken JSON';
+   draft.finish(true);
+   const state={closed:!!draft.closed,hasError:!!draft.controls.querySelector('.error'),
+    text:draft.input.textContent,rawControl:!![...draft.controls.querySelectorAll('button')].find(b=>b.textContent==='Show raw text')};
+   window.__invalidRecovery={draft,host,editor};
+   return state;
+  });
+  assert.equal(state.closed,false);
+  assert.equal(state.hasError,true);
+  assert.equal(state.rawControl,true);
+  await page.getByRole('button',{name:'Show raw text'}).click();
+  assert.equal(await page.getByRole('textbox',{name:'Unparsed text recovery'}).inputValue(),'שלום English');
+  await page.getByRole('button',{name:'Restore last valid version'}).click();
+  const result=await page.evaluate(()=>{
+   const {draft,host,editor}=window.__invalidRecovery;
+   const valid=draft.input.textContent==='שלום English';
+   draft.finish(true);
+   const outcome={valid,closed:!!draft.closed,text:editor.saved?.[1]};
+   host.remove();return outcome;
+  });
+  assert.deepEqual(result,{valid:true,closed:true,text:'שלום English'});
+ });
+
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{
