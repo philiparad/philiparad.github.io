@@ -9,7 +9,7 @@
 
 The original 18-test release-validation notes above are historical. The current
 [Teaching Board CI workflow](https://github.com/philiparad/philiparad.github.io/actions/workflows/teaching-board-tests.yml)
-runs the Node 22 syntax checks and **269 Node tests**, plus real Chromium,
+runs the Node 22 syntax checks and **274 Node tests**, plus real Chromium,
 Firefox, and WebKit browser smoke tests covering rich-text editing,
 selection/undo/redo, IME-related input, A4 continuation, IndexedDB reload,
 and JSON/SVG export.
@@ -56,3 +56,30 @@ visual hash comparisons) and published all three inspectable PNG archives.
 
 Full native OS IME testing, permanent committed PNG golden snapshots, exact
 PDF-to-SVG glyph-level pixel equality, and wider device coverage remain open.
+
+## Text editor draft recovery verification (November 14, 2026)
+
+Existing text boxes and sticky notes now save their **changed, validated**
+rich-text drafts locally under a lesson- and object-scoped key. Reopening the
+same object in the same browser profile explicitly offers **Recover saved
+draft** or **Discard saved draft**. Invalid intermediate equation markup and
+other parse failures retain the latest valid structured snapshot plus a
+separately viewable raw-text fallback, without persisting any editor HTML.
+A failed save keeps the editor open. Cancel or a successful save clears the
+recovery entry; an entry older than 30 days is discarded and purged when read.
+Storage access errors must not interrupt editing.
+
+The unit suite covers document metadata validation, mismatched records, quota
+and storage errors, expiry/purge, malformed equation recovery, and last-valid
+history restoration. The three real-browser suites cover formatted recovery
+after reload, malformed equation save repair, and raw invalid draft recovery
+after reload without overwriting saved lesson content.
+
+**Verified:** [GitHub Actions 43567045605](https://github.com/philiparad/philiparad.github.io/actions/runs/43567045605)
+passed **274/274 Node tests** and the Chromium, Firefox, and WebKit browser
+jobs (all four jobs green).
+
+**Limits:** Local recovery applies to **existing text objects**, not newly
+created unsaved text objects. It does not provide cross-device synchronization,
+server backups, or guaranteed persistence when local browser storage is
+disabled. Native operating-system IME behavior still requires manual QA.
