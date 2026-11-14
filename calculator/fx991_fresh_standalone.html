@@ -5427,8 +5427,12 @@ const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),vi
  matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,matrixCopySource:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,vectorCopySource:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
 let numericJob=null;
+// A resolved worker promise may queue a UI callback before AC/MODE cancels it.
+// Invalidate those callbacks too, even when the Worker has already finished.
+let numericGeneration=0;
 const NUMERIC_WALL_MS=6000;
 function cancelNumeric(){
+ numericGeneration++;
  if(!numericJob)return false;
  const job=numericJob;numericJob=null;
  clearTimeout(job.timer);job.worker.terminate();
@@ -6123,11 +6127,15 @@ function startSolve(){
 function executeInlineCalculus(calculus){
  if(state.mode!=='COMP')throw Error('Argument ERROR');
  state.screen='calculating';state.info='';releaseModifier();paint();
- runNumeric(calculus.kind,calculus.data).then(({value})=>{
-  if(state.screen!=='calculating')return; // OFF, AC, MODE cancel worker.
+ const pending=runNumeric(calculus.kind,calculus.data);
+ const generation=numericGeneration;
+ pending.then(({value})=>{
+  // Reject a resolved-but-queued callback from an earlier calculation even
+  // if a new calculation has already returned the LCD to 'calculating'.
+  if(generation!==numericGeneration||state.screen!=='calculating'||!state.power)return;
   setResult(value,calculus.source,null);
  }).catch(err=>{
-  if(state.screen!=='calculating')return;
+  if(generation!==numericGeneration||state.screen!=='calculating'||!state.power)return;
   error(err.message||'Math ERROR',calculus.source);
  });
 }
