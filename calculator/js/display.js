@@ -665,7 +665,7 @@ function rasterize(state){
    const all=prefix+period;if(all.length>23)return false;
    const x=Math.max(0,W-all.length*4);
    write(all,x,25);
-   for(let xx=x+prefix.length*4;xx<x+all.length*4-1;xx++)pixel(xx,23);
+   mathLine(x+prefix.length*4,23,x+all.length*4-2,23);
    return true;
   }
   if(item.kind==='fraction'||item.kind==='mixed'){
@@ -679,7 +679,7 @@ function rasterize(state){
    if(integer)write(integer,start,23);
    const x=start+numberWidth;
    write(n,x+Math.max(0,Math.floor((width-n.length*4)/2)),15);
-   for(let i=0;i<width;i++)pixel(x+i,21);
+   mathLine(x,21,x+width-1,21);
    write(d,x+Math.max(0,Math.floor((width-d.length*4)/2)),24);
    return true;
   }
