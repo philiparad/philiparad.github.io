@@ -37,7 +37,7 @@ import { exportBoard, backup } from './export.js?v=20261024-image-actions';
 import { validateBoard } from './model.js?v=20261024-image-actions';
 import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-history-budget';
 
-import { toolIcon } from './tool-icons.js?v=20261017-history-budget';
+import { toolIcon } from './tool-icons.js?v=20261114-calculator-modal';
 import { CalculatorModal } from './calculator-modal.js';
 
 import { Geometry } from './geometry.js?v=20261024-image-actions';
