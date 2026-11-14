@@ -190,3 +190,21 @@ export function restoreLogicalSelection(root,selection,saved) {
         return true;
     } catch { return false; }
 }
+
+/**
+ * If an IME or browser selection anchors inside the decorative descendants of
+ * contenteditable=false inline math, restore the same logical position on the
+ * editable side of that complete equation. Ordinary selections remain native.
+ */
+export function recoverEquationSelection(root,selection){
+    if(!root||!selection?.rangeCount)return false;
+    const inEquation=node=>{
+        for(let current=node;current&&current!==root;current=current.parentNode)
+            if(current.nodeType===1&&current.dataset?.equation)return true;
+        return false;
+    };
+    if(!inEquation(selection.anchorNode)&&!inEquation(selection.focusNode))
+        return false;
+    const saved=captureLogicalSelection(root,selection);
+    return !!saved&&restoreLogicalSelection(root,selection,saved);
+}
