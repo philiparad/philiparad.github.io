@@ -43,6 +43,12 @@ test('TXT-063 composition diff never replaces an equation or crosses paragraph b
  assert.equal(compositionInsertion('אבגד','אב\nגד'),null);
  assert.equal(compositionInsertion('אב\uFFFCגד','אב\uFFFCגד'),null);
  assert.equal(compositionInsertion('אבגד','אב'),null);
+ assert.deepEqual(compositionInsertion('A😊B','A😢B'),{start:1,end:3},
+  'Emoji replacement must not start inside a surrogate pair');
+ assert.deepEqual(compositionInsertion('שָלום','שׁלום'),{start:0,end:2},
+  'Hebrew combining marks must remain attached to their base letter');
+ assert.deepEqual(compositionInsertion('שלום','שָלום'),{start:0,end:2},
+  'Adding niqqud must style the entire displayed Hebrew grapheme');
 });
 
 test('TXT-063 delayed IME final input replaces only latest undo entry',()=>{
