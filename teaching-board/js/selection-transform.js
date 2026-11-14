@@ -1,4 +1,4 @@
-import {svgEl,union} from './scene.js?v=20261024-image-actions';
+import {svgEl,union,textObjectHeight} from './scene.js?v=20261024-image-actions';
 import {stretchImage} from './image-geometry.js?v=20261023-image-handles';
 export const resizeHandles={nw:[0,0],n:[.5,0],ne:[1,0],e:[1,.5],se:[1,1],s:[.5,1],sw:[0,1],w:[0,.5]};
 export function drawResizeHandles(scene,items,zoom){
@@ -8,7 +8,9 @@ export function drawResizeHandles(scene,items,zoom){
   const n=svgEl('rect',{x:x-size/2,y:y-size/2,width:size,height:size,rx:2/zoom,fill:'#8acb43',stroke:'#5c8f2b','stroke-width':1/zoom,'data-resize':name,cursor:`${name}-resize`,'aria-label':`Resize ${name}`});scene.append(n);
  }
 }
-export function beginResize(items,handle,start){return {kind:'resize',items:structuredClone(items),handle,b:union(items),start};}
+/** Snapshot rendered box heights, not stale persisted heights. */
+export function transformSnapshot(items){return structuredClone(items).map(item=>{if(['text','note'].includes(item.type))item.h=textObjectHeight(item);return item;});}
+export function beginResize(items,handle,start){return {kind:'resize',items:transformSnapshot(items),handle,b:union(items),start};}
 export function resizeItems(board,d,p,shift=false){
  const [u,v]=resizeHandles[d.handle]||resizeHandles.se,b=d.b,dx=p.x-d.start.x,dy=p.y-d.start.y;
  let sx=u===.5?1:1+dx/(b.w*(u===0?-1:1)),sy=v===.5?1:1+dy/(b.h*(v===0?-1:1));
@@ -43,7 +45,7 @@ export function drawRotationHandle(scene,items,zoom,drag){
 }
 export function beginRotation(items,start,zoom){
  const b=union(items),center={x:b.x+b.w/2,y:b.y+b.h/2},handleStart={x:b.x+b.w/2,y:b.y-33/zoom};
- return {kind:'rotate',items:structuredClone(items),center,start,handleStart,current:handleStart,angle:0};
+ return {kind:'rotate',items:transformSnapshot(items),center,start,handleStart,current:handleStart,angle:0};
 }
 export function rotateItems(board,d,p,shift=false){
  const c=d.center,q={x:p.x+d.handleStart.x-d.start.x,y:p.y+d.handleStart.y-d.start.y};
@@ -52,5 +54,5 @@ export function rotateItems(board,d,p,shift=false){
  let to=Math.atan2(q.y-c.y,q.x-c.x);if(shift)to=Math.round(to/(Math.PI/36))*Math.PI/36;
  const angle=Math.atan2(Math.sin(to-from),Math.cos(to-from)),co=Math.cos(angle),si=Math.sin(angle);
  d.angle=angle*180/Math.PI;const radius=Math.hypot(q.x-c.x,q.y-c.y);d.current={x:c.x+radius*Math.cos(to),y:c.y+radius*Math.sin(to)};
- for(const old of d.items){const item=board.items.find(i=>i.id===old.id);if(!item)continue;const dx=old.x+old.w/2-c.x,dy=old.y+old.h/2-c.y;item.x=c.x+dx*co-dy*si-old.w/2;item.y=c.y+dx*si+dy*co-old.h/2;item.rotation=(old.rotation||0)+d.angle;}
+ for(const old of d.items){const item=board.items.find(i=>i.id===old.id);if(!item)continue;const dx=old.x+old.w/2-c.x,dy=old.y+old.h/2-c.y;item.x=c.x+dx*co-dy*si-old.w/2;item.y=c.y+dx*si+dy*co-old.h/2;item.rotation=(old.rotation||0)+d.angle;if(['text','note'].includes(item.type))item.h=old.h;}
 }
