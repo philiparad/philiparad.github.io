@@ -3,7 +3,7 @@ import {imageCorners,imageSVGTransform} from './image-geometry.js?v=20261023-ima
 import { backgroundOptions } from './background-options.js?v=20261017-history-budget';
 import {drawGraphMarker} from './graph-marker.js?v=20261017-history-budget';
 import {drawEquationText} from './inline-equation.js?v=20261017-history-budget';
-import {textRuns,runLines,paragraphRuns} from './rich-text.js?v=20261017-history-budget';
+import {paragraphRuns} from './rich-text.js?v=20261017-history-budget';
 import { pressurePathD } from './pressure.js?v=20261017-history-budget';
 import { drawPreset } from './shapes.js?v=20261017-history-budget';
 import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261017-history-budget';
@@ -37,8 +37,11 @@ export function drawItem(item){const w=item.w||1,h=item.h||1;const g=svgEl('g',{
  else if(shape)g.append(STROKED_TYPES.has(item.type)?styleStroke(shape,item):shape);
  if(item.type==='image'&&item.imageBorder&&item.imageBorder!=='none')g.append(svgEl('rect',{x:0,y:0,width:w,height:h,fill:'none',stroke:item.imageBorder,'stroke-width':item.imageBorderWidth||2,'pointer-events':'none'}));
  if(item.type==='graph'&&Number.isFinite(item.graphMarkerX))g.append(drawGraphMarker(item,svgEl));
- if(['text','note'].includes(item.type)&&item.runs?.some(r=>r.equation)){g.append(drawEquationText(item,paragraphRuns(item),svgEl));return g;}
- if(item.type==='text'||item.type==='note'){const font=item.fontSize||24,pad=item.type==='note'?14:0,rtl=/[\u0590-\u08ff]/.test(item.text||'');const align=item.textAlign||'auto',x=align==='center'?w/2:align==='left'?pad:align==='right'?w-pad:rtl?w-pad:pad,anchor=align==='center'?'middle':align==='left'?(rtl?'end':'start'):align==='right'?(rtl?'start':'end'):'start';const text=svgEl('text',{x,y:pad+font,fill:item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,'font-size':font,'font-family':'Arial, sans-serif','font-weight':(item.textStyle||'').includes('bold')?'700':'400','font-style':(item.textStyle||'').includes('italic')?'italic':'normal',direction:rtl?'rtl':'ltr','text-anchor':anchor,'unicode-bidi':'plaintext'});const max=Math.max(2,Math.floor((w-pad*2)/(font*.55)));let number=0;const lines=paragraphRuns(item).flatMap(p=>{number=p.list==='number'?number+1:0;const marker=p.list==='bullet'?'• ':p.list==='number'?number+'. ':'';return runLines(p.runs,Math.max(2,max-marker.length)).map((runs,k)=>({runs:k||!marker?runs:[{text:marker},...runs],align:p.align}));});lines.forEach((line,i)=>{const align=line.align,x=align==='center'?w/2:align==='left'?pad:align==='right'?w-pad:rtl?w-pad:pad,anchor=align==='center'?'middle':align==='left'?(rtl?'end':'start'):align==='right'?(rtl?'start':'end'):'start';const span=svgEl('tspan',{x,dy:i?font*1.3:0,'text-anchor':anchor,'xml:space':'preserve'});if(!line.runs.length)span.textContent=' ';for(const run of line.runs){const part=svgEl('tspan',{'font-weight':run.bold?'700':'400','font-style':run.italic?'italic':'normal','text-decoration':run.underline?'underline':'none',...(run.color?{fill:run.color}:{})});part.textContent=run.text;span.append(part);}text.append(span);});g.append(text);}
+ // Use the same measured SVG paragraph layout for plain text and inline math.
+ // This keeps direction, formatting, and wrapping consistent across exports.
+ if(item.type==='text'||item.type==='note'){
+  g.append(drawEquationText(item,paragraphRuns(item),svgEl));
+ }
  return g;
 }
 export function background(svg,kind,viewport={x:0,y:0,zoom:1},id='paper',options){const paper=backgroundOptions(kind,options),gap=paper.spacing;const defs=svgEl('defs'),pattern=svgEl('pattern',{id,width:gap,height:gap,patternUnits:'userSpaceOnUse',patternTransform:`translate(${viewport.x} ${viewport.y}) scale(${viewport.zoom})`});if(kind==='dots')pattern.append(svgEl('circle',{cx:1,cy:1,r:1,fill:paper.lineColor}));else pattern.append(svgEl('path',{d:kind==='ruled'?`M0 ${gap}H${gap}`:`M${gap} 0H0V${gap}`,fill:'none',stroke:paper.lineColor,'stroke-width':1}));defs.append(pattern);svg.append(defs,svgEl('rect',{x:0,y:0,width:'100%',height:'100%',fill:paper.color}));if(kind!=='plain')svg.append(svgEl('rect',{x:0,y:0,width:'100%',height:'100%',fill:`url(#${id})`}));}
