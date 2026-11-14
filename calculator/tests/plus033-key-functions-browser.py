@@ -38,7 +38,7 @@ CASES = (
     {"id": "syntax-error-recover", "keys": ("1", "ADD", "EQUAL", "LEFT"),
      "screen": "edit", "contains": "1+", "number": None},
     {"id": "error-clear", "keys": ("1", "DIV", "0", "EQUAL", "AC"),
-     "screen": "edit", "contains": "", "number": None},
+     "screen": "edit", "input_equals": "", "error": "", "number": None},
 )
 
 
@@ -70,6 +70,9 @@ async def replay(browser, base, file, case, output):
             assert s["error"] == case["error"], (file, case["id"], s["error"])
         if "contains" in case:
             assert case["contains"] in s["input"], (file, case["id"], s["input"])
+        if "input_equals" in case:
+            assert s["input"] == case["input_equals"], (
+                file, case["id"], "input", repr(s["input"]))
         if case["number"] is not None:
             assert abs(s["raw"] - case["number"]) <= 1e-10, (
                 file, case["id"], s["raw"])
