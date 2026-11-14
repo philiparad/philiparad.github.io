@@ -128,7 +128,7 @@ try{
    const {paragraphRuns}=await import('./js/rich-text.js');
    const {editor,source}=window.__smokeA4;
    const markers=editor.board.items.flatMap(item=>textLayoutMetrics(item,paragraphRuns(item)).lines)
-    .flatMap(line=>line.parts.filter(part=>part.synthetic).map(part=>part.text.trim()));
+    .flatMap(line=>line.parts.filter(part=>part.synthetic).map(part=>part.text.trim()).filter(Boolean));
    return {text:editor.board.items.map(item=>item.text).join(''),count:editor.board.items.length,
     pages:editor.board.pageCount,markers,undo:editor.history.past.length,original:source};
   });
