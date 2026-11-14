@@ -58,5 +58,19 @@ const pyPaths=[...workflow.matchAll(/(?:python -m py_compile |python -m unittest
  .map(match=>match[1]);
 for(const file of pyPaths)assert.ok(fs.existsSync(path.join(ROOT,file)),
  'CI python target does not exist: '+file);
+// PLUS-038: independent checks must report their actual outcomes. A
+// continue-on-error step cannot silently turn a failed release green.
+const gated=[...workflow.matchAll(/^      - name: ([^\n]+)\n        id: (plus038_check_\d+)\n        continue-on-error: true\n        run: /gm)];
+assert.ok(gated.length>=25,'too few independently gated checks');
+const ids=gated.map(entry=>entry[2]);
+assert.equal(ids.length,new Set(ids).size,'duplicate verification step ids');
+const gate=workflow.indexOf('      - name: PLUS-038 final release quality gate');
+assert.ok(gate>workflow.lastIndexOf('id: '+ids[ids.length-1]),
+ 'final gate must follow all verification steps');
+const body=workflow.slice(gate);
+assert.ok(body.includes('if: always()'),'final gate must run after failed tests');
+assert.ok(body.includes('exit 1'),'final gate must fail the release');
+for(const id of ids)
+ assert.ok(body.includes('steps.'+id+'.outcome'),'final gate omits '+id);
 console.log('PLUS-029 PASS: push/PR scopes, '+required.length+
  ' critical release files, '+commands.length+' unique node commands, reference artifacts and explicit hardware limitation');
