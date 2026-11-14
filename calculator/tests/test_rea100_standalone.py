@@ -25,7 +25,7 @@ class StandaloneReleaseTests(unittest.TestCase):
         embedded=re.findall(r'<script data-source="(js/[^"]+\.js)">',bundle)
         self.assertEqual(external,embedded)
         self.assertEqual(len(external),len(set(external)))
-        self.assertEqual(len(external),39)
+        self.assertEqual(len(external),40)
 
     def test_all_embedded_sources_match_verbatim(self):
         bundle=builder.OUTPUT.read_text(encoding="utf-8")
