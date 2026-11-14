@@ -643,3 +643,61 @@ A real manual deployment check should confirm that the
 calculator page permits same-origin iframe embedding and
 its key-only URL variant renders without extra surrounding
 panels. TXT-064 mobile-accessibility work has not been started.
+
+## Calculator Ans → editable text transfer (November 14, 2026)
+
+**Implementation:** The calculator-only application
+(`calculator/js/app.js`) listens for the narrowly scoped
+`teaching-board/calculator-ans-v1` request. It replies only when
+embedded, in calculator-only mode, and when the request comes from
+its **same-origin parent**. It reads the calculator's
+`state.resultPresentation.chosen.text` (rather than
+recalculating `state.ans`) so fractions and the current
+decimal/scientific representation are transferred as displayed.
+An initial calculator without a computed Ans replies with the
+`no-answer` error; no result is added to the board.
+
+**Parent validation:** `js/calculator-modal.js` adds a
+**Send Ans to Board** button in the calculator modal header.
+It becomes enabled only after iframe load, sends a one-time
+random request ID with a fixed expected target origin, and
+accepts messages only when both `event.origin` and
+`event.source===iframe.contentWindow` match the trusted
+calculator. The strict response parser in
+`js/calculator-answer.js` also checks the request ID, message
+type/protocol, text length and disallowed control characters.
+Bad/stale/forged responses are ignored; a timeout leaves the
+modal open with a retry message. Closing/unmounting cancels
+requests and unloads the iframe.
+
+**Whiteboard insertion:** `Editor.insertCalculatorAnswer()`
+creates a normal `type:'text'` object centered in world
+coordinates at the visible canvas center. It stores the
+literal Ans in `text`, `runs` and one left-to-right
+paragraph; normal document validation, selection, saving,
+painting, undo and redo apply. A failure leaves the modal
+open, and a successful insertion closes it.
+
+**Tests:** `tests/calculator-answer.test.mjs` checks actual
+editable-object model validation, decimal/fraction/scientific
+display preservation, malicious/invalid string rejection,
+and protocol/request ID validation. Browser smoke tests use
+an intercepted calculator iframe (for deterministic send/error
+responses) to verify an initial no-result state, correct
+fraction transfer, single centered object, visible selection,
+modal closure and board undo/redo. A separate browser
+test loads the **real local calculator controller** in a
+same-origin iframe, evaluates a fraction using the actual
+`EQUAL` key and verifies that its response matches the
+calculator's displayed result. The previous modal Escape,
+Close, lifecycle, geometry, visual-golden and A4 PDF tests
+remain in the regression suite.
+
+**Limitations:** The output is editable *plain text*. The
+displayed fraction `1/3` is stored as those three characters,
+not an automatically typeset LaTeX fraction. There is no
+unprompted synchronization of ongoing calculator changes.
+The browser test for the parent's modal stubs the GitHub
+Pages iframe response; the second test uses the real calculator
+code. End-to-end deployment to GitHub Pages and external
+device accessibility remain manual validation steps.
