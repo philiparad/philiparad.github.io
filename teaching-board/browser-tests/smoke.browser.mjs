@@ -869,6 +869,162 @@ try{
   assert.equal(report.unexpectedImageCount,0);
  });
 
+ await check('TXT-056 plain paste inherits caret style, pending marks and accessible math in RTL/LTR',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {restoreLogicalSelection}=await import('./js/text-selection.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:100px 70px 50px;background:white;z-index:3600';
+   document.body.append(host);
+   const editor={area:host,board:{id:'plain-paste-'+crypto.randomUUID(),
+      viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const textModel={
+    type:'text',x:0,y:0,w:500,h:40,fontSize:24,
+    text:'שלום English\nFinal',
+    runs:[{text:'שלום ',bold:true,color:'#b42318'},
+      {text:'English',italic:true,color:'#147d92'},
+      {text:'\nFinal',underline:true}],
+    paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:8},
+      {align:'left',dir:'ltr',list:'bullet'}]
+   };
+   const selection=window.getSelection();
+   const create=(item)=>new InlineText(editor,{...structuredClone(item),
+     id:'plain-paste-'+crypto.randomUUID()},true);
+   const caret=(draft,p,offset,end=offset)=>{
+    draft.input.focus();
+    const a={paragraph:p,offset},f={paragraph:p,offset:end};
+    if(!restoreLogicalSelection(draft.input,selection,{anchor:a,focus:f}))
+      throw Error('Cannot place plaintext paste caret');
+   };
+   const state=draft=>{
+    const doc=readRichDocument(draft.input,draft.item);
+    const ordered=draft.input.querySelector('ol');
+    return {text:doc.runs.map(r=>r.text).join(''),runs:doc.runs,
+      paragraphs:doc.paragraphs,listStart:ordered?.start,
+      directions:[...draft.input.querySelectorAll('div,li')].map(el=>el.dir)};
+   };
+   const paste=(draft,plain,html='')=>{
+    const data={getData(type){
+      return type==='text/plain'?plain:type==='text/html'?html:'';
+    }};
+    const event=new Event('paste',{cancelable:true,bubbles:true});
+    Object.defineProperty(event,'clipboardData',{value:data});
+    draft.input.dispatchEvent(event);
+    return event.defaultPrevented;
+   };
+   let draft=create(textModel);caret(draft,0,2);
+   const prevented=paste(draft,'אחד\nשניים');
+   const multiline=state(draft);
+   draft.stepTextHistory('undo');
+   const undone=state(draft);
+   draft.stepTextHistory('redo');
+   const redone=state(draft);
+   draft.finish(false);
+
+   const boundary=create(textModel);
+   caret(boundary,0,5);
+   paste(boundary,'Boundary');
+   const edge=state(boundary);
+   boundary.finish(false);
+
+   const english=create(textModel);
+   caret(english,0,8);
+   paste(english,'Inserted');
+   const italic=state(english);
+   english.finish(false);
+
+   const selectionReplace=create(textModel);
+   caret(selectionReplace,0,5,8);
+   paste(selectionReplace,'REPLACE');
+   const replaced=state(selectionReplace);
+   selectionReplace.finish(false);
+
+   const nextParagraph=create(textModel);
+   caret(nextParagraph,1,2);
+   paste(nextParagraph,'UNDER');
+   const underlined=state(nextParagraph);
+   nextParagraph.finish(false);
+
+   const pending=create(textModel);
+   caret(pending,0,2);
+   pending.pendingMarks={bold:false,color:'#147d92'};
+   const pendingPrevented=paste(pending,'first\r\nsecond');
+   const pendingState=state(pending);
+   pending.finish(false);
+
+   const canvas=document.createElement('canvas');canvas.width=30;canvas.height=20;
+   canvas.getContext('2d').fillRect(2,2,26,16);
+   const equation={source:'x^2',src:canvas.toDataURL('image/png'),w:30,h:20};
+   const eqModel={type:'text',x:0,y:0,w:400,h:30,fontSize:24,
+     text:'Hello\uFFFCworld\nEnglish',
+     runs:[{text:'Hello',bold:true,color:'#147d92'},
+       {text:'\uFFFC',equation},{text:'world',italic:true},{text:'\nEnglish',underline:true}],
+     paragraphs:[{align:'right',dir:'rtl',list:'none'},
+       {align:'left',dir:'ltr',list:'none'}]};
+   const nearBefore=create(eqModel);
+   caret(nearBefore,0,5);
+   paste(nearBefore,'BEFORE');
+   const beforeMath=state(nearBefore);
+   nearBefore.finish(false);
+   const nearAfter=create(eqModel);
+   caret(nearAfter,0,6);
+   paste(nearAfter,'AFTER');
+   const afterMath=state(nearAfter);
+   const mathLabels=[...nearAfter.input.querySelectorAll('[role="math"]')]
+     .map(n=>({name:n.getAttribute('aria-label'),
+       hidden:n.querySelector('img')?.getAttribute('aria-hidden')}));
+   nearAfter.finish(false);
+
+   const hostile=create(textModel);
+   caret(hostile,0,2);
+   const plain='<script>window.__pasteAttack=true</script>';
+   const untrustedPrevented=paste(hostile,plain,
+     '<img src=x onerror="window.__pasteAttack=true">');
+   const untrustedState=state(hostile);
+   const scriptCount=hostile.input.querySelectorAll('script').length,
+    injected=!!window.__pasteAttack;
+   hostile.finish(false);
+   host.remove();
+   return {prevented,multiline,undone,redone,edge,italic,replaced,
+     underlined,pendingPrevented,pendingState,beforeMath,afterMath,mathLabels,
+     untrustedPrevented,untrustedState,scriptCount,injected};
+  });
+  const inserted=(doc,text)=>doc.runs.find(r=>r.text.includes(text));
+  assert(report.prevented);
+  assert.equal(report.multiline.text,'שלאחד\nשנייםום English\nFinal');
+  assert(inserted(report.multiline,'אחד').bold);
+  assert.equal(inserted(report.multiline,'אחד').color,'#b42318');
+  assert.deepEqual(report.multiline.paragraphs.map(x=>x.dir),['rtl','rtl','ltr']);
+  assert.deepEqual(report.multiline.paragraphs.map(x=>x.list),['number','number','bullet']);
+  assert.equal(report.multiline.listStart,8);
+  assert.equal(report.undone.text,'שלום English\nFinal');
+  assert.deepEqual(report.redone,report.multiline);
+  assert.equal(inserted(report.edge,'Boundary').color,'#b42318');
+  assert(inserted(report.italic,'Inserted').italic);
+  assert.equal(inserted(report.italic,'Inserted').color,'#147d92');
+  assert(inserted(report.replaced,'REPLACE').italic);
+  assert.equal(inserted(report.replaced,'REPLACE').color,'#147d92');
+  assert(inserted(report.underlined,'UNDER').underline);
+  assert.equal(inserted(report.underlined,'UNDER').color,undefined);
+  assert.equal(report.pendingPrevented,true);
+  assert.equal(report.pendingState.text,'שלfirst\nsecondום English\nFinal');
+  assert.equal(inserted(report.pendingState,'first').bold,false);
+  assert.equal(inserted(report.pendingState,'first').color,'#147d92');
+  assert.deepEqual(report.pendingState.paragraphs.map(x=>x.dir),['rtl','rtl','ltr']);
+  assert(inserted(report.beforeMath,'BEFORE').bold);
+  assert.equal(inserted(report.beforeMath,'BEFORE').color,'#147d92');
+  assert(inserted(report.afterMath,'AFTER').italic);
+  assert.equal(inserted(report.afterMath,'AFTER').color,undefined);
+  assert.deepEqual(report.afterMath.runs.filter(r=>r.equation).map(r=>r.equation.source),['x^2']);
+  assert.deepEqual(report.mathLabels,[{name:'Math equation: x^2',hidden:'true'}]);
+  assert(report.untrustedPrevented);
+  assert.equal(report.scriptCount,0);
+  assert.equal(report.injected,false);
+  assert(report.untrustedState.text.includes('<script>window.__pasteAttack=true</script>'));
+  assert(inserted(report.untrustedState,'<script>').bold);
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
