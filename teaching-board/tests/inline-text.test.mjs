@@ -172,3 +172,34 @@ test('restore last valid history snapshot repairs malformed equation before savi
  assert.equal(e.applied[1],'Original');
  assert.equal(listeners.size,0);
 });
+
+test('a brand-new unsaved sticky note is recoverable after navigation but not after explicit Cancel',async()=>{
+ const {draftStorageKey,listNewTextDrafts}=await import('../js/text-draft-recovery.js');
+ const previous=globalThis.localStorage,map=new Map();
+ globalThis.localStorage={
+  get length(){return map.size;},
+  key(index){return [...map.keys()][index]??null;},
+  getItem(key){return map.get(key)??null;},
+  setItem(key,value){map.set(key,value);},
+  removeItem(key){map.delete(key);}
+ };
+ try{
+  const editor={area:new Element(),svg:new Element(),board:{id:'brand-new-lesson',viewport:{x:0,y:0,zoom:1}},
+   paint(){},applyText(){}};
+  const item={id:'fresh-note',type:'note',x:80,y:160,w:260,h:130,fontSize:26,fill:'#fff1a8',text:''};
+  let draft=new InlineText(editor,item,false);editor.inlineText=draft;
+  draft.input.textContent='טיוטה חדשה English';
+  draft.input.oninput();
+  assert.equal(listNewTextDrafts(globalThis.localStorage,editor.board.id,[]).length,1);
+  const stored=JSON.parse(map.get(draftStorageKey(editor.board.id,item.id)));
+  assert.equal(stored.newItem.x,80);
+  assert.equal(stored.newItem.y,160);
+  assert.equal(stored.text,'טיוטה חדשה English');
+  draft.finish(false,false,true);
+  assert.equal(map.size,1,'Navigating away must preserve the unfinished note.');
+  draft=new InlineText(editor,item,false);editor.inlineText=draft;
+  assert.ok(draft.controls.children.some(n=>n.className==='text-recovery-banner'));
+  draft.finish(false);
+  assert.equal(map.size,0,'Explicit Cancel must remove the saved draft.');
+ }finally{globalThis.localStorage=previous;}
+});
