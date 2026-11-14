@@ -48,11 +48,11 @@ let cases=0;
 for(const type of Object.keys(fieldsByType)){
   for(const math of [true,false]){
     for(const screen of ['edit','result']){
-      const empty=draw(makeState([makeNode(type)],{math,screen}));
-      const filled=draw(makeState([makeNode(type,true)],{math,screen}));
+      const empty=draw(makeState([makeNode(type)],{math,screen,input:math?'':'?'}));
+      const filled=draw(makeState([makeNode(type,true)],{math,screen,input:math?'':'2'}));
       assert.ok(hasInk(empty)&&hasInk(filled),type+' must be visible');
       assert.notDeepEqual(empty,filled,type+' must distinguish slot from value');
-      assert.deepEqual(draw(makeState([makeNode(type)],{math,screen})),empty,
+      assert.deepEqual(draw(makeState([makeNode(type)],{math,screen,input:math?'':'?'})),empty,
         type+' deterministic rendering');
       cases+=2;
     }
