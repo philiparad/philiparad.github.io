@@ -19,7 +19,8 @@ const suites=[
  ['plus035-constants-stat-table-browser.py','PLUS035_CAPTURE_DIR','plus035-browser-captures'],
  ['plus036-matrix-vector-eqn-browser.py','PLUS036_CAPTURE_DIR','plus036-browser-captures'],
  ['plus037-numeric-browser.py','PLUS037_CAPTURE_DIR','plus037-browser-captures'],
- ['plus047-solve-calc-browser.py','PLUS047_CAPTURE_DIR','plus047-browser-captures']
+ ['plus047-solve-calc-browser.py','PLUS047_CAPTURE_DIR','plus047-browser-captures'],
+ ['plus050-power-numeric-browser.py','PLUS050_CAPTURE_DIR','plus050-browser-captures']
 ];
 let sequences=0,presses=0;
 for(const [file,env,folder] of suites){
@@ -34,8 +35,8 @@ for(const [file,env,folder] of suites){
  A.ok(workflow.includes(relative),file+' missing from CI compile list');
  A.ok(workflow.includes('path: /tmp/'+folder+'/'),file+' artifacts are not uploaded');
  const cases=[...src.matchAll(/"keys"\s*:\s*\(([^)]*)\)/gs)];
- if(file==='plus037-numeric-browser.py')
-  cases.push(...src.matchAll(/^(?:SOLVE|CALC)\s*=\s*\(([^)]*)\)/gm));
+ if(file==='plus037-numeric-browser.py'||file==='plus047-solve-calc-browser.py'||file==='plus050-power-numeric-browser.py')
+  cases.push(...src.matchAll(/^(?:SOLVE|CALC|SUM|INTEGRAL)\s*=\s*\(([^)]*)\)/gm));
  A.ok(cases.length>0,file+' missing keypad scenarios');
  for(const match of cases){
   const physical=[...match[1].matchAll(/["']([A-Z0-9]+)["']/g)].map(x=>x[1]);
@@ -46,7 +47,7 @@ for(const [file,env,folder] of suites){
  A.ok(src.includes('getState()'),file+' missing calculator state read');
  A.ok(src.includes('#keys button[data-key='),file+' not using physical DOM keys');
 }
-A.equal(suites.length,7);
+A.equal(suites.length,8);
 A.ok(sequences>=42,'unexpectedly few covered sequences');
 A.ok(presses>=340,'unexpectedly low key coverage');
 A.ok(workflow.includes('PLUS-038 final release quality gate'),
