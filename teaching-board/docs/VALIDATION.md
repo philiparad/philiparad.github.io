@@ -9,7 +9,7 @@
 
 The original 18-test release-validation notes above are historical. The current
 [Teaching Board CI workflow](https://github.com/philiparad/philiparad.github.io/actions/workflows/teaching-board-tests.yml)
-runs the Node 22 syntax checks and **263 Node tests**, plus real Chromium,
+runs the Node 22 syntax checks and **269 Node tests**, plus real Chromium,
 Firefox, and WebKit browser smoke tests covering rich-text editing,
 selection/undo/redo, IME-related input, A4 continuation, IndexedDB reload,
 and JSON/SVG export.
@@ -42,5 +42,17 @@ bleed, and that printing only page two excludes page one's objects. The
 two-page and selected-page tests passed in [GitHub Actions 43560506880](https://github.com/philiparad/philiparad.github.io/actions/runs/43560506880),
 alongside all 263 Node tests and three-browser smoke and SVG parity checks.
 
-Full native OS IME testing, independent inspectable PNG image snapshots, exact
+**Inspectable visual review (current):** Each browser engine now exports three
+cached/editor PNGs, three independent SVG-export PNGs, three difference maps,
+an offline HTML contact gallery and a JSON hash report. GitHub Actions publishes
+a separate `teaching-board-visual-<engine>` ZIP archive for each engine, with a
+14-day retention period. The images are dimension-validated before upload;
+these short-lived artifacts correspond to the permanently committed visual
+hashes but are not themselves checked-in golden PNG files.
+
+[CI run 43565067755](https://github.com/philiparad/philiparad.github.io/actions/runs/43565067755)
+passed all four jobs (**269/269 Node tests**, all three real-browser checks and
+visual hash comparisons) and published all three inspectable PNG archives.
+
+Full native OS IME testing, permanent committed PNG golden snapshots, exact
 PDF-to-SVG glyph-level pixel equality, and wider device coverage remain open.
