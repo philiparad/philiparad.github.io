@@ -54,12 +54,22 @@ function stylePendingSpan(span,marks,root) {
 /** A one-range diff between precomposition and committed text. */
 export function compositionInsertion(before,after){
     if(typeof before!=='string'||typeof after!=='string'||before===after)return null;
-    let start=0;
-    while(start<before.length&&start<after.length&&before[start]===after[start])start++;
-    let beforeEnd=before.length,afterEnd=after.length;
-    while(beforeEnd>start&&afterEnd>start&&before[beforeEnd-1]===after[afterEnd-1]){
-        beforeEnd--;afterEnd--;
+    // Compare displayed grapheme clusters, not UTF-16 code units.
+    // Otherwise replacing one emoji with another can style half a
+    // surrogate pair; Hebrew niqqud/combining marks must also stay intact.
+    const split=text=>typeof Intl!=='undefined'&&typeof Intl.Segmenter==='function'
+        ?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(text)]
+            .map(part=>part.segment):Array.from(text);
+    const old=split(before),next=split(after);
+    let first=0;
+    while(first<old.length&&first<next.length&&old[first]===next[first])first++;
+    let oldEnd=old.length,newEnd=next.length;
+    while(oldEnd>first&&newEnd>first&&old[oldEnd-1]===next[newEnd-1]){
+        oldEnd--;newEnd--;
     }
+    const start=old.slice(0,first).join('').length;
+    const beforeEnd=old.slice(0,oldEnd).join('').length;
+    const afterEnd=next.slice(0,newEnd).join('').length;
     // An input method may replace text, but it must never wrap, split,
     // or replace the editor's U+FFFC equation atoms or paragraph boundaries.
     const erased=before.slice(start,beforeEnd);
