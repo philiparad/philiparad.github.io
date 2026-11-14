@@ -150,6 +150,106 @@ function drawSequence(ctx,nodes,x,y,state,depth=0){
  }
  return x;
 }
+/* Results previously stayed in the legacy 7x11 bitmap atlas even when the
+ * input used vectors. Give short MathIO answers the same crisp typography.
+ * Keep legacy output for long/unsupported forms and scroll-sensitive screens.
+ */
+function resultModel(state){
+ if(!state||!state.power||state.screen!=='result'||!state.math)return null;
+ if(!['COMP','CMPLX'].includes(state.mode)||state.resultDMS||
+    (state.complexResultLines&&state.complexResultLines.length)||
+    state.multiStatements||Number(state.viewport?.resultX||0)!==0)return null;
+ const chosen=state.resultPresentation?.chosen;
+ const kind=chosen?.kind||'decimal';
+ const valid=['decimal','surd','pi','fraction','mixed','engineering','recurring'];
+ if(!valid.includes(kind))return null;
+ const source=String(chosen?.text??state.result??'');
+ if(!source||source.length>22||/[\n\r]/.test(source))return null;
+ if(kind==='fraction'||kind==='mixed'){
+  if(!/^[-+]?\d+$/.test(String(chosen?.numerator))||
+     !/^\d+$/.test(String(chosen?.denominator)))return null;
+  return {kind,text:source,numerator:String(chosen.numerator),
+   denominator:String(chosen.denominator),
+   integer:kind==='mixed'?String(chosen.integer||''):''};
+ }
+ if(kind==='recurring'){
+  if(!chosen||!chosen.period)return null;
+  return {kind,text:source,initial:String(chosen.initial||''),
+   period:String(chosen.period)};
+ }
+ // A radical is one token with a text coefficient and an integer radicand.
+ // Exact symbolic combinations can have multiple radical tokens.
+ if(source.includes('√')&&!/^[0-9+\-*/(). π√]+$/.test(source))return null;
+ return {kind,text:source};
+}
+function drawResult(ctx,state){
+ const model=resultModel(state);
+ if(!model)return false;
+ const {kind}=model,baseline=27.1,top=17.3;
+ const charW=4.1;
+ const segments=[];
+ let width=0;
+ if(kind==='fraction'||kind==='mixed'){
+  const iw=model.integer?measureText(model.integer).width+2:0;
+  const span=Math.max(measureText(model.numerator).width,measureText(model.denominator).width)+2;
+  width=iw+span;
+  segments.push({type:'fraction',width:span,iw});
+ }else{
+  const t=model.text;
+  const token=/√\d+/g;
+  let start=0,match;
+  while((match=token.exec(t))!==null){
+   if(match.index>start){
+    const value=t.slice(start,match.index);
+    const w=measureText(value).width;
+    segments.push({type:'text',value,width:w});width+=w;
+   }
+   const value=match[0].slice(1);
+   const w=8+measureText(value).width;
+   segments.push({type:'radical',value,width:w});width+=w;
+   start=token.lastIndex;
+  }
+  if(start<t.length){
+   const value=t.slice(start),w=measureText(value).width;
+   segments.push({type:'text',value,width:w});width+=w;
+  }
+ }
+ if(width<=0||width>93||!Number.isFinite(width))return false;
+ ctx.save();
+ ctx.beginPath();ctx.rect(0,top,VIEW_W,VIEW_H-top);ctx.clip();
+ ctx.fillStyle='rgb(215,230,215)';
+ ctx.fillRect(0,top,VIEW_W,VIEW_H-top);
+ ctx.strokeStyle=ink(ctx,state);ctx.fillStyle=ctx.strokeStyle;
+ ctx.lineWidth=.44;ctx.lineCap='square';ctx.lineJoin='miter';
+ ctx.font='5.8px Consolas, "DejaVu Sans Mono", monospace';
+ ctx.textBaseline='alphabetic';
+ let x=VIEW_W-width-1.5;
+ if(kind==='fraction'||kind==='mixed'){
+  const {iw,width:span}=segments[0];
+  if(model.integer)text(ctx,model.integer,x,baseline);
+  x+=iw;
+  text(ctx,model.numerator,x+(span-measureText(model.numerator).width)/2,21.4);
+  path(ctx,[[x,24.5],[x+span,24.5]]);
+  text(ctx,model.denominator,x+(span-measureText(model.denominator).width)/2,29.4);
+ }else if(kind==='recurring'){
+  text(ctx,model.text,x,baseline);
+  const left=x+measureText(model.initial).width;
+  path(ctx,[[left,20],[left+measureText(model.period).width,20]]);
+ }else{
+  for(const item of segments){
+   if(item.type==='text')text(ctx,item.value,x,baseline);
+   else{
+    const roof=20.1,left=x+7.5;
+    path(ctx,[[x+.7,baseline-3.2],[x+2.3,baseline-1.1],
+      [x+5.7,roof],[left,roof],[x+item.width-.2,roof]]);
+    text(ctx,item.value,left+0.6,baseline);
+   }
+   x+=item.width;
+  }
+ }
+ ctx.restore();
+ return true;
+}
 function supported(state){
  if(!state||!state.power||!state.editor||!Array.isArray(state.editor.root))return false;
  if(!['edit','result'].includes(state.screen))return false;
@@ -158,7 +258,10 @@ function supported(state){
 }
 function draw(canvas,state){
  const authentic=new URLSearchParams(global.location?.search||'').get('lcd')==='authentic';
- if(!canvas||authentic||!supported(state)){legacy.draw(canvas,state);return 'authentic'}
+ if(!canvas||authentic){legacy.draw(canvas,state);return 'authentic'}
+ const structured=supported(state);
+ const resultEligible=!!resultModel(state);
+ if(!structured&&!resultEligible){legacy.draw(canvas,state);return 'authentic'}
  // First retain the proven LCD raster (status/readouts, results, mode details).
  legacy.draw(canvas,state);
  const ctx=canvas.getContext('2d',{alpha:false});
@@ -166,6 +269,10 @@ function draw(canvas,state){
  const outputWidth=canvas.width,outputHeight=canvas.height;
  if(!outputWidth||!outputHeight)return 'authentic';
  const sx=outputWidth/VIEW_W,sy=outputHeight/VIEW_H;
+ // Redraw short answers separately, even when the editor is plain text.
+ // Avoid erasing the result if the structured input cannot be measured.
+ if(!structured){ctx.save();ctx.scale(sx,sy);const painted=drawResult(ctx,state);ctx.restore();
+  return painted?'enhanced':'authentic'}
  const yTop=0,yBottom=state.screen==='result'?17:state.info?24.3:VIEW_H;
  ctx.save();
  ctx.scale(sx,sy);
@@ -188,9 +295,10 @@ function draw(canvas,state){
   path(ctx,[[cx,baseline-6],[cx,baseline+1.2]]);
  }
  ctx.restore();
+ if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
 }
-const api=Object.freeze({draw,supported,measure,measureNodes,legacy});
+const api=Object.freeze({draw,supported,measure,measureNodes,resultModel,legacy});
 global.FreshEnhancedLCD=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
