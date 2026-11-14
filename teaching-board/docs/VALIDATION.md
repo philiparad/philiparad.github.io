@@ -25,8 +25,15 @@ Verified reference run: [GitHub Actions 43559719415](https://github.com/philipar
 all four jobs passed; 263 Node tests passed; nine visual comparisons had
 zero differing pixels.
 
-**Scope limits:** These parity comparisons are not committed golden-image
-snapshots and do not establish exact HTML/SVG/PDF glyph-level equivalence.
+**Golden-pixel regression:** The suite now also enforces nine separately committed
+SHA-256 hashes of 720×470 RGBA pixel buffers—three fixtures per browser
+engine—in `browser-tests/visual-goldens.json`. The references were captured
+from [CI run 43564090574](https://github.com/philiparad/philiparad.github.io/actions/runs/43564090574),
+then independently enforced by [CI run 43564213632](https://github.com/philiparad/philiparad.github.io/actions/runs/43564213632)
+(all four jobs successful). These checks detect visual changes even if board and
+SVG export paths change identically. The review/update workflow is described
+in [VISUAL_GOLDENS.md](VISUAL_GOLDENS.md). This stores immutable hash references,
+not complete PNG screenshots, and does not establish exact HTML/SVG/PDF glyph-level equivalence.
 A separate **Chromium A4 PDF print regression** uses Teaching Board's own
 `preparePrintPagesDocument` implementation, Chromium's PDF printer, and
 Poppler's independent `pdfinfo` and `pdftoppm` tools. It checks exact page
@@ -35,5 +42,5 @@ bleed, and that printing only page two excludes page one's objects. The
 two-page and selected-page tests passed in [GitHub Actions 43560506880](https://github.com/philiparad/philiparad.github.io/actions/runs/43560506880),
 alongside all 263 Node tests and three-browser smoke and SVG parity checks.
 
-Full native OS IME testing, independent golden-image visual baselines, exact
+Full native OS IME testing, independent inspectable PNG image snapshots, exact
 PDF-to-SVG glyph-level pixel equality, and wider device coverage remain open.
