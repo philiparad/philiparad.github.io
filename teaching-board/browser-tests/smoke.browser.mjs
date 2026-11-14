@@ -25,6 +25,44 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('TXT-065 font fallback parity for Hebrew/English editor, SVG, and canvas',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {TEXT_FONT_FAMILY,canvasTextFont,editableTextFont}=
+    await import('./js/text-font.js');
+   const {InlineText}=await import('./js/inline-text.js');
+   const {drawItem}=await import('./js/scene.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:120px 90px 80px;background:white;z-index:3000';
+   document.body.append(host);
+   const item={id:'fallback-parity',type:'text',x:0,y:0,w:280,h:120,
+    fontSize:24,text:'שלום English',
+    runs:[{text:'שלום ',bold:true},{text:'English',italic:true}],
+    paragraphs:[{align:'right',dir:'rtl',list:'none'}]};
+   const editor={area:host,board:{id:'fallback-'+crypto.randomUUID(),
+     viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const draft=new InlineText(editor,item,true);
+   const family=getComputedStyle(draft.input).fontFamily;
+   const expected=editableTextFont(24,'normal');
+   const editableStyle=draft.input.style.font;
+   const svg=drawItem(item);
+   const svgFamilies=[...svg.querySelectorAll('text')].map(n=>n.getAttribute('font-family'));
+   const context=document.createElement('canvas').getContext('2d');
+   context.font=canvasTextFont(24,{bold:true});
+   const canvasFamily=context.font;
+   const measured=context.measureText('שלום English').width;
+   draft.finish(false);host.remove();
+   return {family,expected,editableStyle,svgFamilies,
+    canvasFamily,measured,font:TEXT_FONT_FAMILY};
+  });
+  const noQuotes=value=>value.replaceAll('"','');
+  assert.equal(noQuotes(report.family),noQuotes(report.font));
+  assert.equal(noQuotes(report.svgFamilies[0]),noQuotes(report.font));
+  assert(report.svgFamilies.every(v=>noQuotes(v)===noQuotes(report.font)));
+  assert(report.canvasFamily.includes('Arial')&&report.canvasFamily.includes('DejaVu Sans'));
+  assert(report.editableStyle.includes('Noto Sans Hebrew'));
+  assert(report.measured>0);
+ });
+ 
  await check('native selection formats Hebrew text and undo/redo restores draft',async()=>{
   await page.evaluate(async()=>{
    const {InlineText}=await import('./js/inline-text.js');
