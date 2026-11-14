@@ -30,10 +30,12 @@ CASES=(
   "mode":"COMP","screen":"result","number":-23.8},
  {"id":"stat-mean","keys":("MODE","3","1","1","EQUAL","2","EQUAL",
                          "3","EQUAL","CALC"),
-  "mode":"STAT","screen":"flow-result","number":2},
+  "mode":"STAT","screen":"flow-result","number":2,
+  "output_contains":("n = 3","Mean X = 2","Sigma X = ")},
  {"id":"stat-variance-menu","keys":("MODE","3","1","1","EQUAL","2","EQUAL",
                                   "3","EQUAL","SHIFT","1","5","2"),
-  "mode":"STAT","screen":"flow-result","number":2},
+  "mode":"STAT","screen":"flow-result","number":2,
+  "output_equals":("Mean X = 2",)},
  {"id":"table-square","keys":("MODE","7","ALPHA","LP","SQUARE","EQUAL",
                              "NEG","1","EQUAL","1","EQUAL","DOT","5","EQUAL"),
   "mode":"TABLE","screen":"table-grid","rows":5,
@@ -72,6 +74,15 @@ async def replay(browser,base,file,case,output):
                 file,case["id"],"non-finite result",actual)
             assert abs(actual-case["number"])<=case.get("abs_tolerance",1e-10), (
                 file,case["id"],"number",actual,case["number"])
+        if "output_contains" in case:
+            output=s["outputLines"]
+            assert isinstance(output,list), (file,case["id"],"missing STAT output")
+            assert all(any(expected in line for line in output)
+                for expected in case["output_contains"]), (
+                file,case["id"],"incomplete STAT summary",output)
+        if "output_equals" in case:
+            assert s["outputLines"]==list(case["output_equals"]), (
+                file,case["id"],"wrong STAT menu selection",s["outputLines"])
         if "rows" in case:
             rows=s["tableData"]["rows"]
             expected_x=case["x_values"]
