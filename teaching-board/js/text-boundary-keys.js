@@ -24,6 +24,22 @@ function position(rows,index,offset){
     for(let i=0;i<index;i++)at+=rows[i].length+1;
     return at;
 }
+/** Delete exactly the logical selection (including every selected equation and
+ * newline) as one validated edit.  Native contenteditable deletion can leave
+ * split equation images and malformed list wrappers when multiple lists are
+ * selected, so noncollapsed Backspace/Delete uses this model-level range.
+ */
+export function selectedDeletion(snapshot,saved,key){
+    const doc=parts(snapshot);
+    if(!doc||!['Backspace','Delete'].includes(key)||!saved||
+        !pointOK(saved.anchor,doc.rows)||!pointOK(saved.focus,doc.rows))
+        return null;
+    const a=position(doc.rows,saved.anchor.paragraph,saved.anchor.offset);
+    const b=position(doc.rows,saved.focus.paragraph,saved.focus.offset);
+    if(a===b)return null;
+    return {kind:'selection',start:Math.min(a,b),end:Math.max(a,b)};
+}
+
 /** Backspace/Delete at a paragraph boundary; all other edits remain native. */
 export function boundaryEdit(snapshot,saved,key){
     const doc=parts(snapshot);
