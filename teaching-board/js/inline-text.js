@@ -114,13 +114,15 @@ export class InlineText {
    validateRuns(snapshot.runs,txt);validateParagraphs(snapshot.paragraphs,txt);
    snapshot.selection=captureLogicalSelection(this.input,window.getSelection());
    const changed=this.textHistory.push(snapshot);
-   if(changed)storeTextDraft(this.draftStorage,this.draftBoardId,this.item,snapshot);
+   if(changed)storeTextDraft(this.draftStorage,this.draftBoardId,this.item,snapshot,
+    null,Date.now(),{newItem:!this.existing});
    this.updateHistoryButtons();
   }catch{
    // Preserve both the most recent valid formatted state and raw invalid text.
    // An incorrectly entered equation never silently replaces a valid snapshot.
    storeTextDraft(this.draftStorage,this.draftBoardId,this.item,
-    this.textHistory.current,rawDraftText(this.input));
+    this.textHistory.current,rawDraftText(this.input),
+    Date.now(),{newItem:!this.existing});
   }
  }
  offerDraftRecovery(record){
@@ -176,7 +178,8 @@ export class InlineText {
    this.controls.append(actions);
   }
   storeTextDraft(this.draftStorage,this.draftBoardId,this.item,
-   this.textHistory.current,rawDraftText(this.input));
+   this.textHistory.current,rawDraftText(this.input),
+   Date.now(),{newItem:!this.existing});
  }
  updateHistoryButtons(){if(!this.textHistory)return;this.undoButton.disabled=!this.textHistory.canUndo;this.redoButton.disabled=!this.textHistory.canRedo;}
  stepTextHistory(direction){if(this.closed||this.composing)return;this.pendingMarks=null;this.pendingSelection=null;const snapshot=direction==='redo'?this.textHistory.redo():this.textHistory.undo();if(!snapshot)return;this.updateHistoryButtons();const txt=snapshot.runs.map(run=>run.text).join('');writeRuns(this.input,{...this.item,text:txt,runs:snapshot.runs,paragraphs:snapshot.paragraphs});this.resize();this.input.focus();const selection=window.getSelection();if(selection&&!(restoreLogicalSelection(this.input,selection,snapshot.selection)||restoreTextSelection(this.input,selection,snapshot.selection))){const range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);selection.removeAllRanges();selection.addRange(range);}}
@@ -188,7 +191,7 @@ export class InlineText {
   this.root.style.left=`${v.x+i.x*v.zoom+(v.zoom-1)*i.w/2}px`;
   this.root.style.top=`${v.y+i.y*v.zoom+(v.zoom-1)*i.h/2}px`;
  }
- finish(save,focus=true){
+ finish(save,focus=true,preserveDraft=false){
   if(this.closed)return;
   let runs=[],paragraphs=[],text='';
   if(save){
@@ -207,7 +210,11 @@ export class InlineText {
     this.editor.applyText(this.item,text,this.height,this.existing);
    }else this.editor.paint();
   }catch(error){this.showDraftError(error);return;}
-  clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
+  // Newly created objects remain recoverable until the asynchronous board
+  // save succeeds; merely enqueueing the board is not durable persistence.
+  if(!preserveDraft&&(!save||this.existing||!text.trim()||
+     !this.editor.pendingNewTextDraftIds?.has(this.item.id)))
+   clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
   this.closed=true;
   document.removeEventListener('pointerdown',this.outside,true);
   document.removeEventListener('focusin',this.outside,true);
