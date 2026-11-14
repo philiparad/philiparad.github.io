@@ -190,3 +190,46 @@ Browser and OS clipboard managers may strip custom MIME and HTML
 metadata. In that case plain-text LaTeX remains readable but is not
 automatically reconstructed into an editable image. Native screen
 reader and external-application clipboard QA remain manual.
+
+## TXT-055: multi-paragraph clipboard and numbered-list fidelity (November 14, 2026)
+
+Enhanced `text-inline-clipboard.js` to reconstruct the visible ordinal of
+the first copied numbered list item, even if its source `numberStart`
+was only specified in an earlier paragraph. A number restart in a later
+copied paragraph remains explicit. When the true ordinal falls outside
+the existing validated 1–10000 explicit-start range, the rich payload is
+rejected rather than silently misnumbered.
+
+Paragraph replacement now respects actual source and destination boundaries:
+the unaffected destination prefix retains its metadata; the first fully
+replaced or empty paragraph can inherit source metadata; interior pasted
+paragraphs keep source direction, alignment and numbering. A destination
+suffix that survives a selection spanning multiple old paragraphs retains
+its own paragraph metadata. A rich paste splitting a single destination
+paragraph retains the rich source metadata on its last new paragraph. For
+plain-text multi-line paste, new lines inherit the destination paragraph
+direction/list type and numbered items continue rather than restarting
+at the old explicit first-item number.
+
+Cutting a full paragraph and its trailing newline now lets the surviving
+next paragraph retain its language direction and real numbered-list
+ordinal, with undo/redo restoring the original content.
+
+For external applications, portable `text/html` now uses actual ordered
+and unordered lists, `<li>`, direction attributes, alignment and safe
+strong/emphasis/underline/strike/color markup. Equations have escaped
+textual LaTeX in accessible math spans. An encoded, versioned clipboard
+payload remains on an inert outer element for lossless import back into
+Teaching Board when the custom MIME field is stripped. HTML is never
+inserted as executable editor DOM, and size and schema validation still
+apply.
+
+**Regression verification:** [GitHub Actions run 43586455295](https://github.com/philiparad/philiparad.github.io/actions/runs/43586455295)
+passed **298/298 Node.js tests** and all Chromium/Firefox/WebKit browser
+jobs. Cross-browser tests exercise a mixed RTL/LTR copied numbered sequence
+starting at ordinal 8, its inline LaTeX and styling, paste into an empty
+document, undo/redo, cut of a complete row, paste after a bullet prefix,
+HTML-only round-trip, and safe plain multi-line paste. The unchanged
+visual-golden and A4 print/PDF regressions also passed. Browser system
+clipboard and third-party office application behavior still require
+manual interoperability validation.

@@ -51,6 +51,29 @@ Inline equation images are announced as math with a descriptive LaTeX
 source label, avoiding redundant image announcements. Native assistive
 technology and cross-app clipboard interoperability still need manual QA.
 
+## Numbered lists and multi-paragraph clipboard (TXT-055)
+
+Copy a selection spanning several paragraphs, including parts of a numbered
+list, and paste it into another Teaching Board text box. **The copied first
+numbered item retains its visible ordinal** (for example, 8 even when the
+original list began at 7), and any explicit numbering restarts remain intact.
+
+Selected text keeps its bold/italic and color formatting, Hebrew/English
+direction, list type and inline equation source. When pasted into existing
+text, the original destination prefix retains its style; newly created rich
+paragraphs use the copied styles. A surviving destination suffix retains its
+original paragraph style when the selection spans several destination
+paragraphs. When rich text splits a *single* paragraph, the new last
+paragraph retains the copied style. **Multiline plain-text paste** inside
+a numbered list continues that list instead of restarting each line.
+
+Copying to other programs also supplies semantic HTML using real
+`<ol start="…">`, `<ul>`, `<li dir="rtl|ltr">` and styled text elements,
+in addition to safe LaTeX text for equations. Teaching Board validates
+the structured clipboard payload before recreating its editable content;
+external applications may discard clipboard metadata or display LaTeX
+as text rather than math graphics.
+
 ## Inline equation cursor and keyboard controls
 
 Inline equations behave as **one atomic character** in text boxes and sticky
