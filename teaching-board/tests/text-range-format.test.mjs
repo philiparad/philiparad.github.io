@@ -31,7 +31,7 @@ test('cross-paragraph bold preserves unselected prefixes, lists and math',()=>{
  assert.ok(after.runs.find(r=>r.text==='של'&&!r.bold));
  assert.ok(after.runs.find(r=>r.text==='ום '&&r.bold));
  assert.equal(after.runs.find(r=>r.equation).equation.source,'x^2');
- assert.equal(after.runs.find(r=>r.equation).bold,undefined);
+ assert.equal(after.runs.find(r=>r.equation).bold,false); // compactRuns normalizes absent marks to false
  validateRuns(after.runs,text);
  validateParagraphs(after.paragraphs,text);
  const board=createBoard();
@@ -45,7 +45,9 @@ test('cross-paragraph colors, clear-format and mixed toggle keep exact text',()=
  assert.equal(colored.runs.find(r=>r.equation).color,undefined);
  const reset=formatDocumentRange(colored,1,text.length,'removeFormat');
  assert.equal(reset.runs.map(r=>r.text).join(''),text);
- assert.ok(reset.runs.some(r=>r.text==='ש'));
+ assert.ok(reset.runs[0].text.startsWith('שלום')); // compaction may merge adjacent plain runs
+ assert.ok(reset.runs.every(r=>!r.color||r.text==='ש'));
+ assert.ok(reset.runs.every(r=>!r.italic&&!r.bold&&!r.strike&&!r.underline||r.equation));
  assert.equal(reset.runs.find(r=>r.equation).equation.source,'x^2');
  assert.deepEqual(reset.paragraphs,input.paragraphs);
  assert.equal(formatDocumentRange(input,0,1,'foreColor','red;unsafe'),null);
