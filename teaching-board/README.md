@@ -53,7 +53,7 @@ No application server, package installation or build step. Serve the repository 
 
 `tests/index.html` runs pure logic and isolated IndexedDB tests. See `docs/VALIDATION.md` for release validation and `docs/ARCHITECTURE.md` for module responsibilities.
 
-The [Teaching Board regression workflow](https://github.com/philiparad/philiparad.github.io/actions/workflows/teaching-board-tests.yml) runs the Node test suite **and real Chromium, Firefox, and WebKit browser smoke tests** whenever `teaching-board/` changes. Browser tests use the actual static application, real text selection, toolbar formatting, undo/redo, SVG mixed-direction rendering, confirmed A4 numbered-list flow, and an IndexedDB → reload → JSON backup → SVG export round-trip.
+The [Teaching Board regression workflow](https://github.com/philiparad/philiparad.github.io/actions/workflows/teaching-board-tests.yml) runs the Node test suite **and real Chromium, Firefox, and WebKit browser smoke tests** whenever `teaching-board/` changes. Browser tests use the actual static application, real text selection, toolbar formatting, undo/redo, SVG mixed-direction rendering, confirmed A4 numbered-list flow, an IndexedDB → reload → JSON backup → SVG export round-trip, and cursor preservation when switching lists or rebuilding rich-text spans. The suite also verifies pending formatting at a collapsed caret, including Firefox's non-cancelable composition-style input, and composition-history handling.
 
 To reproduce the browser smoke tests locally, serve the repository root over HTTP, then run:
 
@@ -65,7 +65,7 @@ TEACHING_BOARD_BROWSER=firefox node teaching-board/browser-tests/smoke.browser.m
 TEACHING_BOARD_BROWSER=webkit node teaching-board/browser-tests/smoke.browser.mjs
 ```
 
-By default, the smoke script expects `http://127.0.0.1:8765/teaching-board/`. Override `TEACHING_BOARD_URL` to use another local origin. The tests use a fresh, isolated browser profile; they do not access lessons in your normal browser. The three-engine smoke suite is **not** a pixel-level visual baseline or exhaustive device/browser coverage.
+By default, the smoke script expects `http://127.0.0.1:8765/teaching-board/`. Override `TEACHING_BOARD_URL` to use another local origin. The tests use a fresh, isolated browser profile; they do not access lessons in your normal browser. The three-engine smoke suite is **not** a pixel-level visual baseline or exhaustive device/browser coverage. Its IME composition-history check dispatches synthetic composition events; native operating-system IME interaction remains a separate manual QA task.
 
 
 The folder uses relative URLs and hash routing. It is deployed through the existing repository's GitHub Pages workflow. Existing teaching materials and the homepage are preserved.
