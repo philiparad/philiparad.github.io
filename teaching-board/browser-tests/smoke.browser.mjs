@@ -2321,6 +2321,78 @@ try{
   }
  });
 
+
+ await check('TXT-063 Alt+Enter opens adjacent accessible equation and Cancel restores editing focus',async()=>{
+  const setup=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {restoreLogicalSelection}=await import('./js/text-selection.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:115px 70px 55px;background:white;z-index:5750';
+   document.body.append(host);
+   const art=document.createElement('canvas');art.width=42;art.height=25;
+   art.getContext('2d').fillRect(2,2,38,21);
+   const equation={source:'x^2+1',src:art.toDataURL('image/png'),w:42,h:25};
+   const editor={area:host,board:{id:'keyboard-edit-math-'+crypto.randomUUID(),
+     viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const draft=new InlineText(editor,{
+    id:'kbd-math-'+crypto.randomUUID(),type:'text',x:0,y:0,w:470,h:75,
+    fontSize:24,text:'שלום \uFFFC English',
+    runs:[{text:'שלום '},{text:'\uFFFC',equation},{text:' English'}],
+    paragraphs:[{align:'right',dir:'rtl',list:'number',numberStart:7}]
+   },true);
+   draft.input.focus();
+   const p={paragraph:0,offset:6};
+   if(!restoreLogicalSelection(draft.input,window.getSelection(),
+    {anchor:p,focus:p}))throw Error('Cannot reach editing equation');
+   const hintId=draft.input.getAttribute('aria-describedby');
+   const hint=document.getElementById(hintId);
+   window.__imeMathDialog={draft,host};
+   return {hint:hint?.textContent,helpId:hintId,
+    accessibleMath:draft.input.querySelector('[role="math"]')?.getAttribute('aria-label')};
+  });
+  assert(setup.hint.includes('Alt+Enter edits the equation'));
+  assert.equal(setup.accessibleMath,'Math equation: x^2+1');
+  await page.keyboard.press('Alt+Enter');
+  const dialog=page.locator('dialog.math-dialog');
+  await dialog.waitFor({state:'visible'});
+  assert.equal(await dialog.locator('textarea[aria-label="LaTeX source"]').inputValue(),
+    'x^2+1');
+  await dialog.getByRole('button',{name:'Cancel'}).click();
+  await dialog.waitFor({state:'hidden'});
+  const finished=await page.evaluate(async()=>{
+   const {draft,host}=window.__imeMathDialog;
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const d=readRichDocument(draft.input,draft.item);
+   const snapshot={
+    focused:document.activeElement===draft.input,
+    math:d.runs.filter(r=>r.equation).map(r=>r.equation.source),
+    text:d.runs.map(r=>r.text).join(''),
+    history:draft.textHistory.entries.length
+   };
+   // Keyboard must not edit an unrelated formula when caret is in text.
+   const {restoreLogicalSelection}=await import('./js/text-selection.js');
+   const p={paragraph:0,offset:2};
+   restoreLogicalSelection(draft.input,window.getSelection(),
+    {anchor:p,focus:p});
+   const key=new KeyboardEvent('keydown',{
+    key:'Enter',altKey:true,bubbles:true,cancelable:true
+   });
+   draft.input.dispatchEvent(key);
+   snapshot.unrelatedPrevented=key.defaultPrevented;
+   snapshot.unrelatedDialog=!!document.querySelector('dialog.math-dialog[open]');
+   draft.finish(false);
+   host.remove();
+   delete window.__imeMathDialog;
+   return snapshot;
+  });
+  assert(finished.focused,'Cancelling equation editing should return focus to the text editor');
+  assert.deepEqual(finished.math,['x^2+1']);
+  assert.equal(finished.text,'שלום \uFFFC English');
+  assert.equal(finished.history,1,'Cancel must not create a text history entry');
+  assert.equal(finished.unrelatedPrevented,false);
+  assert.equal(finished.unrelatedDialog,false);
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
