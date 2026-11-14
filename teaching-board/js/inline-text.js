@@ -129,8 +129,7 @@ export class InlineText {
   banner.append(el('span','Unsaved text from an earlier editing session is available on this device.'),
    btn('Recover saved draft',()=>{
     if(this.closed)return;
-    this.restoreFormattedDraft(record);
-    banner.remove();
+    if(this.restoreFormattedDraft(record))banner.remove();
    }));
   if(record.rawText!==record.text)banner.append(btn('Show unparsed text',()=>this.showRawDraft(record.rawText,banner)));
   banner.append(btn('Discard saved draft',()=>{
@@ -172,7 +171,7 @@ export class InlineText {
   if(!actions){
    actions=el('div',null,'text-error-recovery');
    actions.append(btn('Restore last valid version',()=>{
-    this.restoreFormattedDraft(this.textHistory.current);actions.remove();
+    if(this.restoreFormattedDraft(this.textHistory.current))actions.remove();
    }),btn('Show raw text',()=>this.showRawDraft(rawDraftText(this.input),actions)));
    this.controls.append(actions);
   }
