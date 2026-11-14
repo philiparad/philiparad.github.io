@@ -29,7 +29,7 @@ test('numbered entries continue 1, 2, 3 across page splits without repeated mark
  assert.equal(plan.items.map(x=>x.text).join(''),source.text);
  assert.deepEqual(plan.items.flatMap(markers),['1.','2.','3.']);
  assert.equal(plan.items[0].id,source.id);
- assert.equal(plan.items.slice(1).filter(x=>x.text.startsWith('Long')).length>0,true);
+ assert.ok(plan.items.slice(1).some(x=>x.paragraphs[0].list==='none'),'continued text must not repeat its list number');
  for(const fragment of plan.items){
   validateParagraphs(fragment.paragraphs,fragment.text);
   assert.equal(fragment.paragraphs.length,fragment.text.split('\n').length);
@@ -89,7 +89,7 @@ test('invalid numbered metadata is rejected before backup or print',()=>{
 });
 test('numbers remain correct when a nonnumbered paragraph interrupts a list',()=>{
  const original=item('First\nComment '.repeat(35)+'\nAnother numbered',[
-  ...Array(35).fill(null).flatMap((_,i)=>[{align:'left',list:i===0?'number':'none',dir:'ltr'}, {align:'left',list:'none',dir:'ltr'}]),
+  ...Array.from({length:36},(_,i)=>({align:'left',list:i===0?'number':'none',dir:'ltr'})),
   {align:'left',list:'number',dir:'ltr'}
  ]);
  // source metadata must exactly match explicit newlines
