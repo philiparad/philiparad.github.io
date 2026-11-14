@@ -140,3 +140,17 @@ test('pending marks are discarded when IME composition begins',()=>{
  edit.input.oncompositionend();
  edit.finish(false);
 });
+
+test('editing overlay expands from measured SVG layout when DOM scrollHeight is stale',()=>{
+ const e=fixture(),edit=e.inlineText;
+ const originalScrollHeight=edit.input.scrollHeight;
+ edit.item.w=80;
+ edit.input.textContent=Array(25).fill('שלום English').join(' ');
+ edit.input.oninput();
+ assert.equal(edit.input.scrollHeight,originalScrollHeight);
+ assert.ok(edit.height>originalScrollHeight+2);
+ const expected=edit.height;
+ edit.finish(true);
+ assert.equal(e.applied[2],expected);
+ assert.equal(e.applied[1],Array(25).fill('שלום English').join(' '));
+});
