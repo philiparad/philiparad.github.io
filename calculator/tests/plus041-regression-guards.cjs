@@ -27,6 +27,20 @@ A.ok(sqrtBrowser.includes('s["input"] == case["input_equals"]'),
  'browser must compare exact input rather than substring');
 A.ok(!clearCase[1].includes('"contains": ""'),
  'vacuous empty substring must not return');
+// PLUS-043: the documented 2-unknown example must validate both X and Y;
+// checking only the first root lets an incorrect second unknown pass.
+const referenceBrowser=fs.readFileSync(
+ path.join(root,'plus028-reference-browser.py'),'utf8');
+A.ok(referenceBrowser.includes('"solutions": (-1, 2)'),
+ 'two-variable reference must include both expected values');
+A.ok(referenceBrowser.includes('len(solutions) == len(expected)'),
+ 'EQN reference must validate solution count');
+A.ok(referenceBrowser.includes('["X", "Y"]'),
+ 'EQN reference must verify variable names');
+A.ok(referenceBrowser.includes('for item, wanted in zip(solutions, expected)'),
+ 'EQN reference must test both solution values');
+A.ok(referenceBrowser.includes('left["equation_solutions"] != right["equation_solutions"]'),
+ 'browser parity must compare all equation roots');
 const rootEditor=E.create();
 E.template(rootEditor,'squareRoot');
 E.insert(rootEditor,'8');E.insert(rootEditor,'1');
@@ -50,4 +64,4 @@ const transformed=MATRIX.transpose(source);
 A.deepEqual(transformed.data,[[2,1],[3,4]]);
 A.notDeepEqual(transformed.data,source.data,
  'the source matrix must be non-symmetric to detect a no-op transpose');
-console.log('PLUS-041/042 PASS: square-root entry, matrix transpose, and exact AC error-recovery guards');
+console.log('PLUS-041/043 PASS: square-root, transpose, AC reset and complete EQN root guards');
