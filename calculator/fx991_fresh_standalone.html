@@ -7,6 +7,19 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="description" content="Independent educational scientific calculator with natural input, 50-key interactive keypad and reference-inspired case.">
     <title>Scientific calculator — independent fx-991ES PLUS study simulator</title>
+    <script data-source="js/url-mode.js">
+/* VIEW-002 — activate query-driven presentation before calculator initializes.
+ * This module runs in <head> and does not depend on body or calculator state.
+ */
+(function(){
+'use strict';
+const params=new URLSearchParams(window.location.search);
+if(params.get('key')==='calculator'){
+ document.documentElement.classList.add('calculator-only');
+ document.documentElement.dataset.calculatorView='only';
+}
+})();
+</script>
     <style data-source="styles.css">
 :root{color-scheme:light;font-family:Arial,Helvetica,sans-serif;--ink:#23313b;--pale:#d9e5d7;--edge:#0b0c0d;--yellow:#ffe273;--pink:#e4a3ce;--blue:#91d2fa}
 *{box-sizing:border-box}
@@ -322,6 +335,46 @@ body.calculator-only #calculator-keyboard-help{display:none!important}
 @media print{
   body.calculator-only .workspace{min-height:0}
   body.calculator-only .face{width:274px;max-width:274px}
+}
+
+/* VIEW-002: head-loaded URL mode. These selectors do not depend on a script
+   running after the calculator body has already been rendered. */
+html.calculator-only body{background:#f4f4f4;min-height:100vh}
+html.calculator-only body .workspace{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  grid-template-columns:none!important;
+  max-width:none!important;
+  min-height:100vh!important;
+  width:100%;
+  padding:12px!important;
+  margin:0!important;
+  gap:0!important;
+}
+html.calculator-only body .calculator-panel{
+  display:flex!important;
+  justify-content:center;
+  align-items:center;
+  gap:0!important;
+  width:min(348px,calc(100vw - 24px),calc((100vh - 24px)*274/580));
+  max-width:none!important;
+  padding:0!important;
+  margin:0!important;
+}
+html.calculator-only body .face{
+  width:100%!important;
+  max-width:none!important;
+  display:block;
+  margin:0!important;
+  flex:none;
+}
+html.calculator-only body .companion,
+html.calculator-only body .face-actions,
+html.calculator-only body .diagnostic-tools{display:none!important}
+@media print{
+  html.calculator-only body .workspace{min-height:0!important}
+  html.calculator-only body .face{width:274px!important;max-width:274px!important}
 }
 </style>
 </head>
