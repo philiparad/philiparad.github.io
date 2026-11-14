@@ -1,6 +1,6 @@
 import {equationDialog} from './equation-editor.js?v=20261023-image-handles';
-import {equationNode} from './inline-equation.js?v=20261017-history-budget';
-import {readRichDocument,writeRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261017-history-budget';
+import {equationNode,textLayoutMetrics} from './inline-equation.js?v=20261017-history-budget';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261017-history-budget';
 import { el, btn } from './ui.js?v=20261017-history-budget';
 import { TextHistory } from './text-history.js';
 import { captureTextSelection,restoreTextSelection } from './text-selection.js';
@@ -87,7 +87,7 @@ export class InlineText {
  updateHistoryButtons(){if(!this.textHistory)return;this.undoButton.disabled=!this.textHistory.canUndo;this.redoButton.disabled=!this.textHistory.canRedo;}
  stepTextHistory(direction){if(this.closed||this.composing)return;this.pendingMarks=null;this.pendingSelection=null;const snapshot=direction==='redo'?this.textHistory.redo():this.textHistory.undo();if(!snapshot)return;this.updateHistoryButtons();const txt=snapshot.runs.map(run=>run.text).join('');writeRuns(this.input,{...this.item,text:txt,runs:snapshot.runs,paragraphs:snapshot.paragraphs});this.resize();this.input.focus();const selection=window.getSelection();if(selection&&!restoreTextSelection(this.input,selection,snapshot.selection)){const range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);selection.removeAllRanges();selection.addRange(range);}}
  insertPlainText(value){if(!value||this.closed||this.composing)return;const selection=window.getSelection();if(this.pendingMarks&&insertPendingText(this.input,selection,this.pendingMarks,value)){this.pendingMarks=null;this.pendingSelection=null;this.input.focus();this.resize();this.recordSnapshot();return;}let range=selection?.rangeCount?selection.getRangeAt(0):null;if(!range||!this.input.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}this.pendingMarks=null;this.pendingSelection=null;range.deleteContents();const node=document.createTextNode(value);range.insertNode(node);range.setStartAfter(node);range.collapse(true);selection?.removeAllRanges();selection?.addRange(range);this.input.focus();this.resize();this.recordSnapshot();}
- resize(){this.update();this.input.style.height='0px';this.height=Math.min(100000,Math.max(this.item.h,this.input.scrollHeight+2));this.input.style.height=`${this.height}px`;this.update();}
+ resize(){this.update();this.input.style.height='0px';let needed=Math.max(this.item.h||1,this.input.scrollHeight+2);try{const draft=readRichDocument(this.input,this.item);const content={...this.item,text:draft.runs.map(run=>run.text).join(''),runs:draft.runs,paragraphs:draft.paragraphs};needed=Math.max(needed,textLayoutMetrics(content,paragraphRuns(content)).height);}catch{/* Keep a partially edited draft visible while parsing catches up. */}this.height=Math.min(100000,needed);this.input.style.height=`${this.height}px`;this.update();}
  update(){const i=this.item,v=this.editor.board.viewport;Object.assign(this.root.style,{width:`${i.w}px`,left:`${v.x+i.x*v.zoom}px`,top:`${v.y+i.y*v.zoom}px`,transform:`scale(${v.zoom}) rotate(${i.rotation||0}deg)`,transformOrigin:`${i.w/2}px ${i.h/2}px`});
   // Scaling about the object's center also moves its top-left; compensate so
   // the editable text remains at the same world position at every zoom level.
