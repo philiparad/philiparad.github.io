@@ -10,6 +10,7 @@ import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pe
 import {applyDocumentRange} from './text-range-format.js';
 import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js';
 import {moveAcrossEquation,deleteEquationAtCaret,positionBesideEquation} from './text-equation-caret.js';
+import {TEXT_RICH_CLIPBOARD,clipboardFromTransfer,clipboardPlainText,clipboardHTML,selectedRichClipboard,logicalClipboardRange,replaceRichClipboard,plainClipboard} from './text-inline-clipboard.js';
 
 /** An isolated draft: the board changes only when the user finishes editing. */
 export class InlineText {
@@ -57,7 +58,9 @@ export class InlineText {
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
   this.selectionChange=()=>{if(this.closed||this.composing||!this.input.contains(document.activeElement))return;const caret=captureLogicalSelection(this.input,window.getSelection());this.textHistory.setSelection(caret);if(this.pendingMarks&&JSON.stringify(caret)!==JSON.stringify(this.pendingSelection)){this.pendingMarks=null;this.pendingSelection=null;}for(const [name,button] of this.formatButtons||[]){if(name.startsWith('insert')){const selection=window.getSelection(),node=selection?.anchorNode,block=node?.nodeType===1?node:node?.parentElement,list=block?.closest?.('li')?.parentElement;button.setAttribute('aria-pressed',String(list?.tagName===(name==='insertOrderedList'?'OL':'UL')));}else button.setAttribute('aria-pressed',String(this.pendingMarks&&Object.prototype.hasOwnProperty.call(this.pendingMarks,name)?this.pendingMarks[name]:inlineFormatState(this.input,window.getSelection(),name)));}};
   document.addEventListener('selectionchange',this.selectionChange);
-  this.input.onpaste=e=>{e.preventDefault();this.insertPlainText(e.clipboardData?.getData('text/plain')?.slice(0,10000)||'');};
+  this.input.oncopy=e=>this.copyRichText(e,false);
+  this.input.oncut=e=>this.copyRichText(e,true);
+  this.input.onpaste=e=>this.pasteRichText(e);
   this.input.ondrop=e=>e.preventDefault();
   this.input.addEventListener('pointerdown',e=>{if(e.button!==0)return;const node=e.target.closest?.('.inline-equation');if(node&&positionBesideEquation(this.input,window.getSelection(),node,e.clientX)){e.preventDefault();this.selectionChange();}});
   this.input.ondblclick=e=>{const node=e.target.closest('.inline-equation');if(node){e.preventDefault();this.editEquation(node);}};
@@ -186,6 +189,60 @@ export class InlineText {
  deleteInlineEquation(key){if(this.closed||this.composing)return false;const selection=window.getSelection();if(!deleteEquationAtCaret(this.input,selection,key))return false;this.pendingMarks=null;this.pendingSelection=null;this.savedRange=null;this.resize();this.recordSnapshot();this.selectionChange();return true;}
  updateHistoryButtons(){if(!this.textHistory)return;this.undoButton.disabled=!this.textHistory.canUndo;this.redoButton.disabled=!this.textHistory.canRedo;}
  stepTextHistory(direction){if(this.closed||this.composing)return;this.pendingMarks=null;this.pendingSelection=null;const snapshot=direction==='redo'?this.textHistory.redo():this.textHistory.undo();if(!snapshot)return;this.updateHistoryButtons();const txt=snapshot.runs.map(run=>run.text).join('');writeRuns(this.input,{...this.item,text:txt,runs:snapshot.runs,paragraphs:snapshot.paragraphs});this.resize();this.input.focus();const selection=window.getSelection();if(selection&&!(restoreLogicalSelection(this.input,selection,snapshot.selection)||restoreTextSelection(this.input,selection,snapshot.selection))){const range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);selection.removeAllRanges();selection.addRange(range);}}
+ copyRichText(event,cut=false){
+  if(this.closed||this.composing||!event.clipboardData?.setData)return false;
+  try{
+   const selection=window.getSelection(),snapshot=readRichDocument(this.input,this.item);
+   const range=logicalClipboardRange(this.input,selection,snapshot);
+   if(!range)return false;
+   const payload=selectedRichClipboard(snapshot,range.start,range.end);
+   if(!payload)return false;
+   event.clipboardData.setData('text/plain',clipboardPlainText(payload));
+   // Real browser clipboards vary: the HTML carrier is a portable, validated
+   // fallback when a custom MIME type does not survive the system clipboard.
+   try{event.clipboardData.setData(TEXT_RICH_CLIPBOARD,JSON.stringify(payload));}catch{}
+   try{event.clipboardData.setData('text/html',clipboardHTML(payload));}catch{}
+   event.preventDefault();
+   if(cut)this.replaceRichTextRange(range,{schema:1,runs:[],paragraphs:[{align:'auto',list:'none',dir:'auto'}]});
+   return true;
+  }catch{return false;}
+ }
+ replaceRichTextRange(range,payload){
+  if(this.closed||this.composing||!range)return false;
+  try{
+   const snapshot=readRichDocument(this.input,this.item);
+   const changed=replaceRichClipboard(snapshot,range.start,range.end,payload);
+   if(!changed)return false;
+   writeRuns(this.input,{...this.item,text:changed.text,runs:changed.runs,paragraphs:changed.paragraphs});
+   this.pendingMarks=null;this.pendingSelection=null;this.savedRange=null;
+   this.input.focus();
+   const selection=window.getSelection(),saved={anchor:changed.cursor,focus:changed.cursor};
+   restoreLogicalSelection(this.input,selection,saved);
+   this.resize();this.recordSnapshot();this.selectionChange();
+   return true;
+  }catch{return false;}
+ }
+ pasteRichText(event){
+  if(this.closed||this.composing)return;
+  event.preventDefault();
+  const data=event.clipboardData;
+  const selection=window.getSelection();
+  let snapshot,range;
+  try{
+   snapshot=readRichDocument(this.input,this.item);
+   range=logicalClipboardRange(this.input,selection,snapshot,true);
+  }catch{/* Use the existing plain-text fallback for partial native edits. */}
+  const rich=clipboardFromTransfer(data);
+  if(rich&&range&&this.replaceRichTextRange(range,rich))return;
+  const plain=data?.getData?.('text/plain')?.slice(0,10000)||'';
+  if(!plain)return;
+  // Keep the established plaintext paste path for normal text, including
+  // text copied from untrusted HTML-rich applications.
+  if(this.pendingMarks){this.insertPlainText(plain);return;}
+  const payload=plainClipboard(plain);
+  if(payload&&range&&this.replaceRichTextRange(range,payload))return;
+  this.insertPlainText(plain);
+ }
  insertPlainText(value){if(!value||this.closed||this.composing)return;const selection=window.getSelection();if(this.pendingMarks&&insertPendingText(this.input,selection,this.pendingMarks,value)){this.pendingMarks=null;this.pendingSelection=null;this.input.focus();this.resize();this.recordSnapshot();return;}let range=selection?.rangeCount?selection.getRangeAt(0):null;if(!range||!this.input.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}this.pendingMarks=null;this.pendingSelection=null;range.deleteContents();const node=document.createTextNode(value);range.insertNode(node);range.setStartAfter(node);range.collapse(true);selection?.removeAllRanges();selection?.addRange(range);this.input.focus();this.resize();this.recordSnapshot();}
  resize(){this.update();this.input.style.height='0px';let needed=Math.max(this.item.h||1,this.input.scrollHeight+2);try{const draft=readRichDocument(this.input,this.item);const content={...this.item,text:draft.runs.map(run=>run.text).join(''),runs:draft.runs,paragraphs:draft.paragraphs};needed=Math.max(needed,textLayoutMetrics(content,paragraphRuns(content)).height);}catch{/* Keep a partially edited draft visible while parsing catches up. */}this.height=Math.min(100000,needed);this.input.style.height=`${this.height}px`;this.update();}
  update(){const i=this.item,v=this.editor.board.viewport;Object.assign(this.root.style,{width:`${i.w}px`,left:`${v.x+i.x*v.zoom}px`,top:`${v.y+i.y*v.zoom}px`,transform:`scale(${v.zoom}) rotate(${i.rotation||0}deg)`,transformOrigin:`${i.w/2}px ${i.h/2}px`});
