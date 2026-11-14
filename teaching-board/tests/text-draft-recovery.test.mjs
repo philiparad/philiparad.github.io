@@ -107,3 +107,26 @@ test('new-object draft enumeration ignores existing records, invalid templates a
  const broken={length:1,key(){throw Error('denied')}};
  assert.deepEqual(listNewTextDrafts(broken,boardId,[],now),[]);
 });
+
+test('new-object recovery rejects malformed numeric styles and geometry',()=>{
+ const store=storage(),now=2000000000000;
+ store.key=i=>[...store.map.keys()][i]??null;
+ Object.defineProperty(store,'length',{get:()=>store.map.size});
+ const valid={id:'numeric-guard',type:'note',x:25,y:35,w:260,h:130,fontSize:24,
+  rotation:0,strokeOpacity:1,fillOpacity:0.8,opacity:0.9,lineWidth:2,text:''};
+ for(const patch of [
+  {rotation:NaN},{rotation:Infinity},{opacity:2},{opacity:-0.1},
+  {strokeOpacity:'opaque'},{fillOpacity:Infinity},{lineWidth:-1},
+  {lineWidth:1001}
+ ]){
+  assert.equal(storeTextDraft(store,boardId,{...valid,...patch},snapshot,null,now,
+   {newItem:true}),false,JSON.stringify(patch));
+ }
+ assert.equal(storeTextDraft(store,boardId,valid,snapshot,null,now,{newItem:true}),true);
+ const key=draftStorageKey(boardId,valid.id);
+ const original=JSON.parse(store.map.get(key));
+ store.map.set(key,JSON.stringify({...original,newItem:{...original.newItem,rotation:'bad'}}));
+ assert.deepEqual(listNewTextDrafts(store,boardId,[],now),[]);
+ store.map.set(key,JSON.stringify(original));
+ assert.equal(listNewTextDrafts(store,boardId,[],now).length,1);
+});
