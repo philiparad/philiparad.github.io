@@ -1644,6 +1644,182 @@ try{
   assert.equal(output.dropdownAfter.paragraphs[5].dir,'rtl');
  });
 
+
+ await check('TXT-061 keyboard paragraph joins, empty-list exits and atomic equation navigation',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {InlineText}=await import('./js/inline-text.js');
+   const {readRichDocument}=await import('./js/rich-text.js');
+   const {restoreLogicalSelection,captureLogicalSelection}=await import('./js/text-selection.js');
+   const host=document.createElement('div');
+   host.style.cssText='position:fixed;inset:90px 55px 40px;background:white;z-index:5100';
+   document.body.append(host);
+   const editor={area:host,board:{id:'kbd-boundary-'+crypto.randomUUID(),
+    viewport:{x:0,y:0,zoom:1}},disposed:true,paint(){},applyText(){}};
+   const canvas=document.createElement('canvas');canvas.width=40;canvas.height=25;
+   canvas.getContext('2d').fillRect(2,2,36,21);
+   const equation={source:'x^2+1',src:canvas.toDataURL('image/png'),w:40,h:25};
+   const fixture={
+    type:'text',x:0,y:0,w:460,h:80,fontSize:24,
+    text:'אבג\n\nEnglish\n\uFFFC tail\nסיום',
+    runs:[{text:'אבג\n\nEnglish\n'},
+      {text:'\uFFFC',equation},{text:' tail\nסיום'}],
+    paragraphs:[
+     {align:'right',dir:'rtl',list:'number',numberStart:7},
+     {align:'right',dir:'rtl',list:'number'},
+     {align:'left',dir:'ltr',list:'bullet'},
+     {align:'left',dir:'ltr',list:'none'},
+     {align:'right',dir:'rtl',list:'number',numberStart:12}
+    ]
+   };
+   const make=()=>{
+    const d=new InlineText(editor,{...structuredClone(fixture),
+     id:'kbd-'+crypto.randomUUID()},true);
+    return d;
+   };
+   const select=(d,p,o,fp=p,fo=o)=>{
+    d.input.focus();
+    const a={paragraph:p,offset:o},f={paragraph:fp,offset:fo};
+    if(!restoreLogicalSelection(d.input,window.getSelection(),
+      {anchor:a,focus:f}))throw Error('Unable to set logical test caret');
+   };
+   const press=(d,key,mods={})=>{
+    const e=new KeyboardEvent('keydown',{
+      bubbles:true,cancelable:true,key,...mods
+    });
+    const allowed=d.input.dispatchEvent(e);
+    return !allowed;
+   };
+   const state=d=>{
+    const doc=readRichDocument(d.input,d.item);
+    return {text:doc.runs.map(r=>r.text).join(''),paragraphs:doc.paragraphs,
+     selection:captureLogicalSelection(d.input,window.getSelection()),
+     math:doc.runs.filter(r=>r.equation).map(r=>r.equation.source),
+     accessibleMath:[...d.input.querySelectorAll('[role="math"]')]
+       .map(x=>x.getAttribute('aria-label')),
+     numbered:[...d.input.querySelectorAll('ol')].map(x=>x.start)};
+   };
+   let d=make();select(d,1,0);
+   const unlistPress=press(d,'Backspace'),afterUnlist=state(d);
+   d.stepTextHistory('undo');const afterUnlistUndo=state(d);
+   d.stepTextHistory('redo');const afterUnlistRedo=state(d);
+   d.finish(false);
+
+   d=make();select(d,2,0);
+   const joinedBack=press(d,'Backspace'),afterBack=state(d);
+   d.stepTextHistory('undo');const backUndo=state(d);
+   d.finish(false);
+
+   d=make();select(d,0,3);
+   const joinedDelete=press(d,'Delete'),afterDelete=state(d);
+   d.stepTextHistory('undo');const deleteUndo=state(d);
+   d.finish(false);
+
+   d=make();select(d,2,7);
+   const beforeEquationJoin=state(d);
+   const joinMath=press(d,'Delete'),afterMathJoin=state(d);
+   d.stepTextHistory('undo');const undoMathJoin=state(d);
+   d.finish(false);
+
+   d=make();select(d,3,0);
+   const rightEquation=press(d,'ArrowRight'),afterRight=state(d);
+   const leftEquation=press(d,'ArrowLeft'),afterLeft=state(d);
+   const eqBeforeInput=new InputEvent('beforeinput',{
+    inputType:'deleteContentForward',bubbles:true,cancelable:true
+   });
+   d.input.dispatchEvent(eqBeforeInput);
+   const deletedEquation=state(d);
+   d.stepTextHistory('undo');const eqUndo=state(d);
+   d.finish(false);
+
+   d=make();select(d,0,3);
+   const altDown=press(d,'ArrowDown',{altKey:true}),afterAltDown=state(d);
+   const emptyDown=press(d,'ArrowDown'),afterEmptyDown=state(d);
+   select(d,2,4);
+   const shiftUp=press(d,'ArrowUp',{altKey:true,shiftKey:true});
+   const afterShiftUp=state(d);
+   const shiftUpAgain=press(d,'ArrowUp',{altKey:true,shiftKey:true});
+   const afterShiftAgain=state(d);
+   const endKey=press(d,'End',{ctrlKey:true}),afterCtrlEnd=state(d);
+   const homeExtended=press(d,'Home',{ctrlKey:true,shiftKey:true});
+   const afterShiftHome=state(d);
+   const ordinary=press(d,'ArrowRight');
+   d.finish(false);
+
+   d=make();select(d,1,0);
+   const beforeInput=new InputEvent('beforeinput',{
+    inputType:'deleteContentBackward',bubbles:true,cancelable:true
+   });
+   d.input.dispatchEvent(beforeInput);
+   const beforeInputState=state(d);
+   d.finish(false);
+
+   host.remove();
+   return {unlistPress,afterUnlist,afterUnlistUndo,afterUnlistRedo,
+    joinedBack,afterBack,backUndo,joinedDelete,afterDelete,deleteUndo,
+    beforeEquationJoin,joinMath,afterMathJoin,undoMathJoin,
+    rightEquation,afterRight,leftEquation,afterLeft,
+    preventedEquationBeforeInput:eqBeforeInput.defaultPrevented,
+    deletedEquation,eqUndo,
+    altDown,afterAltDown,emptyDown,afterEmptyDown,shiftUp,afterShiftUp,
+    shiftUpAgain,afterShiftAgain,endKey,afterCtrlEnd,homeExtended,afterShiftHome,
+    ordinary,preventedBeforeInput:beforeInput.defaultPrevented,
+    beforeInputState};
+  });
+  assert(result.unlistPress);
+  assert.equal(result.afterUnlist.text,'אבג\n\nEnglish\n\uFFFC tail\nסיום');
+  assert.equal(result.afterUnlist.paragraphs[1].list,'none');
+  assert.equal(result.afterUnlist.paragraphs[0].numberStart,7);
+  assert.deepEqual(result.afterUnlist.selection,{
+    anchor:{paragraph:1,offset:0},focus:{paragraph:1,offset:0}
+  });
+  assert.equal(result.afterUnlistUndo.paragraphs[1].list,'number');
+  assert.equal(result.afterUnlistRedo.paragraphs[1].list,'none');
+  assert(result.joinedBack);
+  assert.equal(result.afterBack.text,'אבג\nEnglish\n\uFFFC tail\nסיום');
+  assert.equal(result.afterBack.paragraphs[1].list,'bullet');
+  assert.equal(result.afterBack.paragraphs[1].dir,'ltr');
+  assert.deepEqual(result.afterBack.selection.focus,{paragraph:1,offset:0});
+  assert.equal(result.backUndo.text,'אבג\n\nEnglish\n\uFFFC tail\nסיום');
+  assert(result.joinedDelete);
+  assert.equal(result.afterDelete.text,'אבג\nEnglish\n\uFFFC tail\nסיום');
+  assert.equal(result.afterDelete.paragraphs[0].numberStart,7);
+  assert.deepEqual(result.afterDelete.selection.focus,{paragraph:0,offset:3});
+  assert.equal(result.deleteUndo.paragraphs.length,5);
+  assert(result.joinMath);
+  assert.equal(result.afterMathJoin.text,'אבג\n\nEnglish\uFFFC tail\nסיום');
+  assert.deepEqual(result.afterMathJoin.math,['x^2+1']);
+  assert.deepEqual(result.afterMathJoin.accessibleMath,['Math equation: x^2+1']);
+  assert.deepEqual(result.afterMathJoin.selection.focus,{paragraph:2,offset:7});
+  assert.equal(result.undoMathJoin.text,result.beforeEquationJoin.text);
+  assert(result.rightEquation);
+  assert.deepEqual(result.afterRight.selection.focus,{paragraph:3,offset:1});
+  assert(result.leftEquation);
+  assert.deepEqual(result.afterLeft.selection.focus,{paragraph:3,offset:0});
+  assert.equal(result.preventedEquationBeforeInput,true);
+  assert.deepEqual(result.deletedEquation.math,[]);
+  assert.deepEqual(result.eqUndo.math,['x^2+1']);
+  assert(result.altDown);
+  assert.deepEqual(result.afterAltDown.selection.focus,{paragraph:1,offset:0});
+  assert(result.emptyDown);
+  assert.deepEqual(result.afterEmptyDown.selection.focus,{paragraph:2,offset:0});
+  assert(result.shiftUp&&result.shiftUpAgain);
+  assert.deepEqual(result.afterShiftUp.selection,{
+    anchor:{paragraph:2,offset:4},focus:{paragraph:1,offset:0}
+  });
+  assert.deepEqual(result.afterShiftAgain.selection,{
+    anchor:{paragraph:2,offset:4},focus:{paragraph:0,offset:0}
+  });
+  assert(result.endKey);
+  assert.deepEqual(result.afterCtrlEnd.selection.focus,{paragraph:4,offset:4});
+  assert(result.homeExtended);
+  assert.deepEqual(result.afterShiftHome.selection,{
+    anchor:{paragraph:4,offset:4},focus:{paragraph:0,offset:0}
+  });
+  assert.equal(result.ordinary,false,'Native character arrows should remain native');
+  assert(result.preventedBeforeInput);
+  assert.equal(result.beforeInputState.paragraphs[1].list,'none');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');
