@@ -2,6 +2,10 @@
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
+// URL switch: ?key=calculator shows only the interactive calculator face.
+// The regular URL retains the full educational interface.
+const compact=new URLSearchParams(window.location.search).get('key')==='calculator';
+if(compact)document.body.classList.add('calculator-only');
 const main=$('face'), actions=document.querySelector('.face-actions');
 if(!main||!actions)return;
 const btn=(id,label)=>{const b=document.createElement('button');b.type='button';b.id=id;b.className='tool-button';b.textContent=label;actions.appendChild(b);return b;};
