@@ -7,6 +7,7 @@ No hardware capture or firmware parity is claimed.
 """
 import asyncio
 import hashlib
+import math
 import json
 import os
 import threading
@@ -20,11 +21,11 @@ ROOT=Path(__file__).resolve().parents[2]
 FILES=("index.html","fx991_fresh_standalone.html")
 CASES=(
  {"id":"constant-speed-light","keys":("SHIFT","7","2","8","EQUAL"),
-  "mode":"COMP","screen":"result","number":299792458},
+  "mode":"COMP","screen":"result","number":299792458,"abs_tolerance":1e-9},
  {"id":"constant-gravity","keys":("SHIFT","7","3","5","EQUAL"),
-  "mode":"COMP","screen":"result","number":9.80665},
+  "mode":"COMP","screen":"result","number":9.80665,"abs_tolerance":1e-12},
  {"id":"convert-centimeters","keys":("5","SHIFT","8","0","2","EQUAL"),
-  "mode":"COMP","screen":"result","number":1.968503937,"tolerance":1e-9},
+  "mode":"COMP","screen":"result","number":1.968503937,"abs_tolerance":1e-9},
  {"id":"convert-celsius","keys":("NEG","3","1","SHIFT","8","3","8","EQUAL"),
   "mode":"COMP","screen":"result","number":-23.8},
  {"id":"stat-mean","keys":("MODE","3","1","1","EQUAL","2","EQUAL",
@@ -66,8 +67,11 @@ async def replay(browser,base,file,case,output):
         assert s["mode"]==case["mode"],(file,case["id"],"mode",s["mode"])
         assert s["screen"]==case["screen"],(file,case["id"],"screen",s["screen"])
         if "number" in case:
-            assert abs(s["raw"]-case["number"])<=case.get("tolerance",1e-10)*max(
-                1,abs(case["number"])),(file,case["id"],"number",s["raw"])
+            actual=s["raw"]
+            assert isinstance(actual,(int,float)) and math.isfinite(actual), (
+                file,case["id"],"non-finite result",actual)
+            assert abs(actual-case["number"])<=case.get("abs_tolerance",1e-10), (
+                file,case["id"],"number",actual,case["number"])
         if "rows" in case:
             rows=s["tableData"]["rows"]
             assert len(rows)==case["rows"],(file,case["id"],"rows",len(rows))
