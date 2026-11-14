@@ -98,3 +98,23 @@ that reload does not duplicate it. Chromium, Firefox and WebKit pass.
 **Limits:** Text recovery does not provide cross-device synchronization,
 server backups, or guaranteed persistence when local browser storage is
 disabled. Native operating-system IME behavior still requires manual QA.
+
+## TXT-051: HTML/SVG bidi and wrapping validation (November 14, 2026)
+
+Additional real-browser regressions now test that physical Hebrew RTL,
+English LTR and centered text anchors agree between a native HTML
+contenteditable editor and actual mounted SVG text glyph bounds. They
+also measure native line breaks with per-character Range rectangles and
+check that Hebrew, English and mixed-direction numbered sticky-note
+paragraphs remain inside both HTML and SVG text boxes, retaining the
+full source text.
+
+The new checks detected and corrected the RTL SVG token-anchor defect
+rather than merely accepting an increased clipping tolerance.
+Unit tests exercise direction-aware anchors for mixed-script tokens.
+[Reference-capture workflow 43572387008](https://github.com/philiparad/philiparad.github.io/actions/runs/43572387008)
+passed **280/280 Node tests** and the new geometry smoke tests
+across Chromium, Firefox and WebKit. Its visual jobs intentionally
+reported the old golden-hash mismatch; the images were inspected, and
+all nine versioned golden hashes updated. A subsequent enforcing run
+must pass before this release is considered fully verified.
