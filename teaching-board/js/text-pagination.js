@@ -44,6 +44,17 @@ function textSlice(item,start,end,continued=false){
 function pageOf(y,page){const step=page.h+page.gap;return Math.floor(y/step);}
 function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
 function flowError(reason){throw new Error(reason);}
+/** Check all proposed continuation boxes against the current board, never
+ * against the text source that will be replaced. Used both at preview and
+ * immediately before applying a user-confirmed flow plan. */
+function continuationCollision(items,source,sourceId,fragments){
+ const others=items.filter(item=>item.id!==sourceId);
+ return fragments.some(fragment=>{
+  if(fragment.id===sourceId&&fragment.y===source.y)return false;
+  const area=bounds(fragment);
+  return others.some(other=>overlap(bounds(other),area));
+ });
+}
 
 /**
  * Plan page-to-page text flow without mutating the board.
@@ -100,16 +111,11 @@ export function planTextFlow(board,id,page,{checkOverlaps=true}={}){
   // If the text fits, do not shrink intentionally tall boxes silently.
   return null;
  }
- if(checkOverlaps){
-  for(const fragment of items){
-   if(fragment.id===original.id&&fragment.y===original.y)continue;
-   const area=bounds(fragment);
-   if(board.items.some(other=>other.id!==original.id&&overlap(bounds(other),area)))
-    flowError('A continuation page contains another object in the required space. Move it first.');
-  }
- }
+ if(checkOverlaps&&continuationCollision(board.items,original,original.id,items))
+  flowError('A continuation page contains another object in the required space. Move it first.');
  if(board.items.length+items.length-1>20000)flowError('Too many board objects.');
- return {sourceId:id,sourceSignature:JSON.stringify(original),priorPageCount:count,items,pageCount:Math.max(count,pageIndex),firstPage:initialPage};
+ return {sourceId:id,sourceSignature:JSON.stringify(original),priorPageCount:count,
+  items,pageCount:Math.max(count,pageIndex),firstPage:initialPage,checkOverlaps};
 }
 
 /** Apply only a successfully calculated plan as a single undoable board change. */
@@ -119,6 +125,14 @@ export function applyTextFlow(board,plan){
  if(index<0)flowError('The original text box is no longer available.');
  if(JSON.stringify(board.items[index])!==plan.sourceSignature||(board.pageCount||1)!==plan.priorPageCount)
   flowError('The lesson changed while text flow was being prepared. Check the layout and try again.');
+ // The user may leave the confirmation dialog open while other objects are
+ // edited or inserted. Recheck collisions before touching the board; a
+ // preview-time check cannot guarantee that the destination stayed empty.
+ if(plan.checkOverlaps!==false&&
+    continuationCollision(board.items,board.items[index],plan.sourceId,plan.items))
+  flowError('The A4 continuation area now contains another object. Review the layout and try again.');
+ if(board.items.length+plan.items.length-1>20000)
+  flowError('Too many board objects.');
  board.items.splice(index,1,...plan.items);
  board.pageCount=plan.pageCount;
  return true;

@@ -583,3 +583,16 @@ Explicit RTL/LTR settings and genuinely new paragraphs keep their own
 metadata. This does not modify the original board during preview, does not
 repeat bullets or numbering, and preserves editable text, undo, and JSON
 backup compatibility without migration.
+
+## TXT-070 — Revalidate A4 text-flow collisions before confirmation applies
+
+The **Flow selected text** preview still checks destination pages before asking
+for confirmation. The action now checks them **again immediately before it
+changes the board**, because another object can move into a continuation page
+(or be inserted) while the confirmation dialog is open. If the destination
+became occupied, the action rejects the stale plan and leaves the original
+text, page count, and unrelated objects untouched. Changes elsewhere on the
+board are permitted. The existing optional `checkOverlaps: false` planning
+mode retains its previous behavior. Last-minute object-count limits are also
+rechecked. Successful flow remains one undoable action; no backup migration
+or new data fields are required.

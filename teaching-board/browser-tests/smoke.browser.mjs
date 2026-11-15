@@ -2649,6 +2649,52 @@ try{
   }
  });
 
+ await check('TXT-070 stale A4 dialog detects newly occupied continuation page',async()=>{
+  await page.evaluate(async()=>{
+   const {createBoard,validateBoard}=await import('./js/model.js');
+   const {Pages,A4}=await import('./js/pages.js');
+   const {planTextFlow}=await import('./js/text-pagination.js');
+   const {History}=await import('./js/history.js');
+   const source='שלום '+('English lesson explanations '.repeat(70));
+   const board={...createBoard('A4 collision confirmation'),layout:'a4',pageCount:1,
+    items:[{id:'txt070',type:'text',x:40,y:A4.h-140,w:260,h:30,fontSize:24,text:source,
+     paragraphs:[{align:'auto',list:'none',dir:'rtl'}]}]};
+   const history=new History({items:structuredClone(board.items),pageCount:board.pageCount});
+   const editor={board,selected:new Set(['txt070']),area:{clientHeight:720,clientWidth:1100},history,
+    commit(){validateBoard(this.board);this.history.commit({
+     items:structuredClone(this.board.items),pageCount:this.board.pageCount});},
+    paint(){},save(){}};
+   const plan=planTextFlow(board,'txt070',A4);
+   if(!plan||plan.items.length<2)throw Error('Fixture must flow beyond one page');
+   const controls=new Pages(editor).controls();
+   controls.id='browser-smoke-txt070';document.body.append(controls);
+   window.__txt070={editor,controls,destination:plan.items[1]};
+  });
+  await page.locator('#browser-smoke-txt070')
+   .getByRole('button',{name:'Flow selected text onto A4 pages'}).click();
+  await page.locator('dialog[open]').waitFor({timeout:15000});
+  await page.evaluate(()=>{
+   const {editor,destination}=window.__txt070;
+   editor.board.items.push({id:'late-obstacle',type:'rectangle',
+    x:destination.x+10,y:destination.y+10,w:40,h:35});
+  });
+  await page.locator('dialog[open] button[type=submit]').click();
+  await page.waitForFunction(()=>!document.querySelector('dialog[open]'),null,{timeout:15000});
+  const state=await page.evaluate(()=>{
+   const {editor,controls}=window.__txt070;
+   const snapshot={count:editor.board.items.length,pageCount:editor.board.pageCount,
+    text:editor.board.items[0].text,
+    hasObstacle:editor.board.items.some(item=>item.id==='late-obstacle'),
+    commits:editor.history.past.length};
+   controls.remove();delete window.__txt070;return snapshot;
+  });
+  assert.equal(state.count,2,'Stale flow must not generate a continuation');
+  assert.equal(state.pageCount,1,'Stale flow must not add pages');
+  assert(state.text.startsWith('שלום '));
+  assert.equal(state.hasObstacle,true);
+  assert.equal(state.commits,0,'Rejected confirmation must not create undo history');
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');

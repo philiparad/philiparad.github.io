@@ -121,3 +121,44 @@ test('stale flow plans cannot overwrite newer text edits or page changes',()=>{
  assert.throws(()=>applyTextFlow(other,next),/lesson changed/);
  assert.deepEqual(other,withExtraPage);
 });
+
+// TXT-070: A preview is not a reservation of the destination page.
+test('TXT-070 moving another object into A4 destination invalidates confirmed preview',()=>{
+ const source=textItem(),obstacle={id:'obstacle',type:'rectangle',x:620,y:20,w:75,h:50};
+ const b=board([source,obstacle]),plan=planTextFlow(b,source.id,A4);
+ assert(plan?.items.length>1,'Flow fixture must have a continuation page');
+ const continuation=plan.items[1];
+ obstacle.x=continuation.x+10;
+ obstacle.y=continuation.y+10;
+ obstacle.w=Math.min(40,continuation.w-10);
+ obstacle.h=40;
+ const before=structuredClone(b);
+ assert.throws(()=>applyTextFlow(b,plan),/A4 continuation area now contains another object/);
+ assert.deepEqual(b,before,'Failed confirmation may not mutate page count, text or obstacle');
+});
+test('TXT-070 newly inserted object blocks stale flow confirmation without data loss',()=>{
+ const source=textItem(),b=board([source]);
+ const plan=planTextFlow(b,source.id,A4);
+ const destination=plan.items[1];
+ b.items.push({id:'added',type:'rectangle',x:destination.x+12,y:destination.y+12,w:50,h:35});
+ const before=structuredClone(b);
+ assert.throws(()=>applyTextFlow(b,plan),/A4 continuation area now contains another object/);
+ assert.deepEqual(b,before);
+});
+test('TXT-070 unrelated object changes do not invalidate a collision-free flow',()=>{
+ const source=textItem(),outside={id:'outside',type:'rectangle',x:650,y:30,w:75,h:50};
+ const b=board([source,outside]),plan=planTextFlow(b,source.id,A4);
+ outside.x=700;outside.y=100;
+ assert.equal(applyTextFlow(b,plan),true);
+ assert.equal(b.items.find(item=>item.id==='outside')?.x,700);
+ assert.equal(b.items.filter(item=>item.type==='text').map(item=>item.text).join(''),source.text);
+});
+test('TXT-070 explicit overlap-check opt-out remains available on apply',()=>{
+ const source=textItem(),b=board([source]);
+ const plan=planTextFlow(b,source.id,A4,{checkOverlaps:false});
+ const destination=plan.items[1];
+ b.items.push({id:'intentional-overlap',type:'rectangle',x:destination.x+5,y:destination.y+5,w:30,h:30});
+ assert.equal(plan.checkOverlaps,false);
+ assert.equal(applyTextFlow(b,plan),true);
+ assert(b.items.some(item=>item.id==='intentional-overlap'));
+});
