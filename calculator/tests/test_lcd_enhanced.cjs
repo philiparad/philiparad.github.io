@@ -152,6 +152,36 @@ for(const extra of [
  assert.equal(lcd.draw(canvas,state([deep])),'enhanced');
  tested++;
 }
+// Fraction measurement must include the actual numerator and denominator
+// baseline offsets; otherwise nested fraction tops can be clipped.
+{
+ const fraction=node('fraction',true);
+ const m=lcd.measure(fraction);
+ const num=lcd.measureNodes(fraction.parts.numerator);
+ const den=lcd.measureNodes(fraction.parts.denominator);
+ assert.ok(m.ascent>=4+num.ascent+num.descent,
+   'fraction ascent covers numerator glyph bounds');
+ assert.ok(m.descent>=4+den.ascent+den.descent,
+   'fraction descent covers denominator glyph bounds');
+ tested+=2;
+}
+// Result numerator is higher than an ordinary answer. Assert the fraction
+// overlay clips high enough to preserve it, without lifting decimal results.
+for(const chosen of [
+ {kind:'fraction',text:'7/12',numerator:'7',denominator:'12',maxTop:15},
+ {kind:'mixed',text:'2 1/3',integer:'2',numerator:'1',denominator:'3',maxTop:15},
+ {kind:'decimal',text:'45',maxTop:18}
+]){
+ const canvas=makeCanvas(),ctx=canvas.getContext();
+ const regions=[];
+ ctx.rect=(x,y,w,h)=>regions.push({x,y,w,h});
+ const resultState=state([],{screen:'result',result:chosen.text,
+  resultPresentation:{chosen}});
+ assert.equal(lcd.draw(canvas,resultState),'enhanced');
+ assert.ok(regions.some(r=>r.y<=chosen.maxTop&&r.y>=14),
+  'result crop must accommodate '+chosen.kind);
+ tested++;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
