@@ -154,3 +154,16 @@ The controller sets `state.viewport.manualPan=true` for deliberate SHIFT-arrow v
 - The Chromium screenshot gallery now includes nested-caret, scrolled-fraction, and manual-pan cases in addition to the earlier seven scenarios: **10 scenarios × four device pixel ratios × two renderers = 80 configured PNGs**.
 
 The visual gallery was syntax checked but **not executed and visually accepted** in this session. Its 80 configured images are not evidence of a completed run. Windows WebView2 parity remains unverified.
+
+## Visual regression usability — 2026-11-15 continuation
+
+A GitHub Actions LCD artifact is now designed for **offline human review**, not just a folder of PNGs:
+
+- `calculator/tests/test_lcd_visual.cjs` writes `lcd-screenshots/index.html`, a self-contained side-by-side comparison page. It supports filtering by expression and device pixel ratio, and displays enhanced/authentic images plus changed-pixel statistics.
+- If Chromium fails partway through a run, the harness writes a **partial** manifest and review page in `finally`. Only completed enhanced/authentic pairs appear in the contact sheet, so failures do not leave a gallery with broken image references. The failed workflow still reports failure.
+- The gallery has expanded to **20 scenarios × four DPR values × two renderers = 160 configured PNGs**. Besides radicals, fractions and scrolling it now covers cube and indexed roots, exponents, scientific notation, logarithm bases, summation, integration, derivatives, mixed fractions and `π` results.
+- A direct JavaScript drawing-path verification confirmed all 20 configured cases select the enhanced renderer. The earlier legacy/enhanced suites still pass **322 + 92 = 414** cases.
+
+**Important:** The 160 PNGs are configured, not confirmed generated or visually accepted. The contact sheet and partial-report logic were syntax-checked and exercised with synthetic manifest data. Actual Chrome/Windows WebView2 screenshots, baseline approval, and physical-device parity remain pending a successful real workflow run and review.
+
+After a successful Windows workflow, open the `calculator-lcd-visual-regression` artifact and load `index.html` from its extracted directory to examine the paired captures locally.
