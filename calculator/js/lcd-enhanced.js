@@ -86,12 +86,23 @@ function text(ctx,value,x,baseline){
 function boxSlot(ctx,x,y,w=5.6,h=7.4){
  ctx.strokeRect(x+.5,y-5.7,w-1, h-1);
 }
-function drawSequence(ctx,nodes,x,y,state,depth=0){
+function drawSequence(ctx,nodes,x,y,state,depth=0,trail=[],carets=[]){
  if(depth>24)return x;
- if(!nodes||!nodes.length){boxSlot(ctx,x,y);return x+empty().width}
- for(const node of nodes){
+ const active=state.screen==='edit'&&state.editor&&
+  trail.length===state.editor.path.length&&
+  trail.every((step,i)=>step.index===state.editor.path[i].index&&
+   step.field===state.editor.path[i].field);
+ if(!nodes||!nodes.length){
+  if(active&&state.editor.offset===0)carets.push([x,y]);
+  boxSlot(ctx,x,y);return x+empty().width;
+ }
+ for(let i=0;i<=nodes.length;i++){
+  if(active&&state.editor.offset===i)carets.push([x,y]);
+  if(i===nodes.length)break;
+  const node=nodes[i];
   const b=measure(node,depth),p=b.fields||{};
-  function field(name,xx,yy){drawSequence(ctx,node.parts[name],xx,yy,state,depth+1)}
+  function field(name,xx,yy){drawSequence(ctx,node.parts[name],xx,yy,state,depth+1,
+   [...trail,{index:i,field:name}],carets)}
   switch(b.kind){
    case 'char':text(ctx,b.value,x,y);break;
    case 'fraction':{
@@ -259,7 +270,7 @@ function supported(state){
 function draw(canvas,state){
  const authentic=new URLSearchParams(global.location?.search||'').get('lcd')==='authentic';
  if(!canvas||authentic){legacy.draw(canvas,state);return 'authentic'}
- const structured=supported(state);
+ const structured=supported(state)&&Number(state.viewport?.inputX||0)===0;
  const resultEligible=!!resultModel(state);
  if(!structured&&!resultEligible){legacy.draw(canvas,state);return 'authentic'}
  // First retain the proven LCD raster (status/readouts, results, mode details).
@@ -285,14 +296,18 @@ function draw(canvas,state){
  ctx.font='5.8px Consolas, "DejaVu Sans Mono", monospace';
  ctx.textBaseline='alphabetic';
  const box=measureNodes(state.editor.root),x=-Number(state.viewport?.inputX||0);
- const baseline=state.screen==='result'?7.5:Math.max(box.ascent+1,11)-Number(state.viewport?.inputY||0);
- drawSequence(ctx,state.editor.root,x,baseline,state);
- // A separate caret, following the existing editor's current path where possible.
- // For complex/nested fields the slot itself is the insertion cue.
- if(!state.editor.path.length && state.screen==='edit'){
-  const upto=state.editor.root.slice(0,Math.max(0,state.editor.offset||0));
-  const cx=x+upto.reduce((sum,n)=>sum+measure(n).width,0);
-  path(ctx,[[cx,baseline-6],[cx,baseline+1.2]]);
+ const topGuard=2.2,bottomGuard=state.screen==='result'?15.3:state.info?22.2:29.2;
+ // Center the complete expression if possible; honor vertical panning only
+ // when the measured content genuinely exceeds the available display area.
+ const preferred=state.screen==='result'?7.5:Math.max(box.ascent+1,11);
+ const fits=box.ascent+box.descent<=bottomGuard-topGuard;
+ const baseline=fits?Math.min(bottomGuard-box.descent,
+  Math.max(topGuard+box.ascent,preferred)):
+  preferred-Number(state.viewport?.inputY||0);
+ const carets=[];
+ drawSequence(ctx,state.editor.root,x,baseline,state,0,[],carets);
+ if(state.screen==='edit')for(const [cx,cy] of carets){
+  path(ctx,[[cx,cy-5.5],[cx,cy+1.2]]);
  }
  ctx.restore();
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
