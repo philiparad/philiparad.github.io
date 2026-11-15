@@ -107,6 +107,8 @@ const cases=[
  ['result-mixed',[],'result','2 1/3',{kind:'mixed',text:'2 1/3',
   integer:'2',numerator:'1',denominator:'3'}],
  ['result-pi',[],'result','2π',{kind:'pi',text:'2π'}],
+ ['result-engineering',[],'result','1.23×10^4',{kind:'engineering',text:'1.23×10^4'}],
+ ['result-engineering-negative',[],'result','-2.5×10^-3',{kind:'engineering',text:'-2.5×10^-3'}],
  ['contrast-low',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],
   'edit','',null,{contrast:0}],
  ['contrast-high',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],
