@@ -3323,18 +3323,24 @@ try{
   },boardId);
   // A second answer can be sent from the same iframe without reopening it.
   await send.click();
-  // Read the final persisted state in the same poll that verifies it.
-  // Separate IndexedDB reads can race with consecutive undo/redo saves.
-  const verified=await page.waitForFunction(async boardId=>{
-   if(document.querySelector('.save-state')?.textContent!=='Saved on this device')return false;
+  // Capture the exact persisted two-result snapshot inside the browser.
+  // A separate IndexedDB read can race with consecutive undo/redo saves;
+  // waitForFunction returns a truthiness handle rather than the raw array.
+  const positions=await page.evaluate(async boardId=>{
    const {BoardRepository}=await import('./js/storage.js');
    const {bounds}=await import('./js/scene.js');
-   const repo=new BoardRepository(),board=await repo.get(boardId);repo.close();
-   if(board?.items.length!==2||!board.items.every(item=>item.text==='1/3'))return false;
-   return board.items.map(item=>({...bounds(item),text:item.text}));
-  },boardId,{timeout:20000});
+   for(let attempt=0;attempt<120;attempt++){
+    if(document.querySelector('.save-state')?.textContent==='Saved on this device'){
+     const repo=new BoardRepository(),board=await repo.get(boardId);
+     repo.close();
+     if(board?.items.length===2&&board.items.every(item=>item.text==='1/3'))
+      return board.items.map(item=>({...bounds(item),text:item.text}));
+    }
+    await new Promise(resolve=>setTimeout(resolve,100));
+   }
+   throw Error('Calculator second Ans was not persisted within 12 seconds.');
+  },boardId);
   assert.equal(await dialog.isVisible(),true);
-  const positions=await verified.jsonValue();
   assert.equal(positions.length,2);
   assert.equal(positions[0].text,'1/3');
   assert.equal(positions[1].text,'1/3');
