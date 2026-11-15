@@ -2611,6 +2611,44 @@ try{
   assert.equal(finished.unrelatedDialog,false);
  });
 
+ await check('TXT-069 A4 auto-direction stays stable through flow, DOM and backup',async()=>{
+  const results=await page.evaluate(async()=>{
+   const {planTextFlow,applyTextFlow}=await import('./js/text-pagination.js');
+   const {createBoard,serializeBackup,parseBackup}=await import('./js/model.js');
+   const {A4}=await import('./js/pages.js');
+   const {writeRuns}=await import('./js/rich-text.js');
+   return [
+    {prefix:'שלום',body:'English explanation ',expected:'rtl'},
+    {prefix:'English',body:'שלום הסברים ',expected:'ltr'}
+   ].map(({prefix,body,expected})=>{
+    const text=prefix+' '+body.repeat(95);
+    const item={id:'auto-flow',type:'text',x:40,y:A4.h-140,w:260,h:20,
+     fontSize:24,text,paragraphs:[{align:'auto',dir:'auto',list:'bullet'}]};
+    const b={...createBoard('A4 auto direction'),layout:'a4',pageCount:1,items:[item]};
+    const plan=planTextFlow(b,item.id,A4);
+    if(!plan||plan.items.length<2)throw Error('Expected a continued A4 paragraph');
+    const metadata=plan.items.map(part=>part.paragraphs[0].dir);
+    const second=plan.items[1];
+    const root=document.createElement('div');
+    writeRuns(root,second);document.body.append(root);
+    const nativeDirection=getComputedStyle(root.firstElementChild).direction;
+    root.remove();
+    applyTextFlow(b,plan);
+    const backup=parseBackup(serializeBackup(b));
+    return {expected,metadata,nativeDirection,text,restoredText:backup.items.map(part=>part.text).join(''),
+     restoredMetadata:backup.items.map(part=>part.paragraphs[0].dir)};
+   });
+  });
+  for(const result of results){
+   assert.equal(result.metadata[0],'auto');
+   assert(result.metadata.slice(1).every(dir=>dir===result.expected),
+    'Continuation direction changed: '+JSON.stringify(result));
+   assert.equal(result.nativeDirection,result.expected);
+   assert.deepEqual(result.restoredMetadata,result.metadata);
+   assert.equal(result.restoredText,result.text);
+  }
+ });
+
  await check('A4 user confirmation flows a numbered list without dropping text or ordinals',async()=>{
   await page.evaluate(async()=>{
    const {createBoard,validateBoard}=await import('./js/model.js');

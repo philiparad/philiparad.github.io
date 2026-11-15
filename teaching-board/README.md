@@ -571,3 +571,15 @@ RTL letters continue to establish RTL flow. Equation images, digits and
 punctuation are neutral. SVG token direction and text anchoring use the same
 logic as paragraph direction. Explicit RTL/LTR settings remain authoritative.
 No changes to saved board data or JSON backups are needed.
+
+## TXT-069 — Preserve text direction across A4 continuations
+
+Flowing a long text box across A4 pages can split one logical paragraph
+between pages. Previously, a continuation that started with English words
+could flip an originally Hebrew-first paragraph into LTR (and vice versa).
+The flow planner now resolves the **original paragraph's** automatic direction
+once for each continuation, so all fragments keep its logical layout.
+Explicit RTL/LTR settings and genuinely new paragraphs keep their own
+metadata. This does not modify the original board during preview, does not
+repeat bullets or numbering, and preserves editable text, undo, and JSON
+backup compatibility without migration.
