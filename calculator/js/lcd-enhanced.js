@@ -367,7 +367,7 @@ function draw(canvas,state){
   preferred-Number(state.viewport?.inputY||0);
  let carets=[];
  drawSequence(ctx,state.editor.root,x,baseline,state,0,[],carets);
- if(state.screen==='edit'&&carets.length){
+ if(state.screen==='edit'&&!state.viewport?.manualPan&&carets.length){
   // First pass supplies the *actual* nested caret coordinates using measured
   // glyph widths. A second pass is needed only if the caret lies outside
   // the safe LCD viewport and must follow it back into view.
