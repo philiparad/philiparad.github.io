@@ -139,3 +139,18 @@ The enhanced display no longer switches to legacy rendering solely because `stat
 The regression suite checks monotone mapping, unequal `W`/`i` character widths, nonzero scroll rendering, and actual glyph movement at successive scroll offsets. **322 legacy LCD cases and 84 enhanced LCD cases passed** through the available JavaScript runtime checks.
 
 Caveat: this is a compatible mapping layer, not yet a complete rewrite of the controller's fixed-width viewport; complex nested-field caret-follow behavior at the far edge should receive visual end-to-end testing. Browser screenshot generation and Windows WebView2 visual acceptance remain outstanding.
+
+## LCD edge-navigation continuation — 2026-11-15
+
+### Automatic nested cursor following
+The enhanced renderer now checks the measured insertion-caret coordinates after laying out an expression. When the caret lies beyond the visible left/right safe margins, it adjusts the enhanced scroll offset and redraws the input. This works for nested fraction/root fields, including long radicands, without changing the calculation engine or existing controller viewport representation.
+
+### Preserve SHIFT + arrows manual pan
+The controller sets `state.viewport.manualPan=true` for deliberate SHIFT-arrow viewport panning. The enhanced renderer skips automatic caret following while that flag is set. On the next editor synchronization (input editing), `manualPan` returns to false and normal cursor-follow resumes. This prevents the new cursor-follow feature from defeating deliberate panning away from the insertion cursor.
+
+### Regression and screenshot coverage
+- **322** legacy LCD cases passed.
+- **92** enhanced LCD cases passed, including cursor-follow constraints, long nested radicals, explicit manual panning, and variable-width scroll mapping.
+- The Chromium screenshot gallery now includes nested-caret, scrolled-fraction, and manual-pan cases in addition to the earlier seven scenarios: **10 scenarios × four device pixel ratios × two renderers = 80 configured PNGs**.
+
+The visual gallery was syntax checked but **not executed and visually accepted** in this session. Its 80 configured images are not evidence of a completed run. Windows WebView2 parity remains unverified.
