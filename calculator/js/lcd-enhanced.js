@@ -243,7 +243,7 @@ function resultModel(state){
  if(kind==='engineering'){
   // Draw the exponent above the baseline rather than printing a literal ^.
   // Accept only canonical formatter output; unusual forms keep raster parity.
-  const match=/^([+-]?(?:\\d+(?:[.,]\\d*)?|[.,]\\d+))×10\\^([+-]?\\d{1,3})$/.exec(source);
+  const match=/^([+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+))×10\^([+-]?\d{1,3})$/.exec(source);
   if(!match)return null;
   return {kind,text:source,mantissaText:match[1],exponentText:match[2]};
  }
