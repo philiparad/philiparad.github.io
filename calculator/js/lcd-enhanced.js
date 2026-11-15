@@ -232,7 +232,8 @@ function drawResult(ctx,state){
  ctx.fillRect(0,top,VIEW_W,VIEW_H-top);
  ctx.strokeStyle=ink(ctx,state);ctx.fillStyle=ctx.strokeStyle;
  ctx.lineWidth=.44;ctx.lineCap='square';ctx.lineJoin='miter';
- ctx.font='5.8px Consolas, "DejaVu Sans Mono", monospace';
+ // Consolas has ~0.60em advance width; 6.8px matches 4.1 layout units.
+ ctx.font='6.8px Consolas, "DejaVu Sans Mono", monospace';
  ctx.textBaseline='alphabetic';
  let x=VIEW_W-width-1.5;
  if(kind==='fraction'||kind==='mixed'){
@@ -293,7 +294,8 @@ function draw(canvas,state){
  ctx.lineWidth=.52;
  ctx.lineCap='square';ctx.lineJoin='miter';ctx.strokeStyle=ink(ctx,state);
  ctx.fillStyle=ctx.strokeStyle;
- ctx.font='5.8px Consolas, "DejaVu Sans Mono", monospace';
+ // Consolas has ~0.60em advance width; 6.8px matches 4.1 layout units.
+ ctx.font='6.8px Consolas, "DejaVu Sans Mono", monospace';
  ctx.textBaseline='alphabetic';
  const box=measureNodes(state.editor.root),x=-Number(state.viewport?.inputX||0);
  const topGuard=2.2,bottomGuard=state.screen==='result'?15.3:state.info?22.2:29.2;
