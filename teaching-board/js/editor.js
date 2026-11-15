@@ -38,7 +38,7 @@ import { validateBoard } from './model.js?v=20261024-image-actions';
 import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-history-budget';
 
 import { toolIcon } from './tool-icons.js?v=20261114-calculator-modal';
-import { CalculatorModal } from './calculator-modal.js?v=20261115-floating-calculator';
+import { CalculatorModal } from './calculator-modal.js?v=20261115-calculator-position';
 import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261115-a4-ans-placement';
 
 import { Geometry } from './geometry.js?v=20261024-image-actions';
