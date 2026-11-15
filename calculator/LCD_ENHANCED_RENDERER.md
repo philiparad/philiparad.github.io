@@ -123,3 +123,11 @@ The enhanced result renderer now uses `CanvasRenderingContext2D.measureText()` w
 - **PNG validation:** Each screenshot's PNG signature and image dimensions are checked against the requested DPR (1, 1.25, 1.5, 2) without adding a native image-processing dependency.
 
 The visual workflow is configured to produce 56 images across seven scenarios and four DPI scales. **Actual Chromium execution, manual screenshot inspection, approved golden images, and Windows WebView2 image parity remain unverified** until a successful workflow run has been reviewed.
+
+## Input font measurement continuation — 2026-11-15
+
+The enhanced **input expression layout** now accepts the active Canvas 2D context as an optional parameter to `measure()` and `measureNodes()`. The exact measured glyph advance is propagated recursively through nested fraction/root/exponent fields; subsequent text, vector geometry, and nested caret placement all consume the same measurements. Offline/headless calls without `measureText()` retain the existing deterministic 4.1-unit approximation. Result-line measurement was already implemented independently.
+
+The enhanced tests now include intentionally unequal `W` and `i` glyph widths to verify the next glyph and caret move by actual measured advances. **322 legacy + 78 enhanced automated cases passed.** Windows packaging also syntax-checks the enhanced renderer explicitly.
+
+The old controller still computes its viewport using the original fixed-width model. Thus nonzero horizontal scroll offsets still deliberately fall back to the authentic renderer, avoiding mismatched pan coordinates until that viewport is migrated. Chrome/WebView2 screenshots and font-availability comparisons remain required for visual acceptance.
