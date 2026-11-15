@@ -167,3 +167,14 @@ A GitHub Actions LCD artifact is now designed for **offline human review**, not 
 **Important:** The 160 PNGs are configured, not confirmed generated or visually accepted. The contact sheet and partial-report logic were syntax-checked and exercised with synthetic manifest data. Actual Chrome/Windows WebView2 screenshots, baseline approval, and physical-device parity remain pending a successful real workflow run and review.
 
 After a successful Windows workflow, open the `calculator-lcd-visual-regression` artifact and load `index.html` from its extracted directory to examine the paired captures locally.
+
+## Symbol boundaries and contrast consistency — November 15, 2026
+
+Two additional renderer defects were addressed:
+
+1. **Cube/indexed root clipping:** root indices previously used fixed baselines close to the radical roof, so part of the index could lie above the renderer's measured glyph box. Root indices now sit below the roof with the correct ascent accounted for. Summation and integral box measurements now cover their actual `y-12` upper and `y+12` lower limit baselines.
+2. **Contrast mismatch:** the enhanced renderer used an independent ink-color interpolation, causing vector mathematics to look lighter than legacy LCD text at the same contrast level. It now exactly matches the original renderer's ten contrast-level palette. At contrast 5, both use `rgb(29,40,34)`.
+
+The available regression checks pass **322 legacy cases + 107 enhanced cases = 429 cases**. New checks cover root index positions, calculus limit bounds, and all ten contrast levels. The visual-review harness has **22 scenarios × 4 DPR settings × 2 renderers = 176 configured screenshots**, including low/high contrast examples.
+
+As before, syntax and Canvas-operation verification do not establish real Chromium or Windows WebView2 screenshot parity; the screenshot workflow must run and its produced images be inspected before claiming that.
