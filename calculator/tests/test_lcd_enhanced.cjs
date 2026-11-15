@@ -339,6 +339,42 @@ for(let level=0;level<=9;level++){
 }
 assert.equal(lcd.ink(null,{}),'rgb(29,40,34)');
 tested++;
+// Engineering notation must use a raised, smaller Canvas exponent, not a
+// literal caret in the LCD answer line. Reject malformed variants safely.
+for(const notation of [
+ {text:'1.23×10^4',body:'1.23×10',exponent:'4'},
+ {text:'-2.5×10^-3',body:'-2.5×10',exponent:'-3'},
+ {text:'1,4×10^12',body:'1,4×10',exponent:'12'}
+]){
+ const chosen={kind:'engineering',text:notation.text};
+ const resultState=state([],{screen:'result',result:notation.text,
+  resultPresentation:{chosen}});
+ const model=lcd.resultModel(resultState);
+ assert.ok(model&&model.exponentText===notation.exponent,
+  'engineering exponent parsed');
+ const surface=makeCanvas(),ctx=surface.getContext();
+ const glyphs=[];
+ ctx.measureText=value=>({width:String(value).length*4.1});
+ ctx.fillText=(value,x,y)=>glyphs.push({value:String(value),x,y,font:ctx.font});
+ assert.equal(lcd.draw(surface,resultState),'enhanced');
+ const base=glyphs.find(g=>g.value===notation.body);
+ const exponent=glyphs.find(g=>g.value===notation.exponent);
+ assert.ok(base&&exponent,'mantissa and exponent are drawn separately');
+ assert.ok(exponent.y<base.y-3,'scientific exponent is raised');
+ assert.ok(exponent.font.includes('5.1px')&&base.font.includes('6.8px'),
+  'exponent typography uses smaller font');
+ assert.ok(!glyphs.some(g=>g.value.includes('^')),
+  'literal caret is not used in rendered engineering result');
+ tested+=4;
+}
+{
+ const text='3×10^wrong';
+ const resultState=state([],{screen:'result',result:text,
+  resultPresentation:{chosen:{kind:'engineering',text}}});
+ assert.equal(lcd.resultModel(resultState),null);
+ assert.equal(lcd.draw(makeCanvas(),resultState),'authentic');
+ tested++;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
