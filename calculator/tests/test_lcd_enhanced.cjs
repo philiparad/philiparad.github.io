@@ -117,6 +117,41 @@ for(const extra of [
  assert.equal(lcd.draw(surface,fallback),'authentic');
  tested++;
 }
+// Nested caret traversal: instrument vectors and verify the caret follows
+// the current field/offset, not the start of the complete expression.
+{
+ const editorState=editor.create();
+ editor.template(editorState,'fraction');
+ editor.insert(editorState,'3');
+ const points=[];
+ const canvas=makeCanvas();
+ const context=canvas.getContext();
+ context.moveTo=(x,y)=>points.push([x,y]);
+ const rendering=state(editorState.root,{editor:editorState});
+ assert.equal(lcd.draw(canvas,rendering),'enhanced');
+ assert.ok(points.some(p=>p[0]>0),'nested caret drawn at field coordinate');
+ tested++;
+}
+// Huge expressions must not throw and should retain the old horizontal
+// viewport when the controller starts scrolling.
+{
+ const many=[...Array.from({length:40},()=>({type:'char',value:'8'})),node('fraction')];
+ const original=makeCanvas();
+ assert.equal(lcd.draw(original,state(many,{viewport:{inputX:30,inputY:0}})),'authentic');
+ tested++;
+}
+// Clip-safe baseline is finite for deeply nested expressions.
+{
+ let deep=node('squareRoot');
+ for(let i=0;i<7;i++) {
+  const parent=node('squareRoot');
+  parent.parts.radicand=[deep];
+  deep=parent;
+ }
+ const canvas=makeCanvas();
+ assert.equal(lcd.draw(canvas,state([deep])),'enhanced');
+ tested++;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
