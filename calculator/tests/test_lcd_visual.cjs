@@ -29,7 +29,13 @@ const cases=[
  ['nested',[{type:'squareRoot',parts:{radicand:[{type:'fraction',parts:{numerator:[{type:'char',value:'2'}],denominator:[{type:'char',value:'5'}]}}]}}],'edit'],
  ['result-radical',[], 'result','4√6',{kind:'surd',text:'4√6'}],
  ['result-fraction',[], 'result','7/12',{kind:'fraction',text:'7/12',numerator:'7',denominator:'12'}],
- ['result-decimal',[], 'result','123.45',{kind:'decimal',text:'123.45'}]
+ ['result-decimal',[], 'result','123.45',{kind:'decimal',text:'123.45'}],
+ ['nested-caret',[{type:'squareRoot',parts:{radicand:Array.from({length:30},()=>({type:'char',value:'8'}))}}], 'edit','',null,
+  {path:[{index:0,field:'radicand'}],offset:30}],
+ ['scrolled-fraction',[
+  ...Array.from({length:32},()=>({type:'char',value:'8'})),
+  {type:'fraction',parts:{numerator:[{type:'char',value:'2'}],denominator:[{type:'char',value:'7'}]}}
+ ],'edit','',null,{inputX:40,offset:33}]
 ];
 (async()=>{
  await mkdir(output,{recursive:true});
@@ -42,18 +48,18 @@ const cases=[
    await page.setContent('<!doctype html><meta charset="utf-8"><style>body{margin:20px;background:#e9eeea}canvas{display:block;width:480px;height:155px;image-rendering:auto;border:8px solid #111;border-radius:4px}</style><canvas id="lcd" width="960" height="310"></canvas>');
    for(const file of ['js/lcd-viewport.js','js/display.js','js/lcd-enhanced.js'])
     await page.addScriptTag({path:path.join(root,file)});
-   for(const [label,nodes,screen,result='',chosen=null] of cases){
-    const info=await page.evaluate(({nodes,screen,result,chosen})=>{
+   for(const [label,nodes,screen,result='',chosen=null,options={}] of cases){
+    const info=await page.evaluate(({nodes,screen,result,chosen,options})=>{
      const canvas=document.getElementById('lcd');
      const state={power:true,screen,mode:'COMP',math:true,contrast:5,
-      input:'',result,viewport:{inputX:0,inputY:0,resultX:0},
-      editor:{root:nodes,path:[],offset:0},
+      input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0},
+      editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null};
      const mode=window.FreshEnhancedLCD.draw(canvas,state);
      const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
      let ink=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]<160)ink++;
      return {mode,ink};
-    },{nodes,screen,result,chosen});
+    },{nodes,screen,result,chosen,options});
     if(info.mode!=='enhanced'||info.ink<20)throw Error('Missing enhanced drawing for '+label+' DPR '+dpr);
     const filename=label+'-enhanced-dpr-'+String(dpr).replace('.','_')+'.png';
     await page.locator('#lcd').screenshot({path:path.join(output,filename)});
@@ -61,12 +67,12 @@ const cases=[
     manifest.push({name:label,dpr,renderer:'enhanced',filename,...info,...enhancedPng});
     // Keep a same-size baseline from the old renderer for direct A/B review.
     // This is a comparison screenshot, not an approved visual golden master.
-    const comparison=await page.evaluate(({nodes,screen,result,chosen})=>{
+    const comparison=await page.evaluate(({nodes,screen,result,chosen,options})=>{
      const canvas=document.getElementById('lcd'),ctx=canvas.getContext('2d');
      const enhanced=ctx.getImageData(0,0,canvas.width,canvas.height).data;
      window.FreshLCD.draw(canvas,{power:true,screen,mode:'COMP',math:true,
-      contrast:5,input:'',result,viewport:{inputX:0,inputY:0,resultX:0},
-      editor:{root:nodes,path:[],offset:0},
+      contrast:5,input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0},
+      editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null});
      const authentic=ctx.getImageData(0,0,canvas.width,canvas.height).data;
      let changedPixels=0;
@@ -75,7 +81,7 @@ const cases=[
          enhanced[i+2]!==authentic[i+2])changedPixels++;
      }
      return {changedPixels,totalPixels:canvas.width*canvas.height};
-    },{nodes,screen,result,chosen});
+    },{nodes,screen,result,chosen,options});
     if(comparison.changedPixels===0)
      throw Error('Enhanced image is pixel-identical to authentic: '+label+' DPR '+dpr);
     manifest[manifest.length-1].changedPixels=comparison.changedPixels;
