@@ -107,6 +107,10 @@ const cases=[
  ['result-mixed',[],'result','2 1/3',{kind:'mixed',text:'2 1/3',
   integer:'2',numerator:'1',denominator:'3'}],
  ['result-pi',[],'result','2π',{kind:'pi',text:'2π'}],
+ ['contrast-low',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],
+  'edit','',null,{contrast:0}],
+ ['contrast-high',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],
+  'edit','',null,{contrast:9}],
  ['nested-caret',[{type:'squareRoot',parts:{radicand:Array.from({length:30},()=>({type:'char',value:'8'}))}}], 'edit','',null,
   {path:[{index:0,field:'radicand'}],offset:30}],
  ['scrolled-fraction',[
@@ -132,7 +136,7 @@ const cases=[
    for(const [label,nodes,screen,result='',chosen=null,options={}] of cases){
     const info=await page.evaluate(({nodes,screen,result,chosen,options})=>{
      const canvas=document.getElementById('lcd');
-     const state={power:true,screen,mode:'COMP',math:true,contrast:5,
+     const state={power:true,screen,mode:'COMP',math:true,contrast:options.contrast??5,
       input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
       editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null};
@@ -152,7 +156,7 @@ const cases=[
      const canvas=document.getElementById('lcd'),ctx=canvas.getContext('2d');
      const enhanced=ctx.getImageData(0,0,canvas.width,canvas.height).data;
      window.FreshLCD.draw(canvas,{power:true,screen,mode:'COMP',math:true,
-      contrast:5,input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
+      contrast:options.contrast??5,input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
       editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null});
      const authentic=ctx.getImageData(0,0,canvas.width,canvas.height).data;
