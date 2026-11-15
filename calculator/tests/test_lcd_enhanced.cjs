@@ -198,6 +198,27 @@ for(const chosen of [
   'result aligns to the actual measured text width');
  tested++;
 }
+// Input text must use active Canvas metrics, including the root-level caret
+// and neighboring structured nodes; static fallback metrics remain available.
+{
+ const glyphs=[{type:'char',value:'W'},{type:'char',value:'i'},node('squareRoot',true)];
+ const surface=makeCanvas(),ctx=surface.getContext();
+ const seen=[],strokes=[];
+ ctx.measureText=value=>({width:value==='W'?7:value==='i'?2:String(value).length*5});
+ ctx.fillText=(value,x,y)=>seen.push({value:String(value),x,y});
+ ctx.moveTo=(x,y)=>strokes.push({x,y});
+ const ed={root:glyphs,path:[],offset:2};
+ assert.equal(lcd.draw(surface,state(glyphs,{editor:ed})),'enhanced');
+ const w=seen.find(v=>v.value==='W'),i=seen.find(v=>v.value==='i');
+ assert.ok(w&&i&&Math.abs(i.x-(w.x+7))<0.0001,
+  'second glyph follows measured seven-unit first glyph');
+ assert.ok(strokes.some(p=>Math.abs(p.x-9)<0.0001),
+  'root caret follows measured glyph widths');
+ assert.ok(Math.abs(lcd.measureNodes(glyphs,0,ctx).width-
+   (7+2+lcd.measure(glyphs[2],0,ctx).width))<0.0001,
+  'structured expression measurement uses the same live font metrics');
+ tested+=3;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
