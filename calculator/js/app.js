@@ -275,6 +275,8 @@ function advanceStatements(){
  return true;
 }
 function syncEditor(){
+ // Editing resumes cursor-follow after a SHIFT-arrow manual pan.
+ state.viewport.manualPan=false;
  state.input=STRUCT.serialize(state.editor);
  state.cursor=state.editor.path.length?state.input.length:state.editor.offset;
  const hasInlineCalculus=state.editor.root.some(n=>['derivative','integral','summation'].includes(n.type));
@@ -2281,6 +2283,9 @@ function handle(key){
   if(state.screen==='result'&&dx){
    v.resultX=Math.max(0,Math.min(Math.max(0,state.result.length-23),v.resultX+dx/4));
   }else{
+   // SHIFT + arrows are deliberate independent panning. Do not make the
+   // enhanced renderer snap back to the insertion cursor on this repaint.
+   v.manualPan=true;
    const frame=VIEW.layout(state.editor,state.screen==='result'?8:12);
    v.inputX=Math.max(0,Math.min(Math.max(0,frame.width-88),v.inputX+dx));
    const minY=Math.min(0,frame.minY-3),maxY=Math.max(0,frame.maxY-24);
