@@ -132,13 +132,28 @@ for(const extra of [
  assert.ok(points.some(p=>p[0]>0),'nested caret drawn at field coordinate');
  tested++;
 }
-// Huge expressions must not throw and should retain the old horizontal
-// viewport when the controller starts scrolling.
+// Legacy viewport offsets must map into measured glyph coordinates without
+// switching away from the enhanced renderer during horizontal scrolling.
 {
  const many=[...Array.from({length:40},()=>({type:'char',value:'8'})),node('fraction')];
  const original=makeCanvas();
- assert.equal(lcd.draw(original,state(many,{viewport:{inputX:30,inputY:0}})),'authentic');
+ assert.equal(lcd.draw(original,state(many,{viewport:{inputX:30,inputY:0}})),'enhanced');
  tested++;
+}
+// For unequal browser glyph widths, ensure monotonic piecewise mapping at
+// every character boundary, including a multi-field fraction after text.
+{
+ const root=[{type:'char',value:'W'},{type:'char',value:'i'},node('fraction',true)];
+ const canvas=makeCanvas(),ctx=canvas.getContext();
+ ctx.measureText=c=>({width:c==='W'?7:c==='i'?2:5});
+ assert.equal(lcd.scrollOffset(root,0,ctx),0);
+ assert.ok(Math.abs(lcd.scrollOffset(root,4,ctx)-7)<1e-6);
+ assert.ok(Math.abs(lcd.scrollOffset(root,8,ctx)-9)<1e-6);
+ const offsets=[0,2,4,6,8,10,12,16].map(x=>lcd.scrollOffset(root,x,ctx));
+ assert.ok(offsets.every(Number.isFinite),'finite scroll mapping');
+ assert.ok(offsets.every((v,i)=>i===0||v>=offsets[i-1]),
+  'scroll offsets remain monotone across node boundaries');
+ tested+=4;
 }
 // Clip-safe baseline is finite for deeply nested expressions.
 {
