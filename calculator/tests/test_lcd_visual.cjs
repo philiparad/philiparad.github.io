@@ -29,7 +29,11 @@ function escapeHTML(value){
   .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function reviewHTML(manifest){
- const enhanced=manifest.filter(row=>row.renderer==='enhanced');
+ // Include only fully captured A/B pairs. On a browser failure the
+ // artifact can contain an unfinished pair, which must not block review.
+ const enhanced=manifest.filter(row=>row.renderer==='enhanced'&&
+  manifest.some(item=>item.renderer==='authentic'&&
+   item.name===row.name&&item.dpr===row.dpr));
  const groups=[...new Set(enhanced.map(row=>row.name))];
  const scales=[...new Set(enhanced.map(row=>row.dpr))];
  const items=enhanced.map(row=>{
@@ -153,8 +157,13 @@ const cases=[
    }
    await context.close();
   }
-  await writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-  await writeFile(path.join(output,'index.html'),reviewHTML(manifest));
   console.log('PASS: '+manifest.length+' browser LCD A/B screenshots across four DPR values.');
- }finally{await browser.close()}
+ }finally{
+  // Preserve a browsable partial gallery on any Playwright/render error.
+  // GitHub Actions uploads this directory with if: always().
+  try{
+   await writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
+   await writeFile(path.join(output,'index.html'),reviewHTML(manifest));
+  }finally{await browser.close()}
+ }
 })().catch(e=>{console.error(e);process.exitCode=1});
