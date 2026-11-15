@@ -88,6 +88,25 @@ const cases=[
  ['result-radical',[], 'result','4√6',{kind:'surd',text:'4√6'}],
  ['result-fraction',[], 'result','7/12',{kind:'fraction',text:'7/12',numerator:'7',denominator:'12'}],
  ['result-decimal',[], 'result','123.45',{kind:'decimal',text:'123.45'}],
+ ['cube-root',[{type:'cubeRoot',parts:{radicand:[{type:'char',value:'8'}]}}],'edit'],
+ ['nth-root',[{type:'nthRoot',parts:{index:[{type:'char',value:'3'}],
+  radicand:[{type:'char',value:'2'}]}}],'edit'],
+ ['exponent',[{type:'char',value:'2'},{type:'power',parts:{
+  exponent:[{type:'char',value:'5'}]}}],'edit'],
+ ['scientific-power',[{type:'exp10',parts:{exponent:[{type:'char',value:'4'}]}}],'edit'],
+ ['logarithm-base',[{type:'logBase',parts:{
+  base:[{type:'char',value:'2'}],argument:[{type:'char',value:'8'}]}}],'edit'],
+ ['summation',[{type:'summation',parts:{
+  lower:[{type:'char',value:'1'}],upper:[{type:'char',value:'5'}],
+  expression:[{type:'char',value:'n'}]}}],'edit'],
+ ['integral',[{type:'integral',parts:{
+  lower:[{type:'char',value:'0'}],upper:[{type:'char',value:'2'}],
+  expression:[{type:'char',value:'x'}]}}],'edit'],
+ ['derivative',[{type:'derivative',parts:{
+  expression:[{type:'char',value:'x'}],at:[{type:'char',value:'2'}]}}],'edit'],
+ ['result-mixed',[],'result','2 1/3',{kind:'mixed',text:'2 1/3',
+  integer:'2',numerator:'1',denominator:'3'}],
+ ['result-pi',[],'result','2π',{kind:'pi',text:'2π'}],
  ['nested-caret',[{type:'squareRoot',parts:{radicand:Array.from({length:30},()=>({type:'char',value:'8'}))}}], 'edit','',null,
   {path:[{index:0,field:'radicand'}],offset:30}],
  ['scrolled-fraction',[
