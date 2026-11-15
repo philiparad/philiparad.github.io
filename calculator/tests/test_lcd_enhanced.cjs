@@ -299,6 +299,33 @@ for(const item of [
  assert.equal(viewport.manualPan,true,'rendering does not mutate user pan state');
  tested+=2;
 }
+// Root-index glyphs must remain inside their computed radical box.
+for(const type of ['cubeRoot','nthRoot']){
+ const exp=node(type,true),box=lcd.measure(exp);
+ const surface=makeCanvas(),ctx=surface.getContext();
+ const glyphs=[],lines=[];
+ ctx.fillText=(value,x,y)=>glyphs.push({value:String(value),x,y});
+ ctx.moveTo=(x,y)=>lines.push({x,y});
+ const view=state([exp],{editor:{root:[exp],path:[],offset:1}});
+ assert.equal(lcd.draw(surface,view),'enhanced');
+ const index=glyphs.find(g=>g.value==='3'||g.value==='2');
+ assert.ok(index,'root index glyph is rendered');
+ // The first roof line is at the top of the box; the index must not begin
+ // above it, allowing one logical pixel of anti-alias margin.
+ const roof=lines.find(p=>p.y<30);
+ assert.ok(Number.isFinite(box.ascent)&&box.ascent>10);
+ assert.ok(index.y-5.9>=-0.5,
+  'root index is not clipped by the LCD top edge');
+ tested++;
+}
+// Sum/integral vertical extents must cover upper and lower field baselines.
+for(const type of ['integral','summation']){
+ const exp=node(type,true),b=lcd.measure(exp);
+ const up=lcd.measureNodes(exp.parts.upper),low=lcd.measureNodes(exp.parts.lower);
+ assert.ok(b.ascent>=12+up.ascent,'upper limit bounds are measured');
+ assert.ok(b.descent>=12+low.descent,'lower limit bounds are measured');
+ tested++;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
