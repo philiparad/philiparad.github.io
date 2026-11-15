@@ -3155,6 +3155,10 @@ try{
     viewportWidth:innerWidth,viewportHeight:innerHeight};
   });
   const desktopSize=await dimensions();
+  const headerHeight=await page.locator('.board-calculator-heading')
+   .evaluate(node=>node.getBoundingClientRect().height);
+  assert(Math.abs(headerHeight-50)<1,
+   'Calculator header must remain 50px tall with the reset control');
   // The underlying lesson toolbar remains fully interactive.
   const pen=page.getByRole('button',{name:'Pen (P)'});
   await pen.click();
