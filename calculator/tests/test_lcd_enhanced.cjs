@@ -155,6 +155,27 @@ for(const extra of [
   'scroll offsets remain monotone across node boundaries');
  tested+=4;
 }
+// The actual first vector glyph must move by the mapped scroll distance.
+// Measuring only the helper would miss draw() accidentally ignoring it.
+{
+ const root=[{type:'char',value:'W'},{type:'char',value:'i'},node('fraction',true)];
+ const positions=[];
+ for(const oldOffset of [0,4,8]){
+  const canvas=makeCanvas(),ctx=canvas.getContext(),glyphs=[];
+  ctx.measureText=value=>({width:value==='W'?7:value==='i'?2:5});
+  ctx.fillText=(value,x)=>glyphs.push({value,x});
+  const view=state(root,{viewport:{inputX:oldOffset,inputY:0}});
+  assert.equal(lcd.draw(canvas,view),'enhanced');
+  const first=glyphs.find(v=>v.value==='W');
+  assert.ok(first,'first glyph is present in measured layout');
+  positions.push(first.x);
+ }
+ assert.ok(Math.abs(positions[0]-positions[1]-7)<1e-6,
+  'first scroll moves text by measured first glyph width');
+ assert.ok(Math.abs(positions[1]-positions[2]-2)<1e-6,
+  'second scroll moves text by measured second glyph width');
+ tested+=2;
+}
 // Clip-safe baseline is finite for deeply nested expressions.
 {
  let deep=node('squareRoot');
