@@ -119,3 +119,56 @@ test('TXT-071 fully occupied or tiny boards retain centered fallback',async()=>{
  assert.deepEqual(calculatorAnswerPlacement(item,center,{x:0,y:0,w:1000,h:1000},
   [{x:0,y:0,w:1000,h:1000}]),expected);
 });
+
+test('TXT-072 A4 answers never cross paper edges or page gaps',async()=>{
+ const {calculatorAnswerPlacementOnPages}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'42',26);
+ const A4={w:794,h:1123,gap:32},step=A4.h+A4.gap;
+ const pages=[{x:0,y:0,w:A4.w,h:A4.h},{x:0,y:step,w:A4.w,h:A4.h}];
+ const viewport={x:-200,y:750,w:1400,h:850};
+ for(const center of [
+  {x:790,y:1000}, // Right margin would clip the original TXT-071 placement
+  {x:390,y:1140}, // Between the A4 sheets
+  {x:-200,y:1800}, // Off left edge
+  {x:500,y:2000}
+ ]){
+  const placed=calculatorAnswerPlacementOnPages(item,center,viewport,[],pages);
+  assert(placed,'Expected a valid printable position');
+  assert(pages.some(p=>placed.x>=p.x+8&&placed.y>=p.y+8&&
+   placed.x+item.w<=p.x+p.w-8&&placed.y+item.h<=p.y+p.h-8),
+   'Answer crosses an A4 boundary: '+JSON.stringify({center,placed}));
+ }
+});
+test('TXT-072 prefers the visible A4 page and keeps successive results separated',async()=>{
+ const {calculatorAnswerPlacementOnPages}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'13/7',26),step=1155;
+ const pages=[{x:0,y:0,w:794,h:1123},{x:0,y:step,w:794,h:1123}];
+ const visible={x:0,y:1000,w:850,h:800},center={x:390,y:1190};
+ const first=calculatorAnswerPlacementOnPages(item,center,visible,[],pages);
+ assert(first.y>=step,'The closest page after the page gap should be chosen');
+ const second=calculatorAnswerPlacementOnPages(item,center,visible,
+  [{...first,w:item.w,h:item.h}],pages);
+ assert(second);
+ assert(!(first.x<second.x+item.w+16&&first.x+item.w+16>second.x&&
+  first.y<second.y+item.h+16&&first.y+item.h+16>second.y));
+ assert(second.y>=step);
+});
+test('TXT-072 respects occupied pages and cleanly rejects impossible placement',async()=>{
+ const {calculatorAnswerPlacementOnPages}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'999',26),page={x:0,y:0,w:794,h:1123};
+ const view={x:0,y:0,w:1100,h:800},center={x:450,y:350};
+ assert.equal(calculatorAnswerPlacementOnPages(item,center,view,
+  [{...page}], [page]),null,'Do not overlap content filling the paper');
+ assert.equal(calculatorAnswerPlacementOnPages(item,center,view,[],
+  [{x:0,y:0,w:180,h:60}]),null,'Too-small pages must fail without insertion');
+ assert.equal(calculatorAnswerPlacementOnPages(item,center,view,[],[]),null);
+});
+test('TXT-072 zoomed-in A4 placement remains printable outside the visible subregion',async()=>{
+ const {calculatorAnswerPlacementOnPages}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'12345',40);
+ const page={x:0,y:0,w:794,h:1123};
+ const visible={x:700,y:10,w:80,h:130};
+ const placed=calculatorAnswerPlacementOnPages(item,{x:740,y:75},visible,[],[page]);
+ assert(placed&&placed.x>=8&&placed.x+item.w<=page.w-8);
+ assert(placed.y>=8&&placed.y+item.h<=page.h-8);
+});

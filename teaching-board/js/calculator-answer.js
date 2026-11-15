@@ -72,6 +72,60 @@ export function calculatorAnswerPlacement(item,center,visible,occupied=[],gap=16
  return origin;
 }
 
+/**
+ * TXT-072 — Printable A4 placement. The infinite canvas may accept answers
+ * anywhere, but A4 text must fit entirely inside a real page (never the
+ * inter-page gap or margins). Prefer the page and portion currently visible.
+ *
+ * Return null if every printable page is occupied or too small; callers must
+ * reject the insertion rather than save clipped or overlapping work.
+ */
+export function calculatorAnswerPlacementOnPages(item,center,visible,occupied=[],pages=[],gap=16){
+ if(!pages.length||!visible)return null;
+ const pad=8;
+ const hits=p=>occupied.some(b=>b&&[b.x,b.y,b.w,b.h].every(Number.isFinite)&&
+  b.w>0&&b.h>0&&p.x<b.x+b.w+gap&&p.x+item.w+gap>b.x&&
+  p.y<b.y+b.h+gap&&p.y+item.h+gap>b.y);
+ const contains=(area,p)=>p.x>=area.x+pad-1e-8&&
+  p.y>=area.y+pad-1e-8&&p.x+item.w<=area.x+area.w-pad+1e-8&&
+  p.y+item.h<=area.y+area.h-pad+1e-8;
+ const intersect=(a,b)=>{
+  const x=Math.max(a.x,b.x),y=Math.max(a.y,b.y);
+  return {x,y,w:Math.min(a.x+a.w,b.x+b.w)-x,
+   h:Math.min(a.y+a.h,b.y+b.h)-y};
+ };
+ const validArea=a=>a&&[a.x,a.y,a.w,a.h].every(Number.isFinite)&&
+  a.w>=item.w+2*pad&&a.h>=item.h+2*pad;
+ const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+ const distance=area=>{
+  const nearestX=clamp(center.x,area.x,area.x+area.w);
+  const nearestY=clamp(center.y,area.y,area.y+area.h);
+  return (center.x-nearestX)**2+(center.y-nearestY)**2;
+ };
+ // Prefer a visible page before trying the whole sheet when zoomed in.
+ const ordered=pages.map((page,index)=>({page,index,visiblePart:intersect(page,visible)}))
+  .filter(({page})=>validArea(page))
+  .sort((a,b)=>{
+   const aVisible=validArea(a.visiblePart)?0:1;
+   const bVisible=validArea(b.visiblePart)?0:1;
+   return aVisible-bVisible||distance(a.page)-distance(b.page)||a.index-b.index;
+  });
+ for(const onlyVisible of [true,false]){
+  for(const {page,visiblePart} of ordered){
+   const region=onlyVisible?visiblePart:page;
+   if(!validArea(region))continue;
+   const localCenter={
+    x:clamp(center.x,region.x+pad+item.w/2,region.x+region.w-pad-item.w/2),
+    y:clamp(center.y,region.y+pad+item.h/2,region.y+region.h-pad-item.h/2)
+   };
+   const candidate=calculatorAnswerPlacement(item,localCenter,region,occupied,gap);
+   if(contains(page,candidate)&&contains(region,candidate)&&!hits(candidate))
+    return candidate;
+  }
+ }
+ return null;
+}
+
 export function validateAnsResponse(data,id){
  if(!data||typeof data!=='object'||Array.isArray(data)||
     data.protocol!==CALCULATOR_ANS_PROTOCOL||data.type!=='response'||

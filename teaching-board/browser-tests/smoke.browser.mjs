@@ -3353,6 +3353,60 @@ try{
   await page.unroute(remote);
  });
 
+ await check('TXT-072 calculator Ans on A4 stays inside a page even near right edge',async()=>{
+  const remote='https://philiparad.github.io/calculator/?key=calculator';
+  await page.route(remote,async route=>route.fulfill({
+   status:200,contentType:'text/html',
+   body:'<!doctype html><html><body><script>'+
+    'addEventListener("message",event=>{'+
+    'if(event.data?.protocol!=="teaching-board/calculator-ans-v1"||event.data?.type!=="request")return;'+
+    'event.source.postMessage({protocol:event.data.protocol,type:"response",id:event.data.id,display:"37/8"},event.origin);'+
+    '});</script></body></html>'
+  }));
+  const boardId=await page.evaluate(async()=>{
+   const {createBoard}=await import('./js/model.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   const board=createBoard('TXT-072 A4 calculator regression');
+   board.layout='a4';board.pageCount=2;
+   const repo=new BoardRepository();
+   const saved=await repo.save(board);repo.close();return saved.id;
+  });
+  await page.goto(base+'#/board/'+boardId,{waitUntil:'domcontentloaded'});
+  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+  await page.locator('.command-deck .calculator-toggle').click();
+  const dialog=page.getByRole('dialog',{name:'CASIO calculator'});
+  await dialog.waitFor({state:'visible'});
+  const send=dialog.getByRole('button',{name:'Send Ans to Board'});
+  await page.waitForFunction(()=>!document.querySelector('.board-calculator-send')?.disabled);
+  await send.click();
+  await dialog.getByRole('status').getByText('Ans sent to the board.').waitFor();
+  const result=await page.evaluate(async id=>{
+   const {A4,pageRect,textOverflowWarnings}=await import('./js/pages.js');
+   const {bounds}=await import('./js/scene.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   for(let tries=0;tries<100;tries++){
+    const repo=new BoardRepository(),board=await repo.get(id);repo.close();
+    if(board?.items.length===1){
+     const rect=bounds(board.items[0]);
+     return {text:board.items[0].text,rect,
+      pages:Array.from({length:board.pageCount},(_,i)=>pageRect(i)),
+      warnings:textOverflowWarnings(board)};
+    }
+    await new Promise(resolve=>setTimeout(resolve,100));
+   }
+   throw Error('A4 calculator answer was not saved');
+  },boardId);
+  assert.equal(result.text,'37/8');
+  assert.deepEqual(result.warnings,[]);
+  assert(result.pages.some(p=>result.rect.x>=p.x+8-1e-7&&
+   result.rect.y>=p.y+8-1e-7&&result.rect.x+result.rect.w<=p.x+p.w-8+1e-7&&
+   result.rect.y+result.rect.h<=p.y+p.h-8+1e-7),
+   'The calculator result must remain completely inside one printable A4 page');
+  assert.equal(await dialog.isVisible(),true);
+  await dialog.getByRole('button',{name:'Close calculator'}).click();
+  await page.unroute(remote);
+ });
+
  await check('actual calculator answers parent Ans requests and rejects unsolved initial state',async()=>{
   // Exercise the real calculator controller under a same-origin iframe.
   // The independent modal test above mocks only the remote network response.

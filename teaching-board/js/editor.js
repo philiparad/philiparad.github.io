@@ -24,7 +24,7 @@ import { ShapeGallery } from './shape-gallery.js?v=20261024-active-shape';
 import { FillPalette } from './fill-palette.js?v=20261017-history-budget';
 import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261017-history-budget';
 import { LineStyleMenu } from './line-style-menu.js?v=20261017-history-budget';
-import { Pages } from './pages.js?v=20261115-flow-recheck';
+import { Pages,A4,pageRect } from './pages.js?v=20261115-flow-recheck';
 import { cropDialog } from './crop-editor.js?v=20261024-image-actions';
 import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261017-history-budget';
 import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261114-unicode-first-strong';
@@ -39,7 +39,7 @@ import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-h
 
 import { toolIcon } from './tool-icons.js?v=20261114-calculator-modal';
 import { CalculatorModal } from './calculator-modal.js?v=20261115-floating-calculator';
-import {calculatorTextItem,calculatorAnswerPlacement} from './calculator-answer.js?v=20261115-ans-placement';
+import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261115-a4-ans-placement';
 
 import { Geometry } from './geometry.js?v=20261024-image-actions';
 import { snapPoint, snapAngle } from './snapping.js?v=20261024-image-actions';
@@ -302,8 +302,15 @@ export class Editor {
   const p=this.center(),v=this.board.viewport;
   const visible={x:-v.x/v.zoom,y:-v.y/v.zoom,
    w:this.area.clientWidth/v.zoom,h:this.area.clientHeight/v.zoom};
-  const position=calculatorAnswerPlacement(item,p,visible,
-   this.board.items.map(existing=>bounds(existing)));
+  const occupied=this.board.items.map(existing=>bounds(existing));
+  const isA4=this.board.layout==='a4';
+  const position=isA4
+   ?calculatorAnswerPlacementOnPages(
+     {...item,h:textObjectHeight(item)},p,visible,occupied,
+     Array.from({length:Math.max(0,Math.min(100,this.board.pageCount||1))},
+      (_,i)=>pageRect(i)))
+   :calculatorAnswerPlacement(item,p,visible,occupied);
+  if(!position)throw Error('No clear A4 page area fits this calculator answer. Move other objects or change the page view.');
   item.x=position.x;item.y=position.y;
   validateBoard({...this.board,items:[...this.board.items,item]});
   this.board.items.push(item);

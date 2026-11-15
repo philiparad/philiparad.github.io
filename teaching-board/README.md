@@ -620,3 +620,15 @@ possible. This works at different canvas zoom levels, does not alter any
 existing object, and preserves editable text, undo/redo, exports, and backups.
 If there is no usable empty space on screen, the historical centered placement
 is retained rather than sending an answer offscreen.
+
+## TXT-072 — A4-safe calculator answer placement
+
+Calculator answers on an A4 lesson now fit completely within a printable
+sheet, even when the visible viewport is wider than the page or its center
+falls in the gap between pages. The planner tries the closest visible page,
+then other available page areas, avoiding existing objects. When zoomed in,
+it may use a clear part of the current page beyond the visible subregion.
+If all pages are occupied or no page can fit the entire text box, the
+calculator shows an explanatory error and does **not** insert a clipped or
+overlapping answer. The calculator remains open; the original infinite-canvas
+placement algorithm is unchanged. Lesson data and backup formats are unchanged.
