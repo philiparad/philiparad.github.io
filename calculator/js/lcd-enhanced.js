@@ -201,12 +201,21 @@ function drawResult(ctx,state){
  // Stacked result numerators extend above the ordinary bottom text line.
  // Give them a separate clip region instead of slicing off the top glyphs.
  const {kind}=model,baseline=27.1,top=(kind==='fraction'||kind==='mixed')?14.6:17.3;
- const charW=4.1;
+ // Layout with the same font that Canvas will actually paint. Character
+ // count alone is not reliable across Consolas, WebView2 and fallback fonts.
+ const resultFont='6.8px Consolas, "DejaVu Sans Mono", monospace';
+ ctx.font=resultFont;
+ const textWidth=value=>{
+  const estimate=measureText(value).width;
+  if(typeof ctx.measureText!=='function')return estimate;
+  const metrics=ctx.measureText(String(value));
+  return Number.isFinite(metrics?.width)&&metrics.width>0?metrics.width:estimate;
+ };
  const segments=[];
  let width=0;
  if(kind==='fraction'||kind==='mixed'){
-  const iw=model.integer?measureText(model.integer).width+2:0;
-  const span=Math.max(measureText(model.numerator).width,measureText(model.denominator).width)+2;
+  const iw=model.integer?textWidth(model.integer)+2:0;
+  const span=Math.max(textWidth(model.numerator),textWidth(model.denominator))+2;
   width=iw+span;
   segments.push({type:'fraction',width:span,iw});
  }else{
@@ -216,16 +225,16 @@ function drawResult(ctx,state){
   while((match=token.exec(t))!==null){
    if(match.index>start){
     const value=t.slice(start,match.index);
-    const w=measureText(value).width;
+    const w=textWidth(value);
     segments.push({type:'text',value,width:w});width+=w;
    }
    const value=match[0].slice(1);
-   const w=8+measureText(value).width;
+   const w=8+textWidth(value);
    segments.push({type:'radical',value,width:w});width+=w;
    start=token.lastIndex;
   }
   if(start<t.length){
-   const value=t.slice(start),w=measureText(value).width;
+   const value=t.slice(start),w=textWidth(value);
    segments.push({type:'text',value,width:w});width+=w;
   }
  }
@@ -237,20 +246,20 @@ function drawResult(ctx,state){
  ctx.strokeStyle=ink(ctx,state);ctx.fillStyle=ctx.strokeStyle;
  ctx.lineWidth=.44;ctx.lineCap='square';ctx.lineJoin='miter';
  // Consolas has ~0.60em advance width; 6.8px matches 4.1 layout units.
- ctx.font='6.8px Consolas, "DejaVu Sans Mono", monospace';
+ ctx.font=resultFont;
  ctx.textBaseline='alphabetic';
  let x=VIEW_W-width-1.5;
  if(kind==='fraction'||kind==='mixed'){
   const {iw,width:span}=segments[0];
   if(model.integer)text(ctx,model.integer,x,baseline);
   x+=iw;
-  text(ctx,model.numerator,x+(span-measureText(model.numerator).width)/2,21.4);
+  text(ctx,model.numerator,x+(span-textWidth(model.numerator))/2,21.4);
   path(ctx,[[x,24.5],[x+span,24.5]]);
-  text(ctx,model.denominator,x+(span-measureText(model.denominator).width)/2,29.4);
+  text(ctx,model.denominator,x+(span-textWidth(model.denominator))/2,29.4);
  }else if(kind==='recurring'){
   text(ctx,model.text,x,baseline);
-  const left=x+measureText(model.initial).width;
-  path(ctx,[[left,20],[left+measureText(model.period).width,20]]);
+  const left=x+textWidth(model.initial);
+  path(ctx,[[left,20],[left+textWidth(model.period),20]]);
  }else{
   for(const item of segments){
    if(item.type==='text')text(ctx,item.value,x,baseline);
