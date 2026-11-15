@@ -255,6 +255,35 @@ for(const chosen of [
   'structured expression measurement uses the same live font metrics');
  tested+=3;
 }
+// The enhanced viewport must independently follow long nested-field cursors
+// after measuring real glyph advances. The controller may still provide its
+// legacy scroll offset, including zero for a freshly inserted expression.
+{
+ const letters=Array.from({length:30},()=>({type:'char',value:'8'}));
+ const root=[{type:'squareRoot',parts:{radicand:letters}}];
+ const surface=makeCanvas(),ctx=surface.getContext(),movements=[];
+ ctx.measureText=()=>({width:5.4});
+ ctx.moveTo=(x,y)=>movements.push({x,y});
+ const ed={root,path:[{index:0,field:'radicand'}],offset:letters.length};
+ assert.equal(lcd.draw(surface,state(root,{editor:ed,
+  viewport:{inputX:0,inputY:0}})),'enhanced');
+ assert.ok(surface.ops.filter(op=>op==='fill').length>=2,
+  'long nested cursor triggers a corrected second draw pass');
+ const cursor=movements[movements.length-1];
+ assert.ok(cursor.x>=5&&cursor.x<=90,
+  'nested insertion caret remains inside the safe visible LCD region');
+ tested+=2;
+}
+for(const item of [
+ {scroll:30,caret:95,width:180,expected:35},
+ {scroll:60,caret:1,width:180,expected:56},
+ {scroll:0,caret:70,width:80,expected:0},
+ {scroll:20,caret:30,width:180,expected:20}
+]){
+ assert.ok(Math.abs(lcd.followCaret(item.scroll,item.caret,item.width)-item.expected)<0.0001,
+  'cursor following respects viewport boundaries');
+ tested++;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
