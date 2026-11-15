@@ -115,11 +115,17 @@ function followCaret(scroll,caretX,contentWidth,viewWidth=VIEW_W){
  else if(caretX>safeRight)next+=caretX-safeRight;
  return Math.max(0,Math.min(maxScroll,next));
 }
+// Keep enhanced symbols identical in ink shade to the legacy LCD at every
+// CONTRAST level. Different palettes make vector glyphs look washed out
+// against surrounding bitmap mode indicators and text.
 function ink(ctx,state){
- const c=Math.max(0,Math.min(9,Number(state.contrast??5)));
- const low=[110,133,117],high=[7,17,12];
- const t=c/9;
- return 'rgb('+low.map((x,i)=>Math.round(x+(high[i]-x)*t)).join(',')+')';
+ const raw=Number(state.contrast);
+ const level=Math.max(0,Math.min(9,Number.isFinite(raw)?raw:5));
+ const defaultInk=[29,40,34],paleInk=[135,151,134],darkInk=[7,17,12];
+ const anchor=level<=5?paleInk:defaultInk;
+ const target=level<=5?defaultInk:darkInk;
+ const t=level<=5?level/5:(level-5)/4;
+ return 'rgb('+anchor.map((v,i)=>Math.round(v+(target[i]-v)*t)).join(',')+')';
 }
 function path(ctx,points){
  ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);
@@ -397,7 +403,7 @@ function draw(canvas,state){
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
 }
-const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,legacy});
+const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,ink,legacy});
 global.FreshEnhancedLCD=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
