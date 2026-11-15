@@ -326,6 +326,19 @@ for(const type of ['integral','summation']){
  assert.ok(b.descent>=12+low.descent,'lower limit bounds are measured');
  tested++;
 }
+// The enhanced ink palette must exactly match the legacy LCD's approved
+// contrast mapping (including its level-five default).
+for(let level=0;level<=9;level++){
+ const base=[29,40,34],pale=[135,151,134],dark=[7,17,12];
+ const from=level<=5?pale:base,to=level<=5?base:dark;
+ const ratio=level<=5?level/5:(level-5)/4;
+ const expected='rgb('+from.map((v,i)=>Math.round(v+(to[i]-v)*ratio)).join(',')+')';
+ assert.equal(lcd.ink(null,{contrast:level}),expected,
+  'vector contrast matches legacy palette at level '+level);
+ tested++;
+}
+assert.equal(lcd.ink(null,{}),'rgb(29,40,34)');
+tested++;
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
