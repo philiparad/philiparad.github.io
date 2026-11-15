@@ -69,3 +69,13 @@ The original enhanced renderer only repainted the **input** expression. Answers 
 - `test_lcd_enhanced.cjs` includes result and fallback fixtures; **66** enhanced test cases pass, alongside **322** legacy LCD regression cases.
 
 These are geometry and Canvas-operation checks, not browser image-diff tests. Verify actual text crispness and root shape on the website and in Windows WebView2 before claiming visual/device parity.
+
+## Follow-up LCD work — 2026-11-15
+
+1. **Nested input caret.** The enhanced renderer now walks the editor's nested path and offset, placing the insertion caret inside fraction numerator/denominator, radicals, limits and exponent fields. The previous enhanced renderer only drew a caret when the editor path was empty.
+2. **Vertical expression placement.** When the measured expression fits within the LCD, its baseline is constrained by the available top/bottom margins. For content exceeding available height, the display retains the controller's vertical pan offset.
+3. **Horizontal viewport safety.** When the old 96-unit controller viewport has a nonzero horizontal scroll offset, the renderer uses the legacy path instead of applying incompatible offsets to the new variable-width typography.
+4. **Matching glyph metrics.** Canvas text was increased from 5.8 to 6.8 layout pixels because the 4.1-unit character advance corresponds more closely to that font size with Consolas/monospace.
+5. **Regression.** The legacy suite passes 322 cases and the enhanced suite passes 69 cases, including newly added nested-caret, deep-radical and horizontal-scroll fixtures.
+
+These are logic and Canvas-operation tests, not a complete visual screenshot comparison. Browser/Windows golden screenshots, actual device-pixel-ratio checks, and image-diff verification remain outstanding. The original renderer is still available with `&lcd=authentic`.
