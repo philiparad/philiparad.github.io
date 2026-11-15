@@ -182,6 +182,22 @@ for(const chosen of [
   'result crop must accommodate '+chosen.kind);
  tested++;
 }
+// Layout must honor the actual Canvas font metrics where available, rather
+// than assuming all Windows browsers use the same fixed-width glyph advance.
+{
+ const surface=makeCanvas(),ctx=surface.getContext();
+ const measured=[],painted=[];
+ ctx.measureText=value=>{measured.push(String(value));return {width:String(value).length*5.5}};
+ ctx.fillText=(value,x,y)=>painted.push({value:String(value),x,y});
+ const sample=state([],{screen:'result',result:'123.45',
+  resultPresentation:{chosen:{kind:'decimal',text:'123.45'}}});
+ assert.equal(lcd.draw(surface,sample),'enhanced');
+ assert.ok(measured.includes('123.45'),'Canvas measures real displayed result');
+ const rendered=painted.find(x=>x.value==='123.45');
+ assert.ok(rendered&&Math.abs(rendered.x-(96-6*5.5-1.5))<0.001,
+  'result aligns to the actual measured text width');
+ tested++;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
