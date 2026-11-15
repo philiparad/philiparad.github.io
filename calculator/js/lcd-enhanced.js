@@ -15,23 +15,30 @@ const FIELDS={
 };
 const charMetric=Object.freeze({width:4.1,ascent:5.9,descent:1.3});
 const padding=1.6;
-const measureText=s=>({width:[...String(s)].length*charMetric.width,
- ascent:charMetric.ascent,descent:charMetric.descent});
+// Use actual glyph advances during painting; static metrics remain a safe
+// fallback for pure layout calculations and headless tests without a canvas.
+const measureText=(s,ctx=null)=>{
+ const fallback=[...String(s)].length*charMetric.width;
+ const measured=ctx&&typeof ctx.measureText==='function'?
+  ctx.measureText(String(s))?.width:null;
+ return {width:Number.isFinite(measured)&&measured>0?measured:fallback,
+  ascent:charMetric.ascent,descent:charMetric.descent};
+};
 const empty=()=>({width:5.6,ascent:5.9,descent:1.3,kind:'slot'});
 const merge=(nodes)=>nodes.reduce((o,n)=>({
  width:o.width+n.width,ascent:Math.max(o.ascent,n.ascent),
  descent:Math.max(o.descent,n.descent)}),{width:0,ascent:0,descent:0});
-function measureNodes(nodes,depth=0){
+function measureNodes(nodes,depth=0,ctx=null){
  if(!Array.isArray(nodes)||depth>24) return empty();
- const boxes=nodes.map(n=>measure(n,depth+1));
+ const boxes=nodes.map(n=>measure(n,depth+1,ctx));
  return boxes.length?merge(boxes):empty();
 }
-function measure(node,depth=0){
+function measure(node,depth=0,ctx=null){
  if(!node||typeof node!=='object'||depth>24)return empty();
- if(node.type==='char')return {...measureText(node.value),kind:'char',value:String(node.value)};
- if(!FIELDS[node.type]||!node.parts)return {...measureText('?'),kind:'char',value:'?'};
+ if(node.type==='char')return {...measureText(node.value,ctx),kind:'char',value:String(node.value)};
+ if(!FIELDS[node.type]||!node.parts)return {...measureText('?',ctx),kind:'char',value:'?'};
  const fields={};
- for(const name of FIELDS[node.type])fields[name]=measureNodes(node.parts[name],depth+1);
+ for(const name of FIELDS[node.type])fields[name]=measureNodes(node.parts[name],depth+1,ctx);
  const p=fields;
  let box;
  switch(node.type){
@@ -43,7 +50,7 @@ function measure(node,depth=0){
     descent:p.denominator.ascent+p.denominator.descent+4.5};break;
   }
   case 'mixed':{
-   const f=measure({type:'fraction',parts:{numerator:node.parts.numerator,denominator:node.parts.denominator}},depth+1);
+   const f=measure({type:'fraction',parts:{numerator:node.parts.numerator,denominator:node.parts.denominator}},depth+1,ctx);
    box={width:p.integer.width+2+f.width,ascent:Math.max(p.integer.ascent,f.ascent),
     descent:Math.max(p.integer.descent,f.descent)};break;
   }
@@ -102,7 +109,7 @@ function drawSequence(ctx,nodes,x,y,state,depth=0,trail=[],carets=[]){
   if(active&&state.editor.offset===i)carets.push([x,y]);
   if(i===nodes.length)break;
   const node=nodes[i];
-  const b=measure(node,depth),p=b.fields||{};
+  const b=measure(node,depth,ctx),p=b.fields||{};
   function field(name,xx,yy){drawSequence(ctx,node.parts[name],xx,yy,state,depth+1,
    [...trail,{index:i,field:name}],carets)}
   switch(b.kind){
@@ -310,7 +317,7 @@ function draw(canvas,state){
  // Consolas has ~0.60em advance width; 6.8px matches 4.1 layout units.
  ctx.font='6.8px Consolas, "DejaVu Sans Mono", monospace';
  ctx.textBaseline='alphabetic';
- const box=measureNodes(state.editor.root),x=-Number(state.viewport?.inputX||0);
+ const box=measureNodes(state.editor.root,0,ctx),x=-Number(state.viewport?.inputX||0);
  const topGuard=2.2,bottomGuard=state.screen==='result'?15.3:state.info?22.2:29.2;
  // Center the complete expression if possible; honor vertical panning only
  // when the measured content genuinely exceeds the available display area.
