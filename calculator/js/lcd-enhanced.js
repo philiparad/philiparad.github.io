@@ -57,7 +57,11 @@ function measure(node,depth=0,ctx=null){
   case 'squareRoot':case 'cubeRoot':case 'nthRoot':{
    const index=node.type==='nthRoot'?p.index:null;
    const left=index?Math.max(7,index.width+2):8;
-   box={width:left+p.radicand.width+1,ascent:Math.max(9,p.radicand.ascent+4,index?index.ascent+2:0),
+   // Index glyphs are placed just below the radical roof; include the
+   // glyph's full ascent above its baseline, not merely its nominal height.
+   box={width:left+p.radicand.width+1,
+    ascent:Math.max(10.5,p.radicand.ascent+4,
+     index?index.ascent+5:charMetric.ascent+4),
     descent:Math.max(3,p.radicand.descent)};break;
   }
   case 'power':box={width:p.exponent.width+1,ascent:p.exponent.ascent+p.exponent.descent+4,descent:2};break;
@@ -69,8 +73,8 @@ function measure(node,depth=0,ctx=null){
    const limits=Math.max(p.lower.width,p.upper.width)+3;
    const symbol=Math.max(9,limits);
    box={width:symbol+3+p.expression.width+(node.type==='integral'?8:0),
-    ascent:Math.max(11,p.upper.ascent+p.upper.descent+10,p.expression.ascent),
-    descent:Math.max(10,p.lower.ascent+p.lower.descent+5,p.expression.descent)};break;
+    ascent:Math.max(12+p.upper.ascent,12,p.expression.ascent),
+    descent:Math.max(12+p.lower.descent,11,p.expression.descent)};break;
   }
   case 'derivative':box={width:17+p.expression.width+p.at.width,
    ascent:Math.max(10,p.expression.ascent),descent:Math.max(9,p.at.ascent+p.at.descent)};break;
@@ -162,8 +166,8 @@ function drawSequence(ctx,nodes,x,y,state,depth=0,trail=[],carets=[]){
    }
    case 'squareRoot':case 'cubeRoot':case 'nthRoot':{
     const left=b.width-p.radicand.width-1,top=y-b.ascent+1.1;
-    if(b.kind==='cubeRoot')text(ctx,'3',x,top+3);
-    if(b.kind==='nthRoot')field('index',x,top+2.8);
+    if(b.kind==='cubeRoot')text(ctx,'3',x,top+charMetric.ascent+.5);
+    if(b.kind==='nthRoot')field('index',x,top+p.index.ascent+.5);
     path(ctx,[[x+left-7,y-1],[x+left-5,y+1.2],
       [x+left-2,top],[x+left,top],[x+b.width,top]]);
     field('radicand',x+left,y);break;
