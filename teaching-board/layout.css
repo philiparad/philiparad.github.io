@@ -239,8 +239,9 @@ body.board-open{overflow:hidden}
 }
 .command-deck .property-menu{margin-left:0}
 
-/* Responsive standalone calculator: native modal, with focus and Escape support. */
-.board-calculator-dialog{
+/* Movable, non-blocking calculator: the teaching canvas remains interactive. */
+ .board-calculator-dialog{
+  position:fixed;inset:auto;top:8px;left:8px;margin:0;z-index:120;
   /* The calculator-only page uses a 348px max face at 274:580,
      with 12px of padding inside the iframe. A 50px title bar
      and 1px borders are the only additions to the calculator size. */
@@ -258,12 +259,15 @@ body.board-open{overflow:hidden}
 }
 .board-calculator-dialog:not([open]){display:none}
 .board-calculator-dialog[open]{display:flex;flex-direction:column}
-.board-calculator-dialog::backdrop{background:#142f4580}
+.board-calculator-dialog::backdrop{background:transparent;pointer-events:none}
 .board-calculator-heading{
   flex:none;min-height:50px;padding:8px 12px 8px 16px;
   display:flex;align-items:center;justify-content:space-between;
   gap:12px;background:#e4e9ef;border-bottom:1px solid #c9d2dd;
+  cursor:move;touch-action:none;user-select:none;
 }
+.board-calculator-heading:focus-visible{outline:3px solid #74bbde;outline-offset:-3px}
+.board-calculator-heading button{cursor:pointer}
 .board-calculator-heading h2{font-size:15px;color:#344e69;margin:0;flex:0 1 auto}
 .board-calculator-actions{display:flex;align-items:center;gap:7px;flex:none}
 .board-calculator-send{
@@ -279,6 +283,9 @@ body.board-open{overflow:hidden}
   color:#8e3636;background:#fff6f3;font-size:12px;
 }
 .board-calculator-send-status[hidden]{display:none}
+.board-calculator-send-status[data-state="success"]{
+  color:#246347;background:#edf7f0;border-bottom-color:#cce7d6;
+}
 @media(max-width:480px){
   /* Keep the existing 50px header and the calculator's aspect ratio.
      The full dialog name stays available to screen readers. */

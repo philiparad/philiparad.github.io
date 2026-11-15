@@ -596,3 +596,16 @@ board are permitted. The existing optional `checkOverlaps: false` planning
 mode retains its previous behavior. Last-minute object-count limits are also
 rechecked. Successful flow remains one undoable action; no backup migration
 or new data fields are required.
+
+## Movable calculator while teaching (November 2026)
+
+The calculator in **Teaching Board** is now a **floating, non-modal window**.
+Drag its gray header with a mouse, touch, or pen to reposition it; use the
+arrow keys while the header is focused for accessible movement (Shift+arrow
+moves farther). The window is kept inside the viewport on drag and resize,
+and remembers its position when closed and reopened in the same lesson.
+While the calculator is visible, the main canvas and its toolbar remain
+fully interactive. The **Send Ans to Board** action inserts an editable text
+object and leaves the calculator open, ready for another result. Close it
+using ×, Escape while its controls have keyboard focus, or the calculator
+toolbar button. Navigation to another lesson still cleans up the iframe.

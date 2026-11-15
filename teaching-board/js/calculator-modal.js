@@ -1,6 +1,7 @@
 import {el,btn} from './ui.js?v=20261017-history-budget';
 import {toolIcon} from './tool-icons.js?v=20261114-calculator-modal';
 import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js';
+import {clampFloatingWindowPosition,initialFloatingWindowPosition} from './calculator-window-position.js';
 
 export const CALCULATOR_URL='https://philiparad.github.io/calculator/?key=calculator';
 const CALCULATOR_ORIGIN=new URL(CALCULATOR_URL).origin;
@@ -18,10 +19,23 @@ export class CalculatorModal {
   this.disposed=false;
   this.loaded=false;
   this.pending=null;
+  this.position=null;
+  this.drag=null;
   this.dialog=el('dialog',null,'board-calculator-dialog');
   this.dialog.id='board-calculator-dialog-'+(++nextDialogId);
   this.dialog.setAttribute('aria-label','CASIO calculator');
   const heading=el('div',null,'board-calculator-heading');
+  this.heading=heading;
+  heading.tabIndex=0;
+  heading.setAttribute('role','group');
+  heading.setAttribute('aria-label','Move calculator window: drag here or use arrow keys');
+  heading.title='Drag to move calculator. Arrow keys move while the header is focused.';
+  heading.addEventListener('pointerdown',event=>this.beginDrag(event));
+  heading.addEventListener('pointermove',event=>this.moveDrag(event));
+  heading.addEventListener('pointerup',event=>this.endDrag(event));
+  heading.addEventListener('pointercancel',event=>this.endDrag(event));
+  heading.addEventListener('lostpointercapture',()=>{this.drag=null;});
+  heading.addEventListener('keydown',event=>this.moveWithKeyboard(event));
   const title=el('h2','CASIO calculator');
   const actions=el('div',null,'board-calculator-actions');
   this.sendButton=el('button','Send Ans to Board','board-calculator-send');
@@ -58,8 +72,18 @@ export class CalculatorModal {
   this.button.setAttribute('aria-controls',this.dialog.id);
   this.button.setAttribute('aria-expanded','false');
   this.responseHandler=event=>this.receiveAnswer(event);
+  this.resizeHandler=()=>{if(this.dialog.open)this.positionWindow();};
   window.addEventListener('message',this.responseHandler);
+  window.addEventListener('resize',this.resizeHandler);
+  this.dialog.addEventListener('keydown',event=>{
+   if(event.key==='Escape'&&!event.defaultPrevented){
+    event.preventDefault();
+    event.stopPropagation();
+    this.close();
+   }
+  });
   this.dialog.addEventListener('close',()=>{
+   this.endDrag();
    this.cancelRequest();
    this.loaded=false;
    this.sendButton.disabled=true;
@@ -73,10 +97,59 @@ export class CalculatorModal {
   });
   document.body.append(this.dialog);
  }
- report(message){
+ report(message,success=false){
   this.status.textContent=message;
+  this.status.dataset.state=success?'success':'error';
   this.status.hidden=false;
   this.sendButton.disabled=!this.loaded||!!this.pending;
+ }
+ positionWindow(){
+  if(!this.dialog.open)return;
+  const rect=this.dialog.getBoundingClientRect();
+  const wanted=this.position||initialFloatingWindowPosition(
+   rect.width,rect.height,window.innerWidth,window.innerHeight);
+  this.position=clampFloatingWindowPosition(wanted.x,wanted.y,
+   rect.width,rect.height,window.innerWidth,window.innerHeight);
+  this.dialog.style.left=this.position.x+'px';
+  this.dialog.style.top=this.position.y+'px';
+ }
+ beginDrag(event){
+  if(!this.dialog.open||this.disposed||event.button!==0||
+     event.isPrimary===false||event.target.closest?.('button'))return;
+  const rect=this.dialog.getBoundingClientRect();
+  this.drag={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,
+   left:rect.left,top:rect.top};
+  this.heading.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+ }
+ moveDrag(event){
+  if(!this.drag||this.drag.pointerId!==event.pointerId)return;
+  const rect=this.dialog.getBoundingClientRect();
+  this.position=clampFloatingWindowPosition(
+   this.drag.left+event.clientX-this.drag.startX,
+   this.drag.top+event.clientY-this.drag.startY,
+   rect.width,rect.height,window.innerWidth,window.innerHeight);
+  this.positionWindow();
+  event.preventDefault();
+ }
+ endDrag(event){
+  if(!this.drag||(event&&this.drag.pointerId!==event.pointerId))return;
+  const id=this.drag.pointerId;
+  this.drag=null;
+  if(this.heading.hasPointerCapture?.(id))this.heading.releasePointerCapture(id);
+ }
+ moveWithKeyboard(event){
+  if(event.target!==this.heading||!this.dialog.open||
+     !['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+  const step=event.shiftKey?40:10;
+  const rect=this.dialog.getBoundingClientRect();
+  const deltaX=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0;
+  const deltaY=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;
+  this.position=clampFloatingWindowPosition(rect.left+deltaX,rect.top+deltaY,
+   rect.width,rect.height,window.innerWidth,window.innerHeight);
+  this.positionWindow();
+  event.preventDefault();
+  event.stopPropagation();
  }
  cancelRequest(){
   if(this.pending)clearTimeout(this.pending.timeout);
@@ -119,7 +192,7 @@ export class CalculatorModal {
   try{
    if(this.onAnswer(answer.text)!==true)
     throw Error('The result could not be placed on the board.');
-   this.close();
+   this.report('Ans sent to the board.',true);
   }catch(error){this.report(error.message||'Unable to add Ans to the board.');}
  }
  open(){
@@ -127,7 +200,7 @@ export class CalculatorModal {
   this.loaded=false;
   this.sendButton.disabled=true;
   this.frame.src=CALCULATOR_URL;
-  try{this.dialog.showModal();}
+  try{this.dialog.show();this.positionWindow();}
   catch(e){this.frame.removeAttribute('src');throw e;}
   this.button.setAttribute('aria-expanded','true');
   this.button.setAttribute('aria-label','Close calculator');
@@ -138,6 +211,7 @@ export class CalculatorModal {
  close(){
   if(!this.dialog.open)return false;
   this.cancelRequest();
+  this.endDrag();
   this.dialog.close();
   return true;
  }
@@ -147,6 +221,8 @@ export class CalculatorModal {
   this.disposed=true;
   this.cancelRequest();
   window.removeEventListener('message',this.responseHandler);
+  window.removeEventListener('resize',this.resizeHandler);
+  this.endDrag();
   if(this.dialog.open)this.dialog.close();
   this.frame.removeAttribute('src');
   this.dialog.remove();
