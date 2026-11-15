@@ -78,6 +78,29 @@ function measure(node,depth=0,ctx=null){
  }
  return {...box,kind:node.type,fields,node};
 }
+// Convert the controller's legacy horizontal scroll position to our
+// measured expression widths. Align each top-level node boundary exactly,
+// and interpolate only while the offset falls inside a structured node.
+// This preserves the existing keyboard/viewport state without mismatched
+// font metrics or discontinuous jumping at expression boundaries.
+function scrollOffset(root,legacyX,ctx=null){
+ const requested=Number(legacyX);
+ if(!Number.isFinite(requested)||requested<=0)return 0;
+ if(!Array.isArray(root)||!root.length)return 0;
+ const viewport=global.FreshViewport;
+ if(!viewport||typeof viewport.layout!=='function')return null;
+ let oldX=0,newX=0;
+ for(const n of root){
+  const oldWidth=viewport.layout({root:[n],path:[],offset:0}).width;
+  const newWidth=measure(n,0,ctx).width;
+  if(!Number.isFinite(oldWidth)||oldWidth<=0||
+     !Number.isFinite(newWidth)||newWidth<=0)return null;
+  if(requested<oldX+oldWidth)
+   return newX+(requested-oldX)*newWidth/oldWidth;
+  oldX+=oldWidth;newX+=newWidth;
+ }
+ return newX+requested-oldX;
+}
 function ink(ctx,state){
  const c=Math.max(0,Math.min(9,Number(state.contrast??5)));
  const low=[110,133,117],high=[7,17,12];
@@ -291,7 +314,7 @@ function supported(state){
 function draw(canvas,state){
  const authentic=new URLSearchParams(global.location?.search||'').get('lcd')==='authentic';
  if(!canvas||authentic){legacy.draw(canvas,state);return 'authentic'}
- const structured=supported(state)&&Number(state.viewport?.inputX||0)===0;
+ const structured=supported(state);
  const resultEligible=!!resultModel(state);
  if(!structured&&!resultEligible){legacy.draw(canvas,state);return 'authentic'}
  // First retain the proven LCD raster (status/readouts, results, mode details).
@@ -317,7 +340,12 @@ function draw(canvas,state){
  // Consolas has ~0.60em advance width; 6.8px matches 4.1 layout units.
  ctx.font='6.8px Consolas, "DejaVu Sans Mono", monospace';
  ctx.textBaseline='alphabetic';
- const box=measureNodes(state.editor.root,0,ctx),x=-Number(state.viewport?.inputX||0);
+ const box=measureNodes(state.editor.root,0,ctx);
+ const mappedScroll=scrollOffset(state.editor.root,state.viewport?.inputX||0,ctx);
+ // No safe mapping: keep the bitmap path rather than corrupting cursor
+ // coordinates. This case should only occur with malformed expressions.
+ if(mappedScroll===null){ctx.restore();legacy.draw(canvas,state);return 'authentic'}
+ const x=-mappedScroll;
  const topGuard=2.2,bottomGuard=state.screen==='result'?15.3:state.info?22.2:29.2;
  // Center the complete expression if possible; honor vertical panning only
  // when the measured content genuinely exceeds the available display area.
@@ -331,11 +359,16 @@ function draw(canvas,state){
  if(state.screen==='edit')for(const [cx,cy] of carets){
   path(ctx,[[cx,cy-5.5],[cx,cy+1.2]]);
  }
+ // Legacy overflow arrows would otherwise disappear when the vector layer
+ // clears the old bitmap. Keep them visible as separate narrow edge cues.
+ const cueY=state.screen==='result'?14:state.info?20:27;
+ if(mappedScroll>0.1)text(ctx,'‹',.5,cueY);
+ if(box.width-mappedScroll>VIEW_W-1)text(ctx,'›',VIEW_W-4.5,cueY);
  ctx.restore();
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
 }
-const api=Object.freeze({draw,supported,measure,measureNodes,resultModel,legacy});
+const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,resultModel,legacy});
 global.FreshEnhancedLCD=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
