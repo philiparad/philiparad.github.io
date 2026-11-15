@@ -609,3 +609,14 @@ fully interactive. The **Send Ans to Board** action inserts an editable text
 object and leaves the calculator open, ready for another result. Close it
 using ×, Escape while its controls have keyboard focus, or the calculator
 toolbar button. Navigation to another lesson still cleans up the iframe.
+
+## TXT-071 — Non-overlapping calculator answers
+
+With the calculator kept open, repeated **Send Ans to Board** actions no longer
+automatically stack on top of one another. The first result is still centered
+in the visible teaching board. Later results are placed in the nearest clear
+visible position (usually below or above), avoiding existing objects when
+possible. This works at different canvas zoom levels, does not alter any
+existing object, and preserves editable text, undo/redo, exports, and backups.
+If there is no usable empty space on screen, the historical centered placement
+is retained rather than sending an answer offscreen.

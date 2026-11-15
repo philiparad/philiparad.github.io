@@ -69,3 +69,53 @@ test('Ans iframe protocol validates type, request ID, and response payload stric
   null,[],{},'data'
  ])assert.equal(validateAnsResponse(invalid,'request-123'),null);
 });
+
+test('TXT-071 first calculator result still appears exactly at the visible center',async()=>{
+ const {calculatorAnswerPlacement}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'1/3',26);
+ const placed=calculatorAnswerPlacement(item,{x:550,y:350},{x:0,y:0,w:1100,h:700});
+ assert.deepEqual(placed,{x:550-item.w/2,y:350-item.h/2});
+});
+test('TXT-071 successive answers choose separate nearby visible positions',async()=>{
+ const {calculatorAnswerPlacement}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'1/3',26);
+ const center={x:550,y:350},view={x:0,y:0,w:1100,h:700},occupied=[];
+ const positions=[];
+ for(let i=0;i<5;i++){
+  const at=calculatorAnswerPlacement(item,center,view,occupied);
+  positions.push(at);
+  occupied.push({...at,w:item.w,h:item.h});
+  assert(at.x>=8&&at.y>=8&&at.x+item.w<=view.w-8&&at.y+item.h<=view.h-8);
+ }
+ assert.equal(new Set(positions.map(p=>p.x+','+p.y)).size,5);
+ for(let i=0;i<occupied.length;i++)for(let j=i+1;j<occupied.length;j++){
+  const a=occupied[i],b=occupied[j];
+  assert(!(a.x<b.x+b.w+16&&a.x+a.w+16>b.x&&
+    a.y<b.y+b.h+16&&a.y+a.h+16>b.y),'Answers overlap: '+JSON.stringify([a,b]));
+ }
+ assert(positions[1].y>positions[0].y,'Second answer should be placed below center');
+ assert(positions[2].y<positions[0].y,'Third answer should be placed above center');
+});
+test('TXT-071 existing lesson content is avoided and position follows zoomed viewport',async()=>{
+ const {calculatorAnswerPlacement}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'42',26);
+ const center={x:1200,y:400},view={x:800,y:100,w:800,h:600};
+ const blocked=[{x:1100,y:350,w:210,h:100}];
+ const placed=calculatorAnswerPlacement(item,center,view,blocked);
+ assert(placed.x>=view.x+8&&placed.y>=view.y+8);
+ assert(placed.x+item.w<=view.x+view.w-8);
+ assert(placed.y+item.h<=view.y+view.h-8);
+ assert(!(placed.x<blocked[0].x+blocked[0].w+16&&
+   placed.x+item.w+16>blocked[0].x&&
+   placed.y<blocked[0].y+blocked[0].h+16&&
+   placed.y+item.h+16>blocked[0].y));
+});
+test('TXT-071 fully occupied or tiny boards retain centered fallback',async()=>{
+ const {calculatorAnswerPlacement}=await import('../js/calculator-answer.js');
+ const item=calculatorTextItem(base(),'42',26);
+ const center={x:90,y:90};
+ const expected={x:center.x-item.w/2,y:center.y-item.h/2};
+ assert.deepEqual(calculatorAnswerPlacement(item,center,{x:0,y:0,w:180,h:180}),expected);
+ assert.deepEqual(calculatorAnswerPlacement(item,center,{x:0,y:0,w:1000,h:1000},
+  [{x:0,y:0,w:1000,h:1000}]),expected);
+});

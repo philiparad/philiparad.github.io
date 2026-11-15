@@ -39,7 +39,7 @@ import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261017-h
 
 import { toolIcon } from './tool-icons.js?v=20261114-calculator-modal';
 import { CalculatorModal } from './calculator-modal.js?v=20261115-floating-calculator';
-import {calculatorTextItem} from './calculator-answer.js';
+import {calculatorTextItem,calculatorAnswerPlacement} from './calculator-answer.js?v=20261115-ans-placement';
 
 import { Geometry } from './geometry.js?v=20261024-image-actions';
 import { snapPoint, snapAngle } from './snapping.js?v=20261024-image-actions';
@@ -299,8 +299,12 @@ export class Editor {
   }
   const base=this.base('text',{x:0,y:0});
   const item=calculatorTextItem(base,display,this.fontSize);
-  const p=this.center();
-  item.x=p.x-item.w/2;item.y=p.y-item.h/2;
+  const p=this.center(),v=this.board.viewport;
+  const visible={x:-v.x/v.zoom,y:-v.y/v.zoom,
+   w:this.area.clientWidth/v.zoom,h:this.area.clientHeight/v.zoom};
+  const position=calculatorAnswerPlacement(item,p,visible,
+   this.board.items.map(existing=>bounds(existing)));
+  item.x=position.x;item.y=position.y;
   validateBoard({...this.board,items:[...this.board.items,item]});
   this.board.items.push(item);
   this.selected=new Set([item.id]);

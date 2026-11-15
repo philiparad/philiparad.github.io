@@ -3329,6 +3329,20 @@ try{
    return b?.items.length===2&&b.items.every(item=>item.text==='1/3');
   },boardId);
   assert.equal(await dialog.isVisible(),true);
+  const positions=await page.evaluate(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const {bounds}=await import('./js/scene.js');
+   const repo=new BoardRepository(),board=await repo.get(boardId);
+   repo.close();
+   return board.items.map(item=>({...bounds(item),text:item.text}));
+  },boardId);
+  assert.equal(positions.length,2);
+  assert.equal(positions[0].text,'1/3');
+  assert.equal(positions[1].text,'1/3');
+  const [a,b]=positions;
+  assert(!(a.x<b.x+b.w+15&&a.x+a.w+15>b.x&&
+   a.y<b.y+b.h+15&&a.y+a.h+15>b.y),
+   'Repeated calculator answers should not cover each other: '+JSON.stringify(positions));
   await dialog.getByRole('button',{name:'Close calculator'}).click();
   await dialog.waitFor({state:'hidden'});
   await page.unroute(remote);
