@@ -47,16 +47,29 @@ const cases=[
     manifest.push({name:label,dpr,renderer:'enhanced',filename,...info});
     // Keep a same-size baseline from the old renderer for direct A/B review.
     // This is a comparison screenshot, not an approved visual golden master.
-    await page.evaluate(({nodes,screen,result,chosen})=>{
-     const canvas=document.getElementById('lcd');
+    const comparison=await page.evaluate(({nodes,screen,result,chosen})=>{
+     const canvas=document.getElementById('lcd'),ctx=canvas.getContext('2d');
+     const enhanced=ctx.getImageData(0,0,canvas.width,canvas.height).data;
      window.FreshLCD.draw(canvas,{power:true,screen,mode:'COMP',math:true,
       contrast:5,input:'',result,viewport:{inputX:0,inputY:0,resultX:0},
       editor:{root:nodes,path:[],offset:0},
       resultPresentation:chosen?{chosen}:null});
+     const authentic=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+     let changedPixels=0;
+     for(let i=0;i<enhanced.length;i+=4){
+      if(enhanced[i]!==authentic[i]||enhanced[i+1]!==authentic[i+1]||
+         enhanced[i+2]!==authentic[i+2])changedPixels++;
+     }
+     return {changedPixels,totalPixels:canvas.width*canvas.height};
     },{nodes,screen,result,chosen});
+    if(comparison.changedPixels===0)
+     throw Error('Enhanced image is pixel-identical to authentic: '+label+' DPR '+dpr);
+    manifest[manifest.length-1].changedPixels=comparison.changedPixels;
+    manifest[manifest.length-1].changedFraction=
+     comparison.changedPixels/comparison.totalPixels;
     const baselineFile=label+'-authentic-dpr-'+String(dpr).replace('.','_')+'.png';
     await page.locator('#lcd').screenshot({path:path.join(output,baselineFile)});
-    manifest.push({name:label,dpr,renderer:'authentic',filename:baselineFile});
+    manifest.push({name:label,dpr,renderer:'authentic',filename:baselineFile,...comparison});
    }
    await context.close();
   }
