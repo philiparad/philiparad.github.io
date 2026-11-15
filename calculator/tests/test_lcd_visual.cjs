@@ -22,6 +22,60 @@ async function verifyPNG(file,dpr){
    ' expected ~'+expectedWidth+'x'+expectedHeight);
  return {width,height};
 }
+// A static contact sheet makes the uploaded workflow artifact reviewable
+// offline. No external scripts or CSS frameworks are needed.
+function escapeHTML(value){
+ return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function reviewHTML(manifest){
+ const enhanced=manifest.filter(row=>row.renderer==='enhanced');
+ const groups=[...new Set(enhanced.map(row=>row.name))];
+ const scales=[...new Set(enhanced.map(row=>row.dpr))];
+ const items=enhanced.map(row=>{
+  const comparison=manifest.find(item=>item.name===row.name&&
+   item.dpr===row.dpr&&item.renderer==='authentic');
+  if(!comparison)throw Error('Missing authentic comparison for '+row.name);
+  const diff=Number(row.changedFraction||0)*100;
+  return '<section class="pair" data-case="'+escapeHTML(row.name)+
+   '" data-dpr="'+escapeHTML(row.dpr)+'"><h2>'+escapeHTML(row.name)+
+   ' · DPR '+escapeHTML(row.dpr)+'</h2><p>'+
+   'Changed pixels: '+escapeHTML(row.changedPixels)+
+   ' ('+diff.toFixed(2)+'%)</p><div class="screens">'+
+   '<figure><figcaption>Enhanced LCD</figcaption><img src="'+
+   escapeHTML(row.filename)+'" alt="Enhanced LCD"></figure>'+
+   '<figure><figcaption>Authentic LCD</figcaption><img src="'+
+   escapeHTML(comparison.filename)+'" alt="Authentic LCD"></figure>'+
+   '</div></section>';
+ }).join('\n');
+ return '<!doctype html><html lang="en"><head><meta charset="utf-8">'+
+ '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+ '<title>LCD visual regression review</title><style>'+
+ 'body{font:15px/1.5 system-ui,sans-serif;background:#eef1ef;color:#18231d;margin:0;padding:24px}'+
+ 'main{max-width:1250px;margin:auto}h1{font-size:1.7rem}header{margin-bottom:22px}'+
+ '.filters{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0}'+
+ 'select{padding:9px;border:1px solid #a9bbb1;border-radius:5px}'+
+ '.pair{background:white;border:1px solid #cbd4cd;border-radius:10px;padding:16px;margin:18px 0}'+
+ '.pair h2{margin:0;font-size:1.1rem}.pair p{color:#3c5848;margin:6px 0 15px}'+
+ '.screens{display:grid;grid-template-columns:1fr 1fr;gap:14px}'+
+ 'figure{margin:0;min-width:0}figcaption{font-weight:bold;margin-bottom:7px}'+
+ 'img{max-width:100%;height:auto;image-rendering:auto;border:4px solid #1c2920;background:#d7e6d7}'+
+ '@media(max-width:760px){.screens{grid-template-columns:1fr}}'+
+ '</style></head><body><main><header><h1>LCD visual regression review</h1>'+
+ '<p>Matched browser screenshots; comparison is not physical-device parity.</p>'+
+ '<div class="filters"><label>Expression <select id="scenario"><option value="all">All</option>'+
+ groups.map(v=>'<option value="'+escapeHTML(v)+'">'+escapeHTML(v)+'</option>').join('')+
+ '</select></label><label>Display scale <select id="dpr"><option value="all">All</option>'+
+ scales.map(v=>'<option value="'+escapeHTML(v)+'">'+escapeHTML(v)+'</option>').join('')+
+ '</select></label></div></header><div id="gallery">'+items+'</div>'+
+ '<script>(function(){const a=document.getElementById("scenario"),'+
+ 'b=document.getElementById("dpr");function filter(){'+
+ 'for(const p of document.querySelectorAll(".pair")){'+
+ 'p.hidden=(a.value!=="all"&&p.dataset.case!==a.value)||'+
+ '(b.value!=="all"&&p.dataset.dpr!==b.value);}}'+
+ 'a.addEventListener("change",filter);b.addEventListener("change",filter);})();'+
+ '</script></main></body></html>';
+}
 const cases=[
  ['root-empty',[{type:'squareRoot',parts:{radicand:[]}}],'edit'],
  ['root-filled',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],'edit'],
@@ -100,6 +154,7 @@ const cases=[
    await context.close();
   }
   await writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
+  await writeFile(path.join(output,'index.html'),reviewHTML(manifest));
   console.log('PASS: '+manifest.length+' browser LCD A/B screenshots across four DPR values.');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});
