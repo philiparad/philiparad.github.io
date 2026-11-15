@@ -110,3 +110,16 @@ This gallery tests Chromium, **not WebView2**. True Windows-app visual parity re
 - **Regression.** 322 legacy rendering tests and 74 enhanced rendering tests pass. New assertions cover numerator/denominator extents and result clipping boundaries.
 
 Important: source-level tests and JavaScript syntax checks were performed. The **56 Chromium screenshots have not yet been executed and visually reviewed** in this working session. Run the Windows workflow and download `calculator-lcd-visual-regression` to inspect actual pixel output. Browser screenshots are not manufacturer LCD parity evidence.
+
+## Continuation — measured text widths and stronger screenshot checks
+
+### Renderer change
+The enhanced result renderer now uses `CanvasRenderingContext2D.measureText()` where available for displayed answer width, fraction centering, recurring-decimal overbars, and radical text placement. A deterministic width approximation remains as a fallback for test/mock contexts without `measureText`. This reduces right-edge and symbol-spacing errors caused by differences between browser font metrics and assumed monospaced character widths. It does **not** yet replace the input expression's existing fixed-width layout model.
+
+### Regression checks
+- **322 legacy LCD cases:** passed.
+- **75 enhanced renderer cases:** passed, including a test where the browser reports a deliberately different font width and the answer must still align correctly.
+- **Chromium screenshot harness:** JavaScript syntax checked. Each enhanced/authentic pair is now compared at the pixel-data level. The manifest records the number and fraction of changed pixels, and errors if the two images are identical.
+- **PNG validation:** Each screenshot's PNG signature and image dimensions are checked against the requested DPR (1, 1.25, 1.5, 2) without adding a native image-processing dependency.
+
+The visual workflow is configured to produce 56 images across seven scenarios and four DPI scales. **Actual Chromium execution, manual screenshot inspection, approved golden images, and Windows WebView2 image parity remain unverified** until a successful workflow run has been reviewed.
