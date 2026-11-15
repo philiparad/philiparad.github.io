@@ -1,0 +1,54 @@
+/* Browser-generated LCD visual regression gallery.
+ * From calculator/desktop: npm run test:lcd-visual
+ * Requires Playwright Chromium: npx playwright install chromium
+ * Does not alter calculation logic or manufacturer-device pixel claims.
+ */
+'use strict';
+const {chromium}=require('../desktop/node_modules/playwright');
+const {mkdir,writeFile}=require('node:fs/promises');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const output=path.join(root,'desktop','lcd-screenshots');
+const cases=[
+ ['root-empty',[{type:'squareRoot',parts:{radicand:[]}}],'edit'],
+ ['root-filled',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],'edit'],
+ ['fraction',[{type:'fraction',parts:{numerator:[{type:'char',value:'1'}],denominator:[{type:'char',value:'3'}]}}],'edit'],
+ ['nested',[{type:'squareRoot',parts:{radicand:[{type:'fraction',parts:{numerator:[{type:'char',value:'2'}],denominator:[{type:'char',value:'5'}]}}]}}],'edit'],
+ ['result-radical',[], 'result','4√6',{kind:'surd',text:'4√6'}],
+ ['result-fraction',[], 'result','7/12',{kind:'fraction',text:'7/12',numerator:'7',denominator:'12'}],
+ ['result-decimal',[], 'result','123.45',{kind:'decimal',text:'123.45'}]
+];
+(async()=>{
+ await mkdir(output,{recursive:true});
+ const browser=await chromium.launch({headless:true});
+ const manifest=[];
+ try{
+  for(const dpr of [1,1.25,1.5,2]){
+   const context=await browser.newContext({viewport:{width:800,height:420},deviceScaleFactor:dpr});
+   const page=await context.newPage();
+   await page.setContent('<!doctype html><meta charset="utf-8"><style>body{margin:20px;background:#e9eeea}canvas{display:block;width:480px;height:155px;image-rendering:auto;border:8px solid #111;border-radius:4px}</style><canvas id="lcd" width="960" height="310"></canvas>');
+   for(const file of ['js/lcd-viewport.js','js/display.js','js/lcd-enhanced.js'])
+    await page.addScriptTag({path:path.join(root,file)});
+   for(const [label,nodes,screen,result='',chosen=null] of cases){
+    const info=await page.evaluate(({nodes,screen,result,chosen})=>{
+     const canvas=document.getElementById('lcd');
+     const state={power:true,screen,mode:'COMP',math:true,contrast:5,
+      input:'',result,viewport:{inputX:0,inputY:0,resultX:0},
+      editor:{root:nodes,path:[],offset:0},
+      resultPresentation:chosen?{chosen}:null};
+     const mode=window.FreshEnhancedLCD.draw(canvas,state);
+     const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+     let ink=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]<160)ink++;
+     return {mode,ink};
+    },{nodes,screen,result,chosen});
+    if(info.mode!=='enhanced'||info.ink<20)throw Error('Missing enhanced drawing for '+label+' DPR '+dpr);
+    const filename=label+'-dpr-'+String(dpr).replace('.','_')+'.png';
+    await page.locator('#lcd').screenshot({path:path.join(output,filename)});
+    manifest.push({name:label,dpr,filename,...info});
+   }
+   await context.close();
+  }
+  await writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
+  console.log('PASS: '+manifest.length+' browser LCD screenshots, all with visible enhanced rendering.');
+ }finally{await browser.close()}
+})().catch(e=>{console.error(e);process.exitCode=1});
