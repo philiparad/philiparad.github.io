@@ -178,3 +178,11 @@ Two additional renderer defects were addressed:
 The available regression checks pass **322 legacy cases + 107 enhanced cases = 429 cases**. New checks cover root index positions, calculus limit bounds, and all ten contrast levels. The visual-review harness has **22 scenarios × 4 DPR settings × 2 renderers = 176 configured screenshots**, including low/high contrast examples.
 
 As before, syntax and Canvas-operation verification do not establish real Chromium or Windows WebView2 screenshot parity; the screenshot workflow must run and its produced images be inspected before claiming that.
+
+## High-resolution engineering results — 2026-11-15
+
+Engineering-format results such as `1.23×10^4` were still drawn as plain text with the literal `^` symbol in the enhanced result line. The renderer now separates the mantissa/`×10` base from the exponent and paints the exponent with a smaller 5.1px Canvas font raised above the normal 6.8px baseline. Right alignment uses measured widths from both font sizes. Signed negative exponents and comma decimal separators are supported. Noncanonical formatting stays on the authentic bitmap renderer.
+
+**Verified:** The original LCD suite passes 322 cases; the enhanced LCD suite passes 120 cases. New regression cases verify exponent parsing, separate glyph drawing, smaller font, raised baseline, absence of caret glyphs, and authentic fallback for malformed output. The 24 browser screenshot scenarios each select the enhanced drawing path in mock Canvas verification.
+
+The visual comparison gallery now configures **24 cases × 4 device pixel ratios × 2 renderer modes = 192 browser screenshots**, including signed engineering exponent examples. These images have not yet been executed and reviewed in the browser/Windows workflow in this session. No claim of screenshot-level physical calculator parity is made.
