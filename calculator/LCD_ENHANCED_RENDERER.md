@@ -131,3 +131,11 @@ The enhanced **input expression layout** now accepts the active Canvas 2D contex
 The enhanced tests now include intentionally unequal `W` and `i` glyph widths to verify the next glyph and caret move by actual measured advances. **322 legacy + 78 enhanced automated cases passed.** Windows packaging also syntax-checks the enhanced renderer explicitly.
 
 The old controller still computes its viewport using the original fixed-width model. Thus nonzero horizontal scroll offsets still deliberately fall back to the authentic renderer, avoiding mismatched pan coordinates until that viewport is migrated. Chrome/WebView2 screenshots and font-availability comparisons remain required for visual acceptance.
+
+## Horizontal scrolling compatibility — 2026-11-15
+
+The enhanced display no longer switches to legacy rendering solely because `state.viewport.inputX` is nonzero. The calculator controller continues to own keyboard navigation and its original 96-unit scroll state; the new `scrollOffset(root, legacyX, ctx)` translates that state into measured Canvas positions for the enhanced expression. Translation aligns each top-level node boundary exactly and interpolates within a structured node. The vector renderer recreates overflow cues after clearing the legacy bitmap. If a malformed node prevents a finite mapping, drawing falls back to the original LCD.
+
+The regression suite checks monotone mapping, unequal `W`/`i` character widths, nonzero scroll rendering, and actual glyph movement at successive scroll offsets. **322 legacy LCD cases and 84 enhanced LCD cases passed** through the available JavaScript runtime checks.
+
+Caveat: this is a compatible mapping layer, not yet a complete rewrite of the controller's fixed-width viewport; complex nested-field caret-follow behavior at the far edge should receive visual end-to-end testing. Browser screenshot generation and Windows WebView2 visual acceptance remain outstanding.
