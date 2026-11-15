@@ -632,3 +632,17 @@ If all pages are occupied or no page can fit the entire text box, the
 calculator shows an explanatory error and does **not** insert a clipped or
 overlapping answer. The calculator remains open; the original infinite-canvas
 placement algorithm is unchanged. Lesson data and backup formats are unchanged.
+
+## TXT-073 — Remember calculator position between lessons
+
+The floating calculator now remembers the last position chosen by dragging
+its header or using its keyboard arrow controls. The position is stored
+**locally on this device**, independent of the lesson, and restored after
+switching lessons or refreshing the Teaching Board. Proportional coordinates
+adapt to desktop, phone, and tablet viewport changes while keeping the window
+within the screen. Invalid or inaccessible browser storage is ignored safely.
+
+Opening or closing at the default position does not save a preference. The
+setting stores only the location of the calculator window, **not** board data,
+calculator values, or student information. Existing lessons and editable
+backups need no migration.
