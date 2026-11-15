@@ -37,8 +37,10 @@ function measure(node,depth=0){
  switch(node.type){
   case 'fraction': {
    const span=Math.max(p.numerator.width,p.denominator.width)+2*padding;
-   box={width:span,ascent:p.numerator.ascent+p.numerator.descent+3.2,
-    descent:p.denominator.ascent+p.denominator.descent+3.2};break;
+   // Match the actual numerator/denominator baseline offsets (4 units).
+   // Extra 0.5 units retain the complete strokes at the clipping boundary.
+   box={width:span,ascent:p.numerator.ascent+p.numerator.descent+4.5,
+    descent:p.denominator.ascent+p.denominator.descent+4.5};break;
   }
   case 'mixed':{
    const f=measure({type:'fraction',parts:{numerator:node.parts.numerator,denominator:node.parts.denominator}},depth+1);
@@ -196,7 +198,9 @@ function resultModel(state){
 function drawResult(ctx,state){
  const model=resultModel(state);
  if(!model)return false;
- const {kind}=model,baseline=27.1,top=17.3;
+ // Stacked result numerators extend above the ordinary bottom text line.
+ // Give them a separate clip region instead of slicing off the top glyphs.
+ const {kind}=model,baseline=27.1,top=(kind==='fraction'||kind==='mixed')?14.6:17.3;
  const charW=4.1;
  const segments=[];
  let width=0;
