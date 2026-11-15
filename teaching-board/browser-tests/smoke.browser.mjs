@@ -3083,6 +3083,10 @@ try{
    status:200,contentType:'text/html',
    body:'<!doctype html><html><body><div id="calculator-fixture">Calculator embed test</div></body></html>'
   }));
+  // Start at a predictable default so earlier test sessions cannot affect
+  // the first opening, then exercise persistence after deliberate movement.
+  await page.evaluate(()=>localStorage.removeItem(
+   'teaching-board-calculator-window-position-v1'));
   const button=page.locator('.command-deck .calculator-toggle');
   await button.waitFor({state:'visible',timeout:30000});
   const before=await page.evaluate(()=>{
@@ -3176,6 +3180,13 @@ try{
   const keyboardAfter=await modal.boundingBox();
   assert(keyboardAfter.x>=keyboardBefore.x+9,
    'The header must support keyboard window movement');
+  const storedPreference=await page.evaluate(()=>{
+   const raw=localStorage.getItem('teaching-board-calculator-window-position-v1');
+   return raw?JSON.parse(raw):null;
+  });
+  assert.equal(storedPreference?.v,1,'Drag and arrow movement must save a position');
+  assert(storedPreference.x>=0&&storedPreference.x<=1);
+  assert(storedPreference.y>=0&&storedPreference.y<=1);
   assert(Math.abs(desktopSize.dialogWidth-374)<3,
    'Desktop dialog should fit the 348px calculator case with 12px side padding');
   assert(Math.abs(desktopSize.dialogHeight-(desktopSize.faceHeight+76))<3,
@@ -3195,6 +3206,11 @@ try{
   assert(Math.abs(phoneSize.iframeHeight-(phoneSize.faceHeight+24))<3,
    'Compact dialog should scale down without large vertical gutters');
   await page.setViewportSize({width:1440,height:900});
+  // The saved proportional position must survive tablet-to-desktop resize.
+  await page.waitForFunction(({x,y})=>{
+   const r=document.querySelector('.board-calculator-dialog')?.getBoundingClientRect();
+   return r&&Math.abs(r.left-x)<3&&Math.abs(r.top-y)<3;
+  },{x:keyboardAfter.x,y:keyboardAfter.y},{timeout:5000});
   await modal.getByRole('button',{name:'Close calculator'}).focus();
   await page.keyboard.press('Escape');
   await modal.waitFor({state:'hidden'});
@@ -3226,6 +3242,17 @@ try{
   assert.equal(await button.getAttribute('aria-expanded'),'false');
   assert.equal(await button.getAttribute('aria-label'),'Open calculator');
   assert.equal(await page.locator('.board-calculator-frame').getAttribute('src'),null);
+  // A fresh editor instance must restore the last user-selected position.
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#app[aria-busy="false"]').waitFor({timeout:30000});
+  await button.click();
+  await modal.waitFor({state:'visible'});
+  const afterReload=await modal.boundingBox();
+  assert(Math.abs(afterReload.x-keyboardAfter.x)<3&&
+   Math.abs(afterReload.y-keyboardAfter.y)<3,
+   'Reload should restore the calculator position saved on this device');
+  await modal.getByRole('button',{name:'Close calculator'}).click();
+  await modal.waitFor({state:'hidden'});
   // A route change must also unload the iframe and release the modal.
   await button.click();
   await modal.waitFor({state:'visible'});
