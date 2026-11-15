@@ -79,3 +79,25 @@ These are geometry and Canvas-operation checks, not browser image-diff tests. Ve
 5. **Regression.** The legacy suite passes 322 cases and the enhanced suite passes 69 cases, including newly added nested-caret, deep-radical and horizontal-scroll fixtures.
 
 These are logic and Canvas-operation tests, not a complete visual screenshot comparison. Browser/Windows golden screenshots, actual device-pixel-ratio checks, and image-diff verification remain outstanding. The original renderer is still available with `&lcd=authentic`.
+
+## Visual regression workflow — November 15, 2026
+
+### Enlarged-screen rendering
+The existing `app.js` now saves the active render mode on `#lcd.dataset.renderer`. When `lcd-large` displays the screen at a different size, **enhanced** mode uses high-quality Canvas resampling, while **authentic** mode deliberately keeps nearest-neighbor pixel scaling. This avoids imposing blurry interpolation on simulated LCD dots and avoids harsh block scaling on vector text.
+
+### Playwright browser screenshot gallery
+`calculator/tests/test_lcd_visual.cjs` loads the real LCD renderers inside Chromium and produces **28 PNGs** (seven representative cases × device pixel ratios 1, 1.25, 1.5, and 2), plus a JSON manifest. Scenarios include empty and filled square roots, a fraction, a nested root/fraction, a symbolic radical result (`4√6`), a fractional result, and a decimal result.
+
+Run locally (from `calculator/desktop`):
+
+```powershell
+npm install
+npx playwright install chromium
+npm run test:lcd-visual
+```
+
+Output: `calculator/desktop/lcd-screenshots/`.
+
+The GitHub Actions Windows workflow runs screenshot generation before installer packaging and uploads the gallery as the `calculator-lcd-visual-regression` artifact. In the workflow run summary, download this artifact and compare screen captures. The screenshot check verifies that enhanced display ink is present; **there is no approved pixel-perfect golden baseline yet**. Screenshot creation and manual visual review remain different steps. A clean CI run is required before claiming screenshots have been produced successfully in Windows.
+
+This gallery tests Chromium, **not WebView2**. True Windows-app visual parity remains a separate acceptance test.
