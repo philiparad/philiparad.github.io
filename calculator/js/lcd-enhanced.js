@@ -240,6 +240,13 @@ function resultModel(state){
   return {kind,text:source,initial:String(chosen.initial||''),
    period:String(chosen.period)};
  }
+ if(kind==='engineering'){
+  // Draw the exponent above the baseline rather than printing a literal ^.
+  // Accept only canonical formatter output; unusual forms keep raster parity.
+  const match=/^([+-]?(?:\\d+(?:[.,]\\d*)?|[.,]\\d+))×10\\^([+-]?\\d{1,3})$/.exec(source);
+  if(!match)return null;
+  return {kind,text:source,mantissaText:match[1],exponentText:match[2]};
+ }
  // A radical is one token with a text coefficient and an integer radicand.
  // Exact symbolic combinations can have multiple radical tokens.
  if(source.includes('√')&&!/^[0-9+\-*/(). π√]+$/.test(source))return null;
@@ -268,6 +275,14 @@ function drawResult(ctx,state){
   const span=Math.max(textWidth(model.numerator),textWidth(model.denominator))+2;
   width=iw+span;
   segments.push({type:'fraction',width:span,iw});
+ }else if(kind==='engineering'){
+  const body=model.mantissaText+'×10';
+  const normalWidth=textWidth(body);
+  ctx.font='5.1px Consolas, "DejaVu Sans Mono", monospace';
+  const exponentWidth=textWidth(model.exponentText);
+  ctx.font=resultFont;
+  width=normalWidth+exponentWidth+.6;
+  segments.push({type:'engineering',body,normalWidth,exponentWidth});
  }else{
   const t=model.text;
   const token=/√\d+/g;
@@ -310,6 +325,12 @@ function drawResult(ctx,state){
   text(ctx,model.text,x,baseline);
   const left=x+textWidth(model.initial);
   path(ctx,[[left,20],[left+textWidth(model.period),20]]);
+ }else if(kind==='engineering'){
+  const item=segments[0];
+  text(ctx,item.body,x,baseline);
+  ctx.font='5.1px Consolas, "DejaVu Sans Mono", monospace';
+  text(ctx,model.exponentText,x+item.normalWidth+.6,baseline-4.6);
+  ctx.font=resultFont;
  }else{
   for(const item of segments){
    if(item.type==='text')text(ctx,item.value,x,baseline);
