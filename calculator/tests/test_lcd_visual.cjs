@@ -35,7 +35,11 @@ const cases=[
  ['scrolled-fraction',[
   ...Array.from({length:32},()=>({type:'char',value:'8'})),
   {type:'fraction',parts:{numerator:[{type:'char',value:'2'}],denominator:[{type:'char',value:'7'}]}}
- ],'edit','',null,{inputX:40,offset:33}]
+ ],'edit','',null,{inputX:40,offset:33}],
+ ['manual-pan',[
+  ...Array.from({length:32},()=>({type:'char',value:'8'})),
+  {type:'squareRoot',parts:{radicand:[{type:'char',value:'4'}]}}
+ ],'edit','',null,{inputX:48,offset:0,manualPan:true}]
 ];
 (async()=>{
  await mkdir(output,{recursive:true});
@@ -52,7 +56,7 @@ const cases=[
     const info=await page.evaluate(({nodes,screen,result,chosen,options})=>{
      const canvas=document.getElementById('lcd');
      const state={power:true,screen,mode:'COMP',math:true,contrast:5,
-      input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0},
+      input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
       editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null};
      const mode=window.FreshEnhancedLCD.draw(canvas,state);
@@ -71,7 +75,7 @@ const cases=[
      const canvas=document.getElementById('lcd'),ctx=canvas.getContext('2d');
      const enhanced=ctx.getImageData(0,0,canvas.width,canvas.height).data;
      window.FreshLCD.draw(canvas,{power:true,screen,mode:'COMP',math:true,
-      contrast:5,input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0},
+      contrast:5,input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
       editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null});
      const authentic=ctx.getImageData(0,0,canvas.width,canvas.height).data;
