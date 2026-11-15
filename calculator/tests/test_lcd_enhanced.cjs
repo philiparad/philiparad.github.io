@@ -284,6 +284,21 @@ for(const item of [
   'cursor following respects viewport boundaries');
  tested++;
 }
+// SHIFT-arrow manual pan must remain independent of automatic caret follow.
+// A user can intentionally move the display away from the insertion point.
+{
+ const root=[...Array.from({length:30},()=>({type:'char',value:'8'})),node('fraction',true)];
+ const manuallyPanned=makeCanvas(),ctx=manuallyPanned.getContext(),glyphs=[];
+ ctx.fillText=(value,x)=>glyphs.push({value,x});
+ const viewport={inputX:48,inputY:0,manualPan:true};
+ const ed={root,path:[],offset:0};
+ assert.equal(lcd.draw(manuallyPanned,state(root,{editor:ed,viewport})),'enhanced');
+ const first=glyphs.find(g=>g.value==='8');
+ assert.ok(first&&Math.abs(first.x+lcd.scrollOffset(root,48,ctx))<0.0001,
+  'manual pan retains its requested viewport offset');
+ assert.equal(viewport.manualPan,true,'rendering does not mutate user pan state');
+ tested+=2;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
