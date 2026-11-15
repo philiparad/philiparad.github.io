@@ -42,13 +42,25 @@ const cases=[
      return {mode,ink};
     },{nodes,screen,result,chosen});
     if(info.mode!=='enhanced'||info.ink<20)throw Error('Missing enhanced drawing for '+label+' DPR '+dpr);
-    const filename=label+'-dpr-'+String(dpr).replace('.','_')+'.png';
+    const filename=label+'-enhanced-dpr-'+String(dpr).replace('.','_')+'.png';
     await page.locator('#lcd').screenshot({path:path.join(output,filename)});
-    manifest.push({name:label,dpr,filename,...info});
+    manifest.push({name:label,dpr,renderer:'enhanced',filename,...info});
+    // Keep a same-size baseline from the old renderer for direct A/B review.
+    // This is a comparison screenshot, not an approved visual golden master.
+    await page.evaluate(({nodes,screen,result,chosen})=>{
+     const canvas=document.getElementById('lcd');
+     window.FreshLCD.draw(canvas,{power:true,screen,mode:'COMP',math:true,
+      contrast:5,input:'',result,viewport:{inputX:0,inputY:0,resultX:0},
+      editor:{root:nodes,path:[],offset:0},
+      resultPresentation:chosen?{chosen}:null});
+    },{nodes,screen,result,chosen});
+    const baselineFile=label+'-authentic-dpr-'+String(dpr).replace('.','_')+'.png';
+    await page.locator('#lcd').screenshot({path:path.join(output,baselineFile)});
+    manifest.push({name:label,dpr,renderer:'authentic',filename:baselineFile});
    }
    await context.close();
   }
   await writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-  console.log('PASS: '+manifest.length+' browser LCD screenshots, all with visible enhanced rendering.');
+  console.log('PASS: '+manifest.length+' browser LCD A/B screenshots across four DPR values.');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});
