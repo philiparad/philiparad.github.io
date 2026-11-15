@@ -10,6 +10,7 @@ on:
       - 'calculator/js/**'
       - 'calculator/tests/test_lcd_symbols.cjs'
       - 'calculator/tests/test_lcd_enhanced.cjs'
+      - 'calculator/tests/test_lcd_visual.cjs'
       - 'calculator/reference/**'
       - '.github/workflows/calculator-tauri-windows.yml'
 
@@ -45,6 +46,21 @@ jobs:
 
       - name: Validate and stage calculator assets
         run: npm run check
+
+      - name: Install Chromium for LCD screenshot checks
+        run: npx playwright install chromium
+
+      - name: Capture LCD screenshots across display scales
+        run: npm run test:lcd-visual
+
+      - name: Upload LCD visual review gallery
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: calculator-lcd-visual-regression
+          if-no-files-found: warn
+          path: calculator/desktop/lcd-screenshots/
+          retention-days: 30
 
       - name: Build Windows NSIS and MSI installers
         run: npm run build
