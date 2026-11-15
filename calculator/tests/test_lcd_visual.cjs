@@ -5,10 +5,23 @@
  */
 'use strict';
 const {chromium}=require('../desktop/node_modules/playwright');
-const {mkdir,writeFile}=require('node:fs/promises');
+const {mkdir,writeFile,readFile}=require('node:fs/promises');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const output=path.join(root,'desktop','lcd-screenshots');
+// PNG header verification needs no image-processing package.
+async function verifyPNG(file,dpr){
+ const bytes=await readFile(file);
+ const signature='89504e470d0a1a0a';
+ if(bytes.subarray(0,8).toString('hex')!==signature)
+  throw Error('Invalid screenshot PNG: '+file);
+ const width=bytes.readUInt32BE(16),height=bytes.readUInt32BE(20);
+ const expectedWidth=Math.round(496*dpr),expectedHeight=Math.round(171*dpr);
+ if(Math.abs(width-expectedWidth)>1||Math.abs(height-expectedHeight)>1)
+  throw Error('Unexpected screenshot dimensions: '+width+'x'+height+
+   ' expected ~'+expectedWidth+'x'+expectedHeight);
+ return {width,height};
+}
 const cases=[
  ['root-empty',[{type:'squareRoot',parts:{radicand:[]}}],'edit'],
  ['root-filled',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],'edit'],
@@ -44,7 +57,8 @@ const cases=[
     if(info.mode!=='enhanced'||info.ink<20)throw Error('Missing enhanced drawing for '+label+' DPR '+dpr);
     const filename=label+'-enhanced-dpr-'+String(dpr).replace('.','_')+'.png';
     await page.locator('#lcd').screenshot({path:path.join(output,filename)});
-    manifest.push({name:label,dpr,renderer:'enhanced',filename,...info});
+    const enhancedPng=await verifyPNG(path.join(output,filename),dpr);
+    manifest.push({name:label,dpr,renderer:'enhanced',filename,...info,...enhancedPng});
     // Keep a same-size baseline from the old renderer for direct A/B review.
     // This is a comparison screenshot, not an approved visual golden master.
     const comparison=await page.evaluate(({nodes,screen,result,chosen})=>{
@@ -69,7 +83,9 @@ const cases=[
      comparison.changedPixels/comparison.totalPixels;
     const baselineFile=label+'-authentic-dpr-'+String(dpr).replace('.','_')+'.png';
     await page.locator('#lcd').screenshot({path:path.join(output,baselineFile)});
-    manifest.push({name:label,dpr,renderer:'authentic',filename:baselineFile,...comparison});
+    const authenticPng=await verifyPNG(path.join(output,baselineFile),dpr);
+    manifest.push({name:label,dpr,renderer:'authentic',
+     filename:baselineFile,...comparison,...authenticPng});
    }
    await context.close();
   }
