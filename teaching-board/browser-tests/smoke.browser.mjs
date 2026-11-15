@@ -3077,7 +3077,7 @@ try{
  });
 
 
- await check('calculator toolbar icon opens and closes modal with exact calculator URL and focus recovery',async()=>{
+ await check('calculator toolbar opens movable non-modal window with focus recovery',async()=>{
   const url='https://philiparad.github.io/calculator/?key=calculator';
   await page.route(url,async route=>route.fulfill({
    status:200,contentType:'text/html',
@@ -3128,7 +3128,7 @@ try{
      width:Math.round(d.getBoundingClientRect().width),
      height:Math.round(d.getBoundingClientRect().height)};
   });
-  assert(active.open&&active.modal);
+  assert(active.open&&!active.modal,'Calculator must not make the teaching board inert');
   assert.equal(active.expanded,'true');
   assert.equal(active.label,'Close calculator');
   assert.equal(active.source,url);
@@ -3151,6 +3151,31 @@ try{
     viewportWidth:innerWidth,viewportHeight:innerHeight};
   });
   const desktopSize=await dimensions();
+  // The underlying lesson toolbar remains fully interactive.
+  const pen=page.getByRole('button',{name:'Pen (P)'});
+  await pen.click();
+  assert.equal(await pen.getAttribute('aria-pressed'),'true',
+   'The main board must remain interactive with the calculator open');
+  const select=page.getByRole('button',{name:'Select (V)'});
+  await select.click();
+  assert.equal(await select.getAttribute('aria-pressed'),'true');
+  // Mouse dragging uses the heading, not the calculator iframe or buttons.
+  const beforeDrag=await modal.boundingBox();
+  const heading=modal.locator('.board-calculator-heading');
+  const handle=await heading.boundingBox();
+  await page.mouse.move(handle.x+28,handle.y+18);
+  await page.mouse.down();
+  await page.mouse.move(handle.x-122,handle.y-22,{steps:6});
+  await page.mouse.up();
+  const afterDrag=await modal.boundingBox();
+  assert(afterDrag.x<beforeDrag.x-100&&afterDrag.y<beforeDrag.y-20,
+   'The calculator did not move when its header was dragged');
+  await heading.focus();
+  const keyboardBefore=await modal.boundingBox();
+  await heading.press('ArrowRight');
+  const keyboardAfter=await modal.boundingBox();
+  assert(keyboardAfter.x>=keyboardBefore.x+9,
+   'The header must support keyboard window movement');
   assert(Math.abs(desktopSize.dialogWidth-374)<3,
    'Desktop dialog should fit the 348px calculator case with 12px side padding');
   assert(Math.abs(desktopSize.dialogHeight-(desktopSize.faceHeight+76))<3,
@@ -3170,6 +3195,7 @@ try{
   assert(Math.abs(phoneSize.iframeHeight-(phoneSize.faceHeight+24))<3,
    'Compact dialog should scale down without large vertical gutters');
   await page.setViewportSize({width:1440,height:900});
+  await modal.getByRole('button',{name:'Close calculator'}).focus();
   await page.keyboard.press('Escape');
   await modal.waitFor({state:'hidden'});
   // Native dialog 'close' events are queued after the open state clears.
@@ -3254,7 +3280,11 @@ try{
   },boardId);
   assert.equal(untouched,0,'No result must not create a board item');
   await send.click();
-  await dialog.waitFor({state:'hidden',timeout:10000});
+  await dialog.getByRole('status').getByText('Ans sent to the board.').waitFor();
+  assert.equal(await dialog.isVisible(),true,
+   'Send Ans must not close the calculator');
+  assert.equal(await send.isEnabled(),true,
+   'The calculator should accept another Ans request');
   await page.waitForFunction(async boardId=>{
    const {BoardRepository}=await import('./js/storage.js');
    const repo=new BoardRepository(),board=await repo.get(boardId);
@@ -3276,7 +3306,7 @@ try{
   assert.deepEqual(result.item.runs,[{text:'1/3'}]);
   assert.deepEqual(result.item.paragraphs,[{align:'left',dir:'ltr',list:'none'}]);
   assert(result.hasTextOnScreen);
-  assert.equal(result.expanded,'false');
+  assert.equal(result.expanded,'true');
   assert(Math.abs(result.item.x+result.item.w/2-result.center.x)<2);
   assert(Math.abs(result.item.y+result.item.h/2-result.center.y)<2);
   await page.getByRole('button',{name:'Undo',exact:true}).click();
@@ -3291,6 +3321,16 @@ try{
    const repo=new BoardRepository(),b=await repo.get(boardId);repo.close();
    return b?.items.length===1&&b.items[0].text==='1/3';
   },boardId);
+  // A second answer can be sent from the same iframe without reopening it.
+  await send.click();
+  await page.waitForFunction(async boardId=>{
+   const {BoardRepository}=await import('./js/storage.js');
+   const repo=new BoardRepository(),b=await repo.get(boardId);repo.close();
+   return b?.items.length===2&&b.items.every(item=>item.text==='1/3');
+  },boardId);
+  assert.equal(await dialog.isVisible(),true);
+  await dialog.getByRole('button',{name:'Close calculator'}).click();
+  await dialog.waitFor({state:'hidden'});
   await page.unroute(remote);
  });
 
