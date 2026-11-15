@@ -1,7 +1,7 @@
 import {el,btn} from './ui.js?v=20261017-history-budget';
 import {toolIcon} from './tool-icons.js?v=20261114-calculator-modal';
 import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js';
-import {clampFloatingWindowPosition,initialFloatingWindowPosition} from './calculator-window-position.js';
+import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios} from './calculator-window-position.js?v=20261115-calculator-position';
 
 export const CALCULATOR_URL='https://philiparad.github.io/calculator/?key=calculator';
 const CALCULATOR_ORIGIN=new URL(CALCULATOR_URL).origin;
@@ -20,6 +20,7 @@ export class CalculatorModal {
   this.loaded=false;
   this.pending=null;
   this.position=null;
+  this.positionPreference=readCalculatorWindowPosition(this.positionStorage());
   this.drag=null;
   this.dialog=el('dialog',null,'board-calculator-dialog');
   this.dialog.id='board-calculator-dialog-'+(++nextDialogId);
@@ -34,7 +35,7 @@ export class CalculatorModal {
   heading.addEventListener('pointermove',event=>this.moveDrag(event));
   heading.addEventListener('pointerup',event=>this.endDrag(event));
   heading.addEventListener('pointercancel',event=>this.endDrag(event));
-  heading.addEventListener('lostpointercapture',()=>{this.drag=null;});
+  heading.addEventListener('lostpointercapture',event=>this.endDrag(event));
   heading.addEventListener('keydown',event=>this.moveWithKeyboard(event));
   const title=el('h2','CASIO calculator');
   const actions=el('div',null,'board-calculator-actions');
@@ -72,7 +73,7 @@ export class CalculatorModal {
   this.button.setAttribute('aria-controls',this.dialog.id);
   this.button.setAttribute('aria-expanded','false');
   this.responseHandler=event=>this.receiveAnswer(event);
-  this.resizeHandler=()=>{if(this.dialog.open)this.positionWindow();};
+  this.resizeHandler=()=>{if(this.dialog.open)this.positionWindow(true);};
   window.addEventListener('message',this.responseHandler);
   window.addEventListener('resize',this.resizeHandler);
   this.dialog.addEventListener('keydown',event=>{
@@ -103,13 +104,29 @@ export class CalculatorModal {
   this.status.hidden=false;
   this.sendButton.disabled=!this.loaded||!!this.pending;
  }
- positionWindow(){
+ positionStorage(){
+  try{return window.localStorage;}catch{return null;}
+ }
+ /** Persist only after actual movement; opening at default does not write. */
+ saveWindowPosition(){
+  if(!this.dialog.open||!this.position)return;
+  const rect=this.dialog.getBoundingClientRect();
+  this.positionPreference=windowPositionRatios(this.position,
+   rect.width,rect.height,window.innerWidth,window.innerHeight);
+  storeCalculatorWindowPosition(this.positionStorage(),this.position,
+   rect.width,rect.height,window.innerWidth,window.innerHeight);
+ }
+ positionWindow(usePreference=false){
   if(!this.dialog.open)return;
   const rect=this.dialog.getBoundingClientRect();
-  const wanted=this.position||initialFloatingWindowPosition(
-   rect.width,rect.height,window.innerWidth,window.innerHeight);
+  const w=window.innerWidth,h=window.innerHeight;
+  const wanted=(usePreference||!this.position)
+   ?(this.positionPreference
+     ?restoreCalculatorWindowPosition(this.positionPreference,rect.width,rect.height,w,h)
+     :initialFloatingWindowPosition(rect.width,rect.height,w,h))
+   :this.position;
   this.position=clampFloatingWindowPosition(wanted.x,wanted.y,
-   rect.width,rect.height,window.innerWidth,window.innerHeight);
+   rect.width,rect.height,w,h);
   this.dialog.style.left=this.position.x+'px';
   this.dialog.style.top=this.position.y+'px';
  }
@@ -118,13 +135,15 @@ export class CalculatorModal {
      event.isPrimary===false||event.target.closest?.('button'))return;
   const rect=this.dialog.getBoundingClientRect();
   this.drag={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,
-   left:rect.left,top:rect.top};
+   left:rect.left,top:rect.top,moved:false};
   this.heading.setPointerCapture?.(event.pointerId);
   event.preventDefault();
  }
  moveDrag(event){
   if(!this.drag||this.drag.pointerId!==event.pointerId)return;
   const rect=this.dialog.getBoundingClientRect();
+  if(Math.abs(event.clientX-this.drag.startX)+Math.abs(event.clientY-this.drag.startY)>1)
+   this.drag.moved=true;
   this.position=clampFloatingWindowPosition(
    this.drag.left+event.clientX-this.drag.startX,
    this.drag.top+event.clientY-this.drag.startY,
@@ -134,8 +153,9 @@ export class CalculatorModal {
  }
  endDrag(event){
   if(!this.drag||(event&&this.drag.pointerId!==event.pointerId))return;
-  const id=this.drag.pointerId;
+  const {pointerId:id,moved}=this.drag;
   this.drag=null;
+  if(moved)this.saveWindowPosition();
   if(this.heading.hasPointerCapture?.(id))this.heading.releasePointerCapture(id);
  }
  moveWithKeyboard(event){
@@ -148,6 +168,7 @@ export class CalculatorModal {
   this.position=clampFloatingWindowPosition(rect.left+deltaX,rect.top+deltaY,
    rect.width,rect.height,window.innerWidth,window.innerHeight);
   this.positionWindow();
+  this.saveWindowPosition();
   event.preventDefault();
   event.stopPropagation();
  }
@@ -200,7 +221,7 @@ export class CalculatorModal {
   this.loaded=false;
   this.sendButton.disabled=true;
   this.frame.src=CALCULATOR_URL;
-  try{this.dialog.show();this.positionWindow();}
+  try{this.dialog.show();this.positionWindow(true);}
   catch(e){this.frame.removeAttribute('src');throw e;}
   this.button.setAttribute('aria-expanded','true');
   this.button.setAttribute('aria-label','Close calculator');
