@@ -1,0 +1,1125 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#3b146e">
+    <meta name="description" content="Interactive FIFO queue visualization — pure HTML, CSS, and JavaScript.">
+    <title>Queue Visualization | FIFO</title>
+    <style>
+:root {
+    color-scheme: dark;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    --purple-deep: #32105f;
+    --purple-panel: rgba(107, 33, 168, .36);
+    --purple-border: rgba(192, 132, 252, .32);
+    --lavender: #e9d5ff;
+    --muted: #d3b8f1;
+    --green: #10b981;
+    --red: #dc2626;
+    --cyan: #22d3ee;
+    --yellow: #f59e0b;
+    --code-bg: #17102d;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; margin: 0; }
+body { background: #32105f; }
+button, input, select { font: inherit; }
+button, select { -webkit-tap-highlight-color: transparent; }
+button { user-select: none; }
+.page {
+    min-height: 100vh;
+    padding: clamp(16px, 4vw, 42px);
+    color: #fff;
+    background: linear-gradient(132deg, #391065 0%, #542095 54%, #31236f 100%);
+}
+.panel {
+    max-width: 1152px;
+    margin: 0 auto;
+    padding: clamp(18px, 3vw, 34px);
+    border: 1px solid var(--purple-border);
+    border-radius: 22px;
+    background: var(--purple-panel);
+    box-shadow: 0 25px 75px rgba(19, 4, 43, .30);
+    backdrop-filter: blur(10px);
+}
+.header-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.lang-picker, .code-picker { display: inline-flex; align-items: center; gap: 9px; }
+.lang-picker label, .code-picker label { font-weight: 650; font-size: .88rem; color: #f0e0ff; }
+.lang-picker select, .code-picker select { min-height: 40px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 30px; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.45rem); line-height: 1.17; margin: 0; font-weight: 760; letter-spacing: -.035em; }
+.subtitle { margin: 8px 0 0; color: var(--muted); font-size: .95rem; }
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; min-height: 43px; border: 0; border-radius: 9px;
+    padding: 10px 16px; color: #fff; font-size: .94rem; font-weight: 650;
+    cursor: pointer; transition: background-color .16s, transform .16s, box-shadow .16s;
+    white-space: nowrap;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(0); }
+.btn:disabled { cursor: not-allowed; background: #666575; color: #ddd; opacity: .78; }
+.btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn-reset { background: #7935ca; }
+.btn-reset:hover { background: #8b4cda; }
+.btn-insert { background: #059669; }
+.btn-insert:hover { background: #0bab7b; }
+.btn-sentinel, .btn-remove { background: #dc2626; }
+.btn-sentinel:hover, .btn-remove:hover { background: #ef4444; }
+.btn-remove { min-height: 40px; padding: 8px 13px; font-size: .875rem; }
+.btn-info { background: #0f766e; }
+.btn-info:hover { background: #15938a; }
+.controls { margin-bottom: 24px; }
+.controls-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.field {
+    min-height: 43px; border: 1px solid rgba(192, 132, 252, .65); border-radius: 9px;
+    background: rgba(85, 30, 147, .65); color: #fff; padding: 9px 14px; outline: 0;
+}
+.field:focus-visible, .btn:focus-visible, .queue-item:focus-visible {
+    outline: 3px solid #6ee7b7; outline-offset: 3px;
+}
+.field::placeholder { color: #e2ccef; opacity: .85; }
+.select-field { min-width: 134px; cursor: pointer; }
+.select-field option { background: #512389; }
+.value-field { min-width: 205px; flex: 1 1 230px; max-width: 350px; }
+.count { font-size: .91rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.mini-note { margin-top: 10px; color: #d8c2f7; font-size: .82rem; line-height: 1.55; }
+.error-message {
+    margin-top: 13px; width: fit-content; max-width: 100%;
+    border: 1px solid rgba(248, 113, 113, .6); border-radius: 8px;
+    padding: 9px 13px; color: #fecaca; background: rgba(127, 29, 29, .3);
+    font-size: .9rem;
+}
+.error-message[hidden] { display: none; }
+.section-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+h2 { color: #6ee7b7; font-size: 1.4rem; font-weight: 730; margin: 0; }
+.queue-tag { font-size: .72rem; font-weight: 760; letter-spacing: .12em; border: 1px solid rgba(110, 231, 183, .38); border-radius: 50px; padding: 4px 9px; color: #a7f3d0; }
+.queue-drop-area {
+    border: 2px dashed #8b5cf6; border-radius: 14px;
+    padding: 24px 20px; min-height: 150px;
+    background: rgba(107, 33, 168, .16);
+    transition: border-color .17s, background-color .17s;
+}
+.queue-drop-area.drag-over { border-color: #6ee7b7; background: rgba(5, 150, 105, .12); }
+/* The physical queue keeps BACK on the left and FRONT on the right in either language. */
+.queue-layout { direction: ltr; display: flex; align-items: center; gap: clamp(8px, 1.4vw, 14px); min-width: 0; }
+.end-side { direction: ltr; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.end-side.back { color: #d1fae5; }
+.end-side.front { color: #fee2e2; }
+.end-label { font-size: .87rem; font-weight: 750; letter-spacing: .01em; color: inherit; white-space: nowrap; }
+.queue-scroller { flex: 1 1 auto; min-width: 0; overflow-x: auto; padding: 6px 0 12px; scrollbar-color: #a78bfa transparent; scrollbar-width: thin; }
+.queue-items { direction: ltr; display: flex; align-items: center; gap: 10px; width: max-content; min-height: 70px; }
+.queue-item {
+    flex: 0 0 64px; width: 64px; height: 64px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    color: #fff; font-size: 1.2rem; font-weight: 780; letter-spacing: -.02em;
+    box-shadow: 0 9px 19px rgba(0, 0, 0, .18);
+    background: var(--green); user-select: none; touch-action: pan-y;
+    transition: transform .17s, filter .17s, opacity .17s, box-shadow .17s;
+}
+.queue-item.sentinel { background: var(--red); }
+.queue-item:not(.front-item) { opacity: .73; cursor: not-allowed; }
+.queue-item.front-item { cursor: grab; touch-action: none; box-shadow: 0 0 0 2px rgba(255,255,255,.22), 0 12px 24px rgba(0,0,0,.25); }
+.queue-item.front-item:hover { transform: scale(1.055); filter: brightness(1.10); }
+.queue-item.front-item:active { cursor: grabbing; }
+.queue-item.dragging { opacity: .38; }
+.queue-item.highlight-head {
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, .55), 0 12px 22px rgba(34, 211, 238, .28);
+}
+.grip { position: absolute; top: 5px; right: 5px; width: 15px; height: 15px; opacity: .6; }
+.grip circle { fill: currentColor; }
+.empty { color: var(--muted); font-style: italic; white-space: nowrap; }
+.scroll-hint { margin: 8px 0 0; color: var(--muted); font-size: .77rem; }
+.scroll-hint[hidden] { display: none; }
+.drop-hint { display: none; margin-top: 14px; color: #a7f3d0; font-size: .81rem; font-weight: 650; }
+.queue-drop-area.drag-over .drop-hint { display: block; }
+.inspector {
+    margin-top: 22px; padding: 18px 20px; border-radius: 12px;
+    border: 1px solid rgba(192, 132, 252, .24); background: rgba(45, 16, 86, .38);
+}
+.inspector h3 { margin: 0 0 12px; font-size: 1.02rem; }
+.inspector-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 14px; }
+.info-card {
+    border-radius: 12px; padding: 14px; border: 1px solid rgba(148, 163, 184, .24);
+    background: rgba(91, 33, 182, .18);
+}
+.info-card-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.info-card-title strong { font-size: .98rem; }
+.info-result {
+    min-height: 50px; display: flex; align-items: center; justify-content: center;
+    border-radius: 10px; border: 1px dashed rgba(255,255,255,.24);
+    background: rgba(17, 24, 39, .25); color: #fff; font-size: 1.08rem; font-weight: 750;
+    padding: 10px 12px; text-align: center;
+}
+.info-result.active { animation: pulseInfo .6s ease; }
+.info-result.empty-state { color: #fca5a5; }
+@keyframes pulseInfo {
+    0% { transform: scale(.97); box-shadow: 0 0 0 0 rgba(34, 211, 238, .5); }
+    55% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(34, 211, 238, 0); }
+    100% { transform: scale(1); box-shadow: none; }
+}
+.rules { margin-top: 31px; padding: 20px 23px; border: 1px solid rgba(192, 132, 252, .23); border-radius: 12px; background: rgba(49, 16, 95, .43); }
+h3 { font-size: 1.08rem; margin: 0 0 10px; font-weight: 730; }
+.rules ul { margin: 0; padding-left: 21px; color: #eadbff; font-size: .9rem; line-height: 1.8; }
+.rules li::marker { color: #a78bfa; }
+.rules code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .95em; color: #fff; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.touch-ghost {
+    position: fixed; z-index: 1000; pointer-events: none; margin: 0;
+    opacity: .94; transform: translate(-50%, -50%) scale(1.09);
+    box-shadow: 0 12px 34px rgba(0,0,0,.34);
+}
+.removed-flyer {
+    position: fixed; z-index: 1200; display: flex; align-items: center; justify-content: center;
+    border-radius: 11px; color: #fff; font-weight: 780; pointer-events: none;
+    box-shadow: 0 10px 22px rgba(0,0,0,.26);
+}
+.operation-line { margin-top: 14px; color: #ccebf6; font-size: .9rem; font-weight: 650; }
+.operation-line strong { color: #fff; }
+[dir="rtl"] .rules ul { padding-left: 0; padding-right: 21px; }
+[dir="rtl"] .page-header { text-align: right; }
+[dir="rtl"] .section-heading { text-align: right; }
+[dir="rtl"] .operation-line { text-align: right; }
+[dir="rtl"] .queue-drop-area .drop-hint,
+[dir="rtl"] .queue-drop-area .scroll-hint { text-align: right; }
+.code-panel { margin-top: 24px; padding: 20px 22px; border: 1px solid rgba(148, 163, 184, .30); border-radius: 14px; background: rgba(34, 14, 73, .64); }
+.code-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+.code-header h3 { color: #93e2fe; margin: 0; }
+.code-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.code-notice { margin: 8px 0 12px; font-size: .84rem; color: #ddcef5; line-height: 1.55; }
+.code-action { background: rgba(103, 232, 249, .10); border: 1px solid rgba(103, 232, 249, .29); border-radius: 10px; margin-bottom: 12px; padding: 10px 12px; font-size: .91rem; line-height: 1.55; }
+.code-action strong { color: #7dd3fc; }
+.code-lines { direction: ltr !important; text-align: left !important; unicode-bidi: isolate; background: var(--code-bg); border: 1px solid rgba(167,139,250,.35); border-radius: 10px; padding: 10px 0; overflow-x: auto; scrollbar-color: #8b5cf6 #17102d; }
+.code-line { direction: ltr; display: grid; grid-template-columns: 38px minmax(0,1fr); gap: 12px; padding: 4px 14px 4px 4px; align-items: baseline; min-width: max-content; border-inline-start: 4px solid transparent; }
+.code-line.active { border-inline-start-color: #67e8f9; background: rgba(34,211,238,.16); }
+.code-line .line-no { color: #887aa5; text-align: right; font: .78rem/1.5 ui-monospace, Consolas, monospace; user-select: none; }
+.code-line code { font: .88rem/1.5 Consolas, 'Liberation Mono', ui-monospace, monospace; color: #f4f1ff; white-space: pre; unicode-bidi: isolate; }
+.code-line.comment code { color: #baa8d6; }
+.code-line.active code { color: #b5ffed; }
+.code-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; color: #c8b4ee; font-size: .79rem; margin-top: 9px; }
+.code-token { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+@media (prefers-reduced-motion: reduce) { .code-line.active { background: rgba(34,211,238,.18); } }
+
+@media (max-width: 860px) {
+    .queue-layout { flex-wrap: wrap; }
+    .queue-scroller { order: 3; flex-basis: 100%; }
+    .end-side.front { margin-left: auto; }
+    .queue-drop-area { padding: 16px; }
+    .inspector-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 540px) {
+    .page { padding: 12px; }
+    .panel { border-radius: 14px; padding: 16px; }
+    .page-header { align-items: center; flex-wrap: wrap; }
+    .header-actions { width: 100%; justify-content: space-between; }
+    .code-panel { padding: 14px; }
+    .code-line { gap: 8px; padding-right: 8px; }
+
+    .subtitle { font-size: .83rem; }
+    .btn-reset { padding: 8px 11px; }
+    .value-field { flex-basis: 100%; max-width: none; }
+    .controls-row { gap: 9px; }
+    .rules, .inspector { padding: 15px; }
+    .queue-item { flex-basis: 52px; width: 52px; height: 56px; font-size: 1.05rem; }
+    .queue-items { gap: 6px; }
+    .end-side { gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; }
+}
+    </style>
+</head>
+<body>
+    <main id="app" class="page">
+        <section class="panel" aria-labelledby="pageTitle">
+            <header class="page-header">
+                <div class="title-wrap">
+                    <h1 id="pageTitle" data-i18n="title">Queue Visualization</h1>
+                    <p class="subtitle" data-i18n="subtitle">Explore how a First-In, First-Out queue works.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="lang-picker">
+                        <label for="uiLang" data-i18n="uiLanguage">Language</label>
+                        <select id="uiLang" class="field" aria-label="Interface language">
+                            <option value="en">English</option>
+                            <option value="he">עברית</option>
+                        </select>
+                    </div>
+                    <button id="resetBtn" class="btn btn-reset" type="button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v6h6"/></svg>
+                        <span data-i18n="reset">Reset</span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="controls" aria-label="Queue controls" data-i18n-aria="queueControls">
+                <div class="controls-row">
+                    <label class="sr-only" for="dataType" data-i18n="queueType">Queue data type</label>
+                    <select id="dataType" class="field select-field">
+                        <option value="int" data-i18n="integer">Integer</option>
+                        <option value="double" data-i18n="double">Double</option>
+                        <option value="char" data-i18n="char">Char</option>
+                    </select>
+
+                    <label class="sr-only" for="newValue" data-i18n="valueToInsert">Value to insert</label>
+                    <input id="newValue" class="field value-field" type="text"
+                           autocomplete="off" spellcheck="false" inputmode="numeric"
+                           placeholder="Enter integer (0–99)">
+                    <button id="sentinelBtn" class="btn btn-sentinel" type="button" data-i18n="addSentinel">Add Sentinel</button>
+                    <span id="queueCount" class="count" role="status" aria-live="polite">(5/10)</span>
+                </div>
+                <p id="conversionNote" class="mini-note" data-i18n="conversionNote">Type changes are predictable: sentinels are preserved; numeric → char maps 0 → A, 1 → B, …, 25 → Z.</p>
+                <div id="errorMessage" class="error-message" role="alert" hidden></div>
+            </section>
+
+            <section class="queue-section" aria-labelledby="queueTitle">
+                <div class="section-heading">
+                    <h2 id="queueTitle" data-i18n="mainQueue">Main Queue</h2>
+                    <span class="queue-tag">FIFO</span>
+                </div>
+                <div id="queueDropArea" class="queue-drop-area" aria-label="Drop front item here to move it to the back" data-i18n-aria="dropArea">
+                    <div class="queue-layout">
+                        <div class="end-side back">
+                            <button id="insertBtn" class="btn btn-insert" type="button">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                                <span data-i18n="insert">Insert</span>
+                            </button>
+                            <span class="end-label back-label"><span data-i18n="back">BACK</span> <span aria-hidden="true">→</span></span>
+                        </div>
+                        <div class="queue-scroller">
+                            <div id="queueItems" class="queue-items" aria-label="Items in the queue, from back to front" data-i18n-aria="queueItemsLabel"></div>
+                        </div>
+                        <div class="end-side front">
+                            <span class="end-label front-label"><span aria-hidden="true">←</span> <span data-i18n="front">FRONT</span></span>
+                            <button id="removeBtn" class="btn btn-remove" type="button" data-i18n="remove">Remove</button>
+                        </div>
+                    </div>
+                    <div id="dropHint" class="drop-hint" aria-hidden="true" data-i18n="dropHint">Drop here to move FRONT to BACK</div>
+                    <p id="scrollHint" class="scroll-hint" hidden data-i18n="scrollHint">Swipe sideways to see additional queue items.</p>
+                    <p class="operation-line" data-i18n="operationRule">Insert always adds at the BACK. Remove always removes from the FRONT.</p>
+                </div>
+                <p id="queueAnnouncement" class="sr-only" role="status" aria-live="polite"></p>
+            </section>
+
+            <section class="inspector" aria-labelledby="inspectorTitle">
+                <h3 id="inspectorTitle" data-i18n="inspectorTitle">Queue Inspector</h3>
+                <div class="inspector-grid">
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <strong>Head()</strong>
+                            <button id="headBtn" class="btn btn-info" type="button" data-i18n="showHead">Show Head()</button>
+                        </div>
+                        <div id="headValue" class="info-result">5</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <strong>IsEmpty()</strong>
+                            <button id="isEmptyBtn" class="btn btn-info" type="button" data-i18n="checkEmpty">Check IsEmpty()</button>
+                        </div>
+                        <div id="isEmptyValue" class="info-result">false</div>
+                    </div>
+                </div>
+                <p class="mini-note" data-i18n="inspectorNote">Head() shows the value at the FRONT without removing it. IsEmpty() tells whether the queue is empty.</p>
+            </section>
+
+            <section class="code-panel" aria-labelledby="codeTitle">
+                <div class="code-header">
+                    <h3 id="codeTitle" data-i18n="codeTitle">Live synchronized code</h3>
+                    <div class="code-controls">
+                        <div class="code-picker">
+                            <label for="codeLang" data-i18n="codeLanguage">Code</label>
+                            <select id="codeLang" class="field" aria-label="Programming language">
+                                <option value="cs">C#</option>
+                                <option value="java">Java</option>
+                            </select>
+                        </div>
+                        <button id="copyCodeBtn" class="btn btn-reset" type="button" data-i18n="copyCode">Copy code</button>
+                    </div>
+                </div>
+                <p id="codeNote" class="code-notice" data-i18n="codeNote">The code models a classroom Queue class with Insert(), Remove(), Head(), and IsEmpty(). It is a synchronized teaching trace, not a code interpreter.</p>
+                <div id="codeAction" class="code-action" role="status" aria-live="polite"></div>
+                <div id="codeLines" class="code-lines" role="region" aria-label="Generated queue code" data-i18n-aria="codeLinesLabel"></div>
+                <div class="code-footer"><span id="codeStepCount"></span><span data-i18n="codeHint">The most recent operation is highlighted.</span></div>
+            </section>
+
+            <section class="rules" aria-labelledby="rulesTitle">
+                <h3 id="rulesTitle" data-i18n="rulesTitle">Queue Rules (FIFO)</h3>
+                <ul>
+                    <li data-i18n="ruleRemove">Remove takes the FRONT item.</li>
+                    <li data-i18n="ruleInsert">Insert adds an item at the BACK.</li>
+                    <li data-i18n="ruleRotate">Drag the front item inside the queue to move it to the back.</li>
+                    <li data-i18n="ruleDrop">Drag the front item outside the queue to remove it.</li>
+                    <li data-i18n="ruleKeyboard">Press Enter on the selected front item to move it to the back.</li>
+                    <li data-i18n="ruleSentinel">Sentinels: -1 (numbers), '-' (char), highlighted in red.</li>
+                    <li data-i18n="ruleLimits">Up to 10 items. Integers 0–99; doubles 0 to less than 100; chars A–Z or a–z.</li>
+                </ul>
+            </section>
+        </section>
+    </main>
+<script>
+(() => {
+    'use strict';
+
+    const MAX_ITEMS = 10;
+    const INITIAL_BY_TYPE = {
+        int: [9, 1, 8, 3, 5],
+        double: [9.0, 1.5, 8.2, 3.1, 5.0],
+        char: ['J', 'B', 'I', 'D', 'F']
+    };
+
+    const state = {
+        queue: [],
+        dataType: 'int',
+        dragging: false,
+        nextId: 1,
+        pendingInsertedId: null,
+        lastOperation: '',
+        highlightFront: false
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const app = $('app');
+    const queueArea = $('queueDropArea');
+    const queueItems = $('queueItems');
+    const typeSelect = $('dataType');
+    const valueInput = $('newValue');
+    const errorBox = $('errorMessage');
+    const announceBox = $('queueAnnouncement');
+    const insertButton = $('insertBtn');
+    const sentinelButton = $('sentinelBtn');
+    const removeButton = $('removeBtn');
+    const count = $('queueCount');
+    const headValueBox = $('headValue');
+    const isEmptyValueBox = $('isEmptyValue');
+
+    const STRINGS = {
+        en: {
+            title: 'Queue Visualization', subtitle: 'Explore how a First-In, First-Out queue works.',
+            uiLanguage: 'Language', reset: 'Reset', queueControls: 'Queue controls',
+            queueType: 'Queue data type', integer: 'Integer', double: 'Double', char: 'Char',
+            valueToInsert: 'Value to insert', addSentinel: 'Add Sentinel',
+            conversionNote: 'Type changes use predictable conversions. Sentinel values are preserved; 0 → A, 1 → B, …, 25 → Z. Switching types starts a new code example.',
+            mainQueue: 'Main Queue', dropArea: 'Drop front item here to move it to the back',
+            insert: 'Insert', back: 'BACK', front: 'FRONT', remove: 'Remove',
+            queueItemsLabel: 'Queue items from back to front',
+            dropHint: 'Drop here to move FRONT to BACK', scrollHint: 'Scroll sideways to see additional items.',
+            operationRule: 'Insert adds to the BACK; Remove takes from the FRONT.',
+            inspectorTitle: 'Queue Inspector', showHead: 'Show Head()', checkEmpty: 'Check IsEmpty()',
+            inspectorNote: 'Head() reads the FRONT without removal. IsEmpty() checks whether there are no items.',
+            rulesTitle: 'Queue Rules (FIFO)',
+            ruleRemove: 'Remove takes only the FRONT item.', ruleInsert: 'Insert adds only at the BACK.',
+            ruleRotate: 'Drag the FRONT item inside the queue to move it to the BACK.',
+            ruleDrop: 'Drag the FRONT item outside the queue to remove it.',
+            ruleKeyboard: 'Press Enter or Space on the focused FRONT item to move it to the BACK.',
+            ruleSentinel: 'Sentinels: -1 for numbers, - for char; highlighted in red.',
+            ruleLimits: 'Maximum 10 items. Integer: 0–99; double: 0 to less than 100; char: A–Z / a–z.',
+            codeTitle: 'Live synchronized code', codeLanguage: 'Code', copyCode: 'Copy code',
+            codeNote: 'Uses a classroom Queue class (not the standard library queue). C#: Insert / Remove / Head / IsEmpty. Java: insert / remove / head / isEmpty. The code is a teaching trace, not executed in the browser.',
+            codeLinesLabel: 'Generated queue code', codeHint: 'The latest operation is highlighted.',
+            ready: 'Ready — choose an operation and watch the corresponding code.',
+            inserted: (v) => `Inserted ${v} at BACK.`, removed: (v) => `Removed ${v} from FRONT.`,
+            rotated: (v) => `Moved ${v} from FRONT to BACK (Remove + Insert).`,
+            sentinelAdded: (v) => `Inserted sentinel ${v} at BACK.`,
+            headResult: (v) => `Head() returned ${v}; the queue did not change.`,
+            emptyHead: 'Head() cannot be called on an empty queue.',
+            emptyResult: (v) => `IsEmpty() returned ${v}.`,
+            switchedType: 'Type changed; current values are now the new code example.',
+            resetDone: 'Reset — initial values restored.',
+            stepCount: (n) => `${n} operation${n === 1 ? '' : 's'} recorded`,
+            empty: 'Empty', emptyQueue: 'Empty queue',
+            placeholder_int: 'Enter integer (0–99)', placeholder_double: 'Enter decimal (0–99.99)',
+            placeholder_char: 'Enter character (A–Z, a–z)',
+            errFull: 'Queue is full (maximum 10 items)', errMissing: 'Please enter a value',
+            errInt: 'Enter an integer from 0 to 99', errDouble: 'Enter a number from 0 (inclusive) to 100 (exclusive)',
+            errChar: 'Enter one character from A–Z or a–z',
+            copied: 'Code copied to clipboard.', copyFailed: 'Copy was unavailable. Select the code to copy it.'
+        },
+        he: {
+            title: 'המחשת תור', subtitle: 'לומדים כיצד פועל תור לפי העיקרון: הראשון שנכנס — הראשון שיוצא.',
+            uiLanguage: 'שפה', reset: 'איפוס', queueControls: 'פעולות התור',
+            queueType: 'טיפוס הנתונים', integer: 'מספר שלם', double: 'מספר ממשי', char: 'תו',
+            valueToInsert: 'ערך להכנסה', addSentinel: 'הוספת זקיף',
+            conversionNote: 'המרת הטיפוס קבועה וצפויה מראש: ערכי זקיף נשמרים; 0 → A, 1 → B, …, 25 → Z. שינוי טיפוס מתחיל דוגמת קוד חדשה.',
+            mainQueue: 'התור הראשי', dropArea: 'גררו לכאן את האיבר שבראש התור כדי להעבירו לסוף',
+            insert: 'Insert', back: 'סוף התור', front: 'ראש התור', remove: 'Remove',
+            queueItemsLabel: 'איברי התור מסוף התור אל ראש התור',
+            dropHint: 'שחררו כאן כדי להעביר את ראש התור לסופו', scrollHint: 'ניתן לגלול לצדדים כדי לראות איברים נוספים.',
+            operationRule: 'Insert מוסיפה לסוף התור; Remove מוציאה מראש התור.',
+            inspectorTitle: 'בדיקת התור', showHead: 'הפעלת Head()', checkEmpty: 'בדיקת IsEmpty()',
+            inspectorNote: 'Head() מחזירה את הערך שבראש התור מבלי להוציא אותו. IsEmpty() בודקת אם התור ריק.',
+            rulesTitle: 'כללי התור (FIFO)',
+            ruleRemove: 'הפעולה Remove מוציאה אך ורק את האיבר שבראש התור.',
+            ruleInsert: 'הפעולה Insert מכניסה איבר חדש לסוף התור.',
+            ruleRotate: 'גררו את האיבר שבראש התור לתוך מסגרת התור כדי להעבירו לסוף.',
+            ruleDrop: 'גררו את האיבר שבראש התור אל מחוץ למסגרת כדי להסירו.',
+            ruleKeyboard: 'הקישו Enter או רווח על האיבר שבראש התור כדי להעבירו לסוף.',
+            ruleSentinel: 'ערכי זקיף: ‎-1 במספרים או ‎- בתווים; מסומנים באדום.',
+            ruleLimits: 'מותר להכניס עד 10 איברים. מספרים שלמים: 0–99; ממשיים: מ־0 עד פחות מ־100; תווים באנגלית.',
+            codeTitle: 'קוד מסונכרן לפעולות', codeLanguage: 'שפת תכנות', copyCode: 'העתקת קוד',
+            codeNote: 'דוגמה למחלקת Queue לימודית (לא למחלקת התור הסטנדרטית). ב־C#: Insert / Remove / Head / IsEmpty; ב־Java: insert / remove / head / isEmpty. הקוד מציג את הפעולות שנעשו, ואינו מורץ בדפדפן.',
+            codeLinesLabel: 'הקוד שנוצר לפי פעולות התור', codeHint: 'השורות של הפעולה האחרונה מודגשות.',
+            ready: 'מוכנים — בצעו פעולה בתור וצפו בשורת הקוד המתאימה.',
+            inserted: (v) => `הערך ${v} נכנס לסוף התור.`, removed: (v) => `הערך ${v} הוצא מראש התור.`,
+            rotated: (v) => `הערך ${v} הועבר מראש התור לסופו (Remove ואחריה Insert).`,
+            sentinelAdded: (v) => `ערך הזקיף ${v} נוסף לסוף התור.`,
+            headResult: (v) => `Head() החזירה ${v}; התור לא השתנה.`,
+            emptyHead: 'לא ניתן לבצע Head() על תור ריק.',
+            emptyResult: (v) => `IsEmpty() החזירה ${v}.`,
+            switchedType: 'הטיפוס השתנה; ערכי התור הנוכחיים משמשים כדוגמת קוד חדשה.',
+            resetDone: 'איפוס — התור חזר לערכיו ההתחלתיים.',
+            stepCount: (n) => `${n} פעולות שנרשמו`,
+            empty: 'ריק', emptyQueue: 'התור ריק',
+            placeholder_int: 'הכניסו מספר שלם (0–99)', placeholder_double: 'הכניסו מספר ממשי (0–99.99)',
+            placeholder_char: 'הכניסו אות באנגלית (A–Z, a–z)',
+            errFull: 'התור מלא (מקסימום 10 איברים)', errMissing: 'יש להכניס ערך',
+            errInt: 'יש להכניס מספר שלם בין 0 ל־99', errDouble: 'יש להכניס מספר מ־0 (כולל) עד 100 (לא כולל)',
+            errChar: 'יש להכניס אות אחת באנגלית (A–Z, a–z)',
+            copied: 'הקוד הועתק ללוח.', copyFailed: 'לא ניתן להעתיק אוטומטית. ניתן לסמן ולהעתיק את הקוד.'
+        }
+    };
+
+    let uiLanguage = 'en';
+    let codeLanguage = 'cs';
+    let baselineQueue = [];
+    let codeHistory = [];
+    let latestDescription = 'ready';
+    let latestValue = null;
+    let generatedCode = '';
+
+    function tr(key, ...params) {
+        const textOrFn = STRINGS[uiLanguage][key];
+        return typeof textOrFn === 'function' ? textOrFn(...params) : (textOrFn ?? key);
+    }
+
+    function refreshLabels() {
+        document.documentElement.lang = uiLanguage;
+        document.documentElement.dir = uiLanguage === 'he' ? 'rtl' : 'ltr';
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+            el.textContent = tr(el.dataset.i18n);
+        });
+        document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+            el.setAttribute('aria-label', tr(el.dataset.i18nAria));
+        });
+        $('uiLang').setAttribute('aria-label', tr('uiLanguage'));
+        $('codeLang').setAttribute('aria-label', tr('codeLanguage'));
+        refreshInputHint();
+        updateInspector();
+        renderCode();
+    }
+
+    function refreshInputHint() {
+        valueInput.placeholder = tr('placeholder_' + state.dataType);
+        valueInput.setAttribute('aria-label', tr('valueToInsert'));
+    }
+
+    function valueLiteral(value) {
+        if (state.dataType === 'char') {
+            return `'${String(value).replace(/'/g, "\\'")}'`;
+        }
+        return formatValue(value);
+    }
+
+    function getCodeTypes() {
+        const types = codeLanguage === 'cs'
+            ? { int: 'int', double: 'double', char: 'char' }
+            : { int: 'Integer', double: 'Double', char: 'Character' };
+        return { generic: types[state.dataType], local: codeLanguage === 'java'
+            ? { int: 'int', double: 'double', char: 'char' }[state.dataType]
+            : types[state.dataType] };
+    }
+
+    function method(name) {
+        return codeLanguage === 'cs' ? name : name[0].toLowerCase() + name.slice(1);
+    }
+
+    function stepCode(step, stepNumber) {
+        const { local } = getCodeTypes();
+        switch (step.kind) {
+            case 'insert': case 'sentinel':
+                return [`q.${method('Insert')}(${valueLiteral(step.value)});`];
+            case 'remove':
+                return [`q.${method('Remove')}(); // removed ${valueLiteral(step.value)}`];
+            case 'rotate':
+                return [`${local} moved${stepNumber} = q.${method('Remove')}(); // ${valueLiteral(step.value)}`,
+                        `q.${method('Insert')}(moved${stepNumber});`];
+            case 'head':
+                return [`q.${method('Head')}(); // returned ${valueLiteral(step.value)}`];
+            case 'head-empty':
+                return [`// Head() is not valid on an empty queue.`];
+            case 'isEmpty':
+                return [`q.${method('IsEmpty')}(); // returned ${String(step.value)}`];
+            default: return [];
+        }
+    }
+
+    function recordStep(kind, value = null) {
+        if (codeHistory.length >= 12) {
+            const oldest = codeHistory.shift();
+            baselineQueue = oldest.after.slice();
+        }
+        codeHistory.push({ kind, value, after: state.queue.map((it) => it.value) });
+        latestDescription = kind;
+        latestValue = value;
+        renderCode();
+    }
+
+    function restartCodeTrace(description) {
+        baselineQueue = state.queue.map((it) => it.value);
+        codeHistory = [];
+        latestDescription = description;
+        latestValue = null;
+        renderCode();
+    }
+
+    function explainLatest() {
+        const v = latestValue === null ? '' : formatValue(latestValue);
+        switch (latestDescription) {
+            case 'insert': return tr('inserted', v);
+            case 'sentinel': return tr('sentinelAdded', v);
+            case 'remove': return tr('removed', v);
+            case 'rotate': return tr('rotated', v);
+            case 'head': return tr('headResult', v);
+            case 'head-empty': return tr('emptyHead');
+            case 'isEmpty': return tr('emptyResult', String(latestValue));
+            case 'type': return tr('switchedType');
+            case 'reset': return tr('resetDone');
+            default: return tr('ready');
+        }
+    }
+
+    function renderCode() {
+        const codeBox = $('codeLines');
+        if (!codeBox) { return; }
+        const { generic } = getCodeTypes();
+        const rows = [];
+        function addLine(source, type = '') { rows.push({ source, type }); }
+        addLine('// Classroom Queue<T> API', 'comment');
+        addLine(`Queue<${generic}> q = new Queue<${generic}>();`, 'init');
+        addLine('// Build the displayed queue from FRONT to BACK.', 'comment');
+        for (let i = baselineQueue.length - 1; i >= 0; i--) {
+            addLine(`q.${method('Insert')}(${valueLiteral(baselineQueue[i])});`, 'init');
+        }
+        const hasSteps = codeHistory.length > 0;
+        codeHistory.forEach((step, index) => {
+            addLine('', 'spacer');
+            const after = step.after.map((v) => formatValue(v)).join(', ');
+            addLine(`// ${index + 1}. ${step.kind === 'head-empty' ? 'Head blocked' : step.kind} | BACK [${after}] FRONT`, 'comment');
+            for (const line of stepCode(step, index + 1)) {
+                addLine(line, index === codeHistory.length - 1 ? 'active' : 'past');
+            }
+        });
+        codeBox.replaceChildren();
+        rows.forEach((row, index) => {
+            const div = document.createElement('div');
+            div.className = 'code-line' + (row.type === 'active' ? ' active' : '') + (row.type === 'comment' ? ' comment' : '');
+            const lineNo = document.createElement('span');
+            lineNo.className = 'line-no';
+            lineNo.textContent = String(index + 1);
+            const el = document.createElement('code');
+            el.setAttribute('dir', 'ltr');
+            el.textContent = row.source || ' ';
+            div.append(lineNo, el);
+            codeBox.append(div);
+        });
+        $('codeAction').textContent = explainLatest();
+        $('codeStepCount').textContent = tr('stepCount', codeHistory.length);
+        generatedCode = rows.map((r) => r.source).join('\n');
+    }
+
+    async function copyCode() {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(generatedCode);
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = generatedCode;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                const succeeded = document.execCommand('copy');
+                textArea.remove();
+                if (!succeeded) { throw new Error('Copy failed'); }
+            }
+            announce(tr('copied'));
+        } catch (err) {
+            announce(tr('copyFailed'));
+        }
+    }
+
+    const gripSVG = `<svg class="grip" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
+        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+        <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+    </svg>`;
+
+    function makeQueue(values) {
+        return values.map((value) => ({ id: state.nextId++, value }));
+    }
+
+    function isSentinelValue(value, type = state.dataType) {
+        return type === 'char' ? value === '-' : value === -1;
+    }
+
+    function sentinelForType(type) {
+        return type === 'char' ? '-' : (type === 'double' ? -1.0 : -1);
+    }
+
+    function formatValue(value, type = state.dataType) {
+        if (type === 'double' && typeof value === 'number') {
+            return Number.isInteger(value) ? value.toFixed(1) : String(value);
+        }
+        return String(value);
+    }
+
+    function announce(message) {
+        announceBox.textContent = message;
+    }
+
+    function showError(message = '') {
+        errorBox.textContent = message;
+        errorBox.hidden = !message;
+    }
+
+    function getRects() {
+        const rects = new Map();
+        queueItems.querySelectorAll('.queue-item[data-id]').forEach((el) => {
+            rects.set(Number(el.dataset.id), el.getBoundingClientRect());
+        });
+        return rects;
+    }
+
+    function animateRemoved(rect, item) {
+        if (!rect) { return; }
+        const flyer = document.createElement('div');
+        flyer.className = 'removed-flyer' + (isSentinelValue(item.value) ? ' sentinel' : '');
+        flyer.style.left = `${rect.left}px`;
+        flyer.style.top = `${rect.top}px`;
+        flyer.style.width = `${rect.width}px`;
+        flyer.style.height = `${rect.height}px`;
+        flyer.style.background = isSentinelValue(item.value) ? 'var(--red)' : 'var(--green)';
+        flyer.textContent = formatValue(item.value);
+        document.body.appendChild(flyer);
+        flyer.animate([
+            { transform: 'translate(0,0) scale(1)', opacity: 1 },
+            { transform: 'translate(40px,-24px) scale(.85)', opacity: 0 }
+        ], { duration: 420, easing: 'ease-out' }).finished.finally(() => flyer.remove());
+    }
+
+    function applyFlipAnimation(previousRects, options = {}) {
+        const { removedRect = null, removedItem = null, highlightFront = false } = options;
+        queueItems.querySelectorAll('.queue-item[data-id]').forEach((element) => {
+            const id = Number(element.dataset.id);
+            const before = previousRects.get(id);
+            const after = element.getBoundingClientRect();
+            if (before) {
+                const deltaX = before.left - after.left;
+                const deltaY = before.top - after.top;
+                if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
+                    element.animate([
+                        { transform: `translate(${deltaX}px, ${deltaY}px)` },
+                        { transform: 'translate(0, 0)' }
+                    ], { duration: 380, easing: 'ease-out' });
+                }
+            } else if (id === state.pendingInsertedId) {
+                element.animate([
+                    { transform: 'translate(-24px, -10px) scale(.6)', opacity: 0 },
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 }
+                ], { duration: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
+            }
+        });
+        if (removedRect && removedItem) {
+            animateRemoved(removedRect, removedItem);
+        }
+        if (highlightFront && state.queue.length > 0) {
+            const front = queueItems.querySelector('.queue-item.front-item');
+            if (front) {
+                front.classList.add('highlight-head');
+                setTimeout(() => front.classList.remove('highlight-head'), 900);
+            }
+        }
+        state.pendingInsertedId = null;
+    }
+
+    function updateInspector() {
+        const isEmpty = state.queue.length === 0;
+        const headItem = isEmpty ? null : state.queue[state.queue.length - 1];
+        headValueBox.textContent = headItem ? formatValue(headItem.value) : tr('emptyQueue');
+        headValueBox.classList.toggle('empty-state', isEmpty);
+        isEmptyValueBox.textContent = isEmpty ? 'true' : 'false';
+        isEmptyValueBox.classList.toggle('empty-state', isEmpty);
+    }
+
+    function renderQueue(options = {}) {
+        queueItems.replaceChildren();
+
+        if (state.queue.length === 0) {
+            const empty = document.createElement('span');
+            empty.className = 'empty';
+            empty.textContent = tr('empty');
+            queueItems.appendChild(empty);
+        } else {
+            state.queue.forEach((itemObj, index) => {
+                const isFront = index === state.queue.length - 1;
+                const item = document.createElement('div');
+                item.className = 'queue-item' + (isSentinelValue(itemObj.value) ? ' sentinel' : '') + (isFront ? ' front-item' : '');
+                item.textContent = formatValue(itemObj.value);
+                item.draggable = isFront;
+                item.dataset.index = String(index);
+                item.dataset.id = String(itemObj.id);
+                item.setAttribute('aria-label', `${formatValue(itemObj.value)}${isFront ? ', ' + tr('front') : ''}`);
+
+                if (isFront) {
+                    item.tabIndex = 0;
+                    item.setAttribute('role', 'button');
+                    item.title = tr('ruleRotate');
+                    item.insertAdjacentHTML('beforeend', gripSVG);
+                    item.addEventListener('dragstart', dragStart);
+                    item.addEventListener('dragend', dragEnd);
+                    item.addEventListener('pointerdown', touchStart);
+                    item.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            moveFrontToBack();
+                        }
+                    });
+                }
+                queueItems.appendChild(item);
+            });
+        }
+
+        const length = state.queue.length;
+        count.textContent = `(${length}/${MAX_ITEMS})`;
+        insertButton.disabled = length >= MAX_ITEMS;
+        sentinelButton.disabled = length >= MAX_ITEMS;
+        removeButton.disabled = length === 0;
+        const scroller = queueItems.parentElement;
+        const hasOverflow = scroller.scrollWidth > scroller.clientWidth + 1;
+        $('scrollHint').hidden = !hasOverflow;
+        scroller.scrollLeft = scroller.scrollWidth - scroller.clientWidth;
+
+        updateInspector();
+        applyFlipAnimation(options.previousRects || new Map(), options);
+    }
+
+    function validateInput(raw) {
+        let value;
+        if (state.dataType === 'int') {
+            if (!/^\+?\d+$/.test(raw) || !Number.isSafeInteger(Number(raw)) || Number(raw) > 99) {
+                return { ok: false, message: tr('errInt') };
+            }
+            value = Number(raw);
+        } else if (state.dataType === 'double') {
+            if (!/^\+?(?:\d+(?:\.\d*)?|\.\d+)$/.test(raw) || !Number.isFinite(Number(raw)) || Number(raw) >= 100) {
+                return { ok: false, message: tr('errDouble') };
+            }
+            value = Number(raw);
+        } else if (state.dataType === 'char') {
+            if (!/^[A-Za-z]$/.test(raw)) {
+                return { ok: false, message: tr('errChar') };
+            }
+            value = raw;
+        }
+        return { ok: true, value };
+    }
+
+    function insert() {
+        showError();
+        if (state.queue.length >= MAX_ITEMS) {
+            showError(tr('errFull'));
+            return;
+        }
+        const raw = valueInput.value.trim();
+        if (raw === '') {
+            showError(tr('errMissing'));
+            return;
+        }
+        const result = validateInput(raw);
+        if (!result.ok) {
+            showError(result.message);
+            return;
+        }
+
+        const previousRects = getRects();
+        const newItem = { id: state.nextId++, value: result.value };
+        state.pendingInsertedId = newItem.id;
+        state.queue.unshift(newItem);
+        valueInput.value = '';
+        renderQueue({ previousRects, highlightFront: true });
+        recordStep('insert', newItem.value);
+        announce(tr('inserted', formatValue(newItem.value)));
+    }
+
+    function remove() {
+        if (state.queue.length === 0) { return; }
+        showError();
+        const previousRects = getRects();
+        const removed = state.queue[state.queue.length - 1];
+        const removedRect = previousRects.get(removed.id) || null;
+        state.queue.pop();
+        renderQueue({ previousRects, removedRect, removedItem: removed, highlightFront: true });
+        recordStep('remove', removed.value);
+        announce(tr('removed', formatValue(removed.value)));
+    }
+
+    function moveFrontToBack() {
+        if (state.queue.length === 0) { return; }
+        const previousRects = getRects();
+        const item = state.queue.pop();
+        state.queue.unshift(item);
+        renderQueue({ previousRects, highlightFront: true });
+        recordStep('rotate', item.value);
+        announce(tr('rotated', formatValue(item.value)));
+    }
+
+    function addSentinel() {
+        showError();
+        if (state.queue.length >= MAX_ITEMS) {
+            showError(tr('errFull'));
+            return;
+        }
+        const previousRects = getRects();
+        const sentinelItem = { id: state.nextId++, value: sentinelForType(state.dataType) };
+        state.pendingInsertedId = sentinelItem.id;
+        state.queue.unshift(sentinelItem);
+        renderQueue({ previousRects, highlightFront: true });
+        recordStep('sentinel', sentinelItem.value);
+        announce(tr('sentinelAdded', formatValue(sentinelItem.value)));
+    }
+
+    function letterIndex(ch) {
+        const upper = String(ch).toUpperCase();
+        return Math.max(1, Math.min(26, upper.charCodeAt(0) - 64));
+    }
+
+    function numberToChar(num) {
+        const normalized = ((Math.floor(Math.abs(num)) % 26) + 26) % 26;
+        return String.fromCharCode(65 + normalized);
+    }
+
+    function convertValue(value, oldType, newType) {
+        if (isSentinelValue(value, oldType)) {
+            return sentinelForType(newType);
+        }
+        if (newType === oldType) {
+            return value;
+        }
+        if (newType === 'int') {
+            if (oldType === 'char') {
+                return letterIndex(value);
+            }
+            return Math.max(0, Math.min(99, Math.floor(Number(value))));
+        }
+        if (newType === 'double') {
+            if (oldType === 'char') {
+                return Number(letterIndex(value).toFixed(1));
+            }
+            return Math.max(0, Math.min(99.9, Number(value)));
+        }
+        if (newType === 'char') {
+            if (oldType === 'char') {
+                return value;
+            }
+            return numberToChar(Number(value));
+        }
+        return value;
+    }
+
+    function changeDataType(type) {
+        if (!['int', 'double', 'char'].includes(type) || type === state.dataType) { return; }
+        const previousRects = getRects();
+        const oldType = state.dataType;
+        state.queue = state.queue.map((item) => ({
+            id: item.id,
+            value: convertValue(item.value, oldType, type)
+        }));
+        state.dataType = type;
+        valueInput.value = '';
+        refreshInputHint();
+        valueInput.inputMode = type === 'char' ? 'text' : 'decimal';
+        showError();
+        renderQueue({ previousRects, highlightFront: true });
+        restartCodeTrace('type');
+        announce(tr('switchedType'));
+    }
+
+    function reset() {
+        state.queue = makeQueue(INITIAL_BY_TYPE.int);
+        state.dataType = 'int';
+        typeSelect.value = 'int';
+        valueInput.value = '';
+        refreshInputHint();
+        valueInput.inputMode = 'numeric';
+        showError();
+        renderQueue({ previousRects: new Map(), highlightFront: true });
+        restartCodeTrace('reset');
+        announce(tr('resetDone'));
+    }
+
+    function showHead() {
+        headValueBox.classList.remove('active');
+        void headValueBox.offsetWidth;
+        headValueBox.classList.add('active');
+        if (state.queue.length === 0) {
+            recordStep('head-empty');
+            announce(tr('emptyHead'));
+        } else {
+            const front = state.queue[state.queue.length - 1];
+            recordStep('head', front.value);
+            announce(tr('headResult', formatValue(front.value)));
+            const frontEl = queueItems.querySelector('.queue-item.front-item');
+            if (frontEl) {
+                frontEl.classList.add('highlight-head');
+                setTimeout(() => frontEl.classList.remove('highlight-head'), 900);
+            }
+        }
+    }
+
+    function checkIsEmpty() {
+        isEmptyValueBox.classList.remove('active');
+        void isEmptyValueBox.offsetWidth;
+        isEmptyValueBox.classList.add('active');
+        recordStep('isEmpty', state.queue.length === 0);
+        announce(tr('emptyResult', String(state.queue.length === 0)));
+    }
+
+    function dragStart(event) {
+        if (!event.currentTarget.classList.contains('front-item')) {
+            event.preventDefault();
+            return;
+        }
+        state.dragging = true;
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', 'queue-front');
+        event.dataTransfer.setData('application/x-queue-front', '1');
+        event.currentTarget.classList.add('dragging');
+    }
+
+    function dragEnd() {
+        state.dragging = false;
+        queueArea.classList.remove('drag-over');
+        document.querySelectorAll('.queue-item.dragging').forEach((element) => element.classList.remove('dragging'));
+    }
+
+    function clearDragState() {
+        state.dragging = false;
+        queueArea.classList.remove('drag-over');
+    }
+
+    queueArea.addEventListener('dragover', (event) => {
+        if (!state.dragging) { return; }
+        event.preventDefault();
+        event.stopPropagation();
+        event.dataTransfer.dropEffect = 'move';
+        queueArea.classList.add('drag-over');
+    });
+    queueArea.addEventListener('dragleave', (event) => {
+        if (!queueArea.contains(event.relatedTarget)) { queueArea.classList.remove('drag-over'); }
+    });
+    queueArea.addEventListener('drop', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (state.dragging) { moveFrontToBack(); }
+        clearDragState();
+    });
+
+    app.addEventListener('dragover', (event) => {
+        if (state.dragging) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        }
+    });
+    app.addEventListener('drop', (event) => {
+        event.preventDefault();
+        if (state.dragging) { remove(); }
+        clearDragState();
+    });
+
+    let touchDrag = null;
+    function touchStart(event) {
+        if (event.pointerType === 'mouse' || event.button !== 0 || touchDrag) { return; }
+        const source = event.currentTarget;
+        const ghost = source.cloneNode(true);
+        ghost.classList.add('touch-ghost');
+        ghost.classList.remove('front-item');
+        ghost.removeAttribute('id');
+        ghost.removeAttribute('role');
+        ghost.removeAttribute('tabindex');
+        ghost.draggable = false;
+        ghost.style.left = `${event.clientX}px`;
+        ghost.style.top = `${event.clientY}px`;
+        document.body.appendChild(ghost);
+        touchDrag = { pointerId: event.pointerId, source, ghost };
+        source.setPointerCapture(event.pointerId);
+        source.classList.add('dragging');
+        source.addEventListener('pointermove', touchMove);
+        source.addEventListener('pointerup', touchEnd);
+        source.addEventListener('pointercancel', touchCancel);
+        event.preventDefault();
+    }
+    function touchMove(event) {
+        if (!touchDrag || event.pointerId !== touchDrag.pointerId) { return; }
+        touchDrag.ghost.style.left = `${event.clientX}px`;
+        touchDrag.ghost.style.top = `${event.clientY}px`;
+        const overQueue = pointInside(queueArea, event.clientX, event.clientY);
+        queueArea.classList.toggle('drag-over', overQueue);
+        event.preventDefault();
+    }
+    function pointInside(element, x, y) {
+        const r = element.getBoundingClientRect();
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    }
+    function finishTouchDrag(event, shouldDrop) {
+        if (!touchDrag || event.pointerId !== touchDrag.pointerId) { return; }
+        const { source, ghost } = touchDrag;
+        source.removeEventListener('pointermove', touchMove);
+        source.removeEventListener('pointerup', touchEnd);
+        source.removeEventListener('pointercancel', touchCancel);
+        if (source.hasPointerCapture(event.pointerId)) { source.releasePointerCapture(event.pointerId); }
+        ghost.remove();
+        source.classList.remove('dragging');
+        touchDrag = null;
+        queueArea.classList.remove('drag-over');
+        if (shouldDrop) {
+            if (pointInside(queueArea, event.clientX, event.clientY)) { moveFrontToBack(); }
+            else { remove(); }
+        }
+    }
+    function touchEnd(event) { finishTouchDrag(event, true); }
+    function touchCancel(event) { finishTouchDrag(event, false); }
+
+    $('uiLang').addEventListener('change', () => {
+        uiLanguage = $('uiLang').value === 'he' ? 'he' : 'en';
+        refreshLabels();
+        showError();
+        renderQueue();
+        announce(tr('ready'));
+    });
+    $('codeLang').addEventListener('change', () => {
+        codeLanguage = $('codeLang').value === 'java' ? 'java' : 'cs';
+        renderCode();
+    });
+    $('copyCodeBtn').addEventListener('click', copyCode);
+
+    insertButton.addEventListener('click', insert);
+    sentinelButton.addEventListener('click', addSentinel);
+    removeButton.addEventListener('click', remove);
+    $('headBtn').addEventListener('click', showHead);
+    $('isEmptyBtn').addEventListener('click', checkIsEmpty);
+    $('resetBtn').addEventListener('click', reset);
+    typeSelect.addEventListener('change', () => changeDataType(typeSelect.value));
+    valueInput.addEventListener('input', () => showError());
+    valueInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') { event.preventDefault(); insert(); }
+    });
+
+    reset();
+    refreshLabels();
+})();
+</script>
+</body>
+</html>

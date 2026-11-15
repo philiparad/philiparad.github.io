@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="philip_favicon.png"/>
+    <title>Queue Quest | תרגול תורים ב-C#</title>
+    <meta name="description" content="חידון אינטראקטיבי של 30 שאלות על תורים ב-C#, הדמיית תור, משוב והמלצות לתרגול.">
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --paper: #ffffff;
+            --ink: #18283f;
+            --muted: #5e6d83;
+            --navy: #172c4b;
+            --indigo: #5148d8;
+            --indigo-dark: #3e35b8;
+            --indigo-light: #eeedff;
+            --mint: #087d68;
+            --mint-light: #e4f7f1;
+            --coral: #b63741;
+            --coral-light: #fff0f0;
+            --amber: #8f5605;
+            --amber-light: #fff6df;
+            --border: #dbe4ef;
+            --shadow: 0 18px 45px rgba(31, 54, 93, .085);
+            --radius: 22px;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            font-family: "Arial", "Noto Sans Hebrew", "Segoe UI", sans-serif;
+            font-size: 1rem;
+            line-height: 1.62;
+            color: var(--ink);
+            background: var(--bg);
+        }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        button:disabled { cursor: not-allowed; opacity: .55; }
+        :focus-visible { outline: 3px solid #e9a83d; outline-offset: 3px; }
+        a { color: var(--indigo-dark); text-decoration-thickness: 2px; }
+        a:hover { text-decoration: underline; }
+        [hidden], .hidden { display: none !important; }
+        .app-shell { min-height: 100vh; }
+        .topbar {
+            background: rgba(255,255,255,.96);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            box-shadow: 0 3px 14px rgba(16, 33, 61, .035);
+        }
+        .top-inner { width: min(1140px, calc(100% - 32px)); margin: auto; min-height: 76px; display: flex; align-items: center; gap: 20px; justify-content: space-between; flex-wrap: wrap; padding-block: 10px; }
+        .brand { display: flex; gap: 11px; align-items: center; min-width: 0; }
+        .brand-mark { width: 47px; height: 47px; border-radius: 15px; display: grid; place-items: center; color: white; background: linear-gradient(135deg, #5148d8, #087d68); font-size: 24px; }
+        .brand-name { font-weight: 900; letter-spacing: -.03em; font-size: 1.17rem; }
+        .brand-caption { font-size: .76rem; color: var(--muted); }
+        nav { display: flex; gap: 6px; flex-wrap: wrap; }
+        .nav-btn { border: 2px solid transparent; color: #45546b; background: transparent; border-radius: 12px; padding: 8px 14px; font-weight: 750; }
+        .nav-btn.active { color: var(--indigo-dark); background: var(--indigo-light); border-color: #dedaff; }
+        .zoom-controls { display: flex; gap: 4px; align-items: center; }
+        .zoom-controls button { min-width: 36px; height: 36px; border-radius: 10px; border: 2px solid var(--border); background: white; font-weight: 900; }
+        .container { width: min(1140px, calc(100% - 32px)); margin: auto; }
+        main { padding: 30px 0 54px; }
+        .panel { background: var(--paper); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: clamp(18px,3vw,32px); }
+        .eyebrow { display: inline-flex; gap: 8px; align-items: center; border: 2px solid #cce8df; background: #eafaf4; color: #096b59; border-radius: 30px; padding: 5px 12px; font-size: .88rem; font-weight: 800; }
+        h1, h2, h3 { line-height: 1.25; letter-spacing: -.025em; }
+        h1 { font-size: clamp(2.1rem,4.5vw,3.5rem); margin: 18px 0 16px; }
+        h2 { font-size: clamp(1.36rem, 2.6vw, 1.85rem); margin: 0 0 15px; }
+        h3 { font-size: 1.1rem; margin: 0 0 10px; }
+        p { margin: 10px 0; }
+        .lead { font-size: 1.12rem; color: #42536c; max-width: 55ch; }
+        .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 22px; align-items: stretch; }
+        .hero-copy { padding: clamp(22px,4vw,42px); border-radius: 28px; background: linear-gradient(140deg,#fff,#f4f7ff 60%,#e9faf4); border: 2px solid #d8e2f3; }
+        .hero-visual { border-radius: 28px; background: linear-gradient(160deg,#25345e,#1e3560 62%,#174f60); color: #fff; padding: 26px; display: flex; flex-direction: column; justify-content: space-between; min-height: 300px; overflow: hidden; }
+        .queue-pictogram { display: flex; flex-direction: row; justify-content: center; gap: 8px; margin-block: 34px 24px; direction: rtl; }
+        .queue-pictogram .tile { width: 68px; height: 68px; display: grid; place-items:center; font-size: 1.4rem; font-weight: 850; border: 2px solid rgba(255,255,255,.38); background: rgba(255,255,255,.14); border-radius: 16px; }
+        .queue-pictogram .tile:first-child { border-color: #66e2c1; box-shadow: 0 0 0 3px rgba(102,226,193,.12); }
+        .queue-legend { display: flex; justify-content: space-between; gap: 8px; font-size: .87rem; color: #cddff7; }
+        .lighttext { color: #dfeaff; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 13px; margin: 18px 0 24px; }
+        .stat { border: 2px solid var(--border); border-radius: 17px; background: white; padding: 17px; }
+        .stat strong { display: block; font-weight: 900; font-size: 1.55rem; line-height: 1.3; }
+        .stat span { color: var(--muted); font-size: .88rem; }
+        .start-panel { margin-top: 20px; }
+        .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+        .mode-card { text-align: right; border: 2px solid var(--border); background: white; border-radius: 17px; padding: 17px; color: var(--ink); }
+        .mode-card strong { display: block; font-size: 1.1rem; }
+        .mode-card span { display: block; font-size: .9rem; color: var(--muted); margin-top: 3px; }
+        .mode-card.active { background: var(--indigo-light); border-color: var(--indigo); box-shadow: 0 0 0 2px #e2dfff; }
+        .inline-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 47px; padding: 10px 20px; border: 2px solid transparent; border-radius: 13px; font-weight: 800; text-decoration: none; }
+        .btn-primary { background: var(--indigo); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: var(--indigo-dark); }
+        .btn-secondary { background: white; border-color: #cbd5e7; color: #334565; }
+        .btn-secondary:hover:not(:disabled) { background: #f5f7ff; }
+        .btn-mint { background: var(--mint); color: white; }
+        .btn-mint:hover:not(:disabled) { background: #065d4d; }
+        .btn-danger { background: #fff; border-color: #e1abb2; color: #9f2531; }
+        .form-select, .form-input { border: 2px solid #c7d4e4; background: white; color: var(--ink); border-radius: 12px; padding: 9px 12px; min-height: 47px; }
+        .section-title { margin: 29px 0 16px; }
+        .feature-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+        .feature { padding: 18px; border-radius: 18px; background: white; border: 2px solid var(--border); }
+        .feature .emoji { font-size: 1.65rem; }
+        .feature p { color: var(--muted); font-size: .92rem; }
+        .note { border: 2px solid #cfdbec; border-radius: 15px; background: #f5f8fe; padding: 13px 17px; margin-top: 16px; }
+        .muted { color: var(--muted); }
+        .small { font-size: .88rem; }
+        .quiz-layout { display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 20px; align-items: start; }
+        .quiz-layout > * { min-width: 0; }
+        .question-kicker { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .topic-pill, .level-pill { display: inline-block; padding: 4px 10px; border-radius: 99px; font-weight: 800; font-size: .78rem; background: #edf4fc; color: #27527d; }
+        .level-pill { background: #f7f0ff; color: #6640a2; }
+        .question-heading { font-size: clamp(1.25rem,2.5vw,1.66rem); line-height: 1.5; font-weight: 850; margin: 22px 0; }
+        .progress-track { height: 10px; background: #e4eaf3; border-radius: 25px; overflow: hidden; margin: 15px 0 8px; }
+        .progress-fill { height: 100%; border-radius: 25px; background: linear-gradient(90deg,#087d68,#5850d9); transition: width .25s; }
+        .answer-options { display: grid; gap: 11px; margin: 18px 0; }
+        .option { width: 100%; display: flex; flex-direction: row; align-items: flex-start; text-align: right; gap: 14px; border: 2px solid #d9e2ee; border-radius: 16px; padding: 17px 18px; background: #fff; font-weight: 600; color: #23324a; min-height: 65px; }
+        .option:hover:not(:disabled) { border-color: #8e89ec; background: #faf9ff; }
+        .option.chosen { border-color: var(--indigo); background: #f4f2ff; box-shadow: 0 0 0 2px #ece9ff; }
+        .option.good { border-color: #0b8b6c; background: #e9fbf3; }
+        .option.bad { border-color: #c34750; background: #fff0f1; }
+        .option .letter { display: grid; place-items: center; flex: 0 0 31px; width:31px; height:31px; border-radius: 50%; border: 2px solid #b9c7da; font-size: .82rem; background: #f6f8fc; }
+        .option.chosen .letter { background: var(--indigo); color: white; border-color: var(--indigo); }
+        .option.good .letter { background: var(--mint); color: white; border-color: var(--mint); }
+        .option.bad .letter { background: var(--coral); color: white; border-color: var(--coral); }
+        .option:disabled { opacity: 1; }
+        .option-label { flex: 1; }
+        .option-state { font-size: .77rem; white-space: nowrap; font-weight: 800; }
+        .feedback { border: 2px solid var(--border); border-radius: 16px; padding: 16px 18px; margin-top: 15px; }
+        .feedback.good { border-color: #a6e4d2; background: var(--mint-light); }
+        .feedback.bad { border-color: #f0bdc2; background: var(--coral-light); }
+        .feedback h3 { font-size: 1.08rem; }
+        .feedback p { margin: 8px 0 0; }
+        .hint-box { background: var(--amber-light); border: 2px solid #efd79f; border-radius: 15px; padding: 12px 16px; margin-top: 14px; }
+        .hint-box summary { cursor: pointer; font-weight: 800; }
+        .hint-box p { margin-bottom: 0; }
+        .code-panel { border: 2px solid #abc5e5; background: #192b43; color: #e2f1ff; border-radius: 16px; padding: 18px; margin-block: 16px 19px; }
+        .code-panel .code-title { font-size: .85rem; font-weight: 800; margin-bottom: 10px; color: #9fdfd6; }
+        .code-panel pre, .code-panel code { margin: 0; font-family: Consolas, 'Courier New', monospace; font-size: .95rem; direction: ltr; text-align: left; unicode-bidi: isolate; white-space: pre-wrap; word-break: normal; tab-size: 4; line-height: 1.65; }
+        .math-inline, mjx-container { direction: ltr; unicode-bidi: isolate; display: inline-block; vertical-align: baseline; }
+        .question-footer { margin-top: 24px; padding-top: 20px; border-top: 2px solid #edf1f5; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .sidebar { position: sticky; top: 100px; }
+        .sidebar .panel { padding: 19px; box-shadow: 0 6px 30px rgba(31,54,93,.04); }
+        .question-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 7px; margin: 18px 0; }
+        .qnav { aspect-ratio: 1; border: 2px solid #d9e2ee; color: #58677c; background: #f8fafd; border-radius: 10px; font-weight: 850; }
+        .qnav.active { outline: 2px solid var(--indigo); outline-offset: 2px; }
+        .qnav.answered { background: #e5f5ef; color: #096451; border-color: #a4ddc9; }
+        .qnav.wrong { background: #fff1f1; color: #a52e39; border-color: #ebc2c5; }
+        .qnav.pending { background: #f0eeff; color: var(--indigo-dark); border-color: #c8c3ff; }
+        .sidebar-caption { font-size: .79rem; color: var(--muted); }
+        .keytip { font-size: .78rem; color: #66768c; margin-top: 12px; }
+        .lab-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; }
+        .queue-flow { min-height: 140px; display: flex; justify-content: flex-start; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 17px; padding: 16px; border-radius: 16px; background: linear-gradient(140deg,#eff5fc,#edfcf5); border: 2px dashed #b6c9dc; }
+        .queue-cell { min-width: 58px; height: 62px; border-radius: 14px; border: 2px solid #718dc6; background: #fff; display: grid; place-items: center; font-size: 1.22rem; font-weight: 900; box-shadow: 0 6px 16px rgba(30,54,89,.06); animation: pop .3s ease-out; }
+        .queue-cell.front { border-color: #0f8d72; background: #dff9ef; }
+        .lab-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 17px 0; }
+        .lab-controls .form-input { width: 115px; direction: ltr; text-align: center; }
+        .live-message { min-height: 52px; padding: 10px 13px; border-radius: 12px; border: 2px solid #d5e0ed; background: #f8fbff; margin-top: 12px; }
+        .step-list { padding-inline-start: 21px; margin: 0; }
+        .step-list li { margin-bottom: 7px; }
+        .result-hero { text-align: center; padding: 22px; border-radius: 19px; background: linear-gradient(130deg,#e6faf3,#eef1ff); border: 2px solid #cde3e6; margin-bottom: 20px; }
+        .score { font-weight: 950; font-size: clamp(3.2rem,7vw,5.3rem); color: #3431a5; line-height: 1.1; }
+        .meter-row { margin: 12px 0; }
+        .meter-row > div:first-child { display: flex; justify-content: space-between; align-items: center; gap: 9px; }
+        .meter-row .progress-track { margin: 5px 0 0; height: 8px; }
+        .review-item { border: 2px solid var(--border); border-radius: 17px; padding: 17px; margin-bottom: 11px; background: #fff; }
+        .review-item.review-wrong { border-color: #edc3c6; }
+        .review-item.review-correct { border-color: #b4e2d1; }
+        .review-item h3 { line-height: 1.48; }
+        .review-pair { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+        .review-pair div { background: #f5f8fc; border-radius: 10px; padding: 10px; }
+        .review-pair small { display: block; color: #5f6f85; }
+        .review-pair strong { font-size: .95rem; }
+        .filter-row { margin: 21px 0 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn { border-radius: 12px; padding: 8px 17px; border: 2px solid #d4dbea; background:white; font-weight: 800; }
+        .filter-btn.active { border-color:var(--indigo); background:var(--indigo-light); color:var(--indigo-dark); }
+        .footer-note { color: #6b798d; text-align: center; font-size: .8rem; padding: 20px; }
+        .print-only { display: none; }
+        .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+        @keyframes pop { from {transform: scale(.86); opacity: .6;} to {transform: scale(1);opacity:1;} }
+        @media (max-width: 920px) {
+            .hero, .lab-layout { grid-template-columns: 1fr; }
+            .quiz-layout { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 630px) {
+            .top-inner { align-items: flex-start; }
+            .topbar nav { width: 100%; }
+            .brand-caption { display: none; }
+            main { padding-top: 15px; }
+            .hero-visual { min-height: 220px; }
+            .choice-grid, .review-pair { grid-template-columns: 1fr; }
+            .stats-grid { gap: 7px; }
+            .stat { padding: 11px; }
+            .stat strong { font-size: 1.22rem; }
+            .question-footer .btn { flex: 1 1 44%; }
+            .queue-pictogram .tile { width: 55px; height: 58px; }
+            .option { padding: 13px; }
+            .panel { padding: 18px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+        }
+        @page { size: A4; margin: 14mm; }
+        @media print {
+            html, body { background: white; font-size: 11pt; }
+            .topbar, main, .footer-note, .no-print { display: none !important; }
+            #printSheet { display: block !important; color: #111; }
+            .print-page { break-after: page; page-break-after: always; min-height: 250mm; padding: 1mm; }
+            .print-page:last-child { break-after: auto; page-break-after: auto; }
+            .print-page h1 { font-size: 21pt; }
+            .print-page h2 { font-size: 16pt; }
+            .print-row { border: 1px solid #aaa; padding: 11px; margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
+            .print-row h3 { font-size: 11pt; margin: 0 0 5px; }
+            .print-row p { margin: 2px 0; }
+            .progress-track { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+            startup: { typeset: false }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar no-print">
+            <div class="top-inner">
+                <div class="brand">
+                    <div class="brand-mark" aria-hidden="true">▤</div>
+                    <div>
+                        <div class="brand-name">Queue Quest</div>
+                        <div class="brand-caption">מתרגלים תורים. מבינים קוד. מתקדמים.</div>
+                    </div>
+                </div>
+                <nav aria-label="ניווט ראשי">
+                    <button class="nav-btn" type="button" data-action="home">⌂ בית</button>
+                    <button class="nav-btn" type="button" data-action="lab">◫ מעבדת תורים</button>
+                    <button class="nav-btn" type="button" data-action="resume" id="navQuiz">◉ החידון</button>
+                </nav>
+                <div class="zoom-controls" aria-label="גודל טקסט">
+                    <button type="button" data-action="smaller" aria-label="הקטן טקסט">א−</button>
+                    <button type="button" data-action="bigger" aria-label="הגדל טקסט">א+</button>
+                </div>
+            </div>
+        </header>
+        <main id="mainContent" class="container" tabindex="-1">
+            <div id="app" aria-live="off"></div>
+        </main>
+        <footer class="footer-note no-print">חידון לימודי עצמאי • אין צורך בחשבון או בשרת • ניתן להשתמש גם במקלדת</footer>
+        <div id="printSheet" class="print-only" aria-hidden="true"></div>
+        <div id="announcer" class="sr-only" aria-live="polite" role="status"></div>
+    </div>
+    <script id="question-data" type="application/json">[{"id":1,"question":"מהו העיקרון המרכזי של תור במדעי המחשב?","options":["LIFO","FIFO","Random Access"],"correct":1,"explanation":{"0":"זהו עקרון של מחסנית (Stack), לא של תור.","2":"תור אינו פועל בגישה אקראית אלא בסדר FIFO."},"why":"תור מוציא תחילה את האיבר שהוכנס ראשון. זהו סדר FIFO, בניגוד למחסנית.","hint":"דמיינו תור תלמידים שנכנסים לכיתה לפי סדר הגעה.","topic":"עקרונות התור","level":"יסודות"},{"id":2,"question":"כיצד ניתן לסרוק תור כאשר יש גישה רק לראש התור?","options":["להוציא את כל האיברים אחד־אחד ולעבד","לעבור ישירות עם אינדקסים","אין אפשרות לסרוק תור"],"correct":0,"explanation":{"1":"אי אפשר לגשת עם אינדקסים ישירות לתור.","2":"ניתן לסרוק תור בעזרת הוצאה של איברים והחזרתם."},"why":"כאשר ממשק התור חושף רק את הראש, סורקים על ידי הוצאת איברים; אם יש לשמר את התור, מחזירים אותם בסדר המקורי.","hint":"חשבו אילו פעולות יש בממשק תור לעומת מערך.","topic":"עקרונות התור","level":"יסודות"},{"id":3,"question":"למה צריך להחזיר את האיברים לתור לאחר הסריקה?","options":["כדי לאפס את התור","כדי לשמור על מצבו ההתחלתי","כדי למחוק נתונים ישנים"],"correct":1,"explanation":{"0":"לא מאפסים תור לאחר סריקה.","2":"המטרה אינה מחיקה אלא שימור."},"why":"החזרת האיברים שומרת על סדר התור ועל תוכנו, כך שפעולות המשך יקבלו את אותו תור.","hint":"בדקו מה משתנה בתור אחרי פעולות הוצאה בלבד.","topic":"עקרונות התור","level":"יסודות"},{"id":4,"question":"מה תפקיד התור הזמני בשיטת הסריקה הראשונה?","options":["שמירה זמנית של האיברים","האצת הביצועים","החלפת ראש התור"],"correct":0,"explanation":{"1":"תור זמני לא מאיץ ביצועים אלא מאפשר שמירה.","2":"הוא לא מחליף את ראש התור אלא שומר את האיברים."},"why":"תור העזר אוסף את האיברים שנשלפו, לפי אותו סדר, עד שאפשר להחזיר אותם למקור.","hint":"חשבו היכן נמצאים האיברים אחרי שמוציאים אותם מהתור המקורי.","topic":"שיטת תור עזר","level":"יסודות"},{"id":5,"question":"מה סיבוכיות הזמן של הדפסת תור בעזרת תור עזר?","options":["O(1)","O(n)","O(n^2)"],"correct":1,"explanation":{"0":"זה לא O(1) כי עוברים על כל האיברים.","2":"אין לולאה כפולה על כל האיברים, לכן לא O(n^2)."},"why":"עוברים על כל אחד מ־n האיברים מספר קבוע של פעמים, ולכן זמן הריצה ליניארי.","hint":"העריכו כמה פעמים מעבדים כל איבר, ולא כמה תורים יש.","topic":"שיטת תור עזר","level":"יסודות"},{"id":6,"question":"איזו פעולה מתבצעת לכל איבר בתור בשיטת התור הזמני?","options":["הוצאה מראש והכנסה חזרה לתור הזמני","גישה ישירה באמצע","השמטה מוחלטת מהתור"],"correct":0,"explanation":{"1":"אין גישה ישירה באמצע התור.","2":"האיברים לא מושמטים אלא מוחזרים בסוף."},"why":"מוציאים מהתור המקורי ומכניסים לתור הזמני. לאחר העיבוד מחזירים את כולם, לפי סדרם.","hint":"הבחינו בין הפעולה על התור המקורי לפעולה על תור העזר.","topic":"שיטת תור עזר","level":"יסודות"},{"id":7,"question":"בשיטת הגלגול, מה עושים עם כל איבר שמוצא מהתור?","options":["מוחקים אותו לצמיתות","מכניסים אותו לסוף התור","שומרים אותו ברשימה חיצונית"],"correct":1,"explanation":{"0":"לא מוחקים את האיבר אלא מזיזים אותו.","2":"לא שומרים ברשימה חיצונית אלא מחזירים לסוף התור."},"why":"בגלגול, כל איבר שהוצא מראש התור מוכנס לסופו. לאחר סיבוב מלא נשמר הסדר.","hint":"בדקו מה קורה למיקום של איבר אחד כשהוא מוצא מראש התור.","topic":"שיטת הגלגול","level":"יסודות"},{"id":8,"question":"מה תפקידו של סמן ייחודי המוכנס לסוף התור בשיטת הגלגול?","options":["לזהות מתי עובדו כל האיברים המקוריים","למחוק את כל איברי התור","לשנות את סדר האיברים לתמיד"],"correct":0,"explanation":{"1":"הסמן אינו מנקה את התור; הוא משמש גבול לסריקה.","2":"בסיום מסירים את הסמן ושומרים על סדר האיברים המקורי."},"why":"סמן ייחודי שמתווסף לסוף התור מאפשר לזהות שסיימנו לעבד את כל האיברים המקוריים.","hint":"חשבו כיצד אפשר לדעת מתי עברתם על כל התור בלי מונה.","topic":"שיטת הגלגול","level":"יסודות"},{"id":9,"question":"הוספנו סמן ייחודי לסוף התור. מתי מסיימים את סריקת הגלגול?","options":["כאשר התור כולו התרוקן","כאשר הסמן מגיע לראש התור","מיד אחרי גלגול האיבר הראשון"],"correct":1,"explanation":{"0":"אין צורך לרוקן את התור כדי לדעת שהושלם סבב.","2":"לאחר איבר אחד עדיין לא עברנו על כל האיברים המקוריים."},"why":"אחרי עיבוד וגלגול כל האיברים המקוריים, הסמן מגיע לראש; מסירים אותו כדי להשיב את התור לצורתו המקורית.","hint":"עקבו אחרי מיקום הסמן לאחר כל העברה של איבר מראש לסוף.","topic":"שיטת הגלגול","level":"יסודות"},{"id":10,"question":"מה סיבוכיות הזמן של הדפסת תור בשיטת הגלגול?","options":["O(1)","O(n)","O(n^2)"],"correct":1,"explanation":{"0":"עוברים על כל האיברים, לכן לא O(1).","2":"אין לולאה כפולה ולכן לא O(n^2)."},"why":"כל איבר עובר מראש לסוף פעם אחת; עלות הפעולות הבסיסיות קבועה ולכן הסיבוכיות ליניארית.","hint":"ספרו כמה פעולות מבצעים לכל איבר בסבב אחד.","topic":"שיטת הגלגול","level":"יסודות"},{"id":11,"question":"איזו שיטה מאפשרת לשמור על סדר האיברים ללא תור עזר נוסף?","options":["שיטת התור הזמני","שיטת הגלגול","שיטת ההיפוך"],"correct":1,"explanation":{"0":"שיטת התור הזמני כן דורשת תור נוסף.","2":"שיטת ההיפוך אינה מוזכרת בקובץ."},"why":"גלגול מסובב את האיברים בתוך אותו תור; אין צורך להקצות תור נוסף.","hint":"בדקו האם השיטה מאחסנת איברים מחוץ לתור המקורי.","topic":"השוואת שיטות","level":"הבנה"},{"id":12,"question":"מה ההבדל בין סריקת תור בעזרת תור עזר לבין גלגול איברים?","options":["תור עזר דורש מבנה נוסף וגלגול לא","גלגול דורש שני תורים","אין הבדל כלל"],"correct":0,"explanation":{"1":"גלגול לא דורש שני תורים, רק תור אחד וסמן.","2":"יש הבדל ברור בין השיטות."},"why":"תור עזר צורך מקום נוסף לאיברים זמניים; גלגול משמר את הסדר בתוך התור הקיים.","hint":"השוו בין צריכת הזיכרון של שתי השיטות.","topic":"השוואת שיטות","level":"הבנה"},{"id":13,"question":"מהו התנאי החשוב ביותר בבחירת ערך סמן לתור של מספרים שלמים?","options":["שהסמן יהיה המספר הגדול ביותר","שהסמן יהיה ערך שאינו מופיע בתור","שהסמן יהיה תמיד אפס"],"correct":1,"explanation":{"0":"הערך הגדול ביותר עלול להופיע בנתונים ולכן אינו בהכרח מתאים.","2":"אפס עשוי להיות איבר רגיל בתור ולכן אינו סמן בטוח."},"why":"כדי לאתר את סוף הסבב על ידי השוואת ערכים, הסמן חייב להיות ייחודי ולא להופיע בין הנתונים.","hint":"חשבו על תור שבו כל ערך מספרי עשוי להופיע, גם אפס.","topic":"השוואת שיטות","level":"הבנה"},{"id":14,"question":"מה יתרון שיטת הגלגול על פני שימוש בתור זמני?","options":["חוסכת זיכרון נוסף","רצה בזמן ליניארי","לא צריך קוד"],"correct":0,"explanation":{"1":"שתיהן רצות בזמן ליניארי.","2":"עדיין צריך קוד."},"why":"גלגול חוסך תור עזר ולכן מצמצם שימוש בזיכרון עזר, אף ששתי השיטות דורשות מעבר ליניארי.","hint":"חשבו מה ההבדל בין זמן ריצה לזיכרון עזר.","topic":"השוואת שיטות","level":"הבנה"},{"id":15,"question":"מה החיסרון של שימוש בתור עזר?","options":["דורש תור נוסף בזיכרון","לא ניתן להחזיר איברים","ריצה אקספוננציאלית"],"correct":0,"explanation":{"1":"ניתן להחזיר איברים בסוף התהליך.","2":"לא ריצה אקספוננציאלית אלא ליניארית."},"why":"המחיר הוא תור נוסף שמחזיק את האיברים במהלך הסריקה - עד n איברים.","hint":"חשבו כמה איברים עשויים לשבת במבנה זמני בו-זמנית.","topic":"השוואת שיטות","level":"הבנה"},{"id":16,"question":"מדוע תור עזר מתאים להעברה זמנית של איברים?","options":["מפני שהוא שומר על סדר ההכנסה של האיברים","מפני שהוא מחזיר את האיבר האחרון תחילה","מפני שהוא מעניק גישה ישירה לכל אינדקס"],"correct":0,"explanation":{"1":"החזרת האחרון תחילה מאפיינת מחסנית.","2":"ממשק תור רגיל אינו מאפשר גישה ישירה לפי אינדקס."},"why":"תור עזר שומר אוטומטית על סדר FIFO של האיברים שנשלפים מהתור המקורי.","hint":"השוו את סדר ההוצאה וההכנסה בכל מבנה.","topic":"השוואת שיטות","level":"הבנה"},{"id":17,"question":"כיצד ניתן למנות איברים בתור בעזרת סריקה?","options":["להוציא איברים, לספור, ולהחזיר","לקרוא ל-count ישירות","אין אפשרות לספור"],"correct":0,"explanation":{"1":"אין count ישיר בתור מותאם אישית.","2":"יש אפשרות לספור בעזרת סריקה."},"why":"מגדילים מונה עבור כל הוצאה; יש לשמור את האיברים ולהחזירם אם אסור לשנות את התור.","hint":"חשבו איזה מידע מספיק לאסוף תוך כדי מעבר על האיברים.","topic":"סריקה ויישומים","level":"הבנה"},{"id":18,"question":"באיזה שלב מחזירים את האיברים לתור המקורי בשיטת התור הזמני?","options":["מיד לאחר ההדפסה","לאחר שהתור הזמני מלא","לאחר שסיימנו להוציא את כולם"],"correct":2,"explanation":{"0":"לא מיד לאחר כל איבר אלא בסוף.","1":"לא חייב שהתור הזמני יהיה 'מלא'."},"why":"בסיום העברת כל האיברים לתור הזמני, מחזירים אותם למקורי באותו סדר.","hint":"עקבו אחרי שתי פעימות התהליך: העברה ושחזור.","topic":"סריקה ויישומים","level":"הבנה"},{"id":19,"question":"מה יקרה אם בוחרים ערך סמן שכבר מופיע בין איברי התור?","options":["הסריקה עלולה להסתיים מוקדם מדי","מהירות הסריקה תגדל פי שניים","התור יסתדר אוטומטית בסדר עולה"],"correct":0,"explanation":{"1":"התנגשות ערכי סמן אינה מקצרת את האלגוריתם באופן תקין.","2":"הסמן אינו פעולת מיון ואינו משנה את הערכים."},"why":"כאשר משווים ערכים במקום לזהות אובייקט סמן ייחודי, איבר רגיל עלול להיחשב בטעות לסמן הסיום.","hint":"בדקו מה יקרה בפעם הראשונה שראש התור שווה לערך הסמן.","topic":"סריקה ויישומים","level":"הבנה"},{"id":20,"question":"באיזו משימה ניתן להשתמש באותה תבנית סריקה שמשמשת להדפסת תור?","options":["בדיקה האם מספר נתון נמצא בתור","גישה ישירה לאיבר במקום החמישי","מיון אוטומטי ללא פעולות נוספות"],"correct":0,"explanation":{"1":"תור אינו מאפשר בדרך כלל גישה ישירה למיקום מסוים.","2":"סריקה לבדה אינה מבצעת מיון ללא אלגוריתם מתאים."},"why":"באותה תבנית סריקה אפשר לבדוק תנאי, לחפש ערך או לספור במקום להדפיס.","hint":"הפרידו בין אופן המעבר על תור לבין מה שעושים לכל איבר.","topic":"סריקה ויישומים","level":"הבנה"},{"id":21,"question":"מה יודפס בסוף קטע הקוד?","options":["9","4","13"],"correct":0,"explanation":{"1":"הערך 4 הוכנס ראשון ולכן הוסר בפעולת Remove().","2":"אין בקוד פעולת חיבור בין האיברים."},"why":"אחרי Insert(4), Insert(9) התור מכיל [4, 9]; Remove() מוציאה 4, ולכן Head() מחזירה 9.","hint":"רשמו את התור אחרי כל שורה והקיפו את האיבר שבראש.","topic":"מעקב אחר קוד","level":"יישום","code":"Queue<int> q = new Queue<int>();\nq.Insert(4);\nq.Insert(9);\nq.Remove();\nConsole.WriteLine(q.Head());"},{"id":22,"question":"מהו ראש התור אחרי גלגול אחד?","options":["3","5","7"],"correct":1,"explanation":{"0":"הערך 3 הוצא מראש התור והוכנס לסוף.","2":"הערך 7 עדיין בסוף אחרי גלגול יחיד."},"why":"הגלגול מעביר את 3 לסוף: התור משתנה מ-[3,5,7] ל-[5,7,3], ולכן ראשו 5.","hint":"עקבו אחרי האיבר הראשון בלבד, מבלי לשנות את סדר שני האיברים הנותרים.","topic":"מעקב אחר קוד","level":"יישום","code":"Queue<int> q = new Queue<int>();\nq.Insert(3);\nq.Insert(5);\nq.Insert(7);\nint x = q.Remove();\nq.Insert(x);\nConsole.WriteLine(q.Head());"},{"id":23,"question":"מה מצב התור המקורי אחרי סיום הלולאה?","options":["התור ריק","התור עדיין מכיל את שלושת האיברים","התור מכיל רק את האיבר הראשון"],"correct":0,"explanation":{"1":"כל איבר הוצא מהתור המקורי והוכנס לתור העזר.","2":"הלולאה ממשיכה עד שהתור המקורי מתרוקן."},"why":"כל הפעלה של Remove() מקטינה את התור המקורי, והלולאה אינה מחזירה אליו איברים.","hint":"שימו לב איזה תור מקבל את Insert() ואיזה תור מאבד איברים.","topic":"מעקב אחר קוד","level":"יישום","code":"Queue<int> q = new Queue<int>();\nq.Insert(2);\nq.Insert(4);\nq.Insert(6);\nQueue<int> temp = new Queue<int>();\nwhile (!q.IsEmpty())\n{\n    temp.Insert(q.Remove());\n}"},{"id":24,"question":"בתור יש את הערכים [[3,5,7]]. איזה סמן אפשר לבחור לגלגול, בהנחה שהוא מזוהה לפי ערכו?","options":["5","7","-1"],"correct":2,"explanation":{"0":"הערך 5 כבר נמצא בתור ועלול להיתפס כסמן.","1":"הערך 7 כבר נמצא בתור ועלול להיתפס כסמן."},"why":"הערך ‎-1 אינו מופיע בין הערכים 3, 5 ו-7 ולכן יוכל לשמש סמן ייחודי בדוגמה זו.","hint":"בדקו אילו ערכים כבר נמצאים בין איברי התור.","topic":"מעקב אחר קוד","level":"יישום"},{"id":25,"question":"מה יודפס בקוד ומה יישאר בתור לאחר הלולאה?","options":["יודפס 3 והתור יהיה ריק","יודפס 3 והתור לא ישתנה","יודפס 2 והתור יהיה ריק"],"correct":0,"explanation":{"1":"לא בוצעה החזרת איברים לתור לאחר Remove().","2":"יש שלושה איברים, והמונה גדל פעם אחת עבור כל אחד מהם."},"why":"הלולאה מוציאה שלושה איברים, מגדילה count שלוש פעמים ומשאירה את התור ריק.","hint":"ספרו את מספר הפעמים שהלולאה פועלת ובדקו אם יש בקוד פעולת Insert().","topic":"מעקב אחר קוד","level":"יישום","code":"Queue<int> q = new Queue<int>();\nq.Insert(8);\nq.Insert(1);\nq.Insert(8);\nint count = 0;\nwhile (!q.IsEmpty())\n{\n    q.Remove();\n    count++;\n}\nConsole.WriteLine(count);"},{"id":26,"question":"מה יקרה לתור אם סורקים אותו באמצעות Remove() מבלי להחזיר אליו את האיברים?","options":["הוא יישאר ריק או חלקי","הוא יחזור למצב ההתחלתי","האיברים יוכפלו בתוכו"],"correct":0,"explanation":{"1":"הוצאה משנה את התור; אין שחזור ללא פעולות הכנסה.","2":"Remove() מסירה איברים ולא מעתיקה אותם."},"why":"אם מסירים איברים ולא מחזירים אותם, התור המקורי מתרוקן או מאבד חלק מהתוכן שלו.","hint":"הבחינו בין קריאת ראש התור לבין הוצאה שמשנה אותו.","topic":"מעקב אחר קוד","level":"יישום"},{"id":27,"question":"ממזגים שני תורים על ידי הוצאת איבר אחד מכל תור לסירוגין, החל מהראשון. מה יהיה סדר התור החדש?","options":["[[1,2,3,4]]","[[1,3,2,4]]","[[4,3,2,1]]"],"correct":0,"explanation":{"1":"תוצאה זו שומרת את התורים ברצף, ולא משלבת לסירוגין.","2":"התוצאה הפוכה לסדר ההוצאה מראשי התורים."},"why":"התור הראשון מכיל [1,3] והשני [2,4]; הוצאת ראש מכל תור לסירוגין יוצרת [1,2,3,4].","hint":"בצעו ארבע צעדים לסירוגין: התור הראשון, השני, הראשון, השני.","topic":"מעקב אחר קוד","level":"יישום","context":"נתון: [[q1=[1,3]]] וגם [[q2=[2,4]]]."},{"id":28,"question":"תור מוגבל מכיל כבר 3 איברים והקיבולת המקסימלית שלו היא 3. מה צריכה לעשות פעולת הכנסה נוספת?","options":["לדחות את ההכנסה או לדווח על תור מלא","למחוק את האיבר הראשון תמיד","להכפיל את הקיבולת תמיד"],"correct":0,"explanation":{"1":"מחיקה אוטומטית אינה מתחייבת מהגדרת תור מוגבל; זו התנהגות נפרדת שיש להגדיר.","2":"תור בעל קיבולת קשיחה אינו מגדיל אותה בהכרח."},"why":"בתור בעל קיבולת קשיחה, אי אפשר להוסיף איבר מעבר למגבלה; יש לטפל בניסיון בהתאם למימוש.","hint":"מהי משמעותה של מגבלה קשיחה על מספר האיברים?","topic":"מעקב אחר קוד","level":"יישום"},{"id":29,"question":"אלגוריתם מיון תור עובר על כל האיברים כדי למצוא מינימום, מוציא אותו, וחוזר על כך עבור האיברים הנותרים. מה סיבוכיות הזמן במקרה הכללי?","options":["[[O(n)]]","[[O(n^2)]]","[[O(1)]]"],"correct":1,"explanation":{"0":"בכל בחירה של מינימום נדרשת סריקה נוספת; אין כאן מעבר יחיד.","2":"מספר הפעולות תלוי במספר האיברים בתור."},"why":"העבודה הכוללת פרופורציונלית ל-n + (n-1) + ... + 1, ולכן סיבוכיות הזמן היא O(n²).","hint":"חשבו כמה פעמים עוברים על איברי התור עד שהם מסודרים כולם.","topic":"מעקב אחר קוד","level":"יישום"},{"id":30,"question":"מה מחזירה הפעולה עבור תור שמכיל [[7,2,9]], ומה מצב התור אחריה?","options":["תחזיר 3, והתור יישמר","תחזיר 3, והתור יתרוקן","תחזיר 9, והתור יישמר"],"correct":0,"explanation":{"1":"הלולאה השנייה מחזירה את כל האיברים מתור העזר לתור המקורי.","2":"הפעולה סופרת איברים; היא אינה מחזירה את ערך האיבר האחרון."},"why":"הפעולה מעבירה את שלושת האיברים לתור עזר, סופרת אותם ואז מחזירה אותם באותו סדר; היא מחזירה 3.","hint":"עקבו אחרי שתי הלולאות: הראשונה אוספת וסופרת, השנייה משחזרת.","topic":"מעקב אחר קוד","level":"יישום","code":"static int CountQueue(Queue<int> q)\n{\n    Queue<int> temp = new Queue<int>();\n    int count = 0;\n    while (!q.IsEmpty())\n    {\n        temp.Insert(q.Remove());\n        count++;\n    }\n    while (!temp.IsEmpty())\n    {\n        q.Insert(temp.Remove());\n    }\n    return count;\n}"}]</script>
+    <script>
+        'use strict';
+        (() => {
+            const QUESTION_BANK = JSON.parse(document.getElementById('question-data').textContent);
+            const STORAGE_KEY = 'queue-quest-2026-v2';
+            const SUBJECTS = ['עקרונות התור','שיטת תור עזר','שיטת הגלגול','השוואת שיטות','סריקה ויישומים','מעקב אחר קוד'];
+            const byId = new Map(QUESTION_BANK.map(q => [q.id, q]));
+            const labels = ['א','ב','ג'];
+            const app = document.getElementById('app');
+            const announcer = document.getElementById('announcer');
+            let labQueue = [3,5,7];
+            let labMessage = 'התור מוכן. האיבר הראשון מימין הוא ראש התור.';
+            let mathRendering = false;
+            let state = {
+                view: 'home', mode: 'practice', length: 30, qids: [], order: {}, selected: {}, checked: {}, current: 0,
+                hints: {}, resultsFilter: 'wrong', zoom: 1, finishedAt: null, startedAt: null
+            };
+            function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+            function safeLoad() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+                    if (!saved || !Array.isArray(saved.qids) || !saved.qids.every(id => byId.has(id))) return;
+                    if (!['quiz','results','home','lab'].includes(saved.view) || !['practice','test'].includes(saved.mode)) return;
+                    if (!saved.qids.every(id => Array.isArray(saved.order?.[id]) && saved.order[id].length === 3 &&
+                        new Set(saved.order[id]).size === 3 && saved.order[id].every(x => Number.isInteger(x) && x>=0 && x<3))) return;
+                    state = { ...state, ...saved, zoom: Math.min(1.4,Math.max(.9,Number(saved.zoom)||1)) };
+                } catch (_) { /* Storage can be disabled in private browsers. */ }
+            }
+            function save() {
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { /* Still usable without storage. */ }
+            }
+            function announce(s) { announcer.textContent = ''; requestAnimationFrame(() => announcer.textContent = s); }
+            function shuffle(items) {
+                const a = [...items];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i+1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+            function latexToken(token) {
+                if (/^O\(n\^2\)$/.test(token)) return 'O(n^{2})';
+                if (/^O\(n\)$/.test(token)) return 'O(n)';
+                if (token === 'O(1)') return 'O(1)';
+                if (token === 'C#') return String.raw`\mathtt{C\#}`;
+                const fullQueue = /^([A-Za-z][\w]*)=\[([0-9,\s-]+)\]$/.exec(token);
+                if (fullQueue) return String.raw`\mathtt{`+fullQueue[1]+String.raw`}=\left[`+fullQueue[2].trim().split(',').map(s=>s.trim()).join(String.raw`,\,`)+String.raw`\right]`;
+                if (/^\[[0-9,\s-]+\]$/.test(token)) return String.raw`\left[`+token.slice(1,-1).split(',').map(s=>s.trim()).join(String.raw`,\,`)+String.raw`\right]`;
+                const g = /^(Queue|Stack)<(int|string)>$/.exec(token);
+                if (g) return String.raw`\mathtt{`+g[1]+String.raw`}\lt\mathtt{`+g[2]+String.raw`}\gt`;
+                if (/^[A-Za-z][\w]*\([\w,\s-]*\)$/.test(token)) {
+                    const p = token.indexOf('(');
+                    return String.raw`\mathtt{`+token.slice(0,p)+String.raw`}(`+token.slice(p+1,-1).replaceAll(', ',String.raw`,\,`)+')';
+                }
+                return String.raw`\mathtt{`+token.replace(/#/g,String.raw`\#`)+String.raw`}`;
+            }
+            const TOKEN_RE = /(\[\[[^\]]+\]\]|Queue<(?:int|string)>|Stack<(?:int|string)>|O\(n\^2\)|O\(n\)|O\(1\)|C#|\b(?:FIFO|LIFO|Random Access|PrintWithTempQueue|PrintWithRoll|placeholder|sentinel|dummy|Stack|ArrayList|Queue|CountQueue|CSV|count)\b|(?:Insert|Remove|Head|IsEmpty)\([a-zA-Z0-9, ]*\))/g;
+            function inline(text) {
+                return String(text ?? '').split(TOKEN_RE).map(part => {
+                    if (!part) return '';
+                    const marked = part.startsWith('[[') && part.endsWith(']]');
+                    const found = marked || /^(?:Queue<(?:int|string)>|Stack<(?:int|string)>|O\(n(?:\^2)?\)|O\(1\)|C#|FIFO|LIFO|Random Access|PrintWithTempQueue|PrintWithRoll|placeholder|sentinel|dummy|Stack|ArrayList|Queue|CountQueue|CSV|count|(?:Insert|Remove|Head|IsEmpty)\([a-zA-Z0-9, ]*\))$/.test(part);
+                    if (!found) return esc(part);
+                    const value = marked ? part.slice(2,-2) : part;
+                    return `<span class="math-inline" dir="ltr" data-plain="${esc(value)}" data-tex="${esc(latexToken(value))}">${esc(value)}</span>`;
+                }).join('');
+            }
+            let mathRetryPending = false;
+            function typeset() {
+                if (mathRendering) return;
+                if (window.MathJax && typeof window.MathJax.tex2chtmlPromise === 'function') {
+                    mathRendering = true;
+                    const nodes = Array.from(document.querySelectorAll('.math-inline:not([data-rendered])'));
+                    Promise.all(nodes.map(async el => {
+                        try {
+                            const result = await window.MathJax.tex2chtmlPromise(el.dataset.tex, {display:false});
+                            if (el.isConnected) { el.replaceChildren(result); el.dataset.rendered='true'; }
+                        } catch (_) {
+                            el.dataset.rendered='error';
+                        }
+                    })).finally(() => { mathRendering = false; if (document.querySelector('.math-inline:not([data-rendered])')) typeset(); });
+                } else if (!mathRetryPending) {
+                    mathRetryPending = true;
+                    setTimeout(() => {
+                        mathRetryPending = false;
+                        if (window.MathJax && typeof window.MathJax.tex2chtmlPromise === 'function') typeset();
+                    }, 1800);
+                }
+            }
+            function fallbackMath() {
+                document.querySelectorAll('.math-inline:not([data-rendered])').forEach(el => {
+                    el.textContent = el.dataset.plain || '';
+                });
+            }
+            function taskReady(qid) { return state.mode === 'test' ? Number.isInteger(state.selected[qid]) : Boolean(state.checked[qid]); }
+            function completedCount() { return state.qids.filter(taskReady).length; }
+            function scoreDetails() {
+                const rows = state.qids.map(id => ({
+                    id, q: byId.get(id), chosen: state.selected[id], right: state.selected[id] === byId.get(id).correct
+                }));
+                const correct = rows.filter(r=>r.right).length;
+                return { rows, correct, total: rows.length, pct: Math.round(correct / Math.max(1,rows.length) * 100), wrong: rows.filter(r=>!r.right) };
+            }
+            function startQuiz(customIds) {
+                const size = customIds ? customIds.length : state.length;
+                let ids;
+                if (customIds) ids = [...customIds];
+                else {
+                    const portions = size===10 ? [4,3,3] : size===20 ? [7,7,6] : [10,10,10];
+                    ids = [0,1,2].flatMap((tier,i) => shuffle(QUESTION_BANK.slice(tier*10,tier*10+10).map(q=>q.id)).slice(0, portions[i]));
+                }
+                state.qids = ids;
+                state.order = Object.fromEntries(ids.map(id => [id,shuffle([0,1,2])]));
+                state.selected = {};
+                state.checked = {};
+                state.hints = {};
+                state.current = 0;
+                state.finishedAt = null;
+                state.startedAt = new Date().toISOString();
+                state.view = 'quiz';
+                save(); render(true);
+                announce('החידון התחיל. שאלה ראשונה מתוך ' + ids.length);
+            }
+            function getCurrent() { const id=state.qids[state.current]; return byId.get(id); }
+            function checkCurrent() {
+                const q = getCurrent(); if (!q || !Number.isInteger(state.selected[q.id])) return;
+                state.checked[q.id] = true;
+                save(); render();
+                announce(state.selected[q.id] === q.correct ? 'תשובה נכונה' : 'תשובה שגויה. ההסבר מופיע מתחת לאפשרויות.');
+            }
+            function finish() {
+                if (completedCount() !== state.qids.length || !state.qids.length) {
+                    const next = state.qids.findIndex(id=>!taskReady(id));
+                    if (next>=0) state.current=next;
+                    render(true); announce('יש להשלים את כל השאלות לפני הצגת הציון.'); return;
+                }
+                state.view = 'results';
+                state.finishedAt = new Date().toISOString();
+                state.resultsFilter = 'wrong';
+                save(); render(true);
+                announce('המבחן הושלם. התוצאה והמלצות התרגול מוצגות.');
+            }
+            function setView(view) { state.view = view; save(); render(true); }
+            function focusTop() { requestAnimationFrame(() => { document.getElementById('mainContent').focus({preventScroll: true}); window.scrollTo({top:0,behavior:'instant'}); }); }
+            function homeHtml() {
+                const resumable = state.qids.length && (state.view !== 'results' || state.finishedAt);
+                return `
+                    <section class="hero" aria-label="פתיחה">
+                        <div class="hero-copy">
+                            <span class="eyebrow">✦ לומדים בצורה פעילה</span>
+                            <h1>תורים ב־${inline('C#')}<br>פחות שינון, יותר הבנה.</h1>
+                            <p class="lead">בוחרים תשובה, עוקבים אחרי הקוד ומגלים <strong>למה</strong> היא נכונה. מתחילים בעקרונות, מתקדמים לשיטות סריקה ומסיימים בשאלות קוד.</p>
+                            <div class="inline-actions" style="margin-top:22px">
+                                <a href="#start-options" class="btn btn-primary">🚀 מתחילים לתרגל</a>
+                                <button type="button" class="btn btn-secondary" data-action="lab">◫ פתח מעבדת תורים</button>
+                            </div>
+                        </div>
+                        <div class="hero-visual" aria-label="דוגמת תור עם שלושה איברים">
+                            <div><strong>תור לדוגמה</strong><p class="lighttext">הראשון שנכנס הוא הראשון שיוצא.</p></div>
+                            <div class="queue-pictogram" aria-hidden="true"><span class="tile">3</span><span class="tile">5</span><span class="tile">7</span></div>
+                            <div class="queue-legend"><span>ראש התור ⤴</span><span>⤵ סוף התור</span></div>
+                            <p class="lighttext small">${inline('FIFO')} · ${inline('Insert(x)')} · ${inline('Remove()')} · ${inline('Head()')}</p>
+                        </div>
+                    </section>
+                    <div class="stats-grid" aria-label="מאפייני החידון">
+                        <div class="stat"><strong>30</strong><span>שאלות מתוקנות ומדורגות</span></div>
+                        <div class="stat"><strong>3</strong><span>רמות קושי</span></div>
+                        <div class="stat"><strong>2</strong><span>מצבי למידה</span></div>
+                    </div>
+                    <section id="start-options" class="panel start-panel" aria-label="הגדרות חידון">
+                        <h2>איך נתרגל היום?</h2>
+                        <div class="choice-grid" role="group" aria-label="בחירת מצב">
+                            <button type="button" class="mode-card ${state.mode==='practice'?'active':''}" data-action="setmode" data-mode="practice" aria-pressed="${state.mode==='practice'}"><strong>🧠 תרגול עם משוב</strong><span>רמז לפי בקשה, בדיקה והסבר מיד אחרי כל שאלה.</span></button>
+                            <button type="button" class="mode-card ${state.mode==='test'?'active':''}" data-action="setmode" data-mode="test" aria-pressed="${state.mode==='test'}"><strong>⏱️ מצב מבחן</strong><span>בלי רמזים ובלי גילוי תשובות עד סיום כל השאלות.</span></button>
+                        </div>
+                        <div class="inline-actions" style="margin-top:18px">
+                            <label for="quizLength"><strong>מספר שאלות:</strong></label>
+                            <select id="quizLength" class="form-select" aria-label="בחר מספר שאלות">
+                                <option value="10" ${state.length===10?'selected':''}>10 - קצר</option>
+                                <option value="20" ${state.length===20?'selected':''}>20 - בינוני</option>
+                                <option value="30" ${state.length===30?'selected':''}>30 - מלא</option>
+                            </select>
+                            <button class="btn btn-primary" type="button" data-action="start">התחל חידון ←</button>
+                            ${resumable && state.qids.length ? `<button class="btn btn-secondary" type="button" data-action="resume">${state.finishedAt?'הצג תוצאות קודמות':'המשך חידון קודם'}</button>`:''}
+                        </div>
+                        <p class="small muted">כל הבחינות כוללות שאלות ברמות שונות. התשובות מתערבבות בכל ניסיון. ההתקדמות נשמרת בדפדפן זה בלבד.</p>
+                    </section>
+                    <h2 class="section-title">כך לומדים טוב יותר</h2>
+                    <div class="feature-grid">
+                        <div class="feature"><div class="emoji" aria-hidden="true">🔎</div><h3>חושבים לפני שמגלים</h3><p>מנסים לפתור, משתמשים ברמז רק בעת הצורך ואז בודקים את ההיגיון.</p></div>
+                        <div class="feature"><div class="emoji" aria-hidden="true">⌘</div><h3>מתרגלים קוד אמיתי</h3><p>שאלות מעקב על פעולות התור, שינוי מצב התור וסיבוכיות.</p></div>
+                        <div class="feature"><div class="emoji" aria-hidden="true">↻</div><h3>חוזרים על הטעויות</h3><p>בסיום מתקבל פירוט לפי נושאים ואפשרות לתרגול נוסף של השאלות שבהן טעיתם.</p></div>
+                    </div>`;
+            }
+            function quizHtml() {
+                const q = getCurrent(); if (!q) return '<div class="panel">לא נמצאו שאלות.</div>';
+                const checked = Boolean(state.checked[q.id]);
+                const choice = state.selected[q.id];
+                const answered = completedCount();
+                const done = answered===state.qids.length;
+                const order = state.order[q.id];
+                const displayOpts = order.map((original,i) => {
+                    const isChosen=choice===original;
+                    const known = state.mode==='practice' && checked;
+                    const isCorrect = original===q.correct;
+                    const cls = known ? (isCorrect?'good':isChosen?'bad':'') : (isChosen?'chosen':'');
+                    return `<button type="button" class="option ${cls}" data-action="choose" data-original="${original}" aria-pressed="${isChosen}" ${known?'disabled':''}>
+                        <span class="letter" aria-hidden="true">${labels[i]}</span>
+                        <span class="option-label">${inline(q.options[original])}</span>
+                        ${known && (isCorrect||isChosen)?`<span class="option-state">${isCorrect?'✓ נכון':'✕ בחירה שגויה'}</span>`:''}
+                    </button>`;
+                }).join('');
+                const feedback = checked && state.mode==='practice' ? `<section class="feedback ${choice===q.correct?'good':'bad'}" role="status">
+                    <h3>${choice===q.correct?'✓ מצוין! תשובה נכונה':'✕ לא בדיוק - נבין יחד'}</h3>
+                    ${choice!==q.correct?`<p><strong>למה האפשרות שנבחרה אינה נכונה?</strong> ${inline(q.explanation[choice])}</p>`:''}
+                    <p><strong>התשובה הנכונה:</strong> ${inline(q.options[q.correct])}</p>
+                    <p>${inline(q.why)}</p>
+                    <details style="margin-top:9px"><summary style="cursor:pointer;font-weight:750">הסבר לכל האפשרויות</summary><div style="margin-top:10px">${q.options.map((opt,i)=>`<p><strong>${inline(opt)}:</strong> ${inline(i===q.correct?q.why:q.explanation[i])}</p>`).join('')}</div></details>
+                </section>`:'';
+                const nav = state.qids.map((id,i) => {
+                    const status = !taskReady(id) ? (Number.isInteger(state.selected[id])?'pending':'') : (state.mode==='practice' && state.selected[id]!==byId.get(id).correct?'wrong':'answered');
+                    return `<button type="button" class="qnav ${status} ${i===state.current?'active':''}" data-action="goto" data-index="${i}" aria-label="עבור לשאלה ${i+1}${taskReady(id)?', נענתה':''}" ${i===state.current?'aria-current="step"':''}>${i+1}</button>`;
+                }).join('');
+                return `<div class="quiz-layout">
+                    <section class="panel" aria-label="שאלה פעילה">
+                        <div class="question-kicker">
+                            <span class="eyebrow">שאלה ${state.current+1} מתוך ${state.qids.length}</span>
+                            <div><span class="topic-pill">${q.topic}</span> <span class="level-pill">${q.level}</span></div>
+                        </div>
+                        <div class="progress-track" role="progressbar" aria-label="שאלות שהושלמו" aria-valuemin="0" aria-valuemax="${state.qids.length}" aria-valuenow="${answered}"><div class="progress-fill" style="width:${answered/state.qids.length*100}%"></div></div>
+                        <div class="muted small">הושלמו ${answered} מתוך ${state.qids.length} • ${state.mode==='test'?'מצב מבחן':'תרגול ומשוב מיידי'}</div>
+                        <h1 class="question-heading">${inline(q.question)}</h1>
+                        ${q.context?`<div class="note">${inline(q.context)}</div>`:''}
+                        ${q.code?`<div class="code-panel" dir="ltr"><div class="code-title">C# · קריאת קוד</div><pre><code class="language-csharp">${esc(q.code)}</code></pre></div>`:''}
+                        <div class="answer-options" role="group" aria-label="אפשרויות תשובה">${displayOpts}</div>
+                        ${state.mode==='practice' && !checked ? `<details class="hint-box" ${state.hints[q.id]?'open':''}><summary>💡 רוצה רמז? לחצו כאן</summary><p>${inline(q.hint)}</p></details>`:''}
+                        ${feedback}
+                        <div class="question-footer">
+                            <div class="inline-actions">
+                                <button class="btn btn-secondary" type="button" data-action="prev" ${state.current===0?'disabled':''}>→ הקודמת</button>
+                                <button class="btn btn-secondary" type="button" data-action="next" ${state.current===state.qids.length-1?'disabled':''}>הבאה ←</button>
+                            </div>
+                            <div class="inline-actions">
+                                ${state.mode==='practice' && !checked?`<button class="btn btn-mint" type="button" data-action="check" ${!Number.isInteger(choice)?'disabled':''}>בדיקת תשובה ✓</button>`:''}
+                                <button class="btn btn-primary" type="button" data-action="finish" ${done?'':'disabled'}>סיום והצגת תוצאות</button>
+                            </div>
+                        </div>
+                    </section>
+                    <aside class="sidebar" aria-label="ניווט ומצב שאלות">
+                        <div class="panel">
+                            <h2 style="font-size:1.14rem">מפת ההתקדמות</h2>
+                            <div class="question-grid">${nav}</div>
+                            <p class="sidebar-caption">🟢 הושלמה • 🟣 בחירה שטרם נבדקה ${state.mode==='practice'?'• 🔴 תשובה שגויה':''}</p>
+                            <hr style="border:0;border-top:2px solid #e8eef5;margin:16px 0">
+                            <div><strong>${answered}</strong> / ${state.qids.length} שאלות הושלמו</div>
+                            <p class="muted small">בחרו מספר כדי לעבור ישירות לשאלה. אפשר לחזור ולקרוא הסברים.</p>
+                            <p class="keytip">קיצורי מקלדת: 1, 2, 3 לבחירה, חצים לניווט, Enter לבדיקה.</p>
+                            <button class="btn btn-secondary" style="width:100%" type="button" data-action="home">חזרה למסך הראשי</button>
+                        </div>
+                    </aside>
+                </div>`;
+            }
+            function labHtml() {
+                return `<section class="panel" aria-label="מעבדה אינטראקטיבית">
+                    <span class="eyebrow">◫ מעבדת תורים</span>
+                    <h1>רואים מה קורה לכל איבר</h1>
+                    <p class="lead">נסו להכניס ערך, להוציא את הראשון ולבדוק את הראש בלי לשנות את התור. כך נראות הפעולות במבנה נתונים אמיתי.</p>
+                    <div class="lab-layout" style="margin-top:23px">
+                        <div class="panel" style="box-shadow:none">
+                            <div class="question-kicker"><h2>התור הנוכחי</h2><span class="topic-pill">${labQueue.length} איברים</span></div>
+                            <div class="queue-legend" style="color:#5f718b"><span>ראש התור ⇐</span><span>⇐ סוף התור</span></div>
+                            <div class="queue-flow" id="labCells" aria-label="איברי התור מראש ועד סוף">${labQueue.length?labQueue.map((v,i)=>`<div class="queue-cell ${i===0?'front':''}" aria-label="${i===0?'ראש התור':'איבר'} ${v}">${esc(v)}</div>`).join(''):'<strong class="muted">התור ריק</strong>'}</div>
+                            <form id="insertForm" class="lab-controls">
+                                <label for="insertValue"><strong>ערך להכנסה:</strong></label>
+                                <input id="insertValue" name="value" class="form-input" type="number" min="-99" max="999" step="1" value="9" required>
+                                <button class="btn btn-primary" type="submit">${inline('Insert(x)')} +</button>
+                            </form>
+                            <div class="inline-actions">
+                                <button class="btn btn-mint" type="button" data-action="remove" ${!labQueue.length?'disabled':''}>${inline('Remove()')} - הוצא</button>
+                                <button class="btn btn-secondary" type="button" data-action="head" ${!labQueue.length?'disabled':''}>${inline('Head()')} - הצג ראש</button>
+                                <button class="btn btn-secondary" type="button" data-action="resetlab">↻ איפוס</button>
+                            </div>
+                            <div class="live-message" id="labMessage" role="status">${inline(labMessage)}</div>
+                        </div>
+                        <div class="panel" style="box-shadow:none; background:#f8fbff">
+                            <h2>מה חשוב לזכור?</h2>
+                            <ol class="step-list">
+                                <li>${inline('Insert(x)')} מכניסה איבר חדש לסוף התור.</li>
+                                <li>${inline('Head()')} מציגה את ראש התור בלי להוציא אותו.</li>
+                                <li>${inline('Remove()')} מוציאה את האיבר שנמצא בראש.</li>
+                                <li>${inline('IsEmpty()')} בודקת אם התור ריק.</li>
+                            </ol>
+                            <div class="note"><strong>ניסוי:</strong> הוציאו איבר, הכניסו אותו שוב לסוף התור, ובדקו מה השתנה. זהו גלגול של איבר אחד.</div>
+                            <button class="btn btn-primary" style="margin-top:20px" type="button" data-action="home">חזרה לחידון</button>
+                        </div>
+                    </div>
+                </section>`;
+            }
+            function topicStats(rows) {
+                return SUBJECTS.map(topic => {
+                    const sample=rows.filter(r=>r.q.topic===topic);
+                    if (!sample.length) return '';
+                    const good=sample.filter(r=>r.right).length;
+                    const pct=Math.round(good/sample.length*100);
+                    return `<div class="meter-row"><div><strong>${topic}</strong><span>${good}/${sample.length} (${pct}%)</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;
+                }).join('');
+            }
+            function reviewItem(row) {
+                const q=row.q;
+                return `<article class="review-item ${row.right?'review-correct':'review-wrong'}">
+                    <div class="question-kicker"><span class="topic-pill">שאלה ${q.id} · ${q.topic}</span><strong style="color:${row.right?'var(--mint)':'var(--coral)'}">${row.right?'✓ נכון':'✕ לחזור ולתרגל'}</strong></div>
+                    <h3 style="margin-top:11px">${inline(q.question)}</h3>
+                    <div class="review-pair">
+                        <div><small>התשובה שבחרת</small><strong>${inline(q.options[row.chosen])}</strong></div>
+                        <div><small>התשובה הנכונה</small><strong>${inline(q.options[q.correct])}</strong></div>
+                    </div>
+                    ${row.right?'':`<p><strong>למה טעית?</strong> ${inline(q.explanation[row.chosen])}</p>`}
+                    <p><strong>מה חשוב להבין?</strong> ${inline(q.why)}</p>
+                    ${q.code?`<details><summary style="cursor:pointer;font-weight:750">הצג קוד השאלה</summary><div class="code-panel" dir="ltr"><pre><code>${esc(q.code)}</code></pre></div></details>`:''}
+                </article>`;
+            }
+            function resultsHtml() {
+                const {rows,correct,total,pct,wrong}=scoreDetails();
+                const level=pct>=90?'שליטה מצוינת':pct>=75?'התקדמות טובה':pct>=55?'כיוון נכון':'צריך לתרגל שוב';
+                const toReview=state.resultsFilter==='wrong'?wrong:rows;
+                const weakest=SUBJECTS.map(topic=>{
+                    const r=rows.filter(row=>row.q.topic===topic);
+                    return {topic,count:r.length,rate:r.length?r.filter(x=>x.right).length/r.length:2};
+                }).filter(t=>t.count).sort((a,b)=>a.rate-b.rate)[0];
+                return `<section class="panel" aria-label="סיכום התוצאות">
+                    <div class="result-hero">
+                        <span class="eyebrow">🎓 סיימתם את החידון</span>
+                        <h1 style="margin:12px 0">${level}</h1>
+                        <div class="score" aria-label="ציון ${pct} מתוך 100">${pct}%</div>
+                        <div><strong>${correct} תשובות נכונות מתוך ${total}</strong> · ${wrong.length} שאלות לתרגול חוזר</div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat"><strong>${correct}</strong><span>תשובות נכונות</span></div>
+                        <div class="stat"><strong>${wrong.length}</strong><span>לתיקון וחזרה</span></div>
+                        <div class="stat"><strong>${total}</strong><span>שאלות במבחן</span></div>
+                    </div>
+                    <div class="inline-actions" style="margin-bottom:19px">
+                        ${wrong.length?`<button class="btn btn-primary" type="button" data-action="retry">↻ תרגל רק את ${wrong.length} השאלות שטעיתי בהן</button>`:''}
+                        <button class="btn btn-secondary" type="button" data-action="home">חידון חדש</button>
+                        <button class="btn btn-secondary" type="button" data-action="download">↓ הורד תוצאות ${inline('CSV')}</button>
+                        <button class="btn btn-secondary" type="button" data-action="print">⎙ הדפס דוח</button>
+                    </div>
+                    <div class="note"><strong>המלצה אישית לפי תוצאות החידון:</strong> ${wrong.length===0?'מעולה. כדי לבסס את הידע נסו חידון חדש במצב מבחן.':`כדאי להתחיל בנושא <strong>${esc(weakest.topic)}</strong> ולתרגל שוב את השאלות שבהן טעיתם. לאחר מכן נסו חידון מלא ללא רמזים.`}</div>
+                </section>
+                <section class="panel" style="margin-top:18px" aria-label="הישגים לפי נושא"><h2>מפת השליטה בנושאים</h2>${topicStats(rows)}</section>
+                <section class="panel" style="margin-top:18px" aria-label="פירוט תשובות">
+                    <h2>בדיקת תשובות והסברים</h2>
+                    <div class="filter-row" role="group" aria-label="סינון שאלות">
+                        <button class="filter-btn ${state.resultsFilter==='wrong'?'active':''}" type="button" data-action="filter" data-filter="wrong" aria-pressed="${state.resultsFilter==='wrong'}">טעויות בלבד (${wrong.length})</button>
+                        <button class="filter-btn ${state.resultsFilter==='all'?'active':''}" type="button" data-action="filter" data-filter="all" aria-pressed="${state.resultsFilter==='all'}">כל השאלות (${total})</button>
+                    </div>
+                    ${toReview.length?toReview.map(reviewItem).join(''):'<div class="note">אין טעויות. כל הכבוד!</div>'}
+                </section>`;
+            }
+            function printReportHtml() {
+                const {rows,correct,total,pct,wrong}=scoreDetails();
+                const date = state.finishedAt ? new Date(state.finishedAt).toLocaleString('he-IL') : '';
+                const chunks=[];
+                for (let i=0;i<rows.length;i+=6) chunks.push(rows.slice(i,i+6));
+                return `<section class="print-page" aria-label="דוח תוצאות"><h1>דוח תוצאות - תורים ב-${inline('C#')}</h1><p>תאריך: ${esc(date)}</p><h2>ציון: ${pct}%</h2><p>${correct} מתוך ${total} תשובות נכונות; ${wrong.length} טעויות לתרגול.</p><h2>מפת שליטה בנושאים</h2>${topicStats(rows)}<p>דוח לימודי אישי. אין כאן שמירת שמות או שליחת מידע לשרת.</p></section>`+
+                chunks.map((chunk,i)=>`<section class="print-page" aria-label="שאלות הדוח ${i+1}"><h2>פירוט השאלות - חלק ${i+1}</h2>${chunk.map(r=>`<article class="print-row"><h3>שאלה ${r.q.id}: ${inline(r.q.question)}</h3><p><strong>תשובת התלמיד:</strong> ${inline(r.q.options[r.chosen])} (${r.right?'נכון':'שגוי'})</p><p><strong>תשובה נכונה:</strong> ${inline(r.q.options[r.q.correct])}</p><p><strong>הסבר:</strong> ${inline(r.q.why)}</p></article>`).join('')}</section>`).join('');
+            }
+            function render(shouldFocus=false) {
+                const zoom=Math.min(1.4,Math.max(.9,state.zoom));
+                document.documentElement.style.fontSize=(16*zoom)+'px';
+                app.innerHTML = state.view==='home'?homeHtml():state.view==='quiz'?quizHtml():state.view==='lab'?labHtml():resultsHtml();
+                document.querySelectorAll('nav .nav-btn').forEach(btn=>btn.classList.toggle('active',
+                    (btn.dataset.action==='home'&&state.view==='home') || (btn.dataset.action==='lab'&&state.view==='lab') || (btn.dataset.action==='resume'&&['quiz','results'].includes(state.view))));
+                const quizLink=document.getElementById('navQuiz');
+                quizLink.disabled=state.qids.length===0;
+                quizLink.textContent=state.finishedAt?'◉ תוצאות':'◉ החידון';
+                const print=document.getElementById('printSheet');
+                print.innerHTML=state.view==='results'?printReportHtml():'';
+                save(); typeset();
+                if (shouldFocus) focusTop();
+            }
+            function downloadCsv() {
+                const {rows,pct}=scoreDetails();
+                const record=[['שאלה','נושא','רמת קושי','נוסח השאלה','תשובה שנבחרה','תשובה נכונה','נכון/לא נכון','הסבר']];
+                rows.forEach(r=>record.push([r.q.id,r.q.topic,r.q.level,r.q.question,r.q.options[r.chosen].replaceAll('[[','').replaceAll(']]',''),r.q.options[r.q.correct].replaceAll('[[','').replaceAll(']]',''),r.right?'נכון':'שגוי',r.q.why]));
+                record.push(['ציון',pct+'%']);
+                const csv='\uFEFF'+record.map(row=>row.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\r\n');
+                const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+                const url=URL.createObjectURL(blob);
+                const a=document.createElement('a'); a.href=url;a.download='queue-quiz-results.csv';a.click();
+                setTimeout(()=>URL.revokeObjectURL(url),1000);
+            }
+            document.addEventListener('click', e=>{
+                const control=e.target.closest('[data-action]'); if(!control) return;
+                const action=control.dataset.action;
+                if (action==='home') { setView('home'); return; }
+                if (action==='lab') { setView('lab'); return; }
+                if (action==='resume') {
+                    if (!state.qids.length) return;
+                    setView(state.finishedAt?'results':'quiz'); return;
+                }
+                if (action==='setmode') {state.mode=control.dataset.mode;render();return;}
+                if (action==='start') {startQuiz();return;}
+                if (action==='choose') {
+                    const q=getCurrent();if(!q||state.mode==='practice'&&state.checked[q.id])return;
+                    state.selected[q.id]=Number(control.dataset.original);render();return;
+                }
+                if (action==='check') {checkCurrent();return;}
+                if (action==='goto') {state.current=Number(control.dataset.index);render(true);return;}
+                if (action==='prev' && state.current>0) {state.current--;render(true);return;}
+                if (action==='next' && state.current<state.qids.length-1) {state.current++;render(true);return;}
+                if (action==='finish') {finish();return;}
+                if (action==='retry') {
+                    const missed=scoreDetails().wrong.map(r=>r.id);
+                    if(missed.length){state.mode='practice';startQuiz(missed);}
+                    return;
+                }
+                if (action==='filter') {state.resultsFilter=control.dataset.filter;render();return;}
+                if (action==='download') {downloadCsv();return;}
+                if (action==='print') {window.print();return;}
+                if (action==='bigger'||action==='smaller') {state.zoom=Math.min(1.4,Math.max(.9,state.zoom+(action==='bigger'?.1:-.1)));render();return;}
+                if (action==='remove') {
+                    if(labQueue.length)labMessage='Remove(): הוצא מראש התור הערך '+labQueue.shift()+'.';
+                    render();return;
+                }
+                if (action==='head') {labMessage=labQueue.length?'Head(): ראש התור הוא '+labQueue[0]+'. התור לא השתנה.':'התור ריק - אין ראש להצגה.';render();return;}
+                if (action==='resetlab') {labQueue=[3,5,7];labMessage='התור אופס לערכים 3, 5, 7.';render();return;}
+            });
+            document.addEventListener('change', e=>{if(e.target?.id==='quizLength'){state.length=Number(e.target.value);save();}});
+            document.addEventListener('submit', e=>{
+                if(e.target?.id!=='insertForm')return;
+                e.preventDefault();
+                const input=e.target.querySelector('input[name="value"]');
+                const value=Number(input.value);
+                if(!Number.isInteger(value)||value < -99 || value>999) {labMessage='הכניסו מספר שלם בין ‎-99 ל־999.';render();return;}
+                if(labQueue.length>=10) {labMessage='במעבדה זו התור מוגבל ל־10 איברים כדי לשמור על תצוגה ברורה.';render();return;}
+                labQueue.push(value);labMessage='Insert('+value+'): הערך '+value+' נוסף לסוף התור.';render();
+            });
+            document.addEventListener('toggle',e=>{
+                if(e.target.matches('.hint-box')&&state.view==='quiz') {
+                    const q=getCurrent();if(q) {state.hints[q.id]=e.target.open;save();}
+                }
+            },true);
+            document.addEventListener('keydown',e=>{
+                if(state.view!=='quiz'||e.altKey||e.ctrlKey||e.metaKey||['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName))return;
+                if(['1','2','3'].includes(e.key) && !e.target.closest('button')) {
+                    const q=getCurrent();if(!q||state.mode==='practice'&&state.checked[q.id])return;
+                    const original=state.order[q.id][Number(e.key)-1];state.selected[q.id]=original;render();announce('נבחרה אפשרות '+e.key);return;
+                }
+                if(e.key==='ArrowLeft' && state.current<state.qids.length-1){state.current++;render(true);}
+                if(e.key==='ArrowRight' && state.current>0){state.current--;render(true);}
+                if(e.key==='Enter' && e.target===document.body && state.mode==='practice' && !state.checked[getCurrent().id])checkCurrent();
+            });
+            safeLoad();
+            // A completed session remains available when returning to the homepage.
+            if(!state.qids.length && ['quiz','results'].includes(state.view))state.view='home';
+            render();
+            window.addEventListener('load', () => { typeset(); });
+            window.addEventListener('beforeprint',()=>{typeset();});
+            // Public lightweight tests for the question bank; no build system required.
+            window.QueueQuestQA = () => ({
+                count:QUESTION_BANK.length,
+                ids:QUESTION_BANK.every((q,i)=>q.id===i+1),
+                options:QUESTION_BANK.every(q=>q.options.length===3&&new Set(q.options).size===3),
+                keys:QUESTION_BANK.every(q=>Number.isInteger(q.correct)&&q.correct>=0&&q.correct<3),
+                explanations:QUESTION_BANK.every(q=>[0,1,2].filter(i=>i!==q.correct).every(i=>Boolean(q.explanation[i]))),
+                hints:QUESTION_BANK.every(q=>Boolean(q.hint&&q.why)),
+                api:!QUESTION_BANK.some(q=>(q.code||'').includes('Enqueue(')||(q.code||'').includes('Dequeue('))
+            });
+        })();
+    </script>
+</body>
+</html>

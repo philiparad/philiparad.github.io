@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#21133e">
+    <meta name="description" content="Interactive bilingual FIFO queue algorithm visualizer. No framework or build step required.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Queue Algorithm Lab | Print and Restore</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235029a8'/%3E%3Cpath d='M14 20h36M14 32h36M14 44h36' stroke='%236ee7b7' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+:root {
+    color-scheme: dark;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    --page: #160c2c;
+    --panel: #251640;
+    --panel-inner: #2b1b4a;
+    --stroke: rgba(204, 181, 255, .19);
+    --stroke-bright: rgba(194, 167, 255, .48);
+    --text: #fcf9ff;
+    --muted: #cfbfec;
+    --mint: #57e2a9;
+    --green: #047e5f;
+    --orange: #f5a646;
+    --red: #dc465e;
+    --cyan: #7ee6ef;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--page); color: var(--text); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .38; cursor: not-allowed; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #bdf8dc; outline-offset: 3px; }
+[hidden] { display: none !important; }
+.page { background: radial-gradient(circle at 10% -10%, #593393 0, transparent 40%), radial-gradient(circle at 100% 2%, #25356a 0, transparent 35%), #1c0f32; min-height: 100vh; padding: 26px clamp(12px, 3vw, 36px) 34px; }
+.shell { max-width: 1390px; margin: 0 auto; }
+.page-header { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-bottom: 23px; }
+.branding { min-width: 0; }
+.eyebrow { display: flex; align-items: center; gap: 8px; color: #b9a9de; text-transform: uppercase; font-weight: 800; letter-spacing: .15em; font-size: .68rem; margin-bottom: 9px; }
+.eyebrow-dot, .live-dot, .guide-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); flex-shrink: 0; box-shadow: 0 0 0 4px rgba(87, 226, 169, .10); }
+.eyebrow-dot { width: 7px; height: 7px; }
+h1 { font-size: clamp(1.75rem, 3.8vw, 2.9rem); line-height: 1.1; letter-spacing: -.035em; margin: 0; }
+.subtitle { margin: 10px 0 0; font-size: .95rem; color: #d5c6ee; line-height: 1.6; }
+.header-controls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 11px; }
+.picker, .field-group, .speed-control { display: flex; flex-direction: column; gap: 7px; font-weight: 670; color: #ded1f8; font-size: .81rem; }
+select, input[type="text"] { border: 1px solid var(--stroke-bright); background: #392359; color: #fff; border-radius: 10px; height: 43px; padding: 0 13px; }
+select option { background: #392359; color: #fff; }
+.picker select { min-width: 126px; }
+.card { background: rgba(43, 27, 73, .86); border: 1px solid var(--stroke); border-radius: 17px; box-shadow: 0 13px 36px rgba(8, 6, 22, .17); padding: 20px 21px; }
+.section-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+h2 { font-size: 1.1rem; letter-spacing: -.018em; margin: 0; font-weight: 780; }
+h3 { margin: 0; font-size: 1rem; }
+.hint-pill, .phase-badge, .action-pill { color: #c8b6f6; border: 1px solid rgba(192, 151, 247, .29); border-radius: 99px; padding: 5px 10px; font-weight: 750; font-size: .72rem; }
+.highlight-pill { color: #a7f3d0; border-color: rgba(87,226,169,.3); letter-spacing: .08em; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #fff; border: 1px solid transparent; border-radius: 10px; min-height: 43px; padding: 10px 15px; font-weight: 750; font-size: .86rem; transition: filter .15s, transform .15s, border-color .15s; white-space: nowrap; }
+.btn:hover:not(:disabled), .edge-button:hover:not(:disabled) { filter: brightness(1.16); transform: translateY(-1px); }
+.btn-primary { background: #067d60; }
+.btn-secondary { background: #7432a0; }
+.btn-outline { border-color: rgba(180,160,231,.4); background: rgba(79,54,117,.55); }
+.setup-panel { margin-bottom: 13px; }
+.setup-layout { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 11px; }
+.queue-values { flex: 1 1 290px; }
+.queue-values input { width: 100%; font-variant-numeric: tabular-nums; }
+.type-group { min-width: 125px; }
+.insert-value { width: 150px; }
+.insert-value input { width: 100%; }
+.hint { margin: 12px 0 0; line-height: 1.55; font-size: .79rem; color: #bfaedf; }
+.alert { color: #ffe1e5; margin-top: 12px; padding: 10px 12px; border: 1px solid rgba(255,112,130,.45); border-radius: 9px; background: rgba(151,30,57,.23); font-size: .88rem; }
+.player { margin-bottom: 14px; padding-block: 15px; }
+.playback-main { display: flex; align-items: center; gap: 24px; }
+.play-buttons { display: flex; align-items: center; gap: 8px; flex-shrink: 0; direction: ltr; }
+.btn-icon { background: #4b2a7f; padding: 5px; min-width: 42px; font-size: 1.05rem; }
+.btn-play { background: #067d60; min-width: 110px; }
+#playIcon { font-size: .9rem; }
+.playback-details { flex: 1 1 auto; min-width: 160px; }
+.progress-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px; color: #dfd4f5; font-size: .83rem; }
+.phase-badge { color: #d8c0ff; background: rgba(131, 74, 218, .18); }
+.phase-badge[data-phase="printing"] { color: #a6f3d8; border-color: rgba(87,226,169,.4); }
+.phase-badge[data-phase="restoring"] { color: #ffd49f; border-color: rgba(245,166,70,.4); }
+.phase-badge[data-phase="complete"] { color: #a3ffe6; border-color: rgba(87,226,169,.5); }
+#stepSlider { width: 100%; accent-color: #80f0c1; cursor: pointer; height: 16px; margin: 0; }
+.speed-control { flex-shrink: 0; }
+.speed-control select { min-width: 96px; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(345px, .85fr); gap: 15px; align-items: start; }
+.workspace-left { display: grid; gap: 15px; min-width: 0; }
+.visualization { padding-bottom: 20px; }
+.queue-block { padding: 14px; border: 1px solid rgba(85, 226, 169, .20); border-radius: 13px; background: rgba(10, 73, 65, .17); }
+.queue-block.temp { border-color: rgba(245,166,70,.28); background: rgba(103,53,24,.17); }
+.queue-header { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 15px; }
+.queue-header h3 { color: #83f0c4; font-weight: 780; }
+.queue-block.temp h3 { color: #ffc988; }
+.queue-count { font-size: .72rem; background: rgba(0,0,0,.2); padding: 5px 9px; border-radius: 99px; color: #e7dafa; font-variant-numeric: tabular-nums; }
+.queue-strip { direction: ltr; display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; }
+.queue-edge { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.edge-label { font-size: .72rem; font-weight: 800; letter-spacing: .025em; color: #e2d6f3; white-space: nowrap; direction: ltr; }
+.edge-button { padding: 6px 9px; border: 0; min-height: 30px; border-radius: 7px; color: white; font-size: .76rem; font-weight: 750; transition: filter .16s, transform .16s; cursor: pointer; }
+.edge-button.insert { background: #047e5f; }
+.edge-button.remove { background: #b93655; }
+.queue-scroller { min-width: 0; flex: 1 1 auto; overflow-x: auto; scrollbar-color: #735a9a transparent; padding: 3px 1px 11px; }
+.queue-items { direction: ltr; display: flex; align-items: center; gap: 7px; min-height: 55px; min-width: max-content; }
+.token { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 47px; height: 49px; border-radius: 10px; font-weight: 830; color: #f9fffb; font-size: 1.03rem; text-shadow: 0 1px 1px rgba(0,0,0,.18); box-shadow: 0 6px 16px rgba(0,0,0,.23); background: linear-gradient(145deg, #15a87c, #057054); position: relative; }
+.token.temp-token { background: linear-gradient(145deg, #f1ad59, #b95734); }
+.token.sentinel { background: linear-gradient(145deg, #eb5a73, #9f2949); }
+.token.front { outline: 2px solid rgba(255,255,255,.54); outline-offset: 2px; }
+.token.pulse { animation: pulse .68s ease-out; }
+@keyframes pulse { 0%,100% { filter: brightness(1); } 46% { filter: brightness(1.6); box-shadow: 0 0 0 7px rgba(110,231,183,.14); } }
+.queue-empty { display: flex; align-items: center; justify-content: center; min-height: 49px; width: 120px; color: #b1a6c7; font-size: .82rem; font-style: italic; border: 1px dashed rgba(198,184,223,.25); border-radius: 10px; }
+.queue-note { font-size: .75rem; margin: 12px 0 0; color: #b8d4cc; line-height: 1.5; }
+.queue-strip.simple { padding-block: 2px; }
+.movement-guide { text-align: center; color: #c4b3db; display: flex; justify-content: center; gap: 13px; align-items: center; margin: 14px 4px; font-size: .79rem; }
+.guide-dot.orange { background: var(--orange); box-shadow: 0 0 0 4px rgba(245,166,70,.12); }
+.holding-row { margin: 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border: 1px dashed rgba(167,139,250,.35); border-radius: 12px; background: rgba(67,43,111,.25); }
+.holding-label { display: flex; flex-direction: column; gap: 4px; }
+.holding-label strong { font-size: .85rem; color: #ddd0ff; }
+.holding-label span { color: #b6a8d7; font-size: .74rem; }
+.holding-slot { min-height: 52px; min-width: 57px; display: flex; align-items: center; justify-content: center; }
+.holding-slot .token { background: linear-gradient(145deg,#7964ed,#553ec7); }
+.holding-slot .placeholder { font-size: 1.45rem; color: #9785bb; }
+.console-box { border: 1px solid rgba(152,109,251,.35); border-radius: 12px; overflow: hidden; background: rgba(14,11,32,.76); }
+.console-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; background: rgba(90,55,139,.32); }
+.console-heading h3 { font-size: .86rem; color: #e4d7ff; }
+.terminal-dots { color: #ac8ee0; font-size: .64rem; letter-spacing: .2em; }
+.console-content { min-height: 70px; padding: 17px 14px; color: #82f7ba; font-size: 1.04rem; font-family: Consolas, Monaco, monospace; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; direction: ltr; }
+.console-token { animation: consoleIn .3s ease-out; }
+.console-token:last-child { color: #cbffdd; }
+.console-content .placeholder { color: #968aa9; font-style: italic; font-size: .83rem; }
+@keyframes consoleIn { from { opacity: .2; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.explanation { border-color: rgba(183, 140, 253, .3); }
+.explanation p { margin: 0; font-size: .95rem; line-height: 1.8; color: #f2eafd; min-height: 50px; }
+.action-pill { border-color: rgba(179,153,231,.4); background: rgba(81, 45, 131,.22); }
+.completion { margin-top: 13px; padding: 10px 12px; background: rgba(5, 118, 93,.17); border: 1px solid rgba(90,231,176,.31); border-radius: 10px; color: #acffe3; font-size: .86rem; line-height: 1.5; }
+.inspection-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.inspection-cell { border: 1px solid rgba(175,151,222,.26); border-radius: 11px; padding: 11px; display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(91,59,146,.20); }
+.inspection-cell .btn { font-family: Consolas, monospace; font-size: .81rem; padding-inline: 10px; }
+.inspect-result { min-width: 48px; text-align: center; border-radius: 7px; padding: 6px 9px; font-weight: 770; font-size: .84rem; background: rgba(13,10,29,.45); color: #a0f6cc; direction: ltr; }
+.inspect-result.flash { animation: resultFlash .65s ease-out; }
+@keyframes resultFlash { from { box-shadow: 0 0 0 0 rgba(87,226,169,.8); } to { box-shadow: 0 0 0 12px rgba(87,226,169,0); } }
+.code-card { min-width: 0; position: sticky; top: 14px; }
+.code-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.code-heading h2 { margin: 0 0 8px; }
+.code-subheading { color: #bcaad5; font-size: .8rem; line-height: 1.5; margin: 0; }
+.btn-copy { font-size: .76rem; min-height: 36px; padding: 7px 10px; }
+.code-window { max-height: 465px; overflow: auto; border: 1px solid #55407a; background: #130e26; border-radius: 11px; scrollbar-color: #766397 transparent; }
+.code-lines { display: table; min-width: 100%; padding: 10px 0; font-family: Consolas, "Courier New", monospace; font-size: clamp(.69rem, .86vw, .84rem); line-height: 1.85; white-space: pre; direction: ltr; text-align: left; }
+.code-line { display: table-row; color: #e2d2f4; }
+.code-line.active { background: #1d5b60; color: #fff; }
+.line-no, .line-text { display: table-cell; padding: 0 10px; vertical-align: top; }
+.line-no { color: #847797; user-select: none; width: 38px; text-align: right; border-right: 1px solid #342746; }
+.code-line.active .line-no { color: #a8fce3; font-weight: 800; }
+.code-line.active .line-text { font-weight: 750; }
+.code-footer { display: flex; align-items: center; gap: 10px; font-size: .82rem; color: #ddd4f1; margin: 13px 0 0; }
+.live-dot { width: 7px; height: 7px; }
+.note { border: 1px solid rgba(132,110,174,.25); border-radius: 9px; padding: 12px; background: rgba(78,53,119,.20); margin-top: 15px; font-size: .82rem; color: #cabce2; line-height: 1.6; }
+.note strong { color: #efe6ff; }
+.note p { margin: 4px 0 0; }
+.mini-guide { padding: 15px 3px 2px; font-size: .83rem; color: #c9b8e7; line-height: 1.7; }
+.mini-guide h3 { color: #efe4ff; font-size: .9rem; }
+.mini-guide ol { padding-inline-start: 21px; margin: 8px 0; }
+.footer { text-align: center; margin-top: 22px; color: #ad9bc9; font-size: .76rem; line-height: 1.5; }
+html[dir="rtl"] .page-header, html[dir="rtl"] .section-heading, html[dir="rtl"] .queue-header, html[dir="rtl"] .code-heading, html[dir="rtl"] .console-heading, html[dir="rtl"] .holding-row { direction: rtl; }
+html[dir="rtl"] .setup-layout, html[dir="rtl"] .header-controls, html[dir="rtl"] .playback-main { direction: rtl; }
+html[dir="rtl"] .queue-strip, html[dir="rtl"] .queue-items, html[dir="rtl"] .console-content, html[dir="rtl"] .code-window { direction: ltr; }
+html[dir="rtl"] .speed-control { text-align: right; }
+html[dir="rtl"] .queue-note, html[dir="rtl"] .hint, html[dir="rtl"] .note, html[dir="rtl"] .mini-guide { text-align: start; }
+@media (max-width: 1150px) { .workspace { grid-template-columns: minmax(0, 1fr); } .code-card { position: static; } .code-lines { font-size: .84rem; } }
+@media (max-width: 750px) { .page-header { align-items: flex-start; flex-wrap: wrap; } .playback-main { flex-wrap: wrap; } .playback-details { order: 3; flex-basis: 100%; } .setup-layout { align-items: stretch; } .queue-values { flex-basis: 100%; } .card { padding: 16px; } }
+@media (max-width: 480px) { .page { padding: 12px 8px 25px; } h1 { font-size: 1.85rem; } .page-header { padding: 5px 7px 0; } .card { border-radius: 14px; padding: 14px 12px; } .setup-layout { gap: 9px; } .setup-layout > button { flex: 1 1 auto; } .playback-main { gap: 12px; } .play-buttons { width: 100%; justify-content: center; } .speed-control { flex-direction: row; align-items: center; } .token { width: 41px; height: 45px; } .queue-items { gap: 6px; } .queue-block { padding: 12px 9px; } .edge-label { font-size: .63rem; } .edge-button { font-size: .69rem; padding: 5px 6px; } .queue-strip { gap: 6px; } .inspection-actions { grid-template-columns: 1fr; } .header-controls { width: 100%; } .picker { flex: 1; } .picker select { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }
+
+</style>
+    
+</head>
+<body>
+<main class="page" id="app">
+    <div class="shell">
+        <header class="page-header">
+            <div class="branding">
+                <div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="labLabel">Interactive algorithm lab</span></div>
+                <h1 data-i18n="title">Print &amp; Restore a Queue</h1>
+                <p class="subtitle" data-i18n="subtitle">Print every item using a temporary queue — then restore the original order.</p>
+            </div>
+            <div class="header-controls">
+                <label class="picker"><span data-i18n="uiLanguage">Language</span>
+                    <select id="uiLang" aria-label="Interface language">
+                        <option value="en">English</option>
+                        <option value="he">עברית</option>
+                    </select>
+                </label>
+                <label class="picker"><span data-i18n="codeLanguage">Programming</span>
+                    <select id="codeLang" aria-label="Programming language">
+                        <option value="cs">C#</option>
+                        <option value="java">Java</option>
+                    </select>
+                </label>
+            </div>
+        </header>
+
+        <section class="card setup-panel" aria-labelledby="setupTitle">
+            <div class="section-heading"><h2 id="setupTitle" data-i18n="setupTitle">1. Build your starting queue</h2><span class="hint-pill" data-i18n="setupPill">Before running</span></div>
+            <div class="setup-layout">
+                <label class="field-group queue-values"><span data-i18n="queueValuesLabel">Values (FRONT to BACK, comma-separated)</span>
+                    <input id="queueInput" type="text" inputmode="text" autocomplete="off" spellcheck="false" dir="ltr" value="5,3,8,1,9" aria-describedby="inputHint">
+                </label>
+                <label class="field-group type-group"><span data-i18n="dataType">Data type</span>
+                    <select id="dataType">
+                        <option value="int" data-i18n="integer">Integer</option>
+                        <option value="double" data-i18n="double">Double</option>
+                        <option value="char" data-i18n="character">Char</option>
+                    </select>
+                </label>
+                <label class="field-group insert-value"><span data-i18n="insertValueLabel">Value to insert at BACK</span>
+                    <input id="insertValue" type="text" autocomplete="off" spellcheck="false" dir="ltr" placeholder="7">
+                </label>
+                <button class="btn btn-primary" id="applyBtn" type="button" data-i18n="applyQueue">Apply queue</button>
+                <button class="btn btn-secondary" id="addSentinelBtn" type="button" data-i18n="addSentinel">Add sentinel</button>
+            </div>
+            <p id="inputHint" class="hint" data-i18n="inputHint">Up to 10 items. Integers: 0–99; decimals: 0–less than 100; chars: A–Z / a–z. Sentinel: -1 or -.</p>
+            <div id="error" class="alert" role="alert" hidden></div>
+        </section>
+
+        <section class="card player" aria-label="Playback controls">
+            <div class="playback-main">
+                <div class="play-buttons">
+                    <button class="btn btn-icon" id="resetBtn" type="button" title="Restart" aria-label="Restart">↺</button>
+                    <button class="btn btn-icon" id="prevBtn" type="button" title="Previous step" aria-label="Previous step">◀│</button>
+                    <button class="btn btn-play" id="playBtn" type="button"><span id="playIcon">▶</span><span id="playText" data-i18n="play">Play</span></button>
+                    <button class="btn btn-icon" id="nextBtn" type="button" title="Next step" aria-label="Next step">│▶</button>
+                </div>
+                <div class="playback-details">
+                    <div class="progress-heading"><span id="stepText">Step 1 of 35</span><span id="phaseBadge" class="phase-badge" data-phase="initial">Start</span></div>
+                    <input id="stepSlider" type="range" min="0" max="34" step="1" value="0" aria-label="Choose execution step">
+                </div>
+                <label class="speed-control"><span data-i18n="speed">Speed</span>
+                    <select id="speed">
+                        <option value="1500">0.5×</option>
+                        <option value="950" selected>1×</option>
+                        <option value="570">1.5×</option>
+                        <option value="310">2×</option>
+                    </select>
+                </label>
+            </div>
+        </section>
+
+        <div class="workspace">
+            <div class="workspace-left">
+                <section class="card visualization" aria-labelledby="visualTitle">
+                    <div class="section-heading"><h2 id="visualTitle" data-i18n="visualTitle">2. Follow the queues</h2><span class="hint-pill highlight-pill">FIFO</span></div>
+                    <div class="queue-block" id="mainQueueBlock">
+                        <div class="queue-header"><h3 data-i18n="mainQueue">Main queue</h3><span id="mainCount" class="queue-count">5 / 10</span></div>
+                        <div class="queue-strip" dir="ltr">
+                            <div class="queue-edge queue-back">
+                                <button id="insertBtn" class="edge-button insert" type="button" data-i18n="insert">Insert</button>
+                                <span class="edge-label" data-i18n="backArrow">BACK →</span>
+                            </div>
+                            <div class="queue-scroller"><div id="mainItems" class="queue-items" aria-label="Main queue from back to front"></div></div>
+                            <div class="queue-edge queue-front"><span class="edge-label" data-i18n="frontArrow">← FRONT</span><button id="removeBtn" class="edge-button remove" type="button" data-i18n="remove">Remove</button></div>
+                        </div>
+                        <p class="queue-note" data-i18n="mainNote">Edit the initial queue with Insert/Remove only before starting playback.</p>
+                    </div>
+                    <div class="movement-guide" id="movementGuide"><span class="guide-dot green"></span><span data-i18n="moveGuide">Each step follows one highlighted line of code</span><span class="guide-dot orange"></span></div>
+                    <div class="queue-block temp" id="tempQueueBlock">
+                        <div class="queue-header"><h3 data-i18n="tempQueue">Temporary queue</h3><span id="tempCount" class="queue-count">0 / 10</span></div>
+                        <div class="queue-strip simple" dir="ltr">
+                            <span class="edge-label" data-i18n="backArrow">BACK →</span>
+                            <div class="queue-scroller"><div id="tempItems" class="queue-items" aria-label="Temporary queue from back to front"></div></div>
+                            <span class="edge-label" data-i18n="frontArrow">← FRONT</span>
+                        </div>
+                    </div>
+                    <div class="holding-row">
+                        <div class="holding-label"><strong data-i18n="holding">Variable item</strong><span data-i18n="holdingHelp">Value currently held by the algorithm</span></div>
+                        <div id="heldItem" class="holding-slot" dir="ltr"><span class="placeholder">—</span></div>
+                    </div>
+                    <div class="console-box">
+                        <div class="console-heading"><h3 data-i18n="console">Console output</h3><span class="terminal-dots" aria-hidden="true">● ● ●</span></div>
+                        <div id="consoleOutput" class="console-content" dir="ltr" aria-live="polite"><span class="placeholder" data-i18n="noOutput">(no output yet)</span></div>
+                    </div>
+                </section>
+
+                <section class="card explanation" aria-labelledby="explTitle">
+                    <div class="section-heading"><h2 id="explTitle" data-i18n="explTitle">3. What just happened?</h2><span id="operationName" class="action-pill">Start</span></div>
+                    <p id="explanationText">The original queue is ready. Click Next or Play to begin.</p>
+                    <div id="completionMessage" class="completion" hidden></div>
+                </section>
+
+                <section class="card inspector" aria-labelledby="inspectorTitle">
+                    <div class="section-heading"><h2 id="inspectorTitle" data-i18n="inspectorTitle">Check the main queue</h2></div>
+                    <div class="inspection-actions">
+                        <div class="inspection-cell"><button id="headBtn" class="btn btn-outline" type="button">Head()</button><output id="headResult" class="inspect-result">5</output></div>
+                        <div class="inspection-cell"><button id="emptyBtn" class="btn btn-outline" type="button">IsEmpty()</button><output id="emptyResult" class="inspect-result">false</output></div>
+                    </div>
+                    <p class="hint" data-i18n="inspectorHint">Head() reads the FRONT without removing it. IsEmpty() checks if this queue has no items.</p>
+                </section>
+            </div>
+
+            <section class="card code-card" aria-labelledby="codeTitle">
+                <div class="code-heading">
+                    <div><h2 id="codeTitle" data-i18n="codeTitle">Synchronized code</h2><p class="code-subheading" data-i18n="codeSubtitle">The highlighted statement matches the queue state.</p></div>
+                    <button id="copyBtn" class="btn btn-outline btn-copy" type="button" data-i18n="copyCode">Copy code</button>
+                </div>
+                <div id="codeWindow" class="code-window" dir="ltr"><div id="codeLines" class="code-lines"></div></div>
+                <div class="code-footer"><span class="live-dot"></span><span id="activeLineText">Line 1</span></div>
+                <div class="note"><strong data-i18n="noteTitle">Educational Queue API</strong><p data-i18n="noteText">This example assumes a provided Queue&lt;T&gt; class with Insert(), Remove(), Head(), and IsEmpty(); these names differ from standard .NET and Java library queues.</p></div>
+                <div class="mini-guide"><h3 data-i18n="logicTitle">Algorithm logic</h3><ol>
+                    <li data-i18n="logic1">Remove one item from the main queue.</li>
+                    <li data-i18n="logic2">Print it and insert it into the temporary queue.</li>
+                    <li data-i18n="logic3">Move every item back, preserving the original order.</li>
+                </ol></div>
+            </section>
+        </div>
+        <footer class="footer"><span data-i18n="footer">Offline-ready • HTML + CSS + JavaScript only • No React or Node.js</span></footer>
+    </div>
+</main>
+<script>
+/* Queue Algorithm Lab — no React, Node.js, external libraries or network required. */
+(() => {
+    'use strict';
+
+    const MAX_ITEMS = 10;
+    const byId = (id) => document.getElementById(id);
+    const translations = {
+        en: {
+            labLabel: 'Interactive algorithm lab', title: 'Print & Restore a Queue',
+            subtitle: 'Print every item using a temporary queue — then restore the original order.',
+            uiLanguage: 'Language', codeLanguage: 'Programming',
+            setupTitle: '1. Build your starting queue', setupPill: 'Before running',
+            queueValuesLabel: 'Values (FRONT to BACK, comma-separated)', dataType: 'Data type',
+            integer: 'Integer', double: 'Double', character: 'Char',
+            insertValueLabel: 'Value to insert at BACK', applyQueue: 'Apply queue', addSentinel: 'Add sentinel',
+            inputHint: 'Up to 10 items. Integers: 0–99; decimals: 0–less than 100; chars: A–Z / a–z. Sentinel: -1 or -.',
+            speed: 'Speed', play: 'Play', pause: 'Pause', restart: 'Restart', previous: 'Previous step', next: 'Next step',
+            progress: (a, b) => `Step ${a} of ${b}`,
+            phaseInitial: 'Ready', phasePrinting: 'Printing', phaseRestoring: 'Restoring', phaseComplete: 'Complete',
+            visualTitle: '2. Follow the queues', mainQueue: 'Main queue', tempQueue: 'Temporary queue',
+            insert: 'Insert', remove: 'Remove', backArrow: 'BACK →', frontArrow: '← FRONT',
+            mainNote: 'Edit the initial queue with Insert/Remove only before starting playback.',
+            moveGuide: 'Each step follows one highlighted line of code',
+            holding: 'Variable item', holdingHelp: 'Value currently held by the algorithm',
+            console: 'Console output', noOutput: '(no output yet)', emptyQueue: 'Empty',
+            explTitle: '3. What just happened?', inspectorTitle: 'Check the main queue',
+            inspectorHint: 'Head() reads the FRONT without removing it. IsEmpty() checks if this queue has no items.',
+            codeTitle: 'Synchronized code', codeSubtitle: 'The highlighted statement matches the queue state.',
+            copyCode: 'Copy code', codeCopied: 'Copied!',
+            noteTitle: 'Educational Queue API',
+            noteText: 'This example assumes a provided Queue<T> class with Insert(), Remove(), Head(), and IsEmpty(); these names differ from standard .NET and Java library queues.',
+            logicTitle: 'Algorithm logic', logic1: 'Remove one item from the main queue.',
+            logic2: 'Print it and insert it into the temporary queue.',
+            logic3: 'Move every item back, preserving the original order.',
+            footer: 'Offline-ready • HTML + CSS + JavaScript only • No React or Node.js',
+            line: (n) => `Highlighted code line ${n}`,
+            initial: 'The original queue is ready. Click Next or Play to begin.',
+            create: 'Create an empty temporary queue. The main queue is unchanged.',
+            checkMainTrue: 'The main queue is not empty, so the first loop continues.',
+            checkMainFalse: 'The main queue is empty. The first loop is finished.',
+            take: (v) => `Remove ${v} from the FRONT of the main queue and store it in the variable item.`,
+            print: (v) => `Print ${v} to the console. The value in item is unchanged.`,
+            putTemp: (v) => `Insert ${v} at the BACK of the temporary queue.`,
+            checkTempTrue: 'The temporary queue is not empty, so the restoration loop continues.',
+            checkTempFalse: 'The temporary queue is empty. Restoration is finished.',
+            restore: (v) => `Remove ${v} from the FRONT of the temporary queue and insert it at the BACK of the main queue.`,
+            newline: 'Print a final newline. The output is now complete.',
+            complete: 'Finished! The original main queue is restored in exactly the same FRONT-to-BACK order.',
+            emptyComplete: 'Finished! The starting queue was empty, and it remains empty.',
+            actStart: 'Start', actCreate: 'Create temp', actCheck: 'Check loop',
+            actRemove: 'Remove()', actPrint: 'Print', actInsert: 'Insert()',
+            actRestore: 'Restore', actEnd: 'Finished',
+            proof: 'Verified: main queue equals the original queue; temporary queue is empty; output matches the original values.',
+            proofEmpty: 'Verified: both queues are empty; no values were printed.',
+            errorMax: 'A queue can contain at most 10 items.', errorList: 'Enter comma-separated values without empty entries.',
+            errorInt: 'Integers must be 0–99, or -1 for the sentinel.',
+            errorDouble: 'Decimals must be 0 or greater and less than 100, or -1 for the sentinel.',
+            errorChar: 'Characters must be one letter (A–Z or a–z), or - for the sentinel.',
+            errorInsert: 'Enter a value to insert at the BACK.', errorSetupOnly: 'Edit the initial queue before starting the algorithm. Restart first.',
+            errorEmpty: 'Cannot Remove() from an empty queue.', errorSentinel: 'Cannot insert a sentinel: the queue is full.',
+            headEmpty: 'Head() is undefined: the main queue is empty.',
+            headValue: (v) => `Head() = ${v}. Nothing was removed.`,
+            isEmptyValue: (v) => `IsEmpty() = ${v}. The queue was not modified.`,
+            changedType: 'Data type changed deterministically. The algorithm was restarted.',
+            parsed: 'Starting queue updated. All algorithm steps were regenerated.',
+            inserted: (v) => `Inserted ${v} at the BACK of the initial queue.`,
+            removed: (v) => `Removed ${v} from the FRONT of the initial queue.`,
+            sentinelAdded: 'Sentinel inserted at the BACK of the initial queue.',
+            insertPlaceholder: 'e.g. 7',
+            emptyInput: 'The queue is empty. You can still run the algorithm.',
+            resetNote: 'Returned to the beginning of the algorithm.'
+        },
+        he: {
+            labLabel: 'מעבדה אינטראקטיבית לאלגוריתמים', title: 'הדפסה ושחזור של תור',
+            subtitle: 'מדפיסים את כל איברי התור בעזרת תור עזר, ומשחזרים את הסדר המקורי.',
+            uiLanguage: 'שפת הממשק', codeLanguage: 'שפת תכנות',
+            setupTitle: '1. בניית התור ההתחלתי', setupPill: 'לפני ההרצה',
+            queueValuesLabel: 'ערכי התור (מהראש לסוף, מופרדים בפסיקים)', dataType: 'טיפוס הנתונים',
+            integer: 'שלם', double: 'ממשי', character: 'תו',
+            insertValueLabel: 'ערך להוספה בסוף', applyQueue: 'החל תור', addSentinel: 'הוסף זקיף',
+            inputHint: 'עד 10 איברים. שלמים: 0–99; ממשיים: מ־0 עד פחות מ־100; תווים: A–Z / a–z. זקיף: ‎-1 או ‎-.',
+            speed: 'מהירות', play: 'הפעל', pause: 'השהה', restart: 'התחל מחדש', previous: 'צעד קודם', next: 'צעד הבא',
+            progress: (a,b) => `צעד ${a} מתוך ${b}`,
+            phaseInitial: 'התחלה', phasePrinting: 'הדפסה', phaseRestoring: 'שחזור', phaseComplete: 'הושלם',
+            visualTitle: '2. מעקב אחר התורים', mainQueue: 'התור הראשי', tempQueue: 'תור העזר',
+            insert: 'Insert', remove: 'Remove', backArrow: 'BACK →', frontArrow: '← FRONT',
+            mainNote: 'אפשר להוסיף או להסיר איברים מהתור ההתחלתי לפני תחילת ההרצה.',
+            moveGuide: 'כל צעד מתאים לשורה המודגשת בקוד',
+            holding: 'המשתנה item', holdingHelp: 'הערך שהאלגוריתם מחזיק כרגע',
+            console: 'פלט התוכנית', noOutput: '(אין פלט עדיין)', emptyQueue: 'ריק',
+            explTitle: '3. מה קרה בצעד הזה?', inspectorTitle: 'בדיקת התור הראשי',
+            inspectorHint: 'Head() מחזירה את האיבר בראש התור ללא הוצאה. IsEmpty() בודקת אם התור ריק.',
+            codeTitle: 'קוד מסונכרן', codeSubtitle: 'השורה המודגשת מתאימה למצב התורים.',
+            copyCode: 'העתק קוד', codeCopied: 'הועתק!',
+            noteTitle: 'מימוש לימודי של תור',
+            noteText: 'הקוד מניח מחלקה לימודית Queue<T> עם הפעולות Insert(), Remove(), Head() ו־IsEmpty(). שמות אלה שונים מהפעולות בספריות הסטנדרטיות של Java ו־.NET.',
+            logicTitle: 'רעיון האלגוריתם', logic1: 'מוציאים איבר אחד מראש התור הראשי.',
+            logic2: 'מדפיסים אותו ומכניסים אותו לסוף תור העזר.',
+            logic3: 'מעבירים את כל האיברים בחזרה ושומרים על הסדר המקורי.',
+            footer: 'עובד גם ללא אינטרנט • HTML + CSS + JavaScript בלבד • ללא React או Node.js',
+            line: (n) => `שורת קוד מודגשת: ${n}`,
+            initial: 'התור המקורי מוכן. לחצו על הצעד הבא או על הפעלה.',
+            create: 'יוצרים תור עזר ריק. התור הראשי אינו משתנה.',
+            checkMainTrue: 'התור הראשי אינו ריק, ולכן ממשיכים בלולאה הראשונה.',
+            checkMainFalse: 'התור הראשי ריק, ולכן הלולאה הראשונה הסתיימה.',
+            take: (v) => `מוציאים את ${v} מראש התור הראשי ושומרים אותו במשתנה item.`,
+            print: (v) => `מדפיסים את ${v}. הערך במשתנה item אינו משתנה.`,
+            putTemp: (v) => `מכניסים את ${v} לסוף תור העזר.`,
+            checkTempTrue: 'תור העזר אינו ריק, ולכן ממשיכים בלולאת השחזור.',
+            checkTempFalse: 'תור העזר ריק, ולכן השחזור הסתיים.',
+            restore: (v) => `מוציאים את ${v} מראש תור העזר ומכניסים אותו לסוף התור הראשי.`,
+            newline: 'מדפיסים מעבר שורה. פעולת ההדפסה הסתיימה.',
+            complete: 'הסתיים! התור הראשי שוחזר בדיוק לפי הסדר המקורי, מראש התור עד לסופו.',
+            emptyComplete: 'הסתיים! התור ההתחלתי היה ריק והוא נשאר ריק.',
+            actStart: 'התחלה', actCreate: 'יצירת תור עזר', actCheck: 'בדיקת לולאה',
+            actRemove: 'Remove()', actPrint: 'הדפסה', actInsert: 'Insert()',
+            actRestore: 'שחזור', actEnd: 'הושלם',
+            proof: 'נבדק: התור הראשי זהה למקור, תור העזר ריק, והפלט מכיל את האיברים בסדר המקורי.',
+            proofEmpty: 'נבדק: שני התורים ריקים, ולא הודפסו איברים.',
+            errorMax: 'בתור יכולים להיות לכל היותר 10 איברים.', errorList: 'יש להזין ערכים מופרדים בפסיקים, בלי מקומות ריקים.',
+            errorInt: 'מספר שלם חייב להיות בין 0 ל־99, או ‎-1 עבור זקיף.',
+            errorDouble: 'מספר ממשי חייב להיות מ־0 עד פחות מ־100, או ‎-1 עבור זקיף.',
+            errorChar: 'יש להזין אות אחת באנגלית (A–Z או a–z), או ‎- עבור זקיף.',
+            errorInsert: 'הזינו ערך להוספה בסוף התור.', errorSetupOnly: 'אפשר לערוך את התור לפני הרצת האלגוריתם. יש להתחיל מחדש.',
+            errorEmpty: 'אי אפשר לבצע Remove() על תור ריק.', errorSentinel: 'התור מלא, אי אפשר להוסיף זקיף.',
+            headEmpty: 'לא ניתן לבצע Head(): התור הראשי ריק.',
+            headValue: (v) => `Head() = ${v}. לא הוצא איבר מהתור.`,
+            isEmptyValue: (v) => `IsEmpty() = ${v}. התור לא השתנה.`,
+            changedType: 'טיפוס הנתונים הוחלף באופן קבוע מראש. האלגוריתם הוחזר להתחלה.',
+            parsed: 'התור ההתחלתי עודכן. כל צעדי האלגוריתם נבנו מחדש.',
+            inserted: (v) => `האיבר ${v} נוסף לסוף התור ההתחלתי.`,
+            removed: (v) => `האיבר ${v} הוצא מראש התור ההתחלתי.`,
+            sentinelAdded: 'נוסף זקיף לסוף התור ההתחלתי.',
+            insertPlaceholder: 'לדוגמה: 7',
+            emptyInput: 'התור ריק. עדיין אפשר להריץ את האלגוריתם.',
+            resetNote: 'החזרה לצעד הראשון של האלגוריתם.'
+        }
+    };
+
+    const state = {
+        lang: 'en', codeLang: 'cs', type: 'int',
+        initial: [5,3,8,1,9], steps: [], step: 0,
+        playing: false, timer: null, interval: 950
+    };
+
+    const CSHARP = [
+        'public static void PrintWithTempQueue<T>(Queue<T> queue)',
+        '{',
+        '    Queue<T> tempQueue = new Queue<T>();',
+        '    while (!queue.IsEmpty())',
+        '    {',
+        '        T item = queue.Remove();',
+        '        Console.Write(item + " ");',
+        '        tempQueue.Insert(item);',
+        '    }',
+        '    while (!tempQueue.IsEmpty())',
+        '    {',
+        '        queue.Insert(tempQueue.Remove());',
+        '    }',
+        '    Console.WriteLine();',
+        '}'
+    ];
+    const JAVA = [
+        'public static <T> void printWithTempQueue(Queue<T> queue)',
+        '{',
+        '    Queue<T> tempQueue = new Queue<T>();',
+        '    while (!queue.IsEmpty())',
+        '    {',
+        '        T item = queue.Remove();',
+        '        System.out.print(item + " ");',
+        '        tempQueue.Insert(item);',
+        '    }',
+        '    while (!tempQueue.IsEmpty())',
+        '    {',
+        '        queue.Insert(tempQueue.Remove());',
+        '    }',
+        '    System.out.println();',
+        '}'
+    ];
+
+    const say = (key, ...args) => {
+        const entry = translations[state.lang][key];
+        return typeof entry === 'function' ? entry(...args) : (entry ?? key);
+    };
+    const isSentinel = (v, type = state.type) => (type === 'char' ? v === '-' : v === -1);
+    const sentinelValue = (type = state.type) => (type === 'char' ? '-' : -1);
+    const valueText = (v) => state.type === 'double' && typeof v === 'number' && Number.isInteger(v) ? v.toFixed(1) : String(v);
+    const listText = (values) => values.map(valueText).join(',');
+
+    function validateOne(text) {
+        const s = text.trim();
+        if (state.type === 'char') {
+            if (!/^(?:[a-zA-Z]|-)$/.test(s)) { return { error: 'errorChar' }; }
+            return { value: s };
+        }
+        if (state.type === 'int') {
+            if (!/^(?:\d+|-1)$/.test(s) || !Number.isSafeInteger(Number(s)) || Number(s) > 99) { return { error: 'errorInt' }; }
+            return { value: Number(s) };
+        }
+        if (!/^(?:\+?(?:\d+(?:\.\d*)?|\.\d+)|-1(?:\.0*)?)$/.test(s) || !Number.isFinite(Number(s)) || Number(s) >= 100) { return { error: 'errorDouble' }; }
+        return { value: Number(s) };
+    }
+
+    function parseInput(input) {
+        if (input.trim() === '') { return { values: [] }; }
+        const parts = input.split(',');
+        if (parts.length > MAX_ITEMS) { return { error: 'errorMax' }; }
+        if (parts.some((v) => !v.trim())) { return { error: 'errorList' }; }
+        const values = [];
+        for (const part of parts) {
+            const v = validateOne(part);
+            if (v.error) { return { error: v.error }; }
+            values.push(v.value);
+        }
+        return { values };
+    }
+
+    function generateSteps(initial) {
+        const tokens = initial.map((value, i) => ({ id: i + 1, value }));
+        const main = tokens.slice(); // Internal FIFO: FRONT is index 0.
+        const temp = [];
+        const output = [];
+        let item = null;
+        const steps = [];
+        function push(line, phase, action, value = null) {
+            steps.push({
+                line, phase, action, value,
+                main: main.slice(), temp: temp.slice(), output: output.slice(), item
+            });
+        }
+        push(1, 'initial', 'initial');
+        push(3, 'printing', 'create');
+        while (main.length > 0) {
+            item = null;
+            push(4, 'printing', 'checkMainTrue');
+            item = main.shift();
+            push(6, 'printing', 'take', item.value);
+            output.push(item.value);
+            push(7, 'printing', 'print', item.value);
+            temp.push(item);
+            push(8, 'printing', 'putTemp', temp[temp.length - 1].value);
+        }
+        item = null;
+        push(4, 'printing', 'checkMainFalse');
+        while (temp.length > 0) {
+            push(10, 'restoring', 'checkTempTrue');
+            const restored = temp.shift();
+            main.push(restored);
+            push(12, 'restoring', 'restore', restored.value);
+        }
+        push(10, 'restoring', 'checkTempFalse');
+        push(14, 'complete', 'newline');
+        push(15, 'complete', 'complete');
+        return steps;
+    }
+
+    function stopPlayback() {
+        state.playing = false;
+        if (state.timer !== null) { clearTimeout(state.timer); state.timer = null; }
+    }
+
+    function rebuild(messageKey) {
+        stopPlayback();
+        state.steps = generateSteps(state.initial);
+        state.step = 0;
+        byId('queueInput').value = listText(state.initial);
+        byId('stepSlider').max = String(state.steps.length - 1);
+        showError('');
+        renderAll();
+        if (messageKey) { statusMessage(say(messageKey)); }
+    }
+
+    function showError(message) {
+        const el = byId('error');
+        el.textContent = message;
+        el.hidden = !message;
+    }
+
+    function statusMessage(message) {
+        const el = byId('explanationText');
+        el.textContent = message;
+    }
+
+    function snapshotRects() {
+        const map = new Map();
+        document.querySelectorAll('.token[data-token]').forEach((el) => {
+            map.set(el.dataset.token, el.getBoundingClientRect());
+        });
+        return map;
+    }
+
+    function animateTransition(before) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+        document.querySelectorAll('.token[data-token]').forEach((el) => {
+            const rect = before.get(el.dataset.token);
+            const after = el.getBoundingClientRect();
+            if (rect) {
+                const dx = rect.left - after.left;
+                const dy = rect.top - after.top;
+                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                    el.animate([
+                        { transform: `translate(${dx}px,${dy}px)`, filter: 'brightness(1.22)' },
+                        { transform: 'translate(0,0)', filter: 'brightness(1)' }
+                    ], { duration: 530, easing: 'cubic-bezier(.25,.9,.27,1)' });
+                }
+            } else {
+                el.animate([
+                    { opacity: .15, transform: 'scale(.72)' },
+                    { opacity: 1, transform: 'scale(1)' }
+                ], { duration: 340, easing: 'ease-out' });
+            }
+        });
+    }
+
+    function goToStep(index, opts = {}) {
+        const target = Math.max(0, Math.min(index, state.steps.length - 1));
+        if (target === state.step) { return; }
+        if (!opts.auto) { stopPlayback(); }
+        const before = snapshotRects();
+        state.step = target;
+        renderAll();
+        animateTransition(before);
+    }
+
+    function tick() {
+        if (!state.playing) { return; }
+        if (state.step >= state.steps.length - 1) {
+            stopPlayback(); renderButtons(); return;
+        }
+        goToStep(state.step + 1, { auto: true });
+        if (state.step >= state.steps.length - 1) { stopPlayback(); renderButtons(); return; }
+        state.timer = setTimeout(tick, state.interval);
+    }
+
+    function playPause() {
+        if (state.playing) { stopPlayback(); renderButtons(); return; }
+        if (state.step >= state.steps.length - 1) { goToStep(0); }
+        state.playing = true;
+        renderButtons();
+        state.timer = setTimeout(tick, state.interval);
+    }
+
+    function renderButtons() {
+        const playing = state.playing;
+        const atStart = state.step === 0;
+        const atEnd = state.step === state.steps.length - 1;
+        byId('playText').textContent = playing ? say('pause') : say('play');
+        byId('playIcon').textContent = playing ? 'Ⅱ' : '▶';
+        byId('playBtn').setAttribute('aria-pressed', String(playing));
+        byId('prevBtn').disabled = atStart;
+        byId('nextBtn').disabled = atEnd;
+        byId('stepSlider').value = String(state.step);
+        byId('stepText').textContent = say('progress', state.step + 1, state.steps.length);
+        const setupAllowed = atStart && !playing;
+        byId('insertBtn').disabled = !setupAllowed || state.initial.length >= MAX_ITEMS;
+        byId('removeBtn').disabled = !setupAllowed || state.initial.length === 0;
+        byId('addSentinelBtn').disabled = !setupAllowed || state.initial.length >= MAX_ITEMS;
+        byId('applyBtn').disabled = playing;
+        byId('dataType').disabled = playing;
+        byId('insertValue').disabled = playing;
+        byId('queueInput').disabled = playing;
+    }
+
+    function makeToken(token, className, isFront, track = true) {
+        const el = document.createElement('div');
+        el.className = 'token' + (className ? ` ${className}` : '') + (isFront ? ' front' : '') + (isSentinel(token.value) ? ' sentinel' : '');
+        el.textContent = valueText(token.value);
+        if (track) { el.dataset.token = String(token.id); }
+        el.setAttribute('aria-label', valueText(token.value) + (isFront ? ', front of queue' : ''));
+        return el;
+    }
+
+    function renderOneQueue(elId, items, colorClass) {
+        const el = byId(elId);
+        el.replaceChildren();
+        if (!items.length) {
+            const empty = document.createElement('div');
+            empty.className = 'queue-empty';
+            empty.textContent = say('emptyQueue');
+            el.appendChild(empty);
+        } else {
+            // Reverse only for display; internal arrays remain FRONT -> BACK.
+            items.slice().reverse().forEach((token, idx) => {
+                el.appendChild(makeToken(token, colorClass, idx === items.length - 1));
+            });
+        }
+        const scroller = el.parentElement;
+        // FRONT remains visible on narrow screens.
+        scroller.scrollLeft = scroller.scrollWidth - scroller.clientWidth;
+    }
+
+    function renderVisual(step) {
+        renderOneQueue('mainItems', step.main, '');
+        renderOneQueue('tempItems', step.temp, 'temp-token');
+        byId('mainCount').textContent = `${step.main.length} / ${MAX_ITEMS}`;
+        byId('tempCount').textContent = `${step.temp.length} / ${MAX_ITEMS}`;
+        const held = byId('heldItem');
+        held.replaceChildren();
+        if (step.item) {
+            const isWithinQueue = step.main.some((el) => el.id === step.item.id) || step.temp.some((el) => el.id === step.item.id);
+            held.appendChild(makeToken(step.item, '', false, !isWithinQueue));
+        } else {
+            const dash = document.createElement('span');
+            dash.className = 'placeholder'; dash.textContent = '—'; held.appendChild(dash);
+        }
+        const output = byId('consoleOutput');
+        output.replaceChildren();
+        if (!step.output.length) {
+            const none = document.createElement('span');
+            none.className = 'placeholder'; none.textContent = say('noOutput'); output.appendChild(none);
+        } else {
+            step.output.forEach((v) => {
+                const span = document.createElement('span');
+                span.className = 'console-token';
+                span.textContent = valueText(v);
+                output.appendChild(span);
+            });
+        }
+        const mainFront = step.main[0];
+        byId('headResult').textContent = mainFront ? valueText(mainFront.value) : '—';
+        byId('emptyResult').textContent = String(step.main.length === 0);
+    }
+
+    function renderExplanation(step) {
+        const dynamic = ['take', 'print', 'putTemp', 'restore'];
+        statusMessage(dynamic.includes(step.action) ? say(step.action, valueText(step.value)) : (step.action === 'complete' && !state.initial.length ? say('emptyComplete') : say(step.action)));
+        const labels = {
+            initial: 'actStart', create: 'actCreate', checkMainTrue: 'actCheck', checkMainFalse: 'actCheck',
+            take: 'actRemove', print: 'actPrint', putTemp: 'actInsert',
+            checkTempTrue: 'actCheck', checkTempFalse: 'actCheck', restore: 'actRestore',
+            newline: 'actEnd', complete: 'actEnd'
+        };
+        byId('operationName').textContent = say(labels[step.action]);
+        const phase = byId('phaseBadge');
+        phase.dataset.phase = step.phase;
+        phase.textContent = say('phase' + step.phase[0].toUpperCase() + step.phase.slice(1));
+        const complete = byId('completionMessage');
+        complete.hidden = step.action !== 'complete';
+        if (!complete.hidden) {
+            const verified = step.main.length === state.initial.length &&
+                step.main.every((obj, index) => Object.is(obj.value, state.initial[index])) &&
+                step.output.length === state.initial.length &&
+                step.output.every((value, index) => Object.is(value, state.initial[index])) &&
+                step.temp.length === 0 && step.item === null;
+            complete.textContent = verified ? say(state.initial.length ? 'proof' : 'proofEmpty') : 'Verification failed.';
+        }
+    }
+
+    function codeLines() { return state.codeLang === 'cs' ? CSHARP : JAVA; }
+    function renderCode(step) {
+        const target = byId('codeLines');
+        target.replaceChildren();
+        codeLines().forEach((line, idx) => {
+            const row = document.createElement('div');
+            row.className = 'code-line' + ((idx + 1) === step.line ? ' active' : '');
+            row.dataset.line = String(idx + 1);
+            const no = document.createElement('span');
+            no.className = 'line-no'; no.textContent = String(idx + 1);
+            const code = document.createElement('span');
+            code.className = 'line-text'; code.textContent = line;
+            row.append(no, code);
+            target.appendChild(row);
+        });
+        byId('activeLineText').textContent = say('line', step.line);
+        const active = target.querySelector('.code-line.active');
+        if (active) {
+            const windowEl = byId('codeWindow');
+            const top = active.offsetTop;
+            const bottom = top + active.offsetHeight;
+            if (top < windowEl.scrollTop || bottom > windowEl.scrollTop + windowEl.clientHeight) {
+                windowEl.scrollTop = Math.max(0, top - windowEl.clientHeight / 2);
+            }
+        }
+    }
+
+    function renderAll() {
+        const step = state.steps[state.step];
+        renderVisual(step);
+        renderExplanation(step);
+        renderCode(step);
+        renderButtons();
+    }
+
+    function updateTranslations() {
+        document.documentElement.lang = state.lang;
+        document.documentElement.dir = state.lang === 'he' ? 'rtl' : 'ltr';
+        document.querySelectorAll('[data-i18n]').forEach((element) => {
+            element.textContent = say(element.dataset.i18n);
+        });
+        byId('resetBtn').title = say('restart');
+        byId('resetBtn').setAttribute('aria-label', say('restart'));
+        byId('prevBtn').title = say('previous');
+        byId('prevBtn').setAttribute('aria-label', say('previous'));
+        byId('nextBtn').title = say('next');
+        byId('nextBtn').setAttribute('aria-label', say('next'));
+        byId('insertValue').placeholder = say('insertPlaceholder');
+        renderAll();
+    }
+
+    function applyQueue() {
+        if (state.playing) { return; }
+        const parsed = parseInput(byId('queueInput').value);
+        if (parsed.error) { showError(say(parsed.error)); return; }
+        state.initial = parsed.values;
+        rebuild('parsed');
+        if (!state.initial.length) { statusMessage(say('emptyInput')); }
+    }
+
+    function isAtSetup() { return !state.playing && state.step === 0; }
+    function insertAtBack() {
+        if (!isAtSetup()) { showError(say('errorSetupOnly')); return; }
+        if (state.initial.length >= MAX_ITEMS) { showError(say('errorMax')); return; }
+        const raw = byId('insertValue').value.trim();
+        if (!raw) { showError(say('errorInsert')); byId('insertValue').focus(); return; }
+        const item = validateOne(raw);
+        if (item.error) { showError(say(item.error)); return; }
+        state.initial.push(item.value);
+        byId('insertValue').value = '';
+        rebuild();
+        statusMessage(say('inserted', valueText(item.value)));
+    }
+
+    function removeFromFront() {
+        if (!isAtSetup()) { showError(say('errorSetupOnly')); return; }
+        if (!state.initial.length) { showError(say('errorEmpty')); return; }
+        const first = state.initial.shift();
+        rebuild();
+        statusMessage(say('removed', valueText(first)));
+    }
+
+    function addSentinel() {
+        if (!isAtSetup()) { showError(say('errorSetupOnly')); return; }
+        if (state.initial.length >= MAX_ITEMS) { showError(say('errorSentinel')); return; }
+        state.initial.push(sentinelValue());
+        rebuild();
+        statusMessage(say('sentinelAdded'));
+    }
+
+    function numberToChar(n) { return String.fromCharCode(65 + ((Math.floor(Math.abs(n)) % 26) + 26) % 26); }
+    function charToNumber(ch) { return ch.toUpperCase().charCodeAt(0) - 65; }
+    function convertValue(value, oldType, newType) {
+        if (isSentinel(value, oldType)) { return sentinelValue(newType); }
+        if (newType === oldType) { return value; }
+        if (newType === 'char') { return numberToChar(Number(value)); }
+        if (oldType === 'char') { return charToNumber(value); }
+        if (newType === 'int') { return Math.max(0, Math.min(99, Math.floor(value))); }
+        return value;
+    }
+
+    function changeType(newType) {
+        if (state.playing) { byId('dataType').value = state.type; return; }
+        const oldType = state.type;
+        if (oldType === newType) { return; }
+        state.initial = state.initial.map((value) => convertValue(value, oldType, newType));
+        state.type = newType;
+        rebuild('changedType');
+    }
+
+    function inspectHead() {
+        const step = state.steps[state.step];
+        const head = step.main[0];
+        statusMessage(head ? say('headValue', valueText(head.value)) : say('headEmpty'));
+        byId('headResult').classList.remove('flash');
+        void byId('headResult').offsetWidth;
+        byId('headResult').classList.add('flash');
+        const front = byId('mainItems').querySelector('.token.front');
+        if (front) {
+            front.classList.remove('pulse'); void front.offsetWidth; front.classList.add('pulse');
+        }
+    }
+
+    function inspectEmpty() {
+        const empty = state.steps[state.step].main.length === 0;
+        statusMessage(say('isEmptyValue', String(empty)));
+        const box = byId('emptyResult');
+        box.classList.remove('flash'); void box.offsetWidth; box.classList.add('flash');
+    }
+
+    async function copyCode() {
+        const code = codeLines().join('\n');
+        try {
+            await navigator.clipboard.writeText(code);
+            const btn = byId('copyBtn');
+            btn.textContent = say('codeCopied');
+            window.setTimeout(() => btn.textContent = say('copyCode'), 1400);
+        } catch (error) {
+            // file:// contexts may not permit Clipboard API; select the code for manual copy.
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(byId('codeLines'));
+            selection.removeAllRanges(); selection.addRange(range);
+            byId('copyBtn').textContent = say('copyCode');
+        }
+    }
+
+    byId('uiLang').addEventListener('change', (e) => { state.lang = e.target.value; updateTranslations(); });
+    byId('codeLang').addEventListener('change', (e) => { state.codeLang = e.target.value; renderCode(state.steps[state.step]); });
+    byId('dataType').addEventListener('change', (e) => changeType(e.target.value));
+    byId('applyBtn').addEventListener('click', applyQueue);
+    byId('addSentinelBtn').addEventListener('click', addSentinel);
+    byId('insertBtn').addEventListener('click', insertAtBack);
+    byId('removeBtn').addEventListener('click', removeFromFront);
+    byId('headBtn').addEventListener('click', inspectHead);
+    byId('emptyBtn').addEventListener('click', inspectEmpty);
+    byId('resetBtn').addEventListener('click', () => rebuild('resetNote'));
+    byId('playBtn').addEventListener('click', playPause);
+    byId('nextBtn').addEventListener('click', () => goToStep(state.step + 1));
+    byId('prevBtn').addEventListener('click', () => goToStep(state.step - 1));
+    byId('stepSlider').addEventListener('input', (e) => goToStep(Number(e.target.value)));
+    byId('speed').addEventListener('change', (e) => {
+        state.interval = Number(e.target.value);
+        if (state.playing) {
+            if (state.timer !== null) { clearTimeout(state.timer); }
+            state.timer = setTimeout(tick, state.interval);
+        }
+    });
+    byId('queueInput').addEventListener('input', () => showError(''));
+    byId('insertValue').addEventListener('input', () => showError(''));
+    byId('queueInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyQueue(); } });
+    byId('insertValue').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); insertAtBack(); } });
+    byId('copyBtn').addEventListener('click', copyCode);
+
+    rebuild();
+    updateTranslations();
+})();
+
+</script>
+</body>
+</html>
