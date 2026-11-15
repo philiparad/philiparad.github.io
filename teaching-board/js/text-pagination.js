@@ -1,6 +1,6 @@
-import {paragraphRuns,textRuns,compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261017-history-budget';
-import {textLayoutMetrics} from './inline-equation.js?v=20261017-history-budget';
-import {bounds} from './scene.js?v=20261024-image-actions';
+import {paragraphRuns,textRuns,compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261115-flow-direction';
+import {textLayoutMetrics,paragraphDirectionIsRtl} from './inline-equation.js?v=20261115-flow-direction';
+import {bounds} from './scene.js?v=20261115-flow-direction';
 
 const MAX_PAGES=100;
 const TOP_MARGIN=24;
@@ -24,10 +24,17 @@ function textSlice(item,start,end,continued=false){
  const paragraphs=[];
  for(const [i] of text.split('\n').entries()){
   const sourceIndex=firstParagraph+i,row=sourceMeta[sourceIndex];
-  const list=i===0&&continued&&item.text[start-1]!=='\n'?'none':row?.list||'none';
+  const continuingParagraph=i===0&&continued&&item.text[start-1]!=='\n';
+  const list=continuingParagraph?'none':row?.list||'none';
+  // A continuation's first strong letter may be different from the first
+  // strong letter of its original logical paragraph. Resolve auto direction
+  // from the complete original paragraph, not from the fragment alone.
+  const sourceDirection=row?.dir||'auto';
+  const dir=continuingParagraph&&sourceDirection==='auto'
+   ?(paragraphDirectionIsRtl(row)?'rtl':'ltr'):sourceDirection;
   const ordinal=ordinals[sourceIndex]||0,previous=paragraphs.at(-1);
   const previousOrdinal=ordinals[sourceIndex-1]||0;
-  paragraphs.push({align:row?.align||item.textAlign||'auto',dir:row?.dir||'auto',list,
+  paragraphs.push({align:row?.align||item.textAlign||'auto',dir,list,
    ...(list==='number'&&ordinal>1&&(!previous||previous.list!=='number'||ordinal!==previousOrdinal+1)?{numberStart:ordinal}:{})});
  }
  const result={...structuredClone(item),text,runs:compactRuns(runs),paragraphs};
