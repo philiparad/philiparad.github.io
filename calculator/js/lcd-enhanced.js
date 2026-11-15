@@ -101,6 +101,16 @@ function scrollOffset(root,legacyX,ctx=null){
  }
  return newX+requested-oldX;
 }
+// Keep the actual enhanced caret visible even when the controller computes
+// viewport coordinates in its older, fixed-width character grid.
+function followCaret(scroll,caretX,contentWidth,viewWidth=VIEW_W){
+ const safeLeft=5,safeRight=viewWidth-6;
+ const maxScroll=Math.max(0,contentWidth-safeRight);
+ let next=scroll;
+ if(caretX<safeLeft)next-=safeLeft-caretX;
+ else if(caretX>safeRight)next+=caretX-safeRight;
+ return Math.max(0,Math.min(maxScroll,next));
+}
 function ink(ctx,state){
  const c=Math.max(0,Math.min(9,Number(state.contrast??5)));
  const low=[110,133,117],high=[7,17,12];
@@ -345,7 +355,8 @@ function draw(canvas,state){
  // No safe mapping: keep the bitmap path rather than corrupting cursor
  // coordinates. This case should only occur with malformed expressions.
  if(mappedScroll===null){ctx.restore();legacy.draw(canvas,state);return 'authentic'}
- const x=-mappedScroll;
+ let effectiveScroll=mappedScroll;
+ let x=-effectiveScroll;
  const topGuard=2.2,bottomGuard=state.screen==='result'?15.3:state.info?22.2:29.2;
  // Center the complete expression if possible; honor vertical panning only
  // when the measured content genuinely exceeds the available display area.
@@ -354,21 +365,35 @@ function draw(canvas,state){
  const baseline=fits?Math.min(bottomGuard-box.descent,
   Math.max(topGuard+box.ascent,preferred)):
   preferred-Number(state.viewport?.inputY||0);
- const carets=[];
+ let carets=[];
  drawSequence(ctx,state.editor.root,x,baseline,state,0,[],carets);
+ if(state.screen==='edit'&&carets.length){
+  // First pass supplies the *actual* nested caret coordinates using measured
+  // glyph widths. A second pass is needed only if the caret lies outside
+  // the safe LCD viewport and must follow it back into view.
+  const desired=followCaret(effectiveScroll,carets[0][0],box.width);
+  if(Math.abs(desired-effectiveScroll)>0.01){
+   effectiveScroll=desired;x=-effectiveScroll;
+   ctx.fillStyle='rgb(215,230,215)';
+   ctx.fillRect(0,yTop,VIEW_W,yBottom-yTop);
+   ctx.fillStyle=ink(ctx,state);
+   carets=[];
+   drawSequence(ctx,state.editor.root,x,baseline,state,0,[],carets);
+  }
+ }
  if(state.screen==='edit')for(const [cx,cy] of carets){
   path(ctx,[[cx,cy-5.5],[cx,cy+1.2]]);
  }
  // Legacy overflow arrows would otherwise disappear when the vector layer
  // clears the old bitmap. Keep them visible as separate narrow edge cues.
  const cueY=state.screen==='result'?14:state.info?20:27;
- if(mappedScroll>0.1)text(ctx,'‹',.5,cueY);
- if(box.width-mappedScroll>VIEW_W-1)text(ctx,'›',VIEW_W-4.5,cueY);
+ if(effectiveScroll>0.1)text(ctx,'‹',.5,cueY);
+ if(box.width-effectiveScroll>VIEW_W-1)text(ctx,'›',VIEW_W-4.5,cueY);
  ctx.restore();
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
 }
-const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,resultModel,legacy});
+const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,legacy});
 global.FreshEnhancedLCD=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
