@@ -3197,6 +3197,19 @@ try{
    'Iframe should not have excess blank height around the calculator');
   await page.setViewportSize({width:375,height:720});
   const phoneSize=await dimensions();
+  const phoneHeader=await page.evaluate(()=>{
+   const header=document.querySelector('.board-calculator-heading').getBoundingClientRect();
+   const actions=document.querySelector('.board-calculator-actions').getBoundingClientRect();
+   const reset=document.querySelector('.board-calculator-reset-position').getBoundingClientRect();
+   return {header:{left:header.left,right:header.right},
+    actions:{left:actions.left,right:actions.right},
+    reset:{left:reset.left,right:reset.right}};
+  });
+  assert(phoneHeader.actions.left>=phoneHeader.header.left-1&&
+   phoneHeader.actions.right<=phoneHeader.header.right+1&&
+   phoneHeader.reset.left>=phoneHeader.actions.left-1&&
+   phoneHeader.reset.right<=phoneHeader.actions.right+1,
+   'Reset button and other calculator actions must fit a phone-sized title bar');
   assert(phoneSize.dialogWidth<phoneSize.viewportWidth-16,
    'Compact calculator dialog must fit inside a narrow viewport');
   assert(phoneSize.dialogHeight<phoneSize.viewportHeight*.92+2,
@@ -3251,6 +3264,31 @@ try{
   assert(Math.abs(afterReload.x-keyboardAfter.x)<3&&
    Math.abs(afterReload.y-keyboardAfter.y)<3,
    'Reload should restore the calculator position saved on this device');
+  // TXT-074: Reset must clear the preference and move the floating window
+  // back to its initial location without reloading the calculator iframe.
+  const iframeContent=page.frameLocator('iframe.board-calculator-frame');
+  await iframeContent.locator('#calculator-fixture').evaluate(()=>{
+   window.__resetWindowPreservedExpression=true;
+  });
+  const resetPosition=modal.getByRole('button',{name:'Reset calculator position'});
+  await resetPosition.click();
+  const defaultPlacement=await modal.boundingBox();
+  assert(Math.abs(defaultPlacement.x-1046)<3&&Math.abs(defaultPlacement.y-70)<3,
+   'Reset should return the calculator to its default desktop position');
+  assert.equal(await page.evaluate(()=>localStorage.getItem(
+   'teaching-board-calculator-window-position-v1')),null,
+   'Reset should remove only the saved calculator window position');
+  assert.equal(await iframeContent.locator('#calculator-fixture').evaluate(()=>
+   window.__resetWindowPreservedExpression),true,
+   'Reset must not reload the embedded calculator or discard its current state');
+  assert.equal(await modal.isVisible(),true);
+  await modal.getByRole('button',{name:'Close calculator'}).click();
+  await modal.waitFor({state:'hidden'});
+  // Reopen after reset: no stale local preference should reappear.
+  await button.click();
+  await modal.waitFor({state:'visible'});
+  const afterResetReopen=await modal.boundingBox();
+  assert(Math.abs(afterResetReopen.x-1046)<3&&Math.abs(afterResetReopen.y-70)<3);
   await modal.getByRole('button',{name:'Close calculator'}).click();
   await modal.waitFor({state:'hidden'});
   // A route change must also unload the iframe and release the modal.

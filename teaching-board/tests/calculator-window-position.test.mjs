@@ -68,3 +68,36 @@ test('TXT-073 denied local storage degrades gracefully',async()=>{
  const tiny=restoreCalculatorWindowPosition({x:1,y:1},302,660,310,650);
  assert.deepEqual(tiny,{x:8,y:8});
 });
+
+test('TXT-074 reset clears only calculator position and restores default opening',async()=>{
+ const {
+  CALCULATOR_WINDOW_POSITION_KEY,
+  readCalculatorWindowPosition,
+  storeCalculatorWindowPosition,
+  clearCalculatorWindowPosition,
+  initialFloatingWindowPosition
+ }=await import('../js/calculator-window-position.js');
+ const values=new Map([['teaching-board-lesson','important lesson data']]);
+ const storage={
+  getItem:key=>values.get(key)??null,
+  setItem:(key,value)=>values.set(key,value),
+  removeItem:key=>values.delete(key)
+ };
+ assert.equal(storeCalculatorWindowPosition(storage,{x:430,y:45},374,812,1440,900),true);
+ assert(readCalculatorWindowPosition(storage));
+ assert.equal(clearCalculatorWindowPosition(storage),true);
+ assert.equal(values.has(CALCULATOR_WINDOW_POSITION_KEY),false);
+ assert.equal(values.get('teaching-board-lesson'),'important lesson data');
+ assert.equal(readCalculatorWindowPosition(storage),null);
+ assert.deepEqual(initialFloatingWindowPosition(374,812,1440,900),{x:1046,y:70});
+ assert.equal(clearCalculatorWindowPosition(storage),true,'Repeated reset should be safe');
+});
+test('TXT-074 reset is safe when browser storage is disabled or unavailable',async()=>{
+ const {clearCalculatorWindowPosition}=await import('../js/calculator-window-position.js');
+ assert.equal(clearCalculatorWindowPosition(null),false);
+ assert.equal(clearCalculatorWindowPosition(undefined),false);
+ assert.equal(clearCalculatorWindowPosition({}),false);
+ let calls=0;
+ assert.equal(clearCalculatorWindowPosition({removeItem(){calls++;throw Error('SecurityError');}}),false);
+ assert.equal(calls,1);
+});

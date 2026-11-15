@@ -1,7 +1,7 @@
 import {el,btn} from './ui.js?v=20261017-history-budget';
 import {toolIcon} from './tool-icons.js?v=20261114-calculator-modal';
 import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js';
-import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios} from './calculator-window-position.js?v=20261115-calculator-position';
+import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios,clearCalculatorWindowPosition} from './calculator-window-position.js?v=20261115-calculator-reset';
 
 export const CALCULATOR_URL='https://philiparad.github.io/calculator/?key=calculator';
 const CALCULATOR_ORIGIN=new URL(CALCULATOR_URL).origin;
@@ -44,10 +44,15 @@ export class CalculatorModal {
   this.sendButton.disabled=true;
   this.sendButton.title='Place the displayed Ans as editable text in the center of the board';
   this.sendButton.onclick=()=>this.sendAns();
+  this.resetButton=el('button','↺','board-calculator-reset-position');
+  this.resetButton.type='button';
+  this.resetButton.title='Reset calculator position';
+  this.resetButton.setAttribute('aria-label','Reset calculator position');
+  this.resetButton.onclick=()=>this.resetWindowPosition();
   this.closeButton=btn('×',()=>this.close(),'board-calculator-close');
   this.closeButton.title='Close calculator';
   this.closeButton.setAttribute('aria-label','Close calculator');
-  actions.append(this.sendButton,this.closeButton);
+  actions.append(this.sendButton,this.resetButton,this.closeButton);
   heading.append(title,actions);
   this.status=el('p',null,'board-calculator-send-status');
   this.status.setAttribute('role','status');
@@ -115,6 +120,17 @@ export class CalculatorModal {
    rect.width,rect.height,window.innerWidth,window.innerHeight);
   storeCalculatorWindowPosition(this.positionStorage(),this.position,
    rect.width,rect.height,window.innerWidth,window.innerHeight);
+ }
+ /** Return the floating window to its original screen location without
+  * closing, reloading, or changing the calculator's active expression.
+  * Missing/blocked localStorage must not make the control unusable. */
+ resetWindowPosition(){
+  if(this.disposed||!this.dialog.open)return false;
+  this.positionPreference=null;
+  this.position=null;
+  clearCalculatorWindowPosition(this.positionStorage());
+  this.positionWindow(true);
+  return true;
  }
  positionWindow(usePreference=false){
   if(!this.dialog.open)return;

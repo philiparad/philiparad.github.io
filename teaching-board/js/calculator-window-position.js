@@ -63,6 +63,15 @@ export function restoreCalculatorWindowPosition(ratios,width,height,viewportWidt
   width,height,viewportWidth,viewportHeight);
 }
 
+/** Reset only the floating-window preference, never board or calculator data. */
+export function clearCalculatorWindowPosition(storage){
+ try{
+  if(!storage?.removeItem)return false;
+  storage.removeItem(CALCULATOR_WINDOW_POSITION_KEY);
+  return true;
+ }catch{return false;}
+}
+
 export function storeCalculatorWindowPosition(storage,position,width,height,viewportWidth,viewportHeight){
  try{
   if(!storage?.setItem)return false;

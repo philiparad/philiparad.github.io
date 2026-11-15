@@ -646,3 +646,14 @@ Opening or closing at the default position does not save a preference. The
 setting stores only the location of the calculator window, **not** board data,
 calculator values, or student information. Existing lessons and editable
 backups need no migration.
+
+## TXT-074 — Reset floating calculator window location
+
+A compact **Reset calculator position** control (↺) in the calculator
+header returns the floating window to its default location and clears the
+saved position preference. The control works while the calculator is open:
+it does not close/reload the calculator, discard its expression, insert a
+new answer, or modify lesson data. Subsequent openings start from the default
+location until the user drags the window or moves it with the arrow keys again.
+The reset button fits the responsive mobile title bar and has an accessible
+label. If browser local storage is disabled, the current window still resets.
