@@ -101,3 +101,12 @@ Output: `calculator/desktop/lcd-screenshots/`.
 The GitHub Actions Windows workflow runs screenshot generation before installer packaging and uploads the gallery as the `calculator-lcd-visual-regression` artifact. In the workflow run summary, download this artifact and compare screen captures. The screenshot check verifies that enhanced display ink is present; **there is no approved pixel-perfect golden baseline yet**. Screenshot creation and manual visual review remain different steps. A clean CI run is required before claiming screenshots have been produced successfully in Windows.
 
 This gallery tests Chromium, **not WebView2**. True Windows-app visual parity remains a separate acceptance test.
+
+## LCD continuation — 2026-11-15: fractions and A/B visual verification
+
+- **Fraction clipping corrected.** The enhanced fraction box now accounts for the full offset used to position numerator and denominator glyphs. The lower result strip uses a taller clip region for stacked fractions/mixed fractions so that the upper numerals remain visible.
+- **Actual LCD CSS rendering modes.** The calculator canvas has `data-renderer` set by the controller. The authentic path uses `image-rendering:pixelated` to preserve dot structure; enhanced vector text retains normal browser resampling.
+- **A/B screenshot captures.** The Chromium visual gallery now writes two files for each scenario and DPR: `*-enhanced-dpr-*.png` and `*-authentic-dpr-*.png`. Seven cases × four DPR levels × two renderers = **56 comparison images**.
+- **Regression.** 322 legacy rendering tests and 74 enhanced rendering tests pass. New assertions cover numerator/denominator extents and result clipping boundaries.
+
+Important: source-level tests and JavaScript syntax checks were performed. The **56 Chromium screenshots have not yet been executed and visually reviewed** in this working session. Run the Windows workflow and download `calculator-lcd-visual-regression` to inspect actual pixel output. Browser screenshots are not manufacturer LCD parity evidence.
