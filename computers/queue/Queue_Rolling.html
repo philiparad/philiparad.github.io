@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#21133e">
+    <meta name="description" content="Interactive bilingual FIFO queue algorithm visualizer. No framework or build step required.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Queue Algorithm Lab | Rotate & Print</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235029a8'/%3E%3Cpath d='M14 20h36M14 32h36M14 44h36' stroke='%236ee7b7' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+:root {
+    color-scheme: dark;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    --page: #160c2c;
+    --panel: #251640;
+    --panel-inner: #2b1b4a;
+    --stroke: rgba(204, 181, 255, .19);
+    --stroke-bright: rgba(194, 167, 255, .48);
+    --text: #fcf9ff;
+    --muted: #cfbfec;
+    --mint: #57e2a9;
+    --green: #047e5f;
+    --orange: #f5a646;
+    --red: #dc465e;
+    --cyan: #7ee6ef;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--page); color: var(--text); }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .38; cursor: not-allowed; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #bdf8dc; outline-offset: 3px; }
+[hidden] { display: none !important; }
+.page { background: radial-gradient(circle at 10% -10%, #593393 0, transparent 40%), radial-gradient(circle at 100% 2%, #25356a 0, transparent 35%), #1c0f32; min-height: 100vh; padding: 26px clamp(12px, 3vw, 36px) 34px; }
+.shell { max-width: 1390px; margin: 0 auto; }
+.page-header { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-bottom: 23px; }
+.branding { min-width: 0; }
+.eyebrow { display: flex; align-items: center; gap: 8px; color: #b9a9de; text-transform: uppercase; font-weight: 800; letter-spacing: .15em; font-size: .68rem; margin-bottom: 9px; }
+.eyebrow-dot, .live-dot, .guide-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); flex-shrink: 0; box-shadow: 0 0 0 4px rgba(87, 226, 169, .10); }
+.eyebrow-dot { width: 7px; height: 7px; }
+h1 { font-size: clamp(1.75rem, 3.8vw, 2.9rem); line-height: 1.1; letter-spacing: -.035em; margin: 0; }
+.subtitle { margin: 10px 0 0; font-size: .95rem; color: #d5c6ee; line-height: 1.6; }
+.header-controls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 11px; }
+.picker, .field-group, .speed-control { display: flex; flex-direction: column; gap: 7px; font-weight: 670; color: #ded1f8; font-size: .81rem; }
+select, input[type="text"] { border: 1px solid var(--stroke-bright); background: #392359; color: #fff; border-radius: 10px; height: 43px; padding: 0 13px; }
+select option { background: #392359; color: #fff; }
+.picker select { min-width: 126px; }
+.card { background: rgba(43, 27, 73, .86); border: 1px solid var(--stroke); border-radius: 17px; box-shadow: 0 13px 36px rgba(8, 6, 22, .17); padding: 20px 21px; }
+.section-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+h2 { font-size: 1.1rem; letter-spacing: -.018em; margin: 0; font-weight: 780; }
+h3 { margin: 0; font-size: 1rem; }
+.hint-pill, .phase-badge, .action-pill { color: #c8b6f6; border: 1px solid rgba(192, 151, 247, .29); border-radius: 99px; padding: 5px 10px; font-weight: 750; font-size: .72rem; }
+.highlight-pill { color: #a7f3d0; border-color: rgba(87,226,169,.3); letter-spacing: .08em; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #fff; border: 1px solid transparent; border-radius: 10px; min-height: 43px; padding: 10px 15px; font-weight: 750; font-size: .86rem; transition: filter .15s, transform .15s, border-color .15s; white-space: nowrap; }
+.btn:hover:not(:disabled), .edge-button:hover:not(:disabled) { filter: brightness(1.16); transform: translateY(-1px); }
+.btn-primary { background: #067d60; }
+.btn-secondary { background: #7432a0; }
+.btn-outline { border-color: rgba(180,160,231,.4); background: rgba(79,54,117,.55); }
+.setup-panel { margin-bottom: 13px; }
+.setup-layout { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 11px; }
+.queue-values { flex: 1 1 290px; }
+.queue-values input { width: 100%; font-variant-numeric: tabular-nums; }
+.type-group { min-width: 125px; }
+.insert-value { width: 150px; }
+.insert-value input { width: 100%; }
+.hint { margin: 12px 0 0; line-height: 1.55; font-size: .79rem; color: #bfaedf; }
+.alert { color: #ffe1e5; margin-top: 12px; padding: 10px 12px; border: 1px solid rgba(255,112,130,.45); border-radius: 9px; background: rgba(151,30,57,.23); font-size: .88rem; }
+.player { margin-bottom: 14px; padding-block: 15px; }
+.playback-main { display: flex; align-items: center; gap: 24px; }
+.play-buttons { display: flex; align-items: center; gap: 8px; flex-shrink: 0; direction: ltr; }
+.btn-icon { background: #4b2a7f; padding: 5px; min-width: 42px; font-size: 1.05rem; }
+.btn-play { background: #067d60; min-width: 110px; }
+#playIcon { font-size: .9rem; }
+.playback-details { flex: 1 1 auto; min-width: 160px; }
+.progress-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px; color: #dfd4f5; font-size: .83rem; }
+.phase-badge { color: #d8c0ff; background: rgba(131, 74, 218, .18); }
+.phase-badge[data-phase="printing"] { color: #a6f3d8; border-color: rgba(87,226,169,.4); }
+.phase-badge[data-phase="restoring"] { color: #ffd49f; border-color: rgba(245,166,70,.4); }
+.phase-badge[data-phase="complete"] { color: #a3ffe6; border-color: rgba(87,226,169,.5); }
+#stepSlider { width: 100%; accent-color: #80f0c1; cursor: pointer; height: 16px; margin: 0; }
+.speed-control { flex-shrink: 0; }
+.speed-control select { min-width: 96px; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(345px, .85fr); gap: 15px; align-items: start; }
+.workspace-left { display: grid; gap: 15px; min-width: 0; }
+.visualization { padding-bottom: 20px; }
+.queue-block { padding: 14px; border: 1px solid rgba(85, 226, 169, .20); border-radius: 13px; background: rgba(10, 73, 65, .17); }
+.queue-block.temp { border-color: rgba(245,166,70,.28); background: rgba(103,53,24,.17); }
+.queue-header { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 15px; }
+.queue-header h3 { color: #83f0c4; font-weight: 780; }
+.queue-block.temp h3 { color: #ffc988; }
+.queue-count { font-size: .72rem; background: rgba(0,0,0,.2); padding: 5px 9px; border-radius: 99px; color: #e7dafa; font-variant-numeric: tabular-nums; }
+.queue-strip { direction: ltr; display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; }
+.queue-edge { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.edge-label { font-size: .72rem; font-weight: 800; letter-spacing: .025em; color: #e2d6f3; white-space: nowrap; direction: ltr; }
+.edge-button { padding: 6px 9px; border: 0; min-height: 30px; border-radius: 7px; color: white; font-size: .76rem; font-weight: 750; transition: filter .16s, transform .16s; cursor: pointer; }
+.edge-button.insert { background: #047e5f; }
+.edge-button.remove { background: #b93655; }
+.queue-scroller { min-width: 0; flex: 1 1 auto; overflow-x: auto; scrollbar-color: #735a9a transparent; padding: 3px 1px 11px; }
+.queue-items { direction: ltr; display: flex; align-items: center; gap: 7px; min-height: 55px; min-width: max-content; }
+.token { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 47px; height: 49px; border-radius: 10px; font-weight: 830; color: #f9fffb; font-size: 1.03rem; text-shadow: 0 1px 1px rgba(0,0,0,.18); box-shadow: 0 6px 16px rgba(0,0,0,.23); background: linear-gradient(145deg, #15a87c, #057054); position: relative; }
+.token.temp-token { background: linear-gradient(145deg, #f1ad59, #b95734); }
+.token.sentinel { background: linear-gradient(145deg, #eb5a73, #9f2949); }
+.token.front { outline: 2px solid rgba(255,255,255,.54); outline-offset: 2px; }
+.token.pulse { animation: pulse .68s ease-out; }
+@keyframes pulse { 0%,100% { filter: brightness(1); } 46% { filter: brightness(1.6); box-shadow: 0 0 0 7px rgba(110,231,183,.14); } }
+.queue-empty { display: flex; align-items: center; justify-content: center; min-height: 49px; width: 120px; color: #b1a6c7; font-size: .82rem; font-style: italic; border: 1px dashed rgba(198,184,223,.25); border-radius: 10px; }
+.queue-note { font-size: .75rem; margin: 12px 0 0; color: #b8d4cc; line-height: 1.5; }
+.queue-strip.simple { padding-block: 2px; }
+.movement-guide { text-align: center; color: #c4b3db; display: flex; justify-content: center; gap: 13px; align-items: center; margin: 14px 4px; font-size: .79rem; }
+.guide-dot.orange { background: var(--orange); box-shadow: 0 0 0 4px rgba(245,166,70,.12); }
+.holding-row { margin: 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border: 1px dashed rgba(167,139,250,.35); border-radius: 12px; background: rgba(67,43,111,.25); }
+.holding-label { display: flex; flex-direction: column; gap: 4px; }
+.holding-label strong { font-size: .85rem; color: #ddd0ff; }
+.holding-label span { color: #b6a8d7; font-size: .74rem; }
+.holding-slot { min-height: 52px; min-width: 57px; display: flex; align-items: center; justify-content: center; }
+.holding-slot .token { background: linear-gradient(145deg,#7964ed,#553ec7); }
+.holding-slot .placeholder { font-size: 1.45rem; color: #9785bb; }
+.console-box { border: 1px solid rgba(152,109,251,.35); border-radius: 12px; overflow: hidden; background: rgba(14,11,32,.76); }
+.console-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; background: rgba(90,55,139,.32); }
+.console-heading h3 { font-size: .86rem; color: #e4d7ff; }
+.terminal-dots { color: #ac8ee0; font-size: .64rem; letter-spacing: .2em; }
+.console-content { min-height: 70px; padding: 17px 14px; color: #82f7ba; font-size: 1.04rem; font-family: Consolas, Monaco, monospace; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; direction: ltr; }
+.console-token { animation: consoleIn .3s ease-out; }
+.console-token:last-child { color: #cbffdd; }
+.console-content .placeholder { color: #968aa9; font-style: italic; font-size: .83rem; }
+@keyframes consoleIn { from { opacity: .2; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.explanation { border-color: rgba(183, 140, 253, .3); }
+.explanation p { margin: 0; font-size: .95rem; line-height: 1.8; color: #f2eafd; min-height: 50px; }
+.action-pill { border-color: rgba(179,153,231,.4); background: rgba(81, 45, 131,.22); }
+.completion { margin-top: 13px; padding: 10px 12px; background: rgba(5, 118, 93,.17); border: 1px solid rgba(90,231,176,.31); border-radius: 10px; color: #acffe3; font-size: .86rem; line-height: 1.5; }
+.inspection-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.inspection-cell { border: 1px solid rgba(175,151,222,.26); border-radius: 11px; padding: 11px; display: flex; justify-content: space-between; align-items: center; gap: 10px; background: rgba(91,59,146,.20); }
+.inspection-cell .btn { font-family: Consolas, monospace; font-size: .81rem; padding-inline: 10px; }
+.inspect-result { min-width: 48px; text-align: center; border-radius: 7px; padding: 6px 9px; font-weight: 770; font-size: .84rem; background: rgba(13,10,29,.45); color: #a0f6cc; direction: ltr; }
+.inspect-result.flash { animation: resultFlash .65s ease-out; }
+@keyframes resultFlash { from { box-shadow: 0 0 0 0 rgba(87,226,169,.8); } to { box-shadow: 0 0 0 12px rgba(87,226,169,0); } }
+.code-card { min-width: 0; position: sticky; top: 14px; }
+.code-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.code-heading h2 { margin: 0 0 8px; }
+.code-subheading { color: #bcaad5; font-size: .8rem; line-height: 1.5; margin: 0; }
+.btn-copy { font-size: .76rem; min-height: 36px; padding: 7px 10px; }
+.code-window { max-height: 465px; overflow: auto; border: 1px solid #55407a; background: #130e26; border-radius: 11px; scrollbar-color: #766397 transparent; }
+.code-lines { display: table; min-width: 100%; padding: 10px 0; font-family: Consolas, "Courier New", monospace; font-size: clamp(.69rem, .86vw, .84rem); line-height: 1.85; white-space: pre; direction: ltr; text-align: left; }
+.code-line { display: table-row; color: #e2d2f4; }
+.code-line.active { background: #1d5b60; color: #fff; }
+.line-no, .line-text { display: table-cell; padding: 0 10px; vertical-align: top; }
+.line-no { color: #847797; user-select: none; width: 38px; text-align: right; border-right: 1px solid #342746; }
+.code-line.active .line-no { color: #a8fce3; font-weight: 800; }
+.code-line.active .line-text { font-weight: 750; }
+.code-footer { display: flex; align-items: center; gap: 10px; font-size: .82rem; color: #ddd4f1; margin: 13px 0 0; }
+.live-dot { width: 7px; height: 7px; }
+.note { border: 1px solid rgba(132,110,174,.25); border-radius: 9px; padding: 12px; background: rgba(78,53,119,.20); margin-top: 15px; font-size: .82rem; color: #cabce2; line-height: 1.6; }
+.note strong { color: #efe6ff; }
+.note p { margin: 4px 0 0; }
+.mini-guide { padding: 15px 3px 2px; font-size: .83rem; color: #c9b8e7; line-height: 1.7; }
+.mini-guide h3 { color: #efe4ff; font-size: .9rem; }
+.mini-guide ol { padding-inline-start: 21px; margin: 8px 0; }
+.footer { text-align: center; margin-top: 22px; color: #ad9bc9; font-size: .76rem; line-height: 1.5; }
+html[dir="rtl"] .page-header, html[dir="rtl"] .section-heading, html[dir="rtl"] .queue-header, html[dir="rtl"] .code-heading, html[dir="rtl"] .console-heading, html[dir="rtl"] .holding-row { direction: rtl; }
+html[dir="rtl"] .setup-layout, html[dir="rtl"] .header-controls, html[dir="rtl"] .playback-main { direction: rtl; }
+html[dir="rtl"] .queue-strip, html[dir="rtl"] .queue-items, html[dir="rtl"] .console-content, html[dir="rtl"] .code-window { direction: ltr; }
+html[dir="rtl"] .speed-control { text-align: right; }
+html[dir="rtl"] .queue-note, html[dir="rtl"] .hint, html[dir="rtl"] .note, html[dir="rtl"] .mini-guide { text-align: start; }
+@media (max-width: 1150px) { .workspace { grid-template-columns: minmax(0, 1fr); } .code-card { position: static; } .code-lines { font-size: .84rem; } }
+@media (max-width: 750px) { .page-header { align-items: flex-start; flex-wrap: wrap; } .playback-main { flex-wrap: wrap; } .playback-details { order: 3; flex-basis: 100%; } .setup-layout { align-items: stretch; } .queue-values { flex-basis: 100%; } .card { padding: 16px; } }
+@media (max-width: 480px) { .page { padding: 12px 8px 25px; } h1 { font-size: 1.85rem; } .page-header { padding: 5px 7px 0; } .card { border-radius: 14px; padding: 14px 12px; } .setup-layout { gap: 9px; } .setup-layout > button { flex: 1 1 auto; } .playback-main { gap: 12px; } .play-buttons { width: 100%; justify-content: center; } .speed-control { flex-direction: row; align-items: center; } .token { width: 41px; height: 45px; } .queue-items { gap: 6px; } .queue-block { padding: 12px 9px; } .edge-label { font-size: .63rem; } .edge-button { font-size: .69rem; padding: 5px 6px; } .queue-strip { gap: 6px; } .inspection-actions { grid-template-columns: 1fr; } .header-controls { width: 100%; } .picker { flex: 1; } .picker select { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; } }
+/* Rolling-queue-specific teaching components */
+.phase-badge[data-phase="setup"] { color: #ffd49f; border-color: rgba(245,166,70,.45); }
+.phase-badge[data-phase="rolling"] { color: #a6f3d8; border-color: rgba(87,226,169,.45); }
+.marker-panel { margin: 14px 0; padding: 13px 15px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(240,132,151,.4); background: rgba(134,38,74,.15); border-radius: 12px; }
+.marker-symbol { flex-shrink: 0; display: grid; place-items: center; font-family: Consolas,monospace; background: linear-gradient(145deg,#eb5a73,#9f2949); color: #fff; width: 52px; height: 52px; font-weight: 800; font-size: 1.1rem; border-radius: 11px; box-shadow: 0 6px 18px rgba(0,0,0,.20); }
+.marker-copy { flex: 1 1 240px; min-width: 0; }
+.marker-copy strong { font-size: .88rem; color: #ffd5de; }
+.marker-copy p { margin: 5px 0 0; font-size: .78rem; color: #e8c7d5; line-height: 1.6; }
+.marker-status { flex-shrink: 0; padding: 5px 9px; border-radius: 20px; color: #ffe0e8; border: 1px solid rgba(240,132,151,.35); font-size: .74rem; font-weight: 750; }
+.marker-status[data-status="waiting"] { color: #c6b9dd; border-color: rgba(180,160,231,.35); }
+.marker-status[data-status="queue"] { color: #a0f6cc; border-color: rgba(87,226,169,.4); }
+.marker-status[data-status="removed"] { color: #ffcb97; border-color: rgba(245,166,70,.4); }
+.marker-status[data-status="done"] { color: #a0f6cc; border-color: rgba(87,226,169,.4); }
+.holding-slot .token.sentinel { background: linear-gradient(145deg,#eb5a73,#9f2949); }
+@media (max-width: 520px) { .marker-panel { flex-wrap: wrap; padding: 12px; } .marker-status { margin-inline-start: auto; } }
+/* Prevent RTL grid min-content from stretching mobile viewport. */
+.workspace-left { grid-template-columns: minmax(0, 1fr); }
+.workspace-left > .card { min-width: 0; max-width: 100%; }
+.inspection-cell .btn { direction: ltr; unicode-bidi: isolate; }
+.queue-count, .inspect-result { direction: ltr; unicode-bidi: isolate; }
+
+    </style>
+
+</head>
+<body>
+<main class="page" id="app">
+    <div class="shell">
+        <header class="page-header">
+            <div class="branding">
+                <div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="labLabel">Interactive algorithm lab</span></div>
+                <h1 data-i18n="title">Rotate &amp; Print a Queue</h1>
+                <p class="subtitle" data-i18n="subtitle">Print each queue item by rotating once, using a sentinel marker.</p>
+            </div>
+            <div class="header-controls">
+                <label class="picker"><span data-i18n="uiLanguage">Language</span>
+                    <select id="uiLang" aria-label="Interface language">
+                        <option value="en">English</option>
+                        <option value="he">עברית</option>
+                    </select>
+                </label>
+                <label class="picker"><span data-i18n="codeLanguage">Programming</span>
+                    <select id="codeLang" aria-label="Programming language">
+                        <option value="cs">C#</option>
+                        <option value="java">Java</option>
+                    </select>
+                </label>
+            </div>
+        </header>
+
+        <section class="card setup-panel" aria-labelledby="setupTitle">
+            <div class="section-heading"><h2 id="setupTitle" data-i18n="setupTitle">1. Build your starting queue</h2><span class="hint-pill" data-i18n="setupPill">Before running</span></div>
+            <div class="setup-layout">
+                <label class="field-group queue-values"><span data-i18n="queueValuesLabel">Values (FRONT to BACK, comma-separated)</span>
+                    <input id="queueInput" type="text" inputmode="text" autocomplete="off" spellcheck="false" dir="ltr" value="5,3,8,1,9" aria-describedby="inputHint">
+                </label>
+                <label class="field-group type-group"><span data-i18n="dataType">Data type</span>
+                    <select id="dataType">
+                        <option value="int" data-i18n="integer">Integer</option>
+                        <option value="double" data-i18n="double">Double</option>
+                        <option value="char" data-i18n="character">Char</option>
+                    </select>
+                </label>
+                <label class="field-group insert-value"><span data-i18n="insertValueLabel">Value to insert at BACK</span>
+                    <input id="insertValue" type="text" autocomplete="off" spellcheck="false" dir="ltr" placeholder="7">
+                </label>
+                <button class="btn btn-primary" id="applyBtn" type="button" data-i18n="applyQueue">Apply queue</button>
+                
+            </div>
+            <p id="inputHint" class="hint" data-i18n="inputHint">Up to 10 data items. A marker is inserted automatically when the algorithm starts (11 slots maximum). Integers 0–99, doubles 0–less than 100, chars A–Z/a–z. Reserved marker: -1 or -.</p>
+            <div id="error" class="alert" role="alert" hidden></div>
+        </section>
+
+        <section class="card player" aria-label="Playback controls">
+            <div class="playback-main">
+                <div class="play-buttons">
+                    <button class="btn btn-icon" id="resetBtn" type="button" title="Restart" aria-label="Restart">↺</button>
+                    <button class="btn btn-icon" id="prevBtn" type="button" title="Previous step" aria-label="Previous step">◀│</button>
+                    <button class="btn btn-play" id="playBtn" type="button"><span id="playIcon">▶</span><span id="playText" data-i18n="play">Play</span></button>
+                    <button class="btn btn-icon" id="nextBtn" type="button" title="Next step" aria-label="Next step">│▶</button>
+                </div>
+                <div class="playback-details">
+                    <div class="progress-heading"><span id="stepText">Step 1 of 29</span><span id="phaseBadge" class="phase-badge" data-phase="initial">Start</span></div>
+                    <input id="stepSlider" type="range" min="0" max="28" step="1" value="0" aria-label="Choose execution step">
+                </div>
+                <label class="speed-control"><span data-i18n="speed">Speed</span>
+                    <select id="speed">
+                        <option value="1500">0.5×</option>
+                        <option value="950" selected>1×</option>
+                        <option value="570">1.5×</option>
+                        <option value="310">2×</option>
+                    </select>
+                </label>
+            </div>
+        </section>
+
+        <div class="workspace">
+            <div class="workspace-left">
+                <section class="card visualization" aria-labelledby="visualTitle">
+                    <div class="section-heading"><h2 id="visualTitle" data-i18n="visualTitle">2. Follow the rolling queue</h2><span class="hint-pill highlight-pill">FIFO</span></div>
+                    <div class="queue-block" id="mainQueueBlock">
+                        <div class="queue-header"><h3 data-i18n="mainQueue">Rolling queue</h3><span id="mainCount" class="queue-count">5 / 10</span></div>
+                        <div class="queue-strip" dir="ltr">
+                            <div class="queue-edge queue-back">
+                                <button id="insertBtn" class="edge-button insert" type="button" data-i18n="insert">Insert</button>
+                                <span class="edge-label" data-i18n="backArrow">BACK →</span>
+                            </div>
+                            <div class="queue-scroller"><div id="mainItems" class="queue-items" aria-label="Main queue from back to front"></div></div>
+                            <div class="queue-edge queue-front"><span class="edge-label" data-i18n="frontArrow">← FRONT</span><button id="removeBtn" class="edge-button remove" type="button" data-i18n="remove">Remove</button></div>
+                        </div>
+                        <p class="queue-note" data-i18n="mainNote">Insert adds at BACK; Remove takes from FRONT. Edit the starting queue before playback.</p>
+                    </div>
+                    <div class="movement-guide" id="movementGuide"><span class="guide-dot green"></span><span data-i18n="moveGuide">One rotation, one value at a time, synchronized with the code</span><span class="guide-dot orange"></span></div>
+                    <div class="marker-panel" id="markerPanel">
+                        <div class="marker-symbol" id="markerSymbol" dir="ltr">-1</div>
+                        <div class="marker-copy"><strong data-i18n="markerLabel">Reserved stop marker</strong><p data-i18n="markerExplain">The algorithm inserts this value after the data. It stops when the marker reaches the FRONT.</p></div>
+                        <div class="marker-status" id="markerStatus">Not inserted yet</div>
+                    </div>
+                    <div class="holding-row">
+                        <div class="holding-label"><strong data-i18n="holding">Variable item</strong><span data-i18n="holdingHelp">Item removed from the FRONT, waiting to be checked or inserted again</span></div>
+                        <div id="heldItem" class="holding-slot" dir="ltr"><span class="placeholder">—</span></div>
+                    </div>
+                    <div class="console-box">
+                        <div class="console-heading"><h3 data-i18n="console">Console output</h3><span class="terminal-dots" aria-hidden="true">● ● ●</span></div>
+                        <div id="consoleOutput" class="console-content" dir="ltr" aria-live="polite"><span class="placeholder" data-i18n="noOutput">(no output yet)</span></div>
+                    </div>
+                </section>
+
+                <section class="card explanation" aria-labelledby="explTitle">
+                    <div class="section-heading"><h2 id="explTitle" data-i18n="explTitle">3. What just happened?</h2><span id="operationName" class="action-pill">Start</span></div>
+                    <p id="explanationText">The original queue is ready. Click Next or Play to begin.</p>
+                    <div id="completionMessage" class="completion" hidden></div>
+                </section>
+
+                <section class="card inspector" aria-labelledby="inspectorTitle">
+                    <div class="section-heading"><h2 id="inspectorTitle" data-i18n="inspectorTitle">Check the main queue</h2></div>
+                    <div class="inspection-actions">
+                        <div class="inspection-cell"><button id="headBtn" class="btn btn-outline" type="button">Head()</button><output id="headResult" class="inspect-result">5</output></div>
+                        <div class="inspection-cell"><button id="emptyBtn" class="btn btn-outline" type="button">IsEmpty()</button><output id="emptyResult" class="inspect-result">false</output></div>
+                    </div>
+                    <p class="hint" data-i18n="inspectorHint">Head() reads the FRONT without removing it. IsEmpty() checks if this queue has no items.</p>
+                </section>
+            </div>
+
+            <section class="card code-card" aria-labelledby="codeTitle">
+                <div class="code-heading">
+                    <div><h2 id="codeTitle" data-i18n="codeTitle">Synchronized code</h2><p class="code-subheading" data-i18n="codeSubtitle">The highlighted statement matches this exact algorithm step.</p></div>
+                    <button id="copyBtn" class="btn btn-outline btn-copy" type="button" data-i18n="copyCode">Copy code</button>
+                </div>
+                <div id="codeWindow" class="code-window" dir="ltr"><div id="codeLines" class="code-lines"></div></div>
+                <div class="code-footer"><span class="live-dot"></span><span id="activeLineText">Line 1</span></div>
+                <div class="note"><strong data-i18n="noteTitle">Educational Queue API</strong><p data-i18n="noteText">The code uses an educational Queue&lt;T&gt; with Insert(), Remove(), Head(), IsEmpty(); it is not the built-in .NET/Java queue API. Marker values are reserved and excluded from the initial data.</p></div>
+                <div class="mini-guide"><h3 data-i18n="logicTitle">Algorithm logic</h3><ol>
+                    <li data-i18n="logic1">Insert a unique marker at BACK, then Remove() from FRONT.</li>
+                    <li data-i18n="logic2">While the item is not the marker: print it, then Insert() at BACK.</li>
+                    <li data-i18n="logic3">Stop when the marker reaches FRONT; the original order is restored.</li>
+                </ol></div>
+            </section>
+        </div>
+        <footer class="footer"><span data-i18n="footer">Offline-ready • HTML + CSS + JavaScript only • No React or Node.js</span></footer>
+    </div>
+</main>
+    <script>
+/* Rolling queue algorithm: bilingual, synchronized, browser-only. */
+(() => {
+    'use strict';
+
+    const MAX_DATA = 10;
+    const byId = (id) => document.getElementById(id);
+    const translations = {
+        en: {
+            labLabel: 'Interactive algorithm lab', title: 'Rotate & Print a Queue',
+            subtitle: 'Print every item by rotating the queue once, using a reserved stop marker.',
+            uiLanguage: 'Language', codeLanguage: 'Programming',
+            setupTitle: '1. Build your starting queue', setupPill: 'Before running',
+            queueValuesLabel: 'Values (FRONT to BACK, comma-separated)', dataType: 'Data type',
+            integer: 'Integer', double: 'Double', character: 'Char',
+            insertValueLabel: 'Value to insert at BACK', applyQueue: 'Apply queue',
+            inputHint: 'Up to 10 data items, plus one automatic marker. Integer: 0–99; decimal: 0 to less than 100; char: A–Z/a–z. The marker (-1 or -) is reserved.',
+            speed: 'Speed', play: 'Play', pause: 'Pause', restart: 'Restart', previous: 'Previous step', next: 'Next step',
+            progress: (a, b) => `Step ${a} of ${b}`,
+            phaseInitial: 'Ready', phaseSetup: 'Marker', phaseRolling: 'Rotating', phaseComplete: 'Complete',
+            visualTitle: '2. Follow the rolling queue', mainQueue: 'Rolling queue',
+            insert: 'Insert', remove: 'Remove', backArrow: 'BACK →', frontArrow: '← FRONT',
+            mainNote: 'Before playback, Insert adds at BACK and Remove takes from FRONT. During playback, the algorithm controls the queue.',
+            moveGuide: 'Each movement corresponds to the highlighted code statement',
+            markerLabel: 'Reserved stop marker',
+            markerExplain: 'Inserted at the BACK. After a full rotation, it reaches the FRONT and ends the loop.',
+            markerWaiting: 'Not inserted', markerQueue: 'In queue', markerRemoved: 'Removed', markerDone: 'Finished',
+            holding: 'Variable item', holdingHelp: 'Item removed from FRONT and held for the next instruction',
+            console: 'Console output', noOutput: '(no output yet)', emptyQueue: 'Empty',
+            explTitle: '3. What happened in this step?', inspectorTitle: 'Inspect the rolling queue',
+            inspectorHint: 'Head() reads the FRONT without removing it. IsEmpty() checks whether the queue has no items.',
+            codeTitle: 'Synchronized code', codeSubtitle: 'The highlighted statement exactly matches the displayed step.',
+            copyCode: 'Copy code', codeCopied: 'Copied!',
+            noteTitle: 'Educational Queue API',
+            noteText: 'This example assumes a provided Queue<T> class with Insert(), Remove(), Head(), and IsEmpty(). These names are not the standard .NET/Java Queue API. The marker is not allowed among normal data values.',
+            logicTitle: 'Algorithm logic',
+            logic1: 'Insert a reserved marker at BACK, then Remove() from FRONT.',
+            logic2: 'While item is not the marker: print the item and Insert() it at BACK.',
+            logic3: 'Stop when the marker reaches FRONT. The data values are back in their original order.',
+            footer: 'Works offline • HTML + CSS + JavaScript only • No React or Node.js',
+            line: (n) => `Highlighted code line ${n}`,
+            initial: 'The starting queue is ready. Click Next or Play to examine the algorithm.',
+            declareMarker: (v) => `Choose ${v} as the reserved stop marker. This value does not occur among the input data.`,
+            insertMarker: (v) => `Insert marker ${v} at the BACK of the queue. It will stop the algorithm after one rotation.`,
+            take: (v) => `Remove ${v} from FRONT and store it in the variable item.`,
+            checkContinue: (v) => `${v} is not the marker. Continue the while loop; do not change the queue yet.`,
+            checkStop: (v) => `${v} equals the marker! The while condition is false, so the loop stops. The marker has been removed.`,
+            print: (v) => `Print ${v}. This does not remove or insert anything; the value remains in item.`,
+            reinsert: (v) => `Insert ${v} at BACK. The item has moved through one rotation.`,
+            newline: 'Write the final newline. All original items have been printed.',
+            complete: 'Finished! The marker is gone and the queue has its original FRONT-to-BACK order.',
+            emptyComplete: 'Finished! The input queue was empty; only the marker was inserted and removed.',
+            actStart: 'Start', actMarker: 'Marker', actRemove: 'Remove()', actCheck: 'Check while',
+            actPrint: 'Print', actInsert: 'Insert()', actEnd: 'Finished',
+            proof: 'Verified: all original values were printed exactly once, the marker was removed, and the original queue order was restored.',
+            proofEmpty: 'Verified: the queue is empty and there is no printed output.',
+            proofFailed: 'The final state did not match the expected queue.',
+            errorMax: 'Enter no more than 10 data items.',
+            errorList: 'Separate values with commas and do not leave empty entries.',
+            errorInt: 'Integer values must be between 0 and 99. -1 is reserved for the marker.',
+            errorDouble: 'Decimal values must be at least 0 and less than 100. -1.0 is reserved for the marker.',
+            errorChar: 'Enter a single English letter A–Z or a–z. The character - is reserved for the marker.',
+            errorInsert: 'Enter a value to insert at BACK.',
+            errorSetupOnly: 'You can edit the initial queue only before playback. Restart first.',
+            errorEmpty: 'Cannot Remove() from an empty queue.',
+            headEmpty: 'Head() is not available: the queue is empty.',
+            headValue: (v) => `Head() = ${v}, without removing the item.`,
+            isEmptyValue: (v) => `IsEmpty() = ${v}. The queue is unchanged.`,
+            changedType: 'The data type changed using deterministic conversion; playback returned to the beginning.',
+            parsed: 'Custom input applied. All execution steps were regenerated.',
+            inserted: (v) => `Inserted ${v} at BACK of the initial queue.`,
+            removed: (v) => `Removed ${v} from FRONT of the initial queue.`,
+            insertPlaceholder: 'e.g. 7', emptyInput: 'The starting queue is empty. The algorithm still handles it correctly.',
+            resetNote: 'Returned to the beginning. Your chosen input is preserved.'
+        },
+        he: {
+            labLabel: 'מעבדה אינטראקטיבית לאלגוריתמים', title: 'הדפסת תור באמצעות גלגול',
+            subtitle: 'מדפיסים כל איבר באמצעות סיבוב של התור ושימוש בערך זקיף לסיום.',
+            uiLanguage: 'שפת הממשק', codeLanguage: 'שפת תכנות',
+            setupTitle: '1. בניית התור ההתחלתי', setupPill: 'לפני ההרצה',
+            queueValuesLabel: 'ערכי התור (מהראש לסוף, מופרדים בפסיקים)', dataType: 'טיפוס הנתונים',
+            integer: 'מספר שלם', double: 'מספר ממשי', character: 'תו',
+            insertValueLabel: 'ערך להוספה בסוף התור', applyQueue: 'החל תור',
+            inputHint: 'עד 10 איברי נתונים ועוד זקיף שמתווסף אוטומטית. שלמים: 0–99; ממשיים: מ־0 עד פחות מ־100; תווים: A–Z/a–z. הערך ‎-1 או התו ‎- שמורים לזקיף.',
+            speed: 'מהירות', play: 'הפעל', pause: 'השהה', restart: 'התחל מחדש', previous: 'צעד קודם', next: 'צעד הבא',
+            progress: (a, b) => `צעד ${a} מתוך ${b}`,
+            phaseInitial: 'התחלה', phaseSetup: 'זקיף', phaseRolling: 'גלגול', phaseComplete: 'הושלם',
+            visualTitle: '2. מעקב אחר התור המתגלגל', mainQueue: 'התור הראשי',
+            insert: 'Insert', remove: 'Remove', backArrow: 'BACK →', frontArrow: '← FRONT',
+            mainNote: 'לפני ההרצה, Insert מוסיפה לסוף התור ו־Remove מוציאה מראש התור. במהלך ההרצה האלגוריתם שולט בתור.',
+            moveGuide: 'כל תזוזה תואמת לשורת קוד מודגשת',
+            markerLabel: 'ערך זקיף שמור',
+            markerExplain: 'הזקיף נכנס לסוף התור. לאחר סיבוב מלא הוא מגיע לראש התור ומסיים את הלולאה.',
+            markerWaiting: 'טרם הוכנס', markerQueue: 'בתור', markerRemoved: 'הוצא', markerDone: 'הושלם',
+            holding: 'המשתנה item', holdingHelp: 'האיבר שהוצא מראש התור וממתין לפעולה הבאה',
+            console: 'פלט התוכנית', noOutput: '(אין פלט עדיין)', emptyQueue: 'ריק',
+            explTitle: '3. מה קרה בצעד הזה?', inspectorTitle: 'בדיקת התור הראשי',
+            inspectorHint: 'Head() מחזירה את האיבר בראש התור ללא הוצאה. IsEmpty() בודקת אם התור ריק.',
+            codeTitle: 'קוד מסונכרן', codeSubtitle: 'השורה המודגשת מתאימה בדיוק לצעד המוצג.',
+            copyCode: 'העתק קוד', codeCopied: 'הועתק!',
+            noteTitle: 'מחלקת תור לימודית',
+            noteText: 'הקוד מניח מחלקת Queue<T> לימודית עם הפעולות Insert(), Remove(), Head() ו־IsEmpty(). אלו אינן הפעולות של המחלקות הסטנדרטיות ב־Java וב־.NET. ערך הזקיף אינו מותר כנתון רגיל.',
+            logicTitle: 'רעיון האלגוריתם',
+            logic1: 'מוסיפים זקיף לסוף התור ומוציאים איבר מראש התור.',
+            logic2: 'כל עוד האיבר אינו הזקיף: מדפיסים אותו ומחזירים אותו לסוף התור.',
+            logic3: 'כאשר הזקיף מגיע לראש התור, עוצרים. סדר האיברים המקורי נשמר.',
+            footer: 'עובד ללא אינטרנט • HTML + CSS + JavaScript בלבד • ללא React או Node.js',
+            line: (n) => `שורת הקוד המודגשת: ${n}`,
+            initial: 'התור ההתחלתי מוכן. לחצו על הצעד הבא או על הפעלה כדי לבדוק את האלגוריתם.',
+            declareMarker: (v) => `בוחרים בזקיף ${v}. ערך זה אינו נמצא בין איברי הנתונים.`,
+            insertMarker: (v) => `מוסיפים את הזקיף ${v} לסוף התור. הזקיף יעצור את האלגוריתם לאחר סיבוב מלא.`,
+            take: (v) => `מוציאים את ${v} מראש התור ושומרים אותו במשתנה item.`,
+            checkContinue: (v) => `${v} אינו הזקיף. התנאי בלולאת while מתקיים ולכן ממשיכים בלי לשנות את התור.`,
+            checkStop: (v) => `${v} שווה לזקיף! תנאי while אינו מתקיים, ולכן הלולאה מסתיימת. הזקיף כבר הוצא מהתור.`,
+            print: (v) => `מדפיסים את ${v}. פעולת ההדפסה אינה משנה את התור, והערך נשאר ב־item.`,
+            reinsert: (v) => `מכניסים את ${v} לסוף התור באמצעות Insert(). האיבר השלים סיבוב.`,
+            newline: 'מדפיסים ירידת שורה. כל האיברים המקוריים הודפסו.',
+            complete: 'הסתיים! הזקיף הוצא והתור חזר לסדר המקורי שלו, מהראש לסוף.',
+            emptyComplete: 'הסתיים! התור ההתחלתי היה ריק, ולכן רק הזקיף הוכנס והוצא.',
+            actStart: 'התחלה', actMarker: 'זקיף', actRemove: 'Remove()', actCheck: 'בדיקת while',
+            actPrint: 'הדפסה', actInsert: 'Insert()', actEnd: 'הושלם',
+            proof: 'נבדק: כל איבר מקורי הודפס פעם אחת, הזקיף הוצא, והתור שוחזר בסדר המקורי.',
+            proofEmpty: 'נבדק: התור נשאר ריק ולא הודפסו איברים.',
+            proofFailed: 'מצב הסיום אינו תואם לתור ההתחלתי.',
+            errorMax: 'מותר להזין לכל היותר 10 איברי נתונים.',
+            errorList: 'יש להפריד ערכים בפסיקים, ללא שדות ריקים.',
+            errorInt: 'מספרים שלמים חייבים להיות בין 0 ל־99. הערך ‎-1 שמור לזקיף.',
+            errorDouble: 'מספרים ממשיים חייבים להיות מ־0 עד פחות מ־100. הערך ‎-1.0 שמור לזקיף.',
+            errorChar: 'יש להזין אות אנגלית אחת, A–Z או a–z. התו ‎- שמור לזקיף.',
+            errorInsert: 'יש להזין ערך להוספה בסוף התור.',
+            errorSetupOnly: 'אפשר לשנות את התור ההתחלתי רק לפני ההרצה. יש להפעיל התחלה מחדש.',
+            errorEmpty: 'לא ניתן לבצע Remove() על תור ריק.',
+            headEmpty: 'לא ניתן לבצע Head(): התור ריק.',
+            headValue: (v) => `Head() = ${v}. האיבר נשאר בתור.`,
+            isEmptyValue: (v) => `IsEmpty() = ${v}. התור לא השתנה.`,
+            changedType: 'טיפוס הנתונים השתנה בהמרה קבועה מראש. ההרצה חזרה להתחלה.',
+            parsed: 'התור החדש נקלט וכל צעדי האלגוריתם נבנו מחדש.',
+            inserted: (v) => `האיבר ${v} נוסף לסוף התור ההתחלתי.`,
+            removed: (v) => `האיבר ${v} הוצא מראש התור ההתחלתי.`,
+            insertPlaceholder: 'לדוגמה: 7', emptyInput: 'התור ההתחלתי ריק. האלגוריתם עדיין פועל נכון.',
+            resetNote: 'חזרה לצעד הראשון. הנתונים שבחרתם נשמרו.'
+        }
+    };
+
+    const state = {
+        lang: 'en', codeLang: 'cs', type: 'int', initial: [5,3,8,1,9],
+        steps: [], step: 0, playing: false, timer: null, interval: 950
+    };
+
+    const say = (key, ...args) => {
+        const entry = translations[state.lang][key];
+        return typeof entry === 'function' ? entry(...args) : (entry ?? key);
+    };
+    const markerValue = (type = state.type) => type === 'char' ? '-' : -1;
+    const valueText = (v) => (state.type === 'double' && typeof v === 'number' && Number.isInteger(v)) ? v.toFixed(1) : String(v);
+    const listText = (values) => values.map(valueText).join(',');
+    const markerLiteral = () => state.type === 'char' ? "'-'" : state.type === 'double' ? '-1.0' : '-1';
+
+    function validateOne(text) {
+        const s = text.trim();
+        if (state.type === 'char') {
+            if (!/^[A-Za-z]$/.test(s)) { return { error: 'errorChar' }; }
+            return { value: s };
+        }
+        if (state.type === 'int') {
+            if (!/^\+?\d+$/.test(s) || !Number.isSafeInteger(Number(s)) || Number(s) > 99) {
+                return { error: 'errorInt' };
+            }
+            return { value: Number(s) };
+        }
+        if (!/^\+?(?:\d+(?:\.\d*)?|\.\d+)$/.test(s) || !Number.isFinite(Number(s)) || Number(s) >= 100) {
+            return { error: 'errorDouble' };
+        }
+        return { value: Number(s) };
+    }
+
+    function parseInput(input) {
+        if (!input.trim()) { return { values: [] }; }
+        const parts = input.split(',');
+        if (parts.length > MAX_DATA) { return { error: 'errorMax' }; }
+        if (parts.some((p) => !p.trim())) { return { error: 'errorList' }; }
+        const values = [];
+        for (const text of parts) {
+            const checked = validateOne(text);
+            if (checked.error) { return { error: checked.error }; }
+            values.push(checked.value);
+        }
+        return { values };
+    }
+
+    // Internal representation is FRONT -> BACK; the display reverses the array.
+    // Tokens keep stable IDs for animation even with duplicate values.
+    function generateSteps(values) {
+        const main = values.map((value, i) => ({ id: `item-${i}`, value, marker: false }));
+        const marker = { id: 'reserved-marker', value: markerValue(), marker: true };
+        const output = [];
+        const steps = [];
+        let held = null;
+        function push(line, phase, action, value = null) {
+            steps.push({
+                line, phase, action, value, main: main.slice(),
+                output: output.slice(), held
+            });
+        }
+        push(1, 'initial', 'initial');
+        push(3, 'setup', 'declareMarker', marker.value);
+        main.push(marker);
+        push(4, 'setup', 'insertMarker', marker.value);
+        held = main.shift();
+        push(5, 'rolling', 'take', held.value);
+        push(6, 'rolling', held.marker ? 'checkStop' : 'checkContinue', held.value);
+        while (!held.marker) {
+            const current = held;
+            output.push(current.value);
+            push(8, 'rolling', 'print', current.value);
+            main.push(current);
+            held = null;
+            push(9, 'rolling', 'reinsert', current.value);
+            held = main.shift();
+            push(10, 'rolling', 'take', held.value);
+            push(6, 'rolling', held.marker ? 'checkStop' : 'checkContinue', held.value);
+        }
+        held = null;
+        push(12, 'complete', 'newline');
+        push(13, 'complete', 'complete');
+        return steps;
+    }
+
+    function stopPlayback() {
+        state.playing = false;
+        if (state.timer !== null) { clearTimeout(state.timer); state.timer = null; }
+    }
+
+    function showError(message = '') {
+        const box = byId('error');
+        box.textContent = message;
+        box.hidden = !message;
+    }
+    function statusMessage(text) { byId('explanationText').textContent = text; }
+
+    function rebuild(messageKey) {
+        stopPlayback();
+        state.steps = generateSteps(state.initial);
+        state.step = 0;
+        byId('queueInput').value = listText(state.initial);
+        byId('stepSlider').max = String(state.steps.length - 1);
+        showError();
+        renderAll();
+        if (messageKey) { statusMessage(say(messageKey)); }
+    }
+
+    function snapshotRects() {
+        const rects = new Map();
+        document.querySelectorAll('.token[data-token]').forEach((el) => rects.set(el.dataset.token, el.getBoundingClientRect()));
+        return rects;
+    }
+
+    function animateTransition(before) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+        document.querySelectorAll('.token[data-token]').forEach((el) => {
+            const previous = before.get(el.dataset.token);
+            const current = el.getBoundingClientRect();
+            if (previous) {
+                const dx = previous.left - current.left;
+                const dy = previous.top - current.top;
+                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                    el.animate([
+                        { transform: `translate(${dx}px,${dy}px)`, filter: 'brightness(1.2)' },
+                        { transform: 'none', filter: 'brightness(1)' }
+                    ], { duration: Math.min(500, state.interval * 0.7), easing: 'cubic-bezier(.2,.8,.2,1)' });
+                }
+            } else {
+                el.animate([
+                    { opacity: 0.2, transform: 'translateY(-12px) scale(.7)' },
+                    { opacity: 1, transform: 'none' }
+                ], { duration: 310, easing: 'ease-out' });
+            }
+        });
+    }
+
+    function goToStep(index, options = {}) {
+        const target = Math.max(0, Math.min(index, state.steps.length - 1));
+        if (target === state.step) { return; }
+        if (!options.auto) { stopPlayback(); }
+        const before = snapshotRects();
+        state.step = target;
+        renderAll();
+        animateTransition(before);
+    }
+
+    function tick() {
+        if (!state.playing) { return; }
+        if (state.step >= state.steps.length - 1) { stopPlayback(); renderButtons(); return; }
+        goToStep(state.step + 1, { auto: true });
+        if (state.step >= state.steps.length - 1) { stopPlayback(); renderButtons(); return; }
+        state.timer = setTimeout(tick, state.interval);
+    }
+
+    function playPause() {
+        if (state.playing) { stopPlayback(); renderButtons(); return; }
+        if (state.step >= state.steps.length - 1) { goToStep(0); }
+        state.playing = true;
+        renderButtons();
+        state.timer = setTimeout(tick, state.interval);
+    }
+
+    function renderButtons() {
+        const start = state.step === 0 && !state.playing;
+        byId('playText').textContent = say(state.playing ? 'pause' : 'play');
+        byId('playIcon').textContent = state.playing ? 'Ⅱ' : '▶';
+        byId('playBtn').setAttribute('aria-pressed', String(state.playing));
+        byId('prevBtn').disabled = state.step === 0;
+        byId('nextBtn').disabled = state.step >= state.steps.length - 1;
+        byId('stepSlider').value = String(state.step);
+        byId('stepText').textContent = say('progress', state.step + 1, state.steps.length);
+        byId('insertBtn').disabled = !start || state.initial.length >= MAX_DATA;
+        byId('removeBtn').disabled = !start || state.initial.length === 0;
+        byId('applyBtn').disabled = state.playing;
+        byId('dataType').disabled = state.playing;
+        byId('queueInput').disabled = state.playing;
+        byId('insertValue').disabled = state.playing;
+    }
+
+    function makeToken(token, isFront, track = true) {
+        const element = document.createElement('div');
+        element.className = 'token' + (isFront ? ' front' : '') + (token.marker ? ' sentinel' : '');
+        element.textContent = valueText(token.value);
+        if (track) { element.dataset.token = token.id; }
+        element.setAttribute('aria-label', valueText(token.value) + (token.marker ? ', stop marker' : '') + (isFront ? ', front' : ''));
+        return element;
+    }
+
+    function renderVisual(step) {
+        const queue = byId('mainItems');
+        queue.replaceChildren();
+        if (!step.main.length) {
+            const empty = document.createElement('div');
+            empty.className = 'queue-empty';
+            empty.textContent = say('emptyQueue');
+            queue.appendChild(empty);
+        } else {
+            step.main.slice().reverse().forEach((item, i) => queue.appendChild(makeToken(item, i === step.main.length - 1)));
+        }
+        const scrollContainer = queue.parentElement;
+        scrollContainer.scrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        byId('mainCount').textContent = `${step.main.length} / ${MAX_DATA + 1}`;
+
+        const held = byId('heldItem');
+        held.replaceChildren();
+        if (step.held) {
+            held.appendChild(makeToken(step.held, false));
+        } else {
+            const dash = document.createElement('span');
+            dash.className = 'placeholder'; dash.textContent = '—'; held.appendChild(dash);
+        }
+
+        const output = byId('consoleOutput');
+        output.replaceChildren();
+        if (!step.output.length) {
+            const empty = document.createElement('span');
+            empty.className = 'placeholder'; empty.textContent = say('noOutput'); output.appendChild(empty);
+        } else {
+            step.output.forEach((value) => {
+                const span = document.createElement('span');
+                span.className = 'console-token';
+                span.textContent = valueText(value);
+                output.appendChild(span);
+            });
+        }
+
+        byId('markerSymbol').textContent = valueText(markerValue());
+        const markerInQueue = step.main.some((item) => item.marker);
+        let status = 'waiting';
+        if (markerInQueue) { status = 'queue'; }
+        else if (step.held && step.held.marker) { status = 'removed'; }
+        else if (step.action === 'complete' || step.action === 'newline') { status = 'done'; }
+        const markerStatus = byId('markerStatus');
+        markerStatus.textContent = say('marker' + status[0].toUpperCase() + status.slice(1));
+        markerStatus.dataset.status = status;
+
+        const front = step.main[0];
+        byId('headResult').textContent = front ? valueText(front.value) : '—';
+        byId('emptyResult').textContent = String(step.main.length === 0);
+    }
+
+    function renderExplanation(step) {
+        const dynamic = new Set(['declareMarker', 'insertMarker', 'take', 'checkContinue', 'checkStop', 'print', 'reinsert']);
+        const text = (step.action === 'complete' && state.initial.length === 0) ? say('emptyComplete') :
+            dynamic.has(step.action) ? say(step.action, valueText(step.value)) : say(step.action);
+        statusMessage(text);
+        const operation = {
+            initial: 'actStart', declareMarker: 'actMarker', insertMarker: 'actInsert', take: 'actRemove',
+            checkContinue: 'actCheck', checkStop: 'actCheck', print: 'actPrint', reinsert: 'actInsert',
+            newline: 'actEnd', complete: 'actEnd'
+        };
+        byId('operationName').textContent = say(operation[step.action]);
+        const badge = byId('phaseBadge');
+        badge.dataset.phase = step.phase;
+        badge.textContent = say('phase' + step.phase[0].toUpperCase() + step.phase.slice(1));
+        const complete = byId('completionMessage');
+        complete.hidden = step.action !== 'complete';
+        if (!complete.hidden) {
+            const correct = step.main.length === state.initial.length &&
+                step.main.every((item, i) => !item.marker && Object.is(item.value, state.initial[i])) &&
+                step.output.length === state.initial.length &&
+                step.output.every((value, i) => Object.is(value, state.initial[i])) && step.held === null;
+            complete.textContent = correct ? say(state.initial.length ? 'proof' : 'proofEmpty') : say('proofFailed');
+        }
+    }
+
+    function codeLines() {
+        const csharp = state.codeLang === 'cs';
+        const type = state.type === 'int' ? (csharp ? 'int' : 'Integer') :
+            state.type === 'double' ? (csharp ? 'double' : 'Double') : (csharp ? 'char' : 'Character');
+        const valueType = state.type === 'int' ? 'int' : state.type === 'double' ? 'double' : 'char';
+        const marker = markerLiteral();
+        return [
+            csharp ? `public static void PrintByRotation(Queue<${type}> q)` : `public static void printByRotation(Queue<${type}> q)`,
+            '{',
+            `    ${valueType} marker = ${marker};`,
+            '    q.Insert(marker);',
+            `    ${valueType} item = q.Remove();`,
+            '    while (item != marker)',
+            '    {',
+            csharp ? '        Console.Write(item + " ");' : '        System.out.print(item + " ");',
+            '        q.Insert(item);',
+            '        item = q.Remove();',
+            '    }',
+            csharp ? '    Console.WriteLine();' : '    System.out.println();',
+            '}'
+        ];
+    }
+
+    function renderCode(step) {
+        const target = byId('codeLines');
+        target.replaceChildren();
+        codeLines().forEach((line, i) => {
+            const row = document.createElement('div');
+            row.className = 'code-line' + (i + 1 === step.line ? ' active' : '');
+            const num = document.createElement('span');
+            num.className = 'line-no'; num.textContent = String(i + 1);
+            const statement = document.createElement('span');
+            statement.className = 'line-text'; statement.textContent = line;
+            row.append(num, statement);
+            target.appendChild(row);
+        });
+        byId('activeLineText').textContent = say('line', step.line);
+        const active = target.querySelector('.code-line.active');
+        if (active) {
+            const windowElement = byId('codeWindow');
+            const top = active.offsetTop;
+            if (top < windowElement.scrollTop || top + active.offsetHeight > windowElement.scrollTop + windowElement.clientHeight) {
+                windowElement.scrollTop = Math.max(0, top - windowElement.clientHeight / 2);
+            }
+        }
+    }
+
+    function renderAll() {
+        const current = state.steps[state.step];
+        renderVisual(current);
+        renderExplanation(current);
+        renderCode(current);
+        renderButtons();
+    }
+
+    function updateTranslations() {
+        document.documentElement.lang = state.lang;
+        document.documentElement.dir = state.lang === 'he' ? 'rtl' : 'ltr';
+        document.querySelectorAll('[data-i18n]').forEach((node) => node.textContent = say(node.dataset.i18n));
+        for (const [id, key] of [['resetBtn','restart'], ['prevBtn','previous'], ['nextBtn','next']]) {
+            byId(id).title = say(key);
+            byId(id).setAttribute('aria-label', say(key));
+        }
+        byId('insertValue').placeholder = say('insertPlaceholder');
+        renderAll();
+    }
+
+    function applyQueue() {
+        if (state.playing) { return; }
+        const parsed = parseInput(byId('queueInput').value);
+        if (parsed.error) { showError(say(parsed.error)); return; }
+        state.initial = parsed.values;
+        rebuild('parsed');
+        if (!state.initial.length) { statusMessage(say('emptyInput')); }
+    }
+    function atSetup() { return state.step === 0 && !state.playing; }
+    function insertAtBack() {
+        if (!atSetup()) { showError(say('errorSetupOnly')); return; }
+        if (state.initial.length >= MAX_DATA) { showError(say('errorMax')); return; }
+        const text = byId('insertValue').value.trim();
+        if (!text) { showError(say('errorInsert')); byId('insertValue').focus(); return; }
+        const checked = validateOne(text);
+        if (checked.error) { showError(say(checked.error)); return; }
+        state.initial.push(checked.value);
+        byId('insertValue').value = '';
+        rebuild();
+        statusMessage(say('inserted', valueText(checked.value)));
+    }
+    function removeFromFront() {
+        if (!atSetup()) { showError(say('errorSetupOnly')); return; }
+        if (!state.initial.length) { showError(say('errorEmpty')); return; }
+        const value = state.initial.shift();
+        rebuild();
+        statusMessage(say('removed', valueText(value)));
+    }
+
+    // Deterministic mapping: numeric 0 -> A, 1 -> B; char A/a -> 0.
+    function numberToChar(n) { return String.fromCharCode(65 + ((Math.floor(Math.abs(n)) % 26) + 26) % 26); }
+    function charToNumber(ch) { return ch.toUpperCase().charCodeAt(0) - 65; }
+    function convertValue(value, oldType, newType) {
+        if (newType === oldType) { return value; }
+        if (newType === 'char') { return numberToChar(Number(value)); }
+        if (oldType === 'char') { return charToNumber(value); }
+        if (newType === 'int') { return Math.floor(Number(value)); }
+        return Number(value);
+    }
+    function changeType(type) {
+        if (state.playing) { byId('dataType').value = state.type; return; }
+        const oldType = state.type;
+        if (oldType === type) { return; }
+        state.initial = state.initial.map((v) => convertValue(v, oldType, type));
+        state.type = type;
+        rebuild('changedType');
+    }
+
+    function inspectHead() {
+        const step = state.steps[state.step];
+        const front = step.main[0];
+        statusMessage(front ? say('headValue', valueText(front.value)) : say('headEmpty'));
+        const result = byId('headResult');
+        result.classList.remove('flash'); void result.offsetWidth; result.classList.add('flash');
+        const token = byId('mainItems').querySelector('.token.front');
+        if (token) { token.classList.remove('pulse'); void token.offsetWidth; token.classList.add('pulse'); }
+    }
+    function inspectEmpty() {
+        statusMessage(say('isEmptyValue', String(state.steps[state.step].main.length === 0)));
+        const result = byId('emptyResult');
+        result.classList.remove('flash'); void result.offsetWidth; result.classList.add('flash');
+    }
+
+    async function copyCode() {
+        const code = codeLines().join('\n');
+        try {
+            await navigator.clipboard.writeText(code);
+            const button = byId('copyBtn');
+            button.textContent = say('codeCopied');
+            window.setTimeout(() => button.textContent = say('copyCode'), 1300);
+        } catch (_) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(byId('codeLines'));
+            selection.removeAllRanges(); selection.addRange(range);
+        }
+    }
+
+    byId('uiLang').addEventListener('change', (event) => { state.lang = event.target.value; updateTranslations(); });
+    byId('codeLang').addEventListener('change', (event) => { state.codeLang = event.target.value; renderCode(state.steps[state.step]); });
+    byId('dataType').addEventListener('change', (event) => changeType(event.target.value));
+    byId('applyBtn').addEventListener('click', applyQueue);
+    byId('insertBtn').addEventListener('click', insertAtBack);
+    byId('removeBtn').addEventListener('click', removeFromFront);
+    byId('headBtn').addEventListener('click', inspectHead);
+    byId('emptyBtn').addEventListener('click', inspectEmpty);
+    byId('resetBtn').addEventListener('click', () => rebuild('resetNote'));
+    byId('playBtn').addEventListener('click', playPause);
+    byId('prevBtn').addEventListener('click', () => goToStep(state.step - 1));
+    byId('nextBtn').addEventListener('click', () => goToStep(state.step + 1));
+    byId('stepSlider').addEventListener('input', (event) => goToStep(Number(event.target.value)));
+    byId('speed').addEventListener('change', (event) => {
+        state.interval = Number(event.target.value);
+        if (state.playing) {
+            if (state.timer !== null) { clearTimeout(state.timer); }
+            state.timer = setTimeout(tick, state.interval);
+        }
+    });
+    byId('queueInput').addEventListener('input', () => showError());
+    byId('insertValue').addEventListener('input', () => showError());
+    byId('queueInput').addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); applyQueue(); } });
+    byId('insertValue').addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); insertAtBack(); } });
+    byId('copyBtn').addEventListener('click', copyCode);
+
+    rebuild();
+    updateTranslations();
+})();
+
+    </script>
+</body>
+</html>
