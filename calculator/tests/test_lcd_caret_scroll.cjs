@@ -2,6 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 require('../js/lcd-viewport.js');
+require('../js/display.js');
 const lcd=require('../js/lcd-enhanced.js');
 const templates={
  fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
