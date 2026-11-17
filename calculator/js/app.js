@@ -2684,6 +2684,13 @@ document.addEventListener('keydown',keyboard);
 document.addEventListener('visibilitychange',()=>{if(state.power)checkInactivity()});
 markOperation();
 paint();
+// CAL-009: the initial bitmap frame is safe while the bundled LCD font
+// loads. Repaint the current state once that exact typeface is available.
+if(document.fonts&&typeof document.fonts.load==='function'&&LCD.lcdFontRequest){
+ document.fonts.load(LCD.lcdFontRequest).then(fonts=>{
+  if(fonts.length&&LCD.fontReady())paint();
+ }).catch(()=>{/* Keep the authentic, stable fallback if font loading fails. */});
+}
 window.FreshCalculator=Object.freeze({press,runChecks,loadExpression,
  legendInventory:(options)=>LEGENDS.inventory(K,MODELS,options),
  legendStatus:(key,modifier='normal',mode=state.mode,screen=state.screen,model=state.model)=>{
