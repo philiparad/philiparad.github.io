@@ -56,8 +56,13 @@ class CrossEngineComparatorTests(unittest.TestCase):
                 capture_output=True, text=True, timeout=40
             )
             self.assertEqual(invalid.returncode, 1, invalid.stderr + invalid.stdout)
+            self.assertIn("Blank or nearly blank LCD frame", invalid.stdout,
+                          "comparator must report the actual image failure")
             report = json.loads((root / "report.json").read_text())
             self.assertEqual(report["passed_pairs"], 31)
+            self.assertIn("Blank or nearly blank LCD frame",
+                          (root / "index.html").read_text(),
+                          "failure gallery must remain readable")
 
 
 if __name__ == "__main__":
