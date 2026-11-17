@@ -78,8 +78,8 @@ for(const type of ['fraction','integral','summation']){
   const verticalCanvas=fakeCanvas();
   lcd.draw(verticalCanvas,state(root,editor.path,editor.offset));
   const anchor=verticalCanvas.moves.at(-1);
-  assert.ok(anchor.y-5.5>=2.0&&anchor.y+1.2<=29.6,
-   'field '+type+'/'+field+' caret stroke must fit within LCD');
+  assert.ok(anchor.y>=2.0&&anchor.y+6.7<=29.6,
+   'field '+type+'/'+field+' caret stroke must fit within LCD: '+JSON.stringify(anchor));
   passed++;
  }
 }
