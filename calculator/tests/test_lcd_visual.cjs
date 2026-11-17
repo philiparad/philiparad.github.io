@@ -164,12 +164,26 @@ const cases=[
       editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null};
      Object.assign(state,options.extra||{});
-     const mode=window.FreshEnhancedLCD.draw(canvas,state);
+     // CAL-006: Canvas must not receive fillText's compression argument.
+     const prototype=CanvasRenderingContext2D.prototype;
+     const original=prototype.fillText;
+     let paintedGlyphs=0,compressedGlyphs=0,mode;
+     prototype.fillText=function(...args){
+      paintedGlyphs++;
+      if(args.length>3)compressedGlyphs++;
+      return original.apply(this,args);
+     };
+     try{mode=window.FreshEnhancedLCD.draw(canvas,state)}
+     finally{prototype.fillText=original}
      const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
      let ink=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]<160)ink++;
-     return {mode,ink};
+     return {mode,ink,paintedGlyphs,compressedGlyphs};
     },{nodes,screen,result,chosen,options});
     if(info.mode!=='enhanced'||info.ink<20)throw Error('Missing enhanced drawing for '+label+' DPR '+dpr);
+    if(info.compressedGlyphs!==0)
+     throw Error('CAL-006: horizontally compressed LCD glyphs in '+label+' DPR '+dpr);
+    if(info.paintedGlyphs===0)
+     throw Error('CAL-006: no Canvas text painted in '+label+' DPR '+dpr);
     const filename=label+'-enhanced-dpr-'+String(dpr).replace('.','_')+'.png';
     await page.locator('#lcd').screenshot({path:path.join(output,filename)});
     const enhancedPng=await verifyPNG(path.join(output,filename),dpr);
