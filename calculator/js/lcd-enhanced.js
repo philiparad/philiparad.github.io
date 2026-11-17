@@ -133,6 +133,67 @@ function followCaret(scroll,caretX,contentWidth,viewWidth=VIEW_W){
  else if(caretX>safeRight)next+=caretX-safeRight;
  return Math.max(0,Math.min(maxScroll,next));
 }
+// CAL-018: resolve caret in measured, nested Canvas coordinates before painting.
+function locateCaret(ctx,nodes,editor,x=0,y=0,depth=0,trail=[]){
+ if(depth>24||!Array.isArray(nodes)||!editor)return null;
+ const path=Array.isArray(editor.path)?editor.path:[];
+ const active=trail.length===path.length&&
+  trail.every((step,i)=>step.index===path[i].index&&step.field===path[i].field);
+ if(active&&Number(editor.offset)===0)return {x,y};
+ for(let i=0;i<nodes.length;i++){
+  const node=nodes[i],b=measure(node,depth,ctx),p=b.fields||{};
+  if(path.length>trail.length&&path[trail.length]?.index===i&&
+     FIELDS[node?.type]&&node.parts){
+   const fieldName=path[trail.length].field;
+   const seek=(name,fx,fy)=>fieldName===name?
+    locateCaret(ctx,node.parts[name],editor,fx,fy,depth+1,
+     [...trail,{index:i,field:name}]):null;
+   let found=null;
+   switch(b.kind){
+    case 'fraction':{
+     const span=b.width;
+     found=seek('numerator',x+(span-p.numerator.width)/2,y-4-p.numerator.descent)||
+      seek('denominator',x+(span-p.denominator.width)/2,y+4+p.denominator.ascent);break;
+    }
+    case 'mixed':{
+     const xx=x+p.integer.width+2,span=b.width-p.integer.width-2;
+     found=seek('integer',x,y)||
+      seek('numerator',xx+(span-p.numerator.width)/2,y-4-p.numerator.descent)||
+      seek('denominator',xx+(span-p.denominator.width)/2,y+4+p.denominator.ascent);break;
+    }
+    case 'squareRoot':case 'cubeRoot':case 'nthRoot':{
+     const left=b.width-p.radicand.width-1,top=y-b.ascent+1.1;
+     found=(b.kind==='nthRoot'?seek('index',x,top+p.index.ascent+.5):null)||
+      seek('radicand',x+left,y);break;
+    }
+    case 'power':found=seek('exponent',x,y-5.4);break;
+    case 'exp10':found=seek('exponent',x+13,y-5.4);break;
+    case 'recurring':found=seek('period',x,y);break;
+    case 'logBase':found=seek('base',x+11,y+3.8)||
+      seek('argument',x+14+p.base.width,y);break;
+    case 'derivative':found=seek('expression',x+17,y)||
+      seek('at',x+19+p.expression.width,y+7);break;
+    case 'integral':case 'summation':{
+     const wide=Math.max(9,Math.max(p.lower.width,p.upper.width)+3);
+     found=seek('upper',x+(wide-p.upper.width)/2,y-12)||
+      seek('lower',x+(wide-p.lower.width)/2,y+12)||
+      seek('expression',x+wide+3,y);break;
+    }
+   }
+   if(found)return found;
+  }
+  x+=b.width;
+  if(active&&Number(editor.offset)===i+1)return {x,y};
+ }
+ return null;
+}
+function followCaretVertical(baseline,caretY,top=2.2,bottom=29.2){
+ const safeTop=top+5.8,safeBottom=bottom-1.5;
+ const screenY=baseline+caretY;
+ if(screenY<safeTop)return baseline+safeTop-screenY;
+ if(screenY>safeBottom)return baseline+safeBottom-screenY;
+ return baseline;
+}
 // Keep enhanced symbols identical in ink shade to the legacy LCD at every
 // CONTRAST level. Different palettes make vector glyphs look washed out
 // against surrounding bitmap mode indicators and text.
@@ -474,35 +535,26 @@ function draw(canvas,state){
  // No safe mapping: keep the bitmap path rather than corrupting cursor
  // coordinates. This case should only occur with malformed expressions.
  if(mappedScroll===null){ctx.restore();legacy.draw(canvas,state);return 'authentic'}
- let effectiveScroll=mappedScroll;
- let x=-effectiveScroll;
  const topGuard=2.2,bottomGuard=state.screen==='result'?15.3:state.info?22.2:29.2;
- // Center the complete expression if possible; honor vertical panning only
- // when the measured content genuinely exceeds the available display area.
  const preferred=state.screen==='result'?7.5:Math.max(box.ascent+1,11);
  const fits=box.ascent+box.descent<=bottomGuard-topGuard;
- const baseline=fits?Math.min(bottomGuard-box.descent,
+ let baseline=fits?Math.min(bottomGuard-box.descent,
   Math.max(topGuard+box.ascent,preferred)):
   preferred-Number(state.viewport?.inputY||0);
- let carets=[];
+ let effectiveScroll=mappedScroll;
+ const relativeCaret=state.screen==='edit'&&state.editor?
+  locateCaret(ctx,state.editor.root,state.editor):null;
+ if(relativeCaret&&!state.viewport?.manualPan){
+  effectiveScroll=followCaret(effectiveScroll,
+   relativeCaret.x-effectiveScroll,box.width);
+  if(!fits)baseline=followCaretVertical(baseline,relativeCaret.y,
+   topGuard,bottomGuard);
+ }
+ // A single draw pass now suffices; no speculative paint/clear/second draw.
+ const x=-effectiveScroll,carets=[];
  drawSequence(ctx,state.editor.root,x,baseline,state,0,[],carets);
- if(state.screen==='edit'&&!state.viewport?.manualPan&&carets.length){
-  // First pass supplies the *actual* nested caret coordinates using measured
-  // glyph widths. A second pass is needed only if the caret lies outside
-  // the safe LCD viewport and must follow it back into view.
-  const desired=followCaret(effectiveScroll,carets[0][0],box.width);
-  if(Math.abs(desired-effectiveScroll)>0.01){
-   effectiveScroll=desired;x=-effectiveScroll;
-   ctx.fillStyle='rgb(215,230,215)';
-   ctx.fillRect(0,yTop,VIEW_W,yBottom-yTop);
-   ctx.fillStyle=ink(ctx,state);
-   carets=[];
-   drawSequence(ctx,state.editor.root,x,baseline,state,0,[],carets);
-  }
- }
- if(state.screen==='edit')for(const [cx,cy] of carets){
+ if(state.screen==='edit')for(const [cx,cy] of carets)
   path(ctx,[[cx,cy-5.5],[cx,cy+1.2]]);
- }
  // Legacy overflow arrows would otherwise disappear when the vector layer
  // clears the old bitmap. Keep them visible as separate narrow edge cues.
  const cueY=state.screen==='result'?14:state.info?20:27;
@@ -512,7 +564,7 @@ function draw(canvas,state){
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
 }
-const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,ink,drawTextLayer,fontReady,lcdFontRequest:LCD_FONT_REQUEST,legacy});
+const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,followCaretVertical,locateCaret,resultModel,ink,drawTextLayer,fontReady,lcdFontRequest:LCD_FONT_REQUEST,legacy});
 global.FreshEnhancedLCD=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
