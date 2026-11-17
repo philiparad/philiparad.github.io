@@ -2400,45 +2400,74 @@ function handle(key){
 const Teaching=window.FreshTeachingTools;
 if(!Teaching)throw Error('Missing view-only KeyLog/capture module');
 const keylogView={selected:new Set(),anchor:-1,size:19};
+// PERF-009: track rendered entry references, preserving DOM nodes across
+// appended logs and the 300-entry sliding window.
+let keylogRendered=[];
 function keylogSelectionClear(){keylogView.selected.clear();keylogView.anchor=-1}
+function makeKeylogEntry(entry,index){
+ const item=Teaching.formattedEntries([entry])[0];
+ const li=document.createElement('li');
+ const button=document.createElement('button');
+ button.type='button';button.className='keylog-entry';
+ button.textContent=item.display;
+ button.addEventListener('click',event=>{
+  // Read the current index: it changes when the oldest log entry is evicted.
+  const index=Number(button.dataset.index);
+  if(event.shiftKey&&keylogView.anchor>=0){
+   if(!event.ctrlKey&&!event.metaKey)keylogView.selected.clear();
+   const from=Math.min(keylogView.anchor,index),to=Math.max(keylogView.anchor,index);
+   for(let i=from;i<=to;i++)keylogView.selected.add(i);
+  }else if(event.ctrlKey||event.metaKey){
+   if(keylogView.selected.has(index))keylogView.selected.delete(index);
+   else keylogView.selected.add(index);
+   keylogView.anchor=index;
+  }else{
+   keylogView.selected.clear();keylogView.selected.add(index);
+   keylogView.anchor=index;
+  }
+  renderKeylog();
+ });
+ li.append(button);
+ updateKeylogEntry(li,index);
+ return li;
+}
+function updateKeylogEntry(li,index){
+ li.dataset.index=String(index);
+ const button=li.firstElementChild;
+ button.dataset.index=String(index);
+ button.setAttribute('aria-pressed',String(keylogView.selected.has(index)));
+ button.setAttribute('aria-label','Select key '+(index+1)+': '+button.textContent);
+}
 function renderKeylog(){
- const list=$('keylog-list');list.textContent='';
- const formatted=Teaching.formattedEntries(state.keylog);
- const fragment=document.createDocumentFragment();
- for(const item of formatted){
-  const li=document.createElement('li');
-  li.dataset.index=String(item.index);
-  const button=document.createElement('button');
-  button.type='button';button.className='keylog-entry';
-  button.dataset.index=String(item.index);
-  button.textContent=item.display;
-  button.setAttribute('aria-pressed',String(keylogView.selected.has(item.index)));
-  button.setAttribute('aria-label','Select key '+(item.index+1)+': '+item.display);
-  button.addEventListener('click',event=>{
-   if(event.shiftKey&&keylogView.anchor>=0){
-    if(!event.ctrlKey&&!event.metaKey)keylogView.selected.clear();
-    const from=Math.min(keylogView.anchor,item.index),to=Math.max(keylogView.anchor,item.index);
-    for(let i=from;i<=to;i++)keylogView.selected.add(i);
-   }else if(event.ctrlKey||event.metaKey){
-    if(keylogView.selected.has(item.index))keylogView.selected.delete(item.index);
-    else keylogView.selected.add(item.index);
-    keylogView.anchor=item.index;
-   }else{
-    keylogView.selected.clear();keylogView.selected.add(item.index);
-    keylogView.anchor=item.index;
+ const list=$('keylog-list'),entries=state.keylog;
+ // Detect a common suffix/prefix overlap by entry identity. For a bounded
+ // log, shifting the oldest entry keeps all subsequent DOM elements intact.
+ let removed=0;
+ if(keylogRendered.length&&entries.length){
+  const at=keylogRendered.indexOf(entries[0]);
+  if(at>=0){
+   let matches=true;
+   for(let i=0;i<Math.min(keylogRendered.length-at,entries.length);i++){
+    if(keylogRendered[at+i]!==entries[i]){matches=false;break}
    }
-   renderKeylog();
-  });
-  li.append(button);fragment.append(li);
+   removed=matches?at:keylogRendered.length;
+  }else removed=keylogRendered.length;
+ }else if(!entries.length)removed=keylogRendered.length;
+ // A completely different log requires rebuilding from scratch.
+ for(let i=0;i<removed;i++)list.firstElementChild?.remove();
+ let retained=keylogRendered.length-removed;
+ if(retained>entries.length){
+  while(retained>entries.length){list.lastElementChild?.remove();retained--}
  }
+ for(let i=0;i<retained;i++)updateKeylogEntry(list.children[i],i);
+ const fragment=document.createDocumentFragment();
+ for(let i=retained;i<entries.length;i++)
+  fragment.append(makeKeylogEntry(entries[i],i));
  list.append(fragment);
+ keylogRendered=entries.slice();
  list.style.setProperty('--keylog-size',keylogView.size+'px');
- for(const i of keylogView.selected){
-  const b=list.querySelector('button[data-index="'+i+'"]');
-  if(b)b.setAttribute('aria-pressed','true');
- }
  $('keylog-count').textContent=(state.recording?'Recording on':'Recording off')+
-  ' — '+state.keylog.length+' / '+maxEntries+' entries · '+keylogView.selected.size+' selected';
+  ' — '+entries.length+' / '+maxEntries+' entries · '+keylogView.selected.size+' selected';
  $('record-keylog').textContent=state.recording?'Stop recording':'Start recording';
 }
 function selectedKeyTrace(){
