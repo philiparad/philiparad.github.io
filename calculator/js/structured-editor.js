@@ -11,9 +11,21 @@ const FIELDS={fraction:['numerator','denominator'],
  summation:['expression','lower','upper']};
 function create(){return {root:[],path:[],offset:0,version:1,undoStack:[]}}
 const MAX_UNDO=40;
+// PERF-008: clone only the editor's plain expression-tree data, directly.
+// No JSON stringify/parse allocation; every stored node remains isolated
+// from subsequent in-place edits and from earlier undo snapshots.
+function copyExpression(value){
+ if(Array.isArray(value))return value.map(copyExpression);
+ if(value!==null&&typeof value==='object'){
+  const copy={};
+  for(const key of Object.keys(value))copy[key]=copyExpression(value[key]);
+  return copy;
+ }
+ return value;
+}
 function snapshot(editor){
  if(!Array.isArray(editor.undoStack))editor.undoStack=[];
- editor.undoStack.push({root:JSON.parse(JSON.stringify(editor.root)),
+ editor.undoStack.push({root:copyExpression(editor.root),
   path:editor.path.map(step=>({...step})),offset:editor.offset});
  if(editor.undoStack.length>MAX_UNDO)editor.undoStack.shift();
 }
