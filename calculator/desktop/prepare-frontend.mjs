@@ -1,6 +1,6 @@
 // Copy the calculator's production assets into an isolated offline Tauri frontend.
 // Never include desktop source, Rust build artifacts, tests or archival files.
-import { cp, mkdir, readdir, rm, stat } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,6 +41,19 @@ async function stage(directory) {
   }
 }
 await stage(calculator);
+// CAL-009: Windows must ship the *same* repository-owned LCD font as the web
+// build. Rewrite the web-relative URL so it resolves inside Tauri's dist/.
+const fontName = 'Roboto-Medium-webfont.woff';
+const fontSource = resolve(calculator, '..', 'fonts', fontName);
+const fontFolder = join(destination, 'fonts');
+await mkdir(fontFolder, { recursive: true });
+await cp(fontSource, join(fontFolder, fontName));
+const cssFile = join(destination, 'styles.css');
+const css = await readFile(cssFile, 'utf8');
+const webFontURL = '../fonts/' + fontName;
+if (!css.includes(webFontURL)) throw Error('CAL-009 missing LCD @font-face source');
+await writeFile(cssFile, css.replaceAll(webFontURL, './fonts/' + fontName), 'utf8');
+copied += 1;
 for (const required of ['index.html', 'styles.css', 'js/url-mode.js', 'js/app.js']) {
   await stat(join(destination, required));
 }
