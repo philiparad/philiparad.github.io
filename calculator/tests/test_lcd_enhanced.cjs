@@ -439,6 +439,21 @@ for(const notation of [
   'inverse menu digits remain available for vector painting');
  assert.equal(at(menuGeometry,2,8),1,
   'dark inverse-menu background survives the bitmap-text omission');
+ const priorTable=globalThis.FreshTable;
+ try{
+  globalThis.FreshTable={format:value=>String(value),
+   active:table=>table.rows[table.row].f};
+  const table=state([],{screen:'table-grid',tableData:{
+   columns:['X','F'],dual:false,
+   rows:[{x:1,f:2},{x:3,f:4}],row:0,col:0
+  }});
+  const grid=legacy.rasterize(table,{textRuns:[],vectorText:true});
+  assert.equal(at(grid,0,28),1,
+   'selected TABLE-cell underline is preserved when letters are vectorized');
+ }finally{
+  if(priorTable===undefined)delete globalThis.FreshTable;
+  else globalThis.FreshTable=priorTable;
+ }
  const canvas=makeCanvas(),ctx=canvas.getContext(),drawn=[];
  let cleared=0;
  ctx.fillRect=()=>{cleared++};
@@ -455,7 +470,7 @@ for(const notation of [
  assert.ok(bitmap,'enhanced LCD produces a complete background raster');
  // x=0,y=8 legacy cursor pixel must remain ink after the bitmap pass.
  assert.ok(bitmap[((16*5)*960)*4]<100,'cursor survives at physical resolution');
- tested+=11;
+ tested+=12;
 }
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
