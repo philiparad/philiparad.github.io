@@ -776,20 +776,26 @@ function draw(canvas,state,collect=null){
  const paper=[215,230,215];
  const cached=rgbaCache.get(canvas);
  const inkCode=ink.join(',');
- if(cached&&cached.ctx===ctx&&cached.width===w&&cached.height===h&&
-    cached.inkCode===inkCode&&cached.pixels.length===pixels.length){
-  let unchanged=true;
-  for(let i=0;i<pixels.length;i++)if(cached.pixels[i]!==pixels[i]){
-   unchanged=false;break;
+ const reuse=!!cached&&cached.ctx===ctx&&cached.width===w&&
+  cached.height===h&&cached.pixels.length===pixels.length;
+ if(reuse&&cached.inkCode===inkCode){
+  // Update only changed 5x5 LCD blocks (typically cursor movement).
+  const data=cached.image.data;
+  for(let i=0;i<pixels.length;i++){
+   if(cached.pixels[i]===pixels[i])continue;
+   cached.pixels[i]=pixels[i];
+   const y=Math.floor(i/HI_W),x=i-y*HI_W,color=pixels[i]?ink:paper;
+   for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){
+    const offset=(((y*scale+dy)*w)+(x*scale+dx))*4;
+    data[offset]=color[0];data[offset+1]=color[1];
+    data[offset+2]=color[2];data[offset+3]=255;
+   }
   }
-  if(unchanged){
-   // Repaint from the clean cached base, not the previous vector frame.
-   ctx.putImageData(cached.image,0,0);
-   return;
-  }
+  // Always restore the clean background before painting vector text.
+  ctx.putImageData(cached.image,0,0);
+  return;
  }
- const img=cached&&cached.ctx===ctx&&cached.width===w&&cached.height===h?
-  cached.image:ctx.createImageData(w,h);
+ const img=reuse?cached.image:ctx.createImageData(w,h);
  for(let y=0;y<HI_H;y++)for(let x=0;x<HI_W;x++){
   const color=pixels[y*HI_W+x]?ink:paper;
   for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){
@@ -798,7 +804,7 @@ function draw(canvas,state,collect=null){
    img.data[i+2]=color[2];img.data[i+3]=255;
   }
  }
- rgbaCache.set(canvas,{ctx,width:w,height:h,inkCode,image:img,pixels:pixels.slice()});
+ rgbaCache.set(canvas,{ctx,width:w,height:h,inkCode,image:img,pixels:reuse?(cached.pixels.set(pixels),cached.pixels):pixels.slice()});
  ctx.putImageData(img,0,0)
 }
 const API=Object.freeze({width:HI_W,height:HI_H,layoutWidth:W,layoutHeight:H,fontWidth:7,fontHeight:11,rasterize,getTextRuns,draw,FONT,highFont:HI_FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
