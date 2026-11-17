@@ -41,6 +41,11 @@ async function stage(directory) {
   }
 }
 await stage(calculator);
+// CAL-012: identical fixture is loaded inside Windows WebView2 and Chromium.
+// Keep it a test-only staged asset; it never replaces the calculator page.
+await cp(join(desktop, 'visual-acceptance', 'fixture.html'),
+  join(destination, 'visual-fixture.html'));
+copied += 1;
 // CAL-009: Windows must ship the *same* repository-owned LCD font as the web
 // build. Rewrite the web-relative URL so it resolves inside Tauri's dist/.
 const fontName = 'Roboto-Medium-webfont.woff';
