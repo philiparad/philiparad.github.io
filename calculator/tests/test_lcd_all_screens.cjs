@@ -106,7 +106,10 @@ for(const [label,override] of scenarios){
  assert.ok(vector.length>=wanted.length,
   label+' should repaint every glyph with vector text ('+
   vector.length+'/'+wanted.length+')');
- assert.ok(vector.every(op=>op.maxWidth===3.65),label+' fixed cell width');
+ assert.ok(vector.every(op=>op.maxWidth===undefined),
+  label+' must render natural-width glyphs without horizontal compression');
+ assert.ok(vector.every(op=>Number.isFinite(op.x)&&Number.isFinite(op.y)),
+  label+' must preserve finite character positions');
  assert.ok(target.operations.some(op=>op.type==='raster'),label+' original geometry retained');
  if(label==='menu-mode'){
   const inverse=legacyRuns.filter(g=>g.inverse);
