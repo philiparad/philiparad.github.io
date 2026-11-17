@@ -293,7 +293,7 @@ for(const item of [
  const viewport={inputX:48,inputY:0,manualPan:true};
  const ed={root,path:[],offset:0};
  assert.equal(lcd.draw(manuallyPanned,state(root,{editor:ed,viewport})),'enhanced');
- const first=glyphs.find(g=>g.value==='8');
+ const first=glyphs.findLast(g=>g.value==='8');
  assert.ok(first&&Math.abs(first.x+lcd.scrollOffset(root,48,ctx))<0.0001,
   'manual pan retains its requested viewport offset');
  assert.equal(viewport.manualPan,true,'rendering does not mutate user pan state');
