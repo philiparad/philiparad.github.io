@@ -40,7 +40,7 @@ assert.equal(surface.operations.allocations,1);
 assert.equal(surface.operations.uploads,1);
 const image1=surface.operations.history.at(-1);
 // Text-only change: bitmap letters intentionally absent in vector mode.
-const second=state({input:'8888',cursor:4});
+const second=state({input:'8888',cursor:3});
 const runs2={textRuns:[],vectorText:true};
 lcd.draw(surface,second,runs2);
 assert.equal(surface.operations.allocations,1,'same canvas reuses RGBA allocation');
