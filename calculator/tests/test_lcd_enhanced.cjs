@@ -384,7 +384,7 @@ for(const notation of [
  let measures=0;
  ctx.measureText=value=>{
   measures++;
-  const size=Number(/([\\d.]+)px/.exec(ctx.font||'')?.[1]||6.15);
+  const size=Number(/([0-9.]+)px/.exec(ctx.font||'')?.[1]||6.15);
   const width=String(value)==='W'?5.2:3.0;
   return {width:width*size/6.15};
  };
@@ -400,8 +400,8 @@ for(const notation of [
  assert.ok(painted.every(p=>p.args.length===3),
   'text must never use fillText maxWidth compression');
  const [wide,narrow,inverse]=painted;
- const wideSize=Number(/([\\d.]+)px/.exec(wide.font)[1]);
- const narrowSize=Number(/([\\d.]+)px/.exec(narrow.font)[1]);
+ const wideSize=Number(/([0-9.]+)px/.exec(wide.font)[1]);
+ const narrowSize=Number(/([0-9.]+)px/.exec(narrow.font)[1]);
  assert.ok(wideSize<narrowSize&&narrowSize===6.15,
   'wide glyph fits by proportional font sizing, not horizontal stretching');
  assert.ok(wide.args[1]>=0&&wide.args[1]<4,
