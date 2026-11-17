@@ -61,10 +61,21 @@ internal sealed class CaptureWindow : Form
 
     private async Task<JsonElement> Evaluate(string javascript)
     {
-        var reply = await webview.CoreWebView2.ExecuteScriptAsync(javascript)
-            .WaitAsync(TimeSpan.FromSeconds(20));
+        // ExecuteScriptAsync may serialize a pending Promise as null.
+        // The LCD fixture awaits document.fonts.load(), so use CDP's
+        // awaitPromise rather than observing a still-pending result.
+        var reply = await webview.CoreWebView2.CallDevToolsProtocolMethodAsync(
+            "Runtime.evaluate",
+            JsonSerializer.Serialize(new {
+                expression = javascript, awaitPromise = true, returnByValue = true
+            })).WaitAsync(TimeSpan.FromSeconds(20));
         using var json = JsonDocument.Parse(reply);
-        return json.RootElement.Clone();
+        if (json.RootElement.TryGetProperty("exceptionDetails", out var exception))
+            throw new InvalidOperationException("WebView2 JS exception: " + exception.GetRawText());
+        if (!json.RootElement.TryGetProperty("result", out var result) ||
+            !result.TryGetProperty("value", out var value))
+            throw new InvalidOperationException("WebView2 JS returned no value: " + reply);
+        return value.Clone();
     }
 
     private async Task CaptureAll()
