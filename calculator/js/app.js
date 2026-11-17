@@ -43,38 +43,57 @@ const state={power:true,model:initialModel,mode:'COMP',editor:STRUCT.create(),vi
  matrices:MATRIX.store(),matrixEditor:null,matrixView:null,matrixParameter:null,matrixCopySource:null,vectors:VECTOR.store(),vectorEditor:null,vectorView:null,vectorParameter:null,vectorScalarInfo:null,vectorCopySource:null,statTable:null,tableData:null,tableDraft:null,constantCode:null,conversionCode:null,eqnSession:null,eqnEditor:null,baseRadix:'DEC',baseValue:0,insert:true,error:'',errorOffset:null,errorSource:'',info:'',menu:[],menuTitle:'',menuEntries:[],menuPage:0,flow:null,outputLines:[],outputPage:0,decimal:false,recording:false,keylog:[],storedInputs:[],replayDraft:null,batterySimulation:'normal',powerOffReason:null};
 // REA-068: numerical calculations run away from the UI thread.
 let numericJob=null;
+// PERF-003: retain the worker after normal completion and reuse it for subsequent jobs.
+// An actively running worker is still terminated on cancellation/timeout because a
+// CPU-bound synchronous computation cannot be interrupted by a new postMessage.
+let numericWorker=null;
+let numericRequestId=0;
 // A resolved worker promise may queue a UI callback before AC/MODE cancels it.
 // Invalidate those callbacks too, even when the Worker has already finished.
 let numericGeneration=0;
 const NUMERIC_WALL_MS=6000;
+function discardNumericWorker(worker){
+ if(!worker)return;
+ if(numericWorker===worker)numericWorker=null;
+ worker.onmessage=null;worker.onerror=null;
+ worker.terminate();
+}
 function cancelNumeric(){
  numericGeneration++;
  if(!numericJob)return false;
  const job=numericJob;numericJob=null;
- clearTimeout(job.timer);job.worker.terminate();
+ clearTimeout(job.timer);discardNumericWorker(job.worker);
  job.reject(Error('Cancelled'));return true;
 }
 function runNumeric(kind,data){
  if(typeof Worker!=='function')return Promise.reject(Error('Worker unavailable'));
  cancelNumeric();
  return new Promise((resolve,reject)=>{
-  const worker=new Worker('js/numeric-worker.js');
-  const job={worker,reject,timer:null};numericJob=job;
-  const finish=(err,value)=>{
+  let worker=numericWorker;
+  if(!worker){
+   try{worker=new Worker('js/numeric-worker.js');numericWorker=worker}
+   catch(e){reject(Error('Worker unavailable'));return}
+  }
+  const id=++numericRequestId;
+  const job={worker,id,reject,timer:null};numericJob=job;
+  const finish=(err,value,discard=false)=>{
    if(numericJob!==job)return;
-   numericJob=null;clearTimeout(job.timer);worker.terminate();
+   numericJob=null;clearTimeout(job.timer);
+   if(discard)discardNumericWorker(worker);
    if(err)reject(Error(err));else resolve(value);
   };
   worker.onmessage=e=>{
    const result=e.data||{};
+   // Ignore late responses from older requests on a reused worker.
+   if(result.id!==id)return;
    if(result.ok)finish(null,result);else finish(result.error||'Math ERROR');
   };
-  worker.onerror=()=>finish('Math ERROR');
-  job.timer=setTimeout(()=>finish('Time Out'),NUMERIC_WALL_MS);
-  try{worker.postMessage({id:1,task:{kind,data,settings:{
+  worker.onerror=()=>finish('Math ERROR',null,true);
+  job.timer=setTimeout(()=>finish('Time Out',null,true),NUMERIC_WALL_MS);
+  try{worker.postMessage({id,task:{kind,data,settings:{
    model:state.model,angle:state.angle,format:state.format,digits:state.digits,math:state.math,
    ans:state.ans,preAns:state.preAns,memory:{...state.memory,...(data.memory||{})}
-  }}})}catch(e){finish('Argument ERROR')}
+  }}})}catch(e){finish('Argument ERROR',null,true)}
  });
 }
 const registerAllowed=name=>MODELS.hasRegister(state.model,name);
