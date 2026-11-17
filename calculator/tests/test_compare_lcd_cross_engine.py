@@ -23,7 +23,7 @@ class CrossEngineComparatorTests(unittest.TestCase):
             for factor in FACTORS:
                 for case in CASES:
                     filename = case + "-dpr-" + str(factor).replace(".", "_") + ".png"
-                    width, height = round(496 * factor), round(171 * factor)
+                    width, height = round(480 * factor), round(155 * factor)
                     frame = Image.new("RGB", (width, height), (215, 230, 215))
                     brush = ImageDraw.Draw(frame)
                     edge = round(8 * factor)
