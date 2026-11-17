@@ -11,6 +11,11 @@ const FIELDS={fraction:['numerator','denominator'],
  summation:['expression','lower','upper']};
 function create(){return {root:[],path:[],offset:0,version:1,undoStack:[]}}
 const MAX_UNDO=40;
+// PERF-012: cache calculation/display serialization until an editor mutation.
+// WeakMap avoids expanding snapshots and automatically releases old editors.
+const serializationCache=new WeakMap();
+function invalidateSerialization(editor){serializationCache.delete(editor)}
+
 // PERF-008: clone only the editor's plain expression-tree data, directly.
 // No JSON stringify/parse allocation; every stored node remains isolated
 // from subsequent in-place edits and from earlier undo snapshots.
@@ -24,6 +29,7 @@ function copyExpression(value){
  return value;
 }
 function snapshot(editor){
+ invalidateSerialization(editor);
  if(!Array.isArray(editor.undoStack))editor.undoStack=[];
  editor.undoStack.push({root:copyExpression(editor.root),
   path:editor.path.map(step=>({...step})),offset:editor.offset});
@@ -32,6 +38,7 @@ function snapshot(editor){
 function undo(editor){
  if(!editor.undoStack?.length)return false;
  const prior=editor.undoStack.pop();
+ invalidateSerialization(editor);
  editor.root=prior.root;editor.path=prior.path;editor.offset=prior.offset;
  return true;
 }
@@ -76,7 +83,20 @@ function nodeText(node,strict){
  }
  throw Error('Unknown expression node '+node.type);
 }
-function serialize(editor,strict=false){return editor.root.map(node=>nodeText(node,strict)).join('')}
+function serialize(editor,strict=false){
+ let entry=serializationCache.get(editor);
+ if(!entry||entry.root!==editor.root){
+  entry={root:editor.root,values:[null,null]};
+  serializationCache.set(editor,entry);
+ }
+ const index=strict?1:0;
+ if(entry.values[index]!==null)return entry.values[index];
+ // Strict serialization may throw for incomplete templates: never cache
+ // an exception or substitute the lenient display representation.
+ const value=editor.root.map(node=>nodeText(node,strict)).join('');
+ entry.values[index]=value;
+ return value;
+}
 function insert(editor,text,overwrite=false){
  if(!text)return;
  const seq=locate(editor);
