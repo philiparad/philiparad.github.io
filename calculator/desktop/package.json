@@ -7,9 +7,12 @@
     "icons": "tauri icon icon.svg -o src-tauri/icons",
     "dev": "npm run prepare && npm run icons && tauri dev",
     "build": "npm run prepare && npm run icons && tauri build",
-    "check": "npm run prepare && node --check ../js/url-mode.js && node --check ../js/app.js && node --check ../js/lcd-enhanced.js && node ../tests/test_lcd_symbols.cjs && node ../tests/test_lcd_enhanced.cjs && node ../tests/test_faceplate.cjs && node ../tests/test_lcd_all_screens.cjs && node ../tests/test_lcd_performance.cjs && node ../tests/test_lcd_caret_scroll.cjs",
+    "check": "npm run prepare && npm run check:desktop && node --check ../js/url-mode.js && node --check ../js/app.js && node --check ../js/lcd-enhanced.js && node ../tests/test_lcd_symbols.cjs && node ../tests/test_lcd_enhanced.cjs && node ../tests/test_faceplate.cjs && node ../tests/test_lcd_all_screens.cjs && node ../tests/test_lcd_performance.cjs && node ../tests/test_lcd_caret_scroll.cjs && npm run check:math && npm run check:lock",
     "prepare": "node prepare-frontend.mjs",
-    "test:lcd-visual": "node ../tests/test_lcd_visual.cjs"
+    "test:lcd-visual": "node ../tests/test_lcd_visual.cjs",
+    "check:desktop": "node check-production.mjs",
+    "check:math": "node ../tests/plus001-single-model.cjs && node ../tests/plus017-precision-boundaries.cjs && node ../tests/plus019-base-n-contract.cjs && node ../tests/plus020-cmplx-contract.cjs && node ../tests/plus026-full-key-matrix.cjs && node ../tests/plus028-casio-manual-examples.cjs && node ../tests/plus032-independent-oracles.cjs && node ../tests/plus037-numeric-worker.cjs",
+    "check:lock": "node -e \"const fs=require('node:fs');const a=JSON.parse(fs.readFileSync('package-lock.json'));const p=require('./package.json');if(a.lockfileVersion<3||a.packages[''].name!==p.name)process.exit(1);console.log('PASS: committed npm lockfile',a.lockfileVersion)\""
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",
