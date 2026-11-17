@@ -375,6 +375,43 @@ for(const notation of [
  assert.equal(lcd.draw(makeCanvas(),resultState),'enhanced');
  tested++;
 }
+// CAL-006: the old fourth fillText argument horizontally compressed
+// characters. Natural glyphs must retain aspect ratio; wide characters are
+// fitted by font size instead, inside their existing four-unit LCD cells.
+{
+ const canvas=makeCanvas(),ctx=canvas.getContext();
+ const painted=[];
+ let measures=0;
+ ctx.measureText=value=>{
+  measures++;
+  const size=Number(/([\\d.]+)px/.exec(ctx.font||'')?.[1]||6.15);
+  const width=String(value)==='W'?5.2:3.0;
+  return {width:width*size/6.15};
+ };
+ ctx.fillText=(...args)=>painted.push({args,font:ctx.font});
+ const glyphs=[
+  {c:'W',x:0,y:1,inverse:false},
+  {c:'i',x:4,y:1,inverse:false},
+  {c:'W',x:8,y:1,inverse:true},
+  {c:'W',x:12,y:1,inverse:false}
+ ];
+ assert.equal(lcd.drawTextLayer(ctx,{contrast:5},glyphs),true);
+ assert.equal(painted.length,4);
+ assert.ok(painted.every(p=>p.args.length===3),
+  'text must never use fillText maxWidth compression');
+ const [wide,narrow,inverse]=painted;
+ const wideSize=Number(/([\\d.]+)px/.exec(wide.font)[1]);
+ const narrowSize=Number(/([\\d.]+)px/.exec(narrow.font)[1]);
+ assert.ok(wideSize<narrowSize&&narrowSize===6.15,
+  'wide glyph fits by proportional font sizing, not horizontal stretching');
+ assert.ok(wide.args[1]>=0&&wide.args[1]<4,
+  'wide glyph remains within original cell');
+ assert.ok(narrow.args[1]>=4&&narrow.args[1]<8,
+  'narrow glyph remains in next cell without moving the layout');
+ assert.ok(inverse.args.length===3,'inverse menu labels also use natural glyphs');
+ assert.ok(measures<=6,'glyph measurement is cached for repeated characters');
+ tested+=6;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
