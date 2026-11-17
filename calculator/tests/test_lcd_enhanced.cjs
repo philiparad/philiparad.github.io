@@ -489,6 +489,13 @@ for(const notation of [
    'use deterministic bitmap until bundled font is available');
   ready=true;
   assert.equal(lcd.fontReady(),true);
+  globalThis.document.fonts.forEach=()=>{}; // no declared LCD font
+  assert.equal(lcd.fontReady(),false,
+   'FontFaceSet must reject undeclared fonts even if check() is true');
+  globalThis.document.fonts.forEach=callback=>{
+   callback({family:'CalculatorLCD',weight:'600'});
+  };
+  assert.equal(lcd.fontReady(),true,'declared bundled face can be used');
   assert.equal(lcd.draw(makeCanvas(),screen),'enhanced',
    'activate vector rendering when exact font is ready');
   const sample=makeCanvas(),ctx=sample.getContext();
@@ -497,7 +504,7 @@ for(const notation of [
   lcd.drawTextLayer(ctx,screen,[{c:'A',x:1,y:2}]);
   assert.ok(fonts.length&&fonts.every(v=>v.includes('CalculatorLCD')),
    'vector LCD uses the bundled font, not Consolas or OS fallback');
-  tested+=5;
+  tested+=7;
  }finally{
   if(oldDocument===undefined)delete globalThis.document;
   else globalThis.document=oldDocument;
