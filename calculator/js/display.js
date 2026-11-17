@@ -170,7 +170,13 @@ function rasterize(state,collect=null){
     if(xx>=0&&xx<HI_W&&yy>=0&&yy<HI_H)hi[yy*HI_W+xx]=1;
    }
   }
+  // CAL-007: paint geometry and placeholders in the legacy pass, but
+  // leave characters for the enhanced vector text layer. Avoid covering
+  // cursor marks, selection underlines, or mathematical strokes with an
+  // opaque background rectangle after the legacy pass.
+  const vectorText=collect?.vectorText===true;
   for(const item of textRuns){
+   if(vectorText&&item.c!==undefined)continue;
    const glyphRows=item.rows||hiGlyph(item.c),px=Math.round(item.x*2),py=Math.round(item.y*2);
    for(let gy=0;gy<11;gy++){
     const yy=py+gy;if(yy<0||yy>=HI_H)continue;
