@@ -220,3 +220,16 @@ Automated regression evidence:
 - The Chromium screenshot harness now hooks native `CanvasRenderingContext2D.fillText` and fails if a fourth compression argument is passed during rendering. Its syntax was checked; live Chromium screenshot execution and Windows WebView2 visual acceptance remain pending.
 
 Other LCD improvement tasks (e.g., CAL-007 text-clearing artifacts) are outside this change.
+
+## CAL-007 — preserve cursor, underline, and mathematical geometry (2026-11-17)
+
+**Resolved in source:** Previously the enhanced text layer first painted the complete legacy LCD bitmap and then covered each legacy character with an opaque `3.85 × 5.8` background rectangle before drawing high-resolution text. That could erase cursor strokes, underlines, menu-selection boundaries, or neighboring mathematical geometry and expose leftover bitmap fragments beyond the clearing rectangle.
+
+The **enhanced** call now passes `{textRuns:[],vectorText:true}` to `FreshLCD.draw()`. The legacy rasterization retains all non-character geometry, cursor/selection strokes, dark inverse-menu backgrounds, and bitmap-only template placeholders; it skips only bitmap items whose `c` character is present. The vector text layer draws uncompressed characters on top **without any `fillRect` clearing**. Inverse menu digits are painted in the background color on their original dark rectangles. The `lcd=authentic` bitmap path remains unchanged because the `vectorText` option is opt-in.
+
+**Regression checks executed against current source (mock Canvas):**
+- 322 original LCD cases passed.
+- 138 enhanced LCD cases passed, including 12 CAL-007 checks for unchanged authentic rasterization, glyph suppression without leftover text, preserved cursor pixels, inverse-menu backgrounds, TABLE selected-cell underlines, and an absence of cell-clearing rectangles.
+- 30 LCD screen classes / 638 high-resolution character draws passed.
+
+Actual Chromium and Windows WebView2 screenshot acceptance is separate from these source-level checks; their pixel-level output has not been independently reviewed as part of this task.
