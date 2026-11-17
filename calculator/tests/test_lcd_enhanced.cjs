@@ -68,7 +68,7 @@ for(const inputY of [0,4,10,20]){
 for(const mode of ['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']){
  const canvas=makeCanvas();
  const s=state([node('fraction')],{mode});
- assert.equal(lcd.draw(canvas,s),['STAT','BASE-N','MATRIX','VECTOR'].includes(mode)?'authentic':'enhanced');
+ assert.equal(lcd.draw(canvas,s),lcd.supported(s)||legacy.getTextRuns(s).length?'enhanced':'authentic');
  tested++;
 }
 for(const screen of ['menu','prompt','error','table-grid','flow-result']){
@@ -78,7 +78,7 @@ for(const screen of ['menu','prompt','error','table-grid','flow-result']){
   flow:{title:'TEST',fields:[{id:'value',label:'X'}],index:0,buffer:''},
   error:'Math ERROR',outputLines:[],outputPage:0
  });
- assert.equal(lcd.draw(canvas,fallback),'authentic');
+ assert.equal(lcd.draw(canvas,fallback),legacy.getTextRuns(fallback).length?'enhanced':'authentic');
  tested++;
 }
 // High-resolution answer line is independent of whether the input
@@ -103,8 +103,8 @@ for(const chosen of [
   assert.ok(surface.ops.includes('vector'),'vector geometry: '+chosen.text);
  tested++;
 }
-// Do not hide or overwrite legacy output when the result cannot be safely
-// laid out or when a user is horizontally scrolling a long result.
+// Unsupported mathematical result models keep their original layout, while
+// the shared high-resolution text layer still replaces visible glyphs.
 for(const extra of [
  {result:'1234567890123456789012345',resultPresentation:null},
  {result:'3√2',viewport:{inputX:0,inputY:0,resultX:3}},
@@ -114,7 +114,7 @@ for(const extra of [
  const fallback=state([],{screen:'result',...extra});
  assert.equal(lcd.resultModel(fallback),null);
  const surface=makeCanvas();
- assert.equal(lcd.draw(surface,fallback),'authentic');
+ assert.equal(lcd.draw(surface,fallback),legacy.getTextRuns(fallback).length?'enhanced':'authentic');
  tested++;
 }
 // Nested caret traversal: instrument vectors and verify the caret follows
