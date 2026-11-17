@@ -755,8 +755,17 @@ function getTextRuns(state){
  rasterize(state,output);
  return output.textRuns;
 }
-function draw(canvas,state,collect=null){const pixels=rasterize(state,collect);const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
- const scale=5, w=HI_W*scale,h=HI_H*scale;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
+// CAL-016: the enhanced renderer suppresses bitmap letters, so typing
+// often leaves the underlying 192x62 geometry unchanged. Cache the expanded
+// RGBA image per canvas and restore it before EVERY vector text repaint.
+const rgbaCache=new WeakMap();
+function draw(canvas,state,collect=null){
+ const pixels=rasterize(state,collect);
+ const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
+ const scale=5,w=HI_W*scale,h=HI_H*scale;
+ if(canvas.width!==w||canvas.height!==h){
+  canvas.width=w;canvas.height=h;rgbaCache.delete(canvas);
+ }
  // REA-020: Contrast adjusts the LCD ink shade, never the logical pixel raster.
  // Level 5 preserves the approved web-only golden-frame colors exactly.
  const level=Math.max(0,Math.min(9,Number.isFinite(Number(state.contrast))?Number(state.contrast):5));
@@ -765,14 +774,31 @@ function draw(canvas,state,collect=null){const pixels=rasterize(state,collect);c
  const t=level<=5?level/5:(level-5)/4;
  const ink=defaultInk.map((_,i)=>Math.round(anchor[i]+(target[i]-anchor[i])*t));
  const paper=[215,230,215];
- const img=ctx.createImageData(w,h);for(let y=0;y<HI_H;y++)for(let x=0;x<HI_W;x++){
-  const on=pixels[y*HI_W+x];const color=on?ink:paper;
-  for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){const i=((y*scale+dy)*w+(x*scale+dx))*4;
-   // Solid, color-consistent LCD cells. The old 5x5 per-cell light
-   // border made mathematical strokes look striped when scaled by WebView2.
-   img.data[i]=color[0];img.data[i+1]=color[1];img.data[i+2]=color[2];img.data[i+3]=255;
+ const cached=rgbaCache.get(canvas);
+ const inkCode=ink.join(',');
+ if(cached&&cached.ctx===ctx&&cached.width===w&&cached.height===h&&
+    cached.inkCode===inkCode&&cached.pixels.length===pixels.length){
+  let unchanged=true;
+  for(let i=0;i<pixels.length;i++)if(cached.pixels[i]!==pixels[i]){
+   unchanged=false;break;
+  }
+  if(unchanged){
+   // Repaint from the clean cached base, not the previous vector frame.
+   ctx.putImageData(cached.image,0,0);
+   return;
   }
  }
+ const img=cached&&cached.ctx===ctx&&cached.width===w&&cached.height===h?
+  cached.image:ctx.createImageData(w,h);
+ for(let y=0;y<HI_H;y++)for(let x=0;x<HI_W;x++){
+  const color=pixels[y*HI_W+x]?ink:paper;
+  for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){
+   const i=((y*scale+dy)*w+(x*scale+dx))*4;
+   img.data[i]=color[0];img.data[i+1]=color[1];
+   img.data[i+2]=color[2];img.data[i+3]=255;
+  }
+ }
+ rgbaCache.set(canvas,{ctx,width:w,height:h,inkCode,image:img,pixels:pixels.slice()});
  ctx.putImageData(img,0,0)
 }
 const API=Object.freeze({width:HI_W,height:HI_H,layoutWidth:W,layoutHeight:H,fontWidth:7,fontHeight:11,rasterize,getTextRuns,draw,FONT,highFont:HI_FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
