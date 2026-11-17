@@ -465,6 +465,11 @@ function drawResult(ctx,state){
 // readouts, memory letters, BASE-N, STAT, MATRIX, VECTOR, and ordinary input.
 // Underlines, cursors, selection backgrounds, and strokes remain intact:
 // the underlying bitmap pass skips only character glyphs; no cell clearing.
+// PERF-007: glyph widths and fitted font sizes are stable across frames.
+// Scope the cache to the canvas context and measurement implementation.
+// A bounded map prevents unbounded growth from unusual display characters.
+const glyphCache=new WeakMap();
+const MAX_GLYPH_METRICS=256;
 function drawTextLayer(ctx,state,runs){
  if(!Array.isArray(runs)||!runs.length)return false;
  const paper='rgb(215,230,215)',color=ink(ctx,state);
@@ -475,9 +480,17 @@ function drawTextLayer(ctx,state,runs){
  // and each original 4-unit LCD character cell.
  const baseFontSize=6.15,cellWidth=3.85,maxGlyphWidth=3.65;
  const fontAt=size=>'600 '+size+'px '+LCD_FONT;
- const glyphMetrics=new Map();
  ctx.font=fontAt(baseFontSize);
  ctx.textBaseline='alphabetic';ctx.textAlign='left';
+ // Font readiness is checked by the draw() caller. Detect a changed
+ // measurement function (test backends, canvas reconfiguration) explicitly.
+ const metricKey=fontAt(baseFontSize);
+ let cache=glyphCache.get(ctx);
+ if(!cache||cache.font!==metricKey||cache.measureText!==ctx.measureText){
+  cache={font:metricKey,measureText:ctx.measureText,metrics:new Map()};
+  glyphCache.set(ctx,cache);
+ }
+ const glyphMetrics=cache.metrics;
  const measuredGlyph=value=>{
   if(glyphMetrics.has(value))return glyphMetrics.get(value);
   ctx.font=fontAt(baseFontSize);
@@ -492,6 +505,11 @@ function drawTextLayer(ctx,state,runs){
   const width=Number.isFinite(fitted)&&fitted>0?
    Math.min(fitted,maxGlyphWidth):Math.min(naturalWidth,maxGlyphWidth);
   const item={size,width};
+  // Insertion order provides a small bounded LRU-style cache: a repeatedly
+  // used character remains resident while old rare glyphs can be evicted.
+  if(glyphMetrics.has(value))glyphMetrics.delete(value);
+  else if(glyphMetrics.size>=MAX_GLYPH_METRICS)
+   glyphMetrics.delete(glyphMetrics.keys().next().value);
   glyphMetrics.set(value,item);
   return item;
  };
