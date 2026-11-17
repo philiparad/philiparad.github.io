@@ -26,8 +26,8 @@ class ControlledWorker {
  constructor(url){this.url=url;this.terminated=false;created.push(this)}
  postMessage(payload){this.payload=payload}
  terminate(){this.terminated=true}
- deliver(value,residual=0){this.onmessage({data:{id:1,ok:true,value,residual}})}
- fail(message='Math ERROR'){this.onmessage({data:{id:1,ok:false,error:message}})}
+ deliver(value,residual=0){this.onmessage?.({data:{id:this.payload.id,ok:true,value,residual}})}
+ fail(message='Math ERROR'){this.onmessage?.({data:{id:this.payload.id,ok:false,error:message}})}
 }
 const state={model:'fx-991es-plus',mode:'COMP',angle:'DEG',format:'Norm1',
  digits:3,math:true,ans:0,preAns:0,memory:{X:0},power:true,
@@ -56,7 +56,7 @@ const calc=(source)=>api.executeInlineCalculus({kind:'SUM',data:{
  A.ok(api.epoch()>epochBefore,'cancel must invalidate resolved callback');
  calc('NEW');
  const second=created.at(-1);
- A.notEqual(second,first);
+ A.equal(second,first,'idle worker should be reused after successful completion');
  await flush();
  A.equal(results.length,0,'old result overwrote newer calculation');
  A.equal(state.screen,'calculating','old result changed new LCD state');
@@ -64,7 +64,7 @@ const calc=(source)=>api.executeInlineCalculus({kind:'SUM',data:{
  await flush();
  A.deepEqual(results,[{value:3,source:'NEW'}]);
  A.equal(state.screen,'result');
- A.ok(second.terminated,'completed worker not terminated');
+ A.ok(!second.terminated,'successful worker must remain available for reuse');
 
  // Restart while an earlier result is already queued, without explicit AC.
  calc('REPLACED');
@@ -98,6 +98,7 @@ const calc=(source)=>api.executeInlineCalculus({kind:'SUM',data:{
  A.ok(seventh.terminated);
  calc('AFTER_AC');
  const eighth=created.at(-1);
+ A.notEqual(eighth,seventh,'cancelled worker must be replaced');
  seventh.deliver(77); // misbehaving worker delivers after termination
  await flush();
  A.equal(results.length,3,'terminated worker changed answer');
@@ -119,7 +120,9 @@ const calc=(source)=>api.executeInlineCalculus({kind:'SUM',data:{
  tenth.deliver(10);await flush();
  A.equal(results.length,5);
  A.equal(errors.length,0);
- A.ok(created.every(worker=>worker.terminated));
+ A.equal(created.length,3,'one initial worker plus replacements after AC and MODE');
+ A.ok(created.slice(0,-1).every(worker=>worker.terminated));
+ A.ok(!created.at(-1).terminated,'last completed worker remains reusable');
  A.equal(timers.size,0,'numerical timeout handles were leaked');
- console.log('PLUS-048 PASS: queued completion, restart, stale error, rapid AC/MODE, late terminated worker and timer cleanup');
+ console.log('PLUS-048 PASS: worker reuse, queued completion, restart, stale error, rapid AC/MODE, cancelled worker replacement and timer cleanup');
 })().catch(err=>{console.error(err);process.exitCode=1});
