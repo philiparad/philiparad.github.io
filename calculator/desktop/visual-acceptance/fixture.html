@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAL-012 LCD cross-engine acceptance fixture</title>
+<link rel="stylesheet" href="./styles.css">
+<style>
+ html,body{margin:0;padding:0;background:#e9eeea}
+ #lcd{display:block;width:480px;height:155px;margin:20px;
+   border:8px solid #111;border-radius:4px;image-rendering:auto}
+</style>
+</head>
+<body>
+<canvas id="lcd" width="960" height="310" aria-label="Calculator LCD"></canvas>
+<script src="./js/lcd-viewport.js"></script>
+<script src="./js/display.js"></script>
+<script src="./js/lcd-enhanced.js"></script>
+<script>
+(function(){
+ 'use strict';
+ const ch=value=>({type:'char',value});
+ const fraction={type:'fraction',parts:{numerator:[ch('1')],denominator:[ch('3')]}};
+ const cases={
+  ans:{screen:'edit',input:'Ans',cursor:3},
+  mode:{screen:'menu',menuKind:'mode',menuPage:0,menuPageSize:8,menuTitle:'MODE',
+   menu:[...'COMP,CMPLX,STAT,BASE-N,EQN,MATRIX,TABLE,VECTOR'.split(',')]
+    .map((label,i)=>({number:i+1,label})),
+   menuEntries:[...'COMP,CMPLX,STAT,BASE-N,EQN,MATRIX,TABLE,VECTOR'.split(',')]
+    .map((label,i)=>({number:i+1,label}))},
+  eqnTypes:{screen:'menu',mode:'EQN',menuKind:'eqn-type',menuPageSize:4,
+   menuTitle:'EQN',menu:[1,2,3,4].map(number=>({number,label:'EQUATION'})),
+   menuEntries:[1,2,3,4].map(number=>({number,label:'EQUATION'}))},
+  eqnCoefficients:{screen:'eqn-coeff',mode:'EQN',eqnEditor:{
+   rows:[['a','b','c'],['d','e','f']],row:0,col:0,editing:true,
+   buffer:'0',values:{a:0,b:0,c:0,d:0,e:0,f:0}}},
+  fraction:{screen:'edit',editor:{root:[fraction],path:[],offset:0}},
+  nestedRoot:{screen:'edit',editor:{root:[{type:'squareRoot',parts:{
+   radicand:[fraction]}}],path:[],offset:0}},
+  fractionAnswer:{screen:'result',result:'7/12',resultPresentation:{
+   chosen:{kind:'fraction',text:'7/12',numerator:'7',denominator:'12'}}},
+  engineering:{screen:'result',result:'-2.5×10^-3',resultPresentation:{
+   chosen:{kind:'engineering',text:'-2.5×10^-3'}}}
+ };
+ const names=Object.keys(cases),canvas=document.getElementById('lcd');
+ let current=null;
+ async function ready(){
+  const faces=await document.fonts.load('600 6.15px "CalculatorLCD"');
+  if(!faces.length||!document.fonts.check('600 6.15px "CalculatorLCD"')||
+     !window.FreshEnhancedLCD.fontReady())throw Error('Bundled LCD font is unavailable');
+  return true;
+ }
+ async function render(name){
+  if(!Object.prototype.hasOwnProperty.call(cases,name))throw Error('Unknown LCD scenario');
+  await ready();
+  const state={power:true,mode:'COMP',screen:'edit',math:true,
+   contrast:5,input:'',cursor:0,result:'',resultPresentation:null,
+   viewport:{inputX:0,inputY:0,resultX:0,manualPan:false},
+   editor:{root:[],path:[],offset:0},menu:[],menuEntries:[],
+   menuPage:0,menuPageSize:8,menuTitle:'MODE',...cases[name]};
+  const mode=window.FreshEnhancedLCD.draw(canvas,state);
+  if(mode!=='enhanced')throw Error('Expected enhanced LCD for '+name);
+  current=name;
+  const ink=canvas.getContext('2d').getImageData(0,0,960,310).data;
+  let dark=0;
+  for(let i=0;i<ink.length;i+=4)if(ink[i]<160)dark++;
+  if(dark<20)throw Error('Blank LCD output in '+name);
+  return {name,mode,dark,canvasWidth:canvas.width,canvasHeight:canvas.height,
+   fontReady:window.FreshEnhancedLCD.fontReady()};
+ }
+ window.CAL012=Object.freeze({cases:names,ready,render,get current(){return current;}});
+})();
+</script>
+</body></html>
