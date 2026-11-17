@@ -814,6 +814,12 @@ function draw(canvas,state,collect=null){
   // changed. An authentic bitmap frame needs only its changed rectangles.
   if(collect?.vectorText===true){
    ctx.putImageData(cached.image,0,0);
+   cached.overlayPending=true;
+  }else if(cached.overlayPending){
+   // A prior enhanced pass may have drawn vector glyphs on top of the
+   // bitmap; one full restore is required on return to authentic mode.
+   ctx.putImageData(cached.image,0,0);
+   cached.overlayPending=false;
   }else if(maxX>=minX){
    ctx.putImageData(cached.image,0,0,minX*scale,minY*scale,
     (maxX-minX+1)*scale,(maxY-minY+1)*scale);
@@ -829,7 +835,9 @@ function draw(canvas,state,collect=null){
    img.data[i+2]=color[2];img.data[i+3]=255;
   }
  }
- rgbaCache.set(canvas,{ctx,width:w,height:h,inkCode,image:img,pixels:reuse?(cached.pixels.set(pixels),cached.pixels):pixels.slice()});
+ rgbaCache.set(canvas,{ctx,width:w,height:h,inkCode,image:img,
+  pixels:reuse?(cached.pixels.set(pixels),cached.pixels):pixels.slice(),
+  overlayPending:collect?.vectorText===true});
  ctx.putImageData(img,0,0)
 }
 const API=Object.freeze({width:HI_W,height:HI_H,layoutWidth:W,layoutHeight:H,fontWidth:7,fontHeight:11,rasterize,getTextRuns,draw,FONT,highFont:HI_FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
