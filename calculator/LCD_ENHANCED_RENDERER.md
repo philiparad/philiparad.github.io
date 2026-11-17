@@ -233,3 +233,15 @@ The **enhanced** call now passes `{textRuns:[],vectorText:true}` to `FreshLCD.dr
 - 30 LCD screen classes / 638 high-resolution character draws passed.
 
 Actual Chromium and Windows WebView2 screenshot acceptance is separate from these source-level checks; their pixel-level output has not been independently reviewed as part of this task.
+
+## CAL-009 — consistent LCD font across platforms (2026-11-17)
+
+The enhanced renderer previously used host-installed `Consolas`, `DejaVu Sans Mono`, or browser `monospace`. Because the selected face changed between Chrome, Windows WebView2, and other hosts, the same input could produce different glyph metrics, line spacing, and caret alignment.
+
+**Implementation:** Reuse the existing repository-owned `fonts/Roboto-Medium-webfont.woff`, declared under the private `CalculatorLCD` family with font weight 600 in `calculator/styles.css`. The enhanced LCD renderer now uses `CalculatorLCD` for the main expression, result typography, engineering exponents, and all mode-menu text, continuing to measure actual glyph widths with Canvas. The font file is served on the website from the repository root; Windows staging copies exactly that file into the Tauri frontend and rewrites the CSS path. The standalone builder embeds the same bytes directly as a base64 WOFF data URL, so the *next regenerated* offline HTML can render independently of host fonts.
+
+The controller makes an initial safe authentic-bitmap paint and loads the requested font with `document.fonts.load()`. It repaints with enhanced vector text only after the font is available. `FreshEnhancedLCD.fontReady()` also rejects an undeclared font face even when `FontFaceSet.check()` returns true; this prevents a silent substitution with a host font. The `lcd=authentic` URL setting remains unchanged.
+
+**Checks:** 322 original LCD cases, 145 enhanced LCD cases, and 30 all-screen classes representing 643 vector character draws passed in source-level JavaScript validation. Screenshot harness syntax was checked and updated to load the exact repository font bytes as a browser data URL. Actual Chromium screenshots, Windows visual review, and font coverage for every rare mathematical symbol remain to be verified.
+
+**Known independent release blocker:** CAL-001 (standalone script URL parsing and stale generated HTML) still prevents regenerating/validating the committed standalone artifact; the standalone font embedding is implemented in its builder but the current generated file has not been refreshed.
