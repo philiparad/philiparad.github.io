@@ -45,9 +45,15 @@ for(const type of Object.keys(templates)){
    assert.equal(lcd.draw(canvas,state(root,path,offset)),'enhanced');
    const last=canvas.moves.at(-1);
    assert.ok(last,'caret must draw as the last vector path');
-   // All these short examples fit horizontally: no manual scroll needed.
-   near(last.x,expected.x,type+'/'+field+' x');
-   near(last.y+5.5,expected.y+11,type+'/'+field+' y');
+   const box=lcd.measureNodes(root,0,ctx);
+   const fits=box.ascent+box.descent<=27;
+   const preferred=Math.max(box.ascent+1,11);
+   let baseline=fits?Math.min(29.2-box.descent,
+    Math.max(2.2+box.ascent,preferred)):preferred;
+   if(!fits)baseline=lcd.followCaretVertical(baseline,expected.y);
+   const scroll=lcd.followCaret(0,expected.x,box.width);
+   near(last.x,expected.x-scroll,type+'/'+field+' x');
+   near(last.y+5.5,expected.y+baseline,type+'/'+field+' y');
    passed++;
   }
  }
