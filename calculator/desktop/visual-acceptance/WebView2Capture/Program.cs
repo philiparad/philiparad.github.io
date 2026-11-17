@@ -61,7 +61,8 @@ internal sealed class CaptureWindow : Form
 
     private async Task<JsonElement> Evaluate(string javascript)
     {
-        var reply = await webview.CoreWebView2.ExecuteScriptAsync(javascript);
+        var reply = await webview.CoreWebView2.ExecuteScriptAsync(javascript)
+            .WaitAsync(TimeSpan.FromSeconds(20));
         using var json = JsonDocument.Parse(reply);
         return json.RootElement.Clone();
     }
@@ -73,7 +74,9 @@ internal sealed class CaptureWindow : Form
         Directory.CreateDirectory(output);
         var profile = Path.Combine(Path.GetTempPath(), "calculator-cal012-" + Guid.NewGuid().ToString("N"));
         await webview.EnsureCoreWebView2Async(
-            await CoreWebView2Environment.CreateAsync(null, profile));
+            await CoreWebView2Environment.CreateAsync(null, profile)
+                .WaitAsync(TimeSpan.FromSeconds(30)))
+            .WaitAsync(TimeSpan.FromSeconds(30));
         webview.CoreWebView2.SetVirtualHostNameToFolderMapping(
             "calculator-cal012.test", frontend, CoreWebView2HostResourceAccessKind.Allow);
         var completed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -97,7 +100,8 @@ internal sealed class CaptureWindow : Form
         {
             await webview.CoreWebView2.CallDevToolsProtocolMethodAsync(
                 "Emulation.setDeviceMetricsOverride",
-                JsonSerializer.Serialize(new { width = 800, height = 420, deviceScaleFactor = factor, mobile = false }));
+                JsonSerializer.Serialize(new { width = 800, height = 420, deviceScaleFactor = factor, mobile = false }))
+                .WaitAsync(TimeSpan.FromSeconds(20));
             var scale = factor.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture).Replace('.', '_');
             foreach (var scenario in Cases)
             {
@@ -121,7 +125,7 @@ internal sealed class CaptureWindow : Form
                     "Page.captureScreenshot",
                     JsonSerializer.Serialize(new {
                         format = "png", captureBeyondViewport = false, fromSurface = true, clip
-                    }));
+                    })).WaitAsync(TimeSpan.FromSeconds(25));
                 using var screenshotJson = JsonDocument.Parse(screenshot);
                 var bytes = Convert.FromBase64String(
                     screenshotJson.RootElement.GetProperty("data").GetString()
