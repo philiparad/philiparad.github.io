@@ -12,7 +12,17 @@ const LCD_FONT='"CalculatorLCD", monospace';
 const LCD_FONT_REQUEST='600 6.15px "CalculatorLCD"';
 function fontReady(){
  const fonts=global.document?.fonts;
- return !fonts||typeof fonts.check!=='function'||fonts.check(LCD_FONT_REQUEST);
+ if(!fonts)return true; // Node regression environment has no DOM fonts.
+ if(typeof fonts.forEach==='function'){
+  let defined=false;
+  fonts.forEach(face=>{
+   if(String(face.family||'').replace(/^['"]|['"]$/g,'')==='CalculatorLCD')
+    defined=true;
+  });
+  // FontFaceSet.check() may return true for an *undeclared* family.
+  if(!defined)return false;
+ }
+ return typeof fonts.check==='function'&&fonts.check(LCD_FONT_REQUEST);
 }
 const FIELDS={
  fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
