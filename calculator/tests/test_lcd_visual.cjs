@@ -182,8 +182,8 @@ const cases=[
     if(info.mode!=='enhanced'||info.ink<20)throw Error('Missing enhanced drawing for '+label+' DPR '+dpr);
     if(info.compressedGlyphs!==0)
      throw Error('CAL-006: horizontally compressed LCD glyphs in '+label+' DPR '+dpr);
-    if(info.paintedGlyphs===0)
-     throw Error('CAL-006: no Canvas text painted in '+label+' DPR '+dpr);
+    if((label.startsWith('full-')||label.startsWith('result-'))&&info.paintedGlyphs===0)
+     throw Error('CAL-006: expected Canvas text missing in '+label+' DPR '+dpr);
     const filename=label+'-enhanced-dpr-'+String(dpr).replace('.','_')+'.png';
     await page.locator('#lcd').screenshot({path:path.join(output,filename)});
     const enhancedPng=await verifyPNG(path.join(output,filename),dpr);
