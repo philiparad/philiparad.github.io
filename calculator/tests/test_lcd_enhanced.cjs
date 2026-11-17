@@ -164,7 +164,7 @@ for(const extra of [
   const canvas=makeCanvas(),ctx=canvas.getContext(),glyphs=[];
   ctx.measureText=value=>({width:value==='W'?7:value==='i'?2:5});
   ctx.fillText=(value,x)=>glyphs.push({value,x});
-  const view=state(root,{viewport:{inputX:oldOffset,inputY:0}});
+  const view=state(root,{viewport:{inputX:oldOffset,inputY:0,manualPan:true}});
   assert.equal(lcd.draw(canvas,view),'enhanced');
   const first=glyphs.findLast(v=>v.value==='W');
   assert.ok(first,'first glyph is present in measured layout');
