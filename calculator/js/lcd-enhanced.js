@@ -357,8 +357,31 @@ function drawTextLayer(ctx,state,runs){
  const paper='rgb(215,230,215)',color=ink(ctx,state);
  ctx.save();
  ctx.beginPath();ctx.rect(0,0,VIEW_W,VIEW_H);ctx.clip();
- ctx.font='600 6.35px Consolas, "DejaVu Sans Mono", monospace';
+ // CAL-006: Canvas fillText(..., maxWidth) compresses wide characters
+ // horizontally. Fit the font size instead, retaining natural proportions
+ // and each original 4-unit LCD character cell.
+ const baseFontSize=6.15,cellWidth=3.85,maxGlyphWidth=3.65;
+ const fontAt=size=>'600 '+size+'px Consolas, "DejaVu Sans Mono", monospace';
+ const glyphMetrics=new Map();
+ ctx.font=fontAt(baseFontSize);
  ctx.textBaseline='alphabetic';ctx.textAlign='left';
+ const measuredGlyph=value=>{
+  if(glyphMetrics.has(value))return glyphMetrics.get(value);
+  ctx.font=fontAt(baseFontSize);
+  const measured=typeof ctx.measureText==='function'?
+   Number(ctx.measureText(value)?.width):NaN;
+  const naturalWidth=Number.isFinite(measured)&&measured>0?measured:3.6;
+  const size=naturalWidth>maxGlyphWidth?
+   baseFontSize*maxGlyphWidth/naturalWidth:baseFontSize;
+  ctx.font=fontAt(size);
+  const fitted=typeof ctx.measureText==='function'?
+   Number(ctx.measureText(value)?.width):NaN;
+  const width=Number.isFinite(fitted)&&fitted>0?
+   Math.min(fitted,maxGlyphWidth):Math.min(naturalWidth,maxGlyphWidth);
+  const item={size,width};
+  glyphMetrics.set(value,item);
+  return item;
+ };
  for(const glyph of runs){
   if(!glyph||glyph.c===undefined)continue;
   const x=Number(glyph.x),y=Number(glyph.y);
@@ -371,7 +394,10 @@ function drawTextLayer(ctx,state,runs){
   ctx.fillStyle=glyph.inverse?color:paper;
   ctx.fillRect(x-.1,y-.15,3.85,5.8);
   ctx.fillStyle=glyph.inverse?paper:color;
-  ctx.fillText(value,x+.10,y+5.2,3.65);
+  const metrics=measuredGlyph(value);
+  ctx.font=fontAt(metrics.size);
+  // Center the uncompressed glyph in its original character cell.
+  ctx.fillText(value,x+(cellWidth-metrics.width)/2,y+5.2);
  }
  ctx.restore();
  return true;
