@@ -749,7 +749,7 @@ function getTextRuns(state){
  rasterize(state,output);
  return output.textRuns;
 }
-function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
+function draw(canvas,state,collect=null){const pixels=rasterize(state,collect);const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
  const scale=5, w=HI_W*scale,h=HI_H*scale;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
  // REA-020: Contrast adjusts the LCD ink shade, never the logical pixel raster.
  // Level 5 preserves the approved web-only golden-frame colors exactly.
