@@ -267,8 +267,8 @@ for(const chosen of [
  const ed={root,path:[{index:0,field:'radicand'}],offset:letters.length};
  assert.equal(lcd.draw(surface,state(root,{editor:ed,
   viewport:{inputX:0,inputY:0}})),'enhanced');
- assert.ok(surface.ops.filter(op=>op==='fill').length>=2,
-  'long nested cursor triggers a corrected second draw pass');
+ assert.equal(surface.ops.filter(op=>op==='fill').length,1,
+  'long nested caret follows viewport before painting without a second clear pass');
  const cursor=movements[movements.length-1];
  assert.ok(cursor.x>=5&&cursor.x<=90,
   'nested insertion caret remains inside the safe visible LCD region');
