@@ -4,8 +4,8 @@
 
 `js/lcd-enhanced.js` is a **separate high-resolution Canvas renderer** for structured mathematical expressions. It reuses the existing calculator state, `FreshStructured` expression tree, and `FreshLCD` framebuffer. It does not change calculation logic, button handlers, keyboard shortcuts, or serialization.
 
-- Default view: [calculator-only enhanced LCD](https://philiparad.github.io/calculator/?key=calculator)
-- Original LCD comparison: [authentic fallback](https://philiparad.github.io/calculator/?key=calculator&lcd=authentic)
+- Default view: [calculator-only enhanced LCD](https://philiparad.github.io/calculator/)
+- Original LCD comparison: [authentic fallback](https://philiparad.github.io/calculator/?lcd=authentic)
 
 The original display remains in `js/display.js` as a fallback and can be selected with `?lcd=authentic`. The same assets are included in the offline Windows Tauri build.
 
@@ -15,7 +15,7 @@ The original display remains in `js/display.js` as a fallback and can be selecte
 2. When the editor contains a structured expression in MathIO, `FreshEnhancedLCD` measures its tree recursively and redraws the expression region using Canvas paths and high-resolution text. The native-scale 960×310 framebuffer remains the output canvas.
 3. Geometric fractions, roots, exponent positions, repeating-decimal bars, logarithms, integrals, summations, and derivatives use measured dimensions rather than just upscaled 96×31 dots.
 4. The original renderer retains responsibility for menus, error messages, matrix/vector/stat/table screens, non-structured input, and any unsupported display state.
-5. The read-only enlarged LCD and capture functionality continue to read from the same `#lcd` canvas.
+5. Only the main `#lcd` Canvas is displayed; exporting an image reads the same Canvas. The old detached and enlarged LCD panels have been removed.
 
 The architecture is hybrid by design: the expression renderer is new, but calculator UI and unsupported display states stay on the proven raster path. The HTML status indicator overlay is not replaced in this phase.
 
@@ -46,7 +46,7 @@ Capture and visually compare screenshots at exactly matched window sizes and DPR
 - Integrals, sums, derivatives, and limit placement
 - Long expressions, horizontal and vertical scrolling, cursor/selection movement
 - Answers on the second line and toggling MathIO/LineIO
-- Menus for all eight modes; setup indicators, errors, result capture, enlarged display
+- Menus for all eight modes; setup indicators, errors, and result capture
 - Windows WebView2 100/125/150/200% scaling; Chrome desktop browser
 
 If any semantic error, clipping, or overlap is detected, use `lcd=authentic` until corrected. The enhanced renderer is intentionally an educational presentation mode, not a claim of exact hardware-LCD parity.
@@ -299,3 +299,18 @@ Unlike the previous speculative two-pass approach, the structured expression is 
 **Verification:** The new `calculator/tests/test_lcd_caret_scroll.cjs` passes **83 cases** covering every supported nested template field, insertion offsets, measured glyph-width differences, long horizontal movement, tall expressions, vertical caret visibility, manual panning, and invalid nested paths. The original **322** LCD symbol/layout tests, **145** enhanced LCD tests, **30** screen-class audit (643 vector draws), and CAL-016 cache tests also pass. Windows `npm run check` now includes CAL-018, and the Windows workflow triggers for its test file.
 
 **Remaining scope:** These source-level deterministic Canvas tests do not themselves prove a particular Windows monitor DPI experience. Existing Chromium/WebView2 screenshot workflows provide further visual-acceptance coverage; installed-Tauri-window manual DPI inspection remains an independent check.
+
+## Current architecture note — 2026-11-17 (CAL-022)
+
+Sections above retain historical testing milestones and fixture counts; they are not
+current release verdicts. **Only the PLUS 2nd edition** is supported. The
+regular calculator URL defaults to the calculator-only layout. Detached and
+enlarged LCD windows have been removed. The current production renderer
+skips underlying bitmap text where vector text replaces it; CAL-016 caches
+clean raster geometry and CAL-018 follows nested caret positions in both
+axes. Windows stages the exact HTML-linked scripts plus the numeric worker,
+capability manifest and bundled font, and enforces a local-only CSP.
+
+Current numerical, browser and installed-app verification statuses are tracked
+in [device parity STATUS](reference/device-parity/STATUS.md). Neither source
+checks nor the WebView2/Chromium comparison constitute physical CASIO parity.
