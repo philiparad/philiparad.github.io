@@ -350,8 +350,8 @@ function drawResult(ctx,state){
 // which calculator screen generated it. Legacy glyph positions remain the
 // source of truth: this covers mode menus, equation tables, prompts, status
 // readouts, memory letters, BASE-N, STAT, MATRIX, VECTOR, and ordinary input.
-// Underline strokes, cursor blocks and menu selection backgrounds remain
-// intact because only each glyph's 7x11 atlas cell is replaced.
+// Underlines, cursors, selection backgrounds, and strokes remain intact:
+// the underlying bitmap pass skips only character glyphs; no cell clearing.
 function drawTextLayer(ctx,state,runs){
  if(!Array.isArray(runs)||!runs.length)return false;
  const paper='rgb(215,230,215)',color=ink(ctx,state);
@@ -389,10 +389,10 @@ function drawTextLayer(ctx,state,runs){
      x>=VIEW_W||y>=VIEW_H||x+4<=0||y+6<=0)continue;
   const value=String(glyph.c);
   if(value===' ')continue;
-  // Inverse labels sit on dark rectangular keys in MODE. Keep the dark
-  // backing instead of punching a light hole through its center.
-  ctx.fillStyle=glyph.inverse?color:paper;
-  ctx.fillRect(x-.1,y-.15,3.85,5.8);
+  // The legacy pass now omits only bitmap text in vector mode; its
+  // non-text geometry remains untouched. Never erase a character cell:
+  // a cell may overlap a cursor stroke, underline, arrow, or selection.
+  // Inverse menu labels use the existing dark selection background.
   ctx.fillStyle=glyph.inverse?paper:color;
   const metrics=measuredGlyph(value);
   ctx.font=fontAt(metrics.size);
@@ -416,7 +416,7 @@ function draw(canvas,state){
  // The legacy draw already constructs the exact glyph runs for the screen.
  // Capture them during the same paint pass to avoid a second rasterization
  // on every keystroke (notably costly with EQN and TABLE screens).
- const collected={textRuns:[]};
+ const collected={textRuns:[],vectorText:true};
  legacy.draw(canvas,state,collected);
  const runs=collected.textRuns||[];
  const textEligible=runs.length>0;
