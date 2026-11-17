@@ -13,6 +13,8 @@ on:
       - 'calculator/tests/test_lcd_all_screens.cjs'
       - 'calculator/tests/test_lcd_performance.cjs'
       - 'calculator/tests/test_lcd_caret_scroll.cjs'
+      - 'calculator/tests/plus0*.cjs'
+      - 'calculator/desktop/check-production.mjs'
       - 'calculator/tests/test_faceplate.cjs'
       - 'calculator/tests/test_lcd_visual.cjs'
       - 'calculator/tests/test_lcd_chromium_parity.cjs'
@@ -21,8 +23,14 @@ on:
       - 'calculator/reference/**'
       - '.github/workflows/calculator-tauri-windows.yml'
 
+# CAL-020: on the one-time lockfile bootstrap, the build worker commits the
+# npm/Cargo registry-generated locks. Later builds use npm ci and cargo --locked.
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: calculator-desktop-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   windows-installer:
@@ -48,8 +56,36 @@ jobs:
         with:
           workspaces: calculator/desktop/src-tauri
 
-      - name: Install frontend dependencies
-        run: npm install --no-audit --no-fund
+      - name: Bootstrap and commit desktop dependency locks (only if missing)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $newLocks = $false
+          if (!(Test-Path package-lock.json)) {
+            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve desktop npm lockfile' }
+            $newLocks = $true
+          }
+          if (!(Test-Path src-tauri/Cargo.lock)) {
+            cargo generate-lockfile --manifest-path src-tauri/Cargo.toml
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve desktop Cargo.lock' }
+            $newLocks = $true
+          }
+          if ($newLocks) {
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- package-lock.json src-tauri/Cargo.lock
+            git commit -m 'build(CAL-020): lock Windows calculator npm and Cargo dependency trees'
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot commit desktop lockfiles' }
+            git push origin "HEAD:$env:GITHUB_REF_NAME"
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot publish desktop dependency locks to repository' }
+          }
+
+      - name: Install exact locked frontend dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate Rust dependency resolution is locked
+        run: cargo metadata --manifest-path src-tauri/Cargo.toml --locked --no-deps --format-version 1
 
       - name: Validate and stage calculator assets
         run: npm run check
@@ -110,7 +146,30 @@ jobs:
           retention-days: 30
 
       - name: Build Windows NSIS and MSI installers
+        env:
+          CARGO_BUILD_LOCKED: 'true'
         run: npm run build
+
+      - name: Verify both Windows installers exist
+        shell: pwsh
+        run: |
+          $nsis = @(Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe -ErrorAction SilentlyContinue)
+          $msi = @(Get-ChildItem src-tauri/target/release/bundle/msi/*.msi -ErrorAction SilentlyContinue)
+          if ($nsis.Count -lt 1 -or $msi.Count -lt 1) {
+            throw 'CAL-023: NSIS and MSI installers must both be built'
+          }
+          Write-Host ('CAL-023 NSIS: ' + $nsis[0].Name)
+          Write-Host ('CAL-023 MSI: ' + $msi[0].Name)
+          Get-FileHash $nsis[0].FullName -Algorithm SHA256
+          Get-FileHash $msi[0].FullName -Algorithm SHA256
+
+      - name: Upload production source identity manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: fx991es-plus-desktop-source-manifest
+          path: calculator/desktop/dist/production-manifest.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Upload Windows installer artifacts
         uses: actions/upload-artifact@v4
