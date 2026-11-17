@@ -206,3 +206,17 @@ User-provided LCD screenshots showed low-resolution glyphs in four places: `Ans`
 - `test_lcd_visual.cjs`: **28** screenshot scenarios are configured, now including the four screens in the user-provided photos. At four device-pixel ratios and two renderers, the gallery expects **224** PNG images if the workflow completes. Source-level drawing checks for these cases pass.
 
 **Limit:** The automated JavaScript draw-call checks do not replace inspection of actual Chrome/WebView2 screenshots. Do not claim pixel-perfect visual or physical-device parity until the browser gallery and Windows desktop build have been run and reviewed. The faceplate and underlying calculation engine are unchanged by this LCD typography pass.
+
+## CAL-006 — preserve natural glyph proportions (2026-11-17)
+
+**Resolved in the enhanced LCD text layer:** `drawTextLayer()` previously used the optional fourth argument of Canvas `fillText(text,x,y,3.65)`, asking the browser to compress any glyph that exceeded 3.65 logical units *horizontally*. That could make letters and digits look unnaturally narrow, especially when the chosen monospace face differs across browsers.
+
+The renderer now **never uses `fillText`'s `maxWidth` argument** for ordinary LCD text. It measures the natural width of each character using the actual Canvas font, draws the glyph at natural aspect ratio, and decreases the entire font size proportionally only when the glyph would exceed the existing 3.65-unit width budget. Characters stay centered within their original four-unit LCD cells. Font measurements are cached per character for each repaint, avoiding repeated measurements for menu labels and tables. The authentic bitmap mode is unchanged.
+
+Automated regression evidence:
+- **322** original LCD cases pass.
+- **126** enhanced drawing cases pass, including six new checks for natural-width `fillText`, fitting wide glyphs, narrow-glyph alignment, inverse menu digits, and measurement caching.
+- **30** calculator screen classes, representing **638** vector character draws, pass the all-screens audit with the requirement that `maxWidth` is **never supplied**.
+- The Chromium screenshot harness now hooks native `CanvasRenderingContext2D.fillText` and fails if a fourth compression argument is passed during rendering. Its syntax was checked; live Chromium screenshot execution and Windows WebView2 visual acceptance remain pending.
+
+Other LCD improvement tasks (e.g., CAL-007 text-clearing artifacts) are outside this change.
