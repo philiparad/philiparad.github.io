@@ -3,7 +3,7 @@ import {toolIcon} from './tool-icons.js?v=20261114-calculator-modal';
 import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js';
 import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios,clearCalculatorWindowPosition} from './calculator-window-position.js?v=20261115-calculator-reset';
 
-export const CALCULATOR_URL='https://philiparad.github.io/calculator/?key=calculator';
+export const CALCULATOR_URL='https://philiparad.github.io/calculator/';
 const CALCULATOR_ORIGIN=new URL(CALCULATOR_URL).origin;
 let nextDialogId=0;
 
