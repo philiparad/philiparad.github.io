@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <link rel="icon" type="image/png" href="philip_favicon.png">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/computer-modern@0.1.3/cmu-typewriter-text.css">
+        <title>תורים ב-C# | שאלון אינטראקטיבי</title>
+        <style>
+            :root {
+                --code-font: "CMU Typewriter Text", "Latin Modern Mono", Consolas, "Courier New", monospace;
+                --code-ink: #ecf4ff;
+                --code-background: #17283c;
+                --code-border: #405775;
+                --inline-code-color: #15579d;
+                --ink: #1a2d42;
+                --muted: #526579;
+                --primary: #245c88;
+                --soft: #edf5fa;
+                --line: #cbdce6;
+                --surface: #fff;
+                --good: #166343;
+                --bad: #9c2635;
+            }
+            * { box-sizing: border-box; }
+            html { scroll-behavior: smooth; }
+            body { margin: 0; color: var(--ink); background: linear-gradient(130deg,#f6f9fc,#e7f0f7); font-family: Arial,"Noto Sans Hebrew",sans-serif; font-size: 18px; line-height: 1.65; }
+            main { max-width: 860px; margin: 32px auto; padding: 0 18px; }
+            .card { background:var(--surface); border:2px solid var(--line); border-radius:18px; padding:clamp(20px,4vw,38px); box-shadow:0 10px 35px #183e6312; }
+            .center { text-align:center; }
+            .hero-icon { font-size:48px; }
+            h1 { font-size:clamp(30px,5vw,41px); margin: 0 0 8px; }
+            h2 { margin:0 0 16px; font-size:24px; }
+            h3 { font-size:20px; }
+            p { margin: 8px 0 20px; }
+            .muted { color:var(--muted); }
+            .intro { background:var(--soft); border:2px solid var(--line); border-radius:14px; padding:22px; margin:25px 0; }
+            .topics { padding-inline-start:28px; }
+            .topics li { margin:10px 0; }
+            button { font:inherit; cursor:pointer; border-radius:12px; }
+            button:focus-visible { outline:3px solid #f29c38; outline-offset:3px; }
+            .primary { background:var(--primary); border:2px solid var(--primary); padding:11px 28px; color:white; font-weight:700; min-height:50px; }
+            .primary:hover:not(:disabled) { background:#16486f; }
+            button:disabled { cursor:not-allowed; opacity:.56; }
+            .quiz-head { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center; }
+            .progress-track { height:11px; border-radius:99px; background:#d8e5ed; margin:16px 0 28px; overflow:hidden; }
+            .progress-fill { background:#256a92; height:100%; width:0; transition:width .2s; }
+            #question-text { font-weight:700; font-size:23px; margin:0 0 18px; }
+            #options { padding:0; margin:0; list-style:none; display:grid; gap:13px; }
+            .option { display:flex; align-items:flex-start; gap:12px; width:100%; padding:15px; text-align:right; border:2px solid var(--line); background:white; color:var(--ink); }
+            .option:not(:disabled):hover { background:#f0f6fc; border-color:var(--primary); }
+            .option.correct { border-color:#25835a; background:#eff9f2; opacity:1; }
+            .option.incorrect { border-color:#bc4150; background:#fff1f2; opacity:1; }
+            .option .letter { flex:none; width:32px; height:32px; display:grid; place-items:center; background:#e5eff6; border-radius:50%; font-size:16px; font-weight:bold; }
+            .option .option-body { min-width:0; flex:1; overflow-wrap:anywhere; }
+            .feedback { border:2px solid var(--line); background:#f4f8fb; border-radius:12px; padding:16px; margin-top:20px; }
+            .feedback.good { background:#edf8f0; border-color:#80c69f; }
+            .feedback.bad { background:#fff0f1; border-color:#df9da7; }
+            .explanation-list { margin:12px 0 0; padding-inline-start:24px; }
+            .explanation-list li { margin-bottom:12px; }
+            .controls { margin-top:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+            .grade { text-align:center; background:#e6f1fa; border:2px solid #b7d2e6; border-radius:14px; padding:24px; margin:20px 0; }
+            .grade strong { font-size:36px; }
+            .review-item { padding:12px 0; border-bottom:1px solid var(--line); }
+            .review-item:last-child { border-bottom:0; }
+            .hidden { display:none !important; }
+            bdi.inline-code { direction:ltr; unicode-bidi:isolate; display:inline-block; vertical-align:baseline; white-space:nowrap; max-width:100%; color:var(--inline-code-color); font-family:var(--code-font); font-weight:400; font-size:1.2em; }
+            bdi.inline-code code { direction:ltr; unicode-bidi:isolate; font:inherit; color:inherit; white-space:inherit; }
+            pre.code-block { display:block; direction:ltr; unicode-bidi:isolate; text-align:left; box-sizing:border-box; max-width:100%; margin:12px 0; padding:16px 20px; background:var(--code-background); color:var(--code-ink); border:2px solid var(--code-border); border-radius:12px; font-family:var(--code-font); font-size:1.2em; font-weight:400; line-height:1.7; white-space:pre; overflow-x:auto; overflow-y:hidden; overflow-wrap:normal; word-break:normal; tab-size:4; scrollbar-width:thin; }
+            pre.code-block code { direction:ltr; unicode-bidi:isolate; display:inline; font:inherit; color:inherit; white-space:inherit; overflow-wrap:normal; word-break:normal; }
+            @media (max-width:650px) { main{padding:0 10px;margin:12px auto} body{font-size:16px} .card{padding:17px} pre.code-block{font-size:14px;padding:12px 14px} #question-text{font-size:20px} }
+            @page { size:A4; margin:15mm; }
+            @media print { body{background:#fff;font-size:12pt} main{max-width:none;margin:0;padding:0} .card{box-shadow:none;border:none;padding:0} .no-print{display:none!important} #landing,#quiz{display:none!important} #results{display:block!important} .review-item{break-inside:avoid} pre.code-block{white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;font-size:10pt;background:#f1f3f7;color:#17283c;border-color:#869bb0;break-inside:avoid} pre.code-block code{white-space:inherit;overflow-wrap:inherit} bdi.inline-code{color:#17283c} }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section id="landing" class="card" aria-labelledby="main-title">
+                <header class="center">
+                    <div class="hero-icon" aria-hidden="true">📚</div>
+                    <h1 id="main-title">תורים ב־<bdi class="inline-code" dir="ltr"><code>C#</code></bdi></h1>
+                    <p class="muted">25 שאלות | 10 שאלות תיאוריה ו־15 שאלות קוד</p>
+                </header>
+                <section class="intro" aria-labelledby="topics-title">
+                    <h2 id="topics-title">מה נלמד?</h2>
+                    <ul class="topics">
+                        <li>עקרון <bdi dir="ltr" lang="en">FIFO</bdi> של תורים וההבדל ממחסנית.</li>
+                        <li>הפעולות <bdi class="inline-code" dir="ltr"><code>Head()</code></bdi>, <bdi class="inline-code" dir="ltr"><code>Remove()</code></bdi> ו־<bdi class="inline-code" dir="ltr"><code>Insert()</code></bdi>.</li>
+                        <li>שימור תור מקורי באמצעות תור עזר ושחזור האיברים.</li>
+                        <li>היפוך סדר האיברים באמצעות רקורסיה ותנאי עצירה.</li>
+                        <li>קריאת קוד <bdi class="inline-code" dir="ltr"><code>C#</code></bdi>, איתור באגים ובדיקת מצבי קצה.</li>
+                    </ul>
+                </section>
+                <div class="center no-print"><button id="start-btn" class="primary" type="button">🚀 התחל מבחן</button></div>
+            </section>
+            <section id="quiz" class="card hidden" aria-labelledby="question-text">
+                <header class="quiz-head"><strong id="question-count"></strong><span id="progress-label" class="muted"></span></header>
+                <div class="progress-track" role="progressbar" aria-label="התקדמות בשאלון" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+                <h2 id="question-text"></h2>
+                <div id="question-code"></div>
+                <ol id="options" aria-label="אפשרויות תשובה"></ol>
+                <div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
+                <div id="explanations" class="feedback hidden"></div>
+                <div class="controls no-print"><span id="answer-hint" class="muted">בחרו תשובה כדי להמשיך</span><button class="primary" id="next-btn" type="button" disabled>אשר תשובה</button></div>
+            </section>
+            <section id="results" class="card hidden" aria-labelledby="results-title">
+                <header class="center"><div class="hero-icon" aria-hidden="true">🏅</div><h1 id="results-title">תוצאות השאלון</h1><p id="level-text"></p></header>
+                <div class="grade"><strong id="grade-number"></strong><p id="grade-fraction"></p></div>
+                <div class="center no-print"><button type="button" class="primary" id="retry-btn">נסה שוב</button> <button type="button" class="primary" id="print-btn">הדפס תוצאות</button></div>
+                <section aria-labelledby="review-title"><h2 id="review-title">סקירת התשובות</h2><div id="review"></div></section>
+            </section>
+        </main>
+        <script>
+            "use strict";
+            const QUESTIONS = [{"id": 1, "question": "מה מייצג הסימון Queue<Person>?", "options": ["תור גנרי שמכיל אובייקטים מסוג Person", "מערך סטטי של Person", "רשימה ממוין של Person"], "correct": 0, "explanation": {"1": "מערך אינו תור ולא שומר סדר FIFO בהכנסה/הוצאה.", "2": "תור אינו ממוין מעצמו; הוא FIFO."}}, {"id": 2, "question": "איזו פעולה מחזירה את האיבר הראשון מבלי להסירו?", "options": ["Head", "Remove", "Insert"], "correct": 0, "explanation": {"1": "Remove מסירה את האיבר הראשון.", "2": "Insert מוסיפה לסוף התור."}}, {"id": 3, "question": "מדוע לעיתים משתמשים בתור עזר כאשר מעבדים תור קיים בפעולה חיצונית?", "options": ["כדי לשמור על התור המקורי ללא שינוי ולהחזירו למצבו", "כדי להפוך את התור לממוין", "כדי לעדכן את קיבולת המערך הפנימי"], "correct": 0, "explanation": {"1": "תור עזר מאפשר לעבור על כל האיברים ולהחזירם חזרה.", "2": "אין קשר למיון או קיבולת במסמך הזה."}}, {"id": 4, "question": "איזו שורה בדוגמה יוצרת תור של אובייקטים מסוג Person?", "options": ["Queue<Person> personQueue = new Queue<Person>();", "Queue personQueue = new Queue<Person>;", "Queue<Person>() personQueue = new Queue();"], "correct": 0, "explanation": {"1": "הצהרת משתנה ללא טיפוס גנרי מתאים וללא סוגריים אחרי new; התחביר שגוי.", "2": "תחביר לא חוקי: סדר הרכיבים/הסוגריים שגויים."}}, {"id": 5, "question": "מה עושה הקריאה Insert(new Person(...))?", "options": ["מוסיפה אובייקט Person לסוף התור", "מדפיסה את האיבר הראשון", "מרוקנת את התור"], "correct": 0, "explanation": {"1": "Head היא שמחזירה/מציגה את הראשון בלי להסיר.", "2": "Remove היא הפעולה שמסירה, לא Insert."}}, {"id": 6, "question": "בפעולה InventoryValue  מה מוחזר אם התור ריק?", "options": ["0", "-1", "null"], "correct": 0, "explanation": {"1": "על פי ההנחיות, במקרה ריק מוחזר 0.", "2": "הפעולה מחזירה מספר ולא null."}}, {"id": 7, "question": "כאשר מעדכנים תור \"תוך כדי לולאה\"—מה חשוב לשמור?", "options": ["להוציא (Remove) ואז להחזיר (Insert) כדי שלא נתקע על אותו איבר", "לקרוא שוב ושוב ל-Head בלבד", "למחוק את התור בכל איטרציה"], "correct": 0, "explanation": {"1": "שימוש ב-Head בלבד לא מקדם את הלולאה.", "2": "אין צורך למחוק את כל התור."}}, {"id": 8, "question": "מה הרעיון בבניית פעולה רקורסיבית reverse(Queue<T>)?", "options": ["לשלוף איבר, לקרוא רקורסיבית על השאר ואז להכניסו לסוף", "למיין את התור בסדר עולה", "לשכפל כל איבר פעמיים"], "correct": 0, "explanation": {"1": "זהו דפוס קלאסי להפיכת סדר.", "2": "לא ממיינים ולא משכפלים כאן."}}, {"id": 9, "question": "מה מחזירה IsEmpty() כאשר התור ריק ?", "options": ["true", "false", "זורקת שגיאה"], "correct": 0, "explanation": {"1": "כאשר אין איברים, IsEmpty צריכה להחזיר true.", "2": "שגיאה מתרחשת Head/Remove על תור ריק."}}, {"id": 10, "question": "איזה סדר נשמר בתור?", "options": ["FIFO—הראשון שנכנס יוצא ראשון", "LIFO—האחרון נכנס יוצא ראשון", "סדר אקראי"], "correct": 0, "explanation": {"1": "FIFO הוא ההגדרה של תור.", "2": "LIFO מתאים למחסנית, לא לתור."}}, {"id": 11, "question": "מה עושה הפעולה הבאה?", "code": "public static double InventoryValue(Queue<Product> q)\n{\n    double sum = 0;\n    var tmp = new Queue<Product>();\n    while (!q.IsEmpty()) {\n        var p = q.Remove();\n        sum += p.Price * p.Quantity;\n        tmp.Insert(p);\n    }\n    while (!tmp.IsEmpty()) q.Insert(tmp.Remove());\n    return sum;\n}", "options": ["מחזירה את שווי המלאי ושומרת על התור", "סופרת את מספר הפריטים בתור", "מרוקנת את התור לצמיתות"], "correct": 0, "explanation": {"1": "הקוד משחזר את התור בסוף.", "2": "אין ספירה בלבד ואין ריקון קבוע."}}, {"id": 12, "question": "יש באג: הלולאה משתמשת רק ב-Head ולכן נתקעת. מה התיקון?", "code": "while (!q.IsEmpty()) {\n    var p = q.Head(); \n}\n", "options": ["להחליף ל Remove ולהחזיר את הפריט בסוף עם Insert", "להשאיר ככה כי Head מספיק", "להוסיף break בסוף הלולאה"], "correct": 0, "explanation": {"1": "Remove מקדם את הלולאה; אחר כך מחזירים ליציבות.", "2": "Head לא מקדם ויגרום ללולאה אינסופית."}}, {"id": 13, "question": "מה עושה הפעולה?", "code": "public static void Reverse<T>(Queue<T> q)\n{\n    if (q.IsEmpty()) return;\n    T x = q.Remove();\n    Reverse(q);\n    q.Insert(x);\n}\n", "options": ["הופכת את סדר האיברים", "ממיינת בסדר עולה", "מכפילה כל איבר"], "correct": 0, "explanation": {"1": "דפוס רקורסיבי סטנדרטי להפיכה.", "2": "אין כאן מיון/שכפול."}}, {"id": 14, "question": "יש באג: שכחנו לשמר את התור. מה חסר?", "code": "public static int CountItems<T>(Queue<T> q)\n{\n    int c = 0;\n    while (!q.IsEmpty()) { q.Remove(); c++; }\n    return c; // BUG: התור התרוקן\n}\n", "options": ["להשתמש בתור עזר ולהחזיר את הפריטים למקור", "להחזיר c - 1", "לא ניתן לתקן"], "correct": 0, "explanation": {"1": "יש להעתיק לתור tmp ואז לשחזר.", "2": "אין קשר לחיסור אחד."}}, {"id": 15, "question": "מה עושה הפעולה?", "code": "public static void PrintHead(Queue<Person> q)\n{\n    if (q.IsEmpty()) return;\n    var p = q.Head();\n    Console.WriteLine(p.Name);\n}\n", "options": ["מדפיסה את שם האדם בראש התור ללא הסרה", "מסירה את האדם הראשון", "מדפיסה את גודל התור"], "correct": 0, "explanation": {"1": "Head לא מסיר.", "2": "Remove הוא המוסר."}}, {"id": 16, "question": "יש באג: מתייחס לקריאה ל-Head כשהתור ריק. מה התיקון?", "code": "public static Person FirstOrNull(Queue<Person> q)\n{\n    // BUG: עלול לזרוק שגיאה אם התור ריק\n    return q.Head();\n}\n", "options": ["לבדוק IsEmpty קודם ולהחזיר null במקרה ריק", "להשתמש ב-Remove במקום Head", "לא ניתן לפתור"], "correct": 0, "explanation": {"1": "בדיקה מראש מונעת חריגה.", "2": "Remove משנה את התור ללא צורך."}}, {"id": 17, "question": "מה עושה הפעולה?", "code": "public static void EnqueueRange<T>(Queue<T> q, T[] arr)\n{\n    foreach (var x in arr) q.Insert(x);\n}\n", "options": ["מוסיפה את איברי המערך לסוף התור", "מוחקת את איברי התור", "ממיינת את התור"], "correct": 0, "explanation": {"1": "Insert מוסיף לסוף.", "2": "אין מחיקה/מיון כאן."}}, {"id": 18, "question": "יש באג בחישוב אגרה: שימוש ב-Head במקום Remove  מה התיקון?", "code": "public static double TotalToll(Queue<Vehicle> q, int exitTime)\n{\n    double sum = 0;\n    var tmp = new Queue<Vehicle>();\n    while (!q.IsEmpty()) {\n        var v = q.Head(); // BUG\n        int hours = exitTime - v.EntryTime;\n        sum += hours * v.tariffPerHour;\n        tmp.Insert(v);\n    }\n    while (!tmp.IsEmpty()) q.Insert(tmp.Remove());\n    return sum;\n}\n", "options": ["להחליף ל-Remove בתוך הלולאה", "להשאיר ככה כי Head מספיק", "להוסיף break בסוף"], "correct": 0, "explanation": {"1": "Remove מקדם את הלולאה ומונע תקיעה.", "2": "Head לא מקדם לולאה."}}, {"id": 19, "question": "מה עושה הפעולה?", "code": "public static Queue<Person> Copy(Queue<Person> q)\n{\n    var copy = new Queue<Person>();\n    var tmp = new Queue<Person>();\n    while (!q.IsEmpty()) { var p = q.Remove(); copy.Insert(p); tmp.Insert(p); }\n    while (!tmp.IsEmpty()) q.Insert(tmp.Remove());\n    return copy;\n}\n", "options": ["יוצרת עותק של התור ושומרת על המקור", "מרוקנת את התור ומחזירה אותו", "ממיינת את התור"], "correct": 0, "explanation": {"1": "השחזור בסוף משמר את המקור.", "2": "אין מיון."}}, {"id": 20, "question": "יש באג: שחזור לא נכון. מה התיקון?", "code": "while (!tmp.IsEmpty()) { var p = tmp.Remove(); tmp.Insert(p); }", "options": ["להחזיר ל-q באמצעות q.Insert(p)", "למחוק את tmp", "אין צורך בשחזור"], "correct": 0, "explanation": {"1": "יש להחזיר לאוסף המקורי q.", "2": "מחיקה אינה משחזרת למקור."}}, {"id": 21, "question": "מה עושה הפעולה?", "code": "public static int CountByType(Queue<Vehicle> q, VehicleType t)\n{\n    int c = 0; var tmp = new Queue<Vehicle>();\n    while (!q.IsEmpty()) { var v = q.Remove(); if (v.VehicleType == t) c++; tmp.Insert(v); }\n    while (!tmp.IsEmpty()) q.Insert(tmp.Remove());\n    return c;\n}\n", "options": ["סופרת רכבים מסוג מסוים ושומרת על התור", "מסירה את כל הרכבים מהתור", "מחשבת תשלום כולל"], "correct": 0, "explanation": {"1": "נספר ומחזירים את הרכבים.", "2": "אין כאן חישוב תשלום."}}, {"id": 22, "question": "יש באג: reverse ללא תנאי עצירה. מה חסר?", "code": "public static void Reverse<T>(Queue<T> q)\n{\n    T x = q.Remove(); // BUG: ללא תנאי עצירה\n    Reverse(q);\n    q.Insert(x);\n}\n", "options": ["להוסיף if (q.IsEmpty()) return לפני ה Remove", "להחליף את Remove ב Head", "להוריד את הקריאה הרקורסיבית"], "correct": 0, "explanation": {"1": "בסיס עצירה מונע חריגה כאשר התור ריק.", "2": "Head לא מקדם ולא בונה הפיכה."}}, {"id": 23, "question": "מה עושה הפעולה?", "code": "public static int SumQuantities(Queue<Product> q)\n{\n    int s = 0; var tmp = new Queue<Product>();\n    while (!q.IsEmpty()) { var p = q.Remove(); s += p.Quantity; tmp.Insert(p); }\n    while (!tmp.IsEmpty()) q.Insert(tmp.Remove());\n    return s;\n}\n", "options": ["מחזירה סכום כמויות המוצרים ושומרת על התור", "מחזירה את המחיר הממוצע", "מרוקנת את התור"], "correct": 0, "explanation": {"1": "סוכמים Quantity ומחזירים למקור.", "2": "אין כאן ממוצעים או ריקון."}}, {"id": 24, "question": "מה עושה הפעולה IsEmpty ?", "code": "public bool IsEmpty()\n{\n    return count == 0;\n}\n", "options": ["בודקת אם התור ריק ומחזירה true רק כשאין איברים", "מסירה איבר מהתור ומחזירה אם הצליח", "סופרת את מספר האיברים ומחזירה אם הוא גדול מ 0"], "correct": 0, "explanation": {"1": "Remove מסיר; IsEmpty אינה משנה את התור.", "2": "IsEmpty אינה סופרת אלא בודקת את המונה (count)."}}, {"id": 25, "question": "מה עושה הפעולה?", "code": "public static bool Any<T>(Queue<T> q, Predicate<T> pred)\n{\n    bool found = false; var tmp = new Queue<T>();\n    while (!q.IsEmpty()) { var x = q.Remove(); if (pred(x)) found = true; tmp.Insert(x); }\n    while (!tmp.IsEmpty()) q.Insert(tmp.Remove());\n    return found;\n}\n", "options": ["בודקת אם יש איבר העונה לתנאי ושומרת על התור", "מסירה את כל האיברים העונים לתנאי", "ממיינת את התור"], "correct": 0, "explanation": {"1": "המתודה רק בודקת ומחזירה בוליאני.", "2": "אין כאן מחיקה או מיון."}}];
+            const $ = id => document.getElementById(id);
+            let items = [], current = 0, answers = [], selected = null, confirmed = false;
+            const CODE_TOKEN = /(?:[A-Za-z_$][\w$]*(?:\s*\.\s*[A-Za-z_$][\w$]*)*(?:\([^()]*\))?|\bO\(\d+\)|\b\d+\b|==|!=|<=|>=|\+\+|--|\bC#\b)/g;
+            function node(tag, text, cls) { const el=document.createElement(tag); if (text!==undefined) el.textContent=text; if(cls) el.className=cls; return el; }
+            function inline(text) {
+                const span=node('span'); span.dir='rtl'; let at=0;
+                for (const match of text.matchAll(CODE_TOKEN)) {
+                    const i=match.index, value=match[0];
+                    if(i>at) span.append(document.createTextNode(text.slice(at,i)));
+                    const bdi=node('bdi',undefined,'inline-code'); bdi.dir='ltr';bdi.append(node('code',value));span.append(bdi);at=i+value.length;
+                }
+                if(at<text.length)span.append(document.createTextNode(text.slice(at)));
+                return span;
+            }
+            function codeBlock(code) { const pre=node('pre',undefined,'code-block'); pre.dir='ltr'; pre.append(node('code',code)); return pre; }
+            function shuffle(a) { const result=[...a];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result; }
+            function show(id) { for(const key of ['landing','quiz','results'])$(key).classList.toggle('hidden',key!==id);window.scrollTo(0,0); }
+            function begin() { items=QUESTIONS.map(q=>({...q,order:shuffle(q.options.map((text,i)=>({text,original:i})))})); answers=[];current=0;selected=null;confirmed=false;renderQuestion();show('quiz'); }
+            function renderQuestion() {
+                const q=items[current]; selected=null; confirmed=false;
+                $('question-count').textContent=`שאלה ${current+1} מתוך ${items.length}`;
+                const pct=Math.round((current/items.length)*100);$('progress-fill').style.width=pct+'%';$('progress-label').textContent=`הושלמו ${current} מתוך ${items.length}`;$('progress-track').setAttribute('aria-valuenow',pct);
+                $('question-text').replaceChildren(inline(q.question));
+                $('question-code').replaceChildren();if(q.code)$('question-code').append(codeBlock(q.code));
+                $('options').replaceChildren();
+                q.order.forEach((o,i)=>{const li=node('li');const b=node('button',undefined,'option');b.type='button';b.setAttribute('aria-pressed','false');b.append(node('span','אבג'[i],'letter'));const content=node('span',undefined,'option-body');content.append(inline(o.text));b.append(content);b.addEventListener('click',()=>select(i));li.append(b);$('options').append(li);});
+                $('feedback').className='feedback hidden';$('explanations').className='feedback hidden';$('feedback').replaceChildren();$('explanations').replaceChildren();$('answer-hint').textContent='בחרו תשובה כדי להמשיך';$('next-btn').textContent='אשר תשובה';$('next-btn').disabled=true;
+            }
+            function select(index) { if(confirmed)return;selected=index;[...$('options').querySelectorAll('button')].forEach((b,i)=>{b.style.borderColor=i===index?'#245c88':'';b.setAttribute('aria-pressed',String(i===index));});$('next-btn').disabled=false; }
+            function confirm() {
+                if(selected===null||confirmed)return;const q=items[current];confirmed=true;const selectedOriginal=q.order[selected].original;const isCorrect=selectedOriginal===q.correct;answers[current]={selectedOriginal,isCorrect};
+                [...$('options').querySelectorAll('button')].forEach((b,i)=>{b.disabled=true;b.style.borderColor='';if(q.order[i].original===q.correct)b.classList.add('correct');else if(i===selected)b.classList.add('incorrect');});
+                const feedback=$('feedback');feedback.className='feedback '+(isCorrect?'good':'bad');feedback.replaceChildren(node('strong',isCorrect?'✓ תשובה נכונה':'✗ תשובה שגויה'));
+                if(!isCorrect){feedback.append(node('p'));feedback.lastChild.append(inline(q.explanation[selectedOriginal]||'התשובה אינה נכונה.'));}
+                const explanations=$('explanations');explanations.className='feedback';explanations.append(node('h3','הסברים לכל האפשרויות'));const list=node('ol',undefined,'explanation-list');
+                q.order.forEach(o=>{const li=node('li');const strong=node('strong');strong.append(inline(o.text));li.append(strong,node('div'));li.lastChild.append(inline(o.original===q.correct?'נכון - זו התשובה המדויקת.':(q.explanation[o.original]||'האפשרות אינה נכונה.')));list.append(li);});explanations.append(list);
+                $('answer-hint').textContent='התשובה נשמרה';$('next-btn').textContent=current===items.length-1?'הצג תוצאות':'המשך לשאלה הבאה';
+            }
+            function next() { if(!confirmed){confirm();return;}if(current<items.length-1){current++;renderQuestion();window.scrollTo(0,0);}else results(); }
+            function results() {
+                const correct=answers.filter(a=>a?.isCorrect).length, pct=Math.round(correct/items.length*100);
+                const level=pct>=90?'שליטה מצוינת בנושא התורים':pct>=70?'שליטה טובה בנושא התורים':pct>=50?'שליטה בסיסית - מומלץ לתרגל':'כדאי לחזור על עקרונות התור והמונה';
+                $('grade-number').textContent=pct+'%';$('grade-fraction').textContent=`${correct} תשובות נכונות מתוך ${items.length}`;$('level-text').textContent=level;
+                const review=$('review');review.replaceChildren();items.forEach((q,i)=>{const row=node('article',undefined,'review-item');const answer=answers[i];row.append(node('h3',`שאלה ${i+1} - ${answer.isCorrect?'נכון':'שגוי'}`));const qp=node('p');qp.append(inline(q.question));row.append(qp);if(q.code)row.append(codeBlock(q.code));let chosen=q.options[answer.selectedOriginal];const p=node('p','התשובה שנבחרה: ');p.append(inline(chosen));row.append(p);if(!answer.isCorrect){const c=node('p','התשובה הנכונה: ');c.append(inline(q.options[q.correct]));row.append(c);const e=node('p');e.append(inline(q.explanation[answer.selectedOriginal]||''));row.append(e);}review.append(row);});
+                show('results');
+            }
+            $('start-btn').addEventListener('click',begin);
+            $('next-btn').addEventListener('click',next);
+            $('retry-btn').addEventListener('click',begin);
+            $('print-btn').addEventListener('click',()=>window.print());
+            // Quality gates: source data, IDs, correct answers and explanations.
+            console.assert(QUESTIONS.length===25,'Expected 25 questions');
+            console.assert(QUESTIONS.every((q,i)=>q.id===i+1 && q.options.length===3 && q.correct>=0 && q.correct<3),'Invalid question data');
+            console.assert(QUESTIONS.every(q=>q.options.every((_,i)=>i===q.correct||typeof q.explanation[i]==='string')),'Missing explanation');
+        </script>
+        <script>
+            window.MathJax = {tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{enableMenu:true}};
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    </body>
+</html>
