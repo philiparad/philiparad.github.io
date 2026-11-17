@@ -410,7 +410,18 @@ for(const notation of [
   'narrow glyph remains in next cell without moving the layout');
  assert.ok(inverse.args.length===3,'inverse menu labels also use natural glyphs');
  assert.ok(measures<=6,'glyph measurement is cached for repeated characters');
- tested+=6;
+ // PERF-007: repeated frames must reuse fitted glyph widths and positions.
+ const initialPaint=painted.map(p=>({args:[...p.args],font:p.font}));
+ const initialMeasures=measures;
+ assert.equal(lcd.drawTextLayer(ctx,{contrast:5},glyphs),true);
+ assert.equal(measures,initialMeasures,'repeat frame must not remeasure glyphs');
+ assert.deepEqual(painted.slice(4).map(p=>({args:[...p.args],font:p.font})),
+  initialPaint,'cached measurements preserve exact text coordinates');
+ // Replacing canvas measurement must invalidate the persistent cache.
+ ctx.measureText=value=>{measures++;return {width:String(value).length*7}};
+ assert.equal(lcd.drawTextLayer(ctx,{contrast:5},glyphs),true);
+ assert.ok(measures>initialMeasures,'new measurement implementation invalidates cache');
+ tested+=9;
 }
 // CAL-007: bitmap glyphs are omitted BEFORE vector text is painted.
 // This avoids the former opaque per-cell clearing that could erase cursor
