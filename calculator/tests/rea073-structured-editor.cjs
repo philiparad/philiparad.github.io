@@ -119,6 +119,28 @@ check('PERF-008 nested undo history remains detached between entries',()=>{
  assert.equal(E.undo(e),true);
  assert.equal(E.undo(e),true);
 });
+check('PERF-012 serialization cache tracks edits and undo',()=>{
+ const e=E.create();
+ E.insert(e,'12');
+ equal(E.serialize(e),'12');
+ equal(E.serialize(e),'12');
+ equal(E.serialize(e,true),'12');
+ E.template(e,'fraction');
+ equal(E.serialize(e),'((12)/(?))');
+ assert.throws(()=>E.serialize(e,true),/missing denominator/);
+ E.insert(e,'3');
+ equal(E.serialize(e,true),'((12)/(3))');
+ equal(E.serialize(e,true),'((12)/(3))');
+ E.undo(e);equal(E.serialize(e),'((12)/(?))');
+ E.undo(e);equal(E.serialize(e),'12');
+});
+check('PERF-012 distinct editors never reuse serialization',()=>{
+ const a=E.fromString('123'),b=E.fromString('987');
+ equal(E.serialize(a),'123');
+ equal(E.serialize(b),'987');
+ E.insert(a,'4');equal(E.serialize(a),'1234');
+ equal(E.serialize(b),'987');
+});
 check('undo is bounded at 40 entries',()=>{
  const e=E.create();for(let i=0;i<52;i++)E.insert(e,'1');
  equal(e.undoStack.length,40);
