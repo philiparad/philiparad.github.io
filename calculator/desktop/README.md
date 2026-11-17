@@ -52,6 +52,43 @@ npm run build
 
 Manually verify offline launch, all 50 keypad buttons, COMP/MODE and SETUP menus, SHIFT/ALPHA shortcuts, LCD appearance, window resizing, and a clean uninstall on a Windows machine. Browser regression tests in the repository remain authoritative for calculation logic. A successful GitHub Actions build verifies installation packaging, not hardware parity or every calculator operation.
 
+## CAL-012 — WebView2 / Chromium LCD visual acceptance
+
+On Windows, `.github/workflows/calculator-tauri-windows.yml` now compares the
+same **staged calculator LCD fixture** using Microsoft Edge WebView2 and
+Playwright Chromium. The fixture exercises eight screens (Ans, MODE menu, EQN
+types, EQN coefficients, fraction, nested root, fraction answer, engineering
+notation) at device-pixel-ratio factors **1.00, 1.25, 1.50, and 2.00**.
+
+The build checks for **32 WebView2 PNGs and 32 Chromium PNGs**, verifies the
+bundled LCD font is loaded, checks complete scenario coverage, compares ink
+shape/overlap and color difference, and emits an inspectable report. Failure
+prevents the Windows installer step from running. The CI artifact
+`calculator-lcd-webview2-chromium-parity` contains:
+
+- `webview2/` and `chromium/`: matched screenshots and JSON manifests
+- `diffs/`: difference maps
+- `index.html`: side-by-side visual review
+- `report.json`: machine-readable per-scenario acceptance result
+
+To reproduce locally after `npm install` and `npm run check`:
+
+```powershell
+npx playwright install chromium
+node ../tests/test_lcd_chromium_parity.cjs
+dotnet run --project visual-acceptance/WebView2Capture/WebView2Capture.csproj --configuration Release -- dist lcd-cross-engine/webview2
+python -m pip install Pillow==11.3.0
+python ../tests/compare_lcd_cross_engine.py lcd-cross-engine
+```
+
+The native screenshot host uses **real WebView2**, not a browser simulation,
+but is a minimal WinForms harness rather than the installed Tauri window.
+DPR changes are applied through Chromium DevTools device-metrics emulation;
+they are **not physical Windows monitor-DPI changes**. Manual inspection of
+the installed Tauri window at 100%, 125%, 150%, and 200% Windows display scaling
+is still required for final UI/parity acceptance. Neither the automated test
+nor this document claims physical CASIO hardware parity.
+
 ## Note on branding
 
 This is an independent educational simulator, not an official CASIO application. The desktop title is deliberately generic.
