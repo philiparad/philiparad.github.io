@@ -346,6 +346,36 @@ function drawResult(ctx,state){
  ctx.restore();
  return true;
 }
+// Repaint every legacy character with vector typography, independent of
+// which calculator screen generated it. Legacy glyph positions remain the
+// source of truth: this covers mode menus, equation tables, prompts, status
+// readouts, memory letters, BASE-N, STAT, MATRIX, VECTOR, and ordinary input.
+// Underline strokes, cursor blocks and menu selection backgrounds remain
+// intact because only each glyph's 7x11 atlas cell is replaced.
+function drawTextLayer(ctx,state,runs){
+ if(!Array.isArray(runs)||!runs.length)return false;
+ const paper='rgb(215,230,215)',color=ink(ctx,state);
+ ctx.save();
+ ctx.beginPath();ctx.rect(0,0,VIEW_W,VIEW_H);ctx.clip();
+ ctx.font='600 6.35px Arial, "DejaVu Sans", sans-serif';
+ ctx.textBaseline='alphabetic';ctx.textAlign='left';
+ for(const glyph of runs){
+  if(!glyph||glyph.c===undefined)continue;
+  const x=Number(glyph.x),y=Number(glyph.y);
+  if(!Number.isFinite(x)||!Number.isFinite(y)||
+     x>=VIEW_W||y>=VIEW_H||x+4<=0||y+6<=0)continue;
+  const value=String(glyph.c);
+  if(value===' ')continue;
+  // Inverse labels sit on dark rectangular keys in MODE. Keep the dark
+  // backing instead of punching a light hole through its center.
+  ctx.fillStyle=glyph.inverse?color:paper;
+  ctx.fillRect(x-.1,y-.15,3.85,5.8);
+  ctx.fillStyle=glyph.inverse?paper:color;
+  ctx.fillText(value,x+.10,y+5.2,3.65);
+ }
+ ctx.restore();
+ return true;
+}
 function supported(state){
  if(!state||!state.power||!state.editor||!Array.isArray(state.editor.root))return false;
  if(!['edit','result'].includes(state.screen))return false;
@@ -357,18 +387,32 @@ function draw(canvas,state){
  if(!canvas||authentic){legacy.draw(canvas,state);return 'authentic'}
  const structured=supported(state);
  const resultEligible=!!resultModel(state);
- if(!structured&&!resultEligible){legacy.draw(canvas,state);return 'authentic'}
- // First retain the proven LCD raster (status/readouts, results, mode details).
+ const runs=typeof legacy.getTextRuns==='function'?legacy.getTextRuns(state):[];
+ const textEligible=runs.length>0;
+ if(!structured&&!resultEligible&&!textEligible){
+  legacy.draw(canvas,state);return 'authentic';
+ }
+ // First retain the original LCD geometry, inverse menu backgrounds,
+ // cursors, scroll marks and status readouts. All glyphs are repainted.
  legacy.draw(canvas,state);
  const ctx=canvas.getContext('2d',{alpha:false});
  if(!ctx)return 'authentic';
  const outputWidth=canvas.width,outputHeight=canvas.height;
  if(!outputWidth||!outputHeight)return 'authentic';
  const sx=outputWidth/VIEW_W,sy=outputHeight/VIEW_H;
- // Redraw short answers separately, even when the editor is plain text.
- // Avoid erasing the result if the structured input cannot be measured.
- if(!structured){ctx.save();ctx.scale(sx,sy);const painted=drawResult(ctx,state);ctx.restore();
-  return painted?'enhanced':'authentic'}
+ if(textEligible){
+  ctx.save();ctx.scale(sx,sy);
+  drawTextLayer(ctx,state,runs);
+  ctx.restore();
+ }
+ // Short mathematical answers retain their specialized fraction/root
+ // layout. Other screen types use high-resolution glyphs at legacy positions.
+ if(!structured){
+  if(resultEligible){
+   ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore();
+  }
+  return textEligible||resultEligible?'enhanced':'authentic';
+ }
  const yTop=0,yBottom=state.screen==='result'?17:state.info?24.3:VIEW_H;
  ctx.save();
  ctx.scale(sx,sy);
@@ -424,7 +468,7 @@ function draw(canvas,state){
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
 }
-const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,ink,legacy});
+const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,ink,drawTextLayer,legacy});
 global.FreshEnhancedLCD=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
