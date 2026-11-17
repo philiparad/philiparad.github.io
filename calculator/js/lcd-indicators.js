@@ -60,7 +60,7 @@ function render(state,lookup){
  const flags=derive(state);
  for(const [name,id] of Object.entries(IDS)){
   const node=lookup(id);
-  if(node)node.textContent=flags[name];
+  if(node&&node.textContent!==flags[name])node.textContent=flags[name];
  }
  return flags;
 }
