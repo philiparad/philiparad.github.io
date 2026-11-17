@@ -81,6 +81,27 @@ function reviewHTML(manifest){
  '</script></main></body></html>';
 }
 const cases=[
+ // Real-world low-resolution examples supplied by the user. High-res
+ // typography must now cover these, not only MathIO input templates.
+ ['full-ans',[],'edit','',null,{extra:{input:'Ans',cursor:3}}],
+ ['full-mode-menu',[],'menu','',null,{extra:{
+  menuKind:'mode',menuPage:0,menuPageSize:8,menuTitle:'MODE',
+  menu:[...['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']
+   .map((label,i)=>({number:i+1,label}))],
+  menuEntries:[...['COMP','CMPLX','STAT','BASE-N','EQN','MATRIX','TABLE','VECTOR']
+   .map((label,i)=>({number:i+1,label}))]
+ }}],
+ ['full-eqn-types',[],'menu','',null,{extra:{
+  mode:'EQN',menuKind:'eqn-type',menuPageSize:4,menuTitle:'EQN',
+  menu:[1,2,3,4].map(number=>({number,label:'EQUATION'})),
+  menuEntries:[1,2,3,4].map(number=>({number,label:'EQUATION'}))
+ }}],
+ ['full-eqn-coeff',[],'eqn-coeff','',null,{extra:{
+  mode:'EQN',eqnEditor:{
+   rows:[['a','b','c'],['d','e','f']],row:0,col:0,editing:true,
+   buffer:'0',values:{a:0,b:0,c:0,d:0,e:0,f:0}
+  }
+ }}],
  ['root-empty',[{type:'squareRoot',parts:{radicand:[]}}],'edit'],
  ['root-filled',[{type:'squareRoot',parts:{radicand:[{type:'char',value:'9'}]}}],'edit'],
  ['fraction',[{type:'fraction',parts:{numerator:[{type:'char',value:'1'}],denominator:[{type:'char',value:'3'}]}}],'edit'],
@@ -142,6 +163,7 @@ const cases=[
       input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
       editor:{root:nodes,path:options.path||[],offset:options.offset||0},
       resultPresentation:chosen?{chosen}:null};
+     Object.assign(state,options.extra||{});
      const mode=window.FreshEnhancedLCD.draw(canvas,state);
      const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
      let ink=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]<160)ink++;
@@ -157,10 +179,13 @@ const cases=[
     const comparison=await page.evaluate(({nodes,screen,result,chosen,options})=>{
      const canvas=document.getElementById('lcd'),ctx=canvas.getContext('2d');
      const enhanced=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-     window.FreshLCD.draw(canvas,{power:true,screen,mode:'COMP',math:true,
-      contrast:options.contrast??5,input:'',result,viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
+     const comparisonState={power:true,screen,mode:'COMP',math:true,
+      contrast:options.contrast??5,input:'',result,
+      viewport:{inputX:options.inputX||0,inputY:0,resultX:0,manualPan:!!options.manualPan},
       editor:{root:nodes,path:options.path||[],offset:options.offset||0},
-      resultPresentation:chosen?{chosen}:null});
+      resultPresentation:chosen?{chosen}:null};
+     Object.assign(comparisonState,options.extra||{});
+     window.FreshLCD.draw(canvas,comparisonState);
      const authentic=ctx.getImageData(0,0,canvas.width,canvas.height).data;
      let changedPixels=0;
      for(let i=0;i<enhanced.length;i+=4){
