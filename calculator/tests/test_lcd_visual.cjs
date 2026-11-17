@@ -147,6 +147,10 @@ const cases=[
 ];
 (async()=>{
  await mkdir(output,{recursive:true});
+ // CAL-009: load identical repository font bytes in the synthetic screenshot
+ // page, which has no site URL for resolving the normal ../fonts/ reference.
+ const lcdFontBytes=await readFile(path.join(root,'..','fonts','Roboto-Medium-webfont.woff'));
+ const lcdFontData=lcdFontBytes.toString('base64');
  const browser=await chromium.launch({headless:true});
  const manifest=[];
  try{
@@ -154,6 +158,14 @@ const cases=[
    const context=await browser.newContext({viewport:{width:800,height:420},deviceScaleFactor:dpr});
    const page=await context.newPage();
    await page.setContent('<!doctype html><meta charset="utf-8"><style>body{margin:20px;background:#e9eeea}canvas{display:block;width:480px;height:155px;image-rendering:auto;border:8px solid #111;border-radius:4px}</style><canvas id="lcd" width="960" height="310"></canvas>');
+   await page.addStyleTag({content:'@font-face{font-family:"CalculatorLCD";'+
+    'src:url(data:font/woff;base64,'+lcdFontData+') format("woff");'+
+    'font-weight:600;font-style:normal;font-display:block}'});
+   await page.evaluate(async()=>{
+    const loaded=await document.fonts.load('600 6.15px "CalculatorLCD"');
+    if(!loaded.length||!document.fonts.check('600 6.15px "CalculatorLCD"'))
+     throw Error('CAL-009: bundled LCD font is not available in Chromium');
+   });
    for(const file of ['js/lcd-viewport.js','js/display.js','js/lcd-enhanced.js'])
     await page.addScriptTag({path:path.join(root,file)});
    for(const [label,nodes,screen,result='',chosen=null,options={}] of cases){
