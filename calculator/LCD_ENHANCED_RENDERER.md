@@ -245,3 +245,29 @@ The controller makes an initial safe authentic-bitmap paint and loads the reques
 **Checks:** 322 original LCD cases, 145 enhanced LCD cases, and 30 all-screen classes representing 643 vector character draws passed in source-level JavaScript validation. Screenshot harness syntax was checked and updated to load the exact repository font bytes as a browser data URL. Actual Chromium screenshots, Windows visual review, and font coverage for every rare mathematical symbol remain to be verified.
 
 **Known independent release blocker:** CAL-001 (standalone script URL parsing and stale generated HTML) still prevents regenerating/validating the committed standalone artifact; the standalone font embedding is implemented in its builder but the current generated file has not been refreshed.
+
+## CAL-012 — Windows WebView2 versus Chromium scaled screenshot acceptance (2026-11-17)
+
+**Automated cross-engine acceptance implemented and passed.** The Windows Actions
+workflow `calculator-tauri-windows.yml` stages a shared eight-case LCD
+fixture, captures **32 screenshots with real Microsoft Edge WebView2** and **32
+matched Chromium screenshots** across DPR emulation factors **1, 1.25, 1.5,
+2**, then checks image dimensions, dark LCD ink coverage, ink intersection
+over union, and mean RGB differences. The comparator rejects missing/duplicate
+screenshots and produces `report.json`, `index.html`, and difference PNGs.
+A comparator self-test injects a corrupted image to ensure failures remain
+diagnostic. The test fixture is explicitly excluded from the final installer
+assets.
+
+Verification: the 2026-11-17 Windows run
+https://github.com/philiparad/philiparad.github.io/actions/runs/44018502404
+passed the **Chromium capture, WebView2 native capture, comparator self-test,
+and all 32 cross-engine comparisons**. Its
+`calculator-lcd-webview2-chromium-parity` artifact includes the screenshot
+gallery and per-case metrics.
+
+**Scope:** this uses native WebView2 inside a WinForms test harness with
+DevTools *emulated* DPR, loading the same production LCD JavaScript/CSS/font
+as Tauri. It does **not** actually change Windows monitor display scaling,
+inspect the installed Tauri window, or compare with physical calculator
+hardware. Those remain independent manual acceptance requirements.
