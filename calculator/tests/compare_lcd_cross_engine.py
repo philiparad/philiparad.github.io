@@ -39,7 +39,12 @@ def compare(native_file, chrome_file, factor, diffs):
         if any(abs(actual - target) > 2 for actual, target in zip(image.size, expected)):
             raise ValueError(f"{label} screenshot dimensions {image.size}, expected {expected}")
     if a.size != b.size:
-        raise ValueError(f"Mismatched screenshot dimensions: {a.size} vs {b.size}")
+        # Edge and Chromium may round fractional-DPR screenshot extents by
+        # one pixel differently. Crop at most two physical edge pixels;
+        # larger dimension mismatches were already rejected above.
+        common = (min(a.width, b.width), min(a.height, b.height))
+        a = a.crop((0, 0, *common))
+        b = b.crop((0, 0, *common))
     border = round(8 * factor)
     inner = (border, border, a.width - border, a.height - border)
     a, b = a.crop(inner), b.crop(inner)
