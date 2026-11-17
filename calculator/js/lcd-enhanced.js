@@ -33,6 +33,20 @@ const FIELDS={
 };
 const charMetric=Object.freeze({width:4.1,ascent:5.9,descent:1.3});
 const padding=1.6;
+// PERF-005: expression and metric-aware canvas-scoped layout cache.
+const layoutCache=new WeakMap();
+let activeLayout=null;
+function layoutEntry(canvas,ctx,root){
+ const signature=JSON.stringify(root);
+ let entry=layoutCache.get(canvas);
+ if(!entry||entry.signature!==signature||entry.font!==ctx.font||
+    entry.measureText!==ctx.measureText||entry.ctx!==ctx){
+  entry={signature,font:ctx.font,ctx,measureText:ctx.measureText,
+   nodes:new WeakMap(),boxes:new WeakMap()};
+  layoutCache.set(canvas,entry);
+ }
+ return entry;
+}
 // Use actual glyph advances during painting; static metrics remain a safe
 // fallback for pure layout calculations and headless tests without a canvas.
 const measureText=(s,ctx=null)=>{
@@ -48,13 +62,33 @@ const merge=(nodes)=>nodes.reduce((o,n)=>({
  descent:Math.max(o.descent,n.descent)}),{width:0,ascent:0,descent:0});
 function measureNodes(nodes,depth=0,ctx=null){
  if(!Array.isArray(nodes)||depth>24) return empty();
+ const cache=activeLayout&&activeLayout.ctx===ctx?activeLayout.nodes:null;
+ const found=cache?.get(nodes)?.get(depth);
+ if(found)return found;
  const boxes=nodes.map(n=>measure(n,depth+1,ctx));
- return boxes.length?merge(boxes):empty();
+ const result=boxes.length?merge(boxes):empty();
+ if(cache){
+  let depths=cache.get(nodes);
+  if(!depths){depths=new Map();cache.set(nodes,depths)}
+  depths.set(depth,result);
+ }
+ return result;
 }
 function measure(node,depth=0,ctx=null){
  if(!node||typeof node!=='object'||depth>24)return empty();
- if(node.type==='char')return {...measureText(node.value,ctx),kind:'char',value:String(node.value)};
- if(!FIELDS[node.type]||!node.parts)return {...measureText('?',ctx),kind:'char',value:'?'};
+ const cache=activeLayout&&activeLayout.ctx===ctx?activeLayout.boxes:null;
+ const found=cache?.get(node)?.get(depth);
+ if(found)return found;
+ const save=result=>{
+  if(cache){
+   let depths=cache.get(node);
+   if(!depths){depths=new Map();cache.set(node,depths)}
+   depths.set(depth,result);
+  }
+  return result;
+ };
+ if(node.type==='char')return save({...measureText(node.value,ctx),kind:'char',value:String(node.value)});
+ if(!FIELDS[node.type]||!node.parts)return save({...measureText('?',ctx),kind:'char',value:'?'});
  const fields={};
  for(const name of FIELDS[node.type])fields[name]=measureNodes(node.parts[name],depth+1,ctx);
  const p=fields;
@@ -98,7 +132,7 @@ function measure(node,depth=0,ctx=null){
    ascent:Math.max(10,p.expression.ascent),descent:Math.max(9,p.at.ascent+p.at.descent)};break;
   default:box={width:4,ascent:6,descent:2};
  }
- return {...box,kind:node.type,fields,node};
+ return save({...box,kind:node.type,fields,node});
 }
 // Convert the controller's legacy horizontal scroll position to our
 // measured expression widths. Align each top-level node boundary exactly,
@@ -530,6 +564,9 @@ function draw(canvas,state){
  // The bundled LCD font is measured using Canvas in all environments.
  ctx.font='600 6.8px '+LCD_FONT;
  ctx.textBaseline='alphabetic';
+ const previousLayout=activeLayout;
+ activeLayout=layoutEntry(canvas,ctx,state.editor.root);
+ try{
  const box=measureNodes(state.editor.root,0,ctx);
  const mappedScroll=scrollOffset(state.editor.root,state.viewport?.inputX||0,ctx);
  // No safe mapping: keep the bitmap path rather than corrupting cursor
@@ -563,6 +600,7 @@ function draw(canvas,state){
  ctx.restore();
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
+ }finally{activeLayout=previousLayout}
 }
 const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,followCaretVertical,locateCaret,resultModel,ink,drawTextLayer,fontReady,lcdFontRequest:LCD_FONT_REQUEST,legacy});
 global.FreshEnhancedLCD=api;
