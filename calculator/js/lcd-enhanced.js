@@ -6,6 +6,14 @@
 const legacy=global.FreshLCD;
 if(!legacy)throw Error('Enhanced LCD requires the legacy raster fallback');
 const VIEW_W=96,VIEW_H=31;
+// CAL-009: same font as the browser and packaged Windows calculator.
+// Before it loads, use authentic pixels rather than operating-system fonts.
+const LCD_FONT='"CalculatorLCD", monospace';
+const LCD_FONT_REQUEST='600 6.15px "CalculatorLCD"';
+function fontReady(){
+ const fonts=global.document?.fonts;
+ return !fonts||typeof fonts.check!=='function'||fonts.check(LCD_FONT_REQUEST);
+}
 const FIELDS={
  fraction:['numerator','denominator'],mixed:['integer','numerator','denominator'],
  squareRoot:['radicand'],cubeRoot:['radicand'],nthRoot:['index','radicand'],
@@ -259,8 +267,8 @@ function drawResult(ctx,state){
  // Give them a separate clip region instead of slicing off the top glyphs.
  const {kind}=model,baseline=27.1,top=(kind==='fraction'||kind==='mixed')?14.6:17.3;
  // Layout with the same font that Canvas will actually paint. Character
- // count alone is not reliable across Consolas, WebView2 and fallback fonts.
- const resultFont='6.8px Consolas, "DejaVu Sans Mono", monospace';
+ // character counts cannot predict measured font widths.
+ const resultFont='600 6.8px '+LCD_FONT;
  ctx.font=resultFont;
  const textWidth=value=>{
   const estimate=measureText(value).width;
@@ -278,7 +286,7 @@ function drawResult(ctx,state){
  }else if(kind==='engineering'){
   const body=model.mantissaText+'×10';
   const normalWidth=textWidth(body);
-  ctx.font='5.1px Consolas, "DejaVu Sans Mono", monospace';
+  ctx.font='600 5.1px '+LCD_FONT;
   const exponentWidth=textWidth(model.exponentText);
   ctx.font=resultFont;
   width=normalWidth+exponentWidth+.6;
@@ -310,7 +318,7 @@ function drawResult(ctx,state){
  ctx.fillRect(0,top,VIEW_W,VIEW_H-top);
  ctx.strokeStyle=ink(ctx,state);ctx.fillStyle=ctx.strokeStyle;
  ctx.lineWidth=.44;ctx.lineCap='square';ctx.lineJoin='miter';
- // Consolas has ~0.60em advance width; 6.8px matches 4.1 layout units.
+ // The bundled LCD font is measured using Canvas in all environments.
  ctx.font=resultFont;
  ctx.textBaseline='alphabetic';
  let x=VIEW_W-width-1.5;
@@ -328,7 +336,7 @@ function drawResult(ctx,state){
  }else if(kind==='engineering'){
   const item=segments[0];
   text(ctx,item.body,x,baseline);
-  ctx.font='5.1px Consolas, "DejaVu Sans Mono", monospace';
+  ctx.font='600 5.1px '+LCD_FONT;
   text(ctx,model.exponentText,x+item.normalWidth+.6,baseline-4.6);
   ctx.font=resultFont;
  }else{
@@ -361,7 +369,7 @@ function drawTextLayer(ctx,state,runs){
  // horizontally. Fit the font size instead, retaining natural proportions
  // and each original 4-unit LCD character cell.
  const baseFontSize=6.15,cellWidth=3.85,maxGlyphWidth=3.65;
- const fontAt=size=>'600 '+size+'px Consolas, "DejaVu Sans Mono", monospace';
+ const fontAt=size=>'600 '+size+'px '+LCD_FONT;
  const glyphMetrics=new Map();
  ctx.font=fontAt(baseFontSize);
  ctx.textBaseline='alphabetic';ctx.textAlign='left';
@@ -410,7 +418,7 @@ function supported(state){
 }
 function draw(canvas,state){
  const authentic=new URLSearchParams(global.location?.search||'').get('lcd')==='authentic';
- if(!canvas||authentic){legacy.draw(canvas,state);return 'authentic'}
+ if(!canvas||authentic||!fontReady()){legacy.draw(canvas,state);return 'authentic'}
  const structured=supported(state);
  const resultEligible=!!resultModel(state);
  // The legacy draw already constructs the exact glyph runs for the screen.
@@ -448,8 +456,8 @@ function draw(canvas,state){
  ctx.lineWidth=.52;
  ctx.lineCap='square';ctx.lineJoin='miter';ctx.strokeStyle=ink(ctx,state);
  ctx.fillStyle=ctx.strokeStyle;
- // Consolas has ~0.60em advance width; 6.8px matches 4.1 layout units.
- ctx.font='6.8px Consolas, "DejaVu Sans Mono", monospace';
+ // The bundled LCD font is measured using Canvas in all environments.
+ ctx.font='600 6.8px '+LCD_FONT;
  ctx.textBaseline='alphabetic';
  const box=measureNodes(state.editor.root,0,ctx);
  const mappedScroll=scrollOffset(state.editor.root,state.viewport?.inputX||0,ctx);
@@ -494,7 +502,7 @@ function draw(canvas,state){
  if(resultEligible){ctx.save();ctx.scale(sx,sy);drawResult(ctx,state);ctx.restore()}
  return 'enhanced';
 }
-const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,ink,drawTextLayer,legacy});
+const api=Object.freeze({draw,supported,measure,measureNodes,scrollOffset,followCaret,resultModel,ink,drawTextLayer,fontReady,lcdFontRequest:LCD_FONT_REQUEST,legacy});
 global.FreshEnhancedLCD=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
