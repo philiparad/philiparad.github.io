@@ -271,3 +271,19 @@ DevTools *emulated* DPR, loading the same production LCD JavaScript/CSS/font
 as Tauri. It does **not** actually change Windows monitor display scaling,
 inspect the installed Tauri window, or compare with physical calculator
 hardware. Those remain independent manual acceptance requirements.
+
+## CAL-016 — avoid repeated full LCD background expansion (2026-11-17)
+
+The LCD uses 192 × 62 high-resolution logical pixels, expanded to a 960 × 310 RGBA Canvas image (297,600 output pixels / 1,190,400 channel bytes). Previously `FreshLCD.draw()` allocated an `ImageData` and rewrote every channel on **every paint**. Enhanced rendering first paints the bitmap background, then paints Canvas text/math overlays; text-only edits need not reconstruct that underlying background.
+
+**Implementation in `calculator/js/display.js`:**
+- Store the last clean background `ImageData`, its logical pixel bits, contrast ink color, dimensions, and context in a `WeakMap` **per canvas**.
+- Every paint still computes the legacy 192 × 62 logical raster, so all screen state, cursor marks, arrows, selection strokes, and geometry remain current.
+- If the ink color is unchanged, compare logical pixels and rewrite only the changed 5 × 5 output pixel blocks. For a text-only or entirely unchanged background, write **zero RGBA bytes**.
+- Reuse the existing `ImageData` allocation after cursor movement or contrast changes; a full pixel refresh is required when contrast changes.
+- Always call `putImageData` to restore the clean bitmap background before vector labels/results are repainted; never retain stale text from the preceding frame.
+- Canvas size or context changes invalidate the cache. Different canvases have isolated caches. Authentic LCD bitmap rendering remains supported.
+
+**Verification:** Existing suites pass: 322 legacy LCD cases, 145 enhanced LCD cases, and 30 screen classes with 643 high-resolution glyph draws. The added `test_lcd_performance.cjs` checks text-only updates, dirty-cursor pixels, contrast, canvas resize/isolation, image byte equality, unchanged authentic rendering, and continued enhanced vector text repainting. It measures RGBA writes deterministically: an initial frame writes all 1,190,400 channel values, cursor-only changes write fewer than 20% of that amount, and unchanged geometry writes zero. This source-level test is included in the Windows `npm run check` workflow.
+
+**Limitations:** The optimized background is still transferred to Canvas with `putImageData` every frame, and the 192 × 62 legacy geometric raster is still computed on each paint. Real browser/WebView2 latency and frame time remain to be benchmarked on target hardware; the change does not claim a measured FPS improvement.
