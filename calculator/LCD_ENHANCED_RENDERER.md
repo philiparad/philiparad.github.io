@@ -186,3 +186,23 @@ Engineering-format results such as `1.23×10^4` were still drawn as plain text w
 **Verified:** The original LCD suite passes 322 cases; the enhanced LCD suite passes 120 cases. New regression cases verify exponent parsing, separate glyph drawing, smaller font, raised baseline, absence of caret glyphs, and authentic fallback for malformed output. The 24 browser screenshot scenarios each select the enhanced drawing path in mock Canvas verification.
 
 The visual comparison gallery now configures **24 cases × 4 device pixel ratios × 2 renderer modes = 192 browser screenshots**, including signed engineering exponent examples. These images have not yet been executed and reviewed in the browser/Windows workflow in this session. No claim of screenshot-level physical calculator parity is made.
+
+## Complete LCD text resolution pass — 2026-11-17
+
+User-provided LCD screenshots showed low-resolution glyphs in four places: `Ans` input, MODE selection, EQN equation-type selection, and EQN coefficient editing. These were not MathIO expression rendering problems: they were produced by the original bitmap renderer, which was still active for many application screens.
+
+### Architecture
+
+- `FreshLCD.rasterize(state, collect?)` optionally collects every ordinary glyph emitted by the original screen layout, preserving character, logical x/y position, and inverse-digit status. `FreshLCD.draw(canvas, state, collect?)` passes this through **during its existing rasterization**, so there is no duplicate rasterization on every keypress. `FreshLCD.getTextRuns(state)` is also available for tests.
+- `FreshEnhancedLCD.draw()` retains original geometry, key selection rectangles, underlines, cursor and navigation marks, then repaints **all ordinary LCD characters** at their existing positions with high-resolution 6.35px Consolas/monospace Canvas typography. Inverted MODE digits retain their dark background and light text.
+- The existing vector MathIO renderer and specialized fractional, radical, recurring-decimal and engineering result rendering are retained. The URL parameter `lcd=authentic` still forces the original bitmap renderer.
+- This approach covers screens through a **single shared character path** rather than a brittle list of individual menu or equation implementations. It includes the original rasterizer's MODE, SETUP, EQN, STAT, BASE-N, TABLE, MATRIX, VECTOR, memory, contrast, prompt, result, error, and ordinary-input routes. Pure graphical strokes remain geometrical marks, not fonts.
+
+### Verification
+
+- `test_lcd_symbols.cjs`: **322** original LCD cases pass.
+- `test_lcd_enhanced.cjs`: **120** high-resolution math and navigation cases pass.
+- `test_lcd_all_screens.cjs`: **30** distinct screen classes pass with **638** high-resolution character-drawing calls verified, including inverted MODE digits. This suite is part of the Windows `npm run check`.
+- `test_lcd_visual.cjs`: **28** screenshot scenarios are configured, now including the four screens in the user-provided photos. At four device-pixel ratios and two renderers, the gallery expects **224** PNG images if the workflow completes. Source-level drawing checks for these cases pass.
+
+**Limit:** The automated JavaScript draw-call checks do not replace inspection of actual Chrome/WebView2 screenshots. Do not claim pixel-perfect visual or physical-device parity until the browser gallery and Windows desktop build have been run and reviewed. The faceplate and underlying calculation engine are unchanged by this LCD typography pass.
