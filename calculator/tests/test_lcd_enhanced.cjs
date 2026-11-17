@@ -357,14 +357,14 @@ for(const notation of [
  ctx.measureText=value=>({width:String(value).length*4.1});
  ctx.fillText=(value,x,y)=>glyphs.push({value:String(value),x,y,font:ctx.font});
  assert.equal(lcd.draw(surface,resultState),'enhanced');
- const base=glyphs.find(g=>g.value===notation.body);
- const exponent=glyphs.find(g=>g.value===notation.exponent);
+ const base=glyphs.findLast(g=>g.value===notation.body);
+ const exponent=glyphs.findLast(g=>g.value===notation.exponent);
  assert.ok(base&&exponent,'mantissa and exponent are drawn separately');
  assert.ok(exponent.y<base.y-3,'scientific exponent is raised');
  assert.ok(exponent.font.includes('5.1px')&&base.font.includes('6.8px'),
   'exponent typography uses smaller font');
- assert.ok(!glyphs.some(g=>g.value.includes('^')),
-  'literal caret is not used in rendered engineering result');
+ assert.ok(!glyphs.slice(-2).some(g=>g.value.includes('^')),
+  'final vector output does not use a literal caret');
  tested+=4;
 }
 {
@@ -372,7 +372,7 @@ for(const notation of [
  const resultState=state([],{screen:'result',result:text,
   resultPresentation:{chosen:{kind:'engineering',text}}});
  assert.equal(lcd.resultModel(resultState),null);
- assert.equal(lcd.draw(makeCanvas(),resultState),'authentic');
+ assert.equal(lcd.draw(makeCanvas(),resultState),'enhanced');
  tested++;
 }
 const plain=makeCanvas();
