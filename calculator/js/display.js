@@ -120,11 +120,15 @@ function hiGlyph(c){
  }
  return rows;
 }
-function rasterize(state,collect=null){
+function rasterize(state,collect=null,workspace=null){
  // Preserve the existing 96×31 layout coordinates while painting a finer
  // 192×62 pixel output. Geometry retains precise edges; text uses a fresh
  // 7×11 bitmap glyph rather than enlarging its former 3×5 dots.
- const pixels=new Uint8Array(W*H),textRuns=[],fineStrokes=[];
+ // PERF-004: the draw path reuses per-canvas logical buffers; direct
+ // rasterize() calls still own independent return arrays.
+ const pixels=workspace?workspace.coarse:new Uint8Array(W*H);
+ if(workspace)pixels.fill(0);
+ const textRuns=[],fineStrokes=[];
   // Keep 96x31 expression layout, but draw geometric signs at 192x62.
   const fineStroke=(x1,y1,x2,y2)=>fineStrokes.push([x1,y1,x2,y2]);
   // A consistent 7x11 pixel slot for Natural Display. It is a glyph,
@@ -154,7 +158,8 @@ function rasterize(state,collect=null){
  }};
  const line=(y)=>{for(let x=0;x<W;x++)pixel(x,y)};
  const finish=()=>{
-  const hi=new Uint8Array(HI_W*HI_H);
+  const hi=workspace?workspace.hi:new Uint8Array(HI_W*HI_H);
+  if(workspace)hi.fill(0);
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(pixels[y*W+x]){
    const i=(y*2)*HI_W+x*2;
    hi[i]=hi[i+1]=hi[i+HI_W]=hi[i+HI_W+1]=1;
@@ -759,13 +764,22 @@ function getTextRuns(state){
 // often leaves the underlying 192x62 geometry unchanged. Cache the expanded
 // RGBA image per canvas and restore it before EVERY vector text repaint.
 const rgbaCache=new WeakMap();
+// PERF-004: reuse the small logical and high-resolution mono framebuffers.
+// Canvas-scoped storage avoids cross-canvas mutation and stale image references.
+const rasterCache=new WeakMap();
 function draw(canvas,state,collect=null){
- const pixels=rasterize(state,collect);
+ if(!canvas)return;
  const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
  const scale=5,w=HI_W*scale,h=HI_H*scale;
  if(canvas.width!==w||canvas.height!==h){
-  canvas.width=w;canvas.height=h;rgbaCache.delete(canvas);
+  canvas.width=w;canvas.height=h;rgbaCache.delete(canvas);rasterCache.delete(canvas);
  }
+ let workspace=rasterCache.get(canvas);
+ if(!workspace){
+  workspace={coarse:new Uint8Array(W*H),hi:new Uint8Array(HI_W*HI_H)};
+  rasterCache.set(canvas,workspace);
+ }
+ const pixels=rasterize(state,collect,workspace);
  // REA-020: Contrast adjusts the LCD ink shade, never the logical pixel raster.
  // Level 5 preserves the approved web-only golden-frame colors exactly.
  const level=Math.max(0,Math.min(9,Number.isFinite(Number(state.contrast))?Number(state.contrast):5));
