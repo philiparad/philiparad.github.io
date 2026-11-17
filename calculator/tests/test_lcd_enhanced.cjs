@@ -472,6 +472,37 @@ for(const notation of [
  assert.ok(bitmap[((16*5)*960)*4]<100,'cursor survives at physical resolution');
  tested+=12;
 }
+// CAL-009: enhanced rendering must not silently substitute another host font.
+{
+ const oldDocument=globalThis.document;
+ try{
+  let ready=false,requested='';
+  globalThis.document={fonts:{check:request=>{
+   requested=request;return ready;
+  }}};
+  assert.equal(lcd.fontReady(),false,'bundled font must be loaded');
+  assert.ok(requested.includes('CalculatorLCD'));
+  const screen=state([{type:'char',value:'A'}],{
+   screen:'edit',input:'Ans',cursor:3
+  });
+  assert.equal(lcd.draw(makeCanvas(),screen),'authentic',
+   'use deterministic bitmap until bundled font is available');
+  ready=true;
+  assert.equal(lcd.fontReady(),true);
+  assert.equal(lcd.draw(makeCanvas(),screen),'enhanced',
+   'activate vector rendering when exact font is ready');
+  const sample=makeCanvas(),ctx=sample.getContext();
+  const fonts=[];
+  ctx.fillText=()=>fonts.push(ctx.font);
+  lcd.drawTextLayer(ctx,screen,[{c:'A',x:1,y:2}]);
+  assert.ok(fonts.length&&fonts.every(v=>v.includes('CalculatorLCD')),
+   'vector LCD uses the bundled font, not Consolas or OS fallback');
+  tested+=5;
+ }finally{
+  if(oldDocument===undefined)delete globalThis.document;
+  else globalThis.document=oldDocument;
+ }
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
