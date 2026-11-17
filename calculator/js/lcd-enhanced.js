@@ -387,14 +387,14 @@ function draw(canvas,state){
  if(!canvas||authentic){legacy.draw(canvas,state);return 'authentic'}
  const structured=supported(state);
  const resultEligible=!!resultModel(state);
- const runs=typeof legacy.getTextRuns==='function'?legacy.getTextRuns(state):[];
+ // The legacy draw already constructs the exact glyph runs for the screen.
+ // Capture them during the same paint pass to avoid a second rasterization
+ // on every keystroke (notably costly with EQN and TABLE screens).
+ const collected={textRuns:[]};
+ legacy.draw(canvas,state,collected);
+ const runs=collected.textRuns||[];
  const textEligible=runs.length>0;
- if(!structured&&!resultEligible&&!textEligible){
-  legacy.draw(canvas,state);return 'authentic';
- }
- // First retain the original LCD geometry, inverse menu backgrounds,
- // cursors, scroll marks and status readouts. All glyphs are repainted.
- legacy.draw(canvas,state);
+ if(!structured&&!resultEligible&&!textEligible)return 'authentic';
  const ctx=canvas.getContext('2d',{alpha:false});
  if(!ctx)return 'authentic';
  const outputWidth=canvas.width,outputHeight=canvas.height;
