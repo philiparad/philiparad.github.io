@@ -107,7 +107,11 @@ def main():
     for row in rows:
         name = html.escape(row["file"])
         title = html.escape(f'{row["scenario"]} — {row["dpr"] * 100:g}%')
-        metrics = html.escape(row.get("error", f'Ink IoU {row["ink_iou"]:.3f}, mean error {row["mean_color_error"]:.2f}'))
+        if "error" in row:
+            metrics = html.escape(row["error"])
+        else:
+            metrics = html.escape(
+                f'Ink IoU {row["ink_iou"]:.3f}, mean error {row["mean_color_error"]:.2f}')
         status = "PASS" if row["passed"] else "FAIL"
         cards.append(f'<section><h2>{title}: {status}</h2><p>{metrics}</p>'
                      f'<figure><figcaption>WebView2</figcaption><img src="webview2/{name}"></figure>'
@@ -126,8 +130,9 @@ def main():
     print(f'CAL-012: {passed}/{len(required)} WebView2/Chromium pairs PASS')
     for row in rows:
         if not row["passed"]:
-            print("FAIL", row["scenario"], row["dpr"],
-                  row.get("error", f'IoU={row["ink_iou"]} mean={row["mean_color_error"]}'))
+            details = (row["error"] if "error" in row else
+                       f'IoU={row["ink_iou"]} mean={row["mean_color_error"]}')
+            print("FAIL", row["scenario"], row["dpr"], details)
     return 0 if passed == len(required) else 1
 
 
