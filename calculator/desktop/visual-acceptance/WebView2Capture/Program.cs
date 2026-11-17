@@ -131,7 +131,7 @@ internal sealed class CaptureWindow : Form
                 await File.WriteAllBytesAsync(Path.Combine(output, name), bytes);
                 captures.Add(new { scenario, factor, filename = name, bytes = bytes.Length,
                     ink = result.GetProperty("dark").GetInt32(),
-                    chromiumVersion = webview.CoreWebView2.BrowserVersionString });
+                    webView2Version = webview.CoreWebView2.Environment.BrowserVersionString });
                 Console.WriteLine("WebView2 capture: " + name);
             }
         }
