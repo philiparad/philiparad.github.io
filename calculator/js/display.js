@@ -120,7 +120,7 @@ function hiGlyph(c){
  }
  return rows;
 }
-function rasterize(state){
+function rasterize(state,collect=null){
  // Preserve the existing 96×31 layout coordinates while painting a finer
  // 192×62 pixel output. Geometry retains precise edges; text uses a fresh
  // 7×11 bitmap glyph rather than enlarging its former 3×5 dots.
@@ -180,6 +180,8 @@ function rasterize(state){
     }
    }
   }
+  if(collect)collect.textRuns=textRuns.filter(item=>item.c!==undefined)
+   .map(item=>({c:item.c,x:item.x,y:item.y,inverse:!!item.inverse}));
   return hi;
  };
  // Status annunciators are a separate accurately sized HTML overlay.
@@ -740,6 +742,13 @@ function rasterize(state){
  if(state.info)write(state.info.slice(-23),0,25);
  return finish();
 }
+// Reuse the legacy renderer's *complete* glyph layout for crisp typography
+// across MODE, EQN, STAT, TABLE, MATRIX, VECTOR, prompts and ordinary input.
+function getTextRuns(state){
+ const output={textRuns:[]};
+ rasterize(state,output);
+ return output.textRuns;
+}
 function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
  const scale=5, w=HI_W*scale,h=HI_H*scale;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
  // REA-020: Contrast adjusts the LCD ink shade, never the logical pixel raster.
@@ -760,6 +769,6 @@ function draw(canvas,state){const pixels=rasterize(state);const ctx=canvas.getCo
  }
  ctx.putImageData(img,0,0)
 }
-const API=Object.freeze({width:HI_W,height:HI_H,layoutWidth:W,layoutHeight:H,fontWidth:7,fontHeight:11,rasterize,draw,FONT,highFont:HI_FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
+const API=Object.freeze({width:HI_W,height:HI_H,layoutWidth:W,layoutHeight:H,fontWidth:7,fontHeight:11,rasterize,getTextRuns,draw,FONT,highFont:HI_FONT,mathGlyphs:MATH_GLYPHS});global.FreshLCD=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
