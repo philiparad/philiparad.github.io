@@ -454,7 +454,7 @@ for(const notation of [
  assert.equal(lcd.draw(vectorFrame,normal),'enhanced');
  assert.ok(bitmap,'enhanced LCD produces a complete background raster');
  // x=0,y=8 legacy cursor pixel must remain ink after the bitmap pass.
- assert.ok(bitmap[(16*960)*4]<100,'cursor survives at physical resolution');
+ assert.ok(bitmap[((16*5)*960)*4]<100,'cursor survives at physical resolution');
  tested+=11;
 }
 const plain=makeCanvas();
