@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <link rel="icon" type="image/png" href="philip_favicon.png">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/computer-modern@0.1.3/cmu-typewriter-text.css">
+        <title>תור עם Proxy | שאלון אינטראקטיבי</title>
+        <style>
+            :root {
+                --code-font: "CMU Typewriter Text", "Latin Modern Mono", Consolas, "Courier New", monospace;
+                --code-ink: #ecf4ff;
+                --code-background: #17283c;
+                --code-border: #405775;
+                --inline-code-color: #15579d;
+                --ink: #1a2d42;
+                --muted: #526579;
+                --primary: #245c88;
+                --soft: #edf5fa;
+                --line: #cbdce6;
+                --surface: #fff;
+                --good: #166343;
+                --bad: #9c2635;
+            }
+            * { box-sizing: border-box; }
+            html { scroll-behavior: smooth; }
+            body { margin: 0; color: var(--ink); background: linear-gradient(130deg,#f6f9fc,#e7f0f7); font-family: Arial,"Noto Sans Hebrew",sans-serif; font-size: 18px; line-height: 1.65; }
+            main { max-width: 860px; margin: 32px auto; padding: 0 18px; }
+            .card { background:var(--surface); border:2px solid var(--line); border-radius:18px; padding:clamp(20px,4vw,38px); box-shadow:0 10px 35px #183e6312; }
+            .center { text-align:center; }
+            .hero-icon { font-size:48px; }
+            h1 { font-size:clamp(30px,5vw,41px); margin: 0 0 8px; }
+            h2 { margin:0 0 16px; font-size:24px; }
+            h3 { font-size:20px; }
+            p { margin: 8px 0 20px; }
+            .muted { color:var(--muted); }
+            .intro { background:var(--soft); border:2px solid var(--line); border-radius:14px; padding:22px; margin:25px 0; }
+            .topics { padding-inline-start:28px; }
+            .topics li { margin:10px 0; }
+            button { font:inherit; cursor:pointer; border-radius:12px; }
+            button:focus-visible { outline:3px solid #f29c38; outline-offset:3px; }
+            .primary { background:var(--primary); border:2px solid var(--primary); padding:11px 28px; color:white; font-weight:700; min-height:50px; }
+            .primary:hover:not(:disabled) { background:#16486f; }
+            button:disabled { cursor:not-allowed; opacity:.56; }
+            .quiz-head { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center; }
+            .progress-track { height:11px; border-radius:99px; background:#d8e5ed; margin:16px 0 28px; overflow:hidden; }
+            .progress-fill { background:#256a92; height:100%; width:0; transition:width .2s; }
+            #question-text { font-weight:700; font-size:23px; margin:0 0 18px; }
+            #options { padding:0; margin:0; list-style:none; display:grid; gap:13px; }
+            .option { display:flex; align-items:flex-start; gap:12px; width:100%; padding:15px; text-align:right; border:2px solid var(--line); background:white; color:var(--ink); }
+            .option:not(:disabled):hover { background:#f0f6fc; border-color:var(--primary); }
+            .option.correct { border-color:#25835a; background:#eff9f2; opacity:1; }
+            .option.incorrect { border-color:#bc4150; background:#fff1f2; opacity:1; }
+            .option .letter { flex:none; width:32px; height:32px; display:grid; place-items:center; background:#e5eff6; border-radius:50%; font-size:16px; font-weight:bold; }
+            .option .option-body { min-width:0; flex:1; overflow-wrap:anywhere; }
+            .feedback { border:2px solid var(--line); background:#f4f8fb; border-radius:12px; padding:16px; margin-top:20px; }
+            .feedback.good { background:#edf8f0; border-color:#80c69f; }
+            .feedback.bad { background:#fff0f1; border-color:#df9da7; }
+            .explanation-list { margin:12px 0 0; padding-inline-start:24px; }
+            .explanation-list li { margin-bottom:12px; }
+            .controls { margin-top:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+            .grade { text-align:center; background:#e6f1fa; border:2px solid #b7d2e6; border-radius:14px; padding:24px; margin:20px 0; }
+            .grade strong { font-size:36px; }
+            .review-item { padding:12px 0; border-bottom:1px solid var(--line); }
+            .review-item:last-child { border-bottom:0; }
+            .hidden { display:none !important; }
+            bdi.inline-code { direction:ltr; unicode-bidi:isolate; display:inline-block; vertical-align:baseline; white-space:nowrap; max-width:100%; color:var(--inline-code-color); font-family:var(--code-font); font-weight:400; font-size:1.2em; }
+            bdi.inline-code code { direction:ltr; unicode-bidi:isolate; font:inherit; color:inherit; white-space:inherit; }
+            pre.code-block { display:block; direction:ltr; unicode-bidi:isolate; text-align:left; box-sizing:border-box; max-width:100%; margin:12px 0; padding:16px 20px; background:var(--code-background); color:var(--code-ink); border:2px solid var(--code-border); border-radius:12px; font-family:var(--code-font); font-size:1.2em; font-weight:400; line-height:1.7; white-space:pre; overflow-x:auto; overflow-y:hidden; overflow-wrap:normal; word-break:normal; tab-size:4; scrollbar-width:thin; }
+            pre.code-block code { direction:ltr; unicode-bidi:isolate; display:inline; font:inherit; color:inherit; white-space:inherit; overflow-wrap:normal; word-break:normal; }
+            @media (max-width:650px) { main{padding:0 10px;margin:12px auto} body{font-size:16px} .card{padding:17px} pre.code-block{font-size:14px;padding:12px 14px} #question-text{font-size:20px} }
+            @page { size:A4; margin:15mm; }
+            @media print { body{background:#fff;font-size:12pt} main{max-width:none;margin:0;padding:0} .card{box-shadow:none;border:none;padding:0} .no-print{display:none!important} #landing,#quiz{display:none!important} #results{display:block!important} .review-item{break-inside:avoid} pre.code-block{white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;font-size:10pt;background:#f1f3f7;color:#17283c;border-color:#869bb0;break-inside:avoid} pre.code-block code{white-space:inherit;overflow-wrap:inherit} bdi.inline-code{color:#17283c} }
+        </style>
+    </head>
+    <body>
+        <main>
+            <section id="landing" class="card" aria-labelledby="main-title">
+                <header class="center">
+                    <div class="hero-icon" aria-hidden="true">📚</div>
+                    <h1 id="main-title">תור עם <bdi dir="ltr" lang="en">Proxy</bdi></h1>
+                    <p class="muted">20 שאלות | 10 שאלות תיאוריה ו־10 שאלות קוד</p>
+                </header>
+                <section class="intro" aria-labelledby="topics-title">
+                    <h2 id="topics-title">מה נלמד?</h2>
+                    <ul class="topics">
+                        <li>הרעיון של מעטפת <bdi dir="ltr" lang="en">Proxy</bdi> והפרדה בין ממשק למימוש.</li>
+                        <li>מונה חיצוני, עדכונו בפעולות <bdi class="inline-code" dir="ltr"><code>Insert()</code></bdi> ו־<bdi class="inline-code" dir="ltr"><code>Remove()</code></bdi>, וסיבוכיות <bdi class="inline-code" dir="ltr"><code>Size()</code></bdi> בזמן \(O(1)\).</li>
+                        <li>שמירת עקביות של <bdi class="inline-code" dir="ltr"><code>count</code></bdi> וטיפול בתור ריק.</li>
+                        <li>הבנת הפעולות <bdi class="inline-code" dir="ltr"><code>Head()</code></bdi>, <bdi class="inline-code" dir="ltr"><code>IsEmpty()</code></bdi> ו־<bdi class="inline-code" dir="ltr"><code>Clear()</code></bdi>.</li>
+                        <li>קריאת קוד ותיקון באגים נפוצים.</li>
+                    </ul>
+                </section>
+                <div class="center no-print"><button id="start-btn" class="primary" type="button">🚀 התחל מבחן</button></div>
+            </section>
+            <section id="quiz" class="card hidden" aria-labelledby="question-text">
+                <header class="quiz-head"><strong id="question-count"></strong><span id="progress-label" class="muted"></span></header>
+                <div class="progress-track" role="progressbar" aria-label="התקדמות בשאלון" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+                <h2 id="question-text"></h2>
+                <div id="question-code"></div>
+                <ol id="options" aria-label="אפשרויות תשובה"></ol>
+                <div id="feedback" class="feedback hidden" role="status" aria-live="polite"></div>
+                <div id="explanations" class="feedback hidden"></div>
+                <div class="controls no-print"><span id="answer-hint" class="muted">בחרו תשובה כדי להמשיך</span><button class="primary" id="next-btn" type="button" disabled>אשר תשובה</button></div>
+            </section>
+            <section id="results" class="card hidden" aria-labelledby="results-title">
+                <header class="center"><div class="hero-icon" aria-hidden="true">🏅</div><h1 id="results-title">תוצאות השאלון</h1><p id="level-text"></p></header>
+                <div class="grade"><strong id="grade-number"></strong><p id="grade-fraction"></p></div>
+                <div class="center no-print"><button type="button" class="primary" id="retry-btn">נסה שוב</button> <button type="button" class="primary" id="print-btn">הדפס תוצאות</button></div>
+                <section aria-labelledby="review-title"><h2 id="review-title">סקירת התשובות</h2><div id="review"></div></section>
+            </section>
+        </main>
+        <script>
+            "use strict";
+            const QUESTIONS = [{"id": 1, "question": "מה הרעיון של Proxy Object עבור תור?", "options": ["להוסיף שכבת מעטפת שמחזיקה מונה ומפנה לתור המקורי", "להעתיק את כל האיברים למערך בכל פעולה", "להחליף את התור במבנה נתונים אחר"], "correct": 0, "explanation": {"1": "העתקה בכל פעולה תהפוך פעולות ל O(n). המעטפת לא מעתיקה את כל הנתונים.", "2": "Proxy אינו מחליף את התור אלא עוטף אותו ומתווך בין הלקוח למימוש."}}, {"id": 2, "question": "מה היתרון המרכזי של מונה חיצוני (Proxy) עבור Size?", "options": ["קבלת גודל התור ב O(1)", "הקטנת שימוש בזיכרון", "הפיכת Remove ל O(0)"], "correct": 0, "explanation": {"1": "נוסף שדה מונה, לכן הזיכרון דווקא גדל במעט.", "2": "אין O(0); Remove נותרת O(1)."}}, {"id": 3, "question": "כיצד המונה משפיע על סיבוכיות Insert/Remove?", "options": ["הפעולות נשארות O(1) ונוסף עדכון מונה קבוע", "הופכות ל O(n) כי צריך לעבור על כל התור", "תלויות בגודל התור"], "correct": 0, "explanation": {"1": "אין צורך בסריקה; מעדכנים את המונה בקבוע.", "2": "העדכון הוא קבוע ולא תלוי בגודל."}}, {"id": 4, "question": "איפה נכון לעדכן את המונה?", "options": ["ב Insert וב Remove", "ב Head", "ב Size"], "correct": 0, "explanation": {"1": "Head רק מציץ, לא משנה את הכמות.", "2": "Size קורא את המונה, לא משנה אותו."}}, {"id": 5, "question": "מה פירוש הטענה שהפעולה Size פועלת בזמן O(1)?", "options": ["הזמן קבוע ואינו תלוי במספר האיברים", "הזמן גדל ביחס למספר האיברים", "הזמן תלוי רק בקיבולת המערך"], "correct": 0, "explanation": {"1": "זה היה O(n).", "2": "אין קשר לקיבולת כשמימשנו תור מקושר."}}, {"id": 6, "question": "מהי דרך פשוטה לממש IsEmpty כאשר יש מונה?", "options": ["להחזיר 0 == count", "להחזיר null == head", "להחזיר null == tail"], "correct": 0, "explanation": {"1": "גם נכון, אך כשהוגדר מונה עדיף להסתמך עליו.", "2": "tail יכול להיות null רק כשאין איברים, אך הבדיקה ב-count מפורשת."}}, {"id": 7, "question": "מה יקרה בקריאה ל Head() כאשר התור ריק?", "options": ["תיזרק חריגה/שגיאה", "יוחזר null", "יוחזר 0"], "correct": 0, "explanation": {"1": "בהגדרת ה-ADT נהוג לזרוק חריגה, לא להחזיר null.", "2": "אין ערך ברירת מחדל כזה ל-Head."}}, {"id": 8, "question": "איזה אינווריאנט חייב להישמר לגבי המונה?", "options": ["count אף פעם לא שלילי", "count תמיד שווה 1", "count שווה ל 2*n"], "correct": 0, "explanation": {"1": "אין סיבה שיהיה תמיד 1.", "2": "אין קשר להכפלה."}}, {"id": 9, "question": "מה הסיכון אם שוכחים לעדכן את המונה ב Remove?", "options": ["Size יחזיר ערך שגוי", "התור ימחק", "תיווצר לולאה אינסופית"], "correct": 0, "explanation": {"1": "Remove לא מוחק את כל התור.", "2": "אין סיבה ללולאה אינסופית כתוצאה מהשמטת decrement."}}, {"id": 10, "question": "מה תפקידו של ה Proxy ביחס למימוש התור?", "options": ["לתווך קריאות ולשמור מונה עקבי", "לשנות את האלגוריתם של התור", "להוסיף מיון אוטומטי לאיברים"], "correct": 0, "explanation": {"1": "ה-Proxy אינו משנה את האלגוריתם הפנימי.", "2": "תור אינו ממוין מעצמו."}}, {"id": 11, "question": "מה עושה המתודה הבאה?", "code": "public int Size()\n{\n    return count;\n}", "options": ["מחזירה את מספר האיברים בתור", "מחזירה את הערך הראשון בתור", "מחזירה את הקיבולת"], "correct": 0, "explanation": {"1": "Head היא שמחזירה את הערך הראשון.", "2": "אין כאן קיבולת, זה תור מקושר."}}, {"id": 12, "question": "יש באג ב Remove() מה התיקון?", "code": "public T Remove()\n{\n    T value = head.value;\n    head = head.next;\n    // BUG: לא עודכן המונה והזנב כאשר התור מתרוקן\n    return value;\n}", "options": ["להוסיף count--; ואם null == head לקבוע null = tail", "להוסיף count++; ואם null == head לקבוע head = tail", "לא צריך שינוי"], "correct": 0, "explanation": {"1": "ב-Remove יש להקטין ולא להגדיל. tail צריך להיות null כשאין איברים.", "2": "המונה יהפוך ללא עקבי."}}, {"id": 13, "question": "יש באג ב Insert() כאשר התור ריק. מה התיקון?", "code": "public void Insert(T item)\n{\n    var node = new Node<T> { value = item, next = null };\n    if (count == 0) {\n        tail = node;\n    } else {\n        tail.next = node;\n        tail = node;\n    }\n    count++;\n}", "options": ["במצב ריק לקבוע head = tail = node", "במצב ריק לקבוע head = node בלבד", "במצב ריק לקבוע tail.next = node"], "correct": 0, "explanation": {"1": "חסר עדכון ל-tail.", "2": "במצב ריק אין ל-tail next."}}, {"id": 14, "question": "יש באג ב Head() מה התיקון?", "code": "public T Head()\n{\n    return tail.value;\n}", "options": ["להחזיר head.value", "להחזיר count", "להחזיר null"], "correct": 0, "explanation": {"1": "Head מחזירה את הערך שבתחילת התור.", "2": "לא מחזירים null כאשר יש איברים."}}, {"id": 15, "question": "מה נכון לממש עבור IsEmpty() כאשר יש מונה?", "code": "public bool IsEmpty()\n{\n    // נדרש מימוש\n}", "options": ["return count == 0;", "return head == null && tail == null;", "return count < 0;"], "correct": 0, "explanation": {"1": "גם תקין לרוב, אך כאשר יש מונה ההגדרה הקצרה והמדויקת היא count==0.", "2": "count לעולם לא שלילי."}}, {"id": 16, "question": "מה עושה המתודה?", "code": "public void Clear()\n{\n    head = null;\n    tail = null;\n    count = 0;\n}", "options": ["מרוקנת את התור לחלוטין", "מסירה איבר אחד", "מעבירה את האיברים למערך"], "correct": 0, "explanation": {"1": "Clear מאפסת את כל השדות.", "2": "אין העברה למערך."}}, {"id": 17, "question": "מה עושה המתודה?", "code": "public void Insert(T item)\n{\n    var node = new Node<T> { value = item, next = null };\n    if (count == 0) { head = tail = node; }\n    else { tail.next = node; tail = node; }\n    count++;\n}", "options": ["מכניסה איבר לסוף התור", "מכניסה איבר לראש התור", "מסירה איבר מהתור"], "correct": 0, "explanation": {"1": "Insert מוסיף בקצה (זנב).", "2": "Remove היא המסירה."}}, {"id": 18, "question": "יש באג במימוש הבא של Size() מה התיקון?", "code": "public int Size()\n{\n    // BUG: משנה את המונה\n    return --count;\n}", "options": ["להחזיר count; בלי לשנות אותו", "להחזיר ++count;", "להחזיר 0;"], "correct": 0, "explanation": {"1": "אין להגביר את המונה; Size אינה משנה מצב.", "2": "0 אינו הגיוני אלא אם כן התור ריק."}}, {"id": 19, "question": "יש באג בהחזרת הערך. מה התיקון?", "code": "public T Head()\n{\n    // BUG\n    T v = tail.value;\n    return v;\n}", "options": ["להחליף ל-head.value", "להחזיר count", "להחזיר null"], "correct": 0, "explanation": {"1": "Head צריך להחזיר את הערך בראש התור.", "2": "אין להחזיר null כשיש איברים."}}, {"id": 20, "question": "יש באג לוגי ב Remove עבור אלמנט אחרון. מה חסר?", "code": "public T Remove()\n{\n    T value = head.value;\n    head = head.next;\n    count--;\n    // BUG: כאשר נשאר 0 איברים\n    return value;\n}", "options": ["אם head == null אז tail = null", "להחזיר null במקום value", "להגדיל את count"], "correct": 0, "explanation": {"1": "יש להחזיר את הערך שהוסר; החזרת null שגויה.", "2": "אסור להגדיל את המונה כאן, יש להקטין בלבד."}}];
+            const $ = id => document.getElementById(id);
+            let items = [], current = 0, answers = [], selected = null, confirmed = false;
+            const CODE_TOKEN = /(?:[A-Za-z_$][\w$]*(?:\s*\.\s*[A-Za-z_$][\w$]*)*(?:\([^()]*\))?|\bO\(\d+\)|\b\d+\b|==|!=|<=|>=|\+\+|--|\bC#\b)/g;
+            function node(tag, text, cls) { const el=document.createElement(tag); if (text!==undefined) el.textContent=text; if(cls) el.className=cls; return el; }
+            function inline(text) {
+                const span=node('span'); span.dir='rtl'; let at=0;
+                for (const match of text.matchAll(CODE_TOKEN)) {
+                    const i=match.index, value=match[0];
+                    if(i>at) span.append(document.createTextNode(text.slice(at,i)));
+                    const bdi=node('bdi',undefined,'inline-code'); bdi.dir='ltr';bdi.append(node('code',value));span.append(bdi);at=i+value.length;
+                }
+                if(at<text.length)span.append(document.createTextNode(text.slice(at)));
+                return span;
+            }
+            function codeBlock(code) { const pre=node('pre',undefined,'code-block'); pre.dir='ltr'; pre.append(node('code',code)); return pre; }
+            function shuffle(a) { const result=[...a];for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result; }
+            function show(id) { for(const key of ['landing','quiz','results'])$(key).classList.toggle('hidden',key!==id);window.scrollTo(0,0); }
+            function begin() { items=QUESTIONS.map(q=>({...q,order:shuffle(q.options.map((text,i)=>({text,original:i})))})); answers=[];current=0;selected=null;confirmed=false;renderQuestion();show('quiz'); }
+            function renderQuestion() {
+                const q=items[current]; selected=null; confirmed=false;
+                $('question-count').textContent=`שאלה ${current+1} מתוך ${items.length}`;
+                const pct=Math.round((current/items.length)*100);$('progress-fill').style.width=pct+'%';$('progress-label').textContent=`הושלמו ${current} מתוך ${items.length}`;$('progress-track').setAttribute('aria-valuenow',pct);
+                $('question-text').replaceChildren(inline(q.question));
+                $('question-code').replaceChildren();if(q.code)$('question-code').append(codeBlock(q.code));
+                $('options').replaceChildren();
+                q.order.forEach((o,i)=>{const li=node('li');const b=node('button',undefined,'option');b.type='button';b.setAttribute('aria-pressed','false');b.append(node('span','אבג'[i],'letter'));const content=node('span',undefined,'option-body');content.append(inline(o.text));b.append(content);b.addEventListener('click',()=>select(i));li.append(b);$('options').append(li);});
+                $('feedback').className='feedback hidden';$('explanations').className='feedback hidden';$('feedback').replaceChildren();$('explanations').replaceChildren();$('answer-hint').textContent='בחרו תשובה כדי להמשיך';$('next-btn').textContent='אשר תשובה';$('next-btn').disabled=true;
+            }
+            function select(index) { if(confirmed)return;selected=index;[...$('options').querySelectorAll('button')].forEach((b,i)=>{b.style.borderColor=i===index?'#245c88':'';b.setAttribute('aria-pressed',String(i===index));});$('next-btn').disabled=false; }
+            function confirm() {
+                if(selected===null||confirmed)return;const q=items[current];confirmed=true;const selectedOriginal=q.order[selected].original;const isCorrect=selectedOriginal===q.correct;answers[current]={selectedOriginal,isCorrect};
+                [...$('options').querySelectorAll('button')].forEach((b,i)=>{b.disabled=true;b.style.borderColor='';if(q.order[i].original===q.correct)b.classList.add('correct');else if(i===selected)b.classList.add('incorrect');});
+                const feedback=$('feedback');feedback.className='feedback '+(isCorrect?'good':'bad');feedback.replaceChildren(node('strong',isCorrect?'✓ תשובה נכונה':'✗ תשובה שגויה'));
+                if(!isCorrect){feedback.append(node('p'));feedback.lastChild.append(inline(q.explanation[selectedOriginal]||'התשובה אינה נכונה.'));}
+                const explanations=$('explanations');explanations.className='feedback';explanations.append(node('h3','הסברים לכל האפשרויות'));const list=node('ol',undefined,'explanation-list');
+                q.order.forEach(o=>{const li=node('li');const strong=node('strong');strong.append(inline(o.text));li.append(strong,node('div'));li.lastChild.append(inline(o.original===q.correct?'נכון - זו התשובה המדויקת.':(q.explanation[o.original]||'האפשרות אינה נכונה.')));list.append(li);});explanations.append(list);
+                $('answer-hint').textContent='התשובה נשמרה';$('next-btn').textContent=current===items.length-1?'הצג תוצאות':'המשך לשאלה הבאה';
+            }
+            function next() { if(!confirmed){confirm();return;}if(current<items.length-1){current++;renderQuestion();window.scrollTo(0,0);}else results(); }
+            function results() {
+                const correct=answers.filter(a=>a?.isCorrect).length, pct=Math.round(correct/items.length*100);
+                const level=pct>=90?'שליטה מצוינת בנושא התורים':pct>=70?'שליטה טובה בנושא התורים':pct>=50?'שליטה בסיסית - מומלץ לתרגל':'כדאי לחזור על עקרונות התור והמונה';
+                $('grade-number').textContent=pct+'%';$('grade-fraction').textContent=`${correct} תשובות נכונות מתוך ${items.length}`;$('level-text').textContent=level;
+                const review=$('review');review.replaceChildren();items.forEach((q,i)=>{const row=node('article',undefined,'review-item');const answer=answers[i];row.append(node('h3',`שאלה ${i+1} - ${answer.isCorrect?'נכון':'שגוי'}`));const qp=node('p');qp.append(inline(q.question));row.append(qp);if(q.code)row.append(codeBlock(q.code));let chosen=q.options[answer.selectedOriginal];const p=node('p','התשובה שנבחרה: ');p.append(inline(chosen));row.append(p);if(!answer.isCorrect){const c=node('p','התשובה הנכונה: ');c.append(inline(q.options[q.correct]));row.append(c);const e=node('p');e.append(inline(q.explanation[answer.selectedOriginal]||''));row.append(e);}review.append(row);});
+                show('results');
+            }
+            $('start-btn').addEventListener('click',begin);
+            $('next-btn').addEventListener('click',next);
+            $('retry-btn').addEventListener('click',begin);
+            $('print-btn').addEventListener('click',()=>window.print());
+            // Quality gates: source data, IDs, correct answers and explanations.
+            console.assert(QUESTIONS.length===20,'Expected 20 questions');
+            console.assert(QUESTIONS.every((q,i)=>q.id===i+1 && q.options.length===3 && q.correct>=0 && q.correct<3),'Invalid question data');
+            console.assert(QUESTIONS.every(q=>q.options.every((_,i)=>i===q.correct||typeof q.explanation[i]==='string')),'Missing explanation');
+        </script>
+        <script>
+            window.MathJax = {tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{enableMenu:true}};
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    </body>
+</html>
