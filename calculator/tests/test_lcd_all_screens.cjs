@@ -102,7 +102,7 @@ for(const [label,override] of scenarios){
  const target=canvas();
  assert.equal(lcd.draw(target,state),'enhanced',label);
  const vector=target.operations.filter(op=>op.type==='text'&&
-  String(op.font||'').includes('6.35px'));
+  String(op.font||'').startsWith('600 '));
  assert.ok(vector.length>=wanted.length,
   label+' should repaint every glyph with vector text ('+
   vector.length+'/'+wanted.length+')');
