@@ -166,7 +166,7 @@ for(const extra of [
   ctx.fillText=(value,x)=>glyphs.push({value,x});
   const view=state(root,{viewport:{inputX:oldOffset,inputY:0}});
   assert.equal(lcd.draw(canvas,view),'enhanced');
-  const first=glyphs.find(v=>v.value==='W');
+  const first=glyphs.findLast(v=>v.value==='W');
   assert.ok(first,'first glyph is present in measured layout');
   positions.push(first.x);
  }
@@ -245,7 +245,7 @@ for(const chosen of [
  ctx.moveTo=(x,y)=>strokes.push({x,y});
  const ed={root:glyphs,path:[],offset:2};
  assert.equal(lcd.draw(surface,state(glyphs,{editor:ed})),'enhanced');
- const w=seen.find(v=>v.value==='W'),i=seen.find(v=>v.value==='i');
+ const w=seen.findLast(v=>v.value==='W'),i=seen.findLast(v=>v.value==='i');
  assert.ok(w&&i&&Math.abs(i.x-(w.x+7))<0.0001,
   'second glyph follows measured seven-unit first glyph');
  assert.ok(strokes.some(p=>Math.abs(p.x-9)<0.0001),
