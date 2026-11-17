@@ -3078,7 +3078,7 @@ try{
 
 
  await check('calculator toolbar opens movable non-modal window with focus recovery',async()=>{
-  const url='https://philiparad.github.io/calculator/?key=calculator';
+  const url='https://philiparad.github.io/calculator/';
   await page.route(url,async route=>route.fulfill({
    status:200,contentType:'text/html',
    body:'<!doctype html><html><body><div id="calculator-fixture">Calculator embed test</div></body></html>'
@@ -3308,7 +3308,7 @@ try{
 
 
  await check('Send Ans to Board places an editable fraction at the visible center with undo and redo',async()=>{
-  const remote='https://philiparad.github.io/calculator/?key=calculator';
+  const remote='https://philiparad.github.io/calculator/';
   await page.route(remote,async route=>route.fulfill({
    status:200,contentType:'text/html',
    body:'<!doctype html><html><body><p>Calculator test iframe</p><script>'+
@@ -3423,7 +3423,7 @@ try{
  });
 
  await check('TXT-072 calculator Ans on A4 stays inside a page even near right edge',async()=>{
-  const remote='https://philiparad.github.io/calculator/?key=calculator';
+  const remote='https://philiparad.github.io/calculator/';
   await page.route(remote,async route=>route.fulfill({
    status:200,contentType:'text/html',
    body:'<!doctype html><html><body><script>'+
@@ -3485,7 +3485,7 @@ try{
    const frame=document.createElement('iframe');
    frame.id='real-calc-ans-test';
    frame.title='Real calculator Ans test';
-   frame.src=new URL('../calculator/?key=calculator',location.href).href;
+   frame.src=new URL('../calculator/',location.href).href;
    document.body.append(frame);
   });
   await page.waitForFunction(()=>{
