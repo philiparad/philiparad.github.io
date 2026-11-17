@@ -89,4 +89,29 @@ assert.ok(count>0);
 assert.equal(enhanced.draw(enhancedCanvas,second),'enhanced');
 assert.ok(texts>count,'vector text repaint must not be skipped with cached raster');
 assert.equal(enhancedCanvas.operations.allocations,1);
+// Observe the actual RGBA writes, not elapsed time (which varies by runner).
+// A cursor-only change should update a tiny subset of the full 960x310 frame.
+const measured=canvas();
+const measuredContext=measured.getContext();
+const originalCreate=measuredContext.createImageData;
+let writes=0;
+measuredContext.createImageData=(width,height)=>{
+ const image=originalCreate(width,height);
+ image.data=new Proxy(image.data,{
+  set(target,key,value){writes++;return Reflect.set(target,key,value)}
+ });
+ return image;
+};
+measuredContext.putImageData=()=>{};
+lcd.draw(measured,first,{textRuns:[],vectorText:true});
+const fullWrites=writes;
+assert.ok(fullWrites>=960*310*4,'initial LCD frame is fully rasterized');
+writes=0;
+lcd.draw(measured,changed,{textRuns:[],vectorText:true});
+assert.ok(writes>0,'cursor movement updates changed pixels');
+assert.ok(writes<fullWrites/5,
+ 'cursor changes must modify less than 20% of the full RGBA buffer');
+writes=0;
+lcd.draw(measured,changed,{textRuns:[],vectorText:true});
+assert.equal(writes,0,'no geometry change causes zero RGBA buffer writes');
 console.log('PASS: CAL-016 bitmap cache, contrast, cursor, resize, canvas isolation and live text updates');
