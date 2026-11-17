@@ -14,7 +14,7 @@ This is a **separate, offline-capable Windows desktop application** for the calc
 From `calculator/desktop`:
 
 ```powershell
-npm install
+npm ci
 npm run dev
 ```
 
@@ -37,7 +37,7 @@ Alternatively, visit **GitHub → Actions → Calculator — Windows desktop (Ta
 
 - `src-tauri/` contains only the Tauri 2 Windows wrapper and bundle configuration.
 - `prepare-frontend.mjs` stages calculator assets into a temporary, excluded `dist/` directory. The installed application does not request the GitHub Pages URL or need internet to perform calculations.
-- The native window loads `index.html?key=calculator`. This hides the supplemental panels while keeping their DOM present for existing calculations.
+- The native window loads its packaged **`index.html`**, without URL query parameters. The default calculator-only mode hides supplemental panels while retaining their DOM for the existing engine. Only the built-in LCD is displayed.
 - Resizing the window preserves the calculator case aspect ratio.
 - No shell, filesystem, or networking plugin permissions are granted.
 
@@ -92,3 +92,40 @@ nor this document claims physical CASIO hardware parity.
 ## Note on branding
 
 This is an independent educational simulator, not an official CASIO application. The desktop title is deliberately generic.
+
+## CAL-019–023 — release consistency and security
+
+- **CAL-019:** `prepare-frontend.mjs` stages the ordered scripts in the
+  canonical `index.html`, the actual numeric worker, the one live capability
+  manifest and the repository LCD font. It excludes all other references,
+  fixture images, detached LCD tests, parity labs and generated standalone
+  artifacts. `production-manifest.json` includes SHA-256 fingerprints.
+- **CAL-020:** `package-lock.json` is committed to the repository, and both
+  local builds and the Windows workflow use **`npm ci`**. Never regenerate
+  the lock unintentionally during a release.
+- **CAL-021:** `tauri.conf.json` enforces same-origin scripts/fonts/workers,
+  permitted local Tauri IPC and explicitly blocks remote sources and
+  arbitrary embedded frames; all calculations run offline. The calculator
+  opens local `index.html`, without query parameters.
+- **CAL-022:** the current single-model verification status is in
+  `reference/device-parity/STATUS.md`, with the obsolete historical
+  three-model report archived separately.
+- **CAL-023:** release checks verify that staged assets are identical to the
+  current web application and run numerical/LCD tests before the two Windows
+  installer packages are created. A Windows screenshot run does not certify
+  equivalence to physical CASIO hardware.
+
+To validate the desktop sources and rebuild the installer:
+
+```powershell
+cd calculator/desktop
+npm ci
+npm run check
+npm run build
+```
+
+`npm run check` verifies required files and hashes, worker/CSP policies,
+calculator source identity, and the current LCD and numerical contracts. The
+CI build additionally compares WebView2 versus Chromium LCD snapshots at
+four **emulated** DPR values. Installing NSIS or MSI and visually inspecting
+the Tauri window at physical Windows display scaling remains manual.
