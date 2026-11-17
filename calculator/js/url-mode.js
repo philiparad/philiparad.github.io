@@ -1,11 +1,12 @@
-/* VIEW-002 — activate query-driven presentation before calculator initializes.
- * This module runs in <head> and does not depend on body or calculator state.
+/* Calculator-only layout is the default at /calculator/ and when embedded.
+ * The supporting panels remain in the DOM because app.js needs their status
+ * and diagnostic elements, but CSS hides them in calculator-only mode.
+ * ?view=full deliberately restores the development/diagnostic workspace.
  */
 (function(){
 'use strict';
 const params=new URLSearchParams(window.location.search);
-if(params.get('key')==='calculator'){
- document.documentElement.classList.add('calculator-only');
- document.documentElement.dataset.calculatorView='only';
-}
+const calculatorOnly=params.get('view')!=='full';
+document.documentElement.classList.toggle('calculator-only',calculatorOnly);
+document.documentElement.dataset.calculatorView=calculatorOnly?'only':'full';
 })();
