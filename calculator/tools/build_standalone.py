@@ -9,6 +9,7 @@ Only calculator/index.html, calculator/styles.css, calculator/js/*.js listed
 in index.html and the canonical capability manifest are authoritative.
 """
 import argparse
+import base64
 import difflib
 import re
 import sys
@@ -46,6 +47,15 @@ def build():
         raise ValueError("Unexpected inline or external script in canonical index")
 
     css = source_file("styles.css")
+    # CAL-009: a portable standalone HTML needs its own exact font bytes,
+    # rather than relying on the hosting site or installed system fonts.
+    font_path = ROOT.parent / "fonts" / "Roboto-Medium-webfont.woff"
+    font_url = "../fonts/Roboto-Medium-webfont.woff"
+    if font_url not in css or not font_path.is_file():
+        raise ValueError("CAL-009: bundled LCD font is missing")
+    inline_font = "data:font/woff;base64," + base64.b64encode(
+        font_path.read_bytes()).decode("ascii")
+    css = css.replace(font_url, inline_font)
     if "</style" in css.lower():
         raise ValueError("CSS cannot be safely embedded")
     manifest = source_file("reference/rea-008/capabilities.json").strip()
