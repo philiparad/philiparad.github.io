@@ -412,6 +412,51 @@ for(const notation of [
  assert.ok(measures<=6,'glyph measurement is cached for repeated characters');
  tested+=6;
 }
+// CAL-007: bitmap glyphs are omitted BEFORE vector text is painted.
+// This avoids the former opaque per-cell clearing that could erase cursor
+// marks, selection backgrounds, and geometry intersecting character cells.
+{
+ const normal=state([],{input:'A',cursor:0,screen:'edit'});
+ const captured={textRuns:[],vectorText:true};
+ const original=legacy.rasterize(normal);
+ const geometry=legacy.rasterize(normal,captured);
+ const at=(arr,x,y)=>arr[y*legacy.width+x];
+ assert.ok(captured.textRuns.some(g=>g.c==='A'),
+  'enhanced pass still exposes characters for vector rendering');
+ assert.ok(!Array.from(original).every((n,i)=>n===geometry[i]),
+  'vector mode suppresses bitmap character pixels');
+ assert.equal(at(geometry,0,16),1,'cursor stroke survives text suppression');
+ assert.equal(at(geometry,4,20),0,
+  'legacy character pixels no longer leave residual bitmap fragments');
+ assert.deepEqual(legacy.rasterize(normal),original,
+  'authentic LCD bitmap is not changed by CAL-007');
+ const mode=state([],{screen:'menu',menuKind:'mode',menuPage:0,
+  menuPageSize:8,menuEntries:[{number:1,label:'COMP'}],
+  menu:[{number:1,label:'COMP'}]});
+ const inverse={textRuns:[],vectorText:true};
+ const menuGeometry=legacy.rasterize(mode,inverse);
+ assert.ok(inverse.textRuns.some(g=>g.c==='1'&&g.inverse),
+  'inverse menu digits remain available for vector painting');
+ assert.equal(at(menuGeometry,2,8),1,
+  'dark inverse-menu background survives the bitmap-text omission');
+ const canvas=makeCanvas(),ctx=canvas.getContext(),drawn=[];
+ let cleared=0;
+ ctx.fillRect=()=>{cleared++};
+ ctx.fillText=(...args)=>drawn.push(args);
+ assert.equal(lcd.drawTextLayer(ctx,normal,[{c:'A',x:0,y:8},
+  {c:'1',x:2,y:5,inverse:true}]),true);
+ assert.equal(cleared,0,
+  'vector text layer never erases cursor or selection cells');
+ assert.equal(drawn.length,2);
+ const vectorFrame=makeCanvas(),frameCtx=vectorFrame.getContext();
+ let bitmap;
+ frameCtx.putImageData=image=>{bitmap=image.data};
+ assert.equal(lcd.draw(vectorFrame,normal),'enhanced');
+ assert.ok(bitmap,'enhanced LCD produces a complete background raster');
+ // x=0,y=8 legacy cursor pixel must remain ink after the bitmap pass.
+ assert.ok(bitmap[(16*960)*4]<100,'cursor survives at physical resolution');
+ tested+=11;
+}
 const plain=makeCanvas();
 assert.equal(lcd.draw(plain,state([{type:'char',value:'2'}])),'authentic');
 tested++;
