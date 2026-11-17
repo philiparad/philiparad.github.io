@@ -23,10 +23,9 @@ on:
       - 'calculator/reference/**'
       - '.github/workflows/calculator-tauri-windows.yml'
 
-# CAL-020: on the one-time lockfile bootstrap, the build worker commits the
-# npm/Cargo registry-generated locks. Later builds use npm ci and cargo --locked.
+# Dependency locks are committed; normal releases have no write privileges.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: calculator-desktop-${{ github.ref }}
@@ -47,6 +46,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: calculator/desktop/package-lock.json
 
       - name: Set up Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -56,29 +57,11 @@ jobs:
         with:
           workspaces: calculator/desktop/src-tauri
 
-      - name: Bootstrap and commit desktop dependency locks (only if missing)
+      - name: Verify pinned npm and Cargo lockfiles are committed
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Stop'
-          $newLocks = $false
-          if (!(Test-Path package-lock.json)) {
-            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-            if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve desktop npm lockfile' }
-            $newLocks = $true
-          }
-          if (!(Test-Path src-tauri/Cargo.lock)) {
-            cargo generate-lockfile --manifest-path src-tauri/Cargo.toml
-            if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve desktop Cargo.lock' }
-            $newLocks = $true
-          }
-          if ($newLocks) {
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add -- package-lock.json src-tauri/Cargo.lock
-            git commit -m 'build(CAL-020): lock Windows calculator npm and Cargo dependency trees'
-            if ($LASTEXITCODE -ne 0) { throw 'Cannot commit desktop lockfiles' }
-            git push origin "HEAD:$env:GITHUB_REF_NAME"
-            if ($LASTEXITCODE -ne 0) { throw 'Cannot publish desktop dependency locks to repository' }
+          if (!(Test-Path package-lock.json) -or !(Test-Path src-tauri/Cargo.lock)) {
+            throw 'CAL-020: missing committed dependency lockfile'
           }
 
       - name: Install exact locked frontend dependencies
