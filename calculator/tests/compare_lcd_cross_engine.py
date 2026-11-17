@@ -15,7 +15,9 @@ CASES = [
     "ans", "mode", "eqnTypes", "eqnCoefficients", "fraction",
     "nestedRoot", "fractionAnswer", "engineering",
 ]
-BASE_SIZE = (496, 171)
+# The shared calculator stylesheet applies global border-box sizing to canvas.
+# CSS width=480,height=155 therefore already includes the 8px border.
+BASE_SIZE = (480, 155)
 # The tiny antialiased font can vary between two independent Chromium builds.
 # Require a matching shape and nonblank text rather than exact RGB equality.
 MAX_MEAN_CHANNEL_ERROR = 24.0
