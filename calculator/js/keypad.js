@@ -62,6 +62,31 @@ const FACE_GLYPHS=Object.freeze({
 const BASE_LEGENDS=Object.freeze({SQUARE:'DEC',POWER:'HEX',LOG:'BIN',LN:'OCT'});
 // PERF-001: keyed by the actual keypad element, so detached keypads can be collected.
 const contextCache=new WeakMap();
+// PERF-002: retain stable key wrapper/button references per mounted keypad.
+const elementCache=new WeakMap();
+function keyElements(root){
+ const saved=elementCache.get(root);
+ if(saved&&saved.childCount===root.childElementCount&&
+    saved.first===root.firstElementChild&&saved.last===root.lastElementChild&&
+    saved.model===root.dataset.model)return saved.entries;
+ const entries=new Map();
+ for(const wrap of root.querySelectorAll('.key-unit')){
+  const button=wrap.querySelector('button');
+  if(button)entries.set(button.dataset.key,{wrap,button});
+ }
+ elementCache.set(root,{entries,childCount:root.childElementCount,
+  first:root.firstElementChild,last:root.lastElementChild,model:root.dataset.model});
+ contextCache.delete(root);
+ return entries;
+}
+function updateModifierLights(root,state){
+ if(!root)return;
+ const entries=keyElements(root);
+ for(const [id,entry] of entries){
+  entry.wrap.classList.toggle('lit',
+   (id==='SHIFT'&&!!state.shift)||(id==='ALPHA'&&!!state.alpha));
+ }
+}
 function renderLegend(wrap,key){
  for(const old of [...wrap.querySelectorAll('.shift-label,.alpha-label,.base-label')])old.remove();
  const button=wrap.querySelector('button');
@@ -90,11 +115,15 @@ function renderLegend(wrap,key){
 function applyModel(root,model){
  if(!root)return;
  const list=keysForModel(model);
+ const entries=keyElements(root);
  for(const key of list){
-  const wrap=[...root.querySelectorAll('.key-unit')].find(el=>el.querySelector('button')?.dataset.key===key.id);
-  if(wrap)renderLegend(wrap,key);
+  const entry=entries.get(key.id);
+  if(entry)renderLegend(entry.wrap,key);
  }
  root.dataset.model=model;
+ // Model changes only invalidate the classification; key nodes are unchanged.
+ const saved=elementCache.get(root);
+ if(saved)saved.model=model;
  contextCache.delete(root);
 }
 // REA-081: a visible native legend is not an always-active shortcut.
@@ -113,17 +142,15 @@ function applyContext(root,state,policy,profiles){
     previous.childCount===root.childElementCount&&
     previous.domModel===root.dataset.model)return;
  const keys=keysForModel(model);
- const wrappers=new Map([...root.querySelectorAll('.key-unit')].map(el=>
-  [el.querySelector('button')?.dataset.key,el]));
+ const entries=keyElements(root);
  for(const key of keys){
-  const wrap=wrappers.get(key.id);
-  if(!wrap)continue;
+  const entry=entries.get(key.id);
+  if(!entry)continue;
+  const {wrap,button}=entry;
   const action=policy.classify(key,modifier,state.mode,state.screen,model,profiles.supports);
   const unavailable=action.status==='blocked'||action.status==='unlabelled';
   wrap.classList.toggle('legend-unavailable',unavailable);
   wrap.dataset.legendStatus=action.status;
-  const button=wrap.querySelector('button');
-  if(!button)continue;
   button.setAttribute('aria-description',unavailable?
    modifier+' unavailable: '+action.reason:
    modifier+' '+(action.legend||key.label)+': '+action.reason);
@@ -135,6 +162,7 @@ function applyContext(root,state,policy,profiles){
 function mount(root,handler,model='fx-991es-plus'){
  if(!root)return;
  root.textContent='';const fragment=document.createDocumentFragment();
+ const entries=new Map();
  for(const key of keysForModel(model)){
   const wrap=document.createElement('div');
   wrap.className='key-unit '+key.group+' button-'+key.id;
@@ -144,11 +172,14 @@ function mount(root,handler,model='fx-991es-plus'){
   const b=document.createElement('button');b.type='button';b.dataset.key=key.id;
   b.addEventListener('click',()=>handler(key.id));wrap.append(b);
   renderLegend(wrap,key);fragment.append(wrap);
+  entries.set(key.id,{wrap,button:b});
  }
  root.append(fragment);root.dataset.model=model;
+ elementCache.set(root,{entries,childCount:root.childElementCount,
+  first:root.firstElementChild,last:root.lastElementChild,model});
  contextCache.delete(root);
 }
 
-const API=Object.freeze({keys,mount,applyModel,keysForModel,applyContext,MODEL_LEGENDS,topSpec,scienceSpec,numericSpec});global.FreshKeypad=API;
+const API=Object.freeze({keys,mount,applyModel,keysForModel,applyContext,updateModifierLights,MODEL_LEGENDS,topSpec,scienceSpec,numericSpec});global.FreshKeypad=API;
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 })(typeof window!=='undefined'?window:globalThis);
