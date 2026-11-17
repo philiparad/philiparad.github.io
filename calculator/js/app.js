@@ -125,10 +125,7 @@ function paint(){
  $('mode-label').textContent=state.mode==='BASE-N'?'BASE-N '+state.baseRadix:state.mode;$('angle-label').textContent=state.angle;$('format-label').textContent=state.format==='Fix'||state.format==='Sci'?state.format+' '+state.digits:state.format;
  $('memory-label').textContent='M = '+(state.mode==='CMPLX'&&state.complexMemory.M?COMPLEX.format(state.complexMemory.M,state.angle,state.complexFormat):M.format(state.memory.M,{...state,math:false}));
  $('expression-text').textContent=state.screen==='conversion-code'?'CONV 01-40: '+state.conversionCode.buffer:state.screen==='constant-code'?'CONST 01-40: '+state.constantCode.buffer:state.screen==='table-grid'&&state.tableData?'TABLE '+state.tableData.columns[state.tableData.col]+' ('+(state.tableData.row+1)+'/'+state.tableData.rows.length+')':state.screen==='vector-table'&&state.vectorEditor?'VECTOR '+state.vectorEditor.name+' ['+(state.vectorEditor.index+1)+'] = '+state.vectorEditor.buffer:state.screen==='vector-result'&&state.vectorView?'VECTOR '+state.vectorView.name:state.screen==='eqn-coeff'&&state.eqnEditor?'EQN '+EQEDIT.current(state.eqnEditor)+' = '+state.eqnEditor.buffer:state.screen==='eqn-result'&&state.eqnSession?'EQN '+state.eqnSession.type:state.screen==='stat-table'&&state.statTable?'STAT row '+(state.statTable.row+1)+' '+STAT.active(state.statTable)+' = '+state.statTable.buffer:state.screen==='prompt'?state.flow.fields[state.flow.index].label+' = '+state.flow.buffer:state.screen==='menu'?state.menuTitle:state.input||'Ready';$('answer-text').textContent=state.screen==='table-grid'&&state.tableData?TABLE.detail(state.tableData):state.screen==='flow-result'?state.outputLines.slice(state.outputPage*3,state.outputPage*3+3).join(' / '):state.result||'0';
- document.querySelectorAll('.key-unit').forEach(el=>{
-  const id=el.querySelector('button').dataset.key;
-  el.classList.toggle('lit',(id==='SHIFT'&&state.shift)||(id==='ALPHA'&&state.alpha));
- });
+ K.updateModifierLights($('keys'),state);
 }
 function setResult(value,source=state.input,exactRational=null){
  // REA-040: commit answer memories only after a valid numeric calculation.
