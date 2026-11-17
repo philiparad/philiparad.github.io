@@ -77,7 +77,29 @@ const authenticCanvas=canvas();
 lcd.draw(authenticCanvas,first);
 lcd.draw(authenticCanvas,first);
 assert.equal(authenticCanvas.operations.allocations,1);
-assert.equal(authenticCanvas.operations.uploads,2);
+assert.equal(authenticCanvas.operations.uploads,1,
+ 'unchanged authentic pixels skip redundant uploads');
+// Moving the bitmap cursor uploads only the changed LCD rectangle.
+const partialCanvas=canvas();
+const partialUploads=[];
+const partialCtx=partialCanvas.getContext();
+partialCtx.putImageData=(image,x,y,sx=0,sy=0,sw=image.width,sh=image.height)=>{
+ partialUploads.push({sx,sy,sw,sh});
+};
+lcd.draw(partialCanvas,first);
+lcd.draw(partialCanvas,changed);
+assert.equal(partialUploads.length,2);
+assert.ok(partialUploads[1].sw<960||partialUploads[1].sh<310,
+ 'cursor updates use a dirty rectangle rather than the full frame');
+lcd.draw(partialCanvas,changed);
+assert.equal(partialUploads.length,2,'identical bitmap skips a third upload');
+// Switching from vector to authentic mode restores any previous overlay ink.
+lcd.draw(partialCanvas,first,{textRuns:[],vectorText:true});
+const beforeReturn=partialUploads.length;
+lcd.draw(partialCanvas,first);
+assert.equal(partialUploads.length,beforeReturn+1);
+assert.equal(partialUploads.at(-1).sw,960,
+ 'vector to authentic transition restores the complete background');
 // Enhanced caller must still paint vector text on each new keypress.
 const enhancedCanvas=canvas();
 const drawing=enhancedCanvas.getContext();
