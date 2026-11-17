@@ -793,20 +793,31 @@ function draw(canvas,state,collect=null){
  const reuse=!!cached&&cached.ctx===ctx&&cached.width===w&&
   cached.height===h&&cached.pixels.length===pixels.length;
  if(reuse&&cached.inkCode===inkCode){
-  // Update only changed 5x5 LCD blocks (typically cursor movement).
+  // PERF-006: update the persistent RGBA image and track the bounding box
+  // of changed logical LCD pixels for a partial Canvas upload.
   const data=cached.image.data;
+  let minX=HI_W,minY=HI_H,maxX=-1,maxY=-1;
   for(let i=0;i<pixels.length;i++){
    if(cached.pixels[i]===pixels[i])continue;
    cached.pixels[i]=pixels[i];
    const y=Math.floor(i/HI_W),x=i-y*HI_W,color=pixels[i]?ink:paper;
+   if(x<minX)minX=x;if(x>maxX)maxX=x;
+   if(y<minY)minY=y;if(y>maxY)maxY=y;
    for(let dy=0;dy<scale;dy++)for(let dx=0;dx<scale;dx++){
     const offset=(((y*scale+dy)*w)+(x*scale+dx))*4;
     data[offset]=color[0];data[offset+1]=color[1];
     data[offset+2]=color[2];data[offset+3]=255;
    }
   }
-  // Always restore the clean background before painting vector text.
-  ctx.putImageData(cached.image,0,0);
+  // The enhanced renderer overlays vector text and MathIO geometry, so its
+  // next frame MUST restore the entire clean background even when no pixels
+  // changed. An authentic bitmap frame needs only its changed rectangles.
+  if(collect?.vectorText===true){
+   ctx.putImageData(cached.image,0,0);
+  }else if(maxX>=minX){
+   ctx.putImageData(cached.image,0,0,minX*scale,minY*scale,
+    (maxX-minX+1)*scale,(maxY-minY+1)*scale);
+  }
   return;
  }
  const img=reuse?cached.image:ctx.createImageData(w,h);
