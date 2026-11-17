@@ -357,7 +357,7 @@ function drawTextLayer(ctx,state,runs){
  const paper='rgb(215,230,215)',color=ink(ctx,state);
  ctx.save();
  ctx.beginPath();ctx.rect(0,0,VIEW_W,VIEW_H);ctx.clip();
- ctx.font='600 6.35px Arial, "DejaVu Sans", sans-serif';
+ ctx.font='600 6.35px Consolas, "DejaVu Sans Mono", monospace';
  ctx.textBaseline='alphabetic';ctx.textAlign='left';
  for(const glyph of runs){
   if(!glyph||glyph.c===undefined)continue;
