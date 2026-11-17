@@ -93,6 +93,32 @@ check('undo restores template after DEL',()=>{
  const e=fraction('12','3');E.backspace(e);assert.equal(E.undo(e),true);
  numerical(e,4);
 });
+check('PERF-008 snapshots preserve nested values independently',()=>{
+ const e=E.create();
+ E.template(e,'squareRoot');E.insert(e,'4');
+ const saved=e.undoStack.at(-1);
+ assert.equal(saved.root[0].parts.radicand.length,0);
+ e.root[0].parts.radicand[0].value='9';
+ assert.equal(saved.root[0].parts.radicand.length,0,
+  'later mutations must never change earlier snapshots');
+ assert.equal(E.undo(e),true);
+ equal(E.serialize(e),'sqrt(?)');
+ E.insert(e,'7');
+ equal(E.serialize(e),'sqrt(7)');
+ assert.equal(E.undo(e),true);
+ equal(E.serialize(e),'sqrt(?)');
+});
+check('PERF-008 nested undo history remains detached between entries',()=>{
+ const e=E.create();
+ E.template(e,'fraction');E.insert(e,'1');E.navigate(e,'RIGHT');
+ E.insert(e,'2');
+ const saved=e.undoStack.map(item=>JSON.stringify(item.root));
+ e.root[0].parts.denominator[0].value='8';
+ equal(e.undoStack.map(item=>JSON.stringify(item.root)),saved);
+ assert.equal(E.undo(e),true);
+ assert.equal(E.undo(e),true);
+ assert.equal(E.undo(e),true);
+});
 check('undo is bounded at 40 entries',()=>{
  const e=E.create();for(let i=0;i<52;i++)E.insert(e,'1');
  equal(e.undoStack.length,40);
