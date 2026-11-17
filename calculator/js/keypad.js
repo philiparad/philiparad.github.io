@@ -60,6 +60,8 @@ const FACE_GLYPHS=Object.freeze({
  POWER:'<svg viewBox="0 0 42 25" aria-hidden="true"><text x="5" y="22" font-size="25" font-style="italic" font-weight="bold" font-family="Georgia,serif" fill="white">x</text><rect x="22" y="2" width="11" height="11" fill="none" stroke="white" stroke-width="1.7"/></svg>'
 });
 const BASE_LEGENDS=Object.freeze({SQUARE:'DEC',POWER:'HEX',LOG:'BIN',LN:'OCT'});
+// PERF-001: keyed by the actual keypad element, so detached keypads can be collected.
+const contextCache=new WeakMap();
 function renderLegend(wrap,key){
  for(const old of [...wrap.querySelectorAll('.shift-label,.alpha-label,.base-label')])old.remove();
  const button=wrap.querySelector('button');
@@ -93,13 +95,24 @@ function applyModel(root,model){
   if(wrap)renderLegend(wrap,key);
  }
  root.dataset.model=model;
+ contextCache.delete(root);
 }
 // REA-081: a visible native legend is not an always-active shortcut.
 // Keep physical keys clickable so an unavailable action can explain itself.
 function applyContext(root,state,policy,profiles){
  if(!root||!policy||!profiles)return;
  const modifier=state.shift?'SHIFT':state.alpha?'ALPHA':'normal';
- const model=state.model,keys=keysForModel(model);
+ const model=state.model;
+ // Legend classification depends exclusively on these inputs. LCD, expression,
+ // cursor and calculation changes must not reclassify all 50 keys.
+ const previous=contextCache.get(root);
+ if(previous&&previous.modifier===modifier&&previous.model===model&&
+    previous.mode===state.mode&&previous.screen===state.screen&&
+    previous.policy===policy&&previous.profiles===profiles&&
+    previous.supports===profiles.supports&&
+    previous.childCount===root.childElementCount&&
+    previous.domModel===root.dataset.model)return;
+ const keys=keysForModel(model);
  const wrappers=new Map([...root.querySelectorAll('.key-unit')].map(el=>
   [el.querySelector('button')?.dataset.key,el]));
  for(const key of keys){
@@ -115,6 +128,9 @@ function applyContext(root,state,policy,profiles){
    modifier+' unavailable: '+action.reason:
    modifier+' '+(action.legend||key.label)+': '+action.reason);
  }
+ contextCache.set(root,{modifier,model,mode:state.mode,screen:state.screen,
+  policy,profiles,supports:profiles.supports,
+  childCount:root.childElementCount,domModel:root.dataset.model});
 }
 function mount(root,handler,model='fx-991es-plus'){
  if(!root)return;
@@ -130,6 +146,7 @@ function mount(root,handler,model='fx-991es-plus'){
   renderLegend(wrap,key);fragment.append(wrap);
  }
  root.append(fragment);root.dataset.model=model;
+ contextCache.delete(root);
 }
 
 const API=Object.freeze({keys,mount,applyModel,keysForModel,applyContext,MODEL_LEGENDS,topSpec,scienceSpec,numericSpec});global.FreshKeypad=API;
