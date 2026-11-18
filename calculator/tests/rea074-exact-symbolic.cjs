@@ -91,6 +91,50 @@ check('screen size/bound in symbolic text',()=>{
   assert.ok(!out||out.text.length<=22);
  }
 });
+// Special-angle trigonometry: display exact values, then S⇔D converts.
+const trigExpected={
+ sin:['0','1/2','√2/2','√3/2','1'],
+ cos:['1','√3/2','√2/2','1/2','0'],
+ tan:['0','√3/3','1','√3',null]
+};
+const angles=[0,30,45,60,90];
+for(const name of ['sin','cos','tan'])for(let i=0;i<angles.length;i++){
+ const angle=angles[i],expected=trigExpected[name][i];
+ if(expected===null){
+  check('tan(90) remains undefined',()=>{
+   assert.throws(()=>M.evaluate('tan(90)',{angle:'DEG'}));
+  });
+  continue;
+ }
+ check('special-angle '+name+'('+angle+')',()=>{
+  const expression=name+'('+angle+')';
+  const value=M.evaluate(expression,{angle:'DEG'});
+  const natural=R.calculate(value,expression,{...settings,angle:'DEG'});
+  assert.equal(natural.chosen.text,expected);
+  const converted=R.calculate(value,expression,{...settings,angle:'DEG'},
+   {decimal:true});
+  assert.equal(converted.chosen.kind,'decimal');
+  assert.equal(converted.chosen.text,R.decimal(value,{...settings,angle:'DEG'}));
+  assert.equal(R.calculate(value,expression,{...settings,angle:'DEG'}).chosen.text,
+   expected,'S⇔D must toggle back to exact form');
+ });
+}
+for(const [expression,expected] of [
+ ['sin(150)','1/2'],['cos(120)','-1/2'],['tan(135)','-1'],
+ ['sin(-30)','-1/2'],['cos(360)','1'],['tan(210)','√3/3']
+]){
+ check('special-angle signs '+expression,()=>{
+  const value=M.evaluate(expression,{angle:'DEG'});
+  assert.equal(R.calculate(value,expression,{...settings,angle:'DEG'}).chosen.text,expected);
+ });
+}
+check('special-angle lookup requires matching provenance',()=>{
+ const cfg={...settings,angle:'DEG'};
+ assert.equal(R.calculate(.6,'sin(30)',cfg).chosen.kind,'decimal');
+ assert.equal(R.calculate(Math.sin(Math.PI/6),'0.5',cfg).chosen.kind,'decimal');
+ assert.equal(R.calculate(Math.sin(Math.PI/6),'sin(30)',{...cfg,angle:'RAD'}).chosen.kind,'decimal');
+ assert.equal(R.calculate(Math.sin(23*Math.PI/180),'sin(23)',cfg).chosen.kind,'decimal');
+});
 check('script order and app result wiring',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
  const format=fs.readFileSync(path.join(__dirname,'../js/result-format.js'),'utf8');
