@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="מבדק אינטראקטיבי בן 25 שאלות על מחיקת חוליות מרשימה מקושרת ב-C# לפי עמודים 50–57.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="philip_favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/computer-modern@0.1.3/cmu-typewriter-text.css">
+    <title>מבדק מחיקת חוליות מרשימה מקושרת - 25 שאלות</title>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+            options: { enableMenu: false },
+            startup: { ready: () => {
+                MathJax.startup.defaultReady();
+                window.dispatchEvent(new Event('mathjax-ready'));
+            } }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        :root {
+            --canvas: #f1f5f9;
+            --paper: #ffffff;
+            --ink: #172b42;
+            --muted: #4e627a;
+            --border: #dce5ef;
+            --brand: #304fa3;
+            --brand-dark: #243e86;
+            --brand-soft: #eef2ff;
+            --teal: #147b79;
+            --correct: #116646;
+            --correct-bg: #e8f7ee;
+            --incorrect: #9f2f3e;
+            --incorrect-bg: #fff0f1;
+            --code-font: "CMU Typewriter Text", "Latin Modern Mono", Consolas, "Courier New", monospace;
+            --code-ink: #ecf4ff;
+            --code-background: #17283c;
+            --code-border: #405775;
+            --inline-code-color: #15579d;
+            --radius: 20px;
+            --shadow: 0 18px 52px rgba(27, 55, 93, .10);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            min-width: 320px;
+            min-height: 100vh;
+            font: 400 18px/1.7 system-ui, "Segoe UI", Arial, sans-serif;
+            color: var(--ink);
+            background: radial-gradient(circle at 90% 4%, #e3eefb 0, transparent 35%),
+                        radial-gradient(circle at 8% 85%, #e5f3f1 0, transparent 36%), var(--canvas);
+        }
+        button { font: inherit; cursor: pointer; }
+        button:focus-visible { outline: 3px solid var(--teal); outline-offset: 4px; }
+        button:disabled { cursor: not-allowed; }
+        [hidden] { display: none !important; }
+        .site-header { max-width: 970px; margin: 0 auto; padding: 28px 22px 4px; }
+        .app-mark { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: .9rem; font-weight: 650; }
+        .mark-symbol { display: grid; place-items: center; width: 35px; height: 35px; background: #dce9f9; border-radius: 11px; font-size: 1.15rem; }
+        main { max-width: 970px; margin: 0 auto; padding: 28px 22px 64px; }
+        .card { background: var(--paper); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+        .landing { padding: clamp(25px, 5.5vw, 55px); overflow: hidden; position: relative; }
+        .eyebrow { display: inline-flex; gap: 8px; align-items: center; color: var(--teal); font-weight: 760; font-size: .9rem; letter-spacing: .005em; }
+        .landing h1 { margin: 16px 0 12px; max-width: 680px; font-size: clamp(1.75rem, 3.7vw, 2.8rem); line-height: 1.32; letter-spacing: -.025em; }
+        .lead { max-width: 740px; margin: 0 0 26px; color: var(--muted); font-size: 1.06rem; }
+        .feature-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 32px; }
+        .feature { padding: 8px 15px; background: #f3f7fc; border: 1px solid var(--border); border-radius: 999px; font-size: .87rem; font-weight: 680; }
+        .hero-visual { display: flex; align-items: center; direction: ltr; gap: 7px; margin: 12px 0 32px; max-width: 520px; }
+        .chain-node { display: grid; place-items: center; min-width: 76px; min-height: 56px; border: 2px solid #8ba4d5; border-radius: 13px; background: #edf2ff; color: #1f437b; font-family: var(--code-font); font-size: 1.15rem; font-weight: bold; }
+        .chain-arrow { color: var(--teal); font-size: 1.4rem; flex: none; }
+        .chain-null { color: #6a7085; font-size: .9rem; font-family: var(--code-font); }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .btn { border: 2px solid transparent; border-radius: 13px; padding: 12px 23px; font-weight: 750; min-height: 50px; transition: background .15s, transform .15s, border-color .15s; }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); }
+        .btn-primary { color: #fff; background: var(--brand); }
+        .btn-primary:hover:not(:disabled) { background: var(--brand-dark); }
+        .btn-primary:disabled { color: #566b89; background: #dfe6f3; }
+        .btn-secondary { color: var(--brand-dark); border-color: #b9c7e0; background: white; }
+        .btn-secondary:hover:not(:disabled) { background: var(--brand-soft); }
+        .small-print { margin: 19px 0 0; color: var(--muted); font-size: .84rem; }
+        .quiz-card { padding: clamp(21px, 4.2vw, 40px); }
+        .quiz-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+        .quiz-top h2 { margin: 0; font-size: 1.25rem; }
+        .step-label { color: var(--muted); font-size: .94rem; font-variant-numeric: tabular-nums; }
+        .progress-track { width: 100%; height: 10px; margin: 18px 0 29px; border-radius: 99px; background: #e4ebf4; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--teal), var(--brand)); border-radius: inherit; transition: width .22s ease-out; }
+        .question { font-size: clamp(1.17rem, 2.15vw, 1.43rem); font-weight: 700; line-height: 1.75; margin: 4px 0 23px; }
+        .choices { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
+        .choice {
+            display: flex; align-items: flex-start; gap: 13px; width: 100%; text-align: right;
+            padding: 15px 17px; color: var(--ink); background: #fff;
+            border: 2px solid #dce4ee; border-radius: 15px; line-height: 1.7;
+            transition: border-color .15s, background .15s;
+        }
+        .choice:not(:disabled):hover { background: #f4f7ff; border-color: #788dc8; }
+        .option-key { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #ecf1f8; color: #3f5875; font-size: .88rem; font-weight: 800; }
+        .option-copy { flex: 1; padding-top: 1px; min-width: 0; }
+        .choice:disabled { opacity: 1; cursor: default; }
+        .choice.is-correct { border-color: #348462; background: var(--correct-bg); }
+        .choice.is-correct .option-key { color: white; background: var(--correct); }
+        .choice.is-wrong { border-color: #c35164; background: var(--incorrect-bg); }
+        .choice.is-wrong .option-key { color: white; background: var(--incorrect); }
+        .feedback { margin-top: 22px; border: 2px solid transparent; border-radius: 15px; padding: 17px 21px; }
+        .feedback.correct { background: var(--correct-bg); color: #0d593e; border-color: #9acfb4; }
+        .feedback.wrong { background: var(--incorrect-bg); color: #8d293c; border-color: #efb3bf; }
+        .feedback strong { display: block; font-size: 1.06rem; margin-bottom: 6px; }
+        .feedback p { margin: 7px 0 0; font-size: .97rem; }
+        .feedback .right-reason { margin-top: 13px; padding-top: 11px; border-top: 1px solid #ebc4ca; color: var(--ink); }
+        .quiz-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 25px; }
+        .helper { font-size: .84rem; color: var(--muted); }
+        .result-card { padding: clamp(27px, 5vw, 50px); text-align: center; }
+        .result-icon { font-size: 3.2rem; }
+        .result-card h2 { font-size: 2rem; margin: 8px 0; }
+        .score { font-size: clamp(2rem, 5.5vw, 3rem); font-weight: 830; color: var(--brand); margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+        .score-desc { color: var(--muted); margin: 0 0 22px; }
+        .result-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .site-footer { text-align: center; color: #61758c; padding: 0 20px 25px; font-size: .8rem; }
+        bdi.inline-code { direction: ltr; unicode-bidi: isolate; display: inline-block; vertical-align: baseline; white-space: nowrap; max-width: 100%; color: var(--inline-code-color); font: 400 1.2em var(--code-font); }
+        bdi.inline-code code { direction: ltr; unicode-bidi: isolate; font: inherit; color: inherit; white-space: inherit; }
+        pre.code-block { display: block; direction: ltr; unicode-bidi: isolate; text-align: left; box-sizing: border-box; max-width: 100%; margin: 12px 0; padding: 16px 20px; background: var(--code-background); color: var(--code-ink); border: 2px solid var(--code-border); border-radius: 12px; font: 400 1.2em/1.7 var(--code-font); white-space: pre; overflow-x: auto; overflow-y: hidden; overflow-wrap: normal; word-break: normal; tab-size: 4; }
+        pre.code-block code { direction: ltr; unicode-bidi: isolate; display: inline; font: inherit; color: inherit; white-space: inherit; overflow-wrap: normal; word-break: normal; }
+        .math-token { direction: ltr; unicode-bidi: isolate; display: inline-block; white-space: nowrap; }
+        #print-deck { display: none; }
+        @media (max-width: 650px) {
+            body { font-size: 16px; }
+            .site-header { padding: 15px 14px 2px; }
+            main { padding: 14px 12px 35px; }
+            .landing, .quiz-card, .result-card { border-radius: 15px; }
+            .chain-node { min-width: 56px; min-height: 45px; }
+            .hero-visual { gap: 5px; }
+            .choice { padding: 13px 12px; gap: 9px; }
+            .option-key { height: 30px; width: 30px; }
+            .btn { width: 100%; }
+            .actions, .result-actions { width: 100%; }
+            .quiz-footer .btn { width: auto; }
+            pre.code-block { font-size: 14px; padding: 12px 14px; }
+        }
+        @page { size: A4 portrait; margin: 16mm 16mm 15mm; }
+        @media print {
+            :root { --canvas: #fff; --shadow: none; }
+            body { background: white; color: #000; font-size: 12pt; }
+            .site-header, .site-footer, .no-print { display: none !important; }
+            main { margin: 0; padding: 0; max-width: unset; }
+            .card { border: 0; box-shadow: none; border-radius: 0; padding: 0; }
+            .progress-track { background: #ddd; }
+            .choice { break-inside: avoid; box-shadow: none; }
+            .feedback { break-inside: avoid; }
+            bdi.inline-code { color: #17283c; }
+            pre.code-block { white-space: pre-wrap; overflow: visible; overflow-wrap: anywhere; font-size: 10pt; background: #f1f3f7; color: #17283c; border-color: #869bb0; break-inside: avoid; }
+            pre.code-block code { white-space: inherit; overflow-wrap: inherit; }
+            body.print-all .screen-app { display: none !important; }
+            body.print-all #print-deck { display: block !important; }
+            .print-page { padding: 0; break-after: page; page-break-after: always; }
+            .print-page:last-child { break-after: auto; page-break-after: auto; }
+            .print-page h2 { font-size: 16pt; margin: 0 0 15mm; border-bottom: 1px solid #a9b4c5; padding-bottom: 6mm; }
+            .print-question { break-inside: avoid; margin-bottom: 15mm; }
+            .print-question h3 { font-size: 12.5pt; line-height: 1.5; margin: 0 0 5mm; }
+            .print-question ol { margin: 0; padding-right: 8mm; }
+            .print-question li { margin-bottom: 4mm; }
+            .print-foot { color: #546174; font-size: 9pt; margin-top: 10mm; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header screen-app">
+        <div class="app-mark"><span class="mark-symbol" aria-hidden="true">🔗</span><span>מדעי המחשב · מבדק לתרגול עצמי</span></div>
+    </header>
+    <main class="screen-app" id="app">
+        <section class="card landing" id="landing-view" aria-labelledby="landing-title">
+            <div class="eyebrow">● תרגול אינטראקטיבי</div>
+            <h1 id="landing-title">מחיקת איבר מרשימה מקושרת בשפת <bdi class="inline-code" dir="ltr"><code>C#</code></bdi></h1>
+            <p class="lead">מבדק לפי עמודים 50–57 במצגת: מחיקת החוליה הראשונה, מחיקת החוליה האחרונה, מחיקת ערך מתוך הרשימה ומחיקת כל החוליות המקיימות תנאי. הפעולות המרכזיות הן <bdi class="inline-code" dir="ltr"><code>DeleteHead</code></bdi>, <bdi class="inline-code" dir="ltr"><code>DeleteLastNode</code></bdi>, <bdi class="inline-code" dir="ltr"><code>DeleteNode</code></bdi> ו־<bdi class="inline-code" dir="ltr"><code>RemoveNegatives</code></bdi>.</p>
+            <div class="feature-row" aria-label="פרטי המבדק">
+                <span class="feature">עמודים 50–57</span>
+                <span class="feature">25 שאלות</span>
+                <span class="feature">3 אפשרויות לכל שאלה</span>
+                <span class="feature">משוב מיידי</span>
+                <span class="feature">ציון בסיום</span>
+            </div>
+            <div class="hero-visual" role="img" aria-label="שלוש חוליות ברשימה מקושרת ולאחריהן null">
+                <span class="chain-node">4</span><span class="chain-arrow">⟶</span>
+                <span class="chain-node">8</span><span class="chain-arrow">⟶</span>
+                <span class="chain-node">12</span><span class="chain-arrow">⟶</span>
+                <span class="chain-null">null</span>
+            </div>
+            <div class="actions no-print">
+                <button class="btn btn-primary" id="start-btn" type="button">🚀 התחל מבדק</button>
+                <button class="btn btn-secondary" id="print-btn" type="button">🖨️ הדפסת כל השאלות</button>
+            </div>
+            <p class="small-print">יש לבחור תשובה אחת בכל שאלה. לאחר הבחירה מופיע משוב, ולא ניתן לשנות את התשובה.</p>
+        </section>
+        <section class="card quiz-card" id="quiz-view" aria-labelledby="question-heading" hidden>
+            <div class="quiz-top">
+                <h2 id="question-heading" tabindex="-1">שאלה <span id="question-number">1</span> מתוך 25</h2>
+                <span class="step-label" id="progress-caption">0 מתוך 25 נענו</span>
+            </div>
+            <div class="progress-track" id="progress-track" role="progressbar" aria-label="התקדמות במבדק" aria-valuemin="0" aria-valuemax="25" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div></div>
+            <p class="question" id="question-text"></p>
+            <div id="code-example"></div>
+            <ol class="choices" id="options-list" aria-label="אפשרויות תשובה"></ol>
+            <div class="feedback" id="feedback" role="status" aria-live="polite" hidden></div>
+            <div class="quiz-footer no-print">
+                <span class="helper" id="question-helper">בחרו תשובה כדי להמשיך</span>
+                <button class="btn btn-primary" id="next-btn" type="button" disabled>לשאלה הבאה</button>
+            </div>
+        </section>
+        <section class="card result-card" id="result-view" aria-labelledby="result-title" hidden>
+            <div class="result-icon" aria-hidden="true">⭐</div>
+            <h2 id="result-title">תוצאות המבדק</h2>
+            <div class="score" id="result-score">0 / 25</div>
+            <p class="score-desc" id="result-description"></p>
+            <div class="result-actions no-print">
+                <button class="btn btn-primary" id="retry-btn" type="button">🔁 התחל מחדש</button>
+                <button class="btn btn-secondary" id="result-print-btn" type="button">🖨️ הדפסת כל השאלות</button>
+            </div>
+        </section>
+    </main>
+    <div id="print-deck" aria-hidden="true"></div>
+    <footer class="site-footer screen-app">מבדק מחיקת חוליות · עמודים 50–57 · למידה ותרגול עצמי</footer>
+    <script>
+        "use strict";
+
+        // Original questions on linked-list deletion, derived from PDF pages 50–57; no React or Node.js.
+        const questions = [
+            {
+                        "id": 1,
+                        "question": "באילו שלושה מקומות ניתן למחוק חוליה מרשימה מקושרת, לפי המצגת?",
+                        "options": [
+                                    "רק בראש הרשימה או בסופה",
+                                    "בראש הרשימה, בסופה או מתוכה",
+                                    "רק מתוך הרשימה, ולא מהקצוות"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "המצגת מתארת גם מחיקה של חוליה מתוך הרשימה.",
+                                    "1": "עמוד 50 מציג את שלושת המקרים: התחלה, סוף ותוך הרשימה.",
+                                    "2": "המצגת מציגה מחיקה גם מראש הרשימה וגם מסופה."
+                        },
+                        "sourcePage": 50
+            },
+            {
+                        "id": 2,
+                        "question": "כאשר מוחקים את החוליה הראשונה, לאיזו חוליה צריך לעדכן את head?",
+                        "options": [
+                                    "לחוליה השנייה שהייתה ברשימה",
+                                    "לחוליה האחרונה ברשימה",
+                                    "לחוליה הראשונה הישנה, בלי לשנות דבר"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "לאחר המחיקה החוליה השנייה הופכת לראש הרשימה.",
+                                    "1": "הפניה לחוליה האחרונה הייתה מנתקת את כל החוליות שביניהן.",
+                                    "2": "אם head ממשיך להצביע לחוליה הראשונה הישנה, לא התבצעה מחיקה מן השרשרת."
+                        },
+                        "sourcePage": 51
+            },
+            {
+                        "id": 3,
+                        "question": "מה תחזיר הפעולה DeleteHead כאשר head הוא null?",
+                        "options": [
+                                    "חוליה חדשה עם הערך 0",
+                                    "את המשתנה head בלי ערך החזרה",
+                                    "null"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "בקוד במצגת אין יצירה של חוליה חדשה בעת מחיקה.",
+                                    "1": "הפעולה מוגדרת כמחזירה Node<T>, וכוללת return null עבור רשימה ריקה.",
+                                    "2": "הבדיקה if (head == null) מחזירה null כאשר הרשימה ריקה."
+                        },
+                        "sourcePage": 52
+            },
+            {
+                        "id": 4,
+                        "question": "ברשימה שמכילה חוליה אחת בלבד, מה תהיה הרשימה לאחר DeleteHead ועדכון head אצל הקורא?",
+                        "options": [
+                                    "רשימה ריקה (head == null)",
+                                    "אותה חוליה בדיוק",
+                                    "רשימה חדשה שמכילה את הערך 0"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "לחוליה היחידה אין חוליה הבאה, ולכן GetNext() מחזירה null.",
+                                    "1": "ראש הרשימה מתעדכן לערך GetNext() של החוליה היחידה, כלומר null.",
+                                    "2": "הפעולה אינה יוצרת חוליות חדשות ואינה משנה ערכי חוליות."
+                        },
+                        "sourcePage": 52
+            },
+            {
+                        "id": 5,
+                        "question": "מדוע DeleteHead מחזירה Node<T> ולא מוגדרת כפעולה void?",
+                        "options": [
+                                    "כדי להחזיר את הערך שנמחק להדפסה",
+                                    "כדי שהפעולה הקוראת תוכל לעדכן את ההפניה לראש החדש",
+                                    "כדי לדעת כמה חוליות נשארו ברשימה"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "הפעולה מחזירה הפניה לחוליה, לא את הערך שאוחסן בחוליה הישנה.",
+                                    "1": "מחיקת הראש משנה את נקודת הכניסה לרשימה; הקורא חייב לקבל את ה-head החדש.",
+                                    "2": "לא מבוצעת כאן ספירה של מספר החוליות."
+                        },
+                        "code": [
+                                    "head = DeleteHead(head);"
+                        ],
+                        "sourcePage": 52
+            },
+            {
+                        "id": 6,
+                        "question": "לאחר שהחוליה הראשונה נותקה, מה מתואר במצגת לגבי הזיכרון שלה?",
+                        "options": [
+                                    "היא נמחקת פיזית מהזיכרון בדיוק ברגע עדכון head",
+                                    "כל החוליות הישנות נמחקות יחד",
+                                    "היא מנותקת מהרשימה; אם אין אליה הפניות, מנגנון איסוף האשפה יוכל לשחרר אותה בהמשך"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "עדכון קישור אינו מבטיח שחרור מיידי של זיכרון.",
+                                    "1": "החוליות האחרות עדיין נגישות דרך הראש החדש.",
+                                    "2": "המצגת מבדילה בין ניתוק חוליה מן הרשימה לבין שחרור הזיכרון בהמשך."
+                        },
+                        "sourcePage": 51
+            },
+            {
+                        "id": 7,
+                        "question": "כדי למחוק את החוליה האחרונה ברשימה שאורכה לפחות שתי חוליות, היכן צריך לעצור את הסריקה?",
+                        "options": [
+                                    "בחוליה הראשונה",
+                                    "בחוליה שלפני האחרונה",
+                                    "בחוליה האחרונה עצמה"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "חוץ מרשימה בת שתי חוליות, עמידה על הראשונה בלבד אינה תמיד מספיקה.",
+                                    "1": "כדי לנתק את האחרונה צריך לעדכן את next של החוליה שלפניה.",
+                                    "2": "מהחוליה האחרונה לא ניתן לשנות את הקישור שנמצא בחוליה שלפניה."
+                        },
+                        "sourcePage": 53
+            },
+            {
+                        "id": 8,
+                        "question": "כיצד פועלת DeleteLastNode שבמצגת כאשר הרשימה ריקה או מכילה חוליה אחת בלבד?",
+                        "options": [
+                                    "בשני המקרים היא מחזירה null",
+                                    "ברשימה ריקה היא מחזירה חוליה חדשה",
+                                    "בשני המקרים היא מחזירה את head ללא שינוי"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "כך מוגדר תנאי הבסיס: head == null או head.GetNext() == null.",
+                                    "1": "אין בקוד בנייה של חוליה חדשה.",
+                                    "2": "כאשר קיימת חוליה אחת, היא נמחקת לוגית ולכן הראש החדש הוא null."
+                        },
+                        "sourcePage": 54
+            },
+            {
+                        "id": 9,
+                        "question": "נתונה הרשימה 4, 8, 12 לפי הסדר. מה תכיל הרשימה לאחר הקריאה head = DeleteLastNode(head)?",
+                        "options": [
+                                    "8, 12",
+                                    "4, 8, 12",
+                                    "4, 8"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "הפעולה מוחקת את החוליה האחרונה, ולא את הראשונה.",
+                                    "1": "הרשימה אינה נשארת ללא שינוי: next של החוליה לפני האחרונה מתעדכן ל-null.",
+                                    "2": "החוליה שערכה 12 מנותקת והחוליות 4 ו-8 נשמרות."
+                        },
+                        "sourcePage": 54
+            },
+            {
+                        "id": 10,
+                        "question": "מהו תפקידה של בדיקת הלולאה הבאה ב-DeleteLastNode?",
+                        "options": [
+                                    "לעצור כאשר current מגיע לחוליה שלפני האחרונה",
+                                    "לעצור רק לאחר ש-current הופך ל-null",
+                                    "לדלג על כל חוליה שנייה ברשימה"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "כאשר next של next הוא null, החוליה הבאה היא האחרונה ו-current הוא שלפניה.",
+                                    "1": "תנאי הלולאה אינו מיועד להגיע ל-null ב-current עצמו.",
+                                    "2": "התקדמות current היא חוליה אחת בכל סיבוב, ולא שתי חוליות."
+                        },
+                        "code": [
+                                    "while (current.GetNext().GetNext() != null)",
+                                    "{",
+                                    "    current = current.GetNext();",
+                                    "}"
+                        ],
+                        "sourcePage": 54
+            },
+            {
+                        "id": 11,
+                        "question": "מה תעשה הפעולה current.SetNext(null) כאשר current מצביע לחוליה שלפני האחרונה?",
+                        "options": [
+                                    "תחליף את הערך בחוליה האחרונה ל-null",
+                                    "תנתק את החוליה האחרונה מהרשימה",
+                                    "תמחק את כל הרשימה"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "SetNext משנה את ההפניה לחוליה הבאה, ולא את השדה value.",
+                                    "1": "הקישור אל החוליה האחרונה נחתך; current הופכת לחוליה האחרונה.",
+                                    "2": "החוליות שלפני current נשארות מחוברות."
+                        },
+                        "sourcePage": 54
+            },
+            {
+                        "id": 12,
+                        "question": "מהי מורכבות הזמן של DeleteLastNode ברשימה של n חוליות במימוש שבמצגת?",
+                        "options": [
+                                    "O(1) כי משנים רק קישור אחד",
+                                    "O(n²) כי יש שתי קריאות GetNext בכל תנאי",
+                                    "O(n) כי צריך להתקדם מן הראש לכיוון סוף הרשימה"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "עדכון הקישור עצמו קבוע, אבל לפניו נדרשת סריקה.",
+                                    "1": "שתי קריאות GetNext בתוך תנאי אינן יוצרות לולאות מקוננות.",
+                                    "2": "מספר צעדי הלולאה יכול לגדול ביחס ישר למספר החוליות."
+                        },
+                        "sourcePage": 54
+            },
+            {
+                        "id": 13,
+                        "question": "מדוע DeleteLastNode מחזירה את head גם כאשר נמחקת חוליה בסוף?",
+                        "options": [
+                                    "כדי להחזיר את ראש הרשימה שנותר, ואפשר יהיה לשמור גם את התוצאה של רשימה בת חוליה אחת",
+                                    "כי תמיד החוליה הראשונה משתנה במחיקת הסוף",
+                                    "כדי להחזיר את הערך המספרי שהוסר"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "כאשר יש לפחות שתי חוליות, head נשאר אותו ראש; כאשר יש לכל היותר אחת, יוחזר null.",
+                                    "1": "במחיקת חוליה אחרונה ברשימה ארוכה הראש אינו משתנה.",
+                                    "2": "טיפוס ההחזרה הוא Node<int> ולא int."
+                        },
+                        "sourcePage": 54
+            },
+            {
+                        "id": 14,
+                        "question": "כדי למחוק חוליה מתוך הרשימה בלי לאבד את המשך השרשרת, איזה קישור יש לעדכן?",
+                        "options": [
+                                    "את next של החוליה שאחריה",
+                                    "את next של החוליה שלפניה כך שיצביע לחוליה שאחריה",
+                                    "את value של החוליה שרוצים למחוק"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "החוליה שאחרי הנמחקת כבר שייכת להמשך הרשימה ואין צורך לשנות את next שלה.",
+                                    "1": "החוליה הקודמת מדלגת על זו שנמחקת ומתחברת ישירות לבאה.",
+                                    "2": "שינוי ערך אינו מסיר חוליה מן השרשרת."
+                        },
+                        "sourcePage": 55
+            },
+            {
+                        "id": 15,
+                        "question": "נתונה הרשימה 1, 2, 3, 4. מה יהיה סדר הערכים לאחר מחיקת החוליה שערכה 2?",
+                        "options": [
+                                    "1, 2, 4",
+                                    "1, 3, 4, 2",
+                                    "1, 3, 4"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "התוצאה 1,2,4 מתאימה למחיקת הערך 3 ולא 2.",
+                                    "1": "מחיקה אינה מעבירה את החוליה לסוף הרשימה.",
+                                    "2": "החוליה שערכה 1 מצביעה ישירות על החוליה שערכה 3, והמשך הרשימה נשמר."
+                        },
+                        "sourcePage": 55
+            },
+            {
+                        "id": 16,
+                        "question": "מה עושה DeleteNode שבמצגת אם החוליה הראשונה מכילה את valueToDelete?",
+                        "options": [
+                                    "מחזירה את החוליה השנייה כראש חדש בלי לבצע סריקה",
+                                    "מעדכנת רק את הערך של הראש",
+                                    "סורקת בכל מקרה עד לחוליה האחרונה"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "תנאי הפתיחה מחזיר head.GetNext(), ולכן הראש הישן מוסר לוגית.",
+                                    "1": "הפעולה אינה משתמשת ב-SetValue ואינה מחליפה את הערך.",
+                                    "2": "ההחזרה המיידית מונעת כניסה ללולאת הסריקה."
+                        },
+                        "code": [
+                                    "if (head.GetValue().Equals(valueToDelete))",
+                                    "{",
+                                    "    return head.GetNext();",
+                                    "}"
+                        ],
+                        "sourcePage": 56
+            },
+            {
+                        "id": 17,
+                        "question": "מה יקרה אם נקרא למימוש DeleteNode שמופיע בעמוד 56 כאשר head == null?",
+                        "options": [
+                                    "תחזור רשימה ריקה ללא כל בעיה",
+                                    "תיתכן NullReferenceException בגלל הקריאה head.GetValue()",
+                                    "תיווצר אוטומטית חוליה חדשה"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "בניגוד ל-DeleteHead, בקוד הזה אין תנאי טיפול בראש ריק.",
+                                    "1": "קריאת מתודה על head שהוא null תגרום לשגיאה בזמן הריצה.",
+                                    "2": "בקוד אין הוראה ליצירת חוליה חדשה."
+                        },
+                        "sourcePage": 56
+            },
+            {
+                        "id": 18,
+                        "question": "ברשימה 3, 6, 9, מה תחזיר DeleteNode(head, 5) לאחר שהסורק לא מצא את הערך המבוקש?",
+                        "options": [
+                                    "רשימה ריקה",
+                                    "רשימה 3, 6",
+                                    "את הראש של הרשימה המקורית, ללא שינוי"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "הפעולה אינה מוחקת את כל החוליות כשאין התאמה.",
+                                    "1": "אין הוראה המוחקת את החוליה האחרונה במקרה שהערך לא נמצא.",
+                                    "2": "אם אין חוליה שבה next מכיל את הערך, לא מתבצע SetNext ו-head מוחזר."
+                        },
+                        "sourcePage": 56
+            },
+            {
+                        "id": 19,
+                        "question": "נתונה הרשימה 5, 7, 7, 9. מהי תוצאת הקריאה DeleteNode(head, 7) לפי המימוש במצגת?",
+                        "options": [
+                                    "5, 7, 9",
+                                    "5, 9",
+                                    "5, 7, 7, 9"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "הלולאה מוצאת את ההופעה הראשונה של 7 ועוקפת חוליה אחת; ההופעה השנייה נשמרת.",
+                                    "1": "הפעולה המוצגת אינה ממשיכה למחוק את כל ההופעות.",
+                                    "2": "המימוש כן מבצע מחיקה כאשר הוא מוצא את הערך."
+                        },
+                        "sourcePage": 56
+            },
+            {
+                        "id": 20,
+                        "question": "מדוע התנאי של DeleteNode בודק קודם current.GetNext() != null?",
+                        "options": [
+                                    "כדי לבחור את החוליה בעלת הערך הגדול ביותר",
+                                    "כדי שלא תתבצע קריאת GetValue() על חוליה שאינה קיימת",
+                                    "כדי לוודא שהחוליה הנוכחית היא הראש"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "התנאי בודק את קיום החוליה הבאה, ולא את גודל ערכה.",
+                                    "1": "השילוב עם && מונע את הערכת הבדיקה השנייה כשהחוליה הבאה היא null.",
+                                    "2": "המשתנה current מתקדם בלולאה ועשוי להצביע לחוליות שונות."
+                        },
+                        "code": [
+                                    "while (current.GetNext() != null &&",
+                                    "       current.GetNext().GetValue() != valueToDelete)",
+                                    "{",
+                                    "    current = current.GetNext();",
+                                    "}"
+                        ],
+                        "sourcePage": 56
+            },
+            {
+                        "id": 21,
+                        "question": "מה עושה הלולאה הראשונה של RemoveNegatives?",
+                        "options": [
+                                    "מוחקת רק את המספר השלילי האחרון",
+                                    "מחליפה כל ערך שלילי בערך 0",
+                                    "מקדמת את head כל עוד תחילת הרשימה מכילה ערכים שליליים"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "הלולאה אינה מחפשת דווקא את החוליה האחרונה.",
+                                    "1": "הקוד אינו מפעיל SetValue על החוליות השליליות.",
+                                    "2": "היא מסירה ברצף חוליות שליליות מהראש עד ראש לא שלילי או עד null."
+                        },
+                        "code": [
+                                    "while (head != null && head.GetValue() < 0)",
+                                    "{",
+                                    "    head = head.GetNext();",
+                                    "}"
+                        ],
+                        "sourcePage": 57
+            },
+            {
+                        "id": 22,
+                        "question": "נתונה הרשימה -4, -1, -8. מה תחזיר RemoveNegatives לאחר הרצתה?",
+                        "options": [
+                                    "null",
+                                    "רשימה עם הערך -8 בלבד",
+                                    "רשימה עם שלוש חוליות שערכן 0"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "כל החוליות בראש שליליות; הלולאה הראשונה מתקדמת עד סוף הרשימה.",
+                                    "1": "אין סיבה לשמר את -8, כי גם הוא שלילי.",
+                                    "2": "הקוד אינו משנה ערכים ל-0 אלא מנתק חוליות."
+                        },
+                        "sourcePage": 57
+            },
+            {
+                        "id": 23,
+                        "question": "ב-RemoveNegatives, מדוע לא מקדמים את current מיד לאחר שמוחקים חוליה שלילית מתוך הרשימה?",
+                        "options": [
+                                    "כי current כבר מצביע ל-null",
+                                    "כדי לבדוק שוב את החוליה החדשה שנמצאת אחרי current, שאולי גם היא שלילית",
+                                    "כי אי אפשר לבצע GetNext על חוליה שנותרה ברשימה"
+                        ],
+                        "correct": 1,
+                        "explanation": {
+                                    "0": "לאחר הסרת חוליה, current עדיין יכול להצביע לחוליה קיימת.",
+                                    "1": "אם יש שני ערכים שליליים רצופים, יש להסיר גם את השני לפני שמתקדמים.",
+                                    "2": "מותר להתקדם באמצעות GetNext; פשוט לא תמיד נכון לעשות זאת לאחר מחיקה."
+                        },
+                        "code": [
+                                    "if (current.GetNext().GetValue() < 0)",
+                                    "{",
+                                    "    current.SetNext(current.GetNext().GetNext());",
+                                    "}",
+                                    "else",
+                                    "{",
+                                    "    current = current.GetNext();",
+                                    "}"
+                        ],
+                        "sourcePage": 57
+            },
+            {
+                        "id": 24,
+                        "question": "נתונה הרשימה 4, -2, -3, 5, -1. מה תהיה התוצאה של RemoveNegatives?",
+                        "options": [
+                                    "4, -3, 5",
+                                    "4, -2, 5",
+                                    "4, 5"
+                        ],
+                        "correct": 2,
+                        "explanation": {
+                                    "0": "גם -3 שלילי ולכן הוא חייב להימחק.",
+                                    "1": "גם -2 שלילי ולכן הוא אינו נשאר ברשימה.",
+                                    "2": "שלוש החוליות השליליות מנותקות; החוליות החיוביות נשמרות באותו סדר."
+                        },
+                        "sourcePage": 57
+            },
+            {
+                        "id": 25,
+                        "question": "בתרגיל ההמשך בעמוד 57 רוצים להסיר את כל המספרים הזוגיים במקום את כל השליליים. איזה שינוי נדרש?",
+                        "options": [
+                                    "לשנות את שתי בדיקות התנאי כך שיבדקו ערך זוגי באמצעות % 2 == 0",
+                                    "לשנות רק את בדיקת התנאי בלולאה השנייה",
+                                    "להחליף את SetNext ב-SetValue ולהשאיר את התנאים ללא שינוי"
+                        ],
+                        "correct": 0,
+                        "explanation": {
+                                    "0": "יש לבדוק זוגיות גם במחיקת חוליות מתחילת הרשימה וגם בתוך הרשימה.",
+                                    "1": "אם משנים רק את הלולאה השנייה, חוליות זוגיות בתחילת הרשימה יישארו.",
+                                    "2": "SetValue אינו מוחק חוליות, ובדיקת < 0 עדיין הייתה בודקת שליליות."
+                        },
+                        "sourcePage": 57
+            }
+];
+
+        const EXPECTED_COUNT = 25;
+        const state = {
+            page: "landing",
+            qIndex: 0,
+            answers: Object.create(null)
+        };
+
+        const views = {
+            landing: document.getElementById("landing-view"),
+            quiz: document.getElementById("quiz-view"),
+            result: document.getElementById("result-view")
+        };
+
+        // Validate the new question bank without React hooks.
+        function validateQuestions() {
+            const issues = [];
+            if (questions.length !== EXPECTED_COUNT) {
+                issues.push(`צפויות ${EXPECTED_COUNT} שאלות, בפועל: ${questions.length}`);
+            }
+            const ids = new Set(questions.map(q => q.id));
+            if (ids.size !== questions.length) issues.push("קיימים מזהי שאלות כפולים.");
+            for (let i = 1; i <= questions.length; i++) {
+                if (!ids.has(i)) issues.push(`חסר מזהה שאלה ${i}.`);
+            }
+            for (const q of questions) {
+                if (!Array.isArray(q.options) || q.options.length !== 3) {
+                    issues.push(`שאלה ${q.id} אינה מכילה בדיוק 3 אפשרויות.`);
+                }
+                if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.options.length) {
+                    issues.push(`שאלה ${q.id}: מפתח תשובה לא תקין.`);
+                }
+                for (let i = 0; i < 3; i++) {
+                    if (!q.explanation || typeof q.explanation[i] !== "string") {
+                        issues.push(`שאלה ${q.id} חסרה הסבר לאפשרות ${i}.`);
+                    }
+                }
+            }
+            if (issues.length) console.warn("QUIZ VALIDATION FAILED", issues);
+            return issues;
+        }
+
+        // Treat programming expressions as atomic LTR units while preserving Hebrew text.
+        const TECHNICAL_TOKEN = /C#|O\(n²\)|O\(n\)|O\(1\)|if\s*\(head\s*==\s*null\)|head\s*==\s*null|current\.GetNext\(\)\.GetValue\(\)\s*(?:<=|<)\s*value|[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*(?:\([^()]*\))?)*(?:\([^()]*\))?/g;
+        const MATH_TOKENS = { "O(1)": "O(1)", "O(n)": "O(n)", "O(n²)": "O(n^2)" };
+        const mathTargets = new Set();
+
+        function renderRichText(target, value) {
+            target.replaceChildren();
+            const text = String(value || "");
+            const matches = text.matchAll(TECHNICAL_TOKEN);
+            let cursor = 0;
+            for (const match of matches) {
+                const token = match[0];
+                const start = match.index;
+                if (start > cursor) target.appendChild(document.createTextNode(text.slice(cursor, start)));
+                if (Object.prototype.hasOwnProperty.call(MATH_TOKENS, token)) {
+                    const span = document.createElement("span");
+                    span.className = "math-token";
+                    span.textContent = token; // Useful offline fallback before MathJax loads.
+                    span.dataset.latex = MATH_TOKENS[token];
+                    mathTargets.add(span);
+                    target.appendChild(span);
+                } else {
+                    const bdi = document.createElement("bdi");
+                    bdi.dir = "ltr";
+                    bdi.className = "inline-code";
+                    const code = document.createElement("code");
+                    code.textContent = token;
+                    bdi.appendChild(code);
+                    target.appendChild(bdi);
+                }
+                cursor = start + token.length;
+            }
+            if (cursor < text.length) target.appendChild(document.createTextNode(text.slice(cursor)));
+            typesetMath();
+        }
+
+        function typesetMath() {
+            if (!window.MathJax || typeof window.MathJax.typesetPromise !== "function") return;
+            const pending = [...mathTargets].filter(el => el.isConnected && !el.dataset.typeset);
+            if (!pending.length) return;
+            for (const el of pending) {
+                el.dataset.typeset = "1";
+                el.textContent = `\\(${el.dataset.latex}\\)`;
+            }
+            window.MathJax.typesetPromise(pending).catch(error => {
+                console.warn("MathJax rendering failed", error);
+                for (const el of pending) {
+                    const original = Object.keys(MATH_TOKENS).find(key => MATH_TOKENS[key] === el.dataset.latex);
+                    el.textContent = original || el.dataset.latex;
+                    delete el.dataset.typeset;
+                }
+            });
+        }
+        window.addEventListener("mathjax-ready", typesetMath);
+
+        function switchPage(page) {
+            state.page = page;
+            for (const [name, element] of Object.entries(views)) element.hidden = name !== page;
+            window.scrollTo({ top: 0, behavior: "instant" });
+        }
+
+        function startQuiz() {
+            state.qIndex = 0;
+            state.answers = Object.create(null);
+            renderQuestion();
+            switchPage("quiz");
+            document.getElementById("question-heading").focus({ preventScroll: true });
+        }
+
+        function chooseAnswer(index) {
+            if (state.answers[state.qIndex] !== undefined) return; // Lock first answer.
+            state.answers[state.qIndex] = index;
+            renderQuestion();
+            document.getElementById("feedback").scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+
+        function renderQuestion() {
+            const question = questions[state.qIndex];
+            const selected = state.answers[state.qIndex];
+            const answered = selected !== undefined;
+            const answeredCount = Object.keys(state.answers).length;
+            document.getElementById("question-number").textContent = String(state.qIndex + 1);
+            document.getElementById("progress-caption").textContent = `${answeredCount} מתוך ${questions.length} נענו`;
+            document.getElementById("progress-fill").style.width = `${100 * answeredCount / questions.length}%`;
+            document.getElementById("progress-track").setAttribute("aria-valuenow", String(answeredCount));
+            renderRichText(document.getElementById("question-text"), question.question);
+
+            const codeContainer = document.getElementById("code-example");
+            codeContainer.replaceChildren();
+            if (Array.isArray(question.code) && question.code.length) {
+                const pre = document.createElement("pre");
+                pre.className = "code-block";
+                pre.dir = "ltr";
+                const code = document.createElement("code");
+                code.textContent = question.code.join("\n");
+                pre.appendChild(code);
+                codeContainer.appendChild(pre);
+            }
+
+            const list = document.getElementById("options-list");
+            list.replaceChildren();
+            for (let i = 0; i < question.options.length; i++) {
+                const li = document.createElement("li");
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "choice";
+                btn.disabled = answered;
+                btn.setAttribute("aria-label", `אפשרות ${i + 1}: ${question.options[i]}`);
+                if (answered && i === question.correct) btn.classList.add("is-correct");
+                if (answered && i === selected && i !== question.correct) btn.classList.add("is-wrong");
+                const key = document.createElement("span");
+                key.className = "option-key";
+                key.setAttribute("aria-hidden", "true");
+                key.textContent = ["א", "ב", "ג"][i];
+                const copy = document.createElement("span");
+                copy.className = "option-copy";
+                renderRichText(copy, question.options[i]);
+                btn.append(key, copy);
+                btn.addEventListener("click", () => chooseAnswer(i));
+                li.appendChild(btn);
+                list.appendChild(li);
+            }
+
+            const feedback = document.getElementById("feedback");
+            feedback.replaceChildren();
+            feedback.hidden = !answered;
+            feedback.className = `feedback ${selected === question.correct ? "correct" : "wrong"}`;
+            if (answered) {
+                const title = document.createElement("strong");
+                title.textContent = selected === question.correct ? "תשובה נכונה ✅" : "תשובה שגויה ❌";
+                feedback.appendChild(title);
+                if (selected === question.correct) {
+                    const rightReason = document.createElement("p");
+                    renderRichText(rightReason, question.explanation[question.correct]);
+                    feedback.appendChild(rightReason);
+                } else {
+                    const reason = document.createElement("p");
+                    renderRichText(reason, question.explanation[selected]);
+                    feedback.appendChild(reason);
+                    const rightReason = document.createElement("p");
+                    rightReason.className = "right-reason";
+                    rightReason.appendChild(document.createTextNode("הסבר נכון: "));
+                    const explanation = document.createElement("span");
+                    renderRichText(explanation, question.explanation[question.correct]);
+                    rightReason.appendChild(explanation);
+                    feedback.appendChild(rightReason);
+                }
+            }
+            document.getElementById("question-helper").textContent = answered ? "התשובה נקלטה. אפשר להמשיך." : "בחרו תשובה כדי להמשיך";
+            const next = document.getElementById("next-btn");
+            next.disabled = !answered;
+            next.textContent = state.qIndex === questions.length - 1 ? "סיום המבדק" : "לשאלה הבאה";
+            typesetMath();
+        }
+
+        function goNext() {
+            if (state.answers[state.qIndex] === undefined) return;
+            if (state.qIndex < questions.length - 1) {
+                state.qIndex++;
+                renderQuestion();
+                document.getElementById("question-heading").focus({ preventScroll: true });
+                window.scrollTo({ top: 0, behavior: "instant" });
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const count = questions.reduce((sum, q, i) => sum + (state.answers[i] === q.correct ? 1 : 0), 0);
+            document.getElementById("result-score").textContent = `${count} / ${questions.length}`;
+            const percent = Math.round(100 * count / questions.length);
+            document.getElementById("result-description").textContent = `ענית נכון על ${count} מתוך ${questions.length} שאלות (${percent}%).`;
+            switchPage("result");
+        }
+
+        function buildPrintDeck() {
+            const deck = document.getElementById("print-deck");
+            deck.replaceChildren();
+            for (let i = 0; i < questions.length; i += 2) {
+                const page = document.createElement("section");
+                page.className = "print-page";
+                const title = document.createElement("h2");
+                title.textContent = "מחיקת איבר מרשימה מקושרת - דף שאלות";
+                page.appendChild(title);
+                for (const q of questions.slice(i, i + 2)) {
+                    const block = document.createElement("article");
+                    block.className = "print-question";
+                    const heading = document.createElement("h3");
+                    heading.appendChild(document.createTextNode(`שאלה ${q.id}. `));
+                    const questionCopy = document.createElement("span");
+                    renderRichText(questionCopy, q.question);
+                    heading.appendChild(questionCopy);
+                    block.appendChild(heading);
+                    if (Array.isArray(q.code) && q.code.length) {
+                        const codeBlock = document.createElement("pre");
+                        codeBlock.className = "code-block";
+                        codeBlock.dir = "ltr";
+                        const codeText = document.createElement("code");
+                        codeText.textContent = q.code.join("\n");
+                        codeBlock.appendChild(codeText);
+                        block.appendChild(codeBlock);
+                    }
+                    const options = document.createElement("ol");
+                    options.type = "1";
+                    for (const text of q.options) {
+                        const item = document.createElement("li");
+                        renderRichText(item, text);
+                        options.appendChild(item);
+                    }
+                    block.appendChild(options);
+                    page.appendChild(block);
+                }
+                const foot = document.createElement("p");
+                foot.className = "print-foot";
+                foot.textContent = `שאלות ${i + 1}–${Math.min(i + 2, questions.length)} מתוך ${questions.length}`;
+                page.appendChild(foot);
+                deck.appendChild(page);
+            }
+        }
+
+        function printQuestions() {
+            buildPrintDeck();
+            document.body.classList.add("print-all");
+            typesetMath();
+            window.setTimeout(() => window.print(), 250);
+        }
+        window.addEventListener("afterprint", () => document.body.classList.remove("print-all"));
+
+        const issues = validateQuestions();
+        if (issues.length) {
+            const info = document.createElement("p");
+            info.style.color = "#a2243a";
+            info.textContent = "נמצאה בעיה בתוכן המבדק. ראו את כלי המפתחים לפרטים.";
+            views.landing.appendChild(info);
+        }
+        document.getElementById("start-btn").addEventListener("click", startQuiz);
+        document.getElementById("retry-btn").addEventListener("click", startQuiz);
+        document.getElementById("next-btn").addEventListener("click", goNext);
+        document.getElementById("print-btn").addEventListener("click", printQuestions);
+        document.getElementById("result-print-btn").addEventListener("click", printQuestions);
+    </script>
+</body>
+</html>
