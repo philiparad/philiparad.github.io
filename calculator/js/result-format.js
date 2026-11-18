@@ -98,6 +98,55 @@ function exactFractionParts(q,style){
  const text=n.toString()+'/'+d.toString();
  return {kind:'fraction',text,numerator:n.toString(),denominator:d.toString()};
 }
+// Exact trigonometric results for standard degree angles. Use the entered
+// function and angle, never reverse-engineer a symbol from floating output.
+// Normalize the complete circle so signs/quadrants and periodicity are exact.
+const trigTables=Object.freeze({
+ sin:['0','1/2','√2/2','√3/2','1','√3/2','√2/2','1/2','0','-1/2','-√2/2','-√3/2','-1','-√3/2','-√2/2','-1/2','0'],
+ cos:['1','√3/2','√2/2','1/2','0','-1/2','-√2/2','-√3/2','-1','-√3/2','-√2/2','-1/2','0','1/2','√2/2','√3/2','1']
+});
+function exactTrig(value,source,settings){
+ const unit=settings.angle||'DEG';
+ if(unit!=='DEG'||!Number.isFinite(value))return null;
+ // Restrict the lookup to one directly entered trigonometric function
+ // with an unambiguous numerical degree argument.
+ const match=/^\s*(sin|cos|tan)\s*\(\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*\)\s*$/i.exec(String(source||''));
+ if(!match)return null;
+ const angle=Number(match[2]);
+ if(!Number.isFinite(angle)||Math.abs(angle)>=9e9)return null;
+ const step=angle/30;
+ // The table includes 45 degrees; the index list encodes half-30-degree
+ // steps with only the valid 0, 30, 45, 60, 90, ... positions.
+ const position=angle/15,rounded=Math.round(position);
+ if(Math.abs(position-rounded)>1e-11)return null;
+ const offset=((rounded%24)+24)%24;
+ const tableIndex=({0:0,2:1,3:2,4:3,6:4,8:5,9:6,10:7,
+  12:8,14:9,15:10,16:11,18:12,20:13,21:14,22:15})[offset];
+ if(tableIndex===undefined)return null;
+ const name=match[1].toLowerCase();
+ let text;
+ if(name==='sin'||name==='cos')text=trigTables[name][tableIndex];
+ else{
+  const entries=['0','√3/3','1','√3',null,'-√3','-1','-√3/3',
+   '0','√3/3','1','√3',null,'-√3','-1','-√3/3'];
+  text=entries[tableIndex];
+ }
+ if(text===null)return null; // tan(90°), tan(270°) are undefined.
+ const expected=({ '0':0,'1':1,'-1':-1,'1/2':0.5,'-1/2':-0.5,
+  '√2/2':Math.SQRT2/2,'-√2/2':-Math.SQRT2/2,
+  '√3/2':Math.sqrt(3)/2,'-√3/2':-Math.sqrt(3)/2,
+  '√3':Math.sqrt(3),'-√3':-Math.sqrt(3),
+  '√3/3':Math.sqrt(3)/3,'-√3/3':-Math.sqrt(3)/3})[text];
+ // A parsed angle or engine regression must not turn an unrelated result
+ // into an apparently exact identity.
+ if(Math.abs(value-expected)>2e-11*Math.max(1,Math.abs(expected)))return null;
+ if(/^-?\d+\/\d+$/.test(text)){
+  const [numerator,denominator]=text.split('/');
+  return {kind:'fraction',text,numerator,denominator};
+ }
+ if(text.includes('√'))return {kind:'surd',text,exact:true};
+ return {kind:'decimal',text,exact:true};
+}
 function calculate(value,source,settings={},options={}){
  const cfg={...DEFAULTS,...settings},digits=cfg.digits;
  const decimalText=decimal(value,cfg);
@@ -127,9 +176,13 @@ function calculate(value,source,settings={},options={}){
    if(candidate)natural=candidate;
   }
  }
+ // Special-angle exact values are the default for MathIO results.
+ // Only S⇔D (options.decimal) requests the decimal representation.
+ const trig=exactTrig(value,source,cfg);
+ if(preferred&&trig)natural=trig;
  const chosen=options.decimal?{kind:'decimal',text:decimalText}:natural;
  return {natural,decimal:{kind:'decimal',text:decimalText},chosen,hasAlternate:chosen.kind!=='decimal',
-  fraction,exactRational:!!fraction&&!!exact,symbolic:symbolicCandidate};
+  fraction,exactRational:!!fraction&&!!exact,symbolic:symbolicCandidate||trig};
 }
 function engineeringPlain(value){
  const rounded=Number(value.toPrecision(10));
