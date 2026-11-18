@@ -117,6 +117,8 @@ for(const name of ['sin','cos','tan'])for(let i=0;i<angles.length;i++){
   assert.equal(converted.chosen.text,R.decimal(value,{...settings,angle:'DEG'}));
   assert.equal(R.calculate(value,expression,{...settings,angle:'DEG'}).chosen.text,
    expected,'S⇔D must toggle back to exact form');
+  assert.equal(R.calculate(value,expression,{...settings,angle:'DEG',math:false}).chosen.text,
+   expected,'LineIO must also default to exact special-angle values');
  });
 }
 for(const [expression,expected] of [
@@ -128,6 +130,27 @@ for(const [expression,expected] of [
   assert.equal(R.calculate(value,expression,{...settings,angle:'DEG'}).chosen.text,expected);
  });
 }
+check('S⇔D toggles special-angle result in the real controller handler',()=>{
+ const app=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
+ const start=app.indexOf('function showResult(');
+ const end=app.indexOf('function showEngineering(',start);
+ assert.ok(start>=0&&end>start);
+ const source='sin(30)',value=M.evaluate(source,{angle:'DEG'});
+ const state={screen:'result',raw:value,resultSource:source,input:source,
+  ansRational:null,fractionStyle:'improper',resultFractionStyle:null,
+  math:true,angle:'DEG',format:'Norm1',mode:'COMP',
+  viewport:{resultX:0},result:'1/2',
+  resultPresentation:R.calculate(value,source,{...settings,angle:'DEG'})};
+ let paints=0;
+ const actions=new Function('state','RESULTS','paint','notify','releaseModifier',
+  app.slice(start,end)+'return {toggleFraction};')(
+  state,R,()=>{paints++},()=>{},()=>{});
+ actions.toggleFraction();
+ assert.equal(state.resultPresentation.chosen.kind,'decimal');
+ actions.toggleFraction();
+ assert.equal(state.result,'1/2');
+ assert.equal(paints,2);
+});
 check('special-angle lookup requires matching provenance',()=>{
  const cfg={...settings,angle:'DEG'};
  assert.equal(R.calculate(.6,'sin(30)',cfg).chosen.kind,'decimal');
