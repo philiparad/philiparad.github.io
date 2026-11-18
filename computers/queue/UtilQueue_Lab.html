@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="philip_favicon.png">
+    <title>מסע הקריאה - UtilQueue</title>
+    <style>
+        :root { --bg:#f5f7fc; --paper:#fff; --ink:#18304a; --muted:#52657c; --line:#d2deed; --main:#315fb6; --util:#8050bc; --queue:#13856e; --accent:#ffb545; --code-bg:#182a43; --shadow:0 8px 30px #18304a0c; --font-code:"CMU Typewriter Text","Latin Modern Mono",Consolas,"Courier New",monospace; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.6 system-ui,"Segoe UI",Arial,sans-serif; }
+        button,input { font:inherit; }
+        button { cursor:pointer; }
+        button:disabled { opacity:.42; cursor:not-allowed; }
+        :focus-visible { outline:3px solid #d88916; outline-offset:3px; }
+        .wrap { max-width:1240px; margin:auto; padding:18px; }
+        header.hero { background:#263f73; color:white; border-radius:20px; padding:22px 26px; }
+        h1 { margin:0; font-size:clamp(26px,3vw,39px); }
+        .hero p { margin:4px 0 0; color:#eef2ff; }
+        .panel { background:var(--paper); border:2px solid var(--line); border-radius:17px; padding:18px; margin-top:14px; box-shadow:var(--shadow); }
+        h2 { font-size:21px; margin:0 0 10px; }
+        .intro { margin:12px 2px; }
+        .buttons,.controls { display:flex; flex-wrap:wrap; gap:9px; align-items:center; }
+        .btn { border:2px solid #bdcce0; background:white; color:var(--ink); border-radius:11px; padding:9px 13px; font-weight:700; min-height:44px; }
+        .btn:hover:not(:disabled) { border-color:#6c8dd4; }
+        .btn.selected,.btn.primary { background:#315fb6; border-color:#315fb6; color:white; }
+        .btn.next { background:#0b7d66; border-color:#0b7d66; color:white; }
+        .value { width:78px; border:2px solid #bdcce0; border-radius:10px; padding:8px; direction:ltr; text-align:center; }
+        .value-label { font-weight:700; }
+        bdi.inline-code { display:inline-block; direction:ltr; unicode-bidi:isolate; font-family:var(--font-code); font-size:1.2em; font-weight:700; white-space:nowrap; }
+        bdi.inline-code code { font:inherit; direction:ltr; unicode-bidi:isolate; }
+        .btn bdi.inline-code { color:inherit; }
+        .diagram { display:grid; grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr) 72px minmax(0,1fr); align-items:stretch; direction:rtl; gap:7px; margin-top:12px; position:relative; padding-top:185px; }
+        /* One speech bubble, moved to the object or arrow responsible for each step. */
+        .speech-bubble { position:absolute; top:3px; left:0; z-index:2; width:min(340px,calc(100% - 10px)); padding:12px 15px; border:2px solid #7c9ce3; border-radius:17px; background:#fffefa; box-shadow:0 6px 18px #203b6519; color:var(--ink); direction:rtl; text-align:right; --tip-x:50%; transition:left .23s ease, border-color .2s ease; }
+        .speech-bubble::after { content:""; position:absolute; width:15px; height:15px; background:inherit; border-bottom:2px solid currentColor; border-right:2px solid currentColor; color:#7c9ce3; left:var(--tip-x); bottom:-10px; transform:translateX(-50%) rotate(45deg); }
+        .speech-bubble[data-kind="call"] { border-color:#4274c7; background:#f1f6ff; }
+        .speech-bubble[data-kind="call"]::after { color:#4274c7; }
+        .speech-bubble[data-kind="return"] { border-color:#19836b; background:#eafaf3; }
+        .speech-bubble[data-kind="return"]::after { color:#19836b; }
+        .speech-bubble[data-kind="main"] { border-color:#789be0; }
+        .speech-bubble[data-kind="util"] { border-color:#a17bd0; }
+        .speech-bubble[data-kind="queue"] { border-color:#3ca98d; }
+        .speech-bubble[data-kind="main"]::after { color:#789be0; }
+        .speech-bubble[data-kind="util"]::after { color:#a17bd0; }
+        .speech-bubble[data-kind="queue"]::after { color:#3ca98d; }
+        .bubble-top { display:flex; gap:9px; align-items:center; flex-wrap:wrap; margin-bottom:3px; }
+        .bubble-top .counter { font-size:12px; background:#e2ecfc; color:#315b9d; border-radius:8px; padding:2px 7px; font-weight:800; }
+        .bubble-top strong { font-size:18px; line-height:1.35; }
+        .speech-bubble p { font-size:15px; margin:4px 0; line-height:1.55; }
+        .speech-bubble .callout { font-size:13px; margin-top:6px; color:#36536d; line-height:1.45; }
+        .bubble-owner { font-weight:800; font-size:12px; color:#3e627e; }
+        .node { border:3px solid #b7c6d7; background:#fbfdff; border-radius:15px; padding:14px 10px; text-align:center; min-width:0; position:relative; transition:background .2s,border-color .2s; }
+        .node.main { border-color:#94b2ea; } .node.util { border-color:#c3a6ed; } .node.queue { border-color:#89d1bd; }
+        .node.active { background:#fff5dc; border-color:#e49b2f; box-shadow:0 0 0 3px #ffe8b8; }
+        .node .symbol { font-size:27px; }
+        .node h3 { font-size:22px; font-family:var(--font-code); direction:ltr; margin:3px 0; }
+        .node p { margin:0 0 9px; color:var(--muted); font-size:15px; }
+        .node .method { font-family:var(--font-code); direction:ltr; unicode-bidi:isolate; display:block; border:1px solid #cbd6e4; border-radius:8px; background:white; padding:7px 4px; font-size:14px; font-weight:700; overflow-wrap:anywhere; }
+        .node .state { padding:7px; font-size:15px; margin-top:10px; border-radius:9px; background:#edf3fa; }
+        .connector { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; }
+        .connector .track { width:100%; height:9px; background:#dbe3ee; border-radius:20px; position:relative; overflow:visible; }
+        .connector .motion { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:43px; font-family:Arial,sans-serif; line-height:1; opacity:.22; color:#728299; }
+        .connector.call .motion { color:#315fb6; opacity:1; animation:move-left .75s ease-in-out infinite alternate; }
+        .connector.return .motion { color:#0b8c70; opacity:1; animation:move-right .75s ease-in-out infinite alternate; }
+        .connector .tag { text-align:center; font-size:12px; line-height:1.35; min-height:38px; font-weight:800; color:#65758a; padding-top:7px; }
+        .connector.call .tag { color:#315fb6; } .connector.return .tag { color:#087960; }
+        @keyframes move-left { from{transform:translate(4px,-50%)} to{transform:translate(-13px,-50%)} }
+        @keyframes move-right { from{transform:translate(-13px,-50%)} to{transform:translate(4px,-50%)} }
+        @keyframes move-down { from{transform:translate(-50%,-62%)} to{transform:translate(-50%,-34%)} }
+        @keyframes move-up { from{transform:translate(-50%,-34%)} to{transform:translate(-50%,-62%)} }
+
+        .controls { margin-top:12px; }
+        .progress { font-weight:800; color:#48627d; margin-inline-start:auto; }
+        .bottom { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .codepane { background:var(--code-bg); color:#f1f6ff; border-radius:12px; padding:12px; }
+        .codehead { color:#aacaed; font-weight:800; margin-bottom:7px; }
+        pre.code-block { margin:0; padding:2px 0; direction:ltr; unicode-bidi:isolate; text-align:left; white-space:pre-wrap; overflow-wrap:anywhere; font:400 1.2em/1.55 var(--font-code); }
+        pre.code-block code { font:inherit; direction:ltr; unicode-bidi:isolate; }
+        .code-line { display:block; padding:2px 8px; border-inline-start:4px solid transparent; border-radius:3px; }
+        .code-line.current { background:#80591c; border-color:#ffd07c; color:white; font-weight:700; }
+        .queueview { display:flex; flex-wrap:wrap; direction:ltr; justify-content:center; gap:8px; margin:16px 0; min-height:45px; }
+        .cell { border:2px solid #69bea9; background:#e4f8f0; border-radius:10px; padding:6px 15px; min-width:45px; text-align:center; font-weight:800; }
+        .mini-queue-wrap { margin-top:10px; border:2px dashed #b8dcca; border-radius:12px; padding:8px; background:#f7fffb; }
+        .mini-queue-title { font-size:13px; color:#2e6f63; font-weight:800; margin-bottom:6px; }
+        .mini-queue { display:flex; align-items:flex-end; justify-content:center; gap:4px; direction:ltr; min-height:44px; flex-wrap:wrap; }
+        .mini-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+        .mini-label { font-size:10px; font-weight:800; color:#287567; min-height:12px; }
+        .mini-cell { border:2px solid #69bea9; background:#e4f8f0; border-radius:8px; min-width:34px; padding:4px 8px; text-align:center; font-weight:800; }
+        .mini-empty { font-size:12px; color:#6a857e; font-weight:700; }
+        .readout { display:flex; justify-content:space-around; flex-wrap:wrap; gap:10px; background:#f0f5fc; border-radius:10px; padding:12px; }
+        .readout strong { font-size:23px; }
+        .note { font-size:14px; color:var(--muted); margin-top:8px; }
+        .tip { background:#fff4df; padding:12px; border-radius:11px; border:2px solid #eed6a8; margin-top:15px; }
+        .legend { font-size:14px; color:var(--muted); }
+        footer { margin:22px 0; text-align:center; color:var(--muted); font-size:14px; }
+        @media(max-width:790px) { .diagram { grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr) 38px minmax(0,1fr); gap:3px; } .node { padding:10px 3px; } .node h3 { font-size:15px; } .node .method { font-size:11px; } .node p { font-size:13px; } .connector .motion { font-size:32px; } .bottom { grid-template-columns:1fr; } }
+        @media(max-width:680px) {
+            .diagram { grid-template-columns:minmax(0,1fr); padding-top:0 !important; gap:5px; }
+            .node { padding:12px; }
+            .node h3 { font-size:21px; }
+            .node .method { font-size:15px; }
+            .connector { min-height:55px; }
+            .connector .track { width:8px; height:31px; }
+            .connector .motion { font-size:36px; }
+            .connector.call .motion { animation:move-down .75s ease-in-out infinite alternate; }
+            .connector.return .motion { animation:move-up .75s ease-in-out infinite alternate; }
+            .connector .tag { min-height:0; padding:4px 0; }
+            .speech-bubble { position:relative; top:auto; left:auto !important; width:min(340px,100%); margin:0 auto 17px; transition:none; }
+            .speech-bubble::after { left:50%; }
+        }
+        @media(max-width:490px) { body { font-size:15px; } .wrap { padding:8px; } .panel { padding:12px; } header.hero { padding:17px; } .node .symbol { font-size:23px; } .node .state { font-size:13px; padding:5px; } .connector .tag { font-size:12px; } .btn { padding:8px; } .mini-cell { min-width:28px; padding:3px 6px; font-size:12px; } .speech-bubble { padding:10px 12px; } }
+        @page { size:A4; margin:12mm; }
+        @media print { body { background:white; } .wrap { max-width:none; } header.hero { background:white; color:var(--ink); border:2px solid #9daecc; } .hero p { color:var(--ink); } .panel { box-shadow:none; break-inside:avoid; } .buttons,.controls,#value { display:none; } .bottom { grid-template-columns:1fr 1fr; } pre.code-block { font-size:10pt; } .connector .motion { animation:none; } .speech-bubble { box-shadow:none; transition:none; } }
+
+        /* Wider, uncluttered desktop learning canvas and a single header command bar. */
+        .wrap { max-width:1920px; width:100%; margin-inline:auto; padding:14px 22px; }
+        header.hero { padding:18px 25px 21px; }
+        header.hero h1 { font-size:clamp(26px,2.2vw,37px); }
+        .intro { margin:12px 3px 9px; }
+        .header-toolbar { display:flex; align-items:center; flex-wrap:nowrap; gap:9px; width:100%; margin-top:17px; padding:11px 12px; border-radius:13px; background:#f8faff; color:#18304a; border:2px solid #aec5ef; }
+        .toolbar-group { display:flex; align-items:center; gap:6px; flex-wrap:nowrap; min-width:0; }
+        .toolbar-separator { align-self:stretch; width:2px; min-width:2px; background:#c9d7ef; margin-inline:1px; border-radius:4px; }
+        .header-toolbar .btn { min-height:42px; padding:7px 9px; font-size:14px; white-space:nowrap; flex-shrink:0; }
+        .header-toolbar .btn bdi.inline-code { font-size:1.10em; }
+        .header-toolbar .value-label { font-size:14px; white-space:nowrap; }
+        .header-toolbar .value { width:60px; height:42px; font-size:14px; padding:5px 4px; flex-shrink:0; }
+        .header-toolbar .progress { margin-inline-start:0; font-size:13px; white-space:nowrap; min-width:44px; text-align:center; }
+        .diagram { grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr) 96px minmax(0,1fr); gap:14px; }
+        .speech-bubble { width:min(400px,calc(100% - 12px)); }
+        .node { padding:17px 14px; }
+        .node .method { font-size:16px; }
+        .bottom { grid-template-columns:1fr 1fr; }
+        /* Keep a single line wherever a desktop-sized width permits it.
+           On narrow screens, wrap rather than introduce page or component scrolling. */
+        @media (max-width:1610px) and (min-width:1190px) {
+            .wrap { padding:12px 12px; }
+            header.hero { padding:15px 14px; }
+            .header-toolbar { gap:5px; padding:8px 6px; }
+            .toolbar-group { gap:4px; }
+            .header-toolbar .btn { font-size:12px; padding:7px 5px; min-height:39px; }
+            .header-toolbar .btn bdi.inline-code { font-size:1.05em; }
+            .header-toolbar .value-label { font-size:12px; }
+            .header-toolbar .value { width:48px; height:39px; }
+            .header-toolbar .progress { font-size:12px; min-width:35px; }
+        }
+        @media (max-width:1189px) {
+            .header-toolbar { flex-wrap:wrap; justify-content:center; gap:10px; }
+            .toolbar-group { justify-content:center; flex-wrap:wrap; }
+            .toolbar-separator { display:none; }
+            .diagram { grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr) 56px minmax(0,1fr); gap:5px; }
+        }
+        @media (max-width:790px) {
+            .bottom { grid-template-columns:1fr; }
+        }
+        @media (max-width:680px) {
+            .wrap { padding:8px; }
+            header.hero { padding:14px 11px; }
+            .header-toolbar { padding:8px; margin-top:11px; }
+            .header-toolbar .btn { padding:7px 8px; font-size:13px; }
+            .toolbar-group { gap:5px; }
+            .diagram { grid-template-columns:minmax(0,1fr); }
+        }
+        @media print {
+            .header-toolbar { display:none !important; }
+            .wrap { max-width:none; padding:0; }
+        }
+
+        @media(prefers-reduced-motion:reduce) { .connector .motion { animation:none; } }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <header class="hero">
+            <h1>📦 לאן עוברת הקריאה?</h1>
+            <p>מ־<bdi class="inline-code"><code>Main</code></bdi> אל <bdi class="inline-code"><code>UtilQueue</code></bdi>, אל התור הפנימי - ובחזרה</p>
+            <div class="header-toolbar" role="toolbar" aria-label="בחירת פעולה, דוגמה וניווט בשלבים">
+                <div class="toolbar-group operation-group" id="operations">
+                <button type="button" class="btn selected" data-op="insert"><bdi class="inline-code" dir="ltr"><code>Insert(7)</code></bdi></button>
+                <button type="button" class="btn" data-op="remove"><bdi class="inline-code" dir="ltr"><code>Remove()</code></bdi></button>
+                <button type="button" class="btn" data-op="head"><bdi class="inline-code" dir="ltr"><code>Head()</code></bdi></button>
+                <button type="button" class="btn" data-op="size"><bdi class="inline-code" dir="ltr"><code>Size()</code></bdi></button>
+                <button type="button" class="btn" data-op="empty"><bdi class="inline-code" dir="ltr"><code>IsEmpty()</code></bdi></button>
+                <button type="button" class="btn" data-op="create"><bdi class="inline-code" dir="ltr"><code>new UtilQueue()</code></bdi></button>
+                </div>
+                <span class="toolbar-separator" aria-hidden="true"></span>
+                <div class="toolbar-group setup-group">
+                <label class="value-label" for="value">ערך</label>
+                <input class="value" id="value" type="number" value="7" step="1" aria-label="מספר שלם להכנסה">
+                <button type="button" class="btn" id="example">תור לדוגמה [3, 5]</button>
+                <button type="button" class="btn" id="reset">איפוס</button>
+                </div>
+                <span class="toolbar-separator" aria-hidden="true"></span>
+                <div class="toolbar-group nav-group">
+                <button type="button" class="btn" id="previous">קודם</button>
+                <button type="button" class="btn next" id="next">הבא ←</button>
+                <button type="button" class="btn" id="play">◀ הצגה אוטומטית</button>
+                <span class="progress" id="progress"></span>
+                </div>
+            </div>
+        </header>
+        <p class="intro">בחרו פעולה, לחצו <strong>לשלב הבא</strong> ועקבו אחר החץ. בכל שלב רואים <strong>מי פועל, איזו שורת קוד מתבצעת ולמה</strong>.</p>
+        <section class="panel" aria-labelledby="operation-title">
+            <h2 id="operation-title">1. איזו פעולה נרצה להבין?</h2>
+
+        <section class="panel" aria-labelledby="flow-title">
+            <h2 id="flow-title">1. עקבו אחר הקריאה והחזרה</h2>
+            <div class="legend">בועת ההסבר מופיעה ליד האובייקט או החץ הפעיל. מסגרת צהובה מסמנת אובייקט פעיל; חץ כחול מציין קריאה וחץ ירוק מציין חזרה.</div>
+            <div class="diagram" id="flow-diagram" aria-label="תרשים קריאות: Main, UtilQueue, Queue">
+                <article class="node main" id="node-main">
+                    <div class="symbol">🖥️</div><h3>Main</h3><p>התוכנית הראשית</p>
+                    <span class="method" id="method-main" dir="ltr">q.Insert(7);</span>
+                    <div class="state">מפעיל פעולה על העוטף</div>
+                </article>
+                <div class="connector" id="link-main-util" aria-hidden="true"><div class="track"><span class="motion">←</span></div><div class="tag"></div></div>
+                <article class="node util" id="node-util">
+                    <div class="symbol">📦</div><h3>UtilQueue</h3><p>האובייקט העוטף</p>
+                    <span class="method" id="method-util" dir="ltr">queue.Insert(value);</span>
+                    <div class="state">מונה: <strong id="util-size">0</strong></div>
+                </article>
+                <div class="connector" id="link-util-queue" aria-hidden="true"><div class="track"><span class="motion">←</span></div><div class="tag"></div></div>
+                <article class="node queue" id="node-queue">
+                    <div class="symbol">🧱</div><h3>Queue</h3><p>התור הפנימי</p>
+                    <span class="method" id="method-queue" dir="ltr">Insert(value)</span>
+                    <div class="state" id="queue-state">הפעולה על התור הפנימי</div>
+                    <div class="mini-queue-wrap" aria-label="תצוגת התור הפנימי">
+                        <div class="mini-queue-title">התור הפנימי כרגע</div>
+                        <div class="mini-queue" id="queue-mini"></div>
+                    </div>
+                </article>
+                <aside class="speech-bubble" id="flow-bubble" role="status" aria-live="polite" aria-atomic="true">
+                    <div class="bubble-top">
+                        <span class="counter" id="step-counter">שלב 1</span>
+                        <strong id="step-title">Main מתחיל</strong>
+                    </div>
+                    <p id="step-description"></p>
+                    <div class="callout" id="step-why"></div>
+                </aside>
+            </div>
+
+        </section>
+        <div class="bottom">
+            <section class="panel" aria-labelledby="code-title">
+                <h2 id="code-title">2. איזו שורת קוד פועלת?</h2>
+                <div class="codepane">
+                    <div class="codehead" id="code-owner" dir="ltr">Main</div>
+                    <pre class="code-block" dir="ltr"><code id="code-lines"></code></pre>
+                </div>
+                <p class="note">השורה המסומנת היא הפעולה שמתקדמת כעת. הקוד של <bdi class="inline-code" dir="ltr"><code>Queue</code></bdi> הוא מודל לימודי מקוצר.</p>
+            </section>
+            <section class="panel" aria-labelledby="state-title">
+                <h2 id="state-title">3. מה קרה לתור?</h2>
+                <p class="legend">האיבר הראשון מוצג משמאל. בסוף פעולת הכנסה איבר נוסף לסוף התור.</p>
+                <div id="queue-cells" class="queueview" aria-live="polite"></div>
+                <div class="readout"><span>מונה העוטף: <strong id="size">0</strong></span><span>ערך שחזר: <strong id="returned">-</strong></span></div>
+                <div class="tip" id="takeaway">שימו לב: העוטף והתור הפנימי הם שני אובייקטים שונים.</div>
+            </section>
+        </div>
+        <footer>HTML + CSS + JavaScript בלבד · הדגמה לימודית בעברית · מסלול ההעברה מוצג צעד אחר צעד</footer>
+    </main>
+    <script>
+        (() => {
+            'use strict';
+            const $ = id => document.getElementById(id);
+            const escapeHtml = text => String(text).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+            const htmlCode = text => `<bdi class="inline-code" dir="ltr"><code>${escapeHtml(text)}</code></bdi>`;
+            // The same LTR isolation applies to the changing speech bubbles.
+            const explanationPattern = /((?:new\s+)?(?:UtilQueue|Queue)(?:<[A-Za-z]+>)?(?:\.[A-Za-z]+\([^()]*\)|\(\))?|(?:q|queue)\.[A-Za-z]+\([^()]*\)|\b(?:Insert|Remove|Head|Size|IsEmpty)\([^()]*\)|(?:\bsize(?:\+\+|--)?|\b(?:true|false|Main|queue)\b))/g;
+            function explanationHtml(text) {
+                return String(text).split(explanationPattern).map((piece, i) => i % 2 ? htmlCode(piece) : escapeHtml(piece)).join('');
+            }
+            let queue = [], selected = 'insert', steps = [], index = 0, timer = null, value = 7;
+            const method = {insert:'Insert',remove:'Remove',head:'Head',size:'Size',empty:'IsEmpty',create:'UtilQueue'};
+            const source = {
+                main: {
+                    create: ['UtilQueue<int> q = new UtilQueue<int>();'],
+                    insert: ['q.Insert(VALUE);'], remove: ['int x = q.Remove();'], head: ['int x = q.Head();'],
+                    size: ['int n = q.Size();'], empty: ['bool b = q.IsEmpty();']
+                },
+                util: {
+                    create:['public UtilQueue() {','    queue = new Queue<T>();','    size = 0;','}'],
+                    insert:['public void Insert(T value) {','    queue.Insert(value);','    size++;','}'],
+                    remove:['public T Remove() {','    T x = queue.Remove();','    size--;','    return x;','}'],
+                    head:['public T Head() {','    return queue.Head();','}'],
+                    size:['public int Size() {','    return size;','}'],
+                    empty:['public bool IsEmpty() {','    return queue.IsEmpty();','}']
+                },
+                queue: {
+                    create:['public Queue() {','    // Start with an empty queue','}'],
+                    insert:['public void Insert(T value) {','    // Add a node at the end','}'],
+                    remove:['public T Remove() {','    // Remove the first node','    return firstValue;','}'],
+                    head:['public T Head() {','    return firstValue;','}'],
+                    empty:['public bool IsEmpty() {','    return first == null;','}']
+                }
+            };
+            function halt() { if (timer !== null) { clearInterval(timer); timer = null; } $('play').textContent='◀ הצגה אוטומטית'; }
+            function push(stage,title,description,why,line,q,sz,returned,link) { steps.push({stage,title,description,why,line,q:[...q],sz,returned,link}); }
+            function build() {
+                steps=[]; index=0; const q=[...queue]; let sz=q.length; let ret=null; const op=selected;
+                const call=op==='create'?'new UtilQueue<int>()':`q.${method[op]}(${op==='insert'?value:''})`;
+                push('main','Main מתחיל',`התוכנית מבצעת ${call}. היא פונה לאובייקט העוטף.`, 'ל־Main אין צורך לדעת איך התור הפנימי בנוי.',0,q,sz,ret,null);
+                push('util','הקריאה מגיעה לעוטף',`נכנסים לפעולה ${method[op]} בתוך UtilQueue.`, 'העוטף מחליט אם לקרוא לתור הפנימי או להשיב בעצמו.',0,q,sz,ret,'main-util-call');
+                if(op==='create') {
+                    push('util','יוצרים אובייקט פנימי','העוטף מריץ new Queue<T>().','העוטף מחזיק הפניה לאובייקט Queue חדש.',1,q,sz,ret,'util-queue-call');
+                    push('queue','נוצר תור חדש וריק','הבנאי של Queue מאתחל תור ללא איברים.','זהו אובייקט נפרד מ־UtilQueue.',0,[],0,ret,null);
+                    push('util','העוטף מאתחל את המונה','השליטה חוזרת לעוטף; size מקבל 0.','המונה נשמר בעוטף, לא בתור הפנימי.',2,[],0,ret,'util-queue-return');
+                    q.length=0; sz=0;
+                } else if(op==='insert') {
+                    push('util','העוטף מעביר את הקריאה',`העוטף מבצע queue.Insert(${value}).`,'כאן עוברת הקריאה לאובייקט Queue הפנימי.',1,q,sz,ret,'util-queue-call');
+                    q.push(value);
+                    push('queue','Queue מכניס את האיבר',`האיבר ${value} נוסף לסוף התור.`,'רק התור הפנימי משנה את רשימת האיברים.',1,q,sz,ret,null);
+                    push('util','חזרה לעוטף','Queue.Insert הסתיימה והשליטה חוזרת לעוטף.','שימו לב: האיבר כבר בתור, אבל size טרם גדל.',1,q,sz,ret,'util-queue-return');
+                    sz++;
+                    push('util','העוטף מגדיל את המונה','העוטף מבצע size++.','כעת מספר האיברים ומונה העוטף תואמים.',2,q,sz,ret,null);
+                } else if(op==='remove'||op==='head') {
+                    push('util','העוטף מעביר לתור',`העוטף מפעיל queue.${method[op]}().`,'את הפעולה עצמה מבצע Queue.',1,q,sz,ret,'util-queue-call');
+                    ret=q[0]; if(op==='remove') q.shift();
+                    push('queue',op==='remove'?'Queue מסיר את הראש':'Queue קורא את הראש',op==='remove'?`Queue מסיר את ${ret} מהתור ומכין את הערך להחזרה.`:`Queue מחזיר את ${ret} בלי למחוק אותו.`,op==='remove'?'התור השתנה, אך size עדיין לא עודכן.':'קריאה ל־Head אינה משנה את התור.',op==='remove'?1:1,q,sz,ret,null);
+                    push('util','התשובה חוזרת לעוטף',`הערך ${ret} חוזר מהתור אל UtilQueue.`,'כעת העוטף ממשיך בשורות שנותרו בפעולה.',1,q,sz,ret,'util-queue-return');
+                    if(op==='remove') { sz--; push('util','עדכון המונה','העוטף מבצע size--.','רק עכשיו size קטן בהתאם להסרה.',2,q,sz,ret,null); }
+                    push('util','העוטף מחזיר ערך ל־Main',`UtilQueue מחזיר ל־Main את הערך ${ret}.`,'זו החזרה מהעוטף אל מי שקרא לו.',op==='remove'?3:1,q,sz,ret,'main-util-return');
+                } else if(op==='size') {
+                    ret=sz;
+                    push('util','התשובה כבר נמצאת בעוטף',`Size מחזירה את השדה size שערכו ${ret}.`,'אין חץ אל Queue: אין צורך להפעיל פעולה על התור הפנימי.',1,q,sz,ret,null);
+                    push('util','המספר חוזר ל־Main',`Main מקבל ${ret}.`,'לפעמים העוטף יכול לענות בעצמו.',1,q,sz,ret,'main-util-return');
+                } else if(op==='empty') {
+                    push('util','העוטף מעביר בדיקה','העוטף מפעיל queue.IsEmpty().','גם בדיקה יכולה להיות מואצלת לתור הפנימי.',1,q,sz,ret,'util-queue-call');
+                    ret=q.length===0?'true':'false';
+                    push('queue','Queue בודק אם הוא ריק',`Queue מחזיר ${ret}.`,'זוהי תשובה בוליאנית: true או false.',1,q,sz,ret,null);
+                    push('util','התשובה חוזרת לעוטף',`UtilQueue מקבל ${ret}.`,'העוטף מעביר אותה בחזרה לתוכנית.',1,q,sz,ret,'util-queue-return');
+                    push('util','העוטף מחזיר תשובה ל־Main',`Main יקבל ${ret}.`,'לא נוצר איבר חדש ולא הוסר איבר.',1,q,sz,ret,'main-util-return');
+                }
+                push('main','הקריאה הסתיימה','השליטה חזרה ל־Main, שאפשר להמשיך לפקודה הבאה.','כל שלב משאיר את שני האובייקטים במצב שמוצג על המסך.',0,q,sz,ret,steps.at(-1).link==='main-util-return'?null:'main-util-return');
+            }
+            function queueCallLabel(op, currentValue) {
+                if (op === 'create') return 'Queue()';
+                if (op === 'size') return '—';
+                if (op === 'insert') return `Insert(${currentValue})`;
+                if (op === 'remove') return 'Remove()';
+                if (op === 'head') return 'Head()';
+                if (op === 'empty') return 'IsEmpty()';
+                return '—';
+            }
+            function queueStateLabel(op) {
+                if (op === 'size') return 'העוטף עונה לבד - אין קריאה ל־Queue';
+                if (op === 'create') return 'נוצר אובייקט Queue פנימי חדש';
+                if (op === 'insert') return 'Queue.Insert(value) מוסיף איבר לסוף התור';
+                if (op === 'remove') return 'Queue.Remove() מסיר את האיבר הראשון';
+                if (op === 'head') return 'Queue.Head() קורא את האיבר הראשון';
+                if (op === 'empty') return 'Queue.IsEmpty() בודק אם התור ריק';
+                return 'הפעולה על התור הפנימי';
+            }
+            function renderQueueVisual(targetId, arr) {
+                const host = $(targetId);
+                if (!arr.length) {
+                    host.innerHTML = '<span class="mini-empty">התור ריק</span>';
+                    return;
+                }
+                host.innerHTML = arr.map((item, i) => {
+                    const front = i === 0 ? 'Front' : '&nbsp;';
+                    const rear = i === arr.length - 1 ? 'Rear' : '&nbsp;';
+                    return `<div class="mini-item"><div class="mini-label">${front}</div><div class="mini-cell">${escapeHtml(item)}</div><div class="mini-label">${rear}</div></div>`;
+                }).join('');
+            }
+
+            function markConnector(id,type) {
+                const el=$(id);
+                const vertical=window.matchMedia('(max-width: 680px)').matches;
+                el.className='connector';
+                el.querySelector('.tag').textContent='';
+                if (!type) { el.querySelector('.motion').textContent=vertical?'↓':'←'; return; }
+                el.classList.add(type);
+                el.querySelector('.motion').textContent=vertical?(type==='call'?'↓':'↑'):(type==='call'?'←':'→');
+                el.querySelector('.tag').textContent=type==='call'?'קריאה':'חזרה';
+            }
+            function positionSpeechBubble() {
+                const st=steps[index];
+                if(!st) return;
+                const diagram=$('flow-diagram');
+                const bubble=$('flow-bubble');
+                const anchorId=st.link==='main-util-call'||st.link==='main-util-return'?'link-main-util':
+                    st.link==='util-queue-call'||st.link==='util-queue-return'?'link-util-queue':'node-'+st.stage;
+                const anchor=$(anchorId);
+                bubble.dataset.kind=st.link?(st.link.endsWith('return')?'return':'call'):st.stage;
+                if(window.matchMedia('(max-width: 680px)').matches) {
+                    if(bubble.parentElement!==anchor || anchor.firstElementChild!==bubble) anchor.prepend(bubble);
+                    diagram.style.paddingTop='0px';
+                    bubble.style.left='';
+                    bubble.style.setProperty('--tip-x','50%');
+                } else {
+                    if(bubble.parentElement!==diagram) diagram.appendChild(bubble);
+                    // Reserve space above all three objects so the bubble never hides code or queue cells.
+                    diagram.style.paddingTop=(bubble.offsetHeight + 28)+'px';
+                    const dr=diagram.getBoundingClientRect();
+                    const ar=anchor.getBoundingClientRect();
+                    const bubbleWidth=bubble.offsetWidth;
+                    const center=ar.left+ar.width/2-dr.left;
+                    const left=Math.max(5,Math.min(center-bubbleWidth/2,dr.width-bubbleWidth-5));
+                    bubble.style.left=left+'px';
+                    bubble.style.setProperty('--tip-x',Math.max(14,Math.min(center-left,bubbleWidth-14))+'px');
+                }
+            }
+            function render() {
+                const st=steps[index];
+                ['main','util','queue'].forEach(s => $('node-'+s).classList.toggle('active',st.stage===s));
+                markConnector('link-main-util',st.link==='main-util-call'?'call':st.link==='main-util-return'?'return':null);
+                markConnector('link-util-queue',st.link==='util-queue-call'?'call':st.link==='util-queue-return'?'return':null);
+                $('step-counter').textContent=`שלב ${index+1} מתוך ${steps.length}`;
+                $('step-title').textContent=st.title;
+                $('step-description').innerHTML=explanationHtml(st.description);
+                $('step-why').innerHTML='למה זה חשוב? '+explanationHtml(st.why);
+                $('size').textContent=st.sz; $('util-size').textContent=st.sz;
+                $('returned').textContent=st.returned===null?'-':st.returned;
+                $('queue-cells').innerHTML=st.q.length?st.q.map(x=>`<span class="cell">${escapeHtml(x)}</span>`).join(''):'<span class="legend">התור ריק</span>';
+                renderQueueVisual('queue-mini', st.q);
+                $('progress').textContent=`${index+1} / ${steps.length}`;
+                $('previous').disabled=index===0; $('next').disabled=index===steps.length-1;
+                $('method-main').textContent=source.main[selected][0].replace('VALUE',value);
+                $('method-util').textContent=source.util[selected][Math.min(st.stage==='util'?st.line:1,source.util[selected].length-1)].trim();
+                $('method-queue').textContent=queueCallLabel(selected, value);
+                $('queue-state').innerHTML=explanationHtml(queueStateLabel(selected));
+                const lines=(source[st.stage][selected]||[]).map(x=>x.replace('VALUE',value));
+                $('code-owner').textContent=st.stage==='main'?'Main':st.stage==='util'?'UtilQueue<T>':'Queue<T> (מודל לימודי)';
+                $('code-lines').innerHTML=lines.map((line,i)=>`<span class="code-line ${st.line===i?'current':''}">${escapeHtml(line)}</span>`).join('');
+                $('takeaway').textContent=selected==='size'?'ל־UtilQueue יש מונה size משלו, ולכן Size() לא קוראת ל־Queue.': selected==='insert'?'Queue מוסיף את האיבר; אחר כך UtilQueue מגדיל את size.': selected==='remove'?'Queue מסיר את האיבר; אחר כך UtilQueue מקטין את size.':selected==='create'?'הבנאי יוצר שני אובייקטים: UtilQueue חיצוני ו־Queue פנימי.':'Main פונה לעוטף; העוטף מחליט אם להפעיל את התור הפנימי.';
+                positionSpeechBubble();
+            }
+            function selectOperation(op) {
+                halt();
+                const n=Number($('value').value);
+                if(op==='insert' && (!$('value').value.trim() || !Number.isSafeInteger(n) || Math.abs(n)>1000000)) { alert('יש להזין מספר שלם תקין.'); return; }
+                if((op==='remove'||op==='head')&&queue.length===0) { alert('התור ריק. הכניסו קודם איבר או לחצו "דוגמה עם תור [3, 5]".'); return; }
+                selected=op; value=n; if(op==='create') queue=[];
+                document.querySelectorAll('[data-op]').forEach(b=>b.classList.toggle('selected',b.dataset.op===op));
+                build(); render();
+            }
+            function move(delta) {
+                const target=Math.min(steps.length-1,Math.max(0,index+delta));
+                index=target;
+                render();
+                if(index===steps.length-1) { queue=[...steps.at(-1).q]; halt(); }
+            }
+            document.querySelectorAll('[data-op]').forEach(b=>b.addEventListener('click',()=>selectOperation(b.dataset.op)));
+            $('next').addEventListener('click',()=>move(1));
+            $('previous').addEventListener('click',()=>{halt();move(-1)});
+            $('reset').addEventListener('click',()=>{queue=[];selectOperation('create')});
+            $('example').addEventListener('click',()=>{queue=[3,5];$('value').value='7';selectOperation('insert')});
+            $('value').addEventListener('change',()=>{if(selected==='insert')selectOperation('insert')});
+            $('play').addEventListener('click',()=>{
+                if(timer!==null) { halt(); return; }
+                if(index===steps.length-1) { index=0; render(); }
+                $('play').textContent='⏸ עצור';
+                timer=setInterval(()=>{if(index===steps.length-1) { halt(); return; } move(1);},1350);
+            });
+            window.addEventListener('resize',()=>{if(steps.length){render();}});
+            selectOperation('insert');
+        })();
+    </script>
+</body>
+</html>
