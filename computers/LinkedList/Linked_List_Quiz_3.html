@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="מבדק אינטראקטיבי בן 25 שאלות על הוספת חוליות לרשימה מקושרת ב-C#.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/png" href="philip_favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/computer-modern@0.1.3/cmu-typewriter-text.css">
+    <title>מבדק רשימה מקושרת - 25 שאלות</title>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+            options: { enableMenu: false },
+            startup: { ready: () => {
+                MathJax.startup.defaultReady();
+                window.dispatchEvent(new Event('mathjax-ready'));
+            } }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <style>
+        :root {
+            --canvas: #f1f5f9;
+            --paper: #ffffff;
+            --ink: #172b42;
+            --muted: #4e627a;
+            --border: #dce5ef;
+            --brand: #304fa3;
+            --brand-dark: #243e86;
+            --brand-soft: #eef2ff;
+            --teal: #147b79;
+            --correct: #116646;
+            --correct-bg: #e8f7ee;
+            --incorrect: #9f2f3e;
+            --incorrect-bg: #fff0f1;
+            --code-font: "CMU Typewriter Text", "Latin Modern Mono", Consolas, "Courier New", monospace;
+            --code-ink: #ecf4ff;
+            --code-background: #17283c;
+            --code-border: #405775;
+            --inline-code-color: #15579d;
+            --radius: 20px;
+            --shadow: 0 18px 52px rgba(27, 55, 93, .10);
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            min-width: 320px;
+            min-height: 100vh;
+            font: 400 18px/1.7 system-ui, "Segoe UI", Arial, sans-serif;
+            color: var(--ink);
+            background: radial-gradient(circle at 90% 4%, #e3eefb 0, transparent 35%),
+                        radial-gradient(circle at 8% 85%, #e5f3f1 0, transparent 36%), var(--canvas);
+        }
+        button { font: inherit; cursor: pointer; }
+        button:focus-visible { outline: 3px solid var(--teal); outline-offset: 4px; }
+        button:disabled { cursor: not-allowed; }
+        [hidden] { display: none !important; }
+        .site-header { max-width: 970px; margin: 0 auto; padding: 28px 22px 4px; }
+        .app-mark { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: .9rem; font-weight: 650; }
+        .mark-symbol { display: grid; place-items: center; width: 35px; height: 35px; background: #dce9f9; border-radius: 11px; font-size: 1.15rem; }
+        main { max-width: 970px; margin: 0 auto; padding: 28px 22px 64px; }
+        .card { background: var(--paper); border: 2px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+        .landing { padding: clamp(25px, 5.5vw, 55px); overflow: hidden; position: relative; }
+        .eyebrow { display: inline-flex; gap: 8px; align-items: center; color: var(--teal); font-weight: 760; font-size: .9rem; letter-spacing: .005em; }
+        .landing h1 { margin: 16px 0 12px; max-width: 680px; font-size: clamp(1.75rem, 3.7vw, 2.8rem); line-height: 1.32; letter-spacing: -.025em; }
+        .lead { max-width: 740px; margin: 0 0 26px; color: var(--muted); font-size: 1.06rem; }
+        .feature-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 32px; }
+        .feature { padding: 8px 15px; background: #f3f7fc; border: 1px solid var(--border); border-radius: 999px; font-size: .87rem; font-weight: 680; }
+        .hero-visual { display: flex; align-items: center; direction: ltr; gap: 7px; margin: 12px 0 32px; max-width: 520px; }
+        .chain-node { display: grid; place-items: center; min-width: 76px; min-height: 56px; border: 2px solid #8ba4d5; border-radius: 13px; background: #edf2ff; color: #1f437b; font-family: var(--code-font); font-size: 1.15rem; font-weight: bold; }
+        .chain-arrow { color: var(--teal); font-size: 1.4rem; flex: none; }
+        .chain-null { color: #6a7085; font-size: .9rem; font-family: var(--code-font); }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .btn { border: 2px solid transparent; border-radius: 13px; padding: 12px 23px; font-weight: 750; min-height: 50px; transition: background .15s, transform .15s, border-color .15s; }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); }
+        .btn-primary { color: #fff; background: var(--brand); }
+        .btn-primary:hover:not(:disabled) { background: var(--brand-dark); }
+        .btn-primary:disabled { color: #566b89; background: #dfe6f3; }
+        .btn-secondary { color: var(--brand-dark); border-color: #b9c7e0; background: white; }
+        .btn-secondary:hover:not(:disabled) { background: var(--brand-soft); }
+        .small-print { margin: 19px 0 0; color: var(--muted); font-size: .84rem; }
+        .quiz-card { padding: clamp(21px, 4.2vw, 40px); }
+        .quiz-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+        .quiz-top h2 { margin: 0; font-size: 1.25rem; }
+        .step-label { color: var(--muted); font-size: .94rem; font-variant-numeric: tabular-nums; }
+        .progress-track { width: 100%; height: 10px; margin: 18px 0 29px; border-radius: 99px; background: #e4ebf4; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--teal), var(--brand)); border-radius: inherit; transition: width .22s ease-out; }
+        .question { font-size: clamp(1.17rem, 2.15vw, 1.43rem); font-weight: 700; line-height: 1.75; margin: 4px 0 23px; }
+        .choices { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
+        .choice {
+            display: flex; align-items: flex-start; gap: 13px; width: 100%; text-align: right;
+            padding: 15px 17px; color: var(--ink); background: #fff;
+            border: 2px solid #dce4ee; border-radius: 15px; line-height: 1.7;
+            transition: border-color .15s, background .15s;
+        }
+        .choice:not(:disabled):hover { background: #f4f7ff; border-color: #788dc8; }
+        .option-key { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #ecf1f8; color: #3f5875; font-size: .88rem; font-weight: 800; }
+        .option-copy { flex: 1; padding-top: 1px; min-width: 0; }
+        .choice:disabled { opacity: 1; cursor: default; }
+        .choice.is-correct { border-color: #348462; background: var(--correct-bg); }
+        .choice.is-correct .option-key { color: white; background: var(--correct); }
+        .choice.is-wrong { border-color: #c35164; background: var(--incorrect-bg); }
+        .choice.is-wrong .option-key { color: white; background: var(--incorrect); }
+        .feedback { margin-top: 22px; border: 2px solid transparent; border-radius: 15px; padding: 17px 21px; }
+        .feedback.correct { background: var(--correct-bg); color: #0d593e; border-color: #9acfb4; }
+        .feedback.wrong { background: var(--incorrect-bg); color: #8d293c; border-color: #efb3bf; }
+        .feedback strong { display: block; font-size: 1.06rem; margin-bottom: 6px; }
+        .feedback p { margin: 7px 0 0; font-size: .97rem; }
+        .feedback .right-reason { margin-top: 13px; padding-top: 11px; border-top: 1px solid #ebc4ca; color: var(--ink); }
+        .quiz-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 25px; }
+        .helper { font-size: .84rem; color: var(--muted); }
+        .result-card { padding: clamp(27px, 5vw, 50px); text-align: center; }
+        .result-icon { font-size: 3.2rem; }
+        .result-card h2 { font-size: 2rem; margin: 8px 0; }
+        .score { font-size: clamp(2rem, 5.5vw, 3rem); font-weight: 830; color: var(--brand); margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+        .score-desc { color: var(--muted); margin: 0 0 22px; }
+        .result-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .site-footer { text-align: center; color: #61758c; padding: 0 20px 25px; font-size: .8rem; }
+        bdi.inline-code { direction: ltr; unicode-bidi: isolate; display: inline-block; vertical-align: baseline; white-space: nowrap; max-width: 100%; color: var(--inline-code-color); font: 400 1.2em var(--code-font); }
+        bdi.inline-code code { direction: ltr; unicode-bidi: isolate; font: inherit; color: inherit; white-space: inherit; }
+        pre.code-block { display: block; direction: ltr; unicode-bidi: isolate; text-align: left; box-sizing: border-box; max-width: 100%; margin: 12px 0; padding: 16px 20px; background: var(--code-background); color: var(--code-ink); border: 2px solid var(--code-border); border-radius: 12px; font: 400 1.2em/1.7 var(--code-font); white-space: pre; overflow-x: auto; overflow-y: hidden; overflow-wrap: normal; word-break: normal; tab-size: 4; }
+        pre.code-block code { direction: ltr; unicode-bidi: isolate; display: inline; font: inherit; color: inherit; white-space: inherit; overflow-wrap: normal; word-break: normal; }
+        .math-token { direction: ltr; unicode-bidi: isolate; display: inline-block; white-space: nowrap; }
+        #print-deck { display: none; }
+        @media (max-width: 650px) {
+            body { font-size: 16px; }
+            .site-header { padding: 15px 14px 2px; }
+            main { padding: 14px 12px 35px; }
+            .landing, .quiz-card, .result-card { border-radius: 15px; }
+            .chain-node { min-width: 56px; min-height: 45px; }
+            .hero-visual { gap: 5px; }
+            .choice { padding: 13px 12px; gap: 9px; }
+            .option-key { height: 30px; width: 30px; }
+            .btn { width: 100%; }
+            .actions, .result-actions { width: 100%; }
+            .quiz-footer .btn { width: auto; }
+            pre.code-block { font-size: 14px; padding: 12px 14px; }
+        }
+        @page { size: A4 portrait; margin: 16mm 16mm 15mm; }
+        @media print {
+            :root { --canvas: #fff; --shadow: none; }
+            body { background: white; color: #000; font-size: 12pt; }
+            .site-header, .site-footer, .no-print { display: none !important; }
+            main { margin: 0; padding: 0; max-width: unset; }
+            .card { border: 0; box-shadow: none; border-radius: 0; padding: 0; }
+            .progress-track { background: #ddd; }
+            .choice { break-inside: avoid; box-shadow: none; }
+            .feedback { break-inside: avoid; }
+            bdi.inline-code { color: #17283c; }
+            pre.code-block { white-space: pre-wrap; overflow: visible; overflow-wrap: anywhere; font-size: 10pt; background: #f1f3f7; color: #17283c; border-color: #869bb0; break-inside: avoid; }
+            pre.code-block code { white-space: inherit; overflow-wrap: inherit; }
+            body.print-all .screen-app { display: none !important; }
+            body.print-all #print-deck { display: block !important; }
+            .print-page { padding: 0; break-after: page; page-break-after: always; }
+            .print-page:last-child { break-after: auto; page-break-after: auto; }
+            .print-page h2 { font-size: 16pt; margin: 0 0 15mm; border-bottom: 1px solid #a9b4c5; padding-bottom: 6mm; }
+            .print-question { break-inside: avoid; margin-bottom: 15mm; }
+            .print-question h3 { font-size: 12.5pt; line-height: 1.5; margin: 0 0 5mm; }
+            .print-question ol { margin: 0; padding-right: 8mm; }
+            .print-question li { margin-bottom: 4mm; }
+            .print-foot { color: #546174; font-size: 9pt; margin-top: 10mm; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header screen-app">
+        <div class="app-mark"><span class="mark-symbol" aria-hidden="true">🔗</span><span>מדעי המחשב · מבדק לתרגול עצמי</span></div>
+    </header>
+    <main class="screen-app" id="app">
+        <section class="card landing" id="landing-view" aria-labelledby="landing-title">
+            <div class="eyebrow">● תרגול אינטראקטיבי</div>
+            <h1 id="landing-title">שרשרת חוליות ורשימה מקושרת בשפת <bdi class="inline-code" dir="ltr"><code>C#</code></bdi></h1>
+            <p class="lead">מבדק: הוספת איברים לרשימה מקושרת. במבדק זה נבדקת ההבנה העמוקה של פעולות <bdi class="inline-code" dir="ltr"><code>AddFirst</code></bdi>, <bdi class="inline-code" dir="ltr"><code>AddLast</code></bdi>, <bdi class="inline-code" dir="ltr"><code>AddMiddle</code></bdi> ו־<bdi class="inline-code" dir="ltr"><code>AddExtremes</code></bdi> ברשימות מקושרות חד־כיווניות.</p>
+            <div class="feature-row" aria-label="פרטי המבדק">
+                <span class="feature">25 שאלות</span>
+                <span class="feature">3 אפשרויות לכל שאלה</span>
+                <span class="feature">משוב מיידי</span>
+                <span class="feature">ציון בסיום</span>
+            </div>
+            <div class="hero-visual" role="img" aria-label="שלוש חוליות ברשימה מקושרת ולאחריהן null">
+                <span class="chain-node">12</span><span class="chain-arrow">⟶</span>
+                <span class="chain-node">7</span><span class="chain-arrow">⟶</span>
+                <span class="chain-node">19</span><span class="chain-arrow">⟶</span>
+                <span class="chain-null">null</span>
+            </div>
+            <div class="actions no-print">
+                <button class="btn btn-primary" id="start-btn" type="button">🚀 התחל מבדק</button>
+                <button class="btn btn-secondary" id="print-btn" type="button">🖨️ הדפסת כל השאלות</button>
+            </div>
+            <p class="small-print">יש לבחור תשובה אחת בכל שאלה. לאחר הבחירה מופיע משוב, ולא ניתן לשנות את התשובה.</p>
+        </section>
+        <section class="card quiz-card" id="quiz-view" aria-labelledby="question-heading" hidden>
+            <div class="quiz-top">
+                <h2 id="question-heading" tabindex="-1">שאלה <span id="question-number">1</span> מתוך 25</h2>
+                <span class="step-label" id="progress-caption">0 מתוך 25 נענו</span>
+            </div>
+            <div class="progress-track" id="progress-track" role="progressbar" aria-label="התקדמות במבדק" aria-valuemin="0" aria-valuemax="25" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div></div>
+            <p class="question" id="question-text"></p>
+            <div id="code-example"></div>
+            <ol class="choices" id="options-list" aria-label="אפשרויות תשובה"></ol>
+            <div class="feedback" id="feedback" role="status" aria-live="polite" hidden></div>
+            <div class="quiz-footer no-print">
+                <span class="helper" id="question-helper">בחרו תשובה כדי להמשיך</span>
+                <button class="btn btn-primary" id="next-btn" type="button" disabled>לשאלה הבאה</button>
+            </div>
+        </section>
+        <section class="card result-card" id="result-view" aria-labelledby="result-title" hidden>
+            <div class="result-icon" aria-hidden="true">⭐</div>
+            <h2 id="result-title">תוצאות המבדק</h2>
+            <div class="score" id="result-score">0 / 25</div>
+            <p class="score-desc" id="result-description"></p>
+            <div class="result-actions no-print">
+                <button class="btn btn-primary" id="retry-btn" type="button">🔁 התחל מחדש</button>
+                <button class="btn btn-secondary" id="result-print-btn" type="button">🖨️ הדפסת כל השאלות</button>
+            </div>
+        </section>
+    </main>
+    <div id="print-deck" aria-hidden="true"></div>
+    <footer class="site-footer screen-app">מבדק רשימה מקושרת · למידה ותרגול עצמי</footer>
+    <script>
+        "use strict";
+
+        // Question data preserved from the supplied React/TypeScript source.
+        const questions = [
+          {
+            id: 1,
+            question:
+              "בפעולה AddFirst, מהו השינוי הלוגי שמתרחש בשרשרת לאחר הקריאה newNode.SetNext(head)?",
+            options: [
+              "מצביע head מפסיק להיות רלוונטי לשרשרת המקורית",
+              "הרשימה המקורית הופכת לתת־רשימה שמתחילה מהחוליה השנייה",
+              "כל השרשרת הקיימת מוכנסת מאחורי החוליה החדשה ללא שינוי הקשרים הפנימיים"
+            ],
+            correct: 2,
+            explanation: {
+              0: "head עדיין מצביע לראש הישן, ולכן הוא רלוונטי לחלוטין.",
+              1: "שום חוליה אינה נמחקת או מוסרת מהשרשרת; ההפניה לראש הישן נשמרת.",
+              2: "החוליה החדשה מצביעה ל-head הישן, ולכן כל השרשרת הקיימת פשוט מוזחת אחורה ללא שינוי קשרים פנימיים."
+            }
+          },
+          {
+            id: 2,
+            question:
+              "מהי מורכבות הזמן של הוספת חוליה לראש הרשימה בפעולה AddFirst?",
+            options: [
+              "O(n), כי יש לסרוק את כל הרשימה",
+              "O(1), כי מתבצעת רק עבודה קבועה על המצביע",
+              "O(n²), בגלל שינוי כפול של קישורים"
+            ],
+            correct: 1,
+            explanation: {
+              0: "אין צורך בסריקה; משתמשים ישירות ב-head הקיים.",
+              1: "AddFirst עושה מספר קבוע של פעולות, לכן המורכבות היא O(1).",
+              2: "אין לולאות מקוננות ואין שינוי מורכב של קישורים."
+            }
+          },
+          {
+            id: 3,
+            question:
+              "בפעולה AddLast, מהי הסכנה העיקרית בשכחת התנאי if (head == null) לפני תחילת הסריקה?",
+            options: [
+              "הרשימה עלולה להפוך למעגלית",
+              "תתרחש חריגת NullReference בעת ניסיון לגשת ()current.HasNext או ()current.GetValue כשcurrent הוא null",
+              "ה-GC ימחק את הרשימה הקיימת מיד"
+            ],
+            correct: 1,
+            explanation: {
+              0: "מעגליות נוצרת מקישור שגוי, לא מעצם היעדר בדיקת head == null.",
+              1: "כאשר head == null, גם current == null, וכל גישה לשיטה על current תגרום לקריסה.",
+              2: "ה-GC אינו מוחק אובייקטים בגלל תנאי חסר, אלא לפי שימוש בפועל."
+            }
+          },
+          {
+            id: 4,
+            question:
+              "בפעולה AddMiddle(head, value, position), מדוע יש לעצור בלולאה בחוליה שבאינדקס position - 1 ולא בחוליה שבאינדקס position?",
+            options: [
+              "כדי להכניס את החוליה החדשה לפני המיקום הרצוי, ולכן צריך לעמוד על החוליה שלפניו",
+              "כדי לדלג תמיד על החוליה הראשונה",
+              "כי הפעולה מניחה שתמיד מוחקים חוליה קיימת באותו מקום"
+            ],
+            correct: 0,
+            explanation: {
+              0: "כדי להכניס חוליה באמצע, יש לעדכן את ה-next של החוליה שלפני המיקום החדש, ולכן חייבים לעצור ב-position - 1.",
+              1: "אין דרישה כזו; לעיתים position דווקא 0.",
+              2: "הפעולה עוסקת בהוספה בלבד, לא במחיקה."
+            }
+          },
+          {
+            id: 5,
+            question:
+              "בתרגיל הוספת המקסימום לתחילת הרשימה והמינימום לסוף, מדוע מספיק לבצע סריקה אחת למציאת שני הערכים?",
+            options: [
+              "הסריקה הראשונה מוצאת רק את המקסימום, ולכן יש צורך בסריקה נוספת למינימום",
+              "בכל מעבר על חוליה אפשר לעדכן גם את המקסימום וגם את המינימום באותה בדיקה",
+              "האלגוריתם מניח שהמינימום הוא הערך הראשון, ולכן אין צורך לבדוק אותו"
+            ],
+            correct: 1,
+            explanation: {
+              0: "באלגוריתם המוצג מעדכנים גם max וגם min באותה לולאה.",
+              1: "השוואה כפולה בכל חוליה מאפשרת לעדכן בו־זמנית גם מקסימום וגם מינימום בסריקה יחידה (O(n)).",
+              2: "אין הנחה שהערך הראשון הוא מינימום; הוא רק אתחול ראשוני."
+            }
+          },
+          {
+            id: 6,
+            question:
+              "בתרגיל AddExtremes, מה יקרה אם הערך המקסימלי כבר נמצא בחוליה הראשונה של הרשימה המקורית?",
+            options: [
+              "החוליה הראשונה תימחק ויוחלף הערך שלה",
+              "תיווצר כפילות של הערך המקסימלי בראש הרשימה, וזה תקין לפי דרישות התרגיל",
+              "האלגוריתם ייכשל כי אינו יודע להתמודד עם שוויון ערכים"
+            ],
+            correct: 1,
+            explanation: {
+              0: "הקוד אינו מוחק חוליות; הוא מוסיף חוליה חדשה עם אותו ערך.",
+              1: "נוצרת חוליה חדשה עם אותו ערך מקסימלי לפני החוליה המקורית, כפי שמותר בדרישה 'מבלי למחוק אותם מהמופע הקודם'.",
+              2: "השוואות > ו< אינן פוגעות במקרה של שוויון; פשוט לא מעדכנים את הערך."
+            }
+          },
+          {
+            id: 7,
+            question:
+              "מה מגדיר את החוליה האחרונה ברשימה מקושרת חד־כיוונית, כפי שמתואר בהוספה לסוף הרשימה?",
+            options: [
+              "החוליה עם הערך הגדול ביותר",
+              "החוליה שנוצרה ראשונה",
+              "החוליה שהשדה next שלה הוא null"
+            ],
+            correct: 2,
+            explanation: {
+              0: "ערך גדול אינו תנאי להיות חוליה אחרונה; הרשימה לא חייבת להיות ממוינת.",
+              1: "החוליה הראשונה היא בדרך כלל ראש הרשימה, לא האחרונה.",
+              2: "הגדרת סוף הרשימה היא חוליה שאין לה חוליה הבאה, כלומר next == null."
+            }
+          },
+          {
+            id: 8,
+            question:
+              "מדוע הלולאה ב-AddLast משתמשת בתנאי ()current.HasNext ולא current != null?",
+            options: [
+              "כדי שהלולאה תעצור בדיוק על החוליה האחרונה, שהnext שלה הוא null",
+              "כדי שהלולאה תדלג אוטומטית על חוליות עם ערך שלילי",
+              "כדי למנוע אפשרות שה-head ישתנה בזמן הסריקה"
+            ],
+            correct: 0,
+            explanation: {
+              0: "HasNext בודק אם קיימת חוליה הבאה; כשאין כזו, הגיעו לחוליה האחרונה ושם רוצים לעצור.",
+              1: "HasNext לא בודק כלל את ערך החוליה, רק את קיום next.",
+              2: "אין התייחסות לשינוי head בתוך הלולאה; זה לא קשור ל-HasNext."
+            }
+          },
+          {
+            id: 9,
+            question:
+              "בפעולה AddMiddle לרשימה ממוינת בסדר עולה, מה יקרה אם הערך החדש גדול מכל הערכים ברשימה?",
+            options: [
+              "הערך לא יוכנס כלל לרשימה",
+              "הערך יוכנס לראש הרשימה",
+              "הערך יוכנס כחוליה האחרונה ברשימה"
+            ],
+            correct: 2,
+            explanation: {
+              0: "הלולאה מסתיימת כשהגיעו לסוף, ואז מחברים את החוליה החדשה לסוף.",
+              1: "ראש הרשימה נשמר לערכי הקצה הנמוכים, לא לגדולים.",
+              2: "מעבר עד סוף הרשימה מוודא שהערך הגבוה יישב במקום הנכון – בסוף."
+            }
+          },
+          {
+            id: 10,
+            question:
+              "מדוע באלגוריתם AddLast אין שימוש במשתנה tail שנשמר במחלקה, אלא מסתמכים על סריקה מה-head עד הסוף?",
+            options: [
+              "כי tail רלוונטי רק לרשימה דו־כיוונית",
+              "כי ברשימה חד־כיוונית אין אפשרות טכנית להחזיק מצביע לחוליה האחרונה",
+              "כי הסריקה מה-head מספיקה לבעיות שמוצגות במצגת, גם אם היא O(n)"
+            ],
+            correct: 2,
+            explanation: {
+              0: "tail יכול להיות שימושי גם ברשימה חד־כיוונית.",
+              1: "אפשר להחזיק tail כחוליה אחרונה אם בוחרים בכך במימוש.",
+              2: "בתרגילים המוצגים, העדיפו פשטות קוד על פני אופטימיזציה, ולכן סריקה מה-head מספיקה."
+            }
+          },
+          {
+            id: 11,
+            question:
+              "מה קורה במקרה שבו הרשימה מכילה רק חוליה אחת, בפעולת AddExtremes שמוסיפה גם מקסימום לראש וגם מינימום לסוף?",
+            options: [
+              "הפעולה לא משנה את הרשימה כלל",
+              "הערך של החוליה היחידה יוחלף בערך אחר",
+              "הערך של החוליה היחידה יופיע פעמיים נוספת – פעם כראש חדש ופעם כסוף חדש"
+            ],
+            correct: 2,
+            explanation: {
+              0: "הקוד מוסיף שתי חוליות חדשות, ולכן המבנה משתנה.",
+              1: "הערך המקורי אינו מוחלף; נוספות חוליות חדשות.",
+              2: "החוליה המקורית נשמרת, ולפניה ואחריה נוספות חוליות עם אותו ערך קיצוני."
+            }
+          },
+          {
+            id: 12,
+            question:
+              "מדוע חשוב לבצע קודם הוספת המקסימום לראש ורק אחר כך הוספת המינימום לסוף בפעולת AddExtremes?",
+            options: [
+              "אם נסדר אחרת, נאבד את ההפניה ל-head המקורי",
+              "הסדר אינו חשוב כלל; שתי ההוספות בלתי תלויות",
+              "הסדר נדרש רק כשערכי המינימום והמקסימום שווים"
+            ],
+            correct: 0,
+            explanation: {
+              0: "ראשית מוסיפים חוליה חדשה שמצביעה ל-head, ורק לאחר מכן סורקים מה-head המעודכן עד הסוף לצורך הוספת המינימום.",
+              1: "הסדר כן משפיע על האופן שבו סורקים ומעדכנים current.",
+              2: "הסדר נדרש גם כשערכים שונים; הוא קשור למבנה הלוגי של הסריקה."
+            }
+          },
+          {
+            id: 13,
+            question:
+              "בפעולת AddExtremes, מדוע לאחר הוספת המקסימום לראש יש לבצע שוב סריקה מה-head כדי למצוא את המקום להוספת המינימום?",
+            options: [
+              "כדי לוודא שהמינימום החדש גדול מהמקסימום",
+              "כדי למצוא את החוליה האחרונה במבנה המעודכן של הרשימה",
+              "כדי לבדוק אם הרשימה עדיין ממוינת"
+            ],
+            correct: 1,
+            explanation: {
+              0: "אין דרישה כזו; המינימום כבר נמצא בבדיקה הקודמת.",
+              1: "הוספת המקסימום לראש משנה את המבנה, ולכן יש לסרוק מחדש עד לחוליה האחרונה כדי לחבר אליה את המינימום.",
+              2: "התרגיל אינו עוסק במיון אלא בהוספת ערכי קיצון."
+            }
+          },
+          {
+            id: 14,
+            question:
+              "בסריקה למציאת מקסימום ומינימום, מה הבעיה אם נבצע ()current = current.GetNext בתחילת הלולאה לפני בדיקות ההשוואה?",
+            options: [
+              "נפספס את בדיקת הערך הראשון ברשימה",
+              "ניצור לולאה אינסופית",
+              "נגרום לכך שהערך הראשון תמיד יהיה המקסימום והמינימום"
+            ],
+            correct: 0,
+            explanation: {
+              0: "אם מקדמים את current לפני הבדיקה, החוליה הראשונה לא תיבדק כלל נגד max/min הראשוניים.",
+              1: "כל עוד מקדמים בתוך הלולאה בצורה עקבית, לא תיווצר לולאה אינסופית.",
+              2: "דווקא ההפך – הערך הראשון לא נבדק, ולכן אינו מובטח כמקסימום/מינימום."
+            }
+          },
+          {
+            id: 15,
+            question:
+              "מדוע לא ניתן להפסיק את הסריקה למינימום/מקסימום באמצע הרשימה ברגע שנמצא ערך קטן או גדול במיוחד?",
+            options: [
+              "כי רק לאחר מעבר על כל הרשימה ניתן לדעת שזה מינימום/מקסימום מוחלט",
+              "כי הלולאה חייבת לסרוק בדיוק n צעדים מסיבה תחבירית",
+              "כי הערכים ברשימה משתנים בזמן הסריקה"
+            ],
+            correct: 0,
+            explanation: {
+              0: "עד שלא רואים את כל האיברים, לא יודעים אם קיים ערך קיצוני יותר.",
+              1: "אין דרישה תחבירית למספר צעדים; זו בחירה אלגוריתמית.",
+              2: "הערכים ברשימה קבועים אלא אם משנים אותם במפורש."
+            }
+          },
+        {
+          id: 16,
+          question:
+            "בפעולה AddMiddle(sorted) לרשימה ממוינת בסדר עולה, מדוע תנאי הלולאה נכתב כ-current.GetNext().GetValue() < value ולא כ-current.GetNext().GetValue() <= value?",
+          options: [
+            "כדי לאפשר הכנסת ערכים זהים זה ליד זה מבלי לפגוע בסדר הממויין",
+            "כדי לוודא שאי אפשר להכניס ערך שכבר קיים ברשימה",
+            "כדי לאלץ שהערך החדש תמיד יהיה גדול מהערך האחרון ברשימה"
+          ],
+          correct: 0,
+          explanation: {
+            0: "תנאי '<' גורם ללולאה לעצור ברגע שהערך הבא ברשימה גדול או שווה ל-value, ולכן החוליה החדשה מוכנסת לפניו. כך ערכים זהים יכולים להופיע ברצף מבלי לשבור את הסדר העולה.",
+            1: "הקוד אינו מנסה למנוע הופעת ערכים כפולים; הוא רק שומר על סדר ממויין.",
+            2: "אין דרישה שהערך החדש יהיה הגדול ביותר; עליו רק להיכנס למיקום המתאים לפי הסדר."
+          }
+        },
+          {
+            id: 17,
+            question:
+              "מה יקרה אם נקרא AddLast עם head == null לפי המימוש שבמצגת?",
+            options: [
+              "הפעולה תחזיר null ולא תיצור רשימה",
+              "תוחזר רשימה חדשה שבה יש חוליה אחת בלבד עם הערך החדש",
+              "תיזרק תמיד חריגה כי לא ניתן להשתמש בAddLast על רשימה ריקה"
+            ],
+            correct: 1,
+            explanation: {
+              0: "במימוש נראה כי במקרה head == null מחזירים את החוליה החדשה ולא null.",
+              1: "כשאין רשימה קיימת, החוליה החדשה הופכת לhead ומייצרת רשימה באורך 1.",
+              2: "אין דרישה לזרוק חריגה; זהו מקרה תקין של יצירת רשימה חדשה."
+            }
+          },
+          {
+            id: 18,
+            question:
+              "מדוע בפעולה AddFirst מעדכנים ישירות את head, בעוד שבAddLast יש צורך בסריקה לפני עדכון הקישור האחרון?",
+            options: [
+              "כי AddLast אסורה לשימוש כאשר head מצביע על null",
+              "כי הוספה לראש משתמשת רק במידע המקומי של head, בעוד הוספה לסוף דורשת ידע על החוליה האחרונה",
+              "כי AddFirst משנה גם את הסדר הפנימי של השרשרת"
+            ],
+            correct: 1,
+            explanation: {
+              0: "ניתן להפעיל AddLast גם על רשימה ריקה אם מטפלים במקרה head == null.",
+              1: "כדי להוסיף לראש יש צורך רק בhead, ואילו לסוף חייבים להגיע לחוליה האחרונה דרך סריקה.",
+              2: "AddFirst אינו משנה את הסדר הפנימי בין החוליות הישנות, רק מוסיף חוליה חדשה לפני כולן."
+            }
+          },
+          {
+            id: 19,
+            question:
+              "בAddMiddle(head, value, position), מה יקרה אם position גדול בהרבה מאורך הרשימה?",
+            options: [
+              "החוליה לא תיכנס כלל",
+              "הלולאה תיעצר בחוליה האחרונה והערך ייכנס כסוף הרשימה",
+              "תיווצר לולאה אינסופית כי position לא מושג"
+            ],
+            correct: 1,
+            explanation: {
+              0: "המימוש עוצר כאשר current.GetNext() == null ומחבר אחרי החוליה האחרונה.",
+              1: "כשמגיעים לסוף לפני שמגיעים לposition - 1, הקישור נעשה לאחר החוליה האחרונה, כלומר כהוספה לסוף.",
+              2: "אין לולאה אינסופית; התנאי על GetNext מונע זאת."
+            }
+          },
+          {
+            id: 20,
+            question:
+              "מה ההבדל הלוגי בין AddLast לבין AddMiddle(sorted) במקרה שבו value קטן מהערך הראשון ברשימה?",
+            options: [
+              "AddMiddle יכניס את החוליה לראש, בעוד AddLast תמיד מוסיפה לסוף",
+              "שתיהן יוסיפו את החוליה לראש",
+              "שתיהן לא יוסיפו את החוליה כלל"
+            ],
+            correct: 0,
+            explanation: {
+              0: "בAddMiddle(sorted) יש תנאי מיוחד לhead == null או value < head.GetValue, ולכן במצב זה החוליה תיכנס לראש.",
+              1: "AddLast לעולם מוסיפה בסוף, ללא קשר לערכים.",
+              2: "שתי הפעולות כן מוסיפות חוליה; אין דילוג על ההוספה."
+            }
+          },
+          {
+            id: 21,
+            question:
+              "מדוע ברשימה מקושרת חד־כיוונית אין אפשרות להכניס חוליה ישירות למיקום הרצוי ללא סריקה?",
+            options: [
+              "כי אין אינדקסים ואין גישה אקראית לחוליה באמצע",
+              "כי head מוגדר readonly ולכן אי אפשר לשנותו",
+              "כי next הוא שדה סטטי משותף לכל החוליות"
+            ],
+            correct: 0,
+            explanation: {
+              0: "ברשימה מקושרת ניגשים לחוליות רק דרך קישורי next החל מhead, ולכן חייבים לעבור חוליה־חוליה עד המיקום הרצוי.",
+              1: "ניתן לעדכן את head במתודות שונות; הוא אינו בהכרח readonly.",
+              2: "next הוא שדה פרטי של כל חוליה ולא סטטי משותף."
+            }
+          },
+          {
+            id: 22,
+            question:
+              "ברשימה שבה כל הערכים שווים, כיצד AddMiddle(sorted) תתנהג כאשר מוסיפים ערך זהה לערכים הקיימים?",
+            options: [
+              "החוליה החדשה תיכנס לראש הרשימה כי היא שונה מהערכים הקיימים",
+              "החוליה החדשה תיכנס אחרי החוליה הראשונה או אחרי מקטע הערכים הקטנים ממנה",
+              "החוליה החדשה לא תיכנס כלל כי הערך כבר קיים"
+            ],
+            correct: 1,
+            explanation: {
+              0: "אין תנאי שמכריח הוספה לראש במקרה של שוויון.",
+              1: "הלולאה מתקדמת כל עוד הערכים הבאים קטנים מהvalue; במקרה של שוויון נעצרים ומכניסים אחריהם.",
+              2: "האלגוריתם אינו מונע כפילויות."
+            }
+          },
+          {
+            id: 23,
+            question:
+              "בפעולת AddExtremes, כיצד מושפע סדר ההופעה היחסי של שאר החוליות ברשימה (חוץ מהמופעים החדשים של המינימום והמקסימום)?",
+            options: [
+              "הסדר הפנימי של כל שאר החוליות נשמר בדיוק, ורק נוספות שתי חוליות חדשות בקצוות",
+              "כל החוליות ממוינות מחדש כך שהמינימום תמיד לפני המקסימום",
+              "החוליות שבאמצע עשויות להתחלף במקומותיהן כתוצאה מהוספת הקצוות"
+            ],
+            correct: 0,
+            explanation: {
+              0: "AddExtremes מוסיפה חוליה חדשה בראש וחוליה חדשה בסוף, אך אינה משנה את סדר הקישורים בין החוליות המקוריות, ולכן הסדר היחסי שלהן נשמר.",
+              1: "הפעולה אינה מבצעת מיון; היא רק מוסיפה ערכי קיצון בתחילת ובסוף השרשרת.",
+              2: "אין שינוי בקישורים הפנימיים בין החוליות המקוריות, ולכן אין החלפת מקומות ביניהן."
+            }
+          },
+          {
+            id: 24,
+            question:
+              "מדוע אין חשש לאיבוד השרשרת בעת הוספת חוליה לראש באמצעות יצירת חוליה חדשה שמצביעה לhead הישן?",
+            options: [
+              "כי החוליה החדשה מחוברת לhead הישן דרך next לפני שמשנים את head",
+              "כי ה-GC מבטיח שלא ימחק את השרשרת",
+              "כי כל החוליות מאוחסנות גם במערך גיבוי"
+            ],
+            correct: 0,
+            explanation: {
+              0: "קודם כל יוצרים חוליה חדשה שמצביעה לhead הישן, ורק לאחר מכן מעדכנים את head שיצביע אליה, ולכן השרשרת נשמרת במלואה.",
+              1: "ה-GC אינו חלק מהלוגיקה האלגוריתמית של שמירת ההפניות.",
+              2: "אין מערך גיבוי בתרגילים; כל המידע נמצא בחוליות עצמן."
+            }
+          },
+          {
+            id: 25,
+            question:
+              "באירוע של הוספת חוליה באמצע (לפי האיור בעמ' 37–38), מה המשמעות של שינוי הקישור כך שn2.next מצביע לnewNode במקום לn3?",
+            options: [
+              "ניתוק זמני של n3 מהרשימה ללא אפשרות שיחזור",
+              "הכנסה של newNode בין n2 לn3, כאשר לאחר מכן newNode.next יחזור להצביע על n3",
+              "הפיכת newNode לhead החדש של הרשימה"
+            ],
+            correct: 1,
+            explanation: {
+              0: "לאחר העדכון הבא מחברים מחדש את n3 דרך newNode, ולכן הוא לא נשאר מנותק.",
+              1: "האלגוריתם מעדכן קודם את n2.next לnewNode ואז את newNode.next לn3, כך שהחוליה החדשה נכנסת באמצע.",
+              2: "head אינו משתנה; ההוספה היא באמצע השרשרת."
+            }
+          }
+        ];
+
+        const EXPECTED_COUNT = 25;
+        const state = {
+            page: "landing",
+            qIndex: 0,
+            answers: Object.create(null)
+        };
+
+        const views = {
+            landing: document.getElementById("landing-view"),
+            quiz: document.getElementById("quiz-view"),
+            result: document.getElementById("result-view")
+        };
+
+        // Validate the original question bank without React hooks.
+        function validateQuestions() {
+            const issues = [];
+            if (questions.length !== EXPECTED_COUNT) {
+                issues.push(`צפויות ${EXPECTED_COUNT} שאלות, בפועל: ${questions.length}`);
+            }
+            const ids = new Set(questions.map(q => q.id));
+            if (ids.size !== questions.length) issues.push("קיימים מזהי שאלות כפולים.");
+            for (let i = 1; i <= questions.length; i++) {
+                if (!ids.has(i)) issues.push(`חסר מזהה שאלה ${i}.`);
+            }
+            for (const q of questions) {
+                if (!Array.isArray(q.options) || q.options.length !== 3) {
+                    issues.push(`שאלה ${q.id} אינה מכילה בדיוק 3 אפשרויות.`);
+                }
+                if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.options.length) {
+                    issues.push(`שאלה ${q.id}: מפתח תשובה לא תקין.`);
+                }
+                for (let i = 0; i < 3; i++) {
+                    if (!q.explanation || typeof q.explanation[i] !== "string") {
+                        issues.push(`שאלה ${q.id} חסרה הסבר לאפשרות ${i}.`);
+                    }
+                }
+            }
+            if (issues.length) console.warn("QUIZ VALIDATION FAILED", issues);
+            return issues;
+        }
+
+        // Treat programming expressions as atomic LTR units while preserving Hebrew text.
+        const TECHNICAL_TOKEN = /C#|O\(n²\)|O\(n\)|O\(1\)|if\s*\(head\s*==\s*null\)|head\s*==\s*null|current\.GetNext\(\)\.GetValue\(\)\s*(?:<=|<)\s*value|[A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*(?:\([^()]*\))?)*(?:\([^()]*\))?/g;
+        const MATH_TOKENS = { "O(1)": "O(1)", "O(n)": "O(n)", "O(n²)": "O(n^2)" };
+        const mathTargets = new Set();
+
+        function renderRichText(target, value) {
+            target.replaceChildren();
+            const text = String(value || "");
+            const matches = text.matchAll(TECHNICAL_TOKEN);
+            let cursor = 0;
+            for (const match of matches) {
+                const token = match[0];
+                const start = match.index;
+                if (start > cursor) target.appendChild(document.createTextNode(text.slice(cursor, start)));
+                if (Object.prototype.hasOwnProperty.call(MATH_TOKENS, token)) {
+                    const span = document.createElement("span");
+                    span.className = "math-token";
+                    span.textContent = token; // Useful offline fallback before MathJax loads.
+                    span.dataset.latex = MATH_TOKENS[token];
+                    mathTargets.add(span);
+                    target.appendChild(span);
+                } else {
+                    const bdi = document.createElement("bdi");
+                    bdi.dir = "ltr";
+                    bdi.className = "inline-code";
+                    const code = document.createElement("code");
+                    code.textContent = token;
+                    bdi.appendChild(code);
+                    target.appendChild(bdi);
+                }
+                cursor = start + token.length;
+            }
+            if (cursor < text.length) target.appendChild(document.createTextNode(text.slice(cursor)));
+            typesetMath();
+        }
+
+        function typesetMath() {
+            if (!window.MathJax || typeof window.MathJax.typesetPromise !== "function") return;
+            const pending = [...mathTargets].filter(el => el.isConnected && !el.dataset.typeset);
+            if (!pending.length) return;
+            for (const el of pending) {
+                el.dataset.typeset = "1";
+                el.textContent = `\\(${el.dataset.latex}\\)`;
+            }
+            window.MathJax.typesetPromise(pending).catch(error => {
+                console.warn("MathJax rendering failed", error);
+                for (const el of pending) {
+                    const original = Object.keys(MATH_TOKENS).find(key => MATH_TOKENS[key] === el.dataset.latex);
+                    el.textContent = original || el.dataset.latex;
+                    delete el.dataset.typeset;
+                }
+            });
+        }
+        window.addEventListener("mathjax-ready", typesetMath);
+
+        function switchPage(page) {
+            state.page = page;
+            for (const [name, element] of Object.entries(views)) element.hidden = name !== page;
+            window.scrollTo({ top: 0, behavior: "instant" });
+        }
+
+        function startQuiz() {
+            state.qIndex = 0;
+            state.answers = Object.create(null);
+            renderQuestion();
+            switchPage("quiz");
+            document.getElementById("question-heading").focus({ preventScroll: true });
+        }
+
+        function chooseAnswer(index) {
+            if (state.answers[state.qIndex] !== undefined) return; // Lock first answer.
+            state.answers[state.qIndex] = index;
+            renderQuestion();
+            document.getElementById("feedback").scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+
+        function renderQuestion() {
+            const question = questions[state.qIndex];
+            const selected = state.answers[state.qIndex];
+            const answered = selected !== undefined;
+            const answeredCount = Object.keys(state.answers).length;
+            document.getElementById("question-number").textContent = String(state.qIndex + 1);
+            document.getElementById("progress-caption").textContent = `${answeredCount} מתוך ${questions.length} נענו`;
+            document.getElementById("progress-fill").style.width = `${100 * answeredCount / questions.length}%`;
+            document.getElementById("progress-track").setAttribute("aria-valuenow", String(answeredCount));
+            renderRichText(document.getElementById("question-text"), question.question);
+
+            const codeContainer = document.getElementById("code-example");
+            codeContainer.replaceChildren();
+            if (Array.isArray(question.code) && question.code.length) {
+                const pre = document.createElement("pre");
+                pre.className = "code-block";
+                pre.dir = "ltr";
+                const code = document.createElement("code");
+                code.textContent = question.code.join("\n");
+                pre.appendChild(code);
+                codeContainer.appendChild(pre);
+            }
+
+            const list = document.getElementById("options-list");
+            list.replaceChildren();
+            for (let i = 0; i < question.options.length; i++) {
+                const li = document.createElement("li");
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "choice";
+                btn.disabled = answered;
+                btn.setAttribute("aria-label", `אפשרות ${i + 1}: ${question.options[i]}`);
+                if (answered && i === question.correct) btn.classList.add("is-correct");
+                if (answered && i === selected && i !== question.correct) btn.classList.add("is-wrong");
+                const key = document.createElement("span");
+                key.className = "option-key";
+                key.setAttribute("aria-hidden", "true");
+                key.textContent = ["א", "ב", "ג"][i];
+                const copy = document.createElement("span");
+                copy.className = "option-copy";
+                renderRichText(copy, question.options[i]);
+                btn.append(key, copy);
+                btn.addEventListener("click", () => chooseAnswer(i));
+                li.appendChild(btn);
+                list.appendChild(li);
+            }
+
+            const feedback = document.getElementById("feedback");
+            feedback.replaceChildren();
+            feedback.hidden = !answered;
+            feedback.className = `feedback ${selected === question.correct ? "correct" : "wrong"}`;
+            if (answered) {
+                const title = document.createElement("strong");
+                title.textContent = selected === question.correct ? "תשובה נכונה ✅" : "תשובה שגויה ❌";
+                feedback.appendChild(title);
+                if (selected !== question.correct) {
+                    const reason = document.createElement("p");
+                    renderRichText(reason, question.explanation[selected]);
+                    feedback.appendChild(reason);
+                    const rightReason = document.createElement("p");
+                    rightReason.className = "right-reason";
+                    rightReason.appendChild(document.createTextNode("הסבר נכון: "));
+                    const explanation = document.createElement("span");
+                    renderRichText(explanation, question.explanation[question.correct]);
+                    rightReason.appendChild(explanation);
+                    feedback.appendChild(rightReason);
+                }
+            }
+            document.getElementById("question-helper").textContent = answered ? "התשובה נקלטה. אפשר להמשיך." : "בחרו תשובה כדי להמשיך";
+            const next = document.getElementById("next-btn");
+            next.disabled = !answered;
+            next.textContent = state.qIndex === questions.length - 1 ? "סיום המבדק" : "לשאלה הבאה";
+            typesetMath();
+        }
+
+        function goNext() {
+            if (state.answers[state.qIndex] === undefined) return;
+            if (state.qIndex < questions.length - 1) {
+                state.qIndex++;
+                renderQuestion();
+                document.getElementById("question-heading").focus({ preventScroll: true });
+                window.scrollTo({ top: 0, behavior: "instant" });
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const count = questions.reduce((sum, q, i) => sum + (state.answers[i] === q.correct ? 1 : 0), 0);
+            document.getElementById("result-score").textContent = `${count} / ${questions.length}`;
+            const percent = Math.round(100 * count / questions.length);
+            document.getElementById("result-description").textContent = `ענית נכון על ${count} מתוך ${questions.length} שאלות (${percent}%).`;
+            switchPage("result");
+        }
+
+        function buildPrintDeck() {
+            const deck = document.getElementById("print-deck");
+            deck.replaceChildren();
+            for (let i = 0; i < questions.length; i += 3) {
+                const page = document.createElement("section");
+                page.className = "print-page";
+                const title = document.createElement("h2");
+                title.textContent = "רשימה מקושרת - דף שאלות";
+                page.appendChild(title);
+                for (const q of questions.slice(i, i + 3)) {
+                    const block = document.createElement("article");
+                    block.className = "print-question";
+                    const heading = document.createElement("h3");
+                    heading.appendChild(document.createTextNode(`שאלה ${q.id}. `));
+                    const questionCopy = document.createElement("span");
+                    renderRichText(questionCopy, q.question);
+                    heading.appendChild(questionCopy);
+                    block.appendChild(heading);
+                    const options = document.createElement("ol");
+                    options.type = "1";
+                    for (const text of q.options) {
+                        const item = document.createElement("li");
+                        renderRichText(item, text);
+                        options.appendChild(item);
+                    }
+                    block.appendChild(options);
+                    page.appendChild(block);
+                }
+                const foot = document.createElement("p");
+                foot.className = "print-foot";
+                foot.textContent = `שאלות ${i + 1}–${Math.min(i + 3, questions.length)} מתוך ${questions.length}`;
+                page.appendChild(foot);
+                deck.appendChild(page);
+            }
+        }
+
+        function printQuestions() {
+            buildPrintDeck();
+            document.body.classList.add("print-all");
+            typesetMath();
+            window.setTimeout(() => window.print(), 250);
+        }
+        window.addEventListener("afterprint", () => document.body.classList.remove("print-all"));
+
+        const issues = validateQuestions();
+        if (issues.length) {
+            const info = document.createElement("p");
+            info.style.color = "#a2243a";
+            info.textContent = "נמצאה בעיה בתוכן המבדק. ראו את כלי המפתחים לפרטים.";
+            views.landing.appendChild(info);
+        }
+        document.getElementById("start-btn").addEventListener("click", startQuiz);
+        document.getElementById("retry-btn").addEventListener("click", startQuiz);
+        document.getElementById("next-btn").addEventListener("click", goNext);
+        document.getElementById("print-btn").addEventListener("click", printQuestions);
+        document.getElementById("result-print-btn").addEventListener("click", printQuestions);
+    </script>
+</body>
+</html>
