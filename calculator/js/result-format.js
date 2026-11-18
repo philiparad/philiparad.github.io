@@ -102,8 +102,8 @@ function exactFractionParts(q,style){
 // function and angle, never reverse-engineer a symbol from floating output.
 // Normalize the complete circle so signs/quadrants and periodicity are exact.
 const trigTables=Object.freeze({
- sin:['0','1/2','√2/2','√3/2','1','√3/2','√2/2','1/2','0','-1/2','-√2/2','-√3/2','-1','-√3/2','-√2/2','-1/2','0'],
- cos:['1','√3/2','√2/2','1/2','0','-1/2','-√2/2','-√3/2','-1','-√3/2','-√2/2','-1/2','0','1/2','√2/2','√3/2','1']
+ sin:['0','1/2','√2/2','√3/2','1','√3/2','√2/2','1/2','0','-1/2','-√2/2','-√3/2','-1','-√3/2','-√2/2','-1/2'],
+ cos:['1','√3/2','√2/2','1/2','0','-1/2','-√2/2','-√3/2','-1','-√3/2','-√2/2','-1/2','0','1/2','√2/2','√3/2']
 });
 function exactTrig(value,source,settings){
  const unit=settings.angle||'DEG';
@@ -114,8 +114,7 @@ function exactTrig(value,source,settings){
  if(!match)return null;
  const angle=Number(match[2]);
  if(!Number.isFinite(angle)||Math.abs(angle)>=9e9)return null;
- const step=angle/30;
- // The table includes 45 degrees; the index list encodes half-30-degree
+  // The table includes 45 degrees; the index list encodes half-30-degree
  // steps with only the valid 0, 30, 45, 60, 90, ... positions.
  const position=angle/15,rounded=Math.round(position);
  if(Math.abs(position-rounded)>1e-11)return null;
@@ -176,10 +175,10 @@ function calculate(value,source,settings={},options={}){
    if(candidate)natural=candidate;
   }
  }
- // Special-angle exact values are the default for MathIO results.
- // Only S⇔D (options.decimal) requests the decimal representation.
+ // Special-angle trigonometric values default to exact form in both
+ // MathIO and LineIO. S⇔D (options.decimal) explicitly selects decimals.
  const trig=exactTrig(value,source,cfg);
- if(preferred&&trig)natural=trig;
+ if(trig)natural=trig;
  const chosen=options.decimal?{kind:'decimal',text:decimalText}:natural;
  return {natural,decimal:{kind:'decimal',text:decimalText},chosen,hasAlternate:chosen.kind!=='decimal',
   fraction,exactRational:!!fraction&&!!exact,symbolic:symbolicCandidate||trig};
