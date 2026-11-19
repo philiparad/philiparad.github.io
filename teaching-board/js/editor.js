@@ -55,7 +55,7 @@ function reconcileSceneItems(layer,items,render){
  while(layer.children.length>items.length)layer.lastElementChild.remove();
 }
 export class Editor {
- constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.pendingNewTextDraftIds=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);for(const id of this.pendingNewTextDraftIds){
+ constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.pendingNewTextDraftIds=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.documentView());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);for(const id of this.pendingNewTextDraftIds){
  if(saved.items.some(item=>item.id===id)){
   try{clearTextDraft(localStorage,saved.id,id);}catch{}
   this.pendingNewTextDraftIds.delete(id);
@@ -119,7 +119,10 @@ export class Editor {
   dialog.onclose=()=>dialog.remove();
   document.body.append(dialog);dialog.showModal();
  }
- document(){return {items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1};}
+ // A non-owning view for the History constructor/commit, which makes its own
+ // clone. Keep document() as a safe independent public snapshot (A4 callers).
+ documentView(){return {items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1};}
+ document(){return structuredClone(this.documentView());}
  async flush(){if(this.inlineText){
     this.inlineText.finish(true,false);
     if(!this.inlineText.closed){
@@ -148,7 +151,7 @@ export class Editor {
   this.snapTargetCache=null;
   this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);
   syncConnectors(this.board.items);checkBoard(this.board);
-  this.history.commit(this.document(),options);
+  this.history.commit(this.documentView(),options);
   // Reuse the existing undo diff to dirty only changed item visuals.
   const changed=this.history.lastChangedItemIds;
   this.renderCache?.invalidateMany(changed);
