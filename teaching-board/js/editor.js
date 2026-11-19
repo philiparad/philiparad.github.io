@@ -129,7 +129,17 @@ export class Editor {
    }await this.queue.flush();}
  dispose(){this.disposed=true;this.calculatorModal?.dispose();this.laserTrail?.dispose();this.boardMenu?.dispose();this.selectionMenu?.dispose();this.imageToolbar?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false,true);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('cut',this.cutHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
  save(){this.queue.enqueue(this.board).catch(()=>{});}
- commit(options){try{this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);syncConnectors(this.board.items);validateBoard(this.board);this.history.commit(this.document(),options);this.save();this.paint();}catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
+ invalidateVisual(id){this.renderCache?.invalidate(id);this.minimap?.cache.invalidate(id);}
+ commit(options){try{
+  this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);
+  syncConnectors(this.board.items);validateBoard(this.board);
+  this.history.commit(this.document(),options);
+  // Reuse the existing undo diff to dirty only changed item visuals.
+  const changed=this.history.lastChangedItemIds;
+  this.renderCache?.invalidateMany(changed);
+  this.minimap?.cache.invalidateMany(changed);
+  this.save();this.paint();
+ }catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
  build(){document.body.classList.add('board-open');this.root.className='editor';this.root.replaceChildren();const top=el('div',null,'editor-top');top.setAttribute('role','toolbar');top.setAttribute('aria-label','Teaching board toolbar');const logo=el('a','Teaching Board','editor-brand');logo.href='#/';logo.title='Return to lessons';const brandIcon=el('img',null,'brand-icon');brandIcon.src='./philip_favicon.png';brandIcon.alt='';brandIcon.width=32;brandIcon.height=32;logo.prepend(brandIcon);this.boardMenu=new BoardMenu({clear:()=>this.clearBoard()});const back=this.boardMenu.root;this.title=btn(this.board.title,async()=>{const r=await formDialog('Lesson settings',[['title','Title',this.board.title],['folder','Folder',this.board.folder]],{validate:v=>{if(!v.title.trim()||v.title.length>200||v.folder.length>200)throw new Error('Use a title and folder under 200 characters.');return v;}});if(r){Object.assign(this.board,r);this.title.textContent=r.title;this.save();}},'lesson-title');this.title.dir='auto';
  this.saveState=el('span','Saved on this device','save-state');this.retry=btn('Retry save',()=>this.flush());this.retry.hidden=true;
