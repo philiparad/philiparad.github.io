@@ -48,8 +48,8 @@ try{
 
  await check('PERF-008 IndexedDB v1 migration builds bounded summaries and preserves full lessons',async()=>{
   const result=await page.evaluate(async()=>{
-   const {BoardRepository,ConflictError}=await import('./js/storage.js?v=20261119-perf008');
-   const {createBoard}=await import('./js/model.js?v=20261119-perf008');
+   const {BoardRepository,ConflictError}=await import('./js/storage.js?v=20261119-perf009');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf009');
    const name='teaching-board-perf008-migration-'+crypto.randomUUID();
    const original=createBoard('Legacy full lesson');
    original.folder='Algebra';
@@ -105,8 +105,8 @@ try{
    await auditPage.goto(base,{waitUntil:'domcontentloaded'});
    await auditPage.locator('#app[aria-busy="false"]').waitFor();
    const count=await auditPage.evaluate(async()=>{
-    const {BoardRepository}=await import('./js/storage.js?v=20261119-perf008');
-    const {createBoard}=await import('./js/model.js?v=20261119-perf008');
+    const {BoardRepository}=await import('./js/storage.js?v=20261119-perf009');
+    const {createBoard}=await import('./js/model.js?v=20261119-perf009');
     const repository=new BoardRepository();
     try{
      for(let i=0;i<42;i++){
@@ -187,10 +187,10 @@ try{
 
  await check('PERF-006 gesture snapping keeps guides and refreshes cached targets',async()=>{
   const result=await page.evaluate(async()=>{
-   const {Editor}=await import('./js/editor.js?v=20261119-perf008');
-   const {createBoard}=await import('./js/model.js?v=20261119-perf008');
-   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf008');
-   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js?v=20261119-perf008');
+   const {Editor}=await import('./js/editor.js?v=20261119-perf009');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf009');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf009');
+   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js?v=20261119-perf009');
    const root=document.createElement('div');
    root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
    document.body.append(root);
@@ -226,9 +226,9 @@ try{
 
  await check('PERF-007 committed snapshots save, undo and redo without stale data',async()=>{
   const report=await page.evaluate(async()=>{
-   const {Editor}=await import('./js/editor.js?v=20261119-perf008');
-   const {createBoard}=await import('./js/model.js?v=20261119-perf008');
-   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf008');
+   const {Editor}=await import('./js/editor.js?v=20261119-perf009');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf009');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf009');
    const root=document.createElement('div');
    root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
    document.body.append(root);
