@@ -1,50 +1,50 @@
-import {backgroundLocked,backgroundOrder} from './background-lock.js?v=20261119-perf005';
-import {ImageToolbar} from './image-toolbar.js?v=20261119-perf005';
-import {SelectionMenu} from './selection-menu.js?v=20261119-perf005';
-import {drawResizeHandles,beginResize,resizeItems,drawRotationHandle,beginRotation,rotateItems} from './selection-transform.js?v=20261119-perf005';
-import { BoardMenu } from './board-menu.js?v=20261119-perf005';
-import { LaserTrail, laserOptions } from './laser-trail.js?v=20261119-perf005';
-import { backgroundOptions } from './background-options.js?v=20261119-perf005';
-import { Minimap } from './minimap.js?v=20261119-perf005';
-import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261119-perf005';
-import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261119-perf005';
-import { Recovery } from './recovery.js?v=20261119-perf005';
-import { exportScopeDialog } from './export-scope.js?v=20261119-perf005';
-import { planA4Import } from './pdf-a4.js?v=20261119-perf005';
-import { Snippets, snippetCopies } from './snippets.js?v=20261119-perf005';
-import { InlineText } from './inline-text.js?v=20261119-perf005';
-import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js?v=20261119-perf005';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261119-perf005';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261119-perf005';
-import { visibleItems, invalidateTextBounds } from './visibility.js?v=20261119-perf005';
-import { RenderCache } from './render-cache.js?v=20261119-perf005';
-import { SpeedInk } from './speed-ink.js?v=20261119-perf005';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261119-perf005';
-import { ShapeGallery } from './shape-gallery.js?v=20261119-perf005';
-import { FillPalette } from './fill-palette.js?v=20261119-perf005';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261119-perf005';
-import { LineStyleMenu } from './line-style-menu.js?v=20261119-perf005';
-import { Pages,A4,pageRect } from './pages.js?v=20261119-perf005';
-import { cropDialog } from './crop-editor.js?v=20261119-perf005';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261119-perf005';
-import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261119-perf005';
-import { hitTextBox } from './text-hit-test.js?v=20261119-perf005';
-import { toWorld, zoomAt } from './viewport.js?v=20261119-perf005';
-import { History } from './history.js?v=20261119-perf005';
-import { SaveQueue } from './save-queue.js?v=20261119-perf005';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261119-perf005';
-import { exportBoard, backup } from './export.js?v=20261119-perf005';
-import { validateBoard } from './model.js?v=20261119-perf005';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261119-perf005';
+import {backgroundLocked,backgroundOrder} from './background-lock.js?v=20261119-perf006';
+import {ImageToolbar} from './image-toolbar.js?v=20261119-perf006';
+import {SelectionMenu} from './selection-menu.js?v=20261119-perf006';
+import {drawResizeHandles,beginResize,resizeItems,drawRotationHandle,beginRotation,rotateItems} from './selection-transform.js?v=20261119-perf006';
+import { BoardMenu } from './board-menu.js?v=20261119-perf006';
+import { LaserTrail, laserOptions } from './laser-trail.js?v=20261119-perf006';
+import { backgroundOptions } from './background-options.js?v=20261119-perf006';
+import { Minimap } from './minimap.js?v=20261119-perf006';
+import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261119-perf006';
+import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261119-perf006';
+import { Recovery } from './recovery.js?v=20261119-perf006';
+import { exportScopeDialog } from './export-scope.js?v=20261119-perf006';
+import { planA4Import } from './pdf-a4.js?v=20261119-perf006';
+import { Snippets, snippetCopies } from './snippets.js?v=20261119-perf006';
+import { InlineText } from './inline-text.js?v=20261119-perf006';
+import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js?v=20261119-perf006';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261119-perf006';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261119-perf006';
+import { visibleItems, invalidateTextBounds } from './visibility.js?v=20261119-perf006';
+import { RenderCache } from './render-cache.js?v=20261119-perf006';
+import { SpeedInk } from './speed-ink.js?v=20261119-perf006';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261119-perf006';
+import { ShapeGallery } from './shape-gallery.js?v=20261119-perf006';
+import { FillPalette } from './fill-palette.js?v=20261119-perf006';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261119-perf006';
+import { LineStyleMenu } from './line-style-menu.js?v=20261119-perf006';
+import { Pages,A4,pageRect } from './pages.js?v=20261119-perf006';
+import { cropDialog } from './crop-editor.js?v=20261119-perf006';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261119-perf006';
+import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261119-perf006';
+import { hitTextBox } from './text-hit-test.js?v=20261119-perf006';
+import { toWorld, zoomAt } from './viewport.js?v=20261119-perf006';
+import { History } from './history.js?v=20261119-perf006';
+import { SaveQueue } from './save-queue.js?v=20261119-perf006';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261119-perf006';
+import { exportBoard, backup } from './export.js?v=20261119-perf006';
+import { validateBoard } from './model.js?v=20261119-perf006';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261119-perf006';
 
-import { toolIcon } from './tool-icons.js?v=20261119-perf005';
-import { CalculatorModal } from './calculator-modal.js?v=20261119-perf005';
-import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261119-perf005';
+import { toolIcon } from './tool-icons.js?v=20261119-perf006';
+import { CalculatorModal } from './calculator-modal.js?v=20261119-perf006';
+import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261119-perf006';
 
-import { Geometry } from './geometry.js?v=20261119-perf005';
-import { snapPoint, snapAngle } from './snapping.js?v=20261119-perf005';
-import { equationDialog } from './equation-editor.js?v=20261119-perf005';
-import { graphDialog } from './graph-editor.js?v=20261119-perf005';
+import { Geometry } from './geometry.js?v=20261119-perf006';
+import { snapPoint, snapAngle, buildSnapIndex } from './snapping.js?v=20261119-perf006';
+import { equationDialog } from './equation-editor.js?v=20261119-perf006';
+import { graphDialog } from './graph-editor.js?v=20261119-perf006';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 // Reconcile in document order without detaching unchanged SVG nodes.
 function reconcileSceneItems(layer,items,render){
@@ -130,11 +130,13 @@ export class Editor {
  dispose(){this.disposed=true;this.calculatorModal?.dispose();this.laserTrail?.dispose();this.boardMenu?.dispose();this.selectionMenu?.dispose();this.imageToolbar?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false,true);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('cut',this.cutHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
  save(){this.queue.enqueue(this.board).catch(()=>{});}
  invalidateVisual(id){
+  this.snapTargetCache=null;
   this.renderCache?.invalidate(id);this.minimap?.cache.invalidate(id);
   const item=this.board.items.find(value=>value.id===id);
   if(item&&['text','note'].includes(item.type))invalidateTextBounds(item);
  }
  commit(options){try{
+  this.snapTargetCache=null;
   this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);
   syncConnectors(this.board.items);validateBoard(this.board);
   this.history.commit(this.document(),options);
@@ -179,7 +181,17 @@ export class Editor {
  this.svg.onwheel=e=>{e.preventDefault();if(e.ctrlKey||e.metaKey){this.board.viewport=zoomAt(this.board.viewport,this.screen(e),Math.exp(-e.deltaY*.002));}else{this.board.viewport.x-=e.deltaX;this.board.viewport.y-=e.deltaY;}this.requestPaint();this.save();};this.setTool('select');this.paint();this.resizeObserver=new ResizeObserver(()=>this.requestPaint());this.resizeObserver.observe(this.area);}
  setTool(tool){this.lastTextTap=null;if(['pen','line','polygon','curve','arrow','shape','rectangle','ellipse','triangle'].includes(tool)){this.lineStyle='solid';this.selected.clear();}if(['image','pdf'].includes(tool)){this.action(()=>this.insertMedia(tool));return;}if(['equation','graph'].includes(tool)){this.action(()=>this.insertMath(tool));return;}this.guides=[];this.geometry.reset();this.tool=tool;this.polygon=[];this.draft=null;for(const [id,b]of this.toolButtons)b.setAttribute('aria-pressed',String(id===tool));this.svg.style.cursor=tool==='pan'?'grab':tool==='select'?'default':'crosshair';this.toolHint.textContent=tool==='polygon'?'Click vertices · Enter to finish · Escape to cancel':tool==='select'?'Select and drag objects · Drag green handles to resize · Blue handle to rotate · Shift changes proportions / snaps rotation · Space + drag to pan':`${TOOLS.find(t=>t[0]===tool)?.[2]||tool} · Space + drag to pan`;this.paint();}
  screen(e){const r=this.svg.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
- point(e){const p=toWorld(this.screen(e),this.board.viewport);if(!this.drag&&['arc','curve','line','arrow','rectangle','ellipse','triangle','polygon','text','note'].includes(this.tool)&&!e.altKey){const q=snapPoint(p,this.board,this.selected,this.board.snapMode||'off');this.guides=q.guides;return q;}return p;}
+ point(e){const p=toWorld(this.screen(e),this.board.viewport);if(!this.drag&&['arc','curve','line','arrow','rectangle','ellipse','triangle','polygon','text','note'].includes(this.tool)&&!e.altKey){const q=snapPoint(p,this.board,this.selected,this.board.snapMode||'off',null,this.snapIndexFor(this.selected));this.guides=q.guides;return q;}return p;}
+ snapIndexFor(exclude=this.selected){
+  const mode=this.board.snapMode||'off';
+  if(mode!=='objects'&&mode!=='both')return null;
+  const cached=this.snapTargetCache;
+  if(cached&&cached.items===this.board.items&&cached.excluded.size===exclude.size&&
+    [...exclude].every(id=>cached.excluded.has(id)))return cached.index;
+  const index=buildSnapIndex(this.board.items,exclude);
+  this.snapTargetCache={items:this.board.items,excluded:new Set(exclude),index};
+  return index;
+ }
  center(){return toWorld({x:this.area.clientWidth/2,y:this.area.clientHeight/2},this.board.viewport);}
  base(type,p){return {id:crypto.randomUUID(),type,x:p.x,y:p.y,w:1,h:1,stroke:this.stroke,strokeOpacity:this.strokeOpacity,fill:this.fill,fillOpacity:this.fillOpacity,lineWidth:this.lineWidth,lineStyle:this.lineStyle,opacity:this.opacity,rotation:0,locked:false};}
  mountScene(){
@@ -292,14 +304,14 @@ export class Editor {
  if(this.lastTextTap&&last?.id===item.id&&e.timeStamp-last.time>=0&&e.timeStamp-last.time<450&&Math.hypot(screen.x-last.x,screen.y-last.y)<6&&!this.isLocked(item)&&!item.groupId){this.lastTextTap=null;this.action(()=>this.insertText(item.type,p,item));return;}
  if(e.target.hasAttribute('data-rotate')){const items=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(items.length)this.drag=beginRotation(items,p,this.board.viewport.zoom);return;}
  if(e.target.hasAttribute('data-resize')){const items=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(items.length)this.drag=beginResize(items,e.target.getAttribute('data-resize'),p);return;}
- if(item){const members=expandGroups(this.board.items,new Set([id]));if(e.altKey){for(const member of members)this.selected.delete(member);this.paint();return;}if(e.shiftKey){const remove=this.selected.has(id);for(const member of members)remove?this.selected.delete(member):this.selected.add(member);}else if(!this.selected.has(id))this.selected=members;this.drag={kind:'move',start:p,items:structuredClone(this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i)))};}
+ if(item){const members=expandGroups(this.board.items,new Set([id]));if(e.altKey){for(const member of members)this.selected.delete(member);this.paint();return;}if(e.shiftKey){const remove=this.selected.has(id);for(const member of members)remove?this.selected.delete(member):this.selected.add(member);}else if(!this.selected.has(id))this.selected=members;this.drag={kind:'move',start:p,items:structuredClone(this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i)))};this.drag.baseBounds=union(this.drag.items);this.drag.snapExcluded=new Set(this.drag.items.map(i=>i.id));this.drag.snapIndex=this.snapIndexFor(this.drag.snapExcluded);}
  else{if(!e.shiftKey&&!e.altKey)this.selected.clear();this.drag={kind:'marquee',start:p,includeBackground:!!(e.ctrlKey||e.metaKey),subtract:!!e.altKey};}this.paint();return;}
  if(['text','note'].includes(this.tool)){this.action(()=>this.insertText(this.tool,p));return;}
  if(this.tool==='polygon'){this.polygon.push([p.x,p.y]);this.updatePolygon();return;}
- const type=['pen','highlighter'].includes(this.tool)?'path':this.tool;this.draft=this.base(type,p);if(type==='shape')this.draft.shape=this.shapePreset;if(this.tool==='highlighter'){this.draft.opacity=.3;this.draft.lineWidth=Math.max(14,this.lineWidth*4);}if(type==='path'){this.draft.smoothing=this.inkSmoothing;this.draft.inkVersion=2;this.draft.inkZoom=this.board.viewport.zoom;this.draft.points=[[0,0]];this.draft.rawPoints=[[0,0]];if(this.tool==='pen'&&(this.penDynamics==='speed'||this.penDynamics==='pressure'&&e.pointerType==='pen')&&this.lineStyle==='solid'){const pressure=this.penDynamics==='speed'?.5:penPressure(e);this.draft.rawPressures=[pressure];this.draft.pressures=[pressure];}}else this.draft.points=[[0,0],[.1,.1]];this.drag={kind:'draw',start:p,lastRaw:[0,0],lastSmooth:[0,0],ink:new IncrementalInk([0,0],this.inkSmoothing,this.board.viewport.zoom,this.draft.rawPressures?.[0]),speed:this.draft.rawPressures&&this.penDynamics==='speed'?new SpeedInk([0,0],e.timeStamp,this.board.viewport.zoom):null};this.paint();}
+ const type=['pen','highlighter'].includes(this.tool)?'path':this.tool;this.draft=this.base(type,p);if(type==='shape')this.draft.shape=this.shapePreset;if(this.tool==='highlighter'){this.draft.opacity=.3;this.draft.lineWidth=Math.max(14,this.lineWidth*4);}if(type==='path'){this.draft.smoothing=this.inkSmoothing;this.draft.inkVersion=2;this.draft.inkZoom=this.board.viewport.zoom;this.draft.points=[[0,0]];this.draft.rawPoints=[[0,0]];if(this.tool==='pen'&&(this.penDynamics==='speed'||this.penDynamics==='pressure'&&e.pointerType==='pen')&&this.lineStyle==='solid'){const pressure=this.penDynamics==='speed'?.5:penPressure(e);this.draft.rawPressures=[pressure];this.draft.pressures=[pressure];}}else this.draft.points=[[0,0],[.1,.1]];this.drag={kind:'draw',start:p,lastRaw:[0,0],lastSmooth:[0,0],ink:new IncrementalInk([0,0],this.inkSmoothing,this.board.viewport.zoom,this.draft.rawPressures?.[0]),speed:this.draft.rawPressures&&this.penDynamics==='speed'?new SpeedInk([0,0],e.timeStamp,this.board.viewport.zoom):null};if(!['pen','highlighter'].includes(this.tool)){this.drag.snapExcluded=new Set();this.drag.snapIndex=this.snapIndexFor(this.drag.snapExcluded);}this.paint();}
  pointerMove(e){let p=this.point(e);if(!this.drag&&this.geometry.move(e,p))return;if(!this.drag)return;const d=this.drag;this.guides=[];if(this.lastTextTap&&Math.hypot(this.screen(e).x-this.lastTextTap.x,this.screen(e).y-this.lastTextTap.y)>6)this.lastTextTap=null;
- if(d.kind==='draw'&&!['pen','highlighter'].includes(this.tool)){if(!e.altKey){const q=snapPoint(p,this.board,new Set(),this.board.snapMode||'off');this.guides=q.guides;p=q;}if(e.shiftKey&&['line','arrow'].includes(this.tool))p=snapAngle(d.start,p);}
- if(d.kind==='move'&&!e.altKey){const b=union(d.items),q=snapPoint({x:b.x+p.x-d.start.x,y:b.y+p.y-d.start.y},this.board,new Set(d.items.map(i=>i.id)),this.board.snapMode||'off',{x:[0,b.w/2,b.w],y:[0,b.h/2,b.h]});p={x:d.start.x+q.x-b.x,y:d.start.y+q.y-b.y};this.guides=q.guides;}
+ if(d.kind==='draw'&&!['pen','highlighter'].includes(this.tool)){if(!e.altKey){const q=snapPoint(p,this.board,d.snapExcluded,this.board.snapMode||'off',null,d.snapIndex);this.guides=q.guides;p=q;}if(e.shiftKey&&['line','arrow'].includes(this.tool))p=snapAngle(d.start,p);}
+ if(d.kind==='move'&&!e.altKey){const b=d.baseBounds,q=snapPoint({x:b.x+p.x-d.start.x,y:b.y+p.y-d.start.y},this.board,d.snapExcluded,this.board.snapMode||'off',{x:[0,b.w/2,b.w],y:[0,b.h/2,b.h]},d.snapIndex);p={x:d.start.x+q.x-b.x,y:d.start.y+q.y-b.y};this.guides=q.guides;}
  if(d.kind==='pan'){const s=this.screen(e);this.board.viewport={...d.v,x:d.v.x+s.x-d.screen.x,y:d.v.y+s.y-d.screen.y};}
  if(d.kind==='laser'){this.laserTrail.add(p);return;}
  if(d.kind==='erase'){this.eraseAt(p);return;}
@@ -367,8 +379,8 @@ export class Editor {
  paste(items=this.clipboard){const copies=copiedItems(items);this.board.items.push(...copies);this.selected=new Set(copies.map(i=>i.id));this.commit();}
  lockSelectionToBackground(){this.selected=expandGroups(this.board.items,this.selected);const chosen=this.board.items.filter(i=>this.selected.has(i.id)&&!this.isLocked(i));if(!chosen.length)return;const unlock=chosen.some(i=>this.isBackgroundLocked(i));for(const i of chosen){if(unlock)delete i.backgroundLocked;else i.backgroundLocked=true;}if(!unlock)this.selected.clear();this.commit();}
  layer(front){const chosen=this.board.items.filter(i=>this.selected.has(i.id)&&!this.isLocked(i)),rest=this.board.items.filter(i=>!chosen.includes(i));this.board.items=front?[...rest,...chosen]:[...chosen,...rest];this.commit();}
- undo(){this.selectionMenu?.close();const doc=this.history.undo();if(doc){Object.assign(this.board,doc);this.selected.clear();this.save();this.paint();}}
- redo(){this.selectionMenu?.close();const doc=this.history.redo();if(doc){Object.assign(this.board,doc);this.selected.clear();this.save();this.paint();}}
+ undo(){this.selectionMenu?.close();const doc=this.history.undo();if(doc){this.snapTargetCache=null;Object.assign(this.board,doc);this.selected.clear();this.save();this.paint();}}
+ redo(){this.selectionMenu?.close();const doc=this.history.redo();if(doc){this.snapTargetCache=null;Object.assign(this.board,doc);this.selected.clear();this.save();this.paint();}}
  zoom(factor){this.board.viewport=zoomAt(this.board.viewport,{x:this.area.clientWidth/2,y:this.area.clientHeight/2},factor);this.paint();this.save();}
  fit(){if(this.board.layout==='a4'){this.pages.go(this.pages.index);return;}if(!this.board.items.length)return;const b=union(this.board.items),z=Math.max(.1,Math.min(3,(this.area.clientWidth-80)/Math.max(1,b.w),(this.area.clientHeight-80)/Math.max(1,b.h)));this.board.viewport={zoom:z,x:(this.area.clientWidth-b.w*z)/2-b.x*z,y:(this.area.clientHeight-b.h*z)/2-b.y*z};this.paint();this.save();}
  async resizeDialog(){const i=this.board.items.find(i=>this.selected.has(i.id)&&this.canTransform(i));if(!i){notify('Select an editable object, or detach the connector first.');return;}if(i.links){notify('Detach the connector before changing its size.');return;}const selected=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i)),group=selected.some(i=>i.groupId),box=group?union(selected):{...i,h:textObjectHeight(i)};const r=await formDialog('Object size',[['w','Width',box.w,'number'],['h','Height',box.h,'number']],{validate:v=>{const w=+v.w,h=+v.h;if(!Number.isFinite(w)||!Number.isFinite(h)||w<1||h<1||w>10000||h>10000)throw new Error('Use sizes from 1 to 10,000.');return {w,h};}});if(r){if(group){this.scaleSelection(r.w/box.w,r.h/box.h,box);return;}for(const item of this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i))){if(item.points)item.points=item.points.map(([x,y])=>[x*r.w/item.w,y*r.h/item.h]);if(item.rawPoints)item.rawPoints=item.rawPoints.map(([x,y])=>[x*r.w/item.w,y*r.h/item.h]);Object.assign(item,r);}this.commit();}}
