@@ -45,7 +45,8 @@ test('PERF-008 metadata filtering, sorting, trash and pagination are stable',()=
  assert.equal(shownLessons(normal,36).length,36);
  assert.equal(shownLessons(normal,Infinity).length,50);
  assert.equal(findLessonSummaries(boards,{folder:'Math'}).length,25);
- assert.equal(findLessonSummaries(boards,{search:'lesson 04'}).length,10);
+ assert.equal(findLessonSummaries(boards,{search:'lesson 04'}).length,1);
+ assert.equal(findLessonSummaries(boards,{search:'lesson 4'}).length,10);
  assert.equal(findLessonSummaries(boards,{search:'mAtH'}).length,25);
  assert.equal(findLessonSummaries(boards,{sort:'oldest'})[0].title,'Lesson 00');
  assert.equal(findLessonSummaries(boards,{sort:'title'})[0].title,'Lesson 00');
