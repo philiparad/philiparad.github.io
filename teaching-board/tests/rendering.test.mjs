@@ -278,6 +278,34 @@ test('viewport filtering omits offscreen SVG objects but preserves model and com
  assert.equal(e.renderCache.entries.size,999);assert.equal(object(e,'object-0'),undefined);
  e.board.viewport.x=0;e.paint();assert.ok(object(e,'object-0'));assert.equal(e.renderCache.entries.size,1);
 });
+test('PERF-004 offscreen text and notes are culled without changing export or history',()=>{
+ const e=fixture(0);
+ const near={id:'text-near',type:'text',x:100,y:100,w:240,h:18,fontSize:24,
+  text:'שלום English text editing'};
+ const many=Array.from({length:400},(_,k)=>({
+  id:'offscreen-'+k,type:k%2?'text':'note',x:9000+k*9,y:80,w:190,h:24,fontSize:22,
+  text:'A long offscreen explanation in English and עברית',
+  ...(k%2?{}:{fill:'#fff1a8'})
+ }));
+ e.board.items=[near,...many];e.commit();
+ assert.equal(e.board.items.length,401);
+ assert.deepEqual(walk(e.svg).filter(n=>n.hasAttribute('data-id')).map(n=>n.getAttribute('data-id')),['text-near']);
+ assert.equal(e.renderCache.entries.size,1);
+ const exportIds=walk(sceneSVG(e.board)).filter(n=>n.hasAttribute('data-id')).map(n=>n.getAttribute('data-id'));
+ assert.equal(exportIds.length,401,'SVG export must retain every offscreen item');
+ const selectedId=many[0].id;
+ e.selected.add(selectedId);e.paint();
+ assert.ok(object(e,selectedId),'Offscreen selected note must stay mounted');
+ e.selected.clear();e.paint();
+ assert.equal(object(e,selectedId),undefined);
+ e.board.viewport.x=-9050;e.paint();
+ assert.ok(object(e,selectedId),'Panning must mount the previously hidden note');
+ e.board.viewport.x=0;e.paint();
+ e.undo();assert.equal(e.board.items.length,0);
+ e.redo();assert.equal(e.board.items.length,401);
+ assert.equal(object(e,'text-near')?.getAttribute('data-id'),'text-near');
+ assert.equal(object(e,selectedId),undefined);
+});
 test('offscreen edits, selection, resize and history restore the right visible objects',()=>{
  const e=fixture(2);e.board.items[1].x=1500;e.commit();assert.equal(object(e,'object-1'),undefined);
  e.selected.add('object-1');e.paint();assert.ok(object(e,'object-1'));
