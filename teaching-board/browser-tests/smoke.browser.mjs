@@ -81,6 +81,53 @@ try{
   });
  });
 
+ await check('PERF-004 offscreen text and notes cull safely and reappear on selection and pan',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {Editor}=await import('./js/editor.js');
+   const {createBoard}=await import('./js/model.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   const {sceneSVG}=await import('./js/scene.js');
+   const root=document.createElement('div');
+   root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
+   document.body.append(root);
+   const board=createBoard('PERF-004 text visibility fixture');
+   board.items=[
+    {id:'visible-label',type:'text',x:100,y:90,w:220,h:32,fontSize:24,text:'שלום Teaching Board'},
+    {id:'hidden-note',type:'note',x:11000,y:100,w:210,h:28,fontSize:24,
+     text:'Offscreen sticky note with long words',fill:'#fff1a8'},
+    {id:'hidden-text',type:'text',x:-11000,y:100,w:180,h:22,fontSize:24,
+     text:'English and עברית'}
+   ];
+   const repo=new BoardRepository('teaching-board-perf004-browser-check');
+   let editor;
+   try{
+    editor=new Editor(root,board,repo);
+    const ids=()=>[...editor.itemsLayer.querySelectorAll('[data-id]')].map(node=>node.getAttribute('data-id'));
+    const initial=ids().join(',')==='visible-label';
+    const exported=sceneSVG(board).querySelectorAll('[data-id]').length===3;
+    const node=editor.itemsLayer.querySelector('[data-id]');
+    editor.paint();
+    const cached=node===editor.itemsLayer.querySelector('[data-id]');
+    editor.selected=new Set(['hidden-note']);editor.paint();
+    const selected=ids().join(',')==='visible-label,hidden-note';
+    editor.selected.clear();editor.board.viewport.x=-10900;editor.paint();
+    const panned=ids().join(',')==='hidden-note';
+    editor.board.items[1].text='Expanded text '.repeat(30);
+    editor.paint();
+    const updated=ids().join(',')==='hidden-note';
+    editor.board.viewport.x=0;editor.paint();
+    const hiddenAgain=ids().join(',')==='visible-label';
+    editor.board.viewport.x=11000;editor.paint();
+    const opposite=ids().join(',')==='hidden-text';
+    return {initial,exported,cached,selected,panned,updated,hiddenAgain,opposite};
+   }finally{editor?.dispose();repo.close();root.remove();}
+  });
+  assert.deepEqual(result,{
+   initial:true,exported:true,cached:true,selected:true,panned:true,
+   updated:true,hiddenAgain:true,opposite:true
+  });
+ });
+
  await check('TXT-068 Unicode first-strong direction matches browser for Greek and Cyrillic',async()=>{
   const report=await page.evaluate(async()=>{
    const {writeRuns,paragraphRuns}=await import('./js/rich-text.js');
