@@ -27,7 +27,8 @@ try{
 
  await check('PERF-005 browser loads each application module under one canonical URL',async()=>{
   const report=await page.evaluate(()=>{
-   const version='20261119-perf005',seen=new Map();
+   const entry=document.querySelector('script[type="module"][src*="app.js"]');
+   const version=entry?new URL(entry.src).searchParams.get('v'):null,seen=new Map();
    for(const resource of performance.getEntriesByType('resource')){
     const url=new URL(resource.name);
     if(!url.pathname.startsWith('/teaching-board/js/')||!url.pathname.endsWith('.js'))continue;
