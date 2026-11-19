@@ -25,6 +25,62 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('PERF-001 persistent SVG scene reuses nodes across repaint, pan, reordering and page changes',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {Editor}=await import('./js/editor.js');
+   const {createBoard}=await import('./js/model.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   const root=document.createElement('div');
+   root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
+   document.body.append(root);
+   const board=createBoard('PERF-001 isolated SVG repaint fixture');
+   const first={id:crypto.randomUUID(),type:'rectangle',x:90,y:100,w:130,h:90,fill:'#ffffff',stroke:'#203954',lineWidth:3};
+   const second={id:crypto.randomUUID(),type:'rectangle',x:310,y:150,w:140,h:100,fill:'#eeeeee',stroke:'#203954',lineWidth:3};
+   board.items=[first,second];
+   const repo=new BoardRepository('teaching-board-perf001-browser-check');
+   let editor;
+   try{
+    editor=new Editor(root,board,repo);
+    const svg=editor.svg,scene=editor.sceneLayer,background=editor.backgroundLayer,items=editor.itemsLayer;
+    const firstNode=items.children[0],secondNode=items.children[1],pattern=editor.paperPattern;
+    editor.paint();
+    const stable=editor.sceneLayer===scene&&editor.backgroundLayer===background&&
+     items.children[0]===firstNode&&items.children[1]===secondNode&&editor.paperPattern===pattern;
+    editor.board.viewport={x:18,y:23,zoom:1.15};editor.paint();
+    const pan=scene===editor.sceneLayer&&items.children[0]===firstNode&&
+     items.children[1]===secondNode&&editor.paperPattern===pattern&&
+     scene.getAttribute('transform').includes('1.15');
+    editor.board.items.reverse();editor.paint();
+    const reorder=items.children[0]===secondNode&&items.children[1]===firstNode;
+    editor.board.items[0].x+=17;editor.paint();
+    const moving=items.children[0]===secondNode&&secondNode.getAttribute('transform').includes('327');
+    editor.board.items[0].fill='#ccddff';editor.paint();
+    const replacement=items.children[0]!==secondNode&&items.children[1]===firstNode&&
+     items.children.length===2&&items.children[0].getAttribute('data-id')===second.id;
+    editor.selected=new Set([first.id]);editor.paint();
+    const selection=editor.selectionLayer.childElementCount>0&&
+     items.children[1]===firstNode;
+    editor.selected.clear();editor.board.items.pop();editor.paint();
+    const removal=items.childElementCount===1&&items.children[0].getAttribute('data-id')===second.id;
+    editor.board.layout='a4';editor.board.pageCount=2;editor.paint();
+    const page=editor.pagesLayer.firstElementChild;
+    editor.board.viewport.y+=12;editor.paint();
+    const pageReuse=!!page&&editor.pagesLayer.firstElementChild===page;
+    editor.board.background='dots';editor.paint();
+    const backgroundChange=editor.backgroundLayer===background&&
+     editor.sceneLayer===scene&&editor.paperPattern!==pattern&&
+     items.children[0].getAttribute('data-id')===second.id;
+    return {stable,pan,reorder,moving,replacement,selection,removal,pageReuse,backgroundChange};
+   }finally{
+    editor?.dispose();root.remove();repo.close();
+   }
+  });
+  assert.deepEqual(result,{
+   stable:true,pan:true,reorder:true,moving:true,replacement:true,selection:true,
+   removal:true,pageReuse:true,backgroundChange:true
+  });
+ });
+
  await check('TXT-068 Unicode first-strong direction matches browser for Greek and Cyrillic',async()=>{
   const report=await page.evaluate(async()=>{
    const {writeRuns,paragraphRuns}=await import('./js/rich-text.js');
