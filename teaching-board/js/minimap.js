@@ -25,9 +25,10 @@ export function overviewPath(items){
 export class Minimap {
  constructor(editor){
   this.editor=editor;this.cache=new RenderCache();
+  this.itemNodes=new Map();this.initialized=false;this.dragPreviewDirty=false;
   this.root=el('div',null,'minimap');
   this.preview=svgEl('svg',{id:'board-minimap',role:'img','aria-label':'Lesson overview with current viewport'});
-  this.toggle=btn('Minimap',()=>{this.open=!this.open;this.preview.style.display=this.open?'block':'none';this.toggle.setAttribute('aria-expanded',String(this.open));if(this.open)this.update();else this.cache.clear();});
+  this.toggle=btn('Minimap',()=>{this.open=!this.open;this.preview.style.display=this.open?'block':'none';this.toggle.setAttribute('aria-expanded',String(this.open));if(this.open)this.update();else this.resetOverview();});
   this.toggle.setAttribute('aria-controls','board-minimap');this.toggle.setAttribute('aria-expanded','false');
   this.preview.style.display='none';this.root.append(this.toggle,this.preview);
   this.content=svgEl('g',{'pointer-events':'none'});this.viewportNode=svgEl('rect',{'data-minimap-viewport':'true',fill:'#168fa51a',stroke:'#147d92','stroke-width':2,'vector-effect':'non-scaling-stroke'});
@@ -61,24 +62,80 @@ export class Minimap {
    e.board.viewport.x+=direction[0]*e.area.clientWidth*.2;e.board.viewport.y+=direction[1]*e.area.clientHeight*.2;e.paint();e.save();
   };
  }
+ // Heavy overview drawing changes only for edits or layout changes.
+ // A pan updates just the viewport rectangle; moves patch selected items.
+ resetOverview(){
+  this.cache.clear();this.itemNodes.clear();this.content.replaceChildren();
+  this.initialized=false;this.dragPreviewDirty=false;this.stamp=null;
+ }
+ rebuildOverview(){
+  const e=this.editor,items=e.board.items;
+  this.stamp=e.history.current;this.pageCount=e.board.pageCount;
+  this.layout=e.board.layout;
+  const pages=e.board.layout==='a4'?
+   Array.from({length:e.board.pageCount||1},(_,i)=>pageRect(i)):[];
+  const content=[...items,...pages];
+  this.overviewBounds=content.length?[union(content)]:[];
+  this.content.replaceChildren();this.itemNodes.clear();
+  const pageColor=backgroundOptions(e.board.background,e.board.backgroundOptions).color;
+  for(const p of pages)this.content.append(svgEl('rect',{
+   x:p.x,y:p.y,width:p.w,height:p.h,fill:pageColor,
+   stroke:'#8b9bab','stroke-width':1,'vector-effect':'non-scaling-stroke'
+  }));
+  this.simplified=items.length>300;
+  if(this.simplified){
+   this.cache.clear();
+   this.content.append(svgEl('path',{
+    d:overviewPath(items),fill:'#63758a44',stroke:'#63758a',
+    'stroke-width':.5,'vector-effect':'non-scaling-stroke',
+    'data-simplified-overview':'true'
+   }));
+  }else{
+   this.cache.retain(items);
+   for(const item of items){
+    const node=this.cache.draw(item);
+    this.content.append(node);this.itemNodes.set(item.id,node);
+   }
+  }
+  this.initialized=true;this.dragPreviewDirty=false;
+ }
+ updateDraggedItems(drag){
+  // For boards with over 300 objects, keep the simplified overview fixed
+  // until the gesture is committed, avoiding O(n) path rebuilds per frame.
+  if(this.simplified||!['move','resize','rotate'].includes(drag.kind))return;
+  const ids=new Set((drag.items||[]).map(item=>item.id));
+  if(!ids.size)return;
+  for(const item of this.editor.board.items){
+   if(!ids.has(item.id))continue;
+   const previous=this.itemNodes.get(item.id);
+   if(!previous)continue;
+   // RenderCache.draw updates transforms on the existing SVG group.
+   const next=this.cache.draw(item);
+   if(next!==previous){
+    previous.replaceWith(next);
+    this.itemNodes.set(item.id,next);
+   }
+  }
+  // A cancelled gesture has no History commit: restore it exactly once
+  // when editing ends, even if the document revision never changed.
+  this.dragPreviewDirty=true;
+ }
  update(){
   if(!this.open)return;
-  const e=this.editor;
-  const stamp=e.history.current;
-  if(this.stamp!==stamp||e.drag||this.wasDragging||this.pageCount!==e.board.pageCount||this.layout!==e.board.layout){
-   this.stamp=stamp;this.wasDragging=Boolean(e.drag);this.pageCount=e.board.pageCount;this.layout=e.board.layout;
-   const pages=e.board.layout==='a4'?Array.from({length:e.board.pageCount||1},(_,i)=>pageRect(i)):[];
-   this.overviewBounds=[...e.board.items,...pages].length?[union([...e.board.items,...pages])]:[];
-   this.content.replaceChildren();
-   for(const p of pages)this.content.append(svgEl('rect',{x:p.x,y:p.y,width:p.w,height:p.h,fill:backgroundOptions(e.board.background,e.board.backgroundOptions).color,stroke:'#8b9bab','stroke-width':1,'vector-effect':'non-scaling-stroke'}));
-   if(e.board.items.length>300){
-    this.cache.clear();this.content.append(svgEl('path',{d:overviewPath(e.board.items),fill:'#63758a44',stroke:'#63758a','stroke-width':.5,'vector-effect':'non-scaling-stroke','data-simplified-overview':'true'}));
-   }else{this.cache.retain(e.board.items);for(const item of e.board.items)this.content.append(this.cache.draw(item));}
-  }
-  const result=minimapFrame(this.overviewBounds||[],e.board.viewport,e.area.clientWidth,e.area.clientHeight);
-  const view=result.view,frame=this.drag?.frame||result.frame;this.frame=frame;
-  this.preview.setAttribute('viewBox',`${frame.x} ${frame.y} ${frame.w} ${frame.h}`);
-  for(const [k,v]of Object.entries({x:view.x,y:view.y,width:view.w,height:view.h}))this.viewportNode.setAttribute(k,v);
+  const e=this.editor,drag=e.drag;
+  const changed=!this.initialized||this.stamp!==e.history.current||
+   this.pageCount!==e.board.pageCount||this.layout!==e.board.layout;
+  if(changed||!drag&&this.dragPreviewDirty)this.rebuildOverview();
+  else if(drag)this.updateDraggedItems(drag);
+  const result=minimapFrame(this.overviewBounds||[],e.board.viewport,
+   e.area.clientWidth,e.area.clientHeight);
+  const view=result.view,frame=this.drag?.frame||result.frame;
+  this.frame=frame;
+  this.preview.setAttribute('viewBox',
+   `${frame.x} ${frame.y} ${frame.w} ${frame.h}`);
+  for(const [key,value] of Object.entries({
+   x:view.x,y:view.y,width:view.w,height:view.h
+  }))this.viewportNode.setAttribute(key,value);
  }
- dispose(){this.cache.clear();this.root.remove();}
+ dispose(){this.resetOverview();this.root.remove();}
 }
