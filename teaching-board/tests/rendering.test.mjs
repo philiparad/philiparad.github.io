@@ -76,7 +76,7 @@ test('shape previews refresh snapping guides without replacing fixed objects',()
 });
 test('full redraws clear canceled previews and update viewport transforms',()=>{
  const e=fixture();e.pointerDown(pointer(e,10,10));const abandoned=e.draftLayer;
- e.drag=null;e.draft=null;e.paint();assert.equal(abandoned.isConnected,false);assert.equal(e.draftLayer.children.length,0);
+ e.drag=null;e.draft=null;e.paint();assert.equal(abandoned.isConnected,true);assert.equal(abandoned,e.draftLayer);assert.equal(e.draftLayer.children.length,0);
  e.board.viewport={x:40,y:30,zoom:2};e.paint();assert.equal(e.draftLayer.parentNode.getAttribute('transform'),'translate(40 30) scale(2)');
  e.pointerDown(pointer(e,20,20));e.pointerMove(pointer(e,30,30));assert.equal(e.draftLayer.parentNode.getAttribute('transform'),'translate(40 30) scale(2)');
 });
