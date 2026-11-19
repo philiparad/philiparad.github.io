@@ -46,6 +46,14 @@ import { snapPoint, snapAngle } from './snapping.js?v=20261024-image-actions';
 import { equationDialog } from './equation-editor.js?v=20261024-active-shape';
 import { graphDialog } from './graph-editor.js?v=20261024-active-shape';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
+// Reconcile in document order without detaching unchanged SVG nodes.
+function reconcileSceneItems(layer,items,render){
+ for(let index=0;index<items.length;index++){
+  const node=render(items[index]);
+  if(layer.children[index]!==node)layer.insertBefore(node,layer.children[index]||null);
+ }
+ while(layer.children.length>items.length)layer.lastElementChild.remove();
+}
 export class Editor {
  constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.pendingNewTextDraftIds=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);for(const id of this.pendingNewTextDraftIds){
  if(saved.items.some(item=>item.id===id)){
@@ -156,11 +164,71 @@ export class Editor {
  point(e){const p=toWorld(this.screen(e),this.board.viewport);if(!this.drag&&['arc','curve','line','arrow','rectangle','ellipse','triangle','polygon','text','note'].includes(this.tool)&&!e.altKey){const q=snapPoint(p,this.board,this.selected,this.board.snapMode||'off');this.guides=q.guides;return q;}return p;}
  center(){return toWorld({x:this.area.clientWidth/2,y:this.area.clientHeight/2},this.board.viewport);}
  base(type,p){return {id:crypto.randomUUID(),type,x:p.x,y:p.y,w:1,h:1,stroke:this.stroke,strokeOpacity:this.strokeOpacity,fill:this.fill,fillOpacity:this.fillOpacity,lineWidth:this.lineWidth,lineStyle:this.lineStyle,opacity:this.opacity,rotation:0,locked:false};}
- paint(){this.cancelPaint();if(this.disposed)return;syncConnectors(this.board.items);this.selected=expandGroups(this.board.items,this.selected);this.shapeGallery.update();this.strokePalette.update();this.fillPalette.update();this.lineStyleMenu.update();this.pages.update();this.svg.replaceChildren();background(this.svg,this.board.background,this.board.viewport,'paper',this.board.backgroundOptions);const v=this.board.viewport,scene=svgEl('g',{transform:`translate(${v.x} ${v.y}) scale(${v.zoom})`});this.pages.paint(scene);this.renderCache??=new RenderCache();const visible=visibleItems(backgroundOrder(this.board.items),v,this.area.clientWidth,this.area.clientHeight,this.selected);this.renderCache.retain(visible);visible.forEach(i=>{const node=this.renderCache.draw(i);node.style.visibility=this.inlineText?.item.id===i.id?'hidden':'';scene.append(node);});this.inlineText?.update();this.draftLayer=svgEl('g',{'data-layer':'draft'});scene.append(this.draftLayer);if(this.draft)this.draftLayer.append(drawItem(this.draft));
- for(const i of this.board.items){if(this.selected.has(i.id)){const b=bounds(i);scene.append(svgEl('rect',{x:b.x-3,y:b.y-3,width:b.w+6,height:b.h+6,fill:'none',stroke:i.locked?'#d59a30':'#168fa5','stroke-width':1.5/v.zoom,'stroke-dasharray':`${5/v.zoom} ${3/v.zoom}`,'pointer-events':'none'}));}}
- const selected=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(selected.length&&this.tool==='select'){drawResizeHandles(scene,selected,v.zoom);drawRotationHandle(scene,selected,v.zoom,this.drag);}
- if(this.marquee)scene.append(svgEl('rect',{...this.marquee,fill:'#147d9215',stroke:'#147d92','stroke-width':1/v.zoom,'pointer-events':'none'}));
- this.guideLayer=svgEl('g',{'data-layer':'guides','pointer-events':'none'});scene.append(this.guideLayer);this.paintGuides();this.geometry.paint(scene);this.svg.append(scene);this.zoomLabel.textContent=Math.round(v.zoom*100)+'%';this.minimap?.update();this.imageToolbar?.update();this.laserTrail?.render();if(this.linkGraphsButton){const chosen=this.board.items.filter(i=>this.selected.has(i.id)),members=linkedGraphs(this.board.items,this.selected),sets=new Set(members.filter(i=>i.graphLinkId).map(i=>i.graphLinkId));this.linkGraphsButton.disabled=chosen.length<2||chosen.some(i=>i.type!=='graph')||members.some(i=>this.isLocked(i))||sets.size===1&&members.every(i=>i.graphLinkId);this.selectLinkedButton.disabled=!sets.size;this.unlinkGraphsButton.disabled=!sets.size||members.some(i=>this.isLocked(i));for(const b of this.graphRangeButtons||[])b.disabled=this.graphRangeBusy||sets.size!==1||chosen.some(i=>i.type!=='graph'||!i.graphLinkId)||members.some(i=>this.isLocked(i));this.graphLinkLabel.textContent=sets.size?`${sets.size} linked set(s) · ${members.filter(i=>i.graphLinkId).length} linked graphs`:'Select two or more graphs to create a linked set. Existing sets are merged.';}if(this.saveSnippetButton)this.saveSnippetButton.disabled=!this.selected.size;this.selectionLabel.textContent=this.selected.size?`${this.selected.size} selected · ${this.board.items.length} objects`:`${this.board.items.length} objects`;this.undoButton.disabled=!this.history.past.length;this.redoButton.disabled=!this.history.future.length;this.paper.value=this.board.background;if(this.connectButton)this.connectButton.disabled=this.board.items.filter(i=>this.selected.has(i.id)&&connectorTarget(i)).length!==2||this.selected.size!==2;if(this.detachButton)this.detachButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.links&&!this.isLocked(i));if(this.groupButton)this.groupButton.disabled=this.selected.size<2;if(this.ungroupButton)this.ungroupButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.groupId);const path=this.board.items.find(i=>this.selected.has(i.id)&&i.type==='path');this.smoothingSelect.value=String(path?.smoothing??this.inkSmoothing);if(this.textStyleSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const styles=new Set(texts.map(i=>i.textStyle||'normal'));this.textStyleSelect.value=styles.size>1?'':texts.length?(texts[0].textStyle||'normal'):(this.textStyle||'normal');}if(this.alignmentSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const alignments=new Set(texts.map(i=>i.textAlign||'auto'));this.alignmentSelect.value=alignments.size>1?'':texts[0]?.textAlign||'auto';if(!texts.length)this.alignmentSelect.value=this.textAlign;}}
+ mountScene(){
+  if(this.sceneLayer?.isConnected)return;
+  this.backgroundLayer=svgEl('g',{'data-layer':'board-background'});
+  this.sceneLayer=svgEl('g',{'data-layer':'scene'});
+  this.pagesLayer=svgEl('g',{'data-layer':'pages'});
+  this.itemsLayer=svgEl('g',{'data-layer':'items'});
+  this.draftLayer=svgEl('g',{'data-layer':'draft'});
+  this.selectionLayer=svgEl('g',{'data-layer':'selection'});
+  this.guideLayer=svgEl('g',{'data-layer':'guides','pointer-events':'none'});
+  this.geometryLayer=svgEl('g',{'data-layer':'geometry'});
+  this.sceneLayer.append(this.pagesLayer,this.itemsLayer,this.draftLayer,this.selectionLayer,this.guideLayer,this.geometryLayer);
+  this.svg.append(this.backgroundLayer,this.sceneLayer);
+  this.paperKey=null;this.pagesKey=null;
+ }
+ paint(){
+  this.cancelPaint();
+  if(this.disposed)return;
+  syncConnectors(this.board.items);
+  this.selected=expandGroups(this.board.items,this.selected);
+  this.shapeGallery.update();this.strokePalette.update();this.fillPalette.update();
+  this.lineStyleMenu.update();this.pages.update();
+  this.mountScene();
+  const v=this.board.viewport;
+  const paperKey=JSON.stringify([this.board.background,this.board.backgroundOptions||null]);
+  if(this.paperKey!==paperKey){
+   this.backgroundLayer.replaceChildren();
+   background(this.backgroundLayer,this.board.background,v,'paper',this.board.backgroundOptions);
+   this.paperPattern=this.backgroundLayer.querySelector('#paper');
+   this.paperKey=paperKey;
+  }
+  // The grid moves with the viewport; its SVG definitions do not need rebuilding.
+  this.paperPattern?.setAttribute('patternTransform',`translate(${v.x} ${v.y}) scale(${v.zoom})`);
+  const pagesKey=JSON.stringify([this.board.layout||'infinite',this.board.pageCount||1,this.board.background,this.board.backgroundOptions||null]);
+  if(this.pagesKey!==pagesKey){
+   this.pagesLayer.replaceChildren();
+   this.pages.paint(this.pagesLayer);
+   this.pagesKey=pagesKey;
+  }
+  this.sceneLayer.setAttribute('transform',`translate(${v.x} ${v.y}) scale(${v.zoom})`);
+  this.renderCache??=new RenderCache();
+  const visible=visibleItems(backgroundOrder(this.board.items),v,this.area.clientWidth,this.area.clientHeight,this.selected);
+  this.renderCache.retain(visible);
+  reconcileSceneItems(this.itemsLayer,visible,item=>{
+   const node=this.renderCache.draw(item);
+   node.style.visibility=this.inlineText?.item.id===item.id?'hidden':'';
+   return node;
+  });
+  this.inlineText?.update();
+  this.draftLayer.replaceChildren(...(this.draft?[drawItem(this.draft)]:[]));
+  this.selectionLayer.replaceChildren();
+  for(const i of this.board.items){
+   if(!this.selected.has(i.id))continue;
+   const b=bounds(i);
+   this.selectionLayer.append(svgEl('rect',{x:b.x-3,y:b.y-3,width:b.w+6,height:b.h+6,fill:'none',stroke:i.locked?'#d59a30':'#168fa5','stroke-width':1.5/v.zoom,'stroke-dasharray':`${5/v.zoom} ${3/v.zoom}`,'pointer-events':'none'}));
+  }
+  const selected=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));
+  if(selected.length&&this.tool==='select'){
+   drawResizeHandles(this.selectionLayer,selected,v.zoom);
+   drawRotationHandle(this.selectionLayer,selected,v.zoom,this.drag);
+  }
+  if(this.marquee)this.selectionLayer.append(svgEl('rect',{...this.marquee,fill:'#147d9215',stroke:'#147d92','stroke-width':1/v.zoom,'pointer-events':'none'}));
+  this.paintGuides();
+  this.geometryLayer.replaceChildren();
+  this.geometry.paint(this.geometryLayer);
+  this.zoomLabel.textContent=Math.round(v.zoom*100)+'%';this.minimap?.update();this.imageToolbar?.update();this.laserTrail?.render();if(this.linkGraphsButton){const chosen=this.board.items.filter(i=>this.selected.has(i.id)),members=linkedGraphs(this.board.items,this.selected),sets=new Set(members.filter(i=>i.graphLinkId).map(i=>i.graphLinkId));this.linkGraphsButton.disabled=chosen.length<2||chosen.some(i=>i.type!=='graph')||members.some(i=>this.isLocked(i))||sets.size===1&&members.every(i=>i.graphLinkId);this.selectLinkedButton.disabled=!sets.size;this.unlinkGraphsButton.disabled=!sets.size||members.some(i=>this.isLocked(i));for(const b of this.graphRangeButtons||[])b.disabled=this.graphRangeBusy||sets.size!==1||chosen.some(i=>i.type!=='graph'||!i.graphLinkId)||members.some(i=>this.isLocked(i));this.graphLinkLabel.textContent=sets.size?`${sets.size} linked set(s) · ${members.filter(i=>i.graphLinkId).length} linked graphs`:'Select two or more graphs to create a linked set. Existing sets are merged.';}if(this.saveSnippetButton)this.saveSnippetButton.disabled=!this.selected.size;this.selectionLabel.textContent=this.selected.size?`${this.selected.size} selected · ${this.board.items.length} objects`:`${this.board.items.length} objects`;this.undoButton.disabled=!this.history.past.length;this.redoButton.disabled=!this.history.future.length;this.paper.value=this.board.background;if(this.connectButton)this.connectButton.disabled=this.board.items.filter(i=>this.selected.has(i.id)&&connectorTarget(i)).length!==2||this.selected.size!==2;if(this.detachButton)this.detachButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.links&&!this.isLocked(i));if(this.groupButton)this.groupButton.disabled=this.selected.size<2;if(this.ungroupButton)this.ungroupButton.disabled=!this.board.items.some(i=>this.selected.has(i.id)&&i.groupId);const path=this.board.items.find(i=>this.selected.has(i.id)&&i.type==='path');this.smoothingSelect.value=String(path?.smoothing??this.inkSmoothing);if(this.textStyleSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const styles=new Set(texts.map(i=>i.textStyle||'normal'));this.textStyleSelect.value=styles.size>1?'':texts.length?(texts[0].textStyle||'normal'):(this.textStyle||'normal');}if(this.alignmentSelect){const texts=this.board.items.filter(i=>this.selected.has(i.id)&&['text','note'].includes(i.type));const alignments=new Set(texts.map(i=>i.textAlign||'auto'));this.alignmentSelect.value=alignments.size>1?'':texts[0]?.textAlign||'auto';if(!texts.length)this.alignmentSelect.value=this.textAlign;}}
  // Input updates the model immediately; rendering is batched independently.
  // A full update always takes precedence over a pending draft-only update.
  requestPaint(draftOnly=false){
