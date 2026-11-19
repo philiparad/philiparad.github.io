@@ -1,5 +1,5 @@
-import { RecoveryRepository } from './recovery-storage.js?v=20261119-perf008';
-import { el, btn, notify } from './ui.js?v=20261119-perf008';
+import { RecoveryRepository } from './recovery-storage.js?v=20261119-perf009';
+import { el, btn, notify } from './ui.js?v=20261119-perf009';
 const snapshots=new RecoveryRepository();
 export async function showRecovery(repository,boardId,beforeRestore=async()=>{}){
  const values=await snapshots.list(boardId),d=el('dialog',null,'form-dialog');
