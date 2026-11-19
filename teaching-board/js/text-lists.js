@@ -1,5 +1,5 @@
-import {readRichDocument,writeRuns,validateParagraphs,validateRuns} from './rich-text.js?v=20261017-history-budget';
-import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js';
+import {readRichDocument,writeRuns,validateParagraphs,validateRuns} from './rich-text.js?v=20261119-perf005';
+import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js?v=20261119-perf005';
 
 /** Toggle list metadata without touching text runs, equation sources, or directions. */
 export function toggleParagraphLists(paragraphs,indices,kind){

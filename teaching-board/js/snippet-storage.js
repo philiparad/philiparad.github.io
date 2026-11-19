@@ -1,4 +1,4 @@
-import { validateSnippet } from './snippet-model.js?v=20261024-image-actions';
+import { validateSnippet } from './snippet-model.js?v=20261119-perf005';
 /** Separate storage leaves the existing lesson database and its version intact. */
 export class SnippetRepository {
  constructor(name='philip-teaching-snippets'){this.name=name;}
