@@ -1,5 +1,5 @@
-import {compileExpression} from './expression.js?v=20261119-perf007';
-import {el} from './ui.js?v=20261119-perf007';
+import {compileExpression} from './expression.js?v=20261119-perf008';
+import {el} from './ui.js?v=20261119-perf008';
 export function domainContains(row,x){return x>=(row.domainMin??-Infinity)&&x<=(row.domainMax??Infinity)&&!(row.domainMinOpen&&x===row.domainMin)&&!(row.domainMaxOpen&&x===row.domainMax);}
 export function endpointMarkers(row,parameters={},range,functions={}){
  const f=compileExpression(row.source,'x',parameters,functions),markers=[];

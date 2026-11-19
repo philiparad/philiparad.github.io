@@ -1,4 +1,4 @@
-import {validateInlineEquation,equationNode,equationContentWidth} from './inline-equation.js?v=20261119-perf007';
+import {validateInlineEquation,equationNode,equationContentWidth} from './inline-equation.js?v=20261119-perf008';
 /** Plain data only: no HTML is stored in lessons or exports. */
 export function textRuns(item){return item.runs||[{text:item.text||'',bold:(item.textStyle||'').includes('bold'),italic:(item.textStyle||'').includes('italic'),underline:false,strike:false}];}
 export function validateRuns(runs,text){

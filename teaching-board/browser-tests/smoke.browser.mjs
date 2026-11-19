@@ -46,12 +46,107 @@ try{
   assert.deepEqual(report.stale,[],'Stale/unversioned module imports detected');
  });
 
+ await check('PERF-008 IndexedDB v1 migration builds bounded summaries and preserves full lessons',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {BoardRepository,ConflictError}=await import('./js/storage.js?v=20261119-perf008');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf008');
+   const name='teaching-board-perf008-migration-'+crypto.randomUUID();
+   const original=createBoard('Legacy full lesson');
+   original.folder='Algebra';
+   original.items=[{id:'embedded-image',type:'image',x:10,y:20,w:200,h:120,
+    src:'data:image/png;base64,'+'A'.repeat(160000)}];
+   const db=await new Promise((resolve,reject)=>{
+    const request=indexedDB.open(name,1);
+    request.onupgradeneeded=()=>{
+     const boards=request.result.createObjectStore('boards',{keyPath:'id'});
+     boards.createIndex('updatedAt','updatedAt');
+     request.result.createObjectStore('assets',{keyPath:'id'});
+    };
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+   });
+   await new Promise((resolve,reject)=>{
+    const tx=db.transaction('boards','readwrite');
+    tx.objectStore('boards').put(original);
+    tx.oncomplete=resolve;tx.onabort=tx.onerror=()=>reject(tx.error);
+   });
+   db.close();
+   const repository=new BoardRepository(name);
+   try{
+    const summaries=await repository.listSummaries();
+    const metadata=summaries[0];
+    const full=await repository.get(original.id);
+    const upgradedVersion=(await repository.open()).version;
+    const saved=await repository.save({...full,title:'Legacy lesson updated',deleted:true});
+    const changed=(await repository.listSummaries())[0];
+    let conflict=false;
+    try{await repository.save(full);}catch(error){conflict=error instanceof ConflictError;}
+    return {upgradedVersion,summaryCount:summaries.length,
+     objectCount:metadata.objectCount,
+     lightweight:JSON.stringify(metadata).length<3000&&
+      !JSON.stringify(metadata).includes('data:image/'),
+     fullPreserved:full.items[0].src===original.items[0].src,
+     updated:changed.title===saved.title&&changed.deleted&&changed.revision===saved.revision,
+     conflict};
+   }finally{
+    repository.close();
+    indexedDB.deleteDatabase(name);
+   }
+  });
+  assert.deepEqual(result,{upgradedVersion:2,summaryCount:1,objectCount:1,
+   lightweight:true,fullPreserved:true,updated:true,conflict:true});
+ });
+
+ await check('PERF-008 dashboard pages cards and opens complete lessons on demand',async()=>{
+  const auditPage=await browser.newPage({viewport:{width:1440,height:900},locale:'he-IL'});
+  const errors=[];
+  auditPage.on('pageerror',error=>errors.push(error.message));
+  try{
+   await auditPage.goto(base,{waitUntil:'domcontentloaded'});
+   await auditPage.locator('#app[aria-busy="false"]').waitFor();
+   const count=await auditPage.evaluate(async()=>{
+    const {BoardRepository}=await import('./js/storage.js?v=20261119-perf008');
+    const {createBoard}=await import('./js/model.js?v=20261119-perf008');
+    const repository=new BoardRepository();
+    try{
+     for(let i=0;i<42;i++){
+      const board=createBoard(i===0?'Unique PERF008 Algebra':'Practice lesson '+String(i).padStart(2,'0'));
+      board.folder=i%2?'Computers':'Math';
+      board.items=[{id:i===0?'image-unique':'image-'+i,type:'image',
+       x:10,y:10,w:220,h:100,src:'data:image/png;base64,'+'A'.repeat(18000)}];
+      await repository.save(board);
+     }
+     return (await repository.listSummaries()).length;
+    }finally{repository.close();}
+   });
+   assert.equal(count,42);
+   await auditPage.reload({waitUntil:'domcontentloaded'});
+   await auditPage.locator('#app[aria-busy="false"]').waitFor();
+   const cards=auditPage.locator('#app.dashboard .cards .card');
+   assert.equal(await cards.count(),18,'Initial dashboard must render one page of cards');
+   assert.equal(await auditPage.locator('.thumbnail image').count(),0,
+    'Dashboard must not embed full image payloads');
+   await auditPage.getByRole('button',{name:'Show more lessons'}).click();
+   assert.equal(await cards.count(),36,'Second page should be appended');
+   await auditPage.getByRole('button',{name:'Show more lessons'}).click();
+   assert.equal(await cards.count(),42,'Last page includes all saved lessons');
+   const search=auditPage.getByRole('searchbox',{name:'Search lessons'});
+   await search.fill('Unique PERF008');
+   assert.equal(await cards.count(),1,'Search should filter metadata without full-board loads');
+   await cards.getByRole('button',{name:'Open'}).click();
+   await auditPage.locator('#app.editor .board').waitFor();
+   assert.equal(await auditPage.locator('[data-id="image-unique"]').count(),1,
+    'Opening must still retrieve the complete original board');
+   assert.deepEqual(errors,[]);
+  }finally{await auditPage.close();}
+ });
+
  await check('PERF-006 gesture snapping keeps guides and refreshes cached targets',async()=>{
   const result=await page.evaluate(async()=>{
-   const {Editor}=await import('./js/editor.js?v=20261119-perf007');
-   const {createBoard}=await import('./js/model.js?v=20261119-perf007');
-   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf007');
-   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js?v=20261119-perf007');
+   const {Editor}=await import('./js/editor.js?v=20261119-perf008');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf008');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf008');
+   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js?v=20261119-perf008');
    const root=document.createElement('div');
    root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
    document.body.append(root);
@@ -87,9 +182,9 @@ try{
 
  await check('PERF-007 committed snapshots save, undo and redo without stale data',async()=>{
   const report=await page.evaluate(async()=>{
-   const {Editor}=await import('./js/editor.js?v=20261119-perf007');
-   const {createBoard}=await import('./js/model.js?v=20261119-perf007');
-   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf007');
+   const {Editor}=await import('./js/editor.js?v=20261119-perf008');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf008');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf008');
    const root=document.createElement('div');
    root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
    document.body.append(root);
