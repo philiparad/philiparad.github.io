@@ -1,5 +1,5 @@
-import {el,btn} from './ui.js?v=20261017-history-budget';
-import {svgEl} from './scene.js?v=20261024-image-actions';
+import {el,btn} from './ui.js?v=20261119-perf005';
+import {svgEl} from './scene.js?v=20261119-perf005';
 const icons={clear:'M5 7h14 M9 4h6 M7 7v14h10V7 M10 10v8 M14 10v8'};
 export class BoardMenu{
  constructor(actions){
