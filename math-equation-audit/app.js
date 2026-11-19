@@ -10,10 +10,12 @@ import {
 import {recognizeLocal, recognizeMathpix} from './ocr.js';
 import {analyzeLatex} from './math-client.js';
 import {exportZip, exportPlain, loadBackup} from './export.js';
+import {renderMath} from './math-render.js';
 
 const $ = id => document.getElementById(id);
 const state={pages:[],questions:[],pageId:null,questionId:null,pageURL:null,cropURL:null,zoomURL:null,
-    crop:null,dragStart:null,dragging:false,busy:false,token:'',lang:localStorage.getItem('mathAuditLang')||'he',
+    crop:null,dragStart:null,dragging:false,ocrDragStart:null,ocrSelection:null,ocrDragging:false,
+    ocrCropActive:false,ocrPreparedURL:null,busy:false,token:'',lang:localStorage.getItem('mathAuditLang')||'he',
     dirty:false,noticeTimer:null,previewTimer:null};
 const I18N={
     en:{tagline:'Extract, compare and visually verify equations — without a server',private:'🔒 Stored only in this browser',
@@ -30,11 +32,14 @@ const I18N={
         checkFractions:'I checked brackets, fractions, numerators and denominators',checkDomain:'I checked the domain and excluded values, where applicable',
         reviewer:'Reviewer name',notes:'Notes',sourceError:'Possible error in the source textbook',verify:'Confirm visual verification',
         reopen:'Reopen review',deleteQuestion:'Delete question',footer:'Scans stay on this device. Export a full backup regularly.',
-        settingsExpl:'ONNX OCR runs locally on your device. The first model download may be large/slow. A crop is sent externally only when you press Mathpix.',
+        settingsExpl:'ONNX OCR runs locally on your device. The first model download may exceed 300 MB. Formula-only crops work better than full textbook questions. A crop is sent externally only when you press Mathpix.',
         webgpu:'Try WebGPU acceleration (fall back to WASM)',mathpixToken:'Temporary Mathpix app_token (not an API key)',
         tokenExpl:'Never enter a long-lived app_key! A temporary token is held only in tab memory. Obtain it from a trusted token issuer.',
         persist:'Request persistent browser storage',close:'Close',includePending:'Include unverified questions (clearly labeled)',
-        restore:'Restore complete ZIP backup',restoreWarn:'Restoring will replace all local data after confirmation.'},
+        restore:'Restore complete ZIP backup',restoreWarn:'Restoring will replace all local data after confirmation.',
+        ocrCropTitle:'Select math-only OCR region',ocrCropRemove:'Use complete question again',
+        ocrCropHint:'For better OCR, select ONLY one equation on the question image — no Hebrew text or exercise number. Original scan stays unchanged.',
+        ocrSelected:'Math-only recognition image (independent of original):'},
     he:{}
 };
 function T(key){return I18N[state.lang]?.[key]||key;}
@@ -50,7 +55,7 @@ function existingQuestion(){return state.questions.find(q=>q.id===state.question
 function pageQuestions(){return state.questions.filter(q=>q.pageId===state.pageId).sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||''));}
 function setBusy(value){
     state.busy=!!value;
-    for(const id of ['importBtn','fileInput','sampleBtn','cropBtn','texifyBtn','textellerBtn','mathpixBtn','saveBtn','checkMathBtn','verifyBtn','backupBtn']) {
+    for(const id of ['importBtn','fileInput','sampleBtn','cropBtn','ocrCropBtn','ocrResetBtn','texifyBtn','textellerBtn','mathpixBtn','saveBtn','checkMathBtn','verifyBtn','backupBtn']) {
         const el=$(id);if(el)el.disabled=state.busy||(id==='cropBtn'&&!state.crop)||(id==='cropBtn'&&!existingPage());
     }
 }
@@ -119,8 +124,17 @@ function renderReview(){
     const badge=$('reviewBadge');badge.textContent=q?labelStatus(q.status):'—';
     badge.className='status-pill '+(!q?'neutral':q.status==='verified'?'verified':'pending');
     revoke(state.cropURL);state.cropURL=null;
-    if(!q){$('ocrResults').replaceChildren();return;}
+    revoke(state.ocrPreparedURL);state.ocrPreparedURL=null;
+    state.ocrCropActive=false;state.ocrSelection=null;state.ocrDragging=false;
+    $('ocrCropStage').hidden=true;$('ocrCropBtn').setAttribute('aria-pressed','false');
+    $('ocrSelection').hidden=true;
+    if(!q){$('ocrResults').replaceChildren();$('ocrSelected').hidden=true;return;}
     state.cropURL=URL.createObjectURL(q.blob);$('cropImage').src=state.cropURL;
+    $('ocrFullImage').src=state.cropURL;
+    $('ocrSelected').hidden=!q.ocrBlob;
+    $('ocrResetBtn').disabled=!q.ocrBlob;
+    if(q.ocrBlob){state.ocrPreparedURL=URL.createObjectURL(q.ocrBlob);$('ocrSelectedImage').src=state.ocrPreparedURL;}
+    else $('ocrSelectedImage').removeAttribute('src');
     $('latexInput').value=q.finalLatex||'';$('notesInput').value=q.notes||'';
     $('reviewerInput').value=q.review?.reviewer||'';$('sourceErrorInput').checked=!!q.sourceError;
     CHECKS.forEach(key=>$('check'+key.charAt(0).toUpperCase()+key.slice(1)).checked=!!q.review?.checks?.[key]);
@@ -128,7 +142,7 @@ function renderReview(){
 }
 function renderOCR(q){
     const el=$('ocrResults');el.replaceChildren();
-    const names={texify2:'Texify2 · ONNX',texteller:'TexTeller · ONNX',mathpix:'Mathpix · API'};
+    const names={texify2:'Texify2 · ONNX',texteller:'TexTeller3 · ONNX',mathpix:'Mathpix · API'};
     for(const engine of ['texify2','texteller','mathpix']){
         const obj=q.ocr?.[engine];if(!obj?.latex)continue;
         const block=document.createElement('div');block.className='ocr-result';
@@ -136,7 +150,11 @@ function renderOCR(q){
         head.append(textNode('strong',names[engine]),makeButton(state.lang==='he'?'העתק לעריכה':'Use transcription','ghost',()=>{
             $('latexInput').value=obj.latex;state.dirty=true;preview();
         }));
-        block.append(head,textNode('pre',obj.latex));el.append(block);
+        const raw=textNode('pre',obj.latex);raw.setAttribute('dir','ltr');
+        const math=document.createElement('div');math.className='ocr-math-output';math.setAttribute('dir','ltr');
+        block.append(head,raw,math);
+        if(obj.warning)block.append(textNode('p','⚠ '+obj.warning,'ocr-warning'));
+        el.append(block);void renderMath(math,obj.latex);
     }
     const status=$('ocrComparison');status.className='comparison';status.textContent='';
     const comparison=disagreement(q.ocr||{});
@@ -154,14 +172,8 @@ function renderAnalysis(data){
     lines.push(...(data.notes||[]));el.textContent=lines.join('\n');
 }
 async function preview(){
-    const target=$('mathPreview');const latex=$('latexInput').value.trim();
-    target.textContent=latex?'\\['+latex+'\\]':(state.lang==='he'?'לא הוזן תמלול':'No transcription');
-    if(!latex || !window.MathJax?.typesetPromise)return;
-    try{
-        await window.MathJax.startup.promise;
-        window.MathJax.typesetClear?.([target]);
-        await window.MathJax.typesetPromise([target]);
-    }catch(error){target.textContent=latex;}
+    const target=$('mathPreview'),latex=$('latexInput').value.trim();
+    await renderMath(target,latex);
 }
 function sourceXY(event){
     const img=$('pageImage'),r=img.getBoundingClientRect();
@@ -202,6 +214,67 @@ function initDrag(){
     };
     wrap.addEventListener('pointerup',end);wrap.addEventListener('pointercancel',()=>clearSelection());
     window.addEventListener('resize',drawSelection);
+}
+function ocrSourceXY(event){
+    const img=$('ocrFullImage'),r=img.getBoundingClientRect();
+    return {x:Math.min(img.naturalWidth,Math.max(0,(event.clientX-r.left)/r.width*img.naturalWidth)),
+        y:Math.min(img.naturalHeight,Math.max(0,(event.clientY-r.top)/r.height*img.naturalHeight))};
+}
+function drawOCRSelection(){
+    const c=state.ocrSelection,sel=$('ocrSelection'),img=$('ocrFullImage');
+    if(!c||!img.naturalWidth)return;
+    const box=img.getBoundingClientRect(),wrap=$('ocrImageWrap').getBoundingClientRect();
+    sel.style.left=(box.left-wrap.left+c.x0/img.naturalWidth*box.width)+'px';
+    sel.style.top=(box.top-wrap.top+c.y0/img.naturalHeight*box.height)+'px';
+    sel.style.width=(c.x1-c.x0)/img.naturalWidth*box.width+'px';
+    sel.style.height=(c.y1-c.y0)/img.naturalHeight*box.height+'px';
+    sel.hidden=false;
+}
+function initOCRSelection(){
+    const wrap=$('ocrImageWrap');
+    wrap.addEventListener('pointerdown',e=>{
+        if(!state.ocrCropActive||!existingQuestion()||state.busy||e.button!==0)return;
+        e.preventDefault();wrap.setPointerCapture(e.pointerId);
+        state.ocrDragging=true;state.ocrDragStart=ocrSourceXY(e);state.ocrSelection=null;$('ocrSelection').hidden=true;
+    });
+    wrap.addEventListener('pointermove',e=>{
+        if(!state.ocrDragging)return;
+        const end=ocrSourceXY(e),p=state.ocrDragStart;
+        state.ocrSelection={x0:Math.min(p.x,end.x),y0:Math.min(p.y,end.y),
+            x1:Math.max(p.x,end.x),y1:Math.max(p.y,end.y)};
+        drawOCRSelection();
+    });
+    wrap.addEventListener('pointercancel',()=>{state.ocrDragging=false;state.ocrSelection=null;$('ocrSelection').hidden=true;});
+    wrap.addEventListener('pointerup',()=>{
+        if(!state.ocrDragging)return;
+        state.ocrDragging=false;
+        guard(saveOCRSubcrop);
+    });
+    window.addEventListener('resize',drawOCRSelection);
+}
+async function saveOCRSubcrop(){
+    const original=existingQuestion();if(!original||!state.ocrSelection)return;
+    if(state.dirty)throw new Error('Save your edited transcription before changing the OCR crop');
+    const img=await createImageBitmap(original.blob);
+    try{
+        const area=clampCrop(state.ocrSelection,img.width,img.height);
+        const canvas=document.createElement('canvas');canvas.width=area.width;canvas.height=area.height;
+        canvas.getContext('2d').drawImage(img,area.x,area.y,area.width,area.height,0,0,area.width,area.height);
+        const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('OCR crop failed')),'image/png'));
+        // A change in the image used for OCR invalidates all earlier OCR hypotheses.
+        const updated={...original,ocrBlob:blob,ocrBox:area,ocr:{},review:null,status:'needs_review',
+            analysis:null,updatedAt:new Date().toISOString()};
+        await saveQuestion(updated);replaceQuestion(updated);state.dirty=false;
+        notify(state.lang==='he'?'אזור מתמטי נשמר לזיהוי; הזיהויים הקודמים נוקו.':'Math-only crop saved; old OCR suggestions cleared.');
+    }finally{img.close?.();}
+}
+async function clearOCRSubcrop(){
+    const original=existingQuestion();if(!original)return;
+    if(state.dirty)throw new Error('Save your edited transcription before changing the OCR crop');
+    const {ocrBlob,ocrBox,...rest}=original;
+    const updated={...rest,ocr:{},review:null,status:'needs_review',analysis:null,updatedAt:new Date().toISOString()};
+    await saveQuestion(updated);replaceQuestion(updated);state.dirty=false;
+    notify(state.lang==='he'?'הזיהוי ישתמש שוב בשאלה המלאה.':'OCR reset to the complete question image.');
 }
 async function cropSelected(){
     const p=existingPage();if(!p||!state.crop)throw new Error('Select a crop on the scanned page');
@@ -276,21 +349,23 @@ function replaceQuestion(q){
 }
 async function recognize(engine){
     const original=existingQuestion();if(!original)throw new Error('Select a question');
+    if(state.dirty)throw new Error('Save your edited transcription before running OCR');
     setBusy(true);
     try{
         let result;
         if(engine==='mathpix'){
             if(!state.token) { $('settingsDialog').showModal();throw new Error('Add a temporary Mathpix app_token in Settings'); }
             notify(state.lang==='he'?'שולח חיתוך ל-Mathpix...':'Sending crop to Mathpix...');
-            result=await recognizeMathpix(original.blob,state.token);
+            result=await recognizeMathpix(original.ocrBlob||original.blob,state.token);
         }else{
             notify(state.lang==='he'?'טוען מודל ONNX. ההורדה הראשונית עשויה להיות גדולה...':'Loading ONNX model (first download can be large)...');
-            result=await recognizeLocal(engine,original.blob,p=>{
+            result=await recognizeLocal(engine,original.ocrBlob||original.blob,p=>{
                 if(p?.status==='progress'&&Number.isFinite(p.progress))notify(`${engine}: ${Math.round(p.progress)}%`);
                 else if(p?.status==='info')notify(p.message);
             });
         }
         const fresh=existingQuestion();if(!fresh||fresh.id!==original.id)return;
+        result.imageSource=original.ocrBlob?'math-only subcrop':'original question crop';
         const q={...fresh,ocr:{...(fresh.ocr||{}),[engine]:result},updatedAt:new Date().toISOString(),status:'needs_review',review:null};
         await saveQuestion(q);replaceQuestion(q);
         notify(`${engine}: ${state.lang==='he'?'הזיהוי הסתיים. נדרשת השוואה למקור.':'OCR finished; compare with original.'}`);
@@ -349,6 +424,12 @@ function registerEvents(){
     $('fileInput').onchange=()=>guard(()=>importFiles([...$('fileInput').files]));
     $('sampleBtn').onclick=()=>guard(loadDemo);
     $('cropBtn').onclick=()=>guard(cropSelected);
+    $('ocrCropBtn').onclick=()=>{
+        state.ocrCropActive=!state.ocrCropActive;
+        $('ocrCropStage').hidden=!state.ocrCropActive;
+        $('ocrCropBtn').setAttribute('aria-pressed',String(state.ocrCropActive));
+    };
+    $('ocrResetBtn').onclick=()=>guard(clearOCRSubcrop);
     $('resetCropBtn').onclick=clearSelection;
     $('coverageBtn').onclick=()=>guard(saveExpectedAndCoverage);
     $('deletePageBtn').onclick=()=>guard(async()=>{
@@ -366,7 +447,18 @@ function registerEvents(){
     $('texifyBtn').onclick=()=>guard(()=>recognize('texify2'));
     $('textellerBtn').onclick=()=>guard(()=>recognize('texteller'));
     $('mathpixBtn').onclick=()=>guard(()=>recognize('mathpix'));
-    $('latexInput').addEventListener('input',()=>{state.dirty=true;clearTimeout(state.previewTimer);state.previewTimer=setTimeout(preview,350);});
+    $('latexInput').addEventListener('input',()=>{
+        state.dirty=true;
+        const q=existingQuestion();
+        if(q&&$('latexInput').value!==q.finalLatex){
+            $('reviewBadge').textContent=labelStatus('needs_review');$('reviewBadge').className='status-pill pending';
+            CHECKS.forEach(key=>$('check'+key.charAt(0).toUpperCase()+key.slice(1)).checked=false);
+        }
+        clearTimeout(state.previewTimer);state.previewTimer=setTimeout(preview,250);
+    });
+    for(const id of ['reviewerInput','notesInput','sourceErrorInput',...CHECKS.map(k=>'check'+k.charAt(0).toUpperCase()+k.slice(1))]){
+        $(id).addEventListener('input',()=>{state.dirty=true;});
+    }
     $('saveBtn').onclick=()=>guard(saveTranscript);
     $('checkMathBtn').onclick=()=>guard(mathCheck);
     $('verifyBtn').onclick=()=>guard(verify);
@@ -377,6 +469,8 @@ function registerEvents(){
     $('gpuInput').addEventListener('change',e=>localStorage.setItem('mathAuditWebGPU',String(e.target.checked)));
     $('persistBtn').onclick=()=>guard(async()=>notify(await requestPersistentStorage()?'Persistent storage granted':'Persistence request declined or unavailable'));
     $('langBtn').onclick=()=>{
+        if(state.dirty&&!confirm(state.lang==='he'?'קיימים שינויים שלא נשמרו. להמשיך?':'Discard unsaved changes?'))return;
+        state.dirty=false;
         state.lang=state.lang==='he'?'en':'he';localStorage.setItem('mathAuditLang',state.lang);
         localize();renderPageList();renderQuestionList();renderReview();updateStorage();
     };
@@ -407,7 +501,7 @@ function registerEvents(){
         $('backupInput').value='';
     });
     window.addEventListener('beforeunload',e=>{if(state.dirty){e.preventDefault();e.returnValue='';}});
-    initDrag();
+    initDrag();initOCRSelection();
 }
 async function guard(fn){
     if(state.busy)return;

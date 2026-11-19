@@ -95,7 +95,7 @@ export function clampCrop(rect, naturalWidth, naturalHeight) {
 }
 
 export function latexRows(questions, verifiedOnly = true) {
-    return questions.filter(q => !verifiedOnly || q.status === 'verified').map(q => ({
+    return questions.filter(q => !verifiedOnly || (q.status === 'verified' && reviewIsValid(q))).map(q => ({
         id: q.id, pageId: q.pageId, label: String(q.label || ''), latex: String(q.finalLatex || ''),
         status: q.status, reviewer: q.review?.reviewer || '', reviewedAt: q.review?.reviewedAt || '',
         sourceError: !!q.sourceError, notes: q.notes || '',

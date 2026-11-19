@@ -19,7 +19,7 @@ export function exportPlain(type,questions,verifiedOnly=true) {
     downloadBlob(new Blob([content],{type:mime}),`mathaudit-${verifiedOnly?'verified':'all'}.${type}`);
 }
 
-function safeMeta(entry) {const {blob, ...rest}=entry;return rest;}
+function safeMeta(entry) {const {blob,ocrBlob, ...rest}=entry;return rest;}
 
 export async function exportZip(pages,questions,{verifiedOnly=true,backup=false}={}) {
     const JSZip=await getZip(), zip=new JSZip();
@@ -30,7 +30,10 @@ export async function exportZip(pages,questions,{verifiedOnly=true,backup=false}
     const manifest={schema:SCHEMA,createdAt:new Date().toISOString(),backup,verifiedOnly:!backup&&verifiedOnly,
         pages:includedPages.map(safeMeta),questions:selected.map(safeMeta)};
     for (const p of includedPages) zip.file(`pages/${p.id}.png`,p.blob);
-    for (const q of selected) zip.file(`crops/${q.id}.png`,q.blob);
+    for (const q of selected) {
+        zip.file(`crops/${q.id}.png`,q.blob);
+        if(q.ocrBlob)zip.file(`ocr-crops/${q.id}.png`,q.ocrBlob);
+    }
     zip.file('manifest.json',JSON.stringify(manifest,null,2));
     zip.file('equations.csv',toCSV(latexRows(selected,false)));
     zip.file('equations.tex',toTeX(latexRows(selected,false)));
@@ -56,7 +59,10 @@ export async function loadBackup(file) {
     for(const q of manifest.questions) {
         const img=zip.file(`crops/${q.id}.png`);
         if(!img) throw new Error(`Missing crop image ${q.id}`);
-        questions.push({...q,blob:await img.async('blob')});
+        const mathImage=zip.file(`ocr-crops/${q.id}.png`);
+        const {ocrBlob,...meta}=q; // Ignore malformed Blob metadata from older backups.
+        questions.push({...meta,blob:await img.async('blob'),
+            ...(mathImage?{ocrBlob:await mathImage.async('blob')}:{})});
     }
     return {pages,questions};
 }

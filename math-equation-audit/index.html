@@ -13,7 +13,7 @@
             packages:{'[+]':['noerrors']}},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']},
             svg:{fontCache:'global'}};
     </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+    <script id="mathjax-script" defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
     <script type="module" src="./app.js"></script>
 </head>
 <body>
@@ -65,8 +65,22 @@
             <div id="reviewContent" hidden>
                 <div class="original-title"><h3 data-i18n="original">חיתוך מקורי — ללא שינוי</h3><button id="zoomBtn" type="button" class="text-button" data-i18n="zoom">הצג בגודל מלא</button></div>
                 <div class="crop-preview"><img id="cropImage" alt="Original question crop"></div>
+                <div class="ocr-prep">
+                    <div class="ocr-prep-controls">
+                        <button id="ocrCropBtn" class="ghost" type="button" aria-pressed="false" data-i18n="ocrCropTitle">בחר נוסחה בלבד לזיהוי</button>
+                        <button id="ocrResetBtn" class="ghost" type="button" disabled data-i18n="ocrCropRemove">השתמש בשאלה המלאה</button>
+                    </div>
+                    <p class="helper" data-i18n="ocrCropHint">לדיוק רב יותר, סמן נוסחה יחידה בלבד, ללא מלל בעברית או מספר שאלה. המקור המקורי נשמר ללא שינוי.</p>
+                    <div id="ocrCropStage" class="ocr-crop-stage" hidden>
+                        <div id="ocrImageWrap" class="ocr-image-wrap"><img id="ocrFullImage" alt="Choose math-only area"><div id="ocrSelection" class="selection" hidden></div></div>
+                    </div>
+                    <div id="ocrSelected" class="ocr-selected" hidden>
+                        <span class="minor-label" data-i18n="ocrSelected">התמונה שתישלח לזיהוי — נוסחה בלבד</span>
+                        <img id="ocrSelectedImage" alt="OCR-only math crop">
+                    </div>
+                </div>
                 <div class="subhead"><h3 data-i18n="ocr">מנועי OCR עצמאיים</h3><span class="hint" data-i18n="ocrHint">התוצאה אוטומטית, לא מאומתת</span></div>
-                <div class="ocr-buttons"><button id="texifyBtn" type="button" class="ghost">Texify2 · ONNX</button><button id="textellerBtn" type="button" class="ghost">TexTeller · ONNX</button><button id="mathpixBtn" type="button" class="ghost">Mathpix · API</button></div>
+                <div class="ocr-buttons"><button id="texifyBtn" type="button" class="ghost">Texify2 · ONNX</button><button id="textellerBtn" type="button" class="ghost">TexTeller3 · ONNX</button><button id="mathpixBtn" type="button" class="ghost">Mathpix · API</button></div>
                 <div id="ocrResults" class="ocr-results"></div>
                 <div id="ocrComparison" class="comparison" aria-live="polite"></div>
                 <label class="subhead standalone" for="latexInput" data-i18n="latex">LaTeX סופי לעריכה</label>
