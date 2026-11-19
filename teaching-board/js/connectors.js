@@ -24,6 +24,14 @@ export function syncConnectors(items){
   const p=start?connectionAnchor(start,end?center(end):old[1],1):old[0];
   const q=end?connectionAnchor(end,start?center(start):old[0],-1):old[1];
   const x=Math.min(p[0],q[0]),y=Math.min(p[1],q[1]);
-  Object.assign(i,{x,y,w:Math.max(1,Math.abs(q[0]-p[0])),h:Math.max(1,Math.abs(q[1]-p[1])),rotation:0,points:[p,q].map(([px,py])=>[px-x,py-y])});
+  const w=Math.max(1,Math.abs(q[0]-p[0])),h=Math.max(1,Math.abs(q[1]-p[1]));
+  const a=[p[0]-x,p[1]-y],b=[q[0]-x,q[1]-y];
+  // Unchanged connectors must keep their original points reference; otherwise
+  // the render cache sees a new array and regenerates SVG on every pan frame.
+  const pointsChanged=i.points[0][0]!==a[0]||i.points[0][1]!==a[1]||
+   i.points[1][0]!==b[0]||i.points[1][1]!==b[1];
+  if(i.x===x&&i.y===y&&i.w===w&&i.h===h&&i.rotation===0&&!pointsChanged)continue;
+  i.x=x;i.y=y;i.w=w;i.h=h;i.rotation=0;
+  if(pointsChanged)i.points=[a,b];
  }
 }
