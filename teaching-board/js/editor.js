@@ -1,50 +1,50 @@
-import {backgroundLocked,backgroundOrder} from './background-lock.js?v=20261119-perf006';
-import {ImageToolbar} from './image-toolbar.js?v=20261119-perf006';
-import {SelectionMenu} from './selection-menu.js?v=20261119-perf006';
-import {drawResizeHandles,beginResize,resizeItems,drawRotationHandle,beginRotation,rotateItems} from './selection-transform.js?v=20261119-perf006';
-import { BoardMenu } from './board-menu.js?v=20261119-perf006';
-import { LaserTrail, laserOptions } from './laser-trail.js?v=20261119-perf006';
-import { backgroundOptions } from './background-options.js?v=20261119-perf006';
-import { Minimap } from './minimap.js?v=20261119-perf006';
-import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261119-perf006';
-import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261119-perf006';
-import { Recovery } from './recovery.js?v=20261119-perf006';
-import { exportScopeDialog } from './export-scope.js?v=20261119-perf006';
-import { planA4Import } from './pdf-a4.js?v=20261119-perf006';
-import { Snippets, snippetCopies } from './snippets.js?v=20261119-perf006';
-import { InlineText } from './inline-text.js?v=20261119-perf006';
-import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js?v=20261119-perf006';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261119-perf006';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261119-perf006';
-import { visibleItems, invalidateTextBounds } from './visibility.js?v=20261119-perf006';
-import { RenderCache } from './render-cache.js?v=20261119-perf006';
-import { SpeedInk } from './speed-ink.js?v=20261119-perf006';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261119-perf006';
-import { ShapeGallery } from './shape-gallery.js?v=20261119-perf006';
-import { FillPalette } from './fill-palette.js?v=20261119-perf006';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261119-perf006';
-import { LineStyleMenu } from './line-style-menu.js?v=20261119-perf006';
-import { Pages,A4,pageRect } from './pages.js?v=20261119-perf006';
-import { cropDialog } from './crop-editor.js?v=20261119-perf006';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261119-perf006';
-import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261119-perf006';
-import { hitTextBox } from './text-hit-test.js?v=20261119-perf006';
-import { toWorld, zoomAt } from './viewport.js?v=20261119-perf006';
-import { History } from './history.js?v=20261119-perf006';
-import { SaveQueue } from './save-queue.js?v=20261119-perf006';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261119-perf006';
-import { exportBoard, backup } from './export.js?v=20261119-perf006';
-import { validateBoard } from './model.js?v=20261119-perf006';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261119-perf006';
+import {backgroundLocked,backgroundOrder} from './background-lock.js?v=20261119-perf007';
+import {ImageToolbar} from './image-toolbar.js?v=20261119-perf007';
+import {SelectionMenu} from './selection-menu.js?v=20261119-perf007';
+import {drawResizeHandles,beginResize,resizeItems,drawRotationHandle,beginRotation,rotateItems} from './selection-transform.js?v=20261119-perf007';
+import { BoardMenu } from './board-menu.js?v=20261119-perf007';
+import { LaserTrail, laserOptions } from './laser-trail.js?v=20261119-perf007';
+import { backgroundOptions } from './background-options.js?v=20261119-perf007';
+import { Minimap } from './minimap.js?v=20261119-perf007';
+import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261119-perf007';
+import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261119-perf007';
+import { Recovery } from './recovery.js?v=20261119-perf007';
+import { exportScopeDialog } from './export-scope.js?v=20261119-perf007';
+import { planA4Import } from './pdf-a4.js?v=20261119-perf007';
+import { Snippets, snippetCopies } from './snippets.js?v=20261119-perf007';
+import { InlineText } from './inline-text.js?v=20261119-perf007';
+import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js?v=20261119-perf007';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261119-perf007';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261119-perf007';
+import { visibleItems, invalidateTextBounds } from './visibility.js?v=20261119-perf007';
+import { RenderCache } from './render-cache.js?v=20261119-perf007';
+import { SpeedInk } from './speed-ink.js?v=20261119-perf007';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261119-perf007';
+import { ShapeGallery } from './shape-gallery.js?v=20261119-perf007';
+import { FillPalette } from './fill-palette.js?v=20261119-perf007';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261119-perf007';
+import { LineStyleMenu } from './line-style-menu.js?v=20261119-perf007';
+import { Pages,A4,pageRect } from './pages.js?v=20261119-perf007';
+import { cropDialog } from './crop-editor.js?v=20261119-perf007';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261119-perf007';
+import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261119-perf007';
+import { hitTextBox } from './text-hit-test.js?v=20261119-perf007';
+import { toWorld, zoomAt } from './viewport.js?v=20261119-perf007';
+import { History } from './history.js?v=20261119-perf007';
+import { SaveQueue } from './save-queue.js?v=20261119-perf007';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261119-perf007';
+import { exportBoard, backup } from './export.js?v=20261119-perf007';
+import { validateBoard,checkBoard } from './model.js?v=20261119-perf007';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261119-perf007';
 
-import { toolIcon } from './tool-icons.js?v=20261119-perf006';
-import { CalculatorModal } from './calculator-modal.js?v=20261119-perf006';
-import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261119-perf006';
+import { toolIcon } from './tool-icons.js?v=20261119-perf007';
+import { CalculatorModal } from './calculator-modal.js?v=20261119-perf007';
+import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261119-perf007';
 
-import { Geometry } from './geometry.js?v=20261119-perf006';
-import { snapPoint, snapAngle, buildSnapIndex } from './snapping.js?v=20261119-perf006';
-import { equationDialog } from './equation-editor.js?v=20261119-perf006';
-import { graphDialog } from './graph-editor.js?v=20261119-perf006';
+import { Geometry } from './geometry.js?v=20261119-perf007';
+import { snapPoint, snapAngle, buildSnapIndex } from './snapping.js?v=20261119-perf007';
+import { equationDialog } from './equation-editor.js?v=20261119-perf007';
+import { graphDialog } from './graph-editor.js?v=20261119-perf007';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 // Reconcile in document order without detaching unchanged SVG nodes.
 function reconcileSceneItems(layer,items,render){
@@ -55,7 +55,7 @@ function reconcileSceneItems(layer,items,render){
  while(layer.children.length>items.length)layer.lastElementChild.remove();
 }
 export class Editor {
- constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.pendingNewTextDraftIds=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.document());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);for(const id of this.pendingNewTextDraftIds){
+ constructor(root,board,repository){this.root=root;this.board=board;this.repo=repository;this.recovery=new Recovery(this);this.selected=new Set();this.pendingNewTextDraftIds=new Set();this.tool='select';this.shapePreset='rectangle';this.stroke='#243c59';this.strokeOpacity=1;this.fill='none';this.fillOpacity=1;this.lineWidth=3;this.lineStyle='solid';this.opacity=1;this.fontSize=26;this.textAlign='auto';this.textStyle='normal';this.penDynamics='fixed';try{const dynamics=localStorage.getItem('teaching-board-pen-dynamics');if(['pressure','speed'].includes(dynamics))this.penDynamics=dynamics;}catch{}this.inkSmoothing=.65;try{const saved=localStorage.getItem('teaching-board-natural-ink');if(saved!==null&&[0,.35,.65,.85].includes(+saved))this.inkSmoothing=+saved;}catch{}this.history=new History(this.documentView());this.clipboard=[];this.polygon=[];this.disposed=false;this.queue=new SaveQueue(async snapshot=>{const saved=await this.repo.save({...snapshot,revision:this.board.revision});this.board.revision=saved.revision;this.board.updatedAt=saved.updatedAt;this.recovery.auto(saved);for(const id of this.pendingNewTextDraftIds){
  if(saved.items.some(item=>item.id===id)){
   try{clearTextDraft(localStorage,saved.id,id);}catch{}
   this.pendingNewTextDraftIds.delete(id);
@@ -119,7 +119,10 @@ export class Editor {
   dialog.onclose=()=>dialog.remove();
   document.body.append(dialog);dialog.showModal();
  }
- document(){return structuredClone({items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
+ // A non-owning view for the History constructor/commit, which makes its own
+ // clone. Keep document() as a safe independent public snapshot (A4 callers).
+ documentView(){return {items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1};}
+ document(){return structuredClone(this.documentView());}
  async flush(){if(this.inlineText){
     this.inlineText.finish(true,false);
     if(!this.inlineText.closed){
@@ -128,7 +131,16 @@ export class Editor {
     }
    }await this.queue.flush();}
  dispose(){this.disposed=true;this.calculatorModal?.dispose();this.laserTrail?.dispose();this.boardMenu?.dispose();this.selectionMenu?.dispose();this.imageToolbar?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false,true);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('cut',this.cutHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
- save(){this.queue.enqueue(this.board).catch(()=>{});}
+ save({committed=false}={}){
+  if(!committed){this.queue.enqueue(this.board).catch(()=>{});return;}
+  // History owns a deeply cloned, immutable-for-this-gesture item snapshot.
+  // Copy only small board metadata, never the same large ink/image collection
+  // again. SaveQueue accepts this detached object without another clone.
+  const {items,...metadata}=this.board;
+  const snapshot=structuredClone(metadata);
+  snapshot.items=this.history.current.items;
+  this.queue.enqueueDetached(snapshot).catch(()=>{});
+ }
  invalidateVisual(id){
   this.snapTargetCache=null;
   this.renderCache?.invalidate(id);this.minimap?.cache.invalidate(id);
@@ -138,8 +150,8 @@ export class Editor {
  commit(options){try{
   this.snapTargetCache=null;
   this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);
-  syncConnectors(this.board.items);validateBoard(this.board);
-  this.history.commit(this.document(),options);
+  syncConnectors(this.board.items);checkBoard(this.board);
+  this.history.commit(this.documentView(),options);
   // Reuse the existing undo diff to dirty only changed item visuals.
   const changed=this.history.lastChangedItemIds;
   this.renderCache?.invalidateMany(changed);
@@ -148,7 +160,7 @@ export class Editor {
   // already identified those item IDs, so clear only their measured bounds.
   for(const item of this.board.items)if(changed.has(item.id)&&
     ['text','note'].includes(item.type))invalidateTextBounds(item);
-  this.save();this.paint();
+  this.save({committed:true});this.paint();
  }catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
  build(){document.body.classList.add('board-open');this.root.className='editor';this.root.replaceChildren();const top=el('div',null,'editor-top');top.setAttribute('role','toolbar');top.setAttribute('aria-label','Teaching board toolbar');const logo=el('a','Teaching Board','editor-brand');logo.href='#/';logo.title='Return to lessons';const brandIcon=el('img',null,'brand-icon');brandIcon.src='./philip_favicon.png';brandIcon.alt='';brandIcon.width=32;brandIcon.height=32;logo.prepend(brandIcon);this.boardMenu=new BoardMenu({clear:()=>this.clearBoard()});const back=this.boardMenu.root;this.title=btn(this.board.title,async()=>{const r=await formDialog('Lesson settings',[['title','Title',this.board.title],['folder','Folder',this.board.folder]],{validate:v=>{if(!v.title.trim()||v.title.length>200||v.folder.length>200)throw new Error('Use a title and folder under 200 characters.');return v;}});if(r){Object.assign(this.board,r);this.title.textContent=r.title;this.save();}},'lesson-title');this.title.dir='auto';

@@ -1,6 +1,6 @@
-import {compactRuns,readRichDocument,validateRuns,validateParagraphs,writeRuns} from './rich-text.js?v=20261119-perf006';
-import {editableParagraphs} from './text-lists.js?v=20261119-perf006';
-import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js?v=20261119-perf006';
+import {compactRuns,readRichDocument,validateRuns,validateParagraphs,writeRuns} from './rich-text.js?v=20261119-perf007';
+import {editableParagraphs} from './text-lists.js?v=20261119-perf007';
+import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js?v=20261119-perf007';
 
 /** Apply formatting to [start,end) in document text, preserving paragraph metadata. */
 export function formatDocumentRange(snapshot,start,end,name,value){

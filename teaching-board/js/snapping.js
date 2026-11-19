@@ -1,4 +1,4 @@
-import {bounds} from './scene.js?v=20261119-perf006';
+import {bounds} from './scene.js?v=20261119-perf007';
 
 // PERF-006 — construct once per snapping gesture. Preserve the original
 // traversal order as a rank: on equal distances, the last candidate wins.

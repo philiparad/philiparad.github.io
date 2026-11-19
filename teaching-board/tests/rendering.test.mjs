@@ -53,6 +53,37 @@ function fixture(count=1){
 function pointer(e,x,y){return {button:0,pointerId:1,clientX:x,clientY:y,timeStamp:x,target:e.svg,preventDefault(){}};}
 function walk(n){return [n,...n.children.flatMap(walk)];}
 function object(e,id){return walk(e.svg).find(n=>n.getAttribute('data-id')===id);}
+test('PERF-007 editor commits clone the board once and persist detached history items',()=>{
+ const e=fixture(1200);
+ let detached,ordinary=0,copyCount=0;
+ e.queue={
+  enqueueDetached(snapshot){detached=snapshot;return Promise.resolve();},
+  enqueue(){ordinary++;return Promise.resolve();}
+ };
+ e.save=Editor.prototype.save;
+ const original=globalThis.structuredClone;
+ try{
+  globalThis.structuredClone=(value,...args)=>{
+   if(value?.items?.length>=1200)copyCount++;
+   return original(value,...args);
+  };
+  e.board.items[0].x=115;
+  e.commit();
+ }finally{globalThis.structuredClone=original;}
+ assert.equal(copyCount,1,'Only History may deep-clone committed item collection');
+ assert.ok(detached,'Commit must queue an isolated persistence snapshot');
+ assert.equal(detached.items,e.history.current.items,'Queue must reuse the history-owned snapshot');
+ assert.notEqual(detached.items,e.board.items,'Snapshot must never reference mutable editor items');
+ assert.equal(ordinary,0,'Committed snapshots should not be cloned by SaveQueue again');
+ const position=detached.items[0].x;
+ e.board.items[0].x=555;
+ e.board.viewport.x=750;
+ assert.equal(detached.items[0].x,position,'Later edits must not alter an in-flight save');
+ assert.equal(detached.viewport.x,0,'Queued viewport must be independently copied');
+ e.save();
+ assert.equal(ordinary,1,'Non-commit saves retain ordinary defensive snapshot semantics');
+});
+
 test('pen preview preserves 1,000 committed SVG nodes and records all samples',()=>{
  const e=fixture(1000);e.pointerDown(pointer(e,10,10));const old=e.board.items.map(i=>object(e,i.id)),root=e.svg.children[0];
  for(let x=11;x<70;x++)e.pointerMove(pointer(e,x,20+Math.sin(x)));

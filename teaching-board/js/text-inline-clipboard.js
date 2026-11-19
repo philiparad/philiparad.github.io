@@ -1,5 +1,5 @@
-import {compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261119-perf006';
-import {captureLogicalSelection} from './text-selection.js?v=20261119-perf006';
+import {compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261119-perf007';
+import {captureLogicalSelection} from './text-selection.js?v=20261119-perf007';
 
 export const TEXT_RICH_CLIPBOARD='application/x-teaching-board-rich-text+json';
 const MAX_CLIPBOARD_BYTES=4_000_000;
