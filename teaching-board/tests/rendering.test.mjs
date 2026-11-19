@@ -7,7 +7,23 @@ class Element {
  setAttribute(k,v){this.attributes[k]=String(v);}
  getAttribute(k){return this.attributes[k]??null;}
  hasAttribute(k){return k in this.attributes;}
- append(...nodes){for(const n of nodes){n.parentNode=this;this.children.push(n);}}
+ append(...nodes){for(const n of nodes){n.remove?.();n.parentNode=this;this.children.push(n);}}
+ insertBefore(node,reference){
+  if(reference===node)return node;
+  node.remove?.();
+  const index=reference==null?this.children.length:this.children.indexOf(reference);
+  if(index<0)throw new Error('Reference node is not a child.');
+  this.children.splice(index,0,node);node.parentNode=this;return node;
+ }
+ remove(){
+  if(!this.parentNode)return;
+  const siblings=this.parentNode.children,index=siblings.indexOf(this);
+  if(index>=0)siblings.splice(index,1);
+  this.parentNode=null;
+ }
+ get firstElementChild(){return this.children[0]||null;}
+ get lastElementChild(){return this.children[this.children.length-1]||null;}
+ get childElementCount(){return this.children.length;}
  replaceChildren(...nodes){for(const n of this.children)n.parentNode=null;this.children=[];this.append(...nodes);}
  get isConnected(){return this.root||!!this.parentNode?.isConnected;}
  closest(selector){return selector==='[data-id]'&&this.hasAttribute('data-id')?this:this.parentNode?.closest(selector)||null;}
@@ -60,7 +76,7 @@ test('shape previews refresh snapping guides without replacing fixed objects',()
 });
 test('full redraws clear canceled previews and update viewport transforms',()=>{
  const e=fixture();e.pointerDown(pointer(e,10,10));const abandoned=e.draftLayer;
- e.drag=null;e.draft=null;e.paint();assert.equal(abandoned.isConnected,false);assert.equal(e.draftLayer.children.length,0);
+ e.drag=null;e.draft=null;e.paint();assert.equal(abandoned.isConnected,true);assert.equal(abandoned,e.draftLayer);assert.equal(e.draftLayer.children.length,0);
  e.board.viewport={x:40,y:30,zoom:2};e.paint();assert.equal(e.draftLayer.parentNode.getAttribute('transform'),'translate(40 30) scale(2)');
  e.pointerDown(pointer(e,20,20));e.pointerMove(pointer(e,30,30));assert.equal(e.draftLayer.parentNode.getAttribute('transform'),'translate(40 30) scale(2)');
 });
