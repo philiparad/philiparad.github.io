@@ -25,12 +25,32 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('PERF-005 browser loads each application module under one canonical URL',async()=>{
+  const report=await page.evaluate(()=>{
+   const version='20261119-perf005',seen=new Map();
+   for(const resource of performance.getEntriesByType('resource')){
+    const url=new URL(resource.name);
+    if(!url.pathname.startsWith('/teaching-board/js/')||!url.pathname.endsWith('.js'))continue;
+    if(!seen.has(url.pathname))seen.set(url.pathname,new Set());
+    seen.get(url.pathname).add(url.search);
+   }
+   const duplicates=[...seen].filter(([,variants])=>variants.size!==1)
+    .map(([path,variants])=>[path,[...variants]]);
+   const stale=[...seen].filter(([,variants])=>![...variants].every(query=>query==='?v='+version))
+    .map(([path,variants])=>[path,[...variants]]);
+   return {moduleCount:seen.size,duplicates,stale};
+  });
+  assert(report.moduleCount>=55,'Expected the whole application module tree: '+JSON.stringify(report));
+  assert.deepEqual(report.duplicates,[],'Duplicate module URLs detected');
+  assert.deepEqual(report.stale,[],'Stale/unversioned module imports detected');
+ });
+
  await check('PERF-006 gesture snapping keeps guides and refreshes cached targets',async()=>{
   const result=await page.evaluate(async()=>{
-   const {Editor}=await import('./js/editor.js');
-   const {createBoard}=await import('./js/model.js');
-   const {BoardRepository}=await import('./js/storage.js');
-   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js');
+   const {Editor}=await import('./js/editor.js?v=20261119-perf006');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf006');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf006');
+   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js?v=20261119-perf006');
    const root=document.createElement('div');
    root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
    document.body.append(root);
@@ -62,26 +82,6 @@ try{
   });
   assert.deepEqual(result,{cached:true,parity:true,guide:true,
    refreshed:true,undoRefresh:true,redoRefresh:true});
- });
-
- await check('PERF-005 browser loads each application module under one canonical URL',async()=>{
-  const report=await page.evaluate(()=>{
-   const version='20261119-perf005',seen=new Map();
-   for(const resource of performance.getEntriesByType('resource')){
-    const url=new URL(resource.name);
-    if(!url.pathname.startsWith('/teaching-board/js/')||!url.pathname.endsWith('.js'))continue;
-    if(!seen.has(url.pathname))seen.set(url.pathname,new Set());
-    seen.get(url.pathname).add(url.search);
-   }
-   const duplicates=[...seen].filter(([,variants])=>variants.size!==1)
-    .map(([path,variants])=>[path,[...variants]]);
-   const stale=[...seen].filter(([,variants])=>![...variants].every(query=>query==='?v='+version))
-    .map(([path,variants])=>[path,[...variants]]);
-   return {moduleCount:seen.size,duplicates,stale};
-  });
-  assert(report.moduleCount>=55,'Expected the whole application module tree: '+JSON.stringify(report));
-  assert.deepEqual(report.duplicates,[],'Duplicate module URLs detected');
-  assert.deepEqual(report.stale,[],'Stale/unversioned module imports detected');
  });
 
  await check('PERF-001 persistent SVG scene reuses nodes across repaint, pan, reordering and page changes',async()=>{
