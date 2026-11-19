@@ -16,7 +16,7 @@ import { InlineText } from './inline-text.js?v=20261119-perf003';
 import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js';
 import { connectorTarget, syncConnectors } from './connectors.js?v=20261023-image-handles';
 import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261024-image-actions';
-import { visibleItems } from './visibility.js?v=20261024-image-actions';
+import { visibleItems, invalidateTextBounds } from './visibility.js?v=20261119-perf004';
 import { RenderCache } from './render-cache.js?v=20261024-image-actions';
 import { SpeedInk } from './speed-ink.js?v=20261017-history-budget';
 import { penPressure, resmoothPressure } from './pressure.js?v=20261017-history-budget';
@@ -129,7 +129,11 @@ export class Editor {
    }await this.queue.flush();}
  dispose(){this.disposed=true;this.calculatorModal?.dispose();this.laserTrail?.dispose();this.boardMenu?.dispose();this.selectionMenu?.dispose();this.imageToolbar?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false,true);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('cut',this.cutHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
  save(){this.queue.enqueue(this.board).catch(()=>{});}
- invalidateVisual(id){this.renderCache?.invalidate(id);this.minimap?.cache.invalidate(id);}
+ invalidateVisual(id){
+  this.renderCache?.invalidate(id);this.minimap?.cache.invalidate(id);
+  const item=this.board.items.find(value=>value.id===id);
+  if(item&&['text','note'].includes(item.type))invalidateTextBounds(item);
+ }
  commit(options){try{
   this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);
   syncConnectors(this.board.items);validateBoard(this.board);
@@ -138,6 +142,10 @@ export class Editor {
   const changed=this.history.lastChangedItemIds;
   this.renderCache?.invalidateMany(changed);
   this.minimap?.cache.invalidateMany(changed);
+  // Rich runs and paragraph arrays may be edited in place. History has
+  // already identified those item IDs, so clear only their measured bounds.
+  for(const item of this.board.items)if(changed.has(item.id)&&
+    ['text','note'].includes(item.type))invalidateTextBounds(item);
   this.save();this.paint();
  }catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
