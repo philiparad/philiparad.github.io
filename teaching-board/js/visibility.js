@@ -1,13 +1,55 @@
 import {bounds} from './scene.js?v=20261024-image-actions';
 import { SHAPES } from './shapes.js?v=20261017-history-budget';
 
-// Conservative geometry bounds, independent of the DOM. Text can overflow its
-// nominal box (long words, RTL and font metrics), so keep text/notes mounted.
+// PERF-004: Text/note bounds must use the same wrapped, measured height as
+// sceneSVG and hit testing. Cache by item identity and geometry so a pan/zoom
+// never measures long paragraphs again. Explicit invalidation covers in-place
+// rich-text edits committed through the editor.
+const TEXT_BOUNDS_KEYS=['type','x','y','w','h','rotation','fontSize','text',
+ 'runs','paragraphs','textStyle','textAlign','lineWidth'];
+let textBoundsCache=new WeakMap();
+let boundsDocument;
+let boundsFontSet;
+
+export function clearTextBoundsCache(){textBoundsCache=new WeakMap();}
+
+function watchFonts(){
+ const active=typeof document==='undefined'?null:document;
+ if(active===boundsDocument)return;
+ boundsFontSet?.removeEventListener?.('loadingdone',clearTextBoundsCache);
+ boundsFontSet?.removeEventListener?.('loadingerror',clearTextBoundsCache);
+ boundsDocument=active;
+ boundsFontSet=active?.fonts||null;
+ boundsFontSet?.addEventListener?.('loadingdone',clearTextBoundsCache);
+ boundsFontSet?.addEventListener?.('loadingerror',clearTextBoundsCache);
+ clearTextBoundsCache();
+}
+
+export function invalidateTextBounds(item){
+ if(item&&typeof item==='object')textBoundsCache.delete(item);
+}
+
+function measuredTextBounds(item){
+ watchFonts();
+ const cached=textBoundsCache.get(item);
+ if(cached&&TEXT_BOUNDS_KEYS.every(key=>Object.is(cached.snapshot[key],item[key])))return cached.box;
+ const box=bounds(item);
+ // Glyph side bearings, italics, stroke outlines and font fallback can extend
+ // slightly beyond the measured paragraph box. Include this extra safety band.
+ const pad=Math.max(8,(item.fontSize||24)*.5,(item.lineWidth||3)*2)+4;
+ const padded={x:box.x-pad,y:box.y-pad,w:box.w+pad*2,h:box.h+pad*2};
+ const snapshot=Object.create(null);
+ for(const key of TEXT_BOUNDS_KEYS)snapshot[key]=item[key];
+ textBoundsCache.set(item,{snapshot,box:padded});
+ return padded;
+}
+
+// Conservative viewport bounds; unknown object types remain visible.
 export function visualBounds(item){
  if(item.type==='image'){const b=bounds(item),pad=(item.imageBorder&&item.imageBorder!=='none'?(item.imageBorderWidth||2)/2:0)+2;return {x:b.x-pad,y:b.y-pad,w:b.w+pad*2,h:b.h+pad*2};}
  const w=item.w||1,h=item.h||1;
  let left=0,top=0,right=w,bottom=h;
- if(['text','note'].includes(item.type))return null;
+ if(['text','note'].includes(item.type))return measuredTextBounds(item);
  if(item.points&&['path','curve','polygon','line','arrow'].includes(item.type)){
   if(!item.points.length)return null;
   left=top=Infinity;right=bottom=-Infinity;
