@@ -25,6 +25,26 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('PERF-005 browser loads each application module under one canonical URL',async()=>{
+  const report=await page.evaluate(()=>{
+   const version='20261119-perf005',seen=new Map();
+   for(const resource of performance.getEntriesByType('resource')){
+    const url=new URL(resource.name);
+    if(!/\\/teaching-board\\/js\\/[^/]+\\.js$/.test(url.pathname))continue;
+    if(!seen.has(url.pathname))seen.set(url.pathname,new Set());
+    seen.get(url.pathname).add(url.search);
+   }
+   const duplicates=[...seen].filter(([,variants])=>variants.size!==1)
+    .map(([path,variants])=>[path,[...variants]]);
+   const stale=[...seen].filter(([,variants])=>![...variants].every(query=>query==='?v='+version))
+    .map(([path,variants])=>[path,[...variants]]);
+   return {moduleCount:seen.size,duplicates,stale};
+  });
+  assert(report.moduleCount>=55,'Expected the whole application module tree: '+JSON.stringify(report));
+  assert.deepEqual(report.duplicates,[],'Duplicate module URLs detected');
+  assert.deepEqual(report.stale,[],'Stale/unversioned module imports detected');
+ });
+
  await check('PERF-001 persistent SVG scene reuses nodes across repaint, pan, reordering and page changes',async()=>{
   const result=await page.evaluate(async()=>{
    const {Editor}=await import('./js/editor.js');
