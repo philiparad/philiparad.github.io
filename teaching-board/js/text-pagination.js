@@ -1,5 +1,5 @@
 import {paragraphRuns,textRuns,compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261115-flow-direction';
-import {textLayoutMetrics,paragraphDirectionIsRtl} from './inline-equation.js?v=20261115-flow-direction';
+import {textLayoutMetrics,paragraphDirectionIsRtl} from './inline-equation.js?v=20261119-perf003';
 import {bounds} from './scene.js?v=20261115-flow-direction';
 
 const MAX_PAGES=100;
