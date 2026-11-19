@@ -1,5 +1,5 @@
-import {validateRuns,validateParagraphs} from './rich-text.js?v=20261017-history-budget';
-import {LINE_STYLES} from './line-style.js';
+import {validateRuns,validateParagraphs} from './rich-text.js?v=20261119-perf005';
+import {LINE_STYLES} from './line-style.js?v=20261119-perf005';
 
 const VALID_LINE_STYLES=new Set(LINE_STYLES.map(([style])=>style));
 const VALID_TEXT_STYLES=new Set(['normal','bold','italic','bold-italic']);
