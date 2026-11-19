@@ -141,6 +141,78 @@ try{
   }finally{await auditPage.close();}
  });
 
+ await check('PERF-010 compact JPEG/WebP imports and PDF pages survive storage and backup',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {importImage,loadImage,dataURL}=await import('./js/media.js?v=20261119-perf010');
+   const {encodePDFPage,renderPDFPages}=await import('./js/pdf-pages.js?v=20261119-perf010');
+   const {createBoard,serializeBackup,parseBackup}=await import('./js/model.js?v=20261119-perf010');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf010');
+   const canvas=document.createElement('canvas');canvas.width=180;canvas.height=120;
+   const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(180,120);
+   let seed=120338;
+   for(let n=0;n<pixels.data.length;n+=4){
+    seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+    pixels.data[n]=seed&255;pixels.data[n+1]=(seed>>>8)&255;
+    pixels.data[n+2]=(seed>>>16)&255;pixels.data[n+3]=255;
+   }
+   ctx.putImageData(pixels,0,0);
+   const makeBlob=type=>new Promise(resolve=>canvas.toBlob(resolve,type,.86));
+   const jpegBlob=await makeBlob('image/jpeg');
+   const jpegFile=new File([jpegBlob],'original.jpg',{type:'image/jpeg'});
+   const importedJpeg=await importImage(jpegFile);
+   const originalJpeg=await dataURL(jpegFile);
+   const jpegNative=importedJpeg.src===originalJpeg&&
+    importedJpeg.src.startsWith('data:image/jpeg;base64,');
+   const noPngInflation=importedJpeg.src.length<canvas.toDataURL('image/png').length;
+   const webpBlob=await makeBlob('image/webp');
+   const webpFile=new File([webpBlob],'original.webp',{type:'image/webp'});
+   const importedWebp=await importImage(webpFile);
+   const webpNative=importedWebp.src===(await dataURL(webpFile))&&
+    importedWebp.src.startsWith('data:image/webp;base64,');
+   const large=document.createElement('canvas');large.width=2300;large.height=1200;
+   const largeCtx=large.getContext('2d');
+   largeCtx.fillStyle='#456789';largeCtx.fillRect(0,0,2300,1200);
+   largeCtx.fillStyle='#fafafa';largeCtx.fillRect(80,80,1600,740);
+   const largeBlob=await new Promise(resolve=>large.toBlob(resolve,'image/jpeg',.86));
+   const scaled=await importImage(new File([largeBlob],'scaled.jpg',{type:'image/jpeg'}));
+   const scaledImage=await loadImage(scaled.src);
+   const resized=scaled.src.startsWith('data:image/jpeg;base64,')&&
+    scaledImage.naturalWidth===2200&&scaledImage.naturalHeight===Math.round(1200*2200/2300);
+   const compact=encodePDFPage(canvas);
+   const baseJpeg=canvas.toDataURL('image/jpeg',.86);
+   const pdfCompact=(compact.startsWith('data:image/jpeg;base64,')||
+    compact.startsWith('data:image/webp;base64,'))&&compact.length<=baseJpeg.length;
+   const pdf={
+    numPages:1,async getPage(){return{
+     getViewport:({scale})=>({width:600*scale,height:850*scale}),
+     render({canvasContext}){canvasContext.fillStyle='#fafafa';
+      canvasContext.fillRect(0,0,canvasContext.canvas.width,canvasContext.canvas.height);
+      return {promise:Promise.resolve()};},
+     cleanup(){}
+    };}
+   };
+   const pages=await renderPDFPages(pdf,[1]);
+   const pdfValid=pages.length===1&&
+    /^data:image\/(jpeg|webp);base64,/.test(pages[0].src)&&pages[0].w===800;
+   const board=createBoard('Compressed media round trip '+crypto.randomUUID());
+   board.items=[{id:'jpeg',type:'image',x:10,y:10,w:180,h:120,src:importedJpeg.src},
+    {id:'webp',type:'image',x:200,y:10,w:180,h:120,src:importedWebp.src},
+    {id:'pdf',type:'image',x:400,y:10,w:pages[0].w,h:pages[0].h,src:pages[0].src}];
+   const repo=new BoardRepository('teaching-board-perf010-'+crypto.randomUUID());
+   try{
+    const saved=await repo.save(board);
+    const restored=await repo.get(board.id);
+    const backupRestored=parseBackup(serializeBackup(restored));
+    const exact=restored.items.every((item,index)=>item.src===board.items[index].src)&&
+     backupRestored.items.every((item,index)=>item.src===board.items[index].src)&&
+     saved.items.every((item,index)=>item.src===board.items[index].src);
+    return {jpegNative,noPngInflation,webpNative,resized,pdfCompact,pdfValid,exact};
+   }finally{repo.close();}
+  });
+  assert.deepEqual(report,{jpegNative:true,noPngInflation:true,webpNative:true,
+   resized:true,pdfCompact:true,pdfValid:true,exact:true});
+ });
+
  await check('PERF-009 minimap keeps overview nodes during drag and rebuilds after commit',async()=>{
   const result=await page.evaluate(async()=>{
    const {Minimap}=await import('./js/minimap.js?v=20261119-perf009');
