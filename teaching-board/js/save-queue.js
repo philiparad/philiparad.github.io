@@ -1,7 +1,11 @@
 /** Serializes writes. On failure retains dirty state, reports the error, and stops. */
 export class SaveQueue {
   constructor(write, onStatus = () => {}) { this.write = write; this.onStatus = onStatus; this.pending = null; this.running = null; this.error = null; }
-  enqueue(snapshot) { this.pending = structuredClone(snapshot); this.error = null; return this.flush(); }
+  // The general API defensively clones caller-owned, mutable documents.
+  enqueue(snapshot) { return this.enqueueDetached(structuredClone(snapshot)); }
+  // PERF-007: Accept a snapshot owned only by the queue/history. Callers must
+  // never mutate it after handoff; no second multi-megabyte board clone.
+  enqueueDetached(snapshot) { this.pending = snapshot; this.error = null; return this.flush(); }
   async flush() {
     if (this.running) return this.running;
     if (!this.pending) return;
