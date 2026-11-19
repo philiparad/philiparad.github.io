@@ -1,11 +1,11 @@
-import { showRecovery } from './recovery.js?v=20261119-perf009';
-import { createBoard, parseBackup } from './model.js?v=20261119-perf009';
-import { BoardRepository } from './storage.js?v=20261119-perf009';
-import { Editor } from './editor.js?v=20261119-perf009';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261119-perf009';
-import { backup } from './export.js?v=20261119-perf009';
-import { svgEl } from './scene.js?v=20261119-perf009';
-import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261119-perf009';
+import { showRecovery } from './recovery.js?v=20261119-perf010';
+import { createBoard, parseBackup } from './model.js?v=20261119-perf010';
+import { BoardRepository } from './storage.js?v=20261119-perf010';
+import { Editor } from './editor.js?v=20261119-perf010';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261119-perf010';
+import { backup } from './export.js?v=20261119-perf010';
+import { svgEl } from './scene.js?v=20261119-perf010';
+import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261119-perf010';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

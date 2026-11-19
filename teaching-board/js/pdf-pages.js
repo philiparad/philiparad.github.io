@@ -1,4 +1,4 @@
-import { el, btn, field } from './ui.js?v=20261119-perf009';
+import { el, btn, field } from './ui.js?v=20261119-perf010';
 
 export function parsePDFPages(value,total){
  if(!Number.isSafeInteger(total)||total<1)throw new Error('This PDF has no readable pages.');
@@ -48,6 +48,17 @@ export function choosePDFPages(pdf){
  return new Promise(resolve=>{d.onclose=async()=>{closed=true;d.remove();await previews.stop();resolve(result);};d.showModal();draw();range.input.focus();});
 }
 
+// PERF-010: prefer a smaller WebP representation when the browser's
+// encoder actually saves at least 8% versus the existing JPEG rendering.
+// The output remains a self-contained data URI for the established editable
+// board/backup schema; unsupported WebP encoders transparently use JPEG.
+export function encodePDFPage(canvas){
+ const jpeg=canvas.toDataURL('image/jpeg',.86);
+ let webp;
+ try{webp=canvas.toDataURL('image/webp',.88);}catch{return jpeg;}
+ return typeof webp==='string'&&webp.startsWith('data:image/webp;base64,')&&
+  webp.length<=jpeg.length*.92?webp:jpeg;
+}
 export async function renderPDFPages(pdf,numbers,progress=()=>{}){
  // Validate before requesting or rendering any page, including direct callers.
  const selected=parsePDFPages(numbers.join(','),pdf.numPages),pages=[];let bytes=0;
@@ -60,7 +71,7 @@ export async function renderPDFPages(pdf,numbers,progress=()=>{}){
    const viewport=page.getViewport({scale:Math.min(2,1600/Math.max(base.width,base.height))});
    canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
    await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
-   const src=canvas.toDataURL('image/jpeg',.86);bytes+=src.length;
+   const src=encodePDFPage(canvas);bytes+=src.length;
    if(bytes>20_000_000)throw new Error('PDF images are too large. Import fewer pages.');
    pages.push({src,w:800,h:800*viewport.height/viewport.width});
   }finally{page.cleanup();if(canvas){canvas.width=0;canvas.height=0;}}
