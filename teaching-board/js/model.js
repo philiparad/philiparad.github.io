@@ -13,7 +13,7 @@ export function createBoard(title = 'Untitled lesson') {
   const now = new Date().toISOString();
   return { schemaVersion: SCHEMA_VERSION, id: crypto.randomUUID(), title: title.trim() || 'Untitled lesson', folder: '', createdAt: now, updatedAt: now, revision: 0, deleted: false, viewport: { x: 0, y: 0, zoom: 1 }, background: 'grid', items: [] };
 }
-export function validateBoard(value) {
+export function checkBoard(value) {
   if (!value || value.schemaVersion !== SCHEMA_VERSION) throw new Error('Unsupported board format.');
   if (typeof value.id !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(value.id)) throw new Error('Invalid board ID.');
   if (typeof value.title !== 'string' || value.title.length > 200 || typeof value.folder !== 'string' || value.folder.length > 200) throw new Error('Invalid board title or folder.');
@@ -80,7 +80,15 @@ export function validateBoard(value) {
     if (item.type === 'graph' && (!Array.isArray(item.range) || item.range.length !== 4 || !item.range.every(Number.isFinite))) throw new Error('Invalid graph range.');
   }
   if (JSON.stringify(value).length > 25_000_000) throw new Error('Board exceeds the 25 MB limit.');
-  const copy=structuredClone(value);normalizeGraphLinks(copy.items);return copy;
+  // PERF-007: Pure check used by the editor before committing. No copy.
+  return value;
+}
+/** Validate and return an isolated, normalized copy for untrusted or persisted data. */
+export function validateBoard(value) {
+  checkBoard(value);
+  const copy=structuredClone(value);
+  normalizeGraphLinks(copy.items);
+  return copy;
 }
 export function parseBackup(text) {
   if (text.length > 25_000_000) throw new Error('Backup exceeds the 25 MB limit.');
