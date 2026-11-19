@@ -1,9 +1,9 @@
-import {exportFilename} from './export-filename.js?v=20261119-perf005';
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261119-perf005';
-import { SnippetRepository } from './snippet-storage.js?v=20261119-perf005';
-import { el, btn, formDialog, notify, chooseFile, download } from './ui.js?v=20261119-perf005';
-import { drawItem, svgEl, union } from './scene.js?v=20261119-perf005';
-import { expandGroups } from './groups.js?v=20261119-perf005';
+import {exportFilename} from './export-filename.js?v=20261119-perf006';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261119-perf006';
+import { SnippetRepository } from './snippet-storage.js?v=20261119-perf006';
+import { el, btn, formDialog, notify, chooseFile, download } from './ui.js?v=20261119-perf006';
+import { drawItem, svgEl, union } from './scene.js?v=20261119-perf006';
+import { expandGroups } from './groups.js?v=20261119-perf006';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}
