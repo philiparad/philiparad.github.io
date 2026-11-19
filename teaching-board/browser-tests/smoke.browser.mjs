@@ -48,10 +48,10 @@ try{
 
  await check('PERF-006 gesture snapping keeps guides and refreshes cached targets',async()=>{
   const result=await page.evaluate(async()=>{
-   const {Editor}=await import('./js/editor.js?v=20261119-perf006');
-   const {createBoard}=await import('./js/model.js?v=20261119-perf006');
-   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf006');
-   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js?v=20261119-perf006');
+   const {Editor}=await import('./js/editor.js?v=20261119-perf007');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf007');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf007');
+   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js?v=20261119-perf007');
    const root=document.createElement('div');
    root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
    document.body.append(root);
@@ -83,6 +83,43 @@ try{
   });
   assert.deepEqual(result,{cached:true,parity:true,guide:true,
    refreshed:true,undoRefresh:true,redoRefresh:true});
+ });
+
+ await check('PERF-007 committed snapshots save, undo and redo without stale data',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {Editor}=await import('./js/editor.js?v=20261119-perf007');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf007');
+   const {BoardRepository}=await import('./js/storage.js?v=20261119-perf007');
+   const root=document.createElement('div');
+   root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
+   document.body.append(root);
+   const board=createBoard('PERF-007 commit storage fixture');
+   board.items=Array.from({length:350},(_,i)=>({
+    id:'rect-'+i,type:'rectangle',x:10+i,y:20,w:40,h:30,
+    stroke:'#123456',fill:'none',lineWidth:2
+   }));
+   const repository=new BoardRepository('teaching-board-perf007-browser-check');
+   let editor;
+   try{
+    editor=new Editor(root,board,repository);
+    board.items[0].x=125;
+    editor.commit();
+    await editor.flush();
+    const committed=(await repository.get(board.id)).items[0].x;
+    board.items[0].x=999;
+    const unchanged=editor.history.current.items[0].x;
+    // Restore the last committed state before testing undo/redo.
+    board.items[0].x=125;
+    editor.undo();
+    await editor.flush();
+    const undone=(await repository.get(board.id)).items[0].x;
+    editor.redo();
+    await editor.flush();
+    const redone=(await repository.get(board.id)).items[0].x;
+    return {committed,unchanged,undone,redone,itemCount:board.items.length};
+   }finally{editor?.dispose();repository.close();root.remove();}
+  });
+  assert.deepEqual(report,{committed:125,unchanged:125,undone:10,redone:125,itemCount:350});
  });
 
  await check('PERF-001 persistent SVG scene reuses nodes across repaint, pan, reordering and page changes',async()=>{
