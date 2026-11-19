@@ -34,7 +34,7 @@ import { History } from './history.js?v=20261119-perf006';
 import { SaveQueue } from './save-queue.js?v=20261119-perf006';
 import { equation, graph, importImage, importPDF } from './media.js?v=20261119-perf006';
 import { exportBoard, backup } from './export.js?v=20261119-perf006';
-import { validateBoard } from './model.js?v=20261119-perf006';
+import { validateBoard,checkBoard } from './model.js?v=20261119-perf006';
 import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261119-perf006';
 
 import { toolIcon } from './tool-icons.js?v=20261119-perf006';
@@ -119,7 +119,7 @@ export class Editor {
   dialog.onclose=()=>dialog.remove();
   document.body.append(dialog);dialog.showModal();
  }
- document(){return structuredClone({items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1});}
+ document(){return {items:this.board.items,background:this.board.background,backgroundOptions:this.board.backgroundOptions,layout:this.board.layout||'infinite',pageCount:this.board.pageCount||1};}
  async flush(){if(this.inlineText){
     this.inlineText.finish(true,false);
     if(!this.inlineText.closed){
@@ -128,7 +128,16 @@ export class Editor {
     }
    }await this.queue.flush();}
  dispose(){this.disposed=true;this.calculatorModal?.dispose();this.laserTrail?.dispose();this.boardMenu?.dispose();this.selectionMenu?.dispose();this.imageToolbar?.dispose();this.minimap?.dispose();this.snippets?.dispose();this.inlineText?.finish(false,false,true);this.resizeObserver?.disconnect();this.renderCache?.clear();this.cancelPaint();window.removeEventListener('paste',this.pasteHandler);window.removeEventListener('copy',this.copyHandler);window.removeEventListener('cut',this.cutHandler);window.removeEventListener('keydown',this.keyHandler);window.removeEventListener('keyup',this.keyUp);window.removeEventListener('blur',this.blur);clearInterval(this.clock);document.body.classList.remove('presenting','board-open');}
- save(){this.queue.enqueue(this.board).catch(()=>{});}
+ save({committed=false}={}){
+  if(!committed){this.queue.enqueue(this.board).catch(()=>{});return;}
+  // History owns a deeply cloned, immutable-for-this-gesture item snapshot.
+  // Copy only small board metadata, never the same large ink/image collection
+  // again. SaveQueue accepts this detached object without another clone.
+  const {items,...metadata}=this.board;
+  const snapshot=structuredClone(metadata);
+  snapshot.items=this.history.current.items;
+  this.queue.enqueueDetached(snapshot).catch(()=>{});
+ }
  invalidateVisual(id){
   this.snapTargetCache=null;
   this.renderCache?.invalidate(id);this.minimap?.cache.invalidate(id);
@@ -138,7 +147,7 @@ export class Editor {
  commit(options){try{
   this.snapTargetCache=null;
   this.board.items=backgroundOrder(this.board.items);normalizeGraphLinks(this.board.items);
-  syncConnectors(this.board.items);validateBoard(this.board);
+  syncConnectors(this.board.items);checkBoard(this.board);
   this.history.commit(this.document(),options);
   // Reuse the existing undo diff to dirty only changed item visuals.
   const changed=this.history.lastChangedItemIds;
@@ -148,7 +157,7 @@ export class Editor {
   // already identified those item IDs, so clear only their measured bounds.
   for(const item of this.board.items)if(changed.has(item.id)&&
     ['text','note'].includes(item.type))invalidateTextBounds(item);
-  this.save();this.paint();
+  this.save({committed:true});this.paint();
  }catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
  build(){document.body.classList.add('board-open');this.root.className='editor';this.root.replaceChildren();const top=el('div',null,'editor-top');top.setAttribute('role','toolbar');top.setAttribute('aria-label','Teaching board toolbar');const logo=el('a','Teaching Board','editor-brand');logo.href='#/';logo.title='Return to lessons';const brandIcon=el('img',null,'brand-icon');brandIcon.src='./philip_favicon.png';brandIcon.alt='';brandIcon.width=32;brandIcon.height=32;logo.prepend(brandIcon);this.boardMenu=new BoardMenu({clear:()=>this.clearBoard()});const back=this.boardMenu.root;this.title=btn(this.board.title,async()=>{const r=await formDialog('Lesson settings',[['title','Title',this.board.title],['folder','Folder',this.board.folder]],{validate:v=>{if(!v.title.trim()||v.title.length>200||v.folder.length>200)throw new Error('Use a title and folder under 200 characters.');return v;}});if(r){Object.assign(this.board,r);this.title.textContent=r.title;this.save();}},'lesson-title');this.title.dir='auto';
