@@ -245,11 +245,27 @@ test('PERF-002 history invalidates only changed visuals for nested edits',()=>{
  const shape=e.board.items[0];shape.fill='#ffaaaa';e.commit();
  assert.notEqual(object(e,'object-0'),first);
  assert.equal(object(e,'object-1'),second);
- const current=object(e,'object-0');
- e.board.items[0].points=[[0,0],[10,10]];
- e.commit();
- assert.notEqual(object(e,'object-0'),current);
+ const curve={id:'perf002-curve',type:'curve',x:0,y:0,w:60,h:60,
+  points:[[0,0],[30,60],[60,0]],stroke:'#123456',lineWidth:3};
+ e.board.items.push(curve);e.commit();
+ const beforeCurve=object(e,curve.id),beforePath=beforeCurve.children[0].getAttribute('d');
+ curve.points[1][1]=30;e.commit();
+ const afterCurve=object(e,curve.id);
+ assert.notEqual(afterCurve,beforeCurve);
+ assert.notEqual(afterCurve.children[0].getAttribute('d'),beforePath);
  assert.equal(object(e,'object-1'),second);
+});
+test('PERF-002 connectors reuse unchanged points arrays and update moved anchors',async()=>{
+ const {syncConnectors}=await import('../js/connectors.js');
+ const left={id:'left',type:'rectangle',x:0,y:0,w:100,h:60};
+ const right={id:'right',type:'rectangle',x:240,y:0,w:100,h:60};
+ const arrow={id:'connector',type:'arrow',x:100,y:30,w:140,h:1,rotation:0,
+  points:[[0,0],[140,0]],links:{start:'left',end:'right'}};
+ const items=[left,right,arrow];
+ syncConnectors(items);const saved=arrow.points;
+ syncConnectors(items);assert.equal(arrow.points,saved);
+ right.y=80;syncConnectors(items);assert.notEqual(arrow.points,saved);
+ const adjusted=arrow.points;syncConnectors(items);assert.equal(arrow.points,adjusted);
 });
 test('viewport filtering omits offscreen SVG objects but preserves model and complete exports',async()=>{
  const {pageSVG}=await import('../js/pages.js');
