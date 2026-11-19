@@ -74,6 +74,37 @@ test('shape previews refresh snapping guides without replacing fixed objects',()
  nextFrame();assert.equal(e.guideLayer.children.length,2);assert.equal(object(e,'object-0'),old);
  e.pointerUp(pointer(e,63,95));assert.equal(e.guideLayer.children.length,0);assert.equal(e.board.items.length,2);
 });
+test('PERF-006 drawing and moving reuse frozen snap indexes during pointer moves',()=>{
+ const e=fixture(250);
+ e.board.snapMode='objects';
+ e.tool='rectangle';
+ e.pointerDown(pointer(e,5,5));
+ const drawIndex=e.drag.snapIndex;
+ assert.ok(drawIndex&&drawIndex.x.length===750);
+ for(let x=20;x<110;x++)e.pointerMove(pointer(e,x,95));
+ assert.equal(e.drag.snapIndex,drawIndex,'Drawing must not rebuild the index per sample');
+ e.pointerUp(pointer(e,110,95));
+ assert.equal(e.snapTargetCache,null,'Commit invalidates indexed targets');
+ e.tool='select';
+ const selected=e.board.items[0];
+ e.pointerDown({...pointer(e,10,25),target:object(e,selected.id)});
+ assert.equal(e.drag.kind,'move');
+ const moveIndex=e.drag.snapIndex,originalBounds=e.drag.baseBounds;
+ assert.ok(e.drag.snapExcluded.has(selected.id));
+ assert.equal(moveIndex.x.length,(e.board.items.length-1)*3);
+ for(let x=20;x<110;x++)e.pointerMove(pointer(e,x,30));
+ assert.equal(e.drag.snapIndex,moveIndex,'Moving must reuse frozen indexed targets');
+ assert.equal(e.drag.baseBounds,originalBounds,'Selection bounds must not be recomputed per event');
+ e.pointerUp(pointer(e,110,30));
+ assert.equal(e.snapTargetCache,null,'Moving commits invalidate indexed targets');
+ const first=e.snapIndexFor(new Set());
+ assert.equal(e.snapIndexFor(new Set()),first,'Hover snapping reuses cached targets');
+ e.undo();
+ assert.notEqual(e.snapIndexFor(new Set()),first,'Undo invalidates snapped target cache');
+ e.redo();
+ assert.notEqual(e.snapIndexFor(new Set()),first,'Redo invalidates snapped target cache');
+});
+
 test('full redraws clear canceled previews and update viewport transforms',()=>{
  const e=fixture();e.pointerDown(pointer(e,10,10));const abandoned=e.draftLayer;
  e.drag=null;e.draft=null;e.paint();assert.equal(abandoned.isConnected,true);assert.equal(abandoned,e.draftLayer);assert.equal(e.draftLayer.children.length,0);
