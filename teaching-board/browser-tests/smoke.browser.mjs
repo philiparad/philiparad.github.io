@@ -141,6 +141,50 @@ try{
   }finally{await auditPage.close();}
  });
 
+ await check('PERF-009 minimap keeps overview nodes during drag and rebuilds after commit',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {Minimap}=await import('./js/minimap.js?v=20261119-perf009');
+   const {createBoard}=await import('./js/model.js?v=20261119-perf009');
+   const board=createBoard('Minimap performance regression');
+   board.items=Array.from({length:120},(_,i)=>({
+    id:'rect-'+i,type:'rectangle',x:i*40,y:30,
+    w:35,h:25,fill:'#ffffff',stroke:'#123456',lineWidth:2
+   }));
+   const editor={board,history:{current:{}},
+    area:{clientWidth:1200,clientHeight:700},drag:null};
+   const minimap=new Minimap(editor);
+   document.body.append(minimap.root);
+   try{
+    minimap.open=true;minimap.update();
+    const initial=[...minimap.content.children],rect=minimap.viewportNode;
+    editor.drag={kind:'pan'};
+    for(let i=0;i<80;i++){board.viewport.x=-i*20;minimap.update();}
+    const panStable=initial.every((node,i)=>minimap.content.children[i]===node);
+    const newView=Number(rect.getAttribute('x'))===-board.viewport.x;
+    editor.drag={kind:'move',items:[{id:'rect-5'}]};
+    board.items[5].x=900;
+    minimap.update();
+    const moveStable=initial.every((node,i)=>minimap.content.children[i]===node);
+    const moved=initial[5].getAttribute('transform').includes('translate(900 30)');
+    editor.drag=null;editor.history.current={};minimap.update();
+    const refreshed=minimap.content.children[5]!==initial[5];
+    board.items=Array.from({length:800},(_,i)=>({
+     id:'large-'+i,type:'rectangle',x:i*15,y:0,w:10,h:15
+    }));
+    editor.history.current={};minimap.update();
+    const path=minimap.content.querySelector('[data-simplified-overview]');
+    editor.drag={kind:'move',items:[{id:'large-0'}]};
+    for(let i=0;i<100;i++){board.items[0].x=-i*10;minimap.update();}
+    const largeStable=path===minimap.content.querySelector('[data-simplified-overview]');
+    editor.drag=null;editor.history.current={};minimap.update();
+    const afterCommit=path!==minimap.content.querySelector('[data-simplified-overview]');
+    return {panStable,newView,moveStable,moved,refreshed,largeStable,afterCommit};
+   }finally{minimap.dispose();}
+  });
+  assert.deepEqual(result,{panStable:true,newView:true,moveStable:true,
+   moved:true,refreshed:true,largeStable:true,afterCommit:true});
+ });
+
  await check('PERF-006 gesture snapping keeps guides and refreshes cached targets',async()=>{
   const result=await page.evaluate(async()=>{
    const {Editor}=await import('./js/editor.js?v=20261119-perf008');
