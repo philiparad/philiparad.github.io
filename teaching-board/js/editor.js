@@ -191,7 +191,7 @@ export class Editor {
   if(this.paperKey!==paperKey){
    this.backgroundLayer.replaceChildren();
    background(this.backgroundLayer,this.board.background,v,'paper',this.board.backgroundOptions);
-   this.paperPattern=this.backgroundLayer.querySelector('#paper');
+   this.paperPattern=this.backgroundLayer.children[0]?.children[0]||null;
    this.paperKey=paperKey;
   }
   // The grid moves with the viewport; its SVG definitions do not need rebuilding.
