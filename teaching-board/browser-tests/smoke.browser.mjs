@@ -167,7 +167,9 @@ try{
     const moveStable=initial.every((node,i)=>minimap.content.children[i]===node);
     const moved=initial[5].getAttribute('transform').includes('translate(900 30)');
     editor.drag=null;editor.history.current={};minimap.update();
-    const refreshed=minimap.content.children[5]!==initial[5];
+    const refreshed=minimap.stamp===editor.history.current&&
+     !minimap.dragPreviewDirty&&
+     minimap.content.children[5].getAttribute('transform').includes('translate(900 30)');
     board.items=Array.from({length:800},(_,i)=>({
      id:'large-'+i,type:'rectangle',x:i*15,y:0,w:10,h:15
     }));
