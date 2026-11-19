@@ -1,7 +1,7 @@
-import {el,btn} from './ui.js?v=20261119-perf006';
-import {toolIcon} from './tool-icons.js?v=20261119-perf006';
-import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js?v=20261119-perf006';
-import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios,clearCalculatorWindowPosition} from './calculator-window-position.js?v=20261119-perf006';
+import {el,btn} from './ui.js?v=20261119-perf007';
+import {toolIcon} from './tool-icons.js?v=20261119-perf007';
+import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js?v=20261119-perf007';
+import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios,clearCalculatorWindowPosition} from './calculator-window-position.js?v=20261119-perf007';
 
 export const CALCULATOR_URL='https://philiparad.github.io/calculator/';
 const CALCULATOR_ORIGIN=new URL(CALCULATOR_URL).origin;
