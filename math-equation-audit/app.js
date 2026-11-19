@@ -148,7 +148,8 @@ function renderOCR(q){
         const block=document.createElement('div');block.className='ocr-result';
         const head=document.createElement('div');head.className='head';
         head.append(textNode('strong',names[engine]),makeButton(state.lang==='he'?'העתק לעריכה':'Use transcription','ghost',()=>{
-            $('latexInput').value=obj.latex;state.dirty=true;preview();
+            $('latexInput').value=obj.latex;
+            $('latexInput').dispatchEvent(new Event('input',{bubbles:true}));
         }));
         const raw=textNode('pre',obj.latex);raw.setAttribute('dir','ltr');
         const math=document.createElement('div');math.className='ocr-math-output';math.setAttribute('dir','ltr');
