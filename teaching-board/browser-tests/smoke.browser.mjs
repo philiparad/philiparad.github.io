@@ -30,7 +30,7 @@ try{
    const version='20261119-perf005',seen=new Map();
    for(const resource of performance.getEntriesByType('resource')){
     const url=new URL(resource.name);
-    if(!/\\/teaching-board\\/js\\/[^/]+\\.js$/.test(url.pathname))continue;
+    if(!url.pathname.startsWith('/teaching-board/js/')||!url.pathname.endsWith('.js'))continue;
     if(!seen.has(url.pathname))seen.set(url.pathname,new Set());
     seen.get(url.pathname).add(url.search);
    }
