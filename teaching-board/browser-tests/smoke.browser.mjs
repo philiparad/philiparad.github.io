@@ -25,6 +25,45 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('PERF-006 gesture snapping keeps guides and refreshes cached targets',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {Editor}=await import('./js/editor.js');
+   const {createBoard}=await import('./js/model.js');
+   const {BoardRepository}=await import('./js/storage.js');
+   const {snapPoint,buildSnapIndex}=await import('./js/snapping.js');
+   const root=document.createElement('div');
+   root.style.cssText='position:fixed;inset:0;background:white;z-index:2500';
+   document.body.append(root);
+   const board=createBoard('PERF-006 snapping fixture');
+   board.snapMode='both';
+   board.items=Array.from({length:500},(_,i)=>({
+    id:'rect-'+i,type:'rectangle',x:(i%40)*30,y:Math.floor(i/40)*35,
+    w:40,h:30,stroke:'#123456',lineWidth:2,fill:'none'
+   }));
+   const repository=new BoardRepository('teaching-board-perf006-browser-check');
+   let editor;
+   try{
+    editor=new Editor(root,board,repository);
+    const index=editor.snapIndexFor(new Set());
+    const cached=editor.snapIndexFor(new Set())===index;
+    const point={x:58,y:101};
+    const expected=snapPoint(point,board,new Set(),'both',{x:[0,40],y:[0,30]});
+    const actual=snapPoint(point,board,new Set(),'both',{x:[0,40],y:[0,30]},index);
+    const parity=JSON.stringify(actual)===JSON.stringify(expected);
+    const guide=actual.guides.length>0;
+    board.items[0].x+=17;editor.commit();
+    const refreshed=editor.snapIndexFor(new Set())!==index;
+    editor.undo();
+    const undoRefresh=editor.snapIndexFor(new Set())!==index;
+    editor.redo();
+    const redoRefresh=editor.snapIndexFor(new Set())!==index;
+    return {cached,parity,guide,refreshed,undoRefresh,redoRefresh};
+   }finally{editor?.dispose();repository.close();root.remove();}
+  });
+  assert.deepEqual(result,{cached:true,parity:true,guide:true,
+   refreshed:true,undoRefresh:true,redoRefresh:true});
+ });
+
  await check('PERF-005 browser loads each application module under one canonical URL',async()=>{
   const report=await page.evaluate(()=>{
    const version='20261119-perf005',seen=new Map();
