@@ -11,7 +11,7 @@ export class Geometry {
  constructor(editor){this.e=editor;this.reset();}
  reset(){this.stage=null;this.edit=null;}
  down(event,p){const e=this.e,handle=event.target.getAttribute('data-geometry');
-  if(handle&&e.tool==='select'){const item=e.board.items.find(i=>e.selected.has(i.id));if(!item||item.locked)return false;this.edit={item,handle};if(handle.startsWith('mid:')){const k=+handle.split(':')[1],a=item.points[k],b=item.points[k+1];item.points.splice(k+1,0,[(a[0]+b[0])/2,(a[1]+b[1])/2]);this.edit.handle='point:'+(k+1);}return true;}
+  if(handle&&e.tool==='select'){const item=e.board.items.find(i=>e.selected.has(i.id));if(!item||item.locked)return false;this.edit={item,handle};if(handle.startsWith('mid:')){const k=+handle.split(':')[1],a=item.points[k],b=item.points[k+1];item.points.splice(k+1,0,[(a[0]+b[0])/2,(a[1]+b[1])/2]);this.edit.handle='point:'+(k+1);e.invalidateVisual?.(item.id);}return true;}
   if(e.tool==='curve'){if(!e.draft){e.draft={...e.base('curve',p),points:[[0,0]],fill:'none'};}else e.draft.points.push([p.x-e.draft.x,p.y-e.draft.y]);e.paint();e.toolHint.textContent='Click anchors · Enter finishes · Escape cancels';return true;}
   if(e.tool!=='arc')return false;
   if(!this.stage){this.stage={center:p,step:1};e.draft={...e.base('arc',p),w:2,h:2,startAngle:0,sweepAngle:90,showRadii:false};e.toolHint.textContent='Click the radius/start point · Escape cancels';}
@@ -20,7 +20,7 @@ export class Geometry {
   e.paint();return true;
  }
  move(event,p){const e=this.e;
-  if(this.edit){const {item,handle}=this.edit,q=localPoint(item,p);if(handle.startsWith('point:')){item.points[+handle.split(':')[1]]=[q.x,q.y];e.requestPaint();return true;}const a=degrees(Math.atan2((q.y-item.h/2)/(item.h/2),(q.x-item.w/2)/(item.w/2))),angle=event.shiftKey?Math.round(a/15)*15:a;
+  if(this.edit){const {item,handle}=this.edit,q=localPoint(item,p);if(handle.startsWith('point:')){item.points[+handle.split(':')[1]]=[q.x,q.y];e.invalidateVisual?.(item.id);e.requestPaint();return true;}const a=degrees(Math.atan2((q.y-item.h/2)/(item.h/2),(q.x-item.w/2)/(item.w/2))),angle=event.shiftKey?Math.round(a/15)*15:a;
    if(handle==='start')item.startAngle=angle;
    if(handle==='end')item.sweepAngle=((angle-item.startAngle)%360+360)%360||360;
    if(handle==='radius'){const r=Math.max(2,Math.hypot(q.x-item.w/2,q.y-item.h/2)),cx=item.x+item.w/2,cy=item.y+item.h/2;item.w=item.h=2*r;item.x=cx-r;item.y=cy-r;}
