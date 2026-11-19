@@ -68,13 +68,32 @@ function apply(document,patch,forward){
  }
  return result;
 }
+// Reuse the already-computed history diff to identify edited object visuals.
+// There is no extra traversal or serialization of large stroke/image data.
+function editedVisualIds(patch,after){
+ const ids=new Set(),items=after?.items||[];
+ const transformOnly=new Set(['x','y','rotation','opacity','locked','rawPoints','rawPressures','source']);
+ for(const change of patch){
+  const path=change.path;
+  if(path[0]!=='items')continue;
+  if(Number.isInteger(path[1])){
+   if(path.length===3&&transformOnly.has(path[2]))continue;
+   if(items[path[1]]?.id)ids.add(items[path[1]].id);
+  }else if(path.length===1&&change.kind==='splice'){
+   for(const item of change.added)if(item?.id)ids.add(item.id);
+  }else{
+   for(const item of items)if(item?.id)ids.add(item.id);
+  }
+ }
+ return ids;
+}
 export class History {
   constructor(initial, limit = 80, {maxBytes=32*1024*1024}={}) {
     if(!Number.isInteger(limit)||limit<0||!Number.isFinite(maxBytes)||maxBytes<=0)throw new Error('Invalid history limits.');
-    this.limit=limit;this.maxBytes=maxBytes;this.assets=new AssetPool();this.past=[];this.future=[];this.current=structuredClone(initial);
+    this.limit=limit;this.maxBytes=maxBytes;this.assets=new AssetPool();this.past=[];this.future=[];this.current=structuredClone(initial);this.lastChangedItemIds=new Set();
   }
   commit(next,{retainLatest=false}={}) {
-    const patch=diff(this.current,next);if(!patch.length)return false;
+    const patch=diff(this.current,next);this.lastChangedItemIds=editedVisualIds(patch,next);if(!patch.length)return false;
     const encoded=this.assets.encode(patch);encoded.retainForUndo=retainLatest;this.past.push(encoded);
     if (this.past.length > this.limit) this.past.shift();
     this.current = structuredClone(next); this.future = [];this.enforceBudget();return true;
