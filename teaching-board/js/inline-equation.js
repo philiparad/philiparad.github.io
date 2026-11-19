@@ -1,5 +1,5 @@
-import {TEXT_FONT_FAMILY} from './text-font.js?v=20261119-perf008';
-import {textMeasurer} from './text-measure.js?v=20261119-perf008';
+import {TEXT_FONT_FAMILY} from './text-font.js?v=20261119-perf009';
+import {textMeasurer} from './text-measure.js?v=20261119-perf009';
 export function validateInlineEquation(eq){if(!eq||typeof eq.source!=='string'||!eq.source.trim()||eq.source.length>2000||typeof eq.src!=='string'||!/^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(eq.src)||eq.src.length>2000000||![eq.w,eq.h].every(n=>Number.isFinite(n)&&n>0&&n<=2000))throw new Error('Invalid inline equation.');}
 export function equationSize(eq,font,width=Infinity){let h=Math.min(font*3,Math.max(font,eq.h*font/30)),w=h*eq.w/eq.h;if(w>width){h*=width/w;w=width;}return {w,h};}
 export function equationContentWidth(item){return Number.isFinite(item?.w)?Math.max(1,item.w-(item.type==='note'?28:0)):Infinity;}
