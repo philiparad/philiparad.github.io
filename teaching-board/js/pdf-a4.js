@@ -1,4 +1,4 @@
-import { A4, pageRect } from './pages.js?v=20261024-image-actions';
+import { A4, pageRect } from './pages.js?v=20261119-perf005';
 
 /** Prepare the entire import without changing the document. */
 export function planA4Import(board,pages){
