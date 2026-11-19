@@ -85,17 +85,19 @@ test('PERF-004 cache updates with geometry, direct text changes, and explicit ri
 
 test('PERF-004 font loading and document changes invalidate measured text bounds',()=>{
  const old=globalThis.document,listeners=new Map();
- const fonts={addEventListener(name,listener){listeners.set(name,listener);},
-  removeEventListener(name,listener){if(listeners.get(name)===listener)listeners.delete(name);}};
+ const fonts={addEventListener(name,listener){
+   if(!listeners.has(name))listeners.set(name,new Set());
+   listeners.get(name).add(listener);
+  },removeEventListener(name,listener){listeners.get(name)?.delete(listener);}};
  const item={id:'font-change',type:'text',x:0,y:0,w:160,h:20,fontSize:24,text:'Text'};
  try{
   globalThis.document={fonts};
   const before=visualBounds(item);
   assert.equal(visualBounds(item),before);
-  listeners.get('loadingdone')?.();
+  for(const listener of listeners.get('loadingdone')||[])listener();
   assert.notEqual(visualBounds(item),before);
   const after=visualBounds(item);
-  listeners.get('loadingerror')?.();
+  for(const listener of listeners.get('loadingerror')||[])listener();
   assert.notEqual(visualBounds(item),after);
   globalThis.document={fonts};
   const replacement=visualBounds(item);
