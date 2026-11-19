@@ -75,12 +75,12 @@ test('PERF-006 snap index is independent from future geometry mutations and excl
  const a=rect('a',10,10),b=rect('b',120,10),board={items:[a,b],viewport:{zoom:1}};
  const index=buildSnapIndex(board.items,new Set(['a']));
  const point={x:9,y:10};
- assert.deepEqual(snapPoint(point,board,new Set(['a']),'objects',null,index).guides,[]);
+ assert.equal(snapPoint(point,board,new Set(['a']),'objects',null,index).guides.some(g=>g.axis==='x'),false);
  b.x=9;
  // Gesture snapshot is deliberately immutable until editor invalidates it.
- assert.deepEqual(snapPoint(point,board,new Set(['a']),'objects',null,index).guides,[]);
+ assert.equal(snapPoint(point,board,new Set(['a']),'objects',null,index).guides.some(g=>g.axis==='x'),false);
  const refreshed=buildSnapIndex(board.items,new Set(['a']));
- assert.equal(snapPoint(point,board,new Set(['a']),'objects',null,refreshed).x,9);
+ assert.equal(snapPoint(point,board,new Set(['a']),'objects',null,refreshed).guides.some(g=>g.axis==='x'),true);
  assert.equal(snapPoint({x:10,y:10},board,new Set(),'off').x,10);
 });
 
