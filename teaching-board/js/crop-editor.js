@@ -1,6 +1,6 @@
-import {dragCrop,croppedFrame} from './crop-geometry.js?v=20261120-perf013';
-import { el, btn, field } from './ui.js?v=20261120-perf013';
-import { loadImage } from './media.js?v=20261120-perf013';
+import {dragCrop,croppedFrame} from './crop-geometry.js?v=20261120-perf014';
+import { el, btn, field } from './ui.js?v=20261120-perf014';
+import { loadImage } from './media.js?v=20261120-perf014';
 export function validCrop(c){return c&&['x','y','w','h'].every(k=>Number.isFinite(c[k]))&&c.x>=0&&c.y>=0&&c.w>=.001&&c.h>=.001&&c.x+c.w<=1.000001&&c.y+c.h<=1.000001;}
 export async function cropDialog(item){
  const image=await loadImage(item.src),d=el('dialog',null,'crop-dialog'),stage=el('div',null,'crop-stage'),img=el('img'),box=el('div',null,'crop-box');img.src=item.src;img.alt='Original image';img.draggable=false;stage.append(img,box);for(const handle of ['nw','n','ne','e','se','s','sw','w']){const grip=el('span',null,'crop-handle crop-'+handle);grip.dataset.cropHandle=handle;grip.setAttribute('aria-hidden','true');box.append(grip);}let crop={...(item.crop||{x:0,y:0,w:1,h:1})},start=null,result=null;
