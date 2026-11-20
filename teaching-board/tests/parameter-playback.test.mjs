@@ -21,3 +21,17 @@ test('switching parameters cancels old queued frames; rendering failure stops pl
 });
 
 test('rounding cannot push values outside irrational bounds',()=>{const p={value:Math.PI,min:-Math.PI,max:Math.PI};assert.equal(advanceParameter(p,1).value,Math.PI);p.value=-Math.PI;assert.equal(advanceParameter(p,-1).value,-Math.PI);});
+
+test('PERF-011 graph playback honors a larger preview frame budget',async()=>{
+ const scheduled=[],clock={set:(fn,delay)=>{scheduled.push({fn,delay});return fn;},clear:()=>{}};
+ const p=parameter(),playback=new ParameterPlayback(async()=>true,()=>{},clock,260);
+ playback.start(p,()=>{});
+ await settle();
+ assert.equal(scheduled.length,1);
+ assert.equal(scheduled[0].delay,260);
+ const next=scheduled[0].fn;
+ await next();await settle();
+ assert.equal(scheduled.length,2);
+ assert.equal(scheduled[1].delay,260);
+ playback.stop();
+});
