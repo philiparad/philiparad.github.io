@@ -1,7 +1,7 @@
 import { showRecovery } from './recovery.js?v=20261119-perf010';
 import { createBoard, parseBackup } from './model.js?v=20261119-perf010';
 import { BoardRepository } from './storage.js?v=20261119-perf010';
-import { Editor } from './editor.js?v=20261119-perf010';
+import { Editor } from './editor.js?v=20261120-perf011';
 import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261119-perf010';
 import { backup } from './export.js?v=20261119-perf010';
 import { svgEl } from './scene.js?v=20261119-perf010';
