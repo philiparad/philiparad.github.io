@@ -566,7 +566,7 @@ test('image border renders in live and exported content without changing the ima
 
 test('PERF-016 multi-selection drags do not search the full board on every pointer move',()=>{
  const e=fixture(1200);
- e.setTool('select');
+ e.tool='select';
  const selectedIds=e.board.items.slice(0,150).map(item=>item.id);
  e.selected=new Set(selectedIds);
  e.paint();
