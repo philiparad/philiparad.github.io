@@ -1,14 +1,14 @@
-import {backgroundOrder} from './background-lock.js?v=20261120-perf013';
-import {imageCorners,imageSVGTransform} from './image-geometry.js?v=20261120-perf013';
-import { backgroundOptions } from './background-options.js?v=20261120-perf013';
-import {drawGraphMarker} from './graph-marker.js?v=20261120-perf013';
-import {drawEquationText,textLayoutMetrics} from './inline-equation.js?v=20261120-perf013';
-import {paragraphRuns} from './rich-text.js?v=20261120-perf013';
-import { pressurePathD } from './pressure.js?v=20261120-perf013';
-import { drawPreset } from './shapes.js?v=20261120-perf013';
-import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261120-perf013';
-import { strokePathD, naturalPathD } from './ink.js?v=20261120-perf013';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261120-perf013';
+import {backgroundOrder} from './background-lock.js?v=20261120-perf014';
+import {imageCorners,imageSVGTransform} from './image-geometry.js?v=20261120-perf014';
+import { backgroundOptions } from './background-options.js?v=20261120-perf014';
+import {drawGraphMarker} from './graph-marker.js?v=20261120-perf014';
+import {drawEquationText,textLayoutMetrics} from './inline-equation.js?v=20261120-perf014';
+import {paragraphRuns} from './rich-text.js?v=20261120-perf014';
+import { pressurePathD } from './pressure.js?v=20261120-perf014';
+import { drawPreset } from './shapes.js?v=20261120-perf014';
+import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261120-perf014';
+import { strokePathD, naturalPathD } from './ink.js?v=20261120-perf014';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261120-perf014';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function textObjectHeight(item){return ['text','note'].includes(item.type)?Math.max(item.h||1,textLayoutMetrics(item,paragraphRuns(item)).height):item.h||1;}
