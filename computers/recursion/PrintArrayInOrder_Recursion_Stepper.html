@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>PrintArrayInOrder — Interactive Recursion Trace</title>
+    <style>
+        :root { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color: #19304c; background: #f2f6fb; --blue:#2366d9; --blue-soft:#e9f2ff; --amber:#a9600a; --green:#147653; --purple:#7b4abc; --border:#d1deee; --muted:#536780; }
+        * { box-sizing:border-box; }
+        [hidden] { display:none !important; }
+        html { scroll-behavior:smooth; }
+        body { margin:0; min-width:320px; }
+        button, select, input { font:inherit; }
+        button { cursor:pointer; }
+        button:disabled { opacity:.40; cursor:not-allowed; }
+        :focus-visible { outline:3px solid #80acfa; outline-offset:3px; }
+        #appRoot { min-height:100vh; }
+        .wrap { width:min(1550px,100%); padding:13px 18px; margin:0 auto; }
+        .page-header { background:#fff; border-bottom:2px solid #e2eaf5; box-shadow:0 2px 8px #163f6e0c; }
+        .heading { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+        h1 { font-size:clamp(20px,2.5vw,27px); margin:0; letter-spacing:-.4px; }
+        .subtitle { color:#5a6f88; font-size:13px; margin:3px 0 0; }
+        .pill { border-radius:20px; padding:7px 12px; background:#e8f1ff; color:#20559a; font-size:12px; font-weight:800; }
+        .pill.complete { background:#e0f7ec; color:#0b6a47; }
+        .nav { margin-top:11px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+        .btn { min-height:38px; padding:7px 12px; border:1.5px solid #b8cce3; border-radius:8px; background:white; color:#234262; font-weight:760; white-space:nowrap; font-size:13px; }
+        .btn:hover:not(:disabled) { background:#eaf2ff; border-color:#86a8d7; }
+        .btn.primary { background:var(--blue); color:#fff; border-color:var(--blue); }
+        .btn.primary:hover:not(:disabled) { background:#1953bb; }
+        .btn.playing { background:#fff2da; color:#85510e; border-color:#e0af60; }
+        .btn.tiny { min-height:30px; padding:5px 9px; }
+        .spacer { flex:1; }
+        .step-count { white-space:nowrap; color:#31557e; font-weight:800; font-variant-numeric:tabular-nums; font-size:13px; }
+        .progress { height:5px; background:#e9eff7; border-radius:5px; overflow:hidden; margin-top:10px; }
+        #progressFill { display:block; height:100%; background:#3175e7; width:0; transition:width .2s; }
+        .event { background:#fff; margin:12px 0; border:1.5px solid var(--border); border-radius:12px; padding:13px 15px; display:flex; gap:13px; align-items:center; }
+        .event-icon { width:42px; height:42px; border-radius:50%; display:grid; place-items:center; background:#e7f0ff; color:#1d5bc0; font-weight:900; flex:0 0 auto; }
+        .event-info { flex:1; min-width:0; }
+        .event-info h2 { font-size:16px; margin:0 0 3px; }
+        .event-info p { font-size:13px; color:#566c85; line-height:1.5; margin:0; }
+        .event-kind { background:#edf3ff; color:#285b9c; border-radius:18px; padding:6px 10px; font-size:12px; font-weight:850; white-space:nowrap; }
+        .board { background:#fff; border:1.5px solid var(--border); border-radius:13px; overflow:hidden; box-shadow:0 2px 12px #224f830b; }
+        .board-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:10px 13px; gap:8px; border-bottom:1px solid #e3ebf4; background:#fbfdff; }
+        .head-group { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+        .segmented { display:flex; border:1px solid #b5c8e1; padding:3px; border-radius:10px; background:#edf3fb; }
+        .segmented button { padding:6px 13px; border:0; border-radius:7px; color:#42607c; background:transparent; font-weight:800; font-size:13px; }
+        .segmented button[aria-pressed="true"] { background:#2366d9; color:white; }
+        .legend { display:flex; flex-wrap:wrap; gap:13px; align-items:center; font-size:12px; color:#44607b; font-weight:700; }
+        .legend b { display:inline-block; width:16px; height:4px; vertical-align:middle; margin-right:4px; border-radius:2px; }
+        .overview-hint { font-size:12px; padding:6px 10px; border-radius:8px; background:#f2f7ff; border:1px solid #d5e4f8; color:#496685; }
+        .input-band { padding:11px 15px; display:grid; grid-template-columns:minmax(325px,1.1fr) minmax(255px,.9fr); gap:14px; border-bottom:1px solid #dce6f4; background:#f8fbff; }
+        .input-band.array-hidden { grid-template-columns:1fr; }
+        .input-card,.output-card { background:white; border:1px solid #d5e3f2; border-radius:10px; padding:11px 13px; min-width:0; }
+        .input-header,.output-header { display:flex; gap:12px; justify-content:space-between; align-items:center; font-size:13px; font-weight:850; color:#28496f; flex-wrap:wrap; margin-bottom:9px; }
+        .input-header code { font:750 12px Consolas, ui-monospace, monospace; color:#3869a2; }
+        .array-entries { display:flex; gap:6px; align-items:flex-start; overflow-x:auto; padding:3px 0 8px; }
+        .array-entry { flex:0 0 50px; text-align:center; }
+        .array-entry .idx { font-size:11px; font-weight:750; color:#657c94; display:block; margin-bottom:4px; }
+        .array-entry .value { display:grid; place-items:center; height:42px; border:2px solid #abc3e4; border-radius:8px; background:#e6f0ff; color:#183d72; font-size:19px; font-weight:900; }
+        .array-entry.printed .value { background:#e3f7ec; border-color:#61ad8a; color:#0e6d4b; }
+        .array-entry.current .value { border-color:#8150c8; outline:2px solid #bca4ea; outline-offset:1px; }
+        .array-entry .marker { display:block; min-height:24px; font-size:10px; font-weight:850; margin-top:3px; color:#8052bd; }
+        .array-entry.sentinel .value { background:#fbf8ff; color:#8865ae; border:2px dashed #b598cf; font-size:12px; }
+        .array-entry.sentinel.current .value { background:#eee3ff; border-color:#8052bd; }
+        #activeIndexInfo { font:720 12px Consolas, ui-monospace, monospace; color:#4b6581; margin-top:1px; }
+        .console { min-height:46px; background:#142841; color:#e5f4ff; border-radius:8px; padding:12px 14px; font:750 18px/1.3 Consolas, ui-monospace, monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
+        .console.empty { color:#94abc4; font-size:14px; font-style:italic; }
+        .console-note { font-size:12px; color:#596f85; margin-top:7px; line-height:1.4; }
+        .stackbar { min-height:39px; padding:6px 13px; display:flex; flex-wrap:wrap; align-items:center; gap:5px; border-bottom:1px solid #e3eaf3; background:#fcfdff; }
+        .stackbar strong { color:#446180; font-size:12px; margin-right:5px; }
+        .stack-chip { display:inline-flex; align-items:center; background:#f4f8ff; border:1px solid #bfd3ed; padding:4px 7px; border-radius:6px; color:#335d8f; font:750 12px Consolas, ui-monospace,monospace; }
+        .stack-chip.active { background:#dbeaff; border:2px solid #3675db; color:#144b9e; }
+        .stack-chevron { color:#6e90b4; font-weight:900; }
+        .diagram-panel { position:relative; min-width:0; }
+        #viewport { overflow:auto; height:clamp(370px,49vh,600px); min-height:370px; position:relative; background:#fff; background-image:radial-gradient(#e1e9f5 1px,transparent 1px); background-size:20px 20px; scrollbar-color:#acc2de #eff4fa; }
+        #sceneSpace { position:relative; }
+        #graph { display:block; transform-origin:top left; overflow:visible; }
+        #graph text { pointer-events:none; }
+        .node-rect { fill:white; stroke:#aac0d9; stroke-width:2; }
+        .node-rect.future { fill:#fbfdff; stroke:#b9c9dd; stroke-dasharray:7 5; }
+        .node-rect.stack { fill:#eff6ff; stroke:#5892db; stroke-width:2.7; }
+        .node-rect.active { fill:#dcecff; stroke:#215fce; stroke-width:4; }
+        .node-rect.completed { fill:#e7f8ef; stroke:#389974; stroke-width:2.5; }
+        .node-accent { fill:#b1c4dc; }
+        .node-accent.active { fill:#2567da; }
+        .node-accent.completed { fill:#37a17a; }
+        .node-label { fill:#233f62; font:800 14px Consolas,ui-monospace,monospace; }
+        .node-number { fill:#3d6698; stroke:white; stroke-width:2; }
+        .node-number-text { fill:white; font:800 11px system-ui,sans-serif; text-anchor:middle; dominant-baseline:central; }
+        .node-detail { fill:#48617a; font:650 12px Consolas,ui-monospace,monospace; }
+        .node-detail.printed { fill:#157454; font-weight:850; }
+        .node-detail.base { fill:#7645b1; }
+        .node-status { text-anchor:end; fill:#4c7094; font:800 11px system-ui,sans-serif; }
+        .node-status.done { fill:#16805b; }
+        .node-status.future { fill:#8a9cb1; }
+        .edge-call { fill:none; stroke:#a4bbd6; stroke-width:2.5; stroke-linecap:round; }
+        .edge-call.stack { stroke:#296fe1; stroke-width:4; }
+        .edge-call.past { stroke:#97b4d5; opacity:.8; }
+        .edge-call.future { stroke:#c0ccd9; stroke-width:2.1; stroke-dasharray:6 6; }
+        .edge-return { fill:none; stroke:#bb771d; stroke-width:3.3; stroke-linecap:round; }
+        .edge-return.past { stroke:#d6a15e; stroke-width:2.6; }
+        .return-bg { fill:#fff4dc; stroke:#d39e45; stroke-width:1.5; }
+        .return-text { fill:#89520c; font:850 14px Consolas,ui-monospace,monospace; text-anchor:middle; dominant-baseline:central; }
+        .node-tappable { cursor:pointer; }
+        .node-summary { fill:#3c6487; font:850 11px system-ui,sans-serif; }
+        .print-bubble { fill:#f1e7ff; stroke:#9564ca; stroke-width:1.7; }
+        .print-bubble-text { fill:#6f3ca9; font:900 13px Consolas,ui-monospace,monospace; text-anchor:middle; dominant-baseline:central; }
+        .edge-enter { animation:callPulse .65s ease-out both; }
+        .print-enter { animation:pop .55s ease-out both; transform-box:fill-box; transform-origin:center; }
+        @keyframes callPulse { from { opacity:.25; stroke-dasharray:10 10; stroke-dashoffset:60; } to { opacity:1; stroke-dasharray:none; stroke-dashoffset:0; } }
+        @keyframes pop { from { transform:scale(.78); opacity:.25; } to { transform:scale(1); opacity:1; } }
+        .panel-footer { padding:9px 13px; font-size:12px; color:#54708a; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; border-top:1px solid #e4ecf5; background:#fbfdff; }
+        .panel-footer strong { color:#2f5277; }
+        .notice { color:#a25c12; font-weight:800; }
+        .source { background:white; border:1.5px solid var(--border); border-radius:11px; margin:12px 0 17px; overflow:hidden; }
+        .source summary { padding:11px 14px; color:#244b77; font-size:14px; font-weight:850; cursor:pointer; }
+        .source pre { background:#f4f8ff; margin:0; padding:12px 15px; overflow:auto; font:13px/1.6 Consolas,ui-monospace,monospace; counter-reset:line; }
+        .source-line { display:block; white-space:pre; padding:0 7px; border-left:3px solid transparent; }
+        .source-line.current { background:#dbe9ff; border-left-color:#2366d9; color:#174a93; font-weight:900; }
+        .source-line::before { content:attr(data-num); display:inline-block; width:20px; color:#8197b1; margin-right:12px; text-align:right; }
+        .footnote { font-size:12px; color:#60738a; padding:0 1px; margin:9px 0; }
+        .array-edit { display:flex; gap:7px; flex-wrap:wrap; align-items:center; margin-top:6px; font-size:12px; color:#526985; }
+        .array-edit input { width:min(250px,100%); border:1px solid #bdcde2; border-radius:7px; padding:5px 8px; font:700 12px Consolas,monospace; }
+        #appRoot:fullscreen { height:100vh; width:100vw; overflow:auto; display:flex; flex-direction:column; background:#f2f6fb; }
+        #appRoot:fullscreen .wrap.main { flex:1; min-height:0; display:flex; flex-direction:column; }
+        #appRoot:fullscreen .board { flex:1; display:flex; flex-direction:column; min-height:0; }
+        #appRoot:fullscreen .diagram-panel { flex:1; min-height:0; display:flex; flex-direction:column; }
+        #appRoot:fullscreen #viewport { height:auto; flex:1; min-height:200px; }
+        #appRoot:fullscreen .source,#appRoot:fullscreen .footnote { display:none; }
+        @media (max-width:800px) {
+            .wrap { padding:10px; }
+            .input-band { grid-template-columns:1fr; gap:7px; padding:9px; }
+            .legend { gap:6px; }
+            #viewport { height:430px; }
+            .event { align-items:flex-start; }
+        }
+        @media (max-width:520px) {
+            .nav { gap:5px; }
+            .btn { padding:6px 8px; min-height:34px; font-size:12px; }
+            .event-kind { display:none; }
+            .input-band.array-hidden { grid-template-columns:1fr; }
+        .input-card,.output-card { padding:8px; }
+            .board-head { padding:8px; }
+            .overview-hint { width:100%; }
+        }
+        @media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+        @media print { .nav, .board-head .head-group:last-child, .source, .array-edit { display:none; } #viewport { overflow:visible; height:auto; } .board { break-inside:avoid; } }
+    </style>
+</head>
+<body>
+<div id="appRoot">
+    <header class="page-header">
+        <div class="wrap">
+            <div class="heading">
+                <div>
+                    <h1>PrintArrayInOrder — Interactive Recursion Trace</h1>
+                    <p class="subtitle">The value is printed <strong>before</strong> the next recursive call · All invocations visible in the main panel</p>
+                </div>
+                <span class="pill" id="overallStatus">Console output: pending</span>
+            </div>
+            <nav class="nav" aria-label="Trace navigation">
+                <button id="btnBack" class="btn" type="button">◀ Back</button>
+                <button id="btnNext" class="btn primary" type="button">Next ▶</button>
+                <button id="btnAuto" class="btn" type="button">▶ Auto-play</button>
+                <button id="btnReset" class="btn" type="button">↺ Reset</button>
+                <label for="speed" style="font-size:12px;font-weight:800;color:#526781">Speed</label>
+                <select id="speed" class="btn tiny" aria-label="Auto-play speed">
+                    <option value="2000">Slow</option><option value="1300" selected>Normal</option><option value="700">Fast</option>
+                </select>
+                <div class="spacer"></div>
+                <strong class="step-count">Step <span id="stepCount">1 / 22</span></strong>
+            </nav>
+            <div id="progressTrack" class="progress" role="progressbar" aria-label="Execution progress" aria-valuemin="1" aria-valuemax="22" aria-valuenow="1"><span id="progressFill"></span></div>
+        </div>
+    </header>
+    <main class="wrap main">
+        <section class="event" aria-live="polite" aria-atomic="true">
+            <span id="eventIcon" class="event-icon">1</span>
+            <div class="event-info"><h2 id="eventTitle">Begin execution</h2><p id="eventDescription"></p></div>
+            <span id="eventKind" class="event-kind">Start</span>
+        </section>
+        <section class="board" aria-label="Interactive recursion diagram">
+            <div class="board-head">
+                <div class="head-group">
+                    <div class="segmented" aria-label="Diagram mode">
+                        <button id="btnOverview" aria-pressed="true" type="button">Full Overview</button>
+                        <button id="btnFocus" aria-pressed="false" type="button">Focus Mode</button>
+                    </div>
+                    <div class="legend">
+                        <span><b style="background:#246be1"></b>Call</span>
+                        <span><b style="background:#b67922"></b>Void return</span>
+                        <span><b style="background:#8852c1"></b>Print</span>
+                        <span><b style="background:#309d73"></b>Completed</span>
+                    </div>
+                </div>
+                <div class="head-group">
+                    <button id="btnCollapse" class="btn tiny" aria-pressed="false" type="button">Collapse done: Off</button>
+                    <button id="btnHideArray" class="btn tiny" type="button">Hide array</button>
+                    <button id="btnZoomOut" class="btn tiny" type="button" aria-label="Zoom out">−</button>
+                    <span id="zoomLabel" class="step-count" style="min-width:44px;text-align:center">100%</span>
+                    <button id="btnZoomIn" class="btn tiny" type="button" aria-label="Zoom in">+</button>
+                    <button id="btnFit" class="btn tiny" type="button">Fit All</button>
+                    <button id="btnFullscreen" class="btn tiny" type="button">⛶ Fullscreen</button>
+                </div>
+            </div>
+            <div id="inputBand" class="input-band">
+                <section id="inputCard" class="input-card" aria-label="Current array and index">
+                    <div class="input-header"><span>Array &amp; current index</span><code id="arrayCall">Main(string[] args)</code></div>
+                    <div class="array-entries" id="arrayCells"></div>
+                    <div id="activeIndexInfo">Array: [1, 2, 3, 4, 5]</div>
+                    <div class="array-edit">
+                        <label for="arrayInput">Example:</label>
+                        <input id="arrayInput" value="1, 2, 3, 4, 5" aria-label="Array values separated by commas">
+                        <button id="btnApplyArray" class="btn tiny" type="button">Apply</button>
+                        <span id="arrayError" role="alert" style="color:#a62c34;font-weight:800"></span>
+                    </div>
+                </section>
+                <section class="output-card" aria-label="Program console output">
+                    <div class="output-header"><span>Console output</span><span id="printedCount" style="font-size:12px;color:#5b7091">0 values printed</span></div>
+                    <div id="consoleOutput" class="console empty" aria-live="off">Nothing printed yet</div>
+                    <div class="console-note">Printing occurs during the downward recursive calls. Returning from a <code>void</code> method prints nothing.</div>
+                </section>
+            </div>
+            <div id="stackBar" class="stackbar" aria-label="Active call stack"></div>
+            <div class="diagram-panel">
+                <div id="viewport" tabindex="0" aria-label="Main recursion diagram, full overview inside this panel">
+                    <div id="sceneSpace"><svg id="graph" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="graphTitle graphDesc"></svg></div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span id="viewMessage"><strong>Full Overview:</strong> all calls fit within the main panel on desktop. Dashed cards are upcoming calls.</span>
+                <span id="boardStats">8 frames · 7 call arrows · 7 void returns</span>
+            </div>
+        </section>
+        <details class="source" id="sourceDetails">
+            <summary>View original C# program and highlighted executing line</summary>
+            <pre><code id="codeListing"></code></pre>
+        </details>
+        <p class="footnote">No minimap or separate overview frame. The diagram, including the last base-case call, is drawn inside the main panel. Use Fit All or fullscreen to inspect it; on small screens, scrolling preserves readable text.</p>
+    </main>
+</div>
+<script>
+    'use strict';
+    // Standalone pure HTML/CSS/JS/SVG. The model uses the exact C# call structure.
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const $ = (id) => document.getElementById(id);
+    const CODE_LINES = [
+        'public class Program',
+        '{',
+        '    public static void PrintArrayInOrder(int[] array)',
+        '    {',
+        '        PrintArrayInOrder(array, 0);',
+        '    }',
+        '    private static void PrintArrayInOrder(int[] array, int index)',
+        '    {',
+        '        if (index >= array.Length)',
+        '        {',
+        '            return;',
+        '        }',
+        '        Console.Write(array[index] + " ");',
+        '        PrintArrayInOrder(array, index + 1);',
+        '    }',
+        '    public static void Main(string[] args)',
+        '    {',
+        '        int[] array = { 1, 2, 3, 4, 5 };',
+        '        PrintArrayInOrder(array);',
+        '    }',
+        '}'
+    ];
+    const svgEl = (tag, attrs={}, text) => {
+        const el = document.createElementNS(SVG_NS, tag);
+        Object.entries(attrs).forEach(([key,value]) => el.setAttribute(key,String(value)));
+        if (text !== undefined) el.textContent = String(text);
+        return el;
+    };
+    let example = [1,2,3,4,5];
+    let trace = makeTrace(example);
+    let byId = new Map(trace.frames.map(f => [f.id,f]));
+    const ui = { step:1, mode:'overview', zoom:1, minZoom:.75, maxZoom:1.75, auto:null, collapsed:false, expandedBranches:new Set(), hiddenArray:false, fitted:true };
+    let currentLayout = null;
+    let lastSnapshot = null;
+
+    function makeTrace(array) {
+        const frames=[], events=[];
+        function enter(id,parent,kind,index) {
+            const frame = {id,parent,kind,index,order:frames.length+1,depth:parent===null?0:frames.find(f=>f.id===parent).depth+1};
+            frames.push(frame); return frame;
+        }
+        enter('main',null,'main',null);
+        events.push({type:'start',node:'main',line:18,title:'Start Main',description:'Main creates the array and calls the public PrintArrayInOrder(array) method.'});
+        enter('wrapper','main','wrapper',null);
+        events.push({type:'call',from:'main',to:'wrapper',line:19,title:'Main calls PrintArrayInOrder(array)',description:'Main invokes the public overload. This wrapper has only one argument: array.'});
+        function recursion(index,parent) {
+            const id = 'index-'+index;
+            enter(id,parent,'inner',index);
+            events.push({type:'call',from:parent,to:id,line:parent==='wrapper'?5:14,title:`Call PrintArrayInOrder(array, ${index})`,description:parent==='wrapper'?'The public overload calls the private overload with index = 0.':`The current call executes PrintArrayInOrder(array, index + 1), so the next index is ${index}.`});
+            if (index >= array.length) {
+                events.push({type:'base',node:id,line:11,title:`Base case: index = ${index}`,description:`index >= array.Length is true (${index} >= ${array.length}). The method executes return; — without printing and without returning a value.`});
+            } else {
+                events.push({type:'print',node:id,index,value:array[index],line:13,title:`Print array[${index}] = ${array[index]}`,description:`Console.Write(array[${index}] + " ") prints ${array[index]} and a space BEFORE making the recursive call.`});
+                recursion(index+1,id);
+            }
+            events.push({type:'return',from:id,to:parent,line:index>=array.length?11:14,title:`Return from index ${index}`,description:`PrintArrayInOrder(array, ${index}) finishes. Because it is void, it returns control to its direct caller, not a number.`});
+        }
+        recursion(0,'wrapper');
+        events.push({type:'return',from:'wrapper',to:'main',line:5,title:'Wrapper returns to Main',description:'The public overload finishes after its private recursive call returns. It also returns no value.'});
+        events.push({type:'finish',node:'main',line:20,title:'Program finishes',description:`Main finishes. Console output is ${array.join(' ')}. All recursive frames have returned in reverse call order.`});
+        return {frames,events};
+    }
+
+    function snapshot(step) {
+        const entered = new Set(),done=new Set(),printed=new Map(),callEdges=[],returnEdges=[],stack=[],printedValues=[];
+        let baseReached=false, finished=false;
+        for(let k=0;k<step;k++) {
+            const event=trace.events[k];
+            if(event.type==='start') { entered.add(event.node); stack.push(event.node); }
+            if(event.type==='call') { entered.add(event.to); callEdges.push(event); stack.push(event.to); }
+            if(event.type==='print') { printed.set(event.node,event.value); printedValues.push(event.value); }
+            if(event.type==='base') baseReached=true;
+            if(event.type==='return') {
+                returnEdges.push(event);done.add(event.from);
+                if(stack[stack.length-1]!==event.from) throw new Error('Call stack mismatch');
+                stack.pop();
+            }
+            if(event.type==='finish') { done.add(event.node); stack.length=0; finished=true; }
+        }
+        return {entered,done,printed,callEdges,returnEdges,stack,printedValues,baseReached,finished,event:trace.events[step-1],active:stack.at(-1)||'main'};
+    }
+    function describe(f) {
+        if(f.kind==='main') return 'Main(string[] args)';
+        if(f.kind==='wrapper') return 'PrintArrayInOrder(array)';
+        return `PrintArrayInOrder(array, ${f.index})`;
+    }
+    function shortName(f) {
+        if(f.kind==='main') return 'Main';
+        if(f.kind==='wrapper') return 'Wrapper';
+        return `index ${f.index}`;
+    }
+    function layoutOverview() {
+        // Snake ordering maintains direct visual adjacency for all calls and fits in two rows for n=5.
+        const cols=4,w=247,h=134,gx=54,gy=105,padX=29,padY=25;
+        const positions=new Map();
+        trace.frames.forEach((frame,k)=> {
+            const row=Math.floor(k/cols), offset=k%cols;
+            const col=row%2===0?offset:cols-1-offset;
+            positions.set(frame.id,{x:padX+col*(w+gx),y:padY+row*(h+gy),w,h});
+        });
+        const rows=Math.ceil(trace.frames.length/cols);
+        const width=padX*2+cols*w+(cols-1)*gx;
+        const height=padY*2+rows*h+(rows-1)*gy;
+        return {positions,width,height,mode:'overview'};
+    }
+    function layoutFocus(s) {
+        const pos=new Map();
+        const current=byId.get(s.active);
+        const parent=current.parent?byId.get(current.parent):null;
+        const next=trace.frames.find(f=>f.parent===current.id);
+        const w=320,h=174;
+        if(parent) pos.set(parent.id,{x:22,y:75,w:290,h:155});
+        pos.set(current.id,{x:parent?365:260,y:58,w,h});
+        if(next) pos.set(next.id,{x:parent?740:650,y:75,w:305,h:155});
+        const width=(parent?1085:next?995:650),height=315;
+        return {positions:pos,width,height,mode:'focus',futureChild:next?.id||null};
+    }
+    function buildDefs() {
+        const defs=svgEl('defs');
+        for(const [name,color] of [['callArrow','#2d72e2'],['returnArrow','#bd7d20'],['futureArrow','#9cb2cc']]) {
+            const marker=svgEl('marker',{id:name,viewBox:'0 0 12 12',refX:10,refY:6,markerWidth:8,markerHeight:8,orient:'auto'});
+            marker.append(svgEl('path',{d:'M 2 2 L 10 6 L 2 10',fill:'none',stroke:color,'stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'}));
+            defs.append(marker);
+        }
+        return defs;
+    }
+    function edgeCoords(a,b,reverse) {
+        const ca={x:a.x+a.w/2,y:a.y+a.h/2}, cb={x:b.x+b.w/2,y:b.y+b.h/2};
+        const horizontal=Math.abs(cb.x-ca.x)>Math.abs(cb.y-ca.y);
+        const shift=reverse?15:-15;
+        let sx,sy,ex,ey;
+        if(horizontal) {
+            const dir=Math.sign(cb.x-ca.x);
+            sx=ca.x+dir*a.w/2;ex=cb.x-dir*b.w/2;
+            sy=ca.y+shift;ey=cb.y+shift;
+            const mx=(sx+ex)/2;
+            return {d:`M ${sx} ${sy} C ${mx} ${sy}, ${mx} ${ey}, ${ex} ${ey}`,badgeX:mx,badgeY:(sy+ey)/2};
+        }
+        const dir=Math.sign(cb.y-ca.y);
+        sy=ca.y+dir*a.h/2;ey=cb.y-dir*b.h/2;
+        sx=ca.x+shift;ex=cb.x+shift;
+        const my=(sy+ey)/2;
+        return {d:`M ${sx} ${sy} C ${sx} ${my}, ${ex} ${my}, ${ex} ${ey}`,badgeX:(sx+ex)/2,badgeY:my};
+    }
+    function drawConnection(layer,labelLayer,parent,child,s,preview=false) {
+        const a=currentLayout.positions.get(parent.id), b=currentLayout.positions.get(child.id);
+        if(!a||!b) return;
+        const visited=s.callEdges.some(e=>e.from===parent.id && e.to===child.id);
+        const returned=s.returnEdges.some(e=>e.from===child.id && e.to===parent.id);
+        if(!visited && !preview) return;
+        const currentEvent=s.event;
+        const onPath=s.stack.includes(parent.id)&&s.stack.includes(child.id);
+        const cls=`edge-call ${!visited?'future':onPath?'stack':'past'} ${currentEvent.type==='call'&&currentEvent.to===child.id?'edge-enter':''}`;
+        layer.append(svgEl('path',{d:edgeCoords(a,b,false).d,class:cls,'marker-end':preview&&!visited?'url(#futureArrow)':'url(#callArrow)'}));
+        if(returned) {
+            const coords=edgeCoords(b,a,true);
+            // Return always points from the child back to its immediate caller.
+            const newest=currentEvent.type==='return'&&currentEvent.from===child.id;
+            layer.append(svgEl('path',{d:coords.d,class:`edge-return ${newest?'edge-enter':'past'}`,'marker-end':'url(#returnArrow)'}));
+            const bg=svgEl('rect',{x:coords.badgeX-24,y:coords.badgeY-12,width:48,height:24,rx:9,class:`return-bg ${newest?'print-enter':''}`});
+            const txt=svgEl('text',{x:coords.badgeX,y:coords.badgeY+1,class:'return-text'},'void');
+            labelLayer.append(bg,txt);
+        }
+    }
+    function displayText(f,s,preview) {
+        if(preview) return ['Upcoming invocation', 'Not yet executed'];
+        const hasEntered=s.entered.has(f.id);
+        if(!hasEntered) return ['Not yet called'];
+        if(f.kind==='main') return [s.finished?'Execution complete':'int[] array = {...}',s.done.has('wrapper')?'Wrapper returned':'Calls public overload'];
+        if(f.kind==='wrapper') return [s.done.has('index-0')?'Private call finished':'Calls private overload',s.done.has('wrapper')?'Returned to Main':'PrintArrayInOrder(array, 0)'];
+        const atEnd=f.index>=example.length;
+        if(atEnd) return [s.baseReached?'index >= array.Length: TRUE':'Checking base condition',s.baseReached?'return; (no print)':'Waiting for base case'];
+        const wasPrinted=s.printed.has(f.id);
+        return [wasPrinted?`Printed: ${example[f.index]}`:'Console.Write: waiting',s.done.has(f.id)?'Recursive call returned':`Next call: index ${f.index+1}`];
+    }
+    function descendants(f) {
+        return trace.frames.filter(other => other.id !== f.id && other.order > f.order && other.depth > f.depth && other.order <= f.order + trace.frames.length).filter(other => {
+            let parent=other.parent;
+            while(parent!==null) { if(parent===f.id)return true; parent=byId.get(parent)?.parent ?? null; }
+            return false;
+        });
+    }
+    function hiddenByCollapse(f,s) {
+        if(!ui.collapsed || ui.mode!=='overview')return false;
+        let parent=f.parent;
+        while(parent) {
+            if(parent!=='main' && s.done.has(parent) && !ui.expandedBranches.has(parent))return true;
+            parent=byId.get(parent).parent;
+        }
+        return false;
+    }
+    function drawNode(layer,f,p,s,preview=false) {
+        const finished=s.done.has(f.id),active=f.id===s.active&&!s.finished,stacked=s.stack.includes(f.id);
+        const style=preview?'future':finished?'completed':active?'active':stacked?'stack':'future';
+        const count=descendants(f).filter(child=>s.entered.has(child.id)).length;
+        const toggleable=ui.collapsed && finished && count>0 && f.id!=='main';
+        const group=svgEl('g',{'data-frame':f.id,'data-state':style,...(toggleable?{'data-toggle-collapse':f.id,tabindex:'0',role:'button','aria-label':`Toggle ${count} completed descendant calls of ${describe(f)}`,class:'node-tappable'}:{})});
+        group.append(svgEl('rect',{x:p.x,y:p.y,width:p.w,height:p.h,rx:13,class:`node-rect ${style}`}));
+        group.append(svgEl('rect',{x:p.x+3,y:p.y+3,width:p.w-6,height:5,rx:2,class:`node-accent ${style}`}));
+        group.append(svgEl('circle',{cx:p.x+17,cy:p.y+22,r:12,class:'node-number'}));
+        group.append(svgEl('text',{x:p.x+17,y:p.y+22,class:'node-number-text'},f.order));
+        const title=describe(f);
+        // Full Overview uses abbreviated signature only to keep the complete flow readable.
+        const compact= currentLayout.mode==='overview';
+        const displayTitle=compact ? (f.kind==='inner'?`PrintArrayInOrder(${f.index})`:f.kind==='wrapper'?'PrintArrayInOrder(array)': 'Main(string[] args)') : title;
+        group.append(svgEl('text',{x:p.x+35,y:p.y+26,class:'node-label'},displayTitle));
+        const lines=displayText(f,s,preview);
+        lines.forEach((line,i)=>group.append(svgEl('text',{x:p.x+13,y:p.y+58+i*23,class:`node-detail ${line.startsWith('Printed')?'printed':''} ${line.includes('base')||line.includes('return;')?'base':''}`},line)));
+        let status=preview?'UPCOMING':finished?'✓ done':active?'● ACTIVE':'waiting';
+        if(f.kind==='inner'&&s.printed.has(f.id)&&!finished) status='✓ printed';
+        group.append(svgEl('text',{x:p.x+p.w-12,y:p.y+p.h-12,class:`node-status ${preview?'future':finished?'done':''}`},status));
+        if(toggleable){
+            const hidden=ui.expandedBranches.has(f.id)?'− expand shown':`+ ${count} hidden calls · void`;
+            group.append(svgEl('text',{x:p.x+13,y:p.y+p.h-31,class:'node-summary'},hidden));
+        }
+        if(f.kind==='inner'&&s.printed.has(f.id)) {
+            const x=p.x+p.w-28,y=p.y+94;
+            group.append(svgEl('rect',{x:x-19,y:y-14,width:38,height:27,rx:9,class:`print-bubble ${s.event.type==='print'&&s.event.node===f.id?'print-enter':''}`}));
+            group.append(svgEl('text',{x,y:y+1,class:'print-bubble-text'},String(s.printed.get(f.id))));
+        }
+        layer.append(group);
+    }
+    function drawGraph(s) {
+        currentLayout=ui.mode==='overview'?layoutOverview():layoutFocus(s);
+        const graph=$('graph');
+        graph.setAttribute('width',currentLayout.width);
+        graph.setAttribute('height',currentLayout.height);
+        graph.setAttribute('viewBox',`0 0 ${currentLayout.width} ${currentLayout.height}`);
+        const edgeLayer=svgEl('g'),nodeLayer=svgEl('g'),labelLayer=svgEl('g');
+        const visible= new Set();
+        if(ui.mode==='overview') trace.frames.forEach(f=>visible.add(f.id));
+        else currentLayout.positions.forEach((v,k)=>visible.add(k));
+        for(const f of trace.frames) {
+            if(!visible.has(f.id)||f.parent===null||!visible.has(f.parent)) continue;
+            if(hiddenByCollapse(f,s) || hiddenByCollapse(byId.get(f.parent),s)) continue;
+            drawConnection(edgeLayer,labelLayer,byId.get(f.parent),f,s,!s.entered.has(f.id));
+        }
+        for(const f of trace.frames) {
+            if(!visible.has(f.id)) continue;
+            if(hiddenByCollapse(f,s)) continue;
+            drawNode(nodeLayer,f,currentLayout.positions.get(f.id),s,!s.entered.has(f.id));
+        }
+        graph.replaceChildren(svgEl('title',{id:'graphTitle'},`PrintArrayInOrder execution, step ${ui.step} of ${trace.events.length}`),svgEl('desc',{id:'graphDesc'},s.event.description),buildDefs(),edgeLayer,nodeLayer,labelLayer);
+        applyZoom();
+    }
+    function applyZoom() {
+        const scene=$('sceneSpace'); const graph=$('graph');
+        graph.style.transform=`scale(${ui.zoom})`;
+        scene.style.width=`${currentLayout.width*ui.zoom}px`;
+        scene.style.height=`${currentLayout.height*ui.zoom}px`;
+        $('zoomLabel').textContent=`${Math.round(ui.zoom*100)}%`;
+        $('btnZoomOut').disabled=ui.zoom<=ui.minZoom;
+        $('btnZoomIn').disabled=ui.zoom>=ui.maxZoom;
+    }
+    function centerOnActive(s) {
+        if(!currentLayout) return;
+        const p=currentLayout.positions.get(s.active);
+        if(!p) return;
+        const viewport=$('viewport');
+        viewport.scrollLeft=Math.max(0,(p.x+p.w/2)*ui.zoom-viewport.clientWidth/2);
+        viewport.scrollTop=Math.max(0,(p.y+p.h/2)*ui.zoom-viewport.clientHeight/2);
+    }
+    function fitAll(center=false) {
+        if(!currentLayout) return;
+        const viewport=$('viewport');
+        const wScale=(viewport.clientWidth-22)/currentLayout.width;
+        const hScale=(viewport.clientHeight-22)/currentLayout.height;
+        const proposed=Math.min(wScale,hScale,1.28);
+        ui.zoom=Math.max(ui.minZoom,Math.min(ui.maxZoom,proposed));
+        ui.fitted=true;
+        applyZoom();
+        if(proposed>=ui.minZoom) {viewport.scrollLeft=0;viewport.scrollTop=0;}
+        else if(center) centerOnActive(lastSnapshot);
+        $('viewMessage').innerHTML=proposed<ui.minZoom
+            ?'<strong class="notice">Readable zoom preserved:</strong> scroll the main panel to see all calls; Fit does not shrink text below 75%.'
+            :'<strong>All calls are in this main panel.</strong> The diagram fits the available screen area; no overview/minimap frame is used.';
+    }
+    function renderArray(s) {
+        const active=byId.get(s.active);
+        const idx=active.kind==='inner'?active.index:null;
+        $('arrayCall').textContent=describe(active);
+        const panel=$('arrayCells');panel.replaceChildren();
+        example.forEach((value,k)=> {
+            const printed=s.printed.has('index-'+k), current=k===idx;
+            const entry=document.createElement('div');
+            entry.className=`array-entry ${printed?'printed':''} ${current?'current':''}`;
+            entry.innerHTML=`<span class="idx">index ${k}</span><span class="value"></span><span class="marker"></span>`;
+            entry.querySelector('.value').textContent=value;
+            entry.querySelector('.marker').textContent=current?'↑ index':'';
+            entry.setAttribute('aria-label',`index ${k}, value ${value}${printed?', already printed':''}${current?', current index':''}`);
+            panel.append(entry);
+        });
+        const terminal=document.createElement('div');terminal.className=`array-entry sentinel ${idx===example.length?'current':''}`;
+        terminal.innerHTML=`<span class="idx">index ${example.length}</span><span class="value">END</span><span class="marker">${idx===example.length?'↑ index':''}</span>`;
+        terminal.setAttribute('aria-label',`index ${example.length} is past the final array element; base case`);
+        panel.append(terminal);
+        $('activeIndexInfo').textContent=idx===null?'No index argument in this call.':idx===example.length?`index = ${idx} equals array.Length = ${example.length}; return without accessing array[${idx}].`:`index = ${idx}, array[index] = ${example[idx]}.`;
+        $('consoleOutput').textContent=s.printedValues.length?s.printedValues.join(' ')+' ':'Nothing printed yet';
+        $('consoleOutput').classList.toggle('empty',s.printedValues.length===0);
+        $('printedCount').textContent=`${s.printedValues.length} of ${example.length} values printed`;
+        $('overallStatus').textContent=s.finished?'Output complete':`${s.printedValues.length} / ${example.length} values printed`;
+        $('overallStatus').classList.toggle('complete',s.finished);
+    }
+    function renderStack(s) {
+        const bar=$('stackBar');bar.replaceChildren();
+        const label=document.createElement('strong'); label.textContent='CALL STACK:';bar.append(label);
+        if(!s.stack.length) {const finished=document.createElement('span');finished.className='stack-chip';finished.textContent='Empty — program finished';bar.append(finished);return;}
+        s.stack.forEach((id,k)=> {
+            if(k){const sep=document.createElement('span');sep.className='stack-chevron';sep.textContent='→';bar.append(sep);}
+            const chip=document.createElement('span');chip.className='stack-chip'+(k===s.stack.length-1?' active':'');chip.textContent=shortName(byId.get(id));bar.append(chip);
+        });
+    }
+    function renderCode(line) {
+        $('codeListing').replaceChildren(...CODE_LINES.map((text,k)=> {
+            const el=document.createElement('span');el.className='source-line'+(k+1===line?' current':'');el.dataset.num=k+1;el.textContent=text;return el;
+        }));
+    }
+    function renderInfo(s) {
+        $('stepCount').textContent=`${ui.step} / ${trace.events.length}`;
+        $('progressTrack').setAttribute('aria-valuemax',trace.events.length);
+        $('progressTrack').setAttribute('aria-valuenow',ui.step);
+        $('progressFill').style.width=`${100*ui.step/trace.events.length}%`;
+        $('eventIcon').textContent=ui.step;
+        $('eventTitle').textContent=s.event.title;
+        $('eventDescription').textContent=s.event.description;
+        $('eventKind').textContent=({start:'Start',call:'Recursive call',print:'Console.Write',base:'Base case',return:'Void return',finish:'Finished'})[s.event.type];
+        $('btnBack').disabled=ui.step<=1;$('btnNext').disabled=ui.step>=trace.events.length;
+        $('btnReset').disabled=ui.step===1 && ui.auto===null;
+        $('btnAuto').disabled=ui.step===trace.events.length && ui.auto===null;
+        $('boardStats').textContent=`${trace.frames.length} frames · ${s.callEdges.length} entered calls · ${s.returnEdges.length} void returns`;
+        renderCode(s.event.line);
+    }
+    function render(reFit=false) {
+        const s=snapshot(ui.step);lastSnapshot=s;
+        renderArray(s);renderStack(s);renderInfo(s);drawGraph(s);
+        if(reFit || ui.fitted) fitAll(false);
+        else if(ui.mode==='focus') centerOnActive(s);
+    }
+    function stopPlay() {
+        if(ui.auto!==null){clearInterval(ui.auto);ui.auto=null;}
+        $('btnAuto').textContent='▶ Auto-play';$('btnAuto').classList.remove('playing');
+    }
+    function goToStep(step,fromAuto=false) {
+        if(!fromAuto) stopPlay();
+        ui.step=Math.max(1,Math.min(trace.events.length,step));
+        if(ui.step===trace.events.length)stopPlay();
+        render();
+    }
+    function togglePlay() {
+        if(ui.auto!==null){stopPlay();return;}
+        if(ui.step===trace.events.length)ui.step=1;
+        $('btnAuto').textContent='■ Stop';$('btnAuto').classList.add('playing');
+        const delay=Number($('speed').value);
+        ui.auto=setInterval(()=>{if(ui.step<trace.events.length)goToStep(ui.step+1,true);else stopPlay();},delay);
+        render();
+    }
+    function switchMode(mode) {
+        stopPlay(); ui.mode=mode;ui.fitted=true;
+        $('btnOverview').setAttribute('aria-pressed',String(mode==='overview'));
+        $('btnFocus').setAttribute('aria-pressed',String(mode==='focus'));
+        $('btnCollapse').disabled=mode!=='overview';
+        render(true);
+    }
+    function validateArray() {
+        const raw=$('arrayInput').value.trim();
+        const parts=raw.split(',').map(x=>x.trim());
+        if(parts.length<1||parts.length>8||parts.some(p=>!/^[-+]?\d+$/.test(p)||!Number.isSafeInteger(Number(p)))) {
+            $('arrayError').textContent='Use 1–8 integers, separated by commas.';return;
+        }
+        const arr=parts.map(Number);
+        $('arrayError').textContent='';stopPlay();example=arr;trace=makeTrace(arr);byId=new Map(trace.frames.map(f=>[f.id,f]));ui.step=1;ui.fitted=true;
+        $('progressTrack').setAttribute('aria-valuemax',trace.events.length);
+        assertTrace(trace,arr);
+        render(true);
+    }
+    // Independent reference model: expected output must be the exact array order,
+    // and each recursive activation must run print -> recursive call -> return.
+    function assertTrace(t,arr) {
+        const require = (condition,label)=>{if(!condition)throw new Error('Trace test failed: '+label);};
+        require(t.frames.length===arr.length+3,'frame count includes Main, wrapper, and n+1 private calls');
+        require(t.events.filter(e=>e.type==='call').length===arr.length+2,'call count');
+        require(t.events.filter(e=>e.type==='print').length===arr.length,'print count');
+        require(t.events.filter(e=>e.type==='return').length===arr.length+2,'void return count');
+        require(t.events.filter(e=>e.type==='base').length===1,'single base case');
+        require(t.events.length===arr.length*3+7,'event count');
+        require(t.events.filter(e=>e.type==='print').map(e=>e.value).join('|')===arr.join('|'),'print order');
+        require(t.events.at(-1).type==='finish','separate finish');
+        for(let step=1;step<=t.events.length;step++) {
+            const used=new Set();let stack=[];
+            for(const e of t.events.slice(0,step)) {
+                if(e.type==='start')stack.push(e.node);
+                if(e.type==='call')stack.push(e.to);
+                if(e.type==='print')require(!used.has(e.node),'print once per call'),used.add(e.node);
+                if(e.type==='return')require(stack.pop()===e.from,'return from immediate active invocation');
+                if(e.type==='finish')require(stack.length===1&&stack[0]==='main','finish after all child returns');
+            }
+        }
+        return true;
+    }
+    $('btnBack').addEventListener('click',()=>goToStep(ui.step-1));
+    $('btnNext').addEventListener('click',()=>goToStep(ui.step+1));
+    $('btnReset').addEventListener('click',()=>goToStep(1));
+    $('btnAuto').addEventListener('click',togglePlay);
+    $('speed').addEventListener('change',()=>{if(ui.auto!==null){stopPlay();togglePlay();}});
+    $('btnOverview').addEventListener('click',()=>switchMode('overview'));
+    $('btnFocus').addEventListener('click',()=>switchMode('focus'));
+    $('btnFit').addEventListener('click',()=>{ui.fitted=true;fitAll(true);});
+    $('btnZoomOut').addEventListener('click',()=>{ui.fitted=false;ui.zoom=Math.max(ui.minZoom,Math.round((ui.zoom-.1)*100)/100);applyZoom();});
+    $('btnZoomIn').addEventListener('click',()=>{ui.fitted=false;ui.zoom=Math.min(ui.maxZoom,Math.round((ui.zoom+.1)*100)/100);applyZoom();});
+    $('btnCollapse').addEventListener('click',()=>{ui.collapsed=!ui.collapsed;ui.expandedBranches.clear();$('btnCollapse').textContent=`Collapse done: ${ui.collapsed?'On':'Off'}`;$('btnCollapse').setAttribute('aria-pressed',ui.collapsed);render();});
+    $('graph').addEventListener('click',e=>{
+        const hit=e.target.closest('[data-toggle-collapse]');
+        if(!hit)return; const id=hit.getAttribute('data-toggle-collapse');
+        if(ui.expandedBranches.has(id))ui.expandedBranches.delete(id);else ui.expandedBranches.add(id);
+        render();
+    });
+    $('graph').addEventListener('keydown',e=>{
+        if(e.key!=='Enter'&&e.key!==' ')return;
+        const hit=e.target.closest('[data-toggle-collapse]');
+        if(!hit)return; e.preventDefault();hit.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    });
+    $('btnHideArray').addEventListener('click',()=>{ui.hiddenArray=!ui.hiddenArray;$('inputCard').hidden=ui.hiddenArray;$('inputBand').classList.toggle('array-hidden',ui.hiddenArray);$('btnHideArray').textContent=ui.hiddenArray?'Show array':'Hide array';requestAnimationFrame(()=>render(true));});
+    $('btnApplyArray').addEventListener('click',validateArray);
+    $('arrayInput').addEventListener('keydown',e=>{if(e.key==='Enter')validateArray();});
+    $('btnFullscreen').addEventListener('click',async()=>{
+        try {if(document.fullscreenElement)await document.exitFullscreen();else await $('appRoot').requestFullscreen();}
+        catch(e){$('viewMessage').textContent='Fullscreen is unavailable in this browser. You can still use Fit All.';}
+    });
+    document.addEventListener('fullscreenchange',()=>{ $('btnFullscreen').textContent=document.fullscreenElement?'⤢ Exit fullscreen':'⛶ Fullscreen';requestAnimationFrame(()=>render(true)); });
+    document.addEventListener('keydown',e=>{
+        const tag=document.activeElement?.tagName;
+        if(e.ctrlKey||e.metaKey||e.altKey||['INPUT','SELECT','TEXTAREA','BUTTON','SUMMARY'].includes(tag)||document.activeElement===$('viewport'))return;
+        if(e.key==='ArrowRight'){e.preventDefault();goToStep(ui.step+1);}
+        if(e.key==='ArrowLeft'){e.preventDefault();goToStep(ui.step-1);}
+    });
+    window.addEventListener('pagehide',stopPlay);
+    if(typeof ResizeObserver!=='undefined') {
+        let width=0,height=0;
+        new ResizeObserver(()=>{
+            const v=$('viewport'); if(v.clientWidth===width && v.clientHeight===height)return;
+            width=v.clientWidth;height=v.clientHeight;
+            if(ui.fitted && currentLayout) fitAll(false);
+        }).observe($('viewport'));
+    }
+    assertTrace(trace,example);
+    render(true);
+    window.recursionTraceTests={assertTrace,makeTrace,snapshot,ui,get trace(){return trace;},get example(){return example;}};
+</script>
+</body>
+</html>

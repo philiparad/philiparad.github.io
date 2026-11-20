@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>FindMax — Interactive Recursion Trace (Improved)</title>
+    <style>
+        :root {
+            font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+            color: #172c45;
+            background: #f1f5fb;
+            --blue: #205fd2;
+            --blue-light: #e7f0ff;
+            --amber: #a85d00;
+            --green: #127454;
+            --purple: #7351aa;
+            --border: #cbd9eb;
+            --muted: #50657e;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-width: 320px; }
+        button, select { font: inherit; }
+        button { cursor: pointer; }
+        button:disabled { opacity: .42; cursor: not-allowed; }
+        button:focus-visible, select:focus-visible, summary:focus-visible, #viewport:focus-visible,
+        .resize-handle:focus-visible { outline: 3px solid #78a9ff; outline-offset: 3px; }
+        #appRoot { min-height: 100vh; }
+        .page-header { background: #fff; border-bottom: 2px solid #e3eaf4; }
+        .wrap { width: min(1560px, 100%); padding: 15px 20px; margin: 0 auto; }
+        .heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        h1 { margin: 0; font-size: clamp(21px, 2.5vw, 29px); letter-spacing: -.5px; }
+        .subtitle { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+        .nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+        .button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid #b7c9e2; background: white; color: #1c385c; border-radius: 9px; font-size: 14px; font-weight: 750; padding: 9px 12px; min-height: 39px; white-space: nowrap; }
+        .button:hover:not(:disabled) { background: #e9f1ff; border-color: #6393d8; }
+        .button.primary { color: white; background: var(--blue); border-color: var(--blue); }
+        .button.primary:hover:not(:disabled) { background: #174caa; }
+        .button.playing { color: #8c5200; background: #fff2d6; border-color: #d8a451; }
+        .button.small { min-height: 33px; padding: 6px 9px; font-size: 13px; }
+        .nav-spacer { flex: 1; }
+        .progress-label { font-size: 15px; font-variant-numeric: tabular-nums; color: #1f426e; font-weight: 800; white-space: nowrap; }
+        .progressbar { height: 5px; border-radius: 6px; background: #e7eef7; margin-top: 12px; overflow: hidden; }
+        #progressFill { display: block; width: 0; height: 100%; background: #2563eb; transition: width .22s; }
+        .step-panel { margin: 13px 0; padding: 13px 16px; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; display: flex; gap: 13px; align-items: center; box-shadow: 0 2px 12px #274e7510; }
+        .step-icon { flex: 0 0 43px; width: 43px; height: 43px; border-radius: 50%; display: grid; place-items: center; background: #e5efff; color: #1a58bd; font-weight: 850; font-size: 17px; }
+        .step-content { flex: 1; min-width: 0; }
+        .step-content h2 { margin: 0 0 3px; font-size: clamp(15px, 1.5vw, 18px); }
+        .step-content p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+        .status { border-radius: 18px; background: #e8f0ff; color: #194f9a; font-size: 12px; font-weight: 800; padding: 7px 11px; white-space: nowrap; }
+        .status.done { background: #e2f6ee; color: #0e654c; }
+        .board { background: white; border: 1.5px solid var(--border); border-radius: 13px; overflow: hidden; box-shadow: 0 2px 12px #2249770b; }
+        .board-head { padding: 10px 13px; background: #fbfdff; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; border-bottom: 1.5px solid #e5ecf5; }
+        .head-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .mode-switch { display: inline-flex; padding: 3px; border: 1px solid #b5cae4; background: #eaf1fa; border-radius: 10px; }
+        .mode-switch button { border: 0; padding: 7px 12px; background: transparent; color: #45627e; font-size: 13px; font-weight: 800; border-radius: 7px; }
+        .mode-switch button[aria-pressed="true"] { background: var(--blue); color: white; box-shadow: 0 1px 5px #3469aa33; }
+        .legend { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; font-size: 12px; font-weight: 650; color: #39536e; }
+        .legend-item { display: inline-flex; align-items: center; gap: 5px; }
+        .legend-line { width: 24px; border-top: 3px solid var(--blue); position: relative; }
+        .legend-line::after { content: ''; position: absolute; right: 0; top: -5px; border-left: 6px solid var(--blue); border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
+        .legend-line.return { border-color: #c67b17; }
+        .legend-line.return::after { border-left-color: #c67b17; }
+        .legend-box { width: 15px; height: 13px; border: 2px solid #2a9975; background: #e8f9f2; border-radius: 3px; }
+        .percent { width: 44px; text-align: center; font-size: 13px; font-variant-numeric: tabular-nums; color: #415771; font-weight: 750; }
+        .visual-grid { --inspector-width: 365px; display: grid; grid-template-columns: var(--inspector-width) minmax(0,1fr); min-height: 440px; position: relative; }
+        .visual-grid.inspector-hidden { grid-template-columns: minmax(0, 1fr); }
+        .inspector { background: #f9fbff; border-right: 2px solid #dfe8f5; padding: 16px 13px; position: relative; min-width: 0; }
+        .inspector[hidden] { display: none !important; }
+        .inspector-title { font-size: 15px; color: #1d3d66; font-weight: 850; margin: 0 0 9px; }
+        .inspector-call { padding: 7px 8px; background: #ecf3ff; border: 1px solid #c9dbf3; border-radius: 7px; font: 700 13px ui-monospace, Consolas, monospace; white-space: nowrap; overflow-x: auto; color: #234e85; margin-bottom: 10px; }
+        .array-scroll { overflow-x: auto; padding-bottom: 8px; }
+        #arrayCells { display: grid; grid-template-columns: repeat(6, 52px); gap: 3px; width: max-content; }
+        .array-entry { width: 52px; text-align: center; }
+        .array-index { display: block; font-size: 11px; color: #65778e; margin-bottom: 4px; font-weight: 750; }
+        .array-value { border: 2px solid #9fbde1; border-radius: 7px; height: 43px; display: grid; place-items: center; font-size: 21px; background: #dfeafb; font-weight: 850; }
+        .array-entry.outside .array-value { color: #909bab; background: #eff2f6; border-color: #dce1e9; }
+        .array-entry.in-range .array-value { background: #e5f0ff; }
+        .array-entry.at-left .array-value { box-shadow: inset 0 0 0 2px #2465d6; }
+        .array-entry.at-right .array-value { outline: 2px solid #8053be; outline-offset: 1px; }
+        .array-entry.at-mid .array-value { border-color: #d38d17; }
+        .array-markers { height: 59px; padding-top: 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .marker { font-size: 10px; font-weight: 850; line-height: 1.05; white-space: nowrap; }
+        .marker.left { color: #1b5cce; }
+        .marker.mid { color: #966008; }
+        .marker.right { color: #7652ba; }
+        .inspector-summary { font: 700 12px/1.5 ui-monospace, Consolas, monospace; color: #365678; background: #eef3fa; border-radius: 7px; padding: 8px; }
+        .array-help { font-size: 12px; line-height: 1.6; color: #546a83; margin-top: 11px; }
+        .array-help strong { color: #1c426a; }
+        .resize-handle { border: 0; padding: 0; position: absolute; right: -7px; top: 0; height: 100%; width: 13px; z-index: 4; background: transparent; cursor: col-resize; }
+        .resize-handle::after { content: ''; width: 4px; height: 58px; position: absolute; top: calc(50% - 29px); left: 5px; border-radius: 4px; background: #86a8d4; }
+        .resize-handle:hover::after, .resize-handle:focus-visible::after { background: var(--blue); }
+        .graph-panel { min-width: 0; position: relative; background: #fcfdff; }
+        .stackbar { min-height: 45px; border-bottom: 1px solid #e5edf8; background: #f7faff; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 8px 13px; }
+        .stack-label { font-size: 12px; font-weight: 800; color: #415b76; margin-right: 5px; }
+        .stack-chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 6px; background: white; border: 1px solid #bdd0e9; color: #345d91; font-size: 12px; font-weight: 750; padding: 3px 7px; font-family: ui-monospace, Consolas, monospace; }
+        .stack-chip.active { color: #fff; background: var(--blue); border-color: var(--blue); }
+        .stack-separator { color: #5481b9; font-size: 17px; font-weight: 900; }
+        #viewport { height: min(65vh, 700px); min-height: 420px; overflow: auto; position: relative; background-color: #fff; background-image: radial-gradient(#dfe8f3 1px, transparent 1px); background-size: 22px 22px; overscroll-behavior: contain; scrollbar-color: #a6bdd8 #eef3f9; }
+        #sceneSpace { position: relative; margin: 0; padding: 0; }
+        #graph { display: block; overflow: visible; transform-origin: top left; touch-action: pan-x pan-y; }
+        #graph text { pointer-events: none; }
+        .call-edge { fill: none; stroke: #5a86c7; stroke-width: 3; stroke-linecap: round; }
+        .call-edge.path { stroke: #2068df; stroke-width: 4.2; }
+        .call-edge.past { stroke: #a9bdd6; stroke-width: 2.2; opacity: .7; }
+        .call-edge.preview { stroke: #9aadc3; stroke-dasharray: 7 6; stroke-width: 2.5; }
+        .return-edge { fill: none; stroke: #be7516; stroke-width: 3.6; stroke-linecap: round; }
+        .return-edge.past { opacity: .65; stroke-width: 2.5; }
+        .return-label-bg { fill: #fff1d7; stroke: #c88a2e; stroke-width: 1.5; }
+        .return-label-text { fill: #8d4b00; font-size: 20px; font-weight: 900; text-anchor: middle; dominant-baseline: central; }
+        .frame-rect { fill: #fff; stroke: #aabdd4; stroke-width: 2.3; }
+        .frame-rect.path { fill: #f2f7ff; stroke: #4481cf; stroke-width: 3; }
+        .frame-rect.active { fill: #dfeeff; stroke: #1c62dd; stroke-width: 4; filter: url(#activeShadow); }
+        .frame-rect.completed { fill: #e4f8ee; stroke: #228766; stroke-width: 2.8; }
+        .frame-rect.future { fill: #fbfcff; stroke: #b9c7d8; stroke-width: 2; stroke-dasharray: 6 5; }
+        .frame-accent { fill: #8fa8c9; }
+        .frame-accent.path { fill: #518bd7; }
+        .frame-accent.active { fill: #2466d9; }
+        .frame-accent.completed { fill: #2a9975; }
+        .frame-accent.future { fill: #b4c4da; }
+        .node-title { font: 800 16px ui-monospace, Consolas, monospace; fill: #203d62; }
+        .node-text { font: 600 14px ui-monospace, Consolas, monospace; fill: #435b77; }
+        .node-result { fill: #0c704f; font-weight: 800; }
+        .node-base { fill: #7042ab; }
+        .node-note { fill: #58728e; font-size: 12px; }
+        .node-state { font: 850 11px system-ui, sans-serif; fill: #315d90; text-anchor: end; }
+        .call-number { fill: #305a90; stroke: #fff; stroke-width: 2; }
+        .call-number-text { fill: #fff; font: 850 11px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+        .node-state.completed { fill: #136748; }
+        .node-state.future { fill: #768ca5; }
+        .collapse-hit { fill: #fff; stroke: #a6bad0; stroke-width: 1.5; cursor: pointer; }
+        .collapse-text { font: 850 17px system-ui, sans-serif; fill: #235d8a; text-anchor: middle; dominant-baseline: central; }
+        .corner-message { position: absolute; z-index: 2; bottom: 14px; left: 12px; background: #ffffffec; color: #4a6077; font-size: 12px; font-weight: 650; border-radius: 7px; border: 1px solid #dce7f4; padding: 5px 8px; max-width: calc(100% - 230px); }
+        .mini { position: absolute; right: 12px; bottom: 12px; width: 190px; height: 136px; border-radius: 10px; overflow: hidden; background: #fffffff5; border: 1.5px solid #abc2dd; box-shadow: 0 5px 14px #1a46751c; z-index: 3; }
+        .mini-heading { font-size: 11px; font-weight: 850; padding: 4px 7px; background: #edf3fc; color: #355778; border-bottom: 1px solid #c7d5e7; }
+        #minimap { width: 100%; height: calc(100% - 26px); cursor: crosshair; touch-action: none; display: block; }
+        .board-foot { padding: 9px 14px; border-top: 1px solid #e5ecf6; color: #4d6580; font-size: 12px; line-height: 1.45; }
+        details.code-panel { border: 1.5px solid var(--border); border-radius: 11px; margin: 13px 0 15px; background: #fff; overflow: hidden; }
+        details.code-panel summary { padding: 10px 14px; cursor: pointer; font-weight: 800; font-size: 14px; color: #284c77; }
+        details.code-panel pre { margin: 0; padding: 14px 20px; background: #f4f8fd; overflow-x: auto; font: 13px/1.55 Consolas, ui-monospace, monospace; color: #233a56; }
+        .note { color: #566e87; font-size: 12px; margin: 10px 2px; }
+        #appRoot:fullscreen, #appRoot:-webkit-full-screen { display: flex; flex-direction: column; width: 100vw; height: 100vh; background: #f1f5fb; overflow: hidden; }
+        #appRoot:fullscreen .page-header .wrap, #appRoot:-webkit-full-screen .page-header .wrap { padding: 7px 14px; }
+        #appRoot:fullscreen .wrap.main, #appRoot:-webkit-full-screen .wrap.main { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px 14px; }
+        #appRoot:fullscreen .step-panel, #appRoot:-webkit-full-screen .step-panel { margin: 6px 0; padding: 8px 11px; }
+        #appRoot:fullscreen .board, #appRoot:-webkit-full-screen .board { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+        #appRoot:fullscreen .visual-grid, #appRoot:-webkit-full-screen .visual-grid { flex: 1; min-height: 0; }
+        #appRoot:fullscreen .graph-panel, #appRoot:-webkit-full-screen .graph-panel { display: flex; flex-direction: column; min-height: 0; }
+        #appRoot:fullscreen #viewport, #appRoot:-webkit-full-screen #viewport { flex: 1; min-height: 0; height: auto; }
+        #appRoot:fullscreen .code-panel, #appRoot:fullscreen .note,
+        #appRoot:-webkit-full-screen .code-panel, #appRoot:-webkit-full-screen .note { display: none; }
+        @media (max-width: 980px) {
+            .visual-grid { display: block; }
+            .inspector { border-right: 0; border-bottom: 2px solid #dfe8f5; padding: 10px; }
+            .resize-handle { display: none; }
+            .inspector-title, .inspector-call { display: inline-block; margin-right: 10px; }
+            .inspector-call { max-width: 100%; }
+            .array-help { display: none; }
+            #viewport { height: 54vh; min-height: 390px; }
+        }
+        @media (max-width: 620px) {
+            .wrap { padding: 10px; }
+            .heading { gap: 2px; }
+            .nav { gap: 5px; }
+            .button { min-height: 34px; padding: 6px 8px; font-size: 12px; }
+            .board-head { padding: 8px; }
+            .legend { gap: 6px; }
+            .status { padding: 5px; }
+            .step-panel { padding: 9px; }
+            .mini { width: 140px; height: 105px; }
+            .corner-message { max-width: calc(100% - 165px); }
+            .stackbar { padding: 6px; }
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            .edge-enter { stroke-dasharray: 8 5; animation: edgeReveal .65s linear both; }
+            .label-enter { animation: labelPop .6s ease-out both; transform-box: fill-box; transform-origin: center; }
+            @keyframes edgeReveal { from { stroke-dashoffset: 48; opacity: .2; } to { stroke-dashoffset: 0; opacity: 1; } }
+            @keyframes labelPop { from { opacity: .25; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
+        }
+        @media print {
+            .nav, .board-head .head-group:last-child, .resize-handle, .mini, .corner-message, .code-panel { display: none !important; }
+            .visual-grid { display: block; }
+            .inspector { border: 0; }
+            #viewport { height: auto; min-height: 0; overflow: visible; }
+            .board, .step-panel { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<div id="appRoot">
+    <header class="page-header">
+        <div class="wrap">
+            <div class="heading">
+                <div>
+                    <h1>FindMax — Interactive Recursion Trace</h1>
+                    <p class="subtitle">Follow exact recursive calls and returned values · Same array, changing indices</p>
+                </div>
+                <strong id="finalResult" class="status" aria-live="polite">Example result: pending</strong>
+            </div>
+            <nav class="nav" aria-label="Trace navigation">
+                <button type="button" id="btnBack" class="button">◀ Back</button>
+                <button type="button" id="btnNext" class="button primary">Next ▶</button>
+                <button type="button" id="btnAuto" class="button">▶ Auto-play</button>
+                <button type="button" id="btnReset" class="button">↺ Reset</button>
+                <label for="speed" style="font-size:12px;font-weight:750;color:#526680">Speed</label>
+                <select id="speed" class="button small" aria-label="Autoplay interval">
+                    <option value="2000">Slow</option>
+                    <option value="1200" selected>Normal</option>
+                    <option value="750">Fast</option>
+                </select>
+                <span class="nav-spacer"></span>
+                <span class="progress-label">Step <span id="stepCount">1 / 22</span></span>
+            </nav>
+            <div class="progressbar" id="progressTrack" role="progressbar" aria-label="Trace progress" aria-valuemin="1" aria-valuemax="22" aria-valuenow="1"><span id="progressFill"></span></div>
+        </div>
+    </header>
+    <main class="wrap main">
+        <section class="step-panel" aria-live="polite" aria-atomic="true">
+            <div class="step-icon" id="stepIcon">1</div>
+            <div class="step-content">
+                <h2 id="stepTitle">Start</h2>
+                <p id="stepDescription"></p>
+            </div>
+            <span class="status" id="stepStatus">Tracing</span>
+        </section>
+        <section class="board" aria-label="Interactive recursion diagram">
+            <div class="board-head">
+                <div class="head-group">
+                    <div class="mode-switch" role="group" aria-label="Diagram view">
+                        <button type="button" id="btnFocus" aria-pressed="true">Focus Mode</button>
+                        <button type="button" id="btnFull" aria-pressed="false">Full Tree</button>
+                    </div>
+                    <div class="legend" aria-label="Diagram legend">
+                        <span class="legend-item"><i class="legend-line" aria-hidden="true"></i> Call</span>
+                        <span class="legend-item"><i class="legend-line return" aria-hidden="true"></i> Return</span>
+                        <span class="legend-item"><i class="legend-box" aria-hidden="true"></i> Completed</span>
+                        <span class="legend-item"># = call order</span>
+                    </div>
+                </div>
+                <div class="head-group">
+                    <button type="button" class="button small" id="btnCollapse" aria-pressed="false" title="Collapse completed branches in Full Tree">Collapse done: Off</button>
+                    <button type="button" class="button small" id="btnInspector">Hide array</button>
+                    <button type="button" class="button small" id="btnZoomOut" aria-label="Zoom out">−</button>
+                    <span id="zoomLabel" class="percent">100%</span>
+                    <button type="button" class="button small" id="btnZoomIn" aria-label="Zoom in">+</button>
+                    <button type="button" class="button small" id="btnFit">Fit</button>
+                    <button type="button" class="button small" id="btnFullscreen">⛶ Fullscreen</button>
+                </div>
+            </div>
+            <div class="visual-grid" id="visualGrid">
+                <aside class="inspector" id="inspector" aria-label="Example array and active call indices">
+                    <div class="inspector-title">Example array</div>
+                    <div class="inspector-call" id="arrayCall">FindMax(array, 0, 5)</div>
+                    <div class="array-scroll" aria-label="Array values, indices and arrows"><div id="arrayCells"></div></div>
+                    <div class="inspector-summary" id="arraySummary"></div>
+                    <p class="array-help">Every recursive call receives the <strong>same array</strong>. Only <code>left</code> and <code>right</code> change. The arrows update to match the active call.</p>
+                    <button type="button" id="resizeHandle" class="resize-handle" aria-label="Drag to resize array inspector" title="Drag to resize array panel"></button>
+                </aside>
+                <section class="graph-panel" aria-label="Recursion frames and arrows">
+                    <div class="stackbar" id="stackBar" aria-label="Current recursive call stack"></div>
+                    <div id="viewport" tabindex="0" aria-label="Interactive diagram; scroll to explore">
+                        <div id="sceneSpace"><svg id="graph" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="graphTitle graphDesc"></svg></div>
+                    </div>
+                    <div class="corner-message" id="viewMessage">Active function is centered. Blue = call; amber = return.</div>
+                    <div class="mini" aria-label="Recursion overview minimap">
+                        <div class="mini-heading">OVERVIEW · select a frame</div>
+                        <svg id="minimap" role="img" aria-label="Click a node to jump to its call; drag to pan in Full Tree"></svg>
+                    </div>
+                </section>
+            </div>
+            <div class="board-foot" id="boardHelp">Focus Mode shows the current call, its parent, and its immediate children. Dashed children are upcoming calls, not executed calls. Click Full Tree to see the complete call structure.</div>
+        </section>
+        <details class="code-panel">
+            <summary>Show the exact C# function being traced</summary>
+            <pre><code>static int FindMax(int[] array, int left, int right)
+{
+    if (left == right)
+    {
+        return array[left];
+    }
+    int mid = (left + right) / 2;
+    int maxLeft = FindMax(array, left, mid);
+    int maxRight = FindMax(array, mid + 1, right);
+    return Math.Max(maxLeft, maxRight);
+}</code></pre>
+        </details>
+        <p class="note">Keyboard: ← previous, → next. Fullscreen: presentation mode. All calculations and trace events run locally in this one HTML file.</p>
+    </main>
+</div>
+<script>
+    'use strict';
+    // Exact C# algorithm semantics; only the presentation layer changes.
+    const ARRAY = [5, 8, 3, 12, 7, 4];
+    const NS = 'http://www.w3.org/2000/svg';
+    const MIN_ZOOM = 0.75;
+    const MAX_ZOOM = 1.75;
+    const $ = (id) => document.getElementById(id);
+    const trace = buildFindMaxTrace(ARRAY);
+    const frameById = new Map(trace.frames.map((frame) => [frame.id, frame]));
+    const fullLayout = layoutFullTree(trace.frames);
+    const appRoot = $('appRoot');
+    const grid = $('visualGrid');
+    const graph = $('graph');
+    const viewport = $('viewport');
+    const space = $('sceneSpace');
+    let selectedStep = 1;
+    let mode = 'focus';
+    let zoom = 1;
+    let playTimer = null;
+    let autoCollapse = false;
+    let inspectorHidden = false;
+    let collapsedManual = new Set();
+    let expandedWhenAuto = new Set();
+    let currentLayout = null;
+    let state = null;
+    let minimapDragging = false;
+    let lastAnnouncedView = '';
+
+    function buildFindMaxTrace(array) {
+        if (!Array.isArray(array) || array.length === 0 || array.some((v) => !Number.isFinite(v))) {
+            throw new Error('Expected a nonempty array of finite numbers.');
+        }
+        const frames = [];
+        const events = [];
+        let serial = 0;
+        function recurse(left, right, parentId, branch) {
+            const id = `f${++serial}`;
+            const leaf = left === right;
+            const mid = leaf ? null : Math.floor((left + right) / 2);
+            const frame = {
+                id, parentId, branch, left, right, mid, leaf,
+                children: [], depth: parentId ? null : 0, returnValue: null, entryStep: events.length + 1
+            };
+            frames.push(frame);
+            if (parentId === null) events.push({ type: 'start', node: id });
+            else events.push({ type: 'call', from: parentId, to: id, branch });
+            let result;
+            if (leaf) {
+                result = array[left];
+            } else {
+                const leftMax = recurse(left, mid, id, 'left');
+                const rightMax = recurse(mid + 1, right, id, 'right');
+                result = Math.max(leftMax, rightMax);
+            }
+            frame.returnValue = result;
+            frame.exitStep = events.length + 1;
+            if (parentId === null) events.push({ type: 'finish', node: id, value: result });
+            else events.push({ type: 'return', from: id, to: parentId, branch, value: result, assignTo: branch === 'left' ? 'maxLeft' : 'maxRight' });
+            return result;
+        }
+        recurse(0, array.length - 1, null, null);
+        const byId = new Map(frames.map((f) => [f.id, f]));
+        frames.forEach((f) => {
+            if (f.parentId) {
+                const parent = byId.get(f.parentId);
+                parent.children.push(f.id);
+                f.depth = parent.depth + 1;
+            }
+        });
+        return { frames, events, rootId: frames[0].id };
+    }
+
+    function layoutFullTree(frames) {
+        const byId = new Map(frames.map((f) => [f.id, f]));
+        const positions = new Map();
+        const leftMargin = 38;
+        const topMargin = 40;
+        const colGap = 292;
+        const rowGap = 127;
+        const width = 245;
+        const height = 99;
+        let leafCounter = 0;
+        function place(id) {
+            const f = byId.get(id);
+            let centerY;
+            if (f.children.length === 0) centerY = topMargin + (leafCounter++ * rowGap) + height / 2;
+            else {
+                const y1 = place(f.children[0]);
+                const y2 = place(f.children[1]);
+                centerY = (y1 + y2) / 2;
+            }
+            positions.set(id, { x: leftMargin + f.depth * colGap, y: centerY - height / 2, w: width, h: height });
+            return centerY;
+        }
+        place(frames[0].id);
+        const maxDepth = Math.max(...frames.map((f) => f.depth));
+        return {
+            positions,
+            width: leftMargin * 2 + maxDepth * colGap + width + 35,
+            height: topMargin * 2 + (leafCounter - 1) * rowGap + height + 35,
+        };
+    }
+
+    function getSnapshot(count) {
+        const entered = new Set();
+        const completed = new Map();
+        const calls = [];
+        const returns = [];
+        const locals = new Map();
+        let active = trace.rootId;
+        let finished = false;
+        for (let i = 0; i < count; i++) {
+            const event = trace.events[i];
+            if (event.type === 'start') { entered.add(event.node); active = event.node; }
+            else if (event.type === 'call') { entered.add(event.to); calls.push(event); active = event.to; }
+            else if (event.type === 'return') {
+                completed.set(event.from, event.value);
+                returns.push(event);
+                if (!locals.has(event.to)) locals.set(event.to, {});
+                locals.get(event.to)[event.assignTo] = event.value;
+                active = event.to;
+            } else {
+                completed.set(event.node, event.value);
+                active = event.node;
+                finished = true;
+            }
+        }
+        const path = new Set();
+        let cursor = active;
+        while (cursor) { path.add(cursor); cursor = frameById.get(cursor).parentId; }
+        return { entered, completed, calls, returns, locals, active, path, finished, currentEvent: trace.events[count - 1] };
+    }
+
+    function svgEl(tag, attributes = {}, value) {
+        const el = document.createElementNS(NS, tag);
+        Object.entries(attributes).forEach(([name, val]) => el.setAttribute(name, String(val)));
+        if (value !== undefined) el.textContent = String(value);
+        return el;
+    }
+    function callTitle(f) { return `FindMax(array, ${f.left}, ${f.right})`; }
+    function shortTitle(f) { return `FindMax(${f.left}, ${f.right})`; }
+    function currentLocals(f, s) { return s.locals.get(f.id) || {}; }
+    function fmtValue(v) { return v === undefined ? '—' : String(v); }
+
+    function eventDescription(s) {
+        const event = s.currentEvent;
+        if (event.type === 'start') {
+            const f = frameById.get(event.node);
+            return { title: `Start: ${callTitle(f)}`, desc: f.leaf ? 'The base case is true. The function will return the only array element.' : `The original call uses left = ${f.left}, right = ${f.right}. Integer division gives mid = ${f.mid}.`, status: 'Starting' };
+        }
+        if (event.type === 'call') {
+            const f = frameById.get(event.to);
+            const branchName = event.branch === 'left' ? 'maxLeft' : 'maxRight';
+            const desc = f.leaf
+                ? `The code calls ${callTitle(f)} for ${branchName}. Because left == right, this call reaches the base case.`
+                : `The code calls ${callTitle(f)} for ${branchName}. Its midpoint is ${f.mid}; the left child must finish before the right child begins.`;
+            return { title: `Call ${branchName}: ${callTitle(f)}`, desc, status: 'Calling' };
+        }
+        if (event.type === 'return') {
+            const child = frameById.get(event.from);
+            const parent = frameById.get(event.to);
+            const calculation = child.leaf
+                ? `Base case: array[${child.left}] = ${event.value}.`
+                : `This call has both results, and Math.Max returns ${event.value}.`;
+            return { title: `Return ${event.value} → ${event.assignTo} of ${shortTitle(parent)}`, desc: `${calculation} The immediate caller now assigns ${event.assignTo} = ${event.value}.`, status: 'Returning' };
+        }
+        const root = frameById.get(event.node);
+        const local = currentLocals(root, s);
+        const expression = root.leaf ? `array[${root.left}]` : `Math.Max(${local.maxLeft}, ${local.maxRight})`;
+        return { title: `Finished: ${callTitle(root)} returns ${event.value}`, desc: `All recursive calls have finished. The original call returns ${expression} = ${event.value}.`, status: 'Finished' };
+    }
+
+    function renderInspector(s) {
+        const f = frameById.get(s.active);
+        $('arrayCall').textContent = callTitle(f);
+        const cells = ARRAY.map((value, index) => {
+            const cell = document.createElement('div');
+            cell.className = `array-entry ${index >= f.left && index <= f.right ? 'in-range' : 'outside'}`;
+            if (index === f.left) cell.classList.add('at-left');
+            if (index === f.right) cell.classList.add('at-right');
+            if (index === f.mid) cell.classList.add('at-mid');
+            const indexEl = document.createElement('span');
+            indexEl.className = 'array-index';
+            indexEl.textContent = String(index);
+            const valueEl = document.createElement('div');
+            valueEl.className = 'array-value';
+            valueEl.textContent = String(value);
+            const markers = document.createElement('div');
+            markers.className = 'array-markers';
+            const labels = [
+                index === f.left ? 'left' : null,
+                index === f.mid ? 'mid' : null,
+                index === f.right ? 'right' : null,
+            ].filter(Boolean);
+            labels.forEach((label) => {
+                const marker = document.createElement('span');
+                marker.className = `marker ${label}`;
+                marker.textContent = `↑ ${label}`;
+                markers.append(marker);
+            });
+            cell.setAttribute('aria-label', `index ${index}, value ${value}${labels.length ? ', ' + labels.join(' and ') : ''}${index < f.left || index > f.right ? ', outside the active range' : ''}`);
+            cell.append(indexEl, valueEl, markers);
+            return cell;
+        });
+        $('arrayCells').replaceChildren(...cells);
+        $('arraySummary').textContent = f.leaf
+            ? `left = right = ${f.left} · base case${s.completed.has(f.id) ? ' · return = ' + s.completed.get(f.id) : ''}`
+            : `left = ${f.left} · mid = ${f.mid} · right = ${f.right}`;
+    }
+
+    function renderCallStack(s) {
+        const chain = [];
+        let id = s.active;
+        while (id) { chain.unshift(frameById.get(id)); id = frameById.get(id).parentId; }
+        const bar = $('stackBar');
+        const label = document.createElement('span');
+        label.className = 'stack-label';
+        label.textContent = 'CALL STACK';
+        const parts = [label];
+        chain.forEach((f, i) => {
+            if (i) { const arrow = document.createElement('span'); arrow.className = 'stack-separator'; arrow.textContent = '›'; parts.push(arrow); }
+            const chip = document.createElement('span');
+            chip.className = `stack-chip${f.id === s.active ? ' active' : ''}`;
+            chip.textContent = shortTitle(f);
+            parts.push(chip);
+        });
+        bar.replaceChildren(...parts);
+    }
+
+    function frameState(f, s, preview = false) {
+        if (preview) return 'future';
+        if (s.active === f.id && !s.completed.has(f.id)) return 'active';
+        if (s.completed.has(f.id)) return 'completed';
+        if (s.path.has(f.id)) return 'path';
+        return 'open';
+    }
+    function isCollapsed(f, s) {
+        if (mode !== 'tree' || f.id === trace.rootId || !f.children.length || !s.completed.has(f.id)) return false;
+        if (autoCollapse) return !expandedWhenAuto.has(f.id);
+        return collapsedManual.has(f.id);
+    }
+    function collectVisible(s) {
+        const ids = new Set();
+        const collapsed = new Set();
+        function visit(id) {
+            if (!s.entered.has(id)) return;
+            ids.add(id);
+            const f = frameById.get(id);
+            if (isCollapsed(f, s)) { collapsed.add(id); return; }
+            f.children.forEach(visit);
+        }
+        visit(trace.rootId);
+        return { ids, collapsed };
+    }
+    function countDescendants(f) {
+        return f.children.reduce((total, childId) => total + 1 + countDescendants(frameById.get(childId)), 0);
+    }
+
+    function layoutFocus(s) {
+        const active = frameById.get(s.active);
+        const parent = active.parentId ? frameById.get(active.parentId) : null;
+        const pos = new Map();
+        if (parent) pos.set(parent.id, { x: 32, y: 156, w: 286, h: 150 });
+        pos.set(active.id, { x: 386, y: 151, w: 315, h: 162 });
+        active.children.forEach((id, i) => pos.set(id, { x: 785, y: i === 0 ? 42 : 263, w: 290, h: 142 }));
+        return { positions: pos, width: 1110, height: 435, parent, active };
+    }
+
+    function defs() {
+        const container = svgEl('defs');
+        for (const [id, color] of [['callHead', '#2867ca'], ['returnHead', '#bf7112'], ['previewHead', '#a3b0c0']]) {
+            const marker = svgEl('marker', { id, viewBox: '0 0 12 12', refX: 10, refY: 6, markerWidth: 9, markerHeight: 9, markerUnits: 'userSpaceOnUse', orient: 'auto' });
+            marker.append(svgEl('path', { d: 'M 2 2 L 10 6 L 2 10', stroke: color, 'stroke-width': 2.2, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+            container.append(marker);
+        }
+        const shadow = svgEl('filter', { id: 'activeShadow', x: '-10%', y: '-20%', width: '120%', height: '140%' });
+        shadow.append(svgEl('feDropShadow', { dx: 0, dy: 2, stdDeviation: 4, 'flood-color': '#377bd2', 'flood-opacity': '.2' }));
+        container.append(shadow);
+        return container;
+    }
+    function edgePoints(parent, child, isReturn) {
+        const x1 = parent.x + parent.w;
+        const x2 = child.x;
+        const y1 = parent.y + parent.h / 2 + (isReturn ? 14 : -13);
+        const y2 = child.y + child.h / 2 + (isReturn ? 14 : -13);
+        const dist = Math.max(25, (x2 - x1) * .45);
+        if (isReturn) return `M ${x2} ${y2} C ${x2 - dist} ${y2}, ${x1 + dist} ${y1}, ${x1 + 5} ${y1}`;
+        return `M ${x1} ${y1} C ${x1 + dist} ${y1}, ${x2 - dist} ${y2}, ${x2 - 6} ${y2}`;
+    }
+    function drawEdge(layer, parentF, childF, positions, s, isPreview = false) {
+        const parent = positions.get(parentF.id);
+        const child = positions.get(childF.id);
+        if (!parent || !child) return;
+        const activeBranch = s.path.has(parentF.id) && s.path.has(childF.id);
+        const completed = s.completed.has(childF.id);
+        const called = s.entered.has(childF.id);
+        const event = s.currentEvent;
+        const justCalled = event.type === 'call' && event.to === childF.id;
+        const justReturned = event.type === 'return' && event.from === childF.id;
+        const callClass = isPreview ? 'call-edge preview' : `call-edge ${activeBranch ? 'path' : completed ? 'past' : ''}${justCalled ? ' edge-enter' : ''}`;
+        layer.append(svgEl('path', { d: edgePoints(parent, child, false), class: callClass, 'marker-end': `url(#${isPreview ? 'previewHead' : 'callHead'})` }));
+        if (called && completed) {
+            layer.append(svgEl('path', {
+                d: edgePoints(parent, child, true), class: `return-edge${justReturned ? ' edge-enter' : ' past'}`,
+                'marker-end': 'url(#returnHead)'
+            }));
+            const value = String(s.completed.get(childF.id));
+            const cx = ((parent.x + parent.w) + child.x) / 2;
+            const cy = ((parent.y + parent.h / 2) + (child.y + child.h / 2)) / 2 + 23;
+            const labelW = Math.max(38, value.length * 15 + 18);
+            const group = svgEl('g', { class: justReturned ? 'label-enter' : '' });
+            group.append(svgEl('rect', { x: cx - labelW / 2, y: cy - 17, width: labelW, height: 34, rx: 10, class: 'return-label-bg' }));
+            group.append(svgEl('text', { x: cx, y: cy + 1, class: 'return-label-text' }, value));
+            layer.append(group);
+        }
+    }
+    function drawNode(layer, f, pos, s, options = {}) {
+        const future = !!options.future;
+        const compact = !!options.compact;
+        const collapsed = !!options.collapsed;
+        const status = frameState(f, s, future);
+        const g = svgEl('g', { 'data-frame': f.id });
+        g.append(svgEl('rect', { x: pos.x, y: pos.y, width: pos.w, height: pos.h, rx: 12, class: `frame-rect ${status}` }));
+        g.append(svgEl('rect', { x: pos.x + 3, y: pos.y + 3, width: pos.w - 6, height: 5, rx: 2, class: `frame-accent ${status}` }));
+        // Call sequence numbers are assigned on invocation, not on return.
+        const callNumber = Number(f.id.slice(1));
+        g.append(svgEl('circle', { cx: pos.x + 4, cy: pos.y + 5, r: 13, class: 'call-number' }));
+        g.append(svgEl('text', { x: pos.x + 4, y: pos.y + 5, class: 'call-number-text' }, callNumber));
+        const title = compact ? shortTitle(f) : callTitle(f);
+        g.append(svgEl('text', { x: pos.x + 13, y: pos.y + (compact ? 26 : 29), class: 'node-title' }, title));
+        const isDone = s.completed.has(f.id);
+        let statusText = 'WAITING';
+        if (future) statusText = 'UPCOMING';
+        else if (isDone) statusText = `✓ ${s.completed.get(f.id)}`;
+        else if (f.id === s.active) statusText = 'ACTIVE';
+        else if (s.path.has(f.id)) statusText = 'IN STACK';
+        else statusText = 'OPEN';
+        if (!(compact && isDone && f.children.length && f.id !== trace.rootId)) {
+            g.append(svgEl('text', { x: pos.x + pos.w - 13, y: pos.y + (compact ? 26 : 47), class: `node-state ${status}` }, statusText));
+        }
+        if (compact) {
+            const local = currentLocals(f, s);
+            const line = future ? 'Not called yet' : f.leaf ? 'Base: left == right' : `mid=${f.mid}  L=${fmtValue(local.maxLeft)}  R=${fmtValue(local.maxRight)}`;
+            g.append(svgEl('text', { x: pos.x + 13, y: pos.y + 53, class: `node-text${f.leaf ? ' node-base' : ''}`, 'font-size': 13.5 }, line));
+            const result = collapsed ? `↳ ${countDescendants(f)} hidden calls · return ${s.completed.get(f.id)}` : isDone ? `return ${s.completed.get(f.id)}` : f.leaf ? 'return array[left] (pending)' : 'Awaiting child results';
+            g.append(svgEl('text', { x: pos.x + 13, y: pos.y + 80, class: `node-text${isDone ? ' node-result' : ''}`, 'font-size': 12.5 }, result));
+        } else if (future) {
+            g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 79, class: 'node-text' }, 'This call has not run.'));
+            g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 111, class: 'node-note' }, 'No local values yet'));
+        } else if (f.leaf) {
+            g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 73, class: 'node-text node-base' }, 'if (left == right)'));
+            g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 101, class: `node-text${isDone ? ' node-result' : ''}` }, isDone ? `return array[${f.left}] = ${s.completed.get(f.id)}` : `return array[${f.left}] (pending)`));
+            if (future) g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 123, class: 'node-note' }, 'Planned call, not yet executed'));
+        } else {
+            const local = currentLocals(f, s);
+            g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 67, class: 'node-text' }, `mid = ${f.mid}`));
+            g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 92, class: 'node-text' }, `maxLeft = ${fmtValue(local.maxLeft)}`));
+            g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 117, class: 'node-text' }, `maxRight = ${fmtValue(local.maxRight)}`));
+            if (isDone) g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 144, class: 'node-text node-result' }, `Math.Max(${local.maxLeft}, ${local.maxRight}) = ${s.completed.get(f.id)}`));
+            else if (!future) g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 144, class: 'node-note' }, 'Return waits for both children'));
+            else g.append(svgEl('text', { x: pos.x + 15, y: pos.y + 137, class: 'node-note' }, 'Planned, not yet executed'));
+        }
+        if (compact && isDone && f.children.length && f.id !== trace.rootId) {
+            const bx = pos.x + pos.w - 16;
+            const by = pos.y + 15;
+            const hit = svgEl('g', { 'data-collapse-id': f.id, role: 'button', tabindex: 0, 'aria-label': collapsed ? 'Expand completed branch' : 'Collapse completed branch' });
+            hit.append(svgEl('rect', { x: bx - 11, y: by - 11, width: 23, height: 23, rx: 6, class: 'collapse-hit' }));
+            hit.append(svgEl('text', { x: bx, y: by + 1, class: 'collapse-text' }, collapsed ? '+' : '−'));
+            g.append(hit);
+        }
+        layer.append(g);
+    }
+
+    function drawFocus(s) {
+        const layout = layoutFocus(s);
+        const edgeLayer = svgEl('g', { 'aria-hidden': 'true' });
+        const nodeLayer = svgEl('g');
+        if (layout.parent) drawEdge(edgeLayer, layout.parent, layout.active, layout.positions, s);
+        layout.active.children.forEach((id) => {
+            const child = frameById.get(id);
+            drawEdge(edgeLayer, layout.active, child, layout.positions, s, !s.entered.has(id));
+        });
+        if (layout.parent) drawNode(nodeLayer, layout.parent, layout.positions.get(layout.parent.id), s);
+        drawNode(nodeLayer, layout.active, layout.positions.get(layout.active.id), s);
+        layout.active.children.forEach((id) => {
+            const child = frameById.get(id);
+            drawNode(nodeLayer, child, layout.positions.get(id), s, { future: !s.entered.has(id) });
+        });
+        if (layout.active.leaf) {
+            nodeLayer.append(svgEl('text', { x: 828, y: 205, 'font-size': 20, 'font-weight': 800, fill: '#7453a8' }, 'Base case reached'));
+            nodeLayer.append(svgEl('text', { x: 796, y: 237, 'font-size': 15, fill: '#50657e' }, 'No further recursive calls'));
+        }
+        if (!layout.parent) {
+            nodeLayer.append(svgEl('text', { x: 58, y: 211, 'font-size': 17, 'font-weight': 750, fill: '#50657e' }, 'Original call'));
+        }
+        return { layout, edgeLayer, nodeLayer };
+    }
+
+    function drawFullTree(s) {
+        const visible = collectVisible(s);
+        const edgeLayer = svgEl('g', { 'aria-hidden': 'true' });
+        const nodeLayer = svgEl('g');
+        trace.frames.forEach((f) => {
+            if (!visible.ids.has(f.id) || !f.parentId || !visible.ids.has(f.parentId)) return;
+            drawEdge(edgeLayer, frameById.get(f.parentId), f, fullLayout.positions, s);
+        });
+        trace.frames.forEach((f) => {
+            if (visible.ids.has(f.id)) drawNode(nodeLayer, f, fullLayout.positions.get(f.id), s, { compact: true, collapsed: visible.collapsed.has(f.id) });
+        });
+        return { layout: fullLayout, edgeLayer, nodeLayer };
+    }
+
+    function drawGraph(s) {
+        const view = mode === 'focus' ? drawFocus(s) : drawFullTree(s);
+        currentLayout = view.layout;
+        graph.setAttribute('viewBox', `0 0 ${currentLayout.width} ${currentLayout.height}`);
+        graph.setAttribute('width', currentLayout.width);
+        graph.setAttribute('height', currentLayout.height);
+        graph.replaceChildren(
+            svgEl('title', { id: 'graphTitle' }, `FindMax ${mode === 'focus' ? 'focus' : 'full tree'} view, step ${selectedStep} of ${trace.events.length}`),
+            svgEl('desc', { id: 'graphDesc' }, eventDescription(s).desc),
+            defs(), view.edgeLayer, view.nodeLayer
+        );
+        applyZoomSize();
+    }
+
+    function applyZoomSize() {
+        if (!currentLayout) return;
+        graph.style.transform = `scale(${zoom})`;
+        space.style.width = `${currentLayout.width * zoom}px`;
+        space.style.height = `${currentLayout.height * zoom}px`;
+        $('zoomLabel').textContent = `${Math.round(zoom * 100)}%`;
+        $('btnZoomIn').disabled = zoom >= MAX_ZOOM;
+        $('btnZoomOut').disabled = zoom <= MIN_ZOOM;
+    }
+    function setZoom(value, recenter = false) {
+        zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.round(value * 100) / 100));
+        applyZoomSize();
+        if (recenter) centerActiveFrame();
+        updateMinimap();
+    }
+    function fitToViewport() {
+        if (!currentLayout) return;
+        const w = Math.max(1, viewport.clientWidth - 22);
+        const h = Math.max(1, viewport.clientHeight - 22);
+        const desired = Math.min(w / currentLayout.width, h / currentLayout.height, 1.2);
+        setZoom(desired, true);
+        const message = desired < MIN_ZOOM
+            ? 'Fit protects text size at 75%; scroll to see the rest of the tree.'
+            : mode === 'focus'
+                ? 'Focus Mode: active call centered; faded/dashed calls have not executed.'
+                : 'Full Tree: scroll or use the minimap to explore every call.';
+        setViewMessage(message);
+    }
+    function centerActiveFrame() {
+        if (!currentLayout) return;
+        const position = currentLayout.positions.get(state.active);
+        if (!position) return;
+        const targetX = (position.x + position.w / 2) * zoom - viewport.clientWidth / 2;
+        const targetY = (position.y + position.h / 2) * zoom - viewport.clientHeight / 2;
+        viewport.scrollLeft = Math.max(0, targetX);
+        viewport.scrollTop = Math.max(0, targetY);
+        updateMinimap();
+    }
+    function setViewMessage(message) {
+        if (lastAnnouncedView !== message) {
+            $('viewMessage').textContent = message;
+            lastAnnouncedView = message;
+        }
+    }
+    function renderStepInfo(s) {
+        const description = eventDescription(s);
+        $('stepIcon').textContent = String(selectedStep);
+        $('stepTitle').textContent = description.title;
+        $('stepDescription').textContent = description.desc;
+        $('stepStatus').textContent = description.status;
+        $('stepStatus').classList.toggle('done', s.finished);
+        $('stepCount').textContent = `${selectedStep} / ${trace.events.length}`;
+        $('progressFill').style.width = `${100 * selectedStep / trace.events.length}%`;
+        $('progressTrack').setAttribute('aria-valuenow', String(selectedStep));
+        $('btnBack').disabled = selectedStep === 1;
+        $('btnNext').disabled = selectedStep === trace.events.length;
+        $('btnReset').disabled = selectedStep === 1 && playTimer === null;
+        $('btnAuto').disabled = selectedStep === trace.events.length && playTimer === null;
+        $('finalResult').textContent = s.finished ? `Maximum = ${s.completed.get(trace.rootId)}` : 'Example result: pending';
+        $('finalResult').classList.toggle('done', s.finished);
+    }
+    function render(recenter = true) {
+        state = getSnapshot(selectedStep);
+        renderStepInfo(state);
+        renderInspector(state);
+        renderCallStack(state);
+        drawGraph(state);
+        drawMinimap();
+        if (recenter) centerActiveFrame();
+        else updateMinimap();
+    }
+    function stopPlayback() {
+        if (playTimer !== null) clearInterval(playTimer);
+        playTimer = null;
+        $('btnAuto').textContent = '▶ Auto-play';
+        $('btnAuto').classList.remove('playing');
+    }
+    function goToStep(number, fromAutoplay = false) {
+        if (!fromAutoplay) stopPlayback();
+        selectedStep = Math.max(1, Math.min(trace.events.length, number));
+        if (selectedStep === trace.events.length) stopPlayback();
+        render();
+    }
+    function startPlayback() {
+        if (playTimer !== null) {
+            stopPlayback(); renderStepInfo(state); return;
+        }
+        if (selectedStep === trace.events.length) goToStep(1);
+        $('btnAuto').textContent = '■ Stop';
+        $('btnAuto').classList.add('playing');
+        playTimer = setInterval(() => {
+            if (selectedStep < trace.events.length) goToStep(selectedStep + 1, true);
+            else stopPlayback();
+        }, Number($('speed').value));
+        renderStepInfo(state);
+    }
+    function switchMode(nextMode) {
+        if (mode === nextMode) return;
+        mode = nextMode;
+        $('btnFocus').setAttribute('aria-pressed', String(mode === 'focus'));
+        $('btnFull').setAttribute('aria-pressed', String(mode === 'tree'));
+        $('btnCollapse').disabled = mode === 'focus';
+        $('boardHelp').textContent = mode === 'focus'
+            ? 'Focus Mode: parent, current call, and immediate children. Dashed children are planned calls, not executed calls. Return values appear only after actual return events.'
+            : 'Full Tree: full execution history in stable left-to-right positions. The active call path is blue. Collapse completed branches or select a frame on the minimap.';
+        render(false);
+        fitToViewport();
+    }
+    function toggleCollapse() {
+        autoCollapse = !autoCollapse;
+        collapsedManual.clear();
+        expandedWhenAuto.clear();
+        $('btnCollapse').textContent = `Collapse done: ${autoCollapse ? 'On' : 'Off'}`;
+        $('btnCollapse').setAttribute('aria-pressed', String(autoCollapse));
+        render(false);
+    }
+    function toggleFrameCollapse(id) {
+        const f = frameById.get(id);
+        if (!f || !state.completed.has(id) || !f.children.length) return;
+        const set = autoCollapse ? expandedWhenAuto : collapsedManual;
+        if (set.has(id)) set.delete(id); else set.add(id);
+        render(false);
+    }
+    function drawMinimap() {
+        const map = $('minimap');
+        map.setAttribute('viewBox', `0 0 ${fullLayout.width} ${fullLayout.height}`);
+        const layer = svgEl('g');
+        for (const f of trace.frames) {
+            if (!f.parentId) continue;
+            const a = fullLayout.positions.get(f.parentId);
+            const b = fullLayout.positions.get(f.id);
+            layer.append(svgEl('line', {
+                x1: a.x + a.w, y1: a.y + a.h / 2, x2: b.x, y2: b.y + b.h / 2,
+                stroke: state.path.has(f.id) ? '#2c69d3' : '#c2cede', 'stroke-width': state.path.has(f.id) ? 9 : 6
+            }));
+        }
+        for (const f of trace.frames) {
+            const pos = fullLayout.positions.get(f.id);
+            const fill = f.id === state.active ? '#245fd6' : state.completed.has(f.id) ? '#30946e' : state.entered.has(f.id) ? '#a1b5cf' : '#eff3f9';
+            layer.append(svgEl('rect', { x: pos.x, y: pos.y, width: pos.w, height: pos.h, rx: 7, fill, stroke: '#728cae', 'stroke-width': 3, 'data-minimap-id': f.id }));
+        }
+        if (mode === 'tree') layer.append(svgEl('rect', { id: 'miniViewport', x: 0, y: 0, width: 20, height: 20, rx: 4, fill: '#2372e51b', stroke: '#155dd0', 'stroke-width': 8, 'pointer-events': 'none' }));
+        map.replaceChildren(layer);
+        updateMinimap();
+    }
+    function updateMinimap() {
+        const rect = $('miniViewport');
+        if (!rect || mode !== 'tree') return;
+        rect.setAttribute('x', viewport.scrollLeft / zoom);
+        rect.setAttribute('y', viewport.scrollTop / zoom);
+        rect.setAttribute('width', Math.min(fullLayout.width, viewport.clientWidth / zoom));
+        rect.setAttribute('height', Math.min(fullLayout.height, viewport.clientHeight / zoom));
+    }
+    function minimapCoordinates(event) {
+        // SVG viewBox may be letterboxed: inverse CTM respects its true aspect ratio.
+        const map = $('minimap');
+        const point = map.createSVGPoint();
+        point.x = event.clientX;
+        point.y = event.clientY;
+        const matrix = map.getScreenCTM();
+        if (matrix) {
+            const local = point.matrixTransform(matrix.inverse());
+            return { x: local.x, y: local.y };
+        }
+        const box = map.getBoundingClientRect();
+        return { x: ((event.clientX - box.left) / box.width) * fullLayout.width, y: ((event.clientY - box.top) / box.height) * fullLayout.height };
+    }
+    function minimapAction(event, first = false) {
+        const point = minimapCoordinates(event);
+        if (mode === 'tree') {
+            viewport.scrollLeft = Math.max(0, point.x * zoom - viewport.clientWidth / 2);
+            viewport.scrollTop = Math.max(0, point.y * zoom - viewport.clientHeight / 2);
+            updateMinimap();
+        } else if (first) {
+            let nearest = trace.frames[0];
+            let best = Infinity;
+            for (const f of trace.frames) {
+                const pos = fullLayout.positions.get(f.id);
+                const dx = (pos.x + pos.w / 2) - point.x;
+                const dy = (pos.y + pos.h / 2) - point.y;
+                const d = dx * dx + dy * dy;
+                if (d < best) { best = d; nearest = f; }
+            }
+            goToStep(nearest.entryStep);
+        }
+    }
+
+    $('btnBack').addEventListener('click', () => goToStep(selectedStep - 1));
+    $('btnNext').addEventListener('click', () => goToStep(selectedStep + 1));
+    $('btnReset').addEventListener('click', () => goToStep(1));
+    $('btnAuto').addEventListener('click', startPlayback);
+    $('speed').addEventListener('change', () => { if (playTimer !== null) { stopPlayback(); startPlayback(); } });
+    $('btnFocus').addEventListener('click', () => switchMode('focus'));
+    $('btnFull').addEventListener('click', () => switchMode('tree'));
+    $('btnCollapse').addEventListener('click', toggleCollapse);
+    $('btnZoomIn').addEventListener('click', () => setZoom(zoom + .1, true));
+    $('btnZoomOut').addEventListener('click', () => setZoom(zoom - .1, true));
+    $('btnFit').addEventListener('click', fitToViewport);
+    $('btnInspector').addEventListener('click', () => {
+        inspectorHidden = !inspectorHidden;
+        $('inspector').hidden = inspectorHidden;
+        grid.classList.toggle('inspector-hidden', inspectorHidden);
+        $('btnInspector').textContent = inspectorHidden ? 'Show array' : 'Hide array';
+        requestAnimationFrame(fitToViewport);
+    });
+    $('btnFullscreen').addEventListener('click', async () => {
+        try {
+            if (document.fullscreenElement) await document.exitFullscreen();
+            else if (appRoot.requestFullscreen) await appRoot.requestFullscreen();
+            else setViewMessage('Fullscreen is unavailable in this browser.');
+        } catch (error) { setViewMessage('Fullscreen permission was denied by the browser.'); }
+    });
+    document.addEventListener('fullscreenchange', () => {
+        $('btnFullscreen').textContent = document.fullscreenElement ? '⛶ Exit Fullscreen' : '⛶ Fullscreen';
+        requestAnimationFrame(fitToViewport);
+    });
+    $('resizeHandle').addEventListener('pointerdown', (event) => {
+        if (window.innerWidth <= 980) return;
+        event.preventDefault();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        const start = event.clientX;
+        const width = $('inspector').getBoundingClientRect().width;
+        function resize(move) {
+            const proposed = Math.max(315, Math.min(490, width + move.clientX - start));
+            grid.style.setProperty('--inspector-width', `${proposed}px`);
+            updateMinimap();
+        }
+        function end() {
+            $('resizeHandle').removeEventListener('pointermove', resize);
+            $('resizeHandle').removeEventListener('pointerup', end);
+            $('resizeHandle').removeEventListener('pointercancel', end);
+            fitToViewport();
+        }
+        $('resizeHandle').addEventListener('pointermove', resize);
+        $('resizeHandle').addEventListener('pointerup', end);
+        $('resizeHandle').addEventListener('pointercancel', end);
+    });
+    graph.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-collapse-id]');
+        if (target) toggleFrameCollapse(target.getAttribute('data-collapse-id'));
+    });
+    graph.addEventListener('keydown', (event) => {
+        const target = event.target.closest('[data-collapse-id]');
+        if (target && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault(); toggleFrameCollapse(target.getAttribute('data-collapse-id'));
+        }
+    });
+    $('minimap').addEventListener('pointerdown', (event) => {
+        minimapDragging = true;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        minimapAction(event, true);
+    });
+    $('minimap').addEventListener('pointermove', (event) => {
+        if (minimapDragging) minimapAction(event, false);
+    });
+    $('minimap').addEventListener('pointerup', () => { minimapDragging = false; });
+    $('minimap').addEventListener('pointercancel', () => { minimapDragging = false; });
+    viewport.addEventListener('scroll', updateMinimap, { passive: true });
+    document.addEventListener('keydown', (event) => {
+        const focused = document.activeElement;
+        const tag = focused && focused.tagName;
+        if (event.key === 'Escape' && document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+            return;
+        }
+        if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || (tag === 'BUTTON')) return;
+        if (focused === viewport) return; // Keep arrow keys available for diagram scrolling.
+        if (event.key === 'ArrowRight') { event.preventDefault(); goToStep(selectedStep + 1); }
+        if (event.key === 'ArrowLeft') { event.preventDefault(); goToStep(selectedStep - 1); }
+    });
+    window.addEventListener('pagehide', stopPlayback);
+    if (window.ResizeObserver) {
+        const observer = new ResizeObserver(() => {
+            if (currentLayout) updateMinimap();
+        });
+        observer.observe(viewport);
+    }
+    // Self-tests protect the model from visual-only bugs; one independent oracle below.
+    function runTraceSelfTests() {
+        const expected = [5, 8, 3, 12, 7, 4];
+        const independentMaximum = expected.reduce((best, value) => value > best ? value : best, -Infinity);
+        const calls = trace.events.filter((event) => event.type === 'call');
+        const returns = trace.events.filter((event) => event.type === 'return');
+        const finish = trace.events.at(-1);
+        const requireCondition = (ok, text) => { if (!ok) throw new Error(`Trace verification failed: ${text}`); };
+        requireCondition(trace.frames.length === 11, '11 frames');
+        requireCondition(trace.frames.filter((frame) => frame.leaf).length === 6, '6 leaf frames');
+        requireCondition(calls.length === 10 && returns.length === 10, '10 calls and 10 returns');
+        requireCondition(trace.events.length === 22, '22 steps');
+        requireCondition(finish.type === 'finish' && finish.value === independentMaximum && independentMaximum === 12, 'correct root value');
+        requireCondition(trace.frames[0].left === 0 && trace.frames[0].right === 5 && trace.frames[0].mid === 2, 'root arguments');
+        requireCondition(trace.frames.every((frame) => (frame.leaf ? frame.mid === null : frame.mid >= frame.left && frame.mid < frame.right)), 'base case and midpoint');
+        // All snapshots, including backwards jumps, must expose no future completions.
+        for (let count = 1; count <= trace.events.length; count++) {
+            const s = getSnapshot(count);
+            const observedReturns = trace.events.slice(0, count).filter((e) => e.type === 'return');
+            requireCondition(observedReturns.every((e) => s.completed.get(e.from) === e.value), `return prefix at ${count}`);
+            for (const frame of trace.frames) {
+                if (frame.exitStep > count) requireCondition(!s.completed.has(frame.id), `no early return at ${count}`);
+            }
+        }
+        return true;
+    }
+    runTraceSelfTests();
+    $('btnCollapse').disabled = true;
+    render(false);
+    requestAnimationFrame(fitToViewport);
+    // Expose read-only test access; no external runtime or library is needed.
+    window.RecursionTraceTesting = Object.freeze({ trace, snapshot: getSnapshot, selfTest: runTraceSelfTests, getStep: () => selectedStep, getMode: () => mode });
+</script>
+</body>
+</html>
