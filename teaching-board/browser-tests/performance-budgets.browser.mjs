@@ -79,6 +79,9 @@ try{
    const penFrames=[],intervals=[];
    editor.tool='pen';
    const svg=editor.svg;
+   // Synthetic benchmark pointers do not belong to an OS pointer stream.
+   // Bypass browser capture validation, not the editor gesture logic.
+   svg.setPointerCapture=()=>{};
    const pointer=(x,y)=>({button:0,pointerId:901,pointerType:'mouse',
     clientX:x,clientY:y,timeStamp:performance.now(),
     target:svg,preventDefault(){}});
