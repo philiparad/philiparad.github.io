@@ -1,5 +1,5 @@
-import { validateBoard } from './model.js?v=20261120-perf014';
-import {summarizeBoard} from './dashboard-data.js?v=20261120-perf014';
+import { validateBoard } from './model.js?v=20261120-perf015';
+import {summarizeBoard} from './dashboard-data.js?v=20261120-perf015';
 export class ConflictError extends Error {
   constructor() { super('This board changed in another tab. Reopen it before editing.'); this.name = 'ConflictError'; }
 }
