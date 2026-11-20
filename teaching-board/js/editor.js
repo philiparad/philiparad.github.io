@@ -320,7 +320,7 @@ export class Editor {
  if(this.lastTextTap&&last?.id===item.id&&e.timeStamp-last.time>=0&&e.timeStamp-last.time<450&&Math.hypot(screen.x-last.x,screen.y-last.y)<6&&!this.isLocked(item)&&!item.groupId){this.lastTextTap=null;this.action(()=>this.insertText(item.type,p,item));return;}
  if(e.target.hasAttribute('data-rotate')){const items=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(items.length)this.drag=beginRotation(items,p,this.board.viewport.zoom);return;}
  if(e.target.hasAttribute('data-resize')){const items=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));if(items.length)this.drag=beginResize(items,e.target.getAttribute('data-resize'),p);return;}
- if(item){const members=expandGroups(this.board.items,new Set([id]));if(e.altKey){for(const member of members)this.selected.delete(member);this.paint();return;}if(e.shiftKey){const remove=this.selected.has(id);for(const member of members)remove?this.selected.delete(member):this.selected.add(member);}else if(!this.selected.has(id))this.selected=members;this.drag={kind:'move',start:p,items:structuredClone(this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i)))};this.drag.baseBounds=union(this.drag.items);this.drag.snapExcluded=new Set(this.drag.items.map(i=>i.id));this.drag.snapIndex=this.snapIndexFor(this.drag.snapExcluded);}
+ if(item){const members=expandGroups(this.board.items,new Set([id]));if(e.altKey){for(const member of members)this.selected.delete(member);this.paint();return;}if(e.shiftKey){const remove=this.selected.has(id);for(const member of members)remove?this.selected.delete(member):this.selected.add(member);}else if(!this.selected.has(id))this.selected=members;const targets=this.board.items.filter(i=>this.selected.has(i.id)&&this.canTransform(i));this.drag={kind:'move',start:p,items:structuredClone(targets),targets:new Map(targets.map(i=>[i.id,i]))};this.drag.baseBounds=union(this.drag.items);this.drag.snapExcluded=new Set(this.drag.items.map(i=>i.id));this.drag.snapIndex=this.snapIndexFor(this.drag.snapExcluded);}
  else{if(!e.shiftKey&&!e.altKey)this.selected.clear();this.drag={kind:'marquee',start:p,includeBackground:!!(e.ctrlKey||e.metaKey),subtract:!!e.altKey};}this.paint();return;}
  if(['text','note'].includes(this.tool)){this.action(()=>this.insertText(this.tool,p));return;}
  if(this.tool==='polygon'){this.polygon.push([p.x,p.y]);this.updatePolygon();return;}
@@ -331,7 +331,7 @@ export class Editor {
  if(d.kind==='pan'){const s=this.screen(e);this.board.viewport={...d.v,x:d.v.x+s.x-d.screen.x,y:d.v.y+s.y-d.screen.y};}
  if(d.kind==='laser'){this.laserTrail.add(p);return;}
  if(d.kind==='erase'){this.eraseAt(p);return;}
- if(d.kind==='move'){for(const old of d.items){const item=this.board.items.find(i=>i.id===old.id);item.x=old.x+p.x-d.start.x;item.y=old.y+p.y-d.start.y;}}
+ if(d.kind==='move'){for(const old of d.items){const item=d.targets.get(old.id);if(!item)continue;item.x=old.x+p.x-d.start.x;item.y=old.y+p.y-d.start.y;}}
  if(d.kind==='rotate')rotateItems(this.board,d,p,!!e.shiftKey);
  if(d.kind==='resize')resizeItems(this.board,d,p,!!e.shiftKey);
  if(d.kind==='marquee')this.marquee={x:Math.min(p.x,d.start.x),y:Math.min(p.y,d.start.y),width:Math.abs(p.x-d.start.x),height:Math.abs(p.y-d.start.y)};
