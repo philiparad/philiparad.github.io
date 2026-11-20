@@ -16,7 +16,7 @@ import { InlineText } from './inline-text.js?v=20261120-perf012';
 import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js?v=20261120-perf012';
 import { connectorTarget, syncConnectors } from './connectors.js?v=20261120-perf012';
 import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261120-perf012';
-import { visibleItems, invalidateTextBounds } from './visibility.js?v=20261120-perf012';
+import { visibleItems, invalidateTextBounds, invalidatePointBounds } from './visibility.js?v=20261120-perf012';
 import { RenderCache } from './render-cache.js?v=20261120-perf012';
 import { SpeedInk } from './speed-ink.js?v=20261120-perf012';
 import { penPressure, resmoothPressure } from './pressure.js?v=20261120-perf012';
@@ -146,6 +146,7 @@ export class Editor {
   this.renderCache?.invalidate(id);this.minimap?.cache.invalidate(id);
   const item=this.board.items.find(value=>value.id===id);
   if(item&&['text','note'].includes(item.type))invalidateTextBounds(item);
+   if(item?.points)invalidatePointBounds(item);
  }
  commit(options){try{
   this.snapTargetCache=null;
@@ -158,8 +159,10 @@ export class Editor {
   this.minimap?.cache.invalidateMany(changed);
   // Rich runs and paragraph arrays may be edited in place. History has
   // already identified those item IDs, so clear only their measured bounds.
-  for(const item of this.board.items)if(changed.has(item.id)&&
-    ['text','note'].includes(item.type))invalidateTextBounds(item);
+  for(const item of this.board.items)if(changed.has(item.id)){
+    if(['text','note'].includes(item.type))invalidateTextBounds(item);
+    if(item.points)invalidatePointBounds(item);
+   }
   this.save({committed:true});this.paint();
  }catch(e){Object.assign(this.board,structuredClone(this.history.current));this.paint();throw e;}}
  async action(fn){try{await fn();}catch(e){notify(e.message);}}
