@@ -206,9 +206,7 @@ test('PERF-014 batches rapid text resize requests and reads layout once per fram
  globalThis.cancelAnimationFrame=key=>scheduled.delete(key);
  try{
   const e=fixture(),edit=e.inlineText;
-  assert.equal(scheduled.size,1,'Initial sizing is scheduled, not synchronously forced');
-  for(const callback of [...scheduled.values()])callback();
-  scheduled.clear();
+  assert.equal(scheduled.size,0,'Explicit initial sizing remains synchronous');
   Object.defineProperty(edit.input,'scrollHeight',{configurable:true,get(){reads++;return 160;}});
   for(let n=0;n<30;n++){
    edit.input.textContent='Repeated input '+n;
@@ -243,6 +241,8 @@ test('PERF-014 closing a draft cancels queued sizing without touching detached D
  globalThis.cancelAnimationFrame=key=>scheduled.delete(key);
  try{
   const e=fixture(),edit=e.inlineText;
+  edit.input.textContent='Pending input';
+  edit.input.oninput({inputType:'insertText'});
   assert.equal(scheduled.size,1);
   edit.finish(false);
   assert.equal(scheduled.size,0);
