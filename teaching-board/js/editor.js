@@ -24,7 +24,7 @@ import { ShapeGallery } from './shape-gallery.js?v=20261119-perf010';
 import { FillPalette } from './fill-palette.js?v=20261119-perf010';
 import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261119-perf010';
 import { LineStyleMenu } from './line-style-menu.js?v=20261119-perf010';
-import { Pages,A4,pageRect } from './pages.js?v=20261119-perf010';
+import { Pages,A4,pageRect } from './pages.js?v=20261120-perf012';
 import { cropDialog } from './crop-editor.js?v=20261119-perf010';
 import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261119-perf010';
 import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261119-perf010';
@@ -238,10 +238,11 @@ export class Editor {
   }
   // The grid moves with the viewport; its SVG definitions do not need rebuilding.
   this.paperPattern?.setAttribute('patternTransform',`translate(${v.x} ${v.y}) scale(${v.zoom})`);
-  const pagesKey=JSON.stringify([this.board.layout||'infinite',this.board.pageCount||1,this.board.background,this.board.backgroundOptions||null]);
+  const pageIndices=this.pages.visibleIndices?.()||[];
+   const pagesKey=JSON.stringify([this.board.layout||'infinite',this.board.background,this.board.backgroundOptions||null,pageIndices]);
   if(this.pagesKey!==pagesKey){
    this.pagesLayer.replaceChildren();
-   this.pages.paint(this.pagesLayer);
+   this.pages.paint(this.pagesLayer,pageIndices);
    this.pagesKey=pagesKey;
   }
   this.sceneLayer.setAttribute('transform',`translate(${v.x} ${v.y}) scale(${v.zoom})`);
