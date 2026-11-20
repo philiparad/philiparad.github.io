@@ -1,6 +1,30 @@
 /** Reversible document patches; storage revisions stay outside undo/redo. */
 export const serializedBytes=value=>new TextEncoder().encode(JSON.stringify(value)).byteLength;
-const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+// Compare potentially large shared array entries without building JSON strings.
+// Use an explicit stack so deeply nested lessons cannot overflow the call stack.
+const equal=(a,b)=>{
+ const pending=[[a,b]];
+ while(pending.length){
+  const [left,right]=pending.pop();
+  if(Object.is(left,right))continue;
+  if(left===null||right===null||typeof left!==typeof right||
+     typeof left!=='object')return false;
+  const array=Array.isArray(left);
+  if(array!==Array.isArray(right))return false;
+  if(array){
+   if(left.length!==right.length)return false;
+   for(let i=0;i<left.length;i++)pending.push([left[i],right[i]]);
+  }else{
+   const keys=Object.keys(left);
+   if(keys.length!==Object.keys(right).length)return false;
+   for(const key of keys){
+    if(!Object.hasOwn(right,key))return false;
+    pending.push([left[key],right[key]]);
+   }
+  }
+ }
+ return true;
+};
 const object=value=>value!==null&&typeof value==='object';
 const ASSET_THRESHOLD=4096;
 class AssetRef{constructor(id){this.id=id;}}
@@ -51,7 +75,9 @@ function diff(before,after,path=[],out=[]){
  return out;
 }
 function apply(document,patch,forward){
- let result=structuredClone(document);
+ // The current snapshot belongs exclusively to History. Apply each patch in
+ // place and clone only the returned board, avoiding a second full copy.
+ let result=document;
  for(const change of forward?patch:[...patch].reverse()){
   if(change.kind==='splice'){
    const array=change.path.reduce((value,key)=>value[key],result),remove=forward?change.removed:change.added,add=forward?change.added:change.removed;
