@@ -1,4 +1,4 @@
-import {canvasTextFont} from './text-font.js?v=20261120-perf012';
+import {canvasTextFont} from './text-font.js?v=20261120-perf013';
 
 // PERF-003 — One lazily-created canvas context per document and a bounded LRU
 // of token widths shared by every text layout (including versioned importers).

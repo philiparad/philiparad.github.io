@@ -1,6 +1,6 @@
-import {paragraphRuns,textRuns,compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261120-perf012';
-import {textLayoutMetrics,paragraphDirectionIsRtl} from './inline-equation.js?v=20261120-perf012';
-import {bounds} from './scene.js?v=20261120-perf012';
+import {paragraphRuns,textRuns,compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261120-perf013';
+import {textLayoutMetrics,paragraphDirectionIsRtl} from './inline-equation.js?v=20261120-perf013';
+import {bounds} from './scene.js?v=20261120-perf013';
 
 const MAX_PAGES=100;
 const TOP_MARGIN=24;
