@@ -1,5 +1,5 @@
-import {bounds} from './scene.js?v=20261120-perf015';
-import { SHAPES } from './shapes.js?v=20261120-perf015';
+import {bounds} from './scene.js?v=20261120-perf016';
+import { SHAPES } from './shapes.js?v=20261120-perf016';
 
 // PERF-004: Text/note bounds must use the same wrapped, measured height as
 // sceneSVG and hit testing. Cache by item identity and geometry so a pan/zoom
