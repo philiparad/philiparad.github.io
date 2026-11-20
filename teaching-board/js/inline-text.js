@@ -91,8 +91,7 @@ export class InlineText {
   if(recovered&&isDifferentDraft(recovered,initial))this.offerDraftRecovery(recovered);
   else if(recovered)clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
   this.input.oninput=e=>{
-   this.resize();
-   if(this.composing)return;
+   if(this.composing){this.resize();return;}
    this.pendingMarks=null;this.pendingSelection=null;
    // InputEvent.inputType differs across browsers, and some IMEs report
    // the final commit as plain insertText or an empty type. Coalesce the
@@ -111,6 +110,7 @@ export class InlineText {
     recoverEquationSelection(this.input,window.getSelection());
     this.recordSnapshot({amendComposition:commit});
    }else this.recordSnapshot();
+   this.resize();
   };
   this.input.onbeforeinput=e=>{if(this.closed||this.composing||e.isComposing)return;if(e.cancelable&&['deleteContentBackward','deleteContentForward'].includes(e.inputType)){const key=e.inputType==='deleteContentBackward'?'Backspace':'Delete';if(this.deleteInlineEquation(key)||this.handleBoundaryKey({key})){e.preventDefault();return;}}if(e.inputType!=='insertText'||!this.pendingMarks)return;const selection=window.getSelection();if(insertPendingText(this.input,selection,this.pendingMarks,e.data)){e.preventDefault();this.pendingMarks=null;this.pendingSelection=null;this.resize();this.recordSnapshot();this.selectionChange();}};
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
