@@ -1,7 +1,7 @@
-import {el,btn,notify} from './ui.js?v=20261119-perf010';
-import {expandGroups} from './groups.js?v=20261119-perf010';
-import {BOARD_CLIPBOARD} from './clipboard.js?v=20261119-perf010';
-import {validateBoard} from './model.js?v=20261119-perf010';
+import {el,btn,notify} from './ui.js?v=20261120-perf011';
+import {expandGroups} from './groups.js?v=20261120-perf011';
+import {BOARD_CLIPBOARD} from './clipboard.js?v=20261120-perf011';
+import {validateBoard} from './model.js?v=20261120-perf011';
 const PREFIX='teaching-board-selection:';
 export function selectionItems(e){return e.board.items.filter(i=>e.selected.has(i.id));}
 export async function copySelection(e){

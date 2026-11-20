@@ -1,8 +1,8 @@
-import {backgroundOrder} from './background-lock.js?v=20261119-perf010';
-import { backgroundOptions } from './background-options.js?v=20261119-perf010';
-import { el, notify, confirmDialog } from './ui.js?v=20261119-perf010';
-import { svgEl, drawItem, background, bounds } from './scene.js?v=20261119-perf010';
-import { planTextFlow,applyTextFlow } from './text-pagination.js?v=20261119-perf010';
+import {backgroundOrder} from './background-lock.js?v=20261120-perf011';
+import { backgroundOptions } from './background-options.js?v=20261120-perf011';
+import { el, notify, confirmDialog } from './ui.js?v=20261120-perf011';
+import { svgEl, drawItem, background, bounds } from './scene.js?v=20261120-perf011';
+import { planTextFlow,applyTextFlow } from './text-pagination.js?v=20261120-perf011';
 export const A4={w:794,h:1123,gap:32};
 export const pageRect=index=>({x:0,y:index*(A4.h+A4.gap),w:A4.w,h:A4.h});
 /**

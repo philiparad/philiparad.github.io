@@ -1,4 +1,4 @@
-import {svgEl} from './scene.js?v=20261119-perf010';
+import {svgEl} from './scene.js?v=20261120-perf011';
 
 export function laserOptions(value={}){
  const o={color:'#f34c5e',width:5,duration:700,...value};

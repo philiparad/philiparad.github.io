@@ -1,5 +1,5 @@
-import {el,btn} from './ui.js?v=20261119-perf010';
-import {bounds} from './scene.js?v=20261119-perf010';
+import {el,btn} from './ui.js?v=20261120-perf011';
+import {bounds} from './scene.js?v=20261120-perf011';
 export class ImageToolbar{
  constructor(e){this.e=e;this.root=el('div',null,'image-selection-toolbar');this.root.setAttribute('role','toolbar');this.root.setAttribute('aria-label','Selected image');this.root.hidden=true;
  this.crop=btn('Crop image',()=>e.action(()=>e.editSelected()));this.crop.title='Crop the image; the original is preserved';
