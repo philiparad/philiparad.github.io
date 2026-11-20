@@ -196,3 +196,61 @@ test('a brand-new unsaved sticky note is recoverable after navigation but not af
   assert.equal(map.size,0,'Explicit Cancel must remove the saved draft.');
  }finally{globalThis.localStorage=previous;}
 });
+
+test('PERF-014 batches rapid text resize requests and reads layout once per frame',()=>{
+ const originalRequest=globalThis.requestAnimationFrame;
+ const originalCancel=globalThis.cancelAnimationFrame;
+ let id=0,reads=0;
+ const scheduled=new Map();
+ globalThis.requestAnimationFrame=callback=>{scheduled.set(++id,callback);return id;};
+ globalThis.cancelAnimationFrame=key=>scheduled.delete(key);
+ try{
+  const e=fixture(),edit=e.inlineText;
+  assert.equal(scheduled.size,1,'Initial sizing is scheduled, not synchronously forced');
+  for(const callback of [...scheduled.values()])callback();
+  scheduled.clear();
+  Object.defineProperty(edit.input,'scrollHeight',{configurable:true,get(){reads++;return 160;}});
+  for(let n=0;n<30;n++){
+   edit.input.textContent='Repeated input '+n;
+   edit.input.oninput({inputType:'insertText'});
+  }
+  assert.equal(reads,0,'Keystrokes do not force synchronous scrollHeight reads');
+  assert.equal(scheduled.size,1,'Burst of input produces one pending measurement');
+  for(const callback of [...scheduled.values()])callback();
+  scheduled.clear();
+  assert.equal(reads,1,'Frame measures the content only once');
+  edit.input.textContent='Last saved content';
+  edit.input.oninput({inputType:'insertText'});
+  assert.equal(scheduled.size,1);
+  edit.finish(true);
+  assert.equal(reads,2,'Saving synchronously flushes the last valid text height');
+  assert.equal(scheduled.size,0,'Saving cancels obsolete pending frame');
+  assert.equal(e.applied[1],'Last saved content');
+ }finally{
+  if(originalRequest===undefined)delete globalThis.requestAnimationFrame;
+  else globalThis.requestAnimationFrame=originalRequest;
+  if(originalCancel===undefined)delete globalThis.cancelAnimationFrame;
+  else globalThis.cancelAnimationFrame=originalCancel;
+ }
+});
+
+test('PERF-014 closing a draft cancels queued sizing without touching detached DOM',()=>{
+ const originalRequest=globalThis.requestAnimationFrame;
+ const originalCancel=globalThis.cancelAnimationFrame;
+ let id=0;
+ const scheduled=new Map();
+ globalThis.requestAnimationFrame=callback=>{scheduled.set(++id,callback);return id;};
+ globalThis.cancelAnimationFrame=key=>scheduled.delete(key);
+ try{
+  const e=fixture(),edit=e.inlineText;
+  assert.equal(scheduled.size,1);
+  edit.finish(false);
+  assert.equal(scheduled.size,0);
+  assert.equal(edit.closed,true);
+ }finally{
+  if(originalRequest===undefined)delete globalThis.requestAnimationFrame;
+  else globalThis.requestAnimationFrame=originalRequest;
+  if(originalCancel===undefined)delete globalThis.cancelAnimationFrame;
+  else globalThis.cancelAnimationFrame=originalCancel;
+ }
+});
