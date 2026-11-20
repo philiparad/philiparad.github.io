@@ -26,3 +26,47 @@ test('array removals, optional undefined values and returned states remain isola
  h.commit({items:[{id:'b'}]});const a=h.undo();assert.ok(Object.hasOwn(a,'value'));a.items[0].id='mutated';
  assert.deepEqual(h.redo(),{items:[{id:'b'}]});assert.equal(h.undo().items[0].id,'a');
 });
+
+test('PERF-015 large array insertion comparisons avoid JSON serialization of objects',()=>{
+ const payload='data:image/png;base64,'+'X'.repeat(16000);
+ const items=Array.from({length:300},(_,i)=>({id:'item-'+i,points:[[i,0],[i+1,1]],src:payload}));
+ const h=new History({items});
+ const next={items:[{id:'inserted',points:[[0,0]]},...items]};
+ const stringify=JSON.stringify;
+ let serializedArrays=0,serializedObjects=0;
+ try{
+  JSON.stringify=function(value,...args){
+   if(Array.isArray(value))serializedArrays++;
+   if(value&&typeof value==='object')serializedObjects++;
+   return stringify.call(this,value,...args);
+  };
+  assert.equal(h.commit(next),true);
+ }finally{JSON.stringify=stringify;}
+ assert.equal(serializedArrays,0,'Comparing array prefix/suffix must not serialize large arrays');
+ assert.equal(serializedObjects,0,'Comparing array objects must not serialize whole objects');
+ assert.equal(h.undo().items.length,300);
+ assert.equal(h.redo().items.length,301);
+});
+
+test('PERF-015 undo/redo clones the returned lesson once without cloning the input board',()=>{
+ const original={items:[{id:'picture',x:0,src:'image:'+'A'.repeat(64000)}],title:'Lesson'};
+ const h=new History(original);
+ h.commit({...original,items:[{...original.items[0],x:25}]});
+ const clone=globalThis.structuredClone;
+ let boardCopies=0;
+ try{
+  globalThis.structuredClone=function(value,...args){
+   if(value&&typeof value==='object'&&Array.isArray(value.items))boardCopies++;
+   return clone(value,...args);
+  };
+  const undone=h.undo();
+  assert.equal(boardCopies,1,'Undo must not duplicate an already owned full history snapshot');
+  undone.items[0].x=999;
+  assert.equal(h.current.items[0].x,0,'Returned history state must remain detached');
+  boardCopies=0;
+  const redone=h.redo();
+  assert.equal(boardCopies,1,'Redo must not duplicate an already owned full history snapshot');
+  redone.items[0].x=-99;
+  assert.equal(h.current.items[0].x,25);
+ }finally{globalThis.structuredClone=clone;}
+});
