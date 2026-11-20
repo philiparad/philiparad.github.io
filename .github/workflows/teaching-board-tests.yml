@@ -87,3 +87,39 @@ jobs:
             /tmp/teaching-board-visual-parity-failure.png
             /tmp/teaching-board-http.log
           if-no-files-found: ignore
+
+  performance-budgets:
+    # PERF-018 runs a consistent Chromium workload and uploads measured values.
+    # Run only once (not per browser) to avoid tripling noisy perf benchmarks.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Serve Teaching Board
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/teaching-board-http.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8765/teaching-board/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/teaching-board-http.log
+          exit 1
+      - name: Enforce PERF-018 browser performance budgets
+        run: node teaching-board/browser-tests/performance-budgets.browser.mjs
+      - name: Upload PERF-018 metrics and server logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: teaching-board-performance-budgets
+          path: |
+            /tmp/teaching-board-performance/
+            /tmp/teaching-board-http.log
+          if-no-files-found: warn
+          retention-days: 14
