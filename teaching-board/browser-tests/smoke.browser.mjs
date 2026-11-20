@@ -141,6 +141,53 @@ try{
   }finally{await auditPage.close();}
  });
 
+ await check('PERF-011 browser graph preview coalesces input and rasterizes smaller than final PNG',async()=>{
+  const report=await page.evaluate(async()=>{
+   const {GraphPreviewQueue}=await import('./js/graph-preview-queue.js?v=20261120-perf011');
+   const {rasterSVG,loadImage}=await import('./js/media.js?v=20261120-perf011');
+   const sample=new XMLSerializer().serializeToString(
+    document.createElementNS('http://www.w3.org/2000/svg','svg'));
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+   svg.setAttribute('width','640');svg.setAttribute('height','440');
+   svg.setAttribute('viewBox','0 0 640 440');
+   const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+   rect.setAttribute('width','640');rect.setAttribute('height','440');
+   rect.setAttribute('fill','#ffffff');svg.append(rect);
+   const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+   line.setAttribute('d','M0 440 Q200 300 640 0');
+   line.setAttribute('stroke','#147d92');line.setAttribute('stroke-width','3');
+   line.setAttribute('fill','none');svg.append(line);
+   const preview=await rasterSVG(svg,640,440,1);
+   const final=await rasterSVG(svg,640,440,2);
+   const images=await Promise.all([loadImage(preview),loadImage(final)]);
+   let release,started=[],shown=[];
+   const queue=new GraphPreviewQueue(args=>{
+    started.push(args[0]);return new Promise(resolve=>release=resolve);
+   },result=>shown.push(result.src));
+   const oldest=queue.request(['first']);
+   const skipped=queue.request(['second']);
+   const newest=queue.request(['third']);
+   const skippedResult=await skipped;
+   release({src:'old'});const oldResult=await oldest;
+   await Promise.resolve();await Promise.resolve();
+   const prior=started.slice();
+   release({src:'new'});const newResult=await newest;
+   const cached=await queue.request(['third']);
+   const count=started.length;queue.close();
+   return {sizes:images.map(i=>[i.naturalWidth,i.naturalHeight]),
+    previewSmaller:preview.length<final.length,started,prior,
+    skippedResult,oldResult,newResult,cached,count,shown};
+  });
+  assert.deepEqual(report.sizes,[[640,440],[1280,880]]);
+  assert.equal(report.previewSmaller,true,'Transient preview PNG should be smaller');
+  assert.deepEqual(report.started,['first','third']);
+  assert.deepEqual(report.shown,['new','new']);
+  assert.deepEqual([report.skippedResult,report.oldResult,report.newResult,report.cached],
+   [false,false,true,true]);
+  assert.equal(report.count,2);
+ });
+
  await check('PERF-010 compact JPEG/WebP imports and PDF pages survive storage and backup',async()=>{
   const report=await page.evaluate(async()=>{
    const {importImage,loadImage,dataURL}=await import('./js/media.js?v=20261119-perf010');
