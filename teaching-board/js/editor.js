@@ -32,7 +32,7 @@ import { hitTextBox } from './text-hit-test.js?v=20261119-perf010';
 import { toWorld, zoomAt } from './viewport.js?v=20261119-perf010';
 import { History } from './history.js?v=20261119-perf010';
 import { SaveQueue } from './save-queue.js?v=20261119-perf010';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261119-perf010';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261120-perf011';
 import { exportBoard, backup } from './export.js?v=20261119-perf010';
 import { validateBoard,checkBoard } from './model.js?v=20261119-perf010';
 import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261119-perf010';
@@ -44,7 +44,7 @@ import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOn
 import { Geometry } from './geometry.js?v=20261119-perf010';
 import { snapPoint, snapAngle, buildSnapIndex } from './snapping.js?v=20261119-perf010';
 import { equationDialog } from './equation-editor.js?v=20261119-perf010';
-import { graphDialog } from './graph-editor.js?v=20261119-perf010';
+import { graphDialog } from './graph-editor.js?v=20261120-perf011';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 // Reconcile in document order without detaching unchanged SVG nodes.
 function reconcileSceneItems(layer,items,render){
