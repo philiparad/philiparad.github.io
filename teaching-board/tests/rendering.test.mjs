@@ -563,3 +563,46 @@ test('background lock ignores normal clicks and erasing, accepts Ctrl-click and 
 test('image border renders in live and exported content without changing the image source',()=>{
  const e=fixture();e.board.items=[{id:'image',type:'image',x:50,y:50,w:100,h:100,src:'data:image/png;base64,AAAA',imageBorder:'#ff0000',imageBorderWidth:5}];e.paint();const live=object(e,'image');assert.ok(live.children.some(n=>n.getAttribute('stroke')==='#ff0000'));assert.ok(walk(sceneSVG(e.board)).some(n=>n.getAttribute('stroke')==='#ff0000'));validateBoard(e.board);
 });
+
+test('PERF-016 multi-selection drags do not search the full board on every pointer move',()=>{
+ const e=fixture(1200);
+ e.setTool('select');
+ const selectedIds=e.board.items.slice(0,150).map(item=>item.id);
+ e.selected=new Set(selectedIds);
+ e.paint();
+ const originals=new Map(e.board.items.filter(i=>e.selected.has(i.id)).map(i=>[i.id,{x:i.x,y:i.y}]));
+ const target=object(e,'object-0');
+ e.pointerDown({...pointer(e,10,20),target});
+ assert.equal(e.drag.kind,'move');
+ assert.equal(e.drag.targets.size,150);
+ assert.equal(e.drag.targets.get('object-0'),e.board.items[0],
+  'The move index must reference live objects, not deep-cloned snapshots');
+ const items=e.board.items,find=items.find;
+ let scans=0;
+ items.find=function(...args){scans++;return find.apply(this,args);};
+ try{
+  for(let n=1;n<=60;n++)e.pointerMove(pointer(e,10+n,20+n/2));
+ }finally{items.find=find;}
+ assert.equal(scans,0,'Each pointer move must reuse the drag target map');
+ for(const item of e.board.items){
+  const original=originals.get(item.id);
+  if(original){
+   assert.equal(item.x,original.x+60);
+   assert.equal(item.y,original.y+30);
+  }else if(item.id==='object-300'){
+   assert.equal(item.x,0,'Unselected items must retain their position');
+  }
+ }
+ e.pointerUp(pointer(e,70,50));
+ assert.equal(e.drag,null);
+ e.undo();
+ for(const item of e.board.items){
+  const original=originals.get(item.id);
+  if(original){
+   assert.equal(item.x,original.x);
+   assert.equal(item.y,original.y);
+  }
+ }
+ e.redo();
+ assert.equal(e.board.items[0].x,originals.get('object-0').x+60);
+});
