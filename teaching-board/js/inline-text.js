@@ -1,19 +1,19 @@
-import {editableTextFont} from './text-font.js?v=20261120-perf016';
-import {equationDialog} from './equation-editor.js?v=20261120-perf016';
-import {equationNode,textLayoutMetrics,equationContentWidth} from './inline-equation.js?v=20261120-perf016';
-import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261120-perf016';
-import { el, btn } from './ui.js?v=20261120-perf016';
-import { TextHistory } from './text-history.js?v=20261120-perf016';
-import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection,recoverEquationSelection } from './text-selection.js?v=20261120-perf016';
-import {applyInlineFormat,inlineFormatState} from './text-commands.js?v=20261120-perf016';
-import {applyParagraphList} from './text-lists.js?v=20261120-perf016';
-import {applyParagraphFormatting} from './text-paragraph-format.js?v=20261120-perf016';
-import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pending.js?v=20261120-perf016';
-import {applyDocumentRange} from './text-range-format.js?v=20261120-perf016';
-import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js?v=20261120-perf016';
-import {moveAcrossEquation,deleteEquationAtCaret,positionBesideEquation,positionFromEquationKeyboard,adjacentEquationAtCaret} from './text-equation-caret.js?v=20261120-perf016';
-import {boundaryEdit,boundaryNavigation,unlistEmptyParagraph,selectedDeletion} from './text-boundary-keys.js?v=20261120-perf016';
-import {TEXT_RICH_CLIPBOARD,clipboardFromTransfer,clipboardPlainText,clipboardHTML,selectedRichClipboard,logicalClipboardRange,replaceRichClipboard,plainClipboard} from './text-inline-clipboard.js?v=20261120-perf016';
+import {editableTextFont} from './text-font.js?v=20261120-perf017';
+import {equationDialog} from './equation-editor.js?v=20261120-perf017';
+import {equationNode,textLayoutMetrics,equationContentWidth} from './inline-equation.js?v=20261120-perf017';
+import {readRichDocument,writeRuns,validateRuns,validateParagraphs,paragraphRuns} from './rich-text.js?v=20261120-perf017';
+import { el, btn } from './ui.js?v=20261120-perf017';
+import { TextHistory } from './text-history.js?v=20261120-perf017';
+import { restoreTextSelection,captureLogicalSelection,restoreLogicalSelection,recoverEquationSelection } from './text-selection.js?v=20261120-perf017';
+import {applyInlineFormat,inlineFormatState} from './text-commands.js?v=20261120-perf017';
+import {applyParagraphList} from './text-lists.js?v=20261120-perf017';
+import {applyParagraphFormatting} from './text-paragraph-format.js?v=20261120-perf017';
+import {pendingMark,insertPendingText,styleCommittedComposition} from './text-pending.js?v=20261120-perf017';
+import {applyDocumentRange} from './text-range-format.js?v=20261120-perf017';
+import {storeTextDraft,readTextDraft,clearTextDraft,rawDraftText,isDifferentDraft} from './text-draft-recovery.js?v=20261120-perf017';
+import {moveAcrossEquation,deleteEquationAtCaret,positionBesideEquation,positionFromEquationKeyboard,adjacentEquationAtCaret} from './text-equation-caret.js?v=20261120-perf017';
+import {boundaryEdit,boundaryNavigation,unlistEmptyParagraph,selectedDeletion} from './text-boundary-keys.js?v=20261120-perf017';
+import {TEXT_RICH_CLIPBOARD,clipboardFromTransfer,clipboardPlainText,clipboardHTML,selectedRichClipboard,logicalClipboardRange,replaceRichClipboard,plainClipboard} from './text-inline-clipboard.js?v=20261120-perf017';
 
 let nextImeHelpId=0;
 /** An isolated draft: the board changes only when the user finishes editing. */
