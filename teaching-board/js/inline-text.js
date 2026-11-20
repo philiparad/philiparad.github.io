@@ -91,7 +91,7 @@ export class InlineText {
   if(recovered&&isDifferentDraft(recovered,initial))this.offerDraftRecovery(recovered);
   else if(recovered)clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
   this.input.oninput=e=>{
-   if(this.composing){this.resize();return;}
+   if(this.composing){this.resize(true);return;}
    this.pendingMarks=null;this.pendingSelection=null;
    // InputEvent.inputType differs across browsers, and some IMEs report
    // the final commit as plain insertText or an empty type. Coalesce the
@@ -110,7 +110,7 @@ export class InlineText {
     recoverEquationSelection(this.input,window.getSelection());
     this.recordSnapshot({amendComposition:commit});
    }else this.recordSnapshot();
-   this.resize();
+   this.resize(true);
   };
   this.input.onbeforeinput=e=>{if(this.closed||this.composing||e.isComposing)return;if(e.cancelable&&['deleteContentBackward','deleteContentForward'].includes(e.inputType)){const key=e.inputType==='deleteContentBackward'?'Backspace':'Delete';if(this.deleteInlineEquation(key)||this.handleBoundaryKey({key})){e.preventDefault();return;}}if(e.inputType!=='insertText'||!this.pendingMarks)return;const selection=window.getSelection();if(insertPendingText(this.input,selection,this.pendingMarks,e.data)){e.preventDefault();this.pendingMarks=null;this.pendingSelection=null;this.resize();this.recordSnapshot();this.selectionChange();}};
   // Keep toolbar feedback synchronized with the insertion point and selected formatting.
@@ -466,9 +466,16 @@ export class InlineText {
  insertPlainText(value){if(!value||this.closed||this.composing)return;const selection=window.getSelection();if(this.pendingMarks&&insertPendingText(this.input,selection,this.pendingMarks,value)){this.pendingMarks=null;this.pendingSelection=null;this.input.focus();this.resize();this.recordSnapshot();return;}let range=selection?.rangeCount?selection.getRangeAt(0):null;if(!range||!this.input.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}this.pendingMarks=null;this.pendingSelection=null;range.deleteContents();const node=document.createTextNode(value);range.insertNode(node);range.setStartAfter(node);range.collapse(true);selection?.removeAllRanges();selection?.addRange(range);this.input.focus();this.resize();this.recordSnapshot();}
  // PERF-014: coalesce synchronous scrollHeight reads and text layout
  // measurements into at most one operation per animation frame.
- resize(){
-  if(this.closed||this.resizeFrame!==null)return;
-  if(typeof requestAnimationFrame!=='function'){this.measureResize();return;}
+ resize(defer=false){
+  if(this.closed)return;
+  // Explicit resize() remains synchronous for font loading, programmatic
+  // formatting and existing callers that inspect the height immediately.
+  if(!defer||typeof requestAnimationFrame!=='function'){
+   this.cancelResize();
+   this.measureResize();
+   return;
+  }
+  if(this.resizeFrame!==null)return;
   this.resizeFrame=requestAnimationFrame(()=>{
    this.resizeFrame=null;
    if(!this.closed)this.measureResize();
