@@ -6,7 +6,7 @@ export class ParameterPlayback {
   if(generation!==this.generation)return;
   const next=advanceParameter(parameter,direction);direction=next.direction;parameter.value=next.value;write(next.value);
   let ok=false;try{ok=await this.render();}catch{}if(generation!==this.generation)return;
-  if(!ok){this.stop();return;}this.timer=this.clock.set(tick,120);
+  if(!ok){this.stop();return;}this.timer=this.clock.set(tick,250);
  };void tick();}
 }
 export function advanceParameter(p,direction){
