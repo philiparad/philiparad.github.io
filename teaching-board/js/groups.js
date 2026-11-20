@@ -1,4 +1,4 @@
-import {normalizeGraphLinks} from './graph-links.js?v=20261119-perf010';
+import {normalizeGraphLinks} from './graph-links.js?v=20261120-perf012';
 // Flat, non-destructive groups keep each object's geometry and drawing order.
 export function expandGroups(items,selected){
  const groups=new Set(items.filter(i=>selected.has(i.id)&&i.groupId).map(i=>i.groupId));
