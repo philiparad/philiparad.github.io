@@ -50,7 +50,7 @@ export class GraphPreviewQueue {
    try{result=await this.render(job.args);}
    catch(error){failed=error;}
    const latest=!this.closed&&this.latestKey===job.key;
-   if(!failed&&result!==undefined)this.remember(job.key,result);
+   if(!this.closed&&!failed&&result!==undefined)this.remember(job.key,result);
    if(latest){
     try{this.display(failed?null:result,failed||null);}
     catch(error){failed=error;}
