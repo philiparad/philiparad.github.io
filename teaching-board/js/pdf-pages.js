@@ -1,4 +1,4 @@
-import { el, btn, field } from './ui.js?v=20261120-perf016';
+import { el, btn, field } from './ui.js?v=20261120-perf017';
 
 export function parsePDFPages(value,total){
  if(!Number.isSafeInteger(total)||total<1)throw new Error('This PDF has no readable pages.');
