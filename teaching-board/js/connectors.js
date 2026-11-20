@@ -1,4 +1,4 @@
-import {imageAxes} from './image-geometry.js?v=20261120-perf014';
+import {imageAxes} from './image-geometry.js?v=20261120-perf015';
 export const connectorTarget=item=>!!item&&!['line','arrow'].includes(item.type);
 const center=item=>[item.x+(item.w||1)/2,item.y+(item.h||1)/2];
 // Intersect a center-to-center ray with the rotated object's frame. Ellipses
