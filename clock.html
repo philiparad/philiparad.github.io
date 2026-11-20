@@ -8,12 +8,16 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  :root { --clock-bg: #647ae9; --clock-text: rgba(255,255,255,0.88); --clock-shadow: 0 0 40px rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.6); }
+  body.light-theme { --clock-bg: #ffffff; --clock-text: #12345b; --clock-shadow: none; }
+
+
   body {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #647ae9;
+    background-color: var(--clock-bg);
     background-image:
       radial-gradient(ellipse at center, rgba(100,122,233,0.15) 1px, transparent 1px);
     background-size: 8px 8px;
@@ -31,6 +35,24 @@
     opacity: 0.6;
     pointer-events: none;
   }
+
+  body.light-theme::before { display: none; }
+  body.light-theme { background-image: none; }
+
+  .theme-toggle {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 2;
+    padding: 10px 16px;
+    border: 2px solid currentColor;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--clock-text);
+    font: 600 16px 'Exo 2', sans-serif;
+    cursor: pointer;
+  }
+  .theme-toggle:focus-visible { outline: 3px solid #ffb020; outline-offset: 3px; }
 
   .clock-wrapper {
     position: relative;
@@ -62,12 +84,10 @@
     font-family: 'Exo 2', sans-serif;
     font-weight: 200;
     font-size: clamp(140px, 24vw, 260px);
-    color: rgba(255,255,255,0.88);
+    color: var(--clock-text);
     letter-spacing: -4px;
     line-height: 1;
-    text-shadow:
-      0 0 40px rgba(255,255,255,0.08),
-      0 2px 8px rgba(0,0,0,0.6);
+    text-shadow: var(--clock-shadow);
     font-variant-numeric: tabular-nums;
   }
 
@@ -83,14 +103,14 @@
     font-family: 'Exo 2', sans-serif;
     font-weight: 300;
     font-size: clamp(32px, 5vw, 58px);
-    color: rgba(255,255,255,0.88);
+    color: var(--clock-text);
   }
 
   .seconds {
     font-family: 'Exo 2', sans-serif;
     font-weight: 300;
     font-size: clamp(32px, 5vw, 58px);
-    color: rgba(255,255,255,0.88);
+    color: var(--clock-text);
     font-variant-numeric: tabular-nums;
   }
 
@@ -99,13 +119,14 @@
     font-family: 'Exo 2', sans-serif;
     font-weight: 300;
     font-size: clamp(22px, 3.5vw, 36px);
-    color: rgba(255,255,255,0.88);
+    color: var(--clock-text);
     letter-spacing: 6px;
     text-transform: uppercase;
   }
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">White background</button>
 <div class="clock-wrapper" id="clock" role="button" tabindex="0" aria-label="Zoom clock text" aria-pressed="false">
   <div class="time-row">
     <div class="time-main" id="time-main">5:36</div>
@@ -138,6 +159,22 @@
     document.getElementById('date-row').textContent =
       `${DAYS[now.getDay()]} - ${MONTHS[now.getMonth()]} ${now.getDate()}`;
   }
+
+  const themeToggle = document.getElementById('theme-toggle');
+  let theme = 'default';
+  try { theme = localStorage.getItem('clock-theme') === 'light' ? 'light' : 'default'; } catch (_) { /* Storage may be disabled. */ }
+  function applyTheme() {
+    const light = theme === 'light';
+    document.body.classList.toggle('light-theme', light);
+    themeToggle.textContent = light ? 'Blue background' : 'White background';
+    themeToggle.setAttribute('aria-pressed', String(light));
+  }
+  themeToggle.addEventListener('click', () => {
+    theme = theme === 'light' ? 'default' : 'light';
+    applyTheme();
+    try { localStorage.setItem('clock-theme', theme); } catch (_) { /* Storage may be disabled. */ }
+  });
+  applyTheme();
 
   const clock = document.getElementById('clock');
   let zoomed = false;
