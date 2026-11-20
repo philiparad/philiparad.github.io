@@ -11,6 +11,29 @@ let textBoundsCache=new WeakMap();
 let boundsDocument;
 let boundsFontSet;
 
+// PERF-013: Local stroke extents are expensive for long ink paths. Keep them
+// separately from transformed bounds so moving/rotating a stroke does not
+// rescan its points on each paint. Explicit invalidation handles in-place
+// point edits (including pressure/ink changes) at commit time.
+let pointExtentsCache=new WeakMap();
+export function invalidatePointBounds(item){
+ if(item&&typeof item==='object')pointExtentsCache.delete(item);
+}
+export function clearPointBoundsCache(){pointExtentsCache=new WeakMap();}
+function localPointBounds(item){
+ const points=item.points;
+ const cached=pointExtentsCache.get(item);
+ if(cached&&cached.points===points&&cached.length===points.length)return cached.box;
+ let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity;
+ for(const [x,y] of points){
+  left=Math.min(left,x);right=Math.max(right,x);
+  top=Math.min(top,y);bottom=Math.max(bottom,y);
+ }
+ const box={left,top,right,bottom};
+ pointExtentsCache.set(item,{points,length:points.length,box});
+ return box;
+}
+
 export function clearTextBoundsCache(){textBoundsCache=new WeakMap();}
 
 function watchFonts(){
@@ -52,8 +75,7 @@ export function visualBounds(item){
  if(['text','note'].includes(item.type))return measuredTextBounds(item);
  if(item.points&&['path','curve','polygon','line','arrow'].includes(item.type)){
   if(!item.points.length)return null;
-  left=top=Infinity;right=bottom=-Infinity;
-  for(const [x,y]of item.points){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
+  ({left,top,right,bottom}=localPointBounds(item));
   // Catmull–Rom handles extend by at most one sixth of the coordinate range.
   // Natural ink clamps its handles; pressure ink stays inside its footprints.
   if(item.type==='curve'||item.type==='path'&&!item.pressures&&item.inkVersion!==2&&item.smoothing>0){
