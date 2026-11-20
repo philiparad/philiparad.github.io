@@ -25,6 +25,33 @@ try{
   assert.deepEqual(pageErrors,[]);
  });
 
+ await check('PERF-019 dashboard brand uses lightweight SVG without downloading legacy PNG',async()=>{
+  const brand=page.locator('.topbar .brand-icon');
+  await brand.evaluate(image=>image.decode());
+  const details=await brand.evaluate(image=>({
+   src:new URL(image.currentSrc).pathname,
+   complete:image.complete,
+   naturalWidth:image.naturalWidth,
+   naturalHeight:image.naturalHeight,
+   width:image.getBoundingClientRect().width,
+   height:image.getBoundingClientRect().height,
+   favicon:document.querySelector('link[rel="icon"]')?.getAttribute('href'),
+   downloadedLegacy:performance.getEntriesByType('resource').some(resource=>
+    new URL(resource.name).pathname.endsWith('/teaching-board/philip_favicon.png'))
+  }));
+  assert.equal(details.src,new URL('icon.svg',base).pathname);
+  assert.equal(details.complete,true);
+  assert(details.naturalWidth>0&&details.naturalHeight>0,'SVG icon must render');
+  assert.equal(details.width,40);
+  assert.equal(details.height,40);
+  assert.equal(details.favicon,'./icon.svg');
+  assert.equal(details.downloadedLegacy,false);
+  const response=await page.request.get(new URL('icon.svg',base).href);
+  assert(response.ok());
+  const bytes=(await response.body()).byteLength;
+  assert(bytes<2048,'PERF-019 brand image must remain below 2 KB; got '+bytes);
+ });
+
  await check('PERF-005 browser loads each application module under one canonical URL',async()=>{
   const report=await page.evaluate(()=>{
    const entry=document.querySelector('script[type="module"][src*="app.js"]');
