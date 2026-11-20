@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {visualBounds,visibleItems,invalidateTextBounds,clearTextBoundsCache} from '../js/visibility.js';
+import {visualBounds,visibleItems,invalidateTextBounds,clearTextBoundsCache,invalidatePointBounds,clearPointBoundsCache} from '../js/visibility.js';
 import {bounds,sceneSVG} from '../js/scene.js';
 const view={x:0,y:0,zoom:1};
 const rect=(id,x,y=100)=>({id,type:'rectangle',x,y,w:40,h:40,lineWidth:3});
@@ -104,4 +104,55 @@ test('PERF-004 font loading and document changes invalidate measured text bounds
   assert.notEqual(visualBounds(item),undefined);
   assert.notEqual(replacement,after);
  }finally{globalThis.document=old;clearTextBoundsCache();}
+});
+
+test('PERF-013 reuses long stroke extents during pan, zoom and rotation',()=>{
+ const count=12000;
+ let reads=0;
+ const points=Array.from({length:count},(_,i)=>[i/4,Math.sin(i/30)*100]);
+ const tracked=new Proxy(points,{get(target,key,receiver){
+  if(/^\\d+$/.test(String(key)))reads++;
+  return Reflect.get(target,key,receiver);
+ }});
+ const stroke={id:'long-ink',type:'path',x:0,y:0,w:3000,h:200,points:tracked,lineWidth:4};
+ try{
+  const first=visualBounds(stroke);
+  assert.ok(first.w>2900);
+  assert.equal(reads,count,'First calculation must examine every point');
+  for(let i=0;i<80;i++){
+   stroke.x=i*9;
+   stroke.rotation=i%15;
+   visibleItems([stroke],{x:-i*20,y:0,zoom:1+i/100},1100,700);
+  }
+  assert.equal(reads,count,'Panning, zooming and transforms must reuse point extents');
+ }finally{clearPointBoundsCache();}
+});
+
+test('PERF-013 replaced points and explicit in-place edits invalidate correctly',()=>{
+ const item={id:'ink-edit',type:'path',x:0,y:100,w:10,h:10,points:[[0,0],[10,10]],lineWidth:3};
+ const first=visualBounds(item);
+ item.points=[[0,0],[200,10]];
+ const replaced=visualBounds(item);
+ assert.ok(replaced.w>first.w+100);
+ item.points[1][0]=400;
+ assert.equal(visualBounds(item).w,replaced.w,'In-place updates require explicit invalidation');
+ invalidatePointBounds(item);
+ assert.ok(visualBounds(item).w>replaced.w+100);
+ item.points.push([700,0]);
+ assert.ok(visualBounds(item).w>600,'Length changes automatically invalidate extents');
+ clearPointBoundsCache();
+});
+
+test('PERF-013 padding and rotation remain live when geometry is cached',()=>{
+ const item={id:'styled-ink',type:'curve',x:0,y:0,w:100,h:100,points:[[0,0],[100,100]],lineWidth:2};
+ const base=visualBounds(item);
+ item.lineWidth=20;
+ const thick=visualBounds(item);
+ assert.ok(thick.w>base.w);
+ item.x+=900;
+ const moved=visualBounds(item);
+ assert.ok(moved.x>thick.x+800);
+ item.rotation=90;
+ const rotated=visualBounds(item);
+ assert.ok(rotated.x!==moved.x||rotated.y!==moved.y);
 });
