@@ -111,7 +111,7 @@ test('PERF-013 reuses long stroke extents during pan, zoom and rotation',()=>{
  let reads=0;
  const points=Array.from({length:count},(_,i)=>[i/4,Math.sin(i/30)*100]);
  const tracked=new Proxy(points,{get(target,key,receiver){
-  if(/^\\d+$/.test(String(key)))reads++;
+  if(/^[0-9]+$/.test(String(key)))reads++;
   return Reflect.get(target,key,receiver);
  }});
  const stroke={id:'long-ink',type:'path',x:0,y:0,w:3000,h:200,points:tracked,lineWidth:4};
