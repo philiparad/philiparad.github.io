@@ -335,6 +335,31 @@ try{
   assert.deepEqual(report,{committed:125,unchanged:125,undone:10,redone:125,itemCount:350});
  });
 
+ await check('PERF-017 browser raster encoding and vector print use real browser APIs',async()=>{
+  const result=await page.evaluate(async()=>{
+   const {encodeRasterImage,printSVGDocument}=await import('./js/export-raster.js');
+   const source=document.createElement('canvas');
+   source.width=16;source.height=12;
+   const ctx=source.getContext('2d');
+   ctx.fillStyle='#ff0000';ctx.fillRect(0,0,16,12);
+   const image=await createImageBitmap(source);
+   try{
+    const blob=await encodeRasterImage(image,{width:32,height:24});
+    const raw=new Uint8Array(await blob.slice(0,8).arrayBuffer());
+    const png=[137,80,78,71,13,10,26,10].every((byte,index)=>raw[index]===byte);
+    const doc=document.implementation.createHTMLDocument('PERF-017 print fixture');
+    const printImage=printSVGDocument(doc,'blob:https://example.invalid/vector','Printable board');
+    return {png,type:blob.type,vectorSrc:printImage.src,
+     title:doc.title,sourceSize:[image.width,image.height]};
+   }finally{image.close();}
+  });
+  assert.equal(result.png,true,'The browser must encode a real PNG');
+  assert.equal(result.type,'image/png');
+  assert.equal(result.vectorSrc,'blob:https://example.invalid/vector');
+  assert.equal(result.title,'Printable board');
+  assert.deepEqual(result.sourceSize,[16,12]);
+ });
+
  await check('PERF-001 persistent SVG scene reuses nodes across repaint, pan, reordering and page changes',async()=>{
   const result=await page.evaluate(async()=>{
    const {Editor}=await import('./js/editor.js');
