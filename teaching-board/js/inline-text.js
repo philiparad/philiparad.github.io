@@ -84,6 +84,8 @@ export class InlineText {
   this.controls.append(el('span','Enter: new line · Ctrl/⌘ Enter: save · Esc: cancel'),btn('Cancel',()=>this.finish(false)),btn('Done',()=>this.finish(true),'primary'));
   editor.area.append(this.root,this.controls);
   const initial=readRichDocument(this.input,this.item);
+   this.lastLayoutSnapshot=initial;
+   this.resizeFrame=null;
   this.textHistory=new TextHistory(initial);this.updateHistoryButtons();
   const recovered=readTextDraft(this.draftStorage,this.draftBoardId,this.item);
   if(recovered&&isDifferentDraft(recovered,initial))this.offerDraftRecovery(recovered);
@@ -257,6 +259,7 @@ export class InlineText {
    const snapshot=readRichDocument(this.input,this.item);
    const txt=snapshot.runs.map(run=>run.text).join('');
    validateRuns(snapshot.runs,txt);validateParagraphs(snapshot.paragraphs,txt);
+   this.lastLayoutSnapshot=snapshot;
    snapshot.selection=captureLogicalSelection(this.input,window.getSelection());
    const coalesce=amendComposition&&
     amendComposition.recordedIndex>amendComposition.startIndex&&
@@ -268,6 +271,7 @@ export class InlineText {
     null,Date.now(),{newItem:!this.existing});
    this.updateHistoryButtons();
   }catch{
+   this.lastLayoutSnapshot=null;
    // Preserve both the most recent valid formatted state and raw invalid text.
    // An incorrectly entered equation never silently replaces a valid snapshot.
    storeTextDraft(this.draftStorage,this.draftBoardId,this.item,
@@ -460,7 +464,35 @@ export class InlineText {
   this.insertPlainText(plain);
  }
  insertPlainText(value){if(!value||this.closed||this.composing)return;const selection=window.getSelection();if(this.pendingMarks&&insertPendingText(this.input,selection,this.pendingMarks,value)){this.pendingMarks=null;this.pendingSelection=null;this.input.focus();this.resize();this.recordSnapshot();return;}let range=selection?.rangeCount?selection.getRangeAt(0):null;if(!range||!this.input.contains(range.commonAncestorContainer)){range=document.createRange();range.selectNodeContents(this.input);range.collapse(false);}this.pendingMarks=null;this.pendingSelection=null;range.deleteContents();const node=document.createTextNode(value);range.insertNode(node);range.setStartAfter(node);range.collapse(true);selection?.removeAllRanges();selection?.addRange(range);this.input.focus();this.resize();this.recordSnapshot();}
- resize(){this.update();this.input.style.height='0px';let needed=Math.max(this.item.h||1,this.input.scrollHeight+2);try{const draft=readRichDocument(this.input,this.item);const content={...this.item,text:draft.runs.map(run=>run.text).join(''),runs:draft.runs,paragraphs:draft.paragraphs};needed=Math.max(needed,textLayoutMetrics(content,paragraphRuns(content)).height);}catch{/* Keep a partially edited draft visible while parsing catches up. */}this.height=Math.min(100000,needed);this.input.style.height=`${this.height}px`;this.update();}
+ // PERF-014: coalesce synchronous scrollHeight reads and text layout
+ // measurements into at most one operation per animation frame.
+ resize(){
+  if(this.closed||this.resizeFrame!==null)return;
+  if(typeof requestAnimationFrame!=='function'){this.measureResize();return;}
+  this.resizeFrame=requestAnimationFrame(()=>{
+   this.resizeFrame=null;
+   if(!this.closed)this.measureResize();
+  });
+ }
+ cancelResize(){
+  if(this.resizeFrame!==null&&typeof cancelAnimationFrame==='function')
+   cancelAnimationFrame(this.resizeFrame);
+  this.resizeFrame=null;
+ }
+ measureResize(snapshot=this.lastLayoutSnapshot){
+  this.update();
+  this.input.style.height='0px';
+  let needed=Math.max(this.item.h||1,this.input.scrollHeight+2);
+  try{
+   if(!this.composing&&snapshot){
+    const content={...this.item,text:snapshot.runs.map(run=>run.text).join(''),
+     runs:snapshot.runs,paragraphs:snapshot.paragraphs};
+    needed=Math.max(needed,textLayoutMetrics(content,paragraphRuns(content)).height);
+   }
+  }catch{/* Keep a partially edited draft visible while parsing catches up. */}
+  this.height=Math.min(100000,needed);
+  this.input.style.height=`${this.height}px`;
+ }
  update(){const i=this.item,v=this.editor.board.viewport;Object.assign(this.root.style,{width:`${i.w}px`,left:`${v.x+i.x*v.zoom}px`,top:`${v.y+i.y*v.zoom}px`,transform:`scale(${v.zoom}) rotate(${i.rotation||0}deg)`,transformOrigin:`${i.w/2}px ${i.h/2}px`});
   // Scaling about the object's center also moves its top-left; compensate so
   // the editable text remains at the same world position at every zoom level.
@@ -476,6 +508,8 @@ export class InlineText {
     runs=result.runs;paragraphs=result.paragraphs;
     text=runs.map(r=>r.text).join('');
     validateRuns(runs,text);validateParagraphs(paragraphs,text);
+    this.cancelResize();
+    this.measureResize({runs,paragraphs});
    }catch(error){this.showDraftError(error);return;}
   }
   // Keep the live draft visible if a commit throws; the user can retry or
@@ -491,6 +525,7 @@ export class InlineText {
   if(!preserveDraft&&(!save||this.existing||!text.trim()||
      !this.editor.pendingNewTextDraftIds?.has(this.item.id)))
    clearTextDraft(this.draftStorage,this.draftBoardId,this.item.id);
+  this.cancelResize();
   this.closed=true;
   document.removeEventListener('pointerdown',this.outside,true);
   document.removeEventListener('focusin',this.outside,true);
