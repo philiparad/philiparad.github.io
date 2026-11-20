@@ -1,6 +1,6 @@
-import {readRichDocument,writeRuns,validateParagraphs} from './rich-text.js?v=20261120-perf015';
-import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js?v=20261120-perf015';
-import {logicalSelectedParagraphIndices} from './text-lists.js?v=20261120-perf015';
+import {readRichDocument,writeRuns,validateParagraphs} from './rich-text.js?v=20261120-perf016';
+import {captureLogicalSelection,restoreLogicalSelection} from './text-selection.js?v=20261120-perf016';
+import {logicalSelectedParagraphIndices} from './text-lists.js?v=20261120-perf016';
 
 /** Pure formatting over a validated flat paragraph model. */
 export function formatSelectedParagraphs(snapshot,saved,property,value){
