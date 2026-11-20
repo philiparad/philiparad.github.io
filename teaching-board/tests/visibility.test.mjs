@@ -144,7 +144,7 @@ test('PERF-013 replaced points and explicit in-place edits invalidate correctly'
 });
 
 test('PERF-013 padding and rotation remain live when geometry is cached',()=>{
- const item={id:'styled-ink',type:'curve',x:0,y:0,w:100,h:100,points:[[0,0],[100,100]],lineWidth:2};
+ const item={id:'styled-ink',type:'curve',x:0,y:0,w:100,h:100,points:[[0,0],[100,20]],lineWidth:2};
  const base=visualBounds(item);
  item.lineWidth=20;
  const thick=visualBounds(item);
