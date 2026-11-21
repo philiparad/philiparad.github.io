@@ -146,6 +146,22 @@ async function dashboard(token){
  const footer=el('p','Saved on this device. Use editable backups to move lessons between computers or protect them before clearing browser data.','storage-note');
  app.append(heading,controls,cards,pagination,footer);
 }
-async function renderRoute(){const token=++generation;try{if(editor){await editor.flush();if(token!==generation)return;editor.dispose();editor=null;}app.setAttribute('aria-busy','true');const match=location.hash.match(/^#\/board\/([a-zA-Z0-9-]+)$/);if(match){const board=await repository.get(match[1]);if(token!==generation)return;if(!board||board.deleted)throw new Error('Lesson not found. Return to Lessons using the logo.');editor=new Editor(app,board,repository);}else await dashboard(token);}catch(error){notify(error.message);if(!editor)app.replaceChildren(el('p',error.message));}finally{app.setAttribute('aria-busy','false');}}
-window.addEventListener('hashchange',renderRoute);window.addEventListener('beforeunload',e=>{if(editor?.queue.dirty || editor?.drag || editor?.inlineText || editor?.tables.hasDraft){e.preventDefault();e.returnValue='';}});
+async function renderRoute(){
+ const token=++generation;
+ try{
+  if(editor){await editor.flush();if(token!==generation)return;editor.dispose();editor=null;}
+  app.setAttribute('aria-busy','true');
+  const match=location.hash.match(/^#\/board\/([a-zA-Z0-9-]+)$/);
+  if(match){
+   const board=await repository.get(match[1]);if(token!==generation)return;
+   if(!board||board.deleted)throw new Error('Lesson not found. Return to Lessons using the logo.');
+   editor=new Editor(app,board,repository);
+  }else await dashboard(token);
+ }catch(error){
+  notify(error.message);
+  if(!editor)app.replaceChildren(el('p',error.message));
+  else if(editor.tables?.hasDraft)history.replaceState(history.state,'','#/board/'+editor.board.id);
+ }finally{app.setAttribute('aria-busy','false');}
+}
+window.addEventListener('hashchange',renderRoute);window.addEventListener('beforeunload',e=>{if(editor?.queue.dirty || editor?.drag || editor?.inlineText || editor?.tables?.hasDraft){e.preventDefault();e.returnValue='';}});
 renderRoute();

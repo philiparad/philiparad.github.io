@@ -4005,11 +4005,12 @@ try{
  });
 
  await check('Word-style table insertion, editing, persistence, exports and narrow screens',async()=>{
-  const tablePage=await browser.newPage({viewport:{width:1440,height:900},locale:'he-IL'});
+  const context=await browser.newContext({viewport:{width:1440,height:900},locale:'he-IL'});
   try{
+   const tablePage=await context.newPage();
    tablePage.on('pageerror',error=>pageErrors.push(error.message));
    await checkTables(tablePage,base,process.env.TEACHING_BOARD_VISUAL_DIR||'/tmp/teaching-board-visual-artifacts',engine);
-  }finally{await tablePage.close();}
+  }finally{await context.close();}
  });
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');

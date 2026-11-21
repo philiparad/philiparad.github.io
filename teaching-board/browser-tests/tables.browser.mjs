@@ -159,8 +159,9 @@ export async function checkTables(page,base,output,engine){
 
     const sample=tables.locator('svg[data-table-row="1"][data-table-col="1"]');
     const cellBox=()=>sample.evaluate(node=>{
-        const matrix=node.getScreenCTM(),w=node.width.baseVal.value,h=node.height.baseVal.value;
-        const start=new DOMPoint(0,0).matrixTransform(matrix),end=new DOMPoint(w,h).matrixTransform(matrix);
+        const matrix=node.closest('[data-table-grid]').getScreenCTM();
+        const x=node.x.baseVal.value,y=node.y.baseVal.value,w=node.width.baseVal.value,h=node.height.baseVal.value;
+        const start=new DOMPoint(x,y).matrixTransform(matrix),end=new DOMPoint(x+w,y+h).matrixTransform(matrix);
         return {x:start.x,y:start.y,w:end.x-start.x,h:end.y-start.y,zoom:matrix.a};
     });
     for(const zoom of [.25,1,2,4]){
@@ -172,8 +173,10 @@ export async function checkTables(page,base,output,engine){
         await page.mouse.dblclick(cell.x+cell.w/2,cell.y+cell.h/2);
         await editor.waitFor();
         const box=await editor.boundingBox();
+        const address=await editor.getAttribute('aria-label');
+        assert.equal(address,'Table cell, row 2, column 2');
         assert(Math.abs(cell.x-box.x)<2 && Math.abs(cell.y-box.y)<2 && Math.abs(cell.w-box.width)<2 && Math.abs(cell.h-box.height)<2,
-            'Cell editor must align at '+zoom+'×');
+            'Cell editor must align at '+zoom+'×: '+JSON.stringify({cell,box}));
         await editor.press('Escape');
     }
     await button('100%').click();
@@ -185,6 +188,9 @@ export async function checkTables(page,base,output,engine){
     await button('Pen (P)').click();
     assert.equal((await editor.inputValue()).length,2001);
     assert.equal(await button('Select (V)').getAttribute('aria-pressed'),'true');
+    await page.evaluate(()=>{location.hash='/';});
+    await page.waitForURL(boardURL);
+    assert.equal((await editor.inputValue()).length,2001);
     await editor.press('Escape');
     assert.deepEqual((await backup()).items[0].cells,saved.cells);
 
