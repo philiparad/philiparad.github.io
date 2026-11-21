@@ -10,8 +10,7 @@ export async function checkVariationTable(page,base){
     const insert=page.getByRole('button',{name:'Insert variation table'});
     await insert.waitFor();
     await insert.click();
-    const fields=dialog.locator('[data-variation-field]');
-    const fill=async(key,value)=>fields.locator('[data-variation-field="'+key+'"] input').fill(value);
+    const fill=async(key,value)=>dialog.locator('[data-variation-field="'+key+'"] input').fill(value);
     await fill('zeros','1,4');
     await fill('undefinedPoints','-2,2');
     await fill('functionSource','(x^2+2*x-9)/(x^2-4)');
