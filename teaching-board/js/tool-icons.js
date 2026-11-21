@@ -1,6 +1,7 @@
 // Inline SVG keeps toolbar icons consistent across devices.
 const paths={
  table:'M3 4h18v16H3z M3 9h18 M3 14h18 M9 4v16 M15 4v16',
+ variationTable:'M2 4h20v16H2z M2 10h20 M2 15h20 M9 4v16 M15 4v16 M4 13l3 3 4-5 4 2 5-3',
  curve:'M3 18C6 2 16 22 21 5 M2 17h2v2H2z M20 4h2v2h-2z',
  arc:'M4 18a8 8 0 0116 0 M12 18L6 8 M12 18h8',
  select:'M5 3l14 10-7 1-3 7z',pan:'M8 11V5a1.5 1.5 0 013 0v5-7a1.5 1.5 0 013 0v7-5a1.5 1.5 0 013 0v7-3a1.5 1.5 0 013 0v6c0 5-3 7-7 7-3 0-5-2-7-5l-3-4a2 2 0 013-2l2 2',
