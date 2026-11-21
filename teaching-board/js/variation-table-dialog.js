@@ -127,6 +127,14 @@ export function variationDialog(existing=null,graphs=[]){
         redraw();
     };
     mode.onchange=updateMode;
+    session.onchange=()=>{
+        if(session.value==='student'){
+            signs.input.checked=true;arrows.input.checked=false;conclusions.input.checked=false;
+        }else if(session.value==='teacher'){
+            signs.input.checked=true;arrows.input.checked=true;conclusions.input.checked=true;
+        }
+        redraw();
+    };
     previewButton.onclick=redraw;
     cancel.onclick=()=>d.close();
     const done=new Promise(resolve=>{

@@ -115,6 +115,12 @@ export function renderVariationTable(item,svgEl){
             if(value)g.append(text(x,row.y+row.h/2,value,
                 Math.max(10,Math.min(tiny,value.length>5?cell/(value.length*.55):signSize)),
                 color,{'direction':/[א-ת]/.test(value)?'rtl':'ltr'}));
+            // Preserve the actual f(x) value even when an extremum label is shown.
+            if(row.key==='trend'&&spec.reveal.conclusions&&p.extremum){
+                const exact=p.valueLabel??(p.value===null?'':String(Number(p.value.toPrecision(6))));
+                if(exact)g.append(text(x,row.y+row.h*.76,exact,
+                    Math.max(10,tiny*.85),'#174b70'));
+            }
         }
     }
     for(let c=0;c<=slotCount;c++)g.append(line(first+c*cell,0,first+c*cell,item.h,
