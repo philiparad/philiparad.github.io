@@ -210,9 +210,25 @@ export async function checkTables(page,base,output,engine){
         await paper.screenshot({path:join(output,engine+'-table-a4.png')});
         if(engine==='chromium')await printPage.pdf({path:join(output,'table-a4.pdf'),preferCSSPageSize:true,printBackground:true});
     }finally{await printPage.close();}
-    await page.setViewportSize({width:320,height:720});
-    const toolStrip=await page.locator('.command-deck .tools').boundingBox();
-    assert(toolStrip.width>=280,'The mobile drawing toolbar needs room to scroll and receive taps.');
+    for (const width of [1440,1024,768,320]) {
+        await page.setViewportSize({width,height:720});
+        const layout=await page.locator('.command-deck .tools').evaluate(strip=>{
+            const bars=[document.querySelector('.editor-top'),strip.parentElement,strip];
+            const scrolls=bars.some(bar=>{
+                bar.scrollTo(bar.scrollWidth,bar.scrollHeight);
+                return bar.scrollLeft!==0 || bar.scrollTop!==0;
+            });
+            const bounds=strip.getBoundingClientRect();
+            const clipped=[...strip.children].filter(tool=>{
+                const r=tool.getBoundingClientRect();
+                const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+                return r.left<bounds.left-1 || r.right>bounds.right+1 ||
+                    r.top<bounds.top-1 || r.bottom>bounds.bottom+1 || !tool.contains(hit);
+            }).map(tool=>tool.title || tool.className);
+            return {scrolls,clipped};
+        });
+        assert.deepEqual(layout,{scrolls:false,clipped:[]},'Every drawing tool must fit without scrolling at '+width+'px');
+    }
     await command.click();
     assert.equal(await dialog.getByLabel('Columns',{exact:true}).inputValue(),'4');
     const mobile=await dialog.boundingBox();assert(mobile.x>=0&&mobile.x+mobile.width<=321);

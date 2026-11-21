@@ -2,20 +2,20 @@
 body.board-open{--accent:#5b7895;--line:#cbd3dd;color:#526d87}
 .board-open>.topbar{display:none}
 .board-open .editor{margin:0;padding:0;max-width:none}
-.board-open .editor-top{display:flex;gap:6px;margin:0;padding:4px 6px;height:48px;border:0;border-radius:0;background:#e4e9ef;overflow:visible}
+.board-open .editor-top{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:4px 6px;min-height:48px;border:0;border-radius:0;background:#e4e9ef;overflow:visible}
 .brand-icon{display:block;object-fit:contain;flex:none}
 .editor-brand .brand-icon{width:32px;height:32px}
 .editor-brand{display:flex;align-items:center;gap:7px;flex-shrink:0;font-size:23px;letter-spacing:-1px;font-weight:750;color:#0781ac;text-decoration:none;white-space:nowrap;margin-right:10px}
-.board-open .editor-top .lesson-title{flex:1 1 180px;min-width:60px;font:italic 16px Georgia,serif;text-align:start;color:#637e98;background:#f1f4f8;border:1px solid #d2dae4;height:38px}
+.board-open .editor-top .lesson-title{flex:1 1 60px;min-width:60px;font:italic 16px Georgia,serif;text-align:start;color:#637e98;background:#f1f4f8;border:1px solid #d2dae4;height:38px}
 .board-open .editor-top button,.board-open .editor-top .button,.board-open .editor-top select{color:#5b7895;padding:5px 9px;border-radius:6px;height:36px;font-size:13px}
 .history-tools{display:flex;background:#f1f4f8;border:1px solid #d2dae4;border-radius:6px}
 .history-tools button{border:0;background:transparent;font-size:22px!important}
 .board-open .save-state{font-size:10px;max-width:100px;white-space:normal}
-.command-deck{background:linear-gradient(#e8edf2,#d4dbe3);padding:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1px solid #abb7c4;box-shadow:0 2px 4px #0002}
+/* The drawing tools wrap inside the deck. Its popups open over the remaining canvas. */
+.command-deck{position:relative;z-index:5;display:flex;align-items:center;gap:8px;min-height:50px;padding:6px;background:linear-gradient(#e8edf2,#d4dbe3);border-bottom:1px solid #abb7c4;box-shadow:0 2px 4px #0002;--menu-height:calc(100dvh - 100% - 56px)}
 .command-deck .tools,.command-deck .properties{border-radius:6px;background:#edf1f5;border:1px solid #c9d2dd}
-.command-deck{position:relative;z-index:5;flex-wrap:nowrap;justify-content:space-between;height:50px}
-.command-deck .tools{padding:2px;gap:1px;min-width:0;scrollbar-width:thin}
-.command-deck .tool{display:grid;place-items:center;flex:0 0 35px;min-width:35px;width:35px;height:32px;padding:5px;border-radius:4px;color:#5b7895;background:transparent}
+.command-deck .tools{min-width:0;max-width:100%;padding:2px;gap:1px;flex-wrap:wrap;overflow:visible}
+.command-deck .tool{display:grid;place-items:center;flex:0 0 35px;min-width:35px;width:35px;height:32px;padding:5px;line-height:1;border-radius:4px;color:#5b7895;background:transparent}
 .tool svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .command-deck .tool.group-start{margin-left:5px;border-left:1px solid #cbd3dd}
 .command-deck .tool[aria-pressed=true]{color:#fff;background:#5b7895;border-color:#5b7895}
@@ -25,7 +25,7 @@ body.board-open{--accent:#5b7895;--line:#cbd3dd;color:#526d87}
 .property-menu summary{cursor:pointer;list-style:none;padding:8px 12px;background:#edf1f5;border:1px solid #c9d2dd;border-radius:6px}
 .property-menu summary::-webkit-details-marker{display:none}
 .property-menu[open] summary{background:#d5e1ec}
-.property-menu .properties{position:absolute;right:6px;top:46px;max-width:min(650px,calc(100vw - 12px));padding:12px;box-shadow:0 6px 20px #273f5329;gap:10px;white-space:normal}
+.property-menu .properties{position:absolute;right:6px;top:100%;max-width:min(650px,calc(100vw - 12px));max-height:var(--menu-height);overflow:auto;padding:12px;box-shadow:0 6px 20px #273f5329;gap:10px;white-space:normal}
 .property-menu:not([open]) .properties{display:none}
 body.board-open{overflow:hidden}
 .board-open .editor{height:100vh;height:100dvh;display:flex;flex-direction:column}
@@ -45,28 +45,30 @@ body.board-open{overflow:hidden}
 .board-open.presenting .editor-top,.board-open.presenting .command-deck,.board-open.presenting .inspector,.board-open.presenting .tool-hint{display:none}
 .board-open.presenting .editor-layout{margin:0}
 .board-open.presenting .editor .board{height:100%}
-/* Keep the same two strips on smaller screens, with scrollable tool groups. */
 .board-open .editor-top [hidden]{display:none}
 .board-open .editor-top :focus-visible,.command-deck :focus-visible{outline:2px solid #087ba6;outline-offset:-2px}
 .board-open .inspector button:focus-visible{outline:2px solid #087ba6}
 .board-open .editor-top .lesson-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:900px){
  .editor-brand{font-size:18px;margin-right:2px}
- .board-open .editor-top .lesson-title{font-size:15px;flex:1 1 100px;min-width:50px}
+ .board-open .editor-top .lesson-title{font-size:15px;flex:1 1 50px;min-width:50px}
  .board-open .save-state{display:none}
  .board-open .editor-top select{max-width:84px}
+ .command-deck{flex-wrap:wrap}
+ .command-deck .tools{flex:1 0 100%}
+ .command-deck .fill-palette,.command-deck .line-style-menu{position:static}
+ .command-deck .fill-panel,.command-deck .line-style-options{left:4px;right:auto;top:100%;max-height:var(--menu-height);overflow:auto}
 }
 @media(max-width:650px){
- .board-open .editor-top{height:44px;gap:3px;padding:3px;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap}
+ .board-open .editor-top{min-height:44px;gap:3px;padding:3px}
+ .board-menu-panel{left:auto;right:0}
  .editor-brand{font-size:15px;max-width:110px;line-height:1.05;white-space:normal}
  .board-open .editor-top .lesson-title{flex:1 0 80px;min-width:80px}
  .board-open .editor-top button,.board-open .editor-top .button,.board-open .editor-top select{padding:4px 6px;font-size:11px;height:34px}
  .history-tools button{font-size:18px!important}
- .command-deck{gap:4px;padding:4px;height:48px}
- .command-deck .tools{flex:1;overflow-x:auto}
+ .command-deck{gap:4px;padding:4px;min-height:48px;--menu-height:calc(100dvh - 100% - 128px)}
  .command-deck .tool{height:36px;flex-basis:36px;min-width:36px}
  .property-menu summary{font-size:11px;padding:9px 6px}
- .property-menu .properties{top:44px;max-height:calc(100dvh - 145px);overflow:auto}
  .board-open .tool-hint{display:none}
  .board-open .inspector{right:5px;top:5px;width:min(240px,calc(100vw - 10px))}
  .board-open .zoom button{padding:7px 9px}
@@ -121,11 +123,11 @@ body.board-open{overflow:hidden}
 .fill-custom{display:flex;gap:8px;align-items:center}.fill-preview{width:48px;height:30px;border:1px solid #aaa;display:block}.fill-custom input{width:110px;font-family:monospace;padding:5px}.fill-actions{display:flex;flex-wrap:wrap;gap:5px}.fill-actions button{font-size:11px;padding:5px 7px}.fill-message{font-size:11px;min-height:14px;margin:5px 0}
 
 /* Compact shape gallery; scrolls within short viewports. */
-.shape-gallery{position:relative;flex:0 0 auto;color:#597794}
+.shape-gallery{flex:0 0 auto;color:#597794}
 .shape-gallery summary{list-style:none;cursor:pointer;border-radius:5px;padding:5px 8px;font-size:21px;line-height:24px}
 .shape-gallery summary::-webkit-details-marker{display:none}
 .shape-gallery[open] summary{background:#597794;color:white}
-.shape-panel{position:absolute;top:40px;left:0;width:266px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 160px);overflow:auto;padding:10px;background:#fff;border:1px solid #bbc6d0;border-radius:8px;box-shadow:0 5px 15px #26384b30;z-index:50}
+.shape-panel{position:absolute;top:100%;left:clamp(8px,25vw,340px);width:266px;max-width:calc(100vw - 24px);max-height:var(--menu-height);overflow:auto;padding:10px;background:#fff;border:1px solid #bbc6d0;border-radius:8px;box-shadow:0 5px 15px #26384b30;z-index:50}
 .shape-panel h3{font:600 12px Arial,sans-serif;text-transform:uppercase;color:#888;margin:12px 0 6px}
 .shape-panel h3:first-child{margin-top:0}
 .shape-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
@@ -133,16 +135,8 @@ body.board-open{overflow:hidden}
 .shape-grid button svg{width:42px;height:42px}
 .shape-grid button:hover,.shape-grid button[aria-pressed=true]{background:#e1e8ef;border-color:#b9c9d9}
 .shape-grid button:focus-visible{outline:2px solid #168fa5}
-@media(max-width:600px){.shape-panel{position:fixed;left:12px;top:140px;max-height:calc(100dvh - 160px)}}
+@media(max-width:650px){.shape-panel{left:8px}}
 
-/* Anchor the dropdown outside the horizontally scrolling tools container.
-   Positioned descendants escape an intermediate overflow clip when their
-   containing block is the outer command deck. */
-.command-deck .tools,.command-deck .shape-gallery{position:static}
-.command-deck .shape-panel{position:absolute;top:46px;left:clamp(8px,25vw,340px)}
-@media(max-width:600px){
- .command-deck .shape-panel{position:fixed;left:12px;top:140px;max-height:calc(100dvh - 160px)}
-}
 .graph-curve-block{border:1px solid #b9cadb;border-radius:8px;padding:8px 12px;margin:10px 0}
 .graph-curve-block .graph-row{margin:0 0 8px}.graph-curve-block .graph-row select{flex:1}
 .graph-expressions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;direction:ltr;font-size:12px}
@@ -319,14 +313,8 @@ body.board-open{overflow:hidden}
   .command-deck .calculator-toggle{flex-basis:36px}
 }
 @media(max-width:520px){
-  /* Give the scrollable drawing tools a full row even when all style controls are present. */
-  .command-deck{height:auto;flex-wrap:wrap;justify-content:flex-start}
-  .command-deck .tools{flex:1 0 100%;width:100%;overflow-x:auto}
   .command-deck .tool{flex-basis:44px;min-width:44px;height:44px}
-  .command-deck .fill-palette,.command-deck .line-style-menu{position:static}
   .command-deck .fill-palette summary,.command-deck .line-style-menu summary{gap:3px;padding-inline:4px}
   .command-deck .fill-chip{width:14px;height:14px}
   .command-deck .fill-palette summary>span:last-child,.command-deck .line-style-menu summary>span:last-child{display:none}
-  .command-deck .fill-panel,.command-deck .line-style-options{left:4px;right:auto;top:100%}
-  .command-deck .property-menu .properties{top:100%}
 }
