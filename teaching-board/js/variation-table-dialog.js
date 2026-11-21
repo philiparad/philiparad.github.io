@@ -36,7 +36,7 @@ export function variationDialog(existing=null,graphs=[]){
         existing?.session||'teacher');
     const graphSelect=select([['','ללא קישור'],...graphs.map(g=>[
         g.id,'גרף: '+(g.title||g.id.slice(0,8))])],existing?.graphId||'');
-    grid.append(control('סוג הטבלה',mode),control('אופן הצגה',session),
+    grid.append(control('סוג הטבלה',mode),control('מצב עבודה',session),
         control('קישור לגרף בלוח (אופציונלי)',graphSelect));
     for(const [id,label,value] of [
         ['functionSource','f(x)',existing?.functionSource||''],
